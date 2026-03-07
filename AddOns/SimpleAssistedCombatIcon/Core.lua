@@ -72,6 +72,7 @@ local defaults = {
             strata = 3,
             parent = "UIParent",
             parentFrame = "UIParent",
+            InheritFrameVisibility = true,
             point = "CENTER",
             relativePoint = "CENTER",
             X = 0,
@@ -1016,7 +1017,7 @@ function addon:SetupOptions()
         type = "group",
         name = "位置設定",
         inline = false,
-        order = 2,
+        order = 3,
         args = {
             positionGroup = {
                 type = "group",
@@ -1078,7 +1079,7 @@ function addon:SetupOptions()
                     },
                 }
             },
-            group1 = {
+            group2 = {
                 type = "group",
                 name = "顯示層級",
                 inline = true,
@@ -1109,73 +1110,106 @@ function addon:SetupOptions()
                     },
                 }
             },
-            subgroup2 = {
+            group3 = {
                 type = "group",
                 name = "對齊",
+                order = 2,
                 inline = true,
                 args = {
-                    parent = {
-                        type = "select",
-                        name = "父層框架",
-						desc = "輸入框架名稱以便將圖示對齊到該框架。",
-                        values = BuiltinParentFrames,
-                        get = function() return addon.db.profile.position.parentFrame end,
-                        set = function(_, val)
-                            addon.db.profile.position.parentFrame = val
-                            if not val:match("^__") then
-                                addon.db.profile.position.parent = val
-                            end
-                            AssistedCombatIconFrame:ApplyOptions()
-                        end,
+                    subgroup1 = {
+                        type = "group",
+                        name = "",
+                        inline = true,
                         order = 1,
-                        width = 1.2,
+                        args = {
+                            parent = {
+                                type = "select",
+                                name = "對齊框架",
+                                desc = "選擇圖示要對齊的框架。",
+                                values = BuiltinParentFrames,
+                                get = function() return addon.db.profile.position.parentFrame end,
+                                set = function(_, val)
+                                    addon.db.profile.position.parentFrame = val
+                                    if not val:match("^__") then
+                                        addon.db.profile.position.parent = val
+                                    end
+                                    AssistedCombatIconFrame:ApplyOptions()
+                                end,
+                                order = 1,
+                                width = 1.2,
+                            },
+                            point = {
+                                type = "select",
+                                name = "圖示對齊點",
+                                desc = "圖示應該以哪個點作為對齊點?",
+                                values = function()
+                                    local points = {
+                                        ["TOPLEFT"] = "TOPLEFT",
+                                        ["TOP"] = "TOP",
+                                        ["TOPRIGHT"] = "TOPRIGHT",
+                                        ["LEFT"] = "LEFT",
+                                        ["CENTER"] = "CENTER",
+                                        ["RIGHT"] = "RIGHT",
+                                        ["BOTTOMLEFT"] = "BOTTOMLEFT",
+                                        ["BOTTOM"] = "BOTTOM",
+                                        ["BOTTOMRIGHT"] = "BOTTOMRIGHT",
+                                    }
+                                    return points
+                                end,
+                                get = function() return addon.db.profile.position.point end,
+                                set = function(_, val)
+                                    addon.db.profile.position.point = val
+                                    AssistedCombatIconFrame:ApplyOptions()
+                                end,
+                                order = 2,
+                                width = 0.8,
+                            },
+                        },
                     },
-                    frame = {
-                        type = "input",
-                        name = "指定框架",
-                        desc = "輸入框架名稱以便將圖示對齊到該框架。",
-                        get = function() return addon.db.profile.position.parent end,
-                        set = function(_, val)
-                            if val == "" then val = "UIParent" end
-                            addon.db.profile.position.parent = val
-                            AssistedCombatIconFrame:ApplyOptions()
-                        end,
-                        validate = function(info, value)
-                            if not _G[value] then
-                                return "該框架不存在。"
-                            end
-                            return true
-                        end,
-                        hidden = function()
-                            return addon.db.profile.position.parentFrame ~= "__other"
-                        end,
-                        order = 3,
-                    },
-                    point = {
-                        type = "select",
-                        name = "圖示對齊點",
-                        desc = "圖示應該以哪個位置對齊",
-                        values = function()
-                            local points = {
-                                ["TOPLEFT"] = "TOPLEFT",
-                                ["TOP"] = "TOP",
-                                ["TOPRIGHT"] = "TOPRIGHT",
-                                ["LEFT"] = "LEFT",
-                                ["CENTER"] = "CENTER",
-                                ["RIGHT"] = "RIGHT",
-                                ["BOTTOMLEFT"] = "BOTTOMLEFT",
-                                ["BOTTOM"] = "BOTTOM",
-                                ["BOTTOMRIGHT"] = "BOTTOMRIGHT",
-                            }
-                            return points
-                        end,
-                        get = function() return addon.db.profile.position.point end,
-                        set = function(_, val)
-                            addon.db.profile.position.point = val
-                            AssistedCombatIconFrame:ApplyOptions()
-                        end,
+                    subgroup2 = {
+                        type = "group",
+                        name = "",
+                        inline = true,
                         order = 2,
-                        width = 0.8,
+                        args = {
+                            frame = {
+                                type = "input",
+                                name = "指定框架名稱",
+                                desc = "輸入圖示要對齊的框架名稱。",
+                                get = function() return addon.db.profile.position.parent end,
+                                set = function(_, val)
+                                    if val == "" then val = "UIParent" end
+                                    addon.db.profile.position.parent = val
+                                    AssistedCombatIconFrame:ApplyOptions()
+                                end,
+                                validate = function(info, value)
+                                    if not _G[value] then
+                                        return "該框架不存在。"
+                                    end
+                                    return true
+                                end,
+                                hidden = function() return addon.db.profile.position.parentFrame ~= "__other" end,
+                                order = 1,
+                                width = 1.2,
+                            },
+                            VisibilityInherit = {
+                                type = "toggle",
+                                name = "繼承框架的可見性",
+                                desc = "當對齊到的框架不可見時，圖示是否應該隱藏?",
+                                get = function() return addon.db.profile.position.InheritFrameVisibility end,
+                                set = function(_, val)
+                                    addon.db.profile.position.InheritFrameVisibility = val
+                                end,
+                                order = 2,
+                                width = 1.1,
+                                hidden = function()
+                                    local v = addon.db.profile.position.parentFrame == "UIParent"
+                                        or addon.db.profile.position.parentFrame == "__cursor"
+                                        or addon.db.profile.position.parentFrame == "__nameplate"
+                                    return v
+                                end,
+                            },
+                        },
                     },
                     warning = {
                         type = "group",
@@ -1185,7 +1219,7 @@ function addon:SetupOptions()
                         args = {
                             parentWarning = {
                                 type = "description",
-                                name = "|cffffa000當父層框架不是設為螢幕畫面時，將會停用解鎖與拖曳圖示功能。|r\n\n|cffffa000當對齊框架設為某個檢視器時，冷卻管理插件可能會干擾簡易輸出助手。|r"
+                                name = "|cffffa000當父層框架不是設為螢幕畫面時，將會停用解鎖與拖曳圖示的功能。|r",
                             },
                         },
                     },
