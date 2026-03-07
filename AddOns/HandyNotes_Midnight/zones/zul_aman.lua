@@ -238,10 +238,12 @@ map.nodes[45294170] = Rare({
 -------------------------------------------------------------------------------
 
 map.nodes[44724409] = Treasure({
+    label = L['abandoned_ritual_skull'],
+    icon = 'star_chest_b',
+    scale = 1.5,
     requires = ns.requirement.Item(259361, 1000), -- Vile Essence
     quest = 90794,
     rewards = {
-        Achievement({id = 62125, criteria = 111854}),
         Mount({item = 257444, id = 2786}) -- Hexed Vilefeather Eagle
     }
 }) -- Abandoned Ritual Skull
@@ -328,6 +330,7 @@ aam.nodes[65143476] = PT.Engineering({
     parent = map.id
 }) -- Offline Helper Bot
 map.nodes[34218780] = PT.Engineering({quest = 89140, id = 238563}) -- Handy Wrench
+map.nodes[41914591] = PT.Herbalism({quest = 89161, id = 238469}) -- Sweeping Harvester's Scythe
 map.nodes[40484935] = PT.Inscription({quest = 89068, id = 238573}) -- Leather-Bound Techniques
 aam.nodes[45294561] = PT.Leatherworking({
     quest = 89092,
