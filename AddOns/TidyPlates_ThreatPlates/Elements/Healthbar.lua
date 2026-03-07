@@ -79,7 +79,7 @@ if Addon.IS_MAINLINE then
     -- heal_absorb = 0.25 * UnitHealth(unitid)
     -- absorb = UnitHealthMax(unitid) * 0.3 -- REMOVE
     -- health = health_max * 0.75 -- REMOVE
-    -- visual.healthbar:SetValue(health)
+    -- visual.Healthbar:SetValue(health)
 
     if Settings.ShowHealAbsorbs and heal_absorb > 0 then
       healthbar.HealAbsorbGlow:SetShown(heal_absorb > health)
@@ -258,6 +258,8 @@ local function ShowTargetUnit(healthbar, unitid)
 end
 
 local function UpdateTargetUnit(healthbar, unitid)
+  if Addon.ExpansionIsAtLeastMidnight then return end
+
   if SettingsTargetUnitHide or (SettingsShowOnlyForTarget and not UnitIsUnit("target", unitid)) or (SettingsTargetUnit.ShowOnlyInCombat and not InCombatLockdown()) then
     HideTargetUnit(healthbar)
   else
@@ -518,7 +520,7 @@ function Element.UpdateSettings()
 
   SubscribeEvent(Element, "HealthbarColorUpdate", ColorUpdate)
 
-  if SettingsTargetUnit.Show then
+  if not Addon.ExpansionIsAtLeastMidnight and SettingsTargetUnit.Show then
     SubscribeEvent(Element, "UNIT_TARGET", UNIT_TARGET)
     SubscribeEvent(Element, "ThreatUpdate", UnitThreatUpdate)
     SubscribeEvent(Element, "TargetLost", PlayerTargetLost)
