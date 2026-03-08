@@ -295,13 +295,11 @@ end
 local tName;
 local function VUHDO_forgetTargetButton(aTargetUnit, aButton)
 	tName = VUHDO_IN_RAID_TARGETS[aTargetUnit];
-	if tName then
-		if not VUHDO_IN_RAID_TARGET_BUTTONS[tName] then
-			VUHDO_IN_RAID_TARGET_BUTTONS[tName] = { };
-		end
+	if tName and VUHDO_IN_RAID_TARGET_BUTTONS[tName] then
 		VUHDO_IN_RAID_TARGET_BUTTONS[tName][aButton] = nil;
 	end
 end
+
 
 
 --

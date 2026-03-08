@@ -89,6 +89,7 @@ VuhDoNewOptionsDebuffsStandard.xml
 VuhDoNewOptionsDebuffsCustom.xml
 VuhDoNewOptionsDebuffsCustomVisuals.xml
 VuhDoNewOptionsAuraGroups.xml
+VuhDoNewOptionsAuraIgnore.xml
 VuhDoNewOptionsAura.xml
 VuhDoNewOptionsTools.xml
 VuhDoNewOptionsToolsSkins.xml

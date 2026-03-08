@@ -6,24 +6,31 @@ local floor = math.floor;
 local max = math.max;
 
 local InCombatLockdown = InCombatLockdown;
-local UnitCanAttack = UnitCanAttack;
 local CreateFrame = CreateFrame;
 local CreateFramePool = CreateFramePool;
 local GetAuraDuration = C_UnitAuras and C_UnitAuras.GetAuraDuration;
 local CreateDuration = C_DurationUtil and C_DurationUtil.CreateDuration;
 local GetAuraApplicationDisplayCount = C_UnitAuras and C_UnitAuras.GetAuraApplicationDisplayCount;
 local GetAuraDispelTypeColor = C_UnitAuras and C_UnitAuras.GetAuraDispelTypeColor;
+local GetAuraDataByAuraInstanceID = C_UnitAuras and C_UnitAuras.GetAuraDataByAuraInstanceID;
+local GetSpellAuraSecrecy = C_Secrets and C_Secrets.GetSpellAuraSecrecy;
 local issecretvalue = issecretvalue;
 local AbbreviateNumbers = AbbreviateNumbers;
 local CreateCurve = C_CurveUtil and C_CurveUtil.CreateCurve;
 local CreateColorCurve = C_CurveUtil and C_CurveUtil.CreateColorCurve;
 local CreateColor = CreateColor;
+local format = string.format;
 
 local VUHDO_PANEL_SETUP;
+local VUHDO_CONFIG;
 local VUHDO_RAID;
+local VUHDO_AURA_IGNORE_LIST;
 local VUHDO_BUTTON_CACHE;
 local VUHDO_UNIT_AURA_CACHE;
 local VUHDO_UNIT_AURA_SLOTS;
+local VUHDO_UNIT_AURA_LIST_SLOTS;
+local VUHDO_AURA_GROUP_TYPE_LIST;
+local VUHDO_ATLAS_TEXTURES;
 local VUHDO_STATUSBAR_LEFT_TO_RIGHT;
 local VUHDO_STATUSBAR_RIGHT_TO_LEFT;
 local VUHDO_STATUSBAR_BOTTOM_TO_TOP;
@@ -45,6 +52,7 @@ local VUHDO_textColor;
 local VUHDO_setLlcStatusBarTexture;
 local VUHDO_setStatusBarOrientation;
 local VUHDO_getClassColor;
+local VUHDO_backColor;
 local VUHDO_safeColorFromTable;
 local VUHDO_resolveAuraTriState;
 local VUHDO_getAuraGroup;
@@ -353,6 +361,8 @@ local sAuraTimerCount = 0;
 
 local sAuraIconPool;
 local sAuraBarPool;
+local sSlotDataAsAuraPool;
+local sSlotAssignmentPool;
 
 local sAuraBackdropInfo = {
 	["edgeFile"] = "Interface\\Buttons\\WHITE8X8",
@@ -394,7 +404,9 @@ end
 function VUHDO_barCustomizerAurasInitLocalOverrides()
 
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
+	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
+	VUHDO_AURA_IGNORE_LIST = _G["VUHDO_AURA_IGNORE_LIST"];
 	VUHDO_BUTTON_CACHE = _G["VUHDO_BUTTON_CACHE"];
 	VUHDO_UNIT_AURA_CACHE = _G["VUHDO_UNIT_AURA_CACHE"];
 	VUHDO_UNIT_AURA_SLOTS = _G["VUHDO_UNIT_AURA_SLOTS"];
@@ -402,6 +414,9 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 	VUHDO_STATUSBAR_RIGHT_TO_LEFT = _G["VUHDO_STATUSBAR_RIGHT_TO_LEFT"];
 	VUHDO_STATUSBAR_BOTTOM_TO_TOP = _G["VUHDO_STATUSBAR_BOTTOM_TO_TOP"];
 	VUHDO_STATUSBAR_TOP_TO_BOTTOM = _G["VUHDO_STATUSBAR_TOP_TO_BOTTOM"];
+	VUHDO_UNIT_AURA_LIST_SLOTS = _G["VUHDO_UNIT_AURA_LIST_SLOTS"];
+	VUHDO_AURA_GROUP_TYPE_LIST = _G["VUHDO_AURA_GROUP_TYPE_LIST"];
+	VUHDO_ATLAS_TEXTURES = _G["VUHDO_ATLAS_TEXTURES"];
 
 	VUHDO_PixelUtil = _G["VUHDO_PixelUtil"];
 	VUHDO_UIFrameFlash = _G["VUHDO_UIFrameFlash"];
@@ -419,11 +434,15 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 	VUHDO_setLlcStatusBarTexture = _G["VUHDO_setLlcStatusBarTexture"];
 	VUHDO_setStatusBarOrientation = _G["VUHDO_setStatusBarOrientation"];
 	VUHDO_getClassColor = _G["VUHDO_getClassColor"];
+	VUHDO_backColor = _G["VUHDO_backColor"];
 	VUHDO_safeColorFromTable = _G["VUHDO_safeColorFromTable"];
 	VUHDO_setAnchorSlotAuraId = _G["VUHDO_setAnchorSlotAuraId"];
 	VUHDO_resolveAuraTriState = _G["VUHDO_resolveAuraTriState"];
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
 	VUHDO_getDispelCurveForUnit = _G["VUHDO_getDispelCurveForUnit"];
+
+	sSlotDataAsAuraPool = VUHDO_createTablePool("SlotDataAsAura", 500);
+	sSlotAssignmentPool = VUHDO_createTablePool("SlotAssignment", 200);
 
 	VUHDO_initAuraDurationCurves();
 	VUHDO_initAuraTimer();
@@ -437,1084 +456,1188 @@ end
 
 
 --
-local tPanelNum;
-local tBarHeight;
-local function VUHDO_getAuraIconSizePixels(aButton, anAnchorConfig)
+local tAuraIgnoreModi;
+local function VUHDO_areAuraIgnoreModifiersPressed()
+
+	if not VUHDO_CONFIG then
+		return IsAltKeyDown() and IsControlKeyDown() and IsShiftKeyDown();
+	end
+
+	tAuraIgnoreModi = VUHDO_CONFIG["AURA_IGNORE_MODI"] or "ALT-CTRL-SHIFT";
+
+	if tAuraIgnoreModi == "OFF" then
+		return false;
+	elseif tAuraIgnoreModi == "ALT-CTRL-SHIFT" then
+		return IsAltKeyDown() and IsControlKeyDown() and IsShiftKeyDown();
+	elseif tAuraIgnoreModi == "ALT-SHIFT" then
+		return IsAltKeyDown() and IsShiftKeyDown() and not IsControlKeyDown();
+	elseif tAuraIgnoreModi == "ALT-CTRL" then
+		return IsAltKeyDown() and IsControlKeyDown() and not IsShiftKeyDown();
+	elseif tAuraIgnoreModi == "CTRL-SHIFT" then
+		return IsControlKeyDown() and IsShiftKeyDown() and not IsAltKeyDown();
+	elseif tAuraIgnoreModi == "SHIFT" then
+		return IsShiftKeyDown() and not IsAltKeyDown() and not IsControlKeyDown();
+	elseif tAuraIgnoreModi == "CTRL" then
+		return IsControlKeyDown() and not IsAltKeyDown() and not IsShiftKeyDown();
+	elseif tAuraIgnoreModi == "ALT" then
+		return IsAltKeyDown() and not IsControlKeyDown() and not IsShiftKeyDown();
+	end
+
+	return false;
+
+end
+
+
+
+--
+local tAuraData;
+local tSpellId;
+local tSecrecy;
+local tDisplayName;
+local tCombo;
+function VUHDO_addAuraToIgnoreList(aUnit, anAuraInstanceId)
+
+	if not aUnit or not anAuraInstanceId then
+		return;
+	end
+
+	tAuraData = GetAuraDataByAuraInstanceID(aUnit, anAuraInstanceId);
+
+	if not tAuraData or not tAuraData["spellId"] then
+		return;
+	end
+
+	if issecretvalue(tAuraData["spellId"]) then
+		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_SPELL_ALWAYS_SECRET, 1, 0.3, 0.3);
+
+		return;
+	end
+
+	tSpellId = tAuraData["spellId"];
+
+	tSecrecy = GetSpellAuraSecrecy(tSpellId);
+
+	if tSecrecy == 1 then
+		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_SPELL_ALWAYS_SECRET, 1, 0.3, 0.3);
+
+		return;
+	end
+
+	if VUHDO_AURA_IGNORE_LIST[tSpellId] then
+		return;
+	end
+
+	VUHDO_AURA_IGNORE_LIST[tSpellId] = true;
+
+	tDisplayName = VUHDO_formatAuraSpellDisplayName(tSpellId);
+	VUHDO_Msg(format(VUHDO_I18N_AURA_ADDED_TO_IGNORE_LIST, tDisplayName));
+
+	VUHDO_showAllAuras();
+
+	tCombo = _G["VuhDoNewOptionsAuraIgnoreIgnorePanelIgnoreComboBox"];
+
+	if tCombo then
+		VUHDO_initAuraIgnoreComboModel();
+
+		VUHDO_lnfComboBoxInitFromModel(tCombo);
+
+		tCombo:Hide();
+		tCombo:Show();
+	end
+
+	return;
+
+end
+
+
+
+--
+local VUHDO_AURA_IGNORE_GLOBAL_HANDLER_FRAME = CreateFrame("Frame");
+VUHDO_AURA_IGNORE_GLOBAL_HANDLER_FRAME:RegisterEvent("GLOBAL_MOUSE_DOWN");
+VUHDO_AURA_IGNORE_GLOBAL_HANDLER_FRAME:SetScript("OnEvent", function(self, anEvent, aButton)
+
+	if anEvent == "GLOBAL_MOUSE_DOWN" and aButton == "RightButton" and VUHDO_areAuraIgnoreModifiersPressed() then
+		local tButtons;
+		local tFrameName;
+
+		for tUnit, _ in pairs(VUHDO_RAID) do
+			tButtons = VUHDO_getUnitButtonsSafe(tUnit);
+
+			for _, tButton in pairs(tButtons) do
+				tFrameName = tButton:GetName();
+
+				if VUHDO_AURA_FRAMES[tFrameName] then
+					for tAnchorIndex, tAnchorFrames in pairs(VUHDO_AURA_FRAMES[tFrameName]) do
+						for tSlotIndex, tFrame in pairs(tAnchorFrames) do
+							if tFrame and tFrame["auraInstanceId"] and tFrame:IsMouseOver() then
+								VUHDO_addAuraToIgnoreList(tButton:GetAttribute("unit"), tFrame["auraInstanceId"]);
+
+								return;
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+end);
+
+
+
+do
+	--
+	local tPanelNum;
+	local tBarHeight;
+	function VUHDO_getAuraIconSizePixels(aButton, anAnchorConfig)
 
 	tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
 	tBarHeight = tPanelNum and VUHDO_getHealthBarHeight(tPanelNum) or 40;
 
 	return tBarHeight * (anAnchorConfig["size"] or 40) * 0.01;
 
-end
-
-
-
---
-local tPanelNum;
-local tBarHeight;
-local function VUHDO_getAuraBarHeightPixels(aButton, anAnchorConfig)
-
-	tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
-	tBarHeight = tPanelNum and VUHDO_getHealthBarHeight(tPanelNum) or 40;
-
-	return tBarHeight * (anAnchorConfig["barHeight"] or 30) * 0.01;
-
-end
-
-
-
---
-local tBarWidth;
-local tAvailableWidth;
-local function VUHDO_getAuraBarWidthPixels(aButton, anAnchorConfig)
-
-	tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
-	tBarWidth = tPanelNum and VUHDO_getHealthBarWidth(tPanelNum) or 80;
-	tAvailableWidth = max(0, tBarWidth - VUHDO_getAuraBarHeightPixels(aButton, anAnchorConfig));
-
-	return tAvailableWidth * (anAnchorConfig["barWidth"] or 100) * 0.01;
-
-end
-
-
-
---
-local function VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig)
-
-	tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
-
-	tBarWidth = tPanelNum and VUHDO_getHealthBarWidth(tPanelNum) or 80;
-
-	return tBarWidth * (anAnchorConfig["barWidth"] or 30) * 0.01;
-
-end
-
-
-
---
-local tAvailableHeight;
-local tIconSize;
-local function VUHDO_getAuraBarHeightPixelsVertical(aButton, anAnchorConfig)
-
-	tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
-
-	tBarHeight = tPanelNum and VUHDO_getHealthBarHeight(tPanelNum) or 40;
-	tIconSize = VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig);
-
-	tAvailableHeight = max(0, tBarHeight - tIconSize);
-
-	return tAvailableHeight * (anAnchorConfig["barHeight"] or 100) * 0.01;
-
-end
-
-
-
---
-local tChild;
-local function VUHDO_getAuraIconBackdrop(aFrame)
-
-	tChild = aFrame:GetChildren();
-
-	return tChild;
-
-end
-
-
-
---
-local tRegion;
-local function VUHDO_getAuraIconTexture(aBackdropFrame)
-
-	tRegion = aBackdropFrame:GetRegions();
-
-	return tRegion;
-
-end
-
-
-
---
-local tTimer;
-local function VUHDO_getAuraIconTimer(aBackdropFrame)
-
-	_, tTimer = aBackdropFrame:GetRegions();
-
-	return tTimer;
-
-end
-
-
-
---
-local tCounter;
-local function VUHDO_getAuraIconCounter(aBackdropFrame)
-
-	_, _, tCounter = aBackdropFrame:GetRegions();
-
-	return tCounter;
-
-end
-
-
-
---
-local tCooldown;
-local function VUHDO_getAuraIconCooldown(aBackdropFrame)
-
-	tCooldown = aBackdropFrame:GetChildren();
-
-	return tCooldown;
-
-end
-
-
-
---
-local tChargeFrame;
-local function VUHDO_getAuraIconChargeFrame(aBackdropFrame)
-
-	_, tChargeFrame = aBackdropFrame:GetChildren();
-
-	return tChargeFrame;
-
-end
-
-
-
---
-local tRegion;
-local function VUHDO_getAuraIconChargeTexture(aChargeFrame)
-
-	_, tRegion = aChargeFrame:GetRegions();
-
-	return tRegion;
-end
-
-
-
---
-local tBar;
-local function VUHDO_getAuraBarStatusBar(aFrame)
-
-	_, tBar = aFrame:GetChildren();
-
-	return tBar;
-
-end
-
-
-
---
-local tIcon;
-local function VUHDO_getAuraBarIconTexture(aFrame)
-
-	tIcon = aFrame:GetRegions();
-
-	return tIcon;
-
-end
-
-
-
---
-local tTimer;
-local function VUHDO_getAuraBarTimer(aFrame)
-
-	_, tTimer = aFrame:GetRegions();
-
-	return tTimer;
-
-end
-
-
-
---
-local tCounter;
-local function VUHDO_getAuraBarCounter(aFrame)
-
-	_, _, tCounter = aFrame:GetRegions();
-
-	return tCounter;
-
-end
-
-
-
---
-local tCooldown;
-local function VUHDO_getAuraBarCooldown(aFrame)
-
-	tCooldown = aFrame:GetChildren();
-
-	return tCooldown;
-
-end
-
-
-
---
-local tColors;
-local tTransparent;
-function VUHDO_initAuraDurationCurves()
-
-	sCurveTimerVisible = CreateCurve();
-	sCurveTimerVisible:SetType(Enum.LuaCurveType.Step);
-	sCurveTimerVisible:AddPoint(0, 0);
-	sCurveTimerVisible:AddPoint(0.1, 1);
-	sCurveTimerVisible:AddPoint(9.99, 0);
-
-	sCurveFlashZone = CreateCurve();
-	sCurveFlashZone:SetType(Enum.LuaCurveType.Step);
-	sCurveFlashZone:AddPoint(0, 0);
-	sCurveFlashZone:AddPoint(0.1, 1);
-	sCurveFlashZone:AddPoint(4.9, 0);
-
-	sCurveFadeAlpha = CreateCurve();
-	sCurveFadeAlpha:SetType(Enum.LuaCurveType.Linear);
-	sCurveFadeAlpha:AddPoint(0, 0);
-	sCurveFadeAlpha:AddPoint(10, 1);
-
-	sCurveTimerColor = CreateColorCurve();
-	sCurveTimerColor:SetType(Enum.LuaCurveType.Step);
-	sCurveTimerColor:AddPoint(0, CreateColor(1, 1, 1, 1));
-	sCurveTimerColor:AddPoint(0.1, CreateColor(1, 0.2, 0.2, 1));
-	sCurveTimerColor:AddPoint(4.9, CreateColor(1, 1, 1, 1));
-
-	tColors = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"];
-	tTransparent = CreateColor(0, 0, 0, 0);
-	sAuraDispelCurve = CreateColorCurve();
-	sAuraDispelCurve:SetType(Enum.LuaCurveType.Step);
-	sAuraDispelCurve:AddPoint(0, tTransparent);
-
-	if tColors and tColors["DEBUFF3"] and tColors["DEBUFF3"]["useBorder"] then
-		sAuraDispelCurve:AddPoint(1, VUHDO_safeColorFromTable(tColors["DEBUFF3"], tTransparent));
-	else
-		sAuraDispelCurve:AddPoint(1, tTransparent);
 	end
 
-	if tColors and tColors["DEBUFF4"] and tColors["DEBUFF4"]["useBorder"] then
-		sAuraDispelCurve:AddPoint(2, VUHDO_safeColorFromTable(tColors["DEBUFF4"], tTransparent));
-	else
-		sAuraDispelCurve:AddPoint(2, tTransparent);
+
+
+	--
+	local tPanelNum;
+	local tBarHeight;
+	function VUHDO_getAuraBarHeightPixels(aButton, anAnchorConfig)
+
+		tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
+		tBarHeight = tPanelNum and VUHDO_getHealthBarHeight(tPanelNum) or 40;
+
+		return tBarHeight * (anAnchorConfig["barHeight"] or 30) * 0.01;
+
 	end
 
-	if tColors and tColors["DEBUFF2"] and tColors["DEBUFF2"]["useBorder"] then
-		sAuraDispelCurve:AddPoint(3, VUHDO_safeColorFromTable(tColors["DEBUFF2"], tTransparent));
-	else
-		sAuraDispelCurve:AddPoint(3, tTransparent);
+
+
+	--
+	local tBarWidth;
+	local tAvailableWidth;
+	function VUHDO_getAuraBarWidthPixels(aButton, anAnchorConfig)
+
+		tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
+		tBarWidth = tPanelNum and VUHDO_getHealthBarWidth(tPanelNum) or 80;
+		tAvailableWidth = max(0, tBarWidth - VUHDO_getAuraBarHeightPixels(aButton, anAnchorConfig));
+
+		return tAvailableWidth * (anAnchorConfig["barWidth"] or 100) * 0.01;
+
 	end
 
-	if tColors and tColors["DEBUFF1"] and tColors["DEBUFF1"]["useBorder"] then
-		sAuraDispelCurve:AddPoint(4, VUHDO_safeColorFromTable(tColors["DEBUFF1"], tTransparent));
-	else
-		sAuraDispelCurve:AddPoint(4, tTransparent);
+
+
+	--
+	function VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig)
+
+		tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
+
+		tBarWidth = tPanelNum and VUHDO_getHealthBarWidth(tPanelNum) or 80;
+
+		return tBarWidth * (anAnchorConfig["barWidth"] or 30) * 0.01;
+
 	end
 
-	if tColors and tColors["DEBUFF9"] and tColors["DEBUFF9"]["useBorder"] then
-		sAuraDispelCurve:AddPoint(9, VUHDO_safeColorFromTable(tColors["DEBUFF9"], tTransparent));
-	else
-		sAuraDispelCurve:AddPoint(9, tTransparent);
+
+
+	--
+	local tAvailableHeight;
+	local tIconSize;
+	function VUHDO_getAuraBarHeightPixelsVertical(aButton, anAnchorConfig)
+
+		tPanelNum = VUHDO_BUTTON_CACHE and VUHDO_BUTTON_CACHE[aButton];
+
+		tBarHeight = tPanelNum and VUHDO_getHealthBarHeight(tPanelNum) or 40;
+		tIconSize = VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig);
+
+		tAvailableHeight = max(0, tBarHeight - tIconSize);
+
+		return tAvailableHeight * (anAnchorConfig["barHeight"] or 100) * 0.01;
+
 	end
 
-	if tColors and tColors["DEBUFF8"] and tColors["DEBUFF8"]["useBorder"] then
-		sAuraDispelCurve:AddPoint(11, VUHDO_safeColorFromTable(tColors["DEBUFF8"], tTransparent));
-	else
-		sAuraDispelCurve:AddPoint(11, tTransparent);
+
+
+	--
+	local tChild;
+	function VUHDO_getAuraIconBackdrop(aFrame)
+
+		tChild = aFrame:GetChildren();
+
+		return tChild;
+
 	end
 
-	return;
-
-end
 
 
+	--
+	local tRegion;
+	function VUHDO_getAuraIconTexture(aBackdropFrame)
 
---
-function VUHDO_getAuraDispelCurve()
+		tRegion = aBackdropFrame:GetRegions();
 
-	return sAuraDispelCurve;
+		return tRegion;
 
-end
-
-
-
---
-local tGroup;
-local tCanAttack;
-local tInfo;
-function VUHDO_getAuraDispelCurveForContext(aUnit, anAnchorConfig)
-
-	if not aUnit or not anAnchorConfig then
-		return nil;
 	end
 
-	tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
 
-	if not tGroup then
-		return nil;
+
+	--
+	local tTimer;
+	local function VUHDO_getAuraIconTimer(aBackdropFrame)
+
+		_, tTimer = aBackdropFrame:GetRegions();
+
+		return tTimer;
+
 	end
 
-	tInfo = VUHDO_RAID[aUnit];
 
-	if not tInfo then
-		return nil;
+
+	--
+	local tCounter;
+	local function VUHDO_getAuraIconCounter(aBackdropFrame)
+
+		_, _, tCounter = aBackdropFrame:GetRegions();
+
+		return tCounter;
+
 	end
 
-	tCanAttack = tInfo["canAttack"];
 
-	if tGroup["isHarmful"] ~= tCanAttack then
+
+	--
+	local tCooldown;
+	local function VUHDO_getAuraIconCooldown(aBackdropFrame)
+
+		tCooldown = aBackdropFrame:GetChildren();
+
+		return tCooldown;
+
+	end
+
+
+
+	--
+	local tChargeFrame;
+	local function VUHDO_getAuraIconChargeFrame(aBackdropFrame)
+
+		_, tChargeFrame = aBackdropFrame:GetChildren();
+
+		return tChargeFrame;
+
+	end
+
+
+
+	--
+	local tRegion;
+	local function VUHDO_getAuraIconChargeTexture(aChargeFrame)
+
+		_, tRegion = aChargeFrame:GetRegions();
+
+		return tRegion;
+	end
+
+
+
+	--
+	local tBar;
+	function VUHDO_getAuraBarStatusBar(aFrame)
+
+		_, tBar = aFrame:GetChildren();
+
+		return tBar;
+
+	end
+
+
+
+	--
+	local tIcon;
+	local function VUHDO_getAuraBarIconTexture(aFrame)
+
+		tIcon = aFrame:GetRegions();
+
+		return tIcon;
+
+	end
+
+
+
+	--
+	local tTimer;
+	local function VUHDO_getAuraBarTimer(aFrame)
+
+		_, tTimer = aFrame:GetRegions();
+
+		return tTimer;
+
+	end
+
+
+
+	--
+	local tCounter;
+	local function VUHDO_getAuraBarCounter(aFrame)
+
+		_, _, tCounter = aFrame:GetRegions();
+
+		return tCounter;
+
+	end
+
+
+
+	--
+	local tCooldown;
+	local function VUHDO_getAuraBarCooldown(aFrame)
+
+		tCooldown = aFrame:GetChildren();
+
+		return tCooldown;
+
+	end
+
+
+
+	--
+	local tColors;
+	local tTransparent;
+	function VUHDO_initAuraDurationCurves()
+
+		sCurveTimerVisible = CreateCurve();
+		sCurveTimerVisible:SetType(Enum.LuaCurveType.Step);
+		sCurveTimerVisible:AddPoint(0, 0);
+		sCurveTimerVisible:AddPoint(0.1, 1);
+		sCurveTimerVisible:AddPoint(9.99, 0);
+
+		sCurveFlashZone = CreateCurve();
+		sCurveFlashZone:SetType(Enum.LuaCurveType.Step);
+		sCurveFlashZone:AddPoint(0, 0);
+		sCurveFlashZone:AddPoint(0.1, 1);
+		sCurveFlashZone:AddPoint(4.9, 0);
+
+		sCurveFadeAlpha = CreateCurve();
+		sCurveFadeAlpha:SetType(Enum.LuaCurveType.Linear);
+		sCurveFadeAlpha:AddPoint(0, 0);
+		sCurveFadeAlpha:AddPoint(10, 1);
+
+		sCurveTimerColor = CreateColorCurve();
+		sCurveTimerColor:SetType(Enum.LuaCurveType.Step);
+		sCurveTimerColor:AddPoint(0, CreateColor(1, 1, 1, 1));
+		sCurveTimerColor:AddPoint(0.1, CreateColor(1, 0.2, 0.2, 1));
+		sCurveTimerColor:AddPoint(4.9, CreateColor(1, 1, 1, 1));
+
+		tColors = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"];
+		tTransparent = CreateColor(0, 0, 0, 0);
+		sAuraDispelCurve = CreateColorCurve();
+		sAuraDispelCurve:SetType(Enum.LuaCurveType.Step);
+		sAuraDispelCurve:AddPoint(0, tTransparent);
+
+		if tColors and tColors["DEBUFF3"] and tColors["DEBUFF3"]["useBorder"] then
+			sAuraDispelCurve:AddPoint(1, VUHDO_safeColorFromTable(tColors["DEBUFF3"], tTransparent));
+		else
+			sAuraDispelCurve:AddPoint(1, tTransparent);
+		end
+
+		if tColors and tColors["DEBUFF4"] and tColors["DEBUFF4"]["useBorder"] then
+			sAuraDispelCurve:AddPoint(2, VUHDO_safeColorFromTable(tColors["DEBUFF4"], tTransparent));
+		else
+			sAuraDispelCurve:AddPoint(2, tTransparent);
+		end
+
+		if tColors and tColors["DEBUFF2"] and tColors["DEBUFF2"]["useBorder"] then
+			sAuraDispelCurve:AddPoint(3, VUHDO_safeColorFromTable(tColors["DEBUFF2"], tTransparent));
+		else
+			sAuraDispelCurve:AddPoint(3, tTransparent);
+		end
+
+		if tColors and tColors["DEBUFF1"] and tColors["DEBUFF1"]["useBorder"] then
+			sAuraDispelCurve:AddPoint(4, VUHDO_safeColorFromTable(tColors["DEBUFF1"], tTransparent));
+		else
+			sAuraDispelCurve:AddPoint(4, tTransparent);
+		end
+
+		if tColors and tColors["DEBUFF9"] and tColors["DEBUFF9"]["useBorder"] then
+			sAuraDispelCurve:AddPoint(9, VUHDO_safeColorFromTable(tColors["DEBUFF9"], tTransparent));
+		else
+			sAuraDispelCurve:AddPoint(9, tTransparent);
+		end
+
+		if tColors and tColors["DEBUFF8"] and tColors["DEBUFF8"]["useBorder"] then
+			sAuraDispelCurve:AddPoint(11, VUHDO_safeColorFromTable(tColors["DEBUFF8"], tTransparent));
+		else
+			sAuraDispelCurve:AddPoint(11, tTransparent);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_getAuraDispelCurve()
+
 		return sAuraDispelCurve;
+
 	end
 
-	return nil;
-
-end
 
 
+	--
+	local tGroup;
+	local tCanAttack;
+	local tInfo;
+	function VUHDO_getAuraDispelCurveForContext(aUnit, anAnchorConfig)
 
---
-local tGroup;
-function VUHDO_getDispelCurveForContext(aUnit, anAnchorConfig)
+		if not aUnit or not anAnchorConfig then
+			return nil;
+		end
 
-	if not aUnit or not anAnchorConfig then
+		tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
+
+		if not tGroup then
+			return nil;
+		end
+
+		tInfo = VUHDO_RAID[aUnit];
+
+		if not tInfo then
+			return nil;
+		end
+
+		tCanAttack = tInfo["canAttack"];
+
+		if tGroup["isHarmful"] ~= tCanAttack then
+			return sAuraDispelCurve;
+		end
+
 		return nil;
+
 	end
 
-	tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
 
-	if not tGroup then
-		return nil;
+
+	--
+	local tGroup;
+	function VUHDO_getDispelCurveForContext(aUnit, anAnchorConfig)
+
+		if not aUnit or not anAnchorConfig then
+			return nil;
+		end
+
+		tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
+
+		if not tGroup then
+			return nil;
+		end
+
+		return VUHDO_getDispelCurveForUnit(aUnit, tGroup["isHarmful"]);
+
 	end
 
-	return VUHDO_getDispelCurveForUnit(aUnit, tGroup["isHarmful"]);
-
-end
 
 
+	--
+	local tRemainingSeconds;
+	local tDurationText;
+	local tTimerVisibility;
+	local tTimerColorMixin;
+	local function VUHDO_auraTimerOnLoop()
 
---
-local tRemainingSeconds;
-local tDurationText;
-local tTimerVisibility;
-local tTimerColorMixin;
-local function VUHDO_auraTimerOnLoop()
+		for tFontString, tDurationObj in pairs(sAuraTimerData) do
+			if tDurationObj and sCurveTimerVisible then
+				tRemainingSeconds = tDurationObj:GetRemainingDuration();
 
-	for tFontString, tDurationObj in pairs(sAuraTimerData) do
-		if tDurationObj and sCurveTimerVisible then
-			tRemainingSeconds = tDurationObj:GetRemainingDuration();
+				tDurationText = AbbreviateNumbers(tRemainingSeconds, sTimeAbbrevData);
+				tFontString:SetText(tDurationText or "");
 
-			tDurationText = AbbreviateNumbers(tRemainingSeconds, sTimeAbbrevData);
-			tFontString:SetText(tDurationText or "");
+				if sCurveTimerColor then
+					tTimerColorMixin = tDurationObj:EvaluateRemainingDuration(sCurveTimerColor);
+					tFontString:SetTextColor(tTimerColorMixin:GetRGBA());
+				end
 
-			if sCurveTimerColor then
-				tTimerColorMixin = tDurationObj:EvaluateRemainingDuration(sCurveTimerColor);
-				tFontString:SetTextColor(tTimerColorMixin:GetRGBA());
+				tTimerVisibility = tDurationObj:EvaluateRemainingDuration(sCurveTimerVisible);
+				tFontString:SetAlpha(tTimerVisibility);
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_initAuraTimer()
+
+		if sAuraTimerFrame then
+			return;
+		end
+
+		sAuraTimerFrame = CreateFrame("Frame");
+		sAuraTimerFrame:Hide();
+
+		sAuraTimerAnimGroup = sAuraTimerFrame:CreateAnimationGroup();
+		sAuraTimerAnimGroup:SetLooping("REPEAT");
+		sAuraTimerAnimation = sAuraTimerAnimGroup:CreateAnimation();
+		sAuraTimerAnimation:SetDuration(0.1);
+		sAuraTimerAnimGroup:SetScript("OnLoop", VUHDO_auraTimerOnLoop);
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_registerAuraTimerText(aFontString, aDurationObj)
+
+		if not aFontString or not aDurationObj then
+			return;
+		end
+
+		if not sAuraTimerData[aFontString] then
+			sAuraTimerCount = sAuraTimerCount + 1;
+		end
+
+		sAuraTimerData[aFontString] = aDurationObj;
+
+		if sAuraTimerCount == 1 and sAuraTimerAnimGroup then
+			sAuraTimerAnimGroup:Play();
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_unregisterAuraTimerText(aFontString)
+
+		if not aFontString then
+			return;
+		end
+
+		if not sAuraTimerData[aFontString] then
+			return;
+		end
+
+		sAuraTimerData[aFontString] = nil;
+		sAuraTimerCount = sAuraTimerCount - 1;
+
+		if sAuraTimerCount == 0 and sAuraTimerAnimGroup then
+			sAuraTimerAnimGroup:Stop();
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local function VUHDO_auraFramePoolReset(aPool, aFrame)
+
+		if aFrame["childB"] and aFrame["childB"]["chargeTexture"] then
+			aFrame["childB"]["chargeTexture"]:Hide();
+		end
+
+		aFrame:Hide();
+		aFrame:ClearAllPoints();
+		aFrame:SetParent(UIParent);
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_initAuraFramePools()
+
+		if sAuraIconPool then
+			return;
+		end
+
+		sAuraIconPool = CreateFramePool("Frame", nil, "VuhDoAuraAnchorIconTemplate", VUHDO_auraFramePoolReset);
+		sAuraBarPool = CreateFramePool("Frame", nil, "VuhDoAuraAnchorBarTemplate", VUHDO_auraFramePoolReset);
+
+		return;
+
+	end
+
+
+
+	--
+	local sAuraOnEnterSnippet = [[
+		tFrame = self:GetAttribute("vuhdo_button");
+
+		if not tFrame then
+			tFrame = self:GetParent();
+
+			while tFrame do
+				if tFrame:GetAttribute("vuhdo_button_marker") then
+					break;
+				end
+
+				tFrame = tFrame:GetParent();
+			end
+		end
+
+		if tFrame then
+			if sHealButton and sHealButton ~= tFrame then
+				sHealButton:ClearBindings();
 			end
 
-			tTimerVisibility = tDurationObj:EvaluateRemainingDuration(sCurveTimerVisible);
-			tFontString:SetAlpha(tTimerVisibility);
-		end
-	end
+			sHealButton = tFrame;
+			tBody = tFrame:GetAttribute("vuhdo_onenter");
 
-	return;
+			if tBody then
+				owner:RunFor(tFrame, tBody);
 
-end
+				if sCliqueHeader then
+					tCliqueEnter = sCliqueHeader:GetAttribute("_onenter");
 
-
-
---
-function VUHDO_initAuraTimer()
-
-	if sAuraTimerFrame then
-		return;
-	end
-
-	sAuraTimerFrame = CreateFrame("Frame");
-	sAuraTimerFrame:Hide();
-
-	sAuraTimerAnimGroup = sAuraTimerFrame:CreateAnimationGroup();
-	sAuraTimerAnimGroup:SetLooping("REPEAT");
-	sAuraTimerAnimation = sAuraTimerAnimGroup:CreateAnimation();
-	sAuraTimerAnimation:SetDuration(0.1);
-	sAuraTimerAnimGroup:SetScript("OnLoop", VUHDO_auraTimerOnLoop);
-
-	return;
-
-end
-
-
-
---
-function VUHDO_registerAuraTimerText(aFontString, aDurationObj)
-
-	if not aFontString or not aDurationObj then
-		return;
-	end
-
-	if not sAuraTimerData[aFontString] then
-		sAuraTimerCount = sAuraTimerCount + 1;
-	end
-
-	sAuraTimerData[aFontString] = aDurationObj;
-
-	if sAuraTimerCount == 1 and sAuraTimerAnimGroup then
-		sAuraTimerAnimGroup:Play();
-	end
-
-	return;
-
-end
-
-
-
---
-function VUHDO_unregisterAuraTimerText(aFontString)
-
-	if not aFontString then
-		return;
-	end
-
-	if not sAuraTimerData[aFontString] then
-		return;
-	end
-
-	sAuraTimerData[aFontString] = nil;
-	sAuraTimerCount = sAuraTimerCount - 1;
-
-	if sAuraTimerCount == 0 and sAuraTimerAnimGroup then
-		sAuraTimerAnimGroup:Stop();
-	end
-
-	return;
-
-end
-
-
-
---
-local function VUHDO_auraFramePoolReset(aPool, aFrame)
-
-	if aFrame["childB"] and aFrame["childB"]["chargeTexture"] then
-		aFrame["childB"]["chargeTexture"]:Hide();
-	end
-
-	aFrame:Hide();
-	aFrame:ClearAllPoints();
-	aFrame:SetParent(UIParent);
-
-	return;
-
-end
-
-
-
---
-function VUHDO_initAuraFramePools()
-
-	if sAuraIconPool then
-		return;
-	end
-
-	sAuraIconPool = CreateFramePool("Frame", nil, "VuhDoAuraAnchorIconTemplate", VUHDO_auraFramePoolReset);
-	sAuraBarPool = CreateFramePool("Frame", nil, "VuhDoAuraAnchorBarTemplate", VUHDO_auraFramePoolReset);
-
-	return;
-
-end
-
-
-
---
-local sAuraOnEnterSnippet = [[
-	tFrame = self:GetAttribute("vuhdo_button");
-
-	if not tFrame then
-		tFrame = self:GetParent();
-
-		while tFrame do
-			if tFrame:GetAttribute("vuhdo_button_marker") then
-				break;
+					if tCliqueEnter then
+						sCliqueHeader:RunFor(tFrame, tCliqueEnter);
+					end
+				end
 			end
-
-			tFrame = tFrame:GetParent();
 		end
-	end
+	]];
 
-	if tFrame then
-		if sHealButton and sHealButton ~= tFrame then
-			sHealButton:ClearBindings();
+	local sAuraOnLeaveSnippet = [[
+		tFrame = self:GetAttribute("vuhdo_button");
+
+		if not tFrame then
+			tFrame = self:GetParent();
+
+			while tFrame do
+				if tFrame:GetAttribute("vuhdo_button_marker") then
+					break;
+				end
+
+				tFrame = tFrame:GetParent();
+			end
 		end
 
-		sHealButton = tFrame;
-		tBody = tFrame:GetAttribute("vuhdo_onenter");
+		if tFrame then
+			tFrame:ClearBindings();
+			sHealButton = nil;
+			tBody = tFrame:GetAttribute("vuhdo_onleave");
 
-		if tBody then
-			owner:RunFor(tFrame, tBody);
+			if tBody then
+				owner:RunFor(tFrame, tBody);
+			end
 
 			if sCliqueHeader then
-				tCliqueEnter = sCliqueHeader:GetAttribute("_onenter");
+				tCliqueLeave = sCliqueHeader:GetAttribute("_onleave");
 
-				if tCliqueEnter then
-					sCliqueHeader:RunFor(tFrame, tCliqueEnter);
+				if tCliqueLeave then
+					sCliqueHeader:RunFor(tFrame, tCliqueLeave);
 				end
 			end
 		end
-	end
-]];
+	]];
 
-local sAuraOnLeaveSnippet = [[
-	tFrame = self:GetAttribute("vuhdo_button");
 
-	if not tFrame then
-		tFrame = self:GetParent();
 
-		while tFrame do
-			if tFrame:GetAttribute("vuhdo_button_marker") then
-				break;
+	--
+	local tHeaderFrame;
+	local function VUHDO_initAuraFrameSecureHandlers(aFrame, aButton)
+
+		if not aFrame or not aButton then
+			return;
+		end
+
+		VUHDO_safeSetAttribute(aFrame, "vuhdo_button", aButton);
+
+		if aButton["raidid"] then
+			VUHDO_safeSetAttribute(aFrame, "unit", aButton["raidid"]);
+			aFrame["raidid"] = aButton["raidid"];
+		end
+
+		if aFrame:GetAttribute("vuhdo_aura_secure_init") then
+			return;
+		end
+
+		if not aFrame:GetAttribute("vd_tt_hook") then
+			aFrame:SetScript("OnEnter", function(self)
+				if not VUHDO_showAuraTooltip(self) then
+					VuhDoActionOnEnter(VUHDO_findButtonFromChild(self));
+				end
+			end);
+
+			aFrame:SetScript("OnLeave", function(self)
+				VUHDO_hideAuraTooltip();
+
+				VuhDoActionOnLeave(VUHDO_findButtonFromChild(self));
+			end);
+
+			VUHDO_safeSetAttribute(aFrame, "vd_tt_hook", true);
+		end
+
+		if not aFrame:GetAttribute("vuhdo_secureheader_wrap") then
+			tHeaderFrame = _G["VuhDoHealButtonSecureHeaderFrame"];
+
+			if tHeaderFrame then
+				VUHDO_safeWrapScript(tHeaderFrame, aFrame, "OnEnter", sAuraOnEnterSnippet);
+				VUHDO_safeWrapScript(tHeaderFrame, aFrame, "OnLeave", sAuraOnLeaveSnippet);
+
+				VUHDO_safeSetAttribute(aFrame, "vuhdo_secureheader_wrap", true);
 			end
-
-			tFrame = tFrame:GetParent();
-		end
-	end
-
-	if tFrame then
-		tFrame:ClearBindings();
-		sHealButton = nil;
-		tBody = tFrame:GetAttribute("vuhdo_onleave");
-
-		if tBody then
-			owner:RunFor(tFrame, tBody);
 		end
 
-		if sCliqueHeader then
-			tCliqueLeave = sCliqueHeader:GetAttribute("_onleave");
+		aFrame:EnableMouse(false);
+		aFrame:SetMouseMotionEnabled(true);
+		aFrame:EnableKeyboard(false);
+		aFrame:SetPropagateKeyboardInput(true);
 
-			if tCliqueLeave then
-				sCliqueHeader:RunFor(tFrame, tCliqueLeave);
-			end
-		end
-	end
-]];
+		VUHDO_safeSetAttribute(aFrame, "vuhdo_aura_secure_init", true);
 
-
-
---
-local tHeaderFrame;
-local function VUHDO_initAuraFrameSecureHandlers(aFrame, aButton)
-
-	if not aFrame or not aButton then
 		return;
+
 	end
 
-	VUHDO_safeSetAttribute(aFrame, "vuhdo_button", aButton);
-
-	if aButton["raidid"] then
-		VUHDO_safeSetAttribute(aFrame, "unit", aButton["raidid"]);
-		aFrame["raidid"] = aButton["raidid"];
-	end
-
-	if aFrame:GetAttribute("vuhdo_aura_secure_init") then
-		return;
-	end
-
-	if not aFrame:GetAttribute("vd_tt_hook") then
-		aFrame:SetScript("OnEnter", function(self)
-			if not VUHDO_showAuraTooltip(self) then
-				VuhDoActionOnEnter(VUHDO_findButtonFromChild(self));
-			end
-		end);
-
-		aFrame:SetScript("OnLeave", function(self)
-			VUHDO_hideAuraTooltip();
-
-			VuhDoActionOnLeave(VUHDO_findButtonFromChild(self));
-		end);
-
-		VUHDO_safeSetAttribute(aFrame, "vd_tt_hook", true);
-	end
-
-	if not aFrame:GetAttribute("vuhdo_secureheader_wrap") then
-		tHeaderFrame = _G["VuhDoHealButtonSecureHeaderFrame"];
-
-		if tHeaderFrame then
-			VUHDO_safeWrapScript(tHeaderFrame, aFrame, "OnEnter", sAuraOnEnterSnippet);
-			VUHDO_safeWrapScript(tHeaderFrame, aFrame, "OnLeave", sAuraOnLeaveSnippet);
-
-			VUHDO_safeSetAttribute(aFrame, "vuhdo_secureheader_wrap", true);
-		end
-	end
-
-	aFrame:EnableMouse(false);
-	aFrame:SetMouseMotionEnabled(true);
-	aFrame:EnableKeyboard(false);
-	aFrame:SetPropagateKeyboardInput(true);
-
-	VUHDO_safeSetAttribute(aFrame, "vuhdo_aura_secure_init", true);
-
-	return;
-
-end
 
 
+	--
+	local tFrame;
+	local tFrameName;
+	local tParent;
+	local tChargeFrame;
+	function VUHDO_acquireAuraIconFrame(aButton, anAnchorIndex, aSlotIndex)
 
---
-local tFrame;
-local tFrameName;
-local tParent;
-local tChargeFrame;
-function VUHDO_acquireAuraIconFrame(aButton, anAnchorIndex, aSlotIndex)
-
-	if not aButton or not anAnchorIndex or not aSlotIndex then
-		return nil;
-	end
-
-	VUHDO_initAuraFramePools();
-
-	tFrameName = aButton:GetName();
-
-	if not VUHDO_AURA_FRAMES[tFrameName] then
-		VUHDO_AURA_FRAMES[tFrameName] = { };
-	end
-
-	if not VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] then
-		VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] = { };
-	end
-
-	tFrame = VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex];
-
-	if tFrame then
-		return tFrame;
-	end
-
-	tFrame = sAuraIconPool:Acquire();
-
-	if not tFrame then
-		return nil;
-	end
-
-	tFrame["childB"] = VUHDO_getAuraIconBackdrop(tFrame);
-
-	if tFrame["childB"] then
-		if tFrame["childB"].SetBackdrop then
-			tFrame["childB"]:SetBackdrop(sAuraBackdropInfo);
-			tFrame["childB"]:SetBackdropBorderColor(0, 0, 0, 0);
+		if not aButton or not anAnchorIndex or not aSlotIndex then
+			return nil;
 		end
 
-		tFrame["childB"]["textureI"] = VUHDO_getAuraIconTexture(tFrame["childB"]);
+		VUHDO_initAuraFramePools();
 
-		tChargeFrame = VUHDO_getAuraIconChargeFrame(tFrame["childB"]);
+		tFrameName = aButton:GetName();
 
-		if tChargeFrame then
-			tFrame["childB"]["chargeTexture"] = VUHDO_getAuraIconChargeTexture(tChargeFrame);
+		if not VUHDO_AURA_FRAMES[tFrameName] then
+			VUHDO_AURA_FRAMES[tFrameName] = { };
 		end
 
-		tFrame["childB"]["timerText"] = VUHDO_getAuraIconTimer(tFrame["childB"]);
-		tFrame["childB"]["countText"] = VUHDO_getAuraIconCounter(tFrame["childB"]);
-
-		tFrame["childB"]["cooldownFrame"] = VUHDO_getAuraIconCooldown(tFrame["childB"]);
-
-		if tFrame["childB"]["cooldownFrame"] then
-			tFrame["childB"]["cooldownFrame"]:SetHideCountdownNumbers(true);
-			tFrame["childB"]["cooldownFrame"]:SetReverse(true);
-			tFrame["childB"]["cooldownFrame"]:SetDrawSwipe(true);
-			tFrame["childB"]["cooldownFrame"]:SetDrawEdge(true);
-			tFrame["childB"]["cooldownFrame"]:SetDrawBling(false);
-		end
-	end
-
-	tParent = _G[aButton:GetName() .. "BgBarHlBar"];
-
-	if tParent then
-		tFrame:SetParent(tParent);
-	end
-
-	VUHDO_initAuraFrameSecureHandlers(tFrame, aButton);
-
-	VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = tFrame;
-
-	return tFrame;
-
-end
-
-
-
---
-local tFrame;
-local tFrameName;
-local tParent;
-function VUHDO_acquireAuraBarFrame(aButton, anAnchorIndex, aSlotIndex)
-
-	if not aButton or not anAnchorIndex or not aSlotIndex then
-		return nil;
-	end
-
-	VUHDO_initAuraFramePools();
-
-	tFrameName = aButton:GetName();
-
-	if not VUHDO_AURA_FRAMES[tFrameName] then
-		VUHDO_AURA_FRAMES[tFrameName] = { };
-	end
-
-	if not VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] then
-		VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] = { };
-	end
-
-	tFrame = VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex];
-
-	if tFrame then
-		return tFrame;
-	end
-
-	tFrame = sAuraBarPool:Acquire();
-
-	if not tFrame then
-		return nil;
-	end
-
-	tFrame["cooldownFrame"] = VUHDO_getAuraBarCooldown(tFrame);
-	tFrame["childBar"] = VUHDO_getAuraBarStatusBar(tFrame);
-
-	if tFrame["childBar"] then
-		tFrame["childBar"]:SetFrameLevel(tFrame:GetFrameLevel() - 1);
-	end
-
-	tFrame["childIcon"] = VUHDO_getAuraBarIconTexture(tFrame);
-	tFrame["timerText"] = VUHDO_getAuraBarTimer(tFrame);
-	tFrame["countText"] = VUHDO_getAuraBarCounter(tFrame);
-
-	tParent = _G[aButton:GetName() .. "BgBarHlBar"];
-
-	if tParent then
-		tFrame:SetParent(tParent);
-	end
-
-	VUHDO_initAuraFrameSecureHandlers(tFrame, aButton);
-
-	VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = tFrame;
-
-	return tFrame;
-
-end
-
-
-
---
-local tFrame;
-local tFrameName;
-function VUHDO_releaseAuraFrame(aButton, anAnchorIndex, aSlotIndex, anIsBar)
-
-	if not aButton or not anAnchorIndex or not aSlotIndex then
-		return;
-	end
-
-	tFrameName = aButton:GetName();
-
-	if not VUHDO_AURA_FRAMES[tFrameName] then
-		return;
-	end
-
-	if not VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] then
-		return;
-	end
-
-	tFrame = VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex];
-
-	if not tFrame then
-		return;
-	end
-
-	if tFrame["childB"] and tFrame["childB"]["timerText"] then
-		VUHDO_unregisterAuraTimerText(tFrame["childB"]["timerText"]);
-	end
-
-	if anIsBar then
-		sAuraBarPool:Release(tFrame);
-	else
-		sAuraIconPool:Release(tFrame);
-	end
-
-	VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = nil;
-
-	return;
-
-end
-
-
-
---
-local tIconFrame;
-local tChild;
-local tTexture;
-local tPosX;
-local tPosY;
-local tAnchor;
-local tRelPoint;
-function VUHDO_displayPlayerIcon(aButton, aSlotIndex, aTexture, aTexCoords, aWidth, aHeight, aPositionIndex)
-
-	if not aButton or not aSlotIndex or not aTexture then
-		return;
-	end
-
-	tIconFrame = VUHDO_acquireAuraIconFrame(aButton, VUHDO_AURA_ANCHOR_PLAYER_ICONS, aSlotIndex);
-
-	if not tIconFrame then
-		return;
-	end
-
-	tChild = tIconFrame["childB"];
-
-	if not tChild then
-		return;
-	end
-
-	if tChild["timerText"] then
-		tChild["timerText"]:SetText("");
-	end
-
-	if tChild["countText"] then
-		tChild["countText"]:SetText("");
-	end
-
-	if tChild["cooldownFrame"] then
-		tChild["cooldownFrame"]:SetAlpha(0);
-	end
-
-	if tChild["chargeTexture"] then
-		tChild["chargeTexture"]:SetTexture(nil);
-		tChild["chargeTexture"]:Hide();
-	end
-
-	tTexture = tChild["textureI"] or VUHDO_getAuraIconTexture(tChild);
-
-	if tTexture then
-		tTexture:SetTexture(aTexture);
-		tTexture:SetVertexColor(1, 1, 1);
-		tTexture:SetAlpha(1);
-
-		if aTexCoords then
-			tTexture:SetTexCoord(unpack(aTexCoords));
-		else
-			tTexture:SetTexCoord(0, 1, 0, 1);
+		if not VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] then
+			VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] = { };
 		end
 
-		tTexture:Show();
-	end
+		tFrame = VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex];
 
-	tChild:SetAllPoints(tIconFrame);
-	tChild:SetAlpha(1);
-
-	if aPositionIndex == 2 then
-		tAnchor = "TOPRIGHT";
-		tRelPoint = "TOPRIGHT";
-		tPosX = -5;
-		tPosY = -10;
-	else
-		tAnchor = "TOPLEFT";
-		tRelPoint = "TOPLEFT";
-
-		if aPositionIndex == 0 then
-			tPosX = 0;
-			tPosY = 0;
-		elseif aPositionIndex == 1 then
-			tPosX = 0;
-			tPosY = -14;
-		elseif aPositionIndex == 3 then
-			tPosX = 14;
-			tPosY = 0;
-		else
-			tPosX = 28;
-			tPosY = 0;
-		end
-	end
-
-	tIconFrame:ClearAllPoints();
-	VUHDO_PixelUtil.SetPoint(tIconFrame, tAnchor, aButton, tRelPoint, tPosX, tPosY);
-	VUHDO_PixelUtil.SetSize(tIconFrame, aWidth or 16, aHeight or 16);
-	tIconFrame:SetAlpha(1);
-	tIconFrame:Show();
-
-	return;
-
-end
-
-
-
---
-local tButtonName;
-local tAnchorFrames;
-function VUHDO_hidePlayerIconsForButton(aButton)
-
-	if not aButton then
-		return;
-	end
-
-	tButtonName = aButton:GetName();
-
-	if not tButtonName or not VUHDO_AURA_FRAMES[tButtonName] then
-		return;
-	end
-
-	tAnchorFrames = VUHDO_AURA_FRAMES[tButtonName][VUHDO_AURA_ANCHOR_PLAYER_ICONS];
-
-	if not tAnchorFrames then
-		return;
-	end
-
-	for _, tFrame in pairs(tAnchorFrames) do
 		if tFrame then
-			tFrame:SetAlpha(0);
+			return tFrame;
 		end
-	end
 
-	return;
+		tFrame = sAuraIconPool:Acquire();
 
-end
+		if not tFrame then
+			return nil;
+		end
 
+		tFrame["childB"] = VUHDO_getAuraIconBackdrop(tFrame);
 
+		if tFrame["childB"] then
+			if tFrame["childB"].SetBackdrop then
+				tFrame["childB"]:SetBackdrop(sAuraBackdropInfo);
+				tFrame["childB"]:SetBackdropBorderColor(0, 0, 0, 0);
+			end
 
---
-local tButtonName;
-local tButtonAuras;
-function VUHDO_clearUnitAuraFrames(aButton)
+			tFrame["childB"]["textureI"] = VUHDO_getAuraIconTexture(tFrame["childB"]);
 
-	if not aButton then
-		return;
-	end
+			tChargeFrame = VUHDO_getAuraIconChargeFrame(tFrame["childB"]);
 
-	tButtonName = aButton:GetName();
-	tButtonAuras = VUHDO_AURA_FRAMES[tButtonName];
+			if tChargeFrame then
+				tFrame["childB"]["chargeTexture"] = VUHDO_getAuraIconChargeTexture(tChargeFrame);
+			end
 
-	if not tButtonAuras then
-		return;
-	end
+			tFrame["childB"]["timerText"] = VUHDO_getAuraIconTimer(tFrame["childB"]);
+			tFrame["childB"]["countText"] = VUHDO_getAuraIconCounter(tFrame["childB"]);
 
-	for tAnchorIndex, tAnchorFrames in pairs(tButtonAuras) do
-		for tSlotIndex, tAuraFrame in pairs(tAnchorFrames) do
-			if tAuraFrame then
-				VUHDO_safeSetAttribute(tAuraFrame, "unit", nil);
-				tAuraFrame["raidid"] = nil;
+			tFrame["childB"]["cooldownFrame"] = VUHDO_getAuraIconCooldown(tFrame["childB"]);
+
+			if tFrame["childB"]["cooldownFrame"] then
+				tFrame["childB"]["cooldownFrame"]:SetHideCountdownNumbers(true);
+				tFrame["childB"]["cooldownFrame"]:SetReverse(true);
+				tFrame["childB"]["cooldownFrame"]:SetDrawSwipe(true);
+				tFrame["childB"]["cooldownFrame"]:SetDrawEdge(true);
+				tFrame["childB"]["cooldownFrame"]:SetDrawBling(false);
 			end
 		end
+
+		tParent = _G[aButton:GetName() .. "BgBarHlBar"];
+
+		if tParent then
+			tFrame:SetParent(tParent);
+		end
+
+		VUHDO_initAuraFrameSecureHandlers(tFrame, aButton);
+
+		VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = tFrame;
+
+		return tFrame;
+
 	end
 
-	return;
-
-end
 
 
+	--
+	local tFrame;
+	local tFrameName;
+	local tParent;
+	function VUHDO_acquireAuraBarFrame(aButton, anAnchorIndex, aSlotIndex)
 
---
-local tFrameName;
-local tButtonFrames;
-function VUHDO_releaseAllAuraFramesForButton(aButton)
+		if not aButton or not anAnchorIndex or not aSlotIndex then
+			return nil;
+		end
 
-	if not aButton then
+		VUHDO_initAuraFramePools();
+
+		tFrameName = aButton:GetName();
+
+		if not VUHDO_AURA_FRAMES[tFrameName] then
+			VUHDO_AURA_FRAMES[tFrameName] = { };
+		end
+
+		if not VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] then
+			VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] = { };
+		end
+
+		tFrame = VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex];
+
+		if tFrame then
+			return tFrame;
+		end
+
+		tFrame = sAuraBarPool:Acquire();
+
+		if not tFrame then
+			return nil;
+		end
+
+		tFrame["cooldownFrame"] = VUHDO_getAuraBarCooldown(tFrame);
+		tFrame["childBar"] = VUHDO_getAuraBarStatusBar(tFrame);
+
+		if tFrame["childBar"] then
+			tFrame["childBar"]:SetFrameLevel(tFrame:GetFrameLevel() - 1);
+		end
+
+		tFrame["childIcon"] = VUHDO_getAuraBarIconTexture(tFrame);
+		tFrame["timerText"] = VUHDO_getAuraBarTimer(tFrame);
+		tFrame["countText"] = VUHDO_getAuraBarCounter(tFrame);
+
+		tParent = _G[aButton:GetName() .. "BgBarHlBar"];
+
+		if tParent then
+			tFrame:SetParent(tParent);
+		end
+
+		VUHDO_initAuraFrameSecureHandlers(tFrame, aButton);
+
+		VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = tFrame;
+
+		return tFrame;
+
+	end
+
+
+
+	--
+	local tFrame;
+	local tFrameName;
+	function VUHDO_releaseAuraFrame(aButton, anAnchorIndex, aSlotIndex, anIsBar)
+
+		if not aButton or not anAnchorIndex or not aSlotIndex then
+			return;
+		end
+
+		tFrameName = aButton:GetName();
+
+		if not VUHDO_AURA_FRAMES[tFrameName] then
+			return;
+		end
+
+		if not VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex] then
+			return;
+		end
+
+		tFrame = VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex];
+
+		if not tFrame then
+			return;
+		end
+
+		if tFrame["childB"] and tFrame["childB"]["timerText"] then
+			VUHDO_unregisterAuraTimerText(tFrame["childB"]["timerText"]);
+		end
+
+		if anIsBar then
+			sAuraBarPool:Release(tFrame);
+		else
+			sAuraIconPool:Release(tFrame);
+		end
+
+		VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = nil;
+
 		return;
+
 	end
 
-	tFrameName = aButton:GetName();
-	tButtonFrames = VUHDO_AURA_FRAMES[tFrameName];
 
-	if not tButtonFrames then
+
+	--
+	local tIconFrame;
+	local tChild;
+	local tTexture;
+	local tPosX;
+	local tPosY;
+	local tAnchor;
+	local tRelPoint;
+	function VUHDO_displayPlayerIcon(aButton, aSlotIndex, aTexture, aTexCoords, aWidth, aHeight, aPositionIndex)
+
+		if not aButton or not aSlotIndex or not aTexture then
+			return;
+		end
+
+		tIconFrame = VUHDO_acquireAuraIconFrame(aButton, VUHDO_AURA_ANCHOR_PLAYER_ICONS, aSlotIndex);
+
+		if not tIconFrame then
+			return;
+		end
+
+		tChild = tIconFrame["childB"];
+
+		if not tChild then
+			return;
+		end
+
+		if tChild["timerText"] then
+			tChild["timerText"]:SetText("");
+		end
+
+		if tChild["countText"] then
+			tChild["countText"]:SetText("");
+		end
+
+		if tChild["cooldownFrame"] then
+			tChild["cooldownFrame"]:SetAlpha(0);
+		end
+
+		if tChild["chargeTexture"] then
+			tChild["chargeTexture"]:SetTexture(nil);
+			tChild["chargeTexture"]:Hide();
+		end
+
+		tTexture = tChild["textureI"] or VUHDO_getAuraIconTexture(tChild);
+
+		if tTexture then
+			tTexture:SetTexture(aTexture);
+			tTexture:SetVertexColor(1, 1, 1);
+			tTexture:SetAlpha(1);
+
+			if aTexCoords then
+				tTexture:SetTexCoord(unpack(aTexCoords));
+			else
+				tTexture:SetTexCoord(0, 1, 0, 1);
+			end
+
+			tTexture:Show();
+		end
+
+		tChild:SetAllPoints(tIconFrame);
+		tChild:SetAlpha(1);
+
+		if aPositionIndex == 2 then
+			tAnchor = "TOPRIGHT";
+			tRelPoint = "TOPRIGHT";
+			tPosX = -5;
+			tPosY = -10;
+		else
+			tAnchor = "TOPLEFT";
+			tRelPoint = "TOPLEFT";
+
+			if aPositionIndex == 0 then
+				tPosX = 0;
+				tPosY = 0;
+			elseif aPositionIndex == 1 then
+				tPosX = 0;
+				tPosY = -14;
+			elseif aPositionIndex == 3 then
+				tPosX = 14;
+				tPosY = 0;
+			else
+				tPosX = 28;
+				tPosY = 0;
+			end
+		end
+
+		tIconFrame:ClearAllPoints();
+		VUHDO_PixelUtil.SetPoint(tIconFrame, tAnchor, aButton, tRelPoint, tPosX, tPosY);
+		VUHDO_PixelUtil.SetSize(tIconFrame, aWidth or 16, aHeight or 16);
+		tIconFrame:SetAlpha(1);
+		tIconFrame:Show();
+
 		return;
+
 	end
 
-	if not sAuraIconPool or not sAuraBarPool then
-		VUHDO_AURA_FRAMES[tFrameName] = nil;
 
-		return;
-	end
 
-	for tAnchorIndex, tAnchorFrames in pairs(tButtonFrames) do
-		for tSlotIndex, tFrame in pairs(tAnchorFrames) do
+	--
+	local tButtonName;
+	local tAnchorFrames;
+	function VUHDO_hidePlayerIconsForButton(aButton)
+
+		if not aButton then
+			return;
+		end
+
+		tButtonName = aButton:GetName();
+
+		if not tButtonName or not VUHDO_AURA_FRAMES[tButtonName] then
+			return;
+		end
+
+		tAnchorFrames = VUHDO_AURA_FRAMES[tButtonName][VUHDO_AURA_ANCHOR_PLAYER_ICONS];
+
+		if not tAnchorFrames then
+			return;
+		end
+
+		for _, tFrame in pairs(tAnchorFrames) do
 			if tFrame then
-				if tFrame["childBar"] then
-					sAuraBarPool:Release(tFrame);
-				elseif tFrame["childB"] then
-					sAuraIconPool:Release(tFrame);
+				tFrame:SetAlpha(0);
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tButtonName;
+	local tButtonAuras;
+	function VUHDO_clearUnitAuraFrames(aButton)
+
+		if not aButton then
+			return;
+		end
+
+		tButtonName = aButton:GetName();
+		tButtonAuras = VUHDO_AURA_FRAMES[tButtonName];
+
+		if not tButtonAuras then
+			return;
+		end
+
+		for tAnchorIndex, tAnchorFrames in pairs(tButtonAuras) do
+			for tSlotIndex, tAuraFrame in pairs(tAnchorFrames) do
+				if tAuraFrame then
+					VUHDO_safeSetAttribute(tAuraFrame, "unit", nil);
+					tAuraFrame["raidid"] = nil;
 				end
 			end
 		end
+
+		return;
+
 	end
 
-	VUHDO_AURA_FRAMES[tFrameName] = nil;
-
-	return;
-
-end
 
 
+	--
+	local tFrameName;
+	local tButtonFrames;
+	function VUHDO_releaseAllAuraFramesForButton(aButton)
 
---
-function VUHDO_releaseAllAuraFrames()
+		if not aButton then
+			return;
+		end
 
-	if sAuraTimerAnimGroup then
-		sAuraTimerAnimGroup:Stop();
-	end
+		tFrameName = aButton:GetName();
+		tButtonFrames = VUHDO_AURA_FRAMES[tFrameName];
 
-	twipe(sAuraTimerData);
-	sAuraTimerCount = 0;
+		if not tButtonFrames then
+			return;
+		end
 
-	if sAuraIconPool then
-		sAuraIconPool:ReleaseAll();
-	end
+		if not sAuraIconPool or not sAuraBarPool then
+			VUHDO_AURA_FRAMES[tFrameName] = nil;
 
-	if sAuraBarPool then
-		sAuraBarPool:ReleaseAll();
-	end
+			return;
+		end
 
-	twipe(VUHDO_AURA_FRAMES);
-
-	return;
-
-end
-
-
-
---
-function VUHDO_suspendAuras(aSuspend)
-
-	sAurasSuspended = aSuspend;
-
-	return;
-
-end
-
-
-
---
-function VUHDO_hideAllAuras()
-
-	for tButtonName, tButtonFrames in pairs(VUHDO_AURA_FRAMES) do
 		for tAnchorIndex, tAnchorFrames in pairs(tButtonFrames) do
 			for tSlotIndex, tFrame in pairs(tAnchorFrames) do
 				if tFrame then
-					tFrame:SetAlpha(0);
+					if tFrame["childBar"] then
+						sAuraBarPool:Release(tFrame);
+					elseif tFrame["childB"] then
+						sAuraIconPool:Release(tFrame);
+					end
 				end
 			end
 		end
-	end
 
-	return;
+		VUHDO_AURA_FRAMES[tFrameName] = nil;
 
-end
-
-
-
---
-local tButtonName;
-function VUHDO_hideAurasForUnit(aUnit)
-
-	if not aUnit then
 		return;
+
 	end
 
-	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
-		tButtonName = tButton:GetName();
 
-		if VUHDO_AURA_FRAMES[tButtonName] then
-			for tAnchorIndex, tAnchorFrames in pairs(VUHDO_AURA_FRAMES[tButtonName]) do
+
+	--
+	function VUHDO_releaseAllAuraFrames()
+
+		if sAuraTimerAnimGroup then
+			sAuraTimerAnimGroup:Stop();
+		end
+
+		twipe(sAuraTimerData);
+		sAuraTimerCount = 0;
+
+		if sAuraIconPool then
+			sAuraIconPool:ReleaseAll();
+		end
+
+		if sAuraBarPool then
+			sAuraBarPool:ReleaseAll();
+		end
+
+		twipe(VUHDO_AURA_FRAMES);
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_suspendAuras(aSuspend)
+
+		sAurasSuspended = aSuspend;
+
+		return;
+
+	end
+
+
+
+	--
+	function VUHDO_hideAllAuras()
+
+		for tButtonName, tButtonFrames in pairs(VUHDO_AURA_FRAMES) do
+			for tAnchorIndex, tAnchorFrames in pairs(tButtonFrames) do
 				for tSlotIndex, tFrame in pairs(tAnchorFrames) do
 					if tFrame then
 						tFrame:SetAlpha(0);
@@ -1522,23 +1645,51 @@ function VUHDO_hideAurasForUnit(aUnit)
 				end
 			end
 		end
+
+		return;
+
 	end
 
-	return;
-
-end
 
 
+	--
+	local tButtonName;
+	function VUHDO_hideAurasForUnit(aUnit)
 
---
-function VUHDO_showAllAuras()
+		if not aUnit then
+			return;
+		end
 
-	for tUnit, _ in pairs(VUHDO_RAID) do
-		VUHDO_updateAuraDisplaysForUnit(tUnit);
+		for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
+			tButtonName = tButton:GetName();
+
+			if VUHDO_AURA_FRAMES[tButtonName] then
+				for tAnchorIndex, tAnchorFrames in pairs(VUHDO_AURA_FRAMES[tButtonName]) do
+					for tSlotIndex, tFrame in pairs(tAnchorFrames) do
+						if tFrame then
+							tFrame:SetAlpha(0);
+						end
+					end
+				end
+			end
+		end
+
+		return;
+
 	end
 
-	return;
 
+
+	--
+	function VUHDO_showAllAuras()
+
+		for tUnit, _ in pairs(VUHDO_RAID) do
+			VUHDO_updateAuraDisplaysForUnit(tUnit);
+		end
+
+		return;
+
+	end
 end
 
 
@@ -1546,6 +1697,7 @@ end
 do
 	--
 	local tButtonName;
+	local tState;
 	function VUHDO_resetFixedAuraOverflowState(aButton, anAnchorIndex)
 
 		if not aButton then
@@ -1560,6 +1712,16 @@ do
 
 		if not VUHDO_FIXED_AURA_OVERFLOW_STATE[tButtonName] then
 			VUHDO_FIXED_AURA_OVERFLOW_STATE[tButtonName] = { };
+		end
+
+		tState = VUHDO_FIXED_AURA_OVERFLOW_STATE[tButtonName][anAnchorIndex];
+
+		if tState and tState["slotAssignments"] then
+			for tSlotIdx, tAssignment in pairs(tState["slotAssignments"]) do
+				if tAssignment then
+					sSlotAssignmentPool:release(tAssignment);
+				end
+			end
 		end
 
 		VUHDO_FIXED_AURA_OVERFLOW_STATE[tButtonName][anAnchorIndex] = {
@@ -1584,6 +1746,7 @@ do
 	local tNumBasePositions;
 	local tStartAnchor;
 	local tCheckedCount;
+	local tAssignment;
 	function VUHDO_assignFixedOverflowSlot(aButton, anAnchorIndex, aSlotIndex, anAnchorConfig)
 
 		if not aButton or not anAnchorIndex or not aSlotIndex or not anAnchorConfig then
@@ -1608,10 +1771,18 @@ do
 			tAnchorCounts = tState["anchorCounts"];
 			tAnchorCounts[aSlotIndex] = (tAnchorCounts[aSlotIndex] or 0) + 1;
 
-			tState["slotAssignments"][aSlotIndex] = {
-				["baseAnchor"] = aSlotIndex,
-				["layerIndex"] = 0,
-			};
+			tAssignment = tState["slotAssignments"][aSlotIndex];
+
+			if tAssignment then
+				sSlotAssignmentPool:release(tAssignment);
+			end
+
+			tAssignment = sSlotAssignmentPool:get();
+
+			tAssignment["baseAnchor"] = aSlotIndex;
+			tAssignment["layerIndex"] = 0;
+
+			tState["slotAssignments"][aSlotIndex] = tAssignment;
 
 			return aSlotIndex, 0;
 		end
@@ -1630,10 +1801,18 @@ do
 				tLayerIndex = tAnchorCounts[tBaseAnchor] or 0;
 				tAnchorCounts[tBaseAnchor] = tLayerIndex + 1;
 
-				tState["slotAssignments"][aSlotIndex] = {
-					["baseAnchor"] = tBaseAnchor,
-					["layerIndex"] = tLayerIndex,
-				};
+				tAssignment = tState["slotAssignments"][aSlotIndex];
+
+				if tAssignment then
+					sSlotAssignmentPool:release(tAssignment);
+				end
+
+				tAssignment = sSlotAssignmentPool:get();
+
+				tAssignment["baseAnchor"] = tBaseAnchor;
+				tAssignment["layerIndex"] = tLayerIndex;
+
+				tState["slotAssignments"][aSlotIndex] = tAssignment;
 
 				return tBaseAnchor, tLayerIndex;
 			end
@@ -1824,6 +2003,60 @@ do
 				VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "LEFT", aFrame["childIcon"], "RIGHT", 0, 0);
 				VUHDO_PixelUtil.SetSize(aFrame["childBar"], tBarWidth, tBarHeight);
 			end
+		end
+
+		if aFrame["childBar"] then
+			VUHDO_constrainAuraFrameHitRect(aFrame, aButton);
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tFrameLeft;
+	local tFrameRight;
+	local tFrameTop;
+	local tFrameBottom;
+	local tButtonLeft;
+	local tButtonRight;
+	local tButtonTop;
+	local tButtonBottom;
+	local tInsetLeft;
+	local tInsetRight;
+	local tInsetTop;
+	local tInsetBottom;
+	function VUHDO_constrainAuraFrameHitRect(aFrame, aButton)
+
+		if not aFrame or not aButton then
+			return;
+		end
+
+		tFrameLeft = aFrame:GetLeft();
+		tFrameRight = aFrame:GetRight();
+		tFrameTop = aFrame:GetTop();
+		tFrameBottom = aFrame:GetBottom();
+
+		tButtonLeft = aButton:GetLeft();
+		tButtonRight = aButton:GetRight();
+		tButtonTop = aButton:GetTop();
+		tButtonBottom = aButton:GetBottom();
+
+		if not tFrameLeft or not tButtonLeft then
+			return;
+		end
+
+		tInsetLeft = max(0, tButtonLeft - tFrameLeft);
+		tInsetRight = max(0, tFrameRight - tButtonRight);
+		tInsetTop = max(0, tFrameTop - tButtonTop);
+		tInsetBottom = max(0, tButtonBottom - tFrameBottom);
+
+		if tInsetLeft > 0 or tInsetRight > 0 or tInsetTop > 0 or tInsetBottom > 0 then
+			aFrame:SetHitRectInsets(tInsetLeft, tInsetRight, tInsetTop, tInsetBottom);
+		else
+			aFrame:SetHitRectInsets(0, 0, 0, 0);
 		end
 
 		return;
@@ -2137,6 +2370,10 @@ do
 			VUHDO_PixelUtil.SetFrameLevel(aFrame, tParent:GetFrameLevel() + (aFrame["addLevel"] or 10));
 		end
 
+		if aFrame["childBar"] then
+			VUHDO_constrainAuraFrameHitRect(aFrame, aButton);
+		end
+
 		return;
 
 	end
@@ -2288,8 +2525,12 @@ function VUHDO_updateAurasForAnchors(aUnit, aPanelNum)
 		tAnchorConfig = VUHDO_PANEL_SETUP[aPanelNum] and VUHDO_PANEL_SETUP[aPanelNum]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[aPanelNum]["AURA_ANCHORS"][tAnchorIndex];
 
 		if tAnchorConfig then
-			tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
-			VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, tAnchorIndex, tAnchorConfig, tSlots, tMaxSlots);
+			if tAnchorConfig["enabled"] == false then
+				VUHDO_clearAurasForAnchor(aUnit, aPanelNum, tAnchorIndex, tAnchorConfig);
+			else
+				tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
+				VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, tAnchorIndex, tAnchorConfig, tSlots, tMaxSlots);
+			end
 		end
 	end
 
@@ -2319,19 +2560,23 @@ function VUHDO_updateInferredAuraDisplaysForUnit(aUnit)
 
 		if tPanelAnchors then
 			for tAnchorIndex, tAnchorConfig in pairs(tPanelAnchors) do
-				if tAnchorConfig and tAnchorConfig["enabled"] ~= false then
-					tGroup = VUHDO_getAuraGroup(tAnchorConfig["groupId"]);
+				if tAnchorConfig then
+					if tAnchorConfig["enabled"] == false then
+						VUHDO_clearAurasForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
+					else
+						tGroup = VUHDO_getAuraGroup(tAnchorConfig["groupId"]);
 
-					if tGroup and tGroup["isInferred"] then
-						VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
+						if tGroup and tGroup["isInferred"] then
+							VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
 
-						tAnchorSlots = VUHDO_UNIT_AURA_SLOTS[aUnit] and VUHDO_UNIT_AURA_SLOTS[aUnit][tPanelNum];
+							tAnchorSlots = VUHDO_UNIT_AURA_SLOTS[aUnit] and VUHDO_UNIT_AURA_SLOTS[aUnit][tPanelNum];
 
-						if tAnchorSlots then
-							tSlots = tAnchorSlots[tAnchorIndex];
-							tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
+							if tAnchorSlots then
+								tSlots = tAnchorSlots[tAnchorIndex];
+								tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
 
-							VUHDO_displayAurasAtAnchorFromCache(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig, tSlots, tMaxSlots);
+								VUHDO_displayAurasAtAnchorFromCache(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig, tSlots, tMaxSlots);
+							end
 						end
 					end
 				end
@@ -2382,6 +2627,10 @@ end
 local tPanelUnitButtons;
 local tAuraInstanceId;
 local tAuraData;
+local tGroup;
+local tListSlots;
+local tSlotData;
+local tSlotDataAsAura;
 function VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig, anAnchorSlots, aMaxSlots)
 
 	if not aUnit or not aPanelNum or not anAnchorIndex or not anAnchorConfig then
@@ -2394,20 +2643,54 @@ function VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, anAnchorIndex, an
 		return;
 	end
 
-	for _, tButton in pairs(tPanelUnitButtons) do
-		for tSlotIndex = 1, aMaxSlots do
-			tAuraInstanceId = anAnchorSlots and anAnchorSlots[tSlotIndex];
+	tGroup = VUHDO_getAuraGroup(anAnchorConfig["groupId"]);
 
-			if tAuraInstanceId then
-				tAuraData = VUHDO_UNIT_AURA_CACHE[aUnit] and VUHDO_UNIT_AURA_CACHE[aUnit][tAuraInstanceId];
+	if tGroup and (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
+		tListSlots = VUHDO_UNIT_AURA_LIST_SLOTS[aUnit] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum][anAnchorIndex];
 
-				if tAuraData then
-					VUHDO_displayAuraInSlot(tButton, aPanelNum, anAnchorIndex, tSlotIndex, tAuraData, anAnchorConfig);
+		for _, tButton in pairs(tPanelUnitButtons) do
+			for tSlotIndex = 1, aMaxSlots do
+				tSlotData = tListSlots and tListSlots[tSlotIndex];
+
+				if tSlotData and tSlotData["isActive"] then
+					tSlotDataAsAura = sSlotDataAsAuraPool:get();
+
+					tSlotDataAsAura["icon"] = tSlotData["icon"];
+					tSlotDataAsAura["expirationTime"] = tSlotData["expirationTime"] or 0;
+					tSlotDataAsAura["duration"] = tSlotData["duration"] or 0;
+					tSlotDataAsAura["applications"] = tSlotData["stacks"] or 0;
+					tSlotDataAsAura["name"] = tSlotData["name"];
+					tSlotDataAsAura["auraInstanceID"] = tSlotData["auraInstanceID"] or -1;
+					tSlotDataAsAura["clipL"] = tSlotData["clipL"];
+					tSlotDataAsAura["clipR"] = tSlotData["clipR"];
+					tSlotDataAsAura["clipT"] = tSlotData["clipT"];
+					tSlotDataAsAura["clipB"] = tSlotData["clipB"];
+					tSlotDataAsAura["color"] = tSlotData["color"];
+
+					VUHDO_displayAuraInSlot(tButton, aPanelNum, anAnchorIndex, tSlotIndex, tSlotDataAsAura, anAnchorConfig);
+
+					sSlotDataAsAuraPool:release(tSlotDataAsAura);
 				else
 					VUHDO_hideAuraSlot(tButton, anAnchorIndex, tSlotIndex, anAnchorConfig["style"] == "bars");
 				end
-			else
-				VUHDO_hideAuraSlot(tButton, anAnchorIndex, tSlotIndex, anAnchorConfig["style"] == "bars");
+			end
+		end
+	else
+		for _, tButton in pairs(tPanelUnitButtons) do
+			for tSlotIndex = 1, aMaxSlots do
+				tAuraInstanceId = anAnchorSlots and anAnchorSlots[tSlotIndex];
+
+				if tAuraInstanceId then
+					tAuraData = VUHDO_UNIT_AURA_CACHE[aUnit] and VUHDO_UNIT_AURA_CACHE[aUnit][tAuraInstanceId];
+
+					if tAuraData then
+						VUHDO_displayAuraInSlot(tButton, aPanelNum, anAnchorIndex, tSlotIndex, tAuraData, anAnchorConfig);
+					else
+						VUHDO_hideAuraSlot(tButton, anAnchorIndex, tSlotIndex, anAnchorConfig["style"] == "bars");
+					end
+				else
+					VUHDO_hideAuraSlot(tButton, anAnchorIndex, tSlotIndex, anAnchorConfig["style"] == "bars");
+				end
 			end
 		end
 	end
@@ -2463,37 +2746,41 @@ do
 			elseif tIconType == 3 then
 				aIconTexture:SetTexture("Interface\\AddOns\\VuhDo\\Images\\hot_flat_16_16");
 
-				tColorMode = anAnchorConfig["colorMode"] or "default";
+				if anAuraData["color"] and anAuraData["color"]["R"] then
+					aIconTexture:SetVertexColor(VUHDO_backColor(anAuraData["color"]));
+				else
+					tColorMode = anAnchorConfig["colorMode"] or "default";
 
-				if "debuff" == tColorMode and anAuraData["dispelName"] then
-					tDispelCurve = VUHDO_getDispelTypeCurve();
+					if "debuff" == tColorMode and anAuraData["dispelName"] then
+						tDispelCurve = VUHDO_getDispelTypeCurve();
 
-					if tDispelCurve then
-						tColorMixin = GetAuraDispelTypeColor(aUnit, anAuraData["auraInstanceID"], tDispelCurve);
+						if tDispelCurve and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+							tColorMixin = GetAuraDispelTypeColor(aUnit, anAuraData["auraInstanceID"], tDispelCurve);
 
-						if tColorMixin then
-							aIconTexture:SetVertexColor(tColorMixin:GetRGBA());
+							if tColorMixin then
+								aIconTexture:SetVertexColor(tColorMixin:GetRGBA());
+							else
+								aIconTexture:SetVertexColor(1, 1, 1);
+							end
+						else
+							aIconTexture:SetVertexColor(1, 1, 1);
+						end
+					elseif "class" == tColorMode then
+						tClassColor = VUHDO_getClassColor(VUHDO_RAID[aUnit]);
+
+						if tClassColor then
+							aIconTexture:SetVertexColor(tClassColor["R"], tClassColor["G"], tClassColor["B"], 1);
 						else
 							aIconTexture:SetVertexColor(1, 1, 1);
 						end
 					else
-						aIconTexture:SetVertexColor(1, 1, 1);
-					end
-				elseif "class" == tColorMode then
-					tClassColor = VUHDO_getClassColor(VUHDO_RAID[aUnit]);
+						tIconColor = sBarColors and sBarColors["AURA_BAR_DEFAULT"];
 
-					if tClassColor then
-						aIconTexture:SetVertexColor(tClassColor["R"], tClassColor["G"], tClassColor["B"], 1);
-					else
-						aIconTexture:SetVertexColor(1, 1, 1);
-					end
-				else
-					tIconColor = sBarColors and sBarColors["AURA_BAR_DEFAULT"];
-
-					if tIconColor then
-						aIconTexture:SetVertexColor(tIconColor["R"], tIconColor["G"], tIconColor["B"], tIconColor["O"] or 1);
-					else
-						aIconTexture:SetVertexColor(1, 1, 1);
+						if tIconColor then
+							aIconTexture:SetVertexColor(tIconColor["R"], tIconColor["G"], tIconColor["B"], tIconColor["O"] or 1);
+						else
+							aIconTexture:SetVertexColor(1, 1, 1);
+						end
 					end
 				end
 
@@ -2501,44 +2788,64 @@ do
 			elseif tIconType == 2 then
 				aIconTexture:SetTexture("Interface\\AddOns\\VuhDo\\Images\\icon_white_square");
 
-				tColorMode = anAnchorConfig["colorMode"] or "default";
+				if anAuraData["color"] and anAuraData["color"]["R"] then
+					aIconTexture:SetVertexColor(VUHDO_backColor(anAuraData["color"]));
+				else
+					tColorMode = anAnchorConfig["colorMode"] or "default";
 
-				if "debuff" == tColorMode and anAuraData["dispelName"] then
-					tDispelCurve = VUHDO_getDispelTypeCurve();
+					if "debuff" == tColorMode and anAuraData["dispelName"] then
+						tDispelCurve = VUHDO_getDispelTypeCurve();
 
-					if tDispelCurve then
-						tColorMixin = GetAuraDispelTypeColor(aUnit, anAuraData["auraInstanceID"], tDispelCurve);
+						if tDispelCurve and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+							tColorMixin = GetAuraDispelTypeColor(aUnit, anAuraData["auraInstanceID"], tDispelCurve);
 
-						if tColorMixin then
-							aIconTexture:SetVertexColor(tColorMixin:GetRGBA());
+							if tColorMixin then
+								aIconTexture:SetVertexColor(tColorMixin:GetRGBA());
+							else
+								aIconTexture:SetVertexColor(1, 1, 1);
+							end
+						else
+							aIconTexture:SetVertexColor(1, 1, 1);
+						end
+					elseif "class" == tColorMode then
+						tClassColor = VUHDO_getClassColor(VUHDO_RAID[aUnit]);
+
+						if tClassColor then
+							aIconTexture:SetVertexColor(tClassColor["R"], tClassColor["G"], tClassColor["B"], 1);
 						else
 							aIconTexture:SetVertexColor(1, 1, 1);
 						end
 					else
-						aIconTexture:SetVertexColor(1, 1, 1);
-					end
-				elseif "class" == tColorMode then
-					tClassColor = VUHDO_getClassColor(VUHDO_RAID[aUnit]);
+						tIconColor = sBarColors and sBarColors["AURA_BAR_DEFAULT"];
 
-					if tClassColor then
-						aIconTexture:SetVertexColor(tClassColor["R"], tClassColor["G"], tClassColor["B"], 1);
-					else
-						aIconTexture:SetVertexColor(1, 1, 1);
-					end
-				else
-					tIconColor = sBarColors and sBarColors["AURA_BAR_DEFAULT"];
-
-					if tIconColor then
-						aIconTexture:SetVertexColor(tIconColor["R"], tIconColor["G"], tIconColor["B"], tIconColor["O"] or 1);
-					else
-						aIconTexture:SetVertexColor(1, 1, 1);
+						if tIconColor then
+							aIconTexture:SetVertexColor(tIconColor["R"], tIconColor["G"], tIconColor["B"], tIconColor["O"] or 1);
+						else
+							aIconTexture:SetVertexColor(1, 1, 1);
+						end
 					end
 				end
 
 				aIconTexture:Show();
 			else
-				aIconTexture:SetTexture(anAuraData["icon"]);
-				aIconTexture:SetVertexColor(1, 1, 1);
+				if anAuraData["icon"] and not issecretvalue(anAuraData["icon"]) and VUHDO_ATLAS_TEXTURES and VUHDO_ATLAS_TEXTURES[anAuraData["icon"]] then
+					aIconTexture:SetAtlas(anAuraData["icon"]);
+				else
+					aIconTexture:SetTexture(anAuraData["icon"]);
+
+					if anAuraData["clipL"] and anAuraData["clipR"] and anAuraData["clipT"] and anAuraData["clipB"] then
+						aIconTexture:SetTexCoord(anAuraData["clipL"], anAuraData["clipR"], anAuraData["clipT"], anAuraData["clipB"]);
+					else
+						aIconTexture:SetTexCoord(0, 1, 0, 1);
+					end
+				end
+
+				if anAuraData["color"] and anAuraData["color"]["R"] then
+					aIconTexture:SetVertexColor(VUHDO_backColor(anAuraData["color"]));
+				else
+					aIconTexture:SetVertexColor(1, 1, 1);
+				end
+
 				aIconTexture:Show();
 			end
 		end
@@ -2570,7 +2877,7 @@ do
 		if aBackdropFrame and aBackdropFrame.SetBackdropBorderColor then
 			tDispelCurve = VUHDO_getAuraDispelCurveForContext(aUnit, anAnchorConfig);
 
-			if tDispelBorder and aUnit and tDispelCurve then
+			if tDispelBorder and aUnit and tDispelCurve and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
 				tColorMixin = GetAuraDispelTypeColor(aUnit, anAuraData["auraInstanceID"], tDispelCurve);
 
 				if tColorMixin then
@@ -2822,37 +3129,41 @@ do
 			VUHDO_setLlcStatusBarTexture(tBar, tBarTexName);
 		end
 
-		tColorMode = anAnchorConfig["colorMode"] or "default";
+		if anAuraData["color"] and anAuraData["color"]["R"] then
+			tBar:GetStatusBarTexture():SetVertexColor(VUHDO_backColor(anAuraData["color"]));
+		else
+			tColorMode = anAnchorConfig["colorMode"] or "default";
 
-		if "debuff" == tColorMode and anAuraData["dispelName"] then
-			tDispelCurve = VUHDO_getDispelTypeCurve();
+			if "debuff" == tColorMode and anAuraData["dispelName"] then
+				tDispelCurve = VUHDO_getDispelTypeCurve();
 
-			if tDispelCurve then
-				tColorMixin = GetAuraDispelTypeColor(tUnit, anAuraData["auraInstanceID"], tDispelCurve);
+				if tDispelCurve and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+					tColorMixin = GetAuraDispelTypeColor(tUnit, anAuraData["auraInstanceID"], tDispelCurve);
 
-				if tColorMixin then
-					tBar:GetStatusBarTexture():SetVertexColor(tColorMixin:GetRGBA());
+					if tColorMixin then
+						tBar:GetStatusBarTexture():SetVertexColor(tColorMixin:GetRGBA());
+					else
+						tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
+					end
+				else
+					tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
+				end
+			elseif "class" == tColorMode then
+				tClassColor = VUHDO_getClassColor(VUHDO_RAID[tUnit]);
+
+				if tClassColor then
+					tBar:GetStatusBarTexture():SetVertexColor(tClassColor["R"], tClassColor["G"], tClassColor["B"], 1);
 				else
 					tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
 				end
 			else
-				tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
-			end
-		elseif "class" == tColorMode then
-			tClassColor = VUHDO_getClassColor(VUHDO_RAID[tUnit]);
+				tBarColor = sBarColors and sBarColors["AURA_BAR_DEFAULT"];
 
-			if tClassColor then
-				tBar:GetStatusBarTexture():SetVertexColor(tClassColor["R"], tClassColor["G"], tClassColor["B"], 1);
-			else
-				tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
-			end
-		else
-			tBarColor = sBarColors and sBarColors["AURA_BAR_DEFAULT"];
-
-			if tBarColor then
-				tBar:GetStatusBarTexture():SetVertexColor(tBarColor["R"], tBarColor["G"], tBarColor["B"], tBarColor["O"] or 1);
-			else
-				tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
+				if tBarColor then
+					tBar:GetStatusBarTexture():SetVertexColor(tBarColor["R"], tBarColor["G"], tBarColor["B"], tBarColor["O"] or 1);
+				else
+					tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
+				end
 			end
 		end
 

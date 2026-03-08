@@ -37,11 +37,8 @@ local VUHDO_getHealthBar;
 local VUHDO_getBarText;
 local VUHDO_getBarTextSolo;
 local VUHDO_getLifeText;
-local VUHDO_getDebuffColorType;
-local VUHDO_getDebuffCustomColor;
-local VUHDO_getDebuffCanColorBar;
-
-local VUHDO_AURA_GROUP_COLOR_CUSTOM;
+local VUHDO_getAuraBarColor;
+local VUHDO_getAuraTextColor;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -51,11 +48,61 @@ setmetatable(sBooleanOverlayLayers, VUHDO_META_NEW_ARRAY);
 local sGlobalAlphaChains = { };
 setmetatable(sGlobalAlphaChains, VUHDO_META_NEW_ARRAY);
 
+local sAlphaChainPool;
+local sAlphaChainStepEntryPool;
+
 local sWrapperNameCounter = 0;
 
 local VUHDO_TARGET_TYPE_BAR = 1;
 local VUHDO_TARGET_TYPE_TEXTURE = 2;
 local VUHDO_TARGET_TYPE_BORDER = 3;
+
+
+
+--
+local function VUHDO_createAlphaChainDelegate()
+
+	return {
+		["steps"] = { },
+		["nonSecretSteps"] = { },
+		["overrideValidators"] = { },
+		["head"] = nil,
+		["tail"] = nil,
+		["originalParent"] = nil,
+		["barIndex"] = nil,
+	};
+
+end
+
+
+
+--
+local function VUHDO_cleanupAlphaChainDelegate(aChain)
+
+	for tIdx = 1, #aChain["steps"] do
+		sAlphaChainStepEntryPool:release(aChain["steps"][tIdx]);
+	end
+
+	for tIdx = 1, #aChain["nonSecretSteps"] do
+		sAlphaChainStepEntryPool:release(aChain["nonSecretSteps"][tIdx]);
+	end
+
+	for tIdx = 1, #aChain["overrideValidators"] do
+		sAlphaChainStepEntryPool:release(aChain["overrideValidators"][tIdx]);
+	end
+
+	twipe(aChain["steps"]);
+	twipe(aChain["nonSecretSteps"]);
+	twipe(aChain["overrideValidators"]);
+
+	aChain["head"] = nil;
+	aChain["tail"] = nil;
+	aChain["originalParent"] = nil;
+	aChain["barIndex"] = nil;
+
+	return;
+
+end
 
 
 
@@ -68,15 +115,16 @@ function VUHDO_bouquetLayersInitLocalOverrides()
 	VUHDO_INDICATOR_CONFIG = _G["VUHDO_INDICATOR_CONFIG"];
 	VUHDO_SECRET_TYPE_NONE = _G["VUHDO_SECRET_TYPE_NONE"];
 	VUHDO_SECRET_TYPE_BOOLEAN = _G["VUHDO_SECRET_TYPE_BOOLEAN"];
-	VUHDO_AURA_GROUP_COLOR_CUSTOM = _G["VUHDO_AURA_GROUP_COLOR_CUSTOM"];
 
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getBarText = _G["VUHDO_getBarText"];
 	VUHDO_getBarTextSolo = _G["VUHDO_getBarTextSolo"];
 	VUHDO_getLifeText = _G["VUHDO_getLifeText"];
-	VUHDO_getDebuffColorType = _G["VUHDO_getDebuffColorType"];
-	VUHDO_getDebuffCustomColor = _G["VUHDO_getDebuffCustomColor"];
-	VUHDO_getDebuffCanColorBar = _G["VUHDO_getDebuffCanColorBar"];
+	VUHDO_getAuraBarColor = _G["VUHDO_getAuraBarColor"];
+	VUHDO_getAuraTextColor = _G["VUHDO_getAuraTextColor"];
+
+	sAlphaChainStepEntryPool = VUHDO_createTablePool("AlphaChainStepEntry", 100);
+	sAlphaChainPool = VUHDO_createTablePool("AlphaChain", 50, VUHDO_createAlphaChainDelegate, VUHDO_cleanupAlphaChainDelegate);
 
 	return;
 
@@ -181,6 +229,7 @@ local tOriginalParent;
 local tBarIndex;
 local tFrameGetter;
 local tIndicatorAddLevel;
+local tEntry;
 function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBouquet, aPanelNum)
 
 	if not aBouquet or not sSecretsEnabled then
@@ -223,6 +272,9 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 				tStep["frame"]:SetParent(nil);
 			end
 		end
+
+		sAlphaChainPool:release(tChain);
+		sGlobalAlphaChains[aButton][anIndicatorName] = nil;
 	else
 		tOriginalParent = tIndicatorBar:GetParent();
 	end
@@ -231,17 +283,12 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 		sGlobalAlphaChains[aButton] = { };
 	end
 
-	sGlobalAlphaChains[aButton][anIndicatorName] = {
-		["steps"] = { },
-		["nonSecretSteps"] = { },
-		["overrideValidators"] = { },
-		["head"] = nil,
-		["tail"] = nil,
-		["originalParent"] = tOriginalParent,
-		["barIndex"] = tBarIndex,
-	};
+	tChain = sAlphaChainPool:get();
 
-	tChain = sGlobalAlphaChains[aButton][anIndicatorName];
+	tChain["originalParent"] = tOriginalParent;
+	tChain["barIndex"] = tBarIndex;
+
+	sGlobalAlphaChains[aButton][anIndicatorName] = tChain;
 
 	for tCnt = 1, #aBouquet do
 		tItem = aBouquet[tCnt];
@@ -263,21 +310,25 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 				tWrapper:SetAlpha(1);
 				tWrapper:Show();
 
-				tinsert(tChain["steps"], {
-					["frame"] = tWrapper,
-					["item"] = tItem,
-					["special"] = tSpecial,
-					["index"] = tCnt,
-					["trueAlpha"] = tSpecial["isInverted"] and 1 or (tItem["color"]["O"] or 1),
-					["falseAlpha"] = tSpecial["isInverted"] and (tItem["color"]["O"] or 1) or 1,
-				});
+				tEntry = sAlphaChainStepEntryPool:get();
+
+				tEntry["frame"] = tWrapper;
+				tEntry["item"] = tItem;
+				tEntry["special"] = tSpecial;
+				tEntry["index"] = tCnt;
+				tEntry["trueAlpha"] = tSpecial["isInverted"] and 1 or (tItem["color"]["O"] or 1);
+				tEntry["falseAlpha"] = tSpecial["isInverted"] and (tItem["color"]["O"] or 1) or 1;
+
+				tinsert(tChain["steps"], tEntry);
 			else
-				tinsert(tChain["nonSecretSteps"], {
-					["item"] = tItem,
-					["special"] = tSpecial,
-					["index"] = tCnt,
-					["alpha"] = tItem["color"]["O"] or 1,
-				});
+				tEntry = sAlphaChainStepEntryPool:get();
+
+				tEntry["item"] = tItem;
+				tEntry["special"] = tSpecial;
+				tEntry["index"] = tCnt;
+				tEntry["alpha"] = tItem["color"]["O"] or 1;
+
+				tinsert(tChain["nonSecretSteps"], tEntry);
 			end
 		end
 	end
@@ -287,11 +338,13 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 		tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]];
 
 		if tSpecial and tSpecial["isGlobal"] and tItem["color"] and tItem["color"]["useBackground"] then
-			tinsert(tChain["overrideValidators"], {
-				["item"] = tItem,
-				["special"] = tSpecial,
-				["index"] = tCnt,
-			});
+			tEntry = sAlphaChainStepEntryPool:get();
+
+			tEntry["item"] = tItem;
+			tEntry["special"] = tSpecial;
+			tEntry["index"] = tCnt;
+
+			tinsert(tChain["overrideValidators"], tEntry);
 		end
 	end
 
@@ -516,6 +569,8 @@ function VUHDO_rebuildAllAlphaChains()
 					end
 				end
 			end
+
+			sAlphaChainPool:release(tChain);
 		end
 	end
 
@@ -727,8 +782,6 @@ local function VUHDO_applyCurveColorByIndex(aTarget, aTargetType, aLayerTemplate
 	tR, tG, tB, tA = tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], tResultSlot["a"];
 
 	if aTargetType == VUHDO_TARGET_TYPE_BAR and sSecretsEnabled then
-		aTarget["secretCurveColor"] = aTarget["secretCurveColor"] or { };
-
 		aTarget["secretCurveColor"]["R"] = tR;
 		aTarget["secretCurveColor"]["G"] = tG;
 		aTarget["secretCurveColor"]["B"] = tB;
@@ -748,56 +801,23 @@ end
 
 
 --
-local tColorType;
-local tCustomColor;
-local tResultSlot;
-local tR;
-local tG;
-local tB;
-local tA;
+local tBarColor;
+local tTextColor;
 local function VUHDO_applyDispelColorByIndex(aTarget, aTargetType, aLayerTemplate, aUnit, aResultIdx)
 
-	if not VUHDO_getDebuffCanColorBar(aUnit) then
+	tBarColor = VUHDO_getAuraBarColor(aUnit);
+	tTextColor = VUHDO_getAuraTextColor(aUnit);
+
+	if not tBarColor and not tTextColor then
 		return;
 	end
 
-	tColorType = VUHDO_getDebuffColorType(aUnit);
-
-	if tColorType == VUHDO_AURA_GROUP_COLOR_CUSTOM then
-		tCustomColor = VUHDO_getDebuffCustomColor(aUnit);
-
-		if tCustomColor then
-			if aLayerTemplate["useBackground"] and tCustomColor["useBackground"] then
-				VUHDO_applyBackgroundColorToTarget(aTarget, aTargetType, tCustomColor);
-			end
-
-			if aTargetType == VUHDO_TARGET_TYPE_BAR and aLayerTemplate["useText"] and tCustomColor["useText"] then
-				VUHDO_applyTextColorToBar(aTarget, tCustomColor["TR"], tCustomColor["TG"], tCustomColor["TB"]);
-			end
-		end
-
-		return;
+	if tBarColor and aLayerTemplate["useBackground"] then
+		VUHDO_applyBackgroundColorToTarget(aTarget, aTargetType, tBarColor);
 	end
 
-	tResultSlot = aLayerTemplate["dispelResults"][aResultIdx];
-
-	if tResultSlot and tResultSlot["r"] then
-		tR, tG, tB, tA = tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], tResultSlot["a"];
-
-		if aTargetType == VUHDO_TARGET_TYPE_BAR and sSecretsEnabled then
-			aTarget["secretCurveColor"] = aTarget["secretCurveColor"] or { };
-
-			aTarget["secretCurveColor"]["R"] = tR;
-			aTarget["secretCurveColor"]["G"] = tG;
-			aTarget["secretCurveColor"]["B"] = tB;
-			aTarget["secretCurveColor"]["O"] = tA;
-		end
-
-		VUHDO_applyRawColorToTarget(aTarget, aTargetType, tR, tG, tB, tA, aLayerTemplate);
-
-		if aTargetType == VUHDO_TARGET_TYPE_BAR and aLayerTemplate["useText"] then
-			VUHDO_applyTextColorToBar(aTarget, tR, tG, tB);
-		end
+	if aTargetType == VUHDO_TARGET_TYPE_BAR and tTextColor and aLayerTemplate["useText"] then
+		VUHDO_applyTextColorToBar(aTarget, tTextColor["TR"], tTextColor["TG"], tTextColor["TB"]);
 	end
 
 	return;
@@ -885,7 +905,12 @@ function VUHDO_applyAllLayersToBar(aButton, aBar, aLayerTemplate)
 		return;
 	end
 
-	aBar["secretCurveColor"] = nil;
+	if aBar["secretCurveColor"] then
+		aBar["secretCurveColor"]["R"] = nil;
+		aBar["secretCurveColor"]["G"] = nil;
+		aBar["secretCurveColor"]["B"] = nil;
+		aBar["secretCurveColor"]["O"] = nil;
+	end
 
 	VUHDO_applySortedValidatorsToTarget(aButton, aBar, VUHDO_TARGET_TYPE_BAR, aLayerTemplate);
 	VUHDO_applyBooleanLayers(aButton, aBar, aLayerTemplate);

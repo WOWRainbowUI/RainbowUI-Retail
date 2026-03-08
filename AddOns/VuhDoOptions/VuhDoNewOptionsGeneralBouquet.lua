@@ -208,12 +208,21 @@ end
 
 --
 local tName, tTexture;
+local tSecrecy;
 local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIndex, aBuffInfo)
 	tName = VUHDO_getBouquetItemDisplayText(aBuffInfo["name"]) or aBuffInfo["name"];
 	anItemPanel:ClearAllPoints();
 	VUHDO_PixelUtil.SetPoint(anItemPanel, "TOPLEFT", aParent:GetName(), "TOPLEFT", 5, -(aBuffIndex - 1) * anItemPanel:GetHeight());
 	_G[anItemPanel:GetName() .. "TitleLabelLabel"]:SetText("" .. aBuffIndex);
 	_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetText(tName);
+
+	tSecrecy = not VUHDO_BOUQUET_BUFFS_SPECIAL[aBuffInfo["name"]] and VUHDO_getSpellAuraSecrecy(aBuffInfo["name"]);
+
+	if tSecrecy == 1 or tSecrecy == 2 then
+		_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(1, 0.3, 0.3, 1);
+	else
+		_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(0.4, 0.4, 1, 1);
+	end
 
 	if (aBuffInfo["icon"] == 1) then
 		tTexture = VUHDO_getGlobalIcon(tName);
@@ -762,10 +771,73 @@ end
 
 
 --
+local tComboForName;
+local tValueForName;
+function VUHDO_bouquetNameEditBoxCheckSecrecy(anEditBox)
+
+	tValueForName = anEditBox:GetText();
+
+	if not tValueForName or tValueForName == "" then
+		return;
+	end
+
+	tValueForName = strtrim(tValueForName);
+
+	if tValueForName == "" or VUHDO_BOUQUET_BUFFS_SPECIAL[tValueForName] then
+		return;
+	end
+
+	if VUHDO_checkSpellSecrecy(tValueForName) == 1 then
+		VUHDO_lnfUpdateVarFromModel(anEditBox, "");
+		anEditBox:SetText("");
+
+		tComboForName = _G[anEditBox:GetParent():GetName() .. "NameComboBox"];
+
+		if tComboForName then
+			VUHDO_lnfComboBoxInitFromModel(tComboForName);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tSpellText;
+function VUHDO_bouquetSpellTraceEditBoxCheckSecrecy(anEditBox)
+
+	tSpellText = anEditBox:GetText();
+
+	if not tSpellText or tSpellText == "" then
+		return;
+	end
+
+	tSpellText = strtrim(tSpellText);
+
+	if tSpellText == "" then
+		return;
+	end
+
+	if VUHDO_checkSpellSecrecy(tSpellText) == 1 then
+		VUHDO_lnfUpdateVarFromModel(anEditBox, "");
+		anEditBox:SetText("");
+	end
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_bouquetsBuffComboValueChanged(aComboBox, aValue)
+
 	if (not VUHDO_SUPPRESS_COMBO_FEEDBACK) then
 		VUHDO_rebuildAllBouquetItems(nil, VUHDO_CURR_SELECTED_ITEM_INDEX);
 	end
+
 end
 
 

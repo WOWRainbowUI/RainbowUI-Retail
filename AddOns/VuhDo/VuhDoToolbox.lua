@@ -42,7 +42,9 @@ local abs = abs;
 local GetAuraDataBySlot = C_UnitAuras and C_UnitAuras.GetAuraDataBySlot;
 local GetAuraDataBySpellName = C_UnitAuras and C_UnitAuras.GetAuraDataBySpellName;
 local GetAuraSlots = C_UnitAuras and C_UnitAuras.GetAuraSlots;
-local UnpackAuraData = AuraUtil.UnpackAuraData or VUHDO_unpackAuraData;
+local GetUnitAuraBySpellID = C_UnitAuras and C_UnitAuras.GetUnitAuraBySpellID;
+local GetPlayerAuraBySpellID = C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID;
+local ShouldSpellAuraBeSecret = C_Secrets and C_Secrets.ShouldSpellAuraBeSecret;
 local FindAura = AuraUtil.FindAura;
 local FindAuraByName = AuraUtil.FindAuraByName;
 local IsUsableItem = IsUsableItem or C_Item.IsUsableItem;
@@ -52,6 +54,7 @@ local IsSpellInSpellBook = C_SpellBook and C_SpellBook.IsSpellInSpellBook;
 local IsSpellKnownNew = C_SpellBook and C_SpellBook.IsSpellKnown;
 local SpellBookSpellBank = Enum and Enum.SpellBookSpellBank;
 local issecretvalue = issecretvalue;
+local issecrettable = issecrettable;
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local UnitHealthPercent = UnitHealthPercent;
 local CurveConstants = CurveConstants;
@@ -197,6 +200,36 @@ function VUHDO_getSpellBookItemTexture(aSpellId)
 	_, tIconId = VUHDO_getSpellInfo(aSpellId);
 
 	return tIconId;
+
+end
+
+
+
+--
+local tSpellNameById;
+function VUHDO_resolveSpellId(aSpellName)
+
+	if tonumber(aSpellName or "x") then
+		tSpellNameById = GetSpellName(tonumber(aSpellName));
+
+		if tSpellNameById then
+			return tSpellNameById;
+		end
+	end
+
+	return aSpellName;
+
+end
+
+
+
+--
+local tResolvedName;
+function VUHDO_formatAuraSpellDisplayName(aSpellName)
+
+	tResolvedName = VUHDO_resolveSpellId(aSpellName);
+
+	return (tResolvedName ~= aSpellName) and ("[" .. aSpellName .. "] " .. tResolvedName) or aSpellName;
 
 end
 
@@ -1551,8 +1584,63 @@ end
 
 
 --
+local tPoints;
+function VUHDO_unpackAuraData(anAuraData)
+
+	if not anAuraData then
+		return nil;
+	end
+
+	tPoints = anAuraData.points;
+
+	if tPoints and issecrettable(tPoints) then
+		return anAuraData.name,
+			anAuraData.icon,
+			anAuraData.applications,
+			anAuraData.dispelName,
+			anAuraData.duration,
+			anAuraData.expirationTime,
+			anAuraData.sourceUnit,
+			anAuraData.isStealable,
+			anAuraData.nameplateShowPersonal,
+			anAuraData.spellId,
+			anAuraData.canApplyAura,
+			anAuraData.isBossAura,
+			anAuraData.isFromPlayerOrPlayerPet,
+			anAuraData.nameplateShowAll,
+			anAuraData.timeMod,
+			unpack(tPoints);
+	else
+		return anAuraData.name,
+			anAuraData.icon,
+			anAuraData.applications,
+			anAuraData.dispelName,
+			anAuraData.duration,
+			anAuraData.expirationTime,
+			anAuraData.sourceUnit,
+			anAuraData.isStealable,
+			anAuraData.nameplateShowPersonal,
+			anAuraData.spellId,
+			anAuraData.canApplyAura,
+			anAuraData.isBossAura,
+			anAuraData.isFromPlayerOrPlayerPet,
+			anAuraData.nameplateShowAll,
+			anAuraData.timeMod;
+	end
+
+end
+local UnpackAuraData = VUHDO_unpackAuraData;
+
+
+
+--
 local tSpellId;
+local tAuraData;
 function VUHDO_unitAura(aUnit, aSpell, aFilter)
+
+	if ShouldSpellAuraBeSecret(aSpell) then
+		return nil;
+	end
 
 	if (aFilter == nil) then
 		aFilter = "HELPFUL";
@@ -1561,19 +1649,32 @@ function VUHDO_unitAura(aUnit, aSpell, aFilter)
 	tSpellId = tonumber(aSpell);
 
 	if tSpellId == nil then
-		if UnpackAuraData and GetAuraDataBySpellName then
-			return UnpackAuraData(GetAuraDataBySpellName(aUnit, aSpell, aFilter));
+		if GetAuraDataBySpellName then
+			tAuraData = GetAuraDataBySpellName(aUnit, aSpell, aFilter);
+
+			return UnpackAuraData(tAuraData);
 		else
 			return FindAuraByName(aSpell, aUnit, aFilter);
 		end
 	else
-		return FindAura(VUHDO_isSpellIdMatch, aUnit, aFilter, tSpellId);
+		if GetUnitAuraBySpellID then
+			if UnitIsUnit(aUnit, "player") and GetPlayerAuraBySpellID then
+				tAuraData = GetPlayerAuraBySpellID(tSpellId);
+			else
+				tAuraData = GetUnitAuraBySpellID(aUnit, tSpellId);
+			end
+
+			return UnpackAuraData(tAuraData);
+		else
+			return FindAura(VUHDO_isSpellIdMatch, aUnit, aFilter, tSpellId);
+		end
 	end
 
 end
 
 
 
+--
 function VUHDO_unitBuff(aUnit, aSpell)
 
 	return VUHDO_unitAura(aUnit, aSpell, "HELPFUL");
@@ -1582,6 +1683,7 @@ end
 
 
 
+--
 function VUHDO_unitDebuff(aUnit, aSpell)
 
 	return VUHDO_unitAura(aUnit, aSpell, "HARMFUL");
@@ -1621,34 +1723,6 @@ local function VUHDO_getAuraDataByIndex(aUnit, aIndex, aFilter)
 
 	return VUHDO_packAuraData(UnitAura(aUnit, aIndex, aFilter));
 
-
-end
-
-
-
---
-function VUHDO_unpackAuraData(anAuraData)
-
-	if not anAuraData then
-		return nil;
-	end
-
-	return anAuraData.name,
-		anAuraData.icon,
-		anAuraData.applications,
-		anAuraData.dispelName,
-		anAuraData.duration,
-		anAuraData.expirationTime,
-		anAuraData.sourceUnit,
-		anAuraData.isStealable,
-		anAuraData.nameplateShowPersonal,
-		anAuraData.spellId,
-		anAuraData.canApplyAura,
-		anAuraData.isBossAura,
-		anAuraData.isFromPlayerOrPlayerPet,
-		anAuraData.nameplateShowAll,
-		anAuraData.timeMod,
-		unpack(anAuraData.points);
 
 end
 

@@ -24,8 +24,6 @@ local VUHDO_UNIT_HOT_TYPE_BOTH;
 
 local VUHDO_EMERGENCIES;
 
-local VUHDO_AURA_GROUP_COLOR_CUSTOM;
-
 local VUHDO_getChosenDebuffInfo;
 local VUHDO_getCurrentPlayerTarget;
 local VUHDO_getCurrentPlayerFocus;
@@ -40,10 +38,7 @@ local VUHDO_getLatestCustomDebuff;
 local VUHDO_getUnitHot;
 local VUHDO_getUnitHotInfo;
 local VUHDO_getDispelCurveForUnit;
-local VUHDO_getDebuffColorType;
-local VUHDO_getDebuffCustomColor;
-local VUHDO_getFriendlyDispelCurve;
-local VUHDO_getHostilePurgeCurve;
+local VUHDO_getAuraBarColor;
 local VUHDO_getDispelTypeCurve;
 local VUHDO_getOrBuildBrightnessCurve;
 
@@ -119,8 +114,6 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 
 	VUHDO_EMERGENCIES = _G["VUHDO_EMERGENCIES"];
 
-	VUHDO_AURA_GROUP_COLOR_CUSTOM = _G["VUHDO_AURA_GROUP_COLOR_CUSTOM"];
-
 	VUHDO_getChosenDebuffInfo = _G["VUHDO_getChosenDebuffInfo"];
 	VUHDO_getCurrentPlayerTarget = _G["VUHDO_getCurrentPlayerTarget"];
 	VUHDO_getCurrentPlayerFocus = _G["VUHDO_getCurrentPlayerFocus"];
@@ -134,12 +127,9 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 	VUHDO_getUnitGroupPrivileges = _G["VUHDO_getUnitGroupPrivileges"];
 	VUHDO_getLatestCustomDebuff = _G["VUHDO_getLatestCustomDebuff"];
 	VUHDO_getDispelCurveForUnit = _G["VUHDO_getDispelCurveForUnit"];
-	VUHDO_getDebuffColorType = _G["VUHDO_getDebuffColorType"];
-	VUHDO_getDebuffCustomColor = _G["VUHDO_getDebuffCustomColor"];
+	VUHDO_getAuraBarColor = _G["VUHDO_getAuraBarColor"];
 	VUHDO_getUnitHot = _G["VUHDO_getUnitHot"];
 	VUHDO_getUnitHotInfo = _G["VUHDO_getUnitHotInfo"];
-	VUHDO_getFriendlyDispelCurve = _G["VUHDO_getFriendlyDispelCurve"];
-	VUHDO_getHostilePurgeCurve = _G["VUHDO_getHostilePurgeCurve"];
 	VUHDO_getDispelTypeCurve = _G["VUHDO_getDispelTypeCurve"];
 	VUHDO_getOrBuildBrightnessCurve = _G["VUHDO_getOrBuildBrightnessCurve"];
 
@@ -521,20 +511,17 @@ end
 -- return tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tTimer2, clipLeft, clipRight, clipTop, clipBottom
 local tDebuffInfo;
 local tAuraInstanceId;
-local tColorType;
-local tCustomColor;
+local tBarColor;
 local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
-
-	tColorType = VUHDO_getDebuffColorType(anInfo["unit"]);
 
 	if not sSecretsEnabled then
 		if anInfo["charmed"] then
 			return true, nil, -1, -1, -1, VUHDO_getDebuffColor(anInfo);
 		elseif anInfo["debuff"] then
-			if tColorType == VUHDO_AURA_GROUP_COLOR_CUSTOM then
-				tCustomColor = VUHDO_getDebuffCustomColor(anInfo["unit"]);
+			tBarColor = VUHDO_getAuraBarColor(anInfo["unit"]);
 
-				return true, nil, -1, -1, -1, tCustomColor;
+			if tBarColor then
+				return true, nil, -1, -1, -1, tBarColor;
 			end
 
 			tDebuffInfo = VUHDO_getChosenDebuffInfo(anInfo["unit"]);
@@ -566,10 +553,10 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 
 		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, tAuraInstanceId, tSecretColor;
 	elseif anInfo["debuff"] then
-		if tColorType == VUHDO_AURA_GROUP_COLOR_CUSTOM then
-			tCustomColor = VUHDO_getDebuffCustomColor(anInfo["unit"]);
+		tBarColor = VUHDO_getAuraBarColor(anInfo["unit"]);
 
-			return true, nil, -1, -1, -1, tCustomColor, nil, nil, nil, nil, nil, nil, nil;
+		if tBarColor then
+			return true, nil, -1, -1, -1, tBarColor, nil, nil, nil, nil, nil, nil, nil;
 		end
 
 		tAuraInstanceId = anInfo["debuff"];

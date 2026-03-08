@@ -1,3 +1,5 @@
+local _;
+
 local GetSpellName = C_Spell.GetSpellName;
 
 local VUHDO_CUSTOM_DEBUFF_CONFIG = { };
@@ -5,8 +7,8 @@ local VUHDO_UNIT_CUSTOM_DEBUFFS = { };
 setmetatable(VUHDO_UNIT_CUSTOM_DEBUFFS, VUHDO_META_NEW_ARRAY);
 local VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS = { };
 local VUHDO_LAST_UNIT_DEBUFFS = { };
-local VUHDO_PLAYER_DISPEL_ABILITIES = { };
-local VUHDO_PLAYER_PURGE_ABILITIES = { };
+VUHDO_PLAYER_DISPEL_ABILITIES = { };
+VUHDO_PLAYER_PURGE_ABILITIES = { };
 
 VUHDO_PLAYER_HAS_DISPEL = false;
 VUHDO_PLAYER_HAS_PURGE = false;
@@ -14,7 +16,7 @@ VUHDO_PLAYER_HAS_PURGE = false;
 local VUHDO_IGNORE_DEBUFFS_BY_CLASS = { };
 local VUHDO_IGNORE_DEBUFF_NAMES = { };
 
-local VUHDO_DEBUFF_TYPES = {
+VUHDO_DEBUFF_TYPES = {
 	["Magic"] = VUHDO_DEBUFF_TYPE_MAGIC,
 	["Disease"] = VUHDO_DEBUFF_TYPE_DISEASE,
 	["Poison"] = VUHDO_DEBUFF_TYPE_POISON,
@@ -39,35 +41,14 @@ local VUHDO_DEBUFF_COLORS = { };
 
 local VUHDO_DEBUFF_BLACKLIST = { };
 
-local VUHDO_DEFAULT_AURA_GROUPS;
-local VUHDO_AURA_GROUP_COLOR_OFF;
-local VUHDO_AURA_GROUP_COLOR_DISPEL;
-local VUHDO_AURA_GROUP_COLOR_CUSTOM;
-
 local UnitIsFriend = UnitIsFriend;
 local UnitIsEnemy = UnitIsEnemy;
-local UnitCanAttack = UnitCanAttack;
 local table = table;
-local tinsert = table.insert;
-local tsort = table.sort;
 local GetTime = GetTime;
 local InCombatLockdown = InCombatLockdown;
 local twipe = table.wipe;
 local pairs = pairs;
-local _;
 local tostring = tostring;
-local ForEachAura = AuraUtil.ForEachAura or VUHDO_forEachAura;
-local GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID;
-local GetUnitAuras = C_UnitAuras and C_UnitAuras.GetUnitAuras;
-
-local VUHDO_shouldScanUnit;
-
-local sUnitDispellableDebuffId = { };
-local sUnitDebuffColorText = { };
-local sUnitDebuffCanColorBar = { };
-local sUnitDebuffColorType = { };
-local sUnitDebuffCustomColor = { };
-local sCanColorBarGroups = { };
 
 local sIsNotRemovableOnly;
 local sIsNotRemovableOnlyIcons;
@@ -92,16 +73,10 @@ local sCurChosenColor = { };
 --
 function VUHDO_debuffsInitLocalOverrides()
 
-	VUHDO_shouldScanUnit = _G["VUHDO_shouldScanUnit"];
-
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 	VUHDO_DEBUFF_BLACKLIST = _G["VUHDO_DEBUFF_BLACKLIST"];
-	VUHDO_DEFAULT_AURA_GROUPS = _G["VUHDO_DEFAULT_AURA_GROUPS"];
-	VUHDO_AURA_GROUP_COLOR_OFF = _G["VUHDO_AURA_GROUP_COLOR_OFF"];
-	VUHDO_AURA_GROUP_COLOR_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_DISPEL"];
-	VUHDO_AURA_GROUP_COLOR_CUSTOM = _G["VUHDO_AURA_GROUP_COLOR_CUSTOM"];
 
 	sIsNotRemovableOnly = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY"];
 	sIsNotRemovableOnlyIcons = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY_ICONS"];
@@ -1656,336 +1631,6 @@ end
 --
 do
 	--
-	local tEffectiveColorType;
-	local tColorBarGroup;
-	function VUHDO_rebuildCanColorBarGroupsCache()
-
-		twipe(sCanColorBarGroups);
-
-		for tGroupId, tGroup in pairs(VUHDO_CONFIG["AURA_GROUPS"] or sEmpty) do
-			tEffectiveColorType = tGroup["colorType"] or ((tGroup["canColorBar"] or tGroup["canColorText"]) and VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUP_COLOR_OFF);
-
-			if tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL and tGroup["enabled"] ~= false then
-				if tGroup["isInferred"] then
-					tColorBarGroup = { };
-
-					tColorBarGroup["isInferred"] = true;
-					tColorBarGroup["inferredType"] = tGroup["inferredType"];
-					tColorBarGroup["priority"] = tGroup["priority"] or 50;
-					tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
-					tColorBarGroup["customColor"] = tGroup["customColor"];
-
-					if tGroup["canColorBar"] then
-						tColorBarGroup["canColorBar"] = true;
-					else
-						tColorBarGroup["canColorBar"] = false;
-					end
-
-					if tGroup["canColorText"] then
-						tColorBarGroup["canColorText"] = true;
-					else
-						tColorBarGroup["canColorText"] = false;
-					end
-
-					tinsert(sCanColorBarGroups, tColorBarGroup);
-				else
-					tColorBarGroup = { };
-
-					tColorBarGroup["filter"] = tGroup["filter"];
-					tColorBarGroup["priority"] = tGroup["priority"] or 50;
-					tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
-					tColorBarGroup["customColor"] = tGroup["customColor"];
-
-					if tGroup["canColorBar"] then
-						tColorBarGroup["canColorBar"] = true;
-					else
-						tColorBarGroup["canColorBar"] = false;
-					end
-
-					if tGroup["canColorText"] then
-						tColorBarGroup["canColorText"] = true;
-					else
-						tColorBarGroup["canColorText"] = false;
-					end
-
-					if tEffectiveColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
-						if strfind(tGroup["filter"], "HARMFUL", 1, true) then
-							tColorBarGroup["dispelCheckFilter"] = "HARMFUL|RAID_PLAYER_DISPELLABLE";
-						else
-							tColorBarGroup["dispelCheckFilter"] = "HELPFUL|RAID_PLAYER_DISPELLABLE";
-						end
-
-						tColorBarGroup["isHelpful"] = not strfind(tGroup["filter"], "HARMFUL", 1, true);
-					end
-
-					tinsert(sCanColorBarGroups, tColorBarGroup);
-				end
-			end
-		end
-
-		for tGroupId, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or sEmpty) do
-			if not tGroup["playerClassRequired"] or tGroup["playerClassRequired"] == VUHDO_PLAYER_CLASS then
-				tEffectiveColorType = tGroup["colorType"] or ((tGroup["canColorBar"] or tGroup["canColorText"]) and VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUP_COLOR_OFF);
-
-				if not (VUHDO_CONFIG["AURA_GROUPS"] and VUHDO_CONFIG["AURA_GROUPS"][tGroupId]) and tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL and
-					tGroup["enabled"] ~= false and not (VUHDO_CONFIG["AURA_GROUP_DISABLED"] and VUHDO_CONFIG["AURA_GROUP_DISABLED"][tGroupId]) and
-					not (VUHDO_DEFAULT_AURA_GROUPS[tGroupId] and VUHDO_DEFAULT_AURA_GROUPS[tGroupId]["enabled"] == false) then
-					if tGroup["isInferred"] then
-						tColorBarGroup = { };
-
-						tColorBarGroup["isInferred"] = true;
-						tColorBarGroup["inferredType"] = tGroup["inferredType"];
-						tColorBarGroup["priority"] = tGroup["priority"] or 50;
-						tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
-						tColorBarGroup["customColor"] = tGroup["customColor"];
-
-						if tGroup["canColorBar"] then
-							tColorBarGroup["canColorBar"] = true;
-						else
-							tColorBarGroup["canColorBar"] = false;
-						end
-
-						if tGroup["canColorText"] then
-							tColorBarGroup["canColorText"] = true;
-						else
-							tColorBarGroup["canColorText"] = false;
-						end
-
-						tinsert(sCanColorBarGroups, tColorBarGroup);
-					else
-						tColorBarGroup = { };
-
-						tColorBarGroup["filter"] = tGroup["filter"];
-						tColorBarGroup["priority"] = tGroup["priority"] or 50;
-						tColorBarGroup["colorType"] = tGroup["colorType"] or tEffectiveColorType;
-						tColorBarGroup["customColor"] = tGroup["customColor"];
-
-						if tGroup["canColorBar"] then
-							tColorBarGroup["canColorBar"] = true;
-						else
-							tColorBarGroup["canColorBar"] = false;
-						end
-
-						if tGroup["canColorText"] then
-							tColorBarGroup["canColorText"] = true;
-						else
-							tColorBarGroup["canColorText"] = false;
-						end
-
-						if tEffectiveColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
-							if strfind(tGroup["filter"], "HARMFUL", 1, true) then
-								tColorBarGroup["dispelCheckFilter"] = "HARMFUL|RAID_PLAYER_DISPELLABLE";
-							else
-								tColorBarGroup["dispelCheckFilter"] = "HELPFUL|RAID_PLAYER_DISPELLABLE";
-							end
-
-							tColorBarGroup["isHelpful"] = not strfind(tGroup["filter"], "HARMFUL", 1, true);
-						end
-
-						tinsert(sCanColorBarGroups, tColorBarGroup);
-					end
-				end
-			end
-		end
-
-		tsort(sCanColorBarGroups, function(tSortA, tSortB)
-			return (tSortA["priority"] or 50) < (tSortB["priority"] or 50);
-		end);
-
-		return;
-
-	end
-
-
-
-	--
-	local tAuras;
-	local tAura;
-	local tAuraInstanceId;
-	local tCanColorGroup;
-	function VUHDO_updateDispellableDebuffForUnit(aUnit)
-
-		if not aUnit then
-			return;
-		end
-
-		sUnitDispellableDebuffId[aUnit] = nil;
-		sUnitDebuffColorText[aUnit] = nil;
-		sUnitDebuffCanColorBar[aUnit] = nil;
-		sUnitDebuffColorType[aUnit] = nil;
-		sUnitDebuffCustomColor[aUnit] = nil;
-
-		for tCnt = 1, #sCanColorBarGroups do
-			tCanColorGroup = sCanColorBarGroups[tCnt];
-
-			if tCanColorGroup["isInferred"] and VUHDO_hasInferredAura(aUnit) and
-				VUHDO_INFERRED_AURAS[aUnit] and VUHDO_INFERRED_AURAS[aUnit][tCanColorGroup["inferredType"]] then
-				sUnitDispellableDebuffId[aUnit] = VUHDO_INFERRED_AURA_SYNTHETIC_IDS[tCanColorGroup["inferredType"]] or -1;
-
-				sUnitDebuffColorType[aUnit] = tCanColorGroup["colorType"];
-				sUnitDebuffCustomColor[aUnit] = tCanColorGroup["customColor"];
-				sUnitDebuffCanColorBar[aUnit] = tCanColorGroup["canColorBar"];
-				sUnitDebuffColorText[aUnit] = tCanColorGroup["canColorText"];
-
-				return;
-			elseif tCanColorGroup["dispelCheckFilter"] and ((tCanColorGroup["isHelpful"] and VUHDO_PLAYER_HAS_PURGE and UnitCanAttack("player", aUnit)) or
-				(not tCanColorGroup["isHelpful"] and VUHDO_PLAYER_HAS_DISPEL and not UnitCanAttack("player", aUnit))) then
-				tAuras = GetUnitAuras(aUnit, tCanColorGroup["filter"], 40, Enum.UnitAuraSortRule.Default, 1);
-
-				if tAuras then
-					for tIdx = 1, #tAuras do
-						tAura = tAuras[tIdx];
-						tAuraInstanceId = tAura["auraInstanceID"];
-
-						if not C_UnitAuras.IsAuraFilteredOutByInstanceID(aUnit, tAuraInstanceId, tCanColorGroup["dispelCheckFilter"]) then
-							sUnitDispellableDebuffId[aUnit] = tAuraInstanceId;
-							sUnitDebuffColorType[aUnit] = tCanColorGroup["colorType"];
-							sUnitDebuffCustomColor[aUnit] = tCanColorGroup["customColor"];
-							sUnitDebuffCanColorBar[aUnit] = tCanColorGroup["canColorBar"];
-							sUnitDebuffColorText[aUnit] = tCanColorGroup["canColorText"];
-
-							return;
-						end
-					end
-				end
-			elseif not tCanColorGroup["isInferred"] and not tCanColorGroup["dispelCheckFilter"] then
-				tAuras = GetUnitAuras(aUnit, tCanColorGroup["filter"], 1, Enum.UnitAuraSortRule.Default, 1);
-
-				if tAuras and #tAuras > 0 then
-					tAura = tAuras[1];
-					tAuraInstanceId = tAura["auraInstanceID"];
-
-					sUnitDispellableDebuffId[aUnit] = tAuraInstanceId;
-					sUnitDebuffColorType[aUnit] = tCanColorGroup["colorType"];
-					sUnitDebuffCustomColor[aUnit] = tCanColorGroup["customColor"];
-					sUnitDebuffCanColorBar[aUnit] = tCanColorGroup["canColorBar"];
-					sUnitDebuffColorText[aUnit] = tCanColorGroup["canColorText"];
-
-					return;
-				end
-			end
-		end
-
-		return;
-
-	end
-
-
-
-	--
-	function VUHDO_getDispellableDebuffId(aUnit)
-
-		return sUnitDispellableDebuffId[aUnit];
-
-	end
-
-
-
-	--
-	function VUHDO_hasDispellableDebuff(aUnit)
-
-		return sUnitDispellableDebuffId[aUnit] ~= nil;
-
-	end
-
-
-
-	--
-	function VUHDO_shouldColorTextForDebuff(aUnit)
-
-		return sUnitDebuffColorText[aUnit] == true;
-
-	end
-
-
-
-	--
-	function VUHDO_getDebuffColorType(aUnit)
-
-		return sUnitDebuffColorType[aUnit];
-
-	end
-
-
-
-	--
-	function VUHDO_getDebuffCustomColor(aUnit)
-
-		return sUnitDebuffCustomColor[aUnit];
-
-	end
-
-
-
-	--
-	function VUHDO_getDebuffCanColorBar(aUnit)
-
-		return sUnitDebuffCanColorBar[aUnit];
-
-	end
-
-
-
-	--
-	function VUHDO_getDebuffCanColorText(aUnit)
-
-		return sUnitDebuffColorText[aUnit];
-
-	end
-
-
-
-	--
-	function VUHDO_clearDispellableDebuffCache(aUnit)
-
-		if aUnit then
-			sUnitDispellableDebuffId[aUnit] = nil;
-			sUnitDebuffColorText[aUnit] = nil;
-			sUnitDebuffCanColorBar[aUnit] = nil;
-			sUnitDebuffColorType[aUnit] = nil;
-			sUnitDebuffCustomColor[aUnit] = nil;
-		else
-			twipe(sUnitDispellableDebuffId);
-			twipe(sUnitDebuffColorText);
-			twipe(sUnitDebuffCanColorBar);
-			twipe(sUnitDebuffColorType);
-			twipe(sUnitDebuffCustomColor);
-		end
-
-		return;
-
-	end
-end
-
-
-
-do
-	--
-	local tInfo;
-	function VUHDO_determineDebuff(aUnit, aUpdateInfo)
-
-		tInfo = (VUHDO_RAID or sEmpty)[aUnit];
-
-		if not tInfo then
-			return nil, nil;
-		end
-
-		VUHDO_updateDispellableDebuffForUnit(aUnit);
-
-		tInfo["debuffText"] = VUHDO_shouldColorTextForDebuff(aUnit);
-
-		if VUHDO_hasDispellableDebuff(aUnit) then
-			return VUHDO_getDispellableDebuffId(aUnit), nil;
-		end
-
-		return nil, nil;
-
-	end
-	local VUHDO_determineDebuff = VUHDO_determineDebuff;
-
-
-
-	--
 	local tUnitCustomDebuffs;
 	local tCustomDebuffSpellId;
 	local tCustomDebuffName;
@@ -2035,7 +1680,7 @@ do
 		VUHDO_MAY_DEBUFF_ANIM = false;
 
 		for tUnit, tInfo in pairs(VUHDO_RAID) do
-			tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineDebuff(tUnit);
+			tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineAura(tUnit);
 		end
 
 		VUHDO_MAY_DEBUFF_ANIM = anIsEnableAnim;

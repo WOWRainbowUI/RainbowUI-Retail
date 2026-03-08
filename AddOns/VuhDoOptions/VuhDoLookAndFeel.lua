@@ -10,6 +10,8 @@ local pairs = pairs;
 local ipairs = ipairs;
 local GetSpellName = C_Spell.GetSpellName;
 local GetMouseFocus = GetMouseFocus or VUHDO_getMouseFocus;
+local GetSpellIDForSpellIdentifier = C_Spell and C_Spell.GetSpellIDForSpellIdentifier;
+local GetSpellAuraSecrecy = C_Secrets and C_Secrets.GetSpellAuraSecrecy;
 
 
 
@@ -109,6 +111,64 @@ BACKDROP_VUHDO_PANEL_APPEND_BOTTOM_16_16_1111 = {
 };
 
 local tIsInCustomFunction = false;
+
+
+
+--
+local tSpellId;
+local tSecrecy;
+function VUHDO_checkSpellSecrecy(aSpellText)
+
+	if not GetSpellAuraSecrecy then
+		return 0;
+	end
+
+	tSpellId = GetSpellIDForSpellIdentifier and GetSpellIDForSpellIdentifier(aSpellText) or tonumber(aSpellText);
+
+	if not tSpellId then
+		return 0;
+	end
+
+	tSecrecy = GetSpellAuraSecrecy(tSpellId);
+
+	if tSecrecy == 1 then
+		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_SPELL_ALWAYS_SECRET, 1, 0.3, 0.3);
+
+		return 1;
+	end
+
+	if tSecrecy == 2 then
+		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_SPELL_CONTEXT_SECRET, 1, 0.3, 0.3);
+	end
+
+	return 0;
+
+end
+
+
+
+--
+local tSpellId;
+local tSecrecy;
+function VUHDO_getSpellAuraSecrecy(aSpellText)
+
+	if not GetSpellAuraSecrecy then
+		return 0;
+	end
+
+	tSpellId = GetSpellIDForSpellIdentifier and GetSpellIDForSpellIdentifier(aSpellText) or tonumber(aSpellText);
+
+	if not tSpellId then
+		return 0;
+	end
+
+	tSecrecy = GetSpellAuraSecrecy(tSpellId);
+
+	return tSecrecy or 0;
+
+end
+
+
 
 --
 function VUHDO_lnfCheckButtonOnLoad(aCheckButton)
@@ -1101,7 +1161,11 @@ function VUHDO_lnfComboInitItems(aComboBox)
 	VUHDO_PixelUtil.SetHeight(tItemContainer, tMaxY * VUHDO_COMBO_ITEM_HEIGHT + 6);
 
 	if aComboBox["isScrollable"] then
-		VUHDO_PixelUtil.SetWidth(tItemContainer, 10); -- Doesn't matter
+		if aComboBox["isResizeable"] then
+			VUHDO_PixelUtil.SetWidth(tDropdownBox, aComboBox:GetWidth());
+		end
+
+		VUHDO_PixelUtil.SetWidth(tItemContainer, 10);
 
 		tHeight = tMaxY * VUHDO_COMBO_ITEM_HEIGHT + 6;
 
@@ -1113,6 +1177,41 @@ function VUHDO_lnfComboInitItems(aComboBox)
 
 		tItemContainer:SetBackdropColor(0, 0, 0, 0);
 	end
+
+	return;
+
+end
+
+
+
+--
+local tRight;
+local tMiddle;
+local tText;
+local tLeft;
+function VUHDO_initResizeableScrollCombo(aComboBox)
+
+	aComboBox["isResizeable"] = true;
+	aComboBox["isScrollable"] = true;
+
+	tRight = _G[aComboBox:GetName() .. "Right"];
+	tMiddle = _G[aComboBox:GetName() .. "Middle"];
+	tText = _G[aComboBox:GetName() .. "Text"];
+	tLeft = _G[aComboBox:GetName() .. "Left"];
+
+	tLeft:ClearAllPoints();
+	tLeft:SetPoint("TOPLEFT", aComboBox, "TOPLEFT", 0, 0);
+
+	tRight:ClearAllPoints();
+	tRight:SetPoint("TOPRIGHT", aComboBox, "TOPRIGHT", 0, 0);
+
+	tMiddle:ClearAllPoints();
+	tMiddle:SetPoint("TOPLEFT", tLeft, "TOPRIGHT", 0, 0);
+	tMiddle:SetPoint("BOTTOMRIGHT", tRight, "BOTTOMLEFT", 0, 0);
+
+	tText:ClearAllPoints();
+	tText:SetPoint("LEFT", tLeft, "LEFT", 0, 0);
+	tText:SetPoint("RIGHT", tRight, "RIGHT", -32, 0);
 
 	return;
 
