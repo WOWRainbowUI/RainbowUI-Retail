@@ -29,7 +29,7 @@ local db, getOptions
 -- Upvalues
 local GetTime = GetTime
 local unpack = unpack
-local SPELLINTERRUPTOTHERSELF, UNKNOWN = SPELLINTERRUPTOTHERSELF, UNKNOWN
+local UnitNameFromGUID = UnitNameFromGUID
 
 local defaults = {
 	profile = {
@@ -53,9 +53,20 @@ function Interrupt:ApplySettings()
 	db = self.db.profile
 end
 
-function Interrupt:UNIT_SPELLCAST_INTERRUPTED(event, unit, castGUID, spellID)
+function Interrupt:UNIT_SPELLCAST_INTERRUPTED(event, unit, castGUID, spellID, interruptedBy)
 	if unit == "player" then
-		Player.Bar.Text:SetFormattedText(L["INTERRUPTED (%s)"], UNKNOWN)
+		local sourceName
+		if interruptedBy then
+			sourceName = UnitNameFromGUID(interruptedBy)
+		end
+		if sourceName and not issecretvalue(sourceName) then
+			Player.Bar.Text:SetFormattedText(L["INTERRUPTED (%s)"], sourceName:upper())
+		elseif sourceName then
+			-- secret value: can concatenate but not call :upper() or #
+			Player.Bar.Text:SetText(L["INTERRUPTED (%s)"]:format(sourceName))
+		else
+			Player.Bar.Text:SetText(INTERRUPTED)
+		end
 		Player.Bar.Bar:SetStatusBarColor(unpack(db.interruptcolor))
 		Player.Bar.stopTime = GetTime()
 	end
