@@ -233,7 +233,7 @@ local function CreateClickOverlay(frame)
             return
         end
         if frame.buffCategory == "consumable" then
-            local db = BuffRemindersDB
+            local db = BR.profile
             if not db or not db.defaults or db.defaults.showConsumableTooltips ~= true then
                 return
             end
@@ -269,7 +269,7 @@ local function HookPetSpecIconHover(overlay, frame)
     end
     overlay._br_pet_hover_hooked = true
     overlay:HookScript("OnEnter", function()
-        if not (BuffRemindersDB.defaults or {}).petSpecIconOnHover then
+        if not (BR.profile.defaults or {}).petSpecIconOnHover then
             return
         end
         local specIcon = frame._br_pet_spec_icon
@@ -298,7 +298,7 @@ local function ReapplyPetSpecIconIfHovered(frame)
         return
     end
     local specIcon = frame._br_pet_spec_icon
-    if specIcon and (BuffRemindersDB.defaults or {}).petSpecIconOnHover then
+    if specIcon and (BR.profile.defaults or {}).petSpecIconOnHover then
         overlay._br_pet_real_icon = frame.icon:GetTexture()
         frame.icon:SetTexture(specIcon)
     end
@@ -384,10 +384,10 @@ local function CreateActionButton()
     btn.qualityOverlay:Hide()
 
     btn:SetScript("OnEnter", function(self)
-        if not BuffRemindersDB or not BuffRemindersDB.defaults then
+        if not BR.profile or not BR.profile.defaults then
             return
         end
-        if BuffRemindersDB.defaults.showConsumableTooltips ~= true then
+        if BR.profile.defaults.showConsumableTooltips ~= true then
             return
         end
         if not self.itemID then
@@ -692,8 +692,8 @@ local function SyncSecureButtons()
         local overlay = frame.clickOverlay
         if overlay then
             local cs = frame.buffCategory
-                and BuffRemindersDB.categorySettings
-                and BuffRemindersDB.categorySettings[frame.buffCategory]
+                and BR.profile.categorySettings
+                and BR.profile.categorySettings[frame.buffCategory]
             local clickable = cs and cs.clickable == true
             -- Custom buffs with per-buff click actions are individually clickable
             if not clickable and frame.buffCategory == "custom" then
@@ -849,8 +849,8 @@ local function SyncSecureButtons()
                 if extraOverlay then
                     if extra:IsVisible() then
                         local extraCs = frame.buffCategory
-                            and BuffRemindersDB.categorySettings
-                            and BuffRemindersDB.categorySettings[frame.buffCategory]
+                            and BR.profile.categorySettings
+                            and BR.profile.categorySettings[frame.buffCategory]
                         local extraClickable = extraCs and extraCs.clickable == true
                         if not extraClickable then
                             extraOverlay:EnableMouse(false)
@@ -918,7 +918,7 @@ local function UpdateActionButtons(category)
         return
     end
 
-    local db = BuffRemindersDB
+    local db = BR.profile
     local cs = db.categorySettings and db.categorySettings[category]
     local enabled = cs and cs.clickable == true
     local showHighlight = enabled and (cs.clickableHighlight ~= false)
@@ -1168,7 +1168,7 @@ local function RefreshOverlaySpells()
         return
     end
 
-    local db = BuffRemindersDB
+    local db = BR.profile
     local seen = {}
     for _, frame in pairs(BR.Display.frames) do
         local cat = frame.buffCategory

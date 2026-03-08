@@ -114,6 +114,7 @@ local RootSettings = {
     position = nil, -- Table with x, y
     buffTrackingMode = nil, -- No auto-refresh, manually calls UpdateDisplay
     hideAllInVehicle = nil,
+    hideWhileMounted = nil,
 }
 
 -- Per-category settings (path = categorySettings.{category}.{key})
@@ -132,7 +133,6 @@ local CategorySettingKeys = {
     useCustomGlowColor = "VisualsRefresh",
     glowSize = "VisualsRefresh",
     showExpirationGlow = "DisplayRefresh",
-    glowWhenMissing = "DisplayRefresh",
     expirationThreshold = "DisplayRefresh",
     spacing = "LayoutRefresh",
     growDirection = "LayoutRefresh",
@@ -166,7 +166,6 @@ local DefaultSettingKeys = {
     growDirection = "LayoutRefresh",
     -- Behavior (glow is global-only, lives under defaults)
     showExpirationGlow = "DisplayRefresh",
-    glowWhenMissing = "DisplayRefresh",
     expirationThreshold = "DisplayRefresh",
     glowType = "VisualsRefresh",
     glowColor = "VisualsRefresh",
@@ -226,6 +225,7 @@ local function ValidatePath(segments)
         or root == "position"
         or root == "buffTrackingMode"
         or root == "hideAllInVehicle"
+        or root == "hideWhileMounted"
     if isRootSetting then
         if #segments == 1 then
             return true, RootSettings[root]
@@ -286,7 +286,6 @@ local function ValidatePath(segments)
                 "useCustomGlowColor",
                 "glowSize",
                 "showExpirationGlow",
-                "glowWhenMissing",
                 "expirationThreshold",
                 "spacing",
                 "growDirection",
@@ -351,7 +350,7 @@ local RefreshType = {
 ---@param path string Dot-separated path like "categorySettings.main.iconSize" or "enabledBuffs.intellect"
 ---@param value any The new value
 function BR.Config.Set(path, value)
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db then
         return
     end
@@ -416,7 +415,7 @@ end
 ---@param default? any Default value if not found
 ---@return any
 function BR.Config.Get(path, default)
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db then
         return default
     end
@@ -438,7 +437,7 @@ end
 ---Set multiple config values at once (batched, single refresh)
 ---@param changes table<string, any> Map of path -> value
 function BR.Config.SetMulti(changes)
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db then
         return
     end
@@ -456,7 +455,7 @@ function BR.Config.SetMulti(changes)
             -- Validate path (debug mode only warns, doesn't block)
             local isValid, validatedRefreshType = ValidatePath(segments)
             if not isValid and BR.Config.DebugMode then
-                print("|cffff6600BuffReminders:|r Invalid config path: " .. path)
+                print("|cffff6600BuffReminders:|r 無效的設置路徑: " .. path)
             end
 
             local parent = db
@@ -515,7 +514,6 @@ local AppearanceKeys = {
     iconZoom = true,
     borderSize = true,
     showExpirationGlow = true,
-    glowWhenMissing = true,
     expirationThreshold = true,
     glowType = true,
     glowColor = true,
@@ -528,7 +526,7 @@ local AppearanceKeys = {
 ---@param key string Setting key (iconSize, showBuffReminder, etc.)
 ---@return any value The effective value for this setting
 function BR.Config.GetCategorySetting(category, key)
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db then
         return nil
     end
@@ -561,7 +559,7 @@ end
 ---@param category string
 ---@return boolean
 function BR.Config.HasCustomAppearance(category)
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db or not db.categorySettings or not db.categorySettings[category] then
         return false
     end

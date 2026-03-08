@@ -47,7 +47,7 @@ end
 ---@param catKey string "main" or a category name
 ---@return table position {point, x, y}
 local function GetSavedPosition(catKey)
-    local db = BuffRemindersDB
+    local db = BR.profile
     local defaults = BR.Display.defaults
     if catKey == "main" then
         return (db.categorySettings and db.categorySettings.main and db.categorySettings.main.position)
@@ -68,7 +68,7 @@ local PositionMoverFrame
 ---@param x number
 ---@param y number
 local function SavePosition(catKey, x, y)
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db.categorySettings then
         db.categorySettings = {}
     end
@@ -184,21 +184,21 @@ local function CreateCoordinatePopup()
 
     -- Title
     local title = popup:CreateFontString(nil, "OVERLAY")
-    title:SetFont(fontPath, 11, "OUTLINE")
+    title:SetFont(fontPath, 12, "OUTLINE")
     title:SetPoint("TOP", 0, -8)
     title:SetText("Set Position")
     title:SetTextColor(1, 0.82, 0, 1)
 
     -- X row
     local xLabel = popup:CreateFontString(nil, "OVERLAY")
-    xLabel:SetFont(fontPath, 11, "OUTLINE")
+    xLabel:SetFont(fontPath, 12, "OUTLINE")
     xLabel:SetPoint("TOPLEFT", 10, -30)
     xLabel:SetText("X")
     xLabel:SetTextColor(1, 1, 1, 1)
 
     local xEdit = CreateFrame("EditBox", nil, popup)
     xEdit:SetSize(130, 20)
-    xEdit:SetFont(fontPath, 11, "")
+    xEdit:SetFont(fontPath, 12, "")
     xEdit:SetAutoFocus(false)
     local xContainer = BR.StyleEditBox(xEdit)
     xContainer:SetSize(130, 20)
@@ -206,14 +206,14 @@ local function CreateCoordinatePopup()
 
     -- Y row
     local yLabel = popup:CreateFontString(nil, "OVERLAY")
-    yLabel:SetFont(fontPath, 11, "OUTLINE")
+    yLabel:SetFont(fontPath, 12, "OUTLINE")
     yLabel:SetPoint("TOPLEFT", 10, -56)
     yLabel:SetText("Y")
     yLabel:SetTextColor(1, 1, 1, 1)
 
     local yEdit = CreateFrame("EditBox", nil, popup)
     yEdit:SetSize(130, 20)
-    yEdit:SetFont(fontPath, 11, "")
+    yEdit:SetFont(fontPath, 12, "")
     yEdit:SetAutoFocus(false)
     local yContainer = BR.StyleEditBox(yEdit)
     yContainer:SetSize(130, 20)
@@ -307,14 +307,14 @@ local function CreateMoverFrame(catKey, displayName)
     -- Label above the mover
     mover.label = mover:CreateFontString(nil, "OVERLAY")
     mover.label:SetPoint("BOTTOM", mover, "TOP", 0, 4)
-    mover.label:SetFont(fontPath, 11, "OUTLINE")
+    mover.label:SetFont(fontPath, 12, "OUTLINE")
     mover.label:SetTextColor(0.4, 1, 0.4, 1)
     mover.label:SetText(displayName or catKey)
 
     -- "Anchor" text below the green box (updated with growth direction in UpdateAnchor)
     mover.anchorText = mover:CreateFontString(nil, "OVERLAY")
     mover.anchorText:SetPoint("TOP", mover, "BOTTOM", 0, -4)
-    mover.anchorText:SetFont(fontPath, 11, "OUTLINE")
+    mover.anchorText:SetFont(fontPath, 12, "OUTLINE")
     mover.anchorText:SetTextColor(0.4, 1, 0.4, 1)
 
     mover.catKey = catKey
@@ -411,7 +411,7 @@ local function UpdateAnchor()
         return
     end
 
-    local db = BuffRemindersDB
+    local db = BR.profile
     local unlocked = not db.locked
 
     -- Main mover: show when unlocked AND not all categories split
@@ -481,6 +481,25 @@ local function ConvertDirectionPositions()
     end
 end
 
+-- Sync lastDirection cache from the current profile's settings.
+-- Must run before LayoutRefresh on profile switch to prevent ConvertDirectionPositions
+-- from seeing a stale oldDir and doing a spurious position conversion.
+local function SyncDirectionCache()
+    lastDirection["main"] = (GetCategorySettings("main").growDirection or "CENTER")
+    for _, category in ipairs(CATEGORIES) do
+        lastDirection[category] = (GetCategorySettings(category).growDirection or "CENTER")
+    end
+end
+
+-- Reposition all mover frames from the active profile's saved positions.
+-- Called after profile switch to move frames to the new profile's positions.
+local function RepositionAllFrames()
+    PositionMoverFrame("main")
+    for _, category in ipairs(CATEGORIES) do
+        PositionMoverFrame(category)
+    end
+end
+
 -- Export module
 BR.Movers = {
     Initialize = InitializeMovers,
@@ -491,4 +510,6 @@ BR.Movers = {
         return moverFrames
     end,
     ConvertDirectionPositions = ConvertDirectionPositions,
+    SyncDirectionCache = SyncDirectionCache,
+    RepositionAllFrames = RepositionAllFrames,
 }

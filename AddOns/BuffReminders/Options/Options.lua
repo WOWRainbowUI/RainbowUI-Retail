@@ -143,7 +143,7 @@ local function CreateOptionsPanel()
     -- Title (inline with tab row)
     local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", COL_PADDING, -10)
-    title:SetText("|cffffffff增益|r|cffffcc00提醒器|r")
+    title:SetText("|cffffffff增益|r|cffffcc00提醒|r")
 
     -- Version (next to title, smaller font)
     local version = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
@@ -183,7 +183,7 @@ local function CreateOptionsPanel()
     local BASE_SCALE = OPTIONS_BASE_SCALE
     local MIN_PCT, MAX_PCT = 80, 150
 
-    local currentScale = BuffRemindersDB.optionsPanelScale or BASE_SCALE
+    local currentScale = BR.profile.optionsPanelScale or BASE_SCALE
     local currentPct = floor(currentScale / BASE_SCALE * 100 + 0.5)
 
     -- Close button
@@ -210,17 +210,17 @@ local function CreateOptionsPanel()
     scaleUp:SetText(">")
 
     local function UpdateScaleText()
-        local pct = floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
+        local pct = floor((BR.profile.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
         scaleValue:SetText(pct .. "%")
         scaleDown:SetTextColor(pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4, pct > MIN_PCT and 1 or 0.4)
         scaleUp:SetTextColor(pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4, pct < MAX_PCT and 1 or 0.4)
     end
 
     local function UpdateScale(delta)
-        local oldPct = floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
+        local oldPct = floor((BR.profile.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
         local newPct = max(MIN_PCT, min(MAX_PCT, oldPct + delta))
         local newScale = newPct / 100 * BASE_SCALE
-        BuffRemindersDB.optionsPanelScale = newScale
+        BR.profile.optionsPanelScale = newScale
         panel:SetScale(newScale)
         UpdateScaleText()
     end
@@ -246,7 +246,7 @@ local function CreateOptionsPanel()
         UpdateScale(10)
     end)
     upBtn:SetScript("OnEnter", function()
-        local pct = floor((BuffRemindersDB.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
+        local pct = floor((BR.profile.optionsPanelScale or BASE_SCALE) / BASE_SCALE * 100 + 0.5)
         if pct < MAX_PCT then
             scaleUp:SetTextColor(1, 0.82, 0)
         end
@@ -257,8 +257,8 @@ local function CreateOptionsPanel()
 
     UpdateScaleText()
 
-    if BuffRemindersDB.optionsPanelScale then
-        panel:SetScale(BuffRemindersDB.optionsPanelScale)
+    if BR.profile.optionsPanelScale then
+        panel:SetScale(BR.profile.optionsPanelScale)
     end
 
     -- ========== TABS ==========
@@ -432,10 +432,10 @@ local function CreateOptionsPanel()
             icons = ResolveBuffIcons(displayIcon, spellIDs),
             infoTooltip = not readyCheckOnly and infoTooltip or nil,
             get = function()
-                return BuffRemindersDB.enabledBuffs[key] ~= false
+                return BR.profile.enabledBuffs[key] ~= false
             end,
             onChange = function(checked)
-                BuffRemindersDB.enabledBuffs[key] = checked
+                BR.profile.enabledBuffs[key] = checked
                 UpdateDisplay()
                 if readyCheckOnly then
                     Components.RefreshAll()
@@ -448,12 +448,12 @@ local function CreateOptionsPanel()
         -- Inline toggle: "Ready check only" / "Always show" (replaces info tooltip icon)
         if readyCheckOnly then
             local function GetReadyCheckOnlyState()
-                local overrides = BuffRemindersDB.readyCheckOnlyOverrides
+                local overrides = BR.profile.readyCheckOnlyOverrides
                 return not overrides or overrides[key] ~= false
             end
 
             local function ToggleLabel(checked)
-                return checked and "Ready check" or "Always"
+                return checked and "準備確認" or "永遠顯示"
             end
 
             local toggle
@@ -461,7 +461,7 @@ local function CreateOptionsPanel()
                 label = ToggleLabel(GetReadyCheckOnlyState()),
                 get = GetReadyCheckOnlyState,
                 enabled = function()
-                    return BuffRemindersDB.enabledBuffs[key] ~= false
+                    return BR.profile.enabledBuffs[key] ~= false
                 end,
                 onChange = function(checked)
                     if checked then
@@ -687,7 +687,7 @@ local function CreateOptionsPanel()
         end
         panel.customBuffRows = {}
 
-        local db = BuffRemindersDB
+        local db = BR.profile
         local rowY = 0
 
         local sortedKeys = {}
@@ -706,10 +706,10 @@ local function CreateOptionsPanel()
                 label = customBuff.name or ("Spell " .. tostring(customBuff.spellID)),
                 icons = ResolveBuffIcons(nil, customBuff.spellID),
                 get = function()
-                    return BuffRemindersDB.enabledBuffs[key] ~= false
+                    return BR.profile.enabledBuffs[key] ~= false
                 end,
                 onChange = function(checked)
-                    BuffRemindersDB.enabledBuffs[key] = checked
+                    BR.profile.enabledBuffs[key] = checked
                     UpdateDisplay()
                 end,
                 onRightClick = function()
@@ -724,7 +724,7 @@ local function CreateOptionsPanel()
             rowY = rowY - ITEM_HEIGHT
         end
 
-        local addBtn = CreateButton(customBuffsContainer, "+ Add Custom Buff", function()
+        local addBtn = CreateButton(customBuffsContainer, "+ 新增自訂增益", function()
             ShowCustomBuffModal(nil, RenderCustomBuffRows)
         end)
         addBtn:SetPoint("TOPLEFT", 0, rowY - ADD_BTN_GAP)
@@ -748,20 +748,20 @@ local function CreateOptionsPanel()
     local displayBehaviorLayout = Components.VerticalLayout(displayBehaviorContent, { x = displayBehaviorX, y = -10 })
 
     -- Global Defaults section
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "全局預設")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "整體預設")
 
     local defNote = displayBehaviorContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     displayBehaviorLayout:AddText(defNote, 12, COMPONENT_GAP)
-    defNote:SetText("(All categories inherit these unless overridden)")
+    defNote:SetText("(所有類別都會繼承這些設定，除非被覆蓋。)")
 
     local function isDefDimensionsLinked()
-        local db = BuffRemindersDB.defaults
+        local db = BR.profile.defaults
         return not db or db.iconWidth == nil
     end
 
     local defGrid = Components.AppearanceGrid(displayBehaviorContent, {
         get = function(key, default)
-            local d = BuffRemindersDB.defaults
+            local d = BR.profile.defaults
             return d and d[key] or default
         end,
         set = function(key, value)
@@ -780,7 +780,7 @@ local function CreateOptionsPanel()
             Components.RefreshAll()
         end,
         onUnlink = function()
-            local db = BuffRemindersDB.defaults
+            local db = BR.profile.defaults
             BR.Config.Set("defaults.iconWidth", db and db.iconSize or 64)
             Components.RefreshAll()
         end,
@@ -813,7 +813,7 @@ local function CreateOptionsPanel()
             end
         end,
         get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.fontFace or nil
+            return BR.profile.defaults and BR.profile.defaults.fontFace or nil
         end,
         onChange = function(val)
             BR.Config.Set("defaults.fontFace", val)
@@ -824,7 +824,7 @@ local function CreateOptionsPanel()
     local defDirHolder = Components.DirectionButtons(displayBehaviorContent, {
         labelWidth = 50,
         get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.growDirection or "CENTER"
+            return BR.profile.defaults and BR.profile.defaults.growDirection or "CENTER"
         end,
         onChange = function(dir)
             BR.Config.Set("defaults.growDirection", dir)
@@ -832,8 +832,29 @@ local function CreateOptionsPanel()
     })
     displayBehaviorLayout:Add(defDirHolder, nil, COMPONENT_GAP + DROPDOWN_EXTRA)
 
-    -- Expiration Glow section
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "過期發光")
+    -- Expiration Reminder section
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "過期提醒")
+    displayBehaviorLayout:Space(COMPONENT_GAP)
+
+    local defThresholdHolder = Components.Slider(displayBehaviorContent, {
+        label = "門檻",
+        min = 0,
+        max = 45,
+        step = 5,
+        get = function()
+            return BR.profile.defaults and BR.profile.defaults.expirationThreshold or 15
+        end,
+        formatValue = function(val)
+            return val == 0 and "Off" or (val .. " 分")
+        end,
+        onChange = function(val)
+            BR.Config.Set("defaults.expirationThreshold", val)
+        end,
+    })
+    displayBehaviorLayout:Add(defThresholdHolder, nil, COMPONENT_GAP)
+
+    -- Glow section
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "發光")
     displayBehaviorLayout:Space(COMPONENT_GAP)
 
     local previewBtn = CreateButton(displayBehaviorContent, "預覽", function()
@@ -844,7 +865,7 @@ local function CreateOptionsPanel()
     local defGlowHolder = Components.Checkbox(displayBehaviorContent, {
         label = "發光",
         get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.showExpirationGlow ~= false
+            return BR.profile.defaults and BR.profile.defaults.showExpirationGlow ~= false
         end,
         onChange = function(checked)
             BR.Config.Set("defaults.showExpirationGlow", checked)
@@ -853,23 +874,8 @@ local function CreateOptionsPanel()
     })
 
     local function isExpirationGlowEnabled()
-        return BuffRemindersDB.defaults and BuffRemindersDB.defaults.showExpirationGlow ~= false
+        return BR.profile.defaults and BR.profile.defaults.showExpirationGlow ~= false
     end
-
-    local defThresholdHolder = Components.Slider(displayBehaviorContent, {
-        min = 1,
-        max = 45,
-        step = 5,
-        get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.expirationThreshold or 15
-        end,
-        enabled = isExpirationGlowEnabled,
-        suffix = " min",
-        onChange = function(val)
-            BR.Config.Set("defaults.expirationThreshold", val)
-        end,
-    })
-    defThresholdHolder:SetPoint("LEFT", defGlowHolder.checkbox, "RIGHT", 40, 0)
 
     local typeOptions = {}
     for i, gt in ipairs(GlowTypes) do
@@ -881,7 +887,7 @@ local function CreateOptionsPanel()
         labelWidth = 34,
         options = typeOptions,
         get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.glowType or 1
+            return BR.profile.defaults and BR.profile.defaults.glowType or 1
         end,
         enabled = isExpirationGlowEnabled,
         width = 130,
@@ -889,13 +895,13 @@ local function CreateOptionsPanel()
             BR.Config.Set("defaults.glowType", val)
         end,
     }, "BuffRemindersDefGlowTypeDropdown")
-    defTypeHolder:SetPoint("LEFT", defThresholdHolder, "RIGHT", 8, 0)
+    defTypeHolder:SetPoint("LEFT", defGlowHolder.checkbox, "RIGHT", 40, 0)
 
     local defUseCustomColorHolder = Components.Checkbox(displayBehaviorContent, {
         label = "顏色",
         tooltip = "使用自訂發光顏色而不是預設顏色。\n關閉時，發光使用原生顏色，看起來更加鮮豔。",
         get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.useCustomGlowColor or false
+            return BR.profile.defaults and BR.profile.defaults.useCustomGlowColor or false
         end,
         enabled = isExpirationGlowEnabled,
         onChange = function(checked)
@@ -912,7 +918,7 @@ local function CreateOptionsPanel()
         end,
         enabled = function()
             return isExpirationGlowEnabled()
-                and (BuffRemindersDB.defaults and BuffRemindersDB.defaults.useCustomGlowColor or false)
+                and (BR.profile.defaults and BR.profile.defaults.useCustomGlowColor or false)
         end,
         onChange = function(r, g, b, a)
             BR.Config.Set("defaults.glowColor", { r, g, b, a or 1 })
@@ -926,35 +932,20 @@ local function CreateOptionsPanel()
         max = 5,
         step = 1,
         get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.glowSize or 2
+            return BR.profile.defaults and BR.profile.defaults.glowSize or 2
         end,
         enabled = isExpirationGlowEnabled,
         onChange = function(val)
             BR.Config.Set("defaults.glowSize", val)
         end,
     })
-    displayBehaviorLayout:Add(defGlowHolder, nil, COMPONENT_GAP + DROPDOWN_EXTRA)
-
-    local defGlowWhenMissingHolder = Components.Checkbox(displayBehaviorContent, {
-        label = "也在缺少時",
-        tooltip = "在完全缺少的增益圖示上顯示發光效果，而不僅僅是過期。",
-        get = function()
-            return BuffRemindersDB.defaults and BuffRemindersDB.defaults.glowWhenMissing ~= false
-        end,
-        enabled = isExpirationGlowEnabled,
-        onChange = function(checked)
-            BR.Config.Set("defaults.glowWhenMissing", checked)
-        end,
-    })
-    defGlowWhenMissingHolder:SetPoint("TOPLEFT", defGlowHolder, "BOTTOMLEFT", 20, -COMPONENT_GAP)
-    defGlowSizeHolder:SetPoint("LEFT", defTypeHolder, "LEFT", 0, 0)
-    defGlowSizeHolder:SetPoint("TOP", defGlowWhenMissingHolder, "TOP")
+    defGlowSizeHolder:SetPoint("LEFT", defTypeHolder, "RIGHT", 8, 0)
     defUseCustomColorHolder:SetPoint("LEFT", defGlowSizeHolder, "RIGHT", 6, 0)
     defGlowColorHolder:SetPoint("LEFT", defUseCustomColorHolder.label, "RIGHT", 4, 0)
-    displayBehaviorLayout:Space(20 + COMPONENT_GAP)
+    displayBehaviorLayout:Add(defGlowHolder, nil, COMPONENT_GAP + DROPDOWN_EXTRA)
 
     -- Per-Category Customization section
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "按類別自定義")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "按類別自訂")
     displayBehaviorLayout:Space(COMPONENT_GAP)
 
     -- Create collapsible sections that chain-anchor to each other
@@ -991,7 +982,7 @@ local function CreateOptionsPanel()
         local catContent = section:GetContentFrame()
         local catLayout = Components.VerticalLayout(catContent, { x = 0, y = 0 })
 
-        local db = BuffRemindersDB
+        local db = BR.profile
 
         -- W/S/D/R content visibility + ready check (not for custom — custom uses per-buff loadConditions)
         if category ~= "custom" then
@@ -1022,7 +1013,7 @@ local function CreateOptionsPanel()
         catLayout:Add(readyCheckHolder, nil, COMPONENT_GAP)
         else
             local banner = Components.Banner(catContent, {
-                text = "可視性與準備確認設定移動到每個增益的編輯選單中。",
+                text = "顯示與準備確認設定移動到每個增益的編輯選單中。",
                 color = "orange",
                 icon = "services-icon-warning",
             })
@@ -1210,10 +1201,10 @@ local function CreateOptionsPanel()
             local hideMountHolder = Components.Checkbox(catContent, {
                 label = "當上坐騎時隱藏",
                 get = function()
-                    return BuffRemindersDB.hidePetWhileMounted ~= false
+                    return BR.profile.hidePetWhileMounted ~= false
                 end,
                 onChange = function(checked)
-                    BuffRemindersDB.hidePetWhileMounted = checked
+                    BR.profile.hidePetWhileMounted = checked
                     UpdateDisplay()
                 end,
             })
@@ -1222,14 +1213,14 @@ local function CreateOptionsPanel()
             local passiveCombatHolder = Components.Checkbox(catContent, {
                 label = "寵物被動僅在戰鬥中",
                 get = function()
-                    return BuffRemindersDB.petPassiveOnlyInCombat == true
+                    return BR.profile.petPassiveOnlyInCombat == true
                 end,
                 tooltip = {
                     title = "寵物被動僅在戰鬥中",
                     desc = "僅在戰鬥時顯示被動寵物提醒。停用時，始終顯示提醒。",
                 },
                 onChange = function(checked)
-                    BuffRemindersDB.petPassiveOnlyInCombat = checked
+                    BR.profile.petPassiveOnlyInCombat = checked
                     UpdateDisplay()
                 end,
             })
@@ -1340,7 +1331,7 @@ local function CreateOptionsPanel()
             tinsert(BR.RefreshableComponents, petPreviewHolder)
 
             local petLabelsHolder = Components.Checkbox(catContent, {
-                label = "Pet labels",
+                label = "寵物標籤",
                 get = function()
                     return BR.Config.Get("defaults.petLabels", true)
                 end,
@@ -1390,19 +1381,19 @@ local function CreateOptionsPanel()
                     { key = "MAGE", label = "M", tooltip = "法師", color = classColor("MAGE") },
                 },
                 getState = function(key)
-                    local vis = BuffRemindersDB.defaults.petLabelClasses
+                    local vis = BR.profile.defaults.petLabelClasses
                     return not vis or vis[key] ~= false
                 end,
                 setState = function(key)
-                    if not BuffRemindersDB.defaults.petLabelClasses then
-                        BuffRemindersDB.defaults.petLabelClasses = {
+                    if not BR.profile.defaults.petLabelClasses then
+                        BR.profile.defaults.petLabelClasses = {
                             HUNTER = true,
                             WARLOCK = true,
                             DEATHKNIGHT = true,
                             MAGE = true,
                         }
                     end
-                    BuffRemindersDB.defaults.petLabelClasses[key] = not BuffRemindersDB.defaults.petLabelClasses[key]
+                    BR.profile.defaults.petLabelClasses[key] = not BR.profile.defaults.petLabelClasses[key]
                 end,
                 onChange = function()
                     UpdateDisplay()
@@ -1439,7 +1430,7 @@ local function CreateOptionsPanel()
                     { value = "icon_only", label = "只有圖示", desc = "顯示次數最高的物品" },
                     {
                         value = "sub_icons",
-                        label = "Sub-icons",
+                        label = "子圖示",
                         desc = "每個圖示下方可點擊的各種小物品",
                     },
                     { value = "expanded", label = "開展", desc = "每種物品都為全尺寸圖示" },
@@ -1823,7 +1814,6 @@ local function CreateOptionsPanel()
         end
 
         local CAT_LW = 50 -- Shared label width for glow rows
-        local CAT_COL2 = 240 -- Column 2 offset for glow rows
 
         local function isCatDimensionsLinked()
             local cs = db.categorySettings and db.categorySettings[category]
@@ -1866,20 +1856,16 @@ local function CreateOptionsPanel()
         local glowRowY = -catGrid.height
         local gridHeight
         if category == "pet" then
-            -- Pets don't expire — single "Glow when missing" checkbox
-            -- (sets both showExpirationGlow and glowWhenMissing under the hood)
+            -- Pets don't expire — single "Glow" checkbox
             local catPetGlowHolder = Components.Checkbox(appFrame, {
-                label = "缺少時發光",
+                label = "發光",
                 get = function()
                     return getCatOwnValue("showExpirationGlow", true) ~= false
-                        and getCatOwnValue("glowWhenMissing", true) ~= false
                 end,
                 enabled = isCustomAppearanceEnabled,
                 onChange = function(checked)
-                    BR.Config.SetMulti({
-                        ["categorySettings." .. category .. ".showExpirationGlow"] = checked,
-                        ["categorySettings." .. category .. ".glowWhenMissing"] = checked,
-                    })
+                    BR.Config.Set("categorySettings." .. category .. ".showExpirationGlow", checked)
+                    Components.RefreshAll()
                 end,
             })
             catPetGlowHolder:SetPoint("TOPLEFT", 0, glowRowY)
@@ -1890,9 +1876,7 @@ local function CreateOptionsPanel()
             end
 
             local function isPetGlowEnabled()
-                return isCustomAppearanceEnabled()
-                    and getCatOwnValue("showExpirationGlow", true) ~= false
-                    and getCatOwnValue("glowWhenMissing", true) ~= false
+                return isCustomAppearanceEnabled() and getCatOwnValue("showExpirationGlow", true) ~= false
             end
 
             local catGlowTypeHolder = Components.Dropdown(appFrame, {
@@ -1908,7 +1892,7 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowType", val)
                 end,
             }, "BuffReminders_" .. category .. "_GlowTypeDropdown")
-            catGlowTypeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY)
+            catGlowTypeHolder:SetPoint("LEFT", catPetGlowHolder.checkbox, "RIGHT", 40, 0)
 
             local catUseCustomColorHolder = Components.Checkbox(appFrame, {
                 label = "顏色",
@@ -1950,15 +1934,32 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowSize", val)
                 end,
             })
-            catGlowSizeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY - 24)
+            catGlowSizeHolder:SetPoint("LEFT", catGlowTypeHolder, "RIGHT", 8, 0)
             catUseCustomColorHolder:SetPoint("LEFT", catGlowSizeHolder, "RIGHT", 3, 0)
             catGlowColorHolder:SetPoint("LEFT", catUseCustomColorHolder.label, "RIGHT", 2, 0)
 
-            gridHeight = catGrid.height + 48
+            gridHeight = catGrid.height + 24
         else
             local function isGlowEnabled()
                 return isCustomAppearanceEnabled() and getCatOwnValue("showExpirationGlow", true) ~= false
             end
+
+            local catGlowThresholdHolder = Components.Slider(appFrame, {
+                min = 0,
+                max = 45,
+                step = 5,
+                formatValue = function(val)
+                    return val == 0 and "Off" or (val .. " 分")
+                end,
+                get = function()
+                    return getCatOwnValue("expirationThreshold", 15)
+                end,
+                enabled = isCustomAppearanceEnabled,
+                onChange = function(val)
+                    BR.Config.Set("categorySettings." .. category .. ".expirationThreshold", val)
+                end,
+            })
+            catGlowThresholdHolder:SetPoint("TOPLEFT", 0, glowRowY)
 
             local catGlowCheckHolder = Components.Checkbox(appFrame, {
                 label = "發光",
@@ -1971,22 +1972,7 @@ local function CreateOptionsPanel()
                     Components.RefreshAll()
                 end,
             })
-            catGlowCheckHolder:SetPoint("TOPLEFT", 0, glowRowY)
-
-            local catGlowThresholdHolder = Components.Slider(appFrame, {
-                min = 1,
-                max = 45,
-                step = 5,
-                suffix = " min",
-                get = function()
-                    return getCatOwnValue("expirationThreshold", 15)
-                end,
-                enabled = isGlowEnabled,
-                onChange = function(val)
-                    BR.Config.Set("categorySettings." .. category .. ".expirationThreshold", val)
-                end,
-            })
-            catGlowThresholdHolder:SetPoint("LEFT", catGlowCheckHolder.checkbox, "RIGHT", 40, 0)
+            catGlowCheckHolder:SetPoint("TOPLEFT", 0, glowRowY - 24)
 
             local catGlowTypeOptions = {}
             for gi, gt in ipairs(GlowTypes) do
@@ -2006,7 +1992,7 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowType", val)
                 end,
             }, "BuffReminders_" .. category .. "_GlowTypeDropdown")
-            catGlowTypeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY)
+            catGlowTypeHolder:SetPoint("LEFT", catGlowCheckHolder.checkbox, "RIGHT", 40, 0)
 
             local catUseCustomColorHolder = Components.Checkbox(appFrame, {
                 label = "顏色",
@@ -2049,20 +2035,7 @@ local function CreateOptionsPanel()
                     BR.Config.Set("categorySettings." .. category .. ".glowSize", val)
                 end,
             })
-
-            local catGlowWhenMissingHolder = Components.Checkbox(appFrame, {
-                label = "也在缺少時",
-                tooltip = "Show glow on buff icons that are completely missing, not just expiring.",
-                get = function()
-                    return getCatOwnValue("glowWhenMissing", true) ~= false
-                end,
-                enabled = isGlowEnabled,
-                onChange = function(checked)
-                    BR.Config.Set("categorySettings." .. category .. ".glowWhenMissing", checked)
-                end,
-            })
-            catGlowWhenMissingHolder:SetPoint("TOPLEFT", 20, glowRowY - 24)
-            catGlowSizeHolder:SetPoint("TOPLEFT", CAT_COL2, glowRowY - 24)
+            catGlowSizeHolder:SetPoint("LEFT", catGlowTypeHolder, "RIGHT", 8, 0)
             catUseCustomColorHolder:SetPoint("LEFT", catGlowSizeHolder, "RIGHT", 3, 0)
             catGlowColorHolder:SetPoint("LEFT", catUseCustomColorHolder.label, "RIGHT", 2, 0)
 
@@ -2121,10 +2094,10 @@ local function CreateOptionsPanel()
     local loginMsgHolder = Components.Checkbox(settingsContent, {
         label = "顯示登入訊息",
         get = function()
-            return BuffRemindersDB.showLoginMessages ~= false
+            return BR.profile.showLoginMessages ~= false
         end,
         onChange = function(checked)
-            BuffRemindersDB.showLoginMessages = checked
+            BR.profile.showLoginMessages = checked
         end,
     })
     setLayout:Add(loginMsgHolder, nil, COMPONENT_GAP)
@@ -2132,13 +2105,10 @@ local function CreateOptionsPanel()
     local minimapHolder = Components.Checkbox(settingsContent, {
         label = "顯示小地圖按鈕",
         get = function()
-            return not BuffRemindersDB.minimap or not BuffRemindersDB.minimap.hide
+            return not BR.aceDB.global.minimap.hide
         end,
         onChange = function(checked)
-            if not BuffRemindersDB.minimap then
-                BuffRemindersDB.minimap = {}
-            end
-            BuffRemindersDB.minimap.hide = not checked
+            BR.aceDB.global.minimap.hide = not checked
             if BR.MinimapButton then
                 if checked then
                     BR.MinimapButton.Icon:Show("BuffReminders")
@@ -2151,15 +2121,15 @@ local function CreateOptionsPanel()
     setLayout:Add(minimapHolder, nil, COMPONENT_GAP)
 
     -- General Settings section
-    LayoutSectionHeader(setLayout, settingsContent, "可視性")
+    LayoutSectionHeader(setLayout, settingsContent, "顯示")
 
     local groupHolder = Components.Checkbox(settingsContent, {
         label = "只有在隊伍/團隊中顯示",
         get = function()
-            return BuffRemindersDB.showOnlyInGroup ~= false
+            return BR.profile.showOnlyInGroup ~= false
         end,
         onChange = function(checked)
-            BuffRemindersDB.showOnlyInGroup = checked
+            BR.profile.showOnlyInGroup = checked
             UpdateDisplay()
         end,
     })
@@ -2168,11 +2138,11 @@ local function CreateOptionsPanel()
     local restingHolder = Components.Checkbox(settingsContent, {
         label = "休息狀態時隱藏",
         get = function()
-            return BuffRemindersDB.hideWhileResting == true
+            return BR.profile.hideWhileResting == true
         end,
         tooltip = { title = "休息狀態時隱藏", desc = "在旅館或主城時隱藏增益提醒" },
         onChange = function(checked)
-            BuffRemindersDB.hideWhileResting = checked
+            BR.profile.hideWhileResting = checked
             UpdateDisplay()
         end,
     })
@@ -2181,10 +2151,10 @@ local function CreateOptionsPanel()
     local combatHolder = Components.Checkbox(settingsContent, {
         label = "戰鬥中隱藏",
         get = function()
-            return BuffRemindersDB.hideInCombat == true
+            return BR.profile.hideInCombat == true
         end,
         onChange = function(checked)
-            BuffRemindersDB.hideInCombat = checked
+            BR.profile.hideInCombat = checked
             UpdateDisplay()
         end,
     })
@@ -2197,13 +2167,13 @@ local function CreateOptionsPanel()
             desc = "在戰鬥中，隱藏即將過期的增益效果，只顯示完全缺少的增益效果",
         },
         get = function()
-            return BuffRemindersDB.hideExpiringInCombat ~= false
+            return BR.profile.hideExpiringInCombat ~= false
         end,
         enabled = function()
-            return BuffRemindersDB.hideInCombat ~= true
+            return BR.profile.hideInCombat ~= true
         end,
         onChange = function(checked)
-            BuffRemindersDB.hideExpiringInCombat = checked
+            BR.profile.hideExpiringInCombat = checked
             UpdateDisplay()
         end,
     })
@@ -2216,14 +2186,30 @@ local function CreateOptionsPanel()
             desc = "在任務載具中隱藏所有增益提醒。禁用後，團隊和在場增益仍然顯示",
 },
         get = function()
-            return BuffRemindersDB.hideAllInVehicle == true
+            return BR.profile.hideAllInVehicle == true
         end,
         onChange = function(checked)
-            BuffRemindersDB.hideAllInVehicle = checked
+            BR.profile.hideAllInVehicle = checked
             UpdateDisplay()
         end,
     })
     setLayout:Add(vehicleHolder, nil, COMPONENT_GAP)
+
+    local mountedHolder = Components.Checkbox(settingsContent, {
+        label = "坐騎上隱藏",
+        tooltip = {
+            title = "坐騎上隱藏",
+            desc = "上坐騎時隱藏所有增益提醒。覆蓋每個類別的寵物坐騎隱藏設定",
+        },
+        get = function()
+            return BR.profile.hideWhileMounted == true
+        end,
+        onChange = function(checked)
+            BR.profile.hideWhileMounted = checked
+            UpdateDisplay()
+        end,
+    })
+    setLayout:Add(mountedHolder, nil, COMPONENT_GAP)
 
     local trackingModeHolder = Components.Dropdown(settingsContent, {
         label = "增益追蹤",
@@ -2264,18 +2250,7 @@ local function CreateOptionsPanel()
     })
     setLayout:Add(trackingModeHolder, nil, COMPONENT_GAP)
 
-    LayoutSectionHeader(setLayout, settingsContent, "Danger zone")
-
-    local resetBtn = CreateButton(settingsContent, "重置回預設", function()
-        StaticPopup_Show("BUFFREMINDERS_RESET_DEFAULTS")
-    end, {
-        title = "重置回預設",
-        desc = "清除所有設定並恢復到預設，這會重載UI。",
-    })
-    resetBtn:SetSize(130, 22)
-    setLayout:Add(resetBtn)
-
-    -- ========== IMPORT/EXPORT TAB ==========
+    -- ========== PROFILES TAB ==========
     -- Use simple frame (not scrollable) to avoid nested scroll frame issues with edit boxes
     local profilesContent = CreateFrame("Frame", nil, panel)
     profilesContent:SetPoint("TOPLEFT", 0, CONTENT_TOP)
@@ -2285,6 +2260,184 @@ local function CreateOptionsPanel()
 
     local profX = COL_PADDING
     local profLayout = Components.VerticalLayout(profilesContent, { x = profX, y = -10 })
+    local RefreshProfileDropdown -- forward declaration for closures
+
+    -- Profile management section
+    LayoutSectionHeader(profLayout, profilesContent, "啟用設定檔")
+
+    local profileDesc = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    profileDesc:SetText("在已儲存的配置之間切換。每個角色可以使用不同的設定檔。")
+    profLayout:AddText(profileDesc, 12, COMPONENT_GAP)
+
+    local function GetProfileOptions()
+        local names = BR.Profiles.ListProfiles()
+        local options = {}
+        for _, name in ipairs(names) do
+            options[#options + 1] = { value = name, label = name }
+        end
+        return options
+    end
+
+    local function GetOtherProfileOptions()
+        local names = BR.Profiles.ListProfiles()
+        local active = BR.Profiles.GetActiveProfileName()
+        local options = { { value = "", label = "選擇設定檔" } }
+        for _, name in ipairs(names) do
+            if name ~= active then
+                options[#options + 1] = { value = name, label = name }
+            end
+        end
+        return options
+    end
+
+    local PROF_LABEL_WIDTH = 70
+    local PROF_DROPDOWN_WIDTH = 150
+
+    -- Active profile row: dropdown + New / Reset buttons
+    local profileRow = CreateFrame("Frame", nil, profilesContent)
+    profileRow:SetSize(PANEL_WIDTH - COL_PADDING * 2, 26)
+
+    local profileDropdown = Components.Dropdown(profileRow, {
+        label = "設定檔",
+        labelWidth = PROF_LABEL_WIDTH,
+        width = PROF_DROPDOWN_WIDTH,
+        options = GetProfileOptions(),
+        get = function()
+            return BR.Profiles.GetActiveProfileName()
+        end,
+        onChange = function(value)
+            BR.Profiles.SwitchProfile(value)
+            Components.RefreshAll()
+        end,
+    })
+    profileDropdown:SetPoint("LEFT", 0, 0)
+
+    local btnX = PROF_LABEL_WIDTH + PROF_DROPDOWN_WIDTH + 10
+
+    local newProfileBtn = CreateButton(profileRow, "新增", function()
+        StaticPopup_Show("BUFFREMINDERS_NEW_PROFILE")
+    end)
+    newProfileBtn:SetSize(50, 22)
+    newProfileBtn:SetPoint("LEFT", btnX, 0)
+
+    local resetProfileBtn = CreateButton(profileRow, "重置", function()
+        StaticPopup_Show("BUFFREMINDERS_RESET_DEFAULTS")
+    end)
+    resetProfileBtn:SetSize(50, 22)
+    resetProfileBtn:SetPoint("LEFT", btnX + 54, 0)
+
+    profLayout:Add(profileRow, 26, COMPONENT_GAP)
+
+    -- Copy From dropdown
+    local copyDropdown = Components.Dropdown(profilesContent, {
+        label = "複製自",
+        labelWidth = PROF_LABEL_WIDTH,
+        width = PROF_DROPDOWN_WIDTH,
+        options = GetOtherProfileOptions(),
+        get = function()
+            return ""
+        end,
+        onChange = function(value)
+            if value == "" then
+                return
+            end
+            BR.Profiles.CopyProfile(value)
+            Components.RefreshAll()
+        end,
+    })
+    profLayout:Add(copyDropdown, 26, COMPONENT_GAP)
+
+    -- Delete dropdown
+    local deleteDropdown = Components.Dropdown(profilesContent, {
+        label = "刪除",
+        labelWidth = PROF_LABEL_WIDTH,
+        width = PROF_DROPDOWN_WIDTH,
+        options = GetOtherProfileOptions(),
+        get = function()
+            return ""
+        end,
+        onChange = function(value)
+            if value == "" then
+                return
+            end
+            BR.Profiles.DeleteProfile(value)
+            -- RefreshProfileDropdown called below (forward ref via closure)
+            RefreshProfileDropdown()
+        end,
+    })
+    profLayout:Add(deleteDropdown, 26, SECTION_GAP)
+
+    -- Rebuild all profile dropdowns after CRUD (defined after all dropdowns exist)
+    RefreshProfileDropdown = function()
+        local opts = GetProfileOptions()
+        local otherOpts = GetOtherProfileOptions()
+        profileDropdown.dropdown:SetOptions(opts)
+        profileDropdown:SetValue(BR.Profiles.GetActiveProfileName())
+        copyDropdown.dropdown:SetOptions(otherOpts)
+        copyDropdown:SetValue("")
+        deleteDropdown.dropdown:SetOptions(otherOpts)
+        deleteDropdown:SetValue("")
+    end
+
+    -- Per-spec profiles section (LibDualSpec)
+    LayoutSectionHeader(profLayout, profilesContent, "專精專屬設定檔")
+
+    local specDesc = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    specDesc:SetText("當您變更專精時自動切換設定檔。")
+    profLayout:AddText(specDesc, 12, COMPONENT_GAP)
+
+    local specEnabled = Components.Checkbox(profilesContent, {
+        label = "啟用專精專屬設定檔",
+        get = function()
+            return BR.Profiles.IsPerSpecEnabled()
+        end,
+        onChange = function(checked)
+            BR.Profiles.SetPerSpecEnabled(checked)
+            Components.RefreshAll()
+        end,
+    })
+    profLayout:Add(specEnabled, 20, COMPONENT_GAP)
+
+    -- Per-spec dropdowns
+    local numSpecs = GetNumSpecializations() or 0
+    local specDropdowns = {}
+    for i = 1, numSpecs do
+        local _, specName = GetSpecializationInfo(i)
+        if specName then
+            local specDropdown = Components.Dropdown(profilesContent, {
+                label = specName,
+                labelWidth = 100,
+                width = 150,
+                options = GetProfileOptions(),
+                get = function()
+                    return BR.Profiles.GetSpecProfile(i)
+                end,
+                enabled = function()
+                    return BR.Profiles.IsPerSpecEnabled()
+                end,
+                onChange = function(value)
+                    BR.Profiles.SetSpecProfile(i, value)
+                end,
+            })
+            profLayout:Add(specDropdown, 26, COMPONENT_GAP)
+            specDropdowns[i] = specDropdown
+        end
+    end
+
+    -- Extend RefreshProfileDropdown to also update spec dropdowns
+    local baseRefreshProfileDropdown = RefreshProfileDropdown
+    RefreshProfileDropdown = function()
+        baseRefreshProfileDropdown()
+        local opts = GetProfileOptions()
+        for _, sd in pairs(specDropdowns) do
+            sd.dropdown:SetOptions(opts)
+        end
+    end
+
+    -- Export so popup dialogs can call it
+    BR.Options.RefreshProfileDropdown = function()
+        RefreshProfileDropdown()
+    end
 
     -- Export section
     LayoutSectionHeader(profLayout, profilesContent, "匯出設定")
@@ -2294,10 +2447,10 @@ local function CreateOptionsPanel()
     profLayout:AddText(exportDesc, 12, COMPONENT_GAP)
 
     local exportTextArea = Components.TextArea(profilesContent, {
-        width = PANEL_WIDTH - COL_PADDING * 2 - SCROLLBAR_WIDTH,
-        height = 80,
+        width = PANEL_WIDTH - COL_PADDING * 2,
+        height = 50,
     })
-    profLayout:Add(exportTextArea, 80, COMPONENT_GAP)
+    profLayout:Add(exportTextArea, 50, COMPONENT_GAP)
 
     local exportButton = CreateButton(profilesContent, "匯出", function()
         local exportString, err = BuffReminders:Export()
@@ -2315,14 +2468,14 @@ local function CreateOptionsPanel()
     LayoutSectionHeader(profLayout, profilesContent, "匯入設定")
 
     local importDesc = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    importDesc:SetText("在下面貼上設定字串。這將覆蓋您當前的設定。")
+    importDesc:SetText("在下面貼上設定字串。這將覆蓋您當前啟用的設定檔。")
     profLayout:AddText(importDesc, 12, COMPONENT_GAP)
 
     local importTextArea = Components.TextArea(profilesContent, {
-        width = PANEL_WIDTH - COL_PADDING * 2 - SCROLLBAR_WIDTH,
-        height = 80,
+        width = PANEL_WIDTH - COL_PADDING * 2,
+        height = 50,
     })
-    profLayout:Add(importTextArea, 80, COMPONENT_GAP)
+    profLayout:Add(importTextArea, 50, COMPONENT_GAP)
 
     local importStatus = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     importStatus:SetWidth(PANEL_WIDTH - COL_PADDING * 2 - 120)
@@ -2491,8 +2644,8 @@ StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
     button2 = "取消",
     OnAccept = function(_, data)
         if data and data.key then
-            BuffRemindersDB.customBuffs[data.key] = nil
-            BuffRemindersDB.enabledBuffs[data.key] = nil
+            BR.profile.customBuffs[data.key] = nil
+            BR.profile.enabledBuffs[data.key] = nil
             RemoveCustomBuffFrame(data.key)
             if data.refreshPanel then
                 data.refreshPanel()
@@ -2507,11 +2660,11 @@ StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
 }
 
 StaticPopupDialogs["BUFFREMINDERS_RESET_DEFAULTS"] = {
-    text = "重置增益提醒器回預設嗎？\n\n這會清除所有自訂設置\n並重載UI。",
-    button1 = "Reset",
-    button2 = "Cancel",
+    text = "是否要重置增益提醒成預設值?\n\n這會清除當前設定檔所有自訂設定\n並且重新載入介面。",
+    button1 = RESET,
+    button2 = CANCEL,
     OnAccept = function()
-        wipe(BuffRemindersDB)
+        BR.Profiles.ResetProfile()
         ReloadUI()
     end,
     showAlert = true,
@@ -2527,6 +2680,42 @@ StaticPopupDialogs["BUFFREMINDERS_RELOAD_UI"] = {
     button2 = "取消",
     OnAccept = function()
         ReloadUI()
+    end,
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+    preferredIndex = 3,
+}
+
+local function CreateNewProfile(name)
+    if name == "" then
+        return
+    end
+    local copyFrom = BR.Profiles.GetActiveProfileName()
+    BR.Profiles.BatchOperation(function()
+        BR.aceDB:SetProfile(name)
+        BR.aceDB:CopyProfile(copyFrom)
+    end)
+    if BR.Options.RefreshProfileDropdown then
+        BR.Options.RefreshProfileDropdown()
+    end
+end
+
+StaticPopupDialogs["BUFFREMINDERS_NEW_PROFILE"] = {
+    text = "輸入新設定檔的名稱:",
+    button1 = "Create",
+    button2 = "Cancel",
+    hasEditBox = true,
+    editBoxWidth = 200,
+    OnAccept = function(self)
+        CreateNewProfile(self.EditBox:GetText():trim())
+    end,
+    EditBoxOnEnterPressed = function(self)
+        CreateNewProfile(self:GetText():trim())
+        self:GetParent():Hide()
+    end,
+    EditBoxOnEscapePressed = function(self)
+        self:GetParent():Hide()
     end,
     timeout = 0,
     whileDead = true,
@@ -2564,7 +2753,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     local ROW_HEIGHT = 26
     local CONTENT_LEFT = 20
     local ROWS_START_Y = -60
-    local editingBuff = existingKey and BuffRemindersDB.customBuffs[existingKey] or nil
+    local editingBuff = existingKey and BR.profile.customBuffs[existingKey] or nil
 
     local existingSpellIDs = {}
     if editingBuff then
@@ -2668,7 +2857,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         rowFrame:SetSize(MODAL_WIDTH - 40, ROW_HEIGHT - 2)
 
         local editBox = CreateFrame("EditBox", nil, rowFrame)
-        editBox:SetFontObject("GameFontHighlight")
+        editBox:SetFontObject("GameFontHighlightSmall")
         editBox:SetAutoFocus(false)
         local editContainer = StyleEditBox(editBox)
         editContainer:SetSize(70, 20)
@@ -2688,7 +2877,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         icon:SetPoint("LEFT", lookupBtn, "RIGHT", 8, 0)
         icon:Hide()
 
-        local nameText = rowFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        local nameText = rowFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         nameText:SetPoint("LEFT", icon, "RIGHT", 5, 0)
         nameText:SetPoint("RIGHT", rowFrame, "RIGHT", -28, 0)
         nameText:SetJustifyH("LEFT")
@@ -2752,7 +2941,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         return rowData
     end
 
-    addSpellBtn = CreateButton(modal, "+ Add Spell ID", function()
+    addSpellBtn = CreateButton(modal, "+ 新增法術ID", function()
         CreateSpellRow(nil)
         UpdateLayout()
     end)
@@ -2887,7 +3076,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     requireItemLabel:SetText("需要物品:")
 
     requireItemEditBox = CreateFrame("EditBox", nil, sectionsFrame)
-    requireItemEditBox:SetFontObject("GameFontHighlight")
+    requireItemEditBox:SetFontObject("GameFontHighlightSmall")
     requireItemEditBox:SetAutoFocus(false)
     local requireItemContainer = StyleEditBox(requireItemEditBox)
     requireItemContainer:SetSize(70, 20)
@@ -3022,7 +3211,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     -- Spell ID input with Lookup
     castSpellEditBox = CreateFrame("EditBox", nil, actionInputHolder)
-    castSpellEditBox:SetFontObject("GameFontHighlight")
+    castSpellEditBox:SetFontObject("GameFontHighlightSmall")
     castSpellEditBox:SetAutoFocus(false)
     local castSpellContainer = StyleEditBox(castSpellEditBox)
     castSpellContainer:SetSize(70, 20)
@@ -3041,7 +3230,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     castSpellName:SetJustifyH("LEFT")
     castSpellName:SetWordWrap(false)
 
-    local castSpellLookupBtn = CreateButton(actionInputHolder, "Lookup", function()
+    local castSpellLookupBtn = CreateButton(actionInputHolder, "查詢", function()
         local id = tonumber(castSpellEditBox:GetText())
         if not id then
             castSpellIcon:Hide()
@@ -3063,7 +3252,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     -- Item ID input with Lookup
     castItemEditBox = CreateFrame("EditBox", nil, actionInputHolder)
-    castItemEditBox:SetFontObject("GameFontHighlight")
+    castItemEditBox:SetFontObject("GameFontHighlightSmall")
     castItemEditBox:SetAutoFocus(false)
     local castItemContainer = StyleEditBox(castItemEditBox)
     castItemContainer:SetSize(70, 20)
@@ -3175,7 +3364,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         { value = "macro", label = "巨集" },
     }
     actionTypeDropdown = Components.Dropdown(sectionsFrame, {
-        label = "On click:",
+        label = "點擊時:",
         options = actionTypeOptions,
         selected = existingActionType,
         width = 120,
@@ -3316,7 +3505,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             loadConditions = savedLoadConditions,
         }
 
-        BuffRemindersDB.customBuffs[key] = customBuff
+        BR.profile.customBuffs[key] = customBuff
 
         if not existingKey then
             CreateCustomBuffFrameRuntime(customBuff)

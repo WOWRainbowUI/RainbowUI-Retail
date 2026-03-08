@@ -223,6 +223,7 @@ end
 ---@field get? fun(): number Getter for initial value and refresh (preferred over value)
 ---@field enabled? fun(): boolean Getter for enabled state, evaluated on Refresh()
 ---@field suffix? string Value suffix (e.g., "px", "%")
+---@field formatValue? fun(val: number): string Custom value formatter (overrides suffix)
 ---@field onChange fun(val: number) Callback when value changes
 ---@field tooltip? string|{title: string, desc?: string} Tooltip shown on hover (string or {title, desc} table)
 ---@field labelWidth? number Width of label (default 70)
@@ -312,6 +313,13 @@ function Components.Slider(parent, config)
     local sliderWidth = config.sliderWidth or 100
     local step = config.step or 1
     local suffix = config.suffix or ""
+    local formatValue = config.formatValue
+    local function displayText(val)
+        if formatValue then
+            return formatValue(val)
+        end
+        return floor(val) .. suffix
+    end
     local TRACK_HEIGHT = 4
     local THUMB_WIDTH = 8
     local THUMB_HEIGHT = 14
@@ -375,7 +383,7 @@ function Components.Slider(parent, config)
     local valueText = valueBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     valueText:SetAllPoints()
     valueText:SetJustifyH("LEFT")
-    valueText:SetText(floor(currentValue) .. suffix)
+    valueText:SetText(displayText(currentValue))
     holder.valueText = valueText
 
     local function ValueToPosition(val)
@@ -451,7 +459,7 @@ function Components.Slider(parent, config)
             local newVal = PositionToValue(localX)
             if newVal ~= currentValue then
                 currentValue = newVal
-                valueText:SetText(floor(currentValue) .. suffix)
+                valueText:SetText(displayText(currentValue))
                 UpdateThumbPosition()
                 config.onChange(floor(currentValue))
             end
@@ -468,7 +476,7 @@ function Components.Slider(parent, config)
             local localX = (mouseX - frameLeft) / scale - THUMB_WIDTH / 2
             local newVal = PositionToValue(localX)
             currentValue = newVal
-            valueText:SetText(floor(currentValue) .. suffix)
+            valueText:SetText(displayText(currentValue))
             UpdateVisual()
             config.onChange(floor(currentValue))
             isDragging = true
@@ -495,7 +503,7 @@ function Components.Slider(parent, config)
         if num then
             num = max(config.min, min(config.max, num))
             currentValue = num
-            valueText:SetText(floor(currentValue) .. suffix)
+            valueText:SetText(displayText(currentValue))
             UpdateVisual()
             config.onChange(floor(currentValue))
         end
@@ -545,7 +553,7 @@ function Components.Slider(parent, config)
             end
             newVal = max(config.min, min(config.max, newVal))
             currentValue = newVal
-            valueText:SetText(floor(currentValue) .. suffix)
+            valueText:SetText(displayText(currentValue))
             UpdateVisual()
             config.onChange(floor(currentValue))
         end
@@ -593,7 +601,7 @@ function Components.Slider(parent, config)
     -- Public methods
     function holder:SetValue(val)
         currentValue = val
-        valueText:SetText(floor(currentValue) .. suffix)
+        valueText:SetText(displayText(currentValue))
         UpdateVisual()
     end
 
@@ -618,7 +626,7 @@ function Components.Slider(parent, config)
     function holder:Refresh()
         if config.get then
             currentValue = config.get()
-            valueText:SetText(floor(currentValue) .. suffix)
+            valueText:SetText(displayText(currentValue))
             UpdateVisual()
         end
         if config.enabled then
@@ -1441,6 +1449,8 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
 
         item.value = opt.value
         item.check = check
+        item._bg = itemBg
+        item._label = label
         items[i] = item
     end
 
@@ -1498,6 +1508,91 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
 
     function dropdown:IsEnabled()
         return isEnabled
+    end
+
+    ---Replace the dropdown options and rebuild menu items.
+    ---Only supported for non-scrollable dropdowns.
+    ---@param newOptions table[] Array of {value, label} entries
+    function dropdown:SetOptions(newOptions)
+        options = newOptions
+        -- Hide excess old items
+        for i = #options + 1, #items do
+            items[i]:Hide()
+        end
+        -- Create or update items
+        for i, opt in ipairs(options) do
+            local item = items[i]
+            if not item then
+                item = CreateFrame("Button", nil, itemParent)
+                item:SetSize(width - 2, ITEM_HEIGHT)
+
+                local itemBg = item:CreateTexture(nil, "BACKGROUND")
+                itemBg:SetAllPoints()
+                item._bg = itemBg
+
+                local check2 = item:CreateTexture(nil, "ARTWORK")
+                check2:SetSize(14, 14)
+                check2:SetPoint("LEFT", 6, 0)
+                check2:SetTexture("Interface\\Buttons\\UI-CheckBox-Check")
+                check2:SetVertexColor(unpack(colors.checkmark))
+                item.check = check2
+
+                local lbl = item:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+                lbl:SetPoint("LEFT", 24, 0)
+                lbl:SetPoint("RIGHT", -8, 0)
+                lbl:SetJustifyH("LEFT")
+                item._label = lbl
+
+                item:SetScript("OnEnter", function()
+                    item._bg:SetColorTexture(unpack(colors.itemBgHover))
+                    item._label:SetTextColor(unpack(colors.itemTextHover))
+                end)
+                item:SetScript("OnLeave", function()
+                    item._bg:SetColorTexture(0, 0, 0, 0)
+                    item._label:SetTextColor(unpack(colors.itemText))
+                end)
+
+                items[i] = item
+            end
+            -- Update position, text, check, click handler
+            item:ClearAllPoints()
+            item:SetPoint("TOPLEFT", 0, -MENU_PADDING_V - (i - 1) * ITEM_HEIGHT)
+            item._bg:SetColorTexture(0, 0, 0, 0)
+            item._label:SetText(opt.label)
+            item._label:SetTextColor(unpack(colors.itemText))
+            item.check:SetShown(opt.value == currentValue)
+            item.value = opt.value
+            item:SetScript("OnClick", function()
+                currentValue = opt.value
+                currentLabel = opt.label
+                buttonText:SetText(currentLabel)
+                for _, it in ipairs(items) do
+                    if it:IsShown() then
+                        it.check:SetShown(it.value == currentValue)
+                    end
+                end
+                CloseMenu()
+                onChange(currentValue, currentLabel)
+            end)
+            item:Show()
+        end
+        -- Resize menu
+        local newMenuHeight = #options * ITEM_HEIGHT + MENU_PADDING_V * 2
+        menu:SetSize(width, newMenuHeight)
+        -- Update button text if current value still valid
+        local found = false
+        for _, opt in ipairs(options) do
+            if opt.value == currentValue then
+                currentLabel = opt.label
+                found = true
+                break
+            end
+        end
+        if not found and #options > 0 then
+            currentValue = options[1].value
+            currentLabel = options[1].label
+        end
+        buttonText:SetText(currentLabel)
     end
 
     return dropdown
@@ -1576,7 +1671,7 @@ end
 
 local SCENARIO_DIFF_DEFS = {
     { key = "delves", label = "探", tooltip = "探究" },
-    { key = "others", label = "O", tooltip = "其他場景事件 (托加斯特等等)" },
+    { key = "others", label = "它", tooltip = "其他場景事件 (托加斯特等等)" },
 }
 
 local DUNGEON_DIFF_DEFS = {
@@ -1769,12 +1864,12 @@ Components.CreateSegmentedBar = CreateSegmentedBar
 local function MakeCategoryStore(category)
     return {
         getContent = function(key)
-            local db = BuffRemindersDB
+            local db = BR.profile
             local vis = db.categoryVisibility and db.categoryVisibility[category]
             return not vis or vis[key] ~= false
         end,
         setContent = function(key)
-            local db = BuffRemindersDB
+            local db = BR.profile
             if not db.categoryVisibility then
                 db.categoryVisibility = {}
             end
@@ -1785,12 +1880,12 @@ local function MakeCategoryStore(category)
             db.categoryVisibility[category][key] = not db.categoryVisibility[category][key]
         end,
         getDiffTable = function(dbKey)
-            local db = BuffRemindersDB
+            local db = BR.profile
             local vis = db.categoryVisibility and db.categoryVisibility[category]
             return vis and vis[dbKey]
         end,
         ensureDiffTable = function(dbKey)
-            local db = BuffRemindersDB
+            local db = BR.profile
             if not db.categoryVisibility then
                 db.categoryVisibility = {}
             end
