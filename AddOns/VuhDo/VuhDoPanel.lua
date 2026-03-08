@@ -184,6 +184,23 @@ local tFirstIdx, tSecondIdx;
 
 
 --
+local function VUHDO_getSortableName(tInfo)
+
+	if not tInfo or not tInfo["name"] then
+		return "";
+	end
+
+	if tInfo["hasSecretName"] then
+		return "";
+	end
+
+	return tInfo["name"];
+
+end
+
+
+
+--
 local VUHDO_RAID_SORTERS = {
 	[VUHDO_SORT_RAID_UNITID]
 		= function(aUnitId, anotherUnitId)
@@ -226,7 +243,7 @@ local VUHDO_RAID_SORTERS = {
 					elseif sIsPetsLast and not tInfo1["isPet"] and tInfo2["isPet"] then
 						return true;
 					else
-						return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+						return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 					end
 				end
 			end,
@@ -249,7 +266,7 @@ local VUHDO_RAID_SORTERS = {
 					elseif sIsPetsLast and not tInfo1["isPet"] and tInfo2["isPet"] then
 						return true;
 					else
-						return tInfo1["class"] .. (tInfo1["name"] or "") > tInfo2["class"] .. (tInfo2["name"] or "");
+						return tInfo1["class"] .. VUHDO_getSortableName(tInfo1) > tInfo2["class"] .. VUHDO_getSortableName(tInfo2);
 					end
 				else
 					if VUHDO_PANEL_SETUP[sPanelNum]["MODEL"]["isReverse"] then
@@ -263,7 +280,7 @@ local VUHDO_RAID_SORTERS = {
 					elseif sIsPetsLast and not tInfo1["isPet"] and tInfo2["isPet"] then
 						return true;
 					else
-						return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+						return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 					end
 				end
 			end,
@@ -274,7 +291,8 @@ local VUHDO_RAID_SORTERS = {
 					return true;
 				elseif sIsPlayerFirst and anotherUnitId == "player" then
 					return false;
-				elseif VUHDO_RAID[aUnitId]["sortMaxHp"] and VUHDO_RAID[anotherUnitId]["sortMaxHp"] then
+				elseif VUHDO_RAID[aUnitId]["sortMaxHp"] and VUHDO_RAID[anotherUnitId]["sortMaxHp"]
+					and not (VUHDO_RAID[aUnitId]["hasSecretHealthMax"] or VUHDO_RAID[anotherUnitId]["hasSecretHealthMax"]) then
 					if VUHDO_PANEL_SETUP[sPanelNum]["MODEL"]["isReverse"] then
 						aUnitId, anotherUnitId = anotherUnitId, aUnitId;
 					end
@@ -300,7 +318,7 @@ local VUHDO_RAID_SORTERS = {
 					elseif sIsPetsLast and not tInfo1["isPet"] and tInfo2["isPet"] then
 						return true;
 					else
-						return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+						return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 					end
 				end
 			end,
@@ -329,7 +347,7 @@ local VUHDO_RAID_SORTERS = {
 						elseif sIsPetsLast and not tInfo1["isPet"] and tInfo2["isPet"] then
 							return true;
 						else
-							return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+							return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 						end
 					end
 				end
@@ -362,7 +380,7 @@ local VUHDO_RAID_SORTERS = {
 					elseif (tRole2 == VUHDO_ID_MELEE_DAMAGE or tRole2 == VUHDO_ID_RANGED_DAMAGE) and tRole1 == VUHDO_ID_RANGED_HEAL then
 						return false;
 					else
-						return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+						return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 					end
 				end
 			end,
@@ -396,7 +414,7 @@ local VUHDO_RAID_SORTERS = {
 						and (tRole1 == VUHDO_ID_MELEE_DAMAGE or tRole1 == VUHDO_ID_RANGED_DAMAGE) then
 						return false;
 					else
-						return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+						return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 					end
 				end
 			end,
@@ -430,7 +448,7 @@ local VUHDO_RAID_SORTERS = {
 						and (tRole1 == VUHDO_ID_MELEE_DAMAGE or tRole1 == VUHDO_ID_RANGED_DAMAGE) then
 						return false;
 					else
-						return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+						return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 					end
 				end
 			end,
@@ -472,7 +490,7 @@ local VUHDO_RAID_SORTERS = {
 					elseif tRole2 == VUHDO_ID_RANGED_DAMAGE and tRole1 == VUHDO_ID_RANGED_HEAL then
 						return false;
 					else
-						return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+						return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 					end
 				end
 			end,
@@ -514,7 +532,7 @@ local VUHDO_RAID_SORTERS = {
 				elseif tRole2 == VUHDO_ID_MELEE_DAMAGE and tRole1 == VUHDO_ID_RANGED_DAMAGE then
 					return false;
 				else
-					return (tInfo1["name"] or "") < (tInfo2["name"] or "");
+					return VUHDO_getSortableName(tInfo1) < VUHDO_getSortableName(tInfo2);
 				end
 			end
 		end,

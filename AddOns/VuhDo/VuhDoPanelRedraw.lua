@@ -2308,11 +2308,12 @@ do
 		VUHDO_reloadRaidMembers();
 		VUHDO_updatePanelVisibility();
 
-		_G["VUHDO_redrawAllPanels"](false);
-
 		VUHDO_buildGenericHealthBarBouquet();
 		VUHDO_buildGenericTargetHealthBouquet();
 		VUHDO_bouqetsChanged();
+
+		_G["VUHDO_redrawAllPanels"](false);
+
 		VUHDO_initAllBurstCaches();
 
 		VUHDO_IS_RELOADING = false;

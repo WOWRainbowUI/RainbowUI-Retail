@@ -67,10 +67,10 @@ local sDefaultAnchorEntry = {
 	["maxRows"] = 1,
 	["sortRule"] = 3,
 	["sortDir"] = 0,
-	["size"] = nil,
-	["barWidth"] = nil,
-	["barHeight"] = nil,
-	["spacing"] = nil,
+	["size"] = 20,
+	["barWidth"] = 100,
+	["barHeight"] = 12,
+	["spacing"] = 2,
 	["barVertical"] = false,
 	["barTurnAxis"] = false,
 	["barInvertGrowth"] = false,
@@ -94,7 +94,7 @@ local sDefaultAnchorEntry = {
 		["Y_ADJUST"] = 26,
 		["SCALE"] = 85,
 		["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
-		["COLOR"] = nil,
+		["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 1, 1, 1, 1),
 		["USE_SHADOW"] = true,
 		["USE_OUTLINE"] = false,
 		["USE_MONO"] = false,
@@ -105,12 +105,14 @@ local sDefaultAnchorEntry = {
 		["Y_ADJUST"] = -15,
 		["SCALE"] = 70,
 		["FONT"] = "Interface\\AddOns\\VuhDo\\Fonts\\ariblk.ttf",
-		["COLOR"] = nil,
+		["COLOR"] = VUHDO_makeFullColor(0, 0, 0, 1, 0, 1, 0, 1),
 		["USE_SHADOW"] = true,
 		["USE_OUTLINE"] = false,
 		["USE_MONO"] = false,
 	},
 };
+
+local sLastAuraAnchorStyle = nil;
 
 
 
@@ -324,6 +326,12 @@ local tStyleIsBars;
 local tStyleBarVerticalCheck;
 local tStyleBarTurnAxisCheck;
 local tStyleBarInvertCheck;
+local tSyncAnchorKey;
+local tSyncAnchorData;
+local tSize;
+local tBarWidthSlider;
+local tBarHeightSlider;
+local tSyncSizeSlider;
 function VUHDO_panelAurasUpdateStyleControlsEnabled(aParent, aStyleValue)
 
 	tStyleContentPanel = _G["VuhDoNewOptionsPanelAurasMainPanelAnchorContentPanel"];
@@ -333,6 +341,30 @@ function VUHDO_panelAurasUpdateStyleControlsEnabled(aParent, aStyleValue)
 	end
 
 	tStyleIsBars = "bars" == aStyleValue;
+
+	if VUHDO_PANEL_AURAS_SELECTED_ANCHOR and DESIGN_MISC_PANEL_NUM then
+		tSyncAnchorKey = tostring(VUHDO_PANEL_AURAS_SELECTED_ANCHOR);
+		tSyncAnchorData = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"];
+		tSyncAnchorData = tSyncAnchorData and tSyncAnchorData[tSyncAnchorKey];
+
+		if tSyncAnchorData then
+			if tStyleIsBars then
+				tSize = tSyncAnchorData["size"] or 20;
+
+				if tSyncAnchorData["barVertical"] then
+					VUHDO_lnfUpdateVar(format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.barWidth", tSyncAnchorKey), tSize, DESIGN_MISC_PANEL_NUM);
+				else
+					VUHDO_lnfUpdateVar(format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.barHeight", tSyncAnchorKey), tSize, DESIGN_MISC_PANEL_NUM);
+				end
+			else
+				if "bars" == sLastAuraAnchorStyle then
+					tSize = tSyncAnchorData["barVertical"] and (tSyncAnchorData["barWidth"] or 100) or (tSyncAnchorData["barHeight"] or 12);
+
+					VUHDO_lnfUpdateVar(format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.size", tSyncAnchorKey), tSize, DESIGN_MISC_PANEL_NUM);
+				end
+			end
+		end
+	end
 
 	VUHDO_setControlEnabled(tStyleContentPanel, "BarWidthSlider", tStyleIsBars);
 	VUHDO_setControlEnabled(tStyleContentPanel, "BarHeightSlider", tStyleIsBars);
@@ -353,6 +385,29 @@ function VUHDO_panelAurasUpdateStyleControlsEnabled(aParent, aStyleValue)
 	if tStyleBarInvertCheck then
 		VUHDO_setControlEnabled(tStyleBarInvertCheck:GetParent(), "BarInvertCheck", tStyleIsBars);
 	end
+
+	if VUHDO_PANEL_AURAS_SELECTED_ANCHOR and DESIGN_MISC_PANEL_NUM then
+		tBarWidthSlider = _G[tStyleContentPanel:GetName() .. "BarWidthSlider"];
+		tBarHeightSlider = _G[tStyleContentPanel:GetName() .. "BarHeightSlider"];
+
+		if tStyleIsBars then
+			if tBarWidthSlider then
+				VUHDO_lnfSliderInitFromModel(_G[tBarWidthSlider:GetName() .. "Slider"]);
+			end
+
+			if tBarHeightSlider then
+				VUHDO_lnfSliderInitFromModel(_G[tBarHeightSlider:GetName() .. "Slider"]);
+			end
+		else
+			tSyncSizeSlider = _G[tStyleContentPanel:GetName() .. "SizeSlider"];
+
+			if tSyncSizeSlider then
+				VUHDO_lnfSliderInitFromModel(_G[tSyncSizeSlider:GetName() .. "Slider"]);
+			end
+		end
+	end
+
+	sLastAuraAnchorStyle = aStyleValue;
 
 	return;
 
@@ -422,7 +477,14 @@ end
 local tSyncAnchorKey;
 local tSyncAnchorData;
 local tSyncSizeModel;
-local tSyncSizeSlider;
+local tOldBarWidth;
+local tOldBarHeight;
+local tNewSize;
+local tContentPanel;
+local tBarWidthSlider;
+local tBarHeightSlider;
+local tSizeSlider;
+local tInnerSlider;
 function VUHDO_panelAurasBarVerticalChanged(aParent, aValue)
 
 	tSyncAnchorKey = tostring(VUHDO_PANEL_AURAS_SELECTED_ANCHOR);
@@ -430,18 +492,46 @@ function VUHDO_panelAurasBarVerticalChanged(aParent, aValue)
 	tSyncAnchorData = tSyncAnchorData and tSyncAnchorData[tSyncAnchorKey];
 
 	if tSyncAnchorData and "bars" == tSyncAnchorData["style"] then
+		tOldBarWidth = tSyncAnchorData["barWidth"] or 100;
+		tOldBarHeight = tSyncAnchorData["barHeight"] or 12;
+
+		VUHDO_lnfUpdateVar(format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.barWidth", tSyncAnchorKey), tOldBarHeight, DESIGN_MISC_PANEL_NUM);
+		VUHDO_lnfUpdateVar(format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.barHeight", tSyncAnchorKey), tOldBarWidth, DESIGN_MISC_PANEL_NUM);
+
 		tSyncSizeModel = format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.size", tSyncAnchorKey);
+		tNewSize = aValue and tOldBarHeight or tOldBarWidth;
+		VUHDO_lnfUpdateVar(tSyncSizeModel, tNewSize, DESIGN_MISC_PANEL_NUM);
 
-		if aValue then
-			VUHDO_lnfUpdateVar(tSyncSizeModel, tSyncAnchorData["barWidth"] or 30, DESIGN_MISC_PANEL_NUM);
-		else
-			VUHDO_lnfUpdateVar(tSyncSizeModel, tSyncAnchorData["barHeight"] or 30, DESIGN_MISC_PANEL_NUM);
-		end
+		tContentPanel = _G["VuhDoNewOptionsPanelAurasMainPanelAnchorContentPanel"];
 
-		tSyncSizeSlider = _G["VuhDoNewOptionsPanelAurasMainPanelAnchorContentPanelSizeSlider"];
+		if tContentPanel then
+			tBarWidthSlider = _G[tContentPanel:GetName() .. "BarWidthSlider"];
+			tBarHeightSlider = _G[tContentPanel:GetName() .. "BarHeightSlider"];
+			tSizeSlider = _G[tContentPanel:GetName() .. "SizeSlider"];
 
-		if tSyncSizeSlider then
-			VUHDO_lnfSliderInitFromModel(_G[tSyncSizeSlider:GetName() .. "Slider"]);
+			if tBarWidthSlider then
+				tInnerSlider = _G[tBarWidthSlider:GetName() .. "Slider"];
+
+				if tInnerSlider then
+					tInnerSlider:SetValue(tOldBarHeight);
+				end
+			end
+
+			if tBarHeightSlider then
+				tInnerSlider = _G[tBarHeightSlider:GetName() .. "Slider"];
+
+				if tInnerSlider then
+					tInnerSlider:SetValue(tOldBarWidth);
+				end
+			end
+
+			if tSizeSlider then
+				tInnerSlider = _G[tSizeSlider:GetName() .. "Slider"];
+
+				if tInnerSlider then
+					tInnerSlider:SetValue(tNewSize);
+				end
+			end
 		end
 	end
 
@@ -455,6 +545,7 @@ end
 function VUHDO_panelAurasAnchorRadioOnLoad(aButton, aRadioValue)
 
 	aButton:SetAttribute("radio_value", aRadioValue);
+	VUHDO_lnfSetTooltip(aButton, VUHDO_I18N_TT.K619);
 
 	return;
 
@@ -610,6 +701,8 @@ local tBarVertical;
 local tSizeModel;
 function VUHDO_panelAurasRebindContentPanel()
 
+	sLastAuraAnchorStyle = nil;
+
 	if not VUHDO_PANEL_AURAS_SELECTED_ANCHOR then
 		return;
 	end
@@ -760,6 +853,9 @@ function VUHDO_panelAurasRebindContentPanel()
 	if tBarWidthSlider then
 		tBarWidthSlider:Show();
 
+		tModel = format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.barWidth", tAnchorKey);
+		VUHDO_lnfSetModel(tBarWidthSlider, tModel);
+
 		VUHDO_lnfSliderInitFromModel(_G[tBarWidthSlider:GetName() .. "Slider"]);
 		VUHDO_setControlEnabled(tContentPanel, "BarWidthSlider", tStyle == "bars");
 
@@ -768,6 +864,9 @@ function VUHDO_panelAurasRebindContentPanel()
 
 	if tBarHeightSlider then
 		tBarHeightSlider:Show();
+
+		tModel = format("VUHDO_PANEL_SETUP.#PNUM#.AURA_ANCHORS.%s.barHeight", tAnchorKey);
+		VUHDO_lnfSetModel(tBarHeightSlider, tModel);
 
 		VUHDO_lnfSliderInitFromModel(_G[tBarHeightSlider:GetName() .. "Slider"]);
 		VUHDO_setControlEnabled(tContentPanel, "BarHeightSlider", tStyle == "bars");

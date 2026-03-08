@@ -326,6 +326,16 @@
 	<TexCoords left="0" right="1" top="0" bottom="1" />
 </Texture>
 
+<Texture name="VuhDoButtonIconTemplateTiny" virtual="true">
+	<Size>
+		<AbsDimension x="20" y="20" />
+	</Size>
+	<Anchors>
+		<Anchor point="CENTER" relativePoint="CENTER" />
+	</Anchors>
+	<TexCoords left="0" right="1" top="0" bottom="1" />
+</Texture>
+
 <Texture name="VuhDoCheckBoxIconTemplate" virtual="true">
 	<Size>
 		<AbsDimension x="32" y="32" />
@@ -1164,6 +1174,15 @@
 	<Layers>
 		<Layer level="OVERLAY">
 			<Texture name="$parentIcon" inherits="VuhDoButtonIconTemplateSmall" file="Interface\AddOns\VuhDo\Images\icon_x_round">
+			</Texture>
+		</Layer>
+	</Layers>
+</Button>
+
+<Button name="VuhDoRemoveItemButtonTemplateSmall" text="" inherits="VuhDoIconButtonTemplate" virtual="true">
+	<Layers>
+		<Layer level="OVERLAY">
+			<Texture name="$parentIcon" inherits="VuhDoButtonIconTemplateTiny" file="Interface\AddOns\VuhDo\Images\icon_x_round">
 			</Texture>
 		</Layer>
 	</Layers>
@@ -2431,6 +2450,15 @@
 		<OnHide>
 			VUHDO_lnfComboSelectHide(self);
 		</OnHide>
+	</Scripts>
+</Button>
+
+
+<Button name="VuhDoScrollComboBoxResizeableTemplate" enableMouse="false" virtual="true" inherits="VuhDoScrollComboBoxTemplate">
+	<Scripts>
+		<OnLoad>
+			VUHDO_initResizeableScrollCombo(self);
+		</OnLoad>
 	</Scripts>
 </Button>
 

@@ -48,7 +48,10 @@ local tRefreshModels;
 local tContentPane;
 local tAllPanels;
 local tValue;
+local tAnchorKey;
+local tSourceAnchor;
 function VUHDO_newOptionsApplyToAllOnClick()
+
 	tActivePanel = nil;
 	tRefreshModels = { };
 	tContentPane = _G["VuhDoNewOptionsPanelPanelContentPanel"];
@@ -64,6 +67,31 @@ function VUHDO_newOptionsApplyToAllOnClick()
 		return;
 	end
 
+	if tActivePanel:GetName() == "VuhDoNewOptionsPanelAuras" then
+		if not VUHDO_PANEL_AURAS_SELECTED_ANCHOR then
+			return;
+		end
+
+		tAnchorKey = tostring(VUHDO_PANEL_AURAS_SELECTED_ANCHOR);
+		tSourceAnchor = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"][tAnchorKey];
+
+		if tSourceAnchor then
+			for tCnt = 1, VUHDO_MAX_PANELS do
+				if tCnt ~= DESIGN_MISC_PANEL_NUM then
+					if not VUHDO_PANEL_SETUP[tCnt]["AURA_ANCHORS"] then
+						VUHDO_PANEL_SETUP[tCnt]["AURA_ANCHORS"] = { };
+					end
+
+					VUHDO_PANEL_SETUP[tCnt]["AURA_ANCHORS"][tAnchorKey] = VUHDO_deepCopyTable(tSourceAnchor);
+				end
+			end
+		end
+
+		VUHDO_reloadUI(false);
+
+		return;
+	end
+
 	VUHDO_refreshAllModelsForPanel(tActivePanel, tRefreshModels);
 
 	if (tActivePanel:GetName() == "VuhDoNewOptionsPanelTooltip") then
@@ -75,6 +103,7 @@ function VUHDO_newOptionsApplyToAllOnClick()
 
 	for tModel, _ in pairs(tRefreshModels) do
 		tValue = VUHDO_lnfGetValueFrom(tModel);
+
 		for tCnt = 1, VUHDO_MAX_PANELS do
 			if (tCnt ~= DESIGN_MISC_PANEL_NUM) then
 				VUHDO_lnfUpdateVar(tModel, tValue, tCnt);
@@ -83,6 +112,9 @@ function VUHDO_newOptionsApplyToAllOnClick()
 	end
 
 	VUHDO_reloadUI(false);
+
+	return;
+
 end
 
 

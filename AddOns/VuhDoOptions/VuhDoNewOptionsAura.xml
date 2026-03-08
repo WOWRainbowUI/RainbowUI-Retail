@@ -30,6 +30,23 @@
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
+					<CheckButton name="$parentIgnoreRadioButton" text="VUHDO_I18N_AURA_IGNORE_LIST" inherits="VuhDoTabRadioButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentGroupsRadioButton" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-3" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.tabPanel = "VuhDoNewOptionsAuraIgnore";
+
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, "Global aura ignore list");
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
 				</Frames>
 			</Frame>
 
@@ -46,6 +63,8 @@
 				</Anchors>
 				<Frames>
 					<Frame name="VuhDoNewOptionsAuraGroups" setAllPoints="true" inherits="VuhDoNewOptionsAuraGroupsTemplate">
+					</Frame>
+					<Frame name="VuhDoNewOptionsAuraIgnore" setAllPoints="true" inherits="VuhDoNewOptionsAuraIgnoreTemplate">
 					</Frame>
 				</Frames>
 			</Frame>

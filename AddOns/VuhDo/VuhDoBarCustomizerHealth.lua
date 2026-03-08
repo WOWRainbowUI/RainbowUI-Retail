@@ -414,7 +414,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 			tShieldBar:SetMinMaxValues(0, tHealthMax);
 			tShieldBar:SetValue(tShieldInBar);
 
-			if sSecretsEnabled and tHealthBar["secretCurveColor"] then
+			if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 				sConfigShieldColor = VUHDO_getStatusBarColor("SHIELD", aUnit);
 
 				if sConfigShieldColor then
@@ -458,7 +458,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 				tOvershieldBar:SetMinMaxValues(0, tHealthMax);
 				tOvershieldBar:SetValue(tTotalShield);
 
-				if sSecretsEnabled and tHealthBar["secretCurveColor"] then
+				if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 					sConfigOvershieldColor = VUHDO_getStatusBarColor("OVERSHIELD", aUnit);
 
 					if sConfigOvershieldColor then
@@ -744,7 +744,7 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 			tHealAbsorbBar:SetMinMaxValues(0, tHealthMax);
 			tHealAbsorbBar:SetValue(tHealAbsorb);
 
-			if sSecretsEnabled and tHealthBar["secretCurveColor"] then
+			if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 				sConfigHealAbsorbColor = VUHDO_getStatusBarColor("HEAL_ABSORB", aUnit);
 
 				if sConfigHealAbsorbColor then
@@ -941,7 +941,7 @@ local function VUHDO_updateIncHeal(aUnit)
 			tIncBar:SetMinMaxValues(0, tInfo["healthmax"]);
 			tIncBar:SetValue(tIncHealAmount);
 
-			if sSecretsEnabled and tHealthBar["secretCurveColor"] then
+			if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 				sConfigIncColor = VUHDO_getStatusBarColor("INCOMING", aUnit);
 
 				if sConfigIncColor then

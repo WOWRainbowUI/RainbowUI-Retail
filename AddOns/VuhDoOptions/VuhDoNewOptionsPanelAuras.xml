@@ -27,7 +27,7 @@
 				</Layers>
 			</Frame>
 
-			<Button name="$parentGroupCombo" inherits="VuhDoComboBoxTemplate">
+			<Button name="$parentGroupCombo" inherits="VuhDoScrollComboBoxResizeableTemplate">
 				<Size>
 					<AbsDimension x="180" y="24" />
 				</Size>
@@ -40,7 +40,10 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
+						VUHDO_initResizeableScrollCombo(self);
+
 						VUHDO_panelAurasAnchorGroupComboOnLoad(self);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K618);
 					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
@@ -68,6 +71,7 @@
 				<Scripts>
 					<OnLoad>
 						VUHDO_panelAurasEnabledCheckButtonOnLoad(self);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K708);
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -633,6 +637,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K709);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -670,6 +677,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K710);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -707,6 +717,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K711);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -744,6 +757,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K712);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -781,6 +797,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K623);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -818,6 +837,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K713);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -855,6 +877,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K714);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -892,6 +917,9 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K715);
+					</OnLoad>
 					<OnShow>
 						VUHDO_lnfPatchFont(self, "Text");
 					</OnShow>
@@ -973,7 +1001,7 @@
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "maxColumns");
 						VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_MAX_COLUMNS, 1, 10, "", 1);
-						VUHDO_lnfSetTooltip(self, nil);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K716);
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -993,7 +1021,7 @@
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "maxRows");
 						VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_MAX_ROWS, 1, 10, "", 1);
-						VUHDO_lnfSetTooltip(self, nil);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K717);
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -1013,7 +1041,7 @@
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "size");
 						VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_SIZE, 0, 100, "%", 2);
-						VUHDO_lnfSetTooltip(self, nil);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K624);
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -1033,7 +1061,7 @@
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "spacing");
 						VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_SPACING, 0, 20, "", 1);
-						VUHDO_lnfSetTooltip(self, nil);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K625);
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -1053,7 +1081,7 @@
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "barWidth");
 						VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_BAR_WIDTH, 0, 100, "%", 2);
-						VUHDO_lnfSetTooltip(self, nil);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K718);
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -1073,7 +1101,7 @@
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "barHeight");
 						VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_BAR_HEIGHT, 0, 100, "%", 2);
-						VUHDO_lnfSetTooltip(self, nil);
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K719);
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -1102,6 +1130,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "showTimer");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K626);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1117,6 +1146,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "showStacks");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K627);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1132,7 +1162,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "barVertical");
-								VUHDO_lnfSetTooltip(self, nil);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K720);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1164,6 +1194,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "showClock");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K628);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1179,6 +1210,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "dispelBorder");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K633);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1194,7 +1226,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "barTurnAxis");
-								VUHDO_lnfSetTooltip(self, nil);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K721);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1226,6 +1258,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "fadeOnLow");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K629);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1241,6 +1274,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "flashOnLow");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K630);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1256,7 +1290,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "barInvertGrowth");
-								VUHDO_lnfSetTooltip(self, nil);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K722);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1288,6 +1322,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "showTooltip");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K634);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1303,7 +1338,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_panelAurasAnchorControlSetModel(self, "fixedSlots");
-								VUHDO_lnfSetTooltip(self, nil);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K723);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -1325,6 +1360,7 @@
 				<Scripts>
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "COUNTER_TEXT");
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K724);
 					</OnLoad>
 				</Scripts>
 			</Button>
@@ -1343,6 +1379,7 @@
 				<Scripts>
 					<OnLoad>
 						VUHDO_panelAurasAnchorControlSetModel(self, "TIMER_TEXT");
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K725);
 					</OnLoad>
 				</Scripts>
 			</Button>
@@ -1422,6 +1459,9 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K729);
+							</OnLoad>
 							<OnClick>
 								VUHDO_panelAurasOnNewAnchor();
 							</OnClick>
@@ -1440,6 +1480,9 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K730);
+							</OnLoad>
 							<OnClick>
 								if VUHDO_PANEL_AURAS_SELECTED_ANCHOR then
 									VUHDO_panelAurasOnCopyAnchor();
@@ -1460,6 +1503,9 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K731);
+							</OnLoad>
 							<OnClick>
 								if VUHDO_PANEL_AURAS_SELECTED_ANCHOR then
 									VUHDO_panelAurasOnDeleteAnchor();

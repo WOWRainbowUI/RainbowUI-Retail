@@ -833,8 +833,19 @@ local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 
 
 	VUHDO_HEALTH_BAR_TEXT[tButton] = { };
+
 	for tIndex, tBar in pairs(VUHDO_BARS_PER_BUTTON[tButton]) do
 		VUHDO_HEALTH_BAR_TEXT[tButton][tIndex] = _G[tBar:GetName() .. "LabelLabel"];
+
+		tBar["secretCurveColor"] = { };
+	end
+
+	for tIndex, tBar in pairs(VUHDO_BARS_PER_BUTTON[tTargetButton]) do
+		tBar["secretCurveColor"] = { };
+	end
+
+	for tIndex, tBar in pairs(VUHDO_BARS_PER_BUTTON[tTotButton]) do
+		tBar["secretCurveColor"] = { };
 	end
 
 	VUHDO_BUTTONS_PER_PANEL[aPanelNum][aButtonNum] = tButton;

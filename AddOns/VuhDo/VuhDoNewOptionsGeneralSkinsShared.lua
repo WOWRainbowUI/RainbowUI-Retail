@@ -95,6 +95,7 @@ local VUHDO_DEFAULT_PROFILES = {
 				["max_num"] = 3,
 				["blacklistModi"] = "ALT-CTRL-SHIFT",
 			},
+			["AURA_IGNORE_MODI"] = "ALT-CTRL-SHIFT",
 			["SPELL_TRACE"] = {
 				["isMine"] = true,
 				["isOthers"] = false,
