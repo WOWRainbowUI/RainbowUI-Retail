@@ -3401,13 +3401,15 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
         db.dbVersion = DB_VERSION
 
         -- Login message for missing consumables
-        C_Timer.After(5, function()
+        --[[
+		C_Timer.After(5, function()
             if db.showLoginMessages ~= false then
                 print(
                     "|cff00ccffBuffReminders:|r There are a lot of new consumables for Midnight, and I might have missed some of those. If you notice a missing one, please report it on Discord (|cff7289da/br|r > Join Discord)."
                 )
             end
         end)
+		--]]
 
         -- Clean up old one-time notice flags
         db.glowUpdateNoticeShown = nil
