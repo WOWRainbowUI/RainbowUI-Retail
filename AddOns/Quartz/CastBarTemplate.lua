@@ -476,8 +476,10 @@ function CastBarTemplate:UNIT_SPELLCAST_FAILED(event, unit, castGUID, spellID)
 	if unit ~= self.unit and not (self.unit == "player" and unit == "vehicle") then
 		return
 	end
-	-- Match this FAILED to our active cast via castGUID
-	if self.castGUID and castGUID and canaccessvalue(castGUID) then
+	if not self.castGUID or not castGUID then
+		return
+	end
+	if canaccessvalue(castGUID) and canaccessvalue(self.castGUID) then
 		if castGUID ~= self.castGUID then return end
 	elseif not (self.channeling or self.casting) then
 		return
@@ -577,6 +579,7 @@ function CastBarTemplate:UNIT_SPELLCAST_NOT_INTERRUPTIBLE(event, unit)
 end
 
 function CastBarTemplate:UpdateUnit()
+	self.castGUID = nil
 	if UnitCastingInfo(self.unit) then
 		self:UNIT_SPELLCAST_START("UNIT_SPELLCAST_START", self.unit)
 	elseif UnitChannelInfo(self.unit) then
