@@ -123,7 +123,7 @@ local function CreateOptionsPanel()
 
     -- Forward declarations for banner system
     local UpdateBannerLayout
-    local masqueBanner, readyCheckBanner
+    local masqueBanner
 
     -- Track all EditBoxes so we can clear focus when panel hides
     local panelEditBoxes = {}
@@ -281,7 +281,6 @@ local function CreateOptionsPanel()
         end
         if masqueBanner then
             masqueBanner:Refresh()
-            readyCheckBanner:Refresh()
             UpdateBannerLayout()
         end
     end
@@ -332,7 +331,6 @@ local function CreateOptionsPanel()
     -- ========== BANNERS ==========
     local BANNER_HEIGHT = 28
     local BANNER_TOP_GAP = 6
-    local BANNER_BETWEEN_GAP = 4
     local BANNER_BOTTOM_GAP = 0
 
     masqueBanner = Components.Banner(panel, {
@@ -344,14 +342,6 @@ local function CreateOptionsPanel()
         end,
     })
 
-    readyCheckBanner = Components.Banner(panel, {
-        text = '"只顯示在準備確認"移動到個別類別設定',
-        color = "orange",
-        visible = function()
-            return activeTabName == "settings"
-        end,
-    })
-
     UpdateBannerLayout = function()
         local bannerY = -30 - TAB_HEIGHT - BANNER_TOP_GAP
         local bannerOffset = 0
@@ -360,18 +350,7 @@ local function CreateOptionsPanel()
             masqueBanner:ClearAllPoints()
             masqueBanner:SetPoint("TOPLEFT", panel, "TOPLEFT", COL_PADDING, bannerY)
             masqueBanner:SetPoint("RIGHT", panel, "RIGHT", -COL_PADDING, 0)
-            bannerY = bannerY - BANNER_HEIGHT - BANNER_BETWEEN_GAP
-            bannerOffset = bannerOffset + BANNER_HEIGHT + BANNER_BETWEEN_GAP
-        end
-
-        if readyCheckBanner:IsShown() then
-            readyCheckBanner:ClearAllPoints()
-            readyCheckBanner:SetPoint("TOPLEFT", panel, "TOPLEFT", COL_PADDING, bannerY)
-            readyCheckBanner:SetPoint("RIGHT", panel, "RIGHT", -COL_PADDING, 0)
             bannerOffset = bannerOffset + BANNER_HEIGHT + BANNER_BOTTOM_GAP
-        elseif bannerOffset > 0 then
-            -- Replace the between-gap with a bottom-gap after the last visible banner
-            bannerOffset = bannerOffset - BANNER_BETWEEN_GAP + BANNER_BOTTOM_GAP
         end
 
         local newTop = CONTENT_TOP - bannerOffset
@@ -986,31 +965,31 @@ local function CreateOptionsPanel()
 
         -- W/S/D/R content visibility + ready check (not for custom — custom uses per-buff loadConditions)
         if category ~= "custom" then
-        local function OnCategoryVisibilityChange()
-            UpdateDisplay()
-        end
+            local function OnCategoryVisibilityChange()
+                UpdateDisplay()
+            end
 
-        local visToggles = Components.VisibilityToggles(catContent, {
-            category = category,
-            onChange = OnCategoryVisibilityChange,
-        })
-        catLayout:Add(visToggles, nil, SECTION_GAP)
+            local visToggles = Components.VisibilityToggles(catContent, {
+                category = category,
+                onChange = OnCategoryVisibilityChange,
+            })
+            catLayout:Add(visToggles, nil, SECTION_GAP)
 
-        local readyCheckHolder = Components.Checkbox(catContent, {
+            local readyCheckHolder = Components.Checkbox(catContent, {
             label = "只在準備確認時顯示",
-            get = function()
-                local cs = db.categorySettings and db.categorySettings[category]
-                return cs and cs.showOnlyOnReadyCheck == true
-            end,
-            tooltip = {
+                get = function()
+                    local cs = db.categorySettings and db.categorySettings[category]
+                    return cs and cs.showOnlyOnReadyCheck == true
+                end,
+                tooltip = {
                 title = "只在準備確認時顯示",
                 desc = "準備檢查開始後僅顯示該類別的增益效果15秒",
-            },
-            onChange = function(checked)
-                BR.Config.Set("categorySettings." .. category .. ".showOnlyOnReadyCheck", checked)
-            end,
-        })
-        catLayout:Add(readyCheckHolder, nil, COMPONENT_GAP)
+                },
+                onChange = function(checked)
+                    BR.Config.Set("categorySettings." .. category .. ".showOnlyOnReadyCheck", checked)
+                end,
+            })
+            catLayout:Add(readyCheckHolder, nil, COMPONENT_GAP)
         else
             local banner = Components.Banner(catContent, {
                 text = "顯示與準備確認設定移動到每個增益的編輯選單中。",
@@ -1225,6 +1204,25 @@ local function CreateOptionsPanel()
                 end,
             })
             catLayout:Add(passiveCombatHolder, nil, COMPONENT_GAP)
+
+            local felDomHolder = Components.Checkbox(catContent, {
+                label = "在召喚前使用惡魔支配",
+                get = function()
+                    return BR.Config.Get("defaults.useFelDomination", false)
+                end,
+                tooltip = {
+                    title = "惡魔支配",
+                    desc = "點擊施放召喚惡魔之前自動施放惡魔支配。如果惡魔支配處於冷卻狀態，召喚會正常進行。需要惡魔支配天賦。",
+                },
+                enabled = function()
+                    local _, class = UnitClass("player")
+                    return class == "WARLOCK"
+                end,
+                onChange = function(checked)
+                    BR.Config.Set("defaults.useFelDomination", checked)
+                end,
+            })
+            catLayout:Add(felDomHolder, nil, COMPONENT_GAP)
 
             local updatePetDisplayModePreview -- forward declaration for preview update
             local petDisplayModeHolder = Components.Dropdown(catContent, {
@@ -1850,7 +1848,7 @@ local function CreateOptionsPanel()
             end,
             enabled = isCustomAppearanceEnabled,
             masqueCheck = IsMasqueActive,
-                })
+        })
 
         -- Glow settings (positioned after appearance grid)
         local glowRowY = -catGrid.height
@@ -2135,6 +2133,14 @@ local function CreateOptionsPanel()
     })
     setLayout:Add(groupHolder, nil, COMPONENT_GAP)
 
+    -- "Hide when:" sub-label with indented checkboxes
+    local hideWhenLabel = settingsContent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    hideWhenLabel:SetText("何時隱藏:")
+    setLayout:AddText(hideWhenLabel, 12, COMPONENT_GAP)
+
+    local HIDE_INDENT = 16
+    setLayout:SetX(setX + HIDE_INDENT)
+
     local restingHolder = Components.Checkbox(settingsContent, {
         label = "休息狀態時隱藏",
         get = function()
@@ -2156,14 +2162,15 @@ local function CreateOptionsPanel()
         onChange = function(checked)
             BR.profile.hideInCombat = checked
             UpdateDisplay()
+            Components.RefreshAll()
         end,
     })
     setLayout:Add(combatHolder, nil, COMPONENT_GAP)
 
     local combatExpiringHolder = Components.Checkbox(settingsContent, {
-        label = "隱藏過期",
+        label = "只有戰鬥中過期的增益",
         tooltip = {
-            title = "隱藏過期",
+            title = "只有隱藏戰鬥中過期的增益",
             desc = "在戰鬥中，隱藏即將過期的增益效果，只顯示完全缺少的增益效果",
         },
         get = function()
@@ -2184,7 +2191,7 @@ local function CreateOptionsPanel()
         tooltip = {
             title = "載具中隱藏",
             desc = "在任務載具中隱藏所有增益提醒。禁用後，團隊和在場增益仍然顯示",
-},
+        },
         get = function()
             return BR.profile.hideAllInVehicle == true
         end,
@@ -2210,6 +2217,8 @@ local function CreateOptionsPanel()
         end,
     })
     setLayout:Add(mountedHolder, nil, COMPONENT_GAP)
+
+    setLayout:SetX(setX)
 
     local trackingModeHolder = Components.Dropdown(settingsContent, {
         label = "增益追蹤",
@@ -2254,7 +2263,7 @@ local function CreateOptionsPanel()
     -- Use simple frame (not scrollable) to avoid nested scroll frame issues with edit boxes
     local profilesContent = CreateFrame("Frame", nil, panel)
     profilesContent:SetPoint("TOPLEFT", 0, CONTENT_TOP)
-    profilesContent:SetSize(PANEL_WIDTH, 500)
+    profilesContent:SetSize(PANEL_WIDTH, 600)
     profilesContent:Hide()
     contentContainers.profiles = profilesContent
 
@@ -2523,7 +2532,7 @@ local function CreateOptionsPanel()
     lockBtn:SetPoint("RIGHT", btnHolder, "CENTER", -4, 0)
 
     function lockBtn:Refresh()
-        self.text:SetText(BuffRemindersDB.locked and "解鎖" or "鎖定")
+        self.text:SetText(BR.profile.locked and "解鎖" or "鎖定")
     end
     lockBtn:Refresh()
     tinsert(BR.RefreshableComponents, lockBtn)

@@ -122,24 +122,24 @@ function BuffReminders:Export(profileKey)
     local sourceProfile
     if profileKey and BR.aceDB and profileKey ~= BR.aceDB:GetCurrentProfile() then
         local rawProfile = BR.aceDB.sv and BR.aceDB.sv.profiles and BR.aceDB.sv.profiles[profileKey]
-        if not rawProfile then
-            return nil, "Profile not found: " .. profileKey
+        if rawProfile then
+            -- Wrap raw SV table with defaults so unset keys resolve the same as the active profile
+            local profileDefaults = BR.aceDB.defaults and BR.aceDB.defaults.profile
+            if profileDefaults then
+                sourceProfile = setmetatable({}, {
+                    __index = function(_, k)
+                        local v = rawProfile[k]
+                        if v ~= nil then
+                            return v
+                        end
+                        return profileDefaults[k]
+                    end,
+                })
+            else
+                sourceProfile = rawProfile
+            end
         end
-        -- Wrap raw SV table with defaults so unset keys resolve the same as the active profile
-        local profileDefaults = BR.aceDB.defaults and BR.aceDB.defaults.profile
-        if profileDefaults then
-            sourceProfile = setmetatable({}, {
-                __index = function(_, k)
-                    local v = rawProfile[k]
-                    if v ~= nil then
-                        return v
-                    end
-                    return profileDefaults[k]
-                end,
-            })
-        else
-            sourceProfile = rawProfile
-        end
+        -- If rawProfile is nil, sourceProfile stays nil → exports active profile (backward compat)
     end
 
     local exportString, err = ExportSettings(sourceProfile)
