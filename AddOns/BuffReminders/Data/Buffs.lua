@@ -35,6 +35,7 @@ local min = math.min
 ---@field noExpirationGlow? boolean
 ---@field readyCheckOnly? boolean Only show during ready checks
 ---@field castOnOthers? boolean Buff exists on the target, not the caster (e.g., Soulstone)
+---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 
 ---@class TargetedBuff
 ---@field spellID SpellID
@@ -50,6 +51,7 @@ local min = math.min
 ---@field infoTooltip? string
 ---@field clickMacro? fun(spellID: number): string
 ---@field casterBuffId? number Check this buff on the caster instead of scanning group
+---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 
 ---@class SelfBuff
 ---@field spellID? SpellID
@@ -71,6 +73,8 @@ local min = math.min
 ---@field iconByRole? table<RoleType, number>
 ---@field infoTooltip? string
 ---@field customCheck? fun(): boolean?
+---@field getPetActions? fun(): PetAction[]?  -- Override pet actions (e.g., wrong pet → Felguard only)
+---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 
 ---@class ConsumableBuff
 ---@field spellID? SpellID
@@ -88,6 +92,7 @@ local min = math.min
 ---@field readyCheckOnly? boolean Only show during ready checks
 ---@field infoTooltip? string Tooltip text shown on hover (pipe-separated: title|description)
 ---@field visibilityCondition? fun(): boolean Custom function that gates visibility (return false to hide)
+---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 
 ---@class BuffGroup
 ---@field displayName string
@@ -212,6 +217,36 @@ BR.BUFF_TABLES = {
             readyCheckOnly = true,
             castOnOthers = true,
             noExpirationGlow = true,
+            clickMacro = function(spellID)
+                local name = C_Spell.GetSpellName(spellID)
+                -- Priority: sticky last target > first living healer > mouseover > target > self
+                local lastTarget = BR.StateHelpers and BR.StateHelpers.GetLastTarget("soulstone")
+                if lastTarget then
+                    return "/cast [@"
+                        .. lastTarget
+                        .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][@player] "
+                        .. name
+                end
+                local numMembers = GetNumGroupMembers()
+                if numMembers > 0 then
+                    local prefix = IsInRaid() and "raid" or "party"
+                    for i = 1, numMembers do
+                        local unitId = prefix .. i
+                        if UnitExists(unitId) and not UnitIsDeadOrGhost(unitId) then
+                            if UnitGroupRolesAssigned(unitId) == "HEALER" then
+                                local healerName = GetUnitName(unitId, true)
+                                if healerName then
+                                    return "/cast [@"
+                                        .. healerName
+                                        .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][@player] "
+                                        .. name
+                                end
+                            end
+                        end
+                    end
+                end
+                return "/cast [@mouseover,help,nodead][@target,help,nodead][@player] " .. name
+            end,
         },
     },
     ---@type TargetedBuff[]
@@ -225,6 +260,7 @@ BR.BUFF_TABLES = {
             missingText = "沒有\n信標",
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
+            glowDetectable = true,
             clickMacro = TargetedClickMacro("beaconOfFaith"),
         },
         {
@@ -235,6 +271,7 @@ BR.BUFF_TABLES = {
             missingText = "沒有\n聖光",
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
+            glowDetectable = true,
             excludeSpellID = 200025, -- Hide when Beacon of Virtue is known
             displayIcon = 236247, -- Force original icon (talents replace the texture)
             clickMacro = TargetedClickMacro("beaconOfLight"),
@@ -564,6 +601,26 @@ BR.BUFF_TABLES = {
             end,
         },
         {
+            key = "warlockWrongPet",
+            name = "錯誤的惡魔",
+            class = "WARLOCK",
+            missingText = "錯誤\n寵物",
+            displayIcon = 136216, -- Felguard icon
+            excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
+            requireSpecId = 266, -- Demonology only
+            groupId = "pets",
+            customCheck = function()
+                if not UnitExists("pet") then
+                    return false
+                end
+                local name, familyID = UnitCreatureFamily("pet")
+                return familyID ~= 29 and name ~= "Felguard"
+            end,
+            getPetActions = function()
+                return BR.PetHelpers.GetFelguardAction()
+            end,
+        },
+        {
             key = "warlockPet",
             name = "術士惡魔",
             class = "WARLOCK",
@@ -610,6 +667,7 @@ BR.BUFF_TABLES = {
                 1235108, -- Flask of the Magisters (Mastery)
                 1235110, -- Flask of the Blood Knights (Haste)
                 1235111, -- Flask of the Shattered Sun (Critical Strike)
+                1239355, -- Vicious Thalassian Flask of Honor
             },
             displaySpells = {
                 -- Show only TWW flask icons in UI
@@ -686,6 +744,7 @@ BR.BUFF_TABLES = {
         -- Healthstone (ready check only - checks inventory)
         {
             itemID = { 5512, 224464 }, -- Healthstone, Demonic Healthstone
+            castSpellID = 298393, -- Create Soulwell
             key = "healthstone",
             name = "治療石",
             class = "WARLOCK",

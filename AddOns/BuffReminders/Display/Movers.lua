@@ -184,21 +184,21 @@ local function CreateCoordinatePopup()
 
     -- Title
     local title = popup:CreateFontString(nil, "OVERLAY")
-    title:SetFont(fontPath, 12, "OUTLINE")
+    title:SetFont(fontPath, 11, "OUTLINE")
     title:SetPoint("TOP", 0, -8)
     title:SetText("Set Position")
     title:SetTextColor(1, 0.82, 0, 1)
 
     -- X row
     local xLabel = popup:CreateFontString(nil, "OVERLAY")
-    xLabel:SetFont(fontPath, 12, "OUTLINE")
+    xLabel:SetFont(fontPath, 11, "OUTLINE")
     xLabel:SetPoint("TOPLEFT", 10, -30)
     xLabel:SetText("X")
     xLabel:SetTextColor(1, 1, 1, 1)
 
     local xEdit = CreateFrame("EditBox", nil, popup)
     xEdit:SetSize(130, 20)
-    xEdit:SetFont(fontPath, 12, "")
+    xEdit:SetFont(fontPath, 11, "")
     xEdit:SetAutoFocus(false)
     local xContainer = BR.StyleEditBox(xEdit)
     xContainer:SetSize(130, 20)
@@ -206,14 +206,14 @@ local function CreateCoordinatePopup()
 
     -- Y row
     local yLabel = popup:CreateFontString(nil, "OVERLAY")
-    yLabel:SetFont(fontPath, 12, "OUTLINE")
+    yLabel:SetFont(fontPath, 11, "OUTLINE")
     yLabel:SetPoint("TOPLEFT", 10, -56)
     yLabel:SetText("Y")
     yLabel:SetTextColor(1, 1, 1, 1)
 
     local yEdit = CreateFrame("EditBox", nil, popup)
     yEdit:SetSize(130, 20)
-    yEdit:SetFont(fontPath, 12, "")
+    yEdit:SetFont(fontPath, 11, "")
     yEdit:SetAutoFocus(false)
     local yContainer = BR.StyleEditBox(yEdit)
     yContainer:SetSize(130, 20)
@@ -307,14 +307,14 @@ local function CreateMoverFrame(catKey, displayName)
     -- Label above the mover
     mover.label = mover:CreateFontString(nil, "OVERLAY")
     mover.label:SetPoint("BOTTOM", mover, "TOP", 0, 4)
-    mover.label:SetFont(fontPath, 12, "OUTLINE")
+    mover.label:SetFont(fontPath, 11, "OUTLINE")
     mover.label:SetTextColor(0.4, 1, 0.4, 1)
     mover.label:SetText(displayName or catKey)
 
     -- "Anchor" text below the green box (updated with growth direction in UpdateAnchor)
     mover.anchorText = mover:CreateFontString(nil, "OVERLAY")
     mover.anchorText:SetPoint("TOP", mover, "BOTTOM", 0, -4)
-    mover.anchorText:SetFont(fontPath, 12, "OUTLINE")
+    mover.anchorText:SetFont(fontPath, 11, "OUTLINE")
     mover.anchorText:SetTextColor(0.4, 1, 0.4, 1)
 
     mover.catKey = catKey

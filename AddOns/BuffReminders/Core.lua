@@ -181,6 +181,7 @@ local DefaultSettingKeys = {
     petLabels = "DisplayRefresh",
     petLabelScale = "DisplayRefresh",
     petSpecIconOnHover = "DisplayRefresh",
+    useFelDomination = "DisplayRefresh",
     -- Font (global-only, lives under defaults)
     fontFace = "VisualsRefresh",
 }

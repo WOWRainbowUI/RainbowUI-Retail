@@ -295,6 +295,7 @@ local defaults = {
             DEATHKNIGHT = true,
             MAGE = true,
         },
+        useFelDomination = false,
     },
 
     ---@type CategoryVisibility
@@ -1502,7 +1503,7 @@ local function HideAllDisplayFrames()
     end
 end
 
--- Update the fallback display (shows tracked buffs via action bar glow during M+/PvP/combat)
+-- Update the fallback display (shows tracked buffs via action bar glow during PvP/Arena)
 -- Shows glow-based frames + pet frames, then collects ALL visible frames for unified positioning
 UpdateFallbackDisplay = function()
     if not mainFrame then
@@ -2683,6 +2684,9 @@ end
 BR.Display.ResetCategoryFramePosition = function(category, x, y)
     BR.Movers.SavePosition(category, x or 0, y or 0)
 end
+BR.Display.IsSpellGlowing = function(spellID)
+    return glowingSpells[spellID] == true
+end
 
 -- Export Masque state for Options.lua
 BR.Masque = {
@@ -3395,6 +3399,15 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
             end
         end
         db.dbVersion = DB_VERSION
+
+        -- Login message for missing consumables
+        C_Timer.After(5, function()
+            if db.showLoginMessages ~= false then
+                print(
+                    "|cff00ccffBuffReminders:|r There are a lot of new consumables for Midnight, and I might have missed some of those. If you notice a missing one, please report it on Discord (|cff7289da/br|r > Join Discord)."
+                )
+            end
+        end)
 
         -- Clean up old one-time notice flags
         db.glowUpdateNoticeShown = nil

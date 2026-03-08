@@ -564,8 +564,8 @@ local function IsCategoryVisibleForContent(category)
     if diffKey then
         local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
         local diffTable = diffDbKey and visibility[diffDbKey]
-        if diffTable then
-            return diffTable[diffKey] ~= false
+        if diffTable and diffTable[diffKey] == false then
+            return false
         end
     end
     -- Per-category ready check filter
@@ -598,8 +598,8 @@ local function IsCustomBuffVisibleForContent(buff)
     if diffKey then
         local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
         local diffTable = diffDbKey and lc[diffDbKey]
-        if diffTable then
-            return diffTable[diffKey] ~= false
+        if diffTable and diffTable[diffKey] == false then
+            return false
         end
     end
 
@@ -731,14 +731,16 @@ end
 ---@param playerOnly? boolean Only check the player, not the group
 ---@return boolean hasBuff
 ---@return number? minRemaining
+---@return string? targetUnit First non-player unit that has the buff (for castOnOthers tracking)
 local function HasPresenceBuff(spellIDs, playerOnly)
     if playerOnly or #currentValidUnits <= 1 then
         local hasBuff, remaining = UnitHasBuff("player", spellIDs)
-        return hasBuff, remaining
+        return hasBuff, remaining, nil
     end
 
     local minRemaining = nil
     local found = false
+    local targetUnit = nil
 
     for _, data in ipairs(currentValidUnits) do
         -- Skip NPCs in content where they can't receive player buffs
@@ -746,18 +748,21 @@ local function HasPresenceBuff(spellIDs, playerOnly)
             local hasBuff, remaining = UnitHasBuff(data.unit, spellIDs)
             if hasBuff then
                 found = true
+                if not targetUnit and not UnitIsUnit(data.unit, "player") then
+                    targetUnit = data.unit
+                end
                 if remaining then
                     if not minRemaining or remaining < minRemaining then
                         minRemaining = remaining
                     end
                 else
-                    return true, nil -- no expiration, no need to keep scanning
+                    return true, nil, targetUnit -- no expiration, no need to keep scanning
                 end
             end
         end
     end
 
-    return found, minRemaining
+    return found, minRemaining, targetUnit
 end
 
 ---Check if player's buff is active on anyone in the group
@@ -1234,12 +1239,37 @@ local function TrySetEntryExpiring(entry, remaining, threshold, shouldGlow)
     return false
 end
 
+-- Cached reference to Display.IsSpellGlowing (resolved once per Refresh cycle)
+local cachedIsSpellGlowing = nil
+
+---Check if any of a buff's spell IDs are glowing on the action bar (via Display layer)
+---@param buff table Buff entry with spellID field
+---@return boolean
+local function IsAnySpellGlowing(buff)
+    if not cachedIsSpellGlowing then
+        return false
+    end
+    local spellID = buff.spellID
+    if type(spellID) == "table" then
+        for _, id in ipairs(spellID) do
+            if cachedIsSpellGlowing(id) then
+                return true
+            end
+        end
+        return false
+    end
+    return cachedIsSpellGlowing(spellID)
+end
+
 ---Recompute all buff states
 function BuffState.Refresh()
     local db = BR.profile
     if not db then
         return
     end
+
+    -- Cache Display.IsSpellGlowing once per refresh cycle (State.lua loads before Display)
+    cachedIsSpellGlowing = BR.Display and BR.Display.IsSpellGlowing
 
     -- Invalidate off-hand weapon cache each refresh cycle (cheap lazy re-check)
     cachedHasOffHandWeapon = nil
@@ -1327,13 +1357,38 @@ function BuffState.Refresh()
             readyCheckOk = overrides and overrides[overrideKey] == false
         end
         local showBuff = presenceVisible and readyCheckOk and scope.show
-        if (not isAuraRestricted or IsAuraTrackable(buff)) and IsBuffEnabled(buff.key) and showBuff then
-            local hasBuff, minRemaining = HasPresenceBuff(buff.spellID, scope.playerOnly)
-
-            if not hasBuff then
-                SetEntryMissing(entry, buff.missingText, presGlow)
-            elseif not buff.noExpirationGlow and not hideExpiring then
-                TrySetEntryExpiring(entry, minRemaining, presThreshold, presGlow)
+        local useGlowDet = isAuraRestricted and not IsAuraTrackable(buff) and buff.glowDetectable
+        if (not isAuraRestricted or IsAuraTrackable(buff) or useGlowDet) and IsBuffEnabled(buff.key) and showBuff then
+            if useGlowDet then
+                if IsAnySpellGlowing(buff) then
+                    SetEntryMissing(entry, buff.missingText, presGlow)
+                end
+            else
+                local hasBuff, minRemaining, targetUnit = HasPresenceBuff(buff.spellID, scope.playerOnly)
+                if not hasBuff then
+                    SetEntryMissing(entry, buff.missingText, presGlow)
+                elseif not buff.noExpirationGlow and not hideExpiring then
+                    TrySetEntryExpiring(entry, minRemaining, presThreshold, presGlow)
+                end
+                -- Track who has castOnOthers buffs for sticky click-to-cast targeting
+                if buff.castOnOthers and hasBuff and not inCombat then
+                    if targetUnit then
+                        local tName = GetUnitName(targetUnit, true)
+                        if tName then
+                            local _, tClass = UnitClass(targetUnit)
+                            local existing = lastTargets[buff.key]
+                            if existing then
+                                existing.name = tName
+                                existing.class = tClass
+                            else
+                                lastTargets[buff.key] = { name = tName, class = tClass }
+                            end
+                        end
+                    else
+                        lastTargets[buff.key] = nil
+                    end
+                    -- If not active, keep old last target so macro still targets them
+                end
             end
         end
     end
@@ -1345,25 +1400,32 @@ function BuffState.Refresh()
         local entry = GetOrCreateEntry(buff.key, "targeted", i)
         local settingKey = GetBuffSettingKey(buff)
 
+        local useGlowDet = isAuraRestricted and not IsAuraTrackable(buff) and buff.glowDetectable
         if
-            (not isAuraRestricted or IsAuraTrackable(buff))
+            (not isAuraRestricted or IsAuraTrackable(buff) or useGlowDet)
             and IsBuffEnabled(settingKey)
             and targetedVisible
             and PassesPreChecks(buff, nil, db)
         then
-            local shouldShow, remaining = ShouldShowTargetedBuff(
-                buff.spellID,
-                buff.class,
-                buff.beneficiaryRole,
-                buff.requireSpecId,
-                buff.key,
-                buff.casterBuffId
-            )
+            if useGlowDet then
+                if IsAnySpellGlowing(buff) then
+                    SetEntryMissing(entry, buff.missingText, targGlow)
+                end
+            else
+                local shouldShow, remaining = ShouldShowTargetedBuff(
+                    buff.spellID,
+                    buff.class,
+                    buff.beneficiaryRole,
+                    buff.requireSpecId,
+                    buff.key,
+                    buff.casterBuffId
+                )
 
-            if shouldShow then
-                SetEntryMissing(entry, buff.missingText, targGlow)
-            elseif shouldShow == false and not hideExpiring then
-                TrySetEntryExpiring(entry, remaining, targThreshold, targGlow)
+                if shouldShow then
+                    SetEntryMissing(entry, buff.missingText, targGlow)
+                elseif shouldShow == false and not hideExpiring then
+                    TrySetEntryExpiring(entry, remaining, targThreshold, targGlow)
+                end
             end
         end
     end
@@ -1375,26 +1437,43 @@ function BuffState.Refresh()
         local entry = GetOrCreateEntry(buff.key, "self", i)
         local settingKey = buff.groupId or buff.key
 
-        if (not isAuraRestricted or IsAuraTrackable(buff)) and IsBuffEnabled(settingKey) and selfVisible then
-            local shouldShow = ShouldShowSelfBuff(
-                buff.spellID,
-                buff.class,
-                buff.enchantID,
-                buff.requiresSpellID,
-                buff.excludeSpellID,
-                buff.buffIdOverride,
-                buff.customCheck,
-                buff.requireSpecId,
-                nil, -- skipSpellKnownCheck
-                buff.requiresBuffWithEnchant
-            )
-            if shouldShow then
-                SetEntryMissing(entry, buff.missingText, selfGlow)
-                entry.iconByRole = buff.iconByRole
-            elseif shouldShow == false and not buff.enchantID and not buff.noExpirationGlow and not hideExpiring then
-                -- Buff present but maybe expiring (enchants don't track expiration here)
-                local _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
-                TrySetEntryExpiring(entry, remaining, selfThreshold, selfGlow)
+        local useGlowDet = isAuraRestricted and not IsAuraTrackable(buff) and buff.glowDetectable
+        if
+            (not isAuraRestricted or IsAuraTrackable(buff) or useGlowDet)
+            and IsBuffEnabled(settingKey)
+            and selfVisible
+        then
+            if useGlowDet then
+                if IsAnySpellGlowing(buff) then
+                    SetEntryMissing(entry, buff.missingText, selfGlow)
+                    entry.iconByRole = buff.iconByRole
+                end
+            else
+                local shouldShow = ShouldShowSelfBuff(
+                    buff.spellID,
+                    buff.class,
+                    buff.enchantID,
+                    buff.requiresSpellID,
+                    buff.excludeSpellID,
+                    buff.buffIdOverride,
+                    buff.customCheck,
+                    buff.requireSpecId,
+                    nil, -- skipSpellKnownCheck
+                    buff.requiresBuffWithEnchant
+                )
+                if shouldShow then
+                    SetEntryMissing(entry, buff.missingText, selfGlow)
+                    entry.iconByRole = buff.iconByRole
+                elseif
+                    shouldShow == false
+                    and not buff.enchantID
+                    and not buff.noExpirationGlow
+                    and not hideExpiring
+                then
+                    -- Buff present but maybe expiring (enchants don't track expiration here)
+                    local _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
+                    TrySetEntryExpiring(entry, remaining, selfThreshold, selfGlow)
+                end
             end
         end
     end
@@ -1427,7 +1506,12 @@ function BuffState.Refresh()
                 SetEntryMissing(entry, buff.missingText, petGlow)
                 entry.iconByRole = buff.iconByRole
                 -- Expanded pet actions (individual summon spell icons)
-                if buff.groupId == "pets" and BR.PetHelpers then
+                if buff.getPetActions then
+                    local actions = buff.getPetActions()
+                    if actions and #actions > 0 then
+                        entry.petActions = actions
+                    end
+                elseif buff.groupId == "pets" and BR.PetHelpers then
                     local actions = BR.PetHelpers.GetPetActions(playerClass)
                     if actions and #actions > 0 then
                         entry.petActions = actions
@@ -1446,31 +1530,38 @@ function BuffState.Refresh()
         local settingKey = buff.groupId or buff.key
 
         local hasCaster = not buff.class or HasCasterForBuff(buff.class, buff.levelRequired)
+        local useGlowDet = isAuraRestricted and not IsAuraTrackable(buff) and buff.glowDetectable
         if
-            (not isAuraRestricted or IsAuraTrackable(buff))
+            (not isAuraRestricted or IsAuraTrackable(buff) or useGlowDet)
             and IsBuffEnabled(settingKey)
             and consumableVisible
             and hasCaster
             and PassesPreChecks(buff, nil, db)
             and not (buff.key ~= "delveFood" and delveFoodOnly)
         then
-            local shouldShow, remainingTime = ShouldShowConsumableBuff(
-                buff.spellID,
-                buff.buffIconID,
-                buff.checkWeaponEnchant,
-                buff.checkWeaponEnchantOH,
-                buff.itemID
-            )
-            if shouldShow then
-                SetEntryMissing(entry, buff.missingText, consGlow)
-            elseif not buff.noExpirationGlow and not hideExpiring then
-                TrySetEntryExpiring(entry, remainingTime, consThreshold, consGlow)
-            end
-            -- Eating state for food entries (display uses this for icon override + countdown)
-            if entry.visible and buff.key == "food" then
-                entry.isEating = IsPlayerEating()
-                if entry.isEating then
-                    entry.eatingExpirationTime = GetEatingExpirationTime()
+            if useGlowDet then
+                if IsAnySpellGlowing(buff) then
+                    SetEntryMissing(entry, buff.missingText, consGlow)
+                end
+            else
+                local shouldShow, remainingTime = ShouldShowConsumableBuff(
+                    buff.spellID,
+                    buff.buffIconID,
+                    buff.checkWeaponEnchant,
+                    buff.checkWeaponEnchantOH,
+                    buff.itemID
+                )
+                if shouldShow then
+                    SetEntryMissing(entry, buff.missingText, consGlow)
+                elseif not buff.noExpirationGlow and not hideExpiring then
+                    TrySetEntryExpiring(entry, remainingTime, consThreshold, consGlow)
+                end
+                -- Eating state for food entries (display uses this for icon override + countdown)
+                if entry.visible and buff.key == "food" then
+                    entry.isEating = IsPlayerEating()
+                    if entry.isEating then
+                        entry.eatingExpirationTime = GetEatingExpirationTime()
+                    end
                 end
             end
         end
@@ -1483,7 +1574,9 @@ function BuffState.Refresh()
         local entry = GetOrCreateEntry(buff.key, "custom", i)
         local settingKey = buff.groupId or buff.key
 
-        local shouldProcess = (not isAuraRestricted or IsAuraTrackable(buff))
+        -- Custom buffs with glow detection use action bar glow as fallback when aura-restricted
+        local useGlowFallback = isAuraRestricted and not IsAuraTrackable(buff) and buff.glowMode ~= "disabled"
+        local shouldProcess = (not isAuraRestricted or IsAuraTrackable(buff) or useGlowFallback)
             and IsBuffEnabled(settingKey)
             and IsCustomBuffVisibleForContent(buff)
 
@@ -1509,7 +1602,15 @@ function BuffState.Refresh()
             end
         end
 
-        if shouldProcess then
+        if shouldProcess and useGlowFallback then
+            -- Aura API restricted: detect via action bar glow instead
+            local mode = buff.glowMode or "whenGlowing"
+            local anyGlowing = IsAnySpellGlowing(buff)
+            local show = (mode == "whenGlowing" and anyGlowing) or (mode == "whenNotGlowing" and not anyGlowing)
+            if show then
+                SetEntryMissing(entry, buff.missingText, customGlow)
+            end
+        elseif shouldProcess then
             local shouldShow = ShouldShowSelfBuff(
                 buff.spellID,
                 buff.class,
