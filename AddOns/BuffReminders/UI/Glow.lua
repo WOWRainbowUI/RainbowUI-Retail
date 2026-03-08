@@ -225,7 +225,7 @@ function BR.Glow.SetExpiration(frame, show, category, cachedSettings)
             size = BR.Config.GetCategorySetting(category, "glowSize") or 2
             borderOffset = BR.Config.GetCategorySetting(category, "borderSize") or BR.DEFAULT_BORDER_SIZE
         else
-            local db = BuffRemindersDB
+            local db = BR.profile
             typeIndex = (db.defaults and db.defaults.glowType) or 1
             local useCustom = db.defaults and db.defaults.useCustomGlowColor
             color = useCustom and ((db.defaults and db.defaults.glowColor) or BR.Glow.DEFAULT_COLOR) or nil

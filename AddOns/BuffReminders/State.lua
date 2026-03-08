@@ -465,7 +465,7 @@ end
 ---@param key string
 ---@return boolean
 local function IsBuffEnabled(key)
-    local db = BuffRemindersDB
+    local db = BR.profile
     return db.enabledBuffs[key] ~= false
 end
 
@@ -547,7 +547,7 @@ local function IsCategoryVisibleForContent(category)
     if inVehicle and category ~= "raid" and category ~= "presence" then
         return false
     end
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db.categoryVisibility then
         return true
     end
@@ -1220,14 +1220,15 @@ end
 ---@param entry BuffStateEntry
 ---@param remaining? number
 ---@param threshold number
+---@param shouldGlow boolean
 ---@return boolean wasSet true if the entry was marked as expiring
-local function TrySetEntryExpiring(entry, remaining, threshold)
+local function TrySetEntryExpiring(entry, remaining, threshold, shouldGlow)
     if remaining and remaining < threshold then
         entry.visible = true
         entry.displayType = "expiring"
         entry.expiringTime = remaining
         entry.countText = FormatRemainingTime(remaining)
-        entry.shouldGlow = true
+        entry.shouldGlow = shouldGlow
         return true
     end
     return false
@@ -1235,7 +1236,7 @@ end
 
 ---Recompute all buff states
 function BuffState.Refresh()
-    local db = BuffRemindersDB
+    local db = BR.profile
     if not db then
         return
     end
@@ -1274,17 +1275,16 @@ function BuffState.Refresh()
     local isAuraRestricted = inCombat or GetCurrentDifficultyKey() == "mythicPlus"
     local hideExpiring = isAuraRestricted and db.hideExpiringInCombat ~= false
 
-    -- Per-category glow settings (inherits from defaults via GetCategorySetting)
-    local function GetCategoryGlow(cat)
-        local enabled = BR.Config.GetCategorySetting(cat, "showExpirationGlow") ~= false
-        local whenMissing = enabled and BR.Config.GetCategorySetting(cat, "glowWhenMissing") ~= false
+    -- Per-category glow/expiration settings (inherits from defaults via GetCategorySetting)
+    local function GetCategoryGlowSettings(cat)
+        local glowEnabled = BR.Config.GetCategorySetting(cat, "showExpirationGlow") ~= false
         local threshold = (BR.Config.GetCategorySetting(cat, "expirationThreshold") or 15) * 60
-        return enabled, whenMissing, threshold
+        return glowEnabled, threshold
     end
 
     -- Process raid buffs (coverage - need everyone to have them)
     local raidVisible = IsCategoryVisibleForContent("raid")
-    local raidGlow, raidGlowMissing, raidGlowThreshold = GetCategoryGlow("raid")
+    local raidGlow, raidThreshold = GetCategoryGlowSettings("raid")
     for i, buff in ipairs(RaidBuffs) do
         local entry = GetOrCreateEntry(buff.key, "raid", i)
         local scope =
@@ -1298,19 +1298,19 @@ function BuffState.Refresh()
                 entry.displayType = "count"
                 local buffed = total - missing
                 entry.countText = scope.playerOnly and "" or (buffed .. "/" .. total)
-                entry.shouldGlow = raidGlowMissing
-                if minRemaining and minRemaining < raidGlowThreshold then
+                entry.shouldGlow = raidGlow
+                if minRemaining and minRemaining < raidThreshold then
                     entry.expiringTime = minRemaining
                 end
-            elseif raidGlow and not hideExpiring then
-                TrySetEntryExpiring(entry, minRemaining, raidGlowThreshold)
+            elseif not hideExpiring then
+                TrySetEntryExpiring(entry, minRemaining, raidThreshold, raidGlow)
             end
         end
     end
 
     -- Process presence buffs (need at least 1 person to have them)
     local presenceVisible = IsCategoryVisibleForContent("presence")
-    local presGlow, presGlowMissing, presGlowThreshold = GetCategoryGlow("presence")
+    local presGlow, presThreshold = GetCategoryGlowSettings("presence")
     for i, buff in ipairs(PresenceBuffs) do
         local entry = GetOrCreateEntry(buff.key, "presence", i)
         local scope = GetTrackingScope(
@@ -1331,16 +1331,16 @@ function BuffState.Refresh()
             local hasBuff, minRemaining = HasPresenceBuff(buff.spellID, scope.playerOnly)
 
             if not hasBuff then
-                SetEntryMissing(entry, buff.missingText, presGlowMissing)
-            elseif presGlow and not buff.noExpirationGlow and not hideExpiring then
-                TrySetEntryExpiring(entry, minRemaining, presGlowThreshold)
+                SetEntryMissing(entry, buff.missingText, presGlow)
+            elseif not buff.noExpirationGlow and not hideExpiring then
+                TrySetEntryExpiring(entry, minRemaining, presThreshold, presGlow)
             end
         end
     end
 
     -- Process targeted buffs (player's own buff responsibility)
     local targetedVisible = IsCategoryVisibleForContent("targeted")
-    local targGlow, targGlowMissing, targGlowThreshold = GetCategoryGlow("targeted")
+    local targGlow, targThreshold = GetCategoryGlowSettings("targeted")
     for i, buff in ipairs(TargetedBuffs) do
         local entry = GetOrCreateEntry(buff.key, "targeted", i)
         local settingKey = GetBuffSettingKey(buff)
@@ -1361,16 +1361,16 @@ function BuffState.Refresh()
             )
 
             if shouldShow then
-                SetEntryMissing(entry, buff.missingText, targGlowMissing)
-            elseif shouldShow == false and targGlow and not hideExpiring then
-                TrySetEntryExpiring(entry, remaining, targGlowThreshold)
+                SetEntryMissing(entry, buff.missingText, targGlow)
+            elseif shouldShow == false and not hideExpiring then
+                TrySetEntryExpiring(entry, remaining, targThreshold, targGlow)
             end
         end
     end
 
     -- Process self buffs (player's own buff on themselves, including weapon imbues)
     local selfVisible = IsCategoryVisibleForContent("self")
-    local selfGlow, selfGlowMissing, selfGlowThreshold = GetCategoryGlow("self")
+    local selfGlow, selfThreshold = GetCategoryGlowSettings("self")
     for i, buff in ipairs(SelfBuffs) do
         local entry = GetOrCreateEntry(buff.key, "self", i)
         local settingKey = buff.groupId or buff.key
@@ -1389,29 +1389,23 @@ function BuffState.Refresh()
                 buff.requiresBuffWithEnchant
             )
             if shouldShow then
-                SetEntryMissing(entry, buff.missingText, selfGlowMissing)
+                SetEntryMissing(entry, buff.missingText, selfGlow)
                 entry.iconByRole = buff.iconByRole
-            elseif
-                shouldShow == false
-                and selfGlow
-                and not buff.enchantID
-                and not buff.noExpirationGlow
-                and not hideExpiring
-            then
+            elseif shouldShow == false and not buff.enchantID and not buff.noExpirationGlow and not hideExpiring then
                 -- Buff present but maybe expiring (enchants don't track expiration here)
                 local _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
-                TrySetEntryExpiring(entry, remaining, selfGlowThreshold)
+                TrySetEntryExpiring(entry, remaining, selfThreshold, selfGlow)
             end
         end
     end
 
     -- Process pet buffs (pet summon reminders — no expiration tracking)
     local petVisible = IsCategoryVisibleForContent("pet")
-    if BuffRemindersDB.hidePetWhileMounted ~= false and IsMounted() then
+    if BR.profile.hidePetWhileMounted ~= false and IsMounted() then
         petVisible = false
     end
-    local petPassiveHidden = BuffRemindersDB.petPassiveOnlyInCombat and not UnitAffectingCombat("player")
-    local _, petGlowMissing = GetCategoryGlow("pet")
+    local petPassiveHidden = BR.profile.petPassiveOnlyInCombat and not UnitAffectingCombat("player")
+    local petGlow = GetCategoryGlowSettings("pet")
     for i, buff in ipairs(PetBuffs) do
         local entry = GetOrCreateEntry(buff.key, "pet", i)
         local settingKey = buff.groupId or buff.key
@@ -1430,7 +1424,7 @@ function BuffState.Refresh()
                 buff.requiresBuffWithEnchant
             )
             if shouldShow then
-                SetEntryMissing(entry, buff.missingText, petGlowMissing)
+                SetEntryMissing(entry, buff.missingText, petGlow)
                 entry.iconByRole = buff.iconByRole
                 -- Expanded pet actions (individual summon spell icons)
                 if buff.groupId == "pets" and BR.PetHelpers then
@@ -1445,7 +1439,7 @@ function BuffState.Refresh()
 
     -- Process consumable buffs
     local consumableVisible = IsCategoryVisibleForContent("consumable")
-    local consGlow, consGlowMissing, consGlowThreshold = GetCategoryGlow("consumable")
+    local consGlow, consThreshold = GetCategoryGlowSettings("consumable")
     local delveFoodOnly = db.defaults and db.defaults.delveFoodOnly and BR.IsInDelve()
     for i, buff in ipairs(Consumables) do
         local entry = GetOrCreateEntry(buff.key, "consumable", i)
@@ -1468,9 +1462,9 @@ function BuffState.Refresh()
                 buff.itemID
             )
             if shouldShow then
-                SetEntryMissing(entry, buff.missingText, consGlowMissing)
-            elseif consGlow and not buff.noExpirationGlow and not hideExpiring then
-                TrySetEntryExpiring(entry, remainingTime, consGlowThreshold)
+                SetEntryMissing(entry, buff.missingText, consGlow)
+            elseif not buff.noExpirationGlow and not hideExpiring then
+                TrySetEntryExpiring(entry, remainingTime, consThreshold, consGlow)
             end
             -- Eating state for food entries (display uses this for icon override + countdown)
             if entry.visible and buff.key == "food" then
@@ -1483,7 +1477,7 @@ function BuffState.Refresh()
     end
 
     -- Process custom buffs (user-defined, flows through ShouldShowSelfBuff like self/pet)
-    local customGlow, customGlowMissing, customGlowThreshold = GetCategoryGlow("custom")
+    local customGlow, customThreshold = GetCategoryGlowSettings("custom")
     local skipSpellKnown = SKIP_SPELL_KNOWN_CATEGORIES["custom"]
     for i, buff in ipairs(CustomBuffs) do
         local entry = GetOrCreateEntry(buff.key, "custom", i)
@@ -1531,11 +1525,11 @@ function BuffState.Refresh()
             local wantPresent = buff.showWhenPresent
             local show = (wantPresent and shouldShow == false) or (not wantPresent and shouldShow)
             if show then
-                SetEntryMissing(entry, buff.missingText, customGlowMissing)
-            elseif not show and shouldShow ~= nil and customGlow and not buff.enchantID and not hideExpiring then
+                SetEntryMissing(entry, buff.missingText, customGlow)
+            elseif not show and shouldShow ~= nil and not buff.enchantID and not hideExpiring then
                 -- Buff is present (not missing), check if expiring
                 local _, remaining = UnitHasBuff("player", buff.buffIdOverride or buff.spellID)
-                TrySetEntryExpiring(entry, remaining, customGlowThreshold)
+                TrySetEntryExpiring(entry, remaining, customThreshold, customGlow)
             end
         end
     end
