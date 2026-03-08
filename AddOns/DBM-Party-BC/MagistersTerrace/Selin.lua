@@ -5,10 +5,10 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20231223205517")
-
+mod:SetRevision("20260307180112")
 mod:SetCreatureID(24723)
 mod:SetEncounterID(1897)
+mod:SetZone(585)
 
 --if not mod:IsRetail() then
 --	mod:SetModelID(22731)--Unknown, two bosses have same ID

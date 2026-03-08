@@ -1,9 +1,10 @@
 local mod	= DBM:NewMod("Gyrokill", "DBM-Party-BC", 13)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20231014053250")
+mod:SetRevision("20260307180112")
 mod:SetCreatureID(19218)
 mod:SetEncounterID(1933)
+mod:SetZone(554)
 
 --if not mod:IsRetail() then
 --	mod:SetModelID(19045)

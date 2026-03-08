@@ -3,7 +3,8 @@ local L		= mod:GetLocalizedStrings()
 
 mod.noStatistics = true
 
-mod:SetRevision("20260112042022")
+mod:SetRevision("20260307180112")
+mod:SetZone(269)
 
 mod:RegisterEvents(
 	"UPDATE_UI_WIDGET",
