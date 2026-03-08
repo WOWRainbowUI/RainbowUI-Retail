@@ -28,7 +28,7 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.3"
+local ADDON_VERSION = "2.4"
 local CONFIG_VERSION = "3.1"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
@@ -489,9 +489,8 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 end
 
                 if DFFriendlyNamePlates.NamePlatesSettings["hideCastBar2"] then
-                    if ((self:IsPlayer() and not DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"]) or
-                            (not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] and
-                                DFFNamePlates:IsShowOnlyNameNPC())) then
+                    if (self:IsPlayer() or (not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] and
+                            DFFNamePlates:IsShowOnlyNameNPC())) then
                         TableUtil.TrySet(self.castBar, "showOnlyName")
                         TableUtil.TrySet(self.castBar, "widgetsOnly")
                     end
