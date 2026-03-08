@@ -64,7 +64,7 @@ local function IsNameplateContext(name, objType, unit)
         or strfind(name, "NamePlate", 1, true)
         or strfind(name, "Plater",    1, true)
         or strfind(name, "Kui",       1, true)
-        or (unit and strfind(unit, "nameplate", 1, true))
+        or (unit and (type(unit) == "string") and strfind(unit, "nameplate", 1, true)) -- 暫時修正
 end
 
 -- FONCTION : Détection rapide des frames générées par MiniCC
