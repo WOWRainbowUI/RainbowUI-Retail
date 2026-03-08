@@ -132,10 +132,18 @@ function addon:SetupSecureHeader()
 
     -- This snippet will clear any dangling bindings that might have occurred
     -- as a result of frames being shown/hidden.
+    --
+    -- This was updated following 12.0 due to changes to self:IsUnderMouse()
+    -- to use a GetMousePosition() check instead to bound to the frame
     local oacScript = [[
         if name == "hasunit" and value == "false" and danglingButton then
+            local x, y = danglingButton:GetMousePosition()
+            local xInBounds = x and type(x) == "number" and x >= 0 and x <= 1
+            local yInBounds = y and type(y) == "number" and y >= 0 and y <= 1
+            local insideFrame = xInBounds and yInBounds
+
             -- Check if we should clear the bindings
-            if not danglingButton:IsUnderMouse() or not danglingButton:IsVisible() then
+            if not insideFrame or not danglingButton:IsVisible() then
                 if {{debug}} then print("Clique: clearing bindings, unit lost") end
                 self:RunFor(danglingButton, self:GetAttribute("setup_onleave"))
                 danglingButton = nil
