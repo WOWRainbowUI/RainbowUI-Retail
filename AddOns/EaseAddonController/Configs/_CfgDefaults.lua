@@ -1000,6 +1000,29 @@ D["ls_Glass"] = {
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_evoker_powerswell",
 };
+D["LoxxInterruptTracker"] = {
+    defaultEnable = 0,
+	tags = { "COMBAT" },
+	title = "打斷追蹤",
+	desc = "即時追蹤整個隊伍的打斷技能冷卻，讓玩家快速掌握誰能立刻打斷、誰還在冷卻中。``支援自動偵測職業與專精、天賦減 CD 效果，並能顯示寵物打斷技能；介面提供智慧排序、冷卻完成音效提示、戰鬥外隱藏，以及大小、字體、透明度等完整自訂功能。``非常適合 M+ 地城、競技場 PvP、探究與野外戰鬥使用。`",
+	modifier = "BNS, 彩虹ui",
+	{
+        text = "顯示主視窗",
+        callback = function() SlashCmdList["LOXX"]("show") end,
+    },
+		{
+        text = "隱藏主視窗",
+        callback = function() SlashCmdList["LOXX"]("hide") end,
+    },
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["LOXX"]("config") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
 D["ls_Toasts"] = {
     defaultEnable = 1,
 	tags = { "ENHANCEMENT" },
