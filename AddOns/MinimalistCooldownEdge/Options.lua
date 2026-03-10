@@ -9,8 +9,10 @@ local sort = table.sort
 
 -- Retrieve version dynamically from TOC
 local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
-local CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/mini-cooldown-text-edge-styler"
+local CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/minice-cooldown-styler"
 local DEVELOPER_URL = "https://www.curseforge.com/members/anahkas/projects"
+local MINICC_URL = "https://www.curseforge.com/wow/addons/minicc"
+local SMART_PVP_TAB_TARGETING_URL = "https://www.curseforge.com/wow/addons/pvp-tab-targeting"
 
 -- LibSharedMedia integration (optional – silently absent if not installed)
 local LSM = LibStub("LibSharedMedia-3.0", true)
@@ -87,8 +89,48 @@ end
 local function CatSet(key, field)
     return function(_, val)
         MCE.db.profile.categories[key][field] = val
-        MCE:ForceUpdateAll()
+        MCE:ForceUpdateAll(key == "minicc")
     end
+end
+
+--- Returns a setter function for sliders that writes immediately and refreshes once dragging stops.
+local function CatRangeSet(key, field)
+    return function(_, val)
+        MCE.db.profile.categories[key][field] = val
+        MCE:RequestDebouncedOptionRefresh(key == "minicc")
+    end
+end
+
+local function DebouncedRangeSet(setter, fullScan)
+    return function(...)
+        setter(...)
+        MCE:RequestDebouncedOptionRefresh(fullScan)
+    end
+end
+
+local function SectionSpacer(order, hidden)
+    return {
+        type = "description",
+        order = order,
+        name = " ",
+        fontSize = "small",
+        hidden = hidden,
+    }
+end
+
+local function RowBreak(order, hidden)
+    return {
+        type = "description",
+        order = order,
+        name = "",
+        width = "full",
+        hidden = hidden,
+    }
+end
+
+local function BuildCategoryDescription(desc)
+    if not desc then return nil end
+    return "|cff9fb3c8" .. desc .. "|r"
 end
 
 --- Returns a colour getter (r,g,b,a).
@@ -104,7 +146,7 @@ local function CatColorSet(key, field)
     return function(_, r, g, b, a)
         local c = MCE.db.profile.categories[key][field]
         c.r, c.g, c.b, c.a = r, g, b, a
-        MCE:ForceUpdateAll()
+        MCE:ForceUpdateAll(key == "minicc")
     end
 end
 
@@ -201,9 +243,13 @@ local function CreateCategoryOptions(order, name, key, desc)
     local disabledFn    = function() return IsCatDisabled(key) end
     local stackHiddenFn = function() return IsStackHidden(key) end
     local isCooldownManager = (key == "cooldownmanager")
+    local isMiniCC = (key == "minicc")
 
     return {
         type = "group",
+        hidden = function()
+            return isMiniCC and not MCE:IsMiniCCAvailable()
+        end,
         -- Dynamic name with status indicator (colored accent when active, dimmed when inactive)
         name = function()
             if not MCE.db or not MCE.db.profile then return name end
@@ -216,12 +262,6 @@ local function CreateCategoryOptions(order, name, key, desc)
         end,
         order = order,
         args = {
-            -- ── 0. Category description ──────────────────────────────────
-            catDesc = desc and {
-                type = "description", order = 0, fontSize = "medium",
-                name = "\n|cff88bbdd" .. desc .. "|r\n",
-            } or nil,
-
             -- ── 1. Main Toggle ──────────────────────────────────────────
             enableGroup = {
                 type = "group", name = "", inline = true, order = 1,
@@ -233,12 +273,38 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "enabled"),
                         set = function(_, val)
                             MCE.db.profile.categories[key].enabled = val
-                            MCE:ForceUpdateAll()
+                            MCE:ForceUpdateAll(key == "minicc")
                             LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
                         end,
                     },
+                    miniCCTestToggle = isMiniCC and {
+                        type = "execute", order = 2, width = "full",
+                        name = L["Toggle Test Icons"],
+                        desc = L["Toggle MiniCC's built-in test icons using /minicc test."],
+                        hidden = function() return not MCE:IsMiniCCAvailable() end,
+                        func = function()
+                            local handler = SlashCmdList and SlashCmdList.MINICC
+                            if handler then
+                                pcall(handler, "test")
+                            else
+                                MCE:Print(L["MiniCC test command is unavailable."])
+                            end
+                            MCE:ForceUpdateAll(true)
+                        end,
+                    } or nil,
                 },
             },
+
+            categoryOverview = desc and {
+                type = "group", name = "", inline = true, order = 2,
+                args = {
+                    catDesc = {
+                        type = "description", order = 0.1, fontSize = "medium", width = "full",
+                        name = BuildCategoryDescription(desc),
+                    },
+                    bottomSpacing = SectionSpacer(0.12),
+                },
+            } or nil,
 
             -- ── 2. Typography ───────────────────────────────────────────
             typography = {
@@ -253,8 +319,8 @@ local function CreateCategoryOptions(order, name, key, desc)
                     fontSize = {
                         type = "range", order = 2, width = 0.7,
                         name = L["Size"], min = 8, max = 36, step = 1,
-                        get = CatGet(key, "fontSize"), set = CatSet(key, "fontSize"),
-                        hidden = function() return isCooldownManager end,
+                        get = CatGet(key, "fontSize"), set = CatRangeSet(key, "fontSize"),
+                        hidden = function() return isCooldownManager or isMiniCC end,
                     },
                     fontStyle = {
                         type = "select", order = 3, width = 0.8,
@@ -273,30 +339,95 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "hideCountdownNumbers"),
                         set = CatSet(key, "hideCountdownNumbers"),
+                        hidden = function() return isMiniCC end,
                     },
+                    cooldownManagerHeaderTopSpacing = isCooldownManager and SectionSpacer(5.05) or nil,
                     cooldownManagerHeader = isCooldownManager and {
                         type = "header", name = L["CooldownManager Viewers"], order = 5.1,
                     } or nil,
+                    cooldownManagerHeaderBottomSpacing = isCooldownManager and SectionSpacer(5.15) or nil,
                     essentialFontSize = isCooldownManager and {
                         type = "range", order = 5.2, width = "full",
                         name = L["Essential Viewer Size"], min = 8, max = 36, step = 1,
                         get = CatGet(key, "essentialFontSize", 18),
-                        set = CatSet(key, "essentialFontSize"),
+                        set = CatRangeSet(key, "essentialFontSize"),
                     } or nil,
                     utilityFontSize = isCooldownManager and {
                         type = "range", order = 5.3, width = "full",
                         name = L["Utility Viewer Size"], min = 8, max = 36, step = 1,
                         get = CatGet(key, "utilityFontSize", 18),
-                        set = CatSet(key, "utilityFontSize"),
+                        set = CatRangeSet(key, "utilityFontSize"),
                     } or nil,
                     buffIconFontSize = isCooldownManager and {
                         type = "range", order = 5.4, width = "full",
                         name = L["Buff Icon Viewer Size"], min = 8, max = 36, step = 1,
                         get = CatGet(key, "buffIconFontSize", 18),
-                        set = CatSet(key, "buffIconFontSize"),
+                        set = CatRangeSet(key, "buffIconFontSize"),
+                    } or nil,
+                    miniCCHeaderTopSpacing = isMiniCC and SectionSpacer(5.05) or nil,
+                    miniCCHeader = isMiniCC and {
+                        type = "header", name = L["MiniCC Frame Types"], order = 5.1,
+                    } or nil,
+                    miniCCHeaderBottomSpacing = isMiniCC and SectionSpacer(5.15) or nil,
+                    ccFontSize = isMiniCC and {
+                        type = "range", order = 5.2, width = 1.2,
+                        name = L["CC Text Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "ccFontSize", 18),
+                        set = CatRangeSet(key, "ccFontSize"),
+                    } or nil,
+                    ccHideCountdownNumbers = isMiniCC and {
+                        type = "toggle", order = 5.25, width = 0.8,
+                        name = L["Hide Numbers"],
+                        desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
+                        get = CatGet(key, "ccHideCountdownNumbers", false),
+                        set = CatSet(key, "ccHideCountdownNumbers"),
+                    } or nil,
+                    ccRowBreak = isMiniCC and RowBreak(5.29) or nil,
+                    nameplateFontSize = isMiniCC and {
+                        type = "range", order = 5.3, width = 1.2,
+                        name = L["Nameplates Text Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "nameplateFontSize", 12),
+                        set = CatRangeSet(key, "nameplateFontSize"),
+                    } or nil,
+                    nameplateHideCountdownNumbers = isMiniCC and {
+                        type = "toggle", order = 5.35, width = 0.8,
+                        name = L["Hide Numbers"],
+                        desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
+                        get = CatGet(key, "nameplateHideCountdownNumbers", false),
+                        set = CatSet(key, "nameplateHideCountdownNumbers"),
+                    } or nil,
+                    nameplateRowBreak = isMiniCC and RowBreak(5.39) or nil,
+                    portraitFontSize = isMiniCC and {
+                        type = "range", order = 5.4, width = 1.2,
+                        name = L["Portraits Text Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "portraitFontSize", 18),
+                        set = CatRangeSet(key, "portraitFontSize"),
+                    } or nil,
+                    portraitHideCountdownNumbers = isMiniCC and {
+                        type = "toggle", order = 5.45, width = 0.8,
+                        name = L["Hide Numbers"],
+                        desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
+                        get = CatGet(key, "portraitHideCountdownNumbers", false),
+                        set = CatSet(key, "portraitHideCountdownNumbers"),
+                    } or nil,
+                    portraitRowBreak = isMiniCC and RowBreak(5.49) or nil,
+                    overlayFontSize = isMiniCC and {
+                        type = "range", order = 5.5, width = 1.2,
+                        name = L["Alerts / Overlay Text Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "overlayFontSize", 18),
+                        set = CatRangeSet(key, "overlayFontSize"),
+                    } or nil,
+                    overlayHideCountdownNumbers = isMiniCC and {
+                        type = "toggle", order = 5.55, width = 0.8,
+                        name = L["Hide Numbers"],
+                        desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
+                        get = CatGet(key, "overlayHideCountdownNumbers", false),
+                        set = CatSet(key, "overlayHideCountdownNumbers"),
                     } or nil,
                     -- Positioning sub-section
+                    posHeaderTopSpacing = SectionSpacer(5.95),
                     posHeader = { type = "header", name = L["Positioning"], order = 6 },
+                    posHeaderBottomSpacing = SectionSpacer(6.05),
                     textAnchor = {
                         type = "select", order = 7,
                         name = L["Anchor Point"], values = ANCHOR_OPTIONS,
@@ -307,13 +438,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 8, width = "half",
                         name = L["Offset X"], min = -30, max = 30, step = 1,
                         get = CatGet(key, "textOffsetX", 0),
-                        set = CatSet(key, "textOffsetX"),
+                        set = CatRangeSet(key, "textOffsetX"),
                     },
                     textOffsetY = {
                         type = "range", order = 9, width = "half",
                         name = L["Offset Y"], min = -30, max = 30, step = 1,
                         get = CatGet(key, "textOffsetY", 0),
-                        set = CatSet(key, "textOffsetY"),
+                        set = CatRangeSet(key, "textOffsetY"),
                     },
                 },
             },
@@ -348,7 +479,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 11, width = 1.0,
                         name = L["Threshold (seconds)"], min = 1, max = 60, step = 1,
                         get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[1].threshold end,
-                        set = function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[1].threshold = val; MCE:ForceUpdateAll() end,
+                        set = DebouncedRangeSet(function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[1].threshold = val end),
                         hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
                     },
                     t1Color = {
@@ -367,7 +498,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 21, width = 1.0,
                         name = L["Threshold (seconds)"], min = 5, max = 300, step = 1,
                         get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[2].threshold end,
-                        set = function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[2].threshold = val; MCE:ForceUpdateAll() end,
+                        set = DebouncedRangeSet(function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[2].threshold = val end),
                         hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
                     },
                     t2Color = {
@@ -386,7 +517,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 31, width = 1.0,
                         name = L["Threshold (seconds)"], min = 60, max = 7200, step = 60,
                         get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[3].threshold end,
-                        set = function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[3].threshold = val; MCE:ForceUpdateAll() end,
+                        set = DebouncedRangeSet(function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[3].threshold = val end),
                         hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
                     },
                     t3Color = {
@@ -431,7 +562,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Scale of the swipe line (1.0 = Default)."],
                         min = 0.5, max = 2.0, step = 0.1,
                         get = CatGet(key, "edgeScale"),
-                        set = CatSet(key, "edgeScale"),
+                        set = CatRangeSet(key, "edgeScale"),
                     },
                 },
             },
@@ -449,7 +580,9 @@ local function CreateCategoryOptions(order, name, key, desc)
                         set = CatSet(key, "stackEnabled"),
                     },
                     -- Style sub-section
+                    headerStyleTopSpacing = SectionSpacer(9.95, stackHiddenFn),
                     headerStyle = { type = "header", name = L["Style"], order = 10, hidden = stackHiddenFn },
+                    headerStyleBottomSpacing = SectionSpacer(10.05, stackHiddenFn),
                     stackFont = {
                         type = "select", order = 11, width = 1.5,
                         name = L["Font"], values = GetFontOptions,
@@ -459,7 +592,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                     stackSize = {
                         type = "range", order = 12, width = 0.7,
                         name = L["Size"], min = 8, max = 36, step = 1,
-                        get = CatGet(key, "stackSize"), set = CatSet(key, "stackSize"),
+                        get = CatGet(key, "stackSize"), set = CatRangeSet(key, "stackSize"),
                         hidden = stackHiddenFn,
                     },
                     stackStyle = {
@@ -476,7 +609,9 @@ local function CreateCategoryOptions(order, name, key, desc)
                         hidden = stackHiddenFn,
                     },
                     -- Position sub-section
+                    headerPosTopSpacing = SectionSpacer(19.95, stackHiddenFn),
                     headerPos = { type = "header", name = L["Positioning"], order = 20, hidden = stackHiddenFn },
+                    headerPosBottomSpacing = SectionSpacer(20.05, stackHiddenFn),
                     stackAnchor = {
                         type = "select", order = 21,
                         name = L["Anchor Point"], values = ANCHOR_OPTIONS,
@@ -486,13 +621,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                     stackOffsetX = {
                         type = "range", order = 22, width = "half",
                         name = L["Offset X"], min = -20, max = 20, step = 1,
-                        get = CatGet(key, "stackOffsetX"), set = CatSet(key, "stackOffsetX"),
+                        get = CatGet(key, "stackOffsetX"), set = CatRangeSet(key, "stackOffsetX"),
                         hidden = stackHiddenFn,
                     },
                     stackOffsetY = {
                         type = "range", order = 23, width = "half",
                         name = L["Offset Y"], min = -20, max = 20, step = 1,
-                        get = CatGet(key, "stackOffsetY"), set = CatSet(key, "stackOffsetY"),
+                        get = CatGet(key, "stackOffsetY"), set = CatRangeSet(key, "stackOffsetY"),
                         hidden = stackHiddenFn,
                     },
                 },
@@ -543,79 +678,73 @@ function MCE:GetOptions()
                 args = {
                     banner = {
                         type = "description", order = 0.1, fontSize = "large",
-                        name = "|cff00ccffMinimalistCooldownEdge|r",
+                        name = "|cff00ccffMinimalist Cooldown Edge|r |cff888888v" .. addonVersion .. "|r\n|cff666666by Anahkas|r",
                         image = "Interface\\AddOns\\MinimalistCooldownEdge\\MinimalistCooldownEdge",
                         imageWidth = 48, imageHeight = 48,
                     },
-                    bannerMeta = {
-                        type = "description", order = 0.2, fontSize = "small",
-                        name = "|cff888888v" .. addonVersion .. "  |cff666666by Anahkas|r\n",
-                    },
-                    bannerSep = { type = "header", name = "", order = 0.3 },
+                    bannerSpacing1 = SectionSpacer(0.2),
                     bannerDesc = {
-                        type = "description", order = 0.4, fontSize = "medium",
+                        type = "description", order = 0.3, fontSize = "medium",
                         name = "|cffbbbbbb" .. L["BANNER_DESC"] .. "|r\n",
                     },
+                    bannerSpacing2 = SectionSpacer(0.4),
                     -- ── Quick Toggles Dashboard ─────────────────────────
                     quickToggles = {
-                        type = "group", name = "|cffffd100" .. L["Quick Toggles"] .. "|r",
-                        inline = true, order = 1.5,
+                        type = "group", name = "|cffffd100" .. L["Enable categories styling"] .. "|r",
+                        inline = true, order = 1,
                         args = {
                             quickDesc = {
-                                type = "description", order = 0, fontSize = "small",
+                                type = "description", order = 0, fontSize = "small", width = "full",
                                 name = "|cff888888" .. L["QUICK_TOGGLES_DESC"] .. "|r\n",
                             },
                             toggleActionbar = {
-                                type = "toggle", order = 1, width = 0.85,
+                                type = "toggle", order = 1, width = 1.0,
                                 name = "|cffffd100" .. L["Action Bars"] .. "|r",
                                 get = function() return MCE.db.profile.categories.actionbar.enabled end,
                                 set = function(_, v) MCE.db.profile.categories.actionbar.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
                             },
                             toggleNameplate = {
-                                type = "toggle", order = 2, width = 0.85,
+                                type = "toggle", order = 2, width = 1.0,
                                 name = "|cffffd100" .. L["Nameplates"] .. "|r",
                                 get = function() return MCE.db.profile.categories.nameplate.enabled end,
                                 set = function(_, v) MCE.db.profile.categories.nameplate.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
                             },
+                            quickRowBreak1 = RowBreak(2.1),
                             toggleUnitframe = {
-                                type = "toggle", order = 3, width = 0.85,
+                                type = "toggle", order = 3, width = 1.0,
                                 name = "|cffffd100" .. L["Unit Frames"] .. "|r",
                                 get = function() return MCE.db.profile.categories.unitframe.enabled end,
                                 set = function(_, v) MCE.db.profile.categories.unitframe.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
                             },
                             toggleCooldownMgr = {
-                                type = "toggle", order = 4, width = 0.85,
+                                type = "toggle", order = 4, width = 1.0,
                                 name = "|cffffd100" .. L["CooldownManager"] .. "|r",
                                 get = function() return MCE.db.profile.categories.cooldownmanager.enabled end,
                                 set = function(_, v) MCE.db.profile.categories.cooldownmanager.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
                             },
+                            quickRowBreak2 = RowBreak(4.1),
+                            toggleMiniCC = {
+                                type = "toggle", order = 5, width = 1.0,
+                                name = "|cffffd100" .. L["MiniCC"] .. "|r",
+                                hidden = function() return not MCE:IsMiniCCAvailable() end,
+                                get = function() return MCE.db.profile.categories.minicc.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.minicc.enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
+                            },
                             toggleGlobal = {
-                                type = "toggle", order = 5, width = 0.85,
+                                type = "toggle", order = 6, width = 1.0,
                                 name = "|cffffd100" .. L["Others"] .. "|r",
                                 get = function() return MCE.db.profile.categories.global.enabled end,
                                 set = function(_, v) MCE.db.profile.categories.global.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
                             },
-                        },
-                    },
-                    -- ── Tools ────────────────────────────────────────────
-                    toolsGroup = {
-                        type = "group", name = "|cffffd100" .. L["Tools"] .. "|r",
-                        inline = true, order = 2.5,
-                        args = {
-                            forceRefresh = {
-                                type = "execute", order = 1, width = 1.5,
-                                name = L["Force Refresh"],
-                                desc = L["Force a full rescan of all cooldown frames."],
-                                func = function()
-                                    MCE:ForceUpdateAll(true)
-                                    MCE:Print(L["Full refresh completed."])
-                                end,
+                            quickFooter = {
+                                type = "description", order = 7, fontSize = "small", width = "full",
+                                name = "\n|cff999999" .. L["LIVE_CONTROLS_DESC"] .. "|r",
                             },
                         },
                     },
                     resetGroup = {
                         type = "group", name = "|cffff4444" .. L["Danger Zone"] .. "|r",
-                        inline = true, order = 3,
+                        inline = true, order = 3.5,
                         args = {
                             dangerDesc = {
                                 type = "description", order = 0, fontSize = "small",
@@ -646,51 +775,83 @@ function MCE:GetOptions()
                 L["UNITFRAME_DESC"]),
             cooldownmanager = CreateCategoryOptions(5, L["CooldownManager"], "cooldownmanager",
                 L["COOLDOWNMANAGER_DESC"]),
-            global          = CreateCategoryOptions(6, L["Others"],          "global",
+            minicc          = CreateCategoryOptions(6, L["MiniCC"],          "minicc",
+                L["MINICC_DESC"]),
+            global          = CreateCategoryOptions(7, L["Others"],          "global",
                 L["OTHERS_DESC"]),
 
             help = {
-                type = "group", name = L["Help"], order = 9,
+                type = "group", name = L["Help & Support"], order = 9,
                 args = {
                     aboutHeader = {
                         type = "description", order = 0.1, fontSize = "large",
-                        name = "|cff00ccffMiniCE|r\n",
-                    },
-                    aboutMeta = {
-                        type = "description", order = 0.15, fontSize = "small",
-                        name = "|cff888888v" .. addonVersion .. "|r\n",
+                        name = "|cff00ccffMiniCE|r  |cff888888v" .. addonVersion .. "|r\n",
                     },
                     aboutDesc = {
                         type = "description", order = 0.2, fontSize = "medium",
-                        name = "|cffbbbbbb" .. L["HELP_ABOUT_DESC"] .. "|r\n",
+                        name = "|cffbbbbbb" .. L["MCE_HELP_INTRO"] .. "|r\n",
+                    },
+                    aboutSpacing = SectionSpacer(0.21),
+                    supportGroup = {
+                        type = "group", name = "|cffffd100" .. L["Support & Feedback"] .. "|r",
+                        inline = true, order = 0.5,
+                        args = {
+                            supportDesc = {
+                                type = "description", order = 1, fontSize = "medium", width = "full",
+                                name = "|cffbbbbbb" .. L["HELP_SUPPORT_DESC"] .. "|r",
+                            },
+                        },
                     },
                     projectGroup = {
-                        type = "group", name = "|cffffd100" .. L["Project Information"] .. "|r",
+                        type = "group", name = "|cffffd100" .. L["Project"] .. "|r",
                         inline = true, order = 1,
                         args = {
                             projectUrl = {
                                 type = "input", order = 1, width = "full",
-                                name = L["CurseForge URL"],
+                                name = "",
                                 desc = L["Copy this link to open the CurseForge project page in your browser."],
                                 get = function() return CURSEFORGE_URL end,
                                 set = function() end,
                             },
                             developerUrl = {
                                 type = "input", order = 2, width = "full",
-                                name = L["Developer Page"],
+                                name = "",
                                 desc = L["Copy this link to view other projects from Anahkas on CurseForge."],
                                 get = function() return DEVELOPER_URL end,
                                 set = function() end,
                             },
                         },
                     },
-                    developmentGroup = {
-                        type = "group", name = "|cffffd100" .. L["Development Status"] .. "|r",
+                    addonsGroup = {
+                        type = "group", name = "|cffffd100" .. L["Useful Addons"] .. "|r",
                         inline = true, order = 2,
                         args = {
-                            developmentDesc = {
-                                type = "description", order = 1, fontSize = "medium",
-                                name = "|cff88bbdd" .. L["HELP_DEVELOPMENT_DESC"] .. "|r\n\n|cffbbbbbb" .. L["HELP_FEEDBACK_DESC"] .. "|r",
+                            addonsDesc = {
+                                type = "description", order = 0, fontSize = "small", width = "full",
+                                name = "|cff88bbdd" .. L["HELP_COMPANION_DESC"] .. "|r\n",
+                            },
+                            miniCCDesc = {
+                                type = "description", order = 1, fontSize = "small", width = "full",
+                                name = "|cff33ff99MiniCC|r\n|cffbbbbbb" .. L["HELP_MINICC_DESC"] .. "|r",
+                            },
+                            miniCCUrl = {
+                                type = "input", order = 2, width = "full",
+                                name = "",
+                                desc = L["Copy this link to open the MiniCC CurseForge page in your browser."],
+                                get = function() return MINICC_URL end,
+                                set = function() end,
+                            },
+                            miniCCSpacer = SectionSpacer(2.1),
+                            pvpTabDesc = {
+                                type = "description", order = 3, fontSize = "small", width = "full",
+                                name = "|cff33ff99Smart PvP Tab Targeting|r\n|cffbbbbbb" .. L["HELP_PVPTAB_DESC"] .. "|r",
+                            },
+                            pvpTabUrl = {
+                                type = "input", order = 4, width = "full",
+                                name = "",
+                                desc = L["Copy this link to open Smart PvP Tab Targeting on CurseForge."],
+                                get = function() return SMART_PVP_TAB_TARGETING_URL end,
+                                set = function() end,
                             },
                         },
                     },
