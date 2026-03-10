@@ -1252,25 +1252,22 @@ function addon:SetupOptions()
         func = function() AceConfigDialog:Open(addonName) end
     })
 
-    local function DataBrokerLabel()
-        if addon.db.profile.enabled then
-            return PREFIX .. "(|c0000ff00已啟用|r)"
-        else
-            return PREFIX .. "(|c00ff0000已停用|r)"
-        end
-    end
-
     addon.DataBroker = LDB:NewDataObject(addonName,{
         type = "launcher",
         text = nil,
-        label = DataBrokerLabel(),
+        label = addon:DataBrokerLabel(),
         icon = addonIcon,
         OnClick = function(self, button, ...)
             if button and button == "RightButton" then
                 addon.db.profile.enabled = not addon.db.profile.enabled
+                if addon.db.profile.enabled then
+                    AssistedCombatIconFrame:Start()
+                else
+                    AssistedCombatIconFrame:Stop()
+                end
+
                 AssistedCombatIconFrame:UpdateVisibility()
 
-                addon.DataBroker.label = DataBrokerLabel()
                 if AceConfigDialog.OpenFrames[addonName] then
                     AceConfigRegistry:NotifyChange(addonName)
                 end
@@ -1291,6 +1288,18 @@ function addon:SetupOptions()
             GameTooltip:Hide()
         end
     })
+end
+
+function addon:DataBrokerLabel()
+    if addon.db.profile.enabled then
+        return PREFIX .. "(|c0000ff00已啟用|r)"
+    else
+        return PREFIX .. "(|c00ff0000已停用|r)"
+    end
+end
+
+function addon:UpdateBroker()
+    addon.DataBroker.label = addon:DataBrokerLabel()
 end
 
 function addon:OnProfileChanged()
