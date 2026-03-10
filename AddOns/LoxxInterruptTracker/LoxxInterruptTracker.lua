@@ -1,5 +1,5 @@
 --[[
-    Loxx Interrupt Tracker v1.8.3 - Midnight 12.0.x
+    Loxx Interrupt Tracker v1.2.4 - Midnight 12.0.x
 
     Maintained by Loxxar.
 
@@ -15,7 +15,7 @@
 
 local ADDON_NAME = "LoxxInterruptTracker"
 local MSG_PREFIX = "LOXX"
-local LOXX_VERSION = "1.2.1"
+local LOXX_VERSION = "1.2.4"
 local LOXX_DB_VERSION = 4   -- bump when SavedVars schema changes
 
 ------------------------------------------------------------
@@ -99,7 +99,7 @@ local DEFAULTS = {
 }
 
 ------------------------------------------------------------
--- Sound list (~30 WoW sounds for the "Sound on Ready" dropdown)
+-- Sound list for the "Sound on Ready" dropdown
 -- Each entry: { name = "Display Name", id = numericSoundID }
 -- IDs resolved from SOUNDKIT at runtime; numeric fallback if needed.
 ------------------------------------------------------------
@@ -254,7 +254,6 @@ for i = 1, 4 do
     partyPetFrames[i] = CreateFrame("Frame")
 end
 local RegisterPartyWatchers
-local sniffMode = false
 
 -- Use the game's default font (supports all locales: Latin, Cyrillic, Korean, Chinese)
 local FONT_FACE = GameFontNormal and GameFontNormal:GetFont() or "Fonts\\FRIZQT__.TTF"
@@ -407,9 +406,6 @@ local function OnAddonMessage(prefix, message, channel, sender)
             rotationIndex = math.max(1, math.min(idx, #rotationOrder))
             if LOXXSavedVars then LOXXSavedVars.rotationIndex = rotationIndex end
         end
-    elseif command == "PING" then
-        local via = parts[2] or "unknown"
-        print("|cFF00DDDD[LOXX]|r Received PING from |cFF00FF00" .. shortName .. "|r via channel=" .. tostring(channel) .. " tag=" .. via)
     end
 end
 
@@ -524,11 +520,6 @@ local function OnSpellCastSucceeded(unit, castGUID, spellID, isParty, cleanName)
     SendLOXX("CAST:" .. cd)
     RecordKick(myName)
     AdvanceRotation()
-end
-
-local function TryCacheCD()
-    -- C_Spell.GetSpellCooldown is restricted in Midnight.
-    -- Base CDs come from the CLASS_INTERRUPTS table; no API call needed.
 end
 
 local function CleanPartyList()
@@ -1294,13 +1285,40 @@ local function UpdateDisplay()
             alertH = 22
             mainFrame.alertBand:Show()
 
-            -- Parcourt tous les joueurs : compte les kicks prêts, trouve le prochain
+            -- Iterate all players: count ready kicks, find next available
             local minRem      = nil
             local nextKicker  = nil
             local readyCount  = 0
-            local firstName   = nil  -- nom du 1er kick prêt
+            local firstName   = nil
 
-            -- Soi-même
+            -- Helper: check if a kick (primary or extra) is ready for a player
+            local function PlayerHasReadyKick(info, now)
+                if not info then return false end
+                if info.cdEnd and info.cdEnd <= now then return true end
+                if info.extraKicks then
+                    for _, ek in ipairs(info.extraKicks) do
+                        if not ek.cdEnd or ek.cdEnd <= now then return true end
+                    end
+                end
+                return false
+            end
+            local function PlayerNextRemaining(info, now)
+                local best = nil
+                if info and info.cdEnd and info.cdEnd > now then
+                    best = info.cdEnd - now
+                end
+                if info and info.extraKicks then
+                    for _, ek in ipairs(info.extraKicks) do
+                        if ek.cdEnd and ek.cdEnd > now then
+                            local r = ek.cdEnd - now
+                            if best == nil or r < best then best = r end
+                        end
+                    end
+                end
+                return best
+            end
+
+            -- Self
             if mySpellID and ALL_INTERRUPTS[mySpellID] then
                 if myKickCdEnd <= now then
                     readyCount = readyCount + 1
@@ -1310,54 +1328,53 @@ local function UpdateDisplay()
                     if minRem == nil or r < minRem then minRem = r; nextKicker = myName end
                 end
             end
+            for _, ekInfo in pairs(myExtraKicks) do
+                if ekInfo.cdEnd and ekInfo.cdEnd <= now then
+                    readyCount = readyCount + 1
+                    if firstName == nil then firstName = myName end
+                elseif ekInfo.cdEnd and ekInfo.cdEnd > now then
+                    local r = ekInfo.cdEnd - now
+                    if minRem == nil or r < minRem then minRem = r; nextKicker = myName end
+                end
+            end
 
-            -- Groupe
+            -- Party
             for name, info in pairs(partyAddonUsers) do
-                if info.cdEnd then
-                    if info.cdEnd <= now then
-                        readyCount = readyCount + 1
-                        if firstName == nil then firstName = name end
-                    else
-                        local r = info.cdEnd - now
-                        if minRem == nil or r < minRem then minRem = r; nextKicker = name end
-                    end
+                if PlayerHasReadyKick(info, now) then
+                    readyCount = readyCount + 1
+                    if firstName == nil then firstName = name end
+                else
+                    local r = PlayerNextRemaining(info, now)
+                    if r and (minRem == nil or r < minRem) then minRem = r; nextKicker = name end
                 end
             end
 
             if readyCount > 0 then
-                -- Au moins un kick disponible
                 mainFrame.alertBand.bg:SetVertexColor(0.0, 0.28, 0.0, 0.9)
                 if readyCount == 1 then
                     mainFrame.alertBand.label:SetText(
-                        "|cFF44FF44" .. (firstName or "?") .. " — PRÊT|r")
+                        "|cFF44FF44" .. (firstName or "?") .. " — READY|r")
                 else
                     mainFrame.alertBand.label:SetText(string.format(
-                        "|cFF44FF44%d kicks dispo  (%s)|r", readyCount, firstName or "?"))
+                        "|cFF44FF44%d kicks ready  (%s)|r", readyCount, firstName or "?"))
                 end
             elseif minRem and minRem < 3 then
-                -- Kick bientôt disponible (< 3s)
                 mainFrame.alertBand.bg:SetVertexColor(0.55, 0.30, 0.0, 0.9)
                 mainFrame.alertBand.label:SetText(string.format(
-                    "|cFFFFAA00%s dans %.1fs|r", nextKicker or "?", minRem))
+                    "|cFFFFAA00%s in %.1fs|r", nextKicker or "?", minRem))
             elseif minRem then
-                -- Aucun kick disponible (≥ 3s)
                 mainFrame.alertBand.bg:SetVertexColor(0.50, 0.0, 0.0, 0.9)
                 mainFrame.alertBand.label:SetText(string.format(
-                    "|cFFFF3030AUCUN KICK — %.0fs|r", minRem))
+                    "|cFFFF3030NO KICK — %.0fs|r", minRem))
             else
-                -- Aucune donnée
                 mainFrame.alertBand:Hide()
                 alertH = 0
             end
         end
     end
 
-    -- Auto-fit height to visible bars
+    -- Auto-fit height to visible bars (do NOT touch position - was causing window to jump)
     if numVisible > 0 then
-        local x = mainFrame:GetLeft()
-        local y = mainFrame:GetTop()
-        mainFrame:ClearAllPoints()
-        mainFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
         mainFrame:SetHeight(titleH + numVisible * (barH + 1) + alertH)
     end
 end
@@ -1645,20 +1662,134 @@ local function MakeSlider(name, parent)
     return s
 end
 
-local function CreateCheckbox(parent, label, x, y, key)
-    -- UICheckButtonTemplate is the 12.0-compatible replacement for the
-    -- deprecated InterfaceOptionsCheckButtonTemplate.
+local function CreateCheckbox(parent, label, x, y, key, onChecked)
     local cb = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
     cb:SetPoint("TOPLEFT", x, y)
-    -- UICheckButtonTemplate uses .text (lowercase), not .Text
     local cbLabel = cb.text or cb.Text
     if cbLabel then cbLabel:SetText(label) end
     cb:SetChecked(db[key])
     cb:SetScript("OnClick", function(self)
         db[key] = self:GetChecked() and true or false
-        RebuildBars()
+        if onChecked then onChecked() else RebuildBars() end
     end)
     return cb
+end
+
+------------------------------------------------------------
+-- Frame position save/restore (defined early for CreateConfigPanel)
+------------------------------------------------------------
+local function LoxxSaveFramePosition(frame)
+    if not frame then return false end
+    local x, y = frame:GetLeft(), frame:GetTop()
+    if not x or not y then return false end
+    x, y = math.floor(x + 0.5), math.floor(y + 0.5)
+    LOXXAccountVars = LOXXAccountVars or {}
+    LOXXAccountVars.frameX = x
+    LOXXAccountVars.frameY = y
+    if db then
+        db.frameX = x
+        db.frameY = y
+    end
+    return true
+end
+
+local function LoxxRestoreFramePosition(frame)
+    if not frame then return end
+    local x, y
+    if db and db.frameX and db.frameY then
+        x, y = db.frameX, db.frameY
+    elseif LOXXAccountVars and LOXXAccountVars.frameX and LOXXAccountVars.frameY then
+        x, y = LOXXAccountVars.frameX, LOXXAccountVars.frameY
+    end
+    if x and y then
+        frame:ClearAllPoints()
+        frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+    else
+        frame:ClearAllPoints()
+        frame:SetPoint("CENTER", UIParent, "CENTER", 0, -150)
+    end
+end
+
+------------------------------------------------------------
+-- Changelog window (same design as config, attached to it)
+------------------------------------------------------------
+local changelogFrame = nil
+local function ShowChangelogWindow()
+    if changelogFrame and changelogFrame:IsShown() then
+        changelogFrame:Hide()
+        return
+    end
+    if changelogFrame then
+        changelogFrame:Show()
+        return
+    end
+
+    local CW, CH = 420, 500
+    changelogFrame = CreateFrame("Frame", "LoxxChangelogFrame", UIParent, "BasicFrameTemplate")
+    changelogFrame:SetSize(CW, CH)
+    changelogFrame:SetPoint("TOPLEFT", configFrame, "TOPRIGHT", 4, 0)
+    changelogFrame:SetFrameStrata("DIALOG")
+    changelogFrame:SetMovable(true)
+    changelogFrame:EnableMouse(true)
+    changelogFrame:RegisterForDrag("LeftButton")
+    changelogFrame:SetScript("OnDragStart", changelogFrame.StartMoving)
+    changelogFrame:SetScript("OnDragStop",  changelogFrame.StopMovingOrSizing)
+    changelogFrame:SetClampedToScreen(true)
+    if changelogFrame.TitleText then changelogFrame.TitleText:SetText("") end
+
+    -- Header (same as config)
+    local hdr = changelogFrame:CreateTexture(nil, "BACKGROUND", nil, 2)
+    hdr:SetTexture(FLAT_TEX)
+    hdr:SetVertexColor(0.12, 0.09, 0.02, 1)
+    hdr:SetPoint("TOPLEFT",  0, -22)
+    hdr:SetPoint("TOPRIGHT", 0, -22)
+    hdr:SetHeight(52)
+    local hdrLineTop = changelogFrame:CreateTexture(nil, "BORDER")
+    hdrLineTop:SetTexture(FLAT_TEX)
+    hdrLineTop:SetVertexColor(0.87, 0.73, 0.37, 0.75)
+    hdrLineTop:SetPoint("TOPLEFT",  0, -22)
+    hdrLineTop:SetPoint("TOPRIGHT", 0, -22)
+    hdrLineTop:SetHeight(1)
+    local hdrLineBot = changelogFrame:CreateTexture(nil, "BORDER")
+    hdrLineBot:SetTexture(FLAT_TEX)
+    hdrLineBot:SetVertexColor(0.87, 0.73, 0.37, 0.75)
+    hdrLineBot:SetPoint("TOPLEFT",  0, -74)
+    hdrLineBot:SetPoint("TOPRIGHT", 0, -74)
+    hdrLineBot:SetHeight(1)
+    local hdrTitle = changelogFrame:CreateFontString(nil, "OVERLAY")
+    hdrTitle:SetFont(FONT_FACE, 22, FONT_FLAGS)
+    hdrTitle:SetShadowOffset(2, -2)
+    hdrTitle:SetShadowColor(0, 0, 0, 1)
+    hdrTitle:SetPoint("TOP", 0, -34)
+    hdrTitle:SetJustifyH("CENTER")
+    hdrTitle:SetText("|cFFFFD100Changelog|r")
+
+    -- ScrollFrame
+    local scroll = CreateFrame("ScrollFrame", nil, changelogFrame, "UIPanelScrollFrameTemplate")
+    scroll:SetPoint("TOPLEFT", 16, -80)
+    scroll:SetPoint("BOTTOMRIGHT", -32, 40)
+
+    local content = CreateFrame("Frame", nil, scroll)
+    content:SetSize(CW - 60, 100)
+    scroll:SetScrollChild(content)
+
+    local txt = content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    txt:SetPoint("TOPLEFT", 0, 0)
+    txt:SetWidth(CW - 60)
+    txt:SetJustifyH("LEFT")
+    txt:SetJustifyV("TOP")
+    txt:SetWordWrap(true)
+    txt:SetNonSpaceWrap(false)
+    txt:SetFont(FONT_FACE, 12, FONT_FLAGS)
+    txt:SetText(LOXX_CHANGELOG or "Aucun changelog disponible.")
+
+    -- Hauteur du contenu pour le scroll (estimation par lignes)
+    local lineHeight = 18
+    local lineCount = 1
+    for _ in (LOXX_CHANGELOG or ""):gmatch("\n") do lineCount = lineCount + 1 end
+    content:SetHeight(math.max(400, lineCount * lineHeight))
+
+    changelogFrame:Show()
 end
 
 local function CreateConfigPanel()
@@ -1668,19 +1799,9 @@ local function CreateConfigPanel()
     end
 
     local PW, PH = 600, 580
-    local MID    = 300   -- x divider between left and right columns
+    local MID = 300
+    local SL_W = 210
 
-    -- Column layout constants
-    local L_X1   = 14   -- left column section label x
-    local L_CBX1 = 20   -- left col checkbox column 1
-    local L_CBX2 = 152  -- left col checkbox column 2
-    local SL_XL  = 52   -- left col slider x
-    local SL_W   = 210  -- left col slider width
-    local R_X1   = 314  -- right column section label x
-    local R_CBX1 = 314  -- right col checkbox column 1
-    local R_CBX2 = 446  -- right col checkbox column 2
-
-    -- Standard Blizzard dialog frame (native WoW style — no custom backgrounds)
     configFrame = CreateFrame("Frame", "LoxxConfigFrame", UIParent, "BasicFrameTemplate")
     configFrame:SetSize(PW, PH)
     configFrame:SetPoint("CENTER")
@@ -1691,31 +1812,27 @@ local function CreateConfigPanel()
     configFrame:SetScript("OnDragStart", configFrame.StartMoving)
     configFrame:SetScript("OnDragStop",  configFrame.StopMovingOrSizing)
     configFrame:SetClampedToScreen(true)
-    -- Hide native template title; replaced by a bigger custom header cartouche.
     if configFrame.TitleText then configFrame.TitleText:SetText("") end
 
-    -- Header cartouche: dark gold band (y=-22 → y=-74, 52px tall)
+    -- Header (decorative only)
     local hdr = configFrame:CreateTexture(nil, "BACKGROUND", nil, 2)
     hdr:SetTexture(FLAT_TEX)
     hdr:SetVertexColor(0.12, 0.09, 0.02, 1)
     hdr:SetPoint("TOPLEFT",  0, -22)
     hdr:SetPoint("TOPRIGHT", 0, -22)
     hdr:SetHeight(52)
-
     local hdrLineTop = configFrame:CreateTexture(nil, "BORDER")
     hdrLineTop:SetTexture(FLAT_TEX)
     hdrLineTop:SetVertexColor(0.87, 0.73, 0.37, 0.75)
     hdrLineTop:SetPoint("TOPLEFT",  0, -22)
     hdrLineTop:SetPoint("TOPRIGHT", 0, -22)
     hdrLineTop:SetHeight(1)
-
     local hdrLineBot = configFrame:CreateTexture(nil, "BORDER")
     hdrLineBot:SetTexture(FLAT_TEX)
     hdrLineBot:SetVertexColor(0.87, 0.73, 0.37, 0.75)
     hdrLineBot:SetPoint("TOPLEFT",  0, -74)
     hdrLineBot:SetPoint("TOPRIGHT", 0, -74)
     hdrLineBot:SetHeight(1)
-
     local hdrTitle = configFrame:CreateFontString(nil, "OVERLAY")
     hdrTitle:SetFont(FONT_FACE, 28, FONT_FLAGS)
     hdrTitle:SetShadowOffset(2, -2)
@@ -1724,7 +1841,17 @@ local function CreateConfigPanel()
     hdrTitle:SetJustifyH("CENTER")
     hdrTitle:SetText("|cFFFFD100Loxx Interrupt Tracker|r")
 
-    -- Left-column section label: gold text + thin gold rule to divider
+    -- Vertical divider (decorative only)
+    local div = configFrame:CreateTexture(nil, "ARTWORK")
+    div:SetTexture(FLAT_TEX)
+    div:SetVertexColor(0.45, 0.38, 0.22, 0.5)
+    div:SetPoint("TOPLEFT",    configFrame, "TOPLEFT", MID,     -76)
+    div:SetPoint("BOTTOMLEFT", configFrame, "BOTTOMLEFT", MID, 44)
+    div:SetWidth(2)
+
+    local L_X1, L_CBX1, L_CBX2, SL_XL = 14, 20, 152, 52
+    local R_X1, R_CBX1, R_CBX2 = 314, 314, 446
+
     local function SectionLabelL(text, yOff)
         local lbl = configFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         lbl:SetPoint("TOPLEFT", L_X1, yOff)
@@ -1732,12 +1859,10 @@ local function CreateConfigPanel()
         local rule = configFrame:CreateTexture(nil, "ARTWORK")
         rule:SetTexture(FLAT_TEX)
         rule:SetVertexColor(0.87, 0.73, 0.37, 0.35)
-        rule:SetPoint("LEFT",  lbl, "RIGHT", 6, 0)
+        rule:SetPoint("LEFT", lbl, "RIGHT", 6, 0)
         rule:SetPoint("RIGHT", configFrame, "LEFT", MID - 10, 0)
         rule:SetHeight(1)
     end
-
-    -- Right-column section label: gold text + thin gold rule to frame edge
     local function SectionLabelR(text, yOff)
         local lbl = configFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         lbl:SetPoint("TOPLEFT", R_X1, yOff)
@@ -1745,60 +1870,19 @@ local function CreateConfigPanel()
         local rule = configFrame:CreateTexture(nil, "ARTWORK")
         rule:SetTexture(FLAT_TEX)
         rule:SetVertexColor(0.87, 0.73, 0.37, 0.35)
-        rule:SetPoint("LEFT",  lbl, "RIGHT", 6, 0)
+        rule:SetPoint("LEFT", lbl, "RIGHT", 6, 0)
         rule:SetPoint("RIGHT", configFrame, "RIGHT", -14, 0)
         rule:SetHeight(1)
     end
 
-    -- Full-width thin separator
-    local function Sep(yOff)
-        local rule = configFrame:CreateTexture(nil, "ARTWORK")
-        rule:SetTexture(FLAT_TEX)
-        rule:SetVertexColor(0.45, 0.38, 0.22, 0.4)
-        rule:SetPoint("TOPLEFT",  8, yOff)
-        rule:SetPoint("TOPRIGHT", -8, yOff)
-        rule:SetHeight(1)
-    end
-
-    -- Vertical divider between the two columns
-    local div = configFrame:CreateTexture(nil, "ARTWORK")
-    div:SetTexture(FLAT_TEX)
-    div:SetVertexColor(0.45, 0.38, 0.22, 0.5)
-    div:SetPoint("TOPLEFT",    configFrame, "TOPLEFT", MID,     -76)
-    div:SetPoint("BOTTOMLEFT", configFrame, "TOPLEFT", MID,     -476)
-    div:SetWidth(2)
-    local div2 = configFrame:CreateTexture(nil, "ARTWORK")
-    div2:SetTexture(FLAT_TEX)
-    div2:SetVertexColor(0.45, 0.38, 0.22, 0.5)
-    div2:SetPoint("TOPLEFT",    configFrame, "TOPLEFT", MID + 1, -76)
-    div2:SetPoint("BOTTOMLEFT", configFrame, "TOPLEFT", MID + 1, -476)
-    div2:SetWidth(1)
-
-    -- ── LEFT COLUMN ──────────────────────────────────────────────
-
-    -- DISPLAY
+    -- ── LEFT COLUMN ─────────────────────────────────────────────
     local yL = -82
     SectionLabelL("DISPLAY", yL)
-
     yL = yL - 22
+
     local alphaSlider = MakeSlider("LOXX_Slider_alpha", configFrame)
     alphaSlider:SetPoint("TOPLEFT", SL_XL, yL)
     alphaSlider:SetSize(SL_W, 26)
-    alphaSlider:SetMinMaxValues(0.3, 1.0)
-    alphaSlider:SetValueStep(0.05)
-    alphaSlider:SetObeyStepOnDrag(true)
-    alphaSlider:SetValue(db.alpha)
-    alphaSlider.Text:SetText("Opacity: " .. string.format("%.0f%%", db.alpha * 100))
-    alphaSlider.Low:SetText("30%")
-    alphaSlider.High:SetText("100%")
-    alphaSlider:SetScript("OnValueChanged", function(self, value)
-        value = math.floor(value * 20 + 0.5) / 20
-        db.alpha = value
-        self.Text:SetText("Opacity: " .. string.format("%.0f%%", value * 100))
-        if mainFrame then mainFrame:SetAlpha(value) end
-    end)
-
-    -- Slider: largeur du tracker
     yL = yL - 48
     local initW = db.frameWidth or 180
     local widthSlider = MakeSlider("LOXX_Slider_width", configFrame)
@@ -1818,7 +1902,6 @@ local function CreateConfigPanel()
         RebuildBars()
     end)
 
-    -- Slider: hauteur des barres
     yL = yL - 48
     local initH = db.barHeight or 20
     local heightSlider = MakeSlider("LOXX_Slider_height", configFrame)
@@ -1841,14 +1924,11 @@ local function CreateConfigPanel()
     -- OPTIONS
     yL = yL - 48
     SectionLabelL("OPTIONS", yL)
-
     yL = yL - 24
-    CreateCheckbox(configFrame, "Show Title",    L_CBX1, yL, "showTitle")
-
+    CreateCheckbox(configFrame, "Show Title", L_CBX1, yL, "showTitle")
     yL = yL - 28
     CreateCheckbox(configFrame, "Lock Position", L_CBX1, yL, "locked")
-    CreateCheckbox(configFrame, "Show READY",    L_CBX2, yL, "showReady")
-
+    CreateCheckbox(configFrame, "Show READY", L_CBX2, yL, "showReady")
     yL = yL - 28
     do
         local cb = CreateFrame("CheckButton", nil, configFrame, "UICheckButtonTemplate")
@@ -1862,10 +1942,9 @@ local function CreateConfigPanel()
         end)
     end
 
-    -- FONT SIZES (range 2–32)
+    -- FONT SIZES
     yL = yL - 40
     SectionLabelL("FONT SIZES", yL)
-
     yL = yL - 22
     local initNameFont = math.max(2, db.nameFontSize or 12)
     local nameSlider = MakeSlider("LOXX_Slider_nameFont", configFrame)
@@ -1924,7 +2003,9 @@ local function CreateConfigPanel()
     end)
 
     -- ── RIGHT COLUMN ─────────────────────────────────────────────
-
+    local yR = -82
+    SectionLabelR("SHOW IN", yR)
+    yR = yR - 24
     local function VisCheck(parent, label, x, y, key)
         local cb = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
         cb:SetPoint("TOPLEFT", x, y)
@@ -1937,29 +2018,17 @@ local function CreateConfigPanel()
         end)
         return cb
     end
-
-    -- SHOW IN
-    local yR = -82
-    SectionLabelR("SHOW IN", yR)
-
-    yR = yR - 24
-    VisCheck(configFrame, "Dungeons",   R_CBX1, yR, "showInDungeon")
-    VisCheck(configFrame, "Arena",      R_CBX2, yR, "showInArena")
-
+    VisCheck(configFrame, "Dungeons", R_CBX1, yR, "showInDungeon")
+    VisCheck(configFrame, "Arena", R_CBX2, yR, "showInArena")
     yR = yR - 28
     VisCheck(configFrame, "Open World", R_CBX1, yR, "showInOpenWorld")
 
     -- SOUND
     yR = yR - 40
     SectionLabelR("SOUND", yR)
-
-    -- Cycle selector: < None / Sound 1 / Sound 2 >
-    -- Taint-safe: no UIDropDownMenuTemplate.
     yR = yR - 24
-    -- Build option list: "None" + entries from SOUND_LIST
     local soundOptions = { { name = "None", id = nil } }
     for _, s in ipairs(SOUND_LIST) do soundOptions[#soundOptions+1] = s end
-
     local function getSoundOptIdx()
         if not db.soundOnReady then return 1 end
         for i = 2, #soundOptions do
@@ -1968,25 +2037,21 @@ local function CreateConfigPanel()
         return 2
     end
 
-    -- Dropdown button (shows current selection + "v")
     local sndDropBtn = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
     sndDropBtn:SetSize(140, 22)
     sndDropBtn:SetPoint("TOPLEFT", R_CBX1, yR)
     sndDropBtn:SetText(soundOptions[getSoundOptIdx()].name .. "  v")
 
-    -- Popup list (custom frame, taint-safe — no UIDropDownMenuTemplate)
     local sndPopup = CreateFrame("Frame", nil, configFrame)
     sndPopup:SetFrameStrata("TOOLTIP")
     sndPopup:SetSize(140, #soundOptions * 22 + 8)
     sndPopup:SetPoint("TOPLEFT", sndDropBtn, "BOTTOMLEFT", 0, -2)
     sndPopup:Hide()
-    -- Background + border
     local popBg = sndPopup:CreateTexture(nil, "BACKGROUND")
     popBg:SetAllPoints() ; popBg:SetTexture(FLAT_TEX) ; popBg:SetVertexColor(0.08, 0.08, 0.08, 0.97)
     local popBd = sndPopup:CreateTexture(nil, "BORDER")
     popBd:SetPoint("TOPLEFT", -1, 1) ; popBd:SetPoint("BOTTOMRIGHT", 1, -1)
     popBd:SetTexture(FLAT_TEX) ; popBd:SetVertexColor(0.45, 0.38, 0.22, 0.9)
-
     for i, opt in ipairs(soundOptions) do
         local row = CreateFrame("Button", nil, sndPopup)
         row:SetSize(136, 20)
@@ -1999,9 +2064,12 @@ local function CreateConfigPanel()
         row:SetScript("OnClick", function()
             local o = soundOptions[optIdx]
             if o.id then
-                db.soundOnReady = true ; db.soundID = o.id ; PlaySound(o.id, "Master")
+                db.soundOnReady = true
+                db.soundID = o.id
+                PlaySound(o.id, "Master")
             else
                 db.soundOnReady = false
+                db.soundID = nil
             end
             sndDropBtn:SetText(o.name .. "  v")
             sndPopup:Hide()
@@ -2014,14 +2082,12 @@ local function CreateConfigPanel()
     -- UI
     yR = yR - 40
     SectionLabelR("UI", yR)
-
     yR = yR - 24
     CreateCheckbox(configFrame, "Tooltip on Hover", R_CBX1, yR, "showTooltip")
 
     -- ROTATION
     yR = yR - 40
     SectionLabelR("ROTATION", yR)
-
     yR = yR - 24
     local rotCb = CreateFrame("CheckButton", nil, configFrame, "UICheckButtonTemplate")
     rotCb:SetPoint("TOPLEFT", R_CBX1, yR)
@@ -2041,15 +2107,59 @@ local function CreateConfigPanel()
     mgrBtn:SetScript("OnClick", function() ShowRotationPanel() end)
 
     -- ── FOOTER ───────────────────────────────────────────────────
-    Sep(-486)
+    do
+        local rule = configFrame:CreateTexture(nil, "ARTWORK")
+        rule:SetTexture(FLAT_TEX)
+        rule:SetVertexColor(0.45, 0.38, 0.22, 0.4)
+        rule:SetPoint("TOPLEFT",  8, -486)
+        rule:SetPoint("TOPRIGHT", -8, -486)
+        rule:SetHeight(1)
+    end
+    local changelogBtn = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
+    changelogBtn:SetSize(90, 24)
+    changelogBtn:SetPoint("BOTTOMRIGHT", configFrame, "BOTTOMRIGHT", -14, 44)
+    changelogBtn:SetText("Changelog")
+    changelogBtn:SetScript("OnClick", function() ShowChangelogWindow() end)
 
-    -- Run Stats button (red)
+    local savePosBtn = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
+    savePosBtn:SetSize(100, 24)
+    savePosBtn:SetPoint("RIGHT", changelogBtn, "LEFT", -10, 0)
+    savePosBtn:SetText("Save Position")
+    savePosBtn:SetScript("OnClick", function()
+        local function toChat(msg)
+            if ChatFrame1 and ChatFrame1.AddMessage then
+                ChatFrame1:AddMessage(msg)
+            end
+        end
+        local function toCenter(msg)
+            if UIErrorsFrame and UIErrorsFrame.AddMessage then
+                UIErrorsFrame:AddMessage(msg, 0.27, 1, 0.27, 1, 3)
+            end
+        end
+        local ok, err = pcall(function()
+            if not mainFrame then
+                toChat("|cFF00DDDD[LOXX]|r Aucune fenêtre à sauvegarder.")
+                return
+            end
+            if LoxxSaveFramePosition(mainFrame) then
+                toChat("|cFF00DDDD[LOXX]|r |cFF44FF44Position sauvegardée !|r")
+                toCenter("LOXX: Position sauvegardee !")
+            else
+                toChat("|cFF00DDDD[LOXX]|r Fenêtre masquée, impossible de sauvegarder.")
+            end
+        end)
+        if not ok and err then
+            toChat("|cFFFF4444[LOXX]|r Erreur: " .. tostring(err))
+        end
+    end)
+
+    -- Run Stats button (gold, like other buttons)
     local statsBtn = CreateFrame("Button", nil, configFrame, "UIPanelButtonTemplate")
     statsBtn:SetSize(100, 24)
-    statsBtn:SetPoint("BOTTOMRIGHT", -14, 44)
+    statsBtn:SetPoint("RIGHT", savePosBtn, "LEFT", -10, 0)
     statsBtn:SetText("Run Stats")
     if statsBtn.GetFontString and statsBtn:GetFontString() then
-        statsBtn:GetFontString():SetTextColor(1, 0.2, 0.2)
+        statsBtn:GetFontString():SetTextColor(1, 0.82, 0)  -- doré (FFFFD100)
     end
     statsBtn:SetScript("OnClick", function() ShowStatsWindow() end)
 
@@ -2070,13 +2180,8 @@ end
 local function CreateUI()
     mainFrame = CreateFrame("Frame", "LOXXMainFrame", UIParent)
     mainFrame:SetSize(db.frameWidth, 200)
-    -- Restore saved position; first-install falls back to center
-    if LOXXSavedVars and LOXXSavedVars.frameX and LOXXSavedVars.frameY then
-        mainFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT",
-                           LOXXSavedVars.frameX, LOXXSavedVars.frameY)
-    else
-        mainFrame:SetPoint("CENTER", UIParent, "CENTER", 0, -150)
-    end
+    -- Restore saved position
+    LoxxRestoreFramePosition(mainFrame)
     mainFrame:SetFrameStrata("MEDIUM")
     mainFrame:SetClampedToScreen(true)
     mainFrame:SetMovable(true)
@@ -2087,12 +2192,7 @@ local function CreateUI()
     end)
     mainFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        -- Persist position so it survives reloads/updates
-        local x, y = self:GetLeft(), self:GetTop()
-        if x and y and LOXXSavedVars then
-            LOXXSavedVars.frameX = x
-            LOXXSavedVars.frameY = y
-        end
+        LoxxSaveFramePosition(self)
     end)
     mainFrame:SetAlpha(db.alpha)
 
@@ -2156,22 +2256,11 @@ local function CreateUI()
     mainFrame.alertBand = alertBand
 
     mainFrame:Show()
-    -- Normalize anchor to TOPLEFT after first render so GetLeft()/GetTop()
-    -- return real pixel coords and StartSizing pins the correct corner.
-    -- Also seeds frameX/frameY on first install (before the player ever drags).
+    -- Seed saved position on first install (before player ever drags)
     C_Timer.After(0, function()
-        if mainFrame then
-            local x = mainFrame:GetLeft()
-            local y = mainFrame:GetTop()
-            if x and y then
-                mainFrame:ClearAllPoints()
-                mainFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
-                -- Seed saved position if not yet set
-                if LOXXSavedVars and not LOXXSavedVars.frameX then
-                    LOXXSavedVars.frameX = x
-                    LOXXSavedVars.frameY = y
-                end
-            end
+        if mainFrame and not (LOXXAccountVars and LOXXAccountVars.frameX and LOXXAccountVars.frameY)
+            and not (db and db.frameX and db.frameY) then
+            LoxxSaveFramePosition(mainFrame)
         end
     end)
     RebuildBars()
@@ -2269,6 +2358,16 @@ local function SetupSlash()
                 QueuePartyInspect()
                 print("  Watchers re-registered! Inspecting talents...")
             end
+        elseif cmd == "pos" then
+            -- Debug: show frame position and saved values
+            if mainFrame then
+                local l, t = mainFrame:GetLeft(), mainFrame:GetTop()
+                print("|cFF00DDDD[LOXX]|r Current position: " .. tostring(l) .. ", " .. tostring(t))
+                print("  Account saved: " .. tostring(LOXXAccountVars and LOXXAccountVars.frameX) .. ", " .. tostring(LOXXAccountVars and LOXXAccountVars.frameY))
+                print("  Char saved: " .. tostring(db and db.frameX) .. ", " .. tostring(db and db.frameY))
+            else
+                print("|cFF00DDDD[LOXX]|r mainFrame not yet created.")
+            end
         elseif cmd == "debug" then
             print("|cFF00DDDD[LOXX]|r v" .. LOXX_VERSION .. " | " .. tostring(myClass) .. " | CD cached: " .. tostring(myCachedCD))
             for name, info in pairs(partyAddonUsers) do
@@ -2282,22 +2381,22 @@ local function SetupSlash()
             ShowStatsWindow()
         elseif cmd == "logs" or cmd == "log" then
             if #loxxErrorLog == 0 then
-                print("|cFF00DDDD[LOXX]|r Aucune erreur enregistrée.")
+                print("|cFF00DDDD[LOXX]|r No errors recorded.")
             else
-                print("|cFF00DDDD[LOXX]|r === Erreurs récentes (" .. #loxxErrorLog .. ") ===")
+                print("|cFF00DDDD[LOXX]|r === Recent errors (" .. #loxxErrorLog .. ") ===")
                 for i = 1, math.min(20, #loxxErrorLog) do
                     print("|cFFFF4444[" .. i .. "]|r " .. loxxErrorLog[i])
                 end
                 if #loxxErrorLog > 20 then
-                    print("  ... " .. (#loxxErrorLog - 20) .. " entrée(s) supplémentaire(s). /loxx logs clear pour tout effacer.")
+                    print("  ... " .. (#loxxErrorLog - 20) .. " more. Use /loxx logs clear to wipe.")
                 end
             end
         elseif cmd == "logs clear" or cmd == "log clear" then
             loxxErrorLog = {}
             if LOXXSavedVars then LOXXSavedVars.loxxErrorLog = {} end
-            print("|cFF00DDDD[LOXX]|r Log d'erreurs effacé.")
+            print("|cFF00DDDD[LOXX]|r Error log cleared.")
         elseif cmd == "help" then
-            print("|cFF00DDDD[LOXX]|r /loxx (options) | show | hide | lock | unlock | test | spy | debug | stats | logs | logs clear")
+            print("|cFF00DDDD[LOXX]|r /loxx (options) | show | hide | lock | unlock | test | spy | pos | debug | stats | logs | logs clear")
         else
             -- Default: open config
             CreateConfigPanel()
@@ -2353,7 +2452,7 @@ BroadcastRotation = function()
 end
 
 ------------------------------------------------------------
--- Stats window
+-- Stats window (same design as Changelog, collée à gauche de Settings)
 ------------------------------------------------------------
 ShowStatsWindow = function()
     if statsFrame and statsFrame:IsShown() then
@@ -2363,10 +2462,14 @@ ShowStatsWindow = function()
     end
     if statsFrame then statsFrame = nil end
 
-    local sf = CreateFrame("Frame", "LOXXStatsFrame", UIParent, "BasicFrameTemplateWithInset")
-    sf:SetSize(380, 480)
-    sf:SetPoint("CENTER")
-    sf.TitleText:SetText("Interrupt Statistics")
+    local SW, SH = 380, 500
+    local sf = CreateFrame("Frame", "LOXXStatsFrame", UIParent, "BasicFrameTemplate")
+    sf:SetSize(SW, SH)
+    if configFrame then
+        sf:SetPoint("TOPRIGHT", configFrame, "TOPLEFT", -4, 0)
+    else
+        sf:SetPoint("CENTER")
+    end
     sf:SetMovable(true)
     sf:EnableMouse(true)
     sf:RegisterForDrag("LeftButton")
@@ -2374,15 +2477,44 @@ ShowStatsWindow = function()
     sf:SetScript("OnDragStop",  sf.StopMovingOrSizing)
     sf:SetClampedToScreen(true)
     sf:SetFrameStrata("DIALOG")
-    statsFrame = sf
+    if sf.TitleText then sf.TitleText:SetText("") end
 
+    -- Header (même design que Changelog)
+    local hdr = sf:CreateTexture(nil, "BACKGROUND", nil, 2)
+    hdr:SetTexture(FLAT_TEX)
+    hdr:SetVertexColor(0.12, 0.09, 0.02, 1)
+    hdr:SetPoint("TOPLEFT",  0, -22)
+    hdr:SetPoint("TOPRIGHT", 0, -22)
+    hdr:SetHeight(52)
+    local hdrLineTop = sf:CreateTexture(nil, "BORDER")
+    hdrLineTop:SetTexture(FLAT_TEX)
+    hdrLineTop:SetVertexColor(0.87, 0.73, 0.37, 0.75)
+    hdrLineTop:SetPoint("TOPLEFT",  0, -22)
+    hdrLineTop:SetPoint("TOPRIGHT", 0, -22)
+    hdrLineTop:SetHeight(1)
+    local hdrLineBot = sf:CreateTexture(nil, "BORDER")
+    hdrLineBot:SetTexture(FLAT_TEX)
+    hdrLineBot:SetVertexColor(0.87, 0.73, 0.37, 0.75)
+    hdrLineBot:SetPoint("TOPLEFT",  0, -74)
+    hdrLineBot:SetPoint("TOPRIGHT", 0, -74)
+    hdrLineBot:SetHeight(1)
+    local hdrTitle = sf:CreateFontString(nil, "OVERLAY")
+    hdrTitle:SetFont(FONT_FACE, 22, FONT_FLAGS)
+    hdrTitle:SetShadowOffset(2, -2)
+    hdrTitle:SetShadowColor(0, 0, 0, 1)
+    hdrTitle:SetPoint("TOP", 0, -34)
+    hdrTitle:SetJustifyH("CENTER")
+    hdrTitle:SetText("|cFFFFD100Interrupt Statistics|r")
+
+    -- ScrollFrame (même layout que Changelog)
     local scroll = CreateFrame("ScrollFrame", nil, sf, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT",    16, -36)
-    scroll:SetPoint("BOTTOMRIGHT", -36, 44)
+    scroll:SetPoint("TOPLEFT", 16, -80)
+    scroll:SetPoint("BOTTOMRIGHT", -32, 40)
 
     local content = CreateFrame("Frame", nil, scroll)
-    content:SetSize(310, 100)
+    content:SetSize(SW - 60, 100)
     scroll:SetScrollChild(content)
+    statsFrame = sf
 
     local y = -6
     local function AddLine(text, indent, template)
@@ -2408,7 +2540,7 @@ ShowStatsWindow = function()
 
     -- Current run
     if loxxCurrentRun and next(loxxCurrentRun.players) then
-        AddLine("|cFF00DDDDRun actuel|r", 0, "GameFontNormal") ; y = y - 18
+        AddLine("|cFF00DDDDCurrent Run|r", 0, "GameFontNormal") ; y = y - 18
         local keyStr = loxxCurrentRun.keyLevel > 0 and (" [+" .. loxxCurrentRun.keyLevel .. "]") or ""
         AddLine("|cFFFFD100" .. (loxxCurrentRun.dungeon or "?") .. keyStr .. "|r  " .. (loxxCurrentRun.date or ""), 0)
         y = y - 16
@@ -2423,7 +2555,7 @@ ShowStatsWindow = function()
     local runs = LOXXSavedVars.loxxRunHistory or {}
     if #runs > 0 then
         AddSep()
-        AddLine("|cFFFFD100Historique|r", 0, "GameFontNormal") ; y = y - 20
+        AddLine("|cFFFFD100History|r", 0, "GameFontNormal") ; y = y - 20
         for i, run in ipairs(runs) do
             local keyStr = run.keyLevel > 0 and (" [+" .. run.keyLevel .. "]") or ""
             AddLine("|cFFFFCC00" .. (run.dungeon or "?") .. keyStr .. "|r  " .. (run.date or ""), 0)
@@ -2449,21 +2581,6 @@ ShowStatsWindow = function()
 
     content:SetHeight(math.abs(y) + 20)
 
-    local clearBtn = CreateFrame("Button", nil, sf, "UIPanelButtonTemplate")
-    clearBtn:SetSize(100, 24)
-    clearBtn:SetPoint("BOTTOMLEFT", 16, 10)
-    clearBtn:SetText("Clear All")
-    clearBtn:SetScript("OnClick", function()
-        LOXXSavedVars.loxxRunHistory = {}
-        sf:Hide() ; statsFrame = nil ; ShowStatsWindow()
-    end)
-
-    local closeBtn = CreateFrame("Button", nil, sf, "UIPanelButtonTemplate")
-    closeBtn:SetSize(80, 24)
-    closeBtn:SetPoint("BOTTOMRIGHT", -36, 10)
-    closeBtn:SetText("Close")
-    closeBtn:SetScript("OnClick", function() sf:Hide() ; statsFrame = nil end)
-
     sf:Show()
 end
 
@@ -2487,7 +2604,7 @@ local function BuildRotationPanel()
     rotationPanel.rows = rotationPanel.rows or {}
     for _, rf in ipairs(rotationPanel.rows) do rf:Hide() end
 
-    local y = -36
+    local y = -80
     for i, name in ipairs(rotationOrder) do
         local idx = i
         local f = rotationPanel.rows[idx]
@@ -2530,15 +2647,18 @@ local function BuildRotationPanel()
         f:Show()
         y = y - 28
     end
-    rotationPanel:SetHeight(math.max(120, 60 + #rotationOrder * 28 + 10))
+    rotationPanel:SetHeight(math.max(340, 120 + #rotationOrder * 28))
 end
 
 ShowRotationPanel = function()
     if not rotationPanel then
+        if not configFrame then return end
+
+        local RW, RH = 240, 340
         rotationPanel = CreateFrame("Frame", "LOXXRotationPanel", UIParent, "BasicFrameTemplate")
-        rotationPanel:SetSize(220, 200)
-        rotationPanel:SetPoint("CENTER", UIParent, "CENTER", 200, 0)
-        rotationPanel.TitleText:SetText("Kick Rotation")
+        rotationPanel:SetSize(RW, RH)
+        rotationPanel:SetPoint("TOPLEFT", configFrame, "TOPRIGHT", 4, 0)
+        if rotationPanel.TitleText then rotationPanel.TitleText:SetText("") end
         rotationPanel:SetMovable(true)
         rotationPanel:EnableMouse(true)
         rotationPanel:RegisterForDrag("LeftButton")
@@ -2546,6 +2666,34 @@ ShowRotationPanel = function()
         rotationPanel:SetScript("OnDragStop",  rotationPanel.StopMovingOrSizing)
         rotationPanel:SetClampedToScreen(true)
         rotationPanel:SetFrameStrata("DIALOG")
+
+        -- Header (même design que Changelog)
+        local hdr = rotationPanel:CreateTexture(nil, "BACKGROUND", nil, 2)
+        hdr:SetTexture(FLAT_TEX)
+        hdr:SetVertexColor(0.12, 0.09, 0.02, 1)
+        hdr:SetPoint("TOPLEFT",  0, -22)
+        hdr:SetPoint("TOPRIGHT", 0, -22)
+        hdr:SetHeight(52)
+        local hdrLineTop = rotationPanel:CreateTexture(nil, "BORDER")
+        hdrLineTop:SetTexture(FLAT_TEX)
+        hdrLineTop:SetVertexColor(0.87, 0.73, 0.37, 0.75)
+        hdrLineTop:SetPoint("TOPLEFT",  0, -22)
+        hdrLineTop:SetPoint("TOPRIGHT", 0, -22)
+        hdrLineTop:SetHeight(1)
+        local hdrLineBot = rotationPanel:CreateTexture(nil, "BORDER")
+        hdrLineBot:SetTexture(FLAT_TEX)
+        hdrLineBot:SetVertexColor(0.87, 0.73, 0.37, 0.75)
+        hdrLineBot:SetPoint("TOPLEFT",  0, -74)
+        hdrLineBot:SetPoint("TOPRIGHT", 0, -74)
+        hdrLineBot:SetHeight(1)
+        local hdrTitle = rotationPanel:CreateFontString(nil, "OVERLAY")
+        hdrTitle:SetFont(FONT_FACE, 22, FONT_FLAGS)
+        hdrTitle:SetShadowOffset(2, -2)
+        hdrTitle:SetShadowColor(0, 0, 0, 1)
+        hdrTitle:SetPoint("TOP", 0, -34)
+        hdrTitle:SetJustifyH("CENTER")
+        hdrTitle:SetText("|cFFFFD100Kick Rotation|r")
+
         -- Permanent bottom buttons
         local resetBtn = CreateFrame("Button", nil, rotationPanel, "UIPanelButtonTemplate")
         resetBtn:SetSize(80, 22) ; resetBtn:SetPoint("BOTTOMLEFT", 8, 8) ; resetBtn:SetText("Reset")
@@ -2710,15 +2858,24 @@ local function RegisterBlizzardOptions()
     end
 end
 
--- ApplyAutoScale kept as no-op for call-site compatibility (previously triggered
--- screen-proportional scaling; removed in 1.9.9.2 in favour of fixed defaults).
-local function ApplyAutoScale()
-    RebuildBars()
-end
-
 local function Initialize()
     LOXXSavedVars = LOXXSavedVars or {}
-    db = LOXXSavedVars
+    LOXXSavedVars.db = LOXXSavedVars.db or {}
+    db = LOXXSavedVars.db
+
+    -- Migration: anciennes données en racine → .db
+    for k, v in pairs(DEFAULTS) do
+        if LOXXSavedVars[k] ~= nil and db[k] == nil then
+            db[k] = LOXXSavedVars[k]
+            LOXXSavedVars[k] = nil
+        end
+    end
+    for _, k in ipairs({ "frameX", "frameY", "dbVersion" }) do
+        if LOXXSavedVars[k] ~= nil and db[k] == nil then
+            db[k] = LOXXSavedVars[k]
+            LOXXSavedVars[k] = nil
+        end
+    end
 
     -- SavedVars schema versioning: fill new keys, remove obsolete ones.
     local savedVer = db.dbVersion or 1
@@ -2727,8 +2884,9 @@ local function Initialize()
     end
     if savedVer < LOXX_DB_VERSION then
         -- Remove keys that are no longer in DEFAULTS (avoids stale bloat)
+        local keepKeys = { dbVersion = true, frameX = true, frameY = true }
         for k in pairs(db) do
-            if k ~= "dbVersion" and DEFAULTS[k] == nil then
+            if not keepKeys[k] and DEFAULTS[k] == nil then
                 db[k] = nil
             end
         end
@@ -2755,6 +2913,9 @@ local function Initialize()
     loxxErrorLog = LOXXSavedVars.loxxErrorLog
     rotationOrder = LOXXSavedVars.rotationOrder or {}
     rotationIndex = LOXXSavedVars.rotationIndex or 1
+
+    -- Account-wide storage (position shared across all characters)
+    LOXXAccountVars = LOXXAccountVars or {}
 
     pcall(C_ChatInfo.RegisterAddonMessagePrefix, MSG_PREFIX)
 
@@ -2815,6 +2976,7 @@ ef:RegisterEvent("CHALLENGE_MODE_START")
 ef:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 ef:RegisterEvent("UNIT_PET")
 ef:RegisterEvent("ROLE_CHANGED_INFORM")
+ef:RegisterEvent("PLAYER_LOGOUT")
 -- COMBAT_LOG_EVENT_UNFILTERED is restricted in Midnight 12.0: Frame:RegisterEvent()
 -- is blocked for this event. CD tracking for non-addon players falls back to
 -- the existing UNIT_SPELLCAST_SUCCEEDED timestamp-correlation system.
@@ -2991,6 +3153,7 @@ nameplateFrame:SetScript("OnEvent", function(self, event, unit)
     elseif event == "NAME_PLATE_UNIT_REMOVED" then
         if nameplateCastFrames[unit] then
             nameplateCastFrames[unit]:UnregisterAllEvents()
+            nameplateCastFrames[unit] = nil
         end
     end
 end)
@@ -3072,7 +3235,6 @@ ef:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
     elseif event == "PLAYER_REGEN_ENABLED" then
         inCombat = false
         CheckZoneVisibility()
-        TryCacheCD()
     elseif event == "PLAYER_REGEN_DISABLED" then
         inCombat = true
         CheckZoneVisibility()
@@ -3191,5 +3353,8 @@ ef:SetScript("OnEvent", function(_, event, arg1, arg2, arg3, arg4)
         end)
     elseif event == "CHALLENGE_MODE_START" then
         StartNewRun()
+    elseif event == "PLAYER_LOGOUT" then
+        -- Persist frame position right before WoW saves variables
+        if mainFrame then LoxxSaveFramePosition(mainFrame) end
     end
 end)
