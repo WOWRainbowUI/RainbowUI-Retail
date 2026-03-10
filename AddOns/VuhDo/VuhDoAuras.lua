@@ -49,7 +49,7 @@ local VUHDO_UNIT_AURA_LIST_SLOTS = VUHDO_UNIT_AURA_LIST_SLOTS;
 VUHDO_AURA_LIST_BOUQUETS = VUHDO_AURA_LIST_BOUQUETS or { };
 local VUHDO_AURA_LIST_BOUQUETS = VUHDO_AURA_LIST_BOUQUETS;
 
-VUHDO_AURA_MIGRATION_VERSION = 4;
+VUHDO_AURA_MIGRATION_VERSION = 5;
 local VUHDO_AURA_MIGRATION_VERSION = VUHDO_AURA_MIGRATION_VERSION;
 
 VUHDO_AURA_GROUP_COLOR_OFF = 1;
@@ -398,7 +398,7 @@ function VUHDO_isAuraIgnored(anAuraData, aGroupId)
 		return false;
 	end
 
-	if tSpellId and not issecretvalue(tSpellId) and tIgnoreList[tSpellId] then
+	if tSpellId and not issecretvalue(tSpellId) and (tIgnoreList[tSpellId] or tIgnoreList[tostring(tSpellId)]) then
 		return true;
 	end
 
@@ -2601,6 +2601,44 @@ do
 
 
 	--
+	local tConfig;
+	local tIgnoreList;
+	local tKeysToConvert;
+	local function VUHDO_migrateAuraGroupIgnoreListKeys()
+
+		tConfig = _G["VUHDO_CONFIG"];
+
+		if not tConfig or not tConfig["AURA_GROUPS"] then
+			return;
+		end
+
+		for _, tGroup in pairs(tConfig["AURA_GROUPS"]) do
+			tIgnoreList = tGroup and tGroup["ignoreList"];
+
+			if tIgnoreList then
+				tKeysToConvert = tKeysToConvert or { };
+				twipe(tKeysToConvert);
+
+				for tKey, _ in pairs(tIgnoreList) do
+					if type(tKey) == "string" and tonumber(tKey) then
+						tinsert(tKeysToConvert, tKey);
+					end
+				end
+
+				for _, tKey in ipairs(tKeysToConvert) do
+					tIgnoreList[tonumber(tKey)] = true;
+					tIgnoreList[tKey] = nil;
+				end
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
 	local tPanelSetup;
 	local tCurrentMigrationVersion;
 	function VUHDO_migrateOldConfigsToAuraAnchors()
@@ -2627,6 +2665,10 @@ do
 
 		if tCurrentMigrationVersion < 4 then
 			VUHDO_migrateAuraAnchorDefaults();
+		end
+
+		if tCurrentMigrationVersion < 5 then
+			VUHDO_migrateAuraGroupIgnoreListKeys();
 		end
 
 		tPanelSetup["AURA_MIGRATION_VERSION"] = VUHDO_AURA_MIGRATION_VERSION;

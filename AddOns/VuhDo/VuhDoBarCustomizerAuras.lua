@@ -1888,6 +1888,7 @@ do
 	local tTotalWidth;
 	local tTotalHeight;
 	local tBarVertical;
+	local tBarTurnAxis;
 	function VUHDO_positionAuraFrameDynamic(aFrame, aSlotIndex, anAnchorConfig, aButton, aRadioValue)
 
 		tPos = VUHDO_AURA_RADIOVALUE_POSITIONS[aRadioValue];
@@ -1925,6 +1926,7 @@ do
 
 		if aFrame["childBar"] then
 			tBarVertical = anAnchorConfig["barVertical"] or false;
+			tBarTurnAxis = anAnchorConfig["barTurnAxis"] or false;
 
 			if tBarVertical then
 				tBarWidth = VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig);
@@ -1977,31 +1979,61 @@ do
 		if aFrame["childIcon"] and aFrame["childBar"] then
 			aFrame["childIcon"]:ClearAllPoints();
 			if tBarVertical then
-				VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "BOTTOM", aFrame, "BOTTOM", 0, 0);
-				VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
-				aFrame["childIcon"]:Show();
+				if tBarTurnAxis then
+					VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "TOP", aFrame, "TOP", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+					aFrame["childIcon"]:Show();
 
-				if aFrame["cooldownFrame"] and aFrame["childIcon"] then
-					aFrame["cooldownFrame"]:ClearAllPoints();
-					aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+						aFrame["cooldownFrame"]:ClearAllPoints();
+						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
+					aFrame["childBar"]:ClearAllPoints();
+					VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "TOP", aFrame["childIcon"], "BOTTOM", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, tBarHeight);
+				else
+					VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "BOTTOM", aFrame, "BOTTOM", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+					aFrame["childIcon"]:Show();
+
+					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+						aFrame["cooldownFrame"]:ClearAllPoints();
+						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
+					aFrame["childBar"]:ClearAllPoints();
+					VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "BOTTOM", aFrame["childIcon"], "TOP", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, tBarHeight);
 				end
-
-				aFrame["childBar"]:ClearAllPoints();
-				VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "BOTTOM", aFrame["childIcon"], "TOP", 0, 0);
-				VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, tBarHeight);
 			else
-				VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "LEFT", aFrame, "LEFT", 0, 0);
-				VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
-				aFrame["childIcon"]:Show();
+				if tBarTurnAxis then
+					VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "RIGHT", aFrame, "RIGHT", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+					aFrame["childIcon"]:Show();
 
-				if aFrame["cooldownFrame"] and aFrame["childIcon"] then
-					aFrame["cooldownFrame"]:ClearAllPoints();
-					aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+						aFrame["cooldownFrame"]:ClearAllPoints();
+						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
+					aFrame["childBar"]:ClearAllPoints();
+					VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "RIGHT", aFrame["childIcon"], "LEFT", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childBar"], tBarWidth, tBarHeight);
+				else
+					VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "LEFT", aFrame, "LEFT", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+					aFrame["childIcon"]:Show();
+
+					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+						aFrame["cooldownFrame"]:ClearAllPoints();
+						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
+					aFrame["childBar"]:ClearAllPoints();
+					VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "LEFT", aFrame["childIcon"], "RIGHT", 0, 0);
+					VUHDO_PixelUtil.SetSize(aFrame["childBar"], tBarWidth, tBarHeight);
 				end
-
-				aFrame["childBar"]:ClearAllPoints();
-				VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "LEFT", aFrame["childIcon"], "RIGHT", 0, 0);
-				VUHDO_PixelUtil.SetSize(aFrame["childBar"], tBarWidth, tBarHeight);
 			end
 		end
 
@@ -2199,6 +2231,7 @@ do
 	local tTotalWidth;
 	local tTotalHeight;
 	local tBarVertical;
+	local tBarTurnAxis;
 	function VUHDO_positionAuraFrame(aFrame, aButton, anAnchorConfig, aSlotIndex, anAnchorIndex)
 
 		if not aFrame or not aButton or not anAnchorConfig then
@@ -2295,6 +2328,7 @@ do
 
 			if aFrame["childIcon"] and aFrame["childBar"] then
 				tBarVertical = anAnchorConfig["barVertical"] or false;
+				tBarTurnAxis = anAnchorConfig["barTurnAxis"] or false;
 
 				if tBarVertical then
 					tBarWidth = VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig);
@@ -2303,32 +2337,62 @@ do
 					tIconSize = tBarWidth;
 
 					aFrame["childIcon"]:ClearAllPoints();
-					VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "BOTTOM", aFrame, "BOTTOM", 0, 0);
-					VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
-					aFrame["childIcon"]:Show();
+					if tBarTurnAxis then
+						VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "TOP", aFrame, "TOP", 0, 0);
+						VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+						aFrame["childIcon"]:Show();
 
-					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
-						aFrame["cooldownFrame"]:ClearAllPoints();
-						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+							aFrame["cooldownFrame"]:ClearAllPoints();
+							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
+						tChild:ClearAllPoints();
+						VUHDO_PixelUtil.SetPoint(tChild, "TOP", aFrame["childIcon"], "BOTTOM", 0, 0);
+						VUHDO_PixelUtil.SetSize(tChild, tIconSize, tBarHeight);
+					else
+						VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "BOTTOM", aFrame, "BOTTOM", 0, 0);
+						VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+						aFrame["childIcon"]:Show();
+
+						if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+							aFrame["cooldownFrame"]:ClearAllPoints();
+							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
+						tChild:ClearAllPoints();
+						VUHDO_PixelUtil.SetPoint(tChild, "BOTTOM", aFrame["childIcon"], "TOP", 0, 0);
+						VUHDO_PixelUtil.SetSize(tChild, tIconSize, tBarHeight);
 					end
-
-					tChild:ClearAllPoints();
-					VUHDO_PixelUtil.SetPoint(tChild, "BOTTOM", aFrame["childIcon"], "TOP", 0, 0);
-					VUHDO_PixelUtil.SetSize(tChild, tIconSize, tBarHeight);
 				else
 					aFrame["childIcon"]:ClearAllPoints();
-					VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "LEFT", aFrame, "LEFT", 0, 0);
-					VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
-					aFrame["childIcon"]:Show();
+					if tBarTurnAxis then
+						VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "RIGHT", aFrame, "RIGHT", 0, 0);
+						VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+						aFrame["childIcon"]:Show();
 
-					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
-						aFrame["cooldownFrame"]:ClearAllPoints();
-						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+							aFrame["cooldownFrame"]:ClearAllPoints();
+							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
+						tChild:ClearAllPoints();
+						VUHDO_PixelUtil.SetPoint(tChild, "RIGHT", aFrame["childIcon"], "LEFT", 0, 0);
+						VUHDO_PixelUtil.SetSize(tChild, tBarWidth, tBarHeight);
+					else
+						VUHDO_PixelUtil.SetPoint(aFrame["childIcon"], "LEFT", aFrame, "LEFT", 0, 0);
+						VUHDO_PixelUtil.SetSize(aFrame["childIcon"], tIconSize, tIconSize);
+						aFrame["childIcon"]:Show();
+
+						if aFrame["cooldownFrame"] and aFrame["childIcon"] then
+							aFrame["cooldownFrame"]:ClearAllPoints();
+							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
+						tChild:ClearAllPoints();
+						VUHDO_PixelUtil.SetPoint(tChild, "LEFT", aFrame["childIcon"], "RIGHT", 0, 0);
+						VUHDO_PixelUtil.SetSize(tChild, tBarWidth, tBarHeight);
 					end
-
-					tChild:ClearAllPoints();
-					VUHDO_PixelUtil.SetPoint(tChild, "LEFT", aFrame["childIcon"], "RIGHT", 0, 0);
-					VUHDO_PixelUtil.SetSize(tChild, tBarWidth, tBarHeight);
 				end
 
 				tSize = tIconSize;

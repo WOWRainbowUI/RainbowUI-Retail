@@ -8,33 +8,35 @@
 		</Size>
 		<Frames>
 
-			<Frame name="$parentGroupLabel" inherits="VuhDoLabelFrameTemplate">
+			<Button name="$parentGroupButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_AURA_GROUP">
 				<Size>
-					<AbsDimension x="64" y="18" />
+					<AbsDimension x="48" y="24" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="72" y="0" />
+							<AbsDimension x="79" y="0" />
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<Layers>
-					<Layer>
-						<FontString name="$parentLabel" text="VUHDO_I18N_AURA_GROUP" inherits="VuDoDefaultFontTemplate">
-						</FontString>
-					</Layer>
-				</Layers>
-			</Frame>
+				<Scripts>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K733);
+					</OnLoad>
+					<OnClick>
+						VUHDO_panelAurasAnchorGroupButtonClicked(self);
+					</OnClick>
+				</Scripts>
+			</Button>
 
 			<Button name="$parentGroupCombo" inherits="VuhDoScrollComboBoxResizeableTemplate">
 				<Size>
-					<AbsDimension x="180" y="24" />
+					<AbsDimension x="190" y="24" />
 				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentGroupLabel" relativePoint="TOPRIGHT">
+					<Anchor point="TOPLEFT" relativeTo="$parentGroupButton" relativePoint="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="0" y="0" />
+							<AbsDimension x="3" y="0" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -59,12 +61,12 @@
 
 			<CheckButton name="$parentEnabledCheckButton" text="VUHDO_I18N_ENABLE" inherits="VuhDoCheckButtonTemplate">
 				<Size>
-					<AbsDimension x="76" y="36" />
+					<AbsDimension x="78" y="36" />
 				</Size>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeTo="$parentGroupLabel" relativePoint="TOPLEFT">
+					<Anchor point="TOPRIGHT" relativeTo="$parentGroupButton" relativePoint="TOPLEFT">
 						<Offset>
-							<AbsDimension x="0" y="8" />
+							<AbsDimension x="-4" y="8" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -342,7 +344,7 @@
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
-<CheckButton name="$parentStraightRadioButton" inherits="VuhDoRadioBoxTemplate">
+					<CheckButton name="$parentStraightRadioButton" inherits="VuhDoRadioBoxTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -1424,12 +1426,12 @@
 
 					<Button name="$parentAnchorCombo" inherits="VuhDoComboBoxTemplate">
 						<Size>
-							<AbsDimension x="180" y="24" />
+							<AbsDimension x="190" y="24" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentTitleLabel" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="12" y="-3" />
+									<AbsDimension x="6" y="-3" />
 								</Offset>
 							</Anchor>
 						</Anchors>

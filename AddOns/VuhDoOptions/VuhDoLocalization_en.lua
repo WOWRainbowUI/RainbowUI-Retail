@@ -772,7 +772,7 @@ VUHDO_I18N_TT.K717 = "Maximum number of rows before clipping.";
 VUHDO_I18N_TT.K718 = "Width of aura bars as percentage of health bar width.";
 VUHDO_I18N_TT.K719 = "Height of aura bars as percentage of health bar height.";
 VUHDO_I18N_TT.K720 = "Check to orient aura bars vertically instead of horizontally.";
-VUHDO_I18N_TT.K721 = "Check to rotate the bar fill direction by 90 degrees.";
+VUHDO_I18N_TT.K721 = "Check to rotate the bar fill direction by 180 degrees.";
 VUHDO_I18N_TT.K722 = "Check to invert the bar fill direction.";
 VUHDO_I18N_TT.K723 = "Check to reserve fixed slots for auras based on max columns and rows.";
 VUHDO_I18N_TT.K724 = "Click to configure the font for stack count text.";
@@ -783,6 +783,8 @@ VUHDO_I18N_TT.K728 = "Click to move this entry down in the list.";
 VUHDO_I18N_TT.K729 = "Click to create a new aura anchor.";
 VUHDO_I18N_TT.K730 = "Click to duplicate the selected aura anchor.";
 VUHDO_I18N_TT.K731 = "Click to delete the selected aura anchor.";
+VUHDO_I18N_TT.K732 = "Click to open and edit this bouquet.";
+VUHDO_I18N_TT.K733 = "Click to open and edit this aura group.";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1364,7 +1366,7 @@ VUHDO_I18N_DEBUFF_REMOVED_FROM_CUSTOM = "(De)Buff \"%s\" removed from custom deb
 VUHDO_I18N_DEBUFF_DOES_NOT_EXIST = "(De)Buff \"%s\" doesn't exist.";
 
 VUHDO_I18N_AURAS = "Auras";
-VUHDO_I18N_AURA_GROUP = "Aura Group";
+VUHDO_I18N_AURA_GROUP = "Group";
 VUHDO_I18N_AURA_GROUPS = "Groups";
 VUHDO_I18N_AURA_ANCHORS = "Aura Anchors";
 VUHDO_I18N_AURA_FILTER_HELPFUL = "Buffs (HELPFUL)";

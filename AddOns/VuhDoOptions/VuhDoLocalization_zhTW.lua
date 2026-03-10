@@ -775,7 +775,7 @@ VUHDO_I18N_TT.K717 = "在裁切前的最大行數。";
 VUHDO_I18N_TT.K718 = "光環條寬度佔血量條寬度的百分比。";
 VUHDO_I18N_TT.K719 = "光環條高度佔血量條高度的百分比。";
 VUHDO_I18N_TT.K720 = "勾選以將光環條垂直顯示而非水平。";
-VUHDO_I18N_TT.K721 = "勾選以將條填充方向旋轉 90 度。";
+VUHDO_I18N_TT.K721 = "勾選以將條填充方向旋轉 180 度。";
 VUHDO_I18N_TT.K722 = "勾選以反轉條填充方向。";
 VUHDO_I18N_TT.K723 = "勾選以依最大列數與行數保留固定光環欄位。";
 VUHDO_I18N_TT.K724 = "點擊以設定堆疊數文字的字型。";
@@ -786,6 +786,8 @@ VUHDO_I18N_TT.K728 = "點擊以將此項目下移。";
 VUHDO_I18N_TT.K729 = "點擊以建立新的光環位置。";
 VUHDO_I18N_TT.K730 = "點擊以複製所選的光環位置。";
 VUHDO_I18N_TT.K731 = "點擊以刪除所選的光環位置。";
+VUHDO_I18N_TT.K732 = "點擊以開啟並編輯此狀態群組";
+VUHDO_I18N_TT.K733 = "點擊以開啟並編輯此光環群組";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1367,7 +1369,7 @@ VUHDO_I18N_DEBUFF_REMOVED_FROM_CUSTOM = "（增益/減益）「%s」已從自訂
 VUHDO_I18N_DEBUFF_DOES_NOT_EXIST = "（增益/減益）「%s」不存在。";
 
 VUHDO_I18N_AURAS = "光環";
-VUHDO_I18N_AURA_GROUP = "光環群組";
+VUHDO_I18N_AURA_GROUP = "群組";
 VUHDO_I18N_AURA_GROUPS = "群組";
 VUHDO_I18N_AURA_ANCHORS = "光環位置";
 VUHDO_I18N_AURA_FILTER_HELPFUL = "增益（HELPFUL）";

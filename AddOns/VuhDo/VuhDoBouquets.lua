@@ -1884,7 +1884,9 @@ do
 						tName = tInfos["name"];
 						tIsActive = false;
 
-						tAuraInstances = VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit] and VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit][tName];
+						tAuraInstances = VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit] and
+							(VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit][tName] or
+								(tonumber(tName) and VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit][tonumber(tName)]));
 
 						if tAuraInstances then
 							for _, tAuraInstanceId in ipairs(tAuraInstances) do
@@ -1897,19 +1899,23 @@ do
 
 										tNow = GetTime();
 
-										if tInfos["alive"] then
-											tTimer = tNow - (tCachedAura["expirationTime"] or 0) + (tCachedAura["duration"] or 0);
+										if issecretvalue(tCachedAura["expirationTime"]) or issecretvalue(tCachedAura["duration"]) then
+											tTimer = tCachedAura["expirationTime"];
 										else
-											tTimer = (tCachedAura["expirationTime"] or 0) - tNow;
+											if tInfos["alive"] then
+												tTimer = tNow - (tCachedAura["expirationTime"] or 0) + (tCachedAura["duration"] or 0);
+											else
+												tTimer = (tCachedAura["expirationTime"] or 0) - tNow;
+											end
+
+											if tTimer then
+												tTimer = floor(tTimer * 10) * 0.1;
+											end
 										end
 
 										tIcon = tCachedAura["icon"];
 										tCounter = tCachedAura["applications"];
 										tDuration = tCachedAura["duration"];
-
-										if tTimer then
-											tTimer = floor(tTimer * 10) * 0.1;
-										end
 
 										tColor = tInfos["color"];
 
@@ -2281,18 +2287,16 @@ do
 
 					tCounter = tResultSlot["counter"] or 0;
 
-					if tCounter >= 0 then
+					if issecretvalue(tCounter) or tCounter >= 0 then
 						txState["counter"] = tCounter;
 					end
 
 					tTimer = tResultSlot["timer"] or 0;
 					tDuration = tResultSlot["duration"] or 0;
 
-					if tDuration >= 0 then
-						if tTimer >= 0 then
-							txState["timer"] = tTimer;
-							txState["duration"] = tDuration;
-						end
+					if (issecretvalue(tDuration) or tDuration >= 0) and (issecretvalue(tTimer) or tTimer >= 0) then
+						txState["timer"] = tTimer;
+						txState["duration"] = tDuration;
 					end
 				end
 			end
@@ -2555,18 +2559,18 @@ do
 
 				tCounter = tCounter or 0;
 
-				if tCounter >= 0 then
+				if issecretvalue(tCounter) or tCounter >= 0 then
 					txState["counter"] = tCounter;
 				end
 
 				tTimer, tTimer2, tDuration = tTimer or 0, tTimer2 or 0, tDuration or 0;
 
-				if tDuration >= 0 then
-					if tTimer >= 0 then
+				if issecretvalue(tDuration) or tDuration >= 0 then
+					if issecretvalue(tTimer) or tTimer >= 0 then
 						txState["timer"], txState["duration"] = tTimer, tDuration;
 					end
 
-					if tTimer2 >= 0 then
+					if issecretvalue(tTimer2) or tTimer2 >= 0 then
 						txState["timer2"] = tTimer2;
 					end
 				end
