@@ -1,7 +1,9 @@
 # Auto Potion
 
-## [3.12.9](https://github.com/ollidiemaus/AutoPotion/tree/3.12.9) (2026-02-20)
-[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.12.8...3.12.9) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
+## [3.12.12](https://github.com/ollidiemaus/AutoPotion/tree/3.12.12) (2026-03-06)
+[Full Changelog](https://github.com/ollidiemaus/AutoPotion/compare/3.12.11...3.12.12) [Previous Releases](https://github.com/ollidiemaus/AutoPotion/releases)
 
-- removed old version  
-- removed comments  
+- added potent healing potion  
+- Update zhCN.lua (#100)  
+    * Update zhCN.lua  
+    * Update zhTW.lua  

@@ -9,6 +9,13 @@ local isMop = (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC)
 
 ham.healthstone = ham.Item.new(5512, "Healthstone")
 ham.demonicHealthstone = ham.Item.new(224464, "Demonic Healthstone") ---1 Minute CD due to Pact of Gluttony
+--Midnight
+ham.potent = ham.Item.new(258138, "Potent Healing Potion")           -- 50% -healing
+ham.silvermoonPotion2 = ham.Item.new(241304, "Silvermoon Health Potion")
+ham.silvermoonPotion1 = ham.Item.new(241305, "Silvermoon Health Potion")
+ham.refreshingSerumR2 = ham.Item.new(241306, "Refreshing Serum")
+ham.refreshingSerumR1 = ham.Item.new(241307, "Refreshing Serum")
+--The War Within
 ham.invigoratingHealingPotionR3 = ham.Item.new(244839, "Invigorating Healing Potion")
 ham.invigoratingHealingPotionR2 = ham.Item.new(244838, "Invigorating Healing Potion")
 ham.invigoratingHealingPotionR1 = ham.Item.new(244835, "Invigorating Healing Potion")
@@ -60,10 +67,10 @@ ham.crazy_alch = ham.Item.new(40077, "Crazy Alchemist's Potion")
 ham.runic_inject = ham.Item.new(41166, "Runic Healing Injector")
 ham.runic = ham.Item.new(33447, "Runic Healing Potion")
 ham.endless = ham.Item.new(43569, "Endless Healing Potion")
-ham.injector = ham.Item.new(33092, "Healing Potion Injector")
 ham.resurgent = ham.Item.new(39671, "Resurgent Healing Potion")
 ham.argent = ham.Item.new(43531, "Argent Healing Potion")
 --TBC/Classic
+ham.injector = ham.Item.new(33092, "Healing Potion Injector")
 ham.superreju = ham.Item.new(22850, "Super Rejuvenation Potion")
 ham.auchenai = ham.Item.new(32947, "Auchenai Healing Potion")
 ham.super = ham.Item.new(22829, "Super Healing Potion")
@@ -122,6 +129,8 @@ end
 function ham.getDelightPots()
   if isRetail then
     return {
+      ham.refreshingSerumR2,
+      ham.refreshingSerumR1,
       ham.cavedwellersDelightR3,
       ham.cavedwellersDelightR2,
       ham.cavedwellersDelightR1,
@@ -136,6 +145,9 @@ end
 function ham.getPots()
   if isRetail then
     local pots = {
+      ham.potent,
+      ham.silvermoonPotion2,
+      ham.silvermoonPotion1,
       ham.fleetingInvigoratingHealingPotionR3,
       ham.invigoratingHealingPotionR3,
       ham.fleetingInvigoratingHealingPotionR2,
@@ -231,6 +243,7 @@ function ham.getPots()
 
   if isTBC then
     local pots = {
+      ham.injector,
       ham.superreju,
       ham.auchenai,
       ham.super,
