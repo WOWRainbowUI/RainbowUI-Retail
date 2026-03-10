@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.0-RC1) add-on for World of Warcraft UI
+    Decursive (v 2.8.0-RC2) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-02-27T16:45:58Z
+    This file was last updated on 2026-03-08T18:57:26Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -745,7 +745,7 @@ do
     local ttHelpLines = {}; -- help tooltip text
     local TooltipUpdate = 0; -- help tooltip change update check
 
-    local tip = CreateFrame("GameTooltip", "DcrSecretTooltip", UIParent, "GameTooltipTemplate")
+    local tip = CreateFrame("GameTooltip", "DcrSecretTooltip", UIParent, "SharedTooltipTemplate")
 
     local function ShowMUFToolTip(unit, status, debuffs)
         tip:ClearLines()
@@ -899,7 +899,8 @@ do
     function MicroUnitF:OnLeave(frame) -- {{{
         D.Status.MouseOveringMUF = false;
 
-        tip:FadeOut()
+        tip:ClearLines()
+        tip:Hide()
     end -- }}}
 
     local keyTemplate = "|cFF11FF11%s|r-|cFF11FF11%s|r";
@@ -911,6 +912,7 @@ do
 
     function D.MicroUnitF:OnCornerEnter(frame)
 
+        tip:ClearLines()
         tip:Hide()
 
         if not keyHelp then
@@ -1901,6 +1903,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.0-RC1";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.0-RC2";
 
 -- Heresy
