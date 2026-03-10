@@ -1,9 +1,8 @@
 # Edit Mode Expanded
 
-## [12.0-025](https://github.com/teelolws/EditModeExpanded/tree/12.0-025) (2026-03-07)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/12.0-024...12.0-025) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [12.0-026](https://github.com/teelolws/EditModeExpanded/tree/12.0-026) (2026-03-10)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/12.0-025...12.0-026) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Update StatusTrackingBar.lua  
-- Update Vigor.lua  
-- Update Vigor.lua  
-- Update Vigor.lua  
+- Mark Vigor Bar disabled by default  
+    Look in interface options to turn it on.  
+    Closes: https://github.com/teelolws/EditModeExpanded/issues/214  
