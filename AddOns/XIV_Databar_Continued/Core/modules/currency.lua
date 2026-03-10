@@ -7,6 +7,7 @@ local L = XIVBar.L;
 local compat = xb.compat or {}
 
 local CurrencyModule = xb:NewModule("CurrencyModule", 'AceEvent-3.0', 'AceHook-3.0')
+local AceConfigDialog = LibStub("AceConfigDialog-3.0", true)
 
 local GetBackpackCurrencyInfo = C_CurrencyInfo.GetBackpackCurrencyInfo or GetBackpackCurrencyInfo
 
@@ -40,11 +41,16 @@ function CurrencyModule:OnInitialize()
     self.curIcons = {}
     self.curText = {}
     self.rerollItems = self.rerollItems or {}
+    self.oldXp = nil
+    self.lastXp = 0
+    self.killsRemaining = 0
+    self.xpGained = 0
 end
 
 function CurrencyModule:OnEnable()
     if self.currencyFrame == nil then
-        self.currencyFrame = CreateFrame("FRAME", nil, xb:GetFrame('bar'))
+        -- Use a Button frame so RegisterForClicks is available (RegisterFrameEvents)
+        self.currencyFrame = CreateFrame("BUTTON", nil, xb:GetFrame('bar'))
         xb:RegisterFrame('currencyFrame', self.currencyFrame)
     end
 
@@ -82,6 +88,21 @@ function CurrencyModule:OnEnable()
             end, 60) -- Max 60 attempts (30 seconds)
         end
     end
+end
+
+function CurrencyModule:ToggleCurrencyOptions()
+    if not AceConfigDialog then
+        return
+    end
+    local name = AddOnName .. "_Modules"
+    -- Si déjà ouverte, on ferme
+    if AceConfigDialog.OpenFrames and AceConfigDialog.OpenFrames[name] then
+        AceConfigDialog:Close(name)
+        return
+    end
+    -- Sinon on ouvre et on sélectionne le groupe CurrencyModule
+    AceConfigDialog:Open(name)
+    AceConfigDialog:SelectGroup(name, "CurrencyModule")
 end
 
 function CurrencyModule:OnDisable()
@@ -191,7 +212,7 @@ function CurrencyModule:Refresh()
             local maxCurrencies = db.modules.currency.numCurrenciesOnBar or 3
             if ShouldUseSelectedCurrencies() then
                 local selectedCurrencies = db.modules.currency.selectedCurrencies
-                for i, currencyId in ipairs(selectedCurrencies) do
+                for _, currencyId in ipairs(selectedCurrencies) do
                     if buttonIndex <= maxCurrencies then
                         local width = self:StyleCurrencyFrame(currencyId, nil, buttonIndex)
                         if width > 0 then
@@ -345,11 +366,15 @@ function CurrencyModule:RegisterFrameEvents()
                 GameTooltip:Hide()
             end
         end)
-        self.curButtons[buttonIndex]:SetScript('OnClick', function()
+        self.curButtons[buttonIndex]:SetScript('OnClick', function(_, button)
             if InCombatLockdown() then
                 return;
             end
-            ToggleCharacter('TokenFrame')
+            if button == "RightButton" then
+                self:ToggleCurrencyOptions()
+            else
+                ToggleCharacter('TokenFrame')
+            end
         end)
     end
     self:RegisterEvent('CURRENCY_DISPLAY_UPDATE', 'OnCurrencyDisplayUpdate')
@@ -382,14 +407,19 @@ function CurrencyModule:RegisterFrameEvents()
             GameTooltip:Hide()
         end
     end)
-    self.moduleIconFrame:SetScript('OnClick', function()
+    self.moduleIconFrame:SetScript('OnClick', function(_, button)
         if InCombatLockdown() then
             return;
         end
-        ToggleCharacter('TokenFrame')
+        if button == "RightButton" then
+            self:ToggleCurrencyOptions()
+        else
+            ToggleCharacter('TokenFrame')
+        end
     end)
 
     self.currencyFrame:EnableMouse(true)
+    self.currencyFrame:RegisterForClicks("AnyUp")
     self.currencyFrame:SetScript('OnEnter', function()
         if xb.db.profile.modules.currency.showTooltip then
             self:ShowTooltip()
@@ -398,6 +428,11 @@ function CurrencyModule:RegisterFrameEvents()
     self.currencyFrame:SetScript('OnLeave', function()
         if xb.db.profile.modules.currency.showTooltip then
             GameTooltip:Hide()
+        end
+    end)
+    self.currencyFrame:SetScript('OnClick', function(_, button)
+        if button == "RightButton" then
+            self:ToggleCurrencyOptions()
         end
     end)
 
@@ -451,33 +486,33 @@ function CurrencyModule:OnCurrencyDisplayUpdate()
 end
 
 function CurrencyModule:ExperienceGains()
-    CurXp = UnitXP('player')
-    MaxXp = UnitXPMax('player')
+    local curXp = UnitXP('player')
+    local maxXp = UnitXPMax('player')
 
-    OldXp = OldXp or CurXp
-    LastXp = LastXp or 0
-    KillsRemaining = KillsRemaining or 0
+    self.oldXp = self.oldXp or curXp
+    self.lastXp = self.lastXp or 0
+    self.killsRemaining = self.killsRemaining or 0
 
-    if CurXp < OldXp then
-        if LastXp > 0 then
-            KillsRemaining = MaxXp / LastXp
+    if curXp < self.oldXp then
+        if self.lastXp > 0 then
+            self.killsRemaining = maxXp / self.lastXp
         else
-            KillsRemaining = 0
+            self.killsRemaining = 0
         end
-        OldXp = CurXp
-        XpGained = 0
-        return XpGained, CurXp, MaxXp, KillsRemaining
+        self.oldXp = curXp
+        self.xpGained = 0
+        return self.xpGained, curXp, maxXp, self.killsRemaining
     end
 
-    XpGained = CurXp - OldXp
-    if XpGained > 0 then
-        KillsRemaining = (MaxXp - CurXp) / XpGained
-        LastXp = XpGained
+    self.xpGained = curXp - self.oldXp
+    if self.xpGained > 0 then
+        self.killsRemaining = (maxXp - curXp) / self.xpGained
+        self.lastXp = self.xpGained
     end
 
-    OldXp = CurXp
+    self.oldXp = curXp
 
-    return XpGained, CurXp, MaxXp, KillsRemaining
+    return self.xpGained, curXp, maxXp, self.killsRemaining
 end
 
 function CurrencyModule:XpUpdate()
@@ -509,13 +544,13 @@ function CurrencyModule:ShowTooltip()
             string.format('%d / %d (%d%%)', curXp, maxXp, floor((curXp / maxXp) * 100)), r, g, b, 1, 1, 1)
         GameTooltip:AddDoubleLine(L['Remaining'] .. ':',
             string.format('%d (%d%%)', (maxXp - curXp), floor(((maxXp - curXp) / maxXp) * 100)), r, g, b, 1, 1, 1)
-        if KillsRemaining then
+        if self.killsRemaining then
             GameTooltip:AddDoubleLine(L['Kills to level'] .. ':',
-                '~' .. string.format('%d', math.ceil(KillsRemaining)), r, g, b, 1, 1, 1)
+                '~' .. string.format('%d', math.ceil(self.killsRemaining)), r, g, b, 1, 1, 1)
         end
-        if LastXp then
+        if self.lastXp then
             GameTooltip:AddDoubleLine(L['Last xp gain'] .. ':',
-                string.format('%d', LastXp), r, g, b, 1, 1, 1)
+                string.format('%d', self.lastXp), r, g, b, 1, 1, 1)
         end
         if rested then
             GameTooltip:AddDoubleLine(L['Rested'] .. ':',
@@ -630,6 +665,7 @@ function CurrencyModule:ShowTooltip()
         end
 
         GameTooltip:AddDoubleLine('<' .. L['Left-Click'] .. '>', BINDING_NAME_TOGGLECURRENCY, r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine('<' .. L['Right-Click'] .. '>', L['Open XIV Currency Options'], r, g, b, 1, 1, 1)
     end
 
     GameTooltip:Show()
@@ -665,9 +701,7 @@ function CurrencyModule:GetCurrenciesByExpansion()
 
     for i = 1, compat.GetCurrencyListSize() do
         local listInfo = compat.GetCurrencyListInfo(i)
-        if not listInfo then
-            -- Skip nil entries (can happen when switching characters)
-        elseif listInfo.isHeader then
+        if listInfo and listInfo.isHeader then
             compat.ExpandCurrencyList(i, true)
             currentHeader = listInfo.name
             currentHeaderIndex = #expansionCurrencies + 1
@@ -675,7 +709,7 @@ function CurrencyModule:GetCurrenciesByExpansion()
                 header = currentHeader,
                 currencies = {}
             })
-        elseif not listInfo.isTypeUnused and currentHeader and currentHeaderIndex then
+        elseif listInfo and (not listInfo.isTypeUnused) and currentHeader and currentHeaderIndex then
             local cL = compat.GetCurrencyListLink(i)
             local curInfo = C_CurrencyInfo.GetCurrencyInfoFromLink(cL)
             if curInfo then

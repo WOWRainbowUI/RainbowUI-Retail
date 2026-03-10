@@ -23,6 +23,7 @@ function MenuModule:OnInitialize()
     self.text = {}
     self.bgTexture = {}
     self.functions = {}
+    self.guildMotd = nil
     self.menuWidth = 0
     self.iconSize = xb:GetHeight();
     self:CreateClickFunctions()
@@ -131,7 +132,7 @@ function MenuModule:OnInitialize()
 end
 
 -- Skin Support for ElvUI/TukUI
--- Make sure to disable "Tooltip" in the Skins section of ElvUI together with 
+-- Make sure to disable "Tooltip" in the Skins section of ElvUI together with
 -- unchecking "Use ElvUI for tooltips" in XIV options to not have ElvUI fuck with tooltips
 function MenuModule:SkinFrame(frame, name)
     if xb.db.profile.general.useElvUI and (IsAddOnLoaded('ElvUI') or IsAddOnLoaded('Tukui')) then
@@ -240,7 +241,7 @@ function MenuModule:OnEnable()
         return;
     end
     if self.microMenuFrame == nil then
-        self.microMenuFrame = CreateFrame("FRAME", L['Micromenu'], xb:GetFrame('bar'))
+        self.microMenuFrame = CreateFrame("FRAME", "XIVBar_MicroMenuFrame", xb:GetFrame('bar'))
         xb:RegisterFrame('microMenuFrame', self.microMenuFrame)
     end
 
@@ -341,7 +342,7 @@ function MenuModule:UpdateMenu()
 end
 
 function MenuModule:CreateFrames()
-    parentFrame = xb:GetFrame('microMenuFrame')
+    local parentFrame = xb:GetFrame('microMenuFrame')
     local mm = xb.db.profile.modules.microMenu
     self.actionTypes = {}
     local buttons = {
@@ -537,7 +538,6 @@ function MenuModule:CreateIcons()
 end
 
 function MenuModule:IconDefaults(name)
-    local colors = xb.db.profile.color
     if self.frames[name] == nil then
         return;
     end
@@ -602,9 +602,19 @@ function MenuModule:UnregisterFrameEvents()
     self:UnregisterEvent('FRIENDLIST_UPDATE')
 end
 
+function MenuModule:UpdateGuildMOTD(_, motd)
+    if type(motd) == 'string' and motd ~= '' then
+        self.guildMotd = motd
+    end
+end
+
 -- called on refresh, guild related events and profile changes to social text
-function MenuModule:UpdateGuildText()
+function MenuModule:UpdateGuildText(event)
     local db = xb.db.profile.modules.microMenu -- shortcut to access profile variables
+
+    if not self.text.guild or not self.bgTexture.guild then
+        return
+    end
 
     -- if the guild icon is disabled, don't do anything
     if not db.guild then
@@ -621,7 +631,15 @@ function MenuModule:UpdateGuildText()
     if db.hideSocialText or not db.guild then
         return
     end -- don't do anything if social text or the guild icon are not displayed
-    C_GuildInfo.GuildRoster() -- requests an update to guild roster information from blizzbois
+
+    if event == 'GUILD_ROSTER_UPDATE' and not InCombatLockdown() then
+        local motd = GetGuildRosterMOTD()
+        self.guildMotd = type(motd) == 'string' and motd or nil
+    end
+
+    if not InCombatLockdown() then
+        C_GuildInfo.GuildRoster() -- requests an update to guild roster information from blizzbois
+    end
 
     -- get the number of online guild members and set social text to that number
     local _, onlineMembers = GetNumGuildMembers()
@@ -716,20 +734,54 @@ function MenuModule:GetButtonTooltipText(name)
 end
 
 function MenuModule:ShowButtonTooltip(name)
-    if not xb.db.profile.modules.microMenu.showAccessibilityTooltips then
+    if (name == "social" or name == "guild") then
         return
     end
-    if name == 'social' or name == 'guild' then
-        return
-    end
-    local text = self:GetButtonTooltipText(name)
-    if not text then
-        return
-    end
+
     local frame = self.frames[name]
     if not frame then
         return
     end
+
+    -- Specific tooltip for the Menu item
+    if name == 'menu' then
+        local r, g, b = unpack(xb:HoverColors())
+        local info = self.buttonInfoByKey and self.buttonInfoByKey[name]
+        local keyText
+        if info and info.binding and xb.db.profile.modules.microMenu.showAccessibilityTooltips then
+            local k1, k2 = GetBindingKey(info.binding)
+            local keys = {}
+            if k1 and k1 ~= '' then keys[#keys+1] = GetBindingText(k1, nil, false) end
+            if k2 and k2 ~= '' then keys[#keys+1] = GetBindingText(k2, nil, false) end
+            if #keys > 0 then
+                keyText = table.concat(keys, ' / ')
+            end
+        end
+
+        GameTooltip:SetOwner(frame, 'ANCHOR_' .. xb.miniTextPosition)
+        GameTooltip:ClearLines()
+        local header = '|cFFFFFFFF[|r' .. MAINMENU_BUTTON .. '|cFFFFFFFF]|r'
+        if keyText then
+            header = header .. ' |cFFFFD200(' .. keyText .. ')|r'
+        end
+        GameTooltip:AddLine(header, r, g, b)
+        GameTooltip:AddLine(' ')
+        GameTooltip:AddDoubleLine('<' .. L['Left-Click'] .. '>', '|cFFFFFFFF' .. MAINMENU_BUTTON .. '|r', r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine('<' .. L['Right-Click'] .. '>', '|cFFFFFFFF' .. ADDONS .. '|r', r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine('<' .. SHIFT_KEY_TEXT .. '+' .. L['Right-Click'] .. '>', '|cFFFFFFFF' .. RELOADUI .. '|r', r, g, b, 1, 1, 1)
+        GameTooltip:Show()
+        return
+    end
+
+    if not xb.db.profile.modules.microMenu.showAccessibilityTooltips then
+        return
+    end
+
+    local text = self:GetButtonTooltipText(name)
+    if not text then
+        return
+    end
+
     GameTooltip:SetOwner(frame, 'ANCHOR_' .. xb.miniTextPosition)
     GameTooltip:ClearLines()
     GameTooltip:AddLine(text)
@@ -789,11 +841,28 @@ function MenuModule:SocialHover(hoverFunc)
 
         -- ties the 'Social' and '<Left-Click>' etc. in the tooltip to the addon's hovercolors
         local r, g, b = unpack(xb:HoverColors())
+        local socialKey
+        if xb.db.profile.modules.microMenu.showAccessibilityTooltips then
+            local info = self.buttonInfoByKey and self.buttonInfoByKey.social
+            if info and info.binding then
+                local k1, k2 = GetBindingKey(info.binding)
+                local keys = {}
+                if k1 and k1 ~= '' then keys[#keys+1] = GetBindingText(k1, nil, false) end
+                if k2 and k2 ~= '' then keys[#keys+1] = GetBindingText(k2, nil, false) end
+                if #keys > 0 then
+                    socialKey = '|cFFFFD200(' .. table.concat(keys, ' / ') .. ')|r'
+                end
+            end
+        end
 
         -- if any friends are online add the [Social] section and an empty line to the tooltip
         if (totalOnlineFriends + totalBNOnlineFriends) > 0 then
             tooltip:SmartAnchorTo(MenuModule.frames.social)
-            local headerRow = tooltip:AddHeadingRow('|cFFFFFFFF[|r' .. SOCIAL_LABEL .. '|cFFFFFFFF]|r')
+            local headerText = '|cFFFFFFFF[|r' .. SOCIAL_LABEL .. '|cFFFFFFFF]|r'
+            if socialKey then
+                headerText = headerText .. ' ' .. socialKey
+            end
+            local headerRow = tooltip:AddHeadingRow(headerText)
             headerRow:SetTextColor(r, g, b, 1)
             tooltip:AddRow(' ', ' ')
         end
@@ -835,16 +904,64 @@ function MenuModule:SocialHover(hoverFunc)
                         friendAccInfo.battleTag = '[' .. L['No Tag'] .. ']'
                     end
 
-                    local clientIcon = ''
-                    if C_Texture.GetTitleIconTexture then
-						C_Texture.GetTitleIconTexture(gameAccount.clientProgram, TitleIconVersion_Small, function(success, texture)
-							if success then
-								local fullText = _G.BNet_GetValidatedCharacterNameWithClientEmbeddedTexture(gameAccount.characterName, friendAccInfo.battleTag, texture, 32, 32, 16)
-                                -- Hacky Trick : Extract only the icon part (first part before any character name)
-                                clientIcon = fullText:match("(|T.-|t)")
+                        local clientIcon = ''
+                        if C_Texture.GetTitleIconTexture then
+                            C_Texture.GetTitleIconTexture(gameAccount.clientProgram, TitleIconVersion_Small, function(success, texture)
+                                if success then
+                                    local fullText = _G.BNet_GetValidatedCharacterNameWithClientEmbeddedTexture(gameAccount.characterName, friendAccInfo.battleTag, texture, 32, 32, 16)
+                                    -- Hacky Trick : Extract only the icon part (first part before any character name)
+                                    clientIcon = fullText:match("(|T.-|t)")
+                                end
+                            end)
+                        end
+
+                        local charName = gameAccount.characterName -- gets the friend's character name
+                        local gameClient = gameAccount.clientProgram -- the application that the friend is online with - can be any game or 'App'/'Mobile'
+                        local realmName = gameAccount.realmName -- gets the realm name the friend's char is on
+                        local faction = gameAccount.factionName -- gets the friend's currently logged in char's faction
+                        local zone = gameAccount.areaName -- zone name to be displayed when the friend is playing retail WoW
+                        local richPresence = gameAccount.richPresence -- rich presence is used here to determine whether a friend logged into WoW is playing classic
+                        local isWoW = false -- tracks whether the friend is playing WoW or not, default being that the friend isn't
+                        local isClassic = false -- tracks whether the friend is logged into classic or not, default being that the friend isn't
+                        local statusIcon = FRIENDS_TEXTURE_ONLINE -- get icon for online friends, might later be changed to afk/dnd icons
+                        local socialIcon = clientIcon -- get icon for the friend's application
+                        local gameName = MenuModule.socialIcons[gameClient].text -- name of the application the friend is currently using - can be any game or 'App'/'Mobile'
+                        local note = friendAccInfo.note -- note of the friend, if there is no note it's an empty string
+                        local charNameFormat = '' -- format in which the friend's character is displayed - is '' if not playing WoW, 'Char - Realm' or 'FACTION - Char' if playing WoW
+
+                        -- if the friend is afk, set the icon left to the friend's name to afk
+                        if friendAccInfo.isAFK or gameAccount.isGameAFK then
+                            statusIcon = FRIENDS_TEXTURE_AFK
+                        end
+                        -- if the friend is set to 'do not disturb', set the icon left to the friend's name to dnd
+                        if friendAccInfo.isDND or gameAccount.isGameBusy then
+                            statusIcon = FRIENDS_TEXTURE_DND
+                        end
+                        -- if the friend has a note, color and display it
+                        if note ~= '' then
+                            note = "(|cffecd672" .. note .. "|r)"
+                        end
+
+                        -- if the friend is playing World of Warcraft - note that this is true for both retail and classic. yes, blizzard is retarded.
+                        if gameClient == BNET_CLIENT_WOW then
+                            isWoW = true
+                            -- checks if the friend is logged into classic or retail
+                            if richPresence and richPresence:find(L['Classic']) then
+                                isClassic = true
+                                -- friend is playing retail WoW and is of the same faction as the player, or faction is nil which for some reason happens sometimes
+                            elseif (not faction) or (faction == playerFaction) then
+                                charNameFormat = "(|cffecd672" .. (charName or L['No Info']) .. "-" ..
+                                                     (realmName or L['No Info']) .. "|r)"
+                                -- friend is playing retail WoW but is playing on the player's opposite faction
+                            else
+                                local factionColors = {
+                                    ['Alliance'] = "ff008ee8",
+                                    ['Horde'] = "ffc80000"
+                                }
+                                charNameFormat = "(|c" .. factionColors[faction] .. L[faction] .. "|r - |cffecd672" ..
+                                                     (charName or L['No Info']) .. "|r)"
                             end
-						end)
-					end
+						end
 
                     local charName = gameAccount.characterName -- gets the friend's character name
                     local gameClient = gameAccount.clientProgram -- the application that the friend is online with - can be any game or 'App'/'Mobile'
@@ -1068,7 +1185,7 @@ function MenuModule:SocialHover(hoverFunc)
                     lineRow:SetScript("OnLeave", function()
                         self.lineHover = false
                     end)
-                    lineRow:SetScript("OnMouseUp", function(self, _, button)
+                    lineRow:SetScript("OnMouseUp", function(_, _, button)
                         -- if there is no realm name in the friend's name, the friend is playing on the same realm as the player
                         if not name:find('%u%U*-%u%U') then
                             local homeRealm = GetRealmName()
@@ -1147,39 +1264,57 @@ function MenuModule:GuildHover(hoverFunc)
         end)
         MenuModule:SkinFrame(tooltip, "GuildToolTip")
 
-        C_GuildInfo.GuildRoster() -- requests an update to guild roster information from blizzbois
+        if not InCombatLockdown() then
+            C_GuildInfo.GuildRoster() -- requests an update to guild roster information from blizzbois
+        end
         tooltip:SmartAnchorTo(MenuModule.frames.guild)
 
         -- ties the 'Guild' and '<Left-Click>' etc. in the tooltip to the addon's hovercolors
         local r, g, b = unpack(xb:HoverColors())
+        local guildKey
+        if xb.db.profile.modules.microMenu.showAccessibilityTooltips then
+            local info = self.buttonInfoByKey and self.buttonInfoByKey.guild
+            if info and info.binding then
+                local k1, k2 = GetBindingKey(info.binding)
+                local keys = {}
+                if k1 and k1 ~= '' then keys[#keys+1] = GetBindingText(k1, nil, false) end
+                if k2 and k2 ~= '' then keys[#keys+1] = GetBindingText(k2, nil, false) end
+                if #keys > 0 then
+                    guildKey = '|cFFFFD200(' .. table.concat(keys, ' / ') .. ')|r'
+                end
+            end
+        end
 
         -- get guild info and create first tooltip line, left is [Guild], right is GuildName
         local gName = GetGuildInfo('player')
-        local headerRow = tooltip:AddRow('|cFFFFFFFF[|r' .. GUILD .. '|cFFFFFFFF]|r', '|cff00ff00' .. gName .. '|r')
+        local headerLeft = '|cFFFFFFFF[|r' .. GUILD .. '|cFFFFFFFF]|r'
+        if guildKey then
+            headerLeft = headerLeft .. ' ' .. guildKey
+        end
+        local headerRow = tooltip:AddRow(headerLeft, '|cff00ff00' .. gName .. '|r')
         headerRow:SetTextColor(r, g, b, 1)
         tooltip:AddRow(' ', ' ')
 
         if xb.db.profile.modules.microMenu.showGMOTD then
-            local motd = GetGuildRosterMOTD()
-            if motd ~= '' then
+            local motd = self.guildMotd
+            if type(motd) == 'string' and motd ~= '' then
                 tooltip:AddRow('|cff00ff00' .. motd .. '|r', ' ') -- REVISION LATER: shorten guild motd if too long
             end
         end
 
         local totalGuild, _ = GetNumGuildMembers()
         for i = 0, totalGuild do
-            local name, _, _, level, _, zone, note, _, isOnline, status, class, _, _, isMobile, _ =
+            local name, _, _, level, _, zone, note, _, isOnline, status, class, _, _, _, _ =
                 GetGuildRosterInfo(i)
             if isOnline then
                 local colorHex = RAID_CLASS_COLORS[class].colorStr
 
                 -- determine afk/dnd/online status of guild members
+                local statusText = ''
                 if status == 1 then
-                    status = DEFAULT_AFK_MESSAGE;
+                    statusText = DEFAULT_AFK_MESSAGE
                 elseif status == 2 then
-                    status = DEFAULT_DND_MESSAGE;
-                else
-                    status = ''
+                    statusText = DEFAULT_DND_MESSAGE
                 end
 
                 -- name given by Blizzard is CharName-RealmName, truncate to CharName
@@ -1189,8 +1324,8 @@ function MenuModule:GuildHover(hoverFunc)
                     note = '|cffffffff(|r' .. note .. '|cffffffff)|r'
                 end
                 local lineLeft = string.format('%s |c%s%s|r %s |cffecd672%s|r', level, colorHex,
-                    charName or name or L['No Info'], status, note)
-                local lineRight = string.format('%s|cffffffff %s', (isMobile and '|cffffffa0[M]|r ' or ''), zone or '')
+                    charName or name or L['No Info'], statusText, note)
+                local lineRight = string.format("|cffffffff%s|r", zone)
                 local lineRow = tooltip:AddRow(lineLeft, lineRight)
                 lineRow:SetScript('OnEnter', function()
                     self.glineHover = true
@@ -1198,7 +1333,7 @@ function MenuModule:GuildHover(hoverFunc)
                 lineRow:SetScript('OnLeave', function()
                     self.glineHover = false
                 end)
-                lineRow:SetScript('OnMouseUp', function(self, _, button)
+                lineRow:SetScript('OnMouseUp', function(_, _, button)
                     if button == 'LeftButton' then
                         if modifierFunc() then
                             C_PartyInfo.InviteUnit(name)
@@ -1225,7 +1360,7 @@ function MenuModule:CreateClickFunctions()
         return;
     end
 
-    self.functions.menu = function(self, button, down)
+    self.functions.menu = function(_, button, down)
         if InCombatLockdown() and not xb.db.profile.modules.microMenu.combatEn then
             return;
         end
@@ -1244,7 +1379,7 @@ function MenuModule:CreateClickFunctions()
         end
     end; -- menu
 
-    self.functions.chat = function(self, button, down)
+    self.functions.chat = function(_, button, down)
         if InCombatLockdown() then
             return;
         end
@@ -1257,7 +1392,7 @@ function MenuModule:CreateClickFunctions()
         end
     end; -- chat
 
-    self.functions.spell = function(self, button, down)
+    self.functions.spell = function(_, button, down)
         if InCombatLockdown() then
             return;
         end
@@ -1266,7 +1401,7 @@ function MenuModule:CreateClickFunctions()
         end
     end; -- spell
 
-    self.functions.talent = function(self, button, down)
+    self.functions.talent = function(_, button, down)
         if InCombatLockdown() then
             return;
         end

@@ -223,6 +223,9 @@ L['Hide Hearthstone Text'] = "隱藏爐石文字";
 L['Hide Port Text'] = "隱藏傳送文字";
 L['Hide Additional Tooltip Text'] = "隱藏額外的浮動提示文字";
 L['Hide Additional Tooltip Text Description'] = "在浮動提示中隱藏爐石綁定位置和選擇傳送按鈕。"
+L["Not learned"] = "尚未學會"
+L["Show unlearned teleports"] = "顯示未學會的傳送門"
+L["Hide button during off-season"] = "非賽季時隱藏按鈕"
 
 -- House/Home Selection
 L['Home'] = "回家"; -- To Translate

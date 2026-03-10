@@ -1924,10 +1924,7 @@ D["XIV_Databar_Continued"] = {
 	img = true,
     {
         text = "設定選項",
-		callback = function()
-			local XIVBarSettings = LibStub("AceDB-3.0"):New("XIVBarDB")
-			Settings.OpenToCategory(XIVBarSettings.profile.categoryID)
-		end,
+        callback = function() SlashCmdList["ACECONSOLE_XIVC"]("") end,
     },
 	{
 		type = "text",

@@ -1,4 +1,4 @@
-local AddOnName, xb = ...
+local _, xb = ...
 local L = xb.L
 
 -- Warlords of Draenor mythic teleports data
@@ -24,7 +24,7 @@ xb.MythicTeleports.WOD = {
             dungeonId = 821 -- Iron Docks
         },
         SR = {
-            teleportId = 159898, -- Skyreach Teleport
+            teleportId = {159898, 1254557}, -- Skyreach Teleport
             dungeonId = 779 -- Skyreach
         },
         SBM = {
