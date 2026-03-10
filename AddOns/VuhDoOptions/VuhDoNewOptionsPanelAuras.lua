@@ -202,6 +202,37 @@ end
 
 
 --
+local tAnchorKey;
+local tGroupId;
+function VUHDO_panelAurasAnchorGroupButtonClicked(aButton)
+
+	if not DESIGN_MISC_PANEL_NUM or not VUHDO_PANEL_SETUP or not VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM] then
+		return;
+	end
+
+	tAnchorKey = tostring(VUHDO_PANEL_AURAS_SELECTED_ANCHOR or 1);
+	tGroupId = VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"][tAnchorKey] and VUHDO_PANEL_SETUP[DESIGN_MISC_PANEL_NUM]["AURA_ANCHORS"][tAnchorKey]["groupId"];
+
+	if not tGroupId or tGroupId == "" then
+		return;
+	end
+
+	VUHDO_AURA_GROUPS_PENDING_SELECTION = tGroupId;
+
+	VUHDO_MENU_RETURN_TARGET_MAIN = VuhDoNewOptionsTabbedFrameTabsPanelPanelsRadioButton;
+	VUHDO_MENU_RETURN_TARGET = VuhDoNewOptionsPanelPanelRadioPanelAurasRadioButton;
+
+	VUHDO_newOptionsTabbedClickedClicked(VuhDoNewOptionsTabbedFrameTabsPanelAurasRadioButton);
+	VUHDO_lnfRadioButtonClicked(VuhDoNewOptionsTabbedFrameTabsPanelAurasRadioButton);
+	VUHDO_lnfTabRadioButtonClicked(VuhDoNewOptionsAuraRadioPanelGroupsRadioButton);
+
+	return;
+
+end
+
+
+
+--
 local tModel;
 local tAnchorKey;
 function VUHDO_panelAurasAnchorGroupComboOnLoad(aCombo)

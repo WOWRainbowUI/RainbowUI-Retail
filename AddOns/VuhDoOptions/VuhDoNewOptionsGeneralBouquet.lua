@@ -1157,18 +1157,35 @@ end
 
 
 --
+local tMain;
+local tTarget;
 function VUHDO_generalBouquetBackButtonClicked(aPanel)
-	if (VUHDO_MENU_RETURN_TARGET_MAIN ~= nil) then
-		VUHDO_newOptionsTabbedClickedClicked(VUHDO_MENU_RETURN_TARGET_MAIN);
-		VUHDO_lnfRadioButtonClicked(VUHDO_MENU_RETURN_TARGET_MAIN);
-		VUHDO_MENU_RETURN_TARGET_MAIN = nil;
-	end
 
-	if (VUHDO_MENU_RETURN_TARGET ~= nil) then
-		--VUHDO_lnfRadioButtonClicked(VUHDO_MENU_RETURN_TARGET);
-		VUHDO_lnfTabRadioButtonClicked(VUHDO_MENU_RETURN_TARGET);
+	tMain = VUHDO_MENU_RETURN_TARGET_MAIN;
+	tTarget = VUHDO_MENU_RETURN_TARGET;
+
+	if VUHDO_MENU_RETURN_TARGET_MAIN_SAVED ~= nil or VUHDO_MENU_RETURN_TARGET_SAVED ~= nil then
+		VUHDO_MENU_RETURN_TARGET_MAIN = VUHDO_MENU_RETURN_TARGET_MAIN_SAVED;
+		VUHDO_MENU_RETURN_TARGET = VUHDO_MENU_RETURN_TARGET_SAVED;
+
+		VUHDO_MENU_RETURN_TARGET_MAIN_SAVED = nil;
+		VUHDO_MENU_RETURN_TARGET_SAVED = nil;
+	else
+		VUHDO_MENU_RETURN_TARGET_MAIN = nil;
 		VUHDO_MENU_RETURN_TARGET = nil;
 	end
+
+	if tMain ~= nil then
+		VUHDO_newOptionsTabbedClickedClicked(tMain);
+		VUHDO_lnfRadioButtonClicked(tMain);
+	end
+
+	if tTarget ~= nil then
+		VUHDO_lnfTabRadioButtonClicked(tTarget);
+	end
+
+	return;
+
 end
 
 

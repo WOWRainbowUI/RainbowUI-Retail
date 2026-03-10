@@ -9,6 +9,7 @@ local twipe = table.wipe;
 local strfind = string.find;
 
 VUHDO_AURA_GROUPS_SELECTED = nil;
+VUHDO_AURA_GROUPS_PENDING_SELECTION = nil;
 VUHDO_AURA_GROUPS_COMBO_MODEL = { };
 VUHDO_PANEL_AURA_GROUPS_COMBO_MODEL = { };
 VUHDO_AURA_GROUPS_FILTER_SELECTED = "";
@@ -36,6 +37,8 @@ VUHDO_AURA_GROUPS_CAN_COLOR_TEXT = false;
 VUHDO_AURA_GROUPS_ENABLED = true;
 VUHDO_AURA_GROUPS_IGNORE_COMBO_MODEL = { };
 VUHDO_AURA_GROUPS_IGNORE_SELECTED = "";
+VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
+VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL = { };
 
 VUHDO_AURA_FILTER_OPTIONS = {
 	{ "HELPFUL", VUHDO_I18N_AURA_GROUP_ALL_BUFFS, nil, nil, VUHDO_I18N_TT.K635 },
@@ -230,6 +233,64 @@ end
 
 
 --
+local tSpellId;
+local tSpellIds;
+local tDisplayName;
+local tSecrecy;
+local tSortTable;
+function VUHDO_initAuraGroupsAddSpellComboModel()
+
+	twipe(VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL);
+
+	VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
+
+	tSpellIds = { };
+
+	for _, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or { }) do
+		if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST and tGroup["entries"] then
+			for _, tEntry in ipairs(tGroup["entries"]) do
+				if (tEntry["entryType"] or 0) == VUHDO_AURA_LIST_ENTRY_SPELL and tEntry["value"] then
+					tSpellId = tonumber(tEntry["value"]) or tEntry["value"];
+
+					tSpellIds[tSpellId] = true;
+				end
+			end
+		end
+	end
+
+	tSortTable = { };
+
+	for tSpellId, _ in pairs(tSpellIds) do
+		tDisplayName = VUHDO_resolveSpellId(tSpellId);
+
+		if tDisplayName ~= tostring(tSpellId) then
+			tDisplayName = "[" .. tSpellId .. "] " .. tDisplayName;
+		else
+			tDisplayName = tostring(tSpellId);
+		end
+
+		tSecrecy = VUHDO_getSpellAuraSecrecy(tSpellId);
+
+		if tSecrecy >= 1 then
+			tDisplayName = "|cFFFF4444" .. tDisplayName .. "|r";
+		end
+
+		tinsert(tSortTable, { tSpellId, tDisplayName, VUHDO_resolveSpellId(tSpellId) });
+	end
+
+	tsort(tSortTable, function(anA, anotherA) return anA[3] < anotherA[3]; end);
+
+	for _, tEntry in ipairs(tSortTable) do
+		tinsert(VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL, { tEntry[1], tEntry[2] });
+	end
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_auraGroupsComboChanged(aComboBox, aValue, anArrayModel)
 
 	VUHDO_AURA_GROUPS_SELECTED = aValue;
@@ -345,7 +406,7 @@ local tEnabledCheck;
 local tDeleteButton;
 local tIsBuiltIn;
 local tInnerSlider;
-local tNewSpellEditBox;
+local tNewSpellCombo;
 local tAddSpellButton;
 local tNewBouquetCombo;
 local tAddBouquetButton;
@@ -355,6 +416,7 @@ local tIgnoreLabel;
 local tIgnoreCombo;
 local tIgnoreAddButton;
 local tIgnoreDeleteButton;
+local tFrame;
 function VUHDO_auraGroupsRefreshRightPanel()
 
 	tGroup = sSelectedGroupId and VUHDO_getAuraGroupRaw(sSelectedGroupId) or nil;
@@ -510,10 +572,19 @@ function VUHDO_auraGroupsRefreshRightPanel()
 				VUHDO_initBouquetComboModel();
 			end
 
-			tNewSpellEditBox = _G["VuhDoNewOptionsAuraGroupsStorePanelListEntriesPanelNewEntryPanelNewSpellEditBox"];
+			VUHDO_initAuraGroupsAddSpellComboModel();
 
-			if tNewSpellEditBox then
-				tNewSpellEditBox:SetText("");
+			tNewSpellCombo = _G["VuhDoNewOptionsAuraGroupsStorePanelListEntriesPanelNewEntryPanelNewSpellCombo"];
+
+			if tNewSpellCombo then
+				tFrame = _G[tNewSpellCombo:GetName() .. "EditBox"];
+
+				if tFrame then
+					tFrame:SetText("");
+				end
+
+				VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
+				VUHDO_lnfComboBoxInitFromModel(tNewSpellCombo);
 			end
 
 			tListEntriesPanel:Show();
@@ -525,9 +596,9 @@ function VUHDO_auraGroupsRefreshRightPanel()
 			tAddEmptyButton = _G["VuhDoNewOptionsAuraGroupsStorePanelListEntriesPanelNewEntryPanelAddEmptyButton"];
 
 			if tIsBuiltIn then
-				if tNewSpellEditBox then
-					tNewSpellEditBox:Disable();
-					tNewSpellEditBox:SetAlpha(0.5);
+				if tNewSpellCombo then
+					tNewSpellCombo:Disable();
+					tNewSpellCombo:SetAlpha(0.5);
 				end
 
 				if tAddSpellButton then
@@ -550,9 +621,9 @@ function VUHDO_auraGroupsRefreshRightPanel()
 					tAddEmptyButton:SetAlpha(0.5);
 				end
 			else
-				if tNewSpellEditBox then
-					tNewSpellEditBox:Enable();
-					tNewSpellEditBox:SetAlpha(1);
+				if tNewSpellCombo then
+					tNewSpellCombo:Enable();
+					tNewSpellCombo:SetAlpha(1);
 				end
 
 				if tAddSpellButton then
@@ -1136,6 +1207,7 @@ end
 
 --
 local tText;
+local tKey;
 local tGroup;
 local tDisplayName;
 local tEditBox;
@@ -1177,7 +1249,13 @@ function VUHDO_auraGroupsIgnoreAdd()
 		tGroup["ignoreList"] = { };
 	end
 
-	tGroup["ignoreList"][tText] = true;
+	tKey = tonumber(tText);
+
+	if tKey then
+		tGroup["ignoreList"][tKey] = true;
+	else
+		tGroup["ignoreList"][tText] = true;
+	end
 
 	tDisplayName = VUHDO_formatAuraSpellDisplayName(tText);
 	VUHDO_Msg(string.format(VUHDO_I18N_AURA_ADDED_TO_IGNORE_LIST, tDisplayName));
@@ -1195,6 +1273,7 @@ end
 --
 local tText;
 local tSpellId;
+local tKeyToRemove;
 local tGroup;
 local tDisplayName;
 local tComboEditBox;
@@ -1239,18 +1318,20 @@ function VUHDO_auraGroupsIgnoreDelete()
 	tText = strtrim(tText);
 	tDisplayName = VUHDO_formatAuraSpellDisplayName(tText);
 
-	if tGroup["ignoreList"][tText] then
-		tGroup["ignoreList"][tText] = nil;
+	tKeyToRemove = nil;
+
+	if tonumber(tText) and tGroup["ignoreList"][tonumber(tText)] then
+		tKeyToRemove = tonumber(tText);
+	elseif tGroup["ignoreList"][tText] then
+		tKeyToRemove = tText;
+	end
+
+	if tKeyToRemove then
+		tGroup["ignoreList"][tKeyToRemove] = nil;
 
 		VUHDO_Msg(string.format(VUHDO_I18N_AURA_REMOVED_FROM_IGNORE_LIST, tDisplayName));
 	else
-		tSpellId = string.match(tText, '([^%]%[]+)');
-
-		if tSpellId and tGroup["ignoreList"][tSpellId] then
-			tGroup["ignoreList"][tSpellId] = nil;
-
-			VUHDO_Msg(string.format(VUHDO_I18N_AURA_REMOVED_FROM_IGNORE_LIST, tDisplayName));
-		end
+		VUHDO_Msg(string.format(VUHDO_I18N_AURA_DOES_NOT_EXIST_IN_IGNORE_LIST, tDisplayName));
 	end
 
 	VUHDO_auraGroupsRefreshIgnorePanel();
@@ -1373,6 +1454,8 @@ local tRowName;
 local tIcon;
 local tValueLabel;
 local tTypeLabel;
+local tTypeLabelFrame;
+local tBouquetButton;
 local tRemoveButton;
 local tUpButton;
 local tDownButton;
@@ -1419,6 +1502,8 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 	end
 
 	tTypeLabel = _G[tRowName .. "TypeLabelLabel"];
+	tTypeLabelFrame = _G[tRowName .. "TypeLabel"];
+	tBouquetButton = _G[tRowName .. "BouquetButton"];
 
 	if tTypeLabel then
 		if anEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_EMPTY then
@@ -1427,6 +1512,21 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 			tTypeLabel:SetText(VUHDO_I18N_AURA_GROUP_ENTRY_BOUQUET);
 		else
 			tTypeLabel:SetText(VUHDO_I18N_AURA_GROUP_ENTRY_SPELL);
+		end
+	end
+
+	if tTypeLabelFrame and tBouquetButton then
+		if anEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
+			tTypeLabelFrame:Hide();
+
+			tBouquetButton:Show();
+
+			tBouquetButton:SetText(VUHDO_I18N_AURA_GROUP_ENTRY_BOUQUET);
+			VUHDO_lnfSetTooltip(tBouquetButton, VUHDO_I18N_TT.K732);
+		else
+			tTypeLabelFrame:Show();
+
+			tBouquetButton:Hide();
 		end
 	end
 
@@ -1536,8 +1636,10 @@ end
 
 
 --
-local tSpellEditBox;
+local tSpellComboEditBox;
 local tText;
+local tValue;
+local tSpellIdFromMatch;
 function VUHDO_auraGroupsListAddSpell()
 
 	if not sSelectedGroupId or not VUHDO_CONFIG["AURA_GROUPS"] or not VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
@@ -1550,13 +1652,13 @@ function VUHDO_auraGroupsListAddSpell()
 		return;
 	end
 
-	tSpellEditBox = _G["VuhDoNewOptionsAuraGroupsStorePanelListEntriesPanelNewEntryPanelNewSpellEditBox"];
+	tSpellComboEditBox = _G["VuhDoNewOptionsAuraGroupsStorePanelListEntriesPanelNewEntryPanelNewSpellComboEditBox"];
 
-	if not tSpellEditBox then
+	if not tSpellComboEditBox then
 		return;
 	end
 
-	tText = tSpellEditBox:GetText();
+	tText = tSpellComboEditBox:GetText();
 
 	if not tText or tText == "" then
 		return;
@@ -1568,7 +1670,15 @@ function VUHDO_auraGroupsListAddSpell()
 		return;
 	end
 
-	if VUHDO_checkSpellSecrecy(tText) == 1 then
+	tSpellIdFromMatch = string.match(tText, "^%[([^%]]+)%]");
+
+	if tSpellIdFromMatch then
+		tValue = tonumber(tSpellIdFromMatch) or tSpellIdFromMatch;
+	else
+		tValue = tonumber(tText) or tText;
+	end
+
+	if VUHDO_checkSpellSecrecy(tValue) == 1 then
 		return;
 	end
 
@@ -1578,12 +1688,14 @@ function VUHDO_auraGroupsListAddSpell()
 
 	tinsert(tGroup["entries"], {
 		["entryType"] = VUHDO_AURA_LIST_ENTRY_SPELL,
-		["value"] = tonumber(tText) or tText,
+		["value"] = tValue,
 		["mine"] = true,
 		["others"] = false,
 	});
 
-	tSpellEditBox:SetText("");
+	tSpellComboEditBox:SetText("");
+	VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
+
 	VUHDO_auraGroupsRefreshListEntries();
 
 	return;
@@ -1652,6 +1764,57 @@ function VUHDO_auraGroupsListAddEmpty()
 	});
 
 	VUHDO_auraGroupsRefreshListEntries();
+
+	return;
+
+end
+
+
+
+--
+local tItemPanel;
+local tIdx;
+local tGroup;
+local tEntry;
+function VUHDO_auraGroupEntryBouquetButtonClicked(aButton)
+
+	tItemPanel = aButton:GetParent();
+
+	if not tItemPanel then
+		return;
+	end
+
+	tIdx = tItemPanel["vuhdo_entryIdx"];
+
+	if not tIdx or not sSelectedGroupId then
+		return;
+	end
+
+	tGroup = VUHDO_getAuraGroupRaw(sSelectedGroupId);
+
+	if not tGroup or not tGroup["entries"] then
+		return;
+	end
+
+	tEntry = tGroup["entries"][tIdx];
+
+	if not tEntry or tEntry["entryType"] ~= VUHDO_AURA_LIST_ENTRY_BOUQUET then
+		return;
+	end
+
+	VUHDO_BOUQUETS["SELECTED"] = tEntry["value"];
+
+	if VUHDO_MENU_RETURN_TARGET_MAIN ~= nil or VUHDO_MENU_RETURN_TARGET ~= nil then
+		VUHDO_MENU_RETURN_TARGET_MAIN_SAVED = VUHDO_MENU_RETURN_TARGET_MAIN;
+		VUHDO_MENU_RETURN_TARGET_SAVED = VUHDO_MENU_RETURN_TARGET;
+	end
+
+	VUHDO_MENU_RETURN_TARGET_MAIN = VuhDoNewOptionsTabbedFrameTabsPanelAurasRadioButton;
+	VUHDO_MENU_RETURN_TARGET = VuhDoNewOptionsAuraRadioPanelGroupsRadioButton;
+
+	VUHDO_newOptionsTabbedClickedClicked(VuhDoNewOptionsTabbedFrameTabsPanelGeneralRadioButton);
+	VUHDO_lnfRadioButtonClicked(VuhDoNewOptionsTabbedFrameTabsPanelGeneralRadioButton);
+	VUHDO_lnfTabRadioButtonClicked(VuhDoNewOptionsGeneralRadioPanelBouquetRadioButton);
 
 	return;
 
@@ -1795,6 +1958,13 @@ end
 local tGroupsRadio;
 function VUHDO_auraGroupsOnShow()
 
+	if VUHDO_AURA_GROUPS_PENDING_SELECTION then
+		sSelectedGroupId = VUHDO_AURA_GROUPS_PENDING_SELECTION;
+
+		VUHDO_AURA_GROUPS_SELECTED = VUHDO_AURA_GROUPS_PENDING_SELECTION;
+		VUHDO_AURA_GROUPS_PENDING_SELECTION = nil;
+	end
+
 	tGroupsRadio = _G["VuhDoNewOptionsAuraRadioPanelGroupsRadioButton"];
 
 	if tGroupsRadio and tGroupsRadio:GetChecked() then
@@ -1810,6 +1980,32 @@ function VUHDO_auraGroupsOnShow()
 		VUHDO_auraGroupsOnGroupSelected(sSelectedGroupId);
 	else
 		sSelectedGroupId = nil;
+	end
+
+	if _G["VuhDoNewOptionsAuraGroupsBackButton"] then
+		_G["VuhDoNewOptionsAuraGroupsBackButton"]:SetShown(VUHDO_MENU_RETURN_TARGET ~= nil or VUHDO_MENU_RETURN_TARGET_MAIN ~= nil);
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_auraGroupsBackButtonClicked(aPanel)
+
+	if VUHDO_MENU_RETURN_TARGET_MAIN ~= nil then
+		VUHDO_newOptionsTabbedClickedClicked(VUHDO_MENU_RETURN_TARGET_MAIN);
+		VUHDO_lnfRadioButtonClicked(VUHDO_MENU_RETURN_TARGET_MAIN);
+
+		VUHDO_MENU_RETURN_TARGET_MAIN = nil;
+	end
+
+	if VUHDO_MENU_RETURN_TARGET ~= nil then
+		VUHDO_lnfTabRadioButtonClicked(VUHDO_MENU_RETURN_TARGET);
+
+		VUHDO_MENU_RETURN_TARGET = nil;
 	end
 
 	return;

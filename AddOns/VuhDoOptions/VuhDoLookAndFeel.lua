@@ -1085,7 +1085,17 @@ function VUHDO_lnfComboInitItems(aComboBox)
 			_G[tItemPanel:GetName() .. "LabelLabel"]:SetText(tInfo[2]);
 
 			VUHDO_COMBO_ITEM_HEIGHT = 16;
-			VUHDO_COMBO_ITEM_WIDTH = 220;
+
+			if aComboBox["isScrollable"] and aComboBox["isResizeable"] then
+				VUHDO_COMBO_ITEM_WIDTH = math.max(100, aComboBox:GetWidth() - 30);
+			else
+				VUHDO_COMBO_ITEM_WIDTH = 220;
+			end
+
+			if aComboBox["isScrollable"] and aComboBox["isResizeable"] then
+				VUHDO_PixelUtil.SetWidth(_G[tItemPanel:GetName() .. "Label"], VUHDO_COMBO_ITEM_WIDTH - 41);
+			end
+
 			VUHDO_COMBO_ITEMS_PER_COL = 25;
 		else
 			_G[tItemPanel:GetName() .. "IconTexture"]:SetTexture(_G[tInfo[2]:GetName() .. "I"]:GetTexture());
@@ -1165,7 +1175,7 @@ function VUHDO_lnfComboInitItems(aComboBox)
 			VUHDO_PixelUtil.SetWidth(tDropdownBox, aComboBox:GetWidth());
 		end
 
-		VUHDO_PixelUtil.SetWidth(tItemContainer, 10);
+		VUHDO_PixelUtil.SetWidth(tItemContainer, math.max(100, tDropdownBox:GetWidth() - 24));
 
 		tHeight = tMaxY * VUHDO_COMBO_ITEM_HEIGHT + 6;
 
@@ -1212,6 +1222,41 @@ function VUHDO_initResizeableScrollCombo(aComboBox)
 	tText:ClearAllPoints();
 	tText:SetPoint("LEFT", tLeft, "LEFT", 0, 0);
 	tText:SetPoint("RIGHT", tRight, "RIGHT", -32, 0);
+
+	return;
+
+end
+
+
+
+--
+local tRight;
+local tMiddle;
+local tEditBox;
+local tLeft;
+function VUHDO_initResizeableEditCombo(aComboBox)
+
+	aComboBox["isResizeable"] = true;
+	aComboBox["isScrollable"] = true;
+
+	tRight = _G[aComboBox:GetName() .. "Right"];
+	tMiddle = _G[aComboBox:GetName() .. "Middle"];
+	tEditBox = _G[aComboBox:GetName() .. "EditBox"];
+	tLeft = _G[aComboBox:GetName() .. "Left"];
+
+	tLeft:ClearAllPoints();
+	tLeft:SetPoint("TOPLEFT", aComboBox, "TOPLEFT", 0, 0);
+
+	tRight:ClearAllPoints();
+	tRight:SetPoint("TOPRIGHT", aComboBox, "TOPRIGHT", 0, 0);
+
+	tMiddle:ClearAllPoints();
+	tMiddle:SetPoint("TOPLEFT", tLeft, "TOPRIGHT", 0, 0);
+	tMiddle:SetPoint("BOTTOMRIGHT", tRight, "BOTTOMLEFT", 0, 0);
+
+	tEditBox:ClearAllPoints();
+	tEditBox:SetPoint("LEFT", tLeft, "LEFT", 7, 0);
+	tEditBox:SetPoint("RIGHT", tRight, "RIGHT", -32, 0);
 
 	return;
 

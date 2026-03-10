@@ -2463,6 +2463,15 @@
 </Button>
 
 
+<Button name="VuhDoEditComboBoxResizeableTemplate" enableMouse="false" virtual="true" inherits="VuhDoEditComboBoxTemplate">
+	<Scripts>
+		<OnLoad>
+			VUHDO_initResizeableEditCombo(self);
+		</OnLoad>
+	</Scripts>
+</Button>
+
+
 <Frame name="VuhDoPanelAppendBottomTemplate" virtual="true" inherits="BackdropTemplate" mixin="BackdropTemplateMixin">
 	<KeyValues>
 		<KeyValue key="backdropInfo" value="BACKDROP_VUHDO_PANEL_APPEND_BOTTOM_16_16_1111" type="global" />

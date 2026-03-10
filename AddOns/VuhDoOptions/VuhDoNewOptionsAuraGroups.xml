@@ -66,6 +66,24 @@
 				</Layers>
 			</Frame>
 
+			<Button name="$parentBouquetButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_AURA_GROUP_ENTRY_BOUQUET" hidden="true">
+				<Size>
+					<AbsDimension x="60" y="20" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentValueLabel" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="30" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						VUHDO_auraGroupEntryBouquetButtonClicked(self);
+					</OnClick>
+				</Scripts>
+			</Button>
+
 			<Button name="$parentRemoveButton" inherits="VuhDoRemoveItemButtonTemplateSmall" text="">
 				<Size>
 					<AbsDimension x="20" y="20" />
@@ -415,7 +433,7 @@
 								</Anchors>
 								<Frames>
 
-									<EditBox name="$parentNewSpellEditBox" inherits="VuhDoEditBoxTemplate">
+									<Button name="$parentNewSpellCombo" inherits="VuhDoEditComboBoxResizeableTemplate">
 										<Size>
 											<AbsDimension x="260" y="22" />
 										</Size>
@@ -428,23 +446,26 @@
 										</Anchors>
 										<Scripts>
 											<OnLoad>
+												VUHDO_initResizeableEditCombo(self);
+
+												self.prohibitCloseExtensions = true;
+
+												VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED", VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL);
 												VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K692);
 											</OnLoad>
 											<OnShow>
-												VUHDO_lnfPatchFont(self, "Hint");
-												VUHDO_lnfPatchFont(self, "");
-												VUHDO_lnfEditBoxInitFromModel(self);
+												VUHDO_lnfPatchFont(self, "EditBox");
+												VUHDO_lnfComboBoxInitFromModel(self);
 											</OnShow>
-											<OnEscapePressed>self:ClearFocus();</OnEscapePressed>
 										</Scripts>
-									</EditBox>
+									</Button>
 
 									<Button name="$parentAddSpellButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_AURA_GROUP_ADD_SPELL">
 										<Size>
 											<AbsDimension x="80" y="22" />
 										</Size>
 										<Anchors>
-											<Anchor point="TOPLEFT" relativeTo="$parentNewSpellEditBox" relativePoint="TOPRIGHT">
+											<Anchor point="TOPLEFT" relativeTo="$parentNewSpellCombo" relativePoint="TOPRIGHT">
 												<Offset>
 													<AbsDimension x="4" y="0" />
 												</Offset>
@@ -465,7 +486,7 @@
 											<AbsDimension x="260" y="24" />
 										</Size>
 										<Anchors>
-											<Anchor point="TOPLEFT" relativeTo="$parentNewSpellEditBox" relativePoint="BOTTOMLEFT">
+											<Anchor point="TOPLEFT" relativeTo="$parentNewSpellCombo" relativePoint="BOTTOMLEFT">
 												<Offset>
 													<AbsDimension x="0" y="-6" />
 												</Offset>
@@ -830,6 +851,22 @@
 
 				</Frames>
 			</Frame>
+
+			<Button name="$parentBackButton" inherits="VuhDoBackButtonTemplate">
+				<Anchors>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="205" y="-90" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>VUHDO_auraGroupsBackButtonClicked(self:GetParent())</OnClick>
+					<OnLoad>
+						VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K478);
+					</OnLoad>
+				</Scripts>
+			</Button>
 
 		</Frames>
 	</Frame>

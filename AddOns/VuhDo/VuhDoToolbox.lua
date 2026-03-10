@@ -1593,7 +1593,7 @@ function VUHDO_unpackAuraData(anAuraData)
 
 	tPoints = anAuraData.points;
 
-	if tPoints and issecrettable(tPoints) then
+	if tPoints and not issecrettable(tPoints) then
 		return anAuraData.name,
 			anAuraData.icon,
 			anAuraData.applications,

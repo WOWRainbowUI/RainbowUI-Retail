@@ -10,6 +10,7 @@ local strfind = string.find;
 
 local UnitCanAttack = UnitCanAttack;
 local GetUnitAuras = C_UnitAuras and C_UnitAuras.GetUnitAuras;
+local issecretvalue = issecretvalue;
 local GetAuraDispelTypeColor = C_UnitAuras and C_UnitAuras.GetAuraDispelTypeColor;
 local IsAuraFilteredOutByInstanceID = C_UnitAuras and C_UnitAuras.IsAuraFilteredOutByInstanceID;
 
@@ -368,7 +369,9 @@ do
 	local tAuraCache;
 	local tAppTime;
 	local tWinnerId;
+	local tWinnerIdSecret;
 	local tWinnerAppTime;
+	local tWinnerAuraInstanceId;
 	local tDispelType;
 	local tIsHostile;
 	local tBarWinnerSet;
@@ -405,7 +408,9 @@ do
 
 			if tCanColorGroup["isListGroup"] and tCanColorGroup["groupId"] then
 				tWinnerId = nil;
+				tWinnerIdSecret = nil;
 				tWinnerAppTime = -1;
+				tWinnerAuraInstanceId = -1;
 
 				tIsHostile = UnitCanAttack("player", aUnit);
 
@@ -475,12 +480,19 @@ do
 
 														if tDispelType and ((tIsHostile and tAura["isHelpful"] and VUHDO_PLAYER_PURGE_ABILITIES[tDispelType]) or
 															(not tIsHostile and tAura["isHarmful"] and VUHDO_PLAYER_DISPEL_ABILITIES[tDispelType])) then
-															tAppTime = (tAura["expirationTime"] or 0) - (tAura["duration"] or 0);
+															if issecretvalue(tAura["expirationTime"]) or issecretvalue(tAura["duration"]) then
+																if tSlotData["auraInstanceID"] > tWinnerAuraInstanceId then
+																	tWinnerAuraInstanceId = tSlotData["auraInstanceID"];
+																	tWinnerIdSecret = tSlotData["auraInstanceID"];
+																end
+															else
+																tAppTime = (tAura["expirationTime"] or 0) - (tAura["duration"] or 0);
 
-															if tAppTime > tWinnerAppTime then
-																tWinnerAppTime = tAppTime;
+																if tAppTime > tWinnerAppTime then
+																	tWinnerAppTime = tAppTime;
 
-																tWinnerId = tSlotData["auraInstanceID"];
+																	tWinnerId = tSlotData["auraInstanceID"];
+																end
 															end
 														end
 													end
@@ -506,7 +518,9 @@ do
 					if tBarWinnerSet and tTextWinnerSet then
 						return;
 					end
-				elseif tWinnerId then
+				elseif tWinnerId or tWinnerIdSecret then
+					tWinnerId = tWinnerId or tWinnerIdSecret;
+
 					if not sUnitDispellableAuraId[aUnit] then
 						sUnitDispellableAuraId[aUnit] = tWinnerId;
 					end
