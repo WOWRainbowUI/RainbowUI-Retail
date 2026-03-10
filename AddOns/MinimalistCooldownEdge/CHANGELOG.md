@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.3.1] - 2026-03-09
+
+### Added
+* feat: Update help and support 
+* section with additional resources and links
+* feat: Implement MiniCC support with dynamic font size options and category handling
+* feat: Add MiniCC countdown number visibility options for different frame types
+
 ## [3.1.0] - 2026-03-06
 
 ### Added

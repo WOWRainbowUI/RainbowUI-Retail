@@ -12,7 +12,9 @@ local InCombatLockdown = InCombatLockdown
 local select = select
 local tostring = tostring
 local tconcat = table.concat
+local C_Timer_NewTimer = C_Timer.NewTimer
 local CHAT_PREFIX = "|cff00ccffMiniCE|r"
+local OPTION_SLIDER_DEBOUNCE_DELAY = 0.15
 
 -- =========================================================================
 -- SHARED UTILITIES  (used across all modules)
@@ -43,6 +45,10 @@ function MCE.ResolveFontPath(fontPath)
         return GameFontNormal:GetFont()
     end
     return fontPath
+end
+
+function MCE:IsMiniCCAvailable()
+    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded("MiniCC") or false
 end
 
 local function BuildChatMessage(...)
@@ -99,6 +105,16 @@ cooldownManagerDefaults.essentialFontSize = cooldownManagerDefaults.fontSize
 cooldownManagerDefaults.utilityFontSize = cooldownManagerDefaults.fontSize
 cooldownManagerDefaults.buffIconFontSize = cooldownManagerDefaults.fontSize
 
+local miniCCDefaults = CategoryDefaults(false, 18)
+miniCCDefaults.ccFontSize = 18
+miniCCDefaults.ccHideCountdownNumbers = false
+miniCCDefaults.nameplateFontSize = 12
+miniCCDefaults.nameplateHideCountdownNumbers = false
+miniCCDefaults.portraitFontSize = 18
+miniCCDefaults.portraitHideCountdownNumbers = false
+miniCCDefaults.overlayFontSize = 18
+miniCCDefaults.overlayHideCountdownNumbers = false
+
 MCE.defaults = {
     global = {
         versionAlertsShown = {},
@@ -109,6 +125,7 @@ MCE.defaults = {
             nameplate       = CategoryDefaults(false, 12),
             unitframe       = CategoryDefaults(false, 12),
             cooldownmanager = cooldownManagerDefaults,
+            minicc          = miniCCDefaults,
             global          = CategoryDefaults(false, 18),
         },
     },
@@ -120,6 +137,8 @@ MCE.defaults = {
 
 function MCE:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("MinimalistCooldownEdgeDB_v2", self.defaults, true)
+    self.pendingOptionRefresh = nil
+    self.pendingOptionRefreshFullScan = false
 
     if not self.db.global.versionAlertsShown then
         self.db.global.versionAlertsShown = {}
@@ -128,6 +147,9 @@ function MCE:OnInitialize()
     local categories = self.db.profile.categories
     if not categories.cooldownmanager then
         categories.cooldownmanager = CopyTable(self.defaults.profile.categories.cooldownmanager)
+    end
+    if not categories.minicc then
+        categories.minicc = CopyTable(self.defaults.profile.categories.minicc)
     end
 
     local cooldownManager = categories.cooldownmanager
@@ -139,6 +161,32 @@ function MCE:OnInitialize()
     end
     if cooldownManager.buffIconFontSize == nil then
         cooldownManager.buffIconFontSize = cooldownManager.fontSize or 18
+    end
+
+    local miniCC = categories.minicc
+    if miniCC.ccFontSize == nil then
+        miniCC.ccFontSize = miniCC.fontSize or 18
+    end
+    if miniCC.ccHideCountdownNumbers == nil then
+        miniCC.ccHideCountdownNumbers = miniCC.hideCountdownNumbers or false
+    end
+    if miniCC.nameplateFontSize == nil then
+        miniCC.nameplateFontSize = 12
+    end
+    if miniCC.nameplateHideCountdownNumbers == nil then
+        miniCC.nameplateHideCountdownNumbers = miniCC.hideCountdownNumbers or false
+    end
+    if miniCC.portraitFontSize == nil then
+        miniCC.portraitFontSize = miniCC.fontSize or 18
+    end
+    if miniCC.portraitHideCountdownNumbers == nil then
+        miniCC.portraitHideCountdownNumbers = miniCC.hideCountdownNumbers or false
+    end
+    if miniCC.overlayFontSize == nil then
+        miniCC.overlayFontSize = miniCC.fontSize or 18
+    end
+    if miniCC.overlayHideCountdownNumbers == nil then
+        miniCC.overlayHideCountdownNumbers = miniCC.hideCountdownNumbers or false
     end
 
     LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, self.GetOptions)
@@ -163,6 +211,7 @@ function MCE:OnEnable()
 end
 
 function MCE:OnDisable()
+    self:CancelDebouncedOptionRefresh()
 end
 
 function MCE:SlashCommand(input)
@@ -174,6 +223,33 @@ function MCE:SlashCommand(input)
 end
 
 --- Public API – delegates to Styler module.
+function MCE:CancelDebouncedOptionRefresh()
+    local pending = self.pendingOptionRefresh
+    if pending then
+        pending:Cancel()
+        self.pendingOptionRefresh = nil
+    end
+
+    self.pendingOptionRefreshFullScan = false
+end
+
+function MCE:RequestDebouncedOptionRefresh(fullScan, delay)
+    self.pendingOptionRefreshFullScan = self.pendingOptionRefreshFullScan or fullScan or false
+
+    local pending = self.pendingOptionRefresh
+    if pending then
+        pending:Cancel()
+    end
+
+    self.pendingOptionRefresh = C_Timer_NewTimer(delay or OPTION_SLIDER_DEBOUNCE_DELAY, function()
+        local needsFullScan = self.pendingOptionRefreshFullScan
+        self.pendingOptionRefresh = nil
+        self.pendingOptionRefreshFullScan = false
+        self:ForceUpdateAll(needsFullScan)
+    end)
+end
+
 function MCE:ForceUpdateAll(fullScan)
+    self:CancelDebouncedOptionRefresh()
     self:GetModule("Styler"):ForceUpdateAll(fullScan)
 end

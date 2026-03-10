@@ -390,6 +390,36 @@ end
 local function GetDesiredHideCountdownNumbers(cdFrame, category, config)
     local hideNums = config.hideCountdownNumbers
 
+    if category == "minicc" then
+        local miniCCType = Classifier:GetMiniCCFrameType(cdFrame)
+        if miniCCType == "cc" then
+            if config.ccHideCountdownNumbers ~= nil then
+                return config.ccHideCountdownNumbers
+            end
+            return hideNums
+        end
+        if miniCCType == "nameplate" then
+            if config.nameplateHideCountdownNumbers ~= nil then
+                return config.nameplateHideCountdownNumbers
+            end
+            return hideNums
+        end
+        if miniCCType == "portrait" then
+            if config.portraitHideCountdownNumbers ~= nil then
+                return config.portraitHideCountdownNumbers
+            end
+            return hideNums
+        end
+        if miniCCType == "overlay" then
+            if config.overlayHideCountdownNumbers ~= nil then
+                return config.overlayHideCountdownNumbers
+            end
+            return hideNums
+        end
+
+        return hideNums
+    end
+
     -- Charge-based abilities: force-hide numbers on the main cooldown
     -- when a charge cooldown is actively displaying its own timer,
     -- preventing overlapping countdown text.
@@ -463,6 +493,23 @@ function Styler:StyleStackCount(cdFrame, config, category)
 end
 
 local function GetCooldownFontSize(cdFrame, category, config)
+    if category == "minicc" then
+        local miniCCType = Classifier:GetMiniCCFrameType(cdFrame)
+        if miniCCType == "cc" then
+            return config.ccFontSize or config.fontSize
+        end
+        if miniCCType == "nameplate" then
+            return config.nameplateFontSize or config.fontSize
+        end
+        if miniCCType == "portrait" then
+            return config.portraitFontSize or config.fontSize
+        end
+        if miniCCType == "overlay" then
+            return config.overlayFontSize or config.fontSize
+        end
+        return config.fontSize
+    end
+
     if category ~= "cooldownmanager" then
         return config.fontSize
     end
@@ -512,6 +559,10 @@ end
 function Styler:ApplyStyle(cdFrame, forcedCategory)
     if MCE:IsForbidden(cdFrame) then return end
     if Classifier:IsBlacklisted(cdFrame) then return end
+
+    if forcedCategory == "nameplate" and Classifier:GetMiniCCFrameType(cdFrame) then
+        forcedCategory = "minicc"
+    end
 
     trackedCooldowns[cdFrame] = true
 
@@ -615,9 +666,12 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
     if category == "cooldownmanager" then
         local viewerType = Classifier:GetCooldownManagerViewerType(cdFrame) or "default"
         styleKey = category .. ":" .. viewerType
+    elseif category == "minicc" then
+        local miniCCType = Classifier:GetMiniCCFrameType(cdFrame) or "default"
+        styleKey = category .. ":" .. miniCCType
     end
 
-    if styledCategory[cdFrame] ~= styleKey then
+    if styledCategory[cdFrame] ~= styleKey or category == "minicc" then
         styledCategory[cdFrame] = styleKey
 
         -- Stack / charge counts (actionbar + CooldownManager viewers)
@@ -743,6 +797,13 @@ function Styler:SetupHooks()
                         suppressHideNumsEnforcement[cooldown] = true
                         pcall(cooldown.SetHideCountdownNumbers, cooldown, desired)
                         suppressHideNumsEnforcement[cooldown] = nil
+                    end)
+                end
+
+                if type(cooldownAPI.SetCooldown) == "function" then
+                    hooksecurefunc(cooldownAPI, "SetCooldown", function(cooldown)
+                        if not cooldown or MCE:IsForbidden(cooldown) then return end
+                        Styler:QueueUpdate(cooldown)
                     end)
                 end
 
