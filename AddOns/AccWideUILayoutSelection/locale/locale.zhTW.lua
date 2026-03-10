@@ -119,6 +119,8 @@ L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DEFAULT"] = "什麼都不做"
 L["ACCWUI_BLOCKBLIZZ_CHECKBOX_ALLOW_DESC"] = "勾選此框將強制你所有的角色加入 %s 頻道。"
 L["ACCWUI_BLOCKBLIZZ_CHECKBOX_BLOCK_DESC"] = "勾選此框將強制你所有的角色離開 %s 頻道。"
 L["ACCWUI_BLOCKBLIZZ_CHECKBOX_DEFAULT_DESC"] = "勾選此框將使插件對 %s 頻道不執行任何操作。"
+L["ACCWUI_BLOCKBLIZZ_CHATFRAME"] = "選擇要加入頻道的聊天視窗";
+L["ACCWUI_BLOCKBLIZZ_CHATFRAME_DESC"] = "選擇在使用此工具自動加入頻道時，應將頻道加入到哪個聊天視窗/分頁。\n如果設為 [無]，則需要你自行手動將頻道加入到聊天視窗。";
 
 L["ACCWUI_CHARSPECIFIC_TITLE"] = "%s 專用選項"
 L["ACCWUI_CHARSPECIFIC_DESC"] = "選擇是否為此角色的專精使用選定的編輯模式版面配置。"
