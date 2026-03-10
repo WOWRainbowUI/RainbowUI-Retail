@@ -4,32 +4,32 @@ if not L then return end
 
 -- Core
 L["Cannot open options in combat."] = "戰鬥中無法開啟選項。"
+L["MiniCC test command is unavailable."] = "無法使用 MiniCC 測試指令。"
 
 -- Category Names
 L["Action Bars"] = "快捷列"
 L["Nameplates"] = "名條"
 L["Unit Frames"] = "單位框架"
 L["CooldownManager"] = "冷卻技能"
+L["MiniCC"] = "MiniCC"
 L["Others"] = "其他"
 
 -- Group Headers
 L["General"] = "一般"
-L["State"] = "狀態"
 L["Typography (Cooldown Numbers)"] = "字體 (冷卻數字)"
 L["Swipe Animation"] = "轉圈動畫"
 L["Stack Counters / Charges"] = "層數 / 充能"
 L["Maintenance"] = "維護"
-L["Performance & Detection"] = "效能 & 偵測"
 L["Danger Zone"] = "危險區域"
 L["Style"] = "樣式"
 L["Positioning"] = "位置"
 L["CooldownManager Viewers"] = "冷卻技能檢視器"
+L["MiniCC Frame Types"] = "MiniCC 框架類型"
 
 -- Toggles & Settings
 L["Enable %s"] = "啟用%s"
 L["Toggle styling for this category."] = "切換此分類的樣式。"
 L["Font Face"] = "字體"
-L["Game Default"] = "預設"
 L["Font"] = "字體"
 L["Size"] = "大小"
 L["Outline"] = "外框"
@@ -42,6 +42,11 @@ L["Offset Y"] = "垂直偏移"
 L["Essential Viewer Size"] = "關鍵檢視器大小"
 L["Utility Viewer Size"] = "輔助檢視器大小"
 L["Buff Icon Viewer Size"] = "增益圖示檢視器大小"
+L["CC Text Size"] = "冷卻時間文字大小"
+L["Nameplates Text Size"] = "名條文字大小"
+L["Portraits Text Size"] = "頭像文字大小"
+L["Alerts / Overlay Text Size"] = "替代 / 覆蓋層文字大小"
+L["Toggle Test Icons"] = "顯示測試圖示"
 L["Show Swipe Edge"] = "顯示邊緣轉圈"
 L["Shows the white line indicating cooldown progress."] = "顯示表示冷卻進度的白色線條。"
 L["Edge Thickness"] = "邊緣粗細"
@@ -50,6 +55,7 @@ L["Customize Stack Text"] = "自訂層數文字"
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = "控制充能計數器(例如：2 層燃燒)。"
 L["Reset %s"] = "重置 %s"
 L["Revert this category to default settings."] = "將此分類回復為預設設定。"
+L["Toggle MiniCC's built-in test icons using /minicc test."] = "使用 /minicc test 指令切換顯示 MiniCC 的內建測試圖示。"
 
 -- Outline Values
 L["None"] = "無"
@@ -64,52 +70,44 @@ L["Top Left"] = "左上"
 L["Center"] = "置中"
 
 -- General Tab
-L["Scan Depth"] = "掃描深度"
-L["How deep the addon looks into UI frames to find cooldowns."] = "插件在介面框架中搜尋冷卻的深度。"
 L["Factory Reset (All)"] = "恢復原廠設定 (全部)"
 L["Resets the entire profile to default values and reloads the UI."] = "將整個設定檔重設為預設值並重新載入介面。"
 
 -- Banner
 L["BANNER_DESC"] = "極簡的冷卻設定。選擇左側的分類開始設定。"
 
--- Scan Depth Help
-L["SCAN_DEPTH_HELP"] = "\n|cff00ff00< 10|r：高效（預設介面）\n|cfffff56910 - 15|r：適中（Bartender、Dominos）\n|cffffa500> 15|r：較重（ElvUI、複雜框架）"
-
 -- Chat Messages
 L["%s settings reset."] = "%s 設定已重設。"
 L["Profile reset. Reloading UI..."] = "設定檔已重設。正在重新載入介面..."
-L["Global Scan Depth changed. A /reload is recommended."] = "全域掃描深度已更改。建議執行 /reload。"
 
 -- Status Indicators
 L["ON"] = "開啟"
 L["OFF"] = "關閉"
-L["Category Status"] = "分類狀態"
 
--- Tools
-L["Tools"] = "工具"
-L["Force Refresh"] = "強制重新整理"
-L["Force a full rescan of all cooldown frames."] = "強制對所有冷卻框架執行完整掃描。"
-L["Full refresh completed."] = "完整重新整理完成。"
+-- General Dashboard
+L["Enable categories styling"] = "啟用分類樣式"
+L["LIVE_CONTROLS_DESC"] = "變更會立即生效。只保留你實際使用的分類啟用，以保持更乾淨的設定。"
 
 -- Links
-L["Links"] = "連結"
-L["LINKS_DESC"] = "提供更新、變更紀錄和下載的專案連結。"
-L["CurseForge URL"] = "CurseForge 網址"
 L["Copy this link to open the CurseForge project page in your browser."] = "複製此連結以在瀏覽器中開啟 CurseForge 專案頁面。"
-L["Developer Page"] = "開發者頁面"
 L["Copy this link to view other projects from Anahkas on CurseForge."] = "複製此連結以查看 Anahkas 在 CurseForge 上的其他專案。"
 
 -- Help
-L["Help"] = "說明"
-L["Project Information"] = "專案資訊"
-L["Development Status"] = "開發狀態"
-L["HELP_ABOUT_DESC"] = "MinimalistCooldownEdge 是一款輕量化的冷卻時間樣式插件，專注於清晰度、效能與簡潔介面。"
-L["HELP_DEVELOPMENT_DESC"] = "此插件仍在持續開發與改進中。"
-L["HELP_FEEDBACK_DESC"] = "非常歡迎建議、回饋與評論，這些能幫助塑造未來的改進方向。"
+L["Help & Support"] = "幫助與支援"
+L["Project"] = "專案"
+L["Useful Addons"] = "實用插件"
+L["Support & Feedback"] = "支援與回饋"
+L["MCE_HELP_INTRO"] = "快速專案連結，以及值得嘗試的幾個插件。"
+L["HELP_SUPPORT_DESC"] = "建議與回饋永遠歡迎。\n\n如果你發現錯誤或有功能想法，請隨時在 CurseForge 留言或發送私人訊息。"
+L["HELP_COMPANION_DESC"] = "與極簡冷卻時間搭配良好的精選插件。"
+L["HELP_MINICC_DESC"] = "精簡的冷卻時間追蹤器。極簡冷卻時間也能美化它的文字。"
+L["Copy this link to open the MiniCC CurseForge page in your browser."] = "複製此連結以便在瀏覽器中開啟 MiniCC 的 CurseForge 頁面。"
+L["HELP_PVPTAB_DESC"] = "讓 TAB 鍵在 PvP 中只選取玩家。非常適合競技場與戰場。"
+L["Copy this link to open Smart PvP Tab Targeting on CurseForge."] = "複製此連結以在瀏覽器中開啟 Smart PvP Tab Targeting 的 CurseForge 頁面。"
 
 -- Quick Toggles Dashboard
 L["Quick Toggles"] = "快速切換"
-L["QUICK_TOGGLES_DESC"] = "可快速啟用或停用分類，變更會立即生效。"
+L["QUICK_TOGGLES_DESC"] = "從同一處切換你的主要冷卻分類。"
 
 -- Danger Zone / Maintenance
 L["DANGER_ZONE_DESC"] = "此操作無法復原。您的設定檔將被完全重置，並且介面會重新載入。"
@@ -120,6 +118,7 @@ L["ACTIONBAR_DESC"] = "自訂快捷列上的冷卻，包括 Bartender4、Dominos
 L["NAMEPLATE_DESC"] = "設定敵方和友方名條上顯示的冷卻樣式（Plater、KuiNameplates 等）。"
 L["UNITFRAME_DESC"] = "調整玩家、目標和專注目標單位框架上的冷卻樣式。"
 L["COOLDOWNMANAGER_DESC"] = "為冷卻技能檢視器提供共用的圖示樣式。倒數文字大小可針對關鍵、輔助與增益圖示檢視器分別設定。"
+L["MINICC_DESC"] = "專為極簡冷卻時間冷卻圖示設計的樣式。當極簡冷卻時間載入時，支援極簡冷卻時間的控場圖示、名條、頭像，以及覆蓋式模組。"
 L["OTHERS_DESC"] = "用於不屬於其他分類的冷卻時間（背包、選單、其他插件）。"
 
 -- Dynamic Text Colors
