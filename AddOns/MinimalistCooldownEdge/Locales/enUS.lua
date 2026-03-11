@@ -35,7 +35,12 @@ L["Size"] = true
 L["Outline"] = true
 L["Color"] = true
 L["Hide Numbers"] = true
+L["Compact Party / Raid Aura Text"] = true
+L["Enable Party Aura Text"] = true
+L["Enable Raid Aura Text"] = true
 L["Hide the text entirely (useful if you only want the swipe edge or stacks)."] = true
+L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."] = true
+L["Shows styled countdown text on Blizzard CompactRaidFrame buff and debuff icons. Disabling this hides aura countdown text on raid frames."] = true
 L["Anchor Point"] = true
 L["Offset X"] = true
 L["Offset Y"] = true
@@ -87,6 +92,7 @@ L["OFF"] = "OFF"
 -- General Dashboard
 L["Enable categories styling"] = true
 L["LIVE_CONTROLS_DESC"] = "Changes apply instantly. Keep only the categories you actively use enabled for a cleaner setup."
+L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Shows styled countdown text on Blizzard CompactPartyFrame and CompactRaidFrame buff and debuff icons. Party and raid can be toggled separately. This is independent from Others."
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = true
@@ -125,6 +131,7 @@ L["Dynamic Text Colors"] = true
 L["Color by Remaining Time"] = true
 L["Dynamically colors the countdown text based on how much time is left."] = true
 L["DYNAMIC_COLORS_DESC"] = "Changes the text color based on the remaining cooldown duration. Overrides the static color above when enabled."
+L["DYNAMIC_COLORS_GENERAL_DESC"] = "Applies the same remaining-time thresholds to every enabled MiniCE category, including Compact Party / Raid aura text. Midnight-safe duration handling is used when Blizzard exposes secret values."
 L["Expiring Soon"] = true
 L["Short Duration"] = true
 L["Long Duration"] = true

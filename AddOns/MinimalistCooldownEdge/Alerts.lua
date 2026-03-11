@@ -12,21 +12,13 @@ local VERSION_ALERTS = {
     },
 }
 
-local function PrintAlertLine(message)
-    MCE:Print(message)
-end
-
-local function BuildVersionLine()
-    return "|cff93c5fdv" .. tostring(addonVersion) .. "|r"
-end
-
 function Alerts:PrintAlert(versionLine, updateLine)
     if versionLine and versionLine ~= "" then
-        PrintAlertLine(versionLine)
+        MCE:Print(versionLine)
     end
 
     if updateLine and updateLine ~= "" then
-        PrintAlertLine(updateLine)
+        MCE:Print(updateLine)
     end
 end
 
@@ -45,5 +37,5 @@ function Alerts:OnEnable()
     end
 
     db.global.versionAlertsShown[addonVersion] = true
-    self:PrintAlert(BuildVersionLine(), alertData.updateLine)
+    self:PrintAlert("|cff93c5fdv" .. tostring(addonVersion) .. "|r", alertData.updateLine)
 end

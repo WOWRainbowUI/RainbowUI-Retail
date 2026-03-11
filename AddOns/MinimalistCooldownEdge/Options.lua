@@ -150,6 +150,96 @@ local function CatColorSet(key, field)
     end
 end
 
+local function ProfileTableGet(tableKey, field, fallback)
+    return function()
+        local group = MCE.db.profile[tableKey]
+        local v = group and group[field]
+        return (v ~= nil) and v or fallback
+    end
+end
+
+local function ProfileTableSet(tableKey, field)
+    return function(_, val)
+        MCE.db.profile[tableKey][field] = val
+        MCE:ForceUpdateAll(true)
+    end
+end
+
+local function ProfileTableRangeSet(tableKey, field)
+    return function(_, val)
+        MCE.db.profile[tableKey][field] = val
+        MCE:RequestDebouncedOptionRefresh(true)
+    end
+end
+
+local function ProfileTableColorGet(tableKey, field)
+    return function()
+        local c = MCE.db.profile[tableKey][field]
+        return c.r, c.g, c.b, c.a
+    end
+end
+
+local function ProfileTableColorSet(tableKey, field)
+    return function(_, r, g, b, a)
+        local c = MCE.db.profile[tableKey][field]
+        c.r, c.g, c.b, c.a = r, g, b, a
+        MCE:ForceUpdateAll(true)
+    end
+end
+
+local function GetDurationTextColorsConfig()
+    local profile = MCE.db and MCE.db.profile
+    if not profile then return nil end
+
+    profile.durationTextColors = MCE.EnsureDurationTextColorConfig(profile.durationTextColors)
+    return profile.durationTextColors
+end
+
+local function DurationColorsEnabled()
+    local config = GetDurationTextColorsConfig()
+    return config and config.enabled or false
+end
+
+local function DurationThresholdValueGet(index)
+    return function()
+        local config = GetDurationTextColorsConfig()
+        return config.thresholds[index].threshold
+    end
+end
+
+local function DurationThresholdValueSet(index)
+    return DebouncedRangeSet(function(_, val)
+        local config = GetDurationTextColorsConfig()
+        config.thresholds[index].threshold = val
+    end)
+end
+
+local function DurationThresholdColorGet(index)
+    return function()
+        local c = GetDurationTextColorsConfig().thresholds[index].color
+        return c.r, c.g, c.b, c.a
+    end
+end
+
+local function DurationThresholdColorSet(index)
+    return function(_, r, g, b, a)
+        local c = GetDurationTextColorsConfig().thresholds[index].color
+        c.r, c.g, c.b, c.a = r, g, b, a
+        MCE:ForceUpdateAll(true)
+    end
+end
+
+local function DefaultDurationColorGet()
+    local c = GetDurationTextColorsConfig().defaultColor
+    return c.r, c.g, c.b, c.a
+end
+
+local function DefaultDurationColorSet(_, r, g, b, a)
+    local c = GetDurationTextColorsConfig().defaultColor
+    c.r, c.g, c.b, c.a = r, g, b, a
+    MCE:ForceUpdateAll(true)
+end
+
 local function IsCatDisabled(key)
     return not MCE.db.profile.categories[key].enabled
 end
@@ -448,102 +538,6 @@ local function CreateCategoryOptions(order, name, key, desc)
                     },
                 },
             },
-
-            -- ── 2.5 Dynamic Text Colors (Action Bar only) ───────────────
-            dynamicColors = (key == "actionbar") and {
-                type = "group", name = "|cffffd100" .. L["Dynamic Text Colors"] .. "|r",
-                inline = true, order = 15, disabled = disabledFn,
-                args = {
-                    dynamicDesc = {
-                        type = "description", order = 0, fontSize = "small",
-                        name = "|cff88bbdd" .. L["DYNAMIC_COLORS_DESC"] .. "|r\n",
-                    },
-                    dynamicEnabled = {
-                        type = "toggle", order = 1, width = "full",
-                        name = L["Color by Remaining Time"],
-                        desc = L["Dynamically colors the countdown text based on how much time is left."],
-                        get = function()
-                            return MCE.db.profile.categories[key].textColorByDuration.enabled
-                        end,
-                        set = function(_, val)
-                            MCE.db.profile.categories[key].textColorByDuration.enabled = val
-                            MCE:ForceUpdateAll()
-                        end,
-                    },
-                    -- Threshold 1: Expiring Soon
-                    t1Header = {
-                        type = "header", name = L["Expiring Soon"], order = 10,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    t1Value = {
-                        type = "range", order = 11, width = 1.0,
-                        name = L["Threshold (seconds)"], min = 1, max = 60, step = 1,
-                        get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[1].threshold end,
-                        set = DebouncedRangeSet(function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[1].threshold = val end),
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    t1Color = {
-                        type = "color", order = 12, width = 0.5,
-                        name = L["Color"], hasAlpha = true,
-                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[1].color; return c.r, c.g, c.b, c.a end,
-                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[1].color; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    -- Threshold 2: Short Duration
-                    t2Header = {
-                        type = "header", name = L["Short Duration"], order = 20,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    t2Value = {
-                        type = "range", order = 21, width = 1.0,
-                        name = L["Threshold (seconds)"], min = 5, max = 300, step = 1,
-                        get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[2].threshold end,
-                        set = DebouncedRangeSet(function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[2].threshold = val end),
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    t2Color = {
-                        type = "color", order = 22, width = 0.5,
-                        name = L["Color"], hasAlpha = true,
-                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[2].color; return c.r, c.g, c.b, c.a end,
-                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[2].color; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    -- Threshold 3: Long Duration
-                    t3Header = {
-                        type = "header", name = L["Long Duration"], order = 30,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    t3Value = {
-                        type = "range", order = 31, width = 1.0,
-                        name = L["Threshold (seconds)"], min = 60, max = 7200, step = 60,
-                        get = function() return MCE.db.profile.categories[key].textColorByDuration.thresholds[3].threshold end,
-                        set = DebouncedRangeSet(function(_, val) MCE.db.profile.categories[key].textColorByDuration.thresholds[3].threshold = val end),
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    t3Color = {
-                        type = "color", order = 32, width = 0.5,
-                        name = L["Color"], hasAlpha = true,
-                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[3].color; return c.r, c.g, c.b, c.a end,
-                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.thresholds[3].color; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    -- Default color (beyond all thresholds)
-                    defaultHeader = {
-                        type = "header", name = L["Beyond Thresholds"], order = 40,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                    defaultDurationColor = {
-                        type = "color", order = 41, width = 0.8,
-                        name = L["Default Color"],
-                        desc = L["Color used when the remaining time exceeds all thresholds."],
-                        hasAlpha = true,
-                        get = function() local c = MCE.db.profile.categories[key].textColorByDuration.defaultColor; return c.r, c.g, c.b, c.a end,
-                        set = function(_, r, g, b, a) local c = MCE.db.profile.categories[key].textColorByDuration.defaultColor; c.r, c.g, c.b, c.a = r, g, b, a; MCE:ForceUpdateAll() end,
-                        hidden = function() return not MCE.db.profile.categories[key].textColorByDuration.enabled end,
-                    },
-                },
-            } or nil,
-
             -- ── 3. Swipe Edge ───────────────────────────────────────────
             swipeEdge = {
                 type = "group", name = "|cffffd100" .. L["Swipe Animation"] .. "|r",
@@ -739,6 +733,143 @@ function MCE:GetOptions()
                             quickFooter = {
                                 type = "description", order = 7, fontSize = "small", width = "full",
                                 name = "\n|cff999999" .. L["LIVE_CONTROLS_DESC"] .. "|r",
+                            },
+                        },
+                    },
+                    durationTextColors = {
+                        type = "group", name = "|cffffd100" .. L["Dynamic Text Colors"] .. "|r",
+                        inline = true, order = 2,
+                        args = {
+                            dynamicDesc = {
+                                type = "description", order = 0, fontSize = "small", width = "full",
+                                name = "|cff88bbdd" .. L["DYNAMIC_COLORS_GENERAL_DESC"] .. "|r\n",
+                            },
+                            dynamicEnabled = {
+                                type = "toggle", order = 1, width = "full",
+                                name = L["Color by Remaining Time"],
+                                desc = L["Dynamically colors the countdown text based on how much time is left."],
+                                get = DurationColorsEnabled,
+                                set = function(_, val)
+                                    local config = GetDurationTextColorsConfig()
+                                    config.enabled = val
+                                    MCE:ForceUpdateAll(true)
+                                end,
+                            },
+                            t1Header = {
+                                type = "header", name = L["Expiring Soon"], order = 10,
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t1Value = {
+                                type = "range", order = 11, width = 1.0,
+                                name = L["Threshold (seconds)"], min = 1, max = 60, step = 1,
+                                get = DurationThresholdValueGet(1),
+                                set = DurationThresholdValueSet(1),
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t1Color = {
+                                type = "color", order = 12, width = 0.5,
+                                name = L["Color"], hasAlpha = true,
+                                get = DurationThresholdColorGet(1),
+                                set = DurationThresholdColorSet(1),
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t2Header = {
+                                type = "header", name = L["Short Duration"], order = 20,
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t2Value = {
+                                type = "range", order = 21, width = 1.0,
+                                name = L["Threshold (seconds)"], min = 5, max = 300, step = 1,
+                                get = DurationThresholdValueGet(2),
+                                set = DurationThresholdValueSet(2),
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t2Color = {
+                                type = "color", order = 22, width = 0.5,
+                                name = L["Color"], hasAlpha = true,
+                                get = DurationThresholdColorGet(2),
+                                set = DurationThresholdColorSet(2),
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t3Header = {
+                                type = "header", name = L["Long Duration"], order = 30,
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t3Value = {
+                                type = "range", order = 31, width = 1.0,
+                                name = L["Threshold (seconds)"], min = 60, max = 7200, step = 60,
+                                get = DurationThresholdValueGet(3),
+                                set = DurationThresholdValueSet(3),
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            t3Color = {
+                                type = "color", order = 32, width = 0.5,
+                                name = L["Color"], hasAlpha = true,
+                                get = DurationThresholdColorGet(3),
+                                set = DurationThresholdColorSet(3),
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            defaultHeader = {
+                                type = "header", name = L["Beyond Thresholds"], order = 40,
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                            defaultDurationColor = {
+                                type = "color", order = 41, width = 0.8,
+                                name = L["Default Color"],
+                                desc = L["Color used when the remaining time exceeds all thresholds."],
+                                hasAlpha = true,
+                                get = DefaultDurationColorGet,
+                                set = DefaultDurationColorSet,
+                                hidden = function() return not DurationColorsEnabled() end,
+                            },
+                        },
+                    },
+                    compactPartyAuraText = {
+                        type = "group", name = "|cffffd100" .. L["Compact Party / Raid Aura Text"] .. "|r",
+                        inline = true, order = 2.5,
+                        args = {
+                            compactPartyDesc = {
+                                type = "description", order = 0, fontSize = "small", width = "full",
+                                name = "|cff88bbdd" .. L["COMPACT_PARTY_AURA_TEXT_DESC"] .. "|r\n",
+                            },
+                            compactPartyEnabled = {
+                                type = "toggle", order = 1, width = "1",
+                                name = L["Enable Party Aura Text"],
+                                desc = L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."],
+                                get = ProfileTableGet("compactPartyAuraText", "enabled", false),
+                                set = ProfileTableSet("compactPartyAuraText", "enabled"),
+                            },
+                            compactRaidEnabled = {
+                                type = "toggle", order = 1.1, width = "1",
+                                name = L["Enable Raid Aura Text"],
+                                desc = L["Shows styled countdown text on Blizzard CompactRaidFrame buff and debuff icons. Disabling this hides aura countdown text on raid frames."],
+                                get = ProfileTableGet("compactPartyAuraText", "raidEnabled", false),
+                                set = ProfileTableSet("compactPartyAuraText", "raidEnabled"),
+                            },
+                            compactPartyAuraRowBreak = RowBreak(1.2),
+                            compactPartyFont = {
+                                type = "select", order = 2, width = 1.5,
+                                name = L["Font Face"], values = GetFontOptions,
+                                get = ProfileTableGet("compactPartyAuraText", "font"),
+                                set = ProfileTableSet("compactPartyAuraText", "font"),
+                            },
+                            compactPartyFontSize = {
+                                type = "range", order = 3, width = 0.7,
+                                name = L["Size"], min = 8, max = 36, step = 1,
+                                get = ProfileTableGet("compactPartyAuraText", "fontSize", 12),
+                                set = ProfileTableRangeSet("compactPartyAuraText", "fontSize"),
+                            },
+                            compactPartyFontStyle = {
+                                type = "select", order = 4, width = 0.8,
+                                name = L["Outline"], values = OUTLINE_OPTIONS,
+                                get = ProfileTableGet("compactPartyAuraText", "fontStyle"),
+                                set = ProfileTableSet("compactPartyAuraText", "fontStyle"),
+                            },
+                            compactPartyTextColor = {
+                                type = "color", order = 5, width = "half",
+                                name = L["Color"], hasAlpha = true,
+                                get = ProfileTableColorGet("compactPartyAuraText", "textColor"),
+                                set = ProfileTableColorSet("compactPartyAuraText", "textColor"),
                             },
                         },
                     },
