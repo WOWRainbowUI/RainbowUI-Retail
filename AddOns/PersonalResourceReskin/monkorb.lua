@@ -353,20 +353,22 @@ local function ApplySavedOptions()
     MonkOrbTracker:SetWidth(w)
     MonkOrbTracker:SetHeight(h)
     -- Position: anchor to PRD or use X/Y
-    MonkOrbTracker:ClearAllPoints()
-    local anchorFrame = GetPRDAnchorFrame()
-    if anchorFrame then
-        local pos = db.MonkOrbTracker_anchorPosition or "BELOW"
-        local offset = db.MonkOrbTracker_anchorOffset or 10
-        if pos == "ABOVE" then
-            MonkOrbTracker:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+    if not InCombatLockdown() and not (EditModeManagerFrame and EditModeManagerFrame.editModeActive) then
+        MonkOrbTracker:ClearAllPoints()
+        local anchorFrame = GetPRDAnchorFrame()
+        if anchorFrame then
+            local pos = db.MonkOrbTracker_anchorPosition or "BELOW"
+            local offset = db.MonkOrbTracker_anchorOffset or 10
+            if pos == "ABOVE" then
+                MonkOrbTracker:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+            else
+                MonkOrbTracker:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
+            end
         else
-            MonkOrbTracker:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
+            local x = db.MonkOrbTracker_xOffset or 0
+            local y = db.MonkOrbTracker_yOffset or -200
+            MonkOrbTracker:SetPoint("CENTER", UIParent, "CENTER", x, y)
         end
-    else
-        local x = db.MonkOrbTracker_xOffset or 0
-        local y = db.MonkOrbTracker_yOffset or -200
-        MonkOrbTracker:SetPoint("CENTER", UIParent, "CENTER", x, y)
     end
     -- Enable/disable
     local enabled = db.MonkOrbTracker_enabled ~= false
@@ -447,9 +449,25 @@ MonkOrbTracker:SetScript("OnEvent", function(self, event, ...)
 
     if not IsBrewmasterMonk() then
         MonkOrbTracker:Hide()
-        MonkOrbTracker:UnregisterAllEvents()
         MonkOrbTracker:SetScript("OnUpdate", nil)
+        prdHooked = false
+        -- Keep PLAYER_SPECIALIZATION_CHANGED so we can re-activate on spec switch
+        MonkOrbTracker:UnregisterAllEvents()
+        MonkOrbTracker:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+        MonkOrbTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
         return
+    end
+    -- Re-register all events when switching back to Brewmaster
+    if event == "PLAYER_SPECIALIZATION_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
+        MonkOrbTracker:RegisterEvent("UNIT_POWER_UPDATE")
+        MonkOrbTracker:RegisterEvent("UNIT_DISPLAYPOWER")
+        MonkOrbTracker:RegisterEvent("UNIT_MAXPOWER")
+        MonkOrbTracker:RegisterEvent("PLAYER_TALENT_UPDATE")
+        MonkOrbTracker:RegisterEvent("PLAYER_REGEN_ENABLED")
+        MonkOrbTracker:RegisterEvent("PLAYER_REGEN_DISABLED")
+        MonkOrbTracker:RegisterEvent("RUNE_POWER_UPDATE")
+        MonkOrbTracker:RegisterEvent("RUNE_TYPE_UPDATE")
+        MonkOrbTracker:RegisterEvent("UNIT_AURA")
     end
     local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
     local hideWhenMounted = db and db.MonkOrbTracker_hideWhenMounted

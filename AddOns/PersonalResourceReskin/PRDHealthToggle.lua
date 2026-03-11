@@ -3,6 +3,7 @@ PRDHealthToggleDB = PRDHealthToggleDB or { hidden = false }
 
 local f = CreateFrame("Frame")
 
+-- Use alpha 0 instead of Hide() to avoid the Show→OnShow→Hide combat loop
 local function HookHealthBarHide()
     local prd = _G["PersonalResourceDisplayFrame"]
     if not prd or not prd.HealthBarsContainer then return end
@@ -11,7 +12,8 @@ local function HookHealthBarHide()
         healthBar._prdhook = true
         healthBar:HookScript("OnShow", function(self)
             if PRDHealthToggleDB.hidden then
-                self:Hide()
+                self:SetAlpha(0)
+                self:EnableMouse(false)
             end
         end)
     end
@@ -21,7 +23,8 @@ local function UpdateHealthBarVisibility()
     local prd = _G["PersonalResourceDisplayFrame"]
     if not prd or not prd.HealthBarsContainer then return end
     if PRDHealthToggleDB.hidden then
-        prd.HealthBarsContainer:Hide()
+        prd.HealthBarsContainer:SetAlpha(0)
+        prd.HealthBarsContainer:EnableMouse(false)
         -- Also hide health text if present
         local hb = prd.HealthBarsContainer.healthBar
         if hb and hb.healthBar and hb.healthBar.__PRD_Text then
@@ -30,7 +33,8 @@ local function UpdateHealthBarVisibility()
             hb.__PRD_Text:Hide()
         end
     else
-        prd.HealthBarsContainer:Show()
+        prd.HealthBarsContainer:SetAlpha(1)
+        prd.HealthBarsContainer:EnableMouse(true)
         -- Optionally show health text if you want
         local hb = prd.HealthBarsContainer.healthBar
         if hb and hb.healthBar and hb.healthBar.__PRD_Text then

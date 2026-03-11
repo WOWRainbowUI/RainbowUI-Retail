@@ -51,6 +51,15 @@ local function SafeIsStatusBar(obj)
     return obj and obj.IsObjectType and obj:IsObjectType("StatusBar")
 end
 
+local function IsFrameActuallyVisible(frame)
+    if not frame then return false end
+    if frame.IsShown and not frame:IsShown() then return false end
+    if frame.IsVisible and not frame:IsVisible() then return false end
+    if frame.GetEffectiveAlpha and frame:GetEffectiveAlpha() <= 0 then return false end
+    if frame.GetWidth and frame.GetHeight and (frame:GetWidth() <= 1 or frame:GetHeight() <= 1) then return false end
+    return true
+end
+
 local function ApplyReverseFill(bar)
     if bar.SetReverseFill then
         bar:SetReverseFill(true)
@@ -112,7 +121,8 @@ local function CreateAbsorbBarForPRD()
     if not frame or frame.__blizzAbsorbBar then return end
 
     local healthBar = FindHealthBar(frame)
-    if not healthBar then return end
+    -- Defer creation until the Blizzard health bar is actually visible on screen.
+    if not healthBar or not IsFrameActuallyVisible(healthBar) then return end
 
     local tex = GetStatusBarTexture()
 
@@ -129,28 +139,39 @@ local function CreateAbsorbBarForPRD()
     frame.__blizzAbsorbBar = bar
 
     --------------------------------------------------------
-    -- Update function
+    -- Lightweight update: only change the absorb value (called on every health/absorb event)
     --------------------------------------------------------
-    local function Update()
+    local function UpdateValue()
         if not bar or not healthBar then return end
-        -- Hide absorb bar if health bar is hidden
-        if not (healthBar and healthBar:IsShown() and healthBar:GetParent() and healthBar:GetParent():IsShown()) then
+        if not IsFrameActuallyVisible(healthBar) or not IsFrameActuallyVisible(healthBar:GetParent()) then
             bar:Hide()
             return
         end
 
         local maxHP = UnitHealthMax("player") or 1
         local absorb = UnitGetTotalAbsorbs("player") or 0
-        local alpha = AbsorbBarsBlizzard_Config.opacity
 
+        bar:SetMinMaxValues(0, maxHP)
+        bar:SetValue(absorb)
+        bar:Show()
+    end
+
+    --------------------------------------------------------
+    -- Full update: reapply texture, color, position (called on config change and init)
+    --------------------------------------------------------
+    local function Update()
+        if not bar or not healthBar then return end
+        if not IsFrameActuallyVisible(healthBar) or not IsFrameActuallyVisible(healthBar:GetParent()) then
+            bar:Hide()
+            return
+        end
+
+        local alpha = AbsorbBarsBlizzard_Config.opacity
         local c = AbsorbBarsBlizzard_Config.fgColor
         bar:SetStatusBarColor(c.r, c.g, c.b, alpha)
 
         local tex = GetStatusBarTexture()
         bar:SetStatusBarTexture(tex)
-
-        bar:SetMinMaxValues(0, maxHP)
-        bar:SetValue(absorb)
 
         bar:ClearAllPoints()
         bar:SetPoint("TOPLEFT", healthBar, "TOPLEFT", AbsorbBarsBlizzard_Config.x or 0, AbsorbBarsBlizzard_Config.y or 0)
@@ -159,7 +180,8 @@ local function CreateAbsorbBarForPRD()
         ApplyReverseFill(bar)
         bar:SetFrameLevel(healthBar:GetFrameLevel() + 200)
         bar:Raise()
-        bar:Show()
+
+        UpdateValue()
     end
 
     bar.UpdateAbsorbBar = Update
@@ -168,14 +190,16 @@ local function CreateAbsorbBarForPRD()
     -- Events
     --------------------------------------------------------
     local ef = CreateFrame("Frame")
-    ef:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-    ef:RegisterEvent("UNIT_HEALTH")
+    ef:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", "player")
+    ef:RegisterUnitEvent("UNIT_HEALTH", "player")
     ef:RegisterEvent("PLAYER_ENTERING_WORLD")
     ef:RegisterEvent("PLAYER_LOGIN")
     ef:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     ef:SetScript("OnEvent", function(_, event, unit)
-        if not unit or unit == "player" then
+        if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_LOGIN" or event == "PLAYER_SPECIALIZATION_CHANGED" then
             Update()
+        else
+            UpdateValue()
         end
     end)
 
@@ -189,6 +213,15 @@ local init = CreateFrame("Frame")
 init:RegisterEvent("PLAYER_LOGIN")
 init:SetScript("OnEvent", function()
     C_Timer.After(1, CreateAbsorbBarForPRD)
+
+    -- If PRD is hidden at login, create the bar later when it becomes visible.
+    local frame = PersonalResourceDisplayFrame
+    if frame and not frame.__blizzAbsorbBar and not frame.__blizzAbsorbBarCreateHooked then
+        frame.__blizzAbsorbBarCreateHooked = true
+        frame:HookScript("OnShow", function()
+            CreateAbsorbBarForPRD()
+        end)
+    end
 end)
 
 ------------------------------------------------------------

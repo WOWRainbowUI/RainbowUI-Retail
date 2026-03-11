@@ -1,5 +1,9 @@
 -- Add to TOC: ## SavedVariables: PRDPowerToggleDB
 -- Use profile-aware storage for hidden state
+
+-- Cached hidden state to avoid repeated global lookups every OnShow
+local cachedHidden = false
+
 local function getProfile()
     if _G.PersonalResourceReskin and _G.PersonalResourceReskin.db and _G.PersonalResourceReskin.db.profile then
         return _G.PersonalResourceReskin.db.profile
@@ -10,9 +14,9 @@ end
 local function getHidden()
     local profile = getProfile()
     if profile then
-        return profile.prdPowerBarHidden or false
+        cachedHidden = profile.prdPowerBarHidden or false
     end
-    return false
+    return cachedHidden
 end
 
 local function setHidden(val)
@@ -20,10 +24,14 @@ local function setHidden(val)
     if profile then
         profile.prdPowerBarHidden = val and true or false
     end
+    cachedHidden = val and true or false
 end
 
 local f = CreateFrame("Frame")
 
+-- Instead of Hide/Show which causes a Show→OnShow→Hide loop every power tick,
+-- make the bar invisible via alpha 0 and disable mouse. This avoids triggering
+-- OnShow repeatedly and eliminates the combat CPU spike.
 local function HookPowerBarHide()
     local prd = _G["PersonalResourceDisplayFrame"]
     if not prd or not prd.PowerBar then return end
@@ -31,8 +39,9 @@ local function HookPowerBarHide()
     if not powerBar._prdpowerhook then
         powerBar._prdpowerhook = true
         powerBar:HookScript("OnShow", function(self)
-            if getHidden() then
-                self:Hide()
+            if cachedHidden then
+                self:SetAlpha(0)
+                self:EnableMouse(false)
             end
         end)
     end
@@ -42,11 +51,12 @@ local function UpdatePowerBarVisibility()
     local prd = _G["PersonalResourceDisplayFrame"]
     if not prd or not prd.PowerBar then return end
     if getHidden() then
-        prd.PowerBar:Hide()
+        prd.PowerBar:SetAlpha(0)
+        prd.PowerBar:EnableMouse(false)
     else
-        prd.PowerBar:Show()
+        prd.PowerBar:SetAlpha(1)
+        prd.PowerBar:EnableMouse(true)
     end
-    -- Set frame strata to MEDIUM
     prd.PowerBar:SetFrameStrata("LOW")
     HookPowerBarHide()
 end

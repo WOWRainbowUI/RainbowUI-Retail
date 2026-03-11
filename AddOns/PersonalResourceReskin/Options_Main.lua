@@ -26,5 +26,10 @@ PersonalResourceReskinPlus_Options = {
     end,
 }
 
--- Register on load
-PersonalResourceReskinPlus_Options.Register()
+-- Defer registration to PLAYER_LOGIN so all sub-option files have loaded
+local optRegFrame = CreateFrame("Frame")
+optRegFrame:RegisterEvent("PLAYER_LOGIN")
+optRegFrame:SetScript("OnEvent", function(self)
+    self:UnregisterAllEvents()
+    PersonalResourceReskinPlus_Options.Register()
+end)
