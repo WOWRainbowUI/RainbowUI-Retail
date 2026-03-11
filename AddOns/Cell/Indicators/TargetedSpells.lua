@@ -176,7 +176,7 @@ local function CheckUnitCast(sourceUnit, isRecheck)
 
     -- print(sourceUnit, name, spellId)
 
-    if spellId and (Cell.vars.targetedSpellsList[spellId] or showAllSpells) then
+    if not issecretvalue(spellId) and spellId and (Cell.vars.targetedSpellsList[spellId] or showAllSpells) then -- 12.0 fix
         if casts[sourceGUID] then
             casts[sourceGUID]["startTime"] = startTimeMS/1000
             casts[sourceGUID]["endTime"] = endTimeMS/1000
