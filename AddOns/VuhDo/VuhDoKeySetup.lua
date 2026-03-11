@@ -58,6 +58,49 @@ end
 
 
 
+--
+local sHealButtonAttributeChangedSnippet = [[
+	if name == "vuhdo-unit-exists" and value == "false" and sHealButton then
+		local tX, tY = sHealButton:GetMousePosition();
+
+		local tXInBounds;
+		local tYInBounds;
+
+		if not tX or type(tX) ~= "number" then
+			tXInBounds = false;
+		else
+			tXInBounds = tX >= 0 and tX <= 1;
+		end
+
+		if not tY or type(tY) ~= "number" then
+			tYInBounds = false;
+		else
+			tYInBounds = tY >= 0 and tY <= 1;
+		end
+
+		if not sHealButton:IsVisible() or not tXInBounds or not tYInBounds then
+			sHealButton:ClearBindings();
+
+			sHealButton = nil;
+		end
+	end
+]];
+
+
+
+--
+function VUHDO_setupHealButtonSecureHeader(aFrame)
+
+	aFrame:SetAttribute("_onattributechanged", sHealButtonAttributeChangedSnippet);
+
+	RegisterAttributeDriver(aFrame, "vuhdo-unit-exists", "[@mouseover, exists] true; false");
+
+	return;
+
+end
+
+
+
 local VUHDO_REZ_SPELLS_NAMES = {
 	[VUHDO_SPELL_ID.REDEMPTION] = true,
 	[VUHDO_SPELL_ID.ABSOLUTION] = true,

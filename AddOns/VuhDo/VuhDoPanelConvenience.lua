@@ -519,10 +519,27 @@ function VUHDO_getOrCreateBuffSwatch(aName, aParent)
 		VUHDO_safeSetAttribute(tButton, "_onleave", "self:ClearBindings();");
 		VUHDO_safeSetAttribute(tButton, "_onshow", "self:ClearBindings();");
 		VUHDO_safeSetAttribute(tButton, "_onhide", "self:ClearBindings();");
-		VUHDO_safeSetAttribute(tButton,
-			"_onmousedown", 
-			"if not self:IsUnderMouse(false) then self:ClearBindings(); end"
-		);
+		VUHDO_safeSetAttribute(tButton, "_onmousedown", [[
+			local tX, tY = self:GetMousePosition();
+			local tXInBounds;
+			local tYInBounds;
+
+			if not tX or type(tX) ~= "number" then
+				tXInBounds = false;
+			else
+				tXInBounds = tX >= 0 and tX <= 1;
+			end
+
+			if not tY or type(tY) ~= "number" then
+				tYInBounds = false;
+			else
+				tYInBounds = tY >= 0 and tY <= 1;
+			end
+
+			if not self:IsVisible() or not tXInBounds or not tYInBounds then
+				self:ClearBindings();
+			end
+		]]);
 	else
 		tButton = _G[aName .. "GlassButton"];
 	end

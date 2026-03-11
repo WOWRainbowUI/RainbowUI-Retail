@@ -64,7 +64,9 @@ local function VUHDO_buildHideIrrelevantCurve()
 	tCurve = CreateColorCurve();
 	tCurve:SetType(Enum.LuaCurveType.Step);
 
-	tThresholdDecimal = VUHDO_CONFIG["EMERGENCY_TRIGGER"] / 100;
+	-- FIXME: operation modes other than neutral with 100% trigger are bugged
+	--tThresholdDecimal = VUHDO_CONFIG["EMERGENCY_TRIGGER"] / 100;
+	tThresholdDecimal = 1;
 
 	tCurve:AddPoint(0.0, CreateColor(1, 1, 1, 1));
 	tCurve:AddPoint(tThresholdDecimal, CreateColor(1, 1, 1, 0));
@@ -124,7 +126,9 @@ local function VUHDO_buildShowWhenIrrelevantCurve()
 	tCurve = CreateColorCurve();
 	tCurve:SetType(Enum.LuaCurveType.Step);
 
-	tThresholdDecimal = VUHDO_CONFIG["EMERGENCY_TRIGGER"] / 100;
+	-- FIXME: operation modes other than neutral with 100% trigger are bugged
+	--tThresholdDecimal = VUHDO_CONFIG["EMERGENCY_TRIGGER"] / 100;
+	tThresholdDecimal = 1;
 
 	tCurve:AddPoint(0.0, CreateColor(1, 1, 1, 0));
 	tCurve:AddPoint(tThresholdDecimal, CreateColor(1, 1, 1, 1));
@@ -502,7 +506,9 @@ function VUHDO_customizeText(aButton, aMode, anIsTarget)
 	if sSecretsEnabled and tInfo["hasSecretHealth"] and tLifeConfig["hideIrrelevant"] then
 		tIsHideIrrel = false;
 	else
-		tIsHideIrrel = tLifeConfig["hideIrrelevant"] and VUHDO_getUnitHealthPercent(tInfo) >= VUHDO_CONFIG["EMERGENCY_TRIGGER"];
+		-- FIXME: operation modes other than neutral with 100% trigger are bugged
+		--tIsHideIrrel = tLifeConfig["hideIrrelevant"] and VUHDO_getUnitHealthPercent(tInfo) >= VUHDO_CONFIG["EMERGENCY_TRIGGER"];
+		tIsHideIrrel = tLifeConfig["hideIrrelevant"] and VUHDO_getUnitHealthPercent(tInfo) >= 100;
 	end
 
 	tIsShowLife = tLifeConfig["show"] and not tIsHideIrrel;

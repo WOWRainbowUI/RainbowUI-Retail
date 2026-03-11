@@ -195,8 +195,11 @@ function VUHDO_vuhdoInitLocalOverrides()
 	VUHDO_INTERNAL_TOGGLES = _G["VUHDO_INTERNAL_TOGGLES"];
 	VUHDO_PANEL_UNITS = _G["VUHDO_PANEL_UNITS"];
 
-	sTrigger = VUHDO_CONFIG["EMERGENCY_TRIGGER"];
-	sCurrentMode = VUHDO_CONFIG["MODE"];
+	-- FIXME: operation modes other than neutral with 100% trigger are bugged
+	--sTrigger = VUHDO_CONFIG["EMERGENCY_TRIGGER"];
+	--sCurrentMode = VUHDO_CONFIG["MODE"];
+	sTrigger = 100;
+	sCurrentMode = VUHDO_MODE_NEUTRAL;
 
 	VUHDO_DEFAULT_PROFILE = _G["VUHDO_DEFAULT_PROFILE"];
 	VUHDO_DEFAULT_LAYOUT = _G["VUHDO_DEFAULT_LAYOUT"];
