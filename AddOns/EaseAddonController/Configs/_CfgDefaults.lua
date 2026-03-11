@@ -447,7 +447,7 @@ D["CalReminder"] = {
 D["Cell"] = {
 	defaultEnable = 0,
 	tags = { "UNITFRAME" },
-	title = "團隊框架 (Cell)",
+	title = "[測試版] 團隊框架 (Cell)",
 	desc = "簡單好用又美觀的團隊框架，載入即可使用，幾乎不用設定。``有提供自訂外觀、增益/減益圖示和其他功能。對於補師，還有滑鼠點一下快速施法的功能。`",
 	modifier = "BSN, 彩虹ui",
 	{
