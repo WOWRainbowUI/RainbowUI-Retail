@@ -54,10 +54,7 @@ local function ShowSpellInfo(tooltip, spellId)
     local showAllByModifier = addon.db.spell.modifierShowAll
     local showSpellId = addon.db.spell.showSpellId ~= false
     local showSpellIconId = addon.db.spell.showSpellIconId ~= false
-    if (isModifierDown) then
-        if (not showAllByModifier) then
-            return
-        end
+    if (isModifierDown and showAllByModifier) then
         showSpellId = true
         showSpellIconId = true
     end
@@ -77,10 +74,7 @@ local function ShowItemInfo(tooltip, linkOrId)
     local showItemId = addon.db.item.showItemId ~= false
     local showItemMaxStack = addon.db.item.showItemMaxStack ~= false
     local showItemIconId = addon.db.item.showItemIconId ~= false
-    if (isModifierDown) then
-        if (not showAllByModifier) then
-            return
-        end
+    if (isModifierDown and showAllByModifier) then
         showItemId = true
         showItemMaxStack = true
         showItemIconId = true
