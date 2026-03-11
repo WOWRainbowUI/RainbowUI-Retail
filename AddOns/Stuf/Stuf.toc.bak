@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 90200
 ## Title: Stuf Unit Frames
 ## Author: TotalPackage
 ## Notes: Main unitframes replacement. Assembly optional.
@@ -16,7 +16,6 @@
 embeds.xml
 cancelaura.xml
 core.lua
-infoCalc.lua
 bars.lua
 text.lua
 icons.lua

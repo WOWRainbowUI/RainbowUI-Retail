@@ -13,7 +13,13 @@ local CreateFrame = CreateFrame
 local GetTime = GetTime
 local GameTooltip = GameTooltip
 local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
-local UnitGetIncomingHeals = UnitGetIncomingHeals
+local UnitHealthMax   = UnitHealthMax
+local UnitHealthPercent = UnitHealthPercent
+-- oUF-style heal prediction calculator (secret-value-safe absorbs + incoming heals)
+-- NOTE: In 12.0.1 ALL unit numeric APIs return secret values — no Lua comparisons allowed.
+-- UnitGetIncomingHeals and UnitGetTotalAbsorbs are also secret; do NOT use them for guards.
+local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction
+local CreateUnitHealPredictionCalc  = CreateUnitHealPredictionCalculator
 local stamin, stahr = 1/60, 1/3600
 
 local methodcolor = Stuf.GetColorFromMethod
@@ -37,9 +43,73 @@ local function SmoothBarOnUpdate(this, a1)  -- smooth bar
 	end
 end
 local function UpdateStatusBar(unit, uf, f, reset, frac)
-	if not f or not frac then return end
-	local db, bar, bv, tfrac = f.db, f.bar, f.bvalue or 1, nil
-	
+	if not f then return end
+	local db, bar, bv = f.db, f.bar, f.bvalue or 1
+
+	-- NATIVE STATUSBAR PATH (hpbar/mpbar): drive with raw secret values via C API
+	if f.nativeBar then
+		local nb = f.nativeBar
+		local cache = uf and uf.cache
+		if cache then
+			local ishp = (f.ename == "hpbar")
+			local cur = ishp and cache.curhp or cache.curmp
+			local max = ishp and cache.maxhp or cache.maxmp
+			if max then
+				nb:SetMinMaxValues(0, max)  -- C handles secret values natively
+				nb:SetValue(cur)            -- C handles secret values natively
+			end
+		end
+		-- refresh coloring using frac from cache (safe normal number)
+		local safefrac = (f.ename == "hpbar") and (cache and cache.frachp or 1) or (cache and cache.fracmp or 1)
+		if f.barth then
+			nb:SetStatusBarColor(methodcolor(Stuf, f.barth, uf, db, safefrac, "barcolor", "baralpha"))
+		end
+		if f.bgth then
+			f.bg:SetVertexColor(methodcolor(Stuf, f.bgth, uf, db, safefrac, "bgcolor", "bgalpha"))
+		end
+
+		-- ===== INCOMING HEALS + ABSORB SHIELDS overlay (hpbar only) =====
+		-- GOLDEN RULE: In 12.0.1, ALL unit numeric APIs return secret values.
+		-- Never use them in if/then, comparisons, or arithmetic.
+		-- pcall wraps SetMinMaxValues/SetValue to silently swallow nil/NaN/out-of-range
+		-- values that an uninitialized calculator returns during options-panel preview.
+		-- In real gameplay the calculator is properly fed and C handles secrets natively.
+		if f.ename == "hpbar" and f._hpCalc then
+			local maxHP = UnitHealthMax(unit)  -- secret; passed to C only
+			if UnitGetDetailedHealPrediction then
+				UnitGetDetailedHealPrediction(unit, "player", f._hpCalc)
+			end
+
+			if db.inc and f.incbar then
+				-- GetIncomingHeals() -> allHeal, playerHeal, otherHeal, healClamped(bool)
+				-- allHeal (1st return) is the actual SECRET amount to pass to C.
+				local allHeal = f._hpCalc:GetIncomingHeals()
+				pcall(function()
+					f.incbar:SetMinMaxValues(0, maxHP)
+					f.incbar:SetValue(allHeal)
+					f.incbar:Show()
+				end)
+			end
+
+			if db.shield and f.shieldbar then
+				-- GetDamageAbsorbs() -> damageAbsorbAmount, damageAbsorbClamped(bool)
+				-- damageAbsorbAmount (1st return) is the actual SECRET amount to pass to C.
+				local damageAbsorbAmount = f._hpCalc:GetDamageAbsorbs()
+				pcall(function()
+					f.shieldbar:SetMinMaxValues(0, maxHP)
+					f.shieldbar:SetValue(damageAbsorbAmount)
+					f.shieldbar:Show()
+				end)
+			end
+		end
+
+		return
+	end
+
+	-- TEXTURE PATH (all other bars): requires a safe 0-1 frac
+	if not frac then return end
+	local tfrac = nil
+
 	if db.fade then  -- refresh fade bar
 		local new = frac * bv
 		if reset then
@@ -63,23 +133,9 @@ local function UpdateStatusBar(unit, uf, f, reset, frac)
 		end
 		f.prev = new
 	end
-	if db.inc then
-		local incheal = (UnitGetIncomingHeals(unit) or 0) / uf.cache.maxhp
-		if incheal ~= f.previnc then
-			if incheal + frac > 1.1 then
-				incheal = 1.1 - frac
-			end
-			if uf.cache.maxhp <= 0 or incheal <= 0 then
-				f.incbar:Hide()
-			else
-				f.incbar:SetValue(incheal, bv)
-				f.incbar:Show()
-			end
-			f.previnc = incheal
-		end
-	end
+	-- (incbar and shieldbar are handled in the nativeBar block above for hpbar)
 	bar:SetValue(tfrac or frac, bv)  -- refresh main bar
-	
+
 	-- refresh main bar coloring
 	if f.barth then
 		bar:SetVertexColor(methodcolor(Stuf, f.barth, uf, db, frac, "barcolor", "baralpha"))
@@ -92,21 +148,30 @@ local function UpdateBarColors(unit, uf, _, reset)
 	local hp = uf.hpbar
 	if hp and (reset or hp.colorchanges) then
 		local db = hp.db
-		local frac = uf.cache.frachp
+		local frac = uf.cache.frachp or 1
 		hp.bg:SetVertexColor(methodcolor(Stuf, db.bgcolormethod, uf, db, frac, "bgcolor", "bgalpha"))
-		hp.bar:SetVertexColor(methodcolor(Stuf, db.barcolormethod, uf, db, frac, "barcolor", "baralpha"))
+		if hp.nativeBar then
+			hp.nativeBar:SetStatusBarColor(methodcolor(Stuf, db.barcolormethod, uf, db, frac, "barcolor", "baralpha"))
+		else
+			hp.bar:SetVertexColor(methodcolor(Stuf, db.barcolormethod, uf, db, frac, "barcolor", "baralpha"))
+		end
 	end
 	local mp = uf.mpbar
 	if mp and (reset or mp.colorchanges) then
 		local db = mp.db
-		local frac = uf.cache.fracmp
+		local frac = uf.cache.fracmp or 1
 		mp.bg:SetVertexColor(methodcolor(Stuf, db.bgcolormethod, uf, db, frac, "bgcolor", "bgalpha"))
-		mp.bar:SetVertexColor(methodcolor(Stuf, db.barcolormethod, uf, db, frac, "barcolor", "baralpha"))
+		if mp.nativeBar then
+			mp.nativeBar:SetStatusBarColor(methodcolor(Stuf, db.barcolormethod, uf, db, frac, "barcolor", "baralpha"))
+		else
+			mp.bar:SetVertexColor(methodcolor(Stuf, db.barcolormethod, uf, db, frac, "barcolor", "baralpha"))
+		end
 	end
 end
 local function UpdateBarLook(unit, uf, f, db)  -- update bar look for statusbars
 	local ename = f.ename
 	local bg, barbase, bar, barfade, spark, incbar = f.bg, f.barbase, f.bar, f.barfade, f.spark, f.incbar
+	local shieldbar = f.shieldbar
 	local cw = db.w - (db.barinsetleft or 0) - (db.barinsetright or 0)
 	local ch = db.h - (db.barinsettop or 0) - (db.barinsetbottom or 0)
 
@@ -130,13 +195,30 @@ local function UpdateBarLook(unit, uf, f, db)  -- update bar look for statusbars
 		barfade:SetAlpha(0)
 		barfade:ClearAllPoints()
 	end
-	if incbar then
-		local fc = dbg.healcolor
-		incbar:SetWidth(cw)
-		incbar:SetHeight(ch)
-		incbar:SetTexture(texture)
-		incbar:SetVertexColor(0.4, 1, 0.4, 0.9)
+	-- incbar and shieldbar are native StatusBars; update them via StatusBar API.
+	if incbar and incbar.SetStatusBarTexture then
+		incbar:SetStatusBarTexture(texture)
+		incbar:SetStatusBarColor(0.4, 1, 0.4, 0.9)
 		incbar:ClearAllPoints()
+		incbar:SetAllPoints(barbase)
+		if db.vertical then
+			incbar:SetOrientation("VERTICAL")
+		else
+			incbar:SetOrientation("HORIZONTAL")
+		end
+		incbar:SetReverseFill(db.reverse and true or false)
+	end
+	if shieldbar and shieldbar.SetStatusBarTexture then
+		shieldbar:SetStatusBarTexture(texture)
+		shieldbar:SetStatusBarColor(0.2, 0.6, 1.0, 0.85)
+		shieldbar:ClearAllPoints()
+		shieldbar:SetAllPoints(barbase)
+		if db.vertical then
+			shieldbar:SetOrientation("VERTICAL")
+		else
+			shieldbar:SetOrientation("HORIZONTAL")
+		end
+		shieldbar:SetReverseFill(db.reverse and true or false)
 	end
 
 	-- setup bar orientations and texture coordinates
@@ -152,10 +234,7 @@ local function UpdateBarLook(unit, uf, f, db)  -- update bar look for statusbars
 			barfade.SetValue = sv
 			barfade:SetPoint(point, barbase, point)
 		end
-		if incbar then
-			incbar.SetValue = sv
-			incbar:SetPoint(point, bar, opoint)
-		end
+		-- incbar/shieldbar are SetAllPoints(barbase) StatusBars; no SetValue or SetPoint override needed
 		if spark then
 			local sparkc = db.sparkcolor or Stuf.whitecolor
 			spark:SetWidth(cw * 2.3)
@@ -173,10 +252,7 @@ local function UpdateBarLook(unit, uf, f, db)  -- update bar look for statusbars
 			barfade.SetValue = sv
 			barfade:SetPoint(point, barbase, point)
 		end
-		if incbar then
-			incbar.SetValue = sv
-			incbar:SetPoint(point, bar, opoint)
-		end
+		-- incbar/shieldbar are SetAllPoints(barbase) StatusBars; no SetValue or SetPoint override needed
 		if spark then
 			local sparkc = db.sparkcolor or Stuf.whitecolor
 			spark:SetWidth(12)
@@ -187,6 +263,29 @@ local function UpdateBarLook(unit, uf, f, db)  -- update bar look for statusbars
 	end
 	if ename == "hpbar" or ename == "mpbar" then
 		UpdateBarColors(unit, uf, f, true)
+		-- Sync the native StatusBar to match the barbase geometry and texture
+		if f.nativeBar then
+			local nb = f.nativeBar
+			nb:SetStatusBarTexture(texture)
+			nb:ClearAllPoints()
+			nb:SetAllPoints(barbase)
+			if db.vertical then
+				nb:SetOrientation("VERTICAL")
+			else
+				nb:SetOrientation("HORIZONTAL")
+			end
+			nb:SetReverseFill(db.reverse and true or false)
+			local nbLevel = (f:GetFrameLevel() or 1) + 1
+			nb:SetFrameLevel(nbLevel)
+			-- Keep overlay bars strictly below nativeBar so it paints over their left fill
+			if f.incbar and f.incbar.SetStatusBarTexture then
+				f.incbar:SetFrameLevel(math.max(1, nbLevel - 1))
+			end
+			if f.shieldbar and f.shieldbar.SetStatusBarTexture then
+				f.shieldbar:SetFrameLevel(math.max(1, nbLevel - 2))
+			end
+			nb:Show()
+		end
 	else
 		local bc = db.bgcolor or Stuf.hidecolor
 		bg:SetVertexColor(bc.r, bc.g, bc.b, bc.a)
@@ -201,6 +300,13 @@ do  -- Health and Power Bars ---------------------------------------------------
 		local f = uf and uf.hpbar and uf.hpbar.incbar
 		if not f then return end
 		UpdateStatusBar(unit, uf, uf.hpbar, nil, uf.cache.frachp)
+	end
+	-- Shield/absorb update: fires on UNIT_ABSORB_AMOUNT_CHANGED
+	local function ShieldUpdate(unit)
+		local uf = su[unit]
+		local hp = uf and uf.hpbar
+		if not hp or not hp.shieldbar then return end
+		UpdateStatusBar(unit, uf, hp, nil, uf.cache and (uf.cache.frachp or 1))
 	end
 	local function CreateBar(unit, uf, name, db)  -- create status bars for health or power
 		local f = uf[name]
@@ -217,8 +323,17 @@ do  -- Health and Power Bars ---------------------------------------------------
 			f.bg = f:CreateTexture(nil, "BACKGROUND")
 			f.bg:SetAllPoints(f)
 			f.barbase = CreateFrame("Frame", nil, uf, BackdropTemplateMixin and 'BackdropTemplate')
+			-- Native StatusBar: C engine handles secret health/power values safely.
+			-- f.bar is the texture used by UpdateBarLook for background sizing;
+			-- f.nativeBar is the real StatusBar that renders the fill.
+			local nb = CreateFrame("StatusBar", nil, f.barbase)
+			nb:SetMinMaxValues(0, 1)
+			nb:SetValue(1)
+			f.nativeBar = nb
+			-- Keep f.bar as a plain texture so UpdateBarLook works unchanged
 			f.bar = f:CreateTexture(nil, "ARTWORK")
-			
+			f.bar:SetAlpha(0)  -- invisible; nativeBar does the actual rendering
+
 			uf.refreshfuncs[name] = UpdateStatusBar
 			uf.refreshfuncs["barcolors"] = UpdateBarColors
 		else
@@ -228,12 +343,48 @@ do  -- Health and Power Bars ---------------------------------------------------
 			f.barfade = f:CreateTexture(nil, "BORDER")
 		end
 		if ishp then
+			-- Heal prediction calculator (feeds both incbar and shieldbar without
+			-- any Lua arithmetic on secret values).
+			if not f._hpCalc and CreateUnitHealPredictionCalc then
+				local calc = CreateUnitHealPredictionCalc()
+				-- Configure clamp modes to match oUF defaults (required or GetIncomingHeals
+				-- / GetDamageAbsorbs return zero/garbage on an unconfigured calculator).
+				if calc.SetDamageAbsorbClampMode then calc:SetDamageAbsorbClampMode(2) end  -- Enum.UnitDamageAbsorbClampMode.Max
+				if calc.SetHealAbsorbClampMode  then calc:SetHealAbsorbClampMode(1)  end  -- Enum.UnitHealAbsorbClampMode.Capped
+				if calc.SetHealAbsorbMode       then calc:SetHealAbsorbMode(1)       end  -- Enum.UnitHealAbsorbMode.CounterHeals
+				f._hpCalc = calc
+			end
 			if db.inc then
-				f.incbar = f.incbar or f:CreateTexture(nil, "ARTWORK")
+				-- incbar is a native StatusBar that overlaps the health bar area.
+				-- nativeBar (higher frame level) draws on top, so only the
+				-- "predicted heal" portion beyond the health fill is visible.
+				if not f.incbar then
+					local ib = CreateFrame("StatusBar", nil, f.barbase)
+					ib:SetAllPoints(f.barbase)
+					ib:SetMinMaxValues(0, 1)
+					ib:SetValue(0)
+					ib:Hide()
+					f.incbar = ib
+				end
 				f.incbar:SetAlpha(1)
 				Stuf:AddEvent("UNIT_HEAL_PREDICTION", IncomingHeal)
 			elseif f.incbar then
 				f.incbar:SetAlpha(0)
+			end
+			-- Absorb shield overlay (same native StatusBar pattern)
+			if db.shield then
+				if not f.shieldbar then
+					local sb = CreateFrame("StatusBar", nil, f.barbase)
+					sb:SetAllPoints(f.barbase)
+					sb:SetMinMaxValues(0, 1)
+					sb:SetValue(0)
+					sb:Hide()
+					f.shieldbar = sb
+				end
+				f.shieldbar:SetAlpha(1)
+				Stuf:AddEvent("UNIT_ABSORB_AMOUNT_CHANGED", ShieldUpdate)
+			elseif f.shieldbar then
+				f.shieldbar:SetAlpha(0)
 			end
 		end
 
@@ -265,13 +416,21 @@ do  -- Health and Power Bars ---------------------------------------------------
 						return
 					end
 					local current = UnitPower(unit)
-					if current < lastmana and GetTime() - recentcast < 0.6 then
-						fivestart = recentcast
-						recentcast = 0
-						spark:Show()
-						f.barbase:SetScript("OnUpdate", SparkOnUpdate)
+					-- current may be a secret value in combat; pcall-protect the comparison
+					local ok = pcall(function()
+						if current < lastmana and GetTime() - recentcast < 0.6 then
+							fivestart = recentcast
+							recentcast = 0
+							spark:Show()
+							f.barbase:SetScript("OnUpdate", SparkOnUpdate)
+						end
+						lastmana = current
+					end)
+					if not ok then
+						-- in combat, secret values can't be compared; hide tick spark silently
+						spark:Hide()
+						f.barbase:SetScript("OnUpdate", nil)
 					end
-					lastmana = current
 				end
 				Stuf:AddEvent("UNIT_SPELLCAST_SUCCEEDED", function(unit)
 					if unit == "player" and showtick then
@@ -374,9 +533,12 @@ do  -- Cast Bar ----------------------------------------------------------------
 		if not f then return end
 		local spell, displayName, icon, startTime, endTime, istrade, castid, notInterruptible = UnitCastingInfo(unit)
 		if not spell then return end
+		local endS, durS
+		pcall(function() endS = endTime * 0.001; durS = (endTime - startTime) * 0.001 end)
+		if not endS then return end
 
-		f.endtime = endTime * 0.001
-		f.duration = (endTime - startTime) * 0.001
+		f.endtime = endS
+		f.duration = durS
 		f.delay = nil
 		f.cstate = 1
 		f.castid = castid
@@ -389,8 +551,9 @@ do  -- Cast Bar ----------------------------------------------------------------
 		if f.lag then
 			f.lag:ClearAllPoints()
 			f.lag:SetPoint(f.lag.castpoint, f.barbase, f.lag.castpoint)
-			lagtime = (startTime * 0.001 - lagtime) / f.duration
-			f.lag:SetValueCast((lagtime > 0.9 or lagtime < 0.0001) and 0.0001 or lagtime, f.bvalue)
+			local lagfrac = 0.0001
+			pcall(function() lagfrac = (startTime * 0.001 - lagtime) / f.duration end)
+			f.lag:SetValueCast((lagfrac > 0.9 or lagfrac < 0.0001) and 0.0001 or lagfrac, f.bvalue)
 		end
 		f:Show()
 		return true
@@ -400,9 +563,12 @@ do  -- Cast Bar ----------------------------------------------------------------
 		if not f then return end
 		local spell, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(unit)
 		if not spell then return end
+		local endS, durS
+		pcall(function() endS = endTime * 0.001; durS = (endTime - startTime) * 0.001 end)
+		if not endS then return end
 
-		f.endtime = endTime * 0.001
-		f.duration = (endTime - startTime) * 0.001
+		f.endtime = endS
+		f.duration = durS
 		f.delay = nil
 		f.cstate = 2
 		f:SetAlpha(f.db.alpha or 1)
@@ -414,8 +580,9 @@ do  -- Cast Bar ----------------------------------------------------------------
 		if f.lag then
 			f.lag:ClearAllPoints()
 			f.lag:SetPoint(f.lag.chanpoint, f.barbase, f.lag.chanpoint)
-			lagtime = (startTime * 0.001 - lagtime) / f.duration
-			f.lag:SetValueChan(lagtime > 0.8 and 0.0001 or lagtime, f.bvalue)
+			local lagfrac = 0.0001
+			pcall(function() lagfrac = (startTime * 0.001 - lagtime) / f.duration end)
+			f.lag:SetValueChan(lagfrac > 0.8 and 0.0001 or lagfrac, f.bvalue)
 		end
 		f:Show()
 	end
@@ -446,10 +613,14 @@ do  -- Cast Bar ----------------------------------------------------------------
 		if not startTime then
 			f:Hide()
 		else
-			local p_endtime = f.endtime
-			f.endtime = endTime * 0.001
-			f.duration = (endTime - startTime) * 0.001
-			f.delay = (f.delay or 0) + (f.endtime - p_endtime)
+			local endS, durS
+			pcall(function() endS = endTime * 0.001; durS = (endTime - startTime) * 0.001 end)
+			if endS then
+				local p_endtime = f.endtime
+				f.endtime = endS
+				f.duration = durS
+				f.delay = (f.delay or 0) + (f.endtime - p_endtime)
+			end
 		end
 	end
 	local function UNIT_SPELLCAST_CHANNEL_UPDATE(unit)
@@ -459,10 +630,14 @@ do  -- Cast Bar ----------------------------------------------------------------
 		if not startTime then
 			f:Hide()
 		else
-			local p_endtime = f.endtime
-			f.endtime = endTime * 0.001
-			f.duration = (endTime - startTime) * 0.001
-			f.delay = (f.delay or 0) + (f.endtime - p_endtime)
+			local endS, durS
+			pcall(function() endS = endTime * 0.001; durS = (endTime - startTime) * 0.001 end)
+			if endS then
+				local p_endtime = f.endtime
+				f.endtime = endS
+				f.duration = durS
+				f.delay = (f.delay or 0) + (f.endtime - p_endtime)
+			end
 		end
 	end
 
@@ -665,7 +840,7 @@ do  -- Threat Bar --------------------------------------------------------------
 			f.text = f:CreateFontString(nil, "OVERLAY")
 			f.text:SetAllPoints(f)
 			f.text:SetJustifyH("CENTER")
-			f.text:SetJustifyV("CENTER")
+			f.text:SetJustifyV("MIDDLE")
 
 			ThreatOnUpdate = ThreatOnUpdate or function(this, a1)
 				local dir = this.dir or 1
@@ -910,13 +1085,13 @@ if CLS == "SHAMAN" or CLS == "DRUID" or CLS == "DEATHKNIGHT" or CLS == "PALADIN"
 				if reverse then
 					b.icon:SetPoint("LEFT", b, "RIGHT")
 					b.time:SetJustifyH("LEFT")
-					b.time:SetJustifyV("CENTER")
+					b.time:SetJustifyV("MIDDLE")
 					b.click:SetPoint("TOPLEFT", b, "TOPLEFT")
 					b.click:SetPoint("BOTTOMRIGHT", b.icon, "BOTTOMRIGHT")
 				else
 					b.icon:SetPoint("RIGHT", b, "LEFT")
 					b.time:SetJustifyH("RIGHT")
-					b.time:SetJustifyV("CENTER")
+					b.time:SetJustifyV("MIDDLE")
 					b.click:SetPoint("TOPLEFT", b.icon, "TOPLEFT")
 					b.click:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT")
 				end
@@ -950,6 +1125,15 @@ if CLS == "DRUID" or CLS == "PRIEST" or CLS == "SHAMAN" then  -- Druid Bar -----
 			f.barbase = CreateFrame("Frame", nil, uf, BackdropTemplateMixin and 'BackdropTemplate')
 			f.bar = f:CreateTexture(nil, "ARTWORK")
 			
+			-- Druid bar uses a native StatusBar to avoid secret-value arithmetic.
+			if not f.nativeDruidBar then
+				local nb = CreateFrame("StatusBar", nil, f.barbase)
+				nb:SetAllPoints(f.barbase)
+				nb:SetMinMaxValues(0, 1)
+				nb:SetValue(1)
+				f.nativeDruidBar = nb
+				f.bar:SetAlpha(0)  -- hide the old texture, nativeDruidBar renders instead
+			end
 			uf.refreshfuncs[name] = function(unit, uf, f)
 				uf = uf or su[unit]
 				f = f or (uf and not uf.hidden and uf.druidbar)
@@ -958,10 +1142,12 @@ if CLS == "DRUID" or CLS == "PRIEST" or CLS == "SHAMAN" then  -- Druid Bar -----
 				if uf.cache.powertype == 0 then
 					f:Hide()
 				else
-					local current, total = UnitPower(unit, 0), UnitPowerMax(unit, 0)
-					if f.curdmp ~= current or f.maxdmp ~= total then
-						f.bar:SetValue(current / total, f.bvalue)
-						f.curdmp, f.maxdmp = current, total
+					-- Pass raw secret values directly to C; no Lua division
+					local current = UnitPower(unit, 0)
+					local total = UnitPowerMax(unit, 0)
+					if f.nativeDruidBar then
+						f.nativeDruidBar:SetMinMaxValues(0, total)
+						f.nativeDruidBar:SetValue(current)
 					end
 					f:Show()
 				end
@@ -1009,26 +1195,102 @@ if CLS == "DEATHKNIGHT" then  -- Rune Bar --------------------------------------
 
 end
 if CLS == "PALADIN" then  -- Holy Bar -------------------------------------------------------------------------------------------------------
-	Stuf:AddBuilder("holybar", function(unit, uf, name, db, a5, config) 
+	-- PaladinPowerBarFrame no longer exists in 12.0.1 (Midnight).
+	-- Build a custom native StatusBar for Holy Power tracking.
+	local holyPowerType = (Enum.PowerType and Enum.PowerType.HolyPower) or 9
+
+	Stuf:AddBuilder("holybar", function(unit, uf, name, db, a5, config)
 		if unit ~= "player" then return end
-		local f = PaladinPowerBarFrame
-		if not f or db.hide then
+		local f = uf[name]
+		if db.hide then
 			if f then f:Hide() end
 			return
 		end
+		if not f then
+			-- Create a standalone frame (not via CreateBase — holy bar has no w/h in db)
+			f = CreateFrame("Frame", nil, uf, BackdropTemplateMixin and 'BackdropTemplate')
+			f.db = db
+			uf[name] = f
 
-		f:SetParent(uf)
+			-- Background texture
+			f.bg = f:CreateTexture(nil, "BACKGROUND")
+			f.bg:SetAllPoints(f)
+
+			-- barbase frame (nativeBar lives inside this)
+			f.barbase = CreateFrame("Frame", nil, f, BackdropTemplateMixin and 'BackdropTemplate')
+			f.barbase:SetAllPoints(f)
+
+			-- Native StatusBar: passes secret values to C safely
+			local nb = CreateFrame("StatusBar", nil, f.barbase)
+			nb:SetAllPoints(f.barbase)
+			nb:SetMinMaxValues(0, 5)
+			nb:SetValue(0)
+			f.nativeBar = nb
+
+			-- Update function: fires on UNIT_POWER_UPDATE / UNIT_MAXPOWER
+			local function UpdateHolyPower(evtUnit, powerToken)
+				if evtUnit and evtUnit ~= "player" then return end
+				-- powerToken may be nil (manual call) or a string; only proceed for holy power
+				if powerToken and powerToken ~= "HOLY_POWER" then return end
+				local fuu = su["player"]
+				local ff = fuu and not fuu.hidden and fuu[name]
+				if not ff or ff.db.hide then return end
+				local cur = UnitPower("player", holyPowerType)
+				local max = UnitPowerMax("player", holyPowerType)
+				-- Pass raw secret values directly to C; no Lua arithmetic or comparison needed.
+				-- The C-side StatusBar API handles secret values natively.
+				ff.nativeBar:SetMinMaxValues(0, max)
+				ff.nativeBar:SetValue(cur)
+			end
+			f.UpdateHolyPower = UpdateHolyPower
+			uf.refreshfuncs[name] = UpdateHolyPower
+			Stuf:AddEvent("UNIT_POWER_UPDATE",   UpdateHolyPower)
+			Stuf:AddEvent("UNIT_MAXPOWER",        UpdateHolyPower)
+			Stuf:AddEvent("UNIT_DISPLAYPOWER",    UpdateHolyPower)
+			Stuf:AddEvent("PLAYER_ENTERING_WORLD", function() UpdateHolyPower() end)
+		end
+
+		-- Size: use db.w/h if configured, otherwise fall back to sensible defaults
+		local w = db.w or 160
+		local h = db.h or 14
+		f:SetWidth(w)
+		f:SetHeight(h)
+
+		-- Textures
+		local texture = Stuf:GetMedia("statusbar", db.bartexture)
+		f.bg:SetTexture(texture)
+		local bgc = db.bgcolor or { r=0, g=0, b=0, a=0.4 }
+		f.bg:SetVertexColor(bgc.r, bgc.g, bgc.b, db.bgalpha or bgc.a or 0.4)
+
+		-- Native bar appearance
+		f.nativeBar:SetStatusBarTexture(texture)
+		f.nativeBar:ClearAllPoints()
+		f.nativeBar:SetAllPoints(f.barbase)
+		if db.vertical then
+			f.nativeBar:SetOrientation("VERTICAL")
+		else
+			f.nativeBar:SetOrientation("HORIZONTAL")
+		end
+		f.nativeBar:SetReverseFill(db.reverse and true or false)
+		f.nativeBar:SetFrameLevel((f:GetFrameLevel() or 1) + 1)
+
+		-- Bar color: golden holy power tint by default
+		local c = db.barcolor or { r=0.95, g=0.90, b=0.60, a=1 }
+		f.nativeBar:SetStatusBarColor(c.r, c.g, c.b, db.baralpha or c.a or 1)
+
+		-- Position relative to unit frame
+		f:ClearAllPoints()
 		f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0)
 		f:SetScale(db.scale or 1)
 		f:SetAlpha(db.alpha or 1)
-		if db.framelevel then
-			f:SetFrameLevel(db.framelevel)
-		end
-		if db.strata then
-			f:SetFrameStrata(db.strata)
-		end
+		if db.framelevel then f:SetFrameLevel(db.framelevel) end
+		if db.strata then f:SetFrameStrata(db.strata) end
 		f:EnableMouse(not db.nomouse)
-		--PaladinPowerBar_OnLoad(f)
+		f:Show()
+
+		if Stuf.inworld then
+			f.UpdateHolyPower()
+		end
 	end)
 
 end
@@ -1107,4 +1369,3 @@ if CLS == "MONK" then  -- Monk Power Frame -------------------------------------
 		end
 	end)
 end
-

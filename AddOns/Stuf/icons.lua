@@ -214,7 +214,8 @@ do  -- General Icons -----------------------------------------------------------
 		UpdateStatusIcon("player", su.player)
 	end
 	
-	local select, GetLootMethod, GetRaidRosterInfo = select, GetLootMethod, GetRaidRosterInfo
+	local select, GetRaidRosterInfo = select, GetRaidRosterInfo
+	local function GetLootMethod() return (C_Loot and C_Loot.GetLootMethod and C_Loot.GetLootMethod()) or "freeforall", nil end
 	local UnitIsGroupLeader, UnitIsUnit = UnitIsGroupLeader, UnitIsUnit
 	local function updateuniticon(uf, icon, show)
 		local f = uf and not uf.hidden and uf[icon]
@@ -260,13 +261,31 @@ do  -- General Icons -----------------------------------------------------------
 		end
 	end
 	
-	local GetRaidTargetIndex, SetRaidTargetIconTexture = GetRaidTargetIndex, SetRaidTargetIconTexture
+	local GetRaidTargetIndex = GetRaidTargetIndex
+	-- SetRaidTargetIconTexture removed in 12.0 (expects RaidTargetIcon widget, calls SetSpriteSheetCell).
+	-- Use manual texcoords on UI-RaidTargetingIcons instead (4 cols x 2 rows).
+	local raidTargetCoords = {
+		[1] = {0,    0.25, 0,   0.5},  -- Star
+		[2] = {0.25, 0.5,  0,   0.5},  -- Circle
+		[3] = {0.5,  0.75, 0,   0.5},  -- Diamond
+		[4] = {0.75, 1,    0,   0.5},  -- Triangle
+		[5] = {0,    0.25, 0.5, 1},    -- Moon
+		[6] = {0.25, 0.5,  0.5, 1},    -- Square
+		[7] = {0.5,  0.75, 0.5, 1},    -- Cross
+		[8] = {0.75, 1,    0.5, 1},    -- Skull
+	}
+	local function SetRaidTargetIcon(icon, index)
+		local c = raidTargetCoords[index]
+		if c then
+			icon:SetTexCoord(c[1], c[2], c[3], c[4])
+			icon:Show()
+		end
+	end
 	local function UpdateRaidTargetIcons(unit, uf, _, _, _, config)  -- raid target icon
 		if config then
 			local icon = uf and not uf.hidden and uf.raidtargeticon
 			if icon and not icon.db.hide then
-				SetRaidTargetIconTexture(icon, math.random(1, 8))
-				icon:Show()
+				SetRaidTargetIcon(icon, math.random(1, 8))
 			end
 			return
 		end
@@ -277,8 +296,7 @@ do  -- General Icons -----------------------------------------------------------
 			if icon and not icon.db.hide then
 				local iconindex = GetRaidTargetIndex(unit)
 				if iconindex then
-					SetRaidTargetIconTexture(icon, iconindex)
-					icon:Show()
+					SetRaidTargetIcon(icon, iconindex)
 				else
 					icon:Hide()
 				end
@@ -289,8 +307,7 @@ do  -- General Icons -----------------------------------------------------------
 				if icon and not icon.db.hide then
 					local iconindex = GetRaidTargetIndex(unit)
 					if iconindex then
-						SetRaidTargetIconTexture(icon, iconindex)
-						icon:Show()
+						SetRaidTargetIcon(icon, iconindex)
 					else
 						icon:Hide()
 					end
@@ -388,6 +405,13 @@ do  -- General Icons -----------------------------------------------------------
 			Stuf:AddEvent("UNIT_ENTERED_VEHICLE", Stuf.UpdateVehicleIcon)
 			Stuf:AddEvent("UNIT_EXITED_VEHICLE", Stuf.UpdateVehicleIcon)
 		elseif name == "lfgicon" and UnitGroupRolesAssigned then
+			-- GetTexCoordsForRole removed in 12.0; use hardcoded coords from UI-LFG-ICON-ROLES
+			local roleCoords = {
+				TANK    = { 0, 0.265625, 0, 0.53125 },
+				HEALER  = { 0.265625, 0.53125, 0, 0.53125 },
+				DAMAGER = { 0, 0.265625, 0.53125, 1 },
+				NONE    = { 0.265625, 0.53125, 0.53125, 1 },
+			}
 			Stuf.UpdateRoleIcon = Stuf.UpdateRoleIcon or function(_, _, _, _, _, config)
 				for u, uf in pairs(su) do
 					local f = (uf and not uf.hidden and uf.lfgicon)
@@ -399,7 +423,8 @@ do  -- General Icons -----------------------------------------------------------
 						if not config and (not role or role == "NONE") then
 							f:Hide()
 						else
-							local l, r, t, b = GetTexCoordsForRole(role ~= "NONE" and role or "TANK")
+							local c = roleCoords[role ~= "NONE" and role or "TANK"] or roleCoords["TANK"]
+							local l, r, t, b = c[1], c[2], c[3], c[4]
 							if not f.db.circular then
 								local offset1, offset2 = (r - l) * .2, (b - t) * .2
 								f:SetTexCoord(l + offset1, r - offset1, t + offset2, b - (offset2 * 1.2))

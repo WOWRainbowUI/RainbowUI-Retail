@@ -5,7 +5,7 @@ local su = Stuf.units
 local s40, dbg
 Stuf:AddOnInit(function(_, idbg)
 	dbg = idbg
-	s40 = Stuf.supportspell and GetSpellTexture(Stuf.supportspell) and Stuf.supportspell
+	s40 = Stuf.supportspell and (GetSpellTexture and GetSpellTexture(Stuf.supportspell) or true) and Stuf.supportspell
 end)
 
 local CreateFrame = CreateFrame
@@ -14,7 +14,11 @@ local UnitIsTapDenied = UnitIsTapDenied
 local UnitIsDeadOrGhost, UnitIsDead, UnitIsGhost, UnitIsConnected = UnitIsDeadOrGhost, UnitIsDead, UnitIsGhost, UnitIsConnected
 local UnitIsAFK, UnitIsDND = UnitIsAFK, UnitIsDND
 local UnitSex = UnitSex
-local UnitIsVisible, GetSpellTexture, IsSpellInRange, UnitInRange = UnitIsVisible, GetSpellTexture, IsSpellInRange, UnitInRange
+local UnitIsVisible = UnitIsVisible
+local GetSpellTexture = (C_Spell and C_Spell.GetSpellTexture) or GetSpellTexture
+local IsSpellInRange = IsSpellInRange
+local C_SpellIsInRange = C_Spell and C_Spell.IsSpellInRange
+local UnitInRange = UnitInRange
 local UnitAffectingCombat, InCombatLockdown = UnitAffectingCombat, InCombatLockdown
 
 local format, strmatch, gsub = format, strmatch, gsub
@@ -45,8 +49,9 @@ local conditions = {
 		if ( unit == "player" or not ca.assist or ca.dead or not UnitIsConnected(unit) ) then
 			return false
 		elseif ( not UnitIsVisible(unit) ) or
-		       ( s40 and IsSpellInRange(s40, BOOKTYPE_SPELL, unit) == 0 ) or
-			   ( not s40 and Stuf.ingroup and ca.ingroup and not UnitInRange(unit) ) then
+		       ( s40 and not C_SpellIsInRange and IsSpellInRange and IsSpellInRange(s40, unit) == 0 ) or
+			   ( not s40 and Stuf.ingroup and ca.ingroup and not UnitInRange(unit) ) or
+		( s40 and C_SpellIsInRange and C_SpellIsInRange(s40, unit) == false ) then
 			return true
 		end
 		return false
@@ -73,6 +78,11 @@ do  -- custom text handlers ----------------------------------------------------
 	local reactiontags = { "reaction", "creature", "pvp", "hostile", "attack", "helpful", "afk", "dnd", "combat", "tapped", "offline", }
 	local lifestatus = { "dead", "ghost", "alive", }
 	local function TextFormat(t, r, g, b)
+		-- Secret value guard: type() returns "number" for secrets but comparisons crash
+		if type(t) == "number" then
+			local ok = pcall(function() return t < 0 end)
+			if not ok then return "" end  -- secret value, can't format yet
+		end
 		if r then
 			if type(t) ~= "number" then
 				return format("|cff%02x%02x%02x%s|r", r * 255, g * 255, b * 255, t)
@@ -391,7 +401,8 @@ end
 
 
 do  -- Group Number Text ----------------------------------------------------------------------------------------------
-	local GetRaidRosterInfo, UnitIsUnit = GetRaidRosterInfo, UnitIsUnit
+	local GetRaidRosterInfo = GetRaidRosterInfo  -- still a global in 12.0, no namespace change
+	local UnitIsUnit = UnitIsUnit
 	local UpdateGroupText
 	Stuf:AddBuilder("grouptext", function(unit, uf, name, db, _, config)
 		local f = uf[name]
@@ -472,7 +483,7 @@ do  -- Pet Timer ---------------------------------------------------------------
 			f = Stuf:CreateBase(unit, uf, name, db)
 			f.fontstring = f:CreateFontString(nil, "ARTWORK")
 			f.fontstring:SetAllPoints()
-			local GetPetTimeRemaining = GetPetTimeRemaining
+			local GetPetTimeRemaining = GetPetTimeRemaining or function() return nil end
 			UpdatePetTime = function(unit, uf, f, _, _, config)
 				uf = uf or uf[unit]
 				f = f or (uf and not uf.hidden and uf.pettime)

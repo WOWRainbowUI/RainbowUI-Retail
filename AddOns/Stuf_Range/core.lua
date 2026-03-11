@@ -58,7 +58,7 @@ local function CreateRangeText(unit, uf, name, db, a5, config)
 	t:SetShadowColor(sc.r, sc.g, sc.b, sc.a)
 	t:SetShadowOffset(db.shadowx or 0, db.shadowy or 0)
 	t:SetJustifyH(db.justifyH or "CENTER")
-	t:SetJustifyV(db.justifyV or "CENTER")
+	t:SetJustifyV(db.justifyV or "MIDDLE") -- fix
 	
 	UpdateRangeText(unit, uf, f, nil, nil, config)
 end
