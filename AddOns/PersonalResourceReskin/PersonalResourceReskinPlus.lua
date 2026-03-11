@@ -219,13 +219,12 @@ function ApplyReskinToPRD()
 
     if prd.AlternatePowerBar then
         ReskinAlternatePowerBar(prd.AlternatePowerBar)
-        -- EBONMIGHT text logic removed by user request
     end
 
     MoveAlternatePowerBar()
 end
 
--- Tracked display
+-- Tracked displaydw    
 local Tracked = {
     spellIDs = {},
     frames = {},

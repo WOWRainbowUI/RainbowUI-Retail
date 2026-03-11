@@ -44,6 +44,7 @@ Libs/LibSharedMedia-3.0/lib.xml
 
 
 PersonalResourceReskin.lua
+AbbreviateNumbers.lua
 Options_Main.lua
 PlayerPowerText.lua
 PRDPowerToggle.lua

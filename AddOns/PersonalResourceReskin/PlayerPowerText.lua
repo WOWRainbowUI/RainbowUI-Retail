@@ -1,17 +1,3 @@
--- Blizzard-style abbreviation data
-local abbrevData = {
-    breakpointData = {
-        { breakpoint = 1e12, abbreviation = "B", significandDivisor = 1e10, fractionDivisor = 100, abbreviationIsGlobal = false },
-        { breakpoint = 1e11, abbreviation = "B", significandDivisor = 1e9, fractionDivisor = 1, abbreviationIsGlobal = false },
-        { breakpoint = 1e10, abbreviation = "B", significandDivisor = 1e8, fractionDivisor = 10, abbreviationIsGlobal = false },
-        { breakpoint = 1e9, abbreviation = "B", significandDivisor = 1e7, fractionDivisor = 100, abbreviationIsGlobal = false },
-        { breakpoint = 1e8, abbreviation = "M", significandDivisor = 1e6, fractionDivisor = 1, abbreviationIsGlobal = false },
-        { breakpoint = 1e7, abbreviation = "M", significandDivisor = 1e5, fractionDivisor = 10, abbreviationIsGlobal = false },
-        { breakpoint = 1e6, abbreviation = "M", significandDivisor = 1e4, fractionDivisor = 100, abbreviationIsGlobal = false },
-        { breakpoint = 1e5, abbreviation = "K", significandDivisor = 1000, fractionDivisor = 1, abbreviationIsGlobal = false },
-        { breakpoint = 1e4, abbreviation = "K", significandDivisor = 100, fractionDivisor = 10, abbreviationIsGlobal = false },
-    },
-}
 -- PlayerPowerText.lua
 -- PlayerPowerText: safe, taint-free player power text with options and lock/unlock dragging via slash commands.
 -- Backdrop (white border + background) is shown only when unlocked.
@@ -53,23 +39,24 @@ end
 CopyDefaults(PlayerPowerTextDB, defaults)
 
 
-local prd = _G.PersonalResourceDisplayFrame
-local powerBar = prd and prd.PowerBar
-local text
+-- Deferred: frames may not exist at load time
+local prd, powerBar, text
 
-
-if powerBar then
-    text = powerBar:CreateFontString("PlayerPowerTextFontString", "OVERLAY", "GameFontNormal")
-    text:SetPoint("CENTER", powerBar, "CENTER", 0, 0)
-    text:SetText("")
-    text:SetDrawLayer("OVERLAY")
-    if text.SetFrameStrata then
-        text:SetFrameStrata("HIGH")
-    elseif text:GetParent() and text:GetParent().SetFrameStrata then
-        text:GetParent():SetFrameStrata("HIGH")
+local function EnsurePowerTextCreated()
+    if text then return true end
+    prd = _G.PersonalResourceDisplayFrame
+    powerBar = prd and prd.PowerBar
+    if powerBar then
+        text = powerBar:CreateFontString("PlayerPowerTextFontString", "OVERLAY", "GameFontNormal")
+        text:SetPoint("CENTER", powerBar, "CENTER", 0, 0)
+        text:SetText("")
+        text:SetDrawLayer("OVERLAY")
+        if text:GetParent() and text:GetParent().SetFrameStrata then
+            text:GetParent():SetFrameStrata("HIGH")
+        end
+        return true
     end
-else
-    print("|cff00ff80PlayerPowerText|r: Could not find PersonalResourceDisplayFrame.PowerBar!")
+    return false
 end
 
 
@@ -156,6 +143,7 @@ function SafeSetFont(fs, fontChoice, size, fontFlags)
 end
 
 function ApplyDisplaySettings()
+    if not EnsurePowerTextCreated() then return end
     if PPT_EDITMODE_ACTIVE then
         if text then text:SetText(""); text:Hide() end
         return
@@ -190,6 +178,7 @@ function ApplyDisplaySettings()
 end
 
 function UpdatePowerText()
+    if not EnsurePowerTextCreated() then return end
     if PPT_EDITMODE_ACTIVE then
         if text then text:SetText(""); text:Hide() end
         return
@@ -217,8 +206,8 @@ function UpdatePowerText()
         powerType = CLASS_SPEC_POWER_TYPE[class][spec]
     end
     if powerType then
-        cur = UnitPower("player", powerType)
-        max = UnitPowerMax("player", powerType)
+        cur = SafeNumberCall(UnitPower, "player", powerType)
+        max = SafeNumberCall(UnitPowerMax, "player", powerType)
     else
         cur, max = SafeGetUnitPower("player")
     end
@@ -230,27 +219,24 @@ function UpdatePowerText()
         end
     end
 
-    -- Ensure font is applied before setting text to avoid "Font not set" taint
-    ApplyDisplaySettings()
-
     if db.textFormat == "percent" and pct then
         text:SetFormattedText("%.0f%%", pct)
     elseif db.textFormat == "currentmax" and type(cur) == "number" and type(max) == "number" then
         if type(AbbreviateNumbers) == "function" then
-            text:SetText(AbbreviateNumbers(cur, abbrevData) .. " / " .. AbbreviateNumbers(max, abbrevData))
+            text:SetText(AbbreviateNumbers(cur) .. " / " .. AbbreviateNumbers(max))
         else
             text:SetFormattedText("%d / %d", cur, max)
         end
     elseif db.textFormat == "current" and type(cur) == "number" then
         if type(AbbreviateNumbers) == "function" then
-            text:SetText(AbbreviateNumbers(cur, abbrevData))
+            text:SetText(AbbreviateNumbers(cur))
         else
             text:SetFormattedText("%d", cur)
         end
     elseif db.textFormat == "both" and type(cur) == "number" and type(max) == "number" and pct then
         -- Show both current/max and percent
         if type(AbbreviateNumbers) == "function" then
-            text:SetText(AbbreviateNumbers(cur, abbrevData) .. " / " .. AbbreviateNumbers(max, abbrevData) .. " (" .. string.format("%.0f%%", pct) .. ")")
+            text:SetText(AbbreviateNumbers(cur) .. " / " .. AbbreviateNumbers(max) .. " (" .. string.format("%.0f%%", pct) .. ")")
         else
             text:SetFormattedText("%d / %d (%.0f%%)", cur, max, pct)
         end
@@ -437,7 +423,7 @@ fadeCheck:SetScript("OnClick", function(self)
     local db = PlayerPowerTextDB
     local function abbr(val)
         if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-            return AbbreviateNumbers(val, abbrevData)
+            return AbbreviateNumbers(val)
         end
         return tostring(val)
     end
@@ -459,6 +445,7 @@ do
     if high then high:SetText("1.0") end
 end
 fadeSlider:SetScript("OnValueChanged", function(self, val)
+    if self._initializing then return end
     PlayerPowerTextDB.fadeAlpha = tonumber(string.format("%.2f", val))
     UpdatePowerText()
 end)
@@ -480,9 +467,9 @@ resetBtn:SetScript("OnClick", function()
     if sizeSlider then sizeSlider:SetValue(PlayerPowerTextDB.fontSize) end
     UpdateColorButton()
     if fadeCheck then fadeCheck:SetChecked(PlayerPowerTextDB.fadeWhenFull) end
-    if fadeSlider then fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha) end
+    if fadeSlider then fadeSlider._initializing = true; fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha); fadeSlider._initializing = false end
     ApplyDisplaySettings()
-        text:SetText(abbr(cur) .. " / " .. abbr(max))
+    UpdatePowerText()
 end)
 
 panel.okay = function() end
@@ -496,7 +483,7 @@ panel.refresh = function()
     if sizeSlider then sizeSlider:SetValue(PlayerPowerTextDB.fontSize) end
     UpdateColorButton()
     if fadeCheck then fadeCheck:SetChecked(PlayerPowerTextDB.fadeWhenFull) end
-    if fadeSlider then fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha) end
+    if fadeSlider then fadeSlider._initializing = true; fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha); fadeSlider._initializing = false end
 end
 
 -- Defer adding the options panel and initialize dropdown on PLAYER_LOGIN
@@ -555,7 +542,7 @@ optionsRegistrar:SetScript("OnEvent", function(self)
     if sizeSlider then sizeSlider:SetValue(PlayerPowerTextDB.fontSize) end
     UpdateColorButton()
     if fadeCheck then fadeCheck:SetChecked(PlayerPowerTextDB.fadeWhenFull) end
-    if fadeSlider then fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha) end
+    if fadeSlider then fadeSlider._initializing = true; fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha); fadeSlider._initializing = false end
 
     self:UnregisterEvent("PLAYER_LOGIN")
 end)
@@ -566,22 +553,20 @@ end)
 
 -- Create a hidden event frame to update the text live
 local pptEventFrame = CreateFrame("Frame")
-pptEventFrame:RegisterEvent("UNIT_POWER_UPDATE")
-pptEventFrame:RegisterEvent("UNIT_MAXPOWER")
-pptEventFrame:RegisterEvent("UNIT_DISPLAYPOWER")
+pptEventFrame:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
+pptEventFrame:RegisterUnitEvent("UNIT_MAXPOWER", "player")
+pptEventFrame:RegisterUnitEvent("UNIT_DISPLAYPOWER", "player")
 pptEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 pptEventFrame:SetScript("OnEvent", function(self, event, unit)
-    if (event == "UNIT_POWER_UPDATE" or event == "UNIT_MAXPOWER" or event == "UNIT_DISPLAYPOWER") and unit ~= "player" then
-        return
+    if event == "PLAYER_ENTERING_WORLD" then
+        ApplyDisplaySettings()
     end
-    ApplyDisplaySettings()
     UpdatePowerText()
 end)
 
 
--- Initial apply and update
+-- Initial display settings only; UpdatePowerText() deferred to PLAYER_ENTERING_WORLD
 ApplyDisplaySettings()
-UpdatePowerText()
 
 -- Listen for external font/color/fontFlags changes (from main config menu)
 local lastFont, lastColor, lastFontFlags
@@ -607,13 +592,14 @@ local function MonitorExternalFontColor()
             UpdatePowerText()
         end
     end
-    C_Timer.After(0.2, MonitorExternalFontColor)
+    C_Timer.After(2, MonitorExternalFontColor)
 end
-C_Timer.After(1, MonitorExternalFontColor)
+C_Timer.After(2, MonitorExternalFontColor)
 
 local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
 local orig_ApplyDisplaySettings = ApplyDisplaySettings
 function ApplyDisplaySettings()
+    if not EnsurePowerTextCreated() then return end
     local db = PlayerPowerTextDB
     local fontFlags = db.fontFlags or (_G.PersonalResourceReskinDB and _G.PersonalResourceReskinDB.profile and _G.PersonalResourceReskinDB.profile.fontFlags) or "OUTLINE"
     local fontChoice = db.fontChoice

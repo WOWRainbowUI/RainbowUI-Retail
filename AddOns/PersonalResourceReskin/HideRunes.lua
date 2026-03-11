@@ -20,6 +20,7 @@ f:SetScript("OnEvent", function()
 end)
 
 function _G.UpdateMoveClassResource()
+    if InCombatLockdown() then return end
     local x, y = 0, 0
     if PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile then
         x = PersonalResourceReskin.db.profile.prdClassFrameX or 0

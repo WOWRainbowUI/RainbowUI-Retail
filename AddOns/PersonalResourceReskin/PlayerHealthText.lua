@@ -1,20 +1,4 @@
 
--- Blizzard-style abbreviation data
-local abbrevData = {
-    breakpointData = {
-        { breakpoint = 1e12, abbreviation = "B", significandDivisor = 1e10, fractionDivisor = 100, abbreviationIsGlobal = false },
-        { breakpoint = 1e11, abbreviation = "B", significandDivisor = 1e9, fractionDivisor = 1, abbreviationIsGlobal = false },
-        { breakpoint = 1e10, abbreviation = "B", significandDivisor = 1e8, fractionDivisor = 10, abbreviationIsGlobal = false },
-        { breakpoint = 1e9, abbreviation = "B", significandDivisor = 1e7, fractionDivisor = 100, abbreviationIsGlobal = false },
-        { breakpoint = 1e8, abbreviation = "M", significandDivisor = 1e6, fractionDivisor = 1, abbreviationIsGlobal = false },
-        { breakpoint = 1e7, abbreviation = "M", significandDivisor = 1e5, fractionDivisor = 10, abbreviationIsGlobal = false },
-        { breakpoint = 1e6, abbreviation = "M", significandDivisor = 1e4, fractionDivisor = 100, abbreviationIsGlobal = false },
-        { breakpoint = 1e5, abbreviation = "K", significandDivisor = 1000, fractionDivisor = 1, abbreviationIsGlobal = false },
-        { breakpoint = 1e4, abbreviation = "K", significandDivisor = 100, fractionDivisor = 10, abbreviationIsGlobal = false },
-    },
-}
-
-
 -- SavedVariables
 PlayerHealthTextDB = PlayerHealthTextDB or {}
 
@@ -85,7 +69,7 @@ end
 local function FormatText(style, cur, max, pct)
     local function abbr(val)
         if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-            return AbbreviateNumbers(val, abbrevData)
+            return AbbreviateNumbers(val)
         end
         return tostring(val)
     end
@@ -111,16 +95,23 @@ end
 
 
 -- Attach health text directly to PRD health bar, like PlayerPowerText
-local prd = _G.PersonalResourceDisplayFrame
-local healthBar = prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar
-local text
-if healthBar and healthBar.CreateFontString then
-    healthBar:SetFrameStrata("MEDIUM")
-    text = healthBar:CreateFontString("PlayerHealthTextFontString", "OVERLAY", "GameFontNormal")
-    text:SetPoint("CENTER", healthBar, "CENTER", 0, 0)
-    text:SetJustifyH("CENTER")
-    if text.SetJustifyV then text:SetJustifyV("MIDDLE") end
-    text:SetText("")
+-- Deferred: frames may not exist at load time
+local prd, healthBar, text
+
+local function EnsureHealthTextCreated()
+    if text then return true end
+    prd = _G.PersonalResourceDisplayFrame
+    healthBar = prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar
+    if healthBar and healthBar.CreateFontString then
+        healthBar:SetFrameStrata("MEDIUM")
+        text = healthBar:CreateFontString("PlayerHealthTextFontString", "OVERLAY", "GameFontNormal")
+        text:SetPoint("CENTER", healthBar, "CENTER", 0, 0)
+        text:SetJustifyH("CENTER")
+        if text.SetJustifyV then text:SetJustifyV("MIDDLE") end
+        text:SetText("")
+        return true
+    end
+    return false
 end
 
 -- Safe helpers
@@ -160,16 +151,14 @@ end
 
 
 function ApplyDisplaySettings()
+    if not EnsureHealthTextCreated() then return end
     local db = PlayerHealthTextDB
-    if not healthBar or not text then return end
-    -- Font and size
-    local fontChoice = (type(_G.PlayerPowerTextDB) == "table" and _G.PlayerPowerTextDB.fontChoice) or db.fontChoice or defaults.fontChoice
-    local fontFlags = (type(_G.PersonalResourceReskinDB) == "table" and _G.PersonalResourceReskinDB.profile and _G.PersonalResourceReskinDB.profile.fontFlags)
-        or (type(_G.PlayerPowerTextDB) == "table" and _G.PlayerPowerTextDB.fontFlags)
-        or db.fontFlags or "OUTLINE"
+    -- Font and size — use own DB, not PlayerPowerTextDB
+    local fontChoice = db.fontChoice or defaults.fontChoice
+    local fontFlags = db.fontFlags or "OUTLINE"
     SafeSetFont(text, fontChoice, db.fontSize or defaults.fontSize, fontFlags)
-    -- Color
-    local color = (type(_G.PlayerPowerTextDB) == "table" and _G.PlayerPowerTextDB.color) or db.color or defaults.color
+    -- Color — use own DB
+    local color = db.color or defaults.color
     local r, g, b = unpack(color)
     if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" then
         r, g, b = unpack(defaults.color)
@@ -195,6 +184,7 @@ end
 
 
 function UpdateHealthText()
+    if not EnsureHealthTextCreated() then return end
     if not UnitExists("player") then
         if text then text:SetText(""); text:Hide() end
         return
@@ -224,15 +214,14 @@ function UpdateHealthText()
     end
     if text.SetJustifyV then text:SetJustifyV("MIDDLE") end
     local Unit = "player"
-    local Percent = UnitHealthPercent and UnitHealthPercent(Unit, false, CurveConstants and CurveConstants.ScaleTo100) or nil
-    local Current = UnitHealth(Unit)
-    local Max = UnitHealthMax(Unit)
+    local Percent = SafeUnitHealthPercent(Unit)
+    local Current, Max = SafeGetUnitHealth(Unit)
     local displayMode = PlayerHealthTextDB and PlayerHealthTextDB.displayMode or "percent"
     if displayMode == "absorbs" then
         local absorb = UnitGetTotalAbsorbs(Unit)
         local function abbr(val)
             if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                return AbbreviateNumbers(val, abbrevData)
+                return AbbreviateNumbers(val)
             end
             return tostring(val)
         end
@@ -268,7 +257,7 @@ function UpdateHealthText()
         end
         local function abbr(val)
             if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                return AbbreviateNumbers(val, abbrevData)
+                return AbbreviateNumbers(val)
             end
             return tostring(val)
         end
@@ -298,7 +287,7 @@ function UpdateHealthText()
                 local function abbr(val)
                     if type(val) == "number" then
                         if AbbreviateNumbers then
-                            return AbbreviateNumbers(val, abbrevData)
+                            return AbbreviateNumbers(val)
                         end
                     end
                     return tostring(val)
@@ -314,7 +303,7 @@ function UpdateHealthText()
             if absorbNum > 0 then
                 local function abbr(val)
                     if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                        return AbbreviateNumbers(val, abbrevData)
+                        return AbbreviateNumbers(val)
                     end
                     return tostring(val)
                 end
@@ -329,7 +318,7 @@ function UpdateHealthText()
             if absorbNum > 0 then
                 local function abbr(val)
                     if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                        return AbbreviateNumbers(val, abbrevData)
+                        return AbbreviateNumbers(val)
                     end
                     return tostring(val)
                 end
@@ -344,7 +333,7 @@ function UpdateHealthText()
             if absorbNum > 0 then
                 local function abbr(val)
                     if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                        return AbbreviateNumbers(val, abbrevData)
+                        return AbbreviateNumbers(val)
                     end
                     return tostring(val)
                 end
@@ -364,11 +353,11 @@ evt:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", "player")
 evt:RegisterEvent("PLAYER_ENTERING_WORLD")
 evt:RegisterEvent("PLAYER_UNGHOST")
 evt:RegisterEvent("PLAYER_ALIVE")
-evt:RegisterEvent("PLAYER_REGEN_ENABLED")
-evt:RegisterEvent("PLAYER_REGEN_DISABLED")
 evt:SetScript("OnEvent", function(self, event, unit)
     if unit and unit ~= "player" then return end
-    ApplyDisplaySettings()
+    if event == "PLAYER_ENTERING_WORLD" then
+        ApplyDisplaySettings()
+    end
     UpdateHealthText()
 end)
 
@@ -408,9 +397,8 @@ SlashCmdList["PLAYERHEALTHTEXT"] = function(msg)
 end
 
 
--- Initial state
+-- Initial display settings only; UpdateHealthText() deferred to PLAYER_ENTERING_WORLD
 ApplyDisplaySettings()
-UpdateHealthText()
 
 
 -- No custom frame or re-anchoring needed; text is always on healthBar

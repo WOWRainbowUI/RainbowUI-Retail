@@ -29,11 +29,12 @@ local function ShowScreenMessage(msg)
 end
 
 local function AnchorFrame()
+    if InCombatLockdown() or (EditModeManagerFrame and EditModeManagerFrame.editModeActive) then return end
     f:ClearAllPoints()
     local prd = _G["PersonalResourceDisplayFrame"]
     local altBar = prd and prd.AlternatePowerBar
     local anchor = altBar and altBar.background
-    if anchor and altBar:IsShown() and not IsMounted() then
+    if anchor and altBar:IsShown() and (type(IsMounted) == "function" and not IsMounted()) then
         f:SetPoint("RIGHT", anchor, "RIGHT", 34, 0)
         f:Show()
     else

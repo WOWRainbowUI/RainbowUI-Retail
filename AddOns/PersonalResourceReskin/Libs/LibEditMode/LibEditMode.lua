@@ -335,13 +335,35 @@ function lib:AddFrame(frame, callback, default, name)
 	lib.frameDefaults[frame] = default
 
 	if not internal.dialog then
-		internal.dialog = internal:CreateDialog()
-		internal.dialog:HookScript("OnHide", function()
-			resetSelection()
-		end)
+		if internal.CreateDialog then
+			internal.dialog = internal:CreateDialog()
+			internal.dialog:HookScript("OnHide", function()
+				resetSelection()
+			end)
 
-		if not isManagerHooked then
-			hookManager()
+			if not isManagerHooked then
+				hookManager()
+			end
+		elseif not lib._deferredDialogInit then
+			lib._deferredDialogInit = true
+			local initFrame = CreateFrame("Frame")
+			initFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+			initFrame:RegisterEvent("ADDON_LOADED")
+			initFrame:SetScript("OnEvent", function(self)
+				if internal.CreateDialog and not internal.dialog then
+					internal.dialog = internal:CreateDialog()
+					internal.dialog:HookScript("OnHide", function()
+						resetSelection()
+					end)
+					if not isManagerHooked then
+						hookManager()
+					end
+				end
+				if internal.dialog then
+					self:UnregisterAllEvents()
+					self:SetScript("OnEvent", nil)
+				end
+			end)
 		end
 	end
 end
