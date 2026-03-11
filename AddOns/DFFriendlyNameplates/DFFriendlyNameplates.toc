@@ -1,7 +1,7 @@
 ## Interface: 120000, 120001
 ## Title: DF Friendly Nameplates [Midnight]
 ## Author: Httpsx
-## Version: 2.4
+## Version: 2.5
 ## Notes: Friendly nameplates for raids/dungeons WoW Retail.
 ## DefaultState: Enabled
 ## SavedVariables: DFFriendlyNamePlates
@@ -12,6 +12,12 @@
 
 embeds.xml
 httpsxLib.lua
+localization\localization.en.lua
+localization\localization.ru.lua
+localization\localization.cn.lua
+localization\localization.tw.lua
+localization\localization.kr.lua
+localization\localization.lua
 core.lua
 
 nameplates.lua

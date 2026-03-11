@@ -1,0 +1,57 @@
+local _, DFFN = ...
+
+DFFN.Locales = DFFN.Locales or {}
+local L = DFFN.Locales["koKR"] or {}
+DFFN.Locales["koKR"] = L
+
+L.TAB_NAMEPLATES = "이름표"
+L.TAB_WORLDTEXT = "월드 텍스트"
+L.TAB_EXTENDED = "확장"
+L.VERSION_PREFIX = "버전: "
+
+L.NP_ENABLE_FRIENDLY = "아군 이름표 활성화"
+L.NP_SHOW_ONLY_NAME = "이름만 표시"
+L.NP_SHOW_ONLY_NAME_NPC = "이름만 표시 (NPC)"
+L.NP_NPC_ALWAYS = "항상"
+L.NP_NPC_DUNGEON = "던전에서만"
+L.NP_NPC_RAIDS = "공격대에서만"
+L.NP_NPC_DUNGEON_RAIDS = "던전 + 공격대"
+L.NP_HIDE_CAST_BAR = "시전 바 숨기기"
+L.NP_RELOAD_REQUIRED = "UI 재시작 필요"
+L.NP_SECTION_COLORS = "색상:"
+L.NP_SHOW_CLASS_COLOR = "직업 색상으로 이름 표시"
+L.NP_SHOW_COLOR_BY_SELECTION = "유닛 유형별 색상 표시"
+L.NP_SECTION_FONT = "글꼴:"
+L.NP_CUSTOM_FONT = "사용자 지정 글꼴"
+L.NP_FONT_LABEL = "글꼴:"
+L.NP_FONT_DEFAULT_GAME = "기본 게임 글꼴"
+L.NP_SIZE_LABEL = "크기:"
+L.NP_STYLE_LABEL = "스타일:"
+L.NP_STYLE_NONE = "없음"
+L.NP_STYLE_OUTLINE = "외곽선"
+L.NP_STYLE_SLUG = "그림자"
+L.NP_STYLE_OUTLINE_SLUG = "외곽선, 그림자"
+
+L.WT_ENABLE = "월드 텍스트 이름 활성화"
+L.WT_TIP_ENABLE = "이 옵션은 '아군 이름표 활성화'를 켜거나 끕니다"
+L.WT_ALWAYS_APPLY = "항상 설정 적용"
+L.WT_TIP_ALWAYS = "월드 텍스트 크기와 투명도 설정은 항상 적용됩니다.|n|n'월드 텍스트 이름 활성화'가 꺼져 있어도 적용됩니다"
+L.WT_HIDE_GUILD = "플레이어 길드 숨기기"
+L.WT_HIDE_TITLE = "플레이어 칭호 숨기기"
+L.WT_SIZE = "월드 텍스트 크기"
+L.WT_ALPHA = "월드 텍스트 투명도"
+
+L.EX_BLIZZ_SIZE = "블리자드 이름표 크기"
+L.EX_BLIZZ_STYLE = "블리자드 스타일:"
+L.EX_STYLE_MODERN = "모던 (0)"
+L.EX_STYLE_THIN = "얇은 바 (1)"
+L.EX_STYLE_BLOCKY = "블록형 바 (2)"
+L.EX_STYLE_CLEAN_HEALTH = "깔끔한 생명력 바 (3)"
+L.EX_STYLE_BLOCKY_CAST = "블록형 시전 바 (4)"
+L.EX_STYLE_LEGACY_RED = "구버전 빨강 (5)"
+L.EX_HIDE_OPEN_WORLD = "필드에서 아군 이름표 숨기기"
+L.EX_CUSTOM_WIDTH = "사용자 지정 너비"
+L.EX_OPEN_BLIZZ_SETTINGS = "블리자드 이름표 설정 열기"
+
+L.UI_LANGUAGE = "언어"
+L.UI_RELOAD_LANG = "언어 변경을 적용하려면 UI를 다시 불러오세요"

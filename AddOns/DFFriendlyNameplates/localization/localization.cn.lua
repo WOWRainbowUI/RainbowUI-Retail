@@ -1,0 +1,57 @@
+local _, DFFN = ...
+
+DFFN.Locales = DFFN.Locales or {}
+local L = DFFN.Locales["zhCN"] or {}
+DFFN.Locales["zhCN"] = L
+
+L.TAB_NAMEPLATES = "姓名板"
+L.TAB_WORLDTEXT = "世界文本"
+L.TAB_EXTENDED = "扩展"
+L.VERSION_PREFIX = "版本: "
+
+L.NP_ENABLE_FRIENDLY = "启用友方姓名板"
+L.NP_SHOW_ONLY_NAME = "仅显示名称"
+L.NP_SHOW_ONLY_NAME_NPC = "仅显示名称（NPC）"
+L.NP_NPC_ALWAYS = "始终"
+L.NP_NPC_DUNGEON = "仅地下城"
+L.NP_NPC_RAIDS = "仅团队副本"
+L.NP_NPC_DUNGEON_RAIDS = "地下城 + 团队副本"
+L.NP_HIDE_CAST_BAR = "隐藏施法条"
+L.NP_RELOAD_REQUIRED = "需要重载界面"
+L.NP_SECTION_COLORS = "颜色："
+L.NP_SHOW_CLASS_COLOR = "按职业显示名称颜色"
+L.NP_SHOW_COLOR_BY_SELECTION = "按单位类型显示颜色"
+L.NP_SECTION_FONT = "字体："
+L.NP_CUSTOM_FONT = "自定义字体"
+L.NP_FONT_LABEL = "字体："
+L.NP_FONT_DEFAULT_GAME = "默认游戏字体"
+L.NP_SIZE_LABEL = "大小："
+L.NP_STYLE_LABEL = "样式："
+L.NP_STYLE_NONE = "无"
+L.NP_STYLE_OUTLINE = "描边"
+L.NP_STYLE_SLUG = "阴影"
+L.NP_STYLE_OUTLINE_SLUG = "描边，阴影"
+
+L.WT_ENABLE = "启用世界文本名称"
+L.WT_TIP_ENABLE = "此选项会关闭/开启“启用友方姓名板”"
+L.WT_ALWAYS_APPLY = "始终应用设置"
+L.WT_TIP_ALWAYS = "世界文本大小和透明度将始终生效，|n|n即使“启用世界文本名称”已关闭"
+L.WT_HIDE_GUILD = "隐藏玩家公会"
+L.WT_HIDE_TITLE = "隐藏玩家头衔"
+L.WT_SIZE = "世界文本大小"
+L.WT_ALPHA = "世界文本透明度"
+
+L.EX_BLIZZ_SIZE = "暴雪姓名板大小"
+L.EX_BLIZZ_STYLE = "暴雪样式："
+L.EX_STYLE_MODERN = "现代（0）"
+L.EX_STYLE_THIN = "细条（1）"
+L.EX_STYLE_BLOCKY = "方块条（2）"
+L.EX_STYLE_CLEAN_HEALTH = "清爽生命条（3）"
+L.EX_STYLE_BLOCKY_CAST = "方块施法条（4）"
+L.EX_STYLE_LEGACY_RED = "旧版红色（5）"
+L.EX_HIDE_OPEN_WORLD = "在开放世界隐藏友方姓名板"
+L.EX_CUSTOM_WIDTH = "自定义宽度"
+L.EX_OPEN_BLIZZ_SETTINGS = "打开暴雪姓名板设置"
+
+L.UI_LANGUAGE = "语言"
+L.UI_RELOAD_LANG = "重载界面以应用语言更改"

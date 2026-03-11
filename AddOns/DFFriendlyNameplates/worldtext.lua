@@ -1,9 +1,10 @@
 local _, DFFN = ...
 local HttpsxLib = DFFN.httpsxLib
 local DFFNamePlates = DFFN.DFFNamePlates
+local L = DFFN.L
 local module = {}
 
-module.tab = DFFNamePlates:AddTabButton("WorldText", 2, module)
+module.tab = DFFNamePlates:AddTabButton("TAB_WORLDTEXT", 2, module)
 
 function module:OnLoad()
     local tab = self.tab
@@ -11,14 +12,18 @@ function module:OnLoad()
 
     local content = tab.frame
 
-    local enableWorldTextNames = HttpsxLib:CreateCheckBox(content, "Enable World Text Names", "TOPLEFT", content, 5, -30)
+    local enableWorldTextNames = HttpsxLib:CreateCheckBox(content, L("WT_ENABLE"), "TOPLEFT",
+        content, 5, -30)
     local warningWorldText = HttpsxLib:CreateButton(content, "!", 20, 20, "LEFT", enableWorldTextNames.text, "RIGHT", 5,
         0)
+    warningWorldText:SetFrameStrata("DIALOG")
+    warningWorldText:SetFrameLevel(enableWorldTextNames:GetFrameLevel() + 10)
 
     warningWorldText.text:SetTextColor(1, 0.82, 0, 0.95)
     warningWorldText:SetScript("OnEnter", function(self)
+        local tipText = L("WT_TIP_ENABLE")
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText("This will turn off/on 'Enable Friendly Nameplates' option")
+        GameTooltip:SetText(tipText, 1, 1, 1)
         GameTooltip:Show()
     end)
     warningWorldText:SetScript("OnLeave", function(self)
@@ -50,15 +55,18 @@ function module:OnLoad()
         end
     end)
 
-    local enableAlwaysWorldText = HttpsxLib:CreateCheckBox(content, "Always apply settings", "TOPLEFT", content, 5, -60)
+    local enableAlwaysWorldText = HttpsxLib:CreateCheckBox(content, L("WT_ALWAYS_APPLY"),
+        "TOPLEFT", content, 5, -60)
 
     local warningAlwaysWorldText = HttpsxLib:CreateButton(content, "!", 20, 20, "LEFT", enableAlwaysWorldText.text,
         "RIGHT", 11, 0)
+    warningAlwaysWorldText:SetFrameStrata("DIALOG")
+    warningAlwaysWorldText:SetFrameLevel(enableAlwaysWorldText:GetFrameLevel() + 10)
     warningAlwaysWorldText.text:SetTextColor(1, 0.82, 0, 0.95)
     warningAlwaysWorldText:SetScript("OnEnter", function(self)
+        local tipText = L("WT_TIP_ALWAYS")
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText("World Text Size and World Text Alpha settings will always be applied,|n|n" ..
-            "even if 'Enable World Text Names' is disabled")
+        GameTooltip:SetText(tipText, 1, 1, 1)
         GameTooltip:Show()
     end)
     warningAlwaysWorldText:SetScript("OnLeave", function(self)
@@ -79,8 +87,10 @@ function module:OnLoad()
         end
     end)
 
-    local hidePlayerGuildCB = HttpsxLib:CreateCheckBox(content, "Hide player guild", "TOPLEFT", content, 5, -90)
-    local hidePlayerTitleCB = HttpsxLib:CreateCheckBox(content, "Hide player title", "TOPLEFT", content, 5, -120)
+    local hidePlayerGuildCB = HttpsxLib:CreateCheckBox(content, L("WT_HIDE_GUILD"), "TOPLEFT",
+        content, 5, -90)
+    local hidePlayerTitleCB = HttpsxLib:CreateCheckBox(content, L("WT_HIDE_TITLE"), "TOPLEFT",
+        content, 5, -120)
 
     hidePlayerGuildCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
@@ -94,11 +104,8 @@ function module:OnLoad()
         SetCVar("UnitNamePlayerPVPTitle", checked and "0" or "1");
     end)
 
-    local worldTextSizeTitle = HttpsxLib:CreateText(content, "World Text size", "TOPLEFT", content, "TOPLEFT", 75, -157,
-        11.5,
-        { 0.9, 0.9, 0.9, 1 }, "")
 
-    local worldTextSizeSlider = HttpsxLib:CreateSlider(content, 140, 0, 99, 1, "TOPLEFT", content, 45, -170,
+    local worldTextSizeSlider = HttpsxLib:CreateSlider(content, 140, 0, 99, 1, "TOPLEFT", content, 70, -170,
         10,
         function(self, value)
             --DFFriendlyNamePlates.NamePlatesSettings["fontSize"] = value
@@ -110,11 +117,11 @@ function module:OnLoad()
             end
         end)
 
-    local worldTextAlphaTitle = HttpsxLib:CreateText(content, "World Text alpha", "TOPLEFT", content, "TOPLEFT", 75, -225,
-        11.5,
-        { 0.9, 0.9, 0.9, 1 }, "")
+    local worldTextSizeTitle = HttpsxLib:CreateText(content, L("WT_SIZE"), "TOP", worldTextSizeSlider,
+        "TOP", 0, 15, 11.5, { 0.9, 0.9, 0.9, 1 }, "")
 
-    local worldTextAlphaSlider = HttpsxLib:CreateSlider(content, 140, 0, 1.0, 0.1, "TOPLEFT", content, 45, -242,
+
+    local worldTextAlphaSlider = HttpsxLib:CreateSlider(content, 140, 0, 1.0, 0.1, "TOPLEFT", content, 70, -242,
         1.0,
         function(self, value)
             DFFriendlyNamePlates.WorldTextSettings["worldTextAlpha"] = value
@@ -123,6 +130,9 @@ function module:OnLoad()
                 SetCVar("WorldTextMinAlpha_v2", value);
             end
         end)
+
+    local worldTextAlphaTitle = HttpsxLib:CreateText(content, L("WT_ALPHA"), "TOP", worldTextAlphaSlider,
+        "TOP", 0, 15, 11.5, { 0.9, 0.9, 0.9, 1 }, "")
 
 
     DFFNamePlates.settings.WorldTextSettings = {}
@@ -133,4 +143,5 @@ function module:OnLoad()
     DFFNamePlates.settings.WorldTextSettings["worldTextAlpha"] = worldTextAlphaSlider
     DFFNamePlates.settings.WorldTextSettings["hidePlayerGuild"] = hidePlayerGuildCB
     DFFNamePlates.settings.WorldTextSettings["hidePlayerTitle"] = hidePlayerTitleCB
+    
 end
