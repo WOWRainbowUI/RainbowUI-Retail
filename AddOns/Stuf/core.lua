@@ -20,7 +20,6 @@ local L = setmetatable(StufLocalization or { }, {
 	end
 })
 
-local _G = getfenv(0)
 local ipairs, pairs = ipairs, pairs
 local strmatch = strmatch
 local CreateFrame = CreateFrame
@@ -71,67 +70,6 @@ local dropdown = {  -- use blizz's default unit dropdown menus
 local metrounits = { }
 
 -- local functions
-local function HideFrame(frame) -- 從 Cell 借來的 code
-    if not frame then return end
-    
-    frame:UnregisterAllEvents()
-    frame:Hide()
-    frame:SetParent(hiddenParent)
-
-    local health = frame.healthBar or frame.healthbar
-    if health then
-        health:UnregisterAllEvents()
-    end
-
-    local power = frame.manabar
-    if power then
-        power:UnregisterAllEvents()
-    end
-
-    local spell = frame.castBar or frame.spellbar
-    if spell then
-        spell:UnregisterAllEvents()
-    end
-
-    local altpowerbar = frame.powerBarAlt
-    if altpowerbar then
-        altpowerbar:UnregisterAllEvents()
-    end
-
-    local buffFrame = frame.BuffFrame
-    if buffFrame then
-        buffFrame:UnregisterAllEvents()
-    end
-
-    local petFrame = frame.PetFrame
-    if petFrame then
-        petFrame:UnregisterAllEvents()
-    end
-end
-
-local function HideBlizzardParty() -- 從 Cell 借來的 code
-    _G.UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
-
-    if _G.CompactPartyFrame then
-        _G.CompactPartyFrame:UnregisterAllEvents()
-    end
-
-    if _G.PartyFrame then
-        _G.PartyFrame:UnregisterAllEvents()
-        _G.PartyFrame:SetScript('OnShow', nil)
-        for frame in _G.PartyFrame.PartyMemberFramePool:EnumerateActive() do
-            HideFrame(frame)
-        end
-        HideFrame(_G.PartyFrame)
-    else
-        for i = 1, 4 do
-            HideFrame(_G["PartyMemberFrame"..i])
-            HideFrame(_G["CompactPartyMemberFrame"..i])
-        end
-        HideFrame(_G.PartyMemberBackground)
-    end
-end
-
 local function IsInGroup()
 	return UnitExists("party1") or Stuf.numraid ~= 0
 end
@@ -152,7 +90,6 @@ local function Disable(f)
 end
 local function DisableDefault(f)
 	if not f then return end
-	if f == PlayerFrame and PlayerFrameBottomManagedFramesContainer then PlayerFrameBottomManagedFramesContainer:SetParent(UIParent) end -- 暫時修正職業資源條
 	f:SetAlpha(0)
 	f:EnableMouse(false)
 	f:ClearAllPoints()
@@ -163,7 +100,7 @@ local function DisableDefault(f)
 	Disable(_G[name.."ManaBar"])
 	Disable(_G[name.."SpellBar"])
 end
-local RefreshUnit, UpdateHealth, UpdatePower, UpdatePowerType, UpdateReaction, GroupUpdate
+local RefreshUnit, UpdateHealth, UpdatePower, UpdatePowerType, UpdateReaction, GroupUpdate, CreateUnitFrame
 local UpdateAggro = Stuf.nofunc
 
 -- load
@@ -196,16 +133,16 @@ function events.ADDON_LOADED(a1)
 		if not db.global or db.global.init ~= 9 then
 			C_AddOns.LoadAddOn("Stuf_Options")
 			if Stuf.LoadDefaults then
-				Stuf:LoadDefaults(db)
-				db.global.init = 9
+			Stuf:LoadDefaults(db)
+			db.global.init = 9
 			else
-				return print("|cff00ff00Stuf|r: "..L["Stuf_Options is required to initialize variables."])
+			return print("|cff00ff00Stuf|r: "..L["Stuf_Options is required to initialize variables."])
 			end
 		end
 
 		dbg = db.global
 		classcolor, powercolor, reactioncolor = dbg.classcolor, dbg.powercolor, dbg.reactioncolor
-		if dbg.initTWW ~= 1 then
+		if dbg.initlegion ~= 1 then
 			for i = 0, 20, 1 do
 				local color = PowerBarColor[i]
 				if color and (not powercolor[i] or not powercolor[i].r) then
@@ -225,16 +162,13 @@ function events.ADDON_LOADED(a1)
 				db.party1.lfgicon = db.party1.lfgicon or { alpha=0.6, w=14, h=14, }
 				db.target.lfgicon = db.target.lfgicon or { hide=true, }
 			end
-			db.player.runebar = db.player.runebar or { x=0, y=0, }
 			db.player.holybar = db.player.holybar or { x=0, y=0, }
 			db.player.shardbar = db.player.shardbar or { x=0, y=0, }
 			db.player.chibar = db.player.chibar or { x=0, y=0, }
-			db.player.arcanebar = db.player.arcanebar or { x=0, y=0, }
-			db.player.essencesbar = db.player.essencesbar or { x=0, y=0, }
+			db.player.eclipsebar = db.player.eclipsebar or { x=0, y=0, }
 			db.player.priestbar = db.player.priestbar or { x=0, y=0, }
-			db.player.combopointbar = db.player.combopointbar or { x=0, y=0, }
 
-			dbg.initTWW = 1
+			dbg.initlegion = 1
 		end
 
 		hpgreen, hpred, gray = dbg.hpgreen, dbg.hpred, dbg.gray
@@ -265,7 +199,7 @@ function events.ADDON_LOADED(a1)
 		CONFIGMODE_CALLBACKS.Stuf = function(action, mode)
 			if action == "ON" then
 				if not Stuf.GetOptionsTable then
-					C_AddOns.LoadAddOn("Stuf_Options")
+				C_AddOns.LoadAddOn("Stuf_Options")
 				end
 				if Stuf.GetOptionsTable then
 					Stuf:GetOptionsTable().args.configmode.set(nil, true)
@@ -306,8 +240,11 @@ function events.ADDON_LOADED(a1)
 		DisableDefault(FocusFrame)
 		DisableDefault(TargetofFocusFrame)
 				
-		if dbg.disableprframes then
-			HideBlizzardParty()  -- 隱藏遊戲內建隊伍框架，暫時修正
+		if dbg.disableprframes and _G.CompactRaidFrameManager then
+			CompactRaidFrameManager:UnregisterAllEvents() 
+			CompactRaidFrameManager:Hide() 
+			CompactRaidFrameContainer:UnregisterAllEvents() 
+			CompactRaidFrameContainer:Hide() 
 		end
 		
 		for i = 1, 4, 1 do
@@ -334,7 +271,7 @@ function events.ADDON_LOADED(a1)
 		SLASH_STUF1 = "/stuf"
 		SlashCmdList.STUF = function()
 			if not Stuf.OpenOptions then
-				C_AddOns.LoadAddOn("Stuf_Options")
+			C_AddOns.LoadAddOn("Stuf_Options")
 			end
 			if Stuf.OpenOptions then
 				Stuf:OpenOptions(Stuf.panel)
@@ -343,31 +280,52 @@ function events.ADDON_LOADED(a1)
 			end
 		end
 		if not Stuf.OpenOptions then -- AceConfig hack to be LOD friendly
-			Stuf.panel = CreateFrame("Frame", nil, nil, BackdropTemplateMixin and 'BackdropTemplate')
-			Stuf.panel.name = "Stuf"
-			Stuf.panel:SetScript("OnShow", SlashCmdList.STUF)
-			local category = Settings.RegisterCanvasLayoutCategory(Stuf.panel, Stuf.panel.name)
-			category.ID = "Stuf"
-			Settings.RegisterAddOnCategory(category)
+		Stuf.panel = CreateFrame("Frame", nil, nil, BackdropTemplateMixin and 'BackdropTemplate')
+		Stuf.panel.name = "Stuf"
+		Stuf.panel:SetScript("OnShow", SlashCmdList.STUF)
+				-- InterfaceOptions_AddCategory removed in WoW 10.0
+			-- InterfaceOptions_AddCategory removed in WoW 10.0 - slash command /stuf still works
 		end
 
-		for k, v in pairs(events) do
-			Stuf:RegisterEvent(k)
-		end
-		for unit in pairs(db) do
-			if unit ~= "global" and not strmatch(unit, "party") and not strmatch(unit, "arena") and not strmatch(unit, "boss") then
-				Stuf:CreateUnitFrame(unit)
-			end
-		end
-
-		--InterfaceOptionsFrameOkay:HookScript("OnClick", GroupUpdate)
+--		for k, v in pairs(events) do
+--			Stuf:RegisterEvent(k)
+--		end
+--		for unit in pairs(db) do
+--			if unit ~= "global" and not strmatch(unit, "party") and not strmatch(unit, "arena") and not strmatch(unit, "boss") then
+--				Stuf:CreateUnitFrame(unit)
+--			end
+--		end
+for k, v in pairs(events) do
+    Stuf:RegisterEvent(k)
+end
+-- Defer CreateUnitFrame calls until file finishes loading
+C_Timer.After(0, function()
+    for unit in pairs(db) do
+        if unit ~= "global" and not strmatch(unit, "party") and not strmatch(unit, "arena") and not strmatch(unit, "boss") then
+            Stuf:CreateUnitFrame(unit)
+        end
+    end
+    -- PLAYER_ENTERING_WORLD fires before C_Timer, so su was empty when it ran.
+    -- Force a refresh now that all frames exist so bars get their real values.
+    if Stuf.inworld then
+        for unit, uf in pairs(su) do
+            RefreshUnit(unit, uf)
+        end
+    end
+end)
+		-- InterfaceOptionsFrameOkay removed in WoW 10.0 - no longer needed
 		Stuf:AddEvent("GROUP_ROSTER_UPDATE", Stuf.CreateParty)
 		Stuf:CreateParty()
 		
 		if ArenaEnemyFrames then
 			Stuf:CreateArena()
 		else
-			--hooksecurefunc("Arena_LoadUI", function() if Stuf.CreateArena then Stuf:CreateArena() end end)
+			-- Arena_LoadUI removed in 12.0; watch for Blizzard_ArenaUI addon load instead
+			Stuf:AddEvent("ADDON_LOADED", function(name)
+				if name == "Blizzard_ArenaUI" and Stuf.CreateArena then
+					Stuf:CreateArena()
+				end
+			end)
 		end
 
 		Stuf:DefaultCastBar("player")
@@ -393,7 +351,8 @@ function events.ADDON_LOADED(a1)
 				cprocess = 2
 				for unit, uf in pairs(metrounits) do
 					if uf:IsShown() then
-						if uf.cache.name ~= GetUnitName(unit) then
+						local newname = GetUnitName(unit) -- 12.0 fix
+						if not issecretvalue(newname) and uf.cache.name ~= newname then
 							RefreshUnit(config and "player" or unit, uf)
 						else
 							UpdateReaction(unit, uf)
@@ -430,14 +389,16 @@ function events.ADDON_LOADED(a1)
 		end)
 		Stuf:AddEvent("CHAT_MSG_ADDON", function(prefix, message, chan, sender)
 			if prefix == "Stufv" and sender ~= UnitName("player") then
-				SendAddonMessage("Stufr", (GetAddOnMetadata("Stuf", "Version") or "?.?.???").." "..(GetCVar("gxResolution") or "?"), "WHISPER", sender)
+				local _sendMsg = C_ChatInfo and C_ChatInfo.SendAddonMessage or SendAddonMessage
+				_sendMsg("Stufr", (C_AddOns.GetAddOnMetadata("Stuf", "Version") or "?.?.???").." "..(GetCVar("gxResolution") or "?"), "WHISPER", sender)
 			elseif prefix == "Stufr" and sender ~= UnitName("player") then
 				print(format(L["%s is using version %s."], sender, message))
 			end
 		end)
 		function Stuf:RequestVersion(name)
 			if not name then return end
-			SendAddonMessage("Stufv", "a", "WHISPER", name)
+			local _sendMsg = C_ChatInfo and C_ChatInfo.SendAddonMessage or SendAddonMessage
+			_sendMsg("Stufv", "a", "WHISPER", name)
 		end
 		Stuf:AddEvent("UNIT_NAME_UPDATE", RefreshUnit)
 		for _, func in ipairs(Stuf.modules) do  -- run external modules
@@ -445,10 +406,11 @@ function events.ADDON_LOADED(a1)
 		end
 		Stuf.modules = nil
 	end
-	if IsLoggedIn() then
-		events.PLAYER_LOGIN()
-		events.PLAYER_ENTERING_WORLD()
-	end
+	-- Commented out: CreateUnitFrame not defined yet, events will fire naturally
+	-- if IsLoggedIn() then
+	-- 	events.PLAYER_LOGIN()
+	-- 	events.PLAYER_ENTERING_WORLD()
+	-- end
 end
 
 -- events handlers
@@ -656,11 +618,12 @@ end
 ------------------------------------------------------------------------------------
 function Stuf:UpdateTextLook(t, font, afont, fontsize, fontflag, hj, vj, tc, sx, sy)
 ------------------------------------------------------------------------------------
-	t:SetFont(afont or Stuf:GetMedia("font", font), fontsize or 12, fontflag ~= "None" and fontflag or "")
+	t:SetFont(afont or Stuf:GetMedia("font", font), fontsize or 12, (fontflag and fontflag ~= "None") and fontflag or "")
 	t:SetJustifyH(hj or "CENTER")
 	if vj ~= "none" then
-		if vj == "CENTER" then vj = "MIDDLE" end -- 10.2.7 fix											  
-		t:SetJustifyV(vj or "MIDDLE")
+		-- "CENTER" is invalid for SetJustifyV (valid: TOP, MIDDLE, BOTTOM) -- remap stale saved values
+		local safeVJ = (vj == "CENTER" and "MIDDLE") or vj or "MIDDLE"
+		t:SetJustifyV(safeVJ)
 	end
 	if tc then
 		t:SetTextColor(tc.r, tc.g, tc.b, tc.a)
@@ -673,7 +636,7 @@ function Stuf:UpdateTextLook(t, font, afont, fontsize, fontflag, hj, vj, tc, sx,
 end
 
 do  -- color methods = function(parent, element db, 0-1 if hpthreshold, solid color choice, alpha override choice, hide if no color)
-	local GetDifficultyColor, type = GetQuestDifficultyColor, type
+	local GetDifficultyColor, type = (GetQuestDifficultyColor or function() return {r=1,g=1,b=1} end), type  -- GetQuestDifficultyColor is still a global in 12.0
 	local c, r, g, b, a, colormethods
 	colormethods = {
 		class = function(p, db, value, choice, calpha)
@@ -785,7 +748,8 @@ do  -- color methods = function(parent, element db, 0-1 if hpthreshold, solid co
 end
 
 do  -- statusbar texture orientations
-	local setw, seth, setc = PlayerFrame.PlayerFrameContainer.FrameTexture.SetWidth, PlayerFrame.PlayerFrameContainer.FrameTexture.SetHeight, PlayerFrame.PlayerFrameContainer.FrameTexture.SetTexCoord
+	local _tempTex = UIParent:CreateTexture()
+	local setw, seth, setc = _tempTex.SetWidth, _tempTex.SetHeight, _tempTex.SetTexCoord
 	local function verval(val)
 		return ((val > 1) and 1) or ((val <= 0) and 0.00001) or val
 	end
@@ -938,7 +902,8 @@ do  -- general data updating
 		if not uf or uf.hidden then return end
 		local cache = uf.cache
 		local creaturetype = UnitCreatureType(unit) or _G.UNKNOWN
-		cache.creaturetype = (creaturetype == "Not specified" and _G.UNKNOWN) or creaturetype
+		-- cache.creaturetype = (creaturetype == "Not specified" and _G.UNKNOWN) or creaturetype
+		cache.creaturetype = (issecretvalue(creaturetype) or creaturetype == "Not specified") and _G.UNKNOWN or creaturetype -- 12.0 fix
 		cache.pvp = UnitIsPVP(unit)
 		cache.faction = cache.pvp and UnitFactionGroup(unit) or ""  -- only check for faction if PVPed
 		cache.incombat = UnitAffectingCombat(unit)
@@ -982,75 +947,69 @@ do  -- general data updating
 	local floor = math.floor
 	local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
 	local UnitPower, UnitPowerMax, UnitPowerType = UnitPower, UnitPowerMax, UnitPowerType
+	local UnitHealthPercent, UnitPowerPercent = UnitHealthPercent, UnitPowerPercent
 	UpdateHealth = function(unit, uf, a3, reset)  -- update health cache and health elements
 		uf = uf or su[unit]
 		if not uf or uf.hidden then return end
 		local cache = uf.cache
+		-- Store raw secret values - NO arithmetic or comparisons on them
 		local current, total = UnitHealth(unit), UnitHealthMax(unit)
-		print(current)
-		if canaccessvalue(current) and (cache.curhp ~= current or cache.maxhp ~= total) then
-		-- print(current)
-			local frac = (current <= 0 and 0.00001) or (current >= total and 1) or (current / total)
-			if cache.maxhp ~= total then
-				cache.maxhp = total
-				local level = UnitLevel(unit)
-				cache.level = (level == -1 and dbg.classification.unknown) or level
-			end
-			cache.curhp = current
+		cache.curhp = current
+		cache.maxhp = total
+		-- frachp/perchp used only for color threshold methods (not bar fill).
+		-- UnitHealthPercent returns a secret value in 12.0; pcall the multiply.
+		local rawpct = UnitHealthPercent(unit)
+		local ok, frac = pcall(function() return rawpct * 0.01 end)
+		if ok then
 			cache.frachp = frac
-
-			if current == 0 then
-				cache.perchp = 0
-			elseif current == total then
-				cache.perchp = 100
-			elseif frac > 0.005 then
-				cache.perchp = floor(frac * 100 + 0.5)  -- floor operation is slow, avoid if possible
-			else
-				cache.perchp = 1  -- to prevent showing 0% if unit isn't dead
+			cache.perchp = frac * 100
+		else
+			cache.frachp = 1
+			cache.perchp = 100
+		end
+		cache.deficithp = ""
+		-- Death detection via API only (no value comparison)
+		local isDead = UnitIsDeadOrGhost(unit)
+		if isDead and not cache.dead then
+			cache.dead = true
+			for ename, func in pairs(uf.deathelements) do
+				func(unit, uf, uf[ename])
 			end
-			cache.deficithp = (frac < 0.99 and current - total) or ""
-			
-			if frac < 0.2 and UnitIsDeadOrGhost(unit) then  -- check if dead, then update related elements
-				cache.dead = true
-				for ename, func in pairs(uf.deathelements) do
-					func(unit, uf, uf[ename])
-				end
-			elseif cache.dead then  -- was dead
-				cache.dead = nil
-				for ename, func in pairs(uf.deathelements) do
-					func(unit, uf, uf[ename])
-				end
+		elseif not isDead and cache.dead then
+			cache.dead = nil
+			for ename, func in pairs(uf.deathelements) do
+				func(unit, uf, uf[ename])
 			end
-			for ename, func in pairs(uf.healthelements) do  -- update all health elements
-				func(unit, uf, uf[ename], reset, frac)
-			end
+		end
+		-- Pass 0.5 placeholder as frac -- bars display at 50% until Step 1 secret-value rewrite
+		for ename, func in pairs(uf.healthelements) do
+			func(unit, uf, uf[ename], reset, cache.frachp)
 		end
 	end
 	UpdatePower = function(unit, uf, a3, reset, xfrac, ufframe)  -- update power cache and power elements
 		uf = ufframe and uf or su[unit]
 		if not uf or uf.hidden then return end
 		local cache = uf.cache
+		-- Store raw secret values - NO arithmetic or comparisons on them
 		local current, total = UnitPower(unit), UnitPowerMax(unit)
-		if canaccessvalue(current) and (cache.curmp ~= current or cache.maxmp ~= total) then -- 12.0 fix
-			local frac = (current == 0 and 0.00001) or (current >= total and 1) or (current / total)
-			cache.curmp = current
-			cache.maxmp = total
-			cache.fracmp = frac
-			cache.shards = uf.iswl and UnitPower("player", _G.SPELL_POWER_SOUL_SHARDS) or ""
-
-			if current == 0 then
-				cache.percmp = 0
-			elseif current == total then
-				cache.percmp = 100
-			elseif frac > 0.005 then
-				cache.percmp = floor(frac * 100 + 0.5)
-			else
-				cache.percmp = 1
-			end
-			cache.deficitmp = (frac < 0.99 and (current - total)) or ""
-			for ename, func in pairs(uf.powerelements) do  -- update all power elements
-				func(unit, uf, uf[ename], reset, frac)
-			end
+		cache.curmp = current
+		cache.maxmp = total
+		-- fracmp/percmp used only for color threshold methods (not bar fill).
+		-- UnitPowerPercent returns a secret value in 12.0; pcall the multiply.
+		local rawppct = UnitPowerPercent(unit)
+		local ppok, pfrac = pcall(function() return rawppct * 0.01 end)
+		if ppok then
+			cache.fracmp = pfrac
+			cache.percmp = pfrac * 100
+		else
+			cache.fracmp = 1
+			cache.percmp = 100
+		end
+		cache.deficitmp = ""
+		cache.shards = uf.iswl and UnitPower("player", _G.SPELL_POWER_SOUL_SHARDS) or ""
+		-- Pass 0.5 placeholder as frac -- bars display at 50% until Step 1 secret-value rewrite
+		for ename, func in pairs(uf.powerelements) do
+			func(unit, uf, uf[ename], reset, cache.fracmp)
 		end
 	end
 	UpdatePowerType = function(unit, uf)  -- update power type and colors
@@ -1421,7 +1380,7 @@ function Stuf:CreateUnitFrame(unit, fromshow)  -- creates entire unit frame and 
 				metrounits[unit] = uf
 				uf.ismetro = true
 			end
-			uf.cache = { unit = unit, }
+			uf.cache = { unit = unit, curhp = 0, maxhp = 0, curmp = 0, maxmp = 0, }
 			uf.refreshfuncs = { health = UpdateHealth, power = UpdatePowerType, }
 			uf.healthelements, uf.powerelements, uf.powercolorelements = { }, { }, { }
 			uf.deathelements, uf.reactionelements, uf.metroelements, uf.skiprefreshelement = { }, { }, { }, { }
@@ -1614,3 +1573,4 @@ function Stuf:CreateUnitFrame(unit, fromshow)  -- creates entire unit frame and 
 		end
 	end
 end
+CreateUnitFrame = Stuf.CreateUnitFrame  -- Link the local forward declaration to the method

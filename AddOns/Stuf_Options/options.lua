@@ -8,7 +8,8 @@ local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local smed = LibStub("LibSharedMedia-3.0")
 
-local rawget, _Global = rawget, getfenv(0)
+local rawget = rawget
+local _Global = _G
 local _G = setmetatable({ }, {
 	__index = function(self, key)
 		return _Global[key] or key or "blah"
@@ -177,39 +178,9 @@ local function CreateOptionFrame()
 	if optionframe then return end
 	optionframe = AceConfigDialog:AddToBlizOptions("Stuf", L["Stuf"])
 	optionframe.fshow = CreateFrame("Frame", nil, optionframe, BackdropTemplateMixin and 'BackdropTemplate')
-	optionframe.fshow:SetScript("OnShow", function(this)
-		local w = SettingsPanel:GetWidth()
-		if not SettingsPanel:IsMovable() then
-			this.p, this.rt, this.rp, this.x, this.y = SettingsPanel:GetPoint()
-			SettingsPanel:SetMovable(true)
-			SettingsPanel:RegisterForDrag("LeftButton")
-			SettingsPanel:SetScript("OnDragStart", OnDragStart)
-			SettingsPanel:SetScript("OnDragStop", OnDragStop)
-			this.moved = true
-		end
-		if w < 860 then
-			this.oldw = w
-			SettingsPanel:SetWidth(860)
-		else
-			this.oldw = nil
-		end
-	end)
-	optionframe.fshow:SetScript("OnHide", function(this)
-		--------edited out 5 may 2022
-		--	if this.oldw then
-		--	SettingsPanel:SetWidth(this.oldw)
-		--	this.oldw = nil
-		--end
-		--------------------
-		if this.moved then
-			SettingsPanel:SetMovable(false)
-			SettingsPanel:RegisterForDrag()
-			SettingsPanel:SetScript("OnDragStart", nil)
-			SettingsPanel:SetScript("OnDragStop", nil)
-			SettingsPanel:ClearAllPoints()
-			SettingsPanel:SetPoint(this.p, this.rt, this.rp, this.x, this.y)
-		end
-	end)
+	-- InterfaceOptionsFrame was removed in WoW 10.0; OnShow/OnHide hooks skipped
+	optionframe.fshow:SetScript("OnShow", function(this) end)
+	optionframe.fshow:SetScript("OnHide", function(this) end)
 end
 
 ----------------------------------------------------------
@@ -967,22 +938,21 @@ function Stuf:LoadDefaults(db, restore, perchar, justboss)
 		arenapet5={ frame={ hide=true, x=arenax - 37, y=arenay - 200, w=78, h=24, }, },
 	}
 	local dgc = defaults.global
-	for class, color in pairs(CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS) do
+	-- Guard all global color tables: some were renamed/removed in 12.0.1 (Midnight)
+	for class, color in pairs(CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS or {}) do
 		dgc.classcolor[class]={ r=color.r, g=color.g, b=color.b, }
 	end
-	for index, color in pairs(FACTION_BAR_COLORS) do
-		-- 使用自訂顏色
-		if not dgc.reactioncolor[index] then
-			dgc.reactioncolor[index]={ r=color.r, g=color.g, b=color.b, }
+	for index, color in pairs(FACTION_BAR_COLORS or {}) do
+		dgc.reactioncolor[index]={ r=color.r, g=color.g, b=color.b, }
+	end
+	if PowerBarColor then
+		for i = 0, 10, 1 do
+			local color = PowerBarColor[i]
+			if not color then break end
+			dgc.powercolor[i]={ r=color.r, g=color.g, b=color.b, }
 		end
 	end
-	for i = 0, 10, 1 do
-		local color = PowerBarColor[i]
-		-- 使用自訂顏色
-		if dgc.powercolor[i] or not color then break end
-		dgc.powercolor[i]={ r=color.r, g=color.g, b=color.b, }
-	end
-	for dtype, color in pairs(DebuffTypeColor) do
+	for dtype, color in pairs(DebuffTypeColor or {}) do
 		dgc.auracolor[dtype]={ r=color.r, g=color.g, b=color.b, }
 	end
 	
@@ -1974,7 +1944,11 @@ options={
 				drag=v
 				for unit, uf in pairs(su) do
 					uf:SetMovable(drag)
-					uf:RegisterForDrag(drag and "LeftButton" or "Button1069")
+					if drag then
+						uf:RegisterForDrag("LeftButton")
+					else
+						uf:RegisterForDrag()
+					end
 					uf:SetScript("OnDragStart", OnDragStart)
 					uf:SetScript("OnDragStop", OnDragStop)
 				end
@@ -2492,7 +2466,7 @@ do  -- setup options for grouped colors
 	
 	local pargs = oargs.powercolor.args
 	for power, index in pairs(keys.powercolor) do
-		pargs[power]={ name=getglobal(power) or power, type="color", set=setcolor, get=getcolor, order=index, }
+		pargs[power]={ name=_Global[power] or power, type="color", set=setcolor, get=getcolor, order=index, }
 	end
 
 	local rargs = oargs.reactioncolor.args
@@ -2539,7 +2513,14 @@ function Stuf:OpenOptions(frame)
 		frame.hidden = true
 		CreateOptionFrame()
 	end
-	C_Timer.After(0.3, function()
-		Settings.OpenToCategory(L["Stuf"], true)
-	end)
+	if Settings and Settings.OpenToCategory then
+		local catID = optionframe and (optionframe.categoryID or (type(optionframe.name) == "number" and optionframe.name))
+		if catID then
+			Settings.OpenToCategory(catID)
+		else
+			print("|cff00ff00Stuf|r: Could not find settings category ID. Open Settings manually.")
+		end
+	elseif InterfaceOptionsFrame_OpenToCategory then
+		InterfaceOptionsFrame_OpenToCategory(optionframe)
+	end
 end

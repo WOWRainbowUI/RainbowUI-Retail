@@ -57,9 +57,8 @@ local function CreateRangeText(unit, uf, name, db, a5, config)
 	t:SetTextColor(c.r, c.g, c.b, c.a)
 	t:SetShadowColor(sc.r, sc.g, sc.b, sc.a)
 	t:SetShadowOffset(db.shadowx or 0, db.shadowy or 0)
-	if db.justifyV == "CENTER" then db.justifyV = "MIDDLE" end -- 10.2.7 fix
 	t:SetJustifyH(db.justifyH or "CENTER")
-	t:SetJustifyV(db.justifyV or "MIDDLE")
+	t:SetJustifyV(db.justifyV or "MIDDLE") -- fix
 	
 	UpdateRangeText(unit, uf, f, nil, nil, config)
 end
@@ -76,12 +75,8 @@ SetUnitDefault("target", nil, 0, 10, 10, "CENTER")
 SetUnitDefault("focus", nil, 0, 10, 10, "CENTER")
 SetUnitDefault = nil
 local function OnOptions()
-	-- 自行加入翻譯
-	local RangeText = {}
-	RangeText["zhTW"] = "距離數字"
-	RangeText["zhCN"] = "距离数字"
 	local o, textoptions = Stuf:GetOptionsTable()
-	local rco = { name=(RangeText[GetLocale()] or "Range Text"), type="group", args=textoptions, order=50, }
+	local rco = { name="Range Text", type="group", args=textoptions, order=50, }
 	o.args.target.args.rangetext = rco
 	o.args.focus.args.rangetext = rco
 	a:UnregisterEvent("ADDON_LOADED")

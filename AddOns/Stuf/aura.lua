@@ -7,6 +7,12 @@ Stuf:AddOnInit(function(_, idbg, CLS)
 	dbg = idbg
 	dbgaura = dbg.auracolor
 	notmage, iswarlock = CLS ~= "MAGE", CLS == "WARLOCK"
+	-- In 12.0.1 DebuffTypeColor may be nil; seed fallback colors so debuff
+	-- type lookups (dbgaura.Curse etc.) never return nil.
+	dbgaura.Magic   = dbgaura.Magic   or { r=0.2,  g=0.2,  b=1.0  }
+	dbgaura.Curse   = dbgaura.Curse   or { r=0.6,  g=0.0,  b=1.0  }
+	dbgaura.Poison  = dbgaura.Poison  or { r=0.0,  g=0.6,  b=0.0  }
+	dbgaura.Disease = dbgaura.Disease or { r=0.6,  g=0.4,  b=0.0  }
 end)
 
 local floor, ceil = floor, ceil
@@ -357,17 +363,29 @@ do 	-- Aura handlers -----------------------------------------------------------
 	Stuf.ApplyPush = ApplyPush
 	local ShowSetupMode
 	local temp, debuffconfig, rtime, showpet = { }, nil, nil, nil
-	-- local UnitBuff, UnitDebuff, UnitIsUnit = UnitBuff, UnitDebuff, UnitIsUnit
+	-- UnitBuff/UnitDebuff removed in 12.0; wrap C_UnitAuras to return same values.
+	-- GetBuffDataByIndex only accepts unit tokens, not player names -- pcall guards against
+	-- units that may be character name strings (arena, nameplate, etc.) in 12.0.
+	local function UnitBuff(unit, index, filter)
+		local ok, d = pcall(C_UnitAuras.GetBuffDataByIndex, unit, index, filter)
+		if not ok or not d then return nil end
+		return d.name, d.icon, d.applications, d.dispelName, d.duration, d.expirationTime, d.sourceUnit, d.isStealable
+	end
+	local function UnitDebuff(unit, index, filter)
+		local ok, d = pcall(C_UnitAuras.GetDebuffDataByIndex, unit, index, filter)
+		if not ok or not d then return nil end
+		return d.name, d.icon, d.applications, d.dispelName, d.duration, d.expirationTime, d.sourceUnit, d.isStealable
+	end
+	local UnitIsUnit = UnitIsUnit
 	function UpdateAura(unit, uf, _, _, _, config)  -- updates all elements dealing with buffs/debuffs
 		-----------------------------------------------
 		-- edited on 3MAY2022 uf = uf or su[unit]
-		if unit then uf = su[unit] end --fix 100002--I noticed that Unit_Aura event throw wrong uf table
 		uf = type(uf) == "table" and uf or su[unit]
 		-----------------------------------------------
 		if not uf or uf.hidden then return end
 		
 		local allow, clr, bfilter, dfilter, onlymineb, onlymined = true, nil, nil, nil, nil, nil
-		local name, icon, count, atype, duration, endtime, ismine, isstealable, aura
+		local name, icon, count, atype, duration, endtime, ismine, isstealable
 		local cache = uf.cache
 		
 		local dispellicon, buffgroup, debuffgroup, auratimers = uf.dispellicon, uf.buffgroup, uf.debuffgroup, uf.auratimers
@@ -399,7 +417,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 			ShowSetupMode = ShowSetupMode or function(dispellicon, buffgroup, debuffgroup, auratimers)  -- shows buffs/debuffs in config mode
 				local currenttime = GetTime()
 				if dispellicon then
-					local dc = dbgaura.Curse
+					-- dbgaura.Curse may be nil if DebuffTypeColor was absent at startup (12.0.1)
+					local dc = dbgaura.Curse or dbgaura.Buff or { r=0.5, g=0, b=0.5 }
 					dispellicon.texture:SetTexture("Interface\\Icons\\Spell_ChargeNegative")
 					dispellicon.ctext:SetText(2)
 					dispellicon:SetBackdropColor(dc.r, dc.g, dc.b)
@@ -426,7 +445,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 				debuffconfig = debuffconfig or { "none", "Magic", "Curse", "Poison", "Disease", }
 				for i = 1, 40, 1 do
 					local icon = debuffgroup and debuffgroup[i]
-					local clr = dbgaura[debuffconfig[(i % 5) + 1] or "none"]
+					-- dbgaura may lack debuff type entries if DebuffTypeColor was nil at startup (12.0.1)
+					local clr = dbgaura[debuffconfig[(i % 5) + 1] or "none"] or dbgaura.Buff or { r=0.5, g=0, b=0.5 }
 					if icon then
 						icon.texture:SetTexture("Interface\\Icons\\Spell_ChargeNegative")
 						icon.ctext:SetText(i)
@@ -456,17 +476,7 @@ do 	-- Aura handlers -----------------------------------------------------------
 				if iswarlock then
 					if UnitCreatureFamily("pet") == "Felhunter" then
 						for i = 1, 40, 1 do
-							-- name, icon, count, atype = UnitDebuff(unit, i)
-							aura = C_UnitAuras.GetDebuffDataByIndex(unit, i)
-							if aura then
-								name = aura.name
-								icon = aura.icon
-								count = aura.applications
-								atype = aura.dispelName
-							else
-								name = nil
-								atype = nil
-							end
+							name, icon, count, atype = UnitDebuff(unit, i)
 							if not name or atype == "Magic" then
 								break
 							else
@@ -475,21 +485,12 @@ do 	-- Aura handlers -----------------------------------------------------------
 						end
 					end
 				else
-					-- name, icon, count, atype = UnitDebuff(unit, 1, "RAID")
-					aura = C_UnitAuras.GetDebuffDataByIndex(unit, 1, "RAID")
-					if aura then
-						name = aura.name
-						icon = aura.icon
-						count = aura.applications
-						atype = aura.dispelName
-					else
-						name = nil
-					end
+					name, icon, count, atype = UnitDebuff(unit, 1, "RAID")
 				end
 				if name then
 					local dc = dbgaura[atype or "none"] or dbgaura.none
 					dispellicon.texture:SetTexture(icon)
-					dispellicon.ctext:SetText((count and count > 1 and count) or "")
+					dispellicon.ctext:SetText((count > 1 and count) or "")
 					dispellicon:SetBackdropColor(dc.r, dc.g, dc.b)
 					dispellicon:Show()
 				else
@@ -502,25 +503,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 		
 		for i = 1, 32, 1 do  -- update buffgroup
 			if allow then  -- prevents calling UnitBuff when it's useless
-				-- name, icon, count, atype, duration, endtime, ismine, isstealable = UnitBuff(unit, i, bfilter)
-				aura = C_UnitAuras.GetBuffDataByIndex(unit, i, bfilter)
-				if aura then
-					name = aura.name
-					icon = aura.icon
-					count = aura.applications
-					atype = aura.dispelName
-					duration = aura.duration
-					endtime = aura.expirationTime
-					ismine = aura.sourceUnit
-					if issecretvalue(ismine) then
-						ismine = nil
-					end
-					isstealable = aura.isStealable
-				else
-					name = nil
-					ismine = nil
-				end
-				ismine = ismine == "player" or ismine == "vehicle" or (showpet and ismine == "pet")
+				name, icon, count, atype, duration, endtime, ismine, isstealable = UnitBuff(unit, i, bfilter)
+				ismine = not issecretvalue(ismine) and (ismine == "player" or ismine == "vehicle" or (showpet and ismine == "pet")) -- 12.0 fix
 				allow = name and (not onlymineb or ismine)
 			end
 			
@@ -528,8 +512,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 			if b then
 				if allow then
 					b.texture:SetTexture(icon)
-					b.ctext:SetText((count and count > 1 and count) or "")
-					if cache.attackable and (isstealable or (atype == "Magic" and notmage)) then
+					b.ctext:SetText((not issecretvalue(count) and count and count > 1 and count) or "") -- 12.0 fix
+					if cache.attackable and ((not issecretvalue(isstealable) and isstealable) or (atype == "Magic" and notmage)) then -- 12.0 fix
 						clr = dbgaura.Magic
 					elseif ismine then
 						clr = dbgaura.MyBuff
@@ -545,8 +529,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 			elseif not allow then
 				break
 			end
-			if auratimers and ismine and endtime and endtime > 0 then
-				StartTimer("b"..i, duration, endtime, icon, dbgaura.MyBuff, count, auratimers, name)
+			if auratimers and ismine and not issecretvalue(endtime) and endtime and endtime > 0 then -- 12.0 fix
+				StartTimer("b"..i, duration, endtime, icon, dbgaura.MyBuff, not issecretvalue(count) and count or 0, auratimers, name)
 				temp["b"..i] = nil
 			end
 		end
@@ -554,34 +538,16 @@ do 	-- Aura handlers -----------------------------------------------------------
 		allow = true
 		for i = 1, 40, 1 do  -- update debuffgroup
 			if allow then  -- prevents calling UnitDebuff when it's useless
-				-- name, icon, count, atype, duration, endtime, ismine, isstealable = UnitDebuff(unit, i, dfilter)
-				aura = C_UnitAuras.GetDebuffDataByIndex(unit, i, dfilter)
-				if aura then
-					name = aura.name
-					icon = aura.icon
-					count = aura.applications
-					atype = aura.dispelName
-					duration = aura.duration
-					endtime = aura.expirationTime
-					ismine = aura.sourceUnit
-					if issecretvalue(ismine) then
-						ismine = nil
-					end
-					isstealable = aura.isStealable
-				else
-					name = nil
-					ismine = nil
-					atype = nil
-				end
-				ismine = ismine == "player" or ismine == "boss1" or ismine == "boss2" or ismine == "boss3" or ismine == "boss4" or ismine == "vehicle" or (showpet and ismine == "pet") -- 自行修改，加上 BOSS 的
-				clr = dbgaura[atype or "none"] or dbgaura.none
+				name, icon, count, atype, duration, endtime, ismine, isstealable = UnitDebuff(unit, i, dfilter)
+				ismine = not issecretvalue(ismine) and (ismine == "player" or ismine == "vehicle" or (showpet and ismine == "pet")) -- 12.0 fix
+				clr = dbgaura[(not issecretvalue(atype) and atype) or "none"] or dbgaura.none -- 12.0 fix
 				allow = name and (not onlymined or ismine)
 			end
 			
 			local b = debuffgroup and debuffgroup[i]
 			if b then
 				if allow then
-					b:SetBackdropColor(clr.r, clr.g, clr.b)
+					if clr then b:SetBackdropColor(clr.r, clr.g, clr.b) end -- fix
 					b.texture:SetTexture(icon)
 					b.ctext:SetText((count and count > 1 and count) or "")
 					b:Show()
@@ -635,6 +601,7 @@ do  -- Aura Icons --------------------------------------------------------------
 		
 		local ctime = GetTime()
 		local i1, i2 = f[1], f[2]
+		if not i1 or not i2 then return end  -- icons not built yet, skip
 		
 		local e1, e1duration, e1count, e1id, e2, e2duration, e2count, e2id
 		if config then
@@ -670,14 +637,11 @@ do  -- Aura Icons --------------------------------------------------------------
 				f.hidden = true
 				f:Hide()
 				if isplayer then
-					if istemp and TemporaryEnchantFrame then -- 10.0.2 fix
-						TemporaryEnchantFrame:Show()
+					if istemp then
+						if TemporaryEnchantFrame then TemporaryEnchantFrame:Show() end
 					elseif isbuff then
-						BuffFrame:Show()
-						BuffFrame:RegisterEvent("UNIT_AURA")
-					elseif isdebuff then
-						DebuffFrame:Show()
-						DebuffFrame:RegisterEvent("UNIT_AURA")
+						if BuffFrame then BuffFrame:Show() end
+						if BuffFrame then BuffFrame:RegisterEvent("UNIT_AURA") end
 					end
 				end
 				UpdateAura(unit, uf, nil, nil, nil, config)
@@ -731,8 +695,8 @@ do  -- Aura Icons --------------------------------------------------------------
 		if db.framelevel then
 			f:SetFrameLevel(db.framelevel)
 		end
-		if istemp and TemporaryEnchantFrame then -- 10.0.2 fix
-			TemporaryEnchantFrame:Hide()
+		if istemp then
+			if TemporaryEnchantFrame then TemporaryEnchantFrame:Hide() end
 		elseif isplayer and isbuff then
 			BuffFrame:Hide()
 			BuffFrame:UnregisterEvent("UNIT_AURA")
@@ -758,9 +722,6 @@ do  -- Aura Icons --------------------------------------------------------------
 			end
 			f.secure:SetFrameLevel(f:GetFrameLevel() + 20)
 			f.secure:Show()
-		elseif isplayer and isdebuff then
-			DebuffFrame:Hide()
-			DebuffFrame:UnregisterEvent("UNIT_AURA")
 		end
 		f:Show()
 
@@ -974,11 +935,6 @@ do  -- Dispell Icon ------------------------------------------------------------
 		local alp = (this.alp or 0.5) + a1 * dir
 		if (dir == 0.5 and alp > 0.7) or (dir == -0.5 and alp < 0.3) then
 			this.dir = dir * -1
-		end
-		if alp > 0.7 then  -- 自行修正
-			alp = 0.7
-		elseif alp < 0.3 then
-			alp = 0.3
 		end
 		this.alp = alp
 		this:SetAlpha(alp)  -- flash between 0.3 and 0.7 alpha

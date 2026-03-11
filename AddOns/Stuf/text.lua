@@ -5,7 +5,7 @@ local su = Stuf.units
 local s40, dbg
 Stuf:AddOnInit(function(_, idbg)
 	dbg = idbg
-	s40 = Stuf.supportspell and C_Spell.GetSpellTexture(Stuf.supportspell) and Stuf.supportspell
+	s40 = Stuf.supportspell and (GetSpellTexture and GetSpellTexture(Stuf.supportspell) or true) and Stuf.supportspell
 end)
 
 local CreateFrame = CreateFrame
@@ -14,7 +14,11 @@ local UnitIsTapDenied = UnitIsTapDenied
 local UnitIsDeadOrGhost, UnitIsDead, UnitIsGhost, UnitIsConnected = UnitIsDeadOrGhost, UnitIsDead, UnitIsGhost, UnitIsConnected
 local UnitIsAFK, UnitIsDND = UnitIsAFK, UnitIsDND
 local UnitSex = UnitSex
-local UnitIsVisible, GetSpellTexture, IsSpellInRange, UnitInRange = UnitIsVisible, C_Spell.GetSpellTexture, C_Spell.IsSpellInRange, UnitInRange
+local UnitIsVisible = UnitIsVisible
+local GetSpellTexture = (C_Spell and C_Spell.GetSpellTexture) or GetSpellTexture
+local IsSpellInRange = IsSpellInRange
+local C_SpellIsInRange = C_Spell and C_Spell.IsSpellInRange
+local UnitInRange = UnitInRange
 local UnitAffectingCombat, InCombatLockdown = UnitAffectingCombat, InCombatLockdown
 
 local format, strmatch, gsub = format, strmatch, gsub
@@ -44,9 +48,12 @@ local conditions = {
 	oor = function(ca, unit)
 		if ( unit == "player" or not ca.assist or ca.dead or not UnitIsConnected(unit) ) then
 			return false
-		elseif ( not UnitIsVisible(unit) ) or
-		       ( s40 and IsSpellInRange(s40, BOOKTYPE_SPELL, unit) == 0 ) or
-			   ( not s40 and Stuf.ingroup and ca.ingroup and not UnitInRange(unit) ) then
+		end
+		local inrange = UnitInRange(unit) -- 12.0 fix
+		if ( not UnitIsVisible(unit) ) or
+		       ( s40 and not C_SpellIsInRange and IsSpellInRange and IsSpellInRange(s40, unit) == 0 ) or
+			   ( not s40 and Stuf.ingroup and ca.ingroup and (not issecretvalue(inrange) and not inrange) ) or
+		( s40 and C_SpellIsInRange and C_SpellIsInRange(s40, unit) == false ) then
 			return true
 		end
 		return false
@@ -72,13 +79,13 @@ do  -- custom text handlers ----------------------------------------------------
 	local metrotags = { "oor", "aggro", }
 	local reactiontags = { "reaction", "creature", "pvp", "hostile", "attack", "helpful", "afk", "dnd", "combat", "tapped", "offline", }
 	local lifestatus = { "dead", "ghost", "alive", }
-	local nW = "萬"
-	local nE = "億"
-	if GetLocale() == "zhCN" then
-		nW = "万"
-		nE = "亿"
-	end
 	local function TextFormat(t, r, g, b)
+		-- Secret value guard: type() returns "number" for secrets but comparisons crash
+		if issecretvalue(t) then return "" end -- 12.0 fix
+		if type(t) == "number" then
+			local ok = pcall(function() return t < 0 end)
+			if not ok then return "" end  -- secret value, can't format yet
+		end
 		if r then
 			if type(t) ~= "number" then
 				return format("|cff%02x%02x%02x%s|r", r * 255, g * 255, b * 255, t)
@@ -86,24 +93,10 @@ do  -- custom text handlers ----------------------------------------------------
 			local tnum = t < 0 and t * -1 or t
 			if tnum < shortk then
 				return format("|cff%02x%02x%02x%s|r", r * 255, g * 255, b * 255, t)
-			elseif shortk < 10000 then -- 使用英文單位 K 和 M
-				if tnum < 1000000 then
-					return format("|cff%02x%02x%02x%.1f%s|r", r * 255, g * 255, b * 255, t * 0.001, nK)
-				else
-					return format("|cff%02x%02x%02x%.1f%s|r", r * 255, g * 255, b * 255, t * 0.000001, nM)
-				end
 			elseif tnum < 1000000 then
-				t = t * 0.0001
-				local t1, t2 = math.modf(t)
-				if (t2 > 0) then 
-					return format("|cff%02x%02x%02x%.1f%s|r", r * 255, g * 255, b * 255, t, nW)
-				else 
-					return format("|cff%02x%02x%02x%d%s|r", r * 255, g * 255, b * 255, t, nW)
-				end
-			elseif tnum < 100000000 then
-				return format("|cff%02x%02x%02x%d%s|r", r * 255, g * 255, b * 255, t * 0.0001, nW)
+				return format("|cff%02x%02x%02x%.1f%s|r", r * 255, g * 255, b * 255, t * 0.001, nK)
 			else
-				return format("|cff%02x%02x%02x%.2f%s|r", r * 255, g * 255, b * 255, t * 0.00000001, nE)
+				return format("|cff%02x%02x%02x%.1f%s|r", r * 255, g * 255, b * 255, t * 0.000001, nM)
 			end
 		else
 			if type(t) ~= "number" then
@@ -112,24 +105,10 @@ do  -- custom text handlers ----------------------------------------------------
 			local tnum = t < 0 and t * -1 or t
 			if tnum < shortk then
 				return t
-			elseif shortk < 10000 then -- 使用英文單位 K 和 M
-				if tnum < 1000000 then
-					return format("%.1f%s", t * 0.001, nK)
-				else
-					return format("%.1f%s", t * 0.000001, nM)
-				end
 			elseif tnum < 1000000 then
-				t = format("%.1f", t * 0.0001)
-				local t1, t2 = math.modf(t)
-				if (t2 > 0) then 
-					return t.. nW
-				else 
-					return t1.. nW
-				end
-			elseif tnum < 100000000 then
-				return format("%d%s", t * 0.0001, nW)
-			else 
-				return format("%.2f%s", t * 0.00000001, nE)
+				return format("%.1f%s", t * 0.001, nK)
+			else
+				return format("%.1f%s", t * 0.000001, nM)
 			end
 		end
 	end
@@ -159,7 +138,7 @@ do  -- custom text handlers ----------------------------------------------------
 					local replace
 					itag = cache[pat2] or specialchars[pat2] or pat2
 					itag = (itag == true and pat2) or itag
-					if itag ~= "" then
+					if not issecretvalue(itag) and itag ~= "" then -- 12.0 fix
 						local ct = colortags[pat1]
 						if ct then  -- [colortag:infotag]
 							replace = ((pat1 == "custom" or pat1 == "solid") and TextFormat(itag)) or TextFormat(itag, ct(uf, dbt, nil, "fontcolor"))
@@ -181,7 +160,13 @@ do  -- custom text handlers ----------------------------------------------------
 					end
 					text = gsub(text, "%[(.-)%]", replace or "", 1)
 				else  -- [infotag]
-					text = gsub(text, "%[(.-)%]", TextFormat(cache[pat] or specialchars[pat] or pat) or "", 1)
+					-- text = gsub(text, "%[(.-)%]", TextFormat(cache[pat] or specialchars[pat] or pat) or "", 1) 
+					local raw = cache[pat] or specialchars[pat] or pat -- 12.0 fix
+					if issecretvalue(raw) then
+						text = gsub(text, "%[(.-)%]", "", 1)
+					else
+						text = gsub(text, "%[(.-)%]", TextFormat(raw) or "", 1)
+					end
 				end
 			end
 			f.fontstring:SetTexty(text, f)
@@ -425,7 +410,8 @@ end
 
 
 do  -- Group Number Text ----------------------------------------------------------------------------------------------
-	local GetRaidRosterInfo, UnitIsUnit = GetRaidRosterInfo, UnitIsUnit
+	local GetRaidRosterInfo = GetRaidRosterInfo  -- still a global in 12.0, no namespace change
+	local UnitIsUnit = UnitIsUnit
 	local UpdateGroupText
 	Stuf:AddBuilder("grouptext", function(unit, uf, name, db, _, config)
 		local f = uf[name]
@@ -506,7 +492,7 @@ do  -- Pet Timer ---------------------------------------------------------------
 			f = Stuf:CreateBase(unit, uf, name, db)
 			f.fontstring = f:CreateFontString(nil, "ARTWORK")
 			f.fontstring:SetAllPoints()
-			local GetPetTimeRemaining = GetPetTimeRemaining
+			local GetPetTimeRemaining = GetPetTimeRemaining or function() return nil end
 			UpdatePetTime = function(unit, uf, f, _, _, config)
 				uf = uf or uf[unit]
 				f = f or (uf and not uf.hidden and uf.pettime)

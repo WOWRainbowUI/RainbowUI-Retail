@@ -1,8 +1,8 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: Stuf Unit Frames
 ## Author: TotalPackage
 ## Notes: Main unitframes replacement. Assembly optional.
-## Version: 11.2.7
+## Version: 12.0 Alpha
 
 ## SavedVariables: StufDB
 ## SavedVariablesPerCharacter: StufCharDB
@@ -22,6 +22,7 @@
 cancelaura.xml
 StufLocale.lua
 core.lua
+infoCalc.lua
 bars.lua
 text.lua
 icons.lua

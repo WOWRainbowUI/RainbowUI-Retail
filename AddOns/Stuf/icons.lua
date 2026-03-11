@@ -6,45 +6,6 @@ local dbg
 Stuf:AddOnInit(function(_, idbg) dbg = idbg end)
 local CreateFrame = CreateFrame
 
-local L = setmetatable(StufLocalization or { }, {
-	__index = function(self, key)
-		return rawget(self, key) or key
-	end
-})
-
--- Role codes borrowed from Details! 
-local roleTexcoord = {
-	DAMAGER = "72:130:69:127",
-	HEALER = "72:130:2:60",
-	TANK = "5:63:69:127",
-	NONE = "139:196:69:127",
-}
-
-local roleTextures = {
-	DAMAGER = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
-	TANK = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
-	HEALER = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
-	NONE = "Interface\\LFGFRAME\\UI-LFG-ICON-ROLES",
-}
-
-local roleTexcoord2 = {
-	DAMAGER = {72/256, 130/256, 69/256, 127/256},
-	HEALER = {72/256, 130/256, 2/256, 60/256},
-	TANK = {5/256, 63/256, 69/256, 127/256},
-	NONE = {139/256, 196/256, 69/256, 127/256},
-}
-
-local function GetRoleIconAndCoords(role)
-	local texture = roleTextures[role]
-	local coords = roleTexcoord2[role]
-	return texture, unpack(coords)
-end
-
-local function GetRoleTCoordsAndTexture(roleID)
-	local texture, l, r, t, b = GetRoleIconAndCoords(roleID)
-	return l, r, t, b, texture
-end
-
 do
 	local SetPortraitTexture, UnitIsVisible = SetPortraitTexture, UnitIsVisible
 	local function UpdatePortrait(unit, uf, f, reset)
@@ -253,7 +214,8 @@ do  -- General Icons -----------------------------------------------------------
 		UpdateStatusIcon("player", su.player)
 	end
 	
-	local select, GetLootMethod, GetRaidRosterInfo = select, C_PartyInfo.GetLootMethod, GetRaidRosterInfo
+	local select, GetRaidRosterInfo = select, GetRaidRosterInfo
+	local function GetLootMethod() return (C_Loot and C_Loot.GetLootMethod and C_Loot.GetLootMethod()) or "freeforall", nil end
 	local UnitIsGroupLeader, UnitIsUnit = UnitIsGroupLeader, UnitIsUnit
 	local function updateuniticon(uf, icon, show)
 		local f = uf and not uf.hidden and uf[icon]
@@ -299,13 +261,31 @@ do  -- General Icons -----------------------------------------------------------
 		end
 	end
 	
-	local GetRaidTargetIndex, SetRaidTargetIconTexture = GetRaidTargetIndex, SetRaidTargetIconTexture
+	local GetRaidTargetIndex = GetRaidTargetIndex
+	-- SetRaidTargetIconTexture removed in 12.0 (expects RaidTargetIcon widget, calls SetSpriteSheetCell).
+	-- Use manual texcoords on UI-RaidTargetingIcons instead (4 cols x 2 rows).
+	local raidTargetCoords = {
+		[1] = {0,    0.25, 0,   0.5},  -- Star
+		[2] = {0.25, 0.5,  0,   0.5},  -- Circle
+		[3] = {0.5,  0.75, 0,   0.5},  -- Diamond
+		[4] = {0.75, 1,    0,   0.5},  -- Triangle
+		[5] = {0,    0.25, 0.5, 1},    -- Moon
+		[6] = {0.25, 0.5,  0.5, 1},    -- Square
+		[7] = {0.5,  0.75, 0.5, 1},    -- Cross
+		[8] = {0.75, 1,    0.5, 1},    -- Skull
+	}
+	local function SetRaidTargetIcon(icon, index)
+		local c = raidTargetCoords[index]
+		if c then
+			icon:SetTexCoord(c[1], c[2], c[3], c[4])
+			icon:Show()
+		end
+	end
 	local function UpdateRaidTargetIcons(unit, uf, _, _, _, config)  -- raid target icon
 		if config then
 			local icon = uf and not uf.hidden and uf.raidtargeticon
 			if icon and not icon.db.hide then
-				SetRaidTargetIconTexture(icon, math.random(1, 8))
-				icon:Show()
+				SetRaidTargetIcon(icon, math.random(1, 8))
 			end
 			return
 		end
@@ -316,8 +296,7 @@ do  -- General Icons -----------------------------------------------------------
 			if icon and not icon.db.hide then
 				local iconindex = GetRaidTargetIndex(unit)
 				if iconindex then
-					SetRaidTargetIconTexture(icon, iconindex)
-					icon:Show()
+					SetRaidTargetIcon(icon, iconindex)
 				else
 					icon:Hide()
 				end
@@ -328,8 +307,7 @@ do  -- General Icons -----------------------------------------------------------
 				if icon and not icon.db.hide then
 					local iconindex = GetRaidTargetIndex(unit)
 					if iconindex then
-						SetRaidTargetIconTexture(icon, iconindex)
-						icon:Show()
+						SetRaidTargetIcon(icon, iconindex)
 					else
 						icon:Hide()
 					end
@@ -427,6 +405,13 @@ do  -- General Icons -----------------------------------------------------------
 			Stuf:AddEvent("UNIT_ENTERED_VEHICLE", Stuf.UpdateVehicleIcon)
 			Stuf:AddEvent("UNIT_EXITED_VEHICLE", Stuf.UpdateVehicleIcon)
 		elseif name == "lfgicon" and UnitGroupRolesAssigned then
+			-- GetTexCoordsForRole removed in 12.0; use hardcoded coords from UI-LFG-ICON-ROLES
+			local roleCoords = {
+				TANK    = { 0, 0.265625, 0, 0.53125 },
+				HEALER  = { 0.265625, 0.53125, 0, 0.53125 },
+				DAMAGER = { 0, 0.265625, 0.53125, 1 },
+				NONE    = { 0.265625, 0.53125, 0.53125, 1 },
+			}
 			Stuf.UpdateRoleIcon = Stuf.UpdateRoleIcon or function(_, _, _, _, _, config)
 				for u, uf in pairs(su) do
 					local f = (uf and not uf.hidden and uf.lfgicon)
@@ -438,7 +423,8 @@ do  -- General Icons -----------------------------------------------------------
 						if not config and (not role or role == "NONE") then
 							f:Hide()
 						else
-							local l, r, t, b = GetRoleTCoordsAndTexture(role ~= "NONE" and role or "TANK")
+							local c = roleCoords[role ~= "NONE" and role or "TANK"] or roleCoords["TANK"]
+							local l, r, t, b = c[1], c[2], c[3], c[4]
 							if not f.db.circular then
 								local offset1, offset2 = (r - l) * .2, (b - t) * .2
 								f:SetTexCoord(l + offset1, r - offset1, t + offset2, b - (offset2 * 1.2))
@@ -636,11 +622,6 @@ do  -- Combo Points ------------------------------------------------------------
 		if (dir == 1 and alp > 0.95) or (dir == -1 and alp < 0.45) then
 			this.dir = dir * -1
 		end
-		if alp > 1 then  -- 暫時修正
-			alp = 1
-		elseif alp < 0 then
-			alp = 0 
-		end
 		this.alp = alp
 
 		if this.individual then
@@ -749,46 +730,33 @@ do  -- Inspect Button ----------------------------------------------------------
 			if f then f:Hide() end
 			return
 		end
-		-- 左鍵: 觀察\n右鍵: 交易\n中鍵: 密語\n按鍵4: 跟隨 (Codes borrowed from UnitFramesPlus)
 		if not f then
-			f = CreateFrame("Button", nil, uf, BackdropTemplateMixin and "BackdropTemplate")
-			f:SetScript("OnMouseUp", function(this, button)
-				if UnitIsPlayer("target") and (not UnitCanAttack("player", "target")) then
-					if button == "LeftButton" then
-						if CheckInteractDistance("target", 1) then
-							InspectUnit("target");
-						end
-					elseif button == "RightButton" then
-						if CheckInteractDistance("target", 2) then
-							InitiateTrade("target");
-						end
-					elseif button == "MiddleButton" then
-						local server = nil;
-						local name, server = UnitName("target");
-						local fullname = name;
-						if server and (not "target" or UnitIsSameServer("player", "target") ~= 1) then
-							fullname = name.."-"..server;
-						end
-						ChatFrame_SendTell(fullname);
-					elseif button == "Button4" then
-						if CheckInteractDistance("target",4) then
-							local server = nil;
-							local name, server = UnitName("target");
-							local fullname = name;
-							if server and (not "target" or UnitIsSameServer("player", "target") ~= 1) then
-								fullname = name.."-"..server;
-							end
-							FollowUnit(fullname, 1);
-						end
+			f = CreateFrame("Button", nil, uf, BackdropTemplateMixin and 'BackdropTemplate')
+			f:SetScript("OnMouseUp", function(this, a1)
+				if not UnitIsVisible("target") then return end
+				if a1 == "LeftButton" then
+					InspectUnit("target")
+				elseif a1 == "MiddleButton" then
+					if SlashCmdList.NOTETARGET then SlashCmdList.NOTETARGET() end
+					if SlashCmdList.MOBNOTES_SHORTHAND then SlashCmdList.MOBNOTES_SHORTHAND() end
+				elseif a1 == "RightButton" then 
+					if not DressUpFrame:IsShown() then 
+						ShowUIPanel(DressUpFrame) 
 					end
-				end
+					if IsAddOnLoaded("CloseUp") then
+						DressUpFrameCancelButton:Click()
+					else
+						--DressUpModel:SetUnit("target")
+						--SetPortraitTexture(DressUpFramePortrait, "target")
+					end
+				end 
 			end)
 			f:SetScript("OnEnter", function(this)
 				GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
-				GameTooltip:SetText(L["Inspect"], 1, 1, 1)
-				GameTooltip:AddLine(L[" <Left-click> to inspect.\n"]..
-				            L[" <Middle-click> to note target.\n"]..
-				            L[" <Right-click> to dressup."], 0, 1, 0)
+				GameTooltip:SetText("Inspect", 1, 1, 1)
+				GameTooltip:AddLine(" <Left-click> to inspect.\n"..
+				            ((SlashCmdList.NOTETARGET or SlashCmdList.MOBNOTES_SHORTHAND) and " <Middle-click> to note target.\n" or "")..
+				            " <Right-click> to dressup.", 0, 1, 0)
 				GameTooltip:Show()
 			end)
 			f:SetScript("OnLeave", Stuf.GameTooltipOnLeave)
@@ -804,20 +772,5 @@ do  -- Inspect Button ----------------------------------------------------------
 		f:SetAlpha(db.alpha or 1)
 		f:SetPoint("TOPLEFT", uf, "TOPLEFT", db.x, db.y)
 		f:SetFrameLevel(db.framelevel or 4)
-		
-		if UnitIsPlayer("target") and (not UnitCanAttack("player", "target")) then
-			uf.inspectbutton:Show()
-		else
-			uf.inspectbutton:Hide()
-		end
-		
-		Stuf:AddEvent("PLAYER_TARGET_CHANGED", function()
-			if not uf.inspectbutton then return end 
-			if UnitIsPlayer("target") and (not UnitCanAttack("player", "target")) then
-				uf.inspectbutton:Show()
-			else
-				uf.inspectbutton:Hide()
-			end
-		end)
 	end)
 end
