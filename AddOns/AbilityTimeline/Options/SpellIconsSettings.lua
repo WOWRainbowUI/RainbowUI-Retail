@@ -108,6 +108,15 @@ local createGeneralSettings = function(widget, parentWindow, iconSettings, maxIc
     end)
     scroll:AddChild(roleIconSetting)
 
+    local enableTooltipSetting = AceGUI:Create("CheckBox")
+    enableTooltipSetting:SetLabel(private.getLocalisation("EnableTooltip"))
+    private.AddFrameTooltip(enableTooltipSetting.frame, "EnableTooltipDescription")
+    enableTooltipSetting:SetValue(iconSettings.enableTooltip)
+    enableTooltipSetting:SetCallback("OnValueChanged", function(_, _, value)
+        iconSettings.enableTooltip = value
+    end)
+    scroll:AddChild(enableTooltipSetting)
+
 
     return scrollContainer
 end
@@ -689,7 +698,8 @@ local createSpellIconSettingsFrame = function()
         spellID = 0,
         iconFileID = 237538,
         severity = 1,
-        paused = false
+        paused = false,
+        color = { r = 1, g = 1, b = 1, a = 1 },
     }
     widget:SetEventInfo(eventInfo, true)
     widget.startTime = GetTime()
@@ -795,7 +805,8 @@ local createBigIconSettingsFrame = function()
         spellID = 0,
         iconFileID = 237538,
         severity = 1,
-        paused = false
+        paused = false,
+        color = { r = 1, g = 1, b = 1, a = 1 },
     }
     widget:SetEventInfo(eventInfo, true)
     widget.startTime = GetTime()

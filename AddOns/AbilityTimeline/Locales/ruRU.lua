@@ -129,6 +129,10 @@ L["EnableTicks"] = "Enable Ticks"
 --[[Translation missing --]]
 L["EnableTicksDescription"] = "Toggles the visibility of the timeline ticks."
 --[[Translation missing --]]
+L["EnableTooltip"] = "Enable Tooltip"
+--[[Translation missing --]]
+L["EnableTooltipDescription"] = "Toggles the visibility of the tooltip when hovering over the icon."
+--[[Translation missing --]]
 L["EnrageEffect"] = "Enrage |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 --[[Translation missing --]]
 L["ExpandTravelSettings"] = "Expand Travel Settings"

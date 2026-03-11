@@ -67,6 +67,10 @@ L["EnableTextHighlight"] = "Activer le surlignage du texte"
 L["EnableTextHighlightDescription"] = "Active ou désactive le cadre de surlignage du texte"
 L["EnableTicks"] = "Activer marques"
 L["EnableTicksDescription"] = "Active ou désactive les marques sur la ligne temporalle"
+--[[Translation missing --]]
+L["EnableTooltip"] = "Enable Tooltip"
+--[[Translation missing --]]
+L["EnableTooltipDescription"] = "Toggles the visibility of the tooltip when hovering over the icon."
 L["EnrageEffect"] = "Enragé |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 L["ExpandTravelSettings"] = "Développer les paramètres de défilement"
 L["ExpandVisualSettings"] = "Développer les paramètres visuels"

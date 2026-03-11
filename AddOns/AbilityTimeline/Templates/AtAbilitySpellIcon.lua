@@ -159,7 +159,7 @@ local fixStateForBlocked = function(eventID, duration, timeElapsed, timeRemainin
 		return state
 	elseif state == private.ENCOUNTER_STATES.Active and isBlocked then
 		return private.ENCOUNTER_STATES.Blocked
-	elseif timeRemaining == 0 or timeElapsed >= duration then
+	elseif not timeElapsed or not timeRemaining or timeRemaining == 0 or timeElapsed >= duration then
 		return private.ENCOUNTER_STATES.Blocked
 	else
 		return state
@@ -172,7 +172,7 @@ local function isStoppedForPosition(state)
 	return state == private.ENCOUNTER_STATES.Paused or state == private.ENCOUNTER_STATES.Blocked
 end
 
--- TODO FIX THIS
+-- TODO FIX THIS We should use something similar to the "dynamic group" idea of WeakAuras
 -- Currently the offset is ignored when calculating if a conflict is happening. The official timeline also does no conflict resolving and just overlaps icons so maybe we should do the same?
 local calculateOffset       = function(iconSize, timelineHeight, sourceEventID, sourceTimeElapsed, rawSourcePosX,
 									   rawSourcePosY)
@@ -184,7 +184,6 @@ local calculateOffset       = function(iconSize, timelineHeight, sourceEventID, 
 	local shorterXConflictingEvents = 0
 	local sourceEventInfo = C_EncounterTimeline.GetEventInfo(sourceEventID)
 	local sourceRemainingTime = C_EncounterTimeline.GetEventTimeRemaining(sourceEventID)
-	local sourceRemainingTimeInThreshold = sourceRemainingTime < private.AT_THRESHHOLD_TIME
 	local sourceState = fixStateForBlocked(sourceEventID, sourceEventInfo.duration, sourceTimeElapsed,
 		sourceRemainingTime)
 	local sourceUpperXBound = rawSourcePosX + (iconSize / 2) +
@@ -196,7 +195,7 @@ local calculateOffset       = function(iconSize, timelineHeight, sourceEventID, 
 	local sourceLowerYBound = rawSourcePosY - (iconSize / 2) -
 	private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].iconMargin
 	for _, eventID in pairs(eventList) do
-		if eventID ~= sourceEventID then
+		if eventID ~= sourceEventID and private.activeFrames[eventID] then
 			local timeElapsed = C_EncounterTimeline.GetEventTimeElapsed(eventID)
 			local eventInfo = C_EncounterTimeline.GetEventInfo(eventID)
 			local remainingTime = C_EncounterTimeline.GetEventTimeRemaining(eventID)
@@ -302,12 +301,12 @@ local HandleCooldown        = function(self, remainingTime)
 	end
 end
 
-
 ---Sets the event info and all associated handling for an icon
 ---@param self AtAbilitySpellIcon
 ---@param eventInfo EncounterTimelineEventInfo
 ---@param disableOnUpdate boolean -- if true, the OnUpdate script will not be set
 local SetEventInfo = function(self, eventInfo, disableOnUpdate)
+	self:ApplySettings()
 	self.frame.eventInfo = eventInfo
 	self.frame.SpellIcon:SetTexture(eventInfo.iconFileID)
 	if private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].travel_direction == private.TIMELINE_DIRECTIONS.HORIZONTAL then
@@ -317,6 +316,7 @@ local SetEventInfo = function(self, eventInfo, disableOnUpdate)
 		end
 	else
 		self.frame.SpellName:SetText(eventInfo.spellName)
+		self.frame.SpellName:SetTextColor(eventInfo.color.r, eventInfo.color.g, eventInfo.color.b)
 		for i, _ in pairs(self.frame.DispellTypeSpellNames) do
 			self.frame.DispellTypeSpellNames[i]:SetText(eventInfo.spellName)
 		end
@@ -373,8 +373,7 @@ local SetEventInfo = function(self, eventInfo, disableOnUpdate)
 			local state = fixStateForBlocked(self.eventInfo.id, self.eventInfo.duration, timeElapsed, timeRemaining)
 			local isStopped = isStoppedForPosition(state)
 			if not timeElapsed or timeElapsed < 0 then timeElapsed = self.eventInfo.duration end
-			if not timeRemaining or timeRemaining < 0 then timeRemaining = 0 end
-			if state == private.ENCOUNTER_STATES.Active and timeRemaining == 0 then
+			if not timeRemaining or timeRemaining < 0 or state == private.ENCOUNTER_STATES.Active and timeRemaining == 0 then
 				private.removeAtIconFrame(self.eventInfo.id, 'PlayFinishAnimation')
 				return
 			end
@@ -419,6 +418,10 @@ local SetEventInfo = function(self, eventInfo, disableOnUpdate)
 		end)
 	end
 	self.frame:Show()
+
+	if private.db.profile.icon_settings and private.db.profile.icon_settings.enableTooltip then
+		private.AddEventTooltip(self.frame, eventInfo)
+	end
 end
 
 local function ApplySettings(self)
@@ -549,6 +552,7 @@ local function OnRelease(self)
 		coloredSpellName:SetAlpha(0)
 	end
 	self.frame.SpellName:SetAlpha(1)
+	private.ClearEventTooltip(self.frame)
 end
 
 local function Constructor()

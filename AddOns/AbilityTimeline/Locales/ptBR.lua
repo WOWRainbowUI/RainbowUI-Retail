@@ -67,6 +67,10 @@ L["EnableTextHighlight"] = "Ativar destaque de texto"
 L["EnableTextHighlightDescription"] = "Alterna a visibilidade da moldura de destaque de texto."
 L["EnableTicks"] = "Ativar marcas"
 L["EnableTicksDescription"] = "Alterna a visibilidade das marcas da linha temporal."
+--[[Translation missing --]]
+L["EnableTooltip"] = "Enable Tooltip"
+--[[Translation missing --]]
+L["EnableTooltipDescription"] = "Toggles the visibility of the tooltip when hovering over the icon."
 L["EnrageEffect"] = "Enfurecer |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 L["ExpandTravelSettings"] = "Expandir ajustes de deslocamento"
 L["ExpandVisualSettings"] = "Expandir ajustes visuais"
