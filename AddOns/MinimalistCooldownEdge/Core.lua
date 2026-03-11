@@ -88,17 +88,70 @@ local function CategoryDefaults(enabled, fontSize)
     }
 end
 
--- Action bar gets extra textColorByDuration defaults
+local function DurationTextColorDefaults()
+    return {
+        enabled = true,
+        thresholds = {
+            { threshold = 5,    color = { r = 1.0, g = 0.0,  b = 0.0,  a = 1.0 } },
+            { threshold = 60,   color = { r = 1.0, g = 0.8,  b = 0.0,  a = 1.0 } },
+            { threshold = 3600, color = { r = 1.0, g = 1.0,  b = 1.0,  a = 1.0 } },
+        },
+        defaultColor = { r = 0.67, g = 0.67, b = 0.67, a = 1.0 },
+    }
+end
+
 local actionbarDefaults = CategoryDefaults(true, 18)
-actionbarDefaults.textColorByDuration = {
-    enabled = true,
-    thresholds = {
-        { threshold = 5,    color = { r = 1.0, g = 0.0,  b = 0.0,  a = 1.0 } },
-        { threshold = 60,   color = { r = 1.0, g = 0.8,  b = 0.0,  a = 1.0 } },
-        { threshold = 3600, color = { r = 1.0, g = 1.0,  b = 1.0,  a = 1.0 } },
-    },
-    defaultColor = { r = 0.67, g = 0.67, b = 0.67, a = 1.0 },
-}
+
+local defaultDurationTextColors = DurationTextColorDefaults()
+
+local function EnsureDurationTextColorConfig(config)
+    if type(config) ~= "table" then
+        return CopyTable(defaultDurationTextColors)
+    end
+
+    if config.enabled == nil then
+        config.enabled = defaultDurationTextColors.enabled
+    end
+
+    if type(config.thresholds) ~= "table" then
+        config.thresholds = {}
+    end
+
+    for i = 1, #defaultDurationTextColors.thresholds do
+        local defaultThreshold = defaultDurationTextColors.thresholds[i]
+        local threshold = config.thresholds[i]
+
+        if type(threshold) ~= "table" then
+            config.thresholds[i] = CopyTable(defaultThreshold)
+        else
+            if threshold.threshold == nil then
+                threshold.threshold = defaultThreshold.threshold
+            end
+            if type(threshold.color) ~= "table" then
+                threshold.color = CopyTable(defaultThreshold.color)
+            else
+                threshold.color.r = threshold.color.r or defaultThreshold.color.r
+                threshold.color.g = threshold.color.g or defaultThreshold.color.g
+                threshold.color.b = threshold.color.b or defaultThreshold.color.b
+                threshold.color.a = threshold.color.a or defaultThreshold.color.a
+            end
+        end
+    end
+
+    if type(config.defaultColor) ~= "table" then
+        config.defaultColor = CopyTable(defaultDurationTextColors.defaultColor)
+    else
+        config.defaultColor.r = config.defaultColor.r or defaultDurationTextColors.defaultColor.r
+        config.defaultColor.g = config.defaultColor.g or defaultDurationTextColors.defaultColor.g
+        config.defaultColor.b = config.defaultColor.b or defaultDurationTextColors.defaultColor.b
+        config.defaultColor.a = config.defaultColor.a or defaultDurationTextColors.defaultColor.a
+    end
+
+    return config
+end
+
+MCE.DurationTextColorDefaults = DurationTextColorDefaults
+MCE.EnsureDurationTextColorConfig = EnsureDurationTextColorConfig
 
 local cooldownManagerDefaults = CategoryDefaults(false, 18)
 cooldownManagerDefaults.essentialFontSize = cooldownManagerDefaults.fontSize
@@ -115,11 +168,21 @@ miniCCDefaults.portraitHideCountdownNumbers = false
 miniCCDefaults.overlayFontSize = 18
 miniCCDefaults.overlayHideCountdownNumbers = false
 
+local compactPartyAuraTextDefaults = {
+    enabled = false,
+    raidEnabled = false,
+    font = "GAMEDEFAULT", fontSize = 12, fontStyle = "OUTLINE",
+    textColor = { r = 1, g = 0.8, b = 0, a = 1 },
+    textAnchor = "CENTER", textOffsetX = 0, textOffsetY = 0,
+}
+
 MCE.defaults = {
     global = {
         versionAlertsShown = {},
     },
     profile = {
+        compactPartyAuraText = compactPartyAuraTextDefaults,
+        durationTextColors = defaultDurationTextColors,
         categories = {
             actionbar       = actionbarDefaults,
             nameplate       = CategoryDefaults(false, 12),
@@ -131,63 +194,34 @@ MCE.defaults = {
     },
 }
 
+function MCE:UpgradeProfile()
+    local profile = self.db and self.db.profile
+    if not profile then return end
+
+    if not profile.durationTextColors then
+        local legacyConfig = profile.categories
+            and profile.categories.actionbar
+            and profile.categories.actionbar.textColorByDuration
+
+        if type(legacyConfig) == "table" then
+            profile.durationTextColors = CopyTable(legacyConfig)
+        else
+            profile.durationTextColors = CopyTable(defaultDurationTextColors)
+        end
+    end
+
+    EnsureDurationTextColorConfig(profile.durationTextColors)
+end
+
 -- =========================================================================
 -- ACE LIFECYCLE
 -- =========================================================================
 
 function MCE:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("MinimalistCooldownEdgeDB_v2", self.defaults, true)
+    self:UpgradeProfile()
     self.pendingOptionRefresh = nil
     self.pendingOptionRefreshFullScan = false
-
-    if not self.db.global.versionAlertsShown then
-        self.db.global.versionAlertsShown = {}
-    end
-
-    local categories = self.db.profile.categories
-    if not categories.cooldownmanager then
-        categories.cooldownmanager = CopyTable(self.defaults.profile.categories.cooldownmanager)
-    end
-    if not categories.minicc then
-        categories.minicc = CopyTable(self.defaults.profile.categories.minicc)
-    end
-
-    local cooldownManager = categories.cooldownmanager
-    if cooldownManager.essentialFontSize == nil then
-        cooldownManager.essentialFontSize = cooldownManager.fontSize or 18
-    end
-    if cooldownManager.utilityFontSize == nil then
-        cooldownManager.utilityFontSize = cooldownManager.fontSize or 18
-    end
-    if cooldownManager.buffIconFontSize == nil then
-        cooldownManager.buffIconFontSize = cooldownManager.fontSize or 18
-    end
-
-    local miniCC = categories.minicc
-    if miniCC.ccFontSize == nil then
-        miniCC.ccFontSize = miniCC.fontSize or 18
-    end
-    if miniCC.ccHideCountdownNumbers == nil then
-        miniCC.ccHideCountdownNumbers = miniCC.hideCountdownNumbers or false
-    end
-    if miniCC.nameplateFontSize == nil then
-        miniCC.nameplateFontSize = 12
-    end
-    if miniCC.nameplateHideCountdownNumbers == nil then
-        miniCC.nameplateHideCountdownNumbers = miniCC.hideCountdownNumbers or false
-    end
-    if miniCC.portraitFontSize == nil then
-        miniCC.portraitFontSize = miniCC.fontSize or 18
-    end
-    if miniCC.portraitHideCountdownNumbers == nil then
-        miniCC.portraitHideCountdownNumbers = miniCC.hideCountdownNumbers or false
-    end
-    if miniCC.overlayFontSize == nil then
-        miniCC.overlayFontSize = miniCC.fontSize or 18
-    end
-    if miniCC.overlayHideCountdownNumbers == nil then
-        miniCC.overlayHideCountdownNumbers = miniCC.hideCountdownNumbers or false
-    end
 
     LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, self.GetOptions)
 
@@ -205,9 +239,6 @@ function MCE:OnInitialize()
     self:RegisterChatCommand("mce", "SlashCommand")
     self:RegisterChatCommand("minice", "SlashCommand")
     self:RegisterChatCommand("minimalistcooldownedge", "SlashCommand")
-end
-
-function MCE:OnEnable()
 end
 
 function MCE:OnDisable()

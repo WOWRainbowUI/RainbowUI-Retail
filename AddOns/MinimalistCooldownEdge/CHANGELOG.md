@@ -1,4 +1,20 @@
+
 # Changelog
+
+## [3.3.3] - 2026-03-10
+
+### Added
+- Dynamic cooldown text colors: cooldown numbers now change color as they count down, so it's easier to see when abilities are almost ready.
+- New settings: pick your own time thresholds and colors in the options panel.
+- Added English and French translations for the new color feature.
+- Improved cooldown detection with safe fallbacks for more reliable color updates.
+
+## [3.3.2] - 2026-03-10
+
+### Added
+* New compact Party frame options to customize aura countdown text.
+* Added custom countdown text support for CompactRaidFrame auras.
+* Added a toggle to enable or disable raid buff countdown text.
 
 ## [3.3.1] - 2026-03-09
 
