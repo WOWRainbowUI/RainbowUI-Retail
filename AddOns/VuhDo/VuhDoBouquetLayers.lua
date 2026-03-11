@@ -37,8 +37,6 @@ local VUHDO_getHealthBar;
 local VUHDO_getBarText;
 local VUHDO_getBarTextSolo;
 local VUHDO_getLifeText;
-local VUHDO_getAuraBarColor;
-local VUHDO_getAuraTextColor;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -56,6 +54,8 @@ local sWrapperNameCounter = 0;
 local VUHDO_TARGET_TYPE_BAR = 1;
 local VUHDO_TARGET_TYPE_TEXTURE = 2;
 local VUHDO_TARGET_TYPE_BORDER = 3;
+
+local sCurrentOpacity = 1;
 
 
 
@@ -120,8 +120,6 @@ function VUHDO_bouquetLayersInitLocalOverrides()
 	VUHDO_getBarText = _G["VUHDO_getBarText"];
 	VUHDO_getBarTextSolo = _G["VUHDO_getBarTextSolo"];
 	VUHDO_getLifeText = _G["VUHDO_getLifeText"];
-	VUHDO_getAuraBarColor = _G["VUHDO_getAuraBarColor"];
-	VUHDO_getAuraTextColor = _G["VUHDO_getAuraTextColor"];
 
 	sAlphaChainStepEntryPool = VUHDO_createTablePool("AlphaChainStepEntry", 100);
 	sAlphaChainPool = VUHDO_createTablePool("AlphaChain", 50, VUHDO_createAlphaChainDelegate, VUHDO_cleanupAlphaChainDelegate);
@@ -622,26 +620,22 @@ local function VUHDO_applyBackgroundColorToTarget(aTarget, aTargetType, aColor)
 
 	tO = aColor["O"] or 1;
 
-	if aColor["useOpacity"] and aColor["O"] then
-		tO = tO * aColor["O"];
-	end
+	if aColor["useOpacity"] then
+		sCurrentOpacity = tO;
 
-	if aTargetType == VUHDO_TARGET_TYPE_BAR then
-		if aColor["useOpacity"] then
+		if aTargetType == VUHDO_TARGET_TYPE_BAR then
 			aTarget:GetStatusBarTexture():SetVertexColor(aColor["R"], aColor["G"], aColor["B"], tO);
-		else
-			aTarget:GetStatusBarTexture():SetVertexColor(aColor["R"], aColor["G"], aColor["B"]);
-		end
-	elseif aTargetType == VUHDO_TARGET_TYPE_TEXTURE then
-		if aColor["useOpacity"] then
+		elseif aTargetType == VUHDO_TARGET_TYPE_TEXTURE then
 			aTarget:SetVertexColor(aColor["R"], aColor["G"], aColor["B"], tO);
-		else
-			aTarget:SetVertexColor(aColor["R"], aColor["G"], aColor["B"]);
-		end
-	elseif aTargetType == VUHDO_TARGET_TYPE_BORDER then
-		if aColor["useOpacity"] then
+		elseif aTargetType == VUHDO_TARGET_TYPE_BORDER then
 			aTarget:SetBackdropBorderColor(aColor["R"], aColor["G"], aColor["B"], tO);
-		else
+		end
+	else
+		if aTargetType == VUHDO_TARGET_TYPE_BAR then
+			aTarget:GetStatusBarTexture():SetVertexColor(aColor["R"], aColor["G"], aColor["B"]);
+		elseif aTargetType == VUHDO_TARGET_TYPE_TEXTURE then
+			aTarget:SetVertexColor(aColor["R"], aColor["G"], aColor["B"]);
+		elseif aTargetType == VUHDO_TARGET_TYPE_BORDER then
 			aTarget:SetBackdropBorderColor(aColor["R"], aColor["G"], aColor["B"]);
 		end
 	end
@@ -653,30 +647,25 @@ end
 
 
 --
+local tEffectiveAlpha;
 local function VUHDO_applyRawColorToTarget(aTarget, aTargetType, aR, aG, aB, aA, aLayerTemplate)
 
 	if not aLayerTemplate["useBackground"] then
 		return;
 	end
 
+	if aLayerTemplate["useOpacity"] and aA then
+		tEffectiveAlpha = aA;
+	else
+		tEffectiveAlpha = sCurrentOpacity;
+	end
+
 	if aTargetType == VUHDO_TARGET_TYPE_BAR then
-		if aLayerTemplate["useOpacity"] then
-			aTarget:GetStatusBarTexture():SetVertexColor(aR, aG, aB, aA);
-		else
-			aTarget:GetStatusBarTexture():SetVertexColor(aR, aG, aB);
-		end
+		aTarget:GetStatusBarTexture():SetVertexColor(aR, aG, aB, tEffectiveAlpha);
 	elseif aTargetType == VUHDO_TARGET_TYPE_TEXTURE then
-		if aLayerTemplate["useOpacity"] then
-			aTarget:SetVertexColor(aR, aG, aB, aA);
-		else
-			aTarget:SetVertexColor(aR, aG, aB);
-		end
+		aTarget:SetVertexColor(aR, aG, aB, tEffectiveAlpha);
 	elseif aTargetType == VUHDO_TARGET_TYPE_BORDER then
-		if aLayerTemplate["useOpacity"] then
-			aTarget:SetBackdropBorderColor(aR, aG, aB, aA);
-		else
-			aTarget:SetBackdropBorderColor(aR, aG, aB);
-		end
+		aTarget:SetBackdropBorderColor(aR, aG, aB, tEffectiveAlpha);
 	end
 
 	return;
@@ -802,22 +791,37 @@ end
 
 --
 local tBarColor;
-local tTextColor;
+local tResultSlot;
 local function VUHDO_applyDispelColorByIndex(aTarget, aTargetType, aLayerTemplate, aUnit, aResultIdx)
 
-	tBarColor = VUHDO_getAuraBarColor(aUnit);
-	tTextColor = VUHDO_getAuraTextColor(aUnit);
+	tResultSlot = aLayerTemplate["dispelResults"][aResultIdx];
 
-	if not tBarColor and not tTextColor then
+	if not tResultSlot then
 		return;
 	end
 
-	if tBarColor and aLayerTemplate["useBackground"] then
-		VUHDO_applyBackgroundColorToTarget(aTarget, aTargetType, tBarColor);
+	if tResultSlot["barColor"] then
+		tBarColor = tResultSlot["barColor"];
+
+		if tBarColor["useBackground"] and aLayerTemplate["useBackground"] then
+			VUHDO_applyRawColorToTarget(aTarget, aTargetType, tBarColor["R"], tBarColor["G"], tBarColor["B"], nil, aLayerTemplate);
+		end
+
+		if aTargetType == VUHDO_TARGET_TYPE_BAR and tBarColor["useText"] and aLayerTemplate["useText"] then
+			VUHDO_applyTextColorToBar(aTarget, tBarColor["TR"], tBarColor["TG"], tBarColor["TB"]);
+		end
+
+		return;
 	end
 
-	if aTargetType == VUHDO_TARGET_TYPE_BAR and tTextColor and aLayerTemplate["useText"] then
-		VUHDO_applyTextColorToBar(aTarget, tTextColor["TR"], tTextColor["TG"], tTextColor["TB"]);
+	if tResultSlot["r"] then
+		if aLayerTemplate["useBackground"] then
+			VUHDO_applyRawColorToTarget(aTarget, aTargetType, tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], nil, aLayerTemplate);
+		end
+
+		if aTargetType == VUHDO_TARGET_TYPE_BAR and aLayerTemplate["useText"] then
+			VUHDO_applyTextColorToBar(aTarget, tResultSlot["r"], tResultSlot["g"], tResultSlot["b"]);
+		end
 	end
 
 	return;
@@ -836,6 +840,8 @@ local function VUHDO_applySortedValidatorsToTarget(aButton, aTarget, aTargetType
 	if not aLayerTemplate["sortedValidators"] then
 		return;
 	end
+
+	sCurrentOpacity = 1;
 
 	for tIdx = 1, #aLayerTemplate["sortedValidators"] do
 		tEntry = aLayerTemplate["sortedValidators"][tIdx];

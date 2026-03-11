@@ -35,6 +35,7 @@ local VUHDO_PANEL_SETUP;
 local VUHDO_AURA_LIST_BOUQUETS;
 local VUHDO_UNIT_AURA_LIST_SLOTS;
 local VUHDO_getAuraGroupRaw;
+local VUHDO_getAuraBarColorType;
 local VUHDO_MAX_PANELS;
 local VUHDO_AURA_GROUP_TYPE_LIST;
 local VUHDO_AURA_LIST_ENTRY_BOUQUET;
@@ -144,6 +145,7 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_getAuraGroupRaw = _G["VUHDO_getAuraGroupRaw"];
 	VUHDO_displayAurasAtAnchorFromCache = _G["VUHDO_displayAurasAtAnchorFromCache"];
 	VUHDO_getSlotData = _G["VUHDO_getSlotData"];
+	VUHDO_getAuraBarColorType = _G["VUHDO_getAuraBarColorType"];
 
 	sBouquetStatePool = VUHDO_createTablePool("BouquetState", 500);
 	sThresholdEntryPool = VUHDO_createTablePool("ThresholdEntry", 100);
@@ -189,11 +191,7 @@ do
 	local tColors;
 	local tTransparent;
 	local tNewCurve;
-	local tDispelAbilities;
-	local tPurgeAbilities;
-	local tBlizzType;
-	local tColorKey;
-	local tCt;
+	local tTypeColor;
 	local tR;
 	local tG;
 	local tB;
@@ -217,45 +215,77 @@ do
 		tNewCurve:SetType(Enum.LuaCurveType.Step);
 		tNewCurve:AddPoint(0, tTransparent);
 
-		if "friendly" == aCurveType then
-			tDispelAbilities = VUHDO_getDispelAbilities();
+		if tColors then
+			tTypeColor = tColors["DEBUFF0"];
 
-			for tVuhDoType, tAbility in pairs(tDispelAbilities) do
-				if tAbility then
-					tBlizzType = VUHDO_BLIZZARD_DISPEL_TYPE_MAP[tVuhDoType];
-					tColorKey = VUHDO_DISPEL_TYPE_COLOR_KEY_MAP[tVuhDoType];
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
 
-					if tBlizzType and tColors and tColors[tColorKey] then
-						tCt = tColors[tColorKey];
-
-						tR = (tCt["R"] or 0) * aBrightness;
-						tG = (tCt["G"] or 0) * aBrightness;
-						tB = (tCt["B"] or 0) * aBrightness;
-						tO = tCt["O"] or 1;
-
-						tNewCurve:AddPoint(tBlizzType, CreateColor(tR, tG, tB, tO));
-					end
-				end
+				tNewCurve:AddPoint(0, CreateColor(tR, tG, tB, tO));
 			end
-		elseif "hostile" == aCurveType then
-			tPurgeAbilities = VUHDO_getPurgeAbilities();
 
-			for tVuhDoType, tAbility in pairs(tPurgeAbilities) do
-				if tAbility then
-					tBlizzType = VUHDO_BLIZZARD_DISPEL_TYPE_MAP[tVuhDoType];
-					tColorKey = VUHDO_DISPEL_TYPE_COLOR_KEY_MAP[tVuhDoType];
+			tTypeColor = tColors["DEBUFF3"];
 
-					if tBlizzType and tColors and tColors[tColorKey] then
-						tCt = tColors[tColorKey];
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
 
-						tR = (tCt["R"] or 0) * aBrightness;
-						tG = (tCt["G"] or 0) * aBrightness;
-						tB = (tCt["B"] or 0) * aBrightness;
-						tO = tCt["O"] or 1;
+				tNewCurve:AddPoint(1, CreateColor(tR, tG, tB, tO));
+			end
 
-						tNewCurve:AddPoint(tBlizzType, CreateColor(tR, tG, tB, tO));
-					end
-				end
+			tTypeColor = tColors["DEBUFF4"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
+
+				tNewCurve:AddPoint(2, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF2"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
+
+				tNewCurve:AddPoint(3, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF1"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
+
+				tNewCurve:AddPoint(4, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF6"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
+
+				tNewCurve:AddPoint(6, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF8"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
+
+				tNewCurve:AddPoint(8, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF9"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
+
+				tNewCurve:AddPoint(9, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF8"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["R"] or 0) * aBrightness, (tTypeColor["G"] or 0) * aBrightness, (tTypeColor["B"] or 0) * aBrightness, tTypeColor["O"] or 1;
+
+				tNewCurve:AddPoint(11, CreateColor(tR, tG, tB, tO));
 			end
 		end
 
@@ -1232,6 +1262,7 @@ do
 
 					tTemplate["dispelResults"][tDispelIdx] = {
 						["isActive"] = false,
+						["barColor"] = nil,
 						["r"] = nil,
 						["g"] = nil,
 						["b"] = nil,
@@ -1808,6 +1839,7 @@ do
 	local tResultSlot;
 	local tAuraInstanceId;
 	local tSecretType;
+	local tColorType;
 	local tCurveResultSlot;
 	local tBoolResultSlot;
 	local tDispelResultSlot;
@@ -1860,6 +1892,7 @@ do
 
 			for tIdx = 1, #aLayerTemplate["dispelResults"] do
 				aLayerTemplate["dispelResults"][tIdx]["isActive"] = false;
+				aLayerTemplate["dispelResults"][tIdx]["barColor"] = nil;
 				aLayerTemplate["dispelResults"][tIdx]["r"] = nil;
 				aLayerTemplate["dispelResults"][tIdx]["g"] = nil;
 				aLayerTemplate["dispelResults"][tIdx]["b"] = nil;
@@ -2071,20 +2104,45 @@ do
 								tSecretContext["dispelCurve"] = nil;
 							end
 
-							tIsActive, _, _, _, _, _, _, _, _, _, _, tAuraInstanceId, tSecretColor = tSpecial["validator"](aInfo, tInfos, tSecretContext);
+							tIsActive, _, _, _, _, tColor, _, _, _, _, _, tAuraInstanceId, tSecretColor = tSpecial["validator"](aInfo, tInfos, tSecretContext);
 
 							tDispelResultSlot["isActive"] = tIsActive;
-							tDispelResultSlot["auraInstanceId"] = tAuraInstanceId;
 
-							if tIsActive and tAuraInstanceId then
-								if tSecretColor and not issecretvalue(tSecretColor) then
+							if tIsActive then
+								if tColor then
+									tColorType = VUHDO_getAuraBarColorType(aUnit);
+
+									if tColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
+										tDispelResultSlot["r"] = tColor["R"];
+										tDispelResultSlot["g"] = tColor["G"];
+										tDispelResultSlot["b"] = tColor["B"];
+										tDispelResultSlot["a"] = tColor["O"];
+									else
+										tFactor = tInfos["custom"] and tInfos["custom"]["bright"] or 1;
+
+										if tFactor < 1 then
+											tColor = VUHDO_copyColorTo(tColor, tWorkingColor);
+
+											if tColor["useBackground"] then
+												tColor["R"], tColor["G"], tColor["B"] = tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor;
+											end
+
+											if tColor["useText"] then
+												tColor["TR"], tColor["TG"], tColor["TB"] = tColor["TR"] * tFactor, tColor["TG"] * tFactor, tColor["TB"] * tFactor;
+											end
+										end
+
+										tDispelResultSlot["barColor"] = tColor;
+									end
+								end
+
+								if tAuraInstanceId then
+									tDispelResultSlot["auraInstanceId"] = tAuraInstanceId;
+								end
+
+								if tSecretColor then
 									tDispelResultSlot["r"], tDispelResultSlot["g"], tDispelResultSlot["b"], tDispelResultSlot["a"] = tSecretColor:GetRGBA();
 								end
-							else
-								tDispelResultSlot["r"] = nil;
-								tDispelResultSlot["g"] = nil;
-								tDispelResultSlot["b"] = nil;
-								tDispelResultSlot["a"] = nil;
 							end
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_SPRITE_CELL then

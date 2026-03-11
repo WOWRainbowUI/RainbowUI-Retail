@@ -21,6 +21,7 @@ local strfind = strfind;
 local gsub = gsub;
 local GetRaidTargetIndex = GetRaidTargetIndex;
 local tonumber = tonumber;
+local pcall = pcall;
 local pairs = pairs;
 local twipe = table.wipe;
 local issecretvalue = issecretvalue;
@@ -118,20 +119,49 @@ end
 
 
 --
+local tSuccess;
+local tResult;
+local function VUHDO_safeCall(aFunc, aUnit, aDefault)
+
+	tSuccess, tResult = pcall(aFunc, aUnit);
+
+	if tSuccess then
+		return tResult;
+	end
+
+	return aDefault;
+
+end
+
+
+
+--
+local tSuccess;
 local tInfo;
-local tLocalClass, tClassName;
+local tLocalClass;
+local tClassName;
 local tPowerType;
 local tName;
 local function VUHDO_fillCustomInfo(aUnit)
 
-	tLocalClass, tClassName = UnitClass(aUnit);
-	tPowerType = UnitPowerType(aUnit);
-	tName = UnitName(aUnit);
+	if not aUnit then
+		return;
+	end
+
+	tSuccess, tLocalClass, tClassName = pcall(UnitClass, aUnit);
+
+	if not tSuccess then
+		tLocalClass, tClassName = nil, nil;
+	end
+
+	tPowerType = VUHDO_safeCall(UnitPowerType, aUnit, nil);
+	tName = VUHDO_safeCall(UnitName, aUnit, nil);
 
 	tInfo = VUHDO_CUSTOM_INFO;
 
-	tInfo["healthmax"] = UnitHealthMax(aUnit);
-	tInfo["health"] = UnitHealth(aUnit);
+	tInfo["healthmax"] = VUHDO_safeCall(UnitHealthMax, aUnit, 0);
+	tInfo["health"] = VUHDO_safeCall(UnitHealth, aUnit, 0);
+
 	tInfo["name"] = tName;
 
 	if sSecretsEnabled then
@@ -143,8 +173,9 @@ local function VUHDO_fillCustomInfo(aUnit)
 	tInfo["unit"] = aUnit;
 	tInfo["class"] = tClassName;
 	tInfo["powertype"] = tonumber(tPowerType);
-	tInfo["power"] = UnitPower(aUnit);
-	tInfo["powermax"] = UnitPowerMax(aUnit);
+
+	tInfo["power"] = VUHDO_safeCall(UnitPower, aUnit, 0);
+	tInfo["powermax"] = VUHDO_safeCall(UnitPowerMax, aUnit, 0);
 
 	if sSecretsEnabled then
 		tInfo["hasSecretPower"] = issecretvalue(tInfo["power"]) or issecretvalue(tInfo["powermax"]);
@@ -156,21 +187,23 @@ local function VUHDO_fillCustomInfo(aUnit)
 		tInfo["hasSecretHealthMax"] = false;
 	end
 
-	tInfo["dead"] = UnitIsDeadOrGhost(aUnit);
-	tInfo["connected"] = UnitIsConnected(aUnit);
+	tInfo["dead"] = VUHDO_safeCall(UnitIsDeadOrGhost, aUnit, false);
+	tInfo["connected"] = VUHDO_safeCall(UnitIsConnected, aUnit, false);
+
 	if tInfo["hasSecretName"] then
 		tInfo["className"] = "";
 	elseif tLocalClass == tName then
-		tInfo["className"] = UnitCreatureType(aUnit) or "";
+		tInfo["className"] = VUHDO_safeCall(UnitCreatureType, aUnit, nil) or "";
 	else
 		tInfo["className"] = tLocalClass or "";
 	end
+
 	tInfo["classId"] = VUHDO_CLASS_IDS[tClassName];
 	tInfo["fullName"] = tName;
 	tInfo["zone"], tInfo["map"] = (VUHDO_RAID["player"] or { })["zone"], (VUHDO_RAID["player"] or { })["map"];
 	tInfo["fixResolveId"] = nil;
 
-	tInfo["raidIcon"] = GetRaidTargetIndex(aUnit);
+	tInfo["raidIcon"] = VUHDO_safeCall(GetRaidTargetIndex, aUnit, nil);
 	tInfo["hasSecretRaidIcon"] = sSecretsEnabled and issecretvalue(tInfo["raidIcon"]);
 
 	return;

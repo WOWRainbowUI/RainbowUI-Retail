@@ -786,9 +786,24 @@ do
 
 	--
 	local tBarWinner;
+	function VUHDO_getAuraBarColorType(aUnit)
+
+		tBarWinner = sUnitAuraBarWinner[aUnit];
+
+		if tBarWinner then
+			return tBarWinner["colorType"];
+		end
+
+		return nil;
+
+	end
+
+
+
+	--
 	local tDispelCurve;
 	local tDispelColorMixin;
-	function VUHDO_getAuraBarColor(aUnit)
+	function VUHDO_getAuraBarColor(aUnit, aDispelCurve)
 
 		tBarWinner = sUnitAuraBarWinner[aUnit];
 
@@ -801,7 +816,7 @@ do
 		end
 
 		if tBarWinner["colorType"] == VUHDO_AURA_GROUP_COLOR_DISPEL and tBarWinner["dispelAuraId"] then
-			tDispelCurve = VUHDO_getDispelCurveForUnit(aUnit, true);
+			tDispelCurve = aDispelCurve or VUHDO_getDispelCurveForUnit(aUnit, true);
 
 			if tDispelCurve then
 				tDispelColorMixin = GetAuraDispelTypeColor(aUnit, tBarWinner["dispelAuraId"], tDispelCurve);
@@ -811,6 +826,7 @@ do
 					sDispelColorBuffer["G"] = tDispelColorMixin.g;
 					sDispelColorBuffer["B"] = tDispelColorMixin.b;
 					sDispelColorBuffer["O"] = tDispelColorMixin.a or 1;
+					sDispelColorBuffer["useBackground"] = true;
 
 					sDispelColorBuffer["TR"] = tDispelColorMixin.r;
 					sDispelColorBuffer["TG"] = tDispelColorMixin.g;
@@ -830,7 +846,7 @@ do
 
 	--
 	local tTextWinner;
-	function VUHDO_getAuraTextColor(aUnit)
+	function VUHDO_getAuraTextColor(aUnit, aDispelCurve)
 
 		tTextWinner = sUnitAuraTextWinner[aUnit];
 
@@ -843,7 +859,7 @@ do
 		end
 
 		if tTextWinner["colorType"] == VUHDO_AURA_GROUP_COLOR_DISPEL and tTextWinner["dispelAuraId"] then
-			tDispelCurve = VUHDO_getDispelCurveForUnit(aUnit, true);
+			tDispelCurve = aDispelCurve or VUHDO_getDispelCurveForUnit(aUnit, true);
 
 			if tDispelCurve then
 				tDispelColorMixin = GetAuraDispelTypeColor(aUnit, tTextWinner["dispelAuraId"], tDispelCurve);
@@ -853,6 +869,8 @@ do
 					sDispelColorBuffer["G"] = tDispelColorMixin.g;
 					sDispelColorBuffer["B"] = tDispelColorMixin.b;
 					sDispelColorBuffer["O"] = tDispelColorMixin.a or 1;
+
+					sDispelColorBuffer["useBackground"] = true;
 
 					sDispelColorBuffer["TR"] = tDispelColorMixin.r;
 					sDispelColorBuffer["TG"] = tDispelColorMixin.g;

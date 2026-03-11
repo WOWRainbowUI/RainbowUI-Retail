@@ -23,15 +23,7 @@
 	<Frame name="VuhDoHealButtonSecureHeaderFrame" hidden="true" inherits="SecureHandlerBaseTemplate,SecureHandlerAttributeTemplate">
 		<Scripts>
 			<OnLoad inherit="append">
-				self:SetAttribute("_onattributechanged", [[
-					if name == "vuhdo-unit-exists" and value == "false" and sHealButton and
-						(not sHealButton:IsUnderMouse() or not sHealButton:IsVisible()) then
-						sHealButton:ClearBindings();
-						sHealButton = nil;
-					end
-				]]);
-
-				RegisterAttributeDriver(self, "vuhdo-unit-exists", "[@mouseover, exists] true; false");
+				VUHDO_setupHealButtonSecureHeader(self);
 			</OnLoad>
 		</Scripts>
 	</Frame>

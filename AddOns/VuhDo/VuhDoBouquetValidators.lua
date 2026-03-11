@@ -351,7 +351,7 @@ local function VUHDO_debuffMagicValidator(anInfo, _, aSecretContext)
 
 	tAuraInstanceId = VUHDO_getDebuffTypeAuraInstanceId(anInfo["unit"], VUHDO_DEBUFF_TYPE_MAGIC);
 	tSecretColor = nil;
-	tCurve = VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
+	tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
 
 	if tAuraInstanceId and tCurve then
 		tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
@@ -380,7 +380,7 @@ local function VUHDO_debuffDiseaseValidator(anInfo, _, aSecretContext)
 
 	tAuraInstanceId = VUHDO_getDebuffTypeAuraInstanceId(anInfo["unit"], VUHDO_DEBUFF_TYPE_DISEASE);
 	tSecretColor = nil;
-	tCurve = VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
+	tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
 
 	if tAuraInstanceId and tCurve then
 		tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
@@ -409,7 +409,7 @@ local function VUHDO_debuffPoisonValidator(anInfo, _, aSecretContext)
 
 	tAuraInstanceId = VUHDO_getDebuffTypeAuraInstanceId(anInfo["unit"], VUHDO_DEBUFF_TYPE_POISON);
 	tSecretColor = nil;
-	tCurve = VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
+	tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
 
 	if tAuraInstanceId and tCurve then
 		tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
@@ -438,7 +438,7 @@ local function VUHDO_debuffCurseValidator(anInfo, _, aSecretContext)
 
 	tAuraInstanceId = VUHDO_getDebuffTypeAuraInstanceId(anInfo["unit"], VUHDO_DEBUFF_TYPE_CURSE);
 	tSecretColor = nil;
-	tCurve = VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
+	tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
 
 	if tAuraInstanceId and tCurve then
 		tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
@@ -467,7 +467,7 @@ local function VUHDO_debuffBleedValidator(anInfo, _, aSecretContext)
 
 	tAuraInstanceId = VUHDO_getDebuffTypeAuraInstanceId(anInfo["unit"], VUHDO_DEBUFF_TYPE_BLEED);
 	tSecretColor = nil;
-	tCurve = VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
+	tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
 
 	if tAuraInstanceId and tCurve then
 		tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
@@ -496,7 +496,7 @@ local function VUHDO_debuffEnrageValidator(anInfo, _, aSecretContext)
 
 	tAuraInstanceId = VUHDO_getDebuffTypeAuraInstanceId(anInfo["unit"], VUHDO_DEBUFF_TYPE_ENRAGE);
 	tSecretColor = nil;
-	tCurve = VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
+	tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
 
 	if tAuraInstanceId and tCurve then
 		tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
@@ -510,13 +510,13 @@ end
 
 -- return tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tTimer2, clipLeft, clipRight, clipTop, clipBottom
 local tDebuffInfo;
-local tAuraInstanceId;
 local tBarColor;
+local tCurve;
 local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 
 	if not sSecretsEnabled then
 		if anInfo["charmed"] then
-			return true, nil, -1, -1, -1, VUHDO_getDebuffColor(anInfo);
+			return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 		elseif anInfo["debuff"] then
 			tBarColor = VUHDO_getAuraBarColor(anInfo["unit"]);
 
@@ -534,7 +534,7 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 
 	if not aSecretContext then
 		if anInfo["charmed"] then
-			return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, 6;
+			return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 		elseif anInfo["debuff"] then
 			return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, anInfo["debuff"];
 		else
@@ -543,31 +543,16 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 	end
 
 	if anInfo["charmed"] then
-		tAuraInstanceId = 6;
-		tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
-		tSecretColor = nil;
-
-		if tAuraInstanceId and tCurve then
-			tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
-		end
-
-		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, tAuraInstanceId, tSecretColor;
+		return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 	elseif anInfo["debuff"] then
-		tBarColor = VUHDO_getAuraBarColor(anInfo["unit"]);
+		tCurve = aSecretContext["dispelCurve"];
+		tBarColor = VUHDO_getAuraBarColor(anInfo["unit"], tCurve);
 
 		if tBarColor then
 			return true, nil, -1, -1, -1, tBarColor, nil, nil, nil, nil, nil, nil, nil;
 		end
 
-		tAuraInstanceId = anInfo["debuff"];
-		tCurve = aSecretContext["dispelCurve"] or VUHDO_getDispelCurveForUnit(anInfo["unit"], true);
-		tSecretColor = nil;
-
-		if tAuraInstanceId and tAuraInstanceId >= 0 and tCurve then
-			tSecretColor = GetAuraDispelTypeColor(anInfo["unit"], tAuraInstanceId, tCurve);
-		end
-
-		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, tAuraInstanceId, tSecretColor;
+		return false, nil, -1, -1, -1;
 	else
 		return false, nil, -1, -1, -1;
 	end
@@ -1485,6 +1470,9 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["debuffType"] = VUHDO_DEBUFF_TYPE_MAGIC,
 		["hasValue"] = false,
 		["isGlobal"] = false,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
+		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
+		["getCurve"] = VUHDO_getDispelBrightnessCurve,
 	},
 
 	["DEBUFF_DISEASE"] = {
@@ -1496,6 +1484,9 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["debuffType"] = VUHDO_DEBUFF_TYPE_DISEASE,
 		["hasValue"] = false,
 		["isGlobal"] = false,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
+		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
+		["getCurve"] = VUHDO_getDispelBrightnessCurve,
 	},
 
 	["DEBUFF_POISON"] = {
@@ -1507,6 +1498,9 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["debuffType"] = VUHDO_DEBUFF_TYPE_POISON,
 		["hasValue"] = false,
 		["isGlobal"] = false,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
+		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
+		["getCurve"] = VUHDO_getDispelBrightnessCurve,
 	},
 
 	["DEBUFF_CURSE"] = {
@@ -1518,6 +1512,9 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["debuffType"] = VUHDO_DEBUFF_TYPE_CURSE,
 		["hasValue"] = false,
 		["isGlobal"] = false,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
+		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
+		["getCurve"] = VUHDO_getDispelBrightnessCurve,
 	},
 
 	["DEBUFF_BLEED"] = {
@@ -1529,6 +1526,9 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["debuffType"] = VUHDO_DEBUFF_TYPE_BLEED,
 		["hasValue"] = false,
 		["isGlobal"] = false,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
+		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
+		["getCurve"] = VUHDO_getDispelBrightnessCurve,
 	},
 
 	["DEBUFF_ENRAGE"] = {
@@ -1540,6 +1540,9 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["debuffType"] = VUHDO_DEBUFF_TYPE_ENRAGE,
 		["hasValue"] = false,
 		["isGlobal"] = false,
+		["custom_type"] = VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS,
+		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
+		["getCurve"] = VUHDO_getDispelBrightnessCurve,
 	},
 
 	["DEBUFF_CHARMED"] = {
