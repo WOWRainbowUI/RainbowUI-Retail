@@ -8,6 +8,34 @@ local BORDER = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\border.tga"
 local FONT_DEFAULT = "Interface\\Addons\\SharedMedia_Rainbow\\fonts\\bHEI00M\\bHEI00M.ttf"
 local MEDIA_TEXTURE = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures"
 
+local localeFonts = {
+    zhCN = "Fonts\\ARHei.ttf",
+    zhTW = "Fonts\\bHEI01B.ttf",
+    koKR = "Fonts\\2002.TTF",
+}
+
+function HttpsxLib:SetLocaleFont(locale)
+    if localeFonts[locale] then
+        FONT_DEFAULT = localeFonts[locale]
+    else
+        FONT_DEFAULT = "Interface\\Addons\\DFFriendlyNameplates\\Media\\Fonts\\FiraSansMedium.ttf"
+    end
+end
+
+function HttpsxLib:ApplyFont(fontString)
+    if not fontString or not fontString.GetFont or not fontString.SetFont then return end
+    local _, size, flags = fontString:GetFont()
+    if not size then return end
+    fontString:SetFont(FONT_DEFAULT, size, flags or "")
+end
+
+HttpsxLib:SetLocaleFont(GetLocale())
+
+--if GetLocale() == "ruRU" then
+   -- FONT_DEFAULT = "Fonts\\FRIZQT___CYR.TTF"
+--end
+
+
 local function frameAddBg(frame, bd, color, border)
     frame:SetBackdrop(bd)
     frame:SetBackdropColor(unpack(color or { 0, 0, 0, 1 }))
@@ -164,8 +192,32 @@ function HttpsxLib:CreateDropDown(parent, width, items, point, pointFrame, x, y,
 
     drop.enabled = true
 
+    local function ResolveItemFont(item)
+        if type(item.font) == "string" and item.font ~= "" then
+            return item.font
+        end
+        if type(item.value) == "string" and item.value:lower():find("%f[%w]fonts%f[%W]") then
+            return item.value
+        end
+        return FONT_DEFAULT
+    end
+
+    local function ApplySelectedItem(item)
+        if not item then return end
+        local itemFont = ResolveItemFont(item)
+        drop.text:SetFont(itemFont, 10)
+        drop.text:SetText(item.text)
+        drop.selectedValue = item.value
+    end
+
     drop.text = drop:CreateFontString(nil, "OVERLAY")
     drop.text:SetPoint("LEFT", 8, 0)
+    drop.text:SetWidth(width - 28)
+    drop.text:SetJustifyH("LEFT")
+    drop.text:SetWordWrap(false)
+    if drop.text.SetMaxLines then
+        drop.text:SetMaxLines(1)
+    end
     drop.text:SetFont(FONT_DEFAULT, 10)
     drop.text:SetTextColor(0.9, 0.9, 0.9, 1)
     drop.text:SetText(defaultText or (items[1] and items[1].text or ""))
@@ -204,11 +256,7 @@ function HttpsxLib:CreateDropDown(parent, width, items, point, pointFrame, x, y,
 
         btn.text = btn:CreateFontString(nil, "OVERLAY")
         btn.text:SetPoint("CENTER", 0, 0)
-        if item.value:lower():find("%f[%w]fonts%f[%W]") then
-            btn.text:SetFont(item.value, 10)
-        else
-            btn.text:SetFont(FONT_DEFAULT, 10)
-        end
+        btn.text:SetFont(ResolveItemFont(item), 10)
         btn.text:SetTextColor(0.9, 0.9, 0.9, 1)
         btn.text:SetText(item.text)
 
@@ -219,8 +267,7 @@ function HttpsxLib:CreateDropDown(parent, width, items, point, pointFrame, x, y,
             self:SetBackdropColor(0, 0, 0, 0)
         end)
         btn:SetScript("OnClick", function()
-            drop.text:SetText(item.text)
-            drop.selectedValue = item.value
+            ApplySelectedItem(item)
             drop.listFrame:Hide()
             if onSelect then onSelect(drop, item.value, item.text) end
         end)
@@ -275,8 +322,7 @@ function HttpsxLib:CreateDropDown(parent, width, items, point, pointFrame, x, y,
     function drop:SetValue(val)
         for i, item in ipairs(items) do
             if item.value == val then
-                drop.text:SetText(item.text)
-                drop.selectedValue = val
+                ApplySelectedItem(item)
                 break
             end
         end

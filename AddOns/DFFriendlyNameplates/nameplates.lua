@@ -1,9 +1,10 @@
 local _, DFFN = ...
 local HttpsxLib = DFFN.httpsxLib
 local DFFNamePlates = DFFN.DFFNamePlates
+local L = DFFN.L
 local module = {}
 
-module.tab = DFFNamePlates:AddTabButton("名條", 1, module)
+module.tab = DFFNamePlates:AddTabButton("TAB_NAMEPLATES", 1, module)
 
 function module:OnLoad()
     local tab = self.tab
@@ -12,7 +13,8 @@ function module:OnLoad()
 
     local content = tab.frame
 
-    local enableNameplatesCB = HttpsxLib:CreateCheckBox(content, "啟用友方名條", "TOPLEFT", content, 5, -30)
+    local enableNameplatesCB = HttpsxLib:CreateCheckBox(content,
+        L("NP_ENABLE_FRIENDLY"), "TOPLEFT", content, 5, -30)
 
     enableNameplatesCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
@@ -25,7 +27,8 @@ function module:OnLoad()
         end
     end)
 
-    local showOnlyNameCB = HttpsxLib:CreateCheckBox(content, "只顯示名稱", "TOPLEFT", content, 5, -60)
+    local showOnlyNameCB = HttpsxLib:CreateCheckBox(content, L("NP_SHOW_ONLY_NAME"), "TOPLEFT",
+        content, 5, -60)
 
     showOnlyNameCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
@@ -34,7 +37,8 @@ function module:OnLoad()
         DFFNamePlates:reloadNP()
     end)
 
-    local showOnlyNameNpcCB = HttpsxLib:CreateCheckBox(content, "只顯示名稱 (NPC)", "TOPLEFT", content, 5, -90)
+    local showOnlyNameNpcCB = HttpsxLib:CreateCheckBox(content,
+        L("NP_SHOW_ONLY_NAME_NPC"), "TOPLEFT", content, 5, -90)
 
     showOnlyNameNpcCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
@@ -44,15 +48,15 @@ function module:OnLoad()
     end)
 
     local npcType = {
-        { text = "總是",          value = "always" },
-        { text = "只有地城",    value = "dungeon" },
-        { text = "只有團本",      value = "raids" },
-        { text = "地城+團本", value = "dungeon_raids" }
+        { text = L("NP_NPC_ALWAYS"),         value = "always" },
+        { text = L("NP_NPC_DUNGEON"),        value = "dungeon" },
+        { text = L("NP_NPC_RAIDS"),          value = "raids" },
+        { text = L("NP_NPC_DUNGEON_RAIDS"),  value = "dungeon_raids" }
     }
 
     local showOnlyNameNpcDropdown = HttpsxLib:CreateDropDown(content, 110, npcType, "LEFT", showOnlyNameNpcCB.text, 145,
         0,
-        "always",
+        L("NP_NPC_ALWAYS"),
         function(self, value, text)
             if value == nil or text == nil then return end
             DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpcType"] = value
@@ -60,9 +64,12 @@ function module:OnLoad()
         end)
 
 
-    local hideCastBarCB = HttpsxLib:CreateCheckBox(content, "隱藏施法條", "TOPLEFT", content, 5, -120)
+    local hideCastBarCB = HttpsxLib:CreateCheckBox(content, L("NP_HIDE_CAST_BAR"), "TOPLEFT", content,
+        5, -120)
 
-    local warningHideCastBar = HttpsxLib:CreateText(content, "需要重新載入介面", "LEFT", hideCastBarCB.text, "RIGHT",
+    local warningHideCastBar = HttpsxLib:CreateText(content, L("NP_RELOAD_REQUIRED"), "LEFT",
+        hideCastBarCB.text,
+        "RIGHT",
         10, 0, 9,
         { 1, 0.31, 0.31, 1.0 }, "")
     warningHideCastBar:Hide()
@@ -74,11 +81,13 @@ function module:OnLoad()
     end)
 
 
-    local titleColors = HttpsxLib:CreateText(content, "顏色:", "TOP", tab.frame, "TOP", 0, -140, 12,
+    local titleColors = HttpsxLib:CreateText(content, L("NP_SECTION_COLORS"), "TOP", tab.frame, "TOP", 0,
+        -145, 12,
         { 0.9, 0.8, 0.5, 1 }, "OUTLINE")
 
 
-    local showClassColorCB = HttpsxLib:CreateCheckBox(content, "名字顯示職業顏色", "TOPLEFT", content, 5, -160)
+    local showClassColorCB = HttpsxLib:CreateCheckBox(content, L("NP_SHOW_CLASS_COLOR"),
+        "TOPLEFT", content, 5, -160)
 
     showClassColorCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
@@ -86,8 +95,8 @@ function module:OnLoad()
         SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", checked and "1" or "0");
     end)
 
-    local showColorBySelectionCB = HttpsxLib:CreateCheckBox(content, "選取的顯示顏色", "TOPLEFT", content, 5,
-        -190)
+    local showColorBySelectionCB = HttpsxLib:CreateCheckBox(content,
+        L("NP_SHOW_COLOR_BY_SELECTION"), "TOPLEFT", content, 5, -190)
 
     showColorBySelectionCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
@@ -103,16 +112,19 @@ function module:OnLoad()
     end)
 
 
-    local titleColors = HttpsxLib:CreateText(content, "文字:", "TOP", tab.frame, "TOP", 0, -220, 12,
+    local titleColors = HttpsxLib:CreateText(content, L("NP_SECTION_FONT"), "TOP", tab.frame, "TOP", 0,
+        -220, 12,
         { 0.9, 0.8, 0.5, 1 }, "OUTLINE")
 
-    local customFontCB = HttpsxLib:CreateCheckBox(content, "自訂文字", "TOPLEFT", content, 5, -240)
+    local customFontCB = HttpsxLib:CreateCheckBox(content, L("NP_CUSTOM_FONT"), "TOPLEFT", content, 5,
+        -240)
 
-    local fontSettingsTitle = HttpsxLib:CreateText(content, "字體:", "TOPLEFT", content, "TOPLEFT", 10, -270, 11.5,
+    local fontSettingsTitle = HttpsxLib:CreateText(content, L("NP_FONT_LABEL"), "TOPLEFT", content, "TOPLEFT",
+        10, -270, 11.5,
         { 0.9, 0.9, 0.9, 1 }, "")
 
     local fonts = {
-        { text = "預設遊戲字體", value = DFFNamePlates.defaultFont.name },
+        { text = L("NP_FONT_DEFAULT_GAME"), value = DFFNamePlates.defaultFont.name },
     }
 
     for k, v in DFFNamePlates:IterateMediaData("font") do
@@ -120,7 +132,7 @@ function module:OnLoad()
     end
 
     local fontDropdown = HttpsxLib:CreateDropDown(content, 140, fonts, "LEFT", fontSettingsTitle, 50, 0,
-        "預設遊戲字體",
+        L("NP_FONT_DEFAULT_GAME"),
         function(self, value, text)
             if value == nil or text == nil then return end
             DFFriendlyNamePlates.NamePlatesSettings["fontName"] = value
@@ -128,7 +140,8 @@ function module:OnLoad()
             DFFNamePlates:setFontForAll()
         end)
 
-    local SizeSettingsTitle = HttpsxLib:CreateText(content, "大小:", "TOPLEFT", content, "TOPLEFT", 10, -330, 11.5,
+    local SizeSettingsTitle = HttpsxLib:CreateText(content, L("NP_SIZE_LABEL"), "TOPLEFT", content, "TOPLEFT",
+        10, -330, 11.5,
         { 0.9, 0.9, 0.9, 1 }, "")
 
     local fontSizeSlider = HttpsxLib:CreateSlider(content, 140, 1, 116, 1, "LEFT", SizeSettingsTitle, 50, 5,
@@ -139,18 +152,19 @@ function module:OnLoad()
             DFFNamePlates:setFontForAll()
         end)
 
-    local fontStyleTitle = HttpsxLib:CreateText(content, "樣式:", "TOPLEFT", content, "TOPLEFT", 10, -300, 11.5,
+    local fontStyleTitle = HttpsxLib:CreateText(content, L("NP_STYLE_LABEL"), "TOPLEFT", content, "TOPLEFT",
+        10, -300, 11.5,
         { 0.9, 0.9, 0.9, 1 }, "")
 
     local styles = {
-        { text = "無",          value = "" },
-        { text = "外框",       value = "OUTLINE" },
-        { text = "加粗",          value = "SLUG" },
-        { text = "外框, 加粗", value = "OUTLINE, SLUG" },
+        { text = L("NP_STYLE_NONE"),          value = "" },
+        { text = L("NP_STYLE_OUTLINE"),       value = "OUTLINE" },
+        { text = L("NP_STYLE_SLUG"),          value = "SLUG" },
+        { text = L("NP_STYLE_OUTLINE_SLUG"),  value = "OUTLINE, SLUG" },
     }
 
     local fontStyleDropdown = HttpsxLib:CreateDropDown(content, 140, styles, "LEFT", fontStyleTitle, 50, 0,
-        "外框, 加粗",
+        L("NP_STYLE_OUTLINE_SLUG"),
         function(self, value, text)
             if value == nil or text == nil then return end
             DFFriendlyNamePlates.NamePlatesSettings["fontStyle"] = value
@@ -224,4 +238,5 @@ function module:OnLoad()
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpc"] = showOnlyNameNpcCB
     DFFNamePlates.settings.NamePlatesSettings["showOnlyNameNpcType"] = showOnlyNameNpcDropdown
     DFFNamePlates.settings.NamePlatesSettings["showColorBySelection"] = showColorBySelectionCB
+    
 end

@@ -1,6 +1,7 @@
 local _, DFFN = ...
 
 local HttpsxLib = DFFN.httpsxLib
+local L = DFFN.L
 
 local httpsxFriendlyNamePlates = CreateFrame("Frame")
 httpsxFriendlyNamePlates.hideCastBar = CreateFrame("Frame")
@@ -28,7 +29,7 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.4"
+local ADDON_VERSION = "2.5"
 local CONFIG_VERSION = "3.1"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
@@ -116,8 +117,9 @@ function DFFNamePlates:AddTabFrame(name, module)
     tab.frame = CreateFrame("Frame", nil, DFFNamePlates.mainContent)
     tab.frame:SetAllPoints()
     tab.module = module
+    tab.titleKey = name
 
-    local title = HttpsxLib:CreateText(tab.frame, name, "TOP", tab.frame, "TOP", 0, -10, 12,
+    tab.title = HttpsxLib:CreateText(tab.frame, L(name), "TOP", tab.frame, "TOP", 0, -10, 12,
         { 0.9, 0.8, 0.5, 1 }, "OUTLINE")
 
     function tab:Show()
@@ -152,14 +154,9 @@ function DFFNamePlates:AddTabButton(name, index, module)
     btn:SetBackdropBorderColor(0.3, 0.3, 0.4, 0.6)
 
     btn.name = name
+    btn.titleKey = name
 
-    local textMap = {
-        ["Nameplates"] = "名條",
-        ["WorldText"] = "世界文字",
-        ["Extended"] = "擴充功能",
-    }
-
-    btn.text = HttpsxLib:CreateText(btn, textMap[name] or name, "CENTER", btn, "CENTER", 0, 0, 11.5, { 0.9, 0.8, 0.6 },
+    btn.text = HttpsxLib:CreateText(btn, L(name), "CENTER", btn, "CENTER", 0, 0, 11.5, { 0.9, 0.8, 0.6 },
         "")
 
     btn.activeIndicator = btn:CreateTexture(nil, "OVERLAY")
@@ -248,7 +245,8 @@ function DFFNamePlates:CreateMainUI()
     f.title = HttpsxLib:CreateText(f, "友善友方名條", "TOPLEFT", f, "TOPLEFT", 20, -15, 13,
         { 1, 0.9, 0.6 }, "OUTLINE")
 
-    f.subtitle = HttpsxLib:CreateText(f, "版本: " .. ADDON_VERSION, "TOPLEFT", f.title, "BOTTOMLEFT", 0, -5, 11,
+    f.subtitle = HttpsxLib:CreateText(f, L("VERSION_PREFIX") .. ADDON_VERSION, "TOPLEFT", f.title,
+        "BOTTOMLEFT", 0, -5, 11,
         { 0.7, 0.7, 0.8, 0.8 }, "")
 
     f.closeButton = CreateFrame("Button", nil, f, "UIPanelCloseButton")
@@ -303,6 +301,29 @@ function DFFNamePlates:CreateMainUI()
     end
 end
 
+function DFFNamePlates:RefreshStaticLocalizedUI()
+    if not self.frame or self._staticLocalizedUIRefreshed then return end
+
+    self.frame.subtitle:SetText(L("VERSION_PREFIX") .. ADDON_VERSION)
+    HttpsxLib:ApplyFont(self.frame.subtitle)
+
+    for _, btn in pairs(self.tabButtons) do
+        if btn and btn.text then
+            btn.text:SetText(L(btn.titleKey or btn.name))
+            HttpsxLib:ApplyFont(btn.text)
+        end
+    end
+
+    for _, tab in pairs(self.tabs) do
+        if tab and tab.title then
+            tab.title:SetText(L(tab.titleKey or ""))
+            HttpsxLib:ApplyFont(tab.title)
+        end
+    end
+
+    self._staticLocalizedUIRefreshed = true
+end
+
 DFFNamePlates:CreateMainUI()
 
 local function ApplyDefaults(dst, src)
@@ -341,13 +362,19 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
     --UIParentLoadAddOn("Blizzard_DebugTools")
 
     if event == "PLAYER_LOGIN" then
+        local selectedLocale = DFFN.GetSelectedLocale()
+        if HttpsxLib.SetLocaleFont then
+            HttpsxLib:SetLocaleFont(selectedLocale)
+        end
+        DFFNamePlates:RefreshStaticLocalizedUI()
+
         for name, tab in pairs(DFFNamePlates.tabs) do
             if type(tab.module.OnLoad) == "function" then
                 tab.module:OnLoad()
             end
         end
 
-        DFFNamePlates:SwitchTab("Nameplates")
+        DFFNamePlates:SwitchTab("TAB_NAMEPLATES")
         DFFNamePlates:SetActiveTab(DFFNamePlates.tabButtons[1])
 
         local default_np_colors = false
@@ -384,6 +411,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             },
             ["Settings"] = {
                 ["version"] = CONFIG_VERSION,
+                ["locale"] = GetLocale(),
             },
         }
 
@@ -400,6 +428,10 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             DFFriendlyNamePlates = ApplyDefaults(DFFriendlyNamePlates, config)
             DFFriendlyNamePlates.Settings.version = CONFIG_VERSION
         end
+
+        DFFriendlyNamePlates.Settings.locale = DFFN.NormalizeLocale(
+            DFFriendlyNamePlates.Settings.locale or GetLocale()
+        )
 
 
         DFFNamePlates.settings.NamePlatesSettings["showOnlyName"]:SetChecked(DFFriendlyNamePlates.NamePlatesSettings
@@ -442,6 +474,12 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
         DFFNamePlates.settings.ExtendedSettings["hideInOpenWorld"]:SetChecked(DFFriendlyNamePlates.ExtendedSettings
             ["hideInOpenWorld"])
 
+        DFFNamePlates.pendingLanguage = selectedLocale
+        DFFNamePlates.settings.ExtendedSettings["language"]:SetValue(selectedLocale)
+        if DFFNamePlates.UpdateLanguageApplyState then
+            DFFNamePlates:UpdateLanguageApplyState()
+        end
+
 
 
         --nameplates
@@ -472,9 +510,12 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
         end)
 
         hooksecurefunc(NamePlateUnitFrameMixin, "OnUnitSet", function(self)
-            if not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then
-                if DFFNamePlates:IsShowOnlyNameNPC() then
-                    TableUtil.TrySet(self, "showOnlyName")
+            local np = C_NamePlate.GetNamePlateForUnit(self.unit)
+            if not np then
+                if not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then
+                    if DFFNamePlates:IsShowOnlyNameNPC() then
+                        TableUtil.TrySet(self, "showOnlyName")
+                    end
                 end
             end
             --for allign name, mark in center for any forbidden nameplate (Only npc?)
@@ -486,10 +527,11 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             if not np then
                 if DFFriendlyNamePlates.NamePlatesSettings["showColorBySelection"] then
                     TableUtil.TrySet(self.optionTable, "colorNameBySelection")
+                    TextureLoadingGroupMixin.AddTexture({ textures = self }, "explicitIsPlayer")
                 end
 
                 if DFFriendlyNamePlates.NamePlatesSettings["hideCastBar2"] then
-                    if (self:IsPlayer() or (not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] and
+                    if ((self:IsPlayer() and not DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"]) or (not self:IsPlayer() and DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] and
                             DFFNamePlates:IsShowOnlyNameNPC())) then
                         TableUtil.TrySet(self.castBar, "showOnlyName")
                         TableUtil.TrySet(self.castBar, "widgetsOnly")
@@ -499,8 +541,16 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 if DFFriendlyNamePlates.NamePlatesSettings["showOnlyNameNpc"] then
                     if not self:IsPlayer() and DFFNamePlates:IsShowOnlyNameNPC() then
                         TableUtil.TrySet(self.HealthBarsContainer.healthBar, "showOnlyName")
+                        TableUtil.TrySet(self.ClassificationFrame, "showOnlyName")
                     end
                 end
+            end
+        end)
+
+        hooksecurefunc(NamePlateUnitFrameMixin, "UpdateIsFriend", function(self)
+            local np = C_NamePlate.GetNamePlateForUnit(self.unit)
+            if not np and not self:IsFriend() then
+                TextureLoadingGroupMixin.RemoveTexture({ textures = self }, "isPlayer")
             end
         end)
 
@@ -566,6 +616,8 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 SetCVar("nameplateshowfriendlyPlayers", "1")
             end
         end
+        C_Timer.After(0.5, function() DFFNamePlates:reloadNP()end)
+       
     end
 end)
 

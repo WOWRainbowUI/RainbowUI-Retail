@@ -1,0 +1,57 @@
+local _, DFFN = ...
+
+DFFN.Locales = DFFN.Locales or {}
+local L = DFFN.Locales["zhTW"] or {}
+DFFN.Locales["zhTW"] = L
+
+L.TAB_NAMEPLATES = "名條"
+L.TAB_WORLDTEXT = "世界文字"
+L.TAB_EXTENDED = "進階"
+L.VERSION_PREFIX = "版本："
+
+L.NP_ENABLE_FRIENDLY = "啟用友方名條"
+L.NP_SHOW_ONLY_NAME = "僅顯示名稱"
+L.NP_SHOW_ONLY_NAME_NPC = "僅顯示名稱（NPC）"
+L.NP_NPC_ALWAYS = "總是"
+L.NP_NPC_DUNGEON = "僅地城"
+L.NP_NPC_RAIDS = "僅團隊"
+L.NP_NPC_DUNGEON_RAIDS = "地城 + 團隊"
+L.NP_HIDE_CAST_BAR = "隱藏施法條"
+L.NP_RELOAD_REQUIRED = "需要重新載入介面"
+L.NP_SECTION_COLORS = "顏色："
+L.NP_SHOW_CLASS_COLOR = "名稱顯示職業顏色"
+L.NP_SHOW_COLOR_BY_SELECTION = "依單位類型顯示顏色"
+L.NP_SECTION_FONT = "字型："
+L.NP_CUSTOM_FONT = "自訂字型"
+L.NP_FONT_LABEL = "字型："
+L.NP_FONT_DEFAULT_GAME = "預設遊戲字型"
+L.NP_SIZE_LABEL = "大小："
+L.NP_STYLE_LABEL = "樣式："
+L.NP_STYLE_NONE = "無"
+L.NP_STYLE_OUTLINE = "外框"
+L.NP_STYLE_SLUG = "陰影"
+L.NP_STYLE_OUTLINE_SLUG = "外框，陰影"
+
+L.WT_ENABLE = "啟用世界文字名稱"
+L.WT_TIP_ENABLE = "此選項會關閉/開啟「啟用友方名條」"
+L.WT_ALWAYS_APPLY = "永遠套用設定"
+L.WT_TIP_ALWAYS = "世界文字大小與透明度設定將會永遠套用，|n|n即使「啟用世界文字名稱」已關閉"
+L.WT_HIDE_GUILD = "隱藏玩家公會"
+L.WT_HIDE_TITLE = "隱藏玩家頭銜"
+L.WT_SIZE = "世界文字大小"
+L.WT_ALPHA = "世界文字透明度"
+
+L.EX_BLIZZ_SIZE = "暴雪名條大小"
+L.EX_BLIZZ_STYLE = "暴雪樣式："
+L.EX_STYLE_MODERN = "現代（0）"
+L.EX_STYLE_THIN = "細條（1）"
+L.EX_STYLE_BLOCKY = "方塊（2）"
+L.EX_STYLE_CLEAN_HEALTH = "簡潔生命條（3）"
+L.EX_STYLE_BLOCKY_CAST = "方塊施法條（4）"
+L.EX_STYLE_LEGACY_RED = "舊版紅色（5）"
+L.EX_HIDE_OPEN_WORLD = "在開放世界隱藏友方名條"
+L.EX_CUSTOM_WIDTH = "自訂寬度"
+L.EX_OPEN_BLIZZ_SETTINGS = "開啟暴雪名條設定"
+
+L.UI_LANGUAGE = "語言"
+L.UI_RELOAD_LANG = "重新載入介面以套用語言變更"

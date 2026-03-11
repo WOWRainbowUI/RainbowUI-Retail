@@ -1,9 +1,10 @@
 local _, DFFN = ...
 local HttpsxLib = DFFN.httpsxLib
 local DFFNamePlates = DFFN.DFFNamePlates
+local L = DFFN.L
 local module = {}
 
-module.tab = DFFNamePlates:AddTabButton("擴充功能", 3, module)
+module.tab = DFFNamePlates:AddTabButton("TAB_EXTENDED", 3, module)
 
 function module:OnLoad()
     local tab = self.tab
@@ -12,29 +13,26 @@ function module:OnLoad()
 
     local content = tab.frame
 
-    local blizzardSizeTile = HttpsxLib:CreateText(content, "內建名條大小", "TOPLEFT", content, "TOPLEFT", 75,
-        -50,
-        11.5,
-        { 0.9, 0.9, 0.9, 1 }, "")
-
     local blizzardSizeSlider = HttpsxLib:CreateSlider(content, 140, 1, 5, 1, "TOPLEFT", content, 75, -67,
         1,
         function(self, value)
             SetCVar("nameplateSize", value);
         end)
 
-    local blizzardStyleTitle = HttpsxLib:CreateText(content, "風格:", "TOPLEFT", content, "TOPLEFT", 10, -130,
-        11.5,
-        { 0.9, 0.9, 0.9, 1 }, "")
+            local blizzardSizeTile = HttpsxLib:CreateText(content, L("EX_BLIZZ_SIZE"), "TOP",
+        blizzardSizeSlider, "TOP", 0, 15, 11.5, { 0.9, 0.9, 0.9, 1 }, "")
+
+    local blizzardStyleTitle = HttpsxLib:CreateText(content, L("EX_BLIZZ_STYLE"), "TOPLEFT", content,
+        "TOPLEFT", 10, -130, 11.5, { 0.9, 0.9, 0.9, 1 }, "")
 
     local styles = {
-		{ text = "現代 (0)", value = "0" },
-		{ text = "細條 (1)", value = "1" },
-		{ text = "塊狀條 (2)", value = "2" },
-		{ text = "簡潔血量 (4)", value = "3" },
-		{ text = "塊狀施法條 (5)", value = "4" },
-		{ text = "傳統紅 (6)", value = "5" },
-	}
+        { text = L("EX_STYLE_MODERN"),         value = "0" },
+        { text = L("EX_STYLE_THIN"),           value = "1" },
+        { text = L("EX_STYLE_BLOCKY"),         value = "2" },
+        { text = L("EX_STYLE_CLEAN_HEALTH"),   value = "3" },
+        { text = L("EX_STYLE_BLOCKY_CAST"),    value = "4" },
+        { text = L("EX_STYLE_LEGACY_RED"),     value = "5" },
+    }
 
     local blizzardStyleDropdown = HttpsxLib:CreateDropDown(content, 140, styles, "LEFT", blizzardStyleTitle, 95, 0,
         "Outline, Slug",
@@ -43,8 +41,8 @@ function module:OnLoad()
             SetCVar("nameplateStyle", value);
         end)
 
-    local hideInOpenWorldCB = HttpsxLib:CreateCheckBox(content, "在開放世界中隱藏友方玩家名條", "TOPLEFT",
-        content, 10, -170)
+    local hideInOpenWorldCB = HttpsxLib:CreateCheckBox(content,
+        L("EX_HIDE_OPEN_WORLD"), "TOPLEFT", content, 10, -170)
 
     hideInOpenWorldCB:SetScript("OnClick", function(self)
         local checked = self:GetChecked()
@@ -59,7 +57,8 @@ function module:OnLoad()
             end
     end)
 
-    local customWidthCB = HttpsxLib:CreateCheckBox(content, "自訂寬度", "TOPLEFT", content, 10, -230)
+    local customWidthCB = HttpsxLib:CreateCheckBox(content, L("EX_CUSTOM_WIDTH"), "TOPLEFT", content,
+        10, -230)
 
     local customWidthBox = HttpsxLib:CreateNumberEditBox(content, 50, 20, "RIGHT", customWidthCB.text, 110, 0, 132,
         function(self, value)
@@ -71,8 +70,52 @@ function module:OnLoad()
     customWidthCB:Hide()  --Disabled until Blizzard separates width settings for friendly and enemy nameplates
     customWidthBox:Hide() --Disabled until Blizzard separates width settings for friendly and enemy nameplates
 
-    local moreSettingsButton = HttpsxLib:CreateButton(content, "打開遊戲內建名條設定", 280, 25, "TOPLEFT",
-        content, 10, -340)
+    local localeItems = {
+        { text = "English (enUS)", value = "enUS", font = "Fonts\\FRIZQT__.TTF" },
+        { text = "Русский (ruRU)", value = "ruRU", font = "Fonts\\FRIZQT___CYR.TTF" },
+        { text = "简体中文 (zhCN)", value = "zhCN", font = "Fonts\\ARHei.ttf" },
+        { text = "繁體中文 (zhTW)", value = "zhTW", font = "Fonts\\bHEI01B.ttf" },
+        { text = "한국어 (koKR)", value = "koKR", font = "Fonts\\2002.TTF" },
+    }
+
+    local languageTitle = HttpsxLib:CreateText(content, L("UI_LANGUAGE") .. ":", "TOPLEFT", content,
+        "TOPLEFT", 48, -260, 11.5, { 0.9, 0.9, 0.9, 1 }, "")
+
+    local languageDropdown = HttpsxLib:CreateDropDown(content, 140, localeItems, "RIGHT", languageTitle, 145, 0,
+        "English",
+        function(self, value)
+            DFFNamePlates.pendingLanguage = value
+            if DFFNamePlates.UpdateLanguageApplyState then
+                DFFNamePlates:UpdateLanguageApplyState()
+            end
+        end)
+
+    local languageReloadButton = HttpsxLib:CreateButton(content,
+        L("UI_RELOAD_LANG"), 280, 25, "TOPLEFT", content, 10, -280)
+
+    function DFFNamePlates:UpdateLanguageApplyState()
+        local activeLocale = DFFN.GetSelectedLocale()
+        local pendingLocale = DFFN.NormalizeLocale(self.pendingLanguage or activeLocale)
+        local changed = pendingLocale ~= activeLocale
+        languageReloadButton:SetEnabled(changed)
+        languageReloadButton:SetAlpha(changed and 1 or 0.6)
+    end
+
+    languageReloadButton:SetScript("OnClick", function()
+        local activeLocale = DFFN.GetSelectedLocale()
+        local pendingLocale = DFFN.NormalizeLocale(DFFNamePlates.pendingLanguage or activeLocale)
+
+        if pendingLocale == activeLocale then
+            return
+        end
+
+        DFFriendlyNamePlates.Settings = DFFriendlyNamePlates.Settings or {}
+        DFFriendlyNamePlates.Settings.locale = pendingLocale
+        ReloadUI()
+    end)
+
+    local moreSettingsButton = HttpsxLib:CreateButton(content,
+        L("EX_OPEN_BLIZZ_SETTINGS"), 280, 25, "TOPLEFT", content, 10, -340)
     moreSettingsButton.icon = moreSettingsButton:CreateTexture(nil, "OVERLAY")
     moreSettingsButton.icon:SetSize(26, 26)
     moreSettingsButton.icon:SetPoint("LEFT", moreSettingsButton, "LEFT", 4, 1)
@@ -80,11 +123,13 @@ function module:OnLoad()
     moreSettingsButton.icon:SetTexCoord(0.9365234375, 0.9755859375, 0.1220703125, 0.0830078125)
 
     moreSettingsButton:SetScript("OnClick", function()
-        Settings.OpenToCategory(60)
+        Settings.OpenToCategory(109)
     end)
 
     DFFNamePlates.settings.ExtendedSettings = {}
     DFFNamePlates.settings.ExtendedSettings["blizzardSize"] = blizzardSizeSlider
     DFFNamePlates.settings.ExtendedSettings["blizzardStyle"] = blizzardStyleDropdown
     DFFNamePlates.settings.ExtendedSettings["hideInOpenWorld"] = hideInOpenWorldCB
+    DFFNamePlates.settings.ExtendedSettings["language"] = languageDropdown
+    DFFNamePlates.settings.ExtendedSettings["applyLanguage"] = languageReloadButton
 end
