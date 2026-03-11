@@ -16,7 +16,7 @@
 
 LibStub\LibStub.lua
 
-TaintLess.xml
+## TaintLess.xml
 
 CallbackHandler-1.0\CallbackHandler-1.0.lua
 LibDataBroker-1.1\LibDataBroker-1.1.lua
