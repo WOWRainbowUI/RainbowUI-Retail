@@ -72,6 +72,29 @@ local function A2_RequestCooldownTextRecolor()
         _G.MSUF_A2_ForceCooldownTextRecolor()
     end
  end
+local function A2_ShowHighlightReloadPopup()
+    if not _G then return end
+    _G.StaticPopupDialogs = _G.StaticPopupDialogs or {}
+    if not _G.StaticPopupDialogs["MSUF_A2_RELOAD_HIGHLIGHT_OWN_AURAS"] then
+        _G.StaticPopupDialogs["MSUF_A2_RELOAD_HIGHLIGHT_OWN_AURAS"] = {
+            text = "Changing own aura highlight settings requires a reload to fully apply. Reload UI now?",
+            button1 = ACCEPT,
+            button2 = CANCEL,
+            OnAccept = function()
+                if type(_G.ReloadUI) == "function" then
+                    _G.ReloadUI()
+                end
+            end,
+            timeout = 0,
+            whileDead = 1,
+            hideOnEscape = 1,
+            preferredIndex = _G.STATICPOPUP_NUMDIALOGS,
+        }
+    end
+    if type(_G.StaticPopup_Show) == "function" then
+        _G.StaticPopup_Show("MSUF_A2_RELOAD_HIGHLIGHT_OWN_AURAS")
+    end
+end
 -- Bridge into the Auras 2.0 core (MidnightSimpleUnitFrames_Auras.lua)
 local function _A2_API()
     return (ns and ns.MSUF_Auras2) or nil
@@ -497,7 +520,7 @@ local function MSUF_FixUIDropDown(dd, width)
     end
  end
 local function CreateDropdown(parent, label, x, y, getter, setter)
-    local dd = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
+    local dd = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown(nil, parent) or CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate"))
     dd:SetPoint("TOPLEFT", parent, "TOPLEFT", x - 16, y + 4)
     -- Keep this compact so it doesn't dominate the Auras 2.0 layout row.
     MSUF_FixUIDropDown(dd, 130)
@@ -545,7 +568,7 @@ local function CreateDropdown(parent, label, x, y, getter, setter)
      return dd
 end
 local function CreateLayoutDropdown(parent, x, y, getter, setter)
-    local dd = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
+    local dd = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown(nil, parent) or CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate"))
     dd:SetPoint("TOPLEFT", parent, "TOPLEFT", x - 16, y + 4)
     -- Keep Layout dropdown the same visual width as Growth.
     MSUF_FixUIDropDown(dd, 130)
@@ -595,7 +618,7 @@ end
 -- (DPad anchoring removed Ã¢â‚¬â€ auras can now be freely positioned via Edit Mode.)
 local function CreateRowWrapDropdown(parent, x, y, getter, setter, titleText)
     titleText = titleText or "Wrap rows"
-    local dd = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
+    local dd = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown(nil, parent) or CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate"))
     dd:SetPoint("TOPLEFT", parent, "TOPLEFT", x - 16, y + 4)
     MSUF_FixUIDropDown(dd, 130)
     local title = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -634,7 +657,7 @@ local function CreateRowWrapDropdown(parent, x, y, getter, setter, titleText)
      return dd
 end
 local function CreateStackAnchorDropdown(parent, x, y, getter, setter)
-    local dd = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
+    local dd = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown(nil, parent) or CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate"))
     dd:SetPoint("TOPLEFT", parent, "TOPLEFT", x - 16, y + 4)
     MSUF_FixUIDropDown(dd, 130)
     local title = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -843,6 +866,40 @@ end
 local function A2_Settings()
     local _, s = GetAuras2DB()
      return s
+end
+local A2_REMINDER_GROWTH_OK = { RIGHT = true, LEFT = true, UP = true, DOWN = true }
+local function A2_NormalizeReminderGrowth(v)
+    if type(v) ~= "string" or not A2_REMINDER_GROWTH_OK[v] then
+        return "RIGHT"
+    end
+    return v
+end
+local function A2_GetReminderGrowthValue()
+    local a2, shared = GetAuras2DB()
+    if a2 and a2.perUnit and a2.perUnit.player then
+        local pu = a2.perUnit.player
+        if pu.overrideLayout == true and type(pu.layout) == "table" and type(pu.layout.reminderGrowth) == "string" then
+            return A2_NormalizeReminderGrowth(pu.layout.reminderGrowth)
+        end
+    end
+    if shared and type(shared.reminderGrowth) == "string" then
+        return A2_NormalizeReminderGrowth(shared.reminderGrowth)
+    end
+    return "RIGHT"
+end
+local function A2_SetReminderGrowthValue(v)
+    local a2, shared = GetAuras2DB()
+    if not a2 or not shared then return end
+    v = A2_NormalizeReminderGrowth(v)
+    shared.reminderGrowth = v
+    local pu = a2.perUnit and a2.perUnit.player
+    if pu and pu.overrideLayout == true then
+        pu.layout = (type(pu.layout) == "table") and pu.layout or {}
+        pu.layout.reminderGrowth = v
+    end
+    local api = ns and ns.MSUF_Auras2
+    local rm = api and api.Reminder
+    if rm and rm.MarkDirty then rm.MarkDirty() end
 end
 local function A2_FilterBuffs()
     local f = GetEditingFilters()
@@ -1489,51 +1546,45 @@ do
     local editLbl = leftTop:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     editLbl:SetPoint("TOPLEFT", leftTop, "TOPLEFT", 380, -36)
     editLbl:SetText(TR("Edit filters:"))
-    ddEditFilters = CreateFrame("Frame", "MSUF_Auras2_EditFiltersDropDown", leftTop, "UIDropDownMenuTemplate")
-    ddEditFilters:SetPoint("TOPLEFT", leftTop, "TOPLEFT", 452, -42)
-    MSUF_FixUIDropDown(ddEditFilters, 160)
+    ddEditFilters = ns.UI and ns.UI.Dropdown({
+        name = "MSUF_Auras2_EditFiltersDropDown", parent = leftTop,
+        anchor = editLbl, anchorPoint = "TOPLEFT", x = 56, y = 8, width = 160,
+        items = {
+            { key = "shared", label = "Shared" },
+            { key = "player", label = "Player" },
+            { key = "target", label = "Target" },
+            { key = "focus",  label = "Focus" },
+            { key = "boss1",  label = "Boss 1" },
+            { key = "boss2",  label = "Boss 2" },
+            { key = "boss3",  label = "Boss 3" },
+            { key = "boss4",  label = "Boss 4" },
+            { key = "boss5",  label = "Boss 5" },
+        },
+        get = function() return GetEditingKey() end,
+        set = function(key)
+            panel.__msufAuras2_FilterEditKey = key
+            if panel and panel.OnRefresh then panel.OnRefresh() end
+        end,
+    })
+    if not ddEditFilters then
+        -- Fallback if Toolkit not loaded
+        ddEditFilters = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown("MSUF_Auras2_EditFiltersDropDown", leftTop) or CreateFrame("Frame", "MSUF_Auras2_EditFiltersDropDown", leftTop, "UIDropDownMenuTemplate"))
+        ddEditFilters:SetPoint("TOPLEFT", leftTop, "TOPLEFT", 452, -42)
+        MSUF_FixUIDropDown(ddEditFilters, 160)
+    end
     local labelForKey = {
-        shared = "Shared",
-        player = "Player",
-        target = "Target",
-        focus = "Focus",
-        boss1 = "Boss 1",
-        boss2 = "Boss 2",
-        boss3 = "Boss 3",
-        boss4 = "Boss 4",
-        boss5 = "Boss 5",
+        shared = "Shared", player = "Player", target = "Target", focus = "Focus",
+        boss1 = "Boss 1", boss2 = "Boss 2", boss3 = "Boss 3", boss4 = "Boss 4", boss5 = "Boss 5",
     }
     local function ApplyKey(key)
         panel.__msufAuras2_FilterEditKey = key
-        if ddEditFilters and labelForKey then
+        if ddEditFilters and ddEditFilters.SetValue then
+            ddEditFilters:SetValue(key)
+        elseif ddEditFilters and labelForKey then
             UIDropDownMenu_SetText(ddEditFilters, labelForKey[key] or "Shared")
         end
         if panel and panel.OnRefresh then panel.OnRefresh() end
      end
-    UIDropDownMenu_Initialize(ddEditFilters, function(self, level)
-        local function Add(text, key)
-            local info = UIDropDownMenu_CreateInfo()
-            info.text = text
-            info.func = function()  ApplyKey(key); CloseDropDownMenus()  end
-            info.checked = function()  return GetEditingKey() == key end
-	            info.keepShownOnClick = false
-	            -- radio style (default): no isNotRadio
-            UIDropDownMenu_AddButton(info, level)
-         end
-        Add("Shared", "shared")
-        Add("Player", "player")
-        Add("Target", "target")
-        Add("Focus", "focus")
-        Add("Boss 1", "boss1")
-        Add("Boss 2", "boss2")
-        Add("Boss 3", "boss3")
-        Add("Boss 4", "boss4")
-        Add("Boss 5", "boss5")
-     end)
-    ddEditFilters:SetScript("OnShow", function(self)
-        local key = GetEditingKey()
-        UIDropDownMenu_SetText(self, labelForKey[key] or "Shared")
-     end)
     cbOverrideFilters = CreateCheckbox(leftTop, "Override shared filters", 380, -70,
         function()  return GetOverrideForEditing() end,
         function(v)  SetOverrideForEditing(v)  end,
@@ -1678,7 +1729,7 @@ end
     h3:SetPoint("TOPLEFT", leftTop, "TOPLEFT", 12, -156)
     h3:SetText(TR("Display"))
     local TIP_SHOW_STACK = 'Shows stack/application counts (e.g. "2") on aura icons. Disable to hide stack numbers.'
-    local TIP_HIDE_PERMANENT = 'Hides buffs with no duration. Debuffs are never hidden by this option.\n\nNote: Target/Focus APIs may still show permanent buffs during combat due to API limitations.'
+    local TIP_HIDE_PERMANENT = 'Hides buffs with no duration. Only works out of combat!'
     do
         local displayCB = {}
         local TIP_SWIPE_STYLE = "When enabled, the cooldown swipe represents elapsed time (darkens as time is lost).\n\nTurn this OFF to keep the default cooldown-style swipe."
@@ -1699,7 +1750,7 @@ end
                 "Shows the countdown numbers on aura icons. Disable to hide cooldown numbers (swipe can remain enabled).",
                 "cbShowCooldownText" },
             { "Click-through auras", 200, -324, A2_Settings, "clickThroughAuras", nil,
-                "Makes all aura icons non-interactive. Mouse clicks and tooltips pass through to the game world.",
+                "Makes aura icons click-through so mouse clicks pass to the game world.\n\nWhen 'Show tooltip' is also enabled, hovering still shows aura tooltips.\nWhen 'Show tooltip' is off, icons are fully non-interactive.",
                 "cbClickThrough" },
             { "Show tooltip", 12, -276, A2_Settings, "showTooltip", nil, nil, "cbShowTooltip" },
         }, displayCB)
@@ -1723,6 +1774,16 @@ end
                 if _oldShow then _oldShow(self) end
                 UpdateSwipeStyleEnabled()
              end)
+        end
+        for _, key in ipairs({ "cbHLOwnBuffs", "cbHLOwnDebuffs" }) do
+            local cb = displayCB[key]
+            if cb then
+                local _oldClick = cb:GetScript("OnClick")
+                cb:SetScript("OnClick", function(self)
+                    if _oldClick then _oldClick(self) end
+                    A2_ShowHighlightReloadPopup()
+                 end)
+            end
         end
     end
     -- Only-mine + permanent filters: stored in the per-unit filter table (via A2_FilterBuffs/Debuffs).
@@ -2274,7 +2335,7 @@ end
             local sortH = advBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
             sortH:SetPoint("TOPLEFT", advBox, "TOPLEFT", 12, -176)
             sortH:SetText(TR("Sort order"))
-            local ddSort = CreateFrame("Frame", "MSUF_Auras2_SortOrderDropDown", advBox, "UIDropDownMenuTemplate")
+            local ddSort = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown("MSUF_Auras2_SortOrderDropDown", advBox) or CreateFrame("Frame", "MSUF_Auras2_SortOrderDropDown", advBox, "UIDropDownMenuTemplate"))
             ddSort:SetPoint("TOPLEFT", advBox, "TOPLEFT", 90, -182)
             MSUF_FixUIDropDown(ddSort, 220)
             local function SortGet()
@@ -2524,7 +2585,7 @@ end
         remDesc:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -28)
         remDesc:SetWidth(500)
         remDesc:SetJustifyH("LEFT")
-        remDesc:SetText("Ghost icons appear at the player frame when a buff is missing or about to expire. Position via Edit Mode mover.")
+        remDesc:SetText("Ghost icons appear at the player frame when a buff is missing or about to expire. Position via Edit Mode mover; configure Grow Direction here.")
 
         -- Master toggle
         local cbShowReminders = CreateCheckbox(reminderBox, "Enable Buff Reminders", 12, -50,
@@ -2632,6 +2693,15 @@ end
         if thrHigh then thrHigh:SetText("10 min") end
         A2_Track("global", thrSlider)
 
+        local reminderGrowthDD = CreateDropdown(reminderBox, "Grow Direction", 500, -222,
+            function()
+                return A2_GetReminderGrowthValue()
+            end,
+            function(v)
+                A2_SetReminderGrowthValue(v)
+            end)
+        A2_Track("global", reminderGrowthDD)
+
         -- Gate: disable per-buff checkboxes + slider when master toggle off
         local function UpdateReminderGating()
             local s = A2_Settings()
@@ -2646,6 +2716,7 @@ end
             else
                 thrSlider:Disable()
             end
+            A2_SetWidgetEnabled(reminderGrowthDD, enabled)
         end
 
         if cbShowReminders then

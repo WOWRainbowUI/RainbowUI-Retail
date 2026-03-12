@@ -483,7 +483,13 @@ if self.backgroundBar then
         end
     end
     SafeCall(self.backgroundBar.SetTexture, self.backgroundBar, bgTex)
-    SafeCall(self.backgroundBar.SetVertexColor, self.backgroundBar, 0.176, 0.176, 0.176, 1)
+    do
+        local r, g, b, a = 0.176, 0.176, 0.176, 1
+        if type(_G.MSUF_GetCastbarBackgroundColor) == "function" then
+            r, g, b, a = _G.MSUF_GetCastbarBackgroundColor()
+        end
+        SafeCall(self.backgroundBar.SetVertexColor, self.backgroundBar, r, g, b, a)
+    end
     if self.statusBar then
         self.backgroundBar:ClearAllPoints()
         self.backgroundBar:SetAllPoints(self.statusBar)

@@ -62,6 +62,37 @@ local function NotSecret(v)
     return true
 end
 
+-- ============================================================================
+-- P0 PERF: Cached DB config (eliminates ~46 MSUF_DB traversals per event)
+-- Rebuilt once per FullRefresh (login, profile switch, option change).
+-- Hot-path functions read _cpDB.* instead of MSUF_DB.bars.*/general.*.
+-- Secret-safe: only reads DB booleans/numbers, no secret comparisons.
+-- ============================================================================
+local _cpDB = {
+    colorByType    = true,   showCharged    = true,
+    bgAlpha        = 0.3,    showPrediction = true,
+    showText       = true,   fontSize       = 14,
+    smooth         = true,   colorOverrides = nil,
+    bgColorOverrides = nil,  bars = nil, general = nil,
+}
+local function _CP_RefreshConfig()
+    local db = MSUF_DB
+    if not db then return end
+    local b = db.bars or {}
+    local g = db.general or {}
+    _cpDB.bars              = b
+    _cpDB.general           = g
+    _cpDB.colorByType       = (b.classPowerColorByType ~= false)
+    _cpDB.showCharged       = (b.showChargedComboPoints ~= false)
+    _cpDB.bgAlpha           = tonumber(b.classPowerBgAlpha) or 0.3
+    _cpDB.showPrediction    = (b.classPowerShowPrediction ~= false)
+    _cpDB.showText          = (b.classPowerShowText ~= false)
+    _cpDB.fontSize          = tonumber(b.classPowerFontSize) or 14
+    _cpDB.smooth            = (b.smoothPowerBar ~= false)
+    _cpDB.colorOverrides    = (type(g.classPowerColorOverrides) == "table") and g.classPowerColorOverrides or nil
+    _cpDB.bgColorOverrides  = (type(g.classPowerBgColorOverrides) == "table") and g.classPowerBgColorOverrides or nil
+end
+
 -- Spec API (12.0: C_SpecializationInfo preferred, fallback to global)
 local GetSpec = (C_SpecializationInfo and C_SpecializationInfo.GetSpecialization)
     or GetSpecialization
@@ -316,7 +347,7 @@ do
 
         -- Resolve eclipse color override from DB
         local function _resolveEclColor(token)
-            local ov = MSUF_DB and MSUF_DB.general and MSUF_DB.general.classPowerColorOverrides
+            local ov = _cpDB.colorOverrides
             if type(ov) == "table" then
                 local c = token and ov[token]
                 if type(c) == "table" then
@@ -389,7 +420,7 @@ do
         -- Resolve prediction overlay color (non-eclipse fallback)
         -- Reads AP_PREDICTION from classPowerColorOverrides, falls back to power bar color
         local function _resolvePredColor()
-            local ov = MSUF_DB and MSUF_DB.general and MSUF_DB.general.classPowerColorOverrides
+            local ov = _cpDB.colorOverrides
             if type(ov) == "table" then
                 local c = ov["AP_PREDICTION"]
                 if type(c) == "table" then
@@ -424,7 +455,7 @@ do
             if not bar then return end
 
             -- Prediction disabled by user setting
-            if MSUF_DB and MSUF_DB.bars and MSUF_DB.bars.classPowerShowPrediction == false then
+            if _cpDB.showPrediction == false then
                 if _predTex then _predTex:Hide() end
                 return
             end
@@ -716,7 +747,7 @@ local function GetClassPowerType()
     elseif PLAYER_CLASS == "EVOKER" then
         local spec = GetSpec and GetSpec()
         if spec == SPEC_EVOKER_AUG then
-            local b = MSUF_DB and MSUF_DB.bars
+            local b = _cpDB.bars
             if b and b.showEbonMight then
                 return "EBON_MIGHT", MODE_TIMER_BAR, false
             end
@@ -733,7 +764,7 @@ local function GetClassPowerType()
         -- Brewmaster: Stagger as class resource (3-color threshold, CDM-synced).
         -- Energy is primary → main power bar. Stagger → class power overlay.
         if spec == SPEC_MONK_BREWMASTER then
-            local bb = MSUF_DB and MSUF_DB.bars
+            local bb = _cpDB.bars
             if not bb or bb.showStagger ~= false then
                 return PT_STAGGER, MODE_STAGGER, false
             end
@@ -764,7 +795,7 @@ local function GetClassPowerType()
             end
         end
         if spec == SPEC_SHAMAN_ELEMENTAL then
-            local b = MSUF_DB and MSUF_DB.bars
+            local b = _cpDB.bars
             if b and b.showEleMaelstrom then
                 return PT.Maelstrom, MODE_CONTINUOUS, false
             end
@@ -853,6 +884,8 @@ local POWER_TYPE_TOKENS = {
 -- ============================================================================
 local _cachedColorR, _cachedColorG, _cachedColorB = 1, 1, 1
 local _cachedColorToken = nil
+local _cachedBgColorToken = nil
+local _cachedBgColorR, _cachedBgColorG, _cachedBgColorB = 0, 0, 0
 local _staggerCachedTier = 0  -- Stagger: avoid redundant SetStatusBarColor when tier unchanged
 
 -- Maelstrom Weapon 5+ threshold color (cached independently)
@@ -862,7 +895,7 @@ local _mwAbove5Resolved = false
 local function ResolveMWAbove5Color()
     if _mwAbove5Resolved then return _mwAbove5R, _mwAbove5G, _mwAbove5B end
     _mwAbove5Resolved = true
-    local ov = MSUF_DB and MSUF_DB.general and MSUF_DB.general.classPowerColorOverrides
+    local ov = _cpDB.colorOverrides
     if type(ov) == "table" then
         local c = ov["MAELSTROM_ABOVE_5"]
         if type(c) == "table" then
@@ -889,8 +922,8 @@ local function ResolveClassPowerColor(powerType)
     _cachedColorToken = token
 
     -- 1. Custom class-power color override (from Colors panel)
-    if MSUF_DB and MSUF_DB.general then
-        local ov = MSUF_DB.general.classPowerColorOverrides
+    if _cpDB.general then
+        local ov = _cpDB.colorOverrides
         if type(ov) == "table" and token then
             local c = ov[token]
             if type(c) == "table" then
@@ -932,9 +965,38 @@ local function ResolveClassPowerColor(powerType)
     return 1, 1, 1
 end
 
+local function ResolveClassPowerBgColor(powerType)
+    local token = POWER_TYPE_TOKENS[powerType]
+    if not token and type(powerType) == "string" then
+        token = powerType
+    end
+    if token == _cachedBgColorToken and _cachedBgColorToken then
+        return _cachedBgColorR, _cachedBgColorG, _cachedBgColorB
+    end
+    _cachedBgColorToken = token
+
+    if _cpDB.general then
+        local ov = _cpDB.bgColorOverrides
+        if type(ov) == "table" and token then
+            local c = ov[token]
+            if type(c) == "table" then
+                local r, g, b = c[1] or c.r, c[2] or c.g, c[3] or c.b
+                if type(r) == "number" and type(g) == "number" and type(b) == "number" then
+                    _cachedBgColorR, _cachedBgColorG, _cachedBgColorB = r, g, b
+                    return r, g, b
+                end
+            end
+        end
+    end
+
+    _cachedBgColorR, _cachedBgColorG, _cachedBgColorB = 0, 0, 0
+    return 0, 0, 0
+end
+
 -- Public: invalidate class power color cache (called from Colors panel)
 _G.MSUF_ClassPower_InvalidateColors = function()
     _cachedColorToken = nil
+    _cachedBgColorToken = nil
     _cachedChargedR = nil  -- also invalidate charged cache
     _staggerCachedTier = 0  -- force stagger color re-apply
     _mwAbove5Resolved = false  -- force MW threshold color re-resolve
@@ -981,8 +1043,8 @@ local function ResolveChargedColor()
     end
 
     -- 1. Custom override from Colors panel
-    if MSUF_DB and MSUF_DB.general then
-        local ov = MSUF_DB.general.classPowerColorOverrides
+    if _cpDB.general then
+        local ov = _cpDB.colorOverrides
         if type(ov) == "table" then
             local c = ov["CHARGED"]
             if type(c) == "table" then
@@ -1085,7 +1147,7 @@ local function CP_EnsureBars(parent, count)
     if count <= CP.maxBars then return end
 
     -- Resolve textures once for all new bars
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     local fgPath = CP_ResolveTexture(b.classPowerTexture)
     local bgKey  = b.classPowerBgTexture
     local bgPath
@@ -1189,7 +1251,7 @@ local function CP_ApplyTextOffset()
     local fs = CP.text
     local tf = CP.textFrame
     if not fs or not tf then return end
-    local b = MSUF_DB and MSUF_DB.bars
+    local b = _cpDB.bars
     local ox = (b and tonumber(b.classPowerTextOffsetX)) or 0
     local oy = (b and tonumber(b.classPowerTextOffsetY)) or 0
     fs:ClearAllPoints()
@@ -1214,8 +1276,8 @@ local function CP_ApplyFont()
 
     -- Use dedicated class power font size (independent of global power text size)
     local fontSize = baseSize
-    if MSUF_DB and MSUF_DB.bars then
-        fontSize = MSUF_DB.bars.classPowerFontSize or baseSize
+    if _cpDB.bars then
+        fontSize = _cpDB.fontSize or baseSize
     end
     if fontSize < 6 then fontSize = 6 end
 
@@ -1240,8 +1302,8 @@ local function CP_ApplyFont()
     -- Text color: check for RESOURCE_TEXT override in classPowerColorOverrides
     -- (same DB path as all class power colors, editable in Colors panel)
     local tr, tg, tb = fr, fg, fb
-    if MSUF_DB and MSUF_DB.general then
-        local ov = MSUF_DB.general.classPowerColorOverrides
+    if _cpDB.general then
+        local ov = _cpDB.colorOverrides
         if type(ov) == "table" then
             local c = ov["RESOURCE_TEXT"]
             if type(c) == "table" then
@@ -1282,7 +1344,7 @@ local function CP_CheckAutoHide(cur, maxP)
     if not _autoHideActive or not CP.visible then return end
     if not CP.container then return end
 
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
 
     -- OOC: hide when out of combat
     if b.classPowerHideOOC and not InCombatLockdown() then
@@ -1319,7 +1381,7 @@ local function CP_Layout(playerFrame, maxPower, height)
     if not CP.container or maxPower <= 0 then return end
 
     local h = height
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
 
     -- Tick width from DB (0 = no ticks)
     local tickW = tonumber(b.classPowerTickWidth) or 1
@@ -1434,7 +1496,8 @@ local function CP_Layout(playerFrame, maxPower, height)
 
     -- BG alpha from config
     local bgA = tonumber(b.classPowerBgAlpha) or 0.3
-    CP.bgTex:SetVertexColor(0, 0, 0, bgA)
+    local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
+    CP.bgTex:SetVertexColor(bgR, bgG, bgB, bgA)
 
     -- Cache filled/empty alpha for hot paths (read once per layout, not per update)
     _filledAlpha = tonumber(b.classPowerFilledAlpha) or 1.0
@@ -1462,7 +1525,7 @@ local function CP_Layout(playerFrame, maxPower, height)
                 bar:SetPoint("TOPLEFT", CP.container, "TOPLEFT", xPos, 0)
             end
             bar:SetSize(thisW, h)
-            bar._bg:SetVertexColor(0, 0, 0, bgA)
+            bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
             bar:Show()
             xPos = xPos + thisW + snapTickW + snapGap
         end
@@ -1552,8 +1615,8 @@ local function CP_UpdateValues(powerType, maxPower)
 
     -- Resolve base color
     local colorByType = true
-    if MSUF_DB and MSUF_DB.bars then
-        colorByType = (MSUF_DB.bars.classPowerColorByType ~= false)
+    if _cpDB.bars then
+        colorByType = (_cpDB.colorByType ~= false)
     end
 
     local baseR, baseG, baseB
@@ -1564,8 +1627,8 @@ local function CP_UpdateValues(powerType, maxPower)
     end
 
     -- Charged point support (only for combo points)
-    local showCharged = MSUF_DB and MSUF_DB.bars
-        and (MSUF_DB.bars.showChargedComboPoints ~= false)
+    local showCharged = _cpDB.bars
+        and (_cpDB.showCharged ~= false)
         and powerType == PT.ComboPoints
     local chargedR, chargedG, chargedB
     if showCharged and _chargedMap then
@@ -1574,9 +1637,10 @@ local function CP_UpdateValues(powerType, maxPower)
 
     -- Background alpha (from DB)
     local bgA = 0.3
-    if MSUF_DB and MSUF_DB.bars then
-        bgA = tonumber(MSUF_DB.bars.classPowerBgAlpha) or 0.3
+    if _cpDB.bars then
+        bgA = tonumber(_cpDB.bgAlpha) or 0.3
     end
+    local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
 
     -- Per-bar fill + color
     for i = 1, maxPower do
@@ -1592,7 +1656,7 @@ local function CP_UpdateValues(powerType, maxPower)
                 -- Charged: empowered color (filled or dim)
                 bar:SetStatusBarColor(chargedR, chargedG, chargedB, 1)
                 if isFilled then
-                    bar._bg:SetVertexColor(0, 0, 0, bgA)
+                    bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
                 else
                     -- Dim charged bg (visible when empty, shows the slot is empowered)
                     local dR = chargedR * 0.45; if dR < 0.05 then dR = 0.05 end
@@ -1603,7 +1667,7 @@ local function CP_UpdateValues(powerType, maxPower)
             else
                 -- Normal: base color
                 bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-                bar._bg:SetVertexColor(0, 0, 0, bgA)
+                bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
             end
         end
     end
@@ -1611,10 +1675,10 @@ local function CP_UpdateValues(powerType, maxPower)
     -- Resource count text Jayee Prediction approach: show current value with "*" suffix when a cast is in progress that will change the value.
     local txt = CP.text
     if txt then
-        local showText = MSUF_DB and MSUF_DB.bars
-            and (MSUF_DB.bars.classPowerShowText == true)
+        local showText = _cpDB.bars
+            and (_cpDB.showText == true)
         if showText then
-            local predOn = MSUF_DB.bars.classPowerShowPrediction ~= false
+            local predOn = _cpDB.showPrediction ~= false
             local predDelta = CP.wlPredDelta
             if predDelta ~= 0 and PLAYER_CLASS == "WARLOCK" then
                 -- Current value with "*" suffix — cast in progress indicator
@@ -1652,7 +1716,7 @@ local function CP_ApplyColors(powerType)
 end
 
 local function CP_RefreshTexture()
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     local fgKey = b.classPowerTexture     -- nil/empty = follow global bar texture
     local bgKey = b.classPowerBgTexture   -- nil/empty = follow foreground
 
@@ -1706,8 +1770,8 @@ local function CP_UpdateValues_Fractional(powerType, maxPower)
 
     -- Resolve color
     local colorByType = true
-    if MSUF_DB and MSUF_DB.bars then
-        colorByType = (MSUF_DB.bars.classPowerColorByType ~= false)
+    if _cpDB.bars then
+        colorByType = (_cpDB.colorByType ~= false)
     end
     local baseR, baseG, baseB
     if colorByType then
@@ -1716,7 +1780,8 @@ local function CP_UpdateValues_Fractional(powerType, maxPower)
         baseR, baseG, baseB = 1, 1, 1
     end
 
-    local bgA = (MSUF_DB and MSUF_DB.bars and tonumber(MSUF_DB.bars.classPowerBgAlpha)) or 0.3
+    local bgA = (_cpDB.bars and tonumber(_cpDB.bgAlpha)) or 0.3
+    local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
 
     -- Per-bar fill: full bars + partial current bar
     local fullBars = math_floor(fractional)
@@ -1736,16 +1801,16 @@ local function CP_UpdateValues_Fractional(powerType, maxPower)
                 bar:SetAlpha(_emptyAlpha)
             end
             bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-            bar._bg:SetVertexColor(0, 0, 0, bgA)
+            bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
         end
     end
 
     -- Text: show fractional value
     local txt = CP.text
     if txt then
-        local showText = MSUF_DB and MSUF_DB.bars and (MSUF_DB.bars.classPowerShowText == true)
+        local showText = _cpDB.bars and (_cpDB.showText == true)
         if showText then
-            local predOn = MSUF_DB.bars.classPowerShowPrediction ~= false
+            local predOn = _cpDB.showPrediction ~= false
             local predDelta = CP.wlPredDelta
             if predDelta ~= 0 then
                 -- Current value with "*" suffix — cast in progress indicator
@@ -1848,7 +1913,7 @@ local function CP_UpdateValues_RuneCD(powerType, maxPower)
     if maxPower <= 0 then return end
 
     -- Sort the rune map (oUF pattern)
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     local sortOrder = b.runeSortOrder
     if sortOrder == "asc" then
         table_sort(_runeMap, _runeAscSort)
@@ -1939,7 +2004,7 @@ local function CP_UpdateValues_RuneCD(powerType, maxPower)
             end
 
             bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-            bar._bg:SetVertexColor(0, 0, 0, bgA)
+            bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
             bar:Show()
         end
     end
@@ -1947,7 +2012,7 @@ local function CP_UpdateValues_RuneCD(powerType, maxPower)
     -- Text: show ready count
     local txt = CP.text
     if txt then
-        local showText = MSUF_DB and MSUF_DB.bars and (MSUF_DB.bars.classPowerShowText == true)
+        local showText = _cpDB.bars and (_cpDB.showText == true)
         if showText and readyCount > 0 then
             txt:SetText(readyCount)
             txt:Show()
@@ -1977,7 +2042,7 @@ local function CP_UpdateValues_AuraSegmented(powerType, maxPower)
 
     -- Resolve color
     local colorByType = true
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     if b then colorByType = (b.classPowerColorByType ~= false) end
     local baseR, baseG, baseB
     if colorByType then
@@ -1986,6 +2051,7 @@ local function CP_UpdateValues_AuraSegmented(powerType, maxPower)
         baseR, baseG, baseB = 1, 1, 1
     end
     local bgA = tonumber(b.classPowerBgAlpha) or 0.3
+    local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
 
     if powerType == "SOUL_FRAGMENTS_VENG" then
         -- DH Vengeance: C_Spell.GetSpellCastCount → SECRET number in 12.0
@@ -2002,7 +2068,7 @@ local function CP_UpdateValues_AuraSegmented(powerType, maxPower)
                 bar:SetValue(cur)
                 bar:SetAlpha(_filledAlpha)
                 bar:SetStatusBarColor(baseR, baseG, baseB, 1)
-                bar._bg:SetVertexColor(0, 0, 0, bgA)
+                bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
             end
         end
 
@@ -2062,7 +2128,7 @@ local function CP_UpdateValues_AuraSegmented(powerType, maxPower)
                 else
                     bar:SetStatusBarColor(baseR, baseG, baseB, 1)
                 end
-                bar._bg:SetVertexColor(0, 0, 0, bgA)
+                bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
             end
         end
 
@@ -2098,7 +2164,7 @@ end
 
 -- Resolve DH color from DB override → hardcoded default
 local function ResolveDHColor(isVoidMeta)
-    local ov = MSUF_DB and MSUF_DB.general and MSUF_DB.general.classPowerColorOverrides
+    local ov = _cpDB.colorOverrides
     if type(ov) == "table" then
         local token = isVoidMeta and "SOUL_FRAGMENTS_META" or "SOUL_FRAGMENTS"
         local c = ov[token]
@@ -2150,7 +2216,7 @@ local function CP_UpdateValues_AuraSingle(powerType, maxPower)
 
     -- Color: meta vs normal (configurable via Colors menu)
     local colorByType = true
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     if b then colorByType = (b.classPowerColorByType ~= false) end
 
     local r, g, bl
@@ -2163,13 +2229,14 @@ local function CP_UpdateValues_AuraSingle(powerType, maxPower)
     end
 
     local bgA = tonumber(b.classPowerBgAlpha) or 0.3
+    local bgR, bgG, bgB = ResolveClassPowerBgColor((inMeta and true) and "SOUL_FRAGMENTS_META" or "SOUL_FRAGMENTS")
     local bar = CP.bars[1]
     if bar then
         bar:SetMinMaxValues(0, 1)
         bar:SetValue(cur)
         bar:SetAlpha(cur > 0.01 and _filledAlpha or _emptyAlpha)
         bar:SetStatusBarColor(r, g, bl, 1)
-        bar._bg:SetVertexColor(0, 0, 0, bgA)
+        bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
     end
 
     -- Hide bars 2+ (only 1 bar used)
@@ -2222,7 +2289,7 @@ local function CP_UpdateValues_Continuous(powerType, maxPower)
 
     -- Color from type (Ele Maelstrom / Shadow Insanity)
     local colorByType = true
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     if b then colorByType = (b.classPowerColorByType ~= false) end
     if colorByType then
         local r, g, bl = ResolveClassPowerColor(powerType)
@@ -2237,8 +2304,9 @@ local function CP_UpdateValues_Continuous(powerType, maxPower)
     bar:SetAlpha(_filledAlpha)
     bar:Show()
 
-    local bgA = (MSUF_DB and MSUF_DB.bars and tonumber(MSUF_DB.bars.classPowerBgAlpha)) or 0.3
-    bar._bg:SetVertexColor(0, 0, 0, bgA)
+    local bgA = (_cpDB.bars and tonumber(_cpDB.bgAlpha)) or 0.3
+    local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
+    bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
 
     -- Hide bars 2+ (only 1 bar used)
     for i = 2, CP.maxBars do
@@ -2253,7 +2321,7 @@ local function CP_UpdateValues_Continuous(powerType, maxPower)
     -- Text: secret value → SetFormattedText passes through to C-side safely
     local txt = CP.text
     if txt then
-        local showText = MSUF_DB and MSUF_DB.bars and (MSUF_DB.bars.classPowerShowText == true)
+        local showText = _cpDB.bars and (_cpDB.showText == true)
         if showText then
             txt:SetFormattedText("%d / %d", cur, mx)
             txt:Show()
@@ -2294,7 +2362,7 @@ local function CP_UpdateValues_TimerBar(powerType, maxPower)
 
     -- Resolve color
     local colorByType = true
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     if b then colorByType = (b.classPowerColorByType ~= false) end
     local r, g, bl
     if colorByType then
@@ -2303,13 +2371,14 @@ local function CP_UpdateValues_TimerBar(powerType, maxPower)
         r, g, bl = 1, 1, 1
     end
     local bgA = tonumber(b.classPowerBgAlpha) or 0.3
+    local bgR, bgG, bgB = ResolveClassPowerBgColor(powerType)
 
     bar:SetStatusBarColor(r, g, bl, 1)
     bar:SetMinMaxValues(0, 1)
     bar:SetValue(pct)
     bar:SetAlpha(remaining > 0 and _filledAlpha or _emptyAlpha)
     bar:Show()
-    bar._bg:SetVertexColor(0, 0, 0, bgA)
+    bar._bg:SetVertexColor(bgR, bgG, bgB, bgA)
 
     -- Hide bars 2+
     for i = 2, CP.maxBars do
@@ -2367,7 +2436,7 @@ end
 -- Called from event handler when warlock starts casting a known spell
 local function OnWarlockCastStart(spellID)
     if PLAYER_CLASS ~= "WARLOCK" then return end
-    if MSUF_DB and MSUF_DB.bars and MSUF_DB.bars.classPowerShowPrediction == false then return end
+    if _cpDB.showPrediction == false then return end
     local spec = GetSpec and GetSpec()
     local deltaTable = spec and WL_SHARD_DELTAS[spec]
     local delta = deltaTable and deltaTable[spellID]
@@ -2453,7 +2522,7 @@ local STAGGER_COLOR_DEFAULTS = {
 local STAGGER_TOKENS = { "STAGGER_GREEN", "STAGGER_YELLOW", "STAGGER_RED" }
 
 local function ResolveStaggerColor(tier)
-    local ov = MSUF_DB and MSUF_DB.general and MSUF_DB.general.classPowerColorOverrides
+    local ov = _cpDB.colorOverrides
     if type(ov) == "table" then
         local token = STAGGER_TOKENS[tier]
         local c = token and ov[token]
@@ -2501,8 +2570,9 @@ local function CP_UpdateValues_Stagger(powerType, maxPower)
         bar:SetStatusBarColor(r, g, b, 1)
     end
 
-    local bgA = (MSUF_DB and MSUF_DB.bars and tonumber(MSUF_DB.bars.classPowerBgAlpha)) or 0.3
-    if bar._bg then bar._bg:SetVertexColor(0, 0, 0, bgA) end
+    local bgA = (_cpDB.bars and tonumber(_cpDB.bgAlpha)) or 0.3
+    local bgR, bgG, bgB = ResolveClassPowerBgColor("STAGGER")
+    if bar._bg then bar._bg:SetVertexColor(bgR, bgG, bgB, bgA) end
 
     -- Hide bars 2+ (single bar mode)
     for i = 2, CP.maxBars do
@@ -2517,7 +2587,7 @@ local function CP_UpdateValues_Stagger(powerType, maxPower)
     -- Text: show stagger amount in K (e.g. "12.3K") — more useful than %
     local txt = CP.text
     if txt then
-        local showText = MSUF_DB and MSUF_DB.bars and (MSUF_DB.bars.classPowerShowText == true)
+        local showText = _cpDB.bars and (_cpDB.showText == true)
         if showText then
             if cur >= 1000 then
                 txt:SetFormattedText("%.1fK", cur / 1000)
@@ -2599,7 +2669,7 @@ end
 
 local function AM_Layout(playerFrame)
     if not AM.container then return end
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
 
     local h = tonumber(b.altManaHeight) or 4
     if h < 2 then h = 2 elseif h > 30 then h = 30 end
@@ -2614,7 +2684,7 @@ end
 
 local function AM_ApplyColor()
     if not AM.bar then return end
-    local b = MSUF_DB and MSUF_DB.bars or {}
+    local b = _cpDB.bars or {}
     local r = tonumber(b.altManaColorR) or 0.0
     local g = tonumber(b.altManaColorG) or 0.0
     local bl = tonumber(b.altManaColorB) or 0.8
@@ -2637,7 +2707,7 @@ local function AM_UpdateValue()
     if type(mx)  ~= "number" then mx  = 100 end
 
     -- Smooth interpolation when enabled.
-    local smoothOn = MSUF_DB and MSUF_DB.bars and (MSUF_DB.bars.smoothPowerBar ~= false)
+    local smoothOn = _cpDB.smooth
     local interp = smoothOn and Enum and Enum.StatusBarInterpolation
         and Enum.StatusBarInterpolation.ExponentialEaseOut or nil
     if interp then
@@ -2668,7 +2738,8 @@ end
 -- ============================================================================
 local function FullRefresh()
     if not MSUF_DB then return end
-    local b = MSUF_DB.bars or {}
+    _CP_RefreshConfig()  -- P0: rebuild cached config
+    local b = _cpDB.bars or {}
     local playerFrame = GetPlayerFrame()
     if not playerFrame then return end
 
@@ -2702,7 +2773,7 @@ local function FullRefresh()
                         CP._cdmDirty = true
                         return
                     end
-                    local bars = MSUF_DB and MSUF_DB.bars
+                    local bars = _cpDB.bars
                     if not bars then return end
                     if (bars.classPowerWidthMode == myMode)
                     or (bars.classPowerAnchorToCooldown == true) then
@@ -2732,7 +2803,7 @@ local function FullRefresh()
             if not CP._cdmDirty then return end
             CP._cdmDirty = false
             if CP.visible and CP._pf and CP.currentMax and CP.currentMax > 0 then
-                local bars = MSUF_DB and MSUF_DB.bars
+                local bars = _cpDB.bars
                 CP_Layout(CP._pf, CP.currentMax, CP._layoutH or (bars and bars.classPowerHeight or 4))
             end
             if type(_G.MSUF_ApplyPowerBarEmbedLayout_All) == "function" then
@@ -3243,6 +3314,7 @@ eventFrame:RegisterEvent("PLAYER_ALIVE")
 -- Force full refresh (call after changing DB values)
 function _G.MSUF_ClassPower_Refresh()
     _cachedColorToken = nil  -- Invalidate color cache
+    _cachedBgColorToken = nil
     FullRefresh()
 end
 

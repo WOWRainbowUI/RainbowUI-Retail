@@ -480,6 +480,21 @@ local function IterateCastbarFrames(fn)
 
 end
 
+------------------------------------------------------
+-- Background bar color (live-apply from Colors picker)
+------------------------------------------------------
+local function ApplyBackgroundBarColor(frame)
+    local bg = frame and frame.backgroundBar
+    if not (bg and bg.SetVertexColor) then return end
+    local r, g, b, a = 0.176, 0.176, 0.176, 1
+    if type(_G.MSUF_GetCastbarBackgroundColor) == "function" then
+        r, g, b, a = _G.MSUF_GetCastbarBackgroundColor()
+    end
+    -- Preserve the texture's own alpha (set at creation) for the 4th channel.
+    local ta = (bg.GetAlpha and bg:GetAlpha()) or 1
+    bg:SetVertexColor(r, g, b, ta)
+end
+
 -- Preserve any pre-existing implementation for safety.
 local _Old_Update = _G.MSUF_UpdateCastbarVisuals
 
@@ -501,6 +516,7 @@ function _G.MSUF_UpdateCastbarVisuals()
         end
 
         ApplyIconAndBarLayout(frame, unitKey, g)
+        ApplyBackgroundBarColor(frame)
         ApplyFontsAndTextLayout(frame, unitKey, g)
         ApplyPreviewInterruptibleColor(frame, unitKey, g)
     end)

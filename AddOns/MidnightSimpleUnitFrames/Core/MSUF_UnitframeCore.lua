@@ -25,6 +25,48 @@ local UnitHealthPercent, UnitPowerPercent = UnitHealthPercent, UnitPowerPercent
 local InCombatLockdown = InCombatLockdown
 local CreateFrame, GetTime = CreateFrame, GetTime
 
+local Core = {}
+local _UFCORE_issecret = _G and _G.issecretvalue or nil
+
+local function UFCore_CanCompareNumber(v)
+    return type(v) == "number" and (not _UFCORE_issecret or not _UFCORE_issecret(v))
+end
+
+local function UFCore_SamePowerSnapshot(f, pType, cur, mx)
+    if not f or f._msufPowerVisCheckNeeded then return false end
+    if f._msufCachedPType ~= pType then return false end
+    local prevCur, prevMax = f._msufCachedPCur, f._msufCachedPMax
+    if not (UFCore_CanCompareNumber(cur) and UFCore_CanCompareNumber(mx) and UFCore_CanCompareNumber(prevCur) and UFCore_CanCompareNumber(prevMax)) then
+        return false
+    end
+    return (prevCur == cur and prevMax == mx)
+end
+
+local function UFCore_StorePowerSnapshot(f, pType, cur, mx)
+    f._msufCachedPType   = pType
+    f._msufCachedPCur    = cur
+    f._msufCachedPMax    = mx
+    f._msufCachedPPct    = nil
+    f._msufCachedPSerial = Core._frameNowSerial
+end
+
+local function UFCore_SamePowerTextSnapshot(f, pType, cur, mx)
+    if not f or f._msufPwrTextForce then return false end
+    if f._msufLastPwrTextType ~= pType then return false end
+    local prevCur, prevMax = f._msufLastPwrTextCur, f._msufLastPwrTextMax
+    if not (UFCore_CanCompareNumber(cur) and UFCore_CanCompareNumber(mx) and UFCore_CanCompareNumber(prevCur) and UFCore_CanCompareNumber(prevMax)) then
+        return false
+    end
+    return (prevCur == cur and prevMax == mx)
+end
+
+local function UFCore_StorePowerTextSnapshot(f, pType, cur, mx)
+    f._msufLastPwrTextType = pType
+    f._msufLastPwrTextCur  = cur
+    f._msufLastPwrTextMax  = mx
+    f._msufPwrTextForce    = nil
+end
+
 -- Hotpath locals: _G ref + unpack (kept for unpack compat, all others already localized above)
 local _G = _G
 -- Lua 5.1 (WoW) uses global unpack; some environments expose table.unpack
@@ -33,8 +75,6 @@ if not unpack then
     local tbl = _G.table
     unpack = tbl and tbl.unpack
 end
-
-local Core = {}
 
 -- Forward decl (used by settings cache + helpers below the definition).
 local UFCore_EnsureDBOnce
@@ -98,6 +138,10 @@ local function UFCore_RefreshSettingsCache(reason)
     cache.generalRef = g
     cache.classColorsRef = (db and type(db.classColors) == "table") and db.classColors or nil
     cache.npcColorsRef = (db and type(db.npcColors) == "table") and db.npcColors or nil
+
+    Core._settingsSerial = (Core._settingsSerial or 0) + 1
+    cache.settingsSerial = Core._settingsSerial
+    _G.MSUF_UFCORE_SETTINGS_SERIAL = Core._settingsSerial
 
     -- UFCore budgets
     cache.ufcoreFlushBudgetMs = UFCore_ClampNum(g and g.ufcoreFlushBudgetMs, 0.6, 0.25, 2.0)
@@ -178,6 +222,40 @@ local function UFCore_RefreshSettingsCache(reason)
     cache.unifiedBarR = UFCore_Clamp01(g and g.unifiedBarR, 0.10)
     cache.unifiedBarG = UFCore_Clamp01(g and g.unifiedBarG, 0.60)
     cache.unifiedBarB = UFCore_Clamp01(g and g.unifiedBarB, 0.90)
+
+    -- Static background-tint snapshot (used by main-file background visual apply).
+    cache.darkBgCustomColor = (g and g.darkBgCustomColor) and true or false
+    cache.darkBgBrightness = UFCore_Clamp01(g and g.darkBgBrightness, 1)
+    cache.barBgMatchHPColor = (g and g.barBgMatchHPColor) and true or false
+    cache.powerBarBgMatchHPColor = ((g and g.powerBarBgMatchHPColor) or (bars and bars.powerBarBgMatchBarColor)) and true or false
+    cache.anyBarBackgroundTracksHPColor = (cache.barBgMatchHPColor or cache.powerBarBgMatchHPColor) and true or false
+
+    local bgAlphaPct = type(bars and bars.barBackgroundAlpha) == "number" and bars.barBackgroundAlpha or 90
+    if bgAlphaPct < 0 then bgAlphaPct = 0 elseif bgAlphaPct > 100 then bgAlphaPct = 100 end
+    cache.barBackgroundAlpha = bgAlphaPct / 100
+
+    local bgR = UFCore_Clamp01(g and g.classBarBgR, 0)
+    local bgG = UFCore_Clamp01(g and g.classBarBgG, 0)
+    local bgB = UFCore_Clamp01(g and g.classBarBgB, 0)
+    if g and g.darkMode and not cache.darkBgCustomColor then
+        local br = cache.darkBgBrightness
+        bgR, bgG, bgB = bgR * br, bgG * br, bgB * br
+    end
+    cache.barBgTintR, cache.barBgTintG, cache.barBgTintB, cache.barBgTintA = bgR, bgG, bgB, 0.9
+
+    local pbgR, pbgG, pbgB = g and g.powerBarBgColorR, g and g.powerBarBgColorG, g and g.powerBarBgColorB
+    if type(pbgR) == "number" and type(pbgG) == "number" and type(pbgB) == "number" then
+        pbgR = UFCore_Clamp01(pbgR, 0)
+        pbgG = UFCore_Clamp01(pbgG, 0)
+        pbgB = UFCore_Clamp01(pbgB, 0)
+        if g and g.darkMode and not cache.darkBgCustomColor then
+            local br = cache.darkBgBrightness
+            pbgR, pbgG, pbgB = pbgR * br, pbgG * br, pbgB * br
+        end
+    else
+        pbgR, pbgG, pbgB = bgR, bgG, bgB
+    end
+    cache.powerBgTintR, cache.powerBgTintG, cache.powerBgTintB, cache.powerBgTintA = pbgR, pbgG, pbgB, 0.9
 
     -- Pet frame override color (only used in "class" bar mode)
     local pr, pg, pb = g and g.petFrameColorR, g and g.petFrameColorG, g and g.petFrameColorB
@@ -352,6 +430,24 @@ local function InitUnitFlags(f)
     f._msufUnitFlagsInited = true
 end
 
+local function UFCore_RefreshFrameInvariantFlags(f, cache)
+    if not f then return end
+    cache = cache or UFCore_GetSettingsCache()
+    local mode = (cache and cache.barMode) or "dark"
+
+    local staticHealthColor = false
+    if mode == "dark" or mode == "unified" then
+        staticHealthColor = true
+    elseif f._msufIsPlayer then
+        staticHealthColor = true
+    elseif f._msufIsPet and cache and cache.petFrameColorEnabled then
+        staticHealthColor = true
+    end
+
+    f._msufStaticHealthColor = staticHealthColor and true or false
+    f._msufAnyBgTracksHealthColor = (cache and cache.anyBarBackgroundTracksHPColor) and true or false
+end
+
 local function GetConfForUnit(unit)
     local db = UFCore_EnsureDBOnce()
     if not db or not unit then return nil end
@@ -419,6 +515,10 @@ function Core.InvalidateAllFrameConfigs()
             f._msufLastPwrC = nil
             f._msufLastPwrM = nil
             f._msufLastPwrP = nil
+            -- PERF: Invalidate raw-value power diff guard (Text.lua P0 guard)
+            f._msufRawPwrC = nil
+            f._msufRawPwrM = nil
+            f._msufRawPwrP = nil
         end
     end
 end
@@ -724,11 +824,14 @@ local function UFCore_RefreshHealthBarColorFast(frame, conf)
     -- Make sure the unit-type flags are up to date (pet, player, boss, etc.)
     InitUnitFlags(frame)
 
-    -- P4: invalidate identity cache on every color refresh trigger (unit swap / UNIT_FACTION).
-    -- _RefreshUnitIdentityCache will re-populate lazily on the next _UpdateIdentityColors call.
-    frame._msufCachedIsPlayer = nil
-
     local cache = UFCore_GetSettingsCache()
+
+    -- Only dynamic "class" frames need identity invalidation here.
+    -- Dark/unified modes and static class-colored frames (player, pet override) never
+    -- change color from UNIT_FACTION / UNIT_FLAGS during combat.
+    if (cache and cache.barMode == "class") and not frame._msufStaticHealthColor then
+        frame._msufCachedIsPlayer = nil
+    end
 
     -- Bar mode (authoritative): "dark" | "class" | "unified"
     local mode = (cache and cache.barMode) or "dark"
@@ -782,7 +885,9 @@ local function UFCore_RefreshHealthBarColorFast(frame, conf)
     end
     local fnBg = _G.MSUF_ApplyBarBackgroundVisual
     if type(fnBg) == "function" and frame.bg then
-        fnBg(frame)
+        if frame._msufVisualQueuedUFCore or (cache and cache.anyBarBackgroundTracksHPColor) then
+            fnBg(frame)
+        end
     end
 end
 
@@ -829,6 +934,11 @@ Elements.Power = {
         -- When the Power element is disabled (power text AND power bar off),
         -- clear/hide both immediately so no stale 'last resource' UI remains.
         if not f then return end
+
+        f._msufLastPwrTextType = nil
+        f._msufLastPwrTextCur = nil
+        f._msufLastPwrTextMax = nil
+        f._msufPwrTextForce = true
 
         local pt = f.powerText
         if pt then
@@ -1399,6 +1509,8 @@ local function RefreshUnitEvents(f, force)
     end
 
     local mask, conf = ComputeElementMask(f)
+    local cache = UFCore_GetSettingsCache()
+    UFCore_RefreshFrameInvariantFlags(f, cache)
     local last = f._msufElemMask or 0
     if not force and mask == last then
         return
@@ -2507,6 +2619,20 @@ do
         local _PwrPctFn = UnitPowerPercent
         local _PwrScale = (type(CurveConstants) == "table" and CurveConstants.ScaleTo100) or true
 
+        local function _MaybeUpdatePowerText(f, unit, pType, cur, mx, budget)
+            local fnTxt = FN_UpdatePowerTextFast
+            if not fnTxt then return end
+            if budget then
+                local now = Core._frameNow
+                if (now - (f._msufPwrTxtAt or 0)) < budget then return end
+                f._msufPwrTxtAt = now
+            end
+            if UFCore_SamePowerTextSnapshot(f, pType, cur, mx) then return end
+            UFCore_StorePowerTextSnapshot(f, pType, cur, mx)
+            if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
+            fnTxt(f)
+        end
+
         -- ── Handler A: Both OFF — zero added overhead vs original MSUF ──
         -- No interpolation, budget-gated text. No function calls for time check.
         local function _PowerOff(f)
@@ -2524,28 +2650,17 @@ do
             if type(cur) ~= "number" then cur = 0 end
             if type(mx)  ~= "number" then mx  = 100 end
 
+            if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
+
             bar:SetMinMaxValues(0, mx)
             bar:SetValue(cur)
 
-            f._msufCachedPType   = pType
-            f._msufCachedPCur    = cur
-            f._msufCachedPMax    = mx
-            f._msufCachedPPct    = nil
-            f._msufCachedPSerial = Core._frameNowSerial
+            UFCore_StorePowerSnapshot(f, pType, cur, mx)
 
             -- Budget-gated text: direct table read (no function call).
             -- Core._frameNow is updated by FlushTask every frame — precise enough
             -- for a 33Hz/10Hz budget gate. Avoids _RefreshFrameNow() overhead.
-            local fnTxt = FN_UpdatePowerTextFast
-            if fnTxt then
-                local now = Core._frameNow
-                if (now - (f._msufPwrTxtAt or 0)) >= ((f._msufIsPlayer and 0.03) or 0.10) then
-                    f._msufPwrTxtAt = now
-                    -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
-                    if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
-                    fnTxt(f)
-                end
-            end
+            _MaybeUpdatePowerText(f, unit, pType, cur, mx, (f._msufIsPlayer and 0.03) or 0.10)
         end
 
         -- ── Handler B: Smooth ON, text OFF — ExponentialEaseOut + budget text ──
@@ -2563,25 +2678,14 @@ do
             if type(cur) ~= "number" then cur = 0 end
             if type(mx)  ~= "number" then mx  = 100 end
 
+            if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
+
             bar:SetMinMaxValues(0, mx, _Interp)
             bar:SetValue(cur, _Interp)
 
-            f._msufCachedPType   = pType
-            f._msufCachedPCur    = cur
-            f._msufCachedPMax    = mx
-            f._msufCachedPPct    = nil
-            f._msufCachedPSerial = Core._frameNowSerial
+            UFCore_StorePowerSnapshot(f, pType, cur, mx)
 
-            local fnTxt = FN_UpdatePowerTextFast
-            if fnTxt then
-                local now = Core._frameNow
-                if (now - (f._msufPwrTxtAt or 0)) >= ((f._msufIsPlayer and 0.03) or 0.10) then
-                    f._msufPwrTxtAt = now
-                    -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
-                    if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
-                    fnTxt(f)
-                end
-            end
+            _MaybeUpdatePowerText(f, unit, pType, cur, mx, (f._msufIsPlayer and 0.03) or 0.10)
         end
 
         -- ── Handler C: Realtime text ON — no interpolation, text every event ──
@@ -2599,21 +2703,14 @@ do
             if type(cur) ~= "number" then cur = 0 end
             if type(mx)  ~= "number" then mx  = 100 end
 
+            if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
+
             bar:SetMinMaxValues(0, mx)
             bar:SetValue(cur)
 
-            f._msufCachedPType   = pType
-            f._msufCachedPCur    = cur
-            f._msufCachedPMax    = mx
-            f._msufCachedPPct    = nil
-            f._msufCachedPSerial = Core._frameNowSerial
+            UFCore_StorePowerSnapshot(f, pType, cur, mx)
 
-            local fnTxt = FN_UpdatePowerTextFast
-            if fnTxt then
-                -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
-                if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
-                fnTxt(f)
-            end
+            _MaybeUpdatePowerText(f, unit, pType, cur, mx, nil)
         end
 
         -- ── Handler D: Both ON — full MidnightRogueBars (hyper-accurate) ──
@@ -2631,21 +2728,14 @@ do
             if type(cur) ~= "number" then cur = 0 end
             if type(mx)  ~= "number" then mx  = 100 end
 
+            if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
+
             bar:SetMinMaxValues(0, mx, _Interp)
             bar:SetValue(cur, _Interp)
 
-            f._msufCachedPType   = pType
-            f._msufCachedPCur    = cur
-            f._msufCachedPMax    = mx
-            f._msufCachedPPct    = nil
-            f._msufCachedPSerial = Core._frameNowSerial
+            UFCore_StorePowerSnapshot(f, pType, cur, mx)
 
-            local fnTxt = FN_UpdatePowerTextFast
-            if fnTxt then
-                -- PERF: Pre-cache percent so RenderPowerText skips UnitPowerPercent C-API.
-                if _PwrPctFn then f._msufCachedPPct = _PwrPctFn(unit, pType, false, _PwrScale) end
-                fnTxt(f)
-            end
+            _MaybeUpdatePowerText(f, unit, pType, cur, mx, nil)
         end
 
         -- Pre-defined no-op (avoids closure allocation on every swap).
@@ -2712,6 +2802,20 @@ local EVENT_DIRTY_FLAGS = {
     UNIT_FLAGS                       = "healthColorDirty",
 }
 
+-- PERF P0: Merge DIRECT_APPLY + EVENT_DIRTY_FLAGS into UNIT_EVENT_MAP entries.
+-- FrameOnEvent now does ONE hash lookup (UNIT_EVENT_MAP[event]) instead of THREE
+-- separate table lookups per event. Saves ~100-200ns × 624 calls/20s.
+do
+    for ev, dfk in pairs(EVENT_DIRTY_FLAGS) do
+        local info = UNIT_EVENT_MAP[ev]
+        if info then info.dfk = dfk end
+    end
+    for ev, fn in pairs(DIRECT_APPLY) do
+        local info = UNIT_EVENT_MAP[ev]
+        if info then info.direct = fn end
+    end
+end
+
 -- Byte at position 1 of "UNIT_" is 85 (= 'U'). Use string.byte for the fallback
 -- instead of string.sub which allocates a new string on every call.
 local BYTE_U = 85  -- string.byte("U")
@@ -2724,11 +2828,12 @@ local function FrameOnEvent(self, event, arg1, ...)
     end
 
     -- Unit events: only react to our unit.
+    -- PERF P0: Single lookup carries mask + dirty flags + direct handler (merged).
     local info = UNIT_EVENT_MAP[event]
     if info then
         if arg1 == self.unit then
-            -- Set dirty flags via pre-computed map (1 hash lookup vs 5 string compares).
-            local dfk = EVENT_DIRTY_FLAGS[event]
+            -- Set dirty flags via pre-computed map (merged into info, 0 extra lookups).
+            local dfk = info.dfk
             if dfk then
                 if dfk == "absorbDirty" then
                     self._msufAbsorbDirty = true
@@ -2738,12 +2843,14 @@ local function FrameOnEvent(self, event, arg1, ...)
                     self._msufAbsorbDirty = true
                     self._msufHealAbsorbDirty = true
                 else -- "healthColorDirty"
-                    self._msufHealthColorDirty = true
+                    if not self._msufStaticHealthColor then
+                        self._msufHealthColorDirty = true
+                    end
                 end
             end
 
             -- Phase 6: Direct-apply for cheap elements (health/power).
-            local directFn = DIRECT_APPLY[event]
+            local directFn = info.direct
             if directFn then
                 directFn(self)
                 return
@@ -2812,6 +2919,7 @@ function Core.AttachFrame(f)
             self._msufHealAbsorbDirty = true
             self._msufAbsorbInit = nil
             self._msufHealAbsorbInit = nil
+            self._msufPwrTextForce = true
             Core.MarkDirty(self, MASK_SHOW_REFRESH, true, "OnShow")
             DeferSwapWork(self.unit, "OnShow", true)
         end)
@@ -2876,6 +2984,10 @@ function Core.NotifyConfigChanged(unitKey, alsoUpdate, urgent, reason)
     f._msufLastPwrC = nil
     f._msufLastPwrM = nil
     f._msufLastPwrP = nil
+    -- PERF: Invalidate raw-value power diff guard (Text.lua P0 guard)
+    f._msufRawPwrC = nil
+    f._msufRawPwrM = nil
+    f._msufRawPwrP = nil
     RefreshUnitEvents(f, true)
 
     if alsoUpdate then
@@ -3148,4 +3260,8 @@ end
 -- Optional helper for options/profile systems: rebuild settings snapshot cache explicitly.
 function _G.MSUF_UFCore_RefreshSettingsCache(reason)
     UFCore_RefreshSettingsCache(reason or "MANUAL")
+end
+
+function _G.MSUF_UFCore_GetSettingsCache()
+    return UFCore_GetSettingsCache()
 end
