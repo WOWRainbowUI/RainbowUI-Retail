@@ -5,7 +5,7 @@
 ## IconTexture: interface/cursor/ui-cursor-move.blp
 ## X-WoWI-ID: 23875
 ## X-Curse-Project-ID: 17809
-## Version: v3.7.29
+## Version: v3.7.30
 ## OptionalDeps: Ace3
 ## SavedVariables: BlizzMoveDB
 ## Category-enUS: User Interface
@@ -23,6 +23,9 @@
 ## Title-zhTW: |cff0099FF[介面]|r 移動暴雪視窗
 ## Notes-zhTW: BlizzMove |n|n允許自由拖曳移動和縮放遊戲內建的各種視窗，可選擇是否要永久保存位置，還是登出/重載後要還原。|n|n如果怕不小心移動到，可以在設定選項中勾選需要按住輔助按鍵，才能移動/縮放。|n|n|cffffd200使用方法: |r請看設定選項中的說明。
 ## Category-zhTW: 介面
+
+# Libraries
+Libs\Libs.xml
 
 # Add-On
 Locale\Locale.xml

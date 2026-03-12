@@ -1,0 +1,12 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+<<<<<<<< HEAD:AddOns/DBM-Core/Libs/LibLatency/LibLatency.xml
+
+<script file="LibLatency.lua"/>
+
+</Ui>
+
+========
+	<Script file="NumyAceEvent-3.0.lua"/>
+</Ui>
+>>>>>>>> 5095da52d (更新 移動暴雪視窗 v3.7.30):AddOns/BlizzMove/Libs/NumyAceEvent-3.0/NumyAceEvent-3.0.xml
