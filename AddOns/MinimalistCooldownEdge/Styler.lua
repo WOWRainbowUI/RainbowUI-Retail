@@ -273,6 +273,10 @@ local function ApplyCompactPartyAuraTextStyle(cdFrame, config)
     local text = GetCompactPartyAuraNativeText(cdFrame)
     if not text then return nil end
 
+    local anchor = config.textAnchor or "CENTER"
+    local offsetX = config.textOffsetX or 0
+    local offsetY = config.textOffsetY or 0
+
     ApplyFontStringStyle(
         text,
         cdFrame,
@@ -280,10 +284,10 @@ local function ApplyCompactPartyAuraTextStyle(cdFrame, config)
         config.fontSize,
         MCE.NormalizeFontStyle(config.fontStyle),
         config.textColor,
-        "CENTER",
-        "CENTER",
-        0,
-        0,
+        anchor,
+        anchor,
+        offsetX,
+        offsetY,
         nil,
         nil,
         false)
@@ -331,6 +335,12 @@ local function SyncCompactPartyAuraCooldown(cdFrame)
     SetCompactPartyAuraNativeHide(cdFrame, false)
     if text then
         SetCompactPartyAuraNativeTextVisible(cdFrame, true)
+    end
+
+    -- Apply abbreviation threshold
+    local profile = MCE.db and MCE.db.profile
+    if profile and cdFrame.SetCountdownAbbrevThreshold then
+        pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, profile.abbrevThreshold or 59)
     end
 
     if RefreshTrackedDurationColor then
@@ -425,7 +435,6 @@ local function GetCooldownTextRegions(cdFrame)
 end
 
 --- Builds a WoW C_CurveUtil Step color curve from the threshold config.
---- Mirrors tullaCTC's generateColorCurve() logic.
 local function BuildColorCurve(durationConfig)
     local thresholds = durationConfig.thresholds
     if not thresholds or #thresholds == 0 then return nil end
@@ -442,22 +451,20 @@ local function BuildColorCurve(durationConfig)
     local curve = C_CurveUtil.CreateColorCurve()
     curve:SetType(Enum.LuaCurveType.Step)
 
-    local offset = 0.5
-
     -- Point at 0: color for the shortest remaining time
     local c1 = sortedThresholds[1].color
     curve:AddPoint(0, CreateColor(c1.r, c1.g, c1.b, c1.a or 1))
 
-    -- Intermediate threshold points
+    -- Intermediate threshold points (use exact threshold values for precise transitions)
     for i = 2, #sortedThresholds do
-        local startAt = (sortedThresholds[i - 1].threshold or 0) + offset
+        local startAt = sortedThresholds[i - 1].threshold or 0
         local c = sortedThresholds[i].color
         curve:AddPoint(startAt, CreateColor(c.r, c.g, c.b, c.a or 1))
     end
 
     -- Default color for durations beyond the last threshold
     if durationConfig.defaultColor then
-        local startAt = (sortedThresholds[#sortedThresholds].threshold or 0) + offset
+        local startAt = sortedThresholds[#sortedThresholds].threshold or 0
         local dc = durationConfig.defaultColor
         curve:AddPoint(startAt, CreateColor(dc.r, dc.g, dc.b, dc.a or 1))
     end
@@ -674,7 +681,21 @@ local function ApplyCooldownDurationColor(cdFrame, config, curve)
         return false
     end
 
-    local ok, color = pcall(duration.EvaluateRemainingDuration, duration, curve)
+    local durationType = type(duration)
+    if durationType ~= "table" and durationType ~= "userdata" then
+        ResetCountdownTextColor(cdFrame, config)
+        return false
+    end
+
+    local okMethod, evaluateRemainingDuration = pcall(function()
+        return duration.EvaluateRemainingDuration
+    end)
+    if not okMethod or type(evaluateRemainingDuration) ~= "function" then
+        ResetCountdownTextColor(cdFrame, config)
+        return false
+    end
+
+    local ok, color = pcall(evaluateRemainingDuration, duration, curve)
     if ok and color then
         local r, g, b, a = color:GetRGBA()
         for i = 1, textRegionCount do
@@ -1208,6 +1229,12 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
                     enforceFont)
             end
         end
+    end
+
+    -- Apply abbreviation threshold
+    local profile = MCE.db and MCE.db.profile
+    if profile and cdFrame.SetCountdownAbbrevThreshold then
+        pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, profile.abbrevThreshold or 59)
     end
 
     RefreshTrackedDurationColor(cdFrame, category, config)

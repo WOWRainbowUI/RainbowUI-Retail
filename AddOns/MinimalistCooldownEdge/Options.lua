@@ -2,10 +2,12 @@ local addonName, addon = ...
 local MCE = LibStub("AceAddon-3.0"):GetAddon("MinimalistCooldownEdge")
 local L = LibStub("AceLocale-3.0"):GetLocale("MinimalistCooldownEdge")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 
 -- === UPVALUE LOCALS ===
 local format = string.format
 local sort = table.sort
+local strtrim = strtrim
 
 -- Retrieve version dynamically from TOC
 local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
@@ -39,19 +41,21 @@ local function GetFontOptions()
     local opts = {}
     local usedNames = {}
 
-    -- Base fonts take full priority (path + name reserved)
-    for path, label in pairs(FONT_OPTIONS_BASE) do
-        opts[path] = label
-        usedNames[label:lower()] = true
-    end
-
     if LSM then
         for name, path in pairs(LSM:HashTable("font")) do
-            -- Skip if path already exists OR if display name is already in use
+            -- LSM entries take priority
             if not opts[path] and not usedNames[name:lower()] then
                 opts[path] = name
                 usedNames[name:lower()] = true
             end
+        end
+    end
+
+    -- Add base fonts only when not already claimed by LSM (path + display name)
+    for path, label in pairs(FONT_OPTIONS_BASE) do
+        if not opts[path] and not usedNames[label:lower()] then
+            opts[path] = label
+            usedNames[label:lower()] = true
         end
     end
     
@@ -323,6 +327,103 @@ local function RefreshDynamicCategoryLabels()
             RefreshTreeWidgets(widget)
         end
     end
+end
+
+local function HasImportPayload()
+    return type(MCE.profileImportBuffer) == "string" and strtrim(MCE.profileImportBuffer) ~= ""
+end
+
+local function BuildProfileImportExportOptions(order)
+    return {
+        type = "group",
+        name = L["Import / Export"],
+        order = order,
+        args = {
+            description = {
+                type = "description",
+                order = 0,
+                width = "full",
+                fontSize = "medium",
+                name = "|cffbbbbbb" .. L["PROFILE_IMPORT_EXPORT_DESC"] .. "|r\n",
+            },
+            exportHeader = {
+                type = "header",
+                order = 1,
+                name = L["Export current profile"],
+            },
+            exportButton = {
+                type = "execute",
+                order = 2,
+                width = 0.9,
+                name = L["Generate export"],
+                func = function()
+                    local exportString, err = MCE:ExportConfig()
+                    if not exportString and err then
+                        MCE:Print(err)
+                    else
+                        MCE:Print(L["Export string generated. Copy it with Ctrl+C."])
+                    end
+
+                    AceConfigRegistry:NotifyChange(addonName)
+                end,
+            },
+            exportCode = {
+                type = "input",
+                order = 3,
+                width = "full",
+                multiline = 10,
+                name = L["Export code"],
+                desc = L["Generate an export string, then click inside this box and copy it with Ctrl+C."],
+                get = function()
+                    return MCE.profileExportBuffer or ""
+                end,
+                set = function(_, value)
+                    MCE.profileExportBuffer = value or ""
+                end,
+            },
+            importHeader = {
+                type = "header",
+                order = 10,
+                name = L["Import profile"],
+            },
+            importCode = {
+                type = "input",
+                order = 11,
+                width = "full",
+                multiline = 10,
+                name = L["Import code"],
+                desc = L["Paste an exported string here, then click Import."],
+                get = function()
+                    return MCE.profileImportBuffer or ""
+                end,
+                set = function(_, value)
+                    MCE.profileImportBuffer = value or ""
+                end,
+            },
+            importButton = {
+                type = "execute",
+                order = 12,
+                width = 0.9,
+                name = L["Import"],
+                disabled = function()
+                    return not HasImportPayload()
+                end,
+                confirm = function()
+                    return HasImportPayload()
+                end,
+                confirmText = L["Importing will overwrite the current profile settings. Continue?"],
+                func = function()
+                    local ok, err = MCE:ImportConfig(MCE.profileImportBuffer)
+                    if not ok and err then
+                        MCE:Print(err)
+                    end
+
+                    RefreshDynamicCategoryLabels()
+                    AceConfigRegistry:NotifyChange(addonName)
+                end,
+            },
+        },
+    }
 end
 
 -- =========================================================================
@@ -661,6 +762,8 @@ end
 function MCE:GetOptions()
     local profileOpts = LibStub("AceDBOptions-3.0"):GetOptionsTable(MCE.db)
     profileOpts.order = 10 -- ensure profiles tab is last
+    profileOpts.args = profileOpts.args or {}
+    profileOpts.args.importExport = BuildProfileImportExportOptions(50)
 
     return {
         type = "group",
@@ -797,7 +900,7 @@ function MCE:GetOptions()
                             },
                             t3Value = {
                                 type = "range", order = 31, width = 1.0,
-                                name = L["Threshold (seconds)"], min = 60, max = 7200, step = 60,
+                                name = L["Threshold (seconds)"], min = 60, max = 3600, step = 60,
                                 get = DurationThresholdValueGet(3),
                                 set = DurationThresholdValueSet(3),
                                 hidden = function() return not DurationColorsEnabled() end,
@@ -821,6 +924,29 @@ function MCE:GetOptions()
                                 get = DefaultDurationColorGet,
                                 set = DefaultDurationColorSet,
                                 hidden = function() return not DurationColorsEnabled() end,
+                            },
+                        },
+                    },
+                    abbrevThreshold = {
+                        type = "group", name = "|cffffd100" .. L["Abbreviate Above"] .. "|r",
+                        inline = true, order = 2.2,
+                        args = {
+                            abbrevDesc = {
+                                type = "description", order = 0, fontSize = "small", width = "full",
+                                name = "|cff88bbdd" .. L["ABBREV_THRESHOLD_DESC"] .. "|r\n",
+                            },
+                            abbrevValue = {
+                                type = "range", order = 1, width = "full",
+                                name = L["Abbreviate Above (seconds)"],
+                                desc = L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."],
+                                min = 0, max = 300, step = 1,
+                                get = function()
+                                    return MCE.db.profile.abbrevThreshold or 59
+                                end,
+                                set = function(_, val)
+                                    MCE.db.profile.abbrevThreshold = val
+                                    MCE:ForceUpdateAll(true)
+                                end,
                             },
                         },
                     },
@@ -870,6 +996,27 @@ function MCE:GetOptions()
                                 name = L["Color"], hasAlpha = true,
                                 get = ProfileTableColorGet("compactPartyAuraText", "textColor"),
                                 set = ProfileTableColorSet("compactPartyAuraText", "textColor"),
+                            },
+                            compactPartyPosSpacing = SectionSpacer(5.9),
+                            compactPartyPosHeader = { type = "header", name = L["Positioning"], order = 6 },
+                            compactPartyPosSpacingAfter = SectionSpacer(6.05),
+                            compactPartyTextAnchor = {
+                                type = "select", order = 7,
+                                name = L["Anchor Point"], values = ANCHOR_OPTIONS,
+                                get = ProfileTableGet("compactPartyAuraText", "textAnchor", "CENTER"),
+                                set = ProfileTableSet("compactPartyAuraText", "textAnchor"),
+                            },
+                            compactPartyTextOffsetX = {
+                                type = "range", order = 8, width = "half",
+                                name = L["Offset X"], min = -30, max = 30, step = 1,
+                                get = ProfileTableGet("compactPartyAuraText", "textOffsetX", 0),
+                                set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetX"),
+                            },
+                            compactPartyTextOffsetY = {
+                                type = "range", order = 9, width = "half",
+                                name = L["Offset Y"], min = -30, max = 30, step = 1,
+                                get = ProfileTableGet("compactPartyAuraText", "textOffsetY", 0),
+                                set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetY"),
                             },
                         },
                     },

@@ -94,7 +94,7 @@ local function DurationTextColorDefaults()
         thresholds = {
             { threshold = 5,    color = { r = 1.0, g = 0.0,  b = 0.0,  a = 1.0 } },
             { threshold = 60,   color = { r = 1.0, g = 0.8,  b = 0.0,  a = 1.0 } },
-            { threshold = 3600, color = { r = 1.0, g = 1.0,  b = 1.0,  a = 1.0 } },
+            { threshold = 300, color = { r = 1.0, g = 1.0,  b = 1.0,  a = 1.0 } },
         },
         defaultColor = { r = 0.67, g = 0.67, b = 0.67, a = 1.0 },
     }
@@ -169,7 +169,7 @@ miniCCDefaults.overlayFontSize = 18
 miniCCDefaults.overlayHideCountdownNumbers = false
 
 local compactPartyAuraTextDefaults = {
-    enabled = false,
+    enabled = true,
     raidEnabled = false,
     font = "GAMEDEFAULT", fontSize = 12, fontStyle = "OUTLINE",
     textColor = { r = 1, g = 0.8, b = 0, a = 1 },
@@ -181,6 +181,7 @@ MCE.defaults = {
         versionAlertsShown = {},
     },
     profile = {
+        abbrevThreshold = 90,
         compactPartyAuraText = compactPartyAuraTextDefaults,
         durationTextColors = defaultDurationTextColors,
         categories = {
@@ -234,7 +235,15 @@ function MCE:OnInitialize()
         status.groups.treesizable = true
     end
 
-    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addonName, addonName)
+    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addonName, "MiniCE", nil, "general")
+    AceConfigDialog:AddToBlizOptions(addonName, L["Action Bars"], "MiniCE", "actionbar")
+    AceConfigDialog:AddToBlizOptions(addonName, L["Nameplates"], "MiniCE", "nameplate")
+    AceConfigDialog:AddToBlizOptions(addonName, L["Unit Frames"], "MiniCE", "unitframe")
+    AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], "MiniCE", "cooldownmanager")
+    AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], "MiniCE", "minicc")
+    AceConfigDialog:AddToBlizOptions(addonName, L["Others"], "MiniCE", "global")
+    AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], "MiniCE", "help")
+    AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], "MiniCE", "profiles")
 
     self:RegisterChatCommand("mce", "SlashCommand")
     self:RegisterChatCommand("minice", "SlashCommand")
