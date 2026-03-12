@@ -637,6 +637,76 @@ g.M:SetAllPoints(fillGroup.M)
 g.R:SetAllPoints(fillGroup.R)
 g:Hide()
 btn._msufNavActive3=g return g end
+local function MSUF_UseModernDropdowns()
+local g=MSUF_DB and MSUF_DB.general
+local mode=g and g.dropdownStyleMode
+if mode=="old"or mode=="blizzard"or mode=="legacy"then return false end
+return true end
+local function MSUF_EnsureNavWarmHoverOverlay(btn,fillGroup) if not(btn and btn.CreateTexture and fillGroup and fillGroup.L and fillGroup.M and fillGroup.R)
+then return nil,nil end
+if btn._msufNavWarmHover3 then local g=btn._msufNavWarmHover3 if g and g.L and g.L.SetAllPoints then g.L:SetAllPoints(fillGroup.L) end
+if g and g.M and g.M.SetAllPoints then g.M:SetAllPoints(fillGroup.M) end
+if g and g.R and g.R.SetAllPoints then g.R:SetAllPoints(fillGroup.R) end
+local sheen=btn._msufNavWarmSheen3 if sheen then sheen:ClearAllPoints()
+sheen:SetPoint("TOPLEFT",btn,"TOPLEFT",12,-2)
+sheen:SetPoint("TOPRIGHT",btn,"TOPRIGHT",-12,-2)
+sheen:SetHeight(1) end
+return g,sheen end
+local g={}
+g.L=btn:CreateTexture(nil,"ARTWORK",nil,4)
+g.M=btn:CreateTexture(nil,"ARTWORK",nil,4)
+g.R=btn:CreateTexture(nil,"ARTWORK",nil,4)
+g._msufSEParts={g.L,g.M,g.R}
+g.L:SetTexture(MSUF_SUPERELLIPSE_TEX)
+g.M:SetTexture(MSUF_SUPERELLIPSE_TEX)
+g.R:SetTexture(MSUF_SUPERELLIPSE_TEX)
+g.L:SetTexCoord(0.0,0.25,0.0,1.0)
+g.M:SetTexCoord(0.25,0.75,0.0,1.0)
+g.R:SetTexCoord(0.75,1.0,0.0,1.0)
+for i=1,#g._msufSEParts do local t=g._msufSEParts[i]
+if t and t.SetSnapToPixelGrid then t:SetSnapToPixelGrid(false)
+if t.SetTexelSnappingBias then t:SetTexelSnappingBias(0)
+end
+end
+end
+g.SetVertexColor=function(self,r,gg,b,a) for i=1,#self._msufSEParts do local t=self._msufSEParts[i]
+if t and t.SetVertexColor then t:SetVertexColor(r,gg,b,a)
+end
+end
+end
+g.Hide=function(self) for i=1,#self._msufSEParts do local t=self._msufSEParts[i]
+if t and t.Hide then t:Hide()
+end
+end
+end
+g.Show=function(self) for i=1,#self._msufSEParts do local t=self._msufSEParts[i]
+if t and t.Show then t:Show()
+end
+end
+end
+g.L:SetAllPoints(fillGroup.L)
+g.M:SetAllPoints(fillGroup.M)
+g.R:SetAllPoints(fillGroup.R)
+g:Hide()
+btn._msufNavWarmHover3=g
+local sheen=btn:CreateTexture(nil,"ARTWORK",nil,5)
+sheen:SetTexture("Interface/Buttons/WHITE8X8")
+sheen:SetPoint("TOPLEFT",btn,"TOPLEFT",12,-2)
+sheen:SetPoint("TOPRIGHT",btn,"TOPRIGHT",-12,-2)
+sheen:SetHeight(1)
+sheen:SetColorTexture(0.98,0.90,0.56,0.0)
+sheen:Hide()
+btn._msufNavWarmSheen3=sheen
+return g,sheen end
+local function MSUF_ApplyNavWarmHover(btn,fillAlpha,sheenAlpha)
+local g,sheen=MSUF_EnsureNavWarmHoverOverlay(btn,btn and btn._msufNavBG or nil)
+if g and g.SetVertexColor then g:SetVertexColor(0.96,0.86,0.42,fillAlpha or 0)
+if(fillAlpha or 0)>0 then g:Show() else g:Hide() end
+end
+if sheen and sheen.SetColorTexture then sheen:SetColorTexture(0.98,0.90,0.56,sheenAlpha or 0)
+if(sheenAlpha or 0)>0 then sheen:Show() else sheen:Hide() end
+end
+end
 MSUF_SkinButton=function(btn) if not btn then return end
 -- Opt-out: Options panels manage their own action buttons (Edit Mode / Copy / Import Cancel etc).
 if btn._msufNoSlashSkin or btn.__msufMidnightActionSkinned or btn.__msufMidnightTabSkinned then
@@ -897,8 +967,11 @@ pcall(btn.SetDisabledTexture,btn,nil)
 end
 local bg,border=MSUF_EnsureSuperellipseLayers(btn,2);
 local active=MSUF_EnsureNavActiveOverlay(btn,bg)
+local warm,warmSheen=MSUF_EnsureNavWarmHoverOverlay(btn,bg)
 if active and active.SetVertexColor then active:SetVertexColor(0.16,0.36,0.80,0.55)
 end
+if warm and warm.SetVertexColor then warm:SetVertexColor(0.96,0.86,0.42,0.0); warm:Hide() end
+if warmSheen and warmSheen.SetColorTexture then warmSheen:SetColorTexture(0.98,0.90,0.56,0.0); warmSheen:Hide() end
 if border and border.SetVertexColor then border:SetVertexColor(MSUF_PILL_EDGE_R,MSUF_PILL_EDGE_G,MSUF_PILL_EDGE_B,0.90)
 end
 if bg and bg.SetVertexColor then if isIndented then bg:SetVertexColor(0.09,0.10,0.12,0.82)
@@ -916,7 +989,7 @@ btn._msufApplyNavState=function(self,activeState,hovered) if self._msufNavActive
 else self._msufNavActive3:Hide()
 end
 end
-activeState=activeState and true or false hovered=hovered and true or false local fs2=self.GetFontString and self:GetFontString()
+activeState=activeState and true or false hovered=hovered and true or false local modern=MSUF_UseModernDropdowns() local fs2=self.GetFontString and self:GetFontString()
 if fs2 and fs2 .SetTextColor then if activeState then fs2:SetTextColor(0.92,0.96,1.00,1.00)
 else if isHeader then fs2:SetTextColor(0.86,0.92,1.00,0.92)
 else if isIndented then fs2:SetTextColor(0.80,0.88,1.00,0.92)
@@ -938,6 +1011,14 @@ else if hovered then self._msufNavBorder:SetVertexColor(0.22,0.45,0.90,0.95)
 else self._msufNavBorder:SetVertexColor(MSUF_PILL_EDGE_R,MSUF_PILL_EDGE_G,MSUF_PILL_EDGE_B,0.80)
 end
 end
+end
+if modern then if activeState then if hovered then MSUF_ApplyNavWarmHover(self,0.05,0.14)
+else MSUF_ApplyNavWarmHover(self,0.0,0.0)
+end
+elseif hovered then MSUF_ApplyNavWarmHover(self,0.14,0.28)
+else MSUF_ApplyNavWarmHover(self,0.0,0.0)
+end
+else MSUF_ApplyNavWarmHover(self,0.0,0.0)
 end
 end
 end
@@ -1785,7 +1866,7 @@ if not cat then MSUF_SafeCall(_G and _G.MSUF_RegisterOptionsCategoryLazy)
 cat=MSUF_GetMainSettingsCategory()
 end
 return cat end
-local SETTINGS_PANEL_DEFS={colors={full="MSUF_RegisterColorsOptions_Full",fallback="MSUF_RegisterColorsOptions",globals={"MSUF_ColorsPanel","MSUF_ColorsOptionsPanel"},builtKey="__MSUF_ColorsBuilt",},auras2={full="MSUF_RegisterAurasOptions_Full",fallback="MSUF_RegisterAurasOptions",globals={"MSUF_AurasPanel","MSUF_AurasOptionsPanel"},builtKey="__MSUF_AurasBuilt",},gameplay={full="MSUF_RegisterGameplayOptions_Full",fallback="MSUF_RegisterGameplayOptions",globals={"MSUF_GameplayPanel","MSUF_GameplayOptionsPanel"},builtKey="__MSUF_GameplayBuilt",},}
+local SETTINGS_PANEL_DEFS={colors={full="MSUF_RegisterColorsOptions_Full",fallback="MSUF_RegisterColorsOptions",globals={"MSUF_ColorsPanel","MSUF_ColorsOptionsPanel"},builtKey="__MSUF_ColorsBuilt",},auras2={full="MSUF_RegisterAurasOptions_Full",fallback="MSUF_RegisterAurasOptions",globals={"MSUF_AurasPanel","MSUF_AurasOptionsPanel"},builtKey="__MSUF_AurasBuilt",},gameplay={full="MSUF_RegisterGameplayOptions_Full",fallback="MSUF_RegisterGameplayOptions",globals={"MSUF_GameplayPanel","MSUF_GameplayOptionsPanel"},builtKey="__MSUF_GameplayBuilt",},portraits={full="MSUF_RegisterPortraitsOptions_Full",fallback="MSUF_RegisterPortraitsOptions",globals={"MSUF_PortraitsPanel"},builtKey="__MSUF_PortraitsBuilt",},}
 local function MSUF_FindFirstGlobal(nameList) if not _G or type(nameList)~="table"then return nil end
 for i=1,#nameList do local k=nameList[i];
 local obj=_G[k]
@@ -1808,6 +1889,7 @@ MSUF_ShowHideForLazy(p,def.builtKey) return p end
 local function MSUF_EnsureColorsPanelBuilt() return MSUF_EnsureSubOptionsPanelBuilt("colors") end
 local function MSUF_EnsureAuras2PanelBuilt() return MSUF_EnsureSubOptionsPanelBuilt("auras2") end
 local function MSUF_EnsureGameplayPanelBuilt() return MSUF_EnsureSubOptionsPanelBuilt("gameplay") end
+local function MSUF_EnsurePortraitsPanelBuilt() return MSUF_EnsureSubOptionsPanelBuilt("portraits") end
 local function MSUF_EnsureModulesPanelBuilt() if _G.MSUF_ModulesMirrorPanel and _G.MSUF_ModulesMirrorPanel.__MSUF_ModulesBuilt then return _G.MSUF_ModulesMirrorPanel end
 local p=CreateFrame("Frame","MSUF_ModulesMirrorPanel",UIParent)
 _G.MSUF_ModulesMirrorPanel=p p.__MSUF_ModulesBuilt=true p.__MSUF_MirrorNoRestoreShow=true p:SetPoint("TOPLEFT",0,0)
@@ -1928,7 +2010,7 @@ if subkey and subkey~=""then MSUF_SelectCastbarSubPage(subkey)
 end
 end
 },profiles={title="MSUF Profiles",build=MSUF_EnsureMainOptionsPanelBuilt,select=function() MSUF_SelectMainOptionsKey("profiles") end
-},colors={title="MSUF Colors",build=MSUF_EnsureColorsPanelBuilt},classpower={title="MSUF Class Resources",build=MSUF_EnsureMainOptionsPanelBuilt,select=MSUF_SelectClassResourcesPage},gameplay={title="MSUF Gameplay",build=MSUF_EnsureGameplayPanelBuilt},modules={title="MSUF Modules",build=MSUF_EnsureModulesPanelBuilt},
+},colors={title="MSUF Colors",build=MSUF_EnsureColorsPanelBuilt},portraits={title="MSUF Portraits",build=MSUF_EnsurePortraitsPanelBuilt},opt_portraits={title="MSUF Portraits",build=MSUF_EnsurePortraitsPanelBuilt},classpower={title="MSUF Class Resources",build=MSUF_EnsureMainOptionsPanelBuilt,select=MSUF_SelectClassResourcesPage},gameplay={title="MSUF Gameplay",build=MSUF_EnsureGameplayPanelBuilt},modules={title="MSUF Modules",build=MSUF_EnsureModulesPanelBuilt},
 -- Search results virtual page (panel built lazily by MSUF_Search.lua)
 search={title="Search Results",nav="Search",build=function()
     local fn=ns and ns.MSUF_Search_EnsurePanel
@@ -2285,7 +2367,7 @@ navParent._msufNavStripe=stripe end
 local function MakeButton(label,w,onClick,isHeader,isChild) local b=UI_Button(navParent,tostring(label or""),w,btnH,"TOPLEFT",navParent,"TOPLEFT",0,0,onClick)
 MSUF_LeftJustifyButtonText(b,isChild and 10 or 12)
 MSUF_SkinNavButton(b,isHeader,isChild) return b end
-local NAV={{type="leaf",key="home",label="Dashboard"},{type="header",id="unitframes",label="Unit Frames",defaultOpen=true,children={{key="uf_player",label="Player"},{key="uf_target",label="Target"},{key="uf_targettarget",label="Target of Target"},{key="uf_focus",label="Focus"},{key="uf_boss",label="Boss Frames"},{key="uf_pet",label="Pet"},}},{type="header",id="options",label="Options",defaultOpen=true,children={{key="opt_bars",label="Bars"},{key="opt_fonts",label="Fonts"},{key="auras2",label="Auras 2.0"},{key="opt_castbar",label="Castbar"},{key="opt_misc",label="Miscellaneous"},{key="opt_colors",label="Colors"},}},{type="leaf",key="classpower",label="Class Resources"},{type="leaf",key="gameplay",label="Gameplay"},{type="header",id="modules",label="Modules",defaultOpen=false,children={{key="modules",label="Style"},}},{type="leaf",key="profiles",label="Profiles"},}
+local NAV={{type="leaf",key="home",label="Dashboard"},{type="header",id="unitframes",label="Unit Frames",defaultOpen=true,children={{key="uf_player",label="Player"},{key="uf_target",label="Target"},{key="uf_targettarget",label="Target of Target"},{key="uf_focus",label="Focus"},{key="uf_boss",label="Boss Frames"},{key="uf_pet",label="Pet"},}},{type="header",id="options",label="Options",defaultOpen=true,children={{key="opt_bars",label="Bars"},{key="opt_fonts",label="Fonts"},{key="auras2",label="Auras 2.0"},{key="opt_castbar",label="Castbar"},{key="opt_misc",label="Miscellaneous"},{key="opt_colors",label="Colors"},{key="opt_portraits",label="Portraits"},}},{type="leaf",key="classpower",label="Class Resources"},{type="leaf",key="gameplay",label="Gameplay"},{type="header",id="modules",label="Modules",defaultOpen=false,children={{key="modules",label="Style"},}},{type="leaf",key="profiles",label="Profiles"},}
 local headerLabels={}
 for _,node in ipairs(NAV)
 do if node.type=="header"then headerLabels[node.id]=node.label end
@@ -2713,7 +2795,7 @@ local presetsCard=CreateCard(colR,"Presets",scaleCard,-12)
 presetsCard:SetPoint("BOTTOMLEFT",colR,"BOTTOMLEFT",0,0)
 presetsCard:SetPoint("BOTTOMRIGHT",colR,"BOTTOMRIGHT",0,0)
 local presetsTitle=presetsCard._msufTitle;
-local presetDrop=CreateFrame("Frame","MSUF_PresetDropdown",presetsCard,"UIDropDownMenuTemplate")
+local presetDrop=(_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown("MSUF_PresetDropdown", presetsCard) or CreateFrame("Frame", "MSUF_PresetDropdown", presetsCard, "UIDropDownMenuTemplate"))
 presetDrop:SetPoint("TOPLEFT",presetsTitle,"BOTTOMLEFT",-16,-4)
 UIDropDownMenu_SetWidth(presetDrop,220)
 UIDropDownMenu_SetText(presetDrop,presetsCard._msufSelectedPreset or"Select preset...")

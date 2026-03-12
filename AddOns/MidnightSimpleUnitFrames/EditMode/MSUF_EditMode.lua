@@ -340,6 +340,7 @@ function MSUF_EM_DropdownPreset(drop, width, placeholder)
     if UIDropDownMenu_JustifyText then UIDropDownMenu_JustifyText(drop, "LEFT") end
     if UIDropDownMenu_SetText then UIDropDownMenu_SetText(drop, placeholder or "") end
 end
+_G.MSUF_EM_DropdownPreset = MSUF_EM_DropdownPreset
 
 function MSUF_EM_BuildCopyItems(list, srcValue, labelFn)
     if not list then return nil end
@@ -352,6 +353,113 @@ function MSUF_EM_BuildCopyItems(list, srcValue, labelFn)
     end
     return out
 end
+
+local MSUF_EM_DROPDOWN_LAYER_BOOST = 120
+local MSUF_EM_DROPDOWN_LAYER_STEP  = 12
+local MSUF_EM_DROPDOWN_BUTTON_STEP = 1
+
+local function MSUF_EM_ApplyListLayer(frame, strata, level)
+    if not frame then return end
+    if frame.SetFrameStrata then frame:SetFrameStrata(strata) end
+    if frame.SetFrameLevel then frame:SetFrameLevel(level) end
+end
+
+local function MSUF_EM_ApplyPopupDropdownListLayers(pf)
+    if not pf then return end
+
+    local maxLevels = _G.UIDROPDOWNMENU_MAXLEVELS or 2
+    local maxButtons = _G.UIDROPDOWNMENU_MAXBUTTONS or 32
+    local baseLevel = (pf.GetFrameLevel and pf:GetFrameLevel()) or 500
+    local strata = (pf.GetFrameStrata and pf:GetFrameStrata()) or "FULLSCREEN_DIALOG"
+
+    for level = 1, maxLevels do
+        local list = _G["DropDownList" .. level]
+        if list then
+            local listLevel = baseLevel + MSUF_EM_DROPDOWN_LAYER_BOOST + (level * MSUF_EM_DROPDOWN_LAYER_STEP)
+            MSUF_EM_ApplyListLayer(list, strata, listLevel)
+
+            local menuBackdrop = _G["DropDownList" .. level .. "MenuBackdrop"]
+            local backdrop = _G["DropDownList" .. level .. "Backdrop"]
+            MSUF_EM_ApplyListLayer(menuBackdrop, strata, listLevel - 2)
+            MSUF_EM_ApplyListLayer(backdrop, strata, listLevel - 1)
+
+            for i = 1, maxButtons do
+                local button = _G["DropDownList" .. level .. "Button" .. i]
+                if button then
+                    MSUF_EM_ApplyListLayer(button, strata, listLevel + (i * MSUF_EM_DROPDOWN_BUTTON_STEP))
+                end
+            end
+        end
+    end
+end
+
+local function MSUF_EM_GetPopupOwnerFromDropdown(drop)
+    if not drop then return nil end
+    local pf = drop.__msufEditPopupOwner
+    if pf then return pf end
+
+    local parent = drop.GetParent and drop:GetParent() or nil
+    while parent do
+        if parent.__msufEditPopupRoot then
+            return parent
+        end
+        parent = parent.GetParent and parent:GetParent() or nil
+    end
+
+    return nil
+end
+
+local function MSUF_EM_RelayerOpenDropdownFor(drop)
+    local pf = MSUF_EM_GetPopupOwnerFromDropdown(drop)
+    if not pf then return end
+    MSUF_EM_ApplyPopupDropdownListLayers(pf)
+end
+
+local function MSUF_EM_EnsurePopupDropdownLayerHooks()
+    if _G.__MSUF_EDITMODE_DROPDOWN_LAYER_HOOKS then return end
+    _G.__MSUF_EDITMODE_DROPDOWN_LAYER_HOOKS = true
+
+    if UIDropDownMenu_CreateFrames then
+        pcall(UIDropDownMenu_CreateFrames, _G.UIDROPDOWNMENU_MAXLEVELS or 2, 0)
+    end
+
+    if type(_G.ToggleDropDownMenu) == "function" then
+        hooksecurefunc("ToggleDropDownMenu", function(_, _, dropDownFrame)
+            if not (dropDownFrame and dropDownFrame.__msufEditPopupDropdown) then return end
+            local function run()
+                if _G.UIDROPDOWNMENU_OPEN_MENU == dropDownFrame then
+                    MSUF_EM_RelayerOpenDropdownFor(dropDownFrame)
+                end
+            end
+            if C_Timer and C_Timer.After then
+                C_Timer.After(0, run)
+            else
+                run()
+            end
+        end)
+    end
+
+    for level = 1, (_G.UIDROPDOWNMENU_MAXLEVELS or 2) do
+        local list = _G["DropDownList" .. level]
+        if list and list.HookScript and not list.__msufEditPopupListHooked then
+            list.__msufEditPopupListHooked = true
+            list:HookScript("OnShow", function()
+                local open = _G.UIDROPDOWNMENU_OPEN_MENU
+                if open and open.__msufEditPopupDropdown then
+                    MSUF_EM_RelayerOpenDropdownFor(open)
+                end
+            end)
+        end
+    end
+end
+
+local function MSUF_EM_RegisterPopupDropdown(drop, pf)
+    if not drop then return end
+    drop.__msufEditPopupDropdown = true
+    drop.__msufEditPopupOwner = pf or MSUF_EM_GetPopupOwnerFromDropdown(drop)
+    MSUF_EM_EnsurePopupDropdownLayerHooks()
+end
+_G.MSUF_EM_RegisterPopupDropdown = MSUF_EM_RegisterPopupDropdown
 
 function MSUF_EM_InitCopyDropdown(drop, placeholder, itemsProvider, onPick)
     if not drop or not UIDropDownMenu_Initialize or not UIDropDownMenu_CreateInfo or not UIDropDownMenu_AddButton then return end
@@ -1935,6 +2043,277 @@ local function MSUF_ResetCurrentEditUnit()
         MSUF_UpdateEditModeInfo()
     end
 end
+-- ---------------------------------------------------------------------------
+-- Global Anchor Picker Singleton
+-- Shared by Edit Mode (global anchor) and Options_Player (per-unit anchor).
+-- Caller sets  _G.MSUF_AnchorPicker._onPick = function(frameName) ... end
+-- before showing, to control where the picked name is written.
+-- ---------------------------------------------------------------------------
+do
+    -- Blocklists / helpers ---------------------------------------------------
+    local function _IsBlockedPickerFrame(frame)
+        if not frame then return true end
+        if frame == UIParent or frame == WorldFrame then return true end
+        if frame.IsForbidden and frame:IsForbidden() then return true end
+        -- Nameplates: restricted regions in 12.0 (GetRect taints).
+        if frame.unitToken then return true end
+        -- Picker overlay itself
+        local ov = _G.MSUF_AnchorPicker
+        if ov and (frame == ov or frame == ov._highlight) then return true end
+        return false
+    end
+
+    local function _IsBlockedPickerName(name)
+        if type(name) ~= "string" or name == "" then return true end
+        if name == "WorldFrame" or name == "UIParent" then return true end
+        if name == "MSUF_AnchorPickerOverlay" or name == "MSUF_AnchorPickerHighlight" then return true end
+        return false
+    end
+
+    local function _SafeGetRect(frame)
+        if not frame or not frame.GetRect then return nil end
+        if frame.IsForbidden and frame:IsForbidden() then return nil end
+        local ok, l, b, w, h = pcall(frame.GetRect, frame)
+        if not ok then return nil end
+        l = tonumber(l); b = tonumber(b); w = tonumber(w); h = tonumber(h)
+        if not (l and b and w and h) then return nil end
+        if w <= 0 or h <= 0 then return nil end
+        return l, b, w, h
+    end
+
+    -- Walk parent chain from mouse focus to find nearest named frame ----------
+    local function _NamedFrameFromFocus(frame)
+        local seen = 0
+        while frame and seen < 40 do
+            if not _IsBlockedPickerFrame(frame) and frame.GetName then
+                local n = frame:GetName()
+                if not _IsBlockedPickerName(n) then
+                    return frame, n
+                end
+            end
+            frame = frame.GetParent and frame:GetParent() or nil
+            seen = seen + 1
+        end
+        return nil, nil
+    end
+
+    -- EnumerateFrames flat scan (full /fstack parity) -------------------------
+    local _lastScanF, _lastScanN = nil, nil
+
+    -- Midnight/12.0 secret-safe visibility helper:
+    -- some frames can return a secret boolean from :IsVisible(), which must never
+    -- be used directly in a boolean test. Treat unknown/secret results as not pickable.
+    local _PickerNotSecretValue = type(_G.NotSecretValue) == "function" and _G.NotSecretValue or nil
+    local _PickerIsSecretValue = type(_G.issecretvalue) == "function" and _G.issecretvalue or nil
+
+    local function _PickerPlainBool(v)
+        if _PickerNotSecretValue then
+            if not _PickerNotSecretValue(v) then return nil end
+        elseif _PickerIsSecretValue and _PickerIsSecretValue(v) then
+            return nil
+        end
+        if v == true or v == 1 then return true end
+        if v == false or v == 0 then return false end
+        return nil
+    end
+
+    local function _SafeIsVisible(frame)
+        if not frame or not frame.IsVisible then return false end
+        local ok, v = pcall(frame.IsVisible, frame)
+        if not ok then return false end
+        return _PickerPlainBool(v) == true
+    end
+
+    local function _GetNamedFrameUnderCursor()
+        local cx, cy = GetCursorPosition()
+        local scale = UIParent:GetEffectiveScale() or 1
+        cx, cy = cx / scale, cy / scale
+
+        if EnumerateFrames then
+            local bestF, bestN, bestArea = nil, nil, nil
+            local frame = EnumerateFrames()
+            while frame do
+                if not (frame.IsForbidden and frame:IsForbidden())
+                   and _SafeIsVisible(frame)
+                   and not _IsBlockedPickerFrame(frame) then
+                    local name = frame.GetName and frame:GetName() or nil
+                    if not _IsBlockedPickerName(name) then
+                        local l, b, w, h = _SafeGetRect(frame)
+                        if l then
+                            if cx >= l and cx <= (l + w) and cy >= b and cy <= (b + h) then
+                                local area = w * h
+                                if (not bestArea) or area < bestArea then
+                                    bestF, bestN, bestArea = frame, name, area
+                                end
+                            end
+                        end
+                    end
+                end
+                frame = EnumerateFrames(frame)
+            end
+            if bestN then
+                _lastScanF, _lastScanN = bestF, bestN
+                return bestF, bestN
+            end
+        end
+
+        -- Fallback: mouse focus
+        if GetMouseFoci then
+            local foci = GetMouseFoci()
+            if type(foci) == "table" then
+                for i = 1, #foci do
+                    local f, n = _NamedFrameFromFocus(foci[i])
+                    if n then return f, n end
+                end
+            end
+        end
+        if GetMouseFocus then
+            local f, n = _NamedFrameFromFocus(GetMouseFocus())
+            if n then return f, n end
+        end
+        return _lastScanF, _lastScanN
+    end
+
+    -- Overlay factory ---------------------------------------------------------
+    function _G.MSUF_EnsureAnchorPicker()
+        if _G.MSUF_AnchorPicker then return _G.MSUF_AnchorPicker end
+
+        local ov = CreateFrame("Frame", "MSUF_AnchorPickerOverlay", UIParent, "BackdropTemplate")
+        _G.MSUF_AnchorPicker = ov
+        ov:SetAllPoints(UIParent)
+        ov:SetFrameStrata("FULLSCREEN_DIALOG")
+        ov:SetFrameLevel(100)
+        ov:EnableMouse(false)
+        ov:EnableKeyboard(true)
+        if ov.SetPropagateKeyboardInput then ov:SetPropagateKeyboardInput(true) end
+        ov:Hide()
+
+        -- Callback — set before :Show() to control where pick result goes.
+        ov._onPick = nil -- function(frameName) end
+
+        local bg = ov:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints(ov)
+        bg:SetColorTexture(0, 0, 0, 0.12)
+
+        local info = ov:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+        info:SetPoint("TOP", ov, "TOP", 0, -28)
+        info:SetJustifyH("CENTER")
+        ov._info = info
+
+        local sub = ov:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        sub:SetPoint("TOP", info, "BOTTOM", 0, -10)
+        sub:SetJustifyH("CENTER")
+        ov._sub = sub
+
+        local hover = ov:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        hover:SetPoint("BOTTOMLEFT", ov, "BOTTOMLEFT", 24, 24)
+        hover:SetJustifyH("LEFT")
+        hover:SetTextColor(0.9, 0.9, 0.9)
+        ov._hover = hover
+
+        local ctrlHint = ov:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        ctrlHint:SetPoint("BOTTOM", ov, "BOTTOM", 0, 54)
+        ctrlHint:SetJustifyH("CENTER")
+        ov._ctrlHint = ctrlHint
+
+        local hl = CreateFrame("Frame", "MSUF_AnchorPickerHighlight", ov, "BackdropTemplate")
+        hl:SetBackdrop({ edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12 })
+        hl:SetBackdropBorderColor(0, 1, 0, 0.95)
+        hl:Hide()
+        ov._highlight = hl
+
+        ov:SetScript("OnShow", function(self)
+            self._elapsed = 0
+            self._pickedFrame = nil
+            self._pickedName = nil
+            self._info:SetText("Anchor Picker")
+            self._sub:SetText("Hover over any frame, then CTRL + Left-Click to anchor.  |  Right-Click or Escape to cancel.")
+            self._hover:SetText("Hover: no named frame found")
+            self._ctrlHint:SetText("CTRL: not held")
+            self._ctrlHint:SetTextColor(1, 0.3, 0.3)
+            self._highlight:Hide()
+            if self.RegisterEvent then self:RegisterEvent("GLOBAL_MOUSE_DOWN") end
+        end)
+
+        ov:SetScript("OnHide", function(self)
+            if self.UnregisterEvent then self:UnregisterEvent("GLOBAL_MOUSE_DOWN") end
+            self._pickedFrame = nil
+            self._pickedName = nil
+            self._highlight:Hide()
+        end)
+
+        ov:SetScript("OnUpdate", function(self, elapsed)
+            self._elapsed = (self._elapsed or 0) + (elapsed or 0)
+            if self._elapsed < 0.03 then return end
+            self._elapsed = 0
+            local ctrlDown = IsControlKeyDown and IsControlKeyDown()
+            if ctrlDown then
+                self._ctrlHint:SetText("CTRL: held  —  click to anchor!")
+                self._ctrlHint:SetTextColor(0.2, 1, 0.2)
+            else
+                self._ctrlHint:SetText("CTRL: not held")
+                self._ctrlHint:SetTextColor(1, 0.3, 0.3)
+            end
+            local f, n = _GetNamedFrameUnderCursor()
+            self._pickedFrame = f
+            self._pickedName = n
+            if n then
+                self._hover:SetText("Hover: " .. n)
+                local l, b, w, h = _SafeGetRect(f)
+                if l then
+                    self._highlight:ClearAllPoints()
+                    self._highlight:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", l, b)
+                    self._highlight:SetSize(w, h)
+                    if ctrlDown then
+                        self._highlight:SetBackdropBorderColor(0, 1, 0, 0.95)
+                    else
+                        self._highlight:SetBackdropBorderColor(1, 1, 0, 0.6)
+                    end
+                    self._highlight:Show()
+                else
+                    self._highlight:Hide()
+                end
+            else
+                self._hover:SetText("Hover: no named frame found")
+                self._highlight:Hide()
+            end
+        end)
+
+        ov:SetScript("OnEvent", function(self, event, button)
+            if event ~= "GLOBAL_MOUSE_DOWN" then return end
+            if button == "RightButton" then
+                self:Hide()
+                return
+            end
+            if button ~= "LeftButton" then return end
+            if not (IsControlKeyDown and IsControlKeyDown()) then
+                self._sub:SetText("|cffff5555You must hold CTRL|r while left-clicking to confirm the anchor target.")
+                return
+            end
+            local n = self._pickedName
+            if not n or n == "" then
+                self._sub:SetText("No named frame found under cursor. Try a different spot.")
+                return
+            end
+            if type(self._onPick) == "function" then
+                self._onPick(n)
+            end
+            self:Hide()
+        end)
+
+        ov:SetScript("OnKeyDown", function(self, key)
+            if key == "ESCAPE" then
+                if self.SetPropagateKeyboardInput then self:SetPropagateKeyboardInput(false) end
+                self:Hide()
+            else
+                if self.SetPropagateKeyboardInput then self:SetPropagateKeyboardInput(true) end
+            end
+        end)
+
+        return ov
+    end
+end
+
 local function MSUF_CreateGridFrame()
     if MSUF_GridFrame then
         return
@@ -2119,13 +2498,31 @@ local function MSUF_CreateGridFrame()
 
     local anchorNameLabel = f:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     anchorNameLabel:SetPoint("TOP", anchorCheck, "BOTTOM", 0, -6)
-    anchorNameLabel:SetText("Custom anchor frame name (/fstack)")
+    anchorNameLabel:SetText("Custom anchor (type name or pick visually)")
 
     local anchorNameInput = CreateFrame("EditBox", "MSUF_EditModeAnchorNameInput", f, "InputBoxTemplate")
     anchorNameInput:SetSize(210, 20)
     anchorNameInput:SetPoint("TOP", anchorNameLabel, "BOTTOM", 0, -4)
     anchorNameInput:SetAutoFocus(false)
     anchorNameInput:SetMaxLetters(64)
+
+    -- Pick + Clear buttons — own row below editbox, centered.
+    local anchorBtnRow = CreateFrame("Frame", nil, f)
+    anchorBtnRow:SetSize(120, 22)
+    anchorBtnRow:SetPoint("TOP", anchorNameInput, "BOTTOM", 0, -4)
+
+    local anchorPickBtn = CreateFrame("Button", "MSUF_EditModeAnchorPickBtn", anchorBtnRow, "UIPanelButtonTemplate")
+    anchorPickBtn:SetSize(70, 22)
+    anchorPickBtn:SetPoint("LEFT", anchorBtnRow, "LEFT", 0, 0)
+    anchorPickBtn:SetText("Pick")
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(anchorPickBtn) end
+
+    -- Clear button
+    local anchorClearBtn = CreateFrame("Button", "MSUF_EditModeAnchorClearBtn", anchorBtnRow, "UIPanelButtonTemplate")
+    anchorClearBtn:SetSize(46, 22)
+    anchorClearBtn:SetPoint("LEFT", anchorPickBtn, "RIGHT", 4, 0)
+    anchorClearBtn:SetText("Clear")
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(anchorClearBtn) end
 
     MSUF_EM_EnsureDB()
     local initialAnchorName = MSUF_DB and MSUF_DB.general and MSUF_DB.general.anchorName or ""
@@ -2134,25 +2531,32 @@ local function MSUF_CreateGridFrame()
     end
     anchorNameInput:SetText(initialAnchorName)
 
-    -- Read-only helper: show which anchor is currently active (Cooldown / Custom / UIParent)
-    local currentAnchorFS = f:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    currentAnchorFS:SetPoint("TOP", anchorNameInput, "BOTTOM", 0, -6)
-    currentAnchorFS:SetJustifyH("CENTER")
-    currentAnchorFS:SetText("")
-    f._msufCurrentAnchorFS = currentAnchorFS
+    -- Live validation: green if _G[name] exists, red if not, white if empty.
+    local function _ValidateAnchorInput()
+        local txt = anchorNameInput:GetText() or ""
+        txt = txt:gsub("^%s+", ""):gsub("%s+$", "")
+        if txt == "" then
+            anchorNameInput:SetTextColor(1, 1, 1)
+        elseif _G[txt] then
+            anchorNameInput:SetTextColor(0.2, 1, 0.2)
+        else
+            anchorNameInput:SetTextColor(1, 0.3, 0.3)
+        end
+    end
+    anchorNameInput:SetScript("OnTextChanged", function(self, userInput)
+        _ValidateAnchorInput()
+    end)
+    _ValidateAnchorInput()
 
     local function UpdateCurrentAnchorDisplay()
         MSUF_EM_EnsureDB()
         local g = (MSUF_DB and MSUF_DB.general) or {}
-        local v = "UIParent"
-        if g.anchorToCooldown then
-            v = "Cooldown Manager"
-        end
         local an = g.anchorName
-        if type(an) == "string" and an ~= "" then
-            v = an
+        -- Refresh editbox text + color to match DB
+        if not anchorNameInput:HasFocus() then
+            anchorNameInput:SetText(an or "")
+            _ValidateAnchorInput()
         end
-        currentAnchorFS:SetText("Current: " .. tostring(v))
     end
 
     f._msufUpdateCurrentAnchorDisplay = UpdateCurrentAnchorDisplay
@@ -2195,7 +2599,36 @@ local function MSUF_CreateGridFrame()
         anchorNameInput:SetText(current)
     end)
 
-    local bossPreviewCheck = ns.MSUF_EM_UIH.TextCheck(f, "MSUF_EditModeBossPreviewCheck", "TOP", currentAnchorFS, "BOTTOM", 0, -12, "Preview boss frames")
+    -- Pick button: open global anchor picker with callback → general.anchorName
+    anchorPickBtn:SetScript("OnClick", function()
+        local ov = _G.MSUF_EnsureAnchorPicker()
+        if not ov then return end
+        ov._onPick = function(frameName)
+            MSUF_EM_EnsureDB()
+            MSUF_DB.general = MSUF_DB.general or {}
+            MSUF_DB.general.anchorName = frameName
+            MSUF_DB.general.anchorToCooldown = false
+            if anchorCheck and anchorCheck.SetChecked then
+                anchorCheck:SetChecked(false)
+            end
+            anchorNameInput:SetText(frameName)
+            ApplyAllSettings()
+            if f._msufUpdateCurrentAnchorDisplay then f._msufUpdateCurrentAnchorDisplay() end
+        end
+        ov:Show()
+    end)
+
+    -- Clear button: reset custom anchor
+    anchorClearBtn:SetScript("OnClick", function()
+        MSUF_EM_EnsureDB()
+        MSUF_DB.general = MSUF_DB.general or {}
+        MSUF_DB.general.anchorName = nil
+        anchorNameInput:SetText("")
+        ApplyAllSettings()
+        if f._msufUpdateCurrentAnchorDisplay then f._msufUpdateCurrentAnchorDisplay() end
+    end)
+
+    local bossPreviewCheck = ns.MSUF_EM_UIH.TextCheck(f, "MSUF_EditModeBossPreviewCheck", "TOP", anchorBtnRow, "BOTTOM", 0, -12, "Preview boss frames")
     bossPreviewCheck:SetChecked(MSUF_BossTestMode and true or false)
 
     bossPreviewCheck:SetScript("OnClick", function(self)
@@ -2358,10 +2791,12 @@ local function ApplyEnabled(unitKey, enabled)
         prevBtn:GetFontString():SetFontObject("GameFontNormalLarge")
     end
     MSUF_EM_ForceWhiteButtonText(prevBtn)
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(prevBtn) end
     prevBtn:SetPoint("LEFT", label, "RIGHT", 8, -1)
     f._msufEditUnitPrevBtn = prevBtn
 
     local toggleBtn = ns.MSUF_EM_UIH.ButtonAt(row, nil, 240, 22, "LEFT", prevBtn, "RIGHT", 8, 0, nil, "UIPanelButtonTemplate")
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(toggleBtn) end
     f._msufEditUnitToggleBtn = toggleBtn
 
     local nextBtn = ns.MSUF_EM_UIH.Button(row, nil, 24, 22, ">", "UIPanelButtonTemplate")
@@ -2369,6 +2804,7 @@ local function ApplyEnabled(unitKey, enabled)
         nextBtn:GetFontString():SetFontObject("GameFontNormalLarge")
     end
     MSUF_EM_ForceWhiteButtonText(nextBtn)
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(nextBtn) end
     nextBtn:SetPoint("LEFT", toggleBtn, "RIGHT", 8, 0)
     f._msufEditUnitNextBtn = nextBtn
 
@@ -2446,6 +2882,7 @@ local exitBtn = ns.MSUF_EM_UIH.Button(f, "MSUF_EditModeExitButton", 180, 24, nil
     exitBtn:SetText("Exit MSUF Edit Mode")
 
     MSUF_EM_ForceWhiteButtonText(exitBtn)
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(exitBtn) end
 if not StaticPopupDialogs then StaticPopupDialogs = {} end
 if not StaticPopupDialogs["MSUF_CONFIRM_CANCEL_EDITMODE"] then
     StaticPopupDialogs["MSUF_CONFIRM_CANCEL_EDITMODE"] = {
@@ -2470,6 +2907,7 @@ cancelBtn:SetPoint("TOP", _msufExitAnchor, "BOTTOM", 0 + _msufActionRowXShift, _
 cancelBtn:SetText("Cancel Changes")
 
 MSUF_EM_ForceWhiteButtonText(cancelBtn)
+if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(cancelBtn) end
 cancelBtn:SetScript("OnClick", function()
     if not MSUF_UnitEditModeActive then
         return
@@ -2588,6 +3026,7 @@ local resetBtn = ns.MSUF_EM_UIH.Button(f, "MSUF_EditModeResetButton", 140, 22, n
     exitBtn:SetPoint("TOPLEFT", resetBtn, "TOPRIGHT", 12, 0)
 
 MSUF_EM_ForceWhiteButtonText(resetBtn)
+if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(resetBtn) end
 
     resetBtn:SetScript("OnClick", function()
         if not MSUF_UnitEditModeActive then
@@ -2619,6 +3058,7 @@ MSUF_EM_ForceWhiteButtonText(resetBtn)
     undoBtn:SetEnabled(false)
     undoBtn:SetAlpha(0.4)
     MSUF_EM_ForceWhiteButtonText(undoBtn)
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(undoBtn) end
     undoBtn:SetScript("OnClick", function()
         if not MSUF_UnitEditModeActive then return end
         local EM_U = _G.MSUF_Edit and _G.MSUF_Edit.Undo
@@ -2641,6 +3081,7 @@ MSUF_EM_ForceWhiteButtonText(resetBtn)
     redoBtn:SetEnabled(false)
     redoBtn:SetAlpha(0.4)
     MSUF_EM_ForceWhiteButtonText(redoBtn)
+    if type(MSUF_SkinButton) == "function" then MSUF_SkinButton(redoBtn) end
     redoBtn:SetScript("OnClick", function()
         if not MSUF_UnitEditModeActive then return end
         local EM_U = _G.MSUF_Edit and _G.MSUF_Edit.Undo
@@ -2720,14 +3161,9 @@ anchorNameInput:SetPoint("TOP", anchorNameLabel, "BOTTOM", 0, -4)
 anchorCheck:ClearAllPoints()
 anchorCheck:SetPoint("LEFT", anchorNameInput, "RIGHT", 10, -1)
 
-        if currentAnchorFS then
-            currentAnchorFS:ClearAllPoints()
-            currentAnchorFS:SetPoint("TOP", anchorNameInput, "BOTTOM", 0, -6)
-        end
-
         -- Overlay section
         overlayHeader:ClearAllPoints()
-        overlayHeader:SetPoint("TOP", (currentAnchorFS or anchorNameInput), "BOTTOM", 0, -14)
+        overlayHeader:SetPoint("TOP", anchorBtnRow, "BOTTOM", 0, -14)
 
         alphaSlider:ClearAllPoints()
         alphaSlider:SetPoint("TOP", overlayHeader, "BOTTOM", 0, -26)
@@ -3203,8 +3639,8 @@ do
 
     UISpec.Unit = UISpec.Unit or {
         copyDropdowns = {
-            size = { labelField="copySizeLabel", dropField="copySizeDrop", text="Copy size settings to:", point="BOTTOMLEFT", x=15, y=66, width=170 },
-            text = { labelField="copyTextLabel", dropField="copyTextDrop", text="Copy text settings to:", point="BOTTOMLEFT", x=15, y=46, width=170 },
+            size = { labelField="copySizeLabel", dropField="copySizeDrop", text="Copy size settings to:", point="BOTTOMLEFT", x=15, y=66, width=170, nativeDropdown=true },
+            text = { labelField="copyTextLabel", dropField="copyTextDrop", text="Copy text settings to:", point="BOTTOMLEFT", x=15, y=46, width=170, nativeDropdown=true },
         },
         footer = {
             ok     = { field="okBtn",     name="$parentOK",     w=70,  h=22, point="BOTTOMRIGHT", rel="BOTTOMRIGHT", x=-10, y=10, text=OKAY },
@@ -3218,8 +3654,8 @@ do
 
     UISpec.Castbar = UISpec.Castbar or {
         copyDropdowns = {
-            size = { labelField="copySizeLabel", dropField="copySizeDrop", text="Copy size settings to:", point="BOTTOMLEFT", x=15, y=66, width=170 },
-            text = { labelField="copyTextLabel", dropField="copyTextDrop", text="Copy text settings to:", point="BOTTOMLEFT", x=15, y=46, width=170 },
+            size = { labelField="copySizeLabel", dropField="copySizeDrop", text="Copy size settings to:", point="BOTTOMLEFT", x=15, y=66, width=170, nativeDropdown=true },
+            text = { labelField="copyTextLabel", dropField="copyTextDrop", text="Copy text settings to:", point="BOTTOMLEFT", x=15, y=46, width=170, nativeDropdown=true },
         },
         footer = {
             ok     = { field="okBtn",     name="$parentOK",     w=70,  h=22, point="BOTTOMRIGHT", rel="BOTTOMRIGHT", x=-10, y=10, text=OKAY },
@@ -3232,7 +3668,7 @@ do
 
     UISpec.Auras2 = UISpec.Auras2 or {
         copyDropdowns = {
-            aura = { labelField="copyAuraLabel", dropField="copyAuraDrop", text="Copy settings to:", point="BOTTOMLEFT", x=15, y=64, width=170, ensureFrames=true },
+            aura = { labelField="copyAuraLabel", dropField="copyAuraDrop", text="Copy settings to:", point="BOTTOMLEFT", x=15, y=64, width=170, ensureFrames=true, nativeDropdown=true },
         },
         footer = {
             cancel = { field="cancelBtn", name="$parentCancel", w=120, h=22, point="BOTTOMLEFT",  rel="BOTTOMLEFT",  x=16,  y=16, text="Cancel" },
@@ -3269,8 +3705,14 @@ local function MSUF_EM_UI_BuildCopyDropdown(pf, spec)
     pf[spec.labelField] = label
 
     local dropName = spec.name or ("$parent" .. (spec.dropField or "Drop"))
-    local drop = CreateFrame("Frame", dropName, pf, "UIDropDownMenuTemplate")
+    local drop
+    if spec.nativeDropdown ~= false then
+        drop = CreateFrame("Frame", dropName, pf, "UIDropDownMenuTemplate")
+    else
+        drop = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown(dropName, pf) or CreateFrame("Frame", dropName, pf, "UIDropDownMenuTemplate"))
+    end
     drop:SetPoint("LEFT", label, "RIGHT", -2, -2)
+    MSUF_EM_RegisterPopupDropdown(drop, pf)
     pf[spec.dropField] = drop
 
     if spec.width and UIDropDownMenu_SetWidth then
@@ -3635,6 +4077,7 @@ local function MSUF_InitEditPopupFrame(pf, opts)
     pf:SetFrameStrata(opts.strata or "FULLSCREEN_DIALOG")
     pf:SetFrameLevel(opts.level or 500)
     pf:SetClampedToScreen(true)
+    pf.__msufEditPopupRoot = true
 
     pf:SetMovable(true)
     pf:EnableMouse(true)
@@ -4147,6 +4590,7 @@ MSUF_EM_BuildNumericRows(pf, frameRows, frameHeader, "BOTTOMLEFT", 0, ApplyUnitP
             local function _BuildAnchorDrop(prefix, parentAnchor, parentPoint, relPoint, ox, oy, dropName, pfDropKey, stateKey, defaultVal)
                 local drop = CreateFrame("Frame", dropName, pf, "UIDropDownMenuTemplate")
                 drop:SetPoint(parentPoint, parentAnchor, relPoint, ox, oy)
+                MSUF_EM_RegisterPopupDropdown(drop, pf)
                 if UIDropDownMenu_SetWidth then UIDropDownMenu_SetWidth(drop, 88) end
                 if ns and ns.MSUF_ExpandDropdownClickArea then ns.MSUF_ExpandDropdownClickArea(drop) end
                 pf[pfDropKey] = drop
