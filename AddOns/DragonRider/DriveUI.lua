@@ -31,8 +31,10 @@ function DriveUI.CheckTraitEngine()
 	local TurboVal = TurboVal_Default
 	local TurboSpell
 	for k, v in pairs(TurboSpells) do
-		if IsPlayerSpell(v) then
+		if C_SpellBook.IsSpellKnown(v) and not issecretvalue(C_SpellBook.IsSpellKnown(v)) then
 			TurboVal, TurboSpell = k, v
+		else 
+			return
 		end
 	end
 
@@ -100,7 +102,7 @@ local scheduledCDTimer = nil
 function DriveUI.TurboSpellsOnCD()
 	local TurboVal, TurboSpell = DriveUI.CheckTraitEngine()
 	for k, v in pairs(TurboVehicleSpells) do
-		if k == TurboSpell then
+		if k == TurboSpell and not issecretvalue(C_Spell.GetSpellCooldown(v)) then
 			local isEnabled, startTime, modRate, duration
 			if C_Spell.GetSpellCooldown then
 				local cd = C_Spell.GetSpellCooldown(v)
@@ -109,7 +111,7 @@ function DriveUI.TurboSpellsOnCD()
 				isEnabled, startTime, modRate, duration = GetSpellCooldown(v)
 			end
 
-			if startTime > 0 and duration > 0 then
+			if startTime and startTime > 0 and duration and duration > 0 then
 				local cdLeft = startTime + duration - GetTime()
 
 				if not scheduledCDTimer then
