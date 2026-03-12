@@ -40,8 +40,8 @@ License: Public Domain
 --
 -- @class file
 -- @name LibRangeCheck-2.0
-local MAJOR_VERSION = "LibRangeCheck-2.0"
-local MINOR_VERSION = tonumber(("$Revision: 212 $"):match("%d+")) + 100000
+local MAJOR_VERSION = "LibRangeCheck-3.0"
+local MINOR_VERSION = 30000  -- 3.0 port for WoW 12.0.1 (Midnight)
 
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then
@@ -396,29 +396,59 @@ local type = type
 local wipe = wipe
 local tinsert = tinsert
 local tremove = tremove
-local BOOKTYPE_SPELL = BOOKTYPE_SPELL
-local GetSpellInfo = GetSpellInfo
-local GetSpellBookItemName = GetSpellBookItemName
-local GetNumSpellTabs = GetNumSpellTabs
-local GetSpellTabInfo = GetSpellTabInfo
-local GetItemInfo = GetItemInfo
-local UnitAura = UnitAura
 local UnitCanAttack = UnitCanAttack
 local UnitCanAssist = UnitCanAssist
 local UnitExists = UnitExists
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local CheckInteractDistance = CheckInteractDistance
-local IsSpellInRange = IsSpellInRange
-local IsItemInRange = IsItemInRange
 local UnitClass = UnitClass
 local UnitRace = UnitRace
 local GetInventoryItemLink = GetInventoryItemLink
-local GetSpecialization = GetSpecialization
-local GetSpecializationInfo = GetSpecializationInfo
 local GetTime = GetTime
 local HandSlotId = GetInventorySlotInfo("HandsSlot")
 local math_floor = math.floor
 local UnitIsVisible = UnitIsVisible
+
+-- 12.0.1 (Midnight) API compatibility
+-- GetSpellInfo removed; C_Spell.GetSpellInfo returns a table { name, iconID, castTime, minRange, maxRange }
+local function GetSpellInfo(sid)
+    if C_Spell and C_Spell.GetSpellInfo then
+        local info = C_Spell.GetSpellInfo(sid)
+        if info then
+            return info.name, nil, nil, nil, info.minRange, info.maxRange
+        end
+        return nil
+    end
+    return _G.GetSpellInfo(sid)
+end
+-- IsSpellInRange now takes spellID directly; no longer needs spellbook index
+local function IsSpellInRange(spellID, unit)
+    if C_Spell and C_Spell.IsSpellInRange then
+        return C_Spell.IsSpellInRange(spellID, unit) and 1 or 0
+    end
+    return nil
+end
+-- IsSpellKnown: used to replace spellbook scanning to check if player has a spell
+local function IsSpellKnown(sid)
+    if C_Spell and C_Spell.IsSpellKnown then
+        return C_Spell.IsSpellKnown(sid)
+    end
+    return _G.IsSpellKnown and _G.IsSpellKnown(sid)
+end
+-- GetItemInfo / IsItemInRange replaced by C_Item equivalents
+local function GetItemInfo(item)
+    if C_Item and C_Item.GetItemInfo then
+        local info = C_Item.GetItemInfo(item)
+        return info and info.itemName
+    end
+    return _G.GetItemInfo(item)
+end
+local function IsItemInRange(item, unit)
+    if C_Item and C_Item.IsItemInRange then
+        return C_Item.IsItemInRange(item, unit)
+    end
+    return _G.IsItemInRange(item, unit)
+end
 
 -- temporary stuff
 
@@ -433,27 +463,29 @@ local lastUpdate = 0
 -- minRangeCheck is a function to check if spells with minimum range are really out of range, or fail due to range < minRange. See :init() for its setup
 local minRangeCheck = function(unit) return CheckInteractDistance(unit, 2) end
 
+-- 12.0.1: checkers now key by spellID and call C_Spell.IsSpellInRange directly.
+-- No spellbook index needed anymore.
 local checkers_Spell = setmetatable({}, {
-    __index = function(t, spellIdx)
+    __index = function(t, spellID)
         local func = function(unit)
-            if IsSpellInRange(spellIdx, BOOKTYPE_SPELL, unit) == 1 then
-                 return true
+            if IsSpellInRange(spellID, unit) == 1 then
+                return true
             end
         end
-        t[spellIdx] = func
+        t[spellID] = func
         return func
     end
 })
 local checkers_SpellWithMin = setmetatable({}, {
-    __index = function(t, spellIdx)
+    __index = function(t, spellID)
         local func = function(unit)
-            if IsSpellInRange(spellIdx, BOOKTYPE_SPELL, unit) == 1 then
+            if IsSpellInRange(spellID, unit) == 1 then
                 return true
             elseif minRangeCheck(unit) then
                 return true, true
             end
         end
-        t[spellIdx] = func
+        t[spellID] = func
         return func
     end
 })
@@ -501,22 +533,9 @@ local function initItemRequests(cacheAll)
     foundNewItems = nil
 end
 
-local function getNumSpells()
-    local _, _, offset, numSpells = GetSpellTabInfo(GetNumSpellTabs())
-    return offset + numSpells
-end
-
--- return the spellIndex of the given spell by scanning the spellbook
-local function findSpellIdx(spellName)
-    if not spellName or spellName == "" then
-        return nil
-    end
-    for i = 1, getNumSpells() do
-        local spell, rank = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-        if spell == spellName then return i end
-    end
-    return nil
-end
+-- findSpellIdx / getNumSpells: no longer needed in 12.0.1 since IsSpellInRange
+-- now takes a spell ID directly. Stubbed out for any external callers.
+local function findSpellIdx(spellName) return nil end
 
 -- minRange should be nil if there's no minRange, not 0
 local function addChecker(t, range, minRange, checker, info)
@@ -549,22 +568,22 @@ local function createCheckerList(spellList, itemList, interactList)
     if spellList then
         for i = 1, #spellList do
             local sid = spellList[i]
+            -- 12.0.1: use spell ID directly; no spellbook scanning needed.
+            -- IsSpellKnown confirms the player has the spell before adding a checker.
             local name, _, _, _, minRange, range = GetSpellInfo(sid)
-            local spellIdx = findSpellIdx(name)
-            if spellIdx and range then
+            if name and range and IsSpellKnown(sid) then
                 minRange = math_floor(minRange + 0.5)
                 range = math_floor(range + 0.5)
-                -- print("### spell: " .. tostring(name) .. ", " .. tostring(minRange) .. " - " ..  tostring(range))
-                if minRange == 0 then -- getRange() expects minRange to be nil in this case
+                if minRange == 0 then
                     minRange = nil
                 end
                 if range == 0 then
                     range = MeleeRange
                 end
                 if minRange then
-                    addChecker(res, range, minRange, checkers_SpellWithMin[spellIdx], "spell:" .. sid .. ":" .. tostring(name))
+                    addChecker(res, range, minRange, checkers_SpellWithMin[sid], "spell:" .. sid .. ":" .. tostring(name))
                 else
-                    addChecker(res, range, minRange, checkers_Spell[spellIdx], "spell:" .. sid .. ":" .. tostring(name))
+                    addChecker(res, range, minRange, checkers_Spell[sid], "spell:" .. sid .. ":" .. tostring(name))
                 end
             end
         end
@@ -707,10 +726,9 @@ lib.CHECKERS_CHANGED = "CHECKERS_CHANGED"
 lib.MeleeRange = MeleeRange
 
 function lib:findSpellIndex(spell)
-    if type(spell) == 'number' then
-        spell = GetSpellInfo(spell)
-    end
-    return findSpellIdx(spell)
+    -- 12.0.1: spellbook index scanning removed; this public API now always
+    -- returns nil. Callers should use spell IDs directly with C_Spell APIs.
+    return nil
 end
 
 -- returns the range estimate as a string
@@ -749,24 +767,16 @@ function lib:init(forced)
         end
     end
     if not minRangeCheck then
-        -- ok, then try to find some class specific spell
-        if playerClass == "WARRIOR" then
-            -- for warriors, use Intimidating Shout if available
-            local name = GetSpellInfo(5246) -- ["Intimidating Shout"]
-            local spellIdx = findSpellIdx(name)
-            if spellIdx then
-                minRangeCheck = function(unit)
-                    return (IsSpellInRange(spellIdx, BOOKTYPE_SPELL, unit) == 1)
-                end
+        -- 12.0.1: use spell IDs directly with IsSpellKnown instead of spellbook scan
+        if playerClass == "WARRIOR" and IsSpellKnown(5246) then
+            -- Intimidating Shout
+            minRangeCheck = function(unit)
+                return IsSpellInRange(5246, unit) == 1
             end
-        elseif playerClass == "ROGUE" then
-            -- for rogues, use Blind if available
-            local name = GetSpellInfo(2094) -- ["Blind"]
-            local spellIdx = findSpellIdx(name)
-            if spellIdx then
-                minRangeCheck = function(unit)
-                    return (IsSpellInRange(spellIdx, BOOKTYPE_SPELL, unit) == 1)
-                end
+        elseif playerClass == "ROGUE" and IsSpellKnown(2094) then
+            -- Blind
+            minRangeCheck = function(unit)
+                return IsSpellInRange(2094, unit) == 1
             end
         end
     end
@@ -946,14 +956,6 @@ function lib:OnEvent(event, ...)
     end
 end
 
-function lib:LEARNED_SPELL_IN_TAB()
-    self:scheduleInit()
-end
-
-function lib:CHARACTER_POINTS_CHANGED()
-    self:scheduleInit()
-end
-
 function lib:PLAYER_TALENT_UPDATE()
     self:scheduleInit()
 end
@@ -1076,8 +1078,7 @@ function lib:activate()
     if not self.frame then
         local frame = CreateFrame("Frame")
         self.frame = frame
-        frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
-        frame:RegisterEvent("CHARACTER_POINTS_CHANGED")
+        -- LEARNED_SPELL_IN_TAB and CHARACTER_POINTS_CHANGED removed in 12.0.1
         if not IsClassic then
             frame:RegisterEvent("PLAYER_TALENT_UPDATE")
         end

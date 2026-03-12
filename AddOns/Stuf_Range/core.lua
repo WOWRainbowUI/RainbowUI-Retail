@@ -4,7 +4,7 @@ if not Stuf then return end
 local function module()
 local su = Stuf.units
 
-local RC = LibStub:GetLibrary("LibRangeCheck-2.0", true)
+local RC = LibStub:GetLibrary("LibRangeCheck-3.0", true)
 if not RC then return end
 
 local a = CreateFrame("Frame", "Stuf_RangeCheck", Stuf, BackdropTemplateMixin and 'BackdropTemplate')
@@ -58,7 +58,7 @@ local function CreateRangeText(unit, uf, name, db, a5, config)
 	t:SetShadowColor(sc.r, sc.g, sc.b, sc.a)
 	t:SetShadowOffset(db.shadowx or 0, db.shadowy or 0)
 	t:SetJustifyH(db.justifyH or "CENTER")
-	t:SetJustifyV(db.justifyV or "MIDDLE") -- fix
+	t:SetJustifyV(db.justifyV or "MIDDLE")
 	
 	UpdateRangeText(unit, uf, f, nil, nil, config)
 end

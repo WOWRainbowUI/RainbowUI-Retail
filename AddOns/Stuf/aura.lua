@@ -45,8 +45,15 @@ Stuf.GrowthBreakdown = GrowthBreakdown
 local StartTimer, StopTimer, SortTimerBars
 do  -- Timer Bars handlers --------------------------------------------------------------------------------------------
 	local bars = { }
+	-- lsort: sort timer bars by time remaining.
+	-- endtime stores a raw expirationTime from C_UnitAuras — tainted secret
+	-- number in 12.0.1.  Comparing two tainted numbers crashes Lua, so wrap
+	-- the comparison in pcall.  On failure treat as equal (false), which keeps
+	-- sort stable and avoids an infinite loop in table.sort.
 	local function lsort(a, b)
-		return a.endtime < b.endtime
+		local result = false
+		pcall(function() result = a.endtime < b.endtime end)
+		return result
 	end
 	local function ClearAndSetPoint(f, lrp, lrt, lp, lx, ly, rrp, rrt, rp, rx, ry)
 		f:ClearAllPoints()
@@ -105,8 +112,11 @@ do  -- Timer Bars handlers -----------------------------------------------------
 		this.nextupdate = this.nextupdate - a1
 		if this.nextupdate > 0 then return end
 		this.nextupdate = this.throt
-		
-		local remain = this.endtime - GetTime()
+
+		-- expirationTime is tainted; wrap arithmetic in pcall.
+		local remain
+		pcall(function() remain = this.endtime - GetTime() end)
+		if not remain then return end
 		this.bar:SetValue(remain * this.duration, this.bvalue)
 		if remain < 60 then
 			if remain > 10 then
@@ -233,10 +243,16 @@ do  -- Timer Bars handlers -----------------------------------------------------
 		f.name = name
 		f:SetParent(p)
 		f.endtime = endtime
-		f.duration = 1 / duration
-		f.throt = (duration < 300 and 0.1) or (duration < 600 and 0.25) or 0.5
+		-- duration is a tainted secret number in 12.0.1; wrap all arithmetic
+		-- and comparisons in pcall.  Fall back to safe defaults on failure.
+		pcall(function() f.duration = 1 / duration end)
+		if not f.duration then f.duration = 1 end
+		local throt = 0.1
+		pcall(function() throt = (duration < 300 and 0.1) or (duration < 600 and 0.25) or 0.5 end)
+		f.throt = throt
 		f.nextupdate = 0
-		f.ctext:SetFormattedText("%s%s", (count and count > 0 and (count.." ")) or "", p.db.showspellname and spellname or "")
+		-- count is nil or plain int from GetAuraCount; pass with or "" to be safe
+		f.ctext:SetFormattedText("%s%s", count or "", p.db.showspellname and spellname or "")
 		f.icon:SetTexture(icon)
 		f.bar:SetVertexColor(color.r, color.g, color.b, color.a or 0.9)
 		f:SetAlpha(1)
@@ -257,8 +273,17 @@ end
 local function AuraTimeTextOnUpdate(this, a1)
 	this.nextupdate = (this.nextupdate or 0) - a1
 	if this.nextupdate > 0 then return end
-	
-	local remain = this.endtime - GetTime()
+
+	-- expirationTime (stored in this.endtime) is a tainted secret number in
+	-- 12.0.1.  Arithmetic on it in Lua crashes.  Wrap in pcall; on failure
+	-- stop the timer gracefully rather than spamming errors every frame.
+	local remain
+	pcall(function() remain = this.endtime - GetTime() end)
+	if not remain then
+		this.ttext:SetText("")
+		this:SetScript("OnUpdate", nil)
+		return
+	end
 	if remain < 60 then
 		if remain > 10 then
 			this.ttext:SetFormattedText("%d", remain)
@@ -282,8 +307,12 @@ local function AuraTimeTextOnUpdate(this, a1)
 	end
 end
 local function StartIconTimer(this, duration, endtime, mine)
+	-- endtime/duration may be secret tainted numbers in 12.0.1; wrap all comparisons
+	-- and arithmetic in pcall so they can be passed to C functions safely.
+	local endtime_ok = false
+	pcall(function() if endtime and endtime > 0 then endtime_ok = true end end)
 	if this.ttext then
-		if (mine or not this.ttextonlymine) and endtime and endtime > 0 then
+		if (mine or not this.ttextonlymine) and endtime_ok then
 			this.endtime = endtime
 			this.nextupdate = 0
 			this:SetScript("OnUpdate", AuraTimeTextOnUpdate)
@@ -293,8 +322,8 @@ local function StartIconTimer(this, duration, endtime, mine)
 		end
 	end
 	if this.showpie then
-		if (mine or this.showpie ~= 1) and endtime and endtime > 0 then
-			this.pie:SetCooldown(endtime - duration, duration)
+		if (mine or this.showpie ~= 1) and endtime_ok then
+			pcall(function() this.pie:SetCooldown(endtime - duration, duration) end)
 			this.pie:Show()
 		else
 			this.pie:Hide()
@@ -363,29 +392,165 @@ do 	-- Aura handlers -----------------------------------------------------------
 	Stuf.ApplyPush = ApplyPush
 	local ShowSetupMode
 	local temp, debuffconfig, rtime, showpet = { }, nil, nil, nil
-	-- UnitBuff/UnitDebuff removed in 12.0; wrap C_UnitAuras to return same values.
-	-- GetBuffDataByIndex only accepts unit tokens, not player names -- pcall guards against
-	-- units that may be character name strings (arena, nameplate, etc.) in 12.0.
+
+	-- -----------------------------------------------------------------------
+	-- 12.0.1 Secret-safe aura API layer
+	-- -----------------------------------------------------------------------
+	-- In 12.0 / Midnight, almost every field in C_UnitAuras data tables is a
+	-- "secret tainted value": you cannot compare, do arithmetic on, or use as
+	-- a table key in Lua.  You CAN pass them straight to C API functions
+	-- (SetTexture, SetText, SetCooldown, etc.).
+	--
+	-- The fix: replace tainted field reads with dedicated C_UnitAuras APIs
+	-- that return plain Lua values:
+	--
+	--   IsAuraFilteredOutByInstanceID(unit, aid, filter)
+	--       Returns a plain boolean.  "Not filtered out" = aura passes the
+	--       filter.  Used for ownership (HELPFUL|PLAYER / HARMFUL|PLAYER).
+	--
+	--   GetAuraApplicationDisplayCount(unit, aid, min, max)
+	--       Returns a tainted number in 12.0.1 too, so we pcall the >= 2
+	--       comparison inside GetAuraCount and return nil or a plain int.
+	--
+	--   GetAuraDispelTypeColor(unit, aid, colorCurve)
+	--       Returns a ColorMixin directly — bypasses the tainted dispelName
+	--       field entirely.  We build a color curve from stUF's dbgaura colors
+	--       once (lazily) and reuse it.  isStealable still needs pcall.
+	--
+	--   name, icon, duration, expirationTime: left as tainted — they are only
+	--   ever passed to C functions (SetTexture, SetText, SetCooldown) which
+	--   accept secret values without complaint.
+	-- -----------------------------------------------------------------------
+
+	local _isFiltered     -- C_UnitAuras.IsAuraFilteredOutByInstanceID
+	local _getStackCount  -- C_UnitAuras.GetAuraApplicationDisplayCount
+	local _getDispelColor -- C_UnitAuras.GetAuraDispelTypeColor
+	local _dispelCurve    -- built lazily; maps dispel type index -> stUF dbgaura color
+	local _apisReady = false
+	local function BindAuraAPIs()
+		if _apisReady or not C_UnitAuras then return end
+		_isFiltered     = C_UnitAuras.IsAuraFilteredOutByInstanceID
+		_getStackCount  = C_UnitAuras.GetAuraApplicationDisplayCount
+		_getDispelColor = C_UnitAuras.GetAuraDispelTypeColor
+		_apisReady = true
+	end
+
+	-- IsPlayerAura: returns plain bool — true if this aura was cast by the
+	-- player or their pet.  Replaces the tainted isFromPlayerOrPlayerPet field.
+	local function IsPlayerAura(unit, aid, isHelpful)
+		if not _isFiltered or not aid then return false end
+		local filter = isHelpful and "HELPFUL|PLAYER" or "HARMFUL|PLAYER"
+		-- "filtered out" = false means aura PASSES the player filter = is ours
+		return (_isFiltered(unit, aid, filter) == false)
+	end
+
+	-- GetAuraCount: returns a plain integer stack count (>= 2), or NIL when
+	-- there are fewer than 2 stacks (nothing to display).  Returning nil lets
+	-- all callsites use `count or ""` with NO Lua comparison on count — zero
+	-- risk of a taint crash at the callsite.
+	--
+	-- GetAuraApplicationDisplayCount also returns a tainted secret number in
+	-- 12.0.1 (just like d.applications), so we still need pcall on the >= 2
+	-- comparison inside this function.
+	local function GetAuraCount(unit, aid)
+		if not _getStackCount or not aid then return nil end
+		local n = _getStackCount(unit, aid, 2, 99)
+		if type(n) ~= "number" then return nil end
+		local val = nil
+		pcall(function() if n >= 2 then val = n end end)
+		return val  -- nil (hide count text) or plain integer >= 2
+	end
+
+	-- BuildDispelCurve: creates a C_CurveUtil color curve mapping dispel type
+	-- indices to stUF's own dbgaura colors.  Called lazily on first use.
+	-- Indices (Blizzard SpellDispelType DB2): 0=None, 1=Magic, 2=Curse, 3=Disease, 4=Poison
+	local function BuildDispelCurve()
+		if not C_CurveUtil then return nil end
+		local curve = C_CurveUtil.CreateColorCurve()
+		curve:SetType(Enum.LuaCurveType.Step)
+		local function addPoint(idx, clr)
+			if clr then curve:AddPoint(idx, CreateColor(clr.r, clr.g, clr.b, 1)) end
+		end
+		addPoint(0, dbgaura.Buff)     -- None -> generic
+		addPoint(1, dbgaura.Magic)    -- Magic
+		addPoint(2, dbgaura.Curse)    -- Curse
+		addPoint(3, dbgaura.Disease)  -- Disease
+		addPoint(4, dbgaura.Poison)   -- Poison
+		return curve
+	end
+
+	-- GetDispelColor: returns a ColorMixin for the aura's dispel type via the
+	-- C API directly — no pcall, no tainted dispelName field access at all.
+	-- Returns nil for non-dispellable auras or when the API is unavailable.
+	-- ColorMixin exposes .r .g .b, compatible with SetBackdropColor.
+	local function GetDispelColor(unit, aid)
+		if not _getDispelColor or not aid then return nil end
+		if not _dispelCurve then _dispelCurve = BuildDispelCurve() end
+		if not _dispelCurve then return nil end
+		return _getDispelColor(unit, aid, _dispelCurve)
+	end
+
+	-- IsMagicType: plain bool — true if dispel type is Magic (index 1).
+	-- d.dispelType is numeric but still tainted in 12.0.1, so one pcall needed.
+	local function IsMagicType(d)
+		local result = false
+		pcall(function() if d.dispelType == 1 then result = true end end)
+		return result
+	end
+
+	-- GetIsStealable: plain bool.  isStealable has no dedicated API; pcall-decode.
+	local function GetIsStealable(d)
+		local v = false
+		pcall(function() if d.isStealable then v = true end end)
+		return v
+	end
+
+	-- UnitBuff / UnitDebuff: drop-in replacements for the removed global
+	-- functions.  Return the same 8-value tuple the rest of the code expects,
+	-- but every value is either plain (safe to compare) or tainted-but-only-
+	-- used-in-C-calls (safe to pass through).
+	--
+	-- auraInstanceID from the data table is ALWAYS a plain number per Blizzard
+	-- 12.0 documentation — it is the stable ID used by all the new APIs.
 	local function UnitBuff(unit, index, filter)
+		if not _apisReady then BindAuraAPIs() end
 		local ok, d = pcall(C_UnitAuras.GetBuffDataByIndex, unit, index, filter)
 		if not ok or not d then return nil end
-		return d.name, d.icon, d.applications, d.dispelName, d.duration, d.expirationTime, d.sourceUnit, d.isStealable
+		local aid = d.auraInstanceID  -- plain number
+		return d.name, d.icon,
+		       GetAuraCount(unit, aid),        -- nil or plain int >= 2
+		       GetDispelColor(unit, aid),      -- ColorMixin or nil (no pcall)
+		       IsMagicType(d),                 -- plain bool
+		       d.duration, d.expirationTime,   -- tainted, C-only
+		       IsPlayerAura(unit, aid, true),  -- plain bool
+		       GetIsStealable(d)               -- plain bool
 	end
 	local function UnitDebuff(unit, index, filter)
+		if not _apisReady then BindAuraAPIs() end
 		local ok, d = pcall(C_UnitAuras.GetDebuffDataByIndex, unit, index, filter)
 		if not ok or not d then return nil end
-		return d.name, d.icon, d.applications, d.dispelName, d.duration, d.expirationTime, d.sourceUnit, d.isStealable
+		local aid = d.auraInstanceID
+		return d.name, d.icon,
+		       GetAuraCount(unit, aid),
+		       GetDispelColor(unit, aid),
+		       IsMagicType(d),
+		       d.duration, d.expirationTime,
+		       IsPlayerAura(unit, aid, false),
+		       GetIsStealable(d)
 	end
-	local UnitIsUnit = UnitIsUnit
 	function UpdateAura(unit, uf, _, _, _, config)  -- updates all elements dealing with buffs/debuffs
 		-----------------------------------------------
 		-- edited on 3MAY2022 uf = uf or su[unit]
-		uf = type(uf) == "table" and uf or su[unit]
+		-- In 12.0.1, UNIT_AURA fires with (unit, updateInfo) where updateInfo is
+		-- a table.  The old "is it a table?" check mistook updateInfo for a unit
+		-- frame, making live aura updates silently do nothing.  Check for .cache
+		-- which only a real stUF unit frame carries.
+		uf = (type(uf) == "table" and uf.cache) and uf or su[unit]
 		-----------------------------------------------
 		if not uf or uf.hidden then return end
 		
 		local allow, clr, bfilter, dfilter, onlymineb, onlymined = true, nil, nil, nil, nil, nil
-		local name, icon, count, atype, duration, endtime, ismine, isstealable
+		local name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable
 		local cache = uf.cache
 		
 		local dispellicon, buffgroup, debuffgroup, auratimers = uf.dispellicon, uf.buffgroup, uf.debuffgroup, uf.auratimers
@@ -476,21 +641,21 @@ do 	-- Aura handlers -----------------------------------------------------------
 				if iswarlock then
 					if UnitCreatureFamily("pet") == "Felhunter" then
 						for i = 1, 40, 1 do
-							name, icon, count, atype = UnitDebuff(unit, i)
-							if not name or atype == "Magic" then
-								break
-							else
-								name = nil
-							end
+						name, icon, count, acolor, ismagic = UnitDebuff(unit, i)
+						if not name or ismagic then
+							break
+						else
+							name = nil
 						end
 					end
+					end
 				else
-					name, icon, count, atype = UnitDebuff(unit, 1, "RAID")
+					name, icon, count, acolor, ismagic = UnitDebuff(unit, 1, "RAID")
 				end
 				if name then
-					local dc = dbgaura[atype or "none"] or dbgaura.none
+					local dc = acolor or dbgaura.Buff
 					dispellicon.texture:SetTexture(icon)
-					dispellicon.ctext:SetText((count > 1 and count) or "")
+					dispellicon.ctext:SetText(count or "")  -- count is nil or plain int
 					dispellicon:SetBackdropColor(dc.r, dc.g, dc.b)
 					dispellicon:Show()
 				else
@@ -500,11 +665,10 @@ do 	-- Aura handlers -----------------------------------------------------------
 				dispellicon:Hide()
 			end
 		end
-		
+
 		for i = 1, 32, 1 do  -- update buffgroup
 			if allow then  -- prevents calling UnitBuff when it's useless
-				name, icon, count, atype, duration, endtime, ismine, isstealable = UnitBuff(unit, i, bfilter)
-				ismine = ismine == "player" or ismine == "vehicle" or (showpet and ismine == "pet")
+				name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable = UnitBuff(unit, i, bfilter)
 				allow = name and (not onlymineb or ismine)
 			end
 			
@@ -512,8 +676,8 @@ do 	-- Aura handlers -----------------------------------------------------------
 			if b then
 				if allow then
 					b.texture:SetTexture(icon)
-					b.ctext:SetText((count and count > 1 and count) or "")
-					if cache.attackable and (isstealable or (atype == "Magic" and notmage)) then
+					b.ctext:SetText(count or "")  -- count is nil or plain int; no comparison needed
+					if cache.attackable and (isstealable or (ismagic and notmage)) then
 						clr = dbgaura.Magic
 					elseif ismine then
 						clr = dbgaura.MyBuff
@@ -529,7 +693,7 @@ do 	-- Aura handlers -----------------------------------------------------------
 			elseif not allow then
 				break
 			end
-			if auratimers and ismine and endtime and endtime > 0 then
+			if auratimers and ismine then
 				StartTimer("b"..i, duration, endtime, icon, dbgaura.MyBuff, count, auratimers, name)
 				temp["b"..i] = nil
 			end
@@ -538,18 +702,17 @@ do 	-- Aura handlers -----------------------------------------------------------
 		allow = true
 		for i = 1, 40, 1 do  -- update debuffgroup
 			if allow then  -- prevents calling UnitDebuff when it's useless
-				name, icon, count, atype, duration, endtime, ismine, isstealable = UnitDebuff(unit, i, dfilter)
-				ismine = ismine == "player" or ismine == "vehicle" or (showpet and ismine == "pet")
-				clr = dbgaura[atype or "none"] or dbgaura.none
+				name, icon, count, acolor, ismagic, duration, endtime, ismine, isstealable = UnitDebuff(unit, i, dfilter)
+				clr = acolor or dbgaura.Buff  -- acolor is ColorMixin-or-nil from GetDispelColor
 				allow = name and (not onlymined or ismine)
 			end
 			
 			local b = debuffgroup and debuffgroup[i]
 			if b then
 				if allow then
-					if clr then b:SetBackdropColor(clr.r, clr.g, clr.b) end -- fix
+					b:SetBackdropColor(clr.r, clr.g, clr.b)
 					b.texture:SetTexture(icon)
-					b.ctext:SetText((count and count > 1 and count) or "")
+					b.ctext:SetText(count or "")  -- count is nil or plain int; no comparison needed
 					b:Show()
 					StartIconTimer(b, duration, endtime, ismine)
 				else
@@ -558,7 +721,7 @@ do 	-- Aura handlers -----------------------------------------------------------
 			elseif not allow then
 				break
 			end
-			if auratimers and ismine and endtime and endtime > 0 then
+			if auratimers and ismine then
 				StartTimer("d"..i, duration, endtime, icon, clr, count, auratimers, name)
 				temp["d"..i] = nil
 			end
@@ -581,6 +744,11 @@ do  -- Aura Icons --------------------------------------------------------------
 	local function BuffOnEnter(this) -- buff tooltip
 		GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT", 8, -16)
 		GameTooltip:SetUnitBuff(this:GetParent().unit, this.id, this:GetParent().filter)
+	end
+	local function BuffOnClick(this, button) -- right-click to dismount
+		if button == "RightButton" and IsMounted() then
+			Dismount()
+		end
 	end
 	local function DebuffOnEnter(this) -- debuff tooltip
 		GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT", 8, -16)
@@ -660,18 +828,38 @@ do  -- Aura Icons --------------------------------------------------------------
 			if istemp then
 				uf.refreshfuncs.tempenchant = TempEnchantOnUpdate
 				uf.metroelements.tempenchant = TempEnchantOnUpdate
-			elseif isplayer and isbuff then
-				f.secure = CreateFrame("Frame", nil, f, "SecureAuraHeaderTemplate,BackdropTemplate")
-				f.secure:SetSize(2, 2)
-				f.secure:SetAttribute("unit", "player")
-				f.secure:SetAttribute("filter", "HELPFUL")
-				f.secure:SetAttribute("separateOwn", "1")
-				f.secure:SetAttribute("template", "StufBuffTemplate")
-				f.secure:SetAttribute("minWidth", 1)
-				f.secure:SetAttribute("minHeight", 1)
-				f.secure:SetAttribute("sortMethod", "INDEX")
-				f.secure:SetAttribute("sortDir", "+")
-				f.disablepush = true
+			-- ================================================
+			-- >>> START: RIGHT-CLICK CANCEL AURA TODO <<<
+			-- ================================================
+			-- TODO: Right-click-to-cancel own buffs — BLOCKED in 12.0.1 (Midnight)
+			-- -----------------------------------------------------------------------
+			-- The original stUF approach used SecureAuraHeaderTemplate which created
+			-- secure child buttons that called RegisterForClicks() in OnLoad.  This
+			-- is now ADDON_ACTION_BLOCKED because stUF's code is tainted (we touch
+			-- secret values from C_UnitAuras), and RegisterForClicks is also
+			-- unavailable inside initialConfigFunction's restricted sandbox.
+			--
+			-- WHY WE CAN'T JUST WIRE IT UP MANUALLY:
+			--   Wall 1 — RegisterForClicks is a protected call.  It can only be
+			--            invoked from untainted code, and our aura code is tainted
+			--            the moment it touches any C_UnitAuras data field.
+			--   Wall 2 — The buff name (d.name) is a tainted secret value in 12.0.1.
+			--            To cancel via macro we'd need:
+			--              button:SetAttribute("macrotext2", "/cancelaura " .. name)
+			--            But concatenating a tainted string taints the whole button,
+			--            which blocks it from executing the protected CancelUnitBuff.
+			--
+			-- THE ONE THING THAT WOULD UNLOCK THIS:
+			--   auraInstanceID IS a plain (non-tainted) number per Blizzard's 12.0
+			--   documentation.  If Blizzard ever adds a function like:
+			--     C_UnitAuras.RemoveAura(auraInstanceID)
+			--   ...we could store icon.aid = d.auraInstanceID (plain), then in a
+			--   secure OnClick handler call that API without any taint chain.
+			--   Watch Blizzard patch notes for this.  Until then, no right-click
+			--   cancel is possible without a complete redesign using XML templates.
+			-- ================================================
+			-- >>> END: RIGHT-CLICK CANCEL AURA TODO <<<
+			-- ================================================
 			end
 		else
 			f.hidden = nil
@@ -698,30 +886,10 @@ do  -- Aura Icons --------------------------------------------------------------
 		if istemp then
 			if TemporaryEnchantFrame then TemporaryEnchantFrame:Hide() end
 		elseif isplayer and isbuff then
+			-- Still hide Blizzard's default buff frame since we're drawing our own.
+			-- f.secure is disabled in 12.0.1 (see comment above).
 			BuffFrame:Hide()
 			BuffFrame:UnregisterEvent("UNIT_AURA")
-			f.secure:ClearAllPoints()
-			if hfirst then
-				f.secure:SetAttribute("point", d3..d1)
-				f.secure:SetAttribute("xOffset", (spacing + w) * hdir)
-				f.secure:SetAttribute("yOffset", 0)
-				f.secure:SetAttribute("wrapAfter", cols)
-				f.secure:SetAttribute("wrapXOffset", 0)
-				f.secure:SetAttribute("wrapYOffset", (vspacing + h) * vdir)
-				f.secure:SetAttribute("maxWraps", rows)
-				f.secure:SetPoint(d3..d1, f, "TOPLEFT")
-			else
-				f.secure:SetAttribute("point", d1..d3)
-				f.secure:SetAttribute("xOffset", 0)
-				f.secure:SetAttribute("yOffset", (vspacing + h) * vdir)
-				f.secure:SetAttribute("wrapAfter", rows)
-				f.secure:SetAttribute("wrapXOffset", (spacing + w) * hdir)
-				f.secure:SetAttribute("wrapYOffset", 0)
-				f.secure:SetAttribute("maxWraps", cols)
-				f.secure:SetPoint(d1..d3, f, "TOPLEFT")
-			end
-			f.secure:SetFrameLevel(f:GetFrameLevel() + 20)
-			f.secure:Show()
 		end
 		f:Show()
 
@@ -772,6 +940,10 @@ do  -- Aura Icons --------------------------------------------------------------
 				icon.id = i
 				icon:SetScript("OnEnter", (isdebuff and DebuffOnEnter) or (istemp and TempOnEnter) or BuffOnEnter)
 				icon:SetScript("OnLeave", Stuf.GameTooltipOnLeave)
+				icon:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+				if not isdebuff and not istemp then
+					icon:SetScript("OnClick", BuffOnClick)
+				end
 
 				f[i] = icon
 			end

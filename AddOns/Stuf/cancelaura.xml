@@ -6,11 +6,6 @@
 			<Attribute name="type" value="cancelaura"/>
 		</Attributes>
 		<Scripts>
-			<OnLoad>
-				self:RegisterForClicks("RightButtonUp")
-				self:SetBackdrop({ bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16, })
-				self:SetBackdropColor(1, 0, 0, 0)
-			</OnLoad>
 			<OnEnter>
 				local buff = Stuf.units.player.buffgroup[self:GetID()]
 				if buff and buff:GetScript("OnEnter") then
