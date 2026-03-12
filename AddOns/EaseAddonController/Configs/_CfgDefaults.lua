@@ -1160,7 +1160,6 @@ D["NiceDamage"] = {
 };
 D["MidnightSimpleUnitFrames"] = {
     defaultEnable = 0,
-	tags = { "UNITFRAME" },
 	title = "至暗之夜頭像",
 	desc = "替換遊戲內建的單位框架，提供更簡潔、直觀且可高度自訂的介面。它的設計理念是將戰鬥資訊集中在角色附近，避免玩家需要分散注意力到螢幕角落。`",
     {
@@ -1647,7 +1646,7 @@ D["Spy"] = {
 };
 D["Stuf"] = {
     defaultEnable = 0,
-	title = "Stuf 頭像",
+	title = "[測試版] Stuf 頭像",
 	desc = "玩家、目標、小隊和首領頭像血條框架，簡單好用自訂性高!``也有傳統頭像樣式和其他外觀樣式可供選擇，詳細用法說明請看：`http://wp.me/p7DTni-142`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\inv_misc_petmoonkinta",

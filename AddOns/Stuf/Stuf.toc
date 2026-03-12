@@ -1,15 +1,14 @@
 ## Interface: 120001
-## Title: Stuf Unit Frames
-## Author: TotalPackage
+## Title: Stuf Unit Frames BETA
+## Author: Systomatica
 ## Notes: Main unitframes replacement. Assembly optional.
-## Version: 12.0 Alpha
+## Version: 12.0.1
 
 ## SavedVariables: StufDB
 ## SavedVariablesPerCharacter: StufCharDB
 
 ## X-Category: UnitFrame
 ## OptionalDeps: LibSharedMedia-3.0, ButtonFacade, LibButtonFacade, StufLocale
-
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: true
 
@@ -18,13 +17,11 @@
 ## Category-zhTW: 頭像
 ## IconTexture: Interface\Icons\inv_pet_riverotter_red
 
-## embeds.xml
-cancelaura.xml
 StufLocale.lua
+cancelaura.xml
 core.lua
 infoCalc.lua
 bars.lua
 text.lua
 icons.lua
-
 aura.lua
