@@ -1,6 +1,19 @@
 
 # Changelog
 
+## [3.3.5] - 2026-03-11
+
+### Fixed
+- Enhance cooldown duration evaluation with type checks and error handling
+- Update options 
+
+## [3.3.4] - 2026-03-11
+
+### Added
+- New profile Import / Export tools: quickly share your setup or restore it in one paste.
+- New "Abbreviate Above" option: choose when cooldown numbers switch to short format (like `5m` instead of `300`).
+- Updated localization files for the new Import / Export and abbreviation settings.
+
 ## [3.3.3] - 2026-03-10
 
 ### Added

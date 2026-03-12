@@ -13,6 +13,7 @@ L["Unit Frames"] = true
 L["CooldownManager"] = true
 L["MiniCC"] = true
 L["Others"] = true
+L["Profiles"] = true
 
 -- Group Headers
 L["General"] = true
@@ -77,6 +78,26 @@ L["Center"] = true
 -- General Tab
 L["Factory Reset (All)"] = true
 L["Resets the entire profile to default values and reloads the UI."] = true
+L["Import / Export"] = true
+L["PROFILE_IMPORT_EXPORT_DESC"] = "Export the active AceDB profile to a shareable string, or import a string to replace the current profile settings."
+L["Export current profile"] = true
+L["Generate export"] = true
+L["Export code"] = true
+L["Generate an export string, then click inside this box and copy it with Ctrl+C."] = true
+L["Import profile"] = true
+L["Import code"] = true
+L["Paste an exported string here, then click Import."] = true
+L["Import"] = true
+L["Importing will overwrite the current profile settings. Continue?"] = true
+L["Export string generated. Copy it with Ctrl+C."] = true
+L["Profile import completed."] = true
+L["No active profile available."] = true
+L["Failed to encode export string."] = true
+L["Paste an import string first."] = true
+L["Invalid import string format."] = true
+L["Failed to decode import string."] = true
+L["Failed to decompress import string."] = true
+L["Failed to deserialize import string."] = true
 
 -- Banner
 L["BANNER_DESC"] = "Minimalist configuration for your cooldowns. Select a category on the left to begin."
@@ -139,6 +160,12 @@ L["Beyond Thresholds"] = true
 L["Threshold (seconds)"] = true
 L["Default Color"] = true
 L["Color used when the remaining time exceeds all thresholds."] = true
+
+-- Abbreviation
+L["Abbreviate Above"] = true
+L["Abbreviate Above (seconds)"] = true
+L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."] = true
+L["ABBREV_THRESHOLD_DESC"] = "Controls when cooldown numbers switch to abbreviated format. Timers above this threshold display shortened values like 5m or 1h."
 
 -- 自行加入
 L["MiniCE"] = true

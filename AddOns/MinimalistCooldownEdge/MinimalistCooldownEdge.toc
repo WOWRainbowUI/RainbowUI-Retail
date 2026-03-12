@@ -1,9 +1,9 @@
 ## Interface: 120001
 ## AllowLoadGameType: mainline
-## Title: |cff00ccffMiniCE|r (MinimalistCooldownEdge)
+## Title: |cff00ccffMiniCE|r (Minimalist Cooldown Edge)
 ## Notes: Clean cooldowns with category-specific styles.
 ## Author: Anahkas
-## Version: 3.3.3
+## Version: 3.3.5
 ## IconTexture: Interface\AddOns\MinimalistCooldownEdge\MinimalistCooldownEdge
 ## Category: Action Bars
 ## X-Curse-Project-ID: 1443896
@@ -14,13 +14,14 @@
 ## Category-zhTW: 快捷列
 
 
-# Locales (Must load before Core!)
+# Locales
 Locales\enUS.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
 
-# Core Files (Order Matters!)
+# Core Files
 Core.lua
+ImportExport.lua
 Alerts.lua
 Classifier.lua
 Styler.lua
