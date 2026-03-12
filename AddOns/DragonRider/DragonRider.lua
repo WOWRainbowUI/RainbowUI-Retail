@@ -132,7 +132,7 @@ local defaultsTable = {
 		hideVigor = true, -- this is now deprecated
 	},
 	showtooltip = true,  -- this is now deprecated
-	fadeVigor = false, -- this is now deprecated
+	fadeVigor = false, -- NO LONGER DEPRECATED BABY YEAAAAAAAAH
 	fadeSpeed = true,  -- this is now deprecated
 	lightningRush = true,
 	staticChargeOffset = -10,
@@ -655,7 +655,7 @@ end
 
 
 local function CreateColorPickerButtonForSetting(category, setting, tooltip)
-	local data = Settings.CreateSettingInitializerData(setting, {}, tooltip);
+	local data = Settings.CreateSettingInitializerData(setting, { hasOpacity = true }, tooltip);
 	local initializer = Settings.CreateSettingInitializer("DragonRiderColorSwatchSettingTemplate", data);
 	local layout = SettingsPanel:GetLayout(category);
 	layout:AddInitializer(initializer);
@@ -684,16 +684,12 @@ local function SettingsTempFunction(_, args)
 		DR.statusbar:SetFrameStrata("MEDIUM");
 		DR.vigorBar:SetFrameStrata("MEDIUM");
 
-		
+
 		DR.HideWithFadeBar();
 		DR.setPositions();
 		DR.UpdateSpeedometerTheme();
 
-		if DragonRider_DB.toggleVigor and LibAdvFlight.IsAdvFlyEnabled() then
-			DR.vigorBar:Show()
-		else
-			DR.vigorBar:Hide()
-		end
+		if DR.EvaluateVigorVisibility then DR.EvaluateVigorVisibility() end
 	end
 end
 
@@ -1271,6 +1267,16 @@ function DR.OnAddonLoaded()
 		end
 
 		do
+			local variable = "fadeVigor"
+			local name = L["FadeVigor"]
+			local tooltip = L["FadeVigorTT"]
+			local defaultValue = defaultsTable[variable]
+
+			local setting = RegisterSetting(variable, defaultValue, name);
+			CreateCheckbox(categoryVigor, setting, tooltip)
+		end
+
+		do
 			local variable = "themeVigor"
 			local defaultValue = defaultsTable[variable]  -- Corresponds to "Option 1" below.
 			local name = L["VigorTheme"]
@@ -1695,10 +1701,30 @@ function DR.OnAddonLoaded()
 		---------------------------------------------------------------------------------------------------------------------------------
 		---------------------------------------------------------------------------------------------------------------------------------
 
+		local speedTicker = nil
+
+		local function OnUpdate()
+			DR.updateSpeed();
+		end
+
+		local function StartSpeedTicker()
+			if not speedTicker then
+				speedTicker = C_Timer.NewTicker(0.1, OnUpdate)
+			end
+		end
+
+		local function StopSpeedTicker()
+			if speedTicker then
+				speedTicker:Cancel()
+				speedTicker = nil
+			end
+		end
+
 		-- when the player takes off and starts flying
 		local function OnAdvFlyStart()
 			DR.ShowWithFadeBar();
 			DR.setPositions();
+			if DR.EvaluateVigorVisibility then DR.EvaluateVigorVisibility() end
 		end
 
 		-- when the player mounts but isn't flying yet
@@ -1706,9 +1732,7 @@ function DR.OnAddonLoaded()
 		local function OnAdvFlyEnabled()
 			DR.HideWithFadeBar();
 			DR.setPositions();
-			if DragonRider_DB.toggleVigor then
-				DR.vigorBar:Show();
-			end
+			
 			DR.vigorCounter();
 			DR.modelSetup();
 			DR.ToggleDecor();
@@ -1716,19 +1740,28 @@ function DR.OnAddonLoaded()
 			DR.UpdateVigorFillDirection();
 			DR.UpdateVigorTheme();
 			DR.UpdateSpeedometerTheme();
-			DR.UpdateChargePositions()
+			DR.UpdateChargePositions();
+
+			StartSpeedTicker();
+			
+			if DR.EvaluateVigorVisibility then DR.EvaluateVigorVisibility() end
 		end
 
 		local function OnAdvFlyEnd()
 			DR.HideWithFadeBar();
 			DR.setPositions();
+			
+			if DR.EvaluateVigorVisibility then DR.EvaluateVigorVisibility() end
 		end
 
 		-- when the player dismounts
 		local function OnAdvFlyDisabled()
 			DR.HideWithFadeBar();
 			DR.clearPositions();
-			DR.vigorBar:Hide();
+
+			StopSpeedTicker();
+			
+			if DR.EvaluateVigorVisibility then DR.EvaluateVigorVisibility() end
 		end
 
 		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_START, OnAdvFlyStart);
@@ -1739,12 +1772,16 @@ function DR.OnAddonLoaded()
 		local function OnDriveStart()
 			if DR.DriveUtils.IsDriving() then
 				OnAdvFlyStart();
+				StartSpeedTicker();
 			end
 		end
 
 		local function OnDriveEnd()
 			if not DR.DriveUtils.IsDriving() then
 				OnAdvFlyEnd();
+				if not LibAdvFlight.IsAdvFlyEnabled() then
+					StopSpeedTicker();
+				end
 			end
 		end
 
@@ -1759,13 +1796,17 @@ function DR.OnAddonLoaded()
 		f:RegisterEvent("PLAYER_GAINS_VEHICLE_DATA");
 		f:RegisterEvent("PLAYER_LOSES_VEHICLE_DATA");
 
-		-- this will run every frame, forever :)
-		-- put anything that needs to run every frame in here
-		local function OnUpdate()
-			DR.updateSpeed();
-		end
+		DR.UpdateSpeedometerTheme();
+		DR.UpdateVigorLayout();
+		DR.UpdateVigorFillDirection();
+		DR.UpdateVigorTheme();
+		DR.modelSetup();
+		DR.ToggleDecor();
+		DR.UpdateChargePositions();
 
-		C_Timer.NewTicker(0.1, OnUpdate);
+		if LibAdvFlight.IsAdvFlyEnabled() then
+			OnAdvFlyEnabled();
+		end
 	end
 end
 

@@ -809,7 +809,7 @@ function DR.UpdateVigorLayout()
 			bar:UpdateFillAnchors()
 			
 			-- Removed overlay/spark frame positioning, will be handled by UpdateVigorTheme
-
+			
 			bar:ClearAllPoints()
 			local col = math.floor((i - 1) / wrap)
 			local row = (i - 1) % wrap
@@ -855,7 +855,7 @@ function DR.UpdateVigorLayout()
 			local rowWidth = (numBarsInThisRow * bar_width) + (math.max(0, numBarsInThisRow - 1) * bar_spacing)
 			local xOffset = (totalWidth - rowWidth) / 2
 
-			if direction == 1 then -- top-to-bottom rows, left-to-right bars
+			if direction == 1 then -- top-to-bottom rows, left-to-right bars 
 				local x = xOffset + col * (bar_width + bar_spacing)
 				local y = -(row * (bar_height + bar_spacing))
 				bar:SetPoint("TOPLEFT", vigorBar, "TOPLEFT", x, y)
@@ -1080,6 +1080,15 @@ local function UpdateChargeBars()
 	local start = info.cooldownStartTime or 0
 	local duration = info.cooldownDuration or 0
 
+	-- fadeVigor option
+	if DR.EvaluateVigorVisibility then
+		DR.EvaluateVigorVisibility(current, max)
+	end
+
+	if not DR.vigorBar:IsShown() and DR.vigorBar:GetAlpha() == 0 and not DR.fadeInVigorGroup:IsPlaying() then
+		return
+	end
+
 	local rF, gF, bF, aF = GetRGBA(DragonRider_DB and DragonRider_DB.vigorBarColor and DragonRider_DB.vigorBarColor.full, VigorColors.full)
 	local rP, gP, bP, aP = GetRGBA(DragonRider_DB and DragonRider_DB.vigorBarColor and DragonRider_DB.vigorBarColor.progress, VigorColors.progress)
 	local rE, gE, bE, aE = GetRGBA(DragonRider_DB and DragonRider_DB.vigorBarColor and DragonRider_DB.vigorBarColor.empty, VigorColors.empty)
@@ -1178,8 +1187,10 @@ local function UpdateChargeBars()
 	end
 end
 
+local vigorUpdater = CreateFrame("Frame")
+
 local updateTimer = 0 -- throttle
-vigorBar:SetScript("OnUpdate", function(self, elapsed)
+vigorUpdater:SetScript("OnUpdate", function(self, elapsed)
 	updateTimer = updateTimer + elapsed
 	if updateTimer > 0.1 then
 		UpdateChargeBars()
@@ -1342,5 +1353,99 @@ function DR.vigorCounter()
 		end
 	else
 		DR.hideModels();
+	end
+end
+
+
+
+function DR.GetVigorAlpha()
+	return DR.vigorBar:GetAlpha()
+end
+
+DR.fadeInVigorGroup = DR.vigorBar:CreateAnimationGroup()
+DR.fadeOutVigorGroup = DR.vigorBar:CreateAnimationGroup()
+
+DR.fadeInVigor = DR.fadeInVigorGroup:CreateAnimation("Alpha")
+DR.fadeInVigor:SetFromAlpha(DR.GetVigorAlpha())
+DR.fadeInVigor:SetToAlpha(1)
+DR.fadeInVigor:SetDuration(.5)
+
+DR.fadeOutVigor = DR.fadeOutVigorGroup:CreateAnimation("Alpha")
+DR.fadeOutVigor:SetFromAlpha(DR.GetVigorAlpha())
+DR.fadeOutVigor:SetToAlpha(0)
+DR.fadeOutVigor:SetDuration(.1)
+
+DR.fadeOutVigorGroup:SetScript("OnFinished", function()
+	DR.vigorBar.isFadingOut = false
+	if DR.IsEditMode then return end
+	DR.vigorBar:Hide()
+end)
+
+DR.fadeInVigorGroup:SetScript("OnPlay", function()
+	DR.vigorBar:Show()
+end)
+
+DR.fadeInVigorGroup:SetScript("OnFinished", function()
+	DR.vigorBar.isFadingIn = false
+end)
+
+function DR.ShowWithFadeVigor()
+	if not DragonRider_DB.toggleVigor then 
+		DR.vigorBar:Hide()
+		return 
+	end
+	
+	if DR.vigorBar.isFadingIn or (DR.vigorBar:IsShown() and DR.vigorBar:GetAlpha() == 1 and not DR.fadeOutVigorGroup:IsPlaying()) then
+		return
+	end
+	
+	DR.fadeOutVigorGroup:Stop()
+	DR.vigorBar.isFadingOut = false
+	DR.vigorBar.isFadingIn = true
+	DR.fadeInVigorGroup:Play()
+end
+
+function DR.HideWithFadeVigor()
+	if DR.IsEditMode or (SettingsPanel and SettingsPanel:IsShown()) then return end
+	
+	if DR.vigorBar.isFadingOut or (not DR.vigorBar:IsShown()) or (DR.vigorBar:GetAlpha() == 0 and not DR.fadeInVigorGroup:IsPlaying()) then
+		return
+	end
+	
+	DR.fadeInVigorGroup:Stop()
+	DR.vigorBar.isFadingIn = false
+	DR.vigorBar.isFadingOut = true
+	DR.fadeOutVigorGroup:Play()
+end
+
+function DR.EvaluateVigorVisibility(currentCharges, maxCharges)
+	if DR.IsEditMode or (SettingsPanel and SettingsPanel:IsShown()) then 
+		return 
+	end
+
+	if not DragonRider_DB.toggleVigor then
+		DR.vigorBar:Hide()
+		return
+	end
+
+	if not LibAdvFlight.IsAdvFlyEnabled() then
+		DR.HideWithFadeVigor()
+		return
+	end
+
+	if not currentCharges or not maxCharges then
+		local info = C_Spell.GetSpellCharges(SPELL_ID)
+		currentCharges = info and info.currentCharges or 0
+		maxCharges = info and info.maxCharges or MAX_CHARGES
+	end
+
+	if DragonRider_DB.fadeVigor then
+		if currentCharges >= maxCharges and not LibAdvFlight.IsAdvFlying() then
+			DR.HideWithFadeVigor()
+		else
+			DR.ShowWithFadeVigor()
+		end
+	else
+		DR.ShowWithFadeVigor()
 	end
 end
