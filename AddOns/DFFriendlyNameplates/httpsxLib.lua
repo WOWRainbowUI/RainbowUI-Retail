@@ -5,7 +5,7 @@ local HttpsxLib = {}
 DFFN.httpsxLib = HttpsxLib
 
 local BORDER = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\border.tga"
-local FONT_DEFAULT = "Interface\\Addons\\SharedMedia_Rainbow\\fonts\\bHEI00M\\bHEI00M.ttf"
+local FONT_DEFAULT = STANDARD_TEXT_FONT
 local MEDIA_TEXTURE = "Interface\\AddOns\\DFFriendlyNameplates\\Media\\Textures"
 
 local localeFonts = {
@@ -18,23 +18,21 @@ function HttpsxLib:SetLocaleFont(locale)
     if localeFonts[locale] then
         FONT_DEFAULT = localeFonts[locale]
     else
-        FONT_DEFAULT = "Interface\\Addons\\DFFriendlyNameplates\\Media\\Fonts\\FiraSansMedium.ttf"
+        FONT_DEFAULT = STANDARD_TEXT_FONT
     end
 end
 
 function HttpsxLib:ApplyFont(fontString)
     if not fontString or not fontString.GetFont or not fontString.SetFont then return end
     local _, size, flags = fontString:GetFont()
-    if not size then return end
-    fontString:SetFont(FONT_DEFAULT, size, flags or "")
+    local safeSize = tonumber(size) or 0
+    if safeSize <= 0 then
+        safeSize = 11
+    end
+    fontString:SetFont(FONT_DEFAULT, safeSize, flags or "")
 end
 
 HttpsxLib:SetLocaleFont(GetLocale())
-
---if GetLocale() == "ruRU" then
-   -- FONT_DEFAULT = "Fonts\\FRIZQT___CYR.TTF"
---end
-
 
 local function frameAddBg(frame, bd, color, border)
     frame:SetBackdrop(bd)
