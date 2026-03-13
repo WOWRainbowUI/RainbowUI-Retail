@@ -12,6 +12,7 @@ local strfind = string.find
 local setmetatable = setmetatable
 local select = select
 local C_Timer_After = C_Timer.After
+local GetTime = GetTime
 local InCombatLockdown = InCombatLockdown
 local EnumerateFrames  = EnumerateFrames
 local hooksecurefunc = hooksecurefunc
@@ -74,22 +75,94 @@ end
 
 local compactPartyAuraFrames = setmetatable({}, { __mode = "k" })
 local RefreshTrackedDurationColor
+local pendingAuraDurationRefresh = setmetatable({}, { __mode = "k" })
+
+local MAX_COOLDOWN_OWNER_SCAN_DEPTH = 10
+local MAX_COMPACT_AURA_SCAN_DEPTH = 10
+
+local function ExtractUnitToken(unit)
+    if type(unit) == "string" then
+        return unit ~= "" and unit or nil
+    end
+
+    if type(unit) ~= "table" then
+        return nil
+    end
+
+    local token = unit.unitid
+        or unit.unitID
+        or unit.unitToken
+        or unit.displayedUnit
+        or unit.memberUnit
+        or unit.unit
+
+    if type(token) == "string" and token ~= "" then
+        return token
+    end
+
+    return nil
+end
+
+local function GetFrameUnitToken(frame)
+    if not frame then return nil end
+
+    return ExtractUnitToken(frame.unitToken)
+        or ExtractUnitToken(frame.unit)
+        or ExtractUnitToken(frame.displayedUnit)
+        or ExtractUnitToken(frame.memberUnit)
+        or ExtractUnitToken(frame.auraDataUnit)
+end
+
+local function GetFrameAuraInstanceID(frame)
+    if not frame then return nil end
+
+    return frame.auraInstanceID
+        or frame.auraDataInstanceID
+        or frame.auraInstanceId
+        or frame.auraDataInstanceId
+end
+
+local function GetCompactGroupFrameTypeFromUnit(unitToken)
+    if type(unitToken) ~= "string" then
+        return nil
+    end
+
+    if strfind(unitToken, "raid", 1, true) == 1 then
+        return "raid"
+    end
+
+    if strfind(unitToken, "party", 1, true) == 1 then
+        return "party"
+    end
+
+    return nil
+end
 
 local function GetCompactPartyAuraFrameType(cdFrame)
     local current = cdFrame
+    local sawAuraContext = false
 
-    for _ = 1, 4 do
+    for _ = 1, MAX_COMPACT_AURA_SCAN_DEPTH do
         if not current then break end
 
         local name = current.GetName and current:GetName() or ""
-        local isAuraFrame = strfind(name, "Buff", 1, true) or strfind(name, "Debuff", 1, true)
+        local isAuraFrame = strfind(name, "Buff", 1, true)
+            or strfind(name, "Debuff", 1, true)
+            or strfind(name, "Aura", 1, true)
         if isAuraFrame then
+            sawAuraContext = true
             if strfind(name, "CompactPartyFrame", 1, true) then
                 return "party"
             end
             if strfind(name, "CompactRaidFrame", 1, true) then
                 return "raid"
             end
+        end
+
+        local unitToken = GetFrameUnitToken(current)
+        local unitType = GetCompactGroupFrameTypeFromUnit(unitToken)
+        if sawAuraContext and unitType and strfind(name, "Compact", 1, true) then
+            return unitType
         end
 
         current = current.GetParent and current:GetParent() or nil
@@ -520,6 +593,19 @@ local function CreateDurationFromEndTime(endTime, duration, modRate)
     return durationObject
 end
 
+local function IsSupportedDurationObject(durationObject)
+    local durationType = type(durationObject)
+    if durationType ~= "table" and durationType ~= "userdata" then
+        return false
+    end
+
+    local okMethod, evaluateRemainingDuration = pcall(function()
+        return durationObject.EvaluateRemainingDuration
+    end)
+
+    return okMethod and type(evaluateRemainingDuration) == "function"
+end
+
 local function IsChargeCooldownFrame(cooldown, parent)
     if not cooldown or not parent then return false end
     return parent.chargeCooldown == cooldown or parent.ChargeCooldown == cooldown
@@ -536,6 +622,79 @@ local function GetCooldownSpellID(owner)
     end
 
     return owner.spellID
+end
+
+local function FindCooldownOwner(cdFrame, predicate)
+    local current = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
+
+    for _ = 1, MAX_COOLDOWN_OWNER_SCAN_DEPTH do
+        if not current then break end
+        if predicate(current) then
+            return current
+        end
+        current = current.GetParent and current:GetParent() or nil
+    end
+
+    return nil
+end
+
+local function GetAuraDurationContext(cdFrame)
+    local current = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
+    local auraInstanceID
+    local unitToken
+    local auraOwner
+
+    for _ = 1, MAX_COOLDOWN_OWNER_SCAN_DEPTH do
+        if not current then break end
+
+        if not auraInstanceID then
+            auraInstanceID = GetFrameAuraInstanceID(current)
+            if auraInstanceID then
+                auraOwner = current
+            end
+        end
+
+        if not unitToken then
+            unitToken = GetFrameUnitToken(current)
+        end
+
+        if auraInstanceID and unitToken then
+            return auraInstanceID, unitToken, auraOwner or current
+        end
+
+        current = current.GetParent and current:GetParent() or nil
+    end
+
+    return nil, nil, nil
+end
+
+local function GetSpellCooldownOwner(cdFrame)
+    return FindCooldownOwner(cdFrame, function(frame)
+        return GetCooldownSpellID(frame) ~= nil
+    end)
+end
+
+local function IsAuraDrivenCooldown(cdFrame)
+    local auraInstanceID, unitToken = GetAuraDurationContext(cdFrame)
+    if auraInstanceID and unitToken then
+        return true
+    end
+
+    local owner = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
+    for _ = 1, MAX_COOLDOWN_OWNER_SCAN_DEPTH do
+        if not owner then break end
+
+        local name = owner.GetName and owner:GetName() or ""
+        if strfind(name, "Buff", 1, true)
+            or strfind(name, "Debuff", 1, true)
+            or strfind(name, "Aura", 1, true) then
+            return true
+        end
+
+        owner = owner.GetParent and owner:GetParent() or nil
+    end
+
+    return false
 end
 
 local function GetFallbackDurationObject(cdFrame)
@@ -559,16 +718,7 @@ local function GetFallbackDurationObject(cdFrame)
         end
     end
 
-    local auraInstanceID = parent.auraInstanceID
-    local unitToken = parent.unitToken or parent.unit or parent.auraDataUnit
-
-    if not (auraInstanceID and unitToken) then
-        local grandparent = parent.GetParent and parent:GetParent() or nil
-        if grandparent then
-            auraInstanceID = auraInstanceID or grandparent.auraInstanceID
-            unitToken = unitToken or grandparent.unitToken or grandparent.unit or grandparent.auraDataUnit
-        end
-    end
+    local auraInstanceID, unitToken = GetAuraDurationContext(cdFrame)
 
     if auraInstanceID and unitToken and C_UnitAuras and C_UnitAuras.GetAuraDuration then
         local ok, durationObject = pcall(C_UnitAuras.GetAuraDuration, unitToken, auraInstanceID)
@@ -577,16 +727,8 @@ local function GetFallbackDurationObject(cdFrame)
         end
     end
 
-    local spellOwner = parent
+    local spellOwner = GetSpellCooldownOwner(cdFrame) or parent
     local spellID = GetCooldownSpellID(spellOwner)
-    if not spellID then
-        local grandparent = parent.GetParent and parent:GetParent() or nil
-        spellOwner = grandparent
-        spellID = GetCooldownSpellID(grandparent)
-        if grandparent then
-            parent = grandparent
-        end
-    end
 
     if spellID and C_Spell then
         if IsChargeCooldownFrame(cdFrame, spellOwner or parent) and C_Spell.GetSpellChargeDuration then
@@ -614,6 +756,10 @@ local function SetCooldownDurationObject(cdFrame, durationObject)
         durationObject = nil
     end
 
+    if durationObject and not IsSupportedDurationObject(durationObject) then
+        durationObject = nil
+    end
+
     if not durationObject then
         durationObject = GetFallbackDurationObject(cdFrame)
     end
@@ -631,6 +777,16 @@ local function SetCooldownDurationObject(cdFrame, durationObject)
 end
 
 local function GetCooldownDurationObject(cdFrame)
+    if IsAuraDrivenCooldown(cdFrame) then
+        local durationObject = GetFallbackDurationObject(cdFrame)
+        if durationObject then
+            SetCooldownDurationObject(cdFrame, durationObject)
+        else
+            cooldownDurationInfo[cdFrame] = nil
+        end
+        return durationObject
+    end
+
     local info = cooldownDurationInfo[cdFrame]
     if info and info.durationObject then
         return info.durationObject
@@ -681,16 +837,10 @@ local function ApplyCooldownDurationColor(cdFrame, config, curve)
         return false
     end
 
-    local durationType = type(duration)
-    if durationType ~= "table" and durationType ~= "userdata" then
-        ResetCountdownTextColor(cdFrame, config)
-        return false
-    end
-
     local okMethod, evaluateRemainingDuration = pcall(function()
         return duration.EvaluateRemainingDuration
     end)
-    if not okMethod or type(evaluateRemainingDuration) ~= "function" then
+    if not IsSupportedDurationObject(duration) or not okMethod or type(evaluateRemainingDuration) ~= "function" then
         ResetCountdownTextColor(cdFrame, config)
         return false
     end
@@ -780,6 +930,25 @@ local function HandleCooldownDurationUpdate(cooldown, durationObject)
     end
 
     Styler:QueueUpdate(cooldown)
+
+    if IsAuraDrivenCooldown(cooldown) and not pendingAuraDurationRefresh[cooldown] then
+        pendingAuraDurationRefresh[cooldown] = true
+        C_Timer_After(0, function()
+            pendingAuraDurationRefresh[cooldown] = nil
+
+            if not cooldown or MCE:IsForbidden(cooldown) or IsSecretValue(cooldown) then
+                return
+            end
+
+            cooldownDurationInfo[cooldown] = nil
+
+            if SyncCompactPartyAuraCooldown(cooldown) then
+                return
+            end
+
+            Styler:QueueUpdate(cooldown)
+        end)
+    end
 end
 
 local function CreateDurationObjectFromCooldownArgs(startTime, duration, modRate)
@@ -1358,8 +1527,16 @@ function Styler:SetupHooks()
                 end
 
                 if type(cooldownAPI.SetCooldownDuration) == "function" then
-                    hooksecurefunc(cooldownAPI, "SetCooldownDuration", function(cooldown, durationObject)
+                    hooksecurefunc(cooldownAPI, "SetCooldownDuration", function(cooldown, duration, modRate)
                         if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
+
+                        local durationObject
+                        if CanAccessAllValues(duration, modRate)
+                           and type(duration) == "number"
+                           and duration > 0 then
+                            durationObject = CreateDurationFromEndTime(GetTime() + duration, duration, modRate or 1)
+                        end
+
                         HandleCooldownDurationUpdate(cooldown, durationObject)
                     end)
                 end
