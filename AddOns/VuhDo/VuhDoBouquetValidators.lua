@@ -39,6 +39,9 @@ local VUHDO_getUnitHot;
 local VUHDO_getUnitHotInfo;
 local VUHDO_getDispelCurveForUnit;
 local VUHDO_getAuraBarColor;
+local VUHDO_getAuraTextColor;
+local VUHDO_getAuraCanColorBar;
+local VUHDO_getAuraCanColorText;
 local VUHDO_getDispelTypeCurve;
 local VUHDO_getOrBuildBrightnessCurve;
 
@@ -47,6 +50,7 @@ local sIsDistance;
 
 local sCustomFlagCache = { };
 local sCustomFlagErrorHandler;
+local sMergedAuraColorBuffer = { };
 
 local GetAuraDispelTypeColor = C_UnitAuras and C_UnitAuras.GetAuraDispelTypeColor;
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
@@ -128,6 +132,9 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 	VUHDO_getLatestCustomDebuff = _G["VUHDO_getLatestCustomDebuff"];
 	VUHDO_getDispelCurveForUnit = _G["VUHDO_getDispelCurveForUnit"];
 	VUHDO_getAuraBarColor = _G["VUHDO_getAuraBarColor"];
+	VUHDO_getAuraTextColor = _G["VUHDO_getAuraTextColor"];
+	VUHDO_getAuraCanColorBar = _G["VUHDO_getAuraCanColorBar"];
+	VUHDO_getAuraCanColorText = _G["VUHDO_getAuraCanColorText"];
 	VUHDO_getUnitHot = _G["VUHDO_getUnitHot"];
 	VUHDO_getUnitHotInfo = _G["VUHDO_getUnitHotInfo"];
 	VUHDO_getDispelTypeCurve = _G["VUHDO_getDispelTypeCurve"];
@@ -511,17 +518,57 @@ end
 -- return tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tTimer2, clipLeft, clipRight, clipTop, clipBottom
 local tDebuffInfo;
 local tBarColor;
+local tTextColor;
 local tCurve;
+local tCanColorBar;
+local tCanColorText;
 local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 
 	if not sSecretsEnabled then
 		if anInfo["charmed"] then
 			return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 		elseif anInfo["debuff"] then
-			tBarColor = VUHDO_getAuraBarColor(anInfo["unit"]);
+			tCanColorBar = VUHDO_getAuraCanColorBar(anInfo["unit"]);
+			tCanColorText = VUHDO_getAuraCanColorText(anInfo["unit"]);
 
-			if tBarColor then
-				return true, nil, -1, -1, -1, tBarColor;
+			if tCanColorBar or tCanColorText then
+				tBarColor = tCanColorBar and VUHDO_getAuraBarColor(anInfo["unit"]) or nil;
+
+				if tBarColor then
+					sMergedAuraColorBuffer["R"] = tBarColor["R"];
+					sMergedAuraColorBuffer["G"] = tBarColor["G"];
+					sMergedAuraColorBuffer["B"] = tBarColor["B"];
+					sMergedAuraColorBuffer["O"] = tBarColor["O"];
+
+					sMergedAuraColorBuffer["useBackground"] = true;
+				else
+					sMergedAuraColorBuffer["R"] = nil;
+					sMergedAuraColorBuffer["G"] = nil;
+					sMergedAuraColorBuffer["B"] = nil;
+					sMergedAuraColorBuffer["O"] = nil;
+
+					sMergedAuraColorBuffer["useBackground"] = nil;
+				end
+
+				tTextColor = tCanColorText and VUHDO_getAuraTextColor(anInfo["unit"]) or nil;
+
+				if tTextColor then
+					sMergedAuraColorBuffer["TR"] = tTextColor["TR"];
+					sMergedAuraColorBuffer["TG"] = tTextColor["TG"];
+					sMergedAuraColorBuffer["TB"] = tTextColor["TB"];
+					sMergedAuraColorBuffer["TO"] = tTextColor["TO"];
+
+					sMergedAuraColorBuffer["useText"] = true;
+				else
+					sMergedAuraColorBuffer["TR"] = nil;
+					sMergedAuraColorBuffer["TG"] = nil;
+					sMergedAuraColorBuffer["TB"] = nil;
+					sMergedAuraColorBuffer["TO"] = nil;
+
+					sMergedAuraColorBuffer["useText"] = nil;
+				end
+
+				return true, nil, -1, -1, -1, sMergedAuraColorBuffer;
 			end
 
 			tDebuffInfo = VUHDO_getChosenDebuffInfo(anInfo["unit"]);
@@ -546,10 +593,47 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 		return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 	elseif anInfo["debuff"] then
 		tCurve = aSecretContext["dispelCurve"];
-		tBarColor = VUHDO_getAuraBarColor(anInfo["unit"], tCurve);
+		tCanColorBar = VUHDO_getAuraCanColorBar(anInfo["unit"]);
+		tCanColorText = VUHDO_getAuraCanColorText(anInfo["unit"]);
 
-		if tBarColor then
-			return true, nil, -1, -1, -1, tBarColor, nil, nil, nil, nil, nil, nil, nil;
+		if tCanColorBar or tCanColorText then
+			tBarColor = tCanColorBar and VUHDO_getAuraBarColor(anInfo["unit"], tCurve) or nil;
+
+			if tBarColor then
+				sMergedAuraColorBuffer["R"] = tBarColor["R"];
+				sMergedAuraColorBuffer["G"] = tBarColor["G"];
+				sMergedAuraColorBuffer["B"] = tBarColor["B"];
+				sMergedAuraColorBuffer["O"] = tBarColor["O"];
+
+				sMergedAuraColorBuffer["useBackground"] = true;
+			else
+				sMergedAuraColorBuffer["R"] = nil;
+				sMergedAuraColorBuffer["G"] = nil;
+				sMergedAuraColorBuffer["B"] = nil;
+				sMergedAuraColorBuffer["O"] = nil;
+
+				sMergedAuraColorBuffer["useBackground"] = nil;
+			end
+
+			tTextColor = tCanColorText and VUHDO_getAuraTextColor(anInfo["unit"], tCurve) or nil;
+
+			if tTextColor then
+				sMergedAuraColorBuffer["TR"] = tTextColor["TR"];
+				sMergedAuraColorBuffer["TG"] = tTextColor["TG"];
+				sMergedAuraColorBuffer["TB"] = tTextColor["TB"];
+				sMergedAuraColorBuffer["TO"] = tTextColor["TO"];
+
+				sMergedAuraColorBuffer["useText"] = true;
+			else
+				sMergedAuraColorBuffer["TR"] = nil;
+				sMergedAuraColorBuffer["TG"] = nil;
+				sMergedAuraColorBuffer["TB"] = nil;
+				sMergedAuraColorBuffer["TO"] = nil;
+
+				sMergedAuraColorBuffer["useText"] = nil;
+			end
+
+			return true, nil, -1, -1, -1, sMergedAuraColorBuffer, nil, nil, nil, nil, nil, nil, nil;
 		end
 
 		return false, nil, -1, -1, -1;

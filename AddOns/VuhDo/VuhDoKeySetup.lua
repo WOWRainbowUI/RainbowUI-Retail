@@ -286,7 +286,7 @@ local tWheelDefString;
 local tBinding;
 local tHeaderFrame;
 local tOnEnterSnippet = [[
-	if sHealButton and sHealButton ~= self then
+	if sHealButton then
 		sHealButton:ClearBindings();
 	end
 

@@ -103,6 +103,10 @@ end
 
 --
 local tDebuffOnEnterSnippet = [[
+	if sHealButton then
+		sHealButton:ClearBindings();
+	end
+
 	tFrame = self:GetAttribute("vuhdo_button");
 
 	if not tFrame then
@@ -110,10 +114,6 @@ local tDebuffOnEnterSnippet = [[
 	end
 
 	if tFrame then
-		if sHealButton and sHealButton ~= tFrame then
-			sHealButton:ClearBindings();
-		end
-
 		sHealButton = tFrame;
 		tBody = tFrame:GetAttribute("vuhdo_onenter");
 
@@ -130,6 +130,8 @@ local tDebuffOnEnterSnippet = [[
 				sCliqueHeader:RunFor(tFrame, tCliqueEnter);
 			end
 		end
+	else
+		sHealButton = nil;
 	end
 ]]
 local tDebuffOnLeaveSnippet = [[
@@ -156,6 +158,11 @@ local tDebuffOnLeaveSnippet = [[
 			if tCliqueLeave then
 				sCliqueHeader:RunFor(tFrame, tCliqueLeave);
 			end
+		end
+	else
+		if sHealButton then
+			sHealButton:ClearBindings();
+			sHealButton = nil;
 		end
 	end
 ]]

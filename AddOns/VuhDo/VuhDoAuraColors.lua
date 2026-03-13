@@ -826,6 +826,7 @@ do
 					sDispelColorBuffer["G"] = tDispelColorMixin.g;
 					sDispelColorBuffer["B"] = tDispelColorMixin.b;
 					sDispelColorBuffer["O"] = tDispelColorMixin.a or 1;
+
 					sDispelColorBuffer["useBackground"] = true;
 
 					sDispelColorBuffer["TR"] = tDispelColorMixin.r;
@@ -870,7 +871,7 @@ do
 					sDispelColorBuffer["B"] = tDispelColorMixin.b;
 					sDispelColorBuffer["O"] = tDispelColorMixin.a or 1;
 
-					sDispelColorBuffer["useBackground"] = true;
+					sDispelColorBuffer["useText"] = true;
 
 					sDispelColorBuffer["TR"] = tDispelColorMixin.r;
 					sDispelColorBuffer["TG"] = tDispelColorMixin.g;
