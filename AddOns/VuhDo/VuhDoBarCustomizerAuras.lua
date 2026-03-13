@@ -1048,6 +1048,8 @@ do
 			aFrame["childB"]["chargeTexture"]:Hide();
 		end
 
+		VUHDO_safeSetAttribute(aFrame, "vuhdo_button", nil);
+
 		aFrame:Hide();
 		aFrame:ClearAllPoints();
 		aFrame:SetParent(UIParent);
@@ -1076,6 +1078,10 @@ do
 
 	--
 	local sAuraOnEnterSnippet = [[
+		if sHealButton then
+			sHealButton:ClearBindings();
+		end
+
 		tFrame = self:GetAttribute("vuhdo_button");
 
 		if not tFrame then
@@ -1091,24 +1097,24 @@ do
 		end
 
 		if tFrame then
-			if sHealButton and sHealButton ~= tFrame then
-				sHealButton:ClearBindings();
-			end
-
 			sHealButton = tFrame;
 			tBody = tFrame:GetAttribute("vuhdo_onenter");
 
 			if tBody then
 				owner:RunFor(tFrame, tBody);
 
+				sCliqueHeader = owner:GetFrameRef("sCliqueHeader");
+
 				if sCliqueHeader then
-					tCliqueEnter = sCliqueHeader:GetAttribute("_onenter");
+					tCliqueEnter = sCliqueHeader:GetAttribute("setup_onenter");
 
 					if tCliqueEnter then
 						sCliqueHeader:RunFor(tFrame, tCliqueEnter);
 					end
 				end
 			end
+		else
+			sHealButton = nil;
 		end
 	]];
 
@@ -1136,12 +1142,19 @@ do
 				owner:RunFor(tFrame, tBody);
 			end
 
+			sCliqueHeader = owner:GetFrameRef("sCliqueHeader");
+
 			if sCliqueHeader then
-				tCliqueLeave = sCliqueHeader:GetAttribute("_onleave");
+				tCliqueLeave = sCliqueHeader:GetAttribute("setup_onleave");
 
 				if tCliqueLeave then
 					sCliqueHeader:RunFor(tFrame, tCliqueLeave);
 				end
+			end
+		else
+			if sHealButton then
+				sHealButton:ClearBindings();
+				sHealButton = nil;
 			end
 		end
 	]];
