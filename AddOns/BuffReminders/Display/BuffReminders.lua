@@ -18,9 +18,19 @@ local addonName, BR = ...
 ---@field showExpirationGlow boolean
 ---@field expirationThreshold number
 ---@field glowType number
----@field glowColor number[]
----@field useCustomGlowColor boolean
+---@field glowColor? number[]
 ---@field glowSize number
+---@field glowPixelLines? number
+---@field glowPixelFrequency? number
+---@field glowPixelLength? number
+---@field glowAutocastParticles? number
+---@field glowAutocastFrequency? number
+---@field glowAutocastScale? number
+---@field glowBorderFrequency? number
+---@field glowProcDuration? number
+---@field glowProcStartAnim? boolean
+---@field glowXOffset? number
+---@field glowYOffset? number
 ---@field fontFace? string
 ---@field showConsumablesWithoutItems? boolean
 ---@field delveFoodOnly? boolean
@@ -47,10 +57,6 @@ local addonName, BR = ...
 ---@field borderSize? number
 ---@field showExpirationGlow? boolean
 ---@field expirationThreshold? number
----@field glowType? number
----@field glowColor? number[]
----@field useCustomGlowColor? boolean
----@field glowSize? number
 ---@field showBuffReminder? boolean
 ---@field buffTextSize? number
 ---@field showText? boolean
@@ -92,6 +98,7 @@ local addonName, BR = ...
 ---@field stackCount FontString
 ---@field buffText? FontString
 ---@field foodLabel? FontString
+---@field foodHeartyBadge? FontString
 ---@field testText FontString
 ---@field isPlayerBuff? boolean
 ---@field buffCategory? CategoryName
@@ -257,6 +264,7 @@ local defaults = {
     petPassiveOnlyInCombat = false,
     optionsPanelScale = 1.2, -- base scale (displayed as 100%)
     showLoginMessages = true,
+
     minimap = {
         hide = true,
     },
@@ -278,9 +286,7 @@ local defaults = {
         -- Behavior (glow settings)
         showExpirationGlow = true,
         expirationThreshold = 15, -- minutes
-        glowType = 1, -- 1=Pixel, 2=AutoCast, 3=Border, 4=Proc
-        glowColor = BR.Glow.DEFAULT_COLOR,
-        useCustomGlowColor = false,
+        glowType = 1, -- BR.Glow.Type: Pixel=1, AutoCast=2, Border=3, Proc=4
         glowSize = 2,
         showConsumablesWithoutItems = false,
         delveFoodOnly = true,
@@ -300,17 +306,60 @@ local defaults = {
 
     ---@type CategoryVisibility
     categoryVisibility = { -- Which content types each category shows in
-        raid = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
-        presence = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
-        targeted = { openWorld = false, dungeon = true, scenario = true, raid = true, housing = false },
-        self = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
-        pet = { openWorld = true, dungeon = true, scenario = true, raid = true, housing = false },
+        raid = {
+            openWorld = true,
+            dungeon = true,
+            scenario = true,
+            raid = true,
+            housing = false,
+            pvp = true,
+            hideInPvPMatch = true,
+        },
+        presence = {
+            openWorld = true,
+            dungeon = true,
+            scenario = true,
+            raid = true,
+            housing = false,
+            pvp = true,
+            hideInPvPMatch = true,
+        },
+        targeted = {
+            openWorld = false,
+            dungeon = true,
+            scenario = true,
+            raid = true,
+            housing = false,
+            pvp = true,
+            hideInPvPMatch = true,
+        },
+        self = {
+            openWorld = true,
+            dungeon = true,
+            scenario = true,
+            raid = true,
+            housing = false,
+            pvp = true,
+            hideInPvPMatch = true,
+        },
+        pet = {
+            openWorld = true,
+            dungeon = true,
+            scenario = true,
+            raid = true,
+            housing = false,
+            pvp = true,
+            hideInPvPMatch = false,
+        },
         consumable = {
             openWorld = false,
             dungeon = true,
             scenario = true,
             raid = true,
             housing = false,
+            pvp = true,
+            hideInPvPMatch = true,
+            pvpType = { arena = false, bg = true },
             scenarioDifficulty = {
                 delves = true,
                 others = false,
@@ -400,13 +449,16 @@ local defaults = {
 }
 
 -- Constants
-local MISSING_TEXT_SCALE = 0.6 -- scale for "NO X" warning text
+local OVERLAY_TEXT_SCALE = 0.6 -- scale for "NO X" warning text
 
 -- Locals
 local mainFrame
 local buffFrames = {}
 local updateTicker
 local readyCheckTimer = nil
+local instanceEntryTimer = nil
+local SOULWELL_SPELL_IDS = { [29893] = true, [6201] = true } -- Create Soulwell, Create Healthstone
+local ClearInstanceEntryState -- forward declaration
 local testMode = false
 local eventFrame -- forward declaration; created later in file, referenced by StartUpdates
 
@@ -538,9 +590,6 @@ local function GetCategorySettings(category)
         result.iconZoom = (catSettings and catSettings.iconZoom) or 0
         result.borderSize = (catSettings and catSettings.borderSize) or 2
         result.growDirection = (catSettings and catSettings.growDirection) or "CENTER"
-        result.glowType = (catSettings and catSettings.glowType) or 1
-        result.glowColor = (catSettings and catSettings.glowColor) or BR.Glow.DEFAULT_COLOR
-        result.glowSize = (catSettings and catSettings.glowSize) or 2
         result.showExpirationGlow = catSettings and catSettings.showExpirationGlow
         result.expirationThreshold = (catSettings and catSettings.expirationThreshold)
     else
@@ -554,9 +603,6 @@ local function GetCategorySettings(category)
         result.iconZoom = globalDefaults.iconZoom or 0
         result.borderSize = globalDefaults.borderSize or 2
         result.growDirection = globalDefaults.growDirection or "CENTER"
-        result.glowType = globalDefaults.glowType or 1
-        result.glowColor = globalDefaults.glowColor or BR.Glow.DEFAULT_COLOR
-        result.glowSize = globalDefaults.glowSize or 2
         result.showExpirationGlow = globalDefaults.showExpirationGlow
         result.expirationThreshold = globalDefaults.expirationThreshold
     end
@@ -718,29 +764,47 @@ end
 
 -- Forward declarations
 local UpdateDisplay, ToggleTestMode
-local UpdateFallbackDisplay, RenderPetEntries
+-- TODO: Blizzard will re-restrict aura APIs in PvP; uncomment fallback display when that happens
+-- local UpdateFallbackDisplay, RenderPetEntries
 local ResetLayoutSignatures
+
+-- Reusable tables for UpdateDisplay (wiped each cycle to avoid per-call allocation)
+local reusableVisibleKeys = {} ---@type table<string, boolean>
+local reusableMainBuffs = {}
+local sortComparator = function(a, b)
+    return a.sortOrder < b.sortOrder
+end
 
 -- Local alias for glow module
 local SetExpirationGlow = BR.Glow.SetExpiration
 
--- Per-render-cycle cache for glow settings (avoids repeated BR.Config.GetCategorySetting calls)
-local glowSettingsCache = {} ---@type table<string, {typeIndex: number, color: number[], size: number, borderSize: number}>
+-- Per-render-cycle cache for glow settings (avoids repeated DB reads)
+local glowSettingsCache = {} ---@type table<string, table>
 
 ---Get cached glow settings for a category (populated once per render cycle)
+---Glow style reads from per-category overrides when useCustomGlow is enabled, otherwise from defaults.
 ---@param category string
----@return {typeIndex: number, color: number[], size: number, borderSize: number}
+---@return table
 local function GetCachedGlowSettings(category)
     local cached = glowSettingsCache[category]
     if cached then
         return cached
     end
+
+    local db = BR.profile
+    local catSettings = db and db.categorySettings and db.categorySettings[category]
+    local useCustom = catSettings and catSettings.useCustomGlow
+    local source = (useCustom and catSettings) or (db and db.defaults) or {}
+
+    local typeIndex = source.glowType or BR.Glow.Type.Pixel
     cached = {
-        typeIndex = BR.Config.GetCategorySetting(category, "glowType") or 1,
-        color = BR.Config.GetCategorySetting(category, "glowColor") or BR.Glow.DEFAULT_COLOR,
-        useCustomColor = BR.Config.GetCategorySetting(category, "useCustomGlowColor") or false,
-        size = BR.Config.GetCategorySetting(category, "glowSize") or 2,
+        typeIndex = typeIndex,
+        color = source.glowColor,
+        size = source.glowSize or 2,
         borderSize = BR.Config.GetCategorySetting(category, "borderSize") or DEFAULT_BORDER_SIZE,
+        params = BR.Glow.BuildAdvancedParams(source, typeIndex),
+        glowXOffset = source.glowXOffset or 0,
+        glowYOffset = source.glowYOffset or 0,
     }
     glowSettingsCache[category] = cached
     return cached
@@ -755,23 +819,23 @@ local function HideFrame(frame)
     frame:Hide()
 end
 
----Show a frame with missing text styling
+---Show a frame with overlay text styling
 ---@param frame BuffFrame
----@param missingText? string
+---@param overlayText? string
 ---@param shouldGlow? boolean
 ---@param category? CategoryName
 ---@param cachedGlow? {typeIndex: number, color: number[], size: number}
 ---@return boolean true (for anyVisible chaining)
-local function ShowMissingFrame(frame, missingText, shouldGlow, category, cachedGlow)
-    -- Hide stackCount/qualityOverlay — ShowMissingFrame can be called from fallback paths
+local function ShowTextFrame(frame, overlayText, shouldGlow, category, cachedGlow)
+    -- Hide stackCount/qualityOverlay — ShowTextFrame can be called from fallback paths
     -- (UpdateFallbackDisplay) that don't go through RenderVisibleEntry's cleanup.
     frame.stackCount:Hide()
     if frame.qualityOverlay then
         frame.qualityOverlay:Hide()
     end
-    if missingText then
-        frame.count:SetFont(fontPath, GetFrameFontSize(frame, MISSING_TEXT_SCALE), "OUTLINE")
-        frame.count:SetText(missingText)
+    if overlayText then
+        frame.count:SetFont(fontPath, GetFrameFontSize(frame, OVERLAY_TEXT_SCALE), "OUTLINE")
+        frame.count:SetText(overlayText)
         frame.count:Show()
     else
         frame.count:Hide()
@@ -790,6 +854,13 @@ local DIRECTION_ANCHORS = {
     CENTER = "CENTER",
 }
 BR.DIRECTION_ANCHORS = DIRECTION_ANCHORS
+
+local DIRECTION_LAYOUT = {
+    LEFT = { anchor = "RIGHT", xMult = -1, yMult = 0 },
+    RIGHT = { anchor = "LEFT", xMult = 1, yMult = 0 },
+    UP = { anchor = "BOTTOM", xMult = 0, yMult = 1 },
+    DOWN = { anchor = "TOP", xMult = 0, yMult = -1 },
+}
 
 -- Create a category frame for grouped display mode
 local function CreateCategoryFrame(category)
@@ -874,14 +945,8 @@ local function UpdateIconStyling(frame, catSettings)
     end
 end
 
--- Map buff key → consumable category (used by display to detect consumable buffs with bag items)
-local BUFF_KEY_TO_CATEGORY = {
-    flask = "精鍊",
-    food = "食物",
-    rune = "符文",
-    weaponBuff = "武器",
-    weaponBuffOH = "武器",
-}
+-- Map buff key → consumable category (derived from buff definitions in Data/Buffs.lua)
+local BUFF_KEY_TO_CATEGORY = BR.BUFF_KEY_TO_CATEGORY
 
 -- Create icon frame for a buff
 local function CreateBuffFrame(buff, category)
@@ -958,16 +1023,6 @@ local function CreateBuffFrame(buff, category)
         if raidCs and raidCs.showBuffReminder == false then
             frame.buffText:Hide()
         end
-    end
-
-    -- Food label FontString (top-left inside the icon, shows stat abbreviation + hearty indicator)
-    if buff.key == "food" then
-        frame.foodLabel = frame:CreateFontString(nil, "OVERLAY")
-        frame.foodLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
-        local flSize = max(8, (catSettings.iconSize or 64) * 0.22)
-        frame.foodLabel:SetFont(fontPath, flSize, "OUTLINE")
-        frame.foodLabel:SetTextColor(1, 1, 1, 1)
-        frame.foodLabel:Hide()
     end
 
     -- "TEST" text (shown above icon in test mode)
@@ -1055,18 +1110,13 @@ local function PositionFramesInContainer(container, frames, iconWidth, iconHeigh
         return
     end
 
+    local layout = DIRECTION_LAYOUT[direction]
     for i, frame in ipairs(frames) do
         frame:ClearAllPoints()
-        if direction == "LEFT" then
-            -- Grow left: first icon at right edge, subsequent icons to the left
-            frame:SetPoint("RIGHT", container, "RIGHT", -((i - 1) * (iconWidth + spacing)), 0)
-        elseif direction == "RIGHT" then
-            -- Grow right: first icon at left edge, subsequent icons to the right
-            frame:SetPoint("LEFT", container, "LEFT", (i - 1) * (iconWidth + spacing), 0)
-        elseif direction == "UP" then
-            frame:SetPoint("BOTTOM", container, "BOTTOM", 0, (i - 1) * (iconHeight + spacing))
-        elseif direction == "DOWN" then
-            frame:SetPoint("TOP", container, "TOP", 0, -((i - 1) * (iconHeight + spacing)))
+        if layout then
+            local isVertical = layout.yMult ~= 0
+            local step = (i - 1) * ((isVertical and iconHeight or iconWidth) + spacing)
+            frame:SetPoint(layout.anchor, container, layout.anchor, layout.xMult * step, layout.yMult * step)
         else -- CENTER (horizontal)
             local totalWidth = count * iconWidth + (count - 1) * spacing
             local startX = -totalWidth / 2 + iconWidth / 2
@@ -1137,6 +1187,7 @@ local function PositionFramesVariable(container, frames, widths, heights, spacin
     -- so smaller frames are automatically centered — no manual offset needed.
     local offset = 0
     local isVertical = direction == "UP" or direction == "DOWN"
+    local layout = DIRECTION_LAYOUT[direction]
     -- Hoist container width for CENTER mode (constant across iterations)
     local containerWidth = (direction == "CENTER") and container:GetWidth() or 0
 
@@ -1144,14 +1195,8 @@ local function PositionFramesVariable(container, frames, widths, heights, spacin
         local mainSize = isVertical and heights[i] or widths[i]
 
         frame:ClearAllPoints()
-        if direction == "LEFT" then
-            frame:SetPoint("RIGHT", container, "RIGHT", -offset, 0)
-        elseif direction == "RIGHT" then
-            frame:SetPoint("LEFT", container, "LEFT", offset, 0)
-        elseif direction == "UP" then
-            frame:SetPoint("BOTTOM", container, "BOTTOM", 0, offset)
-        elseif direction == "DOWN" then
-            frame:SetPoint("TOP", container, "TOP", 0, -offset)
+        if layout then
+            frame:SetPoint(layout.anchor, container, layout.anchor, layout.xMult * offset, layout.yMult * offset)
         else -- CENTER (horizontal)
             local startX = -containerWidth / 2 + offset
             frame:SetPoint("CENTER", container, "CENTER", startX + widths[i] / 2, 0)
@@ -1321,7 +1366,7 @@ local function GenerateTestEntries()
         entry.visible = false
         entry.shouldGlow = false
         entry.countText = nil
-        entry.missingText = nil
+        entry.overlayText = nil
         entry.expiringTime = nil
         entry.isEating = nil
         entry.petActions = nil
@@ -1348,7 +1393,7 @@ local function GenerateTestEntries()
                         category = category,
                         sortOrder = i,
                         visible = false,
-                        displayType = "missing",
+                        displayType = "text",
                         shouldGlow = false,
                     }
                     BR.BuffState.entries[buff.key] = entry
@@ -1371,8 +1416,8 @@ local function GenerateTestEntries()
                     end
                     raidIndex = raidIndex + 1
                 elseif category == "pet" then
-                    entry.displayType = "missing"
-                    entry.missingText = buff.missingText
+                    entry.displayType = "text"
+                    entry.overlayText = buff.overlayText
                     entry.iconByRole = buff.iconByRole
                     entry.shouldGlow = glowEnabled
                     if buff.groupId == "pets" and BR.PetHelpers then
@@ -1383,8 +1428,8 @@ local function GenerateTestEntries()
                     end
                 else
                     -- consumable, presence, targeted, self, custom
-                    entry.displayType = "missing"
-                    entry.missingText = buff.missingText
+                    entry.displayType = "text"
+                    entry.overlayText = buff.overlayText
                     entry.iconByRole = buff.iconByRole
                     entry.shouldGlow = glowEnabled
 
@@ -1458,18 +1503,22 @@ ToggleTestMode = function(showLabels)
         UpdateDisplay()
         return false
     else
-        testMode = true
-        -- Seed fake values for consistent display during test mode
+        -- Seed fake values BEFORE setting testMode = true, so that if initialization
+        -- errors (e.g. random(1,0) when threshold is 0), testMode stays false and
+        -- the OnUpdate handler won't call GenerateTestEntries with nil testModeData.
         local db = BR.profile
-        testModeData = {
+        local threshold = max(1, (db.defaults and db.defaults.expirationThreshold) or 15)
+        local data = {
             fakeTotal = random(10, 20),
-            fakeRemaining = random(1, (db.defaults and db.defaults.expirationThreshold) or 15) * 60,
+            fakeRemaining = random(1, threshold) * 60,
             fakeMissing = {},
             showLabels = showLabels,
         }
         for i = 1, #RaidBuffs do
-            testModeData.fakeMissing[i] = random(1, 5)
+            data.fakeMissing[i] = random(1, 5)
         end
+        testModeData = data
+        testMode = true
         BR.SecureButtons.HideAllSecureFrames()
         lastMainSignature = ""
         wipe(lastSplitSignatures)
@@ -1505,109 +1554,110 @@ end
 
 -- Update the fallback display (shows tracked buffs via action bar glow during PvP/Arena)
 -- Shows glow-based frames + pet frames, then collects ALL visible frames for unified positioning
-UpdateFallbackDisplay = function()
-    if not mainFrame then
-        return
-    end
-
-    -- Show frames for any glowing spells (skip whenNotGlowing buffs — handled in second pass)
-    local seenKeys = {}
-    local GetPlayerSpecId = BR.StateHelpers.GetPlayerSpecId
-    for spellID, _ in pairs(glowingSpells) do
-        local entry = glowSpellToBuff[spellID]
-        if entry then
-            local buff = entry.buff
-            local mode = buff.glowMode or "whenGlowing"
-            if mode == "whenGlowing" and (not buff.class or buff.class == playerClass) and not seenKeys[buff.key] then
-                -- Skip targeted buffs when solo (they require a group target)
-                local skipSolo = entry.category == "targeted" and GetNumGroupMembers() == 0
-                -- Skip buffs requiring a specific spec
-                local skipSpec = buff.requireSpecId and GetPlayerSpecId() ~= buff.requireSpecId
-                if not skipSolo and not skipSpec then
-                    seenKeys[buff.key] = true
-                    local frame = buffFrames[buff.key]
-                    if frame and IsBuffEnabled(buff.key) then
-                        ShowMissingFrame(frame, buff.missingText)
-                    end
-                end
-            end
-        end
-    end
-
-    -- Second pass: show whenNotGlowing buffs where NONE of their spells are glowing
-    local invertedHasGlow = {}
-    for spellID, _ in pairs(glowingSpells) do
-        local entry = glowSpellToBuff[spellID]
-        if entry and (entry.buff.glowMode == "whenNotGlowing") then
-            invertedHasGlow[entry.buff.key] = true
-        end
-    end
-    for _, entry in pairs(glowSpellToBuff) do
-        local buff = entry.buff
-        if buff.glowMode == "whenNotGlowing" and not seenKeys[buff.key] and not invertedHasGlow[buff.key] then
-            seenKeys[buff.key] = true
-            if not buff.class or buff.class == playerClass then
-                local skipSpec = buff.requireSpecId and GetPlayerSpecId() ~= buff.requireSpecId
-                if not skipSpec then
-                    local frame = buffFrames[buff.key]
-                    if frame and IsBuffEnabled(buff.key) then
-                        ShowMissingFrame(frame, buff.missingText)
-                    end
-                end
-            end
-        end
-    end
-
-    -- Pet frames are non-secure and customCheck works in all contexts
-    BR.BuffState.Refresh()
-    RenderPetEntries()
-
-    -- Collect ALL visible frames (glow + pet + pet extra frames) for unified positioning
-    local shownByCategory = {}
-    local mainFrameBuffs = {}
-    for _, frame in pairs(buffFrames) do
-        if frame:IsShown() and frame.buffCategory then
-            local category = frame.buffCategory
-            if IsCategorySplit(category) then
-                if not shownByCategory[category] then
-                    shownByCategory[category] = {}
-                end
-                shownByCategory[category][#shownByCategory[category] + 1] = frame
-            else
-                mainFrameBuffs[#mainFrameBuffs + 1] = frame
-            end
-            -- Include expanded pet extra frames in the same list
-            if frame.extraFrames then
-                for _, extra in ipairs(frame.extraFrames) do
-                    if extra:IsShown() then
-                        if IsCategorySplit(category) then
-                            shownByCategory[category][#shownByCategory[category] + 1] = extra
-                        else
-                            mainFrameBuffs[#mainFrameBuffs + 1] = extra
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    if #mainFrameBuffs > 0 or next(shownByCategory) then
-        for category, frames in pairs(shownByCategory) do
-            PositionSplitCategory(category, frames)
-        end
-        if #mainFrameBuffs > 0 then
-            PositionMainContainer(mainFrameBuffs)
-        end
-        BR.Movers.UpdateAnchor()
-    else
-        HideAllDisplayFrames()
-    end
-end
+-- TODO: Blizzard will re-restrict aura APIs in PvP; uncomment when fallback display is needed again
+-- UpdateFallbackDisplay = function()
+--     if not mainFrame then
+--         return
+--     end
+--
+--     -- Show frames for any glowing spells (skip whenNotGlowing buffs — handled in second pass)
+--     local seenKeys = {}
+--     local GetPlayerSpecId = BR.StateHelpers.GetPlayerSpecId
+--     for spellID, _ in pairs(glowingSpells) do
+--         local entry = glowSpellToBuff[spellID]
+--         if entry then
+--             local buff = entry.buff
+--             local mode = buff.glowMode or "whenGlowing"
+--             if mode == "whenGlowing" and (not buff.class or buff.class == playerClass) and not seenKeys[buff.key] then
+--                 -- Skip targeted buffs when solo (they require a group target)
+--                 local skipSolo = entry.category == "targeted" and GetNumGroupMembers() == 0
+--                 -- Skip buffs requiring a specific spec
+--                 local skipSpec = buff.requireSpecId and GetPlayerSpecId() ~= buff.requireSpecId
+--                 if not skipSolo and not skipSpec then
+--                     seenKeys[buff.key] = true
+--                     local frame = buffFrames[buff.key]
+--                     if frame and IsBuffEnabled(buff.key) then
+--                         ShowTextFrame(frame, buff.overlayText)
+--                     end
+--                 end
+--             end
+--         end
+--     end
+--
+--     -- Second pass: show whenNotGlowing buffs where NONE of their spells are glowing
+--     local invertedHasGlow = {}
+--     for spellID, _ in pairs(glowingSpells) do
+--         local entry = glowSpellToBuff[spellID]
+--         if entry and (entry.buff.glowMode == "whenNotGlowing") then
+--             invertedHasGlow[entry.buff.key] = true
+--         end
+--     end
+--     for _, entry in pairs(glowSpellToBuff) do
+--         local buff = entry.buff
+--         if buff.glowMode == "whenNotGlowing" and not seenKeys[buff.key] and not invertedHasGlow[buff.key] then
+--             seenKeys[buff.key] = true
+--             if not buff.class or buff.class == playerClass then
+--                 local skipSpec = buff.requireSpecId and GetPlayerSpecId() ~= buff.requireSpecId
+--                 if not skipSpec then
+--                     local frame = buffFrames[buff.key]
+--                     if frame and IsBuffEnabled(buff.key) then
+--                         ShowTextFrame(frame, buff.overlayText)
+--                     end
+--                 end
+--             end
+--         end
+--     end
+--
+--     -- Pet frames are non-secure and customCheck works in all contexts
+--     BR.BuffState.Refresh()
+--     RenderPetEntries()
+--
+--     -- Collect ALL visible frames (glow + pet + pet extra frames) for unified positioning
+--     local shownByCategory = {}
+--     local mainFrameBuffs = {}
+--     for _, frame in pairs(buffFrames) do
+--         if frame:IsShown() and frame.buffCategory then
+--             local category = frame.buffCategory
+--             if IsCategorySplit(category) then
+--                 if not shownByCategory[category] then
+--                     shownByCategory[category] = {}
+--                 end
+--                 shownByCategory[category][#shownByCategory[category] + 1] = frame
+--             else
+--                 mainFrameBuffs[#mainFrameBuffs + 1] = frame
+--             end
+--             -- Include expanded pet extra frames in the same list
+--             if frame.extraFrames then
+--                 for _, extra in ipairs(frame.extraFrames) do
+--                     if extra:IsShown() then
+--                         if IsCategorySplit(category) then
+--                             shownByCategory[category][#shownByCategory[category] + 1] = extra
+--                         else
+--                             mainFrameBuffs[#mainFrameBuffs + 1] = extra
+--                         end
+--                     end
+--                 end
+--             end
+--         end
+--     end
+--
+--     if #mainFrameBuffs > 0 or next(shownByCategory) then
+--         for category, frames in pairs(shownByCategory) do
+--             PositionSplitCategory(category, frames)
+--         end
+--         if #mainFrameBuffs > 0 then
+--             PositionMainContainer(mainFrameBuffs)
+--         end
+--         BR.Movers.UpdateAnchor()
+--     else
+--         HideAllDisplayFrames()
+--     end
+-- end
 
 -- Eating icon texture ID (from State.lua, matches the eating channel aura icon)
 local EATING_ICON = BR.EATING_AURA_ICON
 
----Apply food visual styling (stat label + hearty indicator) to a frame.
+---Apply food visual styling (stat label + hearty badge) to a frame.
 ---@param frame table
 ---@param label string? Food stat label (e.g. "M/V", "Crit")
 ---@param hearty boolean? Whether the food is hearty
@@ -1615,28 +1665,38 @@ local function ApplyFoodFrameStyle(frame, label, hearty)
     if not label then
         return
     end
-    -- Lazy-init foodLabel FontString for extra frames (main frame creates it at init)
+    local size = frame:GetWidth()
+    local fontSize = max(8, size * 0.22)
     if not frame.foodLabel then
         frame.foodLabel = frame:CreateFontString(nil, "OVERLAY")
         frame.foodLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", 2, -2)
     end
-    local size = frame:GetWidth()
-    local fontSize = max(8, size * 0.22)
     frame.foodLabel:SetFont(fontPath, fontSize, "OUTLINE")
     frame.foodLabel:SetTextColor(1, 1, 1, 1)
-    if hearty then
-        frame.foodLabel:SetText("|cFFFFD100H|r " .. label)
-    else
-        frame.foodLabel:SetText(label)
-    end
+    frame.foodLabel:SetText(label)
     frame.foodLabel:Show()
+    if not frame.foodHeartyBadge then
+        frame.foodHeartyBadge = frame:CreateFontString(nil, "OVERLAY")
+        frame.foodHeartyBadge:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 2, 2)
+    end
+    if hearty then
+        frame.foodHeartyBadge:SetFont(fontPath, fontSize, "OUTLINE")
+        frame.foodHeartyBadge:SetTextColor(0.4, 0.7, 1, 1)
+        frame.foodHeartyBadge:SetText("H")
+        frame.foodHeartyBadge:Show()
+    else
+        frame.foodHeartyBadge:Hide()
+    end
 end
 
 ---Clear food visual styling from a frame.
 ---@param frame table
 local function ClearFoodFrameStyle(frame)
-    if frame.foodLabel and (frame.key == "food" or frame.isExtraFrame) then
+    if frame.foodLabel then
         frame.foodLabel:Hide()
+    end
+    if frame.foodHeartyBadge then
+        frame.foodHeartyBadge:Hide()
     end
 end
 
@@ -1770,7 +1830,7 @@ local function RenderVisibleEntry(frame, entry)
                 ApplyFoodFrameStyle(frame, items[1].foodLabel, items[1].foodHearty)
             end
         end
-    else -- "missing"
+    else -- "text"
         -- Consumables with bag scan support: show actual item from bags
         if BUFF_KEY_TO_CATEGORY[frame.key] then
             local result = ResolveConsumableFrame(frame)
@@ -1778,10 +1838,10 @@ local function RenderVisibleEntry(frame, entry)
                 frame:Show()
                 SetExpirationGlow(frame, entry.shouldGlow, entry.category, cachedGlow)
             elseif result == "missing" then
-                ShowMissingFrame(frame, entry.missingText, entry.shouldGlow, entry.category, cachedGlow)
+                ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, entry.category, cachedGlow)
             else
                 if testMode then
-                    ShowMissingFrame(frame, entry.missingText, entry.shouldGlow, entry.category, cachedGlow)
+                    ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, entry.category, cachedGlow)
                 else
                     return false
                 end
@@ -1793,7 +1853,7 @@ local function RenderVisibleEntry(frame, entry)
                     frame.icon:SetTexture(texture)
                 end
             end
-            ShowMissingFrame(frame, entry.missingText, entry.shouldGlow, entry.category, cachedGlow)
+            ShowTextFrame(frame, entry.overlayText, entry.shouldGlow, entry.category, cachedGlow)
         end
     end
 
@@ -1803,6 +1863,9 @@ local function RenderVisibleEntry(frame, entry)
         frame.stackCount:Hide()
         if frame.foodLabel then
             frame.foodLabel:Hide()
+        end
+        if frame.foodHeartyBadge then
+            frame.foodHeartyBadge:Hide()
         end
     end
     return true
@@ -1821,7 +1884,7 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
         end
     end
 
-    if (entry.displayType ~= "missing" and entry.displayType ~= "expiring") or entry.isEating then
+    if (entry.displayType ~= "text" and entry.displayType ~= "expiring") or entry.isEating then
         return
     end
     if not BUFF_KEY_TO_CATEGORY[frame.key] or not frame:IsShown() then
@@ -2097,24 +2160,25 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
 end
 
 -- Render pet category entries (pet frames are non-secure and customCheck works in all contexts)
-RenderPetEntries = function()
-    local petEntries = BR.BuffState.visibleByCategory.pet
-    if not petEntries or #petEntries == 0 then
-        return
-    end
-    if not petEntries._sorted then
-        tsort(petEntries, function(a, b)
-            return a.sortOrder < b.sortOrder
-        end)
-    end
-    for _, entry in ipairs(petEntries) do
-        local frame = buffFrames[entry.key]
-        if frame then
-            RenderVisibleEntry(frame, entry)
-            ApplyPetDisplayMode(frame, entry)
-        end
-    end
-end
+-- TODO: Blizzard will re-restrict aura APIs in PvP; uncomment when fallback display is needed again
+-- RenderPetEntries = function()
+--     local petEntries = BR.BuffState.visibleByCategory.pet
+--     if not petEntries or #petEntries == 0 then
+--         return
+--     end
+--     if not petEntries._sorted then
+--         tsort(petEntries, function(a, b)
+--             return a.sortOrder < b.sortOrder
+--         end)
+--     end
+--     for _, entry in ipairs(petEntries) do
+--         local frame = buffFrames[entry.key]
+--         if frame then
+--             RenderVisibleEntry(frame, entry)
+--             ApplyPetDisplayMode(frame, entry)
+--         end
+--     end
+-- end
 
 -- Update the display
 UpdateDisplay = function()
@@ -2168,15 +2232,8 @@ UpdateDisplay = function()
             return
         end
 
-        -- PvP/Arena: still use fallback (not affected by Blizzard's non-secret change)
-        local _, instanceType = IsInInstance()
-        if instanceType == "pvp" or instanceType == "arena" then
-            HideAllDisplayFrames()
-            UpdateFallbackDisplay()
-            BR.SecureButtons.ScheduleSecureSync()
-            return
-        end
-        -- M+ and combat: fall through to normal display path (most tracked buffs are now non-secret)
+        -- PvP/Arena and M+: aura API is restricted but we use the normal display path
+        -- (State.lua treats PvP the same as M+ for aura restriction purposes)
 
         -- Refresh buff state
         BR.BuffState.Refresh()
@@ -2185,14 +2242,12 @@ UpdateDisplay = function()
     local visibleByCategory = BR.BuffState.visibleByCategory
     local anyVisible = false
 
-    -- Track which keys are visible this cycle (for selective hiding)
-    local currentlyVisibleKeys = {} ---@type table<string, boolean>
+    -- Reuse module-level tables (wiped to avoid per-call allocation)
+    wipe(reusableVisibleKeys)
+    wipe(reusableMainBuffs)
 
     -- Build sorted category list by priority
     local sortedCategories = GetSortedCategories()
-
-    -- Collect frames for main container (non-split) in priority order
-    local mainFrameBuffs = {}
 
     for _, catEntry in ipairs(sortedCategories) do
         local category = catEntry.name
@@ -2200,9 +2255,7 @@ UpdateDisplay = function()
 
         if entries and #entries > 0 then
             if not entries._sorted then
-                tsort(entries, function(a, b)
-                    return a.sortOrder < b.sortOrder
-                end)
+                tsort(entries, sortComparator)
             end
             anyVisible = true
 
@@ -2215,7 +2268,7 @@ UpdateDisplay = function()
                         local shown = RenderVisibleEntry(frame, entry)
                         if shown then
                             frames[#frames + 1] = frame
-                            currentlyVisibleKeys[entry.key] = true
+                            reusableVisibleKeys[entry.key] = true
                         end
                         -- Category-specific post-processing
                         if category == "consumable" then
@@ -2233,14 +2286,14 @@ UpdateDisplay = function()
                     if frame then
                         local shown = RenderVisibleEntry(frame, entry)
                         if shown then
-                            mainFrameBuffs[#mainFrameBuffs + 1] = frame
-                            currentlyVisibleKeys[entry.key] = true
+                            reusableMainBuffs[#reusableMainBuffs + 1] = frame
+                            reusableVisibleKeys[entry.key] = true
                         end
                         -- Category-specific post-processing
                         if category == "consumable" then
-                            ApplyConsumableDisplayMode(frame, entry, mainFrameBuffs, mainFrame)
+                            ApplyConsumableDisplayMode(frame, entry, reusableMainBuffs, mainFrame)
                         elseif category == "pet" then
-                            ApplyPetDisplayMode(frame, entry, mainFrameBuffs)
+                            ApplyPetDisplayMode(frame, entry, reusableMainBuffs)
                         end
                     end
                 end
@@ -2250,7 +2303,7 @@ UpdateDisplay = function()
 
     -- Selectively hide frames that were visible last cycle but aren't now
     for key in pairs(previouslyVisibleKeys) do
-        if not currentlyVisibleKeys[key] then
+        if not reusableVisibleKeys[key] then
             local frame = buffFrames[key]
             if frame then
                 HideFrame(frame)
@@ -2267,12 +2320,12 @@ UpdateDisplay = function()
     end
     -- Update tracking set
     wipe(previouslyVisibleKeys)
-    for key in pairs(currentlyVisibleKeys) do
+    for key in pairs(reusableVisibleKeys) do
         previouslyVisibleKeys[key] = true
     end
 
     -- Position main container
-    PositionMainContainer(mainFrameBuffs)
+    PositionMainContainer(reusableMainBuffs)
 
     -- Handle split category frames with no visible buffs
     PositionSplitCategories(visibleByCategory)
@@ -2528,10 +2581,11 @@ local function UpdateVisuals()
         -- Frame alpha
         frame:SetAlpha(catSettings.iconAlpha or 1)
 
-        -- Food label font update
+        -- Food label + hearty badge font update
         if frame.foodLabel then
             local flSize = max(8, size * 0.22)
             frame.foodLabel:SetFont(fontPath, flSize, "OUTLINE")
+            frame.foodHeartyBadge:SetFont(fontPath, flSize, "OUTLINE")
         end
         if frame.buffText then
             -- Raid BUFF! text
@@ -2556,6 +2610,9 @@ local function UpdateVisuals()
             frame.count:Hide()
             if frame.foodLabel then
                 frame.foodLabel:Hide()
+            end
+            if frame.foodHeartyBadge then
+                frame.foodHeartyBadge:Hide()
             end
         end
 
@@ -2592,6 +2649,7 @@ end
 CallbackRegistry:RegisterCallback("VisualsRefresh", function()
     ResolveFontPath()
     ResetLayoutSignatures()
+    wipe(glowSettingsCache)
     UpdateVisuals()
     for _, mover in pairs(BR.Movers.GetMoverFrames()) do
         mover:UpdateSize()
@@ -2758,8 +2816,18 @@ eventFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
 eventFrame:RegisterEvent("PLAYER_DIFFICULTY_CHANGED")
 eventFrame:RegisterEvent("PLAYER_UPDATE_RESTING")
 eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
+eventFrame:RegisterEvent("PVP_MATCH_STATE_CHANGED")
 
-eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
+ClearInstanceEntryState = function()
+    if instanceEntryTimer then
+        instanceEntryTimer:Cancel()
+        instanceEntryTimer = nil
+    end
+    BR.BuffState.SetInstanceEntryState(false)
+    eventFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+end
+
+eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     if event == "ADDON_LOADED" and arg1 == addonName then
         _, playerClass = UnitClass("player")
         BR.BuffState.SetPlayerClass(playerClass)
@@ -2842,7 +2910,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 24
+        local DB_VERSION = 28
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -3074,7 +3142,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
                         spellID = 111400,
                         key = key,
                         name = "Burning Rush",
-                        missingText = "",
+                        overlayText = "",
                         class = "WARLOCK",
                         showWhenPresent = true,
                     }
@@ -3389,6 +3457,78 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
                     end
                 end
             end,
+            [25] = function()
+                db.instanceEntryReminder = nil
+            end,
+            -- [26] Rename missingText → overlayText on saved custom buffs
+            [26] = function()
+                if db.customBuffs then
+                    for _, buff in pairs(db.customBuffs) do
+                        if buff.missingText ~= nil and buff.overlayText == nil then
+                            buff.overlayText = buff.missingText
+                            buff.missingText = nil
+                        end
+                    end
+                end
+            end,
+            -- [27] Per-category glow is now opt-in via useCustomGlow.
+            -- Remove useCustomGlowColor (color swatch is now always active).
+            -- Migrate old per-category glow keys: if a category had any glow overrides,
+            -- enable useCustomGlow and keep the values; otherwise clean up.
+            [27] = function()
+                if db.defaults then
+                    if not db.defaults.useCustomGlowColor then
+                        db.defaults.glowColor = nil
+                    end
+                    db.defaults.useCustomGlowColor = nil
+                end
+                local globalDefaults = db.defaults or {}
+                for _, catSettings in pairs(db.categorySettings or {}) do
+                    catSettings.useCustomGlowColor = nil
+                    -- Check if category had any glow overrides that differ from defaults
+                    local hasOverride = false
+                    if catSettings.glowType ~= nil and catSettings.glowType ~= globalDefaults.glowType then
+                        hasOverride = true
+                    end
+                    if catSettings.glowSize ~= nil and catSettings.glowSize ~= globalDefaults.glowSize then
+                        hasOverride = true
+                    end
+                    if catSettings.glowColor ~= nil then
+                        hasOverride = true
+                    end
+                    if hasOverride then
+                        -- Port old overrides into useCustomGlow system
+                        catSettings.useCustomGlow = true
+                    else
+                        -- No meaningful overrides — clean up stale keys
+                        catSettings.glowType = nil
+                        catSettings.glowSize = nil
+                        catSettings.glowColor = nil
+                    end
+                end
+            end,
+            -- [28] Add arena and bg visibility keys for existing users.
+            -- Derive from their current dungeon setting; arena forced off for consumable.
+            [28] = function()
+                if db.categoryVisibility then
+                    for cat, vis in pairs(db.categoryVisibility) do
+                        if type(vis) == "table" then
+                            -- Add pvp toggle, derive from dungeon setting
+                            if vis.pvp == nil then
+                                vis.pvp = vis.dungeon ~= false
+                            end
+                            -- Add pvpType sub-table for consumable (arena off)
+                            if cat == "consumable" and not vis.pvpType then
+                                vis.pvpType = { arena = false, bg = true }
+                            end
+                            -- Default hideInPvPMatch on for all categories except pet
+                            if vis.hideInPvPMatch == nil then
+                                vis.hideInPvPMatch = cat ~= "pet"
+                            end
+                        end
+                    end
+                end
+            end,
         }
 
         -- Run pending migrations
@@ -3408,11 +3548,6 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
                 )
             end
         end)
-
-        -- Clean up old one-time notice flags
-        db.glowUpdateNoticeShown = nil
-        db.selfClickNoticeShown = nil
-        db.renameNotificationShown = nil
 
         -- Deep copy defaults for non-defaults tables
         DeepCopyDefault(defaults, db)
@@ -3456,9 +3591,12 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
                 local defaultVis = defaults.categoryVisibility[category]
                 db.categoryVisibility[category] = {
                     openWorld = defaultVis and defaultVis.openWorld ~= false,
+                    housing = defaultVis and defaultVis.housing == true,
                     dungeon = defaultVis and defaultVis.dungeon ~= false,
                     scenario = defaultVis and defaultVis.scenario ~= false,
                     raid = defaultVis and defaultVis.raid ~= false,
+                    pvp = defaultVis and defaultVis.pvp ~= false,
+                    hideInPvPMatch = defaultVis and defaultVis.hideInPvPMatch == true,
                 }
             end
         end
@@ -3493,7 +3631,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
 
         local slashInfo = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontDisable")
         slashInfo:SetPoint("TOPLEFT", openBtn, "BOTTOMLEFT", 0, -12)
-        slashInfo:SetText("指令: /br, /br lock, /br unlock, /br test, /br minimap")
+        slashInfo:SetText("可用指令: /br, /br lock, /br unlock, /br test, /br minimap")
 
         local category = Settings.RegisterCanvasLayoutCategory(settingsPanel, settingsPanel.name)
         Settings.RegisterAddOnCategory(category)
@@ -3536,6 +3674,13 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
         inCombat = InCombatLockdown()
         isResting = IsResting()
         BR.BuffState.SetInCombat(inCombat)
+        -- Detect PvP prep phase: in a PvP instance but match not yet started.
+        -- Default is false (restricted), so reloads during active matches stay safe.
+        local _, instType = IsInInstance()
+        local inPvPZone = instType == "pvp" or instType == "arena"
+        local matchState = C_PvP.GetActiveMatchState()
+        local isPrep = matchState ~= Enum.PvPMatchState.Engaged
+        BR.BuffState.SetPvPPrepPhase(inPvPZone and isPrep)
         BR.BuffState.SetInVehicle(UnitInVehicle("player") == true)
         BR.StateHelpers.ScanEatingState()
         ResolveFontPath()
@@ -3556,6 +3701,23 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
         end
         -- Delayed update to catch glow events that fire after reload
         C_Timer.After(0.5, SetDirty)
+        -- Show showOnInstanceEntry buffs briefly when entering a dungeon/raid (not M+)
+        C_Timer.After(1, function()
+            if BR.BuffState.ShouldTriggerInstanceEntry() then
+                if instanceEntryTimer then
+                    instanceEntryTimer:Cancel()
+                end
+                BR.BuffState.SetInstanceEntryState(true)
+                eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+                UpdateDisplay()
+                instanceEntryTimer = C_Timer.NewTimer(30, function()
+                    ClearInstanceEntryState()
+                    UpdateDisplay()
+                end)
+            else
+                ClearInstanceEntryState()
+            end
+        end)
         -- Refresh custom buff icons after spell data is fully loaded (talent-modified icons)
         C_Timer.After(1.5, function()
             for key, def in pairs(BR.profile.customBuffs or {}) do
@@ -3621,6 +3783,12 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
     elseif event == "PLAYER_DIFFICULTY_CHANGED" then
         BR.BuffState.InvalidateContentTypeCache()
         SetDirty()
+    elseif event == "PVP_MATCH_STATE_CHANGED" then
+        local state = C_PvP.GetActiveMatchState()
+        -- Prep phase: anything that isn't Engaged means match isn't active.
+        local isPrep = state ~= Enum.PvPMatchState.Engaged
+        BR.BuffState.SetPvPPrepPhase(isPrep)
+        SetDirty()
     elseif event == "PLAYER_UPDATE_RESTING" then
         isResting = IsResting()
         SetDirty()
@@ -3682,6 +3850,11 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2)
     elseif event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
         if arg1 == "player" then
             BR.BuffState.SetInVehicle(event == "UNIT_ENTERED_VEHICLE")
+            UpdateDisplay()
+        end
+    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+        if SOULWELL_SPELL_IDS[arg3] then
+            ClearInstanceEntryState()
             UpdateDisplay()
         end
     end

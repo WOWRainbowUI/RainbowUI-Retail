@@ -27,13 +27,14 @@ local min = math.min
 ---@field name string
 ---@field class ClassName
 ---@field levelRequired? number
----@field missingText string
+---@field overlayText string
 ---@field groupId? string
 ---@field excludeSpellID? number
 ---@field displayIcon? number
----@field infoTooltip? string
+---@field infoTooltip? TooltipText
 ---@field noExpirationGlow? boolean
 ---@field readyCheckOnly? boolean Only show during ready checks
+---@field showOnInstanceEntry? boolean Also show when entering an instance (not M+)
 ---@field castOnOthers? boolean Buff exists on the target, not the caster (e.g., Soulstone)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 
@@ -42,14 +43,14 @@ local min = math.min
 ---@field key string
 ---@field name string
 ---@field class ClassName
----@field missingText string
+---@field overlayText string
 ---@field groupId? string
 ---@field beneficiaryRole? RoleType
 ---@field excludeSpellID? number
 ---@field displayIcon? number
 ---@field requireSpecId? number
----@field infoTooltip? string
----@field clickMacro? fun(spellID: number): string
+---@field infoTooltip? TooltipText
+---@field clickMacro? fun(spellID: number?): string
 ---@field casterBuffId? number Check this buff on the caster instead of scanning group
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 
@@ -58,12 +59,12 @@ local min = math.min
 ---@field key string
 ---@field name string
 ---@field class? ClassName
----@field missingText string
+---@field overlayText string
 ---@field groupId? string
 ---@field enchantID? number
 ---@field requiresBuffWithEnchant? boolean -- When true, require both enchant AND buff to be present (for Paladin Rites)
 ---@field castSpellID? number           -- Spell ID used for click-to-cast when different from spellID
----@field clickMacro? fun(spellID: number): string -- Macro text override for click-to-cast, receives castable spell ID
+---@field clickMacro? fun(spellID: number?): string -- Macro text override for click-to-cast, receives castable spell ID
 ---@field buffIdOverride? number|number[]
 ---@field requireSpecId? number        -- Only show if player's current spec matches (WoW spec ID)
 ---@field requiresSpellID? number
@@ -71,16 +72,17 @@ local min = math.min
 ---@field displayIcon? number
 ---@field displaySpells? SpellID Spell IDs to show icons for in Options checkbox (subset of spellID)
 ---@field iconByRole? table<RoleType, number>
----@field infoTooltip? string
+---@field infoTooltip? TooltipText
 ---@field customCheck? fun(): boolean?
 ---@field getPetActions? fun(): PetAction[]?  -- Override pet actions (e.g., wrong pet → Felguard only)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
+---@field showOnInstanceEntry? boolean Only show when entering an instance (not M+), skip normal buff checks
 
 ---@class ConsumableBuff
 ---@field spellID? SpellID
 ---@field key string
 ---@field name string
----@field missingText string
+---@field overlayText string
 ---@field groupId? string
 ---@field checkWeaponEnchant? boolean Check if any weapon enchant exists (oils, stones, imbues)
 ---@field checkWeaponEnchantOH? boolean Check if off-hand weapon enchant exists
@@ -90,9 +92,11 @@ local min = math.min
 ---@field displayIcon? number|number[] Icon texture ID(s) to use instead of spell icon
 ---@field itemID? number|number[] Check if player has this item in inventory
 ---@field readyCheckOnly? boolean Only show during ready checks
----@field infoTooltip? string Tooltip text shown on hover (pipe-separated: title|description)
+---@field casterClass? ClassName Require this class in group, but show reminder to everyone
+---@field infoTooltip? TooltipText
 ---@field visibilityCondition? fun(): boolean Custom function that gates visibility (return false to hide)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
+---@field consumableCategory? string Category key in BR.CONSUMABLE_ITEMS for bag scanning (only set when items exist)
 
 ---@class BuffGroup
 ---@field displayName string
@@ -101,7 +105,7 @@ local min = math.min
 ---@field spellID SpellID
 ---@field key string
 ---@field name string
----@field missingText? string
+---@field overlayText? string
 ---@field class? ClassName
 ---@field requireSpecId? number
 ---@field requireSpellKnown? boolean -- Only show if player knows at least one of the tracked spells
@@ -142,7 +146,7 @@ end
 ---@return fun(spellID: number): string
 local function TargetedClickMacro(buffKey)
     return function(spellID)
-        local name = C_Spell.GetSpellName(spellID)
+        local name = BR.GetSpellName(spellID) or ""
         local lastTarget = BR.StateHelpers and BR.StateHelpers.GetLastTarget(buffKey)
         if lastTarget then
             return "/cast [@" .. lastTarget .. ",help,nodead][@mouseover,help,nodead][@target,help,nodead][] " .. name
@@ -218,7 +222,7 @@ BR.BUFF_TABLES = {
             castOnOthers = true,
             noExpirationGlow = true,
             clickMacro = function(spellID)
-                local name = C_Spell.GetSpellName(spellID)
+                local name = BR.GetSpellName(spellID) or ""
                 -- Priority: sticky last target > first living healer > mouseover > target > self
                 local lastTarget = BR.StateHelpers and BR.StateHelpers.GetLastTarget("soulstone")
                 if lastTarget then
@@ -282,7 +286,10 @@ BR.BUFF_TABLES = {
             name = "大地之盾",
             class = "SHAMAN",
             missingText = "沒有\n大地盾",
-            infoTooltip = "可能會顯示額外的圖示|在你施放這個之前，你可能會看到這個和水/閃電之盾提醒。我不知道你是想要自己的大地之盾，還是盟友的大地之盾+自己的水/閃電之盾。",
+            infoTooltip = {
+                title = "可能顯示額外圖示",
+                desc = "可能會顯示額外的圖示|在你施放這個之前，你可能會看到這個和水/閃電之盾提醒。我不知道你是想要自己的大地之盾，還是盟友的大地之盾+自己的水/閃電之盾。",
+            },
             clickMacro = TargetedClickMacro("earthShieldOthers"),
         },
         {
@@ -325,7 +332,25 @@ BR.BUFF_TABLES = {
             key = "arcaneFamiliar",
             name = "秘法魔寵",
             class = "MAGE",
-            missingText = "沒有\n魔寵",
+            overlayText = "沒有\n魔寵",
+        },
+        -- Soulwell reminder (warlock only, instance entry only)
+        {
+            spellID = 29893, -- Create Soulwell (used for icon resolution)
+            castSpellID = 29893, -- Click-to-cast: Create Soulwell
+            key = "soulwell",
+            name = "置放靈魂之井",
+            class = "WARLOCK",
+            overlayText = "置放\n靈魂井",
+            showOnInstanceEntry = true, -- Only shows on instance entry
+            infoTooltip = {
+                title = "Instance Entry Reminder",
+                desc = "Briefly shown when entering a dungeon as a reminder to drop a Soulwell. Dismissed after casting or after 30 seconds.",
+            },
+            customCheck = function()
+                local info = C_Spell.GetSpellCooldown(29893)
+                return not info or info.duration == 0
+            end,
         },
         -- Warlock Grimoire of Sacrifice
         {
@@ -349,7 +374,7 @@ BR.BUFF_TABLES = {
             buffIdOverride = 433584, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
             clickMacro = function(spellID)
-                return "/cast " .. C_Spell.GetSpellName(spellID) .. "\n/use 16"
+                return "/cast " .. (BR.GetSpellName(spellID) or "") .. "\n/use 16"
             end,
             groupId = "paladinRites",
         },
@@ -363,7 +388,7 @@ BR.BUFF_TABLES = {
             buffIdOverride = 433550, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
             clickMacro = function(spellID)
-                return "/cast " .. C_Spell.GetSpellName(spellID) .. "\n/use 16"
+                return "/cast " .. (BR.GetSpellName(spellID) or "") .. "\n/use 16"
             end,
             groupId = "paladinRites",
         },
@@ -462,7 +487,7 @@ BR.BUFF_TABLES = {
                 end
 
                 if castID then
-                    return "/cast " .. C_Spell.GetSpellName(castID)
+                    return "/cast " .. (BR.GetSpellName(castID) or "")
                 end
                 return ""
             end,
@@ -647,11 +672,12 @@ BR.BUFF_TABLES = {
                 1264426, -- Void-Touched Augment Rune (Midnight)
                 347901, -- Veiled Augment Rune (Shadowlands) - legacy
             },
-            displaySpells = { 1234969, 1242347, 453250, 393438 }, -- Show rune icons in priority order
+            displaySpells = { 1264426, 1234969 }, -- Void-Touched (Midnight), Ethereal (TWW permanent)
             key = "rune",
             name = "符文",
             missingText = "沒有\n符文",
             groupId = "rune",
+            consumableCategory = "rune",
         },
         -- Flasks (The War Within + Midnight)
         {
@@ -670,17 +696,18 @@ BR.BUFF_TABLES = {
                 1239355, -- Vicious Thalassian Flask of Honor
             },
             displaySpells = {
-                -- Show only TWW flask icons in UI
-                432021, -- Flask of Alchemical Chaos
-                431971, -- Flask of Tempered Aggression
-                431972, -- Flask of Tempered Swiftness
-                431973, -- Flask of Tempered Versatility
-                431974, -- Flask of Tempered Mastery
+                -- Show Midnight flask icons in UI
+                1235111, -- Flask of the Shattered Sun (Critical Strike)
+                1235110, -- Flask of the Blood Knights (Haste)
+                1235108, -- Flask of the Magisters (Mastery)
+                1235057, -- Flask of Thalassian Resistance (Versatility)
+                1239355, -- Vicious Thalassian Flask of Honor
             },
             key = "flask",
             name = "精鍊",
             missingText = "沒有\n精鍊",
             groupId = "flask",
+            consumableCategory = "flask",
         },
         -- Food (all expansions - detected by icon ID)
         {
@@ -689,6 +716,7 @@ BR.BUFF_TABLES = {
             name = "食物",
             missingText = "沒有\n食物",
             groupId = "food",
+            consumableCategory = "food",
             displayIcon = 136000,
         },
         -- Delve Food (only when inside a delve with Brann or Valeera)
@@ -699,7 +727,10 @@ BR.BUFF_TABLES = {
             missingText = "沒有\n食物",
             groupId = "delveFood",
             noExpirationGlow = true, -- 10-min duration makes standard thresholds meaningless
-            infoTooltip = "只限探究|只有當布萊恩或瓦莉拉在你的隊伍中時才會在探索內顯示。\n\n此增益效果的過期發光被禁用，因為其短暫的10分鐘持續時間會導致它始終發光。",
+            infoTooltip = {
+                title = "只限探究",
+                desc = "只限探究|只有當布萊恩或瓦莉拉在你的隊伍中時才會在探索內顯示。\n\n此增益效果的過期發光被禁用，因為其短暫的10分鐘持續時間會導致它始終發光。",
+            },
             visibilityCondition = BR.IsInDelve,
         },
         -- Weapon Buffs (oils, stones - but not for classes with imbues)
@@ -709,7 +740,8 @@ BR.BUFF_TABLES = {
             name = "武器",
             missingText = "沒有\n武器\n增益",
             groupId = "weaponBuff",
-            displayIcon = { 609892, 3622195, 3622196 }, -- Oil, Whetstone, Weightstone/Razorstone
+            displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
+            consumableCategory = "weapon",
             excludeIfSpellKnown = {
                 -- Shaman imbues
                 382021, -- Earthliving Weapon
@@ -727,7 +759,8 @@ BR.BUFF_TABLES = {
             name = "武器(副手)",
             missingText = "沒有\n武器\n增益",
             groupId = "weaponBuff",
-            displayIcon = { 609892, 3622195, 3622196 }, -- Oil, Whetstone, Weightstone/Razorstone
+            displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
+            consumableCategory = "weapon",
             excludeIfSpellKnown = {
                 -- Shaman imbues
                 382021, -- Earthliving Weapon
@@ -741,10 +774,10 @@ BR.BUFF_TABLES = {
                 return BR.BuffState.HasOffHandWeapon()
             end,
         },
-        -- Healthstone (ready check only - checks inventory)
+        -- Healthstone (shows on ready check - checks inventory)
         {
             itemID = { 5512, 224464 }, -- Healthstone, Demonic Healthstone
-            castSpellID = 298393, -- Create Soulwell
+            castSpellID = 29893, -- Create Soulwell
             key = "healthstone",
             name = "治療石",
             class = "WARLOCK",
@@ -752,9 +785,23 @@ BR.BUFF_TABLES = {
             groupId = "healthstone",
             displayIcon = 538745, -- Healthstone icon
             readyCheckOnly = true,
+            clickMacro = function()
+                local spellID = (GetNumGroupMembers() > 0 and IsInInstance()) and 29893 or 6201
+                local name = BR.GetSpellName(spellID)
+                return "/cast " .. (name or "")
+            end,
         },
     },
 }
+
+-- Derive buff key → consumable category mapping from data
+local buffKeyToCategory = {}
+for _, buff in ipairs(BR.BUFF_TABLES.consumable) do
+    if buff.consumableCategory then
+        buffKeyToCategory[buff.key] = buff.consumableCategory
+    end
+end
+BR.BUFF_KEY_TO_CATEGORY = buffKeyToCategory
 
 ---@type table<string, BuffGroup>
 BR.BuffGroups = {
@@ -772,7 +819,7 @@ BR.BuffGroups = {
     healthstone = { displayName = "治療石!" },
 }
 
--- Classes that benefit from each buff (BETA: class-level only, not spec-aware)
+-- Classes that benefit from each buff
 -- nil = everyone benefits, otherwise only listed classes are counted
 BR.BuffBeneficiaries = {
     intellect = {

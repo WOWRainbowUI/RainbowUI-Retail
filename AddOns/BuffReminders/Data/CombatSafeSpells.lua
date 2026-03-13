@@ -7,7 +7,7 @@ local _, BR = ...
 --
 -- IMPORTANT: Boss encounters (ENCOUNTER_START) restrict the aura API BEFORE the player
 -- enters combat (InCombatLockdown). A spell that returns nil during an encounter but
--- before combat will cause a brief false "missing" flash if not handled correctly.
+-- before combat will cause a brief false "buff missing" flash if not handled correctly.
 -- State.lua uses inCombat (set by Display, covers encounters too) + M+ difficulty to gate queries.
 --
 -- Source: Blizzard's UnitAuraBySpell combat whitelist (confirmed via in-game testing).

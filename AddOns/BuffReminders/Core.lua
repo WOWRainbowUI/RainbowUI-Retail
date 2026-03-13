@@ -35,12 +35,19 @@ local _, BR = ...
 ---@field delves? boolean
 ---@field others? boolean
 
+---@class PvPType
+---@field arena? boolean
+---@field bg? boolean
+
 ---@class ContentVisibility
 ---@field openWorld boolean
 ---@field dungeon boolean
 ---@field scenario boolean
 ---@field raid boolean
 ---@field housing boolean
+---@field pvp boolean
+---@field hideInPvPMatch? boolean
+---@field pvpType? PvPType
 ---@field scenarioDifficulty? ScenarioDifficulty
 ---@field dungeonDifficulty? DungeonDifficulty
 ---@field raidDifficulty? RaidDifficulty
@@ -128,10 +135,6 @@ local CategorySettingKeys = {
     iconAlpha = "VisualsRefresh",
     textAlpha = "VisualsRefresh",
     textColor = "VisualsRefresh",
-    glowType = "VisualsRefresh",
-    glowColor = "VisualsRefresh",
-    useCustomGlowColor = "VisualsRefresh",
-    glowSize = "VisualsRefresh",
     showExpirationGlow = "DisplayRefresh",
     expirationThreshold = "DisplayRefresh",
     spacing = "LayoutRefresh",
@@ -145,6 +148,22 @@ local CategorySettingKeys = {
     showText = "VisualsRefresh",
     -- Toggles
     useCustomAppearance = "VisualsRefresh",
+    useCustomGlow = "VisualsRefresh",
+    -- Per-category glow style overrides
+    glowType = "VisualsRefresh",
+    glowColor = "VisualsRefresh",
+    glowSize = "VisualsRefresh",
+    glowPixelLines = "VisualsRefresh",
+    glowPixelFrequency = "VisualsRefresh",
+    glowPixelLength = "VisualsRefresh",
+    glowAutocastParticles = "VisualsRefresh",
+    glowAutocastFrequency = "VisualsRefresh",
+    glowAutocastScale = "VisualsRefresh",
+    glowBorderFrequency = "VisualsRefresh",
+    glowProcDuration = "VisualsRefresh",
+    glowProcStartAnim = "VisualsRefresh",
+    glowXOffset = "VisualsRefresh",
+    glowYOffset = "VisualsRefresh",
     split = "FramesReparent",
     clickable = nil, -- No auto-refresh, handled manually via UpdateClickOverlays
     clickableHighlight = nil, -- No auto-refresh, handled manually via UpdateClickOverlays
@@ -169,8 +188,19 @@ local DefaultSettingKeys = {
     expirationThreshold = "DisplayRefresh",
     glowType = "VisualsRefresh",
     glowColor = "VisualsRefresh",
-    useCustomGlowColor = "VisualsRefresh",
     glowSize = "VisualsRefresh",
+    -- Advanced glow params (global-only)
+    glowPixelLines = "VisualsRefresh",
+    glowPixelFrequency = "VisualsRefresh",
+    glowPixelLength = "VisualsRefresh",
+    glowAutocastParticles = "VisualsRefresh",
+    glowAutocastFrequency = "VisualsRefresh",
+    glowAutocastScale = "VisualsRefresh",
+    glowBorderFrequency = "VisualsRefresh",
+    glowProcDuration = "VisualsRefresh",
+    glowProcStartAnim = "VisualsRefresh",
+    glowXOffset = "VisualsRefresh",
+    glowYOffset = "VisualsRefresh",
     showConsumablesWithoutItems = "DisplayRefresh",
     delveFoodOnly = "DisplayRefresh",
     -- Consumable display mode
@@ -282,10 +312,6 @@ local function ValidatePath(segments)
                 "iconAlpha",
                 "textAlpha",
                 "textColor",
-                "glowType",
-                "glowColor",
-                "useCustomGlowColor",
-                "glowSize",
                 "showExpirationGlow",
                 "expirationThreshold",
                 "spacing",
@@ -294,6 +320,22 @@ local function ValidatePath(segments)
                 "buffTextSize",
                 "showText",
                 "useCustomAppearance",
+                "useCustomGlow",
+                "glowType",
+                "glowColor",
+                "glowSize",
+                "glowPixelLines",
+                "glowPixelFrequency",
+                "glowPixelLength",
+                "glowAutocastParticles",
+                "glowAutocastFrequency",
+                "glowAutocastScale",
+                "glowBorderFrequency",
+                "glowProcDuration",
+                "glowProcStartAnim",
+                "glowXOffset",
+                "glowYOffset",
+                "priority",
                 "split",
                 "clickable",
                 "clickableHighlight",
@@ -516,10 +558,24 @@ local AppearanceKeys = {
     borderSize = true,
     showExpirationGlow = true,
     expirationThreshold = true,
+}
+
+-- Keys that are glow-style-related (inherit from defaults when useCustomGlow is false)
+local GlowKeys = {
     glowType = true,
     glowColor = true,
-    useCustomGlowColor = true,
     glowSize = true,
+    glowPixelLines = true,
+    glowPixelFrequency = true,
+    glowPixelLength = true,
+    glowAutocastParticles = true,
+    glowAutocastFrequency = true,
+    glowAutocastScale = true,
+    glowBorderFrequency = true,
+    glowProcDuration = true,
+    glowProcStartAnim = true,
+    glowXOffset = true,
+    glowYOffset = true,
 }
 
 ---Get a category setting with inheritance from defaults
@@ -548,6 +604,14 @@ function BR.Config.GetCategorySetting(category, key)
         return catSettings[key]
     end
 
+    -- Glow style keys: inherit from defaults unless useCustomGlow is true
+    if GlowKeys[key] then
+        if not catSettings.useCustomGlow then
+            return db.defaults and db.defaults[key]
+        end
+        return catSettings[key]
+    end
+
     -- Non-appearance keys: use category value if set, otherwise fall back to defaults
     local value = catSettings[key]
     if value ~= nil then
@@ -565,6 +629,17 @@ function BR.Config.HasCustomAppearance(category)
         return false
     end
     return db.categorySettings[category].useCustomAppearance == true
+end
+
+---Check if a category has custom glow style enabled
+---@param category string
+---@return boolean
+function BR.Config.HasCustomGlow(category)
+    local db = BR.profile
+    if not db or not db.categorySettings or not db.categorySettings[category] then
+        return false
+    end
+    return db.categorySettings[category].useCustomGlow == true
 end
 
 -- ============================================================================
@@ -672,6 +747,26 @@ for token, classID in pairs(CLASS_IDS) do
         table.insert(opts, spec)
     end
     BR.CLASS_SPEC_OPTIONS[token] = opts
+end
+
+-- ============================================================================
+-- SPELL NAME CACHE
+-- ============================================================================
+-- Spell names are immutable for a given spellID within a session.
+-- Cache them to avoid repeated C_Spell.GetSpellName API calls.
+
+local spellNameCache = {}
+
+---Get spell name with caching (immutable per session)
+---@param spellID number
+---@return string?
+function BR.GetSpellName(spellID)
+    local name = spellNameCache[spellID]
+    if name == nil then
+        name = C_Spell.GetSpellName(spellID) or false
+        spellNameCache[spellID] = name
+    end
+    return name or nil
 end
 
 ---Create a buff icon texture with standard formatting
