@@ -1,7 +1,6 @@
 
 local _G = _G
 local type, table, next, tostring, tonumber, print = type, table, next, tostring, tonumber, print
-local wipe = table.wipe
 local GetAddOnMetadata = C_AddOns.GetAddOnMetadata
 local DisableAddOn = C_AddOns.DisableAddOn
 local GetAddOnEnableState = C_AddOns.GetAddOnEnableState
@@ -118,7 +117,7 @@ local function fetchFromDatabase(database, target)
 	for i, err in next, database do
 		if err.message == target then
 			-- This error already exists
-			return table.remove(database, i)
+			return err, i
 		end
 	end
 end
@@ -164,10 +163,10 @@ end
 
 local grabError
 do
-	local GetErrorData
+	local GetErrorStack
 	do
-		local GetCallstackHeight, GetErrorCallstackHeight, debugstack, debuglocals = GetCallstackHeight, GetErrorCallstackHeight, debugstack, debuglocals
-		function GetErrorData() -- This code is lifted from Blizzard's error handler, and adapted to compensate for GetErrorCallstackHeight sometimes being nil
+		local GetCallstackHeight, GetErrorCallstackHeight, debugstack = GetCallstackHeight, GetErrorCallstackHeight, debugstack
+		function GetErrorStack() -- This code is lifted from Blizzard's error handler, and adapted to compensate for GetErrorCallstackHeight sometimes being nil
 			local currentStackHeight = GetCallstackHeight()
 			local errorCallStackHeight = GetErrorCallstackHeight()
 			if errorCallStackHeight then
@@ -175,18 +174,24 @@ do
 				local debugStackLevel = currentStackHeight - errorStackOffset
 
 				local stack = debugstack(debugStackLevel)
-				local locals = debuglocals(debugStackLevel)
-				return stack, locals
+				return stack, debugStackLevel
 			else
 				local stack = debugstack(3)
-				local locals = debuglocals(3)
-				return stack, locals
+				return stack, 3
 			end
+		end
+	end
+	local GetErrorLocals
+	do
+		local debuglocals = debuglocals
+		function GetErrorLocals(level)
+			local locals = debuglocals(level)
+			return locals
 		end
 	end
 
 	local msgsAllowed = BUGGRABBER_ERRORS_PER_SEC_BEFORE_THROTTLE
-	local GetTime, date = GetTime, date
+	local GetTime, time = GetTime, time
 	local msgsAllowedLastTime = GetTime()
 	local lastWarningTime = 0
 	local issecretvalue = issecretvalue or function() return false end
@@ -221,11 +226,11 @@ do
 
 		-- Insert the error into the correct database if it's not there
 		-- already. If it is, just increment the counter.
-		local errorObject
+		local errorObject, positionInDatabase
 		if db then
-			errorObject = fetchFromDatabase(db, errorMessage)
+			errorObject, positionInDatabase = fetchFromDatabase(db, errorMessage)
 		else
-			errorObject = fetchFromDatabase(loadErrors, errorMessage)
+			errorObject, positionInDatabase = fetchFromDatabase(loadErrors, errorMessage)
 		end
 
 		if not errorObject then -- New error
@@ -234,39 +239,61 @@ do
 				errorObject = {
 					message = errorMessage,
 					session = addon:GetSessionId(),
-					time = date("%Y/%m/%d %H:%M:%S"),
+					time = time(),
 					counter = 1,
 				}
+				addon:StoreError(errorObject)
 			else
-				local stack, locals = GetErrorData()
 				errorObject = {
 					message = errorMessage,
-					stack = stack or "Debugstack was nil.",
-					locals = locals or "Debuglocals was nil.",
 					session = addon:GetSessionId(),
-					time = date("%Y/%m/%d %H:%M:%S"),
+					time = time(),
 					counter = 1,
 				}
+				addon:StoreError(errorObject) -- Always store the error before checking stack/locals incase something goes wrong whilst calling them
+				local stack, level = GetErrorStack()
+				errorObject.stack = stack or "Debugstack was nil."
+				local locals = GetErrorLocals(level)
+				errorObject.locals = locals or "Debuglocals was nil."
 			end
 		else -- Old error
+			errorObject.counter = errorObject.counter + 1
 			local session = addon:GetSessionId()
 			if errorObject.session ~= session then -- Error from a different session, update it
+				-- Do not re-arrange this error in the DB unless it's from an older session
+				table.remove(db or loadErrors, positionInDatabase)
+				addon:StoreError(errorObject)
+				errorObject.time = time()
+
+				errorObject.session = session
 				if not isSimple then
-					local stack, locals = GetErrorData()
+					local stack, level = GetErrorStack()
 					errorObject.stack = stack or "Debugstack was nil."
+					local locals = GetErrorLocals(level)
 					errorObject.locals = locals or "Debuglocals was nil."
 				end
-				errorObject.session = session
+			else
+				local curTime = time()
+				local errorTime = errorObject.time
+				errorObject.time = curTime
+				-- Do not re-arrange this error in the DB unless 10 seconds have elapsed since the last time the error occured (timer will reset if the error is spamming)
+				if curTime - errorTime > 10 then
+					table.remove(db or loadErrors, positionInDatabase)
+					addon:StoreError(errorObject)
+				end
+
+				if not isSimple and curTime - errorTime > 120 then -- More than 2 minutes, update the stack again
+					local stack, level = GetErrorStack()
+					errorObject.stack = stack or "Debugstack was nil."
+					local locals = GetErrorLocals(level)
+					errorObject.locals = locals or "Debuglocals was nil."
+				end
 			end
-			errorObject.time = date("%Y/%m/%d %H:%M:%S")
-			errorObject.counter = errorObject.counter + 1
 		end
 
 		if not isBugGrabbedRegistered then
 			print(L.ERROR_DETECTED:format(addon:GetChatLink(errorObject)))
 		end
-
-		addon:StoreError(errorObject)
 
 		triggerEvent("BugGrabber_BugGrabbed", errorObject)
 	end
@@ -318,7 +345,7 @@ function addon:GetErrorByID(tableId)
 end
 
 function addon:GetErrorID(errorObject) return tostring(errorObject):sub(8) end
-function addon:Reset() if BugGrabberDB then wipe(BugGrabberDB.errors) end end
+function addon:Reset() if BugGrabberDB then db = {} BugGrabberDB.errors = db BugGrabberDB.session = 1 end end
 function addon:GetDB() return db or loadErrors end
 function addon:GetSessionId() return BugGrabberDB and BugGrabberDB.session or -1 end
 function addon:IsPaused() return paused end
@@ -355,10 +382,15 @@ local function initDatabase()
 	-- insert the relevant ones into our SV DB.
 	for _, err in next, loadErrors do
 		err.session = sv.session -- Update the session ID directly
-		local exists = fetchFromDatabase(db, err.message)
-		addon:StoreError(exists or err)
+		local exists, positionInDatabase = fetchFromDatabase(db, err.message)
+		if exists then
+			table.remove(db, positionInDatabase)
+			addon:StoreError(exists)
+		else
+			addon:StoreError(err)
+		end
 	end
-	wipe(loadErrors)
+	loadErrors = nil
 
 	if type(sv.lastSanitation) ~= "number" or sv.lastSanitation ~= 3 then
 		for i, v in next, db do
