@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2656, "DBM-Party-Midnight", 1, 1299)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260303042556")
+mod:SetRevision("20260312052448")
 mod:SetCreatureID(231626)--Kalis flagged as main boss, Latch (231629) is secondary
 mod:SetEncounterID(3057)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -18,6 +18,7 @@ mod:RegisterCombat("combat")
 --Custom Sounds on cast/cooldown expiring
 mod:AddCustomAlertSoundOption(472888, true, 1)--Bone Hack
 mod:AddCustomAlertSoundOption(472736, true, 2)--Debilitating shriek
+mod:AddCustomAlertSoundOption(474105, true, 2)--Curse of Darkness
 --Custom timer colors, countdowns, and disables
 mod:AddCustomTimerOptions(472888, true, 2, 0)--Bone Hack
 mod:AddCustomTimerOptions(474105, true, 1, 0)--Curse of Darkness
@@ -35,6 +36,7 @@ function mod:OnLimitedCombatStart()
 		self:EnableAlertOptions(472888, 25, "defensive", 2)
 	end
 	self:EnableAlertOptions(472736, 27, "aesoon", 2)
+	self:EnableAlertOptions(474105, 26, "mobsoon", 2)
 
 	self:EnableTimelineOptions(472888, 25)
 	self:EnableTimelineOptions(474105, 26)
@@ -44,6 +46,6 @@ function mod:OnLimitedCombatStart()
 
 	self:EnablePrivateAuraSound({1253834,1215803}, "justrun", 2)
 	self:EnablePrivateAuraSound(472793, "behindboss", 2)
-	self:EnablePrivateAuraSound(474129, "targetyou", 2)
+	self:EnablePrivateAuraSound(474129, "poolyou", 18)
 	self:EnablePrivateAuraSound(472777, "watchfeet", 8)
 end

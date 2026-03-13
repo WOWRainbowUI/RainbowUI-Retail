@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2680, "DBM-Party-Midnight", 2, 1304)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260303042556")
+mod:SetRevision("20260312052448")
 mod:SetCreatureID(234649)
 mod:SetEncounterID(3102)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -15,7 +15,6 @@ mod:RegisterCombat("combat")
 
 --)
 
---NOTE, https://www.wowhead.com/spell=1218465/server and https://www.wowhead.com/spell=1218466/cleaner need to be added to trashmod somehow
 --Custon Sounds on cast/cooldown expiring
 mod:AddCustomAlertSoundOption(474765, true, 2)--Same Day Delivery
 mod:AddCustomAlertSoundOption(474478, true, 2)--Killing Spree

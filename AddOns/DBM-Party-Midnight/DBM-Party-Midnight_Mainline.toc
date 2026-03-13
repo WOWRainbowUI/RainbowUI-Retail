@@ -27,9 +27,9 @@
 ## X-DBM-Mod-MinExpansion: 11
 ## X-Curse-Project-ID: 314994
 ## X-Wago-ID: xZKxZENk
-## Version: r236
+## Version: r237
 
-# localization.en.lua
+localization.en.lua
 
 WindrunnerSpire\Emberdawn.lua
 WindrunnerSpire\DerelictDuo.lua
@@ -40,6 +40,7 @@ MurderRow\KystiaManaheart.lua
 MurderRow\ZaenBladesorrow.lua
 MurderRow\XathuuxtheAnnihilator.lua
 MurderRow\LithielCinderfury.lua
+MurderRow\MurderRowTrash.lua
 
 MagistersTerrace\ArcanotronCustos.lua
 MagistersTerrace\SeranelSunlash.lua
