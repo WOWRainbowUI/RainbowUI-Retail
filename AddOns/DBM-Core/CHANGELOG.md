@@ -1,33 +1,41 @@
 # DBM - Core
 
-## [12.0.29](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.29) (2026-03-06)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.28...12.0.29) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.0.30](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.30) (2026-03-12)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.29...12.0.30) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
 - prep new tag  
-- Update translations (#1946)  
+- missed one  
+- update available media  
+- Split addon comms code into a submodule (#1963)  
+    * Split addon comms code out of core and into a sub module to further reduce main core file bloat and make another function of addon easy to find and follow.  
+- Modulize User Timers (#1960)  
+    * Split Pull, Break, and User / Pizza timers into their own sub module and further reduce clutter in DBM-Core  
+- Update koKR (#1957)  
+    * Update koKR  
+- Update translations (#1956)  
+    * Update translations  
+    * Update translations  
+    ---------  
     Co-authored-by: anon1231823 <anon1231823@users.noreply.github.com>  
--  - Improve matches phrasing for single search results  
-     - reordered all localization keys across all of GUI to have matched ordering  
-     - Added placeholder untranslated strings in all non english localizations that were missing (they need translating)  
-     - Unified tabbed whitespacing  
-- hide a missed UI option that doesn't do anything on retail  
-- use end color rather than start color  
-- Localize "matches"  
-- Update localization.ru.lua (#1940)  
-- Update translations (#1941)  
-    * Update Core translation strings  
-- Add GUI search (#1943)  
-    * Added ability to search DBM GUI for specific text/options.  
-- Cleaner fix.  
-- Define tools tabl like this, so it can be exposed easier.  
-- move tab more  
-- fix rest of name  
-- fix name  
-- prep scenario tab  
-- Change core to always set bar color even if bar is "disabled" since the disable toggle doesnt actually work with current api yet (it will work with hard coded timers though but most dungeon bosses don't need those atm)  
-- fix bug with version 19 voice pack sounds not playing  
-- don't fire an unessesary callback on classic  
-- fix eyesore  
-- add callbacks for when DBM is gonna ignore blizzard api  
-- update VP sounds  
-- bump alpha  
+- remove duplicate callback and fix nameplate using deprecated callback still  
+- Update localization.ru.lua (#1955)  
+- Slight tweaks  
+- Re-enable world buffs in season of discovery. since it's a dead game now, no reason to restrict it. and if users don't want feature it has a toggle.  
+- Initial plan  
+- Add per-bar-type text X/Y offset sliders to bar configuration (#1954)  
+    * Add text offset (X/Y) sliders for small and large bar timers  
+- Add font shadow option to statusbar timer labels (#1953)  
+    * Add FontShadow option to statusbar timer name/timer labels  
+- New bar options (#1949)  
+    Add more bar customizing:  
+     - You can now edit bar background color and transparency  
+     - You can now enable bar border and set color and pixel size  
+- Update koKR (#1948)  
+    * Update koKR  
+- Update localization.ru.lua (#1947)  
+    * Update localization.ru.lua  
+    * Update localization.ru.lua  
+- add new string  
+- fix bad copy/paste  
+- Update voice pack list.  
+    added first two voidspire boss mods with support for blizzard api (hardcode will come later with live logs)  
