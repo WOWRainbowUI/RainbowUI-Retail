@@ -31,7 +31,7 @@ local _, BR = ...
 ---@field get? fun(): boolean
 ---@field enabled? fun(): boolean
 ---@field onChange fun(checked: boolean)
----@field tooltip? string|table
+---@field tooltip? TooltipText
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local floor, max, min = math.floor, math.max, math.min
@@ -45,7 +45,7 @@ local RefreshableComponents = BR.RefreshableComponents
 -- TOOLTIP UTILITIES
 -- ============================================================================
 
----Show a tooltip on a widget (title in gold, optional description in white)
+---Show a tooltip on a widget (title in white, optional description in grey)
 ---@param owner table Frame that owns the tooltip
 ---@param title string Tooltip title
 ---@param desc? string Optional description line
@@ -105,7 +105,7 @@ local ButtonColors = {
 ---@param parent Frame
 ---@param text string
 ---@param onClick function
----@param tooltip? {title: string, desc?: string} Optional tooltip configuration
+---@param tooltip? TooltipText Optional tooltip configuration
 ---@return table
 function BR.CreateButton(parent, text, onClick, tooltip)
     local colors = ButtonColors
@@ -120,7 +120,7 @@ function BR.CreateButton(parent, text, onClick, tooltip)
     btn:SetBackdropBorderColor(unpack(colors.border))
 
     -- Text
-    local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     btnText:SetPoint("CENTER", 0, 0)
     btnText:SetText(text)
     btn.text = btnText
@@ -225,7 +225,7 @@ end
 ---@field suffix? string Value suffix (e.g., "px", "%")
 ---@field formatValue? fun(val: number): string Custom value formatter (overrides suffix)
 ---@field onChange fun(val: number) Callback when value changes
----@field tooltip? string|{title: string, desc?: string} Tooltip shown on hover (string or {title, desc} table)
+---@field tooltip? TooltipText Tooltip shown on hover
 ---@field labelWidth? number Width of label (default 70)
 ---@field sliderWidth? number Width of slider (default 100)
 
@@ -329,7 +329,7 @@ function Components.Slider(parent, config)
     holder:SetSize(labelWidth + sliderWidth + 60, 20)
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
@@ -380,7 +380,7 @@ function Components.Slider(parent, config)
     valueBtn:SetPoint("LEFT", sliderFrame, "RIGHT", 6, 0)
     valueBtn:SetSize(40, 16)
 
-    local valueText = valueBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local valueText = valueBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     valueText:SetAllPoints()
     valueText:SetJustifyH("LEFT")
     valueText:SetText(displayText(currentValue))
@@ -490,7 +490,7 @@ function Components.Slider(parent, config)
 
     -- Edit box (hidden by default)
     local editBox = CreateFrame("EditBox", nil, holder)
-    editBox:SetFontObject("GameFontHighlight")
+    editBox:SetFontObject("GameFontHighlightSmall")
     editBox:SetAutoFocus(false)
     editBox:SetNumeric(true)
     local editContainer = StyleEditBox(editBox)
@@ -562,13 +562,8 @@ function Components.Slider(parent, config)
     -- Hover tooltip (on all interactive children, chained with existing scripts)
     local wheelHint = "使用滑鼠滾輪進行調整"
     if config.tooltip then
-        local title, desc
-        if type(config.tooltip) == "table" then
-            title = config.tooltip.title
-            desc = config.tooltip.desc
-        else
-            title = config.tooltip --[[@as string]]
-        end
+        local title = config.tooltip.title
+        local desc = config.tooltip.desc
         local fullDesc = desc and (desc .. "\n\n" .. wheelHint) or wheelHint
         holder:EnableMouse(true)
         local function showTip()
@@ -771,11 +766,11 @@ end
 ---@field checked? boolean Initial checked state (deprecated: prefer get)
 ---@field get? fun(): boolean Getter for initial value and refresh (preferred over checked)
 ---@field enabled? fun(): boolean Getter for enabled state, evaluated on Refresh()
----@field tooltip? string|{title: string, desc: string} Tooltip shown on hover (string or {title, desc} table)
+---@field tooltip? TooltipText Tooltip shown on hover
 ---@field onChange fun(checked: boolean) Callback when checked state changes
 ---@field icons? number[] Optional texture ID(s) to show between checkbox and label
----@field infoTooltip? string Optional info icon tooltip (format: "title|description")
----@field warningTooltip? string Optional warning icon tooltip (format: "title|description")
+---@field infoTooltip? TooltipText Optional info icon tooltip
+---@field warningTooltip? TooltipText Optional warning icon tooltip
 ---@field onRightClick? fun() Optional right-click callback (wired on all interactive children)
 ---@field labelFont? string Font object name for the label (default "GameFontHighlightSmall")
 
@@ -810,7 +805,7 @@ function Components.Checkbox(parent, config)
     end
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", config.labelFont or "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", config.labelFont or "GameFontHighlightSmall")
     label:SetPoint("LEFT", lastAnchor, "RIGHT", ICON_SPACING + 1, 0) -- Slightly more space before text
     label:SetText(config.label)
     holder.label = label
@@ -818,13 +813,8 @@ function Components.Checkbox(parent, config)
 
     -- Hover tooltip (on all interactive children, chained with hover visuals)
     if config.tooltip then
-        local title, desc
-        if type(config.tooltip) == "table" then
-            title = config.tooltip.title
-            desc = config.tooltip.desc
-        else
-            title = config.tooltip --[[@as string]]
-        end
+        local title = config.tooltip.title
+        local desc = config.tooltip.desc
         holder:EnableMouse(true)
         local function showTip()
             ShowTooltip(holder, title, desc, "ANCHOR_TOP")
@@ -839,8 +829,8 @@ function Components.Checkbox(parent, config)
     end
 
     -- Info / warning tooltip icon (optional, shown after label)
-    local tooltipText = config.infoTooltip or config.warningTooltip
-    if tooltipText then
+    local tooltipData = config.infoTooltip or config.warningTooltip
+    if tooltipData then
         local infoIcon = holder:CreateTexture(nil, "ARTWORK")
         infoIcon:SetSize(14, 14)
         infoIcon:SetPoint("LEFT", label, "RIGHT", 4, 0)
@@ -854,11 +844,7 @@ function Components.Checkbox(parent, config)
         infoBtn:SetSize(14, 14)
         infoBtn:SetPoint("CENTER", infoIcon, "CENTER", 0, 0)
 
-        local infoTitle, infoDesc = tooltipText:match("^([^|]+)|(.+)$")
-        if not infoTitle then
-            infoTitle = tooltipText
-        end
-        SetupTooltip(infoBtn, infoTitle, infoDesc)
+        SetupTooltip(infoBtn, tooltipData.title, tooltipData.desc)
     end
 
     -- Right-click callback (wired on all interactive children)
@@ -1077,7 +1063,7 @@ function Components.Toggle(parent, config)
     thumb:SetColorTexture(1, 1, 1, 1)
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("LEFT", track, "RIGHT", 6, 0)
     label:SetText(config.label)
     holder.label = label
@@ -1141,13 +1127,8 @@ function Components.Toggle(parent, config)
 
     -- Tooltip support (same pattern as Checkbox)
     if config.tooltip then
-        local title, desc
-        if type(config.tooltip) == "table" then
-            title = config.tooltip.title
-            desc = config.tooltip.desc
-        else
-            title = config.tooltip --[[@as string]]
-        end
+        local title = config.tooltip.title
+        local desc = config.tooltip.desc
         holder:EnableMouse(true)
         local function showTip()
             ShowTooltip(holder, title, desc, "ANCHOR_TOP")
@@ -1258,7 +1239,7 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
         edgeSize = 1,
     })
 
-    local buttonText = button:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local buttonText = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     buttonText:SetPoint("LEFT", 8, 0)
     buttonText:SetPoint("RIGHT", -20, 0)
     buttonText:SetJustifyH("LEFT")
@@ -1389,7 +1370,7 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
         check:SetVertexColor(unpack(colors.checkmark))
         check:SetShown(opt.value == currentValue)
 
-        local label = item:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        local label = item:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         label:SetPoint("LEFT", 24, 0)
         label:SetPoint("RIGHT", -8, 0)
         label:SetJustifyH("LEFT")
@@ -1537,7 +1518,7 @@ local function CreateDropdownCore(parent, width, options, initialValue, onChange
                 check2:SetVertexColor(unpack(colors.checkmark))
                 item.check = check2
 
-                local lbl = item:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+                local lbl = item:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                 lbl:SetPoint("LEFT", 24, 0)
                 lbl:SetPoint("RIGHT", -8, 0)
                 lbl:SetJustifyH("LEFT")
@@ -1619,11 +1600,11 @@ function Components.DirectionButtons(parent, config)
     holder:SetSize(labelWidth + width + 10, 26)
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
-    label:SetText(config.label or "方向：")
+    label:SetText(config.label or "方向")
     holder.label = label
 
     -- Initial value
@@ -1669,45 +1650,76 @@ function Components.DirectionButtons(parent, config)
     return holder
 end
 
+---@class ToggleDef
+---@field key string
+---@field label string
+---@field tooltip TooltipText
+---@field color? number[]
+---@field diffDbKey? string
+---@field diffDefs? ToggleDef[]
+
+---@type ToggleDef[]
 local SCENARIO_DIFF_DEFS = {
-    { key = "delves", label = "探", tooltip = "探究" },
-    { key = "others", label = "它", tooltip = "其他場景事件 (托加斯特等等)" },
+    { key = "delves", label = "探", tooltip = { title = "探究" } },
+    { key = "others", label = "它", tooltip = { title = "其他場景事件 (托加斯特等等)" } },
 }
 
+---@type ToggleDef[]
 local DUNGEON_DIFF_DEFS = {
-    { key = "normal", label = "N", tooltip = "普通地下城" },
-    { key = "heroic", label = "H", tooltip = "英雄地下城" },
-    { key = "mythic", label = "M", tooltip = "傳奇地下城" },
-    { key = "mythicPlus", label = "M+", tooltip = "傳奇+鑰石" },
-    { key = "timewalking", label = "時", tooltip = "時光漫遊地下城" },
-    { key = "follower", label = "追", tooltip = "追隨者地下城" },
+    { key = "normal", label = "N", tooltip = { title = "普通地下城" } },
+    { key = "heroic", label = "H", tooltip = { title = "英雄地下城" } },
+    { key = "mythic", label = "M", tooltip = { title = "傳奇地下城" } },
+    { key = "mythicPlus", label = "M+", tooltip = { title = "傳奇+鑰石" } },
+    { key = "timewalking", label = "時", tooltip = { title = "時光漫遊地下城" } },
+    { key = "follower", label = "追", tooltip = { title = "追隨者地下城" } },
 }
 
+---@type ToggleDef[]
 local RAID_DIFF_DEFS = {
-    { key = "lfr", label = "L", tooltip = "隨機團隊" },
-    { key = "normal", label = "N", tooltip = "普通團隊副本" },
-    { key = "heroic", label = "H", tooltip = "英雄團隊副本" },
-    { key = "mythic", label = "M", tooltip = "傳奇團隊副本" },
+    { key = "lfr", label = "L", tooltip = { title = "隨機團隊" } },
+    { key = "normal", label = "N", tooltip = { title = "普通團隊副本" } },
+    { key = "heroic", label = "H", tooltip = { title = "英雄團隊副本" } },
+    { key = "mythic", label = "M", tooltip = { title = "傳奇團隊副本" } },
 }
 
+---@type ToggleDef[]
+local PVP_TYPE_DEFS = {
+    { key = "arena", label = "競", tooltip = { title = "競技場" } },
+    { key = "bg", label = "戰", tooltip = { title = "戰場" } },
+}
+
+---@type ToggleDef[]
 local CONTENT_TOGGLE_DEFS = {
-    { key = "openWorld", label = "世", tooltip = "開放世界" },
-    { key = "housing", label = "家", tooltip = "住家" },
+    { key = "openWorld", label = "世",tooltip = { title = "開放世界" } },
+    { key = "housing", label = "家", tooltip = { title = "住家" } },
     {
         key = "scenario",
         label = "場",
-        tooltip = "場景事件 (探究、托加斯特等等)",
+        tooltip = { title = "場景事件 (探究、托加斯特等等)" },
         diffDbKey = "scenarioDifficulty",
         diffDefs = SCENARIO_DIFF_DEFS,
     },
     {
         key = "dungeon",
         label = "地",
-        tooltip = "地下城 (包含M+)",
+        tooltip = { title = "地下城 (包含M+)" },
         diffDbKey = "dungeonDifficulty",
         diffDefs = DUNGEON_DIFF_DEFS,
     },
-    { key = "raid", label = "團", tooltip = "團隊副本", diffDbKey = "raidDifficulty", diffDefs = RAID_DIFF_DEFS },
+    {
+        key = "raid",
+        label = "團",
+        tooltip = { title = "團隊副本" },
+        diffDbKey = "raidDifficulty",
+        diffDefs = RAID_DIFF_DEFS,
+    },
+    {
+        key = "pvp",
+        label = "P",
+        tooltip = { title = "PvP (競技場與戰場)" },
+        diffDbKey = "pvpType",
+        diffDefs = PVP_TYPE_DEFS,
+    },
 }
 
 -- Lookup: contentKey -> toggle def (for data-driven submenu access)
@@ -1736,9 +1748,17 @@ end
 
 local BAR_H = SEGMENT_H + 2
 
+---@class SegmentedBarConfig
+---@field toggleDefs ToggleDef[]
+---@field segmentWidth? number
+---@field getState fun(key: string): boolean
+---@field getVisualState? fun(key: string): "on"|"partial"|"off"
+---@field setState fun(key: string)
+---@field onChange? fun()
+
 ---Create a generic segmented toggle bar
 ---@param parent table Parent frame
----@param barConfig table { toggleDefs, segmentWidth, getState, setState, onChange }
+---@param barConfig SegmentedBarConfig
 ---@return table container The bar container frame
 ---@return table toggleButtons Array of segment button frames
 local function CreateSegmentedBar(parent, barConfig)
@@ -1767,7 +1787,7 @@ local function CreateSegmentedBar(parent, barConfig)
         local bg = btn:CreateTexture(nil, "BACKGROUND")
         bg:SetAllPoints()
 
-        local btnLabel = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        local btnLabel = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         btnLabel:SetPoint("CENTER", 0, -1)
         btnLabel:SetText(toggle.label)
 
@@ -1807,6 +1827,8 @@ local function CreateSegmentedBar(parent, barConfig)
             end
         end
         btn.UpdateVisual = UpdateToggleVisual
+        btn.bg = bg
+        btn.label = btnLabel
         UpdateToggleVisual()
 
         btn:SetScript("OnClick", function()
@@ -1820,7 +1842,8 @@ local function CreateSegmentedBar(parent, barConfig)
             end
         end)
 
-        SetupTooltip(btn, toggle.tooltip, "點擊切換可見性在 " .. toggle.tooltip:lower(), "ANCHOR_TOP")
+        local tipTitle = toggle.tooltip.title
+        SetupTooltip(btn, tipTitle, "點擊切換可見性在 " .. tipTitle:lower(), "ANCHOR_TOP")
 
         if i < #toggleDefs then
             local divider = container:CreateTexture(nil, "ARTWORK")
@@ -1851,6 +1874,7 @@ Components.CreateSegmentedBar = CreateSegmentedBar
 ---@field store? VisibilityStore Custom data source (overrides category DB access)
 ---@field onChange fun() Callback when visibility changes
 ---@field noAutoRefresh? boolean Skip auto-registration in RefreshableComponents
+---@field disabledSubToggles? table<string, table<string, {tooltip: TooltipText}>> Per-diffDbKey per-subKey overrides: greyed out, unclickable
 
 ---@class VisibilityStore
 ---@field getContent fun(key: string): boolean Whether content type is enabled
@@ -1874,8 +1898,15 @@ local function MakeCategoryStore(category)
                 db.categoryVisibility = {}
             end
             if not db.categoryVisibility[category] then
-                db.categoryVisibility[category] =
-                    { openWorld = true, scenario = true, dungeon = true, raid = true, housing = false }
+                db.categoryVisibility[category] = {
+                    openWorld = true,
+                    scenario = true,
+                    dungeon = true,
+                    raid = true,
+                    housing = false,
+                    pvp = true,
+                    hideInPvPMatch = true,
+                }
             end
             db.categoryVisibility[category][key] = not db.categoryVisibility[category][key]
         end,
@@ -1890,7 +1921,15 @@ local function MakeCategoryStore(category)
                 db.categoryVisibility = {}
             end
             if not db.categoryVisibility[category] then
-                db.categoryVisibility[category] = { openWorld = true, scenario = true, dungeon = true, raid = true }
+                db.categoryVisibility[category] = {
+                    openWorld = true,
+                    scenario = true,
+                    dungeon = true,
+                    raid = true,
+                    housing = false,
+                    pvp = true,
+                    hideInPvPMatch = true,
+                }
             end
             if not db.categoryVisibility[category][dbKey] then
                 db.categoryVisibility[category][dbKey] = {}
@@ -1944,7 +1983,7 @@ function Components.VisibilityToggles(parent, config)
     local refreshAll
 
     -- Content label (LEFT anchor centers vertically in holder)
-    local contentLabel = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local contentLabel = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     contentLabel:SetPoint("LEFT", 0, 0)
     contentLabel:SetText("顯示在：")
 
@@ -1960,7 +1999,7 @@ function Components.VisibilityToggles(parent, config)
             if toggle and toggle.diffDbKey then
                 return getDiffVisualState(key, toggle.diffDbKey, toggle.diffDefs)
             end
-                return store.getContent(key) and "on" or "off"
+            return store.getContent(key) and "on" or "off"
         end,
         setState = function(key)
             store.setContent(key)
@@ -1990,6 +2029,9 @@ function Components.VisibilityToggles(parent, config)
 
     -- Pre-create difficulty bars
     for _, mapping in ipairs(DIFF_MAPPINGS) do
+        -- Resolve disabled sub-toggles before bar creation so setState can reference them
+        local disabledSubs = config.disabledSubToggles and config.disabledSubToggles[mapping.diffDbKey]
+
         local bar, buttons = CreateSegmentedBar(holder, {
             toggleDefs = mapping.diffDefs,
             segmentWidth = DIFF_SEGMENT_W,
@@ -2004,10 +2046,12 @@ function Components.VisibilityToggles(parent, config)
 
                 -- Auto-manage content type toggle
                 if wasEnabled then
-                    -- Turned off: check if ALL are now off -> disable content type
+                    -- Turned off: check if ALL toggleable subs are now off -> disable content type
+                    -- Skip force-disabled keys (e.g. arena for consumables) so they don't
+                    -- cause the parent to auto-disable when the only interactive sub is turned off.
                     local anyStillOn = false
                     for _, def in ipairs(mapping.diffDefs) do
-                        if t[def.key] ~= false then
+                        if not (disabledSubs and disabledSubs[def.key]) and t[def.key] ~= false then
                             anyStillOn = true
                             break
                         end
@@ -2034,6 +2078,23 @@ function Components.VisibilityToggles(parent, config)
         })
         bar:SetPoint("LEFT", expandArrow, "RIGHT", 2, 0)
         bar:Hide()
+        if disabledSubs then
+            for j, subDef in ipairs(mapping.diffDefs) do
+                local disabledInfo = disabledSubs[subDef.key]
+                if disabledInfo then
+                    local subBtn = buttons[j]
+                    subBtn:SetScript("OnClick", function() end)
+                    subBtn.UpdateVisual = function()
+                        subBtn.bg:SetColorTexture(0.08, 0.02, 0.02, 1)
+                        subBtn.label:SetTextColor(0.5, 0.2, 0.2, 1)
+                    end
+                    subBtn.UpdateVisual()
+                    if disabledInfo.tooltip then
+                        SetupTooltip(subBtn, disabledInfo.tooltip.title, disabledInfo.tooltip.desc, "ANCHOR_TOP")
+                    end
+                end
+            end
+        end
 
         for _, btn in ipairs(buttons) do
             allToggleButtons[#allToggleButtons + 1] = btn
@@ -2074,8 +2135,8 @@ function Components.VisibilityToggles(parent, config)
         local toggle = CONTENT_TOGGLE_DEFS[mapping.btnIndex]
         SetupTooltip(
             btn,
-            toggle.tooltip,
-            "點擊來根據 " .. toggle.tooltip:lower() .. " 難度過濾",
+            toggle.tooltip.title,
+            "點擊來根據 " .. toggle.tooltip.title:lower() .. " 難度過濾",
             "ANCHOR_TOP"
         )
     end
@@ -2115,7 +2176,7 @@ end
 ---@field selected? any Initial selected value (deprecated: prefer get)
 ---@field get? fun(): any Getter for initial value and refresh (preferred over selected)
 ---@field enabled? fun(): boolean Getter for enabled state, evaluated on Refresh()
----@field tooltip? string|{title: string, desc?: string} Tooltip on hover
+---@field tooltip? TooltipText Tooltip on hover
 ---@field width? number Dropdown width (default 100)
 ---@field labelWidth? number Label width (default 70)
 ---@field maxItems? number Max visible items before scrolling (nil = no limit)
@@ -2136,7 +2197,7 @@ function Components.Dropdown(parent, config, _)
     holder:SetSize(labelWidth + width + 10, 26)
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
@@ -2170,13 +2231,8 @@ function Components.Dropdown(parent, config, _)
 
     -- Hover tooltip (attached to label only, not the entire holder)
     if config.tooltip then
-        local tipTitle, tipDesc
-        if type(config.tooltip) == "table" then
-            tipTitle = config.tooltip.title
-            tipDesc = config.tooltip.desc
-        else
-            tipTitle = config.tooltip --[[@as string]]
-        end
+        local tipTitle = config.tooltip.title
+        local tipDesc = config.tooltip.desc
         label:EnableMouse(true)
         local function showTip()
             ShowTooltip(label, tipTitle, tipDesc, "ANCHOR_TOP")
@@ -2237,7 +2293,7 @@ function Components.Tab(parent, config)
     tab.bottomLine = bottomLine
 
     -- Text
-    local text = tab:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    local text = tab:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     text:SetPoint("CENTER", 0, 0)
     text:SetText(config.label)
     tab.text = text
@@ -2260,11 +2316,11 @@ function Components.Tab(parent, config)
         if active then
             self.bg:SetColorTexture(0.2, 0.2, 0.2, 0.8)
             self.bottomLine:SetColorTexture(0.8, 0.6, 0, 1)
-            self.text:SetFontObject("GameFontHighlight")
+            self.text:SetFontObject("GameFontHighlightSmall")
         else
             self.bg:SetColorTexture(0.2, 0.2, 0.2, 0)
             self.bottomLine:SetColorTexture(0.6, 0.6, 0.6, 0)
-            self.text:SetFontObject("GameFontNormal")
+            self.text:SetFontObject("GameFontNormalSmall")
         end
     end
 
@@ -2293,7 +2349,7 @@ function Components.TextInput(parent, config)
     holder:SetSize(labelWidth + width + 5, 20)
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
@@ -2302,7 +2358,7 @@ function Components.TextInput(parent, config)
 
     -- Edit box
     local editBox = CreateFrame("EditBox", nil, holder)
-    editBox:SetFontObject("GameFontHighlight")
+    editBox:SetFontObject("GameFontHighlightSmall")
     editBox:SetAutoFocus(false)
     local inputContainer = StyleEditBox(editBox)
     inputContainer:SetSize(width, 18)
@@ -2390,7 +2446,7 @@ function Components.NumericStepper(parent, config)
     holder:SetSize(labelWidth + BTN_SIZE * 2 + VALUE_WIDTH + 16, 20)
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
@@ -2408,7 +2464,7 @@ function Components.NumericStepper(parent, config)
     local valueBtn = CreateFrame("Button", nil, holder)
     valueBtn:SetSize(VALUE_WIDTH, BTN_SIZE)
 
-    local valueText = valueBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local valueText = valueBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     valueText:SetAllPoints()
     valueText:SetJustifyH("CENTER")
 
@@ -2448,7 +2504,7 @@ function Components.NumericStepper(parent, config)
     minusBtn:SetBackdropColor(0.2, 0.2, 0.2, 1)
     minusBtn:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
 
-    local minusLabel = minusBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local minusLabel = minusBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     minusLabel:SetPoint("CENTER", 0, 0)
     minusLabel:SetText("-")
 
@@ -2467,7 +2523,7 @@ function Components.NumericStepper(parent, config)
     plusBtn:SetBackdropColor(0.2, 0.2, 0.2, 1)
     plusBtn:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
 
-    local plusLabel = plusBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local plusLabel = plusBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     plusLabel:SetPoint("CENTER", 0, 0)
     plusLabel:SetText("+")
 
@@ -2500,7 +2556,7 @@ function Components.NumericStepper(parent, config)
 
     -- Edit box (hidden by default, shown on value click)
     local editBox = CreateFrame("EditBox", nil, holder)
-    editBox:SetFontObject("GameFontHighlight")
+    editBox:SetFontObject("GameFontHighlightSmall")
     editBox:SetAutoFocus(false)
     editBox:SetNumeric(true)
     local editContainer = StyleEditBox(editBox)
@@ -2659,7 +2715,7 @@ function Components.ColorSwatch(parent, config)
     holder:SetSize(labelWidth + SWATCH_SIZE + 50, 20)
 
     -- Label
-    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local label = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
@@ -2691,7 +2747,7 @@ function Components.ColorSwatch(parent, config)
     -- Alpha value text (shown when hasOpacity is true)
     local alphaText
     if config.hasOpacity then
-        alphaText = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        alphaText = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         alphaText:SetPoint("LEFT", swatchBtn, "RIGHT", 4, 0)
         alphaText:SetText(floor(currentA * 100) .. "%")
     end
@@ -2927,7 +2983,7 @@ function Components.TextArea(parent, config)
     -- Edit box
     local editBox = CreateFrame("EditBox", nil, scrollFrame)
     editBox:SetMultiLine(true)
-    editBox:SetFontObject("GameFontHighlight")
+    editBox:SetFontObject("GameFontHighlightSmall")
     editBox:SetSize(config.width - 4, config.height)
     editBox:SetAutoFocus(false)
     editBox:SetTextInsets(6, 6, 6, 6)
@@ -3580,7 +3636,7 @@ function Components.Banner(parent, config)
     end
 
     -- Text
-    local text = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    local text = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     text:SetPoint("LEFT", icon, "RIGHT", 6, 0)
     text:SetPoint("RIGHT", -8, 0)
     text:SetJustifyH("LEFT")

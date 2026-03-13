@@ -5,6 +5,7 @@ local _, BR = ...
 -- Food items may use a table with `label` (stat abbreviation) and `hearty` (boolean) fields.
 BR.CONSUMABLE_ITEMS = {
     food = {
+        -- TWW 11.0.0
         [222702] = { label = "低次屬性" }, -- Skewered Fillet
         [222703] = { label = "低次屬性" }, -- Simple Stew
         [222704] = { label = "低次屬性" }, -- Unseasoned Field Steak
@@ -77,16 +78,20 @@ BR.CONSUMABLE_ITEMS = {
         [223967] = { label = "低次屬性" }, -- Protein Slurp
         [223968] = { label = "低次屬性" }, -- Spongey Scramble
         [225592] = { label = "速度" }, -- Exquisitely Eviscerated Muscle
+
+        -- TWW 11.1.0
         [235805] = { label = "高次屬性" }, -- Authentic Undermine Clam Chowder
         [235853] = { label = "高次屬性", hearty = true }, -- Hearty Authentic Undermine Clam Chowder
+
+        -- Midnight 12.0.0
         [242272] = { label = "高次屬性" }, -- Quel'dorei Medley
         [242273] = { label = "高次屬性" }, -- Blooming 大餐
         [242274] = { label = "高次屬性" }, -- Champion's Bento
-        [242275] = { label = "大餐" }, -- Royal Roast
+        [242275] = { label = "高主屬性" }, -- Royal Roast
         [242276] = { label = "臨機" }, -- Braised Blood Hunter
         [242277] = { label = "加速" }, -- Crimson Calamari
         [242278] = { label = "致命" }, -- Tasty Smoked Tetra
-        [242279] = { label = "大餐" }, -- Baked Lucky Loa
+        [242279] = { label = "中主屬性" }, -- Baked Lucky Loa
         [242280] = { label = "臨機" }, -- Buttered Root Crab
         [242281] = { label = "精通" }, -- Glitter Skewers
         [242282] = { label = "加速" }, -- Null and Void Plate
@@ -95,8 +100,8 @@ BR.CONSUMABLE_ITEMS = {
         [242285] = { label = "精通" }, -- Warped Wise Wings
         [242286] = { label = "加速" }, -- Fel-Kissed Filet
         [242287] = { label = "致命" }, -- Arcano Cutlets
-        [242288] = { label = "大餐" }, -- Twilight Angler's Medley
-        [242289] = { label = "大餐" }, -- Spellfire Filet
+        [242288] = { label = "中主屬性" }, -- Twilight Angler's Medley
+        [242289] = { label = "中主屬性" }, -- Spellfire Filet
         [242290] = { label = "致命/臨機" }, -- Wise Tails
         [242291] = { label = "精通/臨機" }, -- Fried Bloomtail
         [242292] = { label = "精通/致命" }, -- Eversong Pudding
@@ -104,22 +109,23 @@ BR.CONSUMABLE_ITEMS = {
         [242294] = { label = "臨機" }, -- Felberry Figs
         [242295] = { label = "加速/致命" }, -- Hearthflame Supper
         [242296] = { label = "精通/加速" }, -- Bloodthistle-wrapped Cutlets
-        [242302] = { label = "大餐" }, -- Bloom Skewers
-        [242303] = { label = "大餐" }, -- Mana-Infused Stew
+        [242302] = { label = "低主屬性" }, -- Bloom Skewers
+        [242303] = { label = "低主屬性" }, -- Mana-Infused Stew
         [242304] = { label = "致命/臨機" }, -- Spiced Biscuits
         [242305] = { label = "精通/臨機" }, -- Silvermoon Standard
         [242306] = { label = "精通/致命" }, -- Forager's Medley
         [242307] = { label = "加速/臨機" }, -- Quick Sandwich
         [242308] = { label = "加速/致命" }, -- Portable Snack
         [242309] = { label = "精通/加速" }, -- Farstrider Rations
+        [242532] = { label = "低主屬性" }, -- [PH] Vegetarian Recipe
         [242744] = { label = "高次屬性", hearty = true }, -- Hearty Quel'dorei Medley
         [242745] = { label = "高次屬性", hearty = true }, -- Hearty Blooming 大餐
         [242746] = { label = "高次屬性", hearty = true }, -- Hearty Champion's Bento
-        [242747] = { label = "大餐", hearty = true }, -- Hearty Royal Roast
+        [242747] = { label = "高主屬性", hearty = true }, -- Hearty Royal Roast
         [242748] = { label = "臨機", hearty = true }, -- Hearty Braised Blood Hunter
         [242749] = { label = "加速", hearty = true }, -- Hearty Crimson Calamari
         [242750] = { label = "致命", hearty = true }, -- Hearty Tasty Smoked Tetra
-        [242751] = { label = "大餐", hearty = true }, -- Hearty Rootland Surprise
+        [242751] = { label = "中主屬性", hearty = true }, -- Hearty Rootland Surprise
         [242752] = { label = "臨機", hearty = true }, -- Hearty Buttered Root Crab
         [242753] = { label = "精通", hearty = true }, -- Hearty Glitter Skewers
         [242754] = { label = "加速", hearty = true }, -- Hearty Null and Void Plate
@@ -128,8 +134,8 @@ BR.CONSUMABLE_ITEMS = {
         [242757] = { label = "精通", hearty = true }, -- Hearty Warped Wise Wings
         [242758] = { label = "加速", hearty = true }, -- Hearty Fel-Kissed Filet
         [242759] = { label = "致命", hearty = true }, -- Hearty Arcano Cutlets
-        [242760] = { label = "大餐", hearty = true }, -- Hearty Twilight Angler's Medley
-        [242761] = { label = "大餐", hearty = true }, -- Hearty Spellfire Filet
+        [242760] = { label = "中主屬性", hearty = true }, -- Hearty Twilight Angler's Medley
+        [242761] = { label = "中主屬性", hearty = true }, -- Hearty Spellfire Filet
         [242762] = { label = "致命/臨機", hearty = true }, -- Hearty Wise Tails
         [242763] = { label = "精通/臨機", hearty = true }, -- Hearty Fried Bloomtail
         [242764] = { label = "精通/致命", hearty = true }, -- Hearty Eversong Pudding
@@ -137,8 +143,8 @@ BR.CONSUMABLE_ITEMS = {
         [242766] = { label = "臨機", hearty = true }, -- Hearty Felberry Figs
         [242767] = { label = "加速/致命", hearty = true }, -- Hearty Hearthflame Supper
         [242768] = { label = "精通/加速", hearty = true }, -- Hearty Bloodthistle-Wrapped Cutlets
-        [242769] = { label = "大餐", hearty = true }, -- Hearty Bloom Skewers
-        [242770] = { label = "大餐", hearty = true }, -- Hearty Mana-Infused Stew
+        [242769] = { label = "低主屬性", hearty = true }, -- Hearty Bloom Skewers
+        [242770] = { label = "低主屬性", hearty = true }, -- Hearty Mana-Infused Stew
         [242771] = { label = "致命/臨機", hearty = true }, -- Hearty Spiced Biscuits
         [242772] = { label = "精通/臨機", hearty = true }, -- Hearty Silvermoon Standard
         [242773] = { label = "精通/致命", hearty = true }, -- Hearty Forager's Medley
@@ -147,7 +153,7 @@ BR.CONSUMABLE_ITEMS = {
         [242776] = { label = "精通/加速", hearty = true }, -- Hearty Farstrider Rations
         [255845] = { label = "大餐" }, -- Silvermoon Parade
         [255846] = { label = "大餐" }, -- Harandar Celebration
-        [255847] = { label = "大餐" }, -- Impossibly Royal Roast
+        [255847] = { label = "高主屬性" }, -- Impossibly Royal Roast
         [255848] = { label = "高次屬性" }, -- Flora Frenzy
         [266985] = { label = "大餐", hearty = true }, -- Hearty Silvermoon Parade
         [266986] = { label = "高次屬性", hearty = true }, -- Hearty Quel'dorei Medley
@@ -155,92 +161,80 @@ BR.CONSUMABLE_ITEMS = {
         [267000] = { label = "高次屬性", hearty = true }, -- Hearty Flora Frenzy
         [268679] = { label = "大餐", hearty = true }, -- Hearty Impossibly Royal Roast
         [268680] = { label = "高次屬性", hearty = true }, -- Hearty Flora Frenzy
-        [242532] = { label = "大餐" }, -- [PH] Vegetarian Recipe
-        [260264] = true, -- Quel'Danas Rations
-        [260275] = true, -- Mukleech Curry
-        [260276] = true, -- Akil'stew
-        [260277] = true, -- Sedge Crawler Gumbo
-        [260286] = true, -- Shrooms and Nectar
-        [260299] = true, -- Roasted Abyssal Eel
+        -- Recovery-only (no Well Fed buff, just health/mana restore). Not tracked, listed here for reference.
+        -- [260264] = true, -- Quel'Danas Rations
+        -- [260275] = true, -- Mukleech Curry
+        -- [260276] = true, -- Akil'stew
+        -- [260277] = true, -- Sedge Crawler Gumbo
+        -- [260286] = true, -- Shrooms and Nectar
+        -- [260299] = true, -- Roasted Abyssal Eel
     },
-    -- Flask priority: cauldron flasks (1) are prioritized over regular flasks (true)
+    -- Flask priority: fleeting/cauldron flasks (1) are prioritized over regular flasks (true)
     flask = {
-        -- Regular TWW flasks
-        [212269] = true,
-        [212270] = true,
-        [212271] = true,
-        [212272] = true,
-        [212273] = true,
-        [212274] = true,
-        [212275] = true,
-        [212276] = true,
-        [212277] = true,
-        [212278] = true,
-        [212279] = true,
-        [212280] = true,
-        [212281] = true,
-        [212282] = true,
-        [212283] = true,
-        [212299] = true,
-        [212300] = true,
-        [212301] = true,
-        -- Cauldron TWW flasks
-        [212725] = 1,
-        [212727] = 1,
-        [212728] = 1,
-        [212729] = 1,
-        [212730] = 1,
-        [212731] = 1,
-        [212732] = 1,
-        [212733] = 1,
-        [212734] = 1,
-        [212735] = 1,
-        [212736] = 1,
-        [212738] = 1,
-        [212739] = 1,
-        [212740] = 1,
-        [212741] = 1,
-        [212745] = 1,
-        [212746] = 1,
-        [212747] = 1,
-        [241320] = true,
-        [241321] = true,
-        [241322] = true,
-        [241323] = true,
-        [241324] = true,
-        [241325] = true,
-        [241326] = true,
-        [241327] = true,
-        [245926] = true,
-        [245927] = true,
-        [245928] = true,
-        [245929] = true,
-        [245930] = true,
-        [245931] = true,
-        [245932] = true,
-        [245933] = true,
-        -- Midnight flasks
-        [236774] = true,
-        [236776] = true,
-        [236780] = true,
-        [236950] = true,
-        [240991] = true,
-        [241310] = true,
-        [241311] = true,
-        [241312] = true,
-        [241313] = true,
-        [241314] = true,
-        [241315] = true,
-        [241316] = true,
-        [241317] = true,
-        [241334] = true,
-        [241335] = true,
+        -- TWW 11.0.0
+        [212269] = true, -- Flask of Tempered Aggression
+        [212270] = true, -- Flask of Tempered Aggression (quality 2)
+        [212271] = true, -- Flask of Tempered Aggression (quality 3)
+        [212272] = true, -- Flask of Tempered Swiftness
+        [212273] = true, -- Flask of Tempered Swiftness (quality 2)
+        [212274] = true, -- Flask of Tempered Swiftness (quality 3)
+        [212275] = true, -- Flask of Tempered Versatility
+        [212276] = true, -- Flask of Tempered Versatility (quality 2)
+        [212277] = true, -- Flask of Tempered Versatility (quality 3)
+        [212278] = true, -- Flask of Tempered Mastery
+        [212279] = true, -- Flask of Tempered Mastery (quality 2)
+        [212280] = true, -- Flask of Tempered Mastery (quality 3)
+        [212281] = true, -- Flask of Alchemical Chaos
+        [212282] = true, -- Flask of Alchemical Chaos (quality 2)
+        [212283] = true, -- Flask of Alchemical Chaos (quality 3)
+        [212299] = true, -- Flask of Saving Graces
+        [212300] = true, -- Flask of Saving Graces (quality 2)
+        [212301] = true, -- Flask of Saving Graces (quality 3)
+        -- TWW 11.0.0 (fleeting/cauldron)
+        [212725] = 1, -- Fleeting Flask of Tempered Aggression
+        [212727] = 1, -- Fleeting Flask of Tempered Aggression (quality 2)
+        [212728] = 1, -- Fleeting Flask of Tempered Aggression (quality 3)
+        [212729] = 1, -- Fleeting Flask of Tempered Swiftness
+        [212730] = 1, -- Fleeting Flask of Tempered Swiftness (quality 2)
+        [212731] = 1, -- Fleeting Flask of Tempered Swiftness (quality 3)
+        [212732] = 1, -- Fleeting Flask of Tempered Versatility
+        [212733] = 1, -- Fleeting Flask of Tempered Versatility (quality 2)
+        [212734] = 1, -- Fleeting Flask of Tempered Versatility (quality 3)
+        [212735] = 1, -- Fleeting Flask of Tempered Mastery
+        [212736] = 1, -- Fleeting Flask of Tempered Mastery (quality 2)
+        [212738] = 1, -- Fleeting Flask of Tempered Mastery (quality 3)
+        [212739] = 1, -- Fleeting Flask of Alchemical Chaos
+        [212740] = 1, -- Fleeting Flask of Alchemical Chaos (quality 2)
+        [212741] = 1, -- Fleeting Flask of Alchemical Chaos (quality 3)
+        [212745] = 1, -- Fleeting Flask of Saving Graces
+        [212746] = 1, -- Fleeting Flask of Saving Graces (quality 2)
+        [212747] = 1, -- Fleeting Flask of Saving Graces (quality 3)
+        -- Midnight 12.0.0
+        [241320] = true, -- Flask of Thalassian Resistance
+        [241321] = true, -- Flask of Thalassian Resistance (quality 2)
+        [241322] = true, -- Flask of the Magisters
+        [241323] = true, -- Flask of the Magisters (quality 2)
+        [241324] = true, -- Flask of the Blood Knights
+        [241325] = true, -- Flask of the Blood Knights (quality 2)
+        [241326] = true, -- Flask of the Shattered Sun
+        [241327] = true, -- Flask of the Shattered Sun (quality 2)
+        [241334] = true, -- Vicious Thalassian Flask of Honor
+        [241335] = true, -- Vicious Thalassian Flask of Honor (quality 2)
+        -- Midnight 12.0.0 (fleeting)
+        [245926] = 1, -- Fleeting Flask of Thalassian Resistance
+        [245927] = 1, -- Fleeting Flask of Thalassian Resistance (quality 2)
+        [245928] = 1, -- Fleeting Flask of the Shattered Sun
+        [245929] = 1, -- Fleeting Flask of the Shattered Sun (quality 2)
+        [245930] = 1, -- Fleeting Flask of the Blood Knights
+        [245931] = 1, -- Fleeting Flask of the Blood Knights (quality 2)
+        [245932] = 1, -- Fleeting Flask of the Magisters
+        [245933] = 1, -- Fleeting Flask of the Magisters (quality 2)
     },
     -- Rune priority: lower number = use first (Ethereal > Soulgorged > Crystallized > legacy)
     rune = {
-        [243191] = 1, -- Ethereal Augment Rune (TWW permanent)
-        [246492] = 2, -- Soulgorged Augment Rune (TWW, persists through death)
-        [259085] = 3, -- Void-Touched Augment Rune (Midnight)
+        [259085] = 1, -- Void-Touched Augment Rune (Midnight)
+        [243191] = 2, -- Ethereal Augment Rune (TWW permanent)
+        [246492] = 3, -- Soulgorged Augment Rune (TWW, persists through death)
         [224572] = 4, -- Crystallized Augment Rune (TWW single use)
         -- Legacy runes
         [211495] = 5, -- Dreambound Augment Rune (Dragonflight)
@@ -248,41 +242,37 @@ BR.CONSUMABLE_ITEMS = {
         [181468] = 7, -- Veiled Augment Rune (Shadowlands)
     },
     weapon = {
-        [220156] = true,
-        [222502] = true,
-        [222503] = true,
-        [222504] = true,
-        [222508] = true,
-        [222509] = true,
-        [222510] = true,
-        [224105] = true,
-        [224106] = true,
-        [224107] = true,
-        [224108] = true,
-        [224109] = true,
-        [224110] = true,
-        [224111] = true,
-        [224112] = true,
-        [224113] = true,
-        [237367] = true,
-        [237369] = true,
-        [237370] = true,
-        [237371] = true,
-        [243733] = true,
-        [243734] = true,
-        [243735] = true,
-        [243736] = true,
-        [243737] = true,
-        [243738] = true,
-        [257749] = true,
-        [257750] = true,
-        [257751] = true,
-        [257752] = true,
-        -- Midnight weapon enhancements
-        [237372] = true,
-        [237373] = true,
-        [268032] = true,
-        [268033] = true,
-        [268034] = true,
+        -- TWW 11.0.0
+        [220156] = true, -- Bubbling Wax (Rogue)
+        [222502] = true, -- Ironclaw Whetstone
+        [222503] = true, -- Ironclaw Whetstone (quality 2)
+        [222504] = true, -- Ironclaw Whetstone (quality 3)
+        [222508] = true, -- Ironclaw Weightstone
+        [222509] = true, -- Ironclaw Weightstone (quality 2)
+        [222510] = true, -- Ironclaw Weightstone (quality 3)
+        [224105] = true, -- Algari Mana Oil
+        [224106] = true, -- Algari Mana Oil (quality 2)
+        [224107] = true, -- Algari Mana Oil (quality 3)
+        [224108] = true, -- Oil of Beledar's Grace
+        [224109] = true, -- Oil of Beledar's Grace (quality 2)
+        [224110] = true, -- Oil of Beledar's Grace (quality 3)
+        [224111] = true, -- Oil of Deep Toxins
+        [224112] = true, -- Oil of Deep Toxins (quality 2)
+        [224113] = true, -- Oil of Deep Toxins (quality 3)
+        -- Midnight 12.0.0
+        [237367] = true, -- Refulgent Weightstone
+        [237369] = true, -- Refulgent Weightstone (quality 2)
+        [237370] = true, -- Refulgent Whetstone
+        [237371] = true, -- Refulgent Whetstone (quality 2)
+        [243733] = true, -- Thalassian Phoenix Oil
+        [243734] = true, -- Thalassian Phoenix Oil (quality 2)
+        [243735] = true, -- Oil of Dawn
+        [243736] = true, -- Oil of Dawn (quality 2)
+        [243737] = true, -- Smuggler's Enchanted Edge
+        [243738] = true, -- Smuggler's Enchanted Edge (quality 2)
+        [257749] = true, -- Laced Zoomshots
+        [257750] = true, -- Laced Zoomshots (quality 2)
+        [257751] = true, -- Weighted Boomshots
+        [257752] = true, -- Weighted Boomshots (quality 2)
     },
 }

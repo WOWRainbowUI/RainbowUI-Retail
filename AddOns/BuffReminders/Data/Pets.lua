@@ -69,7 +69,7 @@ local function BuildHunterActions()
                 actions[#actions + 1] = {
                     key = "pet_action_" .. spellID,
                     spellID = spellID,
-                    spellName = C_Spell.GetSpellName(spellID),
+                    spellName = BR.GetSpellName(spellID),
                     icon = info.icon,
                     label = info.name,
                     sortOrder = order,
@@ -89,7 +89,7 @@ local function BuildHunterActions()
             actions[#actions + 1] = {
                 key = "pet_action_" .. REVIVE_PET,
                 spellID = REVIVE_PET,
-                spellName = C_Spell.GetSpellName(REVIVE_PET),
+                spellName = BR.GetSpellName(REVIVE_PET),
                 icon = icon,
                 label = "Revive Pet",
                 sortOrder = order,
@@ -170,9 +170,44 @@ local function BuildSingleAction(spellID)
     }
 end
 
+---Build a single Felguard summon action for "wrong pet" click-to-cast
+---@return PetAction[]?
+local function BuildFelguardAction()
+    local spellID = 30146
+    if not IsPlayerSpell(spellID) then
+        return nil
+    end
+    local info = C_Spell.GetSpellInfo(spellID)
+    if not info then
+        return nil
+    end
+    return {
+        {
+            key = "pet_action_" .. spellID,
+            spellID = spellID,
+            spellName = info.name,
+            icon = info.iconID,
+            label = "惡魔守衛",
+            sortOrder = 1,
+        },
+    }
+end
+
 -- Cached pet actions (rebuilt on spec/talent/stable changes, not every refresh)
 local cachedActions = nil
 local cacheValid = false
+
+-- Maps pet class to its action-list builder function
+local CLASS_PET_BUILDERS = {
+    HUNTER = BuildHunterActions,
+    WARLOCK = BuildWarlockActions,
+    DEATHKNIGHT = function()
+        return BuildSingleAction(46584)
+    end, -- Raise Dead
+    MAGE = function()
+        return BuildSingleAction(31687)
+    end, -- Summon Water Elemental
+}
 
 ---Build and cache the list of pet summon actions for the given class.
 ---Returns cached result on subsequent calls until invalidated.
@@ -183,17 +218,8 @@ local function GetPetActions(class)
         return cachedActions
     end
 
-    if class == "HUNTER" then
-        cachedActions = BuildHunterActions()
-    elseif class == "WARLOCK" then
-        cachedActions = BuildWarlockActions()
-    elseif class == "DEATHKNIGHT" then
-        cachedActions = BuildSingleAction(46584) -- Raise Dead
-    elseif class == "MAGE" then
-        cachedActions = BuildSingleAction(31687) -- Summon Water Elemental
-    else
-        cachedActions = nil
-    end
+    local builder = CLASS_PET_BUILDERS[class]
+    cachedActions = builder and builder() or nil
 
     cacheValid = true
     return cachedActions
@@ -209,5 +235,6 @@ end
 BR.PetHelpers = {
     REVIVE_PET_ID = REVIVE_PET,
     GetPetActions = GetPetActions,
+    GetFelguardAction = BuildFelguardAction,
     InvalidatePetActions = InvalidatePetActions,
 }

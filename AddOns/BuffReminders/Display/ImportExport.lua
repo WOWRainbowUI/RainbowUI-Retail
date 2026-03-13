@@ -226,6 +226,28 @@ function BuffReminders:SetProfile(profileKey)
     BR.Profiles.SwitchProfile(profileKey)
 end
 
+-- ============================================================================
+-- WagoUI Pack API (thin wrappers matching expected method names)
+-- ============================================================================
+
+function BuffReminders:ExportProfile(profileKey)
+    return self:Export(profileKey)
+end
+
+function BuffReminders:ImportProfile(profileString, profileKey)
+    return self:Import(profileString, profileKey)
+end
+
+function BuffReminders:OpenConfig()
+    BR.Options.Show()
+end
+
+function BuffReminders:CloseConfig()
+    BR.Options.Hide()
+end
+
+BuffRemindersAPI = BuffReminders
+
 -- Export module
 BR.ImportExport = {
     DeepCopy = DeepCopy,

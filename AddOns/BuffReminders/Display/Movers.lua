@@ -17,6 +17,21 @@ local DIRECTION_ANCHORS = BR.DIRECTION_ANCHORS
 local GetCategorySettings = BR.Helpers.GetCategorySettings
 local IsCategorySplit = BR.Helpers.IsCategorySplit
 
+local ANCHOR_COORD_FN = {
+    LEFT = function(m, px, py)
+        return m:GetLeft() - px, select(2, m:GetCenter()) - py
+    end,
+    RIGHT = function(m, px, py)
+        return m:GetRight() - px, select(2, m:GetCenter()) - py
+    end,
+    TOP = function(m, px, py)
+        return select(1, m:GetCenter()) - px, m:GetTop() - py
+    end,
+    BOTTOM = function(m, px, py)
+        return select(1, m:GetCenter()) - px, m:GetBottom() - py
+    end,
+}
+
 local moverFrames = {} -- Per-category mover frames (shown when unlocked for drag positioning)
 local lastDirection = {} -- Tracks previous growDirection per catKey for position conversion
 local coordPopup -- Shared coordinate popup
@@ -139,18 +154,11 @@ local function FinishMoverDrag(mover, catKey)
     local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
     local px, py = UIParent:GetCenter()
     local x, y
-    if anchor == "LEFT" then
-        x = RoundCoord(mover:GetLeft() - px)
-        y = RoundCoord(select(2, mover:GetCenter()) - py)
-    elseif anchor == "RIGHT" then
-        x = RoundCoord(mover:GetRight() - px)
-        y = RoundCoord(select(2, mover:GetCenter()) - py)
-    elseif anchor == "TOP" then
-        x = RoundCoord(select(1, mover:GetCenter()) - px)
-        y = RoundCoord(mover:GetTop() - py)
-    elseif anchor == "BOTTOM" then
-        x = RoundCoord(select(1, mover:GetCenter()) - px)
-        y = RoundCoord(mover:GetBottom() - py)
+    local coordFn = ANCHOR_COORD_FN[anchor]
+    if coordFn then
+        x, y = coordFn(mover, px, py)
+        x = RoundCoord(x)
+        y = RoundCoord(y)
     else -- CENTER
         local cx, cy = mover:GetCenter()
         x = RoundCoord(cx - px)

@@ -11,6 +11,7 @@ local _, BR = ...
 local floor, max, min = math.floor, math.max, math.min
 local tsort = table.sort
 
+local _, playerClass = UnitClass("player")
 local GetCategorySettings = BR.Helpers.GetCategorySettings
 local IsCategorySplit = BR.Helpers.IsCategorySplit
 
@@ -39,7 +40,7 @@ end
 local FEL_DOMINATION_ID = 333889
 
 local function GetFelDomPetMacro(petSpellID)
-    local spellName = C_Spell.GetSpellName(petSpellID)
+    local spellName = BR.GetSpellName(petSpellID)
     if not spellName then
         return nil
     end
@@ -506,14 +507,8 @@ local function RefreshConsumableCache()
     end
 end
 
--- Map buff key → CONSUMABLE_ITEMS category key
-local BUFF_KEY_TO_CATEGORY = {
-    flask = "flask",
-    food = "food",
-    rune = "rune",
-    weaponBuff = "weapon",
-    weaponBuffOH = "weapon",
-}
+-- Map buff key → CONSUMABLE_ITEMS category key (derived from buff definitions in Data/Buffs.lua)
+local BUFF_KEY_TO_CATEGORY = BR.BUFF_KEY_TO_CATEGORY
 
 ---Get cached consumable items for a buff definition.
 ---@param buff table The buff definition table
@@ -913,6 +908,189 @@ local function ScheduleSecureSync()
 end
 
 -- ============================================================================
+-- SHARED HELPERS
+-- ============================================================================
+
+---Get the weapon equipment slot for a buff frame, if applicable.
+---@param frame table The buff frame
+---@return number? slot 16 (main hand) or 17 (off hand), or nil
+local function GetWeaponSlot(frame)
+    if frame.key == "weaponBuff" then
+        return 16
+    end
+    if frame.key == "weaponBuffOH" then
+        return 17
+    end
+    return nil
+end
+
+---Disable a click overlay: mark inactive, disable mouse, hide, clear position cache.
+---@param overlay table SecureActionButton overlay
+local function DisableOverlay(overlay)
+    overlay._br_has_action = false
+    overlay._br_clickMacroFn = nil
+    overlay._br_clickMacroSpellID = nil
+    overlay.itemID = nil
+    overlay:EnableMouse(false)
+    overlay:Hide()
+    overlay._br_left = nil
+end
+
+---Set pet summon spell or Fel Domination macro attributes on an overlay.
+---Handles Fel Domination wrapping when the setting is enabled and the player knows it.
+---@param overlay table SecureActionButton overlay
+---@param spellID number The pet summon spell ID
+---@param db table The profile database
+local function SetPetSpellAttributes(overlay, spellID, db)
+    local felMacro = (db.defaults or {}).useFelDomination
+        and IsPlayerSpell(FEL_DOMINATION_ID)
+        and GetFelDomPetMacro(spellID)
+    if felMacro then
+        overlay:SetAttribute("type", "macro")
+        overlay:SetAttribute("macrotext", felMacro)
+    else
+        overlay:SetAttribute("type", "spell")
+        overlay:SetAttribute("spell", spellID)
+    end
+end
+
+---Set item-use or weapon-buff macro attributes on an overlay.
+---@param overlay table SecureActionButton overlay
+---@param itemID number The consumable item ID
+---@param weaponSlot number? 16 or 17, or nil for non-weapon consumables
+local function SetItemAttributes(overlay, itemID, weaponSlot)
+    overlay.itemID = itemID
+    if weaponSlot then
+        overlay:SetAttribute("type", "macro")
+        overlay:SetAttribute("macrotext", "/use item:" .. itemID .. "\n/use " .. weaponSlot)
+    else
+        overlay:SetAttribute("type", "item")
+        overlay:SetAttribute("item", "item:" .. itemID)
+    end
+end
+
+-- ============================================================================
+-- SUB-ELEMENT HANDLERS
+-- ============================================================================
+
+---Update consumable sub-elements: sub-icon button clickability and expanded mode extra frame overlays.
+---@param frame table The buff frame
+---@param actionItems table[]? Cached consumable items
+---@param showHighlight boolean Category-level highlight setting
+---@param frameHighlight boolean Per-frame highlight (same as showHighlight for consumables)
+---@param db table The profile database
+local function UpdateConsumableSubElements(frame, actionItems, showHighlight, frameHighlight, db)
+    local displayMode = (db.defaults or {}).consumableDisplayMode or "sub_icons"
+
+    -- Sub-icon buttons: enable mouse input and set highlight
+    if displayMode == "sub_icons" and frame.actionButtons then
+        for _, btn in ipairs(frame.actionButtons) do
+            btn:EnableMouse(true)
+            if btn.highlight then
+                btn.highlight:SetShown(showHighlight)
+            end
+        end
+    end
+
+    -- Expanded mode: set up click overlays on extra frames
+    if displayMode == "expanded" and frame.extraFrames and actionItems then
+        local weaponSlot = GetWeaponSlot(frame)
+        for idx, extra in ipairs(frame.extraFrames) do
+            local itemIdx = idx + 1 -- extra[1] = items[2], etc.
+            if extra:IsShown() and actionItems[itemIdx] then
+                if not extra.clickOverlay then
+                    CreateClickOverlay(extra)
+                end
+                local eOverlay = extra.clickOverlay
+                eOverlay._br_has_action = true
+                eOverlay._br_clickMacroFn = nil
+                eOverlay._br_clickMacroSpellID = nil
+                SetItemAttributes(eOverlay, actionItems[itemIdx].itemID, weaponSlot)
+                eOverlay:EnableMouse(true)
+                if eOverlay.highlight then
+                    eOverlay.highlight:SetShown(frameHighlight)
+                end
+            elseif extra.clickOverlay then
+                DisableOverlay(extra.clickOverlay)
+            end
+        end
+    elseif frame.extraFrames then
+        -- Not expanded: disable extra overlays
+        for _, extra in ipairs(frame.extraFrames) do
+            if extra.clickOverlay then
+                DisableOverlay(extra.clickOverlay)
+            end
+        end
+    end
+end
+
+---Update click overlays on pet extra frames (each has its own summon spell).
+---No-ops for frames without extraFrames (non-pet, non-consumable categories).
+---@param frame table The main buff frame
+---@param frameHighlight boolean Whether to show the highlight texture
+---@param db table The profile database
+local function UpdateExtraFrameOverlays(frame, frameHighlight, db)
+    if not frame.extraFrames then
+        return
+    end
+    for _, extra in ipairs(frame.extraFrames) do
+        if extra:IsShown() and extra._br_pet_spell then
+            if not extra.clickOverlay then
+                CreateClickOverlay(extra)
+            end
+            local eOverlay = extra.clickOverlay
+            eOverlay._br_has_action = true
+            eOverlay._br_clickMacroFn = nil
+            eOverlay._br_clickMacroSpellID = nil
+            eOverlay.itemID = nil
+            SetPetSpellAttributes(eOverlay, extra._br_pet_spell, db)
+            eOverlay:EnableMouse(true)
+            if eOverlay.highlight then
+                eOverlay.highlight:SetShown(frameHighlight)
+            end
+            if extra._br_pet_spec_icon then
+                HookPetSpecIconHover(eOverlay, extra)
+            end
+        elseif extra.clickOverlay then
+            DisableOverlay(extra.clickOverlay)
+        end
+    end
+end
+
+---Disable the main overlay, sub-icon buttons, and extra frame overlays for a frame.
+---@param frame table The buff frame
+---@param db table The profile database
+local function DisableFrameAndChildren(frame, db)
+    if frame.clickOverlay then
+        DisableOverlay(frame.clickOverlay)
+    end
+    -- Sub-icon buttons: disable mouse but keep visible if mode is sub_icons
+    if frame.actionButtons then
+        local displayMode = (db.defaults or {}).consumableDisplayMode or "sub_icons"
+        for _, btn in ipairs(frame.actionButtons) do
+            btn:EnableMouse(false)
+            if displayMode ~= "sub_icons" then
+                if btn._br_driver_active then
+                    RegisterStateDriver(btn, "visibility", "hide")
+                    btn._br_driver_active = false
+                    btn._br_x = nil
+                else
+                    btn:Hide()
+                end
+            end
+        end
+    end
+    -- Extra frame overlays
+    if frame.extraFrames then
+        for _, extra in ipairs(frame.extraFrames) do
+            if extra.clickOverlay then
+                DisableOverlay(extra.clickOverlay)
+            end
+        end
+    end
+end
+
+-- ============================================================================
 -- UPDATE ACTION BUTTONS (CLICK-TO-CAST WIRING)
 -- ============================================================================
 
@@ -939,87 +1117,68 @@ local function UpdateActionButtons(category)
                 frameEnabled = true
                 frameHighlight = true
             end
+
             if frameEnabled then
                 if category == "consumable" then
-                    -- Lazily create overlay on first enable
-                    if not frame.clickOverlay then
-                        CreateClickOverlay(frame)
-                    end
-                    if frame.clickOverlay.highlight then
-                        frame.clickOverlay.highlight:SetShown(showHighlight)
-                    end
                     local actionItems = GetConsumableActionItems(frame.buffDef)
-                    -- Update main overlay (uses first/best item)
-                    local mainBtn = frame.clickOverlay
+                    local def = frame.buffDef
+
                     if actionItems and #actionItems > 0 then
-                        local item = actionItems[1]
-                        mainBtn._br_has_action = true
-                        mainBtn.itemID = item.itemID
-                        if frame.key == "weaponBuff" or frame.key == "weaponBuffOH" then
-                            local slot = frame.key == "weaponBuffOH" and 17 or 16
-                            mainBtn:SetAttribute("type", "macro")
-                            mainBtn:SetAttribute("macrotext", "/use item:" .. item.itemID .. "\n/use " .. slot)
-                        else
-                            mainBtn:SetAttribute("type", "item")
-                            mainBtn:SetAttribute("item", "item:" .. item.itemID)
+                        if not frame.clickOverlay then
+                            CreateClickOverlay(frame)
                         end
-                        mainBtn:EnableMouse(true)
-                    else
-                        mainBtn._br_has_action = false
-                        mainBtn.itemID = nil
-                        mainBtn:EnableMouse(false)
+                        local overlay = frame.clickOverlay
+                        overlay._br_has_action = true
+                        overlay._br_clickMacroFn = nil
+                        overlay._br_clickMacroSpellID = nil
+                        SetItemAttributes(overlay, actionItems[1].itemID, GetWeaponSlot(frame))
+                        overlay:EnableMouse(true)
+                        if overlay.highlight then
+                            overlay.highlight:SetShown(showHighlight)
+                        end
+                    elseif def and def.clickMacro and (not def.casterClass or def.casterClass == playerClass) then
+                        -- No consumable in bags but has clickMacro — cast the creation spell
+                        if not frame.clickOverlay then
+                            CreateClickOverlay(frame)
+                        end
+                        local overlay = frame.clickOverlay
+                        local castableID = def.castSpellID or def.spellID
+                        overlay._br_has_action = true
+                        overlay.itemID = nil
+                        overlay._br_clickMacroFn = def.clickMacro
+                        overlay._br_clickMacroSpellID = castableID
+                        overlay:SetAttribute("type", "macro")
+                        overlay:SetAttribute("macrotext", def.clickMacro(castableID))
+                        overlay:EnableMouse(true)
+                        if overlay.highlight then
+                            overlay.highlight:SetShown(showHighlight)
+                        end
+                    elseif def and def.castSpellID and (not def.casterClass or def.casterClass == playerClass) then
+                        -- No consumable in bags but has castSpellID — cast the creation spell
+                        if not frame.clickOverlay then
+                            CreateClickOverlay(frame)
+                        end
+                        local overlay = frame.clickOverlay
+                        overlay._br_has_action = true
+                        overlay.itemID = nil
+                        overlay._br_clickMacroFn = nil
+                        overlay._br_clickMacroSpellID = nil
+                        overlay:SetAttribute("type", "spell")
+                        overlay:SetAttribute("spell", def.castSpellID)
+                        overlay:EnableMouse(true)
+                        if overlay.highlight then
+                            overlay.highlight:SetShown(showHighlight)
+                        end
+                    elseif frame.clickOverlay then
+                        -- No action resolved; clear fields but don't Hide() — let
+                        -- SyncSecureButtons handle visibility via _br_has_action check.
+                        frame.clickOverlay._br_has_action = false
+                        frame.clickOverlay._br_clickMacroFn = nil
+                        frame.clickOverlay._br_clickMacroSpellID = nil
+                        frame.clickOverlay.itemID = nil
+                        frame.clickOverlay:EnableMouse(false)
                     end
-                    -- Update clickability on existing sub-icon buttons
-                    local displayMode = (db.defaults or {}).consumableDisplayMode or "sub_icons"
-                    if displayMode == "sub_icons" and frame.actionButtons then
-                        for _, btn in ipairs(frame.actionButtons) do
-                            btn:EnableMouse(true)
-                            if btn.highlight then
-                                btn.highlight:SetShown(showHighlight)
-                            end
-                        end
-                    end
-                    -- Expanded mode: set up click overlays on extra frames
-                    if displayMode == "expanded" and frame.extraFrames and actionItems then
-                        for idx, extra in ipairs(frame.extraFrames) do
-                            local itemIdx = idx + 1 -- extra[1] = items[2], etc.
-                            if extra:IsShown() and actionItems[itemIdx] then
-                                if not extra.clickOverlay then
-                                    CreateClickOverlay(extra)
-                                end
-                                local eItem = actionItems[itemIdx]
-                                extra.clickOverlay.itemID = eItem.itemID
-                                if frame.key == "weaponBuff" or frame.key == "weaponBuffOH" then
-                                    local slot = frame.key == "weaponBuffOH" and 17 or 16
-                                    extra.clickOverlay:SetAttribute("type", "macro")
-                                    extra.clickOverlay:SetAttribute(
-                                        "macrotext",
-                                        "/use item:" .. eItem.itemID .. "\n/use " .. slot
-                                    )
-                                else
-                                    extra.clickOverlay:SetAttribute("type", "item")
-                                    extra.clickOverlay:SetAttribute("item", "item:" .. eItem.itemID)
-                                end
-                                extra.clickOverlay:EnableMouse(true)
-                                if extra.clickOverlay.highlight then
-                                    extra.clickOverlay.highlight:SetShown(frameHighlight)
-                                end
-                            elseif extra.clickOverlay then
-                                extra.clickOverlay:EnableMouse(false)
-                                extra.clickOverlay:Hide()
-                                extra.clickOverlay._br_left = nil
-                            end
-                        end
-                    elseif frame.extraFrames then
-                        -- Not expanded: disable extra overlays
-                        for _, extra in ipairs(frame.extraFrames) do
-                            if extra.clickOverlay then
-                                extra.clickOverlay:EnableMouse(false)
-                                extra.clickOverlay:Hide()
-                                extra.clickOverlay._br_left = nil
-                            end
-                        end
-                    end
+                    UpdateConsumableSubElements(frame, actionItems, showHighlight, frameHighlight, db)
                 elseif frame.key == "petPassive" then
                     -- Pet passive: click to switch pet to Assist stance
                     if not frame.clickOverlay then
@@ -1086,23 +1245,10 @@ local function UpdateActionButtons(category)
                             overlay._br_clickMacroSpellID = castableID
                             overlay:SetAttribute("type", "macro")
                             overlay:SetAttribute("macrotext", frame.buffDef.clickMacro(castableID))
-                        elseif
-                            frame._br_pet_spell
-                            and (db.defaults or {}).useFelDomination
-                            and IsPlayerSpell(FEL_DOMINATION_ID)
-                        then
-                            local macro = GetFelDomPetMacro(castableID)
-                            if macro then
-                                overlay._br_clickMacroFn = nil
-                                overlay._br_clickMacroSpellID = nil
-                                overlay:SetAttribute("type", "macro")
-                                overlay:SetAttribute("macrotext", macro)
-                            else
-                                overlay._br_clickMacroFn = nil
-                                overlay._br_clickMacroSpellID = nil
-                                overlay:SetAttribute("type", "spell")
-                                overlay:SetAttribute("spell", castableID)
-                            end
+                        elseif frame._br_pet_spell then
+                            overlay._br_clickMacroFn = nil
+                            overlay._br_clickMacroSpellID = nil
+                            SetPetSpellAttributes(overlay, castableID, db)
                         else
                             overlay._br_clickMacroFn = nil
                             overlay._br_clickMacroSpellID = nil
@@ -1118,74 +1264,14 @@ local function UpdateActionButtons(category)
                             HookPetSpecIconHover(overlay, frame)
                         end
                     elseif frame.clickOverlay then
-                        frame.clickOverlay._br_has_action = false
-                        frame.clickOverlay:EnableMouse(false)
-                        frame.clickOverlay:Hide()
-                        frame.clickOverlay._br_left = nil
+                        DisableOverlay(frame.clickOverlay)
                     end
 
                     -- Pet extra frames: each has its own summon spell
-                    if frame.extraFrames then
-                        for _, extra in ipairs(frame.extraFrames) do
-                            if extra:IsShown() and extra._br_pet_spell then
-                                if not extra.clickOverlay then
-                                    CreateClickOverlay(extra)
-                                end
-                                local felMacro = (db.defaults or {}).useFelDomination
-                                    and IsPlayerSpell(FEL_DOMINATION_ID)
-                                    and GetFelDomPetMacro(extra._br_pet_spell)
-                                if felMacro then
-                                    extra.clickOverlay:SetAttribute("type", "macro")
-                                    extra.clickOverlay:SetAttribute("macrotext", felMacro)
-                                else
-                                    extra.clickOverlay:SetAttribute("type", "spell")
-                                    extra.clickOverlay:SetAttribute("spell", extra._br_pet_spell)
-                                end
-                                extra.clickOverlay:EnableMouse(true)
-                                if extra.clickOverlay.highlight then
-                                    extra.clickOverlay.highlight:SetShown(frameHighlight)
-                                end
-                                if extra._br_pet_spec_icon then
-                                    HookPetSpecIconHover(extra.clickOverlay, extra)
-                                end
-                            elseif extra.clickOverlay then
-                                extra.clickOverlay:EnableMouse(false)
-                                extra.clickOverlay:Hide()
-                                extra.clickOverlay._br_left = nil
-                            end
-                        end
-                    end
+                    UpdateExtraFrameOverlays(frame, frameHighlight, db)
                 end
-            elseif frame.clickOverlay then
-                frame.clickOverlay:EnableMouse(false)
-                frame.clickOverlay:Hide()
-                frame.clickOverlay._br_left = nil
-                -- Sub-icon buttons: disable mouse but keep visible if mode is sub_icons
-                local displayMode = (db.defaults or {}).consumableDisplayMode or "sub_icons"
-                if frame.actionButtons then
-                    for _, btn in ipairs(frame.actionButtons) do
-                        btn:EnableMouse(false)
-                        if displayMode ~= "sub_icons" then
-                            if btn._br_driver_active then
-                                RegisterStateDriver(btn, "visibility", "hide")
-                                btn._br_driver_active = false
-                                btn._br_x = nil
-                            else
-                                btn:Hide()
-                            end
-                        end
-                    end
-                end
-                -- Also disable extra frame overlays
-                if frame.extraFrames then
-                    for _, extra in ipairs(frame.extraFrames) do
-                        if extra.clickOverlay then
-                            extra.clickOverlay:EnableMouse(false)
-                            extra.clickOverlay:Hide()
-                            extra.clickOverlay._br_left = nil
-                        end
-                    end
-                end
+            else
+                DisableFrameAndChildren(frame, db)
             end
         end
     end
