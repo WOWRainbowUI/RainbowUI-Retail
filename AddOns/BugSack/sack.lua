@@ -95,10 +95,10 @@ local function updateSackDisplay(forceRefresh)
 		else
 			source = localFormat:format("error")
 		end
-		if eo.session == BugGrabber:GetSessionId() then
-			sessionLabel:SetText(sessionFormat:format(L["Today"], source, eo.session))
+		if eo.session == BugGrabber:GetSessionId() and type(eo.time) == "number" and date("%d") == date("%d", eo.time) then
+			sessionLabel:SetText(sessionFormat:format(type(eo.time) == "number" and date("%H:%M:%S %p", eo.time) or tostring(eo.time), source, eo.session))
 		else
-			sessionLabel:SetText(sessionFormat:format(eo.time, source, eo.session))
+			sessionLabel:SetText(sessionFormat:format(type(eo.time) == "number" and date("%Y/%m/%d %H:%M:%S", eo.time) or tostring(eo.time), source, eo.session))
 		end
 		countLabel:SetText(countFormat:format(currentErrorIndex, size))
 		textArea:SetText(addon:FormatError(eo))
@@ -495,7 +495,9 @@ local function show()
 end
 
 function addon:CloseSack()
-	window:Hide()
+	if window and window:IsShown() then
+		window:Hide()
+	end
 end
 
 function addon:OpenSack()
