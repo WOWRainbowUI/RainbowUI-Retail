@@ -1,6 +1,22 @@
 
 # Changelog
 
+## [3.3.8] - 2026-03-12
+
+### Fixed
+- Restore dynamic duration threshold colors on Blizzard Compact Party / Raid aura cooldowns when aura data is split across multiple parent frames.
+- Improve aura context lookup for MiniCC and other aura-driven cooldowns by resolving the aura instance id and unit token from different ancestors.
+
+## [3.3.7] - 2026-03-12
+
+### Fixed
+- Fix unit token extraction for improved frame classification
+
+## [3.3.6] - 2026-03-12
+
+### Fixed
+- Enhance cooldown handling with support for aura-driven cooldowns and improved duration evaluation
+
 ## [3.3.5] - 2026-03-11
 
 ### Fixed

@@ -61,12 +61,36 @@ local BLACKLIST_EXACT_PAIRS = {
 -- PATTERN HELPERS
 -- =========================================================================
 
+local function ExtractUnitToken(unit)
+    if type(unit) == "string" then
+        return unit ~= "" and unit or nil
+    end
+
+    if type(unit) ~= "table" then
+        return nil
+    end
+
+    local token = unit.unitid
+        or unit.unitID
+        or unit.unitToken
+        or unit.displayedUnit
+        or unit.unit
+
+    if type(token) == "string" and token ~= "" then
+        return token
+    end
+
+    return nil
+end
+
 local function IsNameplateContext(name, objType, unit)
+    local unitToken = ExtractUnitToken(unit)
+
     return objType == "NamePlate"
         or strfind(name, "NamePlate", 1, true)
         or strfind(name, "Plater",    1, true)
         or strfind(name, "Kui",       1, true)
-        or (unit and strfind(unit, "nameplate", 1, true))
+        or (unitToken and strfind(unitToken, "nameplate", 1, true))
 end
 
 local function IsMiniCCNamedFrame(frame)
@@ -93,15 +117,24 @@ end
 local function GetFrameUnit(frame)
     if not frame then return nil end
 
-    local unit = frame.unit
-    if type(unit) == "string" and unit ~= "" then
+    local unit = ExtractUnitToken(frame.unit)
+    if unit then
+        return unit
+    end
+
+    unit = ExtractUnitToken(frame.unitid)
+        or ExtractUnitToken(frame.unitID)
+        or ExtractUnitToken(frame.unitToken)
+        or ExtractUnitToken(frame.displayedUnit)
+    if unit then
         return unit
     end
 
     if frame.GetAttribute then
         local ok, attr = pcall(frame.GetAttribute, frame, "unit")
-        if ok and type(attr) == "string" and attr ~= "" then
-            return attr
+        unit = ok and ExtractUnitToken(attr) or nil
+        if unit then
+            return unit
         end
     end
 
