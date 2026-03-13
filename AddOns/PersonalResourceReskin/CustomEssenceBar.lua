@@ -4,7 +4,7 @@ if class ~= "EVOKER" then return end
 -- CustomEssenceBar.lua
 local function GetMaxEssence()
     -- Power Nexus: spellid 369908
-    if IsPlayerSpell and IsPlayerSpell(369908) then
+    if C_SpellBook and C_SpellBook.IsSpellKnown and C_SpellBook.IsSpellKnown(369908) then
         return 6
     end
     return 5
@@ -21,14 +21,43 @@ CustomEssenceBarDB = CustomEssenceBarDB or {
     gradientColor2 = {0, 1, 0.7, 1}, 
     enabled = true, 
     showEssenceTimers = true, 
+    hideWhenMounted = false,
+    anchorToPRD = false,
+    anchorTarget = "HEALTH",
+    anchorPosition = "BELOW",
+    anchorOffset = 10,
 }
+
+local function GetPRDHealthBar()
+    local prd = _G["PersonalResourceDisplayFrame"]
+    if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
+        return prd.HealthBarsContainer.healthBar
+    end
+    return _G["PersonalResourceDisplayHealthBar"]
+end
+
+local function GetPRDPowerBar()
+    local prd = _G["PersonalResourceDisplayFrame"]
+    if prd and prd.PowerBar then
+        return prd.PowerBar
+    end
+    return nil
+end
+
+local function GetPRDAnchorFrame()
+    if not CustomEssenceBarDB.anchorToPRD then return nil end
+    if (CustomEssenceBarDB.anchorTarget or "HEALTH") == "POWER" then
+        return GetPRDPowerBar()
+    end
+    return GetPRDHealthBar()
+end
 
 -- Hide the default Essence bar if present
 local function HideDefaultEssenceBar()
     local _, class = UnitClass("player")
     if class == "EVOKER" and CustomEssenceBarDB.enabled then
         -- Hide essence orbs and prdClassFrame if present
-        local f = _G.prdClassFrame
+        local f = _G["prdClassFrame"]
         if f then
             f:Hide()
             f:SetAlpha(0)
@@ -49,6 +78,34 @@ HideDefaultEssenceBar()
 local essenceBar = CreateFrame("Frame", "CustomEssenceBar", UIParent)
 essenceBar:SetSize(180, 32)
 essenceBar:SetPoint("CENTER", UIParent, "CENTER", 0, -120)
+
+local ApplyBarSettings
+
+local prdAnchorHooks = setmetatable({}, { __mode = "k" })
+
+local function HookPRDAnchor(frame)
+    if not frame or prdAnchorHooks[frame] then return end
+
+    local function OnPRDChange()
+        if ApplyBarSettings then
+            ApplyBarSettings()
+        end
+    end
+
+    frame:HookScript("OnSizeChanged", OnPRDChange)
+    if frame.SetPoint then
+        hooksecurefunc(frame, "SetPoint", OnPRDChange)
+    end
+    if frame.SetScale then
+        hooksecurefunc(frame, "SetScale", OnPRDChange)
+    end
+
+    prdAnchorHooks[frame] = true
+end
+
+local function RefreshMovableState()
+    essenceBar:SetMovable(not CustomEssenceBarDB.locked and not CustomEssenceBarDB.anchorToPRD)
+end
 
 
 essenceBar.orbs = {}
@@ -196,19 +253,8 @@ local function UpdateEssence()
     end
 end
 
--- Event handler
 essenceBar:RegisterEvent("UNIT_POWER_UPDATE")
 essenceBar:RegisterEvent("PLAYER_ENTERING_WORLD")
-essenceBar:SetScript("OnEvent", function(self, event, ...)
-    if event == "UNIT_POWER_UPDATE" then
-        local unit, powerType = ...
-        if unit == "player" and (powerType == "ESSENCE" or powerType == ESSENCE_POWER_TYPE) then
-            UpdateEssence()
-        end
-    else
-        UpdateEssence()
-    end
-end)
 
 -- Only show for Evoker
 local function ShouldShowEssenceBar()
@@ -251,6 +297,11 @@ essenceBar:SetScript("OnEvent", function(self, event, ...)
         if unit == "player" then
             UpdateVisibility()
         end
+    elseif event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
+        CreateOrbs()
+        ApplyBarSettings()
+        UpdateEssence()
+        UpdateVisibility()
     elseif event == "PLAYER_SPECIALIZATION_CHANGED" or event == "TRAIT_CONFIG_UPDATED" or event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_TALENT_UPDATE" then
         HideDefaultEssenceBar()
         CreateOrbs()
@@ -271,7 +322,22 @@ ApplyBarSettings = function()
     local totalWidth = orbWidth * numEssence + spacing * (numEssence - 1)
     essenceBar:SetSize(totalWidth, CustomEssenceBarDB.orbHeight)
     essenceBar:ClearAllPoints()
-    essenceBar:SetPoint("CENTER", UIParent, "CENTER", CustomEssenceBarDB.x, CustomEssenceBarDB.y)
+
+    local anchorFrame = GetPRDAnchorFrame()
+    if anchorFrame then
+        HookPRDAnchor(anchorFrame)
+        local position = CustomEssenceBarDB.anchorPosition or "BELOW"
+        local offset = CustomEssenceBarDB.anchorOffset or 10
+        if position == "ABOVE" then
+            essenceBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
+        else
+            essenceBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
+        end
+    else
+        essenceBar:SetPoint("CENTER", UIParent, "CENTER", CustomEssenceBarDB.x, CustomEssenceBarDB.y)
+    end
+
+    RefreshMovableState()
     for i, orb in ipairs(essenceBar.orbs) do
         orb:SetSize(orbWidth, CustomEssenceBarDB.orbHeight)
         orb:ClearAllPoints()
@@ -291,28 +357,18 @@ ApplyBarSettings = function()
         orb.borderRight:SetWidth(1)
     end
 end
-            orbSpacing = {
-                name = "龍能間距",
-                desc = "設定每個龍能之間的間距。",
-                type = "range",
-                min = 0, max = 40, step = 0.1,
-                get = function() return CustomEssenceBarDB.orbSpacing or 6 end,
-                set = function(_, val)
-                    CustomEssenceBarDB.orbSpacing = val
-                    CreateOrbs()
-                    ApplyBarSettings()
-                end,
-                order = 2.7,
-            },
 
 essenceBar:SetMovable(true)
 essenceBar:EnableMouse(true)
 essenceBar:RegisterForDrag("LeftButton")
 essenceBar:SetScript("OnDragStart", function(self)
-    if not CustomEssenceBarDB.locked then self:StartMoving() end
+    if not CustomEssenceBarDB.locked and not CustomEssenceBarDB.anchorToPRD then
+        self:StartMoving()
+    end
 end)
 essenceBar:SetScript("OnDragStop", function(self)
     self:StopMovingOrSizing()
+    if CustomEssenceBarDB.anchorToPRD then return end
     local point, _, _, x, y = self:GetPoint()
     CustomEssenceBarDB.x = x or 0
     CustomEssenceBarDB.y = y or 0
@@ -325,9 +381,11 @@ SlashCmdList["CUSTOMESSENCEBAR"] = function(msg)
     cmd = cmd:lower() or ""
     if cmd == "lock" then
         CustomEssenceBarDB.locked = true
+        RefreshMovableState()
         print("CustomEssenceBar 已鎖定。")
     elseif cmd == "unlock" then
         CustomEssenceBarDB.locked = false
+        RefreshMovableState()
         print("CustomEssenceBar 已解鎖，可拖曳移動。")
     elseif cmd == "size" and tonumber(arg1) and tonumber(arg2) then
         CustomEssenceBarDB.orbWidth = tonumber(arg1)
@@ -367,7 +425,11 @@ if PersonalResourceReskinPlus_Options then
                 desc = "鎖定或解鎖龍能條以便拖曳移動。",
                 type = "toggle",
                 get = function() return CustomEssenceBarDB.locked end,
-                set = function(_, val) CustomEssenceBarDB.locked = val print("CustomEssenceBar "..(val and "已鎖定。" or "已解鎖。拖曳以移動。")) end,
+                set = function(_, val)
+                    CustomEssenceBarDB.locked = val
+                    RefreshMovableState()
+                    print("CustomEssenceBar "..(val and "已鎖定。" or "已解鎖，可拖曳移動。"))
+                end,
                 order = 1,
             },
             hideWhenMounted = {
@@ -377,6 +439,57 @@ if PersonalResourceReskinPlus_Options then
                 get = function() return CustomEssenceBarDB.hideWhenMounted end,
                 set = function(_, val) CustomEssenceBarDB.hideWhenMounted = val UpdateVisibility() end,
                 order = 1.5,
+            },
+            anchorToPRD = {
+                name = "對齊個人資源條",
+				desc = "對齊到個人資源條的血量或能量條。",
+                type = "toggle",
+                get = function() return CustomEssenceBarDB.anchorToPRD end,
+                set = function(_, val)
+                    CustomEssenceBarDB.anchorToPRD = val
+                    ApplyBarSettings()
+                    UpdateVisibility()
+                end,
+                order = 1.6,
+            },
+            anchorTarget = {
+                name = "對齊到",
+				desc = "選擇要對齊到的個人資源條。",
+                type = "select",
+                values = { HEALTH = "血量條", POWER = "能量條" },
+                get = function() return CustomEssenceBarDB.anchorTarget or "HEALTH" end,
+                set = function(_, val)
+                    CustomEssenceBarDB.anchorTarget = val
+                    ApplyBarSettings()
+                end,
+                disabled = function() return not CustomEssenceBarDB.anchorToPRD end,
+                order = 1.7,
+            },
+            anchorPosition = {
+                name = "位置",
+				desc = "放置在選擇的個人資源條的上方或下方。",
+                type = "select",
+                values = { ABOVE = "上方", BELOW = "下方" },
+                get = function() return CustomEssenceBarDB.anchorPosition or "BELOW" end,
+                set = function(_, val)
+                    CustomEssenceBarDB.anchorPosition = val
+                    ApplyBarSettings()
+                end,
+                disabled = function() return not CustomEssenceBarDB.anchorToPRD end,
+                order = 1.8,
+            },
+            anchorOffset = {
+                name = "偏移",
+				desc = "對齊時與個人資源條的的垂直距離。",
+                type = "range",
+                min = -100, max = 200, step = 1,
+                get = function() return CustomEssenceBarDB.anchorOffset or 10 end,
+                set = function(_, val)
+                    CustomEssenceBarDB.anchorOffset = val
+                    ApplyBarSettings()
+                end,
+                disabled = function() return not CustomEssenceBarDB.anchorToPRD end,
+                order = 1.9,
             },
             orbWidth = {
                 name = "龍能寬度",
@@ -407,6 +520,19 @@ if PersonalResourceReskinPlus_Options then
                     ApplyBarSettings()
                 end,
                 order = 2.5,
+            },
+            orbSpacing = {
+                name = "龍能間距",
+                desc = "設定每顆龍能之間的距離。",
+                type = "range",
+                min = 0, max = 40, step = 0.1,
+                get = function() return CustomEssenceBarDB.orbSpacing or 0 end,
+                set = function(_, val)
+                    CustomEssenceBarDB.orbSpacing = val
+                    CreateOrbs()
+                    ApplyBarSettings()
+                end,
+                order = 2.7,
             },
             orbHeight = {
                 name = "龍能高度",
@@ -450,18 +576,8 @@ if PersonalResourceReskinPlus_Options then
     })
 end
 
--- Ensure bar settings are applied after PLAYER_LOGIN
-local function OnLoginOrReload()
-    ApplyBarSettings()
-end
-essenceBar:RegisterEvent("PLAYER_LOGIN")
-essenceBar:HookScript("OnEvent", function(self, event)
-    if event == "PLAYER_LOGIN" then
-        OnLoginOrReload()
-    end
-end)
-
 -- Apply settings on load
 ApplyBarSettings()
+RefreshMovableState()
 
 UpdateVisibility()
