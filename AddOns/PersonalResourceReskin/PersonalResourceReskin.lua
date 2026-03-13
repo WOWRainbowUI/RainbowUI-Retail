@@ -1867,6 +1867,14 @@ function PersonalResourceReskin:OnInitialize()
     -- Register main options as usual
     if PersonalResourceReskinPlus_Options then
         PersonalResourceReskinPlus_Options.RegisterSubOptions("PersonalResourceReskin", options)
+        -- Register Profiles page as a sibling options page
+        local AceDBOptions = LibStub("AceDBOptions-3.0", true)
+        if AceDBOptions then
+            local profilesOptions = AceDBOptions:GetOptionsTable(self.db)
+            if profilesOptions then
+                PersonalResourceReskinPlus_Options.RegisterSubOptions("Profiles", profilesOptions)
+            end
+        end
         if _G.CustomSoulShardBarOptions then
             PersonalResourceReskinPlus_Options.RegisterSubOptions("CustomSoulShardBar", _G.CustomSoulShardBarOptions)
         end
