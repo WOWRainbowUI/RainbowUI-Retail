@@ -34,7 +34,7 @@ local ANCHOR_COORD_FN = {
 
 local moverFrames = {} -- Per-category mover frames (shown when unlocked for drag positioning)
 local lastDirection = {} -- Tracks previous growDirection per catKey for position conversion
-local coordPopup -- Shared coordinate popup
+local coordPopup -- Shared coordinate popup (shown on the active mover)
 
 -- Offset from anchor edge to frame center, in units of iconSize
 local ANCHOR_TO_CENTER = {
@@ -44,6 +44,9 @@ local ANCHOR_TO_CENTER = {
     BOTTOM = { x = 0, y = 0.5 },
     CENTER = { x = 0, y = 0 },
 }
+
+local ResolveAnchorParent -- forward declaration, set after BR.Display is available
+local OPPOSITE_POINTS -- forward declaration
 
 local EDIT_MODE_DIM_ALPHA = 0.3
 
@@ -99,7 +102,13 @@ local function SavePosition(catKey, x, y)
         local direction = settings.growDirection or "CENTER"
         local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
         container:ClearAllPoints()
-        container:SetPoint(anchor, UIParent, "CENTER", x, y)
+        local extFrame, extPoint = ResolveAnchorParent(catKey)
+        if extFrame then
+            local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
+            container:SetPoint(myPoint, extFrame, extPoint, x, y)
+        else
+            container:SetPoint(anchor, UIParent, "CENTER", x, y)
+        end
     end
 
     -- Keep the mover frame in sync
@@ -148,12 +157,14 @@ end
 -- Finish a mover drag: read the direction-anchor edge, re-anchor, save
 local function FinishMoverDrag(mover, catKey)
     mover.isDragging = false
+    mover:SetScript("OnUpdate", nil)
     mover:StopMovingOrSizing()
     local settings = GetCategorySettings(catKey)
     local direction = settings.growDirection or "CENTER"
     local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
-    local px, py = UIParent:GetCenter()
+    -- Anchor is always cleared on drag start, so this is always UIParent-relative
     local x, y
+    local px, py = UIParent:GetCenter()
     local coordFn = ANCHOR_COORD_FN[anchor]
     if coordFn then
         x, y = coordFn(mover, px, py)
@@ -167,6 +178,10 @@ local function FinishMoverDrag(mover, catKey)
     mover:ClearAllPoints()
     mover:SetPoint(anchor, UIParent, "CENTER", x, y)
     SavePosition(catKey, x, y)
+    if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
+        coordPopup.xEdit:SetText(tostring(x))
+        coordPopup.yEdit:SetText(tostring(y))
+    end
     RestoreContainer(catKey)
     -- Re-sync sub-icon action buttons at new position
     if BR.SecureButtons then
@@ -174,14 +189,91 @@ local function FinishMoverDrag(mover, catKey)
     end
 end
 
--- Coordinate popup: shared popup for typing exact X/Y positions on mover frames
+-- Anchor point options for the dropdown (common subset like UUF)
+local ANCHOR_POINT_OPTIONS = {
+    "TOP",
+    "BOTTOM",
+    "LEFT",
+    "RIGHT",
+    "CENTER",
+}
+
+local rad = math.rad
+
+-- Well-known unit frame names to look for (Blizzard + popular addons)
+local KNOWN_ANCHOR_FRAMES = {
+    -- Blizzard
+    "PlayerFrame",
+    "TargetFrame",
+    "PartyFrame",
+    "Minimap",
+    "ObjectiveTrackerFrame",
+    -- SUF (ShadowedUnitFrames)
+    "SUFUnitplayer",
+    "SUFUnittarget",
+    "SUFUnitboss1",
+    "SUFUnitparty1",
+    -- ElvUI
+    "ElvUF_Player",
+    "ElvUF_Target",
+    "ElvUF_Boss1",
+    "ElvUF_Party",
+    "ElvUF_Raid",
+    -- Z-Perl / XPerl
+    "XPerl_PlayerFrame",
+    "XPerl_TargetFrame",
+    -- Pitbull
+    "PitBull4_Frames_Player",
+    "PitBull4_Frames_Target",
+    -- UUF (UnitFramesImproved)
+    "UUF_Player",
+    "UUF_Target",
+    -- Cell (raid frames)
+    "CellAnchorFrame",
+    -- Grid2
+    "Grid2LayoutFrame",
+    -- VuhDo
+    "Vd1",
+}
+
+-- Scan for anchor frames: check known names + user custom names
+local function ScanAnchorFrames()
+    local results = {}
+    local seen = {}
+
+    -- Check known frame names
+    for _, name in ipairs(KNOWN_ANCHOR_FRAMES) do
+        local obj = _G[name]
+        if obj and type(obj) == "table" and not seen[obj] and obj.GetCenter ~= nil then
+            seen[obj] = true
+            tinsert(results, name)
+        end
+    end
+
+    -- Check user-defined custom anchor frames
+    local db = BR.profile
+    if db.customAnchorFrames then
+        for _, name in ipairs(db.customAnchorFrames) do
+            local obj = _G[name]
+            if obj and type(obj) == "table" and not seen[obj] and obj.GetCenter ~= nil then
+                seen[obj] = true
+                tinsert(results, name)
+            end
+        end
+    end
+
+    return results
+end
+
+-- Coordinate popup: shared singleton for typing exact X/Y positions and anchor settings
 local function CreateCoordinatePopup()
     local fontPath = BR.Display.GetFontPath()
     local popup = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
-    popup:SetSize(190, 110)
+    popup:SetSize(240, 210)
     popup:SetFrameStrata("DIALOG")
     popup:SetClampedToScreen(true)
     popup:EnableMouse(true)
+    popup:SetMovable(true)
     popup:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8x8",
         edgeFile = "Interface\\Buttons\\WHITE8x8",
@@ -190,6 +282,20 @@ local function CreateCoordinatePopup()
     popup:SetBackdropColor(0.1, 0.1, 0.1, 0.95)
     popup:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
 
+    -- Draggable title bar
+    local titleBar = CreateFrame("Frame", nil, popup)
+    titleBar:SetHeight(22)
+    titleBar:SetPoint("TOPLEFT", 0, 0)
+    titleBar:SetPoint("TOPRIGHT", 0, 0)
+    titleBar:EnableMouse(true)
+    titleBar:RegisterForDrag("LeftButton")
+    titleBar:SetScript("OnDragStart", function()
+        popup:StartMoving()
+    end)
+    titleBar:SetScript("OnDragStop", function()
+        popup:StopMovingOrSizing()
+    end)
+
     -- Title
     local title = popup:CreateFontString(nil, "OVERLAY")
     title:SetFont(fontPath, 11, "OUTLINE")
@@ -197,37 +303,343 @@ local function CreateCoordinatePopup()
     title:SetText("Set Position")
     title:SetTextColor(1, 0.82, 0, 1)
 
+    local LABEL_X = 12
+    local EDIT_WIDTH = 155
+    local MENU_WIDTH = EDIT_WIDTH + 16
+
     -- X row
     local xLabel = popup:CreateFontString(nil, "OVERLAY")
     xLabel:SetFont(fontPath, 11, "OUTLINE")
-    xLabel:SetPoint("TOPLEFT", 10, -30)
+    xLabel:SetPoint("TOPLEFT", LABEL_X, -30)
     xLabel:SetText("X")
     xLabel:SetTextColor(1, 1, 1, 1)
 
     local xEdit = CreateFrame("EditBox", nil, popup)
-    xEdit:SetSize(130, 20)
+    xEdit:SetSize(EDIT_WIDTH, 20)
     xEdit:SetFont(fontPath, 11, "")
     xEdit:SetAutoFocus(false)
     local xContainer = BR.StyleEditBox(xEdit)
-    xContainer:SetSize(130, 20)
+    xContainer:SetSize(EDIT_WIDTH, 20)
     xContainer:SetPoint("LEFT", xLabel, "RIGHT", 8, 0)
 
     -- Y row
     local yLabel = popup:CreateFontString(nil, "OVERLAY")
     yLabel:SetFont(fontPath, 11, "OUTLINE")
-    yLabel:SetPoint("TOPLEFT", 10, -56)
+    yLabel:SetPoint("TOPLEFT", LABEL_X, -56)
     yLabel:SetText("Y")
     yLabel:SetTextColor(1, 1, 1, 1)
 
     local yEdit = CreateFrame("EditBox", nil, popup)
-    yEdit:SetSize(130, 20)
+    yEdit:SetSize(EDIT_WIDTH, 20)
     yEdit:SetFont(fontPath, 11, "")
     yEdit:SetAutoFocus(false)
     local yContainer = BR.StyleEditBox(yEdit)
-    yContainer:SetSize(130, 20)
+    yContainer:SetSize(EDIT_WIDTH, 20)
     yContainer:SetPoint("LEFT", yLabel, "RIGHT", 8, 0)
 
-    -- Apply button
+    -- Separator
+    local sep = popup:CreateTexture(nil, "ARTWORK")
+    sep:SetSize(216, 1)
+    sep:SetPoint("TOPLEFT", LABEL_X, -82)
+    sep:SetColorTexture(0.3, 0.3, 0.3, 1)
+
+    -- Anchor Frame label + dropdown button
+    local anchorLabel = popup:CreateFontString(nil, "OVERLAY")
+    anchorLabel:SetFont(fontPath, 10, "OUTLINE")
+    anchorLabel:SetPoint("TOPLEFT", LABEL_X, -90)
+    anchorLabel:SetText("Anchor Frame")
+    anchorLabel:SetTextColor(0.7, 0.7, 0.7, 1)
+
+    local anchorBtn = CreateFrame("Button", nil, popup, "BackdropTemplate")
+    anchorBtn:SetSize(MENU_WIDTH, 20)
+    anchorBtn:SetPoint("TOPLEFT", LABEL_X, -104)
+    anchorBtn:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        edgeSize = 1,
+    })
+    anchorBtn:SetBackdropColor(0.08, 0.08, 0.08, 0.9)
+    anchorBtn:SetBackdropBorderColor(0.25, 0.25, 0.25, 1)
+
+    local anchorText = anchorBtn:CreateFontString(nil, "OVERLAY")
+    anchorText:SetFont(fontPath, 11, "")
+    anchorText:SetPoint("LEFT", 6, 0)
+    anchorText:SetPoint("RIGHT", -20, 0)
+    anchorText:SetJustifyH("LEFT")
+    anchorText:SetTextColor(1, 1, 1, 1)
+
+    local anchorArrow = anchorBtn:CreateTexture(nil, "OVERLAY")
+    anchorArrow:SetSize(12, 12)
+    anchorArrow:SetPoint("RIGHT", -4, 0)
+    anchorArrow:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
+    anchorArrow:SetRotation(rad(-90))
+    anchorArrow:SetVertexColor(0.6, 0.6, 0.6, 1)
+
+    -- Click-away overlay: closes open dropdown menus when clicking outside
+    -- Parented to UIParent at FULLSCREEN_DIALOG strata (above DIALOG popup, below TOOLTIP menus)
+    local clickAway = CreateFrame("Button", nil, UIParent)
+    clickAway:SetFrameStrata("FULLSCREEN_DIALOG")
+    clickAway:SetAllPoints(UIParent)
+    clickAway:Hide()
+
+    local function HideAllMenus()
+        if popup.anchorMenu then
+            popup.anchorMenu:Hide()
+        end
+        if popup.pointMenu then
+            popup.pointMenu:Hide()
+        end
+        clickAway:Hide()
+    end
+    clickAway:SetScript("OnClick", HideAllMenus)
+
+    -- Scrollable dropdown menu for anchor frame
+    local ITEM_HEIGHT = 18
+    local MAX_VISIBLE_ITEMS = 12
+
+    local anchorMenu = CreateFrame("Frame", nil, anchorBtn, "BackdropTemplate")
+    anchorMenu:SetFrameStrata("TOOLTIP")
+    anchorMenu:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        edgeSize = 1,
+    })
+    anchorMenu:SetBackdropColor(0.12, 0.12, 0.12, 0.98)
+    anchorMenu:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+    anchorMenu:SetPoint("TOP", anchorBtn, "BOTTOM", 0, -2)
+    anchorMenu:SetClampedToScreen(true)
+    anchorMenu:EnableMouse(true)
+    anchorMenu:Hide()
+    anchorMenu:SetScript("OnHide", function()
+        if not popup.pointMenu or not popup.pointMenu:IsShown() then
+            clickAway:Hide()
+        end
+    end)
+
+    local anchorScroll = CreateFrame("ScrollFrame", nil, anchorMenu)
+    anchorScroll:SetPoint("TOPLEFT", 1, -1)
+    anchorScroll:SetPoint("BOTTOMRIGHT", -1, 1)
+
+    local anchorScrollChild = CreateFrame("Frame", nil, anchorScroll)
+    anchorScroll:SetScrollChild(anchorScrollChild)
+
+    anchorMenu:SetScript("OnMouseWheel", function(_, delta)
+        local cur = anchorScroll:GetVerticalScroll()
+        local maxScroll = anchorScrollChild:GetHeight() - anchorScroll:GetHeight()
+        local newScroll = cur - delta * ITEM_HEIGHT * 3
+        anchorScroll:SetVerticalScroll(math.max(0, math.min(newScroll, math.max(0, maxScroll))))
+    end)
+
+    -- Pool of reusable menu item buttons
+    local anchorMenuItems = {}
+
+    local function SetAnchorFrame(frameName)
+        local catKey = popup.catKey
+        if not catKey then
+            return
+        end
+        anchorText:SetText(frameName or "None (Screen Center)")
+        anchorMenu:Hide()
+        -- Set anchor in DB directly, reset position to (0,0), then fire LayoutRefresh once
+        -- This avoids a double-reposition (LayoutRefresh would use old position then SavePosition resets)
+        local db = BR.profile
+        if not db.categorySettings then
+            db.categorySettings = {}
+        end
+        if not db.categorySettings[catKey] then
+            db.categorySettings[catKey] = {}
+        end
+        db.categorySettings[catKey].anchorFrame = frameName
+        SavePosition(catKey, 0, 0)
+        if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
+            coordPopup.xEdit:SetText("0")
+            coordPopup.yEdit:SetText("0")
+        end
+        BR.CallbackRegistry:TriggerEvent("LayoutRefresh")
+        -- Update mover label
+        local mover = moverFrames[catKey]
+        if mover then
+            local catSettings = GetCategorySettings(catKey)
+            local dir = catSettings.growDirection or "CENTER"
+            local moverLabel = "Anchor \194\183 Growth " .. dir
+            if frameName then
+                moverLabel = moverLabel .. " \194\183 > " .. frameName
+            end
+            mover.anchorText:SetText(moverLabel)
+        end
+        -- Update enabled state of anchor point controls (resolved at call time via popup.*)
+        local hasAnchor = frameName ~= nil
+        popup.pointBtn:SetEnabled(hasAnchor)
+        if hasAnchor then
+            popup.pointText:SetTextColor(1, 1, 1, 1)
+            popup.pointArrow:SetVertexColor(0.6, 0.6, 0.6, 1)
+        else
+            popup.pointText:SetTextColor(0.4, 0.4, 0.4, 1)
+            popup.pointArrow:SetVertexColor(0.3, 0.3, 0.3, 1)
+        end
+    end
+
+    local function GetOrCreateMenuItem(index)
+        if anchorMenuItems[index] then
+            return anchorMenuItems[index]
+        end
+        local item = CreateFrame("Button", nil, anchorScrollChild, "BackdropTemplate")
+        item:SetSize(MENU_WIDTH - 2, ITEM_HEIGHT)
+        item:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8" })
+        item:SetBackdropColor(0, 0, 0, 0)
+        item.text = item:CreateFontString(nil, "OVERLAY")
+        item.text:SetFont(fontPath, 11, "")
+        item.text:SetPoint("LEFT", 6, 0)
+        item.text:SetPoint("RIGHT", -6, 0)
+        item.text:SetJustifyH("LEFT")
+        item.text:SetTextColor(1, 1, 1, 1)
+        item:SetScript("OnEnter", function()
+            item:SetBackdropColor(0.2, 0.4, 0.6, 1)
+        end)
+        item:SetScript("OnLeave", function()
+            item:SetBackdropColor(0, 0, 0, 0)
+        end)
+        anchorMenuItems[index] = item
+        return item
+    end
+
+    local function PopulateAnchorMenu()
+        local frames = ScanAnchorFrames()
+        local totalItems = #frames + 1 -- +1 for "None" option
+
+        for i = 1, totalItems do
+            local item = GetOrCreateMenuItem(i)
+            item:SetPoint("TOPLEFT", 1, -(i - 1) * ITEM_HEIGHT)
+            if i == 1 then
+                item.text:SetText("None (Screen Center)")
+                item.text:SetTextColor(0.6, 0.6, 0.6, 1)
+                item:SetScript("OnClick", function()
+                    SetAnchorFrame(nil)
+                end)
+            else
+                local name = frames[i - 1]
+                item.text:SetText(name)
+                item.text:SetTextColor(1, 1, 1, 1)
+                item:SetScript("OnClick", function()
+                    SetAnchorFrame(name)
+                end)
+            end
+            item:Show()
+        end
+        -- Hide unused items
+        for i = totalItems + 1, #anchorMenuItems do
+            anchorMenuItems[i]:Hide()
+        end
+
+        local visibleItems = math.min(totalItems, MAX_VISIBLE_ITEMS)
+        anchorMenu:SetSize(MENU_WIDTH, visibleItems * ITEM_HEIGHT + 2)
+        anchorScrollChild:SetSize(MENU_WIDTH - 2, totalItems * ITEM_HEIGHT)
+        anchorScroll:SetVerticalScroll(0)
+    end
+
+    anchorBtn:SetScript("OnClick", function()
+        if anchorMenu:IsShown() then
+            anchorMenu:Hide()
+        else
+            if popup.pointMenu then
+                popup.pointMenu:Hide()
+            end
+            PopulateAnchorMenu()
+            anchorMenu:Show()
+            clickAway:Show()
+        end
+    end)
+
+    -- Anchor Point label + dropdown button
+    local pointLabel = popup:CreateFontString(nil, "OVERLAY")
+    pointLabel:SetFont(fontPath, 10, "OUTLINE")
+    pointLabel:SetPoint("TOPLEFT", LABEL_X, -130)
+    pointLabel:SetText("Anchor Point")
+    pointLabel:SetTextColor(0.7, 0.7, 0.7, 1)
+
+    local pointBtn = CreateFrame("Button", nil, popup, "BackdropTemplate")
+    pointBtn:SetSize(MENU_WIDTH, 20)
+    pointBtn:SetPoint("TOPLEFT", LABEL_X, -144)
+    pointBtn:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        edgeSize = 1,
+    })
+    pointBtn:SetBackdropColor(0.08, 0.08, 0.08, 0.9)
+    pointBtn:SetBackdropBorderColor(0.25, 0.25, 0.25, 1)
+
+    local pointText = pointBtn:CreateFontString(nil, "OVERLAY")
+    pointText:SetFont(fontPath, 11, "")
+    pointText:SetPoint("LEFT", 6, 0)
+    pointText:SetTextColor(1, 1, 1, 1)
+
+    local pointArrow = pointBtn:CreateTexture(nil, "OVERLAY")
+    pointArrow:SetSize(12, 12)
+    pointArrow:SetPoint("RIGHT", -4, 0)
+    pointArrow:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
+    pointArrow:SetRotation(rad(-90))
+    pointArrow:SetVertexColor(0.6, 0.6, 0.6, 1)
+
+    -- Simple dropdown menu for anchor point
+    local pointMenu = CreateFrame("Frame", nil, pointBtn, "BackdropTemplate")
+    pointMenu:SetFrameStrata("TOOLTIP")
+    pointMenu:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        edgeSize = 1,
+    })
+    pointMenu:SetBackdropColor(0.12, 0.12, 0.12, 0.98)
+    pointMenu:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+    pointMenu:SetPoint("TOP", pointBtn, "BOTTOM", 0, -2)
+    pointMenu:EnableMouse(true)
+    pointMenu:Hide()
+    pointMenu:SetScript("OnHide", function()
+        if not anchorMenu:IsShown() then
+            clickAway:Hide()
+        end
+    end)
+
+    for i, pt in ipairs(ANCHOR_POINT_OPTIONS) do
+        local item = CreateFrame("Button", nil, pointMenu, "BackdropTemplate")
+        item:SetSize(MENU_WIDTH - 2, ITEM_HEIGHT)
+        item:SetPoint("TOPLEFT", 1, -(i - 1) * ITEM_HEIGHT - 1)
+        item:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8x8",
+        })
+        item:SetBackdropColor(0, 0, 0, 0)
+        local itemText = item:CreateFontString(nil, "OVERLAY")
+        itemText:SetFont(fontPath, 11, "")
+        itemText:SetPoint("LEFT", 6, 0)
+        itemText:SetText(pt)
+        itemText:SetTextColor(1, 1, 1, 1)
+        item:SetScript("OnEnter", function()
+            item:SetBackdropColor(0.2, 0.4, 0.6, 1)
+        end)
+        item:SetScript("OnLeave", function()
+            item:SetBackdropColor(0, 0, 0, 0)
+        end)
+        item:SetScript("OnClick", function()
+            pointText:SetText(pt)
+            pointMenu:Hide()
+            local catKey = popup.catKey
+            if catKey then
+                BR.Config.Set("categorySettings." .. catKey .. ".anchorPoint", pt)
+            end
+        end)
+    end
+    pointMenu:SetSize(MENU_WIDTH, #ANCHOR_POINT_OPTIONS * ITEM_HEIGHT + 2)
+
+    pointBtn:SetScript("OnClick", function()
+        if pointMenu:IsShown() then
+            pointMenu:Hide()
+        else
+            anchorMenu:Hide()
+            pointMenu:Show()
+            clickAway:Show()
+        end
+    end)
+
+    -- Apply button (for X/Y)
     local applyBtn = BR.CreateButton(popup, "Apply", function()
         local xVal = tonumber(xEdit:GetText())
         local yVal = tonumber(yEdit:GetText())
@@ -238,7 +650,6 @@ local function CreateCoordinatePopup()
         xVal = RoundCoord(xVal)
         yVal = RoundCoord(yVal)
         SavePosition(catKey, xVal, yVal)
-        popup:Hide()
     end)
     applyBtn:SetPoint("BOTTOM", 0, 8)
 
@@ -262,6 +673,7 @@ local function CreateCoordinatePopup()
     popup:SetScript("OnKeyDown", function(self, key)
         if key == "ESCAPE" then
             self:SetPropagateKeyboardInput(false)
+            HideAllMenus()
             self:Hide()
         else
             self:SetPropagateKeyboardInput(true)
@@ -270,16 +682,23 @@ local function CreateCoordinatePopup()
 
     popup.xEdit = xEdit
     popup.yEdit = yEdit
+    popup.anchorText = anchorText
+    popup.anchorMenu = anchorMenu
+    popup.pointText = pointText
+    popup.pointBtn = pointBtn
+    popup.pointArrow = pointArrow
+    popup.pointMenu = pointMenu
+    popup:SetScript("OnHide", HideAllMenus)
     popup:Hide()
     return popup
 end
 
+-- Show the shared popup anchored to a specific mover, populated with its coords
 local function ShowCoordinatePopup(catKey, mover)
     if not coordPopup then
         coordPopup = CreateCoordinatePopup()
     end
     coordPopup.catKey = catKey
-    coordPopup.mover = mover
     coordPopup:ClearAllPoints()
     coordPopup:SetPoint("LEFT", mover, "RIGHT", 10, 0)
 
@@ -287,8 +706,51 @@ local function ShowCoordinatePopup(catKey, mover)
     coordPopup.xEdit:SetText(tostring(pos.x or 0))
     coordPopup.yEdit:SetText(tostring(pos.y or 0))
 
+    -- Populate anchor fields
+    local db = BR.profile
+    local catSettings = db.categorySettings and db.categorySettings[catKey]
+    local anchorName = catSettings and catSettings.anchorFrame
+    local anchorPoint = catSettings and catSettings.anchorPoint or "CENTER"
+    coordPopup.anchorText:SetText(anchorName or "None (Screen Center)")
+    coordPopup.pointText:SetText(anchorPoint)
+    coordPopup.anchorMenu:Hide()
+    coordPopup.pointMenu:Hide()
+
+    -- Update enabled state of anchor point controls
+    local hasAnchor = anchorName ~= nil and anchorName ~= ""
+    coordPopup.pointBtn:SetEnabled(hasAnchor)
+    if hasAnchor then
+        coordPopup.pointText:SetTextColor(1, 1, 1, 1)
+        coordPopup.pointArrow:SetVertexColor(0.6, 0.6, 0.6, 1)
+    else
+        coordPopup.pointText:SetTextColor(0.4, 0.4, 0.4, 1)
+        coordPopup.pointArrow:SetVertexColor(0.3, 0.3, 0.3, 1)
+    end
+
     coordPopup:Show()
-    coordPopup.xEdit:SetFocus()
+end
+
+-- Update the shared popup's edit boxes from live mover position during drag
+local function UpdatePopupLive(mover, catKey)
+    if not coordPopup or not coordPopup:IsShown() then
+        return
+    end
+    -- Anchor is always cleared on drag start, so this is always UIParent-relative
+    local settings = GetCategorySettings(catKey)
+    local direction = settings.growDirection or "CENTER"
+    local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
+    local px, py = UIParent:GetCenter()
+    local x, y
+    local coordFn = ANCHOR_COORD_FN[anchor]
+    if coordFn then
+        x, y = coordFn(mover, px, py)
+    else
+        local cx, cy = mover:GetCenter()
+        x = cx - px
+        y = cy - py
+    end
+    coordPopup.xEdit:SetText(tostring(RoundCoord(x)))
+    coordPopup.yEdit:SetText(tostring(RoundCoord(y)))
 end
 
 -- Create a mover frame for positioning a category.
@@ -333,29 +795,70 @@ local function CreateMoverFrame(catKey, displayName)
         self:SetSize(settings.iconWidth or size, size)
     end
 
-    -- Position at saved location using direction-based anchor
+    -- Position at saved location using direction-based anchor (or external anchor)
     local pos = GetSavedPosition(catKey)
     local initSettings = GetCategorySettings(catKey)
     local initDirection = initSettings.growDirection or "CENTER"
     local initAnchor = DIRECTION_ANCHORS[initDirection] or "CENTER"
-    mover:SetPoint(initAnchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    local extFrame, extPoint = ResolveAnchorParent(catKey)
+    if extFrame then
+        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
+        mover:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+    else
+        mover:SetPoint(initAnchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    end
 
     -- Tooltip
-    BR.SetupTooltip(mover, "Buff Anchor", "Drag to reposition\nRight-click to set exact coordinates")
+    BR.SetupTooltip(mover, "Buff Anchor", "Drag to reposition\nClick to toggle coordinate editor")
 
     -- Drag scripts
     mover:SetScript("OnDragStart", function(self)
         GameTooltip:Hide()
-        if coordPopup then
-            coordPopup:Hide()
-        end
         DimContainer(catKey)
         -- Hide sub-icon action buttons so they don't linger at old positions during drag
         if BR.SecureButtons then
             BR.SecureButtons.HideSecureFramesForCatKey(catKey)
         end
+        -- Clear external anchor on drag to avoid offset math issues — frame becomes UIParent-relative
+        -- Convert current screen position to UIParent-relative coords first so the frame stays in place
+        local db = BR.profile
+        if db.categorySettings and db.categorySettings[catKey] and db.categorySettings[catKey].anchorFrame then
+            local settings = GetCategorySettings(catKey)
+            local dir = settings.growDirection or "CENTER"
+            local anchor = DIRECTION_ANCHORS[dir] or "CENTER"
+            local px, py = UIParent:GetCenter()
+            local coordFn = ANCHOR_COORD_FN[anchor]
+            local cx, cy
+            if coordFn then
+                cx, cy = coordFn(self, px, py)
+            else
+                local mx, my = self:GetCenter()
+                cx, cy = mx - px, my - py
+            end
+            db.categorySettings[catKey].anchorFrame = nil
+            db.categorySettings[catKey].anchorPoint = nil
+            SavePosition(catKey, RoundCoord(cx), RoundCoord(cy))
+            -- Update popup if open
+            if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
+                coordPopup.anchorText:SetText("None (Screen Center)")
+                coordPopup.pointBtn:SetEnabled(false)
+                coordPopup.pointText:SetTextColor(0.4, 0.4, 0.4, 1)
+                coordPopup.pointArrow:SetVertexColor(0.3, 0.3, 0.3, 1)
+            end
+            -- Update mover label
+            self.anchorText:SetText("Anchor \194\183 Growth " .. dir)
+        end
         self.isDragging = true
         self:StartMoving()
+        -- Live coordinate updates if popup is already open
+        if coordPopup and coordPopup:IsShown() then
+            coordPopup:ClearAllPoints()
+            coordPopup:SetPoint("LEFT", self, "RIGHT", 10, 0)
+            coordPopup.catKey = catKey
+        end
+        self:SetScript("OnUpdate", function()
+            UpdatePopupLive(self, catKey)
+        end)
     end)
     mover:SetScript("OnDragStop", function(self)
         FinishMoverDrag(self, catKey)
@@ -366,10 +869,14 @@ local function CreateMoverFrame(catKey, displayName)
         end
     end)
 
-    -- Right-click to open coordinate popup
-    mover:SetScript("OnMouseDown", function(self, button)
-        if button == "RightButton" then
-            ShowCoordinatePopup(catKey, self)
+    -- Click to toggle coordinate popup
+    mover:SetScript("OnMouseUp", function(self, button)
+        if not self.isDragging and button == "LeftButton" then
+            if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
+                coordPopup:Hide()
+            else
+                ShowCoordinatePopup(catKey, self)
+            end
         end
     end)
 
@@ -388,11 +895,25 @@ PositionMoverFrame = function(catKey)
     local direction = settings.growDirection or "CENTER"
     local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
     mover:ClearAllPoints()
-    mover:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    local extFrame, extPoint = ResolveAnchorParent(catKey)
+    if extFrame then
+        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
+        mover:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+    else
+        mover:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    end
+    if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
+        coordPopup.xEdit:SetText(tostring(pos.x or 0))
+        coordPopup.yEdit:SetText(tostring(pos.y or 0))
+    end
 end
 
 -- Initialize mover frames for all categories (called from InitializeFrames)
 local function InitializeMovers()
+    -- Resolve forward declarations now that BR.Display is available
+    ResolveAnchorParent = BR.Display.ResolveAnchorParent
+    OPPOSITE_POINTS = BR.OPPOSITE_POINTS
+
     moverFrames["main"] = CreateMoverFrame("main", GetMainFrameLabel())
     lastDirection["main"] = (GetCategorySettings("main").growDirection or "CENTER")
     for _, category in ipairs(CATEGORIES) do
@@ -429,7 +950,13 @@ local function UpdateAnchor()
         if unlocked and not allSplit then
             local mainSettings = GetCategorySettings("main")
             mainMover.label:SetText(GetMainFrameLabel())
-            mainMover.anchorText:SetText("Anchor \194\183 Growth " .. (mainSettings.growDirection or "CENTER"))
+            local mainAnchorLabel = "Anchor \194\183 Growth " .. (mainSettings.growDirection or "CENTER")
+            local mainCatSettings = db.categorySettings and db.categorySettings["main"]
+            local mainAnchorName = mainCatSettings and mainCatSettings.anchorFrame
+            if mainAnchorName and mainAnchorName ~= "" then
+                mainAnchorLabel = mainAnchorLabel .. " \194\183 > " .. mainAnchorName
+            end
+            mainMover.anchorText:SetText(mainAnchorLabel)
             PositionMoverFrame("main")
             mainMover:Show()
         else
@@ -444,7 +971,13 @@ local function UpdateAnchor()
             if unlocked and IsCategorySplit(category) then
                 local catSettings = GetCategorySettings(category)
                 mover.label:SetText(CATEGORY_LABELS[category])
-                mover.anchorText:SetText("Anchor \194\183 Growth " .. (catSettings.growDirection or "CENTER"))
+                local catAnchorLabel = "Anchor \194\183 Growth " .. (catSettings.growDirection or "CENTER")
+                local catDbSettings = db.categorySettings and db.categorySettings[category]
+                local catAnchorName = catDbSettings and catDbSettings.anchorFrame
+                if catAnchorName and catAnchorName ~= "" then
+                    catAnchorLabel = catAnchorLabel .. " \194\183 > " .. catAnchorName
+                end
+                mover.anchorText:SetText(catAnchorLabel)
                 PositionMoverFrame(category)
                 mover:Show()
             else
@@ -454,7 +987,7 @@ local function UpdateAnchor()
     end
 end
 
--- Hide all mover frames
+-- Hide all mover frames and the coordinate popup
 local function HideAllMovers()
     if coordPopup then
         coordPopup:Hide()
@@ -476,7 +1009,8 @@ local function ConvertDirectionPositions()
         local settings = GetCategorySettings(catKey)
         local dir = settings.growDirection or "CENTER"
         local oldDir = lastDirection[catKey]
-        if oldDir and oldDir ~= dir then
+        -- Skip conversion when externally anchored (offset is relative to the anchor, not UIParent)
+        if oldDir and oldDir ~= dir and not ResolveAnchorParent(catKey) then
             local oldAnchor = DIRECTION_ANCHORS[oldDir] or "CENTER"
             local newAnchor = DIRECTION_ANCHORS[dir] or "CENTER"
             local pos = GetSavedPosition(catKey)

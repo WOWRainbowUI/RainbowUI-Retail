@@ -855,6 +855,30 @@ local DIRECTION_ANCHORS = {
 }
 BR.DIRECTION_ANCHORS = DIRECTION_ANCHORS
 
+local OPPOSITE_POINTS = {
+    TOP = "BOTTOM",
+    BOTTOM = "TOP",
+    LEFT = "RIGHT",
+    RIGHT = "LEFT",
+    CENTER = "CENTER",
+}
+BR.OPPOSITE_POINTS = OPPOSITE_POINTS
+
+-- Resolve an external anchor parent frame for a category (returns nil if not set or invalid)
+local function ResolveAnchorParent(catKey)
+    local db = BR.profile
+    local catSettings = db.categorySettings and db.categorySettings[catKey]
+    local frameName = catSettings and catSettings.anchorFrame
+    if frameName and frameName ~= "" then
+        local frame = _G[frameName]
+        if frame and frame.GetCenter then
+            return frame, catSettings.anchorPoint or "CENTER"
+        end
+    end
+    return nil, nil
+end
+BR.Display.ResolveAnchorParent = ResolveAnchorParent
+
 local DIRECTION_LAYOUT = {
     LEFT = { anchor = "RIGHT", xMult = -1, yMult = 0 },
     RIGHT = { anchor = "LEFT", xMult = 1, yMult = 0 },
@@ -872,7 +896,13 @@ local function CreateCategoryFrame(category)
 
     local frame = CreateFrame("Frame", "BuffReminders_Category_" .. category, UIParent)
     frame:SetSize(200, 50)
-    frame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    local extFrame, extPoint = ResolveAnchorParent(category)
+    if extFrame then
+        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
+        frame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+    else
+        frame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    end
     frame.category = category
     frame:EnableMouse(false)
 
@@ -1277,7 +1307,13 @@ local function PositionMainContainer(mainFrameBuffs)
             or db.position
             or { point = "CENTER", x = 0, y = 0 }
         mainFrame:ClearAllPoints()
-        mainFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+        local extFrame, extPoint = ResolveAnchorParent("main")
+        if extFrame then
+            local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
+            mainFrame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+        else
+            mainFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+        end
 
         PositionFramesVariable(mainFrame, mainFrameBuffs, widths, heights, spacings, direction)
         mainFrame:Show()
@@ -1327,7 +1363,13 @@ local function PositionSplitCategory(category, frames)
         end
 
         catFrame:ClearAllPoints()
-        catFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+        local extFrame, extPoint = ResolveAnchorParent(category)
+        if extFrame then
+            local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
+            catFrame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+        else
+            catFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
+        end
 
         PositionFramesInContainer(catFrame, frames, iconWidth, iconSize, spacing, direction)
         catFrame:Show()
@@ -1371,6 +1413,7 @@ local function GenerateTestEntries()
         entry.isEating = nil
         entry.petActions = nil
         entry.iconByRole = nil
+        entry.dynamicIcon = nil
     end
 
     local raidIndex = 1
@@ -1847,7 +1890,9 @@ local function RenderVisibleEntry(frame, entry)
                 end
             end
         else
-            if entry.iconByRole then
+            if entry.dynamicIcon then
+                frame.icon:SetTexture(entry.dynamicIcon)
+            elseif entry.iconByRole then
                 local texture = GetBuffTexture(frame.spellIDs, entry.iconByRole)
                 if texture then
                     frame.icon:SetTexture(texture)
@@ -2409,7 +2454,13 @@ local function InitializeFrames()
     local pos = (db.categorySettings and db.categorySettings.main and db.categorySettings.main.position)
         or db.position
         or { point = "CENTER", x = 0, y = 0 }
-    mainFrame:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    local extFrame, extPoint = ResolveAnchorParent("main")
+    if extFrame then
+        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
+        mainFrame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+    else
+        mainFrame:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    end
     mainFrame:EnableMouse(false)
 
     -- Create category frames for grouped display mode
@@ -2740,7 +2791,14 @@ BR.Display.IsTestMode = function()
     return testMode
 end
 BR.Display.ResetCategoryFramePosition = function(category, x, y)
+    -- Clear any external anchor so the frame returns to default UIParent positioning
+    local db = BR.profile
+    if db.categorySettings and db.categorySettings[category] then
+        db.categorySettings[category].anchorFrame = nil
+        db.categorySettings[category].anchorPoint = nil
+    end
     BR.Movers.SavePosition(category, x or 0, y or 0)
+    BR.CallbackRegistry:TriggerEvent("LayoutRefresh")
 end
 BR.Display.IsSpellGlowing = function(spellID)
     return glowingSpells[spellID] == true

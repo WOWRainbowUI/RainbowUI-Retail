@@ -2039,7 +2039,7 @@ local function CreateOptionsPanel()
     -- Simple frame (not scrollable) - content fits without scrolling
     local settingsContent = CreateFrame("Frame", nil, panel)
     settingsContent:SetPoint("TOPLEFT", 0, CONTENT_TOP)
-    settingsContent:SetSize(PANEL_WIDTH, 300)
+    settingsContent:SetSize(PANEL_WIDTH, 500)
     settingsContent:Hide()
     contentContainers.settings = settingsContent
 
@@ -2216,6 +2216,114 @@ local function CreateOptionsPanel()
     })
     setLayout:Add(trackingModeHolder, nil, COMPONENT_GAP)
 
+    -- Custom Anchor Frames section
+    LayoutSectionHeader(setLayout, settingsContent, "自訂定位框架")
+
+    local customAnchorDesc = settingsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+    customAnchorDesc:SetWidth(PANEL_WIDTH - COL_PADDING * 2)
+    customAnchorDesc:SetJustifyH("LEFT")
+    customAnchorDesc:SetText(
+        "將全局框架名稱新增至定位點下拉清單中 (e.g. MyAddon_PlayerFrame). \n遊戲中不存在的框架會被默默地跳過。"
+    )
+    setLayout:AddText(customAnchorDesc, 22, COMPONENT_GAP)
+
+    -- Input row: text input + add button (at top)
+    local addAnchorRow = CreateFrame("Frame", nil, settingsContent)
+    addAnchorRow:SetSize(PANEL_WIDTH - COL_PADDING * 2, 22)
+
+    local addAnchorInput = Components.TextInput(addAnchorRow, {
+        label = "",
+        value = "",
+        width = 180,
+        labelWidth = 0,
+    })
+    addAnchorInput:SetPoint("LEFT", 0, 0)
+    local addAnchorBox = addAnchorInput.editBox
+
+    local addAnchorBtn -- forward declare for editbox callback
+
+    local customAnchorList = CreateFrame("Frame", nil, settingsContent)
+    customAnchorList:SetSize(PANEL_WIDTH - COL_PADDING * 2, 1)
+
+    local customAnchorEntries = {} -- holder frames for removal
+
+    local function RebuildCustomAnchorList()
+        for _, entry in ipairs(customAnchorEntries) do
+            entry:Hide()
+            entry:SetParent(nil)
+        end
+        wipe(customAnchorEntries)
+
+        local db = BR.profile
+        local list = db.customAnchorFrames or {}
+        local entryY = 0
+
+        for i, name in ipairs(list) do
+            local row = CreateFrame("Frame", nil, customAnchorList)
+            row:SetSize(PANEL_WIDTH - COL_PADDING * 2, 20)
+            row:SetPoint("TOPLEFT", 0, -entryY)
+
+            local bullet = row:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+            bullet:SetPoint("LEFT", 4, 0)
+            bullet:SetText("-")
+
+            local text = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+            text:SetPoint("LEFT", bullet, "RIGHT", 4, 0)
+            text:SetText(name)
+
+            local removeBtn = CreateFrame("Button", nil, row)
+            removeBtn:SetSize(16, 16)
+            removeBtn:SetPoint("LEFT", text, "RIGHT", 6, 0)
+            removeBtn:SetNormalFontObject("GameFontRedSmall")
+            removeBtn:SetText("x")
+            removeBtn:SetScript("OnClick", function()
+                tremove(list, i)
+                if #list == 0 then
+                    db.customAnchorFrames = nil
+                end
+                RebuildCustomAnchorList()
+            end)
+
+            tinsert(customAnchorEntries, row)
+            entryY = entryY + 22
+        end
+
+        customAnchorList:SetHeight(math.max(1, entryY))
+    end
+
+    addAnchorBtn = CreateButton(addAnchorRow, "Add", function()
+        local name = strtrim(addAnchorBox:GetText())
+        if name == "" then
+            return
+        end
+        local db = BR.profile
+        if not db.customAnchorFrames then
+            db.customAnchorFrames = {}
+        end
+        -- Avoid duplicates
+        for _, existing in ipairs(db.customAnchorFrames) do
+            if existing == name then
+                addAnchorBox:SetText("")
+                return
+            end
+        end
+        tinsert(db.customAnchorFrames, name)
+        addAnchorBox:SetText("")
+        RebuildCustomAnchorList()
+    end)
+    addAnchorBtn:SetSize(50, 22)
+    addAnchorBtn:SetPoint("LEFT", addAnchorInput, "RIGHT", 6, 0)
+
+    addAnchorBox:SetScript("OnEnterPressed", function(self)
+        self:ClearFocus()
+        addAnchorBtn:Click()
+    end)
+
+    setLayout:Add(addAnchorRow, nil, COMPONENT_GAP)
+
+    RebuildCustomAnchorList()
+    setLayout:Add(customAnchorList, nil, COMPONENT_GAP)
+
     -- ========== PROFILES TAB ==========
     -- Use simple frame (not scrollable) to avoid nested scroll frame issues with edit boxes
     local profilesContent = CreateFrame("Frame", nil, panel)
@@ -2273,6 +2381,7 @@ local function CreateOptionsPanel()
         end,
         onChange = function(value)
             BR.Profiles.SwitchProfile(value)
+            RefreshProfileDropdown()
             Components.RefreshAll()
         end,
     })
@@ -2494,7 +2603,19 @@ local function CreateOptionsPanel()
     lockBtn:Refresh()
     tinsert(BR.RefreshableComponents, lockBtn)
 
-    local testBtn = CreateButton(btnHolder, "停止測試", function(self)
+    local unlockBanner = Components.Banner(panel, {
+        text = "點擊定位點以更新其定位點或座標",
+        color = "orange",
+        icon = "services-icon-warning",
+        bgAlpha = 0.95,
+        visible = function()
+            return not BR.profile.locked
+        end,
+    })
+    unlockBanner:SetPoint("TOPLEFT", panel, "BOTTOMLEFT", 0, 0)
+    unlockBanner:SetPoint("TOPRIGHT", panel, "BOTTOMRIGHT", 0, 0)
+
+    local testBtn = CreateButton(btnHolder, "Stop Test", function(self)
         local isOn = ToggleTestMode()
         self.text:SetText(isOn and "停止測試" or "測試")
     end, {
@@ -2576,7 +2697,7 @@ ShowGlowAdvanced = function(targetCategory)
 
     local titleText = targetCategory
             and ("Glow Settings — " .. targetCategory:sub(1, 1):upper() .. targetCategory:sub(2))
-        or "Glow Settings"
+        or "發光設定"
     local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -10)
     title:SetText("|cffffcc00" .. titleText .. "|r")

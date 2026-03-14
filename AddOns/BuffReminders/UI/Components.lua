@@ -3597,7 +3597,7 @@ end
 
 ---Create a warning banner with left accent bar and muted background
 ---@param parent table Parent frame
----@param config {text: string, icon?: string, color?: string, visible?: function, height?: number}
+---@param config {text: string, icon?: string, color?: string, visible?: function, height?: number, bgAlpha?: number}
 ---@return table holder Banner frame with :Refresh(), :SetText()
 function Components.Banner(parent, config)
     local BANNER_HEIGHT = config.height or 26
@@ -3615,7 +3615,11 @@ function Components.Banner(parent, config)
     -- Subtle translucent background
     local bg = holder:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
-    bg:SetColorTexture(unpack(c.bg))
+    local bgColor = { unpack(c.bg) }
+    if config.bgAlpha then
+        bgColor[4] = config.bgAlpha
+    end
+    bg:SetColorTexture(unpack(bgColor))
 
     -- Thin accent line at the bottom
     local accent = holder:CreateTexture(nil, "ARTWORK")
