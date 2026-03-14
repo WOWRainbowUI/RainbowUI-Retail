@@ -249,7 +249,8 @@ map.nodes[48815326] = RareElite({
 slr.nodes[69687730] = RareElite({
     id = 257231,
     quest = 94461,
-    faction = 'alliance',
+    parent = map.id,
+    faction = 'Alliance',
     rewards = {
         Transmog({item = 264641, type = L['1h_axe']}), -- Sharpened Skullcleaver
         Spacer(), Section(L['shared_drops']), Mount({item = 257085, id = 2751}), -- Augmented Stormray
@@ -260,7 +261,8 @@ slr.nodes[69687730] = RareElite({
 slr.nodes[28355711] = RareElite({
     id = 257199,
     quest = 94461,
-    faction = 'horde',
+    parent = map.id,
+    faction = 'Horde',
     rewards = {
         Transmog({item = 264615, type = L['1h_sword']}), -- Hardin's Backup Blade
         Spacer(), Section(L['shared_drops']), Mount({item = 257085, id = 2751}), -- Augmented Stormray
@@ -320,11 +322,13 @@ map.nodes[28206600] = RareElite({
 map.nodes[24806780] = RareElite({
     id = 248823,
     quest = 94463,
+    note = L['blackcore_note'],
     rewards = {
         Transmog({item = 264519, type = L['shield']}), -- Repurposed Voidwalker's Chestplate
         Section(L['shared_drops']), Mount({item = 257085, id = 2751}), -- Augmented Stormray
         Mount({item = 260635, id = 2827}) -- Sanguine Harrower
-    }
+    },
+    pois = {Path({ns.poi.Circle({origin = 28857025, radius = 0.5})})}
 }) -- Blackcore
 
 -------------------------------------------------------------------------------
@@ -344,6 +348,7 @@ map.nodes[49947936] = Treasure({
 map.nodes[25766728] = Treasure({
     requires = ns.requirement.Item(251519), -- Key of Fused Darkness
     quest = 92414,
+    note = L['void_shielded_tomb_note'],
     rewards = {Achievement({id = 62126, criteria = 111864})},
     pois = {
         POI({25746749}), -- Potion of Dissociation
@@ -429,7 +434,7 @@ map.nodes[31504451] = Treasure({
 }) -- Quivering Egg
 
 map.nodes[28337290] = Treasure({
-    quest = 93569,
+    quest = 93498,
     note = L['exaliburn_note'], -- Use Potion of Unquestionable Strength nearby
     rewards = {
         Achievement({id = 62126, criteria = 111873}), --
@@ -466,11 +471,11 @@ map.nodes[37696976] = Treasure({
 
 map.nodes[24827001] = Treasure({
     quest = 94742,
-    label = 'Hoarders Corpse?', -- todo: needs recheck
+    label = L['voidhoarders_corpse'],
     rewards = {
         Item({item = 246951}) -- Stormarion Core
     }
-})
+}) -- Voidhoarder's Corpse
 
 -- 64457565 Oceanic Vortex
 -- fishing pool, looted Abundant Token (currency 3376)
