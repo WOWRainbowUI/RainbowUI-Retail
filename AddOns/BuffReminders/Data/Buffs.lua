@@ -74,6 +74,7 @@ local min = math.min
 ---@field iconByRole? table<RoleType, number>
 ---@field infoTooltip? TooltipText
 ---@field customCheck? fun(): boolean?
+---@field getNextCastID? fun(): number|nil -- Returns spell ID of next spell to cast (used for dynamic icon)
 ---@field getPetActions? fun(): PetAction[]?  -- Override pet actions (e.g., wrong pet → Felguard only)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field showOnInstanceEntry? boolean Only show when entering an instance (not M+), skip normal buff checks
@@ -153,6 +154,55 @@ local function TargetedClickMacro(buffKey)
         end
         return "/cast [@mouseover,help,nodead][@target,help,nodead][] " .. name
     end
+end
+
+-- Rogue poison helper: finds the next poison to apply.
+-- Priority: non-lethal (Atrophic > Numbing > Crippling), then lethal (Amplifying > Deadly > Instant > Wound).
+-- Balances categories: applies to whichever has fewer active, prefers non-lethal when tied.
+-- Cached per frame (GetTime) so customCheck, icon, and clickMacro share one evaluation.
+local poisonNonLethal = { 381637, 5761, 3408 } -- Atrophic, Numbing, Crippling
+local poisonLethal = { 381664, 2823, 315584, 8679 } -- Amplifying, Deadly, Instant, Wound
+local poisonCacheTime, poisonCacheResult = -1, nil
+
+local function CountActivePoisonsAndFindMissing(poisons)
+    local active, missing = 0, nil
+    for _, id in ipairs(poisons) do
+        if IsPlayerSpell(id) then
+            local auraData
+            pcall(function()
+                auraData = C_UnitAuras.GetUnitAuraBySpellID("player", id)
+            end)
+            if auraData then
+                active = active + 1
+            elseif not missing then
+                missing = id
+            end
+        end
+    end
+    return active, missing
+end
+
+---@return number|nil castID Spell ID of the next poison to apply, or nil if none needed
+local function GetNextPoisonCastID()
+    local now = GetTime()
+    if poisonCacheTime == now then
+        return poisonCacheResult
+    end
+    poisonCacheTime = now
+
+    local activeNL, missingNL = CountActivePoisonsAndFindMissing(poisonNonLethal)
+    local activeL, missingL = CountActivePoisonsAndFindMissing(poisonLethal)
+
+    if missingNL and activeNL <= activeL then
+        poisonCacheResult = missingNL
+    elseif missingL then
+        poisonCacheResult = missingL
+    elseif missingNL then
+        poisonCacheResult = missingNL
+    else
+        poisonCacheResult = nil
+    end
+    return poisonCacheResult
 end
 
 ---@type table<string, RaidBuff[]|PresenceBuff[]|TargetedBuff[]|SelfBuff[]|ConsumableBuff[]|CustomBuff[]>
@@ -348,7 +398,7 @@ BR.BUFF_TABLES = {
                 desc = "Briefly shown when entering a dungeon as a reminder to drop a Soulwell. Dismissed after casting or after 30 seconds.",
             },
             customCheck = function()
-                local info = C_Spell.GetSpellCooldown(29893)
+                local info = securecallfunction(C_Spell.GetSpellCooldown, 29893)
                 return not info or info.duration == 0
             end,
         },
@@ -406,7 +456,6 @@ BR.BUFF_TABLES = {
                 local lethalPoisons = { 315584, 8679, 2823, 381664 } -- Instant, Wound, Deadly, Amplifying
                 local nonLethalPoisons = { 5761, 381637, 3408 } -- Numbing, Atrophic, Crippling
 
-                -- Count known and active poisons in each category
                 local knownLethal, knownNonLethal = 0, 0
                 local activeLethal, activeNonLethal = 0, 0
 
@@ -450,42 +499,9 @@ BR.BUFF_TABLES = {
 
                 return activeLethal < requiredLethal or activeNonLethal < requiredNonLethal
             end,
+            getNextCastID = GetNextPoisonCastID,
             clickMacro = function()
-                -- Priority: non-lethal (Atrophic > Numbing > Crippling), then lethal (Amplifying > Deadly > Instant > Wound)
-                -- Balance: apply to whichever category has fewer active, prefer non-lethal when tied
-                local nonLethalPriority = { 381637, 5761, 3408 } -- Atrophic, Numbing, Crippling
-                local lethalPriority = { 381664, 2823, 315584, 8679 } -- Amplifying, Deadly, Instant, Wound
-
-                local function countActiveAndFindMissing(poisons)
-                    local active, missing = 0, nil
-                    for _, id in ipairs(poisons) do
-                        if IsPlayerSpell(id) then
-                            local auraData
-                            pcall(function()
-                                auraData = C_UnitAuras.GetUnitAuraBySpellID("player", id)
-                            end)
-                            if auraData then
-                                active = active + 1
-                            elseif not missing then
-                                missing = id
-                            end
-                        end
-                    end
-                    return active, missing
-                end
-
-                local activeNL, missingNL = countActiveAndFindMissing(nonLethalPriority)
-                local activeL, missingL = countActiveAndFindMissing(lethalPriority)
-
-                local castID = nil
-                if missingNL and activeNL <= activeL then
-                    castID = missingNL
-                elseif missingL then
-                    castID = missingL
-                elseif missingNL then
-                    castID = missingNL
-                end
-
+                local castID = GetNextPoisonCastID()
                 if castID then
                     return "/cast " .. (BR.GetSpellName(castID) or "")
                 end

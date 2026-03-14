@@ -533,7 +533,7 @@ function Components.Slider(parent, config)
         editBox:SetFocus()
         editBox:HighlightText()
     end)
-    SetupTooltip(valueBtn, "Adjust value", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
+    SetupTooltip(valueBtn, "調整數值", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
 
     -- Mouse wheel support
     holder:EnableMouseWheel(true)
@@ -1585,7 +1585,7 @@ end
 ---@return table holder Frame containing direction dropdown with .SetDirection(dir)
 function Components.DirectionButtons(parent, config)
     local directions = { "LEFT", "CENTER", "RIGHT", "UP", "DOWN" }
-    local dirLabels = { LEFT = "Left", CENTER = "Center", RIGHT = "Right", UP = "Up", DOWN = "Down" }
+    local dirLabels = { LEFT = "左", CENTER = "中", RIGHT = "右", UP = "上", DOWN = "下" }
     local width = config.width or 90
     local labelWidth = config.labelWidth or 70
 
@@ -3597,7 +3597,7 @@ end
 
 ---Create a warning banner with left accent bar and muted background
 ---@param parent table Parent frame
----@param config {text: string, icon?: string, color?: string, visible?: function, height?: number}
+---@param config {text: string, icon?: string, color?: string, visible?: function, height?: number, bgAlpha?: number}
 ---@return table holder Banner frame with :Refresh(), :SetText()
 function Components.Banner(parent, config)
     local BANNER_HEIGHT = config.height or 26
@@ -3615,7 +3615,11 @@ function Components.Banner(parent, config)
     -- Subtle translucent background
     local bg = holder:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
-    bg:SetColorTexture(unpack(c.bg))
+    local bgColor = { unpack(c.bg) }
+    if config.bgAlpha then
+        bgColor[4] = config.bgAlpha
+    end
+    bg:SetColorTexture(unpack(bgColor))
 
     -- Thin accent line at the bottom
     local accent = holder:CreateTexture(nil, "ARTWORK")

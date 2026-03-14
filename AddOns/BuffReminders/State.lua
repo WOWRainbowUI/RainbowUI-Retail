@@ -25,6 +25,7 @@ local _, BR = ...
 ---@field isEating boolean?                 -- Food entry: player is currently eating
 ---@field eatingExpirationTime number?      -- GetTime()-based expiration of eating aura
 ---@field petActions PetActionList?           -- Expanded pet summon actions
+---@field dynamicIcon number|string|nil      -- Dynamic icon texture override (e.g. next poison to cast)
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local floor = math.floor
@@ -1340,6 +1341,7 @@ function BuffState.Refresh()
         entry.isEating = nil
         entry.eatingExpirationTime = nil
         entry.petActions = nil
+        entry.dynamicIcon = nil
     end
 
     -- Build valid unit cache once per refresh cycle
@@ -1527,6 +1529,10 @@ function BuffState.Refresh()
                     if shouldShow then
                         SetEntryText(entry, buff.overlayText, selfGlow)
                         entry.iconByRole = buff.iconByRole
+                        if buff.getNextCastID then
+                            local castID = buff.getNextCastID()
+                            entry.dynamicIcon = castID and C_Spell.GetSpellTexture(castID)
+                        end
                     elseif
                         shouldShow == false
                         and not buff.enchantID
