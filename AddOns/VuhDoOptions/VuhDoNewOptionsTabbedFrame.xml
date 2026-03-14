@@ -316,8 +316,8 @@
 			<OnShow>
 				self:SetScale(VUHDO_OPTIONS_SETTINGS.scale);
 				VuhDoNewOptionsScaleSlider:Show();
-				VuhDoNewOptionsPanelBarsTexturePanelTextureSliderSlider:SetMinMaxValues(1, #VUHDO_STATUS_BARS);
-				VuhDoNewOptionsPanelHeaderHeaderBgPanelTextureSliderSlider:SetMinMaxValues(1, #VUHDO_STATUS_BARS);
+				VuhDoNewOptionsPanelBarsTexturePanelTextureSliderSlider:SetMinMaxValues(1, math.max(1, #VUHDO_STATUS_BARS));
+				VuhDoNewOptionsPanelHeaderHeaderBgPanelTextureSliderSlider:SetMinMaxValues(1, math.max(1, #VUHDO_STATUS_BARS));
 
 				VUHDO_IS_CONFIG = true;
 				if (DESIGN_MISC_PANEL_NUM == nil) then
@@ -336,6 +336,9 @@
 				VUHDO_IS_CONFIG = false;
 				VUHDO_IS_PANEL_CONFIG = false;
 				VUHDO_CONFIG_SHOW_RAID = false;
+
+				VUHDO_incrementAuraAnchorConfigVersion();
+
 				VUHDO_reloadUI(false);
 
 				collectgarbage("collect");

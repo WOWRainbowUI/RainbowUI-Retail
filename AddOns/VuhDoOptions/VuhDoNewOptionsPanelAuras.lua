@@ -656,7 +656,6 @@ function VUHDO_panelAurasAnchorSelectionChanged(aCombo, aNewValue)
 	end
 
 	tContentPanel = _G[tMainPanel:GetName() .. "AnchorContentPanel"];
-	tNewButton = _G[tMainPanel:GetName() .. "NewButton"];
 	tCopyButton = _G[tMainPanel:GetName() .. "CopyButton"];
 	tDeleteButton = _G[tMainPanel:GetName() .. "DeleteButton"];
 
@@ -1112,6 +1111,8 @@ end
 local tMainPanel;
 local tAnchorCombo;
 function VUHDO_panelAurasRefreshUI()
+
+	VUHDO_incrementAuraAnchorConfigVersion();
 
 	VUHDO_initPanelAurasAnchorComboModel();
 

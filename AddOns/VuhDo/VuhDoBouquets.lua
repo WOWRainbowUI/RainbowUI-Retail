@@ -23,6 +23,9 @@ local VUHDO_getPurgeAbilities;
 local VUHDO_isConfigDemoUsers;
 local VUHDO_displayAurasAtAnchorFromCache;
 local VUHDO_getSlotData;
+local VUHDO_getAuraGroupRaw;
+local VUHDO_getAuraBarColorType;
+local VUHDO_getAuraTextColorType;
 
 local VUHDO_BOUQUETS = { };
 local VUHDO_RAID = { };
@@ -34,8 +37,6 @@ local VUHDO_POWER_TYPE_COLORS;
 local VUHDO_PANEL_SETUP;
 local VUHDO_AURA_LIST_BOUQUETS;
 local VUHDO_UNIT_AURA_LIST_SLOTS;
-local VUHDO_getAuraGroupRaw;
-local VUHDO_getAuraBarColorType;
 local VUHDO_MAX_PANELS;
 local VUHDO_AURA_GROUP_TYPE_LIST;
 local VUHDO_AURA_LIST_ENTRY_BOUQUET;
@@ -55,8 +56,6 @@ local VUHDO_REGISTERED_BOUQUET_INDICATORS = { };
 local VUHDO_CYCLIC_BOUQUETS = { };
 
 VUHDO_UNIT_AURA_BOUQUET_ACTIVE = { };
-setmetatable(VUHDO_UNIT_AURA_BOUQUET_ACTIVE, VUHDO_META_NEW_ARRAY);
-
 VUHDO_LIST_GROUP_COLOR_BOUQUETS = { };
 
 local VUHDO_CUSTOM_BOUQUETS = {
@@ -146,6 +145,7 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_displayAurasAtAnchorFromCache = _G["VUHDO_displayAurasAtAnchorFromCache"];
 	VUHDO_getSlotData = _G["VUHDO_getSlotData"];
 	VUHDO_getAuraBarColorType = _G["VUHDO_getAuraBarColorType"];
+	VUHDO_getAuraTextColorType = _G["VUHDO_getAuraTextColorType"];
 
 	sBouquetStatePool = VUHDO_createTablePool("BouquetState", 500);
 	sThresholdEntryPool = VUHDO_createTablePool("ThresholdEntry", 100);
@@ -1267,7 +1267,13 @@ do
 						["g"] = nil,
 						["b"] = nil,
 						["a"] = nil,
+						["tr"] = nil,
+						["tg"] = nil,
+						["tb"] = nil,
+						["ta"] = nil,
 						["auraInstanceId"] = nil,
+						["useBackground"] = nil,
+						["useText"] = nil,
 					};
 
 					if tItem["color"] then
@@ -1839,7 +1845,9 @@ do
 	local tResultSlot;
 	local tAuraInstanceId;
 	local tSecretType;
-	local tColorType;
+	local tBarColorType;
+	local tTextColorType;
+	local tNeedsCopy;
 	local tCurveResultSlot;
 	local tBoolResultSlot;
 	local tDispelResultSlot;
@@ -1849,11 +1857,12 @@ do
 	local tAuraResultSlot;
 	local tAuraInstances;
 	local tCachedAura;
+	local tSpellId;
 	local tSecretBool;
 	local tWorkingColor = { };
 	local tSecretContext = { };
 	local tSecretColor;
-	function VUHDO_evaluateBouquetSecret(aUnit, aBouquetName, aInfo, aResolvedUnit, aBouquet, aAnzInfos, aLayerTemplate)
+	function VUHDO_evaluateBouquetSecret(aUnit, aBouquetName, aInfo, aBouquet, aAnzInfos, aLayerTemplate)
 
 		txState["activeAuras"] = 0;
 
@@ -1897,7 +1906,13 @@ do
 				aLayerTemplate["dispelResults"][tIdx]["g"] = nil;
 				aLayerTemplate["dispelResults"][tIdx]["b"] = nil;
 				aLayerTemplate["dispelResults"][tIdx]["a"] = nil;
+				aLayerTemplate["dispelResults"][tIdx]["tr"] = nil;
+				aLayerTemplate["dispelResults"][tIdx]["tg"] = nil;
+				aLayerTemplate["dispelResults"][tIdx]["tb"] = nil;
+				aLayerTemplate["dispelResults"][tIdx]["ta"] = nil;
 				aLayerTemplate["dispelResults"][tIdx]["auraInstanceId"] = nil;
+				aLayerTemplate["dispelResults"][tIdx]["useBackground"] = nil;
+				aLayerTemplate["dispelResults"][tIdx]["useText"] = nil;
 			end
 
 			for tIdx = 1, #aLayerTemplate["spriteCellResults"] do
@@ -1916,14 +1931,14 @@ do
 					if tAuraResultSlot then
 						tName = tInfos["name"];
 						tIsActive = false;
+						tSpellId = tonumber(tName);
 
-						tAuraInstances = VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit] and
-							(VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit][tName] or
-								(tonumber(tName) and VUHDO_UNIT_AURA_BY_SPELL[aResolvedUnit][tonumber(tName)]));
+						tAuraInstances = VUHDO_UNIT_AURA_BY_SPELL[aUnit] and
+							(VUHDO_UNIT_AURA_BY_SPELL[aUnit][tName] or (tSpellId and VUHDO_UNIT_AURA_BY_SPELL[aUnit][tSpellId]));
 
 						if tAuraInstances then
 							for _, tAuraInstanceId in ipairs(tAuraInstances) do
-								if not ShouldUnitAuraInstanceBeSecret(aResolvedUnit, tAuraInstanceId) then
+								if not ShouldUnitAuraInstanceBeSecret(aUnit, tAuraInstanceId) then
 									tCachedAura = VUHDO_UNIT_AURA_CACHE[aUnit] and VUHDO_UNIT_AURA_CACHE[aUnit][tAuraInstanceId];
 
 									if tCachedAura and VUHDO_auraSourceMatchesFilter(tCachedAura, tInfos) then
@@ -2058,7 +2073,7 @@ do
 									tCurveResultSlot["r"], tCurveResultSlot["g"], tCurveResultSlot["b"], tCurveResultSlot["a"] = tSecretColor:GetRGBA();
 								end
 
-								tCurveResultSlot["value"] = UnitHealthPercent(aResolvedUnit);
+								tCurveResultSlot["value"] = UnitHealthPercent(aUnit);
 								tCurveResultSlot["timer"] = tTimer or 0;
 								tCurveResultSlot["duration"] = tDuration or 0;
 								tCurveResultSlot["timer2"] = tTimer2 or 0;
@@ -2078,7 +2093,7 @@ do
 										tSecretColor:GetRGBA();
 								end
 
-								tCurveResultSlot["value"] = UnitPowerPercent(aResolvedUnit, aInfo["powertype"]);
+								tCurveResultSlot["value"] = UnitPowerPercent(aUnit, aInfo["powertype"]);
 								tCurveResultSlot["timer"] = tTimer or 0;
 								tCurveResultSlot["duration"] = tDuration or 0;
 								tCurveResultSlot["timer2"] = tTimer2 or 0;
@@ -2110,28 +2125,52 @@ do
 
 							if tIsActive then
 								if tColor then
-									tColorType = VUHDO_getAuraBarColorType(aUnit);
+									tBarColorType = VUHDO_getAuraBarColorType(aUnit);
+									tTextColorType = VUHDO_getAuraTextColorType(aUnit);
 
-									if tColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
+									tFactor = tInfos["custom"] and tInfos["custom"]["bright"] or 1;
+
+									tNeedsCopy = false;
+
+									if tBarColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
 										tDispelResultSlot["r"] = tColor["R"];
 										tDispelResultSlot["g"] = tColor["G"];
 										tDispelResultSlot["b"] = tColor["B"];
 										tDispelResultSlot["a"] = tColor["O"];
-									else
-										tFactor = tInfos["custom"] and tInfos["custom"]["bright"] or 1;
 
-										if tFactor < 1 then
+										tDispelResultSlot["useBackground"] = tColor["useBackground"];
+									else
+										if tFactor < 1 and tColor["useBackground"] then
 											tColor = VUHDO_copyColorTo(tColor, tWorkingColor);
 
-											if tColor["useBackground"] then
-												tColor["R"], tColor["G"], tColor["B"] = tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor;
-											end
+											tNeedsCopy = true;
 
-											if tColor["useText"] then
-												tColor["TR"], tColor["TG"], tColor["TB"] = tColor["TR"] * tFactor, tColor["TG"] * tFactor, tColor["TB"] * tFactor;
-											end
+											tColor["R"] = tColor["R"] * tFactor;
+											tColor["G"] = tColor["G"] * tFactor;
+											tColor["B"] = tColor["B"] * tFactor;
 										end
+									end
 
+									if tTextColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
+										tDispelResultSlot["tr"] = tColor["TR"];
+										tDispelResultSlot["tg"] = tColor["TG"];
+										tDispelResultSlot["tb"] = tColor["TB"];
+										tDispelResultSlot["ta"] = tColor["TO"];
+
+										tDispelResultSlot["useText"] = tColor["useText"];
+									else
+										if tFactor < 1 and tColor["useText"] then
+											if not tNeedsCopy then
+												tColor = VUHDO_copyColorTo(tColor, tWorkingColor);
+											end
+
+											tColor["TR"] = tColor["TR"] * tFactor;
+											tColor["TG"] = tColor["TG"] * tFactor;
+											tColor["TB"] = tColor["TB"] * tFactor;
+										end
+									end
+
+									if tBarColorType ~= VUHDO_AURA_GROUP_COLOR_DISPEL or tTextColorType ~= VUHDO_AURA_GROUP_COLOR_DISPEL then
 										tDispelResultSlot["barColor"] = tColor;
 									end
 								end
@@ -2432,7 +2471,7 @@ do
 	local tFactor;
 	local tMaxColor;
 	local tWorkingColor = { };
-	function VUHDO_evaluateBouquetNonSecret(aUnit, aInfo, aResolvedUnit, aBouquet, aAnzInfos)
+	function VUHDO_evaluateBouquetNonSecret(aUnit, aInfo, aBouquet, aAnzInfos)
 
 		for tCnt = aAnzInfos, 1, -1  do
 			tInfos = aBouquet[tCnt];
@@ -2494,7 +2533,7 @@ do
 				end
 
 				if tSourceType > 0 then
-					tUnitHot, _ = VUHDO_getUnitHot(aResolvedUnit, tName, tSourceType);
+					tUnitHot, _ = VUHDO_getUnitHot(aUnit, tName, tSourceType);
 
 					if tUnitHot and tUnitHot["auraInstanceId"] then
 						-- tUnitHotInfo: aura icon, expiration, stacks, duration, isMine, name, spell ID
@@ -2687,9 +2726,9 @@ do
 		if sSecretsEnabled and not VUHDO_isConfigDemoUsers() then
 			tLayerTemplate = sBouquetLayerTemplates[aBouquetName];
 
-			VUHDO_evaluateBouquetSecret(aUnit, aBouquetName, tInfo, tUnit, tBouquet, tAnzInfos, tLayerTemplate);
+			VUHDO_evaluateBouquetSecret(tUnit, aBouquetName, tInfo, tBouquet, tAnzInfos, tLayerTemplate);
 		else
-			VUHDO_evaluateBouquetNonSecret(aUnit, tInfo, tUnit, tBouquet, tAnzInfos);
+			VUHDO_evaluateBouquetNonSecret(tUnit, tInfo, tBouquet, tAnzInfos);
 		end
 
 		tHasSecretResults = (tLayerTemplate and (tLayerTemplate["hasCurves"] or tLayerTemplate["hasBools"] or tLayerTemplate["hasDispels"] or tLayerTemplate["hasSecretValues"]))

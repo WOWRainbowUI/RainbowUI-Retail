@@ -1293,6 +1293,8 @@ do
 	--
 	local tPanelNum;
 	local tAuraIndex;
+	local tAnchorIndex;
+	local tSlotIndex;
 	local tIdx;
 	local tPanelAnchorsRemove;
 	local tGroupRemove;

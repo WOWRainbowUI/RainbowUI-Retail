@@ -3,6 +3,7 @@ local _;
 local VUHDO_RAID;
 local VUHDO_BUFF_REMOVAL_SPELLS;
 local VUHDO_SPELL_ASSIGNMENTS;
+local VUHDO_MODIFIER_KEYS;
 local VUHDO_CONFIG;
 
 local VUHDO_buildMacroText;
@@ -17,6 +18,19 @@ local VUHDO_replaceMacroTemplates;
 local VUHDO_isActionValid;
 local VUHDO_isSpellKnown;
 local VUHDO_findButtonFromChild;
+local VUHDO_buildSecureMacroTemplate;
+local VUHDO_buildTargetSecureMacroTemplate;
+local VUHDO_buildFocusSecureMacroTemplate;
+local VUHDO_buildAssistSecureMacroTemplate;
+local VUHDO_buildPingSecureMacroTemplate;
+local VUHDO_buildExtraActionButtonSecureMacroTemplate;
+local VUHDO_buildRezSecureMacroTemplate;
+local VUHDO_buildPurgeSecureMacroTemplate;
+local VUHDO_buildCustomMacroSecureTemplate;
+local VUHDO_generateSetupClicksCode;
+local VUHDO_generateRemoveClicksCode;
+local VUHDO_getBindingAttributeRequirements;
+local VUHDO_isBossUnit;
 
 local GetMacroIndexByName = GetMacroIndexByName;
 local GetMacroInfo = GetMacroInfo;
@@ -38,6 +52,7 @@ function VUHDO_keySetupInitLocalOverrides()
 	VUHDO_BUFF_REMOVAL_SPELLS = _G["VUHDO_BUFF_REMOVAL_SPELLS"];
 	VUHDO_SPELL_ASSIGNMENTS = _G["VUHDO_SPELL_ASSIGNMENTS"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
+	VUHDO_MODIFIER_KEYS = _G["VUHDO_MODIFIER_KEYS"];
 
 	VUHDO_buildMacroText = _G["VUHDO_buildMacroText"];
 	VUHDO_buildTargetButtonMacroText = _G["VUHDO_buildTargetButtonMacroText"];
@@ -51,6 +66,19 @@ function VUHDO_keySetupInitLocalOverrides()
 	VUHDO_isActionValid = _G["VUHDO_isActionValid"];
 	VUHDO_isSpellKnown = _G["VUHDO_isSpellKnown"];
 	VUHDO_findButtonFromChild = _G["VUHDO_findButtonFromChild"];
+	VUHDO_buildSecureMacroTemplate = _G["VUHDO_buildSecureMacroTemplate"];
+	VUHDO_buildTargetSecureMacroTemplate = _G["VUHDO_buildTargetSecureMacroTemplate"];
+	VUHDO_buildFocusSecureMacroTemplate = _G["VUHDO_buildFocusSecureMacroTemplate"];
+	VUHDO_buildAssistSecureMacroTemplate = _G["VUHDO_buildAssistSecureMacroTemplate"];
+	VUHDO_buildPingSecureMacroTemplate = _G["VUHDO_buildPingSecureMacroTemplate"];
+	VUHDO_buildExtraActionButtonSecureMacroTemplate = _G["VUHDO_buildExtraActionButtonSecureMacroTemplate"];
+	VUHDO_buildRezSecureMacroTemplate = _G["VUHDO_buildRezSecureMacroTemplate"];
+	VUHDO_buildPurgeSecureMacroTemplate = _G["VUHDO_buildPurgeSecureMacroTemplate"];
+	VUHDO_buildCustomMacroSecureTemplate = _G["VUHDO_buildCustomMacroSecureTemplate"];
+	VUHDO_generateSetupClicksCode = _G["VUHDO_generateSetupClicksCode"];
+	VUHDO_generateRemoveClicksCode = _G["VUHDO_generateRemoveClicksCode"];
+	VUHDO_getBindingAttributeRequirements = _G["VUHDO_getBindingAttributeRequirements"];
+	VUHDO_isBossUnit = _G["VUHDO_isBossUnit"];
 
 	sIsCliqueCompat = VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"];
 
@@ -207,6 +235,141 @@ end
 
 
 --
+local tActionLow;
+local tMacroId;
+local tMacroText;
+local tType;
+local tTemplate;
+function VUHDO_getSecureActionForBinding(anAction, anUsesPet)
+
+	if not anAction or anAction == "" then
+		return nil, nil;
+	end
+
+	tActionLow = strlower(anAction);
+
+	if "assist" == tActionLow then
+		tType = "macro";
+
+		tTemplate = VUHDO_buildAssistSecureMacroTemplate(anUsesPet);
+	elseif "focus" == tActionLow then
+		tType = "macro";
+
+		tTemplate = VUHDO_buildFocusSecureMacroTemplate(anUsesPet);
+	elseif "target" == tActionLow then
+		tType = "macro";
+
+		tTemplate = VUHDO_buildTargetSecureMacroTemplate(anUsesPet);
+	elseif "extraactionbutton" == tActionLow then
+		tType = "macro";
+
+		tTemplate = VUHDO_buildExtraActionButtonSecureMacroTemplate();
+	elseif "mouselook" == tActionLow then
+		tType = "macro";
+
+		tTemplate = VUHDO_buildMouseLookMacroText();
+	elseif "ping" == tActionLow then
+		tType = "macro";
+
+		tTemplate = VUHDO_buildPingSecureMacroTemplate();
+	elseif "menu" == tActionLow or "tell" == tActionLow then
+		return nil, nil;
+	elseif "dropdown" == tActionLow then
+		return "togglemenu", nil;
+	else
+		anAction = VUHDO_REPLACE_SPELL_NAME[anAction] or anAction;
+
+		if VUHDO_NATIVE_ASSIGN_SPELLS[anAction] then
+			return "spell", anAction;
+		elseif VUHDO_isSpellKnown(anAction) or VUHDO_IN_COMBAT_RELOG or anAction == "13" or anAction == "14" then
+			if VUHDO_REZ_SPELLS_NAMES[anAction] then
+				tType = "macro";
+
+				tTemplate = VUHDO_buildRezSecureMacroTemplate(anAction);
+			elseif VUHDO_BUFF_REMOVAL_SPELLS[anAction] then
+				tType = "macro";
+
+				tTemplate = VUHDO_buildPurgeSecureMacroTemplate(anAction);
+			else
+				tType = "macro";
+
+				tTemplate = VUHDO_buildSecureMacroTemplate(anAction, false);
+			end
+		else
+			tMacroId = GetMacroIndexByName(anAction);
+
+			if tMacroId ~= 0 then
+				_, _, tMacroText = GetMacroInfo(tMacroId);
+
+				tType = "macro";
+
+				tTemplate = VUHDO_buildCustomMacroSecureTemplate(tMacroText);
+			elseif IsUsableItem(anAction) then
+				return "item", anAction;
+			else
+				return "spell", anAction;
+			end
+		end
+	end
+
+	return tType, tTemplate;
+
+end
+
+
+
+--
+local tTemplate;
+local tMacroId;
+local tMacroText;
+local tActionLow;
+function VUHDO_getMacroTemplateForAction(anAction)
+
+	if not anAction or anAction == "" then
+		return "";
+	end
+
+	tActionLow = strlower(anAction);
+
+	if "assist" == tActionLow then
+		return VUHDO_buildAssistSecureMacroTemplate(true);
+	elseif "focus" == tActionLow then
+		return VUHDO_buildFocusSecureMacroTemplate(true);
+	elseif "target" == tActionLow then
+		return VUHDO_buildTargetSecureMacroTemplate(true);
+	elseif "ping" == tActionLow then
+		return VUHDO_buildPingSecureMacroTemplate();
+	elseif "extraactionbutton" == tActionLow then
+		return VUHDO_buildExtraActionButtonSecureMacroTemplate();
+	elseif "mouselook" == tActionLow then
+		return "";
+	elseif "menu" == tActionLow or "tell" == tActionLow or "dropdown" == tActionLow then
+		return "";
+	end
+
+	tMacroId = GetMacroIndexByName(anAction);
+
+	if tMacroId ~= 0 then
+		_, _, tMacroText = GetMacroInfo(tMacroId);
+
+		return VUHDO_buildCustomMacroSecureTemplate(tMacroText);
+	end
+
+	if VUHDO_REZ_SPELLS_NAMES[anAction] then
+		return VUHDO_buildRezSecureMacroTemplate(anAction);
+	end
+
+	if VUHDO_BUFF_REMOVAL_SPELLS[anAction] then
+		return VUHDO_buildPurgeSecureMacroTemplate(anAction);
+	end
+
+	return VUHDO_buildSecureMacroTemplate(anAction, false);
+
+end
+
+
+
+--
 local tUnit;
 local tHostSpell;
 local tSpellInfo;
@@ -281,10 +444,15 @@ end
 --
 local tPreAction;
 local tIsWheel;
+local tIsHostileButton;
 local tHostSpell;
 local tWheelDefString;
 local tBinding;
 local tHeaderFrame;
+local tRequiresPet;
+local tRequiresName;
+local tRequiresTarget;
+local tInfo;
 local tOnEnterSnippet = [[
 	if sHealButton then
 		sHealButton:ClearBindings();
@@ -300,6 +468,61 @@ local tOnLeaveSnippet = [[
 local tClearBindsSnippet = [[
 	self:ClearBindings();
 ]]
+
+
+
+--
+local tWheelDefString;
+function VUHDO_generateOnEnterCode()
+
+	tWheelDefString = tClearBindsSnippet .. VUHDO_getWheelDefString() .. VUHDO_getInternalKeyString();
+
+	return tWheelDefString;
+
+end
+
+
+
+--
+function VUHDO_generateOnLeaveCode()
+
+	return tClearBindsSnippet;
+
+end
+
+
+
+--
+local tHeader;
+local tSetupCode;
+local tRemoveCode;
+local tEnterCode;
+local tLeaveCode;
+function VUHDO_updateBindingCodeAttributes()
+
+	tHeader = _G["VuhDoHealButtonSecureHeaderFrame"];
+
+	if not tHeader then
+		return;
+	end
+
+	tSetupCode = VUHDO_generateSetupClicksCode();
+	tRemoveCode = VUHDO_generateRemoveClicksCode();
+	tEnterCode = VUHDO_generateOnEnterCode();
+	tLeaveCode = VUHDO_generateOnLeaveCode();
+
+	tHeader:SetAttribute("vuhdo_setup_clicks", tSetupCode);
+	tHeader:SetAttribute("vuhdo_remove_clicks", tRemoveCode);
+	tHeader:SetAttribute("vuhdo_setup_onenter", tEnterCode);
+	tHeader:SetAttribute("vuhdo_setup_onleave", tLeaveCode);
+
+	return;
+
+end
+
+
+
+--
 local tDebuffFrame;
 function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceTarget, anIsTgButton, anIsIcButton)
 
@@ -339,13 +562,61 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 
 	tPreAction = anIsDisable and "" or aForceTarget and "target" or nil;
 
-	for tNoMinus, tWithMinus in pairs(VUHDO_MODIFIER_KEYS) do
-		for tCnt = 1, 16 do -- VUHDO_NUM_MOUSE_BUTTONS
-			tBinding = VUHDO_SPELL_ASSIGNMENTS[format("%s%d", tNoMinus, tCnt)];
+	tIsHostileButton = anIsTgButton or (aUnit and (aUnit == "focus" or aUnit == "target" or VUHDO_isBossUnit(aUnit)));
 
-			VUHDO_setupHealButtonAttributes(tWithMinus, tCnt,
-				tPreAction or tBinding ~= nil and tBinding[3] or "",
-				aButton, anIsTgButton);
+	if tIsHostileButton then
+		for tNoMinus, tWithMinus in pairs(VUHDO_MODIFIER_KEYS) do
+			for tCnt = 1, 16 do
+				tBinding = VUHDO_SPELL_ASSIGNMENTS[format("%s%d", tNoMinus, tCnt)];
+
+				VUHDO_setupHealButtonAttributes(tWithMinus, tCnt,
+					tPreAction or tBinding ~= nil and tBinding[3] or "",
+					aButton, anIsTgButton);
+			end
+		end
+	else
+		if not InCombatLockdown() then
+			VUHDO_updateBindingCodeAttributes();
+
+			tRequiresPet, tRequiresName, tRequiresTarget = VUHDO_getBindingAttributeRequirements();
+
+			tInfo = VUHDO_RAID[aUnit];
+
+			if tRequiresPet and tInfo and tInfo["petUnit"] then
+				VUHDO_safeSetAttribute(aButton, "vuhdo-pet", tInfo["petUnit"]);
+			end
+
+			if tRequiresName and tInfo and tInfo["name"] and not tInfo["hasSecretName"] then
+				VUHDO_safeSetAttribute(aButton, "vuhdo-name", tInfo["name"]);
+			end
+
+			if tRequiresTarget and tInfo and tInfo["targetUnit"] then
+				VUHDO_safeSetAttribute(aButton, "vuhdo-target", tInfo["targetUnit"]);
+			end
+
+			tHeaderFrame = _G["VuhDoHealButtonSecureHeaderFrame"];
+
+			if tHeaderFrame then
+				tHeaderFrame:SetFrameRef("vuhdo_setup_button", aButton);
+
+				tHeaderFrame:Execute([[
+					local button = self:GetFrameRef("vuhdo_setup_button")
+					self:RunFor(button, self:GetAttribute("vuhdo_setup_clicks"))
+				]]);
+
+				VUHDO_safeSetAttribute(aButton, "_onenter", tHeaderFrame:GetAttribute("vuhdo_setup_onenter"));
+				VUHDO_safeSetAttribute(aButton, "_onleave", tHeaderFrame:GetAttribute("vuhdo_setup_onleave"));
+			end
+		else
+			for tNoMinus, tWithMinus in pairs(VUHDO_MODIFIER_KEYS) do
+				for tCnt = 1, 16 do
+					tBinding = VUHDO_SPELL_ASSIGNMENTS[format("%s%d", tNoMinus, tCnt)];
+
+					VUHDO_setupHealButtonAttributes(tWithMinus, tCnt,
+						tPreAction or tBinding ~= nil and tBinding[3] or "",
+						aButton, anIsTgButton);
+				end
+			end
 		end
 	end
 

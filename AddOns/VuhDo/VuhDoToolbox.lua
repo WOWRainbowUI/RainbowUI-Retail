@@ -460,14 +460,23 @@ local sIsHelpfulGuessRange = true;
 local sIsHarmfulGuessRange = true;
 local sScanRange;
 local sZeroRange = "";
+local sPetRangeSpell;
+
+local VUHDO_PET_RANGE_SPELLS = {
+	["HUNTER"] = 136,
+	["WARLOCK"] = 755,
+	["DEATHKNIGHT"] = 47541,
+};
 
 
 --
 function VUHDO_toolboxInitLocalOverrides()
+
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_UNIT_BUTTONS = _G["VUHDO_UNIT_BUTTONS"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_BOSS_UNITS = _G["VUHDO_BOSS_UNITS"];
+
 	sScanRange = tonumber(VUHDO_CONFIG["SCAN_RANGE"]);
 
 	-- FIXME: why can't model sanity be run prior to burst cache initialization?
@@ -477,7 +486,12 @@ function VUHDO_toolboxInitLocalOverrides()
 		sIsHarmfulGuessRange = VUHDO_CONFIG["RANGE_PESSIMISTIC"]["HARMFUL"] or GetSpellName(sRangeSpell["HARMFUL"]) == nil;
 	end
 
+	sPetRangeSpell = VUHDO_PET_RANGE_SPELLS[VUHDO_PLAYER_CLASS];
+
 	sZeroRange = "0.0 " .. VUHDO_I18N_YARDS;
+
+	return;
+
 end
 
 
@@ -659,6 +673,14 @@ function VUHDO_isInRange(aUnit)
 
 	if VUHDO_unitPhaseReason(aUnit) then
 		return false;
+	end
+
+	if sPetRangeSpell and ("pet" == aUnit or VUHDO_unitIsUnit(aUnit, "pet")) then
+		tIsSpellInRange = VUHDO_isSpellInRange(sPetRangeSpell, aUnit, "HELPFUL");
+
+		if tIsSpellInRange ~= nil then
+			return tIsSpellInRange;
+		end
 	end
 
 	if UnitPlayerOrPetInParty(aUnit) or UnitPlayerOrPetInRaid(aUnit) then

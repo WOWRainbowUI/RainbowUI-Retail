@@ -11,6 +11,8 @@ local GetSpellName = C_Spell.GetSpellName;
 local VUHDO_replaceMacroTemplates;
 local twipe = table.wipe;
 local format = format;
+local gsub = gsub;
+local strfind = strfind;
 local sEmpty = { };
 local sIsAnyAutoFireConfigured;
 local _;
@@ -433,6 +435,162 @@ local function VUHDO_generateRaidMacroTemplate(anAction, anIsKeyboard, aTarget, 
 		end
 	end
 	return tText;
+end
+
+
+
+--
+local tUsesUnit;
+local tUsesName;
+local tUsesPet;
+local tUsesTarget;
+function VUHDO_analyzeMacroPlaceholders(aMacroText)
+
+	if not aMacroText or aMacroText == "" then
+		return false, false, false, false;
+	end
+
+	tUsesUnit = strfind(aMacroText, "[Vv][Uu][Hh][Dd][Oo]") ~= nil;
+	tUsesName = strfind(aMacroText, "[Vv][Dd][Nn][Aa][Mm][Ee]") ~= nil;
+	tUsesPet = strfind(aMacroText, "[Vv][Dd][Pp][Ee][Tt]") ~= nil;
+	tUsesTarget = strfind(aMacroText, "[Vv][Dd][Tt][Aa][Rr][Gg][Ee][Tt]") ~= nil;
+
+	return tUsesUnit, tUsesName, tUsesPet, tUsesTarget;
+
+end
+
+
+
+--
+local tTemplate;
+function VUHDO_buildSecureMacroTemplate(anAction, anIsKeyboard)
+
+	tTemplate = VUHDO_generateRaidMacroTemplate(anAction, anIsKeyboard, nil, nil);
+
+	tTemplate = gsub(tTemplate, "[Vv][Uu][Hh][Dd][Oo]", "SECURE_UNIT");
+	tTemplate = gsub(tTemplate, "[Vv][Dd][Nn][Aa][Mm][Ee]", "SECURE_NAME");
+	tTemplate = gsub(tTemplate, "[Vv][Dd][Pp][Ee][Tt]", "SECURE_PET");
+	tTemplate = gsub(tTemplate, "[Vv][Dd][Tt][Aa][Rr][Gg][Ee][Tt]", "SECURE_TARGET");
+
+	return tTemplate;
+
+end
+
+
+
+--
+local tTemplate;
+function VUHDO_buildTargetSecureMacroTemplate(anUsesPet)
+
+	if anUsesPet then
+		tTemplate = "/tar [@SECURE_UNIT,help][@SECURE_PET,help][@SECURE_UNIT]";
+	else
+		tTemplate = "/tar [@SECURE_UNIT]";
+	end
+
+	return tTemplate;
+
+end
+
+
+
+--
+local tTemplate;
+function VUHDO_buildFocusSecureMacroTemplate(anUsesPet)
+
+	if anUsesPet then
+		tTemplate = "/focus [@SECURE_UNIT,help][@SECURE_PET,help][@SECURE_UNIT]";
+	else
+		tTemplate = "/focus [@SECURE_UNIT]";
+	end
+
+	return tTemplate;
+
+end
+
+
+
+--
+local tTemplate;
+function VUHDO_buildAssistSecureMacroTemplate(anUsesPet)
+
+	if anUsesPet then
+		tTemplate = "/assist [@SECURE_UNIT,help][@SECURE_PET,help][@SECURE_UNIT]";
+	else
+		tTemplate = "/assist [@SECURE_UNIT]";
+	end
+
+	return tTemplate;
+
+end
+
+
+
+--
+function VUHDO_buildPingSecureMacroTemplate()
+
+	return "/ping [@SECURE_UNIT,harm] Attack;[@SECURE_UNIT,help] Assist;[@SECURE_UNIT,exists] Ping";
+
+end
+
+
+
+--
+function VUHDO_buildExtraActionButtonSecureMacroTemplate()
+
+	return "/tar [@SECURE_UNIT]\n/click ExtraActionButton1 LeftButton\n/targetlasttarget";
+
+end
+
+
+
+--
+local tTemplate;
+function VUHDO_buildRezSecureMacroTemplate(anAction)
+
+	tTemplate = "/tar [@SECURE_UNIT]\n/use " .. anAction .. "\n";
+
+	if not VUHDO_SPELL_CONFIG["IS_AUTO_TARGET"] then
+		tTemplate = tTemplate .. "/targetlasttarget\n";
+	end
+
+	return tTemplate;
+
+end
+
+
+
+--
+local tTemplate;
+function VUHDO_buildPurgeSecureMacroTemplate(anAction)
+
+	tTemplate = format("/use [@SECURE_UNIT] %s\n", anAction);
+
+	if VUHDO_SPELL_CONFIG["IS_AUTO_TARGET"] then
+		tTemplate = tTemplate .. "/tar [@SECURE_UNIT]\n";
+	end
+
+	return tTemplate;
+
+end
+
+
+
+--
+local tTemplate;
+function VUHDO_buildCustomMacroSecureTemplate(aMacroText)
+
+	if not aMacroText or aMacroText == "" then
+		return "";
+	end
+
+	tTemplate = gsub(aMacroText, "[Vv][Uu][Hh][Dd][Oo]", "SECURE_UNIT");
+	tTemplate = gsub(tTemplate, "[Vv][Dd][Nn][Aa][Mm][Ee]", "SECURE_NAME");
+	tTemplate = gsub(tTemplate, "[Vv][Dd][Pp][Ee][Tt]", "SECURE_PET");
+	tTemplate = gsub(tTemplate, "[Vv][Dd][Tt][Aa][Rr][Gg][Ee][Tt]", "SECURE_TARGET");
+
+	return tTemplate;
+
 end
 
 

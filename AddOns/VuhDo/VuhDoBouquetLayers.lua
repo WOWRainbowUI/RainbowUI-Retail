@@ -800,27 +800,21 @@ local function VUHDO_applyDispelColorByIndex(aTarget, aTargetType, aLayerTemplat
 		return;
 	end
 
-	if tResultSlot["barColor"] then
+	if tResultSlot["barColor"] and tResultSlot["barColor"]["useBackground"] and aLayerTemplate["useBackground"] then
 		tBarColor = tResultSlot["barColor"];
 
-		if tBarColor["useBackground"] and aLayerTemplate["useBackground"] then
-			VUHDO_applyRawColorToTarget(aTarget, aTargetType, tBarColor["R"], tBarColor["G"], tBarColor["B"], nil, aLayerTemplate);
-		end
-
-		if aTargetType == VUHDO_TARGET_TYPE_BAR and tBarColor["useText"] and aLayerTemplate["useText"] then
-			VUHDO_applyTextColorToBar(aTarget, tBarColor["TR"], tBarColor["TG"], tBarColor["TB"]);
-		end
-
-		return;
+		VUHDO_applyRawColorToTarget(aTarget, aTargetType, tBarColor["R"], tBarColor["G"], tBarColor["B"], nil, aLayerTemplate);
+	elseif tResultSlot["r"] and tResultSlot["useBackground"] ~= false and aLayerTemplate["useBackground"] then
+		VUHDO_applyRawColorToTarget(aTarget, aTargetType, tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], nil, aLayerTemplate);
 	end
 
-	if tResultSlot["r"] then
-		if aLayerTemplate["useBackground"] then
-			VUHDO_applyRawColorToTarget(aTarget, aTargetType, tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], nil, aLayerTemplate);
-		end
+	if aTargetType == VUHDO_TARGET_TYPE_BAR and aLayerTemplate["useText"] then
+		if tResultSlot["tr"] and tResultSlot["useText"] ~= false then
+			VUHDO_applyTextColorToBar(aTarget, tResultSlot["tr"], tResultSlot["tg"], tResultSlot["tb"]);
+		elseif tResultSlot["barColor"] and tResultSlot["barColor"]["useText"] then
+			tBarColor = tResultSlot["barColor"];
 
-		if aTargetType == VUHDO_TARGET_TYPE_BAR and aLayerTemplate["useText"] then
-			VUHDO_applyTextColorToBar(aTarget, tResultSlot["r"], tResultSlot["g"], tResultSlot["b"]);
+			VUHDO_applyTextColorToBar(aTarget, tBarColor["TR"], tBarColor["TG"], tBarColor["TB"]);
 		end
 	end
 
