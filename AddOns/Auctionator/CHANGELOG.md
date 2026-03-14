@@ -1,8 +1,7 @@
 # Auctionator
 
-## [317](https://github.com/TheMouseNest/Auctionator/tree/317) (2026-03-01)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/316...317) 
+## [319](https://github.com/TheMouseNest/Auctionator/tree/319) (2026-03-13)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/318...319) 
 
-- Midnight: Fix display of reagent quality icons  
-- Remove Wago from build script  
-- TBC: Add keys to groups for sale  
+- Update version slash command  
+- Retail: Professions: Fix concentration not updating profits value  
