@@ -82,6 +82,7 @@ local function CategoryDefaults(enabled, fontSize)
         hideCountdownNumbers = false,
         edgeEnabled = true, edgeScale = 1.4,
         stackEnabled = true,
+        hideStackText = false,
         stackFont = "GAMEDEFAULT", stackSize = 16, stackStyle = "OUTLINE",
         stackColor = { r = 1, g = 1, b = 1, a = 1 },
         stackAnchor = "BOTTOMRIGHT", stackOffsetX = -3, stackOffsetY = 3,

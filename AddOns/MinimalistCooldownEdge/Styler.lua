@@ -528,16 +528,24 @@ local function BuildColorCurve(durationConfig)
     local c1 = sortedThresholds[1].color
     curve:AddPoint(0, CreateColor(c1.r, c1.g, c1.b, c1.a or 1))
 
+    local offset = -0.5
+    
     -- Intermediate threshold points (use exact threshold values for precise transitions)
     for i = 2, #sortedThresholds do
-        local startAt = sortedThresholds[i - 1].threshold or 0
+        local startAt = (sortedThresholds[i - 1].threshold or 0) + offset
+        if startAt < 0 then
+            startAt = 0
+        end
         local c = sortedThresholds[i].color
         curve:AddPoint(startAt, CreateColor(c.r, c.g, c.b, c.a or 1))
     end
 
     -- Default color for durations beyond the last threshold
     if durationConfig.defaultColor then
-        local startAt = sortedThresholds[#sortedThresholds].threshold or 0
+        local startAt = (sortedThresholds[#sortedThresholds].threshold or 0) + offset
+        if startAt < 0 then
+            startAt = 0
+        end
         local dc = durationConfig.defaultColor
         curve:AddPoint(startAt, CreateColor(dc.r, dc.g, dc.b, dc.a or 1))
     end
@@ -1136,11 +1144,9 @@ end
 -- STACK COUNT STYLING  (action bar + CooldownManager viewers)
 -- =========================================================================
 
-function Styler:StyleStackCount(cdFrame, config, category)
-    if not config.stackEnabled then return end
-
+local function GetStackCountRegion(cdFrame, category)
     local parent = cdFrame:GetParent()
-    if not parent then return end
+    if not parent then return nil, nil end
 
     local countRegion
 
@@ -1166,9 +1172,27 @@ function Styler:StyleStackCount(cdFrame, config, category)
         end
     end
 
-    if not countRegion or not countRegion.GetObjectType then return end
-    if countRegion:GetObjectType() ~= "FontString" then return end
-    if MCE:IsForbidden(countRegion) then return end
+    if not countRegion or not countRegion.GetObjectType then return nil, parent end
+    if countRegion:GetObjectType() ~= "FontString" then return nil, parent end
+    if MCE:IsForbidden(countRegion) then return nil, parent end
+
+    return countRegion, parent
+end
+
+function Styler:StyleStackCount(cdFrame, config, category)
+    local countRegion, parent = GetStackCountRegion(cdFrame, category)
+    if not countRegion or not parent then return end
+
+    if config.hideStackText then
+        countRegion:SetAlpha(0)
+        countRegion:Hide()
+        return
+    end
+
+    countRegion:SetAlpha(1)
+    countRegion:Show()
+
+    if not config.stackEnabled then return end
 
     ApplyFontStringStyle(
         countRegion,
@@ -1367,10 +1391,11 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
 
     if needsFullRestyle then
         styledCategory[cdFrame] = styleKey
-
-        -- Stack / charge counts (actionbar + CooldownManager viewers)
-        self:StyleStackCount(cdFrame, config, category)
     end
+
+    -- Stack / charge counts can be shown again by Blizzard button updates,
+    -- so visibility enforcement needs to run on every style pass.
+    self:StyleStackCount(cdFrame, config, category)
 
     if needsFullRestyle or textRegionsChanged then
         -- Font string styling & positioning

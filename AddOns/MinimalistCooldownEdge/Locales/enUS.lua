@@ -59,6 +59,8 @@ L["Edge Thickness"] = true
 L["Scale of the swipe line (1.0 = Default)."] = true
 L["Customize Stack Text"] = true
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = true
+L["Hide Stack Text"] = true
+L["Hide stacks and charges entirely."] = true
 L["Reset %s"] = true
 L["Revert this category to default settings."] = true
 L["Toggle MiniCC's built-in test icons using /minicc test."] = true
