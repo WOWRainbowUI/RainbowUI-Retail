@@ -10,6 +10,44 @@ local function GetMaxEssence()
     return 5
 end
 local ESSENCE_POWER_TYPE = Enum and Enum.PowerType and Enum.PowerType.Essence or 13 -- fallback to 13 if Enum not loaded
+local DEFAULT_ESSENCE_RECHARGE_TIME = 5
+
+local function GetEssenceRechargeDuration()
+    if GetPowerRegenForPowerType then
+        local regen = GetPowerRegenForPowerType(ESSENCE_POWER_TYPE)
+        if regen and regen > 0 then
+            return 1 / regen
+        end
+    end
+    return DEFAULT_ESSENCE_RECHARGE_TIME
+end
+
+local function GetEssenceProgress()
+    local current = UnitPower("player", ESSENCE_POWER_TYPE)
+    local frac = 0
+
+    -- Match Blizzard_EssenceFrame: UnitPartialPower for essence is in [0..1000].
+    if UnitPartialPower then
+        local partialRaw = UnitPartialPower("player", ESSENCE_POWER_TYPE)
+        if partialRaw then
+            frac = partialRaw / 1000
+        end
+    end
+
+    -- Fallback for edge cases where partial reports nil/0 while recharging.
+    if frac <= 0 then
+        local displayMod = UnitPowerDisplayMod and UnitPowerDisplayMod(ESSENCE_POWER_TYPE) or 1
+        if displayMod == 0 then displayMod = 1 end
+        local partialRaw = UnitPower("player", ESSENCE_POWER_TYPE, true)
+        local partial = partialRaw / displayMod
+        frac = partial - math.floor(partial)
+    end
+
+    if frac < 0 then frac = 0 end
+    if frac > 1 then frac = 1 end
+
+    return current, frac
+end
 
 
 CustomEssenceBarDB = CustomEssenceBarDB or {
@@ -179,9 +217,58 @@ CreateOrbs()
 
 -- Update function
 local lastMaxEssence = GetMaxEssence()
-local function UpdateEssence()
-    local current = UnitPower("player", ESSENCE_POWER_TYPE)
+local UpdateEssence
+local animationTicker = 0
+local fallbackRecharge = {
+    startTime = nil,
+    baseCurrent = nil,
+}
+
+local function RefreshFallbackRechargeState(current, maxEssence)
+    if current >= maxEssence then
+        fallbackRecharge.startTime = nil
+        fallbackRecharge.baseCurrent = nil
+        return
+    end
+
+    if fallbackRecharge.startTime == nil or fallbackRecharge.baseCurrent ~= current then
+        fallbackRecharge.startTime = GetTime()
+        fallbackRecharge.baseCurrent = current
+    end
+end
+
+local function GetFallbackFraction(current, maxEssence, rechargeDuration)
+    RefreshFallbackRechargeState(current, maxEssence)
+    if not fallbackRecharge.startTime then
+        return 0
+    end
+    local elapsed = GetTime() - fallbackRecharge.startTime
+    local frac = elapsed / rechargeDuration
+    if frac < 0 then frac = 0 end
+    if frac > 1 then frac = 1 end
+    return frac
+end
+
+local function OnEssenceBarUpdate(self, elapsed)
+    if not self:IsShown() then return end
+    animationTicker = animationTicker + elapsed
+    if animationTicker >= 0.03 then
+        animationTicker = 0
+        UpdateEssence()
+    end
+end
+
+UpdateEssence = function()
+    local current, frac = GetEssenceProgress()
     local maxEssence = GetMaxEssence()
+    local rechargeDuration = GetEssenceRechargeDuration()
+
+    if current < maxEssence and frac <= 0 then
+        frac = GetFallbackFraction(current, maxEssence, rechargeDuration)
+    else
+        RefreshFallbackRechargeState(current, maxEssence)
+    end
+
     if maxEssence ~= lastMaxEssence then
         lastMaxEssence = maxEssence
         CreateOrbs()
@@ -190,6 +277,9 @@ local function UpdateEssence()
     local c1 = CustomEssenceBarDB.gradientColor1 or {0, 0.7, 1, 1}
     local c2 = CustomEssenceBarDB.gradientColor2 or {0, 1, 0.7, 1}
     local bg = CustomEssenceBarDB.orbBgColor or {0, 0, 0, 0.5}
+    local firstRechargingIndex = current + 1
+    local missingOrbs = math.max(0, maxEssence - current)
+
     for i, orb in ipairs(essenceBar.orbs) do
         orb.bg:SetColorTexture(bg[1], bg[2], bg[3], bg[4])
         local fontHeight = orb:GetHeight() or 24
@@ -220,40 +310,53 @@ local function UpdateEssence()
             end
         else
             orb.fill:Show()
-            orb.fill:SetAlpha(0.7)
+            orb.fill:SetAlpha(1)
             orb.fill:SetHeight(orb:GetHeight())
-            if CustomEssenceBarDB.showEssenceTimers then
+
+            local pct
+            local remaining
+            if i == firstRechargingIndex and current < maxEssence then
+                pct = frac
+                remaining = rechargeDuration * (1 - frac)
+            elseif i > firstRechargingIndex and current < maxEssence then
+                pct = 0
+                remaining = rechargeDuration * ((i - current) - frac)
+            else
+                pct = 0
+                remaining = 0
+            end
+
+            pct = math.max(0, math.min(1, pct))
+            orb.fill:SetPoint("LEFT", orb, "LEFT")
+            orb.fill:SetWidth(orb:GetWidth() * pct)
+
+            if CustomEssenceBarDB.showEssenceTimers and remaining > 0 then
+                orb.timerText:SetText(string.format("%.1f秒", remaining))
                 orb.timerText:Show()
             else
                 orb.timerText:Hide()
             end
-            orb:SetScript("OnUpdate", function(self, elapsed)
-                local w = self:GetWidth()
-                local h = self:GetHeight()
-                self.fill:SetHeight(h)
-                local fontHeight = h or 24
-                self.timerText:SetFont("Fonts\\FRIZQT__.TTF", fontHeight * 0.7, "OUTLINE")
-                local missing = i - current
-                local cooldownDuration = 5 * missing
-                local now = GetTime()
-                -- For animation, fill grows left-to-right over 5s per orb
-                local pct = 1 - math.max(0, math.min(1, (cooldownDuration - (now % 5)) / 5))
-                self.fill:SetPoint("LEFT", self, "LEFT")
-                self.fill:SetWidth(w * pct)
-                self.fill:SetAlpha(0.7)
-                local remaining = cooldownDuration - (now % 5)
-                if CustomEssenceBarDB.showEssenceTimers and remaining > 0 then
-                    self.timerText:SetText(string.format("%.1f秒", remaining))
-                    self.timerText:Show()
-                else
-                    self.timerText:Hide()
-                end
-            end)
+
+            orb:SetScript("OnUpdate", nil)
+        end
+    end
+
+    if missingOrbs > 0 and CustomEssenceBarDB.enabled and essenceBar:IsShown() then
+        if not essenceBar.isAnimating then
+            animationTicker = 0
+            essenceBar:SetScript("OnUpdate", OnEssenceBarUpdate)
+            essenceBar.isAnimating = true
+        end
+    else
+        if essenceBar.isAnimating then
+            essenceBar:SetScript("OnUpdate", nil)
+            essenceBar.isAnimating = false
         end
     end
 end
 
 essenceBar:RegisterEvent("UNIT_POWER_UPDATE")
+essenceBar:RegisterEvent("UNIT_POWER_POINT_CHARGE")
 essenceBar:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 -- Only show for Evoker
@@ -274,6 +377,8 @@ local function UpdateVisibility()
         UpdateEssence()
         C_Timer.After(0.05, HideDefaultEssenceBar)
     else
+        essenceBar:SetScript("OnUpdate", nil)
+        essenceBar.isAnimating = false
         essenceBar:Hide()
     end
 end
@@ -290,6 +395,13 @@ essenceBar:SetScript("OnEvent", function(self, event, ...)
     if event == "UNIT_POWER_UPDATE" then
         local unit, powerType = ...
         if unit == "player" and (powerType == "ESSENCE" or powerType == ESSENCE_POWER_TYPE) then
+            UpdateEssence()
+        end
+    elseif event == "UNIT_POWER_POINT_CHARGE" then
+        local unit, powerType = ...
+        if unit == "player" and (powerType == "ESSENCE" or powerType == ESSENCE_POWER_TYPE) then
+            fallbackRecharge.startTime = GetTime()
+            fallbackRecharge.baseCurrent = UnitPower("player", ESSENCE_POWER_TYPE)
             UpdateEssence()
         end
     elseif event == "UNIT_AURA" then
