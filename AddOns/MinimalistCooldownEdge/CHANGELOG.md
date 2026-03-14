@@ -1,6 +1,16 @@
 
 # Changelog
 
+## [3.4.0] - 2026-03-13
+
+### Added
+- Introduced an offset (-0.5) applied to intermediate and default color startAt values.
+
+## [3.3.9] - 2026-03-13
+
+### Added
+- feat: Add option to hide stack text and update related functionality in options and styling
+
 ## [3.3.8] - 2026-03-12
 
 ### Fixed

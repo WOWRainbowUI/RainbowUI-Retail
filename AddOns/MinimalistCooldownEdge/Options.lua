@@ -246,7 +246,8 @@ local function IsCatDisabled(key)
 end
 
 local function IsStackHidden(key)
-    return not MCE.db.profile.categories[key].stackEnabled
+    local config = MCE.db.profile.categories[key]
+    return not config.stackEnabled or config.hideStackText
 end
 
 local function ResolveOptionValue(value)
@@ -432,6 +433,7 @@ local function CreateCategoryOptions(order, name, key, desc)
     local stackHiddenFn = function() return IsStackHidden(key) end
     local isCooldownManager = (key == "cooldownmanager")
     local isMiniCC = (key == "minicc")
+    local isStackCategory = (key == "actionbar" or key == "cooldownmanager")
 
     return {
         type = "group",
@@ -529,6 +531,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         set = CatSet(key, "hideCountdownNumbers"),
                         hidden = function() return isMiniCC end,
                     },
+                    hideStackText = isStackCategory and {
+                        type = "toggle", order = 5.01, width = "full",
+                        name = L["Hide Stack Text"],
+                        desc = L["Hide stacks and charges entirely."],
+                        get = CatGet(key, "hideStackText", false),
+                        set = CatSet(key, "hideStackText"),
+                    } or nil,
                     cooldownManagerHeaderTopSpacing = isCooldownManager and SectionSpacer(5.05) or nil,
                     cooldownManagerHeader = isCooldownManager and {
                         type = "header", name = L["CooldownManager Viewers"], order = 5.1,
@@ -660,12 +669,15 @@ local function CreateCategoryOptions(order, name, key, desc)
             },
 
             -- ── 4. Stack Counters / Charges ────────────────────────────
-            stackGroup = (key == "actionbar" or key == "cooldownmanager") and {
+            stackGroup = isStackCategory and {
                 type = "group", name = "|cffffd100" .. L["Stack Counters / Charges"] .. "|r",
                 inline = true, order = 30, disabled = disabledFn,
+                hidden = function()
+                    return MCE.db.profile.categories[key].hideStackText
+                end,
                 args = {
                     stackEnabled = {
-                        type = "toggle", order = 1, width = "full",
+                        type = "toggle", order = 2, width = "full",
                         name = L["Customize Stack Text"],
                         desc = L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."],
                         get = CatGet(key, "stackEnabled"),
