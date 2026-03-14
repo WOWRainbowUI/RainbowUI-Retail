@@ -69,17 +69,18 @@ local function DoesOtherTankHaveAggro(unit)
   return IsInRaid() and UnitGroupRolesAssigned(unit .. "target") == "TANK"
 end
 
-local inRelevantThreatInstance = false
-local inRelevantEliteInstance = false
+local inRelevantThreatInstance, inRelevantEliteInstance, inRelevantDelveInstance = false, false, false
 
 -- Checking for party members below the player's level which indicates the mobs will be shifted down one
 -- Except when the dungeon is already at its minimum level, in which case the level won't shift.
 local instanceTracker = CreateFrame("Frame")
 instanceTracker:RegisterEvent("PLAYER_ENTERING_WORLD")
 instanceTracker:RegisterEvent("PLAYER_LEVEL_UP")
+instanceTracker:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 instanceTracker:SetScript("OnEvent", function(_, event)
   inRelevantThreatInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true, pvp = true})
   inRelevantEliteInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true})
+  inRelevantDelveInstance = addonTable.Display.Utilities.IsInRelevantInstance({delve = true})
   local _, _, _, _, _, _, _, _, _, lfgDungeonID = GetInstanceInfo()
   if PLATYNATOR_LAST_INSTANCE == nil
     or (inRelevantThreatInstance or inRelevantEliteInstance) ~= PLATYNATOR_LAST_INSTANCE.inInstance
@@ -115,10 +116,16 @@ local stateToEvent = {
 }
 
 local stateToCalculator = {
-  cast = function(state, unit)
+  cast = function(state, unit, event)
     state.cast = true
-    state.castInfo = {UnitCastingInfo(unit)}
-    state.channelInfo = {UnitChannelInfo(unit)}
+    -- Special case, the cast info _might_ still exist even though the cast is over
+    if event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+      state.castInfo = {}
+      state.channelInfo = {}
+    else
+      state.castInfo = {UnitCastingInfo(unit)}
+      state.channelInfo = {UnitChannelInfo(unit)}
+    end
   end,
   threat = function(state, unit)
     state.threat = UnitThreatSituation("player", unit)
@@ -241,7 +248,7 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
         local stateKind = eventToState[e]
         local state = frame.colorState[stateKind]
         if stateKind and state == nil then
-          stateToCalculator[stateKind](frame.colorState, frame.unit)
+          stateToCalculator[stateKind](frame.colorState, frame.unit, "")
         end
         if e:match("^UNIT") then
           frame:RegisterUnitEvent(e, frame.unit)
@@ -264,7 +271,7 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
     if events[eventName] then
       local calculator = eventToCalulator[eventName]
       if calculator then
-        calculator(self.colorState, self.unit)
+        calculator(self.colorState, self.unit, eventName)
       end
       self:SetColor(addonTable.Display.GetColor(settings, self.colorState, self.unit))
       if next(self.colorState.frequentUpdater) then
@@ -362,6 +369,40 @@ function addonTable.Display.GetColor(settings, state, unit)
             break
           end
         elseif classification == "normal" or classification == "trivial" then
+          table.insert(colorQueue, {color = s.colors.trivial})
+          break
+        end
+      end
+    elseif s.kind == "delveType" then
+      if (inRelevantDelveInstance and s.delves or not inRelevantThreatInstance and s.outsideInstances) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
+        local classification = UnitClassification(unit)
+        if classification == "elite" then
+          local level = UnitEffectiveLevel(unit)
+          local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
+          local isRetail = addonTable.Constants.IsRetail
+          local lieutentantLevel = PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel
+          if isRetail and UnitIsLieutenant(unit) then
+            PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel = level
+            table.insert(colorQueue, {color = s.colors.elite})
+            break
+          elseif isRetail and (level == dungeonLevel + 2 or lieutentantLevel and level == lieutentantLevel + 1) or level == -1 then
+            table.insert(colorQueue, {color = s.colors.boss})
+            break
+          else
+            table.insert(colorQueue, {color = s.colors.elite})
+          end
+        elseif classification == "rareelite" then
+          table.insert(colorQueue, {color = s.colors.rare})
+          break
+        elseif classification == "normal" then
+          local class = UnitClassBase(unit)
+          if class == "PALADIN" then
+            table.insert(colorQueue, {color = s.colors.caster})
+          else
+            table.insert(colorQueue, {color = s.colors.melee})
+          end
+          break
+        elseif classification == "trivial" or classification == "minus" then
           table.insert(colorQueue, {color = s.colors.trivial})
           break
         end
