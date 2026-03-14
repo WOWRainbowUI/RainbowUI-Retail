@@ -70,6 +70,8 @@ local defaults = {
         questShowZones = true,
         taskShowFactions = true,
         questAutoFocusClosest = false,
+        questLogShowDetails = true,
+        achievProgressAutoTrack = true,
 
         messageQuest = true,
         messageAchievement = true,

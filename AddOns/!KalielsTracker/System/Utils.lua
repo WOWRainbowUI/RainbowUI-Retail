@@ -635,7 +635,7 @@ function KT.GetBonusPoiInfoCached(questID)
         local mapID = GetQuestUiMapID(questID)
         if mapID then
             -- Tasks
-            local tasks = KT.GetTasksOnMapCached(mapID)
+            local tasks = C_TaskQuest.GetQuestsOnMap(mapID)
             if tasks then
                 for _, info in ipairs(tasks) do
                     if questID == info.questID then

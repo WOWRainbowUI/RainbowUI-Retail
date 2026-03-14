@@ -89,6 +89,7 @@ function KT_ObjectiveTrackerAnimLineMixin:OnFree(block)
 		self.FadeInAnim:Stop();
 	end
 	self.Icon:Hide();
+	self.Icon:SetAtlas("ui-questtracker-tracker-check", false);  -- fix Blizz bug
 end
 
 -- *****************************************************************************************************

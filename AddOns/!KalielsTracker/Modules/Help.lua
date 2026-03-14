@@ -363,24 +363,24 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 8.2.1|r\n"..
-					"- 更新 - TomTom - 導航點功能優化\n"..
-					"- 修復 - 介面污染錯誤 (Taint errors) (2)\n"..
-					"\n")..
-
-					(cTitle.."版本 8.2.0|r\n"..
-					"- 新增 - 支援 WoW 版本 12.0.1.65867\n"..
-					"- 修復 - 介面污染錯誤 (Taint errors)\n"..
-					offs3.."- 任務追蹤欄的點擊功能僅在非戰鬥狀態下可用。\n"..
-					offs3.."- 點擊任務會開啟地圖，但不會開啟任務詳細資訊面板。\n"..
-					offs3.."- 不再提供使用小「眼睛」按鈕。\n"..
-					offs3.."- 不再支援獨立的任務詳細資訊視窗。\n"..
-					"- 修復 - 任務追蹤欄佔用高 CPU 的問題（暴雪原廠 Bug）\n"..
-					"- 移除 - 所有相容性修正程式 (Hacks)\n"..
+					(cTitle.."版本 8.3.0|r\n"..
+                    "- 新增 (任務日誌) - 在世界地圖顯示任務詳情（實驗性）\n"..
+                    offs3.."- Kaliel's Tracker 實作了自訂任務詳情以避免污染問題。\n"..
+                    "- 新增 (成就) - 自動成就進度追蹤\n"..
+                    "- 新增 (成就) - 支援至暗之夜過濾方式\n"..
+                    "- 修改 - 插件支援 - TomTom 4.2.23\n"..
+                    "- 修改 - 插件支援 - RareScanner 12.0.1.15\n"..
+                    "- 修改 - 插件支援 - BtWQuests 2.61.0\n"..
+                    "- 修改 - 插件支援 - Auctionator 318\n"..
+                    "- 修改 - TomTom - 任務路徑點改進\n"..
+                    "- 修改 - 選項 - 更新銀月城的顯示規則\n"..
+                    "- 修改 (說明) - 活躍贊助者\n"..
+                    "- 修正 - 任務目標可能顯示錯誤標記（暴雪 Bug）\n"..
+                    "- 修正 - 污染錯誤 (3)\n"..
 					"\n")..
 
 					cTitle.."問題回報|r\n"..
-					"若要回報問題，請至 CurseForge 使用 "..cBold.."Tickets (工單)|r，而不要使用 Comments (留言)。\n"..ebSpace.."\n"..
+					"若要回報問題，請至 CurseForge 使用 "..cBold.."Tickets (回報單)|r，而不要使用 Comments (留言)。\n"..ebSpace.."\n"..
 
 					cWarning.."回報錯誤之前，請先停用所有其他的插件，以確保不是和其他插件相衝突。|r",
 			editbox = {
@@ -458,24 +458,24 @@ local function SetupTutorials()
 					"一個小型的個人專案，成長為需要投入大量時間且持續維護的龐大系統。\n\n"..
 					"非常感謝所有協助維持本專案運作的支持者們 "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
+					SetFormatedPatronName("Legendary", "Kaelandros")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Epic", "Soromeister")..
 					SetFormatedPatronName("Rare", "Ian F")..
 					SetFormatedPatronName("Rare", "Sal")..
 					SetFormatedPatronName("Rare", "Spance")..
-					SetFormatedPatronName("Rare", "SublimeHysteria")..
-					SetFormatedPatronName("Uncommon", "Brewnor")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Cool Blue")..
 					SetFormatedPatronName("Uncommon", "David Blanchard")..
 					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
+					SetFormatedPatronName("Uncommon", "Gremlin78")..
 					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
+                    SetFormatedPatronName("Uncommon", "Papus", "Ulduar")..
 					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Veratais")..
-					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
-                    SetFormatedPatronName("Common", "Darren Divecha")..
+					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..
 					SetFormatedPlayerName("Asimeria", "Drak'thul")..

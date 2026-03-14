@@ -50,6 +50,7 @@ local cBold2 = "|cffffd200"
 local cWarning = "|cffff7f00"
 local cWarning2 = "|cffff4200"
 local beta = "|cffff7fff[Beta]|r"
+local experimental = "|cffff7fff[實驗性功能]|r"
 local warning = cWarning.."注意:|r 將會重新載入介面!"
 
 local KTF = KT.frame
@@ -1291,6 +1292,38 @@ local options = {
 							end,
 							order = 4.6,
 						},
+                        questLogTitle = {
+                            name = cTitle.."\n 任務日誌",
+                            type = "description",
+                            fontSize = "medium",
+                            order = 5,
+                        },
+                        questLogShowDetails = {
+                            name = "在世界地圖上顯示任務內容 "..experimental,
+                            desc = "從追蹤清單打開任務地圖時顯示任務詳情。本功能使用自訂的任務詳情實作。",
+                            type = "toggle",
+                            width = "double",
+                            set = function()
+                                db.questLogShowDetails = not db.questLogShowDetails
+                            end,
+                            order = 5.1,
+                        },
+                        achievTitle = {
+                            name = cTitle.."\n 成就",
+                            type = "description",
+                            fontSize = "medium",
+                            order = 6,
+                        },
+                        achievProgressAutoTrack = {
+                            name = "自動追蹤成就進度",
+							desc = "當成就進度更新時會自動加入監看。",
+                            type = "toggle",
+                            width = "normal+half",
+                            set = function()
+                                db.achievProgressAutoTrack = not db.achievProgressAutoTrack
+                            end,
+                            order = 6.1,
+                        },
 					},
 				},
 				sec7 = {
@@ -1560,7 +1593,7 @@ local options = {
 							order = 2.3,
 						},
 						contextsNote = {
-							name = "\n * 普通 / 英雄 / 傳奇 / 事件",
+							name = "\n * 普通 / 英雄 / 傳奇 / 事件 / 探究",
 							type = "description",
 							order = 30,
 						},
@@ -1593,7 +1626,7 @@ local options = {
 							order = 0.2,
 						},
 						descModules = {
-							name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS,
+							name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..MAP_LEGEND_DELVE.." / "..TRACKER_HEADER_PROVINGGROUNDS,
 							type = "description",
 							order = 20,
 						},

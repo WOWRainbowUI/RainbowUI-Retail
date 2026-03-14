@@ -5,6 +5,11 @@
     <Script file="Quest.lua"/>
     <Script file="MapDataProvider.lua"/>
 
+    <Script file="QuestLog\QuestInfo.lua"/>
+    <Include file="QuestLog\QuestInfo.xml"/>
+    <Script file="QuestLog\QuestMapFrame.lua"/>
+    <Include file="QuestLog\QuestMapFrame.xml"/>
+
     <Script file="POIButton\POIButtonHighlightManager.lua"/>
     <Script file="POIButton\POIButtonUtil.lua"/>
     <Script file="POIButton\POIButton.lua"/>

@@ -236,14 +236,23 @@ local function SetHooks()
     end)
 
 	hooksecurefunc("QuestMapFrame_UpdateQuestDetailsButtons", function()
-		if dbChar.filterAuto[1] then
-			QuestMapFrame.DetailsFrame.TrackButton:Disable()
-			QuestLogPopupDetailFrame.TrackButton:Disable()
-		else
-			QuestMapFrame.DetailsFrame.TrackButton:Enable()
-			QuestLogPopupDetailFrame.TrackButton:Enable()
-		end
-	end)
+        local questID = C_QuestLog.GetSelectedQuest()
+        local isQuestDisabled = C_QuestLog.IsQuestDisabledForSession(questID)
+        if isQuestDisabled then return end
+
+        local enabled = dbChar.filterAuto[1] == nil
+        QuestMapFrame.DetailsFrame.TrackButton:SetEnabled(enabled)
+        QuestLogPopupDetailFrame.TrackButton:SetEnabled(enabled)
+    end)
+
+    hooksecurefunc("KT_QuestMapFrame_UpdateQuestDetailsButtons", function()
+        local questID = C_QuestLog.GetSelectedQuest()
+        local isQuestDisabled = C_QuestLog.IsQuestDisabledForSession(questID)
+        if isQuestDisabled then return end
+
+        local enabled = dbChar.filterAuto[1] == nil
+        KT_QuestMapFrame.DetailsFrame.TrackButton:SetEnabled(enabled)
+    end)
 end
 
 -- Blizzard_AchievementUI
@@ -368,6 +377,7 @@ local function Filter_Quests(spec, idx)
 		local zoneName = GetRealZoneText() or "???"
 		local isOnMap = false
 		local isInZone = false
+        local showCampaign = dbChar.filter.quests.showCampaign
 
 		local mapInfo = C_Map.GetMapInfo(mapID)
 		if mapInfo and (mapInfo.mapType == Enum.UIMapType.Micro or mapInfo.mapType == Enum.UIMapType.Orphan) then
@@ -385,7 +395,7 @@ local function Filter_Quests(spec, idx)
 				end
 				if questInfo.isHeader then
 					isInZone = (questInfo.title == zoneName or
-							(dbChar.filter.quests.showCampaign and questInfo.campaignID))
+							(showCampaign and questInfo.campaignID))
 					if mapID == 1473 then  -- 7 - Battle for Azeroth - Chamber of Heart
 						isInZone = (isInZone or
 								questInfo.title == "Heart of Azeroth" or  -- TODO: other languages
@@ -483,29 +493,32 @@ local function GetCategoryByZone()
 	if continent then
 		category = continent.name
 		local mapID = KT.GetCurrentMapAreaID()
+        -- 11 - Midnight
+        if continent.mapID == 2537 then  -- Quel'Thalas
+            category = EXPANSION_NAME11
 		-- 10 - The War Within
-		if continent.mapID == 2274 or         -- Khaz Algar
+		elseif continent.mapID == 2274 or     -- Khaz Algar
 				continent.mapID == 2369 then  -- Siren Isle
 			category = strsub(EXPANSION_NAME10, 5)
 			categoryAlt = EXPANSION_NAME10
-			-- 9 - Dragonflight
+		-- 9 - Dragonflight
 		elseif continent.mapID == 1978 then
 			categoryAlt = EXPANSION_NAME9
-			-- 8 - Shadowlands
+		-- 8 - Shadowlands
 		elseif continent.mapID == 1550 then
 			category = EXPANSION_NAME8
-			-- 7 - Battle for Azeroth
+		-- 7 - Battle for Azeroth
 		elseif continent.mapID == 875 or     -- Zandalar
 				continent.mapID == 876 or    -- Kul Tiras
 				continent.mapID == 1355 or   -- Nazjatar
 				continent.mapID == 948 then  -- The Maelstorm
 			category = EXPANSION_NAME7
 			categoryAlt = "Battle"
-			-- 6 - Legion
+		-- 6 - Legion
 		elseif continent.mapID == 619 or     -- Broken Isles
 				continent.mapID == 905 then  -- Argus
 			category = EXPANSION_NAME6
-			-- 3 - Cataclysm
+		-- 3 - Cataclysm
 		elseif mapID == 198 or     -- Mount Hyjal
 				mapID == 201 or    -- Vashj'ir - Kelp'thar Forest
 				mapID == 204 or    -- Vashj'ir - Abyssal Depths
@@ -546,6 +559,7 @@ local function Filter_Achievements(spec)
 		local zoneNameAlt = zoneAlt[mapID] or "???"
 		local categoryName, categoryNameAlt = GetCategoryByZone()
 		local instance = KT.inInstance and 168 or nil
+        local showContinent = dbChar.filter.quests.showCampaign
 		--_DBG(continentName.." / "..zoneName.." ("..zoneNameAlt..") ... "..mapID.." ... "..categoryName.." ("..categoryNameAlt..")", true)
 
 		-- Dungeons & Raids
@@ -590,7 +604,7 @@ local function Filter_Achievements(spec)
 							if not completed then
 								--_DBG(id.." ... "..achiev.name, true)
 								local aText = achiev.name.." - "..achiev.description
-								if (dbChar.filter.achievements.showContinent or parentID == 15117) and
+								if (showContinent or parentID == 15117) and
 										strfindp(aText, continentName) then
 									track = true
 								elseif strfindp(aText, zoneName) or strfindp(aText, zoneNameAlt) then
@@ -788,6 +802,7 @@ local function Filter_Menu_AutoTrack(self, id, spec)
 	else
 		if id == 1 then
 			QuestMapFrame_UpdateQuestDetailsButtons()
+			KT_QuestMapFrame_UpdateQuestDetailsButtons()
 		elseif id == 2 and AchievementFrame then
 			AchievementFrameAchievements_ForceUpdate()
 		end

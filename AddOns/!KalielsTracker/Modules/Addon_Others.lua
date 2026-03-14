@@ -51,7 +51,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "312") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "318") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -64,7 +64,7 @@ end
 
 -- BtWQuests
 local function BtWQuests_SetSupport()
-    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.60.0") and db.addonBtWQuests)
+    local isLoaded = (KT:CheckAddOn("BtWQuests", "2.61.0") and db.addonBtWQuests)
     if isLoaded then
         local function MenuUpdate(_, info, type, questID)
             if type ~= "quest" then return end

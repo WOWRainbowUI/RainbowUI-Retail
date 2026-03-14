@@ -91,15 +91,6 @@ local function SetupOptions()
 	end
 end
 
-local function GetCurrentMapAreaID()
-	local mapID = KT.GetCurrentMapAreaID()
-	local mapInfo = C_Map.GetMapInfo(mapID)
-	if mapInfo and mapInfo.mapType == Enum.UIMapType.Micro then
-		mapID = mapInfo.parentMapID
-	end
-	return mapID
-end
-
 local function GetMapIDByCursor(mapID)
 	if WorldMapFrame.ScrollContainer:IsMouseOver() then
 		local normalizedCursorX, normalizedCursorY = WorldMapFrame:GetNormalizedCursorPosition()
@@ -112,9 +103,17 @@ local function GetMapIDByCursor(mapID)
 end
 
 local function NormalizePOIData(mapID, x, y, questID)
-	mapID = mapID or 0
-	local currentMapID = GetCurrentMapAreaID()
-	local sameZone, sameContinent = KT.CompareZones(mapID, currentMapID)
+    local currentMapID = KT.GetCurrentMapAreaID()
+    if questID then
+        currentMapID = KT.MAP_ZONE_OVERRIDES[currentMapID] or currentMapID
+    end
+    local mapInfo = C_Map.GetMapInfo(currentMapID)
+    if mapInfo and mapInfo.mapType == Enum.UIMapType.Micro then
+        currentMapID = mapInfo.parentMapID
+    end
+
+    mapID = mapID or 0
+    local sameZone, sameContinent = KT.CompareZones(mapID, currentMapID)
 	local waypointMapID, waypointText
 	local fakeData = false
 	if not sameZone then
@@ -800,7 +799,7 @@ local function SetEvents()
 
 	-- Create waypoint after accept quest (2nd time)
 	KT:RegEvent("QUEST_POI_UPDATE", function()
-        C_Timer.After(0, function()
+        C_Timer.After(0.1, function()
             local questID = C_SuperTrack.GetSuperTrackedQuestID()
             if questID and QuestUtils_IsQuestWatched(questID) then
                 SetSuperTrackedQuestWaypoint(questID, true)
@@ -816,7 +815,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.15-release") and db.addonTomTom)
+    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.23-release") and db.addonTomTom)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")
