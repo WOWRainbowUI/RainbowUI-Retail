@@ -209,7 +209,7 @@ function DragonRiderColorSwatchSettingMixin:Init(initializer)
 
 			if ColorPickerFrame.Content and ColorPickerFrame.Content.HexBox then
 				local c = CreateColor(r, g, b, a)
-				ColorPickerFrame.Content.HexBox:SetText(c:GenerateHexColor())
+				ColorPickerFrame.Content.HexBox:SetText(c:GenerateHexColor():sub(3))
 				ColorPickerFrame.Content.HexBox:SetCursorPosition(0)
 			end
 		end;
@@ -228,7 +228,7 @@ function DragonRiderColorSwatchSettingMixin:Init(initializer)
 		
 		if ColorPickerFrame.Content and ColorPickerFrame.Content.HexBox then
 			local c = CreateColor(info.r, info.g, info.b, info.opacity)
-			ColorPickerFrame.Content.HexBox:SetText(c:GenerateHexColor())
+			ColorPickerFrame.Content.HexBox:SetText(c:GenerateHexColor():sub(3))
 		end
 	end);
 end
