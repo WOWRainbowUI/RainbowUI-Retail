@@ -116,8 +116,14 @@ end
 --
 local function VUHDO_healthBelowValidator(anInfo, aSomeCustom, aSecretContext)
 
-	if anInfo["healthmax"] <= 0 then
-		return false, nil, -1, -1, -1;
+	if sSecretsEnabled and anInfo["hasSecretHealthMax"] then
+		if not anInfo["healthmax"] then
+			return false, nil, -1, -1, -1;
+		end
+	else
+		if anInfo["healthmax"] <= 0 then
+			return false, nil, -1, -1, -1;
+		end
 	end
 
 	if aSecretContext then
@@ -144,8 +150,14 @@ end
 --
 local function VUHDO_healthAboveValidator(anInfo, aSomeCustom, aSecretContext)
 
-	if anInfo["healthmax"] <= 0 then
-		return false, nil, -1, -1, -1;
+	if sSecretsEnabled and anInfo["hasSecretHealthMax"] then
+		if not anInfo["healthmax"] then
+			return false, nil, -1, -1, -1;
+		end
+	else
+		if anInfo["healthmax"] <= 0 then
+			return false, nil, -1, -1, -1;
+		end
 	end
 
 	if aSecretContext then
@@ -201,8 +213,18 @@ end
 local tPowerCurve;
 local function VUHDO_manaBelowValidator(anInfo, aSomeCustom, aSecretContext)
 
-	if anInfo["powertype"] ~= 0 or anInfo["powermax"] <= 0 then
+	if anInfo["powertype"] ~= 0 then
 		return false, nil, -1, -1, -1;
+	end
+
+	if sSecretsEnabled and anInfo["hasSecretPower"] then
+		if not anInfo["powermax"] then
+			return false, nil, -1, -1, -1;
+		end
+	else
+		if anInfo["powermax"] <= 0 then
+			return false, nil, -1, -1, -1;
+		end
 	end
 
 	if aSecretContext then

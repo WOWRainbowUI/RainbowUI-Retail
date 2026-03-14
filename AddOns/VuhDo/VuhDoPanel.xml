@@ -17,6 +17,7 @@
 	<Script file="VuhDoPanelRedrawHoTs.lua" />
 	<Script file="VuhDoPanelRedraw.lua" />
 	<Script file="VuhDoKeySetup.lua" />
+	<Script file="VuhDoBindingGenerator.lua" />
 	<Script file="VuhDoActionEventHandler.lua" />
 
 

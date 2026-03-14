@@ -56,6 +56,7 @@ local sDispelColorBuffer = {
 	["R"] = 0, ["G"] = 0, ["B"] = 0, ["O"] = 1,
 	["TR"] = 0, ["TG"] = 0, ["TB"] = 0, ["TO"] = 1,
 	["useBackground"] = true,
+	["useText"] = nil,
 };
 
 
@@ -801,6 +802,22 @@ do
 
 
 	--
+	local tTextWinner;
+	function VUHDO_getAuraTextColorType(aUnit)
+
+		tTextWinner = sUnitAuraTextWinner[aUnit];
+
+		if tTextWinner then
+			return tTextWinner["colorType"];
+		end
+
+		return nil;
+
+	end
+
+
+
+	--
 	local tDispelCurve;
 	local tDispelColorMixin;
 	function VUHDO_getAuraBarColor(aUnit, aDispelCurve)
@@ -828,6 +845,7 @@ do
 					sDispelColorBuffer["O"] = tDispelColorMixin.a or 1;
 
 					sDispelColorBuffer["useBackground"] = true;
+					sDispelColorBuffer["useText"] = nil;
 
 					sDispelColorBuffer["TR"] = tDispelColorMixin.r;
 					sDispelColorBuffer["TG"] = tDispelColorMixin.g;
@@ -871,6 +889,7 @@ do
 					sDispelColorBuffer["B"] = tDispelColorMixin.b;
 					sDispelColorBuffer["O"] = tDispelColorMixin.a or 1;
 
+					sDispelColorBuffer["useBackground"] = nil;
 					sDispelColorBuffer["useText"] = true;
 
 					sDispelColorBuffer["TR"] = tDispelColorMixin.r;

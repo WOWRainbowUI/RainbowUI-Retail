@@ -114,6 +114,7 @@ function VUHDO_tabbedPanelOkayClicked(aButton)
 		VUHDO_CURRENT_PROFILE = VUHDO_CONFIG["CURRENT_PROFILE"];
 	end
 
+	VUHDO_invalidateBindingCodeCache();
 	VUHDO_initAllBurstCaches();
 	VUHDO_trimSpellAssignments(VUHDO_SPELL_ASSIGNMENTS);
 	VUHDO_trimSpellAssignments(VUHDO_HOSTILE_SPELL_ASSIGNMENTS);

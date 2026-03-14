@@ -31,6 +31,8 @@ end
 --
 function VUHDO_activateLayoutNoInit(aName)
 
+	VUHDO_invalidateBindingCodeCache();
+
 	VUHDO_SPELL_ASSIGNMENTS = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["MOUSE"]);
 	VUHDO_HOSTILE_SPELL_ASSIGNMENTS = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOSTILE_MOUSE"]);
 

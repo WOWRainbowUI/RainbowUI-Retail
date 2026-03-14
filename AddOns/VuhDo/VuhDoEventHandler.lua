@@ -740,6 +740,7 @@ function VUHDO_initAllBurstCaches()
 	VUHDO_spellEventHandlerInitLocalOverrides();
 	VUHDO_macroFactoryInitLocalOverrides();
 	VUHDO_keySetupInitLocalOverrides();
+	VUHDO_bindingGeneratorInitLocalOverrides();
 	VUHDO_combatLogInitLocalOverrides();
 	VUHDO_eventHandlerInitLocalOverrides();
 	VUHDO_customHealthInitLocalOverrides();
@@ -949,6 +950,7 @@ local function VUHDO_init()
 	VUHDO_registerAllBouquets(true);
 	VUHDO_initSpecialUnitAuraSlots();
 	VUHDO_reloadUI(false);
+	VUHDO_startAuraPoolPrewarm();
 	VUHDO_getAutoProfile();
 	VUHDO_initCliqueSupport();
 
