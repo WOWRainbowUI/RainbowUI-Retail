@@ -50,6 +50,7 @@ local cBold2 = "|cffffd200"
 local cWarning = "|cffff7f00"
 local cWarning2 = "|cffff4200"
 local beta = "|cffff7fff[Beta]|r"
+local experimental = "|cffff7fff[Experimental]|r"
 local warning = cWarning.."Warning:|r UI will be re-loaded!"
 
 local KTF = KT.frame
@@ -1291,6 +1292,38 @@ local options = {
 							end,
 							order = 4.6,
 						},
+                        questLogTitle = {
+                            name = cTitle.."\n Quest Log",
+                            type = "description",
+                            fontSize = "medium",
+                            order = 5,
+                        },
+                        questLogShowDetails = {
+                            name = "Show Quest Details on World Map "..experimental,
+                            desc = "Show Quest Details when opening the quest map from the tracker. This feature uses a custom Quest Details implementation.",
+                            type = "toggle",
+                            width = "double",
+                            set = function()
+                                db.questLogShowDetails = not db.questLogShowDetails
+                            end,
+                            order = 5.1,
+                        },
+                        achievTitle = {
+                            name = cTitle.."\n Achievements",
+                            type = "description",
+                            fontSize = "medium",
+                            order = 6,
+                        },
+                        achievProgressAutoTrack = {
+                            name = "Auto Achievement progress tracking",
+                            desc = "Achievements are automatically watched when progress updated.",
+                            type = "toggle",
+                            width = "normal+half",
+                            set = function()
+                                db.achievProgressAutoTrack = not db.achievProgressAutoTrack
+                            end,
+                            order = 6.1,
+                        },
 					},
 				},
 				sec7 = {
@@ -1560,7 +1593,7 @@ local options = {
 							order = 2.3,
 						},
 						contextsNote = {
-							name = "\n * Normal / Heroic / Mythic / Scenario",
+							name = "\n * Normal / Heroic / Mythic / Scenario / Delve",
 							type = "description",
 							order = 30,
 						},
@@ -1593,7 +1626,7 @@ local options = {
 							order = 0.2,
 						},
 						descModules = {
-							name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..TRACKER_HEADER_PROVINGGROUNDS,
+							name = "\n * "..TRACKER_HEADER_DUNGEON.." / "..PLAYER_DIFFICULTY_MYTHIC_PLUS.." / "..CHALLENGE_MODE.." / "..TRACKER_HEADER_SCENARIO.." / "..MAP_LEGEND_DELVE.." / "..TRACKER_HEADER_PROVINGGROUNDS,
 							type = "description",
 							order = 20,
 						},

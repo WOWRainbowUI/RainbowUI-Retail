@@ -1,0 +1,281 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\Blizzard_SharedXML\UI.xsd">
+    <Button name="KT_QuestLogPathButtonTemplate" frameLevel="10" hidden="true" virtual="true">
+        <Size x="16" y="24"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon" texelSnappingBias="0.0" snapToPixelGrid="false">
+                    <Size x="16" y="24"/>
+                    <Anchors>
+                        <Anchor point="CENTER"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="HighlightIcon" alphaMode="ADD" alpha="0.3" texelSnappingBias="0.0" snapToPixelGrid="false">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.Icon"/>
+                        <Anchor point="BOTTOMRIGHT" relativeKey="$parent.Icon"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnMouseDown>
+                self.Icon:SetPoint("CENTER", 1, -1);
+            </OnMouseDown>
+            <OnMouseUp>
+                self.Icon:SetPoint("CENTER", 0, 0);
+            </OnMouseUp>
+            <OnClick>
+                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+                KT_QuestMapFrame_ToggleShowDestination();
+            </OnClick>
+            <OnEnter>
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                GameTooltip_AddColoredLine(GameTooltip, self.tooltipText, HIGHLIGHT_FONT_COLOR);
+                GameTooltip:Show();
+            </OnEnter>
+            <OnLeave function="GameTooltip_Hide"/>
+        </Scripts>
+    </Button>
+
+	<Frame name="KT_QuestLogBorderFrameTemplate" frameLevel="100" virtual="true">
+		<Anchors>
+			<Anchor point="TOPLEFT" x="-3" y="7"/>
+			<Anchor point="BOTTOMRIGHT" x="3" y="-6"/>
+		</Anchors>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="Border" atlas="questlog-frame" setAllPoints="true"/>
+			</Layer>
+			<Layer level="ARTWORK">
+				<Texture parentKey="TopDetail" atlas="questlog-frame-filigree" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOP" y="1"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Frame>
+
+    <!-- KT_QuestMapFrame -->
+    <Frame name="KT_QuestsFrame">
+        <Frames>
+            <Frame parentKey="DetailsFrame" mixin="KT_QuestLogQuestDetailsMixin" hidden="true">
+                <Size x="308" y="502"/>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" y="-1"/>
+                    <!-- No bottom anchor because it never displays with QuestSessionManagement -->
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Bg" atlas="QuestDetailsBackgrounds" useAtlasSize="true">
+                            <Anchors>
+                                <Anchor point="TOPLEFT"/>
+                                <Anchor point="TOPRIGHT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="BORDER" textureSubLevel="-1">
+                        <Texture parentKey="SealMaterialBG" hidden="true">
+                            <Anchors>
+                                <Anchor point="TOP" y="-40"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Frame parentKey="BorderFrame" inherits="KT_QuestLogBorderFrameTemplate">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="-3" y="4"/>
+                            <Anchor point="BOTTOMRIGHT" x="3" y="17"/>
+                        </Anchors>
+                    </Frame>
+                    <Frame parentKey="BackFrame">
+                        <Size x="307" y="52"/>
+                        <Anchors>
+                            <Anchor point="TOPLEFT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BORDER">
+                                <Texture atlas="questlog-reward-top-frame" useAtlasSize="true">
+                                    <!-- buttons background -->
+                                    <Anchors>
+                                        <Anchor point="TOPLEFT"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Frames>
+                            <Button parentKey="BackButton" inherits="UIPanelButtonTemplate" text="BACK">
+                                <Size x="90" y="22"/>
+                                <Anchors>
+                                    <Anchor point="LEFT" x="11" y="4"/>
+                                </Anchors>
+                                <Scripts>
+                                    <OnClick>
+                                        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+                                        KT_QuestMapFrame_ReturnFromQuestDetails();
+                                    </OnClick>
+                                </Scripts>
+                            </Button>
+                            <Frame parentKey="AccountCompletedNotice" inherits="QuestAccountCompletedNoticeTemplate">
+                                <Anchors>
+                                    <Anchor point="TOPRIGHT" x="-13" y="-16"/>
+                                </Anchors>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                    <Button parentKey="DestinationMapButton" inherits="KT_QuestLogPathButtonTemplate" frameLevel="100">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-15" y="-50"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="QUEST_WAYPOINT_FINAL" type="global"/>
+                        </KeyValues>
+                        <Scripts>
+                            <OnLoad>
+                                self.Icon:SetAtlas("questlog-waypoint-finaldestination-questionmark");
+                                self.Icon:SetSize(16, 24);
+                                self.HighlightIcon:SetAtlas("questlog-waypoint-finaldestination-questionmark");
+                            </OnLoad>
+                        </Scripts>
+                    </Button>
+                    <Button parentKey="WaypointMapButton" inherits="KT_QuestLogPathButtonTemplate" frameLevel="100">
+                        <Anchors>
+                            <Anchor point="TOPRIGHT" x="-15" y="-50"/>
+                        </Anchors>
+                        <KeyValues>
+                            <KeyValue key="tooltipText" value="QUEST_WAYPOINT_ROUTE" type="global"/>
+                        </KeyValues>
+                        <Scripts>
+                            <OnLoad>
+                                self.Icon:SetAtlas("poi-traveldirections-arrow", false);
+                                self.Icon:SetSize(15, 19);
+                                self.HighlightIcon:SetAtlas("poi-traveldirections-arrow", false);
+                            </OnLoad>
+                        </Scripts>
+                    </Button>
+                    <Frame parentKey="RewardsFrameContainer" frameLevel="50" clipChildren="true">
+                        <Size x="307" y="100"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="0" y="23"/>
+                        </Anchors>
+                        <Frames>
+                            <Frame parentKey="RewardsFrame">
+                                <Size x="307" y="275"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT"/>
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BORDER" textureSubLevel="1">
+                                        <Texture parentKey="Bottom" atlas="questlog-reward-bottom" useAtlasSize="true">
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT"/>
+                                            </Anchors>
+                                        </Texture>
+                                        <Texture parentKey="Top" atlas="questlog-reward-header-top" useAtlasSize="true">
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                    <Layer level="BACKGROUND">
+                                        <Texture parentKey="Background" atlas="questlog-reward-tile-vertical">
+                                            <Anchors>
+                                                <Anchor point="TOPLEFT" relativeKey="$parent.Top" relativePoint="BOTTOMLEFT"/>
+                                                <Anchor point="RIGHT" relativeKey="$parent.Bottom"/>
+                                                <Anchor point="BOTTOM"/>
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                    <Layer level="ARTWORK">
+                                        <FontString parentKey="Label" inherits="QuestFont_Huge" text="REWARDS">
+                                            <Anchors>
+                                                <Anchor point="TOP" x="0" y="-22"/>
+                                            </Anchors>
+                                            <Color r="0.902" g="0.788" b="0.671"/>
+                                        </FontString>
+                                    </Layer>
+                                </Layers>
+                            </Frame>
+                        </Frames>
+                    </Frame>
+                    <EventScrollFrame parentKey="ScrollFrame" name="KT_QuestMapDetailsScrollFrame" inherits="ScrollFrameTemplate">
+                        <Size x="298" y="430"/>
+                        <KeyValues>
+                            <KeyValue key="scrollBarX" value="13" type="number"/>
+                            <KeyValue key="scrollBarTopY" value="17" type="number"/>
+                            <KeyValue key="scrollBarBottomY" value="-27" type="number"/>
+                        </KeyValues>
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="5" y="-43"/>
+                        </Anchors>
+                        <ScrollChild>
+                            <Frame parentKey="Contents">
+                                <Size x="298" y="199"/>
+                                <Anchors>
+                                    <Anchor point="TOPLEFT"/>
+                                </Anchors>
+                            </Frame>
+                        </ScrollChild>
+                    </EventScrollFrame>
+                    <Button parentKey="AbandonButton" inherits="UIPanelButtonTemplate" text="ABANDON_QUEST_ABBREV">
+                        <Size x="105" y="22"/>
+                        <Anchors>
+                            <Anchor point="BOTTOMLEFT" x="-3" y="-2"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                KT_QuestMapQuestOptions_AbandonQuest(KT_QuestMapFrame_GetDetailQuestID())
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                    <Button parentKey="ShareButton" inherits="UIPanelButtonTemplate" text="SHARE_QUEST_ABBREV">
+                        <Size x="103" y="22"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.AbandonButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                        <Layers>
+                            <Layer level="OVERLAY">
+                                <Texture inherits="UI-Frame-BtnDivMiddle">
+                                    <Anchors>
+                                        <Anchor point="RIGHT" relativePoint="LEFT" x="6" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                                <Texture inherits="UI-Frame-BtnDivMiddle">
+                                    <Anchors>
+                                        <Anchor point="LEFT" relativePoint="RIGHT" x="-6" y="0"/>
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <Scripts>
+                            <OnClick>
+                                KT_QuestMapQuestOptions_ShareQuest(KT_QuestMapFrame_GetDetailQuestID())
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                    <Button parentKey="TrackButton" inherits="UIPanelButtonTemplate" text="TRACK_QUEST_ABBREV">
+                        <Size x="105" y="22"/>
+                        <Anchors>
+                            <Anchor point="LEFT" relativeKey="$parent.ShareButton" relativePoint="RIGHT"/>
+                        </Anchors>
+                        <Scripts>
+                            <OnClick>
+                                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+                                KT_QuestMapQuestOptions_TrackQuest(KT_QuestMapFrame_GetDetailQuestID())
+                            </OnClick>
+                        </Scripts>
+                    </Button>
+                </Frames>
+                <Scripts>
+                    <OnLoad method="OnLoad"/>
+                    <OnShow method="OnShow"/>
+                    <OnHide method="OnHide"/>
+                </Scripts>
+            </Frame>
+        </Frames>
+    </Frame>
+</Ui>

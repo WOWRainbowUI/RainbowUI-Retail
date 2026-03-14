@@ -9,6 +9,7 @@ local _, KT = ...
 
 local SS = KT:NewSubsystem("OpenService")
 
+local db
 local defaults = {}
 local overrides = {}
 
@@ -47,15 +48,20 @@ local function ToggleQuestLog()
 end
 
 local function OpenMapToQuest(questID)
-    local ignoreWaypoints = true
-    local mapID = GetQuestUiMapID(questID, ignoreWaypoints)
-    if mapID and mapID > 0 then
-        QuestMapFrame:SetDisplayMode(QuestLogDisplayMode.Quests)
-        EventRegistry:TriggerEvent("QuestLog.HideCampaignOverview")
-        C_Map.OpenWorldMap(mapID)
-        EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID)
-        StaticPopup_Hide("ABANDON_QUEST")
-        StaticPopup_Hide("ABANDON_QUEST_WITH_ITEMS")
+    QuestMapFrame:SetDisplayMode(QuestLogDisplayMode.Quests)
+    C_Map.OpenWorldMap()
+    if db.questLogShowDetails and GetCVarBool("questLogOpen") then
+        KT_QuestMapFrame_ShowQuestDetails(questID)
+    else
+        local ignoreWaypoints = true
+        local mapID = GetQuestUiMapID(questID, ignoreWaypoints)
+        if mapID and mapID > 0 then
+            EventRegistry:TriggerEvent("QuestLog.HideCampaignOverview")
+            C_Map.OpenWorldMap(mapID)
+            EventRegistry:TriggerEvent("MapCanvas.PingQuestID", questID)
+            StaticPopup_Hide("ABANDON_QUEST")
+            StaticPopup_Hide("ABANDON_QUEST_WITH_ITEMS")
+        end
     end
 end
 
@@ -170,6 +176,7 @@ local function RegisterDefaults()
     KT.OpenService_Default("endeavortask", function(id)
         if KT.InCombatBlocked() then return end
         HousingFramesUtil.OpenFrameToTaskID(id)
+        HousingFramesUtil.OpenFrameToTaskID(id)
     end)
 
     KT.OpenService_Default("collectionitem", function(type, id)
@@ -178,4 +185,8 @@ local function RegisterDefaults()
     end)
 end
 
-RegisterDefaults()
+function SS:Init()
+    db = KT.db.profile
+
+    RegisterDefaults()
+end

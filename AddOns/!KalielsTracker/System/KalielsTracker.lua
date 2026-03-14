@@ -362,6 +362,11 @@ local function SetFrames()
 			KT.QuestsCache_UpdateProperty(questID, "updateTime", time())
 		elseif event == "ACHIEVEMENT_EARNED" then
 			KT:SetAchievsHeaderText()
+        elseif event == "CRITERIA_EARNED" then
+            local achievementID = ...
+            if db.achievProgressAutoTrack then
+                KT.AddTrackedAchievement(achievementID)
+            end
 		elseif event == "PLAYER_REGEN_ENABLED" and combatLockdown then
 			combatLockdown = false
 			KT:RemoveFixedButton()
@@ -398,6 +403,7 @@ local function SetFrames()
 	KTF:RegisterEvent("QUEST_WATCH_UPDATE")
 	KTF:RegisterEvent("QUEST_POI_UPDATE")
 	KTF:RegisterEvent("ACHIEVEMENT_EARNED")
+    KTF:RegisterEvent("CRITERIA_EARNED")
 	KTF:RegisterEvent("PLAYER_REGEN_ENABLED")
 	KTF:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	KTF:RegisterEvent("ZONE_CHANGED")
@@ -2506,8 +2512,6 @@ function KT:SetBackground()
 	end
 
 	KTF.Bar.texture:SetColorTexture(self.borderColor.r, self.borderColor.g, self.borderColor.b, db.borderAlpha)
-
-	self:SendSignal("OPTIONS_CHANGED")
 end
 
 -- TODO: Rename function

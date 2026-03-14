@@ -13,7 +13,7 @@ local defaults = {
     profile = {
         anchorPoint = "TOPRIGHT",
         xOffset = -115,
-        yOffset = -280,
+        yOffset = -340,
         width = 305,
         maxHeight = 600,
         frameScale = 1,
@@ -70,6 +70,8 @@ local defaults = {
         questShowZones = true,
         taskShowFactions = true,
         questAutoFocusClosest = false,
+        questLogShowDetails = true,
+        achievProgressAutoTrack = true,
 
         messageQuest = true,
         messageAchievement = true,

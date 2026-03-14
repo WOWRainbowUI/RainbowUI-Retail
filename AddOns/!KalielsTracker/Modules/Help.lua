@@ -363,20 +363,20 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.2.1|r\n"..
-					"- CHANGED - TomTom - waypoint improvements\n"..
-					"- FIXED - taint errors (2)\n"..
-					"\n")..
-
-					(cTitle.."Version 8.2.0|r\n"..
-					"- ADDED - support for WoW 12.0.1.65867\n"..
-					"- FIXED - taint errors\n"..
-					offs3.."- Clicking on entries in the tracker is only available out of combat.\n"..
-					offs3.."- Clicking on a quest opens the map, but not the quest details panel.\n"..
-					offs3.."- The small “Eye” button is no longer available.\n"..
-					offs3.."- The standalone Quest Details window is no longer supported.\n"..
-					"- FIXED - high CPU usage in Quest tracker (Blizz bug)\n"..
-					"- REMOVED - all Hacks\n"..
+					(cTitle.."Version 8.3.0|r\n"..
+					"- ADDED (QuestLog) - Show Quest Details on World Map (Experimental)\n"..
+					offs3.."- Custom Quest Details implemented by Kaliel's Tracker to avoid taint issues.\n"..
+					"- ADDED (achievements) - auto Achievement progress tracking\n"..
+					"- ADDED (achievements) - filter support for Midnight\n"..
+					"- CHANGED - addon support - TomTom 4.2.23\n"..
+					"- CHANGED - addon support - RareScanner 12.0.1.15\n"..
+					"- CHANGED - addon support - BtWQuests 2.61.0\n"..
+					"- CHANGED - addon support - Auctionator 318\n"..
+					"- CHANGED - TomTom - quest waypoint improvements\n"..
+					"- CHANGED - Options - update visibility rule for Silvermoon City\n"..
+					"- CHANGED (help) - Active Patrons\n"..
+					"- FIXED - quest objective may show wrong dot (Blizz bug)\n"..
+					"- FIXED - taint errors (3)\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -458,24 +458,24 @@ local function SetupTutorials()
 					"a small personal project into a large time-intensive system that requires continuous work.\n\n"..
 					"Many thanks to all supporters who help keep the project alive "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
+					SetFormatedPatronName("Legendary", "Kaelandros")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Epic", "Soromeister")..
 					SetFormatedPatronName("Rare", "Ian F")..
 					SetFormatedPatronName("Rare", "Sal")..
 					SetFormatedPatronName("Rare", "Spance")..
-					SetFormatedPatronName("Rare", "SublimeHysteria")..
-					SetFormatedPatronName("Uncommon", "Brewnor")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Cool Blue")..
 					SetFormatedPatronName("Uncommon", "David Blanchard")..
 					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
+					SetFormatedPatronName("Uncommon", "Gremlin78")..
 					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
+                    SetFormatedPatronName("Uncommon", "Papus", "Ulduar")..
 					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Veratais")..
-					SetFormatedPatronName("Uncommon", "Xeelee", "Razorfen")..
-                    SetFormatedPatronName("Common", "Darren Divecha")..
+					SetFormatedPatronName("Common", "Darren Divecha")..
 					"\n"..
 					cTitle.."Testers|r\n"..
 					SetFormatedPlayerName("Asimeria", "Drak'thul")..

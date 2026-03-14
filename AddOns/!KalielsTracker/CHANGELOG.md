@@ -1,4 +1,18 @@
 # Kaliel's Tracker changelog
+### 8.3.0
+- ADDED (QuestLog) - Show Quest Details on World Map (Experimental)
+  - Custom Quest Details implemented by Kaliel&#x27;s Tracker to avoid taint issues.
+- ADDED (achievements) - auto Achievement progress tracking
+- ADDED (achievements) - filter support for Midnight
+- CHANGED - addon support - TomTom 4.2.23
+- CHANGED - addon support - RareScanner 12.0.1.15
+- CHANGED - addon support - BtWQuests 2.61.0
+- CHANGED - addon support - Auctionator 318
+- CHANGED - TomTom - quest waypoint improvements
+- CHANGED - Options - update visibility rule for Silvermoon City
+- CHANGED (help) - Active Patrons
+- FIXED - quest objective may show wrong dot (Blizz bug)
+- FIXED - taint errors (3)
 ### 8.2.1
 - CHANGED - TomTom - waypoint improvements
 - FIXED - taint errors (2)
@@ -11,16 +25,3 @@
   - The standalone Quest Details window is no longer supported.
 - FIXED - high CPU usage in Quest tracker (Blizz bug)
 - REMOVED - all Hacks
-### 8.1.0
-- ADDED - replace scroll indicator with interactive scrollbar
-- ADDED - TomTom - waypoint support for Collection sources (Appearances, Decors)
-- ADDED - Collections tracking (Appearance, Decor) - dropdown menu, tooltip
-- ADDED - TomTom - support for other TomTom waypoints
-- ADDED - Threat Quest - show POI button
-- CHANGED (help) - Active Patrons
-- CHANGED - addon support - ElvUI 15.05
-- CHANGED - improve rewards in tooltips
-- CHANGED - Libs
-- FIXED - secret number value taint
-- FIXED - Hide visibility rule is ignored when &quot;Hide empty tracker&quot; is enabled
-- FIXED - high CPU usage in Quest tracker (Blizz bug)

@@ -34,7 +34,7 @@ KT.MODULES = {
     "KT_WorldQuestObjectiveTracker"
 }
 
-KT.EXPANSION = EXPANSION_NAME10
+KT.EXPANSION = EXPANSION_NAME11
 
 KT.QUEST_DASH = "- "
 KT_QUEST_DASH = KT.QUEST_DASH
@@ -124,6 +124,10 @@ KT.MAP_CONTINENT_INFO = setmetatable({}, {
     end
 })
 
+KT.MAP_ZONE_OVERRIDES = {
+    [2536] = 2437,  -- Zul'Aman > Atal'Aman
+}
+
 -- Visibility
 KT.VISIBILITY_CONTEXTS = {
     "world",
@@ -192,6 +196,8 @@ KT.MAJOR_CITY_MAPS = {
     [2112] = "Valdrakken",
     -- Khaz Algar
     [2339] = "Dornogal",
+    -- Quel'Thalas
+    [2393] = "Silvermoon City",
 }
 
 -- Keybindings

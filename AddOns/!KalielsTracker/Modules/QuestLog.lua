@@ -59,7 +59,31 @@ local function QuestMapQuestOptionsDropDown_Initialize(self)
 end
 
 local function SetHooks()
+    -- WorldMapFrame.lua
+    WorldMapFrame:HookScript("OnHide", function()
+        KT_QuestMapFrame_CloseQuestDetails()
+    end)
+
+    hooksecurefunc(WorldMapFrame.BorderFrame.MaximizeMinimizeFrame, "Maximize", function(self, isAutomaticAction, skipCallback)
+        KT_QuestMapFrame_CloseQuestDetails()
+    end)
+
+    WorldMapFrame.SidePanelToggle.CloseButton:HookScript("OnClick", function()
+        KT_QuestMapFrame_CloseQuestDetails()
+    end)
+
+    -- for Mapster
+    hooksecurefunc(WorldMapFrame, "SetScale", function(self, scale)
+        KT_QuestMapFrame:SetScale(scale)
+    end)
+
 	-- QuestMapFrame.lua
+    hooksecurefunc(QuestMapFrame, "Refresh", function(self)
+        if KT_QuestMapFrame.DetailsFrame.questMapID and KT_QuestMapFrame.DetailsFrame.questMapID ~= self:GetParent():GetMapID() then
+            KT_QuestMapFrame_CloseQuestDetails()
+        end
+    end)
+
 	hooksecurefunc("QuestMapLogTitleButton_OnClick", function(self, button)
 		local isDisabledQuest = C_QuestLog.IsQuestDisabledForSession(self.questID)
 		if not isDisabledQuest and button == "RightButton" then
@@ -85,9 +109,65 @@ local function SetHooks()
 			KT.QuestSuperTracking_ChooseClosestQuest()
 		end
 	end)
+
+    hooksecurefunc(QuestMapFrame, "SetDisplayMode", function(self, displayMode)
+        if KT_QuestMapFrame.DetailsFrame.questID then
+            KT_QuestMapFrame:SetShown(displayMode == QuestLogDisplayMode.Quests)
+        end
+    end)
 end
 
 local function SetFrames()
+    -- Quest detail
+    local questMapFrame = CreateFrame("Frame", "KT_QuestMapFrame", UIParent)
+    questMapFrame:SetSize(331, 498)  -- 504
+    questMapFrame:SetPoint("TOPRIGHT", QuestMapFrame, -1, 0)
+    questMapFrame:SetFrameStrata(QuestMapFrame:GetFrameStrata())
+    questMapFrame:EnableMouse(true)
+    questMapFrame:Hide()
+
+    questMapFrame:SetScript("OnEvent", function(_, event)
+        if event == "QUEST_WATCH_LIST_CHANGED" then
+            KT_QuestMapFrame_UpdateQuestDetailsButtons()
+        elseif event == "QUEST_REMOVED" then
+            KT_QuestMapFrame_CloseQuestDetails()
+        elseif event == "SUPER_TRACKING_CHANGED" then
+            KT_QuestMapFrame_UpdateSuperTrackedQuest()
+        end
+    end)
+    questMapFrame:RegisterEvent("QUEST_WATCH_LIST_CHANGED")
+    questMapFrame:RegisterEvent("QUEST_REMOVED")
+    questMapFrame:RegisterEvent("SUPER_TRACKING_CHANGED")
+
+    local bg = questMapFrame:CreateTexture(nil, "BACKGROUND")
+    if not C_AddOns.IsAddOnLoaded("ElvUI") then
+        bg:SetTexture("Interface\\FrameGeneral\\UI-Background-Rock")
+    else
+        bg:SetColorTexture(0, 0, 0)
+    end
+    bg:SetAllPoints()
+
+    local logo = CreateFrame("Frame", nil, questMapFrame)
+    logo:SetSize(26, 26)
+    logo:SetPoint("TOP", -9, -10)
+    logo:SetFrameLevel(10)
+    logo.tex = logo:CreateTexture(nil, "ARTWORK")
+    logo.tex:SetTexture(KT.MEDIA_PATH.."KT_logo")
+    logo.tex:SetAllPoints()
+    logo:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        GameTooltip:AddLine("Quest Details created by |cffffd200"..KT.TITLE, 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    logo:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+    end)
+
+    KT_QuestsFrame:SetParent(questMapFrame)
+    KT_QuestsFrame:SetPoint("TOPLEFT")
+    KT_QuestsFrame:SetPoint("BOTTOMRIGHT", -21, 0)
+    questMapFrame.DetailsFrame = KT_QuestsFrame.DetailsFrame
+
 	-- DropDown frame
 	dropDownFrame = MSA_DropDownMenu_Create(addonName.."QuestLogDropDown", QuestMapFrame)
 	dropDownFrame.questID = 0  -- for QuestMapQuestOptionsDropDown_Initialize
@@ -101,9 +181,10 @@ function M:OnInitialize()
 	db = KT.db.profile
 	dbChar = KT.db.char
     self.isAvailable = true
+end
 
-    if self.isAvailable then
-        SetHooks()
-        SetFrames()
-    end
+function M:OnEnable()
+    _DBG("|cff00ff00Enable|r - "..self:GetName(), true)
+    SetFrames()
+    SetHooks()
 end
