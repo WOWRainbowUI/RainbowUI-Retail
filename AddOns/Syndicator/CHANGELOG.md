@@ -1,8 +1,8 @@
 # Syndicator
 
-## [263](https://github.com/TheMouseNest/Syndicator/tree/263) (2026-02-21)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/262...263) [Previous Releases](https://github.com/TheMouseNest/Syndicator/releases)
+## [264](https://github.com/TheMouseNest/Syndicator/tree/264) (2026-03-13)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/263...264) [Previous Releases](https://github.com/TheMouseNest/Syndicator/releases)
 
-- Fix missing event for guild bank currency updates  
-- Fix extra guilds being recorded if the guild isn't from current realm  
-- Workaround for tooltip taint error  
+- Add version slash command  
+- Retail: Fix icons for Haranir characters  
+- Cleanup  
