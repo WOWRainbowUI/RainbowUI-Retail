@@ -6,6 +6,7 @@ local tinsert = table.insert;
 local twipe = table.wipe;
 local floor = math.floor;
 local max = math.max;
+local min = math.min;
 
 local InCombatLockdown = InCombatLockdown;
 local debugprofilestop = debugprofilestop;
@@ -61,6 +62,7 @@ local VUHDO_resolveAuraTriState;
 local VUHDO_getAuraGroup;
 local VUHDO_getDispelCurveForUnit;
 local VUHDO_setAnchorSlotAuraId;
+local VUHDO_isPanelPopulated;
 
 VUHDO_AURA_FRAMES = VUHDO_AURA_FRAMES or { };
 local VUHDO_AURA_FRAMES = VUHDO_AURA_FRAMES;
@@ -377,6 +379,7 @@ local sAuraIconPool;
 local sAuraBarPool;
 local sSlotDataAsAuraPool;
 local sSlotAssignmentPool;
+local sAuraPoolContainer;
 
 local sAuraBackdropInfo = {
 	["edgeFile"] = "Interface\\Buttons\\WHITE8X8",
@@ -454,6 +457,7 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 	VUHDO_resolveAuraTriState = _G["VUHDO_resolveAuraTriState"];
 	VUHDO_getAuraGroup = _G["VUHDO_getAuraGroup"];
 	VUHDO_getDispelCurveForUnit = _G["VUHDO_getDispelCurveForUnit"];
+	VUHDO_isPanelPopulated = _G["VUHDO_isPanelPopulated"];
 
 	sSlotDataAsAuraPool = VUHDO_createTablePool("SlotDataAsAura", 500);
 	sSlotAssignmentPool = VUHDO_createTablePool("SlotAssignment", 200);
@@ -492,30 +496,47 @@ end
 --
 local tIconCount;
 local tBarCount;
-local tMaxButtonsPerPanel;
+local tNumButtons;
+local tIsFirstPanel;
 local tAnchors;
 local tMaxSlots;
 function VUHDO_estimateRequiredAuraFrames()
 
 	tIconCount = 0;
 	tBarCount = 0;
-	tMaxButtonsPerPanel = 40;
+
+	tIsFirstPanel = true;
 
 	for tPanelNum = 1, VUHDO_MAX_PANELS do
-		tAnchors = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"];
+		if VUHDO_isPanelPopulated(tPanelNum) then
+			if tIsFirstPanel then
+				tNumButtons = 20;
 
-		if tAnchors then
-			for _, tAnchorConfig in pairs(tAnchors) do
-				tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
+				tIsFirstPanel = false;
+			else
+				tNumButtons = 8;
+			end
 
-				if tAnchorConfig["style"] == "bars" then
-					tBarCount = tBarCount + (tMaxSlots * tMaxButtonsPerPanel);
-				else
-					tIconCount = tIconCount + (tMaxSlots * tMaxButtonsPerPanel);
+			tAnchors = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"];
+
+			if tAnchors then
+				for _, tAnchorConfig in pairs(tAnchors) do
+					if tAnchorConfig["enabled"] then
+						tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
+
+						if tAnchorConfig["style"] == "bars" then
+							tBarCount = tBarCount + (tMaxSlots * tNumButtons);
+						else
+							tIconCount = tIconCount + (tMaxSlots * tNumButtons);
+						end
+					end
 				end
 			end
 		end
 	end
+
+	tIconCount = min(tIconCount, 400);
+	tBarCount = min(tBarCount, 100);
 
 	return tIconCount, tBarCount;
 
@@ -1120,7 +1141,8 @@ do
 
 		aFrame:Hide();
 		aFrame:ClearAllPoints();
-		aFrame:SetParent(UIParent);
+
+		aFrame:SetParent(VUHDO_getAuraPoolContainer());
 
 		return;
 
@@ -1139,6 +1161,24 @@ do
 		sAuraBarPool = CreateFramePool("Frame", nil, "VuhDoAuraAnchorBarTemplate", VUHDO_auraFramePoolReset);
 
 		return;
+
+	end
+
+
+
+	--
+	function VUHDO_getAuraPoolContainer()
+
+		if not sAuraPoolContainer then
+			sAuraPoolContainer = CreateFrame("Frame", nil, UIParent);
+
+			sAuraPoolContainer:Hide();
+
+			sAuraPoolContainer:SetPoint("TOPLEFT", UIParent, "TOPLEFT", -10000, 10000);
+			sAuraPoolContainer:SetSize(1, 1);
+		end
+
+		return sAuraPoolContainer;
 
 	end
 

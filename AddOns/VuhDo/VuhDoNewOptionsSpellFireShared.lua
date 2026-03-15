@@ -1,28 +1,41 @@
 --
-local tLayoutPanelHots;
-function VUHDO_activateLayoutLoadHotsForPanel(aName, aPanelNum)
+local tLayoutAnchors;
+local tLayout;
+function VUHDO_activateLayoutLoadAurasForPanel(aName, aPanelNum)
 
 	if not aName or not aPanelNum or not VUHDO_SPELL_LAYOUTS or not VUHDO_SPELL_LAYOUTS[aName] or
-		not VUHDO_SPELL_LAYOUTS[aName]["HOTS"] or not VUHDO_SPELL_CONFIG or not VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"] then
+		not VUHDO_SPELL_CONFIG or not VUHDO_SPELL_CONFIG["IS_LOAD_AURAS"] then
+
 		return;
 	end
 
-	-- support for pre per-panel HoTs
-	if type(VUHDO_SPELL_LAYOUTS[aName]["HOTS"]) == "table" then
-		tLayoutPanelHots = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOTS"][aPanelNum]);
+	tLayout = VUHDO_SPELL_LAYOUTS[aName];
 
-		if VUHDO_SPELL_CONFIG["IS_LOAD_HOTS_ONLY_SLOTS"] then
-			VUHDO_PANEL_SETUP[aPanelNum]["HOTS"]["SLOTS"] = tLayoutPanelHots["SLOTS"];
+	if tLayout["AURAS"] and tLayout["AURAS"][aPanelNum] then
+		if VUHDO_SPELL_CONFIG["IS_LOAD_AURAS_ONLY_ANCHORS"] then
+			tLayoutAnchors = VUHDO_decompressOrCopy(tLayout["AURAS"][aPanelNum]);
 
-			for tSlotNum, tSlotConfig in pairs(tLayoutPanelHots["SLOTCFG"]) do
-				VUHDO_PANEL_SETUP[aPanelNum]["HOTS"]["SLOTCFG"][tSlotNum]["mine"] = tSlotConfig["mine"];
+			for tAnchorId, tAnchorConfig in pairs(tLayoutAnchors) do
+				if VUHDO_PANEL_SETUP[aPanelNum]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[aPanelNum]["AURA_ANCHORS"][tAnchorId] then
+					VUHDO_PANEL_SETUP[aPanelNum]["AURA_ANCHORS"][tAnchorId]["groupId"] = tAnchorConfig["groupId"];
+				end
 			end
 		else
-			VUHDO_PANEL_SETUP[aPanelNum]["HOTS"] = tLayoutPanelHots;
+			VUHDO_PANEL_SETUP[aPanelNum]["AURA_ANCHORS"] = VUHDO_decompressOrCopy(tLayout["AURAS"][aPanelNum]);
 		end
-	else
-		VUHDO_PANEL_SETUP[aPanelNum]["HOTS"] = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOTS"]);
 	end
+
+	if aPanelNum == 1 then
+		if tLayout["AURA_GROUPS"] then
+			VUHDO_CONFIG["AURA_GROUPS"] = VUHDO_decompressOrCopy(tLayout["AURA_GROUPS"]);
+		end
+
+		if tLayout["AURA_GROUP_DISABLED"] then
+			VUHDO_CONFIG["AURA_GROUP_DISABLED"] = VUHDO_decompressOrCopy(tLayout["AURA_GROUP_DISABLED"]);
+		end
+	end
+
+	return;
 
 end
 
@@ -37,7 +50,7 @@ function VUHDO_activateLayoutNoInit(aName)
 	VUHDO_HOSTILE_SPELL_ASSIGNMENTS = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["HOSTILE_MOUSE"]);
 
 	for tPanelNum = 1, VUHDO_MAX_PANELS do
-		VUHDO_activateLayoutLoadHotsForPanel(aName, tPanelNum);
+		VUHDO_activateLayoutLoadAurasForPanel(aName, tPanelNum);
 	end
 
 	VUHDO_SPELLS_KEYBOARD = VUHDO_decompressOrCopy(VUHDO_SPELL_LAYOUTS[aName]["KEYS"]);

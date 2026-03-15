@@ -581,24 +581,33 @@ local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec)
 			end
 
 			if tTexture then
-				tStart = tStart or 0;
-				tRest = tRest and tRest - tNow or 0;
-				tCount = tCount or 0
+				tCount = tCount or 0;
 
 				if tCount > tMaxCount then tMaxCount = tCount; end
 
-				if (tRest < sRebuffSecs or tRest / tStart < sRebuffPerc) and tRest > 0 then
-					tLowGroup[#tLowGroup + 1] = tUnit;
-					if not tInRange and tIsAvailable then
-						tOorGroup[#tOorGroup + 1] = tUnit;
-					end
-				else
+				if sSecretsEnabled and (issecretvalue(tRest) or issecretvalue(tStart)) then
 					tOkayGroup[#tOkayGroup + 1] = tUnit;
-				end
+				else
+					tStart = tStart or 0;
+					tRest = tRest and tRest - tNow or 0;
 
-				if tLowestRest == nil or tRest < tLowestRest then
-					tLowestRest = tRest;
-					if tInRange then tLowestUnit = tUnit; end
+					if (tRest < sRebuffSecs or tRest / tStart < sRebuffPerc) and tRest > 0 then
+						tLowGroup[#tLowGroup + 1] = tUnit;
+
+						if not tInRange and tIsAvailable then
+							tOorGroup[#tOorGroup + 1] = tUnit;
+						end
+					else
+						tOkayGroup[#tOkayGroup + 1] = tUnit;
+					end
+
+					if tLowestRest == nil or tRest < tLowestRest then
+						tLowestRest = tRest;
+
+						if tInRange then
+							tLowestUnit = tUnit;
+						end
+					end
 				end
 			end
 

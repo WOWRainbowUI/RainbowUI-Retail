@@ -308,6 +308,10 @@ local function VUHDO_rememberTargetButton(aTargetUnit, aButton)
 
 			tName = tInfo["name"];
 
+			if not tName then
+				break;
+			end
+
 			if not VUHDO_IN_RAID_TARGET_BUTTONS[tName] then
 				VUHDO_IN_RAID_TARGET_BUTTONS[tName] = { };
 			end

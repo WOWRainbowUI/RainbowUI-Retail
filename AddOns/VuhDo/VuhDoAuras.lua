@@ -2745,6 +2745,41 @@ do
 
 
 	--
+	function VUHDO_migrateKeyLayoutToAuras(aLayout)
+
+		if not aLayout or aLayout["AURAS"] then
+			return;
+		end
+
+		if not aLayout["HOTS"] then
+			return;
+		end
+
+		aLayout["AURAS"] = { };
+
+		for tPanelNum = 1, VUHDO_MAX_PANELS do
+			if VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"] then
+				aLayout["AURAS"][tPanelNum] = VUHDO_compressTable(VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"]);
+			end
+		end
+
+		if VUHDO_CONFIG and VUHDO_CONFIG["AURA_GROUPS"] then
+			aLayout["AURA_GROUPS"] = VUHDO_compressTable(VUHDO_CONFIG["AURA_GROUPS"]);
+		end
+
+		if VUHDO_CONFIG and VUHDO_CONFIG["AURA_GROUP_DISABLED"] then
+			aLayout["AURA_GROUP_DISABLED"] = VUHDO_compressTable(VUHDO_CONFIG["AURA_GROUP_DISABLED"]);
+		end
+
+		aLayout["HOTS"] = nil;
+
+		return;
+
+	end
+
+
+
+	--
 	function VUHDO_auraHelp()
 
 		VUHDO_Msg("|cffFFD100--- Aura Commands ---|r");

@@ -224,20 +224,9 @@ local tAmountInc;
 local tCalculator;
 local function VUHDO_overhealCalculator(anInfo)
 
+	-- FIXME: UnitHealPredictionCalculator does not return overheal amount
 	if sSecretsEnabled then
-		if not anInfo["connected"] or anInfo["dead"] then
-			return 0, nil;
-		end
-
-		tCalculator = VUHDO_getHealPredictionCalculator();
-
-		if tCalculator then
-			UnitGetDetailedHealPrediction(anInfo["unit"], "player", tCalculator);
-
-			return tCalculator:GetTotalIncomingHeals(), nil;
-		else
-			return 0, nil;
-		end
+		return 0, nil;
 	end
 
 	tAmountInc = VUHDO_getIncHealOnUnit(anInfo["unit"]);

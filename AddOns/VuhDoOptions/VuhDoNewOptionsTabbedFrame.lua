@@ -110,6 +110,12 @@ function VUHDO_tabbedPanelOkayClicked(aButton)
 	elseif (tProfile ~= nil and tProfile["LOCKED"]) then
 		VUHDO_Msg("Profile locked: Settings have NOT been saved to " .. tProfile["NAME"]);
 	else
+		local tSkinsPanel = _G["VuhDoNewOptionsToolsSkins"];
+
+		if tSkinsPanel then
+			VUHDO_skinsSaveAutoProfileButtonEnablement(tSkinsPanel, VUHDO_CONFIG["CURRENT_PROFILE"]);
+		end
+
 		VUHDO_saveCurrentProfile();
 		VUHDO_CURRENT_PROFILE = VUHDO_CONFIG["CURRENT_PROFILE"];
 	end

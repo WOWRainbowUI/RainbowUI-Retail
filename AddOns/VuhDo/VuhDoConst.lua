@@ -11,8 +11,9 @@ VUHDO_COMMS_PREFIX = "VUHDO";
 VUHDO_YES = 1;
 VUHDO_NO = 2;
 
-VUHDO_MAX_PANELS = 10;        -- Maximum number of Panels, change in VuhDoPanel.XML accordingly
+VUHDO_MAX_PANELS = 10;
 VUHDO_MAX_BOSS_FRAMES = 8;
+VUHDO_MAX_PRIVATE_AURAS = 6;
 --VUHDO_MAX_GROUPS_PER_PANEL = 15; -- Maximum number of Models (Groups) per Panel
 
 --VUHDO_MAX_MTS = 8;
@@ -709,9 +710,6 @@ VUHDO_CUSTOM_GLOW_CUDE_FRAME_KEY = "_CuDe_Frame";
 VUHDO_CUSTOM_GLOW_CUDE_ICON_KEY = "_CuDe_Icon";
 VUHDO_CUSTOM_GLOW_SWIFTMEND_FRAME_KEY = "_SwMe_Frame";
 VUHDO_CUSTOM_GLOW_SWIFTMEND_ICON_KEY = "_SwMe_Icon";
-
--- as of 10.2.0 the default Blizzard UI creates two Private Aura anchors
-VUHDO_MAX_PRIVATE_AURAS = 3;
 
 VUHDO_BOUQUET_CUSTOM_TYPE_PERCENT = 1;
 VUHDO_BOUQUET_CUSTOM_TYPE_PLAYERS = 2;

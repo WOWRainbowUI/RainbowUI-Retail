@@ -232,10 +232,21 @@ local VUHDO_DEFAULT_PROFILES = {
 				},
 				["PRIVATE_AURA"] = {
 					["show"] = true,
-					["scale"] = 0.8,
 					["point"] = "LEFT",
 					["xAdjust"] = 5,
 					["yAdjust"] = 0,
+					["numAuras"] = 3,
+					["orientation"] = "HORIZONTAL",
+					["spacing"] = 0,
+					["showCooldown"] = true,
+					["showCooldownNumbers"] = true,
+					["showDuration"] = false,
+					["durationPosition"] = "BOTTOM",
+					["durationOffsetX"] = 0,
+					["durationOffsetY"] = 0,
+					["showBorder"] = false,
+					["iconSize"] = 20,
+					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -973,10 +984,21 @@ local VUHDO_DEFAULT_PROFILES = {
 				},
 				["PRIVATE_AURA"] = {
 					["show"] = true,
-					["scale"] = 0.8,
 					["point"] = "LEFT",
 					["xAdjust"] = 5,
 					["yAdjust"] = 0,
+					["numAuras"] = 3,
+					["orientation"] = "HORIZONTAL",
+					["spacing"] = 0,
+					["showCooldown"] = true,
+					["showCooldownNumbers"] = true,
+					["showDuration"] = false,
+					["durationPosition"] = "BOTTOM",
+					["durationOffsetX"] = 0,
+					["durationOffsetY"] = 0,
+					["showBorder"] = false,
+					["iconSize"] = 20,
+					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -1151,10 +1173,21 @@ local VUHDO_DEFAULT_PROFILES = {
 				},
 				["PRIVATE_AURA"] = {
 					["show"] = true,
-					["scale"] = 0.8,
 					["point"] = "LEFT",
 					["xAdjust"] = 5,
 					["yAdjust"] = 0,
+					["numAuras"] = 3,
+					["orientation"] = "HORIZONTAL",
+					["spacing"] = 0,
+					["showCooldown"] = true,
+					["showCooldownNumbers"] = true,
+					["showDuration"] = false,
+					["durationPosition"] = "BOTTOM",
+					["durationOffsetX"] = 0,
+					["durationOffsetY"] = 0,
+					["showBorder"] = false,
+					["iconSize"] = 20,
+					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -1321,10 +1354,21 @@ local VUHDO_DEFAULT_PROFILES = {
 				},
 				["PRIVATE_AURA"] = {
 					["show"] = true,
-					["scale"] = 0.8,
 					["point"] = "LEFT",
 					["xAdjust"] = 5,
 					["yAdjust"] = 0,
+					["numAuras"] = 3,
+					["orientation"] = "HORIZONTAL",
+					["spacing"] = 0,
+					["showCooldown"] = true,
+					["showCooldownNumbers"] = true,
+					["showDuration"] = false,
+					["durationPosition"] = "BOTTOM",
+					["durationOffsetX"] = 0,
+					["durationOffsetY"] = 0,
+					["showBorder"] = false,
+					["iconSize"] = 20,
+					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -1491,10 +1535,21 @@ local VUHDO_DEFAULT_PROFILES = {
 				},
 				["PRIVATE_AURA"] = {
 					["show"] = true,
-					["scale"] = 0.8,
 					["point"] = "LEFT",
 					["xAdjust"] = 5,
 					["yAdjust"] = 0,
+					["numAuras"] = 3,
+					["orientation"] = "HORIZONTAL",
+					["spacing"] = 0,
+					["showCooldown"] = true,
+					["showCooldownNumbers"] = true,
+					["showDuration"] = false,
+					["durationPosition"] = "BOTTOM",
+					["durationOffsetX"] = 0,
+					["durationOffsetY"] = 0,
+					["showBorder"] = false,
+					["iconSize"] = 20,
+					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -2702,7 +2757,7 @@ function VUHDO_loadProfileNoInit(aName)
 			VUHDO_PANEL_SETUP[tPanelNum]["POSITION"] = VUHDO_deepCopyTable(tPanelPositions[tPanelNum]);
 		end
 
-		VUHDO_activateLayoutLoadHotsForPanel(tLayoutName, tPanelNum);
+		VUHDO_activateLayoutLoadAurasForPanel(tLayoutName, tPanelNum);
 	end
 
 	-- @TODO: Warum werden die nicht direkt geladen (ipairs-Problem?)

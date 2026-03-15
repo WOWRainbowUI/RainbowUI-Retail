@@ -109,17 +109,26 @@ end
 
 
 --
-function VUHDO_newOptionsToolsResetCustomDebuffsClicked()
-	VuhDoYesNoFrameText:SetText(VUHDO_I18N_RESET_CUSTOM_DEBUFFS);
+function VUHDO_newOptionsToolsResetIgnoreListClicked()
+
+	VuhDoYesNoFrameText:SetText(VUHDO_I18N_RESET_IGNORE_LIST);
+
 	VuhDoYesNoFrame:SetAttribute("callback",
 		function(aDecision)
 			if (VUHDO_YES == aDecision) then
-				VUHDO_CONFIG["CUSTOM_DEBUFF"] = nil;
-				ReloadUI();
+				VUHDO_initAuraIgnoreList();
+
+				VUHDO_initAuraIgnoreComboModel();
+
+				VUHDO_Msg(VUHDO_I18N_IGNORE_LIST_RESET);
 			end
 		end
 	);
+
 	VuhDoYesNoFrame:Show();
+
+	return;
+
 end
 
 

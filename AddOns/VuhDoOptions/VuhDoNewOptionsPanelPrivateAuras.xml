@@ -1,0 +1,521 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<Script file="VuhDoNewOptionsPanelPrivateAuras.lua" />
+
+	<Frame name="VuhDoNewOptionsPanelPrivateAurasTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="428" y="480" />
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="UIParent">
+				<Offset>
+					<AbsDimension x="0" y="0" />
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Frames>
+			<Frame name="$parentMainPanel" inherits="VuhDoPanelTemplate">
+				<Size>
+					<AbsDimension x="418" y="398" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="20" y="-10" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+
+					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_PRIVATE_AURAS" inherits="VuDoDefaultTitleFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<CheckButton name="$parentEnableCheckButton" text="VUHDO_I18N_ENABLE" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="-10" y="-10" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K734);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentNumAurasSlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="160" y="36" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="240" y="-50" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.numAuras");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_MAX_DISPLAY, 1, 6, "", 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K736);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentSizeSlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="160" y="36" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="18" y="-50" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.iconSize");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_SIZE, 1, 100, "%", 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K737);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentSpacingSlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="160" y="36" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentNumAurasSlider" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-2" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.spacing");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_SPACING, 0, 50, "", 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K738);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentTexture" inherits="VuhDoBarExampleTexture">
+						<Size>
+							<AbsDimension x="100" y="64" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="50" y="-110" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentTitleString" text="VUHDO_I18N_IHEALTH_BARI" inherits="VuDoWhiteFontTemplate">
+									<Size>
+										<AbsDimension x="0" y="0" />
+									</Size>
+									<Anchors>
+										<Anchor point="CENTER">
+											<Offset>
+												<AbsDimension x="0" y="0" />
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<Frames>
+
+							<CheckButton name="$parentTopLeftRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="-10" y="10" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "TOPLEFT");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K739);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentTopRightRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="75" y="10" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "TOPRIGHT");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K740);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentBottomLeftRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="-10" y="-44" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "BOTTOMLEFT");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K741);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentBottomRightRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="75" y="-44" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "BOTTOMRIGHT");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K742);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentLeftRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="-10" y="-17" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "LEFT");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K743);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentTopRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="33" y="10" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "TOP");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K744);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentBottomRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="33" y="-44" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "BOTTOM");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K745);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentRightRadioButton" inherits="VuhDoRadioBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="75" y="-17" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.point", "RIGHT");
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K746);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+						</Frames>
+						<Scripts>
+							<OnShow>VUHDO_lnfPatchFont(self, "TitleString")</OnShow>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentYAdjustSlider" inherits="VuhDoVSliderTemplate">
+						<Size>
+							<AbsDimension x="18" y="140" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="198" y="-76" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.yAdjust");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_OFFSET_Y, -100, 100, "%", 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K748);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentXAdjustSlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="160" y="36" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="18" y="-195" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.xAdjust");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_OFFSET_X, -100, 100, "%", 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K747);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<CheckButton name="$parentShowCooldownCheck" text="VUHDO_I18N_PRIVATE_AURA_SHOW_COOLDOWN" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-240" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showCooldown");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K749);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentShowCooldownNumbersCheck" text="VUHDO_I18N_PRIVATE_AURA_SHOW_COOLDOWN_NUMBERS" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-276" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showCooldownNumbers");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K750);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showCooldown", false);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentShowDurationCheck" text="VUHDO_I18N_PRIVATE_AURA_SHOW_DURATION" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-312" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showDuration");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K751);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentShowBorderCheck" text="VUHDO_I18N_PRIVATE_AURA_SHOW_BORDER" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-348" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showBorder");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K752);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentFrameLevelSlider" inherits="VuhDoHSliderTemplate">
+						<Size>
+							<AbsDimension x="160" y="36" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentSpacingSlider" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-2" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.frameLevel");
+								VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_PRIVATE_AURA_FRAME_LEVEL, 0, 13, "", 1);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K753);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentOrientationLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="50" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentFrameLevelSlider" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="-48" y="-80" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_GROWTH" justifyH="RIGHT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Button name="$parentOrientationCombo" inherits="VuhDoScrollComboBoxTemplate">
+						<Size>
+							<AbsDimension x="100" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parentOrientationLabel" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="4" y="-18" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_privateAuraOrientationComboOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K754);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+					<Frame name="$parentDurationPositionLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="50" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentOrientationLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_PRIVATE_AURA_DURATION_LABEL" justifyH="RIGHT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showDuration", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Button name="$parentDurationPositionCombo" inherits="VuhDoScrollComboBoxTemplate">
+						<Size>
+							<AbsDimension x="100" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parentDurationPositionLabel" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="4" y="-18" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_privateAuraDurationPositionComboOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K755);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showDuration", false);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+				</Frames>
+			</Frame>
+		</Frames>
+	</Frame>
+</Ui>

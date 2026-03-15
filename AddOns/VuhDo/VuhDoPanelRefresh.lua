@@ -4,6 +4,10 @@ local _G = _G;
 local table = table;
 local ipairs = ipairs;
 local twipe = table.wipe;
+local min = math.min;
+
+local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
+local AddPrivateAuraAnchor = C_UnitAuras and C_UnitAuras.AddPrivateAuraAnchor;
 
 local VUHDO_CONFIG;
 local VUHDO_PANEL_SETUP;
@@ -32,6 +36,7 @@ local VUHDO_positionTableHeaders;
 local VUHDO_refreshAllUnitAuras;
 
 local sShowPanels;
+local sDurationAnchor = { };
 
 function VUHDO_panelRefreshInitLocalOverrides()
 
@@ -258,24 +263,169 @@ end
 
 
 --
+local tPanelNum;
+function VUHDO_refreshAllPrivateAuras()
+
+	if not VUHDO_UNIT_BUTTONS then
+		return;
+	end
+
+	for tUnit, tButtons in pairs(VUHDO_UNIT_BUTTONS) do
+		for _, tButton in pairs(tButtons) do
+			tPanelNum = VUHDO_BUTTON_CACHE[tButton];
+
+			if tPanelNum then
+				VUHDO_refreshPrivateAuras(tPanelNum, tButton, tUnit);
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
 local tPrivateAura;
 local tPrivateAuraAnchor;
 local tPanelSetup;
-local tBarScaling;
 local tPrivateAuraSetup;
+local tNumAuras;
+local tIconSize;
+local tDurationAnchor;
+local tDurationPos;
+local tPoint;
+local tRelativePoint;
+local tIconSizePercent;
+local tBarHeight;
+local tVisualSize;
 function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 
-	if not C_UnitAuras or not aPanelNum or not aButton or not aUnit then
+	if not aPanelNum or not aButton or not aUnit then
 		return;
 	end
 
 	tPanelSetup = VUHDO_PANEL_SETUP[aPanelNum];
-	tBarScaling = tPanelSetup["SCALING"];
+
+	if not tPanelSetup then
+		return;
+	end
+
 	tPrivateAuraSetup = tPanelSetup["PRIVATE_AURA"];
+
+	if not tPrivateAuraSetup then
+		return;
+	end
 
 	if not tPrivateAuraSetup["show"] then
 		return;
 	end
+
+	tNumAuras = tPrivateAuraSetup["numAuras"] or 3;
+
+	if tPrivateAuraSetup["showDuration"] and tPrivateAuraSetup["durationPosition"] then
+		tDurationPos = tPrivateAuraSetup["durationPosition"];
+
+		if "BOTTOM" == tDurationPos then
+			tPoint = "TOP";
+			tRelativePoint = "BOTTOM";
+		elseif "TOP" == tDurationPos then
+			tPoint = "BOTTOM";
+			tRelativePoint = "TOP";
+		elseif "LEFT" == tDurationPos then
+			tPoint = "RIGHT";
+			tRelativePoint = "LEFT";
+		else
+			tPoint = "LEFT";
+			tRelativePoint = "RIGHT";
+		end
+
+		twipe(sDurationAnchor);
+
+		sDurationAnchor["point"] = tPoint;
+		sDurationAnchor["relativeTo"] = nil;
+		sDurationAnchor["relativePoint"] = tRelativePoint;
+		sDurationAnchor["offsetX"] = tPrivateAuraSetup["durationOffsetX"] or 0;
+		sDurationAnchor["offsetY"] = tPrivateAuraSetup["durationOffsetY"] or 0;
+
+		tDurationAnchor = sDurationAnchor;
+	else
+		tDurationAnchor = nil;
+	end
+
+	for tAuraIndex = 1, tNumAuras do
+		tPrivateAura = VUHDO_getBarPrivateAura(aButton, tAuraIndex);
+
+		if not tPrivateAura then
+			return;
+		end
+
+		if tPrivateAura["anchorId"] then
+			RemovePrivateAuraAnchor(tPrivateAura["anchorId"]);
+
+			tPrivateAura["anchorId"] = nil;
+		end
+
+		tIconSize = 32;
+
+		tPrivateAuraAnchor = {
+			unitToken = aUnit,
+			auraIndex = tAuraIndex,
+			parent = tPrivateAura,
+			showCountdownFrame = tPrivateAuraSetup["showCooldown"] ~= false,
+			showCountdownNumbers = tPrivateAuraSetup["showCooldownNumbers"] ~= false,
+			iconInfo = {
+				iconWidth = tIconSize,
+				iconHeight = tIconSize,
+				iconAnchor = {
+					point = "CENTER",
+					relativeTo = tPrivateAura,
+					relativePoint = "CENTER",
+					offsetX = 0,
+					offsetY = 0,
+				},
+			},
+		};
+
+		if tPrivateAuraSetup["showBorder"] then
+			tIconSizePercent = tPrivateAuraSetup["iconSize"] or 20;
+
+			tBarHeight = tPanelSetup["SCALING"]["barHeight"];
+
+			if tIconSizePercent > 100 then
+				tVisualSize = min(tBarHeight, tIconSizePercent);
+			else
+				tVisualSize = tBarHeight * (tIconSizePercent == 0 and 100 or tIconSizePercent) * 0.01;
+			end
+
+			tPrivateAuraAnchor["iconInfo"]["borderScale"] = tVisualSize / 32;
+		else
+			tPrivateAuraAnchor["iconInfo"]["borderScale"] = -10000;
+		end
+
+		if tDurationAnchor then
+			tPrivateAuraAnchor["durationAnchor"] = {
+				["point"] = tDurationAnchor["point"],
+				["relativeTo"] = tPrivateAura,
+				["relativePoint"] = tDurationAnchor["relativePoint"],
+				["offsetX"] = tDurationAnchor["offsetX"],
+				["offsetY"] = tDurationAnchor["offsetY"],
+			};
+		end
+
+		tPrivateAura["anchorId"] = AddPrivateAuraAnchor(tPrivateAuraAnchor);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tPrivateAura;
+function VUHDO_removePrivateAuras(aButton)
 
 	for tAuraIndex = 1, VUHDO_MAX_PRIVATE_AURAS do
 		tPrivateAura = VUHDO_getBarPrivateAura(aButton, tAuraIndex);
@@ -285,40 +435,14 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 		end
 
 		if tPrivateAura["anchorId"] then
-			C_UnitAuras.RemovePrivateAuraAnchor(tPrivateAura["anchorId"]);
+			RemovePrivateAuraAnchor(tPrivateAura["anchorId"]);
 
 			tPrivateAura["anchorId"] = nil;
 		end
 
-		tPrivateAuraAnchor = {
-			unitToken = aUnit,
-			auraIndex = tAuraIndex,
-			parent = tPrivateAura,
-			showCountdownFrame = true,
-			showCountdownNumbers = true,
-			iconInfo = {
-				iconWidth = tBarScaling["barHeight"],
-				iconHeight = tBarScaling["barHeight"],
-				iconAnchor = {
-					point = "CENTER",
-					relativeTo = tPrivateAura,
-					relativePoint = "CENTER",
-					offsetX = 0,
-					offsetY = 0,
-				},
-			},
-			-- FIXME: make configurable in VuhDo Options
-			--[[durationAnchor = {
-				point = "TOP",
-				relativeTo = tPrivateAura,
-				relativePoint = "BOTTOM",
-				offsetX = 0,
-				offsetY = 0,
-			},]]
-		};
-
-		tPrivateAura["anchorId"] = C_UnitAuras.AddPrivateAuraAnchor(tPrivateAuraAnchor);
+		tPrivateAura:Hide();
 	end
 
+	return;
+
 end
-	

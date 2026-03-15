@@ -437,7 +437,7 @@ VUHDO_I18N_TT.K361 = "Select to show target bars left of health bars."
 VUHDO_I18N_TT.K362 = "Select to show target bars right of health bars."
 VUHDO_I18N_TT.K363 = "Select damage flash sensivity. A bigger value means more flashing (on lower damage).";
 VUHDO_I18N_TT.K364 = "Check to hide life text if life is above irrelevance trigger.";
-VUHDO_I18N_TT.K365 = "Check to also apply HoT setup (Panels => HoTs) when spell layout is being loaded.";
+VUHDO_I18N_TT.K365 = "Check to also apply aura settings when key layout is being loaded.";
 VUHDO_I18N_TT.K366 = "Check this to target the unit you are healing at the same time.";
 VUHDO_I18N_TT.K367 = "This menu will let you select what kind of incoming heals will be detected.";
 VUHDO_I18N_TT.K376 = "Select to align groups at the bottom of the panel (at the right, when \"horizontal\" is selected above).";
@@ -664,7 +664,7 @@ VUHDO_I18N_TT.K605 = "Check this to use gradient color.";
 VUHDO_I18N_TT.K606 = "Select the maximum gradient color.";
 VUHDO_I18N_TT.K607 = "Click to change color to indicate enemies affected by enrage buffs.";
 VUHDO_I18N_TT.K608 = "Check to ignore purgeable buffs on enemies.";
-VUHDO_I18N_TT.K609 = "Check to only apply HoT slot setup (Panels => HoTs => Order) when spell layout is being loaded.";
+VUHDO_I18N_TT.K609 = "Check to only apply aura anchor settings (not groups) when key layout is being loaded.";
 VUHDO_I18N_TT.K610 = "Check to hide standard Blizzard boss frames.";
 VUHDO_I18N_TT.K611 = "Select an aura group";
 VUHDO_I18N_TT.K612 = "Filter auras (read-only for built-in groups)";
@@ -785,6 +785,28 @@ VUHDO_I18N_TT.K730 = "Click to duplicate the selected aura anchor.";
 VUHDO_I18N_TT.K731 = "Click to delete the selected aura anchor.";
 VUHDO_I18N_TT.K732 = "Click to open and edit this bouquet.";
 VUHDO_I18N_TT.K733 = "Click to open and edit this aura group.";
+VUHDO_I18N_TT.K734 = "Show private aura icons on raid frame health bars.";
+VUHDO_I18N_TT.K735 = "Configure private aura display on raid frames.";
+VUHDO_I18N_TT.K736 = "Maximum number of private aura icons to display per unit (1-6).";
+VUHDO_I18N_TT.K737 = "Icon size as a percentage of the health bar height.";
+VUHDO_I18N_TT.K738 = "Gap between private aura icons in pixels.";
+VUHDO_I18N_TT.K739 = "Anchor private aura icons to the top-left of the health bar.";
+VUHDO_I18N_TT.K740 = "Anchor private aura icons to the top-right of the health bar.";
+VUHDO_I18N_TT.K741 = "Anchor private aura icons to the bottom-left of the health bar.";
+VUHDO_I18N_TT.K742 = "Anchor private aura icons to the bottom-right of the health bar.";
+VUHDO_I18N_TT.K743 = "Anchor private aura icons to the left of the health bar.";
+VUHDO_I18N_TT.K744 = "Anchor private aura icons to the top of the health bar.";
+VUHDO_I18N_TT.K745 = "Anchor private aura icons to the bottom of the health bar.";
+VUHDO_I18N_TT.K746 = "Anchor private aura icons to the right of the health bar.";
+VUHDO_I18N_TT.K747 = "Horizontal offset of private aura icons from the anchor point (percentage of bar width).";
+VUHDO_I18N_TT.K748 = "Vertical offset of private aura icons from the anchor point (percentage of bar height).";
+VUHDO_I18N_TT.K749 = "Show the cooldown spiral animation on private aura icons.";
+VUHDO_I18N_TT.K750 = "Show clock text on private aura icons (requires Show Clock to be enabled).";
+VUHDO_I18N_TT.K751 = "Show timer text below or beside private aura icons.";
+VUHDO_I18N_TT.K752 = "Show a border around private aura icons.";
+VUHDO_I18N_TT.K753 = "Layer order of private aura icons (0 = behind other elements, 13 = on top).";
+VUHDO_I18N_TT.K754 = "Arrange private aura icons in a horizontal or vertical row.";
+VUHDO_I18N_TT.K755 = "Where to show the timer text relative to the icon (below or above).";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";
@@ -1046,7 +1068,7 @@ VUHDO_I18N_SOURCE_DESTINATION = "Source/Destination";
 VUHDO_I18N_HIGH = "High";
 -- #+1.251
 VUHDO_I18N_15 = " 15";
-VUHDO_I18N_LOAD_HOTS = "Load HoTs";
+VUHDO_I18N_LOAD_AURAS = "Load Auras";
 VUHDO_I18N_IGNORE_LIST = "Ignore List";
 VUHDO_I18N_FIVE_MAN_MTS = "5 man MTs";
 VUHDO_I18N_FILTER_ONLY = "Filter only";
@@ -1101,9 +1123,9 @@ VUHDO_I18N_CLIQUE_COMPAT_MODE = "Clique\nSupport";
 VUHDO_I18N_CLIQUE_PASSTHROUGH = "Clique\nPass-Thru";
 VUHDO_I18N_RESET = "Reset";
 VUHDO_I18N_DEBUFF_COLORS = "Debuff Colors";
-VUHDO_I18N_BUFFS_HOTS = "Buffs/HoTs";
+VUHDO_I18N_BUFFS_AURAS = "Buffs/Auras";
 VUHDO_I18N_BUFF_WATCH = "Buff Watch";
-VUHDO_I18N_CUSTOM_DEBUFFS = "Custom Debuffs";
+VUHDO_I18N_IGNORE_LIST = "Ignore List";
 VUHDO_I18N_DEFAULT_BOUQUETS = "Default Bouquets";
 VUHDO_I18N_EVERYTHING = "Everything";
 VUHDO_I18N_LANGUAGE = "Language";
@@ -1116,7 +1138,8 @@ VUHDO_I18N_RESET_CLASS_COLORS = "This will reset your custom\nCLASS COLOR settin
 VUHDO_I18N_RESET_DEBUFF_COLORS = "This will reset your custom\nDEBUFF COLOR settings. Proceed?";
 VUHDO_I18N_RESET_RAID_ICON_COLORS = "This will reset your custom\nRAID TARGET COLOR settings. Proceed?";
 VUHDO_I18N_RESET_BUFF_WATCH = "This will reset all your\nBUFF WATCH settings. Proceed?";
-VUHDO_I18N_RESET_CUSTOM_DEBUFFS = "This will reset all your\nCUSTOM DEBUFFs + settings. Proceed?";
+VUHDO_I18N_RESET_IGNORE_LIST = "This will reset the global\nAURA IGNORE LIST to defaults. Proceed?";
+VUHDO_I18N_IGNORE_LIST_RESET = "Aura ignore list reset to defaults.";
 VUHDO_I18N_RESET_DEFAULT_BOUQUETS = "This will reset all \nDEFAULT (not: custom) BOUQUETS. Proceed?";
 VUHDO_I18N_RESET_INDICATORS = "This will reset your custom\nINDICATOR CONFIG. Proceed?";
 VUHDO_I18N_RESET_ALL = "!!!WARNING: This will RESET THE WHOLE\nADDON to factory defaults!!! Proceed?" ;
@@ -1324,6 +1347,19 @@ VUHDO_I18N_X = "X";
 VUHDO_I18N_Y = "Y";
 
 VUHDO_I18N_PRIVATE_AURAS = "Private Auras";
+VUHDO_I18N_PRIVATE_AURAS_RADIO = "Private\nAuras";
+VUHDO_I18N_PRIVATE_AURA_NUM = "Number";
+VUHDO_I18N_PRIVATE_AURA_ORIENTATION = "Orientation";
+VUHDO_I18N_PRIVATE_AURA_SPACING = "Spacing";
+VUHDO_I18N_PRIVATE_AURA_ICON_SIZE = "Icon Size";
+VUHDO_I18N_PRIVATE_AURA_SHOW_COOLDOWN = "Show Clock";
+VUHDO_I18N_PRIVATE_AURA_SHOW_COOLDOWN_NUMBERS = "Clock Text";
+VUHDO_I18N_PRIVATE_AURA_SHOW_DURATION = "Timer Text";
+VUHDO_I18N_PRIVATE_AURA_SHOW_BORDER = "Show\nBorder";
+VUHDO_I18N_PRIVATE_AURA_FRAME_LEVEL = "Frame Level";
+VUHDO_I18N_PRIVATE_AURA_DURATION_BELOW = "Below";
+VUHDO_I18N_PRIVATE_AURA_DURATION_ABOVE = "Above";
+VUHDO_I18N_PRIVATE_AURA_DURATION_LABEL = "Timer Position";
 
 VUHDO_I18N_PETS_LAST = "Pets last";
 
@@ -1348,7 +1384,7 @@ VUHDO_I18N_MAX_COLOR = "Max Color";
 VUHDO_I18N_ENRAGE = "Enrage";
 VUHDO_I18N_PURGEABLE_BUFFS = "Purgeable\nBuffs";
 
-VUHDO_I18N_LOAD_HOTS_ONLY_SLOTS = "Only Slots";
+VUHDO_I18N_LOAD_AURAS_ONLY_ANCHORS = "Only\nAnchors";
 
 VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_WARNING = "This debuff is in the ignore list and will be hidden.";
 VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_WARNING = "Ignoring \"%s\" overrides existing custom debuff settings.";
