@@ -462,6 +462,34 @@ local function GetActionIDFromButton(parent)
     return nil
 end
 
+local function GetOwningActionButton(frame)
+    local current = frame
+
+    for _ = 1, MAX_COOLDOWN_OWNER_SCAN_DEPTH do
+        if not current then break end
+        if GetActionIDFromButton(current) then
+            return current
+        end
+        current = current.GetParent and current:GetParent() or nil
+    end
+
+    return nil
+end
+
+local function GetAssistedCombatOwnerButton(frame)
+    if type(MCE.GetAssistedCombatOwnerButton) == "function" then
+        return MCE:GetAssistedCombatOwnerButton(frame)
+    end
+
+    return nil
+end
+
+local function HideAssistedCombatText(button)
+    if type(MCE.HideAssistedCombatText) == "function" then
+        MCE:HideAssistedCombatText(button)
+    end
+end
+
 -- Scratch table reused by GetCooldownTextRegions to avoid per-call allocation
 local textRegionScratch = {}
 
@@ -481,6 +509,16 @@ local function FilterFontStringRegions(count, firstRegion, ...)
 end
 
 local function GetCooldownTextRegions(cdFrame)
+    local assistButton = GetAssistedCombatOwnerButton(cdFrame)
+    if assistButton then
+        HideAssistedCombatText(assistButton)
+
+        for i = 1, #textRegionScratch do
+            textRegionScratch[i] = nil
+        end
+        return textRegionScratch, 0
+    end
+
     -- Reuse scratch table; track count for accurate iteration
     local count = 0
     local firstRegion = nil
@@ -528,7 +566,10 @@ local function BuildColorCurve(durationConfig)
     local c1 = sortedThresholds[1].color
     curve:AddPoint(0, CreateColor(c1.r, c1.g, c1.b, c1.a or 1))
 
-    local offset = -0.5
+    local offset = durationConfig.offset
+    if type(offset) ~= "number" then
+        offset = 0
+    end
     
     -- Intermediate threshold points (use exact threshold values for precise transitions)
     for i = 2, #sortedThresholds do
@@ -568,6 +609,20 @@ local function GetDurationTextSourceConfig(sourceKey)
 
     local categories = MCE.db and MCE.db.profile and MCE.db.profile.categories
     return categories and categories[sourceKey] or nil
+end
+
+local function IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
+    local durationConfig = GetDurationTextColorsConfig()
+    if not durationConfig or not durationConfig.enabled or not config then
+        return false
+    end
+
+    if sourceKey == "compactPartyAura" then
+        local frameType = GetCompactPartyAuraFrameType(cdFrame)
+        return frameType and ShouldUseCompactPartyAuraText(config, frameType) or false
+    end
+
+    return config.enabled == true
 end
 
 local function ApplyTextColorToCooldownRegions(cdFrame, color)
@@ -682,7 +737,21 @@ local function GetSpellCooldownOwner(cdFrame)
     end)
 end
 
+local function ShouldUseAuraDurationFallback(cdFrame)
+    local category = Classifier:GetCategory(cdFrame)
+    if category ~= "cooldownmanager" then
+        return true
+    end
+
+    local viewerType = Classifier:GetCooldownManagerViewerType(cdFrame)
+    return viewerType == "bufficon"
+end
+
 local function IsAuraDrivenCooldown(cdFrame)
+    if not ShouldUseAuraDurationFallback(cdFrame) then
+        return false
+    end
+
     local auraInstanceID, unitToken = GetAuraDurationContext(cdFrame)
     if auraInstanceID and unitToken then
         return true
@@ -709,9 +778,10 @@ local function GetFallbackDurationObject(cdFrame)
     local parent = cdFrame and cdFrame.GetParent and cdFrame:GetParent()
     if not parent then return nil end
 
-    local actionID = GetActionIDFromButton(parent)
+    local actionButton = GetOwningActionButton(parent) or parent
+    local actionID = GetActionIDFromButton(actionButton)
     if actionID and C_ActionBar then
-        if IsChargeCooldownFrame(cdFrame, parent) and C_ActionBar.GetActionChargeDuration then
+        if IsChargeCooldownFrame(cdFrame, actionButton) and C_ActionBar.GetActionChargeDuration then
             local ok, durationObject = pcall(C_ActionBar.GetActionChargeDuration, actionID)
             if ok and durationObject then
                 return durationObject
@@ -726,16 +796,18 @@ local function GetFallbackDurationObject(cdFrame)
         end
     end
 
-    local auraInstanceID, unitToken = GetAuraDurationContext(cdFrame)
+    if ShouldUseAuraDurationFallback(cdFrame) then
+        local auraInstanceID, unitToken = GetAuraDurationContext(cdFrame)
 
-    if auraInstanceID and unitToken and C_UnitAuras and C_UnitAuras.GetAuraDuration then
-        local ok, durationObject = pcall(C_UnitAuras.GetAuraDuration, unitToken, auraInstanceID)
-        if ok and durationObject then
-            return durationObject
+        if auraInstanceID and unitToken and C_UnitAuras and C_UnitAuras.GetAuraDuration then
+            local ok, durationObject = pcall(C_UnitAuras.GetAuraDuration, unitToken, auraInstanceID)
+            if ok and durationObject then
+                return durationObject
+            end
         end
     end
 
-    local spellOwner = GetSpellCooldownOwner(cdFrame) or parent
+    local spellOwner = GetSpellCooldownOwner(cdFrame) or actionButton or parent
     local spellID = GetCooldownSpellID(spellOwner)
 
     if spellID and C_Spell then
@@ -890,10 +962,13 @@ local function UpdateDurationColors()
     for cdFrame, sourceKey in pairs(durationColoredFrames) do
         local config = GetDurationTextSourceConfig(sourceKey)
         if cdFrame and not MCE:IsForbidden(cdFrame)
-           and config
+           and IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
            and ApplyCooldownDurationColor(cdFrame, config, curve) then
             activeCount = activeCount + 1
         else
+            if config then
+                ResetCountdownTextColor(cdFrame, config)
+            end
             durationColoredFrames[cdFrame] = nil
         end
     end
@@ -909,8 +984,7 @@ local function StartDurationColorTicker()
 end
 
 RefreshTrackedDurationColor = function(cdFrame, sourceKey, config)
-    local durationConfig = GetDurationTextColorsConfig()
-    if not durationConfig or not durationConfig.enabled then
+    if not IsDurationColorEnabledForSource(cdFrame, sourceKey, config) then
         durationColoredFrames[cdFrame] = nil
         ResetCountdownTextColor(cdFrame, config)
         return false
@@ -931,7 +1005,26 @@ end
 local function HandleCooldownDurationUpdate(cooldown, durationObject)
     if not cooldown or MCE:IsForbidden(cooldown) or IsSecretValue(cooldown) then return end
 
-    SetCooldownDurationObject(cooldown, durationObject)
+    local actionButton = GetOwningActionButton(cooldown)
+    if actionButton and GetActionIDFromButton(actionButton) then
+        cooldownDurationInfo[cooldown] = nil
+    else
+        SetCooldownDurationObject(cooldown, durationObject)
+    end
+
+    local sourceKey = durationColoredFrames[cooldown]
+    if sourceKey then
+        local curve = GetColorCurve()
+        local config = GetDurationTextSourceConfig(sourceKey)
+        if curve and IsDurationColorEnabledForSource(cooldown, sourceKey, config) then
+            ApplyCooldownDurationColor(cooldown, config, curve)
+        else
+            if config then
+                ResetCountdownTextColor(cooldown, config)
+            end
+            durationColoredFrames[cooldown] = nil
+        end
+    end
 
     if SyncCompactPartyAuraCooldown(cooldown) then
         return
@@ -1052,6 +1145,7 @@ function Styler:OnDisable()
         self.nameplateTicker:Cancel()
         self.nameplateTicker = nil
     end
+
     for cd in pairs(compactPartyAuraFrames) do
         if cd and not MCE:IsForbidden(cd) then
             SetCompactPartyAuraNativeTextVisible(cd, true)
@@ -1097,6 +1191,10 @@ local function IsMainCooldownWithActiveChargeCooldown(cdFrame)
 end
 
 local function GetDesiredHideCountdownNumbers(cdFrame, category, config)
+    if GetAssistedCombatOwnerButton(cdFrame) then
+        return true
+    end
+
     local hideNums = config.hideCountdownNumbers
 
     if category == "minicc" then
@@ -1183,6 +1281,12 @@ function Styler:StyleStackCount(cdFrame, config, category)
     local countRegion, parent = GetStackCountRegion(cdFrame, category)
     if not countRegion or not parent then return end
 
+    if category == "actionbar" and GetAssistedCombatOwnerButton(cdFrame) then
+        countRegion:SetAlpha(0)
+        countRegion:Hide()
+        return
+    end
+
     if config.hideStackText then
         countRegion:SetAlpha(0)
         countRegion:Hide()
@@ -1262,9 +1366,17 @@ local function ProcessPendingAuras()
     auraRetryTimerScheduled = false
     for cdFrame in pairs(pendingAuras) do
         if cdFrame and not MCE:IsForbidden(cdFrame) then
-            local retryCategory = Classifier:ClassifyFrame(cdFrame)
-            if retryCategory == "aura_pending" then
-                retryCategory = "global"
+            local cachedCategory = nil
+            if Classifier:IsCached(cdFrame) then
+                cachedCategory = Classifier:GetCategory(cdFrame)
+            end
+
+            local retryCategory = cachedCategory
+            if retryCategory == nil or retryCategory == "global" or retryCategory == "aura_pending" then
+                retryCategory = Classifier:ClassifyFrame(cdFrame)
+                if retryCategory == "aura_pending" then
+                    retryCategory = cachedCategory ~= "aura_pending" and cachedCategory or "global"
+                end
             end
             Classifier:SetCategory(cdFrame, retryCategory)
             Styler:ApplyStyle(cdFrame)
@@ -1311,7 +1423,11 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
 
     local config = MCE.db.profile.categories[category]
     if not config or not config.enabled then
+        local hadTrackedDurationColor = durationColoredFrames[cdFrame] ~= nil
         ClearTrackedDurationColor(cdFrame)
+        if hadTrackedDurationColor and config then
+            ResetCountdownTextColor(cdFrame, config)
+        end
         lastAppliedEdgeScale[cdFrame] = nil
         lastAppliedHideNums[cdFrame] = nil
 
