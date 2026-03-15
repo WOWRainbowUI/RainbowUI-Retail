@@ -2733,484 +2733,258 @@ L["WIDTH_RESTRICTION"] = "폭 제한"
 
 
 local L = Locales.itIT
---[[Translation missing --]]
-L["ABSOLUTE"] = "Absolute"
---[[Translation missing --]]
-L["ABSORB"] = "Absorb"
---[[Translation missing --]]
-L["ABSORB_COLOR"] = "Absorb color"
---[[Translation missing --]]
-L["ADD_COLORS"] = "Add Colors"
---[[Translation missing --]]
-L["ADD_WIDGET"] = "Add Widget"
---[[Translation missing --]]
-L["ALIGNMENT"] = "Alignment"
---[[Translation missing --]]
-L["ALWAYS_ALL"] = "Always (all)"
---[[Translation missing --]]
-L["ANIMATE"] = "Animate"
---[[Translation missing --]]
-L["ANIMATED_BORDER"] = "Animated Border"
---[[Translation missing --]]
-L["APPLY_MAIN_COLOR_TO_BACKGROUND"] = "Apply main color to background"
---[[Translation missing --]]
-L["APPLY_OTHER_CVARS"] = "Apply other CVars"
---[[Translation missing --]]
-L["ARCANE_FLURRY"] = "Arcane Flurry"
---[[Translation missing --]]
-L["AURAS"] = "Auras"
---[[Translation missing --]]
-L["AUTOMATIC"] = "Automatic"
---[[Translation missing --]]
-L["BACKGROUND"] = "Background"
---[[Translation missing --]]
-L["BACKGROUND_COLOR"] = "Background color"
---[[Translation missing --]]
-L["BARS"] = "Bars"
---[[Translation missing --]]
-L["BEAVER"] = "Beaver"
---[[Translation missing --]]
-L["BEHAVIOUR"] = "Behaviour"
+L["ABSOLUTE"] = "Assoluto"
+L["ABSORB"] = "Assorbire"
+L["ABSORB_COLOR"] = "Colore dell'Assorbire"
+L["ADD_COLORS"] = "Aggiungi Colori"
+L["ADD_WIDGET"] = "Aggiungi Widget"
+L["ALIGNMENT"] = "Allineamento"
+L["ALWAYS_ALL"] = "Sempre (tutti)"
+L["ANIMATE"] = "Animare"
+L["ANIMATED_BORDER"] = "Bordo Animato"
+L["APPLY_MAIN_COLOR_TO_BACKGROUND"] = "Applicare il colore principale allo sfondo"
+L["APPLY_OTHER_CVARS"] = "Applicare altri CVar"
+L["ARCANE_FLURRY"] = "Raffica Arcana"
+L["AURAS"] = "Aure"
+L["AUTOMATIC"] = "Automatico"
+L["BACKGROUND"] = "Sfondo"
+L["BACKGROUND_COLOR"] = "Colore dello sfondo"
+L["BARS"] = "Barre"
+L["BEAVER"] = "Castoro"
+L["BEHAVIOUR"] = "Comportamento"
 --[[Translation missing --]]
 L["BLIZZARD"] = "Blizzard"
 --[[Translation missing --]]
 L["BLIZZARD_CLASSIC"] = "Blizzard Classic"
---[[Translation missing --]]
-L["BLIZZARD_EXTRA_WIDGETS_SCALE"] = "Blizzard extra widgets scale"
---[[Translation missing --]]
-L["BORDER"] = "Border"
---[[Translation missing --]]
-L["BORDER_COLOR"] = "Border color"
---[[Translation missing --]]
-L["BORDER_WIDTH"] = "Border width"
+L["BLIZZARD_EXTRA_WIDGETS_SCALE"] = "Scala dei widget extra di Blizzard"
+L["BORDER"] = "Bordo"
+L["BORDER_COLOR"] = "Colore del bordo"
+L["BORDER_WIDTH"] = "Larghezza del bordo"
 --[[Translation missing --]]
 L["BOSS"] = "Boss"
---[[Translation missing --]]
-L["BUFFS"] = "Buffs"
+L["BUFFS"] = "Potenziamenti "
 --[[Translation missing --]]
 L["BY_PLUSMOUSE"] = "by plusmouse"
---[[Translation missing --]]
-L["CANNOT_INTERRUPT"] = "Cannot Interrupt"
---[[Translation missing --]]
-L["CAST"] = "Cast"
---[[Translation missing --]]
-L["CAST_INTERRUPTER"] = "Cast Interrupter"
---[[Translation missing --]]
-L["CAST_NAME"] = "Cast Name"
---[[Translation missing --]]
-L["CAST_TARGET"] = "Cast Target"
---[[Translation missing --]]
-L["CAST_TARGETS_YOU"] = "Cast Targets You"
---[[Translation missing --]]
-L["CAST_TIME_LEFT"] = "Cast Time Left"
---[[Translation missing --]]
-L["CASTER"] = "Caster"
---[[Translation missing --]]
-L["CASTING"] = "Casting"
---[[Translation missing --]]
-L["CENTER"] = "Center"
---[[Translation missing --]]
-L["CHANNEL"] = "Channel"
---[[Translation missing --]]
-L["CLASS"] = "Class"
---[[Translation missing --]]
-L["CLASS_COLORED"] = "Class colored"
---[[Translation missing --]]
-L["CLASS_COLORS"] = "Class Colors"
---[[Translation missing --]]
-L["CLEAR_SELECTION"] = "Clear Selection"
---[[Translation missing --]]
-L["CLICK_ON_A_WIDGET"] = "Click on a widget for settings"
---[[Translation missing --]]
-L["CLICK_REGION_HEIGHT"] = "Click region height"
---[[Translation missing --]]
-L["CLICK_REGION_WIDTH"] = "Click region width"
---[[Translation missing --]]
-L["CLICKABLE_NAMEPLATES"] = "Clickable nameplates"
---[[Translation missing --]]
-L["CLOSER_TO_SCREEN_EDGES"] = "Closer to screen edges"
---[[Translation missing --]]
-L["COLOR"] = "Color"
---[[Translation missing --]]
-L["COLORS"] = "Colors"
---[[Translation missing --]]
-L["COMBAT"] = "Combat"
---[[Translation missing --]]
-L["CONFIRM_DELETE_PROFILE_X"] = "Are you sure you want to delete profile \"%s\"?"
---[[Translation missing --]]
-L["CONFIRM_DELETE_STYLE_X"] = "Are you sure you want to delete style \"%s\"?"
---[[Translation missing --]]
-L["CREATURE_NAME"] = "Creature Name"
---[[Translation missing --]]
-L["CROWD_CONTROL"] = "Crowd Control"
---[[Translation missing --]]
-L["CTRL_C_TO_COPY"] = "Ctrl+C to copy"
---[[Translation missing --]]
-L["CUSTOM"] = "Custom"
---[[Translation missing --]]
-L["CUSTOMISE_PLATYNATOR"] = "Customise Platynator"
---[[Translation missing --]]
-L["DAMAGE_ABSORB_VALUE"] = "Damage Absorb Value"
---[[Translation missing --]]
-L["DEBUFFS"] = "Debuffs"
---[[Translation missing --]]
-L["DEER"] = "Deer"
---[[Translation missing --]]
-L["DEFAULT"] = "Default"
---[[Translation missing --]]
-L["DEFAULT_BRACKETS"] = "(Default)"
---[[Translation missing --]]
-L["DEFENSIVE"] = "Defensive"
---[[Translation missing --]]
-L["DELETE_WIDGET"] = "Delete Widget"
---[[Translation missing --]]
-L["DESIGNER"] = "Designer"
---[[Translation missing --]]
-L["DEVELOPMENT_IS_TIME_CONSUMING"] = "|cff04cca4Development takes a huge amount of time|r"
---[[Translation missing --]]
-L["DIFFICULT"] = "Difficult"
---[[Translation missing --]]
-L["DIFFICULTY"] = "Difficulty"
---[[Translation missing --]]
-L["DIFFICULTY_COLORED"] = "Difficulty colored"
---[[Translation missing --]]
-L["DIRECTION"] = "Direction"
---[[Translation missing --]]
-L["DISCORD_DESCRIPTION"] = "Updates, feature suggestions and support"
---[[Translation missing --]]
-L["DISPELLABLE"] = "Dispellable"
---[[Translation missing --]]
-L["DO_NOTHING"] = "Do nothing"
---[[Translation missing --]]
-L["DONATE"] = "Donate"
---[[Translation missing --]]
-L["DURATION"] = "Duration"
+L["CANNOT_INTERRUPT"] = "Non puoi interrompere "
+L["CAST"] = "Lancio"
+L["CAST_INTERRUPTER"] = "Interruttore del Lancio"
+L["CAST_NAME"] = "Nome del Lancio"
+L["CAST_TARGET"] = "Bersaglio del Lancio"
+L["CAST_TARGETS_YOU"] = "Sei il Bersaglio del Lancio"
+L["CAST_TIME_LEFT"] = "Tempo rimanente per il lancio"
+L["CASTER"] = "Lanciatore "
+L["CASTING"] = "Lanciando "
+L["CENTER"] = "Centro "
+L["CHANNEL"] = "Canale"
+L["CLASS"] = "Classe"
+L["CLASS_COLORED"] = "Classe colorata"
+L["CLASS_COLORS"] = "Colori della Classe"
+L["CLEAR_SELECTION"] = "Cancella Selezione"
+L["CLICK_ON_A_WIDGET"] = "Fai clic su un widget per le impostazioni"
+L["CLICK_REGION_HEIGHT"] = "Altezza della regione di clic"
+L["CLICK_REGION_WIDTH"] = "Larghezza della regione di clic"
+L["CLICKABLE_NAMEPLATES"] = "Targhette cliccabili"
+L["CLOSER_TO_SCREEN_EDGES"] = "Più vicino ai bordi dello schermo"
+L["COLOR"] = "Colore"
+L["COLORS"] = "Colori"
+L["COMBAT"] = "Combattere"
+L["CONFIRM_DELETE_PROFILE_X"] = "Sei sicuro di voler eliminare il profilo \"%s\"?"
+L["CONFIRM_DELETE_STYLE_X"] = "Sei sicuro di voler eliminare lo stile \"%s\"?"
+L["CREATURE_NAME"] = "Nome della Creatura"
+L["CROWD_CONTROL"] = "Controllo della Folla"
+L["CTRL_C_TO_COPY"] = "Ctrl+C per copiare"
+L["CUSTOM"] = "Personale"
+L["CUSTOMISE_PLATYNATOR"] = "Personalizza Platynator"
+L["DAMAGE_ABSORB_VALUE"] = "Valore di Assorbimento del Danno"
+L["DEBUFFS"] = "Penalità "
+L["DEER"] = "Cervo"
+L["DEFAULT"] = "Predefinito"
+L["DEFAULT_BRACKETS"] = "(Predefinito)"
+L["DEFENSIVE"] = "Difensivo"
+L["DELETE_WIDGET"] = "Cancella Widget"
+L["DESIGNER"] = "Designa"
+L["DEVELOPMENT_IS_TIME_CONSUMING"] = "|cff04cca4Lo sviluppo richiede un'enorme quantità di tempo|r"
+L["DIFFICULT"] = "Difficile"
+L["DIFFICULTY"] = "Difficoltà"
+L["DIFFICULTY_COLORED"] = "Colore della difficoltà "
+L["DIRECTION"] = "Direzione "
+L["DISCORD_DESCRIPTION"] = "Aggiornamenti, suggerimenti per nuove funzionalità e supporto"
+L["DISPELLABLE"] = "Dissipabile"
+L["DO_NOTHING"] = "Non fare nulla"
+L["DONATE"] = "Donare"
+L["DURATION"] = "Durata"
 --[[Translation missing --]]
 L["ELITE"] = "Elite"
---[[Translation missing --]]
-L["ELITE_TYPE"] = "Elite Type"
---[[Translation missing --]]
-L["EMPTY"] = "Empty"
---[[Translation missing --]]
-L["ENABLE_IF_LINES_FALLING_OFF_FONT"] = "Enable if lines falling off font"
---[[Translation missing --]]
-L["ENABLE_OVERRIDE"] = "Enable override"
---[[Translation missing --]]
-L["ENABLE_OVERRIDE_INSTANCES"] = "Enable override instances"
---[[Translation missing --]]
-L["ENABLE_OVERRIDE_WORLD"] = "Enable override world"
---[[Translation missing --]]
-L["ENEMIES"] = "Enemies"
---[[Translation missing --]]
-L["ENEMY"] = "Enemy"
---[[Translation missing --]]
-L["ENEMY_PLAYER"] = "Enemy Player"
---[[Translation missing --]]
-L["ENLARGE_NAMEPLATE"] = "Enlarge nameplate"
---[[Translation missing --]]
-L["ENTER_PROFILE_NAME"] = "Enter Profile Name:"
---[[Translation missing --]]
-L["ENTER_THE_CUSTOM_STYLE_NAME"] = "Enter the custom style name"
---[[Translation missing --]]
-L["ENTER_THE_NEW_PROFILE_NAME"] = "Enter the new profile name"
---[[Translation missing --]]
-L["ENTER_THE_NEW_STYLE_NAME"] = "Enter the new style name"
---[[Translation missing --]]
-L["EXECUTE"] = "Execute"
---[[Translation missing --]]
-L["EXPORT"] = "Export"
---[[Translation missing --]]
-L["FADE"] = "Fade"
---[[Translation missing --]]
-L["FILLED"] = "Filled"
---[[Translation missing --]]
-L["FILTERS"] = "Filters"
---[[Translation missing --]]
-L["FIXED"] = "Fixed"
+L["ELITE_TYPE"] = "Tipo di Elite"
+L["EMPTY"] = "Vuoto"
+L["ENABLE_IF_LINES_FALLING_OFF_FONT"] = "Abilita se le linee cadono dal carattere"
+L["ENABLE_OVERRIDE"] = "Abilita di sovrascrivere "
+L["ENABLE_OVERRIDE_INSTANCES"] = "Abilita di sovrascrivere le istanze"
+L["ENABLE_OVERRIDE_WORLD"] = "Abilita di sovrascrivere il mondo"
+L["ENEMIES"] = "Nemici"
+L["ENEMY"] = "Nemico"
+L["ENEMY_PLAYER"] = "Giocatore Nemico"
+L["ENLARGE_NAMEPLATE"] = "Ingrandire la targhetta"
+L["ENTER_PROFILE_NAME"] = "Inserisci il nome del profilo:"
+L["ENTER_THE_CUSTOM_STYLE_NAME"] = "Inserisci il nome dello stile personalizzato"
+L["ENTER_THE_NEW_PROFILE_NAME"] = "Inserisci il nuovo nome del profilo"
+L["ENTER_THE_NEW_STYLE_NAME"] = "Inserisci il nuovo nome dello stile"
+L["EXECUTE"] = "Esegui"
+L["EXPORT"] = "Esporta"
+L["FADE"] = "Dissolvenza"
+L["FILLED"] = "Riempito"
+L["FILTERS"] = "Filtri"
+L["FIXED"] = "Fisso"
 --[[Translation missing --]]
 L["FOCUS"] = "Focus"
---[[Translation missing --]]
-L["FOCUSED"] = "Focused"
---[[Translation missing --]]
-L["FONT"] = "Font"
---[[Translation missing --]]
-L["FOREGROUND"] = "Foreground"
---[[Translation missing --]]
-L["FRIENDLY"] = "Friendly"
---[[Translation missing --]]
-L["FRIENDLY_NPCS"] = "Friendly NPCs"
---[[Translation missing --]]
-L["FRIENDLY_PLAYER"] = "Friendly Player"
---[[Translation missing --]]
-L["FRIENDLY_PLAYERS"] = "Friendly Players"
---[[Translation missing --]]
-L["FROM_YOU"] = "From you"
---[[Translation missing --]]
-L["GENERAL"] = "General"
---[[Translation missing --]]
-L["GLOBAL_SCALE"] = "Global scale"
---[[Translation missing --]]
-L["GUILD"] = "Guild"
---[[Translation missing --]]
-L["HARE"] = "Hare"
---[[Translation missing --]]
-L["HARE_SIMPLIFIED"] = "Hare Simplified"
---[[Translation missing --]]
-L["HEALTH"] = "Health"
---[[Translation missing --]]
-L["HEALTH_VALUE"] = "Health Value"
---[[Translation missing --]]
-L["HEDGEHOG"] = "Hedgehog"
---[[Translation missing --]]
-L["HEIGHT"] = "Height"
---[[Translation missing --]]
-L["HIGHLIGHT_BAR_EDGE"] = "Highlight bar edge"
---[[Translation missing --]]
-L["HIGHLIGHTS"] = "Highlights"
---[[Translation missing --]]
-L["HOSTILE"] = "Hostile"
---[[Translation missing --]]
-L["ICONS"] = "Icons"
---[[Translation missing --]]
-L["IMPORT"] = "Import"
---[[Translation missing --]]
-L["IMPORT_DEFAULT_STYLE"] = "Import Default Style"
---[[Translation missing --]]
-L["IMPORTANT"] = "Important"
---[[Translation missing --]]
-L["IMPORTANT_CAST"] = "Important Cast"
---[[Translation missing --]]
-L["IMPOSSIBLE"] = "Impossible"
---[[Translation missing --]]
-L["INCLUDE_ELITE_RARES"] = "Include elite rares"
---[[Translation missing --]]
-L["INCLUDE_TARGET"] = "Include target"
---[[Translation missing --]]
-L["INTERRUPT_NOT_READY"] = "Interrupt Not Ready"
---[[Translation missing --]]
-L["INTERRUPT_POINT_COLOR"] = "Interrupt point color"
---[[Translation missing --]]
-L["INTERRUPT_READY"] = "Interrupt Ready"
---[[Translation missing --]]
-L["INTERRUPTED"] = "Interrupted"
---[[Translation missing --]]
-L["INTERRUPTED_CAST"] = "Interrupted cast"
---[[Translation missing --]]
-L["INVALID_IMPORT"] = "Invalid import"
---[[Translation missing --]]
-L["JOIN_THE_DISCORD"] = "Join the Discord"
---[[Translation missing --]]
-L["LAYER"] = "Layer"
---[[Translation missing --]]
-L["LEFT"] = "Left"
---[[Translation missing --]]
-L["LEVEL"] = "Level"
---[[Translation missing --]]
-L["LINK"] = "Link"
---[[Translation missing --]]
-L["MAKE_NEW"] = "Make new"
---[[Translation missing --]]
-L["MARK_INTERRUPT_READY_POINT"] = "Mark interrupt ready point"
---[[Translation missing --]]
-L["MELEE"] = "Melee"
---[[Translation missing --]]
-L["METHOD"] = "Method"
+L["FOCUSED"] = "Focalizzato"
+L["FONT"] = "Carattere"
+L["FOREGROUND"] = "Primo piano"
+L["FRIENDLY"] = "Amichevole"
+L["FRIENDLY_NPCS"] = "PNG Amichevoli"
+L["FRIENDLY_PLAYER"] = "Giocatore Amichevole "
+L["FRIENDLY_PLAYERS"] = "Giocatori Amichevoli "
+L["FROM_YOU"] = "Da te"
+L["GENERAL"] = "Generale "
+L["GLOBAL_SCALE"] = "Scala globale"
+L["GUILD"] = "Gilda"
+L["HARE"] = "Lepre"
+L["HARE_SIMPLIFIED"] = "Lepre Semplificata"
+L["HEALTH"] = "Salute"
+L["HEALTH_VALUE"] = "Valore della Salute"
+L["HEDGEHOG"] = "Cane della Prateria "
+L["HEIGHT"] = "Altezza"
+L["HIGHLIGHT_BAR_EDGE"] = "Evidenzia il bordo della barra"
+L["HIGHLIGHTS"] = "Punti Salienti"
+L["HOSTILE"] = "Ostile"
+L["ICONS"] = "Icone"
+L["IMPORT"] = "Importa"
+L["IMPORT_DEFAULT_STYLE"] = "Importa Stile Predefinito "
+L["IMPORTANT"] = "Importante "
+L["IMPORTANT_CAST"] = "Lancio Importante "
+L["IMPOSSIBLE"] = "Impossibile "
+L["INCLUDE_ELITE_RARES"] = "Includi rari d'élite"
+L["INCLUDE_TARGET"] = "Includi il Bersaglio "
+L["INTERRUPT_NOT_READY"] = "Interruzione non pronta"
+L["INTERRUPT_POINT_COLOR"] = "Colore del punto di interruzione"
+L["INTERRUPT_READY"] = "Interruzione Pronta"
+L["INTERRUPTED"] = "Interrotto"
+L["INTERRUPTED_CAST"] = "Lancio interrotto "
+L["INVALID_IMPORT"] = "Importazione non valida"
+L["JOIN_THE_DISCORD"] = "Unisciti al server Discord"
+L["LAYER"] = "Strato"
+L["LEFT"] = "Sinistra"
+L["LEVEL"] = "Livello "
+L["LINK"] = "Collegamento"
+L["MAKE_NEW"] = "Crea nuovo"
+L["MARK_INTERRUPT_READY_POINT"] = "Marchia il punto pronto per l'interruzione"
+L["MELEE"] = "Mischia"
+L["METHOD"] = "Metodo"
 --[[Translation missing --]]
 L["MINIBOSS"] = "Miniboss"
 --[[Translation missing --]]
 L["MINION"] = "Minion"
 --[[Translation missing --]]
 L["MINIONS"] = "Minions"
---[[Translation missing --]]
-L["MINOR"] = "Minor"
---[[Translation missing --]]
-L["MINORS"] = "Minors"
---[[Translation missing --]]
-L["MOUSEOVER"] = "Mouseover"
---[[Translation missing --]]
-L["MOVE"] = "Move"
---[[Translation missing --]]
-L["MULTIPLE_SELECTED"] = "Multiple Selected"
---[[Translation missing --]]
-L["NAME_ONLY"] = "Name Only"
---[[Translation missing --]]
-L["NAME_ONLY_PLAYERS"] = "Name only (players)"
---[[Translation missing --]]
-L["NEUTRAL"] = "Neutral"
---[[Translation missing --]]
-L["NEVER"] = "Never"
---[[Translation missing --]]
-L["NEW_PROFILE_BLANK"] = "New Profile (blank)"
---[[Translation missing --]]
-L["NEW_PROFILE_CLONE"] = "New Profile (clone current)"
---[[Translation missing --]]
-L["NO_VALUE_UPPER"] = "NO VALUE"
---[[Translation missing --]]
-L["NONE"] = "None"
---[[Translation missing --]]
-L["NORMAL"] = "Normal"
---[[Translation missing --]]
-L["NORMAL_INSTANCES_ONLY"] = "Normal (instances only)"
---[[Translation missing --]]
-L["NOT_READY"] = "Not ready"
---[[Translation missing --]]
-L["NPC_ROLE"] = "NPC role"
---[[Translation missing --]]
-L["NPCS"] = "NPCs"
---[[Translation missing --]]
-L["OBSCURED_TRANSPARENCY"] = "Obscured transparency"
---[[Translation missing --]]
-L["OFFTANK"] = "Off-tank"
---[[Translation missing --]]
-L["ON_CAST_SCALE"] = "On cast scale"
---[[Translation missing --]]
-L["ON_CAST_TRANSPARENCY"] = "On cast transparency"
---[[Translation missing --]]
-L["ON_MOUSEOVER_TRANSPARENCY"] = "On mouseover transparency"
---[[Translation missing --]]
-L["ON_NON_TARGET_AND_NON_CASTING"] = "On non-target (and non-casting)"
---[[Translation missing --]]
-L["ON_NOT_TARGET_TRANSPARENCY"] = "On not target transparency"
---[[Translation missing --]]
-L["ON_TARGET_OR_CASTING"] = "On target (or casting)"
---[[Translation missing --]]
-L["ON_TARGET_SCALE"] = "On target scale"
---[[Translation missing --]]
-L["ONLY_APPLY_IN_COMBAT"] = "Only apply in combat"
---[[Translation missing --]]
-L["ONLY_APPLY_IN_INSTANCES"] = "Only apply in instances"
---[[Translation missing --]]
-L["OPEN_OPTIONS"] = "Open Options"
---[[Translation missing --]]
-L["OVERWRITE"] = "Overwrite"
---[[Translation missing --]]
-L["OVERWRITE_CURRENT_PROFILE"] = "Overwrite current profile?"
---[[Translation missing --]]
-L["PASTE_YOUR_IMPORT_STRING_HERE"] = "Paste your import string here"
+L["MINOR"] = "Minore"
+L["MINORS"] = "Minori"
+L["MOUSEOVER"] = "Passaggio del Mouse"
+L["MOVE"] = "Muovi"
+L["MULTIPLE_SELECTED"] = "Selezione Multipla "
+L["NAME_ONLY"] = "Solo il Nome"
+L["NAME_ONLY_PLAYERS"] = "Solo il Nome (Giocatori)"
+L["NEUTRAL"] = "Neutrale "
+L["NEVER"] = "Mai"
+L["NEW_PROFILE_BLANK"] = "Nuovo Profilo (vuoto)"
+L["NEW_PROFILE_CLONE"] = "Nuovo Profilo (clona attuale)"
+L["NO_VALUE_UPPER"] = "NESSUN VALORE"
+L["NONE"] = "Nessuno "
+L["NORMAL"] = "Normale "
+L["NORMAL_INSTANCES_ONLY"] = "Normale (Solo nelle Spedizioni)"
+L["NOT_READY"] = "Non pronto"
+L["NPC_ROLE"] = "Ruolo PNG"
+L["NPCS"] = "PNG"
+L["OBSCURED_TRANSPARENCY"] = "Trasparenza oscurata"
+L["OFFTANK"] = "Difensore Secondario"
+L["ON_CAST_SCALE"] = "Su scala di lancio "
+L["ON_CAST_TRANSPARENCY"] = "Sulla trasparenza del lancio"
+L["ON_MOUSEOVER_TRANSPARENCY"] = "Trasparenza al passaggio del mouse"
+L["ON_NON_TARGET_AND_NON_CASTING"] = "Non sul bersaglio (e non sul lancio)"
+L["ON_NOT_TARGET_TRANSPARENCY"] = "Trasparenza non sul bersaglio "
+L["ON_TARGET_OR_CASTING"] = "Sul bersaglio (o lancio)"
+L["ON_TARGET_SCALE"] = "Sulla scala del bersaglio "
+L["ONLY_APPLY_IN_COMBAT"] = "Applica solo in combattimento"
+L["ONLY_APPLY_IN_INSTANCES"] = "Applica solo nelle spedizioni "
+L["OPEN_OPTIONS"] = "Apri Opzioni "
+L["OVERWRITE"] = "Sovrascrivi "
+L["OVERWRITE_CURRENT_PROFILE"] = "Sovrascrivi l'attuale profilo?"
+L["PASTE_YOUR_IMPORT_STRING_HERE"] = "Incolla qui la tua stringa di importazione"
 --[[Translation missing --]]
 L["PERCENT_BRACKETS"] = "(%d%%)"
---[[Translation missing --]]
-L["PERCENTAGE"] = "Percentage"
---[[Translation missing --]]
-L["PETS"] = "Pets"
+L["PERCENTAGE"] = "Percentuale"
+L["PETS"] = "Animali Domestici"
 --[[Translation missing --]]
 L["PLATYNATOR"] = "Platynator"
---[[Translation missing --]]
-L["PLAYER_GUILD"] = "Player guild"
---[[Translation missing --]]
-L["PLAYERS_AND_FRIENDS"] = "Players and friends"
---[[Translation missing --]]
-L["POSITIONING"] = "Positioning"
---[[Translation missing --]]
-L["POWER"] = "Power"
---[[Translation missing --]]
-L["PROFILE"] = "Profile"
---[[Translation missing --]]
-L["PROFILES"] = "Profiles"
+L["PLAYER_GUILD"] = "Giocatore della Gilda"
+L["PLAYERS_AND_FRIENDS"] = "Giocatori e Amici"
+L["POSITIONING"] = "Posizionamento"
+L["POWER"] = "Potere"
+L["PROFILE"] = "Profilo"
+L["PROFILES"] = "Profili"
 --[[Translation missing --]]
 L["PVP"] = "PvP"
---[[Translation missing --]]
-L["QUEST"] = "Quest"
---[[Translation missing --]]
-L["QUEST_OBJECTIVE"] = "Quest Objective"
---[[Translation missing --]]
-L["RABBIT"] = "Rabbit"
---[[Translation missing --]]
-L["RAID_MARKER"] = "Raid Marker"
---[[Translation missing --]]
-L["RARE"] = "Rare"
---[[Translation missing --]]
-L["RARE_ELITE"] = "Rare Elite"
---[[Translation missing --]]
-L["RARITY"] = "Rarity"
---[[Translation missing --]]
-L["REACTION"] = "Reaction"
---[[Translation missing --]]
-L["READY"] = "Ready"
---[[Translation missing --]]
-L["REVERSED"] = "Reversed"
---[[Translation missing --]]
-L["RIGHT"] = "Right"
---[[Translation missing --]]
-L["ROUNDED"] = "Rounded"
---[[Translation missing --]]
-L["SAFE"] = "Safe"
---[[Translation missing --]]
-L["SAVE_AS"] = "Save as"
---[[Translation missing --]]
-L["SAVE_CUSTOM_AS"] = "Save Custom as"
---[[Translation missing --]]
-L["SCALE"] = "Scale"
---[[Translation missing --]]
-L["SHOW_COUNTDOWN"] = "Show countdown"
---[[Translation missing --]]
-L["SHOW_ENRAGE_DISPEL"] = "Show enrage dispel"
---[[Translation missing --]]
-L["SHOW_FRIENDLY_IN_INSTANCES"] = "Show friendly in instances"
---[[Translation missing --]]
-L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Show nameplates only if needed"
---[[Translation missing --]]
-L["SHOW_ONLY_IN_OPEN_WORLD"] = "Show only in open world"
---[[Translation missing --]]
-L["SHOW_OUTLINE"] = "Show outline"
---[[Translation missing --]]
-L["SHOW_PANDEMIC"] = "Show pandemic"
---[[Translation missing --]]
-L["SHOW_SHADOW"] = "Show shadow"
---[[Translation missing --]]
-L["SHOW_WHEN_WOW_DOES"] = "Show when WoW does"
---[[Translation missing --]]
-L["SIGNIFICANT_FIGURES"] = "Significant figures"
---[[Translation missing --]]
-L["SIMPLIFIED"] = "Simplified"
---[[Translation missing --]]
-L["SIMPLIFIED_NAMEPLATES"] = "Simplified nameplates"
---[[Translation missing --]]
-L["SIMPLIFIED_SCALE"] = "Simplified scale"
---[[Translation missing --]]
-L["SLASH_HELP"] = "Open the Platynator settings."
---[[Translation missing --]]
-L["SLASH_RESET"] = "reset"
---[[Translation missing --]]
-L["SLASH_RESET_HELP"] = "Reset all Platynator settings, then reload."
---[[Translation missing --]]
-L["SLASH_UNKNOWN_COMMAND"] = "Unknown command '%s'"
---[[Translation missing --]]
-L["SOFT_TARGET"] = "Soft Target"
---[[Translation missing --]]
-L["SOFT_TARGET_SENTENCE_CASE"] = "Soft target"
---[[Translation missing --]]
-L["SORTING"] = "Sorting"
---[[Translation missing --]]
-L["SPECIAL_BRACKETS"] = "(Special)"
---[[Translation missing --]]
-L["SQUARE"] = "Square"
---[[Translation missing --]]
-L["SQUIRREL"] = "Squirrel"
---[[Translation missing --]]
-L["STACKING_NAMEPLATES"] = "Stacking nameplates"
---[[Translation missing --]]
-L["STACKING_REGION_HEIGHT"] = "Stacking region height"
---[[Translation missing --]]
-L["STACKING_REGION_WIDTH"] = "Stacking region width"
+L["QUEST"] = "Missione "
+L["QUEST_OBJECTIVE"] = "Obiettivo della Missione "
+L["RABBIT"] = "Coniglio"
+L["RAID_MARKER"] = "Marchio d'Incursione "
+L["RARE"] = "Raro"
+L["RARE_ELITE"] = "Elite Raro"
+L["RARITY"] = "Rarità "
+L["REACTION"] = "Reazione "
+L["READY"] = "Pronto "
+L["REVERSED"] = "Invertito"
+L["RIGHT"] = "Destra"
+L["ROUNDED"] = "Arrotondato"
+L["SAFE"] = "Sicuro "
+L["SAVE_AS"] = "Salva con nome"
+L["SAVE_CUSTOM_AS"] = "Salva personalizzato come"
+L["SCALE"] = "Scala"
+L["SHOW_COUNTDOWN"] = "Mostra il conto alla rovescia"
+L["SHOW_ENRAGE_DISPEL"] = "Mostra il dissipatore della rabbia "
+L["SHOW_FRIENDLY_IN_INSTANCES"] = "Mostra Amichevoli nelle Spedizioni "
+L["SHOW_NAMEPLATES_ONLY_IF_NEEDED"] = "Mostra le targhette solo se necessario"
+L["SHOW_ONLY_IN_OPEN_WORLD"] = "Mostra solo nel mondo aperto"
+L["SHOW_OUTLINE"] = "Mostra schema"
+L["SHOW_PANDEMIC"] = "Mostra la pandemia"
+L["SHOW_SHADOW"] = "Mostra l'ombra"
+L["SHOW_WHEN_WOW_DOES"] = "Mostra quando WoW fa"
+L["SIGNIFICANT_FIGURES"] = "Figure significative "
+L["SIMPLIFIED"] = "Semplificato "
+L["SIMPLIFIED_NAMEPLATES"] = "Targhette semplificate"
+L["SIMPLIFIED_SCALE"] = "Scala semplificata "
+L["SLASH_HELP"] = "Apri le impostazioni di Platynator."
+L["SLASH_RESET"] = "Reimposta"
+L["SLASH_RESET_HELP"] = "Reimposta tutte le impostazioni di Platynator, quindi ricarica."
+L["SLASH_UNKNOWN_COMMAND"] = "Comando sconosciuto '%s'"
+L["SOFT_TARGET"] = "Bersaglio Semplice"
+L["SOFT_TARGET_SENTENCE_CASE"] = "Bersaglio semplice "
+L["SORTING"] = "Ordinamento"
+L["SPECIAL_BRACKETS"] = "(Speciale)"
+L["SQUARE"] = "Piazza"
+L["SQUIRREL"] = "Scoiattolo "
+L["STACKING_NAMEPLATES"] = "Targhette impilabili"
+L["STACKING_REGION_HEIGHT"] = "Altezza della regione di impilamento"
+L["STACKING_REGION_WIDTH"] = "Larghezza della regione di impilamento"
 --[[Translation missing --]]
 L["STANDARD"] = "Standard"
---[[Translation missing --]]
-L["STYLE"] = "Style"
---[[Translation missing --]]
-L["STYLE_SCALE"] = "Style scale"
---[[Translation missing --]]
-L["STYLE_SELECT"] = "Style Select"
---[[Translation missing --]]
-L["TAPPED"] = "Tapped"
---[[Translation missing --]]
-L["TARGET"] = "Target"
---[[Translation missing --]]
-L["TARGETED"] = "Targeted"
---[[Translation missing --]]
-L["TEXT_SCALE"] = "Text scale"
---[[Translation missing --]]
-L["TEXTS"] = "Texts"
+L["STYLE"] = "Stile"
+L["STYLE_SCALE"] = "Scala dello Stile"
+L["STYLE_SELECT"] = "Seleziona Stile"
+L["TAPPED"] = "Sfruttato"
+L["TARGET"] = "Bersaglio "
+L["TARGETED"] = "Bersagliato"
+L["TEXT_SCALE"] = "Scala di Testo"
+L["TEXTS"] = "Testi"
 --[[Translation missing --]]
 L["TEXTURES"] = "Textures"
 --[[Translation missing --]]
