@@ -363,6 +363,12 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
+					(cTitle.."Version 8.3.1|r\n"..
+					"- CHANGED - Quest Item Button improvements\n"..
+					"- CHANGED - TomTom - waypoint improvements\n"..
+					"- FIXED - errors with addon BugGrabber 12.0.11\n"..
+					"\n")..
+
 					(cTitle.."Version 8.3.0|r\n"..
 					"- ADDED (QuestLog) - Show Quest Details on World Map (Experimental)\n"..
 					offs3.."- Custom Quest Details implemented by Kaliel's Tracker to avoid taint issues.\n"..
