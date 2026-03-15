@@ -110,6 +110,12 @@ function VUHDO_tabbedPanelOkayClicked(aButton)
 	elseif (tProfile ~= nil and tProfile["LOCKED"]) then
 		VUHDO_Msg("設定檔已鎖定：設定將 '不會' 儲存到 " .. tProfile["NAME"]);
 	else
+		local tSkinsPanel = _G["VuhDoNewOptionsToolsSkins"];
+
+		if tSkinsPanel then
+			VUHDO_skinsSaveAutoProfileButtonEnablement(tSkinsPanel, VUHDO_CONFIG["CURRENT_PROFILE"]);
+		end
+
 		VUHDO_saveCurrentProfile();
 		VUHDO_CURRENT_PROFILE = VUHDO_CONFIG["CURRENT_PROFILE"];
 	end

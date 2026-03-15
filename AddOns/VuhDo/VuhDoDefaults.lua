@@ -1,12 +1,14 @@
 local GetSpellName = C_Spell.GetSpellName;
 local pairs = pairs;
+local min = math.min;
+local max = math.max;
 local _;
 
 VUHDO_GLOBAL_CONFIG = {
 	["PROFILES_VERSION"] = 1;
 };
 
-VUHDO_AURA_IGNORE_LIST = VUHDO_AURA_IGNORE_LIST or {
+VUHDO_AURA_IGNORE_LIST_DEFAULTS = {
 	[57724] = true, -- Sated (Bloodlust)
 	[57723] = true, -- Exhaustion (Heroism)
 	[80354] = true, -- Temporal Displacement (Time Warp)
@@ -18,6 +20,31 @@ VUHDO_AURA_IGNORE_LIST = VUHDO_AURA_IGNORE_LIST or {
 	[390435] = true, -- Exhaustion (alternate)
 	[1227806] = true, -- Lifebloom (hidden player aura)
 };
+
+
+
+--
+function VUHDO_initAuraIgnoreList()
+
+	if not VUHDO_AURA_IGNORE_LIST then
+		VUHDO_AURA_IGNORE_LIST = { };
+	else
+		table.wipe(VUHDO_AURA_IGNORE_LIST);
+	end
+
+	for tKey, _ in pairs(VUHDO_AURA_IGNORE_LIST_DEFAULTS) do
+		VUHDO_AURA_IGNORE_LIST[tKey] = true;
+	end
+
+	return;
+
+end
+
+
+
+if not VUHDO_AURA_IGNORE_LIST then
+	VUHDO_initAuraIgnoreList();
+end
 
 
 --
@@ -339,8 +366,8 @@ VUHDO_DEFAULT_SPELL_CONFIG = {
 	["IS_FIRE_CUSTOM_2"] = false,
 	["FIRE_CUSTOM_2_SPELL"] = "",
 	["IS_TOOLTIP_INFO"] = false,
-	["IS_LOAD_HOTS"] = false,
-	["IS_LOAD_HOTS_ONLY_SLOTS"] = false,
+	["IS_LOAD_AURAS"] = false,
+	["IS_LOAD_AURAS_ONLY_ANCHORS"] = false,
 	["smartCastModi"] = "all",
 	["autoBattleRez"] = true,
 	["custom1Unit"] = "@player",
@@ -463,6 +490,16 @@ function VUHDO_loadSpellArray()
 		VUHDO_SPELL_CONFIG = VUHDO_deepCopyTable(VUHDO_DEFAULT_SPELL_CONFIG);
 	end
 	VUHDO_SPELL_CONFIG = VUHDO_ensureSanity("VUHDO_SPELL_CONFIG", VUHDO_SPELL_CONFIG, VUHDO_DEFAULT_SPELL_CONFIG);
+
+	if VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"] ~= nil then
+		VUHDO_SPELL_CONFIG["IS_LOAD_AURAS"] = VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"];
+		VUHDO_SPELL_CONFIG["IS_LOAD_HOTS"] = nil;
+	end
+
+	if VUHDO_SPELL_CONFIG["IS_LOAD_HOTS_ONLY_SLOTS"] ~= nil then
+		VUHDO_SPELL_CONFIG["IS_LOAD_AURAS_ONLY_ANCHORS"] = VUHDO_SPELL_CONFIG["IS_LOAD_HOTS_ONLY_SLOTS"];
+		VUHDO_SPELL_CONFIG["IS_LOAD_HOTS_ONLY_SLOTS"] = nil;
+	end
 
 	if (VUHDO_SPELL_LAYOUTS == nil) then
 		VUHDO_SPELL_LAYOUTS = { };
@@ -3891,10 +3928,21 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 
 	["PRIVATE_AURA"] = {
 		["show"] = true,
-		["scale"] = 0.8,
 		["point"] = "LEFT",
 		["xAdjust"] = 5,
 		["yAdjust"] = 0,
+		["numAuras"] = 3,
+		["orientation"] = "HORIZONTAL",
+		["spacing"] = 0,
+		["showCooldown"] = true,
+		["showCooldownNumbers"] = true,
+		["showDuration"] = false,
+		["durationPosition"] = "BOTTOM",
+		["durationOffsetX"] = 0,
+		["durationOffsetY"] = 0,
+		["showBorder"] = false,
+		["iconSize"] = 20,
+		["frameLevel"] = 13,
 	},
 
 	["RAID_ICON"] = {
@@ -4087,6 +4135,7 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 --
 function VUHDO_loadDefaultPanelSetup()
 	local tAktPanel;
+	local tPrivateAura;
 
 	if not VUHDO_PANEL_SETUP then
 		VUHDO_PANEL_SETUP = VUHDO_decompressOrCopy(VUHDO_DEFAULT_PANEL_SETUP);
@@ -4165,6 +4214,20 @@ function VUHDO_loadDefaultPanelSetup()
 			if tHotSize then
 				tAktPanel["HOTS"]["size"] = tHotSize;
 			end
+		end
+
+		tAktPanel = VUHDO_PANEL_SETUP[tPanelNum];
+
+		if tAktPanel and tAktPanel["PRIVATE_AURA"] then
+
+			tPrivateAura = tAktPanel["PRIVATE_AURA"];
+
+			if tPrivateAura["iconSize"] == nil and tPrivateAura["scale"] ~= nil then
+				tPrivateAura["iconSize"] = max(1, min(100, (tPrivateAura["scale"] or 0.8) * 100));
+
+				tPrivateAura["scale"] = nil;
+			end
+
 		end
 
 		VUHDO_PANEL_SETUP[tPanelNum] = VUHDO_ensureSanity("VUHDO_PANEL_SETUP[" .. tPanelNum .. "]", VUHDO_PANEL_SETUP[tPanelNum], VUHDO_DEFAULT_PER_PANEL_SETUP);

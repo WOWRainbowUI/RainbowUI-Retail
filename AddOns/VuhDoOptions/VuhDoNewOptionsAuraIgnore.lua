@@ -194,7 +194,7 @@ local tAuraIgnoreString;
 local function VUHDO_auraIgnoreTableToString(anAuraIgnore)
 
 	if anAuraIgnore ~= nil then
-		tAuraIgnoreCompressed = VUHDO_compressAndPackTable(anAuraIgnore);
+		tAuraIgnoreCompressed = VUHDO_LibCompressEncode:Encode(VUHDO_compressAndPackTable(anAuraIgnore));
 
 		tAuraIgnoreTable = {
 			["auraIgnoreVersion"] = VUHDO_AURA_IGNORE_SHARE_VERSION,
@@ -224,7 +224,7 @@ local function VUHDO_auraIgnoreStringToTable(anAuraIgnoreString)
 	tAuraIgnoreTable = VUHDO_deserializeTable(tDecodedAuraIgnoreString);
 
 	if tAuraIgnoreTable and tAuraIgnoreTable["auraIgnore"] then
-		tDecompressedAuraIgnoreTable = VUHDO_decompressIfCompressed(tAuraIgnoreTable["auraIgnore"]);
+		tDecompressedAuraIgnoreTable = VUHDO_decompressIfCompressed(VUHDO_LibCompressEncode:Decode(tAuraIgnoreTable["auraIgnore"]));
 
 		tAuraIgnoreTable["auraIgnore"] = tDecompressedAuraIgnoreTable;
 	end

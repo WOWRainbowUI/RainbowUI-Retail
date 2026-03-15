@@ -535,6 +535,9 @@
 						<Frame name="$parentPa1" setAllPoints="true"> </Frame>
 						<Frame name="$parentPa2" setAllPoints="true"> </Frame>
 						<Frame name="$parentPa3" setAllPoints="true"> </Frame>
+						<Frame name="$parentPa4" setAllPoints="true"> </Frame>
+						<Frame name="$parentPa5" setAllPoints="true"> </Frame>
+						<Frame name="$parentPa6" setAllPoints="true"> </Frame>
 
 					</Frames>
 					<Layers>

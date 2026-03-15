@@ -6,7 +6,7 @@
 		<Frames>
 			<Frame name="$parentRadioPanel">
 				<Size>
-					<AbsDimension x="115" y="231" />
+					<AbsDimension x="115" y="256" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
@@ -102,11 +102,28 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentIndicatorsRadioButton" text="VUHDO_I18N_INDICATORS" inherits="VuhDoTabRadioButtonTemplate">
+					<CheckButton name="$parentPrivateAurasRadioButton" text="VUHDO_I18N_PRIVATE_AURAS_RADIO" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
 									<AbsDimension x="3" y="-283" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								self.tabPanel = "VuhDoNewOptionsPanelPrivateAuras";
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K735);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentIndicatorsRadioButton" text="VUHDO_I18N_INDICATORS" inherits="VuhDoTabRadioButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="3" y="-318" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -129,7 +146,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="3" y="-318" />
+									<AbsDimension x="3" y="-353" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -214,7 +231,7 @@
 
 			<Frame name="$parentContentPanel">
 				<Size>
-					<AbsDimension x="428" y="345" />
+					<AbsDimension x="428" y="480" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -239,6 +256,8 @@
 					<Frame name="VuhDoNewOptionsPanelTooltip" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelTooltipTemplate">
 					</Frame>
 					<Frame name="VuhDoNewOptionsPanelAuras" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelAurasTemplate">
+					</Frame>
+					<Frame name="VuhDoNewOptionsPanelPrivateAuras" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelPrivateAurasTemplate">
 					</Frame>
 					<Frame name="VuhDoNewOptionsPanelIndicators" hidden="true" setAllPoints="true" inherits="VuhDoNewOptionsPanelIndicatorsTemplate">
 					</Frame>

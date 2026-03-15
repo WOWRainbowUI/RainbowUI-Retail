@@ -33,6 +33,8 @@ local VUHDO_getPixelScale;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_getHealPredictionCalculator;
 local VUHDO_getOvershieldCalculator;
+local VUHDO_removePrivateAuras;
+local VUHDO_refreshPrivateAuras;
 
 local VUHDO_PANEL_SETUP;
 local VUHDO_BUTTON_CACHE;
@@ -121,6 +123,8 @@ function VUHDO_customHealthInitLocalOverrides()
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_getHealPredictionCalculator = _G["VUHDO_getHealPredictionCalculator"];
 	VUHDO_getOvershieldCalculator = _G["VUHDO_getOvershieldCalculator"];
+	VUHDO_removePrivateAuras = _G["VUHDO_removePrivateAuras"];
+	VUHDO_refreshPrivateAuras = _G["VUHDO_refreshPrivateAuras"];
 
 	sHealPredictionCalculator = VUHDO_getHealPredictionCalculator();
 	sOvershieldCalculator = VUHDO_getOvershieldCalculator();
@@ -1274,7 +1278,7 @@ function VUHDO_customizeHealButton(aButton)
 		tPrivateAura = VUHDO_getBarPrivateAura(aButton, tAuraIndex);
 
 		if not tPrivateAura then
-			return;
+			break;
 		end
 
 		if VUHDO_PANEL_SETUP[VUHDO_BUTTON_CACHE[aButton]]["PRIVATE_AURA"]["show"] and tPrivateAura["anchorId"] then
@@ -1358,9 +1362,21 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 		end
 	elseif 10 == anUpdateMode then -- VUHDO_UPDATE_ALIVE
 		VUHDO_determineIncHeal(aUnit);
+
+		tInfo = VUHDO_RAID[aUnit];
+
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeText(tButton, 1, false); -- VUHDO_UPDATE_ALL
+
+			if tInfo then
+				if tInfo["dead"] then
+					VUHDO_removePrivateAuras(tButton);
+				else
+					VUHDO_refreshPrivateAuras(VUHDO_BUTTON_CACHE[tButton], tButton, aUnit);
+				end
+			end
 		end
+
 		VUHDO_updateIncHeal(aUnit);
 
 	elseif 25 == anUpdateMode then -- VUHDO_UPDATE_RESURRECTION
@@ -1369,8 +1385,18 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 		end
 
 	elseif 19 == anUpdateMode then -- VUHDO_UPDATE_DC
+		tInfo = VUHDO_RAID[aUnit];
+
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
+
+			if tInfo then
+				if not tInfo["connected"] then
+					VUHDO_removePrivateAuras(tButton);
+				else
+					VUHDO_refreshPrivateAuras(VUHDO_BUTTON_CACHE[tButton], tButton, aUnit);
+				end
+			end
 		end
 
 	elseif 1 == anUpdateMode then -- VUHDO_UPDATE_ALL

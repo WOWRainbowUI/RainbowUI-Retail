@@ -101,7 +101,7 @@
 					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
 						<Layers>
 							<Layer>
-								<FontString name="$parentLabel" text="VUHDO_I18N_BUFFS_HOTS" inherits="VuDoDefaultTitleFontTemplate">
+								<FontString name="$parentLabel" text="VUHDO_I18N_BUFFS_AURAS" inherits="VuDoDefaultTitleFontTemplate">
 								</FontString>
 							</Layer>
 						</Layers>
@@ -125,7 +125,7 @@
 						</Scripts>
 					</Button>
 
-					<Button name="$parentCustomDebuffsButton" text="VUHDO_I18N_CUSTOM_DEBUFFS" inherits="VuhDoButtonTemplate">
+					<Button name="$parentCustomDebuffsButton" text="VUHDO_I18N_IGNORE_LIST" inherits="VuhDoButtonTemplate">
 						<Size>
 							<AbsDimension x="100" y="32" />
 						</Size>
@@ -138,7 +138,7 @@
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								VUHDO_newOptionsToolsResetCustomDebuffsClicked();
+								VUHDO_newOptionsToolsResetIgnoreListClicked();
 							</OnClick>
 						</Scripts>
 					</Button>

@@ -66,6 +66,7 @@ VuhDoNewOptionsPanelMisc.xml
 VuhDoNewOptionsPanelHotBars.xml
 VuhDoNewOptionsPanelHots.xml
 VuhDoNewOptionsPanelAuras.xml
+VuhDoNewOptionsPanelPrivateAuras.xml
 VuhDoNewOptionsPanelIndicators.xml
 VuhDoNewOptionsPanelPanel.xml
 VuhDoNewOptionsColorsClasses.xml

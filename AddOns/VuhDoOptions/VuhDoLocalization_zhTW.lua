@@ -440,7 +440,7 @@ VUHDO_I18N_TT.K361 = "目標條顯示在血量條的左側。"
 VUHDO_I18N_TT.K362 = "目標條顯示在血量條的右側。"
 VUHDO_I18N_TT.K363 = "選擇受到傷害時閃爍的敏感度，較大的數值表示較常閃爍 (受到較少的傷害)。";
 VUHDO_I18N_TT.K364 = "血量超過不要緊的門檻時隱藏血量文字。";
-VUHDO_I18N_TT.K365 = "載入法術配置時，也要套用持續性治療的設定 (面板 => HoT 圖示)。";
+VUHDO_I18N_TT.K365 = "載入按鍵配置時，也套用光環設定。";
 VUHDO_I18N_TT.K366 = "治療時，將治療對象選取為當前目標。";
 VUHDO_I18N_TT.K367 = "選擇要偵測哪些類型的即將治療。";
 VUHDO_I18N_TT.K376 = "隊伍對齊面板下方 (靠右對齊，當上面選擇 \"水平\" 時)。";
@@ -667,7 +667,7 @@ VUHDO_I18N_TT.K605 = "使用漸層色。";
 VUHDO_I18N_TT.K606 = "使用最多漸層色。";
 VUHDO_I18N_TT.K607 = "更改有狂怒增益的敵人的顏色。";
 VUHDO_I18N_TT.K608 = "忽略敵人身上可驅散的增益。";
-VUHDO_I18N_TT.K609 = "載入法術配置時，只套用持續性治療的欄位設定 (面板 => HoT 圖示 => 順序)。";
+VUHDO_I18N_TT.K609 = "載入按鍵配置時，只套用光環位置設定 (不包含群組)。";
 VUHDO_I18N_TT.K610 = "隱藏遊戲內建的首領框架。";
 VUHDO_I18N_TT.K611 = "選擇一個光環群組";
 VUHDO_I18N_TT.K612 = "過濾光環（內建群組為唯讀）";
@@ -788,6 +788,28 @@ VUHDO_I18N_TT.K730 = "點擊以複製所選的光環位置。";
 VUHDO_I18N_TT.K731 = "點擊以刪除所選的光環位置。";
 VUHDO_I18N_TT.K732 = "點擊以開啟並編輯此狀態群組";
 VUHDO_I18N_TT.K733 = "點擊以開啟並編輯此光環群組";
+VUHDO_I18N_TT.K734 = "在團隊框架的血量條上顯示私有光環圖示。";
+VUHDO_I18N_TT.K735 = "設定私有光環在團隊框架上的顯示方式。";
+VUHDO_I18N_TT.K736 = "每個單位最多顯示的私有光環圖示數量 (1-6)。";
+VUHDO_I18N_TT.K737 = "圖示大小，依血量條高度的百分比。";
+VUHDO_I18N_TT.K738 = "私有光環圖示之間的間距 (像素)。";
+VUHDO_I18N_TT.K739 = "將私有光環圖示對齊到血量條的左上角。";
+VUHDO_I18N_TT.K740 = "將私有光環圖示對齊到血量條的右上角。";
+VUHDO_I18N_TT.K741 = "將私有光環圖示對齊到血量條的左下角。";
+VUHDO_I18N_TT.K742 = "將私有光環圖示對齊到血量條的右下角。";
+VUHDO_I18N_TT.K743 = "將私有光環圖示對齊到血量條的左側。";
+VUHDO_I18N_TT.K744 = "將私有光環圖示對齊到血量條的上方。";
+VUHDO_I18N_TT.K745 = "將私有光環圖示對齊到血量條的下方。";
+VUHDO_I18N_TT.K746 = "將私有光環圖示對齊到血量條的右側。";
+VUHDO_I18N_TT.K747 = "私有光環圖示相對位置的水平偏移 (血量條寬度百分比)。";
+VUHDO_I18N_TT.K748 = "私有光環圖示相對位置的垂直偏移 (血量條高度百分比)。";
+VUHDO_I18N_TT.K749 = "在私有光環圖示上顯示冷卻旋渦動畫。";
+VUHDO_I18N_TT.K750 = "在私有光環圖示上顯示時鐘文字 (需啟用顯示時鐘)。";
+VUHDO_I18N_TT.K751 = "在私有光環圖示下方或旁邊顯示計時文字。";
+VUHDO_I18N_TT.K752 = "在私有光環圖示周圍顯示邊框。";
+VUHDO_I18N_TT.K753 = "私有光環圖示的層級順序 (0 = 在其他元素後方，13 = 在最上層)。";
+VUHDO_I18N_TT.K754 = "將私有光環圖示排列成水平或垂直列。";
+VUHDO_I18N_TT.K755 = "計時文字相對圖示的顯示位置 (下方或上方)。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1053,7 +1075,7 @@ VUHDO_I18N_SOURCE_DESTINATION = "來源/對象";
 VUHDO_I18N_HIGH = "高";
 -- #+1.251
 VUHDO_I18N_15 = " 15";
-VUHDO_I18N_LOAD_HOTS = "載入 HoT";
+VUHDO_I18N_LOAD_AURAS = "載入光環";
 VUHDO_I18N_IGNORE_LIST = "忽略清單";
 VUHDO_I18N_FIVE_MAN_MTS = "5 人主坦";
 VUHDO_I18N_FILTER_ONLY = "只有過濾";
@@ -1108,9 +1130,9 @@ VUHDO_I18N_CLIQUE_COMPAT_MODE = "Clique支援";
 VUHDO_I18N_CLIQUE_PASSTHROUGH = "Clique共用";
 VUHDO_I18N_RESET = "重置";
 VUHDO_I18N_DEBUFF_COLORS = "減益顏色";
-VUHDO_I18N_BUFFS_HOTS = "增益/持續性治療";
+VUHDO_I18N_BUFFS_AURAS = "增益/光環";
 VUHDO_I18N_BUFF_WATCH = "增益監控";
-VUHDO_I18N_CUSTOM_DEBUFFS = "自訂減益";
+VUHDO_I18N_IGNORE_LIST = "忽略清單";
 VUHDO_I18N_DEFAULT_BOUQUETS = "預設狀態群組";
 VUHDO_I18N_EVERYTHING = "全部";
 VUHDO_I18N_LANGUAGE = "語言";
@@ -1123,7 +1145,8 @@ VUHDO_I18N_RESET_CLASS_COLORS = "將會重置自訂的職業顏色設定。\n是
 VUHDO_I18N_RESET_DEBUFF_COLORS = "將會重置自訂的減益顏色設定。\n是否要繼續?";
 VUHDO_I18N_RESET_RAID_ICON_COLORS = "將會重置自訂的團隊目標顏色設定。\n是否要繼續?";
 VUHDO_I18N_RESET_BUFF_WATCH = "將會重置全部的增益監控設定。\n是否要繼續?";
-VUHDO_I18N_RESET_CUSTOM_DEBUFFS = "將會重置全部的自訂減益和相關設定。\n是否要繼續?";
+VUHDO_I18N_RESET_IGNORE_LIST = "這將會把整體\n光環忽略清單重設為預設值。要繼續嗎？";
+VUHDO_I18N_IGNORE_LIST_RESET = "光環忽略清單已重設為預設值。";
 VUHDO_I18N_RESET_DEFAULT_BOUQUETS = "將會重置全部的 '預設'  狀態群組\n(自訂的除外)。是否要繼續?";
 VUHDO_I18N_RESET_INDICATORS = "將會重置自訂的指示器設定。\n是否要繼續?";
 VUHDO_I18N_RESET_ALL = "!!!警告: 將會重置整個插件，\n恢復成最初的預設值!!!\n是否要繼續?" ;
@@ -1330,7 +1353,20 @@ VUHDO_I18N_BOSS_ONLY = "只有首領";
 VUHDO_I18N_X = "X";
 VUHDO_I18N_Y = "Y";
 
-VUHDO_I18N_PRIVATE_AURAS = "非公開性的光環";
+VUHDO_I18N_PRIVATE_AURAS = "私有光環";
+VUHDO_I18N_PRIVATE_AURAS_RADIO = "私有\n光環";
+VUHDO_I18N_PRIVATE_AURA_NUM = "數量";
+VUHDO_I18N_PRIVATE_AURA_ORIENTATION = "排列方向";
+VUHDO_I18N_PRIVATE_AURA_SPACING = "間距";
+VUHDO_I18N_PRIVATE_AURA_ICON_SIZE = "圖示大小";
+VUHDO_I18N_PRIVATE_AURA_SHOW_COOLDOWN = "顯示時鐘";
+VUHDO_I18N_PRIVATE_AURA_SHOW_COOLDOWN_NUMBERS = "時鐘文字";
+VUHDO_I18N_PRIVATE_AURA_SHOW_DURATION = "計時文字";
+VUHDO_I18N_PRIVATE_AURA_SHOW_BORDER = "顯示\n邊框";
+VUHDO_I18N_PRIVATE_AURA_FRAME_LEVEL = "框架層級";
+VUHDO_I18N_PRIVATE_AURA_DURATION_BELOW = "下方";
+VUHDO_I18N_PRIVATE_AURA_DURATION_ABOVE = "上方";
+VUHDO_I18N_PRIVATE_AURA_DURATION_LABEL = "計時文字位置";
 
 VUHDO_I18N_PETS_LAST = "寵物最後";
 
@@ -1355,7 +1391,7 @@ VUHDO_I18N_MAX_COLOR = "最多顏色";
 VUHDO_I18N_ENRAGE = "狂怒";
 VUHDO_I18N_PURGEABLE_BUFFS = "可驅散\n增益";
 
-VUHDO_I18N_LOAD_HOTS_ONLY_SLOTS = "只有欄位";
+VUHDO_I18N_LOAD_AURAS_ONLY_ANCHORS = "只有\n位置";
 
 VUHDO_I18N_CUSTOM_DEBUFF_IGNORE_LIST_WARNING = "該減益已在忽略清單中，將被隱藏。";
 VUHDO_I18N_IGNORE_LIST_CUSTOM_DEBUFF_WARNING = "忽略「%s」會覆寫現有的自訂減益設定。";
