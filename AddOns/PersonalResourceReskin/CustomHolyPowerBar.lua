@@ -22,6 +22,7 @@ CustomHolyPowerBarDB = CustomHolyPowerBarDB or {
     enabled = true,
     x = 0, y = -120, orbWidth = 24, orbHeight = 24, locked = false,
     anchorPosition = "BELOW", anchorOffset = 10,
+    anchorTarget = "HEALTH", -- HEALTH or POWER
     orbBgColor = {0, 0, 0, 0.5},
     gradientColor1 = {1, 0.85, 0.3, 1},
     gradientColor2 = {1, 0.85, 0.3, 1},
@@ -195,8 +196,31 @@ local function GetPRDHealthBar()
     if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
         return prd.HealthBarsContainer.healthBar
     end
-    -- Fallback to old global if present
-    return _G.PersonalResourceDisplayHealthBar
+    if _G.PersonalResourceDisplayHealthBar then
+        return _G.PersonalResourceDisplayHealthBar
+    end
+    return nil
+end
+
+local function GetPRDPowerBar()
+    local prd = _G.PersonalResourceDisplayFrame
+    if prd and prd.PowerBar then
+        return prd.PowerBar
+    end
+    if _G.PersonalResourceDisplayPowerBar then
+        return _G.PersonalResourceDisplayPowerBar
+    end
+    return nil
+end
+
+local function GetPRDAnchorFrame()
+    if not CustomHolyPowerBarDB.anchorToPRD then return nil end
+    local target = CustomHolyPowerBarDB.anchorTarget or "HEALTH"
+    if target == "POWER" then
+        return GetPRDPowerBar()
+    else
+        return GetPRDHealthBar()
+    end
 end
 
 local function ApplyBarSettings()
@@ -204,12 +228,14 @@ local function ApplyBarSettings()
     local totalWidth = (CustomHolyPowerBarDB.orbWidth + spacing) * #holyBar.orbs - spacing
     holyBar:SetSize(totalWidth, CustomHolyPowerBarDB.orbHeight)
     holyBar:ClearAllPoints()
-    local anchorFrame = CustomHolyPowerBarDB.anchorToPRD and GetPRDHealthBar() or nil
+    local anchorFrame = CustomHolyPowerBarDB.anchorToPRD and GetPRDAnchorFrame() or nil
     if anchorFrame then
-        if CustomHolyPowerBarDB.anchorPosition == "ABOVE" then
-            holyBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, CustomHolyPowerBarDB.anchorOffset or 10)
+        local pos = CustomHolyPowerBarDB.anchorPosition or "BELOW"
+        local offset = CustomHolyPowerBarDB.anchorOffset or 10
+        if pos == "ABOVE" then
+            holyBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
         else
-            holyBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -(CustomHolyPowerBarDB.anchorOffset or 10))
+            holyBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
         end
     else
         holyBar:SetPoint("CENTER", UIParent, "CENTER", CustomHolyPowerBarDB.x or 0, CustomHolyPowerBarDB.y or 0)
@@ -440,6 +466,19 @@ if PersonalResourceReskinPlus_Options then
                     ApplyBarSettings()
                 end,
             },
+            anchorTarget = {
+                name = "Anchor Target",
+                desc = "Choose which PRD bar to anchor to.",
+                type = "select",
+                values = { HEALTH = "Health Bar", POWER = "Power Bar" },
+                get = function() return CustomHolyPowerBarDB.anchorTarget or "HEALTH" end,
+                set = function(_, val)
+                    CustomHolyPowerBarDB.anchorTarget = val
+                    ApplyBarSettings()
+                end,
+                order = 0.54,
+                disabled = function() return not CustomHolyPowerBarDB.anchorToPRD end,
+            },
             anchorPosition = {
                 name = "Anchor Position",
                 desc = "Choose whether the bar appears above or below the Personal Resource Display.",
@@ -509,7 +548,7 @@ UpdateVisibility()
 
 
 local function HookPRDAnchor()
-    local anchorFrame = GetPRDHealthBar()
+    local anchorFrame = GetPRDAnchorFrame()
     if not anchorFrame then return end
     if holyBar._prdhook then return end
     holyBar._prdhook = true
@@ -541,13 +580,13 @@ local function HookPRDAnchor()
 end
 
 local function TryHookPRDAnchor()
-    if GetPRDHealthBar() then
+    if GetPRDAnchorFrame() then
         HookPRDAnchor()
     else
         local f = CreateFrame("Frame")
         f:RegisterEvent("PLAYER_ENTERING_WORLD")
         f:SetScript("OnEvent", function(self)
-            if GetPRDHealthBar() then
+            if GetPRDAnchorFrame() then
                 HookPRDAnchor()
                 self:UnregisterAllEvents()
             end
