@@ -1,6 +1,16 @@
 
 # Changelog
 
+## [3.4.2] - 2026-03-14
+
+### Added
+- New threshold offset option for dynamic cooldown colors, so color changes can start a little earlier or later.
+- Assisted Combat buttons now hide Blizzard's extra helper text for a cleaner look.
+
+### Fixed
+- Improved dynamic cooldown colors so they only apply where they should.
+- Better nameplate aura detection for more reliable styling on newly created frames.
+
 ## [3.4.0] - 2026-03-13
 
 ### Added

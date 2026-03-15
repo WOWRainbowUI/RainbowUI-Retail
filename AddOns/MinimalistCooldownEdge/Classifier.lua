@@ -85,12 +85,15 @@ end
 
 local function IsNameplateContext(name, objType, unit)
     local unitToken = ExtractUnitToken(unit)
+    local lowerName = name and type(name) == "string" and string.lower(name) or ""
 
     return objType == "NamePlate"
-        or strfind(name, "NamePlate", 1, true)
-        or strfind(name, "Plater",    1, true)
-        or strfind(name, "Kui",       1, true)
-        or (unitToken and strfind(unitToken, "nameplate", 1, true))
+        or strfind(lowerName, "nameplate", 1, true)
+        or strfind(lowerName, "plater",    1, true)
+        or strfind(lowerName, "kui",       1, true)
+        or strfind(lowerName, "elvnp",     1, true)
+        or strfind(lowerName, "threatplate", 1, true)
+        or (unitToken and type(unitToken) == "string" and strfind(string.lower(unitToken), "nameplate", 1, true))
 end
 
 local function IsMiniCCNamedFrame(frame)
@@ -370,6 +373,11 @@ function Classifier:ClassifyFrame(cooldownFrame)
         if IsNameplateContext(frame:GetName() or "", frame:GetObjectType(), frame.unit) then
             return "nameplate"
         end
+    end
+
+    -- Intercept detached aura frames (e.g. freshly created nameplate buffs not parented yet)
+    if not reachedUIParent and node == nil and chain[chainLen] ~= WorldFrame then
+        return "aura_pending"
     end
 
     return "global"

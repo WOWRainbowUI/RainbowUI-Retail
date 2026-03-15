@@ -204,6 +204,21 @@ local function DurationColorsEnabled()
     return config and config.enabled or false
 end
 
+local function DurationColorsDisabled()
+    return not DurationColorsEnabled()
+end
+
+local function DurationOffsetGet()
+    local config = GetDurationTextColorsConfig()
+    return config.offset
+end
+
+local function DurationOffsetSet(_, val)
+    local config = GetDurationTextColorsConfig()
+    config.offset = val
+    MCE:RequestDebouncedOptionRefresh(true)
+end
+
 local function DurationThresholdValueGet(index)
     return function()
         local config = GetDurationTextColorsConfig()
@@ -860,7 +875,7 @@ function MCE:GetOptions()
                                 name = "|cff88bbdd" .. L["DYNAMIC_COLORS_GENERAL_DESC"] .. "|r\n",
                             },
                             dynamicEnabled = {
-                                type = "toggle", order = 1, width = "full",
+                                type = "toggle", order = 2, width = "full",
                                 name = L["Color by Remaining Time"],
                                 desc = L["Dynamically colors the countdown text based on how much time is left."],
                                 get = DurationColorsEnabled,
@@ -870,72 +885,82 @@ function MCE:GetOptions()
                                     MCE:ForceUpdateAll(true)
                                 end,
                             },
-                            t1Header = {
-                                type = "header", name = L["Expiring Soon"], order = 10,
-                                hidden = function() return not DurationColorsEnabled() end,
+                            thresholdsRowBreak = RowBreak(3.1),
+                            thresholdsHeader = {
+                                type = "header", name = L["Threshold Colors"], order = 10,
+                                hidden = DurationColorsDisabled,
                             },
+                            thresholdsHeaderSpacing = SectionSpacer(10.05, DurationColorsDisabled),
                             t1Value = {
-                                type = "range", order = 11, width = 1.0,
-                                name = L["Threshold (seconds)"], min = 1, max = 60, step = 1,
+                                type = "range", order = 11, width = 1.2,
+                                name = L["Expiring Soon"],
+                                desc = L["Threshold (seconds)"], min = 1, max = 60, step = 1,
                                 get = DurationThresholdValueGet(1),
                                 set = DurationThresholdValueSet(1),
-                                hidden = function() return not DurationColorsEnabled() end,
+                                hidden = DurationColorsDisabled,
                             },
                             t1Color = {
                                 type = "color", order = 12, width = 0.5,
                                 name = L["Color"], hasAlpha = true,
                                 get = DurationThresholdColorGet(1),
                                 set = DurationThresholdColorSet(1),
-                                hidden = function() return not DurationColorsEnabled() end,
+                                hidden = DurationColorsDisabled,
                             },
-                            t2Header = {
-                                type = "header", name = L["Short Duration"], order = 20,
-                                hidden = function() return not DurationColorsEnabled() end,
-                            },
+                            t1RowBreak = RowBreak(12.1, DurationColorsDisabled),
                             t2Value = {
-                                type = "range", order = 21, width = 1.0,
-                                name = L["Threshold (seconds)"], min = 5, max = 300, step = 1,
+                                type = "range", order = 20, width = 1.2,
+                                name = L["Short Duration"],
+                                desc = L["Threshold (seconds)"], min = 5, max = 300, step = 1,
                                 get = DurationThresholdValueGet(2),
                                 set = DurationThresholdValueSet(2),
-                                hidden = function() return not DurationColorsEnabled() end,
+                                hidden = DurationColorsDisabled,
                             },
                             t2Color = {
-                                type = "color", order = 22, width = 0.5,
+                                type = "color", order = 21, width = 0.5,
                                 name = L["Color"], hasAlpha = true,
                                 get = DurationThresholdColorGet(2),
                                 set = DurationThresholdColorSet(2),
-                                hidden = function() return not DurationColorsEnabled() end,
+                                hidden = DurationColorsDisabled,
                             },
-                            t3Header = {
-                                type = "header", name = L["Long Duration"], order = 30,
-                                hidden = function() return not DurationColorsEnabled() end,
-                            },
+                            t2RowBreak = RowBreak(21.1, DurationColorsDisabled),
                             t3Value = {
-                                type = "range", order = 31, width = 1.0,
-                                name = L["Threshold (seconds)"], min = 60, max = 3600, step = 60,
+                                type = "range", order = 30, width = 1.2,
+                                name = L["Long Duration"],
+                                desc = L["Threshold (seconds)"], min = 60, max = 3600, step = 60,
                                 get = DurationThresholdValueGet(3),
                                 set = DurationThresholdValueSet(3),
-                                hidden = function() return not DurationColorsEnabled() end,
+                                hidden = DurationColorsDisabled,
                             },
                             t3Color = {
-                                type = "color", order = 32, width = 0.5,
+                                type = "color", order = 31, width = 0.5,
                                 name = L["Color"], hasAlpha = true,
                                 get = DurationThresholdColorGet(3),
                                 set = DurationThresholdColorSet(3),
-                                hidden = function() return not DurationColorsEnabled() end,
+                                hidden = DurationColorsDisabled,
                             },
+                            footerRowBreak = RowBreak(31.1, DurationColorsDisabled),
                             defaultHeader = {
-                                type = "header", name = L["Beyond Thresholds"], order = 40,
-                                hidden = function() return not DurationColorsEnabled() end,
+                                type = "header", name = L["Advanced Threshold Settings"], order = 40,
+                                hidden = DurationColorsDisabled,
                             },
+                            defaultHeaderSpacing = SectionSpacer(40.05, DurationColorsDisabled),                            
                             defaultDurationColor = {
-                                type = "color", order = 41, width = 0.8,
-                                name = L["Default Color"],
+                                type = "color", order = 41, width = 1.3,
+                                name = L["Beyond Thresholds Color"],
                                 desc = L["Color used when the remaining time exceeds all thresholds."],
                                 hasAlpha = true,
                                 get = DefaultDurationColorGet,
                                 set = DefaultDurationColorSet,
-                                hidden = function() return not DurationColorsEnabled() end,
+                                hidden = DurationColorsDisabled,
+                            },
+                            dynamicOffset = {
+                                type = "range", order = 42, width = 1.4,
+                                name = L["Threshold Transition Offset"],
+                                desc = L["Moves the start of each next color band. Negative values switch slightly earlier."],
+                                min = -2, max = 2, step = 0.05,
+                                hidden = DurationColorsDisabled,
+                                get = DurationOffsetGet,
+                                set = DurationOffsetSet,
                             },
                         },
                     },

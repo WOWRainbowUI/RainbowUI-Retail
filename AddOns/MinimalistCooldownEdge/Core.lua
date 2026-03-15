@@ -92,6 +92,7 @@ end
 local function DurationTextColorDefaults()
     return {
         enabled = true,
+        offset = 0,
         thresholds = {
             { threshold = 5,    color = { r = 1.0, g = 0.0,  b = 0.0,  a = 1.0 } },
             { threshold = 60,   color = { r = 1.0, g = 0.8,  b = 0.0,  a = 1.0 } },
@@ -112,6 +113,10 @@ local function EnsureDurationTextColorConfig(config)
 
     if config.enabled == nil then
         config.enabled = defaultDurationTextColors.enabled
+    end
+
+    if type(config.offset) ~= "number" then
+        config.offset = defaultDurationTextColors.offset
     end
 
     if type(config.thresholds) ~= "table" then
