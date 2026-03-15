@@ -5,11 +5,17 @@ local xb = XIVBar;
 local L = XIVBar.L;
 local compat = xb.compat
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
+local managedActionBarAddOns = {
+    Bartender4 = true,
+    Dominos = true,
+    ElvUI = true,
+    Tukui = true,
+}
 
 local MenuModule = xb:NewModule("MenuModule", 'AceEvent-3.0')
 
 function MenuModule:GetName()
-    return L['Micromenu'];
+    return L["MICROMENU"];
 end
 
 local TitleIconVersion_Small = Enum.TitleIconVersion and Enum.TitleIconVersion.Small
@@ -157,6 +163,20 @@ function MenuModule:SkinFrame(frame, name)
     end
 end
 
+function MenuModule:GetExternalActionBarManagerName()
+    for addOnName in pairs(managedActionBarAddOns) do
+        if IsAddOnLoaded(addOnName) then
+            return addOnName
+        end
+    end
+
+    return nil
+end
+
+function MenuModule:HasExternalActionBarManager()
+    return self:GetExternalActionBarManagerName() ~= nil
+end
+
 function MenuModule:ToggleBlizzardMicroMenu(force)
     local hide = xb.db.profile.modules.microMenu.disableBlizzardMicroMenu
     if force ~= nil then
@@ -169,6 +189,10 @@ function MenuModule:ToggleBlizzardMicroMenu(force)
             self:UnregisterEvent('PLAYER_REGEN_ENABLED')
         end)
         return
+    end
+
+    if self:HasExternalActionBarManager() then
+        hide = false
     end
 
     self.hiddenByXIV = self.hiddenByXIV or {}
@@ -311,7 +335,12 @@ function MenuModule:Refresh()
             prev = frame
         end
     end
-    self.microMenuFrame:SetPoint("LEFT", xb.db.profile.general.barPadding, 0)
+
+    if not xb:ApplyModuleFreePlacement('microMenu', self.microMenuFrame) then
+        self.microMenuFrame:ClearAllPoints()
+        self.microMenuFrame:SetPoint("LEFT", xb.db.profile.general.barPadding, 0)
+    end
+
     self.microMenuFrame:SetSize(totalWidth, xb:GetHeight())
 
     for name, frame in pairs(self.text) do
@@ -766,9 +795,9 @@ function MenuModule:ShowButtonTooltip(name)
         end
         GameTooltip:AddLine(header, r, g, b)
         GameTooltip:AddLine(' ')
-        GameTooltip:AddDoubleLine('<' .. L['Left-Click'] .. '>', '|cFFFFFFFF' .. MAINMENU_BUTTON .. '|r', r, g, b, 1, 1, 1)
-        GameTooltip:AddDoubleLine('<' .. L['Right-Click'] .. '>', '|cFFFFFFFF' .. ADDONS .. '|r', r, g, b, 1, 1, 1)
-        GameTooltip:AddDoubleLine('<' .. SHIFT_KEY_TEXT .. '+' .. L['Right-Click'] .. '>', '|cFFFFFFFF' .. RELOADUI .. '|r', r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine('<' .. L["LEFT_CLICK"] .. '>', '|cFFFFFFFF' .. MAINMENU_BUTTON .. '|r', r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine('<' .. L["RIGHT_CLICK"] .. '>', '|cFFFFFFFF' .. ADDONS .. '|r', r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine('<' .. SHIFT_KEY_TEXT .. '+' .. L["RIGHT_CLICK"] .. '>', '|cFFFFFFFF' .. RELOADUI .. '|r', r, g, b, 1, 1, 1)
         GameTooltip:Show()
         return
     end
@@ -813,6 +842,7 @@ function MenuModule:SocialHover(hoverFunc)
         -- declare our LTip tooltip with 2 columns and mouse interaction when hovering/leaving/updating the tooltip
         local tooltip = self.LTip:AcquireTooltip("SocialToolTip", 2, "LEFT", "RIGHT")
         tooltip:EnableMouse(true)
+        xb:RegisterMouseoverHoldFrame(tooltip, true)
         tooltip:SetScript("OnEnter", function()
             self.tipHover = true
         end)
@@ -901,7 +931,7 @@ function MenuModule:SocialHover(hoverFunc)
 					local gameAccount = friendAccInfo.gameAccountInfo
                     -- if the friend has no battle tag, set it to 'No Tag'
                     if not friendAccInfo.battleTag then
-                        friendAccInfo.battleTag = '[' .. L['No Tag'] .. ']'
+                        friendAccInfo.battleTag = '[' .. L["NO_TAG"] .. ']'
                     end
 
                         local clientIcon = ''
@@ -946,12 +976,12 @@ function MenuModule:SocialHover(hoverFunc)
                         if gameClient == BNET_CLIENT_WOW then
                             isWoW = true
                             -- checks if the friend is logged into classic or retail
-                            if richPresence and richPresence:find(L['Classic']) then
+                            if richPresence and richPresence:find(L["CLASSIC"]) then
                                 isClassic = true
                                 -- friend is playing retail WoW and is of the same faction as the player, or faction is nil which for some reason happens sometimes
                             elseif (not faction) or (faction == playerFaction) then
-                                charNameFormat = "(|cffecd672" .. (charName or L['No Info']) .. "-" ..
-                                                     (realmName or L['No Info']) .. "|r)"
+                                charNameFormat = "(|cffecd672" .. (charName or L["NO_INFO"]) .. "-" ..
+                                                     (realmName or L["NO_INFO"]) .. "|r)"
                                 -- friend is playing retail WoW but is playing on the player's opposite faction
                             else
                                 local factionColors = {
@@ -959,7 +989,7 @@ function MenuModule:SocialHover(hoverFunc)
                                     ['Horde'] = "ffc80000"
                                 }
                                 charNameFormat = "(|c" .. factionColors[faction] .. L[faction] .. "|r - |cffecd672" ..
-                                                     (charName or L['No Info']) .. "|r)"
+                                                     (charName or L["NO_INFO"]) .. "|r)"
                             end
 						end
 
@@ -1207,11 +1237,11 @@ function MenuModule:SocialHover(hoverFunc)
 
         -- add section under the friends list for (modifiers) + left/right click and what each action does
         tooltip:AddRow(' ', ' ')
-        local row1 = tooltip:AddRow('<' .. L['Left-Click'] .. '>', L['Whisper BNet'])
+        local row1 = tooltip:AddRow('<' .. L["LEFT_CLICK"] .. '>', L["WHISPER_BNET"])
         row1:SetTextColor(r, g, b, 1)
-        local row2 = tooltip:AddRow('<' .. self.modifier .. '+' .. L['Left-Click'] .. '>', CALENDAR_INVITELIST_INVITETORAID)
+        local row2 = tooltip:AddRow('<' .. self.modifier .. '+' .. L["LEFT_CLICK"] .. '>', CALENDAR_INVITELIST_INVITETORAID)
         row2:SetTextColor(r, g, b, 1)
-        local row3 = tooltip:AddRow('<' .. L['Right-Click'] .. '>', L['Whisper Character'])
+        local row3 = tooltip:AddRow('<' .. L["RIGHT_CLICK"] .. '>', L["WHISPER_CHARACTER"])
         row3:SetTextColor(r, g, b, 1)
         -- if any bnet or non-bnet friends are online, set the tooltip to show
         if (totalOnlineFriends + totalBNOnlineFriends) > 0 then
@@ -1251,6 +1281,7 @@ function MenuModule:GuildHover(hoverFunc)
         -- declare our LTip tooltip with 2 columns and mouse interaction when hovering/leaving/updating the tooltip
         local tooltip = self.LTip:AcquireTooltip("GuildToolTip", 2, "LEFT", "RIGHT")
         tooltip:EnableMouse(true)
+        xb:RegisterMouseoverHoldFrame(tooltip, true)
         tooltip:SetScript("OnEnter", function()
             self.gtipHover = true
         end)
@@ -1324,7 +1355,7 @@ function MenuModule:GuildHover(hoverFunc)
                     note = '|cffffffff(|r' .. note .. '|cffffffff)|r'
                 end
                 local lineLeft = string.format('%s |c%s%s|r %s |cffecd672%s|r', level, colorHex,
-                    charName or name or L['No Info'], statusText, note)
+                    charName or name or L["NO_INFO"], statusText, note)
                 local lineRight = string.format("|cffffffff%s|r", zone)
                 local lineRow = tooltip:AddRow(lineLeft, lineRight)
                 lineRow:SetScript('OnEnter', function()
@@ -1346,9 +1377,9 @@ function MenuModule:GuildHover(hoverFunc)
         end
         -- add section under member list for (modifiers) + left/right click and what each section does
         tooltip:AddRow(' ', ' ')
-        local grow1 = tooltip:AddRow('<' .. L['Left-Click'] .. '>', L['Whisper Character'])
+        local grow1 = tooltip:AddRow('<' .. L["LEFT_CLICK"] .. '>', L["WHISPER_CHARACTER"])
         grow1:SetTextColor(r, g, b, 1)
-        local grow2 = tooltip:AddRow('<' .. self.modifier .. '+' .. L['Left-Click'] .. '>', CALENDAR_INVITELIST_INVITETORAID)
+        local grow2 = tooltip:AddRow('<' .. self.modifier .. '+' .. L["LEFT_CLICK"] .. '>', CALENDAR_INVITELIST_INVITETORAID)
         grow2:SetTextColor(r, g, b, 1)
         tooltip:Show()
         hoverFunc()
@@ -1479,7 +1510,7 @@ function MenuModule:GetConfig()
             },
 
             showTooltips = {
-                name = L['Show Social Tooltips'],
+                name = L["SHOW_SOCIAL_TOOLTIPS"],
                 order = 1,
                 type = "toggle",
                 get = function()
@@ -1492,7 +1523,7 @@ function MenuModule:GetConfig()
             },
 
             showAccessibilityTooltips = {
-                name = L['Show Accessibility Tooltips'],
+                name = L["SHOW_ACCESSIBILITY_TOOLTIPS"],
                 order = 1.25,
                 type = "toggle",
                 get = function()
@@ -1506,15 +1537,18 @@ function MenuModule:GetConfig()
 
             blizzardMicroMenu = {
                 type = "group",
-                name = L['Blizzard Micromenu'],
+                name = L["BLIZZARD_MICROMENU"],
                 order = 1.5,
                 inline = true,
                 args = {
                     disableBlizzardMicroMenu = {
-                        name = L['Disable Blizzard Micromenu'],
+                        name = L["DISABLE_BLIZZARD_MICROMENU"],
                         order = 1,
                         type = "toggle",
                         width = "full",
+                        disabled = function()
+                            return self:HasExternalActionBarManager()
+                        end,
                         get = function()
                             return xb.db.profile.modules.microMenu.disableBlizzardMicroMenu
                         end,
@@ -1526,12 +1560,13 @@ function MenuModule:GetConfig()
                     },
 
                     keepQueueStatusIcon = {
-                        name = L['Keep Queue Status Icon'],
+                        name = L["KEEP_QUEUE_STATUS_ICON"],
                         order = 2,
                         type = "toggle",
                         width = "full",
                         disabled = function()
-                            return not xb.db.profile.modules.microMenu.disableBlizzardMicroMenu
+                            return self:HasExternalActionBarManager() or
+                                not xb.db.profile.modules.microMenu.disableBlizzardMicroMenu
                         end,
                         get = function()
                             return xb.db.profile.modules.microMenu.keepQueueStatusIcon
@@ -1544,7 +1579,15 @@ function MenuModule:GetConfig()
                     },
 
                     blizzardMicroMenuDisclaimer = {
-                        name = "|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16:16:0:0|t " .. L['Blizzard Micromenu Disclaimer'],
+                        name = function()
+                            local addOnName = self:GetExternalActionBarManagerName()
+                            local text = L["BLIZZARD_MICROMENU_DISCLAIMER"]
+                            if addOnName then
+                                text = string.format(text, addOnName)
+                            end
+
+                            return "|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16:16:0:0|t " .. text
+                        end,
                         order = 3,
                         type = "description",
                         width = "full"
@@ -1553,7 +1596,7 @@ function MenuModule:GetConfig()
             },
 
             appFriendsHide = {
-                name = L["Hide BNet App Friends"],
+                name = L["HIDE_BNET_APP_FRIENDS"],
                 type = "toggle",
                 order = 2,
                 get = function()
@@ -1593,8 +1636,8 @@ function MenuModule:GetConfig()
             },
 
             mainMenuSpacing = {
-                name = L['Main Menu Icon Right Spacing'],
-                order = 5,
+                name = L["MAIN_MENU_ICON_RIGHT_SPACING"],
+                order = 4,
                 type = "range",
                 min = 2,
                 max = 20,
@@ -1609,8 +1652,8 @@ function MenuModule:GetConfig()
             },
 
             iconSpacing = {
-                name = L['Icon Spacing'],
-                order = 6,
+                name = L["ICON_SPACING"],
+                order = 5,
                 type = "range",
                 min = 2,
                 max = 20,
@@ -1625,7 +1668,7 @@ function MenuModule:GetConfig()
             },
 
             showGMOTD = {
-                name = L["GMOTD in Tooltip"],
+                name = L["GMOTD_IN_TOOLTIP"],
                 type = "toggle",
                 order = 7,
                 get = function()
@@ -1638,8 +1681,8 @@ function MenuModule:GetConfig()
             },
 
             modifierTooltip = {
-                name = L["Modifier for friend invite"],
-                order = 8,
+                name = L["FRIEND_INVITE_MODIFIER"],
+                order = 7,
                 type = "select",
                 values = {SHIFT_KEY_TEXT, ALT_KEY_TEXT, CTRL_KEY_TEXT},
                 style = "dropdown",
@@ -1656,8 +1699,8 @@ function MenuModule:GetConfig()
             },
 
             hideSocialText = {
-                name = L['Hide Social Text'],
-                order = 9,
+                name = L["HIDE_SOCIAL_TEXT"],
+                order = 8,
                 type = "toggle",
                 get = function()
                     return xb.db.profile.modules.microMenu.hideSocialText;
@@ -1669,8 +1712,8 @@ function MenuModule:GetConfig()
             },
 
             osSocialText = {
-                name = L['Social Text Offset'],
-                order = 10,
+                name = L["SOCIAL_TEXT_OFFSET"],
+                order = 9,
                 type = "range",
                 min = 0,
                 max = 20,
@@ -1686,12 +1729,12 @@ function MenuModule:GetConfig()
 
             buttons = {
                 type = 'group',
-                name = L['Show/Hide Buttons'],
+                name = L["SHOW_HIDE_BUTTONS"],
                 order = 10,
                 inline = true,
                 args = {
                     menu = {
-                        name = L['Show Menu Button'],
+                        name = L["SHOW_MENU_BUTTON"],
                         order = 1,
                         type = "toggle",
                         get = function()
@@ -1703,8 +1746,8 @@ function MenuModule:GetConfig()
                             self:Refresh();
                         end
                     },
-					chat = {
-                        name = L['Show Chat Button'],
+                    chat = {
+                        name = L["SHOW_CHAT_BUTTON"],
                         order = 2,
                         type = "toggle",
                         get = function()
@@ -1717,7 +1760,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     guild = {
-                        name = L['Show Guild Button'],
+                        name = L["SHOW_GUILD_BUTTON"],
                         order = 3,
                         type = "toggle",
                         get = function()
@@ -1730,7 +1773,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     social = {
-                        name = L['Show Social Button'],
+                        name = L["SHOW_SOCIAL_BUTTON"],
                         order = 4,
                         type = "toggle",
                         get = function()
@@ -1743,7 +1786,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     char = {
-                        name = L['Show Character Button'],
+                        name = L["SHOW_CHARACTER_BUTTON"],
                         order = 5,
                         type = "toggle",
                         get = function()
@@ -1756,7 +1799,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     spell = {
-                        name = L['Show Spellbook Button'],
+                        name = L["SHOW_SPELLBOOK_BUTTON"],
                         order = 6,
                         type = "toggle",
                         get = function()
@@ -1769,7 +1812,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     talent = {
-                        name = L['Show Talents Button'],
+                        name = L["SHOW_TALENTS_BUTTON"],
                         order = 7,
                         type = "toggle",
                         get = function()
@@ -1782,7 +1825,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     ach = {
-                        name = L['Show Achievements Button'],
+                        name = L["SHOW_ACHIEVEMENTS_BUTTON"],
                         order = 8,
                         type = "toggle",
                         get = function()
@@ -1795,7 +1838,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     quest = {
-                        name = L['Show Quests Button'],
+                        name = L["SHOW_QUESTS_BUTTON"],
                         order = 9,
                         type = "toggle",
                         get = function()
@@ -1808,7 +1851,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     lfg = {
-                        name = L['Show LFG Button'],
+                        name = L["SHOW_LFG_BUTTON"],
                         order = 10,
                         type = "toggle",
                         get = function()
@@ -1821,7 +1864,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     journal = {
-                        name = L['Show Journal Button'],
+                        name = L["SHOW_JOURNAL_BUTTON"],
                         order = 11,
                         type = "toggle",
                         get = function()
@@ -1834,7 +1877,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     pvp = {
-                        name = L['Show PVP Button'],
+                        name = L["SHOW_PVP_BUTTON"],
                         order = 12,
                         type = "toggle",
                         get = function()
@@ -1847,7 +1890,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     pet = {
-                        name = L['Show Pets Button'],
+                        name = L["SHOW_PETS_BUTTON"],
                         order = 13,
                         type = "toggle",
                         get = function()
@@ -1860,7 +1903,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     house = {
-                        name = L['Show Housing Button'],
+                        name = L["SHOW_HOUSING_BUTTON"],
                         order = 14,
                         type = "toggle",
                         get = function()
@@ -1873,7 +1916,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     shop = {
-                        name = L['Show Shop Button'],
+                        name = L["SHOW_SHOP_BUTTON"],
                         order = 15,
                         type = "toggle",
                         get = function()
@@ -1886,7 +1929,7 @@ function MenuModule:GetConfig()
                         end
                     },
                     help = {
-                        name = L['Show Help Button'],
+                        name = L["SHOW_HELP_BUTTON"],
                         order = 16,
                         type = "toggle",
                         get = function()

@@ -211,6 +211,11 @@ function ArmorModule:Refresh()
 
     self.armorButton:SetAllPoints()
 
+    if xb:ApplyModuleFreePlacement('armor', self.armorFrame) then
+        self:SetArmorColor()
+        return
+    end
+
     local relativeAnchorPoint = 'RIGHT'
     local xOffset = xb.db.profile.general.moduleSpacing
 
@@ -335,7 +340,7 @@ function ArmorModule:GetConfig()
                 end
             },
             duraMin = {
-                name = L['Durability Warning Threshold'],
+                name = L["DURABILITY_WARNING_THRESHOLD"],
                 type = 'range',
                 order = 1,
                 min = 0,
@@ -350,7 +355,7 @@ function ArmorModule:GetConfig()
                 end
             },
             ilvlShow = {
-                name = L['Show Item Level'],
+                name = L["SHOW_ITEM_LEVEL"],
                 type = 'toggle',
                 order = 2,
                 get = function()
@@ -362,7 +367,7 @@ function ArmorModule:GetConfig()
                 end
             },
             coordsShow = {
-                name = L['Show Coordinates'],
+                name = L["SHOW_COORDINATES"],
                 type = 'toggle',
                 order = 3,
                 get = function()
