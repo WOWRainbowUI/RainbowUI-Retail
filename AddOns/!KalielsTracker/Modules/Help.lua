@@ -363,6 +363,12 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
+					(cTitle.."版本 8.3.1|r\n"..
+					"- 修改：任務物品按鈕的改進\n"..
+					"- 修改：TomTom 路徑點功能改進\n"..
+					"- 修正：與插件 BugGrabber 12.0.11 的錯誤\n"..
+					"\n")..
+
 					(cTitle.."版本 8.3.0|r\n"..
                     "- 新增 (任務日誌) - 在世界地圖顯示任務詳情（實驗性）\n"..
                     offs3.."- Kaliel's Tracker 實作了自訂任務詳情以避免污染問題。\n"..

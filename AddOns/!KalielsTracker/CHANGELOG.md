@@ -1,4 +1,8 @@
 # Kaliel's Tracker changelog
+### 8.3.1
+- CHANGED - Quest Item Button improvements
+- CHANGED - TomTom - waypoint improvements
+- FIXED - errors with addon BugGrabber 12.0.11
 ### 8.3.0
 - ADDED (QuestLog) - Show Quest Details on World Map (Experimental)
   - Custom Quest Details implemented by Kaliel&#x27;s Tracker to avoid taint issues.

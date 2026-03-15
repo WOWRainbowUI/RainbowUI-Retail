@@ -76,36 +76,23 @@ local function BuildTelemetry()
 end
 
 if BugGrabber then
-    if not BugGrabber.RegisterCallback then
-        BugGrabber.setupCallbacks()
-    end
-
-    BugGrabber.RegisterCallback(KT, "BugGrabber_BugGrabbed", function(_, err)
+    EventRegistry:RegisterCallback("BugGrabber.BugGrabbed", function(_, tableID)
+        local err = BugGrabber:GetErrorByID(tableID)
         if not err or not err.message then return end
         if not IsOwnError(err.message) then return end
 
         local telemetry = BuildTelemetry()
-        if telemetry == "" then
-            if err.KTbckStack then
-                err.stack = err.KTbckStack
-                err.KTbckStack = nil
-            end
+        if err.KTtelemetry and
+                (telemetry ~= err.KTtelemetry or
+                not err.stack or
+                not err.stack:find(err.KTtelemetry, 1, true)) then
             err.KTtelemetry = nil
-        else
-            if telemetry ~= err.KTtelemetry then
-                if err.KTbckStack then
-                    err.stack = err.KTbckStack
-                    err.KTbckStack = nil
-                end
-                err.KTtelemetry = nil
-            end
-            if not err.KTtelemetry then
-                err.KTtelemetry = telemetry
-                err.KTbckStack = err.stack
-                err.stack = (err.stack or "")..telemetry
-            end
         end
-    end)
+        if not err.KTtelemetry then
+            err.KTtelemetry = telemetry
+            err.stack = (err.stack or "")..telemetry
+        end
+    end, KT)
 else
     local function InstallErrorHandler()
         local errorHandler = geterrorhandler()

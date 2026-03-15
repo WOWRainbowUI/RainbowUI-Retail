@@ -581,6 +581,12 @@ local function SetHooks()
         TomTomArrow_SetShown(not fakeData)
 	end)
 
+	hooksecurefunc(TomTom, "ClearCrazyArrowPoint", function(self, remove)
+		if superTrackedQuestID > 0 then
+			RemoveWaypoint(superTrackedQuestID)
+		end
+	end)
+
 	TomTomCrazyArrow:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	local bck_TomTomCrazyArrow_OnClick = TomTomCrazyArrow:GetScript("OnClick")
 	TomTomCrazyArrow:SetScript("OnClick", function(self, btn, down)

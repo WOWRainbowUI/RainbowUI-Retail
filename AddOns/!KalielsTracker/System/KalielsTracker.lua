@@ -2684,15 +2684,20 @@ function KT:MoveButtons()
 	end
 end
 
+local function RemoveFixedTag(block)
+    local tag = block.fixedTag
+    if tag then
+        tinsert(freeTags, tag)
+        tag.text:SetText("")
+        tag:Hide()
+        block.fixedTag = nil
+    end
+end
+
 function KT:RemoveFixedButton(block)
 	if block then
-		local tag = block.fixedTag
-		if tag then
-			tinsert(freeTags, tag)
-			tag.text:SetText("")
-			tag:Hide()
-			block.fixedTag = nil
-		end
+        RemoveFixedTag(block)
+
 		local questID = block.id
 		local button = self:GetFixedButton(questID)
 		if button then
@@ -2710,6 +2715,11 @@ function KT:RemoveFixedButton(block)
 		end
 	else
 		for questID, button in pairs(self.fixedButtons) do
+            block = button.block
+            if block then
+                RemoveFixedTag(block)
+            end
+
 			_DBG(" - REMOVE button "..questID)
 			tinsert(freeButtons, button)
 			self.fixedButtons[questID] = nil
