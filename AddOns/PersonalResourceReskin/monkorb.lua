@@ -407,8 +407,9 @@ local function UpdateOrbs()
     if db and db.MonkOrbTracker_anchorToPRD and not prdHooked then
         HookPRDAnchor()
     end
+    local enabled = db and db.MonkOrbTracker_enabled ~= false
     local hideWhenMounted = db and db.MonkOrbTracker_hideWhenMounted
-    if hideWhenMounted and IsMounted() then
+    if not enabled or (hideWhenMounted and IsMounted()) then
         MonkOrbTracker:Hide()
         return
     end
@@ -470,8 +471,9 @@ MonkOrbTracker:SetScript("OnEvent", function(self, event, ...)
         MonkOrbTracker:RegisterEvent("UNIT_AURA")
     end
     local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+    local enabled = db and db.MonkOrbTracker_enabled ~= false
     local hideWhenMounted = db and db.MonkOrbTracker_hideWhenMounted
-    if hideWhenMounted and IsMounted() then
+    if not enabled or (hideWhenMounted and IsMounted()) then
         MonkOrbTracker:Hide()
         MonkOrbTracker:SetScript("OnUpdate", nil)
         return

@@ -257,6 +257,21 @@ local WarriorTrackerOptions = {
 
 _G.WarriorTrackerOptions = WarriorTrackerOptions
 
+-- Register as a child tab under main options
+local function RegisterWarriorTrackerOptions()
+    if PersonalResourceReskinPlus_Options and PersonalResourceReskinPlus_Options.RegisterSubOptions then
+        PersonalResourceReskinPlus_Options.RegisterSubOptions("WarriorTracker", WarriorTrackerOptions)
+    end
+end
+
+-- Defer registration until PLAYER_LOGIN to ensure main options are loaded
+local regFrame = CreateFrame("Frame")
+regFrame:RegisterEvent("PLAYER_LOGIN")
+regFrame:SetScript("OnEvent", function(self)
+    self:UnregisterAllEvents()
+    RegisterWarriorTrackerOptions()
+end)
+
 -- WarriorTracker main code
 -- Standalone resource tracker for Warrior
 

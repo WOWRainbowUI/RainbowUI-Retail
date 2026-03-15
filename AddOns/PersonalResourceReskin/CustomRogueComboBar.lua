@@ -1,3 +1,20 @@
+-- Register options subpage with AceConfig/AceConfigDialog
+-- Register as a child tab under main options, matching WarriorTracker
+local function RegisterCustomRogueComboBarOptions()
+    local _, class = UnitClass("player")
+    if class ~= "ROGUE" then return end
+    if PersonalResourceReskinPlus_Options and PersonalResourceReskinPlus_Options.RegisterSubOptions then
+        PersonalResourceReskinPlus_Options.RegisterSubOptions("CustomRogueComboBar", CustomRogueComboBarOptions)
+    end
+end
+
+-- Defer registration until PLAYER_LOGIN to ensure main options are loaded
+local regFrame = CreateFrame("Frame")
+regFrame:RegisterEvent("PLAYER_LOGIN")
+regFrame:SetScript("OnEvent", function(self)
+    self:UnregisterAllEvents()
+    RegisterCustomRogueComboBarOptions()
+end)
 -- CustomRogueComboBar.lua
 
 
@@ -64,23 +81,31 @@ local function GetPRDHealthBar()
     if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
         return prd.HealthBarsContainer.healthBar
     end
-    return _G.PersonalResourceDisplayHealthBar
+    if _G.PersonalResourceDisplayHealthBar then
+        return _G.PersonalResourceDisplayHealthBar
+    end
+    return nil
 end
 
 local function GetPRDPowerBar()
     local prd = _G.PersonalResourceDisplayFrame
-    if prd and prd.PowerBarsContainer and prd.PowerBarsContainer.powerBar then
-        return prd.PowerBarsContainer.powerBar
+    if prd and prd.PowerBar then
+        return prd.PowerBar
     end
-    return _G.PersonalResourceDisplayPowerBar
+    if _G.PersonalResourceDisplayPowerBar then
+        return _G.PersonalResourceDisplayPowerBar
+    end
+    return nil
 end
 
 local function GetPRDAnchorFrame()
     if not CustomRogueComboBarDB.anchorToPRD then return nil end
     local target = CustomRogueComboBarDB.anchorTarget or "HEALTH"
-    local f = (target == "POWER") and GetPRDPowerBar() or GetPRDHealthBar()
-    dprint("GetPRDAnchorFrame target=", target, "found=", f and "yes" or "no")
-    return f
+    if target == "POWER" then
+        return GetPRDPowerBar()
+    else
+        return GetPRDHealthBar()
+    end
 end
 
 local function HideDefaultComboBar()
@@ -236,15 +261,14 @@ local function ApplyComboBarSettings()
     dprint("Apply settings:", "anchorToPRD=", CustomRogueComboBarDB.anchorToPRD, "anchorFrame=", anchorFrame and "yes" or "no")
 
     if anchorFrame then
-        if CustomRogueComboBarDB.anchorPosition == "ABOVE" then
-            dprint("對齊到個人資源條上方，偏移量", CustomRogueComboBarDB.anchorOffset or 10)
-            comboPointBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, CustomRogueComboBarDB.anchorOffset or 10)
+        local pos = CustomRogueComboBarDB.anchorPosition or "BELOW"
+        local offset = CustomRogueComboBarDB.anchorOffset or 10
+        if pos == "ABOVE" then
+            comboPointBar:SetPoint("BOTTOM", anchorFrame, "TOP", 0, offset)
         else
-            dprint("對齊到個人資源條下方，偏移量", CustomRogueComboBarDB.anchorOffset or 10)
-            comboPointBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -(CustomRogueComboBarDB.anchorOffset or 10))
+            comboPointBar:SetPoint("TOP", anchorFrame, "BOTTOM", 0, -offset)
         end
     else
-        dprint("置中位置 x=", CustomRogueComboBarDB.x or 0, "y=", CustomRogueComboBarDB.y or 0)
         comboPointBar:SetPoint("CENTER", UIParent, "CENTER", CustomRogueComboBarDB.x or 0, CustomRogueComboBarDB.y or 0)
     end
 end
