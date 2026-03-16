@@ -34,6 +34,9 @@ local addonName, BR = ...
 ---@field fontFace? string
 ---@field showConsumablesWithoutItems? boolean
 ---@field delveFoodOnly? boolean
+---@field freeConsumableMode? "follow"|"override"
+---@field freeConsumableVisibility? table
+---@field healthstoneVisibility? "readyCheck"|"always"|"casterOnly"
 ---@field consumableRebuffWarning? boolean
 ---@field consumableRebuffThreshold? number
 ---@field consumableRebuffColor? number[]
@@ -99,7 +102,6 @@ local addonName, BR = ...
 ---@field buffText? FontString
 ---@field foodLabel? FontString
 ---@field foodHeartyBadge? FontString
----@field testText FontString
 ---@field isPlayerBuff? boolean
 ---@field buffCategory? CategoryName
 ---@field glowTexture? Texture
@@ -290,6 +292,16 @@ local defaults = {
         glowSize = 2,
         showConsumablesWithoutItems = false,
         delveFoodOnly = true,
+        freeConsumableMode = "override",
+        freeConsumableVisibility = {
+            openWorld = false,
+            scenario = true,
+            dungeon = true,
+            raid = true,
+            housing = false,
+            pvp = true,
+        },
+        healthstoneVisibility = "readyCheck",
         consumableDisplayMode = "sub_icons",
         showConsumableTooltips = false,
         petDisplayMode = "generic", -- "generic" or "expanded"
@@ -466,7 +478,6 @@ local eventFrame -- forward declaration; created later in file, referenced by St
 ---@field fakeTotal number Total group size for fake counts
 ---@field fakeRemaining number Fake time remaining for expiration glow test
 ---@field fakeMissing table<number, number> Fake missing counts per raid buff index
----@field showLabels boolean Whether to show "TEST" labels on icons
 
 ---@type TestModeData?
 local testModeData = nil -- Stores seeded fake values for consistent test display
@@ -797,9 +808,13 @@ local function GetCachedGlowSettings(category)
     local source = (useCustom and catSettings) or (db and db.defaults) or {}
 
     local typeIndex = source.glowType or BR.Glow.Type.Pixel
+    local color = source.glowColor
+    if typeIndex == BR.Glow.Type.Proc and not source.glowProcUseCustomColor then
+        color = nil
+    end
     cached = {
         typeIndex = typeIndex,
-        color = source.glowColor,
+        color = color,
         size = source.glowSize or 2,
         borderSize = BR.Config.GetCategorySetting(category, "borderSize") or DEFAULT_BORDER_SIZE,
         params = BR.Glow.BuildAdvancedParams(source, typeIndex),
@@ -855,14 +870,32 @@ local DIRECTION_ANCHORS = {
 }
 BR.DIRECTION_ANCHORS = DIRECTION_ANCHORS
 
-local OPPOSITE_POINTS = {
-    TOP = "BOTTOM",
-    BOTTOM = "TOP",
-    LEFT = "RIGHT",
-    RIGHT = "LEFT",
-    CENTER = "CENTER",
+-- Compound anchor for external-frame anchoring: combines opposite(extPoint) on cross-axis
+-- with growth direction anchor on main-axis. Same-axis conflicts: growth direction wins.
+local EXT_DIRECTION_ANCHORS = {
+    TOP = { LEFT = "BOTTOMRIGHT", RIGHT = "BOTTOMLEFT", UP = "BOTTOM", DOWN = "TOP", CENTER = "BOTTOM" },
+    BOTTOM = { LEFT = "TOPRIGHT", RIGHT = "TOPLEFT", UP = "BOTTOM", DOWN = "TOP", CENTER = "TOP" },
+    LEFT = { LEFT = "RIGHT", RIGHT = "LEFT", UP = "BOTTOMRIGHT", DOWN = "TOPRIGHT", CENTER = "RIGHT" },
+    RIGHT = { LEFT = "RIGHT", RIGHT = "LEFT", UP = "BOTTOMLEFT", DOWN = "TOPLEFT", CENTER = "LEFT" },
+    CENTER = { LEFT = "RIGHT", RIGHT = "LEFT", UP = "BOTTOM", DOWN = "TOP", CENTER = "CENTER" },
+    TOPLEFT = {
+        LEFT = "BOTTOMRIGHT",
+        RIGHT = "BOTTOMLEFT",
+        UP = "BOTTOMRIGHT",
+        DOWN = "TOPRIGHT",
+        CENTER = "BOTTOMRIGHT",
+    },
+    TOPRIGHT = {
+        LEFT = "BOTTOMRIGHT",
+        RIGHT = "BOTTOMLEFT",
+        UP = "BOTTOMLEFT",
+        DOWN = "TOPLEFT",
+        CENTER = "BOTTOMLEFT",
+    },
+    BOTTOMLEFT = { LEFT = "TOPRIGHT", RIGHT = "TOPLEFT", UP = "BOTTOMRIGHT", DOWN = "TOPRIGHT", CENTER = "TOPRIGHT" },
+    BOTTOMRIGHT = { LEFT = "TOPRIGHT", RIGHT = "TOPLEFT", UP = "BOTTOMLEFT", DOWN = "TOPLEFT", CENTER = "TOPLEFT" },
 }
-BR.OPPOSITE_POINTS = OPPOSITE_POINTS
+BR.EXT_DIRECTION_ANCHORS = EXT_DIRECTION_ANCHORS
 
 -- Resolve an external anchor parent frame for a category (returns nil if not set or invalid)
 local function ResolveAnchorParent(catKey)
@@ -898,8 +931,8 @@ local function CreateCategoryFrame(category)
     frame:SetSize(200, 50)
     local extFrame, extPoint = ResolveAnchorParent(category)
     if extFrame then
-        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
-        frame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+        local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
+        frame:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
     else
         frame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
     end
@@ -916,6 +949,7 @@ local function CreateIconTextures(frame, texture)
     frame.icon:SetAllPoints()
     frame.icon:SetDesaturated(false)
     frame.icon:SetVertexColor(1, 1, 1, 1)
+    frame.icon._br_desaturated = false
     if texture then
         frame.icon:SetTexture(texture)
     end
@@ -1054,14 +1088,6 @@ local function CreateBuffFrame(buff, category)
             frame.buffText:Hide()
         end
     end
-
-    -- "TEST" text (shown above icon in test mode)
-    frame.testText = frame:CreateFontString(nil, "OVERLAY")
-    frame.testText:SetPoint("BOTTOM", frame, "TOP", 0, 25)
-    frame.testText:SetFont(fontPath, GetFontSize(0.6, catSettings.textSize, catSettings.iconSize), "OUTLINE")
-    frame.testText:SetTextColor(1, 0.8, 0, 1)
-    frame.testText:SetText("測試")
-    frame.testText:Hide()
 
     -- Always click-through (dragging is handled by anchor handles)
     frame:EnableMouse(false)
@@ -1309,8 +1335,8 @@ local function PositionMainContainer(mainFrameBuffs)
         mainFrame:ClearAllPoints()
         local extFrame, extPoint = ResolveAnchorParent("main")
         if extFrame then
-            local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
-            mainFrame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+            local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
+            mainFrame:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
         else
             mainFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
         end
@@ -1365,8 +1391,8 @@ local function PositionSplitCategory(category, frames)
         catFrame:ClearAllPoints()
         local extFrame, extPoint = ResolveAnchorParent(category)
         if extFrame then
-            local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
-            catFrame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+            local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
+            catFrame:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
         else
             catFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
         end
@@ -1516,11 +1542,7 @@ local function GenerateTestEntries()
 end
 
 -- Toggle test mode - returns true if test mode is now ON, false if OFF
--- showLabels: if true (default), show "TEST" labels above icons
-ToggleTestMode = function(showLabels)
-    if showLabels == nil then
-        showLabels = true
-    end
+ToggleTestMode = function()
     if testMode then
         testMode = false
         testModeData = nil
@@ -1529,9 +1551,6 @@ ToggleTestMode = function(showLabels)
         -- test mode but not tracked in previouslyVisibleKeys would linger as orphans.
         for _, frame in pairs(buffFrames) do
             SetExpirationGlow(frame, false)
-            if frame.testText then
-                frame.testText:Hide()
-            end
             frame:Hide()
             if frame.extraFrames then
                 for _, extra in ipairs(frame.extraFrames) do
@@ -1555,7 +1574,6 @@ ToggleTestMode = function(showLabels)
             fakeTotal = random(10, 20),
             fakeRemaining = random(1, threshold) * 60,
             fakeMissing = {},
-            showLabels = showLabels,
         }
         for i = 1, #RaidBuffs do
             data.fakeMissing[i] = random(1, 5)
@@ -1743,9 +1761,24 @@ local function ClearFoodFrameStyle(frame)
     end
 end
 
+-- Set icon desaturation and dimming for consumable frames without bag items.
+-- Tracks state to skip redundant WoW API calls on hot render paths.
+local function SetIconDesaturated(icon, desaturate)
+    if icon._br_desaturated == desaturate then
+        return
+    end
+    icon._br_desaturated = desaturate
+    icon:SetDesaturated(desaturate)
+    if desaturate then
+        icon:SetVertexColor(0.6, 0.6, 0.6, 1)
+    else
+        icon:SetVertexColor(1, 1, 1, 1)
+    end
+end
+
 -- Resolve a consumable frame's icon from bag items.
 -- Returns "items" if bag items found (sets icon, quality overlay, stack count),
--- "missing" if no items but showConsumablesWithoutItems is on,
+-- "missing" if no items but showConsumablesWithoutItems is on (icon greyed out),
 -- or false if no items and setting is off.
 ---@param frame BuffFrame
 ---@return string|false result "items", "missing", or false
@@ -1757,6 +1790,7 @@ local function ResolveConsumableFrame(frame)
     end
     if items and items[1] then
         frame.icon:SetTexture(items[1].icon)
+        SetIconDesaturated(frame.icon, false)
         if frame.qualityOverlay then
             BR.SecureButtons.SetQualityOverlay(frame.qualityOverlay, items[1].craftedQuality, frame:GetWidth())
         end
@@ -1783,6 +1817,7 @@ local function ResolveConsumableFrame(frame)
         frame.qualityOverlay:Hide()
     end
     if (BR.profile.defaults or {}).showConsumablesWithoutItems then
+        SetIconDesaturated(frame.icon, true)
         return "missing"
     end
     return false
@@ -1804,6 +1839,7 @@ local function RenderVisibleEntry(frame, entry)
     -- Eating override: state provides isEating as a snapshot, so the display
     -- never reads a live flag that can change mid-cycle.
     if entry.isEating then
+        SetIconDesaturated(frame.icon, false)
         frame.icon:SetTexture(EATING_ICON)
         frame._br_eating_icon = true
         if entry.eatingExpirationTime then
@@ -1851,12 +1887,18 @@ local function RenderVisibleEntry(frame, entry)
     local cachedGlow = entry.category and GetCachedGlowSettings(entry.category) or nil
 
     if entry.displayType == "count" then
+        if frame.buffCategory == "consumable" then
+            SetIconDesaturated(frame.icon, false)
+        end
         frame.count:SetFont(fontPath, GetFrameFontSize(frame), "OUTLINE")
         frame.count:SetText(entry.countText or "")
         frame.count:Show()
         frame:Show()
         SetExpirationGlow(frame, entry.shouldGlow, entry.category, cachedGlow)
     elseif entry.displayType == "expiring" then
+        if frame.buffCategory == "consumable" then
+            SetIconDesaturated(frame.icon, false)
+        end
         frame.count:SetFont(fontPath, GetFrameFontSize(frame), "OUTLINE")
         frame.count:SetText(entry.countText or "")
         frame.count:Show()
@@ -2380,16 +2422,6 @@ UpdateDisplay = function()
     end
     BR.Movers.UpdateAnchor()
 
-    -- Show TEST labels in test mode (after positioning so font size is correct)
-    if testMode and testModeData and testModeData.showLabels then
-        for _, frame in pairs(buffFrames) do
-            if frame:IsShown() and frame.testText then
-                frame.testText:SetFont(fontPath, GetFrameFontSize(frame, 0.6), "OUTLINE")
-                frame.testText:Show()
-            end
-        end
-    end
-
     -- Skip secure frame sync in test mode (secure frames are hidden)
     if not testMode then
         BR.SecureButtons.ScheduleSecureSync()
@@ -2454,12 +2486,17 @@ local function InitializeFrames()
     local pos = (db.categorySettings and db.categorySettings.main and db.categorySettings.main.position)
         or db.position
         or { point = "CENTER", x = 0, y = 0 }
+    local mainCatSettings = db.categorySettings and db.categorySettings.main
+    local initDirection = (mainCatSettings and mainCatSettings.growDirection)
+        or (db.defaults and db.defaults.growDirection)
+        or "CENTER"
+    local anchor = DIRECTION_ANCHORS[initDirection] or "CENTER"
     local extFrame, extPoint = ResolveAnchorParent("main")
     if extFrame then
-        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
-        mainFrame:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+        local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][initDirection] or anchor
+        mainFrame:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
     else
-        mainFrame:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+        mainFrame:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
     end
     mainFrame:EnableMouse(false)
 
@@ -2817,7 +2854,7 @@ local function SlashHandler(msg)
     cmd = cmd:lower()
 
     if cmd == "test" then
-        ToggleTestMode(false) -- no labels, for previews
+        ToggleTestMode()
     elseif cmd == "lock" then
         BR.profile.locked = true
         BR.Movers.HideAll()
@@ -2968,7 +3005,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 28
+        local DB_VERSION = 30
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -3587,6 +3624,29 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     end
                 end
             end,
+            -- [29] Default free consumables (healthstones, permanent runes) to ready-check-only
+            -- so they don't show the entire instance.
+            [29] = function()
+                if db.defaults and db.defaults.freeConsumableReadyCheckOnly == false then
+                    db.defaults.freeConsumableReadyCheckOnly = true
+                end
+            end,
+            -- [30] Rename freeConsumableReadyCheckOnly → healthstoneVisibility (string mode),
+            -- and clean up hideInPvPMatch from free consumable visibility.
+            [30] = function()
+                if db.defaults then
+                    local old = db.defaults.freeConsumableReadyCheckOnly
+                    if old == true then
+                        db.defaults.healthstoneVisibility = "readyCheck"
+                    elseif old == false then
+                        db.defaults.healthstoneVisibility = "always"
+                    end
+                    db.defaults.freeConsumableReadyCheckOnly = nil
+                    if db.defaults.freeConsumableVisibility then
+                        db.defaults.freeConsumableVisibility.hideInPvPMatch = nil
+                    end
+                end
+            end,
         }
 
         -- Run pending migrations
@@ -3708,7 +3768,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     if button == "LeftButton" then
                         BR.Options.Toggle()
                     elseif button == "RightButton" then
-                        ToggleTestMode(true)
+                        ToggleTestMode()
                     end
                 end,
                 OnTooltipShow = function(tooltip)

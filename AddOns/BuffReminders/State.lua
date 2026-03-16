@@ -574,7 +574,7 @@ end
 ---Check if a category should be visible for the current content type
 ---@param category CategoryName
 ---@return boolean
-local function IsCategoryVisibleForContent(category)
+local function IsCategoryVisibleForContent(category, skipReadyCheck)
     if inVehicle and category ~= "raid" and category ~= "presence" then
         return false
     end
@@ -603,10 +603,12 @@ local function IsCategoryVisibleForContent(category)
     if contentType == "pvp" and not inPvPPrepPhase and visibility.hideInPvPMatch then
         return false
     end
-    -- Per-category ready check filter
-    local catSettings = db.categorySettings and db.categorySettings[category]
-    if catSettings and catSettings.showOnlyOnReadyCheck and not inReadyCheck then
-        return false
+    -- Per-category ready check filter (skipped when caller handles ready check independently)
+    if not skipReadyCheck then
+        local catSettings = db.categorySettings and db.categorySettings[category]
+        if catSettings and catSettings.showOnlyOnReadyCheck and not inReadyCheck then
+            return false
+        end
     end
     return true
 end
@@ -1092,6 +1094,57 @@ local function GetEatingExpirationTime()
     return auraData.expirationTime
 end
 
+---Check if a consumable buff is free/reusable (freeConsumable flag or permanent rune in bags)
+---@param buff ConsumableBuff
+---@return boolean
+local function IsFreeConsumable(buff)
+    if buff.freeConsumable then
+        return true
+    end
+    if buff.permanentRuneItemIDs then
+        for _, itemID in ipairs(buff.permanentRuneItemIDs) do
+            if HasItemInBagsOrEquipped(itemID) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+---Check if a free consumable should be visible based on its override visibility settings
+---@param db table Database settings
+---@return boolean
+local function IsFreeConsumableVisible(db)
+    if inVehicle then
+        return false
+    end
+    local vis = db.defaults and db.defaults.freeConsumableVisibility
+    if not vis then
+        return true
+    end
+    local contentType = GetCurrentContentType()
+    if vis[contentType] == false then
+        return false
+    end
+    -- Check difficulty sub-filter
+    local diffKey = GetCurrentDifficultyKey()
+    if diffKey then
+        local diffDbKey = CONTENT_DIFF_DB_KEYS[contentType]
+        local diffTable = diffDbKey and vis[diffDbKey]
+        if diffTable and diffTable[diffKey] == false then
+            return false
+        end
+    end
+    -- PvP match hiding follows the consumable category's setting
+    if contentType == "pvp" and not inPvPPrepPhase then
+        local catVis = db.categoryVisibility and db.categoryVisibility.consumable
+        if catVis and catVis.hideInPvPMatch then
+            return false
+        end
+    end
+    return true
+end
+
 ---Check if player is missing a consumable buff, weapon enchant, or inventory item (returns true if missing)
 ---@param buff table Consumable buff definition
 ---@return boolean shouldShow
@@ -1184,7 +1237,7 @@ local function PassesPreChecks(buff, presentClasses, db)
         return false
     end
 
-    -- Ready check gate
+    -- Ready check gate (for readyCheckOnly buffs like presence buffs)
     if buff.readyCheckOnly and not inReadyCheck then
         local overrides = db.readyCheckOnlyOverrides
         local settingKey = buff.groupId or buff.key
@@ -1596,6 +1649,11 @@ function BuffState.Refresh()
     local consumableVisible = IsCategoryVisibleForContent("consumable")
     local consGlow, consThreshold = GetCategoryGlowSettings("consumable")
     local delveFoodOnly = db.defaults and db.defaults.delveFoodOnly and BR.IsInDelve()
+    local freeMode = db.defaults and db.defaults.freeConsumableMode or "override"
+    local freeVisible = freeMode == "override" and IsFreeConsumableVisible(db) or false
+    -- In follow mode, healthstones use consumable category content gates (without ready check)
+    local consumableContentVisible = freeMode == "follow" and IsCategoryVisibleForContent("consumable", true) or false
+    local freeRcMode = db.defaults and db.defaults.healthstoneVisibility or "readyCheck"
     for i, buff in ipairs(Consumables) do
         local entry = GetOrCreateEntry(buff.key, "consumable", i)
         local settingKey = buff.groupId or buff.key
@@ -1603,10 +1661,21 @@ function BuffState.Refresh()
         local requiredClass = buff.class or buff.casterClass
         local hasCaster = not requiredClass or HasCasterForBuff(requiredClass, buff.levelRequired)
         local useGlowDet = isAuraRestricted and not IsAuraTrackable(buff) and buff.glowDetectable
+        local isFreeConsumable = freeVisible and IsFreeConsumable(buff)
+        -- Healthstone ready check mode (independent of follow/override content gates)
+        local freeReadyCheckOk = true
+        if buff.freeConsumable and not inReadyCheck then
+            if freeRcMode == "readyCheck" then
+                freeReadyCheckOk = false
+            elseif freeRcMode == "casterOnly" then
+                freeReadyCheckOk = not buff.casterClass or buff.casterClass == playerClass
+            end
+        end
         if
             (not isAuraRestricted or IsAuraTrackable(buff) or useGlowDet)
             and IsBuffEnabled(settingKey)
-            and consumableVisible
+            and (consumableVisible or isFreeConsumable or (buff.freeConsumable and consumableContentVisible))
+            and freeReadyCheckOk
             and hasCaster
             and PassesPreChecks(buff, nil, db)
             and not (buff.key ~= "delveFood" and delveFoodOnly)

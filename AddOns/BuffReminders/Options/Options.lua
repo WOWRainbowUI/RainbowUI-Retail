@@ -403,7 +403,8 @@ local function CreateOptionsPanel()
         displayName,
         infoTooltip,
         displayIcon,
-        readyCheckOnly
+        readyCheckOnly,
+        freeConsumable
     )
         local holder = Components.Checkbox(parent, {
             label = displayName,
@@ -424,7 +425,8 @@ local function CreateOptionsPanel()
         panel.buffCheckboxes[key] = holder
 
         -- Inline toggle: "Ready check only" / "Always show" (replaces info tooltip icon)
-        if readyCheckOnly then
+        -- Skip for free consumables — controlled by the "Free consumables" dropdown instead
+        if readyCheckOnly and not freeConsumable then
             local function GetReadyCheckOnlyState()
                 local overrides = BR.profile.readyCheckOnlyOverrides
                 return not overrides or overrides[key] ~= false
@@ -473,6 +475,7 @@ local function CreateOptionsPanel()
         local groupDisplaySpells = {}
         local groupIconOverrides = {}
         local groupReadyCheckOnly = {}
+        local groupFreeConsumable = {}
 
         for _, buff in ipairs(buffArray) do
             if buff.groupId then
@@ -529,6 +532,9 @@ local function CreateOptionsPanel()
                 if buff.readyCheckOnly then
                     groupReadyCheckOnly[buff.groupId] = true
                 end
+                if buff.freeConsumable then
+                    groupFreeConsumable[buff.groupId] = true
+                end
             end
         end
 
@@ -556,7 +562,8 @@ local function CreateOptionsPanel()
                         groupInfo.displayName,
                         buff.infoTooltip,
                         displayIcon,
-                        groupReadyCheckOnly[buff.groupId]
+                        groupReadyCheckOnly[buff.groupId],
+                        groupFreeConsumable[buff.groupId]
                     )
                 end
             else
@@ -570,7 +577,8 @@ local function CreateOptionsPanel()
                     buff.name,
                     buff.infoTooltip,
                     buff.displayIcon,
-                    buff.readyCheckOnly
+                    buff.readyCheckOnly,
+                    buff.freeConsumable
                 )
             end
         end
@@ -839,7 +847,7 @@ local function CreateOptionsPanel()
     displayBehaviorLayout:Space(COMPONENT_GAP)
 
     local defThresholdHolder = Components.Slider(displayBehaviorContent, {
-        label = "門檻",
+        label = "閥值",
         min = 0,
         max = 45,
         step = 5,
@@ -971,9 +979,150 @@ local function CreateOptionsPanel()
                 end,
             })
             catLayout:Add(readyCheckHolder, nil, COMPONENT_GAP)
+
+            -- Free consumables sub-section (consumable category only)
+            if category == "consumable" then
+                local function EnsureFreeVisibility()
+                    if not db.defaults then
+                        db.defaults = {}
+                    end
+                    if not db.defaults.freeConsumableVisibility then
+                        db.defaults.freeConsumableVisibility = {
+                            openWorld = false,
+                            scenario = true,
+                            dungeon = true,
+                            raid = true,
+                            housing = false,
+                            pvp = true,
+                        }
+                    end
+                    return db.defaults.freeConsumableVisibility
+                end
+                catLayout:Space(SECTION_GAP)
+                local hsHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                hsHeader:SetText("|cffffcc00Healthstone|r")
+                catLayout:AddText(hsHeader, 12, COMPONENT_GAP)
+
+                local hsReadyCheckHolder = Components.Dropdown(catContent, {
+                    label = "可視性",
+                    width = 180,
+                    get = function()
+                        return BR.Config.Get("defaults.healthstoneVisibility", "readyCheck")
+                    end,
+                    options = {
+                        {
+                            value = "readyCheck",
+                            label = "只限準備確認",
+                            desc = "準備確認開始後顯示15秒",
+                        },
+                        {
+                            value = "casterOnly",
+                            label = "準備確認 + 術士永遠顯示",
+                            desc = "術士總是看到提醒；其他職業只在準備確認時",
+                        },
+                        {
+                            value = "always",
+                            label = "永遠顯示",
+                            desc = "每當內容類型相符時顯示",
+                        },
+                    },
+                    tooltip = {
+                        title = "治療石可視性",
+                        desc = "控制治療石提醒何時出現。\n\n|cffffcc00只限準備確認:|r 只有在準備確認期間 (15秒視窗)。\n|cffffcc00準備確認 + 術士永遠顯示:|r 術士總是看到提醒；其他職業只在準備確認時。\n|cffffcc00永遠顯示:|r 當你與內容相符時顯示。",
+                    },
+                    onChange = function(val)
+                        BR.Config.Set("defaults.healthstoneVisibility", val)
+                    end,
+                })
+                catLayout:Add(hsReadyCheckHolder, nil, COMPONENT_GAP)
+
+                catLayout:Space(SECTION_GAP)
+                local freeHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                freeHeader:SetText("|cffffcc00免費消耗品|r")
+                catLayout:AddText(freeHeader, 12, COMPONENT_GAP)
+                local freeNote = catContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+                freeNote:SetText("(治療石，永久增強符文)")
+                catLayout:AddText(freeNote, 10, COMPONENT_GAP)
+
+                local function IsFreeOverride()
+                    return BR.Config.Get("defaults.freeConsumableMode", "override") == "override"
+                end
+
+                local freeOverrideHolder = Components.Checkbox(catContent, {
+                    label = "覆蓋內容過濾器",
+                    get = function()
+                        return IsFreeOverride()
+                    end,
+                    tooltip = {
+                        title = "覆蓋內容過濾器",
+                        desc = "勾選後，免費消耗品將使用下面自己的內容類型可見性設定。\n\n未選取時，它們遵循與其他消耗品相同的內容過濾器。",
+                    },
+                    onChange = function(checked)
+                        BR.Config.Set("defaults.freeConsumableMode", checked and "override" or "follow")
+                        Components.RefreshAll()
+                    end,
+                })
+                catLayout:Add(freeOverrideHolder, nil, COMPONENT_GAP)
+
+                -- Override controls (indented under checkbox)
+                local INDENT = 12
+                catLayout:SetX(catLayout:GetX() + INDENT)
+
+                local freeVisToggles = Components.VisibilityToggles(catContent, {
+                    store = {
+                        getContent = function(key)
+                            local vis = db.defaults and db.defaults.freeConsumableVisibility
+                            return not vis or vis[key] ~= false
+                        end,
+                        setContent = function(key)
+                            local vis = EnsureFreeVisibility()
+                            vis[key] = not vis[key]
+                        end,
+                        getDiffTable = function(dbKey)
+                            local vis = db.defaults and db.defaults.freeConsumableVisibility
+                            return vis and vis[dbKey]
+                        end,
+                        ensureDiffTable = function(dbKey)
+                            local vis = EnsureFreeVisibility()
+                            if not vis[dbKey] then
+                                vis[dbKey] = {} ---@diagnostic disable-line: assign-type-mismatch
+                            end
+                            return vis[dbKey]
+                        end,
+                    },
+                    noAutoRefresh = true,
+                    onChange = function()
+                        UpdateDisplay()
+                    end,
+                    disabledSubToggles = {
+                        pvpType = {
+                            arena = {
+                                tooltip = {
+                                    title = "Arena",
+                                    desc = "Consumables cannot be used in arena",
+                                },
+                            },
+                        },
+                    },
+                })
+                local origVisRefresh = freeVisToggles.Refresh
+                function freeVisToggles:Refresh()
+                    origVisRefresh(self)
+                    local enabled = IsFreeOverride()
+                    self:SetAlpha(enabled and 1 or 0.4)
+                    for _, btn in ipairs(self.allToggleButtons) do
+                        btn:EnableMouse(enabled)
+                    end
+                end
+                tinsert(BR.RefreshableComponents, freeVisToggles)
+                catLayout:Add(freeVisToggles, nil, COMPONENT_GAP)
+
+                catLayout:SetX(catLayout:GetX() - INDENT)
+                catLayout:Space(SECTION_GAP)
+            end
         else
             local banner = Components.Banner(catContent, {
-                text = "顯示與準備確認設定移動到每個增益的編輯選單中。",
+                text = "可見性與準備確認設定移動到每個增益的編輯選單中。",
                 color = "orange",
                 icon = "services-icon-warning",
             })
@@ -1354,15 +1503,15 @@ local function CreateOptionsPanel()
 
             local petClassBar, petClassButtons = Components.CreateSegmentedBar(petLabelsHolder, {
                 toggleDefs = {
-                     { key = "HUNTER", label = "H", tooltip = { title = "獵人" }, color = classColor("HUNTER") },
-                    { key = "WARLOCK", label = "W", tooltip = { title = "術士" }, color = classColor("WARLOCK") },
+                     { key = "HUNTER", label = "獵", tooltip = { title = "獵人" }, color = classColor("HUNTER") },
+                    { key = "WARLOCK", label = "術", tooltip = { title = "術士" }, color = classColor("WARLOCK") },
                     {
                         key = "DEATHKNIGHT",
-                        label = "D",
+                        label = "死",
                         tooltip = { title = "死亡騎士" },
                         color = classColor("DEATHKNIGHT"),
                     },
-                    { key = "MAGE", label = "M", tooltip = { title = "法師", color = classColor("MAGE") },
+                    { key = "MAGE", label = "法", tooltip = { title = "法師", color = classColor("MAGE") },
                 }},
                 getState = function(key)
                     local vis = BR.profile.defaults.petLabelClasses
@@ -1727,6 +1876,7 @@ local function CreateOptionsPanel()
                 "glowBorderFrequency",
                 "glowProcDuration",
                 "glowProcStartAnim",
+                "glowProcUseCustomColor",
                 "glowXOffset",
                 "glowYOffset",
             }
@@ -2764,6 +2914,9 @@ ShowGlowAdvanced = function(targetCategory)
         local d = getSource()
         local typeIdx = d.glowType or GlowType.Pixel
         local color = d.glowColor
+        if typeIdx == GlowType.Proc and not d.glowProcUseCustomColor then
+            color = nil
+        end
         local size = d.glowSize or 2
         local params = Glow.BuildAdvancedParams(d, typeIdx)
         local xOff = DEFAULT_BORDER_SIZE + (d.glowXOffset or 0)
@@ -2794,7 +2947,7 @@ ShowGlowAdvanced = function(targetCategory)
         [GlowType.Pixel] = { "glowPixelLines", "glowPixelFrequency", "glowPixelLength" },
         [GlowType.AutoCast] = { "glowAutocastScale", "glowAutocastParticles", "glowAutocastFrequency" },
         [GlowType.Border] = { "glowBorderFrequency" },
-        [GlowType.Proc] = { "glowProcDuration", "glowProcStartAnim" },
+        [GlowType.Proc] = { "glowProcDuration", "glowProcStartAnim", "glowProcUseCustomColor" },
     }
 
     local function UnregisterDynamicHolders()
@@ -2838,7 +2991,42 @@ ShowGlowAdvanced = function(targetCategory)
         end
 
         local colorSwatchHolder
-        if typeIdx ~= GlowType.Proc then
+        local procColorCheckbox
+        if typeIdx == GlowType.Proc then
+            -- Proc: optional custom color (desaturated + vertex color, less vibrant than default)
+            procColorCheckbox = Components.Checkbox(panel, {
+                label = "使用自訂顏色",
+                tooltip = {
+                    title = "使用自訂顏色",
+                    desc = "啟用後，觸發發光會降低飽和度並重新著色。\n這看起來沒有預設觸發發光那麼鮮豔。",
+                },
+                get = function()
+                    return getSource().glowProcUseCustomColor or false
+                end,
+                onChange = function(checked)
+                    BR.Config.Set(configPrefix .. "glowProcUseCustomColor", checked)
+                    Components.RefreshAll()
+                    RefreshPreview()
+                end,
+            })
+            table.insert(dynamicHolders, procColorCheckbox)
+
+            colorSwatchHolder = Components.ColorSwatch(panel, {
+                hasOpacity = true,
+                enabled = function()
+                    return getSource().glowProcUseCustomColor or false
+                end,
+                get = function()
+                    local c = getSource().glowColor or Glow.DEFAULT_COLOR
+                    return c[1], c[2], c[3], c[4] or 1
+                end,
+                onChange = function(r, g, b, a)
+                    BR.Config.Set(configPrefix .. "glowColor", { r, g, b, a or 1 })
+                    RefreshPreview()
+                end,
+            })
+            table.insert(dynamicHolders, colorSwatchHolder)
+        else
             colorSwatchHolder = Components.ColorSwatch(panel, {
                 hasOpacity = true,
                 get = function()
@@ -2853,13 +3041,18 @@ ShowGlowAdvanced = function(targetCategory)
             table.insert(dynamicHolders, colorSwatchHolder)
         end
 
-        if sizeHolder and colorSwatchHolder then
+        if sizeHolder and colorSwatchHolder and not procColorCheckbox then
             dynamicLayout:Add(sizeHolder, 26)
             colorSwatchHolder:SetPoint("LEFT", sizeHolder, "RIGHT", 8, 0)
         elseif sizeHolder then
             dynamicLayout:Add(sizeHolder, 26)
-        elseif colorSwatchHolder then
+        elseif colorSwatchHolder and not procColorCheckbox then
             dynamicLayout:Add(colorSwatchHolder, 26)
+        end
+
+        if procColorCheckbox then
+            dynamicLayout:Add(procColorCheckbox, SLIDER_SPACING)
+            colorSwatchHolder:SetPoint("LEFT", procColorCheckbox, "RIGHT", 8, 0)
         end
 
         -- Type-specific parameters

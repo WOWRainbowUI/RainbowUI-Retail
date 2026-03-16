@@ -6,14 +6,14 @@ local _, BR = ...
 BR.CONSUMABLE_ITEMS = {
     food = {
         -- TWW 11.0.0
-        [222702] = { label = "低次屬性" }, -- Skewered Fillet
-        [222703] = { label = "低次屬性" }, -- Simple Stew
-        [222704] = { label = "低次屬性" }, -- Unseasoned Field Steak
-        [222705] = { label = "低次屬性" }, -- Roasted Mycobloom
-        [222706] = { label = "低次屬性" }, -- Pan-Seared Mycobloom
-        [222707] = { label = "低次屬性" }, -- Hallowfall Chili
-        [222708] = { label = "低次屬性" }, -- Coreway Kabob
-        [222709] = { label = "低次屬性" }, -- Flashfire Fillet
+        [222702] = { label = "低次屬" }, -- Skewered Fillet
+        [222703] = { label = "低次屬" }, -- Simple Stew
+        [222704] = { label = "低次屬" }, -- Unseasoned Field Steak
+        [222705] = { label = "低次屬" }, -- Roasted Mycobloom
+        [222706] = { label = "低次屬" }, -- Pan-Seared Mycobloom
+        [222707] = { label = "低次屬" }, -- Hallowfall Chili
+        [222708] = { label = "低次屬" }, -- Coreway Kabob
+        [222709] = { label = "低次屬" }, -- Flashfire Fillet
         [222710] = { label = "耐/力" }, -- Meat and Potatoes
         [222711] = { label = "耐/敏" }, -- Rib Stickers
         [222712] = { label = "耐/智" }, -- Sweet and Sour Meatballs
@@ -24,7 +24,7 @@ BR.CONSUMABLE_ITEMS = {
         [222717] = { label = "精通" }, -- Salty Dog
         [222718] = { label = "加速/致命" }, -- Deepfin Patty
         [222719] = { label = "加速/臨機" }, -- Sweet and Spicy Soup
-        [222720] = { label = "高次屬性" }, -- The Sushi Special
+        [222720] = { label = "高次屬" }, -- The Sushi Special
         [222721] = { label = "致命/臨機" }, -- Fish and Chips
         [222722] = { label = "精通/致命" }, -- Salt Baked Seafood
         [222723] = { label = "精通/臨機" }, -- Marinated Tenderloins
@@ -32,22 +32,22 @@ BR.CONSUMABLE_ITEMS = {
         [222725] = { label = "耐/敏" }, -- Mycobloom Risotto
         [222726] = { label = "耐/智" }, -- Stuffed Cave Peppers
         [222727] = { label = "耐力" }, -- Angler's Delight
-        [222728] = { label = "高次屬性" }, -- Beledar's Bounty
-        [222729] = { label = "高次屬性" }, -- Empress' Farewell
-        [222730] = { label = "高次屬性" }, -- Jester's Board
-        [222731] = { label = "高次屬性" }, -- Outsider's Provisions
+        [222728] = { label = "高次屬" }, -- Beledar's Bounty
+        [222729] = { label = "高次屬" }, -- Empress' Farewell
+        [222730] = { label = "高次屬" }, -- Jester's Board
+        [222731] = { label = "高次屬" }, -- Outsider's Provisions
         [222732] = { label = "大餐" }, -- 大餐 of the Divine Day
         [222733] = { label = "大餐" }, -- 大餐 of the Midnight Masquerade
-        [222735] = { label = "低次屬性" }, -- Everything Stew
+        [222735] = { label = "低次屬" }, -- Everything Stew
         [222736] = { label = "精通/加速" }, -- Chippy Tea
-        [222750] = { label = "低次屬性", hearty = true }, -- Hearty Skewered Fillet
-        [222751] = { label = "低次屬性", hearty = true }, -- Hearty Simple Stew
-        [222752] = { label = "低次屬性", hearty = true }, -- Hearty Unseasoned Field Steak
-        [222753] = { label = "低次屬性", hearty = true }, -- Hearty Roasted Mycobloom
-        [222754] = { label = "低次屬性", hearty = true }, -- Hearty Pan-Seared Mycobloom
-        [222755] = { label = "低次屬性", hearty = true }, -- Hearty Hallowfall Chili
-        [222756] = { label = "低次屬性", hearty = true }, -- Hearty Coreway Kabob
-        [222757] = { label = "低次屬性", hearty = true }, -- Hearty Flashfire Fillet
+        [222750] = { label = "低次屬", hearty = true }, -- Hearty Skewered Fillet
+        [222751] = { label = "低次屬", hearty = true }, -- Hearty Simple Stew
+        [222752] = { label = "低次屬", hearty = true }, -- Hearty Unseasoned Field Steak
+        [222753] = { label = "低次屬", hearty = true }, -- Hearty Roasted Mycobloom
+        [222754] = { label = "低次屬", hearty = true }, -- Hearty Pan-Seared Mycobloom
+        [222755] = { label = "低次屬", hearty = true }, -- Hearty Hallowfall Chili
+        [222756] = { label = "低次屬", hearty = true }, -- Hearty Coreway Kabob
+        [222757] = { label = "低次屬", hearty = true }, -- Hearty Flashfire Fillet
         [222758] = { label = "耐/力", hearty = true }, -- Hearty Meat and Potatoes
         [222759] = { label = "耐/敏", hearty = true }, -- Hearty Rib Stickers
         [222760] = { label = "耐/智", hearty = true }, -- Hearty Sweet and Sour Meatballs
@@ -66,32 +66,32 @@ BR.CONSUMABLE_ITEMS = {
         [222773] = { label = "耐/敏", hearty = true }, -- Hearty Mycobloom Risotto
         [222774] = { label = "耐/智", hearty = true }, -- Hearty Stuffed Cave Peppers
         [222775] = { label = "耐力", hearty = true }, -- Hearty Angler's Delight
-        [222776] = { label = "高次屬性", hearty = true }, -- Hearty Beledar's Bounty
-        [222777] = { label = "高次屬性", hearty = true }, -- Hearty Empress' Farewell
-        [222778] = { label = "高次屬性", hearty = true }, -- Hearty Jester's Board
-        [222779] = { label = "高次屬性", hearty = true }, -- Hearty Outsider's Provisions
+        [222776] = { label = "高次屬", hearty = true }, -- Hearty Beledar's Bounty
+        [222777] = { label = "高次屬", hearty = true }, -- Hearty Empress' Farewell
+        [222778] = { label = "高次屬", hearty = true }, -- Hearty Jester's Board
+        [222779] = { label = "高次屬", hearty = true }, -- Hearty Outsider's Provisions
         [222780] = { label = "大餐", hearty = true }, -- Hearty 大餐 of the Divine Day
         [222781] = { label = "大餐", hearty = true }, -- Hearty 大餐 of the Midnight Masquerade
-        [222783] = { label = "低次屬性", hearty = true }, -- Hearty Everything Stew
+        [222783] = { label = "低次屬", hearty = true }, -- Hearty Everything Stew
         [222784] = { label = "精通/加速", hearty = true }, -- Hearty Chippy Tea
         [223966] = { label = "隨機" }, -- Everything-on-a-Stick (random Khaz Algar meal)
-        [223967] = { label = "低次屬性" }, -- Protein Slurp
-        [223968] = { label = "低次屬性" }, -- Spongey Scramble
+        [223967] = { label = "低次屬" }, -- Protein Slurp
+        [223968] = { label = "低次屬" }, -- Spongey Scramble
         [225592] = { label = "速度" }, -- Exquisitely Eviscerated Muscle
 
         -- TWW 11.1.0
-        [235805] = { label = "高次屬性" }, -- Authentic Undermine Clam Chowder
-        [235853] = { label = "高次屬性", hearty = true }, -- Hearty Authentic Undermine Clam Chowder
+        [235805] = { label = "高次屬" }, -- Authentic Undermine Clam Chowder
+        [235853] = { label = "高次屬", hearty = true }, -- Hearty Authentic Undermine Clam Chowder
 
         -- Midnight 12.0.0
-        [242272] = { label = "高次屬性" }, -- Quel'dorei Medley
-        [242273] = { label = "高次屬性" }, -- Blooming 大餐
-        [242274] = { label = "高次屬性" }, -- Champion's Bento
-        [242275] = { label = "高主屬性" }, -- Royal Roast
+        [242272] = { label = "高次屬" }, -- Quel'dorei Medley
+        [242273] = { label = "高次屬" }, -- Blooming 大餐
+        [242274] = { label = "高次屬" }, -- Champion's Bento
+        [242275] = { label = "高主屬" }, -- Royal Roast
         [242276] = { label = "臨機" }, -- Braised Blood Hunter
         [242277] = { label = "加速" }, -- Crimson Calamari
         [242278] = { label = "致命" }, -- Tasty Smoked Tetra
-        [242279] = { label = "中主屬性" }, -- Baked Lucky Loa
+        [242279] = { label = "中主屬" }, -- Baked Lucky Loa
         [242280] = { label = "臨機" }, -- Buttered Root Crab
         [242281] = { label = "精通" }, -- Glitter Skewers
         [242282] = { label = "加速" }, -- Null and Void Plate
@@ -100,8 +100,8 @@ BR.CONSUMABLE_ITEMS = {
         [242285] = { label = "精通" }, -- Warped Wise Wings
         [242286] = { label = "加速" }, -- Fel-Kissed Filet
         [242287] = { label = "致命" }, -- Arcano Cutlets
-        [242288] = { label = "中主屬性" }, -- Twilight Angler's Medley
-        [242289] = { label = "中主屬性" }, -- Spellfire Filet
+        [242288] = { label = "中主屬" }, -- Twilight Angler's Medley
+        [242289] = { label = "中主屬" }, -- Spellfire Filet
         [242290] = { label = "致命/臨機" }, -- Wise Tails
         [242291] = { label = "精通/臨機" }, -- Fried Bloomtail
         [242292] = { label = "精通/致命" }, -- Eversong Pudding
@@ -109,23 +109,23 @@ BR.CONSUMABLE_ITEMS = {
         [242294] = { label = "臨機" }, -- Felberry Figs
         [242295] = { label = "加速/致命" }, -- Hearthflame Supper
         [242296] = { label = "精通/加速" }, -- Bloodthistle-wrapped Cutlets
-        [242302] = { label = "低主屬性" }, -- Bloom Skewers
-        [242303] = { label = "低主屬性" }, -- Mana-Infused Stew
+        [242302] = { label = "低主屬" }, -- Bloom Skewers
+        [242303] = { label = "低主屬" }, -- Mana-Infused Stew
         [242304] = { label = "致命/臨機" }, -- Spiced Biscuits
         [242305] = { label = "精通/臨機" }, -- Silvermoon Standard
         [242306] = { label = "精通/致命" }, -- Forager's Medley
         [242307] = { label = "加速/臨機" }, -- Quick Sandwich
         [242308] = { label = "加速/致命" }, -- Portable Snack
         [242309] = { label = "精通/加速" }, -- Farstrider Rations
-        [242532] = { label = "低主屬性" }, -- [PH] Vegetarian Recipe
-        [242744] = { label = "高次屬性", hearty = true }, -- Hearty Quel'dorei Medley
-        [242745] = { label = "高次屬性", hearty = true }, -- Hearty Blooming 大餐
-        [242746] = { label = "高次屬性", hearty = true }, -- Hearty Champion's Bento
-        [242747] = { label = "高主屬性", hearty = true }, -- Hearty Royal Roast
+        [242532] = { label = "低主屬" }, -- [PH] Vegetarian Recipe
+        [242744] = { label = "高次屬", hearty = true }, -- Hearty Quel'dorei Medley
+        [242745] = { label = "高次屬", hearty = true }, -- Hearty Blooming 大餐
+        [242746] = { label = "高次屬", hearty = true }, -- Hearty Champion's Bento
+        [242747] = { label = "高主屬", hearty = true }, -- Hearty Royal Roast
         [242748] = { label = "臨機", hearty = true }, -- Hearty Braised Blood Hunter
         [242749] = { label = "加速", hearty = true }, -- Hearty Crimson Calamari
         [242750] = { label = "致命", hearty = true }, -- Hearty Tasty Smoked Tetra
-        [242751] = { label = "中主屬性", hearty = true }, -- Hearty Rootland Surprise
+        [242751] = { label = "中主屬", hearty = true }, -- Hearty Rootland Surprise
         [242752] = { label = "臨機", hearty = true }, -- Hearty Buttered Root Crab
         [242753] = { label = "精通", hearty = true }, -- Hearty Glitter Skewers
         [242754] = { label = "加速", hearty = true }, -- Hearty Null and Void Plate
@@ -134,8 +134,8 @@ BR.CONSUMABLE_ITEMS = {
         [242757] = { label = "精通", hearty = true }, -- Hearty Warped Wise Wings
         [242758] = { label = "加速", hearty = true }, -- Hearty Fel-Kissed Filet
         [242759] = { label = "致命", hearty = true }, -- Hearty Arcano Cutlets
-        [242760] = { label = "中主屬性", hearty = true }, -- Hearty Twilight Angler's Medley
-        [242761] = { label = "中主屬性", hearty = true }, -- Hearty Spellfire Filet
+        [242760] = { label = "中主屬", hearty = true }, -- Hearty Twilight Angler's Medley
+        [242761] = { label = "中主屬", hearty = true }, -- Hearty Spellfire Filet
         [242762] = { label = "致命/臨機", hearty = true }, -- Hearty Wise Tails
         [242763] = { label = "精通/臨機", hearty = true }, -- Hearty Fried Bloomtail
         [242764] = { label = "精通/致命", hearty = true }, -- Hearty Eversong Pudding
@@ -143,8 +143,8 @@ BR.CONSUMABLE_ITEMS = {
         [242766] = { label = "臨機", hearty = true }, -- Hearty Felberry Figs
         [242767] = { label = "加速/致命", hearty = true }, -- Hearty Hearthflame Supper
         [242768] = { label = "精通/加速", hearty = true }, -- Hearty Bloodthistle-Wrapped Cutlets
-        [242769] = { label = "低主屬性", hearty = true }, -- Hearty Bloom Skewers
-        [242770] = { label = "低主屬性", hearty = true }, -- Hearty Mana-Infused Stew
+        [242769] = { label = "低主屬", hearty = true }, -- Hearty Bloom Skewers
+        [242770] = { label = "低主屬", hearty = true }, -- Hearty Mana-Infused Stew
         [242771] = { label = "致命/臨機", hearty = true }, -- Hearty Spiced Biscuits
         [242772] = { label = "精通/臨機", hearty = true }, -- Hearty Silvermoon Standard
         [242773] = { label = "精通/致命", hearty = true }, -- Hearty Forager's Medley
@@ -153,14 +153,14 @@ BR.CONSUMABLE_ITEMS = {
         [242776] = { label = "精通/加速", hearty = true }, -- Hearty Farstrider Rations
         [255845] = { label = "大餐" }, -- Silvermoon Parade
         [255846] = { label = "大餐" }, -- Harandar Celebration
-        [255847] = { label = "高主屬性" }, -- Impossibly Royal Roast
-        [255848] = { label = "高次屬性" }, -- Flora Frenzy
+        [255847] = { label = "高主屬" }, -- Impossibly Royal Roast
+        [255848] = { label = "高次屬" }, -- Flora Frenzy
         [266985] = { label = "大餐", hearty = true }, -- Hearty Silvermoon Parade
-        [266986] = { label = "高次屬性", hearty = true }, -- Hearty Quel'dorei Medley
+        [266986] = { label = "高次屬", hearty = true }, -- Hearty Quel'dorei Medley
         [266996] = { label = "大餐", hearty = true }, -- Hearty Harandar Celebration
-        [267000] = { label = "高次屬性", hearty = true }, -- Hearty Flora Frenzy
-        [268679] = { label = "大餐", hearty = true }, -- Hearty Impossibly Royal Roast
-        [268680] = { label = "高次屬性", hearty = true }, -- Hearty Flora Frenzy
+        [267000] = { label = "高次屬", hearty = true }, -- Hearty Flora Frenzy
+        [268679] = { label = "高主屬", hearty = true }, -- Hearty Impossibly Royal Roast
+        [268680] = { label = "高次屬", hearty = true }, -- Hearty Flora Frenzy
         -- Recovery-only (no Well Fed buff, just health/mana restore). Not tracked, listed here for reference.
         -- [260264] = true, -- Quel'Danas Rations
         -- [260275] = true, -- Mukleech Curry

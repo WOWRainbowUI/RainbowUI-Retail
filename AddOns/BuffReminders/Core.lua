@@ -164,6 +164,7 @@ local CategorySettingKeys = {
     glowBorderFrequency = "VisualsRefresh",
     glowProcDuration = "VisualsRefresh",
     glowProcStartAnim = "VisualsRefresh",
+    glowProcUseCustomColor = "VisualsRefresh",
     glowXOffset = "VisualsRefresh",
     glowYOffset = "VisualsRefresh",
     split = "FramesReparent",
@@ -201,10 +202,14 @@ local DefaultSettingKeys = {
     glowBorderFrequency = "VisualsRefresh",
     glowProcDuration = "VisualsRefresh",
     glowProcStartAnim = "VisualsRefresh",
+    glowProcUseCustomColor = "VisualsRefresh",
     glowXOffset = "VisualsRefresh",
     glowYOffset = "VisualsRefresh",
     showConsumablesWithoutItems = "DisplayRefresh",
     delveFoodOnly = "DisplayRefresh",
+    freeConsumableMode = "DisplayRefresh",
+    freeConsumableVisibility = "DisplayRefresh",
+    healthstoneVisibility = "DisplayRefresh",
     -- Consumable display mode
     consumableDisplayMode = "DisplayRefresh",
     showConsumableTooltips = nil, -- No refresh needed, read at tooltip time
@@ -335,6 +340,7 @@ local function ValidatePath(segments)
                 "glowBorderFrequency",
                 "glowProcDuration",
                 "glowProcStartAnim",
+                "glowProcUseCustomColor",
                 "glowXOffset",
                 "glowYOffset",
                 "priority",
@@ -578,6 +584,7 @@ local GlowKeys = {
     glowBorderFrequency = true,
     glowProcDuration = true,
     glowProcStartAnim = true,
+    glowProcUseCustomColor = true,
     glowXOffset = true,
     glowYOffset = true,
 }

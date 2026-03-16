@@ -157,9 +157,10 @@ local GLOW_START = {
         local p = params or {}
         BR.Glow.PulsingBorderStart(f, key, color, size, xOff, yOff, p.frequency)
     end,
-    function(f, _, key, _, xOff, yOff, params)
+    function(f, color, key, _, xOff, yOff, params)
         local p = params or {}
         LCG.ProcGlow_Start(f, {
+            color = color,
             key = key,
             duration = p.duration or 1,
             startAnim = p.startAnim or false,
@@ -324,6 +325,9 @@ function BR.Glow.SetExpiration(frame, show, category, cachedSettings)
             local d = db and db.defaults or {}
             typeIndex = d.glowType or GlowType.Pixel
             color = d.glowColor
+            if typeIndex == GlowType.Proc and not d.glowProcUseCustomColor then
+                color = nil
+            end
             size = d.glowSize or 2
             borderOffset = (category and BR.Config.GetCategorySetting(category, "borderSize"))
                 or d.borderSize
