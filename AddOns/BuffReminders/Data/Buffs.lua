@@ -98,6 +98,8 @@ local min = math.min
 ---@field visibilityCondition? fun(): boolean Custom function that gates visibility (return false to hide)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field consumableCategory? string Category key in BR.CONSUMABLE_ITEMS for bag scanning (only set when items exist)
+---@field freeConsumable? boolean Bypass content gates (always show when enabled)
+---@field permanentRuneItemIDs? number[] Item IDs that, if in bags, make this a free consumable (bypass content gates)
 
 ---@class BuffGroup
 ---@field displayName string
@@ -374,6 +376,16 @@ BR.BUFF_TABLES = {
     },
     ---@type SelfBuff[]
     self = {
+        -- Evoker Augmentation attunement (Black 403264 / Bronze 403265, player picks one)
+        {
+            spellID = { 403264, 403265 },
+            key = "evokerAttunement",
+            name = "同調",
+            class = "EVOKER",
+            overlayText = "沒有\n同調",
+            requireSpecId = 1473, -- Augmentation
+            requiresSpellID = 403208, -- Attunements talent
+        },
         -- Mage Arcane Familiar
         {
             spellID = 205022,
@@ -389,7 +401,7 @@ BR.BUFF_TABLES = {
             spellID = 29893, -- Create Soulwell (used for icon resolution)
             castSpellID = 29893, -- Click-to-cast: Create Soulwell
             key = "soulwell",
-            name = "置放靈魂之井",
+            name = "製造靈魂之井",
             class = "WARLOCK",
             overlayText = "置放\n靈魂井",
             showOnInstanceEntry = true, -- Only shows on instance entry
@@ -691,7 +703,8 @@ BR.BUFF_TABLES = {
             displaySpells = { 1264426, 1234969 }, -- Void-Touched (Midnight), Ethereal (TWW permanent)
             key = "rune",
             name = "符文",
-            missingText = "沒有\n符文",
+            overlayText = "沒有\n符文",
+            permanentRuneItemIDs = { 243191, 259085 }, -- Ethereal (TWW), Void-Touched (Midnight)
             groupId = "rune",
             consumableCategory = "rune",
         },
@@ -704,6 +717,7 @@ BR.BUFF_TABLES = {
                 431972, -- Flask of Tempered Swiftness
                 431973, -- Flask of Tempered Versatility
                 431974, -- Flask of Tempered Mastery
+                432473, -- Flask of Saving Graces
                 -- Midnight
                 1235057, -- Flask of Thalassian Resistance (Versatility)
                 1235108, -- Flask of the Magisters (Mastery)
@@ -749,6 +763,23 @@ BR.BUFF_TABLES = {
             },
             visibilityCondition = BR.IsInDelve,
         },
+        -- Healthstone (checks inventory, free consumable for warlocks)
+        {
+            itemID = { 5512, 224464 }, -- Healthstone, Demonic Healthstone
+            castSpellID = 29893, -- Create Soulwell
+            key = "healthstone",
+            name = "治療石",
+            casterClass = "WARLOCK",
+            overlayText = "沒有\n治療石",
+            groupId = "healthstone",
+            displayIcon = 538745, -- Healthstone icon
+            freeConsumable = true,
+            clickMacro = function()
+                local spellID = (GetNumGroupMembers() > 0 and IsInInstance()) and 29893 or 6201
+                local name = BR.GetSpellName(spellID)
+                return "/cast " .. (name or "")
+            end,
+        },
         -- Weapon Buffs (oils, stones - but not for classes with imbues)
         {
             checkWeaponEnchant = true, -- Check if any weapon enchant exists
@@ -790,23 +821,6 @@ BR.BUFF_TABLES = {
                 return BR.BuffState.HasOffHandWeapon()
             end,
         },
-        -- Healthstone (shows on ready check - checks inventory)
-        {
-            itemID = { 5512, 224464 }, -- Healthstone, Demonic Healthstone
-            castSpellID = 29893, -- Create Soulwell
-            key = "healthstone",
-            name = "治療石",
-            class = "WARLOCK",
-            missingText = "沒有\n治療石",
-            groupId = "healthstone",
-            displayIcon = 538745, -- Healthstone icon
-            readyCheckOnly = true,
-            clickMacro = function()
-                local spellID = (GetNumGroupMembers() > 0 and IsInInstance()) and 29893 or 6201
-                local name = BR.GetSpellName(spellID)
-                return "/cast " .. (name or "")
-            end,
-        },
     },
 }
 
@@ -830,9 +844,9 @@ BR.BuffGroups = {
     flask = { displayName = "精鍊" },
     food = { displayName = "食物" },
     delveFood = { displayName = "探究食物" },
+    healthstone = { displayName = "治療石" },
     rune = { displayName = "增強符文" },
     weaponBuff = { displayName = "武器增益" },
-    healthstone = { displayName = "治療石!" },
 }
 
 -- Classes that benefit from each buff

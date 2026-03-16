@@ -30,6 +30,18 @@ local ANCHOR_COORD_FN = {
     BOTTOM = function(m, px, py)
         return select(1, m:GetCenter()) - px, m:GetBottom() - py
     end,
+    TOPLEFT = function(m, px, py)
+        return m:GetLeft() - px, m:GetTop() - py
+    end,
+    TOPRIGHT = function(m, px, py)
+        return m:GetRight() - px, m:GetTop() - py
+    end,
+    BOTTOMLEFT = function(m, px, py)
+        return m:GetLeft() - px, m:GetBottom() - py
+    end,
+    BOTTOMRIGHT = function(m, px, py)
+        return m:GetRight() - px, m:GetBottom() - py
+    end,
 }
 
 local moverFrames = {} -- Per-category mover frames (shown when unlocked for drag positioning)
@@ -43,10 +55,14 @@ local ANCHOR_TO_CENTER = {
     TOP = { x = 0, y = -0.5 },
     BOTTOM = { x = 0, y = 0.5 },
     CENTER = { x = 0, y = 0 },
+    TOPLEFT = { x = 0.5, y = -0.5 },
+    TOPRIGHT = { x = -0.5, y = -0.5 },
+    BOTTOMLEFT = { x = 0.5, y = 0.5 },
+    BOTTOMRIGHT = { x = -0.5, y = 0.5 },
 }
 
 local ResolveAnchorParent -- forward declaration, set after BR.Display is available
-local OPPOSITE_POINTS -- forward declaration
+local EXT_DIRECTION_ANCHORS -- forward declaration
 
 local EDIT_MODE_DIM_ALPHA = 0.3
 
@@ -104,8 +120,8 @@ local function SavePosition(catKey, x, y)
         container:ClearAllPoints()
         local extFrame, extPoint = ResolveAnchorParent(catKey)
         if extFrame then
-            local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
-            container:SetPoint(myPoint, extFrame, extPoint, x, y)
+            local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
+            container:SetPoint(extAnchor, extFrame, extPoint, x, y)
         else
             container:SetPoint(anchor, UIParent, "CENTER", x, y)
         end
@@ -191,11 +207,15 @@ end
 
 -- Anchor point options for the dropdown (common subset like UUF)
 local ANCHOR_POINT_OPTIONS = {
+    "TOPLEFT",
     "TOP",
-    "BOTTOM",
+    "TOPRIGHT",
     "LEFT",
-    "RIGHT",
     "CENTER",
+    "RIGHT",
+    "BOTTOMLEFT",
+    "BOTTOM",
+    "BOTTOMRIGHT",
 }
 
 local rad = math.rad
@@ -802,8 +822,9 @@ local function CreateMoverFrame(catKey, displayName)
     local initAnchor = DIRECTION_ANCHORS[initDirection] or "CENTER"
     local extFrame, extPoint = ResolveAnchorParent(catKey)
     if extFrame then
-        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
-        mover:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+        local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][initDirection]
+            or initAnchor
+        mover:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
     else
         mover:SetPoint(initAnchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
     end
@@ -897,8 +918,8 @@ PositionMoverFrame = function(catKey)
     mover:ClearAllPoints()
     local extFrame, extPoint = ResolveAnchorParent(catKey)
     if extFrame then
-        local myPoint = OPPOSITE_POINTS[extPoint] or "CENTER"
-        mover:SetPoint(myPoint, extFrame, extPoint, pos.x or 0, pos.y or 0)
+        local extAnchor = EXT_DIRECTION_ANCHORS[extPoint] and EXT_DIRECTION_ANCHORS[extPoint][direction] or anchor
+        mover:SetPoint(extAnchor, extFrame, extPoint, pos.x or 0, pos.y or 0)
     else
         mover:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
     end
@@ -912,7 +933,7 @@ end
 local function InitializeMovers()
     -- Resolve forward declarations now that BR.Display is available
     ResolveAnchorParent = BR.Display.ResolveAnchorParent
-    OPPOSITE_POINTS = BR.OPPOSITE_POINTS
+    EXT_DIRECTION_ANCHORS = BR.EXT_DIRECTION_ANCHORS
 
     moverFrames["main"] = CreateMoverFrame("main", GetMainFrameLabel())
     lastDirection["main"] = (GetCategorySettings("main").growDirection or "CENTER")

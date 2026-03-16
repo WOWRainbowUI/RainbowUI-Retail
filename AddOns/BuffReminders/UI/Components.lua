@@ -2149,6 +2149,7 @@ function Components.VisibilityToggles(parent, config)
     end
 
     holder.toggleButtons = contentButtons
+    holder.allToggleButtons = allToggleButtons
 
     -- Close difficulty bar when holder is hidden (e.g. options panel closes)
     holder:SetScript("OnHide", closeDiffBar)
