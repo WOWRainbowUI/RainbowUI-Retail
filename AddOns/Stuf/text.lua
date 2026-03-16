@@ -135,11 +135,13 @@ do  -- custom text handlers ----------------------------------------------------
 					local replace
 					itag = cache[pat2] or specialchars[pat2] or pat2
 					itag = (itag == true and pat2) or itag
-					if itag ~= "" then
-						local ct = colortags[pat1]
-						if ct then  -- [colortag:infotag]
-							replace = ((pat1 == "custom" or pat1 == "solid") and TextFormat(itag)) or TextFormat(itag, ct(uf, dbt, nil, "fontcolor"))
-						else  -- probably [colortag_if_condition:infotag]
+					-- 12.0.1: itag may be a secret string; pcall-guard the empty-string comparison
+					local itagok, emptycheck = pcall(function() return itag == "" end)
+					if not (itagok and emptycheck) then
+					local ct = colortags[pat1]
+					if ct then  -- [colortag:infotag]
+					replace = ((pat1 == "custom" or pat1 == "solid") and TextFormat(itag)) or TextFormat(itag, ct(uf, dbt, nil, "fontcolor"))
+					else  -- probably [colortag_if_condition:infotag]
 							local clr, cond = strmatch(pat1, "(.+)_if_(.+)")
 							local iffy
 							if not clr then

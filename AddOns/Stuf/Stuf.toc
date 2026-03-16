@@ -2,7 +2,7 @@
 ## Title: Stuf Unit Frames BETA
 ## Author: Systomatica
 ## Notes: Main unitframes replacement. Assembly optional.
-## Version: 12.0.1
+## Version: 12.0.101a
 
 ## SavedVariables: StufDB
 ## SavedVariablesPerCharacter: StufCharDB

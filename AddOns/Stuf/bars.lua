@@ -80,9 +80,55 @@ local function UpdateStatusBar(unit, uf, f, reset, frac)
 				UnitGetDetailedHealPrediction(unit, "player", f._hpCalc)
 			end
 
+			-- MASKING MODEL:
+			-- All three bars share SetAllPoints(barbase) and always draw from pixel 0.
+			-- SetMinMaxValues cannot spatially shift a bar's start position.
+			-- Visibility of deltas is achieved by layering: nativeBar (top) masks
+			-- 0→currentHP, leaving only the delta regions of lower bars visible.
+			--
+			-- shieldbar (lowest):  fills 0 → currentHP+absorb
+			-- incbar   (middle):   fills 0 → currentHP+heal   (covers shieldbar 0→healEnd)
+			-- nativeBar(top):      fills 0 → currentHP        (masks both for 0→currentHP)
+			--
+			-- Visible result: health | green heal delta | blue shield delta | empty
+
 			if db.inc and f.incbar then
-				-- GetIncomingHeals() -> allHeal, playerHeal, otherHeal, healClamped(bool)
-				-- allHeal (1st return) is the actual SECRET amount to pass to C.
+				-- MSUF texture-anchor approach:
+				-- Anchor incbar to the moving edge of nativeBar's StatusBarTexture.
+				-- Horizontal: anchor LEFT edge to texture RIGHT (or RIGHT to LEFT if reversed).
+				-- Vertical:   anchor BOTTOM edge to texture TOP (or TOP to BOTTOM if reversed).
+				local hpTex = f.nativeBar and f.nativeBar:GetStatusBarTexture()
+				if hpTex then
+					local rev  = db.reverse  and true or false
+					local vert = db.vertical and true or false
+					if f.incbar._anchorTex ~= hpTex or f.incbar._anchorRev ~= rev or f.incbar._anchorVert ~= vert then
+						f.incbar:ClearAllPoints()
+						if vert then
+							if rev then
+								-- Vertical reverse: health fills top-to-bottom; incbar extends above texture top edge
+								f.incbar:SetPoint("BOTTOMLEFT",  hpTex, "TOPLEFT",  0, 0)
+								f.incbar:SetPoint("BOTTOMRIGHT", hpTex, "TOPRIGHT", 0, 0)
+							else
+								-- Vertical normal: health fills bottom-to-top; incbar extends above texture top edge
+								f.incbar:SetPoint("BOTTOMLEFT",  hpTex, "TOPLEFT",  0, 0)
+								f.incbar:SetPoint("BOTTOMRIGHT", hpTex, "TOPRIGHT", 0, 0)
+							end
+						else
+							if rev then
+								-- Horizontal reverse: health fills right-to-left; incbar extends leftward
+								f.incbar:SetPoint("TOPRIGHT",    hpTex, "TOPLEFT",    0, 0)
+								f.incbar:SetPoint("BOTTOMRIGHT", hpTex, "BOTTOMLEFT", 0, 0)
+							else
+								-- Horizontal normal: health fills left-to-right; incbar extends rightward
+								f.incbar:SetPoint("TOPLEFT",    hpTex, "TOPRIGHT",    0, 0)
+								f.incbar:SetPoint("BOTTOMLEFT", hpTex, "BOTTOMRIGHT", 0, 0)
+							end
+						end
+						f.incbar._anchorTex  = hpTex
+						f.incbar._anchorRev  = rev
+						f.incbar._anchorVert = vert
+					end
+				end
 				local allHeal = f._hpCalc:GetIncomingHeals()
 				pcall(function()
 					f.incbar:SetMinMaxValues(0, maxHP)
@@ -92,8 +138,6 @@ local function UpdateStatusBar(unit, uf, f, reset, frac)
 			end
 
 			if db.shield and f.shieldbar then
-				-- GetDamageAbsorbs() -> damageAbsorbAmount, damageAbsorbClamped(bool)
-				-- damageAbsorbAmount (1st return) is the actual SECRET amount to pass to C.
 				local damageAbsorbAmount = f._hpCalc:GetDamageAbsorbs()
 				pcall(function()
 					f.shieldbar:SetMinMaxValues(0, maxHP)
@@ -199,14 +243,17 @@ local function UpdateBarLook(unit, uf, f, db)  -- update bar look for statusbars
 	if incbar and incbar.SetStatusBarTexture then
 		incbar:SetStatusBarTexture(texture)
 		incbar:SetStatusBarColor(0.4, 1, 0.4, 0.9)
-		incbar:ClearAllPoints()
-		incbar:SetAllPoints(barbase)
 		if db.vertical then
 			incbar:SetOrientation("VERTICAL")
 		else
 			incbar:SetOrientation("HORIZONTAL")
 		end
-		incbar:SetReverseFill(db.reverse and true or false)
+		incbar:SetReverseFill(db.reverse and true or false)  -- same direction as health bar
+		-- Size to full bar dimensions; anchor to nativeBar moving texture in UpdateStatusBar
+		incbar:SetSize(cw, ch)
+		incbar._anchorTex  = nil  -- force re-anchor on next update
+		incbar._anchorRev  = nil
+		incbar._anchorVert = nil
 	end
 	if shieldbar and shieldbar.SetStatusBarTexture then
 		shieldbar:SetStatusBarTexture(texture)
@@ -275,14 +322,15 @@ local function UpdateBarLook(unit, uf, f, db)  -- update bar look for statusbars
 				nb:SetOrientation("HORIZONTAL")
 			end
 			nb:SetReverseFill(db.reverse and true or false)
-			local nbLevel = (f:GetFrameLevel() or 1) + 1
+			-- nativeBar level is driven by db.framelevel (config); never hardcoded.
+			-- shieldbar = nativeBar + 1, incbar = nativeBar + 2 (incbar has visual priority).
+			local nbLevel = db.framelevel or 1
 			nb:SetFrameLevel(nbLevel)
-			-- Keep overlay bars strictly below nativeBar so it paints over their left fill
 			if f.incbar and f.incbar.SetStatusBarTexture then
-				f.incbar:SetFrameLevel(math.max(1, nbLevel - 1))
+				f.incbar:SetFrameLevel(nbLevel + 2)
 			end
 			if f.shieldbar and f.shieldbar.SetStatusBarTexture then
-				f.shieldbar:SetFrameLevel(math.max(1, nbLevel - 2))
+				f.shieldbar:SetFrameLevel(nbLevel + 1)
 			end
 			nb:Show()
 		end
@@ -360,7 +408,7 @@ do  -- Health and Power Bars ---------------------------------------------------
 				-- "predicted heal" portion beyond the health fill is visible.
 				if not f.incbar then
 					local ib = CreateFrame("StatusBar", nil, f.barbase)
-					ib:SetAllPoints(f.barbase)
+					-- Size and anchor set in UpdateBarLook/UpdateStatusBar (MSUF texture-anchor approach)
 					ib:SetMinMaxValues(0, 1)
 					ib:SetValue(0)
 					ib:Hide()
@@ -863,15 +911,25 @@ do  -- Threat Bar --------------------------------------------------------------
 					isTanking, status, threatpct = UnitDetailedThreatSituation("player", unit)
 				end
 
-				if not threatpct or threatpct < 1 then
+				-- 12.0.1: threatpct and status are secret values; pcall-wrap all comparisons
+				local showThreat, frac, isHighThreat = false, 0.01, false
+				if threatpct then
+					pcall(function()
+						if threatpct >= 1 then
+							showThreat = true
+							frac = threatpct * 0.01
+							isHighThreat = (status > 0)
+						end
+					end)
+				end
+				if not showThreat then
 					f:Hide()
 				else
-					local frac = threatpct * 0.01
 					local r, g, b = GetThreatStatusColor(status)
 					f.text:SetFormattedText("%d%%", threatpct)
 					f.bar:SetValue(frac, f.bvalue)
 					f.bar:SetVertexColor(r, g, b, f.db.baralpha or 1)
-					if status > 0 then
+					if isHighThreat then
 						f:SetScript("OnUpdate", ThreatOnUpdate)
 					else
 						f:SetAlpha(f.db.alpha or 1)
@@ -975,19 +1033,26 @@ if CLS == "SHAMAN" or CLS == "DRUID" or CLS == "DEATHKNIGHT" or CLS == "PALADIN"
 				if not f or f.db.hide then return end
 
 				for i = 1, 4, 1 do
-					local haveTotem, name, startTime, duration, icon = GetTotemInfo(i)
+					-- 12.0.1: GetTotemInfo returns secret values for all returns.
+					-- haveTotem (1st return) is a secret boolean — cannot test with 'if'.
+					-- Use icon (a plain string: nil when empty, texture path when active) as proxy.
+					local _, totemName, startTime, duration, icon = GetTotemInfo(i)
 					if config then
-						haveTotem = true
 						startTime = GetTime()
 						duration = i * 20
 						icon = "Interface\\Icons\\Spell_ChargePositive"
 					end
 					local reorder = (i == 1 and 2) or (i == 2 and 1) or i  -- switch earth and fire
-					if haveTotem and duration > 0 then
+					if icon and icon ~= "" then  -- safe string check; nil/empty = no totem
 						local b = f[reorder]
 						local c = totcolors[reorder]
-						b.endtime = startTime + duration
-						b.duration = 1 / duration
+						-- startTime and duration are secret values; pcall-extract a safe remain
+						-- so that TotemOnUpdate can use safe GetTime() arithmetic thereafter.
+						local safeRemain = i * 20  -- fallback (config mode or pcall failure)
+						pcall(function() safeRemain = startTime + duration - GetTime() end)
+						if safeRemain < 0.1 then safeRemain = 0.1 end
+						b.endtime = GetTime() + safeRemain  -- safe non-secret value
+						b.duration = 1 / safeRemain          -- safe non-secret value
 						b.throt = 0.1
 						b.elapsed = 1
 						b.icon:SetTexture(icon)
