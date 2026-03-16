@@ -1382,7 +1382,8 @@ local hpbar={ name=L["Health Bar"], type="group", order=3,
 		bartexture=bartexture, barcolormethod=barcolormethod, barcolor=barcolor, baralpha=baralpha, blank3=blank3,
 		fade=fade, smoothfade=smoothfade, reverse=reverse, deplete=deplete, vertical=vertical, hflip=hflip, vflip=vflip, blank4=blank4,
 		barinsetleft=barinsetleft, barinsetright=barinsetright, barinsettop=barinsettop, barinsetbottom=barinsetbottom,
-		inc={ name=L["Show Incoming Heals"], desc=L["Beta - only works with rectangular bar textures"], type="toggle", order=100, set=set, get=get, },
+		inc={ name=L["Show Incoming Heals"], desc=L["Shows predicted incoming heal amount beyond health fill (green). Requires rectangular bar texture."], type="toggle", order=100, set=set, get=get, },
+		shield={ name=L["Show Absorb Shield"], desc=L["Shows absorb shield amount beyond health fill (blue). Requires rectangular bar texture."], type="toggle", order=101, set=set, get=get, },
 	},
 }
 local function notplayer(info)

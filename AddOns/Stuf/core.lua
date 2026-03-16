@@ -351,8 +351,10 @@ end)
 				cprocess = 2
 				for unit, uf in pairs(metrounits) do
 					if uf:IsShown() then
-						local newname = GetUnitName(unit) -- 12.0 fix
-						if not issecretvalue(newname) and uf.cache.name ~= newname then
+						-- 12.0.1: cache.name may be a secret string; pcall-guard the comparison
+						local nameMatch = false
+						pcall(function() nameMatch = (uf.cache.name == GetUnitName(unit)) end)
+						if not nameMatch then
 							RefreshUnit(config and "player" or unit, uf)
 						else
 							UpdateReaction(unit, uf)
@@ -901,31 +903,59 @@ do  -- general data updating
 		uf = uf or su[unit]
 		if not uf or uf.hidden then return end
 		local cache = uf.cache
-		local creaturetype = UnitCreatureType(unit) or _G.UNKNOWN
-		-- cache.creaturetype = (creaturetype == "Not specified" and _G.UNKNOWN) or creaturetype
-		cache.creaturetype = (issecretvalue(creaturetype) or creaturetype == "Not specified") and _G.UNKNOWN or creaturetype -- 12.0 fix
-		cache.pvp = UnitIsPVP(unit)
-		cache.faction = cache.pvp and UnitFactionGroup(unit) or ""  -- only check for faction if PVPed
+		-- 12.0.1: Most unit reaction/pvp APIs return secret values during combat.
+		-- pcall-wrap each one to safely convert to plain Lua true/nil.
+		-- On pcall failure the cache key retains its previous value (safe stale fallback).
+		
+		-- Creature type: secret string — pcall-guard the "Not specified" string comparison
+		pcall(function()
+			local ct = UnitCreatureType(unit) or _G.UNKNOWN
+			cache.creaturetype = (ct == "Not specified" and _G.UNKNOWN) or ct
+		end)
+		
+		-- Convert secret boolean to plain true/nil via pcall boolean test
+		local function toBool(v)
+			local r = nil
+			pcall(function() if v then r = true end end)
+			return r
+		end
+		
+		cache.pvp = toBool(UnitIsPVP(unit))
+		cache.faction = (cache.pvp and UnitFactionGroup(unit)) or ""
 		cache.incombat = UnitAffectingCombat(unit)
 		
-		cache.assist = cache.ingroup or UnitCanAssist("player", unit)
+		-- cache.ingroup is always a plain bool; short-circuit avoids calling UnitCanAssist on a secret result
+		if cache.ingroup then
+			cache.assist = true
+		else
+			cache.assist = toBool(UnitCanAssist("player", unit))
+		end
 		if cache.assist then
 			cache.enemy = nil
 			cache.hostile = nil
 			cache.attackable = nil
 		else
-			cache.enemy = UnitIsEnemy(unit, "player")
-			cache.hostile = UnitCanAttack(unit, vunit or "player")
-			cache.attackable = UnitCanAttack("player", unit)
+			cache.enemy      = toBool(UnitIsEnemy(unit, "player"))
+			cache.hostile    = toBool(UnitCanAttack(unit, vunit or "player"))
+			cache.attackable = toBool(UnitCanAttack("player", unit))
 		end
 		if cache.pc then
-			cache.pvpffa = UnitIsPVPFreeForAll(unit)
-			if cache.hostile then 
+			cache.pvpffa = toBool(UnitIsPVPFreeForAll(unit))
+			if cache.hostile then
 				cache.reaction = 2
-			elseif cache.attackable then  -- Players we can attack but which are not hostile are yellow
+			elseif cache.attackable then
 				cache.reaction = 4
-			elseif cache.pvp and not UnitIsPVPSanctuary(unit) and not UnitIsPVPSanctuary("player") then  -- Players we can assist but are PvP flagged are green
-				cache.reaction = 6
+			elseif cache.pvp then
+				-- UnitIsPVPSanctuary returns secret bool; toBool each call separately
+				local s1 = toBool(UnitIsPVPSanctuary(unit))
+				local s2 = toBool(UnitIsPVPSanctuary("player"))
+				if not s1 and not s2 then
+					cache.reaction = 6
+				elseif cache.enemy then
+					cache.reaction = 10
+				else
+					cache.reaction = 9
+				end
 			elseif cache.enemy then
 				cache.reaction = 10
 			else
@@ -933,7 +963,20 @@ do  -- general data updating
 			end
 		else  -- NPC
 			cache.pvpffa = nil
-			cache.reaction = UnitReaction(unit, "player")
+			-- UnitReaction may return a secret number; try to extract a plain integer via pcall
+			local reaction = nil
+			pcall(function()
+				local r = UnitReaction(unit, "player")
+				if r then
+					for i = 1, 10 do
+						local match = false
+						if pcall(function() match = (r == i) end) and match then
+							reaction = i; break
+						end
+					end
+				end
+			end)
+			cache.reaction = reaction or cache.reaction or 5  -- default to neutral if unknown
 		end
 		for ename, func in pairs(uf.reactionelements) do  -- update all reaction/pvp elements
 			func(unit, uf, uf[ename], reset, nil, config)
