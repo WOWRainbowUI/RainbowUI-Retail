@@ -240,11 +240,20 @@ function events.ADDON_LOADED(a1)
 		DisableDefault(FocusFrame)
 		DisableDefault(TargetofFocusFrame)
 				
-		if dbg.disableprframes and _G.CompactRaidFrameManager then
-			CompactRaidFrameManager:UnregisterAllEvents() 
-			CompactRaidFrameManager:Hide() 
-			CompactRaidFrameContainer:UnregisterAllEvents() 
-			CompactRaidFrameContainer:Hide() 
+		-- 12.0.1 (Midnight): party/raid frames consolidated into PartyFrame.
+		-- RegisterStateDriver with "hide" is the only reliable way to suppress it.
+		-- Legacy CompactRaidFrameManager kept as fallback for older patches.
+		if dbg.disableprframes then
+			if _G.PartyFrame then
+				_G.PartyFrame:UnregisterAllEvents()
+				_G.PartyFrame:Hide()
+				RegisterStateDriver(_G.PartyFrame, "visibility", "hide")
+			elseif _G.CompactRaidFrameManager then
+				CompactRaidFrameManager:UnregisterAllEvents()
+				CompactRaidFrameManager:Hide()
+				CompactRaidFrameContainer:UnregisterAllEvents()
+				CompactRaidFrameContainer:Hide()
+			end
 		end
 		
 		for i = 1, 4, 1 do
@@ -913,16 +922,19 @@ do  -- general data updating
 			cache.creaturetype = (ct == "Not specified" and _G.UNKNOWN) or ct
 		end)
 		
-		-- Convert secret boolean to plain true/nil via pcall boolean test
+		-- Convert secret boolean to plain true/nil.
+		-- CANNOT use pcall for boolean tests in 12.0.1 -- taint errors escape pcall.
+		-- Use issecretvalue to detect and return nil for secret booleans.
+		local _issecretB = _G.issecretvalue
 		local function toBool(v)
-			local r = nil
-			pcall(function() if v then r = true end end)
-			return r
+			if _issecretB and _issecretB(v) then return nil end
+			if v then return true end
+			return nil
 		end
 		
 		cache.pvp = toBool(UnitIsPVP(unit))
 		cache.faction = (cache.pvp and UnitFactionGroup(unit)) or ""
-		cache.incombat = UnitAffectingCombat(unit)
+		cache.incombat = toBool(UnitAffectingCombat(unit))
 		
 		-- cache.ingroup is always a plain bool; short-circuit avoids calling UnitCanAssist on a secret result
 		if cache.ingroup then
@@ -999,18 +1011,14 @@ do  -- general data updating
 		local current, total = UnitHealth(unit), UnitHealthMax(unit)
 		cache.curhp = current
 		cache.maxhp = total
-		-- frachp/perchp used only for color threshold methods (not bar fill).
-		-- UnitHealthPercent returns a secret value in 12.0; pcall the multiply.
-		local rawpct = UnitHealthPercent(unit)
-		local ok, frac = pcall(function() return rawpct * 0.01 end)
-		if ok then
-			cache.frachp = frac
-			cache.perchp = frac * 100
-		else
-			cache.frachp = 1
-			cache.perchp = 100
-		end
-		cache.deficithp = ""
+		local _scale = (CurveConstants and CurveConstants.ScaleTo100) or true
+		local rawpct = UnitHealthPercent(unit, false, _scale)
+		local pok, pfrac = pcall(function() return rawpct * 0.01 end)
+		cache.frachp = pok and pfrac or (cache.frachp or 1)
+		cache.perchp = cache.frachp * 100
+		-- deficit: pcall subtraction since both are secrets
+		local defok, defval = pcall(function() return total - current end)
+		cache.deficithp = defok and format("%d", defval) or ""
 		-- Death detection via API only (no value comparison)
 		local isDead = UnitIsDeadOrGhost(unit)
 		if isDead and not cache.dead then
@@ -1037,18 +1045,15 @@ do  -- general data updating
 		local current, total = UnitPower(unit), UnitPowerMax(unit)
 		cache.curmp = current
 		cache.maxmp = total
-		-- fracmp/percmp used only for color threshold methods (not bar fill).
-		-- UnitPowerPercent returns a secret value in 12.0; pcall the multiply.
-		local rawppct = UnitPowerPercent(unit)
-		local ppok, pfrac = pcall(function() return rawppct * 0.01 end)
-		if ppok then
-			cache.fracmp = pfrac
-			cache.percmp = pfrac * 100
-		else
-			cache.fracmp = 1
-			cache.percmp = 100
-		end
-		cache.deficitmp = ""
+		local _scalep = (CurveConstants and CurveConstants.ScaleTo100) or true
+		local powerType = UnitPowerType(unit)
+		local rawppct = UnitPowerPercent(unit, powerType, false, _scalep)
+		local ppok, ppfrac = pcall(function() return rawppct * 0.01 end)
+		cache.fracmp = ppok and ppfrac or (cache.fracmp or 1)
+		cache.percmp = cache.fracmp * 100
+		-- deficit: pcall subtraction since both are secrets
+		local dmpok, dmpval = pcall(function() return total - current end)
+		cache.deficitmp = dmpok and format("%d", dmpval) or ""
 		cache.shards = uf.iswl and UnitPower("player", _G.SPELL_POWER_SOUL_SHARDS) or ""
 		-- Pass 0.5 placeholder as frac -- bars display at 50% until Step 1 secret-value rewrite
 		for ename, func in pairs(uf.powerelements) do
@@ -1096,12 +1101,16 @@ do  -- general data updating
 			"party1target", "party2target", "party3target", "party4target",
 			"arena1", "arena2", "arena3", "arena4", "arena5",
 		}
+		local _issecretAggro = _G.issecretvalue
 		local function UnitAggro(ut)
-			if not UnitCanAttack("player", ut) then return end
+			local canAtk = UnitCanAttack("player", ut)
+			if not (_issecretAggro and _issecretAggro(canAtk)) and not canAtk then return end
 			ut = ut.."target"
-			if not UnitCanAssist("player", ut) then return end
+			local canAssist = UnitCanAssist("player", ut)
+			if not (_issecretAggro and _issecretAggro(canAssist)) and not canAssist then return end
 			for u, uf in pairs(su) do
-				if UnitIsUnit(u, ut) then
+				local isUnit = UnitIsUnit(u, ut)
+				if not (_issecretAggro and _issecretAggro(isUnit)) and isUnit then
 					uf.cache.aggro = true
 					wiped = nil
 				end
