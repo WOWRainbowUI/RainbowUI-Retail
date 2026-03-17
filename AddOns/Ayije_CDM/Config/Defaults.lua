@@ -32,6 +32,7 @@ CDM.defaults = {
     buffBarIconPosition = "LEFT",   -- "LEFT", "RIGHT", "HIDDEN"
     buffBarIconGap = 1,             -- Gap between icon and bar
     buffBarShowName = true,
+    buffBarNameMaxChars = 0,
     buffBarShowDuration = true,
     buffBarTexture = "Solid",
     buffBarColor = { r = 0.4, g = 0.6, b = 0.9, a = 1 },
@@ -75,6 +76,13 @@ CDM.defaults = {
     defensivesEnabled = true,
     trinketsEnabled = true,
     resourcesEnabled = true,
+    externalsEnabled = true,
+
+    -- Externals (ExternalDefensivesFrame) settings
+    externalsIconWidth = 30,
+    externalsIconHeight = 30,
+    externalsCooldownFontSize = 15,
+    externalsDisableBlink = true,
 
     -- Racials tracker settings
     racialsIconWidth = 40,
@@ -226,6 +234,7 @@ CDM.defaults = {
     castBarHeight = 20,
     castBarFontSize = 15,
     castBarShowSpellName = true,
+    castBarNameMaxChars = 0,
     castBarShowTimer = true,
     castBarShowSpark = true,
     castBarNameOffsetX = 2,
@@ -264,6 +273,8 @@ CDM.defaults = {
     customBuffRegistry = {},
     buffGroups = {},
     ungroupedBuffOverrides = {},
+    cooldownGroups = {},
+    ungroupedCooldownOverrides = {},
 
     -- Global Text Settings
     textFont = "Friz Quadrata TT",
@@ -271,9 +282,12 @@ CDM.defaults = {
 
     -- Cooldown Timer Text
     cooldownFontSize = 15,
+    essRow2CooldownFontSize = 15,
+    utilityCooldownFontSize = 15,
     cooldownColor = { r = 1, g = 1, b = 1, a = 1 },
     -- ChargeCount
     chargeFontSize = 15,
+    utilityChargeFontSize = 15,
     chargeColor = { r = 1, g = 1, b = 1, a = 1 },
     chargePosition = "BOTTOMRIGHT",
     chargeOffsetX = 0,
@@ -293,6 +307,11 @@ CDM.defaults = {
     countOffsetYMain = 0,
 
     zoomIcons = true,
+    zoomAmount = 0.08,
+    hideIconOverlay = true,
+    hideIconOverlayTexture = true,
+    swipeColor = { r = 0, g = 0, b = 0, a = 0.6 },
+    hideGCDSwipe = false,
 
     -- Glow Settings
     glowType = "pixel", -- "pixel", "autocast", "button", "proc"
@@ -329,7 +348,9 @@ CDM.defaults = {
 
     -- Fading
     fadingEnabled = false,
-    fadingTrigger = "notarget",
+    fadingTriggerNoTarget = true,
+    fadingTriggerOOC = false,
+    fadingTriggerMounted = false,
     fadingOpacity = 30,
     fadingEssential = true,
     fadingUtility = true,
