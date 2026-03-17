@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260217034401")
+mod:SetRevision("20260315020426")
 mod:SetCreatureID(76266)
 mod:SetEncounterID(1701)
 mod:SetUsedIcons(1)
@@ -83,7 +83,6 @@ else
 		timerLenseFlareCD:Start(27.3-delay)
 		if skyTrashMod and skyTrashMod.Options.RangeFrame and skyTrashMod.vb.debuffCount ~= 0 then--In case of bug where range frame gets stuck open from trash pulls before this boss.
 			skyTrashMod.vb.debuffCount = 0--Fix variable
-			DBM.RangeCheck:Hide()--Close range frame.
 		end
 	end
 

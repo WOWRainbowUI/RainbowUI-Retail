@@ -5,7 +5,8 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,duos"
 end
 
-mod:SetRevision("20260307180112")
+mod:SetRevision("20260315034941")
+mod:DisableHardcodedOptions()
 mod:SetCreatureID(17306)
 mod:SetEncounterID(1893)
 mod:SetZone(543, 2849)--Hellfire ramparts, Duos

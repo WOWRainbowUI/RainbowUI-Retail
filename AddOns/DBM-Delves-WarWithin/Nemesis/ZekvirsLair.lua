@@ -4,7 +4,8 @@ local L		= mod:GetLocalizedStrings()
 mod.statTypes = "normal,mythic"--Best way to really call it
 mod.soloChallenge = true
 
-mod:SetRevision("20260220041047")
+mod:SetRevision("20260315034941")
+mod:DisableHardcodedOptions()
 mod:SetCreatureID(225204)--Non hard one placeholder on load. Real one set in OnCombatStart
 mod:SetEncounterID(2987, 2985)
 mod:SetHotfixNoticeRev(20240914000000)

@@ -1,7 +1,8 @@
 local mod	= DBM:NewMod("PitOfSaronTrash", "DBM-Party-WotLK", 15)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260312052448")
+mod:SetRevision("20260315034941")
+mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 mod:SetZone(658)
 
