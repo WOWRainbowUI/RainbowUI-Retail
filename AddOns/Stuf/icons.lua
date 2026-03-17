@@ -6,6 +6,15 @@ local dbg
 Stuf:AddOnInit(function(_, idbg) dbg = idbg end)
 local CreateFrame = CreateFrame
 
+-- optional localization support
+-- for external localization, make a mod titled StufLocale and create table StufLocalization
+local rawget = rawget
+local L = setmetatable(StufLocalization or { }, {
+	__index = function(self, key)
+		return rawget(self, key) or key
+	end
+})
+
 do
 	local SetPortraitTexture, UnitIsVisible = SetPortraitTexture, UnitIsVisible
 	local function UpdatePortrait(unit, uf, f, reset)
@@ -740,23 +749,28 @@ do  -- Inspect Button ----------------------------------------------------------
 					if SlashCmdList.NOTETARGET then SlashCmdList.NOTETARGET() end
 					if SlashCmdList.MOBNOTES_SHORTHAND then SlashCmdList.MOBNOTES_SHORTHAND() end
 				elseif a1 == "RightButton" then 
+					--[[
 					if not DressUpFrame:IsShown() then 
 						ShowUIPanel(DressUpFrame) 
 					end
-					if IsAddOnLoaded("CloseUp") then
+					if C_AddOns.IsAddOnLoaded("CloseUp") then
 						DressUpFrameCancelButton:Click()
 					else
 						--DressUpModel:SetUnit("target")
 						--SetPortraitTexture(DressUpFramePortrait, "target")
 					end
+					--]]
+					InitiateTrade("target")
+				elseif a1 == "Button4" then
+					FollowUnit("target")
 				end 
 			end)
 			f:SetScript("OnEnter", function(this)
 				GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
-				GameTooltip:SetText("Inspect", 1, 1, 1)
-				GameTooltip:AddLine(" <Left-click> to inspect.\n"..
-				            ((SlashCmdList.NOTETARGET or SlashCmdList.MOBNOTES_SHORTHAND) and " <Middle-click> to note target.\n" or "")..
-				            " <Right-click> to dressup.", 0, 1, 0)
+				GameTooltip:SetText(L["Inspect"], 1, 1, 1)
+				GameTooltip:AddLine(L[" <Left-click> to inspect.\n"]..
+				            ((SlashCmdList.NOTETARGET or SlashCmdList.MOBNOTES_SHORTHAND) and L[" <Middle-click> to note target.\n"] or "")..
+				            L[" <Right-click> to dressup."], 0, 1, 0)
 				GameTooltip:Show()
 			end)
 			f:SetScript("OnLeave", Stuf.GameTooltipOnLeave)
