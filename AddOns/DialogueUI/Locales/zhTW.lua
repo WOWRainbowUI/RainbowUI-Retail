@@ -97,13 +97,14 @@ L["Format Unit Level"] = UNIT_LEVEL_TEMPLATE or "等級 %d";
 L["Format Replace Item"] = "取代 %s";
 L["Format Item Level"] = "物品等級 %d";   --_G.ITEM_LEVEL in Classic is different
 L["Format Breadcrumb Quests Available"] = "可接的系列任務: %s";    --This type of quest guide the player to a new quest zone. See "Breadcrumb" on https://warcraft.wiki.gg/wiki/Quest#Quest_variations
-L["Format Functionality Handled By"] = "此功能由 %s 提供";      --A functionality is provided by [another addon name] (Used in Settings.lua)
+L["Format Functionality Handled By"] = "此功能由 %s 提供。";      --A functionality is provided by [another addon name] (Used in Settings.lua)
 
 L["Format Time Left"] = BONUS_OBJECTIVE_TIME_LEFT or "剩餘時間: %s";
 L["Format Your Progress"] = "你的進度: |cffffffff%d/%d|r";
 L["Format And More"] = LFG_LIST_AND_MORE or "還有 %d 個...";
 L["Format Chapter Progress"] = STORY_CHAPTERS or "%d/%d 章節";
 L["Format Quest Progress"] = "%d/%d 任務";
+L["Format RP Name Example"] = "你的 RP 角色將會被稱呼為：\n%s";
 
 --Settings
 L["UI"] = "介面";
