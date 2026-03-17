@@ -29,7 +29,7 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.6"
+local ADDON_VERSION = "2.7"
 local CONFIG_VERSION = "3.1"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
@@ -493,6 +493,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
 
         if DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"] then
             SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", true)
+            TextureLoadingGroupMixin.RemoveTexture({ textures = NamePlateFriendlyFrameOptions }, "updateNameUsesGetUnitName")
         end
         if DFFriendlyNamePlates.NamePlatesSettings["showClassColor"] then
             SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", true)
