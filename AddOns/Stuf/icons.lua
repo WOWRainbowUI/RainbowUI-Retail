@@ -746,8 +746,12 @@ do  -- Inspect Button ----------------------------------------------------------
 				if a1 == "LeftButton" then
 					InspectUnit("target")
 				elseif a1 == "MiddleButton" then
-					if SlashCmdList.NOTETARGET then SlashCmdList.NOTETARGET() end
-					if SlashCmdList.MOBNOTES_SHORTHAND then SlashCmdList.MOBNOTES_SHORTHAND() end
+					-- if SlashCmdList.NOTETARGET then SlashCmdList.NOTETARGET() end
+					-- if SlashCmdList.MOBNOTES_SHORTHAND then SlashCmdList.MOBNOTES_SHORTHAND() end
+					local name = UnitName("target")
+					if name then
+						ChatFrame_SendTell(name, DEFAULT_CHAT_FRAME)
+					end
 				elseif a1 == "RightButton" then 
 					--[[
 					if not DressUpFrame:IsShown() then 
@@ -769,7 +773,8 @@ do  -- Inspect Button ----------------------------------------------------------
 				GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
 				GameTooltip:SetText(L["Inspect"], 1, 1, 1)
 				GameTooltip:AddLine(L[" <Left-click> to inspect.\n"]..
-				            ((SlashCmdList.NOTETARGET or SlashCmdList.MOBNOTES_SHORTHAND) and L[" <Middle-click> to note target.\n"] or "")..
+				            -- ((SlashCmdList.NOTETARGET or SlashCmdList.MOBNOTES_SHORTHAND) and L[" <Middle-click> to note target.\n"] or "")..
+							L[" <Middle-click> to note target.\n"]..
 				            L[" <Right-click> to dressup."], 0, 1, 0)
 				GameTooltip:Show()
 			end)
@@ -786,5 +791,17 @@ do  -- Inspect Button ----------------------------------------------------------
 		f:SetAlpha(db.alpha or 1)
 		f:SetPoint("TOPLEFT", uf, "TOPLEFT", db.x, db.y)
 		f:SetFrameLevel(db.framelevel or 4)
+		
+		-- NPC 不顯示互動按鈕
+		if not uf.refreshfuncs[name] then
+			uf.refreshfuncs[name] = function(u, uframe)
+				local btn = (uframe or su[u]).inspectbutton
+				if btn and not btn.db.hide then
+					(UnitIsPlayer(u) and btn.Show or btn.Hide)(btn)
+				end
+			end
+			Stuf:RegisterElementRefresh(uf, name, "reactionelements", true)
+		end
+		if Stuf.inworld then uf.refreshfuncs[name](unit, uf) end
 	end)
 end
