@@ -48,6 +48,10 @@ if L then
     L["disableLoginMessageDescription"] = "Disables the login message that shows how to open the Options."
     L["disableReadyCheckDescription"] = "Disables showing ready check in the timeline."
     L["disableReadyCheck"] = "Disable Ready Check"
+    L["disableBossModsBars"] = "Disable Boss Mods Bars"
+    L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
+    L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
+    L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
 
     -- reminders
     L["ReminderEditTitle"] = "Edit Reminder"
@@ -118,6 +122,9 @@ if L then
     L["SpellnameFontDescription"] = "Sets the font of the text besides the icon."
     L["SpellnameDefaultColor"] = "Default Text Color"
     L["SpellnameDefaultColorDescription"] = "Sets the default color of the text besides the icon when not impacted by specific information like the type of debuff e.G. Poison."
+    L["SpellnameUseEventColor"] = "Use Event Color"
+    L["SpellnameUseEventColorDescription"] = "Colors the text based on the color set for the event by Bossmods/Blizzard. The default will be set to an (according to Blizzard) appropriate color."
+
 
     L["CooldownSettings"] = "Cooldown Settings"
     L["CooldownFont"] = "Cooldown Font"

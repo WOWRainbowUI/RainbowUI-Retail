@@ -42,6 +42,14 @@ L["debugModeDescription"] = "启用调试模式，将在聊天窗口输出额外
 L["DefaultCooldownColor"] = "冷却颜色"
 L["disableAllOnEncounterEnd"] = "禁用所有提醒信息"
 L["disableAllOnEncounterEndDescription"] = "在首领战结束时，禁用所有的事件提醒信息。"
+--[[Translation missing --]]
+L["disableBossModsBars"] = "Disable Boss Mods Bars"
+--[[Translation missing --]]
+L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
 L["disableLoginMessage"] = "禁用登录信息"
 L["disableLoginMessageDescription"] = "禁用登录时显示的如何打开选项的提示信息。"
 L["disableReadyCheck"] = "禁用就位确认"
@@ -170,6 +178,10 @@ L["SpellnameFont"] = "字体"
 L["SpellnameFontDescription"] = "设置图标旁文本的字体。"
 L["SpellnameFontSize"] = "字体大小"
 L["SpellnameFontSizeDescription"] = "设置图标旁文本的字体大小。"
+--[[Translation missing --]]
+L["SpellnameUseEventColor"] = "Use Event Color"
+--[[Translation missing --]]
+L["SpellnameUseEventColorDescription"] = "Colors the text based on the color set for the event by Bossmods/Blizzard. The default will be set to an (according to Blizzard) appropriate color."
 L["StartTimerAfterDescription"] = "首领战开始后，提醒信息在时间轴上开始显示前的延迟时间（秒）。"
 L["StartTimerAfterLabel"] = "开始延迟（秒）"
 L["Strata"] = "框体层级"
