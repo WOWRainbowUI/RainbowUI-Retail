@@ -6,6 +6,9 @@ local AceLocale = LibStub:GetLibrary("AceLocale-3.0")
 local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "enUS", true, false)
 
+-- NOTE: Some strings are sourced from BlizzardInterfaceResources:
+-- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/enUS.lua
+
 L["MODULES"] = "Modules"
 L["LEFT_CLICK"] = "Left-Click"
 L["RIGHT_CLICK"] = "Right-Click"
@@ -119,8 +122,8 @@ L["SHOW_SHOP_BUTTON"] = "Show Shop Button"
 L["SHOW_HELP_BUTTON"] = "Show Help Button"
 L["SHOW_HOUSING_BUTTON"] = "Show Housing Button"
 L["NO_INFO"] = "No Info"
-L["ALLIANCE"] = "Alliance"
-L["HORDE"] = "Horde"
+L["Alliance"] = FACTION_ALLIANCE
+L["Horde"] = FACTION_HORDE
 
 L["DURABILITY_WARNING_THRESHOLD"] = "Durability Warning Threshold"
 L["SHOW_ITEM_LEVEL"] = "Show Item Level"
@@ -158,6 +161,7 @@ L["READY"] = "Ready"
 L["TRAVEL_COOLDOWNS"] = "Travel Cooldowns"
 L["CHANGE_PORT_OPTION"] = "Change Port Option"
 
+-- Gold
 L["REGISTERED_CHARACTERS"] = "Registered characters"
 L["SHOW_FREE_BAG_SPACE"] = "Show Free Bag Space"
 L["SHOW_OTHER_REALMS"] = "Show Other Realms"
@@ -166,14 +170,17 @@ L["SHORTEN_GOLD"] = "Shorten Gold"
 L["TOGGLE_BAGS"] = "Toggle Bags"
 L["SESSION_TOTAL"] = "Session Total"
 L["DAILY_TOTAL"] = "Daily Total"
+L["SHOW_WARBAND_BANK_GOLD"] = "Show " .. ACCOUNT_BANK_PANEL_TITLE .. " Gold"
 L["GOLD_ROUNDED_VALUES"] = "Gold rounded values"
+L["HIDE_CHAR_UNDER_THRESHOLD"] = "Hide Characters Under Threshold"
+L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Threshold"
 
 -- Currency
 L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "Show XP Bar Below Max Level"
 L["CLASS_COLORS_XP_BAR"] = "Use Class Colors for XP Bar"
 L["SHOW_TOOLTIPS"] = "Show Tooltips"
 L["TEXT_ON_RIGHT"] = "Text on Right"
-L["CURRENCY_SELECT"] = "Currency Select"
+L["BAR_CURRENCY_SELECT"] = "Currencies displayed on the bar"
 L["FIRST_CURRENCY"] = "First Currency"
 L["SECOND_CURRENCY"] = "Second Currency"
 L["THIRD_CURRENCY"] = "Third Currency"
@@ -201,6 +208,7 @@ L["OPEN_REPUTATION"] = "Open " .. REPUTATION
 L["PARAGON_REWARD_AVAILABLE"] = "Paragon Reward available"
 L["CLASS_COLORS_REPUTATION"] = "Use Class Colors for Reputation Bar"
 L["REPUTATION_COLORS_REPUTATION"] = "Use Reputation Colors for Reputation Bar"
+L["SHOW_LAST_REPUTATION_GAINED"] = "Show last gained reputation"
 L["FLASH_PARAGON_REWARD"] = "Flash on Paragon Reward"
 L["PROGRESS"] = "Progress"
 L["RANK"] = "Rank"

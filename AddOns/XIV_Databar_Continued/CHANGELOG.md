@@ -1,27 +1,17 @@
 # XIV_Databar Continued
 
-## [5.0](https://github.com/ZelionGG/XIV_Databar-Continued/releases/tag/5.0) (2026-03-14)
+## [5.2](https://github.com/ZelionGG/XIV_Databar-Continued/releases/tag/5.2) (2026-03-16)
 
-[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v4.8.1...v5.0) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
-
-> **Version 5.0 marks a major milestone for XIV_Databar Continued, bringing one of the biggest updates in the AddOn's history. More than ever, this release is also a reflection of the community that helps me shape, improve, and enrich XIV day after day through feedback, ideas, bug reports, and support, so thank you once again.**
+[Full Changelog](https://github.com/ZelionGG/XIV_Databar-Continued/compare/v5.1.1...v5.2) [Previous Releases](https://github.com/ZelionGG/XIV_Databar-Continued/releases)
 
 ### _Global :_
 
-- 🔥 _**IMPORTANT** -_ After years of waiting, the dream is real: you can now position modules however you want! Enable **Module Positioning** in the settings, slide each module along the X-axis with the new controls, let the addon auto-capture your current layout, and enjoy free, precise placement without breaking your legacy setup.
-- 🆕 _**NEW** -_ Added a new highly customizable **Rest Icon** in the **Clock** module (Thank you **Skyfox** on the Discord for the suggestion).
-- 🆕 _**NEW** -_ Added an option to allow setting sound volume from the **Master Volume** module using mouse wheel (Thank you **Skyfox** on the Discord for the suggestion).
-- 🆕 _**NEW** -_ It is now possible to hide the **Clock** module when **Module Free Placement** is enabled, if **Module Free Placement** is disabled, the **Clock** module will show again automatically.
-- 🛠️ _**IMPROVEMENT** -_ Popups now stay visible when using **Show on mouseover**.
-- 🛠️ _**IMPROVEMENT** -_ **Talent** and **Travel** popups are now closed automatically when you click anywhere outside of them.
-- 🛠️ _**IMPROVEMENT** -_ Updated German translation (thank you **DlargeX**).
+- 🆕 _**NEW** -_ Added an option to always **Show the last gained reputation** in the **Reputation** module (thank you jmadfour for the suggestion).
+- 🆕 _**NEW** -_ Added an option in the **Currency** module to allow selecting the 3 currencies to display on the bar, the list will only show your selected currencies in the **Currency Selection** list (thank you jmadfour for the suggestion).
+- 🐞 _**BUGFIX** -_ Fixed experience bar disappearing when leveling up in the **Currency** module.
+- 🐞 _**BUGFIX** -_ Fixed Zen Pilgrimage not showing in the secondary teleports menu of the **Travel** module.
 
 ### _Retail :_
 
-- 🛠️ _**IMPROVEMENT** -_ The **Great Vault** click is now disabled until the next season starts and a disclaimer was added in the tooltip.
-- 🛠️ _**IMPROVEMENT** -_ The **Great Vault** won't show anymore if your character is not at max level.
-- 🛠️ _**IMPROVEMENT** -_ Added a disclaimer in the **Great Vault** module options to warn that max level is needed for the module to show.
-
-### _Code :_
-
-- 🛠️ _**IMPROVEMENT** -_ Refactored the locales system to make it easier to maintain, read, and update.
+- 🆕 _**NEW** -_ Added Haranir's racial **Rootwalking** ability to the secondary teleports menu in the **Travel** module.
+- 🆕 _**NEW** -_ Added an option to show Warband Bank gold in the **Gold** module tooltip.
