@@ -6,6 +6,9 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "frFR", false, false)
 if not L then return end
 
+-- NOTE: Some strings are sourced from BlizzardInterfaceResources:
+-- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/frFR.lua
+
 L["MODULES"] = "Modules"
 L["LEFT_CLICK"] = "Clic gauche"
 L["RIGHT_CLICK"] = "Clic droit"
@@ -119,8 +122,8 @@ L["SHOW_SHOP_BUTTON"] = "Afficher le bouton Boutique"
 L["SHOW_HELP_BUTTON"] = "Afficher le bouton Aide"
 L["SHOW_HOUSING_BUTTON"] = "Afficher le bouton Logis"
 L["NO_INFO"] = "Pas d'information"
-L["ALLIANCE"] = "Alliance"
-L["HORDE"] = "Horde"
+L["Alliance"] = FACTION_ALLIANCE
+L["Horde"] = FACTION_HORDE
 
 L["DURABILITY_WARNING_THRESHOLD"] = "Seuil d'avertissement de durabilité"
 L["SHOW_ITEM_LEVEL"] = "Afficher le niveau d'équipement"
@@ -158,6 +161,7 @@ L["READY"] = "Prêt"
 L["TRAVEL_COOLDOWNS"] = "Temps de recharge des voyages"
 L["CHANGE_PORT_OPTION"] = "Option de changement de la téléportation"
 
+-- Gold
 L["REGISTERED_CHARACTERS"] = "Personnages enregistrés"
 L["SHOW_FREE_BAG_SPACE"] = "Montrer l'espace libre dans les sacs"
 L["SHOW_OTHER_REALMS"] = "Montrer les autres royaumes"
@@ -166,14 +170,17 @@ L["SHORTEN_GOLD"] = "Raccourcir le montant d'or"
 L["TOGGLE_BAGS"] = "Ouvrir/Fermer les sacs"
 L["SESSION_TOTAL"] = "Total sur la session"
 L["DAILY_TOTAL"] = "Total quotidien"
-L["GOLD_ROUNDED_VALUES"] = "Valeurs arrondies au po"
+L["SHOW_WARBAND_BANK_GOLD"] = "Afficher l'or de la " .. ACCOUNT_BANK_PANEL_TITLE
+L["GOLD_ROUNDED_VALUES"] = "Valeurs arrondies à l'or"
+L["HIDE_CHAR_UNDER_THRESHOLD"] = "Masquer les personnages sous le seuil"
+L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Seuil"
 
 -- Currency
 L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "Montrer la barre d'XP quand le niveau max n'est pas atteint"
 L["CLASS_COLORS_XP_BAR"] = "Utiliser la couleur de classe pour la barre d'XP"
 L["SHOW_TOOLTIPS"] = "Montrer les bulles"
 L["TEXT_ON_RIGHT"] = "Texte à droite"
-L["CURRENCY_SELECT"] = "Sélection de la monnaie"
+L["CURRENCY_SELECT"] = "Monnaies affichées dans la barre"
 L["FIRST_CURRENCY"] = "Première monnaie"
 L["SECOND_CURRENCY"] = "Seconde monnaie"
 L["THIRD_CURRENCY"] = "Troisième monnaie"
@@ -201,6 +208,7 @@ L["OPEN_REPUTATION"] = "Ouvrir l'interface de " .. REPUTATION
 L["PARAGON_REWARD_AVAILABLE"] = "Récompense de parangon disponible"
 L["CLASS_COLORS_REPUTATION"] = "Utiliser la couleur de classe pour la barre de réputation"
 L["REPUTATION_COLORS_REPUTATION"] = "Utiliser la couleur de réputation pour la barre de réputation"
+L["SHOW_LAST_REPUTATION_GAINED"] = "Toujours afficher la dernière réputation gagnée"
 L["FLASH_PARAGON_REWARD"] = "Flash lorsque la récompense de parangon est disponible"
 L["PROGRESS"] = "Progression"
 L["RANK"] = "Rang"

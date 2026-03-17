@@ -6,7 +6,9 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "zhCN", false, false)
 if not L then return end
 
--- NOTE : Strings that requires translation are marked with -- TODO: To Translate
+-- NOTE: Strings needing translation are marked with `-- TODO: To Translate`.
+-- Some strings are sourced from BlizzardInterfaceResources:
+-- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/deDE.lua
 
 L["MODULES"] = "模块"
 L["LEFT_CLICK"] = "左键单击"
@@ -122,8 +124,8 @@ L["SHOW_HELP_BUTTON"] = "显示帮助按钮"
 L["SHOW_HOUSING_BUTTON"] = "Show Housing Button" -- TODO: translate
 L["NO_INFO"] = "暂无信息"
 L["CLASSIC"] = "经典怀旧服"
-L["ALLIANCE"] = "联盟"
-L["HORDE"] = "部落"
+L["Alliance"] = FACTION_ALLIANCE
+L["Horde"] = FACTION_HORDE
 
 L["DURABILITY_WARNING_THRESHOLD"] = "耐久性警告閾值"
 L["SHOW_ITEM_LEVEL"] = "顯示物品等級"
@@ -161,6 +163,7 @@ L["READY"] = "就绪"
 L["TRAVEL_COOLDOWNS"] = "传送冷却"
 L["CHANGE_PORT_OPTION"] = "更改传送选项"
 
+-- Gold
 L["REGISTERED_CHARACTERS"] = "Registered characters" -- TODO: To Translate
 L["SHOW_FREE_BAG_SPACE"] = "Show Free Bag Space" -- TODO: To Translate
 L["SHOW_OTHER_REALMS"] = "Show Other Realms" -- TODO: To Translate
@@ -169,14 +172,17 @@ L["SHORTEN_GOLD"] = "金钱缩写"
 L["TOGGLE_BAGS"] = "切换背包"
 L["SESSION_TOTAL"] = "汇总"
 L["DAILY_TOTAL"] = "Daily Total" -- TODO: To Translate
+L["SHOW_WARBAND_BANK_GOLD"] = "Show " .. ACCOUNT_BANK_PANEL_TITLE .. " Gold" -- TODO: To Translate
 L["GOLD_ROUNDED_VALUES"] = "Gold rounded values" -- TODO: To Translate
+L["HIDE_CHAR_UNDER_THRESHOLD"] = "Hide Characters Under Threshold" -- TODO: To Translate
+L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Threshold" -- TODO: To Translate
 
 -- Currency
 L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "未满级时显示经验条"
 L["CLASS_COLORS_XP_BAR"] = "经验条使用职业颜色"
 L["SHOW_TOOLTIPS"] = "显示提示"
 L["TEXT_ON_RIGHT"] = "文字在右侧"
-L["CURRENCY_SELECT"] = "选择货币"
+L["BAR_CURRENCY_SELECT"] = "Currencies displayed on the bar" -- TODO: To Translate
 L["FIRST_CURRENCY"] = "第一种货币"
 L["SECOND_CURRENCY"] = "第二种货币"
 L["THIRD_CURRENCY"] = "第三种货币"
@@ -204,6 +210,7 @@ L["OPEN_REPUTATION"] = "Open " .. REPUTATION -- TODO: To Translate
 L["PARAGON_REWARD_AVAILABLE"] = "Paragon Reward available" -- TODO: To Translate
 L["CLASS_COLORS_REPUTATION"] = "Use Class Colors for Reputation Bar" -- TODO: To Translate
 L["REPUTATION_COLORS_REPUTATION"] = "Use Reputation Colors for Reputation Bar" -- TODO: To Translate
+L["SHOW_LAST_REPUTATION_GAINED"] = "Show last gained reputation" -- TODO: To Translate
 L["FLASH_PARAGON_REWARD"] = "Flash on Paragon Reward" -- TODO: To Translate
 L["PROGRESS"] = "Progress" -- TODO: To Translate
 L["RANK"] = "Rank" -- TODO: To Translate

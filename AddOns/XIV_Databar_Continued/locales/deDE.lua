@@ -6,7 +6,9 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "deDE", false, false)
 if not L then return end
 
--- NOTE : Strings that requires translation are marked with -- TODO: To Translate
+-- NOTE: Strings needing translation are marked with `-- TODO: To Translate`.
+-- Some strings are sourced from BlizzardInterfaceResources:
+-- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/deDE.lua
 
 L["MODULES"] = "Module"
 L["LEFT_CLICK"] = "Links-Klick"
@@ -88,13 +90,13 @@ L["SHOW_ACCESSIBILITY_TOOLTIPS"] = "Barrierefreiheits Tooltips anzeigen"
 L["BLIZZARD_MICROMENU"] = "Blizzard Mikromenü"
 L["DISABLE_BLIZZARD_MICROMENU"] = "Deaktiviert Blizzard Mikromenü"
 L["KEEP_QUEUE_STATUS_ICON"] = "Zeigt Wartenschlangen Statussymbol"
-L["BLIZZARD_MICROMENU_DISCLAIMER"] = 'This option is disabled because an external bar manager was detected: %s.' -- TODO: To Translate
+L["BLIZZARD_MICROMENU_DISCLAIMER"] = "Diese Option ist deaktiviert, da ein externer Bar-Manager erkannt wurde: %s."
 L["BLIZZARD_BAGS_BAR"] = "Blizzard Taschenleiste"
 L["DISABLE_BLIZZARD_BAGS_BAR"] = "Deaktiviert Blizzard Taschenleiste"
-L["BLIZZARD_BAGS_BAR_DISCLAIMER"] = 'This option is disabled because an external bar manager was detected: %s.' -- TODO: To Translate
+L["BLIZZARD_BAGS_BAR_DISCLAIMER"] = "Diese Option ist deaktiviert, da ein externes Leistenmanagement Addon erkannt wurde: %s."
 L["MAIN_MENU_ICON_RIGHT_SPACING"] = "Hauptmenü Symbolabstand Rechts"
 L["ICON_SPACING"] = "Symbolabstand"
-L["HIDE_BNET_APP_FRIENDS"] = "BNet App-Freunde verbergen"
+L["HIDE_BNET_APP_FRIENDS"] = "BNet-App Freunde verbergen"
 L["OPEN_GUILD_PAGE"] = "Öffnet Gildenfenster"
 L["NO_TAG"] = "Keine Markierung"
 L["WHISPER_BNET"] = "über BNet anflüstern"
@@ -121,8 +123,8 @@ L["SHOW_SHOP_BUTTON"] = "Zeigt Shop Taste"
 L["SHOW_HELP_BUTTON"] = "Zeigt Hilfe Taste"
 L["SHOW_HOUSING_BUTTON"] = "Zeigt Housing Taste"
 L["NO_INFO"] = "Keine Informationen"
-L["ALLIANCE"] = "Allianz"
-L["HORDE"] = "Horde" -- No Translate needed
+L["Alliance"] = FACTION_ALLIANCE
+L["Horde"] = FACTION_HORDE
 
 L["DURABILITY_WARNING_THRESHOLD"] = "Haltbarkeitswarnschwelle"
 L["SHOW_ITEM_LEVEL"] = "Gegenstandsstufe anzeigen"
@@ -131,7 +133,7 @@ L["SHOW_COORDINATES"] = "Koordinaten anzeigen"
 -- Master Volume
 L["MASTER_VOLUME"] = "Hauptlautstärke"
 L["VOLUME_STEP"] = "Lautstärken Schritte"
-L["ENABLE_MOUSE_WHEEL"] = "Enable Mouse Wheel" -- TODO: To Translate
+L["ENABLE_MOUSE_WHEEL"] = "Aktiviert MAusrad"
 
 -- Clock
 L["TIME_FORMAT"] = "Uhrzeit Format"
@@ -142,17 +144,17 @@ L["REALM_TIME"] = "Realm Zeit"
 L["OPEN_CALENDAR"] = "Kalendar öffnen"
 L["OPEN_CLOCK"] = "Stoppuhr öffnen"
 L["HIDE_EVENT_TEXT"] = "Eventtext verstecken"
-L["REST_ICON"] = "Rest Icon" -- TODO: To Translate
-L["SHOW_REST_ICON"] = "Show Rest Icon" -- TODO: To Translate
-L["TEXTURE"] = "Texture" -- TODO: To Translate
-L["DEFAULT"] = "Default" -- TODO: To Translate
-L["CUSTOM"] = "Custom" -- TODO: To Translate
-L["CUSTOM_TEXTURE"] = "Custom Texture" -- TODO: To Translate
-L["HIDE_REST_ICON_MAX_LEVEL"] = "Hide at Max Level" -- TODO: To Translate
-L["TEXTURE_SIZE"] = "Texture Size" -- TODO: To Translate
-L["POSITION"] = "Position" -- TODO: To Translate
-L["CUSTOM_TEXTURE_COLOR"] = "Custom Color" -- TODO: To Translate
-L["COLOR"] = "Color" -- TODO: To Translate
+L["REST_ICON"] = "Ausgeruhtsymbol"
+L["SHOW_REST_ICON"] = "Zeige Ausgeruhtsymbol"
+L["TEXTURE"] = "Textur"
+L["DEFAULT"] = "Standart"
+L["CUSTOM"] = "Benutzerdefiniert"
+L["CUSTOM_TEXTURE"] = "Benutzerdefinierte Textur"
+L["HIDE_REST_ICON_MAX_LEVEL"] = "Verstecken auf Max Stufe"
+L["TEXTURE_SIZE"] = "Texturgröße"
+L["POSITION"] = "Position"
+L["CUSTOM_TEXTURE_COLOR"] = "Benutzerdefinierte Farbe"
+L["COLOR"] = "Farbe"
 
 L["TRAVEL"] = "Reise"
 L["PORT_OPTIONS"] = "Teleport Einstellungen"
@@ -160,6 +162,7 @@ L["READY"] = "Bereit"
 L["TRAVEL_COOLDOWNS"] = "Reise Abklingzeiten"
 L["CHANGE_PORT_OPTION"] = "Teleport Einstellungen ändern"
 
+-- Gold
 L["REGISTERED_CHARACTERS"] = "Registrierte Charaktere"
 L["SHOW_FREE_BAG_SPACE"] = "Zeige Freie Taschenplätze"
 L["SHOW_OTHER_REALMS"] = "Zeige andere Realms"
@@ -168,14 +171,17 @@ L["SHORTEN_GOLD"] = "Gold abkürzen"
 L["TOGGLE_BAGS"] = "Taschen anzeigen"
 L["SESSION_TOTAL"] = "Sitzung total"
 L["DAILY_TOTAL"] = "Heute total"
+L["SHOW_WARBAND_BANK_GOLD"] = "Show " .. ACCOUNT_BANK_PANEL_TITLE .. " Gold" -- TODO: To Translate
 L["GOLD_ROUNDED_VALUES"] = "Gold runden"
+L["HIDE_CHAR_UNDER_THRESHOLD"] = "Hide Characters Under Threshold" -- TODO: To Translate
+L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Threshold" -- TODO: To Translate
 
 -- Currency
 L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "Erfahrungsleiste unter Levelcap anzeigen"
 L["CLASS_COLORS_XP_BAR"] = "Klassenfarbe für Erfahrungsleiste benutzen"
 L["SHOW_TOOLTIPS"] = "Tooltips anzeigen"
 L["TEXT_ON_RIGHT"] = "Text auf der rechten Seite"
-L["CURRENCY_SELECT"] = "Währung auswählen"
+L["BAR_CURRENCY_SELECT"] = "Currencies displayed on the bar" -- TODO: To Translate
 L["FIRST_CURRENCY"] = "Währung #1"
 L["SECOND_CURRENCY"] = "Währung #2"
 L["THIRD_CURRENCY"] = "Währung #3"
@@ -187,7 +193,7 @@ L["CURRENCY_NUMBER"] = "Anzahl der Währungen auf der Leiste"
 L["CURRENCY_SELECTION"] = "Währungsauswahl"
 L["SELECT_ALL"] = "Alle auswählen"
 L["UNSELECT_ALL"] = "Alles abwählen"
-L["OPEN_XIV_CURRENCY_OPTIONS"] = "Äffne XIV Währungseinstellungen"
+L["OPEN_XIV_CURRENCY_OPTIONS"] = "Öffne XIV Währungseinstellungen"
 
 -- System
 L["WORLD_PING"] = "Welt-Ping anzeigen"
@@ -203,6 +209,7 @@ L["OPEN_REPUTATION"] = "Öffne " .. REPUTATION
 L["PARAGON_REWARD_AVAILABLE"] = "Paragonbelohnung verfügbar"
 L["CLASS_COLORS_REPUTATION"] = "Klassenfarben für die Rufleiste verwenden"
 L["REPUTATION_COLORS_REPUTATION"] = "Verwendet Ruffarben für die Rufleiste."
+L["SHOW_LAST_REPUTATION_GAINED"] = "Show last gained reputation" -- TODO: To Translate
 L["FLASH_PARAGON_REWARD"] = "Aufblitzen bei Paragonbelohnung"
 L["PROGRESS"] = "Fortschritt"
 L["RANK"] = "Rang"
@@ -302,5 +309,5 @@ L["BUGFIX"] = "Fehlerbehebung"
 L["CHANGELOG"] = "Änderungen"
 
 -- Vault Module
-L["GREAT_VAULT_DISABLED"] = "The " .. DELVES_GREAT_VAULT_LABEL .. " is currently disabled until the next season starts." -- TODO: To Translate
-L["MAX_LEVEL_DISCLAIMER"] = "This module will only show when you reach max level." -- TODO: To Translate
+L["GREAT_VAULT_DISABLED"] = "Das " .. DELVES_GREAT_VAULT_LABEL .. " ist derzeit bis zum Beginn der nächsten Saison deaktiviert."
+L["MAX_LEVEL_DISCLAIMER"] = "Dieses Modul wird erst angezeigt, wenn Du die maximale Stufe erreicht hast."

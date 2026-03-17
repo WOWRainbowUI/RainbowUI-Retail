@@ -6,7 +6,9 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "zhTW", false, false)
 if not L then return end
 
--- NOTE : Strings that requires translation are marked with -- TODO: To Translate
+-- NOTE: Strings needing translation are marked with `-- TODO: To Translate`.
+-- Some strings are sourced from BlizzardInterfaceResources:
+-- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/deDE.lua
 
 L["MODULES"] = "功能模組"
 L["LEFT_CLICK"] = "左鍵"
@@ -124,8 +126,8 @@ L["SHOW_HELP_BUTTON"] = "顯示客服支援按鈕"
 L["SHOW_HOUSING_BUTTON"] = "Show Housing Button" -- TODO: translate
 L["NO_INFO"] = "沒有資訊"
 L["CLASSIC"] = "經典版"
-L["ALLIANCE"] = "聯盟"
-L["HORDE"] = "部落"
+L["Alliance"] = FACTION_ALLIANCE
+L["Horde"] = FACTION_HORDE
 
 L["DURABILITY_WARNING_THRESHOLD"] = "裝備耐久度警告門檻"
 L["SHOW_ITEM_LEVEL"] = "顯示物品等級"
@@ -163,6 +165,7 @@ L["READY"] = "完成"
 L["TRAVEL_COOLDOWNS"] = "旅行傳送冷卻"
 L["CHANGE_PORT_OPTION"] = "變更傳送選項"
 
+-- Gold
 L["REGISTERED_CHARACTERS"] = "Registered characters" -- TODO: To Translate
 L["SHOW_FREE_BAG_SPACE"] = "Show Free Bag Space" -- TODO: To Translate
 L["SHOW_OTHER_REALMS"] = "Show Other Realms" -- TODO: To Translate
@@ -170,13 +173,18 @@ L["ALWAYS_SHOW_SILVER_COPPER"] = "總是顯示銀和銅"
 L["SHORTEN_GOLD"] = "金額縮寫"
 L["TOGGLE_BAGS"] = "打開/關閉背包"
 L["SESSION_TOTAL"] = "本次登入總計"
+L["DAILY_TOTAL"] = "本日總計"
+L["SHOW_WARBAND_BANK_GOLD"] = "Show " .. ACCOUNT_BANK_PANEL_TITLE .. " Gold" -- TODO: To Translate
+L["GOLD_ROUNDED_VALUES"] = "只顯示金的部分"
+L["HIDE_CHAR_UNDER_THRESHOLD"] = "Hide Characters Under Threshold" -- TODO: To Translate
+L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Threshold" -- TODO: To Translate
 
 -- Currency
 L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "未滿等時顯示經驗條"
 L["CLASS_COLORS_XP_BAR"] = "使用職業顏色"
 L["SHOW_TOOLTIPS"] = "顯示滑鼠提示"
 L["TEXT_ON_RIGHT"] = "文字在右側"
-L["CURRENCY_SELECT"] = "要顯示的兌換通貨"
+L["BAR_CURRENCY_SELECT"] = "Currencies displayed on the bar" -- TODO: To Translate
 L["FIRST_CURRENCY"] = "第一種兌換通貨"
 L["SECOND_CURRENCY"] = "第二種兌換通貨"
 L["THIRD_CURRENCY"] = "第三種兌換通貨"
@@ -204,6 +212,7 @@ L["OPEN_REPUTATION"] = "Open " .. REPUTATION -- TODO: To Translate
 L["PARAGON_REWARD_AVAILABLE"] = "Paragon Reward available" -- TODO: To Translate
 L["CLASS_COLORS_REPUTATION"] = "Use Class Colors for Reputation Bar" -- TODO: To Translate
 L["REPUTATION_COLORS_REPUTATION"] = "Use Reputation Colors for Reputation Bar" -- TODO: To Translate
+L["SHOW_LAST_REPUTATION_GAINED"] = "Show last gained reputation" -- TODO: To Translate
 L["FLASH_PARAGON_REWARD"] = "Flash on Paragon Reward" -- TODO: To Translate
 L["PROGRESS"] = "Progress" -- TODO: To Translate
 L["RANK"] = "Rank" -- TODO: To Translate
@@ -281,8 +290,6 @@ L["XIV Bar Continued"] = "資訊列"  -- used for config menu
 L["Profiles"] = "設定檔"
 L["Money"] = "金錢"
 L["Enable in combat"] = "戰鬥中可使用"
-L["GOLD_ROUNDED_VALUES"] = "只顯示金的部分"
-L["DAILY_TOTAL"] = "本日總計"
 L["REGISTERED_CHARACTERS"] = "記錄的角色"
 L["Overwatch"] = "鬥陣特攻"
 L["Heroes of the Storm"] = "暴雪英霸"

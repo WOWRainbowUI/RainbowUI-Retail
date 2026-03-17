@@ -6,7 +6,9 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "ruRU", false, false)
 if not L then return end
 
--- NOTE : Strings that requires translation are marked with -- TODO: To Translate
+-- NOTE: Strings needing translation are marked with `-- TODO: To Translate`.
+-- Some strings are sourced from BlizzardInterfaceResources:
+-- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/ruRU.lua
 
 L["MODULES"] = "Модули"
 L["LEFT_CLICK"] = "Левая кнопка мыши"
@@ -121,8 +123,8 @@ L["SHOW_SHOP_BUTTON"] = "Магазин"
 L["SHOW_HELP_BUTTON"] = "Помощь"
 L["SHOW_HOUSING_BUTTON"] = "Show Housing Button" -- TODO: translate
 L["NO_INFO"] = "Нет информации"
-L["ALLIANCE"] = "Альянс"
-L["HORDE"] = "Орда"
+L["Alliance"] = FACTION_ALLIANCE
+L["Horde"] = FACTION_HORDE
 
 L["DURABILITY_WARNING_THRESHOLD"] = "Порог предупреждения о долговечности"
 L["SHOW_ITEM_LEVEL"] = "Показать уровень элемента"
@@ -160,6 +162,7 @@ L["READY"] = "Готово"
 L["TRAVEL_COOLDOWNS"] = "Способности для перемещения"
 L["CHANGE_PORT_OPTION"] = "Изменить назначение телепорта"
 
+-- Gold
 L["REGISTERED_CHARACTERS"] = "Registered characters" -- TODO: To Translate
 L["SHOW_FREE_BAG_SPACE"] = "Show Free Bag Space" -- TODO: To Translate
 L["SHOW_OTHER_REALMS"] = "Show Other Realms" -- TODO: To Translate
@@ -168,14 +171,17 @@ L["SHORTEN_GOLD"] = "Сокращать число золота"
 L["TOGGLE_BAGS"] = "Переключить видимость сумок"
 L["SESSION_TOTAL"] = "Всего за сессию"
 L["DAILY_TOTAL"] = "Daily Total" -- TODO: To Translate
+L["SHOW_WARBAND_BANK_GOLD"] = "Show " .. ACCOUNT_BANK_PANEL_TITLE .. " Gold" -- TODO: To Translate
 L["GOLD_ROUNDED_VALUES"] = "Gold rounded values" -- TODO: To Translate
+L["HIDE_CHAR_UNDER_THRESHOLD"] = "Hide Characters Under Threshold" -- TODO: To Translate
+L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Threshold" -- TODO: To Translate
 
 -- Currency
 L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "Показывать полоску опыта персонажам, не достигшим максимального уровня"
 L["CLASS_COLORS_XP_BAR"] = "Использовать цвет класса для полоски опыта"
 L["SHOW_TOOLTIPS"] = "Показывать подсказки"
 L["TEXT_ON_RIGHT"] = "Текст справа"
-L["CURRENCY_SELECT"] = "Выбор валют"
+L["BAR_CURRENCY_SELECT"] = "Currencies displayed on the bar" -- TODO: To Translate
 L["FIRST_CURRENCY"] = "Валюта №1"
 L["SECOND_CURRENCY"] = "Валюта №2"
 L["THIRD_CURRENCY"] = "Валюта №3"
@@ -203,6 +209,7 @@ L["OPEN_REPUTATION"] = "Open " .. REPUTATION -- TODO: To Translate
 L["PARAGON_REWARD_AVAILABLE"] = "Paragon Reward available" -- TODO: To Translate
 L["CLASS_COLORS_REPUTATION"] = "Use Class Colors for Reputation Bar" -- TODO: To Translate
 L["REPUTATION_COLORS_REPUTATION"] = "Use Reputation Colors for Reputation Bar" -- TODO: To Translate
+L["SHOW_LAST_REPUTATION_GAINED"] = "Show last gained reputation" -- TODO: To Translate
 L["FLASH_PARAGON_REWARD"] = "Flash on Paragon Reward" -- TODO: To Translate
 L["PROGRESS"] = "Progress" -- TODO: To Translate
 L["RANK"] = "Rank" -- TODO: To Translate

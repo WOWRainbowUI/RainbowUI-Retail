@@ -6,7 +6,9 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "ptBR", false, false)
 if not L then return end
 
--- NOTE : Strings that requires translation are marked with -- TODO: To Translate
+-- NOTE: Strings needing translation are marked with `-- TODO: To Translate`.
+-- Some strings are sourced from BlizzardInterfaceResources:
+-- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/ptBR.lua
 
 L["MODULES"] = "Módulos"
 L["LEFT_CLICK"] = "Clique Esquerdo"
@@ -122,8 +124,8 @@ L["SHOW_SHOP_BUTTON"] = "Mostrar Botão da Loja"
 L["SHOW_HELP_BUTTON"] = "Mostrar Botão de Ajuda"
 L["SHOW_HOUSING_BUTTON"] = "Show Housing Button" -- TODO: translate
 L["NO_INFO"] = "Sem Informação"
-L["ALLIANCE"] = "Aliança"
-L["HORDE"] = "Horda"
+L["Alliance"] = FACTION_ALLIANCE
+L["Horde"] = FACTION_HORDE
 
 L["DURABILITY_WARNING_THRESHOLD"] = "Aviso de Durabilidade"
 L["SHOW_ITEM_LEVEL"] = "Mostrar item level"
@@ -161,6 +163,7 @@ L["READY"] = "Pronto"
 L["TRAVEL_COOLDOWNS"] = "Recargas de Teleporte"
 L["CHANGE_PORT_OPTION"] = "Alterar Opção de Teleporte"
 
+-- Gold
 L["REGISTERED_CHARACTERS"] = "Personagens registrados"
 L["SHOW_FREE_BAG_SPACE"] = "Mostrar espaço livre na bolsa"
 L["SHOW_OTHER_REALMS"] = "Mostrar Outros Servidores"
@@ -169,14 +172,17 @@ L["SHORTEN_GOLD"] = "Encurtar Ouro"
 L["TOGGLE_BAGS"] = "Mostrar bolsa"
 L["SESSION_TOTAL"] = "Total da Sessão"
 L["DAILY_TOTAL"] = "Total do Dia"
+L["SHOW_WARBAND_BANK_GOLD"] = "Show " .. ACCOUNT_BANK_PANEL_TITLE .. " Gold" -- TODO: To Translate
 L["GOLD_ROUNDED_VALUES"] = "Valores arredondados de ouro"
+L["HIDE_CHAR_UNDER_THRESHOLD"] = "Hide Characters Under Threshold" -- TODO: To Translate
+L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Threshold" -- TODO: To Translate
 
 -- Currency
 L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "Mostrar barra de XP abaixo do nível máximo"
 L["CLASS_COLORS_XP_BAR"] = "Usar cores de classe para a barra de XP"
 L["SHOW_TOOLTIPS"] = "Mostrar informações"
 L["TEXT_ON_RIGHT"] = "Texto à Direita"
-L["CURRENCY_SELECT"] = "Seleção de Moeda"
+L["BAR_CURRENCY_SELECT"] = "Currencies displayed on the bar" -- TODO: To Translate
 L["FIRST_CURRENCY"] = "Moeda #1"
 L["SECOND_CURRENCY"] = "Moeda #2"
 L["THIRD_CURRENCY"] = "Moeda #3"
@@ -204,6 +210,7 @@ L["OPEN_REPUTATION"] = "Open " .. REPUTATION -- TODO: To Translate
 L["PARAGON_REWARD_AVAILABLE"] = "Paragon Reward available" -- TODO: To Translate
 L["CLASS_COLORS_REPUTATION"] = "Use Class Colors for Reputation Bar" -- TODO: To Translate
 L["REPUTATION_COLORS_REPUTATION"] = "Use Reputation Colors for Reputation Bar" -- TODO: To Translate
+L["SHOW_LAST_REPUTATION_GAINED"] = "Show last gained reputation" -- TODO: To Translate
 L["FLASH_PARAGON_REWARD"] = "Flash on Paragon Reward" -- TODO: To Translate
 L["PROGRESS"] = "Progress" -- TODO: To Translate
 L["RANK"] = "Rank" -- TODO: To Translate

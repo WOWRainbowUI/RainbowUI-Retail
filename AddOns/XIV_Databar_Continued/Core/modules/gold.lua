@@ -388,8 +388,11 @@ function GoldModule:ShowTooltipClassic()
 
     GameTooltip:AddLine(" ")
 
+    local hideThreshold = tonumber(xb.db.profile.modules.gold.hideCharUnderThresholdAmount) or 0
+
     local totalGold = 0
     for charName, goldData in pairs(store) do
+        local gold = floor(abs(goldData.currentMoney / 10000))
         local charClass = goldData.class
         local cc_r, cc_g, cc_b = 1, 1, 1
         if charClass then
@@ -397,7 +400,9 @@ function GoldModule:ShowTooltipClassic()
             cc_g = RAID_CLASS_COLORS[charClass].g
             cc_b = RAID_CLASS_COLORS[charClass].b
         end
-        GameTooltip:AddDoubleLine(charName, moneyWithTexture(goldData.currentMoney), cc_r, cc_g, cc_b, 1, 1, 1)
+        if gold > 0 and ((xb.db.profile.modules.gold.hideCharUnderThreshold and gold >= hideThreshold) or not xb.db.profile.modules.gold.hideCharUnderThreshold) then
+            GameTooltip:AddDoubleLine(charName, moneyWithTexture(goldData.currentMoney), cc_r, cc_g, cc_b, 1, 1, 1)
+        end
         totalGold = totalGold + goldData.currentMoney
     end
 
@@ -427,24 +432,38 @@ function GoldModule:ShowTooltipMainline()
         GameTooltip:AddDoubleLine(L["SESSION_TOTAL"], self:FormatGold(math.abs(playerData.sessionMoney)), r, g, b, 1, 1, 1)
         GameTooltip:AddDoubleLine(L["DAILY_TOTAL"], self:FormatGold(math.abs(playerData.dailyMoney)), r, g, b, 1, 1, 1)
     end
+    local warbandBankGold = 0
+    if xb.db.profile.modules.gold.showWarbandBankGold then
+        warbandBankGold = C_Bank.FetchDepositedMoney(Enum.BankType.Account)
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddDoubleLine(ACCOUNT_BANK_PANEL_TITLE, self:FormatGold(warbandBankGold), r, g, b, 1, 1, 1)
+    end
 
     local realmCharacters = {}
     local currentRealm = GetRealmName()
     local currentName = UnitName('player')
     local totalGold = 0
+    if xb.db.profile.modules.gold.showWarbandBankGold then
+        totalGold = warbandBankGold
+    end
+
+    local hideThreshold = tonumber(xb.db.profile.modules.gold.hideCharUnderThresholdAmount) or 0
 
     for characterName, goldData in pairs(getGoldStore()) do
         local realm = goldData.realm or currentRealm
         if not realmCharacters[realm] then
             realmCharacters[realm] = {}
         end
-        table.insert(realmCharacters[realm], {
-            name = characterName:match("^([^-]+)"),
-            gold = goldData.currentMoney,
-            class = goldData.class,
-            faction = goldData.faction,
-            isCurrent = (characterName == (currentName .. "-" .. currentRealm))
-        })
+        local gold = floor(abs(goldData.currentMoney / 10000))
+        if gold > 0 and ((xb.db.profile.modules.gold.hideCharUnderThreshold and gold >= hideThreshold) or not xb.db.profile.modules.gold.hideCharUnderThreshold) then
+            table.insert(realmCharacters[realm], {
+                name = characterName:match("^([^-]+)"),
+                gold = goldData.currentMoney,
+                class = goldData.class,
+                faction = goldData.faction,
+                isCurrent = (characterName == (currentName .. "-" .. currentRealm))
+            })
+        end
         totalGold = totalGold + goldData.currentMoney
     end
 
@@ -676,10 +695,13 @@ function GoldModule:GetDefaultOptions()
         enabled = true,
         showSmallCoins = false,
         showFreeBagSpace = true,
-        shortThousands = false
+        shortThousands = false,
+        hideCharUnderThreshold = false,
+        hideCharUnderThresholdAmount = 0
     }
 
     if compat.isMainline then
+        defaults.showWarbandBankGold = true
         defaults.disableBlizzardBagsBar = false
         defaults.showOtherRealms = true
     end
@@ -740,7 +762,37 @@ function GoldModule:GetConfig()
             set = function(_, val)
                 xb.db.profile.modules.gold.showFreeBagSpace = val
                 self:Refresh()
-            end
+            end,
+            width = "full"
+        },
+        hideCharUnderThreshold = {
+            name = L["HIDE_CHAR_UNDER_THRESHOLD"],
+            order = 3.4,
+            type = "toggle",
+            get = function()
+                return xb.db.profile.modules.gold.hideCharUnderThreshold
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.gold.hideCharUnderThreshold = val
+                self:Refresh()
+            end,
+        },
+        hideCharUnderThresholdAmount = {
+            name = L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"],
+            order = 3.5,
+            type = "input",
+            get = function()
+                local value = xb.db.profile.modules.gold.hideCharUnderThresholdAmount
+                return value ~= nil and tostring(value) or ""
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.gold.hideCharUnderThresholdAmount = tonumber(val) or 0
+                self:Refresh()
+            end,
+            hidden = function()
+                return not xb.db.profile.modules.gold.hideCharUnderThreshold
+            end,
+            width = "full"
         }
     }
 
@@ -755,7 +807,19 @@ function GoldModule:GetConfig()
             set = function(_, val)
                 xb.db.profile.modules.gold.showOtherRealms = val
                 self:Refresh()
-            end
+            end,
+        }
+        args.showWarbandBankGold = {
+            name = L["SHOW_WARBAND_BANK_GOLD"],
+            order = 4.2,
+            type = "toggle",
+            get = function()
+                return xb.db.profile.modules.gold.showWarbandBankGold
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.gold.showWarbandBankGold = val
+                self:Refresh()
+            end,
         }
 
         args.blizzardBagsBar = {
