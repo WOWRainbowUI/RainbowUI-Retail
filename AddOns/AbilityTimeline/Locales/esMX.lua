@@ -42,6 +42,14 @@ L["debugModeDescription"] = "Activa el modo de depuración, que muestra informac
 L["DefaultCooldownColor"] = "Color del tiempo de reutilización"
 L["disableAllOnEncounterEnd"] = "Eliminar recordatorios activos"
 L["disableAllOnEncounterEndDescription"] = "Desactiva todos los eventos de recordatorio activos cuando termina un encuentro."
+--[[Translation missing --]]
+L["disableBossModsBars"] = "Disable Boss Mods Bars"
+--[[Translation missing --]]
+L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
 L["disableLoginMessage"] = "Desactivar mensaje de inicio de sesión"
 L["disableLoginMessageDescription"] = "Desactiva el mensaje de inicio de sesión que muestra cómo abrir las opciones."
 L["disableReadyCheck"] = "Desactivar verificación de listo"
@@ -170,6 +178,10 @@ L["SpellnameFont"] = "Fuente"
 L["SpellnameFontDescription"] = "Establece la fuente del texto junto al icono."
 L["SpellnameFontSize"] = "Tamaño de fuente"
 L["SpellnameFontSizeDescription"] = "Establece el tamaño de fuente del texto junto al icono."
+--[[Translation missing --]]
+L["SpellnameUseEventColor"] = "Use Event Color"
+--[[Translation missing --]]
+L["SpellnameUseEventColorDescription"] = "Colors the text based on the color set for the event by Bossmods/Blizzard. The default will be set to an (according to Blizzard) appropriate color."
 L["StartTimerAfterDescription"] = "Retraso (en segundos) tras el cual el recordatorio comenzará a mostrarse en la línea temporal una vez iniciado el encuentro."
 L["StartTimerAfterLabel"] = "Retraso inicial (segundos)"
 L["Strata"] = "Estrato del marco"

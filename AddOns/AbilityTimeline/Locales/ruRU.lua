@@ -79,6 +79,14 @@ L["disableAllOnEncounterEnd"] = "Remove active Reminders"
 --[[Translation missing --]]
 L["disableAllOnEncounterEndDescription"] = "Disables all active reminder events when an encounter ends."
 --[[Translation missing --]]
+L["disableBossModsBars"] = "Disable Boss Mods Bars"
+--[[Translation missing --]]
+L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
+--[[Translation missing --]]
 L["disableLoginMessage"] = "Disable Login Message"
 --[[Translation missing --]]
 L["disableLoginMessageDescription"] = "Disables the login message that shows how to open the Options."
@@ -330,6 +338,10 @@ L["SpellnameFontDescription"] = "Sets the font of the text besides the icon."
 L["SpellnameFontSize"] = "Font Size"
 --[[Translation missing --]]
 L["SpellnameFontSizeDescription"] = "Sets the font size of the text besides the icon."
+--[[Translation missing --]]
+L["SpellnameUseEventColor"] = "Use Event Color"
+--[[Translation missing --]]
+L["SpellnameUseEventColorDescription"] = "Colors the text based on the color set for the event by Bossmods/Blizzard. The default will be set to an (according to Blizzard) appropriate color."
 --[[Translation missing --]]
 L["StartTimerAfterDescription"] = "Delay (in seconds) after which the reminder should start to be displayed on the timeline once the encounter begins."
 --[[Translation missing --]]

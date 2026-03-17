@@ -42,6 +42,14 @@ L["debugModeDescription"] = "Active le mode débogage, affichant des information
 L["DefaultCooldownColor"] = "Couleur par défaut du temps de recharge"
 L["disableAllOnEncounterEnd"] = "Désactiver tous les rappels actifs"
 L["disableAllOnEncounterEndDescription"] = "Désactive tous les événements de rappel actifs à la fin d’une rencontre"
+--[[Translation missing --]]
+L["disableBossModsBars"] = "Disable Boss Mods Bars"
+--[[Translation missing --]]
+L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
 L["disableLoginMessage"] = "Désactiver le message de connexion"
 L["disableLoginMessageDescription"] = "Désactive le message de connexion indiquant comment ouvrir les options"
 L["disableReadyCheck"] = "Désactiver la vérification de prêt"
@@ -170,6 +178,10 @@ L["SpellnameFont"] = "Police"
 L["SpellnameFontDescription"] = "Définit la police du texte à côté de l’icône."
 L["SpellnameFontSize"] = "Taille de police"
 L["SpellnameFontSizeDescription"] = "Définit la taille de la police du texte à côté de l’icône."
+--[[Translation missing --]]
+L["SpellnameUseEventColor"] = "Use Event Color"
+--[[Translation missing --]]
+L["SpellnameUseEventColorDescription"] = "Colors the text based on the color set for the event by Bossmods/Blizzard. The default will be set to an (according to Blizzard) appropriate color."
 L["StartTimerAfterDescription"] = "Délai (en secondes) après lequel le rappel commencera à être affiché sur la ligne temporalle une fois la rencontre commencée."
 L["StartTimerAfterLabel"] = "Délai initial (secondes)"
 L["Strata"] = "Strate du cadre"

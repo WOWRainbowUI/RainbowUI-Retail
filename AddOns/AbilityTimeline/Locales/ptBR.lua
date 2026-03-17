@@ -42,6 +42,14 @@ L["debugModeDescription"] = "Ativa o modo de depuração, que exibe informaçõe
 L["DefaultCooldownColor"] = "Cor do tempo de recarga"
 L["disableAllOnEncounterEnd"] = "Remover lembretes ativos"
 L["disableAllOnEncounterEndDescription"] = "Desativa todos os eventos de lembrete ativos quando um encontro termina."
+--[[Translation missing --]]
+L["disableBossModsBars"] = "Disable Boss Mods Bars"
+--[[Translation missing --]]
+L["disableBossModsBarsDescription"] = "Hides the bars of boss mods."
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBars"] = "Disable Boss Mods Emphasised Bars"
+--[[Translation missing --]]
+L["disableBossModsEmphasisedBarsDescription"] = "Hides the emphasised bars of boss mods."
 L["disableLoginMessage"] = "Desativar mensagem ao conectar"
 L["disableLoginMessageDescription"] = "Desativa a mensagem ao conectar que exibe como abrir as opções."
 L["disableReadyCheck"] = "Desativar verificação de pronto"
@@ -170,6 +178,10 @@ L["SpellnameFont"] = "Fonte"
 L["SpellnameFontDescription"] = "Define a fonte do texto ao lado do ícone."
 L["SpellnameFontSize"] = "Tamanho da fonte"
 L["SpellnameFontSizeDescription"] = "Define o tamanho da fonte do texto ao lado do ícone."
+--[[Translation missing --]]
+L["SpellnameUseEventColor"] = "Use Event Color"
+--[[Translation missing --]]
+L["SpellnameUseEventColorDescription"] = "Colors the text based on the color set for the event by Bossmods/Blizzard. The default will be set to an (according to Blizzard) appropriate color."
 L["StartTimerAfterDescription"] = "Atraso (em segundos) após o qual o lembrete começará a ser exibido na linha temporal depois que o encontro iniciar."
 L["StartTimerAfterLabel"] = "Atraso inicial (segundos)"
 L["Strata"] = "Estrato do quadro"
