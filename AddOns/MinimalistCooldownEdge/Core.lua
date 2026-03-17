@@ -8,7 +8,6 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 -- === UPVALUE LOCALS (Performance) ===
 local pcall = pcall
-local InCombatLockdown = InCombatLockdown
 local select = select
 local tostring = tostring
 local tconcat = table.concat
@@ -103,6 +102,8 @@ local function DurationTextColorDefaults()
 end
 
 local actionbarDefaults = CategoryDefaults(true, 18)
+actionbarDefaults.hideChargeTimers = true
+actionbarDefaults.swipeAlpha = 80
 
 local defaultDurationTextColors = DurationTextColorDefaults()
 
@@ -261,10 +262,11 @@ function MCE:OnDisable()
 end
 
 function MCE:SlashCommand(input)
-    if InCombatLockdown() then
-        self:Print(L["Cannot open options in combat."])
+    if AceConfigDialog.OpenFrames and AceConfigDialog.OpenFrames[addonName] then
+        AceConfigDialog:Close(addonName)
         return
     end
+
     AceConfigDialog:Open(addonName)
 end
 
