@@ -51,6 +51,25 @@ function DBM:BuildVoiceCountdownCache()
 	end
 end
 
+function DBM:GetCountMaxCountForVoice(voice)
+	if type(voice) == "string" then
+		for _, count in pairs(self:GetCountSounds()) do
+			if count.value == voice then
+				return count.max
+			end
+		end
+	elseif voice == 2 then
+		return countvoice2max
+	elseif voice == 3 then
+		return countvoice3max
+	elseif voice == 4 then
+		return countvoice4max
+	else--Default to voice 1 max if invalid voice passed in, which is safe because it will just prevent counts higher than 5 from playing, which is the highest any pack goes, even for retail.
+		return countvoice1max
+	end
+	return 3
+end
+
 local function playCountSound(_, path, requiresCombat) -- timerId, path
 	if requiresCombat and not (InCombatLockdown() or UnitAffectingCombat("player")) then return end
 	DBM:PlaySoundFile(path)
@@ -256,6 +275,7 @@ end
 ---@param eventID number
 function timerPrototype:TLStart(timer, eventID, ...)
 	self:SetEventID(eventID, ...)
+	DBM:Debug("|cff00ff00Starting hardcoded timer: |r spellID |cff69ccf0" .. self.spellId .. "|r with spellName |cff69ccf0" .. self.name .. "|r and timer |cff69ccf0" .. timer .. "|r", 3, nil, nil, true)
 	return self:Start(timer, ...)
 end
 
