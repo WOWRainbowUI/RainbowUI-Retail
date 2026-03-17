@@ -57,8 +57,12 @@ L["Show Swipe Edge"] = true
 L["Shows the white line indicating cooldown progress."] = true
 L["Edge Thickness"] = true
 L["Scale of the swipe line (1.0 = Default)."] = true
+L["Swipe Shade Alpha"] = true
+L["0% = transparent, 100% = full dark."] = true
 L["Customize Stack Text"] = true
 L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."] = true
+L["Hide Charge Timers"] = true
+L["Hide timers while charges are restoring (only show timer when all charges are spent)."] = true
 L["Hide Stack Text"] = true
 L["Hide stacks and charges entirely."] = true
 L["Reset %s"] = true

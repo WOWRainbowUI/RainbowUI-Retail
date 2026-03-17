@@ -85,7 +85,10 @@ local ANCHOR_OPTIONS = {
 local function CatGet(key, field, fallback)
     return function()
         local v = MCE.db.profile.categories[key][field]
-        return (v ~= nil) and v or fallback
+        if v ~= nil then
+            return v
+        end
+        return fallback
     end
 end
 
@@ -94,6 +97,7 @@ local function CatSet(key, field)
     return function(_, val)
         MCE.db.profile.categories[key][field] = val
         MCE:ForceUpdateAll(key == "minicc")
+        AceConfigRegistry:NotifyChange(addonName)
     end
 end
 
@@ -158,7 +162,10 @@ local function ProfileTableGet(tableKey, field, fallback)
     return function()
         local group = MCE.db.profile[tableKey]
         local v = group and group[field]
-        return (v ~= nil) and v or fallback
+        if v ~= nil then
+            return v
+        end
+        return fallback
     end
 end
 
@@ -166,6 +173,7 @@ local function ProfileTableSet(tableKey, field)
     return function(_, val)
         MCE.db.profile[tableKey][field] = val
         MCE:ForceUpdateAll(true)
+        AceConfigRegistry:NotifyChange(addonName)
     end
 end
 
@@ -542,19 +550,32 @@ local function CreateCategoryOptions(order, name, key, desc)
                         set = CatColorSet(key, "textColor"),
                     },
                     hideCountdownNumbers = {
-                        type = "toggle", order = 5, width = "full",
+                        type = "toggle", order = 5, width = "1",
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "hideCountdownNumbers"),
                         set = CatSet(key, "hideCountdownNumbers"),
                         hidden = function() return isMiniCC end,
-                    },
+                    },                    
                     hideStackText = isStackCategory and {
-                        type = "toggle", order = 5.01, width = "full",
+                        type = "toggle", order = 5.01, width = "1",
                         name = L["Hide Stack Text"],
                         desc = L["Hide stacks and charges entirely."],
                         get = CatGet(key, "hideStackText", false),
                         set = CatSet(key, "hideStackText"),
+                    } or nil,
+                    hideChargeTimers = (key == "actionbar") and {
+                        type = "toggle", order = 5.02, width = "full",
+                        name = L["Hide Charge Timers"],
+                        desc = L["Hide timers while charges are restoring (only show timer when all charges are spent)."],
+                        get = function()
+                            return MCE.db.profile.categories.actionbar.hideChargeTimers and true or false
+                        end,
+                        set = function(_, val)
+                            MCE.db.profile.categories.actionbar.hideChargeTimers = val and true or false
+                            MCE:ForceUpdateAll(false)
+                            AceConfigRegistry:NotifyChange(addonName)
+                        end,
                     } or nil,
                     cooldownManagerHeaderTopSpacing = isCooldownManager and SectionSpacer(5.05) or nil,
                     cooldownManagerHeader = isCooldownManager and {
@@ -683,6 +704,14 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "edgeScale"),
                         set = CatRangeSet(key, "edgeScale"),
                     },
+                    swipeAlpha = (key == "actionbar") and {
+                        type = "range", order = 3,
+                        name = L["Swipe Shade Alpha"],
+                        desc = L["0% = transparent, 100% = full dark."],
+                        min = 0, max = 100, step = 1,
+                        get = CatGet(key, "swipeAlpha", 80),
+                        set = CatRangeSet(key, "swipeAlpha"),
+                    } or nil,
                 },
             },
 
@@ -883,6 +912,7 @@ function MCE:GetOptions()
                                     local config = GetDurationTextColorsConfig()
                                     config.enabled = val
                                     MCE:ForceUpdateAll(true)
+                                    AceConfigRegistry:NotifyChange(addonName)
                                 end,
                             },
                             thresholdsRowBreak = RowBreak(3.1),
@@ -999,7 +1029,7 @@ function MCE:GetOptions()
                                 type = "toggle", order = 1, width = "1",
                                 name = L["Enable Party Aura Text"],
                                 desc = L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."],
-                                get = ProfileTableGet("compactPartyAuraText", "enabled", false),
+                                get = ProfileTableGet("compactPartyAuraText", "enabled", true),
                                 set = ProfileTableSet("compactPartyAuraText", "enabled"),
                             },
                             compactRaidEnabled = {

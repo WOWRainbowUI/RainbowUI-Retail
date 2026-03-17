@@ -1,6 +1,29 @@
 
 # Changelog
 
+## [3.4.6] - 2026-03-15
+
+### Fixed
+- Minor changes
+
+## [3.4.5] - 2026-03-15
+
+### Added
+- New swipe shade alpha slider for action bars.
+
+## [3.4.4] - 2026-03-15
+
+### Added
+- Toggleable options panel now closes if already open, and re-opens cleanly.
+- New "Hide Charge Timers" option for cleaner action bars (enabled by default).
+- Small UX improvements and fixes to options behavior.
+
+## [3.4.3] - 2026-03-15
+
+### Added
+- New option to hide charge timers for a cleaner action bar.
+- Charge timer hiding is now enabled by default in the options and action bar settings.
+
 ## [3.4.2] - 2026-03-14
 
 ### Added

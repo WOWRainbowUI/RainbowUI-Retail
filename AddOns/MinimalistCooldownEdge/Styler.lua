@@ -32,11 +32,13 @@ local cooldownTextRegionState = setmetatable({}, { __mode = "k" })
 local lastAppliedEdge      = setmetatable({}, { __mode = "k" })
 local lastAppliedEdgeScale = setmetatable({}, { __mode = "k" })
 local lastAppliedHideNums  = setmetatable({}, { __mode = "k" })
+local lastAppliedSwipeColor = setmetatable({}, { __mode = "k" })
 
 -- Re-entrancy guards for API enforcement hooks
 local suppressEdgeEnforcement      = setmetatable({}, { __mode = "k" })
 local suppressEdgeScaleEnforcement = setmetatable({}, { __mode = "k" })
 local suppressHideNumsEnforcement  = setmetatable({}, { __mode = "k" })
+local suppressSwipeColorEnforcement = setmetatable({}, { __mode = "k" })
 local hookedFontStringSetFont      = setmetatable({}, { __mode = "k" })
 local suppressFontStringSetFont    = setmetatable({}, { __mode = "k" })
 
@@ -219,6 +221,44 @@ local function IsNearlyEqual(a, b)
 
     local approxOk, approxSame = pcall(rawNearlyEqual, a, b)
     return approxOk and approxSame or false
+end
+
+local function GetSwipeShadeAlpha(config)
+    local alphaPercent = config and config.swipeAlpha
+    if type(alphaPercent) ~= "number" then
+        alphaPercent = 80
+    end
+
+    if alphaPercent < 0 then
+        alphaPercent = 0
+    elseif alphaPercent > 100 then
+        alphaPercent = 100
+    end
+
+    return alphaPercent / 100
+end
+
+local function IsSameSwipeColor(state, r, g, b, a)
+    return state
+       and IsNearlyEqual(state.r, r)
+       and IsNearlyEqual(state.g, g)
+       and IsNearlyEqual(state.b, b)
+       and IsNearlyEqual(state.a, a)
+end
+
+local function ResetSwipeColor(cdFrame)
+    if not cdFrame or type(cdFrame.SetSwipeColor) ~= "function" then
+        return
+    end
+
+    if not lastAppliedSwipeColor[cdFrame] then
+        return
+    end
+
+    suppressSwipeColorEnforcement[cdFrame] = true
+    pcall(cdFrame.SetSwipeColor, cdFrame, 0, 0, 0)
+    suppressSwipeColorEnforcement[cdFrame] = nil
+    lastAppliedSwipeColor[cdFrame] = nil
 end
 
 local function GetFontStringStyleState(region)
@@ -1227,12 +1267,17 @@ local function GetDesiredHideCountdownNumbers(cdFrame, category, config)
         return hideNums
     end
 
-    -- Charge-based abilities: force-hide numbers on the main cooldown
-    -- when a charge cooldown is actively displaying its own timer,
-    -- preventing overlapping countdown text.
-    if category == "actionbar" and not hideNums
-       and IsMainCooldownWithActiveChargeCooldown(cdFrame) then
-        hideNums = true
+    if category == "actionbar" and not hideNums then
+        local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
+        local isChargeCooldown = IsChargeCooldownFrame(cdFrame, parent)
+
+        if config.hideChargeTimers and isChargeCooldown then
+            hideNums = true
+        elseif not config.hideChargeTimers
+           and IsMainCooldownWithActiveChargeCooldown(cdFrame) then
+            -- Default behavior: keep only the per-charge timer visible.
+            hideNums = true
+        end
     end
 
     return hideNums
@@ -1354,7 +1399,8 @@ end
 -- =========================================================================
 -- Main entry point called from the batch processor (ProcessDirtyFrames).
 -- Uses change-detection on edge/countdown APIs to prevent visual flicker:
--- SetDrawEdge, SetEdgeScale, SetHideCountdownNumbers are only called when
+-- SetDrawEdge, SetEdgeScale, SetSwipeColor, and SetHideCountdownNumbers are
+-- only called when
 -- their value actually differs from the last-applied value.
 
 -- Aura-pending retry batching: coalesces deferred aura classifications
@@ -1430,6 +1476,7 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
         end
         lastAppliedEdgeScale[cdFrame] = nil
         lastAppliedHideNums[cdFrame] = nil
+        ResetSwipeColor(cdFrame)
 
         if category == "minicc" then
             local textRegions, textRegionCount = GetCooldownTextRegions(cdFrame)
@@ -1470,6 +1517,21 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
             end
         else
             lastAppliedEdgeScale[cdFrame] = nil
+        end
+    end
+
+    -- === Swipe shade override (action bars) — black shade with alpha slider ===
+    if cdFrame.SetSwipeColor then
+        if category == "actionbar" then
+            local r, g, b, a = 0, 0, 0, GetSwipeShadeAlpha(config)
+            if not IsSameSwipeColor(lastAppliedSwipeColor[cdFrame], r, g, b, a) then
+                suppressSwipeColorEnforcement[cdFrame] = true
+                pcall(cdFrame.SetSwipeColor, cdFrame, r, g, b, a)
+                suppressSwipeColorEnforcement[cdFrame] = nil
+                lastAppliedSwipeColor[cdFrame] = { r = r, g = g, b = b, a = a }
+            end
+        else
+            ResetSwipeColor(cdFrame)
         end
     end
 
@@ -1655,6 +1717,20 @@ function Styler:SetupHooks()
                         suppressHideNumsEnforcement[cooldown] = true
                         pcall(cooldown.SetHideCountdownNumbers, cooldown, desired)
                         suppressHideNumsEnforcement[cooldown] = nil
+                    end)
+                end
+
+                if type(cooldownAPI.SetSwipeColor) == "function" then
+                    hooksecurefunc(cooldownAPI, "SetSwipeColor", function(cooldown, r, g, b, a)
+                        if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
+                        if suppressSwipeColorEnforcement[cooldown] then return end
+
+                        local desired = lastAppliedSwipeColor[cooldown]
+                        if not desired or IsSameSwipeColor(desired, r, g, b, a) then return end
+
+                        suppressSwipeColorEnforcement[cooldown] = true
+                        pcall(cooldown.SetSwipeColor, cooldown, desired.r, desired.g, desired.b, desired.a)
+                        suppressSwipeColorEnforcement[cooldown] = nil
                     end)
                 end
 
