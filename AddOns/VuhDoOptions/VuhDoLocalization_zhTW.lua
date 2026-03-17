@@ -810,6 +810,9 @@ VUHDO_I18N_TT.K752 = "在私有光環圖示周圍顯示邊框。";
 VUHDO_I18N_TT.K753 = "私有光環圖示的層級順序 (0 = 在其他元素後方，13 = 在最上層)。";
 VUHDO_I18N_TT.K754 = "將私有光環圖示排列成水平或垂直列。";
 VUHDO_I18N_TT.K755 = "計時文字相對圖示的顯示位置 (下方或上方)。";
+VUHDO_I18N_TT.K756 = "偵測到符合此群組的新光環時播放音效。";
+VUHDO_I18N_TT.K757 = "在血條上顯示光暈效果，當此光環群組啟動時生效。";
+VUHDO_I18N_TT.K758 = "點擊以設定此光環群組的光暈顏色。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1445,6 +1448,7 @@ VUHDO_I18N_AURA_COLOR_CUSTOM = "自訂";
 VUHDO_I18N_AURA_GROUP_CUSTOM_COLOR = "自訂顏色";
 VUHDO_I18N_AURA_COLOR_BAR = "血條顏色";
 VUHDO_I18N_AURA_COLOR_TEXT = "文字顏色";
+VUHDO_I18N_AURA_GLOW_BAR = "計量條發光";
 VUHDO_I18N_INDEX = "索引";
 VUHDO_I18N_TIME = "時間";
 VUHDO_I18N_EXPIRATION = "到期";

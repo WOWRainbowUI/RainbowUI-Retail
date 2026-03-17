@@ -20,6 +20,8 @@ local VUHDO_updateBouquetsForEvent;
 local VUHDO_highlightClusterFor;
 local VUHDO_showTooltip;
 local VUHDO_hideTooltip;
+local VUHDO_getMouseFocus;
+local VUHDO_showAuraTooltip;
 local VUHDO_resetClusterUnit;
 local VUHDO_removeAllClusterHighlights;
 local VUHDO_getHealthBar;
@@ -49,6 +51,8 @@ function VUHDO_actionEventHandlerInitLocalOverrides()
 	VUHDO_highlightClusterFor = _G["VUHDO_highlightClusterFor"];
 	VUHDO_showTooltip = _G["VUHDO_showTooltip"];
 	VUHDO_hideTooltip = _G["VUHDO_hideTooltip"];
+	VUHDO_getMouseFocus = _G["VUHDO_getMouseFocus"];
+	VUHDO_showAuraTooltip = _G["VUHDO_showAuraTooltip"];
 	VUHDO_resetClusterUnit = _G["VUHDO_resetClusterUnit"];
 	VUHDO_removeAllClusterHighlights = _G["VUHDO_removeAllClusterHighlights"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
@@ -303,17 +307,30 @@ end
 local tAllUnits;
 local tInfo;
 local tOldMouseover;
+local tFocus;
 function VuhDoActionOnEnter(aButton)
+
+	tFocus = VUHDO_getMouseFocus();
+
+	if tFocus and tFocus ~= aButton and tFocus["auraInstanceId"] then
+		VUHDO_showAuraTooltip(tFocus);
+
+		return;
+	end
+
 	VUHDO_showTooltip(aButton);
 
 	tOldMouseover = sMouseoverUnit;
 	sMouseoverUnit = aButton:GetAttribute("unit");
+
 	if VUHDO_INTERNAL_TOGGLES[15] then -- VUHDO_UPDATE_MOUSEOVER
 		VUHDO_updateBouquetsForEvent(tOldMouseover, 15); -- Seems to be ghosting sometimes, -- VUHDO_UPDATE_MOUSEOVER
 		VUHDO_updateBouquetsForEvent(sMouseoverUnit, 15); -- VUHDO_UPDATE_MOUSEOVER
 	end
 
-	if VUHDO_isShowDirectionArrow() then VUHDO_updateDirectionFrame(aButton); end
+	if VUHDO_isShowDirectionArrow() then
+		VUHDO_updateDirectionFrame(aButton);
+	end
 
 	if VUHDO_isShowGcd() then
 		VuhDoGcdStatusBar:ClearAllPoints();
@@ -328,15 +345,22 @@ function VuhDoActionOnEnter(aButton)
 
 	if VUHDO_INTERNAL_TOGGLES[20] then -- VUHDO_UPDATE_MOUSEOVER_GROUP
 		tInfo = VUHDO_RAID[sMouseoverUnit];
-		if not tInfo then	return;	end
+
+		if not tInfo then
+			return;
+		end
 
 		tAllUnits = VUHDO_GROUPS[tInfo["group"]];
+
 		if tAllUnits then
 			for _, tUnit in pairs(tAllUnits) do
 				VUHDO_updateBouquetsForEvent(tUnit, 20); -- VUHDO_UPDATE_MOUSEOVER_GROUP
 			end
 		end
 	end
+
+	return;
+
 end
 
 
@@ -347,12 +371,20 @@ local tAllUnits;
 local tInfo;
 function VuhDoActionOnLeave(aButton)
 
+	tFocus = VUHDO_getMouseFocus();
+
+	if tFocus and tFocus["auraInstanceId"] then
+		return;
+	end
+
 	VUHDO_hideTooltip();
+
 	VuhDoDirectionFrame["shown"] = false;
 	VuhDoDirectionFrame:Hide();
 
 	tOldMouseover = sMouseoverUnit;
 	sMouseoverUnit = nil;
+
 	if VUHDO_INTERNAL_TOGGLES[15] then -- VUHDO_UPDATE_MOUSEOVER
 		VUHDO_updateBouquetsForEvent(tOldMouseover, 15); -- VUHDO_UPDATE_MOUSEOVER
 	end
@@ -365,15 +397,21 @@ function VuhDoActionOnLeave(aButton)
 	if VUHDO_INTERNAL_TOGGLES[20] then -- VUHDO_UPDATE_MOUSEOVER_GROUP
 		tInfo = VUHDO_RAID[aButton:GetAttribute("unit")];
 
-		if not tInfo then return; end
+		if not tInfo then
+			return;
+		end
 
 		tAllUnits = VUHDO_GROUPS[tInfo["group"]];
+
 		if tAllUnits then
 			for _, tUnit in pairs(tAllUnits) do
 				VUHDO_updateBouquetsForEvent(tUnit, 20); -- VUHDO_UPDATE_MOUSEOVER_GROUP
 			end
 		end
 	end
+
+	return;
+
 end
 
 

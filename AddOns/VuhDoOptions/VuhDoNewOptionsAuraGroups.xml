@@ -714,18 +714,55 @@
 
 					<Frame name="$parentCustomColorTexture" inherits="VuhDoColorSwatchTexture">
 						<Size>
-							<AbsDimension x="120" y="32" />
+							<AbsDimension x="88" y="32" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentCanColorTextCheckButton" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="8" y="0" />
+									<AbsDimension x="4" y="-2" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K616);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<CheckButton name="$parentCanGlowBarCheckButton" text="VUHDO_I18N_AURA_GLOW_BAR" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentCustomColorTexture" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="4" y="2" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_CAN_GLOW_BAR");
+								VUHDO_lnfCheckButtonOnLoad(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K757);
+
+								self:SetAttribute("custom_function_post", VUHDO_auraGroupsCanGlowBarChanged);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentGlowBarColorTexture" inherits="VuhDoColorSwatchTexture">
+						<Size>
+							<AbsDimension x="88" y="32" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentCanGlowBarCheckButton" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="4" y="-2" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K758);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -751,6 +788,51 @@
 						</Scripts>
 					</Frame>
 
+					<Frame name="$parentSoundLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="40" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentPrioritySlider" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="12" y="0" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_SOUND" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentSoundCombo" inherits="VuhDoScrollComboBoxResizeableTemplate">
+						<Size>
+							<AbsDimension x="180" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentSoundLabel" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="0" y="4" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_initResizeableScrollCombo(self);
+
+								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_SOUND", VUHDO_SOUNDS);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K756);
+								self:SetAttribute("custom_function", VUHDO_auraGroupsSoundSelect);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
 					<Frame name="$parentIgnorePanel" hidden="true">
 						<Size>
 							<AbsDimension x="350" y="110" />
@@ -758,7 +840,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentPrioritySlider" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-4" />
+									<AbsDimension x="0" y="-28" />
 								</Offset>
 							</Anchor>
 						</Anchors>

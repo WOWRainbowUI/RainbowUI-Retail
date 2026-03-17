@@ -13,6 +13,7 @@
 	<Script file="VuhDoToolboxUtil.lua" />
 	<Script file="VuhDoAuras.lua" />
 	<Script file="VuhDoAuraInference.lua" />
+	<Script file="VuhDoAuraSounds.lua" />
 	<Script file="VuhDoTask.lua" />
 	<Script file="VuhDoPercentile.lua" />
 	<Script file="VuhDoBuffConst.lua" />

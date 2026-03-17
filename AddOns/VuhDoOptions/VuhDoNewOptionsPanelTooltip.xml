@@ -8,7 +8,7 @@
 					<AbsDimension x="428" y="345" />
 				</Size>
 				<Anchors>
-					<Anchor point="CENTER">
+					<Anchor point="TOPLEFT">
 						<Offset>
 							<AbsDimension x="0" y="0" />
 						</Offset>
@@ -22,7 +22,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="270" y="-54" />
+									<AbsDimension x="270" y="-13" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -331,7 +331,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-25" />
+									<AbsDimension x="13" y="-13" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -412,24 +412,6 @@
 									</OnLoad>
 								</Scripts>
 							</CheckButton>
-							<CheckButton name="$parentCustomDebuffsCheckButton" checked="true" text="VUHDO_I18N_DEBUFFS" inherits="VuhDoCheckButtonTemplate">
-								<Anchors>
-									<Anchor point="TOPLEFT">
-										<Offset>
-											<AbsDimension x="126" y="-73" />
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										VUHDO_lnfSetModel(self, "VUHDO_CONFIG.DEBUFF_TOOLTIP");
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K514);
-										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.TOOLTIP.show", false);
-										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_CONFIG.STANDARD_TOOLTIP", true);
-									</OnLoad>
-								</Scripts>
-							</CheckButton>
-
 
 							<Frame name="$parentScaleSlider" inherits="VuhDoHSliderTemplate">
 								<Size>
@@ -463,7 +445,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="70" y="-270" />
+									<AbsDimension x="13" y="-230" />
 								</Offset>
 							</Anchor>
 						</Anchors>

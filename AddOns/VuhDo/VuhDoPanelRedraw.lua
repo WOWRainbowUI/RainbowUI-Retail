@@ -1626,17 +1626,19 @@ do
 			tCnt = tCnt + 1;
 		end
 
-		for tCnt = 1, #VUHDO_PANEL_MODELS[aPanelNum] do
-			tGroupPanel = VUHDO_getGroupOrderPanel(aPanelNum, tCnt);
+		if VUHDO_PANEL_MODELS[aPanelNum] then
+			for tCnt = 1, #VUHDO_PANEL_MODELS[aPanelNum] do
+				tGroupPanel = VUHDO_getGroupOrderPanel(aPanelNum, tCnt);
 
-			if tGroupPanel then
-				VUHDO_PixelUtil.Hide(tGroupPanel);
-			end
+				if tGroupPanel then
+					VUHDO_PixelUtil.Hide(tGroupPanel);
+				end
 
-			tGroupPanel = VUHDO_getGroupSelectPanel(aPanelNum,  tCnt);
+				tGroupPanel = VUHDO_getGroupSelectPanel(aPanelNum,  tCnt);
 
-			if tGroupPanel then
-				VUHDO_PixelUtil.Hide(tGroupPanel);
+				if tGroupPanel then
+					VUHDO_PixelUtil.Hide(tGroupPanel);
+				end
 			end
 		end
 
@@ -2185,17 +2187,19 @@ do
 			tCnt = tCnt + 1;
 		end
 
-		for tCnt = 1, #VUHDO_PANEL_MODELS[aPanelNum] do
-			tGroupPanel = VUHDO_getGroupOrderPanel(aPanelNum, tCnt);
+		if VUHDO_PANEL_MODELS[aPanelNum] then
+			for tCnt = 1, #VUHDO_PANEL_MODELS[aPanelNum] do
+				tGroupPanel = VUHDO_getGroupOrderPanel(aPanelNum, tCnt);
 
-			if tGroupPanel then
-				VUHDO_PixelUtil.Hide(tGroupPanel);
-			end
+				if tGroupPanel then
+					VUHDO_PixelUtil.Hide(tGroupPanel);
+				end
 
-			tGroupPanel = VUHDO_getGroupSelectPanel(aPanelNum,  tCnt);
+				tGroupPanel = VUHDO_getGroupSelectPanel(aPanelNum,  tCnt);
 
-			if tGroupPanel then
-				VUHDO_PixelUtil.Hide(tGroupPanel);
+				if tGroupPanel then
+					VUHDO_PixelUtil.Hide(tGroupPanel);
+				end
 			end
 		end
 

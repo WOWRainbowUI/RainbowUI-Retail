@@ -1265,6 +1265,8 @@ do
 			return;
 		end
 
+		VUHDO_checkAuraGroupSounds(aUnit, anAuraData);
+
 		for tPanelNum = 1, 10 do
 			VUHDO_checkAuraForPanelAnchors(aUnit, tPanelNum, anAuraData);
 		end

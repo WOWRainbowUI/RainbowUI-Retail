@@ -3,6 +3,7 @@ local _;
 VUHDO_COMBO_MAX_ENTRIES = 10000;
 
 local floor = floor;
+local max = math.max;
 local tonumber = tonumber;
 local strsub = strsub;
 local pairs = pairs;
@@ -1022,7 +1023,7 @@ end
 
 
 --
-local tOutline, tShadowAlpha, tColor, tFactor;
+local tOutline, tShadowAlpha, tColor, tFactor, tFontSize;
 function VUHDO_customizeIconText(aParent, aHeight, aLabel, aSetup)
 
 	tFactor = aHeight * 0.01;
@@ -1047,7 +1048,8 @@ function VUHDO_customizeIconText(aParent, aHeight, aLabel, aSetup)
 		aLabel:SetShadowColor(0, 0, 0, tShadowAlpha);
 	end
 
-	aLabel:SetFont(aSetup["FONT"], tFactor * aSetup["SCALE"], tOutline or "");
+	tFontSize = max(1, tFactor * (aSetup["SCALE"] or 100));
+	aLabel:SetFont(aSetup["FONT"], tFontSize, tOutline or "");
 
 	aLabel:SetShadowOffset(1, -1);
 
