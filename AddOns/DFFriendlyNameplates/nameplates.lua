@@ -34,6 +34,7 @@ function module:OnLoad()
         local checked = self:GetChecked()
         DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"] = checked
         SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", checked and "1" or "0")
+        TextureLoadingGroupMixin.RemoveTexture({ textures = NamePlateFriendlyFrameOptions }, "updateNameUsesGetUnitName")
         DFFNamePlates:reloadNP()
     end)
 
