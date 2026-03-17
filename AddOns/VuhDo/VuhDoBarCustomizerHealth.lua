@@ -31,6 +31,7 @@ local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_getStatusbarOrientationString;
 local VUHDO_getPixelScale;
 local VUHDO_applyAllLayersToBar;
+local VUHDO_getAuraGroupGlowInfo;
 local VUHDO_getHealPredictionCalculator;
 local VUHDO_getOvershieldCalculator;
 local VUHDO_removePrivateAuras;
@@ -121,6 +122,7 @@ function VUHDO_customHealthInitLocalOverrides()
 	VUHDO_getStatusbarOrientationString = _G["VUHDO_getStatusbarOrientationString"];
 	VUHDO_getPixelScale = _G["VUHDO_getPixelScale"];
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
+	VUHDO_getAuraGroupGlowInfo = _G["VUHDO_getAuraGroupGlowInfo"];
 	VUHDO_getHealPredictionCalculator = _G["VUHDO_getHealPredictionCalculator"];
 	VUHDO_getOvershieldCalculator = _G["VUHDO_getOvershieldCalculator"];
 	VUHDO_removePrivateAuras = _G["VUHDO_removePrivateAuras"];
@@ -1086,7 +1088,12 @@ do
 	local tPanelNum;
 	local tQuota;
 	local tBackgroundBouquet;
+	local tCanGlow;
+	local tGlowColor;
+	local tWasGlowActive;
 	local function VUHDO_updateHealthBarValueForUnit(aUnit, aCurrValue, aMaxValue, aColor, aMaxColor, aBouquetName, aLayerTemplate, aCurrValue2)
+
+		tCanGlow, tGlowColor = VUHDO_getAuraGroupGlowInfo(aUnit);
 
 		for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 			tPanelNum = VUHDO_BUTTON_CACHE[tButton];
@@ -1113,6 +1120,22 @@ do
 						VUHDO_getBarText(tHealthBar):SetTextColor(aColor["TR"], aColor["TG"], aColor["TB"]);
 						VUHDO_getBarTextSolo(tHealthBar):SetTextColor(aColor["TR"], aColor["TG"], aColor["TB"]);
 						VUHDO_getLifeText(tHealthBar):SetTextColor(aColor["TR"], aColor["TG"], aColor["TB"]);
+					end
+				end
+
+				tWasGlowActive = tButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY];
+
+				if tCanGlow and tGlowColor then
+					if not tWasGlowActive then
+						VUHDO_LibCustomGlow.PixelGlow_Start(tButton, tGlowColor, 14, 0.3, 8, 2, 0, 0, false, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+
+						tButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = true;
+					end
+				else
+					if tWasGlowActive then
+						VUHDO_LibCustomGlow.PixelGlow_Stop(tButton, VUHDO_CUSTOM_GLOW_AURA_GROUP_KEY);
+
+						tButton[VUHDO_AURA_GROUP_GLOW_ACTIVE_KEY] = nil;
 					end
 				end
 

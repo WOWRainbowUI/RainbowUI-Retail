@@ -368,6 +368,7 @@ function VUHDO_findButtonFromChild(aChildFrame)
 		if VUHDO_BUTTON_CACHE[tFrame] then
 			return tFrame;
 		end
+
 		tFrame = tFrame["vuhdo_parent"] or tFrame:GetParent();
 	end
 

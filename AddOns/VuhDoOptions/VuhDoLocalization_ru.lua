@@ -912,6 +912,9 @@ VUHDO_I18N_TT.K752 = "Show a border around private aura icons.";
 VUHDO_I18N_TT.K753 = "Layer order of private aura icons (0 = behind other elements, 13 = on top).";
 VUHDO_I18N_TT.K754 = "Arrange private aura icons in a horizontal or vertical row.";
 VUHDO_I18N_TT.K755 = "Where to show the timer text relative to the icon (below or above).";
+VUHDO_I18N_TT.K756 = "Play this sound when a new aura matching this group is detected on a unit.";
+VUHDO_I18N_TT.K757 = "Check to show a glow effect on the health bar when this aura group is active.";
+VUHDO_I18N_TT.K758 = "Click to set the glow color for this aura group.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Стандартный\nпрофиль";
 VUHDO_I18N_DEFAULT_LAYOUT = "Стандартная раскладка клавиш ";
@@ -1619,6 +1622,7 @@ VUHDO_I18N_AURA_COLOR_CUSTOM = "Custom";
 VUHDO_I18N_AURA_GROUP_CUSTOM_COLOR = "Custom Color";
 VUHDO_I18N_AURA_COLOR_BAR = "Color Bar";
 VUHDO_I18N_AURA_COLOR_TEXT = "Color Text";
+VUHDO_I18N_AURA_GLOW_BAR = "Glow Bar";
 VUHDO_I18N_INDEX = "Index";
 VUHDO_I18N_TIME = "Time";
 VUHDO_I18N_EXPIRATION = "Expiration";

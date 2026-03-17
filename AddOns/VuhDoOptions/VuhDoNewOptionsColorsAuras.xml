@@ -12,7 +12,7 @@
 
 			<Frame name="$parentMainPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="448" y="288" />
+					<AbsDimension x="466" y="288" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -43,6 +43,9 @@
 					</Frame>
 
 					<CheckButton name="$parentShowTimerCheck" text="VUHDO_I18N_SHOW_TIMER" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentTitleLabel" relativePoint="BOTTOMLEFT">
 								<Offset>
@@ -60,6 +63,9 @@
 					</CheckButton>
 
 					<CheckButton name="$parentShowStacksCheck" text="VUHDO_I18N_SHOW_STACKS" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentShowTimerCheck" relativePoint="TOPRIGHT">
 								<Offset>
@@ -77,6 +83,9 @@
 					</CheckButton>
 
 					<CheckButton name="$parentShowClockCheck" text="VUHDO_I18N_SHOW_CLOCK" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentShowStacksCheck" relativePoint="TOPRIGHT">
 								<Offset>
@@ -94,6 +103,9 @@
 					</CheckButton>
 
 					<CheckButton name="$parentShowTooltipCheck" text="VUHDO_I18N_SHOW_TOOLTIP" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentShowTimerCheck" relativePoint="BOTTOMLEFT">
 								<Offset>
@@ -111,6 +123,9 @@
 					</CheckButton>
 
 					<CheckButton name="$parentDispelBorderCheck" text="VUHDO_I18N_DISPEL_BORDER" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentShowTooltipCheck" relativePoint="TOPRIGHT">
 								<Offset>
@@ -131,7 +146,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentShowTooltipCheck" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="0" y="-8" />
+									<AbsDimension x="2" y="-8" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -147,7 +162,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentAuraBarDefaultTexture" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="20" y="0" />
+									<AbsDimension x="40" y="0" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -179,6 +194,9 @@
 					</Frame>
 
 					<CheckButton name="$parentFadeOnLowCheck" text="VUHDO_I18N_FADE_ON_LOW" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentWarningLabel" relativePoint="BOTTOMLEFT">
 								<Offset>
@@ -217,6 +235,9 @@
 					</Frame>
 
 					<CheckButton name="$parentFlashOnLowCheck" text="VUHDO_I18N_FLASH_ON_LOW" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="120" y="32" />
+						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentFadeOnLowCheck" relativePoint="TOPRIGHT">
 								<Offset>

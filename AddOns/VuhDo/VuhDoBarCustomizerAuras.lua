@@ -45,8 +45,6 @@ local VUHDO_UIFrameFlash;
 local VUHDO_UIFrameFlashStop;
 
 local VUHDO_safeSetAttribute;
-local VUHDO_safeWrapScript;
-local VUHDO_findButtonFromChild;
 local VUHDO_getUnitButtonsPanel;
 local VUHDO_getHealthBar;
 local VUHDO_getHealthBarWidth;
@@ -440,8 +438,6 @@ function VUHDO_barCustomizerAurasInitLocalOverrides()
 	VUHDO_UIFrameFlashStop = _G["VUHDO_UIFrameFlashStop"];
 
 	VUHDO_safeSetAttribute = _G["VUHDO_safeSetAttribute"];
-	VUHDO_safeWrapScript = _G["VUHDO_safeWrapScript"];
-	VUHDO_findButtonFromChild = _G["VUHDO_findButtonFromChild"];
 	VUHDO_getUnitButtonsPanel = _G["VUHDO_getUnitButtonsPanel"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getHealthBarWidth = _G["VUHDO_getHealthBarWidth"];
@@ -825,7 +821,7 @@ do
 	local tRegion;
 	local function VUHDO_getAuraIconChargeTexture(aChargeFrame)
 
-		_, tRegion = aChargeFrame:GetRegions();
+		tRegion = aChargeFrame:GetRegions();
 
 		return tRegion;
 	end
@@ -875,6 +871,36 @@ do
 		_, _, tCounter = aFrame:GetRegions();
 
 		return tCounter;
+
+	end
+
+
+
+	--
+	local tChargeFrame;
+	local function VUHDO_getAuraBarChargeFrame(aFrame)
+
+		_, _, tChargeFrame = aFrame:GetChildren();
+
+		return tChargeFrame;
+
+	end
+
+
+
+	--
+	local tRegion;
+	local function VUHDO_getAuraBarChargeTexture(aFrame)
+
+		tChargeFrame = VUHDO_getAuraBarChargeFrame(aFrame);
+
+		if not tChargeFrame then
+			return nil;
+		end
+
+		tRegion = tChargeFrame:GetRegions();
+
+		return tRegion;
 
 	end
 
@@ -1137,7 +1163,11 @@ do
 			aFrame["childB"]["chargeTexture"]:Hide();
 		end
 
-		VUHDO_safeSetAttribute(aFrame, "vuhdo_button", nil);
+		if aFrame["chargeTexture"] then
+			aFrame["chargeTexture"]:Hide();
+		end
+
+		aFrame["vuhdo_button"] = nil;
 
 		aFrame:Hide();
 		aFrame:ClearAllPoints();
@@ -1268,143 +1298,52 @@ do
 
 
 	--
-	local sAuraOnEnterSnippet = [[
-		if sHealButton then
-			sHealButton:ClearBindings();
-		end
+	local tFocus;
+	local function VUHDO_auraFrameOnLeave(aAuraFrame)
 
-		tFrame = self:GetAttribute("vuhdo_button");
+		VUHDO_hideAuraTooltip();
 
-		if not tFrame then
-			tFrame = self:GetParent();
+		tFocus = VUHDO_getMouseFocus();
 
-			while tFrame do
-				if tFrame:GetAttribute("vuhdo_button_marker") then
-					break;
-				end
-
-				tFrame = tFrame:GetParent();
-			end
-		end
-
-		if tFrame then
-			sHealButton = tFrame;
-			tBody = tFrame:GetAttribute("vuhdo_onenter");
-
-			if tBody then
-				owner:RunFor(tFrame, tBody);
-			end
-
-			sCliqueHeader = owner:GetFrameRef("sCliqueHeader");
-
-			if sCliqueHeader then
-				tCliqueEnter = sCliqueHeader:GetAttribute("setup_onenter");
-
-				if tCliqueEnter then
-					sCliqueHeader:RunFor(tFrame, tCliqueEnter);
-				end
-			end
+		if tFocus and VUHDO_findButtonFromChild(tFocus) == aAuraFrame["vuhdo_button"] then
+			VuhDoActionOnEnter(aAuraFrame["vuhdo_button"]);
 		else
-			sHealButton = nil;
-		end
-	]];
-
-	local sAuraOnLeaveSnippet = [[
-		tFrame = self:GetAttribute("vuhdo_button");
-
-		if not tFrame then
-			tFrame = self:GetParent();
-
-			while tFrame do
-				if tFrame:GetAttribute("vuhdo_button_marker") then
-					break;
-				end
-
-				tFrame = tFrame:GetParent();
-			end
+			VuhDoActionOnLeave(aAuraFrame["vuhdo_button"]);
 		end
 
-		if tFrame then
-			tFrame:ClearBindings();
-			sHealButton = nil;
-			tBody = tFrame:GetAttribute("vuhdo_onleave");
+		return;
 
-			if tBody then
-				owner:RunFor(tFrame, tBody);
-			end
-
-			sCliqueHeader = owner:GetFrameRef("sCliqueHeader");
-
-			if sCliqueHeader then
-				tCliqueLeave = sCliqueHeader:GetAttribute("setup_onleave");
-
-				if tCliqueLeave then
-					sCliqueHeader:RunFor(tFrame, tCliqueLeave);
-				end
-			end
-		else
-			if sHealButton then
-				sHealButton:ClearBindings();
-
-				sHealButton = nil;
-			end
-		end
-	]];
+	end
 
 
 
 	--
-	local tHeaderFrame;
-	local function VUHDO_initAuraFrameSecureHandlers(aFrame, aButton)
+	local function VUHDO_setupAuraFrameForTooltips(aFrame, aButton)
 
 		if not aFrame or not aButton then
 			return;
 		end
 
-		VUHDO_safeSetAttribute(aFrame, "vuhdo_button", aButton);
+		aFrame["vuhdo_button"] = aButton;
 
 		if aButton["raidid"] then
-			VUHDO_safeSetAttribute(aFrame, "unit", aButton["raidid"]);
 			aFrame["raidid"] = aButton["raidid"];
 		end
 
-		if aFrame:GetAttribute("vuhdo_aura_secure_init") then
-			return;
-		end
-
 		if not aFrame:GetAttribute("vd_tt_hook") then
-			aFrame:SetScript("OnEnter", function(self)
-				if not VUHDO_showAuraTooltip(self) then
-					VuhDoActionOnEnter(VUHDO_findButtonFromChild(self));
-				end
-			end);
-
-			aFrame:SetScript("OnLeave", function(self)
-				VUHDO_hideAuraTooltip();
-
-				VuhDoActionOnLeave(VUHDO_findButtonFromChild(self));
-			end);
+			aFrame:SetScript("OnLeave", VUHDO_auraFrameOnLeave);
 
 			VUHDO_safeSetAttribute(aFrame, "vd_tt_hook", true);
 		end
 
-		if not aFrame:GetAttribute("vuhdo_secureheader_wrap") then
-			tHeaderFrame = _G["VuhDoHealButtonSecureHeaderFrame"];
-
-			if tHeaderFrame then
-				VUHDO_safeWrapScript(tHeaderFrame, aFrame, "OnEnter", sAuraOnEnterSnippet);
-				VUHDO_safeWrapScript(tHeaderFrame, aFrame, "OnLeave", sAuraOnLeaveSnippet);
-
-				VUHDO_safeSetAttribute(aFrame, "vuhdo_secureheader_wrap", true);
-			end
+		if not InCombatLockdown() then
+			aFrame:EnableMouse(true);
+			aFrame:SetPropagateMouseMotion(true);
+			aFrame:SetPropagateMouseClicks(true);
+			aFrame:SetMouseClickEnabled(false);
+			aFrame:EnableKeyboard(false);
+			aFrame:SetPropagateKeyboardInput(true);
 		end
-
-		aFrame:EnableMouse(false);
-		aFrame:SetMouseMotionEnabled(true);
-		aFrame:EnableKeyboard(false);
-		aFrame:SetPropagateKeyboardInput(true);
-
-		VUHDO_safeSetAttribute(aFrame, "vuhdo_aura_secure_init", true);
 
 		return;
 
@@ -1483,7 +1422,7 @@ do
 			tFrame:SetParent(tParent);
 		end
 
-		VUHDO_initAuraFrameSecureHandlers(tFrame, aButton);
+		VUHDO_setupAuraFrameForTooltips(tFrame, aButton);
 
 		VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = tFrame;
 
@@ -1537,6 +1476,7 @@ do
 		tFrame["childIcon"] = VUHDO_getAuraBarIconTexture(tFrame);
 		tFrame["timerText"] = VUHDO_getAuraBarTimer(tFrame);
 		tFrame["countText"] = VUHDO_getAuraBarCounter(tFrame);
+		tFrame["chargeTexture"] = VUHDO_getAuraBarChargeTexture(tFrame);
 
 		tParent = _G[aButton:GetName() .. "BgBarHlBar"];
 
@@ -1544,7 +1484,7 @@ do
 			tFrame:SetParent(tParent);
 		end
 
-		VUHDO_initAuraFrameSecureHandlers(tFrame, aButton);
+		VUHDO_setupAuraFrameForTooltips(tFrame, aButton);
 
 		VUHDO_AURA_FRAMES[tFrameName][anAnchorIndex][aSlotIndex] = tFrame;
 
@@ -2224,6 +2164,11 @@ do
 						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
 					end
 
+					if aFrame["chargeTexture"] and aFrame["childIcon"] then
+						aFrame["chargeTexture"]:ClearAllPoints();
+						aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
 					aFrame["childBar"]:ClearAllPoints();
 					VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "TOP", aFrame["childIcon"], "BOTTOM", 0, 0);
 					VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, tBarHeight);
@@ -2235,6 +2180,11 @@ do
 					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
 						aFrame["cooldownFrame"]:ClearAllPoints();
 						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
+					if aFrame["chargeTexture"] and aFrame["childIcon"] then
+						aFrame["chargeTexture"]:ClearAllPoints();
+						aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
 					end
 
 					aFrame["childBar"]:ClearAllPoints();
@@ -2252,6 +2202,11 @@ do
 						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
 					end
 
+					if aFrame["chargeTexture"] and aFrame["childIcon"] then
+						aFrame["chargeTexture"]:ClearAllPoints();
+						aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
 					aFrame["childBar"]:ClearAllPoints();
 					VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "RIGHT", aFrame["childIcon"], "LEFT", 0, 0);
 					VUHDO_PixelUtil.SetSize(aFrame["childBar"], tBarWidth, tBarHeight);
@@ -2263,6 +2218,11 @@ do
 					if aFrame["cooldownFrame"] and aFrame["childIcon"] then
 						aFrame["cooldownFrame"]:ClearAllPoints();
 						aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+					end
+
+					if aFrame["chargeTexture"] and aFrame["childIcon"] then
+						aFrame["chargeTexture"]:ClearAllPoints();
+						aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
 					end
 
 					aFrame["childBar"]:ClearAllPoints();
@@ -2580,6 +2540,11 @@ do
 							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
 						end
 
+						if aFrame["chargeTexture"] and aFrame["childIcon"] then
+							aFrame["chargeTexture"]:ClearAllPoints();
+							aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
 						tChild:ClearAllPoints();
 						VUHDO_PixelUtil.SetPoint(tChild, "TOP", aFrame["childIcon"], "BOTTOM", 0, 0);
 						VUHDO_PixelUtil.SetSize(tChild, tIconSize, tBarHeight);
@@ -2591,6 +2556,11 @@ do
 						if aFrame["cooldownFrame"] and aFrame["childIcon"] then
 							aFrame["cooldownFrame"]:ClearAllPoints();
 							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
+						if aFrame["chargeTexture"] and aFrame["childIcon"] then
+							aFrame["chargeTexture"]:ClearAllPoints();
+							aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
 						end
 
 						tChild:ClearAllPoints();
@@ -2609,6 +2579,11 @@ do
 							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
 						end
 
+						if aFrame["chargeTexture"] and aFrame["childIcon"] then
+							aFrame["chargeTexture"]:ClearAllPoints();
+							aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
 						tChild:ClearAllPoints();
 						VUHDO_PixelUtil.SetPoint(tChild, "RIGHT", aFrame["childIcon"], "LEFT", 0, 0);
 						VUHDO_PixelUtil.SetSize(tChild, tBarWidth, tBarHeight);
@@ -2620,6 +2595,11 @@ do
 						if aFrame["cooldownFrame"] and aFrame["childIcon"] then
 							aFrame["cooldownFrame"]:ClearAllPoints();
 							aFrame["cooldownFrame"]:SetAllPoints(aFrame["childIcon"]);
+						end
+
+						if aFrame["chargeTexture"] and aFrame["childIcon"] then
+							aFrame["chargeTexture"]:ClearAllPoints();
+							aFrame["chargeTexture"]:SetAllPoints(aFrame["childIcon"]);
 						end
 
 						tChild:ClearAllPoints();
@@ -2749,7 +2729,6 @@ end
 
 
 --
-local tButton;
 local tPanelNum;
 local tAnchorConfig;
 local tShowTooltip;
@@ -2772,9 +2751,7 @@ function VUHDO_showAuraTooltip(aAuraFrame)
 		return false;
 	end
 
-	tButton = VUHDO_findButtonFromChild(aAuraFrame);
-
-	if not tButton then
+	if not aAuraFrame["raidid"] then
 		return false;
 	end
 
@@ -2784,8 +2761,9 @@ function VUHDO_showAuraTooltip(aAuraFrame)
 
 	GameTooltip:SetOwner(aAuraFrame, "ANCHOR_RIGHT", 0, 0);
 
-	if aAuraFrame["auraInstanceId"] and aAuraFrame["auraInstanceId"] >= 0 and tButton["raidid"] then
-		GameTooltip:SetUnitAuraByAuraInstanceID(tButton["raidid"], aAuraFrame["auraInstanceId"]);
+	if aAuraFrame["auraInstanceId"] and aAuraFrame["auraInstanceId"] >= 0 then
+		GameTooltip:SetUnitAuraByAuraInstanceID(aAuraFrame["raidid"], aAuraFrame["auraInstanceId"]);
+
 		return true;
 	end
 
@@ -2934,6 +2912,9 @@ local tGroup;
 local tListSlots;
 local tSlotData;
 local tSlotDataAsAura;
+local tFixedSlots;
+local tDisplaySlotIndex;
+local tActualSlot;
 function VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig, anAnchorSlots, aMaxSlots)
 
 	if not aUnit or not aPanelNum or not anAnchorIndex or not anAnchorConfig then
@@ -2950,12 +2931,18 @@ function VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, anAnchorIndex, an
 
 	if tGroup and (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
 		tListSlots = VUHDO_UNIT_AURA_LIST_SLOTS[aUnit] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum] and VUHDO_UNIT_AURA_LIST_SLOTS[aUnit][aPanelNum][anAnchorIndex];
+		tFixedSlots = anAnchorConfig["fixedSlots"];
 
 		for _, tButton in pairs(tPanelUnitButtons) do
+			tDisplaySlotIndex = 0;
+
 			for tSlotIndex = 1, aMaxSlots do
 				tSlotData = tListSlots and tListSlots[tSlotIndex];
 
 				if tSlotData and tSlotData["isActive"] then
+					tDisplaySlotIndex = tDisplaySlotIndex + 1;
+					tActualSlot = tFixedSlots and tSlotIndex or tDisplaySlotIndex;
+
 					tSlotDataAsAura = sSlotDataAsAuraPool:get();
 
 					tSlotDataAsAura["icon"] = tSlotData["icon"];
@@ -2970,10 +2957,16 @@ function VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, anAnchorIndex, an
 					tSlotDataAsAura["clipB"] = tSlotData["clipB"];
 					tSlotDataAsAura["color"] = tSlotData["color"];
 
-					VUHDO_displayAuraInSlot(tButton, aPanelNum, anAnchorIndex, tSlotIndex, tSlotDataAsAura, anAnchorConfig);
+					VUHDO_displayAuraInSlot(tButton, aPanelNum, anAnchorIndex, tActualSlot, tSlotDataAsAura, anAnchorConfig);
 
 					sSlotDataAsAuraPool:release(tSlotDataAsAura);
-				else
+				elseif tFixedSlots then
+					VUHDO_hideAuraSlot(tButton, anAnchorIndex, tSlotIndex, anAnchorConfig["style"] == "bars");
+				end
+			end
+
+			if not tFixedSlots then
+				for tSlotIndex = tDisplaySlotIndex + 1, aMaxSlots do
 					VUHDO_hideAuraSlot(tButton, anAnchorIndex, tSlotIndex, anAnchorConfig["style"] == "bars");
 				end
 			end
@@ -3253,7 +3246,7 @@ do
 			if tShowStacks and tStackType == 2 and aChargeTexture then
 				tApplications = anAuraData["applications"];
 
-				if tApplications and not issecretvalue(tApplications) and tApplications > 0 then
+				if tApplications and (issecretvalue(tApplications) or tApplications > 0) then
 					aChargeTexture:SetTexture("Interface\\AddOns\\VuhDo\\Images\\aura_stacks_spritesheet");
 					aChargeTexture:SetSpriteSheetCell(tApplications, 1, 8);
 
@@ -3265,6 +3258,7 @@ do
 						aChargeTexture:SetVertexColor(1, 1, 1, 1);
 					end
 
+					aChargeTexture:SetAlpha(tApplications);
 					aChargeTexture:Show();
 				else
 					aChargeTexture:Hide();
@@ -3494,7 +3488,7 @@ do
 
 		VUHDO_updateAuraIconDisplay(tBarFrame["childIcon"], tBarFrame["cooldownFrame"], nil, anAnchorConfig, anAuraData, tDurationObj, tUnit);
 
-		VUHDO_updateAuraTimerAndStacks(tBarFrame["timerText"], tBarFrame["countText"], nil, anAnchorConfig, anAuraData, tDurationObj, tUnit);
+		VUHDO_updateAuraTimerAndStacks(tBarFrame["timerText"], tBarFrame["countText"], tBarFrame["chargeTexture"], anAnchorConfig, anAuraData, tDurationObj, tUnit);
 
 		tBar:SetAlpha(1);
 
@@ -3546,6 +3540,10 @@ do
 
 			if tFrame["childIcon"] then
 				tFrame["childIcon"]:Hide();
+			end
+
+			if tFrame["auraInstanceId"] then
+				tFrame["auraInstanceId"] = nil;
 			end
 
 			tFrame:SetAlpha(0);

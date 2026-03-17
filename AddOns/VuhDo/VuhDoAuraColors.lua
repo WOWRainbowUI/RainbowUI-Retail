@@ -46,6 +46,9 @@ local sUnitAuraCustomColor = { };
 local sCanColorBarGroups = { };
 local sUnitAuraBarWinner = { };
 local sUnitAuraTextWinner = { };
+local sUnitAuraGlowWinner = { };
+
+local sGlowWinnerSet;
 
 local sAuraColorWinnerPool;
 local sCanColorBarGroupPool;
@@ -58,6 +61,8 @@ local sDispelColorBuffer = {
 	["useBackground"] = true,
 	["useText"] = nil,
 };
+
+local sGlowColorBuffer = { 0.95, 0.95, 0.32, 1 };
 
 
 
@@ -102,6 +107,8 @@ local function VUHDO_cleanupCanColorBarGroupDelegate(aGroup)
 	aGroup["customColor"] = nil;
 	aGroup["canColorBar"] = nil;
 	aGroup["canColorText"] = nil;
+	aGroup["canGlowBar"] = nil;
+	aGroup["glowBarColor"] = nil;
 	aGroup["isListGroup"] = nil;
 	aGroup["groupId"] = nil;
 	aGroup["entries"] = nil;
@@ -167,7 +174,7 @@ do
 		for tGroupId, tGroup in pairs(VUHDO_CONFIG["AURA_GROUPS"] or sEmpty) do
 			tEffectiveColorType = tGroup["colorType"] or ((tGroup["canColorBar"] or tGroup["canColorText"]) and VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUP_COLOR_OFF);
 
-			if tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL and tGroup["enabled"] ~= false then
+			if (tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL or tGroup["canGlowBar"]) and tGroup["enabled"] ~= false then
 				if tGroup["isInferred"] then
 					tColorBarGroup = sCanColorBarGroupPool:get();
 
@@ -189,6 +196,14 @@ do
 						tColorBarGroup["canColorText"] = false;
 					end
 
+					if tGroup["canGlowBar"] then
+						tColorBarGroup["canGlowBar"] = true;
+						tColorBarGroup["glowBarColor"] = tGroup["glowBarColor"];
+					else
+						tColorBarGroup["canGlowBar"] = false;
+						tColorBarGroup["glowBarColor"] = nil;
+					end
+
 					tinsert(sCanColorBarGroups, tColorBarGroup);
 				else
 					tColorBarGroup = sCanColorBarGroupPool:get();
@@ -207,6 +222,14 @@ do
 						tColorBarGroup["canColorText"] = true;
 					else
 						tColorBarGroup["canColorText"] = false;
+					end
+
+					if tGroup["canGlowBar"] then
+						tColorBarGroup["canGlowBar"] = true;
+						tColorBarGroup["glowBarColor"] = tGroup["glowBarColor"];
+					else
+						tColorBarGroup["canGlowBar"] = false;
+						tColorBarGroup["glowBarColor"] = nil;
 					end
 
 					if (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
@@ -238,7 +261,7 @@ do
 			if not tGroup["playerClassRequired"] or tGroup["playerClassRequired"] == VUHDO_PLAYER_CLASS then
 				tEffectiveColorType = tGroup["colorType"] or ((tGroup["canColorBar"] or tGroup["canColorText"]) and VUHDO_AURA_GROUP_COLOR_DISPEL or VUHDO_AURA_GROUP_COLOR_OFF);
 
-				if not (VUHDO_CONFIG["AURA_GROUPS"] and VUHDO_CONFIG["AURA_GROUPS"][tGroupId]) and tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL and
+				if not (VUHDO_CONFIG["AURA_GROUPS"] and VUHDO_CONFIG["AURA_GROUPS"][tGroupId]) and (tEffectiveColorType >= VUHDO_AURA_GROUP_COLOR_DISPEL or tGroup["canGlowBar"]) and
 					tGroup["enabled"] ~= false and not (VUHDO_CONFIG["AURA_GROUP_DISABLED"] and VUHDO_CONFIG["AURA_GROUP_DISABLED"][tGroupId]) and
 					not (VUHDO_DEFAULT_AURA_GROUPS[tGroupId] and VUHDO_DEFAULT_AURA_GROUPS[tGroupId]["enabled"] == false) then
 					if tGroup["isInferred"] then
@@ -262,6 +285,16 @@ do
 							tColorBarGroup["canColorText"] = false;
 						end
 
+						if tGroup["canGlowBar"] then
+							tColorBarGroup["canGlowBar"] = true;
+
+							tColorBarGroup["glowBarColor"] = tGroup["glowBarColor"];
+						else
+							tColorBarGroup["canGlowBar"] = false;
+
+							tColorBarGroup["glowBarColor"] = nil;
+						end
+
 						tinsert(sCanColorBarGroups, tColorBarGroup);
 					else
 						tColorBarGroup = sCanColorBarGroupPool:get();
@@ -282,8 +315,19 @@ do
 							tColorBarGroup["canColorText"] = false;
 						end
 
+						if tGroup["canGlowBar"] then
+							tColorBarGroup["canGlowBar"] = true;
+
+							tColorBarGroup["glowBarColor"] = tGroup["glowBarColor"];
+						else
+							tColorBarGroup["canGlowBar"] = false;
+
+							tColorBarGroup["glowBarColor"] = nil;
+						end
+
 						if (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
 							tColorBarGroup["isListGroup"] = true;
+
 							tColorBarGroup["groupId"] = tGroupId;
 							tColorBarGroup["entries"] = tGroup["entries"];
 
@@ -313,6 +357,12 @@ do
 		end);
 
 		VUHDO_clearDispellableAuraCache(nil);
+
+		if VUHDO_RAID then
+			for tUnit, _ in pairs(VUHDO_RAID) do
+				VUHDO_updateDispellableAuraForUnit(tUnit);
+			end
+		end
 
 		return;
 
@@ -361,6 +411,24 @@ do
 
 
 	--
+	local tGlowColor;
+	local function VUHDO_setGlowWinnerIfNeeded(aUnit, aCanColorGroup)
+
+		if not sGlowWinnerSet and aCanColorGroup["canGlowBar"] then
+			tGlowColor = aCanColorGroup["glowBarColor"];
+
+			sUnitAuraGlowWinner[aUnit] = tGlowColor;
+
+			sGlowWinnerSet = true;
+		end
+
+		return;
+
+	end
+
+
+
+	--
 	local tAuras;
 	local tAura;
 	local tAuraInstanceId;
@@ -400,9 +468,11 @@ do
 		sUnitAuraCanColorBar[aUnit] = nil;
 		sUnitAuraColorType[aUnit] = nil;
 		sUnitAuraCustomColor[aUnit] = nil;
+		sUnitAuraGlowWinner[aUnit] = nil;
 
 		tBarWinnerSet = false;
 		tTextWinnerSet = false;
+		sGlowWinnerSet = false;
 
 		for tCnt = 1, #sCanColorBarGroups do
 			tCanColorGroup = sCanColorBarGroups[tCnt];
@@ -458,6 +528,8 @@ do
 
 													tTextWinnerSet = true;
 												end
+
+												VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
 
 												tGroupActive = true;
 
@@ -552,6 +624,8 @@ do
 						tTextWinnerSet = true;
 					end
 
+					VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
+
 					if tBarWinnerSet and tTextWinnerSet then
 						return;
 					end
@@ -584,6 +658,8 @@ do
 
 							tTextWinnerSet = true;
 						end
+
+						VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
 
 						if tBarWinnerSet and tTextWinnerSet then
 							return;
@@ -621,6 +697,8 @@ do
 
 					tTextWinnerSet = true;
 				end
+
+				VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
 
 				if tBarWinnerSet and tTextWinnerSet then
 					return;
@@ -665,6 +743,8 @@ do
 								tTextWinnerSet = true;
 							end
 
+							VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
+
 							if tBarWinnerSet and tTextWinnerSet then
 								return;
 							end
@@ -707,6 +787,8 @@ do
 
 						tTextWinnerSet = true;
 					end
+
+					VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
 
 					if tBarWinnerSet and tTextWinnerSet then
 						return;
@@ -812,6 +894,44 @@ do
 		end
 
 		return nil;
+
+	end
+
+
+
+	--
+	local tGlowWinnerColor;
+	local tDefaultGlow;
+	function VUHDO_getAuraGroupGlowInfo(aUnit)
+
+		tGlowWinnerColor = sUnitAuraGlowWinner[aUnit];
+
+		if tGlowWinnerColor == nil then
+			return false, nil;
+		end
+
+		if tGlowWinnerColor and tGlowWinnerColor["R"] then
+			sGlowColorBuffer[1] = tGlowWinnerColor["R"];
+			sGlowColorBuffer[2] = tGlowWinnerColor["G"];
+			sGlowColorBuffer[3] = tGlowWinnerColor["B"];
+			sGlowColorBuffer[4] = tGlowWinnerColor["O"] or 1;
+		else
+			tDefaultGlow = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"] and VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF_BAR_GLOW"];
+
+			if tDefaultGlow then
+				sGlowColorBuffer[1] = tDefaultGlow["R"];
+				sGlowColorBuffer[2] = tDefaultGlow["G"];
+				sGlowColorBuffer[3] = tDefaultGlow["B"];
+				sGlowColorBuffer[4] = tDefaultGlow["O"] or 1;
+			else
+				sGlowColorBuffer[1] = 0.95;
+				sGlowColorBuffer[2] = 0.95;
+				sGlowColorBuffer[3] = 0.32;
+				sGlowColorBuffer[4] = 1;
+			end
+		end
+
+		return true, sGlowColorBuffer;
 
 	end
 
@@ -926,6 +1046,7 @@ do
 			sUnitAuraCustomColor[aUnit] = nil;
 			sUnitAuraBarWinner[aUnit] = nil;
 			sUnitAuraTextWinner[aUnit] = nil;
+			sUnitAuraGlowWinner[aUnit] = nil;
 		else
 			for tUnit, _ in pairs(sUnitAuraBarWinner) do
 				if sUnitAuraBarWinner[tUnit] then
@@ -949,6 +1070,7 @@ do
 			twipe(sUnitAuraCustomColor);
 			twipe(sUnitAuraBarWinner);
 			twipe(sUnitAuraTextWinner);
+			twipe(sUnitAuraGlowWinner);
 		end
 
 		return;
