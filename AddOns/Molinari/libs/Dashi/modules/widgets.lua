@@ -23,7 +23,7 @@ do
 		end
 	end
 
-	--[[ namespace:CreateButton(...) ![](https://img.shields.io/badge/function-blue)
+	--[[ namespace:CreateButton(_..._) ![](https://img.shields.io/badge/function-blue)
 	A wrapper for `namespace:CreateFrame(...)`, but will handle key direction preferences of the client.  
 	Use this specifically to create clickable buttons.
 	--]]
@@ -59,8 +59,11 @@ local tooltip; do
 		if not tooltip then
 			tooltip = CreateFrame('GameTooltip', addonName .. 'Tooltip', UIParent, 'GameTooltipTemplate')
 			tooltip:SetFrameStrata('DIALOG')
-			tooltip:HookScript('OnShow', GameTooltip_Hide)
+			-- tooltip:HookScript('OnShow', GenerateFlatClosure(GameTooltip.Hide, GameTooltip))
 			tooltip.RefreshDataNextUpdate = refreshTooltip
+
+			-- hide this tooltip whenever GameTooltip shows up
+			GameTooltip:HookScript('OnShow', GenerateFlatClosure(addon.HideTooltip))
 
 			local embeddedItemTooltip = CreateFrame('Frame', nil, tooltip, 'InternalEmbeddedItemTooltipTemplate')
 			embeddedItemTooltip:SetPoint('BOTTOMLEFT', 10, 13)
@@ -74,6 +77,17 @@ local tooltip; do
 			tooltip:SetOwner(...)
 		end
 
+		return tooltip
+	end
+
+	--[[ namespace:GetTooltipWithDefaultAnchor(_[owner]_) ![](https://img.shields.io/badge/function-blue)
+	Calls GetTooltip and anchors it to the default anchor.  
+	This is a safe alternate to GameTooltip_SetDefaultAnchor.
+	--]]
+	function addon:GetTooltipWithDefaultAnchor(owner)
+		local tooltip = addon:GetTooltip()
+		tooltip:SetOwner(owner or UIParent, 'ANCHOR_NONE')
+		tooltip:SetPoint('BOTTOMRIGHT', GameTooltipDefaultContainer)
 		return tooltip
 	end
 end
