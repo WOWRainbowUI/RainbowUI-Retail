@@ -120,11 +120,19 @@ function ns.MSUF_Options_Bars_Build(panel, barGroup, barGroupHost, ctx)
     local scopeLabel = barGroup:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     scopeLabel:SetPoint("LEFT", scopeHeader, "RIGHT", 12, 0); scopeLabel:SetText(TR("Configure settings for"))
 
-    local hpPowerScopeOptions = {
-        { key = "shared", label = "Shared" }, { key = "player", label = "Player" },
-        { key = "target", label = "Target" }, { key = "targettarget", label = "Target of Target" },
-        { key = "focus", label = "Focus" }, { key = "pet", label = "Pet" }, { key = "boss", label = "Boss" },
-    }
+    local hpPowerScopeOptions = function()
+        local db = MSUF_DB or {}
+        local function ovr(uk) local u = db[uk]; return u and u.hpPowerTextOverride == true end
+        return {
+            { key = "shared", label = "Shared" },
+            { key = "player", label = "Player", overrideActive = ovr("player") },
+            { key = "target", label = "Target", overrideActive = ovr("target") },
+            { key = "targettarget", label = "Target of Target", overrideActive = ovr("targettarget") },
+            { key = "focus", label = "Focus", overrideActive = ovr("focus") },
+            { key = "pet", label = "Pet", overrideActive = ovr("pet") },
+            { key = "boss", label = "Boss", overrideActive = ovr("boss") },
+        }
+    end
 
     -- Forward-declare scope functions
     local _MSUF_HPText_GetScopeKey, _MSUF_HPText_GetUnitKey, _MSUF_HPText_GetUnitDB
@@ -145,9 +153,17 @@ function ns.MSUF_Options_Bars_Build(panel, barGroup, barGroupHost, ctx)
         RefreshFrames()
     end
     local function ApplyAbsorbAnchor()
+        -- Invalidate resolver cache so _MSUF_ResolveAbsorbAnchor reads the new DB value.
+        if type(_G.MSUF_InvalidateAbsorbCache) == "function" then _G.MSUF_InvalidateAbsorbCache() end
         if _G.MSUF_UnitFrames and type(_G.MSUF_ApplyAbsorbAnchorMode) == "function" then
             for _, f in pairs(_G.MSUF_UnitFrames) do
-                if f and f.unit then _G.MSUF_ApplyAbsorbAnchorMode(f); if _G.UpdateSimpleUnitFrame then _G.UpdateSimpleUnitFrame(f) end end
+                if f and f.unit then
+                    -- Clear stamp to force fresh layout pass (prevents diff-gate skip).
+                    f._msufAbsorbAnchorModeStamp = nil
+                    f._msufAbsorbFollowActive = nil
+                    _G.MSUF_ApplyAbsorbAnchorMode(f)
+                    if _G.UpdateSimpleUnitFrame then _G.UpdateSimpleUnitFrame(f) end
+                end
             end
         end
     end
@@ -606,9 +622,17 @@ function ns.MSUF_Options_Bars_Build(panel, barGroup, barGroupHost, ctx)
         local u = _MSUF_HPText_GetUnitDB(uk); if not u then self:SetChecked(false); return end
         if self:GetChecked() then _MSUF_HPText_EnableOverride(uk) else u.hpPowerTextOverride = false end
         Apply(); ForceTextLayout(uk)
-        if _G.MSUF_UnitFrames then for _, f in pairs(_G.MSUF_UnitFrames) do
-            if f and f.unit then if type(_G.MSUF_ApplyAbsorbAnchorMode) == "function" then _G.MSUF_ApplyAbsorbAnchorMode(f) end; if _G.UpdateSimpleUnitFrame then _G.UpdateSimpleUnitFrame(f) end end
-        end end
+        if _G.MSUF_UnitFrames then
+            if type(_G.MSUF_InvalidateAbsorbCache) == "function" then _G.MSUF_InvalidateAbsorbCache() end
+            for _, f in pairs(_G.MSUF_UnitFrames) do
+                if f and f.unit then
+                    f._msufAbsorbAnchorModeStamp = nil
+                    f._msufAbsorbFollowActive = nil
+                    if type(_G.MSUF_ApplyAbsorbAnchorMode) == "function" then _G.MSUF_ApplyAbsorbAnchorMode(f) end
+                    if _G.UpdateSimpleUnitFrame then _G.UpdateSimpleUnitFrame(f) end
+                end
+            end
+        end
         _MSUF_SyncHpPowerTextScopeUI()
     end)
 

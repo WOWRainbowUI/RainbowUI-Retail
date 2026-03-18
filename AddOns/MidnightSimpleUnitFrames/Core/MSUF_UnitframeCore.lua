@@ -321,8 +321,17 @@ local function UFCore_UpdateAggroBorder(frame, unit)
         return
     end
 
-    local threat = UnitThreatSituation and UnitThreatSituation("player", unit) or nil
-    local on = (threat == 3) and true or false
+    local on = false
+    if UnitThreatSituation then
+        local raw = UnitThreatSituation("player", unit)
+        if raw == nil then
+            on = false
+        elseif _UFCORE_issecret and _UFCORE_issecret(raw) then
+            return  -- secret: keep last known state, don't thrash RefreshRareBarVisuals
+        else
+            on = (raw == 3) and true or false
+        end
+    end
 
     if frame._msufAggroOutlineOn == on then
         return
@@ -503,6 +512,11 @@ function Core.InvalidateAllFrameConfigs()
             f.cachedConfig = nil
             -- PERF: Invalidate per-frame combat hot-path caches (absorb text, HP/power text config, status config).
             f._msufCachedShowAbsorbText = nil
+            f._msufAbsorbTextDirty = true
+            f._msufCachedAbsorbText = nil
+            f._msufCachedAbsorbStyle = nil
+            f._msufFlushHP = nil
+            f._msufFlushMaxHP = nil
             f._msufPwrTextConf = nil
             f._msufHpTextConf = nil
             f._msufPwrPctCleared = nil
@@ -734,13 +748,10 @@ local function UFCore_UpdateStatusFast(frame, conf)
 end
 
 -- PERF: Lightweight threat-only update. UNIT_THREAT fires 5-20x/sec per boss in raids.
--- Full Elements.Status.Update runs StatusIndicatorForFrame (4-6 C-API) + _UpdateStatusIcons
--- (15+ DB reads, 3 C-API, symbol textures, anchoring) = 0.15-0.3ms per frame.
--- Threat only needs alpha + aggro border = ~0.01ms per frame.
+-- Threat changes do not imply range/combat/load-condition alpha changes, so avoid
+-- re-running the Alpha pipeline here. Threat only needs the aggro border.
 local function UFCore_UpdateThreatFast(frame)
     if not frame then return false end
-    if not FN_ApplyUnitAlpha then UFCore_ResolveFastFns() end
-    local fn = FN_ApplyUnitAlpha; if fn then fn(frame, frame.msufConfigKey) end
     if frame.aggroHighlightTex then
         UFCore_UpdateAggroBorder(frame, frame.unit)
     end
@@ -1735,34 +1746,15 @@ end
 
 local FlushEnabled = false
 
--- PERF: Frame-level time cache. Updated ONCE per OnUpdate (not per event).
--- Eliminates ~400 GetTime() C-calls/sec from _HealthValueFast + UNIT_POWER_UPDATE rate limiters.
--- Accuracy: ±1 render frame (16ms @ 60fps) — irrelevant for 100ms rate-limit intervals.
+-- PERF: Frame-level time cache. Updated ONCE per OnUpdate by FlushTask.
+-- Used by RunUpdate queue processing and _RefreshFrameNow(). 
+-- NOTE: DIRECT_APPLY text rate-limiters use GetTime() directly because
+-- FlushTask can be idle (DisableFlushIfIdle) while DIRECT_APPLY still fires.
 Core._frameNow = 0
--- Serial incremented by FlushTask each render frame. DIRECT_APPLY events use this to
--- detect when FlushTask is idle (no queued work) and fall back to one GetTime() per frame.
+-- Serial incremented by FlushTask each render frame. Used by RunUpdate
+-- diff-gates, text spec caching, and _RefreshFrameNow staleness detection.
 Core._frameNowSerial = 0
 local _localFrameSerial = -1
-
--- PERF: DIRECT_APPLY text budget. Caps how many text updates fire synchronously from
--- event handlers per render frame. Bar:SetValue always runs (cheap, visually critical).
--- Skipped texts DON'T update their timestamp → retry next frame automatically.
--- Cap=4 → max ~160μs text work per frame (vs uncapped ~320μs).
--- 60fps × 4 = 240 slots/sec for ~160 needed (8 frames × 10Hz × 2 types) = 50% headroom.
-local _directTextSerial = -1
-local _directTextCount = 0
-local _DIRECT_TEXT_MAX = 4   -- combined HP + Power text updates per frame
-
-local function _DirectTextAllowed()
-    local s = Core._frameNowSerial
-    if s ~= _directTextSerial then
-        _directTextSerial = s
-        _directTextCount = 0
-    end
-    if _directTextCount >= _DIRECT_TEXT_MAX then return false end
-    _directTextCount = _directTextCount + 1
-    return true
-end
 
 local function _RefreshFrameNow()
     local s = Core._frameNowSerial
@@ -1803,11 +1795,15 @@ end
 
 local function EnsureFallbackDriver()
     local f = Core._fallbackFrame
-    if f then return f end
+    if f then
+        _G._MSUF_UFCore_FlushFrame = f
+        return f
+    end
     f = CreateFrame("Frame")
     f:Hide()
     f:SetScript("OnUpdate", UFCore_FlushTask)
     Core._fallbackFrame = f
+    _G._MSUF_UFCore_FlushFrame = f
     return f
 end
 
@@ -2160,8 +2156,12 @@ local function DeferSwapWork(unit, why, wantPortrait, wantVisual)
     -- Unit swaps can change absorb/heal-absorb instantly; mark overlays dirty.
     f._msufAbsorbDirty = true
     f._msufHealAbsorbDirty = true
+    f._msufAbsorbTextDirty = true
     f._msufAbsorbInit = nil
     f._msufHealAbsorbInit = nil
+    -- Invalidate health diff-gate cache (new unit = new hp/maxHP).
+    f._msufFlushHP = nil
+    f._msufFlushMaxHP = nil
 
     local sd = Core._swapDeferCoalesce
     if not sd then return end
@@ -2551,18 +2551,19 @@ local function _HealthValueFast(f)
     if not bar then return end
     local hp = UnitHealth(f.unit)       -- upvalue (line 21), no F.table lookup
     bar:SetValue(hp)                    -- ALWAYS: direct widget call (~3μs, visually critical)
-    -- PERF: Text is budget-gated + rate-limited. If budget exceeded this frame,
-    -- skip text WITHOUT updating timestamp → fires again next frame automatically.
-    -- No stale values: just 1 frame delay (16ms) on a 100ms interval = invisible.
+    -- Text rate-limited to 10Hz per unit (100ms interval). Skipped events are
+    -- not a problem: bar:SetValue already shows current HP, text catches up next pass.
     local fnTxt = FN_UpdateHpTextFast
     if fnTxt then
-        local now = _RefreshFrameNow()
+        -- GetTime() required: Core._frameNow freezes when FlushTask is idle
+        -- (DisableFlushIfIdle hides the OnUpdate frame). DIRECT_APPLY events
+        -- bypass the queue, so FlushTask never restarts. One GetTime() per
+        -- UNIT_HEALTH event (~10-50/sec per unit) is negligible.
+        -- Rate-limiter alone caps at 10Hz per unit = sufficient budget.
+        local now = GetTime()
         if (now - (f._msufHpTxtAt or 0)) >= 0.10 then
-            if _DirectTextAllowed() then
-                f._msufHpTxtAt = now + (f._msufTextStagger or 0)
-                fnTxt(f, hp)
-            end
-            -- else: budget exceeded → DON'T update timestamp → retry next frame
+            f._msufHpTxtAt = now
+            fnTxt(f, hp)
         end
     end
 end
@@ -2574,11 +2575,82 @@ end
 local _HealthFullFast = Elements.Health and Elements.Health.Update
 
 local DIRECT_APPLY = {}
+local _IdentityFast
+local _StatusFast
+local _IndicatorFast
+local _RunIdentityDirect
+local _RunStatusDirect
 do
+    local _MaskIdentityHealth = bor(DIRTY_IDENTITY, DIRTY_HEALTH)
+    _IdentityFast = Elements.Identity and Elements.Identity.Update
+    _StatusFast = Elements.Status and Elements.Status.Update
+    _IndicatorFast = Elements.Indicators and Elements.Indicators.Update
+
+    function _RunIdentityDirect(f, fallbackMask, fallbackReason)
+        if not _IdentityFast then
+            Core.MarkDirty(f, fallbackMask or DIRTY_IDENTITY, nil, fallbackReason or "IDENTITY_DIRECT_MISSING")
+            return
+        end
+        local conf = GetFrameConf(f)
+        if not _IdentityFast(f, conf) then
+            Core.MarkDirty(f, fallbackMask or DIRTY_IDENTITY, nil, fallbackReason or "IDENTITY_DIRECT_FALLBACK")
+        end
+    end
+
+    function _RunStatusDirect(f, fallbackMask, fallbackReason)
+        if not _StatusFast then
+            Core.MarkDirty(f, fallbackMask or DIRTY_STATUS, nil, fallbackReason or "STATUS_DIRECT_MISSING")
+            return
+        end
+        local conf = GetFrameConf(f)
+        if not _StatusFast(f, conf) then
+            Core.MarkDirty(f, fallbackMask or DIRTY_STATUS, nil, fallbackReason or "STATUS_DIRECT_FALLBACK")
+        end
+    end
+
+    local function _RunFactionDirect(f)
+        local conf = GetFrameConf(f)
+        if _IdentityFast then
+            if not _IdentityFast(f, conf) then
+                Core.MarkDirty(f, _MaskIdentityHealth, nil, "UNIT_FACTION_DIRECT_FALLBACK")
+                return
+            end
+        else
+            Core.MarkDirty(f, _MaskIdentityHealth, nil, "UNIT_FACTION_DIRECT_MISSING")
+            return
+        end
+
+        if f._msufHealthColorDirty then
+            f._msufHealthColorDirty = nil
+            UFCore_RefreshHealthBarColorFast(f, conf)
+        end
+    end
+
     -- UNIT_HEALTH → value-only fast path (most frequent event).
     -- Eliminates: UnitExists check, SetMinMaxValues, type() guards,
     -- ns.Bars.ApplySpec dispatch, MSUF_SetBarValue wrapper.
     DIRECT_APPLY["UNIT_HEALTH"] = _HealthValueFast
+
+    -- Identity/status cheap lane: keep these out of the generic dirty queue.
+    -- Falls back to the normal UFCore path when legacy behavior is required
+    -- (e.g. boss test mode identity labels).
+    if _IdentityFast then
+        DIRECT_APPLY["UNIT_NAME_UPDATE"] = function(f)
+            _RunIdentityDirect(f, DIRTY_IDENTITY, "UNIT_NAME_UPDATE_DIRECT")
+        end
+        DIRECT_APPLY["UNIT_LEVEL"] = function(f)
+            _RunIdentityDirect(f, DIRTY_IDENTITY, "UNIT_LEVEL_DIRECT")
+        end
+        -- UNIT_FACTION is the cheap combined case: identity refresh + health color.
+        -- UNIT_FLAGS stays queued on purpose because it can flood at boss pull.
+        DIRECT_APPLY["UNIT_FACTION"] = _RunFactionDirect
+    end
+
+    if _StatusFast then
+        DIRECT_APPLY["UNIT_CONNECTION"] = function(f)
+            _RunStatusDirect(f, DIRTY_STATUS, "UNIT_CONNECTION_DIRECT")
+        end
+    end
 
     -- All other health events → full path (includes range + overlays).
     -- These fire 5-50x less often than UNIT_HEALTH, so the 7-hop chain is acceptable.
@@ -2623,7 +2695,7 @@ do
             local fnTxt = FN_UpdatePowerTextFast
             if not fnTxt then return end
             if budget then
-                local now = Core._frameNow
+                local now = GetTime()
                 if (now - (f._msufPwrTxtAt or 0)) < budget then return end
                 f._msufPwrTxtAt = now
             end
@@ -2644,11 +2716,16 @@ do
             if pType == nil then return end
             -- Ele Shaman: class power shows Maelstrom → main bar shows Mana
             if f._msufIsPlayer and _G.MSUF_EleMaelstromActive then pType = 0 end
+            -- Aug Evoker: class power shows Ebon Might → main bar shows Essence
+            if f._msufIsPlayer and _G.MSUF_AugEvokerActive then pType = 19 end
+            if f._msufIsPlayer and _G.MSUF_ShadowManaActive then pType = 0 end
 
             local cur = _UnitPower(unit, pType)
             local mx  = _UnitPowerMax(unit, pType)
-            if type(cur) ~= "number" then cur = 0 end
-            if type(mx)  ~= "number" then mx  = 100 end
+            -- SECRET-SAFE: == nil is a reference check (no taint). Secret numbers
+            -- pass through to SetMinMaxValues/SetValue fine (widget handles internally).
+            if cur == nil then cur = 0 end
+            if mx  == nil then mx  = 100 end
 
             if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
 
@@ -2657,9 +2734,8 @@ do
 
             UFCore_StorePowerSnapshot(f, pType, cur, mx)
 
-            -- Budget-gated text: direct table read (no function call).
-            -- Core._frameNow is updated by FlushTask every frame — precise enough
-            -- for a 33Hz/10Hz budget gate. Avoids _RefreshFrameNow() overhead.
+            -- Budget-gated text: GetTime() inside _MaybeUpdatePowerText ensures
+            -- correct rate-limiting even when FlushTask is idle (DIRECT_APPLY path).
             _MaybeUpdatePowerText(f, unit, pType, cur, mx, (f._msufIsPlayer and 0.03) or 0.10)
         end
 
@@ -2672,11 +2748,13 @@ do
             local pType = _UnitPowerType(unit)
             if pType == nil then return end
             if _G.MSUF_EleMaelstromActive then pType = 0 end
+            if f._msufIsPlayer and _G.MSUF_AugEvokerActive then pType = 19 end
+            if f._msufIsPlayer and _G.MSUF_ShadowManaActive then pType = 0 end
 
             local cur = _UnitPower(unit, pType)
             local mx  = _UnitPowerMax(unit, pType)
-            if type(cur) ~= "number" then cur = 0 end
-            if type(mx)  ~= "number" then mx  = 100 end
+            if cur == nil then cur = 0 end
+            if mx  == nil then mx  = 100 end
 
             if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
 
@@ -2697,11 +2775,13 @@ do
             local pType = _UnitPowerType(unit)
             if pType == nil then return end
             if _G.MSUF_EleMaelstromActive then pType = 0 end
+            if f._msufIsPlayer and _G.MSUF_AugEvokerActive then pType = 19 end
+            if f._msufIsPlayer and _G.MSUF_ShadowManaActive then pType = 0 end
 
             local cur = _UnitPower(unit, pType)
             local mx  = _UnitPowerMax(unit, pType)
-            if type(cur) ~= "number" then cur = 0 end
-            if type(mx)  ~= "number" then mx  = 100 end
+            if cur == nil then cur = 0 end
+            if mx  == nil then mx  = 100 end
 
             if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
 
@@ -2722,11 +2802,13 @@ do
             local pType = _UnitPowerType(unit)
             if pType == nil then return end
             if _G.MSUF_EleMaelstromActive then pType = 0 end
+            if f._msufIsPlayer and _G.MSUF_AugEvokerActive then pType = 19 end
+            if f._msufIsPlayer and _G.MSUF_ShadowManaActive then pType = 0 end
 
             local cur = _UnitPower(unit, pType)
             local mx  = _UnitPowerMax(unit, pType)
-            if type(cur) ~= "number" then cur = 0 end
-            if type(mx)  ~= "number" then mx  = 100 end
+            if cur == nil then cur = 0 end
+            if mx  == nil then mx  = 100 end
 
             if UFCore_SamePowerSnapshot(f, pType, cur, mx) then return end
 
@@ -2837,11 +2919,13 @@ local function FrameOnEvent(self, event, arg1, ...)
             if dfk then
                 if dfk == "absorbDirty" then
                     self._msufAbsorbDirty = true
+                    self._msufAbsorbTextDirty = true
                 elseif dfk == "healAbsorbDirty" then
                     self._msufHealAbsorbDirty = true
                 elseif dfk == "bothAbsorbDirty" then
                     self._msufAbsorbDirty = true
                     self._msufHealAbsorbDirty = true
+                    self._msufAbsorbTextDirty = true
                 else -- "healthColorDirty"
                     if not self._msufStaticHealthColor then
                         self._msufHealthColorDirty = true
@@ -2894,6 +2978,10 @@ function Core.AttachFrame(f)
     -- Mark absorb overlays dirty so first health update initializes them.
     f._msufAbsorbDirty = true
     f._msufHealAbsorbDirty = true
+    f._msufAbsorbTextDirty = true
+    -- Invalidate health diff-gate cache (fresh frame).
+    f._msufFlushHP = nil
+    f._msufFlushMaxHP = nil
 
     f:SetScript("OnEvent", FrameOnEvent)
 
@@ -2917,8 +3005,11 @@ function Core.AttachFrame(f)
             -- If hidden, we may have missed absorb/heal-absorb events.
             self._msufAbsorbDirty = true
             self._msufHealAbsorbDirty = true
+            self._msufAbsorbTextDirty = true
             self._msufAbsorbInit = nil
             self._msufHealAbsorbInit = nil
+            self._msufFlushHP = nil
+            self._msufFlushMaxHP = nil
             self._msufPwrTextForce = true
             Core.MarkDirty(self, MASK_SHOW_REFRESH, true, "OnShow")
             DeferSwapWork(self.unit, "OnShow", true)
@@ -3103,6 +3194,18 @@ local function MarkPlayerStatusIf(flagKey, urgent, reason)
     end
 end
 
+local function DirectIndicatorUnit(unit)
+    if not unit then return end
+    local f = FramesByUnit[unit]
+    if not f or not f:IsVisible() then return end
+    local conf = GetFrameConf(f)
+    if _IndicatorFast then
+        _IndicatorFast(f, conf)
+    else
+        Core.MarkDirty(f, DIRTY_INDICATOR, false, "DIRECT_INDICATOR_FALLBACK")
+    end
+end
+
 Global:SetScript("OnEvent", function(_, event, arg1)
     if event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
         -- Resolve hot-path fast helpers now that the main file has loaded.
@@ -3151,7 +3254,12 @@ Global:SetScript("OnEvent", function(_, event, arg1)
 
     if event == "PLAYER_FLAGS_CHANGED" then
         if arg1 == "player" then
-            MarkUnit("player", DIRTY_STATUS, true, event)
+            local pf = FramesByUnit["player"]
+            if pf and pf:IsVisible() and _StatusFast then
+                _RunStatusDirect(pf, DIRTY_STATUS, event)
+            else
+                MarkUnit("player", DIRTY_STATUS, true, event)
+            end
         end
         return
     end
@@ -3202,19 +3310,20 @@ Global:SetScript("OnEvent", function(_, event, arg1)
     end
 
     if event == "GROUP_ROSTER_UPDATE" or event == "PARTY_LEADER_CHANGED" then
-        -- Leader/assist icon may change on player/target/focus
-        MarkUnit("player", DIRTY_INDICATOR, false, event)
-        MarkUnit("target", DIRTY_INDICATOR, false, event)
-        MarkUnit("focus", DIRTY_INDICATOR, false, event)
+        -- Leader/assist icon may change on player/target/focus.
+        -- Cheap direct lane: avoid waking the UFCore flush driver for icon-only changes.
+        DirectIndicatorUnit("player")
+        DirectIndicatorUnit("target")
+        DirectIndicatorUnit("focus")
         return
     end
 
     if event == "RAID_TARGET_UPDATE" then
         -- Rare; only update raid marker visuals (no full frame updates required).
-        MarkUnit("player", DIRTY_INDICATOR, false, event)
-        MarkUnit("target", DIRTY_INDICATOR, false, event)
-        MarkUnit("focus", DIRTY_INDICATOR, false, event)
-        MarkUnit("targettarget", DIRTY_INDICATOR, false, event)
+        DirectIndicatorUnit("player")
+        DirectIndicatorUnit("target")
+        DirectIndicatorUnit("focus")
+        DirectIndicatorUnit("targettarget")
         return
     end
 end)

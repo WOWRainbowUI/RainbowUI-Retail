@@ -1353,13 +1353,94 @@ _totemsLeftBottom = totemsDragHint
         firstDanceCheck:SetEnabled(false)
     end
 
+    -- Lock: anchor from the TOPLEFT of rogueSub at a fixed X to clear all checkbox text
+    local firstDanceLock = _MSUF_Check("MSUF_Gameplay_FirstDanceLockCheck", "TOPLEFT", rogueSub, "BOTTOMLEFT", 380, -10, "Lock position", "lockFirstDanceCheck", "lockFirstDance",
+        function()
+            ApplyLockState()
+            RequestApply()
+        end
+    )
+    if not _isRogue then firstDanceLock:SetEnabled(false) end
+
+    local firstDanceClickThrough = _MSUF_Check("MSUF_Gameplay_FirstDanceClickThroughCheck", "TOPLEFT", firstDanceCheck, "BOTTOMLEFT", 0, -4,
+        "Click-through (ALT to drag when unlocked)",
+        "firstDanceClickThroughCheck", "firstDanceClickThrough",
+        function()
+            ApplyLockState()
+        end
+    )
+    if not _isRogue then firstDanceClickThrough:SetEnabled(false) end
+
+    local firstDanceIconCheck = _MSUF_Check("MSUF_Gameplay_FirstDanceIconCheck", "TOPLEFT", firstDanceClickThrough, "BOTTOMLEFT", 0, -4,
+        "Show as icon with cooldown swipe",
+        "firstDanceShowIconCheck", "firstDanceShowIcon",
+        function()
+            if ns.MSUF_ApplyFirstDanceDisplayMode then ns.MSUF_ApplyFirstDanceDisplayMode() end
+            RequestApply()
+        end
+    )
+    if not _isRogue then firstDanceIconCheck:SetEnabled(false) end
+
+    local firstDanceIconSizeSlider = _MSUF_Slider("MSUF_Gameplay_FirstDanceIconSizeSlider", "TOPLEFT", firstDanceIconCheck, "BOTTOMLEFT", 0, -12, 200, 16, 96, 1, "16", "96", "Icon size",
+        "firstDanceIconSizeSlider", "firstDanceIconSize",
+        function(v) return math.floor(v + 0.5) end,
+        function(self, g, v)
+            local t = _G[self:GetName() .. "Text"]
+            if t then t:SetText(string.format("Icon: %d", v)) end
+            if ns.MSUF_ApplyFirstDanceDisplayMode then ns.MSUF_ApplyFirstDanceDisplayMode() end
+            ApplyFontToCounter()
+        end,
+        false
+    )
+    if not _isRogue then firstDanceIconSizeSlider:SetEnabled(false) end
+
+    local firstDanceReadyCheck = _MSUF_Check("MSUF_Gameplay_FirstDanceReadyCheck", "TOPLEFT", firstDanceIconSizeSlider, "BOTTOMLEFT", 0, -8,
+        "Keep visible when ready (hide on combat enter)",
+        "firstDanceShowReadyCheck", "firstDanceShowReady"
+    )
+    if not _isRogue then firstDanceReadyCheck:SetEnabled(false) end
+
+    local firstDanceOffsetXSlider = _MSUF_Slider("MSUF_Gameplay_FirstDanceOffsetXSlider", "TOPLEFT", firstDanceReadyCheck, "BOTTOMLEFT", 0, -12, 240, -800, 800, 1, "-800", "800", "X: 0",
+        "firstDanceOffsetXSlider", "firstDanceOffsetX",
+        function(v) return math.floor(v + 0.5) end,
+        function(self, g, v)
+            local t = _G[self:GetName() .. "Text"]
+            if t then t:SetText(string.format("X: %d", v)) end
+            local fdf = ns.MSUF_GetFirstDanceFrame and ns.MSUF_GetFirstDanceFrame()
+            if fdf then
+                fdf:ClearAllPoints()
+                fdf:SetPoint("CENTER", UIParent, "CENTER", tonumber(g.firstDanceOffsetX) or 0, tonumber(g.firstDanceOffsetY) or 80)
+            end
+        end,
+        false
+    )
+    if not _isRogue then firstDanceOffsetXSlider:SetEnabled(false) end
+    _MSUF_SliderTextRight("MSUF_Gameplay_FirstDanceOffsetXSlider")
+
+    local firstDanceOffsetYSlider = _MSUF_Slider("MSUF_Gameplay_FirstDanceOffsetYSlider", "TOPLEFT", firstDanceOffsetXSlider, "BOTTOMLEFT", 0, -12, 240, -800, 800, 1, "-800", "800", "Y: 80",
+        "firstDanceOffsetYSlider", "firstDanceOffsetY",
+        function(v) return math.floor(v + 0.5) end,
+        function(self, g, v)
+            local t = _G[self:GetName() .. "Text"]
+            if t then t:SetText(string.format("Y: %d", v)) end
+            local fdf = ns.MSUF_GetFirstDanceFrame and ns.MSUF_GetFirstDanceFrame()
+            if fdf then
+                fdf:ClearAllPoints()
+                fdf:SetPoint("CENTER", UIParent, "CENTER", tonumber(g.firstDanceOffsetX) or 0, tonumber(g.firstDanceOffsetY) or 80)
+            end
+        end,
+        false
+    )
+    if not _isRogue then firstDanceOffsetYSlider:SetEnabled(false) end
+    _MSUF_SliderTextRight("MSUF_Gameplay_FirstDanceOffsetYSlider")
+
     ------------------------------------------------------
     -- Rogue: Apex Alert (Trickster – Shadowstrike! hint)
     ------------------------------------------------------
     local _apexUISep = content:CreateTexture(nil, "ARTWORK")
     _apexUISep:SetColorTexture(1, 1, 1, 0.06)
     _apexUISep:SetHeight(1)
-    _apexUISep:SetPoint("TOPLEFT", firstDanceCheck, "BOTTOMLEFT", 0, -14)
+    _apexUISep:SetPoint("TOPLEFT", firstDanceOffsetYSlider, "BOTTOMLEFT", 0, -14)
     _apexUISep:SetSize(560, 1)
 
     local apexTitle = _MSUF_Label("GameFontNormal", "TOPLEFT", _apexUISep, "BOTTOMLEFT", 0, -10,
@@ -1778,6 +1859,13 @@ _totemsLeftBottom = totemsDragHint
         "lockCombatState",
 
         "enableFirstDanceTimer",
+        "firstDanceOffsetX",
+        "firstDanceOffsetY",
+        "lockFirstDance",
+        "firstDanceClickThrough",
+        "firstDanceShowIcon",
+        "firstDanceIconSize",
+        "firstDanceShowReady",
 
         "enablePlayerTotems",
         "playerTotemsShowText",
@@ -1885,6 +1973,10 @@ _totemsLeftBottom = totemsDragHint
             {"lockCombatStateCheck", "lockCombatState"},
 
             {"firstDanceCheck", "enableFirstDanceTimer"},
+            {"lockFirstDanceCheck", "lockFirstDance"},
+            {"firstDanceClickThroughCheck", "firstDanceClickThrough"},
+            {"firstDanceShowIconCheck", "firstDanceShowIcon"},
+            {"firstDanceShowReadyCheck", "firstDanceShowReady"},
 
             {"playerTotemsCheck", "enablePlayerTotems"},
             {"playerTotemsShowTextCheck", "playerTotemsShowText"},
@@ -1910,6 +2002,10 @@ _totemsLeftBottom = totemsDragHint
             {"combatStateFontSizeSlider", "combatStateFontSize", 0},
             {"combatStateDurationSlider", "combatStateDuration", 1.5},
 
+            {"firstDanceOffsetXSlider", "firstDanceOffsetX", 0},
+            {"firstDanceOffsetYSlider", "firstDanceOffsetY", 80},
+            {"firstDanceIconSizeSlider", "firstDanceIconSize", 40},
+
             {"playerTotemsIconSizeSlider", "playerTotemsIconSize", 24},
             {"playerTotemsSpacingSlider", "playerTotemsSpacing", 4},
             {"playerTotemsFontSizeSlider", "playerTotemsFontSize", 14},
@@ -1934,6 +2030,23 @@ _totemsLeftBottom = totemsDragHint
             local vy = tonumber(g.combatOffsetY) or -200
             local txt = _G[self.combatTimerOffsetYSlider:GetName() .. "Text"]
             if txt then txt:SetText(string.format("Y: %d", math.floor(vy + 0.5))) end
+        end
+
+        -- First Dance offset label text
+        if self.firstDanceOffsetXSlider then
+            local vx = tonumber(g.firstDanceOffsetX) or 0
+            local txt = _G[self.firstDanceOffsetXSlider:GetName() .. "Text"]
+            if txt then txt:SetText(string.format("X: %d", math.floor(vx + 0.5))) end
+        end
+        if self.firstDanceOffsetYSlider then
+            local vy = tonumber(g.firstDanceOffsetY) or 80
+            local txt = _G[self.firstDanceOffsetYSlider:GetName() .. "Text"]
+            if txt then txt:SetText(string.format("Y: %d", math.floor(vy + 0.5))) end
+        end
+        if self.firstDanceIconSizeSlider then
+            local vs = tonumber(g.firstDanceIconSize) or 40
+            local txt = _G[self.firstDanceIconSizeSlider:GetName() .. "Text"]
+            if txt then txt:SetText(string.format("Icon: %d", math.floor(vs + 0.5))) end
         end
 
         -- Combat Timer anchor dropdown
@@ -2045,6 +2158,25 @@ function panel:MSUF_SyncCombatTimerOffsetSliders()
     local t = _G[self.combatTimerOffsetXSlider:GetName() .. "Text"]
     if t then t:SetText(string.format("X: %d", vx)) end
     t = _G[self.combatTimerOffsetYSlider:GetName() .. "Text"]
+    if t then t:SetText(string.format("Y: %d", vy)) end
+
+    self._msufSuppressSliderChanges = false
+end
+
+function panel:MSUF_SyncFirstDanceOffsetSliders()
+    if not self.firstDanceOffsetXSlider or not self.firstDanceOffsetYSlider then
+        return
+    end
+    local g = EnsureGameplayDefaults()
+    self._msufSuppressSliderChanges = true
+    local vx = _MSUF_RoundInt(g.firstDanceOffsetX)
+    local vy = _MSUF_RoundInt(g.firstDanceOffsetY)
+    self.firstDanceOffsetXSlider:SetValue(vx)
+    self.firstDanceOffsetYSlider:SetValue(vy)
+
+    local t = _G[self.firstDanceOffsetXSlider:GetName() .. "Text"]
+    if t then t:SetText(string.format("X: %d", vx)) end
+    t = _G[self.firstDanceOffsetYSlider:GetName() .. "Text"]
     if t then t:SetText(string.format("Y: %d", vy)) end
 
     self._msufSuppressSliderChanges = false
