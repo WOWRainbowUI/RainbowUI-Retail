@@ -42,11 +42,17 @@ end
 
 -- Sub Rogue guard: Spec ID 261 = Subtlety Rogue
 local _SUB_ROGUE_SPEC_ID = 261
+local _isSubRogue = false
+
 local function MSUF_IsSubRogue()
     if not UnitClass then return false end
     local _, cls = UnitClass("player")
     if cls ~= "ROGUE" then return false end
     return MSUF_GetPlayerSpecID() == _SUB_ROGUE_SPEC_ID
+end
+
+local function _UpdateSubRogueCache()
+    _isSubRogue = MSUF_IsSubRogue()
 end
 
 ------------------------------------------------------
@@ -247,10 +253,19 @@ if g.combatStateColorSync == nil then
     g.combatStateColorSync = false
 end
 
-    -- Rogue "The First Dance" timer (6s after leaving combat, uses combat state text)
+    -- Rogue "The First Dance" timer (6s after leaving combat)
     if g.enableFirstDanceTimer == nil then
         g.enableFirstDanceTimer = false
     end
+    if g.firstDanceOffsetX == nil then g.firstDanceOffsetX = 0 end
+    if g.firstDanceOffsetY == nil then g.firstDanceOffsetY = 80 end
+    if g.lockFirstDance == nil then g.lockFirstDance = false end
+    if g.firstDanceClickThrough == nil then g.firstDanceClickThrough = true end
+    if g.firstDanceShowIcon == nil then g.firstDanceShowIcon = true end
+    if g.firstDanceIconSize == nil or g.firstDanceIconSize <= 0 then g.firstDanceIconSize = 40 end
+    if g.firstDanceIconSize < 16 then g.firstDanceIconSize = 16
+    elseif g.firstDanceIconSize > 96 then g.firstDanceIconSize = 96 end
+    if g.firstDanceShowReady == nil then g.firstDanceShowReady = true end
 
     -- Rogue: Apex Alert — Trickster "Shadowstrike!" hint
     -- Shadow Dance (185313) Cast + kein Overlay → SHADOWSTRIKE! Hinweis.
@@ -527,6 +542,13 @@ local combatEventFrame
 local MSUF_CombatState_OnEvent  -- forward declaration (Phase 7B: used by EventBus)
 local combatCrosshairFrame
 local combatCrosshairEventFrame
+local firstDanceFrame
+local firstDanceText
+local firstDanceIcon
+local firstDanceCooldown
+local firstDanceCDText
+
+local _FIRST_DANCE_ICON_ID = 236279
 
 -- Forward declarations (helpers are referenced before their definitions below)
 local MSUF_CrosshairHasValidTarget
@@ -687,6 +709,7 @@ local FIRST_DANCE_WINDOW = 6
 local firstDanceActive = false
 local firstDanceEndTime = 0
 local firstDanceLastText = nil
+local firstDanceReady = false
 
 local _TickFirstDance  -- forward declaration (defined after StartFirstDanceWindow)
 
@@ -695,12 +718,66 @@ local function _StopFirstDanceTick()
     firstDanceActive = false
     firstDanceEndTime = 0
     firstDanceLastText = nil
-    if combatStateFrame then combatStateFrame:SetScript("OnUpdate", nil) end
+    if firstDanceFrame then firstDanceFrame:SetScript("OnUpdate", nil) end
+    if firstDanceText then firstDanceText:SetText("") end
+    if firstDanceCDText then firstDanceCDText:SetText("") end
+    if firstDanceCooldown and firstDanceCooldown.SetCooldown then firstDanceCooldown:SetCooldown(0, 0) end
+end
+
+-- Hide the "ready" persistent indicator (called on Shadow Dance cast or feature disable)
+local function _HideFirstDanceReady()
+    firstDanceReady = false
+    if firstDanceFrame then firstDanceFrame:Hide() end
+    if firstDanceText then firstDanceText:SetText("") end
+    if firstDanceCDText then firstDanceCDText:SetText("") end
+    if firstDanceCooldown and firstDanceCooldown.SetCooldown then firstDanceCooldown:SetCooldown(0, 0) end
+end
+
+------------------------------------------------------
+-- Shadow Dance listener: hide ready icon on cast (185313)
+-- RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED","player") = zero dispatch cost for other units.
+-- Only registered while firstDanceReady == true.
+------------------------------------------------------
+local _SHADOW_DANCE_SPELL_ID = 185313
+local _fdShadowDanceFrame
+
+local function _UnregisterShadowDanceWatch()
+    if _fdShadowDanceFrame then
+        _fdShadowDanceFrame:UnregisterAllEvents()
+    end
+end
+
+local function _RegisterShadowDanceWatch()
+    if not _isSubRogue then return end
+    if not _fdShadowDanceFrame then
+        _fdShadowDanceFrame = CreateFrame("Frame")
+        _fdShadowDanceFrame:SetScript("OnEvent", function(_, _, _, _, spellID)
+            if spellID == _SHADOW_DANCE_SPELL_ID then
+                _UnregisterShadowDanceWatch()
+                _HideFirstDanceReady()
+                -- OOC Shadow Dance (e.g. supercharged combo points): restart 6s window
+                if not UnitAffectingCombat("player") then
+                    local gd = GetGameplayDBFast()
+                    if gd and gd.enableFirstDanceTimer and ns._MSUF_StartFirstDanceWindow then
+                        ns._MSUF_StartFirstDanceWindow()
+                    end
+                end
+            end
+        end)
+    end
+    _fdShadowDanceFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+end
+
+-- Wrap _HideFirstDanceReady to also unregister the watcher
+local _HideFirstDanceReady_Base = _HideFirstDanceReady
+_HideFirstDanceReady = function()
+    _UnregisterShadowDanceWatch()
+    _HideFirstDanceReady_Base()
 end
 
 -- Make the combat enter/leave text click-through while it is actively displayed
 -- so it never steals clicks / focus (e.g. targeting) while flashing on screen.
--- When cleared, mouse is restored based on the lock setting.
+-- When cleared, mouse is restored based on the lock setting AND text visibility.
 local function MSUF_CombatState_SetClickThrough(active)
     if not combatStateFrame then
         return
@@ -714,16 +791,266 @@ local function MSUF_CombatState_SetClickThrough(active)
 
     combatStateFrame._msufClickThroughActive = nil
     local g = GetGameplayDBFast()
-    if g and g.lockCombatState then
-        combatStateFrame:EnableMouse(false)
-    else
+    -- Only allow mouse interaction when unlocked AND text is actually visible.
+    -- Otherwise the invisible 220x60 frame at DIALOG strata steals clicks.
+    if g and not g.lockCombatState and combatStateText and combatStateText:IsShown() then
         combatStateFrame:EnableMouse(true)
+    else
+        combatStateFrame:EnableMouse(false)
+    end
+end
+
+------------------------------------------------------
+-- First Dance: independent frame + clickthrough
+------------------------------------------------------
+local function _ApplyFirstDanceLockState()
+    if not firstDanceFrame then return end
+    local g = GetGameplayDBFast()
+    if not g then return end
+    if firstDanceFrame._msufDragging then
+        firstDanceFrame:EnableMouse(true)
+        return
+    end
+    if not g.enableFirstDanceTimer then
+        firstDanceFrame:EnableMouse(false)
+        return
+    end
+    if g.lockFirstDance then
+        firstDanceFrame:EnableMouse(false)
+        return
+    end
+    if g.firstDanceClickThrough ~= false then
+        if IsAltKeyDown and IsAltKeyDown() then
+            firstDanceFrame:EnableMouse(true)
+        else
+            firstDanceFrame:EnableMouse(false)
+        end
+        return
+    end
+    firstDanceFrame:EnableMouse(true)
+end
+
+local function EnsureFirstDanceFrame()
+    if firstDanceFrame then return firstDanceFrame end
+    local g = EnsureGameplayDefaults()
+
+    firstDanceFrame = CreateFrame("Frame", "MSUF_FirstDanceFrame", UIParent)
+    firstDanceFrame:SetSize(220, 60)
+    firstDanceFrame:SetPoint("CENTER", UIParent, "CENTER", tonumber(g.firstDanceOffsetX) or 0, tonumber(g.firstDanceOffsetY) or 80)
+    firstDanceFrame:SetFrameStrata("DIALOG")
+    firstDanceFrame:SetClampedToScreen(true)
+    firstDanceFrame:SetMovable(true)
+    firstDanceFrame:RegisterForDrag("LeftButton")
+
+    firstDanceFrame:SetScript("OnDragStart", function(self)
+        local gd = EnsureGameplayDefaults()
+        if gd.lockFirstDance then return end
+        if gd.firstDanceClickThrough ~= false then
+            if not (IsAltKeyDown and IsAltKeyDown()) then return end
+        end
+        self._msufDragging = true
+        self:StartMoving()
+    end)
+
+    firstDanceFrame:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        self._msufDragging = nil
+        local db = EnsureGameplayDefaults()
+        local x, y = self:GetCenter()
+        if x and y then
+            local ux, uy = UIParent:GetCenter()
+            if ux and uy then
+                db.firstDanceOffsetX = _MSUF_RoundInt(x - ux)
+                db.firstDanceOffsetY = _MSUF_RoundInt(y - uy)
+            end
+        end
+        local p = _G and _G.MSUF_GameplayPanel
+        if p and p.MSUF_SyncFirstDanceOffsetSliders then
+            p:MSUF_SyncFirstDanceOffsetSliders()
+        end
+        _ApplyFirstDanceLockState()
+    end)
+
+    -- Text mode elements
+    firstDanceText = firstDanceFrame:CreateFontString(nil, "OVERLAY")
+    firstDanceText:SetPoint("CENTER")
+
+    -- Icon mode elements
+    local iconSz = g.firstDanceIconSize or 40
+    firstDanceIcon = firstDanceFrame:CreateTexture(nil, "ARTWORK")
+    firstDanceIcon:SetTexture(_FIRST_DANCE_ICON_ID)
+    firstDanceIcon:SetSize(iconSz, iconSz)
+    firstDanceIcon:SetPoint("CENTER")
+
+    firstDanceCooldown = CreateFrame("Cooldown", "MSUF_FirstDanceCooldown", firstDanceFrame, "CooldownFrameTemplate")
+    firstDanceCooldown:SetAllPoints(firstDanceIcon)
+    firstDanceCooldown:SetDrawEdge(true)
+    firstDanceCooldown:SetDrawSwipe(true)
+    firstDanceCooldown:SetReverse(true)
+    firstDanceCooldown:SetHideCountdownNumbers(true)
+
+    firstDanceCDText = firstDanceCooldown:CreateFontString(nil, "OVERLAY")
+    firstDanceCDText:SetPoint("CENTER", firstDanceCooldown, "CENTER", 0, 0)
+
+    _ApplyFirstDanceLockState()
+
+    -- Modifier listener for ALT-to-drag (same pattern as combat timer)
+    if not ns._MSUF_FirstDanceModifierFrame then
+        local mf = CreateFrame("Frame")
+        ns._MSUF_FirstDanceModifierFrame = mf
+        mf:RegisterEvent("MODIFIER_STATE_CHANGED")
+        mf:SetScript("OnEvent", function()
+            if not firstDanceFrame then return end
+            if firstDanceFrame._msufDragging then
+                firstDanceFrame:EnableMouse(true)
+                return
+            end
+            local gd = GetGameplayDBFast()
+            if not gd or not gd.enableFirstDanceTimer or gd.lockFirstDance then
+                if firstDanceFrame then firstDanceFrame:EnableMouse(false) end
+                return
+            end
+            if gd.firstDanceClickThrough == false then
+                firstDanceFrame:EnableMouse(true)
+                return
+            end
+            if IsAltKeyDown and IsAltKeyDown() then
+                firstDanceFrame:EnableMouse(true)
+            else
+                firstDanceFrame:EnableMouse(false)
+            end
+        end)
+    end
+
+    return firstDanceFrame
+end
+
+-- Switch between icon and text display; also applies icon size
+local function _ApplyFirstDanceDisplayMode()
+    if not firstDanceFrame then return end
+    local g = GetGameplayDBFast()
+    if not g then return end
+    local iconMode = (g.firstDanceShowIcon ~= false)
+    local iconSz = g.firstDanceIconSize or 40
+
+    if iconMode then
+        if firstDanceText then firstDanceText:Hide() end
+        if firstDanceIcon then
+            firstDanceIcon:SetSize(iconSz, iconSz)
+            firstDanceIcon:Show()
+        end
+        if firstDanceCooldown then firstDanceCooldown:Show() end
+        if firstDanceCDText then firstDanceCDText:Show() end
+        firstDanceFrame:SetSize(iconSz + 4, iconSz + 4)
+        -- Register with Masque if available (icon mode only)
+        if ns.MSUF_FirstDance_ApplyMasque then ns.MSUF_FirstDance_ApplyMasque() end
+    else
+        if firstDanceIcon then firstDanceIcon:Hide() end
+        if firstDanceCooldown then firstDanceCooldown:Hide() end
+        if firstDanceCDText then firstDanceCDText:Hide() end
+        if firstDanceText then firstDanceText:Show() end
+        firstDanceFrame:SetSize(220, 60)
+    end
+end
+
+------------------------------------------------------
+-- First Dance: Masque integration (optional, lightweight)
+-- Separate group "First Dance" under MSUF; uses A2's masqueEnabled flag.
+-- Only Icon + Cooldown passed — never Count (MSUF manages CDText).
+------------------------------------------------------
+do
+    local _fdMasqueGroup
+    local _fdMasqueRegistered = false
+
+    local function _FD_IsMasqueEnabled()
+        local a2db = MSUF_DB and MSUF_DB.auras2
+        local shared = a2db and a2db.shared
+        return shared and shared.masqueEnabled == true
+    end
+
+    local function _FD_EnsureMasqueGroup()
+        if _fdMasqueGroup then return _fdMasqueGroup end
+        if not LibStub then return nil end
+        local ok, lib = pcall(LibStub, "Masque", true)
+        if not ok or not lib then return nil end
+        local ok2, grp = pcall(lib.Group, lib, "Midnight Simple Unit Frames", "First Dance")
+        if not ok2 or not grp then return nil end
+        _fdMasqueGroup = grp
+        return grp
+    end
+
+    function ns.MSUF_FirstDance_ApplyMasque()
+        if not firstDanceFrame then return end
+
+        if not _FD_IsMasqueEnabled() then
+            if _fdMasqueRegistered and _fdMasqueGroup then
+                pcall(_fdMasqueGroup.RemoveButton, _fdMasqueGroup, firstDanceFrame)
+                _fdMasqueRegistered = false
+            end
+            return
+        end
+
+        local grp = _FD_EnsureMasqueGroup()
+        if not grp then return end
+
+        if _fdMasqueRegistered then return end
+
+        local regions = {
+            Icon     = firstDanceIcon,
+            Cooldown = firstDanceCooldown,
+        }
+        local ok = pcall(grp.AddButton, grp, firstDanceFrame, regions)
+        if ok then
+            _fdMasqueRegistered = true
+            -- Single ReSkin after registration
+            if grp.ReSkin then pcall(grp.ReSkin, grp) end
+            -- Keep CDText above Masque layers
+            if firstDanceCooldown and firstDanceCDText then
+                local base = firstDanceCooldown.GetFrameLevel and firstDanceCooldown:GetFrameLevel() or 0
+                local overlay = CreateFrame("Frame", nil, firstDanceCooldown)
+                overlay:SetAllPoints()
+                overlay:SetFrameLevel(base + 5)
+                firstDanceCDText:SetParent(overlay)
+                firstDanceCDText:ClearAllPoints()
+                firstDanceCDText:SetPoint("CENTER")
+            end
+        end
+    end
+end
+
+local function _ApplyFirstDanceFont()
+    local path, flags, r, gCol, bCol, size, useShadow = GetGameplayFontSettings("state")
+    local g = GetGameplayDBFast()
+    local _er, _eg, _eb, lr, lg, lb = MSUF_GetCombatStateColors(g)
+
+    if firstDanceText then
+        firstDanceText:SetFont(path or "Fonts/FRIZQT__.TTF", (size or 24), flags or "OUTLINE")
+        firstDanceText:SetTextColor(lr, lg, lb, 1)
+        if useShadow then
+            firstDanceText:SetShadowOffset(1, -1)
+            firstDanceText:SetShadowColor(0, 0, 0, 1)
+        else
+            firstDanceText:SetShadowOffset(0, 0)
+        end
+    end
+
+    if firstDanceCDText then
+        local iconSz = (g and g.firstDanceIconSize) or 40
+        local cdFontSz = math_max(10, math.floor(iconSz * 0.45 + 0.5))
+        firstDanceCDText:SetFont(path or "Fonts/FRIZQT__.TTF", cdFontSz, "OUTLINE")
+        firstDanceCDText:SetTextColor(1, 1, 1, 1)
+        if useShadow then
+            firstDanceCDText:SetShadowOffset(1, -1)
+            firstDanceCDText:SetShadowColor(0, 0, 0, 1)
+        else
+            firstDanceCDText:SetShadowOffset(0, 0)
+        end
     end
 end
 
 local function ApplyFontToCounter()
     -- If nothing exists yet, nothing to do
-    if not combatTimerText and not combatStateText then
+    if not combatTimerText and not combatStateText and not firstDanceText then
         return
     end
     -- Combat timer font (uses its own override)
@@ -756,6 +1083,8 @@ local function ApplyFontToCounter()
         MSUF_ApplyCombatStateDynamicColor()
     end
 
+    -- First Dance text font
+    _ApplyFirstDanceFont()
 end
 
 local EnsureCombatStateText
@@ -764,54 +1093,45 @@ local EnsureCombatStateText
 -- "The First Dance" helper
 ------------------------------------------------------
 local function StartFirstDanceWindow()
+    if not _isSubRogue then return end
     local g = GetGameplayDBFast()
 
     -- Feature off = make sure state is hard-reset and updater is off
-    if not g.enableFirstDanceTimer then
+    if not g or not g.enableFirstDanceTimer then
         _StopFirstDanceTick()
-
-        MSUF_CombatState_SetClickThrough(false)
+        _HideFirstDanceReady()
         return
     end
 
-    if not combatStateText and EnsureCombatStateText then
-        EnsureCombatStateText()
+    if not firstDanceFrame then
+        EnsureFirstDanceFrame()
     end
-
-    if not combatStateText then
-        MSUF_CombatState_SetClickThrough(false)
-        return
-    end
+    if not firstDanceFrame then return end
 
     firstDanceEndTime = GetTime() + FIRST_DANCE_WINDOW
     firstDanceActive = true
+    firstDanceReady = false
     firstDanceLastText = nil
 
-    -- Make sure font / shadow are up to date
-    local path, flags, r, gCol, bCol, size, useShadow = GetGameplayFontSettings("state")
-    combatStateText:SetFont(path or "Fonts/FRIZQT__.TTF", (size or 24), flags or "OUTLINE")
-    local _er, _eg, _eb, lr, lg, lb = MSUF_GetCombatStateColors(g)
-    combatStateText._msufLastState = "dance"
-    combatStateText:SetTextColor(lr, lg, lb, 1)
-    if useShadow then
-        combatStateText:SetShadowOffset(1, -1)
-        combatStateText:SetShadowColor(0, 0, 0, 1)
-    else
-        combatStateText:SetShadowOffset(0, 0)
+    _ApplyFirstDanceFont()
+    _ApplyFirstDanceDisplayMode()
+
+    -- Icon mode: kick the cooldown swipe
+    if g.firstDanceShowIcon ~= false and firstDanceCooldown then
+        firstDanceCooldown:SetCooldown(GetTime(), FIRST_DANCE_WINDOW)
     end
 
-    MSUF_CombatState_SetClickThrough(true)
-
-    combatStateText:Show()
+    firstDanceFrame:Show()
 
     -- Start the tick for this animation window
-    if combatStateFrame then
-        combatStateFrame:SetScript("OnUpdate", function(self, elapsed)
-            _TickFirstDance()
-        end)
-    end
+    firstDanceFrame:SetScript("OnUpdate", function(self, elapsed)
+        _TickFirstDance()
+    end)
 
 end
+
+-- Export for deferred callback access (Shadow Dance OOC restart)
+ns._MSUF_StartFirstDanceWindow = StartFirstDanceWindow
 
 ------------------------------------------------------
 -- Combat state text (enter/leave combat)
@@ -876,21 +1196,19 @@ EnsureCombatStateText = function()
         combatEventFrame = true  -- sentinel: frame replaced by EventBus (Phase 7B)
 MSUF_CombatState_OnEvent = function(event)
     local g = GetGameplayDBFast()
-    if not g or (not g.enableCombatStateText and not g.enableFirstDanceTimer) then
+    if not g or (not g.enableCombatStateText and not (g.enableFirstDanceTimer and _isSubRogue)) then
         if combatStateText then
             combatStateText:SetText("")
             combatStateText:Hide()
-            MSUF_CombatState_SetClickThrough(false)
         end
         MSUF_CombatState_SetClickThrough(false)
-        -- Always hard-stop First Dance if feature is disabled
         _StopFirstDanceTick()
-
+        _HideFirstDanceReady()
         return
     end
 
     local wantState = (g.enableCombatStateText == true)
-    local wantDance = (g.enableFirstDanceTimer == true)
+    local wantDance = (g.enableFirstDanceTimer == true) and _isSubRogue
 
     local duration = g.combatStateDuration or 1.5
     if duration < 0.1 then
@@ -898,8 +1216,14 @@ MSUF_CombatState_OnEvent = function(event)
     end
 
     if event == "PLAYER_REGEN_DISABLED" then
-        -- Enter combat: "+Combat"
+        -- Enter combat: stop countdown; ready icon persists until Shadow Dance
+        local wasActive = firstDanceActive
         _StopFirstDanceTick()
+        if wasActive and not firstDanceReady then
+            -- Countdown was interrupted (6s not complete) → hide
+            if firstDanceFrame then firstDanceFrame:Hide() end
+        end
+        -- If firstDanceReady, the Shadow Dance watcher handles hide
 
         if not wantState then
             if combatStateText then
@@ -934,12 +1258,11 @@ MSUF_CombatState_OnEvent = function(event)
         end
 
     elseif event == "PLAYER_REGEN_ENABLED" then
-        -- Leave combat: "-Combat" OR First Dance timer
+        -- Leave combat: always start 6s First Dance countdown + show "-Combat" if wanted
         _StopFirstDanceTick()
 
-        if g.enableFirstDanceTimer then
+        if wantDance and not firstDanceReady then
             StartFirstDanceWindow()
-            return
         end
 
         if not wantState then
@@ -989,46 +1312,61 @@ _TickFirstDance = function()
     end
 
     local gFD = GetGameplayDBFast()
-    if not gFD.enableFirstDanceTimer then
+    if not gFD or not gFD.enableFirstDanceTimer then
         _StopFirstDanceTick()
-
-        if combatStateText then
-            combatStateText:SetText("")
-            combatStateText:Hide()
-        end
-        MSUF_CombatState_SetClickThrough(false)
+        _HideFirstDanceReady()
         return
     end
 
-    if not combatStateText and EnsureCombatStateText then
-        EnsureCombatStateText()
+    if not firstDanceFrame then
+        EnsureFirstDanceFrame()
     end
-
-    if not combatStateText then
-        MSUF_CombatState_SetClickThrough(false)
-        return
-    end
+    if not firstDanceFrame then return end
 
     local now = GetTime()
     local remaining = firstDanceEndTime - now
     if remaining <= 0 then
         _StopFirstDanceTick()
 
-        combatStateText:SetText("")
-        combatStateText:Hide()
-        MSUF_CombatState_SetClickThrough(false)
-
         -- FirstDance lief voll durch → Apex-Fenster um 3s verlängern
         if ns.MSUF_ApexAlert_ExtendForFirstDance then
             ns.MSUF_ApexAlert_ExtendForFirstDance()
         end
+
+        -- Show persistent "ready" indicator if enabled
+        if gFD.firstDanceShowReady then
+            firstDanceReady = true
+            _RegisterShadowDanceWatch()
+            local iconMode = (gFD.firstDanceShowIcon ~= false)
+            if iconMode then
+                if firstDanceCDText then firstDanceCDText:SetText("") end
+                if firstDanceCooldown and firstDanceCooldown.SetCooldown then firstDanceCooldown:SetCooldown(0, 0) end
+                if firstDanceIcon then firstDanceIcon:SetDesaturated(false) end
+            else
+                if firstDanceText then firstDanceText:SetText("First Dance!") end
+            end
+            -- Frame stays visible; hidden on Shadow Dance cast
+        else
+            if firstDanceFrame then firstDanceFrame:Hide() end
+        end
         return
     end
 
-    local text = string_format("First Dance: %.1f", remaining)
-    if text ~= firstDanceLastText then
-        firstDanceLastText = text
-        combatStateText:SetText(text)
+    local iconMode = (gFD.firstDanceShowIcon ~= false)
+    if iconMode then
+        -- Icon mode: CD text shows remaining, swipe runs natively
+        local text = string_format("%.1f", remaining)
+        if text ~= firstDanceLastText then
+            firstDanceLastText = text
+            if firstDanceCDText then firstDanceCDText:SetText(text) end
+        end
+    else
+        -- Text mode
+        local text = string_format("First Dance: %.1f", remaining)
+        if text ~= firstDanceLastText then
+            firstDanceLastText = text
+            if firstDanceText then firstDanceText:SetText(text) end
+        end
     end
 end
 
@@ -1319,10 +1657,14 @@ local function ApplyLockState()
             combatStateFrame:EnableMouse(false)
         elseif g.lockCombatState then
             combatStateFrame:EnableMouse(false)
-        else
+        elseif combatStateText and combatStateText:IsShown() then
             combatStateFrame:EnableMouse(true)
+        else
+            combatStateFrame:EnableMouse(false)
         end
     end
+
+    _ApplyFirstDanceLockState()
 end
 
 -- Combat Timer anchor helpers
@@ -2011,26 +2353,14 @@ end
 -- They make it safe to split this file later without changing behavior.
 ------------------------------------------------------
 local function MSUF_Gameplay_ApplyCombatStateText(g)
+    _UpdateSubRogueCache()
     local wantState = (g.enableCombatStateText == true)
     -- First Dance nur für Sub Rogue
-    local wantDance = (g.enableFirstDanceTimer == true) and MSUF_IsSubRogue()
+    local wantDance = (g.enableFirstDanceTimer == true) and _isSubRogue
 
-    if wantState or wantDance then
+    -- Combat State Text (enter/leave)
+    if wantState then
         EnsureCombatStateText()
-
-        -- "First Dance" uses a background tick (UpdateManager task) to count down the 6s window.
-        -- Register the task once whenever either Combat State Text OR First Dance is enabled.
-        if EnsureFirstDanceTaskRegistered then
-            EnsureFirstDanceTaskRegistered()
-        end
-
-        -- If First Dance is OFF, make sure any leftover state/task is hard-stopped.
-        if not wantDance then
-            _StopFirstDanceTick()
-
-        end
-
-        -- Ensure the frame is draggable again when configuring / previewing
         MSUF_CombatState_SetClickThrough(false)
 
         -- Phase 7B: combat state events via EventBus
@@ -2039,45 +2369,70 @@ local function MSUF_Gameplay_ApplyCombatStateText(g)
             MSUF_EventBus_Register("PLAYER_REGEN_ENABLED", "MSUF_COMBAT_STATE", MSUF_CombatState_OnEvent)
         end
 
-        -- Preview while unlocked: show something so the user can position the text
+        -- Preview while unlocked
         if not g.lockCombatState and combatStateText then
-            if wantState then
-                local enterText = g.combatStateEnterText
-                if type(enterText) ~= "string" or enterText == "" then
-                    enterText = "+Combat"
-                end
-                local er, eg, eb = MSUF_GetCombatStateColors(g)
-                combatStateText._msufLastState = "enter"
-                combatStateText:SetTextColor(er, eg, eb, 1)
-                combatStateText:SetText(enterText)
-                combatStateText:Show()
-            elseif wantDance then
-                local _er, _eg, _eb, lr, lg, lb = MSUF_GetCombatStateColors(g)
-                combatStateText._msufLastState = "dance"
-                combatStateText:SetTextColor(lr, lg, lb, 1)
-                combatStateText:SetText("First Dance: 6.0")
-                combatStateText:Show()
+            local enterText = g.combatStateEnterText
+            if type(enterText) ~= "string" or enterText == "" then
+                enterText = "+Combat"
             end
+            local er, eg, eb = MSUF_GetCombatStateColors(g)
+            combatStateText._msufLastState = "enter"
+            combatStateText:SetTextColor(er, eg, eb, 1)
+            combatStateText:SetText(enterText)
+            combatStateText:Show()
         elseif combatStateText then
-            -- Locked and not in an event: keep the frame hidden until real combat events fire
             combatStateText:SetText("")
             combatStateText:Hide()
         end
-
     else
-        -- Both features disabled: hide text, unhook combat events, and hard-stop first dance
         if combatStateText then
             combatStateText:SetText("")
             combatStateText:Hide()
         end
-        -- Phase 7B: unregister combat state from EventBus
+        MSUF_CombatState_SetClickThrough(false)
+    end
+
+    -- First Dance (own frame, independent from combat state text)
+    if wantDance then
+        EnsureFirstDanceFrame()
+        _ApplyFirstDanceFont()
+        _ApplyFirstDanceDisplayMode()
+
+        -- EventBus: First Dance trigger on regen events (shared keys with combat state)
+        if type(MSUF_EventBus_Register) == "function" then
+            MSUF_EventBus_Register("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_STATE", MSUF_CombatState_OnEvent)
+            MSUF_EventBus_Register("PLAYER_REGEN_ENABLED", "MSUF_COMBAT_STATE", MSUF_CombatState_OnEvent)
+        end
+
+        -- Preview while unlocked; keep ready indicator when locked + ready
+        if not g.lockFirstDance and firstDanceFrame and not firstDanceActive and not firstDanceReady then
+            -- Unlocked, not counting, not ready → show preview
+            local iconMode = (g.firstDanceShowIcon ~= false)
+            if iconMode then
+                if firstDanceCDText then firstDanceCDText:SetText("6.0") end
+            else
+                if firstDanceText then firstDanceText:SetText("First Dance: 6.0") end
+            end
+            firstDanceFrame:Show()
+        elseif firstDanceFrame and not firstDanceActive and not firstDanceReady then
+            -- Locked, not counting, not ready → hide
+            if firstDanceText then firstDanceText:SetText("") end
+            if firstDanceCDText then firstDanceCDText:SetText("") end
+            firstDanceFrame:Hide()
+        end
+        -- If firstDanceActive or firstDanceReady, leave frame as-is (tick/ready manages it)
+        _ApplyFirstDanceLockState()
+    else
+        _StopFirstDanceTick()
+        _HideFirstDanceReady()
+    end
+
+    -- Unregister EventBus if both features off
+    if not wantState and not wantDance then
         if type(MSUF_EventBus_Unregister) == "function" then
             MSUF_EventBus_Unregister("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_STATE")
             MSUF_EventBus_Unregister("PLAYER_REGEN_ENABLED", "MSUF_COMBAT_STATE")
         end
-
-        _StopFirstDanceTick()
-
     end
 end
 
@@ -3221,7 +3576,9 @@ do
     local _specChangeFrame = CreateFrame("Frame")
     _specChangeFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
     _specChangeFrame:RegisterEvent("PLAYER_LOGIN")
+    _specChangeFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
     _specChangeFrame:SetScript("OnEvent", function()
+        _UpdateSubRogueCache()
         if ns and ns.MSUF_RequestGameplayApply then
             ns.MSUF_RequestGameplayApply()
         end
@@ -3243,6 +3600,9 @@ do
     ns.MSUF_BuildMeleeSpellCache              = function() MSUF_BuildMeleeSpellCache() end
     ns.MSUF_GetMeleeSpellCache                = function() return MSUF_MeleeSpellCache end
     ns.MSUF_GetPlayerSpecID                   = MSUF_GetPlayerSpecID
+    ns.MSUF_GetFirstDanceFrame                = function() return firstDanceFrame end
+    ns.MSUF_ApplyFirstDanceLockState          = function() _ApplyFirstDanceLockState() end
+    ns.MSUF_ApplyFirstDanceDisplayMode        = function() _ApplyFirstDanceDisplayMode() end
 end
 
 -- Options panel registration: see MSUF_Options_Gameplay.lua
@@ -3277,6 +3637,8 @@ do
             EnsureGameplayDefaults()
         end
 
+        _UpdateSubRogueCache()
+
         if ns and ns.MSUF_RequestGameplayApply then
             ns.MSUF_RequestGameplayApply()
         end
@@ -3299,4 +3661,71 @@ do
         f:UnregisterAllEvents()
         f:SetScript("OnEvent", nil)
     end)
+end
+
+-- ============================================================================
+-- Phase 4: Module Registration
+-- Gameplay registers into the unified module lifecycle so that:
+--   - Profile switches broadcast RefreshSettings → all features re-apply
+--   - Debug toggle can disable/re-enable all gameplay features at runtime
+--   - Shutdown cleans up tickers + EventBus registrations on profile switch
+-- Internal feature toggles (combat timer, crosshair, etc.) remain unchanged.
+-- ============================================================================
+do
+    local reg = (ns and ns.MSUF_RegisterModule) or _G.MSUF_RegisterModule
+    if type(reg) == "function" then
+        reg("Gameplay", {
+            order = 50,
+            IsEnabled = function() return true end,
+            Init = function()
+                if type(EnsureGameplayDefaults) == "function" then
+                    EnsureGameplayDefaults()
+                end
+            end,
+            Enable = function()
+                if ns and ns.MSUF_RequestGameplayApply then
+                    ns.MSUF_RequestGameplayApply()
+                end
+            end,
+            Disable = function()
+                -- Stop combat timer ticker
+                if ns._MSUF_CombatTimerTicker then
+                    ns._MSUF_CombatTimerTicker:Cancel()
+                    ns._MSUF_CombatTimerTicker = nil
+                end
+                -- Unregister EventBus keys (idempotent)
+                local unreg = _G.MSUF_EventBus_Unregister
+                if type(unreg) == "function" then
+                    unreg("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_TIMER")
+                    unreg("PLAYER_REGEN_ENABLED",  "MSUF_COMBAT_TIMER")
+                    unreg("PLAYER_ENTERING_WORLD", "MSUF_COMBAT_TIMER")
+                    unreg("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_STATE")
+                    unreg("PLAYER_REGEN_ENABLED",  "MSUF_COMBAT_STATE")
+                    unreg("PLAYER_REGEN_ENABLED",  "MSUF_APEX_ALERT")
+                end
+            end,
+            RefreshSettings = function(_, source)
+                if ns and ns.MSUF_RequestGameplayApply then
+                    ns.MSUF_RequestGameplayApply()
+                end
+            end,
+            Shutdown = function(_, reason)
+                -- Stop all tickers
+                if ns._MSUF_CombatTimerTicker then
+                    ns._MSUF_CombatTimerTicker:Cancel()
+                    ns._MSUF_CombatTimerTicker = nil
+                end
+                -- Unregister all EventBus keys
+                local unreg = _G.MSUF_EventBus_Unregister
+                if type(unreg) == "function" then
+                    unreg("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_TIMER")
+                    unreg("PLAYER_REGEN_ENABLED",  "MSUF_COMBAT_TIMER")
+                    unreg("PLAYER_ENTERING_WORLD", "MSUF_COMBAT_TIMER")
+                    unreg("PLAYER_REGEN_DISABLED", "MSUF_COMBAT_STATE")
+                    unreg("PLAYER_REGEN_ENABLED",  "MSUF_COMBAT_STATE")
+                    unreg("PLAYER_REGEN_ENABLED",  "MSUF_APEX_ALERT")
+                end
+            end,
+        })
+    end
 end
