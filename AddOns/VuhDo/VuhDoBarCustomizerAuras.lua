@@ -361,6 +361,7 @@ local sTimeAbbrevData = {
 };
 
 local sCurveTimerVisible;
+local sCurveTimerVisibleElapsed;
 local sCurveFlashZone;
 local sCurveFadeAlpha;
 local sCurveTimerColor;
@@ -368,6 +369,7 @@ local sAuraDispelCurve;
 local sBarColors;
 
 local sAuraTimerData = { };
+local sAuraTimerIsAlive = { };
 local sAuraTimerFrame;
 local sAuraTimerAnimGroup;
 local sAuraTimerAnimation;
@@ -929,6 +931,10 @@ do
 		sCurveTimerVisible:AddPoint(0.1, 1);
 		sCurveTimerVisible:AddPoint(9.99, 0);
 
+		sCurveTimerVisibleElapsed = CreateCurve();
+		sCurveTimerVisibleElapsed:SetType(Enum.LuaCurveType.Step);
+		sCurveTimerVisibleElapsed:AddPoint(0, 1);
+
 		sCurveFlashZone = CreateCurve();
 		sCurveFlashZone:SetType(Enum.LuaCurveType.Step);
 		sCurveFlashZone:AddPoint(0, 0);
@@ -1066,17 +1072,22 @@ do
 
 		for tFontString, tDurationObj in pairs(sAuraTimerData) do
 			if tDurationObj and sCurveTimerVisible then
-				tRemainingSeconds = tDurationObj:GetRemainingDuration();
+				if sAuraTimerIsAlive[tFontString] then
+					tRemainingSeconds = tDurationObj:GetElapsedDuration();
+					tTimerVisibility = tDurationObj:EvaluateElapsedDuration(sCurveTimerVisibleElapsed);
+				else
+					tRemainingSeconds = tDurationObj:GetRemainingDuration();
+					tTimerVisibility = tDurationObj:EvaluateRemainingDuration(sCurveTimerVisible);
+				end
 
 				tDurationText = AbbreviateNumbers(tRemainingSeconds, sTimeAbbrevData);
 				tFontString:SetText(tDurationText or "");
 
-				if sCurveTimerColor then
+				if sCurveTimerColor and not sAuraTimerIsAlive[tFontString] then
 					tTimerColorMixin = tDurationObj:EvaluateRemainingDuration(sCurveTimerColor);
 					tFontString:SetTextColor(tTimerColorMixin:GetRGBA());
 				end
 
-				tTimerVisibility = tDurationObj:EvaluateRemainingDuration(sCurveTimerVisible);
 				tFontString:SetAlpha(tTimerVisibility);
 			end
 		end
@@ -1110,7 +1121,7 @@ do
 
 
 	--
-	function VUHDO_registerAuraTimerText(aFontString, aDurationObj)
+	function VUHDO_registerAuraTimerText(aFontString, aDurationObj, anIsAliveTime)
 
 		if not aFontString or not aDurationObj then
 			return;
@@ -1121,6 +1132,7 @@ do
 		end
 
 		sAuraTimerData[aFontString] = aDurationObj;
+		sAuraTimerIsAlive[aFontString] = anIsAliveTime or false;
 
 		if sAuraTimerCount == 1 and sAuraTimerAnimGroup then
 			sAuraTimerAnimGroup:Play();
@@ -1144,6 +1156,7 @@ do
 		end
 
 		sAuraTimerData[aFontString] = nil;
+		sAuraTimerIsAlive[aFontString] = nil;
 		sAuraTimerCount = sAuraTimerCount - 1;
 
 		if sAuraTimerCount == 0 and sAuraTimerAnimGroup then
@@ -1779,6 +1792,8 @@ do
 		end
 
 		twipe(sAuraTimerData);
+		twipe(sAuraTimerIsAlive);
+
 		sAuraTimerCount = 0;
 
 		if sAuraIconPool then
@@ -2399,7 +2414,6 @@ do
 	local tGrowthDir;
 	local tWrapDir;
 	local tSize;
-	local tAuraDefaults;
 	local tSpacing;
 	local tMaxCols;
 	local tCol;
@@ -2434,7 +2448,6 @@ do
 		tRadioValue = anAnchorConfig["radioValue"];
 
 		tSize = VUHDO_getAuraIconSizePixels(aButton, anAnchorConfig);
-		tAuraDefaults = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["AURA_DEFAULTS"];
 		tBarWidth = VUHDO_getAuraBarWidthPixels(aButton, anAnchorConfig);
 		tBarHeight = VUHDO_getAuraBarHeightPixels(aButton, anAnchorConfig);
 		tIconSize = tBarHeight;
@@ -2717,6 +2730,7 @@ function VUHDO_initAuraAnchorFrames(aButton, aPanelNum, anAnchorIndex, anAnchorC
 
 		if tFrame then
 			VUHDO_positionAuraFrame(tFrame, aButton, anAnchorConfig, tSlotIndex, anAnchorIndex);
+
 			tFrame:SetAlpha(0);
 			tFrame:Show();
 		end
@@ -2822,10 +2836,7 @@ end
 
 
 --
-local tPanelNum;
 local tPanelAnchors;
-local tAnchorIndex;
-local tAnchorConfig;
 local tGroup;
 local tAnchorSlots;
 local tSlots;
@@ -2956,6 +2967,7 @@ function VUHDO_displayAurasAtAnchorFromCache(aUnit, aPanelNum, anAnchorIndex, an
 					tSlotDataAsAura["clipT"] = tSlotData["clipT"];
 					tSlotDataAsAura["clipB"] = tSlotData["clipB"];
 					tSlotDataAsAura["color"] = tSlotData["color"];
+					tSlotDataAsAura["isAliveTime"] = tSlotData["isAliveTime"];
 
 					VUHDO_displayAuraInSlot(tButton, aPanelNum, anAnchorIndex, tActualSlot, tSlotDataAsAura, anAnchorConfig);
 
@@ -3212,12 +3224,18 @@ do
 			tShowTimer = VUHDO_resolveAuraTriState(anAnchorConfig["showTimer"], "showTimer");
 
 			if tShowTimer and aDurationObj and sCurveTimerVisible then
-				tRemainingSeconds = aDurationObj:GetRemainingDuration();
+				if anAuraData["isAliveTime"] then
+					tRemainingSeconds = aDurationObj:GetElapsedDuration();
+					tTimerVisibility = aDurationObj:EvaluateElapsedDuration(sCurveTimerVisibleElapsed);
+				else
+					tRemainingSeconds = aDurationObj:GetRemainingDuration();
+					tTimerVisibility = aDurationObj:EvaluateRemainingDuration(sCurveTimerVisible);
+				end
 
 				tDurationText = AbbreviateNumbers(tRemainingSeconds, sTimeAbbrevData);
 				aTimerText:SetText(tDurationText or "");
 
-				if sCurveTimerColor then
+				if sCurveTimerColor and not anAuraData["isAliveTime"] then
 					tTimerColorMixin = aDurationObj:EvaluateRemainingDuration(sCurveTimerColor);
 					aTimerText:SetTextColor(tTimerColorMixin:GetRGBA());
 				elseif anAnchorConfig["TIMER_TEXT"] and anAnchorConfig["TIMER_TEXT"]["COLOR"] then
@@ -3226,10 +3244,9 @@ do
 					aTimerText:SetTextColor(1, 1, 1, 1);
 				end
 
-				tTimerVisibility = aDurationObj:EvaluateRemainingDuration(sCurveTimerVisible);
 				aTimerText:SetAlpha(tTimerVisibility);
 
-				VUHDO_registerAuraTimerText(aTimerText, aDurationObj);
+				VUHDO_registerAuraTimerText(aTimerText, aDurationObj, anAuraData["isAliveTime"]);
 			else
 				VUHDO_unregisterAuraTimerText(aTimerText);
 
