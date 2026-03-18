@@ -79,6 +79,7 @@ local function CategoryDefaults(enabled, fontSize)
         textColor = { r = 1, g = 0.8, b = 0, a = 1 },
         textAnchor = "CENTER", textOffsetX = 0, textOffsetY = 0,
         hideCountdownNumbers = false,
+        drawSwipe = true,
         edgeEnabled = true, edgeScale = 1.4,
         stackEnabled = true,
         hideStackText = false,

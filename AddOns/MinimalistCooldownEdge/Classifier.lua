@@ -289,14 +289,13 @@ function Classifier:ClassifyFrame(cooldownFrame)
     local current = cooldownFrame:GetParent()
     if not current then return "global" end
 
-    local maxDepth     = SCAN_DEPTH
-    local extendedLimit = SCAN_DEPTH + 30
-
+    local maxDepth = SCAN_DEPTH
+    
     -- Phase 1: Build ancestry chain once (reuses module-level scratch table)
     local chain = classifyChain
     local chainLen = 0
     local node = current
-    while node and node ~= UIParent and chainLen < extendedLimit do
+    while node and node ~= UIParent and chainLen < SCAN_DEPTH do
         chainLen = chainLen + 1
         chain[chainLen] = node
         node = node:GetParent()
@@ -406,7 +405,7 @@ function Classifier:GetCooldownManagerViewerType(cooldownFrame)
     local chain = classifyChain
     local chainLen = 0
     local node = current
-    while node and node ~= UIParent and chainLen < (SCAN_DEPTH + 30) do
+    while node and node ~= UIParent and chainLen < SCAN_DEPTH do
         chainLen = chainLen + 1
         chain[chainLen] = node
         node = node:GetParent()

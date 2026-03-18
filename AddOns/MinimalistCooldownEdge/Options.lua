@@ -689,6 +689,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                 type = "group", name = "|cffffd100" .. L["Swipe Animation"] .. "|r",
                 inline = true, order = 20, disabled = disabledFn,
                 args = {
+                    drawSwipe = {
+                        type = "toggle", order = 0, width = "normal",
+                        name = L["Show Swipe Animation"],
+                        desc = L["Shows the dark overlay that sweeps during a cooldown."],
+                        get = CatGet(key, "drawSwipe", true),
+                        set = CatSet(key, "drawSwipe"),
+                    },
                     edgeEnabled = {
                         type = "toggle", order = 1, width = "normal",
                         name = L["Show Swipe Edge"],
