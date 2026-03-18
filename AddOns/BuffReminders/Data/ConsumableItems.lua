@@ -169,6 +169,9 @@ BR.CONSUMABLE_ITEMS = {
         -- [260286] = true, -- Shrooms and Nectar
         -- [260299] = true, -- Roasted Abyssal Eel
     },
+    sanguithorn = {
+        [242299] = true, -- Sanguithorn Tea
+    },
     -- Flask priority: fleeting/cauldron flasks (1) are prioritized over regular flasks (true)
     flask = {
         -- TWW 11.0.0
