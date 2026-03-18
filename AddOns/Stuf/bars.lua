@@ -905,18 +905,11 @@ do  -- Threat Bar --------------------------------------------------------------
 			ThreatOnUpdate = ThreatOnUpdate or function(this, a1)
 				local dir = this.dir or 1
 				local alp = (this.alp or 0) + a1 * dir
-
-				if this.basealpha + alp > 1 then alp = 1- this.basealpha end --fix
-
 				if (dir == 1 and alp > 0.3) or (dir == -1 and alp < -0.3) then
 					this.dir = dir * -1
 				end
 				this.alp = alp
-				-- 暫時修正
-				alp = this.basealpha + alp
-				if alp > 1 then alp = 1 end
-				if alp < 0 then alp = 0 end
-				this:SetAlpha(alp)
+				this:SetAlpha(this.basealpha + alp)
 			end
 			UpdateThreatOnUnit = UpdateThreatOnUnit or function(unit, uf, _, _, a5, config)
 				uf = uf or su[unit]
@@ -930,16 +923,19 @@ do  -- Threat Bar --------------------------------------------------------------
 					isTanking, status, threatpct = UnitDetailedThreatSituation("player", unit)
 				end
 
-				-- 12.0.1: threatpct and status are secret values; pcall-wrap all comparisons
+				-- 12.0.1: threatpct and status are secret values.
+				-- pcall does NOT catch taint errors in 12.0.1 — use issecretvalue instead.
 				local showThreat, frac, isHighThreat = false, 0.01, false
 				if threatpct then
-					pcall(function()
+					local _issecret = _G.issecretvalue
+					if not (_issecret and (_issecret(threatpct) or _issecret(status))) then
 						if threatpct >= 1 then
 							showThreat = true
 							frac = threatpct * 0.01
 							isHighThreat = (status > 0)
 						end
-					end)
+					end
+					-- If values are secret (in combat), leave showThreat=false → bar hides silently
 				end
 				if not showThreat then
 					f:Hide()
@@ -1282,13 +1278,6 @@ if CLS == "DEATHKNIGHT" then  -- Rune Bar --------------------------------------
 		end
 		f:EnableMouse(not db.nomouse)
 		f:Show()
-		
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
 	end)
 
 
@@ -1454,13 +1443,6 @@ if CLS == "PRIEST" then  -- Priest Power Frame ---------------------------------
 			f:SetFrameStrata(db.strata)
 		end
 		f:EnableMouse(not db.nomouse)
-		
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
 	end)
 
 end
@@ -1486,13 +1468,6 @@ if CLS == "WARLOCK" then  -- Warlock Power Frame -------------------------------
 		if _G.ShardBarFrame then _G.ShardBarFrame:EnableMouse(not db.nomouse) end
 		if _G.DemonicFuryBarFrame then _G.DemonicFuryBarFrame:EnableMouse(not db.nomouse) end
 		if _G.BurningEmbersBarFrame then _G.BurningEmbersBarFrame:EnableMouse(not db.nomouse) end
-
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
 	end)
 
 end
@@ -1516,136 +1491,10 @@ if CLS == "MONK" then  -- Monk Power Frame -------------------------------------
 			f:SetFrameStrata(db.strata)
 		end
 		if _G.MonkHarmonyBar then _G.MonkHarmonyBar:EnableMouse(not db.nomouse) end
-		for i = 1, 6, 1 do
+		for i = 1, 4, 1 do
 			if _G.MonkHarmonyBar and _G.MonkHarmonyBar["lightEnergy"..i] then
 				_G.MonkHarmonyBar["lightEnergy"..i]:EnableMouse(not db.nomouse)
 			end
 		end
-		
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
-	end)
-end
-if CLS == "MAGE" then  -- Mage Arcane Charges Frame -----------------------------------------------------------------------------------------------
-	Stuf:AddBuilder("arcanebar", function(unit, uf, name, db, a5, config) 
-		if unit ~= "player" then return end
-		local f = MageArcaneChargesFrame
-		if not f or db.hide then
-			if f then f:Hide() end
-			return
-		end
-
-		f:SetParent(uf)
-		f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0)
-		f:SetScale(db.scale or 1)
-		f:SetAlpha(db.alpha or 1)
-		if db.framelevel then
-			f:SetFrameLevel(db.framelevel)
-		end
-		if db.strata then
-			f:SetFrameStrata(db.strata)
-		end
-		if _G.MageArcaneChargesFrame then _G.MageArcaneChargesFrame:EnableMouse(not db.nomouse) end
-		
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
-	end)
-end
-if CLS == "EVOKER" then  -- Evoker Essences Frame -----------------------------------------------------------------------------------------------
-	Stuf:AddBuilder("essencesbar", function(unit, uf, name, db, a5, config) 
-		if unit ~= "player" then return end
-		local f = EssencePlayerFrame
-		if not f or db.hide then
-			if f then f:Hide() end
-			return
-		end
-
-		f:SetParent(uf)
-		f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0)
-		f:SetScale(db.scale or 1)
-		f:SetAlpha(db.alpha or 1)
-		if db.framelevel then
-			f:SetFrameLevel(db.framelevel)
-		end
-		if db.strata then
-			f:SetFrameStrata(db.strata)
-		end
-		if _G.EssencePlayerFrame then _G.EssencePlayerFrame:EnableMouse(not db.nomouse) end
-		
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
-
-	end)
-end
-if CLS == "DRUID" then  -- Druid Combo Point Bar Frame -----------------------------------------------------------------------------------------------
-	Stuf:AddBuilder("combopointbar", function(unit, uf, name, db, a5, config) 
-		if unit ~= "player" then return end
-		local f = _G.DruidComboPointBarFrame
-		if not f or db.hide then
-			if f then f:Hide() end
-			return
-		end
-		
-
-		f:SetParent(uf)
-		f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0)
-		f:SetScale(db.scale or 1)
-		f:SetAlpha(db.alpha or 1)
-		if db.framelevel then
-			f:SetFrameLevel(db.framelevel)
-		end
-		if db.strata then
-			f:SetFrameStrata(db.strata)
-		end
-		if _G.DruidComboPointBarFrame then _G.DruidComboPointBarFrame:EnableMouse(not db.nomouse) end
-		
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
-	end)
-end
-if CLS == "ROGUE" then  -- Rogue Combo Point Bar Frame -----------------------------------------------------------------------------------------------
-	Stuf:AddBuilder("combopointbar", function(unit, uf, name, db, a5, config) 
-		if unit ~= "player" then return end
-		local f = _G.RogueComboPointBarFrame
-		if not f or db.hide then
-			if f then f:Hide() end
-			return
-		end
-		
-
-		f:SetParent(uf)
-		f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0)
-		f:SetScale(db.scale or 1)
-		f:SetAlpha(db.alpha or 1)
-		if db.framelevel then
-			f:SetFrameLevel(db.framelevel)
-		end
-		if db.strata then
-			f:SetFrameStrata(db.strata)
-		end
-		if _G.RogueComboPointBarFrame then _G.RogueComboPointBarFrame:EnableMouse(not db.nomouse) end
-		
-		f:HookScript("OnShow", function()
-			C_Timer.After(0.1, function()
-				f:SetParent(uf)
-				f:SetPoint("TOP", uf, "BOTTOM", db.x or 0, db.y or 0) 
-			end)
-		end)
 	end)
 end

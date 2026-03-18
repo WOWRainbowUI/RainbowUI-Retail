@@ -1649,7 +1649,6 @@ D["Stuf"] = {
 	title = "[測試版] Stuf 頭像",
 	desc = "玩家、目標、小隊和首領頭像血條框架，簡單好用自訂性高!``也有傳統頭像樣式和其他外觀樣式可供選擇，詳細用法說明請看：`http://wp.me/p7DTni-142`",
 	modifier = "彩虹ui",
-	icon = "Interface\\Icons\\inv_misc_petmoonkinta",
 	img = true,
     {
         text = "設定選項",

@@ -6,15 +6,6 @@ local dbg
 Stuf:AddOnInit(function(_, idbg) dbg = idbg end)
 local CreateFrame = CreateFrame
 
--- optional localization support
--- for external localization, make a mod titled StufLocale and create table StufLocalization
-local rawget = rawget
-local L = setmetatable(StufLocalization or { }, {
-	__index = function(self, key)
-		return rawget(self, key) or key
-	end
-})
-
 do
 	local SetPortraitTexture, UnitIsVisible = SetPortraitTexture, UnitIsVisible
 	local function UpdatePortrait(unit, uf, f, reset)
@@ -746,36 +737,26 @@ do  -- Inspect Button ----------------------------------------------------------
 				if a1 == "LeftButton" then
 					InspectUnit("target")
 				elseif a1 == "MiddleButton" then
-					-- if SlashCmdList.NOTETARGET then SlashCmdList.NOTETARGET() end
-					-- if SlashCmdList.MOBNOTES_SHORTHAND then SlashCmdList.MOBNOTES_SHORTHAND() end
-					local name = UnitName("target")
-					if name then
-						ChatFrame_SendTell(name, DEFAULT_CHAT_FRAME)
-					end
+					if SlashCmdList.NOTETARGET then SlashCmdList.NOTETARGET() end
+					if SlashCmdList.MOBNOTES_SHORTHAND then SlashCmdList.MOBNOTES_SHORTHAND() end
 				elseif a1 == "RightButton" then 
-					--[[
 					if not DressUpFrame:IsShown() then 
 						ShowUIPanel(DressUpFrame) 
 					end
-					if C_AddOns.IsAddOnLoaded("CloseUp") then
+					if (C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded)("CloseUp") then
 						DressUpFrameCancelButton:Click()
 					else
 						--DressUpModel:SetUnit("target")
 						--SetPortraitTexture(DressUpFramePortrait, "target")
 					end
-					--]]
-					InitiateTrade("target")
-				elseif a1 == "Button4" then
-					FollowUnit("target")
 				end 
 			end)
 			f:SetScript("OnEnter", function(this)
 				GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
-				GameTooltip:SetText(L["Inspect"], 1, 1, 1)
-				GameTooltip:AddLine(L[" <Left-click> to inspect.\n"]..
-				            -- ((SlashCmdList.NOTETARGET or SlashCmdList.MOBNOTES_SHORTHAND) and L[" <Middle-click> to note target.\n"] or "")..
-							L[" <Middle-click> to note target.\n"]..
-				            L[" <Right-click> to dressup."], 0, 1, 0)
+				GameTooltip:SetText("Inspect", 1, 1, 1)
+				GameTooltip:AddLine(" <Left-click> to inspect.\n"..
+				            ((SlashCmdList.NOTETARGET or SlashCmdList.MOBNOTES_SHORTHAND) and " <Middle-click> to note target.\n" or "")..
+				            " <Right-click> to dressup.", 0, 1, 0)
 				GameTooltip:Show()
 			end)
 			f:SetScript("OnLeave", Stuf.GameTooltipOnLeave)
@@ -791,17 +772,5 @@ do  -- Inspect Button ----------------------------------------------------------
 		f:SetAlpha(db.alpha or 1)
 		f:SetPoint("TOPLEFT", uf, "TOPLEFT", db.x, db.y)
 		f:SetFrameLevel(db.framelevel or 4)
-		
-		-- NPC 不顯示互動按鈕
-		if not uf.refreshfuncs[name] then
-			uf.refreshfuncs[name] = function(u, uframe)
-				local btn = (uframe or su[u]).inspectbutton
-				if btn and not btn.db.hide then
-					(UnitIsPlayer(u) and btn.Show or btn.Hide)(btn)
-				end
-			end
-			Stuf:RegisterElementRefresh(uf, name, "reactionelements", true)
-		end
-		if Stuf.inworld then uf.refreshfuncs[name](unit, uf) end
 	end)
 end

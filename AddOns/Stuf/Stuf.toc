@@ -2,9 +2,9 @@
 ## Title: Stuf Unit Frames BETA
 ## Author: Systomatica
 ## Notes: Main unitframes replacement. Assembly optional.
-## Version: 12.0.5
+## Version: 12.0.5a
 
-## SavedVariables: StufDB
+## SavedVariables: StufDB StufBrokerDB
 ## SavedVariablesPerCharacter: StufCharDB
 
 ## X-Category: UnitFrame
@@ -15,8 +15,9 @@
 ## Title-zhTW: |cff4DD2FF[頭像]|r Stuf頭像
 ## Notes-zhTW: Stuf Unit Frames |n|n玩家、目標、小隊等頭像和血條框架，簡單好用自訂性高!|n|n|cffffd200使用方法: |r輸入 /stuf ，或從 Esc>選項>插件>Stuf頭像，開啟設定。|n|n|cffFF2D2D特別注意: |r請勿和其他頭像插件同時載入使用。
 ## Category-zhTW: 頭像
-## IconTexture: Interface\Icons\inv_pet_riverotter_red
+## IconTexture: Interface\AddOns\Stuf\media\logo
 
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 StufLocale.lua
 cancelaura.xml
 core.lua
@@ -25,3 +26,4 @@ bars.lua
 text.lua
 icons.lua
 aura.lua
+broker.lua

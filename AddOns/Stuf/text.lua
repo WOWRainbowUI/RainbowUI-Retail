@@ -25,7 +25,7 @@ local format, strmatch, gsub = format, strmatch, gsub
 local type = type
 local loadstring = loadstring
 
-local nK, nM = "萬", "百萬"
+local nK, nM = "K", "M"
 
 local specialchars = { ["nl"] = "\n", ["%"] = "%%", ["lp"] = "%(", ["rp"] = "%)", }
 local conditions = {
@@ -48,11 +48,9 @@ local conditions = {
 	oor = function(ca, unit)
 		if ( unit == "player" or not ca.assist or ca.dead or not UnitIsConnected(unit) ) then
 			return false
-		end
-		local inrange = UnitInRange(unit) -- 12.0 fix
-		if ( not UnitIsVisible(unit) ) or
+		elseif ( not UnitIsVisible(unit) ) or
 		       ( s40 and not C_SpellIsInRange and IsSpellInRange and IsSpellInRange(s40, unit) == 0 ) or
-			   ( not s40 and Stuf.ingroup and ca.ingroup and (not issecretvalue(inrange) and not inrange) ) or
+			   ( not s40 and Stuf.ingroup and ca.ingroup and not UnitInRange(unit) ) or
 		( s40 and C_SpellIsInRange and C_SpellIsInRange(s40, unit) == false ) then
 			return true
 		end
@@ -99,7 +97,7 @@ do  -- custom text handlers ----------------------------------------------------
 		-- Plain number: normal K/M shortening
 		local n = t < 0 and -t or t
 		if n >= 1000000 then return format("%.1f%s", t * 0.000001, nM)
-		elseif n >= shortk then return format("%.1f%s", t * 0.0001, nK) -- 改為萬縮寫
+		elseif n >= shortk then return format("%.1f%s", t * 0.001, nK)
 		else return tostring(t)
 		end
 	end
@@ -282,7 +280,7 @@ do  -- custom text handlers ----------------------------------------------------
 		end
 		Stuf:UpdateBaseLook(uf, f, db, db.framelevel or 3)
 		shortk = dbg.shortk
-		nK, nM = dbg.nK or "萬", dbg.nM or "百萬"
+		nK, nM = dbg.nK or "K", dbg.nM or "M"
 		
 		local t = f.fontstring
 		Stuf:UpdateTextLook( t, db.font, nil, db.fontsize, db.fontflags, db.justifyH, db.justifyV,
