@@ -181,6 +181,7 @@ local function VUHDO_cleanupSlotDataDelegate(aSlotData)
 	aSlotData["clipR"] = nil;
 	aSlotData["clipT"] = nil;
 	aSlotData["clipB"] = nil;
+	aSlotData["isAliveTime"] = nil;
 
 	if aSlotData["color"] then
 		twipe(aSlotData["color"]);

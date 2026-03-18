@@ -245,7 +245,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["durationOffsetX"] = 0,
 					["durationOffsetY"] = 0,
 					["showBorder"] = false,
-					["iconSize"] = 20,
+					["iconSize"] = 40,
 					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
@@ -997,7 +997,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["durationOffsetX"] = 0,
 					["durationOffsetY"] = 0,
 					["showBorder"] = false,
-					["iconSize"] = 20,
+					["iconSize"] = 40,
 					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
@@ -1186,7 +1186,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["durationOffsetX"] = 0,
 					["durationOffsetY"] = 0,
 					["showBorder"] = false,
-					["iconSize"] = 20,
+					["iconSize"] = 40,
 					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
@@ -1367,7 +1367,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["durationOffsetX"] = 0,
 					["durationOffsetY"] = 0,
 					["showBorder"] = false,
-					["iconSize"] = 20,
+					["iconSize"] = 40,
 					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {
@@ -1548,7 +1548,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["durationOffsetX"] = 0,
 					["durationOffsetY"] = 0,
 					["showBorder"] = false,
-					["iconSize"] = 20,
+					["iconSize"] = 40,
 					["frameLevel"] = 13,
 				},
 				["RAID_ICON"] = {

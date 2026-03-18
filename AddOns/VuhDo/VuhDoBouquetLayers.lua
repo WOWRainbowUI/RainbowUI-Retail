@@ -756,6 +756,31 @@ end
 
 --
 local tResultSlot;
+local tColor;
+local function VUHDO_applyAuraColorByIndex(aTarget, aTargetType, aLayerTemplate, aResultIdx)
+
+	tResultSlot = aLayerTemplate["auraResults"][aResultIdx];
+
+	if not tResultSlot or not tResultSlot["color"] then
+		return;
+	end
+
+	tColor = tResultSlot["color"];
+
+	VUHDO_applyBackgroundColorToTarget(aTarget, aTargetType, tColor);
+
+	if aTargetType == VUHDO_TARGET_TYPE_BAR and tColor["useText"] then
+		VUHDO_applyTextColorToBar(aTarget, tColor["TR"], tColor["TG"], tColor["TB"]);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tResultSlot;
 local tR;
 local tG;
 local tB;
@@ -855,6 +880,12 @@ local function VUHDO_applySortedValidatorsToTarget(aButton, aTarget, aTargetType
 
 			if tResult["isActive"] then
 				VUHDO_applyDispelColorByIndex(aTarget, aTargetType, aLayerTemplate, aButton["raidid"], tResultIdx);
+			end
+		elseif tType == "aura" then
+			tResult = aLayerTemplate["auraResults"][tResultIdx];
+
+			if tResult["isActive"] then
+				VUHDO_applyAuraColorByIndex(aTarget, aTargetType, aLayerTemplate, tResultIdx);
 			end
 		end
 	end

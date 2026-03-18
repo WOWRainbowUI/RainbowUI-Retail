@@ -389,7 +389,7 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 		};
 
 		if tPrivateAuraSetup["showBorder"] then
-			tIconSizePercent = tPrivateAuraSetup["iconSize"] or 20;
+			tIconSizePercent = tPrivateAuraSetup["iconSize"] or 40;
 
 			tBarHeight = tPanelSetup["SCALING"]["barHeight"];
 

@@ -365,11 +365,11 @@ function VUHDO_initLocalVars(aPanelNum)
 		tPrivateAura["durationOffsetX"] = 0;
 		tPrivateAura["durationOffsetY"] = 0;
 		tPrivateAura["showBorder"] = false;
-		tPrivateAura["iconSize"] = 20;
+		tPrivateAura["iconSize"] = 40;
 		tPrivateAura["frameLevel"] = 13;
 	end
 
-	tIconSizePercent = sPanelConfig[aPanelNum]["privateAura"]["iconSize"] or 20;
+	tIconSizePercent = sPanelConfig[aPanelNum]["privateAura"]["iconSize"] or 40;
 	tBarHeight = sPanelConfig[aPanelNum]["barScaling"]["barHeight"];
 
 	if tIconSizePercent > 100 then
