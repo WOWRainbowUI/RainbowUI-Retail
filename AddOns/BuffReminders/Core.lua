@@ -566,6 +566,7 @@ local AppearanceKeys = {
     spacing = true,
     iconZoom = true,
     borderSize = true,
+    growDirection = true,
     showExpirationGlow = true,
     expirationThreshold = true,
 }

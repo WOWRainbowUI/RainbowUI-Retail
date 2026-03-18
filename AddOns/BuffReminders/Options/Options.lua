@@ -117,7 +117,7 @@ end
 -- ============================================================================
 
 local function CreateOptionsPanel()
-    local panel = CreatePanel("BuffRemindersOptions", PANEL_WIDTH, 620, { escClose = true })
+    local panel = CreatePanel("BuffRemindersOptions", PANEL_WIDTH, 640, { escClose = true })
     panel:Hide()
 
     -- Forward declarations for banner system
@@ -289,7 +289,7 @@ local function CreateOptionsPanel()
     tabButtons.displayBehavior =
         Components.Tab(panel, { name = "displayBehavior", label = "顯示/行為", width = 110 })
     tabButtons.settings = Components.Tab(panel, { name = "settings", label = "設定", width = 65 })
-    tabButtons.profiles = Components.Tab(panel, { name = "profiles", label = "匯入/匯出", width = 65 })
+    tabButtons.profiles = Components.Tab(panel, { name = "profiles", label = "設定檔", width = 65 })
 
     -- Position tabs below title
     tabButtons.buffs:SetPoint("TOPLEFT", panel, "TOPLEFT", COL_PADDING, -30)
@@ -559,7 +559,7 @@ local function CreateOptionsPanel()
                         y,
                         spells,
                         buff.groupId,
-                        groupInfo.displayName,
+                        groupInfo and groupInfo.displayName or buff.name,
                         buff.infoTooltip,
                         displayIcon,
                         groupReadyCheckOnly[buff.groupId],
@@ -785,7 +785,7 @@ local function CreateOptionsPanel()
     end
 
     local defFontHolder = Components.Dropdown(displayBehaviorContent, {
-        label = "字體:",
+        label = "字體",
         labelWidth = 50,
         options = BuildFontOptions(),
         width = 200,
@@ -2249,7 +2249,7 @@ local function CreateOptionsPanel()
     setLayout:SetX(setX + HIDE_INDENT)
 
     local restingHolder = Components.Checkbox(settingsContent, {
-        label = "休息狀態時隱藏",
+        label = "休息狀態時",
         get = function()
             return BR.profile.hideWhileResting == true
         end,
@@ -2262,7 +2262,7 @@ local function CreateOptionsPanel()
     setLayout:Add(restingHolder, nil, COMPONENT_GAP)
 
     local combatHolder = Components.Checkbox(settingsContent, {
-        label = "戰鬥中隱藏",
+        label = "戰鬥中",
         get = function()
             return BR.profile.hideInCombat == true
         end,
@@ -2275,9 +2275,9 @@ local function CreateOptionsPanel()
     setLayout:Add(combatHolder, nil, COMPONENT_GAP)
 
     local combatExpiringHolder = Components.Checkbox(settingsContent, {
-        label = "只有戰鬥中過期的增益",
+        label = "戰鬥中過期",
         tooltip = {
-            title = "只有隱藏戰鬥中過期的增益",
+            title = "隱藏戰鬥中過期的增益",
             desc = "在戰鬥中，隱藏即將過期的增益效果，只顯示完全缺少的增益效果",
         },
         get = function()
@@ -2294,7 +2294,7 @@ local function CreateOptionsPanel()
     setLayout:Add(combatExpiringHolder, nil, COMPONENT_GAP)
 
     local vehicleHolder = Components.Checkbox(settingsContent, {
-        label = "載具中隱藏",
+        label = "載具中",
         tooltip = {
             title = "載具中隱藏",
             desc = "在任務載具中隱藏所有增益提醒。禁用後，團隊和在場增益仍然顯示",
@@ -2310,7 +2310,7 @@ local function CreateOptionsPanel()
     setLayout:Add(vehicleHolder, nil, COMPONENT_GAP)
 
     local mountedHolder = Components.Checkbox(settingsContent, {
-        label = "坐騎上隱藏",
+        label = "坐騎上",
         tooltip = {
             title = "坐騎上隱藏",
             desc = "上坐騎時隱藏所有增益提醒。覆蓋每個類別的寵物坐騎隱藏設定",
@@ -3256,8 +3256,8 @@ ShowGlowAdvanced = function(targetCategory)
     local function OnSettingChanged(_, path)
         if path == configPrefix .. "glowType" then
             BuildTypeContent()
-            end
         end
+    end
     BR.CallbackRegistry:RegisterCallback("SettingChanged", OnSettingChanged, panel)
 
     panel:SetScript("OnHide", function()
@@ -3273,7 +3273,7 @@ end
 StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
     text = '要刪除自訂增益 "%s" 嗎？',
     button1 = "刪除",
-    button2 = "取消",
+    button2 = CANCEL,
     OnAccept = function(_, data)
         if data and data.key then
             BR.profile.customBuffs[data.key] = nil
@@ -3588,7 +3588,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         local line = sectionsFrame:CreateTexture(nil, "ARTWORK")
         line:SetHeight(1)
         line:SetPoint("TOPLEFT", 0, secLayout:GetY())
-            line:SetPoint("RIGHT", 0, 0)
+        line:SetPoint("RIGHT", 0, 0)
         line:SetColorTexture(0.25, 0.25, 0.25, 0.8)
         secLayout:Space(1)
     end
