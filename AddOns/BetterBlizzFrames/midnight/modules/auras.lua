@@ -81,8 +81,10 @@ local cachedFocusCastBarXOffset = 0
 local cachedTargetCastBarScaleAdjustment = 0
 local cachedFocusCastBarScaleAdjustment = 0
 local cachedDynamicTargetCastBarYPos = 0
+local cachedDynamicFocusCastBarYPos = 0
 local auraCdTextSize = 0.55
 local showAuraCdText
+local auraCdTextOnlyMine
 local auraStackSize = 1
 
 local hideTargetBuffs
@@ -105,6 +107,7 @@ local function UpdateMore()
     hideFocusDebuffs = BetterBlizzFramesDB.hideFocusDebuffs
     auraCdTextSize = BetterBlizzFramesDB.auraCdTextSize
     showAuraCdText = BetterBlizzFramesDB.showAuraCdText
+    auraCdTextOnlyMine = BetterBlizzFramesDB.auraCdTextOnlyMine
     auraStackSize = BetterBlizzFramesDB.auraStackSize
     hideUnitframeAuraTooltips = BetterBlizzFramesDB.hideUnitframeAuraTooltips
     hidePlayerAuraTooltips = BetterBlizzFramesDB.hidePlayerAuraTooltips
@@ -126,6 +129,7 @@ local function UpdateMore()
     cachedTargetCastBarScaleAdjustment = 100 / targetCastBarScale
     cachedFocusCastBarScaleAdjustment = 100 / focusCastBarScale
     cachedDynamicTargetCastBarYPos = targetCastBarYPos + (targetAndFocusAuraOffsetY * 2)
+    cachedDynamicFocusCastBarYPos = focusCastBarYPos + (targetAndFocusAuraOffsetY * 2)
 end
 
 function BBF.UpdateUserAuraSettings()
@@ -188,7 +192,7 @@ local function adjustCastbar(self, frame)
     meta.ClearAllPoints(self)
     if frame == TargetFrameSpellBar then
         local buffsOnTop = parent.buffsOnTop
-        local yOffset = 14 + 5
+        local yOffset = 19
         if targetStaticCastbar then
             meta.SetPoint(self, "TOPLEFT", parent, "BOTTOMLEFT", cachedTargetCastBarXOffset, cachedTargetStaticCastBarYOffset);
         elseif targetDetachCastbar then
@@ -213,7 +217,7 @@ local function adjustCastbar(self, frame)
         end
     elseif frame == FocusFrameSpellBar then
         local buffsOnTop = parent.buffsOnTop
-        local yOffset = 14
+        local yOffset = 19
         if focusStaticCastbar then
             meta.SetPoint(self, "TOPLEFT", parent, "BOTTOMLEFT", cachedFocusCastBarXOffset, cachedFocusStaticCastBarYOffset);
         elseif focusDetachCastbar then
@@ -230,7 +234,11 @@ local function adjustCastbar(self, frame)
                 yOffset = min(minOffset, yOffset)
                 yOffset = yOffset + focusToTAdjustmentOffsetY
             end
-            meta.SetPoint(self, "TOPLEFT", parent, "BOTTOMLEFT", cachedFocusCastBarXOffset, focusCastBarYPos + yOffset);
+            if buffsOnTop then
+                meta.SetPoint(self, "TOPLEFT", parent, "BOTTOMLEFT", cachedFocusCastBarXOffset, focusCastBarYPos + yOffset);
+            else
+                meta.SetPoint(self, "TOPLEFT", parent, "BOTTOMLEFT", cachedFocusCastBarXOffset, cachedDynamicFocusCastBarYPos + yOffset);
+            end
         end
     end
 end
@@ -355,15 +363,33 @@ local function PlaceAuraGroup(self, list, forceNewRowAtStart, rowWidths, rowHeig
 
         aura:SetScale(auraScale)
         aura:SetAlpha(1)
-
-        if showAuraCdText then
-            aura.Cooldown:SetHideCountdownNumbers(false)
+        local isLargeAura
+        if showAuraCdText and auraCdTextOnlyMine then
+            if aura.bbfAuraInstanceID ~= aura.auraInstanceID then
+                aura.bbfIsLargeAura = aura:GetWidth() > 20
+                aura.bbfAuraInstanceID = aura.auraInstanceID
+            end
+            isLargeAura = aura.bbfIsLargeAura
+            if isLargeAura then
+                aura.Cooldown:SetHideCountdownNumbers(false)
+            else
+                aura.Cooldown:SetHideCountdownNumbers(true)
+            end
             local cdText = aura.Cooldown and aura.Cooldown:GetRegions()
             if cdText then
                 cdText:SetScale(auraCdTextSize)
             end
+        else
+            isLargeAura = aura:GetWidth() > 20
+            if showAuraCdText then
+                aura.Cooldown:SetHideCountdownNumbers(false)
+                local cdText = aura.Cooldown and aura.Cooldown:GetRegions()
+                if cdText then
+                    cdText:SetScale(auraCdTextSize)
+                end
+            end
         end
-        local size = aura:GetWidth() > 20 and 21 or cachedSmallAuraSize
+        local size = isLargeAura and 21 or cachedSmallAuraSize
         aura:SetSize(size, size)
         if hideUnitframeAuraTooltips then
             aura:EnableMouse(false)

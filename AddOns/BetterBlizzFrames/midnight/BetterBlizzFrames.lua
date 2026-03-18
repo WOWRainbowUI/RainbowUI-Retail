@@ -350,6 +350,7 @@ local defaultSettings = {
     partyFrameRangeAlpha = 0.55,
     partyFrameRangeAlphaSolidBackground = true,
     changePartyFrameRangeAlpha = true,
+    auraCdTextOnlyMine = true,
 }
 BBF.defaultSettings = defaultSettings
 
@@ -2221,9 +2222,10 @@ function BBF.MiniFrame(frame)
         manaBar:SetAlpha(0)
         frameTexture:SetParent(hiddenFrame)
         altTexture:SetParent(hiddenFrame)
-        if AlternatePowerBar then
-            AlternatePowerBar:SetParent(hiddenFrame)
-        end
+        -- if AlternatePowerBar then
+        --     AlternatePowerBar:SetParent(hiddenFrame) -- avoid doing on delay in this func due to SetParent call potentially being done while in combat
+        -- end
+        PlayerFrame.PlayerFrameContent.PlayerFrameContentContextual.PlayerPortraitCornerIcon:SetParent(hiddenFrame)
         PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.StatusTexture:SetParent(hiddenFrame)
         flash:SetAlpha(0)
         PlayerFrame.PlayerFrameContainer.PlayerPortraitMask:SetAtlas("CircleMask")
@@ -5203,10 +5205,14 @@ First:SetScript("OnEvent", function(_, event, addonName)
 
         BBF.MoveableFPSCounter(false, BetterBlizzFramesDB.fpsCounterFontOutline)
 
-        C_Timer.After(1, function()
-            if BetterBlizzFramesDB.enableBigDebuffs then
-                BBF.CreateBigDebuffs()
+        if BetterBlizzFramesDB.useMiniPlayerFrame then
+            if AlternatePowerBar then
+                AlternatePowerBar:SetParent(hiddenFrame)
             end
+        end
+
+        C_Timer.After(1, function()
+            BBF.CreateBigDebuffs()
             if BetterBlizzFramesDB.tempOmniCCFix then
                 BetterBlizzFramesDB.tempOmniCCFix = nil
             end
@@ -5351,6 +5357,20 @@ PlayerEnteringWorld:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 
 function BBF.CreateBigDebuffs()
+    if not BetterBlizzFramesDB.enableBigDebuffs then
+        if BBF.BigDebuffs then
+            BBF.BigDebuffs:UnregisterAllEvents()
+            BBF.BigDebuffs:SetScript("OnEvent", nil)
+            for _, frame in pairs({ PlayerFrame, TargetFrame, FocusFrame, PetFrame }) do
+                if frame.bbfBigDebuff then
+                    frame.bbfBigDebuff:Hide()
+                    frame.bbfBigDebuff.icon:SetTexture(nil)
+                    frame.bbfBigDebuff.cooldown:Clear()
+                end
+            end
+        end
+        return
+    end
     if C_AddOns.IsAddOnLoaded("MiniCC") or BetterBlizzFramesDB.noPortraitModes then return end
 
     local function CreateDebuffFrame(unitFrame, portraitMask)
@@ -5501,12 +5521,14 @@ function BBF.CreateBigDebuffs()
         pet = PetFrame,
     }
 
-    local updateFrame = CreateFrame("Frame")
-    updateFrame:RegisterUnitEvent("UNIT_AURA", "player", "target", "focus", "pet")
-    updateFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-    updateFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
-    updateFrame:RegisterEvent("UNIT_PET")
-    updateFrame:SetScript("OnEvent", function(_, event, unit, updateInfo)
+    if not BBF.BigDebuffs then
+        BBF.BigDebuffs = CreateFrame("Frame")
+    end
+    BBF.BigDebuffs:RegisterUnitEvent("UNIT_AURA", "player", "target", "focus", "pet")
+    BBF.BigDebuffs:RegisterEvent("PLAYER_TARGET_CHANGED")
+    BBF.BigDebuffs:RegisterEvent("PLAYER_FOCUS_CHANGED")
+    BBF.BigDebuffs:RegisterEvent("UNIT_PET")
+    BBF.BigDebuffs:SetScript("OnEvent", function(_, event, unit, updateInfo)
         if event == "UNIT_AURA" then
             local frame = unitToFrame[unit]
             if frame and frame.bbfBigDebuff then
