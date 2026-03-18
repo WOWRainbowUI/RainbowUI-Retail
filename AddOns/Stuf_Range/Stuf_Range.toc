@@ -1,7 +1,8 @@
-## Interface: 120005
+## Interface: 120001
 ## Title: Stuf_Range
 ## Author: TotalPackage
 ## Notes: Displays estimate distance using LibRangeCheck-3.0. for 12.0.5
+## Version: 12.0.5a
 
 ## DefaultState: disabled
 ## Dependencies: Stuf
