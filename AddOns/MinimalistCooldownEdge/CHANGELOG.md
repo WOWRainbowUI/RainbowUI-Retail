@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [3.5.0] - 2026-03-17
+
+### Improved
+- Better performance during cooldown styling.
+- New swipe animation option for action bars.
+- Cooldown visuals now stay in sync more reliably.
+
 ## [3.4.6] - 2026-03-15
 
 ### Fixed
