@@ -1,5 +1,4 @@
-### Changes in 120000.141-Release:
+### Changes in 120000.142-Release:
 
-- Changed: Update classic data
-- Fixed: Some taint errors
+- Fixed: Some more taints
 
