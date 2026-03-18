@@ -1,3 +1,3 @@
 ## Other Changes
-- Show all raids stacked when total bosses <= 10
-- Sort item by favorite, slot, id
+- Enhance character dropdown setup with scroll mode configuration
+- Merge branch 'main' of https://github.com/Wolkenschutz/KeystoneLoot
