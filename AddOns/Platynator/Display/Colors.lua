@@ -59,17 +59,6 @@ do
 end
 
 local executeCurve = addonTable.Display.Utilities.GetExecuteCurve()
-local gcdCurve
-if C_CurveUtil then
-  gcdCurve = C_CurveUtil.CreateCurve()
-  gcdCurve:SetType(Enum.LuaCurveType.Step)
-end
-local converterFor10 = UIParent:CreateTexture()
-
-local function Convert10ToBoolean(value)
-  converterFor10:SetDesaturation(value)
-  return converterFor10:IsDesaturated()
-end
 
 local GetInterruptSpells = addonTable.Display.Utilities.GetInterruptSpells
 
@@ -225,13 +214,8 @@ local kindToCallback = {
 
 function addonTable.Display.UnregisterForColorEvents(frame)
   if frame.colorState then
-    for _, s in ipairs(frame.colorSettings) do
-      local ec = kindToCallback[s.kind]
-      if ec then
-        for _, e in ipairs(ec) do
-          addonTable.CallbackRegistry:UnregisterCallback(e, frame.colorState)
-        end
-      end
+    for _, e in ipairs(frame.colorState.callbacks) do
+      addonTable.CallbackRegistry:UnregisterCallback(e, frame.colorState)
     end
     if frame.colorState.timer then
       frame.colorState.timer:Cancel()
@@ -240,16 +224,15 @@ function addonTable.Display.UnregisterForColorEvents(frame)
 
   frame.ColorEventHandler = nil
   frame.colorState = nil
-  frame.colorSettings = nil
 end
 
 function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor)
   local events = { FORCED = true }
   frame.colorState = {
     frequentUpdater = {},
-    isPlayer = UnitIsPlayer(frame.unit) or UnitTreatAsPlayerForDisplay and UnitTreatAsPlayerForDisplay(frame.unit)
+    isPlayer = UnitIsPlayer(frame.unit) or UnitTreatAsPlayerForDisplay and UnitTreatAsPlayerForDisplay(frame.unit),
+    callbacks = {},
   }
-  frame.colorSettings = settings
   frame.colorState.defaultColor = defaultColor or transparency
   for _, s in ipairs(settings) do
     local es = kindToEvent[s.kind]
@@ -271,6 +254,7 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
     local ec = kindToCallback[s.kind]
     if ec then
       for _, e in ipairs(ec) do
+        table.insert(frame.colorState.callbacks, e)
         addonTable.CallbackRegistry:RegisterCallback(e, function()
           frame:SetColor(addonTable.Display.GetColor(settings, frame.colorState, frame.unit))
         end, frame.colorState)
@@ -379,7 +363,7 @@ function addonTable.Display.GetColor(settings, state, unit)
             end
             break
           end
-        elseif classification == "normal" or classification == "trivial" then
+        elseif classification == "normal" or classification == "trivial" or classification == "minus" then
           table.insert(colorQueue, {color = s.colors.trivial})
           break
         end
@@ -443,7 +427,7 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "classColors" then
       if state.isPlayer then
         local _, class = UnitClass(unit)
-        table.insert(colorQueue, {color = RAID_CLASS_COLORS[class]})
+        table.insert(colorQueue, {color = s.colors[class] or RAID_CLASS_COLORS[class]})
         break
       end
     elseif s.kind == "reaction" then
@@ -471,57 +455,23 @@ function addonTable.Display.GetColor(settings, state, unit)
       if notInterruptible ~= nil then
         local interruptSpells, useGCD = GetInterruptSpells()
         state.frequentUpdater.interruptReady = true
-        if useGCD then -- Special case, warlocks with the grimoire: fel ravager
-          local gcdInfo = C_Spell.GetSpellCooldown(61304)
-          local gcdEnd = gcdInfo.startTime + gcdInfo.duration
-          if C_Spell.GetSpellCooldownDuration then
-            gcdCurve:ClearPoints()
-            gcdCurve:AddPoint(0, 1)
-            if gcdEnd ~= 0 then
-              local remaining = gcdEnd - GetTime()
-              gcdCurve:AddPoint(remaining, 1)
-              gcdCurve:AddPoint(remaining + 0.00001, 0)
-            else
-              gcdCurve:AddPoint(0, 1)
-              gcdCurve:AddPoint(0.00001, 0)
-            end
-            for _, spellID in ipairs(interruptSpells) do
-              local duration = C_Spell.GetSpellCooldownDuration(spellID)
-              table.insert(colorQueue, {state = {{value = Convert10ToBoolean(duration:EvaluateRemainingDuration(gcdCurve))}, {value = notInterruptible, invert = true}}, color = s.colors.ready})
-            end
-          else
-            local any = false
-            for _, spellID in ipairs(interruptSpells) do
-              local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
-              if notInterruptible == false and (cooldownInfo.startTime == 0 or cooldownInfo.startTime + cooldownInfo.duration - gcdEnd < 0) then
-                any = true
-                table.insert(colorQueue, {color = s.colors.ready})
-                break
-              end
-            end
-            if any then
+        if C_Spell.GetSpellCooldownDuration then
+          for _, spellID in ipairs(interruptSpells) do
+            local duration = C_Spell.GetSpellCooldownDuration(spellID)
+            table.insert(colorQueue, {state = {{value = duration:IsZero()}, {value = notInterruptible, invert = true}}, color = s.colors.ready})
+          end
+        elseif notInterruptible == false then
+          local any = false
+          for _, spellID in ipairs(interruptSpells) do
+            local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
+            if cooldownInfo.startTime == 0 then
+              any = true
+              table.insert(colorQueue, {color = s.colors.ready})
               break
             end
           end
-        else
-          if C_Spell.GetSpellCooldownDuration then
-            for _, spellID in ipairs(interruptSpells) do
-              local duration = C_Spell.GetSpellCooldownDuration(spellID)
-              table.insert(colorQueue, {state = {{value = duration:IsZero()}, {value = notInterruptible, invert = true}}, color = s.colors.ready})
-            end
-          elseif notInterruptible == false then
-            local any = false
-            for _, spellID in ipairs(interruptSpells) do
-              local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
-              if cooldownInfo.startTime == 0 then
-                any = true
-                table.insert(colorQueue, {color = s.colors.ready})
-                break
-              end
-            end
-            if any then
-              break
-            end
+          if any then
+            break
           end
         end
       end
@@ -537,60 +487,25 @@ function addonTable.Display.GetColor(settings, state, unit)
         local spells, useGCD = GetInterruptSpells()
         if #spells > 0 then
           state.frequentUpdater.interruptReady = true
-          if useGCD then -- Special case, warlocks with the grimoire: fel ravager
-            local gcdInfo = C_Spell.GetSpellCooldown(61304)
-            local gcdEnd = gcdInfo.startTime + gcdInfo.duration
-            if C_Spell.GetSpellCooldownDuration then
-              gcdCurve:ClearPoints()
-              if gcdEnd ~= 0 then
-                local remaining = gcdEnd - GetTime()
-                gcdCurve:AddPoint(remaining, 1)
-                gcdCurve:AddPoint(remaining + 0.00001, 0)
-              else
-                gcdCurve:AddPoint(0, 1)
-                gcdCurve:AddPoint(0.00001, 0)
-              end
-              local conditions = {{value = notInterruptible, invert = true}}
-              for _, spellID in ipairs(spells) do
-                local duration = C_Spell.GetSpellCooldownDuration(spellID)
-                table.insert(conditions, {value = Convert10ToBoolean(duration:EvaluateRemainingDuration(gcdCurve)), invert = true})
-              end
-              table.insert(colorQueue, {state = conditions, color = s.colors.notReady})
-            elseif notInterruptible == false then
-              local any = false
-              for _, spellID in ipairs(spells) do
-                local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
-                if cooldownInfo.startTime == 0 or cooldownInfo.startTime + cooldownInfo.duration - gcdEnd < 0 then
-                  any = true
-                  break
-                end
-              end
-              if not any then
-                table.insert(colorQueue, {color = s.colors.notReady})
+          if C_Spell.GetSpellCooldownDuration then
+            local conditions = {{value = notInterruptible, invert = true}}
+            for _, spellID in ipairs(spells) do
+              local duration = C_Spell.GetSpellCooldownDuration(spellID)
+              table.insert(conditions, {value = duration:IsZero(), invert = true})
+            end
+            table.insert(colorQueue, {state = conditions, color = s.colors.notReady})
+          elseif notInterruptible == false then
+            local any = false
+            for _, spellID in ipairs(spells) do
+              local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
+              if cooldownInfo.startTime == 0 then
+                any = true
                 break
               end
             end
-          else
-            if C_Spell.GetSpellCooldownDuration then
-              local conditions = {{value = notInterruptible, invert = true}}
-              for _, spellID in ipairs(spells) do
-                local duration = C_Spell.GetSpellCooldownDuration(spellID)
-                table.insert(conditions, {value = duration:IsZero(), invert = true})
-              end
-              table.insert(colorQueue, {state = conditions, color = s.colors.notReady})
-            elseif notInterruptible == false then
-              local any = false
-              for _, spellID in ipairs(spells) do
-                local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
-                if cooldownInfo.startTime == 0 then
-                  any = true
-                  break
-                end
-              end
-              if not any then
-                table.insert(colorQueue, {color = s.colors.notReady})
-                break
-              end
+            if not any then
+              table.insert(colorQueue, {color = s.colors.notReady})
+              break
             end
           end
         end
@@ -661,8 +576,9 @@ function addonTable.Display.GetColor(settings, state, unit)
       local executeRange = addonTable.Display.Utilities.GetExecuteRange()
       if executeRange > 0 then
         if UnitHealthPercent then
-          local alpha = UnitHealthPercent(unit, true, executeCurve)
-          table.insert(colorQueue, {state = {{value = Convert10ToBoolean(alpha)}}, color = s.colors.execute})
+          -- Unable to do the execute colour currently, waiting on a solution from Blizzard
+          --local alpha = UnitHealthPercent(unit, true, executeCurve)
+          --table.insert(colorQueue, {state = {{value = Convert10ToBoolean(alpha)}}, color = s.colors.execute})
         else
           local percent = UnitHealth(unit) / UnitHealthMax(unit)
           if percent <= addonTable.Display.Utilities.GetExecuteRange() then
