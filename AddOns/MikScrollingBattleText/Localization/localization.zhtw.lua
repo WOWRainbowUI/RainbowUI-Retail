@@ -1,79 +1,45 @@
--------------------------------------------------------------------------------
--- Title: Mik's Scrolling Battle Text Traditional Chinese Localization
--- Author: Mikord
--- Traditional Chinese Translation by: 世界之樹-Myth, yleaf(yaroot@gmail.com)
--------------------------------------------------------------------------------
-
--- Don't do anything if the locale isn't Traditional Chinese.
+﻿
 if (GetLocale() ~= "zhTW") then return end
 
--- Local reference for faster access.
 local L = MikSBT.translations
-
--------------------------------------------------------------------------------
--- Traditional Chinese localization
--------------------------------------------------------------------------------
-
-------------------------------
--- Fonts
-------------------------------
 
 L.FONT_FILES["MSBT bKAI00M"] = "Fonts\\bKAI00M.TTF"
 
 L.DEFAULT_FONT_NAME = "MSBT bKAI00M"
 
-
-------------------------------
--- Commands
-------------------------------
-
 L.COMMAND_USAGE = {
-	"使用方法: " .. MikSBT.COMMAND .. " <指令> [參數]",
-	" 指令:",
-	"  " .. L.COMMAND_RESET .. " - 重置",
-	"  " .. L.COMMAND_DISABLE .. " - 停用",
-	"  " .. L.COMMAND_ENABLE .. " - 啟用",
-	"  " .. L.COMMAND_SHOWVER .. " - 顯示目前版本",
-	"  " .. L.COMMAND_HELP .. " - 幫助",
+	"ä½¿ç”¨æ–¹æ³•: " .. MikSBT.COMMAND .. " <æŒ‡ä»¤> [åƒæ•¸]",
+	" æŒ‡ä»¤:",
+	"  " .. L.COMMAND_RESET .. " - é‡ç½®",
+	"  " .. L.COMMAND_DISABLE .. " - åœç”¨",
+	"  " .. L.COMMAND_ENABLE .. " - å•Ÿç”¨",
+	"  " .. L.COMMAND_SHOWVER .. " - é¡¯ç¤ºç›®å‰ç‰ˆæœ¬",
+	"  " .. L.COMMAND_HELP .. " - å¹«åŠ©",
 }
 
+L.MSG_DISABLE				= "åœç”¨æ’ä»¶."
+L.MSG_ENABLE				= "å•Ÿç”¨æ’ä»¶."
+L.MSG_PROFILE_RESET			= "é‡ç½®è¨­å®š"
+L.MSG_HITS					= "æ“Šä¸­"
+L.MSG_CRIT					= "çˆ†æ“Š"
+L.MSG_CRITS					= "çˆ†æ“Š"
+L.MSG_MULTIPLE_TARGETS		= "å¤šæ•¸ç›®æ¨™"
+L.MSG_READY_NOW				= "æº–å‚™å®Œç•¢"
 
-------------------------------
--- Output messages
-------------------------------
+L.MSG_INCOMING			= "æ‰¿å—å‚·å®³"
+L.MSG_OUTGOING			= "è¼¸å‡ºå‚·å®³"
+L.MSG_NOTIFICATION		= "é€šçŸ¥è¨Šæ¯"
+L.MSG_STATIC			= "éœæ…‹è¨Šæ¯"
 
-L.MSG_DISABLE				= "停用插件."
-L.MSG_ENABLE				= "啟用插件."
-L.MSG_PROFILE_RESET			= "重置設定"
-L.MSG_HITS					= "擊中"
-L.MSG_CRIT					= "爆擊"
-L.MSG_CRITS					= "爆擊"
-L.MSG_MULTIPLE_TARGETS		= "多數目標"
-L.MSG_READY_NOW				= "準備完畢"
+L.MSG_COMBAT					= "æˆ°é¬¥"
+L.MSG_DISPEL					= "é©…æ•£é­”æ³•"
 
+L.MSG_CP						= "é€£æ“Šé»ž"
+L.MSG_CP_FULL					= "çµ‚çµæŠ€"
+L.MSG_HOLY_POWER_FULL			= "æ»¿è–èƒ½"
 
-------------------------------
--- Scroll area names
-------------------------------
+L.MSG_KILLING_BLOW				= "æ“Šæ®º"
+L.MSG_TRIGGER_LOW_HEALTH		= "ç”Ÿå‘½å€¼åä½Ž"
+L.MSG_TRIGGER_LOW_MANA			= "æ³•åŠ›å€¼åä½Ž"
+L.MSG_TRIGGER_LOW_PET_HEALTH	= "å¯µç‰©ç”Ÿå‘½åä½Ž"
 
-L.MSG_INCOMING			= "承受傷害"
-L.MSG_OUTGOING			= "輸出傷害"
-L.MSG_NOTIFICATION		= "通知訊息"
-L.MSG_STATIC			= "靜態訊息"
-
-
----------------------------------------
--- Master profile event output messages
----------------------------------------
-
-L.MSG_COMBAT					= "戰鬥"
-L.MSG_DISPEL					= "驅散魔法"
---L.MSG_CHI_FULL					= "Full Chi"
-L.MSG_CP						= "連擊點"
-L.MSG_CP_FULL					= "終結技"
-L.MSG_HOLY_POWER_FULL			= "滿聖能"
---L.MSG_SHADOW_ORBS_FULL			= "Full Shadow Orbs"
-L.MSG_KILLING_BLOW				= "擊殺"
-L.MSG_TRIGGER_LOW_HEALTH		= "生命值偏低"
-L.MSG_TRIGGER_LOW_MANA			= "法力值偏低"
-L.MSG_TRIGGER_LOW_PET_HEALTH	= "寵物生命偏低"

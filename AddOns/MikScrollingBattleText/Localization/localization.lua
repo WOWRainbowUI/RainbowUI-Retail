@@ -1,18 +1,5 @@
--------------------------------------------------------------------------------
--- Title: Mik's Scrolling Battle Text Localization
--- Author: Mikord
--------------------------------------------------------------------------------
-
--- Local reference for faster access.
+﻿
 local L = MikSBT.translations
-
--------------------------------------------------------------------------------
--- English localization (Default)
--------------------------------------------------------------------------------
-
-------------------------------
--- Fonts
-------------------------------
 
 L.FONT_FILES = {
 	["MSBT Adventure"]		= "Interface\\Addons\\MikScrollingBattleText\\Fonts\\adventure.ttf",
@@ -28,11 +15,6 @@ L.FONT_FILES = {
 }
 
 L.DEFAULT_FONT_NAME = "MSBT Porky"
-
-
-------------------------------
--- Commands
-------------------------------
 
 L.COMMAND_RESET		= "reset"
 L.COMMAND_DISABLE	= "disable"
@@ -52,11 +34,6 @@ L.COMMAND_USAGE = {
 
 L.COSMIC			= "Cosmic"
 
-
-------------------------------
--- Output messages
-------------------------------
-
 L.MSG_DISABLE				= "Mod disabled."
 L.MSG_ENABLE				= "Mod enabled."
 L.MSG_PROFILE_RESET			= "Profile Reset"
@@ -66,20 +43,10 @@ L.MSG_CRITS					= "Crits"
 L.MSG_MULTIPLE_TARGETS		= "Multiple"
 L.MSG_READY_NOW				= "Ready Now"
 
-
-------------------------------
--- Scroll area names
-------------------------------
-
 L.MSG_INCOMING			= "Incoming"
 L.MSG_OUTGOING			= "Outgoing"
 L.MSG_NOTIFICATION		= "Notification"
 L.MSG_STATIC			= "Static"
-
-
-----------------------------------------
--- Master profile event output messages
-----------------------------------------
 
 L.MSG_COMBAT					= "Combat"
 L.MSG_DISPEL					= "Dispel"
@@ -96,3 +63,4 @@ L.MSG_KILLING_BLOW				= "Killing Blow"
 L.MSG_TRIGGER_LOW_HEALTH		= "Low Health"
 L.MSG_TRIGGER_LOW_MANA			= "Low Mana"
 L.MSG_TRIGGER_LOW_PET_HEALTH	= "Low Pet Health"
+

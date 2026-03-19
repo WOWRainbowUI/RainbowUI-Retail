@@ -684,6 +684,31 @@ local function GeneralTab_ToggleDeleteButton()
 	end
 end
 
+local BLIZZARD_COMBAT_TEXT_V2_CVARS = {
+	"floatingCombatTextCombatHealing_v2",
+	"floatingCombatTextCombatDamage_v2",
+	"floatingCombatTextCombatLogPeriodicSpells_v2",
+	"floatingCombatTextPetMeleeDamage_v2",
+	"floatingCombatTextPetSpellDamage_v2",
+}
+
+local function GeneralTab_SetBlizzardCombatTextV2Enabled(isEnabled)
+	local value = isEnabled and 1 or 0
+	for _, cvarName in ipairs(BLIZZARD_COMBAT_TEXT_V2_CVARS) do
+		SetCVar(cvarName, value)
+	end
+end
+
+local function GeneralTab_IsBlizzardCombatTextV2Enabled()
+	for _, cvarName in ipairs(BLIZZARD_COMBAT_TEXT_V2_CVARS) do
+		local cvarValue = GetCVar(cvarName)
+		if cvarValue == nil or tonumber(cvarValue) == 0 then
+			return false
+		end
+	end
+	return true
+end
+
 
 -- ****************************************************************************
 -- Enables the controls on the general tab.
@@ -705,25 +730,12 @@ local function GeneralTab_Populate()
 	local controls = tabFrames.general.controls
 
 	controls.enableCheckbox:SetChecked(not MSBTProfiles.IsModDisabled())
-	if GetCVar("floatingCombatTextCombatDamage") == "0" then
-		controls.enableBlizzardDamage:SetChecked(false)
-		currentProfile.enableBlizzardDamage = false
-	else
-		controls.enableBlizzardDamage:SetChecked(true)
-		currentProfile.enableBlizzardDamage = true
-	end
-	if not IsClassic then
-		if GetCVar("floatingCombatTextCombatHealing") == "0" then
-			controls.enableBlizzardHealing:SetChecked(false)
-			currentProfile.enableBlizzardHealing = false
-		else
-			controls.enableBlizzardHealing:SetChecked(true)
-			currentProfile.enableBlizzardHealing = true
-		end
-	end
 	controls.stickyCritsCheckbox:SetChecked(not currentProfile.stickyCritsDisabled)
 	controls.enableSoundsCheckbox:SetChecked(not currentProfile.soundsDisabled)
 	controls.textShadowingCheckbox:SetChecked(not currentProfile.textShadowingDisabled)
+	if controls.blizzardCombatTextV2Checkbox then
+		controls.blizzardCombatTextV2Checkbox:SetChecked(GeneralTab_IsBlizzardCombatTextV2Enabled())
+	end
 	controls.animationSpeedSlider:SetValue(currentProfile.animationSpeed)
 end
 
@@ -827,53 +839,23 @@ local function GeneralTab_Create()
 	)
 	controls.enableCheckbox = checkbox
 
-	-- Enable Blizzard Damage.
+	-- Blizzard floating combat text (v2) checkbox.
 	checkbox = MSBTControls.CreateCheckbox(tabFrame)
-	objLocale = L.CHECKBOXES["enableBlizzardDamage"]
+	objLocale = L.CHECKBOXES["enableBlizzardV2CombatText"] or { label = "Enable Blizzard Combat Text", tooltip = "Enable Blizzard floating combat text damage/healing (v2)." }
 	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("LEFT", controls.enableCheckbox, "RIGHT", 30, 0)
+	checkbox:SetPoint("TOPLEFT", controls.enableCheckbox, "BOTTOMLEFT", 0, -5)
 	checkbox:SetClickHandler(
 		function (this, isChecked)
-			if InCombatLockdown() then
-				return
-			end
-			MSBTProfiles.SetOption(nil, "enableBlizzardDamage", not isChecked)
-			if isChecked then
-				SetCVar("floatingCombatTextCombatDamage", 1)
-			else
-				SetCVar("floatingCombatTextCombatDamage", 0)
-			end
+			GeneralTab_SetBlizzardCombatTextV2Enabled(isChecked)
 		end
 	)
-	controls.enableBlizzardDamage = checkbox
-
-	-- Enable Blizzard healing.
-	if not IsClassic then
-		checkbox = MSBTControls.CreateCheckbox(tabFrame)
-		objLocale = L.CHECKBOXES["enableBlizzardHealing"]
-		checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-		checkbox:SetPoint("TOPLEFT", controls.enableBlizzardDamage, "BOTTOMLEFT", 0, 0)
-		checkbox:SetClickHandler(
-			function (this, isChecked)
-				if InCombatLockdown() then
-					return
-				end
-				MSBTProfiles.SetOption(nil, "enableBlizzardHealing", not isChecked)
-				if isChecked then
-					SetCVar("floatingCombatTextCombatHealing", 1)
-				else
-					SetCVar("floatingCombatTextCombatHealing", 0)
-				end
-			end
-		)
-		controls.enableBlizzardHealing = checkbox
-	end
+	controls.blizzardCombatTextV2Checkbox = checkbox
 
 	-- Profile dropdown.
 	local dropdown = MSBTControls.CreateDropdown(tabFrame)
 	objLocale = L.DROPDOWNS["profile"]
 	dropdown:Configure(180, objLocale.label, objLocale.tooltip)
-	dropdown:SetPoint("TOPLEFT", controls.enableCheckbox, "BOTTOMLEFT", 0, -30)
+	dropdown:SetPoint("TOPLEFT", controls.blizzardCombatTextV2Checkbox, "BOTTOMLEFT", 0, -25)
 	dropdown:SetChangeHandler(
 		function (this, id)
 			MSBTProfiles.SelectProfile(id)
@@ -3898,13 +3880,7 @@ tabFrame:SetScript("OnShow", TriggersTab_OnShow)
 tabFrames.triggers = tabFrame
 MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
 
--- Create an empty frame for the spam tab that will be dynamically created when shown.
-objLocale = L.TABS.spamControl
-tabFrame = CreateFrame("Frame")
-tabFrame:Hide()
-tabFrame:SetScript("OnShow", SpamTab_OnShow)
-tabFrames.spam = tabFrame
-MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
+-- Spam Control tab intentionally removed from MSBT Options UI.
 
 -- Create an empty frame for the cooldowns tab that will be dynamically created when shown.
 objLocale = L.TABS.cooldowns
@@ -3929,3 +3905,4 @@ tabFrame:Hide()
 tabFrame:SetScript("OnShow", SkillIconsTab_OnShow)
 tabFrames.skillIcons = tabFrame
 MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
+

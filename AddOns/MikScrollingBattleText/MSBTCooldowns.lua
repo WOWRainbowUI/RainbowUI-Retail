@@ -1,529 +1,497 @@
---- START OF FILE MSBTCooldowns.lua ---
-
--------------------------------------------------------------------------------
--- Title: Mik's Scrolling Battle Text Cooldowns
--- Author: Mikord
--- Restoration: WoW 12.0.1 (Midnight) - The "Learning Cache" (Combat Fix)
--------------------------------------------------------------------------------
-
+﻿
 local module = {}
 local moduleName = "Cooldowns"
 MikSBT[moduleName] = module
 
--- [[ DEBUG SETTINGS ]]
-local DEBUG_MODE = false
-
--------------------------------------------------------------------------------
--- Imports
--------------------------------------------------------------------------------
 local MSBTProfiles = MikSBT.Profiles
 local MSBTTriggers = MikSBT.Triggers
 
 local string_gsub = string.gsub
+local string_find = string.find
 local string_format = string.format
 local string_match = string.match
 local GetItemInfo = C_Item.GetItemInfo
+
 local EraseTable = MikSBT.EraseTable
+local GetSkillName = MikSBT.GetSkillName
+local GetSpellCooldown = MikSBT.GetSpellCooldown
+local GetSpellInfo = MikSBT.GetSpellInfo
 local GetSpellTexture = MikSBT.GetSpellTexture
+local IsRestrictedContext = MikSBT.IsRestrictedContext
+local Print = MikSBT.Print
 local DisplayEvent = MikSBT.Animations.DisplayEvent
 local HandleCooldowns = MSBTTriggers.HandleCooldowns
-local pcall = pcall
 
--------------------------------------------------------------------------------
--- Constants
--------------------------------------------------------------------------------
 local MIN_COOLDOWN_UPDATE_DELAY = 0.1
-local MAX_COOLDOWN_UPDATE_DELAY = 0.5 
-local GCD_DURATION = 1.6 
+local MAX_COOLDOWN_UPDATE_DELAY = 1
 
--- Fallback DB (Pre-seeded with your requests)
-local MANUAL_COOLDOWNS = {
-    [57994] = 30,  -- Wind Shear
-    [192058] = 45, -- Capacitor Totem
-    [51514] = 12,  -- Hex
-    [378081] = 60, -- Nature's Swiftness
-}
+local SPELLID_COLD_SNAP		= 11958
+local SPELLID_MIND_FREEZE	= 47528
+local SPELLID_PREPARATION	= 14185
+local SPELLID_READINESS		= 23989
 
--------------------------------------------------------------------------------
--- Variables
--------------------------------------------------------------------------------
+local RUNE_COOLDOWN = 10
+
+local _
+
 local eventFrame = CreateFrame("Frame")
+
+local playerClass
+
 local activeCooldowns = {player={}, pet={}, item={}}
-local pendingSpells = {} 
+local delayedCooldowns = {player={}, pet={}, item={}}
+local resetAbilities = {}
+local runeCooldownAbilities = {}
+local lastCooldownIDs = {}
 local watchItemIDs = {}
-local spellIDCache = {} 
--- The Learning Cache: Stores the Max Duration of spells seen Out of Combat
--- [SpellID] = Duration (e.g., [61295] = 6)
-local durationCache = {} 
+
 local updateDelay = MIN_COOLDOWN_UPDATE_DELAY
 local lastUpdate = 0
+
 local itemCooldownsEnabled = true
-
--------------------------------------------------------------------------------
--- 12.0.1 API Helpers
--------------------------------------------------------------------------------
-local function DebugPrint(...)
-    if DEBUG_MODE then print("|cff00ffff[MSBT]|r", ...) end
-end
-
-print("|cff00ffff[MSBT]|r Cooldowns 12.0.1: Learning Cache Active")
-
-local function IsSecret(value)
-    if issecretvalue then return issecretvalue(value) end
-    return false
-end
-
-local function GetSpellNameSafe(identifier)
-    if C_Spell and C_Spell.GetSpellInfo then
-        local info = C_Spell.GetSpellInfo(identifier)
-        if info and info.name then return info.name end
-    end
-    if _G.GetSpellInfo then return _G.GetSpellInfo(identifier) end
-    return tostring(identifier)
-end
-
-local function ResolveSpellID(spellName)
-    if type(spellName) == "number" then return spellName end
-    if spellIDCache[spellName] then return spellIDCache[spellName] end
-
-    if C_Spell and C_Spell.GetSpellInfo then
-        local info = C_Spell.GetSpellInfo(spellName)
-        if info and info.spellID then
-            spellIDCache[spellName] = info.spellID
-            return info.spellID
-        end
-    end
-    
-    local link
-    if C_Spell and C_Spell.GetSpellLink then link = C_Spell.GetSpellLink(spellName)
-    elseif _G.GetSpellLink then link = _G.GetSpellLink(spellName) end
-    
-    if link then
-        local id = string_match(link, "spell:(%d+)")
-        if id then
-            spellIDCache[spellName] = tonumber(id)
-            return tonumber(id)
-        end
-    end
-
-    return nil
-end
-
-local function GetSpellCooldownSafe(identifier)
-    if not identifier then return 0, 0, 0 end
-    
-    if type(identifier) == "string" and _G.GetSpellCooldown then
-        local start, duration, enabled = _G.GetSpellCooldown(identifier)
-        if start and duration and duration > GCD_DURATION then 
-            return start, duration, enabled 
-        end
-    end
-
-    local spellID = ResolveSpellID(identifier)
-    if spellID and C_Spell and C_Spell.GetSpellCooldown then
-        local info = C_Spell.GetSpellCooldown(spellID)
-        if info then
-            if IsSecret(info.startTime) or IsSecret(info.duration) then return 0, 0, 0 end
-            local enabled = (info.isEnabled == true) and 1 or 0
-            if info.duration and info.duration > GCD_DURATION then
-                return info.startTime, info.duration, enabled
-            end
-        end
-    end
-
-    return 0, 0, 0
-end
-
-local function GetSpellChargesSafe(identifier)
-    local spellID = ResolveSpellID(identifier)
-    if not spellID then return nil end
-
-    if C_Spell and C_Spell.GetSpellCharges then
-        local info = C_Spell.GetSpellCharges(spellID)
-        if info then
-             if IsSecret(info.cooldownStartTime) or IsSecret(info.cooldownDuration) then return nil end
-             return info.currentCharges, info.maxCharges, info.cooldownStartTime, info.cooldownDuration
-        end
-    end
-    if _G.GetSpellCharges then return _G.GetSpellCharges(spellID) end
-    return nil
-end
+local playerCooldownsEnabled = false
+local petCooldownsEnabled = false
+local cooldownsRestricted
+local cooldownsDisabledNoticeShown
 
 local function GetCooldownTexture(cooldownType, cooldownID)
-    if cooldownType == "item" then
-        local _, _, _, _, _, _, _, _, _, itemTexture = GetItemInfo(cooldownID)
-        return itemTexture
-    else
-        local iconID = GetSpellTexture(cooldownID)
-        if iconID then return iconID end
-        local name = GetSpellNameSafe(cooldownID)
-        return GetSpellTexture(name)
-    end
+	if cooldownType == "item" then
+		local _, _, _, _, _, _, _, _, _, itemTexture = GetItemInfo(cooldownID)
+		return itemTexture
+	else
+		local iconID = GetSpellTexture(cooldownID)
+		if iconID then
+			return iconID
+		else
+			return GetSpellInfo(cooldownID)
+		end
+	end
 end
 
-local function FireNotification(cooldownType, cooldownID, infoFunc)
-    local cooldownName = infoFunc(cooldownID) or "Unknown"
-    local texture = GetCooldownTexture(cooldownType, cooldownID)
-    
-    HandleCooldowns(cooldownType, cooldownID, cooldownName, texture)
-
-    local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_COOLDOWN
-    if cooldownType == "pet" then eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_PET_COOLDOWN
-    elseif cooldownType == "item" then eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_ITEM_COOLDOWN
-    end
-
-    if eventSettings and not eventSettings.disabled then
-        local message = eventSettings.message
-        local formattedSkillName = string_format("|cFF%02x%02x%02x%s|r", eventSettings.skillColorR * 255, eventSettings.skillColorG * 255, eventSettings.skillColorB * 255, string_gsub(cooldownName, "%(.+%)%(%)$", ""))
-        message = string_gsub(message, "%%e", formattedSkillName)
-        DisplayEvent(eventSettings, message, texture)
-    end
-    DebugPrint("Notification Fired:", cooldownName)
-end
-
--------------------------------------------------------------------------------
--- Logic
--------------------------------------------------------------------------------
-
-local function TrackActiveCooldown(unitID, spellID, duration, startTime, isManual)
-    local cooldownName = GetSpellNameSafe(spellID)
-    local ignoreThreshold = MSBTProfiles.currentProfile.ignoreCooldownThreshold
-    local threshold = MSBTProfiles.currentProfile.cooldownThreshold or 3
-
-    if duration <= GCD_DURATION and not ignoreThreshold[cooldownName] and not ignoreThreshold[spellID] then
-        return false
-    end
-    
-    -- CACHE THE DURATION (The Learning Phase)
-    -- If we see a valid duration, save it. This allows us to use it later in combat when the API fails.
-    if duration > GCD_DURATION and type(spellID) == "number" then
-        if not durationCache[spellID] then
-            DebugPrint("Learned Cooldown:", cooldownName, duration.."s")
-        end
-        durationCache[spellID] = duration
-    end
-    
-    local currentTime = GetTime()
-    local endTime = startTime + duration
-    
-    if activeCooldowns[unitID][spellID] then
-        local oldEnd = activeCooldowns[unitID][spellID].endTime
-        if math.abs(oldEnd - endTime) < 0.5 then return true end
-        if endTime < oldEnd and duration > GCD_DURATION then return true end
-    end
-
-    if duration >= threshold or ignoreThreshold[cooldownName] or ignoreThreshold[spellID] then
-        activeCooldowns[unitID][spellID] = {
-            endTime = endTime,
-            duration = duration,
-            added = currentTime,
-            isManual = isManual
-        }
-        updateDelay = MIN_COOLDOWN_UPDATE_DELAY
-        if not eventFrame:IsVisible() then eventFrame:Show() end
-        DebugPrint("Tracking:", cooldownName, duration.."s", isManual and "(Manual/Cache)" or "")
-        return true
-    end
-    return false
-end
-
--- ACTION BAR SCANNER (Populates Cache on Login)
-local function ScanActionBars()
-    DebugPrint("Scanning Action Bars (Cache Learning)...")
-    for i = 1, 120 do
-        local type, id = GetActionInfo(i)
-        if type == "spell" or type == "macro" then
-            local start, duration, enable, modRate = GetActionCooldown(i)
-            
-            -- Track if active
-            if start and duration > GCD_DURATION and enable == 1 then
-                local spellID = (type == "spell") and id or ResolveSpellID(GetActionText(i))
-                if spellID then
-                    TrackActiveCooldown("player", spellID, duration, start)
-                end
-            end
-            
-            -- Learn (even if not on CD, we might be able to get info via C_SpellBook later if we expanded logic,
-            -- but for now we learn from active CDs or just let them happen naturally)
-        end
-    end
-end
-
-local function ScanAllCooldowns()
-    ScanActionBars()
-    
-    local function scanInv()
-        for i = 1, 19 do
-            local start, duration, enable = GetInventoryItemCooldown("player", i)
-            if start and duration > GCD_DURATION and enable == 1 then
-                local itemID = GetInventoryItemID("player", i)
-                if itemID then TrackActiveCooldown("item", itemID, duration, start) end
-            end
-        end
-    end
-    pcall(scanInv)
+local function NormalizeNumber(value)
+	local ok, result = pcall(function()
+		return value + 0
+	end)
+	if ok and type(result) == "number" then
+		return result
+	end
+	return nil
 end
 
 local function OnSpellCast(unitID, spellID)
-    local spellName = GetSpellNameSafe(spellID)
-    local cooldownExclusions = MSBTProfiles.currentProfile.cooldownExclusions
-    if cooldownExclusions[spellName] or cooldownExclusions[spellID] then return end
+	if cooldownsRestricted then
+		return
+	end
 
-    DebugPrint("Cast:", spellName, "("..spellID..")")
+	local spellName = GetSpellInfo(spellID) or UNKNOWN
+	local cooldownExclusions = MSBTProfiles.currentProfile.cooldownExclusions
+	if cooldownExclusions[spellName] or cooldownExclusions[spellID] then
+		return
+	end
 
-    local startTime, duration, enabled = GetSpellCooldownSafe(spellID)
-    
-    -- Fallbacks
-    if (not duration or duration <= GCD_DURATION) and spellName ~= "Unknown" then
-        local st2, dur2, en2 = GetSpellCooldownSafe(spellName)
-        if dur2 and dur2 > GCD_DURATION then
-            startTime, duration, enabled = st2, dur2, en2
-            spellID = spellName 
-            DebugPrint(" -> Found via String Name")
-        end
-    end
+	if resetAbilities[spellID] and unitID == "player" then
+		for spellID, remainingDuration in pairs(activeCooldowns[unitID]) do
+			local startTime, duration = GetSpellCooldown(spellID)
+			duration = NormalizeNumber(duration)
+			if duration and duration <= 1.5 and remainingDuration > 1.5 then
+				activeCooldowns[unitID][spellID] = nil
+			end
 
-    if (not duration or duration <= GCD_DURATION) then
-        local current, max, chargeStart, chargeDur = GetSpellChargesSafe(spellID)
-        if not chargeDur and spellName ~= "Unknown" then
-             current, max, chargeStart, chargeDur = GetSpellChargesSafe(spellName)
-             if chargeDur then spellID = spellName end
-        end
-        if chargeDur and chargeDur > GCD_DURATION and current < max then
-            startTime = chargeStart
-            duration = chargeDur
-            enabled = 1
-            DebugPrint(" -> Found Charge CD:", duration)
-        end
-    end
+			updateDelay = MIN_COOLDOWN_UPDATE_DELAY
+		end
+	end
 
-    -- THE CACHE CHECK (Combat Fix)
-    -- If API failed (likely due to Combat Secret), check if we know this spell from before.
-    if (not duration or duration <= GCD_DURATION) then
-        local cachedDur = nil
-        
-        -- Check Manual DB
-        if MANUAL_COOLDOWNS[spellID] then cachedDur = MANUAL_COOLDOWNS[spellID] end
-        
-        -- Check Learned Cache
-        if not cachedDur and durationCache[spellID] then 
-            cachedDur = durationCache[spellID] 
-        end
-        
-        -- Check Resolved ID Cache
-        if not cachedDur then
-            local rid = ResolveSpellID(spellName)
-            if rid and durationCache[rid] then cachedDur = durationCache[rid] end
-        end
+	lastCooldownIDs[unitID] = spellID
+end
 
-        if cachedDur then
-            TrackActiveCooldown(unitID, spellID, cachedDur, GetTime(), true) -- true = Manual/Blind
-            return
-        end
-    end
+local function OnItemUse(itemID)
+	if cooldownsRestricted then
+		return
+	end
 
-    if enabled == 1 and duration and duration > GCD_DURATION then
-        TrackActiveCooldown(unitID, spellID, duration, startTime)
-    else
-        pendingSpells[spellID] = { 
-            unit = unitID,
-            id = spellID, 
-            name = spellName,
-            time = GetTime() 
-        }
-        if not eventFrame:IsVisible() then eventFrame:Show() end
-    end
+	local itemName = GetItemInfo(itemID)
+	local cooldownExclusions = MSBTProfiles.currentProfile.cooldownExclusions
+	if cooldownExclusions[itemName] or cooldownExclusions[itemID] then
+		return
+	end
+
+	watchItemIDs[itemID] = GetTime()
+
+	updateDelay = MIN_COOLDOWN_UPDATE_DELAY
+
+	if not eventFrame:IsVisible() then
+		eventFrame:Show()
+	end
+end
+
+local function OnUpdateCooldown(cooldownType, cooldownFunc)
+	if cooldownsRestricted then
+		return
+	end
+
+	if not delayedCooldowns[cooldownType] or not activeCooldowns[cooldownType] then
+		return
+	end
+
+	for cooldownID in pairs(delayedCooldowns[cooldownType]) do
+		local startTime, duration = cooldownFunc(cooldownID)
+		startTime = NormalizeNumber(startTime)
+		duration = NormalizeNumber(duration)
+		if startTime and duration then
+			local cooldownName = GetSpellInfo(cooldownID)
+			local ignoreCooldownThreshold = MSBTProfiles.currentProfile.ignoreCooldownThreshold
+			if duration >= MSBTProfiles.currentProfile.cooldownThreshold or ignoreCooldownThreshold[cooldownName] or ignoreCooldownThreshold[cooldownID] then
+				activeCooldowns[cooldownType][cooldownID] = duration
+
+				updateDelay = MIN_COOLDOWN_UPDATE_DELAY
+
+				if not eventFrame:IsVisible() then
+					eventFrame:Show()
+				end
+			end
+
+			delayedCooldowns[cooldownType][cooldownID] = nil
+		end
+	end
+
+	local cooldownID = lastCooldownIDs[cooldownType]
+	if cooldownID then
+		local startTime, duration = cooldownFunc(cooldownID)
+		startTime = NormalizeNumber(startTime)
+		duration = NormalizeNumber(duration)
+		if startTime and duration then
+			if playerClass == "DEATHKNIGHT" and duration == RUNE_COOLDOWN and cooldownType == "player" and not runeCooldownAbilities[cooldownID] then
+				duration = -1
+			end
+
+			local cooldownName = GetSpellInfo(cooldownID)
+			local ignoreCooldownThreshold = MSBTProfiles.currentProfile.ignoreCooldownThreshold
+			if duration >= MSBTProfiles.currentProfile.cooldownThreshold or ignoreCooldownThreshold[cooldownName] or ignoreCooldownThreshold[cooldownID] then
+				activeCooldowns[cooldownType][cooldownID] = duration
+
+				updateDelay = MIN_COOLDOWN_UPDATE_DELAY
+
+				if not eventFrame:IsVisible() then
+					eventFrame:Show()
+				end
+			end
+
+		else
+			delayedCooldowns[cooldownType][cooldownID] = true
+		end
+
+		lastCooldownIDs[cooldownType] = nil
+	end
 end
 
 local function OnUpdate(frame, elapsed)
-    lastUpdate = lastUpdate + elapsed
 
-    if lastUpdate >= updateDelay then
-        updateDelay = MAX_COOLDOWN_UPDATE_DELAY
-        local currentTime = GetTime()
+	lastUpdate = lastUpdate + elapsed
 
-        -- [[ 1. Check Pending Spells ]]
-        for pid, info in pairs(pendingSpells) do
-            if (currentTime - info.time) > 5.0 then
-                pendingSpells[pid] = nil
-            else
-                local startTime, duration, enabled = GetSpellCooldownSafe(info.id)
-                local isManual = false
+	if lastUpdate >= updateDelay then
 
-                -- Cache Check in Pending
-                if (not duration or duration <= GCD_DURATION) then
-                    local cachedDur = durationCache[info.id] or MANUAL_COOLDOWNS[info.id]
-                    if not cachedDur then
-                        local rid = ResolveSpellID(info.name)
-                        if rid then cachedDur = durationCache[rid] or MANUAL_COOLDOWNS[rid] end
-                    end
-                    
-                    if cachedDur then
-                        startTime = GetTime()
-                        duration = cachedDur
-                        enabled = 1
-                        isManual = true
-                    end
-                end
-                
-                -- Standard Retries
-                if not isManual and (not duration or duration <= GCD_DURATION) then
-                    local st2, dur2, en2 = GetSpellCooldownSafe(info.name)
-                    if dur2 and dur2 > GCD_DURATION then
-                        startTime, duration, enabled = st2, dur2, en2
-                        info.id = info.name
-                    end
-                end
+		updateDelay = MAX_COOLDOWN_UPDATE_DELAY
 
-                if not isManual and (not duration or duration <= GCD_DURATION) then
-                    local current, max, chargeStart, chargeDur = GetSpellChargesSafe(info.id)
-                    if not chargeDur then 
-                        current, max, chargeStart, chargeDur = GetSpellChargesSafe(info.name) 
-                        if chargeDur then info.id = info.name end
-                    end
-                    if chargeDur and chargeDur > GCD_DURATION and current < max then
-                        startTime, duration, enabled = chargeStart, chargeDur, 1
-                    end
-                end
+		local currentTime = GetTime()
+		for cooldownID, usedTime in pairs(watchItemIDs) do
+			if currentTime >= (usedTime + 1) then
+				lastCooldownIDs["item"] = cooldownID
+				OnUpdateCooldown("item", C_Container.GetItemCooldown)
+				watchItemIDs[cooldownID] = nil
+				break
+			end
+		end
 
-                if enabled == 1 and duration and duration > GCD_DURATION then
-                    TrackActiveCooldown(info.unit, info.id, duration, startTime, isManual)
-                    pendingSpells[pid] = nil
-                end
-            end
-        end
+		local currentTime = GetTime()
+		for cooldownType, cooldowns in pairs(activeCooldowns) do
+			local cooldownFunc = (cooldownType == "item") and C_Container.GetItemCooldown or GetSpellCooldown
+			local infoFunc = (cooldownType == "item") and GetItemInfo or GetSpellInfo
+			for cooldownID, remainingDuration in pairs(cooldowns) do
+				local startTime, duration = cooldownFunc(cooldownID)
+				startTime = NormalizeNumber(startTime)
+				duration = NormalizeNumber(duration)
+				if startTime and duration then
+					local cooldownRemaining = startTime + duration - currentTime
 
-        -- [[ 2. Items ]]
-        for cooldownID, usedTime in pairs(watchItemIDs) do
-            if currentTime >= (usedTime + 1) then
-                local startTime, duration, enabled = C_Container.GetItemCooldown(cooldownID)
-                if enabled == 1 and duration > GCD_DURATION then
-                   TrackActiveCooldown("item", cooldownID, duration, startTime)
-                end
-                watchItemIDs[cooldownID] = nil
-            end
-        end
+					if cooldownType == "pet" then
+						cooldownRemaining = remainingDuration - lastUpdate
+					end
 
-        -- [[ 3. Active Cooldowns ]]
-        local allInactive = true
-        local inCombat = InCombatLockdown()
+					if cooldownRemaining <= 0 then
+						local cooldownName = infoFunc(cooldownID) or UNKNOWN
+						local texture = GetCooldownTexture(cooldownType, cooldownID)
+						HandleCooldowns(cooldownType, cooldownID, cooldownName, texture)
 
-        for cooldownType, cooldowns in pairs(activeCooldowns) do
-            local cooldownFunc = (cooldownType == "item") and C_Container.GetItemCooldown or GetSpellCooldownSafe
-            local infoFunc = (cooldownType == "item") and GetItemInfo or GetSpellNameSafe
-            
-            for cooldownID, data in pairs(cooldowns) do
-                allInactive = false
-                local remaining = data.endTime - currentTime
-                
-                if remaining <= 0 then
-                     FireNotification(cooldownType, cooldownID, infoFunc)
-                     cooldowns[cooldownID] = nil
-                else
-                    -- Protected Reset Check
-                    -- If In Combat OR Manual/Cached, NEVER reset.
-                    if not data.isManual and not inCombat then
-                        local startTime, duration, enabled = cooldownFunc(cooldownID)
-                        local charges = nil
-                        if cooldownType ~= "item" then
-                             local c, max, cStart, cDur = GetSpellChargesSafe(cooldownID)
-                             if cDur then charges = true end
-                        end
-                        
-                        if not charges and (startTime == 0 or not startTime) then
-                             if remaining > 1.0 and (currentTime - data.added > 3.0) then
-                                  cooldowns[cooldownID] = nil
-                             end
-                        end
-                    end
-                    
-                    if remaining < updateDelay then updateDelay = remaining end
-                end
-            end
-        end
-        
-        if updateDelay < MIN_COOLDOWN_UPDATE_DELAY then updateDelay = MIN_COOLDOWN_UPDATE_DELAY end
+						local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_COOLDOWN
+						if cooldownType == "pet" then
+							eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_PET_COOLDOWN
+						elseif cooldownType == "item" then
+							eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_ITEM_COOLDOWN
+						end
+						if eventSettings and not eventSettings.disabled then
+							local message = eventSettings.message
+							local formattedSkillName = string_format("|cFF%02x%02x%02x%s|r", eventSettings.skillColorR * 255, eventSettings.skillColorG * 255, eventSettings.skillColorB * 255, string_gsub(cooldownName, "%(.+%)%(%)$", ""))
+							message = string_gsub(message, "%%e", formattedSkillName)
+							DisplayEvent(eventSettings, message, texture)
+						end
 
-        if allInactive and not next(watchItemIDs) and not next(pendingSpells) then
-            eventFrame:Hide()
-        end
-        lastUpdate = 0
-    end
+						cooldowns[cooldownID] = nil
+
+					else
+						cooldowns[cooldownID] = cooldownRemaining
+						if cooldownRemaining < updateDelay then
+							updateDelay = cooldownRemaining
+						end
+					end
+
+				else
+					local cooldownRemaining = remainingDuration - lastUpdate
+					if cooldownRemaining <= 0 then
+						local cooldownName = infoFunc(cooldownID) or UNKNOWN
+						local texture = GetCooldownTexture(cooldownType, cooldownID)
+						HandleCooldowns(cooldownType, cooldownID, cooldownName, texture)
+
+						local eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_COOLDOWN
+						if cooldownType == "pet" then
+							eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_PET_COOLDOWN
+						elseif cooldownType == "item" then
+							eventSettings = MSBTProfiles.currentProfile.events.NOTIFICATION_ITEM_COOLDOWN
+						end
+						if eventSettings and not eventSettings.disabled then
+							local message = eventSettings.message
+							local formattedSkillName = string_format("|cFF%02x%02x%02x%s|r", eventSettings.skillColorR * 255, eventSettings.skillColorG * 255, eventSettings.skillColorB * 255, string_gsub(cooldownName, "%(.+%)%(%)$", ""))
+							message = string_gsub(message, "%%e", formattedSkillName)
+							DisplayEvent(eventSettings, message, texture)
+						end
+
+						cooldowns[cooldownID] = nil
+					else
+						cooldowns[cooldownID] = cooldownRemaining
+						if cooldownRemaining < updateDelay then
+							updateDelay = cooldownRemaining
+						end
+					end
+				end
+			end
+		end
+
+		if updateDelay < MIN_COOLDOWN_UPDATE_DELAY then
+			updateDelay = MIN_COOLDOWN_UPDATE_DELAY
+		end
+
+		local allInactive = true
+		for cooldownType, cooldowns in pairs(activeCooldowns) do
+			if next(cooldowns) then
+				allInactive = false
+			end
+		end
+		if allInactive and not next(watchItemIDs) then
+			eventFrame:Hide()
+		end
+
+		lastUpdate = 0
+	end
 end
 
--- ****************************************************************************
--- Init
--- ****************************************************************************
 function eventFrame:UNIT_SPELLCAST_SUCCEEDED(unitID, lineID, skillID)
-    if unitID == "player" then OnSpellCast("player", skillID)
-    elseif unitID == "pet" then OnSpellCast("pet", skillID) end
+	if not playerCooldownsEnabled then
+		return
+	end
+	if unitID == "player" then
+		OnSpellCast("player", skillID)
+	end
 end
+
+function eventFrame:COMBAT_LOG_EVENT_UNFILTERED()
+	eventFrame:CombatLogEvent(CombatLogGetCurrentEventInfo())
+end
+
+function eventFrame:CombatLogEvent(timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, recipientGUID, recipientName, recipientFlags, recipientRaidFlags, skillID)
+	if not petCooldownsEnabled then
+		return
+	end
+
+	if event ~= "SPELL_CAST_SUCCESS" then
+		return
+	end
+
+	if sourceGUID == UnitGUID("pet") then
+		OnSpellCast("pet", skillID)
+	end
+end
+
 function eventFrame:SPELL_UPDATE_COOLDOWN()
-    if not eventFrame:IsVisible() and next(activeCooldowns["player"]) then eventFrame:Show() end
-    if next(pendingSpells) then eventFrame:Show() end 
+	if not playerCooldownsEnabled then
+		return
+	end
+	OnUpdateCooldown("player", GetSpellCooldown)
 end
+
 function eventFrame:PET_BAR_UPDATE_COOLDOWN()
-     if not eventFrame:IsVisible() and next(activeCooldowns["pet"]) then eventFrame:Show() end
+	if not petCooldownsEnabled then
+		return
+	end
+	OnUpdateCooldown("pet", GetSpellCooldown)
 end
-function eventFrame:PLAYER_ENTERING_WORLD()
-    ScanAllCooldowns()
+
+local function UpdateRestrictionState()
+	local restricted = IsRestrictedContext()
+
+	if cooldownsRestricted == nil then
+		cooldownsRestricted = restricted
+		if restricted then
+			Print("Cooldown alerts are temporarily disabled by Blizzard restrictions in this combat context.")
+		end
+		return
+	end
+
+	if restricted and not cooldownsRestricted then
+		cooldownsRestricted = true
+		Print("Cooldown alerts are temporarily disabled by Blizzard restrictions in this combat context.")
+	elseif not restricted and cooldownsRestricted then
+		cooldownsRestricted = false
+		Print("Cooldown alerts have been re-enabled.")
+	end
 end
 
 local function UpdateRegisteredEvents()
-    eventFrame:UnregisterAllEvents()
-    local profile = MSBTProfiles.currentProfile
-    if profile.events.NOTIFICATION_COOLDOWN.disabled and
-       profile.events.NOTIFICATION_PET_COOLDOWN.disabled and
-       profile.events.NOTIFICATION_ITEM_COOLDOWN.disabled then
-        itemCooldownsEnabled = false
-        eventFrame:Hide()
-        return
-    end
-    itemCooldownsEnabled = true
-    eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-    eventFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
-    eventFrame:RegisterEvent("PET_BAR_UPDATE_COOLDOWN")
-    eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	UpdateRestrictionState()
+
+	local doEnable = false
+	if not MSBTProfiles.currentProfile.events.NOTIFICATION_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["SKILL_COOLDOWN"] then
+		doEnable = true
+	end
+	if cooldownsRestricted then
+		doEnable = false
+	end
+	playerCooldownsEnabled = doEnable
+
+	local doEnable = false
+	if not MSBTProfiles.currentProfile.events.NOTIFICATION_PET_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["PET_COOLDOWN"] then
+		doEnable = true
+	end
+	if cooldownsRestricted then
+		doEnable = false
+	end
+	petCooldownsEnabled = doEnable
+
+	local doEnable = false
+	if not MSBTProfiles.currentProfile.events.NOTIFICATION_ITEM_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["ITEM_COOLDOWN"] then
+		doEnable = true
+	end
+	if cooldownsRestricted then
+		doEnable = false
+	end
+	itemCooldownsEnabled = doEnable
+
+	if cooldownsRestricted then
+		for cooldownType, cooldowns in pairs(activeCooldowns) do EraseTable(cooldowns) end
+		for cooldownType, cooldowns in pairs(delayedCooldowns) do EraseTable(cooldowns) end
+		EraseTable(lastCooldownIDs)
+		EraseTable(watchItemIDs)
+		eventFrame:Hide()
+	end
 end
 
-local function Enable() UpdateRegisteredEvents() end
+local function Enable()
+	if not cooldownsDisabledNoticeShown then
+		Print("Cooldown event processing is disabled due Blizzard protected event restrictions.")
+		cooldownsDisabledNoticeShown = true
+	end
+	playerCooldownsEnabled = false
+	petCooldownsEnabled = false
+	itemCooldownsEnabled = false
+	eventFrame:Hide()
+end
+
 local function Disable()
-    eventFrame:Hide()
-    eventFrame:UnregisterAllEvents()
-    for _, cds in pairs(activeCooldowns) do EraseTable(cds) end
-    EraseTable(pendingSpells)
-    EraseTable(watchItemIDs)
-    EraseTable(spellIDCache)
-    EraseTable(durationCache)
+	eventFrame:Hide()
+
+	for cooldownType, cooldowns in pairs(activeCooldowns) do EraseTable(cooldowns) end
+	for cooldownType, cooldowns in pairs(delayedCooldowns) do EraseTable(cooldowns) end
+	EraseTable(watchItemIDs)
+end
+
+function eventFrame:PLAYER_REGEN_DISABLED()
+	UpdateRegisteredEvents()
+end
+
+function eventFrame:PLAYER_REGEN_ENABLED()
+	UpdateRegisteredEvents()
+end
+
+function eventFrame:PLAYER_ENTERING_WORLD()
+	UpdateRegisteredEvents()
+end
+
+function eventFrame:ZONE_CHANGED_NEW_AREA()
+	UpdateRegisteredEvents()
+end
+
+function eventFrame:CHALLENGE_MODE_START()
+	UpdateRegisteredEvents()
+end
+
+function eventFrame:CHALLENGE_MODE_COMPLETED()
+	UpdateRegisteredEvents()
 end
 
 local function UseActionHook(slot)
-    if not itemCooldownsEnabled then return end
-    local actionType, itemID = GetActionInfo(slot)
-    if actionType == "item" then watchItemIDs[itemID] = GetTime(); eventFrame:Show() end
+	if not itemCooldownsEnabled then
+		return
+	end
+
+	local actionType, itemID = GetActionInfo(slot)
+	if actionType == "item" then
+		OnItemUse(itemID)
+	end
 end
+
 local function UseInventoryItemHook(slot)
-    if not itemCooldownsEnabled then return end
-    local itemID = GetInventoryItemID("player", slot)
-    if itemID then watchItemIDs[itemID] = GetTime(); eventFrame:Show() end
+	if not itemCooldownsEnabled then
+		return
+	end
+
+	local itemID = GetInventoryItemID("player", slot)
+	if itemID then
+		OnItemUse(itemID)
+	end
 end
+
 local function UseContainerItemHook(bag, slot)
-    if not itemCooldownsEnabled then return end
-    local itemID = C_Container.GetContainerItemID(bag, slot)
-    if itemID then watchItemIDs[itemID] = GetTime(); eventFrame:Show() end
+	if not itemCooldownsEnabled then
+		return
+	end
+
+	local itemID = C_Container.GetContainerItemID(bag, slot)
+	if itemID then
+		OnItemUse(itemID)
+	end
 end
+
 local function UseItemByNameHook(itemName)
-    if not itemCooldownsEnabled or not itemName then return end
-    local _, itemLink = GetItemInfo(itemName)
-    local itemID
-    if itemLink then itemID = string_match(itemLink, "item:(%d+)") end
-    if itemID then watchItemIDs[itemID] = GetTime(); eventFrame:Show() end
+	if not itemCooldownsEnabled or not itemName then
+		return
+	end
+
+	local _, itemLink = GetItemInfo(itemName)
+	local itemID
+	if itemLink then
+		itemID = string_match(itemLink, "item:(%d+)")
+	end
+	if itemID then
+		OnItemUse(itemID)
+	end
 end
 
 eventFrame:Hide()
-eventFrame:SetScript("OnEvent", function(self, event, ...) if self[event] then self[event](self, ...) end end)
+eventFrame:SetScript("OnEvent", function(self, event, ...)
+	if self[event] then
+		self[event](self, ...)
+	end
+end)
 eventFrame:SetScript("OnUpdate", OnUpdate)
-local _
+
 _, playerClass = UnitClass("player")
 
 hooksecurefunc("UseAction", UseActionHook)
@@ -531,6 +499,13 @@ hooksecurefunc("UseInventoryItem", UseInventoryItemHook)
 hooksecurefunc(C_Container, "UseContainerItem", UseContainerItemHook)
 hooksecurefunc(C_Item, "UseItemByName", UseItemByNameHook)
 
-module.Enable = Enable
-module.Disable = Disable
-module.UpdateRegisteredEvents = UpdateRegisteredEvents
+resetAbilities[SPELLID_COLD_SNAP] = true
+resetAbilities[SPELLID_PREPARATION] = true
+resetAbilities[SPELLID_READINESS] = true
+
+runeCooldownAbilities[SPELLID_MIND_FREEZE] = true
+
+module.Enable					= Enable
+module.Disable					= Disable
+module.UpdateRegisteredEvents	= UpdateRegisteredEvents
+
