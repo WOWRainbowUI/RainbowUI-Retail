@@ -5,7 +5,7 @@
 ## DefaultState: enabled
 ## RequiredDeps: DBM-Core
 ## Author: 夏一可, Mini_Dragon
-## Version: 20260227
+## Version: 20260318
 ## IconTexture: Interface\AddOns\DBM-Core\textures\dbm_airhorn
 ## Notes: https://github.com/Mini-Dragon/DBM-VoicePack-Yike
 ## X-DBM-Voice: 1
@@ -13,4 +13,5 @@
 ## X-DBM-Voice-ShortName: Yike
 ## X-DBM-Voice-Version: 19
 ## X-DBM-Voice-HasCount: 1
+## X-DBM-Voice-MidnightCompat: 1
 ## Category: DBM
