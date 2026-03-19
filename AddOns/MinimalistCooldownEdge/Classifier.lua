@@ -31,6 +31,7 @@ local BLACKLIST_NAME_CONTAINS = {
     "PVEFrame", "PVPQueueFrame",
     "LossOfControlFrame",
     "ContainerFrameCombinedBagsCooldown",
+    "HousingDashboardFrame",
 }
 
 -- Nested lookup: BLACKLIST_EXACT_PAIRS[parentName][frameName]

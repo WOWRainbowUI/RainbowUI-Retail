@@ -1165,7 +1165,7 @@ end
 
 StartDurationColorTicker = function()
     if durationColorTicker then return end
-    durationColorTicker = C_Timer.NewTicker(0.1, UpdateDurationColors)
+    durationColorTicker = C_Timer.NewTicker(0.5, UpdateDurationColors)
 end
 
 RefreshTrackedDurationColor = function(cdFrame, sourceKey, config)
@@ -1654,9 +1654,14 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
     end
 
     local fs = GetFrameState(cdFrame)
+    local parent = cdFrame.GetParent and cdFrame:GetParent()
+
+    local isChargeCooldown = IsChargeCooldownFrame(cdFrame, parent)
+    local hasActiveCharge = isChargeCooldown and IsMainCooldownWithActiveChargeCooldown(cdFrame)
 
     -- Draw Swipe (dark overlay animation)
-    local wantSwipe = config.drawSwipe ~= false
+    local wantSwipe = config.drawSwipe ~= false and (not isChargeCooldown or hasActiveCharge)
+
     if cdFrame.SetDrawSwipe then
         if fs.drawSwipe ~= wantSwipe then
             fs.suppressSwipeDraw = true
