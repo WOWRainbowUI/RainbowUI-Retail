@@ -2369,3 +2369,10 @@ Change Log:
 * Added TWW spells for The Dawnbreaker
 * Added SL spells for Tazavesh, the Veiled Market
 
+6.1.1
+* Added Midnight spells (world)
+* Added Midnight spells for Magister's Terrace
+* Added Midnight spells for Voidscar Arena
+* Added Midnight spells for Windrunner Spire
+* Added Midnight spells for The Dreamrift
+* Added Midnight spells for The Voidspire
