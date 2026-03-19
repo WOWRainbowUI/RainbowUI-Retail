@@ -1,6 +1,14 @@
 
 # Changelog
 
+
+## [3.5.2] - 2026-03-18
+- Update swipe drawing logic for charge cooldowns
+
+## [3.5.1] - 2026-03-17
+- Add "HousingDashboardFrame" to blacklist
+- Minor improved performance
+
 ## [3.5.0] - 2026-03-17
 
 ### Improved
