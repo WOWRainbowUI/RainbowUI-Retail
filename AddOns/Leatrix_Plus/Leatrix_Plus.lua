@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.08 (11th March 2026)
+-- 	Leatrix Plus 12.0.09 (18th March 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.08"
+	LeaPlusLC["AddonVer"] = "12.0.09"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -1490,6 +1490,7 @@
 			LeaPlusLC:MakeTx(SoundPanel, "Misc", 418, -72)
 			LeaPlusLC:MakeCB(SoundPanel, "MuteDucks", "Ducks", 418, -92, false, "If checked, duck greetings will be muted.|n|nUse this if you like to do your Valdrakken banking in peace.")
 			LeaPlusLC:MakeCB(SoundPanel, "MuteYawns", "Yawns", 418, -112, false, "If checked, yawns from hunter pet cats will be muted.")
+			LeaPlusLC:MakeCB(SoundPanel, "MuteDundun", "Dundun", 418, -132, false, "If checked, Dundun (Loa of Abundance) will be quieter.")
 
 			-- Set click width for sounds checkboxes
 			for k, v in pairs(muteTable) do

@@ -1,4 +1,9 @@
-﻿12.0.07 - 4th March 2026
+﻿12.0.09 - 18th March 2026
+- For 'Mute game sounds' ('System'), you can now mute Dundun (Loa of Abundance).
+- For 'Media', fixed a Lua error when attempting to play Voidscar Arena dungeon music.
+- PTR (12.0.5): Updated for game patch 12.0.5.
+
+12.0.07 - 4th March 2026
 - For 'Mute game sounds' ('System'), updated the 'Login' setting for Midnight.
 - For 'Easy item destroy' ('System'), fixed an issue with buttons showing outside the delete confirmation window.
 - For 'Media', added 'Midnight' movies 'Midnight', 'Supremacy', 'Immolation' and 'The Story So Far'.  Added 'Quel'Thalas' zone music for 'Eversong Woods (Midnight)', 'Harandar', 'Voidstorm', 'Slayer's Rise' and 'Isle of Quel'Danas (Midnight)'.  Added 'Midnight' dungeon music for 'Blinding Vale', 'Den of Nalorakk', 'Heart of Rage', 'Magisters' Terrace (Midnight)', 'Maisara Caverns', 'Murder Row', 'Nexus Point Xenas' and 'Voidscar Arena'.  Added 'Midnight' main title music.  Added 'Credits' music for 'Shadowlands', 'Dragonflight', 'The War Within' and 'Midnight'.  Added 'Island Expeditions' music for 'Crestfall' and 'Snowblossom Village'.

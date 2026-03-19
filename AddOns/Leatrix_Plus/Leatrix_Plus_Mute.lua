@@ -639,6 +639,51 @@
 			"mtigerstand2a.ogg#562388",
 		},
 
+		-- Dundun (Loa of Abundance)
+		["MuteDundun"] = {
+			-- sound/creature/dundun/
+			"vo_1200_dundun_7251842.ogg#7251842",
+			"vo_1200_dundun_7609114.ogg#7609114",
+			"vo_1200_dundun_7609115.ogg#7609115",
+			"vo_1200_dundun_7609116.ogg#7609116",
+			-- sound/creature/dundun_rat/
+			"vo_120_dundun_rat_01_m.ogg#7249707",
+			"vo_120_dundun_rat_02_m.ogg#7251759",
+			"vo_120_dundun_rat_03_m.ogg#7251762",
+			"vo_120_dundun_rat_04_m.ogg#7251765",
+			"vo_120_dundun_rat_05_m.ogg#7251768",
+			"vo_120_dundun_rat_06_m.ogg#7251771",
+			"vo_120_dundun_rat_07_m.ogg#7251774",
+			"vo_120_dundun_rat_08_m.ogg#7251777",
+			"vo_120_dundun_rat_09_m.ogg#7251784",
+			"vo_120_dundun_rat_10_m.ogg#7251787",
+			"vo_120_dundun_rat_11_m.ogg#7251790",
+			"vo_120_dundun_rat_12_m.ogg#7251793",
+			"vo_120_dundun_rat_13_m.ogg#7251796",
+			"vo_120_dundun_rat_14_m.ogg#7251799",
+			"vo_120_dundun_rat_16_m.ogg#7251805",
+			"vo_120_dundun_rat_17_m.ogg#7251808",
+			"vo_120_dundun_rat_18_m.ogg#7251811",
+			"vo_120_dundun_rat_19_m.ogg#7251814",
+			"vo_120_dundun_rat_20_m.ogg#7251817",
+			"vo_120_dundun_rat_21_m.ogg#7251820",
+			"vo_120_dundun_rat_22_m.ogg#7251823",
+			"vo_120_dundun_rat_23_m.ogg#7251826",
+			"vo_120_dundun_rat_24_m.ogg#7251829",
+			"vo_120_dundun_rat_25_m.ogg#7251836",
+			"vo_120_dundun_rat_26_m.ogg#7251839",
+			"vo_120_dundun_rat_28_m.ogg#7251845",
+			"vo_120_dundun_rat_29_m.ogg#7261433",
+			"vo_120_dundun_rat_30_m.ogg#7273124",
+			"vo_120_dundun_rat_31_m.ogg#7273905",
+			"vo_120_dundun_rat_32_m.ogg#7273906",
+			"vo_120_dundun_rat_33_m.ogg#7273907",
+			"vo_120_dundun_rat_34_m.ogg#7273908",
+			"vo_120_dundun_rat_35_m.ogg#7273909",
+			"vo_120_dundun_rat_36_m.ogg#7273910",
+			"vo_120_dundun_rat_37_m.ogg#7273911",
+		},
+
 	}
 
 	----------------------------------------------------------------------

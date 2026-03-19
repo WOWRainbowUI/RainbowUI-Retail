@@ -440,7 +440,7 @@
 	Zn(L["Dungeons"], L["Midnight"], L["Maisara Caverns"]						, {"|cffffd800" .. L["Dungeons"] .. ": " .. L["Maisara Caverns"], prefol, "mus_1100_maddening_deep_01#265382",})
 	Zn(L["Dungeons"], L["Midnight"], L["Murder Row"]							, {"|cffffd800" .. L["Dungeons"] .. ": " .. L["Murder Row"], prefol, "bt_arrivalwalkuni03#11696", "mus_1200_murder_row#335686", "mus_70_menaceofthedarktitans_h1#75371",})
 	Zn(L["Dungeons"], L["Midnight"], L["Nexus-Point Xenas"]						, {"|cffffd800" .. L["Dungeons"] .. ": " .. L["Nexus-Point Xenas"], prefol, "nexuspointxenas#335439",})
-	Zn(L["Dungeons"], L["Midnight"], L["Voidscar Arena"]						, {"|cffffd800" .. L["Dungeons"] .. ": " .. L["Voidscar Arena"], prefol, "voidscararena_335461",})
+	Zn(L["Dungeons"], L["Midnight"], L["Voidscar Arena"]						, {"|cffffd800" .. L["Dungeons"] .. ": " .. L["Voidscar Arena"], prefol, "voidscararena#335461",})
 
 	----------------------------------------------------------------------
 	-- Various
