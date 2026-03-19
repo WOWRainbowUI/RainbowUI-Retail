@@ -103,6 +103,7 @@ obj["skillIcons"]	= { label="Skill Icons", tooltip="Display options for skill ic
 
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Enable Mik's Scrolling Battle Text", tooltip="Enable MSBT."}
+obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
 obj["enableBlizzardDamage"]		= { label="Enable Blizzard Damage", tooltip="Enable Blzzard's floating text damage."}
 obj["enableBlizzardHealing"]	= { label="Enable Blizzard Healing", tooltip="Enable Blzzard's floating text healing."}
 obj["stickyCrits"]				= { label="Sticky Crits", tooltip="Display crits using the sticky style."}

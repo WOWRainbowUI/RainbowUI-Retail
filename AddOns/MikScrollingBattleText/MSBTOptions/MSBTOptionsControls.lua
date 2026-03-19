@@ -902,9 +902,9 @@ local function CreateIconButton(parent, buttonType)
 	local button = CreateButton(parent)
 	button:SetWidth(24)
 	button:SetHeight(24)
-	button:SetNormalTexture("Interface\\Addons\\MSBTOptions\\Artwork\\" .. buttonType .. "Icon")
-	button:SetDisabledTexture("Interface\\Addons\\MSBTOptions\\Artwork\\" .. buttonType .. "IconDisable")
-	button:SetHighlightTexture("Interface\\Addons\\MSBTOptions\\Artwork\\" .. buttonType .. "IconHighlight")
+	button:SetNormalTexture("Interface\\Addons\\MikScrollingBattleText\\MSBTOptions\\Artwork\\" .. buttonType .. "Icon")
+	button:SetDisabledTexture("Interface\\Addons\\MikScrollingBattleText\\MSBTOptions\\Artwork\\" .. buttonType .. "IconDisable")
+	button:SetHighlightTexture("Interface\\Addons\\MikScrollingBattleText\\MSBTOptions\\Artwork\\" .. buttonType .. "IconHighlight")
 
 	return button
 end
@@ -1407,7 +1407,7 @@ local function Dropdown_CreateListboxFrame(parent)
 	dropdownListboxFrame:SetToplevel(true)
 	dropdownListboxFrame:SetFrameStrata("FULLSCREEN_DIALOG")
 	dropdownListboxFrame:SetBackdrop{
-		bgFile = "Interface\\Addons\\MSBTOptions\\Artwork\\PlainBackdrop",
+		bgFile = "Interface\\Addons\\MikScrollingBattleText\\MSBTOptions\\Artwork\\PlainBackdrop",
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 		insets = {left = 6, right = 6, top = 6, bottom = 6},
 	}

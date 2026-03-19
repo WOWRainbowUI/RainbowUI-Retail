@@ -80,7 +80,7 @@ obj["skillIcons"]	= { label="技能圖示", tooltip="設定技能圖示"}
 
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="啟用MSBT", tooltip="啟用MSBT捲動戰鬥文字"}
-obj["enableBlizzardDamage"]		= { label="啟用暴雪傷害數字", tooltip="啟用遊戲內建的浮動戰鬥文字傷害數字"}
+obj["enableBlizzardV2CombatText"]		= { label="啟用暴雪傷害數字", tooltip="啟用遊戲內建的浮動戰鬥文字，顯示玩家與寵物的傷害/治療 (v2)"}
 obj["enableBlizzardHealing"]	= { label="啟用暴雪治療數字", tooltip="啟用遊戲內建的浮動戰鬥文字治療數字"}
 obj["stickyCrits"]				= { label="爆擊特效顯示", tooltip="使用爆擊特效來顯示致命一擊"}
 obj["enableSounds"]				= { label="啟用音效", tooltip="設定是否當指定事件和觸發器發生時播放音效"}
