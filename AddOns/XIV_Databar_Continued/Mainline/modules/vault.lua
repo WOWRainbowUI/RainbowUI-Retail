@@ -92,13 +92,15 @@ local function FormatSlotValue(typeId, activity)
     end
 
     if typeId == Enum.WeeklyRewardChestThresholdType.Raid then
-        local diffName = activity.level and DifficultyUtil and DifficultyUtil.GetDifficultyName and DifficultyUtil.GetDifficultyName(activity.level)
+        local diffName = activity.level and DifficultyUtil.GetDifficultyName(activity.level)
         return diffName
     end
 
     if typeId == Enum.WeeklyRewardChestThresholdType.Activities then
-        if activity.level and activity.level > 0 then
-            return string.format('M+%d', activity.level)
+        if activity and activity.level ~= nil then
+            if activity.level >= 0 then
+                return string.format(WEEKLY_REWARDS_MYTHIC, activity.level)
+            end
         end
         return WEEKLY_REWARDS_HEROIC
     end
@@ -144,9 +146,6 @@ function VaultModule:ShowTooltip()
 
     -- If the Great Vault is not disabled, show the tooltip with progress
     if(not C_WeeklyRewards.IsWeeklyChestRetired()) then
-        -- Refresh data if needed
-        C_WeeklyRewards.RequestRewards()
-
         local activitiesByType = CollectActivitiesByType()
         for _, typeId in ipairs(TYPE_ORDER) do
             local label = TYPE_LABELS[typeId]
