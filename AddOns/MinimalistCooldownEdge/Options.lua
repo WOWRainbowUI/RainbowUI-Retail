@@ -1,8 +1,10 @@
-local addonName, addon = ...
+local addonName = ...
 local MCE = LibStub("AceAddon-3.0"):GetAddon("MinimalistCooldownEdge")
 local L = LibStub("AceLocale-3.0"):GetLocale("MinimalistCooldownEdge")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+local Constants = MCE.Constants
+local GetDurationTextColorsConfig = MCE.Helpers.GetDurationTextColorsConfig
 
 -- === UPVALUE LOCALS ===
 local format = string.format
@@ -11,28 +13,17 @@ local strtrim = strtrim
 
 -- Retrieve version dynamically from TOC
 local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
-local CURSEFORGE_URL = "https://www.curseforge.com/wow/addons/minice-cooldown-styler"
-local DEVELOPER_URL = "https://www.curseforge.com/members/anahkas/projects"
-local MINICC_URL = "https://www.curseforge.com/wow/addons/minicc"
-local SMART_PVP_TAB_TARGETING_URL = "https://www.curseforge.com/wow/addons/pvp-tab-targeting"
+local CURSEFORGE_URL = Constants.CURSEFORGE_URL
+local DEVELOPER_URL = Constants.DEVELOPER_URL
+local MINICC_URL = Constants.MINICC_URL
+local SMART_PVP_TAB_TARGETING_URL = Constants.SMART_PVP_TAB_TARGETING_URL
 
 -- LibSharedMedia integration (optional – silently absent if not installed)
 local LSM = LibStub("LibSharedMedia-3.0", true)
 
 -- === SHARED LOOKUP TABLES ===
 
--- Base fonts always available (WoW built-ins + addon-bundled fonts)
-local FONT_OPTIONS_BASE = {
-    ["GAMEDEFAULT"]               = "Game Default",
-    ["Fonts\\FRIZQT__.TTF"]       = "Friz Quadrata",
-    ["Fonts\\FRIZQT___CYR.TTF"]   = "Friz Quadrata (Cyrillic)",
-    ["Fonts\\ARIALN.TTF"]         = "Arial Narrow",
-    ["Fonts\\MORPHEUS.TTF"]       = "Morpheus",
-    ["Fonts\\skurri.ttf"]         = "Skurri",
-    ["Fonts\\2002.TTF"]           = "2002",
-    ["Interface\\AddOns\\MinimalistCooldownEdge\\Fonts\\expressway.ttf"]        = "Expressway",
-    ["Interface\\AddOns\\MinimalistCooldownEdge\\Fonts\\bazooka_regular.ttf"]   = "Bazooka",
-}
+local FONT_OPTIONS_BASE = Constants.FONT_OPTIONS_BASE
 
 --- Returns a merged font table: base fonts + any fonts registered in LibSharedMedia.
 --- Declared as a function so the values are evaluated lazily each time the options
@@ -62,20 +53,8 @@ local function GetFontOptions()
     return opts
 end
 
-local OUTLINE_OPTIONS = {
-    ["NONE"]          = L["None"],
-    ["OUTLINE"]       = L["Outline"],
-    ["THICKOUTLINE"]  = L["Thick"],
-    ["MONOCHROME"]    = L["Mono"],
-}
-
-local ANCHOR_OPTIONS = {
-    ["CENTER"]      = L["Center"],
-    ["TOPLEFT"]     = L["Top Left"],
-    ["TOPRIGHT"]    = L["Top Right"],
-    ["BOTTOMLEFT"]  = L["Bottom Left"],
-    ["BOTTOMRIGHT"] = L["Bottom Right"],
-}
+local OUTLINE_OPTIONS = Constants.OUTLINE_OPTIONS
+local ANCHOR_OPTIONS = Constants.ANCHOR_OPTIONS
 
 -- =========================================================================
 -- HELPERS  – DRY accessor builders to eliminate repetitive get/set closures
@@ -96,17 +75,36 @@ end
 local function CatSet(key, field)
     return function(_, val)
         MCE.db.profile.categories[key][field] = val
-        MCE:ForceUpdateAll(key == "minicc")
+        MCE:ForceUpdateAll({ visuals = key })
         AceConfigRegistry:NotifyChange(addonName)
     end
 end
+
+local RequestCategoryRefresh
+local RequestDebouncedCategoryRefresh
 
 --- Returns a setter function for sliders that writes immediately and refreshes once dragging stops.
 local function CatRangeSet(key, field)
     return function(_, val)
         MCE.db.profile.categories[key][field] = val
-        MCE:RequestDebouncedOptionRefresh(key == "minicc")
+        RequestDebouncedCategoryRefresh(key)
     end
+end
+
+RequestCategoryRefresh = function(key, includeDiscovery)
+    local request = { visuals = key }
+    if includeDiscovery then
+        request.discovery = key
+    end
+    MCE:ForceUpdateAll(request)
+end
+
+RequestDebouncedCategoryRefresh = function(key, includeDiscovery)
+    local request = { visuals = key }
+    if includeDiscovery then
+        request.discovery = key
+    end
+    MCE:RequestDebouncedOptionRefresh(request)
 end
 
 local function DebouncedRangeSet(setter, fullScan)
@@ -154,57 +152,8 @@ local function CatColorSet(key, field)
     return function(_, r, g, b, a)
         local c = MCE.db.profile.categories[key][field]
         c.r, c.g, c.b, c.a = r, g, b, a
-        MCE:ForceUpdateAll(key == "minicc")
+        MCE:ForceUpdateAll({ visuals = key })
     end
-end
-
-local function ProfileTableGet(tableKey, field, fallback)
-    return function()
-        local group = MCE.db.profile[tableKey]
-        local v = group and group[field]
-        if v ~= nil then
-            return v
-        end
-        return fallback
-    end
-end
-
-local function ProfileTableSet(tableKey, field)
-    return function(_, val)
-        MCE.db.profile[tableKey][field] = val
-        MCE:ForceUpdateAll(true)
-        AceConfigRegistry:NotifyChange(addonName)
-    end
-end
-
-local function ProfileTableRangeSet(tableKey, field)
-    return function(_, val)
-        MCE.db.profile[tableKey][field] = val
-        MCE:RequestDebouncedOptionRefresh(true)
-    end
-end
-
-local function ProfileTableColorGet(tableKey, field)
-    return function()
-        local c = MCE.db.profile[tableKey][field]
-        return c.r, c.g, c.b, c.a
-    end
-end
-
-local function ProfileTableColorSet(tableKey, field)
-    return function(_, r, g, b, a)
-        local c = MCE.db.profile[tableKey][field]
-        c.r, c.g, c.b, c.a = r, g, b, a
-        MCE:ForceUpdateAll(true)
-    end
-end
-
-local function GetDurationTextColorsConfig()
-    local profile = MCE.db and MCE.db.profile
-    if not profile then return nil end
-
-    profile.durationTextColors = MCE.EnsureDurationTextColorConfig(profile.durationTextColors)
-    return profile.durationTextColors
 end
 
 local function DurationColorsEnabled()
@@ -224,7 +173,7 @@ end
 local function DurationOffsetSet(_, val)
     local config = GetDurationTextColorsConfig()
     config.offset = val
-    MCE:RequestDebouncedOptionRefresh(true)
+    MCE:RequestDebouncedOptionRefresh(false)
 end
 
 local function DurationThresholdValueGet(index)
@@ -252,7 +201,7 @@ local function DurationThresholdColorSet(index)
     return function(_, r, g, b, a)
         local c = GetDurationTextColorsConfig().thresholds[index].color
         c.r, c.g, c.b, c.a = r, g, b, a
-        MCE:ForceUpdateAll(true)
+        MCE:ForceUpdateAll(false)
     end
 end
 
@@ -264,7 +213,7 @@ end
 local function DefaultDurationColorSet(_, r, g, b, a)
     local c = GetDurationTextColorsConfig().defaultColor
     c.r, c.g, c.b, c.a = r, g, b, a
-    MCE:ForceUpdateAll(true)
+    MCE:ForceUpdateAll(false)
 end
 
 local function IsCatDisabled(key)
@@ -459,7 +408,8 @@ local function CreateCategoryOptions(order, name, key, desc)
     local stackHiddenFn = function() return IsStackHidden(key) end
     local isCooldownManager = (key == "cooldownmanager")
     local isMiniCC = (key == "minicc")
-    local isStackCategory = (key == "actionbar" or key == "cooldownmanager")
+    local isPartyRaidFrames = (key == "partyraidframes")
+    local isStackCategory = (key == "actionbar" or key == "nameplate" or key == "cooldownmanager")
 
     return {
         type = "group",
@@ -489,10 +439,17 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "enabled"),
                         set = function(_, val)
                             MCE.db.profile.categories[key].enabled = val
-                            MCE:ForceUpdateAll(key == "minicc")
+                            RequestCategoryRefresh(key, key == "minicc")
                             LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
                         end,
                     },
+                    enableForRaidOverFive = isPartyRaidFrames and {
+                        type = "toggle", order = 1.1, width = "full",
+                        name = L["Enable for Raid > 5"],
+                        desc = L["Also apply compact aura text on Blizzard CompactRaidFrame icons when you're in a raid larger than 5 players."],
+                        get = CatGet(key, "enableForRaidOverFive", false),
+                        set = CatSet(key, "enableForRaidOverFive"),
+                    } or nil,
                     miniCCTestToggle = isMiniCC and {
                         type = "execute", order = 2, width = "full",
                         name = L["Toggle Test Icons"],
@@ -505,7 +462,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                             else
                                 MCE:Print(L["MiniCC test command is unavailable."])
                             end
-                            MCE:ForceUpdateAll(true)
+                            MCE:ForceUpdateAll({ discovery = "minicc", visuals = "minicc" })
                         end,
                     } or nil,
                 },
@@ -573,7 +530,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         end,
                         set = function(_, val)
                             MCE.db.profile.categories.actionbar.hideChargeTimers = val and true or false
-                            MCE:ForceUpdateAll(false)
+                            RequestCategoryRefresh("actionbar")
                             AceConfigRegistry:NotifyChange(addonName)
                         end,
                     } or nil,
@@ -807,7 +764,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         confirm = true,
                         func = function()
                             MCE.db.profile.categories[key] = CopyTable(MCE.defaults.profile.categories[key])
-                            MCE:ForceUpdateAll()
+                            RequestCategoryRefresh(key)
                             LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
                             MCE:Print(format(L["%s settings reset."], name))
                         end,
@@ -861,40 +818,40 @@ function MCE:GetOptions()
                                 type = "toggle", order = 1, width = 1.0,
                                 name = "|cffffd100" .. L["Action Bars"] .. "|r",
                                 get = function() return MCE.db.profile.categories.actionbar.enabled end,
-                                set = function(_, v) MCE.db.profile.categories.actionbar.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = function(_, v) MCE.db.profile.categories.actionbar.enabled = v; RequestCategoryRefresh("actionbar"); RefreshDynamicCategoryLabels() end,
                             },
                             toggleNameplate = {
                                 type = "toggle", order = 2, width = 1.0,
                                 name = "|cffffd100" .. L["Nameplates"] .. "|r",
                                 get = function() return MCE.db.profile.categories.nameplate.enabled end,
-                                set = function(_, v) MCE.db.profile.categories.nameplate.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = function(_, v) MCE.db.profile.categories.nameplate.enabled = v; RequestCategoryRefresh("nameplate"); RefreshDynamicCategoryLabels() end,
                             },
                             quickRowBreak1 = RowBreak(2.1),
                             toggleUnitframe = {
                                 type = "toggle", order = 3, width = 1.0,
                                 name = "|cffffd100" .. L["Unit Frames"] .. "|r",
                                 get = function() return MCE.db.profile.categories.unitframe.enabled end,
-                                set = function(_, v) MCE.db.profile.categories.unitframe.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = function(_, v) MCE.db.profile.categories.unitframe.enabled = v; RequestCategoryRefresh("unitframe"); RefreshDynamicCategoryLabels() end,
                             },
-                            toggleCooldownMgr = {
+                            togglePartyRaidFrames = {
                                 type = "toggle", order = 4, width = 1.0,
-                                name = "|cffffd100" .. L["CooldownManager"] .. "|r",
-                                get = function() return MCE.db.profile.categories.cooldownmanager.enabled end,
-                                set = function(_, v) MCE.db.profile.categories.cooldownmanager.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                name = "|cffffd100" .. L["Party / Raid Frames"] .. "|r",
+                                get = function() return MCE.db.profile.categories.partyraidframes.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.partyraidframes.enabled = v; RequestCategoryRefresh("partyraidframes"); RefreshDynamicCategoryLabels() end,
                             },
                             quickRowBreak2 = RowBreak(4.1),
-                            toggleMiniCC = {
+                            toggleCooldownMgr = {
                                 type = "toggle", order = 5, width = 1.0,
+                                name = "|cffffd100" .. L["CooldownManager"] .. "|r",
+                                get = function() return MCE.db.profile.categories.cooldownmanager.enabled end,
+                                set = function(_, v) MCE.db.profile.categories.cooldownmanager.enabled = v; RequestCategoryRefresh("cooldownmanager"); RefreshDynamicCategoryLabels() end,
+                            },
+                            toggleMiniCC = {
+                                type = "toggle", order = 6, width = 1.0,
                                 name = "|cffffd100" .. L["MiniCC"] .. "|r",
                                 hidden = function() return not MCE:IsMiniCCAvailable() end,
                                 get = function() return MCE.db.profile.categories.minicc.enabled end,
-                                set = function(_, v) MCE.db.profile.categories.minicc.enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
-                            },
-                            toggleGlobal = {
-                                type = "toggle", order = 6, width = 1.0,
-                                name = "|cffffd100" .. L["Others"] .. "|r",
-                                get = function() return MCE.db.profile.categories.global.enabled end,
-                                set = function(_, v) MCE.db.profile.categories.global.enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = function(_, v) MCE.db.profile.categories.minicc.enabled = v; RequestCategoryRefresh("minicc", true); RefreshDynamicCategoryLabels() end,
                             },
                             quickFooter = {
                                 type = "description", order = 7, fontSize = "small", width = "full",
@@ -918,7 +875,7 @@ function MCE:GetOptions()
                                 set = function(_, val)
                                     local config = GetDurationTextColorsConfig()
                                     config.enabled = val
-                                    MCE:ForceUpdateAll(true)
+                                    MCE:ForceUpdateAll(false)
                                     AceConfigRegistry:NotifyChange(addonName)
                                 end,
                             },
@@ -1019,78 +976,8 @@ function MCE:GetOptions()
                                 end,
                                 set = function(_, val)
                                     MCE.db.profile.abbrevThreshold = val
-                                    MCE:ForceUpdateAll(true)
+                                    MCE:ForceUpdateAll(false)
                                 end,
-                            },
-                        },
-                    },
-                    compactPartyAuraText = {
-                        type = "group", name = "|cffffd100" .. L["Compact Party / Raid Aura Text"] .. "|r",
-                        inline = true, order = 2.5,
-                        args = {
-                            compactPartyDesc = {
-                                type = "description", order = 0, fontSize = "small", width = "full",
-                                name = "|cff88bbdd" .. L["COMPACT_PARTY_AURA_TEXT_DESC"] .. "|r\n",
-                            },
-                            compactPartyEnabled = {
-                                type = "toggle", order = 1, width = "1",
-                                name = L["Enable Party Aura Text"],
-                                desc = L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."],
-                                get = ProfileTableGet("compactPartyAuraText", "enabled", true),
-                                set = ProfileTableSet("compactPartyAuraText", "enabled"),
-                            },
-                            compactRaidEnabled = {
-                                type = "toggle", order = 1.1, width = "1",
-                                name = L["Enable Raid Aura Text"],
-                                desc = L["Shows styled countdown text on Blizzard CompactRaidFrame buff and debuff icons. Disabling this hides aura countdown text on raid frames."],
-                                get = ProfileTableGet("compactPartyAuraText", "raidEnabled", false),
-                                set = ProfileTableSet("compactPartyAuraText", "raidEnabled"),
-                            },
-                            compactPartyAuraRowBreak = RowBreak(1.2),
-                            compactPartyFont = {
-                                type = "select", order = 2, width = 1.5,
-                                name = L["Font Face"], values = GetFontOptions,
-                                get = ProfileTableGet("compactPartyAuraText", "font"),
-                                set = ProfileTableSet("compactPartyAuraText", "font"),
-                            },
-                            compactPartyFontSize = {
-                                type = "range", order = 3, width = 0.7,
-                                name = L["Size"], min = 8, max = 36, step = 1,
-                                get = ProfileTableGet("compactPartyAuraText", "fontSize", 12),
-                                set = ProfileTableRangeSet("compactPartyAuraText", "fontSize"),
-                            },
-                            compactPartyFontStyle = {
-                                type = "select", order = 4, width = 0.8,
-                                name = L["Outline"], values = OUTLINE_OPTIONS,
-                                get = ProfileTableGet("compactPartyAuraText", "fontStyle"),
-                                set = ProfileTableSet("compactPartyAuraText", "fontStyle"),
-                            },
-                            compactPartyTextColor = {
-                                type = "color", order = 5, width = "half",
-                                name = L["Color"], hasAlpha = true,
-                                get = ProfileTableColorGet("compactPartyAuraText", "textColor"),
-                                set = ProfileTableColorSet("compactPartyAuraText", "textColor"),
-                            },
-                            compactPartyPosSpacing = SectionSpacer(5.9),
-                            compactPartyPosHeader = { type = "header", name = L["Positioning"], order = 6 },
-                            compactPartyPosSpacingAfter = SectionSpacer(6.05),
-                            compactPartyTextAnchor = {
-                                type = "select", order = 7,
-                                name = L["Anchor Point"], values = ANCHOR_OPTIONS,
-                                get = ProfileTableGet("compactPartyAuraText", "textAnchor", "CENTER"),
-                                set = ProfileTableSet("compactPartyAuraText", "textAnchor"),
-                            },
-                            compactPartyTextOffsetX = {
-                                type = "range", order = 8, width = "half",
-                                name = L["Offset X"], min = -30, max = 30, step = 1,
-                                get = ProfileTableGet("compactPartyAuraText", "textOffsetX", 0),
-                                set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetX"),
-                            },
-                            compactPartyTextOffsetY = {
-                                type = "range", order = 9, width = "half",
-                                name = L["Offset Y"], min = -30, max = 30, step = 1,
-                                get = ProfileTableGet("compactPartyAuraText", "textOffsetY", 0),
-                                set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetY"),
                             },
                         },
                     },
@@ -1125,15 +1012,15 @@ function MCE:GetOptions()
                 L["NAMEPLATE_DESC"]),
             unitframe = CreateCategoryOptions(4, L["Unit Frames"],          "unitframe",
                 L["UNITFRAME_DESC"]),
-            cooldownmanager = CreateCategoryOptions(5, L["CooldownManager"], "cooldownmanager",
+            partyraidframes = CreateCategoryOptions(5, L["Party / Raid Frames"], "partyraidframes",
+                L["PARTYRAIDFRAMES_DESC"]),
+            cooldownmanager = CreateCategoryOptions(6, L["CooldownManager"], "cooldownmanager",
                 L["COOLDOWNMANAGER_DESC"]),
-            minicc          = CreateCategoryOptions(6, L["MiniCC"],          "minicc",
+            minicc          = CreateCategoryOptions(7, L["MiniCC"],          "minicc",
                 L["MINICC_DESC"]),
-            global          = CreateCategoryOptions(7, L["Others"],          "global",
-                L["OTHERS_DESC"]),
 
             help = {
-                type = "group", name = L["Help & Support"], order = 9,
+                type = "group", name = L["Help & Support"], order = 8,
                 args = {
                     aboutHeader = {
                         type = "description", order = 0.1, fontSize = "large",

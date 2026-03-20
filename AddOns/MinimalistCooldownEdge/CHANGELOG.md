@@ -2,6 +2,9 @@
 # Changelog
 
 
+## [3.6.1] - 2026-03-18
+- Refactor
+
 ## [3.5.2] - 2026-03-18
 - Update swipe drawing logic for charge cooldowns
 
