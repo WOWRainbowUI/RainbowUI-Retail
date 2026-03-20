@@ -8,7 +8,7 @@ local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
 
 local VERSION_ALERTS = {
     ["3.2.0"] = {
-        updateLine = "|cff7dd3fcUpdate:|r CooldownManager viewers moved from |cffc084fcOthers|r to their own category - style them with |cfffacc15/minice|r.",
+        updateLine = "|cff7dd3fcUpdate:|r CooldownManager viewers use their own category - style them with |cfffacc15/minice|r.",
     },
 }
 

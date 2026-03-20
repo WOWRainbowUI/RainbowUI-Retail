@@ -3,23 +3,29 @@
 local MCE        = LibStub("AceAddon-3.0"):GetAddon("MinimalistCooldownEdge")
 local Styler     = MCE:NewModule("Styler")
 local Classifier = MCE:GetModule("Classifier")
+local Constants  = MCE.Constants
+local GetDurationTextColorsConfig = MCE.Helpers.GetDurationTextColorsConfig
 
 local pairs, ipairs, type, pcall, wipe = pairs, ipairs, type, pcall, wipe
 local math_abs = math.abs
 local strfind = string.find
 local setmetatable = setmetatable
 local select = select
+local _G = _G
 local C_Timer_After = C_Timer.After
+local C_Timer_NewTimer = C_Timer.NewTimer
 local GetTime = GetTime
-local EnumerateFrames  = EnumerateFrames
 local hooksecurefunc = hooksecurefunc
 local issecretvalue = issecretvalue or function() return false end
 local canaccessallvalues = canaccessallvalues
+
+local SUPPORTED_CATEGORIES = Constants.SUPPORTED_CATEGORIES
 
 local weakMeta = { __mode = "k" }
 
 local frameState = setmetatable({}, weakMeta)
 local fontState  = setmetatable({}, weakMeta)
+local stackRegionState = setmetatable({}, weakMeta)
 
 local trackedCooldowns      = setmetatable({}, weakMeta)
 local durationColoredFrames = setmetatable({}, weakMeta)
@@ -31,6 +37,15 @@ local durationColorTicker = nil
 local durationColorCurve = nil
 local activeDurationFrameCount = 0
 local durationCacheSweepCounter = 0
+local IsSecretValue
+local CanAccessAllValues
+local RefreshTrackedDurationColor
+local ClearTrackedDurationColor
+local StartDurationColorTicker
+local IsSupportedCategory
+local ResetQueuedFrameUpdates
+local QueueAuraRecovery
+local ApplyCountdownAbbrevThreshold
 local durationObjectCache = setmetatable({}, {
     __call = function(self, endTime, duration, modRate)
         if type(endTime) ~= "number" or type(duration) ~= "number" then
@@ -75,14 +90,198 @@ local function GetFontState(region)
     return s
 end
 
-local function IsSecretValue(value)
+local function GetStackRegionState(region)
+    local s = stackRegionState[region]
+    if not s then
+        s = {
+            nativeVisible = region and region.IsShown and region:IsShown() or false,
+        }
+        stackRegionState[region] = s
+    end
+    return s
+end
+
+local function InvalidateFontRegionState(region)
+    if not region then
+        return
+    end
+
+    GetFontState(region).dirty = true
+end
+
+local function EnsureStackRegionVisibilityHooks(region)
+    if not region or MCE:IsForbidden(region) then
+        return
+    end
+
+    local state = GetStackRegionState(region)
+    if state.visibilityHooksInstalled then
+        return
+    end
+
+    if type(region.Show) == "function" then
+        hooksecurefunc(region, "Show", function(self)
+            local s = stackRegionState[self]
+            if s and not s.suppressVisibility then
+                s.nativeVisible = true
+            end
+        end)
+    end
+
+    if type(region.Hide) == "function" then
+        hooksecurefunc(region, "Hide", function(self)
+            local s = stackRegionState[self]
+            if s and not s.suppressVisibility then
+                s.nativeVisible = false
+            end
+        end)
+    end
+
+    state.visibilityHooksInstalled = true
+end
+
+local function SetManagedStackRegionVisible(region, visible)
+    if not region then
+        return
+    end
+
+    local state = GetStackRegionState(region)
+    local isVisible = region.IsShown and region:IsShown() or false
+    if isVisible == visible then
+        return
+    end
+
+    state.suppressVisibility = true
+    if visible then
+        region:Show()
+    else
+        region:Hide()
+    end
+    state.suppressVisibility = nil
+end
+
+local function InvalidateCooldownTextStyleState(cdFrame)
+    local fs = GetFrameState(cdFrame)
+    fs.styledCat = nil
+    fs.appliedTextColor = nil
+    return fs
+end
+
+local function NormalizeRefreshSelection(selection)
+    if selection == nil or selection == true or selection == "all" then
+        return nil
+    end
+
+    if type(selection) == "string" then
+        return IsSupportedCategory(selection) and { [selection] = true } or {}
+    end
+
+    if type(selection) ~= "table" then
+        return {}
+    end
+
+    local normalized = {}
+    local hasEntries = false
+
+    for key, value in pairs(selection) do
+        local category = nil
+
+        if type(key) == "number" then
+            category = value
+        elseif value then
+            category = key
+        end
+
+        if IsSupportedCategory(category) then
+            normalized[category] = true
+            hasEntries = true
+        end
+    end
+
+    return hasEntries and normalized or {}
+end
+
+local function GetManagedCooldownCategory(cdFrame)
+    local category = Classifier:GetCategory(cdFrame)
+    if not category and compactPartyAuraFrames[cdFrame] and Classifier:GetCompactPartyAuraFrameType(cdFrame) then
+        return "partyraidframes"
+    end
+
+    return category
+end
+
+local function MatchesRefreshSelection(cdFrame, selection, category)
+    if selection == nil then
+        return true
+    end
+
+    if category and selection[category] then
+        return true
+    end
+
+    if selection.partyraidframes and compactPartyAuraFrames[cdFrame] then
+        return Classifier:GetCompactPartyAuraFrameType(cdFrame) ~= nil
+    end
+
+    return false
+end
+
+local function ForEachManagedCooldown(selection, callback)
+    local normalizedSelection = NormalizeRefreshSelection(selection)
+    local seen = {}
+
+    for cdFrame in pairs(trackedCooldowns) do
+        if cdFrame and not MCE:IsForbidden(cdFrame) and not seen[cdFrame] then
+            seen[cdFrame] = true
+            local category = normalizedSelection and GetManagedCooldownCategory(cdFrame) or nil
+            if MatchesRefreshSelection(cdFrame, normalizedSelection, category) then
+                callback(cdFrame, category)
+            end
+        end
+    end
+
+    for cdFrame in pairs(compactPartyAuraFrames) do
+        if cdFrame and not MCE:IsForbidden(cdFrame) and not seen[cdFrame] then
+            seen[cdFrame] = true
+            local category = normalizedSelection and GetManagedCooldownCategory(cdFrame) or nil
+            if MatchesRefreshSelection(cdFrame, normalizedSelection, category) then
+                callback(cdFrame, category)
+            end
+        end
+    end
+end
+
+local function ReleaseManagedCooldown(cdFrame)
+    ClearTrackedDurationColor(cdFrame)
+    trackedCooldowns[cdFrame] = nil
+
+    local fs = frameState[cdFrame]
+    if fs then
+        fs.visualManaged = compactPartyAuraFrames[cdFrame] and true or nil
+    end
+end
+
+local function QueueManagedCooldownRefresh(cdFrame)
+    if not cdFrame or IsSecretValue(cdFrame) or MCE:IsForbidden(cdFrame) then
+        return
+    end
+
+    local fs = frameState[cdFrame]
+    if not fs or not fs.visualManaged then
+        return
+    end
+
+    Styler:QueueUpdate(cdFrame)
+end
+
+IsSecretValue = function(value)
     if not issecretvalue then return false end
 
     local ok, result = pcall(issecretvalue, value)
     return ok and result or false
 end
 
-local function CanAccessAllValues(...)
+CanAccessAllValues = function(...)
     if not canaccessallvalues then return true end
 
     local ok, result = pcall(canaccessallvalues, ...)
@@ -96,11 +295,6 @@ local function StopDurationColorTicker()
     end
     durationCacheSweepCounter = 0
 end
-
-local RefreshTrackedDurationColor
-local ClearTrackedDurationColor
-local StartDurationColorTicker
-local ResolveCooldownContext
 
 local function AddActiveDurationFrame(cdFrame)
     if not cdFrame or activeDurationFrames[cdFrame] then
@@ -163,83 +357,125 @@ local function EnsureCooldownLifecycleHooks(cooldown)
     hookedCooldowns[cooldown] = true
 end
 
-local MAX_COOLDOWN_OWNER_SCAN_DEPTH = 10
-
-local function ExtractUnitToken(unit)
-    if type(unit) == "string" then
-        return unit ~= "" and unit or nil
+local function EnsureManagedCooldownVisualHooks(cooldown)
+    if not cooldown or MCE:IsForbidden(cooldown) or IsSecretValue(cooldown) then
+        return
     end
 
-    if type(unit) ~= "table" then
-        return nil
+    local fs = GetFrameState(cooldown)
+    if fs.visualHooksInstalled then
+        return
     end
 
-    local token = unit.unitid
-        or unit.unitID
-        or unit.unitToken
-        or unit.displayedUnit
-        or unit.memberUnit
-        or unit.unit
+    if type(cooldown.SetDrawEdge) == "function" then
+        hooksecurefunc(cooldown, "SetDrawEdge", function(self, enabled)
+            if not self or IsSecretValue(self) or MCE:IsForbidden(self) or IsSecretValue(enabled) then return end
 
-    if type(token) == "string" and token ~= "" then
-        return token
+            local state = frameState[self]
+            if not state or not state.visualManaged or state.suppressEdge then
+                return
+            end
+
+            if state.edge ~= nil and state.edge ~= enabled then
+                state.suppressEdge = true
+                pcall(self.SetDrawEdge, self, state.edge)
+                state.suppressEdge = nil
+            end
+        end)
     end
 
-    return nil
-end
+    if type(cooldown.SetEdgeScale) == "function" then
+        hooksecurefunc(cooldown, "SetEdgeScale", function(self, scale)
+            if not self or IsSecretValue(self) or MCE:IsForbidden(self) or IsSecretValue(scale) then return end
 
-local function GetFrameUnitToken(frame)
-    if not frame then return nil end
+            local state = frameState[self]
+            if not state or not state.visualManaged or state.suppressEdgeScale then
+                return
+            end
 
-    return ExtractUnitToken(frame.unitToken)
-        or ExtractUnitToken(frame.unit)
-        or ExtractUnitToken(frame.displayedUnit)
-        or ExtractUnitToken(frame.memberUnit)
-        or ExtractUnitToken(frame.auraDataUnit)
-end
-
-local function GetFrameAuraInstanceID(frame)
-    if not frame then return nil end
-
-    return frame.auraInstanceID
-        or frame.auraDataInstanceID
-        or frame.auraInstanceId
-        or frame.auraDataInstanceId
-end
-
-local function GetCompactGroupFrameTypeFromUnit(unitToken)
-    if type(unitToken) ~= "string" then
-        return nil
+            if state.edgeScale ~= nil and not IsNearlyEqual(state.edgeScale, scale) then
+                state.suppressEdgeScale = true
+                pcall(self.SetEdgeScale, self, state.edgeScale)
+                state.suppressEdgeScale = nil
+            end
+        end)
     end
 
-    if strfind(unitToken, "raid", 1, true) == 1 then
-        return "raid"
+    if type(cooldown.SetSwipeColor) == "function" then
+        hooksecurefunc(cooldown, "SetSwipeColor", function(self, r, g, b, a)
+            if not self or IsSecretValue(self) or MCE:IsForbidden(self) then return end
+            if IsSecretValue(r) or IsSecretValue(g) or IsSecretValue(b) or IsSecretValue(a) then return end
+
+            local state = frameState[self]
+            if not state or not state.visualManaged or state.suppressSwipe then
+                return
+            end
+
+            if state.swipeColor and not IsSameSwipeColor(state.swipeColor, r, g, b, a) then
+                state.suppressSwipe = true
+                pcall(self.SetSwipeColor, self, state.swipeColor.r, state.swipeColor.g, state.swipeColor.b, state.swipeColor.a)
+                state.suppressSwipe = nil
+            end
+        end)
     end
 
-    if strfind(unitToken, "party", 1, true) == 1 then
-        return "party"
+    if type(cooldown.SetHideCountdownNumbers) == "function" then
+        hooksecurefunc(cooldown, "SetHideCountdownNumbers", function(self, hide)
+            if not self or IsSecretValue(self) or MCE:IsForbidden(self) or IsSecretValue(hide) then return end
+
+            local state = frameState[self]
+            if not state or not state.visualManaged or state.suppressHideNums then
+                return
+            end
+
+            if state.hideNums ~= nil and state.hideNums ~= hide then
+                state.suppressHideNums = true
+                pcall(self.SetHideCountdownNumbers, self, state.hideNums)
+                state.suppressHideNums = nil
+            end
+        end)
     end
 
-    return nil
-end
+    if type(cooldown.SetDrawSwipe) == "function" then
+        hooksecurefunc(cooldown, "SetDrawSwipe", function(self, enabled)
+            if not self or IsSecretValue(self) or MCE:IsForbidden(self) or IsSecretValue(enabled) then return end
 
-local function GetCompactPartyAuraFrameType(cdFrame)
-    local fs = ResolveCooldownContext and ResolveCooldownContext(cdFrame) or nil
-    local frameType = fs and fs.compactPartyAuraType
-    return frameType and frameType ~= false and frameType or nil
+            local state = frameState[self]
+            if not state or not state.visualManaged or state.suppressSwipeDraw then
+                return
+            end
+
+            if state.drawSwipe ~= nil and state.drawSwipe ~= enabled then
+                state.suppressSwipeDraw = true
+                pcall(self.SetDrawSwipe, self, state.drawSwipe)
+                state.suppressSwipeDraw = nil
+            end
+        end)
+    end
+
+    fs.visualHooksInstalled = true
 end
 
 local function GetCompactPartyAuraConfig()
-    return MCE.db and MCE.db.profile and MCE.db.profile.compactPartyAuraText or nil
+    local categories = MCE.db and MCE.db.profile and MCE.db.profile.categories
+    return categories and categories.partyraidframes or nil
+end
+
+local function ShouldEnableRaidOverFiveAuraText(config)
+    if not config or not config.enableForRaidOverFive then
+        return false
+    end
+
+    return IsInRaid and IsInRaid() and GetNumGroupMembers and GetNumGroupMembers() > 5 or false
 end
 
 local function ShouldUseCompactPartyAuraText(config, frameType)
     if not config then return false end
     if frameType == "raid" then
-        return config.raidEnabled
+        return ShouldEnableRaidOverFiveAuraText(config)
     end
     if frameType == "party" then
-        return config.enabled
+        return true
     end
     return false
 end
@@ -338,9 +574,13 @@ local function EnsureFontStringSetFontHook(region)
             return
         end
 
-        s.suppressSetFont = true
-        pcall(self.SetFont, self, s.fontPath, s.fontSize, s.fontStyle)
-        s.suppressSetFont = nil
+        InvalidateFontRegionState(self)
+
+        local ownerCooldown = s.ownerCooldown
+        if ownerCooldown then
+            InvalidateCooldownTextStyleState(ownerCooldown)
+            QueueManagedCooldownRefresh(ownerCooldown)
+        end
     end)
 
     fs.hooked = true
@@ -378,9 +618,19 @@ local function ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, f
     drawLayerSubLevel = drawLayerSubLevel or 0
 
     local state = GetFontState(region)
+    local forceStyle = state.dirty
     state.enforceFont = enforceFont or false
+    if state.enforceFont
+       and relativeFrame
+       and relativeFrame.IsObjectType
+       and relativeFrame:IsObjectType("Cooldown") then
+        state.ownerCooldown = relativeFrame
+    else
+        state.ownerCooldown = nil
+    end
 
-    if state.fontPath ~= fontPath
+    if forceStyle
+       or state.fontPath ~= fontPath
        or state.fontSize ~= fontSize
        or state.fontStyle ~= fontStyle then
         if state.enforceFont then
@@ -395,7 +645,8 @@ local function ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, f
     end
 
     if color then
-        if state.colorR ~= color.r
+        if forceStyle
+           or state.colorR ~= color.r
            or state.colorG ~= color.g
            or state.colorB ~= color.b
            or state.colorA ~= color.a then
@@ -408,7 +659,8 @@ local function ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, f
     end
 
     if point and relativeFrame then
-        if state.point ~= point
+        if forceStyle
+           or state.point ~= point
            or state.relativeFrame ~= relativeFrame
            or state.relativePoint ~= relativePoint
            or state.offsetX ~= offsetX
@@ -424,7 +676,8 @@ local function ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, f
     end
 
     if drawLayer and region.SetDrawLayer then
-        if state.drawLayer ~= drawLayer
+        if forceStyle
+           or state.drawLayer ~= drawLayer
            or state.drawLayerSubLevel ~= drawLayerSubLevel
         then
             region:SetDrawLayer(drawLayer, drawLayerSubLevel)
@@ -432,6 +685,8 @@ local function ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, f
             state.drawLayerSubLevel = drawLayerSubLevel
         end
     end
+
+    state.dirty = nil
 end
 
 local function ApplyCompactPartyAuraTextStyle(cdFrame, config)
@@ -486,12 +741,38 @@ local function SetCompactPartyAuraNativeHide(cdFrame, hide)
     fs.hideNums = hide
 end
 
-local function SyncCompactPartyAuraCooldown(cdFrame)
-    local frameType = GetCompactPartyAuraFrameType(cdFrame)
-    if not frameType then return false end
-    compactPartyAuraFrames[cdFrame] = true
+local function ClearCompactPartyAuraCooldown(cdFrame)
+    if not compactPartyAuraFrames[cdFrame] then
+        return
+    end
 
+    compactPartyAuraFrames[cdFrame] = nil
+    ClearTrackedDurationColor(cdFrame)
+    SetCompactPartyAuraNativeTextVisible(cdFrame, true)
+    SetCompactPartyAuraNativeHide(cdFrame, false)
+
+    local fs = frameState[cdFrame]
+    if fs and not trackedCooldowns[cdFrame] then
+        fs.visualManaged = nil
+    end
+end
+
+local function SyncCompactPartyAuraCooldown(cdFrame)
+    local frameType = Classifier:GetCompactPartyAuraFrameType(cdFrame)
+    if not frameType then
+        ClearCompactPartyAuraCooldown(cdFrame)
+        return false
+    end
     local config = GetCompactPartyAuraConfig()
+    if not config or not config.enabled then
+        ClearCompactPartyAuraCooldown(cdFrame)
+        return false
+    end
+
+    compactPartyAuraFrames[cdFrame] = true
+    GetFrameState(cdFrame).visualManaged = true
+    EnsureManagedCooldownVisualHooks(cdFrame)
+
     if not ShouldUseCompactPartyAuraText(config, frameType) then
         ClearTrackedDurationColor(cdFrame)
         SetCompactPartyAuraNativeTextVisible(cdFrame, false)
@@ -505,11 +786,7 @@ local function SyncCompactPartyAuraCooldown(cdFrame)
         SetCompactPartyAuraNativeTextVisible(cdFrame, true)
     end
 
-    -- Apply abbreviation threshold
-    local profile = MCE.db and MCE.db.profile
-    if profile and cdFrame.SetCountdownAbbrevThreshold then
-        pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, profile.abbrevThreshold or 59)
-    end
+    ApplyCountdownAbbrevThreshold(cdFrame, GetFrameState(cdFrame))
 
     if RefreshTrackedDurationColor then
         RefreshTrackedDurationColor(cdFrame, "compactPartyAura", config)
@@ -518,66 +795,14 @@ local function SyncCompactPartyAuraCooldown(cdFrame)
     return true
 end
 
-local COOLDOWN_MEMBER_KEYS = { "cooldown", "Cooldown", "chargeCooldown", "ChargeCooldown" }
-
-local function QueueKnownCooldownMembers(frame, queueUpdate, forcedCategory)
-    local seen1, seen2
-    for i = 1, 4 do
-        local cooldown = frame[COOLDOWN_MEMBER_KEYS[i]]
-        if type(cooldown) == "table"
-           and cooldown ~= seen1 and cooldown ~= seen2
-           and not MCE:IsForbidden(cooldown) then
-            if not seen1 then seen1 = cooldown else seen2 = cooldown end
-            queueUpdate(cooldown, forcedCategory)
-        end
-    end
+IsSupportedCategory = function(category)
+    return category and SUPPORTED_CATEGORIES[category] or false
 end
 
--- Pre-defined callback to avoid closure allocation in ForceUpdateAll
-local function QueueUpdateCallback(cooldown, forcedCategory)
+local function HandleBootstrappedCooldown(cooldown, forcedCategory)
+    Classifier:RegisterDiscoveredCooldown(cooldown, forcedCategory)
+    SyncCompactPartyAuraCooldown(cooldown)
     Styler:QueueUpdate(cooldown, forcedCategory)
-end
-
-local function GetActionIDFromButton(parent)
-    if not parent then return nil end
-
-    local actionID = parent.action
-    if type(actionID) == "number" then
-        return actionID
-    end
-
-    if parent.GetAttribute then
-        local ok, attr = pcall(parent.GetAttribute, parent, "action")
-        if ok and type(attr) == "number" then
-            return attr
-        end
-    end
-
-    return nil
-end
-
-local function IsAssistedCombatActionCooldown(cdFrame)
-    if not cdFrame or not C_ActionBar or type(C_ActionBar.IsAssistedCombatAction) ~= "function" then
-        return false
-    end
-
-    local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
-    if not parent or MCE:IsForbidden(parent) then
-        return false
-    end
-
-    local actionID = GetActionIDFromButton(parent)
-    if not actionID and ResolveCooldownContext then
-        local fs = ResolveCooldownContext(cdFrame)
-        actionID = fs and fs.actionID ~= false and fs.actionID or nil
-    end
-
-    if type(actionID) ~= "number" then
-        return false
-    end
-
-    local ok, isAssisted = pcall(C_ActionBar.IsAssistedCombatAction, actionID)
-    return ok and isAssisted == true
 end
 
 -- Scratch table reused by GetCooldownTextRegions to avoid per-call allocation
@@ -710,14 +935,6 @@ local function BuildColorCurve(durationConfig)
     return curve
 end
 
-local function GetDurationTextColorsConfig()
-    local profile = MCE.db and MCE.db.profile
-    if not profile then return nil end
-
-    profile.durationTextColors = MCE.EnsureDurationTextColorConfig(profile.durationTextColors)
-    return profile.durationTextColors
-end
-
 local function GetDurationTextSourceConfig(sourceKey)
     if sourceKey == "compactPartyAura" then
         return GetCompactPartyAuraConfig()
@@ -738,8 +955,8 @@ local function IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
     end
 
     if sourceKey == "compactPartyAura" then
-        local frameType = GetCompactPartyAuraFrameType(cdFrame)
-        return frameType and ShouldUseCompactPartyAuraText(config, frameType) or false
+        local frameType = Classifier:GetCompactPartyAuraFrameType(cdFrame)
+        return config.enabled == true and frameType and ShouldUseCompactPartyAuraText(config, frameType) or false
     end
 
     return config.enabled == true
@@ -801,160 +1018,13 @@ local function IsChargeCooldownFrame(cooldown, parent)
     return parent.chargeCooldown == cooldown or parent.ChargeCooldown == cooldown
 end
 
-local function GetCooldownSpellID(owner)
-    if not owner then return nil end
-
-    if type(owner.GetSpellID) == "function" then
-        local ok, spellID = pcall(owner.GetSpellID, owner)
-        if ok and spellID then
-            return spellID
-        end
-    end
-
-    return owner.spellID
-end
-
-ResolveCooldownContext = function(cdFrame, forceRefresh)
-    local fs = GetFrameState(cdFrame)
-    if fs.contextResolved and not forceRefresh then
-        return fs
-    end
-
-    local current = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
-    local actionButton, actionID
-    local spellOwner
-    local auraInstanceOwner
-    local auraUnitOwner
-    local compactPartyAuraType = false
-    local sawAuraContext = false
-    local hasAuraNamedAncestor = false
-
-    for _ = 1, MAX_COOLDOWN_OWNER_SCAN_DEPTH do
-        if not current then break end
-
-        if not actionButton then
-            local resolvedActionID = GetActionIDFromButton(current)
-            if resolvedActionID then
-                actionButton = current
-                actionID = resolvedActionID
-            end
-        end
-
-        if not spellOwner and GetCooldownSpellID(current) ~= nil then
-            spellOwner = current
-        end
-
-        if not auraInstanceOwner and GetFrameAuraInstanceID(current) ~= nil then
-            auraInstanceOwner = current
-        end
-
-        if not auraUnitOwner and GetFrameUnitToken(current) ~= nil then
-            auraUnitOwner = current
-        end
-
-        local name = current.GetName and current:GetName() or ""
-        if strfind(name, "Buff", 1, true)
-           or strfind(name, "Debuff", 1, true)
-           or strfind(name, "Aura", 1, true) then
-            hasAuraNamedAncestor = true
-            sawAuraContext = true
-            if compactPartyAuraType == false then
-                if strfind(name, "CompactPartyFrame", 1, true) then
-                    compactPartyAuraType = "party"
-                elseif strfind(name, "CompactRaidFrame", 1, true) then
-                    compactPartyAuraType = "raid"
-                end
-            end
-        end
-
-        if compactPartyAuraType == false and sawAuraContext and strfind(name, "Compact", 1, true) then
-            local unitType = GetCompactGroupFrameTypeFromUnit(GetFrameUnitToken(current))
-            if unitType then
-                compactPartyAuraType = unitType
-            end
-        end
-
-        current = current.GetParent and current:GetParent() or nil
-    end
-
-    fs.contextResolved = true
-    fs.actionButton = actionButton or false
-    fs.actionID = actionID or false
-    fs.spellOwner = spellOwner or false
-    fs.auraInstanceOwner = auraInstanceOwner or false
-    fs.auraUnitOwner = auraUnitOwner or false
-    fs.compactPartyAuraType = compactPartyAuraType or false
-    fs.hasAuraNamedAncestor = hasAuraNamedAncestor or false
-    return fs
-end
-
-local function GetAuraDurationContext(cdFrame)
-    local fs = ResolveCooldownContext(cdFrame)
-    local auraOwner = fs.auraInstanceOwner ~= false and fs.auraInstanceOwner or nil
-    local unitOwner = fs.auraUnitOwner ~= false and fs.auraUnitOwner or nil
-    local auraInstanceID = GetFrameAuraInstanceID(auraOwner)
-    local unitToken = GetFrameUnitToken(unitOwner)
-
-    if (not auraInstanceID or not unitToken) and fs.hasAuraNamedAncestor then
-        fs = ResolveCooldownContext(cdFrame, true)
-        auraOwner = fs.auraInstanceOwner ~= false and fs.auraInstanceOwner or nil
-        unitOwner = fs.auraUnitOwner ~= false and fs.auraUnitOwner or nil
-        auraInstanceID = GetFrameAuraInstanceID(auraOwner)
-        unitToken = GetFrameUnitToken(unitOwner)
-    end
-
-    if auraInstanceID and unitToken then
-        return auraInstanceID, unitToken, auraOwner or unitOwner
-    end
-
-    return nil, nil, nil
-end
-
-local function GetSpellCooldownOwner(cdFrame)
-    local fs = ResolveCooldownContext(cdFrame)
-    return fs.spellOwner ~= false and fs.spellOwner or nil
-end
-
-local function ShouldUseAuraDurationFallback(cdFrame)
-    local category = Classifier:GetCategory(cdFrame)
-    if category == "actionbar" or category == "minicc" then
-        return false
-    end
-
-    if category == "cooldownmanager" then
-        local viewerType = Classifier:GetCooldownManagerViewerType(cdFrame)
-        return viewerType == "bufficon"
-    end
-
-    if category == "nameplate" or category == "unitframe" then
-        return true
-    end
-
-    local fs = ResolveCooldownContext(cdFrame)
-    return fs.hasAuraNamedAncestor == true
-end
-
-local function IsAuraDrivenCooldown(cdFrame)
-    if not ShouldUseAuraDurationFallback(cdFrame) then
-        return false
-    end
-
-    local auraInstanceID, unitToken = GetAuraDurationContext(cdFrame)
-    if auraInstanceID and unitToken then
-        return true
-    end
-
-    local fs = ResolveCooldownContext(cdFrame)
-    return fs.hasAuraNamedAncestor == true
-end
-
-local function GetFallbackDurationObject(cdFrame)
+local function GetFallbackDurationObject(cdFrame, forceContextRefresh, skipAuraFallback)
     local parent = cdFrame and cdFrame.GetParent and cdFrame:GetParent()
     if not parent then return nil end
 
-    local fs = ResolveCooldownContext(cdFrame)
-    local actionButton = fs.actionButton ~= false and fs.actionButton or parent
-    local actionID = fs.actionID ~= false and fs.actionID or GetActionIDFromButton(actionButton)
+    local contextState = Classifier:ResolveCooldownContext(cdFrame, forceContextRefresh == true)
+    local actionButton = contextState and contextState.actionButton ~= false and contextState.actionButton or parent
+    local actionID = contextState and contextState.actionID ~= false and contextState.actionID or Classifier:GetActionIDFromButton(actionButton)
     if actionID and C_ActionBar then
         if IsChargeCooldownFrame(cdFrame, actionButton) and C_ActionBar.GetActionChargeDuration then
             local ok, durationObject = pcall(C_ActionBar.GetActionChargeDuration, actionID)
@@ -971,8 +1041,8 @@ local function GetFallbackDurationObject(cdFrame)
         end
     end
 
-    if ShouldUseAuraDurationFallback(cdFrame) then
-        local auraInstanceID, unitToken = GetAuraDurationContext(cdFrame)
+    if not skipAuraFallback and Classifier:ShouldUseAuraDurationFallback(cdFrame) then
+        local auraInstanceID, unitToken = Classifier:GetAuraDurationContext(cdFrame)
 
         if auraInstanceID and unitToken and C_UnitAuras and C_UnitAuras.GetAuraDuration then
             local ok, durationObject = pcall(C_UnitAuras.GetAuraDuration, unitToken, auraInstanceID)
@@ -982,8 +1052,8 @@ local function GetFallbackDurationObject(cdFrame)
         end
     end
 
-    local spellOwner = GetSpellCooldownOwner(cdFrame) or actionButton or parent
-    local spellID = GetCooldownSpellID(spellOwner)
+    local spellOwner = Classifier:GetSpellCooldownOwner(cdFrame) or actionButton or parent
+    local spellID = Classifier:GetCooldownSpellID(spellOwner)
 
     if spellID and C_Spell then
         if IsChargeCooldownFrame(cdFrame, spellOwner or parent) and C_Spell.GetSpellChargeDuration then
@@ -1004,7 +1074,18 @@ local function GetFallbackDurationObject(cdFrame)
     return nil
 end
 
-local function SetCooldownDurationObject(cdFrame, durationObject)
+local function ClearStoredCooldownDurationObject(cdFrame)
+    local fs = frameState[cdFrame]
+    if fs then
+        fs.durationObject = nil
+    end
+end
+
+local function GetLiveActionBarDurationObject(cdFrame)
+    return GetFallbackDurationObject(cdFrame, true, true)
+end
+
+local function SetStoredCooldownDurationObject(cdFrame, durationObject)
     if not cdFrame or IsSecretValue(cdFrame) then return end
 
     if durationObject and (IsSecretValue(durationObject) or not CanAccessAllValues(durationObject)) then
@@ -1015,29 +1096,44 @@ local function SetCooldownDurationObject(cdFrame, durationObject)
         durationObject = nil
     end
 
-    if not durationObject then
-        durationObject = GetFallbackDurationObject(cdFrame)
-    end
-
     if durationObject then
         GetFrameState(cdFrame).durationObject = durationObject
     else
-        local fs = frameState[cdFrame]
-        if fs then fs.durationObject = nil end
+        ClearStoredCooldownDurationObject(cdFrame)
     end
 end
 
-local function GetCooldownDurationObject(cdFrame)
+local function GetStoredCooldownDurationObject(cdFrame, allowFallbackLookup)
     local fs = frameState[cdFrame]
     if fs and fs.durationObject then
         return fs.durationObject
     end
 
+    if allowFallbackLookup == false then
+        return nil
+    end
+
     local durationObject = GetFallbackDurationObject(cdFrame)
     if durationObject then
-        SetCooldownDurationObject(cdFrame, durationObject)
+        SetStoredCooldownDurationObject(cdFrame, durationObject)
     end
     return durationObject
+end
+
+local function GetCooldownDurationObject(cdFrame, sourceKey)
+    if sourceKey == "actionbar" then
+        -- Action slots can be rebound/reused while the global discovery pass is
+        -- still classifying other cooldowns. Read the current slot duration
+        -- fresh so we do not keep evaluating a stale/shared DurationObject.
+        local currentDurationObject = GetLiveActionBarDurationObject(cdFrame)
+        if currentDurationObject then
+            return currentDurationObject
+        end
+
+        return GetStoredCooldownDurationObject(cdFrame, false)
+    end
+
+    return GetStoredCooldownDurationObject(cdFrame, true)
 end
 
 --- Invalidates the cached color curve (call on any config change).
@@ -1065,14 +1161,14 @@ local function ResetCountdownTextColor(cdFrame, config)
     return ApplyTextColorToCooldownRegions(cdFrame, tc)
 end
 
-local function ApplyCooldownDurationColor(cdFrame, config, curve)
+local function ApplyCooldownDurationColor(cdFrame, sourceKey, config, curve)
     if not cdFrame or MCE:IsForbidden(cdFrame) then return false end
     if cdFrame.IsShown and not cdFrame:IsShown() then return false end
 
     local textRegions, textRegionCount = GetCachedCooldownTextRegions(cdFrame)
     if textRegionCount == 0 then return false end
 
-    local duration = GetCooldownDurationObject(cdFrame)
+    local duration = GetCooldownDurationObject(cdFrame, sourceKey)
     if not duration then
         ResetCountdownTextColor(cdFrame, config)
         return false
@@ -1101,7 +1197,7 @@ ClearTrackedDurationColor = function(cdFrame)
     durationColoredFrames[cdFrame] = nil
     local fs = frameState[cdFrame]
     if fs then
-        fs.durationObject = nil
+        ClearStoredCooldownDurationObject(cdFrame)
         fs.appliedTextColor = nil
     end
 
@@ -1147,7 +1243,7 @@ local function UpdateDurationColors()
             local config = GetDurationTextSourceConfig(sourceKey)
             if cdFrame and not MCE:IsForbidden(cdFrame)
                and IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
-               and ApplyCooldownDurationColor(cdFrame, config, curve) then
+               and ApplyCooldownDurationColor(cdFrame, sourceKey, config, curve) then
                 activeCount = activeCount + 1
             else
                 if config then
@@ -1176,7 +1272,7 @@ RefreshTrackedDurationColor = function(cdFrame, sourceKey, config)
     end
 
     local curve = GetColorCurve()
-    if curve and ApplyCooldownDurationColor(cdFrame, config, curve) then
+    if curve and ApplyCooldownDurationColor(cdFrame, sourceKey, config, curve) then
         EnsureCooldownLifecycleHooks(cdFrame)
         durationColoredFrames[cdFrame] = sourceKey
         if cdFrame.IsVisible and cdFrame:IsVisible() then
@@ -1196,7 +1292,7 @@ end
 local function HandleCooldownDurationUpdate(cooldown, durationObject)
     if not cooldown or MCE:IsForbidden(cooldown) or IsSecretValue(cooldown) then return end
 
-    SetCooldownDurationObject(cooldown, durationObject)
+    SetStoredCooldownDurationObject(cooldown, durationObject)
 
     -- Blizzard may reset visual state (text color, edge, etc.) alongside a
     -- cooldown update.  Invalidate the text-color cache so the next style
@@ -1211,7 +1307,7 @@ local function HandleCooldownDurationUpdate(cooldown, durationObject)
         local curve = GetColorCurve()
         local config = GetDurationTextSourceConfig(sourceKey)
         if curve and IsDurationColorEnabledForSource(cooldown, sourceKey, config) then
-            ApplyCooldownDurationColor(cooldown, config, curve)
+            ApplyCooldownDurationColor(cooldown, sourceKey, config, curve)
         else
             if config then
                 ResetCountdownTextColor(cooldown, config)
@@ -1224,31 +1320,18 @@ local function HandleCooldownDurationUpdate(cooldown, durationObject)
         return
     end
 
-    Styler:QueueUpdate(cooldown)
-
-    local fs = frameState[cooldown]
-    if IsAuraDrivenCooldown(cooldown) and not (fs and fs.pendingAuraRefresh) then
-        GetFrameState(cooldown).pendingAuraRefresh = true
-        C_Timer_After(0, function()
-            local fs2 = frameState[cooldown]
-            if fs2 then fs2.pendingAuraRefresh = nil end
-
-            if not cooldown or MCE:IsForbidden(cooldown) or IsSecretValue(cooldown) then
-                return
-            end
-
-            if fs2 then
-                fs2.durationObject = nil
-                fs2.contextResolved = nil
-            end
-
-            if SyncCompactPartyAuraCooldown(cooldown) then
-                return
-            end
-
-            Styler:QueueUpdate(cooldown)
-        end)
+    local category = Classifier:GetCategory(cooldown)
+    if not category then
+        ReleaseManagedCooldown(cooldown)
+        return
     end
+
+    if Classifier:IsAuraDrivenCooldown(cooldown, category) then
+        QueueAuraRecovery(cooldown, 0)
+        return
+    end
+
+    Styler:QueueUpdate(cooldown, category ~= "aura_pending" and category or nil)
 end
 
 local function CreateDurationObjectFromCooldownArgs(startTime, duration, modRate)
@@ -1269,55 +1352,199 @@ local function CreateDurationObjectFromExpirationArgs(expirationTime, duration, 
     return CreateDurationFromEndTime(expirationTime, duration, modRate or 1)
 end
 
--- =========================================================================
--- BATCH PROCESSOR  (coalesces rapid hook fires into a single pass)
--- Eliminates visual flickering caused by rapid sequential API calls.
--- =========================================================================
+local queuedFrameUpdates = {}
+local queuedFrameCount = 0
+local queuedFrameTimer = nil
+local queuedFrameDueAt = nil
 
-local dirtyFrames = {}
-local dirtyCount = 0
-local batchTimerScheduled = false
+local ProcessQueuedFrameUpdate
 
-local function MarkFrameDirty(frame, forcedCategory)
-    local existing = dirtyFrames[frame]
-    if existing == nil then
-        dirtyCount = dirtyCount + 1
+local function CancelQueuedFrameTimer()
+    if queuedFrameTimer then
+        queuedFrameTimer:Cancel()
+        queuedFrameTimer = nil
     end
 
-    -- Preserve the strongest category hint seen during the current batch.
-    if forcedCategory then
-        dirtyFrames[frame] = forcedCategory
-    elseif existing == nil then
-        dirtyFrames[frame] = true
+    queuedFrameDueAt = nil
+end
+
+local function RemoveQueuedFrame(frame)
+    if queuedFrameUpdates[frame] ~= nil then
+        queuedFrameUpdates[frame] = nil
+        if queuedFrameCount > 0 then
+            queuedFrameCount = queuedFrameCount - 1
+        end
     end
 end
 
-local function ProcessDirtyFrames()
-    batchTimerScheduled = false
-    if dirtyCount == 0 then return end
-
-    for frame, forcedCategory in pairs(dirtyFrames) do
-        if frame and not MCE:IsForbidden(frame) then
-            Styler:ApplyStyle(frame, forcedCategory ~= true and forcedCategory or nil)
-        end
+local function ScheduleQueuedFrameProcessor(delay)
+    local clampedDelay = delay or 0
+    if clampedDelay < 0 then
+        clampedDelay = 0
     end
-    wipe(dirtyFrames)
-    dirtyCount = 0
+
+    local dueAt = GetTime() + clampedDelay
+    if queuedFrameTimer and queuedFrameDueAt and dueAt >= queuedFrameDueAt then
+        return
+    end
+
+    CancelQueuedFrameTimer()
+    queuedFrameDueAt = dueAt
+    queuedFrameTimer = C_Timer_NewTimer(clampedDelay, function()
+        queuedFrameTimer = nil
+        queuedFrameDueAt = nil
+
+        if queuedFrameCount == 0 then
+            return
+        end
+
+        local now = GetTime()
+        local nextDelay = nil
+
+        for frame, request in pairs(queuedFrameUpdates) do
+            local requestDueAt = request and request.dueAt or 0
+
+            if not frame or MCE:IsForbidden(frame) then
+                RemoveQueuedFrame(frame)
+            elseif requestDueAt <= now + 0.0001 then
+                RemoveQueuedFrame(frame)
+                ProcessQueuedFrameUpdate(frame, request)
+            else
+                local remainingDelay = requestDueAt - now
+                if not nextDelay or remainingDelay < nextDelay then
+                    nextDelay = remainingDelay
+                end
+            end
+        end
+
+        if nextDelay then
+            ScheduleQueuedFrameProcessor(nextDelay)
+        end
+    end)
+end
+
+local function QueueFrameUpdateRequest(frame, request)
+    if not frame or MCE:IsForbidden(frame) then
+        return
+    end
+
+    if Classifier:IsBlacklisted(frame) then
+        RemoveQueuedFrame(frame)
+        ReleaseManagedCooldown(frame)
+        return
+    end
+
+    local entry = queuedFrameUpdates[frame]
+    if not entry then
+        entry = {}
+        queuedFrameUpdates[frame] = entry
+        queuedFrameCount = queuedFrameCount + 1
+    end
+
+    local forcedCategory = request and request.forcedCategory or nil
+    if forcedCategory and IsSupportedCategory(forcedCategory) then
+        entry.forcedCategory = forcedCategory
+    elseif request and request.reclassify then
+        entry.forcedCategory = nil
+    end
+
+    if request and request.clearContext then
+        entry.clearContext = true
+    end
+
+    if request and request.resetDurationObject then
+        entry.resetDurationObject = true
+    end
+
+    if request and request.reclassify then
+        entry.reclassify = true
+    end
+
+    if request and request.retryOnAuraPending then
+        entry.retryOnAuraPending = true
+    end
+
+    local dueAt = GetTime() + math.max(request and request.delay or 0, 0)
+    entry.dueAt = entry.dueAt and math.min(entry.dueAt, dueAt) or dueAt
+
+    local nextDelay = entry.dueAt - GetTime()
+    if nextDelay < 0 then
+        nextDelay = 0
+    end
+    ScheduleQueuedFrameProcessor(nextDelay)
+end
+
+QueueAuraRecovery = function(frame, delay)
+    QueueFrameUpdateRequest(frame, {
+        clearContext = true,
+        resetDurationObject = true,
+        reclassify = true,
+        retryOnAuraPending = true,
+        delay = delay or 0,
+    })
+end
+
+local function ResolveQueuedFrameCategory(frame, request)
+    local forcedCategory = request and request.forcedCategory or nil
+
+    if forcedCategory and forcedCategory ~= "minicc" and Classifier:GetMiniCCFrameType(frame) then
+        forcedCategory = "minicc"
+    end
+
+    if request and request.reclassify then
+        Classifier:ClearFrameClassification(frame)
+    end
+
+    if forcedCategory and IsSupportedCategory(forcedCategory) then
+        Classifier:SetCategory(frame, forcedCategory)
+        return forcedCategory
+    end
+
+    return Classifier:GetCategory(frame)
+end
+
+ProcessQueuedFrameUpdate = function(frame, request)
+    if not frame or MCE:IsForbidden(frame) then
+        return
+    end
+
+    if request and request.clearContext then
+        Classifier:ClearContext(frame)
+    end
+
+    if request and request.resetDurationObject then
+        ClearStoredCooldownDurationObject(frame)
+    end
+
+    if SyncCompactPartyAuraCooldown(frame) then
+        return
+    end
+
+    local category = ResolveQueuedFrameCategory(frame, request)
+    if category == "aura_pending" then
+        if request and request.retryOnAuraPending then
+            QueueAuraRecovery(frame, 0.1)
+        end
+        return
+    end
+
+    if not category then
+        ReleaseManagedCooldown(frame)
+        return
+    end
+
+    Styler:ApplyStyle(frame, category)
 end
 
 function Styler:QueueUpdate(frame, forcedCategory)
-    if not frame or MCE:IsForbidden(frame) then return end
-    if Classifier:IsBlacklisted(frame) then return end
-
-    -- Always coalesce rapid hook bursts into a single pass.
-    -- This matters most on action buttons,
-    -- where Blizzard can touch the same cooldown multiple times in one tick.
-    MarkFrameDirty(frame, forcedCategory)
-
-    if not batchTimerScheduled then
-        batchTimerScheduled = true
-        C_Timer_After(0, ProcessDirtyFrames)
+    if forcedCategory and not IsSupportedCategory(forcedCategory) then
+        forcedCategory = nil
     end
+
+    QueueFrameUpdateRequest(frame, {
+        forcedCategory = forcedCategory,
+        retryOnAuraPending = true,
+    })
 end
 
 -- =========================================================================
@@ -1344,10 +1571,12 @@ function Styler:OnDisable()
     wipe(durationColoredFrames)
     wipe(activeDurationFrames)
     activeDurationFrameCount = 0
+    wipe(trackedCooldowns)
     wipe(durationObjectCache)
-    wipe(pendingAuras)
+    ResetQueuedFrameUpdates()
     wipe(frameState)
     wipe(fontState)
+    wipe(stackRegionState)
     -- AceHook auto-unhooks global hooks; per-frame HookScript hooks are harmless.
 end
 
@@ -1412,7 +1641,7 @@ local function GetDesiredHideCountdownNumbers(cdFrame, category, config)
     end
 
     -- Force hide countdown text on Assisted Combat action buttons
-    if category == "actionbar" and IsAssistedCombatActionCooldown(cdFrame) then
+    if category == "actionbar" and Classifier:IsAssistedCombatActionCooldown(cdFrame) then
         return true
     end
 
@@ -1433,7 +1662,7 @@ local function GetDesiredHideCountdownNumbers(cdFrame, category, config)
 end
 
 -- =========================================================================
--- STACK COUNT STYLING  (action bar + CooldownManager viewers)
+-- STACK COUNT STYLING  (action bars, nameplates, and CooldownManager viewers)
 -- =========================================================================
 
 local function GetStackCountRegion(cdFrame, category)
@@ -1446,6 +1675,12 @@ local function GetStackCountRegion(cdFrame, category)
         -- Action bar: standard Count region on the button
         local parentName = parent.GetName and parent:GetName()
         countRegion = parent.Count or (parentName and _G[parentName .. "Count"])
+    elseif category == "nameplate" then
+        countRegion = parent.Count
+            or parent.CountText
+            or parent.StackCount
+            or (parent.CountFrame and parent.CountFrame.Count)
+            or (parent.Applications and parent.Applications.Applications)
     elseif category == "cooldownmanager" then
         -- CooldownManager viewers:
         -- EssentialCooldownViewer / UtilityCooldownViewer:
@@ -1475,14 +1710,31 @@ function Styler:StyleStackCount(cdFrame, config, category)
     local countRegion, parent = GetStackCountRegion(cdFrame, category)
     if not countRegion or not parent then return end
 
+    local isNameplateStack = (category == "nameplate")
+    if isNameplateStack then
+        EnsureStackRegionVisibilityHooks(countRegion)
+    end
+
     if config.hideStackText then
         countRegion:SetAlpha(0)
-        countRegion:Hide()
+        if isNameplateStack then
+            SetManagedStackRegionVisible(countRegion, false)
+        else
+            countRegion:Hide()
+        end
         return
     end
 
     countRegion:SetAlpha(1)
-    countRegion:Show()
+    if isNameplateStack then
+        local stackState = GetStackRegionState(countRegion)
+        SetManagedStackRegionVisible(countRegion, stackState.nativeVisible == true)
+        if not stackState.nativeVisible then
+            return
+        end
+    else
+        countRegion:Show()
+    end
 
     if not config.stackEnabled then return end
 
@@ -1537,138 +1789,86 @@ local function GetCooldownFontSize(cdFrame, category, config)
     return config.fontSize
 end
 
+ApplyCountdownAbbrevThreshold = function(cdFrame, fs)
+    local profile = MCE.db and MCE.db.profile
+    if not profile or not cdFrame.SetCountdownAbbrevThreshold then
+        return nil
+    end
+
+    local threshold = profile.abbrevThreshold or 59
+    if fs.countdownAbbrevThreshold ~= threshold then
+        pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, threshold)
+        fs.countdownAbbrevThreshold = threshold
+    end
+
+    return threshold
+end
+
 -- =========================================================================
 -- STYLE APPLICATION
 -- =========================================================================
--- Main entry point called from the batch processor (ProcessDirtyFrames).
--- Uses change-detection on edge/countdown APIs to prevent visual flicker:
--- SetDrawEdge, SetEdgeScale, SetSwipeColor, and SetHideCountdownNumbers are
--- only called when
--- their value actually differs from the last-applied value.
+local function ResolveStyleCategory(cdFrame, forcedCategory)
+    local category = forcedCategory
 
--- Aura-pending retry batching: coalesces deferred aura classifications
--- into a single timer pass, avoiding per-frame closure allocation.
-local pendingAuras = {}
-local auraRetryTimerScheduled = false
+    if category and category ~= "minicc" and Classifier:GetMiniCCFrameType(cdFrame) then
+        category = "minicc"
+    end
 
-local function ProcessPendingAuras()
-    auraRetryTimerScheduled = false
-    for cdFrame in pairs(pendingAuras) do
-        if cdFrame and not MCE:IsForbidden(cdFrame) then
+    if category and IsSupportedCategory(category) then
+        if Classifier:GetCategory(cdFrame) ~= category then
+            Classifier:SetCategory(cdFrame, category)
             local fs = frameState[cdFrame]
             if fs then
-                fs.contextResolved = nil
+                fs.styledCat = nil
             end
-            local cachedCategory = nil
-            if Classifier:IsCached(cdFrame) then
-                cachedCategory = Classifier:GetCategory(cdFrame)
-            end
-
-            local retryCategory = cachedCategory
-            if retryCategory == nil or retryCategory == "global" or retryCategory == "aura_pending" then
-                retryCategory = Classifier:ClassifyFrame(cdFrame)
-                if retryCategory == "aura_pending" then
-                    retryCategory = cachedCategory ~= "aura_pending" and cachedCategory or "global"
-                end
-            end
-            Classifier:SetCategory(cdFrame, retryCategory)
-            Styler:ApplyStyle(cdFrame)
         end
+
+        return category
     end
-    wipe(pendingAuras)
+
+    return Classifier:GetCategory(cdFrame)
 end
 
-function Styler:ApplyStyle(cdFrame, forcedCategory)
-    if MCE:IsForbidden(cdFrame) then return end
-    if Classifier:IsBlacklisted(cdFrame) then return end
-
-    if forcedCategory == "nameplate" and Classifier:GetMiniCCFrameType(cdFrame) then
-        forcedCategory = "minicc"
+local function ResetDisabledCategoryStyle(cdFrame, fs, category, config)
+    local hadTrackedDurationColor = durationColoredFrames[cdFrame] ~= nil
+    ClearTrackedDurationColor(cdFrame)
+    if hadTrackedDurationColor and config then
+        ResetCountdownTextColor(cdFrame, config)
     end
 
-    trackedCooldowns[cdFrame] = true
+    fs.edgeScale = nil
+    fs.hideNums = nil
+    fs.drawSwipe = nil
+    ResetSwipeColor(cdFrame)
 
-    if forcedCategory and forcedCategory ~= "global" then
-        if Classifier:GetCategory(cdFrame) ~= forcedCategory then
-            Classifier:SetCategory(cdFrame, forcedCategory)
-            local fs = frameState[cdFrame]
-            if fs then fs.styledCat = nil end
+    if category == "minicc" then
+        local textRegions, textRegionCount = GetCooldownTextRegions(cdFrame)
+        for i = 1, textRegionCount do
+            fontState[textRegions[i]] = nil
         end
+        fs.textRegions = nil
     end
 
-    -- Guard: DB must be ready
-    if not (MCE.db and MCE.db.profile and MCE.db.profile.categories) then return end
-
-    local category = forcedCategory or Classifier:GetCategory(cdFrame)
-    local isAssistedCombat = (category == "actionbar" and IsAssistedCombatActionCooldown(cdFrame))
-
-    -- Handle deferred aura classification (single retry, then fallback to global)
-    if category == "aura_pending" then
-        local fs = frameState[cdFrame]
-        if fs then
-            fs.contextResolved = nil
-        end
-        Classifier:SetCategory(cdFrame, nil)
-        pendingAuras[cdFrame] = true
-        if not auraRetryTimerScheduled then
-            auraRetryTimerScheduled = true
-            C_Timer_After(0.1, ProcessPendingAuras)
-        end
-        return
-    end
-
-    if category == "blacklist" then return end
-
-    local config = MCE.db.profile.categories[category]
-    if not config or not config.enabled then
-        local hadTrackedDurationColor = durationColoredFrames[cdFrame] ~= nil
-        ClearTrackedDurationColor(cdFrame)
-        if hadTrackedDurationColor and config then
-            ResetCountdownTextColor(cdFrame, config)
-        end
-        local fs = GetFrameState(cdFrame)
-        fs.edgeScale = nil
-        fs.hideNums = nil
-        fs.drawSwipe = nil
-        ResetSwipeColor(cdFrame)
-
-        if category == "minicc" then
-            local textRegions, textRegionCount = GetCooldownTextRegions(cdFrame)
-            for i = 1, textRegionCount do
-                fontState[textRegions[i]] = nil
-            end
-            fs.textRegions = nil
-        end
-
-        if fs.edge ~= false then
-            if cdFrame.SetDrawEdge then
-                fs.edge = false
-                fs.suppressEdge = true
-                pcall(cdFrame.SetDrawEdge, cdFrame, false)
-                fs.suppressEdge = nil
-            end
-        else
+    if fs.edge ~= false then
+        if cdFrame.SetDrawEdge then
             fs.edge = false
+            fs.suppressEdge = true
+            pcall(cdFrame.SetDrawEdge, cdFrame, false)
+            fs.suppressEdge = nil
         end
-        return
+    else
+        fs.edge = false
     end
+end
 
-    local fs = GetFrameState(cdFrame)
-    local parent = cdFrame.GetParent and cdFrame:GetParent()
-
-    local isChargeCooldown = IsChargeCooldownFrame(cdFrame, parent)
-    local hasActiveCharge = isChargeCooldown and IsMainCooldownWithActiveChargeCooldown(cdFrame)
-
-    -- Draw Swipe (dark overlay animation)
+local function ApplySwipeAndEdgeStyle(cdFrame, fs, category, config, isChargeCooldown, hasActiveCharge)
     local wantSwipe = config.drawSwipe ~= false and (not isChargeCooldown or hasActiveCharge)
 
-    if cdFrame.SetDrawSwipe then
-        if fs.drawSwipe ~= wantSwipe then
-            fs.suppressSwipeDraw = true
-            pcall(cdFrame.SetDrawSwipe, cdFrame, wantSwipe)
-            fs.suppressSwipeDraw = nil
-            fs.drawSwipe = wantSwipe
-        end
+    if cdFrame.SetDrawSwipe and fs.drawSwipe ~= wantSwipe then
+        fs.suppressSwipeDraw = true
+        pcall(cdFrame.SetDrawSwipe, cdFrame, wantSwipe)
+        fs.suppressSwipeDraw = nil
+        fs.drawSwipe = wantSwipe
     end
 
     if cdFrame.SetDrawEdge then
@@ -1678,6 +1878,7 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
             fs.suppressEdge = nil
             fs.edge = config.edgeEnabled
         end
+
         if config.edgeEnabled and cdFrame.SetEdgeScale then
             if fs.edgeScale ~= config.edgeScale then
                 fs.suppressEdgeScale = true
@@ -1690,45 +1891,56 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
         end
     end
 
-    if cdFrame.SetSwipeColor then
-        if category == "actionbar" then
-            local r, g, b, a = 0, 0, 0, GetSwipeShadeAlpha(config)
-            if not IsSameSwipeColor(fs.swipeColor, r, g, b, a) then
-                fs.suppressSwipe = true
-                pcall(cdFrame.SetSwipeColor, cdFrame, r, g, b, a)
-                fs.suppressSwipe = nil
-                fs.swipeColor = { r = r, g = g, b = b, a = a }
-            end
-        else
-            ResetSwipeColor(cdFrame)
-        end
+    if not cdFrame.SetSwipeColor then
+        return
     end
 
-    local hideNums
-
-    if cdFrame.SetHideCountdownNumbers then
-        hideNums = isAssistedCombat or GetDesiredHideCountdownNumbers(cdFrame, category, config)
-
-        if fs.hideNums ~= hideNums then
-            fs.suppressHideNums = true
-            pcall(cdFrame.SetHideCountdownNumbers, cdFrame, hideNums)
-            fs.suppressHideNums = nil
-            fs.hideNums = hideNums
+    if category == "actionbar" then
+        local r, g, b, a = 0, 0, 0, GetSwipeShadeAlpha(config)
+        if not IsSameSwipeColor(fs.swipeColor, r, g, b, a) then
+            fs.suppressSwipe = true
+            pcall(cdFrame.SetSwipeColor, cdFrame, r, g, b, a)
+            fs.suppressSwipe = nil
+            fs.swipeColor = { r = r, g = g, b = b, a = a }
         end
+        return
     end
 
-    -- Skip full font re-style if category/viewer type hasn't changed.
-    -- MiniCC text regions are tracked separately so recreated font strings
-    -- still get styled without reapplying the style on every cooldown tick.
-    local styleKey = category
+    ResetSwipeColor(cdFrame)
+end
+
+local function ApplyHideCountdownState(cdFrame, fs, category, config, isAssistedCombat)
+    if not cdFrame.SetHideCountdownNumbers then
+        return nil
+    end
+
+    local hideNums = isAssistedCombat or GetDesiredHideCountdownNumbers(cdFrame, category, config)
+    if fs.hideNums ~= hideNums then
+        fs.suppressHideNums = true
+        pcall(cdFrame.SetHideCountdownNumbers, cdFrame, hideNums)
+        fs.suppressHideNums = nil
+        fs.hideNums = hideNums
+    end
+
+    return hideNums
+end
+
+local function GetCooldownStyleKey(cdFrame, category)
     if category == "cooldownmanager" then
         local viewerType = Classifier:GetCooldownManagerViewerType(cdFrame) or "default"
-        styleKey = category .. ":" .. viewerType
-    elseif category == "minicc" then
-        local miniCCType = Classifier:GetMiniCCFrameType(cdFrame) or "default"
-        styleKey = category .. ":" .. miniCCType
+        return category .. ":" .. viewerType
     end
 
+    if category == "minicc" then
+        local miniCCType = Classifier:GetMiniCCFrameType(cdFrame) or "default"
+        return category .. ":" .. miniCCType
+    end
+
+    return category
+end
+
+local function ApplyCooldownTypography(cdFrame, fs, category, config)
+    local styleKey = GetCooldownStyleKey(cdFrame, category)
     local needsFullRestyle = fs.styledCat ~= styleKey
     local textRegions, textRegionCount, textRegionsChanged
 
@@ -1741,9 +1953,38 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
         fs.styledCat = styleKey
     end
 
-    -- Stack / charge counts can be shown again by Blizzard button updates,
-    -- so visibility enforcement needs to run on every style pass.
-    self:StyleStackCount(cdFrame, config, category)
+    if not (needsFullRestyle or textRegionsChanged) then
+        return
+    end
+
+    fs.appliedTextColor = nil
+
+    local fontStyle = MCE.NormalizeFontStyle(config.fontStyle)
+    local resolvedFont = MCE.ResolveFontPath(config.font)
+    local fontSize = GetCooldownFontSize(cdFrame, category, config)
+    local enforceFont = (category == "minicc")
+
+    for i = 1, textRegionCount do
+        local region = textRegions[i]
+        ApplyFontStringStyle(
+            region,
+            cdFrame,
+            resolvedFont,
+            fontSize,
+            fontStyle,
+            config.textColor,
+            config.textAnchor,
+            config.textAnchor,
+            config.textOffsetX,
+            config.textOffsetY,
+            nil,
+            nil,
+            enforceFont)
+    end
+end
+
+local function ApplyManagedTextState(cdFrame, fs, category, config, hideNums, isAssistedCombat)
+    Styler:StyleStackCount(cdFrame, config, category)
 
     if isAssistedCombat then
         if not fs.assistedCombatTextHidden then
@@ -1753,47 +1994,52 @@ function Styler:ApplyStyle(cdFrame, forcedCategory)
 
         ClearTrackedDurationColor(cdFrame)
         return
-    elseif fs.assistedCombatTextHidden then
+    end
+
+    if fs.assistedCombatTextHidden then
         SetCooldownTextRegionsVisible(cdFrame, not hideNums)
         fs.assistedCombatTextHidden = nil
     end
 
-    if needsFullRestyle or textRegionsChanged then
-        -- Font string styling & positioning
-        do
-            fs.appliedTextColor = nil
-            local fontStyle    = MCE.NormalizeFontStyle(config.fontStyle)
-            local resolvedFont = MCE.ResolveFontPath(config.font)
-            local fontSize     = GetCooldownFontSize(cdFrame, category, config)
-            local enforceFont = (category == "minicc")
-
-            for i = 1, textRegionCount do
-                local region = textRegions[i]
-                ApplyFontStringStyle(
-                    region,
-                    cdFrame,
-                    resolvedFont,
-                    fontSize,
-                    fontStyle,
-                    config.textColor,
-                    config.textAnchor,
-                    config.textAnchor,
-                    config.textOffsetX,
-                    config.textOffsetY,
-                    nil,
-                    nil,
-                    enforceFont)
-            end
-        end
-    end
-
-    -- Apply abbreviation threshold
-    local profile = MCE.db and MCE.db.profile
-    if profile and cdFrame.SetCountdownAbbrevThreshold then
-        pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, profile.abbrevThreshold or 59)
-    end
-
+    ApplyCooldownTypography(cdFrame, fs, category, config)
+    ApplyCountdownAbbrevThreshold(cdFrame, fs)
     RefreshTrackedDurationColor(cdFrame, category, config)
+end
+
+function Styler:ApplyStyle(cdFrame, forcedCategory)
+    if MCE:IsForbidden(cdFrame) then return end
+    if Classifier:IsBlacklisted(cdFrame) then return end
+
+    -- Guard: DB must be ready
+    if not (MCE.db and MCE.db.profile and MCE.db.profile.categories) then return end
+
+    local category = ResolveStyleCategory(cdFrame, forcedCategory)
+    local isAssistedCombat = (category == "actionbar" and Classifier:IsAssistedCombatActionCooldown(cdFrame))
+
+    if not category or category == "blacklist" or not IsSupportedCategory(category) then
+        ReleaseManagedCooldown(cdFrame)
+        return
+    end
+
+    trackedCooldowns[cdFrame] = true
+    Classifier:RegisterDiscoveredCooldown(cdFrame, category)
+
+    local fs = GetFrameState(cdFrame)
+    fs.visualManaged = true
+    EnsureManagedCooldownVisualHooks(cdFrame)
+
+    local config = MCE.db.profile.categories[category]
+    if not config or not config.enabled then
+        ResetDisabledCategoryStyle(cdFrame, fs, category, config)
+        return
+    end
+
+    local parent = cdFrame.GetParent and cdFrame:GetParent()
+    local isChargeCooldown = IsChargeCooldownFrame(cdFrame, parent)
+    local hasActiveCharge = isChargeCooldown and IsMainCooldownWithActiveChargeCooldown(cdFrame)
+    ApplySwipeAndEdgeStyle(cdFrame, fs, category, config, isChargeCooldown, hasActiveCharge)
+    local hideNums = ApplyHideCountdownState(cdFrame, fs, category, config, isAssistedCombat)
+    ApplyManagedTextState(cdFrame, fs, category, config, hideNums, isAssistedCombat)
 
 end
 
@@ -1801,56 +2047,135 @@ end
 -- FORCE UPDATE
 -- =========================================================================
 
-function Styler:ForceUpdateAll(fullScan)
-    Classifier:WipeCache()
-    wipe(frameState)
-    wipe(fontState)
-    wipe(durationColoredFrames)
-    wipe(activeDurationFrames)
-    activeDurationFrameCount = 0
-    wipe(durationObjectCache)
-    InvalidateColorCurve()
-    StopDurationColorTicker()
+local function ResolveRefreshSelection(pathSelection, defaultSelection)
+    if not pathSelection then
+        return nil
+    end
 
-    if fullScan or not self.fullScanDone then
-        self.fullScanDone = true
-        local frame = EnumerateFrames()
-        while frame do
-            if not MCE:IsForbidden(frame) then
-                if frame:IsObjectType("Cooldown") then
-                    SyncCompactPartyAuraCooldown(frame)
-                    self:QueueUpdate(frame)
-                else
-                    QueueKnownCooldownMembers(frame, QueueUpdateCallback)
-                end
+    if pathSelection == true then
+        return defaultSelection
+    end
+
+    return pathSelection
+end
+
+local function NormalizeRuntimeRefreshRequest(request)
+    if type(request) ~= "table" then
+        local fullScan = request and true or false
+        return {
+            discovery = fullScan and "all" or nil,
+            classification = fullScan and "all" or nil,
+            visuals = "all",
+            invalidateColorCurve = true,
+            resetScheduler = fullScan,
+            wipeClassifierCache = fullScan,
+        }
+    end
+
+    local defaultSelection = request.categories or request.selection or "all"
+    local visuals = request.visuals
+    if visuals == nil then
+        visuals = true
+    end
+
+    return {
+        discovery = ResolveRefreshSelection(request.discovery, defaultSelection),
+        classification = ResolveRefreshSelection(request.classification, defaultSelection),
+        visuals = ResolveRefreshSelection(visuals, defaultSelection),
+        invalidateColorCurve = request.invalidateColorCurve == true,
+        resetScheduler = request.resetScheduler == true,
+        wipeClassifierCache = request.wipeClassifierCache == true,
+    }
+end
+
+ResetQueuedFrameUpdates = function()
+    CancelQueuedFrameTimer()
+    wipe(queuedFrameUpdates)
+    queuedFrameCount = 0
+    queuedFrameDueAt = nil
+end
+
+function Styler:RefreshDiscovery(selection)
+    Classifier:RefreshSupportedCooldownSources(selection or "all", HandleBootstrappedCooldown)
+end
+
+function Styler:RefreshClassification(selection)
+    ForEachManagedCooldown(selection, function(cdFrame)
+        if cdFrame and cdFrame.IsObjectType and cdFrame:IsObjectType("Cooldown") then
+            InvalidateCooldownTextStyleState(cdFrame)
+            QueueFrameUpdateRequest(cdFrame, {
+                clearContext = true,
+                reclassify = true,
+                retryOnAuraPending = true,
+            })
+        end
+    end)
+end
+
+function Styler:RefreshVisuals(selection)
+    ForEachManagedCooldown(selection, function(cdFrame)
+        if cdFrame and cdFrame.IsObjectType and cdFrame:IsObjectType("Cooldown") then
+            InvalidateCooldownTextStyleState(cdFrame)
+            if compactPartyAuraFrames[cdFrame] then
+                SyncCompactPartyAuraCooldown(cdFrame)
             end
-            frame = EnumerateFrames(frame)
+            self:QueueUpdate(cdFrame)
         end
-        return
+    end)
+end
+
+function Styler:RefreshRuntime(request)
+    local refresh = NormalizeRuntimeRefreshRequest(request)
+
+    if not self.fullScanDone then
+        self.fullScanDone = true
+        refresh.discovery = refresh.discovery or "all"
+        refresh.classification = refresh.classification or "all"
+        refresh.resetScheduler = true
+        refresh.wipeClassifierCache = true
     end
 
-    -- Incremental: only update previously tracked cooldowns
-    for cd in pairs(trackedCooldowns) do
-        if cd and cd.IsObjectType and cd:IsObjectType("Cooldown") then
-            self:QueueUpdate(cd)
-        end
+    if refresh.invalidateColorCurve then
+        InvalidateColorCurve()
     end
 
-    for cd in pairs(compactPartyAuraFrames) do
-        if cd and cd.IsObjectType and cd:IsObjectType("Cooldown") then
-            SyncCompactPartyAuraCooldown(cd)
-        end
+    if refresh.resetScheduler then
+        ResetQueuedFrameUpdates()
     end
+
+    if refresh.wipeClassifierCache then
+        Classifier:WipeCache()
+    end
+
+    if refresh.discovery then
+        self:RefreshDiscovery(refresh.discovery)
+    end
+
+    if refresh.classification then
+        self:RefreshClassification(refresh.classification)
+    end
+
+    if refresh.visuals then
+        self:RefreshVisuals(refresh.visuals)
+    end
+end
+
+function Styler:ForceUpdateAll(fullScan)
+    self:RefreshRuntime(fullScan)
 end
 
 -- =========================================================================
 -- HOOKS  (AceHook: auto-unhook on Disable)
 -- =========================================================================
--- All hooks queue frames into the batch processor instead of applying styles
--- directly, eliminating flickering from rapid sequential hook fires.
+-- Shared metatable hooks only capture cooldown durations. Visual enforcement
+-- stays on tracked frames via EnsureManagedCooldownVisualHooks / font hooks.
 
 function Styler:SetupHooks()
-    if not self.enforcementHooksInstalled then
+    self:SetupDurationCaptureHooks()
+end
+
+function Styler:SetupDurationCaptureHooks()
+    if not self.cooldownDurationCaptureHooksInstalled then
         local sampleCooldown = ActionButton1Cooldown
             or (ActionButton1 and (ActionButton1.cooldown or ActionButton1.Cooldown))
 
@@ -1905,82 +2230,8 @@ function Styler:SetupHooks()
                         ClearTrackedDurationColor(cooldown)
                     end)
                 end
-
-                -- Enforcement hooks: prevent Blizzard from overriding our
-                -- cached visual state between style passes.
-                if type(cooldownAPI.SetDrawEdge) == "function" then
-                    hooksecurefunc(cooldownAPI, "SetDrawEdge", function(cooldown, enabled)
-                        if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-                        if IsSecretValue(enabled) then return end
-                        local fs = frameState[cooldown]
-                        if not fs or fs.suppressEdge then return end
-                        if fs.edge ~= nil and fs.edge ~= enabled then
-                            fs.suppressEdge = true
-                            pcall(cooldown.SetDrawEdge, cooldown, fs.edge)
-                            fs.suppressEdge = nil
-                        end
-                    end)
-                end
-
-                if type(cooldownAPI.SetEdgeScale) == "function" then
-                    hooksecurefunc(cooldownAPI, "SetEdgeScale", function(cooldown, scale)
-                        if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-                        if IsSecretValue(scale) then return end
-                        local fs = frameState[cooldown]
-                        if not fs or fs.suppressEdgeScale then return end
-                        if fs.edgeScale ~= nil and not IsNearlyEqual(fs.edgeScale, scale) then
-                            fs.suppressEdgeScale = true
-                            pcall(cooldown.SetEdgeScale, cooldown, fs.edgeScale)
-                            fs.suppressEdgeScale = nil
-                        end
-                    end)
-                end
-
-                if type(cooldownAPI.SetSwipeColor) == "function" then
-                    hooksecurefunc(cooldownAPI, "SetSwipeColor", function(cooldown, r, g, b, a)
-                        if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-                        if IsSecretValue(r) or IsSecretValue(g) or IsSecretValue(b) or IsSecretValue(a) then return end
-                        local fs = frameState[cooldown]
-                        if not fs or fs.suppressSwipe then return end
-                        if fs.swipeColor and not IsSameSwipeColor(fs.swipeColor, r, g, b, a) then
-                            fs.suppressSwipe = true
-                            pcall(cooldown.SetSwipeColor, cooldown, fs.swipeColor.r, fs.swipeColor.g, fs.swipeColor.b, fs.swipeColor.a)
-                            fs.suppressSwipe = nil
-                        end
-                    end)
-                end
-
-                if type(cooldownAPI.SetHideCountdownNumbers) == "function" then
-                    hooksecurefunc(cooldownAPI, "SetHideCountdownNumbers", function(cooldown, hide)
-                        if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-                        if IsSecretValue(hide) then return end
-                        local fs = frameState[cooldown]
-                        if not fs or fs.suppressHideNums then return end
-                        if fs.hideNums ~= nil and fs.hideNums ~= hide then
-                            fs.suppressHideNums = true
-                            pcall(cooldown.SetHideCountdownNumbers, cooldown, fs.hideNums)
-                            fs.suppressHideNums = nil
-                        end
-                    end)
-                end
-
-                if type(cooldownAPI.SetDrawSwipe) == "function" then
-                    hooksecurefunc(cooldownAPI, "SetDrawSwipe", function(cooldown, enabled)
-                        if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-                        if IsSecretValue(enabled) then return end
-                        local fs = frameState[cooldown]
-                        if not fs or fs.suppressSwipeDraw then return end
-                        if fs.drawSwipe ~= nil and fs.drawSwipe ~= enabled then
-                            fs.suppressSwipeDraw = true
-                            pcall(cooldown.SetDrawSwipe, cooldown, fs.drawSwipe)
-                            fs.suppressSwipeDraw = nil
-                        end
-                    end)
-                end
-
-                self.enforcementHooksInstalled = true
+                self.cooldownDurationCaptureHooksInstalled = true
             end
         end
     end
-
 end
