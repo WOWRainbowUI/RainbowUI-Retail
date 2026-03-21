@@ -75,10 +75,6 @@ L["EnableTextHighlight"] = "启用文本高亮"
 L["EnableTextHighlightDescription"] = "切换文本高亮框体的可见性。"
 L["EnableTicks"] = "启用时间刻度"
 L["EnableTicksDescription"] = "切换时间刻度的可见性。"
---[[Translation missing --]]
-L["EnableTooltip"] = "Enable Tooltip"
---[[Translation missing --]]
-L["EnableTooltipDescription"] = "Toggles the visibility of the tooltip when hovering over the icon."
 L["EnrageEffect"] = "激怒 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 L["ExpandTravelSettings"] = "展开移动设置"
 L["ExpandVisualSettings"] = "展开视觉设置"
@@ -230,6 +226,10 @@ L["TravelDirectionVertical"] = "垂直"
 L["TravelSettingsDescription"] = "自定义图标在时间轴上移动方式的设置。"
 L["useAudioCountdowns"] = "使用语音倒计时"
 L["useAudioCountdownsDescription"] = "为即将到来的事件启用最后5秒的语音倒计时。"
+--[[Translation missing --]]
+L["UseTooltip"] = "Use Tooltip"
+--[[Translation missing --]]
+L["UseTooltipDescription"] = "Select the type of the tooltip when hovering over the icon."
 L["VisualSettingsDescription"] = "自定义时间轴视觉外观的设置。"
 L["WrongWoWVersionMessage"] = "AbilityTimeline 需要《魔兽世界》12.0.0（至暗之夜）或更高版本才能运行。"
 
