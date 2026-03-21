@@ -2,8 +2,14 @@
 # Changelog
 
 
-## [3.6.1] - 2026-03-18
-- Refactor
+## [3.5.5] - 2026-03-20
+- feat: Enhance cooldown duration handling with source key support
+
+## [3.5.4] - 2026-03-20
+- Add nameplate stacks and fix minor issues
+
+## [3.5.3] - 2026-03-20
+- Extracted the shared static values into Constants
 
 ## [3.5.2] - 2026-03-18
 - Update swipe drawing logic for charge cooldowns
@@ -183,8 +189,6 @@
 - **Default Font:** Changed default font to "Game Default" for better locale compatibility.
 
 ## [2.8.2] - 2026-02-14
-### Added
-- Debug logging system
 ### Improved
 - Centralized and extended blacklist logic for frame exclusion.
 

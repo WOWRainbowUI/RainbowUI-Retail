@@ -1,16 +1,14 @@
-local addonName = ...
-local MCE = LibStub("AceAddon-3.0"):GetAddon("MinimalistCooldownEdge")
-local L = LibStub("AceLocale-3.0"):GetLocale("MinimalistCooldownEdge")
+local addonName, addon = ...
+local C = addon.Constants
+local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
+local L = LibStub("AceLocale-3.0"):GetLocale(C.Addon.AceName)
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local AceSerializer = LibStub("AceSerializer-3.0")
 
-local EXPORT_PREFIX = "MCE1"
-local BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-local BASE64_LOOKUP = {}
-
-for i = 1, #BASE64_ALPHABET do
-    BASE64_LOOKUP[BASE64_ALPHABET:sub(i, i)] = i - 1
-end
+local EXPORT_PREFIX = C.ImportExport.Prefix
+local BASE64_ALPHABET = C.ImportExport.Base64Alphabet
+local BASE64_LOOKUP = C.ImportExport.Base64Lookup
+local COMPRESSION_MODE = C.ImportExport.CompressionMode
 
 local function Base64EncodeChunk(a, b, c)
     local n = a * 65536 + (b or 0) * 256 + (c or 0)
@@ -137,15 +135,15 @@ local function CompressPayload(value)
     if C_Compression and C_Compression.CompressString then
         local ok, compressed = pcall(C_Compression.CompressString, value)
         if ok and type(compressed) == "string" and compressed ~= "" then
-            return "C", compressed
+            return COMPRESSION_MODE.Compressed, compressed
         end
     end
 
-    return "N", value
+    return COMPRESSION_MODE.None, value
 end
 
 local function DecompressPayload(mode, value)
-    if mode == "C" then
+    if mode == COMPRESSION_MODE.Compressed then
         if not (C_Compression and C_Compression.DecompressString) then
             return nil
         end
@@ -158,7 +156,7 @@ local function DecompressPayload(mode, value)
         return nil
     end
 
-    if mode == "N" then
+    if mode == COMPRESSION_MODE.None then
         return value
     end
 
@@ -217,7 +215,7 @@ function MCE:ImportConfig(importString)
         return false, L["Paste an import string first."]
     end
 
-    local prefix, compressionMode, payload = strtrim(importString):match("^(%w+):([CN]):(.+)$")
+    local prefix, compressionMode, payload = strtrim(importString):match(C.ImportExport.ImportPattern)
     if prefix ~= EXPORT_PREFIX or not compressionMode or not payload then
         return false, L["Invalid import string format."]
     end
