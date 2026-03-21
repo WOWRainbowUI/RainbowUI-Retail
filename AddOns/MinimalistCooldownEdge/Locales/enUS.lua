@@ -13,6 +13,7 @@ L["Unit Frames"] = true
 L["Party / Raid Frames"] = true
 L["CooldownManager"] = true
 L["MiniCC"] = true
+L["Others"] = true
 L["Profiles"] = true
 
 -- Group Headers
@@ -39,14 +40,16 @@ L["Hide Numbers"] = true
 L["Compact Party / Raid Aura Text"] = true
 L["Enable Party Aura Text"] = true
 L["Enable Raid Aura Text"] = true
-L["Enable for Raid > 5"] = true
-L["Also apply compact aura text on Blizzard CompactRaidFrame icons when you're in a raid larger than 5 players."] = true
+L["Enables styled countdown text on Party / Raid Frames. When disabled, both party and raid aura text styling are turned off."] = true
+L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff icons. Requires Party / Raid Frames to be enabled."] = true
 L["Hide the text entirely (useful if you only want the swipe edge or stacks)."] = true
 L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."] = true
 L["Shows styled countdown text on Blizzard CompactRaidFrame buff and debuff icons. Disabling this hides aura countdown text on raid frames."] = true
 L["Anchor Point"] = true
 L["Offset X"] = true
 L["Offset Y"] = true
+L["Buff / Debuff Size"] = true
+L["Defensive Buff Size"] = true
 L["Essential Viewer Size"] = true
 L["Utility Viewer Size"] = true
 L["Buff Icon Viewer Size"] = true
@@ -123,7 +126,7 @@ L["OFF"] = "OFF"
 -- General Dashboard
 L["Enable categories styling"] = true
 L["LIVE_CONTROLS_DESC"] = "Changes apply instantly. Keep only the categories you actively use enabled for a cleaner setup."
-L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Shows styled countdown text on Blizzard CompactPartyFrame and CompactRaidFrame buff and debuff icons. Party and raid can be toggled separately."
+L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Enable Party / Raid Frames acts as the master switch for this category. Enable Raid Aura Text extends the same styling to Blizzard raid frames."
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = true
@@ -151,18 +154,18 @@ L["MAINTENANCE_DESC"] = "Revert this category to factory defaults. Other categor
 
 -- Category Descriptions
 L["ACTIONBAR_DESC"] = "Customize cooldowns on your main action bars, including Bartender4, Dominos, and ElvUI bars."
-L["NAMEPLATE_DESC"] = "Style cooldowns displayed on enemy and friendly nameplates (Plater, KuiNameplates, etc.), including stack counters when the aura button exposes them."
-L["UNITFRAME_DESC"] = "Adjust cooldown styling on player, target, focus, boss, and arena unit frames."
-L["PARTYRAIDFRAMES_DESC"] = "Adjust cooldown styling on party and raid unit frames. Compact party and raid aura text uses this category's typography and positioning settings."
+L["NAMEPLATE_DESC"] = "Style cooldowns displayed on enemy and friendly nameplates (Plater, KuiNameplates, etc.)."
+L["UNITFRAME_DESC"] = "Adjust cooldown styling on player, target, and focus unit frames."
 L["COOLDOWNMANAGER_DESC"] = "Shared icon styling for CooldownManager viewers. Countdown text size can be set independently for Essential, Utility, and Buff Icon viewers."
 L["MINICC_DESC"] = "Dedicated styling for MiniCC cooldown icons. Supports MiniCC crowd control icons, nameplates, portraits, and overlay-style modules when MiniCC is loaded."
+L["OTHERS_DESC"] = "Catch-all for cooldowns that don't belong to other categories (bags, menus, misc addons)."
 
 -- Dynamic Text Colors
 L["Dynamic Text Colors"] = true
 L["Color by Remaining Time"] = true
 L["Dynamically colors the countdown text based on how much time is left."] = true
 L["DYNAMIC_COLORS_DESC"] = "Changes the text color based on the remaining cooldown duration. Overrides the static color above when enabled."
-L["DYNAMIC_COLORS_GENERAL_DESC"] = "Applies the same remaining-time thresholds to every enabled MiniCE category, including Party / Raid Frames aura text. Midnight-safe duration handling is used when Blizzard exposes secret values."
+L["DYNAMIC_COLORS_GENERAL_DESC"] = "Applies the same remaining-time thresholds to every enabled MiniCE category, including Compact Party / Raid aura text. Midnight-safe duration handling is used when Blizzard exposes secret values."
 L["Behavior"] = true
 L["Expiring Soon"] = true
 L["Short Duration"] = true

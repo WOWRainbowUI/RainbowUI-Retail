@@ -1,16 +1,11 @@
 -- Alerts.lua – one-time version alerts shown at startup
 
-local addonName = ...
-local MCE = LibStub("AceAddon-3.0"):GetAddon("MinimalistCooldownEdge")
+local addonName, addon = ...
+local C = addon.Constants
+local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local Alerts = MCE:NewModule("Alerts")
 
-local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Dev"
-
-local VERSION_ALERTS = {
-    ["3.2.0"] = {
-        updateLine = "|cff7dd3fcUpdate:|r CooldownManager viewers use their own category - style them with |cfffacc15/minice|r.",
-    },
-}
+local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or C.Addon.VersionFallback
 
 function Alerts:PrintAlert(versionLine, updateLine)
     if versionLine and versionLine ~= "" then
@@ -29,7 +24,7 @@ function Alerts:OnEnable()
     db.global = db.global or {}
     db.global.versionAlertsShown = db.global.versionAlertsShown or {}
 
-    local alertData = VERSION_ALERTS[addonVersion]
+    local alertData = C.Alerts.VersionAlerts[addonVersion]
     if not alertData then return end
 
     if db.global.versionAlertsShown[addonVersion] then
