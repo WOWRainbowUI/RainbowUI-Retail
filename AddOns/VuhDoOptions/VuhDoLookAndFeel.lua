@@ -1939,6 +1939,7 @@ do
 
 				if VUHDO_lnfIsDisabledByConstraint(tConstraint["COMPONENT"]) then
 					tConstraint["COMPONENT"]:SetAlpha(0.5);
+					tConstraint["COMPONENT"]:SetAttribute("disabled", true);
 
 					tInnerSlider = _G[tConstraint["COMPONENT"]:GetName() .. "Slider"];
 
@@ -1947,6 +1948,7 @@ do
 					end
 				else
 					tConstraint["COMPONENT"]:SetAlpha(1);
+					tConstraint["COMPONENT"]:SetAttribute("disabled", nil);
 
 					tInnerSlider = _G[tConstraint["COMPONENT"]:GetName() .. "Slider"];
 

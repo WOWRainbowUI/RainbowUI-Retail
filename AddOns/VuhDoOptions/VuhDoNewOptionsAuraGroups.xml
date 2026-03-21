@@ -77,9 +77,45 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
+				<ButtonText justifyV="TOP" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="-10" y="-6" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</ButtonText>
 				<Scripts>
 					<OnClick>
 						VUHDO_auraGroupEntryBouquetButtonClicked(self);
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			<Button name="$parentSpellButton" inherits="VuhDoButtonTemplate" text="VUHDO_I18N_AURA_GROUP_ENTRY_SPELL" hidden="true">
+				<Size>
+					<AbsDimension x="60" y="20" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentValueLabel" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="30" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<ButtonText justifyV="TOP" justifyH="RIGHT">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="-10" y="-6" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</ButtonText>
+				<Scripts>
+					<OnClick>
+						VUHDO_auraGroupEntrySpellButtonClicked(self);
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -932,6 +968,529 @@
 					</Frame>
 
 				</Frames>
+			</Frame>
+
+			<Frame name="$parentSpellEntrySettingsFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" hidden="true">
+				<Size>
+					<AbsDimension x="480" y="380" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentStorePanel" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="18" y="-25" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<Frame name="$parentRootPane" setAllPoints="true" inherits="VuhDoPanelTemplate">
+						<Frames>
+
+							<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="400" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="13" y="-12" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_SPELL_SETTINGS" inherits="VuDoDefaultTitleFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<Frame name="$parentPreviewPanel">
+								<Size>
+									<AbsDimension x="60" y="60" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPRIGHT" relativeTo="$parentTitleLabel" relativePoint="BOTTOMRIGHT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K777);
+									</OnLoad>
+								</Scripts>
+								<Layers>
+									<Layer level="BACKGROUND">
+										<Texture name="$parentIconTexture" setAllPoints="true">
+											<TexCoords left="0" right="1" top="0" bottom="1" />
+										</Texture>
+									</Layer>
+									<Layer level="OVERLAY">
+										<FontString name="$parentTimerText" inherits="VuDoBigFontTemplate" text="">
+											<Anchors>
+												<Anchor point="CENTER" relativePoint="CENTER">
+													<Offset>
+														<AbsDimension x="0" y="0" />
+													</Offset>
+												</Anchor>
+											</Anchors>
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<Frame name="$parentSourceLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="64" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="8" y="-36" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_SPELL_SOURCE" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<CheckButton name="$parentMineCheckButton" text="VUHDO_I18N_MINE" inherits="VuhDoCheckButtonTemplate">
+								<Size>
+									<AbsDimension x="80" y="32" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentSourceLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="2" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_MINE");
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K760);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentOthersCheckButton" text="VUHDO_I18N_OTHERS" inherits="VuhDoCheckButtonTemplate">
+								<Size>
+									<AbsDimension x="80" y="32" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentMineCheckButton" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_OTHERS");
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K761);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<Frame name="$parentTimerTextLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="58" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentSourceLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-38" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_TIMER_TEXT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<CheckButton name="$parentFullDurationCheckButton" text="VUHDO_I18N_FULL_DURATION" inherits="VuhDoCheckButtonTemplate">
+								<Size>
+									<AbsDimension x="108" y="32" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentTimerTextLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="2" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K762);
+									</OnLoad>
+									<OnClick>
+										VUHDO_spellEntryDurationModeClicked(self);
+									</OnClick>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentAliveTimeCheckButton" text="VUHDO_I18N_ALIVE_TIME" inherits="VuhDoCheckButtonTemplate">
+								<Size>
+									<AbsDimension x="108" y="32" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentFullDurationCheckButton" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K763);
+									</OnLoad>
+									<OnClick>
+										VUHDO_spellEntryDurationModeClicked(self);
+									</OnClick>
+								</Scripts>
+							</CheckButton>
+
+							<Frame name="$parentTimerThresholdSlider" inherits="VuhDoHSliderTemplate">
+								<Size>
+									<AbsDimension x="200" y="50" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentAliveTimeCheckButton" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_TIMER_THRESHOLD");
+										VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_TIMER_THRESHOLD, 1, 30, " " .. VUHDO_I18N_SECS, 1);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K764);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+							<Frame name="$parentColorLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="26" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentFullDurationCheckButton" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_COLOR" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<CheckButton name="$parentGlowIconCheckButton" text="VUHDO_I18N_GLOW_ICON" inherits="VuhDoCheckButtonTemplate">
+								<Size>
+									<AbsDimension x="100" y="32" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentColorLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_GLOW_ICON");
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K765);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<Frame name="$parentGlowColorTexture" inherits="VuhDoColorSwatchTexture">
+								<Size>
+									<AbsDimension x="80" y="28" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentGlowIconCheckButton" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="-2" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnMouseDown>
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
+									</OnMouseDown>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_SETTINGS.GLOW_COLOR");
+										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_GLOW_ICON, VUHDO_I18N_GLOW_ICON);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K766);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_GLOW_ICON", false);
+
+										self:SetAttribute("forceShowColors", true);
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+							<CheckButton name="$parentColorIconCheckButton" text="VUHDO_I18N_COLOR_ICON" inherits="VuhDoCheckButtonTemplate">
+								<Size>
+									<AbsDimension x="100" y="32" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentGlowColorTexture" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="16" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_COLOR_ICON");
+										VUHDO_lnfCheckButtonOnLoad(self);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K767);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<Frame name="$parentColorIconTexture" inherits="VuhDoColorSwatchTexture">
+								<Size>
+									<AbsDimension x="80" y="28" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentColorIconCheckButton" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="-2" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnMouseDown>
+										VUHDO_lnfColorSwatchShowColorPicker(self, button);
+									</OnMouseDown>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_SETTINGS.COLOR_ICON_COLOR");
+										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_COLOR_ICON, VUHDO_I18N_COLOR_ICON);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K768);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_COLOR_ICON", false);
+
+										self:SetAttribute("forceShowColors", true);
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+							<Frame name="$parentOverridesLabel" inherits="VuhDoLabelFrameTemplate">
+								<Size>
+									<AbsDimension x="88" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentGlowIconCheckButton" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-8" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_DISPLAY_OVERRIDES" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<CheckButton name="$parentShowTimerTriState" text="VUHDO_I18N_SHOW_TIMER" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentOverridesLabel" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_SPELL_ENTRY_SHOW_TIMER", { VUHDO_I18N_ON, VUHDO_I18N_DEFAULT, VUHDO_I18N_OFF });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K769);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentShowStacksTriState" text="VUHDO_I18N_SHOW_STACKS" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentShowTimerTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_SPELL_ENTRY_SHOW_STACKS", { VUHDO_I18N_ON, VUHDO_I18N_DEFAULT, VUHDO_I18N_OFF });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K770);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentShowClockTriState" text="VUHDO_I18N_SHOW_CLOCK" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentShowStacksTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_SPELL_ENTRY_SHOW_CLOCK", { VUHDO_I18N_ON, VUHDO_I18N_DEFAULT, VUHDO_I18N_OFF });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K771);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentFadeOnLowTriState" text="VUHDO_I18N_FADE_ON_LOW" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentShowTimerTriState" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_SPELL_ENTRY_FADE_ON_LOW", { VUHDO_I18N_ON, VUHDO_I18N_DEFAULT, VUHDO_I18N_OFF });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K773);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parentFlashOnLowTriState" text="VUHDO_I18N_FLASH_ON_LOW" inherits="VuhDoTriStateCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentFadeOnLowTriState" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetRadioModel(self, "VUHDO_SPELL_ENTRY_FLASH_ON_LOW", { VUHDO_I18N_ON, VUHDO_I18N_DEFAULT, VUHDO_I18N_OFF });
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K775);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<Frame name="$parentFadeThresholdSlider" inherits="VuhDoHSliderTemplate">
+								<Size>
+									<AbsDimension x="160" y="50" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentFadeOnLowTriState" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-4" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_FADE_THRESHOLD");
+										VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_FADE_THRESHOLD, 1, 30, " " .. VUHDO_I18N_SECS, 1);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K774);
+
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_FADE_ON_LOW", 2);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_FADE_ON_LOW", 3);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+							<Frame name="$parentFlashThresholdSlider" inherits="VuhDoHSliderTemplate">
+								<Size>
+									<AbsDimension x="160" y="50" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parentFadeThresholdSlider" relativePoint="TOPRIGHT">
+										<Offset>
+											<AbsDimension x="8" y="0" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_FLASH_THRESHOLD");
+										VUHDO_lnfSliderOnLoad(self, VUHDO_I18N_FLASH_THRESHOLD, 1, 30, " " .. VUHDO_I18N_SECS, 1);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K776);
+
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_FLASH_ON_LOW", 2);
+										VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_SPELL_ENTRY_FLASH_ON_LOW", 3);
+
+										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
+							<Button name="$parentOkayButton" inherits="VuhDoOkayButtonTemplate">
+								<Anchors>
+									<Anchor point="BOTTOMRIGHT">
+										<Offset>
+											<AbsDimension x="-13" y="15" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										VUHDO_spellEntrySettingsOkayClicked(self);
+									</OnClick>
+								</Scripts>
+							</Button>
+
+						</Frames>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad>
+						self:SetScript("OnKeyDown", function(anInstance, aKey)
+							if aKey == "ESCAPE" then
+								self:Hide();
+							end
+						end);
+					</OnLoad>
+				</Scripts>
 			</Frame>
 
 			<Button name="$parentBackButton" inherits="VuhDoBackButtonTemplate">

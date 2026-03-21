@@ -165,6 +165,8 @@ do
 	local tColorBarGroup;
 	function VUHDO_rebuildCanColorBarGroupsCache()
 
+		VUHDO_rebuildActiveAuraCaches();
+
 		for tIdx = 1, #sCanColorBarGroups do
 			sCanColorBarGroupPool:release(sCanColorBarGroups[tIdx]);
 		end

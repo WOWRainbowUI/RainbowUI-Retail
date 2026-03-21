@@ -2909,6 +2909,8 @@ end
 
 
 local VUHDO_DEFAULT_PANEL_SETUP = {
+	["PRIVATE_AURA_SHOW_DISPEL_TYPE"] = true,
+
 	["RAID_ICON_FILTER"] = {
 		[1] = true,
 		[2] = true,
@@ -4060,9 +4062,14 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 		["durationPosition"] = "BOTTOM",
 		["durationOffsetX"] = 0,
 		["durationOffsetY"] = 0,
-		["showBorder"] = false,
+		["showBorder"] = true,
 		["iconSize"] = 40,
 		["frameLevel"] = 13,
+		["growthDir"] = "RIGHT",
+		["wrapDir"] = "DOWN",
+		["maxColumns"] = 3,
+		["maxRows"] = 2,
+		["VERSION"] = 3,
 	},
 
 	["RAID_ICON"] = {
@@ -4348,6 +4355,36 @@ function VUHDO_loadDefaultPanelSetup()
 				tPrivateAura["scale"] = nil;
 			end
 
+			if (tPrivateAura["VERSION"] or 0) < 1 then
+				if tPrivateAura["iconSize"] == 80 then
+					tPrivateAura["iconSize"] = 40;
+				end
+
+				tPrivateAura["showBorder"] = true;
+
+				tPrivateAura["VERSION"] = 1;
+			end
+
+			if (tPrivateAura["VERSION"] or 0) < 2 then
+				tPrivateAura["growthDir"] = "RIGHT";
+				tPrivateAura["wrapDir"] = "DOWN";
+				tPrivateAura["maxColumns"] = 3;
+				tPrivateAura["maxRows"] = 2;
+
+				tPrivateAura["VERSION"] = 2;
+			end
+
+			if (tPrivateAura["VERSION"] or 0) < 3 then
+				tPrivateAura["showCooldown"] = true;
+				tPrivateAura["showCooldownNumbers"] = true;
+				tPrivateAura["showDuration"] = false;
+
+				tPrivateAura["VERSION"] = 3;
+			end
+		end
+
+		if VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] == nil then
+			VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] = true;
 		end
 
 		VUHDO_PANEL_SETUP[tPanelNum] = VUHDO_ensureSanity("VUHDO_PANEL_SETUP[" .. tPanelNum .. "]", VUHDO_PANEL_SETUP[tPanelNum], VUHDO_DEFAULT_PER_PANEL_SETUP);

@@ -51,6 +51,7 @@ VUHDO_DEFER_POSITION_CONFIG_PANELS = 25;
 VUHDO_DEFER_REDRAW_PANEL = 26;
 VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE = 27;
 VUHDO_DEFER_PREWARM_AURA_POOLS = 28;
+VUHDO_DEFER_UPDATE_AURA_DISPLAYS_FOR_UNIT = 29;
 
 local VUHDO_DEFERRED_TASK_TYPES = {
 	VUHDO_DEFER_UPDATE_HEALTH,
@@ -81,6 +82,7 @@ local VUHDO_DEFERRED_TASK_TYPES = {
 	VUHDO_DEFER_REDRAW_PANEL,
 	VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE,
 	VUHDO_DEFER_PREWARM_AURA_POOLS,
+	VUHDO_DEFER_UPDATE_AURA_DISPLAYS_FOR_UNIT,
 };
 
 local VUHDO_COMBAT_UNSAFE_TASKS = {
@@ -136,6 +138,7 @@ local VUHDO_TASK_TYPE_DEFAULT_COSTS = {
 	[25] = 205,   -- tm50=180μs, tm80=230μs → 205μs estimate
 	[26] = 181,   -- tm50=136μs, tm80=225μs → 181μs estimate
 	[27] = 6200,  -- tm50=4.26ms, tm80=8.13ms → 6200μs estimate
+	[29] = 350,
 };
 
 local VUHDO_DEFERRED_TASK_STATE = {
@@ -457,6 +460,17 @@ end
 function VUHDO_deferPrewarmAuraPools(aPriority)
 
 	VUHDO_deferTask(VUHDO_DEFER_PREWARM_AURA_POOLS, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_LOW);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferUpdateAuraDisplaysForUnit(aUnit, aPriority)
+
+	VUHDO_deferTask(VUHDO_DEFER_UPDATE_AURA_DISPLAYS_FOR_UNIT, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_HIGH, aUnit);
 
 	return;
 
@@ -2066,6 +2080,7 @@ function VUHDO_initTaskSystem()
 			[VUHDO_DEFER_REDRAW_PANEL] = _G["VUHDO_deferRedrawPanelDelegate"],
 			[VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE] = _G["VUHDO_deferRedrawAllPanelsCompleteDelegate"],
 			[VUHDO_DEFER_PREWARM_AURA_POOLS] = _G["VUHDO_prewarmAuraFramePoolsChunk"],
+			[VUHDO_DEFER_UPDATE_AURA_DISPLAYS_FOR_UNIT] = _G["VUHDO_updateAuraDisplaysForUnit"],
 		};
 
 		tTaskTypeCount = 0;
