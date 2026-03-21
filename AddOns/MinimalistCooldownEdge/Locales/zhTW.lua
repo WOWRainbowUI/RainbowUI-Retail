@@ -13,6 +13,7 @@ L["Unit Frames"] = "單位框架"
 L["Party / Raid Frames"] = "隊伍 / 團隊框架"
 L["CooldownManager"] = "冷卻技能"
 L["MiniCC"] = "MiniCC"
+L["Others"] = "其他"
 L["Profiles"] = "設定檔"
 
 -- Group Headers

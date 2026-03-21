@@ -417,7 +417,8 @@ function MCE:OnInitialize()
         status.groups.treesizable = true
     end
 
-    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addonName, C.Addon.ShortName, nil, "general")
+    C.Addon.ShortName = L["MinimalistCooldownEdge"] -- 自行修改
+	self.optionsFrame = AceConfigDialog:AddToBlizOptions(addonName, C.Addon.ShortName, nil, "general")
     AceConfigDialog:AddToBlizOptions(addonName, L["Action Bars"], C.Addon.ShortName, C.Categories.Actionbar)
     AceConfigDialog:AddToBlizOptions(addonName, L["Nameplates"], C.Addon.ShortName, C.Categories.Nameplate)
     AceConfigDialog:AddToBlizOptions(addonName, L["Unit Frames"], C.Addon.ShortName, C.Categories.Unitframe)
