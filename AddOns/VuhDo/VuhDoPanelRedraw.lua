@@ -1,6 +1,5 @@
 local _;
 
-
 local VUHDO_STD_BACKDROP = nil;
 local VUHDO_DESIGN_BACKDROP = nil;
 local VUHDO_CONFIG;
@@ -16,13 +15,11 @@ local pairs = pairs;
 local strfind = strfind;
 local twipe = table.wipe;
 local tinsert = table.insert;
+local floor = math.floor;
 
 local InCombatLockdown = InCombatLockdown;
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
 
-
-
---
 local sPanelConfig = { };
 local sButtonInitSemaphores = { };
 local sButtonPositionSemaphores = { };
@@ -68,6 +65,13 @@ local sButtonInitTimeouts = { };
 local sButtonPositionTimeouts = { };
 local sPanelRedrawTimeout = 0;
 
+local sGrowthOffsets = {
+	["LEFT"] = { -1, 0 },
+	["RIGHT"] = { 1, 0 },
+	["UP"] = { 0, 1 },
+	["DOWN"] = { 0, -1 },
+};
+
 local VUHDO_getFont;
 local VUHDO_getHealthBar;
 local VUHDO_getPixelPerfectBorderEdgeSize;
@@ -78,7 +82,7 @@ local VUHDO_getGroupMembers;
 local VUHDO_redrawPanel;
 local VUHDO_redrawAllPanels;
 local VUHDO_refreshAllUnitAuras;
-local VUHDO_refreshAllPrivateAuras;
+
 
 
 --
@@ -117,7 +121,6 @@ function VUHDO_panelRedrawInitLocalOverrides()
 	end
 
 	VUHDO_refreshAllUnitAuras = _G["VUHDO_refreshAllUnitAuras"];
-	VUHDO_refreshAllPrivateAuras = _G["VUHDO_refreshAllPrivateAuras"];
 
 	return;
 
@@ -290,13 +293,10 @@ local tBar;
 
 --
 local tPanelSetup;
-local tSign;
 local tIconSize;
 local tIconSizePercent;
 local tBarHeight;
 local tSpacing;
-local tStep;
-local tSignVertical;
 local tPrivateAura;
 function VUHDO_initLocalVars(aPanelNum)
 
@@ -367,6 +367,10 @@ function VUHDO_initLocalVars(aPanelNum)
 		tPrivateAura["showBorder"] = false;
 		tPrivateAura["iconSize"] = 40;
 		tPrivateAura["frameLevel"] = 13;
+		tPrivateAura["growthDir"] = "RIGHT";
+		tPrivateAura["wrapDir"] = "DOWN";
+		tPrivateAura["maxColumns"] = 3;
+		tPrivateAura["maxRows"] = 2;
 	end
 
 	tIconSizePercent = sPanelConfig[aPanelNum]["privateAura"]["iconSize"] or 40;
@@ -383,13 +387,7 @@ function VUHDO_initLocalVars(aPanelNum)
 	sPanelConfig[aPanelNum]["privateAuraFrameSize"] = 32;
 
 	tSpacing = sPanelConfig[aPanelNum]["privateAura"]["spacing"] or 0;
-	tStep = sPanelConfig[aPanelNum]["privateAuraFrameSize"] + tSpacing;
-
-	tSign = ("TOPLEFT" == sPanelConfig[aPanelNum]["privateAura"]["point"] or "LEFT" == sPanelConfig[aPanelNum]["privateAura"]["point"] or "BOTTOMLEFT" == sPanelConfig[aPanelNum]["privateAura"]["point"]) and 1 or -1;
-	sPanelConfig[aPanelNum]["privateAuraStepX"] = ("HORIZONTAL" == (sPanelConfig[aPanelNum]["privateAura"]["orientation"] or "HORIZONTAL")) and (tSign * tStep) or 0;
-
-	tSignVertical = ("TOP" == sPanelConfig[aPanelNum]["privateAura"]["point"] or "TOPLEFT" == sPanelConfig[aPanelNum]["privateAura"]["point"] or "TOPRIGHT" == sPanelConfig[aPanelNum]["privateAura"]["point"]) and -1 or 1;
-	sPanelConfig[aPanelNum]["privateAuraStepY"] = ("VERTICAL" == (sPanelConfig[aPanelNum]["privateAura"]["orientation"] or "HORIZONTAL")) and (tSignVertical * tStep) or 0;
+	sPanelConfig[aPanelNum]["privateAuraStep"] = sPanelConfig[aPanelNum]["privateAuraFrameSize"] + tSpacing;
 
 	sPanelConfig[aPanelNum]["privateAuraXOffset"] = sPanelConfig[aPanelNum]["privateAura"]["xAdjust"] * sPanelConfig[aPanelNum]["barScaling"]["barWidth"] * 0.01;
 	sPanelConfig[aPanelNum]["privateAuraYOffset"] = -sPanelConfig[aPanelNum]["privateAura"]["yAdjust"] * sPanelConfig[aPanelNum]["barScaling"]["barHeight"] * 0.01;
@@ -1015,6 +1013,12 @@ do
 	local tY;
 	local tNumAuras;
 	local tFrameLevel;
+	local tGrowthDir;
+	local tWrapDir;
+	local tMaxCols;
+	local tCol;
+	local tRow;
+	local tStep;
 	local function VUHDO_initPrivateAura(aHealthBar, aButton, anAuraIndex, aPanelNum)
 
 		tPrivateAura = VUHDO_getBarPrivateAura(aButton, anAuraIndex);
@@ -1031,8 +1035,17 @@ do
 		tPrivateAura["addLevel"] = tFrameLevel;
 		VUHDO_PixelUtil.SetFrameLevel(tPrivateAura, aHealthBar:GetFrameLevel() + tPrivateAura["addLevel"]);
 
-		tX = sPanelConfig[aPanelNum]["privateAuraXOffset"] + (sPanelConfig[aPanelNum]["privateAuraStepX"] * (anAuraIndex - 1));
-		tY = sPanelConfig[aPanelNum]["privateAuraYOffset"] + (sPanelConfig[aPanelNum]["privateAuraStepY"] * (anAuraIndex - 1));
+		tGrowthDir = sGrowthOffsets[sPanelConfig[aPanelNum]["privateAura"]["growthDir"]] or sGrowthOffsets["RIGHT"];
+		tWrapDir = sGrowthOffsets[sPanelConfig[aPanelNum]["privateAura"]["wrapDir"]] or sGrowthOffsets["DOWN"];
+		tMaxCols = sPanelConfig[aPanelNum]["privateAura"]["maxColumns"] or 3;
+		tStep = sPanelConfig[aPanelNum]["privateAuraStep"];
+
+		tCol = (anAuraIndex - 1) % tMaxCols;
+		tRow = floor((anAuraIndex - 1) / tMaxCols);
+
+		tX = sPanelConfig[aPanelNum]["privateAuraXOffset"] + (tCol * tStep * tGrowthDir[1]) + (tRow * tStep * tWrapDir[1]);
+		tY = sPanelConfig[aPanelNum]["privateAuraYOffset"] + (tCol * tStep * tGrowthDir[2]) + (tRow * tStep * tWrapDir[2]);
+
 		VUHDO_PixelUtil.SetPoint(tPrivateAura, sPanelConfig[aPanelNum]["privateAura"]["point"], aHealthBar:GetName(), sPanelConfig[aPanelNum]["privateAura"]["point"], tX, tY);
 
 		VUHDO_PixelUtil.SetSize(tPrivateAura, sPanelConfig[aPanelNum]["privateAuraFrameSize"], sPanelConfig[aPanelNum]["privateAuraFrameSize"]);

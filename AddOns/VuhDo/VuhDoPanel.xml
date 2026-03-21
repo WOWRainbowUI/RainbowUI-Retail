@@ -99,10 +99,6 @@
 					<Layer level="BACKGROUND">
 						<Texture name="$parentI"></Texture>
 					</Layer>
-					<Layer level="OVERLAY">
-						<FontString name="$parentT" inherits="NumberFontNormalSmall"></FontString>
-						<FontString name="$parentC" inherits="NumberFontNormalSmall"></FontString>
-					</Layer>
 				</Layers>
 				<Frames>
 					<Cooldown name="$parentCd" inherits="CooldownFrameTemplate">
@@ -116,6 +112,19 @@
 						<Scripts>
 							<OnLoad>
 								self.addLevel = 1;
+							</OnLoad>
+						</Scripts>
+					</Frame>
+					<Frame name="$parentTxtOv" setAllPoints="true">
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="$parentT" inherits="NumberFontNormalSmall"></FontString>
+								<FontString name="$parentC" inherits="NumberFontNormalSmall"></FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								self.addLevel = 2;
 							</OnLoad>
 						</Scripts>
 					</Frame>

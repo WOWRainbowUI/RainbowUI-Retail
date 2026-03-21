@@ -269,7 +269,7 @@ function VUHDO_onUnitAuraInference(aUnit, aUpdateInfo)
 							sSyntheticAuraPool:release(tOldSynthetic);
 						end
 
-						VUHDO_onAuraRemoved(aUnit, tSyntheticId);
+						VUHDO_onAuraRemoved(aUnit, tSyntheticId, tConfig["spellId"], GetSpellInfo(tConfig["spellId"]));
 
 						tChanged = true;
 
@@ -353,7 +353,7 @@ function VUHDO_onUnitAuraInference(aUnit, aUpdateInfo)
 							sSyntheticAuraPool:release(tOldSynthetic);
 						end
 
-						VUHDO_onAuraRemoved(aUnit, tSyntheticId);
+						VUHDO_onAuraRemoved(aUnit, tSyntheticId, tConfig["spellId"], GetSpellInfo(tConfig["spellId"]));
 
 						tChanged = true;
 
@@ -405,7 +405,7 @@ function VUHDO_onUnitAuraInference(aUnit, aUpdateInfo)
 							sSyntheticAuraPool:release(tOldSynthetic);
 						end
 
-						VUHDO_onAuraRemoved(aUnit, tSyntheticId);
+						VUHDO_onAuraRemoved(aUnit, tSyntheticId, tConfig["spellId"], GetSpellInfo(tConfig["spellId"]));
 
 						tChanged = true;
 

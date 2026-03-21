@@ -8,6 +8,7 @@ local min = math.min;
 
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
 local AddPrivateAuraAnchor = C_UnitAuras and C_UnitAuras.AddPrivateAuraAnchor;
+local TriggerPrivateAuraShowDispelType = C_UnitAuras and C_UnitAuras.TriggerPrivateAuraShowDispelType;
 
 local VUHDO_CONFIG;
 local VUHDO_PANEL_SETUP;
@@ -321,6 +322,8 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 	if not tPrivateAuraSetup["show"] then
 		return;
 	end
+
+	TriggerPrivateAuraShowDispelType(VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] or true);
 
 	tNumAuras = tPrivateAuraSetup["numAuras"] or 3;
 

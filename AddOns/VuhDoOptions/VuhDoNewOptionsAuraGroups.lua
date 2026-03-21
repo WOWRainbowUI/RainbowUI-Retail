@@ -42,6 +42,24 @@ VUHDO_AURA_GROUPS_IGNORE_SELECTED = "";
 VUHDO_AURA_GROUPS_ADD_SPELL_SELECTED = "";
 VUHDO_AURA_GROUPS_ADD_SPELL_COMBO_MODEL = { };
 
+VUHDO_SPELL_ENTRY_MINE = true;
+VUHDO_SPELL_ENTRY_OTHERS = false;
+VUHDO_SPELL_ENTRY_DURATION_MODE = VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+VUHDO_SPELL_ENTRY_TIMER_THRESHOLD = 10;
+VUHDO_SPELL_ENTRY_GLOW_ICON = false;
+
+VUHDO_SPELL_ENTRY_SETTINGS = { };
+local VUHDO_SPELL_ENTRY_SETTINGS = VUHDO_SPELL_ENTRY_SETTINGS;
+
+VUHDO_SPELL_ENTRY_COLOR_ICON = false;
+VUHDO_SPELL_ENTRY_SHOW_TIMER = 2;
+VUHDO_SPELL_ENTRY_SHOW_STACKS = 2;
+VUHDO_SPELL_ENTRY_SHOW_CLOCK = 2;
+VUHDO_SPELL_ENTRY_FADE_ON_LOW = 2;
+VUHDO_SPELL_ENTRY_FADE_THRESHOLD = 3;
+VUHDO_SPELL_ENTRY_FLASH_ON_LOW = 2;
+VUHDO_SPELL_ENTRY_FLASH_THRESHOLD = 2;
+
 VUHDO_AURA_FILTER_OPTIONS = {
 	{ "HELPFUL", VUHDO_I18N_AURA_GROUP_ALL_BUFFS, nil, nil, VUHDO_I18N_TT.K635 },
 	{ "HARMFUL", VUHDO_I18N_AURA_GROUP_ALL_DEBUFFS, nil, nil, VUHDO_I18N_TT.K636 },
@@ -134,6 +152,8 @@ VUHDO_AURA_GROUPS_NEW_BOUQUET_SELECTED = "";
 
 local sSelectedGroupId = nil;
 local sAuraGroupEntryItems = { };
+local sSpellEntrySettingsGroupId = nil;
+local sSpellEntrySettingsEntryIdx = nil;
 
 
 
@@ -1650,6 +1670,7 @@ local tValueLabel;
 local tTypeLabel;
 local tTypeLabelFrame;
 local tBouquetButton;
+local tSpellButton;
 local tRemoveButton;
 local tUpButton;
 local tDownButton;
@@ -1698,6 +1719,7 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 	tTypeLabel = _G[tRowName .. "TypeLabelLabel"];
 	tTypeLabelFrame = _G[tRowName .. "TypeLabel"];
 	tBouquetButton = _G[tRowName .. "BouquetButton"];
+	tSpellButton = _G[tRowName .. "SpellButton"];
 
 	if tTypeLabel then
 		if anEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_EMPTY then
@@ -1709,18 +1731,27 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 		end
 	end
 
-	if tTypeLabelFrame and tBouquetButton then
+	if tTypeLabelFrame and tBouquetButton and tSpellButton then
 		if anEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
 			tTypeLabelFrame:Hide();
-
 			tBouquetButton:Show();
+			tSpellButton:Hide();
 
 			tBouquetButton:SetText(VUHDO_I18N_AURA_GROUP_ENTRY_BOUQUET);
+
 			VUHDO_lnfSetTooltip(tBouquetButton, VUHDO_I18N_TT.K732);
+		elseif anEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
+			tTypeLabelFrame:Hide();
+			tBouquetButton:Hide();
+			tSpellButton:Show();
+
+			tSpellButton:SetText(VUHDO_I18N_AURA_GROUP_ENTRY_SPELL);
+
+			VUHDO_lnfSetTooltip(tSpellButton, VUHDO_I18N_TT.K759);
 		else
 			tTypeLabelFrame:Show();
-
 			tBouquetButton:Hide();
+			tSpellButton:Hide();
 		end
 	end
 
@@ -1742,6 +1773,16 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 	end
 
 	if anIsBuiltIn then
+		if tBouquetButton then
+			tBouquetButton:Disable();
+			tBouquetButton:SetAlpha(0.5);
+		end
+
+		if tSpellButton then
+			tSpellButton:Disable();
+			tSpellButton:SetAlpha(0.5);
+		end
+
 		if tRemoveButton then
 			tRemoveButton:Disable();
 			tRemoveButton:SetAlpha(0.5);
@@ -1757,6 +1798,16 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 			tDownButton:SetAlpha(0.5);
 		end
 	else
+		if tBouquetButton then
+			tBouquetButton:Enable();
+			tBouquetButton:SetAlpha(1);
+		end
+
+		if tSpellButton then
+			tSpellButton:Enable();
+			tSpellButton:SetAlpha(1);
+		end
+
 		if tRemoveButton then
 			tRemoveButton:Enable();
 			tRemoveButton:SetAlpha(1);
@@ -1823,6 +1874,8 @@ function VUHDO_auraGroupsRefreshListEntries()
 		VUHDO_PixelUtil.SetHeight(tEntryScrollChild, VUHDO_AURA_GROUP_LIST_ENTRY_ROW_HEIGHT);
 	end
 
+	VUHDO_initEntrySettingsCache();
+
 	return;
 
 end
@@ -1885,6 +1938,19 @@ function VUHDO_auraGroupsListAddSpell()
 		["value"] = tValue,
 		["mine"] = true,
 		["others"] = false,
+		["durationMode"] = VUHDO_SPELL_DURATION_MODE_THRESHOLD,
+		["timerThreshold"] = 10,
+		["glowIcon"] = false,
+		["glowIconColor"] = nil,
+		["colorIcon"] = false,
+		["colorIconColor"] = nil,
+		["showTimer"] = 2,
+		["showStacks"] = 2,
+		["showClock"] = 2,
+		["fadeOnLow"] = 2,
+		["fadeThreshold"] = nil,
+		["flashOnLow"] = 2,
+		["flashThreshold"] = nil,
 	});
 
 	tSpellComboEditBox:SetText("");
@@ -2009,6 +2075,522 @@ function VUHDO_auraGroupEntryBouquetButtonClicked(aButton)
 	VUHDO_newOptionsTabbedClickedClicked(VuhDoNewOptionsTabbedFrameTabsPanelGeneralRadioButton);
 	VUHDO_lnfRadioButtonClicked(VuhDoNewOptionsTabbedFrameTabsPanelGeneralRadioButton);
 	VUHDO_lnfTabRadioButtonClicked(VuhDoNewOptionsGeneralRadioPanelBouquetRadioButton);
+
+	return;
+
+end
+
+
+
+--
+local tItemPanel;
+local tIdx;
+local tGroup;
+local tEntry;
+local tFrame;
+local tRootPane;
+local tTitleLabel;
+local tSpellName;
+local tControl;
+local tMode;
+function VUHDO_auraGroupEntrySpellButtonClicked(aButton)
+
+	tItemPanel = aButton:GetParent();
+
+	if not tItemPanel then
+		return;
+	end
+
+	tIdx = tItemPanel["vuhdo_entryIdx"];
+
+	if not tIdx or not sSelectedGroupId then
+		return;
+	end
+
+	tGroup = VUHDO_getAuraGroupRaw(sSelectedGroupId);
+
+	if not tGroup or not tGroup["entries"] then
+		return;
+	end
+
+	tEntry = tGroup["entries"][tIdx];
+
+	if not tEntry or tEntry["entryType"] ~= VUHDO_AURA_LIST_ENTRY_SPELL then
+		return;
+	end
+
+	sSpellEntrySettingsGroupId = sSelectedGroupId;
+	sSpellEntrySettingsEntryIdx = tIdx;
+
+	VUHDO_spellEntrySettingsInitFromEntry(tEntry);
+
+	tFrame = _G["VuhDoNewOptionsAuraGroupsSpellEntrySettingsFrame"];
+
+	if not tFrame then
+		return;
+	end
+
+	tRootPane = _G[tFrame:GetName() .. "RootPane"];
+	tTitleLabel = tRootPane and _G[tRootPane:GetName() .. "TitleLabelLabel"];
+
+	if tTitleLabel then
+		tSpellName = VUHDO_formatAuraSpellDisplayName(tostring(tEntry["value"] or ""));
+		tTitleLabel:SetText(VUHDO_I18N_SPELL_SETTINGS .. ": " .. tSpellName);
+	end
+
+	VUHDO_spellEntrySettingsRefreshFromModel(tFrame);
+	VUHDO_updateSpellEntryIconPreview(tFrame);
+
+	tFrame:Show();
+
+	if tRootPane then
+		VUHDO_spellEntrySettingsUpdateTimerSliderEnabled(tRootPane);
+
+		tMode = VUHDO_SPELL_ENTRY_DURATION_MODE or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+
+		tControl = _G[tRootPane:GetName() .. "FullDurationCheckButton"];
+
+		if tControl then
+			tControl:SetChecked(tMode == VUHDO_SPELL_DURATION_MODE_FULL);
+
+			VUHDO_lnfCheckButtonClicked(tControl);
+		end
+
+		tControl = _G[tRootPane:GetName() .. "AliveTimeCheckButton"];
+
+		if tControl then
+			tControl:SetChecked(tMode == VUHDO_SPELL_DURATION_MODE_ALIVE);
+
+			VUHDO_lnfCheckButtonClicked(tControl);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tEntry;
+function VUHDO_spellEntrySettingsInitFromEntry(anEntry)
+
+	tEntry = anEntry;
+
+	VUHDO_SPELL_ENTRY_MINE = tEntry["mine"] ~= false;
+	VUHDO_SPELL_ENTRY_OTHERS = tEntry["others"] == true;
+	VUHDO_SPELL_ENTRY_DURATION_MODE = tEntry["durationMode"] or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+	VUHDO_SPELL_ENTRY_TIMER_THRESHOLD = tEntry["timerThreshold"] or 10;
+	VUHDO_SPELL_ENTRY_GLOW_ICON = tEntry["glowIcon"] == true;
+
+	VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"] = tEntry["glowIconColor"] and VUHDO_deepCopyTable(tEntry["glowIconColor"])
+		or VUHDO_deepCopyTable(VUHDO_PANEL_SETUP.BAR_COLORS["DEBUFF_ICON_GLOW"]);
+
+	VUHDO_SPELL_ENTRY_COLOR_ICON = tEntry["colorIcon"] == true;
+
+	VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"] = tEntry["colorIconColor"] and VUHDO_deepCopyTable(tEntry["colorIconColor"]) or {
+		["R"] = 1, ["G"] = 1, ["B"] = 1, ["O"] = 1,
+		["TR"] = 1, ["TG"] = 1, ["TB"] = 1, ["TO"] = 1,
+		["useBackground"] = true, ["useText"] = true, ["useOpacity"] = true,
+	};
+
+	VUHDO_SPELL_ENTRY_SHOW_TIMER = tEntry["showTimer"] or 2;
+	VUHDO_SPELL_ENTRY_SHOW_STACKS = tEntry["showStacks"] or 2;
+	VUHDO_SPELL_ENTRY_SHOW_CLOCK = tEntry["showClock"] or 2;
+	VUHDO_SPELL_ENTRY_FADE_ON_LOW = tEntry["fadeOnLow"] or 2;
+	VUHDO_SPELL_ENTRY_FADE_THRESHOLD = tEntry["fadeThreshold"] or 3;
+	VUHDO_SPELL_ENTRY_FLASH_ON_LOW = tEntry["flashOnLow"] or 2;
+	VUHDO_SPELL_ENTRY_FLASH_THRESHOLD = tEntry["flashThreshold"] or 2;
+
+	return;
+
+end
+
+
+
+--
+local tEntry;
+local tGroup;
+function VUHDO_spellEntrySettingsSaveToEntry()
+
+	if not sSpellEntrySettingsGroupId or not sSpellEntrySettingsEntryIdx then
+		return;
+	end
+
+	tGroup = VUHDO_getAuraGroupRaw(sSpellEntrySettingsGroupId);
+
+	if not tGroup or not tGroup["entries"] then
+		return;
+	end
+
+	tEntry = tGroup["entries"][sSpellEntrySettingsEntryIdx];
+
+	if not tEntry or tEntry["entryType"] ~= VUHDO_AURA_LIST_ENTRY_SPELL then
+		return;
+	end
+
+	tEntry["mine"] = VUHDO_SPELL_ENTRY_MINE;
+	tEntry["others"] = VUHDO_SPELL_ENTRY_OTHERS;
+	tEntry["durationMode"] = VUHDO_SPELL_ENTRY_DURATION_MODE;
+	tEntry["timerThreshold"] = VUHDO_SPELL_ENTRY_TIMER_THRESHOLD;
+	tEntry["glowIcon"] = VUHDO_SPELL_ENTRY_GLOW_ICON;
+	tEntry["glowIconColor"] = VUHDO_deepCopyTable(VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]);
+	tEntry["colorIcon"] = VUHDO_SPELL_ENTRY_COLOR_ICON;
+	tEntry["colorIconColor"] = VUHDO_deepCopyTable(VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"]);
+	tEntry["showTimer"] = VUHDO_SPELL_ENTRY_SHOW_TIMER;
+	tEntry["showStacks"] = VUHDO_SPELL_ENTRY_SHOW_STACKS;
+	tEntry["showClock"] = VUHDO_SPELL_ENTRY_SHOW_CLOCK;
+	tEntry["fadeOnLow"] = VUHDO_SPELL_ENTRY_FADE_ON_LOW;
+	tEntry["fadeThreshold"] = VUHDO_SPELL_ENTRY_FADE_THRESHOLD;
+	tEntry["flashOnLow"] = VUHDO_SPELL_ENTRY_FLASH_ON_LOW;
+	tEntry["flashThreshold"] = VUHDO_SPELL_ENTRY_FLASH_THRESHOLD;
+
+	VUHDO_initEntrySettingsCache();
+
+	return;
+
+end
+
+
+
+--
+local tSliderFrame;
+local tInnerSlider;
+local tMode;
+function VUHDO_spellEntrySettingsUpdateTimerSliderEnabled(aRootPane)
+
+	if not aRootPane then
+		return;
+	end
+
+	tSliderFrame = _G[aRootPane:GetName() .. "TimerThresholdSlider"];
+	if not tSliderFrame then
+		return;
+	end
+
+	tInnerSlider = _G[tSliderFrame:GetName() .. "Slider"];
+
+	if not tInnerSlider then
+		return;
+	end
+
+	tMode = VUHDO_SPELL_ENTRY_DURATION_MODE or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+	if tMode == VUHDO_SPELL_DURATION_MODE_THRESHOLD then
+		tInnerSlider:Enable();
+		tSliderFrame:SetAlpha(1);
+	else
+		tInnerSlider:Disable();
+		tSliderFrame:SetAlpha(0.5);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tButton;
+local tRootPane;
+local tFullDuration;
+local tAliveTime;
+local tNewChecked;
+function VUHDO_spellEntryDurationModeClicked(aButton)
+
+	tButton = aButton;
+	tRootPane = tButton:GetParent();
+
+	if not tRootPane then
+		return;
+	end
+
+	tFullDuration = _G[tRootPane:GetName() .. "FullDurationCheckButton"];
+	tAliveTime = _G[tRootPane:GetName() .. "AliveTimeCheckButton"];
+
+	if not tFullDuration or not tAliveTime then
+		return;
+	end
+
+	tNewChecked = tButton:GetChecked();
+
+	if tButton == tFullDuration then
+		if tNewChecked then
+			tAliveTime:SetChecked(false);
+			VUHDO_SPELL_ENTRY_DURATION_MODE = VUHDO_SPELL_DURATION_MODE_FULL;
+		else
+			VUHDO_SPELL_ENTRY_DURATION_MODE = VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+		end
+	else
+		if tNewChecked then
+			tFullDuration:SetChecked(false);
+			VUHDO_SPELL_ENTRY_DURATION_MODE = VUHDO_SPELL_DURATION_MODE_ALIVE;
+		else
+			VUHDO_SPELL_ENTRY_DURATION_MODE = VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+		end
+	end
+
+	VUHDO_lnfCheckButtonClicked(tFullDuration);
+	VUHDO_lnfCheckButtonClicked(tAliveTime);
+	VUHDO_spellEntrySettingsUpdateTimerSliderEnabled(tRootPane);
+	VUHDO_spellEntrySettingsChanged();
+
+	return;
+
+end
+
+
+
+--
+local tRootPane;
+local tControl;
+local tMode;
+function VUHDO_spellEntrySettingsRefreshFromModel(aFrame)
+
+	if not aFrame then
+		return;
+	end
+
+	tRootPane = _G[aFrame:GetName() .. "RootPane"];
+
+	if not tRootPane then
+		return;
+	end
+
+	tControl = _G[tRootPane:GetName() .. "MineCheckButton"];
+	if tControl then
+		VUHDO_lnfCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "OthersCheckButton"];
+	if tControl then
+		VUHDO_lnfCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "FullDurationCheckButton"];
+	if tControl then
+		tMode = VUHDO_SPELL_ENTRY_DURATION_MODE or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+		tControl:SetChecked(tMode == VUHDO_SPELL_DURATION_MODE_FULL);
+		VUHDO_lnfCheckButtonClicked(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "AliveTimeCheckButton"];
+	if tControl then
+		tMode = VUHDO_SPELL_ENTRY_DURATION_MODE or VUHDO_SPELL_DURATION_MODE_THRESHOLD;
+		tControl:SetChecked(tMode == VUHDO_SPELL_DURATION_MODE_ALIVE);
+		VUHDO_lnfCheckButtonClicked(tControl);
+	end
+
+	VUHDO_spellEntrySettingsUpdateTimerSliderEnabled(tRootPane);
+
+	tControl = _G[tRootPane:GetName() .. "TimerThresholdSliderSlider"];
+	if tControl then
+		VUHDO_lnfSliderInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "GlowIconCheckButton"];
+	if tControl then
+		VUHDO_lnfCheckButtonInitFromModel(tControl);
+		VUHDO_lnfUpdateComponentsByConstraints(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "GlowColorTexture"];
+	if tControl then
+		VUHDO_lnfColorSwatchInitFromModel(tControl);
+		VUHDO_lnfUpdateComponentsByConstraints(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "ColorIconCheckButton"];
+	if tControl then
+		VUHDO_lnfCheckButtonInitFromModel(tControl);
+		VUHDO_lnfUpdateComponentsByConstraints(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "ColorIconTexture"];
+	if tControl then
+		VUHDO_lnfColorSwatchInitFromModel(tControl);
+		VUHDO_lnfUpdateComponentsByConstraints(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "ShowTimerTriState"];
+	if tControl then
+		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "ShowStacksTriState"];
+	if tControl then
+		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "ShowClockTriState"];
+	if tControl then
+		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "FadeOnLowTriState"];
+	if tControl then
+		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "FlashOnLowTriState"];
+	if tControl then
+		VUHDO_lnfTriStateCheckButtonInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "FadeThresholdSliderSlider"];
+	if tControl then
+		VUHDO_lnfSliderInitFromModel(tControl);
+	end
+
+	tControl = _G[tRootPane:GetName() .. "FlashThresholdSliderSlider"];
+	if tControl then
+		VUHDO_lnfSliderInitFromModel(tControl);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tFrame;
+function VUHDO_spellEntrySettingsChanged()
+
+	VUHDO_spellEntrySettingsSaveToEntry();
+
+	tFrame = _G["VuhDoNewOptionsAuraGroupsSpellEntrySettingsFrame"];
+	if tFrame and tFrame:IsShown() then
+		VUHDO_updateSpellEntryIconPreview(tFrame);
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_spellEntrySettingsOkayClicked(aButton)
+
+	VUHDO_spellEntrySettingsSaveToEntry();
+
+	tFrame = _G["VuhDoNewOptionsAuraGroupsSpellEntrySettingsFrame"];
+	if tFrame then
+		tFrame:Hide();
+	end
+
+	sSpellEntrySettingsGroupId = nil;
+	sSpellEntrySettingsEntryIdx = nil;
+
+	VUHDO_auraGroupsRefreshListEntries();
+
+	return;
+
+end
+
+
+
+--
+local tFrame;
+local tRootPane;
+local tPreviewPanel;
+local tIconTexture;
+local tTimerText;
+local tSpellValue;
+local tR;
+local tG;
+local tB;
+local tO;
+local sSpellEntryPreviewGlowKey = "VUHDO_SPELL_ENTRY_PREVIEW_GLOW";
+function VUHDO_updateSpellEntryIconPreview(aFrame)
+
+	if not aFrame then
+		return;
+	end
+
+	tRootPane = _G[aFrame:GetName() .. "RootPane"];
+
+	if not tRootPane then
+		return;
+	end
+
+	tPreviewPanel = _G[tRootPane:GetName() .. "PreviewPanel"];
+
+	if not tPreviewPanel then
+		return;
+	end
+
+	tIconTexture = _G[tPreviewPanel:GetName() .. "IconTexture"];
+	tTimerText = _G[tPreviewPanel:GetName() .. "TimerText"];
+
+	if not tIconTexture then
+		return;
+	end
+
+	tSpellValue = nil;
+
+	if sSpellEntrySettingsGroupId and sSpellEntrySettingsEntryIdx then
+		tGroup = VUHDO_getAuraGroupRaw(sSpellEntrySettingsGroupId);
+
+		if tGroup and tGroup["entries"] then
+			tEntry = tGroup["entries"][sSpellEntrySettingsEntryIdx];
+
+			if tEntry and tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
+				tSpellValue = tEntry["value"];
+			end
+		end
+	end
+
+	if not tSpellValue then
+		tIconTexture:SetTexture(nil);
+
+		if tTimerText then
+			tTimerText:SetText("");
+			tTimerText:Hide();
+		end
+
+		VUHDO_LibCustomGlow.PixelGlow_Stop(tPreviewPanel, sSpellEntryPreviewGlowKey);
+
+		return;
+	end
+
+	tIconTexture:SetTexture(VUHDO_getGlobalIcon(tostring(tSpellValue)));
+
+	if VUHDO_SPELL_ENTRY_COLOR_ICON and VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"] then
+		tR = VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"]["R"] or 1;
+		tG = VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"]["G"] or 1;
+		tB = VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"]["B"] or 1;
+		tO = VUHDO_SPELL_ENTRY_SETTINGS["COLOR_ICON_COLOR"]["O"] or 1;
+
+		tIconTexture:SetVertexColor(tR, tG, tB, tO);
+	else
+		tIconTexture:SetVertexColor(1, 1, 1, 1);
+	end
+
+	if VUHDO_SPELL_ENTRY_GLOW_ICON and VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"] then
+		VUHDO_LibCustomGlow.PixelGlow_Start(
+			tPreviewPanel,
+			{
+				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["R"] or 1,
+				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["G"] or 1,
+				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["B"] or 0,
+				VUHDO_SPELL_ENTRY_SETTINGS["GLOW_COLOR"]["O"] or 1,
+			},
+			8, 0.3, 6, 2, 0, 0, false, sSpellEntryPreviewGlowKey
+		);
+	else
+		VUHDO_LibCustomGlow.PixelGlow_Stop(tPreviewPanel, sSpellEntryPreviewGlowKey);
+	end
+
+	if tTimerText then
+		if VUHDO_SPELL_ENTRY_SHOW_TIMER == 1 then
+			tTimerText:SetText("5");
+			tTimerText:Show();
+		else
+			tTimerText:SetText("");
+			tTimerText:Hide();
+		end
+	end
 
 	return;
 
@@ -2188,6 +2770,12 @@ end
 
 --
 function VUHDO_auraGroupsBackButtonClicked(aPanel)
+
+	tFrame = _G["VuhDoNewOptionsAuraGroupsSpellEntrySettingsFrame"];
+
+	if tFrame and tFrame:IsShown() then
+		tFrame:Hide();
+	end
 
 	if VUHDO_MENU_RETURN_TARGET_MAIN ~= nil then
 		VUHDO_newOptionsTabbedClickedClicked(VUHDO_MENU_RETURN_TARGET_MAIN);
