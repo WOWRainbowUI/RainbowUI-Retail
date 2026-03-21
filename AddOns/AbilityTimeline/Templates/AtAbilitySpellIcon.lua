@@ -278,12 +278,22 @@ end
 ---@param self frame
 ---@param remainingTime number
 local HandleCooldown        = function(self, remainingTime)
-	local roundedTime = math.ceil(remainingTime)
-	if roundedTime <= 0 then
+	local formatedTime = remainingTime
+	if formatedTime <= 0 then
 		self.Cooldown:SetText("")
 		return
 	end
-	self.Cooldown:SetText(roundedTime)
+	if remainingTime > 60 then
+		local seconds = remainingTime % 60
+		if seconds > 30 then
+			formatedTime = math.ceil(remainingTime / 60) .. "m"
+		else
+			formatedTime = math.floor(remainingTime / 60) .. "m"
+		end
+	else
+		formatedTime = math.ceil(remainingTime)
+	end
+	self.Cooldown:SetText(formatedTime)
 	if private.db.profile.cooldown_settings.cooldown_highlight and private.db.profile.cooldown_settings.cooldown_highlight.enabled then
 		for _, value in pairs(private.db.profile.cooldown_settings.cooldown_highlight.highlights) do
 			local time, color = value.time, value.color
@@ -351,6 +361,10 @@ local SetEventInfo          = function(self, eventInfo, disableOnUpdate)
 			end
 		else
 			self.frame.SpellName:SetAlpha(1)
+			for i, value in pairs(private.dispellTypeList) do
+				local coloredSpellName = self.frame.DispellTypeSpellNames[i]
+				coloredSpellName:SetAlpha(0)
+			end
 		end
 		if private.db.profile.icon_settings.dispellIcons then
 			C_EncounterTimeline.SetEventIconTextures(eventInfo.id, 126, self.frame.dispellTypeIcons)
@@ -427,8 +441,8 @@ local SetEventInfo          = function(self, eventInfo, disableOnUpdate)
 	end
 	self.frame:Show()
 
-	if private.db.profile.icon_settings and private.db.profile.icon_settings.enableTooltip then
-		private.AddEventTooltip(self.frame, eventInfo)
+	if private.db.profile.icon_settings and private.db.profile.icon_settings.useTooltip and private.db.profile.icon_settings.useTooltip ~= Enum.EncounterEventsTooltipAnchor.Hidden then
+		private.AddEventTooltip(self.frame, eventInfo, private.db.profile.icon_settings.useTooltip)
 	end
 end
 

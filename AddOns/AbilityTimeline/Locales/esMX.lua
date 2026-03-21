@@ -75,10 +75,6 @@ L["EnableTextHighlight"] = "Activar resaltado de texto"
 L["EnableTextHighlightDescription"] = "Alterna la visibilidad del marco de resaltado de texto."
 L["EnableTicks"] = "Activar marcas"
 L["EnableTicksDescription"] = "Alterna la visibilidad de las marcas de la línea temporal."
---[[Translation missing --]]
-L["EnableTooltip"] = "Enable Tooltip"
---[[Translation missing --]]
-L["EnableTooltipDescription"] = "Toggles the visibility of the tooltip when hovering over the icon."
 L["EnrageEffect"] = "Enfurecer |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 L["ExpandTravelSettings"] = "Expandir ajustes de desplazamiento"
 L["ExpandVisualSettings"] = "Expandir ajustes visuales"
@@ -228,6 +224,10 @@ L["TravelDirectionVertical"] = "Vertical"
 L["TravelSettingsDescription"] = "Ajustes para personalizar el desplazamiento de los iconos en la línea temporal."
 L["useAudioCountdowns"] = "Usar cuenta atrás de audio"
 L["useAudioCountdownsDescription"] = "Activa una cuenta atrás de audio para los últimos 5 segundos de eventos próximos."
+--[[Translation missing --]]
+L["UseTooltip"] = "Use Tooltip"
+--[[Translation missing --]]
+L["UseTooltipDescription"] = "Select the type of the tooltip when hovering over the icon."
 L["VisualSettingsDescription"] = "Ajustes para personalizar la apariencia visual de la línea temporal."
 L["WrongWoWVersionMessage"] = "AbilityTimeline requiere la versión 12.0.0 (Midnight) de WoW o superior para funcionar."
 

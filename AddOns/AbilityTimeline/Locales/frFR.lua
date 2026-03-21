@@ -75,10 +75,6 @@ L["EnableTextHighlight"] = "Activer le surlignage du texte"
 L["EnableTextHighlightDescription"] = "Active ou désactive le cadre de surlignage du texte"
 L["EnableTicks"] = "Activer marques"
 L["EnableTicksDescription"] = "Active ou désactive les marques sur la ligne temporalle"
---[[Translation missing --]]
-L["EnableTooltip"] = "Enable Tooltip"
---[[Translation missing --]]
-L["EnableTooltipDescription"] = "Toggles the visibility of the tooltip when hovering over the icon."
 L["EnrageEffect"] = "Enragé |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 L["ExpandTravelSettings"] = "Développer les paramètres de défilement"
 L["ExpandVisualSettings"] = "Développer les paramètres visuels"
@@ -228,6 +224,10 @@ L["TravelDirectionVertical"] = "Vertical"
 L["TravelSettingsDescription"] = "Paramètres pour personnaliser le défilement des icônes sur la ligne temporalle."
 L["useAudioCountdowns"] = "Utiliser un compte à rebours audio"
 L["useAudioCountdownsDescription"] = "Active un compte à rebours audio pour les 5 dernières secondes des événements à venir."
+--[[Translation missing --]]
+L["UseTooltip"] = "Use Tooltip"
+--[[Translation missing --]]
+L["UseTooltipDescription"] = "Select the type of the tooltip when hovering over the icon."
 L["VisualSettingsDescription"] = "Paramètres pour personnaliser l’apparence visuelle de la ligne temporalle."
 L["WrongWoWVersionMessage"] = "AbilityTimeline nécessite la version 12.0.0 (Midnight) de WoW ou supérieure pour fonctionner."
 

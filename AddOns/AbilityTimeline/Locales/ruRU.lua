@@ -137,10 +137,6 @@ L["EnableTicks"] = "Enable Ticks"
 --[[Translation missing --]]
 L["EnableTicksDescription"] = "Toggles the visibility of the timeline ticks."
 --[[Translation missing --]]
-L["EnableTooltip"] = "Enable Tooltip"
---[[Translation missing --]]
-L["EnableTooltipDescription"] = "Toggles the visibility of the tooltip when hovering over the icon."
---[[Translation missing --]]
 L["EnrageEffect"] = "Enrage |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:103:121:39:57|t"
 --[[Translation missing --]]
 L["ExpandTravelSettings"] = "Expand Travel Settings"
@@ -434,6 +430,10 @@ L["TravelSettingsDescription"] = "Settings to customize the traveling of the ico
 L["useAudioCountdowns"] = "Use Audio Countdowns"
 --[[Translation missing --]]
 L["useAudioCountdownsDescription"] = "Enables audio countdowns of the last 5 seconds for upcoming events."
+--[[Translation missing --]]
+L["UseTooltip"] = "Use Tooltip"
+--[[Translation missing --]]
+L["UseTooltipDescription"] = "Select the type of the tooltip when hovering over the icon."
 --[[Translation missing --]]
 L["VisualSettingsDescription"] = "Settings to customize the visual appearance of the timeline."
 --[[Translation missing --]]
