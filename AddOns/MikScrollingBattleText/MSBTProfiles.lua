@@ -1,4 +1,4 @@
-﻿
+
 local module = {}
 local moduleName = "Profiles"
 MikSBT[moduleName] = module
@@ -86,6 +86,7 @@ local savedVariablesPerChar
 local savedMedia
 
 local currentProfile
+local runtimeDisabledState
 
 local pathTable = {}
 
@@ -1292,6 +1293,13 @@ if IsClassic then
 		powerThreshold					= 0,
 		hideFullHoTOverheals			= true,
 		shortenNumbers					= false,
+		stackSimilarHits				= false,
+		disableOutgoingInGroup			= false,
+		disableIncomingInGroup			= false,
+		disableNotificationInGroup		= false,
+		disableStaticInGroup			= false,
+		enableBlizzardV2CombatText		= false,
+		enableBlizzardV2CombatTextInGroup = false,
 		shortenNumberPrecision			= 0,
 		groupNumbers					= false,
 
@@ -2607,6 +2615,13 @@ else
 		powerThreshold					= 0,
 		hideFullHoTOverheals			= true,
 		shortenNumbers					= false,
+		stackSimilarHits				= false,
+		disableOutgoingInGroup			= false,
+		disableIncomingInGroup			= false,
+		disableNotificationInGroup		= false,
+		disableStaticInGroup			= false,
+		enableBlizzardV2CombatText		= false,
+		enableBlizzardV2CombatTextInGroup = false,
 		shortenNumberPrecision			= 0,
 		groupNumbers					= false,
 
@@ -2748,31 +2763,80 @@ local function DisableBlizzardCombatText()
 		SetCVar("floatingCombatTextCombatHealing", 0)
 	end
 	SetCVar("floatingCombatTextCombatDamage", 0)
+	SetCVar("floatingCombatTextCombatHealing_v2", 0)
+	SetCVar("floatingCombatTextCombatDamage_v2", 0)
+	SetCVar("floatingCombatTextCombatLogPeriodicSpells_v2", 0)
+	SetCVar("floatingCombatTextPetMeleeDamage_v2", 0)
+	SetCVar("floatingCombatTextPetSpellDamage_v2", 0)
 	SHOW_COMBAT_TEXT = "0"
 	if (CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
 end
 
+local function SetBlizzardCombatTextV2Enabled(isEnabled)
+	local value = isEnabled and 1 or 0
+	SetCVar("enableFloatingCombatText", value)
+	if not IsClassic then
+		SetCVar("floatingCombatTextCombatHealing", value)
+	end
+	SetCVar("floatingCombatTextCombatDamage", value)
+	SetCVar("floatingCombatTextCombatHealing_v2", value)
+	SetCVar("floatingCombatTextCombatDamage_v2", value)
+	SetCVar("floatingCombatTextCombatLogPeriodicSpells_v2", value)
+	SetCVar("floatingCombatTextPetMeleeDamage_v2", value)
+	SetCVar("floatingCombatTextPetSpellDamage_v2", value)
+	SHOW_COMBAT_TEXT = isEnabled and "1" or "0"
+	if (CombatText_UpdateDisplayedMessages) then CombatText_UpdateDisplayedMessages() end
+end
+
+local function IsInGroupContext()
+	return IsInGroup() or IsInRaid()
+end
+
 local function ApplyBlizzardCombatTextOptions()
-	DisableBlizzardCombatText()
+	local disableBlizzardWhileSolo = currentProfile and currentProfile.enableBlizzardV2CombatText
+	local enableOnlyInGroup = currentProfile and currentProfile.enableBlizzardV2CombatTextInGroup
+	if IsInGroupContext() then
+		if enableOnlyInGroup then
+			SetBlizzardCombatTextV2Enabled(true)
+		else
+			DisableBlizzardCombatText()
+		end
+		return
+	end
+
+	-- "Disable Blizzard CT While Solo" only applies outside group/raid.
+	if disableBlizzardWhileSolo then
+		DisableBlizzardCombatText()
+	else
+		SetBlizzardCombatTextV2Enabled(true)
+	end
+end
+
+local function ApplyContextOptions()
+	local shouldDisable = savedVariables and savedVariables.userDisabled
+
+	shouldDisable = not not shouldDisable
+	if runtimeDisabledState ~= shouldDisable then
+		runtimeDisabledState = shouldDisable
+		if shouldDisable then
+			MikSBT.Cooldowns.Disable()
+			MikSBT.Triggers.Disable()
+			MikSBT.Parser.Disable()
+			MikSBT.Main.Disable()
+		else
+			MikSBT.Main.Enable()
+			MikSBT.Parser.Enable()
+			MikSBT.Triggers.Enable()
+			MikSBT.Cooldowns.Enable()
+		end
+	end
+
+	ApplyBlizzardCombatTextOptions()
 end
 
 local function SetOptionUserDisabled(isDisabled)
 	savedVariables.userDisabled = isDisabled or nil
-
-	if (isDisabled) then
-
-		MikSBT.Cooldowns.Disable()
-		MikSBT.Triggers.Disable()
-		MikSBT.Parser.Disable()
-		MikSBT.Main.Disable()
-
-	else
-		MikSBT.Main.Enable()
-		MikSBT.Parser.Enable()
-		MikSBT.Triggers.Enable()
-		MikSBT.Cooldowns.Enable()
-		ApplyBlizzardCombatTextOptions()
-	end
+	ApplyContextOptions()
 end
 
 local function IsModDisabled()
@@ -2849,6 +2913,9 @@ local function SelectProfile(profileName)
 
 		MikSBT.Animations.UpdateScrollAreas()
 		MikSBT.Triggers.UpdateTriggers()
+		if savedVariables then
+			ApplyContextOptions()
+		end
 	end
 end
 
@@ -3046,8 +3113,8 @@ local function OnEvent(this, event, arg1)
 			if (CUSTOM_CLASS_COLORS.RegisterCallback) then CUSTOM_CLASS_COLORS:RegisterCallback(UpdateCustomClassColors) end
 		end
 		collectgarbage("collect")
-	elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
-		ApplyBlizzardCombatTextOptions()
+	elseif event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" or event == "GROUP_ROSTER_UPDATE" then
+		ApplyContextOptions()
 	end
 end
 
@@ -3063,6 +3130,7 @@ eventFrame:RegisterEvent("VARIABLES_LOADED")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 
 module.masterProfile = masterProfile
 
@@ -3073,4 +3141,5 @@ module.SelectProfile				= SelectProfile
 module.SetOption					= SetOption
 module.SetOptionUserDisabled		= SetOptionUserDisabled
 module.IsModDisabled				= IsModDisabled
+module.ApplyContextOptions			= ApplyContextOptions
 

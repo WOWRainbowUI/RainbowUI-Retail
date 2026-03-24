@@ -87,6 +87,7 @@ L.MSG_INVALID_ITEM_NAME				= "Invalid item name."
 
 obj = L.TABS
 obj["customMedia"]	= { label="Custom Media", tooltip="Display options for managing custom media."}
+obj["profile"]		= { label="Profile", tooltip="Display options for profile management and profile switching."}
 obj["general"]		= { label="General", tooltip="Display general options."}
 obj["scrollAreas"]	= { label="Scroll Areas", tooltip="Display options for creating, deleting, and configuring scroll areas.\n\nMouse over the icon buttons for more information."}
 obj["events"]		= { label="Events", tooltip="Display options for incoming, outgoing, and notification events.\n\nMouse over the icon buttons for more information."}
@@ -95,6 +96,7 @@ obj["spamControl"]	= { label="Spam Control", tooltip="Display options for contro
 obj["cooldowns"]	= { label="Cooldowns", tooltip="Display options for cooldown notifications."}
 obj["lootAlerts"]	= { label="Loot Alerts", tooltip="Display options for loot related notifications."}
 obj["skillIcons"]	= { label="Skill Icons", tooltip="Display options for skill icons."}
+obj["language"]		= { label="Language", tooltip="Shows the current game locale and how language selection works for MSBT."}
 
 
 ------------------------------
@@ -103,7 +105,12 @@ obj["skillIcons"]	= { label="Skill Icons", tooltip="Display options for skill ic
 
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Enable Mik's Scrolling Battle Text", tooltip="Enable MSBT."}
-obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
+obj["disableOutgoingInGroup"]	= { label="Disable Outgoing In Group", tooltip="While in a party or raid, hide events assigned to the Outgoing scroll area."}
+obj["disableIncomingInGroup"]	= { label="Disable Incoming In Group", tooltip="While in a party or raid, hide events assigned to the Incoming scroll area."}
+obj["disableNotificationInGroup"]= { label="Disable Notification In Group", tooltip="While in a party or raid, hide events assigned to the Notification scroll area."}
+obj["disableStaticInGroup"]		= { label="Disable Static In Group", tooltip="While in a party or raid, hide events assigned to the Static scroll area."}
+obj["enableBlizzardV2CombatText"]= { label="Disable Blizzard CT While Solo", tooltip="When checked, disables Blizzard floating combat text damage/healing while solo." }
+obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard CT In Group", tooltip="Enable Blizzard Combat Text only while in a party or raid. This overrides Disable Blizzard CT While Solo while grouped." }
 obj["enableBlizzardDamage"]		= { label="Enable Blizzard Damage", tooltip="Enable Blzzard's floating text damage."}
 obj["enableBlizzardHealing"]	= { label="Enable Blizzard Healing", tooltip="Enable Blzzard's floating text healing."}
 obj["stickyCrits"]				= { label="Sticky Crits", tooltip="Display crits using the sticky style."}
@@ -131,6 +138,7 @@ obj["allPowerGains"]			= { label="ALL Power Gains", tooltip="Display all power g
 obj["abbreviateSkills"]			= { label="Abbreviate Skills", tooltip="Abbreviates skill names (English only).\n\nThis can be overriden by each event with the %sl event code."}
 obj["mergeSwings"]				= { label="Merge Swings", tooltip="Merge regular melee swings that hit within a short time span."}
 obj["shortenNumbers"]			= { label="Shorten Numbers", tooltip="Display numbers in an abbreviated format (example: 32765 -> 33k)."}
+obj["stackSimilarHits"]			= { label="Stack Similar Hits", tooltip="For repeated hits from the same ability in a short window, append hit/crit counts (example: 3 hits, 1 crit). Single hits stay as amount only."}
 obj["groupNumbers"]				= { label="Group By Thousands", tooltip="Display numbers grouped by thousands (example: 32765 -> 32,765)."}
 obj["hideSkills"]				= { label="Hide Skills", tooltip="Don't display skill names for incoming and outgoing events.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %s event code to be ignored."}
 obj["hideNames"]				= { label="Hide Names", tooltip="Don't display unit names for incoming and outgoing events.\n\nYou will give up some customization capability at the event level if you choose to use this option since it causes the %n event code to be ignored."}

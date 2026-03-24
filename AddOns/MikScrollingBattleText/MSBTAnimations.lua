@@ -216,13 +216,9 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	fontString:SetFont(fontPath, fontSize, fontOutline)
 	fontString:SetTextColor(colorR, colorG, colorB)
 	fontString:SetDrawLayer(isSticky and "OVERLAY" or "ARTWORK")
-	if not currentProfile.textShadowingDisabled then
-		fontString:SetShadowColor(0, 0, 0, 1)
-		fontString:SetShadowOffset(1, -1)
-	else
-		fontString:SetShadowColor(0, 0, 0, 0)
-		fontString:SetShadowOffset(0, 0)
-	end
+	-- Text shadowing is always enabled.
+	fontString:SetShadowColor(0, 0, 0, 1)
+	fontString:SetShadowOffset(1, -1)
 	fontString:SetAlpha(0)
 	fontString:SetText(message)
 
@@ -265,6 +261,28 @@ local function Display(message, saSettings, isSticky, colorR, colorG, colorB, fo
 	end
 end
 
+local function IsScrollAreaSuppressedInGroup(scrollAreaKey)
+	if not (IsInGroup() or IsInRaid()) then
+		return false
+	end
+
+	local currentProfile = MSBTProfiles.currentProfile
+	if not currentProfile then
+		return false
+	end
+
+	if scrollAreaKey == "Outgoing" then
+		return not not currentProfile.disableOutgoingInGroup
+	elseif scrollAreaKey == "Incoming" then
+		return not not currentProfile.disableIncomingInGroup
+	elseif scrollAreaKey == "Notification" then
+		return not not currentProfile.disableNotificationInGroup
+	elseif scrollAreaKey == "Static" then
+		return not not currentProfile.disableStaticInGroup
+	end
+	return false
+end
+
 local function DisplayEvent(eventSettings, message, texturePath)
 
 	local currentProfile = MSBTProfiles.currentProfile
@@ -272,6 +290,10 @@ local function DisplayEvent(eventSettings, message, texturePath)
 	local saSettings = scrollAreas[eventSettings.scrollArea] or scrollAreas[DEFAULT_SCROLL_AREA]
 
 	if not saSettings or saSettings.disabled then
+		return
+	end
+
+	if IsScrollAreaSuppressedInGroup(eventSettings.scrollArea or DEFAULT_SCROLL_AREA) then
 		return
 	end
 
@@ -341,6 +363,23 @@ local function DisplayMessage(message, scrollArea, isSticky, colorR, colorG, col
 	saSettings = saSettings or scrollAreas[DEFAULT_SCROLL_AREA]
 
 	if not saSettings or saSettings.disabled then
+		return
+	end
+
+	local resolvedScrollArea = scrollArea
+	if not scrollAreas[resolvedScrollArea] then
+		resolvedScrollArea = nil
+		for saKey, settings in pairs(scrollAreas) do
+			if settings == saSettings then
+				resolvedScrollArea = saKey
+				break
+			end
+		end
+		if not resolvedScrollArea then
+			resolvedScrollArea = DEFAULT_SCROLL_AREA
+		end
+	end
+	if IsScrollAreaSuppressedInGroup(resolvedScrollArea) then
 		return
 	end
 
