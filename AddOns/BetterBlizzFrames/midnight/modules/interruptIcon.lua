@@ -57,9 +57,9 @@ local function UpdateInterruptTracking()
         playerKick = GetInterruptSpell()
     end
     if playerKick then
-        local cooldownInfo = C_Spell.GetSpellCooldown(playerKick)
+        local cooldownInfo = C_Spell.GetSpellCooldownDuration(playerKick)
         if cooldownInfo then
-            BBF.interruptTrackingIcon.cooldown:SetCooldown(cooldownInfo.startTime, cooldownInfo.duration)
+            BBF.interruptTrackingIcon.cooldown:SetCooldownFromDurationObject(cooldownInfo)
             local isOnCooldown = BBF.interruptTrackingIcon.cooldown:IsShown()
             BBF.playerKickReady = not isOnCooldown
         end
@@ -87,6 +87,22 @@ local function UpdateInterruptIcon(frame)
     if (castBar.unit and not UnitCanAttack("player", castBar.unit)) then
         frame:Hide()
         return
+    end
+
+    local notInterruptible
+
+    if castBar.unit then
+        if castBar.casting then
+            notInterruptible = select(8, UnitCastingInfo(castBar.unit))
+        elseif castBar.channeling then
+            notInterruptible = select(7, UnitChannelInfo(castBar.unit))
+        end
+    end
+
+    if notInterruptible ~= nil then
+        frame:SetAlphaFromBoolean(notInterruptible, 0, 1)
+    else
+        frame:SetAlpha(1)
     end
 
     if playerKick then
@@ -195,12 +211,22 @@ local function CreateInterruptIconFrame(parentFrame)
     return button
 end
 
+local updateEvents = {
+    ["UNIT_SPELLCAST_START"] = true,
+    ["UNIT_SPELLCAST_CHANNEL_START"] = true,
+    ["UNIT_SPELLCAST_DELAYED"] = true,
+    ["UNIT_SPELLCAST_CHANNEL_UPDATE"] = true,
+    ["UNIT_SPELLCAST_EMPOWER_START"] = true,
+    ["UNIT_SPELLCAST_EMPOWER_UPDATE"] = true,
+    ["UNIT_SPELLCAST_INTERRUPTED"] = true,
+    ["UNIT_SPELLCAST_INTERRUPTIBLE"] = true,
+    ["UNIT_SPELLCAST_NOT_INTERRUPTIBLE"] = true,
+}
+
 local function OnCastBarEvent(castBar, event)
-    if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_CHANNEL_START" or
-       event == "UNIT_SPELLCAST_DELAYED" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-        if castBar.interruptIconFrame then
-            UpdateInterruptIcon(castBar.interruptIconFrame)
-        end
+    if not updateEvents[event] then return end
+    if castBar.interruptIconFrame then
+        UpdateInterruptIcon(castBar.interruptIconFrame)
     end
 end
 
