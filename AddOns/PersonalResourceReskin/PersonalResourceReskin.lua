@@ -1969,7 +1969,7 @@ end)
 
 -- Ticker to update legacy combo/rune bar spacing and scaling every 0.1 seconds
 if not _G.PRR_LegacyComboTicker then
-    _G.PRR_LegacyComboTicker = C_Timer.NewTicker(0.1, function()
+    _G.PRR_LegacyComboTicker = C_Timer.NewTicker(0.5, function()
         if type(ApplyLegacyComboSpacing) == "function" then
             ApplyLegacyComboSpacing()
         end

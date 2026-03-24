@@ -1,11 +1,18 @@
--- Returns true if the player is a Windwalker Monk (specID 269)
-local function ShouldShowChiBar()
-    local _, class = UnitClass("player")
-    if class ~= "MONK" then return false end
-    local spec = GetSpecialization and GetSpecialization() or nil
-    local specID = spec and GetSpecializationInfo(spec) or nil
-    return specID == 269
-end
+-- Ensure DB is initialized before any usage
+CustomWindwalkerMonkOrbBarDB = CustomWindwalkerMonkOrbBarDB or {
+    x = 0, y = -120, orbWidth = 24, orbHeight = 24, locked = false,
+    totalWidth = nil,
+    orbSpacing = 0,
+    orbBgColor = {0, 0, 0, 0.5},
+    gradientColor1 = {0.0, 0.8, 0.6, 1},
+    gradientColor2 = {0.0, 1, 0.8, 1},
+    enabled = true,
+    anchorToPRD = false,
+    anchorTarget = "HEALTH",
+    anchorPosition = "BELOW",
+    anchorOffset = 10,
+}
+
 local function get(info)
     local key = info[#info]
     local db = CustomWindwalkerMonkOrbBarDB
@@ -20,6 +27,76 @@ local function set(info, value)
     db[key] = value
     if ApplyBarSettings then ApplyBarSettings() end
 end
+
+local function ShouldShowChiBar()
+    local _, class = UnitClass("player")
+    if class ~= "MONK" then return false end
+    local spec = GetSpecialization and GetSpecialization() or nil
+    local specID = spec and GetSpecializationInfo(spec) or nil
+    return specID == 269
+end
+
+
+-- Utility: Hide/Show Blizzard's default Chi bar
+local function HideDefaultChiBar()
+    local _, class = UnitClass("player")
+    if class ~= "MONK" then return end
+    local prdClassFrame = _G.prdClassFrame or (_G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame)
+    if prdClassFrame then
+        for _, child in ipairs({prdClassFrame:GetChildren()}) do
+            if child and child:IsShown() then
+                local n = child.GetName and child:GetName() or ""
+                if n:find("Chi") or child.ChiOrb or child.FX or child.Blur or child.DepleteFlipbook then
+                    child:Hide()
+                    child:SetAlpha(0)
+                    if type(child.UnregisterAllEvents) == "function" then child:UnregisterAllEvents() end
+                    if type(child.SetScript) == "function" then child:SetScript("OnEvent", nil) end
+                end
+            end
+        end
+        prdClassFrame:Hide()
+        prdClassFrame:SetAlpha(0)
+        if type(prdClassFrame.UnregisterAllEvents) == "function" then prdClassFrame:UnregisterAllEvents() end
+    end
+end
+
+local function ShowDefaultChiBar()
+    local _, class = UnitClass("player")
+    if class ~= "MONK" then return end
+    local prdClassFrame = _G.prdClassFrame or (_G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame)
+    if prdClassFrame then
+        prdClassFrame:Show()
+        prdClassFrame:SetAlpha(1)
+    end
+end
+
+local chiBar = CreateFrame("Frame", "CustomWindwalkerMonkOrbBar", UIParent)
+chiBar:SetSize(180, 32)
+chiBar:SetPoint("CENTER", UIParent, "CENTER", CustomWindwalkerMonkOrbBarDB.x, CustomWindwalkerMonkOrbBarDB.y)
+chiBar.orbs = {}
+
+-- ...existing code...
+
+-- Place robust event-driven visibility logic here, after all dependencies are defined
+local function UpdateWindwalkerOrbBarVisibility()
+    local enabled = get({"enabled"}) ~= false
+    if ShouldShowChiBar() and enabled then
+        chiBar:Show()
+        HideDefaultChiBar()
+    else
+        chiBar:Hide()
+        ShowDefaultChiBar()
+    end
+end
+
+chiBar:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+chiBar:RegisterEvent("PLAYER_ENTERING_WORLD")
+chiBar:RegisterEvent("PLAYER_LOGIN")
+chiBar:SetScript("OnEvent", function(self, event, ...)
+    UpdateWindwalkerOrbBarVisibility()
+end)
+
+UpdateWindwalkerOrbBarVisibility()
 
 
 

@@ -480,10 +480,10 @@ local function InitIronfurBar()
     if ticker then
         ticker:Cancel()
     end
-    ticker = C_Timer.NewTicker(0.01, UpdateSegments)
+    ticker = C_Timer.NewTicker(0.5, UpdateSegments) -- 0.5s for smoothness, much lower CPU than 0.5s
 end
 
--- Register options and initialize bar/settings after entering world
+-- Register options and initializSQSSEe bar/settings after entering world
 local function RegisterGuardianIronfurTrackerOptions()
     local AceConfig = LibStub("AceConfig-3.0")
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
