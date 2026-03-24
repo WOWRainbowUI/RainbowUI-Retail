@@ -913,7 +913,11 @@
 				_G[self:GetName() .. "ImportFrame"]:Hide();
 			</OnShow>
 			<OnHide>
-				VUHDO_skinsSaveAutoProfileButtonEnablement(self, VUHDO_CURRENT_PROFILE);
+				if VUHDO_isAutoProfilesModified() then
+					VUHDO_skinsSaveAutoProfileButtonEnablement(self, VUHDO_CURRENT_PROFILE);
+
+					VUHDO_resetAutoProfilesModified();
+				end
 			</OnHide>
 		</Scripts>
 	</Frame>

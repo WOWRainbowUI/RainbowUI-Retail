@@ -9,6 +9,7 @@ local ipairs = ipairs;
 local strfind = string.find;
 
 local UnitCanAttack = UnitCanAttack;
+local UnitIsUnit = UnitIsUnit;
 local GetUnitAuras = C_UnitAuras and C_UnitAuras.GetUnitAuras;
 local issecretvalue = issecretvalue;
 local GetAuraDispelTypeColor = C_UnitAuras and C_UnitAuras.GetAuraDispelTypeColor;
@@ -376,6 +377,10 @@ do
 	local tEntryValue;
 	local tAuraInstances;
 	local tBouquetActive;
+	local tCachedAura;
+	local tAuraInstanceId;
+	local tSourceUnit;
+	local tIsMine;
 	local function VUHDO_isListGroupActiveForUnit(aUnit, aEntries)
 
 		if not aEntries then
@@ -384,13 +389,42 @@ do
 
 		for _, tEntry in ipairs(aEntries) do
 			if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_SPELL then
-				tEntryValue = tEntry["value"];
+				if tEntry["mine"] or tEntry["others"] then
+					tEntryValue = tEntry["value"];
 
-				if tEntryValue and VUHDO_UNIT_AURA_BY_SPELL[aUnit] then
-					tAuraInstances = VUHDO_UNIT_AURA_BY_SPELL[aUnit][tEntryValue];
+					if tEntryValue and VUHDO_UNIT_AURA_BY_SPELL[aUnit] then
+						tAuraInstances = VUHDO_UNIT_AURA_BY_SPELL[aUnit][tEntryValue];
 
-					if tAuraInstances and #tAuraInstances > 0 then
-						return true;
+						if tAuraInstances then
+							for tCnt = 1, #tAuraInstances do
+								tAuraInstanceId = tAuraInstances[tCnt];
+								tCachedAura = VUHDO_UNIT_AURA_CACHE[aUnit] and VUHDO_UNIT_AURA_CACHE[aUnit][tAuraInstanceId];
+
+								if tCachedAura then
+									if tEntry["mine"] and tEntry["others"] then
+										return true;
+									end
+
+									tSourceUnit = tCachedAura["sourceUnit"];
+
+									if issecretvalue(tSourceUnit) then
+										if tEntry["others"] == true then
+											return true;
+										end
+									else
+										tIsMine = UnitIsUnit(tSourceUnit or "", "player");
+
+										if tEntry["mine"] and tIsMine then
+											return true;
+										end
+
+										if tEntry["others"] and not tIsMine then
+											return true;
+										end
+									end
+								end
+							end
+						end
 					end
 				end
 			elseif tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then

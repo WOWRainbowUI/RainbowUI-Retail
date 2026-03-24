@@ -778,7 +778,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_AURA_GROUPS_CAN_GLOW_BAR");
 								VUHDO_lnfCheckButtonOnLoad(self);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K757);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K779);
 
 								self:SetAttribute("custom_function_post", VUHDO_auraGroupsCanGlowBarChanged);
 							</OnLoad>
@@ -798,7 +798,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K758);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K780);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -859,7 +859,7 @@
 								VUHDO_initResizeableScrollCombo(self);
 
 								VUHDO_setComboModel(self, "VUHDO_AURA_GROUPS_SOUND", VUHDO_SOUNDS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K756);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K778);
 								self:SetAttribute("custom_function", VUHDO_auraGroupsSoundSelect);
 							</OnLoad>
 							<OnShow>
@@ -1074,7 +1074,7 @@
 									<OnLoad>
 										VUHDO_lnfSetModel(self, "VUHDO_SPELL_ENTRY_MINE");
 										VUHDO_lnfCheckButtonOnLoad(self);
-										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K760);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K782);
 
 										self:SetAttribute("custom_function_post", VUHDO_spellEntrySettingsChanged);
 									</OnLoad>

@@ -1466,8 +1466,7 @@ function VUHDO_getUnitDirection(aUnit)
 	-- as of patch 7.1 GetPlayerFacing()/GetPlayerMapPosition() do not function inside instances
 	tIsInInstance, _ = IsInInstance();
 
-	if tIsInInstance or (WorldMapFrame ~= nil and WorldMapFrame:IsShown())
-		or (VUHDO_getMouseFocus() ~= nil and VUHDO_getMouseFocus():GetName() == nil) then
+	if tIsInInstance or (WorldMapFrame ~= nil and WorldMapFrame:IsShown()) then
 		return nil;
 	end
 

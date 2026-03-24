@@ -360,6 +360,7 @@ end
 
 --
 local tFrame;
+local tParent;
 function VUHDO_findButtonFromChild(aChildFrame)
 
 	tFrame = aChildFrame;
@@ -369,7 +370,15 @@ function VUHDO_findButtonFromChild(aChildFrame)
 			return tFrame;
 		end
 
-		tFrame = tFrame["vuhdo_parent"] or tFrame:GetParent();
+		tParent = tFrame["vuhdo_parent"];
+
+		if tParent then
+			tFrame = tParent;
+		elseif tFrame["GetParent"] then
+			tFrame = tFrame:GetParent();
+		else
+			return nil;
+		end
 	end
 
 	return nil;

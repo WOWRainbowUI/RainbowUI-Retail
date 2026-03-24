@@ -37,6 +37,7 @@ local VUHDO_getHealthBar;
 local VUHDO_getBarText;
 local VUHDO_getBarTextSolo;
 local VUHDO_getLifeText;
+local VUHDO_decompressIfCompressed;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -120,6 +121,7 @@ function VUHDO_bouquetLayersInitLocalOverrides()
 	VUHDO_getBarText = _G["VUHDO_getBarText"];
 	VUHDO_getBarTextSolo = _G["VUHDO_getBarTextSolo"];
 	VUHDO_getLifeText = _G["VUHDO_getLifeText"];
+	VUHDO_decompressIfCompressed = _G["VUHDO_decompressIfCompressed"];
 
 	sAlphaChainStepEntryPool = VUHDO_createTablePool("AlphaChainStepEntry", 100);
 	sAlphaChainPool = VUHDO_createTablePool("AlphaChain", 50, VUHDO_createAlphaChainDelegate, VUHDO_cleanupAlphaChainDelegate);
@@ -411,6 +413,9 @@ function VUHDO_buildAllIndicatorAlphaChains(aButton, aPanelNum)
 		tBouquet = tBouquetName and tBouquetName ~= "" and VUHDO_BOUQUETS["STORED"][tBouquetName];
 
 		if tBouquet then
+			tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+			VUHDO_BOUQUETS["STORED"][tBouquetName] = tBouquet;
+
 			VUHDO_buildGlobalAlphaChainsForIndicator(aButton, tIndicatorName, tBouquet, aPanelNum);
 		end
 	end
@@ -420,6 +425,9 @@ function VUHDO_buildAllIndicatorAlphaChains(aButton, aPanelNum)
 		tBouquet = tBouquetName and tBouquetName ~= "" and VUHDO_BOUQUETS["STORED"][tBouquetName];
 
 		if tBouquet then
+			tBouquet = VUHDO_decompressIfCompressed(tBouquet);
+			VUHDO_BOUQUETS["STORED"][tBouquetName] = tBouquet;
+
 			VUHDO_buildGlobalAlphaChainsForIndicator(aButton, tIndicatorName, tBouquet, aPanelNum);
 		end
 	end

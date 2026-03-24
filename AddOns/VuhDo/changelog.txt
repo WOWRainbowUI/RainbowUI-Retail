@@ -1,3 +1,37 @@
+Version 3.201  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:
+--   Text provider formatting e.g. +<#n>K is only partially working
+--   Overheal text provider and Life Text highlight are not yet working
+--   Many Hitpoints option (e.g. Show Effective) are not yet working
+--   Overshield Bar will only display when the unit is at full health
+--   Buff Watch is only partially working
+--   Class color gradients and solid gradients are not yet working
+--   Raid Icon bar and text color filtring are not yet working
+--   Emergency Mode is not yet working
+--   Swiftmendable bouquet is not yet working
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed icon glow for bar style aura anchors  
+-- Fixed spell entry specific color for bar style aura anchors  
+-- Fixed flash on low for aura icons and bars  
+-- Fixed fade on low for aura icons and bars  
+-- Fixed out of range direction arrow  
+-- Fixed aura group colors to respect list entry spell source  
+  
+  
+Improvements:  
+-- Added option to hide icon for bar style aura anchors  
+  
+  
+--------------------------------------------------------------  
 Version 3.200  
   
   

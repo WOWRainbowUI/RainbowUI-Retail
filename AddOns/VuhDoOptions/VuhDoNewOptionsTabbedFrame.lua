@@ -112,8 +112,9 @@ function VUHDO_tabbedPanelOkayClicked(aButton)
 	else
 		local tSkinsPanel = _G["VuhDoNewOptionsToolsSkins"];
 
-		if tSkinsPanel then
+		if tSkinsPanel and VUHDO_isAutoProfilesModified() then
 			VUHDO_skinsSaveAutoProfileButtonEnablement(tSkinsPanel, VUHDO_CONFIG["CURRENT_PROFILE"]);
+			VUHDO_resetAutoProfilesModified();
 		end
 
 		VUHDO_saveCurrentProfile();

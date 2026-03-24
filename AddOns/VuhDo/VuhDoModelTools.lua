@@ -69,37 +69,54 @@ end
 
 --
 local tIsOmitEmpty;
-local tMaxRows, tNumModels, tRepeatModels;
+local tMaxRows;
+local tModelArray;
+local tNumModels;
+local tRepeatModels;
 function VUHDO_initDynamicPanelModels()
+
 	if VUHDO_isConfigPanelShowing() then
 		VUHDO_PANEL_DYN_MODELS = VUHDO_deepCopyTable(VUHDO_PANEL_MODELS);
+
 		return;
 	end
 
-	twipe(VUHDO_PANEL_DYN_MODELS);
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		if VUHDO_PANEL_DYN_MODELS[tPanelNum] then
+			twipe(VUHDO_PANEL_DYN_MODELS[tPanelNum]);
+		else
+			VUHDO_PANEL_DYN_MODELS[tPanelNum] = { };
+		end
 
-	for tPanelNum, tModelArray in pairs(VUHDO_PANEL_MODELS) do
-		tIsOmitEmpty = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["ommitEmptyWhenStructured"];
-		VUHDO_PANEL_DYN_MODELS[tPanelNum] = {};
+		tModelArray = VUHDO_PANEL_MODELS[tPanelNum];
 
-		tMaxRows = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["arrangeHorizontal"]
-			and VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["maxColumnsWhenStructured"]
-			or VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["maxRowsWhenLoose"];
+		if tModelArray then
+			tIsOmitEmpty = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["ommitEmptyWhenStructured"];
 
-		for _, tModelId in pairs(tModelArray) do
-			tNumModels = #VUHDO_getGroupMembers(tModelId);
-			if not tIsOmitEmpty or tNumModels > 0 then
+			tMaxRows = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["arrangeHorizontal"]
+				and VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["maxColumnsWhenStructured"]
+				or VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["maxRowsWhenLoose"];
 
-				tRepeatModels = ceil(tNumModels / tMaxRows);
-				if tRepeatModels == 0 then tRepeatModels = 1;	end
+			for _, tModelId in pairs(tModelArray) do
+				tNumModels = #VUHDO_getGroupMembers(tModelId);
 
-				for tCnt = 1, tRepeatModels do
-					tinsert(VUHDO_PANEL_DYN_MODELS[tPanelNum], tModelId);
+				if not tIsOmitEmpty or tNumModels > 0 then
+					tRepeatModels = ceil(tNumModels / tMaxRows);
+
+					if tRepeatModels == 0 then
+						tRepeatModels = 1;
+					end
+
+					for tCnt = 1, tRepeatModels do
+						tinsert(VUHDO_PANEL_DYN_MODELS[tPanelNum], tModelId);
+					end
 				end
 			end
 		end
-
 	end
+
+	return;
+
 end
 
 
