@@ -714,7 +714,7 @@ function ns.MSUF_RegisterAurasOptions_Full(parentCategory)
     end
     panel.__MSUF_AurasBuilt = true
     local title = CreateTitle(panel, "Midnight Simple Unit Frames - Auras 2.0")
-    CreateSubText(panel, title, "Auras 2.0: Target / Focus / Boss 1-5.\nDefaults show ALL buffs & debuffs. This menu controls a shared layout for these units.")
+    CreateSubText(panel, title, "Auras 2.0: Player / Target / Focus / Boss 1-5.\nDefaults show ALL buffs & debuffs. This menu controls a shared layout for these units.")
 	-- Top-right convenience button: enter/exit MSUF Edit Mode (MSUF frames only; no Blizzard frame taint).
 	local editBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
 	editBtn:SetSize(140, 22)
@@ -788,29 +788,104 @@ function ns.MSUF_RegisterAurasOptions_Full(parentCategory)
     -- The new Blizzard Settings canvas sometimes fails to fully layout/update legacy scroll frames
     -- and control OnShow scripts on the very first open. Users then have to click away/back.
     -- We provide a single, shared refresh path that Settings can call on selection.
-    -- Layout (Step 3+): wide main box, Timer Colors box, Private Auras box, Advanced box below
-    local leftTop = MakeBox(content, 720, 484)
-    leftTop:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
-    -- Timer / cooldown text color controls live here (breakpoints are added in later steps).
-    local timerBox = MakeBox(content, 720, 300)
-    timerBox:SetPoint("TOPLEFT", leftTop, "BOTTOMLEFT", 0, -14)
+    -- ================================================================
+    -- UX REDESIGN: Scope bar + split boxes + collapsible sections
+    -- ================================================================
+    -- Scope bar (persistent editing-scope indicator, always visible above all boxes)
+    local scopeBar = CreateFrame("Frame", nil, content, BackdropTemplateMixin and "BackdropTemplate" or nil)
+    scopeBar:SetSize(720, 82)
+    scopeBar:SetPoint("TOPLEFT", content, "TOPLEFT", 0, 0)
+    scopeBar:SetBackdrop({
+        bgFile   = "Interface\\Buttons\\WHITE8x8",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        edgeSize = 1,
+        insets   = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    scopeBar:SetBackdropColor(0.04, 0.08, 0.18, 0.95)
+    scopeBar:SetBackdropBorderColor(0.12, 0.25, 0.50, 0.6)
+    -- Master + Units box (compact / always visible)
+    local leftTop = MakeBox(content, 720, 148)
+    leftTop:SetPoint("TOPLEFT", scopeBar, "BOTTOMLEFT", 0, -6)
+    -- Collapsible helper
+    local function MakeCollapsibleBox(parent, anchorTo, w, expandedH, titleText, defaultOpen)
+        local box = MakeBox(parent, w, defaultOpen and expandedH or 28)
+        box:SetPoint("TOPLEFT", anchorTo, "BOTTOMLEFT", 0, -6)
+        box._msufExpandedH = expandedH
+        box._msufCollapsed = not defaultOpen
+        local hdr = CreateFrame("Button", nil, box)
+        hdr:SetHeight(24)
+        hdr:SetPoint("TOPLEFT", box, "TOPLEFT", 0, 0)
+        hdr:SetPoint("TOPRIGHT", box, "TOPRIGHT", 0, 0)
+        local chevron = hdr:CreateTexture(nil, "OVERLAY")
+        chevron:SetSize(12, 12)
+        chevron:SetPoint("LEFT", hdr, "LEFT", 12, 0)
+        chevron:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
+        MSUF_ApplyCollapseVisual(chevron, nil, defaultOpen)
+        local title = hdr:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        title:SetPoint("LEFT", chevron, "RIGHT", 6, 0)
+        title:SetText(titleText)
+        local hint = hdr:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+        hint:SetPoint("RIGHT", hdr, "RIGHT", -12, 0)
+        hint:SetText(defaultOpen and "" or "click to expand")
+        hint:SetTextColor(0.45, 0.52, 0.65)
+        local bodyHost = CreateFrame("Frame", nil, box)
+        bodyHost:SetPoint("TOPLEFT", box, "TOPLEFT", 0, -28)
+        bodyHost:SetPoint("BOTTOMRIGHT", box, "BOTTOMRIGHT", 0, 0)
+        bodyHost:SetShown(defaultOpen)
+        box._msufBody = bodyHost
+        hdr:SetScript("OnClick", function()
+            box._msufCollapsed = not box._msufCollapsed
+            bodyHost:SetShown(not box._msufCollapsed)
+            if box._msufCollapsed then
+                box:SetHeight(28)
+                MSUF_ApplyCollapseVisual(chevron, hint, false)
+            else
+                box:SetHeight(box._msufExpandedH)
+                MSUF_ApplyCollapseVisual(chevron, hint, true)
+            end
+            pcall(MSUF_Auras2_UpdateContentHeight)
+        end)
+        hdr:SetScript("OnEnter", function() end)
+        do
+            local hl = hdr:CreateTexture(nil, "HIGHLIGHT")
+            hl:SetAllPoints(); hl:SetColorTexture(1, 1, 1, 0.03)
+        end
+        return box, bodyHost
+    end
+    -- Display + Layout are collapsible for a cleaner menu, but stay open by default.
+    local displayOuter, displayBody = MakeCollapsibleBox(content, leftTop, 720, 244, "Display", true)
+    local capsOuter, capsBody = MakeCollapsibleBox(content, displayOuter, 720, 266, "Layout & Caps", true)
+    -- Timer / cooldown text color controls
+    local timerBox, timerBody = MakeCollapsibleBox(content, capsOuter, 720, 248, "Timer Colors", false)
     -- Blizzard-rendered Private Auras (anchor controls)
-    local privateBox = MakeBox(content, 720, 140)
-    privateBox:SetPoint("TOPLEFT", timerBox, "BOTTOMLEFT", 0, -14)
-    local advBox = MakeBox(content, 720, 240)
-    advBox:SetPoint("TOPLEFT", privateBox, "BOTTOMLEFT", 0, -14)
-    local ignoreBox = MakeBox(content, 720, 200)
-    ignoreBox:SetPoint("TOPLEFT", advBox, "BOTTOMLEFT", 0, -14)
-    local reminderBox = MakeBox(content, 720, 260)
-    reminderBox:SetPoint("TOPLEFT", ignoreBox, "BOTTOMLEFT", 0, -14)
+    local privateBox, privateBody = MakeCollapsibleBox(content, timerBox, 720, 168, "Private Auras", false)
+    -- Aura filtering / sorting (collapsible to match the rest of the menu)
+    local advOuter, advBody = MakeCollapsibleBox(content, privateBox, 720, 268, "Aura Filters & Sorting", false)
+    -- Global Ignore List
+    local ignoreBox, ignoreBody = MakeCollapsibleBox(content, advOuter, 720, 228, "Global Ignore List", false)
+    -- Buff Reminders
+    local reminderBox, reminderBody = MakeCollapsibleBox(content, ignoreBox, 720, 310, "Buff Reminders", false)
+    -- Redirect existing code to create content inside body hosts (below the 28px header).
+    -- Outer boxes stay in the anchor chain; body hosts receive all child controls.
+    -- Save outer reminder box ref for content height calc (collapsible body hosts have no stable GetBottom).
+    local _displayBoxOuter = displayOuter
+    local _capsBoxOuter = capsOuter
+    local _reminderBoxOuter = reminderBox
+    displayBox = displayBody or displayOuter
+    capsBox = capsBody or capsOuter
+    timerBox = timerBody or timerBox
+    privateBox = privateBody or privateBox
+    advBox = advBody or advOuter
+    ignoreBox = ignoreBody or ignoreBox
+    reminderBox = reminderBody or reminderBox
     -- Movement controls are handled via MSUF Edit Mode now (no placeholder section here).
     -- Prevent dead scroll space: keep the scroll child height tight to the last section.
     local function MSUF_Auras2_UpdateContentHeight()
-        if not (content and reminderBox and content.GetTop and reminderBox.GetBottom) then  return end
+        local outerReminder = _reminderBoxOuter
+        if not (content and outerReminder and content.GetTop and outerReminder.GetBottom) then  return end
         local top = content:GetTop()
-        local bottom = reminderBox:GetBottom()
+        local bottom = outerReminder:GetBottom()
         if not top or not bottom then  return end
-        -- Add a small bottom padding so the last box doesn't stick to the edge.
         local h = (top - bottom) + 24
         if h < 10 then h = 10 end
         if content.__msufAuras2_lastAutoH ~= h then
@@ -1175,14 +1250,14 @@ local function A2_AutoOverrideFiltersIfNeeded()
     if GetEditingKey() == "shared" then  return false end
     if GetOverrideForEditing() then  return false end
     SetOverrideForEditing(true)
-    A2_ShowOverrideWarn("Enabled Filter override for this unit (you edited a filter).")
+    A2_ShowOverrideWarn("Filters override enabled for this unit.")
      return true
 end
 local function A2_AutoOverrideCapsIfNeeded()
     if GetEditingKey() == "shared" then  return false end
     if GetOverrideCapsForEditing() then  return false end
     SetOverrideCapsForEditing(true)
-    A2_ShowOverrideWarn("Enabled Caps override for this unit (you edited caps/layout).")
+    A2_ShowOverrideWarn("Caps override enabled for this unit.")
      return true
 end
 local function A2_WrapCheckboxAutoOverride(cb, scope)
@@ -1541,112 +1616,204 @@ local function UpdateAdvancedEnabled()
     cbMasque:SetScript("OnShow", function(self)
         RefreshMasqueToggleState()
      end)
--- Filter editing (Shared/Unit) + override toggle (filters only)
+-- Filter editing (Shared/Unit) + override toggle — lives in scopeBar
 do
-    local editLbl = leftTop:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    editLbl:SetPoint("TOPLEFT", leftTop, "TOPLEFT", 380, -36)
-    editLbl:SetText(TR("Edit filters:"))
-    ddEditFilters = ns.UI and ns.UI.Dropdown({
-        name = "MSUF_Auras2_EditFiltersDropDown", parent = leftTop,
-        anchor = editLbl, anchorPoint = "TOPLEFT", x = 56, y = 8, width = 160,
-        items = function()
-            local a2 = A2_DB(); local pu = a2 and a2.perUnit
-            local function ovr(k) local u = pu and pu[k]; return u and (u.overrideFilters == true or u.overrideSharedLayout == true or u.overrideIgnore == true) end
-            return {
-                { key = "shared", label = "Shared" },
-                { key = "player", label = "Player", overrideActive = ovr("player") },
-                { key = "target", label = "Target", overrideActive = ovr("target") },
-                { key = "focus",  label = "Focus",  overrideActive = ovr("focus") },
-                { key = "boss1",  label = "Boss 1", overrideActive = ovr("boss1") },
-                { key = "boss2",  label = "Boss 2", overrideActive = ovr("boss2") },
-                { key = "boss3",  label = "Boss 3", overrideActive = ovr("boss3") },
-                { key = "boss4",  label = "Boss 4", overrideActive = ovr("boss4") },
-                { key = "boss5",  label = "Boss 5", overrideActive = ovr("boss5") },
-            }
-        end,
-        get = function() return GetEditingKey() end,
-        set = function(key)
-            panel.__msufAuras2_FilterEditKey = key
-            if panel and panel.OnRefresh then panel.OnRefresh() end
-        end,
-    })
-    if not ddEditFilters then
-        -- Fallback if Toolkit not loaded
-        ddEditFilters = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown("MSUF_Auras2_EditFiltersDropDown", leftTop) or CreateFrame("Frame", "MSUF_Auras2_EditFiltersDropDown", leftTop, "UIDropDownMenuTemplate"))
-        ddEditFilters:SetPoint("TOPLEFT", leftTop, "TOPLEFT", 452, -42)
-        MSUF_FixUIDropDown(ddEditFilters, 160)
-    end
+    local editLbl = scopeBar:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    editLbl:SetPoint("TOPLEFT", scopeBar, "TOPLEFT", 10, -10)
+    editLbl:SetText(TR("Editing:"))
+    local SCOPE_KEYS = { "shared", "player", "target", "focus", "boss1", "boss2", "boss3", "boss4", "boss5" }
     local labelForKey = {
         shared = "Shared", player = "Player", target = "Target", focus = "Focus",
         boss1 = "Boss 1", boss2 = "Boss 2", boss3 = "Boss 3", boss4 = "Boss 4", boss5 = "Boss 5",
     }
+    local function GetUnitOverrideState(key)
+        if key == "shared" then return false, false end
+        local a2 = select(1, GetAuras2DB())
+        local u = a2 and a2.perUnit and a2.perUnit[key]
+        local overrideFilters = (type(u) == "table" and u.overrideFilters == true) and true or false
+        local overrideCaps = (type(u) == "table" and u.overrideSharedLayout == true) and true or false
+        return overrideFilters, overrideCaps
+    end
+    local function GetUnitHasOverride(key)
+        local overrideFilters, overrideCaps = GetUnitOverrideState(key)
+        return (overrideFilters or overrideCaps) and true or false
+    end
+    local function GetUnitOverrideTooltip(key)
+        local overrideFilters, overrideCaps = GetUnitOverrideState(key)
+        if overrideFilters and overrideCaps then return "Override active: this unit uses its own Filters and Caps." end
+        if overrideFilters then return "Override active: this unit uses its own Filters." end
+        if overrideCaps then return "Override active: this unit uses its own Caps." end
+        return "Uses Shared filters and caps."
+    end
+    local scopeBtns = {}
+    local function RefreshScopeButtons()
+        for k, btn in pairs(scopeBtns) do
+            if btn and btn._msufApplyState then
+                btn:_msufApplyState(GetEditingKey() == k)
+            end
+        end
+        if panel and panel.__msufA2_UpdateOverrideSummary then
+            panel.__msufA2_UpdateOverrideSummary()
+        end
+    end
     local function ApplyKey(key)
         panel.__msufAuras2_FilterEditKey = key
-        if ddEditFilters and ddEditFilters.SetValue then
-            ddEditFilters:SetValue(key)
-        elseif ddEditFilters and labelForKey then
-            UIDropDownMenu_SetText(ddEditFilters, labelForKey[key] or "Shared")
+        for k, btn in pairs(scopeBtns) do
+            if btn and btn._msufApplyState then btn:_msufApplyState(k == key) end
         end
         if panel and panel.OnRefresh then panel.OnRefresh() end
      end
-    cbOverrideFilters = CreateCheckbox(leftTop, "Override shared filters", 380, -70,
+    do
+        local prevBtn
+        for i, k in ipairs(SCOPE_KEYS) do
+            local bk = k
+            local btn = CreateFrame("Button", nil, scopeBar, BackdropTemplateMixin and "BackdropTemplate" or nil)
+            btn:SetSize(i == 1 and 56 or 48, 18)
+            if not prevBtn then
+                btn:SetPoint("LEFT", editLbl, "RIGHT", 8, 0)
+            else
+                btn:SetPoint("LEFT", prevBtn, "RIGHT", 2, 0)
+            end
+            local bg = btn:CreateTexture(nil, "BACKGROUND")
+            bg:SetAllPoints()
+            bg:SetColorTexture(0.08, 0.12, 0.22, 0.80)
+            btn._msufBg = bg
+            local border = CreateFrame("Frame", nil, btn, BackdropTemplateMixin and "BackdropTemplate" or nil)
+            border:SetAllPoints()
+            border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+            border:SetBackdropBorderColor(0.15, 0.30, 0.60, 0.50)
+            btn._msufBorder = border
+            local fs = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            fs:SetPoint("CENTER", 0, 0)
+            fs:SetText(labelForKey[bk] or bk)
+            btn._msufLabel = fs
+
+            btn._msufApplyState = function(self, active)
+                local hasOverride = GetUnitHasOverride(bk)
+                if active then
+                    bg:SetColorTexture(0.12, 0.24, 0.50, 0.95)
+                    if hasOverride then
+                        border:SetBackdropBorderColor(0.96, 0.80, 0.34, 0.98)
+                    else
+                        border:SetBackdropBorderColor(0.30, 0.55, 1.00, 0.80)
+                    end
+                    fs:SetTextColor(0.90, 0.95, 1.00)
+                else
+                    bg:SetColorTexture(0.08, 0.12, 0.22, 0.80)
+                    if hasOverride then
+                        border:SetBackdropBorderColor(0.86, 0.72, 0.28, 0.80)
+                        fs:SetTextColor(0.88, 0.90, 0.96)
+                    else
+                        border:SetBackdropBorderColor(0.15, 0.30, 0.60, 0.50)
+                        fs:SetTextColor(0.50, 0.58, 0.72)
+                    end
+                end
+            end
+            btn:SetScript("OnClick", function()
+                ApplyKey(bk)
+                RefreshScopeButtons()
+            end)
+            btn:SetScript("OnEnter", function(self)
+                local isActive = (GetEditingKey() == bk)
+                local hasOverride = GetUnitHasOverride(bk)
+                if self._msufBg then
+                    self._msufBg:SetColorTexture(0.10, 0.18, 0.36, 0.90)
+                end
+                if self._msufBorder and hasOverride then
+                    self._msufBorder:SetBackdropBorderColor(0.98, 0.78, 0.28, isActive and 0.98 or 0.82)
+                end
+                if GameTooltip then
+                    GameTooltip:SetOwner(self, "ANCHOR_TOP")
+                    GameTooltip:SetText(labelForKey[bk] or bk, 1, 1, 1)
+                    if bk == "shared" then
+                        GameTooltip:AddLine("Shared baseline used by units without overrides.", 0.72, 0.78, 0.88, true)
+                    else
+                        GameTooltip:AddLine(GetUnitOverrideTooltip(bk), hasOverride and 0.95 or 0.72, hasOverride and 0.82 or 0.78, hasOverride and 0.30 or 0.88, true)
+                    end
+                    GameTooltip:Show()
+                end
+            end)
+            btn:SetScript("OnLeave", function(self)
+                if GameTooltip then GameTooltip:Hide() end
+                local isActive = (GetEditingKey() == bk)
+                if self._msufApplyState then self:_msufApplyState(isActive) end
+            end)
+            btn:_msufApplyState(k == "shared")
+            scopeBtns[bk] = btn
+            prevBtn = btn
+        end
+    end
+    ddEditFilters = { SetValue = function(self, key)
+        RefreshScopeButtons()
+    end }
+    cbOverrideFilters = CreateCheckbox(scopeBar, "Override filters", 10, -32,
         function()  return GetOverrideForEditing() end,
         function(v)  SetOverrideForEditing(v)  end,
         "When off, this unit uses Shared filter settings. When on, it uses its own copy of the filters.")
-    cbOverrideCaps = CreateCheckbox(leftTop, "Override shared caps", 380, -92,
+    cbOverrideCaps = CreateCheckbox(scopeBar, "Override caps", 190, -32,
         function()  return GetOverrideCapsForEditing() end,
         function(v)  SetOverrideCapsForEditing(v)  end,
         "When off, this unit uses Shared caps (Max Buffs/Debuffs, Icons per row). When on, it uses its own caps.")
-    -- Overrides: global summary + reset (good UX)
-    -- Layout goals:
-    --   Checkbox + Reset sit on the SAME row (no overlap with dropdown)
-    --   Status sits under the checkbox (short + readable)
-    --   Status stays "short": shows up to 2 units, then "+N"
     local overrideKeys = { "player", "target", "focus", "boss1", "boss2", "boss3", "boss4", "boss5" }
-    -- Reset button aligned to the right edge of the box, same row as the checkbox
-    local btnResetOverrides = CreateFrame("Button", nil, leftTop, "UIPanelButtonTemplate")
-    btnResetOverrides:SetSize(92, 18)
-    btnResetOverrides:SetPoint("TOPRIGHT", leftTop, "TOPRIGHT", -24, -70)
+    -- Reset button aligned to the right edge of the scope bar, second row
+    local btnResetOverrides = CreateFrame("Button", nil, scopeBar, "UIPanelButtonTemplate")
+    btnResetOverrides:SetSize(72, 18)
+    btnResetOverrides:SetPoint("TOPRIGHT", scopeBar, "TOPRIGHT", -10, -32)
     btnResetOverrides:SetText(TR("Reset"))
-    -- Status row under checkbox
-    local overrideRow = CreateFrame("Frame", nil, leftTop)
-    overrideRow:SetPoint("TOPLEFT", cbOverrideCaps, "BOTTOMLEFT", 24, -4)
-    overrideRow:SetSize(360, 18)
+    -- Override status (compact, below scope bar)
+    local overrideRow = CreateFrame("Frame", nil, scopeBar)
+    overrideRow:SetPoint("BOTTOMLEFT", scopeBar, "BOTTOMLEFT", 10, 6)
+    overrideRow:SetPoint("BOTTOMRIGHT", scopeBar, "BOTTOMRIGHT", -10, 6)
+    overrideRow:SetHeight(28)
     local overrideInfo = overrideRow:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-    overrideInfo:SetPoint("TOPLEFT", overrideRow, "TOPLEFT", 0, -1)
-    overrideInfo:SetWidth(340)
+    overrideInfo:SetPoint("TOPLEFT", overrideRow, "TOPLEFT", 0, 0)
+    overrideInfo:SetPoint("TOPRIGHT", overrideRow, "TOPRIGHT", 0, 0)
     overrideInfo:SetJustifyH("LEFT")
-local overrideWarn = leftTop:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-overrideWarn:SetPoint("TOPLEFT", overrideRow, "BOTTOMLEFT", 0, -2)
-overrideWarn:SetWidth(340)
-overrideWarn:SetJustifyH("LEFT")
-overrideWarn:SetText(TR(""))
-overrideWarn:Hide()
-panel.__msufA2_overrideWarn = overrideWarn
+    overrideInfo:SetWordWrap(false)
+    local overrideWarn = overrideRow:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+    overrideWarn:SetPoint("TOPLEFT", overrideInfo, "BOTTOMLEFT", 0, -1)
+    overrideWarn:SetPoint("TOPRIGHT", overrideRow, "TOPRIGHT", 0, 0)
+    overrideWarn:SetJustifyH("LEFT")
+    overrideWarn:SetWordWrap(false)
+    overrideWarn:SetText(TR(""))
+    overrideWarn:Hide()
+    panel.__msufA2_overrideWarn = overrideWarn
     local function BuildOverrideSummary(active)
         local n = #active
         if n == 0 then
-             return "|cff9aa0a6No overrides active.|r"
+             return "|cff9aa0a6No unit overrides active.|r"
         end
-        if n <= 2 then
-            return "|cffffffffOverrides:|r " .. table.concat(active, ", ")
+        if n <= 4 then
+            return "|cffffffffOverrides active:|r " .. table.concat(active, ", ")
         end
-        -- Keep it short: show first two, then "+N"
-        return ("|cffffffffOverrides:|r %s, %s |cff9aa0a6+%d|r"):format(active[1], active[2], (n - 2))
+        return ("|cffffffffOverrides active:|r %s, %s, %s, %s |cff9aa0a6+%d|r"):format(active[1], active[2], active[3], active[4], (n - 4))
     end
     local function UpdateOverrideSummary()
         local a2 = select(1, GetAuras2DB())
         local active = {}
+        local isSharedEditing = (GetEditingKey() == "shared")
         if a2 and type(a2.perUnit) == "table" then
             for i = 1, #overrideKeys do
                 local k = overrideKeys[i]
-                local u = a2.perUnit[k]
-                if u and (u.overrideFilters == true or u.overrideSharedLayout == true) then
+                if GetUnitHasOverride(k) then
                     active[#active + 1] = (labelForKey[k] or k)
                 end
             end
         end
         overrideInfo:SetText(BuildOverrideSummary(active))
+        if isSharedEditing then
+            overrideInfo:Show()
+        else
+            overrideInfo:Hide()
+        end
+        overrideWarn:ClearAllPoints()
+        if isSharedEditing then
+            overrideWarn:SetPoint("TOPLEFT", overrideInfo, "BOTTOMLEFT", 0, -1)
+            overrideWarn:SetPoint("TOPRIGHT", overrideRow, "TOPRIGHT", 0, 0)
+        else
+            overrideWarn:SetPoint("TOPLEFT", overrideRow, "TOPLEFT", 0, 0)
+            overrideWarn:SetPoint("TOPRIGHT", overrideRow, "TOPRIGHT", 0, 0)
+        end
         if #active == 0 then
             overrideInfo:SetFontObject(GameFontDisableSmall)
             btnResetOverrides:Disable()
@@ -1657,6 +1824,7 @@ panel.__msufA2_overrideWarn = overrideWarn
             btnResetOverrides:SetAlpha(1)
         end
      end
+    panel.__msufA2_UpdateOverrideSummary = UpdateOverrideSummary
     overrideRow:SetScript("OnShow", UpdateOverrideSummary)
     btnResetOverrides:SetScript("OnShow", UpdateOverrideSummary)
     btnResetOverrides:SetScript("OnClick", function()
@@ -1728,35 +1896,59 @@ end
     CreateBoolToggleButtonPath(leftTop, "Target", 108, -120, 90, 22, A2_DB, "showTarget", nil, nil, A2_RequestApply)
     CreateBoolToggleButtonPath(leftTop, "Focus", 204, -120, 90, 22, A2_DB, "showFocus", nil, nil, A2_RequestApply)
     CreateBoolToggleButtonPath(leftTop, "Boss 1-5", 300, -120, 96, 22, A2_DB, "showBoss", nil, nil, A2_RequestApply)
-    -- Display (two-column layout)
-    local h3 = leftTop:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    h3:SetPoint("TOPLEFT", leftTop, "TOPLEFT", 12, -156)
-    h3:SetText(TR("Display"))
+    -- ================================================================
+    -- DISPLAY (grouped: Buffs/Debuffs columns + Icons/Cooldown/Borders columns)
+    -- ================================================================
+    -- Outer collapsible header already provides the section title.
+    -- Start the actual content higher so the box stays compact and balanced.
+    local ghBuffs = displayBox:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    ghBuffs:SetPoint("TOPLEFT", displayBox, "TOPLEFT", 14, -12)
+    ghBuffs:SetText("|cff6EB5FFBuffs|r")
+    local ghDebuffs = displayBox:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    ghDebuffs:SetPoint("TOPLEFT", displayBox, "TOPLEFT", 200, -12)
+    ghDebuffs:SetText("|cff6EB5FFDebuffs|r")
     local TIP_SHOW_STACK = 'Shows stack/application counts (e.g. "2") on aura icons. Disable to hide stack numbers.'
     local TIP_HIDE_PERMANENT = 'Hides buffs with no duration. Only works out of combat!'
     do
         local displayCB = {}
         local TIP_SWIPE_STYLE = "When enabled, the cooldown swipe represents elapsed time (darkens as time is lost).\n\nTurn this OFF to keep the default cooldown-style swipe."
-        BuildBoolPathCheckboxes(leftTop, {
-            { "Show Buffs", 12, -180, A2_Settings, "showBuffs", nil, nil, "cbShowBuffs" },
-            { "Show Debuffs", 200, -180, A2_Settings, "showDebuffs", nil, nil, "cbShowDebuffs" },
-            { "Highlight own buffs", 12, -228, A2_Settings, "highlightOwnBuffs", nil,
+        BuildBoolPathCheckboxes(displayBox, {
+            { "Show Buffs", 12, -28, A2_Settings, "showBuffs", nil, nil, "cbShowBuffs" },
+            { "Show Debuffs", 200, -28, A2_Settings, "showDebuffs", nil, nil, "cbShowDebuffs" },
+            { "Highlight own buffs", 12, -74, A2_Settings, "highlightOwnBuffs", nil,
                 "Highlights your own buffs with a border color (visual only; does not filter).", "cbHLOwnBuffs" },
-            { "Highlight own debuffs", 200, -228, A2_Settings, "highlightOwnDebuffs", nil,
+            { "Highlight own debuffs", 200, -74, A2_Settings, "highlightOwnDebuffs", nil,
                 "Highlights your own debuffs with a border color (visual only; does not filter).", "cbHLOwnDebuffs" },
-            { "Dispel-type borders", 12, -324, A2_Settings, "useDebuffTypeBorders", nil,
+        }, displayCB)
+        -- Group header: Icons | Cooldown | Borders
+        local divider = displayBox:CreateTexture(nil, "ARTWORK")
+        divider:SetHeight(1)
+        divider:SetPoint("TOPLEFT", displayBox, "TOPLEFT", 12, -120)
+        divider:SetPoint("TOPRIGHT", displayBox, "TOPRIGHT", -12, -120)
+        divider:SetColorTexture(1, 1, 1, 0.06)
+        local ghIcons = displayBox:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        ghIcons:SetPoint("TOPLEFT", displayBox, "TOPLEFT", 14, -128)
+        ghIcons:SetText("|cff6EB5FFIcons|r")
+        local ghCooldown = displayBox:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        ghCooldown:SetPoint("TOPLEFT", displayBox, "TOPLEFT", 200, -128)
+        ghCooldown:SetText("|cff6EB5FFCooldown|r")
+        local ghBorders = displayBox:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        ghBorders:SetPoint("TOPLEFT", displayBox, "TOPLEFT", 390, -128)
+        ghBorders:SetText("|cff6EB5FFBorders|r")
+        BuildBoolPathCheckboxes(displayBox, {
+            { "Show tooltip", 12, -144, A2_Settings, "showTooltip", nil, nil, "cbShowTooltip" },
+            { "Show cooldown swipe", 200, -144, A2_Settings, "showCooldownSwipe", nil, nil, "cbShowSwipe" },
+            { "Dispel-type borders", 390, -144, A2_Settings, "useDebuffTypeBorders", nil,
                 "Colors aura borders by debuff dispel type (Magic/Curse/Poison/Disease), similar to Blizzard private aura borders.",
                 "cbDispelTypeBorders" },
-            { "Show cooldown swipe", 12, -252, A2_Settings, "showCooldownSwipe", nil, nil, "cbShowSwipe" },
-            { "Swipe darkens on loss", 12, -300, A2_Settings, "cooldownSwipeDarkenOnLoss", nil, TIP_SWIPE_STYLE, "cbSwipeStyle" },
-            { "Show stack count", 200, -276, A2_Settings, "showStackCount", nil, TIP_SHOW_STACK, "cbShowStackCount" },
-            { "Show cooldown text", 200, -300, A2_Settings, "showCooldownText", nil,
-                "Shows the countdown numbers on aura icons. Disable to hide cooldown numbers (swipe can remain enabled).",
-                "cbShowCooldownText" },
-            { "Click-through auras", 200, -324, A2_Settings, "clickThroughAuras", nil,
+            { "Show stack count", 12, -166, A2_Settings, "showStackCount", nil, TIP_SHOW_STACK, "cbShowStackCount" },
+            { "Swipe darkens on loss", 200, -166, A2_Settings, "cooldownSwipeDarkenOnLoss", nil, TIP_SWIPE_STYLE, "cbSwipeStyle" },
+            { "Click-through auras", 12, -188, A2_Settings, "clickThroughAuras", nil,
                 "Makes aura icons click-through so mouse clicks pass to the game world.\n\nWhen 'Show tooltip' is also enabled, hovering still shows aura tooltips.\nWhen 'Show tooltip' is off, icons are fully non-interactive.",
                 "cbClickThrough" },
-            { "Show tooltip", 12, -276, A2_Settings, "showTooltip", nil, nil, "cbShowTooltip" },
+            { "Show cooldown text", 200, -188, A2_Settings, "showCooldownText", nil,
+                "Shows the countdown numbers on aura icons. Disable to hide cooldown numbers (swipe can remain enabled).",
+                "cbShowCooldownText" },
         }, displayCB)
         for _, cb in pairs(displayCB) do
             A2_Track("global", cb)
@@ -1790,14 +1982,13 @@ end
             end
         end
     end
-    -- Only-mine + permanent filters: stored in the per-unit filter table (via A2_FilterBuffs/Debuffs).
-    -- Tracked as "filters" scope so per-unit override auto-enables and scope greying works correctly.
+    -- Only-mine + permanent filters in the Buffs/Debuffs columns
     do
         local filterCB = {}
-        BuildBoolPathCheckboxes(leftTop, {
-            { "Only my buffs", 12, -204, A2_FilterBuffs, "onlyMine", nil, nil, "cbOnlyMyBuffs", SyncLegacySharedFromSharedFilters },
-            { "Only my debuffs", 200, -204, A2_FilterDebuffs, "onlyMine", nil, nil, "cbOnlyMyDebuffs", SyncLegacySharedFromSharedFilters },
-            { "Hide permanent buffs", 200, -252, GetEditingFilters, "hidePermanent", nil, TIP_HIDE_PERMANENT, "cbHidePermanent", SyncLegacySharedFromSharedFilters },
+        BuildBoolPathCheckboxes(displayBox, {
+            { "Only my buffs", 12, -50, A2_FilterBuffs, "onlyMine", nil, nil, "cbOnlyMyBuffs", SyncLegacySharedFromSharedFilters },
+            { "Only my debuffs", 200, -50, A2_FilterDebuffs, "onlyMine", nil, nil, "cbOnlyMyDebuffs", SyncLegacySharedFromSharedFilters },
+            { "Hide permanent buffs", 12, -96, GetEditingFilters, "hidePermanent", nil, TIP_HIDE_PERMANENT, "cbHidePermanent", SyncLegacySharedFromSharedFilters },
         }, filterCB)
         for _, key in ipairs({ "cbOnlyMyBuffs", "cbOnlyMyDebuffs", "cbHidePermanent" }) do
             local cb = filterCB[key]
@@ -1807,7 +1998,10 @@ end
             end
         end
     end
-    -- Caps (live here in the Auras 2.0 box) + numeric entry boxes
+    -- ================================================================
+    -- LAYOUT & CAPS (capsBox): sliders + dropdowns in grid
+    -- ================================================================
+    -- Outer collapsible header already provides the section title.
     local function MakeCapsNumberGS(key, default, legacyKey)
         local function get()
             local a2, shared = GetAuras2DB()
@@ -1826,14 +2020,10 @@ end
              return v
         end
         local function set(v)
-            -- Idempotent: avoid double-apply (OnEnterPressed -> ClearFocus -> OnEditFocusLost)
-            -- and avoid spurious refreshes when the slider initializes.
             local cur = get()
             if type(cur) == "number" and cur == v then
                  return
             end
-            -- Use the shared/per-unit caps writer (overrideSharedCaps aware) so we also
-            -- get the correct targeted refresh behavior.
             local editKey = GetEditingKey()
             A2_SetCapsValue(editKey, key, v)
          end
@@ -1849,32 +2039,28 @@ end
         if mode == "SINGLE" then  return end
         SetSplitSpacingRaw(v)
      end
-	-- Dropdown column layout (Auras 2.0 Display): align with the "Show Debuffs" row and keep
-	-- everything safely to the right so it never overlaps the 2-column checkbox area.
-	local A2_DD_X = 500
-	local A2_DD_Y0 = -170 -- aligns with "Show Debuffs"
-	local A2_DD_STEP = 24
-    -- Caps: restore Max Buffs / Max Debuffs controls (0 = unlimited)
-    -- Caps: moved slightly down so the sliders breathe under the tooltip/stack toggles.
-    local maxBuffsSlider = CreateAuras2CompactSlider(leftTop, "Max Buffs", 0, 40, 1, 12, -360, nil, GetMaxBuffs, function(v)  A2_AutoOverrideCapsIfNeeded(); SetMaxBuffs(v)  end)
+    -- Slider row 1: Max Buffs | Max Debuffs
+    local maxBuffsSlider = CreateAuras2CompactSlider(capsBox, "Max Buffs", 0, 40, 1, 12, -18, nil, GetMaxBuffs, function(v)  A2_AutoOverrideCapsIfNeeded(); SetMaxBuffs(v)  end)
     A2_Track("caps", maxBuffsSlider)
-    -- Caps sliders manage refresh via A2_SetCapsValue (targeted/coalesced). Avoid double refresh.
     maxBuffsSlider.__MSUF_skipAutoRefresh = true
     MSUF_StyleAuras2CompactSlider(maxBuffsSlider, { leftTitle = true })
     AttachSliderValueBox(maxBuffsSlider, 0, 40, 1, GetMaxBuffs)
-    local maxDebuffsSlider = CreateAuras2CompactSlider(leftTop, "Max Debuffs", 0, 40, 1, 200, -360, nil, GetMaxDebuffs, function(v)  A2_AutoOverrideCapsIfNeeded(); SetMaxDebuffs(v)  end)
+    local maxDebuffsSlider = CreateAuras2CompactSlider(capsBox, "Max Debuffs", 0, 40, 1, 192, -18, nil, GetMaxDebuffs, function(v)  A2_AutoOverrideCapsIfNeeded(); SetMaxDebuffs(v)  end)
     A2_Track("caps", maxDebuffsSlider)
     maxDebuffsSlider.__MSUF_skipAutoRefresh = true
     MSUF_StyleAuras2CompactSlider(maxDebuffsSlider, { leftTitle = true })
     AttachSliderValueBox(maxDebuffsSlider, 0, 40, 1, GetMaxDebuffs)
-    -- Split-anchor spacing: when buff/debuff blocks are anchored around the unitframe, this controls
-    -- how far they are pushed away from the frame edges.
-    local splitSpacingSlider = CreateAuras2CompactSlider(leftTop, "Block spacing", 0, 40, 1, 200, -438, nil, GetSplitSpacing, function(v)  A2_AutoOverrideCapsIfNeeded(); SetSplitSpacing(v)  end)
+    -- Slider row 2: Icons per row | Block spacing
+    local perRowSlider = CreateAuras2CompactSlider(capsBox, "Icons per row", 4, 20, 1, 372, -18, nil, GetPerRow, function(v)  A2_AutoOverrideCapsIfNeeded(); SetPerRow(v)  end)
+    A2_Track("caps", perRowSlider)
+    perRowSlider.__MSUF_skipAutoRefresh = true
+    MSUF_StyleAuras2CompactSlider(perRowSlider, { leftTitle = true })
+    AttachSliderValueBox(perRowSlider, 4, 20, 1, GetPerRow)
+    local splitSpacingSlider = CreateAuras2CompactSlider(capsBox, "Block spacing", 0, 40, 1, 546, -18, nil, GetSplitSpacing, function(v)  A2_AutoOverrideCapsIfNeeded(); SetSplitSpacing(v)  end)
     A2_Track("caps", splitSpacingSlider)
     splitSpacingSlider.__MSUF_skipAutoRefresh = true
     MSUF_StyleAuras2CompactSlider(splitSpacingSlider, { leftTitle = true })
     AttachSliderValueBox(splitSpacingSlider, 0, 40, 1, GetSplitSpacing)
-    -- Disable Block spacing when Layout is Single row (Mixed) (it has no effect there).
     local function A2_IsSeparateRowsNow()
         local key = GetEditingKey()
         return (A2_GetCapsValue(key, "layoutMode", "SEPARATE") ~= "SINGLE")
@@ -1882,15 +2068,11 @@ end
     local function A2_ApplySplitSpacingEnabledState()
         if not splitSpacingSlider then  return end
         local ok = A2_IsSeparateRowsNow()
-        if ok then
-            splitSpacingSlider:Enable()
-        else
-            splitSpacingSlider:Disable()
-        end
+        if ok then splitSpacingSlider:Enable() else splitSpacingSlider:Disable() end
         local n = splitSpacingSlider:GetName()
-        local title = (n and _G[n .. "Text"]) or splitSpacingSlider.Text
-        if title then
-            if ok then title:SetTextColor(1, 1, 1) else title:SetTextColor(0.5, 0.5, 0.5) end
+        local stitle = (n and _G[n .. "Text"]) or splitSpacingSlider.Text
+        if stitle then
+            if ok then stitle:SetTextColor(1, 1, 1) else stitle:SetTextColor(0.5, 0.5, 0.5) end
         end
         if splitSpacingSlider.__MSUF_valueBox then
             if ok then
@@ -1902,7 +2084,7 @@ end
             end
         end
      end
-    leftTop._msufA2_ApplySplitSpacingEnabledState = A2_ApplySplitSpacingEnabledState
+    capsBox._msufA2_ApplySplitSpacingEnabledState = A2_ApplySplitSpacingEnabledState
     A2_ApplySplitSpacingEnabledState()
     local function ShowSplitSpacingTooltip()
         if not GameTooltip then  return end
@@ -1921,63 +2103,58 @@ end
         splitSpacingSlider.__MSUF_valueBox:SetScript("OnEnter", ShowSplitSpacingTooltip)
         splitSpacingSlider.__MSUF_valueBox:SetScript("OnLeave", HideAnyTooltip)
     end
-    -- Layout row (cleaner): Icons-per-row on the left, Growth dropdown aligned on the right.
-    local perRowSlider = CreateAuras2CompactSlider(leftTop, "Icons per row", 4, 20, 1, 12, -438, nil, GetPerRow, function(v)  A2_AutoOverrideCapsIfNeeded(); SetPerRow(v)  end)
-    A2_Track("caps", perRowSlider)
-    perRowSlider.__MSUF_skipAutoRefresh = true
-    MSUF_StyleAuras2CompactSlider(perRowSlider, { leftTitle = true })
-    AttachSliderValueBox(perRowSlider, 4, 20, 1, GetPerRow)
-    -- Per-type grow direction (right column)
-    local buffGrowthDD = CreateDropdown(leftTop, "Buff Growth", A2_DD_X, A2_DD_Y0 - (A2_DD_STEP * 8),
+    -- Divider between sliders and dropdowns
+    local capsDivider = capsBox:CreateTexture(nil, "ARTWORK")
+    capsDivider:SetHeight(1)
+    capsDivider:SetPoint("TOPLEFT", capsBox, "TOPLEFT", 12, -76)
+    capsDivider:SetPoint("TOPRIGHT", capsBox, "TOPRIGHT", -12, -76)
+    capsDivider:SetColorTexture(1, 1, 1, 0.06)
+    -- Dropdown grid: 3 columns × 3 rows
+    local DD_C1, DD_C2, DD_C3 = 12, 248, 484
+    local DD_R1, DD_R2, DD_R3 = -84, -126, -168
+    local layoutDD = CreateLayoutDropdown(capsBox, DD_C1, DD_R1,
+        function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "layoutMode", "SEPARATE") end,
+        function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "layoutMode", v)  end)
+    A2_Track("caps", layoutDD)
+    local stackAnchorDD = CreateStackAnchorDropdown(capsBox, DD_C2, DD_R1,
+        function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "stackCountAnchor", "TOPRIGHT") end,
+        function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "stackCountAnchor", v)  end)
+    A2_Track("caps", stackAnchorDD)
+    local buffGrowthDD = CreateDropdown(capsBox, "Buff Growth", DD_C1, DD_R2,
         function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "buffGrowth", A2_GetCapsValue(key, "growth", "RIGHT")) end,
         function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "buffGrowth", v)  end)
     A2_Track("caps", buffGrowthDD)
-    local debuffGrowthDD = CreateDropdown(leftTop, "Debuff Growth", A2_DD_X, A2_DD_Y0 - (A2_DD_STEP * 10),
+    local debuffGrowthDD = CreateDropdown(capsBox, "Debuff Growth", DD_C2, DD_R2,
         function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "debuffGrowth", A2_GetCapsValue(key, "growth", "RIGHT")) end,
         function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "debuffGrowth", v)  end)
     A2_Track("caps", debuffGrowthDD)
-    local privateGrowthCapsDD = CreateDropdown(leftTop, "Private Growth", A2_DD_X, A2_DD_Y0 - (A2_DD_STEP * 12),
+    local privateGrowthCapsDD = CreateDropdown(capsBox, "Private Growth", DD_C3, DD_R2,
         function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "privateGrowth", A2_GetCapsValue(key, "growth", "RIGHT")) end,
         function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "privateGrowth", v)  end)
     A2_Track("caps", privateGrowthCapsDD)
-	-- Per-type row wrap direction (independent for buffs and debuffs).
-	-- Controls whether the 2nd row spawns below (default) or above the first row.
-	local buffRowWrapDD = CreateRowWrapDropdown(leftTop, A2_DD_X, A2_DD_Y0,
+    local buffRowWrapDD = CreateRowWrapDropdown(capsBox, DD_C1, DD_R3,
         function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "buffRowWrap", A2_GetCapsValue(key, "rowWrap", "DOWN")) end,
         function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "buffRowWrap", v)  end,
         "Buff wrap rows")
     A2_Track("caps", buffRowWrapDD)
-	local debuffRowWrapDD = CreateRowWrapDropdown(leftTop, A2_DD_X, A2_DD_Y0 - (A2_DD_STEP * 2),
+    local debuffRowWrapDD = CreateRowWrapDropdown(capsBox, DD_C2, DD_R3,
         function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "debuffRowWrap", A2_GetCapsValue(key, "rowWrap", "DOWN")) end,
         function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "debuffRowWrap", v)  end,
         "Debuff wrap rows")
     A2_Track("caps", debuffRowWrapDD)
-    local layoutDD = CreateLayoutDropdown(leftTop, A2_DD_X, A2_DD_Y0 - (A2_DD_STEP * 4),
-        function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "layoutMode", "SEPARATE") end,
-        function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "layoutMode", v)  end)
-    A2_Track("caps", layoutDD)
-	-- Stack Anchor dropdown (right column)
-	local stackAnchorDD = CreateStackAnchorDropdown(leftTop, A2_DD_X, A2_DD_Y0 - (A2_DD_STEP * 6),
-        function()  local key = GetEditingKey(); return A2_GetCapsValue(key, "stackCountAnchor", "TOPRIGHT") end,
-        function(v)  A2_AutoOverrideCapsIfNeeded(); local key = GetEditingKey(); A2_SetCapsValue(key, "stackCountAnchor", v)  end)
-    A2_Track("caps", stackAnchorDD)
-    -- Allow the Layout dropdown to notify dependent widgets immediately.
-    leftTop._msufA2_OnLayoutModeChanged = function()
-        if leftTop._msufA2_ApplySplitSpacingEnabledState then leftTop._msufA2_ApplySplitSpacingEnabledState() end
+    capsBox._msufA2_OnLayoutModeChanged = function()
+        if capsBox._msufA2_ApplySplitSpacingEnabledState then capsBox._msufA2_ApplySplitSpacingEnabledState() end
      end
     -- ------------------------------------------------------------
     -- TIMER COLORS (middle): global master toggle
     -- ------------------------------------------------------------
     do
-        local tTitle = timerBox:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
-        tTitle:SetPoint('TOPLEFT', timerBox, 'TOPLEFT', 12, -10)
-        tTitle:SetText('Timer colors')
         local function GetGeneral()
             EnsureDB()
             return (MSUF_DB and MSUF_DB.general) or nil
         end
         -- Blizzard pass-through toggle: Blizzard C++ renders countdown text natively.
-        local cbBlizzardTimer = CreateBoolCheckboxPath(timerBox, 'Use Blizzard timer text (max performance)', 12, -34, A2_Settings, 'useBlizzardTimerText', nil,
+        local cbBlizzardTimer = CreateBoolCheckboxPath(timerBox, 'Use Blizzard timer text (max performance)', 12, -10, A2_Settings, 'useBlizzardTimerText', nil,
             'When enabled, Blizzard handles countdown numbers natively in C++.\nDisables timer colors but eliminates all periodic timer CPU overhead.\nFont, size and position are still controlled by MSUF.',
             function()
                 if timerBox and timerBox._msufApplyTimerColorsEnabledState then
@@ -1988,7 +2165,7 @@ end
              end)
         A2_Track('global', cbBlizzardTimer)
 
-        local cbTimerBuckets = CreateBoolCheckboxPath(timerBox, 'Color aura timers by remaining time', 12, -58, GetGeneral, 'aurasCooldownTextUseBuckets', nil,
+        local cbTimerBuckets = CreateBoolCheckboxPath(timerBox, 'Color aura timers by remaining time', 12, -34, GetGeneral, 'aurasCooldownTextUseBuckets', nil,
             'When enabled, aura cooldown text uses Safe / Warning / Urgent colors based on remaining time.\nWhen disabled, aura cooldown text always uses the Safe color.',
             function()
                 if timerBox and timerBox._msufApplyTimerColorsEnabledState then
@@ -2048,15 +2225,15 @@ end
 			A2_RequestCooldownTextRecolor()
 			A2_RequestApply()
          end
-        local safeSlider = CreateAuras2CompactSlider(timerBox, 'Safe (seconds)', 0, 600, 1, 12, -96, 220, GetSafe, SetSafe)
+        local safeSlider = CreateAuras2CompactSlider(timerBox, 'Safe (seconds)', 0, 600, 1, 12, -72, 220, GetSafe, SetSafe)
         A2_Track("global", safeSlider)
         MSUF_StyleAuras2CompactSlider(safeSlider, { hideMinMax = true, leftTitle = true })
         AttachSliderValueBox(safeSlider, 0, 600, 1, GetSafe)
-        local warnSlider = CreateAuras2CompactSlider(timerBox, 'Warning (<=)', 0, 30, 1, 260, -96, 200, GetWarn, SetWarn)
+        local warnSlider = CreateAuras2CompactSlider(timerBox, 'Warning (<=)', 0, 30, 1, 260, -72, 200, GetWarn, SetWarn)
         A2_Track("global", warnSlider)
         MSUF_StyleAuras2CompactSlider(warnSlider, { hideMinMax = true, leftTitle = true })
         AttachSliderValueBox(warnSlider, 0, 30, 1, GetWarn)
-        local urgSlider = CreateAuras2CompactSlider(timerBox, 'Urgent (<=)', 0, 15, 1, 486, -96, 200, GetUrg, SetUrg)
+        local urgSlider = CreateAuras2CompactSlider(timerBox, 'Urgent (<=)', 0, 15, 1, 486, -72, 200, GetUrg, SetUrg)
         A2_Track("global", urgSlider)
         MSUF_StyleAuras2CompactSlider(urgSlider, { hideMinMax = true, leftTitle = true })
         AttachSliderValueBox(urgSlider, 0, 15, 1, GetUrg)
@@ -2094,7 +2271,7 @@ end
     -- Pandemic window mode dropdown (below timer sliders, full width)
     do
         local panDD = (_G.MSUF_CreateStyledDropdown and _G.MSUF_CreateStyledDropdown(nil, timerBox) or CreateFrame("Frame", nil, timerBox, "UIDropDownMenuTemplate"))
-        panDD:SetPoint("TOPLEFT", timerBox, "TOPLEFT", 12 - 16, -178 + 4)
+        panDD:SetPoint("TOPLEFT", timerBox, "TOPLEFT", 12 - 16, -154 + 4)
         MSUF_FixUIDropDown(panDD, 130)
         local panTitle = timerBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
         panTitle:SetPoint("BOTTOMLEFT", panDD, "TOPLEFT", 16, 4)
@@ -2170,11 +2347,11 @@ end
         panHint:SetText("Best-effort: fixed 30% threshold for all auras. Color: Colors panel.")
     end
     -- ------------------------------------------------------------
-    -- ADVANCED (below): Include filters + Sort order
+    -- AURA FILTERS & SORTING (below): Include filters + Sort order
     -- ------------------------------------------------------------
     local rTitle = advBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     rTitle:SetPoint("TOPLEFT", advBox, "TOPLEFT", 12, -10)
-    rTitle:SetText(TR("Advanced"))
+    rTitle:SetText(TR("Aura Filters & Sorting"))
     local incH = advBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     incH:SetPoint("TOPLEFT", advBox, "TOPLEFT", 12, -34)
     incH:SetText(TR("Include"))
@@ -2268,13 +2445,10 @@ end
         -- NOTE: Target private auras are intentionally NOT supported (user request).
         -- ------------------------------------------------------------
         -- Private Auras live in their own box between "Timer colors" and "Advanced" (see layout above).
-        local paH = privateBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        paH:SetPoint("TOPLEFT", privateBox, "TOPLEFT", 12, -10)
-        paH:SetText(TR("Private Auras"))
         local btnPrivateEnable = CreateBoolToggleButtonPath(
             privateBox,
             "Enabled",
-            12, -34,
+            12, -10,
             90, 22,
             A2_Settings,
             "privateAurasEnabled",
@@ -2282,25 +2456,16 @@ end
             "Master switch for anchoring Blizzard Private Auras to MSUF.")
         A2_Track("global", btnPrivateEnable)
         BuildBoolPathCheckboxes(privateBox, {
-            { "Show (Player)", 12, -64, A2_Settings, "showPrivateAurasPlayer", nil,
+            { "Show (Player)", 12, -40, A2_Settings, "showPrivateAurasPlayer", nil,
                 "Re-anchors Blizzard Private Auras to MSUF (no spell lists).", "cbPrivateShowP" },
-            { "Show (Focus)", 12, -92, A2_Settings, "showPrivateAurasFocus", nil,
-                "Re-anchors Blizzard Private Auras to MSUF Focus.", "cbPrivateShowF" },
-            { "Show (Boss)", 12, -120, A2_Settings, "showPrivateAurasBoss", nil,
-                "Re-anchors Blizzard Private Auras to MSUF Boss frames.", "cbPrivateShowB" },
         }, refs)
-        -- Track: these are Shared-scope controls (so per-unit overrides can grey them out correctly).
         if refs.cbPrivateShowP then A2_Track("global", refs.cbPrivateShowP) end
-        if refs.cbPrivateShowF then A2_Track("global", refs.cbPrivateShowF) end
-        if refs.cbPrivateShowB then A2_Track("global", refs.cbPrivateShowB) end
         local function SetWidgetEnabled(widget, enabled)
             if not widget then  return end
             enabled = not not enabled
-            -- Sliders (OptionsSliderTemplate) use Enable/Disable, not SetEnabled.
             if widget.Enable and widget.Disable then
                 if enabled then widget:Enable() else widget:Disable() end
                 if widget.SetAlpha then widget:SetAlpha(enabled and 1 or 0.35) end
-                -- If we attached a numeric editbox to this slider, sync it too.
                 local vb = widget.__MSUF_valueBox
                 if vb and vb.SetEnabled then vb:SetEnabled(enabled) end
                 if vb and vb.SetAlpha then vb:SetAlpha(enabled and 1 or 0.35) end
@@ -2321,63 +2486,52 @@ end
             if v > 12 then v = 12 end
             s.privateAuraMaxPlayer = v
          end
-        local function GetPrivateMaxOther()
-            local s = A2_Settings()
-            return (s and s.privateAuraMaxOther) or 6
-        end
-        local function SetPrivateMaxOther(v)
-            local s = A2_Settings()
-            if not s then  return end
-            v = tonumber(v) or 0
-            if v < 0 then v = 0 end
-            if v > 12 then v = 12 end
-            s.privateAuraMaxOther = v
-         end
         local privateMaxPlayer = CreateAuras2CompactSlider(privateBox, "Max (Player)", 0, 12, 1, 340, -34, 150, GetPrivateMaxPlayer, SetPrivateMaxPlayer)
         MSUF_StyleAuras2CompactSlider(privateMaxPlayer, { hideMinMax = true, leftTitle = true })
         AttachSliderValueBox(privateMaxPlayer, 0, 12, 1, GetPrivateMaxPlayer)
-        local privateMaxOther  = CreateAuras2CompactSlider(privateBox, "Max (Focus/Boss)", 0, 12, 1, 540, -34, 150, GetPrivateMaxOther, SetPrivateMaxOther)
-        MSUF_StyleAuras2CompactSlider(privateMaxOther, { hideMinMax = true, leftTitle = true })
-        AttachSliderValueBox(privateMaxOther, 0, 12, 1, GetPrivateMaxOther)
         if privateMaxPlayer then A2_Track("global", privateMaxPlayer) end
-        if privateMaxOther  then A2_Track("global", privateMaxOther) end
+        local function GetPrivateBorderScale()
+            local s = A2_Settings()
+            return (s and s.privateAuraBorderScale) or 3
+        end
+        local function SetPrivateBorderScale(v)
+            local s = A2_Settings()
+            if not s then return end
+            v = tonumber(v) or 3
+            if v < 0 then v = 0 end
+            if v > 10 then v = 10 end
+            s.privateAuraBorderScale = v
+        end
+        local privateBorderScale = CreateAuras2CompactSlider(privateBox, "Border thickness", 0, 10, 0.5, 520, -34, 150, GetPrivateBorderScale, SetPrivateBorderScale)
+        MSUF_StyleAuras2CompactSlider(privateBorderScale, { hideMinMax = true, leftTitle = true })
+        AttachSliderValueBox(privateBorderScale, 0, 10, 0.5, GetPrivateBorderScale)
+        if privateBorderScale then A2_Track("global", privateBorderScale) end
         local function UpdatePrivateAurasEnabled()
             local s = A2_Settings()
             local master = (s and s.privateAurasEnabled == true) or false
             local p = (master and s and s.showPrivateAurasPlayer == true) or false
-            local o = (master and s and (s.showPrivateAurasFocus == true or s.showPrivateAurasBoss == true)) or false
-            -- Master-gate the per-unit checkboxes.
             if refs.cbPrivateShowP then SetWidgetEnabled(refs.cbPrivateShowP, master) end
-            if refs.cbPrivateShowF then SetWidgetEnabled(refs.cbPrivateShowF, master) end
-            if refs.cbPrivateShowB then SetWidgetEnabled(refs.cbPrivateShowB, master) end
             if privateMaxPlayer then SetWidgetEnabled(privateMaxPlayer, p) end
-            if privateMaxOther  then SetWidgetEnabled(privateMaxOther, o) end
+            if privateBorderScale then SetWidgetEnabled(privateBorderScale, p) end
          end
         do
-            local keys = { "cbPrivateShowP", "cbPrivateShowF", "cbPrivateShowB" }
-            for i = 1, #keys do
-                local cb = refs[keys[i]]
-                if cb then
-                    local old = cb:GetScript("OnClick")
-                    cb:SetScript("OnClick", function(self, ...)
-                        if old then pcall(old, self, ...) end
-                        UpdatePrivateAurasEnabled()
-                     end)
-                    cb:HookScript("OnShow", UpdatePrivateAurasEnabled)
-                end
+            local cb = refs.cbPrivateShowP
+            if cb then
+                local old = cb:GetScript("OnClick")
+                cb:SetScript("OnClick", function(self, ...)
+                    if old then pcall(old, self, ...) end
+                    UpdatePrivateAurasEnabled()
+                 end)
+                cb:HookScript("OnShow", UpdatePrivateAurasEnabled)
             end
             if btnPrivateEnable then
                 btnPrivateEnable:HookScript("OnShow", UpdatePrivateAurasEnabled)
                 btnPrivateEnable:HookScript("OnClick", function()
-                    -- CreateBoolToggleButtonPath already writes + requests apply.
                     UpdatePrivateAurasEnabled()
                  end)
             end
             if privateMaxPlayer then
                 privateMaxPlayer:HookScript("OnShow", UpdatePrivateAurasEnabled)
-            end
-            if privateMaxOther then
-                privateMaxOther:HookScript("OnShow", UpdatePrivateAurasEnabled)
             end
         end
         UpdatePrivateAurasEnabled()
@@ -2387,12 +2541,12 @@ end
                 if cb then advGate[#advGate + 1] = cb end
             end
          end
-        Track({ "cbBossBuffs", "cbBossDebuffs", "cbShowSated", "cbOnlyBoss", "cbOnlyImpBuffs", "cbOnlyImpDebuffs", "cbPrivateShowP", "cbPrivateShowF", "cbPrivateShowB" })
+        Track({ "cbBossBuffs", "cbBossDebuffs", "cbShowSated", "cbOnlyBoss", "cbOnlyImpBuffs", "cbOnlyImpDebuffs", "cbPrivateShowP" })
         if satedSlider then advGate[#advGate + 1] = satedSlider end
         -- Advanced gating should also affect the Private Auras master + sliders.
         if btnPrivateEnable then advGate[#advGate + 1] = btnPrivateEnable end
         if privateMaxPlayer then advGate[#advGate + 1] = privateMaxPlayer end
-        if privateMaxOther  then advGate[#advGate + 1] = privateMaxOther end
+        if privateBorderScale then advGate[#advGate + 1] = privateBorderScale end
         -- ------------------------------------------------------------
         -- Sort order dropdown (Blizzard Enum.AuraSortOrder)
         -- Stored in shared.sortOrder (caps level — per-unit overridable via layoutShared).
@@ -2471,13 +2625,9 @@ end
     -- Boss frames excluded from ignore list (makes no sense for boss auras).
     -- ================================================================
     do
-        local ignH = ignoreBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        ignH:SetPoint("TOPLEFT", ignoreBox, "TOPLEFT", 12, -10)
-        ignH:SetText(TR("Global Ignore List"))
-
         -- Editing label (follows the top dropdown: Shared / Player / Target / Focus)
         local ignEditLabel = ignoreBox:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-        ignEditLabel:SetPoint("TOPLEFT", ignoreBox, "TOPLEFT", 170, -13)
+        ignEditLabel:SetPoint("TOPLEFT", ignoreBox, "TOPLEFT", 170, -10)
 
         -- Override ignore list getter/setter (mirrors filter override pattern)
         local function GetIgnoreOverride()
@@ -2659,18 +2809,14 @@ end
     -- BUFF REMINDERS — per-buff toggles + expiry threshold slider
     -- ================================================================
     do
-        local remH = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        remH:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -10)
-        remH:SetText(TR("Buff Reminders"))
-
         local remDesc = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-        remDesc:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -28)
+        remDesc:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -6)
         remDesc:SetWidth(500)
         remDesc:SetJustifyH("LEFT")
         remDesc:SetText("Ghost icons appear at the player frame when a buff is missing or about to expire. Position via Edit Mode mover; configure Grow Direction here.")
 
         -- Master toggle
-        local cbShowReminders = CreateCheckbox(reminderBox, "Enable Buff Reminders", 12, -50,
+        local cbShowReminders = CreateCheckbox(reminderBox, "Enable Buff Reminders", 12, -28,
             function()
                 local s = A2_Settings()
                 return s and (s.showReminders ~= false)
@@ -2723,7 +2869,7 @@ end
                 rightCount = rightCount + 1
                 col = 380; row = rightCount
             end
-            local yOff = -74 - (row - 1) * 24
+            local yOff = -52 - (row - 1) * 24
             local pKey = pm.key
             local cb = CreateCheckbox(reminderBox, pm.label, col, yOff,
                 function()
@@ -2746,7 +2892,7 @@ end
 
         -- Threshold slider
         local thrLabel = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        thrLabel:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -202)
+        thrLabel:SetPoint("TOPLEFT", reminderBox, "TOPLEFT", 12, -178)
         thrLabel:SetText("Expiry Warning")
 
         local thrDesc2 = reminderBox:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
@@ -2755,7 +2901,7 @@ end
         thrDesc2:SetJustifyH("LEFT")
         thrDesc2:SetText("Show reminder when buff expires within this time. 0 = only when missing.")
 
-        local thrSlider = CreateSlider(reminderBox, "", 0, 600, 5, 12, -244,
+        local thrSlider = CreateSlider(reminderBox, "", 0, 600, 5, 12, -220,
             function()
                 local s = A2_Settings()
                 return (s and type(s.reminderThreshold) == "number") and s.reminderThreshold or 0
@@ -2775,7 +2921,7 @@ end
         if thrHigh then thrHigh:SetText("10 min") end
         A2_Track("global", thrSlider)
 
-        local reminderGrowthDD = CreateDropdown(reminderBox, "Grow Direction", 500, -222,
+        local reminderGrowthDD = CreateDropdown(reminderBox, "Grow Direction", 500, -200,
             function()
                 return A2_GetReminderGrowthValue()
             end,
@@ -2853,6 +2999,9 @@ end
         MSUF_Auras2_RefreshOptionsControls()
         UpdateAdvancedEnabled()
         ApplyOverrideUISafety()
+        if panel and panel.__msufA2_UpdateOverrideSummary then
+            panel.__msufA2_UpdateOverrideSummary()
+        end
         -- Sync ignore list box state (editing key + override gating)
         local fn = rawget(_G, "MSUF_A2_UpdateIgnoreBoxState")
         if type(fn) == "function" then pcall(fn) end

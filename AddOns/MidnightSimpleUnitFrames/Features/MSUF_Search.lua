@@ -18,8 +18,8 @@ local MAX_RESULTS_CAP   = 200
 local MAX_ROWS          = VISIBLE_ROWS
 local MIN_QUERY_LEN     = 2
 local DEBOUNCE_SEC      = 0.18
-local SEARCH_BOX_H      = 22
-local SEARCH_RESERVE_PX = SEARCH_BOX_H + 14
+local SEARCH_BOX_H      = 24
+local SEARCH_RESERVE_PX = SEARCH_BOX_H + 2
 local SCROLL_DELAY      = 0.18   -- seconds after page switch before scrolling
 local SCROLL_RETRY      = 0.40   -- second attempt if first GetTop() returns nil
 
@@ -73,6 +73,7 @@ local SCROLL_MAP = {
     opt_colors      = { sf="MSUF_ColorsScrollFrame",         sc="MSUF_ColorsScrollChild"         },
     colors          = { sf="MSUF_ColorsScrollFrame",         sc="MSUF_ColorsScrollChild"         },
     gameplay        = { sf="MSUF_GameplayScrollFrame",       sc="MSUF_GameplayScrollChild"       },
+    opt_misc        = { sf="MSUF_MiscScrollFrame",           sc="MSUF_MiscScrollChild"           },
 }
 
 -- ---------------------------------------------------------------------------
@@ -464,6 +465,12 @@ local INDEX = {
     { label="Heal-Absorb bar texture (SharedMedia)",
       hint="Bars › Absorb", pageKey="opt_bars",anchor="MSUF_HealAbsorbBarTextureDropdown",
       keywords={"heal absorb texture","mortal wounds texture","heal-absorb","heal absorb skin"} },
+    { label="Absorb bar opacity",
+      hint="Bars › Absorb", pageKey="opt_bars",anchor="MSUF_AbsorbBarOpacitySlider",
+      keywords={"absorb opacity","absorb alpha","absorb bar opacity","absorb transparency","shield opacity"} },
+    { label="Heal-absorb bar opacity",
+      hint="Bars › Absorb", pageKey="opt_bars",anchor="MSUF_HealAbsorbBarOpacitySlider",
+      keywords={"heal absorb opacity","heal absorb alpha","heal-absorb opacity","heal absorb transparency"} },
     { label="Enable HP bar gradient",
       hint="Bars › Gradient", pageKey="opt_bars",
       keywords={"hp gradient","health gradient","enable gradient","gradient hp","bar gradient","gradient health"} },
@@ -571,7 +578,7 @@ local INDEX = {
       keywords={"reserved space","reserved left","reserved unused","front mask","name reserved space"} },
     { label="Name Shortening section",
       hint="Fonts › Name Shortening", pageKey="opt_fonts",
-      keywords={"name shortening","shorten names","name abbreviation","name shortening section"} },
+      keywords={"name shortening","shorten names","name abbreviation","name shortening section","name display"} },
     { label="Font color presets: White / Black / Red / Green / Blue / Yellow / Cyan / Magenta / Orange / Purple / Pink / Turquoise / Grey / Brown / Gold",
       hint="Fonts", pageKey="opt_fonts",
       keywords={"font color","text color","colour","white","black","red","green","blue","yellow","cyan","magenta","orange","purple","pink","turquoise","grey","gray","brown","gold","schrift farbe","text colour","font palette","font color preset"} },
@@ -884,24 +891,24 @@ local INDEX = {
     { label="Preview (crosshair preview)",
       hint="Gameplay", pageKey="gameplay",anchor="MSUF_Gameplay_CrosshairPreview",
       keywords={"crosshair preview","preview crosshair","test crosshair","show crosshair demo"} },
-    { label="Unit update interval (Perf / Balanced / Accurate)",
-      hint="Miscellaneous › Performance", pageKey="opt_misc",anchor="MSUF_UpdateIntervalSlider",
+    { label="Update interval presets (Performance / Balanced / Accurate)",
+      hint="Miscellaneous › Update Intervals", pageKey="opt_misc",anchor="MSUF_UpdateIntervalSlider",
       keywords={"update interval","unit update","refresh rate","performance balanced accurate","how often update","polling rate","reduce cpu","update frequency"} },
     { label="Castbar update interval",
-      hint="Miscellaneous › Performance", pageKey="opt_misc",anchor="MSUF_CastbarUpdateIntervalSlider",
+      hint="Miscellaneous › Update Intervals", pageKey="opt_misc",anchor="MSUF_CastbarUpdateIntervalSlider",
       keywords={"castbar update interval","cast update","castbar refresh","cast polling","castbar smooth"} },
     { label="UFCore flush budget (ms)",
-      hint="Miscellaneous › Performance", pageKey="opt_misc",anchor="MSUF_UFCoreFlushBudgetSlider",
+      hint="Miscellaneous › Update Intervals", pageKey="opt_misc",anchor="MSUF_UFCoreFlushBudgetSlider",
       keywords={"ufcore flush budget","flush budget","core budget","ms budget","frame budget","ufcore ms"} },
     { label="UFCore urgent cap",
-      hint="Miscellaneous › Performance", pageKey="opt_misc",anchor="MSUF_UFCoreUrgentCapSlider",
+      hint="Miscellaneous › Update Intervals", pageKey="opt_misc",anchor="MSUF_UFCoreUrgentCapSlider",
       keywords={"ufcore urgent cap","urgent cap","priority cap","update cap","core urgent"} },
-    { label="Disable MSUF unit info panel tooltips",
-      hint="Miscellaneous › Unit Info Panel", pageKey="opt_misc",anchor="MSUF_InfoTooltipDisableCheck",
-      keywords={"disable tooltips","no tooltip","hide tooltip","info panel tooltip off","unit info tooltip"} },
-    { label="Unit info panel position (Blizzard Classic / Modern under cursor)",
-      hint="Miscellaneous › Unit Info Panel", pageKey="opt_misc",anchor="MSUF_InfoTooltipPosDropdown",
-      keywords={"tooltip position","info panel position","blizzard classic tooltip","modern under cursor","where tooltip","tooltip placement","unit info position"} },
+    { label="Disable MSUF unitframe tooltips",
+      hint="Miscellaneous › Unitframe Tooltips", pageKey="opt_misc",anchor="MSUF_InfoTooltipDisableCheck",
+      keywords={"disable tooltips","no tooltip","hide tooltip","unitframe tooltip off","unitframe tooltip","unit tooltip"} },
+    { label="Unitframe tooltip position (Blizzard Classic / Modern under cursor)",
+      hint="Miscellaneous › Unitframe Tooltips", pageKey="opt_misc",anchor="MSUF_InfoTooltipPosDropdown",
+      keywords={"tooltip position","unitframe tooltip position","blizzard classic tooltip","modern under cursor","where tooltip","tooltip placement","unit tooltip position"} },
     { label="Disable Blizzard unitframes",
       hint="Miscellaneous › Blizzard Frames", pageKey="opt_misc",anchor="MSUF_DisableBlizzUFCheck",
       keywords={"disable blizzard","blizzard unitframes","hide default frames","remove stock ui","blizzard frames off","native frames off","disable blizzard unitframes"} },
@@ -1907,23 +1914,23 @@ local _lastPageKey   = nil
 local function MSUF_Search_InjectNavEditBox(navStack)
     if not navStack or navStack._msufSearchInjected then return end
     navStack._msufSearchInjected = true
+    navStack._msufSearchReservePx = SEARCH_RESERVE_PX
 
     local navRail = navStack:GetParent()
     if not navRail then return end
 
-    local sep = navRail:CreateTexture(nil,"ARTWORK")
-    sep:SetHeight(1)
-    sep:SetPoint("BOTTOMLEFT",navRail,"BOTTOMLEFT",8,SEARCH_RESERVE_PX+2)
-    sep:SetPoint("BOTTOMRIGHT",navRail,"BOTTOMRIGHT",-8,SEARCH_RESERVE_PX+2)
-    sep:SetColorTexture(0.25,0.45,0.80,0.28)
-
     local eb = CreateFrame("EditBox","MSUF_SearchEditBox",navRail,"InputBoxTemplate")
     eb:SetHeight(SEARCH_BOX_H)
-    eb:SetPoint("BOTTOMLEFT",navRail,"BOTTOMLEFT",8,8)
-    eb:SetPoint("BOTTOMRIGHT",navRail,"BOTTOMRIGHT",-8,8)
+    eb:SetPoint("TOPLEFT",navRail,"TOPLEFT",8,-(8))
+    eb:SetPoint("TOPRIGHT",navRail,"TOPRIGHT",-8,-(8))
     eb:SetAutoFocus(false); eb:SetMaxLetters(48)
     if eb.SetTextInsets then eb:SetTextInsets(6,6,0,0) end
 
+    local sep = navRail:CreateTexture(nil,"ARTWORK")
+    sep:SetHeight(1)
+    sep:SetPoint("TOPLEFT",eb,"BOTTOMLEFT",0,-4)
+    sep:SetPoint("TOPRIGHT",eb,"BOTTOMRIGHT",0,-4)
+    sep:SetColorTexture(0.25,0.45,0.80,0.28)
 
     local ph = navRail:CreateFontString(nil,"ARTWORK","GameFontDisableSmall")
     ph:SetPoint("LEFT",eb,"LEFT",6,0); ph:SetPoint("RIGHT",eb,"RIGHT",-6,0)
@@ -1933,10 +1940,10 @@ local function MSUF_Search_InjectNavEditBox(navStack)
 
     local PAD = 8
     navStack:ClearAllPoints()
-    navStack:SetPoint("TOPLEFT",     navRail,"TOPLEFT",      PAD, -PAD)
-    navStack:SetPoint("TOPRIGHT",    navRail,"TOPRIGHT",    -PAD, -PAD)
-    navStack:SetPoint("BOTTOMLEFT",  navRail,"BOTTOMLEFT",   PAD,  PAD+SEARCH_RESERVE_PX)
-    navStack:SetPoint("BOTTOMRIGHT", navRail,"BOTTOMRIGHT", -PAD,  PAD+SEARCH_RESERVE_PX)
+    navStack:SetPoint("TOPLEFT",     navRail,"TOPLEFT",      PAD, -(PAD+SEARCH_RESERVE_PX))
+    navStack:SetPoint("TOPRIGHT",    navRail,"TOPRIGHT",    -PAD, -(PAD+SEARCH_RESERVE_PX))
+    navStack:SetPoint("BOTTOMLEFT",  navRail,"BOTTOMLEFT",   PAD,  PAD)
+    navStack:SetPoint("BOTTOMRIGHT", navRail,"BOTTOMRIGHT", -PAD,  PAD)
 
     local function UpdatePlaceholder()
         ph:SetShown(#(eb:GetText() or "") == 0)

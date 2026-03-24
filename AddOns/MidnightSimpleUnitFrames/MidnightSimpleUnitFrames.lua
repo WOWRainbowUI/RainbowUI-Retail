@@ -39,6 +39,21 @@ local CreateFrame, GetTime = CreateFrame, GetTime
 -- P0: issecretvalue upvalue for event handlers (secret-safe unit filtering)
 local _MSUF_issecretvalue = _G.issecretvalue
 local _msuf_inCombat = false        -- P0: cached combat state (no C-call in hot paths)
+-- P0: Snapshot PowerBarColor at load time. Blizzard mutates entries during
+-- gameplay (Eclipse changes LUNAR_POWER color). MSUF reads the frozen snapshot
+-- so the power bar color stays stable. User overrides (Colors panel) checked first.
+do
+    local snap = {}
+    local pbc = PowerBarColor
+    if pbc then
+        for k, v in pairs(pbc) do
+            if type(v) == "table" and type(v.r) == "number" then
+                snap[k] = { r = v.r, g = v.g, b = v.b }
+            end
+        end
+    end
+    ns._PBCSnap = snap
+end
 -- P0: Single event frame maintains _msuf_inCombat + _G.MSUF_InCombat.
 -- All modules read _G.MSUF_InCombat instead of calling InCombatLockdown() in event handlers.
 -- Only ONE InCombatLockdown() C-call total: the sync on PLAYER_ENTERING_WORLD.
@@ -551,8 +566,19 @@ function ns.Bars.ApplyPowerBarVisual(frame, bar, pType, pTok)
     if not bar then  return end
     local pr, pg, pb = MSUF_GetPowerBarColor(pType, pTok)
     if not pr then
-        local colPB = PowerBarColor[pType] or { r = 0.8, g = 0.8, b = 0.8 }
+        local snap = ns._PBCSnap
+        local colPB = (pTok and snap[pTok]) or snap[pType]
+        if not colPB then
+            colPB = PowerBarColor[pType] or { r = 0.8, g = 0.8, b = 0.8 }
+        end
         pr, pg, pb = colPB.r, colPB.g, colPB.b
+    end
+    local s = bar._msufPwrCS
+    if s then
+        if s[1] == pr and s[2] == pg and s[3] == pb then return end
+        s[1], s[2], s[3] = pr, pg, pb
+    else
+        bar._msufPwrCS = { pr, pg, pb }
     end
     bar:SetStatusBarColor(pr, pg, pb)
     ns.Bars.ApplyPowerGradientOnce(frame)
@@ -765,13 +791,17 @@ function ns.Bars.ApplyHealthBars(frame, unit, maxHP, hp)
     local wasTestMode = frame._msufAbsorbTestActive
     if absorbTestMode then frame._msufAbsorbTestActive = true end
     local absorbForce = absorbTestMode or wasTestMode
+    if absorbTestMode then
+        frame.hpBar:SetMinMaxValues(0, 100)
+        MSUF_SetBarValue(frame.hpBar, 60, false)
+    end
     if frame.absorbBar and (frame._msufAbsorbDirty or absorbForce) then
         frame._msufAbsorbDirty = false
-        ns.Bars._UpdateAbsorbBar(frame, unit, maxHP)
+        ns.Bars._UpdateAbsorbBar(frame, unit, absorbTestMode and 100 or maxHP)
     end
     if frame.healAbsorbBar and (frame._msufHealAbsorbDirty or absorbForce) then
         frame._msufHealAbsorbDirty = false
-        ns.Bars._UpdateHealAbsorbBar(frame, unit, maxHP)
+        ns.Bars._UpdateHealAbsorbBar(frame, unit, absorbTestMode and 100 or maxHP)
     end
     if wasTestMode and not absorbTestMode then frame._msufAbsorbTestActive = nil end
     if frame.selfHealPredBar then
@@ -895,12 +925,18 @@ local function MSUF_ApplyOverlayBarColorCached(bar, r, g, b, a)
     MSUF_SetStatusBarColor(bar, r, g, b, a)
     bar.MSUF_overlayR, bar.MSUF_overlayG, bar.MSUF_overlayB, bar.MSUF_overlayA = r, g, b, a
  end
-local function MSUF_ApplyAbsorbOverlayColor(bar)
+local function MSUF_ApplyAbsorbOverlayColor(bar, unit)
     local r, g, b, a = MSUF_GetAbsorbOverlayColor()
+    local resolve = ns.Bars._ResolveAbsorbOpacity
+    local op = resolve and resolve(unit) or 1
+    a = a * op
     MSUF_ApplyOverlayBarColorCached(bar, r, g, b, a)
  end
-local function MSUF_ApplyHealAbsorbOverlayColor(bar)
+local function MSUF_ApplyHealAbsorbOverlayColor(bar, unit)
     local r, g, b, a = MSUF_GetHealAbsorbOverlayColor()
+    local resolve = ns.Bars._ResolveHealAbsorbOpacity
+    local op = resolve and resolve(unit) or 1
+    a = a * op
     MSUF_ApplyOverlayBarColorCached(bar, r, g, b, a)
  end
 ns.Bars._ApplyAbsorbOverlayColor = MSUF_ApplyAbsorbOverlayColor
@@ -1026,12 +1062,13 @@ local MSUF_SMOOTH_INTERPOLATION = (type(Enum) == "table"
 -- This avoids secret-compare crashes entirely and removes tostring/tonumber churn from hotpaths.
 function MSUF_SetBarValue(bar, value, smooth)
     if not bar or value == nil then  return end
-    if type(value) == "string" then
-        local n = tonumber(value)
-        if type(n) ~= "number" then
-             return
-    end
-        value = n
+    local isv = _MSUF_issecretvalue
+    if not (isv and isv(value)) then
+        if type(value) == "string" then
+            local n = tonumber(value)
+            if type(n) ~= "number" then return end
+            value = n
+        end
     end
     if smooth and MSUF_SMOOTH_INTERPOLATION then
         bar:SetValue(value, MSUF_SMOOTH_INTERPOLATION)
@@ -1043,16 +1080,17 @@ function MSUF_SetBarMinMax(bar, minValue, maxValue)
     if not bar or minValue == nil or maxValue == nil then
          return
     end
-    if type(minValue) == "string" then
-        minValue = tonumber(minValue)
+    local isv = _MSUF_issecretvalue
+    local minSecret = isv and isv(minValue)
+    local maxSecret = isv and isv(maxValue)
+    if not minSecret then
+        if type(minValue) == "string" then minValue = tonumber(minValue) end
     end
-    if type(maxValue) == "string" then
-        maxValue = tonumber(maxValue)
+    if not maxSecret then
+        if type(maxValue) == "string" then maxValue = tonumber(maxValue) end
     end
-    if type(minValue) ~= "number" or type(maxValue) ~= "number" then
-         return
-    end
-    -- No caching/compare here either (secret-safe, no MSUF_FastCall).
+    if not minSecret and type(minValue) ~= "number" then return end
+    if not maxSecret and type(maxValue) ~= "number" then return end
     bar:SetMinMaxValues(minValue, maxValue)
  end
 MSUF_UnitEditModeActive = (MSUF_UnitEditModeActive == true)
@@ -1243,6 +1281,15 @@ local function MSUF_GetResolvedPowerColor(powerType, powerToken)
              return r, g, b
     end
     end
+    local snap = ns._PBCSnap
+    if type(powerToken) == "string" and snap[powerToken] then
+        local c = snap[powerToken]
+        return c.r, c.g, c.b
+    end
+    if type(powerType) == "number" and snap[powerType] then
+        local c = snap[powerType]
+        return c.r, c.g, c.b
+    end
     local pbc = _G.PowerBarColor
     if type(powerToken) == "string" and pbc and pbc[powerToken] then
         local c = pbc[powerToken]
@@ -1388,6 +1435,23 @@ local _DPB = {
         tracked_buffs = "BuffIconCooldownViewer",
     },
 }
+function _DPB.UseMSAEssentialBridge()
+    local g = MSUF_DB and MSUF_DB.general or nil
+    return not (g and g.disableMSAEssentialBridge == true)
+end
+
+function _G.MSUF_GetEffectiveCooldownFrame(frameName)
+    if frameName == "EssentialCooldownViewer" and _DPB.UseMSAEssentialBridge() then
+        local getter = _G and _G.MSWA_GetEssentialBridgeFrame
+        if type(getter) == "function" then
+            local bridge = getter()
+            if bridge and bridge ~= UIParent and bridge ~= WorldFrame and (not bridge.IsForbidden or not bridge:IsForbidden()) then
+                return bridge
+            end
+        end
+    end
+    return frameName and _G[frameName] or nil
+end
 function _DPB.ResolveFg()
     local b = MSUF_DB and MSUF_DB.bars or {}
     local key = b.detachedPowerBarTexture
@@ -1983,6 +2047,9 @@ end
     if not forceShow and frame.isBoss and MSUF_BossTestMode then
         forceShow = true
     end
+    if not forceShow and not frame.isBoss and not frame._msufIsPlayer and _G.MSUF_PreviewTestMode then
+        forceShow = true
+    end
     if frame._msufVisibilityForced == (forceShow and true or false) then
          return
     end
@@ -2222,6 +2289,16 @@ local function MSUF_UpdateNameColor(frame)
     local nameClassColor = (cache and cache.nameClassColor) or (g and g.nameClassColor)
     local npcNameRed = (cache and cache.npcNameRed) or (g and g.npcNameRed)
 
+    -- Per-unit font override: read from unit config if fontOverride active
+    do
+        local ck = frame.msufConfigKey
+        local fc = ck and MSUF_DB and MSUF_DB[ck]
+        if fc and fc.fontOverride then
+            if fc.nameClassColor ~= nil then nameClassColor = fc.nameClassColor end
+            if fc.npcNameRed ~= nil then npcNameRed = fc.npcNameRed end
+        end
+    end
+
     local r, gCol, b
     if nameClassColor and frame.unit and F.UnitIsPlayer(frame.unit) then
         local _, classToken = F.UnitClass(frame.unit)
@@ -2292,7 +2369,17 @@ local function _Iter_RefreshPowerColor(f)
             f.powerTextPct._msufColorRev = nil
         end
 
-        if S.colorByType then
+        -- Per-unit font override: resolve colorByType per frame
+        local frameColorByType = S.colorByType
+        do
+            local ck = f.msufConfigKey
+            local fc = ck and MSUF_DB and MSUF_DB[ck]
+            if fc and fc.fontOverride and fc.colorPowerTextByType ~= nil then
+                frameColorByType = fc.colorPowerTextByType and true or false
+            end
+        end
+
+        if frameColorByType then
             if S.updatePowerFast then
                 S.updatePowerFast(f)
             end
@@ -2329,7 +2416,7 @@ local function MSUF_ResolveConfiguredAnchorFrame(key, conf, fallbackAnchor)
 
     local customName = conf.anchorFrameName
     if type(customName) == "string" and customName ~= "" then
-        local custom = _G and _G[customName]
+        local custom = (type(_G.MSUF_GetEffectiveCooldownFrame) == "function" and customName == "EssentialCooldownViewer") and _G.MSUF_GetEffectiveCooldownFrame(customName) or (_G and _G[customName])
         if custom and custom ~= UIParent and custom ~= WorldFrame and (not custom.IsForbidden or not custom:IsForbidden()) then
             return custom
         end
@@ -2368,7 +2455,7 @@ local function PositionUnitFrame(f, unit)
     end
     if not conf then  return end
     local anchor = MSUF_ResolveConfiguredAnchorFrame(key, conf, MSUF_GetAnchorFrame())
-    local ecv = _G["EssentialCooldownViewer"]
+    local ecv = (type(_G.MSUF_GetEffectiveCooldownFrame) == "function" and _G.MSUF_GetEffectiveCooldownFrame("EssentialCooldownViewer")) or _G["EssentialCooldownViewer"]
     local _g = MSUF_DB and MSUF_DB.general
     if _g and _g.anchorToCooldown and ecv and anchor == ecv then
         local rule = MSUF_ECV_ANCHORS[key]
@@ -2415,6 +2502,44 @@ local function MSUF_ForceReanchorAllUnitFrames_Once()
     end
 end
 _G.MSUF_ForceReanchorAllUnitFrames_Once = MSUF_ForceReanchorAllUnitFrames_Once
+
+_G.MSUF_CDMBridgeDirty = false
+_G.MSUF_CDMBridgeFlushScheduled = false
+
+function _G.MSUF_FlushCDMBridgeRefresh()
+    _G.MSUF_CDMBridgeFlushScheduled = false
+    if not _G.MSUF_CDMBridgeDirty then return end
+    if InCombatLockdown and InCombatLockdown() then return end
+    _G.MSUF_CDMBridgeDirty = false
+    if type(_G.MSUF_ClassPower_Refresh) == "function" then
+        _G.MSUF_ClassPower_Refresh()
+    end
+    if type(_G.MSUF_ApplyPowerBarEmbedLayout_All) == "function" then
+        _G.MSUF_ApplyPowerBarEmbedLayout_All()
+    end
+    MSUF_ForceReanchorAllUnitFrames_Once()
+end
+
+function _G.MSUF_OnCDMExtensionChanged()
+    _G.MSUF_CDMBridgeDirty = true
+    if _G.MSUF_CDMBridgeFlushScheduled then return end
+    _G.MSUF_CDMBridgeFlushScheduled = true
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, _G.MSUF_FlushCDMBridgeRefresh)
+    else
+        _G.MSUF_FlushCDMBridgeRefresh()
+    end
+end
+
+if not _G.MSUF_CDMBridgeRegenFrame then
+    _G.MSUF_CDMBridgeRegenFrame = CreateFrame("Frame")
+    _G.MSUF_CDMBridgeRegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    _G.MSUF_CDMBridgeRegenFrame:SetScript("OnEvent", function()
+        if _G.MSUF_CDMBridgeDirty then
+            _G.MSUF_FlushCDMBridgeRefresh()
+        end
+    end)
+end
 
 local _MSUF_MeasureCache = {}
 local _MSUF_MeasureFS
@@ -2714,6 +2839,15 @@ function _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
     local function ApplyForFrame(f)
         if not f then  return end
         f._msufTextLayoutStamp = nil
+        f._msufTextSpec = nil
+        f._msufLastH = nil
+        f._msufLastPctS = nil
+        f._msufLastPwrC = nil
+        f._msufLastPwrM = nil
+        f._msufLastPwrP = nil
+        f._msufRawPwrC = nil
+        f._msufRawPwrM = nil
+        f._msufRawPwrP = nil
         ns.Cache.ClearStamp(f, "TextLayout")
         local key = f.msufConfigKey
         if not key and f.unit then
@@ -2811,7 +2945,12 @@ function MSUF_ClampNameWidth(f, conf)
         f.nameText:SetNonSpaceWrap(false)
     end
     local shorten = (MSUF_DB and MSUF_DB.shortenNames) and true or false
-    local unitKey = f and (f.unitKey or f.unit or f.msufConfigKey)
+    local unitKey = f and (f.msufConfigKey or f._msufConfigKey or f.unitKey or f.unit)
+    -- Per-unit font override: allow per-unit shorten toggle
+    local _fontConf = unitKey and MSUF_DB and MSUF_DB[unitKey]
+    if _fontConf and _fontConf.fontOverride and _fontConf.shortenNames ~= nil then
+        shorten = _fontConf.shortenNames and true or false
+    end
     if unitKey == "player" or unitKey == "Player" or unitKey == "PLAYER" then
         shorten = false
     end
@@ -2884,7 +3023,9 @@ function MSUF_ClampNameWidth(f, conf)
     if nameWidth < 40 then nameWidth = 40 end
     local maxChars = 16
     local g = MSUF_DB and MSUF_DB.general
-    if g and type(g.shortenNameMaxChars) == "number" then
+    if _fontConf and _fontConf.fontOverride and type(_fontConf.shortenNameMaxChars) == "number" then
+        maxChars = _fontConf.shortenNameMaxChars
+    elseif g and type(g.shortenNameMaxChars) == "number" then
         maxChars = g.shortenNameMaxChars
     end
     if maxChars < 4 then maxChars = 4 end
@@ -2900,7 +3041,12 @@ function MSUF_ClampNameWidth(f, conf)
     end
     end
     -- Name shortening mode (secret-safe).
-    local mode = (g and g.shortenNameClipSide) or "LEFT"
+    local mode
+    if _fontConf and _fontConf.fontOverride and _fontConf.shortenNameClipSide ~= nil then
+        mode = _fontConf.shortenNameClipSide
+    else
+        mode = (g and g.shortenNameClipSide) or "LEFT"
+    end
     if mode ~= "LEFT" and mode ~= "RIGHT" then
         mode = "LEFT"
     end
@@ -2908,7 +3054,9 @@ function MSUF_ClampNameWidth(f, conf)
     local clipSide = "LEFT"
     local maskPx = 0
     if not legacyEndClip then
-        if g and g.shortenNameFrontMaskPx ~= nil then
+        if _fontConf and _fontConf.fontOverride and _fontConf.shortenNameFrontMaskPx ~= nil then
+            maskPx = tonumber(_fontConf.shortenNameFrontMaskPx) or 0
+        elseif g and g.shortenNameFrontMaskPx ~= nil then
             maskPx = tonumber(g.shortenNameFrontMaskPx) or 0
     end
         maskPx = math.floor(maskPx + 0.5)
@@ -2916,7 +3064,9 @@ function MSUF_ClampNameWidth(f, conf)
         if maskPx > 80 then maskPx = 80 end
     end
     local showDots = true
-    if g and g.shortenNameShowDots ~= nil then
+    if _fontConf and _fontConf.fontOverride and _fontConf.shortenNameShowDots ~= nil then
+        showDots = (_fontConf.shortenNameShowDots and true or false)
+    elseif g and g.shortenNameShowDots ~= nil then
         showDots = (g.shortenNameShowDots and true or false)
     end
     if legacyEndClip then
@@ -3119,14 +3269,11 @@ function MSUF_ClampNameWidth(f, conf)
 local function MSUF_GetUnitLevelText(unit)
     if not unit or not UnitLevel then  return "" end
     local lvl = UnitLevel(unit)
-    if not lvl then  return "" end
-    if lvl == -1 then
-         return "??"
-    end
-    if lvl <= 0 then
-         return ""
-    end
-    return tostring(lvl)
+    local n = tonumber(lvl)
+    if not n then return "" end
+    if n == -1 then return "??" end
+    if n <= 0 then return "" end
+    return tostring(n)
 end
 -- Export for legacy paths (some earlier helpers reference this as a global).
 -- Keeping this avoids blank/missing level text when a legacy full update runs.
@@ -3145,6 +3292,13 @@ end
 -- PERF: Cache abbreviation function at file scope (called 70-350x/sec).
 local _MSUF_AbbrNumFn = _G.ShortenNumber or _G.AbbreviateNumbers or _G.AbbreviateLargeNumbers
 local function MSUF_NumberToTextFast(v)
+    if v == nil then return nil end
+    local isv = _MSUF_issecretvalue
+    if isv and isv(v) then
+        local abbr = _MSUF_AbbrNumFn
+        if abbr then return abbr(v) end
+        return nil
+    end
     if type(v) ~= "number" then
          return nil
     end
@@ -3873,6 +4027,11 @@ end
                 self.targetPowerBar:Show()
             end
     end
+        -- Boss preview: invalidate diff-gates so font/shortening changes render immediately
+        self._msufClampStamp = nil
+        self._msufNameClipAnchorStamp = nil
+        self._msufNameClipTextStamp = nil
+        if self.nameText then self.nameText._msufLastSetT = nil end
         ns.Text.ApplyBossTestName(self, unit)
         ns.Text.ApplyBossTestLevel(self, conf)
         if self.hpText then
@@ -3899,6 +4058,135 @@ if self.powerText then
     end
          return
     end
+-- ── Preview Test Mode (non-boss, non-player, no unit) ──────────────────
+-- Mirrors BossTestMode block above. Full control over bars/text/visibility.
+if not self.isBoss and not self._msufIsPlayer and _G.MSUF_PreviewTestMode and not exists then
+    if not _msuf_inCombat then
+        self:Show()
+        _UF.Alpha(self, key)
+    end
+    if self.bg then
+        MSUF_ApplyBarBackgroundVisual(self)
+    end
+    -- HP bar: visible placeholder (class-colored or green, not black)
+    local hb = self.hpBar
+    if hb then
+        MSUF_SetBarMinMax(hb, 0, 1)
+        MSUF_SetBarValue(hb, 0.73, false)
+        if hb.SetStatusBarColor then hb:SetStatusBarColor(0.20, 0.80, 0.20, 1) end
+        if self.hpGradients then ns.Bars._ApplyHPGradient(self)
+        elseif self.hpGradient then ns.Bars._ApplyHPGradient(self.hpGradient) end
+    end
+    -- Power bar
+    local pb = self.targetPowerBar or self.powerBar
+    if pb then
+        local showPB = (conf and conf.showPower ~= false)
+        if showPB then
+            pb:SetMinMaxValues(0, 100)
+            MSUF_SetBarValue(pb, 52, false)
+            pb.MSUF_lastValue = 52
+            if pb.SetStatusBarColor then pb:SetStatusBarColor(0.20, 0.60, 1.00, 1) end
+            ns.Bars.ApplyPowerGradientOnce(self)
+            pb:Show()
+            if pb.bg and pb.bg.Show then pb.bg:Show() end
+        else
+            pb:Hide()
+        end
+    end
+    -- Ensure only one power bar visible (targetPowerBar vs powerBar)
+    if self.targetPowerBar and self.powerBar and self.powerBar ~= self.targetPowerBar then
+        if pb == self.targetPowerBar then
+            self.powerBar:Hide()
+        else
+            self.targetPowerBar:Hide()
+        end
+    end
+    -- Power bar border/separator line (reads config live)
+    if pb and type(_G.MSUF_ApplyPowerBarBorder) == "function" then
+        _G.MSUF_ApplyPowerBarBorder(pb)
+    end
+    -- Invalidate diff-gates (same as boss path)
+    self._msufClampStamp = nil
+    self._msufNameClipAnchorStamp = nil
+    self._msufNameClipTextStamp = nil
+    if self.nameText then self.nameText._msufLastSetT = nil end
+    -- Name text (respects showName toggle)
+    if self.nameText then
+        local showN = (self.showName ~= false)
+        if showN then
+            local label = self.msufConfigKey or unit or "unit"
+            if label == "targettarget" then label = "ToT" end
+            MSUF_SetTextIfChanged(self.nameText, string.upper(label))
+        else
+            MSUF_SetTextIfChanged(self.nameText, "")
+        end
+        ns.Util.SetShown(self.nameText, showN)
+    end
+    MSUF_UpdateNameColor(self)
+    -- Level text (showLevelIndicator is the actual config key)
+    if self.levelText then
+        local showLvl = (conf and conf.showLevelIndicator ~= false)
+        if showLvl then
+            MSUF_SetTextIfChanged(self.levelText, "70")
+        else
+            MSUF_SetTextIfChanged(self.levelText, "")
+        end
+        ns.Util.SetShown(self.levelText, showLvl)
+        if MSUF_ClampNameWidth then MSUF_ClampNameWidth(self, conf) end
+    end
+    -- HP text (respects showHP toggle)
+    if self.hpText then
+        local showHP = (self.showHPText ~= false)
+        if showHP then
+            MSUF_SetTextIfChanged(self.hpText, "73% 123.4k")
+        else
+            MSUF_SetTextIfChanged(self.hpText, "")
+            ns.Text.ClearField(self, "hpTextPct")
+        end
+        ns.Util.SetShown(self.hpText, showHP)
+    end
+    -- Power text (respects showPower toggle)
+    if self.powerText then
+        local showPwr = (self.showPowerText ~= false)
+        if showPwr then
+            MSUF_SetTextIfChanged(self.powerText, "52% 65")
+        else
+            MSUF_SetTextIfChanged(self.powerText, "")
+        end
+        ns.Util.SetShown(self.powerText, showPwr)
+    end
+    -- Leader icon (fake leader for preview)
+    if self.leaderIcon then
+        local showLeader = ns.Util.Enabled(conf, g, "showLeaderIcon", true)
+        -- Invalidate layout stamp so position/size re-applies from config
+        ns.Cache.ClearStamp(self, "LeaderIconLayout")
+        if _UF.LeaderIcon then _UF.LeaderIcon(self) end
+        -- Set texture + visibility AFTER layout (layout only does position/size)
+        if showLeader then
+            self.leaderIcon:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
+            self.leaderIcon:Show()
+        else
+            self.leaderIcon:Hide()
+        end
+    end
+    -- Raid marker icon (fake star marker for preview)
+    if self.raidMarkerIcon then
+        local showMarker = ns.Util.Enabled(conf, g, "showRaidMarker", true)
+        ns.Cache.ClearStamp(self, "RaidMarkerLayout")
+        if _UF.RaidMarker then _UF.RaidMarker(self) end
+        if showMarker then
+            if SetRaidTargetIconTexture then SetRaidTargetIconTexture(self.raidMarkerIcon, 1) end
+            self.raidMarkerIcon:Show()
+        else
+            self.raidMarkerIcon:Hide()
+        end
+    end
+    -- Status indicators (combat, rest, rez icons — live-apply config changes)
+    if type(MSUF_UpdateStatusIndicatorForFrame) == "function" then
+        MSUF_UpdateStatusIndicatorForFrame(self)
+    end
+    return
+end
 if self.isBoss then
     if not exists then
         if self._msufNoUnitCleared and (self.GetAlpha and self:GetAlpha() or 0) <= 0.01 then
@@ -4425,13 +4713,14 @@ end
 -- 3. 3-stamp-layer collapsed to 2 (global + per-key)
 
 -- Module-local font state (populated once per UpdateAllFonts call, read by hoisted helpers)
+local _MSUF_FONT_FLAGS_CODE = { [""] = 0, OUTLINE = 1, THICKOUTLINE = 2 }
 local _fontState = {}
 
 local function _MSUF_ApplyFontCached(fs, size, setColor, cr, cg, cb)
     if not fs then return end
     local S = _fontState
     -- Content-based: only call SetFont when path/flags (serial) or size actually changed
-    local rev = S.pathSerial + size * 1000003
+    local rev = S.pathSerial * 10 + (_MSUF_FONT_FLAGS_CODE[S.flags] or 1) + size * 10000030
     if fs._msufFontRev ~= rev then
         fs:SetFont(S.path, size, S.flags)
         fs._msufFontRev = rev
@@ -4470,6 +4759,27 @@ local function _MSUF_ApplyFontsToFrame(f)
     local nameSize  = (conf and conf.nameFontSize)  or S.globalNameSize
     local hpSize    = (conf and conf.hpFontSize)    or S.globalHPSize
     local powerSize = (conf and conf.powerFontSize) or S.globalPowSize
+
+    -- Per-unit font override: temporarily swap shared state for this frame
+    local _origFlags, _origShadow, _origCPT
+    if conf and conf.fontOverride then
+        local cNoOL = conf.noOutline
+        local cBold = conf.boldText
+        if cNoOL ~= nil or cBold ~= nil then
+            _origFlags = S.flags
+            if cNoOL then S.flags = ""
+            elseif cBold then S.flags = "THICKOUTLINE"
+            else S.flags = "OUTLINE" end
+        end
+        if conf.textBackdrop ~= nil then
+            _origShadow = S.useShadow
+            S.useShadow = conf.textBackdrop and true or false
+        end
+        if conf.colorPowerTextByType ~= nil then
+            _origCPT = S.colorPowerByType
+            S.colorPowerByType = conf.colorPowerTextByType and true or false
+        end
+    end
 
     if f.nameText then
         _MSUF_ApplyFontCached(f.nameText, nameSize, false, 0, 0, 0)
@@ -4511,6 +4821,11 @@ local function _MSUF_ApplyFontsToFrame(f)
     if f.powerText then
         _MSUF_ApplyFontCached(f.powerText, powerSize, pwSetColor, pCr, pCg, pCb)
     end
+
+    -- Restore shared state after per-unit override
+    if _origFlags then S.flags = _origFlags end
+    if _origShadow ~= nil then S.useShadow = _origShadow end
+    if _origCPT ~= nil then S.colorPowerByType = _origCPT end
 end
 
 local function UpdateAllFonts(onlyKey)
@@ -4573,6 +4888,17 @@ local function UpdateAllFonts(onlyKey)
     end
     if ns and ns.MSUF_ToTInline_RequestRefresh then
         ns.MSUF_ToTInline_RequestRefresh("FONTS")
+    end
+
+    -- Boss preview: synchronous full re-render so font/shortening changes are instant
+    if MSUF_BossTestMode and MSUF_UnitEditModeActive and (not _msuf_inCombat) then
+        local max = _G.MSUF_MAX_BOSS_FRAMES or 5
+        for i = 1, max do
+            local bf = UnitFrames["boss" .. i]
+            if bf and bf.isBoss then
+                UpdateSimpleUnitFrame(bf)
+            end
+        end
     end
 end
 MSUF_Export2("MSUF_UpdateAllFonts", UpdateAllFonts, "UpdateAllFonts")
@@ -4813,7 +5139,7 @@ local function MSUF_EnableUnitFrameDrag(f, unit)
         if not anchor or not anchor.GetCenter or not self.GetCenter then  return end
         local _g = MSUF_DB and MSUF_DB.general
         if _g and _g.anchorToCooldown then
-            local ecv = _G and _G["EssentialCooldownViewer"]
+            local ecv = (type(_G.MSUF_GetEffectiveCooldownFrame) == "function" and _G.MSUF_GetEffectiveCooldownFrame("EssentialCooldownViewer")) or (_G and _G["EssentialCooldownViewer"])
             if ecv and anchor == ecv then
                 local rule = MSUF_ECV_ANCHORS and MSUF_ECV_ANCHORS[key]
                 if rule then
@@ -5042,7 +5368,7 @@ local function MSUF_ApplyPowerBarEmbedLayout(f)
             local dpbWMode = b.detachedPowerBarWidthMode
             local cdmName = dpbWMode and _DPB.CDM[dpbWMode]
             if cdmName then
-                local cdm = _G[cdmName]
+                local cdm = (type(_G.MSUF_GetEffectiveCooldownFrame) == "function" and _G.MSUF_GetEffectiveCooldownFrame(cdmName)) or _G[cdmName]
                 -- Scale-compensated width (Sensei pattern): convert CDM coords → our bar coords
                 if cdm and cdm.IsShown and cdm:IsShown() then
                     local scaledW = _G.MSUF_CDM_GetScaledWidth and _G.MSUF_CDM_GetScaledWidth(cdm, pb)
@@ -5580,8 +5906,16 @@ local function MSUF_EnsureTargetToTInlineFS(targetFrame)
         if font then
             sep:SetFont(font, size, flags)
             txt:SetFont(font, size, flags)
+            local sr, sg, sb, sa = nameFS:GetShadowColor()
+            local sox, soy = nameFS:GetShadowOffset()
+            sep:SetShadowColor(sr or 0, sg or 0, sb or 0, sa or 0)
+            sep:SetShadowOffset(sox or 0, soy or 0)
+            txt:SetShadowColor(sr or 0, sg or 0, sb or 0, sa or 0)
+            txt:SetShadowOffset(sox or 0, soy or 0)
             sep._msufFontRev = nil
             txt._msufFontRev = nil
+            sep._msufShadowOn = nil
+            txt._msufShadowOn = nil
         end
     end
     targetFrame._msufToTInlineSep = sep
