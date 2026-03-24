@@ -100,6 +100,9 @@ local inPvPPrepPhase = false
 -- Difficulty cache (invalidated alongside content type)
 local cachedDifficultyKey = nil
 
+-- Legacy loot cache (populated alongside content type, invalidated together)
+local cachedIsLegacyInstance = nil
+
 local DUNGEON_DIFFICULTY_KEYS = {
     [1] = "normal", -- Normal
     [2] = "heroic", -- Heroic
@@ -139,8 +142,9 @@ local cachedSpecId = nil
 -- Player role cache (invalidated on PLAYER_SPECIALIZATION_CHANGED)
 local cachedPlayerRole = nil
 
--- Off-hand weapon cache (invalidated on equipment/spec change)
-local cachedHasOffHandWeapon = nil
+-- Off-hand slot type cache (invalidated on equipment/spec change)
+-- Populated together from a single GetInventoryItemID + GetItemInfoInstant call
+local cachedOffHandType = nil -- nil = not yet checked, "weapon" | "shield" | "none"
 
 -- Item ownership cache (invalidated on BAG_UPDATE_DELAYED, PLAYER_EQUIPMENT_CHANGED)
 ---@type table<number, boolean>
@@ -540,6 +544,7 @@ local function GetCurrentContentType()
         end
     end
 
+    cachedIsLegacyInstance = C_Loot.IsLegacyLootModeEnabled()
     return cachedContentType
 end
 
@@ -1157,6 +1162,10 @@ local function ShouldShowConsumableBuff(buff)
         for _, id in ipairs(spellList) do
             local hasBuff, remaining = UnitHasBuff("player", id)
             if hasBuff then
+                local CM = BR.ConsumableMemory
+                if CM and buff.consumableCategory and not CM.IsFleetingSpell(id) then
+                    CM.Remember(GetPlayerSpecId(), buff.consumableCategory, id, true)
+                end
                 return false, remaining -- Has at least one of the consumable buffs
             end
         end
@@ -1381,9 +1390,6 @@ function BuffState.Refresh()
     -- Cache Display.IsSpellGlowing once per refresh cycle (State.lua loads before Display)
     cachedIsSpellGlowing = BR.Display and BR.Display.IsSpellGlowing
 
-    -- Invalidate off-hand weapon cache each refresh cycle (cheap lazy re-check)
-    cachedHasOffHandWeapon = nil
-
     -- Reset all entries to not visible
     for _, entry in pairs(BuffState.entries) do
         entry.visible = false
@@ -1412,6 +1418,7 @@ function BuffState.Refresh()
     currentWeaponEnchants.offHandExpiration = offExp
 
     local trackingMode = db.buffTrackingMode
+    local missingCountOnly = db.showMissingCountOnly
     -- Aura API is restricted in combat/encounters (inCombat set by Display layer),
     -- during M+ keystones, and in PvP instances (except during prep phase before gates open).
     -- Ensure content type cache is populated before checking (avoids one-frame flicker after invalidation).
@@ -1435,7 +1442,8 @@ function BuffState.Refresh()
                 entry.visible = true
                 entry.displayType = "count"
                 local buffed = total - missing
-                entry.countText = scope.playerOnly and "" or (buffed .. "/" .. total)
+                entry.countText = scope.playerOnly and ""
+                    or (missingCountOnly and tostring(missing) or (buffed .. "/" .. total))
                 entry.shouldGlow = raidGlow
                 if minRemaining and minRemaining < raidThreshold then
                     entry.expiringTime = minRemaining
@@ -1896,6 +1904,15 @@ function BuffState.GetInVehicle()
     return inVehicle
 end
 
+---Check if the current instance is legacy content (cached alongside content type)
+---@return boolean
+function BuffState.IsLegacyInstance()
+    if cachedIsLegacyInstance == nil then
+        GetCurrentContentType() -- populates cachedIsLegacyInstance
+    end
+    return cachedIsLegacyInstance or false
+end
+
 ---Set the combat/encounter state (single source of truth for aura restrictions)
 ---Called by the Display layer on ENCOUNTER_START, PLAYER_REGEN_DISABLED, etc.
 ---@param state boolean
@@ -1918,6 +1935,7 @@ function BuffState.InvalidateContentTypeCache()
     cachedContentType = nil
     cachedInstanceType = nil
     cachedDifficultyKey = nil
+    cachedIsLegacyInstance = nil
     -- Note: inPvPPrepPhase is NOT reset here — it's managed explicitly by
     -- SetPvPPrepPhase() calls from PLAYER_ENTERING_WORLD and PVP_MATCH_STATE_CHANGED.
     -- Resetting it here would clobber the prep state when ZONE_CHANGED_NEW_AREA's
@@ -1941,24 +1959,47 @@ function BuffState.InvalidateSpellCache()
     cachedPlayerRole = nil
 end
 
+local function ResolveOffHandType()
+    if cachedOffHandType == nil then
+        local offhandItemID = GetInventoryItemID("player", 17) -- INVSLOT_OFFHAND
+        if not offhandItemID then
+            cachedOffHandType = "none"
+        else
+            local _, _, _, _, _, itemClassID, itemSubClassID = GetItemInfoInstant(offhandItemID)
+            if itemClassID == 2 then -- Enum.ItemClass.Weapon
+                cachedOffHandType = "weapon"
+            elseif itemClassID == 4 and itemSubClassID == 6 then -- Armor + Shield
+                cachedOffHandType = "shield"
+            else
+                cachedOffHandType = "none"
+            end
+        end
+    end
+end
+
 ---Check if off-hand slot has a weapon (cached)
 ---@return boolean
 function BuffState.HasOffHandWeapon()
-    if cachedHasOffHandWeapon == nil then
-        local offhandItemID = GetInventoryItemID("player", 17) -- INVSLOT_OFFHAND
-        if not offhandItemID then
-            cachedHasOffHandWeapon = false
-        else
-            local _, _, _, _, _, itemClassID = GetItemInfoInstant(offhandItemID)
-            cachedHasOffHandWeapon = itemClassID == 2 -- Enum.ItemClass.Weapon
-        end
-    end
-    return cachedHasOffHandWeapon
+    ResolveOffHandType()
+    return cachedOffHandType == "weapon"
 end
 
----Invalidate off-hand weapon cache (call on PLAYER_EQUIPMENT_CHANGED, PLAYER_SPECIALIZATION_CHANGED)
+---Check if off-hand slot has a shield (cached)
+---@return boolean
+function BuffState.HasShield()
+    ResolveOffHandType()
+    return cachedOffHandType == "shield"
+end
+
+---Get the cached off-hand enchant ID from the current refresh cycle
+---@return number|nil
+function BuffState.GetOffHandEnchantID()
+    return currentWeaponEnchants.offHandID
+end
+
+---Invalidate off-hand weapon/shield cache (call on PLAYER_EQUIPMENT_CHANGED, PLAYER_SPECIALIZATION_CHANGED)
 function BuffState.InvalidateOffHandCache()
-    cachedHasOffHandWeapon = nil
+    cachedOffHandType = nil
 end
 
 ---Invalidate item ownership cache (call on BAG_UPDATE_DELAYED, PLAYER_EQUIPMENT_CHANGED)
@@ -1970,6 +2011,7 @@ end
 BR.StateHelpers = {
     GetPlayerSpecId = GetPlayerSpecId,
     FormatRemainingTime = FormatRemainingTime,
+    IsPlayerEating = IsPlayerEating, -- used by ConsumableMemory at runtime
     UpdateEatingState = UpdateEatingState,
     ScanEatingState = ScanEatingState,
     GetEatingExpirationTime = GetEatingExpirationTime,
