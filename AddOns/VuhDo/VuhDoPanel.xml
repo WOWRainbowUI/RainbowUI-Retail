@@ -92,43 +92,46 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="VuhDoAuraAnchorIconTemplate" virtual="true">
+	<Frame name="VuhDoAuraIconContentTemplate" virtual="true" enableMouse="false" inherits="BackdropTemplate">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentI" setAllPoints="true"></Texture>
+			</Layer>
+		</Layers>
 		<Frames>
-			<Frame name="$parentB" enableMouse="false" inherits="BackdropTemplate">
+			<Cooldown name="$parentCd" inherits="CooldownFrameTemplate">
+			</Cooldown>
+			<Frame name="$parentChgFr" setAllPoints="true">
 				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture name="$parentI"></Texture>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTex" hidden="true" setAllPoints="true"></Texture>
 					</Layer>
 				</Layers>
-				<Frames>
-					<Cooldown name="$parentCd" inherits="CooldownFrameTemplate">
-					</Cooldown>
-					<Frame name="$parentChgFr" setAllPoints="true">
-						<Layers>
-							<Layer level="ARTWORK">
-								<Texture name="$parentTex" hidden="true" setAllPoints="true"></Texture>
-							</Layer>
-						</Layers>
-						<Scripts>
-							<OnLoad>
-								self.addLevel = 1;
-							</OnLoad>
-						</Scripts>
-					</Frame>
-					<Frame name="$parentTxtOv" setAllPoints="true">
-						<Layers>
-							<Layer level="OVERLAY">
-								<FontString name="$parentT" inherits="NumberFontNormalSmall"></FontString>
-								<FontString name="$parentC" inherits="NumberFontNormalSmall"></FontString>
-							</Layer>
-						</Layers>
-						<Scripts>
-							<OnLoad>
-								self.addLevel = 2;
-							</OnLoad>
-						</Scripts>
-					</Frame>
-				</Frames>
+				<Scripts>
+					<OnLoad>
+						self.addLevel = 1;
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			<Frame name="$parentTxtOv" setAllPoints="true">
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString name="$parentT" inherits="NumberFontNormalSmall"></FontString>
+						<FontString name="$parentC" inherits="NumberFontNormalSmall"></FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						self.addLevel = 2;
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		</Frames>
+	</Frame>
+
+	<Frame name="VuhDoAuraAnchorIconTemplate" virtual="true">
+		<Frames>
+			<Frame name="$parentB" inherits="VuhDoAuraIconContentTemplate">
 			</Frame>
 		</Frames>
 		<Scripts>
@@ -139,27 +142,9 @@
 	</Frame>
 
 	<Frame name="VuhDoAuraAnchorBarTemplate" virtual="true">
-		<Layers>
-			<Layer level="OVERLAY">
-				<Texture name="$parentIcTex"></Texture>
-				<FontString name="$parentT" inherits="NumberFontNormalSmall"></FontString>
-				<FontString name="$parentC" inherits="NumberFontNormalSmall"></FontString>
-			</Layer>
-		</Layers>
 		<Frames>
-
-			<Cooldown name="$parentCd" inherits="CooldownFrameTemplate">
-				<Scripts>
-					<OnLoad>
-						self:SetHideCountdownNumbers(true);
-						self:SetReverse(true);
-						self:SetDrawSwipe(true);
-						self:SetDrawEdge(true);
-						self:SetDrawBling(false);
-					</OnLoad>
-				</Scripts>
-			</Cooldown>
-
+			<Frame name="$parentIcFr" inherits="VuhDoAuraIconContentTemplate">
+			</Frame>
 			<StatusBar name="$parentAuBar" inherits="VuhDoStatusBar" enableMouse="false">
 				<Scripts>
 					<OnLoad>
@@ -168,20 +153,6 @@
 					</OnLoad>
 				</Scripts>
 			</StatusBar>
-
-			<Frame name="$parentChgFr">
-				<Layers>
-					<Layer level="ARTWORK">
-						<Texture name="$parentTex" hidden="true"></Texture>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnLoad>
-						self.addLevel = 1;
-					</OnLoad>
-				</Scripts>
-			</Frame>
-
 		</Frames>
 		<Scripts>
 			<OnLoad>

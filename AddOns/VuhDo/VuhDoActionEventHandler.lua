@@ -377,6 +377,10 @@ function VuhDoActionOnLeave(aButton)
 		return;
 	end
 
+	if tFocus and VUHDO_findButtonFromChild(tFocus) == aButton then
+		return;
+	end
+
 	VUHDO_hideTooltip();
 
 	VuhDoDirectionFrame["shown"] = false;

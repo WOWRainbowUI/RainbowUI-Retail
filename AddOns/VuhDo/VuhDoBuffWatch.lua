@@ -56,6 +56,7 @@ BACKDROP_VUHDO_BUFF_WATCH_MAIN_FRAME_16_16_5555 = {
 
 local VUHDO_RAID;
 local VUHDO_RAID_NAMES;
+local VUHDO_BOSS_UNITS;
 
 local VUHDO_tableUniqueAdd;
 local VUHDO_isInSameZone;
@@ -114,8 +115,10 @@ local sGermanOrEnglish = GetLocale() == "deDE" or GetLocale() == "enGB" or GetLo
 
 -----------------------------------------------------------------------------
 function VUHDO_buffWatchInitLocalOverrides()
+
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_RAID_NAMES = _G["VUHDO_RAID_NAMES"];
+	VUHDO_BOSS_UNITS = _G["VUHDO_BOSS_UNITS"];
 
 	VUHDO_tableUniqueAdd = _G["VUHDO_tableUniqueAdd"];
 	VUHDO_isInSameZone = _G["VUHDO_isInSameZone"];
@@ -126,6 +129,9 @@ function VUHDO_buffWatchInitLocalOverrides()
 	sConfig = VUHDO_BUFF_SETTINGS["CONFIG"];
 	sRebuffSecs = sConfig["REBUFF_MIN_MINUTES"] * 60;
 	sRebuffPerc = sConfig["REBUFF_AT_PERCENT"] * 0.01;
+
+	return;
+
 end
 
 ----------------------------------------------------
@@ -519,6 +525,7 @@ local tNow;
 local tInRange;
 local tCount;
 local tMaxCount;
+local tSecretCount;
 local tIsWatchUnit;
 local tInfo;
 local tCategName;
@@ -527,22 +534,29 @@ local tIsNotInBattleground;
 local tBuffGroup;
 local tSpellInRange;
 local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec)
+
 	tCategName = aCategSpec;
+
 	twipe(tMissGroup);
 	twipe(tLowGroup);
 	twipe(tOkayGroup);
 	twipe(tOorGroup);
+
 	tGoodTarget = nil;
 	tLowestRest = nil;
 	tLowestUnit = nil;
+
 	tNow = GetTime();
+
 	tMaxCount = 0;
+	tSecretCount = nil;
 
 	if UnitOnTaxi("player") and VUHDO_BUFF_TARGET_SELF ~= aBuffInfo[2] then
 		return tMissGroup, tLowGroup, tGoodTarget, tLowestRest, tLowestUnit, tOkayGroup, tOorGroup, tMaxCount;
 	end
 
 	tIsNotInBattleground = not VUHDO_isInBattleground();
+
 	for _, tUnit in pairs(someUnits) do
 		tInfo = VUHDO_RAID[tUnit];
 
@@ -569,21 +583,34 @@ local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec)
 			if not tTexture then
 				for tCnt = 3, 10 do
 					tBuffGroup = aBuffInfo[tCnt];
-					if not tBuffGroup then break; end
+
+					if not tBuffGroup then
+						break;
+					end
 
 					for _, tSameGroupBuff in pairs(tBuffGroup) do
 						_, tTexture, tCount, _, tStart, tRest, _, _ = VUHDO_unitBuff(tUnit, tSameGroupBuff);
-						if tTexture then break; end
+
+						if tTexture then
+							break;
+						end
 					end
 
-					if not tTexture then break; end -- Kein Buff in einer der Gruppen? => Raus, nachbuffen
+					 -- Kein Buff in einer der Gruppen? => Raus, nachbuffen
+					if not tTexture then
+						break;
+					end
 				end
 			end
 
 			if tTexture then
 				tCount = tCount or 0;
 
-				if tCount > tMaxCount then tMaxCount = tCount; end
+				if sSecretsEnabled and issecretvalue(tCount) then
+					tSecretCount = tCount;
+				elseif not issecretvalue(tCount) and tCount > tMaxCount then
+					tMaxCount = tCount;
+				end
 
 				if sSecretsEnabled and (issecretvalue(tRest) or issecretvalue(tStart)) then
 					tOkayGroup[#tOkayGroup + 1] = tUnit;
@@ -614,26 +641,32 @@ local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec)
 			if tIsAvailable then
 				if not tTexture then
 					tMissGroup[#tMissGroup + 1] = tUnit;
+
 					if not tInRange and tIsAvailable then
 						tOorGroup[#tOorGroup + 1] = tUnit;
 					end
+
 					VUHDO_setUnitMissBuff(tUnit, aCategSpec, aBuffInfo, tCategName);
+
 					if tInRange then
 						tLowestUnit = tUnit;
 						tLowestRest = 0;
 					end
 				end
 
-				if 10 == aBuffInfo[2] then tGoodTarget = "player"; -- VUHDO_BUFF_TARGET_RAID
-				elseif 9 == aBuffInfo[2] then tGoodTarget = "target"; -- VUHDO_BUFF_TARGET_HOSTILE
-				elseif 3 == aBuffInfo[2] or tInRange then tGoodTarget = tUnit; -- VUHDO_BUFF_TARGET_UNIQUE
+				if 10 == aBuffInfo[2] then
+					tGoodTarget = "player"; -- VUHDO_BUFF_TARGET_RAID
+				elseif 9 == aBuffInfo[2] then
+					tGoodTarget = "target"; -- VUHDO_BUFF_TARGET_HOSTILE
+				elseif 3 == aBuffInfo[2] or tInRange then
+					tGoodTarget = tUnit; -- VUHDO_BUFF_TARGET_UNIQUE
 				end
 			end
-
 		end
 	end
 
-	return tMissGroup, tLowGroup, tGoodTarget, tLowestRest, tLowestUnit, tOkayGroup, tOorGroup, tMaxCount;
+	return tMissGroup, tLowGroup, tGoodTarget, tLowestRest, tLowestUnit, tOkayGroup, tOorGroup, tSecretCount or tMaxCount;
+
 end
 
 
@@ -672,14 +705,19 @@ end
 
 --
 function VUHDO_updateBuffRaidGroup()
+
 	twipe(VUHDO_BUFF_RAID);
+
 	for tUnit, tInfo in pairs(VUHDO_RAID) do
-		if "focus" ~= tUnit and "target" ~= tUnit and not tInfo["isPet"] then
+		if "focus" ~= tUnit and "target" ~= tUnit and not tInfo["isPet"] and not VUHDO_BOSS_UNITS[tUnit] then
 			VUHDO_BUFF_RAID[#VUHDO_BUFF_RAID + 1] = tUnit;
 		end
 	end
 
 	VUHDO_updateBuffFilters();
+
+	return;
+
 end
 
 
@@ -816,7 +854,7 @@ local function VUHDO_setBuffSwatchTimer(aSwatchName, aSecsNum, aCount, aDuration
 
 		_G[aSwatchName .. "TimerLabelLabel"]:SetText(tDurationText or "");
 	elseif (aSecsNum or -1) >= 0 then
-		tCountStr = ((aCount or 0) > 0 and not VUHDO_BUFF_SETTINGS["CONFIG"]["HIDE_CHARGES"])
+		tCountStr = ((issecretvalue(aCount) and sSecretsEnabled) or (not issecretvalue(aCount) and (aCount or 0) > 0 and not VUHDO_BUFF_SETTINGS["CONFIG"]["HIDE_CHARGES"]))
 			and format("|cffffffff%dx |r", aCount) or "";
 		_G[aSwatchName .. "TimerLabelLabel"]:SetText(format("%s%d:%02d", tCountStr, aSecsNum / 60, aSecsNum % 60));
 	else
