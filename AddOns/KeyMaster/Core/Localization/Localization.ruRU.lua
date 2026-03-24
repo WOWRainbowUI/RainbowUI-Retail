@@ -64,6 +64,14 @@ L.MAPNAMES[392] = { name = "Гамбит Со'леи", abbr = "ГС" }
 L.MAPNAMES[391] = { name = "Улица Чудес", abbr = "УЧ" }
 L.MAPNAMES[378] = { name = "Чертоги Покаяния", abbr = "ЧП" }
 L.MAPNAMES[542] = { name = "Заповедник Аль'дани", abbr = "ЗА" }
+--MN (Midnight) S1
+L.MAPNAMES[556] = { name = "Яма Сарона", abbr = "ЯС" }
+L.MAPNAMES[161] = { name = "Небесный Путь", abbr = "НП" }
+L.MAPNAMES[239] = { name = "Престол Триумвирата", abbr = "ПТ" }
+L.MAPNAMES[557] = { name = "Шпили Ветрокрылых", abbr = "ШВ" }
+L.MAPNAMES[558] = { name = "Терраса Магистров", abbr = "ТМ" }
+L.MAPNAMES[560] = { name = "Пещеры Маисара", abbr = "ПМ" }
+L.MAPNAMES[559] = { name = "Узел Нексуса Зенас", abbr = "УНЗ" }
 
 L.XPAC = {}
 L.XPAC[0] = { enum = "LE_EXPANSION_CLASSIC", desc = "Classic" }
@@ -85,7 +93,9 @@ L.MPLUSSEASON[12] = { name = "4 сезон" }
 L.MPLUSSEASON[13] = { name = "1 сезон" } -- ожидая, что 13 сезон будет TWW S1
 L.MPLUSSEASON[14] = { name = "2 сезон" } -- ожидая, что 14 сезон будет TWW S2
 L.MPLUSSEASON[15] = { name = "3 сезон" } -- ожидая, что 15 сезон будет TWW S2
-L.MPLUSSEASON[16] = { name = "1 сезон" } -- ожидая, что 16 сезон будет Midnight S1
+L.MPLUSSEASON[16] = { name = "4 сезон" } -- ожидая, что 16 сезон будет Midnight S1
+L.MPLUSSEASON[17] = { name = "1 сезон" } -- Midnight S1
+L.MPLUSSEASON[18] = { name = "2 сезон" } -- Midnight S2
 
 L.DISPLAYVERSION = "вер. " -- перевёл, потому что на русском языке так будет лучше
 L.WELCOMEMESSAGE = "Добро пожаловать"
