@@ -122,6 +122,16 @@ local min = math.min
 ---@field requireItemID? number    -- Only show if this item is equipped or in bags
 ---@field loadConditions? LoadConditions  -- Per-buff content visibility (nil = show everywhere)
 
+---Check if the player is NOT an Earthen dwarf (they have permanent Well Fed from Ingest Minerals)
+---@return boolean
+local function IsNotEarthen()
+    if not BR.playerRace then
+        local _, raceToken = UnitRace("player")
+        BR.playerRace = raceToken
+    end
+    return BR.playerRace ~= "EarthenDwarf"
+end
+
 ---Check if the player is inside a delve (difficultyID 208)
 ---@return boolean
 local function IsInDelve()
@@ -584,7 +594,7 @@ BR.BUFF_TABLES = {
             buffIdOverride = { 232698, 194249 },
             noExpirationGlow = true, -- Voidform (short duration) replaces Shadowform; don't warn
         },
-        -- Shaman weapon imbues (alphabetical: Earthliving, Flametongue, Windfury)
+        -- Shaman weapon imbues (alphabetical: Earthliving, Flametongue, Tidecaller's Guard, Windfury)
         {
             spellID = 382021,
             key = "earthlivingWeapon",
@@ -602,6 +612,26 @@ BR.BUFF_TABLES = {
             missingText = "沒有\n火舌",
             enchantID = 5400,
             groupId = "shamanImbues",
+        },
+        {
+            spellID = 457481,
+            key = "tidecallersGuard",
+            name = "喚潮者之禦",
+            class = "SHAMAN",
+            overlayText = "沒有\n喚潮者",
+            enchantID = 7528,
+            requireSpecId = 264, -- Restoration
+            groupId = "shamanImbues",
+            customCheck = function()
+                if not IsPlayerSpell(457481) then
+                    return nil
+                end
+                -- Only relevant when a shield is equipped
+                if not BR.BuffState.HasShield() then
+                    return nil
+                end
+                return BR.BuffState.GetOffHandEnchantID() ~= 7528
+            end,
         },
         {
             spellID = 33757,

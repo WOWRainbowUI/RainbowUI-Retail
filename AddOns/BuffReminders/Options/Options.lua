@@ -1156,6 +1156,29 @@ local function CreateOptionsPanel()
             catLayout:Add(showTextHolder, nil, COMPONENT_GAP)
         end
 
+        -- Missing count only (raid only)
+        if category == "raid" then
+            local missingCountHolder = Components.Checkbox(catContent, {
+                label = "只顯示缺少計數",
+                get = function()
+                    return db.showMissingCountOnly == true
+                end,
+                tooltip = {
+                    title = "只顯示缺少計數",
+                    desc = '僅顯示缺少的增益數字（例如 "1"）而不是完整計數 (例如 "19/20")',
+                },
+                enabled = function()
+                    local cs = db.categorySettings and db.categorySettings[category]
+                    return not cs or cs.showText ~= false
+                end,
+                onChange = function(checked)
+                    BR.Config.Set("showMissingCountOnly", checked)
+                    Components.RefreshAll()
+                end,
+            })
+            catLayout:Add(missingCountHolder, nil, COMPONENT_GAP)
+        end
+
         -- "BUFF!" text (raid only, grouped under Icons)
         if category == "raid" then
             local reminderHolder = Components.Checkbox(catContent, {
@@ -1552,6 +1575,26 @@ local function CreateOptionsPanel()
 
         -- Item display mode (consumable only, grouped with icon options)
         if category == "consumable" then
+            -- Consumable text scale (count + quality labels as % of icon size)
+            local consumableTextScaleHolder = Components.Slider(catContent, {
+                label = "文字縮放",
+                min = 5,
+                max = 80,
+                step = 1,
+                suffix = "%",
+                get = function()
+                    return BR.Config.Get("defaults.consumableTextScale", 25)
+                end,
+                tooltip = {
+                    title = "消耗品文字縮放",
+                    desc = "物品數量和品質 (R1/R2/R3) 標籤的字體大小佔圖示大小的百分比。",
+                },
+                onChange = function(val)
+                    BR.Config.Set("defaults.consumableTextScale", val)
+                end,
+            })
+            catLayout:Add(consumableTextScaleHolder, nil, COMPONENT_GAP)
+
             local updateDisplayModePreview -- forward declaration for preview update
             local updateSubIconSideVisibility -- forward declaration for sub-icon side visibility
             local displayModeHolder = Components.Dropdown(catContent, {
@@ -2324,6 +2367,22 @@ local function CreateOptionsPanel()
         end,
     })
     setLayout:Add(mountedHolder, nil, COMPONENT_GAP)
+
+    local legacyHolder = Components.Checkbox(settingsContent, {
+        label = "在舊副本",
+        tooltip = {
+            title = "在舊副本中隱藏",
+            desc = "隱藏舊副本中的所有增益提醒（啟用傳統拾取）",
+        },
+        get = function()
+            return BR.profile.hideInLegacyInstances == true
+        end,
+        onChange = function(checked)
+            BR.profile.hideInLegacyInstances = checked
+            UpdateDisplay()
+        end,
+    })
+    setLayout:Add(legacyHolder, nil, COMPONENT_GAP)
 
     setLayout:SetX(setX)
 

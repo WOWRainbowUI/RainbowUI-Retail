@@ -213,8 +213,11 @@ local function CreateClickOverlay(frame)
         end
     end)
     overlay:SetScript("PostClick", function(self)
+        BR.ConsumableMemory.RememberChoice(self.itemID, frame)
         C_Timer.After(0.3, function()
             if not InCombatLockdown() then
+                BR.BuffState.InvalidateItemCache()
+                BR.SecureButtons.InvalidateConsumableCache()
                 BR.Display.Update()
             end
         end)
@@ -222,6 +225,8 @@ local function CreateClickOverlay(frame)
         if self._br_clickMacroFn then
             C_Timer.After(2, function()
                 if not InCombatLockdown() then
+                    BR.BuffState.InvalidateItemCache()
+                    BR.SecureButtons.InvalidateConsumableCache()
                     BR.Display.Update()
                 end
             end)
@@ -320,33 +325,25 @@ local ACTION_ICON_SCALE = 0.45
 local ACTION_ICON_MIN = 18
 local ACTION_ICON_OFFSET = -6
 
--- Quality text and colors for crafted consumables (rank 1/2/3)
-local QUALITY_INFO = {
-    [1] = { text = "R1", r = 0.73, g = 0.46, b = 0.26 }, -- Bronze
-    [2] = { text = "R2", r = 0.75, g = 0.75, b = 0.75 }, -- Silver
-    [3] = { text = "R3", r = 1.00, g = 0.82, b = 0.00 }, -- Gold
+-- Badge text → color for buff frame bottom-left overlay (hearty + quality + fleeting badges)
+-- R1 = best (gold), R2 = middle (silver), R3 = lowest (bronze), F1/F2/F3 = fleeting, H = hearty
+local BADGE_COLORS = {
+    H = { r = 0.4, g = 0.7, b = 1 }, -- Hearty (cyan)
+    F1 = { r = 0.4, g = 0.7, b = 1 }, -- Fleeting R1 (cyan)
+    F2 = { r = 0.4, g = 0.7, b = 1 }, -- Fleeting R2 (cyan)
+    F3 = { r = 0.4, g = 0.7, b = 1 }, -- Fleeting R3 (cyan)
+    R1 = { r = 1.00, g = 0.82, b = 0.00 }, -- Gold (highest)
+    R2 = { r = 0.75, g = 0.75, b = 0.75 }, -- Silver
+    R3 = { r = 0.73, g = 0.46, b = 0.26 }, -- Bronze (lowest)
 }
 
----Set or hide a quality pip overlay text based on crafted quality.
----@param overlay FontString The overlay text to update
----@param craftedQuality number? The crafted quality tier (1-3) or nil
----@param size number The parent icon size (used for font sizing)
-local function SetQualityOverlay(overlay, craftedQuality, size)
-    local info = craftedQuality and QUALITY_INFO[craftedQuality]
-    if info then
-        -- Scale font with icon size (minimum 8px font)
-        local fontPath = BR.Display.GetFontPath()
-        local fontSize = max(8, size * 0.25)
-        overlay:SetFont(fontPath, fontSize, "OUTLINE")
-        overlay:SetText(info.text)
-        overlay:SetTextColor(info.r, info.g, info.b, 1)
-        -- Position in top-left corner, kept inside icon boundaries
-        overlay:ClearAllPoints()
-        overlay:SetPoint("TOPLEFT", overlay:GetParent(), "TOPLEFT", 2, -2)
-        overlay:Show()
-    else
-        overlay:Hide()
-    end
+---Compute consumable text font size from scale percentage.
+---@param mainIconSize number The consumable category's main icon size
+---@return number fontSize
+local function ComputeConsumableFontSize(mainIconSize)
+    local d = BR.profile and BR.profile.defaults
+    local scale = d and d.consumableTextScale or 25
+    return max(6, floor(mainIconSize * scale / 100))
 end
 
 ---Create a small SecureActionButton for the consumable item row.
@@ -368,9 +365,12 @@ local function CreateActionButton()
         end
     end)
     -- Refresh display shortly after click so the consumed buff disappears quickly
-    btn:SetScript("PostClick", function()
+    btn:SetScript("PostClick", function(self)
+        BR.ConsumableMemory.RememberChoice(self.itemID, self._br_buff_frame)
         C_Timer.After(0.3, function()
             if not InCombatLockdown() then
+                BR.BuffState.InvalidateItemCache()
+                BR.SecureButtons.InvalidateConsumableCache()
                 BR.Display.Update()
             end
         end)
@@ -387,9 +387,6 @@ local function CreateActionButton()
     btn.highlight:SetAllPoints()
     btn.highlight:SetTexCoord(BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET, BR.TEXCOORD_INSET, 1 - BR.TEXCOORD_INSET)
     btn.highlight:SetColorTexture(1, 1, 1, 0.2)
-
-    btn.qualityOverlay = btn:CreateFontString(nil, "OVERLAY")
-    btn.qualityOverlay:Hide()
 
     btn:SetScript("OnEnter", function(self)
         if not BR.profile or not BR.profile.defaults then
@@ -432,6 +429,7 @@ local function RefreshConsumableCache()
         return
     end
 
+    local specId = BR.StateHelpers and BR.StateHelpers.GetPlayerSpecId()
     local itemSets = BR.CONSUMABLE_ITEMS or {}
     -- Scan all bags once, bucket items by consumable category
     local buckets = {} -- category → { [itemID] = { count, icon } }
@@ -442,7 +440,8 @@ local function RefreshConsumableCache()
             local itemID = C_Container.GetContainerItemID(bag, slot)
             if itemID then
                 for category, allowedSet in pairs(itemSets) do
-                    if allowedSet[itemID] and not (buckets[category] and buckets[category][itemID]) then
+                    local allowedEntry = allowedSet[itemID]
+                    if allowedEntry and not (buckets[category] and buckets[category][itemID]) then
                         if not buckets[category] then
                             buckets[category] = {}
                         end
@@ -451,29 +450,20 @@ local function RefreshConsumableCache()
                         if count > 0 then
                             local info = C_Container.GetContainerItemInfo(bag, slot)
                             local icon = info and info.iconFileID or nil
-                            local itemLink = info and info.hyperlink
-                            local cq = nil
-                            if itemLink then
-                                -- Parse crafted quality tier from the embedded atlas in the item link
-                                -- e.g. |A:Professions-ChatIcon-Quality-Tier2:17:15::1|a → tier 2
-                                local tier = tostring(itemLink):match("Professions%-ChatIcon%-Quality%-Tier(%d)")
-                                if tier then
-                                    cq = tonumber(tier)
-                                end
-                            end
                             local bucket = {
                                 itemID = itemID,
                                 count = count,
                                 icon = icon,
-                                craftedQuality = cq,
                             }
-                            -- Read food stat label and hearty flag from item table
-                            if category == "food" then
-                                local entry = allowedSet[itemID]
-                                if type(entry) == "table" then
-                                    bucket.foodLabel = entry.label
-                                    bucket.foodHearty = entry.hearty
-                                end
+                            -- Read stat label and badge from item table
+                            if type(allowedEntry) == "table" then
+                                bucket.statLabel = allowedEntry.label
+                                bucket.badge = allowedEntry.badge
+                            end
+                            -- Store the spell this item casts (for auto-remember reverse lookup)
+                            local okSpell, _, useSpellID = pcall(GetItemSpell, itemID)
+                            if okSpell and useSpellID then
+                                bucket.useSpellID = useSpellID
                             end
                             buckets[category][itemID] = bucket
                         end
@@ -483,6 +473,9 @@ local function RefreshConsumableCache()
         end
     end
 
+    -- Auto-remember food/weapon consumed outside addon (count-delta tracking)
+    BR.ConsumableMemory.DetectConsumedItems(buckets, specId)
+
     -- Convert buckets to sorted arrays
     wipe(consumableCache)
     for category, entries in pairs(buckets) do
@@ -491,12 +484,27 @@ local function RefreshConsumableCache()
             items[#items + 1] = item
         end
         local allowedSet = itemSets[category]
+        local rememberedSpell = BR.ConsumableMemory.GetRemembered(specId, category)
         tsort(items, function(a, b)
-            -- If items have numeric priority values, sort by priority first (lower = better)
+            -- If items have priority values, sort by priority first (lower = better)
+            -- Priority entries (e.g., fleeting flasks) come before non-priority (regular)
             local aPri = allowedSet and allowedSet[a.itemID]
             local bPri = allowedSet and allowedSet[b.itemID]
-            if type(aPri) == "number" and type(bPri) == "number" and aPri ~= bPri then
-                return aPri < bPri
+            local aNum = type(aPri) == "number" and aPri or (type(aPri) == "table" and aPri.priority) or nil
+            local bNum = type(bPri) == "number" and bPri or (type(bPri) == "table" and bPri.priority) or nil
+            if (aNum ~= nil) ~= (bNum ~= nil) then
+                return aNum ~= nil
+            end
+            if aNum and bNum and aNum ~= bNum then
+                return aNum < bNum
+            end
+            -- Remembered consumable spell for this spec sorts above non-remembered
+            if rememberedSpell then
+                local aRem = a.useSpellID == rememberedSpell
+                local bRem = b.useSpellID == rememberedSpell
+                if aRem ~= bRem then
+                    return aRem
+                end
             end
             if a.count == b.count then
                 return a.itemID < b.itemID
@@ -505,6 +513,9 @@ local function RefreshConsumableCache()
         end)
         consumableCache[category] = items
     end
+
+    -- Snapshot current counts for next delta comparison
+    BR.ConsumableMemory.SnapshotCounts(buckets)
 end
 
 -- Map buff key → CONSUMABLE_ITEMS category key (derived from buff definitions in Data/Buffs.lua)
@@ -538,7 +549,7 @@ local function UpdateConsumableButtons(frame, actionItems, clickable, startIndex
         return
     end
     startIndex = startIndex or 1
-    if not actionItems or #actionItems < startIndex + 1 then
+    if not actionItems or #actionItems < startIndex then
         if frame.actionButtons then
             for _, btn in ipairs(frame.actionButtons) do
                 btn._br_visible = false
@@ -565,8 +576,6 @@ local function UpdateConsumableButtons(frame, actionItems, clickable, startIndex
 
         btn.itemID = item.itemID
         btn.icon:SetTexture(item.icon or 134400)
-        btn._br_craftedQuality = item.craftedQuality
-
         -- Dirty tracking: skip redundant SetAttribute calls
         if btn._br_action_item ~= item.itemID then
             if frame.key == "weaponBuff" or frame.key == "weaponBuffOH" then
@@ -757,6 +766,7 @@ local function SyncSecureButtons()
                         end
                     end
                     if visibleCount > 0 then
+                        local cFontSize = ComputeConsumableFontSize(catSettings.iconSize or 64)
                         local idx = 0
                         for _, btn in ipairs(frame.actionButtons) do
                             if btn._br_visible then
@@ -807,8 +817,7 @@ local function SyncSecureButtons()
                                     btn.count:SetText(
                                         btn._br_count and btn._br_count > 1 and tostring(btn._br_count) or ""
                                     )
-                                    btn.count:SetFont(fontPath, max(10, floor(size * 0.45)), "OUTLINE")
-                                    SetQualityOverlay(btn.qualityOverlay, btn._br_craftedQuality, size)
+                                    btn.count:SetFont(fontPath, cFontSize, "OUTLINE")
                                     btn._br_needs_sync = false
                                 end
                                 -- Activate combat state driver on first show (buttons start with "hide" driver)
@@ -1310,6 +1319,7 @@ BR.SecureButtons = {
     HideAllSecureFrames = HideAllSecureFrames,
     HideSecureFramesForCatKey = HideSecureFramesForCatKey,
     ScheduleSecureSync = ScheduleSecureSync,
-    SetQualityOverlay = SetQualityOverlay,
+    ComputeConsumableFontSize = ComputeConsumableFontSize,
+    BADGE_COLORS = BADGE_COLORS,
     ReapplyPetSpecIconIfHovered = ReapplyPetSpecIconIfHovered,
 }

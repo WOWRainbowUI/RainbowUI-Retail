@@ -3273,9 +3273,43 @@ function Components.AppearanceGrid(parent, config)
     })
     textColorHolder:SetPoint("LEFT", textSizeHolder, "RIGHT", 12, 0)
 
+    -- Row 5: Text offset X / Y
+    local textOffsetXHolder = Components.Slider(frame, {
+        label = "水平文字",
+        labelWidth = LW,
+        min = -20,
+        max = 20,
+        get = function()
+            return config.get("textOffsetX", 0)
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(val)
+            config.set("textOffsetX", val)
+        end,
+    })
+    textOffsetXHolder:SetPoint("TOPLEFT", 0, -ROW_H * 4)
+
+    local textOffsetYHolder = Components.Slider(frame, {
+        label = "垂直文字",
+        labelWidth = LW,
+        min = -20,
+        max = 20,
+        get = function()
+            return config.get("textOffsetY", 0)
+        end,
+        enabled = enabled and baseEnabled or nil,
+        onChange = function(val)
+            config.set("textOffsetY", val)
+        end,
+    })
+    textOffsetYHolder:SetPoint("TOPLEFT", COL2, -ROW_H * 4)
+
+    local GRID_HEIGHT_FINAL = GRID_HEIGHT + ROW_H
+    frame:SetSize(480, GRID_HEIGHT_FINAL)
+
     return {
         frame = frame,
-        height = GRID_HEIGHT,
+        height = GRID_HEIGHT_FINAL,
         holders = {
             width = widthHolder,
             height = heightHolder,
@@ -3286,6 +3320,8 @@ function Components.AppearanceGrid(parent, config)
             alpha = alphaHolder,
             textSize = textSizeHolder,
             textColor = textColorHolder,
+            textOffsetX = textOffsetXHolder,
+            textOffsetY = textOffsetYHolder,
         },
     }
 end
