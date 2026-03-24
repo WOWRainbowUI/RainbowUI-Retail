@@ -30,10 +30,6 @@ L["Add Note"] = "Add Note"
 --[[Translation missing --]]
 L["Add Note to your characters"] = "Add Note to your characters"
 --[[Translation missing --]]
-L[ [=[Add rules by which addon is going to track world quests. 
-For example, show all world quest that have more than 3 Bloods of Sargeras]=] ] = [=[Add rules by which addon is going to track world quests. 
-For example, show all world quest that have more than 3 Bloods of Sargeras]=]
---[[Translation missing --]]
 L["Add World Quest ID"] = "Add World Quest ID"
 --[[Translation missing --]]
 L["Add World Quests you want to see"] = "Add World Quests you want to see"
@@ -265,8 +261,6 @@ L["Tracks highest completed mythic+ in a week and all highest level runs per dun
 L["Tracks incoming mail"] = "Tracks incoming mail"
 --[[Translation missing --]]
 L["Tracks lockouts for current expansion raids"] = "Tracks lockouts for current expansion raids"
---[[Translation missing --]]
-L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"] = "Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"
 --[[Translation missing --]]
 L["Tracks weekly completed mythic dungeons"] = "Tracks weekly completed mythic dungeons"
 --[[Translation missing --]]

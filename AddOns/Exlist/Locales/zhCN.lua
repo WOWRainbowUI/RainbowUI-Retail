@@ -18,10 +18,6 @@ World Quest rules]=] ] = [=[
 世界任务规则]=]
 L["Add Note"] = "新增备注"
 L["Add Note to your characters"] = "新增角色备注"
---[[Translation missing --]]
-L[ [=[Add rules by which addon is going to track world quests. 
-For example, show all world quest that have more than 3 Bloods of Sargeras]=] ] = [=[Add rules by which addon is going to track world quests. 
-For example, show all world quest that have more than 3 Bloods of Sargeras]=]
 L["Add World Quest ID"] = "新增世界任务ID"
 L["Add World Quests you want to see"] = "新增想要看到的世界任务"
 L["Allows to select different reputation progress for your characters"] = "允许角色选择不同的声望进度"
@@ -140,8 +136,6 @@ L["Tracks currently available bonus roll coins and amount of coins available fro
 L["Tracks highest completed mythic+ in a week and all highest level runs per dungeon"] = "追踪本CD内完成的最佳大秘境成绩及每个地下城的最高等级"
 L["Tracks incoming mail"] = "追踪新寄来的邮件"
 L["Tracks lockouts for current expansion raids"] = "追踪当前资料片团队进度状态"
---[[Translation missing --]]
-L["Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"] = "Tracks user specified world quests. Provides information like - Time Left, Reward and availability for current character"
 L["Tracks weekly completed mythic dungeons"] = "追踪每CD完成的史诗地下城"
 --[[Translation missing --]]
 L["Tracks Weekly Vault Rewards"] = "Tracks Weekly Vault Rewards"
