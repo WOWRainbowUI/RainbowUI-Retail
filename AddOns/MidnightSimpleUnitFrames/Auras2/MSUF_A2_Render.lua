@@ -60,7 +60,12 @@ do
     f:RegisterEvent("PLAYER_REGEN_DISABLED")
     f:RegisterEvent("PLAYER_REGEN_ENABLED")
     f:SetScript("OnEvent", function(_, event)
-        _inCombat = (event == "PLAYER_REGEN_DISABLED")
+        local entering = (event == "PLAYER_REGEN_DISABLED")
+        _inCombat = entering
+        if not entering then
+            local fn = API._OnCombatLeave
+            if fn then fn() end
+        end
     end)
     if InCombatLockdown and InCombatLockdown() then _inCombat = true end
 end
@@ -119,8 +124,8 @@ local A2_SHARED_DEFAULTS = {
     growth="RIGHT", rowWrap="DOWN",
     offsetX=0, offsetY=6, buffOffsetY=30,
     stackTextSize=14, cooldownTextSize=14, bossEditTogether=true,
-    showPrivateAurasPlayer=true, showPrivateAurasFocus=true, showPrivateAurasBoss=true,
-    privateAuraMaxPlayer=4, privateAuraMaxOther=4,
+    showPrivateAurasPlayer=true,
+    privateAuraMaxPlayer=4,
     showSated=true, satedShowAtSeconds=0,
     ignoreCats={},
     showReminders=true,
@@ -166,7 +171,6 @@ local function EnsureDB()
     if s.maxDebuffs == nil then s.maxDebuffs = s.maxIcons or 12 end
     s.showPrivateAurasTarget = false
     s.privateAuraMaxPlayer = Clamp(s.privateAuraMaxPlayer, 4, 0, 12)
-    s.privateAuraMaxOther  = Clamp(s.privateAuraMaxOther,  4, 0, 12)
     s.satedShowAtSeconds   = Clamp(s.satedShowAtSeconds, 0, 0, 3600)
     -- Per-type growth: sanitize invalid values (nil = fall back to s.growth)
     if s.buffGrowth ~= nil and not A2_GROWTH_OK[s.buffGrowth] then s.buffGrowth = nil end
@@ -564,14 +568,34 @@ local function PrivateAurasSupported()
         and type(C_UnitAuras.RemovePrivateAuraAnchor) == "function"
 end
 
+local _pendingRemoveIDs
+
+local function _FlushPendingRemoveIDs()
+    local ids = _pendingRemoveIDs
+    if not ids then return end
+    _pendingRemoveIDs = nil
+    local removeFn = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor
+    if not removeFn then return end
+    for i = 1, #ids do
+        if ids[i] then removeFn(ids[i]) end
+    end
+end
+
 local function PrivateClear(entry)
     if not entry then return end
     local ids = entry._privateAnchorIDs
     if type(ids) == "table" and C_UnitAuras then
         local removeFn = C_UnitAuras.RemovePrivateAuraAnchor
         if removeFn then
-            for i = 1, #ids do
-                if ids[i] then removeFn(ids[i]) end
+            if _inCombat then
+                if not _pendingRemoveIDs then _pendingRemoveIDs = {} end
+                for i = 1, #ids do
+                    if ids[i] then _pendingRemoveIDs[#_pendingRemoveIDs + 1] = ids[i] end
+                end
+            else
+                for i = 1, #ids do
+                    if ids[i] then removeFn(ids[i]) end
+                end
             end
         end
     end
@@ -582,6 +606,8 @@ local function PrivateClear(entry)
     entry._privSpacing = nil
     entry._privMax = nil
     entry._privGrowth = nil
+    entry._privBorderScale = nil
+    entry._privNormalizeQueued = nil
     local slots = entry._privateSlots
     if type(slots) == "table" then
         for i = 1, #slots do if slots[i] then slots[i]:Hide() end end
@@ -589,30 +615,95 @@ local function PrivateClear(entry)
     if entry.private then entry.private:Hide() end
 end
 
+local function PrivateRelaxTexSnap(tex)
+    if not tex then return end
+    if tex.SetSnapToPixelGrid then tex:SetSnapToPixelGrid(false) end
+    if tex.SetTexelSnappingBias then tex:SetTexelSnappingBias(0) end
+end
+
+local function NormalizePrivateSlot(slot, privateIconSize)
+    if not slot then return end
+    privateIconSize = math.floor((tonumber(privateIconSize) or 0) + 0.5)
+    if privateIconSize < 1 then privateIconSize = 1 end
+
+    if slot.GetWidth and slot.GetHeight then
+        local sw, sh = slot:GetWidth(), slot:GetHeight()
+        if sw ~= privateIconSize or sh ~= privateIconSize then
+            slot:SetSize(privateIconSize, privateIconSize)
+        end
+    else
+        slot:SetSize(privateIconSize, privateIconSize)
+    end
+
+    slot._msufPrivSize = privateIconSize
+
+    local child = select(1, slot:GetChildren())
+    if child then
+        child:ClearAllPoints()
+        child:SetAllPoints(slot)
+
+        if child.Icon then
+            child.Icon:ClearAllPoints()
+            child.Icon:SetAllPoints(child)
+            PrivateRelaxTexSnap(child.Icon)
+        end
+        if child.Cooldown then
+            child.Cooldown:ClearAllPoints()
+            child.Cooldown:SetAllPoints(child)
+        end
+    end
+end
+
+local function NormalizePrivateSlots(entry, privateIconSize)
+    if not entry then return end
+    local slots = entry._privateSlots
+    if type(slots) ~= "table" then return end
+    for i = 1, #slots do
+        local slot = slots[i]
+        if slot and slot:IsShown() then
+            NormalizePrivateSlot(slot, privateIconSize)
+        end
+    end
+end
+
+local function QueueNormalizePrivateSlots(entry, privateIconSize)
+    if not entry or entry._privNormalizeQueued then return end
+    entry._privNormalizeQueued = true
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, function()
+            if not entry then return end
+            entry._privNormalizeQueued = nil
+            NormalizePrivateSlots(entry, entry._privSize or privateIconSize)
+        end)
+    else
+        entry._privNormalizeQueued = nil
+        NormalizePrivateSlots(entry, privateIconSize)
+    end
+end
+
 local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGrowth)
     if not entry or not shared then return end
     local unit = entry.unit
 
-    local enabled = false
-    if unit == "player" then enabled = (shared.showPrivateAurasPlayer == true)
-    elseif unit == "focus" then enabled = (shared.showPrivateAurasFocus == true)
-    elseif _IS_BOSS[unit] then enabled = (shared.showPrivateAurasBoss == true)
-    end
-
-    if not enabled or not PrivateAurasSupported() then
+    -- 12.0.1: Private aura anchor APIs blocked in combat.
+    -- Player-only (focus/boss swaps mid-combat would require Add/Remove calls).
+    if unit ~= "player" or shared.showPrivateAurasPlayer ~= true or not PrivateAurasSupported() then
         PrivateClear(entry)
         return
     end
 
-    local maxN = (unit == "player") and (shared.privateAuraMaxPlayer or 4) or (shared.privateAuraMaxOther or 4)
+    -- Safety net: never call Add/RemovePrivateAuraAnchor in combat.
+    if _inCombat then return end
+
+    local maxN = shared.privateAuraMaxPlayer or 4
     maxN = Clamp(maxN, 4, 0, 12)
     if maxN == 0 then PrivateClear(entry); return end
 
-    -- Effective unit token (focusplayer if focus IS player)
-    local effectiveToken = unit
-    if unit ~= "player" and UnitIsUnit and UnitIsUnit(unit, "player") then
-        effectiveToken = "player"
-    end
+    -- unit is always "player" here (focus/boss removed in 12.0.1)
+    local effectiveToken = "player"
+
+    local borderScale = tonumber(shared.privateAuraBorderScale)
+    if not borderScale or borderScale < 0 then borderScale = privateIconSize / 10 end
 
     -- Resolve growth direction
     privateGrowth = (privateGrowth and A2_GROWTH_OK[privateGrowth]) and privateGrowth or "RIGHT"
@@ -625,9 +716,11 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
        and entry._privSpacing == spacing
        and entry._privMax == maxN
        and entry._privGrowth == privateGrowth
+       and entry._privBorderScale == borderScale
        and type(entry._privateAnchorIDs) == "table"
     then
         if entry.private then entry.private:Show() end
+        NormalizePrivateSlots(entry, privateIconSize)
         return
     end
 
@@ -641,6 +734,7 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
     entry._privSpacing = spacing
     entry._privMax = maxN
     entry._privGrowth = privateGrowth
+    entry._privBorderScale = borderScale
 
     local slots = entry._privateSlots or {}
     entry._privateSlots = slots
@@ -686,6 +780,7 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
             iconInfo = {
                 iconWidth = privateIconSize,
                 iconHeight = privateIconSize,
+                borderScale = borderScale,
                 iconAnchor = {
                     point = "CENTER", relativeTo = nil, relativePoint = "CENTER",
                     offsetX = 0, offsetY = 0,
@@ -701,12 +796,18 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
             slot = CreateFrame("Frame", nil, entry.private)
             slot:SetFrameStrata("MEDIUM")
             slot:SetFrameLevel(60)
+            if not slot._msufPrivSizeHook then
+                slot._msufPrivSizeHook = true
+                slot:HookScript("OnSizeChanged", function(self)
+                    NormalizePrivateSlot(self, self._msufPrivSize or privateIconSize)
+                end)
+            end
             slots[i] = slot
         end
         slot:ClearAllPoints()
         local off = (i - 1) * step
         slot:SetPoint(anchor, entry.private, anchor, off * dx, off * dy)
-        slot:SetSize(privateIconSize, privateIconSize)
+        NormalizePrivateSlot(slot, privateIconSize)
         slot:Show()
 
         -- Update reused args
@@ -717,6 +818,7 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
         args.showCountdownNumbers = (shared.showCooldownText == true)
         args.iconInfo.iconWidth = privateIconSize
         args.iconInfo.iconHeight = privateIconSize
+        args.iconInfo.borderScale = borderScale
         args.iconInfo.iconAnchor.relativeTo = slot
 
         local ok, anchorID = true, C_UnitAuras.AddPrivateAuraAnchor(args)
@@ -724,6 +826,9 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
             entry._privateAnchorIDs[#entry._privateAnchorIDs + 1] = anchorID
         end
     end
+
+    NormalizePrivateSlots(entry, privateIconSize)
+    QueueNormalizePrivateSlots(entry, privateIconSize)
 end
 
 
@@ -1136,11 +1241,12 @@ local function RenderUnit(entry)
     end
     entry.anchor:Show()
 
-    -- Private auras: only rebuild when config changes
-    if gen ~= entry._lastPrivateGen then
-        PrivateRebuild(entry, shared, privateIconSize, spacing, privateGrowth)
-        entry._lastPrivateGen = gen
-    end
+    -- Private auras: run the internal diff-gated rebuild every render.
+    -- This keeps Blizzard private-aura anchors in sync with live size changes
+    -- (Edit Mode / per-unit overrides / focus->player token swaps) without
+    -- adding meaningful hot-path cost.
+    PrivateRebuild(entry, shared, privateIconSize, spacing, privateGrowth)
+    entry._lastPrivateGen = gen
 
     -- Edit Mode: show/hide movers (skip entirely in combat) 
     if not _inCombat then
@@ -1404,6 +1510,33 @@ local function MarkAllDirty(delay)
     -- Mark enabled runtime units plus any attached disabled residual entries.
     _markDirtyDelay = delay
     _ForEachDirtyUnit(true, _MarkDirtyEachUnit)
+end
+
+-- ---------------------------------------------------------------------------
+-- Combat-leave guard: tear down + rebuild all private aura anchors.
+-- Blizzard-rendered private auras can survive encounter cleanup if the engine
+-- fails to remove stale anchor state, leaving ghost icons stuck on frames.
+-- Forcing a PrivateClear → MarkAllDirty cycle on PLAYER_REGEN_ENABLED
+-- guarantees a clean slate; PrivateRebuild runs on the next RenderUnit pass
+-- because _lastPrivateGen was reset.
+-- ---------------------------------------------------------------------------
+API._OnCombatLeave = function()
+    _FlushPendingRemoveIDs()
+    for _, entry in pairs(AurasByUnit) do
+        if entry then
+            PrivateClear(entry)
+            entry._lastPrivateGen = nil
+        end
+    end
+    local Store = API.Store
+    if Store and Store.InvalidateUnit then
+        _storeInvalidateEachUnit = Store.InvalidateUnit
+        _ForEachDirtyUnit(true, _InvalidateStoreEachUnit)
+        _storeInvalidateEachUnit = nil
+    end
+    local CM = API.Cache
+    if CM and CM.InvalidateAll then CM.InvalidateAll() end
+    MarkAllDirty(0)
 end
 
 local function RefreshAll()

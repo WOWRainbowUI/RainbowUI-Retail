@@ -290,6 +290,8 @@ local function CreateMover(entry, unitKey, kind, labelText)
     mover:SetScript("OnMouseDown", function(self, button)
         -- Always track which group was last clicked for arrow-key nudging,
         -- even if drag is blocked (popup open, combat, etc.)
+        _G.MSUF_EM2_ActiveAuraGroup = kind
+        _G.MSUF_EM2_ActiveAuraUnit  = self._msufAuraUnitKey or unitKey
         local pf = _G.MSUF_Auras2PositionPopup
         if pf then
             pf._msufActiveNudgeGroup = kind
@@ -323,6 +325,15 @@ local function CreateMover(entry, unitKey, kind, labelText)
         self._msufDragMoved = false
         self._msufDragging = true
 
+        local mL = self:GetLeft() or 0
+        local mR = self:GetRight() or 0
+        local mT = self:GetTop() or 0
+        local mB = self:GetBottom() or 0
+        self._msufSnapStartCX = (mL + mR) * 0.5
+        self._msufSnapStartCY = (mT + mB) * 0.5
+        self._msufSnapHW = (mR - mL) * 0.5
+        self._msufSnapHH = (mT - mB) * 0.5
+
         if not self._msufOnUpdate then
             self._msufOnUpdate = function(me)
                 local mx, my = GetCursorScaled()
@@ -335,6 +346,17 @@ local function CreateMover(entry, unitKey, kind, labelText)
                         return
                     end
                 end
+                local Snap = _G.MSUF_EM2 and _G.MSUF_EM2.Snap
+                if Snap and Snap.IsEnabled and Snap.IsEnabled() and Snap.Apply then
+                    Snap.HideGuides()
+                    local rawCX = (me._msufSnapStartCX or 0) + ddx
+                    local rawCY = (me._msufSnapStartCY or 0) + ddy
+                    local hw = me._msufSnapHW or 0
+                    local hh = me._msufSnapHH or 0
+                    local sCX, sCY = Snap.Apply(rawCX, rawCY, hw, hh, moverName)
+                    ddx = sCX - (me._msufSnapStartCX or 0)
+                    ddy = sCY - (me._msufSnapStartCY or 0)
+                end
                 ApplyDragDelta(me, ddx, ddy)
             end
         end
@@ -346,6 +368,8 @@ local function CreateMover(entry, unitKey, kind, labelText)
         self._msufDragging = false
         if self:GetScript("OnUpdate") then
             self:SetScript("OnUpdate", nil)
+            local Snap = _G.MSUF_EM2 and _G.MSUF_EM2.Snap
+            if Snap and Snap.HideGuides then Snap.HideGuides() end
             if self._msufDragMoved then
                 self._msufDragMoved = false
                 -- Invalidate DB so config cache updates with new offsets
@@ -356,6 +380,8 @@ local function CreateMover(entry, unitKey, kind, labelText)
 
         -- Click without drag: open position popup
         -- Set nudge group BEFORE opening popup so arrow keys target the correct group.
+        _G.MSUF_EM2_ActiveAuraGroup = self._msufA2MoverKind or kind
+        _G.MSUF_EM2_ActiveAuraUnit  = self._msufAuraUnitKey or unitKey
         local pf = _G.MSUF_Auras2PositionPopup
         if pf then
             pf._msufActiveNudgeGroup = self._msufA2MoverKind or kind
@@ -392,12 +418,14 @@ end
 
 function EM.EnsureMovers(entry, unit, shared, iconSize, spacing)
     if not entry or not unit then return end
+    -- Skip pet/ToT (no aura editing for these)
+    if unit == "pet" or unit == "targettarget" then return end
 
     local base = UnitLabel(unit)
     CreateMover(entry, unit, "buff",    base .. " Buffs")
     CreateMover(entry, unit, "debuff",  base .. " Debuffs")
-    -- Private auras are player-only; no mover for target.
-    if unit ~= "target" then
+    -- Private auras are player-only
+    if unit == "player" then
         CreateMover(entry, unit, "private", base .. " Private")
     end
     -- Mover positioning is handled by Render's UpdateAnchor after containers are placed
@@ -468,10 +496,13 @@ end
 
 function EM.ShowMovers(entry)
     if not entry then return end
+    -- Skip pet/ToT aura movers (not useful for editing)
+    local u = entry.unit
+    if u == "pet" or u == "targettarget" then return end
     if entry.editMoverBuff    then entry.editMoverBuff:Show()    end
     if entry.editMoverDebuff  then entry.editMoverDebuff:Show()  end
-    -- Private auras are player-only; skip mover for target.
-    if entry.editMoverPrivate and entry.unit ~= "target" then entry.editMoverPrivate:Show() end
+    -- Private auras are player-only
+    if entry.editMoverPrivate and u == "player" then entry.editMoverPrivate:Show() end
 end
 
 function EM.HideMovers(entry)
@@ -500,6 +531,8 @@ function EM.ShowAllMovers()
     local aby = GetAurasByUnit()
     if not aby then return end
     local _, shared = GetAuras2DB()
+    -- Respect the toggle: if showInEditMode is off, don't show movers
+    if shared and shared.showInEditMode == false then return end
     for _, entry in pairs(aby) do
         if entry and EM.AnyMoverExists(entry) then
             EM.ShowMovers(entry)
@@ -522,6 +555,8 @@ local function OnEditModeChanged(active)
     else
         -- Hide all movers (incl. reminder mover)
         EM.HideAllMovers()
+        _G.MSUF_EM2_ActiveAuraGroup = nil
+        _G.MSUF_EM2_ActiveAuraUnit  = nil
 
         -- Close reminder position popup if open
         local Reminder = API.Reminder
@@ -596,3 +631,7 @@ if not _registered then
         end)
     end
 end
+
+-- ── Global exports for EM2 HUD Aura toggle ──
+_G.MSUF_A2_HideAllEditMovers = function() EM.HideAllMovers() end
+_G.MSUF_A2_ShowAllEditMovers = function() EM.ShowAllMovers() end
