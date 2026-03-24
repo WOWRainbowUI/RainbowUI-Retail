@@ -2,7 +2,7 @@
 ## Title: Better|cff00c0ffBlizz|rFrames
 ## Notes: More options for Blizzard frames. Aura filtering, Party castbars, Combat indicator, Dark Mode etc.
 ## Author: Bodify
-## Version: v1.9.2c
+## Version: v1.9.3b
 ## SavedVariables: BetterBlizzFramesDB
 ## IconAtlas: gmchat-icon-blizz
 ## X-Curse-Project-ID: 940950
@@ -55,6 +55,7 @@ retail\modules\druid\overcharges.lua
 midnight\modules\druid\overcharges.lua
 retail\modules\cdManager.lua
 midnight\modules\cdManager.lua
+midnight\modules\partyHighlight.lua
 retail\modules\healer.lua
 retail\modules\noPortrait.lua
 
