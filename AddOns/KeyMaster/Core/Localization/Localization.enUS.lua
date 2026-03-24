@@ -64,7 +64,14 @@ L.MAPNAMES[392] = { name = "So\'leah's Gambit", abbr = "GMBT" }
 L.MAPNAMES[391] = { name = "Streets of Wonder", abbr = "STRT" }
 L.MAPNAMES[378] = { name = "Halls of Attonement", abbr = "HOA" }
 L.MAPNAMES[542] = { name = "Eco-Dome Al\'dani", abbr = "DOME" }
-
+--MN (Midnight) S1
+L.MAPNAMES[556] = { name = "Pit of Saron", abbr = "POS" }
+L.MAPNAMES[161] = { name = "Skyreach", abbr = "SR" }
+L.MAPNAMES[239] = { name = "Seat of the Triumvirate", abbr = "SEAT" }
+L.MAPNAMES[557] = { name = "Windrunner Spire", abbr = "WS" }
+L.MAPNAMES[558] = { name = "Magisters' Terrace", abbr = "MT" }
+L.MAPNAMES[560] = { name = "Maisara Caverns", abbr = "MC" }
+L.MAPNAMES[559] = { name = "Nexus-Point Xenas", abbr = "NPX" }
 
 L.XPAC = {}
 L.XPAC[0] = { enum = "LE_EXPANSION_CLASSIC", desc = "Classic" }
@@ -86,9 +93,9 @@ L.MPLUSSEASON[12] = { name = "Season 4" }
 L.MPLUSSEASON[13] = { name = "Season 1" } -- expecting season 13 to be TWW S1
 L.MPLUSSEASON[14] = { name = "Season 2" } 
 L.MPLUSSEASON[15] = { name = "Season 3" }
-L.MPLUSSEASON[16] = { name = "Season 1" } -- expecting season 16 to be Midnight S1
-L.MPLUSSEASON[17] = { name = "Season 2" } -- expecting season 16 to be Midnight S2
-L.MPLUSSEASON[18] = { name = "Season 3" } -- expecting season 16 to be Midnight S3
+L.MPLUSSEASON[16] = { name = "Season 4" } 
+L.MPLUSSEASON[17] = { name = "Season 1" } -- Midnight S1
+L.MPLUSSEASON[18] = { name = "Season 2" } -- Midnight S2
 
 L.DISPLAYVERSION = "v"
 L.WELCOMEMESSAGE = "Welcome back"
