@@ -3,8 +3,8 @@
 ## Title: |cff00ccffMiniCE|r (Minimalist Cooldown Edge)
 ## Notes: Clean cooldowns with category-specific styles.
 ## Author: Anahkas
-## Version: 3.5.5
-## IconTexture: Interface\AddOns\MinimalistCooldownEdge\MinimalistCooldownEdge
+## Version: 3.6.2
+## IconTexture: Interface\AddOns\MinimalistCooldownEdge\Assets\Textures\MinimalistCooldownEdge
 ## Category: Action Bars
 ## X-Curse-Project-ID: 1443896
 ## SavedVariables: MinimalistCooldownEdgeDB_v2
@@ -19,11 +19,32 @@ Locales\enUS.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
 
-# Core Files
-Constants.lua
-Core.lua
-ImportExport.lua
-Alerts.lua
-Classifier.lua
-Styler.lua
-Options.lua
+# Core
+Core\Constants.lua
+Core\Core.lua
+
+# Foundation
+Modules\TargetRegistry.lua
+Modules\BatchProcessor.lua
+Modules\Classifier.lua
+
+# Adapters
+Adapters\ActionBarAdapter.lua
+Adapters\MiniCCAdapter.lua
+Adapters\SArenaAdapter.lua
+Adapters\NameplateAdapter.lua
+Adapters\UnitFrameAdapter.lua
+Adapters\GroupFrameAdapter.lua
+Adapters\CooldownManagerAdapter.lua
+
+# Styling Pipeline
+Modules\StyleEngine.lua
+Modules\DurationColorController.lua
+Modules\CompactGroupAuraController.lua
+Modules\Styler.lua
+Modules\HookBridge.lua
+
+# UI
+UI\ImportExport.lua
+UI\Options.lua
+UI\Alerts.lua

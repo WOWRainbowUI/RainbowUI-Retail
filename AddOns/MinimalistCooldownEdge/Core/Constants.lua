@@ -1,4 +1,5 @@
 local addonName, addon = ...
+local addonPath = "Interface\\AddOns\\" .. addonName
 
 addon.Constants = addon.Constants or {}
 local C = addon.Constants
@@ -9,8 +10,14 @@ C.Addon = {
     ShortName = "MiniCE",
     SavedVariables = "MinimalistCooldownEdgeDB_v2",
     MiniCCName = "MiniCC",
+    SArenaName = "sArena_Reloaded",
     VersionFallback = "Dev",
     SlashCommands = { "mce", "minice", "minimalistcooldownedge" },
+}
+
+C.Assets = {
+    Root = addonPath,
+    Icon = addonPath .. "\\Assets\\Textures\\MinimalistCooldownEdge",
 }
 
 C.Categories = {
@@ -19,7 +26,7 @@ C.Categories = {
     Unitframe = "unitframe",
     CooldownManager = "cooldownmanager",
     MiniCC = "minicc",
-    Global = "global",
+    SArena = "sarena",
     Blacklist = "blacklist",
     AuraPending = "aura_pending",
     CompactPartyAura = "compactPartyAura",
@@ -37,6 +44,13 @@ C.MiniCCFrameTypes = {
     Nameplate = "nameplate",
     Portrait = "portrait",
     Overlay = "overlay",
+}
+
+C.SArenaFrameTypes = {
+    ClassIcon = "classicon",
+    DR = "dr",
+    Trinket = "trinket",
+    Racial = "racial",
 }
 
 C.GroupFrameTypes = {
@@ -65,8 +79,8 @@ C.Style = {
         Morpheus = "Fonts\\MORPHEUS.TTF",
         Skurri = "Fonts\\skurri.ttf",
         TwoThousandTwo = "Fonts\\2002.TTF",
-        Expressway = "Interface\\AddOns\\" .. addonName .. "\\Fonts\\expressway.ttf",
-        Bazooka = "Interface\\AddOns\\" .. addonName .. "\\Fonts\\bazooka_regular.ttf",
+        Expressway = addonPath .. "\\Assets\\Fonts\\expressway.ttf",
+        Bazooka = addonPath .. "\\Assets\\Fonts\\bazooka_regular.ttf",
     },
     FontStyles = {
         None = "NONE",
@@ -106,6 +120,15 @@ C.Colors = {
 }
 
 C.Defaults = {
+    AllowThresholdColorsByCategory = {
+        [C.Categories.Actionbar] = true,
+        [C.Categories.Nameplate] = false,
+        [C.Categories.Unitframe] = true,
+        [C.Categories.CooldownManager] = false,
+        [C.Categories.MiniCC] = false,
+        [C.Categories.SArena] = false,
+        [C.Categories.CompactPartyAura] = true,
+    },
     Category = {
         Font = C.Style.Fonts.GameDefault,
         FontSize = 18,
@@ -115,6 +138,7 @@ C.Defaults = {
         TextOffsetX = 0,
         TextOffsetY = 0,
         HideCountdownNumbers = false,
+        AuraCdTextOnlyMine = false,
         DrawSwipe = true,
         EdgeEnabled = true,
         EdgeScale = 1.4,
@@ -154,6 +178,11 @@ C.Defaults = {
         OverlayFontSize = 18,
         OverlayHideCountdownNumbers = false,
     },
+    SArena = {
+        ClassIconFontSize = 18,
+        DRFontSize = 18,
+        TrinketRacialFontSize = 18,
+    },
     CompactPartyAuraText = {
         Enabled = true,
         RaidEnabled = false,
@@ -165,9 +194,12 @@ C.Defaults = {
         TextAnchor = C.Style.Anchors.Center,
         TextOffsetX = 0,
         TextOffsetY = 0,
+        DrawSwipe = true,
+        EdgeEnabled = true,
+        EdgeScale = 1.4,
     },
     DurationTextColors = {
-        Enabled = true,
+        Enabled = false,
         Offset = 0,
         Thresholds = {
             { threshold = 5, color = C.Colors.Danger },
@@ -188,7 +220,7 @@ C.Urls = {
 C.Alerts = {
     VersionAlerts = {
         ["3.2.0"] = {
-            updateLine = "|cff7dd3fcUpdate:|r CooldownManager viewers moved from |cffc084fcOthers|r to their own category - style them with |cfffacc15/minice|r.",
+            updateLine = "|cff7dd3fcUpdate:|r CooldownManager viewers have their own dedicated category - style them with |cfffacc15/minice|r.",
         },
     },
 }
@@ -211,18 +243,15 @@ end
 
 C.Classifier = {
     ScanDepth = 10,
-    MiniCCScanDepth = 6,
-    MiniCCRootExtraDepth = 10,
     NameplateObjectType = "NamePlate",
     MiniCCNamePrefix = "MiniCC_",
     IgnoreActionbarPattern = "Aura",
     BlacklistNameContains = {
-        "Glider", "Party", "Compact",
-        "Raid", "VuhDo", "Grid",
+        "Glider", "VuhDo", "Grid",
         "PVEFrame", "PVPQueueFrame",
         "LossOfControlFrame",
         "ContainerFrameCombinedBagsCooldown",
-        "HousingDashboardFrame",
+        "HousingDashboardFrame", "TotemFrame"
     },
     BlacklistExactPairs = {
         ["CharacterBackSlot"] = { ["CharacterBackSlotCooldown"] = true },
@@ -256,6 +285,54 @@ C.Classifier = {
         Essential = "EssentialCooldownViewer",
         Utility = "UtilityCooldownViewer",
         BuffIcon = "BuffIconCooldownViewer",
+    },
+}
+
+C.Adapter = {
+    ActionBars = {
+        BlizzardFamilies = {
+            { prefix = "ActionButton", count = 12 },
+            { prefix = "MultiBarBottomLeftButton", count = 12 },
+            { prefix = "MultiBarBottomRightButton", count = 12 },
+            { prefix = "MultiBarRightButton", count = 12 },
+            { prefix = "MultiBarLeftButton", count = 12 },
+            { prefix = "MultiBar5Button", count = 12 },
+            { prefix = "MultiBar6Button", count = 12 },
+            { prefix = "MultiBar7Button", count = 12 },
+        },
+        ThirdPartyPrefixes = {
+            "BT4Button",
+            "DominosActionButton",
+        },
+        ThirdPartyMaxIndex = 180,
+        CooldownKeys = { "cooldown", "Cooldown" },
+        ChargeCooldownKeys = { "chargeCooldown", "ChargeCooldown" },
+    },
+    Nameplates = {
+        MaxAncestorDepth = 4,
+    },
+    UnitFrames = {
+        BlizzardRoots = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame" },
+        ThirdPartyPatterns = { "ElvUF", "SUF", "TPerl" },
+        MaxAncestorDepth = 5,
+    },
+    GroupFrames = {
+        PartyMemberPrefix = "CompactPartyFrameMember",
+        PartyMemberCount = 5,
+        RaidFramePrefix = "CompactRaidFrame",
+        RaidFrameMaxCount = 40,
+        MaxAncestorDepth = 8,
+    },
+    CooldownManager = {
+        MaxAncestorDepth = 6,
+    },
+    MiniCC = {
+        -- Hierarchy depth is fixed at 3 hops (Cooldown→Layer→Slot→Container)
+        -- and resolved directly; no depth constants are needed here.
+    },
+    SArena = {
+        MaxArenaOpponents = 5,
+        MaxAncestorDepth = 4,
     },
 }
 
