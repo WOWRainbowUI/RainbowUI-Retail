@@ -1,8 +1,8 @@
 # Baganator
 
-## [793](https://github.com/TheMouseNest/Baganator/tree/793) (2026-03-13)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/792...793) [Previous Releases](https://github.com/TheMouseNest/Baganator/releases)
+## [794](https://github.com/TheMouseNest/Baganator/tree/794) (2026-03-18)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/793...794) [Previous Releases](https://github.com/TheMouseNest/Baganator/releases)
 
-- Add version slash command  
-- [Fixes #631] Retail: Fix currencies not tracking if a removed currency involved  
-- Remove no longer valid comment  
+- [Fixes #614] Error in MoP with an item sometimes not showing charges text  
+- Update CIMI icons when decor is added to chest (#636)  
+- Retail: Fix "Group by" for gear upgrade tracks not working for Adventurer  
