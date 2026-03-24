@@ -17,12 +17,12 @@
 		end
 		local addonName, Details222 = ...
 		local version, build, date, tvs = GetBuildInfo()
-		Details.build_counter = 14718
-		Details.alpha_build_counter = 14718 --if this is higher than the regular counter, use it instead
+		Details.build_counter = 14801
+		Details.alpha_build_counter = 14801 --if this is higher than the regular counter, use it instead
 		Details.dont_open_news = true
 		Details.game_version = version
 		Details.userversion = version .. " " .. Details.build_counter
-		Details.realversion = 170 --core version, this is used to check API version for scripts and plugins (see alias below)
+		Details.realversion = 171 --core version, this is used to check API version for scripts and plugins (see alias below)
 		Details.gametoc = tvs
 		Details.APIVersion = Details.realversion --core version
 		Details.version = Details.userversion .. " (core " .. Details.realversion .. ")" --simple stirng to show to players
@@ -131,8 +131,8 @@
 			[225985] = true, --dornogal
 			[225976] = true, --dornogal
 			[225984] = true, --dornogal
-			
 		}
+
 
 		---@type details_storage_feature
 		---@diagnostic disable-next-line: missing-fields
@@ -254,10 +254,35 @@
 
 		Details222.B = {}
 
+		Details222.Apocalypse = {
+			ServerInCombat = false,
+			TypeDetails = 0,
+			TypeGame = 1,
+			segmentType = 1,
+			GetType = function() --addon wide segment type
+				return Details222.Apocalypse.segmentType
+			end,
+			SetType = function(newType)
+				Details222.Apocalypse.segmentType = newType
+			end,
+			IsServerInCombat = function()
+				return Details222.Apocalypse.ServerInCombat
+			end
+		}
+
 		--simplify and reduce the amount of functions to work with
 		local mainFName = "GetCombatSession"
 		local getSegmentFName = mainFName .. "From"
 		local getSpellFname = mainFName .. "SourceFrom"
+
+		function Details222.B.GetEmptySegment()
+			return {
+				combatSources = {},
+				totalAmount = 0,
+				maxAmount = 0,
+				durationSeconds = 0,
+			}
+		end
 
 		---return a segment
 		---@param type string
@@ -379,6 +404,12 @@
 
 		function Details222.B.GetCurrentTime(segmentType)
 			return Details222.B.GetSegment("Type", segmentType, 0).durationSeconds
+		end
+
+		function Details:BleachFontString(fontString)
+			fontString:SetToDefaults()
+			fontString:SetFontObject("GameFontHighlight")
+			fontString:SetText("")
 		end
 
 		---@type instancedifficulty
@@ -1166,6 +1197,10 @@ do
 				}
 		end
 
+		Details.HealingPotions = {
+			[1262857] = true
+		}
+
 		--[[global]] DETAILS_MODE_GROUP = 2
 		--[[global]] DETAILS_MODE_ALL = 3
 
@@ -1258,6 +1293,23 @@ do
 			current_standard = Loc ["STRING_CURRENTFIGHT"],
 			past = Loc ["STRING_FIGHTNUMBER"]
 		}
+
+		if DetailsFramework.IsAddonApocalypseWow() then
+			Details.ApocalypseAttributeNames = {
+				[Enum.DamageMeterType.DamageDone] = DAMAGE_METER_TYPE_DAMAGE_DONE,
+				[Enum.DamageMeterType.Dps] = DAMAGE_METER_TYPE_DPS,
+				[Enum.DamageMeterType.HealingDone] = DAMAGE_METER_TYPE_HEALING_DONE,
+				[Enum.DamageMeterType.Hps] = DAMAGE_METER_TYPE_HPS,
+				[Enum.DamageMeterType.Absorbs] = DAMAGE_METER_TYPE_ABSORBS,
+				[Enum.DamageMeterType.Interrupts] = DAMAGE_METER_TYPE_INTERRUPTS,
+				[Enum.DamageMeterType.Dispels] = DAMAGE_METER_TYPE_DISPELS,
+				[Enum.DamageMeterType.DamageTaken] = DAMAGE_METER_TYPE_DAMAGE_TAKEN,
+				[Enum.DamageMeterType.AvoidableDamageTaken] = DAMAGE_METER_TYPE_AVOIDABLE_DAMAGE_TAKEN,
+				[Enum.DamageMeterType.Deaths] = DAMAGE_METER_TYPE_DEATHS,
+				[Enum.DamageMeterType.EnemyDamageTaken] = DAMAGE_METER_TYPE_ENEMY_DAMAGE_TAKEN,
+			};
+		end
+
 
 		Details._detalhes_props["modo_nome"] = {
 				[_detalhes._detalhes_props["MODO_ALONE"]] = Loc ["STRING_MODE_SELF"],
@@ -1505,7 +1557,7 @@ do
                                 if (tooltipData.hyperlink) then
                                     local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
                                     itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID, bindType,
-                                    expacID, setID, isCraftingReagent = GetItemInfo(tooltipData.hyperlink)
+                                    expacID, setID, isCraftingReagent = C_Item.GetItemInfo(tooltipData.hyperlink)
 
                                     local itemInfo = {
                                         itemName = itemName,
