@@ -85,8 +85,8 @@ function addonTable.Display.ManagerMixin:OnLoad()
     for _, unit in ipairs(GetKeysArray(self.nameplateDisplays)) do
       local display = self.nameplateDisplays[unit]
       if (
-          display.kind == "friend" and UnitCanAttack("player", unit) or
-          display.kind == "enemy" and not UnitCanAttack("player", unit)
+          display.kind:match("^friend") and UnitCanAttack("player", unit) or
+          display.kind:match("^enemy") and not UnitCanAttack("player", unit)
       ) then
         self:Uninstall(unit)
         self:Install(unit)
@@ -486,9 +486,9 @@ end
 function addonTable.Display.ManagerMixin:ListenToBuffs(display, unit)
   if addonTable.Constants.IsRetail and self.ModifiedUFs[unit] then
     local UF = self.ModifiedUFs[unit]
-    if display.DebuffDisplay.details and display.DebuffDisplay.details.filters.important or display.BuffDisplay.details and display.BuffDisplay.details.filters.important then
-      UF:RegisterUnitEvent("UNIT_AURA", unit)
+    UF:RegisterUnitEvent("UNIT_AURA", unit)
 
+    if display.DebuffDisplay.details and display.DebuffDisplay.details.filters.important or display.BuffDisplay.details and display.BuffDisplay.details.filters.important then
       display.AurasManager:SetGetImportantAuras(function()
         local important = {}
 
@@ -501,8 +501,6 @@ function addonTable.Display.ManagerMixin:ListenToBuffs(display, unit)
 
         return important
       end)
-    else
-      UF:UnregisterEvent("UNIT_AURA")
     end
   end
 end
@@ -516,7 +514,7 @@ function addonTable.Display.ManagerMixin:UpdateStackingRegion(unit)
   stackRegion:SetSize(newWidth, newHeight)
 end
 
-function addonTable.Display.ManagerMixin:Install(unit, nameplate)
+function addonTable.Display.ManagerMixin:Install(unit)
   if unit == "preview" then
     return
   end
@@ -615,6 +613,7 @@ function addonTable.Display.ManagerMixin:UpdateForMouseover()
   for _, display in pairs(self.nameplateDisplays) do
     display:UpdateForMouseover()
   end
+  addonTable.CallbackRegistry:TriggerEvent("MouseoverUpdate")
 
   if UnitExists("mouseover") and not self.MouseoverMonitor then
     self.MouseoverMonitor = C_Timer.NewTicker(0.1, function()

@@ -206,9 +206,19 @@ local kindToEvent = {
     "UNIT_SPELLCAST_CHANNEL_START",
     "UNIT_SPELLCAST_CHANNEL_STOP",
   },
+  eliteType = {
+    "UNIT_CLASSIFICATION_CHANGED",
+  },
+  rarity = {
+    "UNIT_CLASSIFICATION_CHANGED",
+  },
+  delveType = {
+    "UNIT_CLASSIFICATION_CHANGED",
+  },
 }
 local kindToCallback = {
   quest = {"QuestInfoUpdate"},
+  mouseover = {"MouseoverUpdate"},
   threat = {"CombatStatusChange"},
 }
 
@@ -311,6 +321,11 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "focus" then
       if UnitIsUnit("focus", unit) then
         table.insert(colorQueue, {color = s.colors.focus})
+        break
+      end
+    elseif s.kind == "mouseover" then
+      if UnitIsUnit("mouseover", unit) and (s.includeTarget or not UnitIsUnit("target", unit)) then
+        table.insert(colorQueue, {color = s.colors.mouseover})
         break
       end
     elseif s.kind == "threat" then
