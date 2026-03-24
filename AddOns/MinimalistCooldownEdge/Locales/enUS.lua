@@ -5,6 +5,7 @@ if not L then return end
 -- Core
 L["Cannot open options in combat."] = true
 L["MiniCC test command is unavailable."] = true
+L["sArena slash command is unavailable."] = true
 
 -- Category Names
 L["Action Bars"] = true
@@ -13,7 +14,7 @@ L["Unit Frames"] = true
 L["Party / Raid Frames"] = true
 L["CooldownManager"] = true
 L["MiniCC"] = true
-L["Others"] = true
+L["sArena"] = true
 L["Profiles"] = true
 
 -- Group Headers
@@ -27,6 +28,7 @@ L["Style"] = true
 L["Positioning"] = true
 L["CooldownManager Viewers"] = true
 L["MiniCC Frame Types"] = true
+L["sArena Cooldown Types"] = true
 
 -- Toggles & Settings
 L["Enable %s"] = true
@@ -37,12 +39,14 @@ L["Size"] = true
 L["Outline"] = true
 L["Color"] = true
 L["Hide Numbers"] = true
+L["Only Mine"] = true
 L["Compact Party / Raid Aura Text"] = true
 L["Enable Party Aura Text"] = true
 L["Enable Raid Aura Text"] = true
 L["Enables styled countdown text on Party / Raid Frames. When disabled, both party and raid aura text styling are turned off."] = true
 L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff icons. Requires Party / Raid Frames to be enabled."] = true
 L["Hide the text entirely (useful if you only want the swipe edge or stacks)."] = true
+L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura heuristic instead of a direct sourceUnit check."] = true
 L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."] = true
 L["Shows styled countdown text on Blizzard CompactRaidFrame buff and debuff icons. Disabling this hides aura countdown text on raid frames."] = true
 L["Anchor Point"] = true
@@ -54,10 +58,15 @@ L["Essential Viewer Size"] = true
 L["Utility Viewer Size"] = true
 L["Buff Icon Viewer Size"] = true
 L["CC Text Size"] = true
+L["Class Icon Text Size"] = true
+L["DR Cooldown Text Size"] = true
 L["Nameplates Text Size"] = true
 L["Portraits Text Size"] = true
 L["Alerts / Overlay Text Size"] = true
+L["Trinket / Racial Text Size"] = true
 L["Toggle Test Icons"] = true
+L["Show Test Frames"] = true
+L["Hide Test Frames"] = true
 L["Show Swipe Animation"] = true
 L["Shows the dark overlay that sweeps during a cooldown."] = true
 L["Show Swipe Edge"] = true
@@ -75,6 +84,8 @@ L["Hide stacks and charges entirely."] = true
 L["Reset %s"] = true
 L["Revert this category to default settings."] = true
 L["Toggle MiniCC's built-in test icons using /minicc test."] = true
+L["Show sArena test frames using /sarena test."] = true
+L["Hide sArena test frames using /sarena hide."] = true
 
 -- Outline Values
 L["None"] = true
@@ -158,14 +169,16 @@ L["NAMEPLATE_DESC"] = "Style cooldowns displayed on enemy and friendly nameplate
 L["UNITFRAME_DESC"] = "Adjust cooldown styling on player, target, and focus unit frames."
 L["COOLDOWNMANAGER_DESC"] = "Shared icon styling for CooldownManager viewers. Countdown text size can be set independently for Essential, Utility, and Buff Icon viewers."
 L["MINICC_DESC"] = "Dedicated styling for MiniCC cooldown icons. Supports MiniCC crowd control icons, nameplates, portraits, and overlay-style modules when MiniCC is loaded."
-L["OTHERS_DESC"] = "Catch-all for cooldowns that don't belong to other categories (bags, menus, misc addons)."
+L["SARENA_DESC"] = "Dedicated styling for sArena_Reloaded cooldown timers. Supports class icon, DR, and trinket/racial cooldown text when sArena_Reloaded is loaded."
 
 -- Dynamic Text Colors
 L["Dynamic Text Colors"] = true
 L["Color by Remaining Time"] = true
 L["Dynamically colors the countdown text based on how much time is left."] = true
 L["DYNAMIC_COLORS_DESC"] = "Changes the text color based on the remaining cooldown duration. Overrides the static color above when enabled."
-L["DYNAMIC_COLORS_GENERAL_DESC"] = "Applies the same remaining-time thresholds to every enabled MiniCE category, including Compact Party / Raid aura text. Midnight-safe duration handling is used when Blizzard exposes secret values."
+L["DYNAMIC_COLORS_GENERAL_DESC"] = "Remaining-time thresholds can be allowed or blocked per MiniCE category, including Compact Party / Raid aura text. Midnight-safe duration handling is used when Blizzard exposes secret values."
+L["Allow Threshold Colors"] = true
+L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."] = true
 L["Behavior"] = true
 L["Expiring Soon"] = true
 L["Short Duration"] = true

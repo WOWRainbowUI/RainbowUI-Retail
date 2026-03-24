@@ -6,6 +6,7 @@ local MCE = LibStub("AceAddon-3.0"):NewAddon(addon, C.Addon.AceName,
     "AceConsole-3.0", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale(C.Addon.AceName)
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 
 -- === UPVALUE LOCALS (Performance) ===
 local pcall = pcall
@@ -17,6 +18,12 @@ local CHAT_PREFIX = C.Chat.Prefix
 local OPTION_SLIDER_DEBOUNCE_DELAY = C.Options.SliderDebounceDelay
 
 MCE.Constants = C
+
+-- Shared weak-keyed state tables accessible to all modules
+local weakMeta = { __mode = "k" }
+addon.weakMeta = weakMeta
+addon.frameState = setmetatable({}, weakMeta)
+addon.fontState = setmetatable({}, weakMeta)
 
 -- =========================================================================
 -- SHARED UTILITIES  (used across all modules)
@@ -53,6 +60,10 @@ function MCE:IsMiniCCAvailable()
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.MiniCCName) or false
 end
 
+function MCE:IsSArenaAvailable()
+    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.SArenaName) or false
+end
+
 local function BuildChatMessage(...)
     local count = select("#", ...)
     if count == 0 then
@@ -75,8 +86,9 @@ end
 -- DATABASE DEFAULTS
 -- =========================================================================
 
-local function CategoryDefaults(enabled, fontSize)
+local function CategoryDefaults(categoryKey, enabled, fontSize)
     local defaults = C.Defaults.Category
+    local allowThresholdColors = C.Defaults.AllowThresholdColorsByCategory[categoryKey] == true
     return {
         enabled = enabled,
         font = defaults.Font,
@@ -86,7 +98,9 @@ local function CategoryDefaults(enabled, fontSize)
         textAnchor = defaults.TextAnchor,
         textOffsetX = defaults.TextOffsetX,
         textOffsetY = defaults.TextOffsetY,
+        allowThresholdColors = allowThresholdColors,
         hideCountdownNumbers = defaults.HideCountdownNumbers,
+        auraCdTextOnlyMine = defaults.AuraCdTextOnlyMine,
         drawSwipe = defaults.DrawSwipe,
         edgeEnabled = defaults.EdgeEnabled,
         edgeScale = defaults.EdgeScale,
@@ -121,11 +135,11 @@ local function DurationTextColorDefaults()
     }
 end
 
-local actionbarDefaults = CategoryDefaults(true, 18)
+local actionbarDefaults = CategoryDefaults(C.Categories.Actionbar, true, 18)
 actionbarDefaults.hideChargeTimers = C.Defaults.Actionbar.HideChargeTimers
 actionbarDefaults.swipeAlpha = C.Defaults.Actionbar.SwipeAlpha
 
-local nameplateDefaults = CategoryDefaults(false, C.Defaults.Nameplate.FontSize)
+local nameplateDefaults = CategoryDefaults(C.Categories.Nameplate, false, C.Defaults.Nameplate.FontSize)
 nameplateDefaults.stackSize = C.Defaults.Nameplate.StackSize
 nameplateDefaults.stackAnchor = C.Defaults.Nameplate.StackAnchor
 nameplateDefaults.stackOffsetX = C.Defaults.Nameplate.StackOffsetX
@@ -204,8 +218,20 @@ local function EnsureCompactPartyAuraTextConfig(config)
     if type(config.defensiveBuffFontSize) ~= "number" then
         config.defensiveBuffFontSize = compactPartyAuraTextDefaults.defensiveBuffFontSize
     end
+    if config.allowThresholdColors == nil then
+        config.allowThresholdColors = compactPartyAuraTextDefaults.allowThresholdColors
+    end
     if config.fontStyle == nil then
         config.fontStyle = compactPartyAuraTextDefaults.fontStyle
+    end
+    if config.drawSwipe == nil then
+        config.drawSwipe = compactPartyAuraTextDefaults.drawSwipe
+    end
+    if config.edgeEnabled == nil then
+        config.edgeEnabled = compactPartyAuraTextDefaults.edgeEnabled
+    end
+    if type(config.edgeScale) ~= "number" then
+        config.edgeScale = compactPartyAuraTextDefaults.edgeScale
     end
     if config.textAnchor == nil then
         config.textAnchor = compactPartyAuraTextDefaults.textAnchor
@@ -244,7 +270,11 @@ local function IsCompactPartyAuraConfigAtDefaults(config)
         and config.font == defaults.font
         and config.fontSize == defaults.fontSize
         and config.defensiveBuffFontSize == defaults.defensiveBuffFontSize
+        and config.allowThresholdColors == defaults.allowThresholdColors
         and config.fontStyle == defaults.fontStyle
+        and config.drawSwipe == defaults.drawSwipe
+        and config.edgeEnabled == defaults.edgeEnabled
+        and config.edgeScale == defaults.edgeScale
         and config.textAnchor == defaults.textAnchor
         and config.textOffsetX == defaults.textOffsetX
         and config.textOffsetY == defaults.textOffsetY
@@ -301,8 +331,20 @@ local function MigrateLegacyPartyRaidFramesConfig(profile)
         if legacyCategory.defensiveBuffFontSize ~= nil then
             explicitCompactConfig.defensiveBuffFontSize = legacyCategory.defensiveBuffFontSize
         end
+        if legacyCategory.allowThresholdColors ~= nil then
+            explicitCompactConfig.allowThresholdColors = legacyCategory.allowThresholdColors and true or false
+        end
         if legacyCategory.fontStyle ~= nil then
             explicitCompactConfig.fontStyle = legacyCategory.fontStyle
+        end
+        if legacyCategory.drawSwipe ~= nil then
+            explicitCompactConfig.drawSwipe = legacyCategory.drawSwipe and true or false
+        end
+        if legacyCategory.edgeEnabled ~= nil then
+            explicitCompactConfig.edgeEnabled = legacyCategory.edgeEnabled and true or false
+        end
+        if legacyCategory.edgeScale ~= nil then
+            explicitCompactConfig.edgeScale = legacyCategory.edgeScale
         end
         if type(legacyCategory.textColor) == "table" then
             explicitCompactConfig.textColor = CopyTable(legacyCategory.textColor)
@@ -326,12 +368,12 @@ MCE.DurationTextColorDefaults = DurationTextColorDefaults
 MCE.EnsureDurationTextColorConfig = EnsureDurationTextColorConfig
 MCE.EnsureCompactPartyAuraTextConfig = EnsureCompactPartyAuraTextConfig
 
-local cooldownManagerDefaults = CategoryDefaults(false, 18)
+local cooldownManagerDefaults = CategoryDefaults(C.Categories.CooldownManager, false, 18)
 cooldownManagerDefaults.essentialFontSize = C.Defaults.CooldownManager.EssentialFontSize
 cooldownManagerDefaults.utilityFontSize = C.Defaults.CooldownManager.UtilityFontSize
 cooldownManagerDefaults.buffIconFontSize = C.Defaults.CooldownManager.BuffIconFontSize
 
-local miniCCDefaults = CategoryDefaults(false, 18)
+local miniCCDefaults = CategoryDefaults(C.Categories.MiniCC, false, 18)
 miniCCDefaults.ccFontSize = C.Defaults.MiniCC.CCFontSize
 miniCCDefaults.ccHideCountdownNumbers = C.Defaults.MiniCC.CCHideCountdownNumbers
 miniCCDefaults.nameplateFontSize = C.Defaults.MiniCC.NameplateFontSize
@@ -341,6 +383,11 @@ miniCCDefaults.portraitHideCountdownNumbers = C.Defaults.MiniCC.PortraitHideCoun
 miniCCDefaults.overlayFontSize = C.Defaults.MiniCC.OverlayFontSize
 miniCCDefaults.overlayHideCountdownNumbers = C.Defaults.MiniCC.OverlayHideCountdownNumbers
 
+local sArenaDefaults = CategoryDefaults(C.Categories.SArena, false, 18)
+sArenaDefaults.classIconFontSize = C.Defaults.SArena.ClassIconFontSize
+sArenaDefaults.drFontSize = C.Defaults.SArena.DRFontSize
+sArenaDefaults.trinketRacialFontSize = C.Defaults.SArena.TrinketRacialFontSize
+
 local compactPartyAuraDefaults = C.Defaults.CompactPartyAuraText
 compactPartyAuraTextDefaults = {
     enabled = compactPartyAuraDefaults.Enabled,
@@ -348,7 +395,11 @@ compactPartyAuraTextDefaults = {
     font = compactPartyAuraDefaults.Font,
     fontSize = compactPartyAuraDefaults.FontSize,
     defensiveBuffFontSize = compactPartyAuraDefaults.DefensiveBuffFontSize,
+    allowThresholdColors = C.Defaults.AllowThresholdColorsByCategory[C.Categories.CompactPartyAura] == true,
     fontStyle = compactPartyAuraDefaults.FontStyle,
+    drawSwipe = compactPartyAuraDefaults.DrawSwipe,
+    edgeEnabled = compactPartyAuraDefaults.EdgeEnabled,
+    edgeScale = compactPartyAuraDefaults.EdgeScale,
     textColor = CopyTable(compactPartyAuraDefaults.TextColor),
     textAnchor = compactPartyAuraDefaults.TextAnchor,
     textOffsetX = compactPartyAuraDefaults.TextOffsetX,
@@ -366,10 +417,10 @@ MCE.defaults = {
         categories = {
             [C.Categories.Actionbar] = actionbarDefaults,
             [C.Categories.Nameplate] = nameplateDefaults,
-            [C.Categories.Unitframe] = CategoryDefaults(false, 12),
+            [C.Categories.Unitframe] = CategoryDefaults(C.Categories.Unitframe, false, 12),
             [C.Categories.CooldownManager] = cooldownManagerDefaults,
             [C.Categories.MiniCC] = miniCCDefaults,
-            [C.Categories.Global] = CategoryDefaults(false, 18),
+            [C.Categories.SArena] = sArenaDefaults,
         },
     },
 }
@@ -396,12 +447,23 @@ function MCE:UpgradeProfile()
     profile.compactPartyAuraText = EnsureCompactPartyAuraTextConfig(profile.compactPartyAuraText)
 end
 
+function MCE:HandleProfileUpdated()
+    if self.suppressProfileCallbacks then return end
+
+    self:UpgradeProfile()
+    self:ForceUpdateAll(true)
+    AceConfigRegistry:NotifyChange(addonName)
+end
+
 -- =========================================================================
 -- ACE LIFECYCLE
 -- =========================================================================
 
 function MCE:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New(C.Addon.SavedVariables, self.defaults, true)
+    self.db.RegisterCallback(self, "OnProfileChanged", "HandleProfileUpdated")
+    self.db.RegisterCallback(self, "OnProfileCopied", "HandleProfileUpdated")
+    self.db.RegisterCallback(self, "OnProfileReset", "HandleProfileUpdated")
     self:UpgradeProfile()
     self.pendingOptionRefresh = nil
     self.pendingOptionRefreshFullScan = false
@@ -424,7 +486,7 @@ function MCE:OnInitialize()
     AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.CompactPartyAura)
     AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager)
     AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC)
-    AceConfigDialog:AddToBlizOptions(addonName, L["Others"], C.Addon.ShortName, C.Categories.Global)
+    AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena)
     AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help")
     AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], C.Addon.ShortName, "profiles")
 

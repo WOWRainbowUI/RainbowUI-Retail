@@ -1,6 +1,26 @@
 
 # Changelog
 
+## [3.6.2] - 2026-03-22
+- Remove "Others" / "Global" category
+- Add support to sArena
+- Implement allowThresholdColors feature for category-based cooldown text coloring
+- Add aura retry logic and text region tracking
+
+## [3.6.1] - 2026-03-22
+- feat: Add "TotemFrame" to classifier frame list
+- feat: Simplify MiniCC frame hierarchy handling and update related constants
+
+## [3.6.0] - 2026-03-22
+### Refactor
+- The monolithic global frame-scanning model has been replaced with an adapter-driven registry architecture.
+
+## [3.5.7] - 2026-03-21
+- feat: Add swipe animation options for compact party auras
+
+## [3.5.6] - 2026-03-21
+- Disable duration text colors and add performance warning in options
+- Add 'Only Mine' option for cooldown text display on unitframes's auras
 
 ## [3.5.5] - 2026-03-20
 - feat: Enhance cooldown duration handling with source key support

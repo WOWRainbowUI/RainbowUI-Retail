@@ -79,11 +79,15 @@ local function CatGet(key, field, fallback)
     end
 end
 
+local function CategoryNeedsFullScan(key)
+    return key == C.Categories.MiniCC or key == C.Categories.SArena
+end
+
 --- Returns a setter function that writes and refreshes.
 local function CatSet(key, field)
     return function(_, val)
         MCE.db.profile.categories[key][field] = val
-        MCE:ForceUpdateAll(key == C.Categories.MiniCC)
+        MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
         AceConfigRegistry:NotifyChange(addonName)
     end
 end
@@ -92,7 +96,7 @@ end
 local function CatRangeSet(key, field)
     return function(_, val)
         MCE.db.profile.categories[key][field] = val
-        MCE:RequestDebouncedOptionRefresh(key == C.Categories.MiniCC)
+        MCE:RequestDebouncedOptionRefresh(CategoryNeedsFullScan(key))
     end
 end
 
@@ -141,7 +145,7 @@ local function CatColorSet(key, field)
     return function(_, r, g, b, a)
         local c = MCE.db.profile.categories[key][field]
         c.r, c.g, c.b, c.a = r, g, b, a
-        MCE:ForceUpdateAll(key == C.Categories.MiniCC)
+        MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
     end
 end
 
@@ -202,6 +206,11 @@ local function GetDurationTextColorsConfig()
 
     profile.durationTextColors = MCE.EnsureDurationTextColorConfig(profile.durationTextColors)
     return profile.durationTextColors
+end
+
+local function GetAllowThresholdDefault(sourceKey)
+    local defaults = C.Defaults and C.Defaults.AllowThresholdColorsByCategory
+    return defaults and defaults[sourceKey] == true or false
 end
 
 local function DurationColorsEnabled()
@@ -456,12 +465,15 @@ local function CreateCategoryOptions(order, name, key, desc)
     local stackHiddenFn = function() return IsStackHidden(key) end
     local isCooldownManager = (key == C.Categories.CooldownManager)
     local isMiniCC = (key == C.Categories.MiniCC)
+    local isSArena = (key == C.Categories.SArena)
+    local isUnitframe = (key == C.Categories.Unitframe)
     local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager)
 
     return {
         type = "group",
         hidden = function()
-            return isMiniCC and not MCE:IsMiniCCAvailable()
+            return (isMiniCC and not MCE:IsMiniCCAvailable())
+                or (isSArena and not MCE:IsSArenaAvailable())
         end,
         -- Dynamic name with status indicator (colored accent when active, dimmed when inactive)
         name = function()
@@ -486,12 +498,12 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "enabled"),
                         set = function(_, val)
                             MCE.db.profile.categories[key].enabled = val
-                            MCE:ForceUpdateAll(key == C.Categories.MiniCC)
+                            MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
                             LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
                         end,
                     },
                     miniCCTestToggle = isMiniCC and {
-                        type = "execute", order = 2, width = "full",
+                        type = "execute", order = 2, width = "1",
                         name = L["Toggle Test Icons"],
                         desc = L["Toggle MiniCC's built-in test icons using /minicc test."],
                         hidden = function() return not MCE:IsMiniCCAvailable() end,
@@ -503,6 +515,40 @@ local function CreateCategoryOptions(order, name, key, desc)
                                 MCE:Print(L["MiniCC test command is unavailable."])
                             end
                             MCE:ForceUpdateAll(true)
+                        end,
+                    } or nil,
+                    sArenaTestToggle = isSArena and {
+                        type = "execute", order = 2, width = "1",
+                        name = L["Show Test Frames"],
+                        desc = L["Show sArena test frames using /sarena test."],
+                        hidden = function() return not MCE:IsSArenaAvailable() end,
+                        func = function()
+                            local handler = SlashCmdList and SlashCmdList.ACECONSOLE_SARENA
+                            if handler then
+                                pcall(handler, "test")
+                                C_Timer.After(0, function()
+                                    MCE:ForceUpdateAll(true)
+                                end)
+                            else
+                                MCE:Print(L["sArena slash command is unavailable."])
+                            end
+                        end,
+                    } or nil,
+                    sArenaHideToggle = isSArena and {
+                        type = "execute", order = 3, width = "1",
+                        name = L["Hide Test Frames"],
+                        desc = L["Hide sArena test frames using /sarena hide."],
+                        hidden = function() return not MCE:IsSArenaAvailable() end,
+                        func = function()
+                            local handler = SlashCmdList and SlashCmdList.ACECONSOLE_SARENA
+                            if handler then
+                                pcall(handler, "hide")
+                                C_Timer.After(0, function()
+                                    MCE:ForceUpdateAll(true)
+                                end)
+                            else
+                                MCE:Print(L["sArena slash command is unavailable."])
+                            end
                         end,
                     } or nil,
                 },
@@ -533,7 +579,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 2, width = 0.7,
                         name = L["Size"], min = 8, max = 36, step = 1,
                         get = CatGet(key, "fontSize"), set = CatRangeSet(key, "fontSize"),
-                        hidden = function() return isCooldownManager or isMiniCC end,
+                        hidden = function() return isCooldownManager or isMiniCC or isSArena end,
                     },
                     fontStyle = {
                         type = "select", order = 3, width = 0.8,
@@ -546,14 +592,32 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatColorGet(key, "textColor"),
                         set = CatColorSet(key, "textColor"),
                     },
+                    allowThresholdColors = {
+                        type = "toggle", order = 4.5, width = "full",
+                        name = L["Allow Threshold Colors"],
+                        desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
+                        get = CatGet(key, "allowThresholdColors", GetAllowThresholdDefault(key)),
+                        set = CatSet(key, "allowThresholdColors"),
+                        hidden = function() return isSArena end,
+                    },
                     hideCountdownNumbers = {
                         type = "toggle", order = 5, width = "1",
                         name = L["Hide Numbers"],
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "hideCountdownNumbers"),
                         set = CatSet(key, "hideCountdownNumbers"),
-                        hidden = function() return isMiniCC end,
-                    },                    
+                        hidden = function() return isMiniCC or isSArena end,
+                    },
+                    auraCdTextOnlyMine = isUnitframe and {
+                        type = "toggle", order = 5.005, width = "1",
+                        name = L["Only Mine"],
+                        desc = L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura heuristic instead of a direct sourceUnit check."],
+                        get = CatGet(key, "auraCdTextOnlyMine", false),
+                        set = CatSet(key, "auraCdTextOnlyMine"),
+                        disabled = function()
+                            return MCE.db.profile.categories[key].hideCountdownNumbers == true
+                        end,
+                    } or nil,
                     hideStackText = isStackCategory and {
                         type = "toggle", order = 5.01, width = "1",
                         name = L["Hide Stack Text"],
@@ -656,6 +720,29 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "overlayHideCountdownNumbers", false),
                         set = CatSet(key, "overlayHideCountdownNumbers"),
+                    } or nil,
+                    sArenaHeaderTopSpacing = isSArena and SectionSpacer(5.05) or nil,
+                    sArenaHeader = isSArena and {
+                        type = "header", name = L["sArena Cooldown Types"], order = 5.1,
+                    } or nil,
+                    sArenaHeaderBottomSpacing = isSArena and SectionSpacer(5.15) or nil,
+                    classIconFontSize = isSArena and {
+                        type = "range", order = 5.2, width = "full",
+                        name = L["Class Icon Text Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "classIconFontSize", 18),
+                        set = CatRangeSet(key, "classIconFontSize"),
+                    } or nil,
+                    drFontSize = isSArena and {
+                        type = "range", order = 5.3, width = "full",
+                        name = L["DR Cooldown Text Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "drFontSize", 18),
+                        set = CatRangeSet(key, "drFontSize"),
+                    } or nil,
+                    trinketRacialFontSize = isSArena and {
+                        type = "range", order = 5.4, width = "full",
+                        name = L["Trinket / Racial Text Size"], min = 8, max = 36, step = 1,
+                        get = CatGet(key, "trinketRacialFontSize", 18),
+                        set = CatRangeSet(key, "trinketRacialFontSize"),
                     } or nil,
                     -- Positioning sub-section
                     posHeaderTopSpacing = SectionSpacer(5.95),
@@ -900,6 +987,13 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         get = ProfileTableColorGet("compactPartyAuraText", "textColor"),
                         set = ProfileTableColorSet("compactPartyAuraText", "textColor"),
                     },
+                    compactPartyAllowThresholdColors = {
+                        type = "toggle", order = 4.5, width = "full",
+                        name = L["Allow Threshold Colors"],
+                        desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
+                        get = ProfileTableGet("compactPartyAuraText", "allowThresholdColors", GetAllowThresholdDefault(C.Categories.CompactPartyAura)),
+                        set = ProfileTableSet("compactPartyAuraText", "allowThresholdColors"),
+                    },
                     compactPartyFontSize = {
                         type = "range", order = 5, width = 1.0,
                         name = L["Buff / Debuff Size"], min = 8, max = 36, step = 1,
@@ -932,6 +1026,35 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         name = L["Offset Y"], min = -30, max = 30, step = 1,
                         get = ProfileTableGet("compactPartyAuraText", "textOffsetY", 0),
                         set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetY"),
+                    },
+                },
+            },
+            swipeAnimation = {
+                type = "group", name = "|cffffd100" .. L["Swipe Animation"] .. "|r",
+                inline = true, order = 20,
+                disabled = compactDisabledFn,
+                args = {
+                    drawSwipe = {
+                        type = "toggle", order = 1, width = "normal",
+                        name = L["Show Swipe Animation"],
+                        desc = L["Shows the dark overlay that sweeps during a cooldown."],
+                        get = ProfileTableGet("compactPartyAuraText", "drawSwipe", true),
+                        set = ProfileTableSet("compactPartyAuraText", "drawSwipe"),
+                    },
+                    edgeEnabled = {
+                        type = "toggle", order = 2, width = "normal",
+                        name = L["Show Swipe Edge"],
+                        desc = L["Shows the white line indicating cooldown progress."],
+                        get = ProfileTableGet("compactPartyAuraText", "edgeEnabled", true),
+                        set = ProfileTableSet("compactPartyAuraText", "edgeEnabled"),
+                    },
+                    edgeScale = {
+                        type = "range", order = 3,
+                        name = L["Edge Thickness"],
+                        desc = L["Scale of the swipe line (1.0 = Default)."],
+                        min = 0.5, max = 2.0, step = 0.1,
+                        get = ProfileTableGet("compactPartyAuraText", "edgeScale", 1.4),
+                        set = ProfileTableRangeSet("compactPartyAuraText", "edgeScale"),
                     },
                 },
             },
@@ -983,7 +1106,7 @@ function MCE:GetOptions()
                     banner = {
                         type = "description", order = 0.1, fontSize = "large",
                         name = "|cff00ccffMinimalist Cooldown Edge|r |cff888888v" .. addonVersion .. "|r\n|cff666666by Anahkas|r",
-                        image = "Interface\\AddOns\\MinimalistCooldownEdge\\MinimalistCooldownEdge",
+                        image = C.Assets.Icon,
                         imageWidth = 48, imageHeight = 48,
                     },
                     bannerSpacing1 = SectionSpacer(0.2),
@@ -1050,14 +1173,15 @@ function MCE:GetOptions()
                                 get = function() return MCE.db.profile.categories[C.Categories.MiniCC].enabled end,
                                 set = function(_, v) MCE.db.profile.categories[C.Categories.MiniCC].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
                             },
-                            toggleGlobal = {
+                            toggleSArena = {
                                 type = "toggle", order = 7, width = 1.0,
-                                name = "|cffffd100" .. L["Others"] .. "|r",
-                                get = function() return MCE.db.profile.categories[C.Categories.Global].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.Global].enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                name = "|cffffd100" .. L["sArena"] .. "|r",
+                                hidden = function() return not MCE:IsSArenaAvailable() end,
+                                get = function() return MCE.db.profile.categories[C.Categories.SArena].enabled end,
+                                set = function(_, v) MCE.db.profile.categories[C.Categories.SArena].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
                             },
                             quickFooter = {
-                                type = "description", order = 8, fontSize = "small", width = "full",
+                                type = "description", order = 9, fontSize = "small", width = "full",
                                 name = "\n|cff999999" .. L["LIVE_CONTROLS_DESC"] .. "|r",
                             },
                         },
@@ -1159,6 +1283,10 @@ function MCE:GetOptions()
                                 get = DurationOffsetGet,
                                 set = DurationOffsetSet,
                             },
+                            perfWarning = {
+                                type = "description", order = 99, fontSize = "small", width = "full",
+                                name = "\n|cffffaa55(!) This feature may impact performance and cause FPS drops. Use only on strong setups. |r",
+                            },
                         },
                     },
                     abbrevThreshold = {
@@ -1221,11 +1349,11 @@ function MCE:GetOptions()
                 L["COOLDOWNMANAGER_DESC"]),
             [C.Categories.MiniCC] = CreateCategoryOptions(7, L["MiniCC"], C.Categories.MiniCC,
                 L["MINICC_DESC"]),
-            [C.Categories.Global] = CreateCategoryOptions(8, L["Others"], C.Categories.Global,
-                L["OTHERS_DESC"]),
+            [C.Categories.SArena] = CreateCategoryOptions(8, L["sArena"], C.Categories.SArena,
+                L["SARENA_DESC"]),
 
             help = {
-                type = "group", name = L["Help & Support"], order = 9,
+                type = "group", name = L["Help & Support"], order = 10,
                 args = {
                     aboutHeader = {
                         type = "description", order = 0.1, fontSize = "large",

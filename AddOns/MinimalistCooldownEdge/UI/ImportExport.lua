@@ -235,10 +235,12 @@ function MCE:ImportConfig(importString)
         return false, L["Failed to deserialize import string."]
     end
 
+    self.suppressProfileCallbacks = true
     self.db:ResetProfile()
     wipe(self.db.profile)
     MergeTableDeep(self.db.profile, CopyTable(self.defaults.profile))
     MergeTableDeep(self.db.profile, importedProfile)
+    self.suppressProfileCallbacks = nil
 
     self:UpgradeProfile()
     self.profileImportBuffer = importString
