@@ -785,6 +785,38 @@ addonTable.CustomiseDialog.ColorsConfig = {
       },
     }
   },
+  ["mouseover"] = {
+    label = addonTable.Locales.MOUSEOVER,
+    default = {
+      kind = "mouseover",
+      colors = {
+        mouseover = GetColor("B15FEB"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.MOUSEOVER,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.mouseover = value
+        end,
+        getter = function(details)
+          return details.colors.mouseover
+        end,
+      },
+      { kind = "spacer" },
+      {
+        label = addonTable.Locales.INCLUDE_TARGET,
+        kind = "checkbox",
+        setter = function(details, value)
+          details.includeTarget = value
+        end,
+        getter = function(details)
+          return details.includeTarget
+        end,
+      },
+    }
+  },
 }
 
 addonTable.CustomiseDialog.ColorsConfigOrder = {
@@ -792,6 +824,7 @@ addonTable.CustomiseDialog.ColorsConfigOrder = {
   "target",
   "softTarget",
   "focus",
+  "mouseover",
   "threat",
   "delveType",
   "eliteType",
@@ -808,4 +841,5 @@ addonTable.CustomiseDialog.ColorsConfigOrder = {
   "importantCast",
   "uninterruptableCast",
   "cast",
+  "fixed",
 }
