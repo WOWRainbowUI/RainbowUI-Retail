@@ -1,14 +1,14 @@
-# [1.9.2](https://github.com/sragia/Exlist/tree/1.9.2) (2026-01-21)
+# [1.9.4](https://github.com/sragia/Exlist/tree/1.9.4) (2026-03-23)
 
-[Full Changelog](https://github.com/sragia/Exlist/compare/1.9.1...1.9.2)
+[Full Changelog](https://github.com/sragia/Exlist/compare/1.9.3...1.9.4)
 
 ## Highlights
 
- Fix Lua error 
+ woops toc update 
 
 ## Commits
 
 Exality (1):
 
-- Fix lua error
+- woops, toc update
 
