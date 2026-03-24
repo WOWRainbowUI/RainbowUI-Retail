@@ -232,7 +232,10 @@ local function MediaTab_AddCustomFont(settings)
 
 	MSBTProfiles.savedMedia.fonts[fontName] = fontPath
 	MSBTMedia.RegisterFont(fontName, fontPath)
-	tabFrames.media.controls.customFontsListbox:AddItem(fontName, true)
+	local listbox = tabFrames.media and tabFrames.media.controls and tabFrames.media.controls.customFontsListbox
+	if (listbox) then
+		listbox:AddItem(fontName, true)
+	end
 end
 
 
@@ -247,7 +250,10 @@ local function MediaTab_ChangeCustomFont(settings)
 	MSBTProfiles.savedMedia.fonts[fontName] = fontPath
 	MSBTMedia.fonts[fontName] = fontPath
 
-	tabFrames.media.controls.customFontsListbox:Refresh()
+	local listbox = tabFrames.media and tabFrames.media.controls and tabFrames.media.controls.customFontsListbox
+	if (listbox) then
+		listbox:Refresh()
+	end
 end
 
 
@@ -257,7 +263,10 @@ end
 local function MediaTab_DeleteCustomFont(line)
 	MSBTProfiles.savedMedia.fonts[line.fontKey] = nil
 	MSBTMedia.fonts[line.fontKey] = nil
-	tabFrames.media.controls.customFontsListbox:RemoveItem(line.itemNumber)
+	local listbox = tabFrames.media and tabFrames.media.controls and tabFrames.media.controls.customFontsListbox
+	if (listbox) then
+		listbox:RemoveItem(line.itemNumber)
+	end
 end
 
 
@@ -403,7 +412,10 @@ local function MediaTab_AddCustomSound(settings)
 
 	MSBTProfiles.savedMedia.sounds[soundName] = soundPath
 	MSBTMedia.RegisterSound(soundName, soundPath)
-	tabFrames.media.controls.customSoundsListbox:AddItem(soundName, true)
+	local listbox = tabFrames.media and tabFrames.media.controls and tabFrames.media.controls.customSoundsListbox
+	if (listbox) then
+		listbox:AddItem(soundName, true)
+	end
 end
 
 
@@ -418,7 +430,10 @@ local function MediaTab_ChangeCustomSound(settings)
 	MSBTProfiles.savedMedia.sounds[soundName] = soundPath
 	MSBTMedia.sounds[soundName] = soundPath
 
-	tabFrames.media.controls.customSoundsListbox:Refresh()
+	local listbox = tabFrames.media and tabFrames.media.controls and tabFrames.media.controls.customSoundsListbox
+	if (listbox) then
+		listbox:Refresh()
+	end
 end
 
 
@@ -428,7 +443,10 @@ end
 local function MediaTab_DeleteCustomSound(line)
 	MSBTProfiles.savedMedia.sounds[line.soundKey] = nil
 	MSBTMedia.sounds[line.soundKey] = nil
-	tabFrames.media.controls.customSoundsListbox:RemoveItem(line.itemNumber)
+	local listbox = tabFrames.media and tabFrames.media.controls and tabFrames.media.controls.customSoundsListbox
+	if (listbox) then
+		listbox:RemoveItem(line.itemNumber)
+	end
 end
 
 
@@ -671,11 +689,22 @@ end
 -- General tab functions.
 -------------------------------------------------------------------------------
 
+local GeneralTab_Populate
+
+local function RefreshGeneralTabIfCreated()
+	if tabFrames.general and tabFrames.general.created then
+		GeneralTab_Populate()
+	end
+end
+
 -- ****************************************************************************
 -- Toggle the enable state of the profile buttons appropriately.
 -- ****************************************************************************
-local function GeneralTab_ToggleDeleteButton()
-	local controls = tabFrames.general.controls
+local function ProfileTab_ToggleDeleteButton()
+	if not tabFrames.profile or not tabFrames.profile.controls then
+		return
+	end
+	local controls = tabFrames.profile.controls
 
 	if (controls.profileDropdown:GetSelectedID() == DEFAULT_PROFILE_NAME) then
 		controls.deleteProfileButton:Disable()
@@ -717,24 +746,31 @@ local function GeneralTab_EnableControls()
 	for name, frame in pairs(tabFrames.general.controls) do
 		if (frame.Enable) then frame:Enable() end
 	end
-
-	GeneralTab_ToggleDeleteButton()
 end
 
 
 -- ****************************************************************************
 -- Populate the controls with the profile settings.
 -- ****************************************************************************
-local function GeneralTab_Populate()
+GeneralTab_Populate = function()
 	local currentProfile = MSBTProfiles.currentProfile
 	local controls = tabFrames.general.controls
 
 	controls.enableCheckbox:SetChecked(not MSBTProfiles.IsModDisabled())
+	controls.disableOutgoingInGroupCheckbox:SetChecked(not not currentProfile.disableOutgoingInGroup)
+	controls.disableIncomingInGroupCheckbox:SetChecked(not not currentProfile.disableIncomingInGroup)
+	controls.disableNotificationInGroupCheckbox:SetChecked(not not currentProfile.disableNotificationInGroup)
+	controls.disableStaticInGroupCheckbox:SetChecked(not not currentProfile.disableStaticInGroup)
 	controls.stickyCritsCheckbox:SetChecked(not currentProfile.stickyCritsDisabled)
+	controls.shortenNumbersCheckbox:SetChecked(currentProfile.shortenNumbers)
+	controls.stackSimilarHitsCheckbox:SetChecked(currentProfile.stackSimilarHits)
 	controls.enableSoundsCheckbox:SetChecked(not currentProfile.soundsDisabled)
-	controls.textShadowingCheckbox:SetChecked(not currentProfile.textShadowingDisabled)
+	controls.enableIconsCheckbox:SetChecked(not currentProfile.skillIconsDisabled)
 	if controls.blizzardCombatTextV2Checkbox then
-		controls.blizzardCombatTextV2Checkbox:SetChecked(GeneralTab_IsBlizzardCombatTextV2Enabled())
+		controls.blizzardCombatTextV2Checkbox:SetChecked(not not currentProfile.enableBlizzardV2CombatText)
+	end
+	if controls.blizzardCombatTextV2InGroupCheckbox then
+		controls.blizzardCombatTextV2InGroupCheckbox:SetChecked(not not currentProfile.enableBlizzardV2CombatTextInGroup)
 	end
 	controls.animationSpeedSlider:SetValue(currentProfile.animationSpeed)
 end
@@ -759,7 +795,7 @@ end
 -- ****************************************************************************
 local function GeneralTab_CopyProfile(settings)
 	local profileName = settings.inputText
-	local controls = tabFrames.general.controls
+	local controls = tabFrames.profile.controls
 
 	local dropdown = controls.profileDropdown
 	MSBTProfiles.CopyProfile(dropdown:GetSelectedID(), profileName)
@@ -768,8 +804,8 @@ local function GeneralTab_CopyProfile(settings)
 
 	dropdown:SetSelectedID(profileName)
 	MSBTProfiles.SelectProfile(profileName)
-	GeneralTab_Populate()
-	GeneralTab_ToggleDeleteButton()
+	RefreshGeneralTabIfCreated()
+	ProfileTab_ToggleDeleteButton()
 end
 
 
@@ -777,10 +813,10 @@ end
 -- Resets the selected profile.
 -- ****************************************************************************
 local function GeneralTab_ResetProfile()
-	local controls = tabFrames.general.controls
+	local controls = tabFrames.profile.controls
 
 	MSBTProfiles.ResetProfile(controls.profileDropdown:GetSelectedID())
-	GeneralTab_Populate()
+	RefreshGeneralTabIfCreated()
 end
 
 
@@ -788,7 +824,7 @@ end
 -- Deletes the selected profile.
 -- ****************************************************************************
 local function GeneralTab_DeleteProfile()
-	local controls = tabFrames.general.controls
+	local controls = tabFrames.profile.controls
 
 	local dropdown = controls.profileDropdown
 	local profileName = dropdown:GetSelectedID()
@@ -796,8 +832,8 @@ local function GeneralTab_DeleteProfile()
 	dropdown:RemoveItem(profileName)
 
 	dropdown:SetSelectedID(DEFAULT_PROFILE_NAME)
-	GeneralTab_Populate()
-	GeneralTab_ToggleDeleteButton()
+	RefreshGeneralTabIfCreated()
+	ProfileTab_ToggleDeleteButton()
 end
 
 
@@ -839,100 +875,161 @@ local function GeneralTab_Create()
 	)
 	controls.enableCheckbox = checkbox
 
-	-- Blizzard floating combat text (v2) checkbox.
+	-- Disable outgoing in group checkbox.
 	checkbox = MSBTControls.CreateCheckbox(tabFrame)
-	objLocale = L.CHECKBOXES["enableBlizzardV2CombatText"] or { label = "Enable Blizzard Combat Text", tooltip = "Enable Blizzard floating combat text damage/healing (v2)." }
+	objLocale = L.CHECKBOXES["disableOutgoingInGroup"] or { label = "Disable Outgoing In Group", tooltip = "While in a party or raid, hide events assigned to the Outgoing scroll area." }
 	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("TOPLEFT", controls.enableCheckbox, "BOTTOMLEFT", 0, -5)
+	checkbox:SetPoint("TOPLEFT", controls.enableCheckbox, "BOTTOMLEFT", 18, -5)
 	checkbox:SetClickHandler(
 		function (this, isChecked)
-			GeneralTab_SetBlizzardCombatTextV2Enabled(isChecked)
+			MSBTProfiles.SetOption(nil, "disableOutgoingInGroup", isChecked)
+			if MSBTProfiles.ApplyContextOptions then
+				MSBTProfiles.ApplyContextOptions()
+			end
+		end
+	)
+	controls.disableOutgoingInGroupCheckbox = checkbox
+
+	-- Disable incoming in group checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["disableIncomingInGroup"] or { label = "Disable Incoming In Group", tooltip = "While in a party or raid, hide events assigned to the Incoming scroll area." }
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("TOPLEFT", controls.disableOutgoingInGroupCheckbox, "BOTTOMLEFT", 0, -5)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "disableIncomingInGroup", isChecked)
+			if MSBTProfiles.ApplyContextOptions then
+				MSBTProfiles.ApplyContextOptions()
+			end
+		end
+	)
+	controls.disableIncomingInGroupCheckbox = checkbox
+
+	-- Disable notification in group checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["disableNotificationInGroup"] or { label = "Disable Notification In Group", tooltip = "While in a party or raid, hide events assigned to the Notification scroll area." }
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("TOPLEFT", controls.disableIncomingInGroupCheckbox, "BOTTOMLEFT", 0, -5)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "disableNotificationInGroup", isChecked)
+			if MSBTProfiles.ApplyContextOptions then
+				MSBTProfiles.ApplyContextOptions()
+			end
+		end
+	)
+	controls.disableNotificationInGroupCheckbox = checkbox
+
+	-- Disable static in group checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["disableStaticInGroup"] or { label = "Disable Static In Group", tooltip = "While in a party or raid, hide events assigned to the Static scroll area." }
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("TOPLEFT", controls.disableNotificationInGroupCheckbox, "BOTTOMLEFT", 0, -5)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "disableStaticInGroup", isChecked)
+			if MSBTProfiles.ApplyContextOptions then
+				MSBTProfiles.ApplyContextOptions()
+			end
+		end
+	)
+	controls.disableStaticInGroupCheckbox = checkbox
+
+	-- Blizzard floating combat text (v2) checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["enableBlizzardV2CombatText"] or { label = "Disable Blizzard CT While Solo", tooltip = "When checked, disables Blizzard floating combat text damage/healing while solo." }
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("TOPLEFT", controls.enableCheckbox, "TOPRIGHT", 30, 0)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "enableBlizzardV2CombatText", isChecked)
+			if MSBTProfiles.ApplyContextOptions then
+				MSBTProfiles.ApplyContextOptions()
+			end
 		end
 	)
 	controls.blizzardCombatTextV2Checkbox = checkbox
 
-	-- Profile dropdown.
-	local dropdown = MSBTControls.CreateDropdown(tabFrame)
-	objLocale = L.DROPDOWNS["profile"]
-	dropdown:Configure(180, objLocale.label, objLocale.tooltip)
-	dropdown:SetPoint("TOPLEFT", controls.blizzardCombatTextV2Checkbox, "BOTTOMLEFT", 0, -25)
-	dropdown:SetChangeHandler(
-		function (this, id)
-			MSBTProfiles.SelectProfile(id)
-			GeneralTab_Populate()
-			GeneralTab_ToggleDeleteButton()
+	-- Blizzard floating combat text (v2) in group only checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["enableBlizzardV2InGroup"] or { label = "Enable Blizzard CT In Group", tooltip = "Enable Blizzard Combat Text only while in a party or raid. This overrides Disable Blizzard CT While Solo while grouped." }
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("TOPLEFT", controls.blizzardCombatTextV2Checkbox, "BOTTOMLEFT", 0, -5)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "enableBlizzardV2CombatTextInGroup", isChecked)
+			if MSBTProfiles.ApplyContextOptions then
+				MSBTProfiles.ApplyContextOptions()
+			end
 		end
 	)
-	controls.profileDropdown = dropdown
+	controls.blizzardCombatTextV2InGroupCheckbox = checkbox
 
-
-	-- Copy profile button.
-	local button = MSBTControls.CreateOptionButton(tabFrame)
-	objLocale = L.BUTTONS["copyProfile"]
-	button:Configure(20, objLocale.label, objLocale.tooltip)
-	button:SetPoint("TOPLEFT", dropdown, "BOTTOMLEFT", 0, -20)
-	button:SetClickHandler(
-		function (this)
-			local objLocale = L.EDITBOXES["copyProfile"]
-			EraseTable(configTable)
-			configTable.defaultText = L.MSG_NEW_PROFILE
-			configTable.editboxLabel = objLocale.label
-			configTable.editboxTooltip = objLocale.tooltip
-			configTable.parentFrame = tabFrame
-			configTable.anchorFrame = this
-			configTable.validateHandler = GeneralTab_ValidateProfileName
-			configTable.saveHandler = GeneralTab_CopyProfile
-			configTable.hideHandler = GeneralTab_EnableControls
-			DisableControls(controls)
-			MSBTPopups.ShowInput(configTable)
+	-- Enable sounds checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["enableSounds"]
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", -30, 15)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "soundsDisabled", not isChecked)
 		end
 	)
-	controls.copyProfileButton = button
+	controls.enableSoundsCheckbox = checkbox
 
-	-- Reset profile button.
-	button = MSBTControls.CreateOptionButton(tabFrame)
-	objLocale = L.BUTTONS["resetProfile"]
-	button:Configure(20, objLocale.label, objLocale.tooltip)
-	button:SetPoint("LEFT", controls.copyProfileButton, "RIGHT", 10, 0)
-	button:SetClickHandler(
-		function (this)
-			EraseTable(configTable)
-			configTable.parentFrame = tabFrame
-			configTable.anchorFrame = this
-			configTable.acknowledgeHandler = GeneralTab_ResetProfile
-			configTable.hideHandler = GeneralTab_EnableControls
-			DisableControls(controls)
-			MSBTPopups.ShowAcknowledge(configTable)
+	-- Shorten numbers checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["shortenNumbers"]
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("BOTTOMLEFT", controls.enableSoundsCheckbox, "TOPLEFT", 0, 0)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "shortenNumbers", isChecked)
 		end
 	)
-	controls.resetProfileButton = button
+	controls.shortenNumbersCheckbox = checkbox
 
-	-- Delete profile button.
-	button = MSBTControls.CreateOptionButton(tabFrame)
-	objLocale = L.BUTTONS["deleteProfile"]
-	button:Configure(20, objLocale.label, objLocale.tooltip)
-	button:SetPoint("LEFT", controls.resetProfileButton, "RIGHT", 10, 0)
-	button:SetClickHandler(
-		function (this)
-			EraseTable(configTable)
-			configTable.parentFrame = tabFrame
-			configTable.anchorFrame = this
-			configTable.anchorPoint = "TOPRIGHT"
-			configTable.relativePoint = "BOTTOMRIGHT"
-			configTable.acknowledgeHandler = GeneralTab_DeleteProfile
-			configTable.hideHandler = GeneralTab_EnableControls
-			DisableControls(controls)
-			MSBTPopups.ShowAcknowledge(configTable)
+	-- Stack similar hits checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["stackSimilarHits"]
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("BOTTOMLEFT", controls.shortenNumbersCheckbox, "TOPLEFT", 0, 0)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "stackSimilarHits", isChecked)
 		end
 	)
-	controls.deleteProfileButton = button
+	controls.stackSimilarHitsCheckbox = checkbox
 
+	-- Sticky crits checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["stickyCrits"]
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("BOTTOMLEFT", controls.stackSimilarHitsCheckbox, "TOPLEFT", 0, 0)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "stickyCritsDisabled", not isChecked)
+		end
+	)
+	controls.stickyCritsCheckbox = checkbox
+
+	-- Enable skill icons checkbox.
+	checkbox = MSBTControls.CreateCheckbox(tabFrame)
+	objLocale = L.CHECKBOXES["enableIcons"]
+	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
+	checkbox:SetPoint("BOTTOMLEFT", controls.stickyCritsCheckbox, "TOPLEFT", 0, 0)
+	checkbox:SetClickHandler(
+		function (this, isChecked)
+			MSBTProfiles.SetOption(nil, "skillIconsDisabled", not isChecked)
+		end
+	)
+	controls.enableIconsCheckbox = checkbox
 
 	-- Animation speed slider.
 	local slider = MSBTControls.CreateSlider(tabFrame)
 	objLocale = L.SLIDERS["animationSpeed"]
 	slider:Configure(180, objLocale.label, objLocale.tooltip)
-	slider:SetPoint("TOPLEFT", controls.copyProfileButton, "BOTTOMLEFT", 0, -35)
+	slider:SetPoint("BOTTOMRIGHT", controls.enableIconsCheckbox, "TOPRIGHT", 0, 10)
 	slider:SetMinMaxValues(20, 250)
 	slider:SetValueStep(10)
 	slider:SetValueChangedHandler(
@@ -941,43 +1038,6 @@ local function GeneralTab_Create()
 		end
 	)
 	controls.animationSpeedSlider = slider
-
-
-	-- Text shadowing checkbox.
-	checkbox = MSBTControls.CreateCheckbox(tabFrame)
-	objLocale = L.CHECKBOXES["textShadowing"]
-	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", -30, 15)
-	checkbox:SetClickHandler(
-		function (this, isChecked)
-			MSBTProfiles.SetOption(nil, "textShadowingDisabled", not isChecked)
-		end
-	)
-	controls.textShadowingCheckbox = checkbox
-
-	-- Enable sounds checkbox.
-	checkbox = MSBTControls.CreateCheckbox(tabFrame)
-	objLocale = L.CHECKBOXES["enableSounds"]
-	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("BOTTOMLEFT", controls.textShadowingCheckbox, "TOPLEFT", 0, 0)
-	checkbox:SetClickHandler(
-		function (this, isChecked)
-			MSBTProfiles.SetOption(nil, "soundsDisabled", not isChecked)
-		end
-	)
-	controls.enableSoundsCheckbox = checkbox
-
-	-- Sticky crits checkbox.
-	checkbox = MSBTControls.CreateCheckbox(tabFrame)
-	objLocale = L.CHECKBOXES["stickyCrits"]
-	checkbox:Configure(28, objLocale.label, objLocale.tooltip)
-	checkbox:SetPoint("BOTTOMLEFT", controls.enableSoundsCheckbox, "TOPLEFT", 0, 0)
-	checkbox:SetClickHandler(
-		function (this, isChecked)
-			MSBTProfiles.SetOption(nil, "stickyCritsDisabled", not isChecked)
-		end
-	)
-	controls.stickyCritsCheckbox = checkbox
 
 
 
@@ -1038,11 +1098,63 @@ local function GeneralTab_Create()
 	)
 	controls.partialEffectsButton = button
 
+	-- Add custom sound button.
+	button = MSBTControls.CreateOptionButton(tabFrame)
+	objLocale = L.BUTTONS["addCustomSound"]
+	button:Configure(20, objLocale.label, objLocale.tooltip)
+	button:SetPoint("BOTTOMLEFT", controls.partialEffectsButton, "TOPLEFT", 0, 10)
+	button:SetClickHandler(
+		function (this)
+			objLocale = L.EDITBOXES["customSoundName"]
+			EraseTable(configTable)
+			configTable.editboxLabel = objLocale.label
+			configTable.editboxTooltip = objLocale.tooltip
+			configTable.parentFrame = tabFrame
+			configTable.anchorFrame = this
+			objLocale = L.EDITBOXES["customSoundPath"]
+			configTable.showSecondEditbox = true
+			configTable.secondEditboxLabel = objLocale.label
+			configTable.secondEditboxTooltip = objLocale.tooltip
+			configTable.validateHandler = MediaTab_ValidateCustomSound
+			configTable.saveHandler = MediaTab_AddCustomSound
+			configTable.hideHandler = GeneralTab_EnableControls
+			DisableControls(controls)
+			MSBTPopups.ShowInput(configTable)
+		end
+	)
+	controls.addCustomSoundButton = button
+
+	-- Add custom font button.
+	button = MSBTControls.CreateOptionButton(tabFrame)
+	objLocale = L.BUTTONS["addCustomFont"]
+	button:Configure(20, objLocale.label, objLocale.tooltip)
+	button:SetPoint("BOTTOMLEFT", controls.addCustomSoundButton, "TOPLEFT", 0, 10)
+	button:SetClickHandler(
+		function (this)
+			objLocale = L.EDITBOXES["customFontName"]
+			EraseTable(configTable)
+			configTable.editboxLabel = objLocale.label
+			configTable.editboxTooltip = objLocale.tooltip
+			configTable.parentFrame = tabFrame
+			configTable.anchorFrame = this
+			objLocale = L.EDITBOXES["customFontPath"]
+			configTable.showSecondEditbox = true
+			configTable.secondEditboxLabel = objLocale.label
+			configTable.secondEditboxTooltip = objLocale.tooltip
+			configTable.validateHandler = MediaTab_ValidateCustomFont
+			configTable.saveHandler = MediaTab_AddCustomFont
+			configTable.hideHandler = GeneralTab_EnableControls
+			DisableControls(controls)
+			MSBTPopups.ShowInput(configTable)
+		end
+	)
+	controls.addCustomFontButton = button
+
 	-- Master font settings button.
 	button = MSBTControls.CreateOptionButton(tabFrame)
 	objLocale = L.BUTTONS["masterFont"]
 	button:Configure(20, objLocale.label, objLocale.tooltip)
-	button:SetPoint("BOTTOMLEFT", controls.partialEffectsButton, "TOPLEFT", 0, 10)
+	button:SetPoint("BOTTOMLEFT", controls.addCustomFontButton, "TOPLEFT", 0, 10)
 	button:SetClickHandler(
 		function (this)
 			EraseTable(configTable)
@@ -1074,16 +1186,13 @@ local function GeneralTab_Create()
 	)
 	controls.masterFontButton = button
 
+	-- Font path validation font string used by custom font validation.
+	local fontString = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	fontString:SetPoint("BOTTOMRIGHT", tabFrame, "BOTTOMRIGHT", 0, 0)
+	fontString:SetText("Test")
+	fontString:SetAlpha(0)
+	tabFrame.fontPathValidationFontString = fontString
 
-	-- Populate the available profiles and select the current profile by default.
-	local currentProfileName
-	for profileName, profile in pairs(MSBTProfiles.savedVariables.profiles) do
-		dropdown:AddItem(profileName, profileName)
-		if (profile == MSBTProfiles.currentProfile) then currentProfileName = profileName end
-	end
-	dropdown:SetSelectedID(currentProfileName)
-	dropdown:Sort()
-	GeneralTab_ToggleDeleteButton()
 
 	tabFrame.created = true
 end
@@ -1097,6 +1206,121 @@ local function GeneralTab_OnShow()
 
 		-- Set the frame up to populate the profile options when it is shown.
 	GeneralTab_Populate()
+end
+
+
+-------------------------------------------------------------------------------
+-- Profile tab functions.
+-------------------------------------------------------------------------------
+
+local function ProfileTab_EnableControls()
+	for _, frame in pairs(tabFrames.profile.controls) do
+		if (frame.Enable) then frame:Enable() end
+	end
+	ProfileTab_ToggleDeleteButton()
+end
+
+local function ProfileTab_Populate()
+	local controls = tabFrames.profile.controls
+	local currentProfileName
+	for profileName, profile in pairs(MSBTProfiles.savedVariables.profiles) do
+		if (profile == MSBTProfiles.currentProfile) then
+			currentProfileName = profileName
+			break
+		end
+	end
+	controls.profileDropdown:SetSelectedID(currentProfileName or DEFAULT_PROFILE_NAME)
+	ProfileTab_ToggleDeleteButton()
+end
+
+local function ProfileTab_Create()
+	local tabFrame = tabFrames.profile
+	tabFrame.controls = {}
+	local controls = tabFrame.controls
+
+	local dropdown = MSBTControls.CreateDropdown(tabFrame)
+	local objLocale = L.DROPDOWNS["profile"]
+	dropdown:Configure(220, objLocale.label, objLocale.tooltip)
+	dropdown:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 5, -20)
+	dropdown:SetChangeHandler(
+		function (this, id)
+			MSBTProfiles.SelectProfile(id)
+			ProfileTab_Populate()
+			RefreshGeneralTabIfCreated()
+		end
+	)
+	controls.profileDropdown = dropdown
+
+	for profileName in pairs(MSBTProfiles.savedVariables.profiles) do
+		dropdown:AddItem(profileName, profileName)
+	end
+	dropdown:Sort()
+
+	local button = MSBTControls.CreateOptionButton(tabFrame)
+	objLocale = L.BUTTONS["copyProfile"]
+	button:Configure(20, objLocale.label, objLocale.tooltip)
+	button:SetPoint("TOPLEFT", dropdown, "BOTTOMLEFT", 0, -20)
+	button:SetClickHandler(
+		function (this)
+			local editLocale = L.EDITBOXES["copyProfile"]
+			EraseTable(configTable)
+			configTable.defaultText = L.MSG_NEW_PROFILE
+			configTable.editboxLabel = editLocale.label
+			configTable.editboxTooltip = editLocale.tooltip
+			configTable.parentFrame = tabFrame
+			configTable.anchorFrame = this
+			configTable.validateHandler = GeneralTab_ValidateProfileName
+			configTable.saveHandler = GeneralTab_CopyProfile
+			configTable.hideHandler = ProfileTab_EnableControls
+			DisableControls(controls)
+			MSBTPopups.ShowInput(configTable)
+		end
+	)
+	controls.copyProfileButton = button
+
+	button = MSBTControls.CreateOptionButton(tabFrame)
+	objLocale = L.BUTTONS["resetProfile"]
+	button:Configure(20, objLocale.label, objLocale.tooltip)
+	button:SetPoint("LEFT", controls.copyProfileButton, "RIGHT", 10, 0)
+	button:SetClickHandler(
+		function (this)
+			EraseTable(configTable)
+			configTable.parentFrame = tabFrame
+			configTable.anchorFrame = this
+			configTable.acknowledgeHandler = GeneralTab_ResetProfile
+			configTable.hideHandler = ProfileTab_EnableControls
+			DisableControls(controls)
+			MSBTPopups.ShowAcknowledge(configTable)
+		end
+	)
+	controls.resetProfileButton = button
+
+	button = MSBTControls.CreateOptionButton(tabFrame)
+	objLocale = L.BUTTONS["deleteProfile"]
+	button:Configure(20, objLocale.label, objLocale.tooltip)
+	button:SetPoint("LEFT", controls.resetProfileButton, "RIGHT", 10, 0)
+	button:SetClickHandler(
+		function (this)
+			EraseTable(configTable)
+			configTable.parentFrame = tabFrame
+			configTable.anchorFrame = this
+			configTable.anchorPoint = "TOPRIGHT"
+			configTable.relativePoint = "BOTTOMRIGHT"
+			configTable.acknowledgeHandler = GeneralTab_DeleteProfile
+			configTable.hideHandler = ProfileTab_EnableControls
+			DisableControls(controls)
+			MSBTPopups.ShowAcknowledge(configTable)
+		end
+	)
+	controls.deleteProfileButton = button
+
+	ProfileTab_Populate()
+	tabFrame.created = true
+end
+
+local function ProfileTab_OnShow()
+	if (not tabFrames.profile.created) then ProfileTab_Create() end
+	ProfileTab_Populate()
 end
 
 
@@ -2359,14 +2583,18 @@ local function TriggersTab_OnShow()
 	local currentProfileTriggers = rawget(MSBTProfiles.currentProfile, "triggers")
 	if (currentProfileTriggers) then
 		for triggerKey, triggerSettings in pairs(currentProfileTriggers) do
-			if (triggerSettings) then triggerTable[triggerKey] = triggerSettings.message end
+			if (triggerSettings and not MSBTTriggers.TriggerUsesCLEUMainEvents(triggerSettings.mainEvents)) then
+				triggerTable[triggerKey] = triggerSettings.message
+			end
 		end
 	end
 
 	-- Get triggers available in the master profile that aren't in the current profile.
 	for triggerKey, triggerSettings in pairs(MSBTProfiles.masterProfile.triggers) do
 		if (not currentProfileTriggers or rawget(currentProfileTriggers, triggerKey) == nil) then
-			triggerTable[triggerKey] = triggerSettings.message
+			if not MSBTTriggers.TriggerUsesCLEUMainEvents(triggerSettings.mainEvents) then
+				triggerTable[triggerKey] = triggerSettings.message
+			end
 		end
 	end
 
@@ -2749,6 +2977,9 @@ end
 -- Cooldowns tab functions.
 -------------------------------------------------------------------------------
 
+local PLAYER_COOLDOWNS_SUPPORTED = false
+local PET_COOLDOWNS_SUPPORTED = false
+
 -- ****************************************************************************
 -- Enables the controls on the cooldowns tab.
 -- ****************************************************************************
@@ -2787,6 +3018,80 @@ local function CooldownsTab_SaveFontSettings(settings, eventType)
 	MSBTProfiles.SetOption("events." .. eventType, "outlineIndex", settings.normalOutlineIndex)
 	MSBTProfiles.SetOption("events." .. eventType, "fontSize", settings.normalFontSize)
 	MSBTProfiles.SetOption("events." .. eventType, "fontAlpha", settings.normalFontAlpha)
+end
+
+
+-- ****************************************************************************
+-- Updates enabled/disabled state of controls per cooldown row.
+-- ****************************************************************************
+local function CooldownsTab_UpdateRowStates()
+	local tabFrame = tabFrames.cooldowns
+	if not tabFrame or not tabFrame.controls then
+		return
+	end
+
+	local controls = tabFrame.controls
+
+	local function UpdateRow(isEnabled, eventButton, fontButton, messageFontString, colorSwatch, skillColorSwatch)
+		if isEnabled then
+			if eventButton and eventButton.Enable then eventButton:Enable() end
+			if fontButton and fontButton.Enable then fontButton:Enable() end
+			if colorSwatch and colorSwatch.Enable then colorSwatch:Enable() end
+			if skillColorSwatch and skillColorSwatch.Enable then skillColorSwatch:Enable() end
+			if messageFontString then messageFontString:SetTextColor(1, 1, 1) end
+		else
+			if eventButton and eventButton.Disable then eventButton:Disable() end
+			if fontButton and fontButton.Disable then fontButton:Disable() end
+			if colorSwatch and colorSwatch.Disable then colorSwatch:Disable() end
+			if skillColorSwatch and skillColorSwatch.Disable then skillColorSwatch:Disable() end
+			if messageFontString then messageFontString:SetTextColor(0.5, 0.5, 0.5) end
+		end
+	end
+
+	UpdateRow(
+		PLAYER_COOLDOWNS_SUPPORTED and controls.playerEnableCheckbox and controls.playerEnableCheckbox:GetChecked(),
+		controls.playerEventSettingsButton,
+		controls.playerFontSettingsButton,
+		tabFrame.playerMessageFontString,
+		controls.playerColorSwatch,
+		controls.playerSkillColorSwatch
+	)
+
+	UpdateRow(
+		PET_COOLDOWNS_SUPPORTED and controls.petEnableCheckbox and controls.petEnableCheckbox:GetChecked(),
+		controls.petEventSettingsButton,
+		controls.petFontSettingsButton,
+		tabFrame.petMessageFontString,
+		controls.petColorSwatch,
+		controls.petSkillColorSwatch
+	)
+
+	UpdateRow(
+		controls.itemEnableCheckbox and controls.itemEnableCheckbox:GetChecked(),
+		controls.itemEventSettingsButton,
+		controls.itemFontSettingsButton,
+		tabFrame.itemMessageFontString,
+		controls.itemColorSwatch,
+		controls.itemSkillColorSwatch
+	)
+
+	if controls.petEnableCheckbox then
+		if PET_COOLDOWNS_SUPPORTED then
+			controls.petEnableCheckbox:Enable()
+		else
+			controls.petEnableCheckbox:SetChecked(false)
+			controls.petEnableCheckbox:Disable()
+		end
+	end
+
+	if controls.playerEnableCheckbox then
+		if PLAYER_COOLDOWNS_SUPPORTED then
+			controls.playerEnableCheckbox:Enable()
+		else
+			controls.playerEnableCheckbox:SetChecked(false)
+			controls.playerEnableCheckbox:Disable()
+		end
+	end
 end
 
 
@@ -2834,6 +3139,7 @@ local function CooldownsTab_Create()
 		function (this, isChecked)
 			MSBTProfiles.SetOption("events.NOTIFICATION_COOLDOWN", "disabled", not isChecked)
 			MSBTCooldowns.UpdateRegisteredEvents()
+			CooldownsTab_UpdateRowStates()
 		end
 	)
 	controls.playerEnableCheckbox = checkbox
@@ -2911,7 +3217,7 @@ local function CooldownsTab_Create()
 			MSBTPopups.ShowFont(configTable)
 		end
 	)
-	controls[#controls+1] = button
+	controls.playerFontSettingsButton = button
 
 	-- Player message font string.
 	local fontString = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -2957,6 +3263,7 @@ local function CooldownsTab_Create()
 		function (this, isChecked)
 			MSBTProfiles.SetOption("events.NOTIFICATION_PET_COOLDOWN", "disabled", not isChecked)
 			MSBTCooldowns.UpdateRegisteredEvents()
+			CooldownsTab_UpdateRowStates()
 		end
 	)
 	controls.petEnableCheckbox = checkbox
@@ -3034,7 +3341,7 @@ local function CooldownsTab_Create()
 			MSBTPopups.ShowFont(configTable)
 		end
 	)
-	controls[#controls+1] = button
+	controls.petFontSettingsButton = button
 
 	-- Pet message font string.
 	local fontString = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -3080,6 +3387,7 @@ local function CooldownsTab_Create()
 		function (this, isChecked)
 			MSBTProfiles.SetOption("events.NOTIFICATION_ITEM_COOLDOWN", "disabled", not isChecked)
 			MSBTCooldowns.UpdateRegisteredEvents()
+			CooldownsTab_UpdateRowStates()
 		end
 	)
 	controls.itemEnableCheckbox = checkbox
@@ -3112,13 +3420,13 @@ local function CooldownsTab_Create()
 			MSBTPopups.ShowEvent(configTable)
 		end
 	)
-	controls[#controls+1] = button
+	controls.itemEventSettingsButton = button
 
 	-- Item cooldown font settings button.
 	local button = MSBTControls.CreateIconButton(tabFrame, "FontSettings")
 	objLocale = L.BUTTONS["eventFontSettings"]
 	button:SetTooltip(objLocale.tooltip)
-	button:SetPoint("RIGHT", controls[#controls], "LEFT", 0, 0)
+	button:SetPoint("RIGHT", controls.itemEventSettingsButton, "LEFT", 0, 0)
 	button:SetClickHandler(
 		function (this)
 			local eventType = "NOTIFICATION_ITEM_COOLDOWN"
@@ -3157,7 +3465,7 @@ local function CooldownsTab_Create()
 			MSBTPopups.ShowFont(configTable)
 		end
 	)
-	controls[#controls+1] = button
+	controls.itemFontSettingsButton = button
 
 	-- Item message font string.
 	local fontString = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -3248,15 +3556,25 @@ local function CooldownsTab_OnShow()
 	local currentProfile = MSBTProfiles.currentProfile
 
 	local eventSettings = currentProfile.events["NOTIFICATION_COOLDOWN"]
+	if not PLAYER_COOLDOWNS_SUPPORTED and not eventSettings.disabled then
+		MSBTProfiles.SetOption("events.NOTIFICATION_COOLDOWN", "disabled", true)
+		MSBTCooldowns.UpdateRegisteredEvents()
+	end
+	eventSettings = currentProfile.events["NOTIFICATION_COOLDOWN"]
 	controls.playerColorSwatch:SetColor(eventSettings.colorR or 1, eventSettings.colorG or 1, eventSettings.colorB or 1)
 	controls.playerSkillColorSwatch:SetColor(eventSettings.skillColorR or 1, eventSettings.skillColorG or 1, eventSettings.skillColorB or 1)
-	controls.playerEnableCheckbox:SetChecked(not eventSettings.disabled)
+	controls.playerEnableCheckbox:SetChecked(PLAYER_COOLDOWNS_SUPPORTED and not eventSettings.disabled)
 	tabFrame.playerMessageFontString:SetText(eventSettings.message)
 
 	local eventSettings = currentProfile.events["NOTIFICATION_PET_COOLDOWN"]
+	if not PET_COOLDOWNS_SUPPORTED and not eventSettings.disabled then
+		MSBTProfiles.SetOption("events.NOTIFICATION_PET_COOLDOWN", "disabled", true)
+		MSBTCooldowns.UpdateRegisteredEvents()
+	end
+	eventSettings = currentProfile.events["NOTIFICATION_PET_COOLDOWN"]
 	controls.petColorSwatch:SetColor(eventSettings.colorR or 1, eventSettings.colorG or 1, eventSettings.colorB or 1)
 	controls.petSkillColorSwatch:SetColor(eventSettings.skillColorR or 1, eventSettings.skillColorG or 1, eventSettings.skillColorB or 1)
-	controls.petEnableCheckbox:SetChecked(not eventSettings.disabled)
+	controls.petEnableCheckbox:SetChecked(PET_COOLDOWNS_SUPPORTED and not eventSettings.disabled)
 	tabFrame.petMessageFontString:SetText(eventSettings.message)
 
 	local eventSettings = currentProfile.events["NOTIFICATION_ITEM_COOLDOWN"]
@@ -3266,6 +3584,7 @@ local function CooldownsTab_OnShow()
 	tabFrame.itemMessageFontString:SetText(eventSettings.message)
 
 	controls.cooldownSlider:SetValue(currentProfile.cooldownThreshold)
+	CooldownsTab_UpdateRowStates()
 end
 
 
@@ -3837,24 +4156,87 @@ end
 
 
 -------------------------------------------------------------------------------
+-- Language tab functions.
+-------------------------------------------------------------------------------
+
+-- ****************************************************************************
+-- Creates the language tab frame contents.
+-- ****************************************************************************
+local function LanguageTab_Create()
+	local tabFrame = tabFrames.language
+	tabFrame.controls = {}
+
+	local localeMap = {
+		enUS = "English (US)",
+		deDE = "Deutsch",
+		frFR = "Francais",
+		itIT = "Italiano",
+		koKR = "Korean",
+		ruRU = "Russian",
+		zhCN = "Chinese (Simplified)",
+		zhTW = "Chinese (Traditional)",
+	}
+
+	local localeID = GetLocale()
+	local localeName = localeMap[localeID] or localeID
+
+	local header = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	header:SetPoint("TOPLEFT", tabFrame, "TOPLEFT", 10, -18)
+	header:SetText("Language")
+	tabFrame.headerFontString = header
+
+	local current = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	current:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -12)
+	current:SetJustifyH("LEFT")
+	current:SetText("Current game locale: " .. localeName .. " (" .. localeID .. ")")
+	tabFrame.currentLocaleFontString = current
+
+	local body = tabFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+	body:SetPoint("TOPLEFT", current, "BOTTOMLEFT", 0, -12)
+	body:SetPoint("RIGHT", tabFrame, "RIGHT", -14, 0)
+	body:SetJustifyH("LEFT")
+	body:SetJustifyV("TOP")
+	body:SetText(
+		"MSBT uses your game client locale. In-addon language switching is not supported because localization is loaded at startup based on GetLocale().\n\n"
+		.. "To use another language, change the game language in the Battle.net app, then restart/reload the game UI."
+	)
+	tabFrame.languageInfoFontString = body
+
+	tabFrame.created = true
+end
+
+
+-- ****************************************************************************
+-- Called when the tab frame is shown.
+-- ****************************************************************************
+local function LanguageTab_OnShow()
+	if (not tabFrames.language.created) then LanguageTab_Create() end
+end
+
+
+-------------------------------------------------------------------------------
 -- Initialization.
 -------------------------------------------------------------------------------
 
--- Create an empty frame for the media tab that will be dynamically created when shown.
-local objLocale = L.TABS["customMedia"]
-local tabFrame = CreateFrame("Frame")
-tabFrame:Hide()
-tabFrame:SetScript("OnShow", MediaTab_OnShow)
-tabFrames.media = tabFrame
-MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
+-- Custom Media tab intentionally removed from MSBT Options UI.
 
 -- Create an empty frame for the general tab that will be dynamically created when shown.
-objLocale = L.TABS.general
-tabFrame = CreateFrame("Frame")
+local objLocale = L.TABS.general
+local tabFrame = CreateFrame("Frame")
 tabFrame:Hide()
 tabFrame:SetScript("OnShow", GeneralTab_OnShow)
 tabFrames.general = tabFrame
+-- Alias media frame references to general so existing custom media handlers continue to work.
+tabFrames.media = tabFrame
 MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
+
+-- Create an empty frame for the profile tab that will be dynamically created when shown.
+objLocale = L.TABS.profile or { label = "Profile", tooltip = "Manage profiles and profile switching." }
+tabFrame = CreateFrame("Frame")
+tabFrame:Hide()
+tabFrame:SetScript("OnShow", ProfileTab_OnShow)
+tabFrames.profile = tabFrame
+MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip, 8999.5)
 
 -- Create an empty frame for the scroll areas tab that will be dynamically created when shown.
 objLocale = L.TABS.scrollAreas
@@ -3872,13 +4254,7 @@ tabFrame:SetScript("OnShow", EventsTab_OnShow)
 tabFrames.events = tabFrame
 MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
 
--- Create an empty frame for the triggers tab that will be dynamically created when shown.
-objLocale = L.TABS.triggers
-tabFrame = CreateFrame("Frame")
-tabFrame:Hide()
-tabFrame:SetScript("OnShow", TriggersTab_OnShow)
-tabFrames.triggers = tabFrame
-MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
+-- Triggers tab intentionally removed from MSBT Options UI.
 
 -- Spam Control tab intentionally removed from MSBT Options UI.
 
@@ -3898,11 +4274,13 @@ tabFrame:SetScript("OnShow", LootAlertsTab_OnShow)
 tabFrames.lootAlerts = tabFrame
 MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
 
--- Create an empty frame for the icons tab that will be dynamically created when shown.
-objLocale = L.TABS.skillIcons
+-- Skill Icons tab intentionally removed from MSBT Options UI.
+
+-- Create an empty frame for the language tab that will be dynamically created when shown.
+objLocale = L.TABS.language or { label = "Language", tooltip = "Shows the current locale and language behavior." }
 tabFrame = CreateFrame("Frame")
 tabFrame:Hide()
-tabFrame:SetScript("OnShow", SkillIconsTab_OnShow)
-tabFrames.skillIcons = tabFrame
-MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip)
+tabFrame:SetScript("OnShow", LanguageTab_OnShow)
+tabFrames.language = tabFrame
+MSBTOptMain.AddTab(tabFrame, objLocale.label, objLocale.tooltip, 9999)
 

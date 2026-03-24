@@ -77,7 +77,10 @@ obj["skillIcons"]	= { label="Иконки навыков", tooltip="Настро
 ------------------------------
 
 obj = L.CHECKBOXES
-obj["enableMSBT"]				= { label="Вкл/Выкл Mik's Scrolling Battle Text", tooltip="Вкл/Выкл MSBT."}
+
+obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatically disable MSBT while in a party or raid."}
+obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
+obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="Закреплённый крит", tooltip="Отображение критов используя стиль закрепления."}
 obj["enableSounds"]				= { label="Вкл/Выкл звуки", tooltip="Проигрывать звуки заданные в событиях и триггерах."}
 obj["textShadowing"]			= { label="Тень текста", tooltip="Применить эффект тени к тексту для улучшения четкости шрифта."}

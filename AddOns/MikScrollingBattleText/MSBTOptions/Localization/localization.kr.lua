@@ -78,7 +78,10 @@ obj["skillIcons"] = { label="기술 아이콘", tooltip="기술 아이콘에 관
 ------------------------------
 
 obj = L.CHECKBOXES
-obj["enableMSBT"]				= { label="Mik's Scrolling Battle Text (MSBT) 사용", tooltip="MSBT를 사용합니다."}
+
+obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatically disable MSBT while in a party or raid."}
+obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
+obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="치명타 고정", tooltip="치명타를 고정 스타일로 표시합니다."}
 obj["enableSounds"]				= { label="효과음 사용", tooltip="이벤트와 트리거에 지정된 효과음을 재생합니다."}
 obj["textShadowing"]			= { label="문자 그림자", tooltip="글꼴을 또렷하게 개선하도록 문자에 그림자 효과를 적용합니다."}

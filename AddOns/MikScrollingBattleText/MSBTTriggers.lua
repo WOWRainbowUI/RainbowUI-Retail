@@ -38,6 +38,7 @@ local eventFrame
 local isEnabled
 local eventsRegistered
 local triggersDisabledNoticeShown
+local cleuTriggerDisableNoticeShown
 
 local playerName, playerGUID, playerClass
 
@@ -63,6 +64,31 @@ local triggerSuppressions = {}
 local powerTypes = {}
 
 local triggerRestrictionNotified
+
+local function IsCLEUTriggerMainEvent(mainEvent)
+	if mainEvent == "GENERIC_MISSED" or mainEvent == "GENERIC_DAMAGE" then
+		return true
+	end
+	if mainEvent == "SPELL_AURA_APPLIED" or mainEvent == "SPELL_AURA_REMOVED" then
+		return true
+	end
+	if captureFuncs and captureFuncs[mainEvent] then
+		return true
+	end
+	return false
+end
+
+local function TriggerUsesCLEUMainEvents(mainEvents)
+	if not mainEvents or mainEvents == "" then
+		return false
+	end
+	for mainEvent in string_gmatch(mainEvents .. "&&", "(.-)%{.-%}&&") do
+		if IsCLEUTriggerMainEvent(mainEvent) then
+			return true
+		end
+	end
+	return false
+end
 
 local function IsSkillUnavailable(skillName)
 	if not skillName or skillName == "" then
@@ -228,6 +254,12 @@ local function CategorizeTrigger(triggerSettings)
 
 	local eventConditions, conditions
 	for mainEvent, conditionsString in string_gmatch(triggerSettings.mainEvents .. "&&", "(.-)%{(.-)%}&&") do
+		if IsCLEUTriggerMainEvent(mainEvent) then
+			if not cleuTriggerDisableNoticeShown then
+				Print("CLEU-based triggers are disabled.")
+				cleuTriggerDisableNoticeShown = true
+			end
+		else
 
 		conditions = { triggerSettings = triggerSettings }
 		if conditionsString and conditionsString ~= "" then
@@ -422,6 +454,7 @@ local function CategorizeTrigger(triggerSettings)
 				listenEvents["COMBAT_LOG_EVENT_UNFILTERED"] = true
 				eventConditions[#eventConditions + 1] = conditions
 			end
+		end
 		end
 	end
 
@@ -859,4 +892,6 @@ module.ConvertType				= ConvertType
 module.UpdateTriggers			= UpdateTriggers
 module.Enable					= Enable
 module.Disable					= Disable
+module.IsCLEUTriggerMainEvent	= IsCLEUTriggerMainEvent
+module.TriggerUsesCLEUMainEvents = TriggerUsesCLEUMainEvents
 

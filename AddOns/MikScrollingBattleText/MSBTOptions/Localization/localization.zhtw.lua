@@ -79,7 +79,10 @@ obj["skillIcons"]	= { label="技能圖示", tooltip="設定技能圖示"}
 ------------------------------
 
 obj = L.CHECKBOXES
-obj["enableMSBT"]				= { label="啟用MSBT", tooltip="啟用MSBT"}
+
+obj["disableMSBTInGroup"]		= { label="Disable MSBT In Group", tooltip="Automatically disable MSBT while in a party or raid."}
+obj["enableBlizzardV2CombatText"]= { label="Enable Blizzard Combat Text", tooltip="Enable Blizzard floating combat text damage/healing for player and pet (v2)." }
+obj["enableBlizzardV2InGroup"]	= { label="Enable Blizzard Combat Text In Group", tooltip="Only enable Blizzard Combat Text while in a party or raid." }
 obj["stickyCrits"]				= { label="爆擊特效顯示", tooltip="使用爆擊特效來顯示致命一擊"}
 obj["enableSounds"]				= { label="啟用音效", tooltip="設定是否當指定事件和觸發器發生時播放音效"}
 obj["textShadowing"]			= { label="字體陰影", tooltip="顯示字體陰影效果讓它們看起來更爽"}

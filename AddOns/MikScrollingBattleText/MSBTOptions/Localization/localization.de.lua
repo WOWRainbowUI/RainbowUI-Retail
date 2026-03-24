@@ -78,6 +78,9 @@ obj["skillIcons"]	= { label="Fähigkeitssymbole", tooltip="Optionen für die Fä
 
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Mik's Scrolling Battle Text aktivieren", tooltip="MSBT aktivieren."}
+obj["disableMSBTInGroup"]		= { label="MSBT in Gruppen deaktivieren", tooltip="MSBT automatisch in Gruppe oder Schlachtzug deaktivieren."}
+obj["enableBlizzardV2CombatText"]= { label="Blizzard-Kampftext aktivieren", tooltip="Blizzard Kampftext (v2) fuer Spieler und Begleiter aktivieren." }
+obj["enableBlizzardV2InGroup"]	= { label="Blizzard-Kampftext in Gruppen", tooltip="Blizzard Kampftext nur in Gruppe oder Schlachtzug aktivieren." }
 obj["stickyCrits"]				= { label="Sticky-Krits", tooltip="Bei kritischen Treffern den 'Sticky'-Stil verwenden."}
 obj["enableSounds"]				= { label="Sounds aktivieren", tooltip="Sounds abspielen, die Ereignissen und Auslösern zugewiesen wurden."}
 obj["textShadowing"]			= { label="Textschatten", tooltip="Fügt den Schriften einen Schatteneffekt hinzu, um die Lesbarkeit zu erhöhen."}

@@ -1,4 +1,4 @@
-﻿
+
 if (GetLocale() ~= "frFR") then return end
 
 local L = MikSBT.translations
@@ -21,16 +21,16 @@ L.DEFAULT_FONT_NAME = "MSBT Porky"
 L.COMMAND_USAGE = {
 	"Usage: " .. MikSBT.COMMAND .. " <command> [params]",
 	" Commande:",
-	"  " .. L.COMMAND_RESET .. " - Restaure les paramÃ¨tres par dÃ©faut.",
-	"  " .. L.COMMAND_DISABLE .. " - DÃ©sactive l'addon.",
+	"  " .. L.COMMAND_RESET .. " - Restaure les paramètres par défaut.",
+	"  " .. L.COMMAND_DISABLE .. " - Désactive l'addon.",
 	"  " .. L.COMMAND_ENABLE .. " - Active l'addon.",
 	"  " .. L.COMMAND_SHOWVER .. " - Affiche la version actuelle.",
 	"  " .. L.COMMAND_HELP .. " - Affiche l'aide des commandes.",
 }
 
-L.MSG_DISABLE				= "Addon dÃ©sactivÃ©."
-L.MSG_ENABLE				= "Addon activÃ©."
-L.MSG_PROFILE_RESET			= "Profil rÃ©initialisÃ©"
+L.MSG_DISABLE				= "Addon désactivé."
+L.MSG_ENABLE				= "Addon activé."
+L.MSG_PROFILE_RESET			= "Profil réinitialisé"
 L.MSG_HITS					= "Coups"
 L.MSG_CRIT					= "Crit"
 L.MSG_CRITS					= "Crits"

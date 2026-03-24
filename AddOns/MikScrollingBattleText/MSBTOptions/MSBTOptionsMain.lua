@@ -49,6 +49,8 @@ local popupFrames = {}
 -- Tab info.
 local tabData = {}
 local tabListbox
+local bottomTabListbox
+local BOTTOM_TAB_ORDER = 9000
 
 -- Scheduling variables.
 local waitTable = {}
@@ -62,12 +64,12 @@ local waitFrame = nil
 -- ****************************************************************************
 -- Initializes the frame that is shown when the tab is clicked.
 -- ****************************************************************************
-local function InitTab(tabInfo)
+	local function InitTab(tabInfo)
 		local frame = tabInfo.frame
 		frame:SetParent(mainFrame)
-		frame:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 190, -78)
-		frame:SetWidth(400)
-		frame:SetHeight(350)
+		frame:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 235, -78)
+		frame:SetWidth(535)
+		frame:SetHeight(400)
 	end
 
 
@@ -75,17 +77,30 @@ local function InitTab(tabInfo)
 -- Adds a new tab to the main options frame that will show the passed frame
 -- when selected.
 -- ****************************************************************************
-local function AddTab(frame, text, tooltip)
+local function AddTab(frame, text, tooltip, order)
 	local tabInfo = {}
 	tabInfo.text = text
 	tabInfo.frame = frame
 	tabInfo.tooltip = tooltip
+	tabInfo.order = order or (#tabData + 1)
 
 	tabData[#tabData+1] = tabInfo
+	table.sort(tabData, function(a, b) return a.order < b.order end)
+	local tabIndex
+	for index, info in ipairs(tabData) do
+		if info == tabInfo then
+			tabIndex = index
+			break
+		end
+	end
 
 	if (tabListbox) then
 		InitTab(tabInfo)
-		tabListbox:AddItem(#tabData)
+		if tabInfo.order >= BOTTOM_TAB_ORDER and bottomTabListbox then
+			bottomTabListbox:AddItem(tabIndex)
+		else
+			tabListbox:AddItem(tabIndex)
+		end
 	end
 end
 
@@ -137,6 +152,9 @@ local function OnClickTabLine(this, line, value)
 
 	-- Force a refresh to the listbox to update the highlight font color.
 	tabListbox:Refresh()
+	if bottomTabListbox then
+		bottomTabListbox:Refresh()
+	end
 end
 
 
@@ -167,8 +185,8 @@ local function CreateMainFrame()
 	mainFrame:RegisterForDrag("LeftButton")
 	--mainFrame:SetToplevel(true)
 	mainFrame:SetClampedToScreen(true)
-	mainFrame:SetWidth(608)
-	mainFrame:SetHeight(440)
+	mainFrame:SetWidth(790)
+	mainFrame:SetHeight(490)
 	mainFrame:SetPoint("CENTER")
 	mainFrame:SetHitRectInsets(0, 0, 0, 0)
 	mainFrame:SetScript("OnHide", OnHideMainFrame)
@@ -214,9 +232,9 @@ local function CreateMainFrame()
 	-- Top center right.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopLeft")
-	texture:SetWidth(128)
 	texture:SetHeight(256)
 	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 384, 0)
+	texture:SetPoint("TOPRIGHT", mainFrame, "TOPRIGHT", -100, 0)
 	texture:SetTexCoord(0.45, 0.95, 0, 1)
 
 	-- Top right.
@@ -231,7 +249,7 @@ local function CreateMainFrame()
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
 	texture:SetWidth(256)
-	texture:SetHeight(184)
+	texture:SetHeight(234)
 	texture:SetPoint("BOTTOMLEFT")
 	texture:SetTexCoord(0, 1, 0, 0.71875)
 
@@ -239,23 +257,23 @@ local function CreateMainFrame()
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
 	texture:SetWidth(128)
-	texture:SetHeight(184)
+	texture:SetHeight(234)
 	texture:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 256, 0)
 	texture:SetTexCoord(0.5, 1, 0, 0.71875)
 
 	-- Bottom center right.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomLeft")
-	texture:SetWidth(128)
-	texture:SetHeight(184)
+	texture:SetHeight(234)
 	texture:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 384, 0)
+	texture:SetPoint("BOTTOMRIGHT", mainFrame, "BOTTOMRIGHT", -100, 0)
 	texture:SetTexCoord(0.5, 1, 0, 0.71875)
 
 	-- Bottom right.
 	texture = mainFrame:CreateTexture(nil, "ARTWORK")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-BottomRight")
 	texture:SetWidth(100)
-	texture:SetHeight(184)
+	texture:SetHeight(234)
 	texture:SetPoint("BOTTOMRIGHT")
 	texture:SetTexCoord(0, 0.78125, 0, 0.71875)
 
@@ -264,15 +282,15 @@ local function CreateMainFrame()
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
 	texture:SetWidth(8)
 	texture:SetHeight(184)
-	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 180, -72)
+	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 225, -72)
 	texture:SetTexCoord(0.648437, 0.7109375, 0.28125, 1.0)
 
 	-- Bottom vertical.
 	texture = mainFrame:CreateTexture(nil, "OVERLAY")
 	texture:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-General-TopRight")
 	texture:SetWidth(8)
-	texture:SetHeight(174)
-	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 180, -256)
+	texture:SetHeight(224)
+	texture:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 225, -256)
 	texture:SetTexCoord(0.648437, 0.7109375, 0.3203125, 1.0)
 
 	-- Window title.
@@ -291,26 +309,70 @@ local function CreateMainFrame()
 
 	-- Setup the tabs listbox.
 	tabListbox = MSBTControls.CreateListbox(mainFrame)
-	tabListbox:Configure(150, 350, 20)
+	tabListbox:Configure(195, 365, 20)
 	tabListbox:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 30, -78)
 	tabListbox:SetCreateLineHandler(CreateTabLine)
 	tabListbox:SetDisplayHandler(DisplayTabLine)
 	tabListbox:SetClickHandler(OnClickTabLine)
 
+	-- Setup the bottom tabs listbox.
+	bottomTabListbox = MSBTControls.CreateListbox(mainFrame)
+	bottomTabListbox:Configure(195, 20, 20)
+	bottomTabListbox:SetPoint("BOTTOMLEFT", mainFrame, "BOTTOMLEFT", 30, 16)
+	bottomTabListbox:SetCreateLineHandler(CreateTabLine)
+	bottomTabListbox:SetDisplayHandler(DisplayTabLine)
+	bottomTabListbox:SetClickHandler(OnClickTabLine)
+
 	-- Add registered tabs.
 	for k, tabInfo in ipairs(tabData) do
 		InitTab(tabInfo)
-		tabListbox:AddItem(k)
+		if tabInfo.order >= BOTTOM_TAB_ORDER then
+			bottomTabListbox:AddItem(k)
+		else
+			tabListbox:AddItem(k)
+		end
 	end
 
 	-- Select the general tab.
-	tabListbox:SetSelectedItem(2)
+	local defaultTabIndex = nil
+	for index, info in ipairs(tabData) do
+		if info.text == L.TABS.general.label then
+			defaultTabIndex = index
+			break
+		end
+	end
+	if not defaultTabIndex then
+		for index, info in ipairs(tabData) do
+			if info.order < BOTTOM_TAB_ORDER then
+				defaultTabIndex = index
+				break
+			end
+		end
+	end
+	defaultTabIndex = defaultTabIndex or 1
+
+	if tabData[defaultTabIndex].order >= BOTTOM_TAB_ORDER then
+		bottomTabListbox:SetSelectedItem(defaultTabIndex)
+	else
+		tabListbox:SetSelectedItem(defaultTabIndex)
+	end
 	tabListbox:Refresh()
-	tabData[2].frame:Show()
+	bottomTabListbox:Refresh()
+	tabData[defaultTabIndex].frame:Show()
 
 	-- Insert the frame name into the UISpecialFrames array so it closes when
 	-- the escape key is pressed.
-	--table.insert(UISpecialFrames, mainFrame:GetName())
+	local frameName = mainFrame:GetName()
+	local isRegistered = false
+	for _, name in ipairs(UISpecialFrames) do
+		if name == frameName then
+			isRegistered = true
+			break
+		end
+	end
+	if not isRegistered then
+		table.insert(UISpecialFrames, frameName)
+	end
 end
 
 

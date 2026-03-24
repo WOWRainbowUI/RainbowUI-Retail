@@ -53,6 +53,8 @@ local playerCooldownsEnabled = false
 local petCooldownsEnabled = false
 local cooldownsRestricted
 local cooldownsDisabledNoticeShown
+local PLAYER_COOLDOWNS_SUPPORTED = false
+local PET_COOLDOWNS_SUPPORTED = false
 
 local function GetCooldownTexture(cooldownType, cooldownID)
 	if cooldownType == "item" then
@@ -79,10 +81,6 @@ local function NormalizeNumber(value)
 end
 
 local function OnSpellCast(unitID, spellID)
-	if cooldownsRestricted then
-		return
-	end
-
 	local spellName = GetSpellInfo(spellID) or UNKNOWN
 	local cooldownExclusions = MSBTProfiles.currentProfile.cooldownExclusions
 	if cooldownExclusions[spellName] or cooldownExclusions[spellID] then
@@ -105,10 +103,6 @@ local function OnSpellCast(unitID, spellID)
 end
 
 local function OnItemUse(itemID)
-	if cooldownsRestricted then
-		return
-	end
-
 	local itemName = GetItemInfo(itemID)
 	local cooldownExclusions = MSBTProfiles.currentProfile.cooldownExclusions
 	if cooldownExclusions[itemName] or cooldownExclusions[itemID] then
@@ -125,10 +119,6 @@ local function OnItemUse(itemID)
 end
 
 local function OnUpdateCooldown(cooldownType, cooldownFunc)
-	if cooldownsRestricted then
-		return
-	end
-
 	if not delayedCooldowns[cooldownType] or not activeCooldowns[cooldownType] then
 		return
 	end
@@ -293,16 +283,35 @@ local function OnUpdate(frame, elapsed)
 	end
 end
 
-function eventFrame:UNIT_SPELLCAST_SUCCEEDED(unitID, lineID, skillID)
+function eventFrame:UNIT_SPELLCAST_SUCCEEDED(unitID, ...)
 	if not playerCooldownsEnabled then
 		return
 	end
-	if unitID == "player" then
-		OnSpellCast("player", skillID)
+	if unitID ~= "player" then
+		return
 	end
+
+	-- Retail/classic variants may pass spellID in different arg positions.
+	local skillID
+	for index = select("#", ...), 1, -1 do
+		local value = select(index, ...)
+		if type(value) == "number" then
+			skillID = value
+			break
+		end
+	end
+	if not skillID then
+		return
+	end
+
+	OnSpellCast("player", skillID)
+	OnUpdateCooldown("player", GetSpellCooldown)
 end
 
 function eventFrame:COMBAT_LOG_EVENT_UNFILTERED()
+	if not PET_COOLDOWNS_SUPPORTED then
+		return
+	end
 	eventFrame:CombatLogEvent(CombatLogGetCurrentEventInfo())
 end
 
@@ -355,23 +364,15 @@ local function UpdateRestrictionState()
 end
 
 local function UpdateRegisteredEvents()
-	UpdateRestrictionState()
-
 	local doEnable = false
-	if not MSBTProfiles.currentProfile.events.NOTIFICATION_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["SKILL_COOLDOWN"] then
+	if PLAYER_COOLDOWNS_SUPPORTED and (not MSBTProfiles.currentProfile.events.NOTIFICATION_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["SKILL_COOLDOWN"]) then
 		doEnable = true
-	end
-	if cooldownsRestricted then
-		doEnable = false
 	end
 	playerCooldownsEnabled = doEnable
 
 	local doEnable = false
-	if not MSBTProfiles.currentProfile.events.NOTIFICATION_PET_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["PET_COOLDOWN"] then
+	if PET_COOLDOWNS_SUPPORTED and (not MSBTProfiles.currentProfile.events.NOTIFICATION_PET_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["PET_COOLDOWN"]) then
 		doEnable = true
-	end
-	if cooldownsRestricted then
-		doEnable = false
 	end
 	petCooldownsEnabled = doEnable
 
@@ -379,29 +380,17 @@ local function UpdateRegisteredEvents()
 	if not MSBTProfiles.currentProfile.events.NOTIFICATION_ITEM_COOLDOWN.disabled or MSBTTriggers.categorizedTriggers["ITEM_COOLDOWN"] then
 		doEnable = true
 	end
-	if cooldownsRestricted then
-		doEnable = false
-	end
 	itemCooldownsEnabled = doEnable
 
-	if cooldownsRestricted then
-		for cooldownType, cooldowns in pairs(activeCooldowns) do EraseTable(cooldowns) end
-		for cooldownType, cooldowns in pairs(delayedCooldowns) do EraseTable(cooldowns) end
-		EraseTable(lastCooldownIDs)
-		EraseTable(watchItemIDs)
-		eventFrame:Hide()
-	end
+	for cooldownType, cooldowns in pairs(activeCooldowns) do EraseTable(cooldowns) end
+	for cooldownType, cooldowns in pairs(delayedCooldowns) do EraseTable(cooldowns) end
+	EraseTable(lastCooldownIDs)
+	EraseTable(watchItemIDs)
+	eventFrame:Hide()
 end
 
 local function Enable()
-	if not cooldownsDisabledNoticeShown then
-		Print("Cooldown event processing is disabled due Blizzard protected event restrictions.")
-		cooldownsDisabledNoticeShown = true
-	end
-	playerCooldownsEnabled = false
-	petCooldownsEnabled = false
-	itemCooldownsEnabled = false
-	eventFrame:Hide()
+	UpdateRegisteredEvents()
 end
 
 local function Disable()
@@ -491,6 +480,16 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 eventFrame:SetScript("OnUpdate", OnUpdate)
+
+eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+eventFrame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
+eventFrame:RegisterEvent("PET_BAR_UPDATE_COOLDOWN")
+eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+eventFrame:RegisterEvent("CHALLENGE_MODE_START")
+eventFrame:RegisterEvent("CHALLENGE_MODE_COMPLETED")
 
 _, playerClass = UnitClass("player")
 

@@ -78,31 +78,31 @@ local SML_MT_font = lib.MediaTable.font
 if locale == "koKR" then
 	LOCALE_MASK = lib.LOCALE_BIT_koKR
 
-	SML_MT_font["êµµì€ ê¸€ê¼´"]		= [[Fonts\2002B.TTF]]
-	SML_MT_font["ê¸°ë³¸ ê¸€ê¼´"]		= [[Fonts\2002.TTF]]
-	SML_MT_font["ë°ë¯¸ì§€ ê¸€ê¼´"]		= [[Fonts\K_Damage.TTF]]
-	SML_MT_font["í€˜ìŠ¤íŠ¸ ê¸€ê¼´"]		= [[Fonts\K_Pagetext.TTF]]
+	SML_MT_font["굵은 글꼴"]		= [[Fonts\2002B.TTF]]
+	SML_MT_font["기본 글꼴"]		= [[Fonts\2002.TTF]]
+	SML_MT_font["데미지 글꼴"]		= [[Fonts\K_Damage.TTF]]
+	SML_MT_font["퀘스트 글꼴"]		= [[Fonts\K_Pagetext.TTF]]
 
-	lib.DefaultMedia["font"] = "ê¸°ë³¸ ê¸€ê¼´"
+	lib.DefaultMedia["font"] = "기본 글꼴"
 
 elseif locale == "zhCN" then
 	LOCALE_MASK = lib.LOCALE_BIT_zhCN
 
-	SML_MT_font["ä¼¤å®³æ•°å­—"]		= [[Fonts\ARKai_C.ttf]]
-	SML_MT_font["é»˜è®¤"]			= [[Fonts\ARKai_T.ttf]]
-	SML_MT_font["èŠå¤©"]			= [[Fonts\ARHei.ttf]]
+	SML_MT_font["伤害数字"]		= [[Fonts\ARKai_C.ttf]]
+	SML_MT_font["默认"]			= [[Fonts\ARKai_T.ttf]]
+	SML_MT_font["聊天"]			= [[Fonts\ARHei.ttf]]
 
-	lib.DefaultMedia["font"] = "é»˜è®¤"
+	lib.DefaultMedia["font"] = "默认"
 
 elseif locale == "zhTW" then
 	LOCALE_MASK = lib.LOCALE_BIT_zhTW
 
-	SML_MT_font["æç¤ºè¨Šæ¯"]		= [[Fonts\bHEI00M.ttf]]
-	SML_MT_font["èŠå¤©"]			= [[Fonts\bHEI01B.ttf]]
-	SML_MT_font["å‚·å®³æ•¸å­—"]		= [[Fonts\bKAI00M.ttf]]
-	SML_MT_font["é è¨­"]			= [[Fonts\bLEI00D.ttf]]
+	SML_MT_font["提示訊息"]		= [[Fonts\bHEI00M.ttf]]
+	SML_MT_font["聊天"]			= [[Fonts\bHEI01B.ttf]]
+	SML_MT_font["傷害數字"]		= [[Fonts\bKAI00M.ttf]]
+	SML_MT_font["預設"]			= [[Fonts\bLEI00D.ttf]]
 
-	lib.DefaultMedia["font"] = "é è¨­"
+	lib.DefaultMedia["font"] = "預設"
 
 elseif locale == "ruRU" then
 	LOCALE_MASK = lib.LOCALE_BIT_ruRU

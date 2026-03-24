@@ -2675,7 +2675,9 @@ local function CreateMainEvent()
 		UpdateMainEventConditions()
 	end)
 	for eventType in pairs(popupFrames.triggerFrame.eventConditionData) do
-		dropdown:AddItem(L.TRIGGER_DATA[eventType] or eventType, eventType)
+		if not MSBTTriggers.IsCLEUTriggerMainEvent(eventType) then
+			dropdown:AddItem(L.TRIGGER_DATA[eventType] or eventType, eventType)
+		end
 	end
 	dropdown:Sort()
 	frame.mainEventDropdown = dropdown
@@ -2782,7 +2784,11 @@ local function ShowMainEvent(configTable)
 	ChangePopupParent(frame, configTable.parentFrame)
 
 	-- Populate data.
-	frame.mainEventDropdown:SetSelectedID(configTable.eventType)
+	local selectedEventType = configTable.eventType
+	if MSBTTriggers.IsCLEUTriggerMainEvent(selectedEventType) then
+		selectedEventType = "UNIT_HEALTH"
+	end
+	frame.mainEventDropdown:SetSelectedID(selectedEventType)
 
 	EraseTable(frame.eventConditions)
 	for _, conditionEntry in ipairs(configTable.eventConditions) do
@@ -3132,8 +3138,8 @@ local function CreateTriggerPopup()
 	button:SetPoint("LEFT", frame.mainEventsLabel, "RIGHT", 10, 0)
 	button:SetClickHandler(function(this)
 		EraseTable(tempConfig)
-		tempConfig.eventType = "SPELL_AURA_APPLIED"
-		tempConfig.eventConditions = {"recipientAffiliation", "eq", FLAG_YOU, "skillName", "eq", UNKNOWN }
+		tempConfig.eventType = "UNIT_HEALTH"
+		tempConfig.eventConditions = {"unitID", "eq", "player", "threshold", "lt", 20}
 		tempConfig.saveHandler = SaveMainEvent
 		tempConfig.saveArg1 = #frame.mainEvents + 1
 		tempConfig.parentFrame = frame

@@ -78,6 +78,9 @@ obj["skillIcons"]	= { label="Icone Abilita'", tooltip="Mostra le opzioni per le 
 
 obj = L.CHECKBOXES
 obj["enableMSBT"]				= { label="Abilita Mik's Scrolling Battle Text", tooltip="Abilita MSBT."}
+obj["disableMSBTInGroup"]		= { label="Disabilita MSBT in gruppo", tooltip="Disabilita automaticamente MSBT quando sei in gruppo o in incursione."}
+obj["enableBlizzardV2CombatText"]= { label="Abilita testo combattimento Blizzard", tooltip="Abilita il testo di combattimento Blizzard (v2) per giocatore e famiglio." }
+obj["enableBlizzardV2InGroup"]	= { label="Testo Blizzard in gruppo", tooltip="Abilita il testo di combattimento Blizzard solo in gruppo o incursione." }
 obj["stickyCrits"]				= { label="Critici Sticky", tooltip="Mostra i critici usando lo stile sticky."}
 obj["enableSounds"]				= { label="Attiva Suoni", tooltip="Esegue suoni che sono assegnati agli eventi e inneschi."}
 obj["textShadowing"]			= { label="Ombreggiatura Testo", tooltip="Applica un effetto ombreggiatura al testo per migliorarlo."}
@@ -238,7 +241,7 @@ obj["critFontSize"]			= { label="Dimensione Carattere Critici", tooltip="Imposta
 obj["critFontOpacity"]		= { label="Opacita' Critici", tooltip="Imposta l'opacita' del carattere per i critici."}
 obj["scrollHeight"]			= { label="Altezza Scorrimento", tooltip="L'altezza dell'area di scorrimento."}
 obj["scrollWidth"]			= { label="Larghezza Scorrimento", tooltip="La larghezza dell'area di scorrimento."}
-obj["scrollAnimationSpeed"]	= { label="Velocit‡ Animazione", tooltip="Imposta la velocita' di animazione per l'area di scorrimento."}
+obj["scrollAnimationSpeed"]	= { label="Velocit√† Animazione", tooltip="Imposta la velocita' di animazione per l'area di scorrimento."}
 obj["powerThreshold"]		= { label="Limite Potere", tooltip="Il limite che i guadagni di potere devono superare per essere mostrati."}
 obj["healThreshold"]		= { label="Limite Cure", tooltip="Il limite che le cure devono superare per essere mostrate."}
 obj["damageThreshold"]		= { label="Limite Danno", tooltip="Il limite che il danno deve superare per essere mostrato."}

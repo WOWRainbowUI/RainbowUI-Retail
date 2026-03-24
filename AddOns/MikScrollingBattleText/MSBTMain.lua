@@ -121,17 +121,20 @@ local playerGUID
 local lastPlayerSpellID
 local lastPlayerSpellTime = 0
 local AUTOSHOT_SPELL_ID = 6603
-local OUTGOING_GROUP_DELAY = 0.05
+local OUTGOING_GROUP_DELAY = 0.2
 local INCOMING_GROUP_DELAY = 0.12
 local OUTGOING_FALLBACK_ATTRIBUTION_WINDOW = 0.9
 local OUTGOING_DELAYED_SPELL_ATTRIBUTION_WINDOW = 3.0
 local INCOMING_SELF_HEAL_ICON_ATTRIBUTION_WINDOW = 12.0
+local SELF_HEAL_MATCH_WINDOW = 1.0
+local SELF_HEAL_MATCH_TOLERANCE = 1
 local DAMAGE_METER_FALLBACK_STALE_TIME = 0.35
 local USE_DAMAGE_METER_OUTGOING = true
 local DOT_FALLBACK_DURATION = 18
 local outgoingBatches = {}
 local incomingDamageBatches = {}
 local incomingHealBatches = {}
+local recentOutgoingSelfHeals = {}
 local damageMeterTicker
 local damageMeterLastSpellTotals = {}
 local lastDamageMeterPoll = 0
@@ -295,7 +298,7 @@ local function FormatPartialEffects(absorbAmount, blockAmount, resistAmount, isG
 	return partialEffectText
 end
 
-local function FormatEvent(message, amount, damageType, overhealAmount, overkillAmount, powerType, name, class, effectName, partialEffects, mergeTrailer, ignoreDamageColoring, hideSkills, hideNames)
+local function FormatEvent(message, amount, damageType, overhealAmount, overkillAmount, powerType, name, class, effectName, partialEffects, mergeTrailer, ignoreDamageColoring, hideSkills, hideNames, forceEventColoring)
 
 	local currentProfile = MSBTProfiles.currentProfile
 	local checkParens
@@ -346,7 +349,7 @@ local function FormatEvent(message, amount, damageType, overhealAmount, overkill
 			formattedAmount = FormatLargeNumber(formattedAmount)
 		end
 
-		if damageType and not ignoreDamageColoring and not currentProfile.damageColoringDisabled then
+		if damageType and not ignoreDamageColoring and not currentProfile.damageColoringDisabled and not forceEventColoring then
 
 			local damageSettings = currentProfile[damageColorProfileEntries[damageType]]
 			if damageSettings and not damageSettings.disabled then
@@ -1025,6 +1028,10 @@ local function ParserEventsHandler(parserEvent)
 		return
 	end
 
+	if eventType == "heal" and (eventTypeString == "SELF_HEAL" or eventTypeString == "SELF_HOT") then
+		RecordOutgoingSelfHealAmount(parserEvent.amount)
+	end
+
 	-- Keep outgoing-only output combat-gated while allowing incoming and
 	-- notification/static output to continue out of combat.
 	if not InCombatLockdown() then
@@ -1080,13 +1087,13 @@ local function ParserEventsHandler(parserEvent)
 	end
 
 	if not mergeEligible then
-		local outputMessage = FormatEvent(eventSettings.message, parserEvent.amount, damageType, nil, nil, nil, affectedUnitName, affectedUnitClass, effectName)
+		local outputMessage = FormatEvent(eventSettings.message, parserEvent.amount, damageType, nil, nil, nil, affectedUnitName, affectedUnitClass, effectName, nil, nil, nil, nil, nil, true)
 		DisplayEvent(eventSettings, outputMessage, effectTexture)
 
 	elseif currentProfile.mergeExclusions[effectName] or (not effectName and currentProfile.mergeSwingsDisabled) then
 
 		local hideSkills = effectTexture and not currentProfile.exclusiveSkillsDisabled or currentProfile.hideSkills
-		local outputMessage = FormatEvent(eventSettings.message, parserEvent.amount, damageType, parserEvent.overhealAmount, parserEvent.overkillAmount, parserEvent.powerType, affectedUnitName, affectedUnitClass, effectName, partialEffects, nil, ignoreDamageColoring, hideSkills, currentProfile.hideNames)
+		local outputMessage = FormatEvent(eventSettings.message, parserEvent.amount, damageType, parserEvent.overhealAmount, parserEvent.overkillAmount, parserEvent.powerType, affectedUnitName, affectedUnitClass, effectName, partialEffects, nil, ignoreDamageColoring, hideSkills, currentProfile.hideNames, true)
 		DisplayEvent(eventSettings, outputMessage, effectTexture)
 
 	else
@@ -1185,7 +1192,7 @@ local function OnUpdateEventFrame(this, elapsed)
 		for i, combatEvent in ipairs(mergedEvents) do
 			eventSettings = currentProfile.events[combatEvent.isCrit and combatEvent.eventType .. "_CRIT" or combatEvent.eventType]
 			hideSkills = combatEvent.effectTexture and not exclusiveSkillsDisabled or currentProfile.hideSkills
-			outputMessage = FormatEvent(eventSettings.message, combatEvent.amount, combatEvent.damageType, combatEvent.overhealAmount, combatEvent.overkillAmount, combatEvent.powerType, combatEvent.name, combatEvent.class, combatEvent.effectName, combatEvent.partialEffects, combatEvent.mergeTrailer, combatEvent.ignoreDamageColoring, hideSkills, hideNames)
+			outputMessage = FormatEvent(eventSettings.message, combatEvent.amount, combatEvent.damageType, combatEvent.overhealAmount, combatEvent.overkillAmount, combatEvent.powerType, combatEvent.name, combatEvent.class, combatEvent.effectName, combatEvent.partialEffects, combatEvent.mergeTrailer, combatEvent.ignoreDamageColoring, hideSkills, hideNames, true)
 			DisplayEvent(eventSettings, outputMessage, combatEvent.effectTexture)
 			mergedEvents[i] = nil
 			EraseTable(combatEvent)
@@ -1304,6 +1311,7 @@ end
 function eventFrame:PLAYER_REGEN_ENABLED()
 	EraseTable(incomingDamageBatches)
 	EraseTable(incomingHealBatches)
+	EraseTable(recentOutgoingSelfHeals)
 	EraseTable(damageMeterLastSpellTotals)
 	lastDamageMeterPoll = 0
 	lastDamageMeterDeltaTime = 0
@@ -1322,6 +1330,7 @@ end
 function eventFrame:PLAYER_REGEN_DISABLED()
 	EraseTable(incomingDamageBatches)
 	EraseTable(incomingHealBatches)
+	EraseTable(recentOutgoingSelfHeals)
 	EraseTable(damageMeterLastSpellTotals)
 	lastDamageMeterPoll = 0
 	lastDamageMeterDeltaTime = 0
@@ -1507,21 +1516,22 @@ local function BuildOutgoingHitsMessage(totalAmount, hitCount, critCount, isSpel
 		formattedAmount = FormatLargeNumber(formattedAmount)
 	end
 
-	local amountColor = isSpell and "|cFFFFFF66" or "|cFFFFFFFF"
-	local coloredAmount = string_format("%s%s|r", amountColor, formattedAmount)
+	if not currentProfile.stackSimilarHits then
+		return formattedAmount
+	end
 
 	local hitsWord = (hitCount == 1) and "hit" or "hits"
 	if critCount and critCount > 0 then
-		if hitCount == 1 and critCount == 1 then
-			return string_format("%s (Crit)", coloredAmount)
+		if hitCount == 1 then
+			return formattedAmount
 		end
 		local critWord = (critCount == 1) and "Crit" or "Crits"
-		return string_format("%s (%d %s, %d %s)", coloredAmount, hitCount, hitsWord, critCount, critWord)
+		return string_format("%s (%d %s, %d %s)", formattedAmount, hitCount, hitsWord, critCount, critWord)
 	end
 	if hitCount == 1 then
-		return coloredAmount
+		return formattedAmount
 	end
-	return string_format("%s (%d %s)", coloredAmount, hitCount, hitsWord)
+	return string_format("%s (%d %s)", formattedAmount, hitCount, hitsWord)
 end
 
 local function StripRealm(name)
@@ -1594,12 +1604,19 @@ local function FlushOutgoingBatch(batchKey)
 	local message = BuildOutgoingHitsMessage(batch.totalAmount, batch.hitCount, batch.critCount, batch.isSpell)
 	local displaySettings = eventSettings
 	if batch.critCount and batch.critCount > 0 then
+		local colorSourceSettings = eventSettings
+		if critSettings and not critSettings.disabled then
+			colorSourceSettings = critSettings
+		end
+
 		displaySettings = {}
-		for k, v in pairs(eventSettings) do
+		for k, v in pairs(colorSourceSettings) do
 			displaySettings[k] = v
 		end
+		-- Keep routing on the same resolved scroll area for merged output.
+		displaySettings.scrollArea = eventSettings.scrollArea
 		displaySettings.isCrit = true
-		local baseSize = eventSettings.fontSize or currentProfile.normalFontSize or 26
+		local baseSize = colorSourceSettings.fontSize or currentProfile.normalFontSize or 26
 		displaySettings.fontSize = math_floor((baseSize * 1.5) + 0.5)
 	end
 	DisplayEvent(displaySettings, message, batch.effectTexture)
@@ -1757,6 +1774,12 @@ local function GetLikelyIncomingHealSourceName()
 		return UnitName("player") or UNKNOWN
 	end
 
+	-- Heuristic requested for fallback mode: with no target selected,
+	-- assume self-cast attribution.
+	if not UnitExists("target") then
+		return UnitName("player") or UNKNOWN
+	end
+
 	if UnitExists("target") and UnitCanAssist("player", "target") and UnitExists("targettarget") and UnitIsUnit("targettarget", "player") then
 		return UnitName("target") or UNKNOWN
 	end
@@ -1765,6 +1788,46 @@ local function GetLikelyIncomingHealSourceName()
 	end
 
 	return UNKNOWN
+end
+
+local function CleanupRecentOutgoingSelfHeals(now)
+	local cutoff = now - SELF_HEAL_MATCH_WINDOW
+	local writeIndex = 1
+	for readIndex = 1, #recentOutgoingSelfHeals do
+		local entry = recentOutgoingSelfHeals[readIndex]
+		if entry and entry.time >= cutoff then
+			recentOutgoingSelfHeals[writeIndex] = entry
+			writeIndex = writeIndex + 1
+		end
+	end
+	for i = writeIndex, #recentOutgoingSelfHeals do
+		recentOutgoingSelfHeals[i] = nil
+	end
+end
+
+local function RecordOutgoingSelfHealAmount(amount)
+	if not amount or amount <= 0 then
+		return
+	end
+	local now = GetTime()
+	CleanupRecentOutgoingSelfHeals(now)
+	recentOutgoingSelfHeals[#recentOutgoingSelfHeals + 1] = { amount = amount, time = now }
+end
+
+local function ConsumeMatchingOutgoingSelfHeal(amount)
+	if not amount or amount <= 0 then
+		return false
+	end
+	local now = GetTime()
+	CleanupRecentOutgoingSelfHeals(now)
+	for i = #recentOutgoingSelfHeals, 1, -1 do
+		local entry = recentOutgoingSelfHeals[i]
+		if entry and math_abs(entry.amount - amount) <= SELF_HEAL_MATCH_TOLERANCE then
+			table_remove(recentOutgoingSelfHeals, i)
+			return true
+		end
+	end
+	return false
 end
 
 local function BuildActionMessage(eventSettings, amount)
@@ -1876,7 +1939,8 @@ local function QueueIncomingDamageBatch(normalizedAmount, isCrit, damageSource)
 			end
 			local critSettings = currentProfile.events.INCOMING_DAMAGE_CRIT
 
-			local message = BuildActionMessage(eventSettings, queued.totalAmount)
+			local messageTemplateSettings = eventSettings or critSettings
+			local message = BuildActionMessage(messageTemplateSettings, queued.totalAmount)
 			if not message or message == "" then
 				return
 			end
@@ -1963,12 +2027,14 @@ local function QueueIncomingDamageBatch(normalizedAmount, isCrit, damageSource)
 	end
 end
 
-local function QueueIncomingHealBatch(normalizedAmount, isCrit, effectTexture, sourceName, healSourceLabel)
+local function QueueIncomingHealBatch(normalizedAmount, isCrit, effectTexture, sourceName, healSourceLabel, baseEventKey, critEventKey)
 	if not normalizedAmount or normalizedAmount <= 0 then
 		return
 	end
 
-	local batchKey = "incoming_heal"
+	local resolvedBaseEventKey = baseEventKey or "INCOMING_HEAL"
+	local resolvedCritEventKey = critEventKey or (resolvedBaseEventKey .. "_CRIT")
+	local batchKey = "incoming_heal:" .. resolvedBaseEventKey
 	local batch = incomingHealBatches[batchKey]
 	if not batch then
 		batch = {
@@ -1989,22 +2055,46 @@ local function QueueIncomingHealBatch(normalizedAmount, isCrit, effectTexture, s
 			incomingHealBatches[batchKey] = nil
 
 			local currentProfile = MSBTProfiles.currentProfile
-			local eventSettings = currentProfile.events.INCOMING_HEAL
-			if not eventSettings or eventSettings.disabled then
-				return
-			end
-			local critSettings = currentProfile.events.INCOMING_HEAL_CRIT
-
-			local message = BuildActionMessage(eventSettings, queued.totalAmount)
-			if not message or message == "" then
+			local eventSettings = currentProfile.events[queued.baseEventKey]
+			local critSettings = currentProfile.events[queued.critEventKey]
+			local normalEnabled = eventSettings and not eventSettings.disabled
+			local critEnabled = critSettings and not critSettings.disabled
+			if not normalEnabled and not critEnabled then
 				return
 			end
 
 			local routeCritSeparately = false
-			if queued.critCount and queued.critCount > 0 and critSettings and not critSettings.disabled then
+			if queued.critCount and queued.critCount > 0 and normalEnabled and critEnabled then
 				local normalScrollArea = eventSettings.scrollArea
 				local critScrollArea = critSettings.scrollArea
 				routeCritSeparately = normalScrollArea and critScrollArea and (normalScrollArea ~= critScrollArea)
+			end
+
+			if not normalEnabled then
+				local critAmountOnly = queued.critAmount or 0
+				if critEnabled and queued.critCount and queued.critCount > 0 and critAmountOnly > 0 then
+					local critMessageOnly = BuildActionMessage(critSettings, critAmountOnly)
+					if critMessageOnly and critMessageOnly ~= "" then
+						local critSummaryOnly = BuildHitSummary(queued.critCount, queued.critCount, true)
+						if critSummaryOnly then
+							critMessageOnly = critMessageOnly .. critSummaryOnly
+						end
+						if queued.sourceName and queued.sourceName ~= "" and queued.sourceName ~= UNKNOWN then
+							critMessageOnly = string_format("%s - %s", critMessageOnly, queued.sourceName)
+						end
+						if queued.healSourceLabel and queued.healSourceLabel ~= "" then
+							critMessageOnly = string_format("%s [%s]", critMessageOnly, queued.healSourceLabel)
+						end
+						DisplayEvent(critSettings, critMessageOnly, queued.effectTexture)
+					end
+				end
+				return
+			end
+
+			local messageTemplateSettings = eventSettings or critSettings
+			local message = BuildActionMessage(messageTemplateSettings, queued.totalAmount)
+			if not message or message == "" then
+				return
 			end
 
 			if routeCritSeparately then
@@ -2032,7 +2122,7 @@ local function QueueIncomingHealBatch(normalizedAmount, isCrit, effectTexture, s
 					end
 				end
 
-				if queued.critCount > 0 and critAmount > 0 then
+				if critEnabled and queued.critCount > 0 and critAmount > 0 then
 					local critMessage = BuildActionMessage(critSettings, critAmount)
 					if critMessage and critMessage ~= "" then
 						local critSummary = BuildHitSummary(queued.critCount, queued.critCount, true)
@@ -2063,19 +2153,23 @@ local function QueueIncomingHealBatch(normalizedAmount, isCrit, effectTexture, s
 			end
 
 			local displaySettings = eventSettings
-			if queued.critCount and queued.critCount > 0 then
+			if queued.critCount and queued.critCount > 0 and critEnabled then
 				displaySettings = {}
-				for k, v in pairs(eventSettings) do
+				for k, v in pairs(critSettings) do
 					displaySettings[k] = v
 				end
+				-- Keep merged routing on the base scroll area.
+				displaySettings.scrollArea = eventSettings.scrollArea
 				displaySettings.isCrit = true
-				local baseSize = eventSettings.fontSize or currentProfile.normalFontSize or 26
+				local baseSize = critSettings.fontSize or currentProfile.normalFontSize or 26
 				displaySettings.fontSize = math_floor((baseSize * 1.5) + 0.5)
 			end
 			DisplayEvent(displaySettings, message, queued.effectTexture)
 		end)
 	end
 
+	batch.baseEventKey = resolvedBaseEventKey
+	batch.critEventKey = resolvedCritEventKey
 	batch.hitCount = batch.hitCount + 1
 	batch.totalAmount = batch.totalAmount + normalizedAmount
 	if isCrit then
@@ -2144,15 +2238,24 @@ function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask
 				return
 			end
 
-			local eventSettings = currentProfile.events.INCOMING_HEAL
-			if not eventSettings or eventSettings.disabled then
-				return
-			end
-
 			local now = GetTime()
 			local sourceName = StripRealm(GetLikelyIncomingHealSourceName())
 			local playerName = StripRealm(UnitName("player"))
 			local isLikelySelfHeal = sourceName and playerName and sourceName == playerName
+			local baseEventKey = isLikelySelfHeal and "SELF_HEAL" or "INCOMING_HEAL"
+			local critEventKey = isLikelySelfHeal and "SELF_HEAL_CRIT" or "INCOMING_HEAL_CRIT"
+
+			if ConsumeMatchingOutgoingSelfHeal(normalizedAmount) then
+				return
+			end
+
+			local baseEventSettings = currentProfile.events[baseEventKey]
+			local critEventSettings = currentProfile.events[critEventKey]
+			local baseEnabled = baseEventSettings and not baseEventSettings.disabled
+			local critEnabled = critEventSettings and not critEventSettings.disabled
+			if (not baseEnabled) and (not (isCritEvent and critEnabled)) then
+				return
+			end
 
 			local attributionWindow = 1.5
 			if isLikelySelfHeal then
@@ -2165,7 +2268,7 @@ function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask
 			end
 
 			local healSourceLabel = GetIncomingHealSourceLabel(flagText, schoolMask)
-			QueueIncomingHealBatch(normalizedAmount, isCritEvent, healEffectTexture, sourceName, healSourceLabel)
+			QueueIncomingHealBatch(normalizedAmount, isCritEvent, healEffectTexture, sourceName, healSourceLabel, baseEventKey, critEventKey)
 		else
 			local eventSettings = currentProfile.events["INCOMING_" .. tostring(action or "")]
 			if eventSettings and not eventSettings.disabled then
@@ -2269,6 +2372,7 @@ local function Disable()
 	EraseTable(outgoingBatches)
 	EraseTable(incomingDamageBatches)
 	EraseTable(incomingHealBatches)
+	EraseTable(recentOutgoingSelfHeals)
 	EraseTable(damageMeterLastSpellTotals)
 	lastDamageMeterPoll = 0
 	lastDamageMeterDeltaTime = 0
