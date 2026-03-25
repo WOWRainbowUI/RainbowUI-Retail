@@ -885,21 +885,28 @@ function AssistedCombatIconMixin:UpdateCooldown()
 
     local cdInfo = self.db.cooldown.showSwipe and C_Spell.GetSpellCooldown(spellID)
     local chargeInfo = self.db.cooldown.chargeCooldown.showSwipe and C_Spell.GetSpellCharges(spellID)
+    local chargeCount = self.db.cooldown.chargeCooldown.showCount and C_Spell.GetSpellCharges(spellID)
 
     if cdInfo then
+        local cdDuration = C_Spell.GetSpellCooldownDuration(spellID)
         self.Cooldown.currentCooldownType = COOLDOWN_TYPE_NORMAL
-        self.Cooldown:SetCooldown(cdInfo.startTime, cdInfo.duration, cdInfo.modRate)
+        self.Cooldown:SetCooldownFromDurationObject(cdDuration)
     else
         self.Cooldown:Clear()
     end
 
     if chargeInfo then
-        local charges = (chargeInfo and self.db.cooldown.chargeCooldown.showCount) and chargeInfo.currentCharges or 0
+        local chargeDuration = C_Spell.GetSpellChargeDuration(spellID)
+        self.chargeCooldown:SetCooldownFromDurationObject(chargeDuration)
+    else
+        self.chargeCooldown:Clear()
+    end
+
+    if chargeCount then
+        local charges = chargeInfo.currentCharges or 0
         self.Count:SetText(C_StringUtil.TruncateWhenZero(charges))
-        self.chargeCooldown:SetCooldown(chargeInfo.cooldownStartTime, chargeInfo.cooldownDuration, chargeInfo.chargeModRate)
     else
         self.Count:SetText(nil)
-        self.chargeCooldown:Clear()
     end
 end
 
