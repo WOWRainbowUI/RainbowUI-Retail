@@ -1805,6 +1805,10 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 	--> this function is called while in combat when secrets are turned on
 
 	if not instanceObject.barraS[1] then
+		--if not instanceObject.baseframe then
+		--	local baseframe = _G["DetailsBaseFrame" .. instanceObject:GetId()]
+		--	instanceObject.baseframe = baseframe
+		--end
 		instanceObject:ReajustaGump()
 	end
 
@@ -1820,6 +1824,11 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 		instanceObject.rows_showing = 0
 
 		return Details:HideBarsNotInUse(instanceObject, damageContainer, 0.01), "", 0, 0
+	end
+
+	local attributeId = instanceObject:GetAttributeType()
+	if attributeId == 9 then
+		combatSources = detailsFramework.table.reverse(combatSources)
 	end
 
     ---@type attributeid, attributeid

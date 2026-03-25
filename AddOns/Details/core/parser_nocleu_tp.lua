@@ -28,6 +28,7 @@ local tooltipFontStringPadding = 6 --space between each font string horizontally
 local tooltipPadding = 1 --space between each line
 local cantStartUpdater = false
 local updaterTicker = nil
+local amountOfTargetLines = 3
 
 local MAX_TOOLTIP_HELP = 30
 
@@ -74,7 +75,8 @@ local getTooltipFrame = function() --~tooltip
     ---@param line detailstooltipline
     ---@param headerData table
     ---@param iconTexture string?
-    local formatLineAsHeader = function(line, headerData, iconTexture)
+    ---@param iconCoords table?
+    local formatLineAsHeader = function(line, headerData, iconTexture, iconCoords)
         --clear font strings
         for j = 1, 6 do
             local fontString = line.dataFontStrings[j]
@@ -90,7 +92,7 @@ local getTooltipFrame = function() --~tooltip
         line.SpellIcon:ClearAllPoints()
         line.SpellIcon:SetPoint("left", line, "left", 2, 0)
         line.SpellIcon:SetTexture(iconTexture or [[Interface\WORLDSTATEFRAME\CombatSwords]])
-        line.SpellIcon:SetTexCoord(0, .5, 0, .5)
+        line.SpellIcon:SetTexCoord(unpack(iconCoords or {0, 1, 0, 1}))
 
         local fontStringIndex = 1
         for j = #headerData, 2, -1 do
@@ -113,16 +115,7 @@ local getTooltipFrame = function() --~tooltip
 		local showHeader = Details.tooltip.show_header
 		local showHelp = Details.tooltip.show_help
 
-        local loopStart = showHeader and 2 or 1
-
-        if showHeader then
-            local headerData = data.header
-
-            --the first line will be used as a header line
-            local headerLine = self:GetLine(1)
-            ---@cast headerLine detailstooltipline
-            formatLineAsHeader(headerLine, headerData)
-        end
+        local loopStart = 1
 
         local nextLine = loopStart
         for i = loopStart, totalLines do
@@ -150,15 +143,19 @@ local getTooltipFrame = function() --~tooltip
 
                 elseif thisData.isHeader then
                     if showHeader then
-                        formatLineAsHeader(line, {thisData.name, unpack(thisData.texts or {})}, thisData.icon)
+                        formatLineAsHeader(line, {thisData.name, unpack(thisData.texts or {})}, thisData.icon, thisData.iconcoords)
                     end
 
                 else
                     line.SpellName:SetText(spellName)
+
                     line.SpellIcon:ClearAllPoints()
                     line.SpellIcon:SetPoint("left", line.StatusBar, "left", -tooltipLineHeight, 0)
                     line.SpellIcon:SetTexture(thisData.icon)
-                    line.SpellIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+                    line.SpellIcon:SetTexCoord(unpack(thisData.iconcoords or {0, 1, 0, 1}))
+                    local iconSize = thisData.iconsize or tooltipLineHeight
+                    line.SpellIcon:SetSize(iconSize, iconSize)
+
                     line.StatusBar:SetMinMaxValues(0, tooltip.maxAmount)
                     line.StatusBar:SetValue(thisData.amount)
                     line.StatusBar:SetPoint("left", line, "left", tooltipLineHeight, 0)
@@ -511,6 +508,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         if guid or creature then
             sourceSpells = Details222.B.GetSpells(sessionType <= 1 and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, sessionType <= 1 and sessionType or sessionId, damageMeterType, guid, creature)
             hasSourceSpells = true
+
             if not issecretvalue(sourcePlayer.name) then
                 targets = Details222.BreakdownWindowMidnight.LoadTargets(sessionType, sessionId, sourcePlayer.name)
             end
@@ -562,9 +560,12 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         return
     end
 
-    local extraTooltipLines = (Details.tooltip.show_header and 1 or 0) + (Details.tooltip.show_help and 1 or 0)
-    local targetLineCount = (targets and #targets > 0) and (#targets + 2) or 0
-    local maxSpellLines = max(0, tooltipAmountOfLines - extraTooltipLines - targetLineCount)
+    local extraTooltipLines = (Details.tooltip.show_help and 1 or 0)
+    --local targetLineCount = (targets and #targets > 0) and (#targets + 2) or 0
+    local targetLineCount = (targets and #targets > 0) and (min(#targets, amountOfTargetLines) + 2) or 0
+
+    local headerLineCount = Details.tooltip.show_header and 1 or 0
+    local maxSpellLines = max(0, tooltipAmountOfLines - extraTooltipLines - targetLineCount - headerLineCount)
     local amountOfSpellsToShow = min(#sourceSpells.combatSpells, maxSpellLines)
     local maxAmount = sourceSpells.maxAmount
     local totalAmount = sourceSpells.totalAmount
@@ -685,12 +686,13 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         tooltipData[#tooltipData + 1] = {
             name = "Targets",
             icon = [[Interface/MINIMAP/TRACKING/Target]],
+            iconcoords = {0.1, 0.9, 0.1, 0.9},
             texts = targetHeaderTexts,
             amount = 0,
             isHeader = true,
         }
 
-        for i = 1, #targets do
+        for i = 1, min(#targets, amountOfTargetLines) do
             tooltipData[#tooltipData + 1] = targets[i]
         end
     end
@@ -698,28 +700,35 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
     local showDPS = Details.tooltip.show_dps_column
     local showPercent = Details.tooltip.show_percent_column and couldGetPercent
 
-    if showDPS and not showPercent then
-        tooltipData.header = {"Spell Name", "Amount", "DPS"}
-    elseif showDPS and showPercent then
-        tooltipData.header = {"Spell Name", "Amount", "DPS", "%"}
-    elseif not showDPS and showPercent then
-        tooltipData.header = {"Spell Name", "Amount", "%"}
+    if Details.tooltip.show_header then
+        local spellHeaderTexts = {"Amount"}
+        if showDPS then
+            spellHeaderTexts[#spellHeaderTexts + 1] = "DPS"
+        end
+        if showPercent then
+            spellHeaderTexts[#spellHeaderTexts + 1] = "%"
+        end
+
+        table.insert(tooltipData, 1, {
+            name = "Spell Name",
+            icon = [[Interface\\WORLDSTATEFRAME\\CombatSwords]],
+            iconcoords = {0, 0.5, 0, 0.5},
+            texts = spellHeaderTexts,
+            amount = 0,
+            isHeader = true,
+        })
     end
 
     tooltipData.class = instanceLine.sourceData.classFilename
     tooltipData.specIcon = instanceLine.sourceData.specIconID
 
-    local headerLineCount = Details.tooltip.show_header and 1 or 0
     local totalVisibleLines = min(tooltipAmountOfLines, #tooltipData + extraTooltipLines)
     local visibleHeight = 0
     for i = 1, totalVisibleLines do
         local lineHeight = tooltipLineHeight
-        if i > headerLineCount then
-            local dataIndex = i - headerLineCount
-            local thisLineData = tooltipData[dataIndex]
-            if thisLineData and not issecretvalue(thisLineData.name) and thisLineData.name == "EMPTY" then
-                lineHeight = tooltipEmptyLineHeight
-            end
+        local thisLineData = tooltipData[i]
+        if thisLineData and not issecretvalue(thisLineData.name) and thisLineData.name == "EMPTY" then
+            lineHeight = tooltipEmptyLineHeight
         end
         visibleHeight = visibleHeight + lineHeight
     end
