@@ -16,24 +16,46 @@ local CLASSIFIER_CONSTANTS = C.Classifier
 local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
 local BLACKLIST_EXACT_PAIRS   = CLASSIFIER_CONSTANTS.BlacklistExactPairs
 
+local blacklistCache = {}
+
 -- =========================================================================
 -- BLACKLIST
 -- =========================================================================
 
 function Classifier:IsBlacklisted(frame, knownFrameName)
     if not frame then return false end
+    if blacklistCache[frame] ~= nil then return blacklistCache[frame] end
 
-    local frameName = knownFrameName or (frame.GetName and frame:GetName()) or "AnonymousFrame"
+    local currentObj = frame
+    local frameName = knownFrameName or (frame.GetName and frame:GetName()) or ""
     local parent = frame.GetParent and frame:GetParent() or nil
-    local parentName = parent and parent.GetName and parent:GetName() or "NoParent"
+    local parentName = parent and parent.GetName and parent:GetName() or ""
 
     local parentBlacklist = BLACKLIST_EXACT_PAIRS[parentName]
-    if parentBlacklist and parentBlacklist[frameName] then return true end
-
-    for _, key in ipairs(BLACKLIST_NAME_CONTAINS) do
-        if strfind(frameName, key, 1, true) or strfind(parentName, key, 1, true) then
-            return true
-        end
+    if parentBlacklist and parentBlacklist[frameName ~= "" and frameName or "AnonymousFrame"] then 
+        blacklistCache[frame] = true
+        return true 
     end
+
+    -- Check up to 4 levels of parents
+    for i = 1, 4 do
+        if not currentObj then break end
+        
+        local nm = currentObj.GetName and currentObj:GetName() or ""
+        
+        if i == 1 and knownFrameName then 
+            nm = knownFrameName 
+        end
+
+        for _, key in ipairs(BLACKLIST_NAME_CONTAINS) do
+            if (nm ~= "" and strfind(nm, key, 1, true)) then
+                blacklistCache[frame] = true
+                return true
+            end
+        end
+        currentObj = currentObj.GetParent and currentObj:GetParent()
+    end
+
+    blacklistCache[frame] = false
     return false
 end

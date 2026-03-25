@@ -15,6 +15,7 @@ L["Party / Raid Frames"] = true
 L["CooldownManager"] = true
 L["MiniCC"] = true
 L["sArena"] = true
+L["TellMeWhen"] = true
 L["Profiles"] = true
 
 -- Group Headers
@@ -164,12 +165,13 @@ L["DANGER_ZONE_DESC"] = "This action cannot be undone. Your profile will be comp
 L["MAINTENANCE_DESC"] = "Revert this category to factory defaults. Other categories are not affected."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Customize cooldowns on your main action bars, including Bartender4, Dominos, and ElvUI bars."
+L["ACTIONBAR_DESC"] = "Customize cooldowns on your main action bars, including Bartender4 and Dominos."
 L["NAMEPLATE_DESC"] = "Style cooldowns displayed on enemy and friendly nameplates (Plater, KuiNameplates, etc.)."
 L["UNITFRAME_DESC"] = "Adjust cooldown styling on player, target, and focus unit frames."
 L["COOLDOWNMANAGER_DESC"] = "Shared icon styling for CooldownManager viewers. Countdown text size can be set independently for Essential, Utility, and Buff Icon viewers."
 L["MINICC_DESC"] = "Dedicated styling for MiniCC cooldown icons. Supports MiniCC crowd control icons, nameplates, portraits, and overlay-style modules when MiniCC is loaded."
 L["SARENA_DESC"] = "Dedicated styling for sArena_Reloaded cooldown timers. Supports class icon, DR, and trinket/racial cooldown text when sArena_Reloaded is loaded."
+L["TELLMEWHEN_DESC"] = "Dedicated styling for TellMeWhen cooldown sweeps. Supports TellMeWhen icon cooldown and charge cooldown frames when TellMeWhen is loaded."
 
 -- Dynamic Text Colors
 L["Dynamic Text Colors"] = true

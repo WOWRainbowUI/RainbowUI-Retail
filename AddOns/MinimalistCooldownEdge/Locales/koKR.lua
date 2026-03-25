@@ -139,7 +139,7 @@ L["DANGER_ZONE_DESC"] = "이 작업은 되돌릴 수 없습니다. 프로필이 
 L["MAINTENANCE_DESC"] = "이 카테고리를 기본 설정으로 되돌립니다. 다른 카테고리는 영향을 받지 않습니다."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Bartender4, Dominos, ElvUI를 포함한 주요 행동 단축바의 쿨다운을 꾸밉니다."
+L["ACTIONBAR_DESC"] = "Bartender4 및 Dominos를 포함한 주요 행동 단축바의 쿨다운을 꾸밉니다."
 L["NAMEPLATE_DESC"] = "적과 아군 이름표에 표시되는 쿨다운을 꾸밉니다 (Plater, KuiNameplates 등)."
 L["UNITFRAME_DESC"] = "플레이어, 대상, 주시 대상 유닛 프레임의 쿨다운 스타일을 조정합니다."
 L["COOLDOWNMANAGER_DESC"] = "CooldownManager 뷰어에 공통으로 적용되는 아이콘 스타일입니다. 카운트다운 텍스트 크기는 Essential, Utility, 버프 아이콘 뷰어별로 따로 설정할 수 있습니다."

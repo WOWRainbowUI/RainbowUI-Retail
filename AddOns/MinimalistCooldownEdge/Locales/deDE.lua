@@ -139,7 +139,7 @@ L["DANGER_ZONE_DESC"] = "Diese Aktion kann nicht rückgängig gemacht werden. De
 L["MAINTENANCE_DESC"] = "Setzt diese Kategorie auf die Werkseinstellungen zurück. Andere Kategorien bleiben unverändert."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Passe Abklingzeiten auf deinen Hauptaktionsleisten an, einschließlich Bartender4, Dominos und ElvUI."
+L["ACTIONBAR_DESC"] = "Passe Abklingzeiten auf deinen Hauptaktionsleisten an, einschließlich Bartender4 und Dominos."
 L["NAMEPLATE_DESC"] = "Stilisiere Abklingzeiten auf feindlichen und freundlichen Namensplaketten (Plater, KuiNameplates usw.)."
 L["UNITFRAME_DESC"] = "Passe das Abklingzeit-Styling auf Spieler-, Ziel- und Fokus-Einheitenfenstern an."
 L["COOLDOWNMANAGER_DESC"] = "Gemeinsames Symbol-Styling für CooldownManager-Anzeigen. Die Größe des Countdown-Texts kann für Essential-, Utility- und Buffsymbol-Anzeigen separat festgelegt werden."

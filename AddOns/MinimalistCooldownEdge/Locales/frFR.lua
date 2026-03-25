@@ -15,6 +15,7 @@ L["Party / Raid Frames"] = "Cadres de groupe / raid"
 L["CooldownManager"] = "CooldownManager"
 L["MiniCC"] = "MiniCC"
 L["sArena"] = "sArena"
+L["TellMeWhen"] = "TellMeWhen"
 L["Others"] = "Autres"
 
 -- Group Headers
@@ -156,12 +157,13 @@ L["DANGER_ZONE_DESC"] = "Cette action est irréversible. Votre profil sera enti�
 L["MAINTENANCE_DESC"] = "Rétablit cette catégorie à ses paramètres d'usine. Les autres catégories ne sont pas affectées."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Personnalisez les recharges sur vos barres d'action principales, y compris Bartender4, Dominos et ElvUI."
+L["ACTIONBAR_DESC"] = "Personnalisez les recharges sur vos barres d'action principales, y compris Bartender4 et Dominos."
 L["NAMEPLATE_DESC"] = "Stylez les recharges affichées sur les barres de nom ennemies et alliées (Plater, KuiNameplates, etc.)."
 L["UNITFRAME_DESC"] = "Ajustez le style des recharges sur les cadres du joueur, de la cible et du focus."
 L["COOLDOWNMANAGER_DESC"] = "Style d'icône partagé pour les afficheurs de CooldownManager. La taille du texte du compte à rebours peut être réglée séparément pour les afficheurs Essential, Utility et d'icônes d'améliorations."
 L["MINICC_DESC"] = "Style dédié aux icônes de recharge de MiniCC. Prend en charge les icônes de contrôle de foule, les barres de nom, les portraits et les modules de type superposition de MiniCC lorsqu'il est chargé."
 L["SARENA_DESC"] = "Style dédié aux timers de recharge de sArena_Reloaded. Prend en charge le texte des recharges de l'icône de classe, des DR et des icônes bijou / racial lorsque sArena_Reloaded est chargé."
+L["TELLMEWHEN_DESC"] = "Style dédié aux balayages de recharge de TellMeWhen. Prend en charge les cadres de recharge principaux et de charges des icônes TellMeWhen lorsque l'addon est chargé."
 L["OTHERS_DESC"] = "Catégorie fourre-tout pour les recharges qui n'appartiennent à aucune autre catégorie (sacs, menus, addons divers)."
 
 -- Dynamic Text Colors

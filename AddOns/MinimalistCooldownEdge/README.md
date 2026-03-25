@@ -13,6 +13,7 @@ The addon is built around an adapter-driven registry. Cooldowns are discovered b
 - CooldownManager viewers.
 - MiniCC overlays.
 - sArena_Reloaded cooldown timers.
+- TellMeWhen cooldown and charge sweeps.
 - A global fallback category for cooldowns that no adapter claims.
 
 ## Main features
@@ -55,6 +56,7 @@ Adapters/
   CooldownManagerAdapter.lua
   MiniCCAdapter.lua
   SArenaAdapter.lua
+  TellMeWhenAdapter.lua
 UI/
   ImportExport.lua
   Options.lua

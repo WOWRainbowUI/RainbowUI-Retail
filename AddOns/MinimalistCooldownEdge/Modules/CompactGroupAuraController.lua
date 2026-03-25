@@ -233,6 +233,7 @@ function CompactAura:SyncCooldown(cdFrame)
         SetNativeTextVisible(cdFrame, false)
         SetNativeHide(cdFrame, true)
         ResetSwipeStyle(cdFrame)
+        StyleEngine:StyleStackCount(cdFrame, config, CATEGORY.CompactPartyAura)
         return true
     end
 
@@ -251,6 +252,7 @@ function CompactAura:SyncCooldown(cdFrame)
     end
 
     ApplySwipeStyle(cdFrame, config)
+    StyleEngine:StyleStackCount(cdFrame, config, CATEGORY.CompactPartyAura)
     return true
 end
 
@@ -264,6 +266,16 @@ function CompactAura:Reset()
             SetNativeTextVisible(cd, true)
             SetNativeHide(cd, false)
             ResetSwipeStyle(cd)
+            -- Restore Blizzard default stack count visibility
+            local fs = StyleEngine:GetFrameState(cd)
+            if fs.stackCountHidden then
+                local countRegion = StyleEngine:GetStackCountRegion(cd, CATEGORY.CompactPartyAura)
+                if countRegion then
+                    countRegion:SetAlpha(1)
+                    countRegion:Show()
+                end
+                fs.stackCountHidden = nil
+            end
         end
     end
     wipe(compactPartyAuraFrames)

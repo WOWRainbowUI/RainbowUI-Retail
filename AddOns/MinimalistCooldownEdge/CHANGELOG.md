@@ -1,6 +1,17 @@
 
 # Changelog
 
+## [3.6.5] - 2026-03-24
+- feat: Enhance blacklist functionality in Classifier module with caching and parent frame checks
+- fix: Blacklist TotemFrame and PlayerFrameBottomManagedFramesContainer
+
+## [3.6.4] - 2026-03-24
+- feat: Add TellMeWhen support with new adapter and configuration options
+
+## [3.6.3] - 2026-03-24
+- feat: Enhance unit frame stack count customization with new options and styling
+- Remove ElvUI Support
+
 ## [3.6.2] - 2026-03-22
 - Remove "Others" / "Global" category
 - Add support to sArena

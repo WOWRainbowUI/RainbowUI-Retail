@@ -139,7 +139,7 @@ L["DANGER_ZONE_DESC"] = "Questa azione non può essere annullata. Il tuo profilo
 L["MAINTENANCE_DESC"] = "Ripristina questa categoria ai valori di fabbrica. Le altre categorie non vengono toccate."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Personalizza i cooldown sulle tue barre d'azione principali, incluse Bartender4, Dominos ed ElvUI."
+L["ACTIONBAR_DESC"] = "Personalizza i cooldown sulle tue barre d'azione principali, incluse Bartender4 e Dominos."
 L["NAMEPLATE_DESC"] = "Stilizza i cooldown mostrati sulle targhette nemiche e alleate (Plater, KuiNameplates, ecc.)."
 L["UNITFRAME_DESC"] = "Regola lo stile dei cooldown sui riquadri di giocatore, bersaglio e focus."
 L["COOLDOWNMANAGER_DESC"] = "Stile icone condiviso per i visualizzatori di CooldownManager. La dimensione del testo del conto alla rovescia può essere impostata separatamente per i visualizzatori Essential, Utility e delle icone benefici."

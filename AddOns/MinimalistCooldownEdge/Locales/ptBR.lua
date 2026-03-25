@@ -139,7 +139,7 @@ L["DANGER_ZONE_DESC"] = "Esta ação não pode ser desfeita. Seu perfil será to
 L["MAINTENANCE_DESC"] = "Reverte esta categoria para os padrões de fábrica. As outras categorias não são afetadas."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Personalize as recargas nas suas barras de ação principais, incluindo Bartender4, Dominos e ElvUI."
+L["ACTIONBAR_DESC"] = "Personalize as recargas nas suas barras de ação principais, incluindo Bartender4 e Dominos."
 L["NAMEPLATE_DESC"] = "Estilize as recargas exibidas em placas de nome inimigas e aliadas (Plater, KuiNameplates etc.)."
 L["UNITFRAME_DESC"] = "Ajuste o estilo de recarga nos quadros de jogador, alvo e foco."
 L["COOLDOWNMANAGER_DESC"] = "Estilo de ícone compartilhado para os visualizadores do CooldownManager. O tamanho do texto de contagem regressiva pode ser ajustado separadamente para os visualizadores Essential, Utility e de ícones de bônus."

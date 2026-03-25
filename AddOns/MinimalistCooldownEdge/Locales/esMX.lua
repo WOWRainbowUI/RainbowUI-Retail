@@ -139,7 +139,7 @@ L["DANGER_ZONE_DESC"] = "Esta acción no se puede deshacer. Tu perfil se restabl
 L["MAINTENANCE_DESC"] = "Devuelve esta categoría a los valores de fábrica. Las demás categorías no se verán afectadas."
 
 -- Category Descriptions
-L["ACTIONBAR_DESC"] = "Personaliza las reutilizaciones de tus barras de acción principales, incluidas Bartender4, Dominos y ElvUI."
+L["ACTIONBAR_DESC"] = "Personaliza las reutilizaciones de tus barras de acción principales, incluidas Bartender4 y Dominos."
 L["NAMEPLATE_DESC"] = "Da estilo a las reutilizaciones que se muestran en placas de nombre enemigas y aliadas (Plater, KuiNameplates, etc.)."
 L["UNITFRAME_DESC"] = "Ajusta el estilo de reutilización en los marcos de jugador, objetivo y foco."
 L["COOLDOWNMANAGER_DESC"] = "Estilo compartido de iconos para los visores de CooldownManager. El tamaño del texto de la cuenta atrás puede ajustarse por separado para los visores Essential, Utility y de iconos de beneficios."
