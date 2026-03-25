@@ -55,6 +55,8 @@ function AbilityTimeline:OnInitialize()
     EncounterTimeline:Hide()
     EncounterTimeline:HookScript("OnShow", function() EncounterTimeline:Hide() end)
     -- SetCVar("encounterWarningsEnabled", "1")
+
+    private.ToggleEventColorisation(private.db.profile.dispellTextColor)
 end
 
 function AbilityTimeline:OnEnable()
@@ -127,19 +129,31 @@ function AbilityTimeline:SlashCommand(msg) -- called when slash command is used
 end
 
 function AbilityTimeline:ENCOUNTER_TIMELINE_EVENT_ADDED(event, eventInfo, initialState)
-    private.ENCOUNTER_TIMELINE_EVENT_ADDED(self, eventInfo, initialState)
+    C_Timer.After(0, function()
+        -- we delay by 1 frame so script events have time to save their data
+        private.ENCOUNTER_TIMELINE_EVENT_ADDED(self, eventInfo, initialState)
+    end)
 end
 
 function AbilityTimeline:ENCOUNTER_TIMELINE_EVENT_REMOVED(self, eventID)
-    private.ENCOUNTER_TIMELINE_EVENT_REMOVED(self, eventID)
+    C_Timer.After(0, function()
+        -- we delay by 1 frame so script events have time to save their data
+        private.ENCOUNTER_TIMELINE_EVENT_REMOVED(self, eventID)
+    end)
 end
 
 function AbilityTimeline:ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(event, eventID, newState)
-    private.ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(self, eventID, newState)
+    C_Timer.After(0, function()
+        -- we delay by 1 frame so script events have time to save their data
+        private.ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED(self, eventID, newState)
+    end)
 end
 
 function AbilityTimeline:ENCOUNTER_TIMELINE_EVENT_TRACK_CHANGED(event, eventID)
-    private.ENCOUNTER_TIMELINE_EVENT_TRACK_CHANGED(self, eventID)
+    C_Timer.After(0, function()
+        -- we delay by 1 frame so script events have time to save their data
+        private.ENCOUNTER_TIMELINE_EVENT_TRACK_CHANGED(self, eventID)
+    end)
 end
 
 function AbilityTimeline:PLAYER_ENTERING_WORLD()
