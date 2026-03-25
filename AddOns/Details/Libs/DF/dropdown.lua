@@ -702,7 +702,11 @@ function DropDownMetaFunctions:Selected(thisOption)
 		self.label:SetFont(thisOption.font, 14)
 
 	else
-		self.label:SetFont("GameFontHighlight", 14)
+		if select(4, GetBuildInfo()) >= 120005 then
+			self.label:SetFont(GameFontHighlightSmall:GetFont(), 14)
+		else
+			self.label:SetFont("GameFontHighlightSmall", 14)
+		end
 	end
 
 	self:SetValue(thisOption.value)
