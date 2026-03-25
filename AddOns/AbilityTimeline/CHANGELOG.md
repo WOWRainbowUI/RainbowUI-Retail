@@ -1,11 +1,14 @@
 # AbilityTimeline
 
-## [v0.24](https://github.com/Jods-GH/AbilityTimeline/tree/v0.24) (2026-03-19)
-[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.23...v0.24) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
+## [v0.25](https://github.com/Jods-GH/AbilityTimeline/tree/v0.25) (2026-03-23)
+[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.24...v0.25) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
 
-- format long timers a bit more clearly  
-- format long timers as minutes closes #59  
-- make sure long timers are always shown  
-- make sure bossmods timers aren't added twice  
-    closes #60 and mentions #54  
-- fix bw file spelling  
+- make sure pulltimers are excluded for other languages  
+- guard against trackid being nil  
+- remove leftover debug output  
+- make sure we don't error when bossmods aren't loaded  
+- make sure colors and spellindicators work with bw timers  
+- rework dispell type text colors in preparation for tuesday hotfixes  
+- make sure test bars will show up usiong bw  
+- make sure pulltimer isn't displayed twice  
+    fixes #61  

@@ -208,15 +208,19 @@ local SetEventInfo = function(widget, eventInfo, disableOnUpdate)
 				private.evaluateBigIconPositions()
 			end
 		end)
+		local EventIconTextureID = eventInfo.id
+		if eventInfo.source == Enum.EncounterTimelineEventSource.Script and private.BossModsSpellIndicators and private.BossModsSpellIndicators[eventID] then
+			EventIconTextureID = private.BossModsSpellIndicators[eventID]	
+		end
 		if private.db.profile.big_icon_settings.dispellIcons then
-			C_EncounterTimeline.SetEventIconTextures(eventInfo.id, 126, widget.frame.DispellTypeIcons)
+			C_EncounterTimeline.SetEventIconTextures(EventIconTextureID, 126, widget.frame.DispellTypeIcons)
 		end
 		if private.db.profile.big_icon_settings.dispellBorders then
 			for i, dispellValue in ipairs(private.dispellTypeList) do
 				for _, edgeTexture in ipairs(widget.frame.DispellTypeBorderEdges[i]) do
 					local textureArray = {}
 					table.insert(textureArray, edgeTexture)
-					C_EncounterTimeline.SetEventIconTextures(eventInfo.id, dispellValue.mask, textureArray)
+					C_EncounterTimeline.SetEventIconTextures(EventIconTextureID, dispellValue.mask, textureArray)
 					edgeTexture:SetTexture(nil)
 					edgeTexture:SetColorTexture(dispellValue.color.r, dispellValue.color.g, dispellValue.color.b,
 						dispellValue.color.a)
@@ -224,7 +228,7 @@ local SetEventInfo = function(widget, eventInfo, disableOnUpdate)
 			end
 		end
 		if private.db.profile.big_icon_settings.dangerIcon then
-			C_EncounterTimeline.SetEventIconTextures(eventInfo.id, 1, widget.frame.DangerIcon)
+			C_EncounterTimeline.SetEventIconTextures(EventIconTextureID, 1, widget.frame.DangerIcon)
 		end
 	end
 
@@ -235,10 +239,19 @@ local SetEventInfo = function(widget, eventInfo, disableOnUpdate)
 	widget.frame.SpellIcon:SetAllPoints(widget.frame)
 	widget.frame.SpellIcon:SetTexture(eventInfo.iconFileID)
 	widget.frame.SpellName:SetText(eventInfo.spellName)
-	-- TODO add the same debuff type coloring as from normal spellicons
-	if private.db.profile.text_settings.useEventColor and eventInfo.color then
-		widget.frame.SpellName:SetTextColor(eventInfo.color.r, eventInfo.color.g, eventInfo.color.b)
-	end
+
+	if private.db.profile.text_settings.useEventColor then
+			if issecretvalue(eventInfo.icons) then
+				widget.frame.SpellName:SetTextColor(eventInfo.color.r, eventInfo.color.g, eventInfo.color.b)
+			elseif private.db.profile.dispellTextColor and eventInfo.icons and eventInfo.icons ~= 0 then
+				for _, value in pairs(private.dispellTypeList) do
+					if bit.band(eventInfo.icons, value.mask) ~= 0 then
+						widget.frame.SpellName:SetTextColor(value.color.r, value.color.g, value.color.b)
+						break -- Only set the first matching color
+					end
+				end
+			end
+		end
 	widget.frame:Show()
 	if private.db.profile.big_icon_settings and private.db.profile.big_icon_settings.useTooltip and private.db.profile.big_icon_settings.useTooltip ~= Enum.EncounterEventsTooltipAnchor.Hidden then
 		private.AddEventTooltip(widget.frame, eventInfo, private.db.profile.big_icon_settings.useTooltip)

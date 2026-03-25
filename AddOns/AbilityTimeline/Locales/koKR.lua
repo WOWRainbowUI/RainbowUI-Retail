@@ -101,7 +101,7 @@ L["DiseaseEffect"] = "Disease |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons::::
 --[[Translation missing --]]
 L["DispellTextColor"] = "Dispell Text Color"
 --[[Translation missing --]]
-L["DispellTextColorDescription"] = "Enables coloring the spell name text based on the dispell type."
+L["DispellTextColorDescription"] = "Enables coloring the spell name text based on the dispell type. This Requires Use Event Color to be turned on."
 --[[Translation missing --]]
 L["DpsRole"] = "Dps |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t"
 --[[Translation missing --]]
