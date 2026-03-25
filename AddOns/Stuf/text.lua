@@ -45,13 +45,15 @@ local conditions = {
 	afk = function(ca, unit) return UnitIsAFK(unit) end,
 	dnd = function(ca, unit) return UnitIsDND(unit) end,
 	ingroup = function(ca, unit) return ca.ingroup end,
-	oor = function(ca, unit)
+	oor = function(ca, unit) -- 12.0.1 fix
 		if ( unit == "player" or not ca.assist or ca.dead or not UnitIsConnected(unit) ) then
 			return false
-		elseif ( not UnitIsVisible(unit) ) or
-		       ( s40 and not C_SpellIsInRange and IsSpellInRange and IsSpellInRange(s40, unit) == 0 ) or
-			   ( not s40 and Stuf.ingroup and ca.ingroup and not UnitInRange(unit) ) or
-		( s40 and C_SpellIsInRange and C_SpellIsInRange(s40, unit) == false ) then
+		end
+		local inRange = UnitInRange(unit)
+		if ( not UnitIsVisible(unit) ) or
+		   ( s40 and not C_SpellIsInRange and IsSpellInRange and IsSpellInRange(s40, unit) == 0 ) or
+		   ( not s40 and Stuf.ingroup and ca.ingroup and not (not issecretvalue(inRange) and inRange) ) or
+		   ( s40 and C_SpellIsInRange and C_SpellIsInRange(s40, unit) == false ) then
 			return true
 		end
 		return false
