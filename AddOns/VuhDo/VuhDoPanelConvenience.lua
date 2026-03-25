@@ -363,6 +363,10 @@ local tFrame;
 local tParent;
 function VUHDO_findButtonFromChild(aChildFrame)
 
+	if not aChildFrame or (aChildFrame.IsForbidden and aChildFrame:IsForbidden()) then
+		return nil;
+	end
+
 	tFrame = aChildFrame;
 
 	while tFrame do
