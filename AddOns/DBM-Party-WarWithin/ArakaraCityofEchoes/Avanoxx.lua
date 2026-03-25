@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2583, "DBM-Party-WarWithin", 6, 1271)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260221022657")
+mod:SetRevision("20260322094133")
 mod:SetCreatureID(213179)
 mod:SetEncounterID(2926)
 --mod:SetUsedIcons(1, 2, 3, 4)
@@ -22,8 +22,8 @@ mod:AddCustomTimerOptions(438471, nil, 5, 0)--Voracious Bite
 mod:AddCustomTimerOptions(438476, nil, 1, 0)--Alerting Shrill
 mod:AddCustomTimerOptions(438473, nil, 2, 0)--Gossamer Onslaught
 --Midnight private aura replacements
-mod:AddPrivateAuraSoundOption(439070, true, 439070, 1)
-mod:AddPrivateAuraSoundOption(434830, true, 434830, 1)--GTFO
+mod:AddPrivateAuraSoundOption(439070, true, 439070, 1, 1, "justrun", 2)
+mod:AddPrivateAuraSoundOption(434830, true, 434830, 1, 2, "watchfeet", 8)--GTFO
 
 function mod:OnLimitedCombatStart()
 	if self:IsTank() then
@@ -36,8 +36,6 @@ function mod:OnLimitedCombatStart()
 	self:EnableTimelineOptions(438476, 540)
 	self:EnableTimelineOptions(438473, 541)
 
-	self:EnablePrivateAuraSound(439070, "justrun", 2)--Hunger Fixate
-	self:EnablePrivateAuraSound(434830, "watchfeet", 8)
 end
 
 --[[

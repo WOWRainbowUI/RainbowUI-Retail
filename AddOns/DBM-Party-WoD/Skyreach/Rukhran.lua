@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315020426")
+mod:SetRevision("20260322094133")
 mod:SetCreatureID(76143)
 mod:SetEncounterID(1700)
 
@@ -21,7 +21,7 @@ if DBM:IsPostMidnight() then
 	mod:AddCustomTimerOptions(1253519, "Tank|Healer", 5, 0)
 	mod:AddCustomTimerOptions(1253527, true, 2, 0)
 	--Midnight private aura replacements
-	mod:AddPrivateAuraSoundOption(1253511, true, 1253511, 1)--Burning Pursuit
+	mod:AddPrivateAuraSoundOption(1253511, true, 1253511, 1, 1, "targetyou", 2)--Burning Pursuit
 
 	function mod:OnLimitedCombatStart()
 		self:DisableSpecialWarningSounds()
@@ -36,7 +36,6 @@ if DBM:IsPostMidnight() then
 		self:EnableTimelineOptions(1253519, 306)
 		self:EnableTimelineOptions(1253527, 308)
 
-		self:EnablePrivateAuraSound(1253511, "targetyou", 2)
 	end
 else
 	mod:RegisterEventsInCombat(

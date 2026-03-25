@@ -1,9 +1,24 @@
 local mod	= DBM:NewMod("TheBeast", "DBM-Party-Vanilla", DBM:IsCata() and 18 or 4)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260317021827")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(10430)
 mod:SetZone(229)
 
 mod:RegisterCombat("combat")
+
+mod:RegisterEventsInCombat(
+	"SPELL_CAST_SUCCESS 14100"
+)
+
+local warnRoar		= mod:NewSpellAnnounce(14100, 2)
+
+local timerRoar		= mod:NewAITimer(180, 14100, nil, nil, nil, 2)
+
+function mod:SPELL_CAST_SUCCESS(args)
+	if args:IsSpell(14100) then
+		warnRoar:Show()
+		timerRoar:Start()
+    end
+end

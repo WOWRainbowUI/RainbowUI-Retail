@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2676, "DBM-Party-WarWithin", 10, 1303)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260226065527")
+mod:SetRevision("20260322094133")
 mod:SetCreatureID(234933, 237514) -- Taah'bat and Awazj
 mod:SetEncounterID(3108)
 mod:SetHotfixNoticeRev(20250728000000)
@@ -21,8 +21,8 @@ mod:AddCustomTimerOptions(1236126, nil, 3, 0)--Binding Javelin
 mod:AddCustomTimerOptions(1220427, nil, 3, 0)--Warp Strike
 mod:AddCustomTimerOptions(1219700, nil, 6, 0)--Arcane Blitz
 --Midnight private aura replacements
-mod:AddPrivateAuraSoundOption(1220427, true, 1220427, 1)--Warp Strike
-mod:AddPrivateAuraSoundOption(1236126, true, 1236126, 1)--Binding Javelin
+mod:AddPrivateAuraSoundOption({1220427,1227142}, true, 1220427, 1, 1, "lineyou", 17)--Warp Strike
+mod:AddPrivateAuraSoundOption(1236126, true, 1236126, 1, 1, "targetyou", 2)--Binding Javelin
 
 function mod:OnLimitedCombatStart()
 	if self:IsTank() then
@@ -35,6 +35,4 @@ function mod:OnLimitedCombatStart()
 	self:EnableTimelineOptions(1220427, {486, 491})
 	self:EnableTimelineOptions(1219700, 487)
 
-	self:EnablePrivateAuraSound({1220427,1227142}, "lineyou", 17)
-	self:EnablePrivateAuraSound(1236126, "targetyou", 2)
 end

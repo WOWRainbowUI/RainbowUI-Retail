@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2571, "DBM-Party-WarWithin", 2, 1267)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260221022657")
+mod:SetRevision("20260322094133")
 mod:SetCreatureID(207946)
 mod:SetEncounterID(2847)
 mod:SetHotfixNoticeRev(20250303000000)
@@ -21,7 +21,7 @@ mod:AddCustomTimerOptions(424414, true, 5, 0)
 mod:AddCustomTimerOptions(424419, true, 4, 0)
 mod:AddCustomTimerOptions(447439, true, 3, 0)
 --Private Auras
-mod:AddPrivateAuraSoundOption(447439, true, 447439, 1)
+mod:AddPrivateAuraSoundOption(447439, true, 447439, 1, 1, "defensive", 2)
 
 function mod:OnLimitedCombatStart()
 
@@ -34,5 +34,4 @@ function mod:OnLimitedCombatStart()
 	self:EnableTimelineOptions(424419, 526)
 	self:EnableTimelineOptions(447439, 527)
 
-	self:EnablePrivateAuraSound(447439, "defensive", 2)
 end

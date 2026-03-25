@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2573, "DBM-Party-WarWithin", 2, 1267)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260221022657")
+mod:SetRevision("20260322092648")
 mod:SetCreatureID(207940)
 mod:SetEncounterID(2848)
 mod:SetHotfixNoticeRev(20240608000000)
@@ -25,7 +25,7 @@ mod:AddCustomTimerOptions(451605, true, 3, 0)
 mod:AddCustomTimerOptions(444546, true, 3, 0)
 --Midnight private aura replacements
 --Could not find a private aura for Purifying Light
-mod:AddPrivateAuraSoundOption(425556, true, 425556, 1, 2)--GTFO
+mod:AddPrivateAuraSoundOption(425556, true, 425556, 1, 2, "watchfeet", 8)--GTFO
 
 function mod:OnLimitedCombatStart()
 	self:EnableAlertOptions(444608, 534, "aesoon", 2)
@@ -38,7 +38,6 @@ function mod:OnLimitedCombatStart()
 	self:EnableTimelineOptions(451605, 536)
 	self:EnableTimelineOptions(444546, 537)
 
-	self:EnablePrivateAuraSound(425556, "watchfeet", 8)
 end
 
 --[[
