@@ -80,7 +80,9 @@ local function CatGet(key, field, fallback)
 end
 
 local function CategoryNeedsFullScan(key)
-    return key == C.Categories.MiniCC or key == C.Categories.SArena
+    return key == C.Categories.MiniCC
+        or key == C.Categories.SArena
+        or key == C.Categories.TellMeWhen
 end
 
 --- Returns a setter function that writes and refreshes.
@@ -466,14 +468,16 @@ local function CreateCategoryOptions(order, name, key, desc)
     local isCooldownManager = (key == C.Categories.CooldownManager)
     local isMiniCC = (key == C.Categories.MiniCC)
     local isSArena = (key == C.Categories.SArena)
+    local isTellMeWhen = (key == C.Categories.TellMeWhen)
     local isUnitframe = (key == C.Categories.Unitframe)
-    local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager)
+    local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe)
 
     return {
         type = "group",
         hidden = function()
             return (isMiniCC and not MCE:IsMiniCCAvailable())
                 or (isSArena and not MCE:IsSArenaAvailable())
+                or (isTellMeWhen and not MCE:IsTellMeWhenAvailable())
         end,
         -- Dynamic name with status indicator (colored accent when active, dimmed when inactive)
         name = function()
@@ -923,6 +927,11 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
         return not IsCompactPartyAuraEnabled()
     end
 
+    local compactStackHiddenFn = function()
+        local config = GetCompactPartyAuraOptionsConfig()
+        return not config or not config.stackEnabled or config.hideStackText
+    end
+
     return {
         type = "group",
         name = function()
@@ -1027,6 +1036,19 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         get = ProfileTableGet("compactPartyAuraText", "textOffsetY", 0),
                         set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetY"),
                     },
+                    compactPartyHideStackText = {
+                        type = "toggle", order = 11, width = "1",
+                        name = L["Hide Stack Text"],
+                        desc = L["Hide stacks and charges entirely."],
+                        get = ProfileTableGet("compactPartyAuraText", "hideStackText", false),
+                        set = function(_, val)
+                            local config = GetCompactPartyAuraOptionsConfig()
+                            if not config then return end
+                            config.hideStackText = val
+                            MCE:ForceUpdateAll(true)
+                            AceConfigRegistry:NotifyChange(addonName)
+                        end,
+                    },
                 },
             },
             swipeAnimation = {
@@ -1055,6 +1077,84 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         min = 0.5, max = 2.0, step = 0.1,
                         get = ProfileTableGet("compactPartyAuraText", "edgeScale", 1.4),
                         set = ProfileTableRangeSet("compactPartyAuraText", "edgeScale"),
+                    },
+                },
+            },
+            stackGroup = {
+                type = "group", name = "|cffffd100" .. L["Stack Counters / Charges"] .. "|r",
+                inline = true, order = 30, disabled = compactDisabledFn,
+                hidden = function()
+                    local config = GetCompactPartyAuraOptionsConfig()
+                    return config and config.hideStackText or false
+                end,
+                args = {
+                    stackEnabled = {
+                        type = "toggle", order = 2, width = "full",
+                        name = L["Customize Stack Text"],
+                        desc = L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."],
+                        get = ProfileTableGet("compactPartyAuraText", "stackEnabled", true),
+                        set = function(_, val)
+                            local config = GetCompactPartyAuraOptionsConfig()
+                            if not config then return end
+                            config.stackEnabled = val
+                            MCE:ForceUpdateAll(true)
+                            AceConfigRegistry:NotifyChange(addonName)
+                        end,
+                    },
+                    headerStyleTopSpacing = SectionSpacer(9.95, compactStackHiddenFn),
+                    headerStyle = { type = "header", name = L["Style"], order = 10, hidden = compactStackHiddenFn },
+                    headerStyleBottomSpacing = SectionSpacer(10.05, compactStackHiddenFn),
+                    stackFont = {
+                        type = "select", order = 11, width = 1.5,
+                        name = L["Font"], values = GetFontOptions,
+                        get = ProfileTableGet("compactPartyAuraText", "stackFont"),
+                        set = ProfileTableSet("compactPartyAuraText", "stackFont"),
+                        hidden = compactStackHiddenFn,
+                    },
+                    stackSize = {
+                        type = "range", order = 12, width = 0.7,
+                        name = L["Size"], min = 8, max = 36, step = 1,
+                        get = ProfileTableGet("compactPartyAuraText", "stackSize", 8),
+                        set = ProfileTableRangeSet("compactPartyAuraText", "stackSize"),
+                        hidden = compactStackHiddenFn,
+                    },
+                    stackStyle = {
+                        type = "select", order = 13, width = 0.8,
+                        name = L["Outline"], values = OUTLINE_OPTIONS,
+                        get = ProfileTableGet("compactPartyAuraText", "stackStyle"),
+                        set = ProfileTableSet("compactPartyAuraText", "stackStyle"),
+                        hidden = compactStackHiddenFn,
+                    },
+                    stackColor = {
+                        type = "color", order = 14, width = 0.8,
+                        name = L["Color"], hasAlpha = true,
+                        get = ProfileTableColorGet("compactPartyAuraText", "stackColor"),
+                        set = ProfileTableColorSet("compactPartyAuraText", "stackColor"),
+                        hidden = compactStackHiddenFn,
+                    },
+                    headerPosTopSpacing = SectionSpacer(19.95, compactStackHiddenFn),
+                    headerPos = { type = "header", name = L["Positioning"], order = 20, hidden = compactStackHiddenFn },
+                    headerPosBottomSpacing = SectionSpacer(20.05, compactStackHiddenFn),
+                    stackAnchor = {
+                        type = "select", order = 21,
+                        name = L["Anchor Point"], values = ANCHOR_OPTIONS,
+                        get = ProfileTableGet("compactPartyAuraText", "stackAnchor"),
+                        set = ProfileTableSet("compactPartyAuraText", "stackAnchor"),
+                        hidden = compactStackHiddenFn,
+                    },
+                    stackOffsetX = {
+                        type = "range", order = 22, width = "half",
+                        name = L["Offset X"], min = -20, max = 20, step = 1,
+                        get = ProfileTableGet("compactPartyAuraText", "stackOffsetX", 0),
+                        set = ProfileTableRangeSet("compactPartyAuraText", "stackOffsetX"),
+                        hidden = compactStackHiddenFn,
+                    },
+                    stackOffsetY = {
+                        type = "range", order = 23, width = "half",
+                        name = L["Offset Y"], min = -20, max = 20, step = 1,
+                        get = ProfileTableGet("compactPartyAuraText", "stackOffsetY", 0),
+                        set = ProfileTableRangeSet("compactPartyAuraText", "stackOffsetY"),
+                        hidden = compactStackHiddenFn,
                     },
                 },
             },
@@ -1161,24 +1261,31 @@ function MCE:GetOptions()
                             },
                             quickRowBreak2 = RowBreak(4.1),
                             toggleCooldownMgr = {
-                                type = "toggle", order = 5, width = 1.0,
+                                type = "toggle", order = 5, width = "full",
                                 name = "|cffffd100" .. L["CooldownManager"] .. "|r",
                                 get = function() return MCE.db.profile.categories[C.Categories.CooldownManager].enabled end,
                                 set = function(_, v) MCE.db.profile.categories[C.Categories.CooldownManager].enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
                             },
                             toggleMiniCC = {
-                                type = "toggle", order = 6, width = 1.0,
+                                type = "toggle", order = 6, width = 0.6,
                                 name = "|cffffd100" .. L["MiniCC"] .. "|r",
                                 hidden = function() return not MCE:IsMiniCCAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.MiniCC].enabled end,
                                 set = function(_, v) MCE.db.profile.categories[C.Categories.MiniCC].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
                             },
                             toggleSArena = {
-                                type = "toggle", order = 7, width = 1.0,
+                                type = "toggle", order = 7, width = 0.6,
                                 name = "|cffffd100" .. L["sArena"] .. "|r",
                                 hidden = function() return not MCE:IsSArenaAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.SArena].enabled end,
                                 set = function(_, v) MCE.db.profile.categories[C.Categories.SArena].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
+                            },
+                            toggleTellMeWhen = {
+                                type = "toggle", order = 8, width = 0.9,
+                                name = "|cffffd100" .. L["TellMeWhen"] .. "|r",
+                                hidden = function() return not MCE:IsTellMeWhenAvailable() end,
+                                get = function() return MCE.db.profile.categories[C.Categories.TellMeWhen].enabled end,
+                                set = function(_, v) MCE.db.profile.categories[C.Categories.TellMeWhen].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
                             },
                             quickFooter = {
                                 type = "description", order = 9, fontSize = "small", width = "full",
@@ -1351,6 +1458,8 @@ function MCE:GetOptions()
                 L["MINICC_DESC"]),
             [C.Categories.SArena] = CreateCategoryOptions(8, L["sArena"], C.Categories.SArena,
                 L["SARENA_DESC"]),
+            [C.Categories.TellMeWhen] = CreateCategoryOptions(9, L["TellMeWhen"], C.Categories.TellMeWhen,
+                L["TELLMEWHEN_DESC"]),
 
             help = {
                 type = "group", name = L["Help & Support"], order = 10,

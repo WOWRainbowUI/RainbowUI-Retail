@@ -64,6 +64,10 @@ function MCE:IsSArenaAvailable()
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.SArenaName) or false
 end
 
+function MCE:IsTellMeWhenAvailable()
+    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.TellMeWhenName) or false
+end
+
 local function BuildChatMessage(...)
     local count = select("#", ...)
     if count == 0 then
@@ -144,6 +148,12 @@ nameplateDefaults.stackSize = C.Defaults.Nameplate.StackSize
 nameplateDefaults.stackAnchor = C.Defaults.Nameplate.StackAnchor
 nameplateDefaults.stackOffsetX = C.Defaults.Nameplate.StackOffsetX
 nameplateDefaults.stackOffsetY = C.Defaults.Nameplate.StackOffsetY
+
+local unitframeDefaults = CategoryDefaults(C.Categories.Unitframe, false, 12)
+unitframeDefaults.stackSize = C.Defaults.Unitframe.StackSize
+unitframeDefaults.stackAnchor = C.Defaults.Unitframe.StackAnchor
+unitframeDefaults.stackOffsetX = C.Defaults.Unitframe.StackOffsetX
+unitframeDefaults.stackOffsetY = C.Defaults.Unitframe.StackOffsetY
 
 local defaultDurationTextColors = DurationTextColorDefaults()
 local compactPartyAuraTextDefaults
@@ -243,6 +253,40 @@ local function EnsureCompactPartyAuraTextConfig(config)
         config.textOffsetY = compactPartyAuraTextDefaults.textOffsetY
     end
 
+    if config.stackEnabled == nil then
+        config.stackEnabled = compactPartyAuraTextDefaults.stackEnabled
+    end
+    if config.hideStackText == nil then
+        config.hideStackText = compactPartyAuraTextDefaults.hideStackText
+    end
+    if config.stackFont == nil then
+        config.stackFont = compactPartyAuraTextDefaults.stackFont
+    end
+    if type(config.stackSize) ~= "number" then
+        config.stackSize = compactPartyAuraTextDefaults.stackSize
+    end
+    if config.stackStyle == nil then
+        config.stackStyle = compactPartyAuraTextDefaults.stackStyle
+    end
+    if config.stackAnchor == nil then
+        config.stackAnchor = compactPartyAuraTextDefaults.stackAnchor
+    end
+    if type(config.stackOffsetX) ~= "number" then
+        config.stackOffsetX = compactPartyAuraTextDefaults.stackOffsetX
+    end
+    if type(config.stackOffsetY) ~= "number" then
+        config.stackOffsetY = compactPartyAuraTextDefaults.stackOffsetY
+    end
+    if type(config.stackColor) ~= "table" then
+        config.stackColor = CopyTable(compactPartyAuraTextDefaults.stackColor)
+    else
+        local defaultStackColor = compactPartyAuraTextDefaults.stackColor
+        if config.stackColor.r == nil then config.stackColor.r = defaultStackColor.r end
+        if config.stackColor.g == nil then config.stackColor.g = defaultStackColor.g end
+        if config.stackColor.b == nil then config.stackColor.b = defaultStackColor.b end
+        if config.stackColor.a == nil then config.stackColor.a = defaultStackColor.a end
+    end
+
     if type(config.textColor) ~= "table" then
         config.textColor = CopyTable(compactPartyAuraTextDefaults.textColor)
     else
@@ -265,6 +309,9 @@ local function IsCompactPartyAuraConfigAtDefaults(config)
     local color = config.textColor
     local defaultColor = defaults.textColor
 
+    local stackColor = config.stackColor
+    local defaultStackColor = defaults.stackColor
+
     return config.enabled == defaults.enabled
         and config.raidEnabled == defaults.raidEnabled
         and config.font == defaults.font
@@ -278,11 +325,24 @@ local function IsCompactPartyAuraConfigAtDefaults(config)
         and config.textAnchor == defaults.textAnchor
         and config.textOffsetX == defaults.textOffsetX
         and config.textOffsetY == defaults.textOffsetY
+        and config.stackEnabled == defaults.stackEnabled
+        and config.hideStackText == defaults.hideStackText
+        and config.stackFont == defaults.stackFont
+        and config.stackSize == defaults.stackSize
+        and config.stackStyle == defaults.stackStyle
+        and config.stackAnchor == defaults.stackAnchor
+        and config.stackOffsetX == defaults.stackOffsetX
+        and config.stackOffsetY == defaults.stackOffsetY
         and type(color) == "table"
         and color.r == defaultColor.r
         and color.g == defaultColor.g
         and color.b == defaultColor.b
         and color.a == defaultColor.a
+        and type(stackColor) == "table"
+        and stackColor.r == defaultStackColor.r
+        and stackColor.g == defaultStackColor.g
+        and stackColor.b == defaultStackColor.b
+        and stackColor.a == defaultStackColor.a
 end
 
 local function MigrateLegacyPartyRaidFramesConfig(profile)
@@ -388,6 +448,8 @@ sArenaDefaults.classIconFontSize = C.Defaults.SArena.ClassIconFontSize
 sArenaDefaults.drFontSize = C.Defaults.SArena.DRFontSize
 sArenaDefaults.trinketRacialFontSize = C.Defaults.SArena.TrinketRacialFontSize
 
+local tellMeWhenDefaults = CategoryDefaults(C.Categories.TellMeWhen, false, C.Defaults.TellMeWhen.FontSize)
+
 local compactPartyAuraDefaults = C.Defaults.CompactPartyAuraText
 compactPartyAuraTextDefaults = {
     enabled = compactPartyAuraDefaults.Enabled,
@@ -404,6 +466,15 @@ compactPartyAuraTextDefaults = {
     textAnchor = compactPartyAuraDefaults.TextAnchor,
     textOffsetX = compactPartyAuraDefaults.TextOffsetX,
     textOffsetY = compactPartyAuraDefaults.TextOffsetY,
+    stackEnabled = compactPartyAuraDefaults.StackEnabled,
+    hideStackText = compactPartyAuraDefaults.HideStackText,
+    stackFont = compactPartyAuraDefaults.StackFont,
+    stackSize = compactPartyAuraDefaults.StackSize,
+    stackStyle = compactPartyAuraDefaults.StackStyle,
+    stackColor = CopyTable(compactPartyAuraDefaults.StackColor),
+    stackAnchor = compactPartyAuraDefaults.StackAnchor,
+    stackOffsetX = compactPartyAuraDefaults.StackOffsetX,
+    stackOffsetY = compactPartyAuraDefaults.StackOffsetY,
 }
 
 MCE.defaults = {
@@ -417,10 +488,11 @@ MCE.defaults = {
         categories = {
             [C.Categories.Actionbar] = actionbarDefaults,
             [C.Categories.Nameplate] = nameplateDefaults,
-            [C.Categories.Unitframe] = CategoryDefaults(C.Categories.Unitframe, false, 12),
+            [C.Categories.Unitframe] = unitframeDefaults,
             [C.Categories.CooldownManager] = cooldownManagerDefaults,
             [C.Categories.MiniCC] = miniCCDefaults,
             [C.Categories.SArena] = sArenaDefaults,
+            [C.Categories.TellMeWhen] = tellMeWhenDefaults,
         },
     },
 }
@@ -488,6 +560,7 @@ function MCE:OnInitialize()
     AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager)
     AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC)
     AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena)
+    AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen)
     AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help")
     AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], C.Addon.ShortName, "profiles")
 

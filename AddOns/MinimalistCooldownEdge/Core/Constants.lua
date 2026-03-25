@@ -11,6 +11,7 @@ C.Addon = {
     SavedVariables = "MinimalistCooldownEdgeDB_v2",
     MiniCCName = "MiniCC",
     SArenaName = "sArena_Reloaded",
+    TellMeWhenName = "TellMeWhen",
     VersionFallback = "Dev",
     SlashCommands = { "mce", "minice", "minimalistcooldownedge" },
 }
@@ -27,6 +28,7 @@ C.Categories = {
     CooldownManager = "cooldownmanager",
     MiniCC = "minicc",
     SArena = "sarena",
+    TellMeWhen = "tellmewhen",
     Blacklist = "blacklist",
     AuraPending = "aura_pending",
     CompactPartyAura = "compactPartyAura",
@@ -127,6 +129,7 @@ C.Defaults = {
         [C.Categories.CooldownManager] = false,
         [C.Categories.MiniCC] = false,
         [C.Categories.SArena] = false,
+        [C.Categories.TellMeWhen] = false,
         [C.Categories.CompactPartyAura] = true,
     },
     Category = {
@@ -163,6 +166,13 @@ C.Defaults = {
         StackOffsetX = 0,
         StackOffsetY = 0,
     },
+    Unitframe = {
+        stackEnabled = false,
+        StackSize = 10,
+        StackAnchor = C.Style.Anchors.BottomRight,
+        StackOffsetX = 0,
+        StackOffsetY = 0,
+    },
     CooldownManager = {
         EssentialFontSize = 18,
         UtilityFontSize = 18,
@@ -183,6 +193,9 @@ C.Defaults = {
         DRFontSize = 18,
         TrinketRacialFontSize = 18,
     },
+    TellMeWhen = {
+        FontSize = 18,
+    },
     CompactPartyAuraText = {
         Enabled = true,
         RaidEnabled = false,
@@ -197,6 +210,15 @@ C.Defaults = {
         DrawSwipe = true,
         EdgeEnabled = true,
         EdgeScale = 1.4,
+        StackEnabled = false,
+        HideStackText = false,
+        StackFont = C.Style.Fonts.GameDefault,
+        StackSize = 8,
+        StackStyle = C.Style.FontStyles.Outline,
+        StackColor = C.Colors.White,
+        StackAnchor = C.Style.Anchors.BottomRight,
+        StackOffsetX = 0,
+        StackOffsetY = 0,
     },
     DurationTextColors = {
         Enabled = false,
@@ -214,6 +236,7 @@ C.Urls = {
     CurseForge = "https://www.curseforge.com/wow/addons/minice-cooldown-styler",
     Developer = "https://www.curseforge.com/members/anahkas/projects",
     MiniCC = "https://www.curseforge.com/wow/addons/minicc",
+    TellMeWhen = "https://www.curseforge.com/wow/addons/tellmewhen",
     SmartPvPTabTargeting = "https://www.curseforge.com/wow/addons/pvp-tab-targeting",
 }
 
@@ -245,13 +268,16 @@ C.Classifier = {
     ScanDepth = 10,
     NameplateObjectType = "NamePlate",
     MiniCCNamePrefix = "MiniCC_",
+    TellMeWhenNamePrefix = "TellMeWhen_",
     IgnoreActionbarPattern = "Aura",
     BlacklistNameContains = {
         "Glider", "VuhDo", "Grid",
+        "ElvUI", "ElvUF", "ElvNP", "elvnp",
         "PVEFrame", "PVPQueueFrame",
         "LossOfControlFrame",
         "ContainerFrameCombinedBagsCooldown",
-        "HousingDashboardFrame", "TotemFrame"
+        "HousingDashboardFrame", "TotemFrame",
+        "PlayerFrameBottomManagedFramesContainer"
     },
     BlacklistExactPairs = {
         ["CharacterBackSlot"] = { ["CharacterBackSlotCooldown"] = true },
@@ -273,10 +299,10 @@ C.Classifier = {
         ["CharacterTrinket1Slot"] = { ["CharacterTrinket1SlotCooldown"] = true },
         ["CharacterTrinket0Slot"] = { ["CharacterTrinket0SlotCooldown"] = true },
     },
-    NameplatePatterns = { "nameplate", "plater", "kui", "elvnp", "threatplate" },
+    NameplatePatterns = { "nameplate", "plater", "kui", "threatplate" },
     UnitFramePatterns = {
         "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame",
-        "ElvUF", "SUF", "CompactPartyFrame", "CompactRaidFrame",
+        "SUF", "CompactPartyFrame", "CompactRaidFrame",
         "Grid", "Plexus", "Cell", "TPerl",
     },
     AuraButtonPatterns = { "BuffButton", "DebuffButton", "TempEnchant" },
@@ -313,7 +339,7 @@ C.Adapter = {
     },
     UnitFrames = {
         BlizzardRoots = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame" },
-        ThirdPartyPatterns = { "ElvUF", "SUF", "TPerl" },
+        ThirdPartyPatterns = { "SUF", "TPerl" },
         MaxAncestorDepth = 5,
     },
     GroupFrames = {
@@ -333,6 +359,10 @@ C.Adapter = {
     SArena = {
         MaxArenaOpponents = 5,
         MaxAncestorDepth = 4,
+    },
+    TellMeWhen = {
+        DomainKeys = { "profile", "global" },
+        CooldownNameFragment = "IconModule_CooldownSweepCooldown",
     },
 }
 

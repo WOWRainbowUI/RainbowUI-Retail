@@ -60,6 +60,33 @@ end
 local IsSecretValue = StyleEngine.IsSecretValue
 local CanAccessAllValues = StyleEngine.CanAccessAllValues
 
+local function IsInspectableUIObject(value)
+    local valueType = type(value)
+    if valueType ~= "table" and valueType ~= "userdata" then
+        return false
+    end
+    if IsSecretValue(value) and not CanAccessAllValues(value) then
+        return false
+    end
+    return true
+end
+
+local function GetObjectTypeSafe(region)
+    if not IsInspectableUIObject(region) or type(region.GetObjectType) ~= "function" then
+        return nil
+    end
+    local ok, objectType = pcall(region.GetObjectType, region)
+    if not ok then
+        return nil
+    end
+    return objectType
+end
+
+local function IsUsableFontString(region)
+    return GetObjectTypeSafe(region) == "FontString"
+        and not MCE:IsForbidden(region)
+end
+
 -- =========================================================================
 -- FRAME STATE
 -- =========================================================================
@@ -313,9 +340,7 @@ local function FilterFontStringRegions(count, firstRegion, ...)
     for i = 1, select("#", ...) do
         local region = select(i, ...)
         if region and region ~= firstRegion
-           and region.GetObjectType
-           and region:GetObjectType() == "FontString"
-           and not MCE:IsForbidden(region) then
+           and IsUsableFontString(region) then
             count = count + 1
             textRegionScratch[count] = region
         end
@@ -530,17 +555,40 @@ end
 -- STACK COUNT STYLING
 -- =========================================================================
 
+local function ResolveCountRegion(container)
+    if not container or MCE:IsForbidden(container) then return nil end
+
+    local region = container.Count
+        or container.count
+        or container.StackCount
+        or container.stackCount
+    if IsUsableFontString(region) then
+        return region
+    end
+
+    local containerName = container.GetName and container:GetName() or nil
+    if type(containerName) == "string" and containerName ~= "" then
+        region = _G[containerName .. "Count"] or _G[containerName .. "StackCount"]
+        if IsUsableFontString(region) then
+            return region
+        end
+    end
+
+    return nil
+end
+
 local function GetStackCountRegion(cdFrame, category)
     local parent = cdFrame:GetParent()
     if not parent then return nil, nil end
     local countRegion
 
     if category == CATEGORY.Actionbar then
-        local parentName = parent.GetName and parent:GetName()
-        countRegion = parent.Count or (parentName and _G[parentName .. "Count"])
-    elseif category == CATEGORY.Nameplate then
+        countRegion = ResolveCountRegion(parent)
+    elseif category == CATEGORY.Nameplate
+           or category == CATEGORY.Unitframe
+           or category == CATEGORY.CompactPartyAura then
         local countFrame = parent.CountFrame or parent.countFrame
-        countRegion = countFrame and (countFrame.Count or countFrame.count)
+        countRegion = ResolveCountRegion(countFrame) or ResolveCountRegion(parent)
     elseif category == CATEGORY.CooldownManager then
         local chargeCount = parent.ChargeCount
         if chargeCount and chargeCount.Current then
@@ -554,14 +602,16 @@ local function GetStackCountRegion(cdFrame, category)
         end
     end
 
-    if not countRegion or not countRegion.GetObjectType then return nil, parent end
-    if countRegion:GetObjectType() ~= "FontString" then return nil, parent end
-    if MCE:IsForbidden(countRegion) then return nil, parent end
+    if not IsUsableFontString(countRegion) then return nil, parent end
     return countRegion, parent
 end
 
+function StyleEngine:GetStackCountRegion(cdFrame, category)
+    return GetStackCountRegion(cdFrame, category)
+end
+
 function StyleEngine:StyleStackCount(cdFrame, config, category)
-    local countRegion, parent = GetStackCountRegion(cdFrame, category)
+    local countRegion, parent = self:GetStackCountRegion(cdFrame, category)
     if not countRegion or not parent then return end
 
     local fs = self:GetFrameState(cdFrame)
@@ -583,7 +633,9 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
 
     if not config.stackEnabled then return end
 
-    if category ~= CATEGORY.Nameplate then
+    if category ~= CATEGORY.Nameplate
+       and category ~= CATEGORY.Unitframe
+       and category ~= CATEGORY.CompactPartyAura then
         countRegion:SetAlpha(1)
         countRegion:Show()
     end

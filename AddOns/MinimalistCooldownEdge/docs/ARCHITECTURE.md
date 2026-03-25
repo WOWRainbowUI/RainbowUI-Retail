@@ -111,7 +111,7 @@ The main cooldown path is:
 - Resolves cooldown context from the parent chain.
 - Styles countdown text, stack counts, swipe, edge, and charge cooldown behavior.
 - Knows about category-specific font sizing and hide-countdown rules.
-- Applies generic styling for action bars, nameplates, unit frames, CooldownManager, MiniCC, sArena, and the global fallback category.
+- Applies generic styling for action bars, nameplates, unit frames, CooldownManager, MiniCC, sArena, TellMeWhen, and the global fallback category.
 
 `Modules/DurationColorController.lua`
 
@@ -178,6 +178,10 @@ The main cooldown path is:
 
 - Detects sArena_Reloaded class icon, DR, trinket, and racial cooldowns.
 
+`Adapters/TellMeWhenAdapter.lua`
+
+- Detects TellMeWhen icon cooldown and charge cooldown sweep frames.
+
 ### UI
 
 `UI/ImportExport.lua`
@@ -209,6 +213,7 @@ The registry tracks a category for every cooldown and may also track a subtype.
 | `cooldownmanager` | `essential`, `utility`, `bufficon`, or fallback `utility_or_essential` |
 | `minicc` | `cc`, `nameplate`, `portrait`, or `overlay` |
 | `sarena` | `classicon`, `dr`, `trinket`, or `racial` |
+| `tellmewhen` | none |
 | `global` | none |
 | `blacklist` | none |
 | `aura_pending` | transient fallback only |
