@@ -2780,7 +2780,8 @@ elseif locale == "zhTW" then
 		["Show Font Shadow"] = "顯示字體陰影", -- zhTW
 		["Shadow Color"] = "陰影顏色", -- zhTW
 		["Shadow X Offset"] = "陰影 X 位移", -- zhTW
-		["Shadow Y Offset"] = "陰影 Y 位移", -- zhTW		["Upgrade Color by Rarity"] = "升級顏色（依稀有度）", -- zhTW
+		["Shadow Y Offset"] = "陰影 Y 位移", -- zhTW
+		["Upgrade Color by Rarity"] = "升級顏色（依稀有度）", -- zhTW
 		["Apply Font to All"] = "套用字型到全部", -- zhTW
 		["ENCHANT_NAME_LENGTH"] = "附魔名稱長度", -- zhTW
 		["Show wowhead recommended secondary stat priority"] = "顯示 Wowhead 推薦的副屬性優先順序", -- zhTW
