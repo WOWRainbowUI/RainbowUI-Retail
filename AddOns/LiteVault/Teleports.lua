@@ -9,15 +9,6 @@ function lv.IsMPlusTeleportsEnabled()
     return not (LiteVaultDB and LiteVaultDB.disableMPlusTeleports)
 end
 
-local skyreachSpellID = 1254557
-if C_SpellBook and C_SpellBook.IsSpellInSpellBook then
-    if not C_SpellBook.IsSpellInSpellBook(skyreachSpellID) then
-        skyreachSpellID = 159898
-    end
-elseif IsSpellKnown and not IsSpellKnown(skyreachSpellID) then
-    skyreachSpellID = 159898
-end
-
 -- Midnight Season 1 M+ dungeon pool.
 -- spellID = primary teleport spell learned after completing the dungeon at qualifying keystone level.
 -- alternateSpellIDs = fallback spell IDs observed for the same teleport.
@@ -29,7 +20,7 @@ lv.TELEPORT_DUNGEONS = {
     { name = "阿爾蓋薩學院",        spellID = 393273 },
     { name = "薩倫之淵",            spellID = 1254555 },
     { name = "三傑議會之座",        spellID = 1254551 },
-    { name = "擎天峰",                spellID = skyreachSpellID },
+    { name = "擎天峰",                spellID = 1254557, alternateSpellIDs = {159898} },
 }
 
 local function GetDungeonSpellIDs(dungeon)
@@ -162,24 +153,26 @@ local function EnsurePanel()
         lv.ApplyLocaleFont(row.nameText, 11)
 
         -- Cast button
-        row.castBtnSkin = CreateFrame("Frame", nil, row, "BackdropTemplate")
-        row.castBtnSkin:SetSize(76, 22)
-        row.castBtnSkin:SetPoint("RIGHT", -4, 0)
-        row.castBtnSkin:SetBackdrop({ bgFile="Interface\\Buttons\\WHITE8X8",
-            edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", edgeSize=10,
-            insets={left=2,right=2,top=2,bottom=2} })
-
-        row.castBtn = CreateFrame("Button", nil, row, "SecureActionButtonTemplate")
+        row.castBtn = CreateFrame("Button", nil, row, "SecureActionButtonTemplate,BackdropTemplate")
         row.castBtn:SetSize(76, 22)
         row.castBtn:SetPoint("RIGHT", -4, 0)
-        row.castBtn:SetFrameLevel(row.castBtnSkin:GetFrameLevel() + 1)
-        row.castBtn:SetAttribute("type", "spell")
-        row.castBtn:SetAttribute("spell", dungeon.spellID)
+        row.castBtn:SetBackdrop({ bgFile="Interface\\Buttons\\WHITE8X8",
+            edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", edgeSize=10,
+            insets={left=2,right=2,top=2,bottom=2} })
         row.castBtn.Text = row.castBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
         row.castBtn.Text:SetPoint("CENTER")
         row.castBtn.Text:SetText(L["TELEPORT_CAST_BTN"] or "Teleport")
         lv.ApplyLocaleFont(row.castBtn.Text, 11)
-        row.castBtn:RegisterForClicks("AnyUp", "AnyDown")
+
+        row.castBtn:SetScript("OnClick", function()
+            if InCombatLockdown() then
+                UIErrorsFrame:AddExternalErrorMessage(L["TELEPORT_ERR_COMBAT"] or "Cannot teleport during combat.")
+                return
+            end
+            if row.castBtn:GetAttribute("spell") then
+                panel:Hide()
+            end
+        end)
 
         row.castBtn:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -209,8 +202,8 @@ local function EnsurePanel()
                 for _, row in ipairs(rows) do
                     row:SetBackdropColor(unpack(t.backgroundAlt or t.background))
                     row:SetBackdropBorderColor(unpack(t.borderPrimary))
-                    row.castBtnSkin:SetBackdropColor(unpack(t.buttonBg))
-                    row.castBtnSkin:SetBackdropBorderColor(unpack(t.borderPrimary))
+                    row.castBtn:SetBackdropColor(unpack(t.buttonBg))
+                    row.castBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
                     row.castBtn.Text:SetTextColor(unpack(t.textSecondary))
                 end
             end
@@ -233,21 +226,28 @@ function lv.UpdateTeleportPanel()
         local knownSpellID = GetKnownTeleportSpellID(row.dungeon, known)
         local isKnown = knownSpellID and true or false
 
+        if not InCombatLockdown() then
+            if knownSpellID then
+                row.castBtn:SetAttribute("type", "spell")
+                row.castBtn:SetAttribute("spell", knownSpellID)
+            else
+                row.castBtn:SetAttribute("type", nil)
+                row.castBtn:SetAttribute("spell", nil)
+            end
+        end
+
         if isKnown then
             row.castBtn:SetEnabled(true)
             row.castBtn:SetAlpha(1.0)
-            row.castBtnSkin:SetAlpha(1.0)
         else
             row.castBtn:SetEnabled(false)
             row.castBtn:SetAlpha(0.4)
-            row.castBtnSkin:SetAlpha(0.4)
         end
 
         -- Disable cast during combat regardless
         if InCombatLockdown() then
             row.castBtn:SetEnabled(false)
             row.castBtn:SetAlpha(0.4)
-            row.castBtnSkin:SetAlpha(0.4)
         end
     end
 end

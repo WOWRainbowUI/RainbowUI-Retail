@@ -2,7 +2,7 @@
 ## Title: LiteVault
 ## Notes: Lightweight Warband Tracker
 ## Author: Dragon
-## Version: 12.0.1
+## Version: 2026-03-25 v3
 ## SavedVariables: LiteVaultDB, LiteVaultOrder, LiteVaultMinimapDB
 ## IconTexture: Interface\AddOns\LiteVault\button.png
 ## Category-zhTW: 戰隊
