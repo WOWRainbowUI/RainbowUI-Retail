@@ -161,7 +161,8 @@ end
 lv.ClearItemLevelOverlay = ClearButton
 
 function lv.IsCharacterOverlayEnabled()
-    return not (LiteVaultDB and LiteVaultDB.disableCharacterOverlay)
+    -- return not (LiteVaultDB and LiteVaultDB.disableCharacterOverlay)
+	return false -- 自行修改
 end
 
 local function GetShownItemLevel(link)
