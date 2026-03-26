@@ -139,7 +139,7 @@ D["AdventureGuideLockouts"] = {
 	defaultEnable = 1,
 	tags = { "BOSSRAID" },
 	title = "副本進度 (冒險指南)",
-	desc = "在冒險指南中顯示副本首領和世界王的擊殺進度，方便查看否已經打過。``注意：僅限目前登入的角色，若要查看其他分身角色的副本進度，請改用 '我的分身名冊' 插件。",
+	desc = "在冒險指南中顯示副本首領和世界王的擊殺進度，方便查看否已經打過。``注意：僅限目前登入的角色，若要查看其他分身角色的副本進度，請改用 '戰隊追蹤' 插件。",
 	img = true,
 };
 D["AppearanceTooltip"] = {
@@ -759,33 +759,11 @@ D["EditModeExpanded"] = {
 	},
 };
 D["Exlist"] = {
-	defaultEnable = 1,
-	tags = { "BOSSRAID" },
-	title = "我的分身名冊",
-	desc = "快速查看自己所有分身的地城/團隊/世界王擊殺進度、傳奇鑰石/最佳成績、每日/每週/世界任務、金錢、兌換通貨數量、專業、裝備... 還有更多!`",
+	defaultEnable = 0,
+	title = "(請刪除) 我的分身名冊",
+	desc = "這個插件已替換成 '戰隊追蹤' 插件。``請自行刪除 AddOns 裡面的 Exlist 資料夾。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\AddOns\\Exlist\\Media\\Icons\\logo",
-	img = true,
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["CHARINF"]("") end,
-    },
-	{
-		type = "text",
-        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
-	},
-	{
-		type = "text",
-		text = "點小地圖按鈕的 'i' 按鈕顯示分身資訊。\n",
-	},
-	{
-		type = "text",
-		text = "打開設定選項後，按一下 '顯示設定選項'，左側選單的 '分身' 旁會出現 + 號可以展開來有更多設定。\n\n看不到 + 號的話，上方的標籤頁面先切換到遊戲，再切換回插件就有了。\n",
-	},
-	{
-		type = "text",
-		text = "在設定選項中選擇要顯示哪些資訊，角色要橫向或直向排列。\n\n每個分身至少需要登入一次，才會記錄相關資訊。\n",
-	}
 };
 D["FFLU"] = {
 	defaultEnable = 1,
@@ -999,6 +977,21 @@ D["ls_Glass"] = {
 	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 ls_Glass 資料夾。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_evoker_powerswell",
+};
+D["LiteVault"] = {
+    defaultEnable = 1,
+	tags = { "BOSSRAID" },
+	title = "戰隊追蹤",
+	desc = "輕量級的角色與戰團管理插件，集中顯示並追蹤多角色的各種重要資訊。``可以快速查看分身的金幣收支、戰團銀行紀錄、保險庫進度、團隊副本鎖定情況，以及專業技能的知識點與專注值。``同時提供帳本功能、貨幣追蹤、M+ 進度顯示，並支援排序、收藏與忽略角色，讓多角色管理更直觀高效。``換句話說，戰隊追蹤就是幫助你把分散在不同角色上的資源與進度整合到一個介面裡，減少切換角色查詢的麻煩。`",
+	modifier = "BNS, 彩虹ui",
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+		type = "text",
+        text = "使用方法: 點 '戰隊追蹤' 的小地圖按鈕。",       
+	},
 };
 D["LoxxInterruptTracker"] = {
     defaultEnable = 0,

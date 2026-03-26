@@ -1,0 +1,43 @@
+﻿## Interface: 120001
+## Title: LiteVault
+## Notes: Lightweight Warband Tracker
+## Author: Dragon
+## Version: 12.0.1
+## SavedVariables: LiteVaultDB, LiteVaultOrder, LiteVaultMinimapDB
+## IconTexture: Interface\AddOns\LiteVault\button.png
+## Category-zhTW: 戰隊
+
+## Title-zhTW: |cffFF7F00[戰隊]|r 追蹤
+## Notes-zhTW: LiteVault |n|n輕量級的角色與戰隊管理插件，集中顯示並追蹤多角色的各種重要資訊。|n|n|cffffd200使用方法: |r點小地圖按鈕。
+
+# Localization (must load first)
+Locales\Localization.lua
+Locales\enUS.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+
+# Libraries
+Libs\LibDataBroker-1.1-4\LibDataBroker-1.1.lua
+
+# Addon Files
+Theme.lua
+Core.lua
+Utils.lua
+Currency.lua
+Vault.lua
+Professions.lua
+Modules\KnowledgeSources.lua
+Ledger.lua
+Calendar.lua
+RaidLockouts.lua
+Bags.lua
+Modules\Stats.lua
+Modules\MountDrops.lua
+Modules\InstanceTracker.lua
+Modules\InstanceCap.lua
+Teleports.lua
+Achievements.lua
+UI\CharacterOverlay.lua
+UI\InstancePanel.lua
+List.lua
+UI.lua
