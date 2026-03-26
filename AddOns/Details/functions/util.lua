@@ -729,6 +729,7 @@
 
 	--get the npc id from guid
 	function Details:GetNpcIdFromGuid(guid)
+		if issecretvalue(guid) then return 0 end -- 12.0.1 fix
 		return tonumber(guid:match("^[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-[^%-]*%-([^%-]*)")) or 0
 	end
 
