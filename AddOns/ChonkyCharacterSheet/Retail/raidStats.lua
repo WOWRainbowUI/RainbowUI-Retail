@@ -192,7 +192,7 @@ local function CreateBossRow(bossData, anchor, parent, rowHeight, rowCount)
 	else
 		ccsrf_bx_tex1:SetColorTexture(.17, .17, .17, .4)
 	end
-	
+
 	ccsrf_bx_tex1:Show()
 	
 	-- Boss Icon
@@ -278,9 +278,6 @@ end
 local function updateRaidStatusFrame()
 	local textstring = ""
     if option("showraidprogress") ~= true or _G["ccsrf_sf"] == nil then return end
-	if InCombatLockdown() then CCS.raidupdatedisabled = true return end
-	
-	_G["ccsrf_sf"]:SetScale(option("raid_sp_scale"))
 
 	for _, raidData in ipairs(visibleGroups) do
 		local raidID = raidData.raid
@@ -294,21 +291,20 @@ local function updateRaidStatusFrame()
 		end
 		
 		textstring = textstring .. (getraidstring( raidID ,(raidCount > 1)) or false)
-		
+	
 		for _, bossID in ipairs(raidData.bosses) do
-			local bossFrame = _G["ccsrf_b"..bossID]
-			if bossFrame then
-				local data = CCS.SRI[bossID]
-				if data then
-					local n = killcount(data.normal)
-					local h = killcount(data.heroic)
-					local m = killcount(data.mythic)
+			local data = CCS.SRI[bossID]
 
-					_G["ccsrf_b"..data.boss.."_fs2"]:SetText(format("%-2.2s", n))
-					_G["ccsrf_b"..data.boss.."_fs3"]:SetText(format("%-2.2s", h))
-					_G["ccsrf_b"..data.boss.."_fs4"]:SetText(format("%-2.2s", m))
-				end
+			if data and data.boss and _G["ccsrf_b"..data.boss] then
+				local n = killcount(data.normal)
+				local h = killcount(data.heroic)
+				local m = killcount(data.mythic)
+
+				_G["ccsrf_b"..data.boss.."_fs2"]:SetText(format("%-2.2s", n))
+				_G["ccsrf_b"..data.boss.."_fs3"]:SetText(format("%-2.2s", h))
+				_G["ccsrf_b"..data.boss.."_fs4"]:SetText(format("%-2.2s", m))
 			end
+
 		end
 	end
 
@@ -318,18 +314,23 @@ end
 	
 function module:Initialize()
     if option("showraidprogress") ~= true then return end
-	if InCombatLockdown() then CCS.raidupdatedisabled = true return end
+	if InCombatLockdown() then CCS.incombat = true return end
     local ccsr_btn = _G["ccsr_btn1"] or CreateFrame("Frame", "ccsr_btn1", CharacterHandsSlot)
     local btnfont1 = _G["ccsr_btnfs1"] or ccsr_btn:CreateFontString("ccsr_btnfs1")
     local textstring = ""
-	local ccsrf_af = _G["ccsm_af"] or CreateFrame("Frame", "ccsrf_af", CharacterFrame, "SecureHandlerBaseTemplate");
-    local ccsrf_sf = _G["ccsrf_sf"] or CreateFrame("Frame", "ccsrf_sf", CharacterFrame, "SecureHandlerBaseTemplate");
+	local ccsrf_af = _G["ccsrf_af"] or CreateFrame("Frame", "ccsrf_af", CCS_CharacterFrame, "SecureHandlerBaseTemplate");
+    local ccsrf_sf = _G["ccsrf_sf"] or CreateFrame("Frame", "ccsrf_sf", CCS_CharacterFrame, "SecureHandlerBaseTemplate");
     local rf_bg = _G["ccsrf_rf_bg"] or ccsrf_sf:CreateTexture("ccsrf_rf_bg", "BACKGROUND", nil, 1)        
     local rf_topbar = _G["ccsrf_rf_tb"] or ccsrf_sf:CreateTexture("ccsrf_rf_tb", "BACKGROUND", nil, 2)
     local rf_topstreaks = _G["ccsrf_rf_ts"] or ccsrf_sf:CreateTexture("ccsrf_rf_ts", "BACKGROUND", nil, 2)
     local rf_bottombar = _G["ccsrf_rf_bb"] or ccsrf_sf:CreateTexture("ccsrf_rf_bb", "BACKGROUND", nil, 2)
 
-
+	if not ccsrf_sf.hooked then
+		hooksecurefunc(ccsrf_sf, "Show", function() CCS.RaidProgressEventHandler() end)
+		ccsrf_sf.hooked = true
+	end
+	
+	_G["ccsrf_sf"]:SetScale(option("raid_sp_scale"))
 -- Button 1	
 	ccsr_btn:SetSize(150, 30)
     ccsr_btn:SetPoint("BOTTOMRIGHT", CharacterHandsSlot, "TOPRIGHT", 8, 20)
@@ -349,7 +350,7 @@ function module:Initialize()
 ---- Create the second button
     local ccsr_btn2 = _G["ccsr_btn2"] or CreateFrame("Button", "ccsr_btn2", PaperDollFrame)
 	ccsr_btn2:SetSize(28, 28)
-	ccsr_btn2:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -30)
+	ccsr_btn2:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -15)
 	ccsr_btn2:SetFrameStrata("HIGH")
 
 	ccsr_btn2._ccs_OnEnter = function(self)
@@ -390,11 +391,11 @@ function module:Initialize()
 	local offsetX = (60 + hpad)
 
     if C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
-		ccsrf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX-63, 0)
-		ccsrf_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX-63, 0)
+		ccsrf_af:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPRIGHT", offsetX-63, 0)
+		ccsrf_af:SetPoint("BOTTOMLEFT", CCS_CharacterFrame, "BOTTOMRIGHT", offsetX-63, 0)
 	else
-		ccsrf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX, 0)
-		ccsrf_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
+		ccsrf_af:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPRIGHT", offsetX, 0)
+		ccsrf_af:SetPoint("BOTTOMLEFT", CCS_CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
 	end
 
 	ccsrf_sf:SetPoint("TOPLEFT", ccsrf_af, "TOPRIGHT", 0, 0); 
@@ -484,7 +485,7 @@ function module:Initialize()
 				    local row = CreateBossRow(bossData, anchor, ccsrf_sf, rowHeight, rowCount)
                     table.insert(layoutChain, {frame = row, isHeader = false})
 					rowCount = rowCount + 1
-                end
+				end
             end
     end
 
@@ -507,7 +508,7 @@ end
 function CCS.RaidProgressEventHandler(event, ...)
     local arg1, arg2, arg3 = ...
 	if option("showraidprogress") == false then return end
-    if InCombatLockdown() then CCS.raidupdatedisabled = true return end
+
 	if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
     if event == "PLAYER_LEVEL_UP" then
        C_Timer.After(.2, function() if UnitLevel("player") == CCS.MaxLevel then  _G["ccsr_btn"]:Show() end end)
@@ -518,6 +519,6 @@ function CCS.RaidProgressEventHandler(event, ...)
         if _G["ccsr_btn2"] ~= nil then _G["ccsr_btn2"]:Hide() end		
     end
 
-    updateRaidStatusFrame();
+	updateRaidStatusFrame();
     
 end

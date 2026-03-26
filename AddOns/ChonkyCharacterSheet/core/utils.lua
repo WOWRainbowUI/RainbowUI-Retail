@@ -498,11 +498,11 @@ function CCS:LoadBlizzardAddOns()
     if type(WeeklyRewards_LoadUI) == "function" then
         WeeklyRewards_LoadUI()
     end
-    TokenFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
+    TokenFrame:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPLEFT", 0, 0)
     if CharacterFrameBg then
         TokenFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 0)
     else
-        TokenFrame:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", 0, 0)
+        TokenFrame:SetPoint("BOTTOMRIGHT", CCS_CharacterFrame, "BOTTOMRIGHT", 0, 0)
     end
 
     -- Safely configure WeeklyRewardsFrame

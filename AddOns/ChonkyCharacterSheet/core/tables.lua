@@ -1928,13 +1928,13 @@ CCS.ClassSpecStatPriority = {
         -- Frost
         [2] = {
             [31] = {1,1,1,1}, --  *** San'layn
-            [32] = {1,2,3,4}, -- Rider of the Apocalypse
-            [33] = {1,2,3,4}, -- Deathbringer
+            [32] = {2,1,3,4}, -- Rider of the Apocalypse
+            [33] = {2,1,3,4}, -- Deathbringer
         },
         -- Unholy
         [3] = {
-            [31] = {2,1,3,4}, -- San'layn
-            [32] = {2,1,3,4}, -- Rider of the Apocalypse
+            [31] = {1,2,3,4}, -- San'layn
+            [32] = {1,2,3,4}, -- Rider of the Apocalypse
             [33] = {1,1,1,1}, -- *** Deathbringer
         },
     },
@@ -1956,7 +1956,7 @@ CCS.ClassSpecStatPriority = {
             [34] = {1,1,1,1}, -- *** Fel-Scarred
             [35] = {1,1,1,1}, -- *** Aldrachi Reaver
             [124] = {2,3,1,4}, -- Annihilator
-            [126] = {2,3,1,4}, -- Void-scarred
+            [126] = {1,3,2,4}, -- Void-scarred
         },        
     },
     [11] = { -- Druid
@@ -1964,8 +1964,8 @@ CCS.ClassSpecStatPriority = {
         [1] = {
             [21] = {1,1,1,1}, -- *** Druid of the Claw
             [22] = {1,1,1,1}, -- *** Wildstalker
-            [23] = {1,4,2,3}, -- Keeper of the Grove
-            [24] = {1,4,2,3}, -- Elune's Chosen
+            [23] = {1,2,2,3}, -- Keeper of the Grove
+            [24] = {1,3,2,4}, -- Elune's Chosen
         },
         -- Feral
         [2] = {
@@ -1999,28 +1999,28 @@ CCS.ClassSpecStatPriority = {
         -- Preservation
         [2] = {
             [36] = {1,1,1,1}, -- *** Scalecommander
-            [37] = {1,4,2,3}, -- Flameshaper
-            [38] = {1,4,2,3}, -- Chronowarden
+            [37] = {1,3,2,4}, -- Flameshaper
+            [38] = {1,3,2,4}, -- Chronowarden
         },
         -- Augmentation
         [3] = {
             [36] = {3,1,2,4}, -- Scalecommander
             [37] = {1,1,1,1}, -- *** Flameshaper
-            [38] = {1,2,3,4}, -- Chronowarden
+            [38] = {3,1,2,4}, -- Chronowarden
         },
     },
     [3] = { -- Hunter
         -- Beast Mastery {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
             [42] = {1,1,1,1}, -- *** Sentinel
-            [43] = {3,1,2,4}, -- Pack Leader
-            [44] = {3,1,2,4}, -- Dark Ranger
+            [43] = {1,3,2,4}, -- Pack Leader
+            [44] = {1,3,2,4}, -- Dark Ranger
         },
         -- Marksmanship
         [2] = {
-            [42] = {2,1,3,4}, -- Sentinel
+            [42] = {2,1,4,3}, -- Sentinel
             [43] = {1,1,1,1}, -- *** Pack Leader
-            [44] = {2,1,3,4}, -- Dark Ranger
+            [44] = {2,1,4,3}, -- Dark Ranger
         },
         -- Survival
         [3] = {
@@ -2032,40 +2032,40 @@ CCS.ClassSpecStatPriority = {
     [8] = { -- Mage
         -- Arcane {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
-            [39] = {2,3,1,4}, -- Sunfury
-            [40] = {2,3,1,4}, -- Spellslinger
+            [39] = {1,3,2,4}, -- Sunfury
+            [40] = {1,3,2,4}, -- Spellslinger
             [41] = {1,1,1,1}, -- *** Frostfire
         },
         -- Fire
         [2] = {
-            [39] = {2,3,1,4}, -- Sunfury
+            [39] = {2,4,1,3}, -- Sunfury
             [40] = {1,1,1,1}, -- *** Spellslinger
-            [41] = {2,3,1,4}, -- Frostfire
+            [41] = {2,4,1,3}, -- Frostfire
         },
         -- Frost
         [3] = {
             [39] = {1,1,1,1}, -- *** Sunfury
-            [40] = {1,2,4,3}, -- Spellslinger
-            [41] = {1,2,4,3}, -- Frostfire
+            [40] = {1,2,3,4}, -- Spellslinger
+            [41] = {1,2,3,4}, -- Frostfire
         },
     },
     [10] = { -- Monk
         -- Brewmaster {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
             [64] = {1,1,1,1}, -- *** Conduit of the Celestials
-            [65] = {3,1,4,2}, -- Shado-pan
-            [66] = {3,1,4,2}, -- Master of Harmony
+            [65] = {1,1,2,1}, -- Shado-pan
+            [66] = {1,1,2,1}, -- Master of Harmony
         },
         -- Mistweaver
         [2] = {
-            [64] = {3,2,1,2}, -- Conduit of the Celestials
+            [64] = {4,2,1,3}, -- Conduit of the Celestials
             [65] = {1,1,1,1}, -- *** Shado-pan
-            [66] = {3,2,1,2}, -- Master of Harmony
+            [66] = {4,2,1,3}, -- Master of Harmony
         },
         -- Windwalker
         [3] = {
-            [64] = {3,1,2,4}, -- Conduit of the Celestials
-            [65] = {3,1,2,4}, -- Shado-pan
+            [64] = {2,3,1,4}, -- Conduit of the Celestials
+            [65] = {3,2,1,4}, -- Shado-pan
             [66] = {1,1,1,1}, -- *** Master of Harmony
         },
     },
@@ -2092,15 +2092,15 @@ CCS.ClassSpecStatPriority = {
     [5] = { -- Priest
         -- Discipline {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
-            [18] = {2,2,1,3}, -- Voidweaver
+            [18] = {3,2,1,4}, -- Voidweaver
             [19] = {1,1,1,1}, -- *** Archon
-            [20] = {2,2,1,3}, -- Oracle
+            [20] = {3,2,1,4}, -- Oracle
         },
         -- Holy
         [2] = {
             [18] = {1,1,1,1}, -- *** Voidweaver
-            [19] = {2,1,4,3}, -- Archon
-            [20] = {2,1,4,3}, -- Oracle
+            [19] = {2,1,3,2}, -- Archon
+            [20] = {2,1,3,2}, -- Oracle
         },
         -- Shadow
         [3] = {
@@ -2113,40 +2113,40 @@ CCS.ClassSpecStatPriority = {
         -- Assassination {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
             [51] = {1,1,1,1}, -- *** Trickster
-            [52] = {2,1,3,4}, -- Fatebound
-            [53] = {2,1,3,4}, -- Deathstalker
+            [52] = {3,1,2,4}, -- Fatebound
+            [53] = {3,1,2,4}, -- Deathstalker
         },
         -- Outlaw
         [2] = {
-            [51] = {4,1,2,3}, -- Trickster
-            [52] = {4,1,2,3}, -- Fatebound
+            [51] = {4,2,1,3}, -- Trickster
+            [52] = {4,2,1,3}, -- Fatebound
             [53] = {1,1,1,1}, -- *** Deathstalker
         },
         -- Subtlety
         [3] = {
-            [51] = {4,3,1,2}, -- Trickster
+            [51] = {1,3,2,4}, -- Trickster
             [52] = {1,1,1,1}, -- *** Fatebound
-            [53] = {4,3,1,2}, -- Deathstalker
+            [53] = {1,3,2,4}, -- Deathstalker
         },
     },
     [7] = { -- Shaman
         -- Elemental {"Mastery","CriticalStrike","Haste","Versatility"}
         [1] = {
             [54] = {1,1,1,1}, -- *** Totemic
-            [55] = {1,3,2,4}, -- Stormbringer
-            [56] = {1,4,2,3}, -- Farseer
+            [55] = {1,2,2,3}, -- Stormbringer
+            [56] = {1,2,2,3}, -- Farseer
         },
         -- Enhancement
         [2] = {
             [54] = {1,3,2,4}, -- Totemic
-            [55] = {2,3,1,4}, -- Stormbringer
+            [55] = {2,2,1,3}, -- Stormbringer
             [56] = {1,1,1,1}, -- *** Farseer
         },
         -- Restoration
         [3] = {
-            [54] = {3,1,1,2}, -- Totemic
-            [55] = {1,1,1,1}, -- *** Stormbringer
-            [56] = {3,1,1,2}, -- Farseer
+            [54] = {2,1,3,2}, -- Totemic
+            [55] = {2,1,3,2}, -- *** Stormbringer
+            [56] = {2,1,3,2}, -- Farseer
         },
     },
     [9] = { -- Warlock
@@ -2190,6 +2190,7 @@ CCS.ClassSpecStatPriority = {
         },
     },
 }
+
 
 CCS.UpgradeTrackNames = {
     enUS = {
@@ -2288,3 +2289,4 @@ CCS.statKeyMap = {
     secondary_mastery     = "MASTERY_RATING",
     secondary_versatility = "VERSATILITY",
 }
+

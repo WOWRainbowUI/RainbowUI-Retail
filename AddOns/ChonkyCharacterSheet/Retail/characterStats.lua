@@ -963,8 +963,8 @@ local function GetStatLeech(rowData)
 	local leftText, rightText, tt_name, tt_desc, isZero = "","","","",false
 	local link = nil
 	local leechRating = GetCombatRating(CR_LIFESTEAL)
-	isZero = (leechRating == 0)
 	local lifesteal = GetLifesteal();
+	isZero = (lifesteal == 0)
 	leftText=format("%s", ITEM_MOD_CR_LIFESTEAL_SHORT)
 	rightText=format('(%s%%) %6.6s',CCS.round(GetLifesteal()), BreakUpLargeNumbers(leechRating))
 	
