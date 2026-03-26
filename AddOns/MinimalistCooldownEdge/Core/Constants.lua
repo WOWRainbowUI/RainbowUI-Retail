@@ -272,12 +272,13 @@ C.Classifier = {
     IgnoreActionbarPattern = "Aura",
     BlacklistNameContains = {
         "Glider", "VuhDo", "Grid",
-        "ElvUI", "ElvUF", "ElvNP", "elvnp",
         "PVEFrame", "PVPQueueFrame",
         "LossOfControlFrame",
         "ContainerFrameCombinedBagsCooldown",
         "HousingDashboardFrame", "TotemFrame",
-        "PlayerFrameBottomManagedFramesContainer"
+        "PlayerFrameBottomManagedFramesContainer",
+        "ElvUI", "ElvUF", "ElvNP", "elvnp", "Elv_", "ElvAB_", "Tukui",
+        "Gw2_","GW2", "Gw2", "GW2_", "Gw_", "GW_", 
     },
     BlacklistExactPairs = {
         ["CharacterBackSlot"] = { ["CharacterBackSlotCooldown"] = true },
