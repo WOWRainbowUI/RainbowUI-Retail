@@ -1,6 +1,6 @@
 ## Interface: 120001
 ## Title: Edit Mode Expanded
-## Version: 12.0-026
+## Version: 12.0-030
 ## Notes: Expands Edit Mode to apply to other frames
 ## Author: Teelo
 ## SavedVariables: EditModeExpandedADB
@@ -30,6 +30,7 @@ Locales\zhTW.lua
 
 FrameHandlers\ActionBars.lua
 FrameHandlers\AlertFrame.lua
+FrameHandlers\BattlefieldMapFrame.lua
 FrameHandlers\BelowMinimapContainer.lua
 FrameHandlers\BonusRoll.lua
 FrameHandlers\Buffs.lua

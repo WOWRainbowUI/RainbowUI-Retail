@@ -126,3 +126,5 @@ EventUtil.ContinueOnAddOnLoaded("Blizzard_UIWidgets", function()
 end)
 
 EventUtil.ContinueOnAddOnLoaded("Blizzard_HousingControls", addon.initHousing)
+
+EventUtil.ContinueOnAddOnLoaded("Blizzard_BattlefieldMap", addon.initBattlefieldMap)
