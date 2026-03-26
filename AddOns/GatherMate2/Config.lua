@@ -1066,6 +1066,7 @@ ImportHelper.expac_data = {
 	["SL"] = L["Shadowlands"],
 	["DF"] = L["Dragonflight"],
 	["TWW"] = L["The War Within"],
+	["MN"] = L["Midnight"],
 }
 
 importOptions.args.GatherMateData = {

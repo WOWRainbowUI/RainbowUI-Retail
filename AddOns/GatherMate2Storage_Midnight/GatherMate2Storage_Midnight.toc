@@ -4,7 +4,7 @@
 ## Group: GatherMate2
 ## IconTexture: Interface\AddOns\GatherMate2\Artwork\Icon.tga
 ## Dependencies: GatherMate2
-## Version: 1.52.0
+## Version: 1.52.1
 ## X-Category: Map
 ## LoadSavedVariablesFirst: 1
 ## SavedVariables: GatherMate2HerbDBMN, GatherMate2MineDBMN, GatherMate2FishDBMN, GatherMate2GasDBMN, GatherMate2TreasureDBMN, GatherMate2ArchaeologyDBMN, GatherMate2LoggingDBMN
