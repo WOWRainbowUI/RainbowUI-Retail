@@ -3,7 +3,7 @@ local _, BR = ...
 -- Lookup tables of known consumable item IDs, keyed by consumable type.
 -- Values: `true` for simple membership, or a table with `label` (stat abbreviation) and optional fields.
 -- Food tables: `{ label, badge }`. Flask tables: `{ label, badge, priority }`.
--- `badge`: bottom-left overlay text ("加速" for hearty food, "R1"/"R2"/"R3" for flask quality).
+-- `badge`: bottom-left overlay text ("H" for hearty food, "R1"/"R2"/"R3" for flask quality).
 BR.CONSUMABLE_ITEMS = {
     food = {
         -- TWW 11.0.0
@@ -169,9 +169,6 @@ BR.CONSUMABLE_ITEMS = {
         -- [260277] = true, -- Sedge Crawler Gumbo
         -- [260286] = true, -- Shrooms and Nectar
         -- [260299] = true, -- Roasted Abyssal Eel
-    },
-    sanguithorn = {
-        [242299] = true, -- Sanguithorn Tea
     },
     -- Flask entries: { label, badge } for regular, { label, badge, priority } for fleeting/cauldron
     -- badge = quality rank (R1/R2/R3), priority = sort order (fleeting sort first)

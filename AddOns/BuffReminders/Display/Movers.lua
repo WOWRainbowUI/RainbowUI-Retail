@@ -924,8 +924,11 @@ PositionMoverFrame = function(catKey)
         mover:SetPoint(anchor, UIParent, "CENTER", pos.x or 0, pos.y or 0)
     end
     if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
-        coordPopup.xEdit:SetText(tostring(pos.x or 0))
-        coordPopup.yEdit:SetText(tostring(pos.y or 0))
+        -- Don't overwrite text while user is actively editing
+        if not coordPopup.xEdit:HasFocus() and not coordPopup.yEdit:HasFocus() then
+            coordPopup.xEdit:SetText(tostring(pos.x or 0))
+            coordPopup.yEdit:SetText(tostring(pos.y or 0))
+        end
     end
 end
 

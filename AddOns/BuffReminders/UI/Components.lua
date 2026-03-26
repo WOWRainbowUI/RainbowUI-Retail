@@ -106,9 +106,16 @@ local ButtonColors = {
 ---@param text string
 ---@param onClick function
 ---@param tooltip? TooltipText Optional tooltip configuration
+---@param colorOverrides? table Partial color table to override defaults (same keys as ButtonColors)
 ---@return table
-function BR.CreateButton(parent, text, onClick, tooltip)
+function BR.CreateButton(parent, text, onClick, tooltip, colorOverrides)
     local colors = ButtonColors
+    if colorOverrides then
+        colors = {}
+        for k, v in pairs(ButtonColors) do
+            colors[k] = colorOverrides[k] or v
+        end
+    end
 
     local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
     btn:SetBackdrop({
@@ -116,9 +123,6 @@ function BR.CreateButton(parent, text, onClick, tooltip)
         edgeFile = "Interface\\Buttons\\WHITE8x8",
         edgeSize = 1,
     })
-    btn:SetBackdropColor(unpack(colors.bg))
-    btn:SetBackdropBorderColor(unpack(colors.border))
-
     -- Text
     local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     btnText:SetPoint("CENTER", 0, 0)
@@ -153,6 +157,8 @@ function BR.CreateButton(parent, text, onClick, tooltip)
             btnText:SetTextColor(unpack(colors.text))
         end
     end
+
+    UpdateVisual()
 
     btn:SetScript("OnEnter", function()
         isHovered = true
