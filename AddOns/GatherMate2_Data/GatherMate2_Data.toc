@@ -5,7 +5,8 @@
 ## X-Category: Map
 ## Group: GatherMate2
 ## X-Email: sal.scotto@gmail.com
-## Version: v40.0
+## Version: v41.0
+## X-Generated-Version: 218
 ## LoadOnDemand: 1
 ## Dependencies: GatherMate2
 ## X-Curse-Project-ID: 26737

@@ -1,15 +1,14 @@
 # GatherMate2Data
 
-## [v40.0](https://github.com/Nevcairiel/GatherMate2_Data/tree/v40.0) (2025-12-08)
-[Full Changelog](https://github.com/Nevcairiel/GatherMate2_Data/commits/v40.0) [Previous Releases](https://github.com/Nevcairiel/GatherMate2_Data/releases)
+## [v41.0](https://github.com/Nevcairiel/GatherMate2_Data/tree/v41.0) (2026-03-25)
+[Full Changelog](https://github.com/Nevcairiel/GatherMate2_Data/compare/v40.0...v41.0) [Previous Releases](https://github.com/Nevcairiel/GatherMate2_Data/releases)
 
-- Add Timber Data, re-generate Mining/Herb data  
-- Add Group and Texture  
-- Add more TWW zones  
-- Fix Dorn id. Thanks @AndreiMaga !  
-- Added another missing zone for DF.  
-- Add two missed DF zones.  
-- Add comments and TWW info.  
-- Update toc for 11.00.02  
-- Add touched up README from Lindsey Burnett's PR  
-- Update Data from WoWHead  
+- Update TOC  
+- Update Data from WoWHead (#10)  
+    * Update Data from WoWHead  
+    WoWHead data scrape from 3/3/26 and added fish data from TWW and MN.  
+- Update zones for Midnight  
+    Add Midnight zones and sync zones from the miner.  
+- Disable clearing of data, its only confusing to not be able to run two imports  
+- Update packaging setup  
+- Add X-Generated-Version back into the TOC  
