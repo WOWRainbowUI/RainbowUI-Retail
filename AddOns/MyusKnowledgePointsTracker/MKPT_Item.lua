@@ -174,7 +174,7 @@ function MKPT_Item:GetDescription()
     return self.text or "位置未知"
   end
 
-  local requirementsText = ""
+  local requirementsText = self.text and self.text.."\n\n" or ""
   if self.requirements then
     for _, v in ipairs(self.requirements) do
       requirementsText = requirementsText..v:GetDescription().."\n"
@@ -229,11 +229,22 @@ function MKPT_CatchUp:GetDescription()
     for _, v in ipairs(self.requirements) do
       requirementsText = requirementsText..v:GetDescription().."\n"
     end
-  else
-    requirementsText = requirementsText..CreateSimpleTextureMarkup(4914670, 16, 16).." ~24 小時 - "..CreateSimpleTextureMarkup(5976939, 16, 16).." ~84 小時"
+    
   end
 
   return requirementsText
+end
+
+local MKPT_PatronCatchUp = MKPT_CatchUp:New()
+MKPT_env.MKPT_PatronCatchUp = MKPT_PatronCatchUp
+
+function MKPT_PatronCatchUp:MeetRequirements()
+  return true
+end
+
+function MKPT_PatronCatchUp:GetDescription()
+  local requirementsText = self.text and self.text.."\n" or ""
+  return requirementsText..CreateSimpleTextureMarkup(4914670, 16, 16).." ~24 hours - "..CreateSimpleTextureMarkup(5976939, 16, 16).." ~84 hours"
 end
 
 local MKPT_DarkmoonQuest = MKPT_Item:New()
@@ -248,6 +259,10 @@ function MKPT_DarkmoonQuest:New(o)
 end
 function MKPT_DarkmoonQuest:GetId()
   return self.questId and self.questId[1]
+end
+
+function MKPT_DarkmoonQuest:Show()
+  return not MKPT_env.db.config.hideWeeklyQuests and MKPT_Item.Show(self)
 end
 
 function MKPT_DarkmoonQuest:GetName()
@@ -360,10 +375,10 @@ function MKPT_WeeklyTreasure:GetDescription()
     return self.text
   end
   local zoneName
-  if MKPT_env.db.state.expansion == Enum.ExpansionLevel.WarWithin then
+  if MKPT_env.charDb.state.expansion == Enum.ExpansionLevel.WarWithin then
     zoneName = C_Map.GetMapInfo(2274).name -- Khaz Algar
   else
-    zoneName = C_Map.GetMapInfo(2405).name -- Voidstorm
+    zoneName = C_Map.GetMapInfo(2537).name -- Quel'Thalas
   end
   return Utils.WEEKLY_TREASURE_ICON.." 在"..zoneName.."周圍的寶藏中發現"
 end

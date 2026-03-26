@@ -8,6 +8,7 @@ local MKPT_WeeklyQuestItem = MKPT_env.MKPT_WeeklyQuestItem
 local MKPT_WeeklyTreasure = MKPT_env.MKPT_WeeklyTreasure
 local MKPT_DarkmoonQuest = MKPT_env.MKPT_DarkmoonQuest
 local MKPT_CatchUp = MKPT_env.MKPT_CatchUp
+local MKPT_PatronCatchUp = MKPT_env.MKPT_PatronCatchUp
 local MKPT_Item = MKPT_env.MKPT_Item
 local MKPT_QuestRequirement = MKPT_env.MKPT_QuestRequirement
 local MKPT_CurrencyRequirement = MKPT_env.MKPT_CurrencyRequirement
@@ -17,8 +18,9 @@ local MKPT_FirstTimeRecipe = MKPT_env.MKPT_FirstTimeRecipe
 local MKPT_KpItemRequirement = MKPT_env.MKPT_KpItemRequirement
 
 local db = {}
+
 MKPT_env.GetProfessions = function()
-  local expansion = MKPT_env.db.state.expansion or Enum.ExpansionLevel.WarWithin
+  local expansion = MKPT_env.charDb.state.expansion or Enum.ExpansionLevel.WarWithin
 
   local professions = {}
   for _, profession in pairs(db[expansion]) do
@@ -33,7 +35,7 @@ end
 MKPT_env.FindProfessionBySpellId = function(spellId)
   if not spellId then return nil end
 
-  local expansion = MKPT_env.db.state.expansion
+  local expansion = MKPT_env.charDb.state.expansion
 
   if not expansion then return nil end
 
@@ -103,7 +105,13 @@ MKPT_env.InitProfessions = function()
           :AddEntry(MKPT_DarkmoonQuest:New({ questId = { 29506 }, waypoint = { map = 407, x = 0.5049, y = 0.6955 }, kp = 3 })
             :AddRequirement(MKPT_ItemRequirement:New(1645, 5)))
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228724, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = { MKPT_Item.FindByQuestId(83253), MKPT_Item.FindByQuestId(83255), MKPT_Item.FindByQuestId(84133) }, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228724, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83253)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83255)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84133)))
+          )
       ,
       -- Blacksmithing
       [2872] = MKPT_Profession:New(2872, 423332, 3058, { map = 2339, x = 0.4917, y = 0.6363 })
@@ -158,7 +166,13 @@ MKPT_env.InitProfessions = function()
           -- DMF Baby Needs Two Pair of Shoes
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29508 }, waypoint = { map = 407, x = 0.5110, y = 0.8204 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228726, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = { MKPT_Item.FindByQuestId(83256), MKPT_Item.FindByQuestId(83257), MKPT_Item.FindByQuestId(84127) }, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228726, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83256)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83257)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84127)))
+          )
       ,
       -- Enchanting
       [2874] = MKPT_Profession:New(2874, 423334, 3059, { map = 2339, x = 0.5291, y = 0.7131 })
@@ -217,7 +231,8 @@ MKPT_env.InitProfessions = function()
           -- DMF Putting Trash to Good Use
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29510 }, waypoint = { map = 407, x = 0.5316, y = 0.7587 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 227662, catchUpCurrencyId = 3059, atlasIcon = "lootroll-toast-icon-disenchant-up", kp = 1, text = "Randomly looted while disenchanting" })
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 227662, catchUpCurrencyId = 3059, atlasIcon =
+            "lootroll-toast-icon-disenchant-up", kp = 1, text = "Randomly looted while disenchanting" })
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84084)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84295)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84290)))
@@ -278,7 +293,13 @@ MKPT_env.InitProfessions = function()
           -- DMF Talkin' Tonks
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29511 }, waypoint = { map = 407, x = 0.4925, y = 0.6078 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228730, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = { MKPT_Item.FindByQuestId(83260), MKPT_Item.FindByQuestId(83261), MKPT_Item.FindByQuestId(84128) }, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228730, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83260)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83261)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84128)))
+          )
       ,
       -- Herbalism
       [2877] = MKPT_Profession:New(2877, 441327, 3061, { map = 2339, x = 0.4476, y = 0.6929 })
@@ -334,7 +355,8 @@ MKPT_env.InitProfessions = function()
           -- DMF Herbs for Healing
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29514 }, waypoint = { map = 407, x = 0.5500, y = 0.7076 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 224835, catchUpCurrencyId = 3061, atlasIcon = "Professions_Tracking_Herb", kp = 1, text = "Randomly looted while gathering herbs" })
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 224835, catchUpCurrencyId = 3061, atlasIcon =
+            "Professions_Tracking_Herb", kp = 1, text = "Randomly looted while gathering herbs" })
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(82970)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81416)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81421))))
@@ -393,7 +415,13 @@ MKPT_env.InitProfessions = function()
           :AddEntry(MKPT_DarkmoonQuest:New({ questId = { 29515 }, waypoint = { map = 407, x = 0.5325, y = 0.7584 }, kp = 3 })
             :AddRequirement(MKPT_ItemRequirement:New(39354, 5)))
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228732, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = { MKPT_Item.FindByQuestId(83262), MKPT_Item.FindByQuestId(83264), MKPT_Item.FindByQuestId(84129) }, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228732, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83262)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83264)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84129)))
+          )
       ,
       -- Jewelcrafting
       [2879] = MKPT_Profession:New(2879, 423339, 3063, { map = 2339, x = 0.4947, y = 0.7081 })
@@ -448,7 +476,13 @@ MKPT_env.InitProfessions = function()
           -- DMF Keeping the Faire Sparkling
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29516 }, waypoint = { map = 407, x = 0.5500, y = 0.7079 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228734, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = { MKPT_Item.FindByQuestId(83265), MKPT_Item.FindByQuestId(83266), MKPT_Item.FindByQuestId(84130) }, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228734, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83265)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83266)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84130)))
+          )
       ,
       -- Leatherworking
       [2880] = MKPT_Profession:New(2880, 423340, 3064, { map = 2339, x = 0.5431, y = 0.5844 })
@@ -506,7 +540,13 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_ItemRequirement:New(2320, 5))
             :AddRequirement(MKPT_ItemRequirement:New(6260, 5)))
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228736, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = { MKPT_Item.FindByQuestId(83267), MKPT_Item.FindByQuestId(83268), MKPT_Item.FindByQuestId(84131) }, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228736, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83267)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83268)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84131)))
+          )
       ,
       -- Mining
       [2881] = MKPT_Profession:New(2881, 423341, 3065, { map = 2339, x = 0.5303, y = 0.5280 })
@@ -561,7 +601,8 @@ MKPT_env.InitProfessions = function()
           -- DMF Rearm, Reuse, Recycle
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29518 }, waypoint = { map = 407, x = 0.4930, y = 0.6087 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 224838, catchUpCurrencyId = 3065, unlockRequirements = {}, atlasIcon = "Professions_Tracking_Ore", kp = 1, text = "Randomly looted while mining" })
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 224838, catchUpCurrencyId = 3065, atlasIcon =
+            "Professions_Tracking_Ore", kp = 1, text = "Randomly looted while mining" })
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83104)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83049)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83050)))
@@ -620,7 +661,8 @@ MKPT_env.InitProfessions = function()
           -- DMF Tan My Hide
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29519 }, waypoint = { map = 407, x = 0.5501, y = 0.7078 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 224782, catchUpCurrencyId = 3066, atlasIcon = "worldquest-icon-skinning", kp = 1, text = "Randomly looted while skinning" })
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 224782, catchUpCurrencyId = 3066, atlasIcon =
+            "worldquest-icon-skinning", kp = 1, text = "Randomly looted while skinning" })
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83097)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81464)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81459)))
@@ -682,19 +724,25 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_ItemRequirement:New(2604, 1))
             :AddRequirement(MKPT_ItemRequirement:New(6260, 1)))
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228738, atlasIcon = "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228738, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83269)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(83270)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(84132)))
+          )
     }
     ,
     [Enum.ExpansionLevel.Midnight] = {
       -- Midnight
-      -- 3211 Midnight Alchemy  Missing Eversong Oddities
+      -- 3211 Midnight Alchemy
       [2906] = MKPT_Profession:New(2906, 471003, 3189, { map = 2393, x = 0.4704, y = 0.5197 })
           --Freshly Plucked Peacebloom
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89115 }, itemId = 238536, waypoint = { map = 2393, x = 0.4911, y = 0.7585 }, kp = 3, vignetteId = { 6844 } })
           --Pristine Potion
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89117 }, itemId = 238538, waypoint = { map = 2393, x = 0.4775, y = 0.5169 }, kp = 3, vignetteId = { 6842 } })
           --Vial of Eversong Oddities
-          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89111 }, itemId = 238532, waypoint = nil, kp = 3, vignetteId = { 6848 } })
+          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89111 }, itemId = 238532, waypoint = { map = 2393, x = 0.4507, y = 0.4476 }, kp = 3, vignetteId = { 6848 } })
           --Vial of Zul'Aman Oddities
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89114 }, itemId = 238535, waypoint = { map = 2437, x = 0.4040, y = 0.5118 }, kp = 3, vignetteId = { 6845 } })
           --Measured Ladle
@@ -714,16 +762,22 @@ MKPT_env.InitProfessions = function()
           :AddEntry(MKPT_Treatise:New({ questId = { 95127 }, itemId = 245755, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282284 })
             :AddRequirement(MKPT_ItemRequirement:New(245755, 1)))
           -- Thalassian Alchemist's Notebook
-          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93690 }, itemId = 263454, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 2, text = "Quest: Alchemy Services Requested" })
+          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93690 }, itemId = 263454, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 1, text = "Quest: Alchemy Services Requested" })
           --Lightbloomed Spore Sample
-          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93528 }, itemId = 259188, kp = 2 })
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93528 }, itemId = 259188, kp = 1 })
           --Aged Cruor
-          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93529 }, itemId = 259189, kp = 2 })
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93529 }, itemId = 259189, kp = 1 })
           -- DMF A Fizzy Fusion
           :AddEntry(MKPT_DarkmoonQuest:New({ questId = { 29506 }, waypoint = { map = 407, x = 0.5049, y = 0.6955 }, kp = 3 })
             :AddRequirement(MKPT_ItemRequirement:New(1645, 5)))
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 228724, atlasIcon = "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 228724, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93528)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93529)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93690)))
+          )
       ,
       -- 3210       Midnight Blacksmithing
       [2907] = MKPT_Profession:New(2907, 471004, 3199, { map = 2393, x = 0.4365, y = 0.5177 })
@@ -749,7 +803,8 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3257, 75))
             :AddRequirement(MKPT_CurrencyRequirement:New(3316, 750)))
           -- Thalassian Treatise on Blacksmithing
-          :AddEntry(MKPT_Treatise:New({ questId = { 95128 }, itemId = 245763, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282300, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95128 }, itemId = 245763, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282300, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245763, 1)))
           -- Thalassian Blacksmith's Journal
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93691 }, itemId = 263455, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 2, text = "Quest: Blacksmithing Services Requested" })
@@ -760,20 +815,26 @@ MKPT_env.InitProfessions = function()
           -- DMF Baby Needs Two Pair of Shoes
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29508 }, waypoint = { map = 407, x = 0.5110, y = 0.8204 }, kp = 3 })
           -- Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 246322, atlasIcon = "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 246322, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93691)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93530)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93531)))
+          )
       ,
-      -- 3209       Midnight Enchanting missing Enchanted Sunfire Silk
+      -- 3209       Midnight Enchanting
       [2909] = MKPT_Profession:New(2909, 471006, 3198, { map = 2393, x = 0.4800, y = 0.5385 })
           -- Everblazing Sunmote
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89103 }, itemId = 238551, waypoint = { map = 2395, x = 0.6075, y = 0.5301 }, kp = 3, vignetteId = { 6829 } })
           -- Sin'dorei Enchanting Rod
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89107 }, itemId = 238555, waypoint = { map = 2395, x = 0.6349, y = 0.3259 }, kp = 3, vignetteId = { 6825 } })
+          -- Enchanted Sunfire Silk
+          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89101 }, itemId = 238549, waypoint = { map = 2395, x = 0.4019, y = 0.6121 }, kp = 3, vignetteId = { 6831 } })
           -- Loa-Blessed Dust
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89106 }, itemId = 238554, waypoint = { map = 2437, x = 0.4041, y = 0.5118 }, kp = 3, vignetteId = { 6826 } })
           -- Enchanted Amani Mask
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89100 }, itemId = 238548, waypoint = { map = 2536, x = 0.4877, y = 0.2255 }, kp = 3, vignetteId = { 6832 } })
-          -- Enchanted Sunfire Silk
-          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89101 }, itemId = 238549, waypoint = nil, kp = 3, vignetteId = { 6831 } })
           -- Entropic Shard
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89104 }, itemId = 238552, waypoint = { map = 2413, x = 0.3775, y = 0.6523 }, kp = 3, vignetteId = { 6828 } })
           -- Primal Essence Orb
@@ -790,7 +851,8 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3377, 1600))
             :AddRequirement(MKPT_CurrencyRequirement:New(3258, 75)))
           -- Thalassian Treatise on Enchanting
-          :AddEntry(MKPT_Treatise:New({ questId = { 95129 }, itemId = 245759, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282301, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95129 }, itemId = 245759, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282301, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245759, 1)))
           -- Thalassian Enchanter's Folio
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93699, 93698, 93697 }, itemId = 263464, waypoint = { map = 2393, x = 0.478, y = 0.538 }, kp = 3, text = "Enchanting trainer quests" })
@@ -805,7 +867,8 @@ MKPT_env.InitProfessions = function()
           -- DMF Putting Trash to Good Use
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29510 }, waypoint = { map = 407, x = 0.5316, y = 0.7587 }, kp = 3 })
           -- Shimmering Dust Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 227662, catchUpCurrencyId = 3059, atlasIcon = "lootroll-toast-icon-disenchant-up", text = "Looted from disenchanting", kp = 1 })
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 267653, catchUpCurrencyId = 3059, atlasIcon =
+            "lootroll-toast-icon-disenchant-up", text = "Looted from disenchanting", kp = 1 })
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93532)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93533)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(95048)))
@@ -837,35 +900,42 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3259, 75))
             :AddRequirement(MKPT_CurrencyRequirement:New(3316, 750)))
           -- Thalassian Treatise on Engineering
-          :AddEntry(MKPT_Treatise:New({ questId = { 83728 }, itemId = 245809, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282302, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95138 }, itemId = 245809, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282302, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245809, 1)))
           -- Thalassian Engineer's Notepad
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93692 }, itemId = 263456, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 1, text = "Quest: Engineering Services Requested" })
           -- Dance Gear
-          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93534 }, itemId = 259194, kp = 2 })
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93534 }, itemId = 259194, kp = 1 })
           -- Dawn Capacitor
-          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93535 }, itemId = 259195, kp = 2 })
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93535 }, itemId = 259195, kp = 1 })
           -- DMF Talkin' Tonks
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29511 }, waypoint = { map = 407, x = 0.4925, y = 0.6078 }, kp = 3 })
           -- Flicker of Midnight Engineering Knowledge Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 246326, atlasIcon = "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 246326, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93692)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93534)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93535)))
+          )
       ,
-      -- 3207       Midnight Herbalism <- Missing Sweeping Harvester
+      -- 3207       Midnight Herbalism
       [2912] = MKPT_Profession:New(2912, 471009, 3196, { map = 2393, x = 0.4830, y = 0.5142 })
           -- Simple Leaf Pruners
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89160 }, itemId = 238470, waypoint = { map = 2393, x = 0.4901, y = 0.7595 }, kp = 3, vignetteId = { 6851 } })
           -- A Spade
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89158 }, itemId = 238472, waypoint = { map = 2395, x = 0.6426, y = 0.3046 }, kp = 3, vignetteId = { 6853 } })
+          -- Sweeping Harvester's Scythe
+          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89161 }, itemId = 238469, waypoint = { map = 2437, x = 0.4191, y = 0.4591 }, kp = 3, vignetteId = { 6850 } })
           -- Harvester's Sickle
-          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89157 }, itemId = 238473, waypoint = { map = 2437, x = 0.4191, y = 0.4591 }, kp = 3, vignetteId = { 6854 } })
+          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89157 }, itemId = 238473, waypoint = { map = 2413, x = 0.7612, y = 0.5104 }, kp = 3, vignetteId = { 6854 } })
           -- Bloomed Bud
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89162 }, itemId = 238468, waypoint = { map = 2413, x = 0.3832, y = 0.6704 }, kp = 3, vignetteId = { 6849 } })
           -- Lightbloom Root
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89159 }, itemId = 238471, waypoint = { map = 2413, x = 0.3666, y = 0.2506 }, kp = 3, vignetteId = { 6852 } })
           -- Planting Shovel
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89155 }, itemId = 238475, waypoint = { map = 2413, x = 0.5111, y = 0.5571 }, kp = 3, vignetteId = { 6856 } })
-          -- Sweeping Harvester's Scythe {map=2413, x=0.7612, y=0.5104}?
-          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89161 }, itemId = 238469, waypoint = nil, kp = 3, vignetteId = { 6850 } })
           -- Peculiar Lotus
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89156 }, itemId = 238474, waypoint = { map = 2405, x = 0.3468, y = 0.5696 }, kp = 3, vignetteId = { 6855 } })
           -- Herbalism Journal
@@ -912,23 +982,25 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3377, 1600))
             :AddRequirement(MKPT_CurrencyRequirement:New(3260, 75)))
           -- Thalassian Treatise on Herbalism
-          :AddEntry(MKPT_Treatise:New({ questId = { 95130 }, itemId = 245761, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282303, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95130 }, itemId = 245761, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282303, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245761, 1)))
           -- Thalassian Herbalist's Notes
-          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93700, 93701, 93702, 93703, 93704 }, itemId = 263462, waypoint = { map=2393, x=0.483, y=0.5142 }, kp = 3, text = "Herbalism trainer quests" })
+          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93700, 93701, 93702, 93703, 93704 }, itemId = 263462, waypoint = { map = 2393, x = 0.483, y = 0.5142 }, kp = 3, text = "Herbalism trainer quests" })
           -- Thalassian Phoenix Plume
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 81425, 81426, 81427, 81428, 81429 }, itemId = 238465, kp = 1, atlasIcon = "Professions_Tracking_Herb", text = "Randomly looted while gathering herbs" })
           -- Thalassian Phoenix Tail
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 81430 }, itemId = 238466, kp = 4, atlasIcon = "Professions_Tracking_Herb", text = "Looted through herbs, after gathering 5 plumes" })
-          -- Thalassian Phoenix Ember Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 238467, catchUpCurrencyId = 3198, unlockRequirements = {}, atlasIcon = "Professions_Tracking_Herb", kp = 1, text = "Randomly looted while gathering herbs" })
-            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93700)))
-            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81421)))
-            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81430))))
           -- DMF Herbs for Healing
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29514 }, waypoint = { map = 407, x = 0.5500, y = 0.7076 }, kp = 3 })
+          -- Thalassian Phoenix Ember Catch up mechanic
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 238467, catchUpCurrencyId = 3198, atlasIcon =
+            "Professions_Tracking_Herb", kp = 1, text = "Randomly looted while gathering herbs" })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93700)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81425)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(81430))))
       ,
-      -- 3205, 3206 Midnight Inscription <- Missing half-baked techniques
+      -- 3205, 3206 Midnight Inscription
       [2913] = MKPT_Profession:New(2913, 471010, 3195, { map = 2393, x = 0.4691, y = 0.5161 })
           -- Songwriter's Pen
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89073 }, itemId = 238578, waypoint = { map = 2393, x = 0.4759, y = 0.5041 }, kp = 3, vignetteId = { 6870 } })
@@ -936,14 +1008,14 @@ MKPT_env.InitProfessions = function()
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89074 }, itemId = 238579, waypoint = { map = 2395, x = 0.4035, y = 0.6124 }, kp = 3, vignetteId = { 6869 } })
           -- Spare Ink
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89069 }, itemId = 238574, waypoint = { map = 2395, x = 0.4831, y = 0.7554 }, kp = 3, vignetteId = { 6814 } })
+          -- Half-Baked Techniques
+          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89072 }, itemId = 238577, waypoint = { map = 2395, x = 0.3930, y = 0.4543 }, kp = 3, vignetteId = { 6871 } })
           -- Leather-Bound Techniques
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89068 }, itemId = 238573, waypoint = { map = 2437, x = 0.4048, y = 0.4935 }, kp = 3, vignetteId = { 6815 } })
           -- Intrepid Explorer's Marker
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89070 }, itemId = 238575, waypoint = { map = 2413, x = 0.5243, y = 0.5261 }, kp = 3, vignetteId = { 6813 } })
           -- Leftover Sanguithorn Pigment
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89071 }, itemId = 238576, waypoint = { map = 2413, x = 0.5275, y = 0.4998 }, kp = 3, vignetteId = { 6872 } })
-          -- Half-Baked Techniques
-          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89072 }, itemId = 238577, waypoint = nil, kp = 3, vignetteId = { 6871 } })
           -- Void-Touched Quill
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89067 }, itemId = 238572, waypoint = { map = 2444, x = 0.6069, y = 0.8426 }, kp = 3, vignetteId = { 6816 } })
           -- Traditions of the Haranir: Inscription
@@ -952,10 +1024,11 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3261, 75))
             :AddRequirement(MKPT_CurrencyRequirement:New(3316, 750)))
           -- Thalassian Treatise on Inscription
-          :AddEntry(MKPT_Treatise:New({ questId = { 95131 }, itemId = 245757, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282304, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95131 }, itemId = 245757, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282304, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245757, 1)))
           -- Thalassian Scribe's Journal
-          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93693 }, itemId = 263457, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 2, text = "Quest: Inscription Services Requested" })
+          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93693 }, itemId = 263457, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 4, text = "Quest: Inscription Services Requested" })
           -- Brilliant Phoenix Ink
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93536 }, itemId = 259196, kp = 2 })
           -- Loa-Blessed Rune
@@ -964,7 +1037,13 @@ MKPT_env.InitProfessions = function()
           :AddEntry(MKPT_DarkmoonQuest:New({ questId = { 29515 }, waypoint = { map = 407, x = 0.5325, y = 0.7584 }, kp = 3 })
             :AddRequirement(MKPT_ItemRequirement:New(39354, 5)))
           -- Flicker of Midnight Inscription Knowledge Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 246328, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = {}, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 246328, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93693)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93536)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93537)))
+          )
       ,
       -- 3204       Midnight Jewelcrafting
       [2914] = MKPT_Profession:New(2914, 471011, 3194, { map = 2393, x = 0.4818, y = 0.5509 })
@@ -990,18 +1069,25 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3262, 75))
             :AddRequirement(MKPT_CurrencyRequirement:New(3316, 750)))
           -- Thalassian Treatise on Jewelcrafting
-          :AddEntry(MKPT_Treatise:New({ questId = { 95133 }, itemId = 245760, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282305, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95133 }, itemId = 245760, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282305, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245760, 1)))
           -- Thalassian Jewelcrafter's Notebook
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93694 }, itemId = 263458, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 3, text = "Quest: Jewelcrafting Services Requested" })
-          -- Void-Touched Eversong Diamond Fragments
-          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93539 }, itemId = 259198, kp = 2 })
           -- Harandar Stone Sample
-          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93538 }, itemId = 259199, kp = 2 })
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93539 }, itemId = 259199, kp = 2 })
+          -- Void-Touched Eversong Diamond Fragments
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 93538 }, itemId = 259198, kp = 2 })
           -- DMF Keeping the Faire Sparkling
           :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29516 }, waypoint = { map = 407, x = 0.5500, y = 0.7079 }, kp = 3 })
           -- Flicker of Midnight Jewelcrafting Knowledge Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 246330, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = {}, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 246330, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93694)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93538)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93539)))
+          )
       ,
       -- 3203       Midnight Leatherworking
       [2915] = MKPT_Profession:New(2915, 471012, 3193, { map = 2393, x = 0.4314, y = 0.5576 })
@@ -1027,7 +1113,8 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3263, 75))
             :AddRequirement(MKPT_CurrencyRequirement:New(3316, 750)))
           -- Thalassian Treatise on Leatherworking
-          :AddEntry(MKPT_Treatise:New({ questId = { 95134 }, itemId = 245758, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282306, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95134 }, itemId = 245758, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282306, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245758, 1)))
           -- Thalassian Leatherworker's Journal
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93695 }, itemId = 263459, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 2, text = "Quest: Leatherworking Services Requested" })
@@ -1041,7 +1128,13 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_ItemRequirement:New(2320, 5))
             :AddRequirement(MKPT_ItemRequirement:New(6260, 5)))
           -- Flicker of Midnight Leatherworking Knowledge Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 246332, atlasIcon = "Professions-Crafting-Orders-Icon", unlockRequirements = {}, kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 246332, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93695)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93540)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93541)))
+          )
       ,
       -- 3202       Midnight Mining
       [2916] = MKPT_Profession:New(2916, 471013, 3192, { map = 2393, x = 0.4259, y = 0.5286 })
@@ -1054,7 +1147,7 @@ MKPT_env.InitProfessions = function()
           -- Spare Expedition Torch
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89151 }, itemId = 238603, waypoint = { map = 2413, x = 0.3884, y = 0.6586 }, kp = 3, vignetteId = { 6801 } })
           -- Star Metal Deposit
-          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89150 }, itemId = 238602, waypoint = { map = 2405, x = 0.4184, y = 0.3821 }, kp = 3, vignetteId = { 6802 } })
+          :AddEntry(MKPT_UniqueTreasure:New { questId = { 89150 }, itemId = 238602, waypoint = { map = 2444, x = 0.3427, y = 0.7609 }, kp = 3, vignetteId = { 6802 } })
           -- Miner's Guide to Voidstorm
           :AddEntry(MKPT_UniqueTreasure:New { questId = { 89144 }, itemId = 238596, waypoint = { map = 2444, x = 0.3047, y = 0.6907 }, kp = 3, vignetteId = { 6860 } })
           -- Lost Voidstorm Satchel
@@ -1096,21 +1189,23 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3377, 1600))
             :AddRequirement(MKPT_CurrencyRequirement:New(3264, 75)))
           -- Thalassian Treatise on Mining
-          :AddEntry(MKPT_Treatise:New({ questId = { 95135 }, itemId = 245762, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282307, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95135 }, itemId = 245762, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282307, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245762, 1)))
           -- Thalassian Miner's Notes
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93705, 93706, 93707, 93708, 93709 }, itemId = 263463, waypoint = { map = 2393, x = 0.426, y = 0.528 }, kp = 3, text = "Mining trainer quests" })
-          -- Igneous Rock Specimen Catch up mechanic
+          -- Igneous Rock Specimen
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 88673, 88674, 88675, 88676, 88677 }, itemId = 237496, kp = 1, atlasIcon = "Professions_Tracking_Ore", text = "Randomly looted while mining" })
           -- Septarian Nodule
-          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 88678 }, itemId = 237506, kp = 3, atlasIcon = "Professions_Tracking_Ore", text = "Looted through mining, after 5 Septarian Nodule" })
-          -- Cloudy Quartz
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 237507, catchUpCurrencyId = 3192, atlasIcon = "Professions_Tracking_Ore", kp = 1, text = "Randomly looted while mining" })
+          :AddEntry(MKPT_WeeklyTreasure:New { questId = { 88678 }, itemId = 237506, kp = 3, atlasIcon = "Professions_Tracking_Ore", text = "Looted through mining, after 5 Igneous Rock Specimen" })
+          -- DMF Rearm, Reuse, Recycle
+          :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29518 }, waypoint = { map = 407, x = 0.4930, y = 0.6087 }, kp = 3 })
+          -- Cloudy Quartz Catch up mechanic
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 237507, catchUpCurrencyId = 3192, atlasIcon =
+            "Professions_Tracking_Ore", kp = 1, text = "Randomly looted while mining" })
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93705)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(88673)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(88678))))
-          -- DMF Rearm, Reuse, Recycle
-          :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29518 }, waypoint = { map = 407, x = 0.4930, y = 0.6087 }, kp = 3 })
       ,
       -- 3201       Midnight Skinning
       [2917] = MKPT_Profession:New(2917, 471014, 3191, { map = 2393, x = 0.4320, y = 0.5557 })
@@ -1140,21 +1235,23 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3377, 1600))
             :AddRequirement(MKPT_CurrencyRequirement:New(3265, 75)))
           -- Thalassian Treatise on Skinning
-          :AddEntry(MKPT_Treatise:New({ questId = { 95136 }, itemId = 245828, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282308, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95136 }, itemId = 245828, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282308, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245828, 1)))
           -- Thalassian Skinner's Notes
-          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93710, 93711, 93712, 93713, 93714 }, itemId = 263461, waypoint = { map=2393, x=0.432, y=0.5556 }, kp = 3, text = "Skinning trainer quests" })
+          :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93710, 93711, 93712, 93713, 93714 }, itemId = 263461, waypoint = { map = 2393, x = 0.432, y = 0.5556 }, kp = 3, text = "Skinning trainer quests" })
           -- Fine Void-Tempered Hide
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 88534, 88549, 88536, 88537, 88530 }, itemId = 238625, kp = 1, atlasIcon = "worldquest-icon-skinning", text = "Randomly looted while skinning" })
           -- Mana-Infused Bone
           :AddEntry(MKPT_WeeklyTreasure:New { questId = { 88529 }, itemId = 238626, kp = 3, atlasIcon = "worldquest-icon-skinning", text = "Looted through skinning, after 5 hides" })
+          -- DMF Tan My Hide
+          :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29519 }, waypoint = { map = 407, x = 0.5501, y = 0.7078 }, kp = 3 })
           -- Manafused Sample Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 238627, catchUpCurrencyId = 3191, atlasIcon = "worldquest-icon-skinning", kp = 1, text = "Randomly looted while skinning" })
+          :AddEntry(MKPT_CatchUp:New({ questId = {}, itemId = 238627, catchUpCurrencyId = 3191, atlasIcon =
+            "worldquest-icon-skinning", kp = 1, text = "Randomly looted while skinning" })
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93710)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(88534)))
             :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(88529))))
-          -- DMF Tan My Hide
-          :AddEntry(MKPT_DarkmoonQuest:New { questId = { 29519 }, waypoint = { map = 407, x = 0.5501, y = 0.7078 }, kp = 3 })
       ,
       -- 3200       Midnight Tailoring
       [2918] = MKPT_Profession:New(2918, 471015, 3190, { map = 2393, x = 0.4820, y = 0.5399 })
@@ -1180,7 +1277,8 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_CurrencyRequirement:New(3266, 75))
             :AddRequirement(MKPT_CurrencyRequirement:New(3316, 750)))
           -- Thalassian Treatise on Tailoring
-          :AddEntry(MKPT_Treatise:New({ questId = { 95137 }, itemId = 245756, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282309, atlasIcon = "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
+          :AddEntry(MKPT_Treatise:New({ questId = { 95137 }, itemId = 245756, waypoint = { map = 2393, x = 0.4502, y = 0.5560 }, kp = 1, spell = 1282309, atlasIcon =
+            "Professions-Crafting-Orders-Icon", text = "Inscription work order" })
             :AddRequirement(MKPT_ItemRequirement:New(245756, 1)))
           -- Thalassian Tailor's Notebook
           :AddEntry(MKPT_WeeklyQuestItem:New { questId = { 93696 }, itemId = 263460, waypoint = { map = 2393, x = 0.4503, y = 0.5515 }, kp = 2, text = "Quest: Tailoring Services Requested" })
@@ -1194,8 +1292,14 @@ MKPT_env.InitProfessions = function()
             :AddRequirement(MKPT_ItemRequirement:New(2604, 1))
             :AddRequirement(MKPT_ItemRequirement:New(6260, 1)))
           -- Flicker of Midnight Tailoring Knowledge Catch up mechanic
-          :AddEntry(MKPT_CatchUp:New { questId = {}, itemId = 246334, atlasIcon = "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
-        
+          :AddEntry(MKPT_PatronCatchUp:New({ questId = {}, itemId = 246334, atlasIcon =
+            "Professions-Crafting-Orders-Icon", kp = 1, text = PROFESSIONS_CRAFTING_ORDERS_PAGE_NAME:format(
+            PROFESSIONS_CRAFTER_ORDER_TAB_NPC) })
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93696)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93542)))
+            :AddRequirement(MKPT_KpItemRequirement:New(MKPT_Item.FindByQuestId(93543)))
+          )
+
     }
   }
 end

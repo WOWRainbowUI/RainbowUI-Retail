@@ -7,10 +7,14 @@ local minimapIcon = LibStub("LibDBIcon-1.0")
 local MKPT_LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MyusKnowledgePointsTracker", {
   type = "data source",
   text = C_AddOns.GetAddOnMetadata(AddonName, "Title"),
-  icon = "Interface\\AddOns\\"..AddonName.."\\Textures\\MKPT_Minimap",
+  icon = "Interface\\AddOns\\" .. AddonName .. "\\Textures\\MKPT_Minimap",
   OnClick = function(_, buttonName)
     if buttonName == "LeftButton" then
-      MKPT_env.ToggleUi()
+      if IsControlKeyDown() then
+        MKPT_env.ToggleAutoHide()
+      else
+        MKPT_env.ToggleUi()
+      end
     elseif buttonName == "RightButton" then
       MKPT_env.ShowRightClickMenu()
     end
@@ -18,12 +22,24 @@ local MKPT_LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MyusKnowledgePoints
   OnTooltipShow = function(tooltip)
     if not tooltip then return end
 
+    local f = MKPT_env.ui
+    if f and f:IsShown() and f:GetAlpha() < 0.99 then
+      UIFrameFadeIn(f, 0.1, f:GetAlpha(), 1)
+      UIFrameFadeIn(f, 0.1, f.hideButton:GetAlpha(), 1)
+      UIFrameFadeIn(f, 0.1, f.closeButton:GetAlpha(), 1)
+    end
+
     tooltip:AddLine(Utils.WhiteTextColor("專業點數追蹤"))
     tooltip:AddLine("\n")
-    tooltip:AddLine(CreateAtlasMarkup("newplayertutorial-icon-mouse-leftbutton")..BINDING_NAME_MOVIE_RECORDING_GUI)
-    tooltip:AddLine(CreateAtlasMarkup("newplayertutorial-icon-mouse-rightbutton")..CLICK_BINDING_OPEN_MENU)
+    tooltip:AddLine(CreateAtlasMarkup("newplayertutorial-icon-mouse-leftbutton") .. " - " .. BINDING_NAME_MOVIE_RECORDING_GUI)
+    tooltip:AddLine(CreateAtlasMarkup("newplayertutorial-icon-mouse-rightbutton") .. " - " .. CLICK_BINDING_OPEN_MENU)
+    tooltip:AddLine(Utils.WhiteTextColor("Ctrl+")..CreateAtlasMarkup("newplayertutorial-icon-mouse-leftbutton") .. " - 自動隱藏 開/關")
+  end,
+  OnLeave = function(displayFrame)
+    MKPT_env.RefreshAutoHide()
   end
-})
+}
+)
 
 function MKPT_env.InitializeMinimapIcon()
   local db = MKPT_env.db

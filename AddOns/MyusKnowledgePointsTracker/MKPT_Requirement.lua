@@ -227,5 +227,5 @@ function MKPT_KpItemRequirement:GetDescription()
     icon = ""
   end
 
-  return self.kpItem:GetCategoryIcon().." "..self.kpItem:GetFormattedName().." "..icon
+  return self.kpItem:GetCategoryIcon().." "..(self.kpItem:GetFormattedName() or "???").." "..icon
 end
