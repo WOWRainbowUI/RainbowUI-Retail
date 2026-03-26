@@ -1435,7 +1435,7 @@ local function initclickframe()
 end
 
 local function initializeinspectframe()
-    if not InspectFrame or not option("show_inspect") or CCS.AreSecretsDisabled() then return end
+    if not InspectFrame or not option("show_inspect") or InspectFrame.loaded == true then return end
    
     InspectFrame:SetScale(option("sheetscale_inspect") or 1)
     InspectFrame:SetHeight(479+(7*option("vpad_inspect"))) -- Do not allow the frame to get any smaller than the default bliz frame
@@ -1502,7 +1502,6 @@ local function initializeinspectframe()
         option("fontcolor_nametitle_inspect")[4] or 1
     )
 
-    
     InspectLevelText:ClearAllPoints()
     InspectLevelText:SetPoint("TOP", InspectFrameTitleText, "BOTTOM", 0, -5)
     
@@ -1670,7 +1669,7 @@ local function initializeinspectframe()
             r:Hide()
         end
     end end)
-
+	InspectFrame.loaded = true
 end
 
 -- Loop through the Paperdoll Items and create/display information
@@ -1728,115 +1727,51 @@ local function loopitems()
     initmplusframe()
     initclickframe()
 end 
---[[
--- One-time setup: reset guards when the tooltip opens/closes
-GameTooltip:HookScript("OnHide", function()
-    CCS.LastTooltipGUID = nil
-    CCS.IlvlLineIndex   = nil
-end)
 
-GameTooltip:HookScript("OnShow", function()
-    CCS.LastTooltipGUID = nil
-    CCS.IlvlLineIndex   = nil
-end)
 
--- Helper to post-process unit tooltips
-local function SetTooltipUnit(tooltip, callback)
-    if TooltipDataProcessor then
-        TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, function(self, ...)
-            if self == tooltip then
-                callback(self, ...)
-            end
-        end)
-    end
-end
-
--- Throttle state
-local lastInspectTime = 0
-local INSPECT_COOLDOWN = 1.0  -- seconds
-
--- One-time hook for GameTooltip
-SetTooltipUnit(GameTooltip, function()
-    local _, unit = TooltipUtil.GetDisplayedUnit(GameTooltip)
-    if unit and UnitIsPlayer(unit) then
-        local guid = UnitGUID(unit)
-        -- Only schedule if this is a new unit AND we’re off cooldown
-        if guid and guid ~= CCS.LastTooltipGUID and (GetTime() - lastInspectTime) > INSPECT_COOLDOWN then
-            CCS.LastTooltipGUID = guid
-            -- Small delay lets the tooltip stabilize and avoids rapid re-requests
-            C_Timer.After(0.2, function()
-                -- Re-validate before requesting (cursor may have moved)
-                local _, currentUnit = TooltipUtil.GetDisplayedUnit(GameTooltip)
-                if currentUnit and UnitIsPlayer(currentUnit) then
-                    local currentGUID = UnitGUID(currentUnit)
-                    if currentGUID == CCS.LastTooltipGUID and CanInspect(currentUnit) and (not InspectFrame or not InspectFrame:IsShown()) then
-                        lastInspectTime = GetTime()
-                        NotifyInspect(currentUnit)
-                    end
+local function IsInspectDataReady(unit)
+    for slot = 1, 17 do
+        if slot ~= 4 then
+            local item = GetInventoryItemLink(unit, slot)
+            if item then
+                if not C_Item.GetItemInfo(item) then
+                    return false
                 end
-            end)
+            end
         end
     end
-end)--]]
+    return true
+end
+
+local function FinalizeInspect()
+    initializeinspectframe()
+    initializemplusplanelframe()
+    loopitems()
+end
+
+local function WaitForInspectData(unit)
+    C_Timer.After(0.05, function()
+        if IsInspectDataReady(unit) then
+            FinalizeInspect()
+        else
+            WaitForInspectData(unit)
+        end
+    end)
+end
+
 
 -- Event handler for inspect sheet
 function CCS.InspectSheetEventHandler(event, ...)
---[[
-	-- Spec + ilvl on tooltip when inspect data arrives
-	if event == "INSPECT_READY" and option("showilvl_spec_ontt") == true then
-		if TooltipUtil and GameTooltip then
-			local _, unit = TooltipUtil.GetDisplayedUnit(GameTooltip)
-			if unit and UnitIsPlayer(unit) then
-				local guid = UnitGUID(unit)
-
-				-- Guard: only add lines once per GUID
-				if CCS.LastTooltipGUID ~= guid then
-					CCS.LastTooltipGUID = guid
-					local _, class = UnitClass(unit)
-					local r, g, b = GetClassColor(class)
-					local specid = GetInspectSpecialization(unit)
-					local _, specname = GetSpecializationInfoByID(specid)
-					specname = WrapTextInColor(specname or "", CreateColor(r, g, b, 1))
-
-					GameTooltip:AddLine(" ")
-					GameTooltip:AddLine(string.format(PET_SPECIALIZATION_TEMPLATE, specname or ""), 1, 1, 1)
-
-					-- Add placeholder line and capture its index
-					GameTooltip:AddLine(ITEM_UPGRADE_STAT_AVERAGE_ITEM_LEVEL .. ": ...", 1, 1, 1)
-					CCS.IlvlLineIndex = GameTooltip:NumLines()
-
-					GameTooltip:Show()
-
-					-- Retry until ilvl is available
-					local retries = 10
-					local function updateIlvl()
-						if not CCS.IlvlLineIndex then return end
-						local ilvl = CCS.GetInspectItemLevel(unit)
-						if ilvl and ilvl > 0 then
-							local hexcolor = CCS:GetAverageEquippedRarityHex(unit)
-							local text = ITEM_UPGRADE_STAT_AVERAGE_ITEM_LEVEL .. ": " ..
-										 string.format("|cFF%s%.2f|r", hexcolor, ilvl)
-							local fs = _G["GameTooltipTextLeft" .. CCS.IlvlLineIndex]
-							if fs then
-								fs:SetText(text)
-								GameTooltip:Show()
-							end
-						else
-							retries = retries - 1
-							if retries > 0 then
-								C_Timer.After(0.2, updateIlvl)
-							end
-						end
-					end
-					updateIlvl()
-				end
-			end
-		end
-	end--]]
 
     -- Retail-only inspect frame updates
     if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
     if not InspectFrame or not InspectFrame.unit then return end
+	if not InspectFrame.hooked then
+		InspectFrame:UnregisterEvent("PLAYER_TARGET_CHANGED")
+		InspectFrame:UnregisterEvent("UNIT_INVENTORY_CHANGED")
+		InspectFrame:UnregisterEvent("INSPECT_HONOR_UPDATE")
+		InspectFrame.hooked = true
+	end
 
     if event == "CCS_EVENT_OPTIONS" then
         if not option("show_inspect") then
@@ -1846,13 +1781,21 @@ function CCS.InspectSheetEventHandler(event, ...)
             RaidNotice_AddMessage(RaidBossEmoteFrame, msg, ChatTypeInfo["SYSTEM"])
             ReloadUI()
         end
+		InspectFrame.loaded = false
         initializeinspectframe()
         initializemplusplanelframe()
         loopitems()
         return true
 
-    elseif event == "INSPECT_READY" then
-        if not CCS.inspectUpdatePending and not CCS.AreSecretsDisabled() then
+	elseif event == "INSPECT_READY" then
+		if not CCS.inspectUpdatePending then
+			CCS.inspectUpdatePending = true
+			WaitForInspectData(InspectFrame.unit)
+			C_Timer.After(0.5, function() CCS.inspectUpdatePending = false end)
+		end
+	end
+--[[    elseif event == "INSPECT_READY" then
+        if not CCS.inspectUpdatePending then
             CCS.inspectUpdatePending = true
             InspectFrame:SetAlpha(0)
             InspectModelFrame:SetAlpha(0)
@@ -1866,5 +1809,5 @@ function CCS.InspectSheetEventHandler(event, ...)
             end)
         end
         return true
-    end
+    end--]]
 end
