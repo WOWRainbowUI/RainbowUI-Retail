@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.09 (18th March 2026)
+-- 	Leatrix Plus 12.0.10 (25th March 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.09"
+	LeaPlusLC["AddonVer"] = "12.0.10"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -113,6 +113,7 @@
 	function LeaPlusLC:CheckIfQuestIsSharedAndShouldBeDeclined()
 		if LeaPlusLC["NoSharedQuests"] == "On" then
 			local npcName = UnitName("questnpc")
+			if not canaccessvalue(npcName) then return end
 			if npcName and UnitIsPlayer(npcName) then
 				if UnitInParty(npcName) or UnitInRaid(npcName) then
 					if not LeaPlusLC:FriendCheck(npcName) then
@@ -934,7 +935,9 @@
 						for i = 1, GetNumSubgroupMembers() do
 							if UnitIsGroupLeader("party" .. i) then
 								leader = UnitName("party" .. i)
+								if not canaccessvalue(leader) then return end
 								leaderGUID = UnitGUID("party" .. i)
+								if not canaccessvalue(leaderGUID) then return end
 								break
 							end
 						end
@@ -3385,6 +3388,7 @@
 				-- Do nothing if shift is being held
 				if IsShiftKeyDown() then return end
 				local name = UnitName("target") or nil
+				if not canaccessvalue(name) then return end
 				if bodyNames[name] then
 					-- Close gossip window if it's for a cooperating (active) bodyguard
 					-- If you open a gossip window prior to the bodyguard (or hold shift), it will not close
@@ -7070,6 +7074,7 @@
 							local guid = UnitGUID(unit)
 							if guid == details.guid then
 								local requesterName = UnitName(unit)
+								if not canaccessvalue(requesterName) then return end
 								if requesterName and LeaPlusLC:FriendCheck(requesterName, guid) then
 									self.ButtonContainer.Confirm:Click()
 								end
