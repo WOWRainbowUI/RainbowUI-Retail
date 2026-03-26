@@ -1,6 +1,9 @@
 
 # Changelog
 
+## [3.6.6] - 2026-03-25
+- feat: Add ElvUI and Gw2_ to blacklist Classifier entries
+   
 ## [3.6.5] - 2026-03-24
 - feat: Enhance blacklist functionality in Classifier module with caching and parent frame checks
 - fix: Blacklist TotemFrame and PlayerFrameBottomManagedFramesContainer
