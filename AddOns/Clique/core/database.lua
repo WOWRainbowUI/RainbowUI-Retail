@@ -35,6 +35,8 @@ addon.databaseDefaults = {
         downClick = true,
         removeWildcardActions = false,
         enableGamePad = false,
+        showBindingTooltip = false,
+        tooltipAnchor = "ANCHOR_BOTTOMRIGHT",
     },
     profile = {
         bindings = {
