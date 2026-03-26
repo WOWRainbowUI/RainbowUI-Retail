@@ -1,0 +1,83 @@
+-- 繁體中文
+local L = LibStub("AceLocale-3.0"):NewLocale("MiliUI_BloodlustMusic", "zhTW")
+if not L then return end
+
+-- Addon
+L["ADDON_NAME"] = "MiliUI 嗜血音樂"
+L["ADDON_TITLE"] = "嗜血/英勇倒數條"
+L["LOADED_MSG"] = "|cff00ff00MiliUI 嗜血音樂:|r 已載入 — /blm 開啟設定"
+
+-- Settings Categories
+L["SETTINGS_MAIN"] = "嗜血音樂"
+L["SETTINGS_MUSIC"] = "音樂設定"
+L["SETTINGS_BAR"] = "倒數條"
+L["SETTINGS_MAIN_DESC"] = "嗜血/英勇音樂播放與倒數條"
+L["SELECT_SUBCATEGORY"] = "請選擇左側子選單進行設定："
+L["MUSIC_DESC"] = "音樂播放、曲目選擇、聲道"
+L["BAR_DESC"] = "倒數條外觀與位置"
+
+-- Music Settings
+L["MUSIC_SETTINGS_TITLE"] = "音樂設定"
+L["MUSIC_SETTINGS_DESC"] = "設定嗜血音樂播放選項"
+L["ENABLE_MUSIC"] = "啟用音樂"
+L["ENABLE_MUSIC_DESC"] = "偵測到嗜血時播放音樂"
+L["PLAY_MODE"] = "播放模式"
+L["PLAY_MODE_RANDOM"] = "隨機播放"
+L["PLAY_MODE_SEQUENTIAL"] = "依序播放"
+L["PLAY_MODE_DESC"] = "在隨機播放與依序播放之間切換"
+L["CHANNEL"] = "聲道"
+L["CHANNEL_DESC"] = "選擇音樂播放的聲道"
+L["CHANNEL_MASTER_DESC"] = "使用主音量控制。即使關閉效果或音樂也能聽到嗜血音樂。"
+L["CHANNEL_SFX_DESC"] = "使用效果音量控制。嗜血音樂會跟隨效果音量滑桿調整，若效果音量關閉或過低可能聽不到。"
+L["PREVIEW"] = "試聽"
+L["STOP_PREVIEW"] = "停止"
+L["TRACK_ENABLED"] = "啟用"
+
+-- Bar Settings
+L["BAR_SETTINGS_TITLE"] = "倒數條設定"
+L["BAR_SETTINGS_DESC"] = "設定嗜血倒數條的外觀與位置"
+L["ENABLE_BAR"] = "啟用倒數條"
+L["ENABLE_BAR_DESC"] = "嗜血作用中時顯示倒數條"
+L["BAR_WIDTH"] = "寬度"
+L["BAR_HEIGHT"] = "高度"
+L["RESET_POSITION"] = "重置位置"
+L["RESET_POSITION_DESC"] = "將倒數條移回預設位置"
+L["TEST_BAR"] = "測試倒數條"
+L["TEST_BAR_DESC"] = "顯示測試用倒數條"
+L["HIDE_BAR"] = "隱藏倒數條"
+
+-- Messages
+L["MSG_MUSIC_PLAYING"] = "|cff00ff00嗜血音樂:|r 正在播放: %s"
+L["MSG_POSITION_RESET"] = "|cff00ff00嗜血音樂:|r 倒數條位置已重置"
+
+-- Reminder Settings
+L["SETTINGS_REMINDER"] = "嗜血提醒"
+L["REMINDER_DESC"] = "嗜血提醒設定"
+L["REMINDER_SETTINGS_TITLE"] = "嗜血提醒設定"
+L["REMINDER_SETTINGS_DESC"] = "設定嗜血/英勇可用時的提醒"
+L["ENABLE_REMINDER"] = "啟用提醒"
+L["ENABLE_REMINDER_DESC"] = "Boss 戰開始時若無人使用嗜血則提醒"
+L["REMINDER_LUST_CLASS_ONLY"] = "僅限嗜血職業"
+L["REMINDER_LUST_CLASS_ONLY_DESC"] = "只在能施放嗜血的職業上顯示提醒"
+L["REMINDER_DUNGEON_PULL"] = "地下城首次開怪提醒"
+L["REMINDER_DUNGEON_PULL_DESC"] = "在地下城首次戰鬥時提醒使用嗜血"
+L["REMINDER_DEBUFF_EXPIRY"] = "debuff 結束時提醒"
+L["REMINDER_DEBUFF_EXPIRY_DESC"] = "Boss 戰中嗜血 debuff 消失時提醒"
+L["RESET_REMINDER_POSITION"] = "重置提醒位置"
+L["RESET_REMINDER_POSITION_DESC"] = "將提醒訊息移回倒數條上方"
+L["MSG_REMINDER_POSITION_RESET"] = "|cff00ff00嗜血音樂:|r 提醒訊息位置已重置"
+L["REMINDER_DURATION"] = "提醒持續時間"
+L["REMINDER_DURATION_UNIT"] = "秒"
+L["REMINDER_AVAILABLE"] = "%s可用！"
+L["REMINDER_SOUND_ENABLED"] = "播放音效"
+L["REMINDER_SOUND_ENABLED_DESC"] = "提醒觸發時播放警告音效"
+L["REMINDER_SOUND_PREVIEW"] = "試聽音效"
+L["REMINDER_SOUND_STOP"] = "停止"
+L["REMINDER_TEST"] = "測試提醒"
+L["REMINDER_TEST_DESC"] = "預覽提醒效果（包含音效）"
+L["ADDON_TITLE_REMINDER"] = "嗜血/英勇提醒訊息"
+L["REMINDER_EDITMODE_TEXT"] = "嗜血可用！"
+L["SOUND_PREFIX"] = "音效"
+L["SELECT_SOUND"] = "選擇音效"
+L["SOUND_DEFAULT"] = "預設 (團隊警告)"
+L["CREDIT_DFTL"] = "嗜血音樂與提醒功能深受 |cffffffffEnhBloodlust|r 及 |cffffffffDon't Forget to Lust|r 啟發。\n特別感謝 |cffffffff彩虹UI Dololo|r 與 |cffffffff三皈依(BNS)|r 長期對魔獸插件社群，\n尤其是繁體中文的貢獻！"
