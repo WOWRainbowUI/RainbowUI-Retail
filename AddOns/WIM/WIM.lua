@@ -16,7 +16,7 @@ setfenv(1, WIM);
 
 -- Core information
 addonTocName = "WIM";
-version = "3.16.7";
+version = "3.16.8";
 beta = false; -- flags current version as beta.
 debug = false; -- turn debugging on and off.
 useProtocol2 = true; -- test switch for new W2W Protocol. (Dev use only)
@@ -268,12 +268,17 @@ end
 
 -- defer an event to be called on a next cycle. This is used to defer events that may cause taint if called during combat or during certain protected function calls.
 local deferredEvents = {};
+ChatLineHasSecrets = {};
 
 local function sanitizeDeferredEventArgs (...)
 	local args = {...};
 	for i = 1, 29 do
 		if IsSecretValue(args[i]) then
 			args[i] = "";
+
+			if args[11] then
+				ChatLineHasSecrets[args[11]] = true; -- mark which chatLines have secrets.
+			end
 		else
 			if type(args[i]) == "nil" then
 				args[i] = "";
