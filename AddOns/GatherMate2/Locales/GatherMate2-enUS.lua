@@ -139,6 +139,7 @@ L["Load GatherMateData and import the data to your database."] = true
 L["Merge"] = true
 L["Merge will add GatherMate2Data to your database. Overwrite will replace your database with the data in GatherMate2Data"] = true
 L["Merge will add GatherMateData to your database. Overwrite will replace your database with the data in GatherMateData"] = true
+L["Midnight"] = true
 L["Mine filter"] = true
 L["Mineral Veins"] = true
 L["Minimap Icon Scale"] = true
