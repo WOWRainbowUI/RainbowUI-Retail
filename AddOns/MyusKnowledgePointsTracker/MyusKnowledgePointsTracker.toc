@@ -5,7 +5,7 @@
 ## Author: Myu
 ## Dependencies: Blizzard_Professions
 ## SavedVariables: MKPT_Config
-## Version: 0.3.3
+## Version: 0.6.3
 ## X-Curse-Project-ID: 1457220
 ## X-Wago-ID: nGv78DNx
 ## IconTexture: Interface\AddOns\MyusKnowledgePointsTracker\Textures\MKPT_Icon
@@ -20,5 +20,6 @@ MKPT_MinimapIcon.lua
 MKPT_RightClickMenu.lua
 MKPT_Config.lua
 MKPT_SlashCommand.lua
+MKPT_Options.lua
 Init.lua
 MKPT.lua

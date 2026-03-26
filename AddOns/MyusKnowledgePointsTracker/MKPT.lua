@@ -19,6 +19,7 @@ function EventHandler.ADDON_LOADED(loadedAddonName, _)
   MKPT_env.InitializeSlashCommand()
   MKPT_env.InitializeMinimapIcon()
   MKPT_env.InitializeCompartmentIcon()
+  MKPT_env.InitializeOptionsMenu()
 
   events:UnregisterEvent("ADDON_LOADED")
 end
@@ -29,9 +30,11 @@ function EventHandler.PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, _)
   MKPT_env.InitProfessions()
   MKPT_env.CreateUI()
 
-  if MKPT_env.db.state.show then
+  if MKPT_env.charDb.state.show then
     MKPT_env.ui:Show()
   end
+
+  MKPT_env.RefreshAutoHide()
 
   events:RegisterEvent("LEARNED_SPELL_IN_SKILL_LINE")
   events:RegisterEvent("SKILL_LINES_CHANGED")
@@ -41,6 +44,8 @@ function EventHandler.PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, _)
   events:RegisterEvent("ACTIVE_DELVE_DATA_UPDATE")
   events:RegisterEvent("VIGNETTES_UPDATED")
   events:RegisterEvent("NAVIGATION_DESTINATION_REACHED")
+  events:RegisterEvent("PLAYER_REGEN_DISABLED")
+  events:RegisterEvent("PLAYER_REGEN_ENABLED")
 
   events:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end
@@ -85,7 +90,7 @@ function EventHandler.ZONE_CHANGED_NEW_AREA()
   end
 
   f:RenderTree()
-  if MKPT_env.db.state.show then
+  if MKPT_env.charDb.state.show then
     f:Show()
   else
     f:Hide()
@@ -122,4 +127,23 @@ end
 
 function EventHandler.NAVIGATION_DESTINATION_REACHED()
   EventHandler.VIGNETTES_UPDATED()
+end
+
+local isVisibleBeforeCombat = false
+
+function EventHandler.PLAYER_REGEN_DISABLED()
+  if not MKPT_env.db.ui.hideInCombat then
+    return
+  end
+  isVisibleBeforeCombat = MKPT_env.ui:IsShown()
+  MKPT_env.ui:Hide()
+end
+
+function EventHandler.PLAYER_REGEN_ENABLED()
+  if not MKPT_env.db.ui.hideInCombat then
+    return
+  end
+  if isVisibleBeforeCombat then
+    MKPT_env.ui:Show()
+  end
 end

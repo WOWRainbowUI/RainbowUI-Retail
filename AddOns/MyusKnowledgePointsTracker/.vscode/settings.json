@@ -32,6 +32,13 @@
         "UIDropDownMenu_CreateInfo",
         "SlashCmdList",
         "CreateFramePool",
-        "AddonCompartmentFrame"
-    ]
+        "AddonCompartmentFrame",
+        "SettingsPanel",
+        "Settings",
+        "MinimalSliderWithSteppersMixin",
+        "Add",
+        "EXPANSION_NAME11",
+        "ReloadUI"
+    ],
+    "Lua.type.weakUnionCheck": true
 }

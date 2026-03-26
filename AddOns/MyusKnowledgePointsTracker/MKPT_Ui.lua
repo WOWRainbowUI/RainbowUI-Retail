@@ -7,6 +7,7 @@ MKPT_env.ui = f
 
 function MKPT_env.CreateUI()
   local db = MKPT_env.db
+  local charDb = MKPT_env.charDb
 
   if not db then return nil end
 
@@ -14,26 +15,16 @@ function MKPT_env.CreateUI()
   local position = db.position or { x = 100, y = -100 }
   local backgroundColor = db.ui.backgroundColor
   local insets = db.ui.insets
-  local firstTimeLoaded = db.state.firstTimeLoaded
+  local firstTimeLoaded = charDb.firstTimeLoaded
   local scale = db.ui.scale
+  local locked = db.ui.lockWindow
 
   f:SetPoint("TOPLEFT", position.x, position.y)
   f:SetWidth(340)
   f:SetScale(scale)
-
-  f:SetMovable(true)
+  f:RegisterForDrag("LeftButton")
   f:EnableMouse(true)
   f:SetClampedToScreen(true)
-  f:RegisterForDrag("LeftButton")
-  f:SetScript("OnDragStart", f.StartMoving)
-  f:SetScript("OnDragStop", function()
-    f:StopMovingOrSizing()
-    local x, y = f:GetLeft(), f:GetTop() - (GetScreenHeight() / f:GetScale())
-    db.position = { x = x, y = y }
-    f:ClearAllPoints()
-    f:SetPoint("TOPLEFT", x, y)
-    f:SetUserPlaced(true)
-  end)
   f:SetScript("OnMouseDown", function(self, button)
     if button == "RightButton" then
       MKPT_env.ShowRightClickMenu()
@@ -45,18 +36,101 @@ function MKPT_env.CreateUI()
   })
   f:SetBackdropColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
 
+  MKPT_env.SetLockUi(locked)
+
+  f.hideButton = CreateFrame("Button", nil, f)
+  f.hideButton:SetSize(16, 16)
+  f.hideButton:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", -20, 0)
+  f.hideButton:SetText("hide")
+  f.hideButton:SetScript("OnClick", function(self, button, down)
+    MKPT_env.ToggleAutoHide()
+    UIFrameFadeIn(f, 0.1, f:GetAlpha(), 1)
+  end)
+  if db.ui.autohide then
+    f.hideButton:SetNormalTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOn.tga")
+    f.hideButton:SetHighlightTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOn.tga",
+      "BLEND")
+  else
+    f.hideButton:SetNormalTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOff.tga")
+    f.hideButton:SetHighlightTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOff.tga",
+      "BLEND")
+  end
+  f.hideButton:GetNormalTexture():SetVertexColor(0.9, 0.74, 0.0)
+  f.hideButton:GetHighlightTexture():SetVertexColor(1, 0.82, 0.0)
+
+  f.hideButton:SetScript("OnEnter", function(self)
+    if db.ui.autohide then
+      UIFrameFadeIn(f, 0.1, f:GetAlpha(), 1)
+    end
+    UIFrameFadeIn(f.hideButton, 0.1, f.hideButton:GetAlpha(), 1)
+    UIFrameFadeIn(f.closeButton, 0.1, f.closeButton:GetAlpha(), 1)
+
+    GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+    GameTooltip:SetText("Auto hide")
+    GameTooltip:Show()
+  end)
+  f.hideButton:SetScript("OnLeave", function(self)
+    if db.ui.autohide then
+      UIFrameFadeOut(f, 0.5, f:GetAlpha(), 0)
+    end
+    UIFrameFadeOut(f.hideButton, 0.5, f.hideButton:GetAlpha(), 0)
+    UIFrameFadeOut(f.closeButton, 0.5, f.closeButton:GetAlpha(), 0)
+    GameTooltip:Hide()
+  end)
+
+  f.closeButton = CreateFrame("Button", nil, f)
+  f.closeButton:SetSize(16, 16)
+  f.closeButton:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", 0, 0)
+  f.closeButton:SetText("hide")
+  f.closeButton:SetScript("OnClick", function(self, button, down)
+    MKPT_env.ToggleUi()
+  end)
+  f.closeButton:SetNormalTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_Close.tga")
+  f.closeButton:SetHighlightTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_Close.tga", "BLEND")
+  f.closeButton:GetNormalTexture():SetVertexColor(0.9, 0.74, 0.0)
+  f.closeButton:GetHighlightTexture():SetVertexColor(1, 0.82, 0.0)
+
+  f.closeButton:SetScript("OnEnter", function(self)
+    if db.ui.autohide then
+      UIFrameFadeIn(f, 0.1, f:GetAlpha(), 1)
+    end
+    UIFrameFadeIn(f.hideButton, 0.1, f.hideButton:GetAlpha(), 1)
+    UIFrameFadeIn(f.closeButton, 0.1, f.closeButton:GetAlpha(), 1)
+    GameTooltip:SetOwner(self, "ANCHOR_TOP")
+    GameTooltip:SetText("Close")
+    GameTooltip:Show()
+  end)
+  f.closeButton:SetScript("OnLeave", function(self)
+    if db.ui.autohide then
+      UIFrameFadeOut(f, 0.5, f:GetAlpha(), 0)
+    end
+    UIFrameFadeOut(f.hideButton, 0.5, f.hideButton:GetAlpha(), 0)
+    UIFrameFadeOut(f.closeButton, 0.5, f.closeButton:GetAlpha(), 0)
+    GameTooltip:Hide()
+  end)
+
+
+  f:SetScript("OnEnter", function(self)
+    if db.ui.autohide then
+      UIFrameFadeIn(self, 0.1, self:GetAlpha(), 1)
+    end
+    UIFrameFadeIn(f.hideButton, 0.1, f.hideButton:GetAlpha(), 1)
+    UIFrameFadeIn(f.closeButton, 0.1, f.closeButton:GetAlpha(), 1)
+  end)
+
+  f:SetScript("OnLeave", function(self)
+    if MKPT_env.IsShowingRightClickMenu() then return end
+    if db.ui.autohide then
+      UIFrameFadeOut(self, 0.5, self:GetAlpha(), 0)
+    else
+      UIFrameFadeOut(f.hideButton, 0.1, f.hideButton:GetAlpha(), 0)
+      UIFrameFadeOut(f.closeButton, 0.1, f.closeButton:GetAlpha(), 0)
+    end
+  end)
+
   f.tree = CreateFrame("Frame", nil, f, "BackdropTemplate")
   f.tree:SetPoint("TOPLEFT", 0, 0)
   f.tree:SetPoint("TOPRIGHT", 0, 0)
-  f.tree:SetScript("OnDragStart", f.StartMoving)
-  f.tree:SetScript("OnDragStop", function()
-    f:StopMovingOrSizing()
-    local x, y = f:GetLeft(), -GetScreenHeight() + f:GetTop()
-    db.position = { x = x, y = y }
-    f:ClearAllPoints()
-    f:SetPoint("TOPLEFT", x, y)
-    f:SetUserPlaced(true)
-  end)
 
   f.detailText = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
   f.detailText:SetPoint("TOP", f.tree, "BOTTOM", 0, -4)
@@ -78,13 +152,13 @@ function MKPT_env.CreateUI()
 
   if firstTimeLoaded then
     f:UpdateDetail(
-      "Click on an item to track\n"..
-      Utils.WeeklyTextColor("Weekly").." - "..
-      Utils.CatchUpTextColor("Catch-Up").." - "..
-      Utils.UniqueTextColor("Unique").." - "..
+      "Click on an item to track\n" ..
+      Utils.WeeklyTextColor("Weekly") .. " - " ..
+      Utils.CatchUpTextColor("Catch-Up") .. " - " ..
+      Utils.UniqueTextColor("Unique") .. " - " ..
       Utils.MissingTextColor("Missing")
     )
-    db.state.firstTimeLoaded = false
+    charDb.firstTimeLoaded = false
   end
 
   f:RenderTree()
@@ -107,6 +181,12 @@ local framePool = CreateFramePool(
     b.icon:SetTexture()
     b.middleText:SetText()
     b.glow:Hide()
+
+    if not InCombatLockdown() then
+      b:SetPropagateMouseClicks(true)
+      b:SetPropagateMouseMotion(true)
+    end
+
     b:UnregisterAllEvents()
   end,
   false,
@@ -117,7 +197,10 @@ local framePool = CreateFramePool(
 
     b:SetHeight(buttonHeight)
     b:SetWidth(340)
-    b:SetPropagateMouseClicks(true)
+    if not InCombatLockdown() then
+      b:SetPropagateMouseClicks(true)
+      b:SetPropagateMouseMotion(true)
+    end
 
     b.background = b:CreateTexture(nil, "BACKGROUND")
     b.background:SetAllPoints()
@@ -137,8 +220,6 @@ local framePool = CreateFramePool(
     b.leftText:SetJustifyH("LEFT")
     b.leftText:SetJustifyV("MIDDLE")
     b.leftText:SetFontHeight(fontSize)
-    b.leftText:SetShadowColor(0, 0, 0, 1)
-    b.leftText:SetShadowOffset(2, -2)
 
     b.middleText = b:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     b.middleText:SetPoint("LEFT", b.leftText, "RIGHT")
@@ -147,8 +228,6 @@ local framePool = CreateFramePool(
     b.middleText:SetJustifyV("MIDDLE")
     b.middleText:SetFontHeight(fontSize)
     b.middleText:SetTextColor(1, 1, 1)
-    b.middleText:SetShadowColor(0, 0, 0, 1)
-    b.middleText:SetShadowOffset(2, -2)
 
     b.rightText = b:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     b.middleText:SetPoint("RIGHT", b.rightText, "LEFT")
@@ -157,8 +236,6 @@ local framePool = CreateFramePool(
     b.rightText:SetJustifyH("RIGHT")
     b.rightText:SetJustifyV("MIDDLE")
     b.rightText:SetFontHeight(fontSize)
-    b.rightText:SetShadowColor(0, 0, 0, 1)
-    b.rightText:SetShadowOffset(2, -2)
 
     b.highlight = b:CreateTexture(nil, "HIGHLIGHT")
     b.highlight:SetAtlas("Professions_Recipe_Hover", false)
@@ -182,16 +259,20 @@ local function AddProfessionButton(profession)
   local b = framePool:Acquire()
   b.profession = profession
 
+  local backgroundColor = MKPT_env.db.ui.rowBackgroundColor
+  b.background:SetVertexColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
+
   local remaining = profession:CalculateRemainingKps()
-  b.leftText:SetText(Utils.WeeklyTextColor("W:"..remaining.weekly)..Utils.CatchUpTextColor(" +"..remaining.catchUp))
+  b.leftText:SetText(Utils.WeeklyTextColor("W:" .. remaining.weekly) .. Utils.CatchUpTextColor(" +" .. remaining.catchUp))
 
   local missing = profession:CalculateSpendableKps()
-  b.rightText:SetText(Utils.UniqueTextColor("U:"..remaining.unique).." "..Utils.MissingTextColor(missing))
+  b.rightText:SetText(Utils.UniqueTextColor("U:" .. remaining.unique) .. " " .. Utils.MissingTextColor(missing))
 
   local middleText = profession.name
   local skillLevel = profession:GetSkillLevel()
   if skillLevel then
-    middleText = middleText.." "..skillLevel.skillLevel.."/"..skillLevel.maxSkillLevel.." +"..skillLevel.bonusSkill
+    middleText = middleText .. " " .. skillLevel.skillLevel .. "/" ..
+        skillLevel.maxSkillLevel .. " +" .. skillLevel.bonusSkill
   end
 
   b.icon:SetTexture(profession.icon)
@@ -199,6 +280,7 @@ local function AddProfessionButton(profession)
   b.middleText:SetJustifyH("CENTER")
 
   b:SetScript("OnClick", function(self)
+    if self:IsDragging() then return end
     local ui = MKPT_env.ui
     local profession = self.profession
     if not ui or not profession then return end
@@ -219,6 +301,9 @@ local function AddProfessionTrainerButton(profession)
   local b = framePool:Acquire()
   b.profession = profession
 
+  local backgroundColor = MKPT_env.db.ui.rowBackgroundColor
+  b.background:SetVertexColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
+
   b.leftText:SetText(CreateAtlasMarkup("Crosshair_trainer_32"), 16, 16)
 
   b.rightText:SetText(CreateAtlasMarkup("Waypoint-MapPin-Untracked"), 16, 16)
@@ -226,7 +311,8 @@ local function AddProfessionTrainerButton(profession)
   local middleText = profession.name
   local skillLevel = profession:GetSkillLevel()
   if skillLevel then
-    middleText = middleText.." "..skillLevel.skillLevel.."/"..skillLevel.maxSkillLevel.." +"..skillLevel.bonusSkill
+    middleText = middleText .. " " .. skillLevel.skillLevel .. "/" ..
+        skillLevel.maxSkillLevel .. " +" .. skillLevel.bonusSkill
   end
 
   b.icon:SetTexture(profession.icon)
@@ -240,6 +326,7 @@ local function AddProfessionTrainerButton(profession)
   end
 
   b:SetScript("OnClick", function(self)
+    if self:IsDragging() then return end
     local ui = MKPT_env.ui
     local profession = self.profession
     if not ui or not profession then return end
@@ -263,6 +350,10 @@ end
 ---@return Frame b - rowFrame
 local function AddItemButton(item)
   local b = framePool:Acquire()
+
+  local backgroundColor = MKPT_env.db.ui.rowBackgroundColor
+  b.background:SetVertexColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a)
+
   b.item = item
   if item:IsHighlighted() then
     b.glow:Show()
@@ -289,9 +380,10 @@ local function AddItemButton(item)
 
   b.middleText:SetText(name)
   b.middleText:SetJustifyH("LEFT")
-  b.rightText:SetText("+"..item:GetRemainingKnowledgePoints())
+  b.rightText:SetText("+" .. item:GetRemainingKnowledgePoints())
 
   b:SetScript("OnClick", function(self)
+    if self:IsDragging() then return end
     self.item:ToggleTrack()
     local ui = MKPT_env.ui
     if self.item:IsHighlighted() then
@@ -348,10 +440,11 @@ end
 ---Show/Hide the UI
 function MKPT_env.ToggleUi()
   if f:IsShown() then
-    MKPT_env.db.state.show = false
+    MKPT_env.charDb.state.show = false
     f:Hide()
   else
-    MKPT_env.db.state.show = true
+    MKPT_env.charDb.state.show = true
+    f:SetAlpha(1)
     f:RenderTree()
     f:Show()
   end
@@ -359,10 +452,11 @@ end
 
 ---Switch between expansions
 function MKPT_env.ToggleExpansion()
-  if MKPT_env.db.state.expansion == Enum.ExpansionLevel.WarWithin then
-    MKPT_env.db.state.expansion = Enum.ExpansionLevel.Midnight
+  local currentExpansion = MKPT_env.charDb.state.expansion
+  if currentExpansion == Enum.ExpansionLevel.WarWithin then
+    MKPT_env.charDb.state.expansion = Enum.ExpansionLevel.Midnight
   else
-    MKPT_env.db.state.expansion = Enum.ExpansionLevel.WarWithin
+    MKPT_env.charDb.state.expansion = Enum.ExpansionLevel.WarWithin
   end
 
   -- Attempt to load skill level from professions of legacy expansions
@@ -395,4 +489,60 @@ function MKPT_env.SetUiScale(scale)
   scale = math.max(0.5, math.min(1.5, scale))
   MKPT_env.db.ui.scale = scale
   f:SetScale(scale)
+end
+
+function MKPT_env.SetLockUi(lock)
+  local db = MKPT_env.db
+  db.ui.lockWindow = lock
+
+  if lock then
+    f:SetMovable(false)
+    f:SetScript("OnDragStart", nil)
+    f:SetScript("OnDragStop", nil)
+  else
+    f:SetScript("OnDragStart", f.StartMoving)
+    f:SetScript("OnDragStop", function()
+      f:StopMovingOrSizing()
+      local x, y = f:GetLeft(), f:GetTop() - (GetScreenHeight() / f:GetScale())
+      db.position = { x = x, y = y }
+      f:ClearAllPoints()
+      f:SetPoint("TOPLEFT", x, y)
+      f:SetUserPlaced(true)
+    end)
+    f:SetMovable(true)
+  end
+end
+
+function MKPT_env.ToggleAutoHide()
+  local db = MKPT_env.db
+  db.ui.autohide = not db.ui.autohide
+  if db.ui.autohide then
+    if db.state.show then
+      UIFrameFadeOut(f, 1, f:GetAlpha(), 0)
+    end
+    f.hideButton:SetNormalTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOn.tga")
+    f.hideButton:SetHighlightTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOn.tga",
+      "BLEND")
+  else
+    if db.state.show then
+      UIFrameFadeIn(f, 0.5, f:GetAlpha(), 1)
+      UIFrameFadeIn(f.closeButton, 0.5, f:GetAlpha(), 1)
+      UIFrameFadeIn(f.hideButton, 0.5, f:GetAlpha(), 1)
+    end
+    f.hideButton:SetNormalTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOff.tga")
+    f.hideButton:SetHighlightTexture("Interface\\AddOns\\MyusKnowledgePointsTracker\\Textures\\MKPT_AutohideOff.tga",
+      "BLEND")
+  end
+end
+
+function MKPT_env.RefreshAutoHide()
+  if not f:IsShown() then
+    return
+  end
+  local db = MKPT_env.db
+  if db.ui.autohide and not f:IsMouseOver() then
+    UIFrameFadeOut(f, 0.5, f:GetAlpha(), 0)
+  else
+    UIFrameFadeIn(f, 0.1, f:GetAlpha(), 1)
+  end
 end

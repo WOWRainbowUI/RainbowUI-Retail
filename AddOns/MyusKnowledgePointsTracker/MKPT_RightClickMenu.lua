@@ -19,7 +19,7 @@ local function InitializeRightClickMenu(self, level, menuList)
 
     local midnightOption = UIDropDownMenu_CreateInfo()
     midnightOption.text = MIDNIGHT_LOCALIZED_NAME
-    midnightOption.checked = MKPT_env.db.state.expansion == Enum.ExpansionLevel.Midnight
+    midnightOption.checked = MKPT_env.charDb.state.expansion == Enum.ExpansionLevel.Midnight
     midnightOption.func = function()
       if not midnightOption.checked then
         MKPT_env.ToggleExpansion()
@@ -29,7 +29,7 @@ local function InitializeRightClickMenu(self, level, menuList)
 
     local twwOption = UIDropDownMenu_CreateInfo()
     twwOption.text = TWW_LOCALIZED_NAME
-    twwOption.checked = MKPT_env.db.state.expansion == Enum.ExpansionLevel.WarWithin
+    twwOption.checked = MKPT_env.charDb.state.expansion == Enum.ExpansionLevel.WarWithin
     twwOption.func = function()
       if not twwOption.checked then
         MKPT_env.ToggleExpansion()
@@ -40,9 +40,8 @@ local function InitializeRightClickMenu(self, level, menuList)
   end
 
   -- Show/Hide filterGroups
+  UIDropDownMenu_AddSeparator()
   do
-    UIDropDownMenu_AddSeparator()
-
     local showHeader = UIDropDownMenu_CreateInfo()
     showHeader.text = "Show/Hide"
     showHeader.isTitle = true
@@ -50,7 +49,7 @@ local function InitializeRightClickMenu(self, level, menuList)
     UIDropDownMenu_AddButton(showHeader)
 
     local showUniqueTreasure = UIDropDownMenu_CreateInfo()
-    showUniqueTreasure.text = Utils.UNIQUE_TREASURE_ICON.." "..Utils.UniqueTextColor("Unique Treasures")
+    showUniqueTreasure.text = Utils.UNIQUE_TREASURE_ICON .. " " .. Utils.UniqueTextColor("Unique Treasures")
     showUniqueTreasure.checked = MKPT_env.db.config.hideUniqueTreasures == false
     showUniqueTreasure.isNotRadio = true
     showUniqueTreasure.keepShownOnClick = true
@@ -62,7 +61,7 @@ local function InitializeRightClickMenu(self, level, menuList)
 
 
     local showFirstTime = UIDropDownMenu_CreateInfo()
-    showFirstTime.text = Utils.FIRST_GATHER_ICON.." "..Utils.UniqueTextColor("First Time Gather")
+    showFirstTime.text = Utils.FIRST_GATHER_ICON .. " " .. Utils.UniqueTextColor("First Time Gather")
     showFirstTime.checked = MKPT_env.db.config.hideFirstTimeGather == false
     showFirstTime.isNotRadio = true
     showFirstTime.keepShownOnClick = true
@@ -73,7 +72,7 @@ local function InitializeRightClickMenu(self, level, menuList)
 
     UIDropDownMenu_AddButton(showFirstTime)
     local showUniqueBook = UIDropDownMenu_CreateInfo()
-    showUniqueBook.text = Utils.UNIQUE_BOOK_ICON.." "..Utils.UniqueTextColor("Unique/Renown Books")
+    showUniqueBook.text = Utils.UNIQUE_BOOK_ICON .. " " .. Utils.UniqueTextColor("Unique/Renown Books")
     showUniqueBook.checked = MKPT_env.db.config.hideUniqueBooks == false
     showUniqueBook.isNotRadio = true
     showUniqueBook.keepShownOnClick = true
@@ -84,7 +83,7 @@ local function InitializeRightClickMenu(self, level, menuList)
     UIDropDownMenu_AddButton(showUniqueBook)
 
     local showTreatise = UIDropDownMenu_CreateInfo()
-    showTreatise.text = Utils.TREATISE_ICON.." "..Utils.WeeklyTextColor("Treatise")
+    showTreatise.text = Utils.TREATISE_ICON .. " " .. Utils.WeeklyTextColor("Treatise")
     showTreatise.checked = MKPT_env.db.config.hideTreatise == false
     showTreatise.isNotRadio = true
     showTreatise.keepShownOnClick = true
@@ -95,7 +94,7 @@ local function InitializeRightClickMenu(self, level, menuList)
     UIDropDownMenu_AddButton(showTreatise)
 
     local showWeeklyQuest = UIDropDownMenu_CreateInfo()
-    showWeeklyQuest.text = Utils.WEEKLY_QUEST_ICON.." "..Utils.WeeklyTextColor("Weekly Quests")
+    showWeeklyQuest.text = Utils.WEEKLY_QUEST_ICON .. " " .. Utils.WeeklyTextColor("Weekly Quests")
     showWeeklyQuest.checked = MKPT_env.db.config.hideWeeklyQuests == false
     showWeeklyQuest.isNotRadio = true
     showWeeklyQuest.keepShownOnClick = true
@@ -106,7 +105,7 @@ local function InitializeRightClickMenu(self, level, menuList)
     UIDropDownMenu_AddButton(showWeeklyQuest)
 
     local showWeeklyTreasure = UIDropDownMenu_CreateInfo()
-    showWeeklyTreasure.text = Utils.WEEKLY_TREASURE_ICON.." "..Utils.WeeklyTextColor("Weekly Treasures")
+    showWeeklyTreasure.text = Utils.WEEKLY_TREASURE_ICON .. " " .. Utils.WeeklyTextColor("Weekly Treasures")
     showWeeklyTreasure.checked = MKPT_env.db.config.hideWeeklyTreasures == false
     showWeeklyTreasure.isNotRadio = true
     showWeeklyTreasure.keepShownOnClick = true
@@ -117,7 +116,7 @@ local function InitializeRightClickMenu(self, level, menuList)
     UIDropDownMenu_AddButton(showWeeklyTreasure)
 
     local showCatchUp = UIDropDownMenu_CreateInfo()
-    showCatchUp.text = Utils.CATCHUP_ICON.." "..Utils.CatchUpTextColor("Catch-Up")
+    showCatchUp.text = Utils.CATCHUP_ICON .. " " .. Utils.CatchUpTextColor("Catch-Up")
     showCatchUp.checked = MKPT_env.db.config.hideCatchUp == false
     showCatchUp.isNotRadio = true
     showCatchUp.keepShownOnClick = true
@@ -128,9 +127,23 @@ local function InitializeRightClickMenu(self, level, menuList)
     UIDropDownMenu_AddButton(showCatchUp)
   end
 
+  UIDropDownMenu_AddSeparator()
+  -- Settings
+  do
+    local settings = UIDropDownMenu_CreateInfo()
+    settings.text = Utils.SETTINGS_ICON .. " Settings"
+    settings.func = function()
+      Settings.OpenToCategory(MKPT_env.categoryId)
+    end
+    settings.disabled = InCombatLockdown()
+    settings.notCheckable = true
+    settings.checked = nil
+    UIDropDownMenu_AddButton(settings)
+  end
+
+  UIDropDownMenu_AddSeparator()
   -- Close button
   do
-    UIDropDownMenu_AddSeparator()
     local close = UIDropDownMenu_CreateInfo()
     close.text = "Close"
     close.notCheckable = true
@@ -142,4 +155,8 @@ end
 function MKPT_env.ShowRightClickMenu()
   UIDropDownMenu_Initialize(RightClickMenu, InitializeRightClickMenu, "MENU")
   ToggleDropDownMenu(1, nil, RightClickMenu, "cursor", 0, 0)
+end
+
+function MKPT_env.IsShowingRightClickMenu()
+  return UIDROPDOWNMENU_OPEN_MENU ~= nil
 end
