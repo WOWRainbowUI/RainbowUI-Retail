@@ -65,6 +65,8 @@ local addonName, BR = ...
 ---@field expirationThreshold? number
 ---@field showBuffReminder? boolean
 ---@field buffTextSize? number
+---@field buffTextOffsetX? number
+---@field buffTextOffsetY? number
 ---@field showText? boolean
 ---@field useCustomAppearance? boolean
 ---@field split? boolean
@@ -331,6 +333,9 @@ local defaults = {
             housing = false,
             pvp = true,
             hideInPvPMatch = true,
+            raidDifficulty = {
+                lfr = false,
+            },
         },
         presence = {
             openWorld = true,
@@ -340,6 +345,9 @@ local defaults = {
             housing = false,
             pvp = true,
             hideInPvPMatch = true,
+            raidDifficulty = {
+                lfr = false,
+            },
         },
         targeted = {
             openWorld = false,
@@ -376,7 +384,7 @@ local defaults = {
             housing = false,
             pvp = true,
             hideInPvPMatch = true,
-            pvpType = { arena = false, bg = true },
+            pvpType = { arena = true, bg = true },
             scenarioDifficulty = {
                 delves = true,
                 others = false,
@@ -467,6 +475,7 @@ local defaults = {
 
 -- Constants
 local OVERLAY_TEXT_SCALE = 0.6 -- scale for "NO X" warning text
+local BUFF_TEXT_BASE_Y = -6 -- base Y gap between icon bottom and "BUFF!" text
 
 -- Locals
 local mainFrame
@@ -1085,16 +1094,21 @@ local function CreateBuffFrame(buff, category)
     frame.isPlayerBuff = (playerClass == buff.class)
     if frame.isPlayerBuff and category == "raid" then
         frame.buffText = frame:CreateFontString(nil, "OVERLAY")
-        frame.buffText:SetPoint("TOP", frame, "BOTTOM", 0, -6)
-        local raidBts = db.categorySettings and db.categorySettings.raid and db.categorySettings.raid.buffTextSize
+        local raidCs = db.categorySettings and db.categorySettings.raid
+        frame.buffText:SetPoint(
+            "TOP",
+            frame,
+            "BOTTOM",
+            (raidCs and raidCs.buffTextOffsetX) or 0,
+            ((raidCs and raidCs.buffTextOffsetY) or 0) + BUFF_TEXT_BASE_Y
+        )
         frame.buffText:SetFont(
             fontPath,
-            raidBts or GetFontSize(0.8, catSettings.textSize, catSettings.iconSize),
+            (raidCs and raidCs.buffTextSize) or GetFontSize(0.8, catSettings.textSize, catSettings.iconSize),
             "OUTLINE"
         )
         frame.buffText:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
         frame.buffText:SetText("BUFF!")
-        local raidCs = db.categorySettings and db.categorySettings.raid
         if raidCs and raidCs.showBuffReminder == false then
             frame.buffText:Hide()
         end
@@ -1445,7 +1459,6 @@ local function GenerateTestEntries()
         entry.overlayText = nil
         entry.expiringTime = nil
         entry.isEating = nil
-        entry.eatingIconID = nil
         entry.petActions = nil
         entry.iconByRole = nil
         entry.dynamicIcon = nil
@@ -1850,7 +1863,7 @@ local function RenderVisibleEntry(frame, entry)
     -- never reads a live flag that can change mid-cycle.
     if entry.isEating then
         SetIconDesaturated(frame.icon, false)
-        frame.icon:SetTexture(entry.eatingIconID or EATING_ICON)
+        frame.icon:SetTexture(EATING_ICON)
         frame._br_eating_icon = true
         if entry.eatingExpirationTime then
             -- Seed initial text, then hand off to per-frame OnUpdate for smooth countdown
@@ -2153,7 +2166,7 @@ local function UpdatePetLabels(frame, petAction)
         frame._br_pet_extra_text:SetFont(fontPath, familySize, "OUTLINE")
         frame._br_pet_extra_text:ClearAllPoints()
         frame._br_pet_extra_text:SetPoint("TOP", anchor, "BOTTOM", 0, -1)
-        frame._br_pet_extra_text:SetText("靈獸")
+        frame._br_pet_extra_text:SetText("Spirit Beast")
         frame._br_pet_extra_text:SetTextColor(1, 1, 1)
         frame._br_pet_extra_text:Show()
     else
@@ -2683,17 +2696,25 @@ local function UpdateVisuals()
         end
         if frame.buffText then
             -- Raid BUFF! text
-            local raidBts = BR.profile.categorySettings
-                and BR.profile.categorySettings.raid
-                and BR.profile.categorySettings.raid.buffTextSize
-            frame.buffText:SetFont(fontPath, raidBts or GetFrameFontSize(frame, 0.8), "OUTLINE")
+            local raidCs = BR.profile.categorySettings and BR.profile.categorySettings.raid
+            frame.buffText:SetFont(
+                fontPath,
+                (raidCs and raidCs.buffTextSize) or GetFrameFontSize(frame, 0.8),
+                "OUTLINE"
+            )
             frame.buffText:SetTextColor(tc[1], tc[2], tc[3], ta)
+            frame.buffText:ClearAllPoints()
+            frame.buffText:SetPoint(
+                "TOP",
+                frame,
+                "BOTTOM",
+                (raidCs and raidCs.buffTextOffsetX) or 0,
+                ((raidCs and raidCs.buffTextOffsetY) or 0) + BUFF_TEXT_BASE_Y
+            )
             -- BUFF! text: use buff's actual category (raid only)
-            local buffCat = frame.buffCategory
             local showReminder = false
-            if buffCat == "raid" then
-                local cs = BR.profile.categorySettings and BR.profile.categorySettings.raid
-                showReminder = not cs or cs.showBuffReminder ~= false
+            if frame.buffCategory == "raid" then
+                showReminder = not raidCs or raidCs.showBuffReminder ~= false
             end
             frame.buffText:SetShown(showReminder)
         end
@@ -3006,7 +3027,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 30
+        local DB_VERSION = 32
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -3645,6 +3666,28 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     db.defaults.freeConsumableReadyCheckOnly = nil
                     if db.defaults.freeConsumableVisibility then
                         db.defaults.freeConsumableVisibility.hideInPvPMatch = nil
+                    end
+                end
+            end,
+            -- [31] Arena consumable restriction now handled at data layer (disabledInCompetitivePvP);
+            -- re-enable the arena toggle so healthstones can show via category visibility.
+            [31] = function()
+                local vis = db.categoryVisibility and db.categoryVisibility.consumable
+                if vis and vis.pvpType and vis.pvpType.arena == false then
+                    vis.pvpType.arena = true
+                end
+            end,
+
+            -- [32] Remove sanguithorn tea (reverted by Blizzard)
+            [32] = function()
+                if db.enabledBuffs then
+                    db.enabledBuffs.sanguithorn = nil
+                end
+                if db.rememberedConsumables then
+                    for _, specMem in pairs(db.rememberedConsumables) do
+                        if type(specMem) == "table" then
+                            specMem.sanguithorn = nil
+                        end
                     end
                 end
             end,

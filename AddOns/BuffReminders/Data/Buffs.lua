@@ -102,6 +102,7 @@ local min = math.min
 ---@field consumableCategory? string Category key in BR.CONSUMABLE_ITEMS for bag scanning (only set when items exist)
 ---@field freeConsumable? boolean Bypass content gates (always show when enabled)
 ---@field permanentRuneItemIDs? number[] Item IDs that, if in bags, make this a free consumable (bypass content gates)
+---@field disabledInCompetitivePvP? boolean Unusable in arenas and rated BGs
 
 ---@class BuffGroup
 ---@field displayName string
@@ -119,7 +120,8 @@ local min = math.min
 ---@field castSpellID? number       -- Spell to cast on click (separate from tracked aura)
 ---@field castItemID? number        -- Item to use on click
 ---@field castMacro? string         -- Raw macro text for click action
----@field requireItemID? number    -- Only show if this item is equipped or in bags
+---@field requireItemID? number    -- Only show if this item is owned/equipped/in bags (see requireItemMode)
+---@field requireItemMode? "owned"|"equipped"|"bags" -- How to check requireItemID: "owned" (default) = bags or equipped, "equipped" = equipped only, "bags" = bags only
 ---@field loadConditions? LoadConditions  -- Per-buff content visibility (nil = show everywhere)
 
 ---Check if the player is NOT an Earthen dwarf (they have permanent Well Fed from Ingest Minerals)
@@ -772,6 +774,8 @@ BR.BUFF_TABLES = {
     },
     ---@type CustomBuff[]
     custom = {},
+    -- Consumables are disabled in arenas and rated BGs (disabledInCompetitivePvP = true)
+    -- unless explicitly allowed (e.g. healthstone). See IsInCompetitivePvP() in State.lua.
     ---@type ConsumableBuff[]
     consumable = {
         -- Augment Rune (The War Within + Midnight)
@@ -791,6 +795,7 @@ BR.BUFF_TABLES = {
             permanentRuneItemIDs = { 243191, 259085 }, -- Ethereal (TWW), Void-Touched (Midnight)
             groupId = "rune",
             consumableCategory = "rune",
+            disabledInCompetitivePvP = true,
         },
         -- Flasks (The War Within + Midnight)
         {
@@ -822,6 +827,7 @@ BR.BUFF_TABLES = {
             missingText = "沒有\n精鍊",
             groupId = "flask",
             consumableCategory = "flask",
+            disabledInCompetitivePvP = true,
         },
         -- Food (all expansions - detected by icon ID)
         {
@@ -832,18 +838,8 @@ BR.BUFF_TABLES = {
             groupId = "food",
             consumableCategory = "food",
             displayIcon = 136000,
-        },
-        -- Sanguithorn Tea (additional food, stacks with regular food)
-        {
-            spellID = 1269152,
-            key = "sanguithorn",
-            name = "血棘茶",
-            overlayText = "沒有\n茶",
-            groupId = "sanguithorn",
-            consumableCategory = "sanguithorn",
-            displayIcon = 7548960,
-            eatingSpellID = 1277461,
-            eatingIconID = 7548956,
+            visibilityCondition = IsNotEarthen,
+            disabledInCompetitivePvP = true,
         },
         -- Delve Food (only when inside a delve with Brann or Valeera)
         {
@@ -858,6 +854,7 @@ BR.BUFF_TABLES = {
                 desc = "只限探究|只有當布萊恩或瓦莉拉在你的隊伍中時才會在探索內顯示。\n\n此增益效果的過期發光被禁用，因為其短暫的10分鐘持續時間會導致它始終發光。",
             },
             visibilityCondition = BR.IsInDelve,
+            disabledInCompetitivePvP = true,
         },
         -- Healthstone (checks inventory, free consumable for warlocks)
         {
@@ -894,6 +891,7 @@ BR.BUFF_TABLES = {
                 433583, -- Rite of Adjuration
                 433568, -- Rite of Sanctification
             },
+            disabledInCompetitivePvP = true,
         },
         -- Weapon Buff (Off-Hand) - only shown when off-hand slot has a weapon
         {
@@ -916,6 +914,7 @@ BR.BUFF_TABLES = {
             visibilityCondition = function()
                 return BR.BuffState.HasOffHandWeapon()
             end,
+            disabledInCompetitivePvP = true,
         },
     },
 }
@@ -943,7 +942,6 @@ BR.BuffGroups = {
     healthstone = { displayName = "治療石" },
     rune = { displayName = "增強符文" },
     weaponBuff = { displayName = "武器增益" },
-    sanguithorn = { displayName = "血棘茶" },
 }
 
 -- Classes that benefit from each buff

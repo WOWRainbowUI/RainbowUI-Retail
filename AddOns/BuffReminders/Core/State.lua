@@ -24,7 +24,6 @@ local _, BR = ...
 ---@field rebuffWarning boolean?             -- Consumable rebuff pulsing border?
 ---@field isEating boolean?                 -- Food entry: player is currently eating
 ---@field eatingExpirationTime number?      -- GetTime()-based expiration of eating aura
----@field eatingIconID number?             -- Icon ID override for eating aura display
 ---@field petActions PetActionList?           -- Expanded pet summon actions
 ---@field dynamicIcon number|string|nil      -- Dynamic icon texture override (e.g. next poison to cast)
 
@@ -99,6 +98,7 @@ local inPvPPrepPhase = false
 
 -- Difficulty cache (invalidated alongside content type)
 local cachedDifficultyKey = nil
+local cachedCompetitivePvP = nil -- arena or rated BG
 
 -- Legacy loot cache (populated alongside content type, invalidated together)
 local cachedIsLegacyInstance = nil
@@ -315,29 +315,52 @@ local function IsPlayerSpellCached(spellID)
     return knows
 end
 
----Check if player has an item equipped or in bags (cached)
+---Check if player has an item equipped (slots 1-19)
 ---@param itemID number
 ---@return boolean
-local function HasItemInBagsOrEquipped(itemID)
+local function HasItemEquipped(itemID)
+    for slot = 1, 19 do
+        if GetInventoryItemID("player", slot) == itemID then
+            return true
+        end
+    end
+    return false
+end
+
+---Check if player has an item in bags (excludes equipped items)
+---@param itemID number
+---@return boolean
+local function HasItemInBags(itemID)
+    local ok, count = pcall(C_Item.GetItemCount, itemID)
+    if not ok or not count or count <= 0 then
+        return false
+    end
+    -- GetItemCount includes equipped items; subtract if equipped
+    if HasItemEquipped(itemID) then
+        count = count - 1
+    end
+    return count > 0
+end
+
+---Check if player has an item based on mode (cached)
+---@param itemID number
+---@param mode? "owned"|"equipped"|"bags" -- "owned" (default) = bags or equipped
+---@return boolean
+local function HasItemByMode(itemID, mode)
     if cachedItemOwnership[itemID] ~= nil then
         return cachedItemOwnership[itemID]
     end
-    local owned = false
-    -- Check bags first via C_Item.GetItemCount
-    local ok, count = pcall(C_Item.GetItemCount, itemID)
-    if ok and count and count > 0 then
-        owned = true
-    else
-        -- Check equipment slots 1-19
-        for slot = 1, 19 do
-            if GetInventoryItemID("player", slot) == itemID then
-                owned = true
-                break
-            end
-        end
+    local result
+    if mode == "equipped" then
+        result = HasItemEquipped(itemID)
+    elseif mode == "bags" then
+        result = HasItemInBags(itemID)
+    else -- "owned" or nil (default)
+        local ok, count = pcall(C_Item.GetItemCount, itemID)
+        result = (ok and count ~= nil and count > 0) or HasItemEquipped(itemID)
     end
-    cachedItemOwnership[itemID] = owned
-    return owned
+    cachedItemOwnership[itemID] = result
+    return result
 end
 
 -- ============================================================================
@@ -1109,7 +1132,7 @@ local function IsFreeConsumable(buff)
     end
     if buff.permanentRuneItemIDs then
         for _, itemID in ipairs(buff.permanentRuneItemIDs) do
-            if HasItemInBagsOrEquipped(itemID) then
+            if HasItemByMode(itemID) then
                 return true
             end
         end
@@ -1151,10 +1174,28 @@ local function IsFreeConsumableVisible(db)
     return true
 end
 
+---Check if the player is in competitive PvP (arena or rated battleground)
+---Consumables flagged disabledInCompetitivePvP are hidden here.
+---@return boolean
+local function IsInCompetitivePvP()
+    if cachedCompetitivePvP ~= nil then
+        return cachedCompetitivePvP
+    end
+    local contentType = GetCurrentContentType()
+    if contentType ~= "pvp" then
+        cachedCompetitivePvP = false
+        return false
+    end
+    local result = cachedInstanceType == "arena" or C_PvP.IsRatedMap() == true
+    cachedCompetitivePvP = result
+    return result
+end
+
 ---Check if player is missing a consumable buff, weapon enchant, or inventory item (returns true if missing)
 ---@param buff table Consumable buff definition
 ---@return boolean shouldShow
 ---@return number? remainingTime seconds remaining if buff is present and has a duration
+---@return number? activeSpellID the specific spell ID that matched (for multi-spell consumables)
 local function ShouldShowConsumableBuff(buff)
     -- Check buff auras by spell ID
     if buff.spellID then
@@ -1166,7 +1207,7 @@ local function ShouldShowConsumableBuff(buff)
                 if CM and buff.consumableCategory and not CM.IsFleetingSpell(id) then
                     CM.Remember(GetPlayerSpecId(), buff.consumableCategory, id, true)
                 end
-                return false, remaining -- Has at least one of the consumable buffs
+                return false, remaining, id -- Has at least one of the consumable buffs
             end
         end
     end
@@ -1400,7 +1441,6 @@ function BuffState.Refresh()
         entry.rebuffWarning = nil -- legacy field, still cleared for safety
         entry.isEating = nil
         entry.eatingExpirationTime = nil
-        entry.eatingIconID = nil
         entry.petActions = nil
         entry.dynamicIcon = nil
     end
@@ -1688,6 +1728,7 @@ function BuffState.Refresh()
     -- In follow mode, healthstones use consumable category content gates (without ready check)
     local consumableContentVisible = freeMode == "follow" and IsCategoryVisibleForContent("consumable", true) or false
     local freeRcMode = db.defaults and db.defaults.healthstoneVisibility or "readyCheck"
+    local competitivePvP = IsInCompetitivePvP()
     for i, buff in ipairs(Consumables) do
         local entry = GetOrCreateEntry(buff.key, "consumable", i)
         local settingKey = buff.groupId or buff.key
@@ -1709,6 +1750,7 @@ function BuffState.Refresh()
             (not isAuraRestricted or IsAuraTrackable(buff) or useGlowDet)
             and IsBuffEnabled(settingKey)
             and (consumableVisible or isFreeConsumable or (buff.freeConsumable and consumableContentVisible))
+            and not (competitivePvP and buff.disabledInCompetitivePvP)
             and freeReadyCheckOk
             and hasCaster
             and PassesPreChecks(buff, nil, db)
@@ -1719,28 +1761,22 @@ function BuffState.Refresh()
                     SetEntryText(entry, buff.overlayText, consGlow)
                 end
             else
-                local shouldShow, remainingTime = ShouldShowConsumableBuff(buff)
+                local shouldShow, remainingTime, activeSpellID = ShouldShowConsumableBuff(buff)
                 if shouldShow then
                     SetEntryText(entry, buff.overlayText, consGlow)
                 elseif not buff.noExpirationGlow and not hideExpiring then
-                    TrySetEntryExpiring(entry, remainingTime, consThreshold, consGlow)
+                    if TrySetEntryExpiring(entry, remainingTime, consThreshold, consGlow) then
+                        if activeSpellID and type(buff.spellID) == "table" then
+                            local ok, tex = pcall(C_Spell.GetSpellTexture, activeSpellID)
+                            entry.dynamicIcon = ok and tex or nil
+                        end
+                    end
                 end
                 -- Eating state for food entries (display uses this for icon override + countdown)
                 if entry.visible and buff.key == "food" then
                     entry.isEating = IsPlayerEating()
                     if entry.isEating then
                         entry.eatingExpirationTime = GetEatingExpirationTime()
-                    end
-                end
-                -- Eating state for spell-based eating (e.g. Sanguithorn Tea)
-                if entry.visible and buff.eatingSpellID then
-                    local ok, auraData = pcall(C_UnitAuras.GetUnitAuraBySpellID, "player", buff.eatingSpellID)
-                    if ok and auraData then
-                        entry.isEating = true
-                        entry.eatingIconID = buff.eatingIconID
-                        if auraData.expirationTime and auraData.expirationTime ~= 0 then
-                            entry.eatingExpirationTime = auraData.expirationTime
-                        end
                     end
                 end
             end
@@ -1777,7 +1813,7 @@ function BuffState.Refresh()
 
         if shouldProcess then
             local gateItemID = buff.requireItemID or buff.castItemID
-            if gateItemID and not HasItemInBagsOrEquipped(gateItemID) then
+            if gateItemID and not HasItemByMode(gateItemID, buff.requireItemMode) then
                 shouldProcess = false
             end
         end
@@ -1935,6 +1971,7 @@ function BuffState.InvalidateContentTypeCache()
     cachedContentType = nil
     cachedInstanceType = nil
     cachedDifficultyKey = nil
+    cachedCompetitivePvP = nil
     cachedIsLegacyInstance = nil
     -- Note: inPvPPrepPhase is NOT reset here — it's managed explicitly by
     -- SetPvPPrepPhase() calls from PLAYER_ENTERING_WORLD and PVP_MATCH_STATE_CHANGED.

@@ -622,7 +622,7 @@ local function CreateOptionsPanel()
 
     -- RIGHT COLUMN: Individual buffs
     -- Presence Buffs
-    _, buffsRightY = CreateSectionHeader(buffsContent, "在場增益", buffsRightX, buffsRightY)
+    _, buffsRightY = CreateSectionHeader(buffsContent, "職業增益", buffsRightX, buffsRightY)
     local presenceNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     presenceNote:SetPoint("TOPLEFT", buffsRightX, buffsRightY)
     presenceNote:SetText("(至少1人需要)")
@@ -916,16 +916,6 @@ local function CreateOptionsPanel()
                     OnCategoryVisibilityChange()
                     Components.RefreshAll()
                 end,
-                disabledSubToggles = category == "consumable" and {
-                    pvpType = {
-                        arena = {
-                            tooltip = {
-                                title = "競技場",
-                                desc = "競技場中無法使用消耗品",
-                            },
-                        },
-                    },
-                } or nil,
             })
             catLayout:Add(visToggles, nil, SECTION_GAP)
 
@@ -1094,16 +1084,6 @@ local function CreateOptionsPanel()
                     onChange = function()
                         UpdateDisplay()
                     end,
-                    disabledSubToggles = {
-                        pvpType = {
-                            arena = {
-                                tooltip = {
-                                    title = "Arena",
-                                    desc = "Consumables cannot be used in arena",
-                                },
-                            },
-                        },
-                    },
                 })
                 local origVisRefresh = freeVisToggles.Refresh
                 function freeVisToggles:Refresh()
@@ -1221,6 +1201,45 @@ local function CreateOptionsPanel()
                 end,
             })
             buffTextSizeHolder:SetPoint("LEFT", reminderHolder, "LEFT", 210, 0)
+
+            local buffTextOffsetXHolder = Components.Slider(catContent, {
+                label = '"BUFF!" X',
+                labelWidth = 60,
+                min = -40,
+                max = 40,
+                get = function()
+                    local cs = db.categorySettings and db.categorySettings.raid
+                    return (cs and cs.buffTextOffsetX) or 0
+                end,
+                enabled = function()
+                    local cs = db.categorySettings and db.categorySettings.raid
+                    return not cs or cs.showBuffReminder ~= false
+                end,
+                onChange = function(val)
+                    BR.Config.Set("categorySettings.raid.buffTextOffsetX", val)
+                end,
+            })
+
+            local buffTextOffsetYHolder = Components.Slider(catContent, {
+                label = '"BUFF!" Y',
+                labelWidth = 60,
+                min = -40,
+                max = 40,
+                get = function()
+                    local cs = db.categorySettings and db.categorySettings.raid
+                    return (cs and cs.buffTextOffsetY) or 0
+                end,
+                enabled = function()
+                    local cs = db.categorySettings and db.categorySettings.raid
+                    return not cs or cs.showBuffReminder ~= false
+                end,
+                onChange = function(val)
+                    BR.Config.Set("categorySettings.raid.buffTextOffsetY", val)
+                end,
+            })
+
+            buffTextOffsetYHolder:SetPoint("LEFT", buffTextOffsetXHolder, "LEFT", 210, 0)
+            catLayout:Add(buffTextOffsetXHolder, nil, COMPONENT_GAP)
         end
 
         -- Click to cast checkbox
@@ -2802,7 +2821,11 @@ local function CreateOptionsPanel()
     local lockBtn = CreateButton(btnHolder, "解鎖", function()
         BR.Display.ToggleLock()
         Components.RefreshAll()
-    end, { title = "鎖定 / 解鎖", desc = "解鎖以顯示用於重新定位增益框架的定位點。" })
+    end, { title = "鎖定 / 解鎖", desc = "解鎖以顯示用於重新定位增益框架的定位點。" }, {
+        border = { 0.7, 0.58, 0, 1 },
+        borderHover = { 1, 0.82, 0, 1 },
+        text = { 1, 0.82, 0, 1 },
+    })
     lockBtn:SetSize(BTN_WIDTH, 22)
     lockBtn:SetPoint("RIGHT", btnHolder, "CENTER", -4, 0)
 
@@ -3445,6 +3468,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     local CONTENT_LEFT = 20
     local ROWS_START_Y = -60
     local editingBuff = existingKey and BR.profile.customBuffs[existingKey] or nil
+    local noop = function() end
 
     local existingSpellIDs = {}
     if editingBuff then
@@ -3465,7 +3489,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     })
 
     local spellRows, nameBox, overlayBox
-    local castSpellEditBox, castItemEditBox, macroEditBox, requireItemEditBox
+    local castSpellEditBox, castItemEditBox, macroEditBox, requireItemEditBox, requireItemModeDropdown
 
     modal:SetScript("OnHide", function()
         if spellRows then
@@ -3780,9 +3804,25 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         requireItemEditBox:SetText(tostring(editingBuff.requireItemID))
     end
 
+    local requireItemModeOptions = {
+        { value = "owned", label = "已裝備/背包" },
+        { value = "equipped", label = "已裝備" },
+        { value = "bags", label = "在背包" },
+    }
+    local currentRequireItemMode = editingBuff and editingBuff.requireItemMode or "owned"
+    requireItemModeDropdown = Components.Dropdown(sectionsFrame, {
+        label = "",
+        labelWidth = 0,
+        options = requireItemModeOptions,
+        selected = currentRequireItemMode,
+        width = 120,
+        onChange = noop,
+    })
+    requireItemModeDropdown:SetPoint("LEFT", requireItemContainer, "RIGHT", 5, 0)
+
     local requireItemHint = sectionsFrame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    requireItemHint:SetPoint("LEFT", requireItemContainer, "RIGHT", 5, 0)
-    requireItemHint:SetText("(如果未擁有則隱藏)")
+    requireItemHint:SetPoint("LEFT", requireItemModeDropdown, "RIGHT", 5, 0)
+    requireItemHint:SetText("物品ID — 未找到則隱藏")
 
     local glowModeOptions = {
         { value = "whenGlowing", label = "發光時檢測" },
@@ -3799,7 +3839,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             title = "動作列發光反饋",
             desc = "當增益的API受到限制時，M+/PvP/戰鬥期間，使用動作列法術發光的反饋偵測。如果您只想進行增益在場追踪請停用。",
         },
-        onChange = function() end,
+        onChange = noop,
     })
     secLayout:Add(glowModeDropdown, nil, COMPONENT_GAP)
 
@@ -3851,7 +3891,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             end,
         },
         noAutoRefresh = true,
-        onChange = function() end,
+        onChange = noop,
     })
     secLayout:Add(visToggles, nil, COMPONENT_GAP)
 
@@ -4201,6 +4241,8 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             castItemID = castItemIDValue,
             castMacro = castMacroValue,
             requireItemID = tonumber(strtrim(requireItemEditBox:GetText())) or nil,
+            requireItemMode = requireItemModeDropdown:GetValue() ~= "owned" and requireItemModeDropdown:GetValue()
+                or nil,
             loadConditions = savedLoadConditions,
         }
 
@@ -4213,6 +4255,8 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         end
 
         modal:Hide()
+        -- requireItemMode may have changed; clear cached item ownership so the new mode is evaluated
+        BR.BuffState.InvalidateItemCache()
         if refreshPanelCallback then
             refreshPanelCallback()
         end

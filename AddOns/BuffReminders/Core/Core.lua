@@ -151,6 +151,8 @@ local CategorySettingKeys = {
     -- Behavior
     showBuffReminder = "VisualsRefresh",
     buffTextSize = "VisualsRefresh",
+    buffTextOffsetX = "VisualsRefresh",
+    buffTextOffsetY = "VisualsRefresh",
     showText = "VisualsRefresh",
     -- Toggles
     useCustomAppearance = "VisualsRefresh",
