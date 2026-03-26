@@ -1,0 +1,40 @@
+## Interface: 120001, 20505, 50503
+## Title: Chonky Character Sheet
+## Author: Cerdia @Area-52
+## Version: 2.2.12
+## Notes: Chonky Character Sheet. Enhanced character sheet with options and profiles. Track stats, gear, and progress. Discord: https://discord.gg/bSyqqa7RC4
+## SavedVariables: ChonkyCharacterSheetDB
+## IconTexture: Interface\AddOns\ChonkyCharacterSheet\Media\Textures\chonky.tga
+## X-License: MIT
+## X-Curse-Project-ID: 1393904
+## X-Wago-ID: 5NReOEG3
+## Category-zhTW: 介面
+
+## Title-zhTW: |cff0099FF[介面]|r 豪華角色面板
+## Notes-zhTW: Chonky Character Sheet |n全方位的角色面板強化工具，幫助玩家更直觀地掌握角色成長與遊戲進度。
+
+# -----------------------------
+# Core Addon Files
+# -----------------------------
+core\localization.lua
+core\tables.lua
+core\wrappers.lua
+core\utils.lua
+core\styles.lua
+
+# -----------------------------
+# Modules for each WoW version
+# -----------------------------
+Retail\characterSheet.lua
+Retail\characterStats.lua
+Retail\mythicPlusStats.lua
+Retail\raidStats.lua
+Retail\inspectSheet.lua
+
+Modules\Classic.lua
+Modules\TBC.lua
+Modules\MOP.lua
+
+core\core.lua
+core\events.lua
+core\options.lua

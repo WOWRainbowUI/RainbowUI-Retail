@@ -463,6 +463,21 @@ D["Cell"] = {
         callback = function() SlashCmdList["CELL"]("resetall") end,
     },
 };
+D["ChonkyCharacterSheet"] = {
+	defaultEnable = 1,
+	tags = { "ENHANCEMENT" },
+	title = "豪華角色面板",
+	desc = "美化並強化角色面板，整合角色的各種數據與進度，讓玩家能在同一個介面中查看裝備、屬性、團隊進度、M+ 表現以及每週寶庫狀態。``其功能包含高度自訂化的介面（顏色、字體、背景等）、角色屬性模組（可隱藏或展開區塊、顯示 PvP 屬性、提供職業優先屬性提示）、M+ 側邊面板、團隊難度與首領擊殺追蹤、以及裝備比較與檢視功能。``簡單來說，它是一個全方位的角色面板強化工具，幫助玩家更直觀地掌握角色成長與遊戲進度。",
+	modifier = "BNS",
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["CHONKYCHARACTERSHEET"]("") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+};
 D["ClearMapPin"] = {
 	defaultEnable = 1,
 	tags = { "MAP" },
