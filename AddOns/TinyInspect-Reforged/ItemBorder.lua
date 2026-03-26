@@ -13,7 +13,7 @@ local function SetItemAngularBorderScheduled(button, quality, itemIDOrLink)
             if (not self.button.angularFrame) then
                 local anchor, w, h = self.button.IconBorder or self.button, self.button:GetSize()
                 local ww, hh = anchor:GetSize()
-                if (ww == 0 or hh == 0) then
+                if issecretvalue(ww) or issecretvalue(hh) or ww == 0 or hh == 0 then -- 12.0.1 fix
                     anchor = self.button.Icon or self.button.icon or self.button
                     w, h = anchor:GetSize()
                 else
