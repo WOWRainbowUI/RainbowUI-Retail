@@ -146,6 +146,8 @@ end
 
 function panel.okay()
     xpcall(function()
+    if not panel.initialized then return end
+
     local opt = addon.settings.blizzframes
 
     opt.statusBarFix = not not panel.statusBarFix:GetChecked()

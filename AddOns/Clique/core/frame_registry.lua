@@ -29,6 +29,7 @@ function addon:RegisterUnitFrame(frame)
     -- NOTE that these will be nuked if the unit frame sets these scripts,
     -- as this is just hooking.
     self:WrapOnEnterOnLeave(frame)
+    self:HookBindingTooltipFrame(frame)
 
     -- Set the attributes on the frame
     self.header:SetFrameRef("cliquesetup_button", frame)

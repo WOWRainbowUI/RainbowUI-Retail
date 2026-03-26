@@ -328,6 +328,10 @@ function addon:ConvertSpecialKeys(binding)
     return tostring(mods) .. tostring(key)
 end
 
+function addon:GetPrefixStringFromBinding(binding)
+    return binding.key:match("^(.+%-)[^%-]+$") or ""
+end
+
 function addon:GetBindingPrefixSuffix(binding, global)
     if type(binding) ~= "table" or not binding.key then
         return "UNKNOWN", "UNKNOWN"

@@ -12,6 +12,18 @@ local LibDropDown = LibStub("LibDropDown")
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 local Settings = Settings
 
+local TOOLTIP_ANCHORS = {
+    "ANCHOR_TOPLEFT",
+    "ANCHOR_TOP",
+    "ANCHOR_TOPRIGHT",
+    "ANCHOR_LEFT",
+    "ANCHOR_RIGHT",
+    "ANCHOR_BOTTOMLEFT",
+    "ANCHOR_BOTTOM",
+    "ANCHOR_BOTTOMRIGHT",
+    "ANCHOR_CURSOR",
+}
+
 --[[-------------------------------------------------------------------------
 --  Addon 'About' Dialog for Interface Options
 --
@@ -197,6 +209,32 @@ function panel:CreateOptions()
     self.enableGamePad = make_checkbox("CliqueOptionsEnableGamePad", self)
     self.enableGamePad.text:SetText(L["Enable GamePad binding support"])
 
+    self.showBindingTooltip = make_checkbox("CliqueOptionsShowBindingTooltip", self)
+    self.showBindingTooltip.text:SetText(L["Show binding tooltip on unit frames"])
+    self.showBindingTooltip:SetScript("PostClick", function()
+        if panel.showBindingTooltip:GetChecked() then
+            panel.tooltipAnchorDD:Enable()
+        else
+            panel.tooltipAnchorDD:Disable()
+        end
+    end)
+
+    self.tooltipAnchorDD = CreateFrame("DropdownButton", "CliqueOptionsTooltipAnchorDD", self, "WowStyle1DropdownTemplate")
+    self.tooltipAnchorDD.type = "dropdown"
+    self.tooltipAnchorDD:SetWidth(200)
+    self.tooltipAnchorDD:SetHeight(22)
+    self.tooltipAnchorDD:SetupMenu(function(_, rootDescription)
+        local settings = addon.settings
+        for _, anchor in ipairs(TOOLTIP_ANCHORS) do
+            rootDescription:CreateRadio(anchor,
+                function() return settings.tooltipAnchor == anchor end,
+                function()
+                    settings.tooltipAnchor = anchor
+                    panel.tooltipAnchorDD:SetText(anchor)
+                end)
+        end
+    end)
+
     -- Set up multiple talent profiles
     self.talentProfiles = {}
     self.specswap = make_checkbox("CliqueOptionsSpecSwap", self)
@@ -284,6 +322,8 @@ function panel:CreateOptions()
     table.insert(bits, self.removeWildcard)
     table.insert(bits, self.disableDuringHousing)
     table.insert(bits, self.enableGamePad)
+    table.insert(bits, self.showBindingTooltip)
+    table.insert(bits, self.tooltipAnchorDD)
     table.insert(bits, self.stopcastingfix)
 
     if #self.talentProfiles > 0 then
@@ -576,6 +616,14 @@ function panel.refresh()
     panel.removeWildcard:SetChecked(settings.removeWildcardActions)
     panel.disableDuringHousing:SetChecked(settings.disableInHousing)
     panel.enableGamePad:SetChecked(settings.enableGamePad)
+    panel.showBindingTooltip:SetChecked(settings.showBindingTooltip)
+    panel.tooltipAnchorDD:SetText(settings.tooltipAnchor)
+    panel.tooltipAnchorDD:GenerateMenu()
+    if settings.showBindingTooltip then
+        panel.tooltipAnchorDD:Enable()
+    else
+        panel.tooltipAnchorDD:Disable()
+    end
     panel.stopcastingfix:SetChecked(settings.stopcastingfix)
 
     end, geterrorhandler())
@@ -584,6 +632,8 @@ end
 function panel.okay()
     xpcall(function ()
 
+    if not panel.initialized then return end
+
     local settings = addon.settings
     local currentProfile = addon.db:GetCurrentProfile()
 
@@ -591,6 +641,7 @@ function panel.okay()
     local newRemoveWildcard = not not panel.removeWildcard:GetChecked()
     local newDisableInHousing = not not panel.disableDuringHousing:GetChecked()
     local newEnableGamePad = not not panel.enableGamePad:GetChecked()
+    local newShowBindingTooltip = not not panel.showBindingTooltip:GetChecked()
     local newStopCasting = not not panel.stopcastingfix:GetChecked()
 
     local downClickChanged = newDownClick ~= settings.downClick
@@ -603,6 +654,7 @@ function panel.okay()
     settings.removeWildcardActions = newRemoveWildcard
     settings.disableInHousing = newDisableInHousing
     settings.enableGamePad = newEnableGamePad
+    settings.showBindingTooltip = newShowBindingTooltip
     settings.stopcastingfix = newStopCasting
 
     if #panel.talentProfiles > 0 then
