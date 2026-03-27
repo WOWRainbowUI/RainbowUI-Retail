@@ -51,7 +51,7 @@ L["Yes"] = "是"
 ---------------------------------------
 
 L["Profile_Core"] = "核心"
-L["Profile_Description"] = "BetterBlizzFrames 的預設設定檔："
+L["Profile_Description"] = "內建頭像增強的設定檔："
 L["Profile_Info_Message"] = "如果你有遺漏或想加入，請告訴我 :)"
 L["Profile_Streamers"] = "實況主"
 
