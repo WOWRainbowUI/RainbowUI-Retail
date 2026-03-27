@@ -215,7 +215,14 @@ function GTFO_OnEvent(self, event, ...)
 	end
 	if (event == "ENCOUNTER_END") then
 		GTFO.CurrentEncounterId = nil;
-		GTFO.UnregisterEncounter();		
+		GTFO.PendingEncounterUnregister = true;
+		GTFO.TryUnregisterEncounter();		
+		return;
+	end
+	if (event == "PLAYER_REGEN_ENABLED") then
+		if (GTFO.PendingEncounterUnregister) then
+			GTFO.TryUnregisterEncounter();
+		end
 		return;
 	end
 end
@@ -230,6 +237,15 @@ function GTFO.RegisterEncounter(encounterId)
 			GTFO.RegisterSpellList(spells, GTFO.EncounterPrivateAuraSoundIds);
 		end
 	end
+end
+
+function GTFO.TryUnregisterEncounter()
+	if (InCombatLockdown()) then
+		return;
+	end
+
+	GTFO.PendingEncounterUnregister = nil;
+	GTFO.UnregisterEncounter();
 end
 
 function GTFO.UnregisterEncounter()
@@ -328,6 +344,7 @@ function GTFO_OnLoad()
 	GTFOFrame:RegisterEvent("ENCOUNTER_START");
 	GTFOFrame:RegisterEvent("ENCOUNTER_END");
 	GTFOFrame:RegisterEvent("PLAYER_ENTERING_WORLD");
+	GTFOFrame:RegisterEvent("PLAYER_REGEN_ENABLED");
 	SlashCmdList["GTFO"] = GTFO_Command;
 	SLASH_GTFO1 = "/GTFO";
 end

@@ -2376,3 +2376,7 @@ Change Log:
 * Added Midnight spells for Windrunner Spire
 * Added Midnight spells for The Dreamrift
 * Added Midnight spells for The Voidspire
+
+6.2
+* Fixed taint issue when an encounter ends
+
