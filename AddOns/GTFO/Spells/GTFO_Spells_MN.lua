@@ -74,8 +74,8 @@ GTFO.SpellID["472777"] = {
 GTFO.SpellID["1245919"] = {
   --desc = "Alndust Essence (Chimaerus)";
   sound = 1;
-  --instance = 2939;
-  encounter = 3306;
+  instance = 2939;
+  --encounter = 3306;
 };
 
 
@@ -86,85 +86,85 @@ GTFO.SpellID["1245919"] = {
 GTFO.SpellID["1284786"] = {
   --desc = "Shadow Phalanx (Imperator Averzian)";
   sound = 1;
-  --instance = 2912;
-  encounter = 3306;
+  instance = 2912;
+  --encounter = 3306;
 };
 
 GTFO.SpellID["1280101"] = {
   --desc = "Void Breath (Vorasius)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3177;
+  instance = 2912; 
+  --encounter = 3177;
 };
 
 GTFO.SpellID["1251213"] = {
   --desc = "Twilight Spikes (Fallen-King Salhadaar)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3179;
+  instance = 2912; 
+  --encounter = 3179;
 };
 
 GTFO.SpellID["1245592"] = {
   --desc = "Torturous Extract (Fallen-King Salhadaar)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3179;
+  instance = 2912; 
+  --encounter = 3179;
 };
 
 GTFO.SpellID["1260030"] = {
   --desc = "Umbral Beams (Fallen-King Salhadaar)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3179;
+  instance = 2912; 
+  --encounter = 3179;
 };
 
 GTFO.SpellID["1244672"] = {
   --desc = "Nullzone (Vaelgor)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3178;
+  instance = 2912; 
+  --encounter = 3178;
 };
 
 GTFO.SpellID["1245421"] = {
   --desc = "Gloomfield (Ezzorak)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3178;
+  instance = 2912; 
+  --encounter = 3178;
 };
 
 GTFO.SpellID["1276982"] = {
   --desc = "Divine Consecration (General Amias Bellamy)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3180;
+  instance = 2912; 
+  --encounter = 3180;
 };
 
 GTFO.SpellID["1246158"] = {
   --desc = "Consecration (General Amias Bellamy)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3180;
+  instance = 2912; 
+  --encounter = 3180;
 };
 
 GTFO.SpellID["1272324"] = {
   --desc = "Divine Tempest (Commander Venel Lightblood)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3180;
+  instance = 2912; 
+  --encounter = 3180;
 };
 
 GTFO.SpellID["1272324"] = {
   --desc = "Void Remnants (Alleria Windrunner)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3181;
+  instance = 2912; 
+  --encounter = 3181;
 };
 
 GTFO.SpellID["1238206"] = {
   --desc = "Volatile Fissure (Alleria Windrunner)";
   sound = 1;
-  --instance = 2912; 
-  encounter = 3181;
+  instance = 2912; 
+  --encounter = 3181;
 };
 
 

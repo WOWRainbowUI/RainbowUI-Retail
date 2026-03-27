@@ -41,6 +41,14 @@ GTFO.SpellID["1258883"] = {
   applicationOnly = true;
 };
 
+GTFO.SpellID["1260712"] = {
+  --desc = "Oblivion's Wrath (Imperator Averzian)";
+  sound = 3;
+  --instance = 2912; 
+  encounter = 3306;
+  applicationOnly = true;
+};
+
 GTFO.SpellID["1259186"] = {
   --desc = "Blisterburst (Vorasius)";
   sound = 3;
