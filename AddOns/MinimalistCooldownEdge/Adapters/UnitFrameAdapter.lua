@@ -21,6 +21,7 @@ local function IsMiniCCFrame(frame)
 end
 
 local Registry
+local GroupFrameAdapter
 local FALLBACK_UNIT_TOKENS = {
     player = true,
     target = true,
@@ -28,8 +29,18 @@ local FALLBACK_UNIT_TOKENS = {
     pet = true,
 }
 
+local function IsCompactGroupFrameName(name)
+    if type(name) ~= "string" or name == "" then
+        return false
+    end
+
+    return strfind(name, "CompactPartyFrame", 1, true)
+        or strfind(name, "CompactRaidFrame", 1, true)
+end
+
 function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
+    GroupFrameAdapter = MCE:GetModule("GroupFrameAdapter")
     Registry:RegisterAdapter(CATEGORY.Unitframe, self)
 end
 
@@ -102,10 +113,19 @@ function Adapter:TryClaim(cooldown)
     if not cooldown then return nil end
     -- MiniCC cooldowns carry the MiniCC_ prefix; skip them entirely.
     if IsMiniCCFrame(cooldown) then return nil end
+    local compactGroupType = GroupFrameAdapter and GroupFrameAdapter.ResolveCompactPartyAuraType
+        and GroupFrameAdapter:ResolveCompactPartyAuraType(cooldown) or nil
     local current = cooldown.GetParent and cooldown:GetParent()
     for _ = 1, UF.MaxAncestorDepth do
         if not current then break end
         local name = current.GetName and current:GetName() or ""
+        local unitToken = ExtractUnitToken(current.unit)
+            or ExtractUnitToken(current.unitToken)
+            or ExtractUnitToken(current.displayedUnit)
+
+        if IsCompactGroupFrameName(name) or compactGroupType then
+            return nil
+        end
 
         for _, rootName in ipairs(UF.BlizzardRoots) do
             if name == rootName then return CATEGORY.Unitframe end
@@ -115,9 +135,6 @@ function Adapter:TryClaim(cooldown)
             if strfind(name, pattern, 1, true) then return CATEGORY.Unitframe end
         end
 
-        local unitToken = ExtractUnitToken(current.unit)
-            or ExtractUnitToken(current.unitToken)
-            or ExtractUnitToken(current.displayedUnit)
         if unitToken and FALLBACK_UNIT_TOKENS[unitToken] then
             if name ~= "" and (strfind(name, "Frame", 1, true)
                 or strfind(name, "UF", 1, true)) then

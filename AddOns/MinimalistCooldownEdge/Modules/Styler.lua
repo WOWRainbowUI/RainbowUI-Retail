@@ -41,7 +41,7 @@ end
 
 function Styler:OnDisable()
     DurationColor:Reset()
-    CompactAura:Reset()
+    CompactAura:Reset(true)
     BatchProcessor:Reset()
     StyleEngine:WipeState()
     Registry:WipeAll()
@@ -67,9 +67,11 @@ end
 
 function Styler:ForceUpdateAll(fullScan)
     -- Reset all module state
-    StyleEngine:WipeState()
     DurationColor:Reset()
-    CompactAura:Reset()
+    -- During an internal refresh, keep current compact-aura visuals until the
+    -- next style pass instead of briefly restoring Blizzard native text.
+    CompactAura:Reset(false)
+    StyleEngine:WipeState()
     BatchProcessor:Reset()
 
     if fullScan then

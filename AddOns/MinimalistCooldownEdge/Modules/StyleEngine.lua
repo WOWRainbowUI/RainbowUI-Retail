@@ -330,6 +330,27 @@ function StyleEngine:ResetSwipeColor(cdFrame)
     fs.swipeColor = nil
 end
 
+function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
+    local fs = self:GetFrameState(cdFrame)
+    fs.edgeScale = nil
+    fs.hideNums = nil
+    fs.drawSwipe = nil
+    fs.edge = nil
+    fs.swipeColor = nil
+    fs.appliedTextColor = nil
+    fs.assistedCombatTextHidden = nil
+
+    if category == CATEGORY.MiniCC or category == CATEGORY.SArena then
+        local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
+        for i = 1, textRegionCount do
+            fontState[textRegions[i]] = nil
+        end
+        fs.textRegions = nil
+    end
+
+    return fs
+end
+
 -- =========================================================================
 -- TEXT REGION MANAGEMENT
 -- =========================================================================
@@ -821,34 +842,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
 
     if not config or not config.enabled then
         if DurationColor then
-            local hadColor = DurationColor:IsTracked(cdFrame)
             DurationColor:ClearTrackedDurationColor(cdFrame)
-            if hadColor and config then
-                self:ResetCountdownTextColor(cdFrame, config)
-            end
         end
-        local fs = self:GetFrameState(cdFrame)
-        fs.edgeScale = nil
-        fs.hideNums = nil
-        fs.drawSwipe = nil
-        self:ResetSwipeColor(cdFrame)
-
-        if category == CATEGORY.MiniCC or category == CATEGORY.SArena then
-            local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
-            for i = 1, textRegionCount do fontState[textRegions[i]] = nil end
-            fs.textRegions = nil
-        end
-
-        if fs.edge ~= false then
-            if cdFrame.SetDrawEdge then
-                fs.edge = false
-                fs.suppressEdge = true
-                pcall(cdFrame.SetDrawEdge, cdFrame, false)
-                fs.suppressEdge = nil
-            end
-        else
-            fs.edge = false
-        end
+        self:ReleaseManagedVisualState(cdFrame, category)
         return
     end
 
