@@ -1,6 +1,9 @@
 
 # Changelog
 
+## [3.6.7] - 2026-03-26
+- Enhance GroupFrameAdapter and UnitFrameAdapter integration for cooldown management
+
 ## [3.6.6] - 2026-03-25
 - feat: Add ElvUI and Gw2_ to blacklist Classifier entries
    

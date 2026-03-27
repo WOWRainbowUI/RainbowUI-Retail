@@ -12,6 +12,7 @@ local tostring = tostring
 local CATEGORY = C.Categories
 local GROUP_FRAME_TYPE = C.GroupFrameTypes
 local GF = C.Adapter.GroupFrames
+local COOLDOWN_MEMBER_KEYS = C.Styler.CooldownMemberKeys
 
 local Registry
 
@@ -26,36 +27,180 @@ function Adapter:OnDisable()
     self:UnregisterAllEvents()
 end
 
+local function ExtractUnitToken(unit)
+    if type(unit) == "string" then
+        return unit ~= "" and unit or nil
+    end
+    if type(unit) ~= "table" then
+        return nil
+    end
+
+    local token = unit.unitid or unit.unitID or unit.unitToken
+        or unit.displayedUnit or unit.memberUnit or unit.unit
+    if type(token) == "string" and token ~= "" then
+        return token
+    end
+
+    return nil
+end
+
+local function GetCompactGroupFrameTypeFromUnit(unitToken)
+    if type(unitToken) ~= "string" then
+        return nil
+    end
+
+    if strfind(unitToken, "raid", 1, true) == 1 then
+        return GROUP_FRAME_TYPE.Raid
+    end
+    if strfind(unitToken, "party", 1, true) == 1 then
+        return GROUP_FRAME_TYPE.Party
+    end
+
+    return nil
+end
+
+local function GetCompactGroupFrameType(frame)
+    if not frame or MCE:IsForbidden(frame) then
+        return nil
+    end
+
+    local name = frame.GetName and frame:GetName() or ""
+    if strfind(name, "CompactPartyFrame", 1, true) then
+        return GROUP_FRAME_TYPE.Party
+    end
+    if strfind(name, "CompactRaidFrame", 1, true) then
+        return GROUP_FRAME_TYPE.Raid
+    end
+
+    return GetCompactGroupFrameTypeFromUnit(
+        ExtractUnitToken(frame.unit)
+            or ExtractUnitToken(frame.unitToken)
+            or ExtractUnitToken(frame.displayedUnit)
+            or ExtractUnitToken(frame.memberUnit))
+end
+
+local function IsKnownCooldownMember(frame, cooldown)
+    if not frame or MCE:IsForbidden(frame) or not cooldown then
+        return false
+    end
+
+    for i = 1, #COOLDOWN_MEMBER_KEYS do
+        if frame[COOLDOWN_MEMBER_KEYS[i]] == cooldown then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function GetCompactPartyAuraTypeFromMember(parent, child)
+    if not parent or MCE:IsForbidden(parent) or not child then
+        return nil
+    end
+
+    local auraFrame = parent.CenterDefensiveBuff
+    if not auraFrame or MCE:IsForbidden(auraFrame) then
+        return nil
+    end
+
+    if auraFrame == child or IsKnownCooldownMember(auraFrame, child) then
+        return GetCompactGroupFrameType(parent)
+    end
+
+    return nil
+end
+
+local function ResolveCompactPartyAuraType(cooldown)
+    if not cooldown then return nil end
+    local child = cooldown
+    local current = cooldown.GetParent and cooldown:GetParent() or nil
+    local sawAuraContext = false
+
+    for _ = 1, GF.MaxAncestorDepth do
+        if not current then break end
+        if MCE:IsForbidden(current) then break end
+
+        local name = current.GetName and current:GetName() or ""
+
+        if strfind(name, "Buff", 1, true)
+           or strfind(name, "Debuff", 1, true)
+           or strfind(name, "Aura", 1, true) then
+            sawAuraContext = true
+
+            if strfind(name, "CompactPartyFrame", 1, true) then
+                return GROUP_FRAME_TYPE.Party
+            end
+            if strfind(name, "CompactRaidFrame", 1, true) then
+                return GROUP_FRAME_TYPE.Raid
+            end
+        end
+
+        if sawAuraContext and strfind(name, "Compact", 1, true) then
+            local unitType = GetCompactGroupFrameType(current)
+            if unitType then
+                return unitType
+            end
+        end
+
+        local unitType = GetCompactPartyAuraTypeFromMember(current, child)
+        if unitType then
+            return unitType
+        end
+
+        child = current
+        current = current.GetParent and current:GetParent() or nil
+    end
+
+    return nil
+end
+
+local function RegisterCooldown(cd, groupType)
+    if not cd or MCE:IsForbidden(cd) then return end
+
+    local resolvedType = groupType or ResolveCompactPartyAuraType(cd)
+    if resolvedType then
+        Registry:Register(cd, CATEGORY.CompactPartyAura, resolvedType)
+    end
+end
+
+local function ScanAuraSubtree(node, groupType, depth)
+    if not node or depth > GF.MaxAncestorDepth or MCE:IsForbidden(node) then
+        return
+    end
+
+    local resolvedType = groupType or GetCompactGroupFrameType(node)
+
+    local cd = node.cooldown or node.Cooldown
+    if cd and not MCE:IsForbidden(cd) then
+        RegisterCooldown(cd, resolvedType)
+    end
+
+    if node.IsObjectType and node:IsObjectType("Cooldown") then
+        RegisterCooldown(node, resolvedType)
+    end
+
+    if node.GetChildren then
+        local children = { node:GetChildren() }
+        for i = 1, #children do
+            ScanAuraSubtree(children[i], resolvedType, depth + 1)
+        end
+    end
+end
+
 -- Scan a compact member frame for cooldown children in aura containers
 local function ScanMemberFrame(memberFrame, groupType)
     if not memberFrame or MCE:IsForbidden(memberFrame) then return end
+    groupType = groupType or GetCompactGroupFrameType(memberFrame)
 
     local buffFrame = memberFrame.BuffFrame or memberFrame.buffFrame
     local debuffFrame = memberFrame.DebuffFrame or memberFrame.debuffFrame
     local auraDisp = memberFrame.DispelDebuffFrame or memberFrame.dispelDebuffFrame
-
-    local containers = { buffFrame, debuffFrame, auraDisp }
-    for _, container in ipairs(containers) do
-        if container and not MCE:IsForbidden(container) and container.GetChildren then
-            local children = { container:GetChildren() }
-            for i = 1, #children do
-                local child = children[i]
-                if child and not MCE:IsForbidden(child) then
-                    local cd = child.cooldown or child.Cooldown
-                    if cd and not MCE:IsForbidden(cd) then
-                        Registry:Register(cd, CATEGORY.CompactPartyAura, groupType)
-                    end
-                end
-            end
-        end
-    end
-
-    -- CenterDefensiveBuff (Midnight addition)
     local defensiveBuff = memberFrame.CenterDefensiveBuff
-    if defensiveBuff and not MCE:IsForbidden(defensiveBuff) then
-        local cd = defensiveBuff.cooldown or defensiveBuff.Cooldown
-        if cd and not MCE:IsForbidden(cd) then
-            Registry:Register(cd, CATEGORY.CompactPartyAura, groupType)
+
+    local containers = { buffFrame, debuffFrame, auraDisp, defensiveBuff }
+    for _, container in ipairs(containers) do
+        if container and not MCE:IsForbidden(container) then
+            ScanAuraSubtree(container, groupType, 0)
         end
     end
 end
@@ -78,43 +223,6 @@ function Adapter:Rebuild()
             ScanMemberFrame(frame, GROUP_FRAME_TYPE.Raid)
         end
     end
-end
-
-local function ResolveCompactPartyAuraType(cooldown)
-    if not cooldown then return nil end
-    local current = cooldown.GetParent and cooldown:GetParent()
-    local sawAuraContext = false
-
-    for _ = 1, GF.MaxAncestorDepth do
-        if not current then break end
-        local name = current.GetName and current:GetName() or ""
-
-        if strfind(name, "Buff", 1, true)
-           or strfind(name, "Debuff", 1, true)
-           or strfind(name, "Aura", 1, true) then
-            sawAuraContext = true
-        end
-
-        -- CenterDefensiveBuff (unnamed: detect by parent relationship)
-        if not sawAuraContext and current.GetParent then
-            local grandparent = current:GetParent()
-            if grandparent and grandparent.CenterDefensiveBuff == current then
-                sawAuraContext = true
-            end
-        end
-
-        if sawAuraContext then
-            if strfind(name, "CompactPartyFrame", 1, true) then
-                return GROUP_FRAME_TYPE.Party
-            end
-            if strfind(name, "CompactRaidFrame", 1, true) then
-                return GROUP_FRAME_TYPE.Raid
-            end
-        end
-
-        current = current.GetParent and current:GetParent()
-    end
-    return nil
 end
 
 function Adapter:ResolveCompactPartyAuraType(cooldown)

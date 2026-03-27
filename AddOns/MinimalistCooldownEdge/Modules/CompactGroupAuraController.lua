@@ -45,8 +45,10 @@ end
 -- =========================================================================
 
 function CompactAura:GetCompactPartyAuraFrameType(cdFrame)
+    local category = Registry and Registry:GetCategory(cdFrame)
     local subtype = Registry and Registry:GetSubtype(cdFrame)
-    if subtype == GROUP_FRAME_TYPE.Party or subtype == GROUP_FRAME_TYPE.Raid then
+    if category == CATEGORY.CompactPartyAura
+       and (subtype == GROUP_FRAME_TYPE.Party or subtype == GROUP_FRAME_TYPE.Raid) then
         return subtype
     end
 
@@ -62,6 +64,11 @@ function CompactAura:GetCompactPartyAuraFrameType(cdFrame)
     fs = fs or StyleEngine:GetFrameState(cdFrame)
     fs.compactPartyAuraTypeResolved = true
     fs.compactPartyAuraType = frameType or false
+
+    if frameType and Registry and category ~= CATEGORY.CompactPartyAura then
+        Registry:Register(cdFrame, CATEGORY.CompactPartyAura, frameType)
+    end
+
     return frameType
 end
 
@@ -184,6 +191,11 @@ local function ApplySwipeStyle(cdFrame, config)
     StyleEngine:ResetSwipeColor(cdFrame)
 end
 
+local function ReleaseManagedVisualState(cdFrame)
+    local fs = StyleEngine:ReleaseManagedVisualState(cdFrame, CATEGORY.CompactPartyAura)
+    fs.compactAuraSwipeReset = nil
+end
+
 local function ResetSwipeStyle(cdFrame)
     local fs = StyleEngine:GetFrameState(cdFrame)
     if fs.compactAuraSwipeReset then return end
@@ -230,10 +242,7 @@ function CompactAura:SyncCooldown(cdFrame)
     local config = self:GetConfig()
     if not self:ShouldUseCompactPartyAuraText(config, frameType) then
         if DurationColor then DurationColor:ClearTrackedDurationColor(cdFrame) end
-        SetNativeTextVisible(cdFrame, false)
-        SetNativeHide(cdFrame, true)
-        ResetSwipeStyle(cdFrame)
-        StyleEngine:StyleStackCount(cdFrame, config, CATEGORY.CompactPartyAura)
+        ReleaseManagedVisualState(cdFrame)
         return true
     end
 
@@ -260,21 +269,27 @@ end
 -- RESET / DISABLE
 -- =========================================================================
 
-function CompactAura:Reset()
+function CompactAura:Reset(restoreVisuals)
+    if restoreVisuals == nil then
+        restoreVisuals = true
+    end
+
     for cd in pairs(compactPartyAuraFrames) do
         if cd and not MCE:IsForbidden(cd) then
-            SetNativeTextVisible(cd, true)
-            SetNativeHide(cd, false)
-            ResetSwipeStyle(cd)
-            -- Restore Blizzard default stack count visibility
-            local fs = StyleEngine:GetFrameState(cd)
-            if fs.stackCountHidden then
-                local countRegion = StyleEngine:GetStackCountRegion(cd, CATEGORY.CompactPartyAura)
-                if countRegion then
-                    countRegion:SetAlpha(1)
-                    countRegion:Show()
+            if restoreVisuals then
+                SetNativeTextVisible(cd, true)
+                SetNativeHide(cd, false)
+                ResetSwipeStyle(cd)
+                -- Restore Blizzard default stack count visibility
+                local fs = frameState[cd]
+                if fs and fs.stackCountHidden then
+                    local countRegion = StyleEngine:GetStackCountRegion(cd, CATEGORY.CompactPartyAura)
+                    if countRegion then
+                        countRegion:SetAlpha(1)
+                        countRegion:Show()
+                    end
+                    fs.stackCountHidden = nil
                 end
-                fs.stackCountHidden = nil
             end
         end
     end
