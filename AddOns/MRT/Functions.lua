@@ -980,7 +980,7 @@ function ExRT.F.IterateRoster(maxGroup,index)
 		if subgroup > maxGroup then
 			return ExRT.F.IterateRoster(maxGroup,index)
 		end
-		local guid = UnitGUID(name or "raid"..index)
+		local guid = UnitGUID("raid"..index)
 		name = name or ""
 		return index, name, subgroup, fileName, guid, rank, level, online, isDead, combatRole, "raid"..index
 	else
@@ -2573,6 +2573,7 @@ ExRT.GDB.EncountersList = {
 	{2343,2907,2908,2905,2909},	--City of Threads:Dung
 	{2387,3020,3019,3053,3054},	--Operation: Floodgate:Dung
 	{2449,3107,3108,3109},	--Eco-Dome Al'dani:Dung
+	{1989,2425,2441,2424,2440,2437,2426,2419,2442},	--Tazavesh, the Veiled Market:Dung
 
 	{2494,3056,3057,3058,3059},	--Windrunner Spire:Dung
 	{2511,3071,3072,3073,3074},	--Magisters' Terrace:Dung
@@ -2796,7 +2797,10 @@ end
 
 local ACTUAL_RAID = 1735
 local ACTUAL_DUNG = 1666
-if UnitLevel'player' > 70 then
+if UnitLevel'player' > 80 then
+	ACTUAL_DUNG = 2494
+	ACTUAL_RAID = 2529
+elseif UnitLevel'player' > 70 then
 	ACTUAL_DUNG = 2316
 	ACTUAL_RAID = 2292
 elseif UnitLevel'player' > 60 then
