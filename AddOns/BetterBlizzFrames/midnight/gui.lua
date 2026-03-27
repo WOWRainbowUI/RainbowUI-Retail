@@ -3125,16 +3125,16 @@ local function guiProfiles()
     frame.titleText:SetText("|A:gmchat-icon-blizz:16:16|a BBF")
 
     frame.descriptionText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    frame.descriptionText:SetPoint("TOP", frame, "TOP", 2, -26)
+    frame.descriptionText:SetPoint("TOP", frame, "TOP", 2, -25)
     frame.descriptionText:SetText(L["Profile_Description"])
     frame.descriptionText:SetWidth(100)
 
     frame.coreText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    frame.coreText:SetPoint("TOP", frame.descriptionText, "BOTTOM", 0, -5)
+    frame.coreText:SetPoint("TOP", frame.descriptionText, "BOTTOM", 0, -3)
     frame.coreText:SetText(L["Profile_Core"])
 
     frame.streamerText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    frame.streamerText:SetPoint("TOP", frame.coreText, "BOTTOM", 0, -60)
+    frame.streamerText:SetPoint("TOP", frame.coreText, "BOTTOM", 0, -55)
     frame.streamerText:SetText(L["Profile_Streamers"])
 
     frame.infoText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -8509,6 +8509,11 @@ local function guiMisc()
     local hideActionBar1 = CreateCheckbox("hideActionBar1", L["Hide_ActionBar1"], guiMisc, nil, BBF.HideFrames)
     hideActionBar1:SetPoint("TOPLEFT", actionBarCDNumberSizeChange, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(hideActionBar1, L["Hide_ActionBar1"], L["Tooltip_Hide_ActionBar1"])
+    hideActionBar1:HookScript("OnClick", function(self)
+        if not self:GetChecked() then
+            StaticPopup_Show("BBF_CONFIRM_RELOAD")
+        end
+    end)
 
     local hideActionBarBigProcGlow = CreateCheckbox("hideActionBarBigProcGlow", L["Hide_ActionBar_Big_Proc_Glow"], guiMisc, nil, BBF.ActionBarMods)
     hideActionBarBigProcGlow:SetPoint("TOPLEFT", hideActionBar1, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
