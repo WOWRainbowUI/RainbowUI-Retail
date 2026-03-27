@@ -58,9 +58,14 @@ module.db.tableFood = not ExRT.isClassic and {
 module.db.StaminaFood = {[201638]=true,[259457]=true,[288075]=true,[288074]=true,[297119]=true,[297040]=true,}
 
 module.db.tableFood_headers = ExRT.isClassic and {0,375} or {0,5,10,14}
-module.db.tableFlask = not ExRT.isClassic and {
-	[1236763]=true,	[1239355]=true,	[1235057]=true,	[1239755]=true,	[1236767]=true,
-	[1235111]=true,	[1235110]=true,	[1235108]=true,
+module.db.tableFlask = not ExRT.isClassic and {	--overwritten later on for retail
+	[1236763]=90,	[1239355]=90,	[1235057]=90,	[1239755]=90,	[1236767]=90,
+	[1235111]=90,	[1235110]=90,	[1235108]=90,
+
+	[307187]=70,	[307185]=70,	[307166]=70,
+	[371339]=70,	[374000]=70,	[371354]=70,	[371204]=70,	[370662]=70,	[373257]=70,	[371386]=70,	[370652]=70,	[371172]=70,	[371186]=70,
+
+	[432021]=70,	[432473]=70,	[431971]=70,	[431972]=70,	[431974]=70,	[431973]=70,
 } or {
 	[17629]=true,	[17627]=true,	[17628]=true,	[17626]=true,
 	[17538]=true,	[11474]=true,	[17539]=true,	[26276]=true,
@@ -105,7 +110,7 @@ module.db.tableFlask = not ExRT.isClassic and {
 	--mop
 	[105694]=true,	[105693]=true,	[105691]=true,	[105689]=true,	[105696]=true,
 }
-module.db.tableFlask_headers = ExRT.isClassic and {0,1} or {0,25,38}
+module.db.tableFlask_headers = ExRT.isClassic and {0,1} or {0,70,90}
 module.db.tablePotion = ExRT.isMoP and {
 	[105702]=true,	--Int
 	[105697]=true,	--Agi	
@@ -350,21 +355,18 @@ if not ExRT.isClassic and UnitLevel'player' > 50 then
 	module.db.tableFood_headers = {0,70,90}
 
 	module.db.tableFlask = {
-	--Stamina,	Main stat,
-	[307187]=70,	[307185]=70,	[307166]=70,
-	[371339]=70,	[374000]=70,	[371354]=70,	[371204]=70,	[370662]=70,	[373257]=70,	[371386]=70,	[370652]=70,	[371172]=70,	[371186]=70,
-
-	[432021]=70,	[432473]=70,	[431971]=70,	[431972]=70,	[431974]=70,	[431973]=70,
+	[1236763]=165,	[1239355]=165,	[1235057]=165,	[1239755]=165,	[1236767]=165,
+	[1235111]=165,	[1235110]=165,	[1235108]=165,
 	}
-	module.db.tableFlask_headers = {0,70}
+	module.db.tableFlask_headers = {0,152,165}
 
 	for i=1,#module.db.raidBuffs do
 		module.db.raidBuffs[i][4] = nil
 	end
 
 	module.db.minFoodLevelToActual = {
-		[100] = 70,
-		[125] = 90,
+		[100] = 50,
+		[125] = 64,
 	}
 	module.db.tableInt = {[1459]=true,}
 	module.db.tableStamina = {[21562]=true,}

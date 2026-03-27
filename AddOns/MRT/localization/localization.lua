@@ -323,6 +323,13 @@ L.bossName = setmetatable({}, {__index=function (t, k)
 	return encounterIDtoEJidChache[k]
 end})
 
+function L:bossName2(k)
+	if not encounterIDtoEJidChache[k] then
+		encounterIDtoEJidChache[k] = EJ_GetEncounterInfo(encounterIDtoEJidData[k] or 0) or encounterIDtoNamePredef[k] or ""
+	end
+	return encounterIDtoEJidChache[k]
+end
+
 
 local instanceIDtoEJidChache = {
 }
