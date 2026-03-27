@@ -46,7 +46,7 @@
 
 local ADDON_NAME = "LoxxInterruptTracker"
 local MSG_PREFIX = "LOXX"
-local LOXX_VERSION = "1.5.6.2"
+local LOXX_VERSION = "1.5.6.3"
 local LOXX_DB_VERSION = 4 -- bump when SavedVars schema changes
 local L = LoxxL or {}     -- localization table (set by localization.lua)
 
@@ -900,6 +900,7 @@ local function OnAddonMessage(prefix, message, channel, sender)
                         spellName = ccSpell.name,
                         baseCd    = cd,
                         cdEnd     = 0,
+                        hasAddon  = true,
                         icon      = (function() local ok,t = pcall(C_Spell.GetSpellTexture, spellID); return ok and t or nil end)(),
                     }
                 end
@@ -912,6 +913,7 @@ local function OnAddonMessage(prefix, message, channel, sender)
                     local ccSpell = CC_SPELLS[spellID]
                     if ccSpell then ccAddonUsers[shortName].spellName = ccSpell.name end
                 end
+                ccAddonUsers[shortName].hasAddon = true
                 ccDirty = true
                 DLog("CCCAST", shortName .. " cd=" .. cd .. "s spellID=" .. tostring(spellID))
             end
@@ -4563,12 +4565,13 @@ playerCastFrame:SetScript("OnEvent", function(_, _, unit, castGUID, spellID)
                 ccCd = CC_CLASS_PRIMARY[myClass].cd > 0 and CC_CLASS_PRIMARY[myClass].cd or ccCd
             end
             -- Update own CC entry
-            if myName and ccAddonUsers[myName] then
+            local myShort = Ambiguate(myName, "short")
+            if myShort and ccAddonUsers[myShort] then
                 local newEnd = GetTime() + ccCd
-                if newEnd > (ccAddonUsers[myName].cdEnd or 0) then
-                    ccAddonUsers[myName].cdEnd    = newEnd
-                    ccAddonUsers[myName].spellID  = spellID
-                    ccAddonUsers[myName].spellName = ccData.name
+                if newEnd > (ccAddonUsers[myShort].cdEnd or 0) then
+                    ccAddonUsers[myShort].cdEnd    = newEnd
+                    ccAddonUsers[myShort].spellID  = spellID
+                    ccAddonUsers[myShort].spellName = ccData.name
                     ccDirty = true
                 end
             end
@@ -4920,40 +4923,38 @@ end)
 -- Sur target/focus/boss, spellId reste utilisable pour indexer CC_SPELLS.
 local function DetectCCAuras(unit)
     if not (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex) then return end
-    local okSkip, skipNp = pcall(function()
-        return type(unit) == "string" and unit:match("^nameplate%d+$") ~= nil
-    end)
-    if okSkip and skipNp then return end
+    if type(unit) == "string" and #unit >= 10 and unit:sub(1, 9) == "nameplate" then return end
 
+    local myShort = Ambiguate(myName, "short")
     local i = 1
     while i <= 40 do
         local ok, auraData = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, "HARMFUL")
         if not ok or not auraData then break end
 
-        local slotOk, spellId, ccInfo, sourceUnit = pcall(function()
-            local sid = auraData.spellId
-            local info = sid and CC_SPELLS[sid]
-            return sid, info, auraData.sourceUnit
-        end)
-
-        if slotOk and ccInfo and sourceUnit then
-            local okNm, sourceName = pcall(UnitName, sourceUnit)
-            if okNm and sourceName and sourceName ~= myName then
-                local entry = ccAddonUsers[sourceName]
-                if entry then
-                    local ccCd   = ccInfo.cd or 2
-                    local newEnd = GetTime() + ccCd
-                    if newEnd > (entry.cdEnd or 0) then
-                        entry.cdEnd     = newEnd
-                        entry.spellID   = spellId
-                        entry.spellName = ccInfo.name
-                        ccDirty = true
-                        DLog("CC_AURA", sourceName .. " " .. ccInfo.name
-                            .. " cd=" .. ccCd .. " via " .. tostring(unit))
-                        if spyMode then
-                            print("|cFF00DDDD[SPY]|r CC_AURA " .. sourceName
-                                .. " → " .. ccInfo.name
-                                .. " [" .. ccInfo.dr .. "] cd=" .. ccCd)
+        local sid = auraData.spellId
+        if sid then
+            local okCC, ccInfo = pcall(function() return CC_SPELLS[sid] end)
+            if okCC and ccInfo then
+                local srcUnit = auraData.sourceUnit
+                local sourceName = srcUnit and UnitName(srcUnit)
+                if sourceName then
+                    local shortSource = Ambiguate(sourceName, "short")
+                    local entry = shortSource ~= myShort and ccAddonUsers[shortSource] or nil
+                    if entry then
+                        local ccCd   = ccInfo.cd or 2
+                        local newEnd = GetTime() + ccCd
+                        if newEnd > (entry.cdEnd or 0) then
+                            entry.cdEnd     = newEnd
+                            entry.spellID   = sid
+                            entry.spellName = ccInfo.name
+                            ccDirty = true
+                            DLog("CC_AURA", sourceName .. " " .. ccInfo.name
+                                .. " cd=" .. ccCd .. " via " .. tostring(unit))
+                            if spyMode then
+                                print("|cFF00DDDD[SPY]|r CC_AURA " .. sourceName
+                                    .. " -> " .. ccInfo.name
+                                    .. " [" .. ccInfo.dr .. "] cd=" .. ccCd)
+                            end
                         end
                     end
                 end
@@ -4963,7 +4964,6 @@ local function DetectCCAuras(unit)
     end
 end
 
--- CC aura frames: target + focus + boss1-5 (always active)
 local ccAuraUnits = { "target", "focus", "boss1", "boss2", "boss3", "boss4", "boss5" }
 local ccAuraFrames = {}
 for _, au in ipairs(ccAuraUnits) do
@@ -5368,16 +5368,19 @@ end)
 
 -- Populate ccAddonUsers from the current party roster.
 -- Preserves existing cdEnd values so live CDs are not lost on roster changes.
+-- NOTE: All names are normalized to short form (no realm) via Ambiguate to ensure
+-- consistency with CCCAST addon messages and DetectCCAuras lookups.
 PopulateCCUsers = function()
     local seen = {}
 
     -- Self
     if myClass and myName then
-        seen[myName] = true
-        if not ccAddonUsers[myName] then
+        local myShort = Ambiguate(myName, "short")
+        seen[myShort] = true
+        if not ccAddonUsers[myShort] then
             local cc = CC_CLASS_PRIMARY[myClass]
             if cc then
-                ccAddonUsers[myName] = {
+                ccAddonUsers[myShort] = {
                     class     = myClass,
                     spellID   = cc.spellID,
                     spellName = cc.name,
@@ -5394,14 +5397,15 @@ PopulateCCUsers = function()
     for i = 1, 4 do
         local unit = "party" .. i
         if UnitExists(unit) then
-            local name = UnitName(unit)
+            local fullName = UnitName(unit)
+            local shortName = fullName and Ambiguate(fullName, "short") or nil
             local _, cls = UnitClass(unit)
-            if name and cls then
-                seen[name] = true
-                if not ccAddonUsers[name] then
+            if shortName and cls then
+                seen[shortName] = true
+                if not ccAddonUsers[shortName] then
                     local cc = CC_CLASS_PRIMARY[cls]
                     if cc then
-                        ccAddonUsers[name] = {
+                        ccAddonUsers[shortName] = {
                             class     = cls,
                             spellID   = cc.spellID,
                             spellName = cc.name,
@@ -5498,10 +5502,15 @@ RebuildCCBars = function()
 end
 
 -- Render one CC bar.
-local function RenderCCBar(bar, name, icon, col, spellName, baseCd, rem, isUnknown)
+local function RenderCCBar(bar, name, icon, col, spellName, baseCd, rem, isUnknown, hasAddon)
     bar:Show()
     bar.icon:SetTexture(icon or "Interface\\Icons\\INV_Misc_QuestionMark")
-    bar.nameText:SetText(name)
+    -- Show clear indicator: green "[+]" if has addon, red "[?]" if not
+    if hasAddon then
+        bar.nameText:SetText(name .. "|cFF00FF00 [+]|r")
+    else
+        bar.nameText:SetText(name .. "|cFFFF0000 [?]|r")
+    end
     bar.nameText:SetTextColor(unpack(FONT_COLOR))
     -- Details!-style fill: grows left→right as CD completes (full = READY)
     local maxVal = math.max(1, baseCd or 1)
@@ -5552,9 +5561,9 @@ local function UpdateCCDisplay()
         if not bar then break end
         local col      = CLASS_COLORS[e.info.class] or { 1, 1, 1 }
         local baseCd   = e.info.baseCd or 0
-        -- Players without addon: we never got a CCCAST → mark as unknown
+        -- Players without addon: we never got a CCCAST -> mark as unknown
         local isUnknown = (not e.info.isSelf) and (e.info.cdEnd == 0) and (not e.info.hasAddon)
-        RenderCCBar(bar, e.name, e.info.icon, col, e.info.spellName or "?", baseCd, e.rem, isUnknown)
+        RenderCCBar(bar, e.name, e.info.icon, col, e.info.spellName or "?", baseCd, e.rem, isUnknown, e.info.hasAddon)
         barIdx = barIdx + 1
     end
     for i = barIdx, MAX_BARS do if ccBars[i] then ccBars[i]:Hide() end end

@@ -7,7 +7,7 @@
 ## Notes-zhCN: 大秘境地下城团队打断冷却追踪器
 ## Notes-zhTW: 傳奇鑰石地城隊伍斷法冷卻追蹤器
 ## Author: Loxxar
-## Version: 1.5.6.2
+## Version: 1.5.6.3
 ## SavedVariables: LOXXSavedVars
 ## SavedVariablesPerAccount: LOXXAccountVars
 
