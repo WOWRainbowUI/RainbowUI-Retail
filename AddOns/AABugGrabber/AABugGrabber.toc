@@ -1,6 +1,6 @@
 ## Interface: 11508, 20505, 38000, 50503, 120001
 ## Title: BugGrabber
-## Version: v12.0.10
+## Version: v12.0.12
 ## Notes: Grabs bugs for the bug sack.
 ## Notes-deDE: Grabs bugs for the bug sack.
 ## Notes-ruRU: Grabs bugs for the bug sack.
@@ -27,6 +27,7 @@
 ## X-Credits: Rabbit, Rowne, Ramble, kergoth, ckknight, Fritti
 ## X-License: All Rights Reserved
 ## X-Category: Development Tools
+## LoadSavedVariablesFirst: 1
 ## SavedVariables: BugGrabberDB
 
 ## Title-zhTW: |cffffffee[系統]|r 錯誤收集器
@@ -34,4 +35,3 @@
 ## Category-zhTW: 系統
 
 BugGrabber.lua
-locales.lua
