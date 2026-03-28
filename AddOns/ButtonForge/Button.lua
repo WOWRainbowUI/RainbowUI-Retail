@@ -1687,7 +1687,8 @@ function Button:UpdateCooldown()
 end
 function Button:UpdateCooldownSpell()
 	self.Widget.spellID = self.SpellId
-	ActionButton_UpdateCooldown(self.Widget)
+	Util.ActionButton_UpdateCooldown(self.Widget)
+
 	--[[local cooldownInfo;
 	if(self.SpellId == Const.COVENANT_WARRIOR_FURY_CONDEMN_ID) then -- it seems there is an exception with that spell and GetSpellCooldown called from the spellname return a wrong duration.
 		cooldownInfo = C_Spell.GetSpellCooldown(self.SpellId);
@@ -1714,8 +1715,8 @@ function Button:UpdateCooldownSpell()
 end
 function Button:UpdateCooldownSpellSingleButtonAssistant()
 	local spellID = C_AssistedCombat.GetNextCastSpell(checkForVisibleButton);
-	self.Widget.spellID = spellID
-	ActionButton_UpdateCooldown(self.Widget)
+	Util.ActionButton_UpdateCooldown(self.Widget)
+
 	--[[
 	if spellID == nil then
 		Util.CooldownFrame_SetTimer(self.WCooldown, 0, 0, 0);
@@ -1762,7 +1763,7 @@ end
 function Button:UpdateCooldownBonusAction()
 	self.Widget.action = self.Widget:CalculateAction()
 	if (HasOverrideActionBar() or HasVehicleActionBar()) and self.Widget.action > 0 then
-		ActionButton_UpdateCooldown(self.Widget)
+		Util.ActionButton_UpdateCooldown(self.Widget)
 	else
 		self.WCooldown:Hide();
 	end
