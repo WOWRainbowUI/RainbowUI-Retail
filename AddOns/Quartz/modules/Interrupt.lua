@@ -22,6 +22,14 @@ local L = LibStub("AceLocale-3.0"):GetLocale("Quartz3")
 local MODNAME = "Interrupt"
 local Interrupt = Quartz3:NewModule(MODNAME, "AceEvent-3.0")
 local Player = Quartz3:GetModule("Player")
+local Target = Quartz3:GetModule("Target", true)
+local Focus = Quartz3:GetModule("Focus", true)
+
+local unitToModule = {
+	player = Player,
+	target = Target,
+	focus = Focus,
+}
 
 local db, getOptions
 
@@ -54,22 +62,22 @@ function Interrupt:ApplySettings()
 end
 
 function Interrupt:UNIT_SPELLCAST_INTERRUPTED(event, unit, castGUID, spellID, interruptedBy)
-	if unit == "player" then
-		local sourceName
-		if interruptedBy then
-			sourceName = UnitNameFromGUID(interruptedBy)
-		end
-		if sourceName and not issecretvalue(sourceName) then
-			Player.Bar.Text:SetFormattedText(L["INTERRUPTED (%s)"], sourceName:upper())
-		elseif sourceName then
-			-- secret value: can concatenate but not call :upper() or #
-			Player.Bar.Text:SetText(L["INTERRUPTED (%s)"]:format(sourceName))
-		else
-			Player.Bar.Text:SetText(INTERRUPTED)
-		end
-		Player.Bar.Bar:SetStatusBarColor(unpack(db.interruptcolor))
-		Player.Bar.stopTime = GetTime()
+	local mod = unitToModule[unit]
+if not mod or not mod:IsEnabled() or not mod.Bar then return end
+	local sourceName
+	if interruptedBy then
+		sourceName = UnitNameFromGUID(interruptedBy)
 	end
+	if sourceName and not issecretvalue(sourceName) then
+		mod.Bar.Text:SetFormattedText(L["INTERRUPTED (%s)"], sourceName:upper())
+	elseif sourceName then
+		-- secret value: can concatenate but not call :upper() or #
+		mod.Bar.Text:SetText(L["INTERRUPTED (%s)"]:format(sourceName))
+	else
+		mod.Bar.Text:SetText(INTERRUPTED)
+	end
+	mod.Bar.Bar:SetStatusBarColor(unpack(db.interruptcolor))
+	mod.Bar.stopTime = GetTime()
 end
 
 do
