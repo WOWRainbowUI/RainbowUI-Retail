@@ -91,15 +91,22 @@ L["GrowDirectionLeft"] = "Esquerda"
 L["GrowDirectionRight"] = "Direita"
 L["GrowDirectionUp"] = "Cima"
 L["HealerRole"] = "Curador |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t"
+--[[Translation missing --]]
+L["IconBorder"] = "Icon Border"
+--[[Translation missing --]]
+L["IconBorderDescription"] = "Selects the type of border to be used. Dispell will show a border based on the dispell type of the spell, Boss Mods will show a border based on the color set by boss mods (e.g. Bar color for bw) and None will disable borders."
+--[[Translation missing --]]
+L["IconBossModsBorder"] = "Boss Mods Border"
 L["IconDangerIcon"] = "Ativar ícone de perigo"
 L["IconDangerIconDescription"] = "Exibe um ícone de perigo |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t na linha temporal para efeitos classificados como Letais pela Blizzard."
 L["IconDispellBorder"] = "Borda de dissipação"
-L["IconDispellBorderDescription"] = "Ativa ou desativa a borda do tipo de dissipação ao redor do ícone do feitiço."
 L["IconDispellIcon"] = "Ícone de dissipação"
 L["IconDispellIconDescription"] = "Ativa ou desativa o ícone do tipo de dissipação sobre o ícone do feitiço."
 L["IconGrowDirectionDescription"] = "Define a direção de crescimento dos diferentes elementos de ícone."
 L["IconMargin"] = "Margem do ícone"
 L["IconMarginDescription"] = "Define o espaço entre os ícones de feitiço."
+--[[Translation missing --]]
+L["IconNoneBorder"] = "No Border"
 L["IconPreview"] = "Pré-visualização do ícone"
 L["IconRoleIcons"] = "Ícones de funçao"
 L["IconRoleIconsDescription"] = "Alterna os ícones de função |TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:7:25:7:25|t|TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:71:89:7:25|t|TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:39:57:7:25|t no ícone da magia"
@@ -172,6 +179,10 @@ L["SpellnameDefaultColor"] = "Cor padrão do texto"
 L["SpellnameDefaultColorDescription"] = "Define a cor padrão do texto ao lado do ícone quando não está afetado por informações específicas como tipo de penalidade, por exemplo Veneno."
 L["SpellnameFont"] = "Fonte"
 L["SpellnameFontDescription"] = "Define a fonte do texto ao lado do ícone."
+--[[Translation missing --]]
+L["SpellnameFontFlag"] = "Additional Font Settings"
+--[[Translation missing --]]
+L["SpellnameFontFlagDescription"] = "Sets additional font settings of the text besides the icon."
 L["SpellnameFontSize"] = "Tamanho da fonte"
 L["SpellnameFontSizeDescription"] = "Define o tamanho da fonte do texto ao lado do ícone."
 --[[Translation missing --]]

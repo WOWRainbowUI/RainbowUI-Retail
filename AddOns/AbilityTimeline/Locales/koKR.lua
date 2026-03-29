@@ -169,13 +169,17 @@ L["GrowDirectionUp"] = "Up"
 --[[Translation missing --]]
 L["HealerRole"] = "Healer |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t"
 --[[Translation missing --]]
+L["IconBorder"] = "Icon Border"
+--[[Translation missing --]]
+L["IconBorderDescription"] = "Selects the type of border to be used. Dispell will show a border based on the dispell type of the spell, Boss Mods will show a border based on the color set by boss mods (e.g. Bar color for bw) and None will disable borders."
+--[[Translation missing --]]
+L["IconBossModsBorder"] = "Boss Mods Border"
+--[[Translation missing --]]
 L["IconDangerIcon"] = "Enable Danger Icon"
 --[[Translation missing --]]
 L["IconDangerIconDescription"] = "Displays a danger icon |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t on the timeline for effects which are classified as Deadly by Blizzard."
 --[[Translation missing --]]
 L["IconDispellBorder"] = "Dispell Border"
---[[Translation missing --]]
-L["IconDispellBorderDescription"] = "Toggles the dispell type border around the spell icon."
 --[[Translation missing --]]
 L["IconDispellIcon"] = "Dispell Icon"
 --[[Translation missing --]]
@@ -186,6 +190,8 @@ L["IconGrowDirectionDescription"] = "Sets the grow direction of different icon e
 L["IconMargin"] = "Icon Margin"
 --[[Translation missing --]]
 L["IconMarginDescription"] = "Sets the space between spell icons."
+--[[Translation missing --]]
+L["IconNoneBorder"] = "No Border"
 --[[Translation missing --]]
 L["IconPreview"] = "Icon Preview"
 --[[Translation missing --]]
@@ -330,6 +336,10 @@ L["SpellnameDefaultColorDescription"] = "Sets the default color of the text besi
 L["SpellnameFont"] = "Font"
 --[[Translation missing --]]
 L["SpellnameFontDescription"] = "Sets the font of the text besides the icon."
+--[[Translation missing --]]
+L["SpellnameFontFlag"] = "Additional Font Settings"
+--[[Translation missing --]]
+L["SpellnameFontFlagDescription"] = "Sets additional font settings of the text besides the icon."
 --[[Translation missing --]]
 L["SpellnameFontSize"] = "Font Size"
 --[[Translation missing --]]

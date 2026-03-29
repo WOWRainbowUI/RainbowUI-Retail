@@ -64,15 +64,52 @@ local createGeneralSettings = function(widget, parentWindow, iconSettings, maxIc
     end)
     scroll:AddChild(dispellIconSetting)
 
-    local dispellBorderSetting = AceGUI:Create("CheckBox")
-    dispellBorderSetting:SetLabel(private.getLocalisation("IconDispellBorder"))
-    private.AddFrameTooltip(dispellBorderSetting.frame, "IconDispellBorderDescription")
-    dispellBorderSetting:SetValue(iconSettings.dispellBorders)
-    dispellBorderSetting:SetCallback("OnValueChanged", function(_, _, value)
-        iconSettings.dispellBorders = value
-        widget:ApplySettings()
+    -- local dispellBorderSetting = AceGUI:Create("CheckBox")
+    -- dispellBorderSetting:SetLabel(private.getLocalisation("IconDispellBorder"))
+    -- private.AddFrameTooltip(dispellBorderSetting.frame, "IconDispellBorderDescription")
+    -- dispellBorderSetting:SetValue(iconSettings.dispellBorders)
+    -- dispellBorderSetting:SetCallback("OnValueChanged", function(_, _, value)
+    --     iconSettings.dispellBorders = value
+    --     widget:ApplySettings()
+    -- end)
+    -- scroll:AddChild(dispellBorderSetting)
+
+    local borderSetting = AceGUI:Create("Dropdown")
+    borderSetting:SetLabel(private.getLocalisation("IconBorder"))
+    private.AddFrameTooltip(borderSetting.frame, "IconBorderDescription")
+    
+    borderSetting:AddItem(private.IconBorderSettings.dispell, private.getLocalisation("IconDispellBorder"))
+    borderSetting:AddItem(private.IconBorderSettings.bossmods, private.getLocalisation("IconBossModsBorder"))
+    borderSetting:AddItem(private.IconBorderSettings.none, private.getLocalisation("IconNoneBorder"))
+    
+    borderSetting:SetValue(iconSettings.border)
+    borderSetting:SetCallback("OnValueChanged", function(_, _, value)
+        iconSettings.border = value
+        if value == private.IconBorderSettings.bossmods then
+            for _, edgeTexture in pairs(widget.frame.BossModsBorderEdges) do
+                edgeTexture:Show()
+                edgeTexture:SetColorTexture(1, 0, 1, 1)
+            end
+            for _, edgeTexture in pairs(widget.frame.DispellTypeBorderEdges[3]) do
+                edgeTexture:Hide()
+            end
+        elseif value == private.IconBorderSettings.dispell then
+            for _, edgeTexture in pairs(widget.frame.BossModsBorderEdges) do
+                edgeTexture:Hide()
+            end
+            for _, edgeTexture in pairs(widget.frame.DispellTypeBorderEdges[3]) do
+                edgeTexture:Show()
+            end
+        else
+            for _, edgeTexture in pairs(widget.frame.DispellTypeBorderEdges[3]) do
+                edgeTexture:Hide()
+            end
+            for _, edgeTexture in pairs(widget.frame.BossModsBorderEdges) do
+                edgeTexture:Hide()
+            end
+        end
     end)
-    scroll:AddChild(dispellBorderSetting)
+    scroll:AddChild(borderSetting)
 
     local dispellTextColorSetting = AceGUI:Create("CheckBox")
     dispellTextColorSetting:SetLabel(private.getLocalisation("DispellTextColor"))
@@ -266,6 +303,7 @@ local createTextSettings = function(widget, parentWindow, iconSettings, textSett
     scroll:AddChild(fontSizeSetting)
 
     local fontSetting = AceGUI:Create("Dropdown")
+    fontSetting:SetValue(textSettings.font)
     fontSetting:SetText(textSettings.font)
     fontSetting:SetLabel(private.getLocalisation("SpellnameFont"))
     private.AddFrameTooltip(fontSetting.frame, "SpellnameFontDescription")
@@ -278,6 +316,24 @@ local createTextSettings = function(widget, parentWindow, iconSettings, textSett
     end)
     fontSetting:SetRelativeWidth(0.5)
     scroll:AddChild(fontSetting)
+
+    local fontFlagSetting = AceGUI:Create("Dropdown")
+    fontFlagSetting:SetLabel(private.getLocalisation("SpellnameFontFlag"))
+    private.AddFrameTooltip(fontFlagSetting.frame, "SpellnameFontFlagDescription")
+    fontFlagSetting:AddItem("MONOCHROME", "MONOCHROME")
+    fontFlagSetting:AddItem("OUTLINE", "OUTLINE")
+    fontFlagSetting:AddItem("THICKOUTLINE", "THICKOUTLINE")
+    fontFlagSetting:AddItem("SLUG", "SLUG")
+    fontFlagSetting:SetMultiselect(true)
+    fontFlagSetting:SetCallback("OnValueChanged", function(_, _, key, value)
+        textSettings.fontFlag[key] = value
+        widget:ApplySettings()
+    end)
+    for key, value in pairs(textSettings.fontFlag) do
+        fontFlagSetting:SetItemValue(key, value)
+    end
+    fontFlagSetting:SetRelativeWidth(0.5)
+    scroll:AddChild(fontFlagSetting)
 
     local textUseEventColorToggle = AceGUI:Create("CheckBox")
     textUseEventColorToggle:SetValue(textSettings.useEventColor)
@@ -740,7 +796,14 @@ local createSpellIconSettingsFrame = function()
     end
     widget.frame.RoleIcons[1]:SetAtlas('icons_16x16_heal')
     widget.frame.DangerIcon[1]:SetAtlas('icons_16x16_deadly')
-    
+    for _, edgeTexture in pairs(widget.frame.BossModsBorderEdges) do
+        edgeTexture:SetColorTexture(1,20/255,147/255,1)
+    end
+    if private.db.profile.icon_settings.border == private.IconBorderSettings.bossmods then
+        for _, edgeTexture in pairs(widget.frame.BossModsBorderEdges) do
+            edgeTexture:Show()
+        end
+    end
     widget:ApplySettings()
     widget.frame:Show()
     widget.frame:SetFrameStrata("DIALOG")

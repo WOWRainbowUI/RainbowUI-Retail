@@ -91,15 +91,22 @@ L["GrowDirectionLeft"] = "Gauche"
 L["GrowDirectionRight"] = "Droite"
 L["GrowDirectionUp"] = "Haut"
 L["HealerRole"] = "Soigneur |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t"
+--[[Translation missing --]]
+L["IconBorder"] = "Icon Border"
+--[[Translation missing --]]
+L["IconBorderDescription"] = "Selects the type of border to be used. Dispell will show a border based on the dispell type of the spell, Boss Mods will show a border based on the color set by boss mods (e.g. Bar color for bw) and None will disable borders."
+--[[Translation missing --]]
+L["IconBossModsBorder"] = "Boss Mods Border"
 L["IconDangerIcon"] = "Activer l’icône de danger"
 L["IconDangerIconDescription"] = "Affiche une icône de danger |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t sur la ligne temporalle pour les effets classés comme Mortels par Blizzard."
 L["IconDispellBorder"] = "Bordure de dissipation"
-L["IconDispellBorderDescription"] = "Active ou désactive la bordure du type de dissipation autour de l’icône du sort."
 L["IconDispellIcon"] = "Icône de dissipation"
 L["IconDispellIconDescription"] = "Active ou désactive l’icône du type de dissipation sur l’icône du sort."
 L["IconGrowDirectionDescription"] = "Définit la direction de croissance des différents éléments d’icône."
 L["IconMargin"] = "Marge de l’icône"
 L["IconMarginDescription"] = "Définit l’espace entre les icônes de sort."
+--[[Translation missing --]]
+L["IconNoneBorder"] = "No Border"
 L["IconPreview"] = "Aperçu de l’icône"
 L["IconRoleIcons"] = "Icônes de rôle"
 L["IconRoleIconsDescription"] = "Active ou désactive les icônes de rôle |TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:7:25:7:25|t|TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:71:89:7:25|t|TInterface\\EncounterJournal\\UI-EJ-Icons:::::256:64:39:57:7:25|t sur l’icône du sort"
@@ -172,6 +179,10 @@ L["SpellnameDefaultColor"] = "Couleur de texte par défaut"
 L["SpellnameDefaultColorDescription"] = "Définit la couleur par défaut du texte à côté de l’icône lorsqu’il n’est pas affecté par une information spécifique comme le type d’affaiblissement, par ex. Poison."
 L["SpellnameFont"] = "Police"
 L["SpellnameFontDescription"] = "Définit la police du texte à côté de l’icône."
+--[[Translation missing --]]
+L["SpellnameFontFlag"] = "Additional Font Settings"
+--[[Translation missing --]]
+L["SpellnameFontFlagDescription"] = "Sets additional font settings of the text besides the icon."
 L["SpellnameFontSize"] = "Taille de police"
 L["SpellnameFontSizeDescription"] = "Définit la taille de la police du texte à côté de l’icône."
 --[[Translation missing --]]
