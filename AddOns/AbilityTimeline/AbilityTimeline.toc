@@ -1,6 +1,6 @@
 ## Interface: 120001, 120005
 ## Title: AbilityTimeline
-## Version: v0.25
+## Version: V0.26
 ## Notes: Adds various improvements to blizzards encounter ability timeline.
 ## SavedVariables: AbilityTimeline
 ## Author: Jods
@@ -32,7 +32,7 @@ Libs\LibEditMode\embed.xml
 #data
 Data\dungeons.xml
 Data\seasons.lua
-Data\dispellTypes.lua
+Data\constants.lua
 Data\specPosition.lua
 
 #util

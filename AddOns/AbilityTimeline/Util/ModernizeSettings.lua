@@ -59,8 +59,16 @@ private.modernize = function()
     if not private.db.profile.icon_settings.TextOffset then
         private.db.profile.icon_settings.TextOffset = { x = 16, y = 0 }
     end
-    if private.db.profile.icon_settings.dispellBorders == nil then
-        private.db.profile.icon_settings.dispellBorders = true
+    if private.db.profile.icon_settings.border == nil then
+        if private.db.profile.icon_settings.dispellBorders == true then
+            private.db.profile.icon_settings.border = private.IconBorderSettings.dispell
+            private.db.profile.icon_settings.dispellBorders = nil
+        elseif private.db.profile.icon_settings.dispellBorders == false then
+            private.db.profile.icon_settings.border = private.IconBorderSettings.none
+            private.db.profile.icon_settings.dispellBorders = nil
+        else
+            private.db.profile.icon_settings.border = private.IconBorderSettings.dispell
+        end
     end
     if private.db.profile.icon_settings.dispellIcons == nil then
         private.db.profile.icon_settings.dispellIcons = true
@@ -109,6 +117,12 @@ private.modernize = function()
     if not private.db.profile.text_settings.font then
         private.db.profile.text_settings.font = "Friz Quadrata TT"
     end
+
+    if not private.db.profile.text_settings.fontFlag then
+        private.db.profile.text_settings.fontFlag = {
+            OUTLINE = true,
+        }
+    end
     if private.db.profile.text_settings.useBackground == nil then
         private.db.profile.text_settings.useBackground = false
     end
@@ -136,6 +150,11 @@ private.modernize = function()
     end
     if not private.db.profile.big_icon_text_settings.font then
         private.db.profile.big_icon_text_settings.font = "Friz Quadrata TT"
+    end
+    if not private.db.profile.big_icon_text_settings.fontFlag then
+        private.db.profile.big_icon_text_settings.fontFlag = {
+            OUTLINE = true,
+        }
     end
     if private.db.profile.big_icon_text_settings.useBackground == nil then
         private.db.profile.big_icon_text_settings.useBackground = false

@@ -91,15 +91,22 @@ L["GrowDirectionLeft"] = "左"
 L["GrowDirectionRight"] = "右"
 L["GrowDirectionUp"] = "上"
 L["HealerRole"] = "治疗 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t"
+--[[Translation missing --]]
+L["IconBorder"] = "Icon Border"
+--[[Translation missing --]]
+L["IconBorderDescription"] = "Selects the type of border to be used. Dispell will show a border based on the dispell type of the spell, Boss Mods will show a border based on the color set by boss mods (e.g. Bar color for bw) and None will disable borders."
+--[[Translation missing --]]
+L["IconBossModsBorder"] = "Boss Mods Border"
 L["IconDangerIcon"] = "启用“危险”图标"
 L["IconDangerIconDescription"] = "在时间线上为暴雪标记为“致命”效果的显示“危险”图标 |TInterface\\\\\\\\EncounterJournal\\\\\\\\UI-EJ-Icons:::::256:64:135:153:7:25|t 。"
 L["IconDispellBorder"] = "驱散类型边框"
-L["IconDispellBorderDescription"] = "切换法术图标周围的驱散类型边框。"
 L["IconDispellIcon"] = "驱散类型图标"
 L["IconDispellIconDescription"] = "切换法术图标上叠加的驱散类型图标。"
 L["IconGrowDirectionDescription"] = "设置不同图标元素的增长方向。"
 L["IconMargin"] = "图标间距"
 L["IconMarginDescription"] = "设置法术图标之间的间距。"
+--[[Translation missing --]]
+L["IconNoneBorder"] = "No Border"
 L["IconPreview"] = "图标预览"
 L["IconRoleIcons"] = "职责图标"
 L["IconRoleIconsDescription"] = "切换法术图标上的职责图标 |TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:7:25:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:71:89:7:25|t|TInterface\\\\EncounterJournal\\\\UI-EJ-Icons:::::256:64:39:57:7:25|t 的显示。"
@@ -172,6 +179,10 @@ L["SpellnameDefaultColor"] = "默认文本颜色"
 L["SpellnameDefaultColorDescription"] = "设置图标旁文本的默认颜色（当未受特定信息影响时，例如中毒等减益类型）。"
 L["SpellnameFont"] = "字体"
 L["SpellnameFontDescription"] = "设置图标旁文本的字体。"
+--[[Translation missing --]]
+L["SpellnameFontFlag"] = "Additional Font Settings"
+--[[Translation missing --]]
+L["SpellnameFontFlagDescription"] = "Sets additional font settings of the text besides the icon."
 L["SpellnameFontSize"] = "字体大小"
 L["SpellnameFontSizeDescription"] = "设置图标旁文本的字体大小。"
 --[[Translation missing --]]

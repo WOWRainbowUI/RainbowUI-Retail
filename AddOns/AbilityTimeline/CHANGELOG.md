@@ -1,14 +1,13 @@
 # AbilityTimeline
 
-## [v0.25](https://github.com/Jods-GH/AbilityTimeline/tree/v0.25) (2026-03-23)
-[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.24...v0.25) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
+## [V0.26](https://github.com/Jods-GH/AbilityTimeline/tree/V0.26) (2026-03-25)
+[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.25...V0.26) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
 
-- make sure pulltimers are excluded for other languages  
-- guard against trackid being nil  
-- remove leftover debug output  
-- make sure we don't error when bossmods aren't loaded  
-- make sure colors and spellindicators work with bw timers  
-- rework dispell type text colors in preparation for tuesday hotfixes  
-- make sure test bars will show up usiong bw  
-- make sure pulltimer isn't displayed twice  
-    fixes #61  
+- fix issue when bossmods are disabled  
+- properly initialize font settings for bigicon  
+- make sure we are accesing the correct variable  
+- add an option to change fontflags e.G. OUTLINE for Spellname  
+    mentions #64  
+- add an option to use background color from bigwigs for border coloring  
+    closes #56  
+    Additionally fixes the text color to work properly again with bossmods  
