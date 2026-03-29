@@ -363,7 +363,7 @@ local tFrame;
 local tParent;
 function VUHDO_findButtonFromChild(aChildFrame)
 
-	if not aChildFrame or (aChildFrame.IsForbidden and aChildFrame:IsForbidden()) then
+	if not aChildFrame or (aChildFrame["IsForbidden"] and aChildFrame:IsForbidden()) then
 		return nil;
 	end
 
@@ -378,6 +378,8 @@ function VUHDO_findButtonFromChild(aChildFrame)
 
 		if tParent then
 			tFrame = tParent;
+		elseif tFrame["IsForbidden"] and tFrame:IsForbidden() then
+			return nil;
 		elseif tFrame["GetParent"] then
 			tFrame = tFrame:GetParent();
 		else

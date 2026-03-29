@@ -25,6 +25,8 @@ function VUHDO_getOrCreateUnitInfo(aUnit)
 		VUHDO_RAID[aUnit] = tUnitInfo;
 
 		VUHDO_initUnitAuraSlots(aUnit);
+
+		VUHDO_registerUnitForEvents(aUnit);
 	end
 
 	return tUnitInfo;
@@ -113,6 +115,9 @@ local VUHDO_initDynamicPanelModels;
 local VUHDO_updateBuffRaidGroup;
 local VUHDO_cleanupSpellTraceForUnit;
 
+local VUHDO_unregisterUnitForEvents;
+local VUHDO_unregisterAllUnitEventFrames;
+
 local GetRaidTargetIndex = GetRaidTargetIndex;
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost;
 local UnitIsFeignDeath = UnitIsFeignDeath;
@@ -191,6 +196,8 @@ function VUHDO_vuhdoInitLocalOverrides()
 	VUHDO_getUnitZoneName = _G["VUHDO_getUnitZoneName"];
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
 	VUHDO_initUnitAuraSlots = _G["VUHDO_initUnitAuraSlots"];
+	VUHDO_unregisterUnitForEvents = _G["VUHDO_unregisterUnitForEvents"];
+	VUHDO_unregisterAllUnitEventFrames = _G["VUHDO_unregisterAllUnitEventFrames"];
 
 	VUHDO_INTERNAL_TOGGLES = _G["VUHDO_INTERNAL_TOGGLES"];
 	VUHDO_PANEL_UNITS = _G["VUHDO_PANEL_UNITS"];
@@ -1005,6 +1012,8 @@ function VUHDO_reloadRaidMembers()
 		twipe(VUHDO_RAID);
 		twipe(VUHDO_RAID_NAMES);
 
+		VUHDO_unregisterAllUnitEventFrames();
+
 		for tCnt = 1, tMaxMembers do
 			tPlayer = tUnit .. tCnt;
 			if UnitExists(tPlayer) and tPlayer ~= VUHDO_PLAYER_RAID_ID then
@@ -1042,6 +1051,9 @@ function VUHDO_reloadRaidMembers()
 
 				VUHDO_updateTargetBars(tBossUnitId);
 				table.wipe(VUHDO_RAID[tBossUnitId] or tEmptyInfo);
+
+				VUHDO_unregisterUnitForEvents(tBossUnitId);
+
 				VUHDO_RAID[tBossUnitId] = nil;
 
 				VUHDO_updateHealthBarsFor(tBossUnitId, 1); -- VUHDO_UPDATE_ALL
@@ -1188,6 +1200,9 @@ function VUHDO_refreshRaidMembers()
 
 			VUHDO_updateTargetBars(tBossUnitId);
 			table.wipe(VUHDO_RAID[tBossUnitId] or tEmptyInfo);
+
+			VUHDO_unregisterUnitForEvents(tBossUnitId);
+
 			VUHDO_RAID[tBossUnitId] = nil;
 
 			VUHDO_updateHealthBarsFor(tBossUnitId, 1); -- VUHDO_UPDATE_ALL

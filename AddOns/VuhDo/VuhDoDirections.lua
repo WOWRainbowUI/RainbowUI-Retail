@@ -15,9 +15,15 @@ local VuhDoDirectionFrameArrow;
 local VuhDoDirectionFrameText;
 local VUHDO_getDistanceBetween;
 local VUHDO_getUnitDirection;
+local VUHDO_isInSameZone;
 
 local VUHDO_RAID = { };
+
+
+
+--
 function VUHDO_directionsInitLocalOverrides()
+
 	VUHDO_RAID = _G["VUHDO_RAID"];
 
 	sIsDeadOnly = VUHDO_CONFIG["DIRECTION"]["isDeadOnly"];
@@ -30,8 +36,13 @@ function VUHDO_directionsInitLocalOverrides()
 	VuhDoDirectionFrame = _G["VuhDoDirectionFrame"];
 	VuhDoDirectionFrameArrow = _G["VuhDoDirectionFrameArrow"];
 	VuhDoDirectionFrameText = _G["VuhDoDirectionFrameText"];
+
 	VUHDO_getDistanceBetween = _G["VUHDO_getDistanceBetween"];
 	VUHDO_getUnitDirection = _G["VUHDO_getUnitDirection"];
+	VUHDO_isInSameZone = _G["VUHDO_isInSameZone"];
+
+	return;
+
 end
 
 
@@ -104,6 +115,10 @@ function VUHDO_shouldDisplayArrow(aUnit)
 	end
 
 	if not tInfo["connected"] then
+		return false, false;
+	end
+
+	if not VUHDO_isInSameZone(aUnit) then
 		return false, false;
 	end
 

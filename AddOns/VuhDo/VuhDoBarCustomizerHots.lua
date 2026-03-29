@@ -1006,17 +1006,7 @@ function VUHDO_hasUnitHot(aUnit, aSpellName, aSourceType)
 		return;
 	end
 
-	if not aSourceType then
-		aSourceType = VUHDO_UNIT_HOT_TYPE_MINE;
-	end
-
-	_, tUnitHotCount = VUHDO_getUnitHot(aUnit, aSpellName, aSourceType);
-
-	if tUnitHotCount and tUnitHotCount > 0 then
-		return true;
-	else
-		return false;
-	end
+	return VUHDO_hasUnitAura(aUnit, aSpellName, "HELPFUL");
 
 end
 

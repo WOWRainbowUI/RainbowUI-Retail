@@ -1,4 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<Script file="VuhDoNewOptionsColorsModes.lua" />
+
 	<Frame name="VuhDoNewOptionsColorsModesTemplate" virtual="true">
 		<Frames>
 			<Frame name="$parentEmergencyModePanel" inherits="VuhDoPanelTemplate">
@@ -366,6 +369,8 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.turnAxisOvershield");
+
+								self:SetAttribute("custom_function_post", VUHDO_colorsModesApplyTurnAxisOvershieldToAllPanels);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -441,6 +446,8 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.turnAxisHealAbsorb");
+
+								self:SetAttribute("custom_function_post", VUHDO_colorsModesApplyTurnAxisHealAbsorbToAllPanels);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>

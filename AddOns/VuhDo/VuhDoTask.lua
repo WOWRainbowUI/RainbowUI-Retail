@@ -15,6 +15,7 @@ local max = math.max;
 local min = math.min;
 local floor = math.floor;
 local abs = math.abs;
+local InCombatLockdown = InCombatLockdown;
 
 
 
@@ -52,6 +53,7 @@ VUHDO_DEFER_REDRAW_PANEL = 26;
 VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE = 27;
 VUHDO_DEFER_PREWARM_AURA_POOLS = 28;
 VUHDO_DEFER_UPDATE_AURA_DISPLAYS_FOR_UNIT = 29;
+VUHDO_DEFER_REFRESH_PRIVATE_AURAS = 30;
 
 local VUHDO_DEFERRED_TASK_TYPES = {
 	VUHDO_DEFER_UPDATE_HEALTH,
@@ -83,6 +85,7 @@ local VUHDO_DEFERRED_TASK_TYPES = {
 	VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE,
 	VUHDO_DEFER_PREWARM_AURA_POOLS,
 	VUHDO_DEFER_UPDATE_AURA_DISPLAYS_FOR_UNIT,
+	VUHDO_DEFER_REFRESH_PRIVATE_AURAS,
 };
 
 local VUHDO_COMBAT_UNSAFE_TASKS = {
@@ -96,10 +99,17 @@ local VUHDO_COMBAT_UNSAFE_TASKS = {
 	[VUHDO_DEFER_UPDATE_PANEL_BUTTONS] = true,
 	[VUHDO_DEFER_UPDATE_ALL_RAID_BARS] = true,
 	[VUHDO_DEFER_PREWARM_AURA_POOLS] = true,
+	[VUHDO_DEFER_REFRESH_PRIVATE_AURAS] = true,
+};
+
+local VUHDO_COMBAT_HELD_TASKS = {
+	[VUHDO_DEFER_REFRESH_PRIVATE_AURAS] = true,
 };
 
 local sDeferredTaskDelegates;
 local sNextTaskEnqueueOrder = 0;
+local sCombatHeldTasks = { };
+local sCombatHeldTaskMap = { };
 
 local VUHDO_DEFERRED_TASK_PROFILING_ENABLED = false;
 
@@ -139,6 +149,7 @@ local VUHDO_TASK_TYPE_DEFAULT_COSTS = {
 	[26] = 181,   -- tm50=136μs, tm80=225μs → 181μs estimate
 	[27] = 6200,  -- tm50=4.26ms, tm80=8.13ms → 6200μs estimate
 	[29] = 350,
+	[30] = 200,
 };
 
 local VUHDO_DEFERRED_TASK_STATE = {
@@ -1067,8 +1078,18 @@ do
 			tTaskKey = VUHDO_getTaskKey(aType, tNewTask["args"]);
 			tTask = VUHDO_TASK_QUEUE_MAP[tTaskKey];
 
+			if not tTask then
+				tTask = sCombatHeldTaskMap[tTaskKey];
+			end
+
 			if tTask then
-				VUHDO_heapUpdateTask(VUHDO_TASK_PRIORITY_QUEUE, tTask, tCurrentPriority);
+				if tTask["heapIndex"] and tTask["heapIndex"] > 0 then
+					VUHDO_heapUpdateTask(VUHDO_TASK_PRIORITY_QUEUE, tTask, tCurrentPriority);
+				else
+					if tCurrentPriority > tTask["priority"] then
+						tTask["priority"] = tCurrentPriority;
+					end
+				end
 
 				tTask["delegate"] = tDelegate;
 
@@ -1353,10 +1374,23 @@ do
 	local tPredictionError;
 	local tPredictionAccuracy;
 	local tAccuracy;
+	local tIsInCombatLockdown;
+	local tHeldTaskKey;
 	function VUHDO_executeDeferredTaskChunk()
 
 		tTaskState = VUHDO_DEFERRED_TASK_STATE;
 		tTaskConfig = VUHDO_DEFERRED_TASK_CONFIG;
+
+		tIsInCombatLockdown = InCombatLockdown();
+
+		if not tIsInCombatLockdown and #sCombatHeldTasks > 0 then
+			for tCnt = 1, #sCombatHeldTasks do
+				VUHDO_heapInsert(VUHDO_TASK_PRIORITY_QUEUE, sCombatHeldTasks[tCnt], VUHDO_TASK_QUEUE_MAP);
+			end
+
+			twipe(sCombatHeldTasks);
+			twipe(sCombatHeldTaskMap);
+		end
 
 		if VUHDO_DEFERRED_TASK_PROFILING_ENABLED then
 			tCurrentQueueLen = #VUHDO_TASK_PRIORITY_QUEUE;
@@ -1384,77 +1418,86 @@ do
 
 			tTaskType = tTask["type"];
 
-			tShouldProcessTask = (tTasksCompleted < tTaskConfig["MIN_TASKS_PER_FRAME"]) or
-				(tTasksCompleted < tTaskState["maxTasksPerFrame"]);
-
-			if tShouldProcessTask then
+			if tIsInCombatLockdown and VUHDO_COMBAT_HELD_TASKS[tTaskType] then
 				tTask = VUHDO_heapExtractTop(VUHDO_TASK_PRIORITY_QUEUE, VUHDO_TASK_QUEUE_MAP);
 
-				if tTask["delegate"] and tTaskType then
-					_, _, tTaskDurationUs = VUHDO_executeSingleTask(tTask);
+				tHeldTaskKey = VUHDO_getTaskKey(tTask["type"], tTask["args"]);
 
-					if VUHDO_DEFERRED_TASK_PROFILING_ENABLED then
-						tArgsSummary = "";
+				sCombatHeldTaskMap[tHeldTaskKey] = tTask;
+				tinsert(sCombatHeldTasks, tTask);
+			else
+				tShouldProcessTask = (tTasksCompleted < tTaskConfig["MIN_TASKS_PER_FRAME"]) or
+					(tTasksCompleted < tTaskState["maxTasksPerFrame"]);
 
-						if tTask["args"] and #tTask["args"] > 0 then
-							for tCnt = 1, #tTask["args"] do
-								if tCnt > 1 then
-									tArgsSummary = tArgsSummary .. ",";
+				if tShouldProcessTask then
+					tTask = VUHDO_heapExtractTop(VUHDO_TASK_PRIORITY_QUEUE, VUHDO_TASK_QUEUE_MAP);
+
+					if tTask["delegate"] and tTaskType then
+						_, _, tTaskDurationUs = VUHDO_executeSingleTask(tTask);
+
+						if VUHDO_DEFERRED_TASK_PROFILING_ENABLED then
+							tArgsSummary = "";
+
+							if tTask["args"] and #tTask["args"] > 0 then
+								for tCnt = 1, #tTask["args"] do
+									if tCnt > 1 then
+										tArgsSummary = tArgsSummary .. ",";
+									end
+
+									tArgsSummary = tArgsSummary .. tostring(tTask["args"][tCnt] or "nil");
 								end
-
-								tArgsSummary = tArgsSummary .. tostring(tTask["args"][tCnt] or "nil");
+							else
+								tArgsSummary = "none";
 							end
-						else
-							tArgsSummary = "none";
+
+							tQueueTimeUs = 0;
+
+							if tTask["enqueueTime"] then
+								tQueueTimeUs = (GetTime() - tTask["enqueueTime"]) * 1000000;
+							end
+
+							VUHDO_updateDeferredTaskIndividualMetrics(tTaskType, tTaskDurationUs, tArgsSummary, #tTask["args"] or 0, tQueueTimeUs);
+
+							if tTaskMetricsForSnapshot then
+								tinsert(tTaskMetricsForSnapshot, {
+									["type"] = tTaskType,
+									["args"] = tArgsSummary,
+									["argCount"] = #tTask["args"] or 0,
+									["durationUs"] = tTaskDurationUs,
+								});
+							end
+
+							tEstimatedCostOfNextTask = tTaskState["avgCostUsByType"][tTaskType] or VUHDO_TASK_TYPE_DEFAULT_COSTS[tTaskType] or 0;
+							tPredictionError = abs(tEstimatedCostOfNextTask - tTaskDurationUs);
+							tPredictionAccuracy = 1 - (tPredictionError / max(1, tTaskDurationUs));
+
+							tPredictionAccuracy = max(-1, min(1, tPredictionAccuracy));
+
+							if not tTaskState["costPredictionAccuracy"] then
+								tTaskState["costPredictionAccuracy"] = { };
+							end
+
+							if not tTaskState["costPredictionAccuracy"][tTaskType] then
+								tTaskState["costPredictionAccuracy"][tTaskType] = {
+									["total"] = 0,
+									["count"] = 0,
+									["accuracy"] = 0,
+								};
+							end
+
+							tAccuracy = tTaskState["costPredictionAccuracy"][tTaskType];
+
+							tAccuracy["total"] = tAccuracy["total"] + tPredictionAccuracy;
+							tAccuracy["count"] = tAccuracy["count"] + 1;
+							tAccuracy["accuracy"] = tAccuracy["total"] / tAccuracy["count"];
 						end
 
-						tQueueTimeUs = 0;
+						tTasksCompleted = tTasksCompleted + 1;
 
-						if tTask["enqueueTime"] then
-							tQueueTimeUs = (GetTime() - tTask["enqueueTime"]) * 1000000;
-						end
+						VUHDO_DEFERRED_TASK_POOL:release(tTask);
 
-						VUHDO_updateDeferredTaskIndividualMetrics(tTaskType, tTaskDurationUs, tArgsSummary, #tTask["args"] or 0, tQueueTimeUs);
-
-						if tTaskMetricsForSnapshot then
-							tinsert(tTaskMetricsForSnapshot, {
-								["type"] = tTaskType,
-								["args"] = tArgsSummary,
-								["argCount"] = #tTask["args"] or 0,
-								["durationUs"] = tTaskDurationUs,
-							});
-						end
-
-						tEstimatedCostOfNextTask = tTaskState["avgCostUsByType"][tTaskType] or VUHDO_TASK_TYPE_DEFAULT_COSTS[tTaskType] or 0;
-						tPredictionError = abs(tEstimatedCostOfNextTask - tTaskDurationUs);
-						tPredictionAccuracy = 1 - (tPredictionError / max(1, tTaskDurationUs));
-
-						tPredictionAccuracy = max(-1, min(1, tPredictionAccuracy));
-
-						if not tTaskState["costPredictionAccuracy"] then
-							tTaskState["costPredictionAccuracy"] = { };
-						end
-
-						if not tTaskState["costPredictionAccuracy"][tTaskType] then
-							tTaskState["costPredictionAccuracy"][tTaskType] = {
-								["total"] = 0,
-								["count"] = 0,
-								["accuracy"] = 0,
-							};
-						end
-
-						tAccuracy = tTaskState["costPredictionAccuracy"][tTaskType];
-
-						tAccuracy["total"] = tAccuracy["total"] + tPredictionAccuracy;
-						tAccuracy["count"] = tAccuracy["count"] + 1;
-						tAccuracy["accuracy"] = tAccuracy["total"] / tAccuracy["count"];
+						tTask = nil;
 					end
-
-					tTasksCompleted = tTasksCompleted + 1;
-
-					VUHDO_DEFERRED_TASK_POOL:release(tTask);
-
-					tTask = nil;
 				end
 			end
 		end
@@ -1491,7 +1534,7 @@ do
 			return;
 		end
 
-		if #VUHDO_TASK_PRIORITY_QUEUE > 0 then
+		if #VUHDO_TASK_PRIORITY_QUEUE > 0 or #sCombatHeldTasks > 0 then
 			if VUHDO_DEFERRED_TASK_PROFILING_ENABLED then
 				tChunkDelegate = VUHDO_executeDeferredTaskChunk;
 
@@ -2081,6 +2124,7 @@ function VUHDO_initTaskSystem()
 			[VUHDO_DEFER_REDRAW_ALL_PANELS_COMPLETE] = _G["VUHDO_deferRedrawAllPanelsCompleteDelegate"],
 			[VUHDO_DEFER_PREWARM_AURA_POOLS] = _G["VUHDO_prewarmAuraFramePoolsChunk"],
 			[VUHDO_DEFER_UPDATE_AURA_DISPLAYS_FOR_UNIT] = _G["VUHDO_updateAuraDisplaysForUnit"],
+			[VUHDO_DEFER_REFRESH_PRIVATE_AURAS] = _G["VUHDO_refreshPrivateAuras"],
 		};
 
 		tTaskTypeCount = 0;

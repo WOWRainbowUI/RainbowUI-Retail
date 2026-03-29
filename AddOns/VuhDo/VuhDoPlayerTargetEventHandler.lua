@@ -18,6 +18,7 @@ local VUHDO_getUnitButtonsSafe;
 local VUHDO_getPlayerTargetFrame;
 local VUHDO_cleanupSpellTraceForUnit;
 local VUHDO_applyAllLayersToBorder;
+local VUHDO_unregisterUnitForEvents;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -40,6 +41,7 @@ function VUHDO_playerTargetEventHandlerInitLocalOverrides()
 	VUHDO_getPlayerTargetFrame = _G["VUHDO_getPlayerTargetFrame"];
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
 	VUHDO_applyAllLayersToBorder = _G["VUHDO_applyAllLayersToBorder"];
+	VUHDO_unregisterUnitForEvents = _G["VUHDO_unregisterUnitForEvents"];
 
 	return;
 
@@ -104,6 +106,9 @@ function VUHDO_updatePlayerTarget()
 			VUHDO_updateTargetBars("target");
 
 			table.wipe(VUHDO_RAID["target"] or tEmptyInfo);
+
+			VUHDO_unregisterUnitForEvents("target");
+
 			VUHDO_RAID["target"] = nil;
 		end
 

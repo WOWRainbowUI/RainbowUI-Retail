@@ -15,11 +15,13 @@ local format = format;
 local VUHDO_RAID;
 
 local VUHDO_getOrCreateUnitInfo;
+local VUHDO_unregisterAllUnitEventFrames;
 
 function VUHDO_dcShieldInitLocalOverrides()
 	VUHDO_RAID = _G["VUHDO_RAID"];
 
 	VUHDO_getOrCreateUnitInfo = _G["VUHDO_getOrCreateUnitInfo"];
+	VUHDO_unregisterAllUnitEventFrames = _G["VUHDO_unregisterAllUnitEventFrames"];
 end
 
 -----------------------------------------------------------------------------------
@@ -226,6 +228,9 @@ function VUHDO_buildRaidFromMacro()
 	if (tIndexGroups or 0) == 0 or (tIndexNames or 0) == 0 then return false; end
 
 	twipe(VUHDO_RAID);
+
+	VUHDO_unregisterAllUnitEventFrames();
+
 	tMacroGroups = GetMacroBody(tIndexGroups);
 	tMacroNames = GetMacroBody(tIndexNames);
 

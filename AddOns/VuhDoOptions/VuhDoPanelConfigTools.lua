@@ -12,7 +12,6 @@ local VUHDO_GI_SCAN_SKIPS = {
 };
 
 local GetSpellInfo = GetSpellInfo or VUHDO_getSpellInfo;
-local GetSpellName = C_Spell.GetSpellName;
 local GetSpellBookItemTexture = GetSpellBookItemTexture or VUHDO_getSpellBookItemTexture;
 local pairs = pairs;
 

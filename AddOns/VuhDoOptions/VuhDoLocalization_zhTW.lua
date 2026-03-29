@@ -814,11 +814,6 @@ VUHDO_I18N_TT.K757 = "Direction in which private aura icons grow within a row.";
 VUHDO_I18N_TT.K758 = "Direction in which rows wrap when max columns is reached.";
 VUHDO_I18N_TT.K759 = "Maximum number of icons per row before wrapping.";
 VUHDO_I18N_TT.K760 = "Maximum number of rows of private aura icons.";
-VUHDO_I18N_TT.K778 = "Play this sound when a new aura matching this group is detected on a unit.";
-VUHDO_I18N_TT.K779 = "Check to show a glow effect on the health bar when this aura group is active.";
-VUHDO_I18N_TT.K780 = "Click to set the glow color for this aura group.";
-VUHDO_I18N_TT.K781 = "Click to open spell entry settings.";
-VUHDO_I18N_TT.K782 = "Only show this aura when cast by you.";
 VUHDO_I18N_TT.K761 = "Only show this aura when cast by other players.";
 VUHDO_I18N_TT.K762 = "Show timer based on total spell duration (countdown from max).";
 VUHDO_I18N_TT.K763 = "Show timer based on how long the aura has been active.";
@@ -836,6 +831,13 @@ VUHDO_I18N_TT.K774 = "Fade icon when remaining duration is at or below this thre
 VUHDO_I18N_TT.K775 = "Override flash on low setting for this spell (On/Default/Off).";
 VUHDO_I18N_TT.K776 = "Flash icon when remaining duration is at or below this threshold.";
 VUHDO_I18N_TT.K777 = "Live preview of how the icon will appear with current settings.";
+VUHDO_I18N_TT.K778 = "Play this sound when a new aura matching this group is detected on a unit.";
+VUHDO_I18N_TT.K779 = "Check to show a glow effect on the health bar when this aura group is active.";
+VUHDO_I18N_TT.K780 = "Click to set the glow color for this aura group.";
+VUHDO_I18N_TT.K781 = "Click to open spell entry settings.";
+VUHDO_I18N_TT.K782 = "Only show this aura when cast by you.";
+VUHDO_I18N_TT.K783 = "Check to hide standard Blizzard arena frames.";
+VUHDO_I18N_TT.K784 = "Show tooltip when hovering over private aura icons.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";
@@ -1536,3 +1538,5 @@ VUHDO_I18N_SPELL_SETTINGS = "Spell Settings";
 VUHDO_I18N_DISPLAY_OVERRIDES = "Display Overrides";
 
 VUHDO_I18N_NO_ICON = "No Icon";
+
+VUHDO_I18N_ARENA = "Arena";

@@ -14,6 +14,11 @@ local VUHDO_INDICATOR_CONFIG;
 local VUHDO_SECRET_TYPE_NONE;
 local VUHDO_SECRET_TYPE_BOOLEAN;
 
+local VUHDO_BOUQUET_LAYER_TYPE_NONSECRET;
+local VUHDO_BOUQUET_LAYER_TYPE_CURVE;
+local VUHDO_BOUQUET_LAYER_TYPE_DISPEL;
+local VUHDO_BOUQUET_LAYER_TYPE_AURA;
+
 local VUHDO_RAID_TARGET_TEXTURE_ROWS = 4;
 local VUHDO_RAID_TARGET_TEXTURE_COLUMNS = 4;
 
@@ -116,6 +121,11 @@ function VUHDO_bouquetLayersInitLocalOverrides()
 	VUHDO_INDICATOR_CONFIG = _G["VUHDO_INDICATOR_CONFIG"];
 	VUHDO_SECRET_TYPE_NONE = _G["VUHDO_SECRET_TYPE_NONE"];
 	VUHDO_SECRET_TYPE_BOOLEAN = _G["VUHDO_SECRET_TYPE_BOOLEAN"];
+
+	VUHDO_BOUQUET_LAYER_TYPE_NONSECRET = _G["VUHDO_BOUQUET_LAYER_TYPE_NONSECRET"];
+	VUHDO_BOUQUET_LAYER_TYPE_CURVE = _G["VUHDO_BOUQUET_LAYER_TYPE_CURVE"];
+	VUHDO_BOUQUET_LAYER_TYPE_DISPEL = _G["VUHDO_BOUQUET_LAYER_TYPE_DISPEL"];
+	VUHDO_BOUQUET_LAYER_TYPE_AURA = _G["VUHDO_BOUQUET_LAYER_TYPE_AURA"];
 
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getBarText = _G["VUHDO_getBarText"];
@@ -875,21 +885,21 @@ local function VUHDO_applySortedValidatorsToTarget(aButton, aTarget, aTargetType
 		tType = tEntry["type"];
 		tResultIdx = tEntry["resultIdx"];
 
-		if tType == "nonsecret" then
+		if tType == VUHDO_BOUQUET_LAYER_TYPE_NONSECRET then
 			tResult = aLayerTemplate["nonSecretResults"][tResultIdx];
 
 			if tResult["isActive"] then
 				VUHDO_applyNonSecretColorByIndex(aTarget, aTargetType, aLayerTemplate, tResultIdx);
 			end
-		elseif tType == "curve" then
+		elseif tType == VUHDO_BOUQUET_LAYER_TYPE_CURVE then
 			VUHDO_applyCurveColorByIndex(aTarget, aTargetType, aLayerTemplate, tResultIdx);
-		elseif tType == "dispel" then
+		elseif tType == VUHDO_BOUQUET_LAYER_TYPE_DISPEL then
 			tResult = aLayerTemplate["dispelResults"][tResultIdx];
 
 			if tResult["isActive"] then
 				VUHDO_applyDispelColorByIndex(aTarget, aTargetType, aLayerTemplate, aButton["raidid"], tResultIdx);
 			end
-		elseif tType == "aura" then
+		elseif tType == VUHDO_BOUQUET_LAYER_TYPE_AURA then
 			tResult = aLayerTemplate["auraResults"][tResultIdx];
 
 			if tResult["isActive"] then

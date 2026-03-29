@@ -37,6 +37,7 @@ local VUHDO_INFERRED_AURA_SYNTHETIC_IDS;
 local VUHDO_INFERRED_AURAS;
 
 local VUHDO_getDispelCurveForUnit;
+local VUHDO_getDispelTextCurveForUnit;
 local VUHDO_hasInferredAura;
 local VUHDO_createTablePool;
 
@@ -148,6 +149,7 @@ function VUHDO_auraColorsInitLocalOverrides()
 	VUHDO_INFERRED_AURAS = _G["VUHDO_INFERRED_AURAS"];
 
 	VUHDO_getDispelCurveForUnit = _G["VUHDO_getDispelCurveForUnit"];
+	VUHDO_getDispelTextCurveForUnit = _G["VUHDO_getDispelTextCurveForUnit"];
 	VUHDO_hasInferredAura = _G["VUHDO_hasInferredAura"];
 	VUHDO_createTablePool = _G["VUHDO_createTablePool"];
 
@@ -1021,7 +1023,7 @@ do
 
 	--
 	local tTextWinner;
-	function VUHDO_getAuraTextColor(aUnit, aDispelCurve)
+	function VUHDO_getAuraTextColor(aUnit, aDispelTextCurve)
 
 		tTextWinner = sUnitAuraTextWinner[aUnit];
 
@@ -1034,7 +1036,7 @@ do
 		end
 
 		if tTextWinner["colorType"] == VUHDO_AURA_GROUP_COLOR_DISPEL and tTextWinner["dispelAuraId"] then
-			tDispelCurve = aDispelCurve or VUHDO_getDispelCurveForUnit(aUnit, true);
+			tDispelCurve = aDispelTextCurve or VUHDO_getDispelTextCurveForUnit(aUnit, true);
 
 			if tDispelCurve then
 				tDispelColorMixin = GetAuraDispelTypeColor(aUnit, tTextWinner["dispelAuraId"], tDispelCurve);
