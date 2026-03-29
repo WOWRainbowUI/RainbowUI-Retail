@@ -1386,18 +1386,10 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 	elseif 10 == anUpdateMode then -- VUHDO_UPDATE_ALIVE
 		VUHDO_determineIncHeal(aUnit);
 
-		tInfo = VUHDO_RAID[aUnit];
-
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeText(tButton, 1, false); -- VUHDO_UPDATE_ALL
 
-			if tInfo then
-				if tInfo["dead"] then
-					VUHDO_removePrivateAuras(tButton);
-				else
-					VUHDO_refreshPrivateAuras(VUHDO_BUTTON_CACHE[tButton], tButton, aUnit);
-				end
-			end
+			VUHDO_refreshPrivateAuras(VUHDO_BUTTON_CACHE[tButton], tButton, aUnit);
 		end
 
 		VUHDO_updateIncHeal(aUnit);
@@ -1408,18 +1400,10 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 		end
 
 	elseif 19 == anUpdateMode then -- VUHDO_UPDATE_DC
-		tInfo = VUHDO_RAID[aUnit];
-
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
 
-			if tInfo then
-				if not tInfo["connected"] then
-					VUHDO_removePrivateAuras(tButton);
-				else
-					VUHDO_refreshPrivateAuras(VUHDO_BUTTON_CACHE[tButton], tButton, aUnit);
-				end
-			end
+			VUHDO_refreshPrivateAuras(VUHDO_BUTTON_CACHE[tButton], tButton, aUnit);
 		end
 
 	elseif 1 == anUpdateMode then -- VUHDO_UPDATE_ALL

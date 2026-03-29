@@ -568,11 +568,16 @@ end
 
 --
 function VUHDO_reloadRaidDemoUsers()
+
 	if (tHasLoaded) then
 		return;
 	end
+
 	tHasLoaded = true;
 	twipe(VUHDO_RAID);
+
+	VUHDO_unregisterAllUnitEventFrames();
+
 	VUHDO_TEST_USERS_LEFT = VUHDO_deepCopyTable(VUHDO_DEMO_SETUP[VUHDO_CONFIG_TEST_USERS]);
 	tPetDemoIdx = 1;
 	tRaidDemoIdx = 1;
@@ -581,13 +586,18 @@ function VUHDO_reloadRaidDemoUsers()
 	end
 
 	twipe(VUHDO_MAINTANK_NAMES);
+
 	for tCnt = 1, VUHDO_TEST_USERS_LEFT[VUHDO_ID_MAINTANKS] do
 		VUHDO_MAINTANK_NAMES[tCnt] = VUHDO_RAID["raid" .. tCnt]["name"];
 	end
 
 	twipe(VUHDO_PLAYER_TARGETS);
+
 	for tCnt = 1, VUHDO_TEST_USERS_LEFT[VUHDO_ID_PRIVATE_TANKS] do
 		VUHDO_PLAYER_TARGETS[VUHDO_RAID["raid" .. (VUHDO_CONFIG_TEST_USERS - tCnt)]["name"] ] = true;
 	end
+
+	return;
+
 end
 

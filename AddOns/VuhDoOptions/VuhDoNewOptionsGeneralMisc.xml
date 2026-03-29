@@ -3,7 +3,7 @@
 		<Frames>
 			<Frame name="$parentHideStandardPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="240" y="207" />
+					<AbsDimension x="240" y="245" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -139,6 +139,22 @@
 							<OnLoad>
 								VUHDO_lnfSetRadioModel(self, "VUHDO_CONFIG.BLIZZ_UI_HIDE_BOSS", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
 								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K610);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentHideStandardArenaCheckButton" text="VUHDO_I18N_ARENA" inherits="VuhDoTriStateCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-194" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetRadioModel(self, "VUHDO_CONFIG.BLIZZ_UI_HIDE_ARENA", { VUHDO_I18N_SHOW, VUHDO_I18N_LEAVE_ALONE, VUHDO_I18N_HIDE });
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K783);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>

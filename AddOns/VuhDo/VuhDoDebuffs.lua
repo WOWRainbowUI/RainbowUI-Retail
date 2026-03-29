@@ -1951,14 +1951,6 @@ function VUHDO_hasUnitDebuff(aUnit, aSpell)
 		return;
 	end
 
-	if type(aSpell) == "number" then
-		aSpell = tostring(aSpell);
-	end
-
-	if VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit] and (VUHDO_UNIT_CUSTOM_DEBUFF_SPELLS[aUnit][aSpell] or 0) > 0 then
-		return true;
-	else
-		return false;
-	end
+	return VUHDO_hasUnitAura(aUnit, aSpell, "HARMFUL");
 
 end

@@ -815,11 +815,6 @@ VUHDO_I18N_TT.K757 = "設定私有光環圖示在同一列中的延伸方向。"
 VUHDO_I18N_TT.K758 = "設定當達到最大欄數時，列的換行方向。";
 VUHDO_I18N_TT.K759 = "每列在換行前可顯示的最大圖示數量。";
 VUHDO_I18N_TT.K760 = "私有光環圖示的最大列數。";
-VUHDO_I18N_TT.K778 = "偵測到符合此群組的新光環時播放音效。";
-VUHDO_I18N_TT.K779 = "在血條上顯示光暈效果，當此光環群組啟動時生效。";
-VUHDO_I18N_TT.K780 = "點擊以設定此光環群組的光暈顏色。";
-VUHDO_I18N_TT.K781 = "點擊以開啟法術條目設定。";
-VUHDO_I18N_TT.K782 = "僅在此光環由你施放時顯示。";
 VUHDO_I18N_TT.K761 = "僅在此光環由其他玩家施放時顯示。";
 VUHDO_I18N_TT.K762 = "依照法術總持續時間顯示計時器（從最大值倒數）。";
 VUHDO_I18N_TT.K763 = "依照光環已存在的時間顯示計時器。";
@@ -837,6 +832,14 @@ VUHDO_I18N_TT.K774 = "當剩餘時間低於或等於此閾值時淡出圖示。"
 VUHDO_I18N_TT.K775 = "覆寫此法術的低剩餘時間閃爍設定（開/預設/關）。";
 VUHDO_I18N_TT.K776 = "當剩餘時間低於或等於此閾值時閃爍圖示。";
 VUHDO_I18N_TT.K777 = "即時預覽圖示在目前設定下的顯示效果。";
+VUHDO_I18N_TT.K778 = "當偵測到符合此群組的新光環時播放此音效。";
+VUHDO_I18N_TT.K779 = "當此光環群組啟動時在血條上顯示發光效果。";
+VUHDO_I18N_TT.K780 = "點擊以設定此光環群組的發光顏色。";
+VUHDO_I18N_TT.K781 = "點擊以開啟法術輸入設定。";
+VUHDO_I18N_TT.K782 = "僅在由你施放時顯示此光環。";
+VUHDO_I18N_TT.K783 = "隱藏遊戲內建的競技場框架。";
+VUHDO_I18N_TT.K784 = "滑鼠移到私有光環圖示上時顯示提示訊息。";
+
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1536,3 +1539,5 @@ VUHDO_I18N_SPELL_SETTINGS = "法術設定";
 VUHDO_I18N_DISPLAY_OVERRIDES = "顯示覆寫";
 
 VUHDO_I18N_NO_ICON = "沒有圖示";
+
+VUHDO_I18N_ARENA = "競技場";

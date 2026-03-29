@@ -1,15 +1,5 @@
 local _;
 
-local VUHDO_STD_BACKDROP = nil;
-local VUHDO_DESIGN_BACKDROP = nil;
-local VUHDO_CONFIG;
-local VUHDO_INDICATOR_CONFIG;
-
-local VUHDO_STATUSBAR_LEFT_TO_RIGHT;
-local VUHDO_STATUSBAR_RIGHT_TO_LEFT;
-local VUHDO_STATUSBAR_BOTTOM_TO_TOP;
-local VUHDO_STATUSBAR_TOP_TO_BOTTOM;
-
 local ipairs = ipairs;
 local pairs = pairs;
 local strfind = strfind;
@@ -19,6 +9,29 @@ local floor = math.floor;
 
 local InCombatLockdown = InCombatLockdown;
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
+
+local VUHDO_getFont;
+local VUHDO_getHealthBar;
+local VUHDO_getPixelPerfectBorderEdgeSize;
+local VUHDO_getPixelPerfectBorderInsets;
+local VUHDO_getDynamicModelArray;
+local VUHDO_getGroupMembersSorted;
+local VUHDO_getGroupMembers;
+local VUHDO_redrawPanel;
+local VUHDO_redrawAllPanels;
+local VUHDO_refreshAllUnitAuras;
+local VUHDO_calculateDerivedOrientation;
+local VUHDO_updateToggledUnitEvents;
+
+local VUHDO_STD_BACKDROP = nil;
+local VUHDO_DESIGN_BACKDROP = nil;
+local VUHDO_CONFIG;
+local VUHDO_INDICATOR_CONFIG;
+
+local VUHDO_STATUSBAR_LEFT_TO_RIGHT;
+local VUHDO_STATUSBAR_RIGHT_TO_LEFT;
+local VUHDO_STATUSBAR_BOTTOM_TO_TOP;
+local VUHDO_STATUSBAR_TOP_TO_BOTTOM;
 
 local sPanelConfig = { };
 local sButtonInitSemaphores = { };
@@ -72,17 +85,6 @@ local sGrowthOffsets = {
 	["DOWN"] = { 0, -1 },
 };
 
-local VUHDO_getFont;
-local VUHDO_getHealthBar;
-local VUHDO_getPixelPerfectBorderEdgeSize;
-local VUHDO_getPixelPerfectBorderInsets;
-local VUHDO_getDynamicModelArray;
-local VUHDO_getGroupMembersSorted;
-local VUHDO_getGroupMembers;
-local VUHDO_redrawPanel;
-local VUHDO_redrawAllPanels;
-local VUHDO_refreshAllUnitAuras;
-
 
 
 --
@@ -96,10 +98,6 @@ function VUHDO_panelRedrawInitLocalOverrides()
 	VUHDO_STATUSBAR_BOTTOM_TO_TOP = _G["VUHDO_STATUSBAR_BOTTOM_TO_TOP"];
 	VUHDO_STATUSBAR_TOP_TO_BOTTOM = _G["VUHDO_STATUSBAR_TOP_TO_BOTTOM"];
 
-	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
-		sIsManaBouquet[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
-	end
-
 	VUHDO_getFont = _G["VUHDO_getFont"];
 	VUHDO_getHealthBar = _G["VUHDO_getHealthBar"];
 	VUHDO_getPixelPerfectBorderEdgeSize = _G["VUHDO_getPixelPerfectBorderEdgeSize"];
@@ -107,6 +105,9 @@ function VUHDO_panelRedrawInitLocalOverrides()
 	VUHDO_getDynamicModelArray = _G["VUHDO_getDynamicModelArray"];
 	VUHDO_getGroupMembersSorted = _G["VUHDO_getGroupMembersSorted"];
 	VUHDO_getGroupMembers = _G["VUHDO_getGroupMembers"];
+	VUHDO_refreshAllUnitAuras = _G["VUHDO_refreshAllUnitAuras"];
+	VUHDO_calculateDerivedOrientation = _G["VUHDO_calculateDerivedOrientation"];
+	VUHDO_updateToggledUnitEvents = _G["VUHDO_updateToggledUnitEvents"];
 
 	VUHDO_panelRedrawCustomDebuffsInitLocalOverrides();
 	VUHDO_panelRedrawHeadersInitLocalOverrides();
@@ -120,7 +121,9 @@ function VUHDO_panelRedrawInitLocalOverrides()
 		VUHDO_redrawAllPanels = _G["VUHDO_redrawAllPanels"];
 	end
 
-	VUHDO_refreshAllUnitAuras = _G["VUHDO_refreshAllUnitAuras"];
+	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
+		sIsManaBouquet[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
+	end
 
 	return;
 
@@ -371,6 +374,7 @@ function VUHDO_initLocalVars(aPanelNum)
 		tPrivateAura["wrapDir"] = "DOWN";
 		tPrivateAura["maxColumns"] = 3;
 		tPrivateAura["maxRows"] = 2;
+		tPrivateAura["showTooltip"] = false;
 	end
 
 	tIconSizePercent = sPanelConfig[aPanelNum]["privateAura"]["iconSize"] or 40;
@@ -1048,7 +1052,12 @@ do
 
 		VUHDO_PixelUtil.SetPoint(tPrivateAura, sPanelConfig[aPanelNum]["privateAura"]["point"], aHealthBar:GetName(), sPanelConfig[aPanelNum]["privateAura"]["point"], tX, tY);
 
-		VUHDO_PixelUtil.SetSize(tPrivateAura, sPanelConfig[aPanelNum]["privateAuraFrameSize"], sPanelConfig[aPanelNum]["privateAuraFrameSize"]);
+		if sPanelConfig[aPanelNum]["privateAura"]["showTooltip"] then
+			VUHDO_PixelUtil.SetSize(tPrivateAura, sPanelConfig[aPanelNum]["privateAuraFrameSize"], sPanelConfig[aPanelNum]["privateAuraFrameSize"]);
+		else
+			VUHDO_PixelUtil.SetSize(tPrivateAura, 0.001, 0.001);
+		end
+
 		VUHDO_PixelUtil.SetScale(tPrivateAura, sPanelConfig[aPanelNum]["privateAuraHeight"] / 32);
 
 		return;
@@ -1304,6 +1313,10 @@ do
 	local tPredHealAbsorbBar;
 	local tPredOrientation;
 	local tPredIsInverted;
+	local tPredTurnAxisOvershield;
+	local tPredTurnAxisHealAbsorb;
+	local tPredOvershieldDerived;
+	local tPredHealAbsorbDerived;
 	local tAnchorFrom;
 	local tAnchorTo;
 	function VUHDO_initPredictionBarAnchors(aButton, aPanelNum)
@@ -1320,6 +1333,8 @@ do
 
 		tPredOrientation = VUHDO_getStatusbarOrientationString("HEALTH_BAR", aPanelNum);
 		tPredIsInverted = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["invertGrowth"];
+		tPredTurnAxisOvershield = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisOvershield"];
+		tPredTurnAxisHealAbsorb = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealAbsorb"];
 
 		tPredHealthBar:SetMinMaxValues(0, 1);
 		tPredHealthBar:SetValue(0);
@@ -1360,17 +1375,21 @@ do
 		tPredShieldBar:SetPoint(tAnchorFrom, tPredIncBar:GetStatusBarTexture(), tAnchorTo);
 
 		if tPredOvershieldBar then
+			tPredOvershieldDerived = VUHDO_calculateDerivedOrientation(tPredOrientation, tPredTurnAxisOvershield);
+
 			tPredOvershieldBar:ClearAllPoints();
 			tPredOvershieldBar:SetAllPoints(tPredHealthBar);
 			VUHDO_setStatusBarOrientation(tPredOvershieldBar, VUHDO_getStatusbarOrientationNumber("HEALTH_BAR", aPanelNum));
-			tPredOvershieldBar:SetReverseFill(tPredIsInverted == (tPredOrientation == "HORIZONTAL_INV" or tPredOrientation == "VERTICAL_INV"));
+			tPredOvershieldBar:SetReverseFill(tPredIsInverted == (tPredOvershieldDerived == "HORIZONTAL_INV" or tPredOvershieldDerived == "VERTICAL_INV"));
 		end
 
 		if tPredHealAbsorbBar then
+			tPredHealAbsorbDerived = VUHDO_calculateDerivedOrientation(tPredOrientation, tPredTurnAxisHealAbsorb);
+
 			tPredHealAbsorbBar:ClearAllPoints();
 			tPredHealAbsorbBar:SetAllPoints(tPredHealthBar);
 			VUHDO_setStatusBarOrientation(tPredHealAbsorbBar, VUHDO_getStatusbarOrientationNumber("HEALTH_BAR", aPanelNum));
-			tPredHealAbsorbBar:SetReverseFill(true);
+			tPredHealAbsorbBar:SetReverseFill(tPredIsInverted == (tPredHealAbsorbDerived == "HORIZONTAL_INV" or tPredHealAbsorbDerived == "VERTICAL_INV"));
 		end
 
 		return;
@@ -2325,6 +2344,8 @@ do
 
 		VUHDO_initAllEventBouquets();
 
+		VUHDO_updateToggledUnitEvents();
+
 		return;
 
 	end
@@ -2609,6 +2630,8 @@ do
 		VUHDO_PixelUtil.SetFrameStrata(VuhDoDirectionFrame, "TOOLTIP");
 
 		VUHDO_initAllEventBouquets();
+
+		VUHDO_updateToggledUnitEvents();
 
 		sRedrawAllPanelsSemaphore = nil;
 

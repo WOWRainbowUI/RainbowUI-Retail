@@ -19,6 +19,15 @@ VUHDO_AURA_IGNORE_LIST_DEFAULTS = {
 	[160455] = true, -- Fatigued (Drums of Fury)
 	[390435] = true, -- Exhaustion (alternate)
 	[1227806] = true, -- Lifebloom (hidden player aura)
+	[404464] = true, -- Flight Style: Skyriding
+	[404468] = true, -- Flight Style: Steady
+	[418590] = true, -- Static Charge (Skyriding)
+	[377234] = true, -- Thrill of the Skies (Skyriding)
+	[369968] = true, -- Racing (Dragonriding)
+	[447959] = true, -- Ride Along - Enabled (Skyriding)
+	[447960] = true, -- Ride Along - Inactive (Skyriding)
+	[427490] = true, -- Ride Along (Skyriding vehicle)
+	[388367] = true, -- Ohn'ahra's Gusts (Dragonriding)
 };
 
 
@@ -727,6 +736,7 @@ local VUHDO_DEFAULT_CONFIG = {
 	["BLIZZ_UI_HIDE_RAID"] = 2,
 	["BLIZZ_UI_HIDE_RAID_MGR"] = 2,
 	["BLIZZ_UI_HIDE_BOSS"] = 2,
+	["BLIZZ_UI_HIDE_ARENA"] = 2,
 
 	["CURRENT_PROFILE"] = "",
 	["IS_ALWAYS_OVERWRITE_PROFILE"] = false,
@@ -1019,6 +1029,7 @@ function VUHDO_loadDefaultConfig()
 	VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"] = VUHDO_convertToTristate(VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID"], 3, 2);
 	VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"] = VUHDO_convertToTristate(VUHDO_CONFIG["BLIZZ_UI_HIDE_RAID_MGR"], 3, 2);
 	VUHDO_CONFIG["BLIZZ_UI_HIDE_BOSS"] = VUHDO_convertToTristate(VUHDO_CONFIG["BLIZZ_UI_HIDE_BOSS"], 3, 2);
+	VUHDO_CONFIG["BLIZZ_UI_HIDE_ARENA"] = VUHDO_convertToTristate(VUHDO_CONFIG["BLIZZ_UI_HIDE_ARENA"], 3, 2);
 
 	VUHDO_DEFAULT_CONFIG = VUHDO_decompressIfCompressed(VUHDO_DEFAULT_CONFIG);
 	VUHDO_CONFIG = VUHDO_ensureSanity("VUHDO_CONFIG", VUHDO_CONFIG, VUHDO_DEFAULT_CONFIG);
@@ -1060,7 +1071,9 @@ function VUHDO_loadDefaultConfig()
 		for tUnitReaction, tRangeSpells in pairs(VUHDO_DEFAULT_RANGE_SPELLS[tClass]) do
 			local tIsGuessRange = true;
 
-			if VUHDO_strempty(VUHDO_CONFIG["RANGE_SPELL"][tUnitReaction]) then
+			if VUHDO_strempty(VUHDO_CONFIG["RANGE_SPELL"][tUnitReaction])
+				or (not VUHDO_strempty(VUHDO_CONFIG["RANGE_SPELL"][tUnitReaction])
+					and GetSpellName(VUHDO_CONFIG["RANGE_SPELL"][tUnitReaction]) == nil) then
 				for _, tRangeSpell in pairs(tRangeSpells) do
 					if type(tRangeSpell) == "number" then
 						tRangeSpell = IsPlayerSpell(tRangeSpell) and GetSpellName(tRangeSpell) or "!";
@@ -3503,6 +3516,8 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 			{ ["entryType"] = 1, ["value"] = 367364, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 373267, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 376788, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 409895, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 444490, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,
@@ -3545,6 +3560,7 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 			{ ["entryType"] = 1, ["value"] = 33763, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 48438, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 155777, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 439530, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,
@@ -3641,6 +3657,7 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 			{ ["entryType"] = 1, ["value"] = 156910, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 200025, ["mine"] = true, ["others"] = false },
 			{ ["entryType"] = 1, ["value"] = 1244893, ["mine"] = true, ["others"] = false },
+			{ ["entryType"] = 1, ["value"] = 431381, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,
@@ -4069,6 +4086,7 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 		["wrapDir"] = "DOWN",
 		["maxColumns"] = 3,
 		["maxRows"] = 2,
+		["showTooltip"] = false,
 		["VERSION"] = 3,
 	},
 

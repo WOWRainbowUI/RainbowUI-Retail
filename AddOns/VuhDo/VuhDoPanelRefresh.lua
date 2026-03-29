@@ -5,6 +5,7 @@ local table = table;
 local ipairs = ipairs;
 local twipe = table.wipe;
 local min = math.min;
+local InCombatLockdown = InCombatLockdown;
 
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
 local AddPrivateAuraAnchor = C_UnitAuras and C_UnitAuras.AddPrivateAuraAnchor;
@@ -307,6 +308,12 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 		return;
 	end
 
+	if InCombatLockdown() then
+		VUHDO_deferTask(VUHDO_DEFER_REFRESH_PRIVATE_AURAS, VUHDO_DEFERRED_TASK_PRIORITY_NORMAL, aPanelNum, aButton, aUnit);
+
+		return;
+	end
+
 	tPanelSetup = VUHDO_PANEL_SETUP[aPanelNum];
 
 	if not tPanelSetup then
@@ -429,6 +436,10 @@ end
 --
 local tPrivateAura;
 function VUHDO_removePrivateAuras(aButton)
+
+	if InCombatLockdown() then
+		return;
+	end
 
 	for tAuraIndex = 1, VUHDO_MAX_PRIVATE_AURAS do
 		tPrivateAura = VUHDO_getBarPrivateAura(aButton, tAuraIndex);

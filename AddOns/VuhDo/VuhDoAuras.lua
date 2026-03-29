@@ -856,6 +856,151 @@ end
 
 
 
+do
+	--
+	local tUnitAuraSpell;
+	local tInstanceIds;
+	local tInstanceId;
+	local tAuraInfo;
+	local tAuraCache;
+	local tNumSpellId;
+	local tIsHarmful;
+	local tIsHelpful;
+	local function VUHDO_cachedAuraInfoMatchesFilter(aCachedInfo, aFilter)
+
+		if not aCachedInfo then
+			return false;
+		end
+
+		if not aFilter then
+			return true;
+		end
+
+		if "HARMFUL" == aFilter then
+			tIsHarmful = aCachedInfo["isHarmful"];
+
+			if issecretvalue(tIsHarmful) then
+				return false;
+			end
+
+			return tIsHarmful == true;
+		end
+
+		if "HELPFUL" == aFilter then
+			tIsHelpful = aCachedInfo["isHelpful"];
+
+			if issecretvalue(tIsHelpful) then
+				return false;
+			end
+
+			return tIsHelpful == true;
+		end
+
+		return true;
+
+	end
+
+
+
+	--
+	function VUHDO_hasUnitAura(aUnit, aSpell, aFilter)
+
+		if not aUnit or not aSpell then
+			return false;
+		end
+
+		tUnitAuraSpell = VUHDO_UNIT_AURA_BY_SPELL[aUnit];
+
+		if not tUnitAuraSpell then
+			return false;
+		end
+
+		tInstanceIds = tUnitAuraSpell[aSpell];
+
+		if not tInstanceIds and type(aSpell) == "string" then
+			tNumSpellId = tonumber(aSpell);
+
+			if tNumSpellId then
+				tInstanceIds = tUnitAuraSpell[tNumSpellId];
+			end
+		end
+
+		if not tInstanceIds then
+			return false;
+		end
+
+		tAuraCache = VUHDO_UNIT_AURA_CACHE[aUnit];
+
+		if not tAuraCache then
+			return false;
+		end
+
+		for tIdx = 1, #tInstanceIds do
+			tInstanceId = tInstanceIds[tIdx];
+
+			tAuraInfo = tAuraCache[tInstanceId];
+
+			if tAuraInfo and VUHDO_cachedAuraInfoMatchesFilter(tAuraInfo, aFilter) then
+				return true;
+			end
+		end
+
+		return false;
+
+	end
+
+
+
+	--
+	function VUHDO_getUnitAura(aUnit, aSpell, aFilter)
+
+		if not aUnit or not aSpell then
+			return;
+		end
+
+		tUnitAuraSpell = VUHDO_UNIT_AURA_BY_SPELL[aUnit];
+
+		if not tUnitAuraSpell then
+			return;
+		end
+
+		tInstanceIds = tUnitAuraSpell[aSpell];
+
+		if not tInstanceIds and type(aSpell) == "string" then
+			tNumSpellId = tonumber(aSpell);
+
+			if tNumSpellId then
+				tInstanceIds = tUnitAuraSpell[tNumSpellId];
+			end
+		end
+
+		if not tInstanceIds then
+			return;
+		end
+
+		tAuraCache = VUHDO_UNIT_AURA_CACHE[aUnit];
+
+		if not tAuraCache then
+			return;
+		end
+
+		for tIdx = 1, #tInstanceIds do
+			tInstanceId = tInstanceIds[tIdx];
+
+			tAuraInfo = tAuraCache[tInstanceId];
+
+			if tAuraInfo and VUHDO_cachedAuraInfoMatchesFilter(tAuraInfo, aFilter) then
+				return tAuraInfo;
+			end
+		end
+
+		return;
+
+	end
+end
+
+
+
 --
 local tDefaults;
 function VUHDO_resolveAuraTriState(anAnchorValue, aFieldName)

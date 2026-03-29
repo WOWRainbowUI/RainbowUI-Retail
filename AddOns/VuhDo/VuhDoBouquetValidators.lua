@@ -43,7 +43,9 @@ local VUHDO_getAuraTextColor;
 local VUHDO_getAuraCanColorBar;
 local VUHDO_getAuraCanColorText;
 local VUHDO_getDispelTypeCurve;
+local VUHDO_getDispelTypeTextCurve;
 local VUHDO_getOrBuildBrightnessCurve;
+local VUHDO_getOrBuildTextBrightnessCurve;
 
 local sBarColors;
 local sIsDistance;
@@ -138,7 +140,9 @@ function VUHDO_bouquetValidatorsInitLocalOverrides()
 	VUHDO_getUnitHot = _G["VUHDO_getUnitHot"];
 	VUHDO_getUnitHotInfo = _G["VUHDO_getUnitHotInfo"];
 	VUHDO_getDispelTypeCurve = _G["VUHDO_getDispelTypeCurve"];
+	VUHDO_getDispelTypeTextCurve = _G["VUHDO_getDispelTypeTextCurve"];
 	VUHDO_getOrBuildBrightnessCurve = _G["VUHDO_getOrBuildBrightnessCurve"];
+	VUHDO_getOrBuildTextBrightnessCurve = _G["VUHDO_getOrBuildTextBrightnessCurve"];
 
 	sBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
 	sIsDistance = VUHDO_CONFIG["DIRECTION"]["isDistanceText"];
@@ -178,6 +182,46 @@ end
 local tInfo;
 local tCanAttack;
 function VUHDO_getDispelBrightnessCurve(aCurves, aUnit, anIsHarmful)
+
+	tInfo = VUHDO_RAID[aUnit];
+
+	if not tInfo then
+		return nil;
+	end
+
+	tCanAttack = tInfo["canAttack"];
+
+	if not tCanAttack and anIsHarmful then
+		return aCurves["friendly"];
+	end
+
+	if tCanAttack and not anIsHarmful then
+		return aCurves["hostile"];
+	end
+
+	return nil;
+
+end
+
+
+
+--
+local tTextBrightCurves;
+function VUHDO_buildDispelTextBrightnessCurves(aBrightness)
+
+	tTextBrightCurves = {
+		["friendly"] = VUHDO_getOrBuildTextBrightnessCurve(VUHDO_getDispelTypeTextCurve(), aBrightness, "friendly"),
+		["hostile"] = VUHDO_getOrBuildTextBrightnessCurve(VUHDO_getDispelTypeTextCurve(), aBrightness, "hostile"),
+	};
+
+	return tTextBrightCurves;
+
+end
+
+
+
+--
+function VUHDO_getDispelTextBrightnessCurve(aCurves, aUnit, anIsHarmful)
 
 	tInfo = VUHDO_RAID[aUnit];
 
@@ -615,7 +659,7 @@ local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 				sMergedAuraColorBuffer["useBackground"] = nil;
 			end
 
-			tTextColor = tCanColorText and VUHDO_getAuraTextColor(anInfo["unit"], tCurve) or nil;
+			tTextColor = tCanColorText and VUHDO_getAuraTextColor(anInfo["unit"], aSecretContext["dispelTextCurve"]) or nil;
 
 			if tTextColor then
 				sMergedAuraColorBuffer["TR"] = tTextColor["TR"];
@@ -1649,6 +1693,8 @@ VUHDO_BOUQUET_BUFFS_SPECIAL = {
 		["isGlobal"] = false,
 		["buildCurves"] = VUHDO_buildDispelBrightnessCurves,
 		["getCurve"] = VUHDO_getDispelBrightnessCurve,
+		["buildTextCurves"] = VUHDO_buildDispelTextBrightnessCurves,
+		["getTextCurve"] = VUHDO_getDispelTextBrightnessCurve,
 	},
 
 	["DEAD"] = {

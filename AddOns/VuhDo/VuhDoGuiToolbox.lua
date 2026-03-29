@@ -11,6 +11,8 @@ local format = format;
 local GetLocale = GetLocale;
 local InCombatLockdown = InCombatLockdown;
 local UnitExists = UnitExists;
+local hooksecurefunc = hooksecurefunc;
+local MEMBERS_PER_RAID_GROUP = MEMBERS_PER_RAID_GROUP or 5;
 
 local VUHDO_RAID_TARGET_TEXTURE_ROWS = 4;
 local VUHDO_RAID_TARGET_TEXTURE_COLUMNS = 4;
@@ -23,6 +25,11 @@ local sShowPanels;
 local sIsHideEmptyAndClickThrough;
 local sIsPartyFrameHooked;
 local sEmpty = { };
+local sEventHooked = { };
+local sEventBlockedFrames = { };
+local sIsUnregistering = false;
+local sCompactUnitFrameHooked = false;
+local sCompactPartyOnShowHooked = false;
 
 local tEmptyColor = { };
 
@@ -473,6 +480,57 @@ local sFrameOrigParents = {};
 
 
 --
+local function VUHDO_blockRegisterEvent(aFrame)
+
+	if sIsUnregistering then
+		return;
+	end
+
+	if sEventBlockedFrames[aFrame] then
+		sIsUnregistering = true;
+
+		aFrame:UnregisterAllEvents();
+
+		sIsUnregistering = false;
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_onCompactUnitFrameUpdateUnitEvents(aFrame)
+
+	if sEventBlockedFrames[aFrame] then
+		aFrame:UnregisterAllEvents();
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_initCompactUnitFrameHook()
+
+	if sCompactUnitFrameHooked then
+		return;
+	end
+
+	sCompactUnitFrameHooked = true;
+
+	hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", VUHDO_onCompactUnitFrameUpdateUnitEvents);
+
+	return;
+
+end
+
+
+
+--
 local function VUHDO_hideFrame(aFrame)
 
 	if not sFrameHideParents[aFrame] then
@@ -529,6 +587,15 @@ local function VUHDO_unregisterAndSaveEvents(anIsHide, ...)
 
 			tFrame:UnregisterAllEvents();
 
+			if not sEventHooked[tFrame] then
+				hooksecurefunc(tFrame, "RegisterEvent", VUHDO_blockRegisterEvent);
+				hooksecurefunc(tFrame, "RegisterUnitEvent", VUHDO_blockRegisterEvent);
+
+				sEventHooked[tFrame] = true;
+			end
+
+			sEventBlockedFrames[tFrame] = true;
+
 			if anIsHide then
 				VUHDO_hideFrame(tFrame);
 			end
@@ -548,6 +615,8 @@ local function VUHDO_registerOriginalEvents(anIsShow, ...)
 		tFrame = select(tCnt, ...);
 
 		if tFrame then
+			sEventBlockedFrames[tFrame] = nil;
+
 			if sEventsPerFrame[tFrame] then
 				for _, tIndex in pairs(sEventsPerFrame[tFrame]) do
 					tFrame:RegisterEvent(VUHDO_BLIZZ_EVENTS[tIndex]);
@@ -571,9 +640,25 @@ end
 
 
 --
+local function VUHDO_onCompactPartyFrameShow(aFrame)
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 and not InCombatLockdown() then
+		VUHDO_unregisterAndSaveEvents(true, aFrame);
+	end
+
+	return;
+
+end
+
+
+
+--
 local function VUHDO_hideBlizzRaid()
 
+	VUHDO_initCompactUnitFrameHook();
 	VUHDO_unregisterAndSaveEvents(true, CompactRaidFrameManager.container);
+
+	return;
 
 end
 
@@ -584,6 +669,8 @@ local function VUHDO_showBlizzRaid()
 
 	VUHDO_registerOriginalEvents(VUHDO_GROUP_TYPE_SOLO ~= VUHDO_getCurrentGroupType(), CompactRaidFrameManager.container);
 
+	return;
+
 end
 
 
@@ -593,6 +680,8 @@ local function VUHDO_hideBlizzRaidMgr()
 
 	VUHDO_unregisterAndSaveEvents(true, CompactRaidFrameManager);
 
+	return;
+
 end
 
 
@@ -601,16 +690,7 @@ local function VUHDO_showBlizzRaidMgr()
 
 	VUHDO_registerOriginalEvents(VUHDO_GROUP_TYPE_SOLO ~= VUHDO_getCurrentGroupType(), CompactRaidFrameManager);
 
-end
-
-
-
---
-function VUHDO_hideBlizzCompactPartyFrame()
-
-	if VUHDO_CONFIG["BLIZZ_UI_HIDE_PARTY"] == 3 and not InCombatLockdown() and CompactPartyFrame and CompactPartyFrame:IsVisible() then
-		VUHDO_unregisterAndSaveEvents(true, CompactPartyFrame);
-	end
+	return;
 
 end
 
@@ -640,7 +720,10 @@ end
 
 
 --
+local tMemberFrame;
 local function VUHDO_hideBlizzParty()
+
+	VUHDO_initCompactUnitFrameHook();
 
 	if not EditModeManagerFrame:UseRaidStylePartyFrames() then
 		local tPartyFrame = _G["PartyFrame"];
@@ -658,11 +741,37 @@ local function VUHDO_hideBlizzParty()
 				VUHDO_hideFrame(tPartyMemberFrame);
 			end
 		end
+
+		for tCnt = 1, MEMBERS_PER_RAID_GROUP do
+			tMemberFrame = _G["CompactPartyFrameMember" .. tCnt];
+
+			if tMemberFrame then
+				VUHDO_unregisterAndSaveEvents(false, tMemberFrame);
+			end
+		end
 	else
-		if (CompactPartyFrame ~= nil and CompactPartyFrame:IsVisible()) then
-			VUHDO_unregisterAndSaveEvents(true, CompactPartyFrame);
+		if CompactPartyFrame ~= nil then
+			if CompactPartyFrame:IsVisible() then
+				VUHDO_unregisterAndSaveEvents(true, CompactPartyFrame);
+			end
+
+			if not sCompactPartyOnShowHooked then
+				CompactPartyFrame:HookScript("OnShow", VUHDO_onCompactPartyFrameShow);
+
+				sCompactPartyOnShowHooked = true;
+			end
+		end
+
+		for tCnt = 1, MEMBERS_PER_RAID_GROUP do
+			tMemberFrame = _G["CompactPartyFrameMember" .. tCnt];
+
+			if tMemberFrame then
+				VUHDO_unregisterAndSaveEvents(false, tMemberFrame);
+			end
 		end
 	end
+
+	return;
 
 end
 
@@ -691,9 +800,27 @@ local function VUHDO_showBlizzParty()
 				VUHDO_showFrame(tPartyMemberFrame);
 			end
 		end
+
+		for tCnt = 1, MEMBERS_PER_RAID_GROUP do
+			tMemberFrame = _G["CompactPartyFrameMember" .. tCnt];
+
+			if tMemberFrame then
+				VUHDO_registerOriginalEvents(false, tMemberFrame);
+			end
+		end
 	else
 		VUHDO_registerOriginalEvents(true, CompactPartyFrame);
+
+		for tCnt = 1, MEMBERS_PER_RAID_GROUP do
+			tMemberFrame = _G["CompactPartyFrameMember" .. tCnt];
+
+			if tMemberFrame then
+				VUHDO_registerOriginalEvents(false, tMemberFrame);
+			end
+		end
 	end
+
+	return;
 
 end
 
@@ -779,6 +906,45 @@ local function VUHDO_showBlizzFocus()
 
 	VUHDO_registerOriginalEvents(true, FocusFrame);
 	VUHDO_registerOriginalEvents(false, FocusFrame.TargetFrameContent.TargetFrameContentMain.HealthBar, FocusFrame.TargetFrameContent.TargetFrameContentMain.ManaBar);
+
+end
+
+
+
+--
+local function VUHDO_hideBlizzArena()
+
+	if not CompactArenaFrame then
+		return;
+	end
+
+	VUHDO_initCompactUnitFrameHook();
+	VUHDO_unregisterAndSaveEvents(true, CompactArenaFrame);
+
+	for _, tFrame in pairs(CompactArenaFrame.memberUnitFrames or sEmpty) do
+		VUHDO_unregisterAndSaveEvents(false, tFrame);
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_showBlizzArena()
+
+	if not CompactArenaFrame then
+		return;
+	end
+
+	VUHDO_registerOriginalEvents(true, CompactArenaFrame);
+
+	for _, tFrame in pairs(CompactArenaFrame.memberUnitFrames or sEmpty) do
+		VUHDO_registerOriginalEvents(false, tFrame);
+	end
+
+	return;
 
 end
 
@@ -917,6 +1083,12 @@ function VUHDO_initBlizzFrames()
 		VUHDO_showBlizzBoss();
 	end
 
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_ARENA"] == 3 then
+		VUHDO_hideBlizzArena();
+	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_ARENA"] == 1 then
+		VUHDO_showBlizzArena();
+	end
+
 end
 
 
@@ -943,8 +1115,12 @@ function VUHDO_initHideBlizzFrames()
 		VUHDO_hideBlizzFocus();
 	end
 
-		if VUHDO_CONFIG["BLIZZ_UI_HIDE_BOSS"] == 3 then
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_BOSS"] == 3 then
 		VUHDO_hideBlizzBoss();
+	end
+
+	if VUHDO_CONFIG["BLIZZ_UI_HIDE_ARENA"] == 3 then
+		VUHDO_hideBlizzArena();
 	end
 
 	VUHDO_initHideBlizzRaid();

@@ -45,6 +45,12 @@ local VUHDO_AURA_GROUP_COLOR_OFF;
 local VUHDO_AURA_GROUP_COLOR_DISPEL;
 local VUHDO_PLAYER_CLASS;
 
+local VUHDO_BOUQUET_LAYER_TYPE_NONSECRET;
+local VUHDO_BOUQUET_LAYER_TYPE_CURVE;
+local VUHDO_BOUQUET_LAYER_TYPE_DISPEL;
+local VUHDO_BOUQUET_LAYER_TYPE_AURA;
+local VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL;
+
 local VUHDO_LAST_EVALUATED_BOUQUETS = { };
 setmetatable(VUHDO_LAST_EVALUATED_BOUQUETS, VUHDO_META_NEW_ARRAY);
 local VUHDO_REGISTERED_BOUQUETS = { };
@@ -72,6 +78,7 @@ local sBouquetCurves = { };
 local sBouquetColors = { };
 local sCurveCache = { };
 local sBrightnessCurveCache = { };
+local sTextBrightnessCurveCache = { };
 local sThresholds = { };
 
 local sBouquetStatePool;
@@ -82,6 +89,7 @@ local sValidatorEntryPool;
 local sGroupsWithEnabledAnchorReusable = { };
 
 local sDispelTypeCurve;
+local sDispelTypeTextCurve;
 local sDebuffDurationCurve;
 local sMagicDispelCurve;
 local sDiseaseDispelCurve;
@@ -135,6 +143,12 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_AURA_GROUP_COLOR_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_DISPEL"];
 	VUHDO_PLAYER_CLASS = _G["VUHDO_PLAYER_CLASS"];
 
+	VUHDO_BOUQUET_LAYER_TYPE_NONSECRET = _G["VUHDO_BOUQUET_LAYER_TYPE_NONSECRET"];
+	VUHDO_BOUQUET_LAYER_TYPE_CURVE = _G["VUHDO_BOUQUET_LAYER_TYPE_CURVE"];
+	VUHDO_BOUQUET_LAYER_TYPE_DISPEL = _G["VUHDO_BOUQUET_LAYER_TYPE_DISPEL"];
+	VUHDO_BOUQUET_LAYER_TYPE_AURA = _G["VUHDO_BOUQUET_LAYER_TYPE_AURA"];
+	VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL = _G["VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL"];
+
 	VUHDO_rebuildAllAlphaChains = _G["VUHDO_rebuildAllAlphaChains"];
 	VUHDO_getChosenDebuffAuraInstanceId = _G["VUHDO_getChosenDebuffAuraInstanceId"];
 	VUHDO_copyColorTo = _G["VUHDO_copyColorTo"];
@@ -177,6 +191,19 @@ function VUHDO_safeColorFromTable(aColorTable, aFallback)
 
 	if aColorTable and aColorTable["R"] and aColorTable["G"] and aColorTable["B"] then
 		return CreateColor(aColorTable["R"], aColorTable["G"], aColorTable["B"], aColorTable["O"] or 1);
+	end
+
+	return aFallback or sTransparentColor;
+
+end
+
+
+
+--
+function VUHDO_safeTextColorFromTable(aColorTable, aFallback)
+
+	if aColorTable and aColorTable["TR"] and aColorTable["TG"] and aColorTable["TB"] then
+		return CreateColor(aColorTable["TR"], aColorTable["TG"], aColorTable["TB"], aColorTable["TO"] or 1);
 	end
 
 	return aFallback or sTransparentColor;
@@ -298,6 +325,119 @@ end
 
 
 
+do
+	--
+	local tBrightCacheKey;
+	local tColors;
+	local tTransparent;
+	local tNewCurve;
+	local tTypeColor;
+	local tR;
+	local tG;
+	local tB;
+	local tO;
+	function VUHDO_getOrBuildTextBrightnessCurve(aBaseCurve, aBrightness, aCurveType)
+
+		if not aBrightness or aBrightness >= 1 then
+			return aBaseCurve;
+		end
+
+		tBrightCacheKey = "text_" .. aCurveType .. "_" .. tostring(aBrightness);
+
+		if sTextBrightnessCurveCache[tBrightCacheKey] then
+			return sTextBrightnessCurveCache[tBrightCacheKey];
+		end
+
+		tColors = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"];
+		tTransparent = CreateColor(0, 0, 0, 0);
+
+		tNewCurve = CreateColorCurve();
+		tNewCurve:SetType(Enum.LuaCurveType.Step);
+		tNewCurve:AddPoint(0, tTransparent);
+
+		if tColors then
+			tTypeColor = tColors["DEBUFF0"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(0, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF3"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(1, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF4"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(2, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF2"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(3, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF1"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(4, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF6"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(6, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF8"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(8, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF9"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(9, CreateColor(tR, tG, tB, tO));
+			end
+
+			tTypeColor = tColors["DEBUFF8"];
+
+			if tTypeColor then
+				tR, tG, tB, tO = (tTypeColor["TR"] or 0) * aBrightness, (tTypeColor["TG"] or 0) * aBrightness, (tTypeColor["TB"] or 0) * aBrightness, tTypeColor["TO"] or 1;
+
+				tNewCurve:AddPoint(11, CreateColor(tR, tG, tB, tO));
+			end
+		end
+
+		sTextBrightnessCurveCache[tBrightCacheKey] = tNewCurve;
+
+		return tNewCurve;
+
+	end
+end
+
+
+
 --
 local tBouquetCurves;
 function VUHDO_getBouquetCurve(aBouquetName, aCurveType)
@@ -352,6 +492,15 @@ end
 
 
 --
+function VUHDO_getDispelTypeTextCurve()
+
+	return sDispelTypeTextCurve;
+
+end
+
+
+
+--
 function VUHDO_getDebuffDurationCurve()
 
 	return sDebuffDurationCurve;
@@ -366,6 +515,7 @@ function VUHDO_clearCurveCache()
 	twipe(sCurveCache);
 	twipe(sBouquetCurves);
 	twipe(sBouquetColors);
+	twipe(sTextBrightnessCurveCache);
 
 	return;
 
@@ -681,11 +831,15 @@ do
 		sDispelTypeCurve = CreateColorCurve();
 		sDispelTypeCurve:SetType(Enum.LuaCurveType.Step);
 
+		sDispelTypeTextCurve = CreateColorCurve();
+		sDispelTypeTextCurve:SetType(Enum.LuaCurveType.Step);
+
 		tColors = VUHDO_PANEL_SETUP and VUHDO_PANEL_SETUP["BAR_COLORS"];
 		tDefaultColor = CreateColor(0.5, 0.5, 0.5, 1);
 
 		if not tColors then
 			sDispelTypeCurve:AddPoint(0, tDefaultColor);
+			sDispelTypeTextCurve:AddPoint(0, tDefaultColor);
 
 			return;
 		end
@@ -699,6 +853,16 @@ do
 		sDispelTypeCurve:AddPoint(8, VUHDO_safeColorFromTable(tColors["DEBUFF8"], tDefaultColor));
 		sDispelTypeCurve:AddPoint(9, VUHDO_safeColorFromTable(tColors["DEBUFF9"], tDefaultColor));
 		sDispelTypeCurve:AddPoint(11, VUHDO_safeColorFromTable(tColors["DEBUFF8"], tDefaultColor));
+
+		sDispelTypeTextCurve:AddPoint(0, VUHDO_safeTextColorFromTable(tColors["DEBUFF0"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(1, VUHDO_safeTextColorFromTable(tColors["DEBUFF3"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(2, VUHDO_safeTextColorFromTable(tColors["DEBUFF4"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(3, VUHDO_safeTextColorFromTable(tColors["DEBUFF2"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(4, VUHDO_safeTextColorFromTable(tColors["DEBUFF1"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(6, VUHDO_safeTextColorFromTable(tColors["DEBUFF6"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(8, VUHDO_safeTextColorFromTable(tColors["DEBUFF8"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(9, VUHDO_safeTextColorFromTable(tColors["DEBUFF9"], tDefaultColor));
+		sDispelTypeTextCurve:AddPoint(11, VUHDO_safeTextColorFromTable(tColors["DEBUFF8"], tDefaultColor));
 
 		return;
 
@@ -795,6 +959,7 @@ do
 		end
 
 		twipe(sBrightnessCurveCache);
+		twipe(sTextBrightnessCurveCache);
 
 		return;
 
@@ -899,6 +1064,39 @@ do
 
 		if tCanAttack and not anIsHarmful then
 			return sDispelTypeCurve;
+		end
+
+		return nil;
+
+	end
+end
+
+
+
+do
+	--
+	local tInfo;
+	local tCanAttack;
+	function VUHDO_getDispelTextCurveForUnit(aUnit, anIsHarmful)
+
+		if not aUnit then
+			return nil;
+		end
+
+		tInfo = VUHDO_RAID[aUnit];
+
+		if not tInfo then
+			return nil;
+		end
+
+		tCanAttack = tInfo["canAttack"];
+
+		if not tCanAttack and anIsHarmful then
+			return sDispelTypeTextCurve;
+		end
+
+		if tCanAttack and not anIsHarmful then
+			return sDispelTypeTextCurve;
 		end
 
 		return nil;
@@ -1260,6 +1458,10 @@ do
 						tTemplate["dispelValidators"][tDispelIdx]["curves"] = tSpecial["buildCurves"](tItem["custom"]["bright"]);
 					end
 
+					if tSpecial["buildTextCurves"] and tItem["custom"] and tItem["custom"]["bright"] then
+						tTemplate["dispelValidators"][tDispelIdx]["textCurves"] = tSpecial["buildTextCurves"](tItem["custom"]["bright"]);
+					end
+
 					tTemplate["dispelResults"][tDispelIdx] = {
 						["isActive"] = false,
 						["barColor"] = nil,
@@ -1344,7 +1546,7 @@ do
 			for tIdx = 1, #tTemplate["nonSecretValidators"] do
 				tEntry = sValidatorEntryPool:get();
 
-				tEntry["type"] = "nonsecret";
+				tEntry["type"] = VUHDO_BOUQUET_LAYER_TYPE_NONSECRET;
 				tEntry["resultIdx"] = tIdx;
 				tEntry["bouquetIdx"] = tTemplate["nonSecretValidators"][tIdx]["index"];
 
@@ -1356,7 +1558,7 @@ do
 			for tIdx = 1, #tTemplate["curveValidators"] do
 				tEntry = sValidatorEntryPool:get();
 
-				tEntry["type"] = "curve";
+				tEntry["type"] = VUHDO_BOUQUET_LAYER_TYPE_CURVE;
 				tEntry["resultIdx"] = tIdx;
 				tEntry["bouquetIdx"] = tTemplate["curveValidators"][tIdx]["index"];
 
@@ -1368,9 +1570,21 @@ do
 			for tIdx = 1, #tTemplate["dispelValidators"] do
 				tEntry = sValidatorEntryPool:get();
 
-				tEntry["type"] = "dispel";
+				tEntry["type"] = VUHDO_BOUQUET_LAYER_TYPE_DISPEL;
 				tEntry["resultIdx"] = tIdx;
 				tEntry["bouquetIdx"] = tTemplate["dispelValidators"][tIdx]["index"];
+
+				tinsert(tAllValidators, tEntry);
+			end
+		end
+
+		if tTemplate["hasSpriteCells"] then
+			for tIdx = 1, #tTemplate["spriteCellValidators"] do
+				tEntry = sValidatorEntryPool:get();
+
+				tEntry["type"] = VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL;
+				tEntry["resultIdx"] = tIdx;
+				tEntry["bouquetIdx"] = tTemplate["spriteCellValidators"][tIdx]["index"];
 
 				tinsert(tAllValidators, tEntry);
 			end
@@ -1380,7 +1594,7 @@ do
 			for tIdx = 1, #tTemplate["auraValidators"] do
 				tEntry = sValidatorEntryPool:get();
 
-				tEntry["type"] = "aura";
+				tEntry["type"] = VUHDO_BOUQUET_LAYER_TYPE_AURA;
 				tEntry["resultIdx"] = tIdx;
 				tEntry["bouquetIdx"] = tTemplate["auraValidators"][tIdx]["index"];
 
@@ -1866,13 +2080,7 @@ do
 	local tBarColorType;
 	local tTextColorType;
 	local tNeedsCopy;
-	local tCurveResultSlot;
-	local tBoolResultSlot;
-	local tDispelResultSlot;
-	local tSpriteCellResultSlot;
 	local tSpriteCell;
-	local tNonSecretResultSlot;
-	local tAuraResultSlot;
 	local tAuraInstances;
 	local tCachedAura;
 	local tSpellId;
@@ -1945,9 +2153,9 @@ do
 				tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tInfos["name"]];
 
 				if not tSpecial then
-					tAuraResultSlot = VUHDO_findAuraResultSlot(aLayerTemplate, tCnt);
+					tResultSlot = VUHDO_findAuraResultSlot(aLayerTemplate, tCnt);
 
-					if tAuraResultSlot then
+					if tResultSlot then
 						tName = tInfos["name"];
 						tIsActive = false;
 						tSpellId = tonumber(tName);
@@ -2003,14 +2211,14 @@ do
 											tColor["isDefault"] = true;
 										end
 
-										tAuraResultSlot["isActive"] = true;
-										tAuraResultSlot["icon"] = tIcon;
-										tAuraResultSlot["timer"] = tTimer or 0;
-										tAuraResultSlot["counter"] = tCounter or 0;
-										tAuraResultSlot["duration"] = tDuration or 0;
-										tAuraResultSlot["color"] = tColor;
-										tAuraResultSlot["name"] = tName;
-										tAuraResultSlot["isAliveTime"] = tInfos["alive"];
+										tResultSlot["isActive"] = true;
+										tResultSlot["icon"] = tIcon;
+										tResultSlot["timer"] = tTimer or 0;
+										tResultSlot["counter"] = tCounter or 0;
+										tResultSlot["duration"] = tDuration or 0;
+										tResultSlot["color"] = tColor;
+										tResultSlot["name"] = tName;
+										tResultSlot["isAliveTime"] = tInfos["alive"];
 
 										break;
 									end
@@ -2022,14 +2230,14 @@ do
 					tSecretType = tSpecial["secretType"] or VUHDO_SECRET_TYPE_NONE;
 
 					if tSecretType == VUHDO_SECRET_TYPE_NONE or tSecretType == VUHDO_SECRET_TYPE_VALUES then
-						tNonSecretResultSlot = VUHDO_findNonSecretResultSlot(aLayerTemplate, tCnt);
+						tResultSlot = VUHDO_findNonSecretResultSlot(aLayerTemplate, tCnt);
 
-						if tNonSecretResultSlot then
+						if tResultSlot then
 							tName = nil;
 
 							tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tTimer2, tClipL, tClipR, tClipT, tClipB = tSpecial["validator"](aInfo, tInfos, tSecretContext);
 
-							tNonSecretResultSlot["isActive"] = tIsActive;
+							tResultSlot["isActive"] = tIsActive;
 
 							if tIsActive then
 								if tInfos["icon"] ~= 1 then
@@ -2069,77 +2277,77 @@ do
 									tColor["useOpacity"] = tInfos["color"]["useOpacity"];
 								end
 
-								tNonSecretResultSlot["icon"] = tIcon;
-								tNonSecretResultSlot["timer"] = tTimer or 0;
-								tNonSecretResultSlot["counter"] = tCounter or 0;
-								tNonSecretResultSlot["duration"] = tDuration or 0;
+								tResultSlot["icon"] = tIcon;
+								tResultSlot["timer"] = tTimer or 0;
+								tResultSlot["counter"] = tCounter or 0;
+								tResultSlot["duration"] = tDuration or 0;
 
 								if tColor then
-									VUHDO_copyColorTo(tColor, tNonSecretResultSlot["color"]);
+									VUHDO_copyColorTo(tColor, tResultSlot["color"]);
 								end
 
-								tNonSecretResultSlot["timer2"] = tTimer2 or 0;
-								tNonSecretResultSlot["clipL"] = tClipL;
-								tNonSecretResultSlot["clipR"] = tClipR;
-								tNonSecretResultSlot["clipT"] = tClipT;
-								tNonSecretResultSlot["clipB"] = tClipB;
+								tResultSlot["timer2"] = tTimer2 or 0;
+								tResultSlot["clipL"] = tClipL;
+								tResultSlot["clipR"] = tClipR;
+								tResultSlot["clipT"] = tClipT;
+								tResultSlot["clipB"] = tClipB;
 
 								if tMaxColor then
-									VUHDO_copyColorTo(tMaxColor, tNonSecretResultSlot["maxColor"]);
+									VUHDO_copyColorTo(tMaxColor, tResultSlot["maxColor"]);
 								end
 							end
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_HEALTH_PERCENT then
-						tCurveResultSlot = VUHDO_findCurveResultSlot(aLayerTemplate, tCnt);
+						tResultSlot = VUHDO_findCurveResultSlot(aLayerTemplate, tCnt);
 
-						if tCurveResultSlot then
+						if tResultSlot then
 							tIsActive, _, tTimer, _, tDuration, _, tTimer2, _, _, _, _, _, tSecretColor = tSpecial["validator"](aInfo, tInfos, tSecretContext);
 
-							tCurveResultSlot["isActive"] = tIsActive;
+							tResultSlot["isActive"] = tIsActive;
 
 							if tIsActive then
 								if tSecretColor and not issecretvalue(tSecretColor) then
-									tCurveResultSlot["r"], tCurveResultSlot["g"], tCurveResultSlot["b"], tCurveResultSlot["a"] = tSecretColor:GetRGBA();
+									tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], tResultSlot["a"] = tSecretColor:GetRGBA();
 								end
 
-								tCurveResultSlot["value"] = UnitHealthPercent(aUnit);
-								tCurveResultSlot["timer"] = tTimer or 0;
-								tCurveResultSlot["duration"] = tDuration or 0;
-								tCurveResultSlot["timer2"] = tTimer2 or 0;
+								tResultSlot["value"] = UnitHealthPercent(aUnit);
+								tResultSlot["timer"] = tTimer or 0;
+								tResultSlot["duration"] = tDuration or 0;
+								tResultSlot["timer2"] = tTimer2 or 0;
 							end
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_POWER_PERCENT then
-						tCurveResultSlot = VUHDO_findCurveResultSlot(aLayerTemplate, tCnt);
+						tResultSlot = VUHDO_findCurveResultSlot(aLayerTemplate, tCnt);
 
-						if tCurveResultSlot then
+						if tResultSlot then
 							tIsActive, _, tTimer, _, tDuration, _, tTimer2, _, _, _, _, _, tSecretColor = tSpecial["validator"](aInfo, tInfos, tSecretContext);
 
-							tCurveResultSlot["isActive"] = tIsActive;
+							tResultSlot["isActive"] = tIsActive;
 
 							if tIsActive then
 								if tSecretColor and not issecretvalue(tSecretColor) then
-									tCurveResultSlot["r"], tCurveResultSlot["g"], tCurveResultSlot["b"], tCurveResultSlot["a"] =
+									tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], tResultSlot["a"] =
 										tSecretColor:GetRGBA();
 								end
 
-								tCurveResultSlot["value"] = UnitPowerPercent(aUnit, aInfo["powertype"]);
-								tCurveResultSlot["timer"] = tTimer or 0;
-								tCurveResultSlot["duration"] = tDuration or 0;
-								tCurveResultSlot["timer2"] = tTimer2 or 0;
+								tResultSlot["value"] = UnitPowerPercent(aUnit, aInfo["powertype"]);
+								tResultSlot["timer"] = tTimer or 0;
+								tResultSlot["duration"] = tDuration or 0;
+								tResultSlot["timer2"] = tTimer2 or 0;
 							end
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_BOOLEAN then
-						tBoolResultSlot = VUHDO_findBoolResultSlot(aLayerTemplate, tCnt);
+						tResultSlot = VUHDO_findBoolResultSlot(aLayerTemplate, tCnt);
 
-						if tBoolResultSlot then
+						if tResultSlot then
 							_, _, _, _, _, _, _, _, _, _, _, tSecretBool = tSpecial["validator"](aInfo, tInfos, tSecretContext);
 
-							tBoolResultSlot["secretBool"] = tSecretBool;
+							tResultSlot["secretBool"] = tSecretBool;
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_DISPEL then
-						tDispelResultSlot = VUHDO_findDispelResultSlot(aLayerTemplate, tCnt);
+						tResultSlot = VUHDO_findDispelResultSlot(aLayerTemplate, tCnt);
 
-						if tDispelResultSlot then
+						if tResultSlot then
 							tValidatorEntry = VUHDO_findDispelValidatorEntry(aLayerTemplate, tCnt);
 
 							if tValidatorEntry and tValidatorEntry["curves"] and tValidatorEntry["special"]["getCurve"] then
@@ -2148,9 +2356,15 @@ do
 								tSecretContext["dispelCurve"] = nil;
 							end
 
+							if tValidatorEntry and tValidatorEntry["textCurves"] and tValidatorEntry["special"]["getTextCurve"] then
+								tSecretContext["dispelTextCurve"] = tValidatorEntry["special"]["getTextCurve"](tValidatorEntry["textCurves"], aUnit, true);
+							else
+								tSecretContext["dispelTextCurve"] = nil;
+							end
+
 							tIsActive, _, _, _, _, tColor, _, _, _, _, _, tAuraInstanceId, tSecretColor = tSpecial["validator"](aInfo, tInfos, tSecretContext);
 
-							tDispelResultSlot["isActive"] = tIsActive;
+							tResultSlot["isActive"] = tIsActive;
 
 							if tIsActive then
 								if tColor then
@@ -2162,12 +2376,12 @@ do
 									tNeedsCopy = false;
 
 									if tBarColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
-										tDispelResultSlot["r"] = tColor["R"];
-										tDispelResultSlot["g"] = tColor["G"];
-										tDispelResultSlot["b"] = tColor["B"];
-										tDispelResultSlot["a"] = tColor["O"];
+										tResultSlot["r"] = tColor["R"];
+										tResultSlot["g"] = tColor["G"];
+										tResultSlot["b"] = tColor["B"];
+										tResultSlot["a"] = tColor["O"];
 
-										tDispelResultSlot["useBackground"] = tColor["useBackground"];
+										tResultSlot["useBackground"] = tColor["useBackground"];
 									else
 										if tFactor < 1 and tColor["useBackground"] then
 											tColor = VUHDO_copyColorTo(tColor, tWorkingColor);
@@ -2181,12 +2395,12 @@ do
 									end
 
 									if tTextColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
-										tDispelResultSlot["tr"] = tColor["TR"];
-										tDispelResultSlot["tg"] = tColor["TG"];
-										tDispelResultSlot["tb"] = tColor["TB"];
-										tDispelResultSlot["ta"] = tColor["TO"];
+										tResultSlot["tr"] = tColor["TR"];
+										tResultSlot["tg"] = tColor["TG"];
+										tResultSlot["tb"] = tColor["TB"];
+										tResultSlot["ta"] = tColor["TO"];
 
-										tDispelResultSlot["useText"] = tColor["useText"];
+										tResultSlot["useText"] = tColor["useText"];
 									else
 										if tFactor < 1 and tColor["useText"] then
 											if not tNeedsCopy then
@@ -2200,30 +2414,30 @@ do
 									end
 
 									if tBarColorType ~= VUHDO_AURA_GROUP_COLOR_DISPEL or tTextColorType ~= VUHDO_AURA_GROUP_COLOR_DISPEL then
-										tDispelResultSlot["barColor"] = tColor;
+										tResultSlot["barColor"] = tColor;
 									end
 								end
 
 								if tAuraInstanceId then
-									tDispelResultSlot["auraInstanceId"] = tAuraInstanceId;
+									tResultSlot["auraInstanceId"] = tAuraInstanceId;
 								end
 
 								if tSecretColor then
-									tDispelResultSlot["r"], tDispelResultSlot["g"], tDispelResultSlot["b"], tDispelResultSlot["a"] = tSecretColor:GetRGBA();
+									tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], tResultSlot["a"] = tSecretColor:GetRGBA();
 								end
 							end
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_SPRITE_CELL then
-						tSpriteCellResultSlot = VUHDO_findSpriteCellResultSlot(aLayerTemplate, tCnt);
+						tResultSlot = VUHDO_findSpriteCellResultSlot(aLayerTemplate, tCnt);
 
-						if tSpriteCellResultSlot then
+						if tResultSlot then
 							tIsActive, tIcon, _, _, _, _, _, _, _, _, _, tSpriteCell = tSpecial["validator"](aInfo, tInfos, tSecretContext);
 
-							tSpriteCellResultSlot["isActive"] = tIsActive;
+							tResultSlot["isActive"] = tIsActive;
 
 							if tIsActive then
-								tSpriteCellResultSlot["icon"] = tIcon;
-								tSpriteCellResultSlot["spriteCell"] = tSpriteCell;
+								tResultSlot["icon"] = tIcon;
+								tResultSlot["spriteCell"] = tSpriteCell;
 							end
 						end
 					end
@@ -2244,194 +2458,192 @@ do
 			txState["isColorInit"] = false;
 			txState["isMaxColorInit"] = false;
 
-			for tIdx = #aLayerTemplate["nonSecretResults"], 1, -1 do
-				tResultSlot = aLayerTemplate["nonSecretResults"][tIdx];
+			for tSortedIdx = 1, #aLayerTemplate["sortedValidators"] do
+				tValidatorEntry = aLayerTemplate["sortedValidators"][tSortedIdx];
 
-				if tResultSlot["isActive"] then
-					txState["active"] = true;
-					txState["level"] = aLayerTemplate["nonSecretValidators"][tIdx]["index"];
+				if VUHDO_BOUQUET_LAYER_TYPE_NONSECRET == tValidatorEntry["type"] then
+					tResultSlot = aLayerTemplate["nonSecretResults"][tValidatorEntry["resultIdx"]];
 
-					if tResultSlot["icon"] then
-						txState["icon"] = tResultSlot["icon"];
-						txState["clipL"] = tResultSlot["clipL"];
-						txState["clipR"] = tResultSlot["clipR"];
-						txState["clipT"] = tResultSlot["clipT"];
-						txState["clipB"] = tResultSlot["clipB"];
-					end
+					if tResultSlot["isActive"] then
+						txState["active"] = true;
+						txState["level"] = aLayerTemplate["nonSecretValidators"][tValidatorEntry["resultIdx"]]["index"];
 
-					tColor = tResultSlot["color"];
-
-					if tColor then
-						if not txState["isColorInit"] then
-							twipe(txState["color"]);
-							txState["isColorInit"] = true;
+						if tResultSlot["icon"] then
+							txState["icon"] = tResultSlot["icon"];
+							txState["clipL"] = tResultSlot["clipL"];
+							txState["clipR"] = tResultSlot["clipR"];
+							txState["clipT"] = tResultSlot["clipT"];
+							txState["clipB"] = tResultSlot["clipB"];
 						end
 
-						if tColor["useText"] then
-							txState["color"]["useText"] = true;
-							txState["color"]["TR"] = tColor["TR"];
-							txState["color"]["TG"] = tColor["TG"];
-							txState["color"]["TB"] = tColor["TB"];
-							txState["color"]["TO"] = tColor["TO"];
-						end
+						tColor = tResultSlot["color"];
 
-						if tColor["useBackground"] then
-							txState["color"]["useBackground"] = true;
-							txState["color"]["R"] = tColor["R"];
-							txState["color"]["G"] = tColor["G"];
-							txState["color"]["B"] = tColor["B"];
-							txState["color"]["O"] = tColor["O"];
-						end
-
-						if tColor["useOpacity"] then
-							txState["color"]["useOpacity"] = true;
-
-							if tColor["TO"] ~= nil then
-								txState["color"]["TO"] = (txState["color"]["TO"] or 1) * tColor["TO"];
+						if tColor then
+							if not txState["isColorInit"] then
+								twipe(txState["color"]);
+								txState["isColorInit"] = true;
 							end
 
-							if tColor["O"] ~= nil then
-								txState["color"]["O"] = (txState["color"]["O"] or 1) * tColor["O"];
-							end
-						end
-
-						txState["color"]["isDefault"] = tColor["isDefault"];
-						txState["color"]["noStacksColor"] = tColor["noStacksColor"];
-						txState["color"]["useSlotColor"] = tColor["useSlotColor"];
-
-						tMaxColor = tResultSlot["maxColor"];
-
-						if tMaxColor then
-							if not txState["isMaxColorInit"] then
-								twipe(txState["maxColor"]);
-								txState["isMaxColorInit"] = true;
+							if tColor["useText"] then
+								txState["color"]["useText"] = true;
+								txState["color"]["TR"] = tColor["TR"];
+								txState["color"]["TG"] = tColor["TG"];
+								txState["color"]["TB"] = tColor["TB"];
+								txState["color"]["TO"] = tColor["TO"];
 							end
 
-							if tMaxColor["useText"] then
-								txState["maxColor"]["useText"] = true;
-								txState["maxColor"]["TR"] = tMaxColor["TR"];
-								txState["maxColor"]["TG"] = tMaxColor["TG"];
-								txState["maxColor"]["TB"] = tMaxColor["TB"];
-								txState["maxColor"]["TO"] = tMaxColor["TO"];
+							if tColor["useBackground"] then
+								txState["color"]["useBackground"] = true;
+								txState["color"]["R"] = tColor["R"];
+								txState["color"]["G"] = tColor["G"];
+								txState["color"]["B"] = tColor["B"];
+								txState["color"]["O"] = tColor["O"];
 							end
 
-							if tMaxColor["useBackground"] then
-								txState["maxColor"]["useBackground"] = true;
-								txState["maxColor"]["R"] = tMaxColor["R"];
-								txState["maxColor"]["G"] = tMaxColor["G"];
-								txState["maxColor"]["B"] = tMaxColor["B"];
-								txState["maxColor"]["O"] = tMaxColor["O"];
-							end
+							if tColor["useOpacity"] then
+								txState["color"]["useOpacity"] = true;
 
-							if tMaxColor["useOpacity"] then
-								txState["maxColor"]["useOpacity"] = true;
-
-								if tMaxColor["TO"] ~= nil then
-									txState["maxColor"]["TO"] = (txState["maxColor"]["TO"] or 1) * tMaxColor["TO"];
+								if tColor["TO"] ~= nil then
+									txState["color"]["TO"] = (txState["color"]["TO"] or 1) * tColor["TO"];
 								end
 
-								if tMaxColor["O"] ~= nil then
-									txState["maxColor"]["O"] = (txState["maxColor"]["O"] or 1) * tMaxColor["O"];
+								if tColor["O"] ~= nil then
+									txState["color"]["O"] = (txState["color"]["O"] or 1) * tColor["O"];
+								end
+							end
+
+							txState["color"]["isDefault"] = tColor["isDefault"];
+							txState["color"]["noStacksColor"] = tColor["noStacksColor"];
+							txState["color"]["useSlotColor"] = tColor["useSlotColor"];
+
+							tMaxColor = tResultSlot["maxColor"];
+
+							if tMaxColor then
+								if not txState["isMaxColorInit"] then
+									twipe(txState["maxColor"]);
+									txState["isMaxColorInit"] = true;
+								end
+
+								if tMaxColor["useText"] then
+									txState["maxColor"]["useText"] = true;
+									txState["maxColor"]["TR"] = tMaxColor["TR"];
+									txState["maxColor"]["TG"] = tMaxColor["TG"];
+									txState["maxColor"]["TB"] = tMaxColor["TB"];
+									txState["maxColor"]["TO"] = tMaxColor["TO"];
+								end
+
+								if tMaxColor["useBackground"] then
+									txState["maxColor"]["useBackground"] = true;
+									txState["maxColor"]["R"] = tMaxColor["R"];
+									txState["maxColor"]["G"] = tMaxColor["G"];
+									txState["maxColor"]["B"] = tMaxColor["B"];
+									txState["maxColor"]["O"] = tMaxColor["O"];
+								end
+
+								if tMaxColor["useOpacity"] then
+									txState["maxColor"]["useOpacity"] = true;
+
+									if tMaxColor["TO"] ~= nil then
+										txState["maxColor"]["TO"] = (txState["maxColor"]["TO"] or 1) * tMaxColor["TO"];
+									end
+
+									if tMaxColor["O"] ~= nil then
+										txState["maxColor"]["O"] = (txState["maxColor"]["O"] or 1) * tMaxColor["O"];
+									end
 								end
 							end
 						end
+
+						tCounter = tResultSlot["counter"] or 0;
+
+						if issecretvalue(tCounter) or tCounter >= 0 then
+							txState["counter"] = tCounter;
+						end
+
+						tTimer = tResultSlot["timer"] or 0;
+						tTimer2 = tResultSlot["timer2"] or 0;
+						tDuration = tResultSlot["duration"] or 0;
+
+						if issecretvalue(tDuration) or tDuration >= 0 then
+							if issecretvalue(tTimer) or tTimer >= 0 then
+								txState["timer"] = tTimer;
+								txState["duration"] = tDuration;
+							end
+
+							if issecretvalue(tTimer2) or tTimer2 >= 0 then
+								txState["timer2"] = tTimer2;
+							end
+						end
 					end
+				elseif VUHDO_BOUQUET_LAYER_TYPE_AURA == tValidatorEntry["type"] then
+					tResultSlot = aLayerTemplate["auraResults"][tValidatorEntry["resultIdx"]];
 
-					tCounter = tResultSlot["counter"] or 0;
+					if tResultSlot["isActive"] then
+						txState["active"] = true;
+						txState["name"] = tResultSlot["name"];
+						txState["level"] = aLayerTemplate["auraValidators"][tValidatorEntry["resultIdx"]]["index"];
 
-					if issecretvalue(tCounter) or tCounter >= 0 then
-						txState["counter"] = tCounter;
-					end
+						if tResultSlot["icon"] then
+							txState["icon"] = tResultSlot["icon"];
+						end
 
-					tTimer = tResultSlot["timer"] or 0;
-					tTimer2 = tResultSlot["timer2"] or 0;
-					tDuration = tResultSlot["duration"] or 0;
+						tColor = tResultSlot["color"];
 
-					if issecretvalue(tDuration) or tDuration >= 0 then
-						if issecretvalue(tTimer) or tTimer >= 0 then
+						if tColor then
+							if not txState["isColorInit"] then
+								twipe(txState["color"]);
+								txState["isColorInit"] = true;
+							end
+
+							if tColor["useText"] then
+								txState["color"]["useText"] = true;
+								txState["color"]["TR"] = tColor["TR"];
+								txState["color"]["TG"] = tColor["TG"];
+								txState["color"]["TB"] = tColor["TB"];
+								txState["color"]["TO"] = tColor["TO"];
+							end
+
+							if tColor["useBackground"] then
+								txState["color"]["useBackground"] = true;
+								txState["color"]["R"] = tColor["R"];
+								txState["color"]["G"] = tColor["G"];
+								txState["color"]["B"] = tColor["B"];
+								txState["color"]["O"] = tColor["O"];
+							end
+
+							if tColor["useOpacity"] then
+								txState["color"]["useOpacity"] = true;
+
+								if tColor["TO"] ~= nil then
+									txState["color"]["TO"] = (txState["color"]["TO"] or 1) * tColor["TO"];
+								end
+
+								if tColor["O"] ~= nil then
+									txState["color"]["O"] = (txState["color"]["O"] or 1) * tColor["O"];
+								end
+							end
+
+							txState["color"]["isDefault"] = tColor["isDefault"];
+						end
+
+						tCounter = tResultSlot["counter"] or 0;
+
+						if issecretvalue(tCounter) or tCounter >= 0 then
+							txState["counter"] = tCounter;
+						end
+
+						tTimer = tResultSlot["timer"] or 0;
+						tDuration = tResultSlot["duration"] or 0;
+
+						if (issecretvalue(tDuration) or tDuration >= 0) and (issecretvalue(tTimer) or tTimer >= 0) then
 							txState["timer"] = tTimer;
 							txState["duration"] = tDuration;
 						end
 
-						if issecretvalue(tTimer2) or tTimer2 >= 0 then
-							txState["timer2"] = tTimer2;
-						end
+						txState["isAliveTime"] = tResultSlot["isAliveTime"] or false;
 					end
-				end
-			end
-
-			for tIdx = #aLayerTemplate["auraResults"], 1, -1 do
-				tResultSlot = aLayerTemplate["auraResults"][tIdx];
-
-				if tResultSlot["isActive"] then
-					txState["active"] = true;
-					txState["name"] = tResultSlot["name"];
-					txState["level"] = aLayerTemplate["auraValidators"][tIdx]["index"];
-
-					if tResultSlot["icon"] then
-						txState["icon"] = tResultSlot["icon"];
-					end
-
-					tColor = tResultSlot["color"];
-
-					if tColor then
-						if not txState["isColorInit"] then
-							twipe(txState["color"]);
-							txState["isColorInit"] = true;
-						end
-
-						if tColor["useText"] then
-							txState["color"]["useText"] = true;
-							txState["color"]["TR"] = tColor["TR"];
-							txState["color"]["TG"] = tColor["TG"];
-							txState["color"]["TB"] = tColor["TB"];
-							txState["color"]["TO"] = tColor["TO"];
-						end
-
-						if tColor["useBackground"] then
-							txState["color"]["useBackground"] = true;
-							txState["color"]["R"] = tColor["R"];
-							txState["color"]["G"] = tColor["G"];
-							txState["color"]["B"] = tColor["B"];
-							txState["color"]["O"] = tColor["O"];
-						end
-
-						if tColor["useOpacity"] then
-							txState["color"]["useOpacity"] = true;
-
-							if tColor["TO"] ~= nil then
-								txState["color"]["TO"] = (txState["color"]["TO"] or 1) * tColor["TO"];
-							end
-
-							if tColor["O"] ~= nil then
-								txState["color"]["O"] = (txState["color"]["O"] or 1) * tColor["O"];
-							end
-						end
-
-						txState["color"]["isDefault"] = tColor["isDefault"];
-					end
-
-					tCounter = tResultSlot["counter"] or 0;
-
-					if issecretvalue(tCounter) or tCounter >= 0 then
-						txState["counter"] = tCounter;
-					end
-
-					tTimer = tResultSlot["timer"] or 0;
-					tDuration = tResultSlot["duration"] or 0;
-
-					if (issecretvalue(tDuration) or tDuration >= 0) and (issecretvalue(tTimer) or tTimer >= 0) then
-						txState["timer"] = tTimer;
-						txState["duration"] = tDuration;
-					end
-
-					txState["isAliveTime"] = tResultSlot["isAliveTime"] or false;
-				end
-			end
-
-			if aLayerTemplate["hasCurves"] then
-				for tIdx = 1, #aLayerTemplate["curveResults"] do
-					tResultSlot = aLayerTemplate["curveResults"][tIdx];
+				elseif VUHDO_BOUQUET_LAYER_TYPE_CURVE == tValidatorEntry["type"] then
+					tResultSlot = aLayerTemplate["curveResults"][tValidatorEntry["resultIdx"]];
 
 					if tResultSlot["isActive"] then
 						txState["active"] = true;
@@ -2439,29 +2651,17 @@ do
 						txState["timer"] = tResultSlot["timer"] or 0;
 						txState["duration"] = tResultSlot["duration"] or 0;
 						txState["timer2"] = tResultSlot["timer2"] or 0;
-
-						break;
 					end
-				end
-			end
-
-			if aLayerTemplate["hasDispels"] then
-				for tIdx = 1, #aLayerTemplate["dispelResults"] do
-					if aLayerTemplate["dispelResults"][tIdx]["isActive"] then
+				elseif VUHDO_BOUQUET_LAYER_TYPE_DISPEL == tValidatorEntry["type"] then
+					if aLayerTemplate["dispelResults"][tValidatorEntry["resultIdx"]]["isActive"] then
 						txState["active"] = true;
-
-						break;
 					end
-				end
-			end
+				elseif VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL == tValidatorEntry["type"] then
+					tResultSlot = aLayerTemplate["spriteCellResults"][tValidatorEntry["resultIdx"]];
 
-			if aLayerTemplate["hasSpriteCells"] then
-				for tIdx = 1, #aLayerTemplate["spriteCellResults"] do
-					if aLayerTemplate["spriteCellResults"][tIdx]["isActive"] then
+					if tResultSlot["isActive"] then
 						txState["active"] = true;
-						txState["icon"] = aLayerTemplate["spriteCellResults"][tIdx]["icon"];
-
-						break;
+						txState["icon"] = tResultSlot["icon"];
 					end
 				end
 			end
