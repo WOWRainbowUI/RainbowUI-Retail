@@ -24,6 +24,9 @@ local portDriver = "" do
 		-- Legion Remix [no azshara, vault, maw, arcway]
 		karazhan=373262, valor=393764, lair=410078, stars=393766,
 		ticket=424163, rook=424153,
+		-- Midnight S1
+		academy=393273, magterr=1254572, maisara=1254559, saronpit=1254555,
+		skyreach=1254557, sottrium=1254551, windspire=1254400, xenas=1254563,
 	}) do
 		portDriver = portDriver .. "[myth:" .. k .. ",known:" .. v .. "] " .. v .. "; "
 	end

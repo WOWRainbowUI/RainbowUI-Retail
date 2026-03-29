@@ -341,8 +341,20 @@ config.undo = TS:CreateUndoHandle() do
 	end
 end
 
-function config.checkSVState(frame)
-	if not PC:GetSVState() then
-		TS:ShowAlertOverlay(frame, L"Changes will not be saved", L"World of Warcraft could not load OPie's saved variables due to a lack of memory. Try disabling other addons.\n\nAny changes you make now will not be saved.", L"Understood; edit anyway")
+local svWarningAcknowledged
+local function ackSVWarning()
+	svWarningAcknowledged = 1
+end
+function config.checkSVState(frame, forceAlert)
+	local svOk, state = PC:GetSVState()
+	if svOk or (svWarningAcknowledged and not forceAlert) then
+		return svOk
 	end
+	local msg
+	if not state then
+		msg = L"World of Warcraft could not load OPie's saved variables due to a lack of memory. Try disabling other addons."
+	else
+		msg = L"An error occurred while loading OPie." .. " (Code " .. tostring(state) .. ")"
+	end
+	TS:ShowAlertOverlay(frame, L"Changes will not be saved", msg .. "\n\n" .. L"Any changes you make now will not be saved.", L"Understood; edit anyway", ackSVWarning)
 end

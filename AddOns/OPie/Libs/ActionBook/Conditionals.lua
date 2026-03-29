@@ -2,7 +2,7 @@ local COMPAT, _, T = select(4, GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local MODERN, CI_ERA, CF_CATA, CF_MISTS = COMPAT >= 11e4, COMPAT < 2e4, COMPAT > 4e4 and COMPAT < 11e4, COMPAT > 5e4 and COMPAT < 11e4
+local MODERN, CI_ERA, CF_CATA, CF_MISTS = COMPAT >= 11e4 or nil, COMPAT < 2e4, COMPAT > 4e4 and COMPAT < 11e4, COMPAT > 5e4 and COMPAT < 11e4
 local SECRETS, NO_SECRETS = MODERN, not MODERN
 local EV, WR = T.Evie, T.Ware
 local AB = T.ActionBook:compatible(2, 31)
@@ -135,6 +135,7 @@ securecall(function() -- instance:arena/bg/ratedbg/lfr/raid/scenario + outland/n
 		[2127]="world/siren isle/tww",
 		[2706]="world/undermine/tww",
 		[2738]="world/karesh/tww",
+		[0]=MODERN and "world/midnight", [2694]="world/midnight", [2771]="world/midnight",
 		[2662]="dungeon/dawnbreaker",
 		[2769]="raid/undermine",
 		[2827]="hvision", [2828]="hvision", [2212]="hvision", [2213]="hvision",
@@ -160,7 +161,7 @@ securecall(function() -- instance:arena/bg/ratedbg/lfr/raid/scenario + outland/n
 	}, true
 	local function syncInstance(e)
 		local _, itype, did, _, _, _, _, imid = GetInstanceInfo()
-		local stype = itype == "raid" and did == 7 and "/lfr"
+		local stype, itype0 = itype == "raid" and did == 7 and "/lfr", itype
 		if mapZoneCheck[imid] then
 			if e == "PLAYER_ENTERING_WORLD" and zoneChecked then
 				zoneChecked, EV.ZONE_CHANGED_NEW_AREA = false, syncInstance
@@ -171,13 +172,14 @@ securecall(function() -- instance:arena/bg/ratedbg/lfr/raid/scenario + outland/n
 			itype = mapTypes[imid]
 		elseif itype == "pvp" and MODERN and C_PvP.IsRatedBattleground() then
 			itype = "ratedbg"
-		elseif itype == "none" and MODERN and IsInActiveWorldPVP() then
-			itype = "worldpvp"
 		elseif itype == "scenario" and C_DelvesUI and C_DelvesUI.HasActiveDelve(imid) then
 			itype = "scenario/delve"
 		end
+		if itype0 == "none" and MODERN and IsInActiveWorldPVP() then
+			stype = (stype or "") .. "/worldpvp"
+		end
 		if C_Loot.IsLegacyLootModeEnabled() then
-			stype = stype and (stype .. "/legacy") or "/legacy"
+			stype = (stype or "") .. "/legacy"
 		end
 		itype = mapTypes[itype] or itype or "daze"
 		itype = stype and (itype .. stype) or itype
@@ -370,13 +372,15 @@ securecall(function() -- combo:count
 end)
 securecall(function() -- near:oid/cid
 	local argCache, nearValue, nearGroup, holdGroup, holdExpire = {}
-	local GROUP_HOLD_TIME = {["tww-herb-overload"]=5, ["tww-mine-overload"]=5}
+	local GROUP_HOLD_TIME = {["tww-herb-overload"]=5, ["tww-mine-overload"]=5, ["mid-herb-overload"]=5, ["mid-mine-overload"]=5}
 	local typePrefix, groups = {GameObject="o", Creature="c"}, {}
 	for k, v in pairs({
 		["herb-overload"] = "o375245/o381199/o381213/o356536/o381202/o381210/o381196/o381205/o375242/o375244/o381214/o381201/o381200/o381212/o375246/o381198/o381203/o381197/o381211/o375243/o381204/o390141/o390140/o390142/o390139/o398761/o398760/o398759/o398762/o398767/o398764/o398765/o398766/o407696/o407688/o407698/o407693",
 		["mine-overload"] = "o381516/o375235/o375234/o381515/o381517/o375238/o375239/o381518/o381519/o375240/o390137/o390138/o407669/o407668",
 		["tww-herb-overload"] = "o414327/o414329/o414326/o414328/o414325/o414337/o414339/o454053/o454008/o414338/o454084/o414336/o414335/o454066/o454079/o454069/o454074/o423363/o454082/o454067/o423368/o454077/o423364/o423366/o423367/o454072/o454064/o454006/o454050/o414332/o414331/o414330",
 		["tww-mine-overload"] = "o413886/o413895/o413905/o430351/o430335/o430352/o413900/o413883/o413890/o413902/o413892/o413884",
+		["mid-herb-overload"] = "o516967/o516966/o516965/o516964/o516963//o516979/o516980/o516981/o516982/o516983//o516973/o516974/o516975/o516976/o516977//o516968/o516969/o516970/o516971/o516972",
+		["mid-mine-overload"] = "o523284/o523294/o523303//o523287/o523293/o523301//o523285/o523291/o523299//o523286/o523292/o523300",
 	}) do
 		for e in v:gmatch("[^/]+") do
 			groups[e] = k
@@ -996,6 +1000,15 @@ securecall(function() -- myth:token
 		[1501]="rook/brh",
 		[1492]="maw/mos",
 		[1516]="arcway/arc",
+		-- Midnight S1:
+		[2526]="academy/aca",
+		[2811]="magterr/mgt",
+		[2874]="maisara/mac",
+		[658]="saronpit/pos",
+		[1209]="skyreach/sky",
+		[1753]="sottrium/tri",
+		[2805]="windspire/wnd",
+		[2915]="xenas/npx",
 	}
 	local KEYSTONE_LINK_FRAGMENT = "|Hitem:180653:"
 	local KEYSTONE_ICON_ID = C_Item.GetItemIconByID(KEYSTONE_LINK_FRAGMENT)
@@ -1088,6 +1101,41 @@ securecall(function() -- myth:token
 		end
 		return "remove"
 	end
+end)
+securecall(function() -- prey:qid
+	KR:SetStateConditionalValue("prey", false)
+	if not MODERN then
+		return
+	end
+	local PREY_WIDGET_ID = 7663
+	local currentState, goalState, pendingCheck, checkWidget = false, false
+	local function syncPrey()
+		if pendingCheck then
+			return checkWidget()
+		elseif goalState ~= currentState then
+			KR:SetStateConditionalValue("prey", goalState)
+			currentState = goalState
+		end
+	end
+	function checkWidget()
+		if InCombatLockdown() then
+			pendingCheck = 1
+			return
+		end
+		local qid = C_QuestLog.GetActivePreyQuest()
+		local qidActive = qid and not C_QuestLog.IsComplete(qid) and qid
+		local viz = qidActive and C_UIWidgetManager.GetPreyHuntProgressWidgetVisualizationInfo(PREY_WIDGET_ID)
+		goalState, pendingCheck = viz and viz.shownState == 1 and tostring(qid) or false, nil
+		return syncPrey()
+	end
+	function EV:UPDATE_UI_WIDGET(winfo)
+		if winfo and winfo.widgetID == PREY_WIDGET_ID then
+			return checkWidget()
+		end
+	end
+	EV.UPDATE_ALL_UI_WIDGETS = checkWidget
+	EV.PLAYER_REGEN_ENABLED = syncPrey
+	EV.PLAYER_LOGIN = checkWidget
 end)
 
 securecall(function() -- Managed role units

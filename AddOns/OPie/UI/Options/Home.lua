@@ -1,5 +1,5 @@
 local ADDON, T = ...
-local H, PC, TS, XU, L = {}, T.OPieCore, T.TenSettings, T.exUI, T.L
+local H, PC, TS, XU, config, L = {}, T.OPieCore, T.TenSettings, T.exUI, T.config, T.L
 
 local frame = TS:CreateOptionsPanel("OPie", nil, {
 	forceRootVersion=true,
@@ -80,6 +80,24 @@ local navView = CreateFrame("Frame", nil, frame) do
 	makeNav(4, OPTIONS, L"Customize OPie's appearance and behavior.", 75)
 	makeNav(5, L"Ring Bindings", L"Customize OPie ring and in-ring key bindings.")
 	makeNav(6, L"Custom Rings", L"Edit existing rings, or create your own custom OPie rings.")
+	local svWarning = CreateFrame("Button", nil, navView) do
+		oy = oy - 60
+		svWarning:SetSize(300, 18)
+		svWarning:SetPoint("TOPLEFT", 18, oy)
+		svWarning:SetNormalFontObject(GameFontRed)
+		svWarning:SetHighlightFontObject(GameFontHighlight)
+		svWarning:SetScript("OnClick", function() config.checkSVState(frame, true) end)
+		svWarning:SetScript("OnShow", function()
+			if config.checkSVState(frame) then
+				svWarning:Hide()
+			end
+		end)
+		svWarning:SetText("|TInterface/EncounterJournal/UI-EJ-WarningTextIcon:0|t " .. L"Any changes you make now will not be saved.")
+		local fs = svWarning:GetFontString()
+		fs:ClearAllPoints()
+		fs:SetPoint("LEFT")
+		svWarning:SetWidth(math.max(300, fs:GetStringWidth()))
+	end
 end
 local logView = CreateFrame("Frame", nil, frame) do
 	logView:SetHeight(100) -- going to overflow; it's fine

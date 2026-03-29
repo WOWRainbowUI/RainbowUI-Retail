@@ -1,13 +1,15 @@
-local AB, _, T = assert(OPie.ActionBook:compatible(2,14), "Requires a compatible version of ActionBook"), ...
+local _, T = ...
 if T.TenEnv then T.TenEnv() end
 
-local ORI, EV, L, PC, XU, config = OPie.UI, T.Evie, T.L, T.OPieCore, T.exUI, T.config
+local AB, ORI, EV, L, PC, XU, config, KR = T.ActionBook, OPie.UI, T.Evie, T.L, T.OPieCore, T.exUI, T.config, nil
+AB, KR = AB and AB:compatible(2, 14), AB and AB:compatible("Kindred", 1, 34)
+assert(ORI and EV and L and PC and XU and config and AB and KR, "Incompatible library bundle")
 local COMPAT = select(4,GetBuildInfo())
 local MODERN, CF_WRATH = COMPAT >= 10e4, COMPAT < 10e4 and COMPAT >= 3e4
 local GameTooltip = T.NotGameTooltip or GameTooltip
 
 local exclude, questItems = PC:RegisterPVar("AutoQuestExclude", {}), {}
-local IsQuestItem, IsQuestItemF, disItems
+local IsQuestItem, IsQuestItemF, disItems, PrepQuestItemScan
 local function getContainerItemQuestInfo(bag, slot)
 	if bag and slot then
 		local iqi = C_Container.GetContainerItemQuestInfo(bag, slot)
@@ -17,6 +19,7 @@ end
 if MODERN or CF_WRATH then
 	questItems[30148] = {72986, 72985}
 	local include, filtered do
+		local PREY_STATE
 		local function isInPrimalistFutureScenario()
 			return C_TaskQuest.IsActive(74378) and C_Scenario.IsInScenario() and select(8, GetInstanceInfo()) == 2512
 		end
@@ -62,6 +65,14 @@ if MODERN or CF_WRATH then
 			local _,_,_,_, _,_,_,imid, _,did = GetInstanceInfo()
 			return imid == 33 and did == 288
 		end
+		local function onPreyHunt()
+			if PREY_STATE then
+				return true, false, false, 1
+			end
+		end
+		function PrepQuestItemScan()
+			PREY_STATE = KR:EvaluateCmdOptions("[prey] 1") ~= nil
+		end
 		local mapMarker = c1
 		include = {
 			[21746]=have1, -- lucky red envelope
@@ -78,12 +89,17 @@ if MODERN or CF_WRATH then
 			[204911]=have1,
 			[205254]=c1, -- Honorary Explorer's Compass
 			[199192]=have1, [204359]=have1, [205226]=have1, [210549]=have1, [227450]=have1,  -- racer's purse
+			-- TWW quest
+			[224292]=-81691, [224913]=-81691, -- radiant fuel shard/cache
+			[228988]=ebIsNotRockReviver, -- siren isle rock reviver
+			[230795]=ebIsNotGoPack, -- experimental go-pack, intro quest
+			[227405]=haveInterestingNotes, -- siren isle research journal
 			-- TWW inscription treatises [weekly]
 			[222546]=83725, [222547]=83735, [222548]=83730, [222549]=83732, [222550]=83727, [222551]=83731,
 			[222552]=83729, [222553]=83733, [222554]=83726, [222621]=83728, [222649]=83734,
-			[224292]=-81691, [224913]=-81691, -- radiant fuel shard/cache
-			[228741]=have1, -- lamplighter supply satchel
-			[217011]=have1, [217012]=have1, [217013]=have1, -- (isle of dorn) actor's chest
+			-- TWW caches
+			[228741]=have1, -- lamplighter supply
+			[217011]=have1, [217012]=have1, [217013]=have1, -- actor's chest
 			[235151]=have1, -- distinguished actor's chest
 			[227792]=have1, -- everyday cache
 			[227713]=have1, -- art consortium payout
@@ -128,11 +144,25 @@ if MODERN or CF_WRATH then
 			[246936]=c1, [246937]=c1, -- epoch memento
 			[152102]=have1, [152103]=have1, [152104]=have1, [152105]=have1,
 			[152106]=have1, [152107]=have1, [152108]=have1, -- paragon boxes
+			-- Midnight
+			[255825]=onPreyHunt, -- disarmed trap
+			[264274]=have1, -- fabled adventurer's
+			[268545]=have1, [257023]=have1, [257026]=have1, [262346]=have1, -- preyseeker's
+			[265995]=have1, -- quel'thalas adventurer's
+			[246585]=have1, -- consortium payout
+			[250116]=have1, -- quel'thalas treasures [sign weekly]
+			[269702]=have1, -- abundant [rare]
+			[269703]=have1, -- avid learner's [rare]
+			[269701]=have1, -- surplus party favors [rare]
+			-- Midnight Apex [S1]
+			[254677]=have1, -- apex cache
+			[263465]=have1, -- saltheril's soiree
+			[260940]=have1, -- stormarion pinnacle
+			[263466]=have1, -- abundant
+			[263467]=have1, -- avid learner's
+			[260193]=have1, -- fabled veteran's
 		}
 		filtered = {
-			[228988]=ebIsNotRockReviver, -- siren isle rock reviver
-			[230795]=ebIsNotGoPack, -- experimental go-pack, intro quest
-			[227405]=haveInterestingNotes, -- siren isle research journal
 			[224292]=have3, -- radiant fuel shard
 		}
 		for i in (CF_WRATH and "33634 35797 37888 37860 37859 37815 46847 47030 39213 42986 49278" or ""):gmatch("%d+") do
@@ -314,7 +344,11 @@ local function scanQuests(i)
 	end
 end
 local function syncRing(_, event, upId)
-	if event ~= "internal.collection.preopen" or upId ~= colId then return end
+	if event ~= "internal.collection.preopen" or upId ~= colId then
+		return
+	elseif PrepQuestItemScan then
+		PrepQuestItemScan()
+	end
 	changed, current = false, (ctok + 1) % 2
 
 	local ns = C_Container.GetContainerNumSlots

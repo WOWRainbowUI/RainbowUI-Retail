@@ -744,7 +744,12 @@ do -- M:Show{Prompt,Alert,Copy}Overlay(...)
 		promptInfo.prompt:SetWidth(380)
 		promptInfo.detail:SetWidth(380)
 
-		promptInfo.cancel:SetScript("OnClick", function() promptFrame:Hide() end)
+		promptInfo.cancel:SetScript("OnClick", function()
+			if promptInfo.callback and promptInfo.callbackOnCancel then
+				promptInfo.callback(promptInfo.editBox, false)
+			end
+			promptFrame:Hide()
+		end)
 		promptInfo.editBox:SetScript("OnTextChanged", function(self)
 			promptInfo.accept:SetEnabled(promptInfo.callback == nil or promptInfo.callback(self, self:GetText() or "", false, promptInfo.owner))
 		end)
@@ -761,6 +766,7 @@ do -- M:Show{Prompt,Alert,Copy}Overlay(...)
 		local showEditBox, editBox = editBoxWidth ~= false, promptInfo.editBox
 		editText = showEditBox and type(editText) == "string" and editText or ""
 		promptInfo.owner, promptInfo.callback, promptInfo.initEditText = frame, callback, nil
+		promptInfo.callbackOnCancel = acceptText == false
 		promptInfo.title:SetText(title or "")
 		promptInfo.prompt:SetText(prompt or "")
 		promptInfo.detail:SetText(explainText or "")
@@ -798,8 +804,8 @@ do -- M:Show{Prompt,Alert,Copy}Overlay(...)
 			self:SetCursorPosition(0)
 		end
 	end
-	function M:ShowAlertOverlay(frame, title, message, dismissText)
-		return M:ShowPromptOverlay(frame, title, message, nil, false, nil, false, dismissText)
+	function M:ShowAlertOverlay(frame, title, message, dismissText, callback)
+		return M:ShowPromptOverlay(frame, title, message, nil, false, callback, false, dismissText)
 	end
 	function M:ShowCopyOverlay(frame, title, message, copyText, explainText, cancelText, boxWidth)
 		M:ShowPromptOverlay(frame, title, message, explainText, false, false, boxWidth or nil, cancelText, copyText)

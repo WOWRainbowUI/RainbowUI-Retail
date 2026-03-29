@@ -43,14 +43,14 @@ function env.GetSpellCooldown(id)
 	id = id and C_Spell.GetOverrideSpell(id)
 	local ci = id and C_Spell.GetSpellCooldown(id)
 	if ci then
-		return ci.startTime, ci.duration, ci.isEnabled, ci.modRate
+		return ci.startTime, ci.duration, ci.isEnabled, ci.modRate, ci.isActive
 	end
 end
 function env.GetSpellCharges(id)
 	id = id and C_Spell.GetOverrideSpell(id)
 	local ci = id and C_Spell.GetSpellCharges(id)
 	if ci then
-		return ci.currentCharges, ci.maxCharges, ci.cooldownStartTime, ci.cooldownDuration, ci.chargeModRate
+		return ci.currentCharges, ci.maxCharges, ci.cooldownStartTime, ci.cooldownDuration, ci.chargeModRate, ci.isActive
 	end
 end
 env.GetSpellSubtext = C_Spell.GetSpellSubtext
@@ -66,13 +66,13 @@ env.IsSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed
 function env.GetActionCharges(slot)
 	local ci = slot and C_ActionBar.GetActionCharges(slot)
 	if ci then
-		return ci.currentCharges, ci.maxCharges, ci.cooldownStartTime, ci.cooldownDuration, ci.chargeModRate
+		return ci.currentCharges, ci.maxCharges, ci.cooldownStartTime, ci.cooldownDuration, ci.chargeModRate, ci.isActive
 	end
 end
 function env.GetActionCooldown(slot)
 	local ci = slot and C_ActionBar.GetActionCooldown(slot)
 	if ci then
-		return ci.startTime, ci.duration, ci.isEnabled, ci.modRate
+		return ci.startTime, ci.duration, ci.isEnabled, ci.modRate, ci.isActive
 	end
 end
 

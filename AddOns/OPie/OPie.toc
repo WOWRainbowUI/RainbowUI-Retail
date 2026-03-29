@@ -1,6 +1,6 @@
 ## Interface: 11508, 20505, 50503, 120001
 ## Title: OPie
-## Version: 8.2.2
+## Version: 8.3.1
 ## License: All rights reserved. Do not redistribute, in whole or in part, without explicit prior permission from the author.
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
@@ -17,7 +17,7 @@
 ## Notes-zhCN: 当你按下快捷键时显示一个环形的技能分组.
 ## Notes-zhTW: 按下綁定的按鍵時將技能分組到出現的環中。
 ## Notes-ptBR: Agrupar habilidades em anéis que aparecem quando você ativa um vínculo.
-## SavedVariables: OneRing_Config, OPie_SavedData
+## SavedVariables: OPie_SavedData
 ## SavedVariablesPerCharacter: OPie_SavedDataPC
 ## X-M6-AB: OPie.ActionBook
 Meta\PackTag-6.lua
