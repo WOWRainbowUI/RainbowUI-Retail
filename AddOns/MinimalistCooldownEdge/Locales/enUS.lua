@@ -17,6 +17,7 @@ L["MiniCC"] = true
 L["sArena"] = true
 L["TellMeWhen"] = true
 L["Profiles"] = true
+L["ShinyAuras"] = true
 
 -- Group Headers
 L["General"] = true
@@ -137,8 +138,11 @@ L["OFF"] = "OFF"
 
 -- General Dashboard
 L["Enable categories styling"] = true
+L["Addon Integrations"] = true
 L["LIVE_CONTROLS_DESC"] = "Changes apply instantly. Keep only the categories you actively use enabled for a cleaner setup."
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Enable Party / Raid Frames acts as the master switch for this category. Enable Raid Aura Text extends the same styling to Blizzard raid frames."
+L["ADDON_INTEGRATIONS_DESC"] = "Enable or disable optional addon bridges that route external cooldowns into MiniCE categories."
+L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."] = true
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = true

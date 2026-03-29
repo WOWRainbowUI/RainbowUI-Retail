@@ -18,11 +18,21 @@ local entries = setmetatable({}, weakMeta)
 -- category -> weak set of cooldowns
 local categoryIndex = {}
 
--- category -> adapter module (set by adapters at enable time)
+-- category -> ordered adapter modules (set by adapters at enable time)
 local adapters = {}
 
 -- ordered adapter list for TryClaim fallback
 local adapterOrder = {}
+
+local function ListContains(list, value)
+    for i = 1, #list do
+        if list[i] == value then
+            return true
+        end
+    end
+
+    return false
+end
 
 local function EnsureCategorySet(category)
     local set = categoryIndex[category]
@@ -100,12 +110,30 @@ function Registry:IterateCategory(category)
 end
 
 function Registry:RegisterAdapter(category, adapter)
-    adapters[category] = adapter
-    adapterOrder[#adapterOrder + 1] = adapter
+    if not category or not adapter then return end
+
+    local categoryAdapters = adapters[category]
+    if not categoryAdapters then
+        categoryAdapters = {}
+        adapters[category] = categoryAdapters
+    end
+
+    if not ListContains(categoryAdapters, adapter) then
+        categoryAdapters[#categoryAdapters + 1] = adapter
+    end
+
+    if not ListContains(adapterOrder, adapter) then
+        adapterOrder[#adapterOrder + 1] = adapter
+    end
 end
 
 function Registry:GetAdapter(category)
-    return adapters[category]
+    local categoryAdapters = adapters[category]
+    if not categoryAdapters then
+        return nil
+    end
+
+    return categoryAdapters[#categoryAdapters]
 end
 
 --- Ask each adapter to try claiming an unregistered cooldown.
@@ -125,14 +153,22 @@ function Registry:TryClaim(cooldown)
 end
 
 function Registry:RebuildCategory(category)
-    local adapter = adapters[category]
-    if adapter and adapter.Rebuild then
-        adapter:Rebuild()
+    local categoryAdapters = adapters[category]
+    if not categoryAdapters then
+        return
+    end
+
+    for i = 1, #categoryAdapters do
+        local adapter = categoryAdapters[i]
+        if adapter and adapter.Rebuild then
+            adapter:Rebuild()
+        end
     end
 end
 
 function Registry:RebuildAll()
-    for _, adapter in pairs(adapters) do
+    for i = 1, #adapterOrder do
+        local adapter = adapterOrder[i]
         if adapter.Rebuild then
             adapter:Rebuild()
         end

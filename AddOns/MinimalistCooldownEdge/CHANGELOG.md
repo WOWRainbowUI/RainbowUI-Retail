@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [3.6.9] - 2026-03-28
+- Add ShinyAuras addon support via ShinyAurasAdapter
+
+## [3.6.8] - 2026-03-28
+- feat: Enhance blacklist functionality in Classifier module with additional entries and improved parent name checks
+
 ## [3.6.7] - 2026-03-26
 - Enhance GroupFrameAdapter and UnitFrameAdapter integration for cooldown management
 

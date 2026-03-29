@@ -68,6 +68,23 @@ function MCE:IsTellMeWhenAvailable()
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.TellMeWhenName) or false
 end
 
+function MCE:IsShinyAurasAvailable()
+    if _G.ShinyAurasFrame or type(_G.ShinyAurasDB) == "table" then
+        return true
+    end
+
+    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.ShinyAurasName) or false
+end
+
+function MCE:IsShinyAurasAdapterEnabled()
+    local profile = self.db and self.db.profile
+    if not profile then
+        return true
+    end
+
+    return profile.shinyAurasAdapterEnabled ~= false
+end
+
 local function BuildChatMessage(...)
     local count = select("#", ...)
     if count == 0 then
@@ -483,6 +500,7 @@ MCE.defaults = {
     },
     profile = {
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
+        shinyAurasAdapterEnabled = true,
         compactPartyAuraText = compactPartyAuraTextDefaults,
         durationTextColors = defaultDurationTextColors,
         categories = {
@@ -502,6 +520,10 @@ function MCE:UpgradeProfile()
     if not profile then return end
 
     MigrateLegacyPartyRaidFramesConfig(profile)
+
+    if profile.shinyAurasAdapterEnabled == nil then
+        profile.shinyAurasAdapterEnabled = true
+    end
 
     if not profile.durationTextColors then
         local legacyConfig = profile.categories

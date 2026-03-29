@@ -14,9 +14,14 @@ local strfind, ipairs = string.find, ipairs
 
 local CLASSIFIER_CONSTANTS = C.Classifier
 local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
-local BLACKLIST_EXACT_PAIRS   = CLASSIFIER_CONSTANTS.BlacklistExactPairs
+local BLACKLIST_PARENT_NAMES = CLASSIFIER_CONSTANTS.BlacklistParentNames
 
 local blacklistCache = {}
+local blacklistParentNameLookup = {}
+
+for _, parentName in ipairs(BLACKLIST_PARENT_NAMES) do
+    blacklistParentNameLookup[parentName] = true
+end
 
 -- =========================================================================
 -- BLACKLIST
@@ -27,33 +32,29 @@ function Classifier:IsBlacklisted(frame, knownFrameName)
     if blacklistCache[frame] ~= nil then return blacklistCache[frame] end
 
     local currentObj = frame
-    local frameName = knownFrameName or (frame.GetName and frame:GetName()) or ""
-    local parent = frame.GetParent and frame:GetParent() or nil
-    local parentName = parent and parent.GetName and parent:GetName() or ""
+    local isFirstObject = true
 
-    local parentBlacklist = BLACKLIST_EXACT_PAIRS[parentName]
-    if parentBlacklist and parentBlacklist[frameName ~= "" and frameName or "AnonymousFrame"] then 
-        blacklistCache[frame] = true
-        return true 
-    end
+    while currentObj do
+        local name = currentObj.GetName and currentObj:GetName() or ""
 
-    -- Check up to 4 levels of parents
-    for i = 1, 4 do
-        if not currentObj then break end
-        
-        local nm = currentObj.GetName and currentObj:GetName() or ""
-        
-        if i == 1 and knownFrameName then 
-            nm = knownFrameName 
+        if isFirstObject and knownFrameName then
+            name = knownFrameName
         end
 
         for _, key in ipairs(BLACKLIST_NAME_CONTAINS) do
-            if (nm ~= "" and strfind(nm, key, 1, true)) then
+            if name ~= "" and strfind(name, key, 1, true) then
                 blacklistCache[frame] = true
                 return true
             end
         end
-        currentObj = currentObj.GetParent and currentObj:GetParent()
+
+        if name ~= "" and blacklistParentNameLookup[name] then
+            blacklistCache[frame] = true
+            return true
+        end
+
+        currentObj = currentObj.GetParent and currentObj:GetParent() or nil
+        isFirstObject = false
     end
 
     blacklistCache[frame] = false
