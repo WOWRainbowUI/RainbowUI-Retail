@@ -1,7 +1,8 @@
 # Edit Mode Expanded
 
-## [12.0-030](https://github.com/teelolws/EditModeExpanded/tree/12.0-030) (2026-03-26)
-[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/12.0-029...12.0-030) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
+## [12.0-031](https://github.com/teelolws/EditModeExpanded/tree/12.0-031) (2026-03-28)
+[Full Changelog](https://github.com/teelolws/EditModeExpanded/compare/12.0-030...12.0-031) [Previous Releases](https://github.com/teelolws/EditModeExpanded/releases)
 
-- Disable battlefield map support by default  
-    Enable it under interface options  
+- Fix issue with TBC compatibility  
+    Closes: https://github.com/teelolws/EditModeExpanded/issues/218  
+- Update BattlefieldMapFrame.lua  
