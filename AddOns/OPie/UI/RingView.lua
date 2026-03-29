@@ -16,6 +16,13 @@ local MIN_ANIMATION_FPS, LOCKED_FRAMERATE = 20, 60 do
 	end
 	EV.After(0, unlockTick)
 end
+local PROF_QUALITY_ATLAS = {} do
+	for i=1,5 do
+		PROF_QUALITY_ATLAS[i] = "Professions-Icon-Quality-Tier" .. i .. "-Small"
+	end
+	PROF_QUALITY_ATLAS[6] = "Professions-ChatIcon-Quality-12-Tier1"
+	PROF_QUALITY_ATLAS[7] = "Professions-ChatIcon-Quality-12-Tier2"
+end
 
 local Slices, GhostIndication, IndicatorFactories = {}, {}, {}
 local ActiveIndicatorFactory, LastRegisteredIndicatorFactory
@@ -146,13 +153,14 @@ if MODERN then
 	s:SetAlpha(0)
 	s:SetMinMaxValues(-2^-20, 1)
 	s:SetValue(0)
-	local t = s:GetStatusBarTexture()
+	local t, lastTarget = s:GetStatusBarTexture(), 0
 	function iapi.updateReadyGlowValue(target)
 		if target then
+			lastTarget = target
 			s:SetValue(target, 1)
 		end
 		local _, _, _, _, w = t:GetTexCoord()
-		centerGlow:SetAlpha(w)
+		centerGlow:SetAlpha(w or lastTarget)
 	end
 end
 
@@ -296,16 +304,19 @@ do -- GhostIndication
 end
 
 local SwitchIndicatorFactory, ValidateIndicator do
-	local CURRENT_API_LEVEL, REQ_API_LEVEL, CURRENT_API_LEVEL_OOD = 3, 3, 3
+	local CURRENT_API_LEVEL, REQ_API_LEVEL, CURRENT_API_LEVEL_OOD = 4, 3, MODERN and 4 or 3
 	local RequiredIndicatorMethods = {
 		SetPoint=0, SetScale=0, GetScale=0, SetShown=0, SetParent=0,
 		SetIcon=0, SetIconTexCoord=0, SetIconAtlas=3, SetIconVertexColor=0, SetDominantColor=0,
 		SetOverlayIcon=0, SetOverlayIconVertexColor=1,
 		SetUsable=0, SetCount=0, SetBinding=0,
 		SetCooldown=0, SetCooldownTextShown="supportsCooldownNumbers", SetShortLabel="supportsShortLabels",
-		SetCooldownPH="supportsCooldownPH",
+		SetCooldownDuration=MODERN and 4 or nil, SetCooldownPH="supportsCooldownPH",
 		SetEquipState=0, SetHighlighted=0, SetActive=0, SetOuterGlow=0,
 		SetQualityOverlay=2,
+	}
+	local SkipMethodOption = {
+		SetCooldownDuration="supportsCooldownPH",
 	}
 	function ValidateIndicator(apiLevel, reqAPILevel, info)
 		if apiLevel < REQ_API_LEVEL or (reqAPILevel or apiLevel) > CURRENT_API_LEVEL then
@@ -313,8 +324,8 @@ local SwitchIndicatorFactory, ValidateIndicator do
 		end
 		local f = info.CreateIndicator(nil, mainFrame, 48)
 		for k,v in pairs(RequiredIndicatorMethods) do
-			local tv = type(v)
-			if type(f[k]) ~= "function" and ((tv == "number" and apiLevel >= v) or (tv == "string" and info[v])) then
+			local tv, ao = type(v), SkipMethodOption[k]
+			if type(f[k]) ~= "function" and ((tv == "number" and apiLevel >= v) or (tv == "string" and info[v])) and not (ao and info[ao]) then
 				return false, ("Expected a function for indicator key %q, got %s."):format(k, type(f[k]))
 			end
 		end
@@ -539,12 +550,13 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 	end
 	icon = tokIcon or icon or "Interface/Icons/INV_Misc_QuestionMark"
 	isJumpIconOverlay, isAtlasIcon = isJump and icon == 188515, icon == origIcon and state % 524288 >= 262144 or tokIcon and icon == tokIcon and iconIsAtlas[icon]
-	local active, overlay, faded, usableCharge = state % 2 >= 1, state % 4 >= 2, not usable, usable or (state % 128 >= 64)
+	local active, overlay, faded, isRecharge = state % 2 >= 1, state % 4 >= 2, not usable, state % 128 >= 64
 	local isInContainer, isInInventory, isQuestStartItem = state % 256 >= 128, state % 512 >= 256, tokenQuest[tok] or (state % 64 >= 32)
 	local isDisenchanting = state % 262144 >= 131072
 	local isPartiallyHinted = state % 1048576 >= 524288
 	local cdHintID, holdCount = isPartiallyHinted and cd == nil and cd2, isPartiallyHinted and state % 2097152 >= 1048576
 	local onCooldown, noMana, noRange, qual = cd and cd > 0, state % 16 >= 8, state % 32 >= 16, state % qualMod
+	local usableCharge = usable or isRecharge
 	cd2 = cd and cd2 or nil
 	qual = qual >= qualModLow and qualMap[qual - qual % qualModLow] or 0
 	self[isAtlasIcon and "SetIconAtlas" or "SetIcon"](self, icon, isAtlasIcon and atlasRatio[icon] or 1)
@@ -576,14 +588,23 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 	if ActiveIndicatorFactory.supportsShortLabels then
 		self:SetShortLabel(configCache.ShowShortLabels and (tokenLabel[tok] or stext) or "")
 	end
-	self:SetQualityOverlay(qual)
+	self:SetQualityOverlay(qual, PROF_QUALITY_ATLAS[qual])
 	local hideCount = configCache.ShowOneCount and 0 or 1
 	local showCount = MODERN and issecretvalue(count) or ((count or 0) > hideCount)
 	self:SetCount(showCount and count, holdCount)
-	if cdHintID and not cd and ActiveIndicatorFactory.supportsCooldownPH then
-		self:SetCooldownPH(cdHintID, GetPartialHintRaw, holdCount)
-	else
+	if not (cdHintID and not cd) then
 		self:SetCooldown(cd, cd2, usableCharge)
+	elseif ActiveIndicatorFactory.supportsCooldownPH then
+		self:SetCooldownPH(cdHintID, GetPartialHintRaw, holdCount)
+	elseif ActiveIndicatorFactory.apiLevel >= 4 then
+		local duration = GetPartialHintRaw(cdHintID, isRecharge and "chargeDuration" or "cooldownDuration")
+		if duration then
+			self:SetCooldownDuration(duration, isRecharge)
+		else
+			self:SetCooldown(0, 0, usableCharge)
+		end
+	else
+		
 	end
 	self:SetEquipState(isInContainer, isInInventory)
 	self:SetActive(active)
@@ -638,6 +659,9 @@ local function updateSliceBindings(imode, curModState)
 	configCache.lastBindingMode = imode
 end
 
+local function forceMultiUpdate()
+	vis.schedMultiUpdate = 0
+end
 local function OnUpdate_CheckAlpha(self, count)
 	local ea = self:GetEffectiveAlpha()
 	if vis.oldEA ~= ea then
@@ -807,6 +831,8 @@ function iapi:Show(_, _, fastOpen)
 	if configCache.DeclutterOnOpen and MODERN then
 		FramePool_IteratedReleaseAll(LootAlertSystem.alertFramePool)
 	end
+	EV.SPELL_UPDATE_CHARGES = forceMultiUpdate
+	EV.SPELL_UPDATE_COOLDOWN = forceMultiUpdate
 end
 function iapi:Hide()
 	setupTransitionAnimation("out", OnUpdate_ZoomOut)
@@ -815,6 +841,8 @@ function iapi:Hide()
 		GameTooltip:Hide()
 	end
 	wipeTokenCache()
+	EV.UnregisterEvent("SPELL_UPDATE_CHARGES", forceMultiUpdate)
+	EV.UnregisterEvent("SPELL_UPDATE_COOLDOWN", forceMultiUpdate)
 end
 
 function api:SetDisplayOptions(token, icon, label, r,g,b)
@@ -884,12 +912,11 @@ for k,v in pairs({IndicatorFactory="_",
 end
 api:RegisterIndicatorConstructor("mirage", {
 	name="OPie",
-	apiLevel=3,
+	apiLevel=4,
 	CreateIndicator=CreateIndicator,
 
 	supportsCooldownNumbers=true,
 	supportsShortLabels=true,
-	supportsCooldownPH=true,
 })
 
 T.OPieUI, OPie.UI = iapi, api

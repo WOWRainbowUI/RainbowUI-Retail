@@ -17,7 +17,9 @@ R:AddDefaultRing("RaidSymbols", {
 	name=L"Target Markers", hotkey="ALT-R", _u="OPCRS", v=1
 })
 do
-	local nodeOverload = MODERN and "/cast [in:df,nomod,near:%1$s-overload][in:df,mod,nonear:%1$s-overload] {{spell:%2$d}}; [in:tww,nomod,near:tww-%1$s-overload][in:tww,mod,nonear:tww-%1$s-overload] {{spell:%3$d}}; {{spell:%4$d}}"
+	local nodeOverload = MODERN and "/cast [in:df,nomod,near:%2$s-overload][in:df,mod,nonear:%2$s-overload] {{spell:%3$d}}; [in:tww,nomod,near:tww-%2$s-overload][in:tww,mod,nonear:tww-%2$s-overload] {{spell:%4$d}}; [in:midnight,nomod,near:mid-%2$s-overload][in:midnight,mod,nonear:mid-%2$s-overload] {{spell:%5$d}}; {{spell:%1$d}}"
+	local profCast = "/cast [in:tww] {{spell:%1$d}}; [in:midnight] {{spell:%2$d}}; {{spell:%2$d/%1$d}}"
+	local profShow = "[in:tww,known:%1$d][in:midnight,known:%2$d]"
 	local firstAid = {id="/cast {{spell:3273}}", _u="f"}
 	R:AddDefaultRing("CommonTrades", {
 		{id="/cast {{spell:3908/51309}}", _u="t"}, -- tailoring
@@ -27,7 +29,7 @@ do
 		{id="/cast {{spell:2259/51304}}", _u="a"}, -- alchemy
 		{id="/cast [mod] {{spell:818}}; {{spell:2550/51296}}; {{spell:818}}", _u="c"}, -- cooking/campfire
 		{id="/cast {{spell:4036/51306}}", _u="g"}, -- engineering
-		{id=MODERN and nodeOverload:format("mine", 388213, 423394, 2656) or 2656, _u="m"}, -- smelting/mining journal
+		{id=MODERN and nodeOverload:format(2656, "mine", 388213, 423394, 1225392) or 2656, _u="m"}, -- smelting/mining journal
 		(MODERN or CF_TBC) and {id="/cast [mod] {{spell:31252}}; {{spell:25229/51311}}", _u="j"} -- jewelcrafting/prospecting
 		        or firstAid,
 		(MODERN or CF_WRATH) and {id="/cast [mod] {{spell:51005}}; {{spell:45357/45363}}", _u="i"} -- inscription/milling
@@ -38,11 +40,11 @@ do
 		MODERN and {id="/cast [mod] {{spell:131474}}; {{spell:271990}}; {{spell:131474}}", _u="fj"} -- fish journal
 		        or CF_CATA and firstAid,
 		MODERN and {id=194174, _u ="sj"}, -- skinning journal
-		MODERN and {id=nodeOverload:format("herb", 390392, 423395, 193290), _u="hj"}, -- herbalism journal
-		MODERN and {id=439871, show="[in:tww]", _u="ht"}, -- green thumb
-		MODERN and {id=440977, show="[in:tww]", _u="sk"}, -- sharpen your knife
-		MODERN and {id=442615, show="[in:tww]", _u="sm"}, -- carve meat
-		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=6
+		MODERN and {id=nodeOverload:format(193290, "herb", 390392, 423395, 1223014), _u="hj"}, -- herbalism journal
+		MODERN and {id=profCast:format(439871, 1221172), show=profShow:format(439871, 1221172), _u="ht"}, -- green thumb
+		MODERN and {id=profCast:format(440977, 1223388), show=profShow:format(440977, 1223388), _u="sk"}, -- sharpen your knife
+		MODERN and {id=profCast:format(442615, 1226037), show=profShow:format(442615, 1226037), _u="sm"}, -- carve meat
+		name=L"Trade Skills", hotkey="ALT-T", _u="OPCCT", v=7
 	})
 end
 R:AddDefaultRing("OPieAutoQuest", {
@@ -164,6 +166,7 @@ R:AddDefaultRing("MagePolymorph", {
 do -- MageTravel
 	local m = "/cast [mod] {{spell:%s}}; {{spell:%s}}"
 	R:AddDefaultRing("MageTravel", {
+		{id=m:format(1259190, 1259194), _u="2"}, -- Silvermoon City
 		{id=m:format(446534, 446540), _u="1"}, -- Dornogal
 		{id=m:format(395289, 395277), _u="0"}, -- Valdrakken
 		{id=m:format(344597, 344587), _u="9"}, -- Oribos
@@ -181,7 +184,7 @@ do -- MageTravel
 		{"ring", "ExtraPortals", _u="e"}, -- Extra Portals
 		{id=m:format(32267, 32272), _u="l"}, -- Silvermoon
 		{id=m:format(32266, 32271), _u="x"}, -- Exodar
-		name=L"Portals and Teleports", hotkey="ALT-G", limit="MAGE", _u="OPCMV", v=2
+		name=L"Portals and Teleports", hotkey="ALT-G", limit="MAGE", _u="OPCMV", v=3
 	})
 	R:AddDefaultRing("ExtraPortals", {
 		{id=m:format(120146, 120145), _u="a"}, -- Ancient Dalaran
@@ -277,8 +280,12 @@ R:AddDefaultRing("CommonHearth", {
 	{"toy", 236687, _u="um"},
 	{"toy", 245970, _u="pm"},
 	{"toy", 246565, _u="co"},
+	{"toy", 257736, _u="lc"},
+	{"toy", 263489, _u="na"},
+	{"toy", 263933, _u="ps"},
+	{"toy", 265100, _u="cw"},
 	{"item", 250411, _u="lx"},
-	name=L"Hearthstones", internal=true, _u="OPCHS", v=10
+	name=L"Hearthstones", internal=true, _u="OPCHS", v=11
 })
 R:AddDefaultRing("SpecMenu", {
 	{"specset", 1, _u="1"},
@@ -289,9 +296,9 @@ R:AddDefaultRing("SpecMenu", {
 	{"opie.ext", "mythport", show="[mythport]", _u="m"},
 	{"toy", 110560, _u="g"},
 	{"toy", 140192, _u="d"},
-	{"item", 238727, _u="x"}, -- remix: nostwin's voucher
+	{"toy", 253629, _u="a"}, -- midnight: arcantina key
 	{id=436854, _u="f", show="[level:20]"},
 	{"ring", "CommonHearth", rotationMode="shuffle", _u="t"},
 	{"toy", 141605, _u="w", show="[in:broken isles/argus/bfa]"}, -- flight master's whistle
-	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=7
+	name=L"Specializations and Travel", hotkey="ALT-H", _u="OPCTA", v=8
 })

@@ -5,7 +5,8 @@ local EV, L = T.Evie, T.L
 
 local LDB
 local function checkLDB()
-	LDB = LibStub and LibStub:GetLibrary("LibDataBroker-1.1", 1)
+	LDB = LibStub and LibStub:GetLibrary("LibDataBroker-1.1", true)
+	LDB = LDB and LDB.DataObjectIterator and LDB or nil
 end
 
 do -- action handler

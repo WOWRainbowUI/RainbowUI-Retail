@@ -40,14 +40,14 @@ end
 local function getSpellMountID(sid)
 	return sid and (FORCED_MOUNT_SPELLS[sid] or MODERN_MOUNTS and C_MountJournal.GetMountFromSpell(sid)) or false
 end
-local GetCachedItemName, PeekCachedItemName do
+local getCachedItemName, peekCachedItemName do
 	local itemNames = {}
 	function EV:GET_ITEM_INFO_RECEIVED(iid, ok)
 		if itemNames[iid] == false and ok then
 			itemNames[iid] = C_Item.GetItemInfo(iid) or false
 		end
 	end
-	function GetCachedItemName(ident)
+	function getCachedItemName(ident)
 		local iid = tonumber(ident) or tonumber(type(ident) == "string" and ident:match("item:(%d+)"))
 		if iid then
 			local c, f = itemNames[iid], C_Item.GetItemInfo(iid)
@@ -55,8 +55,31 @@ local GetCachedItemName, PeekCachedItemName do
 			return f or c or nil
 		end
 	end
-	function PeekCachedItemName(ident)
+	function peekCachedItemName(ident)
 		return itemNames[tonumber(ident) or tonumber(type(ident) == "string" and ident:match("item:(%d+)"))]
+	end
+end
+local getTradeSkillItemQuality, pQualityAtlasOverride if MODERN then
+	pQualityAtlasOverride = {
+		[6]="Professions-ChatIcon-Quality-12-Tier1", ["Professions-ChatIcon-Quality-12-Tier1"]=6,
+		[7]="Professions-ChatIcon-Quality-12-Tier2", ["Professions-ChatIcon-Quality-12-Tier2"]=7,
+	}
+	local c = {}
+	function getTradeSkillItemQuality(ident, iid, noStore)
+		local C_TSUI = C_TradeSkillUI
+		local cq, cqi = C_TSUI.GetItemReagentQualityByItemInfo(ident), "GetItemReagentQualityInfo"
+		if not cq then
+			cq, cqi = C_TSUI.GetItemCraftedQualityByItemInfo(ident), "GetItemCraftedQualityInfo"
+		end
+		local r = c[iid]
+		if cq and r == nil then
+			cqi = C_TSUI[cqi](ident)
+			r = pQualityAtlasOverride[cqi and cqi.iconChat] ~= nil
+			if iid and not noStore then
+				c[iid] = r
+			end
+		end
+		return (cq and r and 5+cq or cq)
 	end
 end
 local function toCooldown(now, start, duration, enabled)
@@ -95,26 +118,30 @@ local function actionHint(slot)
 	local now, state = GetTime(), 0
 	local inRange, usable, nomana, hasRange = NormalizeInRange[IsActionInRange(slot)], IsUsableAction(slot)
 	inRange, hasRange = inRange ~= 0, inRange ~= nil
-	local skipCD, overCount, useChargeCooldown
-	local cdLeft, cdLength, enabled = GetActionCooldown(slot)
+	local cdUsable, overCount
+	local cdLeft, cdLength, cdEnabled, _cdModRate, cdActive = GetActionCooldown(slot)
 	local count, charges, maxCharges, ccdStart, ccdLength
+	local hasUsableCharge, retChargeCooldown
 	if MODERN and issecretvalue(cdLeft) then
-		skipCD, cdLeft, enabled, charges, maxCharges, ccdStart, ccdLength = 1, nil
+		hasUsableCharge = cdEnabled and not cdActive
+		cdUsable, cdLeft, cdEnabled, charges, maxCharges, ccdStart, ccdLength = hasUsableCharge, nil
 		state, cdLength = state + 524288, actionPHS + slot
 		overCount, count = C_ActionBar.GetActionDisplayCount(slot), 1
 	else
 		count, charges, maxCharges, ccdStart, ccdLength = GetActionCount(slot), GetActionCharges(slot)
-		cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLength, enabled)
+		cdLeft, cdLength, cdEnabled = toCooldown(now, cdLeft, cdLength, cdEnabled)
+		hasUsableCharge = charges and charges > 0
 		if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
-			useChargeCooldown = 1
+			retChargeCooldown = 1
 		end
+		cdUsable = cdLeft == 0 or cdEnabled == 0
 	end
-	state = state + ((IsCurrentAction(slot) or enabled == 0) and 1 or 0)
+	state = state + ((IsCurrentAction(slot) or cdEnabled == 0) and 1 or 0)
 	      + (at == "spell" and IsSpellOverlayed(aid) and 2 or 0)
-	      + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0) + (hasRange and 512 or 0)
-	      + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
-	usable = not not (usable and inRange and (skipCD or cdLeft == 0 or enabled == 0 or charges > 0))
-	if useChargeCooldown then
+	      + (nomana and 8 or 0) + (inRange and 0 or 16) + (hasUsableCharge and 64 or 0) + (hasRange and 512 or 0)
+	      + (usable and 0 or 1024) + (cdEnabled == 0 and 2048 or 0)
+	usable = not not (usable and inRange and cdUsable)
+	if retChargeCooldown then
 		cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
 	end
 	overCount = overCount or count <= 1 and charges or count
@@ -162,16 +189,18 @@ securecall(function() -- mount: mount ID
 	function mountHint(id)
 		local usable = (not (InCombatLockdown() or IsIndoors())) and HasFullControl() and not UnitIsDeadOrGhost("player")
 		local cname, sid, icon, active, usable2 = C_MountJournal.GetMountInfoByID(id)
-		local state, skipCD, cdLeft, cdLength = (active and 1 or 0), nil, GetSpellCooldown(sid)
+		local state, cdUsable = (active and 1 or 0), nil
+		local cdLeft, cdLength, _cdEnabled, _cdModRate, cdActive = GetSpellCooldown(sid)
 		if MODERN and issecretvalue(cdLeft) then
 			if sid then
-				skipCD, cdLeft = 1
+				cdUsable, cdLeft = not cdActive
 				state, cdLength = state + 524288, spellPHS + sid
 			end
 		else
 			cdLeft, cdLength = toCooldown(GetTime(), cdLeft, cdLength)
+			cdUsable = cdLeft == 0
 		end
-		return usable and (skipCD or cdLeft == 0) and usable2, state, icon, cname, 0, cdLeft, cdLength, callMethod.SetMountBySpellID, sid
+		return usable and cdUsable and usable2, state, icon, cname, 0, cdLeft, cdLength, callMethod.SetMountBySpellID, sid
 	end
 	local actionMap = {}
 	local function createMount(id)
@@ -285,27 +314,32 @@ securecall(function() -- spell: spell ID + mount spell ID
 		local state, now, msid = 0, GetTime(), sid or spellMap[lowered[n]]
 		local inRange, usable, nomana, hasRange = NormalizeInRange[IsSpellInRange(sid and RUNE_BASESPELL_CACHE[sid] or n, target or "target")], IsUsableSpell(n)
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		local skipCD, overCount, useChargeCooldown
-		local cdLeft, cdLength, enabled = GetSpellCooldown(n)
-		local count, charges, maxCharges, ccdStart, ccdLength
+		local cdUsable, overCount
+		local cdLeft, cdLength, cdEnabled, _cdMod, cdActive = GetSpellCooldown(n)
+		local count, charges, maxCharges, ccdStart, ccdLength, _ccdMod, _ccdActive
+		local hasUsableCharge, retChargeCooldown
 		if MODERN and issecretvalue(cdLeft) then
-			skipCD, count, cdLeft, cdLength, enabled = 1, 1
+			hasUsableCharge = cdEnabled and not cdActive
+			cdUsable, count, cdLeft, cdLength, cdEnabled = hasUsableCharge, 1
 			if msid then
-				state, cdLength = 524288, spellPHS + msid
+				state, cdLength = state + 524288, spellPHS + msid
 				overCount = C_Spell.GetSpellDisplayCount(msid)
 			end
+			usable = usable and hasUsableCharge
 		else
-			count, charges, maxCharges, ccdStart, ccdLength = GetSpellCount(n), GetSpellCharges(n)
-			cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLength, enabled)
+			count, charges, maxCharges, ccdStart, ccdLength, _ccdMod, _ccdActive = GetSpellCount(n), GetSpellCharges(n)
+			cdLeft, cdLength, cdEnabled = toCooldown(now, cdLeft, cdLength, cdEnabled)
+			hasUsableCharge = charges and charges > 0
 			if charges and maxCharges and charges < maxCharges and cdLeft == 0 then
-				useChargeCooldown = 1
+				retChargeCooldown = 1
 			end
+			cdUsable = cdLeft == 0 or cdEnabled == 0
 		end
-		state = state + ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n, sid) or enabled == 0) and 1 or 0)
-		      + (MODERN and IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (charges and charges > 0 and 64 or 0)
-		      + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
-		usable = not not (usable and inRange and (cdLeft == 0 or enabled == 0 or skipCD))
-		if useChargeCooldown then
+		state = state + ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n, sid) or cdEnabled == 0) and 1 or 0)
+		      + (MODERN and IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (hasUsableCharge and 64 or 0)
+		      + (hasRange and 512 or 0) + (usable and 0 or 1024) + (cdEnabled == 0 and 2048 or 0)
+		usable = not not (usable and inRange and cdUsable)
+		if retChargeCooldown then
 			cdLeft, cdLength = toCooldown(now, ccdStart, ccdLength, 1)
 		end
 		local ih, ico, ohUsable = iconOverrideHandlers[msid], nil
@@ -456,11 +490,11 @@ securecall(function() -- item: items ID/inventory slot
 		else
 			return
 		end
-		local iid, cdLeft, cdLength, enabled = (link and tonumber(link:match("item:([x%x]+)"))) or itemIdMap[ident]
+		local iid, cdLeft, cdLength, cdEnabled = (link and tonumber(link:match("item:([x%x]+)"))) or itemIdMap[ident]
 		if MODERN and iid and PlayerHasToy(iid) and C_Item.GetItemCount(iid) == 0 then
 			return toyHint(iid, nil, target)
 		elseif iid then
-			cdLeft, cdLength, enabled = toCooldown(GetTime(), C_Container.GetItemCooldown(iid))
+			cdLeft, cdLength, cdEnabled = toCooldown(GetTime(), C_Container.GetItemCooldown(iid))
 		end
 		target = target or "target"
 		local canRange = not (InCombatLockdown() and (UnitIsFriend("player", target) or not UnitExists(target))) or nil
@@ -480,9 +514,9 @@ securecall(function() -- item: items ID/inventory slot
 		end
 		local nCharge = C_Item.GetItemCount(ident, false, true) or 0
 		local usable = nCharge > 0 and (C_Item.GetItemSpell(ident) == nil or C_Item.IsUsableItem(ident))
-		local qual = MODERN and ident and (C_TradeSkillUI.GetItemReagentQualityByItemInfo(ident) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(ident))
+		local qual = MODERN and ident and getTradeSkillItemQuality(ident, iid)
 		qual = qual and qual > 0 and qual < 8 and (qual * 16384) or 0
-		local state = (C_Item.IsCurrentItem(ident) and 1 or 0) + (inRange and 0 or 16) + (slot and C_Item.IsEquippableItem(ident) and (bag and (purpose == "equip" and 128 or 0) or (slot and 256 or 0)) or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0) + qual
+		local state = (C_Item.IsCurrentItem(ident) and 1 or 0) + (inRange and 0 or 16) + (slot and C_Item.IsEquippableItem(ident) and (bag and (purpose == "equip" and 128 or 0) or (slot and 256 or 0)) or 0) + (hasRange and 512 or 0) + (usable and 0 or 1024) + (cdEnabled == 0 and 2048 or 0) + qual
 		usable = not not (usable and inRange and cdLeft == 0)
 		icon = icon or C_Item.GetItemIconByID(ident)
 		local oh = countOverrideHandlers[iid]
@@ -501,7 +535,7 @@ securecall(function() -- item: items ID/inventory slot
 		if type(flags) == "number" then
 			byName, forceShow, onlyEquipped = flags % 4 >= 2, flags % 2 >= 1, flags % 8 >= 4
 		end
-		local name = id <= LAST_EQUIP_SLOT and id or (byName and GetCachedItemName(id) or ("item:" .. id))
+		local name = id <= LAST_EQUIP_SLOT and id or (byName and getCachedItemName(id) or ("item:" .. id))
 		if not forceShow and onlyEquipped and not ((id > LAST_EQUIP_SLOT and C_Item.IsEquippedItem(name)) or (id <= LAST_EQUIP_SLOT and GetInventoryItemLink("player", id))) then return end
 		if not forceShow and C_Item.GetItemCount(name) == 0 then return end
 		if not actionMap[name] then
@@ -510,9 +544,10 @@ securecall(function() -- item: items ID/inventory slot
 		return actionMap[name]
 	end
 	local function describeItem(id, _flags)
-		local cat, cq = L"Item", MODERN and id and (C_TradeSkillUI.GetItemReagentQualityByItemInfo(id) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(id))
-		cat = cq and cat .. "|A:Professions-Icon-Quality-Tier" .. cq .. "-Small:0:0:2:0|a" or cat
-		return cat, C_Item.GetItemNameByID(id) or PeekCachedItemName(id), C_Item.GetItemIconByID(id), nil, callMethod.SetItemByID, tonumber(id)
+		local cat, cq = L"Item", MODERN and id and getTradeSkillItemQuality(id, id, true)
+		local cqa = cq and (pQualityAtlasOverride[cq] or ("Professions-Icon-Quality-Tier" .. cq .. "-Small"))
+		cat = cq and cat .. "|A:" .. cqa .. ":0:0:2:0|a" or cat
+		return cat, C_Item.GetItemNameByID(id) or peekCachedItemName(id), C_Item.GetItemIconByID(id), nil, callMethod.SetItemByID, tonumber(id)
 	end
 	AB:RegisterActionType("item", createItem, describeItem, 2)
 	function EV.BAG_UPDATE()
@@ -819,9 +854,9 @@ securecall(function() -- battlepet: pet ID, species ID
 	end
 	local function battlepetHint(pid)
 		local sid, cn, _, _, _, _, _, n, tex = C_PetJournal.GetPetInfoByPetID(pid)
-		local cdLeft, cdLength, enabled = toCooldown(GetTime(), C_PetJournal.GetPetCooldownByGUID(pid))
+		local cdLeft, cdLength, cdEnabled = toCooldown(GetTime(), C_PetJournal.GetPetCooldownByGUID(pid))
 		local state = (CF_WRATH and (C_PetJournal.IsCurrentlySummoned(pid) and 1 or 0) or strcmputf8i(C_PetJournal.GetSummonedPetGUID() or "", pid) == 0 and 1 or 0)
-		            + (enabled == 0 and 2048 or 0)
+		            + (cdEnabled == 0 and 2048 or 0)
 		return sid and cdLeft == 0 and C_PetJournal.PetIsSummonable(pid), state, tex, cn or n or "", 0, cdLeft, cdLength, SetBattlePetByID, pid
 	end
 	if MODERN_BATTLEPETS then -- random favorite pet
@@ -1267,7 +1302,7 @@ securecall(function() -- toy: item ID, flags[FORCE_SHOW]
 	function toyHint(iid, _modState, target)
 		local state, count, hasUsableCharge, now = 0, 0, false, GetTime()
 		local _, name, icon = C_ToyBox.GetToyInfo(iid)
-		local cdLeft, cdLength, enabled = toCooldown(now, C_Container.GetItemCooldown(iid))
+		local cdLeft, cdLength, cdEnabled = toCooldown(now, C_Container.GetItemCooldown(iid))
 		local ignUse, usable = IGNORE_TOY_USABILITY[iid]
 		local _, sid = C_Item.GetItemSpell(iid)
 		if not playerHasToy(iid) then
@@ -1281,9 +1316,9 @@ securecall(function() -- toy: item ID, flags[FORCE_SHOW]
 		local canRange = not (InCombatLockdown() and (UnitIsFriend("player", target) or not UnitExists(target))) or nil
 		local inRange, hasRange = canRange and NormalizeInRange[C_Item.IsItemInRange(iid, target)]
 		inRange, hasRange = inRange ~= 0, inRange ~= nil
-		state = state + (inRange and 0 or 16) + (hasRange and 512 or 0) + (enabled == 0 and 2048 or 0)
+		state = state + (inRange and 0 or 16) + (hasRange and 512 or 0) + (cdEnabled == 0 and 2048 or 0)
 		if sid then
-			local charges, maxCharges, ccdStart, ccdLength = GetSpellCharges(sid)
+			local charges, maxCharges, ccdStart, ccdLength, _ccdMod, _ccdActive = GetSpellCharges(sid)
 			if MODERN and issecretvalue(charges) then
 				charges, maxCharges, ccdStart, ccdLength = nil
 				--FIXME: BUG[12.0.0/2601]: this breaks Humans' hearthstone bonus charge recharge visualization while in combat
@@ -1401,16 +1436,18 @@ securecall(function() -- disenchant: iid
 		local name = C_Item.GetItemNameByID(ident)
 		local qual = MODERN and ident and (C_TradeSkillUI.GetItemReagentQualityByItemInfo(ident) or C_TradeSkillUI.GetItemCraftedQualityByItemInfo(ident))
 		qual = qual and qual > 0 and qual < 8 and (qual * 16384) or 0
-		local state, skipCD, cdLeft, cdLength, enabled = 0, nil, GetSpellCooldown(DISENCHANT_SID)
+		local state, cdUsable = 0, nil
+		local cdLeft, cdLength, cdEnabled, _cdMod, cdActive = GetSpellCooldown(DISENCHANT_SID)
 		if MODERN and issecretvalue(cdLeft) then
-			skipCD, cdLeft, enabled = 1
+			cdUsable, cdLeft, cdEnabled = not cdActive
 			state, cdLength = state + 524288, DISENCHANT_SID + spellPHS
 		else
-			cdLeft, cdLength, enabled = toCooldown(GetTime(), cdLeft, cdLength, enabled)
+			cdLeft, cdLength, cdEnabled = toCooldown(GetTime(), cdLeft, cdLength, cdEnabled)
+			cdUsable = cdLeft == 0
 		end
-		state = state + qual + 131072 + (C_Item.IsCurrentItem(ident) and 1 or 0) + (usable and 0 or 1024) + (enabled == 0 and 2048 or 0)
+		state = state + qual + 131072 + (C_Item.IsCurrentItem(ident) and 1 or 0) + (usable and 0 or 1024) + (cdEnabled == 0 and 2048 or 0)
 		local disName = ICON_PREFIX .. (name or ("item:" .. ident))
-		return not not (usable and (skipCD or cdLeft == 0)), state, C_Item.GetItemIconByID(ident), disName, count,
+		return not not (usable and cdUsable), state, C_Item.GetItemIconByID(ident), disName, count,
 			cdLeft or 0, cdLength or 0, disenchantTip, ident
 	end
 	local function createDisenchant(iid)
@@ -1494,9 +1531,14 @@ securecall(function() -- uipanel: token
 	end
 	local ShowVaultTip
 	if MODERN then
+		local IGNORE_VAULT_REWARD_ID = 265039 -- Silvermoon Splendor [12.0]
 		local unlockedRewards, needRefresh
 		function EV:WEEKLY_REWARDS_UPDATE()
 			unlockedRewards = nil
+		end
+		local function pickReward(ar)
+			local a1, a2 = ar[1], ar[2]
+			return a1 and a1.id ~= IGNORE_VAULT_REWARD_ID and a1 or a2 and a2.id ~= IGNORE_VAULT_REWARD_ID and a2 or nil
 		end
 		local function genRewardPreview()
 			needRefresh = nil
@@ -1505,8 +1547,9 @@ securecall(function() -- uipanel: token
 				local getRewardLink, getItemLevel = C_WeeklyRewards.GetItemHyperlink, C_Item.GetDetailedItemLevelInfo
 				for i=1, a and #a or 0 do
 					local ai = a[i]
-					if ai and ai.rewards and ai.rewards[1] then
-						local ilink, q = getRewardLink(ai.rewards[1].itemDBID), ai.rewards[1].quantity
+					local ar = ai and ai.rewards and pickReward(ai.rewards)
+					if ar then
+						local ilink, q = getRewardLink(ar.itemDBID), ar.quantity
 						local ilvl = (ilink and getItemLevel(ilink) or -1)
 						local suf = (q or 1) > 1 and " (x" .. q .. ")" or (" (" .. ITEM_LEVEL_ABBR .. " " .. ilvl .. ")")
 						a[ni], ni, needRefresh = ilink .. suf, ni + 1, needRefresh or ilvl == -1
@@ -1583,7 +1626,7 @@ securecall(function() -- uipanel: token
 		macro={MACROS, icon="Interface/Icons/INV_Misc_Note_06", gn="MacroFrame", tmt=SLASH_MACRO1, cw=closeButton(MacroFrame), postmt=pyCLICK .. "csp 1\n" .. pyCLICK .. "cgm 1"},
 		profs=MODERN and {TRADE_SKILLS, icon="interface/icons/inv_pick_02", tw=ProfessionMicroButton},
 		gamemenu={L"Game Menu", icon=CF_CLASSIC and "Interface/Icons/INV_Misc_PunchCards_Red", atlas="UI-HUD-MicroMenu-GameMenu-Up", gw=GameMenuFrame, noduck=1, pre=function() return not GameMenuFrame:IsShown() or nil end, post=function() RatingMenuFrame:Show() RatingMenuFrame:Hide() PlaySound(SOUNDKIT.IG_MAINMENU_OPEN) end},
-		vault=MODERN and {DELVES_GREAT_VAULT_LABEL, icon="Interface/Icons/INV_Cape_Special_Treasure_C_01", gn="WeeklyRewardsFrame", skipCloseSound=169062, req=function() return UnitLevel("player") == 80 end, tip=ShowVaultTip, open=openPanelFallback},
+		vault=MODERN and {DELVES_GREAT_VAULT_LABEL, icon="Interface/Icons/INV_Cape_Special_Treasure_C_01", gn="WeeklyRewardsFrame", skipCloseSound=169062, req=function() return UnitLevel("player") == 90 end, tip=ShowVaultTip, open=openPanelFallback},
 		csp={gw=SettingsPanel, cpreamble=true, cw=closeButton(SettingsPanel, "csp")},
 		cgm={gw=GameMenuFrame, cpreamble=true, cw=closeButton(GameMenuFrame, "cgm")},
 		csf={pre=function() return StoreFrame_IsShown and StoreFrame_SetShown and StoreFrame_IsShown() and StoreFrame_SetShown(false) end, cpreamble=true},
@@ -1909,12 +1952,12 @@ securecall(function() -- outfit: id
 		local icon = outfitIcon[id]
 		local usable = not InCombatLockdown()
 		local state = C_TransmogOutfitInfo.GetActiveOutfitID() == id and 1 or 0
-		local cdLeft, cdLength, enabled = GetSpellCooldown(cdsid)
+		local cdLeft, cdLength, cdEnabled, _cdMod, _cdActive = GetSpellCooldown(cdsid)
 		if issecretvalue(cdLeft) then
-			cdLeft, enabled = nil
+			cdLeft, cdEnabled = nil
 			state, cdLength = state + 524288, spellPHS + cdsid
 		else
-			cdLeft, cdLength, enabled = toCooldown(now, cdLeft, cdLength, enabled)
+			cdLeft, cdLength, cdEnabled = toCooldown(now, cdLeft, cdLength, cdEnabled)
 			usable = usable and cdLeft == 0
 		end
 		return usable, state, icon, name, 0, cdLeft, cdLength, setOutfitTooltip, id

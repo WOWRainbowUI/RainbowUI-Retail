@@ -171,7 +171,7 @@ securecall(function() -- Classic Paladin mounts
 		EV.NEW_MOUNT_ADDED = cueMountCheck
 	end
 end)
-securecall(function() -- failing ability rank disambiguation
+securecall(function() -- failing ability disambiguation
 	if not MODERN then
 		return
 	end
@@ -182,6 +182,9 @@ securecall(function() -- failing ability rank disambiguation
 		126892, -- monk
 		372048, -- evoker
 		467553, 467555, -- motherlode teleport
+		439871, 1221172, -- herbalism: green thumb
+		440977, 1223388, -- skinning: sharpen your knife
+		442615, 1226037, -- skinning: carve meat
 	}
 	local function checkForcedIDCastable(id)
 		return not not FindSpellBookSlotBySpellID(id), "forced-id-cast"
