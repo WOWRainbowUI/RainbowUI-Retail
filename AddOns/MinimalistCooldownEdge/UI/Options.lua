@@ -224,6 +224,19 @@ local function DurationColorsDisabled()
     return not DurationColorsEnabled()
 end
 
+local function ShinyAurasAdapterEnabled()
+    return MCE:IsShinyAurasAdapterEnabled()
+end
+
+local function SetShinyAurasAdapterEnabled(_, value)
+    local profile = MCE.db and MCE.db.profile
+    if not profile then return end
+
+    profile.shinyAurasAdapterEnabled = value
+    MCE:ForceUpdateAll(true)
+    AceConfigRegistry:NotifyChange(addonName)
+end
+
 local function DurationOffsetGet()
     local config = GetDurationTextColorsConfig()
     return config.offset
@@ -1290,6 +1303,24 @@ function MCE:GetOptions()
                             quickFooter = {
                                 type = "description", order = 9, fontSize = "small", width = "full",
                                 name = "\n|cff999999" .. L["LIVE_CONTROLS_DESC"] .. "|r",
+                            },
+                        },
+                    },
+                    addonIntegrations = {
+                        type = "group", name = "|cffffd100" .. L["Addon Integrations"] .. "|r",
+                        inline = true, order = 1.5,
+                        hidden = function() return not MCE:IsShinyAurasAvailable() end,
+                        args = {
+                            integrationsDesc = {
+                                type = "description", order = 0, fontSize = "small", width = "full",
+                                name = "|cff888888" .. L["ADDON_INTEGRATIONS_DESC"] .. "|r\n",
+                            },
+                            toggleShinyAuras = {
+                                type = "toggle", order = 1, width = "full",
+                                name = "|cffffd100" .. L["ShinyAuras"] .. "|r",
+                                desc = L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."],
+                                get = ShinyAurasAdapterEnabled,
+                                set = SetShinyAurasAdapterEnabled,
                             },
                         },
                     },
