@@ -17,6 +17,7 @@ L["MiniCC"] = "MiniCC"
 L["sArena"] = "sArena"
 L["TellMeWhen"] = "TellMeWhen"
 L["Profiles"] = "設定檔"
+L["ShinyAuras"] = "ShinyAuras"
 
 -- Group Headers
 L["General"] = "一般"
@@ -135,8 +136,12 @@ L["OFF"] = "關閉"
 
 -- General Dashboard
 L["Enable categories styling"] = "啟用分類樣式"
+L["Addon Integrations"] = "整合插件"
 L["LIVE_CONTROLS_DESC"] = "變更會立即生效。只保留你實際使用的分類啟用，以保持更乾淨的設定。"
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "啟用隊伍/團隊框架是此類別的總開關。啟用團隊光環文字會將相同的樣式延伸到暴雪原生的團隊框架。"
+L["ADDON_INTEGRATIONS_DESC"] = "啟用或停用可選的插件整合功能，將外部冷卻時間導入 MiniCE 類別。"
+L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."] = "將 ShinyAuras 的冷卻時間路由到單位框架類別。若要保留 ShinyAuras 原生的倒數顯示，請停用此選項。"
+
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = "複製此連結以在瀏覽器中開啟 CurseForge 專案頁面。"
