@@ -458,7 +458,6 @@ local function GetNameWithoutRealm(frame)
     return UnitFullName(frame.unit)
 end
 
-local printSecret
 local function SetArenaName(frame, unit, textObject)
     if UnitIsUnit(unit, "player") then return end
     local specName = GetSpecName(unit)
@@ -468,11 +467,7 @@ local function SetArenaName(frame, unit, textObject)
     if not issecretvalue(isParty1) then
         partyID = isParty1 and " 1" or " 2"
     else
-        partyID = isParty1 and " ?"
-        if not printSecret then
-            print("BetterBlizzFrames:\nUnable to determine party ID for unit: " .. unit .. ". Please report to @bodify.)")
-            printSecret = true
-        end
+        partyID = " ?"
     end
 
 
@@ -543,6 +538,7 @@ end)
 
 
 local function CompactPartyFrameNameChanges(frame)
+    if issecretvalue(frame) then return end --???
     if not frame or not frame.unit then return end
     if frame.unit:find("nameplate") then return end
     if partyArenaNames and IsActiveBattlefieldArena() and UnitIsFriend(frame.unit, "player") then
@@ -796,9 +792,6 @@ end
 -- Run the function to initialize font strings on all specified frames
 InitializeFontStringsForFrames()
 
-
-
-
 local function UpdateFontStringPosition(frame)
     local name = frame.name or frame.Name
     if not name or not name:GetParent() then return end
@@ -927,6 +920,7 @@ local function SetUnitFramesFont(font, size, outline)
     if outline == "NONE" then
         outline = nil
     end
+    local anyFailed = false
     for _, frame in ipairs(frames) do
         local newSize = size
         if frame == PetFrame or frame == TargetFrameToT or frame == FocusFrameToT then
@@ -938,7 +932,9 @@ local function SetUnitFramesFont(font, size, outline)
                 newSize = size -2
             end
         end
-        frame.bbfName:SetFont(font, newSize, outline)
+        if not frame.bbfName:SetFont(font, newSize, outline) then
+            anyFailed = true
+        end
         if frame.TargetFrameContent and frame.TargetFrameContent.TargetFrameContentMain.LevelText then
             local _, lvlSize = frame.TargetFrameContent.TargetFrameContentMain.LevelText:GetFont()
             frame.TargetFrameContent.TargetFrameContentMain.LevelText:SetFont(font, lvlSize, outline)
@@ -949,6 +945,7 @@ local function SetUnitFramesFont(font, size, outline)
     PlayerCastingBarFrame.Text:SetFont(font, size, outline)
     TargetFrameSpellBar.Text:SetFont(font, size, outline)
     FocusFrameSpellBar.Text:SetFont(font, size, outline)
+    return not anyFailed
 end
 
 
@@ -1060,6 +1057,9 @@ local function SetUnitFramesValuesFont(font, size, outline)
 
         textObject:SetFont(newFont, newSize, newOutline)
     end
+
+    local verifyFont = playerHealthBar.TextString:GetFont()
+    return verifyFont == font
 end
 
 
@@ -1287,13 +1287,17 @@ function BBF.SetCustomFonts()
         end
     end
 
+    local needsRetry = false
+
     if db.changeUnitFrameFont then
         local fontName = db.unitFrameFont
         local fontPath = LSM:Fetch(LSM.MediaType.FONT, fontName)
         local fontSize = db.unitFrameFontSize or 10
         local outline = db.unitFrameFontOutline or "THINOUTLINE"
 
-        SetUnitFramesFont(fontPath, fontSize, outline)
+        if not SetUnitFramesFont(fontPath, fontSize, outline) then
+            needsRetry = true
+        end
     end
 
     if db.changeActionBarFont then
@@ -1313,7 +1317,24 @@ function BBF.SetCustomFonts()
         local fontSize = db.unitFrameValueFontSize or 10
         local outline = db.unitFrameValueFontOutline or "THINOUTLINE"
 
-        SetUnitFramesValuesFont(fontPath, fontSize, outline)
+        if not SetUnitFramesValuesFont(fontPath, fontSize, outline) then
+            needsRetry = true
+        end
+    end
+
+    -- Font files from SharedMedia may not be loaded into the VFS yet on first login.
+    -- SetFont() silently fails in that case. Retry with increasing delays until it works.
+    if needsRetry then
+        local retryCount = BBF.fontRetryCount or 0
+        if retryCount < 10 then
+            BBF.fontRetryCount = retryCount + 1
+            local delay = min(retryCount + 1, 5)
+            C_Timer.After(delay, function()
+                BBF.SetCustomFonts()
+            end)
+        end
+    else
+        BBF.fontRetryCount = 0
     end
 
     if BetterBlizzFramesDB.noPortraitModes then
@@ -1459,12 +1480,6 @@ local function PlayerFrameNameChanges(frame)
         PlayerLevelText:SetTextColor(classColor.r, classColor.g, classColor.b)
     end
 end
-C_Timer.After(1, function()
-    PlayerFrameNameChanges(PlayerFrame)
-end)
-C_Timer.After(2, function() --lol idk deal with it later
-    PlayerFrameNameChanges(PlayerFrame)
-end)
 
 
 local function TargetFrameNameChanges(frame)
