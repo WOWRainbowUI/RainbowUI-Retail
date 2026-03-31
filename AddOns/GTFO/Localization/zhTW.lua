@@ -123,6 +123,10 @@ if (GetLocale() == "zhTW") then
 	L.UI_IgnoreTime_Seconds = "秒";
 	-- 6.0
 	L.Help_SettingsDuringCombat = "無法在戰鬥中開啟 GTFO 設定。";
+	L.UI_AFKAlert_Classic = "離開狀態時受攻擊提醒";
+	L.UI_AFKAlertDescription_Classic = "當你被標記為離開 (AFK) 時，只要受到傷害，GTFO 就會播放提醒音效。";
+	L.UI_AFKAlert_Retail = "離開狀態時進入戰鬥提醒";
+	L.UI_AFKAlertDescription_Retail = "當你被標記為離開 (AFK) 時，GTFO 會嘗試在戰鬥開始時播放一次提醒音效 (在暴雪限制的情境下，例如傳奇+副本，可能無法正常運作) 。";
 	L.UI_BrokenReason = "由於《至暗之夜》(12.0) 引入的全新暴雪插件限制，此功能已被停用";
 	L.UI_BrokenPartialReason = "由於《至暗之夜》(12.0) 引入的全新暴雪插件限制，部分功能已被停用";
 	L.UI_BrokenExplanation_Header = "插件限制";

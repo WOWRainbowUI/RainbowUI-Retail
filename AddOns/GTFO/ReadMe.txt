@@ -2380,3 +2380,7 @@ Change Log:
 6.2
 * Fixed taint issue when an encounter ends
 
+6.3
+* Support for alerts when AFK
+* Added Midnight spells for Windrunner Spire
+

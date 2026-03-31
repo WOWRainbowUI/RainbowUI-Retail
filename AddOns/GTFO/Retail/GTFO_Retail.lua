@@ -32,6 +32,7 @@ function GTFO_OnEvent(self, event, ...)
 			SoundChannel = GTFOData.SoundChannel or GTFO.DefaultSettings.SoundChannel;
 			BrannMode = GTFOData.BrannMode;
 			IgnoreTimeAmount = GTFOData.IgnoreTimeAmount;
+			AFKAlertMode = GTFOData.AFKAlertMode;
 			IgnoreOptions = { };
 			SoundOverrides = { "", "", "", "" };
 			IgnoreSpellList = { };
@@ -89,6 +90,7 @@ function GTFO_OnEvent(self, event, ...)
 	
 		-- Load Encounter and Instance cache data
 		GTFO.BuildIndexes();
+		GTFO.UpdateAFKStatus();
 	
 		-- Display state errors meant for debuggers:
 		if (GTFO.Settings.ScanMode) then
@@ -110,7 +112,20 @@ function GTFO_OnEvent(self, event, ...)
 	if (event == "PLAYER_ENTERING_WORLD") then
 		-- Refresh mode status just in case
 		GTFO.TankMode = GTFO_CheckTankMode();
+		GTFO.HandleAFKAlert(event, ...);
 		GTFO_ActivateMod();
+		return;
+	end
+	if (event == "PLAYER_STARTED_MOVING") then
+		GTFO.VariableStore.PlayerAFK = false;
+		return;
+	end
+	if (event == "PLAYER_FLAGS_CHANGED") then
+		GTFO.HandleAFKAlert(event, ...);
+		return;
+	end
+	if (event == "PLAYER_REGEN_DISABLED") then
+		GTFO.HandleAFKAlert(event, ...);
 		return;
 	end
 	if (event == "MIRROR_TIMER_START") then
@@ -223,7 +238,61 @@ function GTFO_OnEvent(self, event, ...)
 		if (GTFO.PendingEncounterUnregister) then
 			GTFO.TryUnregisterEncounter();
 		end
+		GTFO.HandleAFKAlert(event, ...);
 		return;
+	end
+end
+
+function GTFO.IsPlayerAFK()
+	local success, isAFK = pcall(function()
+		return UnitIsAFK("player") == true;
+	end);
+	if (success) then
+		return isAFK;
+	end
+	return nil;
+end
+
+function GTFO.UpdateAFKStatus()
+	local isAFK = GTFO.IsPlayerAFK();
+	if (isAFK ~= nil) then
+		GTFO.VariableStore.PlayerAFK = isAFK;
+	end
+end
+
+function GTFO.HandleAFKAlert(event, ...)
+	if (event == "PLAYER_ENTERING_WORLD") then
+		GTFO.UpdateAFKStatus();
+		return;
+	end
+	if (event == "PLAYER_FLAGS_CHANGED") then
+		local unit = ...;
+		if (unit and UnitIsUnit(unit, "player")) then
+			if (unit and UnitIsUnit(unit, "player")) then
+				C_Timer.After(0, function()
+					GTFO.UpdateAFKStatus();
+				end);
+			end
+		end
+		return;
+	end
+	if (event == "PLAYER_REGEN_ENABLED") then
+		GTFO.UpdateAFKStatus();
+		return;
+	end
+	if not (event == "PLAYER_REGEN_DISABLED" and GTFO.Settings.Active and GTFO.Settings.AFKAlertMode) then
+		return;
+	end
+
+	local isAFK = GTFO.VariableStore.PlayerAFK;
+	local currentAFK = GTFO.IsPlayerAFK();
+	if (currentAFK ~= nil) then
+		isAFK = currentAFK;
+		GTFO.VariableStore.PlayerAFK = currentAFK;
+	end
+
+	if (isAFK == true) then
+		GTFO_PlaySound(1);
 	end
 end
 
@@ -574,6 +643,13 @@ function GTFO_RenderOptions()
 		getglobal(GTFO_IgnoreTimeSlider:GetName().."Low"):SetText(" ");
 	end
 
+	local AFKAlertButton = CreateFrame("CheckButton", "GTFO_AFKAlertButton", ConfigurationPanel, "ChatConfigCheckButtonTemplate");
+	AFKAlertButton:SetPoint("TOPLEFT", 10, -490)
+	AFKAlertButton.tooltip = GTFOLocal.UI_AFKAlertDescription_Retail;
+	getglobal(AFKAlertButton:GetName().."Text"):SetText(GTFOLocal.UI_AFKAlert_Retail);
+	AFKAlertButton.optionKey = "AFKAlert";
+	AFKAlertButton:SetScript("OnClick", GTFO.ToggleCheckboxOption);
+
 	local RestrictionsBox = CreateFrame("Frame", "GTFO_BrokenExplanationBox", ConfigurationPanel, "BackdropTemplate");
 	RestrictionsBox:SetPoint("TOPRIGHT", -12, -12);
 	RestrictionsBox:SetSize(310, 50);
@@ -711,6 +787,8 @@ function GTFO.ToggleCheckboxOption(self)
 		GTFO.Settings.TrivialMode = checked;
 	elseif (optionKey == "Vibration") then
 		GTFO.Settings.EnableVibration = checked;
+	elseif (optionKey == "AFKAlert") then
+		GTFO.Settings.AFKAlertMode = checked;
 	end
 	
 	for key, option in pairs(GTFO.IgnoreSpellCategory) do
@@ -734,6 +812,17 @@ function GTFO_ActivateMod()
 	if (GTFO.Settings.Active) then
 		GTFO.RegisterInstance()
 	end	
+
+	if (GTFO.Settings.Active and GTFO.Settings.AFKAlertMode) then
+		GTFOFrame:RegisterEvent("PLAYER_FLAGS_CHANGED");
+		GTFOFrame:RegisterEvent("PLAYER_REGEN_DISABLED");
+		GTFOFrame:RegisterEvent("PLAYER_STARTED_MOVING");
+		GTFO.UpdateAFKStatus();
+	else
+		GTFOFrame:UnregisterEvent("PLAYER_FLAGS_CHANGED");
+		GTFOFrame:UnregisterEvent("PLAYER_REGEN_DISABLED");
+		GTFOFrame:UnregisterEvent("PLAYER_STARTED_MOVING");
+	end
 end
 
 function GTFO_Command_Help()
@@ -772,6 +861,7 @@ function GTFO_SaveSettings()
 	GTFOData.SoundChannel = GTFO.Settings.SoundChannel;
 	GTFOData.BrannMode = GTFO.Settings.BrannMode;
 	GTFOData.IgnoreTimeAmount = GTFO.Settings.IgnoreTimeAmount;
+	GTFOData.AFKAlertMode = GTFO.Settings.AFKAlertMode;
 	GTFOData.IgnoreOptions = { };
 	if (GTFO.Settings.IgnoreOptions) then
 		for key, option in pairs(GTFO.Settings.IgnoreOptions) do
@@ -830,6 +920,7 @@ function GTFO_SaveSettings()
 		getglobal("GTFO_UnmuteButton"):SetChecked(GTFO.Settings.UnmuteMode);
 		getglobal("GTFO_TrivialButton"):SetChecked(GTFO.Settings.TrivialMode);
 		getglobal("GTFO_VibrationButton"):SetChecked(GTFO.Settings.EnableVibration);
+		getglobal("GTFO_AFKAlertButton"):SetChecked(GTFO.Settings.AFKAlertMode);
 
 		for key, option in pairs(GTFO.IgnoreSpellCategory) do
 			getglobal("GTFO_IgnoreAlertButton_"..key):SetChecked(not GTFO.Settings.IgnoreOptions[key]);
@@ -870,6 +961,7 @@ function GTFO_SetDefaults()
 	GTFO.Settings.IgnoreSpellList = GTFO.DefaultSettings.IgnoreSpellList;
 	GTFO.Settings.BrannMode = GTFO.DefaultSettings.BrannMode;
 	GTFO.Settings.IgnoreTimeAmount = GTFO.DefaultSettings.IgnoreTimeAmount;
+	GTFO.Settings.AFKAlertMode = GTFO.DefaultSettings.AFKAlertMode;
 	GTFO_SaveSettings();
 end
 
