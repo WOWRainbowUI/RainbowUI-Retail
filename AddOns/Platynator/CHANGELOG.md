@@ -1,7 +1,6 @@
 # Platynator
 
-## [354](https://github.com/TheMouseNest/Platynator/tree/354) (2026-03-28)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/353...354) [Previous Releases](https://github.com/TheMouseNest/Platynator/releases)
+## [357](https://github.com/TheMouseNest/Platynator/tree/357) (2026-03-29)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/356...357) 
 
-- Fix typo causing an error  
-- Add "Blizzard: Gray Inset" border asset  
+- Fix empowered colours appearing on spells where it shouldn't  
