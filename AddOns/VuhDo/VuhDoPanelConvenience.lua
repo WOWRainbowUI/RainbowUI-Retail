@@ -948,8 +948,26 @@ end
 
 
 --
-function VUHDO_getBarPrivateAura(aButton, anIconNumber)
+function VUHDO_getPrivateAuraContainer(aButton)
 
-	return _G[format("%sBgBarHlBarPa%d", aButton:GetName(), anIconNumber)];
+	return _G[format("%sBgBarHlBarPaCn", aButton:GetName())];
+
+end
+
+
+
+--
+function VUHDO_getPrivateAuraIcon(aButton, anIconNumber)
+
+	return _G[format("%sBgBarHlBarPaCnPa%d", aButton:GetName(), anIconNumber)];
+
+end
+
+
+
+--
+function VUHDO_getPrivateAuraDuration(aButton, anIconNumber)
+
+	return _G[format("%sBgBarHlBarPaCnPa%dDurFr", aButton:GetName(), anIconNumber)];
 
 end

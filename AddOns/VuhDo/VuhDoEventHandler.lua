@@ -720,6 +720,7 @@ function VUHDO_initAllBurstCaches()
 	VUHDO_auraSoundsInitLocalOverrides();
 	VUHDO_guiToolboxInitLocalOverrides();
 	VUHDO_vuhdoInitLocalOverrides();
+	VUHDO_readyCheckInitLocalOverrides();
 	VUHDO_spellEventHandlerInitLocalOverrides();
 	VUHDO_macroFactoryInitLocalOverrides();
 	VUHDO_keySetupInitLocalOverrides();
@@ -1064,6 +1065,8 @@ do
 
 		elseif "PLAYER_FOCUS_CHANGED" == anEvent then
 			if VUHDO_VARIABLES_LOADED then
+				VUHDO_cancelPendingTargetFocusInspect("focus");
+
 				if VUHDO_RAID["focus"] then
 					VUHDO_determineIncHeal("focus");
 					VUHDO_updateHealth("focus", 9); -- VUHDO_UPDATE_INC
@@ -1083,6 +1086,10 @@ do
 						VUHDO_fullAuraRefresh("focus");
 
 						VUHDO_setHealth("focus", 1); -- VUHDO_UPDATE_ALL
+
+						if VUHDO_needsRoleInspect("focus") then
+							VUHDO_requestTargetFocusInspect("focus");
+						end
 					else
 						VUHDO_clearUnitAuraCache("focus");
 
@@ -1159,6 +1166,8 @@ do
 
 		elseif "PLAYER_TARGET_CHANGED" == anEvent then
 			if VUHDO_VARIABLES_LOADED then
+				VUHDO_cancelPendingTargetFocusInspect("target");
+
 				VUHDO_updatePlayerTarget();
 
 				VUHDO_updateHealth("player", 1);
@@ -1166,6 +1175,10 @@ do
 
 				VUHDO_updateHealth("target", 1);
 				VUHDO_updateBouquetsForEvent("target", 22); -- VUHDO_UPDATE_UNIT_TARGET
+
+				if VUHDO_needsRoleInspect("target") then
+					VUHDO_requestTargetFocusInspect("target");
+				end
 
 				VUHDO_updatePanelVisibility();
 			end

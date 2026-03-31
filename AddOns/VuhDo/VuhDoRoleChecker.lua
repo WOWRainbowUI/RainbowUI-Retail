@@ -18,9 +18,14 @@ VUHDO_NEXT_INSPECT_TIME_OUT = nil;
 local NotifyInspect = NotifyInspect;
 local GetSpecializationInfo = GetSpecializationInfo;
 local ClearInspectPlayer = ClearInspectPlayer;
+local GetTime = GetTime;
+local CanInspect = CanInspect;
+local UnitIsPlayer = UnitIsPlayer;
 local UnitStat = UnitStat;
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned;
 local UnitPowerType = UnitPowerType;
+local UnitPowerMax = UnitPowerMax;
+local issecretvalue = issecretvalue;
 local VUHDO_isUnitInModel;
 local VUHDO_checkInteractDistance;
 local pairs = pairs;
@@ -100,6 +105,43 @@ local VUHDO_CLASS_ROLES = {
 --
 local tInfo;
 local tName;
+function VUHDO_needsRoleInspect(aUnit)
+
+	tInfo = VUHDO_RAID[aUnit];
+
+	if not tInfo then
+		return false;
+	end
+
+	tName = tInfo["name"];
+
+	if not tName or tInfo["isPet"] or tInfo["hasSecretName"] then
+		return false;
+	end
+
+	if VUHDO_CLASS_ROLES[tInfo["classId"]] then
+		return false;
+	end
+
+	if VUHDO_MANUAL_ROLES[tName] or VUHDO_ROLE_BY_SPEC[tName] then
+		return false;
+	end
+
+	if VUHDO_DF_TOOL_ROLES[tName] == 60 or VUHDO_DF_TOOL_ROLES[tName] == 63 then -- VUHDO_ID_MELEE_TANK -- VUHDO_ID_RANGED_HEAL
+		return false;
+	end
+
+	if (VUHDO_INSPECTED_ROLES[tName] or VUHDO_ID_UNDEFINED) ~= VUHDO_ID_UNDEFINED then
+		return false;
+	end
+
+	return true;
+
+end
+
+
+
+--
 local function VUHDO_shouldBeInspected(aUnit)
 
 	if "focus" == aUnit or "target" == aUnit then
@@ -113,7 +155,7 @@ local function VUHDO_shouldBeInspected(aUnit)
 	end
 
 	-- Determined by role or can't tell by talent trees (dk)?
-	if VUHDO_CLASS_ROLES[tInfo["classId"]] then -- VUHDO_ID_DEATH_KNIGHT, hat zwar keine feste Rolle, Talentb�ume bringen aber auch nichts
+	if VUHDO_CLASS_ROLES[tInfo["classId"]] then -- VUHDO_ID_DEATH_KNIGHT, hat zwar keine feste Rolle, Talentbï¿½ume bringen aber auch nichts
 		return false;
 	end
 
@@ -138,17 +180,72 @@ end
 
 --
 function VUHDO_tryInspectNext()
+
 	for tUnit, _ in pairs(VUHDO_RAID) do
 		if VUHDO_shouldBeInspected(tUnit) then
 			VUHDO_NEXT_INSPECT_TIME_OUT = GetTime() + VUHDO_INSPECT_TIMEOUT;
 			VUHDO_NEXT_INSPECT_UNIT = tUnit;
 
-			if "player" == tUnit then VUHDO_inspectLockRole();
-			else NotifyInspect(tUnit); end
+			if "player" == tUnit then
+				VUHDO_inspectLockRole();
+			else
+				NotifyInspect(tUnit);
+			end
 
 			return;
 		end
 	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_cancelPendingTargetFocusInspect(aUnit)
+
+	if "target" ~= aUnit and "focus" ~= aUnit then
+		return;
+	end
+
+	if VUHDO_NEXT_INSPECT_UNIT ~= aUnit then
+		return;
+	end
+
+	VUHDO_NEXT_INSPECT_UNIT = nil;
+	VUHDO_NEXT_INSPECT_TIME_OUT = nil;
+
+	ClearInspectPlayer();
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_requestTargetFocusInspect(aUnit)
+
+	if "target" ~= aUnit and "focus" ~= aUnit then
+		return;
+	end
+
+	if VUHDO_NEXT_INSPECT_UNIT then
+		return;
+	end
+
+	if not UnitIsPlayer(aUnit) or not CanInspect(aUnit) or not VUHDO_checkInteractDistance(aUnit, 1) then
+		return;
+	end
+
+	VUHDO_NEXT_INSPECT_TIME_OUT = GetTime() + VUHDO_INSPECT_TIMEOUT;
+	VUHDO_NEXT_INSPECT_UNIT = aUnit;
+
+	NotifyInspect(aUnit);
+
+	return;
+
 end
 
 
@@ -164,7 +261,7 @@ function VUHDO_inspectRole(aUnit)
 	tInfo = VUHDO_RAID[aUnit];
 
 	if not tInfo then 
-		return VUHDO_ID_UNDEFINED; 
+		return VUHDO_ID_UNDEFINED;
 	end
 
 	if "player" == aUnit then
@@ -232,11 +329,13 @@ local tActiveTree;
 local tInfo;
 local tTreeId;
 function VUHDO_inspectLockRole()
+
 	tInfo = VUHDO_RAID[VUHDO_NEXT_INSPECT_UNIT];
 
-	if not tInfo then 
-		VUHDO_NEXT_INSPECT_UNIT = nil; 
-		return; 
+	if not tInfo then
+		VUHDO_NEXT_INSPECT_UNIT = nil;
+
+		return;
 	end
 
 	if "player" == VUHDO_NEXT_INSPECT_UNIT then
@@ -245,6 +344,7 @@ function VUHDO_inspectLockRole()
 		if not tActiveTree then
 			VUHDO_INSPECTED_ROLES[tInfo["name"]] = VUHDO_ID_UNDEFINED;
 			VUHDO_NEXT_INSPECT_UNIT = nil;
+
 			return;
 		end
 
@@ -267,8 +367,12 @@ function VUHDO_inspectLockRole()
 	VUHDO_INSPECTED_ROLES[tInfo["name"]] = VUHDO_inspectRole(VUHDO_NEXT_INSPECT_UNIT);
 
 	ClearInspectPlayer();
+
 	VUHDO_NEXT_INSPECT_UNIT = nil;
 	VUHDO_normalRaidReload();
+
+	return;
+
 end
 
 
@@ -337,12 +441,12 @@ end
 --
 local tInfo;
 local tPowerType;
-local tBuffExist;
 local tFixRole;
 local tIntellect, tStrength, tAgility;
 local tClassId, tClassRole, tName;
 local tRole;
 local tDfRole;
+local tMaxPower;
 function VUHDO_determineRole(aUnit)
 
 	tInfo = VUHDO_RAID[aUnit];
@@ -463,22 +567,15 @@ function VUHDO_determineRole(aUnit)
 				return 61;
 			end
 		end
-
-		return nil;
 	end
 
 	if 29 == tClassId then -- VUHDO_ID_DEATH_KNIGHT
-		tBuffExist = VUHDO_unitBuff(aUnit, VUHDO_SPELL_ID.BUFF_BLOOD_PRESENCE);
-		if tBuffExist then
-			--VUHDO_FIX_ROLES[tName] = 60; -- VUHDO_ID_MELEE_TANK
-			return 60; -- VUHDO_ID_MELEE_TANK
-		else
-			VUHDO_FIX_ROLES[tName] = 61; -- VUHDO_ID_MELEE_DAMAGE
-			return 61; -- VUHDO_ID_MELEE_DAMAGE
-		end
+		VUHDO_FIX_ROLES[tName] = 61; -- VUHDO_ID_MELEE_DAMAGE
+		return 61; -- VUHDO_ID_MELEE_DAMAGE
 
 	elseif 28 == tClassId then -- VUHDO_ID_PRIESTS
 		tPowerType = UnitPowerType(aUnit);
+
 		if VUHDO_UNIT_POWER_INSANITY == tPowerType then
 			VUHDO_FIX_ROLES[tName] = 62; -- VUHDO_ID_RANGED_DAMAGE
 			return 62; -- VUHDO_ID_RANGED_DAMAGE
@@ -487,14 +584,12 @@ function VUHDO_determineRole(aUnit)
 		end
 
 	elseif 20 == tClassId then -- VUHDO_ID_WARRIORS
-		if (0 > 2) then -- FIXME: need replacement for UnitDefense check
-			return 60; -- VUHDO_ID_MELEE_TANK
-		else
-			return 61; -- VUHDO_ID_MELEE_DAMAGE
-		end
+		VUHDO_FIX_ROLES[tName] = 61; -- VUHDO_ID_MELEE_DAMAGE
+		return 61; -- VUHDO_ID_MELEE_DAMAGE
 
 	elseif 27 == tClassId then -- VUHDO_ID_DRUIDS
 		tPowerType = UnitPowerType(aUnit);
+
 		if VUHDO_UNIT_POWER_MANA == tPowerType then
 			return 63; -- VUHDO_ID_RANGED_HEAL
 		elseif VUHDO_UNIT_POWER_LUNAR_POWER == tPowerType then
@@ -509,17 +604,14 @@ function VUHDO_determineRole(aUnit)
 		end
 
 	elseif 23 == tClassId then -- VUHDO_ID_PALADINS
-		if 0 > 2 then -- FIXME: need replacement for UnitDefense check
-			return 60; -- VUHDO_ID_MELEE_TANK
-		else
-			tIntellect = UnitStat(aUnit, 4);
-			tStrength = UnitStat(aUnit, 1);
+		tIntellect = UnitStat(aUnit, 4);
+		tStrength = UnitStat(aUnit, 1);
 
-			if tIntellect > tStrength then
-				return 63; -- VUHDO_ID_RANGED_HEAL
-			else
-				return 61; -- VUHDO_ID_MELEE_DAMAGE
-			end
+		if tIntellect > tStrength then
+			return 63; -- VUHDO_ID_RANGED_HEAL
+		else
+			VUHDO_FIX_ROLES[tName] = 61; -- VUHDO_ID_MELEE_DAMAGE
+			return 61; -- VUHDO_ID_MELEE_DAMAGE
 		end
 
 	elseif 26 == tClassId then -- VUHDO_ID_SHAMANS
@@ -530,6 +622,7 @@ function VUHDO_determineRole(aUnit)
 			return 61; -- VUHDO_ID_MELEE_DAMAGE
 		else
 			tPowerType = UnitPowerType(aUnit);
+
 			if VUHDO_UNIT_POWER_MAELSTROM == tPowerType then -- VUHDO_ID_RANGED_DAMAGE
 				return 62; -- VUHDO_ID_RANGED_DAMAGE
 			else
@@ -539,6 +632,7 @@ function VUHDO_determineRole(aUnit)
 
 	elseif 31 == tClassId then -- VUHDO_ID_DEMON_HUNTERS
 		tPowerType = UnitPowerType(aUnit);
+
 		if VUHDO_UNIT_POWER_PAIN == tPowerType then
 			return 60; -- VUHDO_ID_MELEE_TANK
 		else
@@ -546,7 +640,11 @@ function VUHDO_determineRole(aUnit)
 		end
 
 	elseif 22 == tClassId then -- VUHDO_ID_HUNTERS
-		if UnitPowerMax(aUnit) == 100 then -- Survival
+		tMaxPower = UnitPowerMax(aUnit);
+
+		if sSecretsEnabled and issecretvalue(tMaxPower) then
+			return 62; -- VUHDO_ID_RANGED_DAMAGE
+		elseif tMaxPower == 100 then -- Survival
 			return 61; -- VUHDO_ID_MELEE_DAMAGE
 		else
 			return 62; -- VUHDO_ID_RANGED_DAMAGE
@@ -558,7 +656,11 @@ function VUHDO_determineRole(aUnit)
 		if VUHDO_UNIT_POWER_MANA == tPowerType then
 			return 63; -- VUHDO_ID_RANGED_HEAL
 		elseif VUHDO_UNIT_POWER_ENERGY == tPowerType then
-			if UnitPowerMax(aUnit, VUHDO_UNIT_POWER_CHI) > 4 then -- WW Monks have 5 Chi (6 w/ Ascension)
+			tMaxPower = UnitPowerMax(aUnit, VUHDO_UNIT_POWER_CHI);
+
+			if sSecretsEnabled and issecretvalue(tMaxPower) then
+				return 61; -- VUHDO_ID_MELEE_DAMAGE
+			elseif tMaxPower > 4 then -- WW Monks have 5 Chi (6 w/ Ascension)
 				return 61; -- VUHDO_ID_MELEE_DAMAGE
 			else
 				return 60; -- VUHDO_ID_MELEE_TANK
@@ -566,15 +668,11 @@ function VUHDO_determineRole(aUnit)
 		end
 
 	elseif 32 == tClassId then -- VUHDO_ID_EVOKERS
-		-- FIXME: all Evoker specs have the same max mana and essence
-		if UnitPowerMax(aUnit) == 250000 then
-			return 62; -- VUHDO_ID_RANGED_DAMAGE
-		else
-			return 63; -- VUHDO_ID_RANGED_HEAL
-		end
+		VUHDO_FIX_ROLES[tName] = 62; -- VUHDO_ID_RANGED_DAMAGE
+		return 62; -- VUHDO_ID_RANGED_DAMAGE
 
 	end
- 
+
 	return nil;
 
 end
