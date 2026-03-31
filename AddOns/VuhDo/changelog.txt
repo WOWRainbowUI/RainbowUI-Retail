@@ -23,6 +23,8 @@ Bugfixes:
 -- Fixed range check spell fallback for cross-class profile sharing  
 -- Fixed dispel text color  
 -- Fixed out of range arrow when unit is not in the same zone  
+-- Fixed role detection for target and focus units not in group  
+-- Fixed heal absorb bar to properly anchor to health bar  
   
   
 Improvements:  

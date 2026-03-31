@@ -526,12 +526,40 @@
 							</Scripts>
 						</StatusBar>
 
-						<Frame name="$parentPa1" setAllPoints="true"> </Frame>
-						<Frame name="$parentPa2" setAllPoints="true"> </Frame>
-						<Frame name="$parentPa3" setAllPoints="true"> </Frame>
-						<Frame name="$parentPa4" setAllPoints="true"> </Frame>
-						<Frame name="$parentPa5" setAllPoints="true"> </Frame>
-						<Frame name="$parentPa6" setAllPoints="true"> </Frame>
+						<Frame name="$parentPaCn">
+							<Frames>
+								<Frame name="$parentPa1">
+									<Frames>
+										<Frame name="$parentDurFr" hidden="true"> </Frame>
+									</Frames>
+								</Frame>
+								<Frame name="$parentPa2">
+									<Frames>
+										<Frame name="$parentDurFr" hidden="true"> </Frame>
+									</Frames>
+								</Frame>
+								<Frame name="$parentPa3">
+									<Frames>
+										<Frame name="$parentDurFr" hidden="true"> </Frame>
+									</Frames>
+								</Frame>
+								<Frame name="$parentPa4">
+									<Frames>
+										<Frame name="$parentDurFr" hidden="true"> </Frame>
+									</Frames>
+								</Frame>
+								<Frame name="$parentPa5">
+									<Frames>
+										<Frame name="$parentDurFr" hidden="true"> </Frame>
+									</Frames>
+								</Frame>
+								<Frame name="$parentPa6">
+									<Frames>
+										<Frame name="$parentDurFr" hidden="true"> </Frame>
+									</Frames>
+								</Frame>
+							</Frames>
+						</Frame>
 
 					</Frames>
 					<Layers>
@@ -582,6 +610,10 @@
 						<OnLoad>
 							self.statusTexture = self:GetStatusBarTexture();
 							self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar");
+							self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
+							self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar", "REPEAT", "REPEAT");
+							self:GetStatusBarTexture():SetHorizTile(true);
+							self:GetStatusBarTexture():SetVertTile(true);
 							self:SetReverseFill(true);
 							self:SetMinMaxValues(0, 1);
 							self:SetValue(0);
@@ -595,6 +627,10 @@
 						<OnLoad>
 							self.statusTexture = self:GetStatusBarTexture();
 							self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\healabsorb_bar");
+							self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
+							self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\healabsorb_bar", "REPEAT", "REPEAT");
+							self:GetStatusBarTexture():SetHorizTile(true);
+							self:GetStatusBarTexture():SetVertTile(true);
 							self:SetReverseFill(true);
 							self:SetMinMaxValues(0, 1);
 							self:SetValue(0);

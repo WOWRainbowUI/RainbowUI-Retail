@@ -1298,7 +1298,7 @@ function VUHDO_customizeHealButton(aButton)
 	end
 
 	for tAuraIndex = 1, VUHDO_MAX_PRIVATE_AURAS do
-		tPrivateAura = VUHDO_getBarPrivateAura(aButton, tAuraIndex);
+		tPrivateAura = VUHDO_getPrivateAuraIcon(aButton, tAuraIndex);
 
 		if not tPrivateAura then
 			break;
@@ -1306,6 +1306,8 @@ function VUHDO_customizeHealButton(aButton)
 
 		if VUHDO_PANEL_SETUP[VUHDO_BUTTON_CACHE[aButton]]["PRIVATE_AURA"]["show"] and tPrivateAura["anchorId"] then
 			tPrivateAura:Show();
+
+			VUHDO_getPrivateAuraContainer(aButton):Show();
 		else
 			tPrivateAura:Hide();
 		end

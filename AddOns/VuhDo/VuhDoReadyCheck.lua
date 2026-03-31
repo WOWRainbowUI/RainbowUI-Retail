@@ -1,5 +1,22 @@
-local sIsChecking = false;
 local _;
+
+local pairs = pairs;
+local GetReadyCheckStatus = GetReadyCheckStatus;
+
+local VUHDO_RAID;
+
+local sIsChecking = false;
+
+
+
+--
+function VUHDO_readyCheckInitLocalOverrides()
+
+	VUHDO_RAID = _G["VUHDO_RAID"];
+
+	return;
+
+end
 
 
 
@@ -91,9 +108,17 @@ end
 
 --
 function VUHDO_readyStartCheck(aName, aDuration)
-	if VUHDO_RAID_NAMES[aName] then
-		VUHDO_readyCheckConfirm(VUHDO_RAID_NAMES[aName], true); -- Originator is always ready
+
+	VUHDO_readyCheckStarted();
+
+	for tUnit, _ in pairs(VUHDO_RAID) do
+		if GetReadyCheckStatus(tUnit) == "ready" then
+			VUHDO_readyCheckConfirm(tUnit, true);
+		end
 	end
+
+	return;
+
 end
 
 
