@@ -41,7 +41,12 @@ local MUSIC_FILES = {
 }
 
 local MUSIC_DURATION = 40  -- seconds to play music
-local CHANNELS = { "Master", "SFX" }
+local DEFAULT_CHANNEL = "Master"  -- fallback channel (Master / SFX / Dialog)
+local CHANNELS = { "Master", "SFX", "Dialog" }
+
+-- Sound engine boost values applied during Bloodlust playback
+local BOOST_NUM_CHANNELS = 128         -- Sound_NumChannels
+local BOOST_CACHE_SIZE   = 134217728   -- Sound_MaxCacheSizeInBytes (128 MB)
 
 ----------------------------------------------------------------------
 -- SavedVariables Defaults
@@ -50,7 +55,7 @@ local DB_DEFAULTS = {
     musicEnabled     = true,
     barEnabled       = true,
     playMode         = "random",   -- "random" or "sequential"
-    channel          = "Master",
+    channel          = DEFAULT_CHANNEL,
     trackEnabled     = {},         -- [index] = true/false per track
     lastTrackIndex   = 0,
     barWidth         = 185,
@@ -98,7 +103,10 @@ local playingHandle = nil
 local previewHandle = nil
 local savedMusicVol = nil
 local savedAmbienceVol = nil
+local savedNumChannels = nil
+local savedCacheSize = nil
 local restoreTimer = nil
+local lastPlayTime = 0
 local activeLustSpellID = nil
 local activeLustExpiration = nil
 local activeLustDuration = nil
@@ -115,6 +123,7 @@ ns.LUST_BUFFS = LUST_BUFFS
 ns.LUST_DEBUFFS = LUST_DEBUFFS
 ns.MUSIC_FILES = MUSIC_FILES
 ns.CHANNELS = CHANNELS
+ns.DEFAULT_CHANNEL = DEFAULT_CHANNEL
 ns.DEFAULT_LUST_NAME = DEFAULT_LUST_NAME
 ns.DEFAULT_LUST_ICON = DEFAULT_LUST_ICON
 
@@ -182,16 +191,33 @@ local function StopMusic()
         savedAmbienceVol = nil
     end
 
+    -- Restore sound engine settings
+    if savedNumChannels then
+        SetCVar("Sound_NumChannels", savedNumChannels)
+        savedNumChannels = nil
+    end
+    if savedCacheSize then
+        SetCVar("Sound_MaxCacheSizeInBytes", savedCacheSize)
+        savedCacheSize = nil
+    end
+
     if restoreTimer then
         restoreTimer:Cancel()
         restoreTimer = nil
     end
 
     playing = false
+    lastPlayTime = 0
 end
 
 local function PlayLustMusic()
     if not db.musicEnabled then return end
+
+    -- 40s hard cooldown to prevent double execution and volume overwrites
+    local currentTime = GetTime()
+    if (currentTime - lastPlayTime) < 40 then return end
+    lastPlayTime = currentTime
+
     if playing then return end
 
     local tracks = GetEnabledTracks()
@@ -220,13 +246,28 @@ local function PlayLustMusic()
     end
 
     -- Save and mute background audio
-    savedMusicVol = tonumber(GetCVar("Sound_MusicVolume"))
-    savedAmbienceVol = tonumber(GetCVar("Sound_AmbienceVolume"))
+    local currentMusicVol = tonumber(GetCVar("Sound_MusicVolume")) or 0
+    local currentAmbienceVol = tonumber(GetCVar("Sound_AmbienceVolume")) or 0
+    
+    -- Only save if not zero, to prevent saving muted states accidentally
+    if currentMusicVol > 0 then
+        savedMusicVol = currentMusicVol
+    end
+    if currentAmbienceVol > 0 then
+        savedAmbienceVol = currentAmbienceVol
+    end
+
     SetCVar("Sound_MusicVolume", 0)
     SetCVar("Sound_AmbienceVolume", 0)
 
+    -- Boost sound engine to prevent audio interruption
+    savedNumChannels = tonumber(GetCVar("Sound_NumChannels")) or 64
+    savedCacheSize   = tonumber(GetCVar("Sound_MaxCacheSizeInBytes")) or 0
+    SetCVar("Sound_NumChannels", BOOST_NUM_CHANNELS)
+    SetCVar("Sound_MaxCacheSizeInBytes", BOOST_CACHE_SIZE)
+
     -- Play
-    local success, handle = PlaySoundFile(track.path, db.channel or "Master")
+    local success, handle = PlaySoundFile(track.path, db.channel or DEFAULT_CHANNEL)
     if success then
         playing = true
         playingHandle = handle
@@ -242,10 +283,37 @@ end
 ----------------------------------------------------------------------
 -- Preview Playback (for settings panel)
 ----------------------------------------------------------------------
+local previewSavedMusicVol = nil
+local previewSavedAmbienceVol = nil
+local previewSavedNumChannels = nil
+local previewSavedCacheSize = nil
+local previewRestoreTimer = nil
+
 local function StopPreview()
     if previewHandle then
         StopSound(previewHandle)
         previewHandle = nil
+    end
+    
+    if previewSavedMusicVol then
+        SetCVar("Sound_MusicVolume", previewSavedMusicVol)
+        previewSavedMusicVol = nil
+    end
+    if previewSavedAmbienceVol then
+        SetCVar("Sound_AmbienceVolume", previewSavedAmbienceVol)
+        previewSavedAmbienceVol = nil
+    end
+    if previewSavedNumChannels then
+        SetCVar("Sound_NumChannels", previewSavedNumChannels)
+        previewSavedNumChannels = nil
+    end
+    if previewSavedCacheSize then
+        SetCVar("Sound_MaxCacheSizeInBytes", previewSavedCacheSize)
+        previewSavedCacheSize = nil
+    end
+    if previewRestoreTimer then
+        previewRestoreTimer:Cancel()
+        previewRestoreTimer = nil
     end
 end
 
@@ -253,10 +321,27 @@ local function PreviewTrack(index)
     StopPreview()
     local track = MUSIC_FILES[index]
     if not track then return end
-    local channel = (db and db.channel) or "Master"
+    
+    local currentMusicVol = tonumber(GetCVar("Sound_MusicVolume")) or 0
+    local currentAmbienceVol = tonumber(GetCVar("Sound_AmbienceVolume")) or 0
+    
+    if currentMusicVol > 0 then previewSavedMusicVol = currentMusicVol end
+    if currentAmbienceVol > 0 then previewSavedAmbienceVol = currentAmbienceVol end
+    
+    SetCVar("Sound_MusicVolume", 0)
+    SetCVar("Sound_AmbienceVolume", 0)
+
+    -- Boost sound engine to prevent audio interruption
+    previewSavedNumChannels = tonumber(GetCVar("Sound_NumChannels")) or 64
+    previewSavedCacheSize   = tonumber(GetCVar("Sound_MaxCacheSizeInBytes")) or 0
+    SetCVar("Sound_NumChannels", BOOST_NUM_CHANNELS)
+    SetCVar("Sound_MaxCacheSizeInBytes", BOOST_CACHE_SIZE)
+
+    local channel = (db and db.channel) or DEFAULT_CHANNEL
     local success, handle = PlaySoundFile(track.path, channel)
     if success then
         previewHandle = handle
+        previewRestoreTimer = C_Timer.NewTimer(MUSIC_DURATION or 40, function() StopPreview() end)
     end
 end
 
@@ -623,6 +708,7 @@ ns.HideTestBar = HideTestBar
 ns.ShowBar = ShowBar
 ns.StopPreview = StopPreview
 ns.PreviewTrack = PreviewTrack
+ns.IsPreviewPlaying = function() return previewHandle ~= nil end
 ns.GetBarFrame = function() return barFrame end
 ns.DebugPrint = DebugPrint
 
