@@ -46,7 +46,7 @@
 
 local ADDON_NAME = "LoxxInterruptTracker"
 local MSG_PREFIX = "LOXX"
-local LOXX_VERSION = "1.5.6.3"
+local LOXX_VERSION = "1.5.6.6"
 local LOXX_DB_VERSION = 4 -- bump when SavedVars schema changes
 local L = LoxxL or {}     -- localization table (set by localization.lua)
 
@@ -303,104 +303,104 @@ end
 -- DR categories: Stuns / Disorients / Incapacitates / Roots / Silences / Displacement
 local CC_SPELLS = {
     -- Death Knight
-    [108194] = { name = "Asphyxiate",           class = "DEATHKNIGHT", dr = "Stuns" },
-    [221562] = { name = "Asphyxiate",           class = "DEATHKNIGHT", dr = "Stuns" }, -- Frost variant
-    [207167] = { name = "Blinding Sleet",        class = "DEATHKNIGHT", dr = "Disorients" },
-    [343094] = { name = "Monstrous Blow",        class = "DEATHKNIGHT", dr = "Stuns" },
-    [315453] = { name = "Frostwyrm's Fury",      class = "DEATHKNIGHT", dr = "Stuns" }, -- Absolute Zero talent
-    [91721]  = { name = "Shambling Rush",        class = "DEATHKNIGHT", dr = "Stuns" },
-    [45524]  = { name = "Chains of Ice",         class = "DEATHKNIGHT", dr = "Roots" },
+    [108194] = { name = "Asphyxiate",           class = "DEATHKNIGHT", dr = "Stuns",         cd = 45  },
+    [221562] = { name = "Asphyxiate",           class = "DEATHKNIGHT", dr = "Stuns",         cd = 45  }, -- Frost variant
+    [207167] = { name = "Blinding Sleet",        class = "DEATHKNIGHT", dr = "Disorients",    cd = 60  },
+    [343094] = { name = "Monstrous Blow",        class = "DEATHKNIGHT", dr = "Stuns",         cd = 45  },
+    [315453] = { name = "Frostwyrm's Fury",      class = "DEATHKNIGHT", dr = "Stuns",         cd = 180 }, -- Absolute Zero talent
+    [91721]  = { name = "Shambling Rush",        class = "DEATHKNIGHT", dr = "Stuns",         cd = 0   },
+    [45524]  = { name = "Chains of Ice",         class = "DEATHKNIGHT", dr = "Roots",         cd = 0   },
 
     -- Demon Hunter
-    [179057] = { name = "Chaos Nova",            class = "DEMONHUNTER", dr = "Stuns" },
-    [217832] = { name = "Imprison",              class = "DEMONHUNTER", dr = "Incapacitates" },
-    [207684] = { name = "Sigil of Misery",       class = "DEMONHUNTER", dr = "Disorients" },
-    [390163] = { name = "Sigil of Spite",        class = "DEMONHUNTER", dr = "Roots" },
-    [202137] = { name = "Sigil of Silence",      class = "DEMONHUNTER", dr = "Silences" },
-    [370965] = { name = "The Hunt",              class = "DEMONHUNTER", dr = "Stuns" },
+    [179057] = { name = "Chaos Nova",            class = "DEMONHUNTER", dr = "Stuns",         cd = 60  },
+    [217832] = { name = "Imprison",              class = "DEMONHUNTER", dr = "Incapacitates",  cd = 15  },
+    [207684] = { name = "Sigil of Misery",       class = "DEMONHUNTER", dr = "Disorients",    cd = 90  },
+    [390163] = { name = "Sigil of Spite",        class = "DEMONHUNTER", dr = "Roots",         cd = 90  },
+    [202137] = { name = "Sigil of Silence",      class = "DEMONHUNTER", dr = "Silences",      cd = 60  },
+    [370965] = { name = "The Hunt",              class = "DEMONHUNTER", dr = "Stuns",         cd = 90  },
 
     -- Druid
-    [5211]   = { name = "Mighty Bash",           class = "DRUID", dr = "Stuns" },
-    [22570]  = { name = "Maim",                  class = "DRUID", dr = "Incapacitates" },
-    [33786]  = { name = "Cyclone",               class = "DRUID", dr = "Disorients" },
-    [99]     = { name = "Incapacitating Roar",   class = "DRUID", dr = "Incapacitates" },
-    [339]    = { name = "Entangling Roots",       class = "DRUID", dr = "Roots" },
-    [2637]   = { name = "Hibernate",             class = "DRUID", dr = "Incapacitates" },
-    [102359] = { name = "Mass Entanglement",      class = "DRUID", dr = "Roots" },
+    [5211]   = { name = "Mighty Bash",           class = "DRUID", dr = "Stuns",              cd = 60  },
+    [22570]  = { name = "Maim",                  class = "DRUID", dr = "Incapacitates",       cd = 0   },
+    [33786]  = { name = "Cyclone",               class = "DRUID", dr = "Disorients",         cd = 0   },
+    [99]     = { name = "Incapacitating Roar",   class = "DRUID", dr = "Incapacitates",       cd = 30  },
+    [339]    = { name = "Entangling Roots",       class = "DRUID", dr = "Roots",              cd = 0   },
+    [2637]   = { name = "Hibernate",             class = "DRUID", dr = "Incapacitates",       cd = 0   },
+    [102359] = { name = "Mass Entanglement",      class = "DRUID", dr = "Roots",              cd = 30  },
 
     -- Evoker
-    [358385] = { name = "Landslide",             class = "EVOKER", dr = "Roots" },
-    [360806] = { name = "Sleep Walk",            class = "EVOKER", dr = "Incapacitates" },
-    [372245] = { name = "Terror of the Skies",   class = "EVOKER", dr = "Stuns" },
+    [358385] = { name = "Landslide",             class = "EVOKER", dr = "Roots",              cd = 30  },
+    [360806] = { name = "Sleep Walk",            class = "EVOKER", dr = "Incapacitates",      cd = 0   },
+    [372245] = { name = "Terror of the Skies",   class = "EVOKER", dr = "Stuns",              cd = 0   },
 
     -- Hunter
-    [19577]  = { name = "Intimidation",          class = "HUNTER", dr = "Stuns",        cd = 60  },
-    [187650] = { name = "Freezing Trap",         class = "HUNTER", dr = "Incapacitates", cd = 25  },
-    [109248] = { name = "Binding Shot",          class = "HUNTER", dr = "Roots",        cd = 45  },
-    [162480] = { name = "Steel Trap",            class = "HUNTER", dr = "Roots",        cd = 30  },
-    [1513]   = { name = "Scare Beast",           class = "HUNTER", dr = "Disorients" },
-    [190925] = { name = "Harpoon",               class = "HUNTER", dr = "Roots",        cd = 20  },
+    [19577]  = { name = "Intimidation",          class = "HUNTER", dr = "Stuns",             cd = 60  },
+    [187650] = { name = "Freezing Trap",         class = "HUNTER", dr = "Incapacitates",      cd = 25  },
+    [109248] = { name = "Binding Shot",          class = "HUNTER", dr = "Roots",              cd = 45  },
+    [162480] = { name = "Steel Trap",            class = "HUNTER", dr = "Roots",              cd = 30  },
+    [1513]   = { name = "Scare Beast",           class = "HUNTER", dr = "Disorients",         cd = 0   },
+    [190925] = { name = "Harpoon",               class = "HUNTER", dr = "Roots",              cd = 20  },
 
     -- Mage
-    [118]    = { name = "Polymorph",             class = "MAGE", dr = "Disorients" },
-    [161355] = { name = "Polymorph (Penguin)",   class = "MAGE", dr = "Disorients" },
-    [28272]  = { name = "Polymorph (Pig)",       class = "MAGE", dr = "Disorients" },
-    [113724] = { name = "Ring of Frost",         class = "MAGE", dr = "Incapacitates" },
-    [31661]  = { name = "Dragon's Breath",       class = "MAGE", dr = "Disorients" },
-    [122]    = { name = "Frost Nova",            class = "MAGE", dr = "Roots" },
-    [228600] = { name = "Glacial Spike",         class = "MAGE", dr = "Roots" },
-    [157997] = { name = "Ice Nova",              class = "MAGE", dr = "Roots" },
+    [118]    = { name = "Polymorph",             class = "MAGE", dr = "Disorients",           cd = 0   },
+    [161355] = { name = "Polymorph (Penguin)",   class = "MAGE", dr = "Disorients",           cd = 0   },
+    [28272]  = { name = "Polymorph (Pig)",       class = "MAGE", dr = "Disorients",           cd = 0   },
+    [113724] = { name = "Ring of Frost",         class = "MAGE", dr = "Incapacitates",        cd = 45  },
+    [31661]  = { name = "Dragon's Breath",       class = "MAGE", dr = "Disorients",           cd = 20  },
+    [122]    = { name = "Frost Nova",            class = "MAGE", dr = "Roots",                cd = 30  },
+    [228600] = { name = "Glacial Spike",         class = "MAGE", dr = "Roots",                cd = 0   },
+    [157997] = { name = "Ice Nova",              class = "MAGE", dr = "Roots",                cd = 25  },
 
     -- Monk
-    [119381] = { name = "Leg Sweep",             class = "MONK", dr = "Stuns" },
-    [115078] = { name = "Paralysis",             class = "MONK", dr = "Incapacitates" },
-    [198909] = { name = "Song of Chi-Ji",        class = "MONK", dr = "Disorients" },
-    [116844] = { name = "Ring of Peace",         class = "MONK", dr = "Displacement" },
-    [116095] = { name = "Disable",               class = "MONK", dr = "Roots" },
+    [119381] = { name = "Leg Sweep",             class = "MONK", dr = "Stuns",               cd = 60  },
+    [115078] = { name = "Paralysis",             class = "MONK", dr = "Incapacitates",        cd = 15  },
+    [198909] = { name = "Song of Chi-Ji",        class = "MONK", dr = "Disorients",           cd = 30  },
+    [116844] = { name = "Ring of Peace",         class = "MONK", dr = "Displacement",         cd = 45  },
+    [116095] = { name = "Disable",               class = "MONK", dr = "Roots",               cd = 0   },
 
     -- Paladin
-    [853]    = { name = "Hammer of Justice",     class = "PALADIN", dr = "Stuns" },
-    [115750] = { name = "Blinding Light",        class = "PALADIN", dr = "Disorients" },
-    [255937] = { name = "Wake of Ashes",         class = "PALADIN", dr = "Incapacitates" },
-    [10326]  = { name = "Turn Evil",             class = "PALADIN", dr = "Disorients" },
+    [853]    = { name = "Hammer of Justice",     class = "PALADIN", dr = "Stuns",             cd = 60  },
+    [115750] = { name = "Blinding Light",        class = "PALADIN", dr = "Disorients",        cd = 90  },
+    [255937] = { name = "Wake of Ashes",         class = "PALADIN", dr = "Incapacitates",     cd = 45  },
+    [10326]  = { name = "Turn Evil",             class = "PALADIN", dr = "Disorients",        cd = 0   },
 
     -- Priest
-    [8122]   = { name = "Psychic Scream",        class = "PRIEST", dr = "Disorients" },
-    [605]    = { name = "Mind Control",          class = "PRIEST", dr = "Disorients" },
-    [64044]  = { name = "Psychic Horror",        class = "PRIEST", dr = "Stuns" },
-    [88625]  = { name = "Holy Word: Chastise",   class = "PRIEST", dr = "Incapacitates" },
-    [108920] = { name = "Void Tendrils",         class = "PRIEST", dr = "Roots" },
-    [9484]   = { name = "Shackle Undead",        class = "PRIEST", dr = "Incapacitates" },
+    [8122]   = { name = "Psychic Scream",        class = "PRIEST", dr = "Disorients",         cd = 45  },
+    [605]    = { name = "Mind Control",          class = "PRIEST", dr = "Disorients",         cd = 0   },
+    [64044]  = { name = "Psychic Horror",        class = "PRIEST", dr = "Stuns",              cd = 45  },
+    [88625]  = { name = "Holy Word: Chastise",   class = "PRIEST", dr = "Incapacitates",      cd = 60  },
+    [108920] = { name = "Void Tendrils",         class = "PRIEST", dr = "Roots",              cd = 30  },
+    [9484]   = { name = "Shackle Undead",        class = "PRIEST", dr = "Incapacitates",      cd = 0   },
 
     -- Rogue
-    [408]    = { name = "Kidney Shot",           class = "ROGUE", dr = "Stuns" },
-    [1833]   = { name = "Cheap Shot",            class = "ROGUE", dr = "Stuns" },
-    [6770]   = { name = "Sap",                   class = "ROGUE", dr = "Disorients" },
-    [2094]   = { name = "Blind",                 class = "ROGUE", dr = "Disorients" },
-    [1776]   = { name = "Gouge",                 class = "ROGUE", dr = "Incapacitates" },
+    [408]    = { name = "Kidney Shot",           class = "ROGUE", dr = "Stuns",               cd = 20  },
+    [1833]   = { name = "Cheap Shot",            class = "ROGUE", dr = "Stuns",               cd = 0   },
+    [6770]   = { name = "Sap",                   class = "ROGUE", dr = "Disorients",          cd = 0   },
+    [2094]   = { name = "Blind",                 class = "ROGUE", dr = "Disorients",          cd = 120 },
+    [1776]   = { name = "Gouge",                 class = "ROGUE", dr = "Incapacitates",       cd = 15  },
 
     -- Shaman
-    [192058] = { name = "Capacitor Totem",       class = "SHAMAN", dr = "Stuns" },
-    [51514]  = { name = "Hex",                   class = "SHAMAN", dr = "Disorients" },
-    [210873] = { name = "Hex (Compy)",           class = "SHAMAN", dr = "Disorients" },
-    [211004] = { name = "Hex (Snake)",           class = "SHAMAN", dr = "Disorients" },
-    [305485] = { name = "Lightning Lasso",       class = "SHAMAN", dr = "Stuns" },
-    [197214] = { name = "Sundering",             class = "SHAMAN", dr = "Incapacitates" },
-    [51485]  = { name = "Earthgrab Totem",       class = "SHAMAN", dr = "Roots" },
+    [192058] = { name = "Capacitor Totem",       class = "SHAMAN", dr = "Stuns",              cd = 60  },
+    [51514]  = { name = "Hex",                   class = "SHAMAN", dr = "Disorients",         cd = 30  },
+    [210873] = { name = "Hex (Compy)",           class = "SHAMAN", dr = "Disorients",         cd = 30  },
+    [211004] = { name = "Hex (Snake)",           class = "SHAMAN", dr = "Disorients",         cd = 30  },
+    [305485] = { name = "Lightning Lasso",       class = "SHAMAN", dr = "Stuns",              cd = 0   },
+    [197214] = { name = "Sundering",             class = "SHAMAN", dr = "Incapacitates",      cd = 20  },
+    [51485]  = { name = "Earthgrab Totem",       class = "SHAMAN", dr = "Roots",              cd = 30  },
 
     -- Warlock
-    [5782]   = { name = "Fear",                  class = "WARLOCK", dr = "Disorients" },
-    [30283]  = { name = "Shadowfury",            class = "WARLOCK", dr = "Stuns" },
-    [89766]  = { name = "Axe Toss",              class = "WARLOCK", dr = "Stuns" },
-    [6789]   = { name = "Mortal Coil",           class = "WARLOCK", dr = "Incapacitates" },
-    [710]    = { name = "Banish",                class = "WARLOCK", dr = "Incapacitates" },
-    [6358]   = { name = "Seduction",             class = "WARLOCK", dr = "Disorients" },
-    [5484]   = { name = "Howl of Terror",        class = "WARLOCK", dr = "Disorients" },
+    [5782]   = { name = "Fear",                  class = "WARLOCK", dr = "Disorients",        cd = 0   },
+    [30283]  = { name = "Shadowfury",            class = "WARLOCK", dr = "Stuns",             cd = 30  },
+    [89766]  = { name = "Axe Toss",              class = "WARLOCK", dr = "Stuns",             cd = 30  },
+    [6789]   = { name = "Mortal Coil",           class = "WARLOCK", dr = "Incapacitates",     cd = 30  },
+    [710]    = { name = "Banish",                class = "WARLOCK", dr = "Incapacitates",     cd = 0   },
+    [6358]   = { name = "Seduction",             class = "WARLOCK", dr = "Disorients",        cd = 0   },
+    [5484]   = { name = "Howl of Terror",        class = "WARLOCK", dr = "Disorients",        cd = 40  },
 
     -- Warrior
-    [107570] = { name = "Storm Bolt",            class = "WARRIOR", dr = "Stuns" },
-    [46968]  = { name = "Shockwave",             class = "WARRIOR", dr = "Stuns" },
-    [5246]   = { name = "Intimidating Shout",    class = "WARRIOR", dr = "Disorients" },
+    [107570] = { name = "Storm Bolt",            class = "WARRIOR", dr = "Stuns",             cd = 30  },
+    [46968]  = { name = "Shockwave",             class = "WARRIOR", dr = "Stuns",             cd = 40  },
+    [5246]   = { name = "Intimidating Shout",    class = "WARRIOR", dr = "Disorients",        cd = 90  },
 }
 
 -- Primary CC ability per class tracked in the CC Tracker window.
@@ -447,6 +447,7 @@ local CLASS_INTERRUPTS         = {
 
 -- SpecID → interrupt override (when spec changes the interrupt or CD)
 local SPEC_INTERRUPT_OVERRIDES = {
+    [102]  = { id = 78675,  cd = 60, name = "Solar Beam" },    -- Balance Druid (Moonkin — not Skull Bash)
     [255]  = { id = 187707, cd = 15, name = "Muzzle" },        -- Survival Hunter
     [264]  = { id = 57994,  cd = 30, name = "Wind Shear" },   -- Restoration Shaman (30s in 12.0.1)
     [1473] = { id = 351338, cd = 18, name = "Quell" },        -- Augmentation Evoker (18s)
@@ -2656,7 +2657,7 @@ local function CreateConfigPanel()
     end
 
     local FW   = 520
-    local FH   = 630
+    local FH   = 830
     local HDR  = 86
     local TABH = 28
     local FOOT = 70
@@ -2927,6 +2928,20 @@ local function CreateConfigPanel()
     end
     y = y - 34
 
+    -- Avertissement : CC Tracker nécessite l'addon sur tous les membres
+    do
+        local warn = t2:CreateFontString(nil, "OVERLAY")
+        warn:SetFont(FONT_FACE, 10, "")
+        warn:SetTextColor(1, 0.75, 0.1, 1)
+        warn:SetPoint("TOPLEFT", t2, "TOPLEFT", CX1 + 2, y)
+        warn:SetWidth(FW - 36)
+        warn:SetWordWrap(true)
+        warn:SetJustifyH("LEFT")
+        warn:SetNonSpaceWrap(false)
+        warn:SetText(L["CC_ADDON_REQUIRED"])
+        y = y - 38
+    end
+
     SecLabel(t2, "APPARENCE", CX1, y); y = y - SECH
     Sl(t2, "CfgCC_Slider_alpha",  CX1, y, SLW, "ccAlpha",    0.3, 1.0, 0.05, L["SL_OPACITY"],
         function(v) if ccFrame then ccFrame:SetAlpha(v) end end,
@@ -3131,7 +3146,7 @@ local function CreateConfigPanel()
     local footerMsg = footerBand:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     footerMsg:SetPoint("BOTTOMLEFT", footerBand, "BOTTOMLEFT", 14, 10)
     footerMsg:SetJustifyH("LEFT")
-    footerMsg:SetText("Thanks to my favorite haters who pushed me to continue this addon  #FUALL")
+    footerMsg:SetText("Thanks to my favorite haters who pushed me to continue this addon  #FUWITHLOVE")
 
     local footerVer = footerBand:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     footerVer:SetPoint("BOTTOMRIGHT", footerBand, "BOTTOMRIGHT", -14, 10)
@@ -4557,12 +4572,13 @@ playerCastFrame:SetScript("OnEvent", function(_, _, unit, castGUID, spellID)
         local ccData = CC_SPELLS[spellID]
         if ccData then
             DLog("CC_SELF", ccData.name .. " (" .. ccData.dr .. ") spellID=" .. tostring(spellID))
-            -- Look up CD: use per-spell cd from CC_SPELLS if available,
-            -- override with CC_CLASS_PRIMARY when it is the primary spell.
-            -- Default 2s covers 0-CD spells (Polymorph, Hex, Fear…).
-            local ccCd = (CC_SPELLS[spellID] and CC_SPELLS[spellID].cd) or 2
+            -- Look up CD depuis CC_SPELLS (toutes les entrées ont maintenant un champ cd).
+            -- cd = 0 pour les sorts sans vrai cooldown (Polymorph, Hex, Fear…).
+            -- Utiliser type() == "number" pour ne pas confondre cd=0 (falsy) avec champ absent.
+            local ccCd = (type(ccData.cd) == "number") and ccData.cd or 0
             if myClass and CC_CLASS_PRIMARY[myClass] and CC_CLASS_PRIMARY[myClass].spellID == spellID then
-                ccCd = CC_CLASS_PRIMARY[myClass].cd > 0 and CC_CLASS_PRIMARY[myClass].cd or ccCd
+                local primCd = CC_CLASS_PRIMARY[myClass].cd
+                if type(primCd) == "number" and primCd > 0 then ccCd = primCd end
             end
             -- Update own CC entry
             local myShort = Ambiguate(myName, "short")
@@ -4925,6 +4941,14 @@ local function DetectCCAuras(unit)
     if not (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex) then return end
     if type(unit) == "string" and #unit >= 10 and unit:sub(1, 9) == "nameplate" then return end
 
+    -- Midnight 12.0: quand les restrictions secret sont actives (M+ keystone en cours,
+    -- PvP, boss encounter), spellId et sourceUnit sont des valeurs secrètes inutilisables.
+    -- Hors restriction (donjon normal sans keystone actif, monde ouvert hors boss),
+    -- les auras sont accessibles normalement.
+    if C_Secrets and C_Secrets.HasSecretRestrictions and C_Secrets.HasSecretRestrictions() then
+        return
+    end
+
     local myShort = Ambiguate(myName, "short")
     local i = 1
     while i <= 40 do
@@ -4933,27 +4957,33 @@ local function DetectCCAuras(unit)
 
         local sid = auraData.spellId
         if sid then
-            local okCC, ccInfo = pcall(function() return CC_SPELLS[sid] end)
-            if okCC and ccInfo then
-                local srcUnit = auraData.sourceUnit
-                local sourceName = srcUnit and UnitName(srcUnit)
-                if sourceName then
-                    local shortSource = Ambiguate(sourceName, "short")
-                    local entry = shortSource ~= myShort and ccAddonUsers[shortSource] or nil
-                    if entry then
-                        local ccCd   = ccInfo.cd or 2
-                        local newEnd = GetTime() + ccCd
-                        if newEnd > (entry.cdEnd or 0) then
-                            entry.cdEnd     = newEnd
-                            entry.spellID   = sid
-                            entry.spellName = ccInfo.name
-                            ccDirty = true
-                            DLog("CC_AURA", sourceName .. " " .. ccInfo.name
-                                .. " cd=" .. ccCd .. " via " .. tostring(unit))
-                            if spyMode then
-                                print("|cFF00DDDD[SPY]|r CC_AURA " .. sourceName
-                                    .. " -> " .. ccInfo.name
-                                    .. " [" .. ccInfo.dr .. "] cd=" .. ccCd)
+            -- issecretvalue() est natif Lua 12.0 (~10x moins d'overhead que pcall).
+            -- Fallback sur pcall si la fonction n'est pas disponible (builds antérieurs).
+            local sidIsSecret = (issecretvalue ~= nil) and issecretvalue(sid)
+            if not sidIsSecret then
+                local ccInfo = CC_SPELLS[sid]
+                if ccInfo then
+                    local srcUnit = auraData.sourceUnit
+                    -- sourceUnit peut aussi être secret → pcall sur UnitName
+                    local okN, sourceName = pcall(UnitName, srcUnit)
+                    if okN and sourceName then
+                        local shortSource = Ambiguate(sourceName, "short")
+                        local entry = shortSource ~= myShort and ccAddonUsers[shortSource] or nil
+                        if entry then
+                            local ccCd   = ccInfo.cd or 0
+                            local newEnd = GetTime() + ccCd
+                            if newEnd > (entry.cdEnd or 0) then
+                                entry.cdEnd     = newEnd
+                                entry.spellID   = sid
+                                entry.spellName = ccInfo.name
+                                ccDirty = true
+                                DLog("CC_AURA", sourceName .. " " .. ccInfo.name
+                                    .. " cd=" .. ccCd .. " via " .. tostring(unit))
+                                if spyMode then
+                                    print("|cFF00DDDD[SPY]|r CC_AURA " .. sourceName
+                                        .. " -> " .. ccInfo.name
+                                        .. " [" .. ccInfo.dr .. "] cd=" .. ccCd)
+                                end
                             end
                         end
                     end

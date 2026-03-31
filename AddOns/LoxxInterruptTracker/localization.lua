@@ -61,6 +61,7 @@ LoxxL = {
     ["CC_TITLE"]         = "CC Tracker",
     ["CC_NO_CC"]         = "No CC available",
     ["CB_SHOW_CC"]       = "Show CC Tracker",
+    ["CC_ADDON_REQUIRED"] = "CC Tracker only works if all group members have the addon installed (Blizzard API restriction).",
 
     ["BTN_SAVE_POS"]     = "Save Position",
     ["BTN_RUN_STATS"]    = "Run Stats",
@@ -125,6 +126,7 @@ if locale == "frFR" then
     T["TITLE"]           = "Interruptions"
     T["NO_KICK"]         = "Aucune interruption disponible"
     T["READY"]           = "PRÊT"
+    T["TOOLTIP_CD"]      = "CD: %.1fs / %.0fs"
     T["TOOLTIP_READY"]   = "PRÊT"
     T["ALERT_ONE_READY"] = "%s — PRÊT"
     T["ALERT_N_READY"]   = "%d interruptions prêtes  (%s)"
@@ -207,6 +209,7 @@ if locale == "frFR" then
     T["CC_TITLE"]           = "Suivi des CC"
     T["CC_NO_CC"]           = "Aucun CC disponible"
     T["CB_SHOW_CC"]         = "Afficher le suivi CC"
+    T["CC_ADDON_REQUIRED"]  = "Le Suivi CC ne fonctionne que si tous les membres du groupe ont l'addon installé (restriction API Blizzard)."
 end
 
 -- ── German ──────────────────────────────────────────────────────────
@@ -215,6 +218,7 @@ if locale == "deDE" then
     T["TITLE"]           = "Unterbrechungen"
     T["NO_KICK"]         = "Kein Kick verfügbar"
     T["READY"]           = "BEREIT"
+    T["TOOLTIP_CD"]      = "CD: %.1fs / %.0fs"
     T["TOOLTIP_READY"]   = "BEREIT"
     T["ALERT_ONE_READY"] = "%s — BEREIT"
     T["ALERT_N_READY"]   = "%d Kicks bereit  (%s)"
@@ -297,6 +301,7 @@ if locale == "deDE" then
     T["CC_TITLE"]           = "CC-Überwachung"
     T["CC_NO_CC"]           = "Kein CC verfügbar"
     T["CB_SHOW_CC"]         = "CC-Tracker anzeigen"
+    T["CC_ADDON_REQUIRED"]  = "CC-Überwachung funktioniert nur, wenn alle Gruppenmitglieder das Addon installiert haben (Blizzard-API-Einschränkung)."
 end
 
 -- ── Italian ─────────────────────────────────────────────────────────
@@ -305,6 +310,7 @@ if locale == "itIT" then
     T["TITLE"]           = "Interruzioni"
     T["NO_KICK"]         = "Nessuna interruzione disponibile"
     T["READY"]           = "PRONTO"
+    T["TOOLTIP_CD"]      = "CD: %.1fs / %.0fs"
     T["TOOLTIP_READY"]   = "PRONTO"
     T["ALERT_ONE_READY"] = "%s — PRONTO"
     T["ALERT_N_READY"]   = "%d interruzioni pronte  (%s)"
@@ -387,6 +393,7 @@ if locale == "itIT" then
     T["CC_TITLE"]           = "Monitor CC"
     T["CC_NO_CC"]           = "Nessun CC disponibile"
     T["CB_SHOW_CC"]         = "Mostra monitor CC"
+    T["CC_ADDON_REQUIRED"]  = "Il Monitor CC funziona solo se tutti i membri del gruppo hanno l'addon installato (restrizione API Blizzard)."
 end
 
 -- ── Spanish ─────────────────────────────────────────────────────────
@@ -395,6 +402,7 @@ if locale == "esES" or locale == "esMX" then
     T["TITLE"]           = "Interrupciones"
     T["NO_KICK"]         = "Sin interrupción disponible"
     T["READY"]           = "LISTO"
+    T["TOOLTIP_CD"]      = "CD: %.1fs / %.0fs"
     T["TOOLTIP_READY"]   = "LISTO"
     T["ALERT_ONE_READY"] = "%s — LISTO"
     T["ALERT_N_READY"]   = "%d interrupciones listas  (%s)"
@@ -477,6 +485,7 @@ if locale == "esES" or locale == "esMX" then
     T["CC_TITLE"]           = "Monitor CC"
     T["CC_NO_CC"]           = "Sin CC disponible"
     T["CB_SHOW_CC"]         = "Mostrar monitor CC"
+    T["CC_ADDON_REQUIRED"]  = "El Monitor CC solo funciona si todos los miembros del grupo tienen el addon instalado (restricción API Blizzard)."
 end
 
 -- ── Taiwan ─────────────────────────────────────────────────────────
@@ -549,20 +558,7 @@ if locale == "zhTW" then
     T["CMD_HIST_CLEAR"]  = "運行歷史紀錄已清除。"
     T["CMD_LOG_CLEAR"]   = "錯誤報告已清除。"
     T["CMD_NO_LOGS"]     = "無錯誤的紀錄。"
-    T["SEC_ROTATION"]       = "輪換"
-    T["CB_ROTATION"]        = "啟用打斷輪換"
-    T["BTN_MANAGE_ROT"]     = "管理打斷輪換"
-    T["ROT_MAINTENANCE"]    = "維護中"
-    T["ROT_TITLE"]          = "打斷輪換"
-    T["ROT_RESET"]          = "重置"
-    T["ROT_SYNC"]           = "隊伍同步"
-    T["ROT_SYNCED"]         = "輪換順序已同步到隊伍。"
-    T["KA_P1_LABEL"]        = "立即打斷"
-    T["KA_P2_LABEL"]        = "打斷"
-    T["KA_P3_LABEL"]        = "可選"
-    T["KA_KICKER"]          = "> %s"
-    T["KA_MOVE_HINT"]       = "拖曳以移動"
-    T["CB_SHOW_NEXT"]       = "顯示 > (下一個踢人者)"
+    T["TOOLTIP_CD"]      = "冷卻：%.1f秒 / %.0f秒"
     T["TOOLTIP_ESTIMATED"]  = "（估算—無插件）"
     T["CB_ALERT_CAST"]      = "可打斷施法提醒"
     T["DD_MAX_HISTORY"]     = "歷史限制: "
@@ -575,25 +571,37 @@ if locale == "zhTW" then
     T["CC_TITLE"]           = "CC追蹤"
     T["CC_NO_CC"]           = "無CC可用"
     T["CB_SHOW_CC"]         = "顯示CC追蹤"
+    T["CC_ADDON_REQUIRED"]  = "CC追蹤僅在所有隊員安裝此插件時有效（Blizzard API限制）。"
+    T["KA_P1_LABEL"]        = "立即打斷"
+    T["KA_P2_LABEL"]        = "打斷"
+    T["KA_P3_LABEL"]        = "可選"
+    T["KA_KICKER"]          = "> %s"
+    T["KA_MOVE_HINT"]       = "拖曳以移動"
+    T["CB_SHOW_NEXT"]       = "顯示 > (下一個踢人者)"
 end
 
--- ── Korean ──────────────────────────────────────────────────────────
+    -- ── Korean ──────────────────────────────────────────────────────────
 if locale == "koKR" then
     local T = LoxxL
     T["TITLE"]           = "차단"
     T["NO_KICK"]         = "사용 가능한 차단 없음"
     T["READY"]           = "준비"
+    T["TOOLTIP_CD"]      = "쿨타임: %.1f초 / %.0f초"
     T["TOOLTIP_READY"]   = "준비"
+    T["TOOLTIP_ESTIMATED"] = "(추정 — 애드온 없음)"
     T["ALERT_ONE_READY"] = "%s — 준비"
     T["ALERT_N_READY"]   = "%d 차단 준비  (%s)"
     T["ALERT_INCOMING"]  = "%.1f초 후 %s"
     T["ALERT_NO_KICK"]   = "차단 없음 — %.0f초"
+    T["ALERT_LOCKED"]    = "잠김: %s (%.0f초)"
+    T["ALERT_NO_KICK_CAST"] = "!! 차단 없음 — %s 시전 중 !!"
     T["SEC_DISPLAY"]     = "표시"
     T["SEC_OPTIONS"]     = "설정"
     T["SEC_APPEARANCE"]  = "외관"
     T["SEC_SHOW_IN"]     = "표시 위치"
     T["SEC_SOUND"]       = "소리"
     T["SEC_UI"]          = "인터페이스"
+    T["SEC_ROTATION"]    = "로테이션"
     T["SL_OPACITY"]      = "투명도: %.0f%%"
     T["SL_WIDTH"]        = "너비: %dpx"
     T["SL_HEIGHT"]       = "높이: %dpx"
@@ -610,12 +618,27 @@ if locale == "koKR" then
     T["CB_KICKS_BAR"]    = "'X 차단 준비' 바 표시"
     T["CB_HIDE_OOC"]     = "전투 외 숨김"
     T["CB_TOOLTIP"]      = "마우스 오버 툴팁"
+    T["CB_ALERT_CAST"]   = "차단 가능한 시전 알림"
+    T["CB_ROTATION"]     = "로테이션 활성화"
+    T["CB_SHOW_CC"]      = "CC 추적기 표시"
+    T["CB_SHOW_NEXT"]    = "> (다음 차단자) 표시"
+    T["DD_MAX_HISTORY"]  = "기록 한도: "
+    T["DD_MAX_HISTORY_TIP"] = "저장된 Run — 한도 초과 시 오래된 항목 삭제"
+    T["SCORE_TITLE"]     = "전체 차단 점수"
+    T["SCORE_RATIO"]     = "비율"
     T["BTN_SAVE_POS"]    = "위치 저장"
     T["BTN_RUN_STATS"]   = "차단 통계"
     T["BTN_COMMANDS"]    = "명령어"
+    T["BTN_MANAGE_ROT"]  = "차단 로테이션 관리"
+    T["BTN_CLEAR"]       = "지우기"
     T["VIS_DUNGEONS"]    = "던전"
     T["VIS_ARENA"]       = "투기장"
     T["VIS_OPEN_WORLD"]  = "오픈 월드"
+    T["ROT_MAINTENANCE"] = "점검 중"
+    T["ROT_TITLE"]       = "차단 로테이션"
+    T["ROT_RESET"]       = "초기화"
+    T["ROT_SYNC"]        = "파티 동기화"
+    T["ROT_SYNCED"]      = "파티와 로테이션 동기화 완료."
     T["STATS_TITLE"]     = "차단 통계"
     T["STATS_CLEAR"]     = "모두 지우기"
     T["STATS_ALLTIME"]   = "전체 · %d %s"
@@ -639,32 +662,14 @@ if locale == "koKR" then
     T["CMD_HIST_CLEAR"]  = "진행 기록 지워짐."
     T["CMD_LOG_CLEAR"]   = "오류 로그 지워짐."
     T["CMD_NO_LOGS"]     = "기록된 오류 없음."
-    T["SEC_ROTATION"]       = "로테이션"
-    T["CB_ROTATION"]        = "로테이션 활성화"
-    T["BTN_MANAGE_ROT"]     = "차단 로테이션 관리"
-    T["ROT_MAINTENANCE"]    = "점검 중"
-    T["ROT_TITLE"]          = "차단 로테이션"
-    T["ROT_RESET"]          = "초기화"
-    T["ROT_SYNC"]           = "파티 동기화"
-    T["ROT_SYNCED"]         = "파티와 로테이션 동기화 완료."
-    T["KA_P1_LABEL"]        = "지금 차단"
-    T["KA_P2_LABEL"]        = "차단"
-    T["KA_P3_LABEL"]        = "선택사항"
-    T["KA_KICKER"]          = "> %s"
-    T["KA_MOVE_HINT"]       = "드래그하여 이동"
-    T["CB_SHOW_NEXT"]       = "> (다음 차단자) 표시"
-    T["TOOLTIP_ESTIMATED"]  = "(추정 — 애드온 없음)"
-    T["CB_ALERT_CAST"]      = "차단 가능한 시전 알림"
-    T["DD_MAX_HISTORY"]     = "기록 한도: "
-    T["DD_MAX_HISTORY_TIP"] = "저장된 Run — 한도 초과 시 오래된 항목 삭제"
-    T["ALERT_LOCKED"]       = "잠김: %s (%.0f초)"
-    T["ALERT_NO_KICK_CAST"] = "!! 차단 없음 — %s 시전 중 !!"
-    T["SCORE_TITLE"]        = "전체 차단 점수"
-    T["SCORE_RATIO"]        = "비율"
-    T["BTN_CLEAR"]          = "지우기"
-    T["CC_TITLE"]           = "CC 추적"
-    T["CC_NO_CC"]           = "사용 가능한 CC 없음"
-    T["CB_SHOW_CC"]         = "CC 추적기 표시"
+    T["KA_P1_LABEL"]     = "지금 차단"
+    T["KA_P2_LABEL"]     = "차단"
+    T["KA_P3_LABEL"]     = "선택사항"
+    T["KA_KICKER"]       = "> %s"
+    T["KA_MOVE_HINT"]    = "드래그하여 이동"
+    T["CC_TITLE"]        = "CC 추적"
+    T["CC_NO_CC"]        = "사용 가능한 CC 없음"
+    T["CC_ADDON_REQUIRED"] = "CC 추적기는 모든 파티원이 애드온을 설치한 경우에만 작동합니다 (블리자드 API 제한)."
 end
 
 -- ── Japanese ─────────────────────────────────────────────────────────
@@ -673,6 +678,7 @@ if locale == "jaJA" then
     T["TITLE"]           = "割り込み"
     T["NO_KICK"]         = "使用可能な割り込みなし"
     T["READY"]           = "準備完了"
+    T["TOOLTIP_CD"]      = "CD: %.1f秒 / %.0f秒"
     T["TOOLTIP_READY"]   = "準備完了"
     T["ALERT_ONE_READY"] = "%s — 準備完了"
     T["ALERT_N_READY"]   = "%d 割り込み準備完了  (%s)"
@@ -755,6 +761,7 @@ if locale == "jaJA" then
     T["CC_TITLE"]           = "CC追跡"
     T["CC_NO_CC"]           = "使用可能なCCなし"
     T["CB_SHOW_CC"]         = "CCトラッカーを表示"
+    T["CC_ADDON_REQUIRED"]  = "CCトラッカーは全メンバーがアドオンをインストールしている場合のみ機能します（Blizzard API制限）。"
 end
 
 -- ── Simplified Chinese ────────────────────────────────────────────────
@@ -763,6 +770,7 @@ if locale == "zhCN" then
     T["TITLE"]           = "打断"
     T["NO_KICK"]         = "无可用打断"
     T["READY"]           = "就绪"
+    T["TOOLTIP_CD"]      = "冷却：%.1f秒 / %.0f秒"
     T["TOOLTIP_READY"]   = "就绪"
     T["ALERT_ONE_READY"] = "%s — 已就绪"
     T["ALERT_N_READY"]   = "%d 打断就绪  (%s)"
@@ -845,6 +853,7 @@ if locale == "zhCN" then
     T["CC_TITLE"]           = "CC追踪"
     T["CC_NO_CC"]           = "无CC可用"
     T["CB_SHOW_CC"]         = "显示CC追踪"
+    T["CC_ADDON_REQUIRED"]  = "CC追踪仅在所有队员安装此插件时有效（暴雪API限制）。"
 end
 
 -- ── Russian ──────────────────────────────────────────────────────────
@@ -853,6 +862,7 @@ if locale == "ruRU" then
     T["TITLE"]           = "Прерывания"
     T["NO_KICK"]         = "Нет доступных прерываний"
     T["READY"]           = "ГОТОВО"
+    T["TOOLTIP_CD"]      = "КД: %.1fс / %.0fс"
     T["TOOLTIP_READY"]   = "ГОТОВО"
     T["ALERT_ONE_READY"] = "%s — ГОТОВО"
     T["ALERT_N_READY"]   = "%d прерываний готово  (%s)"
@@ -935,4 +945,5 @@ if locale == "ruRU" then
     T["CC_TITLE"]           = "Отслеживание CC"
     T["CC_NO_CC"]           = "Нет доступных CC"
     T["CB_SHOW_CC"]         = "Показать трекер CC"
+    T["CC_ADDON_REQUIRED"]  = "Трекер CC работает только если все участники группы установили аддон (ограничение API Blizzard)."
 end

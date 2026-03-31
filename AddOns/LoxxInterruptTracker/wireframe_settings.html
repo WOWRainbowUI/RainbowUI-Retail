@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Wireframe — Settings LoxxInterruptTracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0d0c0a;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #d4c89a;
+    padding: 24px;
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+  }
+  .col-label {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding-bottom: 8px;
+  }
+  .col-label.current { color: #555550; }
+  .col-label.proposed { color: #AA8800; }
+
+  /* Fenêtre WoW */
+  .wow-window {
+    width: 440px;
+    background: #1a1610;
+    border: 1px solid #3a3020;
+    box-shadow: 4px 4px 0 #050503;
+    position: relative;
+  }
+  .wow-window.narrow { width: 420px; }
+
+  .titlebar {
+    background: #0e0c08;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    border-bottom: 1px solid #3a3020;
+    font-size: 9px;
+    color: #AA8800;
+  }
+  .titlebar .close { color: #664433; cursor: pointer; }
+
+  .header {
+    background: #1e160a;
+    height: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #6e5c2e;
+    gap: 4px;
+  }
+  .header h1 { font-size: 15px; color: #FFD100; letter-spacing: 1px; }
+  .header .ver { font-size: 9px; color: #AA8800; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #6e5c2e;
+  }
+  .tab {
+    flex: 1;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    border-right: 1px solid #6e5c2e;
+    letter-spacing: 0.5px;
+  }
+  .tab:last-child { border-right: none; }
+  .tab.active {
+    background: #2e2410;
+    color: #FFD100;
+    border-top: 2px solid #FFD100;
+  }
+  .tab.inactive {
+    background: #181410;
+    color: #555550;
+  }
+
+  /* Content */
+  .content {
+    display: flex;
+    gap: 0;
+  }
+  .col {
+    flex: 1;
+    padding: 10px 12px;
+    min-width: 0;
+  }
+  .col:first-child {
+    border-right: 1px solid #3a3020;
+  }
+  .col.full { flex: 2; }
+
+  .section {
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+  .section-label {
+    font-size: 9px;
+    color: #FFD100;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #3a3020;
+  }
+
+  .slider-row {
+    margin-bottom: 10px;
+  }
+  .slider-label {
+    font-size: 9px;
+    color: #888880;
+    margin-bottom: 3px;
+  }
+  .slider-track {
+    height: 14px;
+    background: #252015;
+    position: relative;
+  }
+  .slider-fill {
+    height: 14px;
+    background: #AA8800;
+    width: 50%;
+  }
+  .slider-thumb {
+    position: absolute;
+    left: calc(50% - 2px);
+    top: 0;
+    width: 4px;
+    height: 14px;
+    background: #3a3020;
+  }
+
+  .checkbox {
+    font-size: 9px;
+    color: #d4c89a;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .cb-box { color: #AA8800; }
+
+  .dropdown {
+    margin-bottom: 10px;
+  }
+  .dropdown-label {
+    font-size: 9px;
+    color: #888880;
+    margin-bottom: 3px;
+  }
+  .dropdown-ctrl {
+    background: #2a2218;
+    border: 1px solid #3a3020;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    font-size: 9px;
+    color: #c8b870;
+    justify-content: space-between;
+  }
+
+  .btn {
+    background: #332a18;
+    border: 1px solid #4a3a20;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #c8b870;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 8px;
+  }
+  .two-col > * { flex: 1; }
+
+  .footer {
+    background: #0f0d08;
+    height: 56px;
+    border-top: 1px solid #6e5c2e;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .footer-btn {
+    background: #332a18;
+    border: 1px solid #4a3a20;
+    height: 22px;
+    padding: 0 10px;
+    font-size: 9px;
+    color: #c8b870;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  .footer-note {
+    margin-left: auto;
+    font-size: 8px;
+  }
+  .footer-note.bad { color: #884422; }
+  .footer-note.good { color: #447744; }
+
+  .info-box {
+    background: #0d1508;
+    border: 1px solid #2a4020;
+    padding: 8px 10px;
+    font-size: 8px;
+    color: #44aa44;
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+  .warn-box {
+    background: #150d08;
+    border: 1px solid #402a20;
+    padding: 6px 10px;
+    font-size: 8px;
+    color: #aa6644;
+    margin: 4px 0;
+  }
+  .collapsible {
+    font-size: 8px;
+    color: #555550;
+    font-style: italic;
+    padding: 4px 0;
+    cursor: pointer;
+  }
+  .divider-v {
+    width: 1px;
+    background: #3a3020;
+    margin: 0 4px;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    background: #FFD10022;
+    border: 1px solid #FFD10055;
+    color: #FFD100;
+    font-size: 8px;
+    padding: 1px 4px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     COLONNE 1 : ACTUEL
+═══════════════════════════════════════════════ -->
+<div>
+  <div class="col-label current">▸ ACTUEL</div>
+  <div class="wow-window">
+    <div class="titlebar">
+      <span>LoxxInterruptTracker — Settings</span>
+      <span class="close">✕</span>
+    </div>
+    <div class="header">
+      <div class="h1" style="font-size:15px;color:#FFD100;font-weight:bold;letter-spacing:1px">⚔ LOXX INTERRUPT TRACKER</div>
+      <div style="font-size:9px;color:#AA8800">v1.5.5.17</div>
+    </div>
+
+    <div class="content">
+      <!-- LEFT COL -->
+      <div class="col">
+        <div class="section">
+          <div class="section-label">INTERRUPT TRACKER</div>
+          <div class="slider-row"><div class="slider-label">Opacity</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">Width</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">Bar Height</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">Name Font Size</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">CD Font Size</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">Ready Text Size</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="dropdown"><div class="dropdown-label">Font Preset</div><div class="dropdown-ctrl"><span>Friz Quadrata</span><span>▾</span></div></div>
+          <div class="dropdown"><div class="dropdown-label">Color Preset</div><div class="dropdown-ctrl"><span>Gold &amp; White</span><span>▾</span></div></div>
+          <div class="dropdown"><div class="dropdown-label">Bar Texture</div><div class="dropdown-ctrl"><span>Flat</span><span>▾</span></div></div>
+        </div>
+        <div class="section">
+          <div class="section-label">OPTIONS</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Show Title</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Lock Position</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Show Ready</div>
+          <div class="checkbox"><span class="cb-box">☐</span> Show Kicks Bar</div>
+          <div class="checkbox"><span class="cb-box">☐</span> Hide Out of Combat</div>
+        </div>
+      </div>
+
+      <!-- RIGHT COL -->
+      <div class="col">
+        <div class="section">
+          <div class="section-label">CC TRACKER</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Enable CC Tracker</div>
+          <div class="btn">⚙ Configure CC Tracker…</div>
+          <div class="slider-row"><div class="slider-label">CC Opacity</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">CC Width</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">CC Bar Height</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">CC Name Font Size</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          <div class="slider-row"><div class="slider-label">CC CD Font Size</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+        </div>
+        <div class="section">
+          <div class="section-label">SHOW IN</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Dungeons</div>
+          <div class="checkbox"><span class="cb-box">☐</span> Arena</div>
+          <div class="checkbox"><span class="cb-box">☐</span> Open World</div>
+        </div>
+        <div class="section">
+          <div class="section-label">SOUND</div>
+          <div class="dropdown"><div class="dropdown-label">Sound on Ready</div><div class="dropdown-ctrl"><span>Ping</span><span>▾</span></div></div>
+        </div>
+        <div class="section">
+          <div class="section-label">UI</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Tooltip</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Alert on Cast</div>
+          <div class="checkbox"><span class="cb-box">☑</span> Show Next Indicator</div>
+          <div class="dropdown" style="margin-top:6px"><div class="dropdown-label">Max History</div><div class="dropdown-ctrl"><span>50 runs</span><span>▾</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-btn">📊 Stats</div>
+      <div class="footer-btn">🏆 Score</div>
+      <div class="footer-btn">📋 Dungeon Log</div>
+      <div class="footer-note bad">⚠ Sliders CC dupliqués • colonnes inégales</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     COLONNE 2 : PROPOSITION (onglets)
+═══════════════════════════════════════════════ -->
+<div>
+  <div class="col-label proposed">▸ PROPOSITION — ONGLETS</div>
+  <div class="wow-window narrow">
+    <div class="titlebar">
+      <span>LoxxInterruptTracker — Settings</span>
+      <span class="close">✕</span>
+    </div>
+    <div class="header">
+      <div style="font-size:15px;color:#FFD100;font-weight:bold;letter-spacing:1px">⚔ LOXX INTERRUPT TRACKER</div>
+      <div style="font-size:9px;color:#AA8800">v1.5.5.17</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('interrupt')">INTERRUPT</div>
+      <div class="tab inactive" onclick="switchTab('cc')">CC TRACKER</div>
+      <div class="tab inactive" onclick="switchTab('options')">OPTIONS</div>
+    </div>
+
+    <!-- TAB: INTERRUPT -->
+    <div id="tab-interrupt" class="tab-content active" style="padding:10px 12px">
+      <div class="section">
+        <div class="section-label">APPARENCE DES BARRES</div>
+        <div class="two-col">
+          <div>
+            <div class="slider-row"><div class="slider-label">Opacité</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+            <div class="slider-row"><div class="slider-label">Largeur</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          </div>
+          <div>
+            <div class="slider-row"><div class="slider-label">Hauteur barre</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+            <div class="dropdown"><div class="dropdown-label">Texture</div><div class="dropdown-ctrl"><span>Flat</span><span>▾</span></div></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="dropdown"><div class="dropdown-label">Police</div><div class="dropdown-ctrl"><span>Friz Quadrata</span><span>▾</span></div></div>
+          <div class="dropdown"><div class="dropdown-label">Couleur texte</div><div class="dropdown-ctrl"><span>Or &amp; Blanc</span><span>▾</span></div></div>
+        </div>
+        <div class="collapsible" onclick="toggleFontSizes()">▶ Tailles de police individuelles (avancé)</div>
+        <div id="font-sizes" style="display:none">
+          <div class="two-col">
+            <div class="slider-row"><div class="slider-label">Nom</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+            <div class="slider-row"><div class="slider-label">CD</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          </div>
+          <div class="two-col">
+            <div class="slider-row"><div class="slider-label">Texte Prêt</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">OPTIONS</div>
+        <div class="two-col">
+          <div>
+            <div class="checkbox"><span class="cb-box">☑</span> Afficher titre</div>
+            <div class="checkbox"><span class="cb-box">☑</span> Afficher PRÊT</div>
+            <div class="checkbox"><span class="cb-box">☐</span> Barre kicks prêts</div>
+          </div>
+          <div>
+            <div class="checkbox"><span class="cb-box">☐</span> Verrouiller pos.</div>
+            <div class="checkbox"><span class="cb-box">☑</span> Indicateur NEXT</div>
+            <div class="checkbox"><span class="cb-box">☐</span> Masquer HoC</div>
+          </div>
+        </div>
+        <div class="checkbox"><span class="cb-box">☑</span> Alerte cast interruptible</div>
+        <div class="checkbox"><span class="cb-box">☑</span> Tooltip</div>
+      </div>
+    </div>
+
+    <!-- TAB: CC TRACKER -->
+    <div id="tab-cc" class="tab-content" style="padding:10px 12px">
+      <div class="section">
+        <div class="section-label">ACTIVATION</div>
+        <div class="checkbox"><span class="cb-box">☑</span> Activer le CC Tracker</div>
+      </div>
+      <div class="section">
+        <div class="section-label">APPARENCE</div>
+        <div class="two-col">
+          <div>
+            <div class="slider-row"><div class="slider-label">Opacité</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+            <div class="slider-row"><div class="slider-label">Largeur</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          </div>
+          <div>
+            <div class="slider-row"><div class="slider-label">Hauteur barre</div><div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div></div>
+          </div>
+        </div>
+        <div class="collapsible">▶ Tailles de police CC (avancé)</div>
+      </div>
+      <div class="section">
+        <div class="section-label">SORTS CC PAR CLASSE</div>
+        <div style="font-size:9px;color:#888880;margin-bottom:6px">Configurer quel sort CC est tracké pour chaque classe.</div>
+        <!-- mini roster simulé -->
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:9px">
+            <span style="color:#C79C6E;width:80px">MAGE</span>
+            <div class="dropdown-ctrl" style="flex:1;font-size:9px"><span>Polymorph</span><span>▾</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:9px">
+            <span style="color:#A330C9;width:80px">WARLOCK</span>
+            <div class="dropdown-ctrl" style="flex:1;font-size:9px"><span>Fear</span><span>▾</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:9px">
+            <span style="color:#ABD473;width:80px">HUNTER</span>
+            <div class="dropdown-ctrl" style="flex:1;font-size:9px"><span>Freezing Trap</span><span>▾</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:9px">
+            <span style="color:#FF7D0A;width:80px">DRUID</span>
+            <div class="dropdown-ctrl" style="flex:1;font-size:9px"><span>Hibernate</span><span>▾</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box">
+        ✓ Plus de popup séparé "Configure CC"<br>
+        ✓ Tout au même endroit<br>
+        ✓ Choix du sort CC par classe (nouveau)
+      </div>
+    </div>
+
+    <!-- TAB: OPTIONS -->
+    <div id="tab-options" class="tab-content" style="padding:10px 12px">
+      <div class="section">
+        <div class="section-label">AFFICHER DANS</div>
+        <div class="two-col">
+          <div>
+            <div class="checkbox"><span class="cb-box">☑</span> Donjons M+</div>
+            <div class="checkbox"><span class="cb-box">☐</span> Arène</div>
+          </div>
+          <div>
+            <div class="checkbox"><span class="cb-box">☐</span> Raid</div>
+            <div class="checkbox"><span class="cb-box">☐</span> Monde ouvert</div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">SON</div>
+        <div class="dropdown"><div class="dropdown-label">Son "Prêt"</div><div class="dropdown-ctrl"><span>Ping</span><span>▾</span></div></div>
+        <div class="dropdown"><div class="dropdown-label">Son "Kick raté"</div><div class="dropdown-ctrl"><span>(aucun)</span><span>▾</span></div></div>
+      </div>
+      <div class="section">
+        <div class="section-label">HISTORIQUE</div>
+        <div class="dropdown"><div class="dropdown-label">Conserver N runs</div><div class="dropdown-ctrl"><span>50 runs</span><span>▾</span></div></div>
+        <div style="font-size:8px;color:#555550;margin-top:4px">Réinitialiser les stats : bouton dans le panneau Score</div>
+      </div>
+      <div class="section">
+        <div class="section-label">BROADCAST / ADDON</div>
+        <div class="checkbox"><span class="cb-box">☑</span> Broadcast mes données aux pairs (addon msg)</div>
+        <div class="checkbox"><span class="cb-box">☑</span> Mode Spy (log détaillé /loxx spy)</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-btn">📊 Stats</div>
+      <div class="footer-btn">🏆 Score</div>
+      <div class="footer-btn">📋 Log</div>
+      <div class="footer-note good">✓ Plus de doublons &nbsp;✓ Onglets clairs</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.classList.add('inactive');
+  });
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabs = ['interrupt','cc','options'];
+  const idx = tabs.indexOf(name);
+  document.querySelectorAll('.tab')[idx].classList.remove('inactive');
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+}
+function toggleFontSizes() {
+  const el = document.getElementById('font-sizes');
+  const btn = document.querySelector('.collapsible');
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    btn.textContent = '▼ Tailles de police individuelles (avancé)';
+  } else {
+    el.style.display = 'none';
+    btn.textContent = '▶ Tailles de police individuelles (avancé)';
+  }
+}
+</script>
+</body>
+</html>
