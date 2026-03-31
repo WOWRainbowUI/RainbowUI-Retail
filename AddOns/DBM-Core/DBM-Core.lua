@@ -77,16 +77,16 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260326092056")
+DBM.Revision = parseCurseDate("20260331065155")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 private.fakeBWVersion, private.fakeBWHash = 407, "a0f5bf5"--407.0
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.34"--Core version
+DBM.DisplayVersion = "12.0.35"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 3, 25) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 3, 30) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -384,6 +384,10 @@ DBM.DefaultOptions = {
 	SettingsMessageShown = false,
 	NewsMessageShown2 = 2,--Apparently variable without 2 can still exist in some configs (config cleanup of no longer existing variables not working?)
 	AlwaysShowSpeedKillTimer2 = false,
+	ShowBrezFrame = false,
+	BrezFont = "standardFont",
+	BrezFontSize = 18,
+	BattleRezPosition = {"TOPLEFT", 214, -29},
 	ShowRespawn = true,
 	ShowQueuePop = true,
 	ShowBerserkWarnings = true,
@@ -4220,6 +4224,9 @@ do
 		-- LoadMod
 		self:LoadModsOnDemand("mapId", mapID, delay or 0)
 		self:CheckAvailableMods()
+		if self.BattleRezTimer then
+			self.BattleRezTimer:CheckSupported()
+		end
 		if private.isRetail then
 			--Handle private aura sounds and anchors
 			syncZonePASounds(self, mapID)
@@ -4311,6 +4318,9 @@ do
 		self:CheckAvailableMods()
 		if not self.Options.RecordOnlyBosses then
 			self:StartLogging(0, nil, true)
+		end
+		if self.BattleRezTimer then
+			self.BattleRezTimer:CheckSupported()
 		end
 	end
 
@@ -4711,11 +4721,14 @@ do
 	end
 
 	function DBM:ENCOUNTER_START(encounterID, name, difficulty, size)
-		self:Debug("|cffffff00ENCOUNTER_START: |r event fired: " .. encounterID .. " " .. name .. " " .. difficulty .. " " .. size, 1, nil, nil, true)
+		self:Debug("|cffff8800ENCOUNTER_START: |r event fired: " .. encounterID .. " " .. name .. " " .. difficulty .. " " .. size, 1, nil, nil, true)
 		if dbmIsEnabled then
 			--Only nag in raids on engage
 			if IsInRaid() then
 				self:CheckAvailableMods()
+			end
+			if self.BattleRezTimer then
+				self.BattleRezTimer:CheckSupported()
 			end
 			if combatInfo[LastInstanceMapID] then
 				for _, v in ipairs(combatInfo[LastInstanceMapID]) do
@@ -4738,10 +4751,13 @@ do
 	end
 
 	function DBM:ENCOUNTER_END(encounterID, name, difficulty, size, success)
-		self:Debug("|cffffff00ENCOUNTER_END: |r event fired: " .. encounterID .. " " .. name .. " " .. difficulty .. " " .. size .. " " .. success, 1, nil, nil, true)
+		self:Debug("|cffff8800ENCOUNTER_END: |r event fired: " .. encounterID .. " " .. name .. " " .. difficulty .. " " .. size .. " " .. success, 1, nil, nil, true)
 		if success == 0 then
 			--Only nag on wipes (in any content)
 			self:CheckAvailableMods()
+		end
+		if self.BattleRezTimer then
+			self.BattleRezTimer:CheckSupported()
 		end
 		for i = #inCombat, 1, -1 do
 			local v = inCombat[i]
@@ -6999,7 +7015,9 @@ do
 		[490] = true, -- Unknown, currently encrypted
 	}
 	local requiresRecentKill = {
-		[2238] = 2519--Fyrakk in Amirdrassil
+		[2238] = 2519,--Fyrakk in Amirdrassil
+		[2529] = 3181,--Crown of the Cosmos
+		[1049] = 3181--Crown of the Cosmos
 	}
 	---@param self DBM
 	local function checkOptions(self, id, mapID)
@@ -7039,7 +7057,8 @@ do
 		self:TransitionToDungeonBGM(false, true)
 		if id and not neverFilter[id] then
 			self:Debug("PLAY_MOVIE fired for ID: " .. id, 2, nil, nil, true)
-			if checkOptions(self, id) then
+			local currentMapID = C_Map.GetBestMapForUnit("player")
+			if checkOptions(self, id, currentMapID) then
 				MovieFrame:Hide()--can only just hide movie frame safely now, which means can't stop audio anymore :\
 				self:AddMsg(L.MOVIE_SKIPPED)
 			end
@@ -7985,7 +8004,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260326092009" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260331064935" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then

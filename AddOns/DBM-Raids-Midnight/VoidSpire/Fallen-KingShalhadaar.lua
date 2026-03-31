@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2736, "DBM-Raids-Midnight", 3, 1307)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260325083605")
+mod:SetRevision("20260330201247")
 mod:SetCreatureID(240432)
 mod:SetEncounterID(3179)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -42,6 +42,7 @@ mod.vb.entropicUnravelingCount = 0
 local badStateDetected = false
 local next45Type = nil
 
+---@param self DBMMod
 local function resetCounts(self)
 	self.vb.convergenceCount = 1
 	self.vb.despoticCommandCount = 1
@@ -50,6 +51,7 @@ local function resetCounts(self)
 	self.vb.twilightObscurityCount = 1
 end
 
+---@param self DBMMod
 local function setFallback(self)
 	--Blizz API fallbacks
 	specWarnVoidConvergence:SetAlert(139, "targetchange", 2, 3)

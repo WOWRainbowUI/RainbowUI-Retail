@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2737, "DBM-Raids-Midnight", 3, 1307)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260325090256")
+mod:SetRevision("20260330201247")
 mod:SetCreatureID(250589)--War Chaplain Senn main boss, 250588 Commander Venel Lightblood, 250587 general Amias Bellamy
 mod:SetEncounterID(3180)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -16,9 +16,9 @@ local warnAuraofDevotion					= mod:NewCountAnnounce(1246162, 2)
 local warnZealousSpirit						= mod:NewCountAnnounce(1276243, 2)
 
 local specWarnAuraofPeace					= mod:NewSpecialWarningDodgeCount(1248451, nil, nil, nil, 2, 2)
-local specWarnSacredShield					= mod:NewSpecialWarningCount(1249260, nil, nil, nil, 2, 2)
+local specWarnSacredShield					= mod:NewSpecialWarningCount(1248674, nil, nil, nil, 2, 2)
 --local specWarnElekkCharge					= mod:NewSpecialWarningDodge(1249130, nil, nil, nil, 2, 2)--Part of sacred shield
-mod:GroupSpells(1249260, 1249130)--Sacred Shield + Elekk Charge
+--mod:GroupSpells(1248674, 1249130)--Sacred Shield + Elekk Charge
 local specWarnSearingRadiance				= mod:NewSpecialWarningCount(1255738, nil, nil, nil, 2, 2)
 local specWarnJudgementShield				= mod:NewSpecialWarningCount(1251857, nil, nil, L.JudgementShield, 2, 2)
 local specWarnDivineToll					= mod:NewSpecialWarningDodgeCount(1248652, nil, nil, DBM_COMMON_L.DODGES, 2, 2)
@@ -29,7 +29,7 @@ local specWarnSacredToll					= mod:NewSpecialWarningCount(1246749, nil, nil, DBM
 local specWarnExecutionSentence				= mod:NewSpecialWarningSoakCount(1276368, nil, nil, DBM_COMMON_L.GROUPSOAKS, 2, 2)
 
 local timerAuraofPeaceCD					= mod:NewCDCountTimer(20.5, 1248451, nil, nil, nil, 3)
-local timerSacredShieldCD					= mod:NewCDCountTimer(20.5, 1249260, nil, nil, nil, 5)
+local timerSacredShieldCD					= mod:NewCDCountTimer(20.5, 1248674, nil, nil, nil, 5)
 --local timerElekkChargeCD					= mod:NewCDCountTimer(20.5, 1249130, nil, nil, nil, 3)--redundant
 local timerTyrsWrathCD						= mod:NewCDCountTimer(20.5, 1248721, DBM_COMMON_L.HEALABSORBS.." (%s)", "Healer", nil, 5)
 local timerAuraofDevotionCD					= mod:NewCDCountTimer(20.5, 1246162, nil, nil, nil, 3)
@@ -81,6 +81,7 @@ local timer172Count = 0
 local timer174Count = 0
 local timer175Count = 0
 
+---@param self DBMMod
 local function setFallback(self)
 	--Blizz API fallbacks
 	specWarnAuraofPeace:SetAlert(71, "peaceaura", 19, 2)

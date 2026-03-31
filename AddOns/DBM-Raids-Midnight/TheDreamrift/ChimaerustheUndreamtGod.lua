@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2795, "DBM-Raids-Midnight", 2, 1314)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260325081755")
+mod:SetRevision("20260330201247")
 mod:SetCreatureID(256116)
 mod:SetEncounterID(3306)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -13,6 +13,8 @@ mod:RegisterCombat("combat")
 --NOTE, https://www.wowhead.com/spell=1245771/corrupted-feathers has event ID ono boss but isn't in journal, possibly pre boss trash mechanic
 --NOTE, https://www.wowhead.com/spell=1262616/retched-acid not in journal (208)
 --NOTE, https://www.wowhead.com/spell=1280127/stage-two also exists, but based on most recent testing blizzard uses consume for p2 and not this bar anymore
+local warnAlndustUpheaval				= mod:NewBlizzTargetAnnounce(1262289, 2)
+
 local specWarnRavenousDive				= mod:NewSpecialWarningCount(1245404, nil, 218027, nil, 2, 2)
 local specWarnRiftEmergence				= mod:NewSpecialWarningCount(1251021, nil, nil, DBM_COMMON_L.ADDS, 2, 2)
 local specWarnCausticPhlegm				= mod:NewSpecialWarningCount(1246621, nil, nil, DBM_COMMON_L.AOEDAMAGE, 2, 2)
@@ -60,7 +62,11 @@ mod.vb.consumeCount = 0
 local badStateDetected = false
 local sawPhlegm53 = false
 local next12IsDevastation = false
+local showOnNextWarning = 0
+local timer73Count = 0
+local timer75Count = 0
 
+---@param self DBMMod
 local function setFallback(self)
 	--Blizz API fallbacks
 	specWarnRavenousDive:SetAlert(48, "phasechange", 2, 3, 0)
@@ -80,7 +86,7 @@ local function setFallback(self)
 	timerAlndustUpheavalCD:SetTimeline({149,431})
 	timerBerserkCD:SetTimeline(170)
 	timerRiftMadnessCD:SetTimeline(217)
-	specWarnConsume:SetAlert(307, "phasechange", 2, 3)
+	specWarnConsume:SetAlert(307, "aesoon", 2, 3)
 	timerConsumeCD:SetTimeline(307)
 	specWarnCannibalized:SetAlert(555, "stilldanger", 1, 2, 0)
 	timerStage2CD:SetTimeline(353)
@@ -99,12 +105,16 @@ function mod:OnLimitedCombatStart()
 	self.vb.consumeCount = 1
 	sawPhlegm53 = false
 	next12IsDevastation = false
+	showOnNextWarning = 0
+	timer73Count = 0
+	timer75Count = 0
 	--Hardcode features first
-	if DBM.Options.HardcodedTimer and self:IsEasy() and not badStateDetected then
+	if DBM.Options.HardcodedTimer and (self:IsEasy() or self:IsHeroic()) and not badStateDetected then
 		self:IgnoreBlizzardAPI()
 		self:RegisterShortTermEvents(
 			"ENCOUNTER_TIMELINE_EVENT_ADDED",
-			"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED"
+			"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED",
+			"ENCOUNTER_WARNING"
 		)
 	else
 		setFallback(self)
@@ -128,9 +138,11 @@ do
 		self.vb.upheavalCount = 1
 		self.vb.consumeCount = 1
 		self.vb.riftMadnessCount = 1--Unused on Normal/LFR
-		self.vb.miasmaCount = 1--Unused on Normal/LFR
+		self.vb.miasmaCount = 1--Used on Heroic+
 		sawPhlegm53 = false
 		next12IsDevastation = false
+		timer73Count = 0
+		timer75Count = 0
 	end
 	---@param self DBMMod
 	---@param timer number
@@ -181,10 +193,85 @@ do
 			timerRavenousDiveCD:Stop()--Terminate to avoid debug from early phase transition ends
 			timerRavenousDiveCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "dive", "diveCount"))
 		elseif timer == 165 or timer == 10 then--Stage Two markers
-			--Used by blizzard as phase markers, but not represented as bars in DBM yet.
+			--Used by blizzard as phase markers
 			timerStage2CD:Stop()
 			timerStage2CD:TLStart(timerExact, eventID)
 		else--Reached end of chain without finding a valid timer, this means hardcode mod has failed, so we need to disable hardcoded features and fall back to blizz API
+			if not DBM.Options.DebugMode then
+				badStateDetected = true
+				if DBM.Options.IgnoreBlizzAPI then
+					DBM.Options.IgnoreBlizzAPI = false
+					DBM:FireEvent("DBM_ResumeBlizzAPI")
+				end
+				self:UnregisterShortTermEvents()
+				setFallback(self)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
+			else
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers|r", nil, nil, nil, true)
+			end
+		end
+	end
+	---@param self DBMMod
+	---@param timer number
+	---@param timerExact number
+	---@param eventID number
+	local function timersHeroic(self, timer, timerExact, eventID)
+		--Logic confirmed against Heroic Week 2
+		--Timers seem to basically be same as normal +10% haste
+		--With the exception of some static that remained same
+		if timer == 720 then--Rift Cataclysm
+			timerBerserkCD:Start(timer)
+		elseif timer == 65 then--Consume (unambiguous opener)
+			timerConsumeCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "consume", "consumeCount"))
+		elseif timer == 36 then--Rending Tear (unambiguous opener)
+			timerRendingTearCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "tear", "tearCount"))
+		elseif timer == 151 then--Stage Two (phase 1)
+			timerStage2CD:Stop()
+			timerStage2CD:TLStart(timerExact, eventID)
+		elseif timer == 14 then--Alndust Upheaval (unambiguous opener)
+			timerAlndustUpheavalCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "upheaval", "upheavalCount"))
+		elseif timer == 6 then--Rift Emergence (unambiguous opener)
+			timerRiftEmergenceCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "rift", "riftCount"))
+		elseif timer == 32 then--Consuming Miasma (phase 1 opener)
+			timerConsumingMiasmaCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "miasma", "miasmaCount"))
+		elseif timer == 75 then--Can be Rift Emergence reload (odd) or Consume reload (even) per phase
+			timer75Count = timer75Count + 1
+			if timer75Count % 2 == 1 then--Odd: Rift Emergence
+				timerRiftEmergenceCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "rift", "riftCount"))
+			else--Even: Consume
+				timerConsumeCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "consume", "consumeCount"))
+			end
+		elseif timer == 73 then--Can be Alndust Upheaval reload (odd) or Rending Tear reload (even) per phase
+			timer73Count = timer73Count + 1
+			if timer73Count % 2 == 1 then--Odd: Alndust Upheaval
+				timerAlndustUpheavalCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "upheaval", "upheavalCount"))
+			else--Even: Rending Tear
+				timerRendingTearCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "tear", "tearCount"))
+			end
+		elseif timer == 24 or timer == 26 or timer == 48 or timer == 22 or timer == 3 then--Caustic Phlegm (unambiguous)
+			timerCausticPhlegmCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "phlegm", "phlegmCount"))
+		elseif timer == 18 then--Bugged air phase timer, ignore
+			DBM:Debug("Encounter timeline has a known incorrect timer for Caustic Phlegm at 18 seconds, ignoring this timer", nil, nil, nil, true)
+		elseif timer == 50 or timer == 35 or timer == 29 or timer == 23 then--Consuming Miasma (phase 1 reloads and phase 2)
+			timerConsumingMiasmaCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "miasma", "miasmaCount"))
+		elseif timer == 8 then--Corrupted Devastation opener before mixed 12s
+			timerCorruptedDevastationCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "devastation", "devastationCount"))
+			next12IsDevastation = true
+		elseif timer == 12 then--Can be Corrupted Devastation or Caustic Phlegm (same alternating pattern as Normal)
+			if next12IsDevastation then
+				timerCorruptedDevastationCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "devastation", "devastationCount"))
+				next12IsDevastation = false
+			else
+				timerCausticPhlegmCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "phlegm", "phlegmCount"))
+				next12IsDevastation = true
+			end
+		elseif timer == 30 or timer == 1 then--Ravenous Dive (30s max, 1s early-kill replacement when adds die early)
+			timerRavenousDiveCD:Stop()
+			timerRavenousDiveCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "dive", "diveCount"))
+		elseif timer == 10 then--Stage Two (phase 2 transition marker)
+			timerStage2CD:Stop()
+			timerStage2CD:TLStart(timerExact, eventID)
+		else--Reached end of chain without finding a valid timer
 			if not DBM.Options.DebugMode then
 				badStateDetected = true
 				if DBM.Options.IgnoreBlizzAPI then
@@ -208,6 +295,8 @@ do
 		if not badStateDetected then
 			if self:IsEasy() then
 				timersEasy(self, timer, timerExact, eventID)
+			elseif self:IsHeroic() then
+				timersHeroic(self, timer, timerExact, eventID)
 			end
 		end
 	end
@@ -232,7 +321,14 @@ do
 					specWarnCausticPhlegm:Play("aesoon")
 				elseif eventType == "upheaval" then
 					specWarnAlndustUpheaval:Show(eventCount)
-					specWarnAlndustUpheaval:Play("soakincoming")
+					if self:IsLFR() then
+						--LFR has no soak
+						specWarnAlndustUpheaval:Play("raidsplit")
+					else
+						showOnNextWarning = eventCount
+						specWarnAlndustUpheaval:Play("soakincoming")
+					end
+					--We timestamp this then let local ENCOUNTER_WARNING event handle it
 				elseif eventType == "devastation" then
 					specWarnCorruptedDevastation:Show(eventCount)
 					specWarnCorruptedDevastation:Play("breathsoon")
@@ -246,5 +342,25 @@ do
 		elseif eventState == 3 then
 			self:TLCountCancel(eventID)
 		end
+	end
+end
+
+function mod:ENCOUNTER_WARNING(encounterWarningInfo)
+	if showOnNextWarning > 0 then
+		--Secrets
+		local targetName = encounterWarningInfo.targetName
+		local targetGUID = encounterWarningInfo.targetGUID
+		local formattedTargetName = targetName or UNKNOWN
+		if targetGUID then
+			local _, className = GetPlayerInfoByGUID(targetGUID)
+			if className then
+				local classColor = C_ClassColor.GetClassColor(className)
+				if classColor then
+				    formattedTargetName = classColor:WrapTextInColorCode(formattedTargetName);
+				end
+			end
+		end
+		warnAlndustUpheaval:Show(showOnNextWarning, formattedTargetName)
+		showOnNextWarning = 0
 	end
 end

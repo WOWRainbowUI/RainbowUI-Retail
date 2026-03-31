@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2733, "DBM-Raids-Midnight", 3, 1307)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260326015426")
+mod:SetRevision("20260330201247")
 mod:SetCreatureID(240435)
 mod:SetEncounterID(3176)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -42,6 +42,7 @@ mod.vb.voidMarkCount = 0
 local badStateDetected = false
 local next72IsShadow = false
 
+---@param self DBMMod
 local function setFallback(self)
 	--Blizz API fallbacks
 	specWarnShadowsAdvance:SetAlert({194, 195}, "mobsoon", 2, 2)
@@ -126,7 +127,7 @@ do
 					specWarnUmbralCollapse:Schedule(72, 2)
 					specWarnUmbralCollapse:ScheduleVoice(72, "gathershare")
 					timerUmbralCollapseCD:Stop()
-					timerUmbralCollapseCD:Start(72, 2)
+					timerUmbralCollapseCD:Start(72, self.vb.CollapseCount+1)
 				end
 			end
 		else--Reached end of chain without finding a valid timer, this means hardcode mod has failed, so we need to disable hardcoded features and fall back to blizz API

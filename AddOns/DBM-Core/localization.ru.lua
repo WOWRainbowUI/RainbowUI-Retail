@@ -281,6 +281,7 @@ L.SLASHCMD_HELP							= {--AI translated (it's fine)
 	"/dbm key: Выполняет проверки М+ ключей и рейтинга для группы/гильдии, а также предоставляет быстрые телепорты к подземельям. (псевдоним: key, keys, keystone)",
 	"/dbm lag: Выполняет проверку задержки для всего рейда.",
 	"/dbm durability: Выполняет проверку прочности для всего рейда.",
+	"/dbm brez: Отображает фрейм таймера боевого воскрешения для позиционирования.",--AI translated (it's fine)
 	"/dbm help2: Показывает дополнительные команды"
 }
 --Менее используемые команды
@@ -331,6 +332,7 @@ L.AUTO_ANNOUNCE_TEXTS.you 			= "%s на ТЕБЕ"
 L.AUTO_ANNOUNCE_TEXTS.target 		= "%s на >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.targetsource  = ">%%s< применяет %s на >%%s<"
 L.AUTO_ANNOUNCE_TEXTS.targetcount	= "%s (%%s) на >%%s<"
+L.AUTO_ANNOUNCE_TEXTS.blizztarget	= "%s (%%s) на %%s"
 L.AUTO_ANNOUNCE_TEXTS.spell 		= "%s"
 L.AUTO_ANNOUNCE_TEXTS.spellsource 	= ">%%s< применяет %s"
 L.AUTO_ANNOUNCE_TEXTS.incoming		= "%s получает дебафф"
@@ -357,6 +359,7 @@ L.AUTO_ANNOUNCE_OPTIONS.target 			= "Объявлять о $spell:%s на цел
 L.AUTO_ANNOUNCE_OPTIONS.targetNF		= "Объявлять о $spell:%s на целях (игнорирует глобальные фильтры целей)"
 L.AUTO_ANNOUNCE_OPTIONS.targetsource	= "Объявлять о $spell:%s на целях (с источником)"
 L.AUTO_ANNOUNCE_OPTIONS.targetcount		= "Объявлять о $spell:%s на целях (со счётчиком)"
+L.AUTO_ANNOUNCE_OPTIONS.blizztarget		= "Объявлять о $spell:%s на целях (со счётчиком)"
 L.AUTO_ANNOUNCE_OPTIONS.spell 			= "Объявлять, когда будет произнесено заклинание $spell:%s"
 L.AUTO_ANNOUNCE_OPTIONS.spellsource 	= "Объявлять, когда будет произнесено заклинание $spell:%s (с источником)"
 L.AUTO_ANNOUNCE_OPTIONS.incoming		= "Объявлять, когда $spell:%s получает отрицательные эффекты"
@@ -686,7 +689,6 @@ L.ARROW_ERROR_USAGE	= {
 
 L.SPEED_KILL_TIMER_TEXT				= "Рекордная победа"
 L.SPEED_CLEAR_TIMER_TEXT			= "Лучшее прохождение"
-L.COMBAT_RES_TIMER_TEXT				= "След. заряд БР"
 L.TIMER_RESPAWN						= "Появление %s"
 
 L.LAG_HEADER						= L.DBM.. " - результаты проверки задержки"
