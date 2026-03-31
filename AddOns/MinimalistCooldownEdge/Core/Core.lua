@@ -14,8 +14,14 @@ local select = select
 local tostring = tostring
 local tconcat = table.concat
 local C_Timer_NewTimer = C_Timer.NewTimer
+local C_Timer_After = C_Timer.After
 local CHAT_PREFIX = C.Chat.Prefix
 local OPTION_SLIDER_DEBOUNCE_DELAY = C.Options.SliderDebounceDelay
+local StaticPopup_Show = StaticPopup_Show
+local StaticPopupDialogs = StaticPopupDialogs
+local hooksecurefunc = hooksecurefunc
+
+local RELOAD_PROMPT_POPUP_ID = "MCE_ReloadPrompt"
 
 MCE.Constants = C
 
@@ -68,6 +74,14 @@ function MCE:IsTellMeWhenAvailable()
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.TellMeWhenName) or false
 end
 
+function MCE:IsElvUIAvailable()
+    if type(_G.ElvUI) == "table" then
+        return true
+    end
+
+    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded("ElvUI") or false
+end
+
 function MCE:IsShinyAurasAvailable()
     if _G.ShinyAurasFrame or type(_G.ShinyAurasDB) == "table" then
         return true
@@ -83,6 +97,15 @@ function MCE:IsShinyAurasAdapterEnabled()
     end
 
     return profile.shinyAurasAdapterEnabled ~= false
+end
+
+function MCE:IsElvUIAdapterEnabled()
+    local profile = self.db and self.db.profile
+    if not profile then
+        return true
+    end
+
+    return profile.elvuiAdapterEnabled ~= false
 end
 
 local function BuildChatMessage(...)
@@ -101,6 +124,129 @@ end
 
 function MCE:Print(...)
     DEFAULT_CHAT_FRAME:AddMessage(BuildChatMessage(...))
+end
+
+function MCE:MarkReloadRequired()
+    self.reloadRequired = true
+    self.reloadChangeVersion = (self.reloadChangeVersion or 0) + 1
+end
+
+function MCE:ClearReloadRequired()
+    self.reloadRequired = false
+    self.reloadPromptedVersion = self.reloadChangeVersion or 0
+end
+
+function MCE:ShouldPromptForReload()
+    return self.reloadRequired == true
+        and (self.reloadPromptedVersion or 0) < (self.reloadChangeVersion or 0)
+end
+
+function MCE:EnsureReloadPromptDialog()
+    if self.reloadPromptDialogRegistered or type(StaticPopupDialogs) ~= "table" then
+        return
+    end
+
+    StaticPopupDialogs[RELOAD_PROMPT_POPUP_ID] = StaticPopupDialogs[RELOAD_PROMPT_POPUP_ID] or {
+        text = L["Some changes require a UI reload to be fully applied.\n\nReload the interface now?"],
+        button1 = RELOADUI,
+        button2 = NOT_NOW or CANCEL,
+        OnAccept = function()
+            self:ClearReloadRequired()
+            ReloadUI()
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = STATICPOPUP_NUMDIALOGS,
+    }
+
+    self.reloadPromptDialogRegistered = true
+end
+
+function MCE:QueueReloadPrompt()
+    if not self:ShouldPromptForReload() or self.reloadPromptQueued then
+        return
+    end
+
+    self.reloadPromptQueued = true
+    C_Timer_After(0, function()
+        self.reloadPromptQueued = nil
+
+        if self:ShouldPromptForReload() and type(StaticPopup_Show) == "function" then
+            self.reloadPromptedVersion = self.reloadChangeVersion or 0
+            StaticPopup_Show(RELOAD_PROMPT_POPUP_ID)
+        end
+    end)
+end
+
+function MCE:HandleTrackedBlizzardOptionsClosed()
+    if not self.visitedBlizzardOptions then
+        return
+    end
+
+    self.visitedBlizzardOptions = false
+    self:QueueReloadPrompt()
+end
+
+function MCE:EnsureSettingsPanelCloseHooks()
+    local function HookSettingsFrame(frame)
+        if not frame or not frame.HookScript or frame._mceReloadPromptHooked then
+            return false
+        end
+
+        frame:HookScript("OnHide", function()
+            self:HandleTrackedBlizzardOptionsClosed()
+        end)
+        frame._mceReloadPromptHooked = true
+        return true
+    end
+
+    local hooked = false
+    hooked = HookSettingsFrame(_G.SettingsPanel) or hooked
+    hooked = HookSettingsFrame(_G.InterfaceOptionsFrame) or hooked
+
+    self.settingsPanelCloseHooksInstalled = hooked or self.settingsPanelCloseHooksInstalled
+end
+
+function MCE:RegisterBlizzardOptionsPanel(panel)
+    local frame = panel and (panel.frame or panel)
+    if not frame or not frame.HookScript or frame._mceReloadPromptTracked then
+        return panel
+    end
+
+    frame:HookScript("OnShow", function()
+        self.visitedBlizzardOptions = true
+        self:EnsureSettingsPanelCloseHooks()
+    end)
+    frame._mceReloadPromptTracked = true
+
+    return panel
+end
+
+function MCE:EnsureOptionsCloseHooks()
+    if self.optionsCloseHooksInstalled or type(hooksecurefunc) ~= "function" then
+        return
+    end
+
+    hooksecurefunc(AceConfigDialog, "Open", function(_, appName)
+        local widget = AceConfigDialog.OpenFrames and AceConfigDialog.OpenFrames[appName]
+        local frame = widget and widget.frame
+        if not frame or not frame.HookScript then
+            return
+        end
+
+        frame._mceReloadPromptAppName = appName
+        if not frame._mceReloadPromptHooked then
+            frame:HookScript("OnHide", function(closingFrame)
+                if closingFrame and closingFrame._mceReloadPromptAppName == addonName then
+                    self:QueueReloadPrompt()
+                end
+            end)
+            frame._mceReloadPromptHooked = true
+        end
+    end)
+
+    self.optionsCloseHooksInstalled = true
 end
 
 -- =========================================================================
@@ -501,6 +647,7 @@ MCE.defaults = {
     profile = {
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
         shinyAurasAdapterEnabled = true,
+        elvuiAdapterEnabled = true,
         compactPartyAuraText = compactPartyAuraTextDefaults,
         durationTextColors = defaultDurationTextColors,
         categories = {
@@ -523,6 +670,10 @@ function MCE:UpgradeProfile()
 
     if profile.shinyAurasAdapterEnabled == nil then
         profile.shinyAurasAdapterEnabled = true
+    end
+
+    if profile.elvuiAdapterEnabled == nil then
+        profile.elvuiAdapterEnabled = true
     end
 
     if not profile.durationTextColors then
@@ -561,6 +712,13 @@ function MCE:OnInitialize()
     self:UpgradeProfile()
     self.pendingOptionRefresh = nil
     self.pendingOptionRefreshFullScan = false
+    self.reloadRequired = false
+    self.reloadChangeVersion = 0
+    self.reloadPromptedVersion = 0
+    self.reloadPromptQueued = false
+    self.visitedBlizzardOptions = false
+    self:EnsureReloadPromptDialog()
+    self:EnsureOptionsCloseHooks()
 
     LibStub("AceConfig-3.0"):RegisterOptionsTable(addonName, self.GetOptions)
 
@@ -573,17 +731,19 @@ function MCE:OnInitialize()
         status.groups.treesizable = true
     end
 
-    self.optionsFrame = AceConfigDialog:AddToBlizOptions(addonName, C.Addon.ShortName, nil, "general")
-    AceConfigDialog:AddToBlizOptions(addonName, L["Action Bars"], C.Addon.ShortName, C.Categories.Actionbar)
-    AceConfigDialog:AddToBlizOptions(addonName, L["Nameplates"], C.Addon.ShortName, C.Categories.Nameplate)
-    AceConfigDialog:AddToBlizOptions(addonName, L["Unit Frames"], C.Addon.ShortName, C.Categories.Unitframe)
-    AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.CompactPartyAura)
-    AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager)
-    AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC)
-    AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena)
-    AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen)
-    AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help")
-    AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], C.Addon.ShortName, "profiles")
+    self.optionsFrame = self:RegisterBlizzardOptionsPanel(
+        AceConfigDialog:AddToBlizOptions(addonName, C.Addon.ShortName, nil, "general")
+    )
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Action Bars"], C.Addon.ShortName, C.Categories.Actionbar))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Nameplates"], C.Addon.ShortName, C.Categories.Nameplate))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Unit Frames"], C.Addon.ShortName, C.Categories.Unitframe))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.CompactPartyAura))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Help & Support"], C.Addon.ShortName, "help"))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Profiles"], C.Addon.ShortName, "profiles"))
 
     for i = 1, #C.Addon.SlashCommands do
         self:RegisterChatCommand(C.Addon.SlashCommands[i], "SlashCommand")

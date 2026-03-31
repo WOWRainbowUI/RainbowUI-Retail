@@ -122,6 +122,7 @@ L["BANNER_DESC"] = "Configuration minimaliste pour vos recharges. Sélectionnez 
 -- Chat Messages
 L["%s settings reset."] = "Paramètres de %s réinitialisés."
 L["Profile reset. Reloading UI..."] = "Profil réinitialisé. Rechargement de l'interface..."
+L["Some changes require a UI reload to be fully applied.\n\nReload the interface now?"] = "Certaines modifications nécessitent un rechargement de l'interface pour être appliquées complètement.\n\nRecharger l'interface maintenant ?"
 
 -- Status Indicators
 L["ON"] = "ON"

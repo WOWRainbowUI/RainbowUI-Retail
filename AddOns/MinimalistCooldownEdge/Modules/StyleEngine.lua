@@ -333,6 +333,7 @@ end
 function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     local fs = self:GetFrameState(cdFrame)
     fs.edgeScale = nil
+    fs.edgeColor = nil
     fs.hideNums = nil
     fs.drawSwipe = nil
     fs.edge = nil
@@ -349,6 +350,17 @@ function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     end
 
     return fs
+end
+
+local DEFAULT_EDGE_COLOR = C.Colors.White
+
+function StyleEngine:GetDesiredEdgeColor(cdFrame)
+    local fs = frameState[cdFrame]
+    if fs and fs.elvuiSupported then
+        return DEFAULT_EDGE_COLOR
+    end
+
+    return nil
 end
 
 -- =========================================================================
@@ -883,6 +895,25 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         else
             fs.edgeScale = nil
         end
+    end
+
+    if config.edgeEnabled and cdFrame.SetEdgeColor then
+        local edgeColor = self:GetDesiredEdgeColor(cdFrame)
+        if edgeColor and not IsSameSwipeColor(fs.edgeColor, edgeColor.r, edgeColor.g, edgeColor.b, edgeColor.a) then
+            fs.suppressEdgeColor = true
+            pcall(cdFrame.SetEdgeColor, cdFrame, edgeColor.r, edgeColor.g, edgeColor.b, edgeColor.a)
+            fs.suppressEdgeColor = nil
+            fs.edgeColor = {
+                r = edgeColor.r,
+                g = edgeColor.g,
+                b = edgeColor.b,
+                a = edgeColor.a,
+            }
+        elseif not edgeColor then
+            fs.edgeColor = nil
+        end
+    else
+        fs.edgeColor = nil
     end
 
     -- Swipe Color
