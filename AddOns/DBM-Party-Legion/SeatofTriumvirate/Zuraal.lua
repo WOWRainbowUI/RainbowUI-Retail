@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1979, "DBM-Party-Legion", 13, 945)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260322094133")
+mod:SetRevision("20260326003821")
 mod:SetCreatureID(124871)
 mod:SetEncounterID(2065)
 mod:SetUsedIcons(1)
@@ -28,7 +28,9 @@ if DBM:IsPostMidnight() then
 		self:DisableSpecialWarningSounds()
 		self:EnableAlertOptions(1268916, 223, "frontal", 15)
 		self:EnableAlertOptions(1263399, 225, "mobsoon", 2)
-		self:EnableAlertOptions(1263440, 226, "defensive", 2)
+		if self:IsTank() then
+			self:EnableAlertOptions(1263440, 226, "defensive", 2)
+		end
 		self:EnableAlertOptions(1263304, 238, "pullin", 12)
 
 		self:EnableTimelineOptions(1268916, 223)
