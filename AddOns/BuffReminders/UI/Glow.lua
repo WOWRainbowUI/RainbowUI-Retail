@@ -138,10 +138,10 @@ end
 -- ============================================================================
 
 BR.Glow.Types = {
-    { name = "像素" },
-    { name = "自動施放" },
-    { name = "外框" },
-    { name = "觸發" },
+    { name = "Pixel" },
+    { name = "AutoCast" },
+    { name = "Border" },
+    { name = "Proc" },
 }
 
 local GLOW_START = {

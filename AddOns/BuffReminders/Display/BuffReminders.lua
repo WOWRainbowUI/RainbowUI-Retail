@@ -525,13 +525,13 @@ local previouslyVisibleKeys = {} ---@type table<string, boolean>
 local lastMainSignature = ""
 local lastSplitSignatures = {} ---@type table<string, string>
 local CATEGORY_LABELS = {
-    raid = "團隊",
-    presence = "在場",
-    targeted = "目標",
-    self = "自身",
-    pet = "寵物",
-    consumable = "消耗品",
-    custom = "自訂",
+    raid = "Raid",
+    presence = "Presence",
+    targeted = "Targeted",
+    self = "Self",
+    pet = "Pet",
+    consumable = "Consumable",
+    custom = "Custom",
 }
 
 -- Export for Options.lua and split modules
@@ -2892,10 +2892,10 @@ local function SlashHandler(msg)
         if BR.MinimapButton then
             if BR.aceDB.global.minimap.hide then
                 BR.MinimapButton.Icon:Hide("BuffReminders")
-                print("|cff00ccff增益提醒器:|r 小地圖按鈕隱藏。")
+                print("|cff00ccffBuffReminders:|r Minimap icon hidden.")
             else
                 BR.MinimapButton.Icon:Show("BuffReminders")
-                print("|cff00ccff增益提醒器:|r 小地圖按鈕顯示。")
+                print("|cff00ccffBuffReminders:|r Minimap icon shown.")
             end
         end
         BR.Components.RefreshAll()
@@ -3764,16 +3764,16 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
         local title = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
         title:SetPoint("TOPLEFT", 16, -16)
-        title:SetText("增益提醒器")
+        title:SetText("BuffReminders")
 
         local desc = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
         desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
-        desc:SetText("一目了然地追蹤缺少的增益。")
+        desc:SetText("Track missing buffs at a glance.")
 
         local openBtn = CreateFrame("Button", nil, settingsPanel, "UIPanelButtonTemplate")
         openBtn:SetSize(150, 24)
         openBtn:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -16)
-        openBtn:SetText("開啟選項")
+        openBtn:SetText("Open Options")
         openBtn:SetScript("OnClick", function()
             BR.Options.Toggle()
             -- Close the WoW settings panel properly (HideUIPanel handles keyboard focus cleanup)
@@ -3784,7 +3784,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
         local slashInfo = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontDisable")
         slashInfo:SetPoint("TOPLEFT", openBtn, "BOTTOMLEFT", 0, -12)
-        slashInfo:SetText("可用指令: /br, /br lock, /br unlock, /br test, /br minimap")
+        slashInfo:SetText("Slash commands: /br, /br lock, /br unlock, /br test, /br minimap")
 
         local category = Settings.RegisterCanvasLayoutCategory(settingsPanel, settingsPanel.name)
         Settings.RegisterAddOnCategory(category)
@@ -3795,7 +3795,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         if LDB and LDBIcon then
             local dataObj = LDB:NewDataObject("BuffReminders", {
                 type = "launcher",
-                label = "增益提醒器",
+                label = "BuffReminders",
                 icon = "Interface\\AddOns\\BuffReminders\\icon",
                 OnClick = function(_, button)
                     if button == "LeftButton" then
@@ -3805,12 +3805,12 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     end
                 end,
                 OnTooltipShow = function(tooltip)
-                    tooltip:AddLine("增益提醒器")
-                    tooltip:AddLine("|cFFCFCFCF左鍵點擊|r: 選項")
-                    tooltip:AddLine("|cFFCFCFCF右鍵點擊|r: 測試模式")
+                    tooltip:AddLine("BuffReminders")
+                    tooltip:AddLine("|cFFCFCFCFLeft click|r: Options")
+                    tooltip:AddLine("|cFFCFCFCFRight click|r: Test mode")
                     local owner = tooltip:GetOwner()
                     if owner and owner:GetParent() == Minimap then
-                        tooltip:AddLine("|cFF808080/br minimap|r |cFF808080來切換按鈕顯示|r")
+                        tooltip:AddLine("|cFF808080/br minimap|r |cFF808080to toggle this icon|r")
                     end
                 end,
             })

@@ -539,7 +539,7 @@ function Components.Slider(parent, config)
         editBox:SetFocus()
         editBox:HighlightText()
     end)
-    SetupTooltip(valueBtn, "調整數值", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
+    SetupTooltip(valueBtn, "Adjust value", "Click to type or use mouse wheel", "ANCHOR_TOP")
 
     -- Mouse wheel support
     holder:EnableMouseWheel(true)
@@ -566,7 +566,7 @@ function Components.Slider(parent, config)
     end)
 
     -- Hover tooltip (on all interactive children, chained with existing scripts)
-    local wheelHint = "使用滑鼠滾輪進行調整"
+    local wheelHint = "Use mouse wheel to adjust"
     if config.tooltip then
         local title = config.tooltip.title
         local desc = config.tooltip.desc
@@ -999,8 +999,8 @@ function Components.DimensionLink(parent, config)
             for _, part in ipairs(allParts) do
                 part:SetColorTexture(unpack(color))
             end
-            local tipText = config.isLinked() and "取消連結寬度和高度" or "連結寬度和高度"
-            ShowTooltip(holder, tipText, "連結後，更改其中一個即可同時更新兩者。", "ANCHOR_TOP")
+            local tipText = config.isLinked() and "Unlink width and height" or "Link width and height"
+            ShowTooltip(holder, tipText, "When linked, changing one updates both.", "ANCHOR_TOP")
         end
     end)
 
@@ -1591,7 +1591,7 @@ end
 ---@return table holder Frame containing direction dropdown with .SetDirection(dir)
 function Components.DirectionButtons(parent, config)
     local directions = { "LEFT", "CENTER", "RIGHT", "UP", "DOWN" }
-    local dirLabels = { LEFT = "左", CENTER = "中", RIGHT = "右", UP = "上", DOWN = "下" }
+    local dirLabels = { LEFT = "Left", CENTER = "Center", RIGHT = "Right", UP = "Up", DOWN = "Down" }
     local width = config.width or 90
     local labelWidth = config.labelWidth or 70
 
@@ -1610,7 +1610,7 @@ function Components.DirectionButtons(parent, config)
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
-    label:SetText(config.label or "方向")
+    label:SetText(config.label or "Direction")
     holder.label = label
 
     -- Initial value
@@ -1666,63 +1666,63 @@ end
 
 ---@type ToggleDef[]
 local SCENARIO_DIFF_DEFS = {
-    { key = "delves", label = "探", tooltip = { title = "探究" } },
-    { key = "others", label = "它", tooltip = { title = "其他場景事件 (托加斯特等等)" } },
+    { key = "delves", label = "D", tooltip = { title = "Delves" } },
+    { key = "others", label = "O", tooltip = { title = "Other Scenarios (Torghast, etc.)" } },
 }
 
 ---@type ToggleDef[]
 local DUNGEON_DIFF_DEFS = {
-    { key = "normal", label = "N", tooltip = { title = "普通地下城" } },
-    { key = "heroic", label = "H", tooltip = { title = "英雄地下城" } },
-    { key = "mythic", label = "M", tooltip = { title = "傳奇地下城" } },
-    { key = "mythicPlus", label = "M+", tooltip = { title = "傳奇+鑰石" } },
-    { key = "timewalking", label = "時", tooltip = { title = "時光漫遊地下城" } },
-    { key = "follower", label = "追", tooltip = { title = "追隨者地下城" } },
+    { key = "normal", label = "N", tooltip = { title = "Normal Dungeons" } },
+    { key = "heroic", label = "H", tooltip = { title = "Heroic Dungeons" } },
+    { key = "mythic", label = "M", tooltip = { title = "Mythic Dungeons" } },
+    { key = "mythicPlus", label = "M+", tooltip = { title = "Mythic+ Keystones" } },
+    { key = "timewalking", label = "TW", tooltip = { title = "Timewalking Dungeons" } },
+    { key = "follower", label = "F", tooltip = { title = "Follower Dungeons" } },
 }
 
 ---@type ToggleDef[]
 local RAID_DIFF_DEFS = {
-    { key = "lfr", label = "L", tooltip = { title = "隨機團隊" } },
-    { key = "normal", label = "N", tooltip = { title = "普通團隊副本" } },
-    { key = "heroic", label = "H", tooltip = { title = "英雄團隊副本" } },
-    { key = "mythic", label = "M", tooltip = { title = "傳奇團隊副本" } },
+    { key = "lfr", label = "LFR", tooltip = { title = "Looking for Raid" } },
+    { key = "normal", label = "N", tooltip = { title = "Normal Raids" } },
+    { key = "heroic", label = "H", tooltip = { title = "Heroic Raids" } },
+    { key = "mythic", label = "M", tooltip = { title = "Mythic Raids" } },
 }
 
 ---@type ToggleDef[]
 local PVP_TYPE_DEFS = {
-    { key = "arena", label = "競", tooltip = { title = "競技場" } },
-    { key = "bg", label = "戰", tooltip = { title = "戰場" } },
+    { key = "arena", label = "A", tooltip = { title = "Arena" } },
+    { key = "bg", label = "B", tooltip = { title = "Battlegrounds" } },
 }
 
 ---@type ToggleDef[]
 local CONTENT_TOGGLE_DEFS = {
-    { key = "openWorld", label = "世",tooltip = { title = "開放世界" } },
-    { key = "housing", label = "家", tooltip = { title = "住家" } },
+    { key = "openWorld", label = "W", tooltip = { title = "Open World" } },
+    { key = "housing", label = "H", tooltip = { title = "Housing" } },
     {
         key = "scenario",
-        label = "場",
-        tooltip = { title = "場景事件 (探究、托加斯特等等)" },
+        label = "S",
+        tooltip = { title = "Scenarios (Delves, Torghast, etc.)" },
         diffDbKey = "scenarioDifficulty",
         diffDefs = SCENARIO_DIFF_DEFS,
     },
     {
         key = "dungeon",
-        label = "地",
-        tooltip = { title = "地下城 (包含M+)" },
+        label = "D",
+        tooltip = { title = "Dungeons (including M+)" },
         diffDbKey = "dungeonDifficulty",
         diffDefs = DUNGEON_DIFF_DEFS,
     },
     {
         key = "raid",
-        label = "團",
-        tooltip = { title = "團隊副本" },
+        label = "R",
+        tooltip = { title = "Raids" },
         diffDbKey = "raidDifficulty",
         diffDefs = RAID_DIFF_DEFS,
     },
     {
         key = "pvp",
         label = "P",
-        tooltip = { title = "PvP (競技場與戰場)" },
+        tooltip = { title = "PvP (Arena & Battlegrounds)" },
         diffDbKey = "pvpType",
         diffDefs = PVP_TYPE_DEFS,
     },
@@ -1849,7 +1849,7 @@ local function CreateSegmentedBar(parent, barConfig)
         end)
 
         local tipTitle = toggle.tooltip.title
-        SetupTooltip(btn, tipTitle, "點擊切換可見性在 " .. tipTitle:lower(), "ANCHOR_TOP")
+        SetupTooltip(btn, tipTitle, "Click to toggle visibility in " .. tipTitle:lower(), "ANCHOR_TOP")
 
         if i < #toggleDefs then
             local divider = container:CreateTexture(nil, "ARTWORK")
@@ -1991,7 +1991,7 @@ function Components.VisibilityToggles(parent, config)
     -- Content label (LEFT anchor centers vertically in holder)
     local contentLabel = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     contentLabel:SetPoint("LEFT", 0, 0)
-    contentLabel:SetText("顯示在：")
+    contentLabel:SetText("Show in:")
 
     -- Content bar
     local contentBar, contentButtons = CreateSegmentedBar(holder, {
@@ -2142,7 +2142,7 @@ function Components.VisibilityToggles(parent, config)
         SetupTooltip(
             btn,
             toggle.tooltip.title,
-            "點擊來根據 " .. toggle.tooltip.title:lower() .. " 難度過濾",
+            "Click to filter by " .. toggle.tooltip.title:lower() .. " difficulty",
             "ANCHOR_TOP"
         )
     end
@@ -2605,7 +2605,7 @@ function Components.NumericStepper(parent, config)
         editBox:SetFocus()
         editBox:HighlightText()
     end)
-    SetupTooltip(valueBtn, "調整數值", "點選輸入或使用滑鼠滾輪", "ANCHOR_TOP")
+    SetupTooltip(valueBtn, "Adjust value", "Click to type or use mouse wheel", "ANCHOR_TOP")
 
     -- Hover effects (skip if button is at its limit)
     local function IsBtnAtLimit(btn)
@@ -3127,7 +3127,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 1: Width [link] Height
     widthHolder = Components.Slider(frame, {
-        label = "寬度",
+        label = "Width",
         min = 16,
         max = 128,
         labelWidth = LW,
@@ -3158,7 +3158,7 @@ function Components.AppearanceGrid(parent, config)
     linkBtn:SetPoint("TOPLEFT", LINK_X, 0)
 
     heightHolder = Components.Slider(frame, {
-        label = "高度",
+        label = "Height",
         min = 16,
         max = 128,
         labelWidth = LW,
@@ -3177,7 +3177,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 2: Zoom, Border
     local zoomHolder = Components.Slider(frame, {
-        label = "縮放",
+        label = "Zoom",
         min = 0,
         max = 15,
         labelWidth = LW,
@@ -3193,7 +3193,7 @@ function Components.AppearanceGrid(parent, config)
     zoomHolder:SetPoint("TOPLEFT", 0, -ROW_H)
 
     local borderHolder = Components.Slider(frame, {
-        label = "邊框",
+        label = "Border",
         min = 0,
         max = 8,
         labelWidth = LW,
@@ -3210,7 +3210,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 3: Spacing, Alpha
     local spacingHolder = Components.Slider(frame, {
-        label = "間距",
+        label = "Spacing",
         min = 0,
         max = 50,
         labelWidth = LW,
@@ -3226,7 +3226,7 @@ function Components.AppearanceGrid(parent, config)
     spacingHolder:SetPoint("TOPLEFT", 0, -ROW_H * 2)
 
     local alphaHolder = Components.Slider(frame, {
-        label = "透明度",
+        label = "Alpha",
         min = 10,
         max = 100,
         labelWidth = LW,
@@ -3243,7 +3243,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 4: Text size stepper + color swatch
     local textSizeHolder = Components.NumericStepper(frame, {
-        label = "文字",
+        label = "Text",
         labelWidth = LW,
         min = 6,
         max = 32,
@@ -3281,7 +3281,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 5: Text offset X / Y
     local textOffsetXHolder = Components.Slider(frame, {
-        label = "水平文字",
+        label = "Text X",
         labelWidth = LW,
         min = -20,
         max = 20,
@@ -3296,7 +3296,7 @@ function Components.AppearanceGrid(parent, config)
     textOffsetXHolder:SetPoint("TOPLEFT", 0, -ROW_H * 4)
 
     local textOffsetYHolder = Components.Slider(frame, {
-        label = "垂直文字",
+        label = "Text Y",
         labelWidth = LW,
         min = -20,
         max = 20,

@@ -9,6 +9,14 @@
 ## OptionalDeps: Masque, LibCustomGlow-1.0
 ## IconTexture: Interface\AddOns\BuffReminders\icon.tga
 ## Category: Buffs & Debuffs
+## Category-deDE: Buffs & Debuffs
+## Category-esES: Beneficios y Perjuicios
+## Category-esMX: Beneficios y Perjuicios
+## Category-frFR: Améliorations et Affaiblissements
+## Category-itIT: Benefici e penalità
+## Category-koKR: 버프 및 디버프
+## Category-ptBR: Bônus e Penalidades
+## Category-ruRU: Баффы и дебаффы
 ## Category-zhCN: 增益和减益
 ## Category-zhTW: 增益與減益
 

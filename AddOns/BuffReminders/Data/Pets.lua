@@ -42,11 +42,11 @@ local SUMMON_DEMON_FLYOUT = 10
 
 -- Warlock summon spell ID → short pet name (fallback: full spell name)
 local WARLOCK_PET_NAMES = {
-    [688] = "小鬼",
-    [697] = "虛無行者",
-    [691] = "惡魔獵手",
-    [366222] = "薩亞德",
-    [30146] = "惡魔守衛",
+    [688] = "Imp",
+    [697] = "Voidwalker",
+    [691] = "Felhunter",
+    [366222] = "Sayaad",
+    [30146] = "Felguard",
 }
 
 ---Build hunter pet actions from stable info
@@ -143,8 +143,8 @@ end
 
 -- Single-action pet spell ID → short pet name (fallback: full spell name)
 local SINGLE_PET_NAMES = {
-    [46584] = "食屍鬼", -- Raise Dead (DK)
-    [31687] = "水元素", -- Summon Water Elemental (Mage)
+    [46584] = "Ghoul", -- Raise Dead (DK)
+    [31687] = "Water Elemental", -- Summon Water Elemental (Mage)
 }
 
 ---Build a single-action list for a given spell
@@ -187,7 +187,7 @@ local function BuildFelguardAction()
             spellID = spellID,
             spellName = info.name,
             icon = info.iconID,
-            label = "惡魔守衛",
+            label = "Felguard",
             sortOrder = 1,
         },
     }

@@ -301,8 +301,8 @@ end
 BR.BUFF_TABLES = {
     ---@type RaidBuff[]
     raid = {
-        { spellID = { 1459, 432778 }, key = "intellect", name = "祕法智力", class = "MAGE", levelRequired = 8 }, -- 432778 = NPC version
-        { spellID = 6673, key = "attackPower", name = "戰鬥怒吼", class = "WARRIOR", levelRequired = 10 },
+        { spellID = { 1459, 432778 }, key = "intellect", name = "Arcane Intellect", class = "MAGE", levelRequired = 8 }, -- 432778 = NPC version
+        { spellID = 6673, key = "attackPower", name = "Battle Shout", class = "WARRIOR", levelRequired = 10 },
         {
             spellID = {
                 381732,
@@ -321,47 +321,47 @@ BR.BUFF_TABLES = {
             },
             castSpellID = 364342,
             key = "bronze",
-            name = "青銅龍的祝福",
+            name = "Blessing of the Bronze",
             class = "EVOKER",
             levelRequired = 30,
         },
         {
             spellID = { 1126, 432661 },
             key = "versatility",
-            name = "野性印記",
+            name = "Mark of the Wild",
             class = "DRUID",
             levelRequired = 10,
         }, -- 432661 = NPC version
-        { spellID = 21562, key = "stamina", name = "真言術：韌", class = "PRIEST", levelRequired = 10 },
-        { spellID = 462854, key = "skyfury", name = "天怒", class = "SHAMAN", levelRequired = 16 },
+        { spellID = 21562, key = "stamina", name = "Power Word: Fortitude", class = "PRIEST", levelRequired = 10 },
+        { spellID = 462854, key = "skyfury", name = "Skyfury", class = "SHAMAN", levelRequired = 16 },
     },
     ---@type PresenceBuff[]
     presence = {
         {
             spellID = { 381637, 5761 },
             key = "atrophicNumbingPoison",
-            name = "萎縮/麻痺毒藥",
+            name = "Atrophic/Numbing Poison",
             class = "ROGUE",
             levelRequired = 80,
-            overlayText = "沒有\n盜賊\n毒藥",
+            overlayText = "NO\nDR\nPOISON",
             groupOnly = true, -- self-buff "roguePoisons" already covers solo
             suppressedByEntry = "roguePoisons", -- hide when self poison icon is already showing
         },
         {
             spellID = 465,
             key = "devotionAura",
-            name = "虔誠光環",
+            name = "Devotion Aura",
             class = "PALADIN",
             levelRequired = 10,
-            missingText = "沒有\n光環",
+            overlayText = "NO\nAURA",
         },
         {
             spellID = 20707,
             key = "soulstone",
-            name = "靈魂石",
+            name = "Soulstone",
             class = "WARLOCK",
             levelRequired = 13,
-            missingText = "沒有\n魂石",
+            overlayText = "NO\nSTONE",
             readyCheckOnly = true,
             castOnOthers = true,
             noExpirationGlow = true,
@@ -403,9 +403,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 156910,
             key = "beaconOfFaith",
-            name = "虔信信標",
+            name = "Beacon of Faith",
             class = "PALADIN",
-            missingText = "沒有\n信標",
+            overlayText = "NO\nFAITH",
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
             glowDetectable = true,
@@ -414,9 +414,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 53563,
             key = "beaconOfLight",
-            name = "聖光信標",
+            name = "Beacon of Light",
             class = "PALADIN",
-            missingText = "沒有\n聖光",
+            overlayText = "NO\nLIGHT",
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
             glowDetectable = true,
@@ -427,31 +427,31 @@ BR.BUFF_TABLES = {
         {
             spellID = 974,
             key = "earthShieldOthers",
-            name = "大地之盾",
+            name = "Earth Shield",
             class = "SHAMAN",
-            missingText = "沒有\n大地盾",
+            overlayText = "NO\nES",
             infoTooltip = {
-                title = "可能顯示額外圖示",
-                desc = "可能會顯示額外的圖示|在你施放這個之前，你可能會看到這個和水/閃電之盾提醒。我不知道你是想要自己的大地之盾，還是盟友的大地之盾+自己的水/閃電之盾。",
+                title = "May Show Extra Icon",
+                desc = "Until you cast this, you might see both this and the Water/Lightning Shield reminder. I can't tell if you want Earth Shield on yourself, or Earth Shield on an ally + Water/Lightning Shield on yourself.",
             },
             clickMacro = TargetedClickMacro("earthShieldOthers"),
         },
         {
             spellID = 369459,
             key = "sourceOfMagic",
-            name = "魔力之源",
+            name = "Source of Magic",
             class = "EVOKER",
             beneficiaryRole = "HEALER",
-            missingText = "沒有\n魔源",
+            overlayText = "NO\nSOURCE",
             clickMacro = TargetedClickMacro("sourceOfMagic"),
         },
         {
             spellID = 360827,
             key = "blisteringScales",
-            name = "極熾鱗片",
+            name = "Blistering Scales",
             class = "EVOKER",
             beneficiaryRole = "TANK",
-            missingText = "沒有\n鱗片",
+            overlayText = "NO\nSCALES",
             requireSpecId = 1473, -- Augmentation
             requiresSpellID = 360827,
             clickMacro = TargetedClickMacro("blisteringScales"),
@@ -460,9 +460,9 @@ BR.BUFF_TABLES = {
             spellID = 474750,
             casterBuffId = 474754, -- Check this combat-whitelisted buff on the caster instead of scanning group
             key = "symbioticRelationship",
-            name = "共生關係",
+            name = "Symbiotic Relationship",
             class = "DRUID",
-            missingText = "沒有\n共生",
+            overlayText = "NO\nLINK",
             clickMacro = TargetedClickMacro("symbioticRelationship"),
         },
     },
@@ -472,9 +472,9 @@ BR.BUFF_TABLES = {
         {
             spellID = { 403264, 403265 },
             key = "evokerAttunement",
-            name = "同調",
+            name = "Attunement",
             class = "EVOKER",
-            overlayText = "沒有\n同調",
+            overlayText = "NO\nATTUNE",
             requireSpecId = 1473, -- Augmentation
             requiresSpellID = 403208, -- Attunements talent
         },
@@ -484,18 +484,18 @@ BR.BUFF_TABLES = {
             buffIdOverride = 210126,
             castSpellID = 1459,
             key = "arcaneFamiliar",
-            name = "秘法魔寵",
+            name = "Arcane Familiar",
             class = "MAGE",
-            overlayText = "沒有\n魔寵",
+            overlayText = "NO\nFAMILIAR",
         },
         -- Soulwell reminder (warlock only, instance entry only)
         {
             spellID = 29893, -- Create Soulwell (used for icon resolution)
             castSpellID = 29893, -- Click-to-cast: Create Soulwell
             key = "soulwell",
-            name = "製造靈魂之井",
+            name = "Create Soulwell",
             class = "WARLOCK",
-            overlayText = "置放\n靈魂井",
+            overlayText = "DROP\nWELL",
             showOnInstanceEntry = true, -- Only shows on instance entry
             infoTooltip = {
                 title = "Instance Entry Reminder",
@@ -518,9 +518,9 @@ BR.BUFF_TABLES = {
             spellID = 108503,
             buffIdOverride = 196099,
             key = "grimoireOfSacrifice",
-            name = "犧牲魔典",
+            name = "Grimoire of Sacrifice",
             class = "WARLOCK",
-            missingText = "沒有\n魔典",
+            overlayText = "NO\nGRIM",
         },
         -- Paladin weapon rites (alphabetical: Adjuration, Sanctification)
         -- NOTE: Due to a Blizzard bug, when changing talents the buff drops but enchant remains.
@@ -528,9 +528,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 433583,
             key = "riteOfAdjuration",
-            name = "裁決儀式",
+            name = "Rite of Adjuration",
             class = "PALADIN",
-            missingText = "沒有\n儀式",
+            overlayText = "NO\nRITE",
             enchantID = 7144,
             buffIdOverride = 433584, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
@@ -542,9 +542,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 433568,
             key = "riteOfSanctification",
-            name = "聖化儀式",
+            name = "Rite of Sanctification",
             class = "PALADIN",
-            missingText = "沒有\n儀式",
+            overlayText = "NO\nRITE",
             enchantID = 7143,
             buffIdOverride = 433550, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
@@ -560,9 +560,9 @@ BR.BUFF_TABLES = {
             displayIcon = 136242, -- Deadly Poison
             castSpellID = 315584, -- Instant Poison (baseline, ensures click-to-cast overlay is created)
             key = "roguePoisons",
-            name = "盜賊毒藥",
+            name = "Rogue Poisons",
             class = "ROGUE",
-            overlayText = "上\n毒藥",
+            overlayText = "APPLY\nPOISON",
             customCheck = function()
                 RefreshPoisonCache()
                 -- Don't show if the player hasn't learned any poisons yet (e.g. low-level rogue)
@@ -590,9 +590,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 232698,
             key = "shadowform",
-            name = "暗影形態",
+            name = "Shadowform",
             class = "PRIEST",
-            missingText = "沒有\n型態",
+            overlayText = "NO\nFORM",
             buffIdOverride = { 232698, 194249 },
             noExpirationGlow = true, -- Voidform (short duration) replaces Shadowform; don't warn
         },
@@ -600,27 +600,27 @@ BR.BUFF_TABLES = {
         {
             spellID = 382021,
             key = "earthlivingWeapon",
-            name = "大地生命武器",
+            name = "Earthliving Weapon",
             class = "SHAMAN",
-            missingText = "沒有\n大地生命",
+            overlayText = "NO\nEL",
             enchantID = 6498,
             groupId = "shamanImbues",
         },
         {
             spellID = 318038,
             key = "flametongueWeapon",
-            name = "火舌武器",
+            name = "Flametongue Weapon",
             class = "SHAMAN",
-            missingText = "沒有\n火舌",
+            overlayText = "NO\nFT",
             enchantID = 5400,
             groupId = "shamanImbues",
         },
         {
             spellID = 457481,
             key = "tidecallersGuard",
-            name = "喚潮者之禦",
+            name = "Tidecaller's Guard",
             class = "SHAMAN",
-            overlayText = "沒有\n喚潮者",
+            overlayText = "NO\nTG",
             enchantID = 7528,
             requireSpecId = 264, -- Restoration
             groupId = "shamanImbues",
@@ -638,9 +638,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 33757,
             key = "windfuryWeapon",
-            name = "風怒武器",
+            name = "Windfury Weapon",
             class = "SHAMAN",
-            missingText = "沒有\n風怒",
+            overlayText = "NO\nWF",
             enchantID = 5401,
             groupId = "shamanImbues",
         },
@@ -656,9 +656,9 @@ BR.BUFF_TABLES = {
             spellID = 974, -- Earth Shield spell (for icon and spell check)
             buffIdOverride = 383648, -- The passive buff to check for
             key = "earthShieldSelfEO",
-            name = "大地之盾 (自身)",
+            name = "Earth Shield (Self)",
             class = "SHAMAN",
-            missingText = "沒有\n自身地盾",
+            overlayText = "NO\nSELF ES",
             requiresSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 974, -- Earth Shield icon for group checkbox
@@ -667,9 +667,9 @@ BR.BUFF_TABLES = {
         {
             spellID = { 192106, 52127 },
             key = "waterLightningShieldEO",
-            name = "水/閃電之盾",
+            name = "Water/Lightning Shield",
             class = "SHAMAN",
-            missingText = "沒有\n盾",
+            overlayText = "NO\nSHIELD",
             requiresSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 192106, -- Lightning Shield icon for group checkbox
@@ -679,9 +679,9 @@ BR.BUFF_TABLES = {
         {
             spellID = { 974, 192106, 52127 },
             key = "shamanShieldBasic",
-            name = "盾 (無天賦)",
+            name = "Shield (No Talent)",
             class = "SHAMAN",
-            missingText = "沒有\n盾",
+            overlayText = "NO\nSHIELD",
             excludeSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 52127, -- Water Shield icon for group checkbox
@@ -694,9 +694,9 @@ BR.BUFF_TABLES = {
         {
             displayIcon = 135862, -- Summon Water Elemental
             key = "frostMagePet",
-            name = "水元素",
+            name = "Water Elemental",
             class = "MAGE",
-            missingText = "沒有\n寵物",
+            overlayText = "NO\nPET",
             requireSpecId = 64, -- Frost
             requiresSpellID = 31687,
             groupId = "pets",
@@ -706,9 +706,9 @@ BR.BUFF_TABLES = {
         },
         {
             key = "hunterPet",
-            name = "獵人寵物",
+            name = "Hunter Pet",
             class = "HUNTER",
-            missingText = "沒有\n寵物",
+            overlayText = "NO\nPET",
             displayIcon = 132161,
             groupId = "pets",
             customCheck = function()
@@ -721,18 +721,18 @@ BR.BUFF_TABLES = {
         },
         {
             key = "petPassive",
-            name = "寵物被動",
+            name = "Pet Passive",
             -- No class: applies to any class with a pet
-            missingText = "被動\n寵物",
+            overlayText = "PASSIVE\nPET",
             displayIcon = 132311,
             customCheck = IsPetOnPassive,
         },
         {
             displayIcon = 1100170, -- Raise Dead
             key = "unholyPet",
-            name = "穢邪食屍鬼",
+            name = "Unholy Ghoul",
             class = "DEATHKNIGHT",
-            missingText = "沒有\n寵物",
+            overlayText = "NO\nPET",
             requireSpecId = 252, -- Unholy
             groupId = "pets",
             customCheck = function()
@@ -741,9 +741,9 @@ BR.BUFF_TABLES = {
         },
         {
             key = "warlockWrongPet",
-            name = "錯誤的惡魔",
+            name = "Wrong Demon",
             class = "WARLOCK",
-            missingText = "錯誤\n寵物",
+            overlayText = "WRONG\nPET",
             displayIcon = 136216, -- Felguard icon
             excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
             requireSpecId = 266, -- Demonology only
@@ -761,9 +761,9 @@ BR.BUFF_TABLES = {
         },
         {
             key = "warlockPet",
-            name = "術士惡魔",
+            name = "Warlock Demon",
             class = "WARLOCK",
-            missingText = "沒有\n寵物",
+            overlayText = "NO\nPET",
             displayIcon = 136082, -- Summon Demon flyout icon
             excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
             groupId = "pets",
@@ -790,8 +790,8 @@ BR.BUFF_TABLES = {
             },
             displaySpells = { 1264426, 1234969 }, -- Void-Touched (Midnight), Ethereal (TWW permanent)
             key = "rune",
-            name = "符文",
-            overlayText = "沒有\n符文",
+            name = "Rune",
+            overlayText = "NO\nRUNE",
             permanentRuneItemIDs = { 243191, 259085 }, -- Ethereal (TWW), Void-Touched (Midnight)
             groupId = "rune",
             consumableCategory = "rune",
@@ -823,8 +823,8 @@ BR.BUFF_TABLES = {
                 1239355, -- Vicious Thalassian Flask of Honor
             },
             key = "flask",
-            name = "精鍊",
-            missingText = "沒有\n精鍊",
+            name = "Flask",
+            overlayText = "NO\nFLASK",
             groupId = "flask",
             consumableCategory = "flask",
             disabledInCompetitivePvP = true,
@@ -833,8 +833,8 @@ BR.BUFF_TABLES = {
         {
             buffIconID = 136000, -- All food buffs use this icon
             key = "food",
-            name = "食物",
-            missingText = "沒有\n食物",
+            name = "Food",
+            overlayText = "NO\nFOOD",
             groupId = "food",
             consumableCategory = "food",
             displayIcon = 136000,
@@ -845,13 +845,13 @@ BR.BUFF_TABLES = {
         {
             spellID = 442522,
             key = "delveFood",
-            name = "探究食物",
-            missingText = "沒有\n食物",
+            name = "Delve Food",
+            overlayText = "NO\nFOOD",
             groupId = "delveFood",
             noExpirationGlow = true, -- 10-min duration makes standard thresholds meaningless
             infoTooltip = {
-                title = "只限探究",
-                desc = "只限探究|只有當布萊恩或瓦莉拉在你的隊伍中時才會在探索內顯示。\n\n此增益效果的過期發光被禁用，因為其短暫的10分鐘持續時間會導致它始終發光。",
+                title = "Delves Only",
+                desc = "Only shown inside delves when Brann or Valeera are in your party.\n\nExpiration glow is disabled for this buff because its short 10-minute duration would cause it to always glow.",
             },
             visibilityCondition = BR.IsInDelve,
             disabledInCompetitivePvP = true,
@@ -861,9 +861,9 @@ BR.BUFF_TABLES = {
             itemID = { 5512, 224464 }, -- Healthstone, Demonic Healthstone
             castSpellID = 29893, -- Create Soulwell
             key = "healthstone",
-            name = "治療石",
+            name = "Healthstone",
             casterClass = "WARLOCK",
-            overlayText = "沒有\n治療石",
+            overlayText = "NO\nSTONE",
             groupId = "healthstone",
             displayIcon = 538745, -- Healthstone icon
             freeConsumable = true,
@@ -877,8 +877,8 @@ BR.BUFF_TABLES = {
         {
             checkWeaponEnchant = true, -- Check if any weapon enchant exists
             key = "weaponBuff",
-            name = "武器",
-            missingText = "沒有\n武器\n增益",
+            name = "Weapon",
+            overlayText = "NO\nWEAPON\nBUFF",
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
             consumableCategory = "weapon",
@@ -897,8 +897,8 @@ BR.BUFF_TABLES = {
         {
             checkWeaponEnchantOH = true,
             key = "weaponBuffOH",
-            name = "武器(副手)",
-            missingText = "沒有\n武器\n增益",
+            name = "Weapon (OH)",
+            overlayText = "NO\nWEAPON\nBUFF",
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
             consumableCategory = "weapon",
@@ -930,18 +930,18 @@ BR.BUFF_KEY_TO_CATEGORY = buffKeyToCategory
 
 ---@type table<string, BuffGroup>
 BR.BuffGroups = {
-    beacons = { displayName = "信標" },
-    shamanImbues = { displayName = "薩滿灌魔" },
-    paladinRites = { displayName = "聖騎士儀式" },
-    pets = { displayName = "寵物" },
-    shamanShields = { displayName = "薩滿盾" },
+    beacons = { displayName = "Beacons" },
+    shamanImbues = { displayName = "Shaman Imbues" },
+    paladinRites = { displayName = "Paladin Rites" },
+    pets = { displayName = "Pets" },
+    shamanShields = { displayName = "Shaman Shields" },
     -- Consumable groups
-    flask = { displayName = "精鍊" },
-    food = { displayName = "食物" },
-    delveFood = { displayName = "探究食物" },
-    healthstone = { displayName = "治療石" },
-    rune = { displayName = "增強符文" },
-    weaponBuff = { displayName = "武器增益" },
+    flask = { displayName = "Flask" },
+    food = { displayName = "Food" },
+    delveFood = { displayName = "Delve Food" },
+    healthstone = { displayName = "Healthstone" },
+    rune = { displayName = "Augment Rune" },
+    weaponBuff = { displayName = "Weapon Buff" },
 }
 
 -- Classes that benefit from each buff
