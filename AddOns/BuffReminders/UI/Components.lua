@@ -38,6 +38,7 @@ local floor, max, min = math.floor, math.max, math.min
 local rad = math.rad
 local tinsert = table.insert
 
+local L = BR.L
 local Components = BR.Components
 local RefreshableComponents = BR.RefreshableComponents
 
@@ -539,7 +540,7 @@ function Components.Slider(parent, config)
         editBox:SetFocus()
         editBox:HighlightText()
     end)
-    SetupTooltip(valueBtn, "Adjust value", "Click to type or use mouse wheel", "ANCHOR_TOP")
+    SetupTooltip(valueBtn, L["Component.AdjustValue"], L["Component.AdjustValue.Desc"], "ANCHOR_TOP")
 
     -- Mouse wheel support
     holder:EnableMouseWheel(true)
@@ -1591,7 +1592,13 @@ end
 ---@return table holder Frame containing direction dropdown with .SetDirection(dir)
 function Components.DirectionButtons(parent, config)
     local directions = { "LEFT", "CENTER", "RIGHT", "UP", "DOWN" }
-    local dirLabels = { LEFT = "Left", CENTER = "Center", RIGHT = "Right", UP = "Up", DOWN = "Down" }
+    local dirLabels = {
+        LEFT = L["Direction.Left"],
+        CENTER = L["Direction.Center"],
+        RIGHT = L["Direction.Right"],
+        UP = L["Direction.Up"],
+        DOWN = L["Direction.Down"],
+    }
     local width = config.width or 90
     local labelWidth = config.labelWidth or 70
 
@@ -1610,7 +1617,7 @@ function Components.DirectionButtons(parent, config)
     label:SetPoint("LEFT", 0, 0)
     label:SetWidth(labelWidth)
     label:SetJustifyH("LEFT")
-    label:SetText(config.label or "Direction")
+    label:SetText(config.label or L["Direction.Label"])
     holder.label = label
 
     -- Initial value
@@ -1666,63 +1673,63 @@ end
 
 ---@type ToggleDef[]
 local SCENARIO_DIFF_DEFS = {
-    { key = "delves", label = "D", tooltip = { title = "Delves" } },
-    { key = "others", label = "O", tooltip = { title = "Other Scenarios (Torghast, etc.)" } },
+    { key = "delves", label = "D", tooltip = { title = L["Content.Delves"] } },
+    { key = "others", label = "O", tooltip = { title = L["Content.OtherScenarios"] } },
 }
 
 ---@type ToggleDef[]
 local DUNGEON_DIFF_DEFS = {
-    { key = "normal", label = "N", tooltip = { title = "Normal Dungeons" } },
-    { key = "heroic", label = "H", tooltip = { title = "Heroic Dungeons" } },
-    { key = "mythic", label = "M", tooltip = { title = "Mythic Dungeons" } },
-    { key = "mythicPlus", label = "M+", tooltip = { title = "Mythic+ Keystones" } },
-    { key = "timewalking", label = "TW", tooltip = { title = "Timewalking Dungeons" } },
-    { key = "follower", label = "F", tooltip = { title = "Follower Dungeons" } },
+    { key = "normal", label = "N", tooltip = { title = L["Content.NormalDungeons"] } },
+    { key = "heroic", label = "H", tooltip = { title = L["Content.HeroicDungeons"] } },
+    { key = "mythic", label = "M", tooltip = { title = L["Content.MythicDungeons"] } },
+    { key = "mythicPlus", label = "M+", tooltip = { title = L["Content.MythicPlus"] } },
+    { key = "timewalking", label = "TW", tooltip = { title = L["Content.TimewalkingDungeons"] } },
+    { key = "follower", label = "F", tooltip = { title = L["Content.FollowerDungeons"] } },
 }
 
 ---@type ToggleDef[]
 local RAID_DIFF_DEFS = {
-    { key = "lfr", label = "LFR", tooltip = { title = "Looking for Raid" } },
-    { key = "normal", label = "N", tooltip = { title = "Normal Raids" } },
-    { key = "heroic", label = "H", tooltip = { title = "Heroic Raids" } },
-    { key = "mythic", label = "M", tooltip = { title = "Mythic Raids" } },
+    { key = "lfr", label = "LFR", tooltip = { title = L["Content.LFR"] } },
+    { key = "normal", label = "N", tooltip = { title = L["Content.NormalRaids"] } },
+    { key = "heroic", label = "H", tooltip = { title = L["Content.HeroicRaids"] } },
+    { key = "mythic", label = "M", tooltip = { title = L["Content.MythicRaids"] } },
 }
 
 ---@type ToggleDef[]
 local PVP_TYPE_DEFS = {
-    { key = "arena", label = "A", tooltip = { title = "Arena" } },
-    { key = "bg", label = "B", tooltip = { title = "Battlegrounds" } },
+    { key = "arena", label = "A", tooltip = { title = L["Content.Arena"] } },
+    { key = "bg", label = "B", tooltip = { title = L["Content.Battlegrounds"] } },
 }
 
 ---@type ToggleDef[]
 local CONTENT_TOGGLE_DEFS = {
-    { key = "openWorld", label = "W", tooltip = { title = "Open World" } },
-    { key = "housing", label = "H", tooltip = { title = "Housing" } },
+    { key = "openWorld", label = "W", tooltip = { title = L["Content.OpenWorld"] } },
+    { key = "housing", label = "H", tooltip = { title = L["Content.Housing"] } },
     {
         key = "scenario",
         label = "S",
-        tooltip = { title = "Scenarios (Delves, Torghast, etc.)" },
+        tooltip = { title = L["Content.Scenarios"] },
         diffDbKey = "scenarioDifficulty",
         diffDefs = SCENARIO_DIFF_DEFS,
     },
     {
         key = "dungeon",
         label = "D",
-        tooltip = { title = "Dungeons (including M+)" },
+        tooltip = { title = L["Content.Dungeons"] },
         diffDbKey = "dungeonDifficulty",
         diffDefs = DUNGEON_DIFF_DEFS,
     },
     {
         key = "raid",
         label = "R",
-        tooltip = { title = "Raids" },
+        tooltip = { title = L["Content.Raids"] },
         diffDbKey = "raidDifficulty",
         diffDefs = RAID_DIFF_DEFS,
     },
     {
         key = "pvp",
         label = "P",
-        tooltip = { title = "PvP (Arena & Battlegrounds)" },
+        tooltip = { title = L["Content.PvP"] },
         diffDbKey = "pvpType",
         diffDefs = PVP_TYPE_DEFS,
     },
@@ -1991,7 +1998,7 @@ function Components.VisibilityToggles(parent, config)
     -- Content label (LEFT anchor centers vertically in holder)
     local contentLabel = holder:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     contentLabel:SetPoint("LEFT", 0, 0)
-    contentLabel:SetText("Show in:")
+    contentLabel:SetText(L["Content.ShowIn"])
 
     -- Content bar
     local contentBar, contentButtons = CreateSegmentedBar(holder, {
@@ -2605,7 +2612,7 @@ function Components.NumericStepper(parent, config)
         editBox:SetFocus()
         editBox:HighlightText()
     end)
-    SetupTooltip(valueBtn, "Adjust value", "Click to type or use mouse wheel", "ANCHOR_TOP")
+    SetupTooltip(valueBtn, L["Component.AdjustValue"], L["Component.AdjustValue.Desc"], "ANCHOR_TOP")
 
     -- Hover effects (skip if button is at its limit)
     local function IsBtnAtLimit(btn)

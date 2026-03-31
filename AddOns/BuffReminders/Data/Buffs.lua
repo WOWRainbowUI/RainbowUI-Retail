@@ -1,5 +1,7 @@
 local _, BR = ...
 
+local L = BR.L
+
 -- Lua stdlib locals
 local min = math.min
 
@@ -102,6 +104,7 @@ local min = math.min
 ---@field consumableCategory? string Category key in BR.CONSUMABLE_ITEMS for bag scanning (only set when items exist)
 ---@field freeConsumable? boolean Bypass content gates (always show when enabled)
 ---@field permanentRuneItemIDs? number[] Item IDs that, if in bags, make this a free consumable (bypass content gates)
+---@field showOnInstanceEntry? boolean Only show briefly when entering an instance
 ---@field disabledInCompetitivePvP? boolean Unusable in arenas and rated BGs
 
 ---@class BuffGroup
@@ -343,7 +346,7 @@ BR.BUFF_TABLES = {
             name = "Atrophic/Numbing Poison",
             class = "ROGUE",
             levelRequired = 80,
-            overlayText = "NO\nDR\nPOISON",
+            overlayText = L["Overlay.NoDrPoison"],
             groupOnly = true, -- self-buff "roguePoisons" already covers solo
             suppressedByEntry = "roguePoisons", -- hide when self poison icon is already showing
         },
@@ -353,7 +356,7 @@ BR.BUFF_TABLES = {
             name = "Devotion Aura",
             class = "PALADIN",
             levelRequired = 10,
-            overlayText = "NO\nAURA",
+            overlayText = L["Overlay.NoAura"],
         },
         {
             spellID = 20707,
@@ -361,7 +364,7 @@ BR.BUFF_TABLES = {
             name = "Soulstone",
             class = "WARLOCK",
             levelRequired = 13,
-            overlayText = "NO\nSTONE",
+            overlayText = L["Overlay.NoStone"],
             readyCheckOnly = true,
             castOnOthers = true,
             noExpirationGlow = true,
@@ -405,7 +408,7 @@ BR.BUFF_TABLES = {
             key = "beaconOfFaith",
             name = "Beacon of Faith",
             class = "PALADIN",
-            overlayText = "NO\nFAITH",
+            overlayText = L["Overlay.NoFaith"],
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
             glowDetectable = true,
@@ -416,7 +419,7 @@ BR.BUFF_TABLES = {
             key = "beaconOfLight",
             name = "Beacon of Light",
             class = "PALADIN",
-            overlayText = "NO\nLIGHT",
+            overlayText = L["Overlay.NoLight"],
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
             glowDetectable = true,
@@ -429,10 +432,10 @@ BR.BUFF_TABLES = {
             key = "earthShieldOthers",
             name = "Earth Shield",
             class = "SHAMAN",
-            overlayText = "NO\nES",
+            overlayText = L["Overlay.NoES"],
             infoTooltip = {
-                title = "May Show Extra Icon",
-                desc = "Until you cast this, you might see both this and the Water/Lightning Shield reminder. I can't tell if you want Earth Shield on yourself, or Earth Shield on an ally + Water/Lightning Shield on yourself.",
+                title = L["Tooltip.MayShowExtraIcon"],
+                desc = L["Tooltip.MayShowExtraIcon.Desc"],
             },
             clickMacro = TargetedClickMacro("earthShieldOthers"),
         },
@@ -442,7 +445,7 @@ BR.BUFF_TABLES = {
             name = "Source of Magic",
             class = "EVOKER",
             beneficiaryRole = "HEALER",
-            overlayText = "NO\nSOURCE",
+            overlayText = L["Overlay.NoSource"],
             clickMacro = TargetedClickMacro("sourceOfMagic"),
         },
         {
@@ -451,7 +454,7 @@ BR.BUFF_TABLES = {
             name = "Blistering Scales",
             class = "EVOKER",
             beneficiaryRole = "TANK",
-            overlayText = "NO\nSCALES",
+            overlayText = L["Overlay.NoScales"],
             requireSpecId = 1473, -- Augmentation
             requiresSpellID = 360827,
             clickMacro = TargetedClickMacro("blisteringScales"),
@@ -462,7 +465,7 @@ BR.BUFF_TABLES = {
             key = "symbioticRelationship",
             name = "Symbiotic Relationship",
             class = "DRUID",
-            overlayText = "NO\nLINK",
+            overlayText = L["Overlay.NoLink"],
             clickMacro = TargetedClickMacro("symbioticRelationship"),
         },
     },
@@ -474,7 +477,7 @@ BR.BUFF_TABLES = {
             key = "evokerAttunement",
             name = "Attunement",
             class = "EVOKER",
-            overlayText = "NO\nATTUNE",
+            overlayText = L["Overlay.NoAttune"],
             requireSpecId = 1473, -- Augmentation
             requiresSpellID = 403208, -- Attunements talent
         },
@@ -486,7 +489,7 @@ BR.BUFF_TABLES = {
             key = "arcaneFamiliar",
             name = "Arcane Familiar",
             class = "MAGE",
-            overlayText = "NO\nFAMILIAR",
+            overlayText = L["Overlay.NoFamiliar"],
         },
         -- Soulwell reminder (warlock only, instance entry only)
         {
@@ -495,16 +498,16 @@ BR.BUFF_TABLES = {
             key = "soulwell",
             name = "Create Soulwell",
             class = "WARLOCK",
-            overlayText = "DROP\nWELL",
+            overlayText = L["Overlay.DropWell"],
             showOnInstanceEntry = true, -- Only shows on instance entry
             infoTooltip = {
-                title = "Instance Entry Reminder",
-                desc = "Briefly shown when entering a dungeon as a reminder to drop a Soulwell. Dismissed after casting or after 30 seconds.",
+                title = L["Tooltip.InstanceEntryReminder"],
+                desc = L["Tooltip.InstanceEntryReminder.Desc"],
             },
             customCheck = function(isRestricted)
                 -- Cooldown API returns tainted values during combat/encounters/M+
                 if isRestricted then
-                    return true
+                    return false
                 end
                 local ok, result = pcall(function()
                     local info = C_Spell.GetSpellCooldown(29893)
@@ -520,7 +523,7 @@ BR.BUFF_TABLES = {
             key = "grimoireOfSacrifice",
             name = "Grimoire of Sacrifice",
             class = "WARLOCK",
-            overlayText = "NO\nGRIM",
+            overlayText = L["Overlay.NoGrim"],
         },
         -- Paladin weapon rites (alphabetical: Adjuration, Sanctification)
         -- NOTE: Due to a Blizzard bug, when changing talents the buff drops but enchant remains.
@@ -530,7 +533,7 @@ BR.BUFF_TABLES = {
             key = "riteOfAdjuration",
             name = "Rite of Adjuration",
             class = "PALADIN",
-            overlayText = "NO\nRITE",
+            overlayText = L["Overlay.NoRite"],
             enchantID = 7144,
             buffIdOverride = 433584, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
@@ -544,7 +547,7 @@ BR.BUFF_TABLES = {
             key = "riteOfSanctification",
             name = "Rite of Sanctification",
             class = "PALADIN",
-            overlayText = "NO\nRITE",
+            overlayText = L["Overlay.NoRite"],
             enchantID = 7143,
             buffIdOverride = 433550, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
@@ -562,7 +565,7 @@ BR.BUFF_TABLES = {
             key = "roguePoisons",
             name = "Rogue Poisons",
             class = "ROGUE",
-            overlayText = "APPLY\nPOISON",
+            overlayText = L["Overlay.ApplyPoison"],
             customCheck = function()
                 RefreshPoisonCache()
                 -- Don't show if the player hasn't learned any poisons yet (e.g. low-level rogue)
@@ -592,7 +595,7 @@ BR.BUFF_TABLES = {
             key = "shadowform",
             name = "Shadowform",
             class = "PRIEST",
-            overlayText = "NO\nFORM",
+            overlayText = L["Overlay.NoForm"],
             buffIdOverride = { 232698, 194249 },
             noExpirationGlow = true, -- Voidform (short duration) replaces Shadowform; don't warn
         },
@@ -602,7 +605,7 @@ BR.BUFF_TABLES = {
             key = "earthlivingWeapon",
             name = "Earthliving Weapon",
             class = "SHAMAN",
-            overlayText = "NO\nEL",
+            overlayText = L["Overlay.NoEL"],
             enchantID = 6498,
             groupId = "shamanImbues",
         },
@@ -611,7 +614,7 @@ BR.BUFF_TABLES = {
             key = "flametongueWeapon",
             name = "Flametongue Weapon",
             class = "SHAMAN",
-            overlayText = "NO\nFT",
+            overlayText = L["Overlay.NoFT"],
             enchantID = 5400,
             groupId = "shamanImbues",
         },
@@ -620,7 +623,7 @@ BR.BUFF_TABLES = {
             key = "tidecallersGuard",
             name = "Tidecaller's Guard",
             class = "SHAMAN",
-            overlayText = "NO\nTG",
+            overlayText = L["Overlay.NoTG"],
             enchantID = 7528,
             requireSpecId = 264, -- Restoration
             groupId = "shamanImbues",
@@ -640,7 +643,7 @@ BR.BUFF_TABLES = {
             key = "windfuryWeapon",
             name = "Windfury Weapon",
             class = "SHAMAN",
-            overlayText = "NO\nWF",
+            overlayText = L["Overlay.NoWF"],
             enchantID = 5401,
             groupId = "shamanImbues",
         },
@@ -658,7 +661,7 @@ BR.BUFF_TABLES = {
             key = "earthShieldSelfEO",
             name = "Earth Shield (Self)",
             class = "SHAMAN",
-            overlayText = "NO\nSELF ES",
+            overlayText = L["Overlay.NoSelfES"],
             requiresSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 974, -- Earth Shield icon for group checkbox
@@ -669,7 +672,7 @@ BR.BUFF_TABLES = {
             key = "waterLightningShieldEO",
             name = "Water/Lightning Shield",
             class = "SHAMAN",
-            overlayText = "NO\nSHIELD",
+            overlayText = L["Overlay.NoShield"],
             requiresSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 192106, -- Lightning Shield icon for group checkbox
@@ -681,7 +684,7 @@ BR.BUFF_TABLES = {
             key = "shamanShieldBasic",
             name = "Shield (No Talent)",
             class = "SHAMAN",
-            overlayText = "NO\nSHIELD",
+            overlayText = L["Overlay.NoShield"],
             excludeSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 52127, -- Water Shield icon for group checkbox
@@ -696,7 +699,7 @@ BR.BUFF_TABLES = {
             key = "frostMagePet",
             name = "Water Elemental",
             class = "MAGE",
-            overlayText = "NO\nPET",
+            overlayText = L["Overlay.NoPet"],
             requireSpecId = 64, -- Frost
             requiresSpellID = 31687,
             groupId = "pets",
@@ -708,7 +711,7 @@ BR.BUFF_TABLES = {
             key = "hunterPet",
             name = "Hunter Pet",
             class = "HUNTER",
-            overlayText = "NO\nPET",
+            overlayText = L["Overlay.NoPet"],
             displayIcon = 132161,
             groupId = "pets",
             customCheck = function()
@@ -723,7 +726,7 @@ BR.BUFF_TABLES = {
             key = "petPassive",
             name = "Pet Passive",
             -- No class: applies to any class with a pet
-            overlayText = "PASSIVE\nPET",
+            overlayText = L["Overlay.PassivePet"],
             displayIcon = 132311,
             customCheck = IsPetOnPassive,
         },
@@ -732,7 +735,7 @@ BR.BUFF_TABLES = {
             key = "unholyPet",
             name = "Unholy Ghoul",
             class = "DEATHKNIGHT",
-            overlayText = "NO\nPET",
+            overlayText = L["Overlay.NoPet"],
             requireSpecId = 252, -- Unholy
             groupId = "pets",
             customCheck = function()
@@ -743,7 +746,7 @@ BR.BUFF_TABLES = {
             key = "warlockWrongPet",
             name = "Wrong Demon",
             class = "WARLOCK",
-            overlayText = "WRONG\nPET",
+            overlayText = L["Overlay.WrongPet"],
             displayIcon = 136216, -- Felguard icon
             excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
             requireSpecId = 266, -- Demonology only
@@ -763,7 +766,7 @@ BR.BUFF_TABLES = {
             key = "warlockPet",
             name = "Warlock Demon",
             class = "WARLOCK",
-            overlayText = "NO\nPET",
+            overlayText = L["Overlay.NoPet"],
             displayIcon = 136082, -- Summon Demon flyout icon
             excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
             groupId = "pets",
@@ -791,7 +794,7 @@ BR.BUFF_TABLES = {
             displaySpells = { 1264426, 1234969 }, -- Void-Touched (Midnight), Ethereal (TWW permanent)
             key = "rune",
             name = "Rune",
-            overlayText = "NO\nRUNE",
+            overlayText = L["Overlay.NoRune"],
             permanentRuneItemIDs = { 243191, 259085 }, -- Ethereal (TWW), Void-Touched (Midnight)
             groupId = "rune",
             consumableCategory = "rune",
@@ -824,7 +827,7 @@ BR.BUFF_TABLES = {
             },
             key = "flask",
             name = "Flask",
-            overlayText = "NO\nFLASK",
+            overlayText = L["Overlay.NoFlask"],
             groupId = "flask",
             consumableCategory = "flask",
             disabledInCompetitivePvP = true,
@@ -834,7 +837,7 @@ BR.BUFF_TABLES = {
             buffIconID = 136000, -- All food buffs use this icon
             key = "food",
             name = "Food",
-            overlayText = "NO\nFOOD",
+            overlayText = L["Overlay.NoFood"],
             groupId = "food",
             consumableCategory = "food",
             displayIcon = 136000,
@@ -846,12 +849,12 @@ BR.BUFF_TABLES = {
             spellID = 442522,
             key = "delveFood",
             name = "Delve Food",
-            overlayText = "NO\nFOOD",
+            overlayText = L["Overlay.NoFood"],
             groupId = "delveFood",
-            noExpirationGlow = true, -- 10-min duration makes standard thresholds meaningless
+            showOnInstanceEntry = true, -- Only show for 30s on delve entry (food is NPC-controlled)
             infoTooltip = {
-                title = "Delves Only",
-                desc = "Only shown inside delves when Brann or Valeera are in your party.\n\nExpiration glow is disabled for this buff because its short 10-minute duration would cause it to always glow.",
+                title = L["Tooltip.DelvesOnly"],
+                desc = L["Tooltip.DelvesOnly.Desc"],
             },
             visibilityCondition = BR.IsInDelve,
             disabledInCompetitivePvP = true,
@@ -863,7 +866,7 @@ BR.BUFF_TABLES = {
             key = "healthstone",
             name = "Healthstone",
             casterClass = "WARLOCK",
-            overlayText = "NO\nSTONE",
+            overlayText = L["Overlay.NoStone"],
             groupId = "healthstone",
             displayIcon = 538745, -- Healthstone icon
             freeConsumable = true,
@@ -878,7 +881,7 @@ BR.BUFF_TABLES = {
             checkWeaponEnchant = true, -- Check if any weapon enchant exists
             key = "weaponBuff",
             name = "Weapon",
-            overlayText = "NO\nWEAPON\nBUFF",
+            overlayText = L["Overlay.NoWeaponBuff"],
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
             consumableCategory = "weapon",
@@ -898,7 +901,7 @@ BR.BUFF_TABLES = {
             checkWeaponEnchantOH = true,
             key = "weaponBuffOH",
             name = "Weapon (OH)",
-            overlayText = "NO\nWEAPON\nBUFF",
+            overlayText = L["Overlay.NoWeaponBuff"],
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
             consumableCategory = "weapon",
@@ -930,18 +933,18 @@ BR.BUFF_KEY_TO_CATEGORY = buffKeyToCategory
 
 ---@type table<string, BuffGroup>
 BR.BuffGroups = {
-    beacons = { displayName = "Beacons" },
-    shamanImbues = { displayName = "Shaman Imbues" },
-    paladinRites = { displayName = "Paladin Rites" },
-    pets = { displayName = "Pets" },
-    shamanShields = { displayName = "Shaman Shields" },
+    beacons = { displayName = L["Group.Beacons"] },
+    shamanImbues = { displayName = L["Group.ShamanImbues"] },
+    paladinRites = { displayName = L["Group.PaladinRites"] },
+    pets = { displayName = L["Group.Pets"] },
+    shamanShields = { displayName = L["Group.ShamanShields"] },
     -- Consumable groups
-    flask = { displayName = "Flask" },
-    food = { displayName = "Food" },
-    delveFood = { displayName = "Delve Food" },
-    healthstone = { displayName = "Healthstone" },
-    rune = { displayName = "Augment Rune" },
-    weaponBuff = { displayName = "Weapon Buff" },
+    flask = { displayName = L["Group.Flask"] },
+    food = { displayName = L["Group.Food"] },
+    delveFood = { displayName = L["Group.DelveFood"] },
+    healthstone = { displayName = L["Group.Healthstone"] },
+    rune = { displayName = L["Group.AugmentRune"] },
+    weaponBuff = { displayName = L["Group.WeaponBuff"] },
 }
 
 -- Classes that benefit from each buff

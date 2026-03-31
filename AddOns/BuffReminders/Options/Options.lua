@@ -34,6 +34,9 @@ local SelfBuffs = BUFF_TABLES.self
 local PetBuffs = BUFF_TABLES.pet
 local Consumables = BUFF_TABLES.consumable
 
+-- Localization
+local L = BR.L
+
 -- Glow module
 local Glow = BR.Glow
 local GlowTypes = Glow.Types
@@ -95,13 +98,13 @@ local DROPDOWN_EXTRA = 8 -- Extra clearance after dropdowns (menu overlay space)
 
 local CATEGORY_ORDER = { "raid", "presence", "targeted", "self", "pet", "consumable", "custom" }
 local CATEGORY_LABELS = {
-    raid = "Raid Buffs",
-    presence = "Presence Buffs",
-    targeted = "Targeted Buffs",
-    self = "Self Buffs",
-    pet = "Pet Reminders",
-    consumable = "Consumables",
-    custom = "Custom Buffs",
+    raid = L["Category.RaidBuffs"],
+    presence = L["Category.PresenceBuffs"],
+    targeted = L["Category.TargetedBuffs"],
+    self = L["Category.SelfBuffs"],
+    pet = L["Category.PetReminders"],
+    consumable = L["Category.Consumables"],
+    custom = L["Category.CustomBuffs"],
 }
 
 -- Layout-aware section header (uses VerticalLayout instead of manual Y tracking)
@@ -157,7 +160,7 @@ local function CreateOptionsPanel()
 
     local discordLink = panel:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     discordLink:SetPoint("LEFT", discordSep, "RIGHT", 6, 0)
-    discordLink:SetText("|cff7289daJoin Discord|r")
+    discordLink:SetText("|cff7289da" .. L["Options.JoinDiscord"] .. "|r")
 
     local discordHit = CreateFrame("Button", nil, panel)
     discordHit:SetAllPoints(discordLink)
@@ -165,16 +168,11 @@ local function CreateOptionsPanel()
         StaticPopup_Show("BUFFREMINDERS_DISCORD_URL")
     end)
     discordHit:SetScript("OnEnter", function()
-        discordLink:SetText("|cff99aaffJoin Discord|r")
-        BR.ShowTooltip(
-            discordHit,
-            "Click for invite link",
-            "Got feedback, feature requests, or bug reports?\nJoin the Discord!",
-            "ANCHOR_BOTTOM"
-        )
+        discordLink:SetText("|cff99aaff" .. L["Options.JoinDiscord"] .. "|r")
+        BR.ShowTooltip(discordHit, L["Options.JoinDiscord.Title"], L["Options.JoinDiscord.Desc"], "ANCHOR_BOTTOM")
     end)
     discordHit:SetScript("OnLeave", function()
-        discordLink:SetText("|cff7289daJoin Discord|r")
+        discordLink:SetText("|cff7289da" .. L["Options.JoinDiscord"] .. "|r")
         BR.HideTooltip()
     end)
 
@@ -285,11 +283,11 @@ local function CreateOptionsPanel()
     end
 
     -- Create 4 tabs: Buffs, Display & Behavior, Settings, Import/Export
-    tabButtons.buffs = Components.Tab(panel, { name = "buffs", label = "Buffs", width = 50 })
+    tabButtons.buffs = Components.Tab(panel, { name = "buffs", label = L["Tab.Buffs"], width = 50 })
     tabButtons.displayBehavior =
-        Components.Tab(panel, { name = "displayBehavior", label = "Display/Behavior", width = 110 })
-    tabButtons.settings = Components.Tab(panel, { name = "settings", label = "Settings", width = 65 })
-    tabButtons.profiles = Components.Tab(panel, { name = "profiles", label = "Profiles", width = 65 })
+        Components.Tab(panel, { name = "displayBehavior", label = L["Tab.DisplayBehavior"], width = 110 })
+    tabButtons.settings = Components.Tab(panel, { name = "settings", label = L["Tab.Settings"], width = 65 })
+    tabButtons.profiles = Components.Tab(panel, { name = "profiles", label = L["Tab.Profiles"], width = 65 })
 
     -- Position tabs below title
     tabButtons.buffs:SetPoint("TOPLEFT", panel, "TOPLEFT", COL_PADDING, -30)
@@ -333,7 +331,7 @@ local function CreateOptionsPanel()
     local BANNER_BOTTOM_GAP = 0
 
     masqueBanner = Components.Banner(panel, {
-        text = "Zoom and Border settings are managed by Masque",
+        text = L["Options.MasqueNote"],
         icon = "QuestNormal",
         color = "orange",
         visible = function()
@@ -433,7 +431,7 @@ local function CreateOptionsPanel()
             end
 
             local function ToggleLabel(checked)
-                return checked and "Ready check" or "Always"
+                return checked and L["Options.ReadyCheck"] or L["Options.Always"]
             end
 
             local toggle
@@ -595,66 +593,66 @@ local function CreateOptionsPanel()
 
     -- LEFT COLUMN: Group-wide buffs
     -- Raid Buffs
-    _, buffsLeftY = CreateSectionHeader(buffsContent, "Raid Buffs", buffsLeftX, buffsLeftY)
+    _, buffsLeftY = CreateSectionHeader(buffsContent, L["Category.RaidBuffs"], buffsLeftX, buffsLeftY)
     local raidNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     raidNote:SetPoint("TOPLEFT", buffsLeftX, buffsLeftY)
-    raidNote:SetText("(for the whole group)")
+    raidNote:SetText(L["Category.RaidNote"])
     buffsLeftY = buffsLeftY - 14
     buffsLeftY = RenderBuffCheckboxes(buffsContent, buffsLeftX, buffsLeftY, RaidBuffs)
     buffsLeftY = buffsLeftY - SECTION_SPACING
 
     -- Targeted Buffs
-    _, buffsLeftY = CreateSectionHeader(buffsContent, "Targeted Buffs", buffsLeftX, buffsLeftY)
+    _, buffsLeftY = CreateSectionHeader(buffsContent, L["Category.TargetedBuffs"], buffsLeftX, buffsLeftY)
     local targetedNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     targetedNote:SetPoint("TOPLEFT", buffsLeftX, buffsLeftY)
-    targetedNote:SetText("(buffs on someone else)")
+    targetedNote:SetText(L["Category.TargetedNote"])
     buffsLeftY = buffsLeftY - 14
     buffsLeftY = RenderBuffCheckboxes(buffsContent, buffsLeftX, buffsLeftY, TargetedBuffs)
     buffsLeftY = buffsLeftY - SECTION_SPACING
 
     -- Consumables
-    _, buffsLeftY = CreateSectionHeader(buffsContent, "Consumables", buffsLeftX, buffsLeftY)
+    _, buffsLeftY = CreateSectionHeader(buffsContent, L["Category.Consumables"], buffsLeftX, buffsLeftY)
     local consumablesNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     consumablesNote:SetPoint("TOPLEFT", buffsLeftX, buffsLeftY)
-    consumablesNote:SetText("(flasks, food, runes, oils)")
+    consumablesNote:SetText(L["Category.ConsumableNote"])
     buffsLeftY = buffsLeftY - 14
     buffsLeftY = RenderBuffCheckboxes(buffsContent, buffsLeftX, buffsLeftY, Consumables)
 
     -- RIGHT COLUMN: Individual buffs
     -- Presence Buffs
-    _, buffsRightY = CreateSectionHeader(buffsContent, "Presence Buffs", buffsRightX, buffsRightY)
+    _, buffsRightY = CreateSectionHeader(buffsContent, L["Category.PresenceBuffs"], buffsRightX, buffsRightY)
     local presenceNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     presenceNote:SetPoint("TOPLEFT", buffsRightX, buffsRightY)
-    presenceNote:SetText("(at least 1 person needs)")
+    presenceNote:SetText(L["Category.PresenceNote"])
     buffsRightY = buffsRightY - 14
     buffsRightY = RenderBuffCheckboxes(buffsContent, buffsRightX, buffsRightY, PresenceBuffs)
     buffsRightY = buffsRightY - SECTION_SPACING
 
     -- Self Buffs
-    _, buffsRightY = CreateSectionHeader(buffsContent, "Self Buffs", buffsRightX, buffsRightY)
+    _, buffsRightY = CreateSectionHeader(buffsContent, L["Category.SelfBuffs"], buffsRightX, buffsRightY)
     local selfNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     selfNote:SetPoint("TOPLEFT", buffsRightX, buffsRightY)
-    selfNote:SetText("(buffs strictly on yourself)")
+    selfNote:SetText(L["Category.SelfNote"])
     buffsRightY = buffsRightY - 14
     buffsRightY = RenderBuffCheckboxes(buffsContent, buffsRightX, buffsRightY, SelfBuffs)
     buffsRightY = buffsRightY - SECTION_SPACING
 
     -- Pet Reminders
-    _, buffsRightY = CreateSectionHeader(buffsContent, "Pet Reminders", buffsRightX, buffsRightY)
+    _, buffsRightY = CreateSectionHeader(buffsContent, L["Category.PetReminders"], buffsRightX, buffsRightY)
     local petNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     petNote:SetPoint("TOPLEFT", buffsRightX, buffsRightY)
-    petNote:SetText("(pet summon reminders)")
+    petNote:SetText(L["Category.PetNote"])
     buffsRightY = buffsRightY - 14
     buffsRightY = RenderBuffCheckboxes(buffsContent, buffsRightX, buffsRightY, PetBuffs)
     buffsRightY = buffsRightY - SECTION_SPACING
 
     -- Custom Buffs (right column)
-    _, buffsRightY = CreateSectionHeader(buffsContent, "Custom Buffs", buffsRightX, buffsRightY)
+    _, buffsRightY = CreateSectionHeader(buffsContent, L["Category.CustomBuffs"], buffsRightX, buffsRightY)
     panel.customBuffRows = {}
 
     local customNote = buffsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     customNote:SetPoint("TOPLEFT", buffsRightX, buffsRightY)
-    customNote:SetText("(track any buff/glow by spell ID)")
+    customNote:SetText(L["Category.CustomNote"])
     buffsRightY = buffsRightY - 14
 
     local customSectionStartY = buffsRightY
@@ -689,7 +687,7 @@ local function CreateOptionsPanel()
 
             -- Use Components.Checkbox for consistent styling
             local holder = Components.Checkbox(customBuffsContainer, {
-                label = customBuff.name or ("Spell " .. tostring(customBuff.spellID)),
+                label = customBuff.name or (L["CustomBuff.Action.Spell"] .. " " .. tostring(customBuff.spellID)),
                 icons = ResolveBuffIcons(nil, customBuff.spellID),
                 get = function()
                     return BR.profile.enabledBuffs[key] ~= false
@@ -701,7 +699,7 @@ local function CreateOptionsPanel()
                 onRightClick = function()
                     ShowCustomBuffModal(key, RenderCustomBuffRows)
                 end,
-                tooltip = { title = "Custom Buff", desc = "Right-click to edit or delete" },
+                tooltip = { title = L["CustomBuff.Tooltip.Title"], desc = L["CustomBuff.Tooltip.Desc"] },
             })
             holder:SetPoint("TOPLEFT", 0, rowY)
             panel.buffCheckboxes[key] = holder
@@ -710,7 +708,7 @@ local function CreateOptionsPanel()
             rowY = rowY - ITEM_HEIGHT
         end
 
-        local addBtn = CreateButton(customBuffsContainer, "+ Add Custom Buff", function()
+        local addBtn = CreateButton(customBuffsContainer, L["CustomBuff.AddButton"], function()
             ShowCustomBuffModal(nil, RenderCustomBuffRows)
         end)
         addBtn:SetPoint("TOPLEFT", 0, rowY - ADD_BTN_GAP)
@@ -734,11 +732,11 @@ local function CreateOptionsPanel()
     local displayBehaviorLayout = Components.VerticalLayout(displayBehaviorContent, { x = displayBehaviorX, y = -10 })
 
     -- Global Defaults section
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "Global Defaults")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, L["Options.GlobalDefaults"])
 
     local defNote = displayBehaviorContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     displayBehaviorLayout:AddText(defNote, 12, COMPONENT_GAP)
-    defNote:SetText("(All categories inherit these unless overridden with a custom appearance)")
+    defNote:SetText(L["Options.GlobalDefaults.Note"])
 
     local function isDefDimensionsLinked()
         local db = BR.profile.defaults
@@ -777,7 +775,7 @@ local function CreateOptionsPanel()
     -- Font dropdown (global setting, uses LibSharedMedia)
     local function BuildFontOptions()
         local fontList = LSM:List("font")
-        local opts = { { label = "Default", value = nil } }
+        local opts = { { label = L["Options.Default"], value = nil } }
         for _, name in ipairs(fontList) do
             tinsert(opts, { label = name, value = name })
         end
@@ -785,7 +783,7 @@ local function CreateOptionsPanel()
     end
 
     local defFontHolder = Components.Dropdown(displayBehaviorContent, {
-        label = "Font",
+        label = L["Options.Font"],
         labelWidth = 50,
         options = BuildFontOptions(),
         width = 200,
@@ -819,10 +817,10 @@ local function CreateOptionsPanel()
     displayBehaviorLayout:Add(defDirHolder, nil, COMPONENT_GAP + DROPDOWN_EXTRA)
 
     local defGlowHolder = Components.Checkbox(displayBehaviorContent, {
-        label = "Glow reminder icons",
+        label = L["Options.GlowReminderIcons"],
         tooltip = {
-            title = "Glow Reminder Icons",
-            desc = "Add a glow effect to all visible reminder icons, including missing and expiring buffs.",
+            title = L["Options.GlowReminderIcons.Title"],
+            desc = L["Options.GlowReminderIcons.Desc"],
         },
         get = function()
             return BR.profile.defaults and BR.profile.defaults.showExpirationGlow ~= false
@@ -833,7 +831,7 @@ local function CreateOptionsPanel()
         end,
     })
 
-    local glowSettingsBtn = CreateButton(displayBehaviorContent, "Customize", function()
+    local glowSettingsBtn = CreateButton(displayBehaviorContent, L["Options.Customize"], function()
         ShowGlowAdvanced()
     end)
     glowSettingsBtn:SetPoint("LEFT", defGlowHolder.label, "RIGHT", 8, 0)
@@ -843,11 +841,11 @@ local function CreateOptionsPanel()
 
     -- Expiration Reminder section
     displayBehaviorLayout:Space(8)
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "Expiration Reminder")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, L["Options.ExpirationReminder"])
     displayBehaviorLayout:Space(COMPONENT_GAP)
 
     local defThresholdHolder = Components.Slider(displayBehaviorContent, {
-        label = "Threshold",
+        label = L["Options.Threshold"],
         min = 0,
         max = 45,
         step = 5,
@@ -855,7 +853,7 @@ local function CreateOptionsPanel()
             return BR.profile.defaults and BR.profile.defaults.expirationThreshold or 15
         end,
         formatValue = function(val)
-            return val == 0 and "Off" or (val .. " min")
+            return val == 0 and L["Options.Off"] or (val .. " " .. L["Options.Min"])
         end,
         onChange = function(val)
             BR.Config.Set("defaults.expirationThreshold", val)
@@ -865,7 +863,7 @@ local function CreateOptionsPanel()
 
     -- Per-Category Customization section
     displayBehaviorLayout:Space(8)
-    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, "Per-Category Customization")
+    LayoutSectionHeader(displayBehaviorLayout, displayBehaviorContent, L["Options.PerCategoryCustomization"])
     displayBehaviorLayout:Space(COMPONENT_GAP)
 
     -- Create collapsible sections that chain-anchor to each other
@@ -920,7 +918,7 @@ local function CreateOptionsPanel()
             catLayout:Add(visToggles, nil, SECTION_GAP)
 
             local hideInPvPMatchHolder = Components.Checkbox(catContent, {
-                label = "Hide when PvP match starts",
+                label = L["Options.HidePvPMatchStart"],
                 get = function()
                     local vis = db.categoryVisibility and db.categoryVisibility[category]
                     return vis and vis.hideInPvPMatch or false
@@ -930,8 +928,8 @@ local function CreateOptionsPanel()
                     return not vis or vis.pvp ~= false
                 end,
                 tooltip = {
-                    title = "Hide When PvP Match Starts",
-                    desc = "Hide this category once a PvP match begins (after prep phase ends).",
+                    title = L["Options.HidePvPMatchStart.Title"],
+                    desc = L["Options.HidePvPMatchStart.Desc"],
                 },
                 onChange = function(checked)
                     if not db.categoryVisibility then
@@ -955,14 +953,14 @@ local function CreateOptionsPanel()
             catLayout:Add(hideInPvPMatchHolder, nil, COMPONENT_GAP)
 
             local readyCheckHolder = Components.Checkbox(catContent, {
-                label = "Show only on ready check",
+                label = L["Options.ReadyCheckOnly"],
                 get = function()
                     local cs = db.categorySettings and db.categorySettings[category]
                     return cs and cs.showOnlyOnReadyCheck == true
                 end,
                 tooltip = {
-                    title = "Show only on ready check",
-                    desc = "Only show this category's buffs for 15 seconds after a ready check starts",
+                    title = L["Options.ReadyCheckOnly"],
+                    desc = L["Options.ReadyCheckOnly.Desc"],
                 },
                 onChange = function(checked)
                     BR.Config.Set("categorySettings." .. category .. ".showOnlyOnReadyCheck", checked)
@@ -990,11 +988,11 @@ local function CreateOptionsPanel()
                 end
                 catLayout:Space(SECTION_GAP)
                 local hsHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-                hsHeader:SetText("|cffffcc00Healthstone|r")
+                hsHeader:SetText("|cffffcc00" .. L["Options.Healthstone"] .. "|r")
                 catLayout:AddText(hsHeader, 12, COMPONENT_GAP)
 
                 local hsReadyCheckHolder = Components.Dropdown(catContent, {
-                    label = "Visibility",
+                    label = L["Options.Visibility"],
                     width = 180,
                     get = function()
                         return BR.Config.Get("defaults.healthstoneVisibility", "readyCheck")
@@ -1002,23 +1000,23 @@ local function CreateOptionsPanel()
                     options = {
                         {
                             value = "readyCheck",
-                            label = "Ready check only",
-                            desc = "Show for 15 seconds after a ready check starts",
+                            label = L["Options.Healthstone.ReadyCheckOnly"],
+                            desc = L["Options.Healthstone.ReadyCheckDesc"],
                         },
                         {
                             value = "casterOnly",
-                            label = "Ready check + warlock always",
-                            desc = "Warlocks always see the reminder; other classes only on ready check",
+                            label = L["Options.Healthstone.ReadyCheckWarlock"],
+                            desc = L["Options.Healthstone.WarlockAlwaysDesc"],
                         },
                         {
                             value = "always",
-                            label = "Always show",
-                            desc = "Show whenever the content type matches",
+                            label = L["Options.Healthstone.AlwaysShow"],
+                            desc = L["Options.Healthstone.AlwaysDesc"],
                         },
                     },
                     tooltip = {
-                        title = "Healthstone visibility",
-                        desc = "Controls when the healthstone reminder appears.\n\n|cffffcc00Ready check only:|r Only during ready checks (15s window).\n|cffffcc00Ready check + warlock always:|r Warlocks always see it; others only on ready check.\n|cffffcc00Always show:|r Visible whenever you're in matching content.",
+                        title = L["Options.Healthstone.Visibility"],
+                        desc = L["Options.Healthstone.Visibility.Desc"],
                     },
                     onChange = function(val)
                         BR.Config.Set("defaults.healthstoneVisibility", val)
@@ -1028,10 +1026,10 @@ local function CreateOptionsPanel()
 
                 catLayout:Space(SECTION_GAP)
                 local freeHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-                freeHeader:SetText("|cffffcc00Free Consumables|r")
+                freeHeader:SetText("|cffffcc00" .. L["Options.FreeConsumables"] .. "|r")
                 catLayout:AddText(freeHeader, 12, COMPONENT_GAP)
                 local freeNote = catContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-                freeNote:SetText("(healthstones, permanent augment runes)")
+                freeNote:SetText(L["Options.FreeConsumables.Note"])
                 catLayout:AddText(freeNote, 10, COMPONENT_GAP)
 
                 local function IsFreeOverride()
@@ -1039,13 +1037,13 @@ local function CreateOptionsPanel()
                 end
 
                 local freeOverrideHolder = Components.Checkbox(catContent, {
-                    label = "Override content filters",
+                    label = L["Options.FreeConsumables.Override"],
                     get = function()
                         return IsFreeOverride()
                     end,
                     tooltip = {
-                        title = "Override content filters",
-                        desc = "When checked, free consumables use their own content type visibility settings below.\n\nWhen unchecked, they follow the same content filters as other consumables.",
+                        title = L["Options.FreeConsumables.Override"],
+                        desc = L["Options.FreeConsumables.Override.Desc"],
                     },
                     onChange = function(checked)
                         BR.Config.Set("defaults.freeConsumableMode", checked and "override" or "follow")
@@ -1102,7 +1100,7 @@ local function CreateOptionsPanel()
             end
         else
             local banner = Components.Banner(catContent, {
-                text = "Visibility and ready check settings moved to each buff's edit menu.",
+                text = L["CustomBuff.SettingsMovedNote"],
                 color = "orange",
                 icon = "services-icon-warning",
             })
@@ -1113,21 +1111,21 @@ local function CreateOptionsPanel()
         -- Icons sub-header (all categories except custom)
         if category ~= "custom" then
             local iconsHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-            iconsHeader:SetText("|cffffcc00Icons|r")
+            iconsHeader:SetText("|cffffcc00" .. L["Options.Icons"] .. "|r")
             catLayout:AddText(iconsHeader, 12, COMPONENT_GAP)
         end
 
         -- Show text on icons (not for custom — custom buffs have per-buff missing text)
         if category ~= "custom" then
             local showTextHolder = Components.Checkbox(catContent, {
-                label = "Show text on icons",
+                label = L["Options.ShowText"],
                 get = function()
                     local cs = db.categorySettings and db.categorySettings[category]
                     return not cs or cs.showText ~= false
                 end,
                 tooltip = {
-                    title = "Show text on icons",
-                    desc = "Display count or missing text overlays on buff icons for this category",
+                    title = L["Options.ShowText"],
+                    desc = L["Options.ShowText.Desc"],
                 },
                 onChange = function(checked)
                     BR.Config.Set("categorySettings." .. category .. ".showText", checked)
@@ -1139,13 +1137,13 @@ local function CreateOptionsPanel()
         -- Missing count only (raid only)
         if category == "raid" then
             local missingCountHolder = Components.Checkbox(catContent, {
-                label = "Show missing count only",
+                label = L["Options.ShowMissingCountOnly"],
                 get = function()
                     return db.showMissingCountOnly == true
                 end,
                 tooltip = {
-                    title = "Show missing count only",
-                    desc = 'Show only the number of missing buffs (e.g., "1") instead of the full count (e.g., "19/20")',
+                    title = L["Options.ShowMissingCountOnly"],
+                    desc = L["Options.ShowMissingCountOnly.Desc"],
                 },
                 enabled = function()
                     local cs = db.categorySettings and db.categorySettings[category]
@@ -1162,7 +1160,7 @@ local function CreateOptionsPanel()
         -- "BUFF!" text (raid only, grouped under Icons)
         if category == "raid" then
             local reminderHolder = Components.Checkbox(catContent, {
-                label = 'Show "BUFF!" reminder text',
+                label = L["Options.ShowBuffReminderText"],
                 get = function()
                     local cs = db.categorySettings and db.categorySettings.raid
                     return not cs or cs.showBuffReminder ~= false
@@ -1175,7 +1173,7 @@ local function CreateOptionsPanel()
             catLayout:Add(reminderHolder, nil, COMPONENT_GAP)
 
             local buffTextSizeHolder = Components.NumericStepper(reminderHolder, {
-                label = "Size",
+                label = L["Options.Size"],
                 labelWidth = 28,
                 min = 6,
                 max = 40,
@@ -1203,7 +1201,7 @@ local function CreateOptionsPanel()
             buffTextSizeHolder:SetPoint("LEFT", reminderHolder, "LEFT", 210, 0)
 
             local buffTextOffsetXHolder = Components.Slider(catContent, {
-                label = '"BUFF!" X',
+                label = L["Options.BuffTextOffsetX"],
                 labelWidth = 60,
                 min = -40,
                 max = 40,
@@ -1221,7 +1219,7 @@ local function CreateOptionsPanel()
             })
 
             local buffTextOffsetYHolder = Components.Slider(catContent, {
-                label = '"BUFF!" Y',
+                label = L["Options.BuffTextOffsetY"],
                 labelWidth = 60,
                 min = -40,
                 max = 40,
@@ -1245,15 +1243,14 @@ local function CreateOptionsPanel()
         -- Click to cast checkbox
         if category ~= "custom" then
             local clickableHolder = Components.Checkbox(catContent, {
-                label = "Click to cast",
+                label = L["Options.ClickToCast"],
                 get = function()
                     local cs = db.categorySettings and db.categorySettings[category]
                     return cs and cs.clickable == true
                 end,
                 tooltip = {
-                    title = "Click to cast",
-                    desc = "Make buff icons clickable to cast the corresponding spell (out of combat only). "
-                        .. "Only works for spells your character can cast.",
+                    title = L["Options.ClickToCast"],
+                    desc = L["Options.ClickToCast.DescFull"],
                 },
                 onChange = function(checked)
                     if not db.categorySettings then
@@ -1271,7 +1268,7 @@ local function CreateOptionsPanel()
 
             catLayout:SetX(20)
             local highlightHolder = Components.Checkbox(catContent, {
-                label = "Hover highlight",
+                label = L["Options.HoverHighlight"],
                 get = function()
                     local hcs = db.categorySettings and db.categorySettings[category]
                     return hcs and hcs.clickableHighlight ~= false
@@ -1281,8 +1278,8 @@ local function CreateOptionsPanel()
                     return hcs and hcs.clickable == true
                 end,
                 tooltip = {
-                    title = "Hover highlight",
-                    desc = "Show a subtle highlight when hovering over clickable buff icons.",
+                    title = L["Options.HoverHighlight"],
+                    desc = L["Options.HoverHighlight.Desc"],
                 },
                 onChange = function(checked)
                     if not db.categorySettings then
@@ -1299,7 +1296,7 @@ local function CreateOptionsPanel()
 
             if category == "pet" then
                 local specIconHolder = Components.Checkbox(catContent, {
-                    label = "Show hunter pet spec icon on hover",
+                    label = L["Options.PetSpecIcon"],
                     get = function()
                         return BR.Config.Get("defaults.petSpecIconOnHover", true)
                     end,
@@ -1308,8 +1305,8 @@ local function CreateOptionsPanel()
                         return hcs and hcs.clickable == true
                     end,
                     tooltip = {
-                        title = "Pet spec icon on hover",
-                        desc = "Swap the pet icon to its specialization ability (Cunning, Ferocity, Tenacity) when hovering.",
+                        title = L["Options.PetSpecIcon.Title"],
+                        desc = L["Options.PetSpecIcon.Desc"],
                     },
                     onChange = function(checked)
                         BR.Config.Set("defaults.petSpecIconOnHover", checked)
@@ -1320,7 +1317,7 @@ local function CreateOptionsPanel()
 
             if category == "consumable" then
                 local showTooltipsHolder = Components.Checkbox(catContent, {
-                    label = "Show item tooltips",
+                    label = L["Options.ShowItemTooltips"],
                     get = function()
                         return BR.Config.Get("defaults.showConsumableTooltips", false) ~= false
                     end,
@@ -1329,8 +1326,8 @@ local function CreateOptionsPanel()
                         return hcs and hcs.clickable == true
                     end,
                     tooltip = {
-                        title = "Show item tooltips",
-                        desc = "When hovering over a consumable icon, show its item tooltip.",
+                        title = L["Options.ShowItemTooltips"],
+                        desc = L["Options.ShowItemTooltips.Desc"],
                     },
                     onChange = function(checked)
                         BR.Config.Set("defaults.showConsumableTooltips", checked)
@@ -1346,29 +1343,17 @@ local function CreateOptionsPanel()
         if category == "pet" then
             catLayout:Space(SECTION_GAP)
             local behaviorHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-            behaviorHeader:SetText("|cffffcc00Behavior|r")
+            behaviorHeader:SetText("|cffffcc00" .. L["Options.Behavior"] .. "|r")
             catLayout:AddText(behaviorHeader, 12, COMPONENT_GAP)
 
-            local hideMountHolder = Components.Checkbox(catContent, {
-                label = "Hide while mounted",
-                get = function()
-                    return BR.profile.hidePetWhileMounted ~= false
-                end,
-                onChange = function(checked)
-                    BR.profile.hidePetWhileMounted = checked
-                    UpdateDisplay()
-                end,
-            })
-            catLayout:Add(hideMountHolder, nil, COMPONENT_GAP)
-
             local passiveCombatHolder = Components.Checkbox(catContent, {
-                label = "Pet passive only in combat",
+                label = L["Options.PetPassiveCombat"],
                 get = function()
                     return BR.profile.petPassiveOnlyInCombat == true
                 end,
                 tooltip = {
-                    title = "Pet passive only in combat",
-                    desc = "Only show the passive pet reminder while in combat. When disabled, the reminder is always shown.",
+                    title = L["Options.PetPassiveCombat"],
+                    desc = L["Options.PetPassiveCombat.Desc"],
                 },
                 onChange = function(checked)
                     BR.profile.petPassiveOnlyInCombat = checked
@@ -1378,13 +1363,13 @@ local function CreateOptionsPanel()
             catLayout:Add(passiveCombatHolder, nil, COMPONENT_GAP)
 
             local felDomHolder = Components.Checkbox(catContent, {
-                label = "Use Fel Domination before summoning",
+                label = L["Options.FelDomination"],
                 get = function()
                     return BR.Config.Get("defaults.useFelDomination", false)
                 end,
                 tooltip = {
-                    title = "Fel Domination",
-                    desc = "Automatically cast Fel Domination before summoning a demon via click-to-cast. If Fel Domination is on cooldown, the summon proceeds normally. Requires the Fel Domination talent.",
+                    title = L["Options.FelDomination.Title"],
+                    desc = L["Options.FelDomination.Desc"],
                 },
                 enabled = function()
                     local _, class = UnitClass("player")
@@ -1398,18 +1383,26 @@ local function CreateOptionsPanel()
 
             local updatePetDisplayModePreview -- forward declaration for preview update
             local petDisplayModeHolder = Components.Dropdown(catContent, {
-                label = "Pet display",
+                label = L["Options.PetDisplay"],
                 width = 120,
                 get = function()
                     return BR.Config.Get("defaults.petDisplayMode", "generic")
                 end,
                 options = {
-                    { value = "generic", label = "Generic icon", desc = "A single generic 'NO PET' icon" },
-                    { value = "expanded", label = "Summon spells", desc = "Each pet summon spell as its own icon" },
+                    {
+                        value = "generic",
+                        label = L["Options.PetDisplay.Generic"],
+                        desc = L["Options.PetDisplay.GenericDesc"],
+                    },
+                    {
+                        value = "expanded",
+                        label = L["Options.PetDisplay.Summon"],
+                        desc = L["Options.PetDisplay.SummonDesc"],
+                    },
                 },
                 tooltip = {
-                    title = "Pet display mode",
-                    desc = "How missing pet reminders are displayed.",
+                    title = L["Options.PetDisplay.Mode"],
+                    desc = L["Options.PetDisplay.Mode.Desc"],
                 },
                 onChange = function(val)
                     BR.Config.Set("defaults.petDisplayMode", val)
@@ -1501,13 +1494,13 @@ local function CreateOptionsPanel()
             tinsert(BR.RefreshableComponents, petPreviewHolder)
 
             local petLabelsHolder = Components.Checkbox(catContent, {
-                label = "Pet labels",
+                label = L["Options.PetLabels"],
                 get = function()
                     return BR.Config.Get("defaults.petLabels", true)
                 end,
                 tooltip = {
-                    title = "Pet labels",
-                    desc = "Show pet name and specialization below each icon.",
+                    title = L["Options.PetLabels"],
+                    desc = L["Options.PetLabels.Desc"],
                 },
                 onChange = function(checked)
                     BR.Config.Set("defaults.petLabels", checked)
@@ -1517,7 +1510,7 @@ local function CreateOptionsPanel()
             catLayout:Add(petLabelsHolder, nil, COMPONENT_GAP)
 
             local petLabelScaleHolder = Components.NumericStepper(petLabelsHolder, {
-                label = "Size %",
+                label = L["Options.PetLabels.SizePct"],
                 labelWidth = 36,
                 min = 50,
                 max = 200,
@@ -1545,15 +1538,25 @@ local function CreateOptionsPanel()
 
             local petClassBar, petClassButtons = Components.CreateSegmentedBar(petLabelsHolder, {
                 toggleDefs = {
-                    { key = "HUNTER", label = "H", tooltip = { title = "Hunter" }, color = classColor("HUNTER") },
-                    { key = "WARLOCK", label = "W", tooltip = { title = "Warlock" }, color = classColor("WARLOCK") },
+                    {
+                        key = "HUNTER",
+                        label = "H",
+                        tooltip = { title = L["Class.Hunter"] },
+                        color = classColor("HUNTER"),
+                    },
+                    {
+                        key = "WARLOCK",
+                        label = "W",
+                        tooltip = { title = L["Class.Warlock"] },
+                        color = classColor("WARLOCK"),
+                    },
                     {
                         key = "DEATHKNIGHT",
                         label = "D",
-                        tooltip = { title = "Death Knight" },
+                        tooltip = { title = L["Class.DeathKnight"] },
                         color = classColor("DEATHKNIGHT"),
                     },
-                    { key = "MAGE", label = "M", tooltip = { title = "Mage" }, color = classColor("MAGE") },
+                    { key = "MAGE", label = "M", tooltip = { title = L["Class.Mage"] }, color = classColor("MAGE") },
                 },
                 getState = function(key)
                     local vis = BR.profile.defaults.petLabelClasses
@@ -1596,7 +1599,7 @@ local function CreateOptionsPanel()
         if category == "consumable" then
             -- Consumable text scale (count + quality labels as % of icon size)
             local consumableTextScaleHolder = Components.Slider(catContent, {
-                label = "Text scale",
+                label = L["Options.ConsumableTextScale"],
                 min = 5,
                 max = 80,
                 step = 1,
@@ -1605,8 +1608,8 @@ local function CreateOptionsPanel()
                     return BR.Config.Get("defaults.consumableTextScale", 25)
                 end,
                 tooltip = {
-                    title = "Consumable text scale",
-                    desc = "Font size for item counts and quality (R1/R2/R3) labels as a percentage of icon size.",
+                    title = L["Options.ConsumableTextScale.Title"],
+                    desc = L["Options.ConsumableTextScale.Desc"],
                 },
                 onChange = function(val)
                     BR.Config.Set("defaults.consumableTextScale", val)
@@ -1617,22 +1620,30 @@ local function CreateOptionsPanel()
             local updateDisplayModePreview -- forward declaration for preview update
             local updateSubIconSideVisibility -- forward declaration for sub-icon side visibility
             local displayModeHolder = Components.Dropdown(catContent, {
-                label = "Item display",
+                label = L["Options.ItemDisplay"],
                 get = function()
                     return BR.Config.Get("defaults.consumableDisplayMode", "sub_icons")
                 end,
                 options = {
-                    { value = "icon_only", label = "Icon only", desc = "Shows the item with the highest count" },
+                    {
+                        value = "icon_only",
+                        label = L["Options.ItemDisplay.IconOnly"],
+                        desc = L["Options.ItemDisplay.IconOnlyDesc"],
+                    },
                     {
                         value = "sub_icons",
-                        label = "Sub-icons",
-                        desc = "Small clickable item variants below each icon",
+                        label = L["Options.ItemDisplay.SubIcons"],
+                        desc = L["Options.ItemDisplay.SubIconsDesc"],
                     },
-                    { value = "expanded", label = "Expanded", desc = "Each item variant as a full-sized icon" },
+                    {
+                        value = "expanded",
+                        label = L["Options.ItemDisplay.Expanded"],
+                        desc = L["Options.ItemDisplay.ExpandedDesc"],
+                    },
                 },
                 tooltip = {
-                    title = "Consumable item display",
-                    desc = "How consumable items with multiple variants (e.g. different flask types) are displayed.",
+                    title = L["Options.ItemDisplay.Mode"],
+                    desc = L["Options.ItemDisplay.Mode.Desc"],
                 },
                 onChange = function(val)
                     BR.Config.Set("defaults.consumableDisplayMode", val)
@@ -1778,7 +1789,7 @@ local function CreateOptionsPanel()
 
             -- Sub-icon placement side (anchored below preview, visible only in sub_icons mode)
             local subIconSideHolder = Components.Dropdown(catContent, {
-                label = "Side",
+                label = L["Options.SubIconSide"],
                 labelWidth = 30,
                 width = 85,
                 get = function()
@@ -1786,10 +1797,10 @@ local function CreateOptionsPanel()
                     return catSettings and catSettings.subIconSide or "BOTTOM"
                 end,
                 options = {
-                    { value = "BOTTOM", label = "Bottom" },
-                    { value = "TOP", label = "Top" },
-                    { value = "LEFT", label = "Left" },
-                    { value = "RIGHT", label = "Right" },
+                    { value = "BOTTOM", label = L["Options.SubIconSide.Bottom"] },
+                    { value = "TOP", label = L["Options.SubIconSide.Top"] },
+                    { value = "LEFT", label = L["Options.SubIconSide.Left"] },
+                    { value = "RIGHT", label = L["Options.SubIconSide.Right"] },
                 },
                 onChange = function(val)
                     BR.Config.Set("categorySettings." .. category .. ".subIconSide", val)
@@ -1805,17 +1816,17 @@ local function CreateOptionsPanel()
             -- Sub-header for behavior options
             catLayout:Space(SECTION_GAP)
             local behaviorHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-            behaviorHeader:SetText("|cffffcc00Behavior|r")
+            behaviorHeader:SetText("|cffffcc00" .. L["Options.Behavior"] .. "|r")
             catLayout:AddText(behaviorHeader, 12, COMPONENT_GAP)
 
             local showWithoutItemsHolder = Components.Checkbox(catContent, {
-                label = "Show when not in bags",
+                label = L["Options.ShowWithoutItems"],
                 get = function()
                     return BR.Config.Get("defaults.showConsumablesWithoutItems", false) == true
                 end,
                 tooltip = {
-                    title = "Show consumables without items",
-                    desc = "When enabled, consumable reminders are shown even if you don't have the item in your bags. When disabled, only consumables you actually carry are shown.",
+                    title = L["Options.ShowWithoutItems.Title"],
+                    desc = L["Options.ShowWithoutItems.Desc"],
                 },
                 onChange = function(checked)
                     BR.Config.Set("defaults.showConsumablesWithoutItems", checked)
@@ -1824,13 +1835,13 @@ local function CreateOptionsPanel()
             catLayout:Add(showWithoutItemsHolder, nil, COMPONENT_GAP)
 
             local delveFoodOnlyHolder = Components.Checkbox(catContent, {
-                label = "Only delve food in delves",
+                label = L["Options.DelveFoodOnly"],
                 get = function()
                     return BR.Config.Get("defaults.delveFoodOnly", false) == true
                 end,
                 tooltip = {
-                    title = "Only delve food in delves",
-                    desc = "When inside a delve, hide all consumable reminders except delve food.",
+                    title = L["Options.DelveFoodOnly"],
+                    desc = L["Options.DelveFoodOnly.Desc"],
                 },
                 onChange = function(checked)
                     BR.Config.Set("defaults.delveFoodOnly", checked)
@@ -1842,12 +1853,12 @@ local function CreateOptionsPanel()
         -- Layout sub-header
         catLayout:Space(SECTION_GAP)
         local layoutHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-        layoutHeader:SetText("|cffffcc00Layout|r")
+        layoutHeader:SetText("|cffffcc00" .. L["Options.Layout"] .. "|r")
         catLayout:AddText(layoutHeader, 12, COMPONENT_GAP)
 
         -- Priority slider (only relevant when not split)
         local priorityHolder = Components.Slider(catContent, {
-            label = "Priority",
+            label = L["Options.Priority"],
             min = 1,
             max = 7,
             step = 1,
@@ -1859,8 +1870,8 @@ local function CreateOptionsPanel()
                 return not IsCategorySplit(category)
             end,
             tooltip = {
-                title = "Display Priority",
-                desc = "Controls the order of this category in the combined frame. Lower values are displayed first.",
+                title = L["Options.DisplayPriority"],
+                desc = L["Options.Priority.Desc"],
             },
             onChange = function(val)
                 BR.Config.Set("categorySettings." .. category .. ".priority", val)
@@ -1870,13 +1881,13 @@ local function CreateOptionsPanel()
 
         -- Split frame checkbox
         local splitHolder = Components.Checkbox(catContent, {
-            label = "Split into separate frame",
+            label = L["Options.SplitFrame"],
             get = function()
                 return IsCategorySplit(category)
             end,
             tooltip = {
-                title = "Split into separate frame",
-                desc = "Display this category's buffs in a separate, independently movable frame",
+                title = L["Options.SplitFrame"],
+                desc = L["Options.SplitFrame.Desc"],
             },
             onChange = function(checked)
                 if not db.categorySettings then
@@ -1893,7 +1904,7 @@ local function CreateOptionsPanel()
         catLayout:Add(splitHolder, nil, COMPONENT_GAP)
 
         -- Reset position button (only relevant when split)
-        local resetBtn = CreateButton(catContent, "Reset Position", function()
+        local resetBtn = CreateButton(catContent, L["Options.ResetPosition"], function()
             local catDefaults = defaults.categorySettings[category]
             if catDefaults and catDefaults.position then
                 ResetCategoryFramePosition(category, catDefaults.position.x, catDefaults.position.y)
@@ -1957,15 +1968,15 @@ local function CreateOptionsPanel()
         -- Use custom appearance checkbox
         catLayout:SetX(0)
         local useCustomAppHolder = Components.Checkbox(catContent, {
-            label = "Use custom appearance",
+            label = L["Options.CustomAppearance"],
             get = function()
                 return db.categorySettings
                     and db.categorySettings[category]
                     and db.categorySettings[category].useCustomAppearance == true
             end,
             tooltip = {
-                title = "Use custom appearance",
-                desc = "When disabled, this category inherits appearance settings from Global Defaults. Grow direction requires splitting into a separate frame.",
+                title = L["Options.CustomAppearance"],
+                desc = L["Options.CustomAppearance.Desc"],
             },
             onChange = function(checked)
                 if not db.categorySettings then
@@ -2087,7 +2098,7 @@ local function CreateOptionsPanel()
         if category == "pet" then
             -- Pets don't expire — single glow on/off checkbox
             local catPetGlowHolder = Components.Checkbox(appFrame, {
-                label = "Glow missing pets",
+                label = L["Options.GlowMissingPets"],
                 get = function()
                     return getCatOwnValue("showExpirationGlow", true) ~= false
                 end,
@@ -2101,7 +2112,7 @@ local function CreateOptionsPanel()
 
             -- Per-category custom glow style (pet)
             local catPetCustomGlowHolder = Components.Checkbox(appFrame, {
-                label = "Custom glow style",
+                label = L["Options.CustomGlowStyle"],
                 get = function()
                     return isCustomGlowEnabled()
                 end,
@@ -2116,7 +2127,7 @@ local function CreateOptionsPanel()
             })
             catPetCustomGlowHolder:SetPoint("TOPLEFT", 0, glowRowY - 24)
 
-            local catPetGlowSettingsBtn = CreateButton(appFrame, "Customize", function()
+            local catPetGlowSettingsBtn = CreateButton(appFrame, L["Options.Customize"], function()
                 ShowGlowAdvanced(category)
             end)
             catPetGlowSettingsBtn:SetPoint("LEFT", catPetCustomGlowHolder.label, "RIGHT", 8, 0)
@@ -2138,13 +2149,13 @@ local function CreateOptionsPanel()
             gridHeight = catGrid.height + 48
         else
             local catThresholdHolder = Components.Slider(appFrame, {
-                label = "Expiration",
+                label = L["Options.Expiration"],
                 labelWidth = 56,
                 min = 0,
                 max = 45,
                 step = 5,
                 formatValue = function(val)
-                    return val == 0 and "Off" or (val .. " min")
+                    return val == 0 and L["Options.Off"] or (val .. " " .. L["Options.Min"])
                 end,
                 get = function()
                     return getCatOwnValue("expirationThreshold", 15)
@@ -2157,7 +2168,7 @@ local function CreateOptionsPanel()
             catThresholdHolder:SetPoint("TOPLEFT", 0, glowRowY)
 
             local catGlowCheckHolder = Components.Checkbox(appFrame, {
-                label = "Glow",
+                label = L["Options.Glow"],
                 get = function()
                     return getCatOwnValue("showExpirationGlow", true) ~= false
                 end,
@@ -2171,7 +2182,7 @@ local function CreateOptionsPanel()
 
             -- Per-category custom glow style
             local catCustomGlowHolder = Components.Checkbox(appFrame, {
-                label = "Custom glow style",
+                label = L["Options.CustomGlowStyle"],
                 get = function()
                     return isCustomGlowEnabled()
                 end,
@@ -2186,7 +2197,7 @@ local function CreateOptionsPanel()
             })
             catCustomGlowHolder:SetPoint("TOPLEFT", 0, glowRowY - 48)
 
-            local catGlowSettingsBtn = CreateButton(appFrame, "Customize", function()
+            local catGlowSettingsBtn = CreateButton(appFrame, L["Options.Customize"], function()
                 ShowGlowAdvanced(category)
             end)
             catGlowSettingsBtn:SetPoint("LEFT", catCustomGlowHolder.label, "RIGHT", 8, 0)
@@ -2259,7 +2270,7 @@ local function CreateOptionsPanel()
     local setLayout = Components.VerticalLayout(settingsContent, { x = setX, y = -10 })
 
     local loginMsgHolder = Components.Checkbox(settingsContent, {
-        label = "Show login messages",
+        label = L["Options.ShowLoginMessages"],
         get = function()
             return BR.profile.showLoginMessages ~= false
         end,
@@ -2270,7 +2281,7 @@ local function CreateOptionsPanel()
     setLayout:Add(loginMsgHolder, nil, COMPONENT_GAP)
 
     local minimapHolder = Components.Checkbox(settingsContent, {
-        label = "Show minimap button",
+        label = L["Options.ShowMinimapButton"],
         get = function()
             return not BR.aceDB.global.minimap.hide
         end,
@@ -2288,10 +2299,10 @@ local function CreateOptionsPanel()
     setLayout:Add(minimapHolder, nil, COMPONENT_GAP)
 
     -- General Settings section
-    LayoutSectionHeader(setLayout, settingsContent, "Visibility")
+    LayoutSectionHeader(setLayout, settingsContent, L["Options.Visibility"])
 
     local groupHolder = Components.Checkbox(settingsContent, {
-        label = "Show only in group/raid",
+        label = L["Options.ShowOnlyInGroup"],
         get = function()
             return BR.profile.showOnlyInGroup ~= false
         end,
@@ -2304,18 +2315,18 @@ local function CreateOptionsPanel()
 
     -- "Hide when:" sub-label with indented checkboxes
     local hideWhenLabel = settingsContent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    hideWhenLabel:SetText("Hide when:")
+    hideWhenLabel:SetText(L["Options.HideWhen"])
     setLayout:AddText(hideWhenLabel, 12, COMPONENT_GAP)
 
     local HIDE_INDENT = 16
     setLayout:SetX(setX + HIDE_INDENT)
 
     local restingHolder = Components.Checkbox(settingsContent, {
-        label = "Resting",
+        label = L["Options.HideWhen.Resting"],
         get = function()
             return BR.profile.hideWhileResting == true
         end,
-        tooltip = { title = "Hide while resting", desc = "Hide buff reminders while in inns or capital cities" },
+        tooltip = { title = L["Options.HideWhen.Resting.Title"], desc = L["Options.HideWhen.Resting.Desc"] },
         onChange = function(checked)
             BR.profile.hideWhileResting = checked
             UpdateDisplay()
@@ -2324,7 +2335,7 @@ local function CreateOptionsPanel()
     setLayout:Add(restingHolder, nil, COMPONENT_GAP)
 
     local combatHolder = Components.Checkbox(settingsContent, {
-        label = "In combat",
+        label = L["Options.HideWhen.Combat"],
         get = function()
             return BR.profile.hideInCombat == true
         end,
@@ -2337,10 +2348,10 @@ local function CreateOptionsPanel()
     setLayout:Add(combatHolder, nil, COMPONENT_GAP)
 
     local combatExpiringHolder = Components.Checkbox(settingsContent, {
-        label = "Expiring in combat",
+        label = L["Options.HideWhen.Expiring"],
         tooltip = {
-            title = "Hide expiring buffs in combat",
-            desc = "During combat, hide buffs that are expiring soon and only show completely missing ones",
+            title = L["Options.HideWhen.Expiring.Title"],
+            desc = L["Options.HideWhen.Expiring.Desc"],
         },
         get = function()
             return BR.profile.hideExpiringInCombat ~= false
@@ -2356,10 +2367,10 @@ local function CreateOptionsPanel()
     setLayout:Add(combatExpiringHolder, nil, COMPONENT_GAP)
 
     local vehicleHolder = Components.Checkbox(settingsContent, {
-        label = "In vehicle",
+        label = L["Options.HideWhen.Vehicle"],
         tooltip = {
-            title = "Hide in vehicle",
-            desc = "Hide all buff reminders while in a quest vehicle. When disabled, raid and presence buffs still show",
+            title = L["Options.HideWhen.Vehicle.Title"],
+            desc = L["Options.HideWhen.Vehicle.Desc"],
         },
         get = function()
             return BR.profile.hideAllInVehicle == true
@@ -2372,10 +2383,10 @@ local function CreateOptionsPanel()
     setLayout:Add(vehicleHolder, nil, COMPONENT_GAP)
 
     local mountedHolder = Components.Checkbox(settingsContent, {
-        label = "While mounted",
+        label = L["Options.HideWhen.Mounted"],
         tooltip = {
-            title = "Hide while mounted",
-            desc = "Hide all buff reminders while mounted. Overrides the per-category pet mount hiding setting",
+            title = L["Options.HideWhen.Mounted.Title"],
+            desc = L["Options.HideWhen.Mounted.Desc"],
         },
         get = function()
             return BR.profile.hideWhileMounted == true
@@ -2388,10 +2399,10 @@ local function CreateOptionsPanel()
     setLayout:Add(mountedHolder, nil, COMPONENT_GAP)
 
     local legacyHolder = Components.Checkbox(settingsContent, {
-        label = "In legacy instances",
+        label = L["Options.HideWhen.Legacy"],
         tooltip = {
-            title = "Hide in legacy instances",
-            desc = "Hide all buff reminders in trivially old instances (where legacy loot is enabled)",
+            title = L["Options.HideWhen.Legacy.Title"],
+            desc = L["Options.HideWhen.Legacy.Desc"],
         },
         get = function()
             return BR.profile.hideInLegacyInstances == true
@@ -2406,36 +2417,36 @@ local function CreateOptionsPanel()
     setLayout:SetX(setX)
 
     local trackingModeHolder = Components.Dropdown(settingsContent, {
-        label = "Buff tracking",
+        label = L["Options.BuffTracking"],
         width = 200,
         options = {
             {
                 value = "all",
-                label = "All buffs, all players",
-                desc = "Show all raid and presence buffs for every class, tracking full group coverage.",
+                label = L["Options.BuffTracking.All"],
+                desc = L["Options.BuffTracking.All.Desc"],
             },
             {
                 value = "my_buffs",
-                label = "Only my buffs, all players",
-                desc = "Only show buffs your class can provide. Still tracks full group coverage.",
+                label = L["Options.BuffTracking.MyBuffs"],
+                desc = L["Options.BuffTracking.MyBuffs.Desc"],
             },
             {
                 value = "personal",
-                label = "Only buffs I need",
-                desc = "Show all buff types, but only check whether you personally have them. No group counts.",
+                label = L["Options.BuffTracking.OnlyMine"],
+                desc = L["Options.BuffTracking.OnlyMine.Desc"],
             },
             {
                 value = "smart",
-                label = "Smart",
-                desc = "Buffs your class provides track full group coverage. Other class buffs only check you personally.",
+                label = L["Options.BuffTracking.Smart"],
+                desc = L["Options.BuffTracking.Smart.Desc"],
             },
         },
         get = function()
             return BR.Config.Get("buffTrackingMode", "all")
         end,
         tooltip = {
-            title = "Buff tracking mode",
-            desc = "Controls which raid and presence buffs are shown, and whether they track the full group or only you.",
+            title = L["Options.BuffTracking.Mode"],
+            desc = L["Options.BuffTracking.Mode.Desc"],
         },
         onChange = function(val)
             BR.Config.Set("buffTrackingMode", val)
@@ -2445,14 +2456,12 @@ local function CreateOptionsPanel()
     setLayout:Add(trackingModeHolder, nil, COMPONENT_GAP)
 
     -- Custom Anchor Frames section
-    LayoutSectionHeader(setLayout, settingsContent, "Custom Anchor Frames")
+    LayoutSectionHeader(setLayout, settingsContent, L["Options.CustomAnchorFrames"])
 
     local customAnchorDesc = settingsContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     customAnchorDesc:SetWidth(PANEL_WIDTH - COL_PADDING * 2)
     customAnchorDesc:SetJustifyH("LEFT")
-    customAnchorDesc:SetText(
-        "Add global frame names to the anchor dropdown (e.g. MyAddon_PlayerFrame). \nFrames that don't exist in-game are silently skipped."
-    )
+    customAnchorDesc:SetText(L["Options.CustomAnchorFrames.Desc"])
     setLayout:AddText(customAnchorDesc, 22, COMPONENT_GAP)
 
     -- Input row: text input + add button (at top)
@@ -2519,7 +2528,7 @@ local function CreateOptionsPanel()
         customAnchorList:SetHeight(math.max(1, entryY))
     end
 
-    addAnchorBtn = CreateButton(addAnchorRow, "Add", function()
+    addAnchorBtn = CreateButton(addAnchorRow, L["Options.Add"], function()
         local name = strtrim(addAnchorBox:GetText())
         if name == "" then
             return
@@ -2565,10 +2574,10 @@ local function CreateOptionsPanel()
     local RefreshProfileDropdown -- forward declaration for closures
 
     -- Profile management section
-    LayoutSectionHeader(profLayout, profilesContent, "Active Profile")
+    LayoutSectionHeader(profLayout, profilesContent, L["Options.ActiveProfile"])
 
     local profileDesc = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    profileDesc:SetText("Switch between saved configurations. Each character can use a different profile.")
+    profileDesc:SetText(L["Options.ActiveProfile.Desc"])
     profLayout:AddText(profileDesc, 12, COMPONENT_GAP)
 
     local function GetProfileOptions()
@@ -2583,7 +2592,7 @@ local function CreateOptionsPanel()
     local function GetOtherProfileOptions()
         local names = BR.Profiles.ListProfiles()
         local active = BR.Profiles.GetActiveProfileName()
-        local options = { { value = "", label = "Select a profile" } }
+        local options = { { value = "", label = L["Options.SelectProfile"] } }
         for _, name in ipairs(names) do
             if name ~= active then
                 options[#options + 1] = { value = name, label = name }
@@ -2600,7 +2609,7 @@ local function CreateOptionsPanel()
     profileRow:SetSize(PANEL_WIDTH - COL_PADDING * 2, 26)
 
     local profileDropdown = Components.Dropdown(profileRow, {
-        label = "Profile",
+        label = L["Options.Profile"],
         labelWidth = PROF_LABEL_WIDTH,
         width = PROF_DROPDOWN_WIDTH,
         options = GetProfileOptions(),
@@ -2617,13 +2626,13 @@ local function CreateOptionsPanel()
 
     local btnX = PROF_LABEL_WIDTH + PROF_DROPDOWN_WIDTH + 10
 
-    local newProfileBtn = CreateButton(profileRow, "New", function()
+    local newProfileBtn = CreateButton(profileRow, L["Options.New"], function()
         StaticPopup_Show("BUFFREMINDERS_NEW_PROFILE")
     end)
     newProfileBtn:SetSize(50, 22)
     newProfileBtn:SetPoint("LEFT", btnX, 0)
 
-    local resetProfileBtn = CreateButton(profileRow, "Reset", function()
+    local resetProfileBtn = CreateButton(profileRow, L["Dialog.Reset"], function()
         StaticPopup_Show("BUFFREMINDERS_RESET_DEFAULTS")
     end)
     resetProfileBtn:SetSize(50, 22)
@@ -2633,7 +2642,7 @@ local function CreateOptionsPanel()
 
     -- Copy From dropdown
     local copyDropdown = Components.Dropdown(profilesContent, {
-        label = "Copy From",
+        label = L["Options.CopyFrom"],
         labelWidth = PROF_LABEL_WIDTH,
         width = PROF_DROPDOWN_WIDTH,
         options = GetOtherProfileOptions(),
@@ -2652,7 +2661,7 @@ local function CreateOptionsPanel()
 
     -- Delete dropdown
     local deleteDropdown = Components.Dropdown(profilesContent, {
-        label = "Delete",
+        label = L["Options.Delete"],
         labelWidth = PROF_LABEL_WIDTH,
         width = PROF_DROPDOWN_WIDTH,
         options = GetOtherProfileOptions(),
@@ -2683,14 +2692,14 @@ local function CreateOptionsPanel()
     end
 
     -- Per-spec profiles section (LibDualSpec)
-    LayoutSectionHeader(profLayout, profilesContent, "Per-Specialization Profiles")
+    LayoutSectionHeader(profLayout, profilesContent, L["Options.PerSpecProfiles"])
 
     local specDesc = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    specDesc:SetText("Automatically switch profiles when you change specialization.")
+    specDesc:SetText(L["Options.PerSpecProfiles.Desc"])
     profLayout:AddText(specDesc, 12, COMPONENT_GAP)
 
     local specEnabled = Components.Checkbox(profilesContent, {
-        label = "Enable per-specialization profiles",
+        label = L["Options.PerSpecProfiles.Enable"],
         get = function()
             return BR.Profiles.IsPerSpecEnabled()
         end,
@@ -2743,10 +2752,10 @@ local function CreateOptionsPanel()
     end
 
     -- Export section
-    LayoutSectionHeader(profLayout, profilesContent, "Export Settings")
+    LayoutSectionHeader(profLayout, profilesContent, L["Options.ExportSettings"])
 
     local exportDesc = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    exportDesc:SetText("Copy the string below to share your settings with others.")
+    exportDesc:SetText(L["Options.ExportSettings.Desc"])
     profLayout:AddText(exportDesc, 12, COMPONENT_GAP)
 
     local exportTextArea = Components.TextArea(profilesContent, {
@@ -2755,23 +2764,25 @@ local function CreateOptionsPanel()
     })
     profLayout:Add(exportTextArea, 50, COMPONENT_GAP)
 
-    local exportButton = CreateButton(profilesContent, "Export", function()
+    local exportButton = CreateButton(profilesContent, L["Options.Export"], function()
         local exportString, err = BuffReminders:Export()
         if exportString then
             exportTextArea:SetText(exportString)
             exportTextArea:HighlightText()
             exportTextArea:SetFocus()
         else
-            exportTextArea:SetText("Error: " .. (err or "Failed to export"))
+            exportTextArea:SetText(L["CustomBuff.Error"] .. " " .. (err or L["Options.FailedExport"]))
         end
     end)
     profLayout:Add(exportButton, 22, SECTION_GAP)
 
     -- Import section
-    LayoutSectionHeader(profLayout, profilesContent, "Import Settings")
+    LayoutSectionHeader(profLayout, profilesContent, L["Options.ImportSettings"])
 
     local importDesc = profilesContent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-    importDesc:SetText("Paste a settings string below. |cffff6600This will overwrite the active profile.|r")
+    importDesc:SetText(
+        L["Options.ImportSettings.DescPlain"] .. " |cffff6600" .. L["Options.ImportSettings.Overwrite"] .. "|r"
+    )
     profLayout:AddText(importDesc, 12, COMPONENT_GAP)
 
     local importTextArea = Components.TextArea(profilesContent, {
@@ -2785,14 +2796,16 @@ local function CreateOptionsPanel()
     importStatus:SetJustifyH("LEFT")
     importStatus:SetText("")
 
-    local importButton = CreateButton(profilesContent, "Import", function()
+    local importButton = CreateButton(profilesContent, L["Options.Import"], function()
         local importString = importTextArea:GetText()
         local success, err = BuffReminders:Import(importString)
         if success then
-            importStatus:SetText("|cff00ff00Settings imported successfully!|r")
+            importStatus:SetText("|cff00ff00" .. L["Options.ImportSuccess"] .. "|r")
             StaticPopup_Show("BUFFREMINDERS_RELOAD_UI")
         else
-            importStatus:SetText("|cffff0000Error: " .. (err or "Unknown error") .. "|r")
+            importStatus:SetText(
+                "|cffff0000" .. L["CustomBuff.Error"] .. " " .. (err or L["Options.UnknownError"]) .. "|r"
+            )
         end
     end)
     profLayout:Add(importButton, 22)
@@ -2818,10 +2831,10 @@ local function CreateOptionsPanel()
 
     local BTN_WIDTH = 80
 
-    local lockBtn = CreateButton(btnHolder, "Unlock", function()
+    local lockBtn = CreateButton(btnHolder, L["Options.Unlock"], function()
         BR.Display.ToggleLock()
         Components.RefreshAll()
-    end, { title = "Lock / Unlock", desc = "Unlock to show anchor handles for repositioning buff frames." }, {
+    end, { title = L["Options.LockUnlock"], desc = L["Options.LockUnlock.Desc"] }, {
         border = { 0.7, 0.58, 0, 1 },
         borderHover = { 1, 0.82, 0, 1 },
         text = { 1, 0.82, 0, 1 },
@@ -2830,13 +2843,13 @@ local function CreateOptionsPanel()
     lockBtn:SetPoint("RIGHT", btnHolder, "CENTER", -4, 0)
 
     function lockBtn:Refresh()
-        self.text:SetText(BR.profile.locked and "Unlock" or "Lock")
+        self.text:SetText(BR.profile.locked and L["Options.Unlock"] or L["Options.Lock"])
     end
     lockBtn:Refresh()
     tinsert(BR.RefreshableComponents, lockBtn)
 
     local unlockBanner = Components.Banner(panel, {
-        text = "Click an anchor to update its anchor point or coordinates",
+        text = L["Options.AnchorHint"],
         color = "orange",
         icon = "services-icon-warning",
         bgAlpha = 0.95,
@@ -2847,14 +2860,14 @@ local function CreateOptionsPanel()
     unlockBanner:SetPoint("TOPLEFT", panel, "BOTTOMLEFT", 0, 0)
     unlockBanner:SetPoint("TOPRIGHT", panel, "BOTTOMRIGHT", 0, 0)
 
-    local testBtn = CreateButton(btnHolder, "Stop Test", function(self)
+    local testBtn = CreateButton(btnHolder, L["Options.StopTest"], function(self)
         local isOn = ToggleTestMode()
-        self.text:SetText(isOn and "Stop Test" or "Test")
+        self.text:SetText(isOn and L["Options.StopTest"] or L["Options.Test"])
     end, {
-        title = "Test icon's appearance",
-        desc = "Shows your selected buffs with fake values so you can preview their appearance.",
+        title = L["Options.TestAppearance"],
+        desc = L["Options.TestAppearance.Desc"],
     })
-    testBtn:SetText("Test")
+    testBtn:SetText(L["Options.Test"])
     testBtn:SetSize(BTN_WIDTH, 22)
     testBtn:SetPoint("LEFT", btnHolder, "CENTER", 4, 0)
     panel.testBtn = testBtn
@@ -2874,9 +2887,9 @@ local function ShowOptions()
             optionsPanel.RenderCustomBuffRows()
         end
         if BR.Display.IsTestMode() then
-            optionsPanel.testBtn.text:SetText("Stop Test")
+            optionsPanel.testBtn.text:SetText(L["Options.StopTest"])
         else
-            optionsPanel.testBtn.text:SetText("Test")
+            optionsPanel.testBtn.text:SetText(L["Options.Test"])
         end
         optionsPanel:Show()
     end
@@ -2928,8 +2941,8 @@ ShowGlowAdvanced = function(targetCategory)
     })
 
     local titleText = targetCategory
-            and ("Glow Settings — " .. targetCategory:sub(1, 1):upper() .. targetCategory:sub(2))
-        or "Glow Settings"
+            and (L["Options.GlowSettings"] .. " — " .. targetCategory:sub(1, 1):upper() .. targetCategory:sub(2))
+        or L["Options.GlowSettings"]
     local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -10)
     title:SetText("|cffffcc00" .. titleText .. "|r")
@@ -2953,7 +2966,7 @@ ShowGlowAdvanced = function(targetCategory)
     end
 
     local typeHolder = Components.Dropdown(panel, {
-        label = "Type:",
+        label = L["Options.Glow.Type"],
         labelWidth = 40,
         options = typeOptions,
         get = function()
@@ -3056,7 +3069,7 @@ ShowGlowAdvanced = function(targetCategory)
         local sizeHolder
         if typeIdx == GlowType.Pixel or typeIdx == GlowType.Border then
             sizeHolder = Components.NumericStepper(panel, {
-                label = "Size:",
+                label = L["Options.Glow.Size"],
                 labelWidth = 34,
                 min = 1,
                 max = 10,
@@ -3077,10 +3090,10 @@ ShowGlowAdvanced = function(targetCategory)
         if typeIdx == GlowType.Proc then
             -- Proc: optional custom color (desaturated + vertex color, less vibrant than default)
             procColorCheckbox = Components.Checkbox(panel, {
-                label = "Use Custom Color",
+                label = L["Options.UseCustomColor"],
                 tooltip = {
-                    title = "Use Custom Color",
-                    desc = "When enabled, the proc glow is desaturated and recolored.\nThis looks less vibrant than the default proc glow.",
+                    title = L["Options.UseCustomColor"],
+                    desc = L["Options.UseCustomColor.Desc"],
                 },
                 get = function()
                     return getSource().glowProcUseCustomColor or false
@@ -3141,7 +3154,7 @@ ShowGlowAdvanced = function(targetCategory)
         if typeIdx == GlowType.Pixel then
             -- Pixel
             AddSlider({
-                label = "Lines",
+                label = L["Options.Glow.Lines"],
                 min = 1,
                 max = 20,
                 step = 1,
@@ -3154,7 +3167,7 @@ ShowGlowAdvanced = function(targetCategory)
                 end,
             })
             AddSlider({
-                label = "Frequency",
+                label = L["Options.Glow.Frequency"],
                 min = 0.01,
                 max = 1,
                 step = 0.01,
@@ -3170,7 +3183,7 @@ ShowGlowAdvanced = function(targetCategory)
                 end,
             })
             AddSlider({
-                label = "Length",
+                label = L["Options.Glow.Length"],
                 min = 1,
                 max = 20,
                 step = 1,
@@ -3185,7 +3198,7 @@ ShowGlowAdvanced = function(targetCategory)
         elseif typeIdx == GlowType.AutoCast then
             -- AutoCast
             AddSlider({
-                label = "Scale",
+                label = L["Options.Glow.Scale"],
                 min = 1,
                 max = 3,
                 step = 0.1,
@@ -3201,7 +3214,7 @@ ShowGlowAdvanced = function(targetCategory)
                 end,
             })
             AddSlider({
-                label = "Particles",
+                label = L["Options.Glow.Particles"],
                 min = 1,
                 max = 8,
                 step = 1,
@@ -3214,7 +3227,7 @@ ShowGlowAdvanced = function(targetCategory)
                 end,
             })
             AddSlider({
-                label = "Frequency",
+                label = L["Options.Glow.Frequency"],
                 min = 0.01,
                 max = 1,
                 step = 0.01,
@@ -3232,7 +3245,7 @@ ShowGlowAdvanced = function(targetCategory)
         elseif typeIdx == GlowType.Border then
             -- Border
             AddSlider({
-                label = "Speed",
+                label = L["Options.Glow.Speed"],
                 min = 0.1,
                 max = 2,
                 step = 0.1,
@@ -3250,7 +3263,7 @@ ShowGlowAdvanced = function(targetCategory)
         elseif typeIdx == GlowType.Proc then
             -- Proc
             AddSlider({
-                label = "Duration",
+                label = L["Options.Glow.Duration"],
                 min = 0.1,
                 max = 3,
                 step = 0.1,
@@ -3266,7 +3279,7 @@ ShowGlowAdvanced = function(targetCategory)
                 end,
             })
             AddCheckbox({
-                label = "Start Animation",
+                label = L["Options.Glow.StartAnimation"],
                 get = function()
                     return getSource().glowProcStartAnim or false
                 end,
@@ -3279,7 +3292,7 @@ ShowGlowAdvanced = function(targetCategory)
 
         -- Offsets
         AddSlider({
-            label = "X Offset",
+            label = L["Options.Glow.XOffset"],
             min = -10,
             max = 10,
             step = 1,
@@ -3292,7 +3305,7 @@ ShowGlowAdvanced = function(targetCategory)
             end,
         })
         AddSlider({
-            label = "Y Offset",
+            label = L["Options.Glow.YOffset"],
             min = -10,
             max = 10,
             step = 1,
@@ -3307,7 +3320,7 @@ ShowGlowAdvanced = function(targetCategory)
 
         -- Reset button (resets current type's params + shared keys)
         dynamicLayout:Space(8)
-        local resetBtn = CreateButton(panel, "Reset to Defaults", function()
+        local resetBtn = CreateButton(panel, L["Options.ResetToDefaults"], function()
             local keys = { "glowColor", "glowSize", "glowXOffset", "glowYOffset" }
             local typeKeys = typeResetKeys[typeIdx]
             if typeKeys then
@@ -3353,9 +3366,9 @@ end
 
 -- Delete confirmation dialog for custom buffs
 StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
-    text = 'Delete custom buff "%s"?',
-    button1 = "Delete",
-    button2 = "Cancel",
+    text = L["Dialog.DeleteCustomBuff"],
+    button1 = L["Options.Delete"],
+    button2 = L["Dialog.Cancel"],
     OnAccept = function(_, data)
         if data and data.key then
             BR.profile.customBuffs[data.key] = nil
@@ -3374,9 +3387,9 @@ StaticPopupDialogs["BUFFREMINDERS_DELETE_CUSTOM"] = {
 }
 
 StaticPopupDialogs["BUFFREMINDERS_RESET_DEFAULTS"] = {
-    text = "Reset the active profile to defaults?\n\nThis will erase all customizations\nin the current profile and reload the UI.",
-    button1 = "Reset",
-    button2 = "Cancel",
+    text = L["Dialog.ResetProfile"],
+    button1 = L["Dialog.Reset"],
+    button2 = L["Dialog.Cancel"],
     OnAccept = function()
         BR.Profiles.ResetProfile()
         ReloadUI()
@@ -3389,9 +3402,9 @@ StaticPopupDialogs["BUFFREMINDERS_RESET_DEFAULTS"] = {
 }
 
 StaticPopupDialogs["BUFFREMINDERS_RELOAD_UI"] = {
-    text = "Settings imported successfully!\nReload UI to apply changes?",
-    button1 = "Reload",
-    button2 = "Cancel",
+    text = L["Dialog.ReloadPrompt"],
+    button1 = L["Dialog.Reload"],
+    button2 = L["Dialog.Cancel"],
     OnAccept = function()
         ReloadUI()
     end,
@@ -3416,9 +3429,9 @@ local function CreateNewProfile(name)
 end
 
 StaticPopupDialogs["BUFFREMINDERS_NEW_PROFILE"] = {
-    text = "Enter a name for the new profile:",
-    button1 = "Create",
-    button2 = "Cancel",
+    text = L["Dialog.NewProfilePrompt"],
+    button1 = L["Dialog.Create"],
+    button2 = L["Dialog.Cancel"],
     hasEditBox = true,
     editBoxWidth = 200,
     OnAccept = function(self)
@@ -3438,8 +3451,8 @@ StaticPopupDialogs["BUFFREMINDERS_NEW_PROFILE"] = {
 }
 
 StaticPopupDialogs["BUFFREMINDERS_DISCORD_URL"] = {
-    text = "Join the BuffReminders Discord!\nCopy the URL below (Ctrl+C):",
-    button1 = "Close",
+    text = L["Dialog.DiscordPrompt"],
+    button1 = L["Dialog.Close"],
     hasEditBox = true,
     editBoxWidth = 250,
     OnShow = function(self)
@@ -3521,7 +3534,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     local modalTitle = modal:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     modalTitle:SetPoint("TOP", 0, -12)
-    modalTitle:SetText(editingBuff and "Edit Custom Buff" or "Add Custom Buff")
+    modalTitle:SetText(editingBuff and L["CustomBuff.Edit"] or L["CustomBuff.Add"])
 
     local modalCloseBtn = CreateButton(modal, "x", function()
         modal:Hide()
@@ -3531,7 +3544,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     local spellIdsLabel = modal:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     spellIdsLabel:SetPoint("TOPLEFT", CONTENT_LEFT, -40)
-    spellIdsLabel:SetText("Spell IDs:")
+    spellIdsLabel:SetText(L["CustomBuff.SpellIDs"])
 
     spellRows = {}
 
@@ -3582,7 +3595,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         end
 
         local doLookup -- forward declare for onClick
-        local lookupBtn = CreateButton(rowFrame, "Lookup", function()
+        local lookupBtn = CreateButton(rowFrame, L["CustomBuff.Lookup"], function()
             doLookup()
         end)
         lookupBtn:SetSize(55, 20)
@@ -3629,7 +3642,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             local spellID = tonumber(editBox:GetText())
             if not spellID then
                 icon:Hide()
-                nameText:SetText("|cffff4d4dInvalid ID|r")
+                nameText:SetText("|cffff4d4d" .. L["CustomBuff.InvalidID"] .. "|r")
                 rowData.validated, rowData.spellID, rowData.spellName = false, nil, nil
                 return
             end
@@ -3642,7 +3655,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
                 rowData.validated, rowData.spellID, rowData.spellName = true, spellID, name
             else
                 icon:Hide()
-                nameText:SetText("|cffff4d4dNot found|r")
+                nameText:SetText("|cffff4d4d" .. L["CustomBuff.NotFound"] .. "|r")
                 rowData.validated, rowData.spellID, rowData.spellName = false, nil, nil
             end
         end
@@ -3656,7 +3669,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         return rowData
     end
 
-    addSpellBtn = CreateButton(modal, "+ Add Spell ID", function()
+    addSpellBtn = CreateButton(modal, L["CustomBuff.AddSpellID"], function()
         CreateSpellRow(nil)
         UpdateLayout()
     end)
@@ -3679,10 +3692,10 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     -- Appearance section
     LayoutSeparator()
     secLayout:Space(8)
-    LayoutSectionHeader(secLayout, sectionsFrame, "APPEARANCE")
+    LayoutSectionHeader(secLayout, sectionsFrame, L["CustomBuff.Appearance"])
 
     local nameHolder = Components.TextInput(sectionsFrame, {
-        label = "Name:",
+        label = L["CustomBuff.Name"],
         value = editingBuff and editingBuff.name or "",
         width = 250,
         labelWidth = 50,
@@ -3691,7 +3704,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     nameBox = nameHolder.editBox
 
     local overlayHolder = Components.TextInput(sectionsFrame, {
-        label = "Text:",
+        label = L["CustomBuff.Text"],
         value = editingBuff and editingBuff.overlayText and editingBuff.overlayText:gsub("\n", "\\n") or "",
         width = 250,
         labelWidth = 50,
@@ -3701,44 +3714,45 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     local overlayHint = sectionsFrame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     overlayHint:SetPoint("LEFT", overlayHolder, "RIGHT", 5, 0)
-    overlayHint:SetText("(use \\n for line break)")
+    overlayHint:SetText(L["CustomBuff.LineBreakHint"])
 
     -- Conditions section (merges restrictions, visibility, advanced)
     LayoutSeparator()
     secLayout:Space(8)
-    LayoutSectionHeader(secLayout, sectionsFrame, "CONDITIONS")
+    LayoutSectionHeader(secLayout, sectionsFrame, L["CustomBuff.Conditions"])
 
     local classOptions = {
-        { value = nil, label = "Any" },
-        { value = "DEATHKNIGHT", label = "Death Knight" },
-        { value = "DEMONHUNTER", label = "Demon Hunter" },
-        { value = "DRUID", label = "Druid" },
-        { value = "EVOKER", label = "Evoker" },
-        { value = "HUNTER", label = "Hunter" },
-        { value = "MAGE", label = "Mage" },
-        { value = "MONK", label = "Monk" },
-        { value = "PALADIN", label = "Paladin" },
-        { value = "PRIEST", label = "Priest" },
-        { value = "ROGUE", label = "Rogue" },
-        { value = "SHAMAN", label = "Shaman" },
-        { value = "WARLOCK", label = "Warlock" },
-        { value = "WARRIOR", label = "Warrior" },
+        { value = nil, label = L["Class.Any"] },
+        { value = "DEATHKNIGHT", label = L["Class.DeathKnight"] },
+        { value = "DEMONHUNTER", label = L["Class.DemonHunter"] },
+        { value = "DRUID", label = L["Class.Druid"] },
+        { value = "EVOKER", label = L["Class.Evoker"] },
+        { value = "HUNTER", label = L["Class.Hunter"] },
+        { value = "MAGE", label = L["Class.Mage"] },
+        { value = "MONK", label = L["Class.Monk"] },
+        { value = "PALADIN", label = L["Class.Paladin"] },
+        { value = "PRIEST", label = L["Class.Priest"] },
+        { value = "ROGUE", label = L["Class.Rogue"] },
+        { value = "SHAMAN", label = L["Class.Shaman"] },
+        { value = "WARLOCK", label = L["Class.Warlock"] },
+        { value = "WARRIOR", label = L["Class.Warrior"] },
     }
 
     showIconToggle = Components.Toggle(sectionsFrame, {
-        label = editingBuff and editingBuff.showWhenPresent and "When active" or "When missing",
+        label = editingBuff and editingBuff.showWhenPresent and L["CustomBuff.WhenActive"]
+            or L["CustomBuff.WhenMissing"],
         checked = editingBuff and editingBuff.showWhenPresent or false,
         onChange = function(isChecked)
             if isChecked then
-                showIconToggle.label:SetText("When active")
+                showIconToggle.label:SetText(L["CustomBuff.WhenActive"])
             else
-                showIconToggle.label:SetText("When missing")
+                showIconToggle.label:SetText(L["CustomBuff.WhenMissing"])
             end
         end,
     })
 
     requireSpellKnownToggle = Components.Toggle(sectionsFrame, {
-        label = "Only if spell known",
+        label = L["CustomBuff.OnlyIfSpellKnown"],
         checked = editingBuff and editingBuff.requireSpellKnown or false,
         onChange = noop,
     })
@@ -3759,7 +3773,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             return
         end
         specDropdownHolder = Components.Dropdown(sectionsFrame, {
-            label = "Spec:",
+            label = L["CustomBuff.Spec"],
             options = specOptions,
             selected = selectedSpecId,
             width = 130,
@@ -3770,7 +3784,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     end
 
     classDropdownHolder = Components.Dropdown(sectionsFrame, {
-        label = "Class:",
+        label = L["CustomBuff.Class"],
         options = classOptions,
         selected = editingBuff and editingBuff.class or nil,
         width = 130,
@@ -3789,7 +3803,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     -- Require item (item gate)
     local requireItemLabel = sectionsFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    requireItemLabel:SetText("Require item:")
+    requireItemLabel:SetText(L["CustomBuff.RequireItem"])
     requireItemLabel:SetWidth(70)
     requireItemLabel:SetJustifyH("LEFT")
     secLayout:AddText(requireItemLabel, 14, COMPONENT_GAP)
@@ -3805,9 +3819,9 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     end
 
     local requireItemModeOptions = {
-        { value = "owned", label = "Equipped/Bags" },
-        { value = "equipped", label = "Equipped" },
-        { value = "bags", label = "In bags" },
+        { value = "owned", label = L["CustomBuff.RequireItem.EquippedBags"] },
+        { value = "equipped", label = L["CustomBuff.RequireItem.Equipped"] },
+        { value = "bags", label = L["CustomBuff.RequireItem.InBags"] },
     }
     local currentRequireItemMode = editingBuff and editingBuff.requireItemMode or "owned"
     requireItemModeDropdown = Components.Dropdown(sectionsFrame, {
@@ -3822,22 +3836,22 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     local requireItemHint = sectionsFrame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     requireItemHint:SetPoint("LEFT", requireItemModeDropdown, "RIGHT", 5, 0)
-    requireItemHint:SetText("item ID — hide if not found")
+    requireItemHint:SetText(L["CustomBuff.RequireItem.Hint"])
 
     local glowModeOptions = {
-        { value = "whenGlowing", label = "Detect when glowing" },
-        { value = "whenNotGlowing", label = "Detect when not glowing" },
-        { value = "disabled", label = "Disabled" },
+        { value = "whenGlowing", label = L["CustomBuff.BarGlow.WhenGlowing"] },
+        { value = "whenNotGlowing", label = L["CustomBuff.BarGlow.WhenNotGlowing"] },
+        { value = "disabled", label = L["CustomBuff.BarGlow.Disabled"] },
     }
     local currentGlowMode = editingBuff and editingBuff.glowMode or "disabled"
     glowModeDropdown = Components.Dropdown(sectionsFrame, {
-        label = "Bar glow:",
+        label = L["CustomBuff.BarGlow"],
         options = glowModeOptions,
         selected = currentGlowMode,
         width = 175,
         tooltip = {
-            title = "Action bar glow fallback",
-            desc = "Fallback detection using action bar spell glows during M+/PvP/combat when buff API is restricted. Disable if you only want buff presence tracking.",
+            title = L["CustomBuff.BarGlow.Title"],
+            desc = L["CustomBuff.BarGlow.Desc"],
         },
         onChange = noop,
     })
@@ -3847,7 +3861,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     secLayout:Space(SECTION_GAP)
     LayoutSeparator()
     secLayout:Space(8)
-    LayoutSectionHeader(secLayout, sectionsFrame, "SHOW IN")
+    LayoutSectionHeader(secLayout, sectionsFrame, L["CustomBuff.ShowIn"])
 
     -- Local state for load conditions (read on save)
     local loadConditions = {}
@@ -3897,7 +3911,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     -- Ready check toggle
     local lcReadyCheckToggle = Components.Toggle(sectionsFrame, {
-        label = "Only on ready check",
+        label = L["CustomBuff.ReadyCheckOnly"],
         checked = editingBuff and editingBuff.loadConditions and editingBuff.loadConditions.readyCheckOnly or false,
         onChange = function(isChecked)
             loadConditions.readyCheckOnly = isChecked or nil
@@ -3907,13 +3921,13 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     -- Level filter dropdown
     local levelFilterHolder = Components.Dropdown(sectionsFrame, {
-        label = "Level:",
+        label = L["CustomBuff.Level"],
         labelWidth = 70,
         width = 150,
         options = {
-            { value = "any", label = "Any level" },
-            { value = "maxLevel", label = "Max level only" },
-            { value = "belowMaxLevel", label = "Below max level" },
+            { value = "any", label = L["CustomBuff.Level.Any"] },
+            { value = "maxLevel", label = L["CustomBuff.Level.Max"] },
+            { value = "belowMaxLevel", label = L["CustomBuff.Level.BelowMax"] },
         },
         get = function()
             local lf = loadConditions.levelFilter
@@ -3929,7 +3943,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     secLayout:Space(SECTION_GAP)
     LayoutSeparator()
     secLayout:Space(8)
-    LayoutSectionHeader(secLayout, sectionsFrame, "CLICK ACTION")
+    LayoutSectionHeader(secLayout, sectionsFrame, L["CustomBuff.ClickAction"])
 
     -- Determine existing action type
     local existingActionType = "none"
@@ -3968,11 +3982,11 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     castSpellName:SetJustifyH("LEFT")
     castSpellName:SetWordWrap(false)
 
-    local castSpellLookupBtn = CreateButton(actionInputHolder, "Lookup", function()
+    local castSpellLookupBtn = CreateButton(actionInputHolder, L["CustomBuff.Lookup"], function()
         local id = tonumber(castSpellEditBox:GetText())
         if not id then
             castSpellIcon:Hide()
-            castSpellName:SetText("|cffff4d4dInvalid ID|r")
+            castSpellName:SetText("|cffff4d4d" .. L["CustomBuff.InvalidID"] .. "|r")
             return
         end
         local valid, name, iconID = ValidateSpellID(id)
@@ -3982,7 +3996,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             castSpellName:SetText(name or "")
         else
             castSpellIcon:Hide()
-            castSpellName:SetText("|cffff4d4dNot found|r")
+            castSpellName:SetText("|cffff4d4d" .. L["CustomBuff.NotFound"] .. "|r")
         end
     end)
     castSpellLookupBtn:SetSize(55, 20)
@@ -4009,11 +4023,11 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     castItemName:SetJustifyH("LEFT")
     castItemName:SetWordWrap(false)
 
-    local castItemLookupBtn = CreateButton(actionInputHolder, "Lookup", function()
+    local castItemLookupBtn = CreateButton(actionInputHolder, L["CustomBuff.Lookup"], function()
         local id = tonumber(castItemEditBox:GetText())
         if not id then
             castItemIcon:Hide()
-            castItemName:SetText("|cffff4d4dInvalid ID|r")
+            castItemName:SetText("|cffff4d4d" .. L["CustomBuff.InvalidID"] .. "|r")
             return
         end
         local valid, name, iconID = ValidateItemID(id)
@@ -4023,7 +4037,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
             castItemName:SetText(name or "")
         else
             castItemIcon:Hide()
-            castItemName:SetText("|cffff4d4dNot found (try again)|r")
+            castItemName:SetText("|cffff4d4d" .. L["CustomBuff.NotFoundRetry"] .. "|r")
             -- Request item data load for next lookup attempt
             pcall(C_Item.RequestLoadItemDataByID, id)
         end
@@ -4043,7 +4057,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 
     local macroHint = actionInputHolder:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     macroHint:SetPoint("TOPLEFT", 0, -24)
-    macroHint:SetText("e.g. /use item:12345\\n/use 13")
+    macroHint:SetText(L["CustomBuff.Action.MacroHint"])
 
     -- Show/hide inputs based on action type
     local function UpdateActionInputVisibility(actionType)
@@ -4096,19 +4110,19 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     end
 
     local actionTypeOptions = {
-        { value = "none", label = "None" },
-        { value = "spell", label = "Spell" },
-        { value = "item", label = "Item" },
-        { value = "macro", label = "Macro" },
+        { value = "none", label = L["CustomBuff.Action.None"] },
+        { value = "spell", label = L["CustomBuff.Action.Spell"] },
+        { value = "item", label = L["CustomBuff.Action.Item"] },
+        { value = "macro", label = L["CustomBuff.Action.Macro"] },
     }
     actionTypeDropdown = Components.Dropdown(sectionsFrame, {
-        label = "On click:",
+        label = L["CustomBuff.Action.OnClick"],
         options = actionTypeOptions,
         selected = existingActionType,
         width = 120,
         tooltip = {
-            title = "Click action",
-            desc = "What happens when you click this buff icon. Spell casts a spell, Item uses an item, Macro runs a macro command.",
+            title = L["CustomBuff.Action.Title"],
+            desc = L["CustomBuff.Action.Desc"],
         },
         onChange = function(value)
             UpdateActionInputVisibility(value)
@@ -4126,7 +4140,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     saveError:SetJustifyH("LEFT")
     saveError:SetTextColor(1, 0.3, 0.3)
 
-    local cancelBtn = CreateButton(modal, "Cancel", function()
+    local cancelBtn = CreateButton(modal, L["Dialog.Cancel"], function()
         modal:Hide()
     end)
     cancelBtn:SetPoint("BOTTOMRIGHT", -20, 15)
@@ -4134,7 +4148,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     -- Delete button (only when editing existing buff)
     if existingKey and editingBuff then
         local buffName = editingBuff.name or existingKey
-        local deleteBtn = CreateButton(modal, "Delete", function()
+        local deleteBtn = CreateButton(modal, L["Options.Delete"], function()
             modal:Hide()
             StaticPopup_Show("BUFFREMINDERS_DELETE_CUSTOM", buffName, nil, {
                 key = existingKey,
@@ -4144,7 +4158,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         deleteBtn:SetPoint("BOTTOMLEFT", 20, 15)
     end
 
-    local saveBtn = CreateButton(modal, "Save", function()
+    local saveBtn = CreateButton(modal, L["CustomBuff.Save"], function()
         local validatedIDs = {}
         local firstName = nil
         for _, rowData in ipairs(spellRows) do
@@ -4157,7 +4171,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         end
 
         if #validatedIDs == 0 then
-            saveError:SetText("Please validate at least one spell ID")
+            saveError:SetText(L["CustomBuff.ValidateError"])
             return
         end
         saveError:SetText("")
@@ -4166,7 +4180,7 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
         local key = existingKey or GenerateCustomBuffKey(spellIDValue)
         local displayName = nameBox:GetText()
         if displayName == "" then
-            displayName = firstName or ("Spell " .. validatedIDs[1])
+            displayName = firstName or (L["CustomBuff.Action.Spell"] .. " " .. validatedIDs[1])
         end
 
         local overlayTextValue = strtrim(overlayBox:GetText())

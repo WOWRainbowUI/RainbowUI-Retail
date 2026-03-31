@@ -10,6 +10,7 @@ local _, BR = ...
 local floor = math.floor
 local tinsert, tconcat = table.insert, table.concat
 
+local L = BR.L
 local CATEGORIES = BR.CATEGORIES
 local CATEGORY_LABELS = BR.CATEGORY_LABELS
 local DIRECTION_ANCHORS = BR.DIRECTION_ANCHORS
@@ -140,9 +141,9 @@ local function GetMainFrameLabel()
         end
     end
     if #parts == 0 then
-        return "Main (empty)"
+        return L["Mover.MainEmpty"]
     elseif #parts == #CATEGORIES then
-        return "Main (all)"
+        return L["Mover.MainAll"]
     else
         return tconcat(parts, " + ")
     end
@@ -320,7 +321,7 @@ local function CreateCoordinatePopup()
     local title = popup:CreateFontString(nil, "OVERLAY")
     title:SetFont(fontPath, 11, "OUTLINE")
     title:SetPoint("TOP", 0, -8)
-    title:SetText("Set Position")
+    title:SetText(L["Mover.SetPosition"])
     title:SetTextColor(1, 0.82, 0, 1)
 
     local LABEL_X = 12
@@ -367,7 +368,7 @@ local function CreateCoordinatePopup()
     local anchorLabel = popup:CreateFontString(nil, "OVERLAY")
     anchorLabel:SetFont(fontPath, 10, "OUTLINE")
     anchorLabel:SetPoint("TOPLEFT", LABEL_X, -90)
-    anchorLabel:SetText("Anchor Frame")
+    anchorLabel:SetText(L["Mover.AnchorFrame"])
     anchorLabel:SetTextColor(0.7, 0.7, 0.7, 1)
 
     local anchorBtn = CreateFrame("Button", nil, popup, "BackdropTemplate")
@@ -458,7 +459,7 @@ local function CreateCoordinatePopup()
         if not catKey then
             return
         end
-        anchorText:SetText(frameName or "None (Screen Center)")
+        anchorText:SetText(frameName or L["Mover.NoneScreenCenter"])
         anchorMenu:Hide()
         -- Set anchor in DB directly, reset position to (0,0), then fire LayoutRefresh once
         -- This avoids a double-reposition (LayoutRefresh would use old position then SavePosition resets)
@@ -531,7 +532,7 @@ local function CreateCoordinatePopup()
             local item = GetOrCreateMenuItem(i)
             item:SetPoint("TOPLEFT", 1, -(i - 1) * ITEM_HEIGHT)
             if i == 1 then
-                item.text:SetText("None (Screen Center)")
+                item.text:SetText(L["Mover.NoneScreenCenter"])
                 item.text:SetTextColor(0.6, 0.6, 0.6, 1)
                 item:SetScript("OnClick", function()
                     SetAnchorFrame(nil)
@@ -574,7 +575,7 @@ local function CreateCoordinatePopup()
     local pointLabel = popup:CreateFontString(nil, "OVERLAY")
     pointLabel:SetFont(fontPath, 10, "OUTLINE")
     pointLabel:SetPoint("TOPLEFT", LABEL_X, -130)
-    pointLabel:SetText("Anchor Point")
+    pointLabel:SetText(L["Mover.AnchorPoint"])
     pointLabel:SetTextColor(0.7, 0.7, 0.7, 1)
 
     local pointBtn = CreateFrame("Button", nil, popup, "BackdropTemplate")
@@ -660,7 +661,7 @@ local function CreateCoordinatePopup()
     end)
 
     -- Apply button (for X/Y)
-    local applyBtn = BR.CreateButton(popup, "Apply", function()
+    local applyBtn = BR.CreateButton(popup, L["Mover.Apply"], function()
         local xVal = tonumber(xEdit:GetText())
         local yVal = tonumber(yEdit:GetText())
         if not xVal or not yVal then
@@ -731,7 +732,7 @@ local function ShowCoordinatePopup(catKey, mover)
     local catSettings = db.categorySettings and db.categorySettings[catKey]
     local anchorName = catSettings and catSettings.anchorFrame
     local anchorPoint = catSettings and catSettings.anchorPoint or "CENTER"
-    coordPopup.anchorText:SetText(anchorName or "None (Screen Center)")
+    coordPopup.anchorText:SetText(anchorName or L["Mover.NoneScreenCenter"])
     coordPopup.pointText:SetText(anchorPoint)
     coordPopup.anchorMenu:Hide()
     coordPopup.pointMenu:Hide()
@@ -830,7 +831,7 @@ local function CreateMoverFrame(catKey, displayName)
     end
 
     -- Tooltip
-    BR.SetupTooltip(mover, "Buff Anchor", "Drag to reposition\nClick to toggle coordinate editor")
+    BR.SetupTooltip(mover, L["Mover.BuffAnchor"], L["Mover.DragTooltip"])
 
     -- Drag scripts
     mover:SetScript("OnDragStart", function(self)
@@ -861,7 +862,7 @@ local function CreateMoverFrame(catKey, displayName)
             SavePosition(catKey, RoundCoord(cx), RoundCoord(cy))
             -- Update popup if open
             if coordPopup and coordPopup:IsShown() and coordPopup.catKey == catKey then
-                coordPopup.anchorText:SetText("None (Screen Center)")
+                coordPopup.anchorText:SetText(L["Mover.NoneScreenCenter"])
                 coordPopup.pointBtn:SetEnabled(false)
                 coordPopup.pointText:SetTextColor(0.4, 0.4, 0.4, 1)
                 coordPopup.pointArrow:SetVertexColor(0.3, 0.3, 0.3, 1)
