@@ -723,7 +723,7 @@ for token, classID in pairs(CLASS_IDS) do
     table.sort(specs, function(a, b)
         return a.label < b.label
     end)
-    local opts = { { value = nil, label = "Any" } }
+    local opts = { { value = nil, label = BR.L["Core.Any"] } }
     for _, spec in ipairs(specs) do
         table.insert(opts, spec)
     end

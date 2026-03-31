@@ -128,8 +128,12 @@ local addonName, BR = ...
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local floor, max, min = math.floor, math.max, math.min
+local format = string.format
 local random = math.random
 local tinsert, tremove, tsort, tconcat = table.insert, table.remove, table.sort, table.concat
+
+-- Localization
+local L = BR.L
 
 -- Shared constants (from Core.lua)
 local DEFAULT_BORDER_SIZE = BR.DEFAULT_BORDER_SIZE
@@ -264,7 +268,6 @@ local defaults = {
     hideInCombat = false,
     hideExpiringInCombat = true,
     buffTrackingMode = "all",
-    hidePetWhileMounted = true,
     hideAllInVehicle = false,
     hideWhileMounted = false,
     hideInLegacyInstances = true,
@@ -483,8 +486,11 @@ local buffFrames = {}
 local updateTicker
 local readyCheckTimer = nil
 local instanceEntryTimer = nil
+local delveEntryTimer = nil
 local SOULWELL_SPELL_IDS = { [29893] = true, [6201] = true } -- Create Soulwell, Create Healthstone
 local ClearInstanceEntryState -- forward declaration
+local ClearDelveEntryState -- forward declaration
+local HideDismissFrames -- forward declaration
 local testMode = false
 local eventFrame -- forward declaration; created later in file, referenced by StartUpdates
 
@@ -512,6 +518,8 @@ end
 local inCombat = false
 local inEncounter = false
 local isResting = false
+local petDismountSuppressed = false -- Suppress pet eval briefly after dismount (pet respawn delay)
+local wasMounted = IsMounted()
 
 -- Category frame system
 local categoryFrames = {}
@@ -525,13 +533,13 @@ local previouslyVisibleKeys = {} ---@type table<string, boolean>
 local lastMainSignature = ""
 local lastSplitSignatures = {} ---@type table<string, string>
 local CATEGORY_LABELS = {
-    raid = "團隊",
-    presence = "在場",
-    targeted = "目標",
-    self = "自身",
-    pet = "寵物",
-    consumable = "消耗品",
-    custom = "自訂",
+    raid = L["Category.Raid"],
+    presence = L["Category.Presence"],
+    targeted = L["Category.Targeted"],
+    self = L["Category.Self"],
+    pet = L["Category.Pet"],
+    consumable = L["Category.Consumable"],
+    custom = L["Category.Custom"],
 }
 
 -- Export for Options.lua and split modules
@@ -705,8 +713,23 @@ end
 
 -- Use functions from State.lua
 local FormatRemainingTime = BR.StateHelpers.FormatRemainingTime
+local FormatEatingTime = BR.StateHelpers.FormatEatingTime
 
 local GetPlayerRole = BR.BuffState.GetPlayerRole
+
+-- Spell texture cache (textures are immutable per session, mirrors spellNameCache in Core.lua)
+local spellTextureCache = {}
+
+-- Reusable single-element buffer to avoid { spellID } allocations in hot loops.
+-- SAFETY: callers must consume the result immediately — the buffer is overwritten on next call.
+local singleSpellBuf = {}
+local function AsSpellList(val)
+    if type(val) == "table" then
+        return val
+    end
+    singleSpellBuf[1] = val
+    return singleSpellBuf
+end
 
 ---Get spell texture (handles table of spellIDs and role-based icons)
 ---@param spellIDs SpellID
@@ -729,10 +752,16 @@ local function GetBuffTexture(spellIDs, iconByRole)
     if IconOverrides[id] then
         return IconOverrides[id]
     end
+    -- Return cached texture or fetch and cache
+    local cached = spellTextureCache[id]
+    if cached ~= nil then
+        return cached or nil
+    end
     local texture
     pcall(function()
         texture = C_Spell.GetSpellTexture(id)
     end)
+    spellTextureCache[id] = texture or false
     return texture
 end
 
@@ -742,7 +771,7 @@ local glowSpellToBuff = {}
 
 --- Register a buff's spellID(s) in the glow fallback lookup table
 local function RegisterGlowBuff(buff, catName)
-    local ids = type(buff.spellID) == "table" and buff.spellID or { buff.spellID }
+    local ids = AsSpellList(buff.spellID)
     for _, id in ipairs(ids) do
         if id and id ~= 0 then
             glowSpellToBuff[id] = { buff = buff, category = catName }
@@ -1108,7 +1137,7 @@ local function CreateBuffFrame(buff, category)
             "OUTLINE"
         )
         frame.buffText:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
-        frame.buffText:SetText("BUFF!")
+        frame.buffText:SetText(L["Overlay.Buff"])
         if raidCs and raidCs.showBuffReminder == false then
             frame.buffText:Hide()
         end
@@ -1635,6 +1664,8 @@ local function HideAllDisplayFrames()
     end
     -- Hide secure click overlays and action buttons (sub-icons)
     BR.SecureButtons.HideAllSecureFrames()
+    -- Hide dismiss button
+    HideDismissFrames()
 end
 
 -- Update the fallback display (shows tracked buffs via action bar glow during PvP/Arena)
@@ -1870,7 +1901,7 @@ local function RenderVisibleEntry(frame, entry)
             local remaining = entry.eatingExpirationTime - GetTime()
             if remaining > 0 then
                 frame.count:SetFont(fontPath, GetFrameFontSize(frame), "OUTLINE")
-                frame.count:SetText(FormatRemainingTime(remaining))
+                frame.count:SetText(FormatEatingTime(remaining))
                 frame.count:Show()
             else
                 frame.count:Hide()
@@ -1881,7 +1912,7 @@ local function RenderVisibleEntry(frame, entry)
                 frame:SetScript("OnUpdate", function()
                     local rem = expTime - GetTime()
                     if rem > 0 then
-                        frame.count:SetText(FormatRemainingTime(rem))
+                        frame.count:SetText(FormatEatingTime(rem))
                     else
                         frame.count:Hide()
                         frame:SetScript("OnUpdate", nil)
@@ -2100,8 +2131,9 @@ end
 ---@param frame BuffFrame
 ---@param petAction PetAction?
 local function UpdatePetLabels(frame, petAction)
-    local showLabels = (BR.profile.defaults or {}).petLabels ~= false
-    local petClassVis = (BR.profile.defaults or {}).petLabelClasses
+    local defs = BR.profile.defaults or {}
+    local showLabels = defs.petLabels ~= false
+    local petClassVis = defs.petLabelClasses
     local classLabelsOff = playerClass and petClassVis and petClassVis[playerClass] == false
     if not petAction or not showLabels or classLabelsOff then
         if frame._br_pet_label_key then
@@ -2120,14 +2152,8 @@ local function UpdatePetLabels(frame, petAction)
     end
 
     -- Early out if nothing changed since last call
-    local scale = (BR.profile.defaults or {}).petLabelScale or 100
-    local cacheKey = petAction.key
-        .. ":"
-        .. (petAction.label or "")
-        .. ":"
-        .. (petAction.petFamily or "")
-        .. ":"
-        .. scale
+    local scale = defs.petLabelScale or 100
+    local cacheKey = format("%s:%s:%s:%d", petAction.key, petAction.label or "", petAction.petFamily or "", scale)
     if frame._br_pet_label_key == cacheKey then
         return
     end
@@ -2272,6 +2298,85 @@ end
 --         end
 --     end
 -- end
+
+-- ============================================================================
+-- CONSUMABLE DISMISS BUTTON
+-- ============================================================================
+
+local GameTooltip = GameTooltip
+local dismissButton -- small X badge overlaid on the last consumable icon
+local reusableDismissFrameList = {} -- reused each cycle to avoid allocation in split mode
+
+local function GetOrCreateDismissButton()
+    if dismissButton then
+        return dismissButton
+    end
+    local btn = CreateFrame("Button", "BuffReminders_DismissConsumables", UIParent)
+    btn:SetSize(16, 16)
+    btn:EnableMouse(true)
+    btn:RegisterForClicks("LeftButtonUp")
+
+    local bg = btn:CreateTexture(nil, "BACKGROUND")
+    bg:SetPoint("TOPLEFT", 3, -3)
+    bg:SetPoint("BOTTOMRIGHT", -3, 3)
+    bg:SetColorTexture(0, 0, 0, 0.6)
+
+    local icon = btn:CreateTexture(nil, "OVERLAY")
+    icon:SetAllPoints()
+    icon:SetTexture([[Interface\RAIDFRAME\ReadyCheck-NotReady]])
+    icon:SetAlpha(0.8)
+
+    btn:SetScript("OnClick", function()
+        BR.BuffState.SetConsumablesDismissed(true)
+        UpdateDisplay()
+    end)
+    btn:SetScript("OnEnter", function(self)
+        icon:SetAlpha(1)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine(L["Display.DismissConsumables"], 0.8, 0.8, 0.8)
+        GameTooltip:Show()
+    end)
+    btn:SetScript("OnLeave", function()
+        icon:SetAlpha(0.8)
+        GameTooltip:Hide()
+    end)
+    btn:SetFrameStrata("MEDIUM")
+    btn:Hide()
+    dismissButton = btn
+    return btn
+end
+
+--- Show the dismiss badge on the top-right corner of the last consumable frame.
+local function PositionDismissButton(frameList)
+    -- Find the last consumable frame in the list
+    local lastConsumableFrame = nil
+    for i = #frameList, 1, -1 do
+        local f = frameList[i]
+        if f.buffCategory == "consumable" then
+            lastConsumableFrame = f
+            break
+        end
+    end
+    if not lastConsumableFrame then
+        return
+    end
+
+    local btn = GetOrCreateDismissButton()
+    local iconSize = lastConsumableFrame:GetHeight()
+    local btnSize = max(floor(iconSize * 0.3), 12)
+    btn:SetSize(btnSize, btnSize)
+    btn:SetParent(lastConsumableFrame)
+    btn:SetFrameLevel(lastConsumableFrame:GetFrameLevel() + 10)
+    btn:ClearAllPoints()
+    btn:SetPoint("TOPRIGHT", lastConsumableFrame, "TOPRIGHT", 3, 3)
+    btn:Show()
+end
+
+HideDismissFrames = function()
+    if dismissButton then
+        dismissButton:Hide()
+    end
+end
 
 -- Update the display
 UpdateDisplay = function()
@@ -2422,11 +2527,38 @@ UpdateDisplay = function()
         previouslyVisibleKeys[key] = true
     end
 
+    -- Consumable dismiss button: show X badge on last visible consumable icon
+    local consumableEntries = not testMode and visibleByCategory["consumable"]
+    local hasConsumableFrames = consumableEntries and #consumableEntries > 0
+    local consumableSplit = IsCategorySplit("consumable")
+
     -- Position main container
     PositionMainContainer(reusableMainBuffs)
 
     -- Handle split category frames with no visible buffs
     PositionSplitCategories(visibleByCategory)
+
+    -- Show dismiss badge on the last visible consumable icon
+    if hasConsumableFrames then
+        local frameList
+        if consumableSplit then
+            wipe(reusableDismissFrameList)
+            for _, entry in ipairs(consumableEntries) do
+                local f = buffFrames[entry.key]
+                if f and f:IsShown() then
+                    reusableDismissFrameList[#reusableDismissFrameList + 1] = f
+                end
+            end
+            frameList = reusableDismissFrameList
+        else
+            frameList = reusableMainBuffs
+        end
+        PositionDismissButton(frameList)
+    else
+        if dismissButton then
+            dismissButton:Hide()
+        end
+    end
 
     if not anyVisible then
         HideAllDisplayFrames()
@@ -2846,6 +2978,9 @@ BR.Display.UpdateVisuals = UpdateVisuals
 BR.Display.UpdateActionButtons = function(category)
     return BR.SecureButtons.UpdateActionButtons(category)
 end
+BR.Display.IsPetDismountSuppressed = function()
+    return petDismountSuppressed
+end
 BR.Display.IsTestMode = function()
     return testMode
 end
@@ -2881,21 +3016,21 @@ local function SlashHandler(msg)
         BR.profile.locked = true
         BR.Movers.HideAll()
         BR.Components.RefreshAll()
-        print("|cff00ccffBuffReminders:|r Frames locked.")
+        print("|cff00ccffBuffReminders:|r " .. L["Display.FramesLocked"])
     elseif cmd == "unlock" then
         BR.profile.locked = false
         BR.Movers.UpdateAnchor()
         BR.Components.RefreshAll()
-        print("|cff00ccffBuffReminders:|r Frames unlocked.")
+        print("|cff00ccffBuffReminders:|r " .. L["Display.FramesUnlocked"])
     elseif cmd == "minimap" then
         BR.aceDB.global.minimap.hide = not BR.aceDB.global.minimap.hide
         if BR.MinimapButton then
             if BR.aceDB.global.minimap.hide then
                 BR.MinimapButton.Icon:Hide("BuffReminders")
-                print("|cff00ccff增益提醒:|r 小地圖按鈕隱藏。")
+                print("|cff00ccffBuffReminders:|r " .. L["Display.MinimapHidden"])
             else
                 BR.MinimapButton.Icon:Show("BuffReminders")
-                print("|cff00ccff增益提醒:|r 小地圖按鈕顯示。")
+                print("|cff00ccffBuffReminders:|r " .. L["Display.MinimapShown"])
             end
         end
         BR.Components.RefreshAll()
@@ -2942,6 +3077,14 @@ ClearInstanceEntryState = function()
     end
     BR.BuffState.SetInstanceEntryState(false)
     eventFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+end
+
+ClearDelveEntryState = function()
+    if delveEntryTimer then
+        delveEntryTimer:Cancel()
+        delveEntryTimer = nil
+    end
+    BR.BuffState.SetDelveEntryState(false)
 end
 
 eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
@@ -2999,8 +3142,10 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- Deep copy default values for missing keys (skips 'defaults' sub-table, served by metatable)
         local function DeepCopyDefault(source, target)
             for k, v in pairs(source) do
-                if k == "defaults" then
-                    -- Skip: served by metatable __index
+                if k == "minimap" then -- luacheck: ignore 542
+                    -- Skip: lives in AceDB global, not per-profile
+                elseif k == "defaults" then
+                    -- Skip value copy (served by metatable __index), but ensure the table exists
                     if target[k] == nil then
                         target[k] = {}
                     end
@@ -3027,7 +3172,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 32
+        local DB_VERSION = 33
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -3258,7 +3403,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     db.customBuffs[key] = {
                         spellID = 111400,
                         key = key,
-                        name = "燃燒狂奔",
+                        name = "Burning Rush",
                         overlayText = "",
                         class = "WARLOCK",
                         showWhenPresent = true,
@@ -3527,9 +3672,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                 end
             end,
 
-            -- [20] Clean up minimap from profile (now in AceDB global)
-            -- Note: DeepCopyDefault re-adds minimap from code defaults, so the
-            -- canonical cleanup is after DeepCopyDefault (below), not here.
+            -- [20] (no-op, minimap cleanup now handled by DeepCopyDefault skip)
             [20] = function() end,
 
             -- [21] Enable delve food by default (was opt-in, now opt-out)
@@ -3691,6 +3834,14 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     end
                 end
             end,
+
+            -- [33] Clean up stale keys that were previously removed after DeepCopyDefault
+            [33] = function()
+                db.hidePetWhileMounted = nil
+                if db.defaults and db.defaults.textSize == 12 then
+                    db.defaults.textSize = nil
+                end
+            end,
         }
 
         -- Run pending migrations
@@ -3704,17 +3855,6 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
         -- Deep copy defaults for non-defaults tables
         DeepCopyDefault(defaults, db)
-
-        -- minimap lives in AceDB global, not per-profile; DeepCopyDefault re-adds it
-        -- from the code defaults table, so clean it up after every DeepCopy.
-        db.minimap = nil
-
-        -- Migration: textSize was 12 in defaults but never used (font size was derived from
-        -- iconSize * 0.32). Now nil means "auto-derive from iconSize". Clean up the old value
-        -- so users get the auto behavior instead of a hardcoded 12.
-        if db.defaults and db.defaults.textSize == 12 then
-            db.defaults.textSize = nil
-        end
 
         -- Initialize custom buffs storage and populate BUFF_TABLES.custom
         if not db.customBuffs then
@@ -3760,20 +3900,20 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
         -- Register with WoW's Interface Options
         local settingsPanel = CreateFrame("Frame")
-        settingsPanel.name = "增益提醒"
+        settingsPanel.name = L["BuffReminders"]
 
         local title = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
         title:SetPoint("TOPLEFT", 16, -16)
-        title:SetText("增益提醒")
+        title:SetText(L["BuffReminders"])
 
         local desc = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
         desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
-        desc:SetText("一目了然地追蹤缺少的增益。")
+        desc:SetText(L["Display.Description"])
 
         local openBtn = CreateFrame("Button", nil, settingsPanel, "UIPanelButtonTemplate")
         openBtn:SetSize(150, 24)
         openBtn:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -16)
-        openBtn:SetText("開啟選項")
+        openBtn:SetText(L["Display.OpenOptions"])
         openBtn:SetScript("OnClick", function()
             BR.Options.Toggle()
             -- Close the WoW settings panel properly (HideUIPanel handles keyboard focus cleanup)
@@ -3784,7 +3924,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
         local slashInfo = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontDisable")
         slashInfo:SetPoint("TOPLEFT", openBtn, "BOTTOMLEFT", 0, -12)
-        slashInfo:SetText("可用指令: /br, /br lock, /br unlock, /br test, /br minimap")
+        slashInfo:SetText(L["Display.SlashCommands"])
 
         local category = Settings.RegisterCanvasLayoutCategory(settingsPanel, settingsPanel.name)
         Settings.RegisterAddOnCategory(category)
@@ -3795,7 +3935,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         if LDB and LDBIcon then
             local dataObj = LDB:NewDataObject("BuffReminders", {
                 type = "launcher",
-                label = "增益提醒",
+                label = "BuffReminders",
                 icon = "Interface\\AddOns\\BuffReminders\\icon",
                 OnClick = function(_, button)
                     if button == "LeftButton" then
@@ -3805,12 +3945,12 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     end
                 end,
                 OnTooltipShow = function(tooltip)
-                    tooltip:AddLine("增益提醒")
-                    tooltip:AddLine("|cFFCFCFCF左鍵點擊|r: 選項")
-                    tooltip:AddLine("|cFFCFCFCF右鍵點擊|r: 測試模式")
+                    tooltip:AddLine("BuffReminders")
+                    tooltip:AddLine(L["Display.MinimapLeftClick"])
+                    tooltip:AddLine(L["Display.MinimapRightClick"])
                     local owner = tooltip:GetOwner()
                     if owner and owner:GetParent() == Minimap then
-                        tooltip:AddLine("|cFF808080/br minimap|r |cFF808080來切換按鈕顯示|r")
+                        tooltip:AddLine("|cFF808080/br minimap|r |cFF808080to toggle this icon|r")
                     end
                 end,
             })
@@ -3819,6 +3959,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
             BR.MinimapButton = { Icon = LDBIcon, DataObj = dataObj }
         end
     elseif event == "PLAYER_ENTERING_WORLD" then
+        -- Reset consumable dismiss on instance change
+        BR.BuffState.SetConsumablesDismissed(false)
         -- Invalidate caches on zone change (spec may have auto-switched on entry)
         BR.BuffState.InvalidateContentTypeCache()
         BR.BuffState.InvalidateSpellCache()
@@ -3855,9 +3997,9 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         end
         -- Delayed update to catch glow events that fire after reload
         C_Timer.After(0.5, SetDirty)
-        -- Show showOnInstanceEntry buffs briefly when entering a dungeon/raid (not M+)
+        -- Show showOnInstanceEntry self buffs briefly when entering a dungeon (not M+)
         C_Timer.After(1, function()
-            if BR.BuffState.ShouldTriggerInstanceEntry() then
+            if BR.BuffState.ShouldTriggerDungeonEntry() then
                 if instanceEntryTimer then
                     instanceEntryTimer:Cancel()
                 end
@@ -3870,6 +4012,20 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                 end)
             else
                 ClearInstanceEntryState()
+            end
+            -- Show showOnInstanceEntry consumables briefly when entering a delve
+            if BR.BuffState.ShouldTriggerDelveEntry() then
+                if delveEntryTimer then
+                    delveEntryTimer:Cancel()
+                end
+                BR.BuffState.SetDelveEntryState(true)
+                UpdateDisplay()
+                delveEntryTimer = C_Timer.NewTimer(30, function()
+                    ClearDelveEntryState()
+                    UpdateDisplay()
+                end)
+            else
+                ClearDelveEntryState()
             end
         end)
         -- Refresh custom buff icons after spell data is fully loaded (talent-modified icons)
@@ -3933,6 +4089,15 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         BR.PetHelpers.InvalidatePetActions()
         SetDirty()
     elseif event == "PLAYER_MOUNT_DISPLAY_CHANGED" then
+        local mounted = IsMounted()
+        if wasMounted and not mounted then
+            petDismountSuppressed = true
+            C_Timer.After(1.5, function()
+                petDismountSuppressed = false
+                SetDirty()
+            end)
+        end
+        wasMounted = mounted
         SetDirty()
     elseif event == "PLAYER_DIFFICULTY_CHANGED" then
         BR.BuffState.InvalidateContentTypeCache()

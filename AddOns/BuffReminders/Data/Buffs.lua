@@ -1,5 +1,7 @@
 local _, BR = ...
 
+local L = BR.L
+
 -- Lua stdlib locals
 local min = math.min
 
@@ -102,6 +104,7 @@ local min = math.min
 ---@field consumableCategory? string Category key in BR.CONSUMABLE_ITEMS for bag scanning (only set when items exist)
 ---@field freeConsumable? boolean Bypass content gates (always show when enabled)
 ---@field permanentRuneItemIDs? number[] Item IDs that, if in bags, make this a free consumable (bypass content gates)
+---@field showOnInstanceEntry? boolean Only show briefly when entering an instance
 ---@field disabledInCompetitivePvP? boolean Unusable in arenas and rated BGs
 
 ---@class BuffGroup
@@ -298,10 +301,12 @@ local function GetPoisonExpirationInfo()
 end
 
 ---@type table<string, RaidBuff[]|PresenceBuff[]|TargetedBuff[]|SelfBuff[]|ConsumableBuff[]|CustomBuff[]>
+--- START OF FILE Paste March 31, 2026 - 11:35AM ---
+
 BR.BUFF_TABLES = {
     ---@type RaidBuff[]
     raid = {
-        { spellID = { 1459, 432778 }, key = "intellect", name = "祕法智力", class = "MAGE", levelRequired = 8 }, -- 432778 = NPC version
+        { spellID = { 1459, 432778 }, key = "intellect", name = "秘法智力", class = "MAGE", levelRequired = 8 }, -- 432778 = NPC version
         { spellID = 6673, key = "attackPower", name = "戰鬥怒吼", class = "WARRIOR", levelRequired = 10 },
         {
             spellID = {
@@ -321,7 +326,7 @@ BR.BUFF_TABLES = {
             },
             castSpellID = 364342,
             key = "bronze",
-            name = "青銅龍的祝福",
+            name = "青銅之龍祝福",
             class = "EVOKER",
             levelRequired = 30,
         },
@@ -340,10 +345,10 @@ BR.BUFF_TABLES = {
         {
             spellID = { 381637, 5761 },
             key = "atrophicNumbingPoison",
-            name = "萎縮/麻痺毒藥",
+            name = "萎縮/極效致麻毒藥",
             class = "ROGUE",
             levelRequired = 80,
-            overlayText = "沒有\n盜賊\n毒藥",
+            overlayText = L["Overlay.NoDrPoison"],
             groupOnly = true, -- self-buff "roguePoisons" already covers solo
             suppressedByEntry = "roguePoisons", -- hide when self poison icon is already showing
         },
@@ -353,7 +358,7 @@ BR.BUFF_TABLES = {
             name = "虔誠光環",
             class = "PALADIN",
             levelRequired = 10,
-            missingText = "沒有\n光環",
+            overlayText = L["Overlay.NoAura"],
         },
         {
             spellID = 20707,
@@ -361,7 +366,7 @@ BR.BUFF_TABLES = {
             name = "靈魂石",
             class = "WARLOCK",
             levelRequired = 13,
-            missingText = "沒有\n魂石",
+            overlayText = L["Overlay.NoStone"],
             readyCheckOnly = true,
             castOnOthers = true,
             noExpirationGlow = true,
@@ -403,9 +408,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 156910,
             key = "beaconOfFaith",
-            name = "虔信信標",
+            name = "信仰信標",
             class = "PALADIN",
-            missingText = "沒有\n信標",
+            overlayText = L["Overlay.NoFaith"],
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
             glowDetectable = true,
@@ -414,9 +419,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 53563,
             key = "beaconOfLight",
-            name = "聖光信標",
+            name = "光明信標",
             class = "PALADIN",
-            missingText = "沒有\n聖光",
+            overlayText = L["Overlay.NoLight"],
             groupId = "beacons",
             requireSpecId = 65, -- Holy only
             glowDetectable = true,
@@ -429,29 +434,29 @@ BR.BUFF_TABLES = {
             key = "earthShieldOthers",
             name = "大地之盾",
             class = "SHAMAN",
-            missingText = "沒有\n大地盾",
+            overlayText = L["Overlay.NoES"],
             infoTooltip = {
-                title = "可能顯示額外圖示",
-                desc = "可能會顯示額外的圖示|在你施放這個之前，你可能會看到這個和水/閃電之盾提醒。我不知道你是想要自己的大地之盾，還是盟友的大地之盾+自己的水/閃電之盾。",
+                title = L["Tooltip.MayShowExtraIcon"],
+                desc = L["Tooltip.MayShowExtraIcon.Desc"],
             },
             clickMacro = TargetedClickMacro("earthShieldOthers"),
         },
         {
             spellID = 369459,
             key = "sourceOfMagic",
-            name = "魔力之源",
+            name = "魔法之源",
             class = "EVOKER",
             beneficiaryRole = "HEALER",
-            missingText = "沒有\n魔源",
+            overlayText = L["Overlay.NoSource"],
             clickMacro = TargetedClickMacro("sourceOfMagic"),
         },
         {
             spellID = 360827,
             key = "blisteringScales",
-            name = "極熾鱗片",
+            name = "爆裂鱗片",
             class = "EVOKER",
             beneficiaryRole = "TANK",
-            missingText = "沒有\n鱗片",
+            overlayText = L["Overlay.NoScales"],
             requireSpecId = 1473, -- Augmentation
             requiresSpellID = 360827,
             clickMacro = TargetedClickMacro("blisteringScales"),
@@ -462,7 +467,7 @@ BR.BUFF_TABLES = {
             key = "symbioticRelationship",
             name = "共生關係",
             class = "DRUID",
-            missingText = "沒有\n共生",
+            overlayText = L["Overlay.NoLink"],
             clickMacro = TargetedClickMacro("symbioticRelationship"),
         },
     },
@@ -474,7 +479,7 @@ BR.BUFF_TABLES = {
             key = "evokerAttunement",
             name = "同調",
             class = "EVOKER",
-            overlayText = "沒有\n同調",
+            overlayText = L["Overlay.NoAttune"],
             requireSpecId = 1473, -- Augmentation
             requiresSpellID = 403208, -- Attunements talent
         },
@@ -486,7 +491,7 @@ BR.BUFF_TABLES = {
             key = "arcaneFamiliar",
             name = "秘法魔寵",
             class = "MAGE",
-            overlayText = "沒有\n魔寵",
+            overlayText = L["Overlay.NoFamiliar"],
         },
         -- Soulwell reminder (warlock only, instance entry only)
         {
@@ -495,16 +500,16 @@ BR.BUFF_TABLES = {
             key = "soulwell",
             name = "製造靈魂之井",
             class = "WARLOCK",
-            overlayText = "置放\n靈魂井",
+            overlayText = L["Overlay.DropWell"],
             showOnInstanceEntry = true, -- Only shows on instance entry
             infoTooltip = {
-                title = "Instance Entry Reminder",
-                desc = "Briefly shown when entering a dungeon as a reminder to drop a Soulwell. Dismissed after casting or after 30 seconds.",
+                title = L["Tooltip.InstanceEntryReminder"],
+                desc = L["Tooltip.InstanceEntryReminder.Desc"],
             },
             customCheck = function(isRestricted)
                 -- Cooldown API returns tainted values during combat/encounters/M+
                 if isRestricted then
-                    return true
+                    return false
                 end
                 local ok, result = pcall(function()
                     local info = C_Spell.GetSpellCooldown(29893)
@@ -520,7 +525,7 @@ BR.BUFF_TABLES = {
             key = "grimoireOfSacrifice",
             name = "犧牲魔典",
             class = "WARLOCK",
-            missingText = "沒有\n魔典",
+            overlayText = L["Overlay.NoGrim"],
         },
         -- Paladin weapon rites (alphabetical: Adjuration, Sanctification)
         -- NOTE: Due to a Blizzard bug, when changing talents the buff drops but enchant remains.
@@ -528,9 +533,9 @@ BR.BUFF_TABLES = {
         {
             spellID = 433583,
             key = "riteOfAdjuration",
-            name = "裁決儀式",
+            name = "誓絕儀式",
             class = "PALADIN",
-            missingText = "沒有\n儀式",
+            overlayText = L["Overlay.NoRite"],
             enchantID = 7144,
             buffIdOverride = 433584, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
@@ -544,7 +549,7 @@ BR.BUFF_TABLES = {
             key = "riteOfSanctification",
             name = "聖化儀式",
             class = "PALADIN",
-            missingText = "沒有\n儀式",
+            overlayText = L["Overlay.NoRite"],
             enchantID = 7143,
             buffIdOverride = 433550, -- Actual buff ID on player
             requiresBuffWithEnchant = true,
@@ -562,7 +567,7 @@ BR.BUFF_TABLES = {
             key = "roguePoisons",
             name = "盜賊毒藥",
             class = "ROGUE",
-            overlayText = "上\n毒藥",
+            overlayText = L["Overlay.ApplyPoison"],
             customCheck = function()
                 RefreshPoisonCache()
                 -- Don't show if the player hasn't learned any poisons yet (e.g. low-level rogue)
@@ -592,7 +597,7 @@ BR.BUFF_TABLES = {
             key = "shadowform",
             name = "暗影形態",
             class = "PRIEST",
-            missingText = "沒有\n型態",
+            overlayText = L["Overlay.NoForm"],
             buffIdOverride = { 232698, 194249 },
             noExpirationGlow = true, -- Voidform (short duration) replaces Shadowform; don't warn
         },
@@ -602,7 +607,7 @@ BR.BUFF_TABLES = {
             key = "earthlivingWeapon",
             name = "大地生命武器",
             class = "SHAMAN",
-            missingText = "沒有\n大地生命",
+            overlayText = L["Overlay.NoEL"],
             enchantID = 6498,
             groupId = "shamanImbues",
         },
@@ -611,16 +616,16 @@ BR.BUFF_TABLES = {
             key = "flametongueWeapon",
             name = "火舌武器",
             class = "SHAMAN",
-            missingText = "沒有\n火舌",
+            overlayText = L["Overlay.NoFT"],
             enchantID = 5400,
             groupId = "shamanImbues",
         },
         {
             spellID = 457481,
             key = "tidecallersGuard",
-            name = "喚潮者之禦",
+            name = "喚潮者守衛",
             class = "SHAMAN",
-            overlayText = "沒有\n喚潮者",
+            overlayText = L["Overlay.NoTG"],
             enchantID = 7528,
             requireSpecId = 264, -- Restoration
             groupId = "shamanImbues",
@@ -640,7 +645,7 @@ BR.BUFF_TABLES = {
             key = "windfuryWeapon",
             name = "風怒武器",
             class = "SHAMAN",
-            missingText = "沒有\n風怒",
+            overlayText = L["Overlay.NoWF"],
             enchantID = 5401,
             groupId = "shamanImbues",
         },
@@ -658,7 +663,7 @@ BR.BUFF_TABLES = {
             key = "earthShieldSelfEO",
             name = "大地之盾 (自身)",
             class = "SHAMAN",
-            missingText = "沒有\n自身地盾",
+            overlayText = L["Overlay.NoSelfES"],
             requiresSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 974, -- Earth Shield icon for group checkbox
@@ -667,9 +672,9 @@ BR.BUFF_TABLES = {
         {
             spellID = { 192106, 52127 },
             key = "waterLightningShieldEO",
-            name = "水/閃電之盾",
+            name = "水之/閃電之盾",
             class = "SHAMAN",
-            missingText = "沒有\n盾",
+            overlayText = L["Overlay.NoShield"],
             requiresSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 192106, -- Lightning Shield icon for group checkbox
@@ -679,9 +684,9 @@ BR.BUFF_TABLES = {
         {
             spellID = { 974, 192106, 52127 },
             key = "shamanShieldBasic",
-            name = "盾 (無天賦)",
+            name = "護盾 (無天賦)",
             class = "SHAMAN",
-            missingText = "沒有\n盾",
+            overlayText = L["Overlay.NoShield"],
             excludeSpellID = 383010,
             groupId = "shamanShields",
             displaySpells = 52127, -- Water Shield icon for group checkbox
@@ -696,7 +701,7 @@ BR.BUFF_TABLES = {
             key = "frostMagePet",
             name = "水元素",
             class = "MAGE",
-            missingText = "沒有\n寵物",
+            overlayText = L["Overlay.NoPet"],
             requireSpecId = 64, -- Frost
             requiresSpellID = 31687,
             groupId = "pets",
@@ -708,7 +713,7 @@ BR.BUFF_TABLES = {
             key = "hunterPet",
             name = "獵人寵物",
             class = "HUNTER",
-            missingText = "沒有\n寵物",
+            overlayText = L["Overlay.NoPet"],
             displayIcon = 132161,
             groupId = "pets",
             customCheck = function()
@@ -723,7 +728,7 @@ BR.BUFF_TABLES = {
             key = "petPassive",
             name = "寵物被動",
             -- No class: applies to any class with a pet
-            missingText = "被動\n寵物",
+            overlayText = L["Overlay.PassivePet"],
             displayIcon = 132311,
             customCheck = IsPetOnPassive,
         },
@@ -732,7 +737,7 @@ BR.BUFF_TABLES = {
             key = "unholyPet",
             name = "穢邪食屍鬼",
             class = "DEATHKNIGHT",
-            missingText = "沒有\n寵物",
+            overlayText = L["Overlay.NoPet"],
             requireSpecId = 252, -- Unholy
             groupId = "pets",
             customCheck = function()
@@ -743,7 +748,7 @@ BR.BUFF_TABLES = {
             key = "warlockWrongPet",
             name = "錯誤的惡魔",
             class = "WARLOCK",
-            missingText = "錯誤\n寵物",
+            overlayText = L["Overlay.WrongPet"],
             displayIcon = 136216, -- Felguard icon
             excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
             requireSpecId = 266, -- Demonology only
@@ -763,7 +768,7 @@ BR.BUFF_TABLES = {
             key = "warlockPet",
             name = "術士惡魔",
             class = "WARLOCK",
-            missingText = "沒有\n寵物",
+            overlayText = L["Overlay.NoPet"],
             displayIcon = 136082, -- Summon Demon flyout icon
             excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
             groupId = "pets",
@@ -791,7 +796,7 @@ BR.BUFF_TABLES = {
             displaySpells = { 1264426, 1234969 }, -- Void-Touched (Midnight), Ethereal (TWW permanent)
             key = "rune",
             name = "符文",
-            overlayText = "沒有\n符文",
+            overlayText = L["Overlay.NoRune"],
             permanentRuneItemIDs = { 243191, 259085 }, -- Ethereal (TWW), Void-Touched (Midnight)
             groupId = "rune",
             consumableCategory = "rune",
@@ -823,8 +828,8 @@ BR.BUFF_TABLES = {
                 1239355, -- Vicious Thalassian Flask of Honor
             },
             key = "flask",
-            name = "精鍊",
-            missingText = "沒有\n精鍊",
+            name = "藥劑",
+            overlayText = L["Overlay.NoFlask"],
             groupId = "flask",
             consumableCategory = "flask",
             disabledInCompetitivePvP = true,
@@ -834,7 +839,7 @@ BR.BUFF_TABLES = {
             buffIconID = 136000, -- All food buffs use this icon
             key = "food",
             name = "食物",
-            missingText = "沒有\n食物",
+            overlayText = L["Overlay.NoFood"],
             groupId = "food",
             consumableCategory = "food",
             displayIcon = 136000,
@@ -846,12 +851,12 @@ BR.BUFF_TABLES = {
             spellID = 442522,
             key = "delveFood",
             name = "探究食物",
-            missingText = "沒有\n食物",
+            overlayText = L["Overlay.NoFood"],
             groupId = "delveFood",
-            noExpirationGlow = true, -- 10-min duration makes standard thresholds meaningless
+            showOnInstanceEntry = true, -- Only show for 30s on delve entry (food is NPC-controlled)
             infoTooltip = {
-                title = "只限探究",
-                desc = "只限探究|只有當布萊恩或瓦莉拉在你的隊伍中時才會在探索內顯示。\n\n此增益效果的過期發光被禁用，因為其短暫的10分鐘持續時間會導致它始終發光。",
+                title = L["Tooltip.DelvesOnly"],
+                desc = L["Tooltip.DelvesOnly.Desc"],
             },
             visibilityCondition = BR.IsInDelve,
             disabledInCompetitivePvP = true,
@@ -863,7 +868,7 @@ BR.BUFF_TABLES = {
             key = "healthstone",
             name = "治療石",
             casterClass = "WARLOCK",
-            overlayText = "沒有\n治療石",
+            overlayText = L["Overlay.NoStone"],
             groupId = "healthstone",
             displayIcon = 538745, -- Healthstone icon
             freeConsumable = true,
@@ -878,7 +883,7 @@ BR.BUFF_TABLES = {
             checkWeaponEnchant = true, -- Check if any weapon enchant exists
             key = "weaponBuff",
             name = "武器",
-            missingText = "沒有\n武器\n增益",
+            overlayText = L["Overlay.NoWeaponBuff"],
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
             consumableCategory = "weapon",
@@ -897,8 +902,8 @@ BR.BUFF_TABLES = {
         {
             checkWeaponEnchantOH = true,
             key = "weaponBuffOH",
-            name = "武器(副手)",
-            missingText = "沒有\n武器\n增益",
+            name = "武器 (副手)",
+            overlayText = L["Overlay.NoWeaponBuff"],
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
             consumableCategory = "weapon",
@@ -918,7 +923,6 @@ BR.BUFF_TABLES = {
         },
     },
 }
-
 -- Derive buff key → consumable category mapping from data
 local buffKeyToCategory = {}
 for _, buff in ipairs(BR.BUFF_TABLES.consumable) do
@@ -930,18 +934,18 @@ BR.BUFF_KEY_TO_CATEGORY = buffKeyToCategory
 
 ---@type table<string, BuffGroup>
 BR.BuffGroups = {
-    beacons = { displayName = "信標" },
-    shamanImbues = { displayName = "薩滿灌魔" },
-    paladinRites = { displayName = "聖騎士儀式" },
-    pets = { displayName = "寵物" },
-    shamanShields = { displayName = "薩滿盾" },
+    beacons = { displayName = L["Group.Beacons"] },
+    shamanImbues = { displayName = L["Group.ShamanImbues"] },
+    paladinRites = { displayName = L["Group.PaladinRites"] },
+    pets = { displayName = L["Group.Pets"] },
+    shamanShields = { displayName = L["Group.ShamanShields"] },
     -- Consumable groups
-    flask = { displayName = "精鍊" },
-    food = { displayName = "食物" },
-    delveFood = { displayName = "探究食物" },
-    healthstone = { displayName = "治療石" },
-    rune = { displayName = "增強符文" },
-    weaponBuff = { displayName = "武器增益" },
+    flask = { displayName = L["Group.Flask"] },
+    food = { displayName = L["Group.Food"] },
+    delveFood = { displayName = L["Group.DelveFood"] },
+    healthstone = { displayName = L["Group.Healthstone"] },
+    rune = { displayName = L["Group.AugmentRune"] },
+    weaponBuff = { displayName = L["Group.WeaponBuff"] },
 }
 
 -- Classes that benefit from each buff

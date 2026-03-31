@@ -137,11 +137,13 @@ end
 -- GLOW TYPES (Pixel, AutoCast, Border)
 -- ============================================================================
 
+local L = BR.L
+
 BR.Glow.Types = {
-    { name = "像素" },
-    { name = "自動施放" },
-    { name = "外框" },
-    { name = "觸發" },
+    { name = L["Glow.Pixel"] },
+    { name = L["Glow.AutoCast"] },
+    { name = L["Glow.Border"] },
+    { name = L["Glow.Proc"] },
 }
 
 local GLOW_START = {
@@ -168,6 +170,15 @@ local GLOW_START = {
             yOffset = yOff,
         })
     end,
+}
+
+-- LCG's FramePoolResetter nils parent[frame.name] on release, but the cleanup can fail when
+-- GetParent() no longer returns the original buff frame (e.g. after rapid hide/show cycles).
+-- Safety net: nil the reference ourselves so addFrameAndTex always re-acquires from the pool.
+local LCG_FRAME_KEYS = {
+    [1] = "_PixelGlow",
+    [2] = "_AutoCastGlow",
+    [4] = "_ProcGlow",
 }
 
 local GLOW_STOP = {
@@ -204,6 +215,10 @@ function BR.Glow.Stop(frame, typeIndex, key)
     local fn = GLOW_STOP[typeIndex]
     if fn then
         fn(frame, key)
+        local lcgKey = LCG_FRAME_KEYS[typeIndex]
+        if lcgKey then
+            frame[lcgKey .. (key or "")] = nil
+        end
     end
 end
 
@@ -211,10 +226,9 @@ end
 ---@param frame table
 ---@param key string Must match the key used in Start
 function BR.Glow.StopAll(frame, key)
-    LCG.PixelGlow_Stop(frame, key)
-    LCG.AutoCastGlow_Stop(frame, key)
-    BR.Glow.PulsingBorderStop(frame, key)
-    LCG.ProcGlow_Stop(frame, key)
+    for typeIndex = 1, 4 do
+        BR.Glow.Stop(frame, typeIndex, key)
+    end
 end
 
 -- ============================================================================
