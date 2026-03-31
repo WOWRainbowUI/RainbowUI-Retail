@@ -47,6 +47,12 @@ GTFO.SpellID["1248130"] = {
 --- * Windrunner Spire *
 --- ********************
 
+GTFO.SpellID["473784"] = {
+  --desc = "Fetid Spew (Flesh Behemoth)";
+  sound = 1;
+  instance = 2805; 
+};
+
 GTFO.SpellID["472118"] = {
   --desc = "Ignited Embers (Emberdawn)";
   sound = 1;

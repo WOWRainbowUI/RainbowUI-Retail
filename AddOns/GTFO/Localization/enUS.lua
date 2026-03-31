@@ -129,6 +129,10 @@ GTFOLocal =
 	UI_IgnoreTime_Seconds = "seconds",
 	-- 6.0
 	Help_SettingsDuringCombat = "Cannot open GTFO settings during combat.",
+	UI_AFKAlert_Classic = "Alert if attacked while AFK",
+	UI_AFKAlertDescription_Classic = "While you are flagged AFK, GTFO will play an alert whenever you take damage.",
+	UI_AFKAlert_Retail = "Alert if combat starts while AFK",
+	UI_AFKAlertDescription_Retail = "While you are flagged AFK, GTFO will attempt to play an alert one time when combat starts (may not work in Blizzard-restricted situations such as Mythic+).",
 	UI_BrokenReason = "This functionality was disabled due to the new Blizzard addon restrictions introduced in Midnight (12.0)",
 	UI_BrokenPartialReason = "Some of this functionality was disabled due to the new Blizzard addon restrictions introduced in Midnight (12.0)",
 	UI_BrokenExplanation_Header = "Addon Restrictions",
