@@ -6,7 +6,8 @@ local function LT(text)
 end
 
 function lv.IsMPlusTeleportsEnabled()
-    return not (LiteVaultDB and LiteVaultDB.disableMPlusTeleports)
+    -- return not (LiteVaultDB and LiteVaultDB.disableMPlusTeleports)
+	return false -- 自行修改
 end
 
 -- Midnight Season 1 M+ dungeon pool.
