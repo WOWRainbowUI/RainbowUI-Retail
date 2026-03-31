@@ -26,7 +26,7 @@ local AURA_RETRY_MIN_INTERVAL = STYLER_CONSTANTS.AuraRetryMinInterval or 0.25
 
 local frameState = addon.frameState
 
-local Registry, BatchProcessor, DurationColor
+local Registry, BatchProcessor, DurationColor, Classifier
 
 -- =========================================================================
 -- SECRET / FORBIDDEN GUARDS
@@ -98,6 +98,14 @@ local function HasAuraLikeAncestor(cooldown)
     return false
 end
 
+local function ShouldIgnoreCooldown(cooldown)
+    if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then
+        return true
+    end
+
+    return Classifier and Classifier:IsBlacklisted(cooldown) or false
+end
+
 local function TryRegisterUnknown(cooldown)
     if Registry:IsRegistered(cooldown) then return end
     -- Only adapters can register cooldowns; unsupported frames are silently ignored
@@ -138,7 +146,7 @@ function HookBridge:SetupHooks()
         fs.nextAuraRefreshAt = now + AURA_RETRY_MIN_INTERVAL
         fs.pendingAuraRefresh = true
         C_Timer_After(0, function()
-            if not cooldown or MCE:IsForbidden(cooldown) then return end
+            if ShouldIgnoreCooldown(cooldown) then return end
             local fs2 = frameState[cooldown]
             local refreshDuration = fs2 and fs2.pendingAuraDurationRefresh == true
             if fs2 then
@@ -164,8 +172,16 @@ function HookBridge:SetupHooks()
     end
 
     local function HandleCooldownUpdate(cooldown, durationObject)
-        if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-        TryRegisterUnknown(cooldown)
+        if ShouldIgnoreCooldown(cooldown) then return end
+
+        local category = Registry:GetCategory(cooldown)
+        if not category then
+            category = Registry:TryClaim(cooldown)
+            if not category and not HasAuraLikeAncestor(cooldown) then
+                return
+            end
+        end
+
         DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
         BatchProcessor:QueueUpdate(cooldown)
         MaybeRetryAuraRefresh(cooldown, durationObject)
@@ -220,7 +236,7 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.Clear) == "function" then
         hooksecurefunc(cooldownAPI, "Clear", function(cooldown)
-            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
+            if ShouldIgnoreCooldown(cooldown) then return end
             DurationColor:ClearTrackedDurationColor(cooldown)
         end)
     end
@@ -253,6 +269,20 @@ function HookBridge:SetupHooks()
                 fs.suppressEdgeScale = true
                 pcall(cooldown.SetEdgeScale, cooldown, fs.edgeScale)
                 fs.suppressEdgeScale = nil
+            end
+        end)
+    end
+
+    if type(cooldownAPI.SetEdgeColor) == "function" then
+        hooksecurefunc(cooldownAPI, "SetEdgeColor", function(cooldown, r, g, b, a)
+            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
+            if IsSecretValue(r) or IsSecretValue(g) or IsSecretValue(b) or IsSecretValue(a) then return end
+            local fs = frameState[cooldown]
+            if not fs or fs.suppressEdgeColor then return end
+            if fs.edgeColor and not IsSameSwipeColor(fs.edgeColor, r, g, b, a) then
+                fs.suppressEdgeColor = true
+                pcall(cooldown.SetEdgeColor, cooldown, fs.edgeColor.r, fs.edgeColor.g, fs.edgeColor.b, fs.edgeColor.a)
+                fs.suppressEdgeColor = nil
             end
         end)
     end
@@ -310,6 +340,7 @@ function HookBridge:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     BatchProcessor = MCE:GetModule("BatchProcessor")
     DurationColor = MCE:GetModule("DurationColorController")
+    Classifier = MCE:GetModule("Classifier")
 
     self:SetupHooks()
 end

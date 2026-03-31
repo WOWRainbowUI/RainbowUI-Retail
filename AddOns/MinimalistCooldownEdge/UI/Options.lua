@@ -233,6 +233,21 @@ local function SetShinyAurasAdapterEnabled(_, value)
     if not profile then return end
 
     profile.shinyAurasAdapterEnabled = value
+    MCE:MarkReloadRequired()
+    MCE:ForceUpdateAll(true)
+    AceConfigRegistry:NotifyChange(addonName)
+end
+
+local function ElvUIAdapterEnabled()
+    return MCE:IsElvUIAdapterEnabled()
+end
+
+local function SetElvUIAdapterEnabled(_, value)
+    local profile = MCE.db and MCE.db.profile
+    if not profile then return end
+
+    profile.elvuiAdapterEnabled = value
+    MCE:MarkReloadRequired()
     MCE:ForceUpdateAll(true)
     AceConfigRegistry:NotifyChange(addonName)
 end
@@ -374,6 +389,25 @@ local function RefreshDynamicCategoryLabels()
     end
 end
 
+local function SetCategoryEnabled(key)
+    return function(_, value)
+        MCE.db.profile.categories[key].enabled = value
+        MCE:MarkReloadRequired()
+        MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
+        AceConfigRegistry:NotifyChange(addonName)
+    end
+end
+
+local function SetDashboardCategoryEnabled(key)
+    return function(_, value)
+        MCE.db.profile.categories[key].enabled = value
+        MCE:MarkReloadRequired()
+        MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
+        AceConfigRegistry:NotifyChange(addonName)
+        RefreshDynamicCategoryLabels()
+    end
+end
+
 local function HasImportPayload()
     return type(MCE.profileImportBuffer) == "string" and strtrim(MCE.profileImportBuffer) ~= ""
 end
@@ -461,6 +495,8 @@ local function BuildProfileImportExportOptions(order)
                     local ok, err = MCE:ImportConfig(MCE.profileImportBuffer)
                     if not ok and err then
                         MCE:Print(err)
+                    elseif ok then
+                        MCE:MarkReloadRequired()
                     end
 
                     RefreshDynamicCategoryLabels()
@@ -513,11 +549,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         name = "|cff33ff99" .. format(L["Enable %s"], name) .. "|r",
                         desc = L["Toggle styling for this category."],
                         get = CatGet(key, "enabled"),
-                        set = function(_, val)
-                            MCE.db.profile.categories[key].enabled = val
-                            MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
-                            LibStub("AceConfigRegistry-3.0"):NotifyChange(addonName)
-                        end,
+                        set = SetCategoryEnabled(key),
                     },
                     miniCCTestToggle = isMiniCC and {
                         type = "execute", order = 2, width = "1",
@@ -930,6 +962,7 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
             local config = GetCompactPartyAuraOptionsConfig()
             if not config then return end
             config[field] = val
+            MCE:MarkReloadRequired()
             MCE:ForceUpdateAll(true)
             AceConfigRegistry:NotifyChange(addonName)
             RefreshDynamicCategoryLabels()
@@ -1241,20 +1274,20 @@ function MCE:GetOptions()
                                 type = "toggle", order = 1, width = 1.0,
                                 name = "|cffffd100" .. L["Action Bars"] .. "|r",
                                 get = function() return MCE.db.profile.categories[C.Categories.Actionbar].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.Actionbar].enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = SetDashboardCategoryEnabled(C.Categories.Actionbar),
                             },
                             toggleNameplate = {
                                 type = "toggle", order = 2, width = 1.0,
                                 name = "|cffffd100" .. L["Nameplates"] .. "|r",
                                 get = function() return MCE.db.profile.categories[C.Categories.Nameplate].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.Nameplate].enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = SetDashboardCategoryEnabled(C.Categories.Nameplate),
                             },
                             quickRowBreak1 = RowBreak(2.1),
                             toggleUnitframe = {
                                 type = "toggle", order = 3, width = 1.0,
                                 name = "|cffffd100" .. L["Unit Frames"] .. "|r",
                                 get = function() return MCE.db.profile.categories[C.Categories.Unitframe].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.Unitframe].enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = SetDashboardCategoryEnabled(C.Categories.Unitframe),
                             },
                             togglePartyRaidFrames = {
                                 type = "toggle", order = 4, width = 1.0,
@@ -1267,6 +1300,7 @@ function MCE:GetOptions()
                                     local config = GetCompactPartyAuraOptionsConfig()
                                     if not config then return end
                                     config.enabled = v
+                                    MCE:MarkReloadRequired()
                                     MCE:ForceUpdateAll(true)
                                     AceConfigRegistry:NotifyChange(addonName)
                                     RefreshDynamicCategoryLabels()
@@ -1277,28 +1311,28 @@ function MCE:GetOptions()
                                 type = "toggle", order = 5, width = "full",
                                 name = "|cffffd100" .. L["CooldownManager"] .. "|r",
                                 get = function() return MCE.db.profile.categories[C.Categories.CooldownManager].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.CooldownManager].enabled = v; MCE:ForceUpdateAll(); RefreshDynamicCategoryLabels() end,
+                                set = SetDashboardCategoryEnabled(C.Categories.CooldownManager),
                             },
                             toggleMiniCC = {
                                 type = "toggle", order = 6, width = 0.6,
                                 name = "|cffffd100" .. L["MiniCC"] .. "|r",
                                 hidden = function() return not MCE:IsMiniCCAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.MiniCC].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.MiniCC].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
+                                set = SetDashboardCategoryEnabled(C.Categories.MiniCC),
                             },
                             toggleSArena = {
                                 type = "toggle", order = 7, width = 0.6,
                                 name = "|cffffd100" .. L["sArena"] .. "|r",
                                 hidden = function() return not MCE:IsSArenaAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.SArena].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.SArena].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
+                                set = SetDashboardCategoryEnabled(C.Categories.SArena),
                             },
                             toggleTellMeWhen = {
                                 type = "toggle", order = 8, width = 0.9,
                                 name = "|cffffd100" .. L["TellMeWhen"] .. "|r",
                                 hidden = function() return not MCE:IsTellMeWhenAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.TellMeWhen].enabled end,
-                                set = function(_, v) MCE.db.profile.categories[C.Categories.TellMeWhen].enabled = v; MCE:ForceUpdateAll(true); RefreshDynamicCategoryLabels() end,
+                                set = SetDashboardCategoryEnabled(C.Categories.TellMeWhen),
                             },
                             quickFooter = {
                                 type = "description", order = 9, fontSize = "small", width = "full",
@@ -1309,7 +1343,10 @@ function MCE:GetOptions()
                     addonIntegrations = {
                         type = "group", name = "|cffffd100" .. L["Addon Integrations"] .. "|r",
                         inline = true, order = 1.5,
-                        hidden = function() return not MCE:IsShinyAurasAvailable() end,
+                        hidden = function()
+                            return not MCE:IsShinyAurasAvailable()
+                                and not MCE:IsElvUIAvailable()
+                        end,
                         args = {
                             integrationsDesc = {
                                 type = "description", order = 0, fontSize = "small", width = "full",
@@ -1321,6 +1358,14 @@ function MCE:GetOptions()
                                 desc = L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."],
                                 get = ShinyAurasAdapterEnabled,
                                 set = SetShinyAurasAdapterEnabled,
+                            },
+                            toggleElvUI = {
+                                type = "toggle", order = 2, width = "full",
+                                name = "|cffffd100" .. L["ElvUI"] .. "|r",
+                                hidden = function() return not MCE:IsElvUIAvailable() end,
+                                desc = L["Routes supported ElvUI action bar, unit frame, and nameplate cooldowns through MiniCE categories. Disable this if you want ElvUI to keep its native cooldown styling untouched."],
+                                get = ElvUIAdapterEnabled,
+                                set = SetElvUIAdapterEnabled,
                             },
                         },
                     },
@@ -1563,6 +1608,18 @@ function MCE:GetOptions()
                                 name = "",
                                 desc = L["Copy this link to open Smart PvP Tab Targeting on CurseForge."],
                                 get = function() return C.Urls.SmartPvPTabTargeting end,
+                                set = function() end,
+                            },
+                            pvpTabSpacer = SectionSpacer(4.1),
+                            arenaDRDesc = {
+                                type = "description", order = 5, fontSize = "small", width = "full",
+                                name = "|cff33ff99ArenaDR Nameplates|r\n|cffbbbbbb" .. L["HELP_ARENADR_DESC"] .. "|r",
+                            },
+                            arenaDRUrl = {
+                                type = "input", order = 6, width = "full",
+                                name = "",
+                                desc = L["Copy this link to open ArenaDR Nameplates on CurseForge."],
+                                get = function() return C.Urls.ArenaDRNameplates end,
                                 set = function() end,
                             },
                         },

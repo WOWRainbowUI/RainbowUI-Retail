@@ -237,6 +237,7 @@ C.Urls = {
     CurseForge = "https://www.curseforge.com/wow/addons/minice-cooldown-styler",
     Developer = "https://www.curseforge.com/members/anahkas/projects",
     MiniCC = "https://www.curseforge.com/wow/addons/minicc",
+    ArenaDRNameplates = "https://www.curseforge.com/wow/addons/arena-dr-nameplates",
     TellMeWhen = "https://www.curseforge.com/wow/addons/tellmewhen",
     SmartPvPTabTargeting = "https://www.curseforge.com/wow/addons/pvp-tab-targeting",
 }
@@ -275,7 +276,8 @@ C.Classifier = {
         "Glider", "VuhDo",
         "ElvUI", "ElvUF", "ElvNP", "elvnp", "Elv_", "ElvAB_", "Tukui",
         "Gw2_","GW2", "Gw2", "GW2_", "Gw_", "GW_", 
-        "ArenaDrNP_"
+        "ArenaDrNP_",
+        "FloatingChatFrame", "ChatFrame"
     },
     BlacklistParentNames = {    
         "Tukui", "Glider", "VuhDo",

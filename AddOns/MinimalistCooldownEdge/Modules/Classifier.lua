@@ -15,6 +15,7 @@ local strfind, ipairs = string.find, ipairs
 local CLASSIFIER_CONSTANTS = C.Classifier
 local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
 local BLACKLIST_PARENT_NAMES = CLASSIFIER_CONSTANTS.BlacklistParentNames
+local frameState = addon.frameState
 
 local blacklistCache = {}
 local blacklistParentNameLookup = {}
@@ -29,6 +30,11 @@ end
 
 function Classifier:IsBlacklisted(frame, knownFrameName)
     if not frame then return false end
+    local state = frameState[frame]
+    if state and state.allowBlacklisted then
+        blacklistCache[frame] = false
+        return false
+    end
     if blacklistCache[frame] ~= nil then return blacklistCache[frame] end
 
     local currentObj = frame

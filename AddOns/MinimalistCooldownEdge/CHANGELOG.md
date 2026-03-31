@@ -1,6 +1,17 @@
 
 # Changelog
 
+## [3.7.1] - 2026-03-30
+- Fixed a Blizzard chat taint issue that could affect separate whisper and Battle.net whisper windows.
+- Improved cooldown filtering so unsupported Blizzard UI elements are ignored earlier for better stability.
+
+## [3.7.0] - 2026-03-29
+- Added a reload prompt for settings that need `Reload UI`.
+- Improved category settings handling.
+- Added beta ElvUI support with dedicated options and edge color handling.
+- Improved ElvUI detection and blacklist handling.
+- ArenaDR Nameplates: Added to the Help & Support page
+
 ## [3.6.9] - 2026-03-28
 - Add ShinyAuras addon support via ShinyAurasAdapter
 
