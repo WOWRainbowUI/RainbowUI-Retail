@@ -22,7 +22,7 @@ D["!gmFonts"] = {
 D["AAgmFonts"] = {
 	defaultEnable = 0,
 	title = "(請刪除) 遊戲字體",
-	desc = "這個插件的資料夾已經改名為 !gmFonts。`請自行刪除 AddOns 裡面的 AAgmFonts 資料夾。`",
+	desc = "這個插件的資料夾已經改名為 !gmFonts。``請自行刪除 AddOns 裡面的 AAgmFonts 資料夾。`",
 	modifier = "彩虹ui",
 };
 D["AbilityTimeline"] = {
@@ -317,23 +317,10 @@ D["BlizzMove"] = {
 	},
 };
 D["BloodlustPump"] = {
-	defaultEnable = 1,
-	tags = { "COMBAT" }, 
-	title = "嗜血引擎",
-	desc = "會在你觸發嗜血、英勇、時間扭曲、狂暴飾品觸發或其他加速爆發時，自動播放激勵動畫與音效，讓你在最關鍵的秒數裡保持專注與激情。它不僅是數值追蹤器，更是一個 '戰鬥氛圍加速器'。`",
+	defaultEnable = 0,
+	title = "(請刪除) 嗜血引擎",
+	desc = "這個插件已替換成 '米利嗜血音樂' 插件。``請自行刪除 AddOns 裡面的 BloodlustPump 資料夾。`",
 	modifier = "彩虹ui",
-    {
-        text = "設定選項",
-        callback = function() SlashCmdList["BLOODLUSTPUMP"]("") end,
-    },
-	{
-		type = "text",
-		text = "|cffFF2D2D替換檔案後需要重新載入介面。|r",
-	},
-	{
-		type = "text",
-		text = "替換音樂和語音：將自己的 mp3 檔案放到 AddOns > BloodlustPump > Sounds 資料夾內，改名為 music1.mp3、music2.mp3 或 music3.mp3 替換掉原有的檔案。|n|n語音檔案改名為 voice1.mp3 或 voice1.mp3 或 voice1.mp3，替換掉原有的檔案。|n|n然後回到遊戲中重新載入介面即可。|n",
-	},
 };
 D["BtWLoadouts"] = {
     defaultEnable = 0,
@@ -520,7 +507,7 @@ D["ColorPickerPlus"] = {
 D["CooldownManagerCentered"] = {
     defaultEnable = 0,
 	title = "(請刪除) 內建技能監控美化",
-	desc = "已改為使用 '阿吉冷卻管理器'，請刪除 AddOns 裡面的 CooldownManagerCentered 資料夾。`",
+	desc = "這個插件已替換成 '阿吉冷卻管理器'。``請自行刪除 AddOns 裡面的 CooldownManagerCentered 資料夾。`",
 	modifier = "彩虹ui",
 	{
         text = "設定選項",
@@ -895,7 +882,7 @@ D["HidingBar"] = {
 D["iPMythicTimer"] = {
     defaultEnable = 0,
 	title = "(請刪除) M+ 時間",
-	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 iPMythicTimer 資料夾。`",
+	desc = "這是舊版的插件，已經移除。``請自行刪除 AddOns 裡面的 iPMythicTimer 資料夾。`",
 };
 D["JsFilter"] = {
     defaultEnable = 1,
@@ -989,7 +976,7 @@ D["Leatrix_Plus"] = {
 D["ls_Glass"] = {
     defaultEnable = 0,
 	title = "(請刪除) 聊天視窗美化",
-	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 ls_Glass 資料夾。`",
+	desc = "這是舊版的插件，已經移除。``請自行刪除 AddOns 裡面的 ls_Glass 資料夾。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\ability_evoker_powerswell",
 };
@@ -1190,6 +1177,30 @@ D["MikScrollingBattleText"] = {
         text = "設定選項",
         callback = function() SlashCmdList["MSBT"]("") end,
     },
+};
+D["MiliUI_BloodlustMusic"] = {
+    defaultEnable = 1,
+	tags = { "COMBAT" },
+	title = "米利嗜血音樂",
+	desc = "會在你觸發嗜血、英勇、時間扭曲時，自動播放激勵音樂和計時條，讓你在最關鍵的秒數裡保持專注與激情。`",
+	icon = "Interface\\Icons\\spell_nature_bloodlust",
+	img = true,
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["MILIUI_BLM"]("") end,
+    },
+	{
+		type = "text",
+		text = "更換音樂: 將自己的 mp3 檔案放到 AddOns > MiliUI_BloodlustMusic > Media 資料夾內，改名為 music.mp3 替換掉原有的檔案。",
+	},
+	{
+		type = "text",
+		text = "多首音樂: 將多個 mp3 檔案放到和上述相同的 Media 資料夾內，用記事本編輯 AddOns > MiliUI_BloodlustMusic > BloodlustMusic.lua，將第 40 行複製貼上多次，修改每一個 .mp3 的檔案名稱，符合你放入的檔案名稱即可。",
+	},
+	{
+		type = "text",
+		text = "|cffFF2D2D替換或修改檔案後需要重新載入介面。|r",
+	},
 };
 D["MinimalistCooldownEdge"] = {
     defaultEnable = 0,
@@ -1433,7 +1444,7 @@ D["QuestPlates"] = {
     defaultEnable = 1,
 	tags = { "QUEST" },
 	title = "(請刪除) 任務怪提示",
-	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 QuestPlates 資料夾。`",
+	desc = "這是舊版的插件，已經移除。``請自行刪除 AddOns 裡面的 QuestPlates 資料夾。`",
 	img = true,
 };
 D["QuickTargets"] = {
@@ -1808,7 +1819,7 @@ D["TinyInspect"] = {
 D["TinyTooltip-Reforged"] = {
     defaultEnable = 0,
 	title = "(請刪除) 浮動提示資訊增強",
-	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 TinyTooltip-Reforged 資料夾。`",
+	desc = "這是舊版的插件，已經移除。``請自行刪除 AddOns 裡面的 TinyTooltip-Reforged 資料夾。`",
 	modifier = "彩虹ui",
 	icon = "Interface\\Icons\\inv_wand_02",
 };
@@ -1865,7 +1876,7 @@ D["UnlimitedMapPinDistance"] = {
 D["VCB"] = {
     defaultEnable = 0,
 	title = "(請刪除) 內建施法條增強",
-	desc = "這是舊版的插件，已經移除。`請自行刪除 AddOns 裡面的 VCB 和 VuhDoOptions 資料夾。`",
+	desc = "這是舊版的插件，已經移除。``請自行刪除 AddOns 裡面的 VCB 和 VuhDoOptions 資料夾。`",
 	icon = "Interface\\Icons\\spell_holy_surgeoflight_shadow",
 	modifier = "彩虹ui",
 };
