@@ -39,6 +39,8 @@ local VUHDO_RAID;
 local VUHDO_PANEL_SETUP;
 local VUHDO_DEBUFF_COLORS = { };
 
+local VUHDO_UNIT_AURA_SOURCE_BOTH;
+
 local VUHDO_DEBUFF_BLACKLIST = { };
 
 local UnitIsFriend = UnitIsFriend;
@@ -77,6 +79,8 @@ function VUHDO_debuffsInitLocalOverrides()
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
 	VUHDO_DEBUFF_BLACKLIST = _G["VUHDO_DEBUFF_BLACKLIST"];
+
+	VUHDO_UNIT_AURA_SOURCE_BOTH = _G["VUHDO_UNIT_AURA_SOURCE_BOTH"];
 
 	sIsNotRemovableOnly = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY"];
 	sIsNotRemovableOnlyIcons = not VUHDO_CONFIG["DETECT_DEBUFFS_REMOVABLE_ONLY_ICONS"];
@@ -1945,12 +1949,12 @@ end
 
 
 --
-function VUHDO_hasUnitDebuff(aUnit, aSpell)
+function VUHDO_hasUnitDebuff(aUnit, aSpell, aSourceType)
 
 	if not aUnit or not aSpell then
 		return;
 	end
 
-	return VUHDO_hasUnitAura(aUnit, aSpell, "HARMFUL");
+	return VUHDO_hasUnitAura(aUnit, aSpell, "HARMFUL", aSourceType or VUHDO_UNIT_AURA_SOURCE_BOTH);
 
 end
