@@ -1245,26 +1245,10 @@ editModeButton:SetScript("OnClick", function()
         end
      end)
     local function MSUF_StyleSlider(slider)
-        if not slider or slider.MSUFStyled then  return end
-        slider.MSUFStyled = true
-        slider:SetHeight(14)
-        track = slider:CreateTexture(nil, "BACKGROUND")
-        slider.MSUFTrack = track
-        track:SetColorTexture(0.06, 0.06, 0.06, 1)
-        track:SetPoint("TOPLEFT", slider, "TOPLEFT", 0, -3)
-        track:SetPoint("BOTTOMRIGHT", slider, "BOTTOMRIGHT", 0, 3)
-        thumb = slider:GetThumbTexture()
-        if thumb then
-            thumb:SetTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
-            thumb:SetSize(10, 18)
-        end
-        slider:HookScript("OnEnter", function(self)
-            if self.MSUFTrack then self.MSUFTrack:SetColorTexture(0.20, 0.20, 0.20, 1) end
-         end)
-        slider:HookScript("OnLeave", function(self)
-            if self.MSUFTrack then self.MSUFTrack:SetColorTexture(0.06, 0.06, 0.06, 1) end
-         end)
-     end
+        -- Delegate to the canonical StyleSlider from Options_Toolkit (loaded before Core)
+        local fn = ns.MSUF_StyleSlider or _G.MSUF_StyleSlider
+        if fn then return fn(slider) end
+    end
 local function MSUF_StyleSmallButton(button, isPlus)
     if not button or button.MSUFStyled then  return end
     button.MSUFStyled = true
@@ -2305,9 +2289,13 @@ end
             if type(_G.MSUF_SetPurgeBorderTestMode) == "function" then
                 _G.MSUF_SetPurgeBorderTestMode(false)
             end
+            if type(_G.MSUF_SetBossTargetBorderTestMode) == "function" then
+                _G.MSUF_SetBossTargetBorderTestMode(false)
+            end
             if panel.aggroTestCheck then panel.aggroTestCheck:SetChecked(false) end
             if panel.dispelTestCheck then panel.dispelTestCheck:SetChecked(false) end
             if panel.purgeTestCheck then panel.purgeTestCheck:SetChecked(false) end
+            if panel.bossTargetTestCheck then panel.bossTargetTestCheck:SetChecked(false) end
         end
         -- Standalone slash menu window (/msuf)
         local slashWin = _G.MSUF_StandaloneOptionsWindow
