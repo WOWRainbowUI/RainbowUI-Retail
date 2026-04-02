@@ -1,6 +1,8 @@
 # Platynator
 
-## [357](https://github.com/TheMouseNest/Platynator/tree/357) (2026-03-29)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/356...357) 
+## [358](https://github.com/TheMouseNest/Platynator/tree/358) (2026-03-30)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/357...358) 
 
-- Fix empowered colours appearing on spells where it shouldn't  
+- Add option to disable aura countdown swipe  
+- Fix layering issue with aura type border appearing too thin in designer  
+- Add generic option to show aura type borders (replacing enrage only option)  
