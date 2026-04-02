@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1307
+PawnVersion = 2.1308
 
 -- Remove this when 12.0's tooltip secret taint bugs are fixed.
 -- 1. Pawn hooks ShoppingTooltip1.ProcessInfo with PawnUpdateTooltip
@@ -18,7 +18,8 @@ PawnVersion = 2.1307
 PawnTempBlockShoppingTooltipUpdates = VgerCore.IsMidnight
 
 -- Remove this when 12.0's tooltip secret taint bugs are fixed.
-PawnTempWrapWorldQuestTooltipResize = VgerCore.IsMidnight
+-- Reverted in Pawn 2.13.8 after a game patch.
+PawnTempWrapWorldQuestTooltipResize = nil
 
 -- Pawn requires this version of VgerCore:
 local PawnVgerCoreVersionRequired = 1.20
@@ -1711,7 +1712,7 @@ function PawnUpdateTooltip(TooltipName, MethodName, Param1, ...)
 
 	local Tooltip = _G[TooltipName]
 	if not Tooltip then
-		VgerCore.Fail("Where'd the tooltip go?  I seem to have misplaced it.")
+		VgerCore.Fail("Pawn was trying to update the tooltip named " .. tostring(TooltipName) .. " but it doesn't exist, probably due to either an error when logging in, or a conflict with another addon.")
 		return
 	end
 
