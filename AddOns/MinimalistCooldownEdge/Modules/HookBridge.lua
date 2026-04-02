@@ -11,7 +11,7 @@ local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local HookBridge = MCE:NewModule("HookBridge")
 
-local type, pcall = type, pcall
+local type, pcall, ipairs = type, pcall, ipairs
 local math_abs = math.abs
 local strfind = string.find
 local hooksecurefunc = hooksecurefunc
@@ -21,12 +21,20 @@ local issecretvalue = issecretvalue or function() return false end
 local canaccessallvalues = canaccessallvalues
 
 local CATEGORY = C.Categories
+local CLASSIFIER_CONSTANTS = C.Classifier
 local STYLER_CONSTANTS = C.Styler
 local AURA_RETRY_MIN_INTERVAL = STYLER_CONSTANTS.AuraRetryMinInterval or 0.25
+local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
+local BLACKLIST_PARENT_NAMES = CLASSIFIER_CONSTANTS.BlacklistParentNames
 
 local frameState = addon.frameState
 
-local Registry, BatchProcessor, DurationColor, Classifier
+local Registry, BatchProcessor, DurationColor
+
+local hookBlacklistParentNameLookup = {}
+for _, parentName in ipairs(BLACKLIST_PARENT_NAMES) do
+    hookBlacklistParentNameLookup[parentName] = true
+end
 
 -- =========================================================================
 -- SECRET / FORBIDDEN GUARDS
@@ -42,6 +50,18 @@ local function CanAccessAllValues(...)
     if not canaccessallvalues then return true end
     local ok, result = pcall(canaccessallvalues, ...)
     return ok and result or false
+end
+
+local function IsRestrictedCooldown(cooldown)
+    return not cooldown
+       or IsSecretValue(cooldown)
+       or not CanAccessAllValues(cooldown)
+       or MCE:IsForbidden(cooldown)
+end
+
+local function IsBlacklistAllowed(cooldown)
+    local state = frameState[cooldown]
+    return state and state.allowBlacklisted == true or false
 end
 
 -- =========================================================================
@@ -98,12 +118,43 @@ local function HasAuraLikeAncestor(cooldown)
     return false
 end
 
+local function HasHookBlacklistMatch(cooldown)
+    if IsBlacklistAllowed(cooldown) then
+        return false
+    end
+
+    local current = cooldown
+    for _ = 1, STYLER_CONSTANTS.MaxCooldownOwnerScanDepth + 1 do
+        if not current then break end
+        if IsSecretValue(current) or not CanAccessAllValues(current) or MCE:IsForbidden(current) then
+            return true
+        end
+
+        local name = current.GetName and current:GetName() or ""
+        if name ~= "" then
+            for i = 1, #BLACKLIST_NAME_CONTAINS do
+                if strfind(name, BLACKLIST_NAME_CONTAINS[i], 1, true) then
+                    return true
+                end
+            end
+
+            if hookBlacklistParentNameLookup[name] then
+                return true
+            end
+        end
+
+        current = current.GetParent and current:GetParent() or nil
+    end
+
+    return false
+end
+
 local function ShouldIgnoreCooldown(cooldown)
-    if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then
+    if IsRestrictedCooldown(cooldown) then
         return true
     end
 
-    return Classifier and Classifier:IsBlacklisted(cooldown) or false
+    return HasHookBlacklistMatch(cooldown)
 end
 
 local function TryRegisterUnknown(cooldown)
@@ -172,11 +223,17 @@ function HookBridge:SetupHooks()
     end
 
     local function HandleCooldownUpdate(cooldown, durationObject)
-        if ShouldIgnoreCooldown(cooldown) then return end
+        if IsRestrictedCooldown(cooldown) then return end
 
         local category = Registry:GetCategory(cooldown)
         if not category then
+            -- Give adapters one chance to allow known blacklisted hierarchies
+            -- (ElvUI, etc.) before the hook-level blacklist rejects them.
             category = Registry:TryClaim(cooldown)
+            if not category and HasHookBlacklistMatch(cooldown) then
+                return
+            end
+            
             if not category and not HasAuraLikeAncestor(cooldown) then
                 return
             end
@@ -340,7 +397,6 @@ function HookBridge:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     BatchProcessor = MCE:GetModule("BatchProcessor")
     DurationColor = MCE:GetModule("DurationColorController")
-    Classifier = MCE:GetModule("Classifier")
 
     self:SetupHooks()
 end

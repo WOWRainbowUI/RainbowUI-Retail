@@ -1355,6 +1355,7 @@ function MCE:GetOptions()
                             toggleShinyAuras = {
                                 type = "toggle", order = 1, width = "full",
                                 name = "|cffffd100" .. L["ShinyAuras"] .. "|r",
+                                hidden = function() return not MCE:IsShinyAurasAvailable() end,
                                 desc = L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."],
                                 get = ShinyAurasAdapterEnabled,
                                 set = SetShinyAurasAdapterEnabled,

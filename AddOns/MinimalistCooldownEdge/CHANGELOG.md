@@ -1,6 +1,13 @@
 
 # Changelog
 
+
+## [3.7.3] - 2026-04-01
+- Fixed the ElvUI adapter after the 3.7.1 changes so ElvUI action bars, unit frames, and nameplates are styled correctly.
+
+## [3.7.2] - 2026-03-31
+- feat: Enhance blacklist handling with secret value checks and access control in Classifier and HookBridge modules
+
 ## [3.7.1] - 2026-03-30
 - Fixed a Blizzard chat taint issue that could affect separate whisper and Battle.net whisper windows.
 - Improved cooldown filtering so unsupported Blizzard UI elements are ignored earlier for better stability.
