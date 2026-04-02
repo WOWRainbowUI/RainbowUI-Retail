@@ -31,6 +31,10 @@ local VUHDO_I18N_AURA_GROUP_NAMES;
 local VUHDO_BOUQUETS;
 local VUHDO_BOUQUET_BUFFS_SPECIAL;
 
+local VUHDO_UNIT_AURA_SOURCE_MINE;
+local VUHDO_UNIT_AURA_SOURCE_OTHERS;
+local VUHDO_UNIT_AURA_SOURCE_BOTH;
+
 local VUHDO_generateUUID;
 local VUHDO_determineAura;
 local VUHDO_updateAuraDisplaysForUnit;
@@ -225,6 +229,10 @@ function VUHDO_aurasInitLocalOverrides()
 	VUHDO_I18N_AURA_GROUP_NAMES = _G["VUHDO_I18N_AURA_GROUP_NAMES"];
 	VUHDO_BOUQUETS = _G["VUHDO_BOUQUETS"];
 	VUHDO_BOUQUET_BUFFS_SPECIAL = _G["VUHDO_BOUQUET_BUFFS_SPECIAL"];
+
+	VUHDO_UNIT_AURA_SOURCE_MINE = _G["VUHDO_UNIT_AURA_SOURCE_MINE"];
+	VUHDO_UNIT_AURA_SOURCE_OTHERS = _G["VUHDO_UNIT_AURA_SOURCE_OTHERS"];
+	VUHDO_UNIT_AURA_SOURCE_BOTH = _G["VUHDO_UNIT_AURA_SOURCE_BOTH"];
 
 	VUHDO_generateUUID = _G["VUHDO_generateUUID"];
 	VUHDO_determineAura = _G["VUHDO_determineAura"];
@@ -903,11 +911,46 @@ do
 
 
 	--
-	function VUHDO_hasUnitAura(aUnit, aSpell, aFilter)
+	local function VUHDO_cachedAuraMatchesSourceType(aCachedInfo, aSourceType)
+
+		if aSourceType == VUHDO_UNIT_AURA_SOURCE_BOTH then
+			return true;
+		end
+
+		tSourceUnit = aCachedInfo["sourceUnit"];
+
+		if issecretvalue(tSourceUnit) then
+			if aSourceType == VUHDO_UNIT_AURA_SOURCE_OTHERS then
+				return true;
+			end
+
+			return false;
+		end
+
+		tIsMine = UnitIsUnit(tSourceUnit or "", "player");
+
+		if aSourceType == VUHDO_UNIT_AURA_SOURCE_MINE then
+			return tIsMine;
+		end
+
+		if aSourceType == VUHDO_UNIT_AURA_SOURCE_OTHERS then
+			return not tIsMine;
+		end
+
+		return true;
+
+	end
+
+
+
+	--
+	function VUHDO_hasUnitAura(aUnit, aSpell, aFilter, aSourceType)
 
 		if not aUnit or not aSpell then
 			return false;
 		end
+
+		aSourceType = aSourceType or VUHDO_UNIT_AURA_SOURCE_MINE;
 
 		tUnitAuraSpell = VUHDO_UNIT_AURA_BY_SPELL[aUnit];
 
@@ -940,7 +983,8 @@ do
 
 			tAuraInfo = tAuraCache[tInstanceId];
 
-			if tAuraInfo and VUHDO_cachedAuraInfoMatchesFilter(tAuraInfo, aFilter) then
+			if tAuraInfo and VUHDO_cachedAuraInfoMatchesFilter(tAuraInfo, aFilter)
+				and VUHDO_cachedAuraMatchesSourceType(tAuraInfo, aSourceType) then
 				return true;
 			end
 		end
@@ -952,11 +996,13 @@ do
 
 
 	--
-	function VUHDO_getUnitAura(aUnit, aSpell, aFilter)
+	function VUHDO_getUnitAura(aUnit, aSpell, aFilter, aSourceType)
 
 		if not aUnit or not aSpell then
 			return;
 		end
+
+		aSourceType = aSourceType or VUHDO_UNIT_AURA_SOURCE_MINE;
 
 		tUnitAuraSpell = VUHDO_UNIT_AURA_BY_SPELL[aUnit];
 
@@ -989,7 +1035,8 @@ do
 
 			tAuraInfo = tAuraCache[tInstanceId];
 
-			if tAuraInfo and VUHDO_cachedAuraInfoMatchesFilter(tAuraInfo, aFilter) then
+			if tAuraInfo and VUHDO_cachedAuraInfoMatchesFilter(tAuraInfo, aFilter)
+				and VUHDO_cachedAuraMatchesSourceType(tAuraInfo, aSourceType) then
 				return tAuraInfo;
 			end
 		end

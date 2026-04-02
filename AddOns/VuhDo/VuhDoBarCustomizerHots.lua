@@ -1006,7 +1006,7 @@ function VUHDO_hasUnitHot(aUnit, aSpellName, aSourceType)
 		return;
 	end
 
-	return VUHDO_hasUnitAura(aUnit, aSpellName, "HELPFUL");
+	return VUHDO_hasUnitAura(aUnit, aSpellName, "HELPFUL", aSourceType);
 
 end
 

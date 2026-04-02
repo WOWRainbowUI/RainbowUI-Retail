@@ -9,6 +9,7 @@ local max = math.max;
 local min = math.min;
 
 local InCombatLockdown = InCombatLockdown;
+local GetTime = GetTime;
 local debugprofilestop = debugprofilestop;
 local CreateFrame = CreateFrame;
 local CreateFramePool = CreateFramePool;
@@ -444,28 +445,7 @@ local sAuraBackdropInfo = {
 	},
 };
 
-local sDurationCache = { };
-
 local sAurasSuspended = false;
-
-
-
---
-local tCacheKey;
-local tCachedDuration;
-function VUHDO_getOrCreateDuration(anAnchorIndex, aSlotIndex)
-
-	tCacheKey = anAnchorIndex * 100 + aSlotIndex;
-	tCachedDuration = sDurationCache[tCacheKey];
-
-	if not tCachedDuration then
-		tCachedDuration = CreateDuration();
-		sDurationCache[tCacheKey] = tCachedDuration;
-	end
-
-	return tCachedDuration;
-
-end
 
 
 
@@ -3918,17 +3898,15 @@ do
 			tHasFadeOrFlash = (tEntryOverride ~= nil and tEntryOverride) or (tEntryOverride == nil and ((aPanelNum and anAnchorIndex and sAnchorSettingsCache["flashOnLow"] and sAnchorSettingsCache["flashOnLow"][aPanelNum] and sAnchorSettingsCache["flashOnLow"][aPanelNum][anAnchorIndex]) or VUHDO_resolveAuraTriState(anAnchorConfig["flashOnLow"], "flashOnLow")));
 		end
 
-		if not tHasFadeOrFlash then
-			if not (issecretvalue(tLastExpiration) or issecretvalue(anAuraData["expirationTime"]) or
+		if not tHasFadeOrFlash
+			and not (issecretvalue(tLastExpiration) or issecretvalue(anAuraData["expirationTime"]) or
 				issecretvalue(tLastApplications) or issecretvalue(anAuraData["applications"]) or
-				issecretvalue(tLastIcon) or issecretvalue(anAuraData["icon"])) then
-				if tLastInstanceId == anAuraData["auraInstanceID"]
-					and tLastExpiration == anAuraData["expirationTime"]
-					and tLastApplications == anAuraData["applications"]
-					and tLastIcon == anAuraData["icon"] then
-					return;
-				end
-			end
+				issecretvalue(tLastIcon) or issecretvalue(anAuraData["icon"]))
+			and tLastInstanceId == anAuraData["auraInstanceID"]
+			and tLastExpiration == anAuraData["expirationTime"]
+			and tLastApplications == anAuraData["applications"]
+			and tLastIcon == anAuraData["icon"] then
+			return;
 		end
 
 		tIconFrame["lastAuraInstanceId"] = anAuraData["auraInstanceID"];
@@ -3947,7 +3925,11 @@ do
 		if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
 			tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
 		elseif anAuraData["duration"] and anAuraData["duration"] > 0 and anAuraData["expirationTime"] then
-			tDurationObj = VUHDO_getOrCreateDuration(anAnchorIndex, aSlotIndex);
+			if not tIconFrame["durationObj"] then
+				tIconFrame["durationObj"] = CreateDuration();
+			end
+
+			tDurationObj = tIconFrame["durationObj"];
 
 			tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
 		end
@@ -4082,9 +4064,88 @@ end
 
 do
 	--
+	local tHasGlow;
+	local tGlowColor;
+	local tGlowKey;
+	local tNumLines;
+	local tLength;
+	local tThickness;
+	local tIconSize;
+	local tGlowFrame;
+	function VUHDO_updateAuraBarGlow(aBarFrame, aGroupId, aEntryIndex, aPanelNum, anAnchorIndex, aSlotIndex, anIsBarVertical, aButton, anAnchorConfig, aBarIconType)
+
+		tHasGlow = aGroupId and aEntryIndex and sEntrySettingsCache["glowIcon"][aGroupId] and sEntrySettingsCache["glowIcon"][aGroupId][aEntryIndex];
+
+		if tHasGlow and aBarIconType ~= 5 then
+			tGlowColor = sEntrySettingsCache["glowColor"][aGroupId] and sEntrySettingsCache["glowColor"][aGroupId][aEntryIndex];
+
+			if tGlowColor then
+				sGlowColorArray[1] = tGlowColor["R"] or 1;
+				sGlowColorArray[2] = tGlowColor["G"] or 1;
+				sGlowColorArray[3] = tGlowColor["B"] or 0;
+				sGlowColorArray[4] = tGlowColor["O"] or 1;
+			elseif sBarColors and sBarColors["DEBUFF_ICON_GLOW"] then
+				sGlowColorArray[1] = sBarColors["DEBUFF_ICON_GLOW"]["R"];
+				sGlowColorArray[2] = sBarColors["DEBUFF_ICON_GLOW"]["G"];
+				sGlowColorArray[3] = sBarColors["DEBUFF_ICON_GLOW"]["B"];
+				sGlowColorArray[4] = sBarColors["DEBUFF_ICON_GLOW"]["O"];
+			else
+				sGlowColorArray[1] = 0.95;
+				sGlowColorArray[2] = 0.95;
+				sGlowColorArray[3] = 0.32;
+				sGlowColorArray[4] = 1;
+			end
+
+			tGlowKey = format("VdAuraGlow_%d_%d_%d", aPanelNum or 0, anAnchorIndex, aSlotIndex);
+
+			if anIsBarVertical then
+				tIconSize = VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig);
+			else
+				tIconSize = VUHDO_getAuraBarHeightPixels(aButton, anAnchorConfig);
+			end
+
+			if tIconSize and tIconSize < 24 then
+				tNumLines = 8;
+				tLength = 2;
+				tThickness = 1;
+			elseif tIconSize and tIconSize < 32 then
+				tNumLines = 8;
+				tLength = 4;
+				tThickness = 1;
+			else
+				tNumLines = 8;
+				tLength = 6;
+				tThickness = 2;
+			end
+
+			tGlowFrame = aBarFrame["iconFrame"];
+
+			if tGlowFrame then
+				VUHDO_LibCustomGlow.PixelGlow_Start(tGlowFrame, sGlowColorArray, tNumLines, 0.3, tLength, tThickness, 0, 0, false, tGlowKey);
+
+				tGlowFrame["hasEntryGlow"] = true;
+				tGlowFrame["entryGlowKey"] = tGlowKey;
+			end
+		elseif aBarFrame["iconFrame"] and aBarFrame["iconFrame"]["hasEntryGlow"] then
+			tGlowFrame = aBarFrame["iconFrame"];
+
+			VUHDO_LibCustomGlow.PixelGlow_Stop(tGlowFrame, tGlowFrame["entryGlowKey"]);
+
+			tGlowFrame["hasEntryGlow"] = nil;
+			tGlowFrame["entryGlowKey"] = nil;
+		end
+
+		return;
+
+	end
+end
+
+
+
+do
+	--
 	local tBarFrame;
 	local tBar;
-	local tBarTexName;
 	local tUnit;
 	local tDurationObj;
 	local tFlashOnLow;
@@ -4093,28 +4154,24 @@ do
 	local tBarVertical;
 	local tBarTurnAxis;
 	local tBarInvertGrowth;
-	local tBarOrientation;
 	local tTimerDirection;
 	local tColorMode;
-	local tColorMixin;
 	local tClassColor;
 	local tBarColor;
 	local tDispelCurve;
 	local tGroupId;
 	local tEntryIndex;
 	local tEntryColor;
-	local tHasGlow;
-	local tGlowColor;
-	local tGlowKey;
-	local tNumLines;
-	local tLength;
-	local tThickness;
-	local tIconSize;
 	local tBarIconType;
-	local tGlowFrame;
 	local tFadeOnLowResolved;
 	local tFadeThresholdForLoop;
 	local tFadeTexture;
+	local tLastInstanceId;
+	local tHasFadeOrFlash;
+	local tIsUpdate;
+	local tCurrentDuration;
+	local tRemaining;
+	local tMaxDuration;
 	function VUHDO_displayAuraAsBar(aButton, aPanelNum, anAnchorIndex, aSlotIndex, anAuraData, anAnchorConfig)
 
 		if not aButton or not anAnchorIndex or not aSlotIndex or not anAuraData or not anAnchorConfig then
@@ -4127,6 +4184,37 @@ do
 			return;
 		end
 
+		tLastInstanceId = tBarFrame["lastAuraInstanceId"];
+
+		tGroupId = anAuraData["groupId"];
+		tEntryIndex = anAuraData["entryIndex"];
+
+		tEntryOverride = tGroupId and tEntryIndex and sEntrySettingsCache["fadeOnLow"] and sEntrySettingsCache["fadeOnLow"][tGroupId] and sEntrySettingsCache["fadeOnLow"][tGroupId][tEntryIndex];
+		tHasFadeOrFlash = (tEntryOverride ~= nil and tEntryOverride) or (tEntryOverride == nil and ((aPanelNum and anAnchorIndex and sAnchorSettingsCache["fadeOnLow"] and sAnchorSettingsCache["fadeOnLow"][aPanelNum] and sAnchorSettingsCache["fadeOnLow"][aPanelNum][anAnchorIndex]) or VUHDO_resolveAuraTriState(anAnchorConfig["fadeOnLow"], "fadeOnLow")));
+
+		if not tHasFadeOrFlash then
+			tEntryOverride = tGroupId and tEntryIndex and sEntrySettingsCache["flashOnLow"] and sEntrySettingsCache["flashOnLow"][tGroupId] and sEntrySettingsCache["flashOnLow"][tGroupId][tEntryIndex];
+			tHasFadeOrFlash = (tEntryOverride ~= nil and tEntryOverride) or (tEntryOverride == nil and ((aPanelNum and anAnchorIndex and sAnchorSettingsCache["flashOnLow"] and sAnchorSettingsCache["flashOnLow"][aPanelNum] and sAnchorSettingsCache["flashOnLow"][aPanelNum][anAnchorIndex]) or VUHDO_resolveAuraTriState(anAnchorConfig["flashOnLow"], "flashOnLow")));
+		end
+
+		if not tHasFadeOrFlash
+			and not (issecretvalue(tBarFrame["lastExpirationTime"]) or issecretvalue(anAuraData["expirationTime"]) or
+				issecretvalue(tBarFrame["lastApplications"]) or issecretvalue(anAuraData["applications"]) or
+				issecretvalue(tBarFrame["lastIcon"]) or issecretvalue(anAuraData["icon"]))
+			and tLastInstanceId == anAuraData["auraInstanceID"]
+			and tBarFrame["lastExpirationTime"] == anAuraData["expirationTime"]
+			and tBarFrame["lastApplications"] == anAuraData["applications"]
+			and tBarFrame["lastIcon"] == anAuraData["icon"] then
+			return;
+		end
+
+		tIsUpdate = tLastInstanceId and tLastInstanceId == anAuraData["auraInstanceID"];
+
+		tBarFrame["lastAuraInstanceId"] = anAuraData["auraInstanceID"];
+		tBarFrame["lastExpirationTime"] = issecretvalue(anAuraData["expirationTime"]) and nil or anAuraData["expirationTime"];
+		tBarFrame["lastApplications"] = issecretvalue(anAuraData["applications"]) and nil or anAuraData["applications"];
+		tBarFrame["lastIcon"] = issecretvalue(anAuraData["icon"]) and nil or anAuraData["icon"];
+
 		tBarFrame["panelNum"] = aPanelNum;
 		tBarFrame["anchorIndex"] = anAnchorIndex;
 		tBarFrame["auraInstanceId"] = anAuraData["auraInstanceID"];
@@ -4135,12 +4223,39 @@ do
 
 		tDurationObj = nil;
 
-		if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
-			tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
-		elseif anAuraData["duration"] and anAuraData["duration"] > 0 and anAuraData["expirationTime"] then
-			tDurationObj = VUHDO_getOrCreateDuration(anAnchorIndex, aSlotIndex);
+		if not issecretvalue(anAuraData["duration"]) and not issecretvalue(anAuraData["expirationTime"]) then
+			tCurrentDuration = anAuraData["duration"] or 0;
+			tRemaining = (anAuraData["expirationTime"] or 0) - GetTime();
 
-			tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
+			if tIsUpdate then
+				tBarFrame["maxObservedDuration"] = max(tBarFrame["maxObservedDuration"] or 0, tCurrentDuration, tRemaining);
+			else
+				tBarFrame["maxObservedDuration"] = max(tCurrentDuration, tRemaining);
+			end
+
+			tMaxDuration = tBarFrame["maxObservedDuration"];
+
+			if tMaxDuration > 0 and anAuraData["expirationTime"] then
+				if not tBarFrame["durationObj"] then
+					tBarFrame["durationObj"] = CreateDuration();
+				end
+
+				tDurationObj = tBarFrame["durationObj"];
+
+				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], tMaxDuration);
+			end
+		else
+			if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+				tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
+			elseif anAuraData["duration"] and anAuraData["duration"] > 0 and anAuraData["expirationTime"] then
+				if not tBarFrame["durationObj"] then
+					tBarFrame["durationObj"] = CreateDuration();
+				end
+
+				tDurationObj = tBarFrame["durationObj"];
+
+				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
+			end
 		end
 
 		tBar = tBarFrame["childBar"];
@@ -4149,10 +4264,8 @@ do
 			return;
 		end
 
-		tBarTexName = VUHDO_PANEL_SETUP[aPanelNum] and VUHDO_PANEL_SETUP[aPanelNum]["PANEL_COLOR"] and VUHDO_PANEL_SETUP[aPanelNum]["PANEL_COLOR"]["barTexture"];
-
-		if tBarTexName then
-			VUHDO_setLlcStatusBarTexture(tBar, tBarTexName);
+		if VUHDO_PANEL_SETUP[aPanelNum] and VUHDO_PANEL_SETUP[aPanelNum]["PANEL_COLOR"] and VUHDO_PANEL_SETUP[aPanelNum]["PANEL_COLOR"]["barTexture"] then
+			VUHDO_setLlcStatusBarTexture(tBar, VUHDO_PANEL_SETUP[aPanelNum]["PANEL_COLOR"]["barTexture"]);
 		end
 
 		if anAuraData["color"] and anAuraData["color"]["R"] then
@@ -4164,10 +4277,10 @@ do
 				tDispelCurve = VUHDO_getDispelTypeCurve();
 
 				if tDispelCurve and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
-					tColorMixin = GetAuraDispelTypeColor(tUnit, anAuraData["auraInstanceID"], tDispelCurve);
+					tEntryColor = GetAuraDispelTypeColor(tUnit, anAuraData["auraInstanceID"], tDispelCurve);
 
-					if tColorMixin then
-						tBar:GetStatusBarTexture():SetVertexColor(tColorMixin:GetRGBA());
+					if tEntryColor then
+						tBar:GetStatusBarTexture():SetVertexColor(tEntryColor:GetRGBA());
 					else
 						tBar:GetStatusBarTexture():SetVertexColor(0.2, 0.6, 0.2, 1);
 					end
@@ -4211,17 +4324,15 @@ do
 		tBarInvertGrowth = anAnchorConfig["barInvertGrowth"] or false;
 
 		if tBarVertical then
-			tBarOrientation = tBarTurnAxis and VUHDO_STATUSBAR_TOP_TO_BOTTOM or VUHDO_STATUSBAR_BOTTOM_TO_TOP;
+			VUHDO_setStatusBarOrientation(tBar, tBarTurnAxis and VUHDO_STATUSBAR_TOP_TO_BOTTOM or VUHDO_STATUSBAR_BOTTOM_TO_TOP);
 		else
-			tBarOrientation = tBarTurnAxis and VUHDO_STATUSBAR_RIGHT_TO_LEFT or VUHDO_STATUSBAR_LEFT_TO_RIGHT;
+			VUHDO_setStatusBarOrientation(tBar, tBarTurnAxis and VUHDO_STATUSBAR_RIGHT_TO_LEFT or VUHDO_STATUSBAR_LEFT_TO_RIGHT);
 		end
-
-		VUHDO_setStatusBarOrientation(tBar, tBarOrientation);
 
 		if tDurationObj then
 			tTimerDirection = tBarInvertGrowth and Enum.StatusBarTimerDirection.ElapsedTime or Enum.StatusBarTimerDirection.RemainingTime;
 
-			tBar:SetTimerDuration(tDurationObj, Enum.StatusBarInterpolation.Immediate, tTimerDirection);
+			tBar:SetTimerDuration(tDurationObj, tIsUpdate and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate, tTimerDirection);
 		else
 			tBar:SetMinMaxValues(0, 1);
 
@@ -4276,69 +4387,7 @@ do
 			end
 		end
 
-		tHasGlow = tGroupId and tEntryIndex and sEntrySettingsCache["glowIcon"][tGroupId] and sEntrySettingsCache["glowIcon"][tGroupId][tEntryIndex];
-
-		if tHasGlow and tBarIconType ~= 5 then
-			tGlowColor = sEntrySettingsCache["glowColor"][tGroupId] and sEntrySettingsCache["glowColor"][tGroupId][tEntryIndex];
-
-			if tGlowColor then
-				sGlowColorArray[1] = tGlowColor["R"] or 1;
-				sGlowColorArray[2] = tGlowColor["G"] or 1;
-				sGlowColorArray[3] = tGlowColor["B"] or 0;
-				sGlowColorArray[4] = tGlowColor["O"] or 1;
-			elseif sBarColors and sBarColors["DEBUFF_ICON_GLOW"] then
-				sGlowColorArray[1] = sBarColors["DEBUFF_ICON_GLOW"]["R"];
-				sGlowColorArray[2] = sBarColors["DEBUFF_ICON_GLOW"]["G"];
-				sGlowColorArray[3] = sBarColors["DEBUFF_ICON_GLOW"]["B"];
-				sGlowColorArray[4] = sBarColors["DEBUFF_ICON_GLOW"]["O"];
-			else
-				sGlowColorArray[1] = 0.95;
-				sGlowColorArray[2] = 0.95;
-				sGlowColorArray[3] = 0.32;
-				sGlowColorArray[4] = 1;
-			end
-
-			tGlowKey = format("VdAuraGlow_%d_%d_%d", aPanelNum or 0, anAnchorIndex, aSlotIndex);
-
-			if tBarVertical then
-				tIconSize = VUHDO_getAuraBarWidthPixelsVertical(aButton, anAnchorConfig);
-			else
-				tIconSize = VUHDO_getAuraBarHeightPixels(aButton, anAnchorConfig);
-			end
-
-			if tIconSize and tIconSize < 24 then
-				tNumLines = 8;
-				tLength = 2;
-				tThickness = 1;
-			elseif tIconSize and tIconSize < 32 then
-				tNumLines = 8;
-				tLength = 4;
-				tThickness = 1;
-			else
-				tNumLines = 8;
-				tLength = 6;
-				tThickness = 2;
-			end
-
-			tGlowFrame = tBarFrame["iconFrame"];
-
-			if tGlowFrame then
-				VUHDO_LibCustomGlow.PixelGlow_Start(
-					tGlowFrame, sGlowColorArray,
-					tNumLines, 0.3, tLength, tThickness, 0, 0, false, tGlowKey
-				);
-
-				tGlowFrame["hasEntryGlow"] = true;
-				tGlowFrame["entryGlowKey"] = tGlowKey;
-			end
-		elseif tBarFrame["iconFrame"] and tBarFrame["iconFrame"]["hasEntryGlow"] then
-			tGlowFrame = tBarFrame["iconFrame"];
-
-			VUHDO_LibCustomGlow.PixelGlow_Stop(tGlowFrame, tGlowFrame["entryGlowKey"]);
-
-			tGlowFrame["hasEntryGlow"] = nil;
-			tGlowFrame["entryGlowKey"] = nil;
-		end
+		VUHDO_updateAuraBarGlow(tBarFrame, tGroupId, tEntryIndex, aPanelNum, anAnchorIndex, aSlotIndex, tBarVertical, aButton, anAnchorConfig, tBarIconType);
 
 		if not (tFadeOnLowResolved and tDurationObj and not tDurationObj:HasSecretValues()) then
 			tBar:SetAlpha(1);
@@ -4439,6 +4488,8 @@ do
 			tFrame["lastExpirationTime"] = nil;
 			tFrame["lastApplications"] = nil;
 			tFrame["lastIcon"] = nil;
+			tFrame["maxObservedDuration"] = nil;
+			tFrame["durationObj"] = nil;
 
 			tFrame:SetAlpha(0);
 		end
