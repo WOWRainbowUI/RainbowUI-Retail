@@ -48,6 +48,9 @@ local LSM = BR.LSM
 -- Helper function aliases
 local GetCategorySettings = BR.Helpers.GetCategorySettings
 local IsCategorySplit = BR.Helpers.IsCategorySplit
+local IsIconDetached = BR.Helpers.IsIconDetached
+local DetachIcon = BR.Helpers.DetachIcon
+local ReattachIcon = BR.Helpers.ReattachIcon
 local GetBuffTexture = BR.Helpers.GetBuffTexture
 local ValidateSpellID = BR.Helpers.ValidateSpellID
 local ValidateItemID = BR.Helpers.ValidateItemID
@@ -461,6 +464,46 @@ local function CreateOptionsPanel()
             toggle:SetPoint("LEFT", holder.label, "RIGHT", 6, 0)
         end
 
+        -- Detach button: small pin icon to toggle detached positioning
+        -- Anchored outside the holder (in the column's spare space) to avoid overlapping labels/toggles
+        local detachBtn = CreateFrame("Button", nil, holder)
+        detachBtn:SetSize(14, 14)
+        detachBtn:SetPoint("LEFT", holder, "RIGHT", 4, 0)
+
+        local detachIcon = detachBtn:CreateTexture(nil, "ARTWORK")
+        detachIcon:SetAllPoints()
+        detachIcon:SetAtlas("Waypoint-MapPin-ChatIcon")
+
+        local function UpdateDetachVisual()
+            if IsIconDetached(key) then
+                detachIcon:SetVertexColor(1, 0.85, 0.3, 1) -- Gold when detached
+                detachIcon:SetDesaturated(false)
+            else
+                detachIcon:SetVertexColor(0.5, 0.5, 0.5, 0.6) -- Dim when attached
+                detachIcon:SetDesaturated(true)
+            end
+        end
+        UpdateDetachVisual()
+
+        detachBtn:SetScript("OnClick", function()
+            if IsIconDetached(key) then
+                ReattachIcon(key)
+            else
+                DetachIcon(key)
+            end
+            UpdateDetachVisual()
+            UpdateDisplay()
+        end)
+        detachBtn:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(L["Options.DetachIcon"], 1, 1, 1)
+            GameTooltip:AddLine(L["Options.DetachIcon.Desc"], 0.7, 0.7, 0.7, true)
+            GameTooltip:Show()
+        end)
+        detachBtn:SetScript("OnLeave", function()
+            GameTooltip:Hide()
+        end)
+
         return y - ITEM_HEIGHT
     end
 
@@ -704,6 +747,42 @@ local function CreateOptionsPanel()
             holder:SetPoint("TOPLEFT", 0, rowY)
             panel.buffCheckboxes[key] = holder
 
+            -- Detach button for custom buffs
+            local detachBtn = CreateFrame("Button", nil, holder)
+            detachBtn:SetSize(14, 14)
+            detachBtn:SetPoint("LEFT", holder, "RIGHT", 4, 0)
+            local detachTex = detachBtn:CreateTexture(nil, "ARTWORK")
+            detachTex:SetAllPoints()
+            detachTex:SetAtlas("Waypoint-MapPin-ChatIcon")
+            local function UpdateDetachVis()
+                if IsIconDetached(key) then
+                    detachTex:SetVertexColor(1, 0.85, 0.3, 1)
+                    detachTex:SetDesaturated(false)
+                else
+                    detachTex:SetVertexColor(0.5, 0.5, 0.5, 0.6)
+                    detachTex:SetDesaturated(true)
+                end
+            end
+            UpdateDetachVis()
+            detachBtn:SetScript("OnClick", function()
+                if IsIconDetached(key) then
+                    ReattachIcon(key)
+                else
+                    DetachIcon(key)
+                end
+                UpdateDetachVis()
+                UpdateDisplay()
+            end)
+            detachBtn:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetText(L["Options.DetachIcon"], 1, 1, 1)
+                GameTooltip:AddLine(L["Options.DetachIcon.Desc"], 0.7, 0.7, 0.7, true)
+                GameTooltip:Show()
+            end)
+            detachBtn:SetScript("OnLeave", function()
+                GameTooltip:Hide()
+            end)
+
             tinsert(panel.customBuffRows, holder)
             rowY = rowY - ITEM_HEIGHT
         end
@@ -823,10 +902,12 @@ local function CreateOptionsPanel()
             desc = L["Options.GlowReminderIcons.Desc"],
         },
         get = function()
-            return BR.profile.defaults and BR.profile.defaults.showExpirationGlow ~= false
+            local d = BR.profile.defaults
+            return d and (d.showExpirationGlow ~= false or d.showMissingGlow ~= false)
         end,
         onChange = function(checked)
             BR.Config.Set("defaults.showExpirationGlow", checked)
+            BR.Config.Set("defaults.showMissingGlow", checked)
             Components.RefreshAll()
         end,
     })
@@ -1938,6 +2019,7 @@ local function CreateOptionsPanel()
             local cs = db.categorySettings[category]
             local glowDefaults = db.defaults or {}
             local glowSnapshotKeys = {
+                -- Expiring glow keys
                 "glowType",
                 "glowSize",
                 "glowPixelLines",
@@ -1952,16 +2034,33 @@ local function CreateOptionsPanel()
                 "glowProcUseCustomColor",
                 "glowXOffset",
                 "glowYOffset",
+                -- Missing glow keys
+                "missingGlowType",
+                "missingGlowSize",
+                "missingGlowPixelLines",
+                "missingGlowPixelFrequency",
+                "missingGlowPixelLength",
+                "missingGlowAutocastParticles",
+                "missingGlowAutocastFrequency",
+                "missingGlowAutocastScale",
+                "missingGlowBorderFrequency",
+                "missingGlowProcDuration",
+                "missingGlowProcStartAnim",
+                "missingGlowProcUseCustomColor",
+                "missingGlowXOffset",
+                "missingGlowYOffset",
             }
             for _, key in ipairs(glowSnapshotKeys) do
                 if cs[key] == nil and glowDefaults[key] ~= nil then
                     cs[key] = glowDefaults[key]
                 end
             end
-            -- glowColor: deep copy (table value)
-            if cs.glowColor == nil and glowDefaults.glowColor then
-                local gc = glowDefaults.glowColor
-                cs.glowColor = { gc[1], gc[2], gc[3], gc[4] }
+            -- Color: deep copy (table values)
+            for _, colorKey in ipairs({ "glowColor", "missingGlowColor" }) do
+                if cs[colorKey] == nil and glowDefaults[colorKey] then
+                    local gc = glowDefaults[colorKey]
+                    cs[colorKey] = { gc[1], gc[2], gc[3], gc[4] }
+                end
             end
         end
 
@@ -2096,15 +2195,15 @@ local function CreateOptionsPanel()
         local glowRowY = -catGrid.height
         local gridHeight
         if category == "pet" then
-            -- Pets don't expire — single glow on/off checkbox
+            -- Pets don't expire — single glow on/off checkbox (uses showMissingGlow)
             local catPetGlowHolder = Components.Checkbox(appFrame, {
                 label = L["Options.GlowMissingPets"],
                 get = function()
-                    return getCatOwnValue("showExpirationGlow", true) ~= false
+                    return getCatOwnValue("showMissingGlow", true) ~= false
                 end,
                 enabled = isCustomAppearanceEnabled,
                 onChange = function(checked)
-                    BR.Config.Set("categorySettings." .. category .. ".showExpirationGlow", checked)
+                    BR.Config.Set("categorySettings." .. category .. ".showMissingGlow", checked)
                     Components.RefreshAll()
                 end,
             })
@@ -2128,7 +2227,7 @@ local function CreateOptionsPanel()
             catPetCustomGlowHolder:SetPoint("TOPLEFT", 0, glowRowY - 24)
 
             local catPetGlowSettingsBtn = CreateButton(appFrame, L["Options.Customize"], function()
-                ShowGlowAdvanced(category)
+                ShowGlowAdvanced(category, "missing")
             end)
             catPetGlowSettingsBtn:SetPoint("LEFT", catPetCustomGlowHolder.label, "RIGHT", 8, 0)
             catPetGlowSettingsBtn:SetFrameLevel(catPetCustomGlowHolder:GetFrameLevel() + 5)
@@ -2170,11 +2269,14 @@ local function CreateOptionsPanel()
             local catGlowCheckHolder = Components.Checkbox(appFrame, {
                 label = L["Options.Glow"],
                 get = function()
-                    return getCatOwnValue("showExpirationGlow", true) ~= false
+                    local ex = getCatOwnValue("showExpirationGlow", true) ~= false
+                    local miss = getCatOwnValue("showMissingGlow", true) ~= false
+                    return ex or miss
                 end,
                 enabled = isCustomAppearanceEnabled,
                 onChange = function(checked)
                     BR.Config.Set("categorySettings." .. category .. ".showExpirationGlow", checked)
+                    BR.Config.Set("categorySettings." .. category .. ".showMissingGlow", checked)
                     Components.RefreshAll()
                 end,
             })
@@ -2913,12 +3015,21 @@ end
 local glowAdvancedPanel = nil
 
 ---@param targetCategory? string nil = global defaults, string = per-category override
-ShowGlowAdvanced = function(targetCategory)
+---@param glowKind? "expiring"|"missing" Which glow style to edit (default "expiring")
+ShowGlowAdvanced = function(targetCategory, glowKind)
+    glowKind = glowKind or "expiring"
     local GlowType = Glow.Type
 
     if glowAdvancedPanel then
         glowAdvancedPanel:Hide()
         glowAdvancedPanel = nil
+    end
+
+    -- Key prefix: "glow" for expiring, "missingGlow" for missing
+    local keyPrefix = glowKind == "missing" and "missingGlow" or "glow"
+    ---@param suffix string e.g. "Type" → "glowType" or "missingGlowType"
+    local function K(suffix)
+        return keyPrefix .. suffix
     end
 
     local configPrefix = targetCategory and ("categorySettings." .. targetCategory .. ".") or "defaults."
@@ -2940,9 +3051,10 @@ ShowGlowAdvanced = function(targetCategory)
         modal = true,
     })
 
+    local titleBase = glowKind == "missing" and L["Options.GlowSettings.Missing"] or L["Options.GlowSettings.Expiring"]
     local titleText = targetCategory
-            and (L["Options.GlowSettings"] .. " — " .. targetCategory:sub(1, 1):upper() .. targetCategory:sub(2))
-        or L["Options.GlowSettings"]
+            and (titleBase .. " — " .. targetCategory:sub(1, 1):upper() .. targetCategory:sub(2))
+        or titleBase
     local title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -10)
     title:SetText("|cffffcc00" .. titleText .. "|r")
@@ -2953,13 +3065,43 @@ ShowGlowAdvanced = function(targetCategory)
     closeBtn:SetSize(24, 24)
     closeBtn:SetPoint("TOPRIGHT", -6, -6)
 
+    -- Expiring / Missing tab toggle
+    local expiringTab = Components.Tab(panel, { label = L["Options.GlowKind.Expiring"] })
+    expiringTab:SetPoint("TOPLEFT", MARGIN, -32)
+    expiringTab:SetActive(glowKind == "expiring")
+    expiringTab:SetScript("OnClick", function()
+        ShowGlowAdvanced(targetCategory, "expiring")
+    end)
+
+    local missingTab = Components.Tab(panel, { label = L["Options.GlowKind.Missing"] })
+    missingTab:SetPoint("LEFT", expiringTab, "RIGHT", 4, 0)
+    missingTab:SetActive(glowKind == "missing")
+    missingTab:SetScript("OnClick", function()
+        ShowGlowAdvanced(targetCategory, "missing")
+    end)
+
     local previewKey = "BR_adv_preview"
 
     -- Content area
     local dynamicHolders = {}
-    local staticLayout = Components.VerticalLayout(panel, { x = MARGIN, y = -36 })
+    local staticLayout = Components.VerticalLayout(panel, { x = MARGIN, y = -56 })
+
+    -- Enabled checkbox (per-kind enable/disable)
+    local enableKey = glowKind == "missing" and "showMissingGlow" or "showExpirationGlow"
+    local enableHolder = Components.Checkbox(panel, {
+        label = L["Options.Glow.Enabled"],
+        get = function()
+            return getSource()[enableKey] ~= false
+        end,
+        onChange = function(checked)
+            BR.Config.Set(configPrefix .. enableKey, checked)
+            Components.RefreshAll()
+        end,
+    })
+    staticLayout:Add(enableHolder, 24, 2)
 
     -- Type dropdown (always visible, top-left beside preview)
+    local typeFallback = glowKind == "missing" and GlowType.Pixel or GlowType.AutoCast
     local typeOptions = {}
     for i, gt in ipairs(GlowTypes) do
         typeOptions[i] = { label = gt.name, value = i }
@@ -2970,11 +3112,11 @@ ShowGlowAdvanced = function(targetCategory)
         labelWidth = 40,
         options = typeOptions,
         get = function()
-            return getSource().glowType or GlowType.Pixel
+            return getSource()[K("Type")] or typeFallback
         end,
         width = 140,
         onChange = function(val)
-            BR.Config.Set(configPrefix .. "glowType", val)
+            BR.Config.Set(configPrefix .. K("Type"), val)
         end,
     }, "BuffRemindersGlowAdvTypeDropdown")
     staticLayout:Add(typeHolder, 30, 4)
@@ -3007,15 +3149,15 @@ ShowGlowAdvanced = function(targetCategory)
     local function RefreshPreview()
         Glow.StopAll(previewFrame, previewKey)
         local d = getSource()
-        local typeIdx = d.glowType or GlowType.Pixel
-        local color = d.glowColor
-        if typeIdx == GlowType.Proc and not d.glowProcUseCustomColor then
+        local typeIdx = d[K("Type")] or typeFallback
+        local color = d[K("Color")]
+        if typeIdx == GlowType.Proc and not d[K("ProcUseCustomColor")] then
             color = nil
         end
-        local size = d.glowSize or 2
-        local params = Glow.BuildAdvancedParams(d, typeIdx)
-        local xOff = DEFAULT_BORDER_SIZE + (d.glowXOffset or 0)
-        local yOff = DEFAULT_BORDER_SIZE + (d.glowYOffset or 0)
+        local size = d[K("Size")] or 2
+        local params = Glow.BuildAdvancedParams(d, typeIdx, keyPrefix)
+        local xOff = DEFAULT_BORDER_SIZE + (d[K("XOffset")] or 0)
+        local yOff = DEFAULT_BORDER_SIZE + (d[K("YOffset")] or 0)
         Glow.Start(previewFrame, typeIdx, color, previewKey, size, xOff, yOff, params)
     end
 
@@ -3039,10 +3181,10 @@ ShowGlowAdvanced = function(targetCategory)
 
     -- Reset keys per glow type (type-specific only)
     local typeResetKeys = {
-        [GlowType.Pixel] = { "glowPixelLines", "glowPixelFrequency", "glowPixelLength" },
-        [GlowType.AutoCast] = { "glowAutocastScale", "glowAutocastParticles", "glowAutocastFrequency" },
-        [GlowType.Border] = { "glowBorderFrequency" },
-        [GlowType.Proc] = { "glowProcDuration", "glowProcStartAnim", "glowProcUseCustomColor" },
+        [GlowType.Pixel] = { K("PixelLines"), K("PixelFrequency"), K("PixelLength") },
+        [GlowType.AutoCast] = { K("AutocastScale"), K("AutocastParticles"), K("AutocastFrequency") },
+        [GlowType.Border] = { K("BorderFrequency") },
+        [GlowType.Proc] = { K("ProcDuration"), K("ProcStartAnim"), K("ProcUseCustomColor") },
     }
 
     local function UnregisterDynamicHolders()
@@ -3063,7 +3205,7 @@ ShowGlowAdvanced = function(targetCategory)
         dynamicLayout = Components.VerticalLayout(panel, { x = MARGIN, y = DYNAMIC_START_Y })
 
         local d = getSource()
-        local typeIdx = d.glowType or GlowType.Pixel
+        local typeIdx = d[K("Type")] or typeFallback
 
         -- Size + Color row
         local sizeHolder
@@ -3075,10 +3217,10 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 10,
                 step = 1,
                 get = function()
-                    return getSource().glowSize or 2
+                    return getSource()[K("Size")] or 2
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowSize", val)
+                    BR.Config.Set(configPrefix .. K("Size"), val)
                     RefreshPreview()
                 end,
             })
@@ -3096,10 +3238,10 @@ ShowGlowAdvanced = function(targetCategory)
                     desc = L["Options.UseCustomColor.Desc"],
                 },
                 get = function()
-                    return getSource().glowProcUseCustomColor or false
+                    return getSource()[K("ProcUseCustomColor")] or false
                 end,
                 onChange = function(checked)
-                    BR.Config.Set(configPrefix .. "glowProcUseCustomColor", checked)
+                    BR.Config.Set(configPrefix .. K("ProcUseCustomColor"), checked)
                     Components.RefreshAll()
                     RefreshPreview()
                 end,
@@ -3109,14 +3251,14 @@ ShowGlowAdvanced = function(targetCategory)
             colorSwatchHolder = Components.ColorSwatch(panel, {
                 hasOpacity = true,
                 enabled = function()
-                    return getSource().glowProcUseCustomColor or false
+                    return getSource()[K("ProcUseCustomColor")] or false
                 end,
                 get = function()
-                    local c = getSource().glowColor or Glow.DEFAULT_COLOR
+                    local c = getSource()[K("Color")] or Glow.DEFAULT_COLOR
                     return c[1], c[2], c[3], c[4] or 1
                 end,
                 onChange = function(r, g, b, a)
-                    BR.Config.Set(configPrefix .. "glowColor", { r, g, b, a or 1 })
+                    BR.Config.Set(configPrefix .. K("Color"), { r, g, b, a or 1 })
                     RefreshPreview()
                 end,
             })
@@ -3125,11 +3267,11 @@ ShowGlowAdvanced = function(targetCategory)
             colorSwatchHolder = Components.ColorSwatch(panel, {
                 hasOpacity = true,
                 get = function()
-                    local c = getSource().glowColor or Glow.DEFAULT_COLOR
+                    local c = getSource()[K("Color")] or Glow.DEFAULT_COLOR
                     return c[1], c[2], c[3], c[4] or 1
                 end,
                 onChange = function(r, g, b, a)
-                    BR.Config.Set(configPrefix .. "glowColor", { r, g, b, a or 1 })
+                    BR.Config.Set(configPrefix .. K("Color"), { r, g, b, a or 1 })
                     RefreshPreview()
                 end,
             })
@@ -3159,10 +3301,10 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 20,
                 step = 1,
                 get = function()
-                    return getSource().glowPixelLines or 8
+                    return getSource()[K("PixelLines")] or 8
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowPixelLines", val)
+                    BR.Config.Set(configPrefix .. K("PixelLines"), val)
                     RefreshPreview()
                 end,
             })
@@ -3172,13 +3314,13 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 1,
                 step = 0.01,
                 get = function()
-                    return getSource().glowPixelFrequency or 0.25
+                    return getSource()[K("PixelFrequency")] or 0.25
                 end,
                 formatValue = function(val)
                     return string.format("%.2f", val)
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowPixelFrequency", val)
+                    BR.Config.Set(configPrefix .. K("PixelFrequency"), val)
                     RefreshPreview()
                 end,
             })
@@ -3188,10 +3330,10 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 20,
                 step = 1,
                 get = function()
-                    return getSource().glowPixelLength or 10
+                    return getSource()[K("PixelLength")] or 10
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowPixelLength", val)
+                    BR.Config.Set(configPrefix .. K("PixelLength"), val)
                     RefreshPreview()
                 end,
             })
@@ -3203,13 +3345,13 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 3,
                 step = 0.1,
                 get = function()
-                    return getSource().glowAutocastScale or 1
+                    return getSource()[K("AutocastScale")] or 1
                 end,
                 formatValue = function(val)
                     return string.format("%.1f", val)
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowAutocastScale", val)
+                    BR.Config.Set(configPrefix .. K("AutocastScale"), val)
                     RefreshPreview()
                 end,
             })
@@ -3219,10 +3361,10 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 8,
                 step = 1,
                 get = function()
-                    return getSource().glowAutocastParticles or 4
+                    return getSource()[K("AutocastParticles")] or 4
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowAutocastParticles", val)
+                    BR.Config.Set(configPrefix .. K("AutocastParticles"), val)
                     RefreshPreview()
                 end,
             })
@@ -3232,13 +3374,13 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 1,
                 step = 0.01,
                 get = function()
-                    return getSource().glowAutocastFrequency or 0.125
+                    return getSource()[K("AutocastFrequency")] or 0.125
                 end,
                 formatValue = function(val)
                     return string.format("%.2f", val)
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowAutocastFrequency", val)
+                    BR.Config.Set(configPrefix .. K("AutocastFrequency"), val)
                     RefreshPreview()
                 end,
             })
@@ -3250,13 +3392,13 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 2,
                 step = 0.1,
                 get = function()
-                    return getSource().glowBorderFrequency or 0.6
+                    return getSource()[K("BorderFrequency")] or 0.6
                 end,
                 formatValue = function(val)
                     return string.format("%.1f", val)
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowBorderFrequency", val)
+                    BR.Config.Set(configPrefix .. K("BorderFrequency"), val)
                     RefreshPreview()
                 end,
             })
@@ -3268,23 +3410,23 @@ ShowGlowAdvanced = function(targetCategory)
                 max = 3,
                 step = 0.1,
                 get = function()
-                    return getSource().glowProcDuration or 1
+                    return getSource()[K("ProcDuration")] or 1
                 end,
                 formatValue = function(val)
                     return string.format("%.1f", val)
                 end,
                 onChange = function(val)
-                    BR.Config.Set(configPrefix .. "glowProcDuration", val)
+                    BR.Config.Set(configPrefix .. K("ProcDuration"), val)
                     RefreshPreview()
                 end,
             })
             AddCheckbox({
                 label = L["Options.Glow.StartAnimation"],
                 get = function()
-                    return getSource().glowProcStartAnim or false
+                    return getSource()[K("ProcStartAnim")] or false
                 end,
                 onChange = function(checked)
-                    BR.Config.Set(configPrefix .. "glowProcStartAnim", checked)
+                    BR.Config.Set(configPrefix .. K("ProcStartAnim"), checked)
                     RefreshPreview()
                 end,
             })
@@ -3297,10 +3439,10 @@ ShowGlowAdvanced = function(targetCategory)
             max = 10,
             step = 1,
             get = function()
-                return getSource().glowXOffset or 0
+                return getSource()[K("XOffset")] or 0
             end,
             onChange = function(val)
-                BR.Config.Set(configPrefix .. "glowXOffset", val)
+                BR.Config.Set(configPrefix .. K("XOffset"), val)
                 RefreshPreview()
             end,
         })
@@ -3310,10 +3452,10 @@ ShowGlowAdvanced = function(targetCategory)
             max = 10,
             step = 1,
             get = function()
-                return getSource().glowYOffset or 0
+                return getSource()[K("YOffset")] or 0
             end,
             onChange = function(val)
-                BR.Config.Set(configPrefix .. "glowYOffset", val)
+                BR.Config.Set(configPrefix .. K("YOffset"), val)
                 RefreshPreview()
             end,
         })
@@ -3321,7 +3463,7 @@ ShowGlowAdvanced = function(targetCategory)
         -- Reset button (resets current type's params + shared keys)
         dynamicLayout:Space(8)
         local resetBtn = CreateButton(panel, L["Options.ResetToDefaults"], function()
-            local keys = { "glowColor", "glowSize", "glowXOffset", "glowYOffset" }
+            local keys = { K("Color"), K("Size"), K("XOffset"), K("YOffset") }
             local typeKeys = typeResetKeys[typeIdx]
             if typeKeys then
                 for _, k in ipairs(typeKeys) do
@@ -3349,7 +3491,7 @@ ShowGlowAdvanced = function(targetCategory)
 
     -- Subscribe to glow type changes to rebuild type-specific content
     local function OnSettingChanged(_, path)
-        if path == configPrefix .. "glowType" then
+        if path == configPrefix .. K("Type") then
             BuildTypeContent()
         end
     end

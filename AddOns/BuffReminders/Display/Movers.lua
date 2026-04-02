@@ -17,6 +17,7 @@ local DIRECTION_ANCHORS = BR.DIRECTION_ANCHORS
 
 local GetCategorySettings = BR.Helpers.GetCategorySettings
 local IsCategorySplit = BR.Helpers.IsCategorySplit
+local IsIconDetached = BR.Helpers.IsIconDetached
 
 local ANCHOR_COORD_FN = {
     LEFT = function(m, px, py)
@@ -46,6 +47,7 @@ local ANCHOR_COORD_FN = {
 }
 
 local moverFrames = {} -- Per-category mover frames (shown when unlocked for drag positioning)
+local detachedMoverFrames = {} -- Per-icon mover frames for detached icons
 local lastDirection = {} -- Tracks previous growDirection per catKey for position conversion
 local coordPopup -- Shared coordinate popup (shown on the active mover)
 
@@ -78,11 +80,18 @@ local function ConvertPosition(oldAnchor, newAnchor, x, y, width, height)
     return RoundCoord(x + (o.x - n.x) * width), RoundCoord(y + (o.y - n.y) * height)
 end
 
----Get the saved position table for a category key
----@param catKey string "main" or a category name
+---Get the saved position table for a category key or detached icon key
+---@param catKey string "main", a category name, or a detached icon buff key
 ---@return table position {point, x, y}
 local function GetSavedPosition(catKey)
     local db = BR.profile
+    -- Detached icon position
+    if IsIconDetached(catKey) then
+        if db.detachedIcons and db.detachedIcons[catKey] and db.detachedIcons[catKey].position then
+            return db.detachedIcons[catKey].position
+        end
+        return { x = 0, y = 0 }
+    end
     local defaults = BR.Display.defaults
     if catKey == "main" then
         return (db.categorySettings and db.categorySettings.main and db.categorySettings.main.position)
@@ -95,14 +104,22 @@ local function GetSavedPosition(catKey)
         or { point = "CENTER", x = 0, y = 0 }
 end
 
--- Forward declaration
+-- Forward declarations
 local PositionMoverFrame
+local SaveDetachedPosition, PositionDetachedMoverFrame
 
----Save a position for a category key and reposition its frame
----@param catKey string "main" or a category name
+---Save a position for a category key (or detached icon key) and reposition its frame
+---@param catKey string "main", a category name, or a detached icon buff key
 ---@param x number
 ---@param y number
 local function SavePosition(catKey, x, y)
+    -- Detached icon: delegate to detached-specific save
+    if IsIconDetached(catKey) then
+        SaveDetachedPosition(catKey, x, y)
+        PositionDetachedMoverFrame(catKey)
+        return
+    end
+
     local db = BR.profile
     if not db.categorySettings then
         db.categorySettings = {}
@@ -153,6 +170,11 @@ end
 local function GetContainerForCatKey(catKey)
     if catKey == "main" then
         return BR.Display.mainFrame
+    end
+    -- Check detached frames first, then category frames
+    local detached = BR.Display.detachedFrames and BR.Display.detachedFrames[catKey]
+    if detached then
+        return detached
     end
     return BR.Display.categoryFrames[catKey]
 end
@@ -704,6 +726,7 @@ local function CreateCoordinatePopup()
     popup.xEdit = xEdit
     popup.yEdit = yEdit
     popup.anchorText = anchorText
+    popup.anchorBtn = anchorBtn
     popup.anchorMenu = anchorMenu
     popup.pointText = pointText
     popup.pointBtn = pointBtn
@@ -727,18 +750,23 @@ local function ShowCoordinatePopup(catKey, mover)
     coordPopup.xEdit:SetText(tostring(pos.x or 0))
     coordPopup.yEdit:SetText(tostring(pos.y or 0))
 
-    -- Populate anchor fields
-    local db = BR.profile
-    local catSettings = db.categorySettings and db.categorySettings[catKey]
-    local anchorName = catSettings and catSettings.anchorFrame
-    local anchorPoint = catSettings and catSettings.anchorPoint or "CENTER"
+    -- Populate anchor fields (not applicable for detached icons)
+    local isDetached = IsIconDetached(catKey)
+    local anchorName, anchorPoint
+    if not isDetached then
+        local db = BR.profile
+        local catSettings = db.categorySettings and db.categorySettings[catKey]
+        anchorName = catSettings and catSettings.anchorFrame
+        anchorPoint = catSettings and catSettings.anchorPoint or "CENTER"
+    end
     coordPopup.anchorText:SetText(anchorName or L["Mover.NoneScreenCenter"])
-    coordPopup.pointText:SetText(anchorPoint)
+    coordPopup.pointText:SetText(anchorPoint or "CENTER")
     coordPopup.anchorMenu:Hide()
     coordPopup.pointMenu:Hide()
 
-    -- Update enabled state of anchor point controls
-    local hasAnchor = anchorName ~= nil and anchorName ~= ""
+    -- Disable anchor controls for detached icons (they always use screen center)
+    coordPopup.anchorBtn:SetEnabled(not isDetached)
+    local hasAnchor = not isDetached and anchorName ~= nil and anchorName ~= ""
     coordPopup.pointBtn:SetEnabled(hasAnchor)
     if hasAnchor then
         coordPopup.pointText:SetTextColor(1, 1, 1, 1)
@@ -757,9 +785,14 @@ local function UpdatePopupLive(mover, catKey)
         return
     end
     -- Anchor is always cleared on drag start, so this is always UIParent-relative
-    local settings = GetCategorySettings(catKey)
-    local direction = settings.growDirection or "CENTER"
-    local anchor = DIRECTION_ANCHORS[direction] or "CENTER"
+    -- Detached icons always use CENTER anchor
+    local anchor
+    if IsIconDetached(catKey) then
+        anchor = "CENTER"
+    else
+        local settings = GetCategorySettings(catKey)
+        anchor = DIRECTION_ANCHORS[settings.growDirection or "CENTER"] or "CENTER"
+    end
     local px, py = UIParent:GetCenter()
     local x, y
     local coordFn = ANCHOR_COORD_FN[anchor]
@@ -933,6 +966,199 @@ PositionMoverFrame = function(catKey)
     end
 end
 
+-- ============================================================================
+-- DETACHED ICON MOVERS
+-- ============================================================================
+
+---Get saved position for a detached icon
+---@param key string Buff key
+---@return table position {x, y}
+local function GetDetachedSavedPosition(key)
+    local db = BR.profile
+    if db.detachedIcons and db.detachedIcons[key] and db.detachedIcons[key].position then
+        return db.detachedIcons[key].position
+    end
+    return { x = 0, y = 0 }
+end
+
+---Save position for a detached icon and reposition its container
+---@param key string Buff key
+---@param x number
+---@param y number
+SaveDetachedPosition = function(key, x, y)
+    local db = BR.profile
+    if not db.detachedIcons then
+        db.detachedIcons = {}
+    end
+    if not db.detachedIcons[key] then
+        db.detachedIcons[key] = {}
+    end
+    db.detachedIcons[key].position = { x = x, y = y }
+
+    -- Reposition the detached container frame
+    local container = BR.Display.detachedFrames and BR.Display.detachedFrames[key]
+    if container then
+        container:ClearAllPoints()
+        container:SetPoint("CENTER", UIParent, "CENTER", x, y)
+    end
+end
+
+---Finish drag for a detached icon mover
+---@param mover table The mover frame
+---@param key string Buff key
+local function FinishDetachedMoverDrag(mover, key)
+    mover.isDragging = false
+    mover:SetScript("OnUpdate", nil)
+    mover:StopMovingOrSizing()
+    local px, py = UIParent:GetCenter()
+    local cx, cy = mover:GetCenter()
+    local x = RoundCoord(cx - px)
+    local y = RoundCoord(cy - py)
+    mover:ClearAllPoints()
+    mover:SetPoint("CENTER", UIParent, "CENTER", x, y)
+    SaveDetachedPosition(key, x, y)
+    if coordPopup and coordPopup:IsShown() and coordPopup.catKey == key then
+        coordPopup.xEdit:SetText(tostring(x))
+        coordPopup.yEdit:SetText(tostring(y))
+    end
+    RestoreContainer(key)
+    if BR.SecureButtons then
+        BR.SecureButtons.ScheduleSecureSync()
+    end
+end
+
+---Position a detached mover at its saved coordinates
+---@param key string Buff key
+PositionDetachedMoverFrame = function(key)
+    local mover = detachedMoverFrames[key]
+    if not mover or mover.isDragging then
+        return
+    end
+    local pos = GetDetachedSavedPosition(key)
+    mover:ClearAllPoints()
+    mover:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    if coordPopup and coordPopup:IsShown() and coordPopup.catKey == key then
+        if not coordPopup.xEdit:HasFocus() and not coordPopup.yEdit:HasFocus() then
+            coordPopup.xEdit:SetText(tostring(pos.x or 0))
+            coordPopup.yEdit:SetText(tostring(pos.y or 0))
+        end
+    end
+end
+
+---Create a mover frame for a detached icon
+---@param key string Buff key
+---@param displayName string Display name for the label
+---@return table? mover The mover frame, or nil if in combat
+local function CreateDetachedMover(key, displayName)
+    if InCombatLockdown() then
+        return nil
+    end
+
+    local fontPath = BR.Display.GetFontPath()
+    local buffFrame = BR.Display.frames[key]
+    local effectiveCat = "main"
+    if buffFrame and buffFrame.buffCategory then
+        local cat = buffFrame.buffCategory
+        if IsCategorySplit(cat) or BR.Config.HasCustomAppearance(cat) then
+            effectiveCat = cat
+        end
+    end
+    local catSettings = GetCategorySettings(effectiveCat)
+    local iconSize = catSettings.iconSize or 64
+    local iconWidth = catSettings.iconWidth or iconSize
+
+    local mover = CreateFrame("Frame", nil, UIParent)
+    mover:SetSize(iconWidth, iconSize)
+    mover:SetFrameStrata("HIGH")
+    mover:SetClampedToScreen(true)
+    mover:SetMovable(true)
+    mover:EnableMouse(true)
+    mover:RegisterForDrag("LeftButton")
+
+    -- Yellow background to distinguish from category movers
+    local bg = mover:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(0.9, 0.7, 0, 0.6)
+
+    -- Label above the mover
+    mover.label = mover:CreateFontString(nil, "OVERLAY")
+    mover.label:SetPoint("BOTTOM", mover, "TOP", 0, 4)
+    mover.label:SetFont(fontPath, 11, "OUTLINE")
+    mover.label:SetTextColor(1, 0.85, 0.3, 1)
+    mover.label:SetText(displayName or key)
+
+    -- Anchor text below
+    mover.anchorText = mover:CreateFontString(nil, "OVERLAY")
+    mover.anchorText:SetPoint("TOP", mover, "BOTTOM", 0, -4)
+    mover.anchorText:SetFont(fontPath, 11, "OUTLINE")
+    mover.anchorText:SetTextColor(1, 0.85, 0.3, 1)
+    mover.anchorText:SetText(L["Mover.Detached"])
+
+    mover.catKey = key
+
+    function mover:UpdateSize()
+        local bf = BR.Display.frames[key]
+        local eCat = "main"
+        if bf and bf.buffCategory then
+            local c = bf.buffCategory
+            if IsCategorySplit(c) or BR.Config.HasCustomAppearance(c) then
+                eCat = c
+            end
+        end
+        local s = GetCategorySettings(eCat)
+        local sz = s.iconSize or 64
+        self:SetSize(s.iconWidth or sz, sz)
+    end
+
+    -- Position at saved location
+    local pos = GetDetachedSavedPosition(key)
+    mover:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+
+    -- Tooltip
+    BR.SetupTooltip(mover, L["Mover.BuffAnchor"], L["Mover.DragTooltip"])
+
+    -- Drag scripts
+    mover:SetScript("OnDragStart", function(self)
+        GameTooltip:Hide()
+        DimContainer(key)
+        if BR.SecureButtons then
+            BR.SecureButtons.HideSecureFramesForCatKey(key)
+        end
+        self.isDragging = true
+        self:StartMoving()
+        if coordPopup and coordPopup:IsShown() then
+            coordPopup:ClearAllPoints()
+            coordPopup:SetPoint("LEFT", self, "RIGHT", 10, 0)
+            coordPopup.catKey = key
+        end
+        self:SetScript("OnUpdate", function()
+            UpdatePopupLive(self, key)
+        end)
+    end)
+    mover:SetScript("OnDragStop", function(self)
+        FinishDetachedMoverDrag(self, key)
+    end)
+    mover:SetScript("OnHide", function(self)
+        if self.isDragging then
+            FinishDetachedMoverDrag(self, key)
+        end
+    end)
+
+    -- Click to toggle coordinate popup
+    mover:SetScript("OnMouseUp", function(self, button)
+        if not self.isDragging and button == "LeftButton" then
+            if coordPopup and coordPopup:IsShown() and coordPopup.catKey == key then
+                coordPopup:Hide()
+            else
+                ShowCoordinatePopup(key, self)
+            end
+        end
+    end)
+
+    mover:Hide()
+    return mover
+end
+
 -- Initialize mover frames for all categories (called from InitializeFrames)
 local function InitializeMovers()
     -- Resolve forward declarations now that BR.Display is available
@@ -1010,6 +1236,32 @@ local function UpdateAnchor()
             end
         end
     end
+
+    -- Detached icon movers: show when unlocked
+    if db.detachedIcons then
+        for key in pairs(db.detachedIcons) do
+            if unlocked then
+                if not detachedMoverFrames[key] then
+                    local buffFrame = BR.Display.frames[key]
+                    local dName = buffFrame and buffFrame.displayName or key
+                    detachedMoverFrames[key] = CreateDetachedMover(key, dName)
+                end
+                if detachedMoverFrames[key] then
+                    detachedMoverFrames[key]:UpdateSize()
+                    PositionDetachedMoverFrame(key)
+                    detachedMoverFrames[key]:Show()
+                end
+            elseif detachedMoverFrames[key] then
+                detachedMoverFrames[key]:Hide()
+            end
+        end
+    end
+    -- Hide movers for icons that are no longer detached
+    for key, mover in pairs(detachedMoverFrames) do
+        if not (db.detachedIcons and db.detachedIcons[key]) then
+            mover:Hide()
+        end
+    end
 end
 
 -- Hide all mover frames and the coordinate popup
@@ -1018,6 +1270,11 @@ local function HideAllMovers()
         coordPopup:Hide()
     end
     for _, mover in pairs(moverFrames) do
+        if mover then
+            mover:Hide()
+        end
+    end
+    for _, mover in pairs(detachedMoverFrames) do
         if mover then
             mover:Hide()
         end
@@ -1065,6 +1322,21 @@ local function RepositionAllFrames()
     for _, category in ipairs(CATEGORIES) do
         PositionMoverFrame(category)
     end
+    -- Reposition detached icon containers and movers
+    local db = BR.profile
+    if db.detachedIcons then
+        for key in pairs(db.detachedIcons) do
+            -- Reposition the container frame
+            local container = BR.Display.detachedFrames and BR.Display.detachedFrames[key]
+            if container then
+                local pos = GetDetachedSavedPosition(key)
+                container:ClearAllPoints()
+                container:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+            end
+            -- Reposition the mover
+            PositionDetachedMoverFrame(key)
+        end
+    end
 end
 
 -- Export module
@@ -1075,6 +1347,9 @@ BR.Movers = {
     SavePosition = SavePosition,
     GetMoverFrames = function()
         return moverFrames
+    end,
+    GetDetachedMoverFrames = function()
+        return detachedMoverFrames
     end,
     ConvertDirectionPositions = ConvertDirectionPositions,
     SyncDirectionCache = SyncDirectionCache,

@@ -946,31 +946,3 @@ BR.BuffGroups = {
     rune = { displayName = L["Group.AugmentRune"] },
     weaponBuff = { displayName = L["Group.WeaponBuff"] },
 }
-
--- Classes that benefit from each buff
--- nil = everyone benefits, otherwise only listed classes are counted
-BR.BuffBeneficiaries = {
-    intellect = {
-        MAGE = true,
-        WARLOCK = true,
-        PRIEST = true,
-        DRUID = true,
-        SHAMAN = true,
-        MONK = true,
-        EVOKER = true,
-        PALADIN = true,
-        DEMONHUNTER = true,
-    },
-    attackPower = {
-        WARRIOR = true,
-        ROGUE = true,
-        HUNTER = true,
-        DEATHKNIGHT = true,
-        PALADIN = true,
-        MONK = true,
-        DRUID = true,
-        DEMONHUNTER = true,
-        SHAMAN = true,
-    },
-    -- stamina, versatility, skyfury, bronze = everyone benefits (nil)
-}
