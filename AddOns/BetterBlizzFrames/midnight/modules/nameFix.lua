@@ -581,11 +581,13 @@ end
 
 local function HideRoleIcon(frame)
     if not hidePartyRoles then return end
+    if issecretvalue(frame) then return end
     if not frame.roleIcon then return end
     frame.roleIcon:SetAlpha(0)
 end
 local function HideRoleIconDefault(frame)
     if not hidePartyRoles then return end
+    if issecretvalue(frame) then return end
     frame.PartyMemberOverlay.RoleIcon:SetAlpha(0)
 end
 hooksecurefunc("CompactUnitFrame_UpdateRoleIcon", HideRoleIcon)
@@ -1278,6 +1280,7 @@ function BBF.SetCustomFonts()
             if C_CVar.GetCVar("raidOptionDisplayPets") == "1" or C_CVar.GetCVar("raidOptionDisplayMainTankAndAssist") == "1" then
                 hooksecurefunc("DefaultCompactMiniFrameSetup", SetRaidFramePetFont)
                 hooksecurefunc("CompactUnitFrame_SetUnit", function(frame)
+                    if issecretvalue(frame) then return end
                     if frame.unit and (frame.unit:match("raidpet") or frame.unit:match("target")) then
                         SetRaidFramePetFont(frame)
                     end
@@ -1480,6 +1483,12 @@ local function PlayerFrameNameChanges(frame)
         PlayerLevelText:SetTextColor(classColor.r, classColor.g, classColor.b)
     end
 end
+C_Timer.After(1, function()
+    PlayerFrameNameChanges(PlayerFrame)
+end)
+C_Timer.After(2, function() --lol idk deal with it later (rp name/text/iforget)
+    PlayerFrameNameChanges(PlayerFrame)
+end)
 
 
 local function TargetFrameNameChanges(frame)
