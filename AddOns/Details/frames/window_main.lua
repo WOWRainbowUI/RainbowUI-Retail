@@ -1874,6 +1874,10 @@ local barra_backdrop_onleave = {
 
 --@self: instance line (row)
 local lineScript_Onenter = function(self)
+	if self._instance.line_no_tooltip then
+		return
+	end
+
 	self.mouse_over = true
 	OnEnterMainWindow(self._instance, self)
 
@@ -1924,6 +1928,10 @@ local lineScript_Onenter = function(self)
 end
 
 local lineScript_Onleave = function(self)
+	if self._instance.line_no_tooltip then
+		return
+	end
+
 	self.mouse_over = false
 	OnLeaveMainWindow(self._instance, self)
 
@@ -2990,31 +2998,34 @@ function DetailsKeyBindScrollDown() --[[GLOBAL]]
 	end
 end
 
-local function iterate_scroll_scripts(backgrounddisplay, backgroundframe, baseframe, scrollbar, instancia)
+local function iterate_scroll_scripts(backgrounddisplay, backgroundframe, baseframe, scrollbar, instance)
+	---@cast instance instance
 	baseframe:SetScript("OnMouseWheel", function(self, delta)
 		if (delta > 0) then --rolou pra cima
-			local A = instancia.barraS[1]
+			local A = instance.barraS[1]
 			if (A) then
 				if (A > 1) then
-					scrollbar:SetValue(scrollbar:GetValue() - instancia.row_height * Details.scroll_speed)
+					scrollbar:SetValue(scrollbar:GetValue() - instance.row_height * Details.scroll_speed)
 				else
 					scrollbar:SetValue(0)
 					scrollbar.ultimo = 0
 					baseframe.button_up:Disable()
 				end
+				instance.lastEventTime = 0
 			end
 
 		elseif (delta < 0) then --rolou pra baixo
-			local B = instancia.barraS[2]
+			local B = instance.barraS[2]
 			if (B) then
-				if (B < (instancia.rows_showing or 0)) then
-					scrollbar:SetValue(scrollbar:GetValue() + instancia.row_height * Details.scroll_speed)
+				if (B < (instance.rows_showing or 0)) then
+					scrollbar:SetValue(scrollbar:GetValue() + instance.row_height * Details.scroll_speed)
 				else
 					local _, maxValue = scrollbar:GetMinMaxValues()
 					scrollbar:SetValue(maxValue)
 					scrollbar.ultimo = maxValue
 					baseframe.button_down:Disable()
 				end
+				instance.lastEventTime = 0
 			end
 		end
 	end)
@@ -3029,23 +3040,23 @@ local function iterate_scroll_scripts(backgrounddisplay, backgroundframe, basefr
 		--shortcut
 		local minValue, maxValue = scrollbar:GetMinMaxValues()
 		if (minValue == currentScrollValue) then
-			instancia.barraS[1] = 1
-			instancia.barraS[2] = instancia.rows_fit_in_window
-			instancia:RefreshMainWindow(instancia, true)
+			instance.barraS[1] = 1
+			instance.barraS[2] = instance.rows_fit_in_window
+			instance:RefreshMainWindow(instance, true)
 			self.ultimo = currentScrollValue
 			baseframe.button_up:Disable()
 			return
 
 		elseif (maxValue == currentScrollValue) then
-			local min = (instancia.rows_showing or 0) -instancia.rows_fit_in_window
+			local min = (instance.rows_showing or 0) -instance.rows_fit_in_window
 			min = min+1
 			if (min < 1) then
 				min = 1
 			end
 
-			instancia.barraS[1] = min
-			instancia.barraS[2] = (instancia.rows_showing or 0)
-			instancia:RefreshMainWindow(instancia, true)
+			instance.barraS[1] = min
+			instance.barraS[2] = (instance.rows_showing or 0)
+			instance:RefreshMainWindow(instance, true)
 			self.ultimo = currentScrollValue
 			baseframe.button_down:Disable()
 			return
@@ -3060,42 +3071,42 @@ local function iterate_scroll_scripts(backgrounddisplay, backgroundframe, basefr
 		end
 
 		if (currentScrollValue > ultimo) then --scroll down
-			local B = instancia.barraS[2]
-			if (B < (instancia.rows_showing or 0)) then --se o valor maximo n�o for o m�ximo de barras a serem mostradas
+			local B = instance.barraS[2]
+			if (B < (instance.rows_showing or 0)) then --se o valor maximo n�o for o m�ximo de barras a serem mostradas
 				if (true) then --testing by pass row check - test completed, it is working!
 					local diff = currentScrollValue - ultimo --pega a diferen�a de H
-					diff = diff / instancia.row_height --calcula quantas barras ele pulou
+					diff = diff / instance.row_height --calcula quantas barras ele pulou
 					diff = ceil(diff) --arredonda para cima
 
-					if (instancia.barraS[2]+diff > (instancia.rows_showing or 0) and ultimo > 0) then
-						instancia.barraS[1] = (instancia.rows_showing or 0) - (instancia.rows_fit_in_window-1)
-						instancia.barraS[2] = (instancia.rows_showing or 0)
+					if (instance.barraS[2]+diff > (instance.rows_showing or 0) and ultimo > 0) then
+						instance.barraS[1] = (instance.rows_showing or 0) - (instance.rows_fit_in_window-1)
+						instance.barraS[2] = (instance.rows_showing or 0)
 					else
-						instancia.barraS[2] = instancia.barraS[2]+diff
-						instancia.barraS[1] = instancia.barraS[1]+diff
+						instance.barraS[2] = instance.barraS[2]+diff
+						instance.barraS[1] = instance.barraS[1]+diff
 					end
-					instancia:RefreshMainWindow(instancia, true)
+					instance:RefreshMainWindow(instance, true)
 				end
 			end
 
 		else --scroll up
-			local A = instancia.barraS[1]
+			local A = instance.barraS[1]
 			if (A > 1) then
 				if (true) then --testing by pass row check
 					--calcula quantas barras passou - test completed, it is working!
 					local diff = ultimo - currentScrollValue
-					diff = diff / instancia.row_height
+					diff = diff / instance.row_height
 					diff = ceil(diff)
 
-					if (instancia.barraS[1]-diff < 1) then
-						instancia.barraS[2] = instancia.rows_fit_in_window
-						instancia.barraS[1] = 1
+					if (instance.barraS[1]-diff < 1) then
+						instance.barraS[2] = instance.rows_fit_in_window
+						instance.barraS[1] = 1
 					else
-						instancia.barraS[2] = instancia.barraS[2]-diff
-						instancia.barraS[1] = instancia.barraS[1]-diff
+						instance.barraS[2] = instance.barraS[2]-diff
+						instance.barraS[1] = instance.barraS[1]-diff
 					end
 
-					instancia:RefreshMainWindow(instancia, true)
+					instance:RefreshMainWindow(instance, true)
 				end
 			end
 		end
@@ -3743,35 +3754,19 @@ function gump:CriaJanelaPrincipal(ID, instancia, criando)
 	instancia.freeze_texto:SetPoint("left", instancia.freeze_icon, "right", -18, 0)
 	instancia.freeze_texto:SetTextColor(1, 1, 1)
 	instancia.freeze_texto:Hide()
-
 	--details version
-		instancia._version = baseframe:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
-		instancia._version:SetTextColor(1, 1, 1)
-		instancia._version:SetText("this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button.") --deprecated
-		instancia._version:Hide()
-		if (not Details222.PrivateInstanceText) then
-			local f = CreateFrame("frame")
-			Details222.PrivateInstanceText = f:CreateFontString(nil, "overlay", "GameFontNormal")
-			Details222.PrivateInstanceText:SetFont("Interface\\AddOns\\Details\\Fonts\\Accidental Presidency.ttf", 10, "NONE")
-			Details222.PrivateInstanceText:SetTextColor(1, 1, 1, 0.5)
-			Details222.PrivateInstanceText:SetText("")
-			--Details222.PrivateInstanceText:SetText(authorInfo.Support..("/"..authorInfo.Name..""):gsub("^%s$", ""))
-			Details222.PrivateInstanceText:SetPoint("bottomleft", baseframe, "bottomleft", 2, 2)
-			Details222.PrivateInstanceText:Hide()hooksecurefunc(commentador, "FollowUnit", function()
-				C_Timer.After(180, function()Details222.PrivateInstanceText:Show()end)
-			end)hooksecurefunc(commentador, "FollowPlayer", function()
-				C_Timer.After(180, function()Details222.PrivateInstanceText:Show()end)
-			end)
-		end
+	instancia._version = baseframe:CreateFontString(nil, "overlay", "GameFontHighlightSmall")
+	instancia._version:SetTextColor(1, 1, 1)
+	instancia._version:SetText("this is a alpha version of Details\nyou can help us sending bug reports\nuse the blue button.") --deprecated
+	instancia._version:Hide()
 
 	--wallpaper
 	baseframe.wallpaper = baseframe:CreateTexture(nil, "overlay")
 	baseframe.wallpaper:Hide()
-
 	--alert frame
 	baseframe.alert = CreateAlertFrame(baseframe, instancia)
 
--- resizers & lock button ~lock ------------------------------------------------------------------------------------------------------------------------------------------------------------
+	-- resizers & lock button ~lock ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 	--right resizer
 		baseframe.resize_direita = CreateFrame("button", "Details_Resize_Direita"..ID, baseframe)
@@ -6731,25 +6726,27 @@ local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 
 		Details:AddRoundedCornerToTooltip()
 
-		if detailsFramework.IsAddonApocalypseWow() and Details:IsUsingBlizzardAPI() then
+		if detailsFramework.IsAddonApocalypseWow() then -- and Details:IsUsingBlizzardAPI()
 			local bForceRefresh = true
 			local afterSetSession = function()
 				instance:RefreshWindow(bForceRefresh)
 			end
 
+			local bByUser = true
+
 			local selectExpired = function(_, _, sessionId)
 				instance:SetNewSegmentId(sessionId)
-				instance:SetSegmentType(2, bForceRefresh)
+				instance:SetSegmentType(2, bForceRefresh, bByUser)
 				afterSetSession()
 			end
 			local selectCurrent = function()
 				--instance:SetNewSegmentId(1)
-				instance:SetSegmentType(1, bForceRefresh)
+				instance:SetSegmentType(1, bForceRefresh, bByUser)
 				afterSetSession()
 			end
 			local selectOverall = function()
 				--instance:SetNewSegmentId(1)
-				instance:SetSegmentType(0, bForceRefresh)
+				instance:SetSegmentType(0, bForceRefresh, bByUser)
 				afterSetSession()
 			end
 
