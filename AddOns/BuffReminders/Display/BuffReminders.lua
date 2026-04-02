@@ -18,6 +18,7 @@ local addonName, BR = ...
 ---@field borderSize number
 ---@field growDirection string
 ---@field showExpirationGlow boolean
+---@field showMissingGlow boolean
 ---@field expirationThreshold number
 ---@field glowType number
 ---@field glowColor? number[]
@@ -31,8 +32,24 @@ local addonName, BR = ...
 ---@field glowBorderFrequency? number
 ---@field glowProcDuration? number
 ---@field glowProcStartAnim? boolean
+---@field glowProcUseCustomColor? boolean
 ---@field glowXOffset? number
 ---@field glowYOffset? number
+---@field missingGlowType? number
+---@field missingGlowColor? number[]
+---@field missingGlowSize? number
+---@field missingGlowPixelLines? number
+---@field missingGlowPixelFrequency? number
+---@field missingGlowPixelLength? number
+---@field missingGlowAutocastParticles? number
+---@field missingGlowAutocastFrequency? number
+---@field missingGlowAutocastScale? number
+---@field missingGlowBorderFrequency? number
+---@field missingGlowProcDuration? number
+---@field missingGlowProcStartAnim? boolean
+---@field missingGlowProcUseCustomColor? boolean
+---@field missingGlowXOffset? number
+---@field missingGlowYOffset? number
 ---@field fontFace? string
 ---@field showConsumablesWithoutItems? boolean
 ---@field delveFoodOnly? boolean
@@ -62,6 +79,7 @@ local addonName, BR = ...
 ---@field iconZoom? number
 ---@field borderSize? number
 ---@field showExpirationGlow? boolean
+---@field showMissingGlow? boolean
 ---@field expirationThreshold? number
 ---@field showBuffReminder? boolean
 ---@field buffTextSize? number
@@ -69,6 +87,37 @@ local addonName, BR = ...
 ---@field buffTextOffsetY? number
 ---@field showText? boolean
 ---@field useCustomAppearance? boolean
+---@field useCustomGlow? boolean
+---@field glowType? number
+---@field glowColor? number[]
+---@field glowSize? number
+---@field glowPixelLines? number
+---@field glowPixelFrequency? number
+---@field glowPixelLength? number
+---@field glowAutocastParticles? number
+---@field glowAutocastFrequency? number
+---@field glowAutocastScale? number
+---@field glowBorderFrequency? number
+---@field glowProcDuration? number
+---@field glowProcStartAnim? boolean
+---@field glowProcUseCustomColor? boolean
+---@field glowXOffset? number
+---@field glowYOffset? number
+---@field missingGlowType? number
+---@field missingGlowColor? number[]
+---@field missingGlowSize? number
+---@field missingGlowPixelLines? number
+---@field missingGlowPixelFrequency? number
+---@field missingGlowPixelLength? number
+---@field missingGlowAutocastParticles? number
+---@field missingGlowAutocastFrequency? number
+---@field missingGlowAutocastScale? number
+---@field missingGlowBorderFrequency? number
+---@field missingGlowProcDuration? number
+---@field missingGlowProcStartAnim? boolean
+---@field missingGlowProcUseCustomColor? boolean
+---@field missingGlowXOffset? number
+---@field missingGlowYOffset? number
 ---@field split? boolean
 ---@field clickable? boolean
 ---@field clickableHighlight? boolean
@@ -93,6 +142,11 @@ local addonName, BR = ...
 ---@field category CategoryName
 
 ---@alias SplitCategories table<CategoryName, boolean>
+
+---@class DetachedIconEntry
+---@field position {x: number, y: number}
+
+---@alias DetachedIcons table<string, DetachedIconEntry>
 
 ---@class BuffFrame: Button
 ---@field GetFrameLevel fun(self: BuffFrame): number
@@ -296,8 +350,9 @@ local defaults = {
         growDirection = "CENTER", -- "LEFT", "CENTER", "RIGHT", "UP", "DOWN"
         -- Behavior (glow settings)
         showExpirationGlow = true,
+        showMissingGlow = true,
         expirationThreshold = 15, -- minutes
-        glowType = 1, -- BR.Glow.Type: Pixel=1, AutoCast=2, Border=3, Proc=4
+        glowType = 2, -- BR.Glow.Type: Pixel=1, AutoCast=2, Border=3, Proc=4 (expiring default)
         glowSize = 2,
         showConsumablesWithoutItems = false,
         delveFoodOnly = true,
@@ -412,11 +467,11 @@ local defaults = {
     ---@type AllCategorySettings
     categorySettings = { -- Per-category settings
         main = {
-            position = { point = "CENTER", x = 0, y = 0 },
+            position = { point = "CENTER", x = 0, y = 200 },
             -- main frame always uses defaults for appearance/behavior
         },
         raid = {
-            position = { point = "CENTER", x = 0, y = 60 },
+            position = { point = "CENTER", x = 0, y = 260 },
             useCustomAppearance = false,
             showBuffReminder = true,
             split = false,
@@ -425,7 +480,7 @@ local defaults = {
             priority = 1,
         },
         presence = {
-            position = { point = "CENTER", x = 0, y = 20 },
+            position = { point = "CENTER", x = 0, y = 220 },
             useCustomAppearance = false,
             split = false,
             clickable = true,
@@ -433,7 +488,7 @@ local defaults = {
             priority = 2,
         },
         targeted = {
-            position = { point = "CENTER", x = 0, y = -20 },
+            position = { point = "CENTER", x = 0, y = 180 },
             useCustomAppearance = false,
             split = false,
             clickable = false,
@@ -441,7 +496,7 @@ local defaults = {
             priority = 3,
         },
         self = {
-            position = { point = "CENTER", x = 0, y = -60 },
+            position = { point = "CENTER", x = 0, y = 140 },
             useCustomAppearance = false,
             split = false,
             clickable = true,
@@ -449,7 +504,7 @@ local defaults = {
             priority = 4,
         },
         pet = {
-            position = { point = "CENTER", x = 0, y = -100 },
+            position = { point = "CENTER", x = 0, y = 100 },
             useCustomAppearance = false,
             split = false,
             clickable = true,
@@ -457,7 +512,7 @@ local defaults = {
             priority = 5,
         },
         consumable = {
-            position = { point = "CENTER", x = 0, y = -140 },
+            position = { point = "CENTER", x = 0, y = 60 },
             useCustomAppearance = false,
             split = false,
             clickable = true,
@@ -466,7 +521,7 @@ local defaults = {
             priority = 6,
         },
         custom = {
-            position = { point = "CENTER", x = 0, y = -180 },
+            position = { point = "CENTER", x = 0, y = 20 },
             useCustomAppearance = false,
             split = false,
             clickable = false,
@@ -523,6 +578,7 @@ local wasMounted = IsMounted()
 
 -- Category frame system
 local categoryFrames = {}
+local detachedFrames = {} -- Per-icon detached container frames (shown when an icon is detached)
 local CATEGORIES = { "raid", "presence", "targeted", "self", "pet", "consumable", "custom" }
 
 -- Track previously visible frame keys for selective hiding (Phase 3 optimization)
@@ -567,6 +623,27 @@ local function IsCategorySplit(category)
     end
     -- Fall back to legacy location (splitCategories.{cat})
     return db.splitCategories and db.splitCategories[category] == true
+end
+
+---Check if an individual icon is detached from its container
+---@param key string Buff key
+---@return boolean
+local function IsIconDetached(key)
+    local db = BR.profile
+    return db.detachedIcons ~= nil and db.detachedIcons[key] ~= nil
+end
+
+local DETACHED_DEFAULT_POS = { x = 0, y = 0 }
+
+---Get the saved position for a detached icon
+---@param key string Buff key
+---@return table position {x, y}
+local function GetDetachedPosition(key)
+    local db = BR.profile
+    if db.detachedIcons and db.detachedIcons[key] then
+        return db.detachedIcons[key].position or DETACHED_DEFAULT_POS
+    end
+    return DETACHED_DEFAULT_POS
 end
 
 ---Get settings for a category with inheritance from defaults
@@ -831,6 +908,7 @@ local ResetLayoutSignatures
 -- Reusable tables for UpdateDisplay (wiped each cycle to avoid per-call allocation)
 local reusableVisibleKeys = {} ---@type table<string, boolean>
 local reusableMainBuffs = {}
+local reusableDetachedSink = {} -- Throw-away target for detached consumable post-processing
 local sortComparator = function(a, b)
     return a.sortOrder < b.sortOrder
 end
@@ -839,14 +917,17 @@ end
 local SetExpirationGlow = BR.Glow.SetExpiration
 
 -- Per-render-cycle cache for glow settings (avoids repeated DB reads)
-local glowSettingsCache = {} ---@type table<string, table>
+local expiringGlowCache = {} ---@type table<string, table>
+local missingGlowCache = {} ---@type table<string, table>
 
----Get cached glow settings for a category (populated once per render cycle)
+---Get cached glow settings for a category and glow kind (populated once per render cycle)
 ---Glow style reads from per-category overrides when useCustomGlow is enabled, otherwise from defaults.
 ---@param category string
+---@param kind "expiring"|"missing" Which glow style to resolve
 ---@return table
-local function GetCachedGlowSettings(category)
-    local cached = glowSettingsCache[category]
+local function GetCachedGlowSettings(category, kind)
+    local cache = kind == "missing" and missingGlowCache or expiringGlowCache
+    local cached = cache[category]
     if cached then
         return cached
     end
@@ -856,21 +937,39 @@ local function GetCachedGlowSettings(category)
     local useCustom = catSettings and catSettings.useCustomGlow
     local source = (useCustom and catSettings) or (db and db.defaults) or {}
 
-    local typeIndex = source.glowType or BR.Glow.Type.Pixel
-    local color = source.glowColor
-    if typeIndex == BR.Glow.Type.Proc and not source.glowProcUseCustomColor then
-        color = nil
+    local typeIndex, color, size, xOff, yOff, params
+    if kind == "missing" then
+        typeIndex = source.missingGlowType or BR.Glow.Type.Pixel
+        color = source.missingGlowColor
+        if typeIndex == BR.Glow.Type.Proc and not source.missingGlowProcUseCustomColor then
+            color = nil
+        end
+        size = source.missingGlowSize or 2
+        params = BR.Glow.BuildAdvancedParams(source, typeIndex, "missingGlow")
+        xOff = source.missingGlowXOffset or 0
+        yOff = source.missingGlowYOffset or 0
+    else
+        typeIndex = source.glowType or BR.Glow.Type.AutoCast
+        color = source.glowColor
+        if typeIndex == BR.Glow.Type.Proc and not source.glowProcUseCustomColor then
+            color = nil
+        end
+        size = source.glowSize or 2
+        params = BR.Glow.BuildAdvancedParams(source, typeIndex)
+        xOff = source.glowXOffset or 0
+        yOff = source.glowYOffset or 0
     end
+
     cached = {
         typeIndex = typeIndex,
         color = color,
-        size = source.glowSize or 2,
+        size = size,
         borderSize = BR.Config.GetCategorySetting(category, "borderSize") or DEFAULT_BORDER_SIZE,
-        params = BR.Glow.BuildAdvancedParams(source, typeIndex),
-        glowXOffset = source.glowXOffset or 0,
-        glowYOffset = source.glowYOffset or 0,
+        params = params,
+        glowXOffset = xOff,
+        glowYOffset = yOff,
     }
-    glowSettingsCache[category] = cached
+    cache[category] = cached
     return cached
 end
 
@@ -971,6 +1070,17 @@ local DIRECTION_LAYOUT = {
     DOWN = { anchor = "TOP", xMult = 0, yMult = -1 },
 }
 
+-- Create a detached container frame for an individual buff icon
+local function CreateDetachedFrame(key)
+    local pos = GetDetachedPosition(key)
+    local frame = CreateFrame("Frame", "BuffReminders_Detached_" .. key, UIParent)
+    frame:SetSize(64, 64) -- sized dynamically by PositionDetachedIcon
+    frame:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+    frame:EnableMouse(false)
+    frame:Hide()
+    return frame
+end
+
 -- Create a category frame for grouped display mode
 local function CreateCategoryFrame(category)
     local db = BR.profile
@@ -1066,7 +1176,17 @@ local BUFF_KEY_TO_CATEGORY = BR.BUFF_KEY_TO_CATEGORY
 
 -- Create icon frame for a buff
 local function CreateBuffFrame(buff, category)
-    local parent = (category and IsCategorySplit(category) and categoryFrames[category]) or mainFrame
+    local parent
+    if IsIconDetached(buff.key) then
+        if not detachedFrames[buff.key] then
+            detachedFrames[buff.key] = CreateDetachedFrame(buff.key)
+        end
+        parent = detachedFrames[buff.key]
+    elseif category and IsCategorySplit(category) and categoryFrames[category] then
+        parent = categoryFrames[category]
+    else
+        parent = mainFrame
+    end
     local frame = CreateFrame("Frame", "BuffReminders_" .. buff.key, parent)
     frame.key = buff.key
     frame.spellIDs = buff.spellID
@@ -1475,6 +1595,60 @@ local function PositionSplitCategories(visibleByCategory)
     end
 end
 
+-- Position a detached icon in its own container frame
+local function PositionDetachedIcon(key, frame)
+    local container = detachedFrames[key]
+    if not container then
+        return
+    end
+
+    local effectiveCat = GetEffectiveCategory(frame)
+    local catSettings = GetCategorySettings(effectiveCat)
+    local iconSize = catSettings.iconSize or 64
+    local iconWidth = GetEffectiveWidth(catSettings.iconWidth, iconSize)
+
+    -- Count extra frames (expanded consumables)
+    local totalFrames = 1
+    if frame.extraFrames then
+        for _, extra in ipairs(frame.extraFrames) do
+            if extra:IsShown() then
+                totalFrames = totalFrames + 1
+            end
+        end
+    end
+
+    -- Size the container to fit all visible frames (stacked horizontally)
+    local spacing = totalFrames > 1 and floor(iconWidth * (catSettings.spacing or 0.2)) or 0
+    local totalWidth = totalFrames * iconWidth + (totalFrames - 1) * spacing
+    container:SetSize(totalWidth, iconSize)
+
+    -- Position at saved coordinates
+    local pos = GetDetachedPosition(key)
+    container:ClearAllPoints()
+    container:SetPoint("CENTER", UIParent, "CENTER", pos.x or 0, pos.y or 0)
+
+    -- Anchor the icon inside the container
+    frame:SetSize(iconWidth, iconSize)
+    frame:ClearAllPoints()
+    if totalFrames > 1 then
+        frame:SetPoint("LEFT", container, "LEFT", 0, 0)
+        -- Position extra frames after the main icon
+        local offset = iconWidth + spacing
+        for _, extra in ipairs(frame.extraFrames) do
+            if extra:IsShown() then
+                extra:SetSize(iconWidth, iconSize)
+                extra:ClearAllPoints()
+                extra:SetPoint("LEFT", container, "LEFT", offset, 0)
+                offset = offset + iconWidth + spacing
+            end
+        end
+    else
+        frame:SetPoint("CENTER", container, "CENTER", 0, 0)
+    end
+
+    container:Show()
+end
+
 --- Generate fake state entries for test mode, populating BR.BuffState.entries
 --- and BR.BuffState.visibleByCategory so UpdateDisplay can render via the normal pipeline.
 local function GenerateTestEntries()
@@ -1497,7 +1671,8 @@ local function GenerateTestEntries()
 
     for _, category in ipairs(CATEGORIES) do
         -- Per-category glow settings (same pattern as State.lua:GetCategoryGlowSettings)
-        local glowEnabled = BR.Config.GetCategorySetting(category, "showExpirationGlow") ~= false
+        local exGlowEnabled = BR.Config.GetCategorySetting(category, "showExpirationGlow") ~= false
+        local missGlowEnabled = BR.Config.GetCategorySetting(category, "showMissingGlow") ~= false
         local threshold = BR.Config.GetCategorySetting(category, "expirationThreshold") or 15
         local expiringShown = false
 
@@ -1526,20 +1701,20 @@ local function GenerateTestEntries()
                     if threshold > 0 and not expiringShown then
                         entry.displayType = "expiring"
                         entry.countText = FormatRemainingTime(testModeData.fakeRemaining)
-                        entry.shouldGlow = glowEnabled
+                        entry.shouldGlow = exGlowEnabled
                         expiringShown = true
                     else
                         entry.displayType = "count"
                         local fakeBuffed = testModeData.fakeTotal - testModeData.fakeMissing[raidIndex]
                         entry.countText = fakeBuffed .. "/" .. testModeData.fakeTotal
-                        entry.shouldGlow = glowEnabled
+                        entry.shouldGlow = missGlowEnabled
                     end
                     raidIndex = raidIndex + 1
                 elseif category == "pet" then
                     entry.displayType = "text"
                     entry.overlayText = buff.overlayText
                     entry.iconByRole = buff.iconByRole
-                    entry.shouldGlow = glowEnabled
+                    entry.shouldGlow = missGlowEnabled
                     if buff.groupId == "pets" and BR.PetHelpers then
                         local actions = BR.PetHelpers.GetPetActions(playerClass)
                         if actions and #actions > 0 then
@@ -1551,13 +1726,13 @@ local function GenerateTestEntries()
                     entry.displayType = "text"
                     entry.overlayText = buff.overlayText
                     entry.iconByRole = buff.iconByRole
-                    entry.shouldGlow = glowEnabled
+                    entry.shouldGlow = missGlowEnabled
 
                     -- Show first buff as expiring to preview expiration countdown
                     if threshold > 0 and not buff.noExpirationGlow and not expiringShown then
                         entry.displayType = "expiring"
                         entry.countText = FormatRemainingTime(testModeData.fakeRemaining)
-                        entry.shouldGlow = glowEnabled
+                        entry.shouldGlow = exGlowEnabled
                         expiringShown = true
                     end
                 end
@@ -1646,6 +1821,9 @@ local function HideAllDisplayFrames()
         if categoryFrames[category] then
             categoryFrames[category]:Hide()
         end
+    end
+    for _, container in pairs(detachedFrames) do
+        container:Hide()
     end
     wipe(previouslyVisibleKeys)
     -- Reset layout signatures so next PositionMainContainer/PositionSplitCategory always
@@ -1938,7 +2116,8 @@ local function RenderVisibleEntry(frame, entry)
     end
 
     -- Get cached glow settings for this entry's category (avoids repeated DB reads)
-    local cachedGlow = entry.category and GetCachedGlowSettings(entry.category) or nil
+    local glowKind = entry.displayType == "expiring" and "expiring" or "missing"
+    local cachedGlow = entry.category and GetCachedGlowSettings(entry.category, glowKind) or nil
 
     -- Apply dynamic icon overrides (e.g. rogue poison expiring soonest, role-based shields)
     if entry.dynamicIcon then
@@ -2096,7 +2275,12 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
         -- Not sub_icons: hide any leftover sub-icon buttons
         BR.SecureButtons.UpdateConsumableButtons(frame, nil)
         if displayMode == "expanded" and items and #items > 1 then
-            local cachedGlow = entry.category and GetCachedGlowSettings(entry.category) or nil
+            local cachedGlow = entry.category
+                    and GetCachedGlowSettings(
+                        entry.category,
+                        entry.displayType == "expiring" and "expiring" or "missing"
+                    )
+                or nil
             local expandedSize = frame:GetWidth()
             local cFontSize = BR.SecureButtons.ComputeConsumableFontSize(expandedSize)
             for i = 2, #items do
@@ -2266,7 +2450,7 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
     BR.SecureButtons.ReapplyPetSpecIconIfHovered(frame)
 
     -- Show extra frames for additional actions
-    local cachedGlow = entry.category and GetCachedGlowSettings(entry.category) or nil
+    local cachedGlow = entry.category and GetCachedGlowSettings(entry.category, "missing") or nil
     local extraIndex = 0
     for i, action in ipairs(entry.petActions) do
         local showAsExtra = (petMode == "expanded" and i >= 2)
@@ -2385,7 +2569,8 @@ UpdateDisplay = function()
     end
 
     -- Clear per-cycle caches (before early exits — fallback paths also use these)
-    wipe(glowSettingsCache)
+    wipe(expiringGlowCache)
+    wipe(missingGlowCache)
     for key in pairs(BUFF_KEY_TO_CATEGORY) do
         local frame = buffFrames[key]
         if frame then
@@ -2470,12 +2655,21 @@ UpdateDisplay = function()
                     if frame then
                         local shown = RenderVisibleEntry(frame, entry)
                         if shown then
-                            frames[#frames + 1] = frame
+                            if IsIconDetached(entry.key) then
+                                PositionDetachedIcon(entry.key, frame)
+                            else
+                                frames[#frames + 1] = frame
+                            end
                             reusableVisibleKeys[entry.key] = true
                         end
                         -- Category-specific post-processing
                         if category == "consumable" then
-                            ApplyConsumableDisplayMode(frame, entry, frames, frame:GetParent())
+                            if IsIconDetached(entry.key) then
+                                wipe(reusableDetachedSink)
+                                ApplyConsumableDisplayMode(frame, entry, reusableDetachedSink, frame:GetParent())
+                            else
+                                ApplyConsumableDisplayMode(frame, entry, frames, frame:GetParent())
+                            end
                         elseif category == "pet" then
                             ApplyPetDisplayMode(frame, entry, frames)
                         end
@@ -2489,12 +2683,21 @@ UpdateDisplay = function()
                     if frame then
                         local shown = RenderVisibleEntry(frame, entry)
                         if shown then
-                            reusableMainBuffs[#reusableMainBuffs + 1] = frame
+                            if IsIconDetached(entry.key) then
+                                PositionDetachedIcon(entry.key, frame)
+                            else
+                                reusableMainBuffs[#reusableMainBuffs + 1] = frame
+                            end
                             reusableVisibleKeys[entry.key] = true
                         end
                         -- Category-specific post-processing
                         if category == "consumable" then
-                            ApplyConsumableDisplayMode(frame, entry, reusableMainBuffs, mainFrame)
+                            if IsIconDetached(entry.key) then
+                                wipe(reusableDetachedSink)
+                                ApplyConsumableDisplayMode(frame, entry, reusableDetachedSink, frame:GetParent())
+                            else
+                                ApplyConsumableDisplayMode(frame, entry, reusableMainBuffs, frame:GetParent())
+                            end
                         elseif category == "pet" then
                             ApplyPetDisplayMode(frame, entry, reusableMainBuffs)
                         end
@@ -2517,6 +2720,10 @@ UpdateDisplay = function()
                         extra:Hide()
                         UpdatePetLabels(extra, nil)
                     end
+                end
+                -- Hide detached container when its icon is no longer visible
+                if detachedFrames[key] then
+                    detachedFrames[key]:Hide()
                 end
             end
         end
@@ -2648,9 +2855,17 @@ local function InitializeFrames()
         categoryFrames[category] = CreateCategoryFrame(category)
     end
 
+    -- Pre-create detached container frames for icons detached in saved variables
+    if db.detachedIcons then
+        for key in pairs(db.detachedIcons) do
+            detachedFrames[key] = CreateDetachedFrame(key)
+        end
+    end
+
     -- Export frame references for split modules (Movers, SecureButtons)
     BR.Display.mainFrame = mainFrame
     BR.Display.categoryFrames = categoryFrames
+    BR.Display.detachedFrames = detachedFrames
     BR.Display.frames = buffFrames
 
     -- Create mover frames (shown when unlocked for drag positioning)
@@ -2690,18 +2905,26 @@ local function CreateCustomBuffFrameRuntime(customBuff)
     ResetLayoutSignatures()
 end
 
--- Reparent all buff frames to appropriate parent based on split status
+-- Reparent all buff frames to appropriate parent based on split/detached status
 ReparentBuffFrames = function()
     for _, frame in pairs(buffFrames) do
+        local key = frame.key
         local category = frame.buffCategory
-        if category and IsCategorySplit(category) and categoryFrames[category] then
+        if IsIconDetached(key) then
+            -- Detached: parent to its own container frame
+            if not detachedFrames[key] then
+                detachedFrames[key] = CreateDetachedFrame(key)
+            end
+            frame:SetParent(detachedFrames[key])
+            frame:ClearAllPoints()
+        elseif category and IsCategorySplit(category) and categoryFrames[category] then
             -- This category is split - parent to its own frame
             frame:SetParent(categoryFrames[category])
-            frame:ClearAllPoints() -- Clear stale anchors after reparenting
+            frame:ClearAllPoints()
         else
             -- This category is in main frame
             frame:SetParent(mainFrame)
-            frame:ClearAllPoints() -- Clear stale anchors after reparenting
+            frame:ClearAllPoints()
         end
         if frame.extraFrames then
             for _, extra in ipairs(frame.extraFrames) do
@@ -2709,6 +2932,44 @@ ReparentBuffFrames = function()
             end
         end
     end
+end
+
+---Detach an individual icon from its container into its own frame
+---@param key string Buff key
+local function DetachIcon(key)
+    local db = BR.profile
+    if not db.detachedIcons then
+        db.detachedIcons = {}
+    end
+    -- Initialize with position snapped from the icon's current screen location
+    local frame = buffFrames[key]
+    local x, y = 0, 0
+    if frame and frame:IsShown() then
+        local cx, cy = frame:GetCenter()
+        local px, py = UIParent:GetCenter()
+        x = floor(cx - px + 0.5)
+        y = floor(cy - py + 0.5)
+    end
+    db.detachedIcons[key] = { position = { x = x, y = y } }
+    -- FramesReparent callback handles ResetLayoutSignatures + InvalidateSortedCategories
+    -- + ReparentBuffFrames + UpdateVisuals
+    BR.CallbackRegistry:TriggerEvent("FramesReparent")
+end
+
+---Reattach a detached icon back to its category/main container
+---@param key string Buff key
+local function ReattachIcon(key)
+    local db = BR.profile
+    if db.detachedIcons then
+        db.detachedIcons[key] = nil
+        if not next(db.detachedIcons) then
+            db.detachedIcons = nil
+        end
+    end
+    if detachedFrames[key] then
+        detachedFrames[key]:Hide()
+    end
+    BR.CallbackRegistry:TriggerEvent("FramesReparent")
 end
 
 ---Remove a custom buff frame (called at runtime when deleting buffs)
@@ -2748,6 +3009,14 @@ local function RemoveCustomBuffFrame(key)
         frame:Hide()
         frame:SetParent(nil)
         buffFrames[key] = nil
+    end
+    -- Clean up detached state
+    local db = BR.profile
+    if db.detachedIcons then
+        db.detachedIcons[key] = nil
+    end
+    if detachedFrames[key] then
+        detachedFrames[key]:Hide()
     end
     -- Remove from BUFF_TABLES.custom array
     for i = #CustomBuffs, 1, -1 do
@@ -2891,9 +3160,13 @@ end
 CallbackRegistry:RegisterCallback("VisualsRefresh", function()
     ResolveFontPath()
     ResetLayoutSignatures()
-    wipe(glowSettingsCache)
+    wipe(expiringGlowCache)
+    wipe(missingGlowCache)
     UpdateVisuals()
     for _, mover in pairs(BR.Movers.GetMoverFrames()) do
+        mover:UpdateSize()
+    end
+    for _, mover in pairs(BR.Movers.GetDetachedMoverFrames()) do
         mover:UpdateSize()
     end
 end)
@@ -2947,6 +3220,9 @@ BR.Helpers = {
     IsBuffEnabled = IsBuffEnabled,
     GetCategorySettings = GetCategorySettings,
     IsCategorySplit = IsCategorySplit,
+    IsIconDetached = IsIconDetached,
+    DetachIcon = DetachIcon,
+    ReattachIcon = ReattachIcon,
     GetBuffTexture = GetBuffTexture,
     DeepCopy = function(...)
         return BR.ImportExport.DeepCopy(...)
@@ -3172,7 +3448,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 33
+        local DB_VERSION = 35
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -3840,6 +4116,29 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                 db.hidePetWhileMounted = nil
                 if db.defaults and db.defaults.textSize == 12 then
                     db.defaults.textSize = nil
+                end
+            end,
+            [34] = function()
+                -- Split glow: existing showExpirationGlow controlled both missing + expiring glows.
+                -- Copy its value to the new showMissingGlow so users keep their current behavior.
+                if db.defaults and db.defaults.showExpirationGlow ~= nil then
+                    db.defaults.showMissingGlow = db.defaults.showExpirationGlow
+                end
+                if db.categorySettings then
+                    for _, catSettings in pairs(db.categorySettings) do
+                        if catSettings.showExpirationGlow ~= nil then
+                            catSettings.showMissingGlow = catSettings.showExpirationGlow
+                        end
+                    end
+                end
+            end,
+            [35] = function()
+                -- Change expiring glow default from Pixel (1) to AutoCast (2).
+                -- Migrate users who had the old default so they get the new one.
+                if db.defaults then
+                    if db.defaults.glowType == nil or db.defaults.glowType == 1 then
+                        db.defaults.glowType = 2
+                    end
                 end
             end,
         }

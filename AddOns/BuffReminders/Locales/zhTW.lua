@@ -135,6 +135,7 @@ L["Mover.BuffAnchor"] = "增益位置"
 L["Mover.DragTooltip"] = "拖曳以重新定位\n點擊以切換座標編輯器"
 L["Mover.MainEmpty"] = "主要位置 (空)"
 L["Mover.MainAll"] = "主要位置 (全部)"
+L["Mover.Detached"] = "已分離"
 
 -- ============================================================================
 -- DISPLAY
@@ -171,8 +172,12 @@ L["Options.Font"] = "字體"
 -- ============================================================================
 L["Options.GlowReminderIcons"] = "提醒圖示發光"
 L["Options.GlowReminderIcons.Title"] = "提醒圖示發光"
-L["Options.GlowReminderIcons.Desc"] =
-    "為所有可見的提醒圖示加上發光效果，包含缺失和即將過期的增益。"
+L["Options.GlowReminderIcons.Desc"] =   "為提醒圖示加上光暈效果。可分別自訂「即將到期」與「缺少」的光暈樣式。"
+L["Options.GlowKind.Expiring"] =        "即將到期"
+L["Options.GlowKind.Missing"] =         "缺少"
+L["Options.GlowSettings.Expiring"] =    "光暈設定 — 即將到期"
+L["Options.GlowSettings.Missing"] =     "光暈設定 — 缺少"
+L["Options.Glow.Enabled"] =             "啟用"
 L["Options.Threshold"] = "閾值"
 L["Options.GlowMissingPets"] = "缺失寵物發光"
 L["Options.CustomGlowStyle"] = "自訂發光樣式"
@@ -182,7 +187,6 @@ L["Options.UseCustomColor"] = "使用自訂顏色"
 L["Options.UseCustomColor.Desc"] =
     "啟用時，觸發發光效果會降低飽和度並重新著色。\n這看起來會比預設的觸發發光效果不那麼鮮豔。"
 L["Options.ExpirationReminder"] = "過期提醒"
-L["Options.GlowSettings"] = "發光設定"
 
 -- Glow params
 L["Options.Glow.Type"] = "類型："
@@ -208,6 +212,8 @@ L["Options.ReadyCheckOnly"] = "僅在確認準備時顯示"
 L["Options.ReadyCheckOnly.Desc"] = "僅在確認準備開始後的 15 秒內顯示此類別的增益"
 L["Options.Visibility"] = "可見度"
 L["Options.PerCategoryCustomization"] = "各類別自訂"
+L["Options.DetachIcon"] =      "獨立顯示"
+L["Options.DetachIcon.Desc"] = "將此圖示移至可獨立定位的框架"
 
 -- ============================================================================
 -- OPTIONS: HEALTHSTONE

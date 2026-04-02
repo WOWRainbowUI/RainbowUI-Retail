@@ -621,8 +621,9 @@ local function HideSecureFramesForCatKey(catKey)
         return
     end
     for _, frame in pairs(BR.Display.frames) do
+        -- Match by effective category OR by individual buff key (for detached icons)
         local effectiveCat = GetEffectiveCategory(frame)
-        if effectiveCat == catKey then
+        if effectiveCat == catKey or frame.key == catKey then
             if frame.actionButtons then
                 for _, btn in ipairs(frame.actionButtons) do
                     if btn._br_driver_active then

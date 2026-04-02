@@ -157,7 +157,7 @@ local CategorySettingKeys = {
     -- Toggles
     useCustomAppearance = "VisualsRefresh",
     useCustomGlow = "VisualsRefresh",
-    -- Per-category glow style overrides
+    -- Per-category glow style overrides (expiring)
     glowType = "VisualsRefresh",
     glowColor = "VisualsRefresh",
     glowSize = "VisualsRefresh",
@@ -173,6 +173,23 @@ local CategorySettingKeys = {
     glowProcUseCustomColor = "VisualsRefresh",
     glowXOffset = "VisualsRefresh",
     glowYOffset = "VisualsRefresh",
+    -- Per-category missing glow
+    showMissingGlow = "DisplayRefresh",
+    missingGlowType = "VisualsRefresh",
+    missingGlowColor = "VisualsRefresh",
+    missingGlowSize = "VisualsRefresh",
+    missingGlowPixelLines = "VisualsRefresh",
+    missingGlowPixelFrequency = "VisualsRefresh",
+    missingGlowPixelLength = "VisualsRefresh",
+    missingGlowAutocastParticles = "VisualsRefresh",
+    missingGlowAutocastFrequency = "VisualsRefresh",
+    missingGlowAutocastScale = "VisualsRefresh",
+    missingGlowBorderFrequency = "VisualsRefresh",
+    missingGlowProcDuration = "VisualsRefresh",
+    missingGlowProcStartAnim = "VisualsRefresh",
+    missingGlowProcUseCustomColor = "VisualsRefresh",
+    missingGlowXOffset = "VisualsRefresh",
+    missingGlowYOffset = "VisualsRefresh",
     split = "FramesReparent",
     position = false, -- No auto-refresh, saved directly by movers
     clickable = false, -- No auto-refresh, handled manually via UpdateClickOverlays
@@ -201,7 +218,7 @@ local DefaultSettingKeys = {
     glowType = "VisualsRefresh",
     glowColor = "VisualsRefresh",
     glowSize = "VisualsRefresh",
-    -- Advanced glow params (global-only)
+    -- Advanced glow params (global-only, expiring)
     glowPixelLines = "VisualsRefresh",
     glowPixelFrequency = "VisualsRefresh",
     glowPixelLength = "VisualsRefresh",
@@ -214,6 +231,23 @@ local DefaultSettingKeys = {
     glowProcUseCustomColor = "VisualsRefresh",
     glowXOffset = "VisualsRefresh",
     glowYOffset = "VisualsRefresh",
+    -- Missing glow (global-only)
+    showMissingGlow = "DisplayRefresh",
+    missingGlowType = "VisualsRefresh",
+    missingGlowColor = "VisualsRefresh",
+    missingGlowSize = "VisualsRefresh",
+    missingGlowPixelLines = "VisualsRefresh",
+    missingGlowPixelFrequency = "VisualsRefresh",
+    missingGlowPixelLength = "VisualsRefresh",
+    missingGlowAutocastParticles = "VisualsRefresh",
+    missingGlowAutocastFrequency = "VisualsRefresh",
+    missingGlowAutocastScale = "VisualsRefresh",
+    missingGlowBorderFrequency = "VisualsRefresh",
+    missingGlowProcDuration = "VisualsRefresh",
+    missingGlowProcStartAnim = "VisualsRefresh",
+    missingGlowProcUseCustomColor = "VisualsRefresh",
+    missingGlowXOffset = "VisualsRefresh",
+    missingGlowYOffset = "VisualsRefresh",
     showConsumablesWithoutItems = "DisplayRefresh",
     delveFoodOnly = "DisplayRefresh",
     freeConsumableMode = "DisplayRefresh",
@@ -252,6 +286,7 @@ local DynamicRoots = {
     categoryVisibility = "DisplayRefresh",
     splitCategories = "FramesReparent",
     readyCheckOnlyOverrides = "DisplayRefresh",
+    detachedIcons = "FramesReparent",
 }
 
 ---Check if a config path is valid
@@ -537,6 +572,7 @@ local AppearanceKeys = {
     borderSize = true,
     growDirection = true,
     showExpirationGlow = true,
+    showMissingGlow = true,
     expirationThreshold = true,
 }
 
@@ -557,6 +593,21 @@ local GlowKeys = {
     glowProcUseCustomColor = true,
     glowXOffset = true,
     glowYOffset = true,
+    missingGlowType = true,
+    missingGlowColor = true,
+    missingGlowSize = true,
+    missingGlowPixelLines = true,
+    missingGlowPixelFrequency = true,
+    missingGlowPixelLength = true,
+    missingGlowAutocastParticles = true,
+    missingGlowAutocastFrequency = true,
+    missingGlowAutocastScale = true,
+    missingGlowBorderFrequency = true,
+    missingGlowProcDuration = true,
+    missingGlowProcStartAnim = true,
+    missingGlowProcUseCustomColor = true,
+    missingGlowXOffset = true,
+    missingGlowYOffset = true,
 }
 
 ---Get a category setting with inheritance from defaults
