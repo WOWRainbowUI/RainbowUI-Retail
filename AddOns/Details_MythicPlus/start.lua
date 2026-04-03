@@ -89,7 +89,7 @@ function addon.GetVersionString()
 end
 
 function addon.GetFullVersionString()
-    return Details.GetVersionString() .. " | " .. addon.GetVersionString()
+    return (Details and Details.GetVersionString() or "") .. " | " .. addon.GetVersionString()
 end
 
 function addon.OnInit(self, profile) --PLAYER_LOGIN
@@ -99,19 +99,10 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
     end
     self:SetLogoutLogTable(profile.logout_logs)
 
-    local detailsCoreVersion = Details:GetCoreVersion()
-    if (detailsCoreVersion < 164) then
-        print("Details! Mythic+: Update Details!, NOW!.")
-        print("Details! Mythic+: Update Details!, NOW!.")
-    end
-
     addon.data = {}
     addon.recentLikes = {}
     addon.LikesAmountFontString = {}
     addon.temporaryTimers = {}
-
-    local detailsEventListener = Details:CreateEventListener()
-    addon.detailsEventListener = detailsEventListener
 
     function private.log(...)
         local str = ""
@@ -130,14 +121,25 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
     end
 
     --register details! events
-    detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_START")
-    detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_END")
-    detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_CONTINUE")
-    detailsEventListener:RegisterEvent("COMBAT_MYTHICPLUS_OVERALL_READY")
-    detailsEventListener:RegisterEvent("COMBAT_ENCOUNTER_START")
-    detailsEventListener:RegisterEvent("COMBAT_ENCOUNTER_END")
-    detailsEventListener:RegisterEvent("COMBAT_PLAYER_ENTER")
-    detailsEventListener:RegisterEvent("COMBAT_PLAYER_LEAVE")
+    if Details then
+        local detailsEventListener = Details:CreateEventListener()
+        addon.detailsEventListener = detailsEventListener
+
+        local detailsCoreVersion = Details:GetCoreVersion()
+        if (detailsCoreVersion < 164) then
+            print("Details! Mythic+: Update Details!, NOW!.")
+            print("Details! Mythic+: Update Details!, NOW!.")
+        end
+
+        detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_START")
+        detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_END")
+        detailsEventListener:RegisterEvent("COMBAT_MYTHICDUNGEON_CONTINUE")
+        detailsEventListener:RegisterEvent("COMBAT_MYTHICPLUS_OVERALL_READY")
+        detailsEventListener:RegisterEvent("COMBAT_ENCOUNTER_START")
+        detailsEventListener:RegisterEvent("COMBAT_ENCOUNTER_END")
+        detailsEventListener:RegisterEvent("COMBAT_PLAYER_ENTER")
+        detailsEventListener:RegisterEvent("COMBAT_PLAYER_LEAVE")
+    end
 
     --initialize enums
     addon.Enum = {
@@ -159,7 +161,9 @@ function addon.OnInit(self, profile) --PLAYER_LOGIN
     addon.Comm.Initialize()
     addon.Comm.Register("L", addon.ProcessLikePlayer)
     addon.RegisterAddonCompartment()
-    Details.SafeRun(addon.RegisterMinimap, "Register Minimap Icon", addon)
+    pcall(function()
+        addon.RegisterMinimap("Register Minimap Icon", addon)
+    end)
 
     -- always show the last run first
     addon.profile.saved_runs_selected_index = 1

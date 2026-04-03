@@ -5,8 +5,7 @@
 ## Notes-ruRU: Добавляет в Details! гибкое расширение для М+ подземелий
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
-## RequiredDeps: Details
-## Version: #DMP.20260125.018
+## Version: #DMP.20260402.019
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL
@@ -23,6 +22,8 @@ locales\zhTW.lua
 
 start.lua
 templates.lua
+dummytails.lua
+encounterjournal.lua
 frames.lua
 parser.lua
 options.lua
@@ -32,6 +33,7 @@ scoreboard_layout.lua
 scoreboard_runselectordropdown.lua
 activityframe.lua
 events.lua
+segments.lua
 functions.lua
 slash.lua
 rundata.lua

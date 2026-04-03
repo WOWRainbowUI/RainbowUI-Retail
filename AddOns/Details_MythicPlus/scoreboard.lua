@@ -197,7 +197,9 @@ function addon.OpenScoreBoardAtEnd()
     if (not addon.profile.has_last_run) then
         -- workaround for the event not firing if reloaded in-between
         -- this change should be removed when COMBAT_MYTHICPLUS_OVERALL_READY is being triggered in reloaded runs
-        addon.OnMythicPlusOverallReady()
+        if not detailsFramework.IsAddonApocalypseWow() then
+            addon.OnMythicPlusOverallReady()
+        end
     end
     if (not addon.profile.has_last_run) then
         private.log("No last run found while trying to open the scoreboard.")
@@ -230,7 +232,7 @@ local SaveLoot = function(itemLink, unitName)
 
     local effectiveILvl, _, baseItemLevel = C_Item.GetDetailedItemLevelInfo(itemLink)
     local averageItemLevel = addon.GetRunAverageItemLevel(lastRun)
-    if (effectiveILvl < averageItemLevel * 0.75 or baseItemLevel < 6) then
+    if (effectiveILvl < averageItemLevel * 0.69 or baseItemLevel < 6) then
         return
     end
 
@@ -296,7 +298,13 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
 
     readyFrame:SetBackdropColor(.1, .1, .1, 0)
     readyFrame:SetBackdropBorderColor(.1, .1, .1, 0)
-    detailsFramework:AddRoundedCornersToFrame(readyFrame, Details.PlayerBreakdown.RoundedCornerPreset)
+
+    local roundedCornerPreset = {
+        roundness = 12,
+        color = {.1, .1, .1, 0.834},
+    }
+
+    detailsFramework:AddRoundedCornersToFrame(readyFrame, roundedCornerPreset)
 
     local backgroundDungeonTexture = readyFrame:CreateTexture("$parentDungeonBackdropTexture", "background")
     backgroundDungeonTexture:SetPoint("topleft", readyFrame, "topleft", 3, -3)
@@ -320,12 +328,12 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
     addon.CreateRunSelectorDropdown(readyFrame)
 
     local normalTexture = configButton:CreateTexture(nil, "overlay")
-    normalTexture:SetTexture([[Interface\AddOns\Details\images\end_of_mplus.png]], nil, nil, "TRILINEAR")
+    normalTexture:SetTexture([[Interface\AddOns\Details_MythicPlus\Assets\Textures\end_of_mplus.png]], nil, nil, "TRILINEAR")
     normalTexture:SetTexCoord(79/512, 113/512, 0/512, 36/512)
     normalTexture:SetDesaturated(true)
 
     local pushedTexture = configButton:CreateTexture(nil, "overlay")
-    pushedTexture:SetTexture([[Interface\AddOns\Details\images\end_of_mplus.png]], nil, nil, "TRILINEAR")
+    pushedTexture:SetTexture([[Interface\AddOns\Details_MythicPlus\Assets\Textures\end_of_mplus.png]], nil, nil, "TRILINEAR")
     pushedTexture:SetTexCoord(114/512, 148/512, 0/512, 36/512)
     pushedTexture:SetDesaturated(true)
 
@@ -430,7 +438,7 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
     do --mythic+ run data
         --clock texture and icon to show the wasted time (time out of combat)
         local outOfCombatIcon = readyFrame:CreateTexture("$parentOutOfCombatIcon", "artwork", nil, 2)
-        outOfCombatIcon:SetTexture([[Interface\AddOns\Details\images\end_of_mplus.png]], nil, nil, "TRILINEAR")
+        outOfCombatIcon:SetTexture([[Interface\AddOns\Details_MythicPlus\Assets\Textures\end_of_mplus.png]], nil, nil, "TRILINEAR")
         outOfCombatIcon:SetTexCoord(172/512, 235/512, 84/512, 147/512)
         outOfCombatIcon:SetVertexColor(detailsFramework:ParseColors("silver"))
         outOfCombatIcon:SetSize(24, 24)
@@ -446,7 +454,7 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
         readyFrame.OutOfCombatText = outOfCombatText
 
         local itemLevelIcon = readyFrame:CreateTexture("$parentItemLevelIcon", "artwork", nil, 2)
-        itemLevelIcon:SetTexture([[Interface\AddOns\Details\images\end_of_mplus.png]], nil, nil, "TRILINEAR")
+        itemLevelIcon:SetTexture([[Interface\AddOns\Details_MythicPlus\Assets\Textures\end_of_mplus.png]], nil, nil, "TRILINEAR")
         itemLevelIcon:SetPoint("left", outOfCombatIcon, "right", 260, 0)
         do
             local left, right, top, bottom = 79, 131, 229, 271
@@ -501,6 +509,8 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
 
     return readyFrame
 end
+
+mythicPlusBreakdown.partyCache = {"player", "party1", "party2", "party3", "party4"}
 
 --this function get the overall mythic+ segment created after a mythic+ run has finished
 --then it fill the lines with data from the overall segment
@@ -561,9 +571,9 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
     do --code for filling the 5 player lines
         for playerName, playerInfo in pairs(runPlayerData) do
             local unitId
-            for i = 1, #Details.PartyUnits do
-                if (Details:GetFullName(Details.PartyUnits[i]) == playerName) then
-                    unitId = Details.PartyUnits[i]
+            for i = 1, #mythicPlusBreakdown.partyCache do
+                if (private.Details:GetFullName(mythicPlusBreakdown.partyCache[i]) == playerName) then
+                    unitId = mythicPlusBreakdown.partyCache[i]
                 end
             end
             unitId = unitId or playerName
@@ -614,18 +624,10 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                 thisPlayerData.role = "DAMAGER"
             end
 
-            local playerKeystoneInfo = openRaidLib and openRaidLib.GetKeystoneInfo(unitId)
-            if (playerKeystoneInfo) then
-                thisPlayerData.keystoneLevel = playerKeystoneInfo.level or thisPlayerData.keystoneLevel --default zero
-                thisPlayerData.keystoneMapId = playerKeystoneInfo.challengeMapID or thisPlayerData.keystoneMapId
-
-                ---@type details_instanceinfo
-                local instanceInfo = Details:GetInstanceInfo(playerKeystoneInfo.mapID)
-
-                if (instanceInfo) then
-                    thisPlayerData.keystoneIcon = instanceInfo.iconLore
-                end
-            end
+            local kInfo = private.GetKeystoneInfo(playerName)
+            thisPlayerData.keystoneLevel = kInfo.keystoneLevel
+            thisPlayerData.keystoneMapId = kInfo.keystoneMapId
+            thisPlayerData.keystoneIcon = kInfo.keystoneIcon
 
             --to render the event for deaths, it is required 'playerInfo' into the playerInfo.deathEvents[x].arguments.'playerData' field
             --as the scoreboard cannot change the database (in this case assigning thisPlayerData to playerInfo.deathEvents[x].arguments.'playerData')
@@ -752,7 +754,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
     end
 
     ---@type details_instanceinfo
-    local instanceInfo = runData and Details:GetInstanceInfo(runData.mapId)
+    local instanceInfo = runData and private.Details:GetInstanceInfo(runData.mapId)
     if (instanceInfo) then
         mainFrame.DungeonBackdropTexture:SetTexture(instanceInfo.iconLore)
     else
@@ -762,6 +764,22 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
     mainFrame.DungeonBackdropTexture:SetDesaturation(backdropDungeonTextureDesaturation)
     mainFrame.DungeonBackdropTexture:SetTexCoord(35/512, 291/512, 49/512, 289/512)
 
+    --print("runData.mapId", runData.mapId)
+
+    local wallpapaers = {
+        [402] = true, --algeth'ar academy
+        --[499] = true, --skyreach
+        [556] = true, --pit of saron
+        [557] = true, --windrunner spire
+        [558] = true, --magister's terrace
+        [559] = true, --nexus-point xenas
+        [560] = true, --maisara caverns
+    }
+
+    if wallpapaers[runData.mapId] then
+        mainFrame.DungeonBackdropTexture:SetTexture("Interface\\AddOns\\Details_MythicPlus\\Assets\\Backgrounds\\" .. runData.mapId .. ".jpg")
+        mainFrame.DungeonBackdropTexture:SetTexCoord(0, 1, 0, 1)
+    end
     return true
 end
 

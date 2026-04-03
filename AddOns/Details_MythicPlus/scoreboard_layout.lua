@@ -1,5 +1,5 @@
 local addonName, private = ...
-local Details, DetailsFramework = Details, DetailsFramework
+local DetailsFramework = DetailsFramework
 
 ---@cast DetailsFramework detailsframework
 
@@ -51,8 +51,8 @@ local function DoPlayerTooltip(playerData, owner, renderContent, rightHeaderColu
     GameCooltip:SetOption("RightPadding", 2)
     GameCooltip:SetOption("LinePadding", -2)
     GameCooltip:SetOption("LineYOffset", 0)
-    GameCooltip:SetOption("TextSize", Details.tooltip.fontsize)
-    GameCooltip:SetOption("TextFont",  Details.tooltip.fontface)
+    GameCooltip:SetOption("TextSize", private.Details.tooltip.fontsize)
+    GameCooltip:SetOption("TextFont",  private.Details.tooltip.fontface)
     GameCooltip:SetOption("FixedWidth", false)
     GameCooltip:Show()
 end
@@ -79,7 +79,7 @@ local showCrowdControlTooltip = function(self, playerData)
             end
 
             GameCooltip:AddLine(spellInfo.name or spellName, ccText)
-            Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
+            private.Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
 
             -- set icon width to 0.00001 as workaround to ensure row height is consistent
             GameCooltip:AddIcon(spellInfo and spellInfo.iconID or 134400, 1, 1, spellInfo and 18 or 0.00001, 18, 0.1, 0.9, 0.1, 0.9)
@@ -92,12 +92,12 @@ local function OpenLineBreakdown(playerData, mainAttribute, subAttribute)
         return
     end
 
-    local combat = Details:GetCombatByUID(playerData.combatUid)
+    local combat = private.Details:GetCombatByUID(playerData.combatUid)
     if (not combat) then
         return
     end
 
-    Details:OpenSpecificBreakdownWindow(combat, playerData.name, mainAttribute, subAttribute)
+    private.Details:OpenSpecificBreakdownWindow(combat, playerData.name, mainAttribute, subAttribute)
 end
 
 local function calculateHighest(keyName, ignoreValue)
@@ -291,7 +291,7 @@ do -- player portrait
     local column = addon.ScoreboardColumn:Create("player-portrait", "", 60, function (line)
         if private.buildVersion >= private.buildVersionCutOff then
             local lineHeight = line:GetHeight()
-            local playerPortrait = Details:CreatePlayerPortrait(line, "$parentPortrait")
+            local playerPortrait = private.Details:CreatePlayerPortrait(line, "$parentPortrait")
             ---@cast playerPortrait playerportrait
             playerPortrait.Portrait:SetSize(lineHeight-2, lineHeight-2)
             playerPortrait:SetSize(lineHeight-2, lineHeight-2)
@@ -328,8 +328,8 @@ do -- player portrait
                 frame.Portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
                 frame.Portrait:SetTexCoord(unpack(CLASS_ICON_TCOORDS[class]))
             else
-                if Details then
-                    local texturePath, left, right, top, bottom = Details:GetClassIcon(class)
+                if private.Details then
+                    local texturePath, left, right, top, bottom = private.Details:GetClassIcon(class)
                     frame.Portrait:SetTexture(texturePath)
                     frame.Portrait:SetTexCoord(left, right, top, bottom)
                 else
@@ -535,8 +535,8 @@ do -- keystone
             GameCooltip:Preset(2)
             GameCooltip:SetOwner(self, "bottom", "top", 0, -4)
             GameCooltip:AddLine(name, DetailsFramework:IntegerToTimer(timeLimit))
-            GameCooltip:SetOption("TextSize", Details.tooltip.fontsize)
-            GameCooltip:SetOption("TextFont",  Details.tooltip.fontface)
+            GameCooltip:SetOption("TextSize", private.Details.tooltip.fontsize)
+            GameCooltip:SetOption("TextFont",  private.Details.tooltip.fontface)
             GameCooltip:SetOption("FixedWidth", false)
             GameCooltip:Show()
         end)
@@ -545,7 +545,7 @@ do -- keystone
         end)
 
         local keystoneDungeonBorderTexture = line:CreateTexture("$parentDungeonIconBorderTexture", "border")
-        keystoneDungeonBorderTexture:SetTexture([[Interface\AddOns\Details\images\end_of_mplus.png]], nil, nil, "TRILINEAR")
+        keystoneDungeonBorderTexture:SetTexture([[Interface\AddOns\Details_MythicPlus\Assets\Textures\end_of_mplus.png]], nil, nil, "TRILINEAR")
         keystoneDungeonBorderTexture:SetTexCoord(441/512, 511/512, 81/512, 151/512)
         keystoneDungeonBorderTexture:SetDrawLayer("border", 0)
         keystoneDungeonBorderTexture:SetSize(keystoneTextureSize+2, keystoneTextureSize+2)
@@ -613,20 +613,27 @@ do -- keystone
             local looperCallback = function(thisPlayerData)
                 local playerName = thisPlayerData.name
                 if (UnitExists(playerName)) then
-                    local unitKeystoneInfo = openRaidLib.GetKeystoneInfo(playerName)
-                    if (unitKeystoneInfo) then
-                        keystoneTexture:SetTexCoord(36/512, 375/512, 50/512, 290/512)
-                        keystoneTexture:SetAlpha(1)
-                        keystoneTexture:SetDesaturated(false)
-                        keystoneTexture:SetTexture(playerData.keystoneIcon)
-                        keystoneLevel:SetAlpha(1)
-                        keystoneLevelBackground:SetAlpha(1)
-                        keystoneLevel:SetText(playerData.keystoneLevel)
+                    local kInfo = private.GetKeystoneInfo(playerName)
+                    if kInfo.keystoneLevel > 0 then
+                        local unitKeystoneInfo = {
+                            keystoneLevel = kInfo.keystoneLevel,
+                            keystoneIcon = kInfo.keystoneIcon
+                        }
 
-                        --log (debug)
-                        if (not didPrintLog) then
-                            private.log("Keystone Update Okay, Name:", playerName or "ERROR", "keystoneLevel:", playerData.keystoneLevel or "ERROR", "keystoneIcon:", playerData.keystoneIcon or "ERROR")
-                            didPrintLog = true
+                        if (unitKeystoneInfo) then
+                            keystoneTexture:SetTexCoord(36/512, 375/512, 50/512, 290/512)
+                            keystoneTexture:SetAlpha(1)
+                            keystoneTexture:SetDesaturated(false)
+                            keystoneTexture:SetTexture(playerData.keystoneIcon)
+                            keystoneLevel:SetAlpha(1)
+                            keystoneLevelBackground:SetAlpha(1)
+                            keystoneLevel:SetText(playerData.keystoneLevel)
+
+                            --log (debug)
+                            if (not didPrintLog) then
+                                private.log("Keystone Update Okay, Name:", playerName or "ERROR", "keystoneLevel:", playerData.keystoneLevel or "ERROR", "keystoneIcon:", playerData.keystoneIcon or "ERROR")
+                                didPrintLog = true
+                            end
                         end
                     end
                 end
@@ -751,23 +758,23 @@ do -- Damage taken
                     local amount = spellData.amount
                     local sourceName = spellData.damagerName
 
-                    local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+                    local spellName, _, spellIcon = private.Details.GetSpellInfo(spellId)
                     if (spellName and spellIcon) then
-                        local spellAmount = Details:Format(amount)
+                        local spellAmount = private.Details:Format(amount)
                         GameCooltip:AddLine(spellName .. " (" .. sourceName .. ")", spellAmount)
                         GameCooltip:AddIcon(spellIcon, 1, 1, 18, 18, 0.1, 0.9, 0.1, 0.9)
-                        Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
+                        private.Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
                     end
                 end
 
-                if (Details:GetCombatByUID(playerData.combatUid)) then
+                if (private.Details:GetCombatByUID(playerData.combatUid)) then
                     GameCooltip:AddLine("")
                     GameCooltip:AddLine(L["SCOREBOARD_TOOLTIP_OPEN_BREAKDOWN"], nil, nil, 1, 1, 1, 1, nil, nil, nil, nil)
                 end
             end, L["SCOREBOARD_TOOLTIP_DAMAGE_TAKEN_HEADER"])
         end
-        frame.OnClick = function () OpenLineBreakdown(playerData, DETAILS_ATTRIBUTE_DAMAGE, DETAILS_SUBATTRIBUTE_DAMAGETAKEN) end
-        frame:SetText(Details:Format(math.floor(playerData.damageTaken)))
+        frame.OnClick = function () OpenLineBreakdown(playerData, DETAILS_ATTRIBUTE_DAMAGE or 1, DETAILS_SUBATTRIBUTE_DAMAGETAKEN or 3) end --this will probably error
+        frame:SetText(private.Details:Format(math.floor(playerData.damageTaken)))
 
         DetailsFramework:SetFontSize(frame.button.text, addon.profile.font.row_size)
         DetailsFramework:SetFontOutline(frame.button.text, addon.profile.font.regular_outline)
@@ -811,23 +818,23 @@ do -- DPS
                     local spellId = spellData[1]
                     local amount = spellData[2]
 
-                    local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+                    local spellName, _, spellIcon = private.Details.GetSpellInfo(spellId)
                     if (spellName and spellIcon) then
-                        local spellAmount = Details:Format(amount)
+                        local spellAmount = private.Details:Format(amount)
                         GameCooltip:AddLine(spellName, spellAmount)
                         GameCooltip:AddIcon(spellIcon, 1, 1, 18, 18, 0.1, 0.9, 0.1, 0.9)
-                        Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
+                        private.Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
                     end
                 end
 
-                if (Details:GetCombatByUID(playerData.combatUid)) then
+                if (private.Details:GetCombatByUID(playerData.combatUid)) then
                     GameCooltip:AddLine("")
                     GameCooltip:AddLine(L["SCOREBOARD_TOOLTIP_OPEN_BREAKDOWN"], nil, nil, 1, 1, 1, 1, nil, nil, nil, nil)
                 end
             end, L["SCOREBOARD_TOOLTIP_DAMAGE_DONE_HEADER"])
         end
-        frame.OnClick = function () OpenLineBreakdown(playerData, DETAILS_ATTRIBUTE_DAMAGE, DETAILS_SUBATTRIBUTE_DPS) end
-        frame:SetText(Details:Format(math.floor(playerData.dps)))
+        frame.OnClick = function () OpenLineBreakdown(playerData, DETAILS_ATTRIBUTE_DAMAGE or 1, DETAILS_SUBATTRIBUTE_DPS or 2) end --this will probably error
+        frame:SetText(private.Details:Format(math.floor(playerData.dps)))
 
         DetailsFramework:SetFontSize(frame.button.text, addon.profile.font.row_size)
         DetailsFramework:SetFontOutline(frame.button.text, addon.profile.font.regular_outline)
@@ -871,23 +878,23 @@ do -- HPS
                     local spellId = spellData[1]
                     local amount = spellData[2]
 
-                    local spellName, _, spellIcon = Details.GetSpellInfo(spellId)
+                    local spellName, _, spellIcon = private.Details.GetSpellInfo(spellId)
                     if (spellName and spellIcon) then
-                        local spellAmount = Details:Format(amount)
+                        local spellAmount = private.Details:Format(amount)
                         GameCooltip:AddLine(spellName, spellAmount)
                         GameCooltip:AddIcon(spellIcon, 1, 1, 18, 18, 0.1, 0.9, 0.1, 0.9)
-                        Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
+                        private.Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
                     end
                 end
 
-                if (Details:GetCombatByUID(playerData.combatUid)) then
+                if (private.Details:GetCombatByUID(playerData.combatUid)) then
                     GameCooltip:AddLine("")
                     GameCooltip:AddLine(L["SCOREBOARD_TOOLTIP_OPEN_BREAKDOWN"], nil, nil, 1, 1, 1, 1, nil, nil, nil, nil)
                 end
             end, L["SCOREBOARD_TOOLTIP_HEALING_DONE_HEADER"])
         end
-        frame.OnClick = function () OpenLineBreakdown(playerData, DETAILS_ATTRIBUTE_HEAL, DETAILS_SUBATTRIBUTE_HPS) end
-        frame:SetText(Details:Format(math.floor(playerData.hps)))
+        frame.OnClick = function () OpenLineBreakdown(playerData, DETAILS_ATTRIBUTE_HEAL or 2, DETAILS_SUBATTRIBUTE_HPS or 2) end --this will probably error
+        frame:SetText(private.Details:Format(math.floor(playerData.hps)))
 
         DetailsFramework:SetFontSize(frame.button.text, addon.profile.font.row_size)
         DetailsFramework:SetFontOutline(frame.button.text, addon.profile.font.regular_outline)
@@ -948,7 +955,7 @@ do -- Interrupts
                     GameCooltip:AddLine(ttLine[1], ttLine[2])
                     -- set icon width to 0.00001 as workaround to ensure row height is consistent
                     GameCooltip:AddIcon(134400, 1, 1, 0.00001, 18, 0.1, 0.9, 0.1, 0.9)
-                    Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
+                    private.Details:AddTooltipBackgroundStatusbar(nil, 100, false, {0.1, 0.1, 0.1, 0.2})
                 end
             end, L["SCOREBOARD_TOOLTIP_INTERRUPTS_HEADER"])
         end
@@ -982,27 +989,29 @@ do -- Dispels
 end
 
 do -- CC casts
-    local column = addon.ScoreboardColumn:Create("cc-casts", L["SCOREBOARD_TITLE_CC_CASTS"], 80, function (line)
-        ---@type scoreboard_button
-        local frame = DetailsFramework:CreateButton(line, function () end, 80, 22, nil, nil, nil, nil, nil, nil, nil, nil, {font = "GameFontNormal", size = 12})
+    if not DetailsFramework.IsAddonApocalypseWow() then
+        local column = addon.ScoreboardColumn:Create("cc-casts", L["SCOREBOARD_TITLE_CC_CASTS"], 80, function (line)
+            ---@type scoreboard_button
+            local frame = DetailsFramework:CreateButton(line, function () end, 80, 22, nil, nil, nil, nil, nil, nil, nil, nil, {font = "GameFontNormal", size = 12})
 
-        frame:SetHook("OnEnter", OnEnterLineBreakdownButton)
-        frame:SetHook("OnLeave", OnLeaveLineBreakdownButton)
-        frame.button.text:ClearAllPoints()
-        frame.button.text:SetPoint("left", frame.button, "left")
-        frame.button.text.originalColor = {frame.button.text:GetTextColor()}
+            frame:SetHook("OnEnter", OnEnterLineBreakdownButton)
+            frame:SetHook("OnLeave", OnLeaveLineBreakdownButton)
+            frame.button.text:ClearAllPoints()
+            frame.button.text:SetPoint("left", frame.button, "left")
+            frame.button.text.originalColor = {frame.button.text:GetTextColor()}
 
-        return frame
-    end)
+            return frame
+        end)
 
-    column:SetOnRender(function (frame, playerData, isBest)
-        frame.OnMouseEnter = function () showCrowdControlTooltip(frame, playerData) end
-        frame:SetText(math.floor(playerData.ccCasts))
-        DetailsFramework:SetFontSize(frame.button.text, addon.profile.font.row_size)
-        DetailsFramework:SetFontOutline(frame.button.text, addon.profile.font.regular_outline)
-        DetailsFramework:SetFontColor(frame.button.text, isBest and addon.profile.font.standout_color or addon.profile.font.regular_color)
-    end)
+        column:SetOnRender(function (frame, playerData, isBest)
+            frame.OnMouseEnter = function () showCrowdControlTooltip(frame, playerData) end
+            frame:SetText(math.floor(playerData.ccCasts))
+            DetailsFramework:SetFontSize(frame.button.text, addon.profile.font.row_size)
+            DetailsFramework:SetFontOutline(frame.button.text, addon.profile.font.regular_outline)
+            DetailsFramework:SetFontColor(frame.button.text, isBest and addon.profile.font.standout_color or addon.profile.font.regular_color)
+        end)
 
-    column:SetCalculateBestLine(calculateHighest("ccCasts", 0))
-    addon.RegisterScoreboardColumn(column)
+        column:SetCalculateBestLine(calculateHighest("ccCasts", 0))
+        addon.RegisterScoreboardColumn(column)
+    end
 end
