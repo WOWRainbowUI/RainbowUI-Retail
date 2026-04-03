@@ -8,6 +8,7 @@ local _, BR = ...
 
 -- Lua stdlib locals
 local floor = math.floor
+local format = string.format
 local tinsert, tconcat = table.insert, table.concat
 
 local L = BR.L
@@ -504,10 +505,8 @@ local function CreateCoordinatePopup()
         if mover then
             local catSettings = GetCategorySettings(catKey)
             local dir = catSettings.growDirection or "CENTER"
-            local moverLabel = "Anchor \194\183 Growth " .. dir
-            if frameName then
-                moverLabel = moverLabel .. " \194\183 > " .. frameName
-            end
+            local moverLabel = frameName and format(L["Mover.AnchorGrowthFrame"], dir, frameName)
+                or format(L["Mover.AnchorGrowth"], dir)
             mover.anchorText:SetText(moverLabel)
         end
         -- Update enabled state of anchor point controls (resolved at call time via popup.*)
@@ -901,7 +900,7 @@ local function CreateMoverFrame(catKey, displayName)
                 coordPopup.pointArrow:SetVertexColor(0.3, 0.3, 0.3, 1)
             end
             -- Update mover label
-            self.anchorText:SetText("Anchor \194\183 Growth " .. dir)
+            self.anchorText:SetText(format(L["Mover.AnchorGrowth"], dir))
         end
         self.isDragging = true
         self:StartMoving()
@@ -1201,12 +1200,12 @@ local function UpdateAnchor()
         if unlocked and not allSplit then
             local mainSettings = GetCategorySettings("main")
             mainMover.label:SetText(GetMainFrameLabel())
-            local mainAnchorLabel = "Anchor \194\183 Growth " .. (mainSettings.growDirection or "CENTER")
+            local mainDir = mainSettings.growDirection or "CENTER"
             local mainCatSettings = db.categorySettings and db.categorySettings["main"]
             local mainAnchorName = mainCatSettings and mainCatSettings.anchorFrame
-            if mainAnchorName and mainAnchorName ~= "" then
-                mainAnchorLabel = mainAnchorLabel .. " \194\183 > " .. mainAnchorName
-            end
+            local mainAnchorLabel = (mainAnchorName and mainAnchorName ~= "")
+                    and format(L["Mover.AnchorGrowthFrame"], mainDir, mainAnchorName)
+                or format(L["Mover.AnchorGrowth"], mainDir)
             mainMover.anchorText:SetText(mainAnchorLabel)
             PositionMoverFrame("main")
             mainMover:Show()
@@ -1222,12 +1221,12 @@ local function UpdateAnchor()
             if unlocked and IsCategorySplit(category) then
                 local catSettings = GetCategorySettings(category)
                 mover.label:SetText(CATEGORY_LABELS[category])
-                local catAnchorLabel = "Anchor \194\183 Growth " .. (catSettings.growDirection or "CENTER")
+                local catDir = catSettings.growDirection or "CENTER"
                 local catDbSettings = db.categorySettings and db.categorySettings[category]
                 local catAnchorName = catDbSettings and catDbSettings.anchorFrame
-                if catAnchorName and catAnchorName ~= "" then
-                    catAnchorLabel = catAnchorLabel .. " \194\183 > " .. catAnchorName
-                end
+                local catAnchorLabel = (catAnchorName and catAnchorName ~= "")
+                        and format(L["Mover.AnchorGrowthFrame"], catDir, catAnchorName)
+                    or format(L["Mover.AnchorGrowth"], catDir)
                 mover.anchorText:SetText(catAnchorLabel)
                 PositionMoverFrame(category)
                 mover:Show()

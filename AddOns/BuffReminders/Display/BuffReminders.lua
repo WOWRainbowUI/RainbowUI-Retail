@@ -7,7 +7,7 @@ local addonName, BR = ...
 ---@class DefaultSettings
 ---@field iconSize number
 ---@field iconWidth? number
----@field textSize? number
+---@field textSize number
 ---@field textOffsetX? number
 ---@field textOffsetY? number
 ---@field iconAlpha number
@@ -330,6 +330,18 @@ local defaults = {
     optionsPanelScale = 1.2, -- base scale (displayed as 100%)
     showLoginMessages = true,
 
+    -- DK runeforge preferences: [specId] = { mainhand, dw_mainhand, dw_offhand }
+    -- No runes selected = no reminder for that spec (implicit disable)
+    dkRunePreferences = {
+        [250] = { mainhand = { [6241] = true } }, -- Blood: Sanguination
+        [251] = {
+            mainhand = { [3368] = true }, -- 2H: Fallen Crusader
+            dw_mainhand = { [3370] = true }, -- DW MH: Razorice
+            dw_offhand = { [3368] = true }, -- DW OH: Fallen Crusader
+        },
+        [252] = { mainhand = { [6245] = true } }, -- Unholy: Apocalypse
+    },
+
     minimap = {
         hide = true,
     },
@@ -340,7 +352,7 @@ local defaults = {
         -- Appearance
         iconSize = 64,
         -- iconWidth: nil = same as iconSize (square). Set explicitly for non-square icons.
-        -- textSize: nil = auto (derived from iconSize * 0.32). Only set when user explicitly overrides.
+        textSize = 20,
         iconAlpha = 1,
         textAlpha = 1,
         textColor = { 1, 1, 1 },
@@ -532,6 +544,7 @@ local defaults = {
 }
 
 -- Constants
+local CODE_DEFAULTS = defaults.defaults
 local OVERLAY_TEXT_SCALE = 0.6 -- scale for "NO X" warning text
 local BUFF_TEXT_BASE_Y = -6 -- base Y gap between icon bottom and "BUFF!" text
 
@@ -661,7 +674,7 @@ local function GetCategorySettings(category)
             position = catSettings and catSettings.position or { point = "CENTER", x = 0, y = 0 },
             iconSize = globalDefaults.iconSize or 64,
             iconWidth = globalDefaults.iconWidth,
-            textSize = globalDefaults.textSize, -- nil = auto (derived from iconSize)
+            textSize = globalDefaults.textSize or CODE_DEFAULTS.textSize,
             textOffsetX = globalDefaults.textOffsetX or 0,
             textOffsetY = globalDefaults.textOffsetY or 0,
             iconAlpha = globalDefaults.iconAlpha or 1,
@@ -694,7 +707,7 @@ local function GetCategorySettings(category)
         -- Values are snapshotted from current defaults when useCustomAppearance is first enabled.
         result.iconSize = (catSettings and catSettings.iconSize) or 64
         result.iconWidth = catSettings and catSettings.iconWidth
-        result.textSize = (catSettings and catSettings.textSize) -- nil = auto
+        result.textSize = (catSettings and catSettings.textSize) or CODE_DEFAULTS.textSize
         result.textOffsetX = (catSettings and catSettings.textOffsetX) or 0
         result.textOffsetY = (catSettings and catSettings.textOffsetY) or 0
         result.iconAlpha = (catSettings and catSettings.iconAlpha) or 1
@@ -709,7 +722,7 @@ local function GetCategorySettings(category)
     else
         result.iconSize = globalDefaults.iconSize or 64
         result.iconWidth = globalDefaults.iconWidth
-        result.textSize = globalDefaults.textSize -- nil = auto
+        result.textSize = globalDefaults.textSize or CODE_DEFAULTS.textSize
         result.textOffsetX = globalDefaults.textOffsetX or 0
         result.textOffsetY = globalDefaults.textOffsetY or 0
         result.iconAlpha = globalDefaults.iconAlpha or 1
@@ -757,17 +770,12 @@ local function ShouldShowText(category)
     return not cs or cs.showText ~= false
 end
 
--- Fallback text scale ratio (used when textSize is not set)
-local TEXT_SCALE_RATIO = 0.32
-
----Calculate font size, preferring explicit textSize over iconSize-derived
+---Calculate font size from explicit textSize
 ---@param scale? number
----@param textSize? number
----@param iconSize? number
+---@param textSize number
 ---@return number
-local function GetFontSize(scale, textSize, iconSize)
-    local baseSize = textSize or floor((iconSize or 64) * TEXT_SCALE_RATIO)
-    return max(6, floor(baseSize * (scale or 1)))
+local function GetFontSize(scale, textSize)
+    return max(6, floor(textSize * (scale or 1)))
 end
 
 ---Get effective icon width (falls back to iconSize for square icons)
@@ -785,7 +793,7 @@ end
 local function GetFrameFontSize(frame, scale)
     local effectiveCat = GetEffectiveCategory(frame)
     local catSettings = GetCategorySettings(effectiveCat)
-    return GetFontSize(scale, catSettings.textSize, catSettings.iconSize)
+    return GetFontSize(scale, catSettings.textSize)
 end
 
 -- Use functions from State.lua
@@ -1229,7 +1237,7 @@ local function CreateBuffFrame(buff, category)
     frame.count = frame:CreateFontString(nil, "OVERLAY", "NumberFontNormalLarge")
     frame.count:SetPoint("CENTER", catSettings.textOffsetX or 0, catSettings.textOffsetY or 0)
     frame.count:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
-    frame.count:SetFont(fontPath, GetFontSize(1, catSettings.textSize, catSettings.iconSize), "OUTLINE")
+    frame.count:SetFont(fontPath, GetFontSize(1, catSettings.textSize), "OUTLINE")
 
     -- Stack count (bottom-right, WoW-standard item count style) for consumables
     frame.stackCount = frame:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
@@ -1253,7 +1261,7 @@ local function CreateBuffFrame(buff, category)
         )
         frame.buffText:SetFont(
             fontPath,
-            (raidCs and raidCs.buffTextSize) or GetFontSize(0.8, catSettings.textSize, catSettings.iconSize),
+            (raidCs and raidCs.buffTextSize) or GetFontSize(0.8, catSettings.textSize),
             "OUTLINE"
         )
         frame.buffText:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
@@ -1319,7 +1327,7 @@ local function GetOrCreateExtraFrame(frame, index)
     extra.count = extra:CreateFontString(nil, "OVERLAY", "NumberFontNormalLarge")
     extra.count:SetPoint("CENTER", 0, 0)
     extra.count:SetTextColor(textColor[1], textColor[2], textColor[3], textAlpha)
-    extra.count:SetFont(fontPath, GetFontSize(1, catSettings.textSize, catSettings.iconSize), "OUTLINE")
+    extra.count:SetFont(fontPath, GetFontSize(1, catSettings.textSize), "OUTLINE")
     extra.count:Hide()
 
     extra:SetAlpha(catSettings.iconAlpha or 1)
@@ -2376,7 +2384,7 @@ local function UpdatePetLabels(frame, petAction)
         frame._br_pet_extra_text:SetFont(fontPath, familySize, "OUTLINE")
         frame._br_pet_extra_text:ClearAllPoints()
         frame._br_pet_extra_text:SetPoint("TOP", anchor, "BOTTOM", 0, -1)
-        frame._br_pet_extra_text:SetText("Spirit Beast")
+        frame._br_pet_extra_text:SetText(L["Pet.SpiritBeast"])
         frame._br_pet_extra_text:SetTextColor(1, 1, 1)
         frame._br_pet_extra_text:Show()
     else
@@ -3448,7 +3456,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 35
+        local DB_VERSION = 36
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -4141,6 +4149,27 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     end
                 end
             end,
+            [36] = function()
+                -- textSize is now an explicit default (20) instead of auto-derived from iconSize.
+                -- Materialize the computed value for users who had a non-default iconSize,
+                -- so their text size doesn't jump to 20.
+                if db.defaults and db.defaults.textSize == nil then
+                    local iconSize = db.defaults.iconSize or 64
+                    if iconSize ~= 64 then
+                        db.defaults.textSize = floor(iconSize * 0.32)
+                    end
+                end
+                if db.categorySettings then
+                    for _, cs in pairs(db.categorySettings) do
+                        if cs.useCustomAppearance and cs.textSize == nil then
+                            local iconSize = cs.iconSize or 64
+                            if iconSize ~= 64 then
+                                cs.textSize = floor(iconSize * 0.32)
+                            end
+                        end
+                    end
+                end
+            end,
         }
 
         -- Run pending migrations
@@ -4257,6 +4286,13 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
             LDBIcon:AddButtonToCompartment("BuffReminders")
             BR.MinimapButton = { Icon = LDBIcon, DataObj = dataObj }
         end
+
+        -- Login messages
+        C_Timer.After(5, function()
+            if db.showLoginMessages ~= false and playerClass == "DEATHKNIGHT" then
+                print("|cff00ccffBuffReminders:|r " .. L["Display.LoginDkRunes"])
+            end
+        end)
     elseif event == "PLAYER_ENTERING_WORLD" then
         -- Reset consumable dismiss on instance change
         BR.BuffState.SetConsumablesDismissed(false)
@@ -4438,6 +4474,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- Invalidate caches when player changes spec
         BR.BuffState.InvalidateSpellCache()
         BR.BuffState.InvalidateOffHandCache()
+
         BR.PetHelpers.InvalidatePetActions()
         BR.SecureButtons.InvalidateConsumableCache()
         BR.SecureButtons.RefreshOverlaySpells()
@@ -4462,6 +4499,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     elseif event == "PLAYER_EQUIPMENT_CHANGED" then
         BR.BuffState.InvalidateItemCache()
         BR.BuffState.InvalidateOffHandCache()
+
         SetDirty()
     elseif event == "BAG_UPDATE_DELAYED" then
         BR.BuffState.InvalidateItemCache()

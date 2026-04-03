@@ -35,6 +35,7 @@ local _, BR = ...
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local floor, max, min = math.floor, math.max, math.min
+local format = string.format
 local rad = math.rad
 local tinsert = table.insert
 
@@ -2146,12 +2147,7 @@ function Components.VisibilityToggles(parent, config)
             showDiffBar(mapping.contentKey)
         end)
         local toggle = CONTENT_TOGGLE_DEFS[mapping.btnIndex]
-        SetupTooltip(
-            btn,
-            toggle.tooltip.title,
-            "Click to filter by " .. toggle.tooltip.title:lower() .. " difficulty",
-            "ANCHOR_TOP"
-        )
+        SetupTooltip(btn, toggle.tooltip.title, format(L["Content.ClickToFilter"], toggle.tooltip.title), "ANCHOR_TOP")
     end
 
     -- refreshAll: update all button visuals (used by onChange and Refresh)
@@ -3134,7 +3130,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 1: Width [link] Height
     widthHolder = Components.Slider(frame, {
-        label = "Width",
+        label = L["Appearance.Width"],
         min = 16,
         max = 128,
         labelWidth = LW,
@@ -3165,7 +3161,7 @@ function Components.AppearanceGrid(parent, config)
     linkBtn:SetPoint("TOPLEFT", LINK_X, 0)
 
     heightHolder = Components.Slider(frame, {
-        label = "Height",
+        label = L["Appearance.Height"],
         min = 16,
         max = 128,
         labelWidth = LW,
@@ -3184,7 +3180,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 2: Zoom, Border
     local zoomHolder = Components.Slider(frame, {
-        label = "Zoom",
+        label = L["Appearance.Zoom"],
         min = 0,
         max = 15,
         labelWidth = LW,
@@ -3200,7 +3196,7 @@ function Components.AppearanceGrid(parent, config)
     zoomHolder:SetPoint("TOPLEFT", 0, -ROW_H)
 
     local borderHolder = Components.Slider(frame, {
-        label = "Border",
+        label = L["Appearance.Border"],
         min = 0,
         max = 8,
         labelWidth = LW,
@@ -3217,7 +3213,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 3: Spacing, Alpha
     local spacingHolder = Components.Slider(frame, {
-        label = "Spacing",
+        label = L["Appearance.Spacing"],
         min = 0,
         max = 50,
         labelWidth = LW,
@@ -3233,7 +3229,7 @@ function Components.AppearanceGrid(parent, config)
     spacingHolder:SetPoint("TOPLEFT", 0, -ROW_H * 2)
 
     local alphaHolder = Components.Slider(frame, {
-        label = "Alpha",
+        label = L["Appearance.Alpha"],
         min = 10,
         max = 100,
         labelWidth = LW,
@@ -3250,17 +3246,12 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 4: Text size stepper + color swatch
     local textSizeHolder = Components.NumericStepper(frame, {
-        label = "Text",
+        label = L["Appearance.Text"],
         labelWidth = LW,
         min = 6,
         max = 32,
         get = function()
-            local textSize = config.get("textSize", nil)
-            if textSize then
-                return textSize
-            end
-            local iconSize = config.get("iconSize", 64)
-            return floor(iconSize * 0.32)
+            return config.get("textSize", BR.defaults.defaults.textSize)
         end,
         enabled = enabled and baseEnabled or nil,
         onChange = function(val)
@@ -3288,7 +3279,7 @@ function Components.AppearanceGrid(parent, config)
 
     -- Row 5: Text offset X / Y
     local textOffsetXHolder = Components.Slider(frame, {
-        label = "Text X",
+        label = L["Appearance.TextX"],
         labelWidth = LW,
         min = -20,
         max = 20,
@@ -3303,7 +3294,7 @@ function Components.AppearanceGrid(parent, config)
     textOffsetXHolder:SetPoint("TOPLEFT", 0, -ROW_H * 4)
 
     local textOffsetYHolder = Components.Slider(frame, {
-        label = "Text Y",
+        label = L["Appearance.TextY"],
         labelWidth = LW,
         min = -20,
         max = 20,

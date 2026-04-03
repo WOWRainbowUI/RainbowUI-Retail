@@ -82,7 +82,7 @@ local optionsPanel = nil
 local customBuffModal = nil
 
 -- Forward declarations
-local ShowGlowAdvanced, ShowCustomBuffModal
+local ShowGlowAdvanced, ShowCustomBuffModal, ShowRuneforgeModal
 
 -- ============================================================================
 -- CONSTANTS
@@ -634,6 +634,16 @@ local function CreateOptionsPanel()
     local buffsLeftY = -6
     local buffsRightY = -6
 
+    -- Detach column headers (text label above pin buttons)
+    local function CreateDetachColumnHeader(parent, x, y)
+        local label = parent:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+        label:SetPoint("TOPLEFT", x, y)
+        label:SetText(L["Options.DetachIcon"])
+    end
+
+    CreateDetachColumnHeader(buffsContent, buffsLeftX + 193, -8)
+    CreateDetachColumnHeader(buffsContent, buffsRightX + 193, -8)
+
     -- LEFT COLUMN: Group-wide buffs
     -- Raid Buffs
     _, buffsLeftY = CreateSectionHeader(buffsContent, L["Category.RaidBuffs"], buffsLeftX, buffsLeftY)
@@ -679,6 +689,40 @@ local function CreateOptionsPanel()
     buffsRightY = buffsRightY - 14
     buffsRightY = RenderBuffCheckboxes(buffsContent, buffsRightX, buffsRightY, SelfBuffs)
     buffsRightY = buffsRightY - SECTION_SPACING
+
+    -- DK Runeforge gear icon (next to the dkRunes group checkbox)
+    do
+        local _, playerClass = UnitClass("player")
+        if playerClass == "DEATHKNIGHT" then
+            local runeCheckbox = panel.buffCheckboxes["dkRunes"]
+            if runeCheckbox then
+                local gearBtn = CreateFrame("Button", nil, buffsContent)
+                gearBtn:SetSize(14, 14)
+                gearBtn:SetPoint("LEFT", runeCheckbox.label, "RIGHT", 4, 0)
+                gearBtn:SetFrameLevel(runeCheckbox:GetFrameLevel() + 5)
+
+                local gearIcon = gearBtn:CreateTexture(nil, "ARTWORK")
+                gearIcon:SetAllPoints()
+                gearIcon:SetTexture("Interface\\Buttons\\UI-OptionsButton")
+                gearIcon:SetVertexColor(0.7, 0.7, 0.7, 0.8)
+
+                gearBtn:SetScript("OnEnter", function(self)
+                    gearIcon:SetVertexColor(1, 1, 1, 1)
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L["Options.RuneforgePreferences"], 1, 1, 1)
+                    GameTooltip:AddLine(L["Options.RuneforgeNote"], 0.7, 0.7, 0.7, true)
+                    GameTooltip:Show()
+                end)
+                gearBtn:SetScript("OnLeave", function()
+                    gearIcon:SetVertexColor(0.7, 0.7, 0.7, 0.8)
+                    GameTooltip:Hide()
+                end)
+                gearBtn:SetScript("OnClick", function()
+                    ShowRuneforgeModal()
+                end)
+            end
+        end
+    end
 
     -- Pet Reminders
     _, buffsRightY = CreateSectionHeader(buffsContent, L["Category.PetReminders"], buffsRightX, buffsRightY)
@@ -1263,12 +1307,7 @@ local function CreateOptionsPanel()
                     if cs and cs.buffTextSize then
                         return cs.buffTextSize
                     end
-                    -- Default: 80% of text size (matching current behavior)
-                    local textSize = cs and cs.textSize
-                    if not textSize then
-                        local iconSize = (cs and cs.iconSize) or 64
-                        textSize = floor(iconSize * 0.32)
-                    end
+                    local textSize = (cs and cs.textSize) or defaults.defaults.textSize
                     return max(6, floor(textSize * 0.8))
                 end,
                 enabled = function()
@@ -2092,6 +2131,7 @@ local function CreateOptionsPanel()
                     local appearanceKeys = {
                         "iconSize",
                         "iconWidth",
+                        "textSize",
                         "spacing",
                         "iconZoom",
                         "borderSize",
@@ -2103,10 +2143,6 @@ local function CreateOptionsPanel()
                         if cs[key] == nil and effective[key] ~= nil then
                             cs[key] = effective[key]
                         end
-                    end
-                    -- textSize: only snapshot if explicitly set (nil = auto-derive from iconSize)
-                    if cs.textSize == nil and effective.textSize ~= nil then
-                        cs.textSize = effective.textSize
                     end
                     -- textColor: deep copy (table value)
                     if cs.textColor == nil and effective.textColor then
@@ -4431,6 +4467,193 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     UpdateLayout()
 
     customBuffModal = modal
+    modal:Show()
+end
+
+-- ============================================================================
+-- DK RUNEFORGE MODAL
+-- ============================================================================
+
+local runeforgeModal = nil
+
+-- Resolve rune icon textures once (cached across modal opens)
+local cachedRuneIcons = nil
+local function GetRuneIcons()
+    if cachedRuneIcons then
+        return cachedRuneIcons
+    end
+    cachedRuneIcons = {}
+    for _, rune in ipairs(BR.DK_RUNEFORGES) do
+        local texture = C_Spell.GetSpellTexture(rune.spellID)
+        cachedRuneIcons[rune.enchantID] = texture and { texture } or nil
+    end
+    return cachedRuneIcons
+end
+
+ShowRuneforgeModal = function()
+    if runeforgeModal then
+        Components.RefreshAll()
+        runeforgeModal:Show()
+        return
+    end
+
+    local MODAL_WIDTH = 560
+    local MODAL_HEIGHT = 280
+    local MARGIN = 16
+    local CHECKBOX_HEIGHT = 22
+    local CHECKBOX_GAP = 3
+    local RUNE_LABEL_FONT = "GameFontHighlight"
+
+    local modal = CreatePanel("BuffRemindersRuneforgeModal", MODAL_WIDTH, MODAL_HEIGHT, {
+        bgColor = { 0.1, 0.1, 0.1, 0.98 },
+        borderColor = { 0.4, 0.4, 0.4, 1 },
+        level = 200,
+        modal = true,
+    })
+
+    local title = modal:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetPoint("TOP", 0, -12)
+    title:SetText(L["Options.RuneforgePreferences"])
+
+    local closeBtn = CreateButton(modal, "x", function()
+        modal:Hide()
+    end)
+    closeBtn:SetSize(22, 22)
+    closeBtn:SetPoint("TOPRIGHT", -5, -5)
+
+    local runeIcons = GetRuneIcons()
+
+    local function EnsureSpecPrefs(specId)
+        local db = BR.profile
+        if not db.dkRunePreferences then
+            db.dkRunePreferences = {}
+        end
+        if not db.dkRunePreferences[specId] then
+            db.dkRunePreferences[specId] = {}
+        end
+        return db.dkRunePreferences[specId]
+    end
+
+    -- Helper: create rune checkboxes for a slot
+    local function CreateRuneCheckboxes(parent, specId, slot, x, startY, maxLabelWidth)
+        local y = startY
+        for _, rune in ipairs(BR.DK_RUNEFORGES) do
+            local enchantID = rune.enchantID
+            local runeName = BR.GetSpellName(rune.spellID) or rune.key
+            local runeHolder = Components.Checkbox(parent, {
+                label = runeName,
+                labelFont = RUNE_LABEL_FONT,
+                icons = runeIcons[enchantID],
+                get = function()
+                    local prefs = EnsureSpecPrefs(specId)
+                    return prefs[slot] and prefs[slot][enchantID] or false
+                end,
+                onChange = function(checked)
+                    local prefs = EnsureSpecPrefs(specId)
+                    if not prefs[slot] then
+                        prefs[slot] = {}
+                    end
+                    prefs[slot][enchantID] = checked or nil
+                    BR.BuffState.Refresh()
+                    UpdateDisplay()
+                end,
+            })
+            if maxLabelWidth and runeHolder.label then
+                runeHolder.label:SetWidth(maxLabelWidth)
+                runeHolder.label:SetWordWrap(false)
+            end
+            runeHolder:SetPoint("TOPLEFT", x, y)
+            y = y - (CHECKBOX_HEIGHT + CHECKBOX_GAP)
+        end
+        return y
+    end
+
+    -- 4 top-level tabs: Blood, Frost 2H, Frost DW, Unholy
+    local _, bloodName = GetSpecializationInfoByID(250)
+    local _, frostName = GetSpecializationInfoByID(251)
+    local _, unholyName = GetSpecializationInfoByID(252)
+
+    local DK_TABS = {
+        { key = "blood", specId = 250, label = bloodName or "Blood" },
+        { key = "frost2h", specId = 251, label = (frostName or "Frost") .. " " .. L["Options.RuneTwoHanded"] },
+        { key = "frostdw", specId = 251, label = (frostName or "Frost") .. " " .. L["Options.RuneDualWield"] },
+        { key = "unholy", specId = 252, label = unholyName or "Unholy" },
+    }
+
+    local tabButtons = {}
+    local tabContents = {}
+
+    local function SetActiveTab(activeKey)
+        for key, tab in pairs(tabButtons) do
+            tab:SetActive(key == activeKey)
+        end
+        for key, content in pairs(tabContents) do
+            if key == activeKey then
+                content:Show()
+            else
+                content:Hide()
+            end
+        end
+    end
+
+    -- Build tab buttons (evenly distributed across modal width)
+    local tabGap = 2
+    local totalTabWidth = MODAL_WIDTH - MARGIN * 2
+    local numTabs = #DK_TABS
+    local tabWidth = (totalTabWidth - (numTabs - 1) * tabGap) / numTabs
+
+    local prevTab = nil
+    for _, tabDef in ipairs(DK_TABS) do
+        local tab = Components.Tab(modal, { label = tabDef.label, width = tabWidth })
+        if prevTab then
+            tab:SetPoint("LEFT", prevTab, "RIGHT", tabGap, 0)
+        else
+            tab:SetPoint("TOPLEFT", MARGIN, -36)
+        end
+        local key = tabDef.key
+        tab:SetScript("OnClick", function()
+            SetActiveTab(key)
+        end)
+        tabButtons[key] = tab
+        prevTab = tab
+    end
+
+    local contentWidth = MODAL_WIDTH - MARGIN * 2
+
+    -- Build tab content
+    for _, tabDef in ipairs(DK_TABS) do
+        local content = CreateFrame("Frame", nil, modal)
+        content:SetPoint("TOPLEFT", MARGIN, -60)
+        content:SetPoint("BOTTOMRIGHT", -MARGIN, MARGIN)
+        content:Hide()
+        tabContents[tabDef.key] = content
+
+        local y = -6
+
+        if tabDef.key == "frostdw" then
+            -- Frost DW: two columns (MH | OH)
+            local colWidth = contentWidth / 2
+
+            local mhLabel = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+            mhLabel:SetPoint("TOPLEFT", 0, y)
+            mhLabel:SetText("|cffffcc00" .. L["Options.RuneMainHand"] .. "|r")
+
+            local ohLabel = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+            ohLabel:SetPoint("TOPLEFT", colWidth, y)
+            ohLabel:SetText("|cffffcc00" .. L["Options.RuneOffHand"] .. "|r")
+
+            local dwLabelWidth = colWidth - 46
+            CreateRuneCheckboxes(content, tabDef.specId, "dw_mainhand", 6, y - 16, dwLabelWidth)
+            CreateRuneCheckboxes(content, tabDef.specId, "dw_offhand", colWidth + 6, y - 16, dwLabelWidth)
+        else
+            -- Blood / Frost 2H / Unholy: single column
+            CreateRuneCheckboxes(content, tabDef.specId, "mainhand", 6, y)
+        end
+    end
+
+    SetActiveTab("blood")
+
+    runeforgeModal = modal
     modal:Show()
 end
 
