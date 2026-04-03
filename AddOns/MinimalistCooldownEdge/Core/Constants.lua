@@ -44,6 +44,7 @@ C.CooldownManagerViewers = {
 
 C.MiniCCFrameTypes = {
     CC = "cc",
+    FriendlyCD = "friendlycd",
     Nameplate = "nameplate",
     Portrait = "portrait",
     Overlay = "overlay",
@@ -182,6 +183,8 @@ C.Defaults = {
     MiniCC = {
         CCFontSize = 18,
         CCHideCountdownNumbers = false,
+        FriendlyCDFontSize = 18,
+        FriendlyCDHideCountdownNumbers = false,
         NameplateFontSize = 12,
         NameplateHideCountdownNumbers = false,
         PortraitFontSize = 18,

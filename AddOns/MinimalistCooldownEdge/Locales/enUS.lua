@@ -31,6 +31,7 @@ L["Style"] = true
 L["Positioning"] = true
 L["CooldownManager Viewers"] = true
 L["MiniCC Frame Types"] = true
+L["MiniCC Frame Groups"] = true
 L["sArena Cooldown Types"] = true
 
 -- Toggles & Settings
@@ -61,11 +62,15 @@ L["Essential Viewer Size"] = true
 L["Utility Viewer Size"] = true
 L["Buff Icon Viewer Size"] = true
 L["CC Text Size"] = true
+L["CC Frames Text Size"] = true
+L["CC / Friendly Frames Text Size"] = true
+L["Friendly CDs Text Size"] = true
 L["Class Icon Text Size"] = true
 L["DR Cooldown Text Size"] = true
 L["Nameplates Text Size"] = true
 L["Portraits Text Size"] = true
 L["Alerts / Overlay Text Size"] = true
+L["Alerts / Healer / Timers Text Size"] = true
 L["Trinket / Racial Text Size"] = true
 L["Toggle Test Icons"] = true
 L["Show Test Frames"] = true
@@ -87,6 +92,13 @@ L["Hide stacks and charges entirely."] = true
 L["Reset %s"] = true
 L["Revert this category to default settings."] = true
 L["Toggle MiniCC's built-in test icons using /minicc test."] = true
+L["MiniCC text settings are grouped by module family so similar widgets share the same countdown size."] = true
+L["Applies to MiniCC CC module (enemy crowd controls)."] = true
+L["Applies to MiniCC CC, Friendly CDs, and Friendly Indicators modules."] = true
+L["Applies to MiniCC Friendly CDs and Friendly Indicators modules."] = true
+L["Applies to MiniCC Nameplates modules."] = true
+L["Applies to MiniCC portrait icons."] = true
+L["Applies to MiniCC Alerts, Healer CC, Kick Timer, and Precognition modules."] = true
 L["Show sArena test frames using /sarena test."] = true
 L["Hide sArena test frames using /sarena hide."] = true
 
