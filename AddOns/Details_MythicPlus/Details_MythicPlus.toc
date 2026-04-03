@@ -1,16 +1,19 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: Details!: Mythic Plus Extension
 ## Title-ruRU: Details!: Расширение М+
 ## Notes: Add Mythic Plus stuff on Details!
 ## Notes-ruRU: Добавляет в Details! гибкое расширение для М+ подземелий
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
-## RequiredDeps: Details
-## Version: #DMP.20260125.018
+## Version: #DMP.20260402.019
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL
 ## X-Curse-Project-ID: 1220909
+
+#@no-lib-strip@
+Libs\libs.xml
+#@end-no-lib-strip@
 
 locales\enUS.lua
 locales\deDE.lua
@@ -26,6 +29,8 @@ locales\zhTW.lua
 
 start.lua
 templates.lua
+dummytails.lua
+encounterjournal.lua
 frames.lua
 parser.lua
 options.lua
@@ -35,6 +40,7 @@ scoreboard_layout.lua
 scoreboard_runselectordropdown.lua
 activityframe.lua
 events.lua
+segments.lua
 functions.lua
 slash.lua
 rundata.lua

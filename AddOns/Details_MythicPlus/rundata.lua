@@ -1,8 +1,5 @@
 
 --this file is responsable to copy the necessary data from a details! combat into an object that can be used by the addon
-
----@type details
-local Details = _G.Details
 ---@type detailsframework
 local detailsFramework = _G.DetailsFramework
 local addonName, private = ...
@@ -31,7 +28,7 @@ end
 function addon.CreateRunInfo(mythicPlusOverallSegment)
     local completionInfo = C_ChallengeMode.GetChallengeCompletionInfo()
     if (completionInfo.mapChallengeModeID == 0) then
-        private.log("Missing completionInfo.mapChallengeModeID, possibly due to and error or reload after the key completed")
+        private.log("MythicPlus Scoreboard M+ Missing completionInfo.mapChallengeModeID, possibly due to and error or reload after the key completed")
         return
     end
 
@@ -41,13 +38,13 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
 
     --debug
     if (not addon.profile.last_run_data.encounter_timeline) then
-        print("Details M+ addon.profile.last_run_data.encounter_timeline is nil")
-        private.log("Details M+ addon.profile.last_run_data.encounter_timeline is nil")
+        print("MythicPlus Scoreboard M+ addon.profile.last_run_data.encounter_timeline is nil")
+        private.log("MythicPlus Scoreboard M+ addon.profile.last_run_data.encounter_timeline is nil")
     end
 
     if (not addon.profile.last_run_data.incombat_timeline) then
-        print("Details M+ addon.profile.last_run_data.incombat_timeline is nil")
-        private.log("Details M+ addon.profile.last_run_data.incombat_timeline is nil")
+        print("MythicPlus Scoreboard M+ addon.profile.last_run_data.incombat_timeline is nil")
+        private.log("MythicPlus Scoreboard M+ addon.profile.last_run_data.incombat_timeline is nil")
     end
 
     addon.profile.last_run_id = addon.profile.last_run_id + 1
@@ -98,9 +95,9 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
     runInfo.dungeonTexture = texture
     runInfo.dungeonBackgroundTexture = backgroundTexture
 
-    local damageContainer = mythicPlusOverallSegment:GetContainer(DETAILS_ATTRIBUTE_DAMAGE)
-    local healingContainer = mythicPlusOverallSegment:GetContainer(DETAILS_ATTRIBUTE_HEAL)
-    local utilityContainer = mythicPlusOverallSegment:GetContainer(DETAILS_ATTRIBUTE_MISC)
+    local damageContainer = mythicPlusOverallSegment:GetContainer(DETAILS_ATTRIBUTE_DAMAGE or 1)
+    local healingContainer = mythicPlusOverallSegment:GetContainer(DETAILS_ATTRIBUTE_HEAL or 2)
+    local utilityContainer = mythicPlusOverallSegment:GetContainer(DETAILS_ATTRIBUTE_MISC or 4)
 
     for _, actorObject in damageContainer:ListActors() do
         ---@cast actorObject actordamage
@@ -121,8 +118,8 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
             local playerInfo = {
                 name = unitName,
                 class = actorObject:Class(),
-                spec = Details:GetSpecFromSerial(guid) or actorObject:Spec() or 0,
-                role = UnitGroupRolesAssigned(unitName),
+                spec = private.Details:GetSpecFromSerial(guid) or actorObject:Spec() or 0,
+                role = UnitGroupRolesAssigned(unitName) or "DAMAGER",
                 guid = guid,
                 loot = "",
                 score = 0,
@@ -146,7 +143,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
                 interruptWhat = {}, --done
                 interruptCastOverlapDone = addon.profile.last_run_data.interrupt_cast_overlap_done[unitName] or 0,
                 crowdControlSpells = {}, --done
-                ilevel = Details:GetItemLevelFromGuid(guid),
+                ilevel = private.Details:GetItemLevelFromGuid(guid),
                 deathEvents = {}, --information about when the player died
                 deathLastHits = {}, --information for the tooltip when the player died
                 likedBy = {},
@@ -159,7 +156,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
             end
             local score = actorObject.mrating or 0
             playerInfo.score = score
-            playerInfo.scorePrevious = Details.PlayerRatings[unitName] or score
+            playerInfo.scorePrevious = private.PlayerRatings[unitName] or score
 
             playerInfo.activityTimeDamage = actorObject:Tempo()
 
@@ -170,7 +167,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
             for i = 1, #deathTable do
                 local thisDeathTable = deathTable[i]
                 --deathTime is time()
-                local playerName, playerClass, deathTime, deathCombatTime, deathTimeString, playerMaxHealth, deathEvents, lastCooldown, spec = Details:UnpackDeathTable(thisDeathTable)
+                local playerName, playerClass, deathTime, deathCombatTime, deathTimeString, playerMaxHealth, deathEvents, lastCooldown, spec = private.Segments.UnpackDeathTable(thisDeathTable)
                 if (playerName == unitName) then
                     playerInfo.deathEvents[#playerInfo.deathEvents+1] = {
                         type = addon.Enum.ScoreboardEventType.Death,
@@ -186,7 +183,7 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
                     for j = #deathEvents, 1, -1 do
                         ---@type deathtable
                         local thisEvent = deathEvents[j]
-                        local evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing = Details:UnpackDeathEvent(thisEvent)
+                        local evType, spellId, amount, eventTime, heathPercent, sourceName, absorbed, spellSchool, friendlyFire, overkill, criticalHit, crushing = private.Segments.UnpackDeathEvent(thisEvent)
 
                         if (evType == true) then --a boolean true means a damage event
                             ---@type death_last_hits
@@ -246,28 +243,34 @@ function addon.CreateRunInfo(mythicPlusOverallSegment)
                     local ccTotal = 0
                     local ccUsed = {}
 
-                    if (Details:GetCoreVersion() < 166) then
-                        for spellName, casts in pairs(mythicPlusOverallSegment:GetCrowdControlSpells(unitName)) do
-                            local spellInfo = C_Spell.GetSpellInfo(spellName)
-                            local spellId = spellInfo and spellInfo.spellID or (openRaidLib and openRaidLib.GetCCSpellIdBySpellName(spellName) or 0)
-                            if (spellId ~= 197214) then
-                                ccUsed[spellName] = casts
-                                ccTotal = ccTotal + casts
+                    if not detailsFramework.IsAddonApocalypseWow() then
+                        if (private.Details:GetCoreVersion() < 166) then
+                            for spellName, casts in pairs(mythicPlusOverallSegment:GetCrowdControlSpells(unitName)) do
+                                local spellInfo = C_Spell.GetSpellInfo(spellName)
+                                local spellId = spellInfo and spellInfo.spellID or (openRaidLib and openRaidLib.GetCCSpellIdBySpellName(spellName) or 0)
+                                if (spellId ~= 197214) then
+                                    ccUsed[spellName] = casts
+                                    ccTotal = ccTotal + casts
+                                end
                             end
-                        end
-                    else
-                        --at 166, Details! now uses the spellId instead of the spellName for crowd controls
-                        for spellId, casts in pairs(mythicPlusOverallSegment:GetCrowdControlSpells(unitName)) do
-                            if (spellId ~= 197214) then
-                                ccUsed[spellId] = casts
-                                ccTotal = ccTotal + casts
+                        else
+                            --at 166, Details! now uses the spellId instead of the spellName for crowd controls
+                            for spellId, casts in pairs(mythicPlusOverallSegment:GetCrowdControlSpells(unitName)) do
+                                if (spellId ~= 197214) then
+                                    ccUsed[spellId] = casts
+                                    ccTotal = ccTotal + casts
+                                end
                             end
                         end
                     end
 
                     playerInfo.totalDispels = utilityActorObject.dispell
                     playerInfo.totalInterrupts = utilityActorObject.interrupt
-                    playerInfo.totalInterruptsCasts = mythicPlusOverallSegment:GetInterruptCastAmount(unitName)
+
+                    if not detailsFramework.IsAddonApocalypseWow() then
+                        playerInfo.totalInterruptsCasts = mythicPlusOverallSegment:GetInterruptCastAmount(unitName)
+                    end
+
                     playerInfo.totalCrowdControlCasts = ccTotal
                     playerInfo.dispelWhat = detailsFramework.table.copy({}, utilityActorObject.dispell_oque or {})
                     playerInfo.interruptWhat = detailsFramework.table.copy({}, utilityActorObject.interrompeu_oque or {})
@@ -393,10 +396,19 @@ end
 ---@return number
 function addon.GetRunAverageItemLevel(runInfo)
     local total = 0
+    local players = 0
     for _, playerInfo in pairs(runInfo.combatData.groupMembers) do
-        total = total + playerInfo.ilevel
+        if (playerInfo.ilevel > 0) then
+            total = total + playerInfo.ilevel
+            players = players + 1
+        end
     end
-    return total / 5
+
+    if (players == 0) then
+        return 0
+    end
+
+    return total / players
 end
 
 ---return the average damage per second
