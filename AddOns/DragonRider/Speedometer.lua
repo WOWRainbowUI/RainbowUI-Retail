@@ -595,59 +595,478 @@ end
 
 AddBuiltInThemes()
 
-local SpeedometerBarOptions = { -- eventually this will be a separate option using mask textures
-	[1] = { -- default
+DR.SpeedometerBarOptions = {}
+
+function DR.RegisterSpeedometerBar(barKey, barName, barData)
+	if type(barData) ~= "table" then return end
+
+	for _, bar in ipairs(DR.SpeedometerBarOptions) do
+		if bar.key == barKey then
+			return;
+		end
+	end
+
+	barData.key = barKey
+	barData.name = barName
+
+	table.insert(DR.SpeedometerBarOptions, barData)
+end
+
+local function AddBuiltInBarOptions()
+	DR.RegisterSpeedometerBar("Default", L["Default"], {
 		BarTexture = "Interface\\TARGETINGFRAME\\UI-StatusBar",
-	},
-	[2] = { -- algari gold
+		BarDesat = false,
+	})
+	DR.RegisterSpeedometerBar("Algari", L["ThemeAlgari_Gold"], {
 		BarTexture = "Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Progress.blp",
-	},
-	[3] = { -- minimalist
+		BarDesat = false,
+	})
+	DR.RegisterSpeedometerBar("Minimalist", L["Minimalist"], {
 		BarTexture = "Interface\\buttons\\white8x8",
-	},
-	[4] = { -- alliance
+		BarDesat = false,
+	})
+	DR.RegisterSpeedometerBar("Alliance", L["Alliance"], {
 		BarTexture = "Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Alliance\\Alliance_Progress.blp",
-	},
-	[5] = { -- horde
+		BarDesat = false,
+	})
+	DR.RegisterSpeedometerBar("Horde", L["Horde"], {
 		BarTexture = "Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Horde\\Horde_Progress.blp",
+		BarDesat = false,
+	})
+	DR.RegisterSpeedometerBar("HousingDashboard", L["HousingDashboard"], {
+		BarAtlas = "housing-dashboard-fillbar-fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("ChallengeModeTimer", L["ChallengeModeTimer"], {
+		BarAtlas = "ChallengeMode-TimerFill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("Cosmic", L["Cosmic"], {
+		BarAtlas = "cosmic-bar-fill-white",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("DelvesDashboard", L["DelvesDashboard"], {
+		BarAtlas = "delves-dashboard-bar-fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("HousingAdvMode", L["HousingAdvMode"], {
+		BarAtlas = "housing-advancedmode-scale-bar-fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("AzeriteIslands", L["AzeriteIslands"], {
+		BarAtlas = "_islands-queue-progressbar-fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("JourneysRenown", L["JourneysRenown"], {
+		BarAtlas = "UI-Journeys-renown-progressbar-fill",
+		BarTexCoords = {.1, .9, 0.2, 0.8},
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("LegionfallConstruction", L["LegionfallConstruction"], {
+		BarAtlas = "_Legionfall_BarFill_UnderConstruction",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("ActivitiesBar", L["ActivitiesBar"], {
+		BarAtlas = "activities-bar-fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("ActivitiesBarBonus", L["ActivitiesBarBonus"], {
+		BarAtlas = "activities-bar-fill-bonus",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("ProfessionsSkillBar", L["ProfessionsSkillBar"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_DefaultBlue",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("ProfessionsQualityBar", L["ProfessionsQualityBar"], {
+		BarAtlas = "Professions-QualityBar-BarBGx2-Tier5Cap",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("JunkyardScore", L["JunkyardScore"], {
+		BarAtlas = "junkyard-scorebar-fill-max",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("JailersTowerScore", L["JailersTowerScore"], {
+		BarAtlas = "jailerstower-scorebar-fill-full",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("CastBarEmpower", L["CastBarEmpower"], {
+		BarAtlas = "ui-castingbar-tier4-empower-2x",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("CastBarInterrupted", L["CastBarInterrupted"], {
+		BarAtlas = "UI-CastingBar-Interrupted",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("CastBarStandard", L["CastBarStandard"], {
+		BarAtlas = "UI-CastingBar-Filling-Standard",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("CastBarApplyingCrafting", L["CastBarApplyingCrafting"], {
+		BarAtlas = "UI-CastingBar-Full-ApplyingCrafting",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("CastBarUninterruptable", L["CastBarUninterruptable"], {
+		BarAtlas = "UI-CastingBar-Uninterruptable",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PowerDemonHunterFury", L["PowerDemonHunterFury"], {
+		BarAtlas = "Unit_DemonHunter_Fury_Fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PowerDruidAstral", L["PowerDruidAstral"], {
+		BarAtlas = "Unit_Druid_AstralPower_Fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PowerEvokerEbonMight", L["PowerEvokerEbonMight"], {
+		BarAtlas = "Unit_Evoker_EbonMight_Fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PowerMonkStagger", L["PowerMonkStagger"], {
+		BarAtlas = "Unit_Monk_Stagger_Fill_Green",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PowerPriestInsanity", L["PowerPriestInsanity"], {
+		BarAtlas = "Unit_Priest_Insanity_Fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PowerShamanMaelstrom", L["PowerShamanMaelstrom"], {
+		BarAtlas = "Unit_Shaman_Maelstrom_Fill",
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PlunderstormStormBar", L["PlunderstormStormBar"], {
+		BarAtlas = "plunderstorm-stormbar-fill",
+		BarDesat = true,
+	})
+
+	DR.RegisterSpeedometerBar("AlchemyFlipbook", L["AlchemyFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Alchemy",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("BlacksmithFlipbook", L["BlacksmithFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Blacksmithing",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("CookingFlipbook", L["CookingFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Cooking",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("EnchantingFlipbook", L["EnchantingFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Enchanting",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 37,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("EngineeringFlipbook", L["EngineeringFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Engineering",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("FishingFlipbook", L["FishingFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Fishing",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("HerbalismFlipbook", L["HerbalismFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Herbalism",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("InscriptionFlipbook", L["InscriptionFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Inscription",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("JewelcraftingFlipbook", L["JewelcraftingFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Jewelcrafting",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 22,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("LeatherworkingFlipbook", L["LeatherworkingFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Leatherworking",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("MiningFlipbook", L["MiningFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Mining",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("SkinningFlipbook", L["SkinningFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Skinning",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("TailoringFlipbook", L["TailoringFlipbook"], {
+		BarAtlas = "Skillbar_Fill_Flipbook_Tailoring",
+		BarFlipbook = true,
+		BarFlipbookColumns = 2,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("ProfessionsQualityFlipbook", L["ProfessionsQualityFlipbook"], {
+		BarAtlas = "Quality-BarFill-Flipbook-12-T1-x2",
+		BarFlipbook = true,
+		BarFlipbookColumns = 1,
+		BarFlipbookRows = 15,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("XPBarFlipbook", L["XPBarFlipbook"], {
+		BarAtlas = "UI-HUD-ExperienceBar-Fill-ArtifactPower-2x-Flipbook",
+		BarFlipbook = true,
+		BarFlipbookColumns = 1,
+		BarFlipbookRows = 30,
+		BarFlipbookFPS = 30,
+		BarFlipbookStartFrame = 3,
+		BarDesat = true,
+	})
+	DR.RegisterSpeedometerBar("PowerPriestInsanityFlipbook", L["PowerPriestInsanityFlipbook"], {
+		BarAtlas = "Unit_Priest_Void_Fill_Flipbook",
+		BarFlipbook = true,
+		BarFlipbookColumns = 5,
+		BarFlipbookRows = 9,
+		BarFlipbookFPS = 30,
+		BarDesat = true,
+	})
+end
+
+AddBuiltInBarOptions()
+
+function DR.FindSpeedometerTheme(key)
+	for _, t in ipairs(DR.SpeedometerOptions) do
+		if t.key == key then return t end
+	end
+	return DR.SpeedometerOptions[1]
+end
+
+function DR.FindSpeedometerBar(key)
+	for _, b in ipairs(DR.SpeedometerBarOptions) do
+		if b.key == key then return b end
+	end
+	return DR.SpeedometerBarOptions[1]
+end
+
+function DR.FindSpeedometerFont(key)
+	for _, f in ipairs(DR.SpeedometerFontOptions) do
+		if f.key == key then return f end
+	end
+	return DR.SpeedometerFontOptions[1]
+end
+
+
+local _drLocale = GetLocale()
+
+DR.SpeedometerFontOptions = {
+	{
+		key = "FrizQuadrata",
+		name = L["Font_FrizQuadrata"],
+		path = STANDARD_TEXT_FONT,
 	},
-	[6] = { -- algari bronze 
-		BarTexture = "Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Progress.blp",
+	{
+		key = "ArialNarrow",
+		name = L["Font_ArialNarrow"],
+		path = (_drLocale == "koKR") and "Fonts\\2002.TTF"
+			or (_drLocale == "zhCN") and "Fonts\\ARHei.ttf"
+			or (_drLocale == "zhTW") and "Fonts\\arheiuhk_bd.TTF"
+			or "Fonts\\ARIALN.TTF",
 	},
-	[7] = { -- algari dark
-		BarTexture = "Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Progress.blp",
+	{
+		key = "Morpheus",
+		name = L["Font_Morpheus"],
+		path = (_drLocale == "koKR") and "Fonts\\K_Pagetext.ttf"
+			or (_drLocale == "zhCN") and "Fonts\\ARKai_T.ttf"
+			or (_drLocale == "zhTW") and "Fonts\\blei00d.ttf"
+			or (_drLocale == "ruRU") and "Fonts\\MORPHEUS_CYR.TTF"
+			or "Fonts\\MORPHEUS.ttf",
 	},
-	[8] = { -- algari silver
-		BarTexture = "Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Progress.blp",
-	},
-	[9] = { -- default
-		BarTexture = "Interface\\TARGETINGFRAME\\UI-StatusBar",
-	},
-	[10] = { -- algari silver
-		BarTexture = "Interface\\AddOns\\DragonRider\\Textures\\Speed_Themes\\Ed\\Ed_Progress.blp",
+	{
+		key = "Skurri",
+		name = L["Font_Skurri"],
+		path = (_drLocale == "koKR") and "Fonts\\K_Damage.ttf"
+			or (_drLocale == "zhCN") and "Fonts\\ARKai_C.ttf"
+			or (_drLocale == "zhTW") and "Fonts\\bKAI00M.ttf"
+			or (_drLocale == "ruRU") and "Fonts\\SKURRI_CYR.TTF"
+			or "Fonts\\skurri.ttf",
 	},
 };
 
-local DefOptions = DR.SpeedometerOptions[1].Cover
-local DefBarOptions = DR.SpeedometerOptions[1].Bar
+function DR.GetSpeedTextFlags()
+	if not DragonRider_DB then return "" end
+	local flags = {}
+	if DragonRider_DB.speedTextFlagOutline then
+		table.insert(flags, "OUTLINE")
+	end
+	if DragonRider_DB.speedTextFlagThickOutline then
+		table.insert(flags, "THICKOUTLINE")
+	end
+	if DragonRider_DB.speedTextFlagMonochrome then
+		table.insert(flags, "MONOCHROME")
+	end
+	if DragonRider_DB.speedTextFlagSlug then
+		table.insert(flags, "SLUG")
+	end
+	return table.concat(flags, ", ")
+end
 
-DR.statusbar = CreateFrame("StatusBar", "DragonRider_Speedometer", UIParent)
+function DR.UpdateSpeedTextAppearance()
+	if not DragonRider_DB then return end
+
+	local fontEntry = DR.FindSpeedometerFont(DragonRider_DB.speedTextFont or "FrizQuadrata")
+	local flags = DR.GetSpeedTextFlags()
+	DR.glide:SetFont(fontEntry.path, DragonRider_DB.speedTextScale or 12, flags)
+
+	local justify = DragonRider_DB.speedTextJustify or "LEFT"
+	DR.glide:ClearAllPoints()
+	if justify == "CENTER" then
+		DR.glide:SetJustifyH("CENTER")
+		DR.glide:SetPoint("CENTER", DR.statusbar, "CENTER", 0, 0)
+	elseif justify == "RIGHT" then
+		DR.glide:SetJustifyH("RIGHT")
+		DR.glide:SetPoint("RIGHT", DR.statusbar, "RIGHT", -10, 0)
+	else
+		DR.glide:SetJustifyH("LEFT")
+		DR.glide:SetPoint("LEFT", DR.statusbar, "LEFT", 10, 0)
+	end
+end
+
+local DefOptions = DR.SpeedometerOptions[1].Cover
+local DefBarEntry = DR.SpeedometerBarOptions[1]
+
+function DR.ApplyBarEntry(fill, barEntry)
+	if fill.flipbookTicker then
+		fill.flipbookTicker:Cancel()
+		fill.flipbookTicker = nil
+		fill.flipbookFrame = nil
+	end
+
+	if barEntry.BarAtlas then
+		fill:SetAtlas(barEntry.BarAtlas)
+	else
+		fill:SetTexture(barEntry.BarTexture or "Interface\\TARGETINGFRAME\\UI-StatusBar")
+	end
+
+	if barEntry.BarTexCoords then
+		fill:SetTexCoord(unpack(barEntry.BarTexCoords))
+	else
+		fill:SetTexCoord(0, 1, 0, 1)
+	end
+
+	fill:SetDesaturated(barEntry.BarDesat or false)
+
+	if barEntry.BarFlipbook then
+		local cols = barEntry.BarFlipbookColumns or 1;
+		local rows = barEntry.BarFlipbookRows or 1;
+		local fps = barEntry.BarFlipbookFPS or 15;
+		local totalFrames = cols * rows;
+		local startFrame = barEntry.BarFlipbookStartFrame or 0;
+		local endFrame = barEntry.BarFlipbookEndFrame or (totalFrames - 1);
+		local rangeSize = endFrame - startFrame + 1;
+		fill.flipbookFrame = startFrame;
+
+		fill.flipbookTicker = C_Timer.NewTicker(1 / fps, function()
+			local frame = fill.flipbookFrame;
+			local col = frame % cols;
+			local row = math.floor(frame / cols);
+			fill:SetTexCoord(col / cols, (col + 1) / cols, row / rows, (row + 1) / rows);
+			fill.flipbookFrame = startFrame + ((fill.flipbookFrame - startFrame + 1) % rangeSize);
+		end)
+	end
+end
+
+DR.statusbar = CreateFrame("Frame", "DragonRider_Speedometer", UIParent)
 DR.statusbar:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 DR.statusbar:SetWidth(244)
 DR.statusbar:SetHeight(24)
-DR.statusbar:SetStatusBarTexture(DefBarOptions.BarTexture)
-DR.statusbar:GetStatusBarTexture():SetHorizTile(false)
-DR.statusbar:GetStatusBarTexture():SetVertTile(false)
-DR.statusbar:SetStatusBarColor(.98, .61, .0)
-Mixin(DR.statusbar, SmoothStatusBarMixin)
-DR.statusbar:SetMinMaxSmoothedValue(0,100)
-DR.statusbar:SetValue(50)
 DR.statusbar:Hide()
+
+DR.statusbar.targetWidth = 0
+DR.statusbar.currentWidth = 0
+
+DR.statusbar.clippingFrame = CreateFrame("Frame", nil, DR.statusbar)
+DR.statusbar.clippingFrame:SetClipsChildren(true)
+DR.statusbar.clippingFrame:SetFrameLevel(DR.statusbar:GetFrameLevel() + 1)
+DR.statusbar.clippingFrame:SetPoint("TOPLEFT", DR.statusbar, "TOPLEFT")
+DR.statusbar.clippingFrame:SetPoint("BOTTOMLEFT", DR.statusbar, "BOTTOMLEFT")
+DR.statusbar.clippingFrame:SetWidth(0.001)
+
+DR.statusbar.fill = DR.statusbar.clippingFrame:CreateTexture(nil, "ARTWORK")
+DR.statusbar.fill:SetPoint("TOPLEFT", DR.statusbar, "TOPLEFT")
+DR.statusbar.fill:SetPoint("BOTTOMLEFT", DR.statusbar, "BOTTOMLEFT")
+DR.statusbar.fill:SetWidth(244)
+if DefBarEntry.BarAtlas then
+	DR.statusbar.fill:SetAtlas(DefBarEntry.BarAtlas);
+else
+	DR.statusbar.fill:SetTexture(DefBarEntry.BarTexture or "Interface\\TARGETINGFRAME\\UI-StatusBar");
+end
+DR.statusbar.fill:SetDesaturated(DefBarEntry.BarDesat or false)
+
+DR.statusbar.overlayFrame = CreateFrame("Frame", nil, DR.statusbar)
+DR.statusbar.overlayFrame:SetAllPoints()
+DR.statusbar.overlayFrame:SetFrameLevel(DR.statusbar.clippingFrame:GetFrameLevel() + 5)
+
+DR.statusbar.spark = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY")
+DR.statusbar.spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+DR.statusbar.spark:SetBlendMode("ADD")
+DR.statusbar.spark:SetSize(16, 48)
+DR.statusbar.spark:SetPoint("CENTER", DR.statusbar.clippingFrame, "RIGHT", 0, 0)
+DR.statusbar.spark:Hide()
+
+DR.statusbar:SetScript("OnUpdate", function(self, elapsed)
+	if math.abs(self.currentWidth - self.targetWidth) > 0.5 then
+		self.currentWidth = self.currentWidth + (self.targetWidth - self.currentWidth) * 10 * elapsed;
+		
+		if math.abs(self.currentWidth - self.targetWidth) <= 0.5 then
+			self.currentWidth = self.targetWidth;
+		end
+		
+		self.clippingFrame:SetWidth(math.max(0.001, self.currentWidth));
+	end
+end)
 
 local borderPixel = "Interface\\buttons\\white8x8"
 local borderThickness = 1
 
-DR.statusbar.borderTop = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 5)
+DR.statusbar.borderTop = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 5)
 DR.statusbar.borderTop:SetTexture(borderPixel)
 PixelUtil.SetPoint(DR.statusbar.borderTop, "TOPLEFT", DR.statusbar, "TOPLEFT", 0, 0)
 PixelUtil.SetPoint(DR.statusbar.borderTop, "TOPRIGHT", DR.statusbar, "TOPRIGHT", 0, 0)
@@ -656,7 +1075,7 @@ DR.statusbar.borderTop:SetTexelSnappingBias(0)
 DR.statusbar.borderTop:SetSnapToPixelGrid(false)
 DR.statusbar.borderTop:Hide()
 
-DR.statusbar.borderBottom = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 5)
+DR.statusbar.borderBottom = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 5)
 DR.statusbar.borderBottom:SetTexture(borderPixel)
 PixelUtil.SetPoint(DR.statusbar.borderBottom, "BOTTOMLEFT", DR.statusbar, "BOTTOMLEFT", 0, 0)
 PixelUtil.SetPoint(DR.statusbar.borderBottom, "BOTTOMRIGHT", DR.statusbar, "BOTTOMRIGHT", 0, 0)
@@ -665,7 +1084,7 @@ DR.statusbar.borderBottom:SetTexelSnappingBias(0)
 DR.statusbar.borderBottom:SetSnapToPixelGrid(false)
 DR.statusbar.borderBottom:Hide()
 
-DR.statusbar.borderLeft = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 5)
+DR.statusbar.borderLeft = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 5)
 DR.statusbar.borderLeft:SetTexture(borderPixel)
 PixelUtil.SetPoint(DR.statusbar.borderLeft, "TOPLEFT", DR.statusbar, "TOPLEFT", 0, -borderThickness)
 PixelUtil.SetPoint(DR.statusbar.borderLeft, "BOTTOMLEFT", DR.statusbar, "BOTTOMLEFT", 0, borderThickness)
@@ -674,7 +1093,7 @@ DR.statusbar.borderLeft:SetTexelSnappingBias(0)
 DR.statusbar.borderLeft:SetSnapToPixelGrid(false)
 DR.statusbar.borderLeft:Hide()
 
-DR.statusbar.borderRight = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 5)
+DR.statusbar.borderRight = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 5)
 DR.statusbar.borderRight:SetTexture(borderPixel)
 PixelUtil.SetPoint(DR.statusbar.borderRight, "TOPRIGHT", DR.statusbar, "TOPRIGHT", 0, -borderThickness)
 PixelUtil.SetPoint(DR.statusbar.borderRight, "BOTTOMRIGHT", DR.statusbar, "BOTTOMRIGHT", 0, borderThickness)
@@ -683,14 +1102,14 @@ DR.statusbar.borderRight:SetTexelSnappingBias(0)
 DR.statusbar.borderRight:SetSnapToPixelGrid(false)
 DR.statusbar.borderRight:Hide()
 
-local tick_1 = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 1) -- start gaining accelerated vigor
+local tick_1 = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 1) -- start gaining accelerated vigor
 tick_1:SetAtlas(DefOptions.TickAtlas)
 tick_1:SetWidth(DefOptions.Width)
 tick_1:SetHeight(DR.statusbar:GetHeight() * DefOptions.TickHeightMult)
 tick_1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (65 / 100) * DR.statusbar:GetWidth(), DefOptions.TickYOffset)
 tick_1:SetTexCoord(unpack(DefOptions.TickTexCoords))
 
-local tick_2 = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 1) -- above the "natural" glide speed
+local tick_2 = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 1) -- above the "natural" glide speed
 tick_2:SetAtlas(DefOptions.TickAtlas)
 tick_2:SetWidth(DefOptions.Width)
 tick_2:SetHeight(DR.statusbar:GetHeight() * DefOptions.TickHeightMult)
@@ -700,21 +1119,21 @@ tick_2:SetTexCoord(unpack(DefOptions.TickTexCoords))
 DR.statusbar.tick_1 = tick_1
 DR.statusbar.tick_2 = tick_2
 
-local CoverL = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 2)
+local CoverL = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 2)
 CoverL:SetAtlas(DefOptions.LeftAtlas)
 CoverL:SetPoint("TOPLEFT", DR.statusbar, "TOPLEFT", DefOptions.CoverLX, DR.statusbar:GetHeight()*DefOptions.CoverLYMult)
 CoverL:SetPoint("BOTTOMLEFT", DR.statusbar, "BOTTOMLEFT", DefOptions.CoverLX, -(DR.statusbar:GetHeight()*DefOptions.CoverLYMult))
 CoverL:SetWidth(DefOptions.CoverLWidth)
 CoverL:SetTexCoord(unpack(DefOptions.CoverLTexCoords))
 
-local CoverR = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 2)
+local CoverR = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 2)
 CoverR:SetAtlas(DefOptions.RightAtlas)
 CoverR:SetPoint("TOPRIGHT", DR.statusbar, "TOPRIGHT", DefOptions.CoverRX, DR.statusbar:GetHeight()*DefOptions.CoverRYMult)
 CoverR:SetPoint("BOTTOMRIGHT", DR.statusbar, "BOTTOMRIGHT", DefOptions.CoverRX, -(DR.statusbar:GetHeight()*DefOptions.CoverRYMult))
 CoverR:SetWidth(DefOptions.CoverRWidth)
 CoverR:SetTexCoord(unpack(DefOptions.CoverRTexCoords))
 
-local CoverM = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 2)
+local CoverM = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 2)
 CoverM:SetAtlas(DefOptions.MiddleAtlas)
 CoverM:SetPoint("TOPLEFT", CoverL, "TOPRIGHT", 0, 0)
 CoverM:SetPoint("BOTTOMRIGHT", CoverR, "BOTTOMLEFT", 0, 0)
@@ -748,12 +1167,12 @@ DR.statusbar.BGL = BGL
 DR.statusbar.BGR = BGR
 DR.statusbar.BGM = BGM
 
-local Topper = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 3)
+local Topper = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 3)
 Topper:SetAtlas(DefOptions.TopperAtlas)
 Topper:SetPoint("TOP", DR.statusbar, "TOP", unpack(DefOptions.TopperXY))
 Topper:SetSize(unpack(DefOptions.TopperSize))
 
-local Footer = DR.statusbar:CreateTexture(nil, "OVERLAY", nil, 3)
+local Footer = DR.statusbar.overlayFrame:CreateTexture(nil, "OVERLAY", nil, 3)
 Footer:SetAtlas(DefOptions.FooterAtlas)
 Footer:SetPoint("BOTTOM", DR.statusbar, "BOTTOM", unpack(DefOptions.FooterXY))
 Footer:SetSize(unpack(DefOptions.FooterSize))
@@ -761,41 +1180,38 @@ Footer:SetSize(unpack(DefOptions.FooterSize))
 DR.statusbar.Topper = Topper
 DR.statusbar.Footer = Footer
 
-DR.glide = DR.statusbar:CreateFontString(nil, nil, "GameTooltipText")
+DR.glide = DR.statusbar.overlayFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+DR.glide:SetDrawLayer("OVERLAY", 7)
 DR.glide:SetPoint("LEFT", DR.statusbar, "LEFT", 10, 0)
 
 function DR.useUnits()
-	if DragonRider_DB.speedValUnits == 1 then
+	local u = DragonRider_DB.speedValUnits
+	if u == "Yards" then
 		return " " .. L["UnitYards"]
-	elseif DragonRider_DB.speedValUnits == 2 then
+	elseif u == "Miles" then
 		return " " .. L["UnitMiles"]
-	elseif DragonRider_DB.speedValUnits == 3 then
+	elseif u == "Meters" then
 		return " " .. L["UnitMeters"]
-	elseif DragonRider_DB.speedValUnits == 4 then
+	elseif u == "Kilometers" then
 		return " " .. L["UnitKilometers"]
-	elseif DragonRider_DB.speedValUnits == 5 then
+	elseif u == "Percent" then
 		return "%" --.. L["UnitPercent"]
-	elseif DragonRider_DB.speedValUnits == 6 then
+	elseif u == "None" then
 		return ""
 	else
-		return L["UnitYards"]
+		return " " .. L["UnitYards"]
 	end
 end
 
 function DR:convertUnits(forwardSpeed)
-	if DragonRider_DB.speedValUnits == 1 then
-		return forwardSpeed
-	elseif DragonRider_DB.speedValUnits == 2 then
+	local u = DragonRider_DB.speedValUnits
+	if u == "Miles" then
 		return forwardSpeed*2.045
-	elseif DragonRider_DB.speedValUnits == 3 then
-		return forwardSpeed
-	elseif DragonRider_DB.speedValUnits == 4 then
+	elseif u == "Kilometers" then
 		return forwardSpeed*3.6
-	elseif DragonRider_DB.speedValUnits == 5 then
+	elseif u == "Percent" then
 		return forwardSpeed/7*100
-	elseif DragonRider_DB.speedValUnits == 6 then
-		return forwardSpeed
-	else
+	else -- "Yards", "Meters", "None", or fallback
 		return forwardSpeed
 	end
 end
@@ -803,16 +1219,23 @@ end
 local DRAGON_RACE_AURA_ID = 369968;
 
 function DR.updateSpeed()
-	if not LibAdvFlight.IsAdvFlyEnabled() and not DR.DriveUtils.IsDriving() then
-		return;
+	if not DR.IsPreviewMode then
+		if not LibAdvFlight.IsAdvFlyEnabled() and not DR.DriveUtils.IsDriving() then
+			return;
+		end
 	end
 
-	local forwardSpeed = LibAdvFlight.GetForwardSpeed();
-	if not LibAdvFlight.IsAdvFlyEnabled() then
-		forwardSpeed = DR.DriveUtils.GetSmoothedSpeed()
+	local forwardSpeed;
+	if DR.IsPreviewMode and DR.previewSpeed then
+		forwardSpeed = DR.previewSpeed;
+	elseif LibAdvFlight.IsAdvFlyEnabled() then
+		forwardSpeed = LibAdvFlight.GetForwardSpeed();
+	else
+		forwardSpeed = DR.DriveUtils.GetSmoothedSpeed();
 	end
+
 	local racing
-	if C_Secrets and not C_Secrets.ShouldSpellCooldownBeSecret(DRAGON_RACE_AURA_ID) then
+	if not DR.IsPreviewMode and C_Secrets and not C_Secrets.ShouldSpellCooldownBeSecret(DRAGON_RACE_AURA_ID) then
 		racing = C_UnitAuras.GetPlayerAuraBySpellID(DRAGON_RACE_AURA_ID)
 	end
 
@@ -821,7 +1244,12 @@ function DR.updateSpeed()
 	local MIN_BAR_VALUE;
 	local MAX_BAR_VALUE;
 
-	if DR.DragonRidingZoneCheck() == true or racing then
+	if DR.IsPreviewMode then
+		THRESHOLD_HIGH = 65;
+		THRESHOLD_LOW = 60;
+		MIN_BAR_VALUE = 0;
+		MAX_BAR_VALUE = 100;
+	elseif DR.DragonRidingZoneCheck() == true or racing then
 		THRESHOLD_HIGH = 65;
 		THRESHOLD_LOW = 60;
 		MIN_BAR_VALUE = 0;
@@ -838,8 +1266,8 @@ function DR.updateSpeed()
 		MAX_BAR_VALUE = 85;
 	end
 	
-	local themeIndex = (DragonRider_DB and DragonRider_DB.themeSpeed) or 1
-	local options = DR.SpeedometerOptions[themeIndex] and DR.SpeedometerOptions[themeIndex].Cover or DR.SpeedometerOptions[1].Cover
+	local themeData = DR.FindSpeedometerTheme((DragonRider_DB and DragonRider_DB.themeSpeed) or "Default")
+	local options = themeData.Cover
 	local yOffset = options.TickYOffset or 0
 
 	DR.statusbar.tick_1:ClearAllPoints()
@@ -847,7 +1275,6 @@ function DR.updateSpeed()
 	DR.statusbar.tick_1:SetPoint("TOP", DR.statusbar, "TOPLEFT", (THRESHOLD_HIGH / MAX_BAR_VALUE) * DR.statusbar:GetWidth(), yOffset)
 	DR.statusbar.tick_2:SetPoint("TOP", DR.statusbar, "TOPLEFT", (THRESHOLD_LOW / MAX_BAR_VALUE) * DR.statusbar:GetWidth(), yOffset)
 
-	DR.statusbar:SetMinMaxValues(MIN_BAR_VALUE, MAX_BAR_VALUE);
 	local textColor;
 	local barColor;
 
@@ -863,33 +1290,56 @@ function DR.updateSpeed()
 	end
 
 	textColor = CreateColor(textColor.r, textColor.g, textColor.b, textColor.a);
-	local text = format("|c%s%.1f%s|r", textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
+	
+	local decimals = DragonRider_DB.speedTextDecimals or 1
+	local formatString = "|c%s%." .. decimals .. "f%s|r"
+	
+	local text = format(formatString, textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
+	
 	if DR.DriveUtils.IsDriving() then
 		text = format("|c%s%.0f%s|r", textColor:GenerateHexColor(), DR:convertUnits(forwardSpeed), DR.useUnits());
 	end
 	DR.glide:SetText(text);
-	DR.statusbar:SetStatusBarColor(barColor.r, barColor.g, barColor.b, barColor.a);
-
-	if DragonRider_DB.speedValUnits == 6 then
+	
+	if DragonRider_DB.speedValUnits == "None" then
 		DR.glide:SetText("")
 	end
-	DR.statusbar:SetSmoothedValue(forwardSpeed)
+	DR.statusbar.fill:SetVertexColor(barColor.r, barColor.g, barColor.b, barColor.a);
+
+	local percent = math.max(0, math.min(forwardSpeed / MAX_BAR_VALUE, 1))
+	local fullWidth = DR.statusbar:GetWidth()
+
+	DR.statusbar.targetWidth = fullWidth * percent
+
+	if percent > 0.01 and percent < 0.99 then
+		DR.statusbar.spark:Show();
+	else
+		DR.statusbar.spark:Hide();
+	end
 end
 
 function DR.UpdateSpeedometerTheme()
-	local themeIndex = (DragonRider_DB and DragonRider_DB.themeSpeed) or defaultsTable.themeSpeed
-	local themeData = DR.SpeedometerOptions[themeIndex] or DR.SpeedometerOptions[1]
+	local themeData = DR.FindSpeedometerTheme((DragonRider_DB and DragonRider_DB.themeSpeed) or defaultsTable.themeSpeed)
 	local options = themeData.Cover
-	local barOptions = themeData.Bar
 	local isMinimalist = (themeData.key == "Minimalist")
 
 	DR.statusbar:SetWidth(DragonRider_DB.speedometerWidth or defaultsTable.speedometerWidth)
+	DR.statusbar.fill:SetWidth(DragonRider_DB.speedometerWidth or defaultsTable.speedometerWidth)
 	DR.statusbar:SetHeight(DragonRider_DB.speedometerHeight or defaultsTable.speedometerHeight)
 
-	if barOptions.BarTexture then
-		DR.statusbar:SetStatusBarTexture(barOptions.BarTexture)
+	local barEntry = DR.FindSpeedometerBar((DragonRider_DB and DragonRider_DB.speedBarTexture) or defaultsTable.speedBarTexture)
+	DR.ApplyBarEntry(DR.statusbar.fill, barEntry)
+
+	if barEntry.BarAtlas then
+		DR.statusbar.fill:SetAtlas(barEntry.BarAtlas);
 	else
-		DR.statusbar:SetStatusBarTexture("Interface\\buttons\\white8x8")
+		DR.statusbar.fill:SetTexture(barEntry.BarTexture or "Interface\\TARGETINGFRAME\\UI-StatusBar");
+	end
+	DR.statusbar.fill:SetDesaturated(barEntry.BarDesat or false)
+
+	local sparkC = DragonRider_DB.speedBarColor.spark
+	if sparkC then
+		DR.statusbar.spark:SetVertexColor(sparkC.r, sparkC.g, sparkC.b, sparkC.a);
 	end
 	
 	local tickHeight = DR.statusbar:GetHeight() * (options.TickHeightMult or 1.0)

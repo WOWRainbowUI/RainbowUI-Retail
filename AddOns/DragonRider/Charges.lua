@@ -1,4 +1,4 @@
-	local _, DR = ...
+local _, DR = ...
 
 local L = DR.L
 local defaultsTable = DR.defaultsTable
@@ -33,6 +33,7 @@ local PixelTexture = "Interface\\buttons\\white8x8"
 
 local ChargeOptions = {
 	[1] = { -- default - gold
+		key = "Default",
 		Base = TexturePath.."Points_Gold_Empty",
 		Cover = TexturePath.."Points_Gold_Cover",
 		Fill = TexturePath.."Points_Fill",
@@ -40,6 +41,7 @@ local ChargeOptions = {
 		IsMinimalist = false,
 	},
 	[2] = { -- algari bronze
+		key = "AlgariBronze",
 		Base = TexturePath.."Points_Bronze_Empty",
 		Cover = TexturePath.."Points_Bronze_Cover",
 		Fill = TexturePath.."Points_Fill",
@@ -47,6 +49,7 @@ local ChargeOptions = {
 		IsMinimalist = false,
 	},
 	[3] = { -- algari dark
+		key = "Algari_Dark",
 		Base = TexturePath.."Points_Dark_Empty",
 		Cover = TexturePath.."Points_Dark_Cover",
 		Fill = TexturePath.."Points_Fill",
@@ -54,6 +57,7 @@ local ChargeOptions = {
 		IsMinimalist = false,
 	},
 	[4] = { -- algari gold
+		key = "Algari_Gold",
 		Base = TexturePath.."Points_Gold_Empty",
 		Cover = TexturePath.."Points_Gold_Cover",
 		Fill = TexturePath.."Points_Fill",
@@ -61,6 +65,7 @@ local ChargeOptions = {
 		IsMinimalist = false,
 	},
 	[5] = { -- algari silver
+		key = "Algari_Silver",
 		Base = TexturePath.."Points_Silver_Empty",
 		Cover = TexturePath.."Points_Silver_Cover",
 		Fill = TexturePath.."Points_Fill",
@@ -68,6 +73,7 @@ local ChargeOptions = {
 		IsMinimalist = false,
 	},
 	[6] = { -- default - desat
+		key = "Default_Desat",
 		Base = TexturePath.."Points_Silver_Empty",
 		Cover = TexturePath.."Points_Silver_Cover",
 		Fill = TexturePath.."Points_Fill",
@@ -75,6 +81,7 @@ local ChargeOptions = {
 		IsMinimalist = false,
 	},
 	[7] = { -- algari - desat
+		key = "Algari_Desat",
 		Base = TexturePath.."Points_Silver_Empty",
 		Cover = TexturePath.."Points_Silver_Cover",
 		Fill = TexturePath.."Points_Fill",
@@ -82,6 +89,7 @@ local ChargeOptions = {
 		IsMinimalist = false,
 	},
 	[8] = { -- Minimalist
+		key = "Minimalist",
 		Base = PixelTexture,
 		Cover = nil,
 		Fill = PixelTexture,
@@ -89,6 +97,13 @@ local ChargeOptions = {
 		IsMinimalist = true,
 	},
 };
+
+local function FindChargeOption(key)
+	for _, c in ipairs(ChargeOptions) do
+		if c.key == key then return c end
+	end
+	return ChargeOptions[1]
+end
 
 for i = 1, MAX_CHARGE_FRAMES do
 	DR.charge[i] = CreateFrame("Frame", "DragonRider_StaticCharge_"..i, DR.charge)
@@ -141,8 +156,7 @@ function DR:chargeSetup(number)
 	local charge = DR.charge[number]
 	if not charge then return end
 
-	local themeVigor = (DragonRider_DB and DragonRider_DB.themeVigor) or 1
-	local options = ChargeOptions[themeVigor] or ChargeOptions[1]
+	local options = FindChargeOption((DragonRider_DB and DragonRider_DB.themeVigor) or "Default")
 
 	charge.texBase:SetTexture(options.Base)
 	charge.texFill:SetTexture(options.Fill)
@@ -237,7 +251,7 @@ function DR.UpdateChargePositions()
 
 	local showTopBottom = false
 
-	if orientation == 1 then
+	if orientation == "Vertical" then
 		if vigorWrap >= 3 then
 			showTopBottom = false
 		else

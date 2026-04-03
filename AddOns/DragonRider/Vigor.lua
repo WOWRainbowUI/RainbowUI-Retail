@@ -55,8 +55,8 @@ local DECOR_Y = -10
 
 DR.VigorOptions = {
 	[1] = { 
-		key = "Default",          -- Add Internal Key
-		name = L["Default"],      -- Add Display Name
+		key = "Default", -- Add Internal Key
+		name = L["Default"], -- Add Display Name
 		Full = {
 			Atlas = "dragonriding_vigor_fillfull",
 			Desat = false,
@@ -414,42 +414,52 @@ DR.VigorOptions = {
 
 local DecorOptions = {
 	[1] = {
+		key = "Default",
 		Atlas = "dragonriding_vigor_decor",
 		Desat = false,
 	},
 	[2] = {
+		key = "AlgariBronze",
 		Atlas = "dragonriding_sgvigor_decor_bronze",
 		Desat = false,
 	},
 	[3] = {
+		key = "Algari_Dark",
 		Atlas = "dragonriding_sgvigor_decor_dark",
 		Desat = false,
 	},
 	[4] = {
+		key = "Algari_Gold",
 		Atlas = "dragonriding_sgvigor_decor_gold",
 		Desat = false,
 	},
 	[5] = {
+		key = "Algari_Silver",
 		Atlas = "dragonriding_sgvigor_decor_silver",
 		Desat = false,
 	},
 	[6] = {
+		key = "Default_Desat",
 		Atlas = "dragonriding_vigor_decor",
 		Desat = true,
 	},
 	[7] = {
+		key = "Algari_Desat",
 		Atlas = "dragonriding_sgvigor_decor_silver",
 		Desat = true,
 	},
 	[8] = {
+		key = "Gryphon_Desat",
 		Atlas = "UI-HUD-ActionBar-Gryphon-Right",
 		Desat = true,
 	},
 	[9] = {
+		key = "Wyvern_Desat",
 		Atlas = "UI-HUD-ActionBar-Wyvern-Right",
 		Desat = true,
 	},
 	[10] = {
+		key = "Dragon_Desat",
 		Atlas = "nameplates-icon-elite-silver",
 		Desat = true,
 	},
@@ -472,6 +482,19 @@ end
 
 local VigorOptions = DR.VigorOptions
 
+local function FindVigorTheme(key)
+	for _, t in ipairs(VigorOptions) do
+		if t.key == key then return t end
+	end
+	return VigorOptions[1]
+end
+
+local function FindDecorOption(key)
+	for _, d in ipairs(DecorOptions) do
+		if d.key == key then return d end
+	end
+	return DecorOptions[1]
+end
 
 local vigorBar = CreateFrame("Frame", "DragonRider_Vigor", UIParent)
 vigorBar:SetPoint("CENTER", BAR_X, BAR_Y)
@@ -580,7 +603,7 @@ local function CreateChargeBar(parent, index)
 	bar.animFill:SetSize(BAR_WIDTH, BAR_HEIGHT)
 	bar.animFillKey = "animFill" -- key for the animation group
 
-	bar.fillOrientation = (DragonRider_DB and DragonRider_DB.vigorBarFillDirection) or BAR_FILL_ORIENTATION
+	bar.fillOrientation = (DragonRider_DB and DragonRider_DB.vigorBarFillDirection) or "Vertical"
 	bar.fillDirection = FILL_DIRECTION
 
 	function bar:UpdateFillAnchors()
@@ -592,7 +615,7 @@ local function CreateChargeBar(parent, index)
 
 		local currentWidth, currentHeight = bar:GetSize()
 
-		if bar.fillOrientation == 1 then -- vertical
+		if bar.fillOrientation == "Vertical" then
 			bar.clippingFrame:SetWidth(currentWidth)
 			bar.clippingFrame:SetHeight(0)
 			if bar.fillDirection == 1 then -- bottom-to-top
@@ -604,7 +627,7 @@ local function CreateChargeBar(parent, index)
 				bar.clippingFrame:SetPoint("TOPRIGHT", bar)
 				bar.animFill:SetPoint("TOP", bar.clippingFrame, "TOP")
 			end
-		elseif bar.fillOrientation == 2 then -- horizontal
+		elseif bar.fillOrientation == "Horizontal" then
 			bar.clippingFrame:SetWidth(0)
 			bar.clippingFrame:SetHeight(currentHeight)
 			if bar.fillDirection == 1 then -- left-to-right
@@ -733,7 +756,7 @@ local function CreateChargeBar(parent, index)
 
 		local currentWidth, currentHeight = bar:GetSize()
 
-		if bar.fillOrientation == 1 then -- Vertical
+		if bar.fillOrientation == "Vertical" then
 			local fillHeight = currentHeight * percent
 			bar.clippingFrame:SetHeight(fillHeight)
 			-- position the spark at the top edge of the fill
@@ -742,7 +765,7 @@ local function CreateChargeBar(parent, index)
 			local anchorPoint = (bar.fillDirection == 1 and "BOTTOM" or "TOP")
 			bar.spark:SetPoint("CENTER", bar, anchorPoint, 0, yOffset)
 
-		elseif bar.fillOrientation == 2 then -- Horizontal
+		elseif bar.fillOrientation == "Horizontal" then
 			local fillWidth = currentWidth * percent
 			bar.clippingFrame:SetWidth(fillWidth)
 			-- position the spark at the leading edge of the fill
@@ -779,24 +802,24 @@ function DR.UpdateVigorLayout()
 	local direction
 	if DragonRider_DB then
 		vigorWrap = (DragonRider_DB.vigorWrap and DragonRider_DB.vigorWrap > 0 and DragonRider_DB.vigorWrap) or VIGOR_WRAP
-		orientation = (DragonRider_DB.vigorBarOrientation) or ORIENTATION
+		orientation = (DragonRider_DB.vigorBarOrientation) or "Horizontal"
 		bar_width = (DragonRider_DB.vigorBarWidth) or BAR_WIDTH
 		bar_height = (DragonRider_DB.vigorBarHeight) or BAR_HEIGHT
 		bar_spacing = (DragonRider_DB.vigorBarSpacing) or BAR_SPACING
-		direction = (DragonRider_DB.vigorBarDirection) or DIRECTION
+		direction = (DragonRider_DB.vigorBarDirection) or "DownRight"
 	else
 		vigorWrap = VIGOR_WRAP
-		orientation = ORIENTATION
+		orientation = "Horizontal"
 		bar_width = BAR_WIDTH
 		bar_height = BAR_HEIGHT
 		bar_spacing = BAR_SPACING
-		direction = DIRECTION
+		direction = "DownRight"
 	end
 
 	local wrap = math.min(vigorWrap, MAX_CHARGES)
 	if wrap <= 0 then wrap = MAX_CHARGES end
 
-	if orientation == 1 then -- Vertical layout
+	if orientation == "Vertical" then -- Vertical layout
 		local numCols = math.ceil(MAX_CHARGES / wrap)
 		local numRowsOnLongestCol = wrap
 
@@ -819,7 +842,7 @@ function DR.UpdateVigorLayout()
 			local colHeight = (numBarsInThisCol * bar_height) + (math.max(0, numBarsInThisCol - 1) * bar_spacing)
 			local yOffset = (totalHeight - colHeight) / 2
 
-			if direction == 1 then -- left-to-right columns, top-to-bottom bars
+			if direction == "DownRight" then -- left-to-right columns, top-to-bottom bars
 				local x = col * (bar_width + bar_spacing)
 				local y = -(yOffset + row * (bar_height + bar_spacing))
 				bar:SetPoint("TOPLEFT", vigorBar, "TOPLEFT", x, y)
@@ -832,7 +855,7 @@ function DR.UpdateVigorLayout()
 			if bar.progress then bar:SetProgress(bar.progress) end
 		end
 
-	elseif orientation == 2 then -- Horizontal layout
+	elseif orientation == "Horizontal" then -- Horizontal layout
 		local numRows = math.ceil(MAX_CHARGES / wrap)
 		local numColsOnLongestRow = wrap
 
@@ -855,7 +878,7 @@ function DR.UpdateVigorLayout()
 			local rowWidth = (numBarsInThisRow * bar_width) + (math.max(0, numBarsInThisRow - 1) * bar_spacing)
 			local xOffset = (totalWidth - rowWidth) / 2
 
-			if direction == 1 then -- top-to-bottom rows, left-to-right bars 
+			if direction == "DownRight" then -- top-to-bottom rows, left-to-right bars 
 				local x = xOffset + col * (bar_width + bar_spacing)
 				local y = -(row * (bar_height + bar_spacing))
 				bar:SetPoint("TOPLEFT", vigorBar, "TOPLEFT", x, y)
@@ -884,7 +907,7 @@ local function SetTextureOrAtlas(texture, options)
 end
 
 function DR.UpdateVigorFillDirection()
-	local barFillOrientation = (DragonRider_DB and DragonRider_DB.vigorBarFillDirection) or BAR_FILL_ORIENTATION
+	local barFillOrientation = (DragonRider_DB and DragonRider_DB.vigorBarFillDirection) or "Vertical"
 	local fillDirection = FILL_DIRECTION
 
 	for i, bar in ipairs(vigorBar.bars) do
@@ -902,9 +925,8 @@ function DR.UpdateVigorFillDirection()
 end
 
 function DR.UpdateVigorTheme()
-	local themeIndex = (DragonRider_DB and DragonRider_DB.themeVigor) or 1
-	local options = VigorOptions[themeIndex] or VigorOptions[1]
-	local isMinimalist = (themeIndex == 8)
+	local options = FindVigorTheme((DragonRider_DB and DragonRider_DB.themeVigor) or "Default")
+	local isMinimalist = (options.key == "Minimalist")
 	local overlayOptions = options.Overlay or VigorOptions[1].Overlay
 
 	for i, bar in ipairs(vigorBar.bars) do
@@ -1030,8 +1052,7 @@ function DR.ToggleDecor()
 		end
 	end
 
-	local themeIndex = (DragonRider_DB and DragonRider_DB.sideArtStyle) or 1
-	local options = DecorOptions[themeIndex] or DecorOptions[1]
+	local options = FindDecorOption((DragonRider_DB and DragonRider_DB.sideArtStyle) or "Default")
 
 	for i = 1, 2 do
 		local decor = vigorBar.decor[i]
@@ -1069,24 +1090,35 @@ end
 
 local function UpdateChargeBars()
 
-	local info = C_Spell.GetSpellCharges(SPELL_ID)
-	if not info then return end
+	local current, max, start, duration
 
-	local current = info.currentCharges or 0
-	if issecretvalue and issecretvalue(current) then
-		return
+	if DR.IsPreviewMode and DR.previewVigor then
+		current = DR.previewVigor.current
+		max = DR.previewVigor.max
+		start = DR.previewVigor.start
+		duration = DR.previewVigor.duration
+	else
+		local info = C_Spell.GetSpellCharges(SPELL_ID)
+		if not info then return end
+
+		current = info.currentCharges or 0
+		if issecretvalue and issecretvalue(current) then
+			return
+		end
+		max = info.maxCharges or MAX_CHARGES
+		start = info.cooldownStartTime or 0
+		duration = info.cooldownDuration or 0
 	end
-	local max = info.maxCharges or MAX_CHARGES
-	local start = info.cooldownStartTime or 0
-	local duration = info.cooldownDuration or 0
 
 	-- fadeVigor option
-	if DR.EvaluateVigorVisibility then
+	if not DR.IsPreviewMode and DR.EvaluateVigorVisibility then
 		DR.EvaluateVigorVisibility(current, max)
 	end
 
-	if not DR.vigorBar:IsShown() and DR.vigorBar:GetAlpha() == 0 and not DR.fadeInVigorGroup:IsPlaying() then
-		return
+	if not DR.IsPreviewMode then
+		if not DR.vigorBar:IsShown() and DR.vigorBar:GetAlpha() == 0 and not DR.fadeInVigorGroup:IsPlaying() then
+			return
+		end
 	end
 
 	local rF, gF, bF, aF = GetRGBA(DragonRider_DB and DragonRider_DB.vigorBarColor and DragonRider_DB.vigorBarColor.full, VigorColors.full)
@@ -1209,6 +1241,7 @@ DR.modelScene = {};
 
 local ModelOptions = {
 	[1] = { -- Wind
+		key = "Wind",
 		modelFileID = 1100194,
 		Pos = {
 			X = 5, Y = 0, Z = -1.5,
@@ -1218,6 +1251,7 @@ local ModelOptions = {
 		Anim = 1,
 	},
 	[2] = { -- Lightning
+		key = "Lightning",
 		modelFileID = 3009394,
 		Pos = {
 			X = 5, Y = 0, Z = -.5,
@@ -1227,6 +1261,7 @@ local ModelOptions = {
 		Anim = 1,
 	},
 	[3] = { -- Fire Form
+		key = "FireForm",
 		modelFileID = 166112,
 		Pos = {
 			X = 2.2, Y = 0, Z = -.65,
@@ -1236,6 +1271,7 @@ local ModelOptions = {
 		Anim = 1,
 	},
 	[4] = { -- Arcane Form
+		key = "ArcaneForm",
 		modelFileID = 165568,
 		Pos = {
 			X = 2.2, Y = 0, Z = -.65,
@@ -1245,6 +1281,7 @@ local ModelOptions = {
 		Anim = 1,
 	},
 	[5] = { -- Frost Form
+		key = "FrostForm",
 		modelFileID = 166209,
 		Pos = {
 			X = 2.2, Y = 0, Z = -.65,
@@ -1254,6 +1291,7 @@ local ModelOptions = {
 		Anim = 1,
 	},
 	[6] = { -- Holy Form
+		key = "HolyForm",
 		modelFileID = 166322,
 		Pos = {
 			X = 2.2, Y = 0, Z = -.65,
@@ -1263,6 +1301,7 @@ local ModelOptions = {
 		Anim = 1,
 	},
 	[7] = { -- Nature Form
+		key = "NatureForm",
 		modelFileID = 166603,
 		Pos = {
 			X = 2.2, Y = 0, Z = -.65,
@@ -1272,6 +1311,7 @@ local ModelOptions = {
 		Anim = 1,
 	},
 	[8] = { -- Shadow Form
+		key = "ShadowForm",
 		modelFileID = 166792,
 		Pos = {
 			X = 2.2, Y = 0, Z = -.65,
@@ -1295,9 +1335,15 @@ local ModelOptions = {
 	]]
 };
 
+local function FindModelOption(key)
+	for _, m in ipairs(ModelOptions) do
+		if m.key == key then return m end
+	end
+	return ModelOptions[1]
+end
+
 function DR.modelSetup()
-	local themeIndex = (DragonRider_DB and DragonRider_DB.modelTheme) or 1
-	local options = ModelOptions[themeIndex] or ModelOptions[1]
+	local options = FindModelOption((DragonRider_DB and DragonRider_DB.modelTheme) or "Wind")
 
 	for i = 1, MAX_CHARGES do
 		local model = DR.model[i]
@@ -1337,7 +1383,13 @@ end
 DR.hideModels()
 
 function DR.vigorCounter()
-	local vigorCurrent = LibAdvFlight:GetCurrentVigor()
+	local vigorCurrent
+	if DR.IsPreviewMode and DR.previewVigor then
+		vigorCurrent = DR.previewVigor.current
+	else
+		vigorCurrent = LibAdvFlight:GetCurrentVigor()
+	end
+
 	local toggleModels = DragonRider_DB and DragonRider_DB.toggleModels
 	if not vigorCurrent then
 		-- vigorCurrent will be nil during login I think
