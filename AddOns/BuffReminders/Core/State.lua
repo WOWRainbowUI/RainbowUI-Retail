@@ -195,6 +195,8 @@ local currentWeaponEnchants = {
     hasOffHand = false,
     offHandID = nil,
     offHandExpiration = nil,
+    permanentMH = nil, -- permanent enchant ID from item link (MH)
+    permanentOH = nil, -- permanent enchant ID from item link (OH)
 }
 
 -- Valid group members for current refresh cycle (set once per BuffState.Refresh())
@@ -1574,14 +1576,17 @@ function BuffState.Refresh()
     currentWeaponEnchants.offHandID = offID
     currentWeaponEnchants.offHandExpiration = offExp
 
+    -- Fetch permanent enchant IDs from item links once per refresh cycle
+    local mhLink = GetInventoryItemLink("player", 16)
+    currentWeaponEnchants.permanentMH = mhLink and tonumber(mhLink:match("item:%d+:(%d+)")) or nil
+    local ohLink = GetInventoryItemLink("player", 17)
+    currentWeaponEnchants.permanentOH = ohLink and tonumber(ohLink:match("item:%d+:(%d+)")) or nil
+
     local trackingMode = db.buffTrackingMode
     local missingCountOnly = db.showMissingCountOnly
     -- Aura API is restricted in combat/encounters (inCombat set by Display layer),
     -- during M+ keystones, and in PvP instances (except during prep phase before gates open).
-    -- Ensure content type cache is populated before checking (avoids one-frame flicker after invalidation).
-    local contentType = GetCurrentContentType()
-    local isPvPRestricted = contentType == "pvp" and not inPvPPrepPhase
-    local isAuraRestricted = inCombat or GetCurrentDifficultyKey() == "mythicPlus" or isPvPRestricted
+    local isAuraRestricted = BuffState.IsRestricted()
     local hideExpiring = isAuraRestricted and db.hideExpiringInCombat ~= false
 
     -- Process raid buffs (coverage - need everyone to have them)
@@ -1660,6 +1665,9 @@ function BuffState.Refresh()
                             if buff.getNextCastID then
                                 local castID = buff.getNextCastID()
                                 entry.dynamicIcon = castID and C_Spell.GetSpellTexture(castID)
+                            end
+                            if not entry.dynamicIcon and buff.getDynamicIcon then
+                                entry.dynamicIcon = buff.getDynamicIcon()
                             end
                         elseif
                             shouldShow == false
@@ -2121,6 +2129,14 @@ function BuffState.SetPvPPrepPhase(state)
     inPvPPrepPhase = state
 end
 
+---Whether the player is in a restricted context (combat, M+ keystone, or PvP match).
+---@return boolean
+function BuffState.IsRestricted()
+    return inCombat
+        or GetCurrentDifficultyKey() == "mythicPlus"
+        or (GetCurrentContentType() == "pvp" and not inPvPPrepPhase)
+end
+
 -- ============================================================================
 -- CACHE INVALIDATION
 -- ============================================================================
@@ -2191,6 +2207,16 @@ end
 ---@return number|nil
 function BuffState.GetOffHandEnchantID()
     return currentWeaponEnchants.offHandID
+end
+
+---Get the permanent enchant ID on a weapon slot (cached per refresh cycle)
+---@param slot number Inventory slot ID (16 = MH, 17 = OH)
+---@return number|nil
+function BuffState.GetPermanentWeaponEnchantID(slot)
+    if slot == 16 then
+        return currentWeaponEnchants.permanentMH
+    end
+    return currentWeaponEnchants.permanentOH
 end
 
 ---Invalidate off-hand weapon/shield cache (call on PLAYER_EQUIPMENT_CHANGED, PLAYER_SPECIALIZATION_CHANGED)

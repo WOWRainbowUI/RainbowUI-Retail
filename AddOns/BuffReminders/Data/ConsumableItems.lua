@@ -223,14 +223,14 @@ BR.CONSUMABLE_ITEMS = {
         [241334] = { label = "PvP", badge = "R1" }, -- Vicious Thalassian Flask of Honor
         [241335] = { label = "PvP", badge = "R2" }, -- Vicious Thalassian Flask of Honor (quality 2)
         -- Midnight 12.0.0 (fleeting, 2 tiers)
-        [245926] = { label = "Vers", badge = "F1", priority = 1 }, -- Fleeting Flask of Thalassian Resistance
-        [245927] = { label = "Vers", badge = "F2", priority = 1 }, -- Fleeting Flask of Thalassian Resistance (quality 2)
-        [245928] = { label = "Crit", badge = "F1", priority = 1 }, -- Fleeting Flask of the Shattered Sun
-        [245929] = { label = "Crit", badge = "F2", priority = 1 }, -- Fleeting Flask of the Shattered Sun (quality 2)
-        [245930] = { label = "Haste", badge = "F1", priority = 1 }, -- Fleeting Flask of the Blood Knights
-        [245931] = { label = "Haste", badge = "F2", priority = 1 }, -- Fleeting Flask of the Blood Knights (quality 2)
-        [245932] = { label = "Mast", badge = "F1", priority = 1 }, -- Fleeting Flask of the Magisters
-        [245933] = { label = "Mast", badge = "F2", priority = 1 }, -- Fleeting Flask of the Magisters (quality 2)
+        [245926] = { label = "Vers", badge = "F2", priority = 1 }, -- Fleeting Flask of Thalassian Resistance (quality 2)
+        [245927] = { label = "Vers", badge = "F1", priority = 1 }, -- Fleeting Flask of Thalassian Resistance
+        [245928] = { label = "Crit", badge = "F2", priority = 1 }, -- Fleeting Flask of the Shattered Sun (quality 2)
+        [245929] = { label = "Crit", badge = "F1", priority = 1 }, -- Fleeting Flask of the Shattered Sun
+        [245930] = { label = "Haste", badge = "F2", priority = 1 }, -- Fleeting Flask of the Blood Knights (quality 2)
+        [245931] = { label = "Haste", badge = "F1", priority = 1 }, -- Fleeting Flask of the Blood Knights
+        [245932] = { label = "Mast", badge = "F2", priority = 1 }, -- Fleeting Flask of the Magisters (quality 2)
+        [245933] = { label = "Mast", badge = "F1", priority = 1 }, -- Fleeting Flask of the Magisters
     },
     -- Rune priority: lower number = use first (Ethereal > Soulgorged > Crystallized > legacy)
     rune = {
@@ -265,12 +265,12 @@ BR.CONSUMABLE_ITEMS = {
 -- Fleeting flask item IDs. These sort first by numeric priority but should NOT be
 -- remembered — they would overwrite the user's regular flask preference.
 BR.FLEETING_FLASK_ITEMS = {
-    [245926] = true, -- Fleeting Flask of Thalassian Resistance
-    [245927] = true, -- Fleeting Flask of Thalassian Resistance (quality 2)
-    [245928] = true, -- Fleeting Flask of the Shattered Sun
-    [245929] = true, -- Fleeting Flask of the Shattered Sun (quality 2)
-    [245930] = true, -- Fleeting Flask of the Blood Knights
-    [245931] = true, -- Fleeting Flask of the Blood Knights (quality 2)
-    [245932] = true, -- Fleeting Flask of the Magisters
-    [245933] = true, -- Fleeting Flask of the Magisters (quality 2)
+    [245926] = true, -- Fleeting Flask of Thalassian Resistance (quality 2)
+    [245927] = true, -- Fleeting Flask of Thalassian Resistance
+    [245928] = true, -- Fleeting Flask of the Shattered Sun (quality 2)
+    [245929] = true, -- Fleeting Flask of the Shattered Sun
+    [245930] = true, -- Fleeting Flask of the Blood Knights (quality 2)
+    [245931] = true, -- Fleeting Flask of the Blood Knights
+    [245932] = true, -- Fleeting Flask of the Magisters (quality 2)
+    [245933] = true, -- Fleeting Flask of the Magisters
 }

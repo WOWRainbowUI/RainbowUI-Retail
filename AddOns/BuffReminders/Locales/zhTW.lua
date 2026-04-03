@@ -68,6 +68,8 @@ L["Overlay.NoPet"] = "無\n寵物"
 L["Overlay.PassivePet"] = "被動\n寵物"
 L["Overlay.WrongPet"] = "錯誤\n寵物"
 L["Overlay.NoRune"] = "無\n符文"
+L["Overlay.DKWrongRune"] = "錯誤\n符文"
+L["Overlay.DKWrongRuneOH"] = "錯誤\n副手\n符文"
 L["Overlay.NoFlask"] = "無\n精煉"
 L["Overlay.NoFood"] = "無\n食物"
 L["Overlay.NoWeaponBuff"] = "無\n武器\n增益"
@@ -80,6 +82,7 @@ L["Overlay.SecondsFormat"] = "%d秒"
 -- BUFF GROUP DISPLAY NAMES
 -- ============================================================================
 L["Group.Beacons"] = "信標"
+L["Group.DKRunes"] = "符文鍛造"
 L["Group.ShamanImbues"] = "薩滿附魔"
 L["Group.PaladinRites"] = "聖騎士儀式"
 L["Group.Pets"] = "寵物"
@@ -150,6 +153,7 @@ L["Display.SlashCommands"] = "斜線指令：/br, /br lock, /br unlock, /br test
 L["Display.MinimapLeftClick"] = "|cFFCFCFCF左鍵點擊|r：選項"
 L["Display.MinimapRightClick"] = "|cFFCFCFCF右鍵點擊|r：測試模式"
 L["Display.DismissConsumables"] = "隱藏消耗品提醒直到下次讀取畫面"
+L["Display.LoginDkRunes"] = "已新增死騎符文鍛造提醒。若你使用非標準配置，可透過增益列表中符文旁的齒輪圖示，依專精自訂要追蹤的符文鍛造。"
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -321,6 +325,16 @@ L["Options.ShowWithoutItems.Desc"] =
     "啟用時，即使你的背包中沒有該物品，也會顯示消耗品提醒。停用時，只顯示你實際攜帶的消耗品。"
 L["Options.DelveFoodOnly"] = "在探究中僅顯示探究食物"
 L["Options.DelveFoodOnly.Desc"] = "進入探究時，隱藏探究食物以外的所有消耗品提醒。"
+
+-- ============================================================================
+-- OPTIONS: DK RUNEFORGE PREFERENCES
+-- ============================================================================
+L["Options.RuneforgePreferences"] = "符文鍛造偏好設定"
+L["Options.RuneforgeNote"] = "依專精選擇預期的符文鍛造。當套用了錯誤或未套用符文鍛造時，將會顯示提醒。"
+L["Options.RuneMainHand"] = "主手"
+L["Options.RuneOffHand"] = "副手"
+L["Options.RuneTwoHanded"] = "雙手"
+L["Options.RuneDualWield"] = "雙持"
 
 -- ============================================================================
 -- OPTIONS: LAYOUT
@@ -567,6 +581,23 @@ L["Options.Min"] = "分鐘"
 -- ============================================================================
 -- COMPONENTS (UI/Components.lua)
 -- ============================================================================
+-- Content filter tooltip
+L["Content.ClickToFilter"] = "點擊以依 %s 難度篩選"
+-- Mover labels
+L["Mover.AnchorGrowth"] = "對齊點 \194\183 延伸方向 %s"
+L["Mover.AnchorGrowthFrame"] = "對齊點 \194\183 延伸方向 %s \194\183 > %s"
+-- Pet labels
+L["Pet.SpiritBeast"] = "靈獸"
+-- Appearance grid labels
+L["Appearance.Width"] = "寬度"
+L["Appearance.Height"] = "高度"
+L["Appearance.Zoom"] = "縮放"
+L["Appearance.Border"] = "邊框"
+L["Appearance.Spacing"] = "間距"
+L["Appearance.Alpha"] = "透明度"
+L["Appearance.Text"] = "文字"
+L["Appearance.TextX"] = "文字 X"
+L["Appearance.TextY"] = "文字 Y"
 -- Slider tooltip
 L["Component.AdjustValue"] = "調整數值"
 L["Component.AdjustValue.Desc"] = "點擊輸入或使用滑鼠滾輪"

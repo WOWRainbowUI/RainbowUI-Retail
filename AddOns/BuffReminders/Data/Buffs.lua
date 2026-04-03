@@ -5,11 +5,37 @@ local L = BR.L
 -- Lua stdlib locals
 local min = math.min
 
+-- WoW API locals
+local GetSpellTexture = C_Spell.GetSpellTexture
+
 -- ============================================================================
 -- BUFF DATA TABLES
 -- ============================================================================
 -- This file contains all buff definition tables.
 -- Loaded after Core.lua so BR namespace is available.
+
+-- ============================================================================
+-- DK RUNEFORGE DATA
+-- ============================================================================
+-- Permanent enchant IDs parsed from item links (GetInventoryItemLink).
+
+---@class DKRuneforge
+---@field enchantID number Permanent enchant ID from item link
+---@field spellID number Spell ID for icon resolution
+---@field key string Internal identifier
+
+---@type DKRuneforge[]
+local DK_RUNEFORGES = {
+    { enchantID = 3368, spellID = 53344, key = "fallenCrusader" },
+    { enchantID = 3370, spellID = 53343, key = "razorice" },
+    { enchantID = 3847, spellID = 62158, key = "stoneskinGargoyle" },
+    { enchantID = 6241, spellID = 326805, key = "sanguination" },
+    { enchantID = 6242, spellID = 326855, key = "spellwarding" },
+    { enchantID = 6244, spellID = 326977, key = "unendingThirst" },
+    { enchantID = 6245, spellID = 327082, key = "apocalypse" },
+}
+
+BR.DK_RUNEFORGES = DK_RUNEFORGES
 
 -- ============================================================================
 -- TYPE DEFINITIONS
@@ -79,9 +105,12 @@ local min = math.min
 ---@field infoTooltip? TooltipText
 ---@field customCheck? fun(isRestricted?: boolean): boolean?
 ---@field getNextCastID? fun(): number|nil -- Returns spell ID of next spell to cast (used for dynamic icon)
+---@field getDynamicIcon? fun(): number|nil -- Returns texture ID for dynamic display icon
 ---@field getPetActions? fun(): PetAction[]?  -- Override pet actions (e.g., wrong pet → Felguard only)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field showOnInstanceEntry? boolean Only show when entering an instance (not M+), skip normal buff checks
+---@field noExpirationGlow? boolean Suppress expiration glow (for permanent enchants or intentionally short buffs)
+---@field skipSpellKnownCheck? boolean Skip the "player knows spell" check (for custom/dynamic entries)
 
 ---@class ConsumableBuff
 ---@field spellID? SpellID
@@ -473,6 +502,92 @@ BR.BUFF_TABLES = {
     },
     ---@type SelfBuff[]
     self = {
+        -- DK Runeforge (Main Hand) — reminder when MH enchant doesn't match configured preference
+        {
+            displayIcon = 237523, -- Runeforging icon
+            key = "dkRuneMH",
+            name = "Runeforge (Main Hand)",
+            class = "DEATHKNIGHT",
+            overlayText = L["Overlay.DKWrongRune"],
+            noExpirationGlow = true,
+            groupId = "dkRunes",
+            customCheck = function()
+                if BR.BuffState.IsRestricted() then
+                    return nil
+                end
+                local specId = BR.StateHelpers.GetPlayerSpecId()
+                local prefs = BR.profile.dkRunePreferences
+                local specPrefs = prefs and prefs[specId]
+                if not specPrefs then
+                    return nil
+                end
+                local isDW = BR.BuffState.HasOffHandWeapon()
+                local accepted = specPrefs[isDW and "dw_mainhand" or "mainhand"]
+                if not accepted or not next(accepted) then
+                    return nil
+                end
+                local current = BR.BuffState.GetPermanentWeaponEnchantID(16)
+                return not accepted[current]
+            end,
+            getDynamicIcon = function()
+                local specId = BR.StateHelpers.GetPlayerSpecId()
+                local prefs = BR.profile.dkRunePreferences
+                local specPrefs = prefs and prefs[specId]
+                if not specPrefs then
+                    return nil
+                end
+                local isDW = BR.BuffState.HasOffHandWeapon()
+                local accepted = specPrefs[isDW and "dw_mainhand" or "mainhand"]
+                if accepted then
+                    -- Iterate in DK_RUNEFORGES order for deterministic icon
+                    for _, rune in ipairs(DK_RUNEFORGES) do
+                        if accepted[rune.enchantID] then
+                            return GetSpellTexture(rune.spellID)
+                        end
+                    end
+                end
+            end,
+        },
+        -- DK Runeforge (Off Hand) — only relevant for dual-wield
+        {
+            displayIcon = 237523, -- Runeforging icon (same as MH, deduped in options)
+            key = "dkRuneOH",
+            name = "Runeforge (Off Hand)",
+            class = "DEATHKNIGHT",
+            overlayText = L["Overlay.DKWrongRuneOH"],
+            noExpirationGlow = true,
+            groupId = "dkRunes",
+            customCheck = function()
+                if BR.BuffState.IsRestricted() or not BR.BuffState.HasOffHandWeapon() then
+                    return nil
+                end
+                local specId = BR.StateHelpers.GetPlayerSpecId()
+                local prefs = BR.profile.dkRunePreferences
+                local specPrefs = prefs and prefs[specId]
+                if not specPrefs then
+                    return nil
+                end
+                local accepted = specPrefs.dw_offhand
+                if not accepted or not next(accepted) then
+                    return nil
+                end
+                local current = BR.BuffState.GetPermanentWeaponEnchantID(17)
+                return not accepted[current]
+            end,
+            getDynamicIcon = function()
+                local specId = BR.StateHelpers.GetPlayerSpecId()
+                local prefs = BR.profile.dkRunePreferences
+                local specPrefs = prefs and prefs[specId]
+                local accepted = specPrefs and specPrefs.dw_offhand
+                if accepted then
+                    for _, rune in ipairs(DK_RUNEFORGES) do
+                        if accepted[rune.enchantID] then
+                            return GetSpellTexture(rune.spellID)
+                        end
+                    end
+                end
+            end,
+        },
         -- Evoker Augmentation attunement (Black 403264 / Bronze 403265, player picks one)
         {
             spellID = { 403264, 403265 },
@@ -896,6 +1011,9 @@ BR.BUFF_TABLES = {
                 433583, -- Rite of Adjuration
                 433568, -- Rite of Sanctification
             },
+            visibilityCondition = function()
+                return not BR.BuffState.IsRestricted()
+            end,
             disabledInCompetitivePvP = true,
         },
         -- Weapon Buff (Off-Hand) - only shown when off-hand slot has a weapon
@@ -917,7 +1035,7 @@ BR.BUFF_TABLES = {
                 433568, -- Rite of Sanctification
             },
             visibilityCondition = function()
-                return BR.BuffState.HasOffHandWeapon()
+                return not BR.BuffState.IsRestricted() and BR.BuffState.HasOffHandWeapon()
             end,
             disabledInCompetitivePvP = true,
         },
@@ -935,6 +1053,7 @@ BR.BUFF_KEY_TO_CATEGORY = buffKeyToCategory
 ---@type table<string, BuffGroup>
 BR.BuffGroups = {
     beacons = { displayName = L["Group.Beacons"] },
+    dkRunes = { displayName = L["Group.DKRunes"] },
     shamanImbues = { displayName = L["Group.ShamanImbues"] },
     paladinRites = { displayName = L["Group.PaladinRites"] },
     pets = { displayName = L["Group.Pets"] },
