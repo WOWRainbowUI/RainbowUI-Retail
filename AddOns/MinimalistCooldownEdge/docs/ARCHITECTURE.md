@@ -172,7 +172,7 @@ The main cooldown path is:
 
 `Adapters/MiniCCAdapter.lua`
 
-- Detects MiniCC frames and resolves `cc`, `nameplate`, `portrait`, or `overlay` subtypes.
+- Detects MiniCC frames and resolves `cc`, `nameplate`, `portrait`, or `overlay` subtypes, preferring MiniCC module metadata when it is exposed on the container frame.
 
 `Adapters/SArenaAdapter.lua`
 

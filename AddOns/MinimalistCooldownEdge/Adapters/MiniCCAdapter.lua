@@ -22,6 +22,21 @@ local CLASSIFIER_CONSTANTS = C.Classifier
 local MINICC_PREFIX = CLASSIFIER_CONSTANTS.MiniCCNamePrefix
 local NP_PATTERNS = CLASSIFIER_CONSTANTS.NameplatePatterns
 local UF_PATTERNS = CLASSIFIER_CONSTANTS.UnitFramePatterns
+local MINICC_MODULE_TO_FRAME_TYPE = {
+    Alerts = MINICC_FRAME_TYPE.Overlay,
+    CC = MINICC_FRAME_TYPE.CC,
+    ["Friendly CDs"] = MINICC_FRAME_TYPE.FriendlyCD,
+    ["Friendly Indicators"] = MINICC_FRAME_TYPE.FriendlyCD,
+    Nameplates = MINICC_FRAME_TYPE.Nameplate,
+    Portraits = MINICC_FRAME_TYPE.Portrait,
+    ["Healer CC"] = MINICC_FRAME_TYPE.Overlay,
+    ["Kick Timer"] = MINICC_FRAME_TYPE.Overlay,
+    Precognition = MINICC_FRAME_TYPE.Overlay,
+}
+local MINICC_ANCHOR_TO_FRAME_TYPE = {
+    MiniCCHealerContainer = MINICC_FRAME_TYPE.Overlay,
+    MiniCCPrecogGuesser = MINICC_FRAME_TYPE.Overlay,
+}
 
 -- Fixed number of parent hops from cooldown to container frame.
 local CONTAINER_DEPTH = 3
@@ -108,6 +123,28 @@ local function GetMiniCCPointRelativeFrame(frame)
     return nil
 end
 
+local function ReadMiniCCModule(frame)
+    if not frame then return nil end
+    local moduleName = frame.MiniCCModule
+    if type(moduleName) == "string" and moduleName ~= "" then
+        return moduleName
+    end
+    return nil
+end
+
+local function ResolveMiniCCFrameTypeFromModule(container, anchor, cooldown)
+    local moduleName = ReadMiniCCModule(container)
+        or ReadMiniCCModule(anchor)
+        or ReadMiniCCModule(cooldown)
+    if not moduleName then return nil end
+    return MINICC_MODULE_TO_FRAME_TYPE[moduleName]
+end
+
+local function ResolveMiniCCFrameTypeFromAnchor(anchor)
+    if not anchor or not anchor.GetName then return nil end
+    return MINICC_ANCHOR_TO_FRAME_TYPE[anchor:GetName()]
+end
+
 -- =========================================================================
 -- MINICC TYPE RESOLUTION
 -- =========================================================================
@@ -120,7 +157,15 @@ local function ResolveMiniCCFrameType(cooldown)
     local container, anchor = GetMiniCCContainerAndAnchor(cooldown)
     if not container then return nil end
 
-    -- 1. Direct parent check (Nameplate and Portrait modules parent the
+    -- 1. MiniCC mirrors its module label onto the container frame as
+    --    instance.Frame.MiniCCModule in IconSlotContainer:New so it is readable here.
+    --    This now covers the explicit module-tagged containers, including Portraits.
+    local moduleFrameType = ResolveMiniCCFrameTypeFromModule(container, anchor, cooldown)
+    if moduleFrameType then
+        return moduleFrameType
+    end
+
+    -- 2. Direct parent check (Nameplate and Portrait modules parent the
     --    container directly to the nameplate / unit frame).
     if anchor then
         local anchorName  = anchor.GetName      and anchor:GetName()      or ""
@@ -135,7 +180,14 @@ local function ResolveMiniCCFrameType(cooldown)
         end
     end
 
-    -- 2. GetPoint fallback for containers parented to UIParent (CC, Alerts,
+    -- 3. Dedicated MiniCC anchors identify standalone widgets even when the
+    --    module metadata is not exposed on the frame yet.
+    local anchorFrameType = ResolveMiniCCFrameTypeFromAnchor(anchor)
+    if anchorFrameType then
+        return anchorFrameType
+    end
+
+    -- 4. GetPoint fallback for containers parented to UIParent (CC, Alerts,
     --    FriendlyIndicator, KickTimer, Trinkets …) – use the SetPoint anchor.
     local relativeTo = GetMiniCCPointRelativeFrame(container)
     if relativeTo then

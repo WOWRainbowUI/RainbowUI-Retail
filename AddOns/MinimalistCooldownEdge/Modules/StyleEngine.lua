@@ -693,6 +693,7 @@ function StyleEngine:GetCooldownFontSize(cdFrame, category, config)
     if category == CATEGORY.MiniCC then
         local subtype = Registry and Registry:GetSubtype(cdFrame)
         if subtype == MINICC_FRAME_TYPE.CC then return config.ccFontSize or config.fontSize end
+        if subtype == MINICC_FRAME_TYPE.FriendlyCD then return config.friendlyCdFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.Nameplate then return config.nameplateFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.Portrait then return config.portraitFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.Overlay then return config.overlayFontSize or config.fontSize end
@@ -731,6 +732,9 @@ function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, i
         local subtype = Registry and Registry:GetSubtype(cdFrame)
         if subtype == MINICC_FRAME_TYPE.CC then
             return config.ccHideCountdownNumbers ~= nil and config.ccHideCountdownNumbers or hideNums
+        end
+        if subtype == MINICC_FRAME_TYPE.FriendlyCD then
+            return config.friendlyCdHideCountdownNumbers ~= nil and config.friendlyCdHideCountdownNumbers or hideNums
         end
         if subtype == MINICC_FRAME_TYPE.Nameplate then
             return config.nameplateHideCountdownNumbers ~= nil and config.nameplateHideCountdownNumbers or hideNums
@@ -838,8 +842,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     -- Override: MiniCC takes precedence when detected
     if forcedCategory == CATEGORY.Nameplate and Registry then
         local sub = Registry:GetSubtype(cdFrame)
-        if sub and (sub == MINICC_FRAME_TYPE.CC or sub == MINICC_FRAME_TYPE.Nameplate
-                    or sub == MINICC_FRAME_TYPE.Portrait or sub == MINICC_FRAME_TYPE.Overlay) then
+        if sub and (sub == MINICC_FRAME_TYPE.CC or sub == MINICC_FRAME_TYPE.FriendlyCD
+                    or sub == MINICC_FRAME_TYPE.Nameplate or sub == MINICC_FRAME_TYPE.Portrait
+                    or sub == MINICC_FRAME_TYPE.Overlay) then
             category = CATEGORY.MiniCC
         end
     end
@@ -993,7 +998,10 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         local resolvedFont = MCE.ResolveFontPath(config.font)
         local fontSize = self:GetCooldownFontSize(cdFrame, category, config)
 
-        local enforceFont = (category == CATEGORY.SArena)
+        -- Some third-party addons recalculate cooldown font size after MiniCE
+        -- applies styling. Enforce our chosen font for those integrations so
+        -- the configured text size remains stable.
+        local enforceFont = (category == CATEGORY.SArena or category == CATEGORY.MiniCC)
 
         for i = 1, textRegionCount do
             self:ApplyFontStringStyle(
