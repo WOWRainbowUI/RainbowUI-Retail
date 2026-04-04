@@ -239,6 +239,10 @@ local function createPromoteArray()
 end
 
 local function demoteRaid()
+	if ExRT.isMN and InCombatLockdown() then
+		print("Not possible to demote in combat.")
+		return
+	end
 	for i = 1, GetNumGroupMembers() do
 		local name, rank = GetRaidRosterInfo(i)
 		if name and rank == 1 then
@@ -607,6 +611,7 @@ local promoteRosterUpdate
 do
 	local promotes,scheduledPromotes={},nil
 	local guildmembers = nil
+	local combatPromotes = {}
 
 	local function GuildReview()
 		guildmembers = {}
@@ -646,7 +651,19 @@ do
 				scheduledPromotes = nil
 				for name in pairs(promotes) do
 					if not module.db.demotedPlayers[ ExRT.F.delUnitNameServer(name) ] then
-						PromoteToAssistant(name, true)
+						if ExRT.isMN and InCombatLockdown() then
+							if not combatPromotes[name] then
+								local name1 = name
+								combatPromotes[name] = C_Timer.NewTicker(1,function(self)
+									if InCombatLockdown() then return end
+									PromoteToAssistant(name1, true)
+									combatPromotes[name1] = nil
+									self:Cancel()
+								end)
+							end
+						else
+							PromoteToAssistant(name, true)
+						end
 					end
 					promotes[name] = nil
 				end
@@ -704,8 +721,10 @@ function module.main:CHAT_MSG_WHISPER(msg, user, special)
 	end
 	msg = string.lower(msg):trim()
 	if ((msg and module.db.invWordsArray[msg]) or (module.db.invWordsArray["ANYKEYWORD"] and not UnitName(user))) and (not VMRT.InviteTool.OnlyGuild or UnitInGuild(user)) then
-		if not IsInRaid() and GetNumGroupMembers() == 5 then 
-			C_PartyInfo_ConvertToRaid()
+		if not IsInRaid() and GetNumGroupMembers() == 5 then
+			if not ExRT.isMN or not InCombatLockdown() then
+				C_PartyInfo_ConvertToRaid()
+			end
 		end
 		InviteUnit(user)
 	elseif ((msg and module.db.invWordsArray[msg]) or (module.db.invWordsArray["ANYKEYWORD"] and not UnitName(user))) and VMRT.InviteTool.OnlyGuild and (GetNumGuildMembers() or 0) == 0 and special ~= -578 then
@@ -728,7 +747,9 @@ function module.main:CHAT_MSG_BN_WHISPER(msg,sender,_,_,_,_,_,_,_,_,_,_,senderBn
 		return
 	end
 	if not IsInRaid() and GetNumGroupMembers() == 5 then 
-		C_PartyInfo_ConvertToRaid()
+		if not ExRT.isMN or not InCombatLockdown() then
+			C_PartyInfo_ConvertToRaid()
+		end
 	end
 
 	if not ExRT.isClassic then
@@ -846,7 +867,9 @@ function module.main:GROUP_ROSTER_UPDATE()
 	if inRaid then
 		module.db.converttoraid = false
 	elseif module.db.converttoraid then
-		C_PartyInfo_ConvertToRaid()
+		if not ExRT.isMN or not InCombatLockdown() then
+			C_PartyInfo_ConvertToRaid()
+		end
 	end
 	if module.db.reInviteR and inRaid then
 		module.db.reInviteR = nil

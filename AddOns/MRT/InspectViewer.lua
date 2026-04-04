@@ -858,6 +858,7 @@ function module.options:Load()
 
 	local enchRankSubMenu
 
+	--[=[
 	enchRankSubMenu = {
 		{text = L.RaidCheckMinRank, isTitle = true},
 		{text = "|A:Professions-ChatIcon-Quality-Tier1:20:20|a 1 ("..L.InspectViewerCheap..")", radio = true, arg1 = 1, checkState = (module.db.minEnchRank or 3) == 1 and module.db.checkCheap, func = function(self,checked)
@@ -906,6 +907,46 @@ function module.options:Load()
 			ELib.ScrollDropDown.UpdateChecks()
 		end},
 		{text = "|A:Professions-ChatIcon-Quality-Tier3:20:20|a 3", radio = true, arg1 = 6, checkState = (module.db.minEnchRank or 3) == 3 and not module.db.checkCheap, func = function(self,checked)
+			module.db.minEnchRank = nil
+			module.db.checkCheap = false
+			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
+			VMRT.InspectViewer.TopEnchGemsCheckCheap = module.db.checkCheap
+			module.options.ReloadPage()
+			for k,v in pairs(enchRankSubMenu) do if v.radio then v.checkState = v.arg1 == 6 end end
+			ELib.ScrollDropDown.UpdateChecks()
+		end},
+	}
+	]=]
+	enchRankSubMenu = {
+		{text = L.RaidCheckMinRank, isTitle = true},
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier1:20:20|a 2 ("..L.InspectViewerCheap..")", radio = true, arg1 = 2, checkState = (module.db.minEnchRank or 3) == 2 and module.db.checkCheap, func = function(self,checked)
+			module.db.minEnchRank = 2
+			module.db.checkCheap = true
+			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
+			VMRT.InspectViewer.TopEnchGemsCheckCheap = module.db.checkCheap
+			module.options.ReloadPage()
+			for k,v in pairs(enchRankSubMenu) do if v.radio then v.checkState = v.arg1 == 2 end end
+			ELib.ScrollDropDown.UpdateChecks()
+		end},
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier2:20:20|a 3 ("..L.InspectViewerCheap..")", radio = true, arg1 = 3, checkState = (module.db.minEnchRank or 3) == 3 and module.db.checkCheap, func = function(self,checked)
+			module.db.minEnchRank = nil
+			module.db.checkCheap = true
+			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
+			VMRT.InspectViewer.TopEnchGemsCheckCheap = module.db.checkCheap
+			module.options.ReloadPage()
+			for k,v in pairs(enchRankSubMenu) do if v.radio then v.checkState = v.arg1 == 3 end end
+			ELib.ScrollDropDown.UpdateChecks()
+		end},
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier1:20:20|a 2", radio = true, arg1 = 5, checkState = (module.db.minEnchRank or 3) == 2 and not module.db.checkCheap, func = function(self,checked)
+			module.db.minEnchRank = 2
+			module.db.checkCheap = false
+			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
+			VMRT.InspectViewer.TopEnchGemsCheckCheap = module.db.checkCheap
+			module.options.ReloadPage()
+			for k,v in pairs(enchRankSubMenu) do if v.radio then v.checkState = v.arg1 == 5 end end
+			ELib.ScrollDropDown.UpdateChecks()
+		end},
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier2:20:20|a 3", radio = true, arg1 = 6, checkState = (module.db.minEnchRank or 3) == 3 and not module.db.checkCheap, func = function(self,checked)
 			module.db.minEnchRank = nil
 			module.db.checkCheap = false
 			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
@@ -1395,18 +1436,19 @@ function module.options:Load()
 									icon.text:SetText("|c"..(itemColor or "ffffffff")..(itemLevel or ""))
 
 									local isSlotForEnchant = 
-										(slotID == 2 and IS_LOW) or 
-										(slotID == 15 and IS_LOW) or 
-										slotID == 11 or 
-										slotID == 12 or 
-										(slotID == 16) or 
-										(slotID == 17 and module.db.specHasOffhand[spec or 0]) or 
-										(slotID == 15 and IS_SL) or 
-										(slotID == 8 and (IS_DF or (module:GetSpecMainStat(spec)=="agi" and IS_SL))) or 
-										(slotID == 9 and (IS_DF or (module:GetSpecMainStat(spec)=="int" and IS_SL))) or 
-										(slotID == 10 and ((module:GetSpecMainStat(spec)=="str" and IS_SL) and not IS_DF)) or 
-										(slotID == 5 and IS_SL) or 
-										(slotID == 7 and IS_DF)
+										(slotID == 2 and IS_LOW) or 	--INVSLOT_NECK
+										slotID == 11 or 		--INVSLOT_FINGER1
+										slotID == 12 or 		--INVSLOT_FINGER2
+										(slotID == 16) or 		--INVSLOT_MAINHAND
+										(slotID == 17 and module.db.specHasOffhand[spec or 0]) or 	--INVSLOT_OFFHAND
+										(slotID == 15 and IS_SL and not IS_MN) or 	--INVSLOT_BACK
+										(slotID == 8 and (IS_DF or (module:GetSpecMainStat(spec)=="agi" and IS_SL))) or 	--INVSLOT_FEET
+										(slotID == 9 and (IS_DF or (module:GetSpecMainStat(spec)=="int" and IS_SL)) and not IS_MN) or 	--INVSLOT_WRIST
+										(slotID == 10 and ((module:GetSpecMainStat(spec)=="str" and IS_SL) and not IS_DF)) or 	--INVSLOT_HAND
+										(slotID == 5 and IS_SL) or 	--INVSLOT_CHEST
+										(slotID == 7 and IS_DF)	or	--INVSLOT_LEGS
+										(slotID == 3 and IS_MN)	or	--INVSLOT_SHOULDER
+										(slotID == 1 and IS_MN)		--INVSLOT_HEAD
 
 									if isSlotForEnchant and isLemix then
 										isSlotForEnchant = false
