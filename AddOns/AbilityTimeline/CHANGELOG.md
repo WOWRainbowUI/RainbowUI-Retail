@@ -1,13 +1,15 @@
 # AbilityTimeline
 
-## [V0.26](https://github.com/Jods-GH/AbilityTimeline/tree/V0.26) (2026-03-25)
-[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.25...V0.26) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
+## [v0.27](https://github.com/Jods-GH/AbilityTimeline/tree/v0.27) (2026-04-02)
+[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/V0.26...v0.27) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
 
-- fix issue when bossmods are disabled  
-- properly initialize font settings for bigicon  
-- make sure we are accesing the correct variable  
-- add an option to change fontflags e.G. OUTLINE for Spellname  
-    mentions #64  
-- add an option to use background color from bigwigs for border coloring  
-    closes #56  
-    Additionally fixes the text color to work properly again with bossmods  
+- add dbm color support  
+- fix potential nil error  
+    Reduce the amount of debug information logged when a timer is updated.  
+- Make sure eventinfo can't be nil when being send by bigwigs  
+- make sure bigicon text is drawn above bordere  
+    fixes #65  
+- adjust bigicon text default offset to prevent overlaps  
+    mentions #65  
+- make sure pull timer can't cause issues when used during lockdown  
+    fixes #66  
