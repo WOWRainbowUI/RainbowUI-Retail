@@ -15,6 +15,7 @@
 ## Notes-zhTW: Details!: Mythic Plus Extension |n|nM+ 打完時顯示各種統計資料的面板。
 ## X-Category-zhTW: 戰鬥
 ## DefaultState: disabled
+## RequiredDeps: Details
 
 locales\enUS.lua
 locales\zhCN.lua
