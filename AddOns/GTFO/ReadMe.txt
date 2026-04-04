@@ -2384,3 +2384,7 @@ Change Log:
 * Support for alerts when AFK
 * Added Midnight spells for Windrunner Spire
 
+6.4
+* Fixed taint issues with encounters starting during combat
+* Added Midnight spells for The Voidspire
+* Added Midnight spells for March on Quel'Danas

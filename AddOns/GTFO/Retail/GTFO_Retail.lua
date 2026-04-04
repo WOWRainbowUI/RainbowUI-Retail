@@ -302,6 +302,10 @@ function GTFO.RegisterEncounter(encounterId)
 		GTFO_DebugPrint("Register for encounter "..GTFO.CurrentEncounterId);
 		local spells = GTFO.EncounterIndex[GTFO.CurrentEncounterId];
 		if (spells and #spells > 0) then
+			if (InCombatLockdown()) then
+				GTFO_ChatPrint(GTFOLocal.Help_EncounterRegistrationBlocked);
+				return;
+			end
 			GTFO_DebugPrint("Found "..#spells.." spell(s) for "..GTFO.CurrentEncounterId);
 			GTFO.RegisterSpellList(spells, GTFO.EncounterPrivateAuraSoundIds);
 		end

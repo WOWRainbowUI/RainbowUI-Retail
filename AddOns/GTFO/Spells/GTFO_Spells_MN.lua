@@ -159,13 +159,6 @@ GTFO.SpellID["1272324"] = {
   --encounter = 3180;
 };
 
-GTFO.SpellID["1272324"] = {
-  --desc = "Void Remnants (Alleria Windrunner)";
-  sound = 1;
-  instance = 2912; 
-  --encounter = 3181;
-};
-
 GTFO.SpellID["1238206"] = {
   --desc = "Volatile Fissure (Alleria Windrunner)";
   sound = 1;
@@ -173,8 +166,59 @@ GTFO.SpellID["1238206"] = {
   --encounter = 3181;
 };
 
+GTFO.SpellID["1242553"] = {
+  --desc = "Void Remnants (Alleria Windrunner)";
+  sound = 1;
+  instance = 2912; 
+  --encounter = 3181;
+};
 
 
+--- ***********************
+--- * March on Quel'Danas *
+--- ***********************
+
+GTFO.SpellID["1242553"] = {
+  --desc = "Light Patch (Beloren)";
+  sound = 1;
+  instance = 2913; 
+  --encounter = 3182;
+};
+
+GTFO.SpellID["1242553"] = {
+  --desc = "Light Patch (Belo'ren)";
+  sound = 1;
+  instance = 2913; 
+  --encounter = 3182;
+};
+
+GTFO.SpellID["1241841"] = {
+  --desc = "Void Patch (Belo'ren)";
+  sound = 1;
+  instance = 2913; 
+  --encounter = 3182;
+};
+
+GTFO.SpellID["1242803"] = {
+  --desc = "Light Flames (Belo'ren)";
+  sound = 1;
+  instance = 2913; 
+  --encounter = 3182;
+};
+
+GTFO.SpellID["1242815"] = {
+  --desc = "Void Flames (Belo'ren)";
+  sound = 1;
+  instance = 2913; 
+  --encounter = 3182;
+};
+
+GTFO.SpellID["1282470"] = {
+  --desc = "Dark Quasar (L'ura)";
+  sound = 1;
+  instance = 2913; 
+  --encounter = 3183;
+};
 
 --- ***************************
 --- * Midnight (Unclassified) *
