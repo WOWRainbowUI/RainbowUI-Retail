@@ -101,8 +101,12 @@ local function CreateTimers(ctime,cname)
 		SendAddonMessage("BigWigs", "P^Pull^"..ctime, chat_type,playerName)
 		local _,_,_,_,_,_,_,mapID = GetInstanceInfo()
 		SendAddonMessage(dbmPrefix, ("%s1\tPT\t%d\t%d"):format(dbmPlayerPrefix, ctime,mapID or 0), chat_type,playerName)
-		if not ExRT.isClassic and VMRT.Timers.BlizzTimer then --currently is bugged, wait to fix
-			C_PartyInfo.DoCountdown(ctime)
+		if not ExRT.isClassic and VMRT.Timers.BlizzTimer then
+			if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
+				print("Not possible to start ingame countdown during combat.")
+			else
+				C_PartyInfo.DoCountdown(ctime)
+			end
 		end
 	elseif cname == L.timerafk then
 		if SlashCmdList["break"] then
@@ -126,7 +130,11 @@ local function CreateTimers(ctime,cname)
 		SendAddonMessage("BigWigs", "P^CBar^"..ctime.." "..cname, chat_type,playerName)
 		SendAddonMessage(dbmPrefix, ("%s1\tU\t%d\t%s"):format(dbmPlayerPrefix, ctime, cname), chat_type,playerName)
 		if not ExRT.isClassic and VMRT.Timers.BlizzTimer then
-			C_PartyInfo.DoCountdown(0)
+			if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
+				print("Not possible to stop ingame countdown during combat.")
+			else
+				C_PartyInfo.DoCountdown(0)
+			end
 		end
 		if DBM then
 			DBM:CreatePizzaTimer(ctime, cname, nil, name)

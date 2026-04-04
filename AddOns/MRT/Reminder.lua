@@ -6376,7 +6376,7 @@ function options:Load()
 				if type(spell) == "number" and self:IsPassFilterSpellType(spell_times,spell) then
 					spells_sorted[#spells_sorted+1] = {
 						id = spell, 
-						name = GetSpellName(spell) or "spell"..spell,
+						name = spell_times.name or GetSpellName(spell) or "spell"..spell,
 						isOff = self.spell_status[spell],
 						prio = self.spell_status[spell] and 0 or 1,
 						first = type(spell_times[1])=="table" and spell_times[1][1] or spell_times[1] or 0,
@@ -10928,7 +10928,7 @@ function options:Load()
 
 							spells_sorted[#spells_sorted+1] = {
 								id = spell, 
-								name = (GetSpellName(spell) or "spell"..spell),
+								name = spell_times.name or GetSpellName(spell) or "spell"..spell,
 								isOff = self.spell_status[spell],
 								prio = self.spell_status[spell] and 0 or 1,
 								time = t,

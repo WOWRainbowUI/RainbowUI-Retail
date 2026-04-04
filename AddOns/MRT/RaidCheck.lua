@@ -6,6 +6,8 @@ local GetSpellInfo = ExRT.F.GetSpellInfo or GetSpellInfo
 local GetItemInfo, GetItemInfoInstant, GetItemCount  = C_Item and C_Item.GetItemInfo or GetItemInfo, C_Item and C_Item.GetItemInfoInstant or GetItemInfoInstant, C_Item and C_Item.GetItemCount or GetItemCount
 local SendChatMessage = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
 local IsEncounterInProgress = C_InstanceEncounter and C_InstanceEncounter.IsEncounterInProgress or IsEncounterInProgress
+local issecretvalue = issecretvalue or function()end
+local issecrettable = issecrettable or function()end
 
 local VMRT = nil
 
@@ -591,6 +593,8 @@ local function GetRunes(checkType)
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
+				elseif issecretvalue(auraData.spellId) then
+
 				else
 					local isRune = module.db.tableRunes[auraData.spellId]
 					if isRune then
@@ -675,6 +679,8 @@ local function GetVRunes(checkType)
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
+				elseif issecretvalue(auraData.spellId) then
+
 				elseif type(auraData.name)~='string' then
 
 				elseif vruneName then
@@ -723,9 +729,11 @@ local function GetFood(checkType)
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
+				elseif issecretvalue(auraData.spellId) then
+
 				else
 					local spellId = auraData.spellId
-					local stats = auraData.points and auraData.points[1]
+					local stats = auraData.points and (issecrettable(auraData.points) and 1 or auraData.points[1])
 					local foodType = module.db.tableFood[spellId]
 					if foodType or auraData.icon == 136000 or auraData.icon == 132805 or auraData.icon == 133950 then
 						local _,unitRace = UnitRace(name)
@@ -834,6 +842,8 @@ local function GetFlask(checkType)
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
+				elseif issecretvalue(auraData.spellId) then
+
 				else
 					local flaskType = module.db.tableFlask[auraData.spellId]
 					if type(flaskType) == "boolean" then
@@ -960,10 +970,12 @@ local function GetRaidBuffs(checkType)
 					f[-k] = true
 				end
 			end
-			for i=1,40 do
+			for i=1,60 do
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
+				elseif issecretvalue(auraData.spellId) then
+
 				else
 					if ExRT.isClassic then
 						local k = classicBuffsList[auraData.spellId]
@@ -1154,10 +1166,12 @@ local function GetScrolls(checkType)
 	for j=1,40 do
 		local unit,name,_,subgroup = GetRaidRosterInfoWithUnit(j)
 		if name and subgroup <= gMax then
-			for i=1,40 do
+			for i=1,60 do
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i,"HELPFUL")
 				if not auraData then
 					break
+				elseif issecretvalue(auraData.spellId) then
+
 				else
 					local scrollType = module.db.tableScrolls[auraData.spellId]
 					if scrollType then
@@ -1649,6 +1663,8 @@ local function CheckPotionsOnPull()
 				local auraData = C_UnitAuras.GetAuraDataByIndex(name, i,"HELPFUL")
 				if not auraData then
 					break
+				elseif issecretvalue(auraData.spellId) then
+
 				elseif module.db.tablePotion[auraData.spellId] then
 					module.db.potionList[name] = 1
 					b = true
@@ -2737,7 +2753,7 @@ function module.frame:UpdateData(onlyLine)
 					elseif C_Secrets and C_Secrets.ShouldAurasBeSecret() then
 						break
 					elseif canaccessvalue and not canaccessvalue(auraData.spellId) then
-						break
+
 					elseif module.db.tableFood[auraData.spellId] then
 						local val = module.db.tableFood[auraData.spellId]
 
@@ -3407,6 +3423,7 @@ do
 		if not (isTest == "TEST") then 
 			isTest = nil 
 		end
+		if issecretvalue and issecretvalue(timer) then return end
 		if VMRT.RaidCheck.ReadyCheck and not isTest and not ExRT.isClassic then
 			PrepareDataToChat(VMRT.RaidCheck.SendSelf)
 		end
@@ -3442,6 +3459,7 @@ function module.main:READY_CHECK_FINISHED()
 end
 
 function module.main:READY_CHECK_CONFIRM(unit,response,isTest)
+	if issecretvalue and issecretvalue(unit) then return end
 	if not (isTest == "TEST") then 
 		unit = UnitName(unit) 
 		isTest = nil 
@@ -3887,7 +3905,7 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 			return
 		elseif canaccessvalue then
 			local accessData = C_UnitAuras.GetAuraDataByIndex("player", 1, "HELPFUL")
-			if accessData and not canaccessvalue(accessData.icon) then
+			if accessData and not canaccessvalue(accessData.spellId) then
 				return
 			end
 		end
@@ -3941,6 +3959,8 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 			local auraData = C_UnitAuras.GetAuraDataByIndex("player", i, "HELPFUL")
 			if not auraData then
 				break
+			elseif issecretvalue(auraData.spellId) then
+				
 			elseif module.db.tableFood[auraData.spellId] or auraData.icon == 136000 then
 				self.buttons.food.statustexture:SetTexture("Interface\\RaidFrame\\ReadyCheck-Ready")
 				self.buttons.food.texture:SetDesaturated(false)
@@ -4368,6 +4388,7 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 			if self.cancelDelay then
 				self.cancelDelay:Cancel()
 			end
+			if issecretvalue and issecretvalue(arg2) then arg2 = 40 end
 			self.cancelDelay = C_Timer.NewTimer(arg2 or 40,function()
 				self:UnregisterEvent("UNIT_AURA")
 				self:UnregisterEvent("UNIT_INVENTORY_CHANGED")
@@ -4376,7 +4397,7 @@ if (not ExRT.isClassic) and UnitLevel'player' >= 60 then
 					self.rlpointer:Hide()
 				end
 			end)
-			if arg1 and UnitIsUnit(arg1,"player") and not VMRT.RaidCheck.ConsDisableForStarter then
+			if arg1 and (not issecretvalue or not issecretvalue(arg1)) and UnitIsUnit(arg1,"player") and not VMRT.RaidCheck.ConsDisableForStarter then
 				self:Repos(true)
 			else
 				self:Repos()
