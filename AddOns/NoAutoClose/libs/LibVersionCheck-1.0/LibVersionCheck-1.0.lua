@@ -6,7 +6,7 @@
 
 local embedAddonName = ...;
 
-local MAJOR, MINOR = "LibVersionCheck-1.0", 3;
+local MAJOR, MINOR = "LibVersionCheck-1.0", 4;
 
 --- @class LibVersionCheck-1.0
 local LibVersionCheck = LibStub:NewLibrary(MAJOR, MINOR);
@@ -25,6 +25,20 @@ local whisperMsgCapture = "^" .. whisperMsgFormat:format("(.+)", "(.+)") .. "$";
 
 --- @return string?
 local function getGroupChannel()
+    local numGroupMembers = GetNumGroupMembers();
+    if numGroupMembers <= 1 then
+        return nil;
+    end
+    local hasPlayers = false;
+    for i = 1, numGroupMembers do
+        if UnitIsPlayer("party" .. i) then
+            hasPlayers = true;
+            break;
+        end
+    end
+    if not hasPlayers then
+        return nil;
+    end
     if IsInInstance() then
         return "INSTANCE_CHAT";
     end
