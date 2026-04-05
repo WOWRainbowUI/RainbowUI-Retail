@@ -26,7 +26,7 @@ L["Edit Mode locked - use /cdm"] = "編輯模式已鎖定 - 輸入 /cdm"
 L["Cooldown Viewer settings are managed by /cdm. Edit Mode changes are disabled to avoid taint."] = "冷卻管理器設定由 /cdm 管理。編輯模式變更已停用以避免污染報錯。"
 
 -----------------------------------------------------------------------
--- Core/Layout/Containers.lua
+-- Core/Layout/Layout.lua
 -----------------------------------------------------------------------
 
 L["Click and drag to move - /cdm > Positions to lock"] = "點擊並拖曳以移動 - /cdm > 位置 以鎖定"
@@ -423,20 +423,14 @@ L["%s Offset Y"] = "%s Y軸偏移"
 L["%s Text Color"] = "%s 文字顏色"
 
 -----------------------------------------------------------------------
--- Ayije_CDM_Options/CustomBuffs.lua
+-- Ayije_CDM_Options/BuffGroups.lua (custom buff strings)
 -----------------------------------------------------------------------
 
-L["ID: %s  |  Duration: %ss"] = "ID：%s  |  持續時間：%s秒"
-L["Remove"] = "移除"
-L["Custom Timers"] = "自訂計時器"
-L["Track spell casts and display custom buff icons alongside native buffs. Icons appear in the main buff container."] = "追蹤法術施放並在原生增益旁顯示自訂增益圖示。圖示顯示在主要增益容器中。"
-L["Add Tracked Spell"] = "新增追蹤法術"
 L["Spell ID:"] = "法術ID："
 L["Duration (sec):"] = "持續時間（秒）："
 L["Add Spell"] = "新增法術"
 L["Invalid spell ID"] = "無效的法術ID"
 L["Enter a valid duration"] = "請輸入有效的持續時間"
-L["Limit reached (9 max)"] = "已達上限（最多9個）"
 L["Added!"] = "已新增！"
 L["Failed - invalid spell ID"] = "失敗 - 無效的法術ID"
 
