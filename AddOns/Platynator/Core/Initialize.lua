@@ -173,6 +173,9 @@ function addonTable.Core.UpgradeDesign(design)
       }
       aura.textScale = nil
     end
+    if not aura.limit then
+      aura.limit = 30
+    end
   end
 
   local function UpdateAutoColors(autoColors)
@@ -209,6 +212,9 @@ function addonTable.Core.UpgradeDesign(design)
       end
       if ac.kind == "mouseover" and ac.includeTarget == nil then
         ac.includeTarget = true
+      end
+      if ac.kind == "threat" and ac.tanksOnly == nil then
+        ac.tanksOnly = false
       end
 
       index = index + 1
