@@ -55,6 +55,7 @@ L["SET_AUTO_ACCEPT"]     = "自動接受組隊邀請"
 L["SET_AUTO_PARTY_SYNC"] = "自動接受隊伍同步"
 L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s 邀請你加入隊伍。自動接受 |cff00ff00已啟用|r"
 L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s 邀請你進行隊伍同步。自動接受 |cff00ff00已啟用|r"
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此區域阻止了自動接受。請手動點擊按鈕。"
 
 -- Spirit Behavior Sub-Menu
 L["SET_SPIRIT_HEADER"]   = "靈魂行為"
@@ -64,6 +65,7 @@ L["SET_SPIRIT_RELEASE"]  = "自動釋放靈魂"
 
 L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s 正在復活你。自動接受 |cff00ff00已啟用|r"
 L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: 你已經死亡。自動釋放靈魂 |cff00ff00已啟用|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此區域阻止了自動釋放靈魂。請點擊釋放按鈕。"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
@@ -92,7 +94,7 @@ L["POPUP_COPY"]          = "按 Ctrl+C 複製:"
 L["SEARCH_PLACEHOLDER"]  = "搜尋 FriendGroups"
 L["SEARCH_TOOLTIP"]      = "FriendGroups: 搜尋任何人！名字、伺服器、職業甚至備註"
 
-L["MSG_WELCOME"]         = "版本 %s 已由 Osiris the Kiwi 為更新檔 12.0 更新"
+L["MSG_WELCOME"]         = ""
 L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r: 設定已重置為預設值。"
 L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r: 偵測到 Bnet API 錯誤。好友列表是空的可能是魔獸客戶端錯誤導致。請嘗試重新啟動遊戲。(無法保證修復)"
 

@@ -55,6 +55,7 @@ L["SET_AUTO_ACCEPT"]     = "Авто-прием приглашений"
 L["SET_AUTO_PARTY_SYNC"] = "Авто-прием синхр. группы"
 L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s приглашает в группу. Авто-прием |cff00ff00ВКЛЮЧЕН|r"
 L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s предлагает синхронизацию. Авто-прием |cff00ff00ВКЛЮЧЕН|r"
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard запретила автоматическое принятие в этой зоне. Пожалуйста, нажмите кнопку самостоятельно."
 
 -- Spirit Behavior Sub-Menu
 L["SET_SPIRIT_HEADER"]   = "Поведение духа"
@@ -64,6 +65,7 @@ L["SET_SPIRIT_RELEASE"]  = "Автоматически покинуть тело
 
 L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s воскрешает вас. Авто-прием |cff00ff00ВКЛЮЧЕН|r"
 L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: Вы умерли. Авто-выход из тела |cff00ff00ВКЛЮЧЕН|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard запретила автоматическое покидание тела в этой зоне. Пожалуйста, нажмите кнопку самостоятельно."
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
@@ -92,7 +94,7 @@ L["POPUP_COPY"]          = "Нажмите Ctrl+C для копирования:
 L["SEARCH_PLACEHOLDER"]  = "Поиск FriendGroups"
 L["SEARCH_TOOLTIP"]      = "FriendGroups: Ищите кого угодно! Имя, Мир, Класс и даже Заметки"
 
-L["MSG_WELCOME"]         = "Версия %s обновлена для патча 12.0 от Osiris the Kiwi"
+L["MSG_WELCOME"]         = ""
 L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r: Настройки сброшены."
 L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r: Обнаружен баг API Bnet. Ваш пустой список друзей вызван ошибкой клиента WoW. Пожалуйста, перезапустите игру. (Исправление не гарантировано)"
 

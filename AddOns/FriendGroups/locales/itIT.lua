@@ -55,6 +55,7 @@ L["SET_AUTO_ACCEPT"]     = "Accetta invito gruppo autom."
 L["SET_AUTO_PARTY_SYNC"] = "Accetta Sincronia gruppo autom."
 L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s ti invita in un gruppo. Accettazione autom. |cff00ff00ABILITATA|r"
 L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s ti invita alla Sincronia. Accettazione autom. |cff00ff00ABILITATA|r"
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard ha impedito l'accettazione automatica in questa zona. Clicca sul pulsante manualmente."
 
 -- Spirit Behavior Sub-Menu
 L["SET_SPIRIT_HEADER"]   = "Comportamento Spirito"
@@ -64,6 +65,7 @@ L["SET_SPIRIT_RELEASE"]  = "Rilascia Spirito autom."
 
 L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s ti sta resuscitando. Accettazione autom. |cff00ff00ABILITATA|r"
 L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: Sei morto. Rilascio autom. |cff00ff00ABILITATO|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard ha impedito il rilascio automatico in questa zona. Clicca sul pulsante di rilascio."
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
@@ -92,7 +94,7 @@ L["POPUP_COPY"]          = "Premi Ctrl+C per copiare:"
 L["SEARCH_PLACEHOLDER"]  = "Cerca FriendGroups"
 L["SEARCH_TOOLTIP"]      = "FriendGroups: Cerca chiunque! Nome, Reame, Classe e anche Note"
 
-L["MSG_WELCOME"]         = "Versione %s aggiornata per patch 12.0 da Osiris the Kiwi"
+L["MSG_WELCOME"]         = ""
 L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r: Impostazioni ripristinate."
 L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r: Bug API Bnet rilevato. La tua lista amici vuota è causata da un bug del client WoW. Riavvia il gioco. (Nessuna soluzione garantita)"
 

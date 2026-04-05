@@ -55,6 +55,7 @@ L["SET_AUTO_ACCEPT"]     = "自动接受组队邀请"
 L["SET_AUTO_PARTY_SYNC"] = "自动接受小队同步"
 L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s 邀请你加入队伍。自动接受 |cff00ff00已启用|r"
 L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s 邀请你进行小队同步。自动接受 |cff00ff00已启用|r"
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此区域阻止了自动接受。请手动点击按钮。"
 
 -- Spirit Behavior Sub-Menu
 L["SET_SPIRIT_HEADER"]   = "灵魂行为"
@@ -64,6 +65,7 @@ L["SET_SPIRIT_RELEASE"]  = "自动释放灵魂"
 
 L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s 正在复活你。自动接受 |cff00ff00已启用|r"
 L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: 你已经死亡。自动释放灵魂 |cff00ff00已启用|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此区域阻止了自动释放灵魂。请点击释放按钮。"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
@@ -92,7 +94,7 @@ L["POPUP_COPY"]          = "按 Ctrl+C 复制:"
 L["SEARCH_PLACEHOLDER"]  = "FriendGroups 搜索"
 L["SEARCH_TOOLTIP"]      = "FriendGroups: 搜索任何人！名字、服务器、职业甚至备注"
 
-L["MSG_WELCOME"]         = "版本 %s 已由 Osiris the Kiwi 为补丁 12.0 更新"
+L["MSG_WELCOME"]         = ""
 L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r: 设置已重置为默认。"
 L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r: 检测到 Bnet API 错误。好友列表为空是魔兽客户端的 Bug 导致的。请尝试重启游戏。(无法保证修复)"
 
