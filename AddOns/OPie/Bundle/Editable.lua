@@ -164,9 +164,9 @@ R:AddDefaultRing("MagePolymorph", {
 	name=L"Polymorphs", limit="MAGE", _u="OPCMP", internal=true, v=1
 })
 do -- MageTravel
-	local m = "/cast [mod] {{spell:%s}}; {{spell:%s}}"
+	local m = "/cast [mod] {{spell:%1$s}}; {{spell:%2$s}}; {{spell:%1$s}}"
 	R:AddDefaultRing("MageTravel", {
-		{id=m:format(1259190, 1259194), _u="2"}, -- Silvermoon City
+		{id=m:format(1259194, 1259190), _u="2"}, -- Silvermoon City
 		{id=m:format(446534, 446540), _u="1"}, -- Dornogal
 		{id=m:format(395289, 395277), _u="0"}, -- Valdrakken
 		{id=m:format(344597, 344587), _u="9"}, -- Oribos
@@ -184,7 +184,7 @@ do -- MageTravel
 		{"ring", "ExtraPortals", _u="e"}, -- Extra Portals
 		{id=m:format(32267, 32272), _u="l"}, -- Silvermoon
 		{id=m:format(32266, 32271), _u="x"}, -- Exodar
-		name=L"Portals and Teleports", hotkey="ALT-G", limit="MAGE", _u="OPCMV", v=3
+		name=L"Portals and Teleports", hotkey="ALT-G", limit="MAGE", _u="OPCMV", v=4
 	})
 	R:AddDefaultRing("ExtraPortals", {
 		{id=m:format(120146, 120145), _u="a"}, -- Ancient Dalaran

@@ -161,6 +161,9 @@ if MODERN or CF_WRATH then
 			[263466]=have1, -- abundant
 			[263467]=have1, -- avid learner's
 			[260193]=have1, -- fabled veteran's
+			-- Midnight inscription treatises [weekly]
+			[245755]=95127, [245756]=95137, [245757]=95131, [245758]=95134, [245759]=95129, [245760]=95133,
+			[245761]=95130, [245762]=95135, [245763]=95128, [245809]=95138, [245828]=95136,
 		}
 		filtered = {
 			[224292]=have3, -- radiant fuel shard

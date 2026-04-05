@@ -77,7 +77,7 @@ local navView = CreateFrame("Frame", nil, frame) do
 		t:SetPoint("TOPLEFT", ta, "BOTTOMLEFT", 0, -6)
 	end
 
-	makeNav(4, OPTIONS, L"Customize OPie's appearance and behavior.", 75)
+	makeNav(4, L"Options", L"Customize OPie's appearance and behavior.", 75)
 	makeNav(5, L"Ring Bindings", L"Customize OPie ring and in-ring key bindings.")
 	makeNav(6, L"Custom Rings", L"Edit existing rings, or create your own custom OPie rings.")
 	local svWarning = CreateFrame("Button", nil, navView) do
