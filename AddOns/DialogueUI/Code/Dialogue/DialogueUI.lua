@@ -1504,6 +1504,14 @@ function DUIDialogBaseMixin:HandleGossip()
 end
 
 function DUIDialogBaseMixin:HandleQuestDetail(playFadeIn)
+    local questID = GetQuestID();
+    if GossipDataProvider:ShouldAutoAcceptQuest(questID) then
+        if not API.IsPlayerOnQuest(questID) then
+            self:ScrollDownOrAcceptQuest(true);
+        end
+        return false;
+    end
+
     self:ReleaseAllObjects();
     local isQuestChanged = self:UseQuestLayout(true);
     playFadeIn = playFadeIn or isQuestChanged;
@@ -1791,7 +1799,9 @@ function DUIDialogBaseMixin:HandleQuestComplete(playFadeIn)
     if GetDBBool("AutoCompleteQuest") and (not self.chooseItems) then
         local questID = GetQuestID();
         local title = GetQuestTitle();
-        if GossipDataProvider:ShouldAutoCompleteQuest(questID, title) then
+        local preyQuestID = C_QuestLog.GetActivePreyQuest and C_QuestLog.GetActivePreyQuest();
+
+        if (preyQuestID and preyQuestID == questID) or GossipDataProvider:ShouldAutoCompleteQuest(questID, title) then
             local completionText = GetQuestText("Complete");
             local questData = {
                 questID = questID,
