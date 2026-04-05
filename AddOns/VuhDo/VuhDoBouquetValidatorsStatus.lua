@@ -42,10 +42,26 @@ local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sHealPredictionCalculator;
 local tSecretColor;
 
-----------------------------------------------------------
+
+
+--
+local function VUHDO_initHealPredictionCalculator()
+
+	sHealPredictionCalculator = CreateUnitHealPredictionCalculator();
+
+	sHealPredictionCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
+	sHealPredictionCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
+	sHealPredictionCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
+	sHealPredictionCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
+	sHealPredictionCalculator:SetIncomingHealOverflowPercent(1.0);
+
+	return;
+
+end
 
 
 
+--
 function VUHDO_bouquetValidatorsStatusInitLocalOverrides()
 
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
@@ -72,40 +88,6 @@ function VUHDO_bouquetValidatorsStatusInitLocalOverrides()
 	return;
 
 end
-
-
-
---
-function VUHDO_initHealPredictionCalculator()
-
-	sHealPredictionCalculator = CreateUnitHealPredictionCalculator();
-
-	sHealPredictionCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
-	sHealPredictionCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
-	sHealPredictionCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
-	sHealPredictionCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
-	sHealPredictionCalculator:SetIncomingHealOverflowPercent(1.0);
-
-	return;
-
-end
-
-
-
---
-function VUHDO_getHealPredictionCalculator()
-
-	if not sHealPredictionCalculator and sSecretsEnabled then
-		VUHDO_initHealPredictionCalculator();
-	end
-
-	return sHealPredictionCalculator;
-
-end
-
-
-
-----------------------------------------------------------
 
 
 

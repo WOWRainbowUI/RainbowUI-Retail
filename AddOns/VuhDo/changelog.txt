@@ -25,6 +25,8 @@ Bugfixes:
 -- Fixed out of range arrow when unit is not in the same zone  
 -- Fixed role detection for target and focus units not in group  
 -- Fixed heal absorb bar to properly anchor to health bar  
+-- Fixed solid gradient and class gradient bar colors  
+-- Fixed demo test mode bar colors  
   
   
 Improvements:  
@@ -32,6 +34,8 @@ Improvements:
 -- Added show tooltip option for Private Auras  
 -- Added declassified spell auras to default aura groups  
 -- Added declassified spell auras to global ignore list  
+-- Added smooth interpolation for status bar indicators  
+-- Added smooth interpolation for shield, overshield and heal absorb bars  
   
   
 --------------------------------------------------------------  

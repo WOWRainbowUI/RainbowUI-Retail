@@ -50,6 +50,7 @@ local VUHDO_BOUQUET_LAYER_TYPE_CURVE;
 local VUHDO_BOUQUET_LAYER_TYPE_DISPEL;
 local VUHDO_BOUQUET_LAYER_TYPE_AURA;
 local VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL;
+local VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR;
 
 local VUHDO_LAST_EVALUATED_BOUQUETS = { };
 setmetatable(VUHDO_LAST_EVALUATED_BOUQUETS, VUHDO_META_NEW_ARRAY);
@@ -148,6 +149,7 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_BOUQUET_LAYER_TYPE_DISPEL = _G["VUHDO_BOUQUET_LAYER_TYPE_DISPEL"];
 	VUHDO_BOUQUET_LAYER_TYPE_AURA = _G["VUHDO_BOUQUET_LAYER_TYPE_AURA"];
 	VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL = _G["VUHDO_BOUQUET_LAYER_TYPE_SPRITECELL"];
+	VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR = _G["VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR"];
 
 	VUHDO_rebuildAllAlphaChains = _G["VUHDO_rebuildAllAlphaChains"];
 	VUHDO_getChosenDebuffAuraInstanceId = _G["VUHDO_getChosenDebuffAuraInstanceId"];
@@ -542,12 +544,18 @@ do
 	local tItem;
 	local tName;
 	local tEntry;
+	local tHealthBright;
 	function VUHDO_buildCompositeHealthCurve(aBouquet, anInfo)
 
 		twipe(sThresholds);
 
 		tRadio = 3;
 		tBaseColor, tLowColor, tMedColor, tHighColor = nil, nil, nil, nil;
+		tHealthBright = 1;
+
+		if not VUHDO_USER_CLASS_COLORS or not VUHDO_USER_CLASS_GRADIENT_COLORS then
+			VUHDO_initClassColors();
+		end
 
 		for tCnt = 1, #aBouquet do
 			tItem = aBouquet[tCnt];
@@ -555,12 +563,18 @@ do
 
 			if tName == "STATUS_HEALTH" then
 				tRadio = tItem["custom"]["radio"] or 3;
+				tHealthBright = tItem["custom"]["bright"] or 1;
 
 				if tRadio == 1 then
 					tBaseColor = tItem["color"];
 				elseif tRadio == 2 then
-					tClassColor = VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[anInfo["classId"]];
-					tBaseColor = tClassColor or tItem["color"];
+					if tItem["custom"]["isClassGradient"] and VUHDO_USER_CLASS_GRADIENT_COLORS and VUHDO_USER_CLASS_GRADIENT_COLORS[anInfo["classId"]] then
+						tClassColor = VUHDO_USER_CLASS_GRADIENT_COLORS[anInfo["classId"]]["min"];
+						tBaseColor = tClassColor or tItem["color"];
+					else
+						tClassColor = VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS[anInfo["classId"]];
+						tBaseColor = tClassColor or tItem["color"];
+					end
 				else
 					tHighColor = tItem["color"];
 					tMedColor = tItem["custom"]["grad_med"];
@@ -593,8 +607,13 @@ do
 		tBaseColorMixin = nil;
 
 		if tBaseColor then
-			tBaseColorMixin = CreateColor(
-				tBaseColor["R"], tBaseColor["G"], tBaseColor["B"], tBaseColor["O"] or 1);
+			if 2 == tRadio then
+				tBaseColorMixin = CreateColor(
+					tBaseColor["R"] * tHealthBright, tBaseColor["G"] * tHealthBright, tBaseColor["B"] * tHealthBright, tBaseColor["O"] or 1);
+			else
+				tBaseColorMixin = CreateColor(
+					tBaseColor["R"], tBaseColor["G"], tBaseColor["B"], tBaseColor["O"] or 1);
+			end
 		end
 
 		tLowColorMixin, tMedColorMixin, tHighColorMixin = nil, nil, nil;
@@ -732,7 +751,7 @@ end
 
 do
 	--
-	local VUHDO_ALL_CLASS_IDS = { 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+	local VUHDO_ALL_CLASS_IDS = { 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 40 };
 	local tMockInfo;
 	local tItem;
 	local tRadio;
@@ -1261,6 +1280,11 @@ do
 	local tAllValidators;
 	local tEntry;
 	local tOldTemplate;
+	local tHealthRadio;
+	local tCurveSlot;
+	local tBuildGradMax;
+	local tBuildGradMin;
+	local tBuildGradFactor;
 	function VUHDO_buildBouquetLayerTemplate(aBouquetName)
 
 		tBouquet = VUHDO_BOUQUETS["STORED"][aBouquetName];
@@ -1360,12 +1384,117 @@ do
 						["g"] = nil,
 						["b"] = nil,
 						["a"] = nil,
+						["maxR"] = nil,
+						["maxG"] = nil,
+						["maxB"] = nil,
+						["maxO"] = nil,
+						["useBarTextureGradient"] = false,
+						["gradientMinMixin"] = nil,
+						["gradientMaxMixin"] = nil,
+						["gradientClassMaxMixins"] = nil,
+						["gradientClassMaxMixinFallback"] = nil,
+						["gradientClassMinMixins"] = nil,
+						["gradientClassMinMixinFallback"] = nil,
+						["gradientIsClassMode"] = false,
 						["value"] = nil,
 						["maxValue"] = 100,
 						["timer"] = 0,
 						["duration"] = 0,
 						["timer2"] = 0,
 					};
+
+					if tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR and not tSpecial["no_color"] and tItem["custom"] then
+						tHealthRadio = tItem["custom"]["radio"] or 3;
+
+						if tHealthRadio == 1 and tItem["custom"]["isSolidGradient"] then
+							tTemplate["curveResults"][tCurveIdx]["useBarTextureGradient"] = true;
+						elseif tHealthRadio == 2 and tItem["custom"]["isClassGradient"] then
+							tTemplate["curveResults"][tCurveIdx]["useBarTextureGradient"] = true;
+						end
+
+						if tTemplate["curveResults"][tCurveIdx]["useBarTextureGradient"] then
+							tCurveSlot = tTemplate["curveResults"][tCurveIdx];
+
+							if tHealthRadio == 1 and tItem["custom"]["isSolidGradient"] then
+								tBuildGradMin = tItem["color"];
+
+								if tBuildGradMin and tBuildGradMin["R"] and tBuildGradMin["G"] and tBuildGradMin["B"] then
+									tCurveSlot["gradientMinMixin"] = CreateColor(
+										tBuildGradMin["R"],
+										tBuildGradMin["G"],
+										tBuildGradMin["B"],
+										tBuildGradMin["O"] or 1
+									);
+								end
+
+								tBuildGradMax = tItem["custom"]["maxColor"];
+
+								if tBuildGradMax and tBuildGradMax["R"] and tBuildGradMax["G"] and tBuildGradMax["B"] then
+									tCurveSlot["gradientMaxMixin"] = CreateColor(
+										tBuildGradMax["R"],
+										tBuildGradMax["G"],
+										tBuildGradMax["B"],
+										tBuildGradMax["O"] or 1
+									);
+								end
+							elseif tHealthRadio == 2 and tItem["custom"]["isClassGradient"] then
+								tCurveSlot["gradientIsClassMode"] = true;
+
+								VUHDO_initClassColors();
+
+								tBuildGradFactor = tItem["custom"]["bright"] or 1;
+								tCurveSlot["gradientClassMinMixins"] = { };
+								tCurveSlot["gradientClassMaxMixins"] = { };
+
+								for tBuildClassGradId, tBuildClassGradEntry in pairs(VUHDO_USER_CLASS_GRADIENT_COLORS) do
+									if type(tBuildClassGradId) == "number" and tBuildClassGradEntry then
+										tBuildGradMin = tBuildClassGradEntry["min"] or tItem["color"];
+										tBuildGradMax = tBuildClassGradEntry["max"] or tItem["custom"]["maxColor"];
+
+										if tBuildGradMin and tBuildGradMin["R"] and tBuildGradMin["G"] and tBuildGradMin["B"] then
+											tCurveSlot["gradientClassMinMixins"][tBuildClassGradId] = CreateColor(
+												tBuildGradMin["R"] * tBuildGradFactor,
+												tBuildGradMin["G"] * tBuildGradFactor,
+												tBuildGradMin["B"] * tBuildGradFactor,
+												tBuildGradMin["O"] or 1
+											);
+										end
+
+										if tBuildGradMax and tBuildGradMax["R"] and tBuildGradMax["G"] and tBuildGradMax["B"] then
+											tCurveSlot["gradientClassMaxMixins"][tBuildClassGradId] = CreateColor(
+												tBuildGradMax["R"] * tBuildGradFactor,
+												tBuildGradMax["G"] * tBuildGradFactor,
+												tBuildGradMax["B"] * tBuildGradFactor,
+												tBuildGradMax["O"] or 1
+											);
+										end
+									end
+								end
+
+								tBuildGradMin = tItem["color"];
+
+								if tBuildGradMin and tBuildGradMin["R"] and tBuildGradMin["G"] and tBuildGradMin["B"] then
+									tCurveSlot["gradientClassMinMixinFallback"] = CreateColor(
+										tBuildGradMin["R"] * tBuildGradFactor,
+										tBuildGradMin["G"] * tBuildGradFactor,
+										tBuildGradMin["B"] * tBuildGradFactor,
+										tBuildGradMin["O"] or 1
+									);
+								end
+
+								tBuildGradMax = tItem["custom"]["maxColor"];
+
+								if tBuildGradMax and tBuildGradMax["R"] and tBuildGradMax["G"] and tBuildGradMax["B"] then
+									tCurveSlot["gradientClassMaxMixinFallback"] = CreateColor(
+										tBuildGradMax["R"] * tBuildGradFactor,
+										tBuildGradMax["G"] * tBuildGradFactor,
+										tBuildGradMax["B"] * tBuildGradFactor,
+										tBuildGradMax["O"] or 1
+									);
+								end
+							end
+						end
+					end
 
 					if not tTemplate["baseType"] then
 						if tSecretType == VUHDO_SECRET_TYPE_HEALTH_PERCENT then
@@ -1535,6 +1664,8 @@ do
 						["clipT"] = nil,
 						["clipB"] = nil,
 						["maxColor"] = { },
+						["gradientMinMixin"] = CreateColor(0, 0, 0, 1),
+						["gradientMaxMixin"] = CreateColor(0, 0, 0, 1),
 					};
 				end
 			end
@@ -1878,18 +2009,18 @@ do
 			if tIsGradient then
 				tMaxColor = anEntry["custom"]["maxColor"];
 
-				tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"];
+				tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"] or 1;
 
 				if tMaxColor then
 					tDestMaxColor["R"], tDestMaxColor["G"], tDestMaxColor["B"], tDestMaxColor["O"]
-						= tMaxColor["R"], tMaxColor["G"], tMaxColor["B"], tMaxColor["O"];
+						= tMaxColor["R"], tMaxColor["G"], tMaxColor["B"], tMaxColor["O"] or 1;
 
 					return tDestColor, tDestMaxColor;
 				else
 					return tDestColor, nil;
 				end
 			else
-				tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"];
+				tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"] or 1;
 
 				return tDestColor, nil;
 			end
@@ -1908,11 +2039,11 @@ do
 				end
 
 				tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"]
-					= tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor, tColor["O"];
+					= tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor, tColor["O"] or 1;
 
 				if tMaxColor then
 					tDestMaxColor["R"], tDestMaxColor["G"], tDestMaxColor["B"], tDestMaxColor["O"]
-						= tMaxColor["R"] * tFactor, tMaxColor["G"] * tFactor, tMaxColor["B"] * tFactor, tMaxColor["O"];
+						= tMaxColor["R"] * tFactor, tMaxColor["G"] * tFactor, tMaxColor["B"] * tFactor, tMaxColor["O"] or 1;
 
 					return tDestColor, tDestMaxColor;
 				else
@@ -1926,7 +2057,7 @@ do
 				end
 
 				tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"]
-					= tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor, tColor["O"];
+					= tColor["R"] * tFactor, tColor["G"] * tFactor, tColor["B"] * tFactor, tColor["O"] or 1;
 
 				return tDestColor, nil;
 			end
@@ -1954,7 +2085,7 @@ do
 		else
 			tColor = anEntry["color"];
 
-			tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"];
+			tDestColor["R"], tDestColor["G"], tDestColor["B"], tDestColor["O"] = tColor["R"], tColor["G"], tColor["B"], tColor["O"] or 1;
 
 			return tDestColor, nil;
 		end
@@ -2089,6 +2220,7 @@ do
 	local tWorkingColor = { };
 	local tSecretContext = { };
 	local tSecretColor;
+	local tGradientClassId;
 	function VUHDO_evaluateBouquetSecret(aUnit, aBouquetName, aInfo, aBouquet, aAnzInfos, aLayerTemplate)
 
 		txState["activeAuras"] = 0;
@@ -2117,6 +2249,10 @@ do
 				aLayerTemplate["curveResults"][tIdx]["g"] = nil;
 				aLayerTemplate["curveResults"][tIdx]["b"] = nil;
 				aLayerTemplate["curveResults"][tIdx]["a"] = nil;
+				aLayerTemplate["curveResults"][tIdx]["maxR"] = nil;
+				aLayerTemplate["curveResults"][tIdx]["maxG"] = nil;
+				aLayerTemplate["curveResults"][tIdx]["maxB"] = nil;
+				aLayerTemplate["curveResults"][tIdx]["maxO"] = nil;
 				aLayerTemplate["curveResults"][tIdx]["timer"] = 0;
 				aLayerTemplate["curveResults"][tIdx]["duration"] = 0;
 				aLayerTemplate["curveResults"][tIdx]["timer2"] = 0;
@@ -2253,6 +2389,8 @@ do
 										tColor = tInfos["color"];
 									end
 								elseif 4 == tSpecial["custom_type"] then
+									tMaxColor = nil;
+
 									tColor = VUHDO_copyColorTo(tColor, tWorkingColor);
 									tFactor = tInfos["custom"]["bright"];
 
@@ -2263,6 +2401,8 @@ do
 									if tColor["useText"] then
 										tColor["TR"], tColor["TG"], tColor["TB"] = tColor["TR"] * tFactor, tColor["TG"] * tFactor, tColor["TB"] * tFactor;
 									end
+								else
+									tMaxColor = nil;
 								end
 
 								if tColor["useText"] then
@@ -2294,6 +2434,9 @@ do
 
 								if tMaxColor then
 									VUHDO_copyColorTo(tMaxColor, tResultSlot["maxColor"]);
+
+									tResultSlot["gradientMinMixin"]:SetRGBA(tResultSlot["color"]["R"], tResultSlot["color"]["G"], tResultSlot["color"]["B"], tResultSlot["color"]["O"] or 1);
+									tResultSlot["gradientMaxMixin"]:SetRGBA(tResultSlot["maxColor"]["R"], tResultSlot["maxColor"]["G"], tResultSlot["maxColor"]["B"], tResultSlot["maxColor"]["O"] or 1);
 								end
 							end
 						end
@@ -2315,6 +2458,13 @@ do
 								tResultSlot["duration"] = tDuration or 0;
 								tResultSlot["timer2"] = tTimer2 or 0;
 							end
+
+							if tResultSlot["useBarTextureGradient"] and tIsActive and tResultSlot["gradientIsClassMode"] then
+								tGradientClassId = aInfo["classId"];
+
+								tResultSlot["gradientMinMixin"] = tResultSlot["gradientClassMinMixins"][tGradientClassId] or tResultSlot["gradientClassMinMixinFallback"];
+								tResultSlot["gradientMaxMixin"] = tResultSlot["gradientClassMaxMixins"][tGradientClassId] or tResultSlot["gradientClassMaxMixinFallback"];
+							end
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_POWER_PERCENT then
 						tResultSlot = VUHDO_findCurveResultSlot(aLayerTemplate, tCnt);
@@ -2334,6 +2484,13 @@ do
 								tResultSlot["timer"] = tTimer or 0;
 								tResultSlot["duration"] = tDuration or 0;
 								tResultSlot["timer2"] = tTimer2 or 0;
+							end
+
+							if tResultSlot["useBarTextureGradient"] and tIsActive and tResultSlot["gradientIsClassMode"] then
+								tGradientClassId = aInfo["classId"];
+
+								tResultSlot["gradientMinMixin"] = tResultSlot["gradientClassMinMixins"][tGradientClassId] or tResultSlot["gradientClassMinMixinFallback"];
+								tResultSlot["gradientMaxMixin"] = tResultSlot["gradientClassMaxMixins"][tGradientClassId] or tResultSlot["gradientClassMaxMixinFallback"];
 							end
 						end
 					elseif tSecretType == VUHDO_SECRET_TYPE_BOOLEAN then
@@ -2725,6 +2882,8 @@ do
 							tColor = tInfos["color"]; -- VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR
 						end
 					elseif 4 == tSpecial["custom_type"] then -- VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS
+						tMaxColor = nil;
+
 						tColor = VUHDO_copyColorTo(tColor, tWorkingColor);
 						tFactor = tInfos["custom"]["bright"];
 
@@ -2735,6 +2894,8 @@ do
 						if tColor["useText"] then
 							tColor["TR"], tColor["TG"], tColor["TB"] = tColor["TR"] * tFactor, tColor["TG"] * tFactor, tColor["TB"] * tFactor;
 						end
+					else
+						tMaxColor = nil;
 					end
 
 					if tColor["useText"] then
@@ -2921,6 +3082,7 @@ do
 	local tAnzInfos;
 	local tLayerTemplate;
 	local tHasSecretResults;
+	local tEvalColorHash;
 	function VUHDO_evaluateBouquet(aUnit, aBouquetName, anInfo)
 
 		tUnit = (VUHDO_RAID[aUnit] or tEmptyInfo)["isVehicle"] and VUHDO_RAID[aUnit]["petUnit"] or aUnit;
@@ -2978,8 +3140,14 @@ do
 				txState["maxColor"]["TO"], txState["maxColor"]["O"] = 1, 1;
 			end
 
+			tEvalColorHash = VUHDO_getColorHash(txState["color"]);
+
+			if txState["isMaxColorInit"] then
+				tEvalColorHash = tEvalColorHash + VUHDO_getColorHash(txState["maxColor"]) * 100000;
+			end
+
 			return true, txState["icon"], txState["timer"], txState["counter"], txState["duration"], txState["color"], txState["name"],
-				tHasSecretResults or VUHDO_hasBouquetChanged(aUnit, aBouquetName, true, txState["icon"], txState["timer"], txState["counter"], txState["duration"], VUHDO_getColorHash(txState["color"]), txState["clipL"], txState["clipR"], txState["clipT"], txState["clipB"]),
+				tHasSecretResults or VUHDO_hasBouquetChanged(aUnit, aBouquetName, true, txState["icon"], txState["timer"], txState["counter"], txState["duration"], tEvalColorHash, txState["clipL"], txState["clipR"], txState["clipT"], txState["clipB"]),
 				tAnzInfos - txState["level"], txState["timer2"], txState["clipL"], txState["clipR"], txState["clipT"], txState["clipB"], txState["isMaxColorInit"] and txState["maxColor"] or nil,
 				tLayerTemplate, txState["isAliveTime"];
 	else

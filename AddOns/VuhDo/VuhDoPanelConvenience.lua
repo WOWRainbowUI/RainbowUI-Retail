@@ -766,6 +766,9 @@ end
 
 
 --
+local tSetBarTexture;
+local tSetBarMinO;
+local tSetBarMaxO;
 function VUHDO_setStatusBarVuhDoColor(aBar, aColor, aMaxColor)
 
 	if not aColor then
@@ -778,26 +781,28 @@ function VUHDO_setStatusBarVuhDoColor(aBar, aColor, aMaxColor)
 		return;
 	end
 
+	tSetBarMinO = aColor["O"] or 1;
+
 	if aMaxColor and
-		aColor["R"] and aColor["G"] and aColor["B"] and aColor["O"] and
-		aMaxColor["R"] and aMaxColor["G"] and aMaxColor["B"] and aMaxColor["O"] then
-		aBar:GetStatusBarTexture():SetGradient(
+		aColor["R"] and aColor["G"] and aColor["B"] and
+		aMaxColor["R"] and aMaxColor["G"] and aMaxColor["B"] then
+		tSetBarMaxO = aMaxColor["O"] or 1;
+		tSetBarTexture = aBar:GetStatusBarTexture();
+
+		tSetBarTexture:SetGradient(
 			"HORIZONTAL",
-			VUHDO_getOrCreateCachedColor(aColor["R"], aColor["G"], aColor["B"], aColor["O"]),
-			VUHDO_getOrCreateCachedColor(aMaxColor["R"], aMaxColor["G"], aMaxColor["B"], aMaxColor["O"])
+			VUHDO_getOrCreateCachedColor(aColor["R"], aColor["G"], aColor["B"], tSetBarMinO),
+			VUHDO_getOrCreateCachedColor(aMaxColor["R"], aMaxColor["G"], aMaxColor["B"], tSetBarMaxO)
 		);
-	elseif aColor["R"] and aColor["G"] and aColor["B"] and aColor["O"] then
-		aBar:SetStatusBarColor(aColor["R"], aColor["G"], aColor["B"], aColor["O"]);
 	elseif aColor["R"] and aColor["G"] and aColor["B"] then
-		aBar:SetStatusBarColor(aColor["R"], aColor["G"], aColor["B"]);
+		tSetBarTexture = aBar:GetStatusBarTexture();
+
+		tSetBarTexture:SetVertexColor(aColor["R"], aColor["G"], aColor["B"], tSetBarMinO);
 	end
 
 	return;
 
 end
-
-
-
 
 
 

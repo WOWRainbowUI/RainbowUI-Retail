@@ -179,6 +179,12 @@ local sIndicatorMetaModel = {
 				["tooltip"] = VUHDO_I18N_TT.K471,
 			},
 			{
+				["name"] = VUHDO_I18N_SMOOTH,
+				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.THREAT_BAR.smooth",
+				["tooltip"] = nil,
+			},
+			{
 				["name"] = "Text provider",
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
 				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
@@ -218,6 +224,12 @@ local sIndicatorMetaModel = {
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
 				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.MANA_BAR.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
+			},
+			{
+				["name"] = VUHDO_I18N_SMOOTH,
+				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.MANA_BAR.smooth",
+				["tooltip"] = nil,
 			},
 			{
 				["name"] = "Text provider",
@@ -273,6 +285,12 @@ local sIndicatorMetaModel = {
 				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
 			},
+			{
+				["name"] = VUHDO_I18N_SMOOTH,
+				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.smooth",
+				["tooltip"] = nil,
+			},
 		},
 	},
 
@@ -305,6 +323,12 @@ local sIndicatorMetaModel = {
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
 				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_LEFT.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
+			},
+			{
+				["name"] = VUHDO_I18N_SMOOTH,
+				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_LEFT.smooth",
+				["tooltip"] = nil,
 			},
 			{
 				["name"] = "Text provider",
@@ -351,6 +375,12 @@ local sIndicatorMetaModel = {
 				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
 				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_RIGHT.turnAxis",
 				["tooltip"] = VUHDO_I18N_TT.K471,
+			},
+			{
+				["name"] = VUHDO_I18N_SMOOTH,
+				["type"] = VUHDO_BOOLEAN_CONSTRAINTS,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SIDE_RIGHT.smooth",
+				["tooltip"] = nil,
 			},
 			{
 				["name"] = "Text provider",

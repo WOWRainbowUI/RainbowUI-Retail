@@ -10,6 +10,7 @@ local AbbreviateNumbers = AbbreviateNumbers;
 local UnitHealthPercent = UnitHealthPercent;
 local UnitPowerPercent = UnitPowerPercent;
 local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction;
+local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator;
 
 local CurveConstants = CurveConstants;
 local TruncateWhenZero = C_StringUtil and C_StringUtil.TruncateWhenZero;
@@ -17,8 +18,9 @@ local WrapString = C_StringUtil and C_StringUtil.WrapString;
 
 local VUHDO_getIncHealOnUnit;
 local VUHDO_getUnitOverallShieldRemain;
-local VUHDO_getHealPredictionCalculator;
 local issecretvalue;
+
+local sHealPredictionCalculator;
 
 
 
@@ -27,9 +29,22 @@ function VUHDO_textProvidersInitLocalOverrides()
 
 	VUHDO_getIncHealOnUnit = _G["VUHDO_getIncHealOnUnit"];
 	VUHDO_getUnitOverallShieldRemain = _G["VUHDO_getUnitOverallShieldRemain"];
-	VUHDO_getHealPredictionCalculator = _G["VUHDO_getHealPredictionCalculator"];
 
 	issecretvalue = _G["issecretvalue"];
+
+	sHealPredictionCalculator = nil;
+
+	if sSecretsEnabled then
+		sHealPredictionCalculator = CreateUnitHealPredictionCalculator();
+
+		if sHealPredictionCalculator then
+			sHealPredictionCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
+			sHealPredictionCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
+			sHealPredictionCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
+			sHealPredictionCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
+			sHealPredictionCalculator:SetIncomingHealOverflowPercent(1.0);
+		end
+	end
 
 	return;
 
@@ -221,7 +236,6 @@ end
 
 --
 local tAmountInc;
-local tCalculator;
 local function VUHDO_overhealCalculator(anInfo)
 
 	-- FIXME: UnitHealPredictionCalculator does not return overheal amount
@@ -249,15 +263,14 @@ local function VUHDO_incomingHealCalculator(anInfo)
 			return 0, nil;
 		end
 
-		tCalculator = VUHDO_getHealPredictionCalculator();
-
-		if tCalculator then
-			UnitGetDetailedHealPrediction(anInfo["unit"], "player", tCalculator);
-
-			return tCalculator:GetTotalIncomingHeals(), nil;
-		else
+		if not sHealPredictionCalculator then
 			return 0, nil;
 		end
+
+		sHealPredictionCalculator:ResetPredictedValues();
+		UnitGetDetailedHealPrediction(anInfo["unit"], "player", sHealPredictionCalculator);
+
+		return sHealPredictionCalculator:GetTotalIncomingHeals(), nil;
 	end
 
 	tAmountInc = VUHDO_getIncHealOnUnit(anInfo["unit"]);
@@ -272,19 +285,17 @@ end
 
 
 --
-local tCalculator;
 local function VUHDO_shieldAbsorbCalculator(anInfo)
 
 	if sSecretsEnabled then
-		tCalculator = VUHDO_getHealPredictionCalculator();
-
-		if tCalculator then
-			UnitGetDetailedHealPrediction(anInfo["unit"], "player", tCalculator);
-
-			return tCalculator:GetTotalDamageAbsorbs(), nil;
+		if not sHealPredictionCalculator then
+			return 0, nil;
 		end
 
-		return 0, nil;
+		sHealPredictionCalculator:ResetPredictedValues();
+		UnitGetDetailedHealPrediction(anInfo["unit"], "player", sHealPredictionCalculator);
+
+		return sHealPredictionCalculator:GetTotalDamageAbsorbs(), nil;
 	end
 
 	return VUHDO_getUnitOverallShieldRemain(anInfo["unit"]), nil;
@@ -297,15 +308,14 @@ end
 local function VUHDO_healAbsorbCalculator(anInfo)
 
 	if sSecretsEnabled then
-		tCalculator = VUHDO_getHealPredictionCalculator();
-
-		if tCalculator then
-			UnitGetDetailedHealPrediction(anInfo["unit"], "player", tCalculator);
-
-			return tCalculator:GetTotalHealAbsorbs(), nil;
+		if not sHealPredictionCalculator then
+			return 0, nil;
 		end
 
-		return 0, nil;
+		sHealPredictionCalculator:ResetPredictedValues();
+		UnitGetDetailedHealPrediction(anInfo["unit"], "player", sHealPredictionCalculator);
+
+		return sHealPredictionCalculator:GetTotalHealAbsorbs(), nil;
 	end
 
 	return UnitGetTotalHealAbsorbs(anInfo["unit"]) or 0, nil;

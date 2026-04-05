@@ -463,7 +463,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="395" y="-100" />
+							<AbsDimension x="395" y="-20" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -496,6 +496,7 @@
 				</Frames>
 			</Frame>
 
+			<!--
 			<Frame name="$parentCombatLogPanel" inherits="VuhDoPanelTemplate">
 				<Size>
 					<AbsDimension x="126" y="70" />
@@ -535,6 +536,7 @@
 					</Frame>
 				</Frames>
 			</Frame>
+			-->
 
 		</Frames>
 	</Frame>

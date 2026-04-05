@@ -568,10 +568,18 @@ local tCanColorBar;
 local tCanColorText;
 local function VUHDO_debuffBarColorValidator(anInfo, _, aSecretContext)
 
-	if not sSecretsEnabled then
+	if not sSecretsEnabled or VUHDO_isConfigDemoUsers() then
 		if anInfo["charmed"] then
 			return true, nil, -1, -1, -1, VUHDO_PANEL_SETUP["BAR_COLORS"]["CHARMED"];
 		elseif anInfo["debuff"] then
+			if VUHDO_isConfigDemoUsers() then
+				tBarColor = VUHDO_PANEL_SETUP["BAR_COLORS"]["DEBUFF" .. anInfo["debuff"]];
+
+				if tBarColor then
+					return true, nil, -1, -1, -1, tBarColor;
+				end
+			end
+
 			tCanColorBar = VUHDO_getAuraCanColorBar(anInfo["unit"]);
 			tCanColorText = VUHDO_getAuraCanColorText(anInfo["unit"]);
 

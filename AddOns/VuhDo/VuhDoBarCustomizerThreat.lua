@@ -1,12 +1,16 @@
 local _;
 
-local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local issecretvalue = issecretvalue;
+
+local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
 
 local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_applyAllLayersToTexture;
 local VUHDO_getIsDirectionArrow;
+
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
+local sThreatInterpolation = { };
 
 
 
@@ -17,6 +21,11 @@ function VUHDO_barCustomizerThreatInitLocalOverrides()
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_applyAllLayersToTexture = _G["VUHDO_applyAllLayersToTexture"];
 	VUHDO_getIsDirectionArrow = _G["VUHDO_getIsDirectionArrow"];
+
+	for tCnt = 1, 10 do -- VUHDO_MAX_PANELS
+		sThreatInterpolation[tCnt] = VUHDO_INDICATOR_CONFIG[tCnt]["CUSTOM"]["THREAT_BAR"]["smooth"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
+	end
 
 	return;
 
@@ -62,22 +71,24 @@ end
 
 --
 local tBar;
-local tQuota;
+local tPanelNum;
 function VUHDO_threatBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
 
 	aMaxValue = aMaxValue or 1;
 	aCurrValue = aCurrValue or 0;
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
-		if VUHDO_INDICATOR_CONFIG[VUHDO_BUTTON_CACHE[tButton]]["BOUQUETS"]["THREAT_BAR"] == aBouquetName then
+		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
+
+		if VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["THREAT_BAR"] == aBouquetName then
 			tBar = VUHDO_getHealthBar(tButton, 7);
 
 			tBar:SetMinMaxValues(0, aMaxValue);
 
 			if tBar["isInverted"] then
-				tBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue));
+				tBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sThreatInterpolation[tPanelNum]);
 			else
-				tBar:SetValue(aCurrValue);
+				tBar:SetValue(aCurrValue, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sThreatInterpolation[tPanelNum]);
 			end
 
 			if anIsActive then

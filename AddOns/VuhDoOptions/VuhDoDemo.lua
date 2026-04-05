@@ -438,7 +438,7 @@ end
 local function VUHDO_getRandomDebuff()
 	local tRandom = random(1, 30 + VUHDO_DEBUFF_TYPE_CUSTOM - 1);
 	if (tRandom <= 30) then
-		return VUHDO_DEBUFF_TYPE_NONE;
+		return nil;
 	else
 		if (tRandom == 35) then
 			tRandom = 36;
@@ -495,7 +495,13 @@ local function VUHDO_createTestUser()
 		tIsCreatePet = true;
 		VUHDO_TEST_USERS_LEFT[VUHDO_ID_PETS] = VUHDO_TEST_USERS_LEFT[VUHDO_ID_PETS] - 1;
 		tUnit = "raidpet" .. tPetDemoIdx;
-		tClassId = VUHDO_ID_WARRIORS;
+
+		if VUHDO_USER_CLASS_COLORS and VUHDO_USER_CLASS_COLORS["petClassColor"] then
+			tClassId = random(VUHDO_ID_WARRIORS, VUHDO_ID_EVOKERS);
+		else
+			tClassId = VUHDO_ID_PETS;
+		end
+
 		tGroup = 0;
 		tNumber = tPetDemoIdx;
 		tRole = nil;

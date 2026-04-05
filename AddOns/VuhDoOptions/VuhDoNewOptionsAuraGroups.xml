@@ -970,7 +970,7 @@
 				</Frames>
 			</Frame>
 
-			<Frame name="$parentSpellEntrySettingsFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" hidden="true">
+			<Frame name="$parentSpellEntrySettingsFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" enableMouse="true" hidden="true">
 				<Size>
 					<AbsDimension x="480" y="380" />
 				</Size>

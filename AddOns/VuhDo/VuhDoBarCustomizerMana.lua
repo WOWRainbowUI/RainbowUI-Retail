@@ -1,20 +1,19 @@
--- BURST CACHE ---------------------------------------------------
-
+local _;
 
 local VUHDO_RAID;
-local VUHDO_getUnitButtonsSafe;
 local VUHDO_IN_RAID_TARGET_BUTTONS;
 local VUHDO_PANEL_SETUP;
 local VUHDO_BUTTON_CACHE;
+local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
+
+local pairs = pairs;
+
 local UnitPowerType = UnitPowerType;
 local UnitPower = UnitPower;
-local UnitPowerMissing = UnitPowerMissing;
 local UnitPowerMax = UnitPowerMax;
 local InCombatLockdown = InCombatLockdown;
-local pairs = pairs;
-local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
-local _;
 
+local VUHDO_getUnitButtonsSafe;
 local VUHDO_getHealthBar;
 local VUHDO_getRealParent;
 local VUHDO_isConfigDemoUsers;
@@ -23,8 +22,16 @@ local VUHDO_indicatorTextCallback;
 local VUHDO_setStatusBarVuhDoColor;
 local VUHDO_applyAllLayersToBar;
 
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sIsInverted;
 local sIsHealthBarVertical;
+local sManaInterpolation = { };
+local sSideLeftInterpolation = { };
+local sSideRightInterpolation = { };
+
+
+
+--
 function VUHDO_customManaInitLocalOverrides()
 
 	VUHDO_RAID = _G["VUHDO_RAID"];
@@ -47,6 +54,13 @@ function VUHDO_customManaInitLocalOverrides()
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsInverted[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["MANA_BAR"]["invertGrowth"];
 		sIsHealthBarVertical[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["vertical"];
+
+		sManaInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["MANA_BAR"]["smooth"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
+		sSideLeftInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["SIDE_LEFT"]["smooth"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
+		sSideRightInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["SIDE_RIGHT"]["smooth"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
 	end
 
 end
@@ -139,9 +153,9 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 				tManaBar:SetMinMaxValues(0, aMaxValue);
 
 				if tManaBar["isInverted"] then
-					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue));
+					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
 				else
-					tManaBar:SetValue(aCurrValue);
+					tManaBar:SetValue(aCurrValue, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
 				end
 
 				if aLayerTemplate then
@@ -150,7 +164,7 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 					VUHDO_setStatusBarVuhDoColor(tManaBar, aColor);
 				end
 			else
-				tManaBar:SetMinMaxValues(0, 1);
+				tManaBar:SetMinMaxValues(0, 1, Enum.StatusBarInterpolation.Immediate);
 				tManaBar:SetValue((not anIsActive and tManaBar["isInverted"]) and 1 or 0);
 			end
 
@@ -207,9 +221,9 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 				tManaBar:SetMinMaxValues(0, aMaxValue);
 
 				if tManaBar["isInverted"] then
-					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue));
+					tManaBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
 				else
-					tManaBar:SetValue(aCurrValue);
+					tManaBar:SetValue(aCurrValue, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sManaInterpolation[tPanelNum]);
 				end
 
 				if aLayerTemplate then
@@ -218,7 +232,7 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 					VUHDO_setStatusBarVuhDoColor(tManaBar, aColor);
 				end
 			else
-				tManaBar:SetMinMaxValues(0, 1);
+				tManaBar:SetMinMaxValues(0, 1, Enum.StatusBarInterpolation.Immediate);
 				tManaBar:SetValue((not anIsActive and tManaBar["isInverted"]) and 1 or 0);
 			end
 
@@ -266,6 +280,7 @@ local tBar;
 local tBouquetName;
 local tPanelNum;
 local tIndicatorName;
+local tSideInterpolation;
 local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, aCurrValue, aCounter, aMaxValue, aColor, aBuffName, aBouquetName, aLevel, aCurrValue2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate)
 
 	aMaxValue = aMaxValue or 1;
@@ -283,12 +298,14 @@ local function VUHDO_sideBarBouquetCallback(aBarNum, aUnit, anIsActive, anIcon, 
 		if tBouquetName == aBouquetName then
 			tBar = VUHDO_getHealthBar(tButton, aBarNum);
 
+			tSideInterpolation = (17 == aBarNum) and sSideLeftInterpolation[tPanelNum] or sSideRightInterpolation[tPanelNum];
+
 			tBar:SetMinMaxValues(0, aMaxValue);
 
 			if tBar["isInverted"] then
-				tBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue));
+				tBar:SetValue(sSecretsEnabled and aCurrValue2 or (aMaxValue - aCurrValue), VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or tSideInterpolation);
 			else
-				tBar:SetValue(aCurrValue);
+				tBar:SetValue(aCurrValue, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or tSideInterpolation);
 			end
 
 			if anIsActive then

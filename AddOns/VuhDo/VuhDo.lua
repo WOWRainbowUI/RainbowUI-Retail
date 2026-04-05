@@ -411,7 +411,7 @@ function VUHDO_setHealth(aUnit, aMode)
 
 			tInfo["ownerUnit"] = tOwner;
 
-			if tIsPet and tClassId then
+			if tIsPet then
 				if VUHDO_USER_CLASS_COLORS["petClassColor"] and VUHDO_RAID[tInfo["ownerUnit"]] then
 					tClassId = VUHDO_RAID[tInfo["ownerUnit"]]["classId"] or VUHDO_ID_PETS;
 				else

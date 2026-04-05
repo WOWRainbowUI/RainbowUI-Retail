@@ -772,7 +772,7 @@ function VUHDO_setupSmartCast(aButton)
 
 	-- Cleanse?
 	if VUHDO_CONFIG["SMARTCAST_CLEANSE"] and not tInfo["dead"] then
-		if VUHDO_DEBUFF_TYPE_NONE ~= tInfo["debuff"] then
+		if tInfo["debuff"] and VUHDO_DEBUFF_TYPE_NONE ~= tInfo["debuff"] then
 			tAbilities = VUHDO_getDispelAbilities();
 			tAbility = tAbilities[tInfo["debuff"]];
 

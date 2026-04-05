@@ -1959,8 +1959,8 @@
 				</Anchors>
 			</HighlightTexture>
 			<Scripts>
-				<OnEnter>VUHDO_lnfShowTooltip(self:GetParent())</OnEnter>
-				<OnLeave>VUHDO_lnfHideTooltip(self:GetParent())</OnLeave>
+				<OnEnter>VUHDO_lnfShowTooltip(self)</OnEnter>
+				<OnLeave>VUHDO_lnfHideTooltip(self)</OnLeave>
 			</Scripts>
 		</Button>
 		<ScrollFrame name="$parentScrollPanel" frameStrata="TOOLTIP" hidden="true" clampedToScreen="true" inherits="VuhDoScrollPanelTemplate2">
@@ -2098,8 +2098,8 @@
 				</Anchors>
 			</HighlightTexture>
 			<Scripts>
-				<OnEnter>VUHDO_lnfShowTooltip(self:GetParent())</OnEnter>
-				<OnLeave>VUHDO_lnfHideTooltip(self:GetParent())</OnLeave>
+				<OnEnter>VUHDO_lnfShowTooltip(self)</OnEnter>
+				<OnLeave>VUHDO_lnfHideTooltip(self)</OnLeave>
 			</Scripts>
 		</Button>
 		<ScrollFrame name="$parentScrollPanel" frameStrata="TOOLTIP" hidden="true" clampedToScreen="true" inherits="VuhDoScrollPanelTemplate2">

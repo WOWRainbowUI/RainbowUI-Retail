@@ -1,10 +1,23 @@
 local _;
 
+local strfind = strfind;
+local pairs = pairs;
+local twipe = table.wipe;
+local format = format;
+local min = math.min;
+
+local GetRaidTargetIndex = GetRaidTargetIndex;
+local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs;
+local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction;
+local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator;
+local UnitHealthPercent = UnitHealthPercent;
+local CreateCurve = C_CurveUtil and C_CurveUtil.CreateCurve;
+local CreateColorCurve = C_CurveUtil and C_CurveUtil.CreateColorCurve;
+local CreateColor = CreateColor;
+local issecretvalue = issecretvalue;
+
 VUHDO_NAME_TEXTS = { };
 local VUHDO_NAME_TEXTS = VUHDO_NAME_TEXTS;
-
-
--- BURST CACHE ---------------------------------------------------
 
 local VUHDO_getHealthBar;
 local VUHDO_getBarText;
@@ -32,9 +45,7 @@ local VUHDO_getStatusbarOrientationString;
 local VUHDO_getPixelScale;
 local VUHDO_applyAllLayersToBar;
 local VUHDO_getAuraGroupGlowInfo;
-local VUHDO_getHealPredictionCalculator;
 local VUHDO_getOvershieldCalculator;
-local VUHDO_removePrivateAuras;
 local VUHDO_refreshPrivateAuras;
 
 local VUHDO_PANEL_SETUP;
@@ -45,22 +56,13 @@ local VUHDO_INDICATOR_CONFIG;
 local VUHDO_IN_RAID_TARGET_BUTTONS;
 local VUHDO_INTERNAL_TOGGLES;
 
-local strfind = strfind;
-local GetRaidTargetIndex = GetRaidTargetIndex;
-local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs;
-local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction;
-local UnitHealthPercent = UnitHealthPercent;
-local CreateCurve = C_CurveUtil and C_CurveUtil.CreateCurve;
-local CreateColorCurve = C_CurveUtil and C_CurveUtil.CreateColorCurve;
-local CreateColor = CreateColor;
-local pairs = pairs;
-local twipe = table.wipe;
-local format = format;
-local min = math.min;
-local issecretvalue = issecretvalue;
+VUHDO_FORCE_IMMEDIATE_INTERPOLATION = false;
+local VUHDO_IMMEDIATE = Enum.StatusBarInterpolation.Immediate;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
-local sHealPredictionCalculator;
+local sShieldCalculator;
+local sTotalShieldCalculator;
+local sHealAbsorbCalculator;
 local sOvershieldCalculator;
 local sOvershieldAlphaCurve;
 local sHideWhenFullHealthCurve;
@@ -69,6 +71,10 @@ local sIsAggroText;
 local sIsInvertGrowth = { };
 local sIsTurnAxisOvershield = { };
 local sIsTurnAxisHealAbsorb = { };
+local sHealthInterpolation = { };
+local sShieldInterpolation = { };
+local sOvershieldInterpolation = { };
+local sHealAbsorbInterpolation = { };
 local sConfigShieldColor;
 local sConfigOvershieldColor;
 local sConfigHealAbsorbColor;
@@ -123,12 +129,45 @@ function VUHDO_customHealthInitLocalOverrides()
 	VUHDO_getPixelScale = _G["VUHDO_getPixelScale"];
 	VUHDO_applyAllLayersToBar = _G["VUHDO_applyAllLayersToBar"];
 	VUHDO_getAuraGroupGlowInfo = _G["VUHDO_getAuraGroupGlowInfo"];
-	VUHDO_getHealPredictionCalculator = _G["VUHDO_getHealPredictionCalculator"];
 	VUHDO_getOvershieldCalculator = _G["VUHDO_getOvershieldCalculator"];
-	VUHDO_removePrivateAuras = _G["VUHDO_removePrivateAuras"];
 	VUHDO_refreshPrivateAuras = _G["VUHDO_refreshPrivateAuras"];
 
-	sHealPredictionCalculator = VUHDO_getHealPredictionCalculator();
+	sShieldCalculator = nil;
+	sTotalShieldCalculator = nil;
+	sHealAbsorbCalculator = nil;
+
+	if sSecretsEnabled then
+		sShieldCalculator = CreateUnitHealPredictionCalculator();
+
+		if sShieldCalculator then
+			sShieldCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MissingHealth);
+			sShieldCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
+			sShieldCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
+			sShieldCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
+			sShieldCalculator:SetIncomingHealOverflowPercent(1.0);
+		end
+
+		sTotalShieldCalculator = CreateUnitHealPredictionCalculator();
+
+		if sTotalShieldCalculator then
+			sTotalShieldCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
+			sTotalShieldCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
+			sTotalShieldCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
+			sTotalShieldCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
+			sTotalShieldCalculator:SetIncomingHealOverflowPercent(1.0);
+		end
+
+		sHealAbsorbCalculator = CreateUnitHealPredictionCalculator();
+
+		if sHealAbsorbCalculator then
+			sHealAbsorbCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
+			sHealAbsorbCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
+			sHealAbsorbCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
+			sHealAbsorbCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
+			sHealAbsorbCalculator:SetIncomingHealOverflowPercent(1.0);
+		end
+	end
+
 	sOvershieldCalculator = VUHDO_getOvershieldCalculator();
 
 	sIsOverhealText = VUHDO_CONFIG["SHOW_TEXT_OVERHEAL"]
@@ -138,6 +177,15 @@ function VUHDO_customHealthInitLocalOverrides()
 		sIsInvertGrowth[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["invertGrowth"];
 		sIsTurnAxisOvershield[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisOvershield"];
 		sIsTurnAxisHealAbsorb[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealAbsorb"];
+
+		sHealthInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smooth"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
+		sShieldInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smoothShield"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
+		sOvershieldInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smoothOvershield"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
+		sHealAbsorbInterpolation[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smoothHealAbsorb"]
+			and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate;
 	end
 
 	sOvershieldAlphaCurve = VUHDO_buildOvershieldAlphaCurve();
@@ -149,7 +197,6 @@ function VUHDO_customHealthInitLocalOverrides()
 
 end
 
-----------------------------------------------------
 
 
 --
@@ -193,6 +240,7 @@ end
 
 
 
+--
 local tIncColor = { ["useBackground"] = true };
 local tShieldColor = { ["useBackground"] = true };
 local tOvershieldColor = { ["useBackground"] = true };
@@ -223,26 +271,6 @@ local function VUHDO_setStatusBarColor(aBar, aColor)
 		end
 	elseif tOpacity then
 		aBar:SetAlpha(tOpacity);
-	end
-
-end
-
-
-
---
-local tOpacity;
-local function VUHDO_setTextureColor(aTexture, aColor)
-
-	tOpacity = aColor["useOpacity"] and aColor["O"] or nil;
-
-	if aColor["useBackground"] then
-		if tOpacity then
-			aTexture:SetVertexColor(aColor["R"], aColor["G"], aColor["B"], tOpacity);
-		else
-			aTexture:SetVertexColor(aColor["R"], aColor["G"], aColor["B"]);
-		end
-	elseif tOpacity then 
-		aTexture:SetAlpha(tOpacity); 
 	end
 
 end
@@ -301,98 +329,28 @@ end
 
 
 
---
-local tInfo;
-local tAllButtons;
-local tShieldInBar;
-local tShieldClamped;
-local tTotalShield;
-local tAtFullHealth;
-local tHealth;
-local tHealthMax;
-local tAlpha;
-local tIncHeal;
-local tHealthBar;
-local tIncBar;
-local tShieldBar;
-local tOvershieldBar;
-local tShieldOpacity;
-local tOvershieldOpacity;
-local tShieldColor = { };
-local tOvershieldColor = { };
-local tHealthDeficit;
-local tSpaceInBar;
-local tShieldAmount;
-local tOvershieldAmount;
-local tOverallShieldRemain;
-local tAbsorbAmount;
-local tVisibleAmountInc;
-local tOvershieldBarSizePercent;
-local tOvershieldBarOffsetPercent;
-local tOvershieldBarSize;
-local tOvershieldBarOffset;
-local tHealthBarWidth;
-local tHealthBarHeight;
-local tPixelThreshold;
-local tPanelNum;
-local tOrientation;
-local tOrientationOvershield;
-local tIsInvertGrowth;
-local tIsTurnAxisOvershield;
-local aHealthPlusIncQuota;
-local aAmountInc;
-local tSecretColor;
-function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
+do
+	--
+	local tShieldInBar;
+	local tShieldClamped;
+	local tTotalShield;
+	local tHealthMax;
+	local tAlpha;
+	local tHealthBar;
+	local tShieldBar;
+	local tOvershieldBar;
+	local tShieldOpacity;
+	local tOvershieldOpacity;
+	local tSecretColor;
+	local tPanelNum;
+	function VUHDO_updateShieldBarSecret(aUnit, aIncHealAmount, tInfo, tAllButtons)
 
-	tInfo = VUHDO_RAID[aUnit];
-	tAllButtons = VUHDO_getUnitButtonsSafe(VUHDO_resolveVehicleUnit(aUnit));
+		sShieldCalculator:ResetPredictedValues();
 
-	if not tInfo or not VUHDO_CONFIG["SHOW_SHIELD_BAR"] then
-		for _, tButton in pairs(tAllButtons) do
-			VUHDO_getHealthBar(tButton, 19):Hide();
-			VUHDO_getHealthBar(tButton, 20):Hide();
-		end
+		UnitGetDetailedHealPrediction(aUnit, "player", sShieldCalculator);
 
-		return;
-	end
-
-	if sSecretsEnabled and tInfo["hasSecretHealthMax"] then
-		if not tInfo["healthmax"] then
-			for _, tButton in pairs(tAllButtons) do
-				VUHDO_getHealthBar(tButton, 19):Hide();
-				VUHDO_getHealthBar(tButton, 20):Hide();
-			end
-
-			return;
-		end
-	else
-		if tInfo["healthmax"] <= 0 then
-			for _, tButton in pairs(tAllButtons) do
-				VUHDO_getHealthBar(tButton, 19):Hide();
-				VUHDO_getHealthBar(tButton, 20):Hide();
-			end
-
-			return;
-		end
-	end
-
-	if not tInfo["connected"] or tInfo["dead"] then
-		for _, tButton in pairs(tAllButtons) do
-			VUHDO_getHealthBar(tButton, 19):Hide();
-			VUHDO_getHealthBar(tButton, 20):Hide();
-		end
-
-		return;
-	end
-
-	if sHealPredictionCalculator then
-		sHealPredictionCalculator:ResetPredictedValues();
-		sHealPredictionCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MissingHealth);
-
-		UnitGetDetailedHealPrediction(aUnit, "player", sHealPredictionCalculator);
-
-		tShieldInBar, _ = sHealPredictionCalculator:GetDamageAbsorbs();
-		tHealthMax = sHealPredictionCalculator:GetMaximumHealth();
+		tShieldInBar, _ = sShieldCalculator:GetDamageAbsorbs();
+		tHealthMax = sShieldCalculator:GetMaximumHealth();
 
 		if sOvershieldCalculator then
 			sOvershieldCalculator:ResetPredictedValues();
@@ -404,21 +362,20 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 			tShieldClamped = false;
 		end
 
-		sHealPredictionCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
+		sTotalShieldCalculator:ResetPredictedValues();
 
-		UnitGetDetailedHealPrediction(aUnit, "player", sHealPredictionCalculator);
+		UnitGetDetailedHealPrediction(aUnit, "player", sTotalShieldCalculator);
 
-		tTotalShield = sHealPredictionCalculator:GetTotalDamageAbsorbs();
-
-		sHealPredictionCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MissingHealth);
+		tTotalShield = sTotalShieldCalculator:GetTotalDamageAbsorbs();
 
 		for _, tButton in pairs(tAllButtons) do
+			tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 			tHealthBar = VUHDO_getHealthBar(tButton, 1);
 			tShieldBar = VUHDO_getHealthBar(tButton, 19);
 			tOvershieldBar = VUHDO_getHealthBar(tButton, 20);
 
 			tShieldBar:SetMinMaxValues(0, tHealthMax);
-			tShieldBar:SetValue(tShieldInBar);
+			tShieldBar:SetValue(tShieldInBar, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sShieldInterpolation[tPanelNum]);
 
 			if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 				sConfigShieldColor = VUHDO_getStatusBarColor("SHIELD", aUnit);
@@ -462,7 +419,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 
 			if VUHDO_CONFIG["SHOW_OVERSHIELD_BAR"] then
 				tOvershieldBar:SetMinMaxValues(0, tHealthMax);
-				tOvershieldBar:SetValue(tTotalShield);
+				tOvershieldBar:SetValue(tTotalShield, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sOvershieldInterpolation[tPanelNum]);
 
 				if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 					sConfigOvershieldColor = VUHDO_getStatusBarColor("OVERSHIELD", aUnit);
@@ -509,7 +466,41 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 				tOvershieldBar:Hide();
 			end
 		end
-	else
+
+		return;
+
+	end
+end
+
+
+
+do
+	--
+	local aHealthPlusIncQuota;
+	local aAmountInc;
+	local tHealthDeficit;
+	local tOverallShieldRemain;
+	local tAbsorbAmount;
+	local tVisibleAmountInc;
+	local tOvershieldBarSizePercent;
+	local tOvershieldBarOffsetPercent;
+	local tOvershieldBarSize;
+	local tOvershieldBarOffset;
+	local tHealthBarWidth;
+	local tHealthBarHeight;
+	local tPixelThreshold;
+	local tPanelNum;
+	local tOrientation;
+	local tOrientationOvershield;
+	local tIsInvertGrowth;
+	local tIsTurnAxisOvershield;
+	local tHealthBar;
+	local tShieldBar;
+	local tOvershieldBar;
+	local tShieldOpacity;
+	local tOvershieldOpacity;
+	function VUHDO_updateShieldBarNonSecret(aUnit, aIncHealAmount, tInfo, tAllButtons)
+
 		if not aHealthPlusIncQuota or not aAmountInc then
 			aHealthPlusIncQuota, aAmountInc = VUHDO_getHealthPlusIncQuota(aUnit);
 		end
@@ -548,7 +539,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 
 			if tAbsorbAmount > 0 then
 				tShieldBar:SetMinMaxValues(aHealthPlusIncQuota, aHealthPlusIncQuota + tAbsorbAmount);
-				tShieldBar:SetValue(aHealthPlusIncQuota + tAbsorbAmount);
+				tShieldBar:SetValue(aHealthPlusIncQuota + tAbsorbAmount, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sShieldInterpolation[tPanelNum]);
 
 				tShieldColor["R"], tShieldColor["G"], tShieldColor["B"], tShieldOpacity = tHealthBar:GetStatusBarColor();
 				tShieldColor = VUHDO_getDiffColor(tShieldColor, VUHDO_getStatusBarColor("SHIELD", aUnit));
@@ -561,7 +552,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 
 				tShieldBar:Show();
 			else
-				tShieldBar:SetMinMaxValues(0, 1);
+				tShieldBar:SetMinMaxValues(0, 1, Enum.StatusBarInterpolation.Immediate);
 				tShieldBar:SetValue(0);
 				tShieldBar:Hide();
 			end
@@ -595,7 +586,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 						VUHDO_PixelUtil.SetSize(tOvershieldBar, tOvershieldBarSize, tHealthBarHeight);
 
 						tOvershieldBar:SetMinMaxValues(0, tOvershieldBarSize);
-						tOvershieldBar:SetValue(tOvershieldBarSize);
+						tOvershieldBar:SetValue(tOvershieldBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sOvershieldInterpolation[tPanelNum]);
 
 						tOvershieldBar:Show();
 					else
@@ -614,7 +605,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 						VUHDO_PixelUtil.SetSize(tOvershieldBar, tOvershieldBarSize, tHealthBarHeight);
 
 						tOvershieldBar:SetMinMaxValues(0, tOvershieldBarSize);
-						tOvershieldBar:SetValue(tOvershieldBarSize);
+						tOvershieldBar:SetValue(tOvershieldBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sOvershieldInterpolation[tPanelNum]);
 
 						tOvershieldBar:Show();
 					else
@@ -633,7 +624,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 						VUHDO_PixelUtil.SetSize(tOvershieldBar, tHealthBarWidth, tOvershieldBarSize);
 
 						tOvershieldBar:SetMinMaxValues(0, tOvershieldBarSize);
-						tOvershieldBar:SetValue(tOvershieldBarSize);
+						tOvershieldBar:SetValue(tOvershieldBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sOvershieldInterpolation[tPanelNum]);
 
 						tOvershieldBar:Show();
 					else
@@ -651,7 +642,7 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 						VUHDO_PixelUtil.SetSize(tOvershieldBar, tHealthBarWidth, tOvershieldBarSize);
 
 						tOvershieldBar:SetMinMaxValues(0, tOvershieldBarSize);
-						tOvershieldBar:SetValue(tOvershieldBarSize);
+						tOvershieldBar:SetValue(tOvershieldBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sOvershieldInterpolation[tPanelNum]);
 
 						tOvershieldBar:Show();
 					else
@@ -662,12 +653,73 @@ function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
 				tOvershieldBar:Hide();
 			end
 		end
+
+		return;
+
+	end
+end
+
+
+
+do
+	--
+	local tInfo;
+	local tAllButtons;
+	local function VUHDO_hideShieldBarsForButtons(aAllButtons)
+
+		for _, tButton in pairs(aAllButtons) do
+			VUHDO_getHealthBar(tButton, 19):Hide();
+			VUHDO_getHealthBar(tButton, 20):Hide();
+		end
+
+		return;
+
 	end
 
-	return;
 
+
+	--
+	function VUHDO_updateShieldBar(aUnit, aIncHealAmount)
+
+		tInfo = VUHDO_RAID[aUnit];
+		tAllButtons = VUHDO_getUnitButtonsSafe(VUHDO_resolveVehicleUnit(aUnit));
+
+		if not tInfo or not VUHDO_CONFIG["SHOW_SHIELD_BAR"] then
+			VUHDO_hideShieldBarsForButtons(tAllButtons);
+
+			return;
+		end
+
+		if sSecretsEnabled and tInfo["hasSecretHealthMax"] then
+			if not tInfo["healthmax"] then
+				VUHDO_hideShieldBarsForButtons(tAllButtons);
+
+				return;
+			end
+		else
+			if tInfo["healthmax"] <= 0 then
+				VUHDO_hideShieldBarsForButtons(tAllButtons);
+
+				return;
+			end
+		end
+
+		if not tInfo["connected"] or tInfo["dead"] then
+			VUHDO_hideShieldBarsForButtons(tAllButtons);
+
+			return;
+		end
+
+		if sShieldCalculator and sTotalShieldCalculator then
+			VUHDO_updateShieldBarSecret(aUnit, aIncHealAmount, tInfo, tAllButtons);
+		else
+			VUHDO_updateShieldBarNonSecret(aUnit, aIncHealAmount, tInfo, tAllButtons);
+		end
+
+		return;
+
+	end
 end
-local VUHDO_updateShieldBar = VUHDO_updateShieldBar;
 
 
 
@@ -675,13 +727,9 @@ local VUHDO_updateShieldBar = VUHDO_updateShieldBar;
 local tInfo;
 local tAllButtons;
 local tHealAbsorb;
-local tHealAbsorbClamped;
 local tHealAbsorbOpacity;
 local tHealthBar;
 local tHealAbsorbBar;
-local tHealAbsorbColor = { };
-local tHealth;
-local tHealAbsorbAmount;
 local tHealAbsorbRemain;
 local tHealthBarWidth;
 local tHealthBarHeight;
@@ -697,6 +745,7 @@ local tIsInvertGrowth;
 local tIsTurnAxisHealAbsorb;
 local tPixelThreshold;
 local tSecretColor;
+local tHealthMax;
 function VUHDO_updateHealAbsorbBar(aUnit)
 
 	tInfo = VUHDO_RAID[aUnit];
@@ -735,20 +784,21 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 		return;
 	end
 
-	if sHealPredictionCalculator then
-		sHealPredictionCalculator:ResetPredictedValues();
+	if sHealAbsorbCalculator then
+		sHealAbsorbCalculator:ResetPredictedValues();
 
-		UnitGetDetailedHealPrediction(aUnit, "player", sHealPredictionCalculator);
+		UnitGetDetailedHealPrediction(aUnit, "player", sHealAbsorbCalculator);
 
-		tHealAbsorb = sHealPredictionCalculator:GetTotalHealAbsorbs();
-		tHealthMax = sHealPredictionCalculator:GetMaximumHealth();
+		tHealAbsorb = sHealAbsorbCalculator:GetTotalHealAbsorbs();
+		tHealthMax = sHealAbsorbCalculator:GetMaximumHealth();
 
 		for _, tButton in pairs(tAllButtons) do
+			tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 			tHealthBar = VUHDO_getHealthBar(tButton, 1);
 			tHealAbsorbBar = VUHDO_getHealAbsorbBar(tHealthBar);
 
 			tHealAbsorbBar:SetMinMaxValues(0, tHealthMax);
-			tHealAbsorbBar:SetValue(tHealAbsorb);
+			tHealAbsorbBar:SetValue(tHealAbsorb, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealAbsorbInterpolation[tPanelNum]);
 
 			if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 				sConfigHealAbsorbColor = VUHDO_getStatusBarColor("HEAL_ABSORB", aUnit);
@@ -842,7 +892,7 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 						VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealAbsorbBarSize, tHealthBarHeight);
 
 						tHealAbsorbBar:SetMinMaxValues(0, tHealAbsorbBarSize);
-						tHealAbsorbBar:SetValue(tHealAbsorbBarSize);
+						tHealAbsorbBar:SetValue(tHealAbsorbBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealAbsorbInterpolation[tPanelNum]);
 
 						tHealAbsorbBar:Show();
 					else
@@ -861,7 +911,7 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 						VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealAbsorbBarSize, tHealthBarHeight);
 
 						tHealAbsorbBar:SetMinMaxValues(0, tHealAbsorbBarSize);
-						tHealAbsorbBar:SetValue(tHealAbsorbBarSize);
+						tHealAbsorbBar:SetValue(tHealAbsorbBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealAbsorbInterpolation[tPanelNum]);
 
 						tHealAbsorbBar:Show();
 					else
@@ -880,7 +930,7 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 						VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealthBarWidth, tHealAbsorbBarSize);
 
 						tHealAbsorbBar:SetMinMaxValues(0, tHealAbsorbBarSize);
-						tHealAbsorbBar:SetValue(tHealAbsorbBarSize);
+						tHealAbsorbBar:SetValue(tHealAbsorbBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealAbsorbInterpolation[tPanelNum]);
 
 						tHealAbsorbBar:Show();
 					else
@@ -898,7 +948,7 @@ function VUHDO_updateHealAbsorbBar(aUnit)
 						VUHDO_PixelUtil.SetSize(tHealAbsorbBar, tHealthBarWidth, tHealAbsorbBarSize);
 
 						tHealAbsorbBar:SetMinMaxValues(0, tHealAbsorbBarSize);
-						tHealAbsorbBar:SetValue(tHealAbsorbBarSize);
+						tHealAbsorbBar:SetValue(tHealAbsorbBarSize, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealAbsorbInterpolation[tPanelNum]);
 
 						tHealAbsorbBar:Show();
 					else
@@ -920,9 +970,7 @@ local VUHDO_updateHealAbsorbBar = VUHDO_updateHealAbsorbBar;
 
 --
 local tAllButtons;
-local tHealthPlusInc;
 local tIncBar;
-local tAmountInc;
 local tInfo;
 local tOpacity;
 local tHealthBar;
@@ -940,12 +988,13 @@ local function VUHDO_updateIncHeal(aUnit)
 	tIncHealAmount = VUHDO_getIncHealOnUnit(aUnit);
 
 	for _, tButton in pairs(tAllButtons) do
+		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
 		tIncBar = VUHDO_getHealthBar(tButton, 6);
 		tHealthBar = VUHDO_getHealthBar(tButton, 1);
 
 		if tIncHealAmount and tInfo["healthmax"] and (not sSecretsEnabled or issecretvalue(tIncHealAmount) or tIncHealAmount > 0) and (not sSecretsEnabled or tInfo["hasSecretHealthMax"] or tInfo["healthmax"] > 0) then
 			tIncBar:SetMinMaxValues(0, tInfo["healthmax"]);
-			tIncBar:SetValue(tIncHealAmount);
+			tIncBar:SetValue(tIncHealAmount, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealthInterpolation[tPanelNum]);
 
 			if sSecretsEnabled and tHealthBar["secretCurveColor"] and tHealthBar["secretCurveColor"]["R"] then
 				sConfigIncColor = VUHDO_getStatusBarColor("INCOMING", aUnit);
@@ -1109,7 +1158,7 @@ do
 					tQuota = aCurrValue;
 				end
 
-				tHealthBar:SetValue(tQuota);
+				tHealthBar:SetValue(tQuota, VUHDO_FORCE_IMMEDIATE_INTERPOLATION and VUHDO_IMMEDIATE or sHealthInterpolation[tPanelNum]);
 
 				if aLayerTemplate then
 					VUHDO_applyAllLayersToBar(tButton, tHealthBar, aLayerTemplate);
@@ -1239,7 +1288,7 @@ do
 			if VUHDO_INDICATOR_CONFIG[VUHDO_BUTTON_CACHE[tButton]]["BOUQUETS"]["BACKGROUND_BAR"] == aBouquetName then
 				tBar = VUHDO_getHealthBar(tButton, 3);
 
-				tBar:SetMinMaxValues(0, 1);
+				tBar:SetMinMaxValues(0, 1, Enum.StatusBarInterpolation.Immediate);
 				tBar:SetValue(tQuota);
 
 				if anIsActive then
@@ -1322,15 +1371,23 @@ local VUHDO_customizeHealButton = VUHDO_customizeHealButton;
 local tInfo;
 local tAllButtons;
 function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
+
 	-- as of patch 7.1 we are seeing empty units on health related events
 	if not aUnit then
 		return;
 	end
 
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = 1 == anUpdateMode;
+
 	VUHDO_updateBouquetsForEvent(aUnit, anUpdateMode);
 
 	tAllButtons = VUHDO_getUnitButtons(aUnit);
-	if not tAllButtons then	return; end
+
+	if not tAllButtons then
+		VUHDO_FORCE_IMMEDIATE_INTERPOLATION = false;
+
+		return;
+	end
 
 	if 2 == anUpdateMode then -- VUHDO_UPDATE_HEALTH
 		VUHDO_determineIncHeal(aUnit);
@@ -1416,12 +1473,20 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 
 		VUHDO_updateIncHeal(aUnit);
 	end
+
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = false;
+
+	return;
+
 end
 
 
 
 --
 function VUHDO_updateAllPanelBars(aPanelNum)
+
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = true;
+
 	for _, tButton in pairs(VUHDO_getPanelButtons(aPanelNum)) do
 		if not tButton:GetAttribute("unit") then break; end
 		VUHDO_customizeHealButton(tButton);
@@ -1432,6 +1497,11 @@ function VUHDO_updateAllPanelBars(aPanelNum)
 		VUHDO_updateManaBars(tUnit, 3);
 		VUHDO_manaBarBouquetCallback(tUnit, false);
 	end
+
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = false;
+
+	return;
+
 end
 
 
@@ -1439,6 +1509,8 @@ end
 --
 VUHDO_REMOVE_HOTS = true;
 function VUHDO_updateAllRaidBars()
+
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = true;
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		if VUHDO_isPanelVisible(tPanelNum) then
@@ -1474,6 +1546,8 @@ function VUHDO_updateAllRaidBars()
 		VUHDO_REMOVE_HOTS = true;
 	end
 
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = false;
+
 	return;
 
 end
@@ -1487,6 +1561,8 @@ function VUHDO_updatePanelButtons(aPanelNum)
 		return;
 	end
 
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = true;
+
 	for _, tButton in pairs(VUHDO_getPanelButtons(aPanelNum)) do
 		if not tButton:GetAttribute("unit") then
 			break;
@@ -1494,6 +1570,8 @@ function VUHDO_updatePanelButtons(aPanelNum)
 
 		VUHDO_customizeHealButton(tButton);
 	end
+
+	VUHDO_FORCE_IMMEDIATE_INTERPOLATION = false;
 
 	return;
 

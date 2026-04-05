@@ -575,6 +575,9 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K814);
+							</OnLoad>
 							<OnShow>
 								VUHDO_lnfPatchFont(self, "Label");
 								VUHDO_lnfCheckButtonInitFromModel(self);
@@ -599,6 +602,9 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K815);
+							</OnLoad>
 							<OnShow>
 								VUHDO_lnfPatchFont(self, "Label");
 								VUHDO_lnfCheckButtonInitFromModel(self);

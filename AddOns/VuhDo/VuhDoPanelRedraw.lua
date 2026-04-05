@@ -1072,7 +1072,7 @@ do
 		tOffsetY = tCol * tStep * tGrowthDir[2] + tRow * tStep * tWrapDir[2];
 
 		tX = tOffsetX - tMinOffsetX;
-		tY = tOffsetY - tMinOffsetY;
+		tY = tOffsetY - tMaxOffsetY + tFrameSize;
 
 		if not InCombatLockdown() then
 			if sPanelConfig[aPanelNum]["privateAura"]["showTooltip"] then
