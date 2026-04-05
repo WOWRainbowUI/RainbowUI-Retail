@@ -111,6 +111,8 @@ addonTable.CustomiseDialog.ColorsConfig = {
       },
       instancesOnly = false,
       combatOnly = true,
+      tanksOnly = false,
+      useSafeColor = false,
     },
     entries = {
       {
@@ -172,6 +174,16 @@ addonTable.CustomiseDialog.ColorsConfig = {
         end,
         getter = function(details)
           return details.instancesOnly
+        end,
+      },
+      {
+        label = addonTable.Locales.ONLY_APPLY_WHEN_TANK,
+        kind = "checkbox",
+        setter = function(details, value)
+          details.tanksOnly = value
+        end,
+        getter = function(details)
+          return details.tanksOnly
         end,
       },
       {
@@ -708,6 +720,7 @@ addonTable.CustomiseDialog.ColorsConfig = {
         cast = GetColor("FC8C00"),
         channel = GetColor("3EC637"),
         interrupted = GetColor("FC36E0"),
+        empowered = GetColor("05c666"),
       },
     },
     entries = {
