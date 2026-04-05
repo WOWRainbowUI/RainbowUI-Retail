@@ -13,7 +13,7 @@ local OPC_Options = {
 		{"twof", tag="OnRight", caption=L"On right click:"},
 		{"twof", "QuickAction", caption=L"Quick action repeat trigger:", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT},
 		{"twof", "PadSupportMode", caption=L"Controller directional input:", reqFeature="GamePad", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=DISABLED_TEXT, globalOnly=true, menu={"freelook", "freelook1", "cursor", "none", freelook=L"Camera analog stick", freelook1=L"Movement analog stick", cursor=L"Virtual mouse cursor", none=L"None"}},
-		{"twof", "SliceBinding", caption="Per-slice bindings:", depOn="InteractionMode"},
+		{"twof", "SliceBinding", caption=L"Per-slice bindings:", depOn="InteractionMode"},
 		{"bool", "ClickPriority", caption=L"Prevent other UI interactions", captionTop=L"While a ring is open:", depOn="InteractionMode", depValueSet=REQ_POINTER, otherwise=false},
 		{"navi", tag="InRingBindingNav", caption=L"Customize in-ring bindings"},
 	{ "section", caption=L"Behavior" },
