@@ -9,7 +9,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="206" y="-360" />
+							<AbsDimension x="145" y="-313" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -23,12 +23,12 @@
 
 			<Frame name="$parentAdditionalPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="254" y="145" />
+					<AbsDimension x="350" y="145" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="220" y="-200" />
+							<AbsDimension x="20" y="-160" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -128,12 +128,12 @@
 
 			<Frame name="$parentMainPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="255" y="129" />
+					<AbsDimension x="350" y="135" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="60" y="-25" />
+							<AbsDimension x="20" y="-20" />
 						</Offset>
 					</Anchor>
 				</Anchors>

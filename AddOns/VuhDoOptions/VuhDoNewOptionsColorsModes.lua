@@ -31,3 +31,48 @@ function VUHDO_colorsModesApplyTurnAxisHealAbsorbToAllPanels(_, aValue)
 	return;
 
 end
+
+
+
+--
+function VUHDO_colorsModesApplySmoothShieldToAllPanels(_, aValue)
+
+	for tPanelNum = 1, VUHDO_MAX_PANELS do
+		VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smoothShield"] = aValue;
+	end
+
+	VUHDO_timeReloadUI(0.3, true);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_colorsModesApplySmoothOvershieldToAllPanels(_, aValue)
+
+	for tPanelNum = 1, VUHDO_MAX_PANELS do
+		VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smoothOvershield"] = aValue;
+	end
+
+	VUHDO_timeReloadUI(0.3, true);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_colorsModesApplySmoothHealAbsorbToAllPanels(_, aValue)
+
+	for tPanelNum = 1, VUHDO_MAX_PANELS do
+		VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smoothHealAbsorb"] = aValue;
+	end
+
+	VUHDO_timeReloadUI(0.3, true);
+
+	return;
+
+end

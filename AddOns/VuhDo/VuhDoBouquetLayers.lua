@@ -750,6 +750,7 @@ end
 --
 local tResultSlot;
 local tColor;
+local tMaxSlotColor;
 local function VUHDO_applyNonSecretColorByIndex(aTarget, aTargetType, aLayerTemplate, aResultIdx)
 
 	tResultSlot = aLayerTemplate["nonSecretResults"][aResultIdx];
@@ -759,8 +760,15 @@ local function VUHDO_applyNonSecretColorByIndex(aTarget, aTargetType, aLayerTemp
 	end
 
 	tColor = tResultSlot["color"];
+	tMaxSlotColor = tResultSlot["maxColor"];
 
-	VUHDO_applyBackgroundColorToTarget(aTarget, aTargetType, tColor);
+	if aTargetType == VUHDO_TARGET_TYPE_BAR and tColor["useBackground"] and aLayerTemplate["useBackground"] and
+		tMaxSlotColor and tMaxSlotColor["R"] and tMaxSlotColor["G"] and tMaxSlotColor["B"] and
+		tResultSlot["gradientMinMixin"] and tResultSlot["gradientMaxMixin"] then
+		aTarget:GetStatusBarTexture():SetGradient("HORIZONTAL", tResultSlot["gradientMinMixin"], tResultSlot["gradientMaxMixin"]);
+	else
+		VUHDO_applyBackgroundColorToTarget(aTarget, aTargetType, tColor);
+	end
 
 	if aTargetType == VUHDO_TARGET_TYPE_BAR and tColor["useText"] then
 		VUHDO_applyTextColorToBar(aTarget, tColor["TR"], tColor["TG"], tColor["TB"]);
@@ -807,7 +815,34 @@ local function VUHDO_applyCurveColorByIndex(aTarget, aTargetType, aLayerTemplate
 
 	tResultSlot = aLayerTemplate["curveResults"][aResultIdx];
 
-	if not tResultSlot or not tResultSlot["r"] then
+	if not tResultSlot then
+		return;
+	end
+
+	if aTargetType == VUHDO_TARGET_TYPE_BAR and tResultSlot["useBarTextureGradient"] and tResultSlot["gradientMinMixin"] and tResultSlot["gradientMaxMixin"] then
+		if tResultSlot["r"] and sSecretsEnabled then
+			tR, tG, tB, tA = tResultSlot["r"], tResultSlot["g"], tResultSlot["b"], tResultSlot["a"];
+
+			aTarget["secretCurveColor"]["R"] = tR;
+			aTarget["secretCurveColor"]["G"] = tG;
+			aTarget["secretCurveColor"]["B"] = tB;
+			aTarget["secretCurveColor"]["O"] = tA;
+		end
+
+		if aLayerTemplate["useBackground"] then
+			aTarget:GetStatusBarTexture():SetGradient("HORIZONTAL", tResultSlot["gradientMinMixin"], tResultSlot["gradientMaxMixin"]);
+		end
+
+		if aLayerTemplate["useText"] and tResultSlot["r"] then
+			tR, tG, tB = tResultSlot["r"], tResultSlot["g"], tResultSlot["b"];
+
+			VUHDO_applyTextColorToBar(aTarget, tR, tG, tB);
+		end
+
+		return;
+	end
+
+	if not tResultSlot["r"] then
 		return;
 	end
 

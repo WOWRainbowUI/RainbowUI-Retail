@@ -973,7 +973,7 @@ function VUHDO_auraGroupsRefreshRightPanel()
 		end
 
 		VUHDO_lnfInitColorSwatch(tGlowBarColorSwatch, VUHDO_I18N_AURA_GLOW_BAR, VUHDO_I18N_AURA_GLOW_BAR);
-		VUHDO_lnfSetTooltip(tGlowBarColorSwatch, VUHDO_I18N_TT.K758);
+		VUHDO_lnfSetTooltip(tGlowBarColorSwatch, VUHDO_I18N_TT.K780);
 		VUHDO_lnfColorSwatchInitFromModel(tGlowBarColorSwatch);
 	end
 
@@ -1747,7 +1747,7 @@ local function VUHDO_initAuraGroupEntryItem(aParent, anItemPanel, anIndex, anEnt
 
 			tSpellButton:SetText(VUHDO_I18N_AURA_GROUP_ENTRY_SPELL);
 
-			VUHDO_lnfSetTooltip(tSpellButton, VUHDO_I18N_TT.K759);
+			VUHDO_lnfSetTooltip(tSpellButton, VUHDO_I18N_TT.K781);
 		else
 			tTypeLabelFrame:Show();
 			tBouquetButton:Hide();

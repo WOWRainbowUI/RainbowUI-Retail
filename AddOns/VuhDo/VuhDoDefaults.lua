@@ -4492,17 +4492,18 @@ VUHDO_DEFAULT_USER_CLASS_COLORS = {
 
 -- DK: 0.498, 0.075, 0.149
 -- DH: 0.365, 0.137, 0.573
--- DD: 1, 0.239, 0.008
--- EV: 0.196, 0.467, 0.537
+-- DD: 0.65, 0.27, 0.02
+-- EV: 0.06, 0.28, 0.24
 -- HU: 0.404, 0.537, 0.224
 -- MA: 0, 0.333, 0.537
 -- MO: 0.016, 0.608, 0.369
 -- PA: 1, 0.267, 0.537
 -- PR: 0.357, 0.357, 0.357
+-- PT: 0.2, 0.35, 0.2
 -- SH: 0, 0.259, 0.51
--- WA: 0.263, 0.267, 0.467
--- WR: 0.427, 0.137, 0.09
--- RO: 1, 0.686, 0
+-- WA: 0.3, 0.27, 0.52
+-- WR: 0.45, 0.3, 0.15
+-- RO: 0.7, 0.65, 0.1
 
 -- Gradient Color 'max":
 
@@ -4515,14 +4516,15 @@ VUHDO_DEFAULT_USER_CLASS_COLORS = {
 -- MO: 0, 1, 0.588
 -- PA: 0.957, 0.549, 0.729
 -- PR: 0.988, 0.988, 0.988
+-- PT: 0.4, 0.6, 0.4
 -- SH: 0, 0.439, 0.871
--- WA: 0.663, 0.392, 0.784
--- WR: 0.565, 0.431, 0.247
--- RO: 1, 0.831, 0.255
+-- WA: 0.58, 0.51, 0.79
+-- WR: 0.78, 0.61, 0.43
+-- RO: 1, 0.96, 0.41
 
 VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS = {
 	[VUHDO_ID_DRUIDS] = {
-		["min"] = VUHDO_makeFullColor(1,    0.24, 0.01, 1,   1,    0.6,  0.04, 1),
+		["min"] = VUHDO_makeFullColor(0.65, 0.27, 0.02, 1,   1,    0.6,  0.04, 1),
 		["max"] = VUHDO_makeFullColor(1,    0.49, 0.04, 1,   1,    0.6,  0.04, 1),
 	},
 	[VUHDO_ID_HUNTERS] = {
@@ -4542,20 +4544,20 @@ VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS = {
 		["max"] = VUHDO_makeFullColor(0.99, 0.99, 0.99, 1,   1,    1,    1,    1),
 	},
 	[VUHDO_ID_ROGUES] = {
-		["min"] = VUHDO_makeFullColor(1,    0.69, 0,    1,   1,    1,    0.51, 1),
-		["max"] = VUHDO_makeFullColor(1,    0.83, 0.26, 1,   1,    1,    0.51, 1),
+		["min"] = VUHDO_makeFullColor(0.70, 0.65, 0.10, 1,   1,    1,    0.51, 1),
+		["max"] = VUHDO_makeFullColor(1,    0.96, 0.41, 1,   1,    1,    0.51, 1),
 	},
 	[VUHDO_ID_SHAMANS] = {
 		["min"] = VUHDO_makeFullColor(0,    0.26, 0.51, 1,   0.24, 0.45, 1,    1),
 		["max"] = VUHDO_makeFullColor(0,    0.44, 0.87, 1,   0.24, 0.45, 1,    1),
 	},
 	[VUHDO_ID_WARLOCKS] = {
-		["min"] = VUHDO_makeFullColor(0.26, 0.27, 0.47, 1,   0.68, 0.61, 0.89, 1),
-		["max"] = VUHDO_makeFullColor(0.66, 0.39, 0.78, 1,   0.68, 0.61, 0.89, 1),
+		["min"] = VUHDO_makeFullColor(0.30, 0.27, 0.52, 1,   0.68, 0.61, 0.89, 1),
+		["max"] = VUHDO_makeFullColor(0.58, 0.51, 0.79, 1,   0.68, 0.61, 0.89, 1),
 	},
 	[VUHDO_ID_WARRIORS] = {
-		["min"] = VUHDO_makeFullColor(0.43, 0.14, 0.09, 1,   0.88, 0.71, 0.53, 1),
-		["max"] = VUHDO_makeFullColor(0.57, 0.43, 0.25, 1,   0.88, 0.71, 0.53, 1),
+		["min"] = VUHDO_makeFullColor(0.45, 0.30, 0.15, 1,   0.88, 0.71, 0.53, 1),
+		["max"] = VUHDO_makeFullColor(0.78, 0.61, 0.43, 1,   0.88, 0.71, 0.53, 1),
 	},
 	[VUHDO_ID_DEATH_KNIGHT] = {
 		["min"] = VUHDO_makeFullColor(0.5,  0.08, 0.15, 1,   0.87, 0.22, 0.33, 1),
@@ -4570,11 +4572,11 @@ VUHDO_DEFAULT_USER_CLASS_GRADIENT_COLORS = {
 		["max"] = VUHDO_makeFullColor(0.75, 0.19, 1,    1,   0.64, 0.19, 0.79, 1),
 	},
 	[VUHDO_ID_EVOKERS] = {
-		["min"] = VUHDO_makeFullColor(0.2,  0.47, 0.54, 1,   0.20, 0.58, 0.50, 1),
+		["min"] = VUHDO_makeFullColor(0.06, 0.28, 0.24, 1,   0.20, 0.58, 0.50, 1),
 		["max"] = VUHDO_makeFullColor(0.2,  0.58, 0.5,  1,   0.20, 0.58, 0.50, 1),
 	},
 	[VUHDO_ID_PETS] = {
-		["min"] = VUHDO_makeFullColor(0.4,  0.6,  0.4,  1,   0.5,  0.9,  0.5,  1),
+		["min"] = VUHDO_makeFullColor(0.20, 0.35, 0.20, 1,   0.5,  0.9,  0.5,  1),
 		["max"] = VUHDO_makeFullColor(0.4,  0.6,  0.4,  1,   0.5,  0.9,  0.5,  1),
 	},
 	["isClassGradient"] = false,

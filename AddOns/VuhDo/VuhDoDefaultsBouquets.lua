@@ -1056,6 +1056,7 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 			["TEXTURE"] = "VuhDo - Pipe, light",
 			["invertGrowth"] = false,
 			["turnAxis"] = false,
+			["smooth"] = false,
 		},
 		["MOUSEOVER_HIGHLIGHT"] = {
 			["TEXTURE"] = "VuhDo - Aluminium",
@@ -1069,6 +1070,7 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 			["TEXTURE"] = "VuhDo - Polished Wood",
 			["invertGrowth"] = false,
 			["turnAxis"] = false,
+			["smooth"] = false,
 		},
 		["HEALTH_BAR"] = {
 			["invertGrowth"] = false,
@@ -1076,18 +1078,24 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 			["turnAxis"] = false,
 			["turnAxisOvershield"] = false,
 			["turnAxisHealAbsorb"] = false,
+			["smooth"] = false,
+			["smoothShield"] = false,
+			["smoothOvershield"] = false,
+			["smoothHealAbsorb"] = false,
 		},
 		["SIDE_LEFT"] = {
 			["TEXTURE"] = "VuhDo - Plain White",
 			["invertGrowth"] = false,
 			["vertical"] = true,
 			["turnAxis"] = false,
+			["smooth"] = false,
 		},
 		["SIDE_RIGHT"] = {
 			["TEXTURE"] = "VuhDo - Plain White",
 			["invertGrowth"] = false,
 			["vertical"] = true,
 			["turnAxis"] = false,
+			["smooth"] = false,
 		},
 		["HOT_BARS"] = {
 			["invertGrowth"] = false,

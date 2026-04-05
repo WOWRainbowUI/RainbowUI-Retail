@@ -111,7 +111,7 @@
 							<OnLoad>
 								self.tabPanel = "VuhDoNewOptionsColorsClassGradients";
 								VUHDO_lnfCheckButtonOnLoad(self);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K609);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K816);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>

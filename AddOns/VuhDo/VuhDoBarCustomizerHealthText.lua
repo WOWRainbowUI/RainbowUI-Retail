@@ -12,6 +12,7 @@ local CreateColorCurve =C_CurveUtil and C_CurveUtil.CreateColorCurve;
 local CreateColor = CreateColor;
 local TruncateWhenZero = C_StringUtil and C_StringUtil.TruncateWhenZero;
 local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction;
+local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator;
 local UnitIsGhost = UnitIsGhost;
 
 local VUHDO_getHealthBar;
@@ -27,7 +28,6 @@ local VUHDO_getDisplayUnit;
 local VUHDO_isBossUnit;
 local VUHDO_getIncHealOnUnit;
 local VUHDO_getUnitOverallShieldRemain;
-local VUHDO_getHealPredictionCalculator;
 local VUHDO_UIFrameFlash;
 
 local VUHDO_PANEL_SETUP;
@@ -44,7 +44,8 @@ local sIsOverhealText;
 local sIsAggroText;
 local sLifeColor;
 local sIsNoRangeFade;
-local sHealPredictionCalculator;
+local sHealthTextCalculator;
+local sHealthTextEffectiveCalculator;
 local sHideIrrelevantCurve;
 local sHideMissingZeroCurve;
 local sShowWhenFullCurve;
@@ -165,7 +166,6 @@ function VUHDO_customHealthTextInitLocalOverrides()
 	VUHDO_isBossUnit = _G["VUHDO_isBossUnit"];
 	VUHDO_getIncHealOnUnit = _G["VUHDO_getIncHealOnUnit"];
 	VUHDO_getUnitOverallShieldRemain = _G["VUHDO_getUnitOverallShieldRemain"];
-	VUHDO_getHealPredictionCalculator = _G["VUHDO_getHealPredictionCalculator"];
 	VUHDO_UIFrameFlash = _G["VUHDO_UIFrameFlash"];
 
 	sIsOverhealText = VUHDO_CONFIG["SHOW_TEXT_OVERHEAL"];
@@ -173,7 +173,33 @@ function VUHDO_customHealthTextInitLocalOverrides()
 	sLifeColor = VUHDO_PANEL_SETUP["PANEL_COLOR"]["HEALTH_TEXT"];
 	sIsNoRangeFade = VUHDO_CONFIG["CUSTOM_DEBUFF"]["isNoRangeFade"];
 
-	sHealPredictionCalculator = VUHDO_getHealPredictionCalculator();
+	sHealthTextCalculator = nil;
+	sHealthTextEffectiveCalculator = nil;
+
+	if sSecretsEnabled then
+		sHealthTextCalculator = CreateUnitHealPredictionCalculator();
+
+		if sHealthTextCalculator then
+			sHealthTextCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
+			sHealthTextCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
+			sHealthTextCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
+			sHealthTextCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
+			sHealthTextCalculator:SetIncomingHealOverflowPercent(1.0);
+			sHealthTextCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.Default);
+		end
+
+		sHealthTextEffectiveCalculator = CreateUnitHealPredictionCalculator();
+
+		if sHealthTextEffectiveCalculator then
+			sHealthTextEffectiveCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth);
+			sHealthTextEffectiveCalculator:SetHealAbsorbClampMode(Enum.UnitHealAbsorbClampMode.MaximumHealth);
+			sHealthTextEffectiveCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
+			sHealthTextEffectiveCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
+			sHealthTextEffectiveCalculator:SetIncomingHealOverflowPercent(1.0);
+			sHealthTextEffectiveCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs);
+		end
+	end
+
 	sHideIrrelevantCurve = VUHDO_buildHideIrrelevantCurve();
 	sHideMissingZeroCurve = VUHDO_buildHideMissingZeroCurve();
 	sShowWhenFullCurve = VUHDO_buildShowWhenFullCurve();
@@ -286,9 +312,10 @@ local tHealth;
 local tHealthMax;
 local tMissingHealth;
 local tLifeStr;
+local tCalculator;
 local function VUHDO_buildLifeTextSecret(aUnit, aLifeConfig, anIsTarget)
 
-	if not sHealPredictionCalculator then
+	if not sHealthTextCalculator or not sHealthTextEffectiveCalculator then
 		if 1 == aLifeConfig["mode"] or anIsTarget then
 			return format("%.0f%%", UnitHealthPercent(aUnit, true, CurveConstants.ScaleTo100)), true;
 		elseif 3 == aLifeConfig["mode"] then
@@ -310,18 +337,14 @@ local function VUHDO_buildLifeTextSecret(aUnit, aLifeConfig, anIsTarget)
 		end
 	end
 
-	if aLifeConfig["showEffectiveHp"] then
-		sHealPredictionCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs);
-	else
-		sHealPredictionCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.Default);
-	end
+	tCalculator = aLifeConfig["showEffectiveHp"] and sHealthTextEffectiveCalculator or sHealthTextCalculator;
 
-	sHealPredictionCalculator:ResetPredictedValues();
-	UnitGetDetailedHealPrediction(aUnit, "player", sHealPredictionCalculator);
+	tCalculator:ResetPredictedValues();
+	UnitGetDetailedHealPrediction(aUnit, "player", tCalculator);
 
-	tHealth = sHealPredictionCalculator:GetCurrentHealth();
-	tHealthMax = sHealPredictionCalculator:GetMaximumHealth();
-	tMissingHealth = sHealPredictionCalculator:GetMissingHealth();
+	tHealth = tCalculator:GetCurrentHealth();
+	tHealthMax = tCalculator:GetMaximumHealth();
+	tMissingHealth = tCalculator:GetMissingHealth();
 
 	if 1 == aLifeConfig["mode"] or anIsTarget then
 		return format("%.0f%%", UnitHealthPercent(aUnit, true, CurveConstants.ScaleTo100)), true;

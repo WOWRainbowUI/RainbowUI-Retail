@@ -71,6 +71,8 @@ local VUHDO_AURA_FRAMES = VUHDO_AURA_FRAMES;
 
 local sAuraAnchorConfigVersion = 0;
 
+local sEntrySettingsVersion = 0;
+
 local sAnchorSettingsCache = {
 	["showTooltip"] = { },
 	["showClock"] = { },
@@ -539,6 +541,8 @@ end
 local tAllGroups;
 local tEntries;
 function VUHDO_initEntrySettingsCache()
+
+	sEntrySettingsVersion = sEntrySettingsVersion + 1;
 
 	twipe(sEntrySettingsCache["showTimer"]);
 	twipe(sEntrySettingsCache["showStacks"]);
@@ -2585,7 +2589,7 @@ do
 
 						aFrame["childBar"]:ClearAllPoints();
 						VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "TOP", aFrame["iconFrame"], "BOTTOM", 0, 0);
-						VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, tBarHeight);
+						VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, aFrame:GetHeight() - aFrame["iconFrame"]:GetHeight());
 					else
 						VUHDO_PixelUtil.SetPoint(aFrame["iconFrame"], "BOTTOM", aFrame, "BOTTOM", 0, 0);
 						VUHDO_PixelUtil.SetSize(aFrame["iconFrame"], tIconSize, tIconSize);
@@ -2603,7 +2607,7 @@ do
 
 						aFrame["childBar"]:ClearAllPoints();
 						VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "BOTTOM", aFrame["iconFrame"], "TOP", 0, 0);
-						VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, tBarHeight);
+						VUHDO_PixelUtil.SetSize(aFrame["childBar"], tIconSize, aFrame:GetHeight() - aFrame["iconFrame"]:GetHeight());
 					end
 				else
 					if tBarTurnAxis then
@@ -2623,7 +2627,7 @@ do
 
 						aFrame["childBar"]:ClearAllPoints();
 						VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "RIGHT", aFrame["iconFrame"], "LEFT", 0, 0);
-						VUHDO_PixelUtil.SetSize(aFrame["childBar"], tBarWidth, tBarHeight);
+						VUHDO_PixelUtil.SetSize(aFrame["childBar"], aFrame:GetWidth() - aFrame["iconFrame"]:GetWidth(), tBarHeight);
 					else
 						VUHDO_PixelUtil.SetPoint(aFrame["iconFrame"], "LEFT", aFrame, "LEFT", 0, 0);
 						VUHDO_PixelUtil.SetSize(aFrame["iconFrame"], tIconSize, tIconSize);
@@ -2641,7 +2645,7 @@ do
 
 						aFrame["childBar"]:ClearAllPoints();
 						VUHDO_PixelUtil.SetPoint(aFrame["childBar"], "LEFT", aFrame["iconFrame"], "RIGHT", 0, 0);
-						VUHDO_PixelUtil.SetSize(aFrame["childBar"], tBarWidth, tBarHeight);
+						VUHDO_PixelUtil.SetSize(aFrame["childBar"], aFrame:GetWidth() - aFrame["iconFrame"]:GetWidth(), tBarHeight);
 					end
 				end
 			end
@@ -3866,6 +3870,10 @@ do
 	local tGlowColor;
 	local tGlowKey;
 	local tHasGlow;
+	local tIconSize;
+	local tNumLines;
+	local tLength;
+	local tThickness;
 	local tEntryOverride;
 	local tFlashThreshold;
 	local tFadeOnLowResolved;
@@ -3899,6 +3907,7 @@ do
 		end
 
 		if not tHasFadeOrFlash
+			and tIconFrame["lastSettingsVersion"] == sEntrySettingsVersion
 			and not (issecretvalue(tLastExpiration) or issecretvalue(anAuraData["expirationTime"]) or
 				issecretvalue(tLastApplications) or issecretvalue(anAuraData["applications"]) or
 				issecretvalue(tLastIcon) or issecretvalue(anAuraData["icon"]))
@@ -3914,6 +3923,8 @@ do
 		tIconFrame["lastApplications"] = issecretvalue(anAuraData["applications"]) and nil or anAuraData["applications"];
 		tIconFrame["lastIcon"] = issecretvalue(anAuraData["icon"]) and nil or anAuraData["icon"];
 
+		tIconFrame["lastSettingsVersion"] = sEntrySettingsVersion;
+
 		tIconFrame["panelNum"] = aPanelNum;
 		tIconFrame["anchorIndex"] = anAnchorIndex;
 		tIconFrame["auraInstanceId"] = anAuraData["auraInstanceID"];
@@ -3922,16 +3933,32 @@ do
 
 		tDurationObj = nil;
 
-		if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
-			tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
-		elseif anAuraData["duration"] and anAuraData["duration"] > 0 and anAuraData["expirationTime"] then
-			if not tIconFrame["durationObj"] then
-				tIconFrame["durationObj"] = CreateDuration();
+		if not issecretvalue(anAuraData["duration"]) and not issecretvalue(anAuraData["expirationTime"]) then
+			if (anAuraData["duration"] or 0) > 0 and anAuraData["expirationTime"] then
+				if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+					tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
+				else
+					if not tIconFrame["durationObj"] then
+						tIconFrame["durationObj"] = CreateDuration();
+					end
+
+					tDurationObj = tIconFrame["durationObj"];
+
+					tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
+				end
 			end
+		else
+			if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+				tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
+			elseif anAuraData["duration"] and anAuraData["duration"] > 0 and anAuraData["expirationTime"] then
+				if not tIconFrame["durationObj"] then
+					tIconFrame["durationObj"] = CreateDuration();
+				end
 
-			tDurationObj = tIconFrame["durationObj"];
+				tDurationObj = tIconFrame["durationObj"];
 
-			tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
+				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
+			end
 		end
 
 		tChild = tIconFrame["childB"] or VUHDO_getAuraIconBackdrop(tIconFrame);
@@ -4171,7 +4198,8 @@ do
 	local tIsUpdate;
 	local tCurrentDuration;
 	local tRemaining;
-	local tMaxDuration;
+	local tIsPermanent;
+	local tIsFullReset;
 	function VUHDO_displayAuraAsBar(aButton, aPanelNum, anAnchorIndex, aSlotIndex, anAuraData, anAnchorConfig)
 
 		if not aButton or not anAnchorIndex or not aSlotIndex or not anAuraData or not anAnchorConfig then
@@ -4198,6 +4226,7 @@ do
 		end
 
 		if not tHasFadeOrFlash
+			and tBarFrame["lastSettingsVersion"] == sEntrySettingsVersion
 			and not (issecretvalue(tBarFrame["lastExpirationTime"]) or issecretvalue(anAuraData["expirationTime"]) or
 				issecretvalue(tBarFrame["lastApplications"]) or issecretvalue(anAuraData["applications"]) or
 				issecretvalue(tBarFrame["lastIcon"]) or issecretvalue(anAuraData["icon"]))
@@ -4210,40 +4239,45 @@ do
 
 		tIsUpdate = tLastInstanceId and tLastInstanceId == anAuraData["auraInstanceID"];
 
-		tBarFrame["lastAuraInstanceId"] = anAuraData["auraInstanceID"];
-		tBarFrame["lastExpirationTime"] = issecretvalue(anAuraData["expirationTime"]) and nil or anAuraData["expirationTime"];
-		tBarFrame["lastApplications"] = issecretvalue(anAuraData["applications"]) and nil or anAuraData["applications"];
-		tBarFrame["lastIcon"] = issecretvalue(anAuraData["icon"]) and nil or anAuraData["icon"];
-
-		tBarFrame["panelNum"] = aPanelNum;
-		tBarFrame["anchorIndex"] = anAnchorIndex;
-		tBarFrame["auraInstanceId"] = anAuraData["auraInstanceID"];
-
 		tUnit = aButton:GetAttribute("unit");
 
 		tDurationObj = nil;
+		tIsFullReset = false;
 
 		if not issecretvalue(anAuraData["duration"]) and not issecretvalue(anAuraData["expirationTime"]) then
 			tCurrentDuration = anAuraData["duration"] or 0;
 			tRemaining = (anAuraData["expirationTime"] or 0) - GetTime();
 
-			if tIsUpdate then
-				tBarFrame["maxObservedDuration"] = max(tBarFrame["maxObservedDuration"] or 0, tCurrentDuration, tRemaining);
-			else
+			if not tIsUpdate then
+				tBarFrame["baseDuration"] = tCurrentDuration;
 				tBarFrame["maxObservedDuration"] = max(tCurrentDuration, tRemaining);
+			elseif tCurrentDuration >= (tBarFrame["baseDuration"] or 0) then
+				tBarFrame["maxObservedDuration"] = max(tCurrentDuration, tRemaining);
+
+				if tBarFrame["maxObservedDuration"] - tCurrentDuration < 0.1 then
+					tBarFrame["maxObservedDuration"] = tCurrentDuration;
+
+					tIsFullReset = tRemaining >= tCurrentDuration - 0.15;
+				else
+					tIsFullReset = false;
+				end
+			elseif tRemaining > (tBarFrame["maxObservedDuration"] or 0) then
+				tBarFrame["maxObservedDuration"] = tRemaining;
+
+				tIsFullReset = false;
 			end
 
-			tMaxDuration = tBarFrame["maxObservedDuration"];
-
-			if tMaxDuration > 0 and anAuraData["expirationTime"] then
+			if (tBarFrame["maxObservedDuration"] or 0) > 0 and anAuraData["expirationTime"] then
 				if not tBarFrame["durationObj"] then
 					tBarFrame["durationObj"] = CreateDuration();
 				end
 
 				tDurationObj = tBarFrame["durationObj"];
 
-				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], tMaxDuration);
+				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], tBarFrame["maxObservedDuration"]);
 			end
+
+			tIsPermanent = (tCurrentDuration == 0 and (anAuraData["expirationTime"] or 0) == 0);
 		else
 			if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
 				tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
@@ -4256,7 +4290,20 @@ do
 
 				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
 			end
+
+			tIsPermanent = false;
 		end
+
+		tBarFrame["lastAuraInstanceId"] = anAuraData["auraInstanceID"];
+		tBarFrame["lastExpirationTime"] = issecretvalue(anAuraData["expirationTime"]) and nil or anAuraData["expirationTime"];
+		tBarFrame["lastApplications"] = issecretvalue(anAuraData["applications"]) and nil or anAuraData["applications"];
+		tBarFrame["lastIcon"] = issecretvalue(anAuraData["icon"]) and nil or anAuraData["icon"];
+
+		tBarFrame["lastSettingsVersion"] = sEntrySettingsVersion;
+
+		tBarFrame["panelNum"] = aPanelNum;
+		tBarFrame["anchorIndex"] = anAnchorIndex;
+		tBarFrame["auraInstanceId"] = anAuraData["auraInstanceID"];
 
 		tBar = tBarFrame["childBar"];
 
@@ -4330,10 +4377,16 @@ do
 		end
 
 		if tDurationObj then
+			tBar:Show();
+
 			tTimerDirection = tBarInvertGrowth and Enum.StatusBarTimerDirection.ElapsedTime or Enum.StatusBarTimerDirection.RemainingTime;
 
-			tBar:SetTimerDuration(tDurationObj, tIsUpdate and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate, tTimerDirection);
+			tBar:SetTimerDuration(tDurationObj, (tIsUpdate and not tIsFullReset) and Enum.StatusBarInterpolation.ExponentialEaseOut or Enum.StatusBarInterpolation.Immediate, tTimerDirection);
+		elseif tIsPermanent then
+			tBar:Hide();
 		else
+			tBar:Show();
+
 			tBar:SetMinMaxValues(0, 1);
 
 			tBar:SetValue(tBarInvertGrowth and 0 or 1);
@@ -4389,7 +4442,7 @@ do
 
 		VUHDO_updateAuraBarGlow(tBarFrame, tGroupId, tEntryIndex, aPanelNum, anAnchorIndex, aSlotIndex, tBarVertical, aButton, anAnchorConfig, tBarIconType);
 
-		if not (tFadeOnLowResolved and tDurationObj and not tDurationObj:HasSecretValues()) then
+		if (not tFadeOnLowResolved or not tDurationObj or tDurationObj:HasSecretValues()) and not tIsPermanent then
 			tBar:SetAlpha(1);
 		end
 
@@ -4489,6 +4542,7 @@ do
 			tFrame["lastApplications"] = nil;
 			tFrame["lastIcon"] = nil;
 			tFrame["maxObservedDuration"] = nil;
+			tFrame["baseDuration"] = nil;
 			tFrame["durationObj"] = nil;
 
 			tFrame:SetAlpha(0);

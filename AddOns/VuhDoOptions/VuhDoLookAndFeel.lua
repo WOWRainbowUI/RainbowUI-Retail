@@ -1468,15 +1468,30 @@ end
 --
 do
 	local tTooltip;
+	local tAnchor;
 	function VUHDO_lnfShowTooltip(aComponent)
-		tTooltip = aComponent:GetAttribute("tooltip");
-		if (tTooltip ~= nil) then
+
+		tAnchor = aComponent;
+		tTooltip = tAnchor:GetAttribute("tooltip");
+
+		while tTooltip == nil and tAnchor:GetParent() do
+			tAnchor = tAnchor:GetParent();
+			tTooltip = tAnchor:GetAttribute("tooltip");
+		end
+
+		if tTooltip ~= nil then
 			VuhDoOptionsTooltipTextText:SetText(tTooltip);
+
 			VUHDO_PixelUtil.SetHeight(VuhDoOptionsTooltip, VuhDoOptionsTooltipTextText:GetHeight() + 10);
+
 			VuhDoOptionsTooltip:ClearAllPoints();
 			VUHDO_PixelUtil.SetPoint(VuhDoOptionsTooltip, "LEFT", aComponent:GetName(), "RIGHT", 3, 0);
+
 			VuhDoOptionsTooltip:Show();
 		end
+
+		return;
+
 	end
 end
 

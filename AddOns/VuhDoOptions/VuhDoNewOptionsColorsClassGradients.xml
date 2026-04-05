@@ -27,7 +27,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.isClassGradient");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K605);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K785);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -53,7 +53,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##20.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARRIORS, VUHDO_I18N_WARRIORS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K606);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K786);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -70,7 +70,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##20.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARRIORS, VUHDO_I18N_WARRIORS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K607);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K787);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -87,7 +87,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##25.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARLOCKS, VUHDO_I18N_WARLOCKS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K608);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K788);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -104,7 +104,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##25.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_WARLOCKS, VUHDO_I18N_WARLOCKS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K609);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K789);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -121,7 +121,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##21.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_ROGUES, VUHDO_I18N_ROGUES);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K610);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K790);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -138,7 +138,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##21.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_ROGUES, VUHDO_I18N_ROGUES);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K611);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K791);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -155,7 +155,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##26.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_SHAMANS, VUHDO_I18N_SHAMANS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K612);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K792);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -172,7 +172,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##26.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_SHAMANS, VUHDO_I18N_SHAMANS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K613);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K793);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -189,7 +189,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##22.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_HUNTERS, VUHDO_I18N_HUNTERS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K614);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K794);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -206,7 +206,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##22.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_HUNTERS, VUHDO_I18N_HUNTERS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K615);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K795);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -223,7 +223,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##27.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DRUIDS, VUHDO_I18N_DRUIDS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K616);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K796);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -240,7 +240,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##27.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DRUIDS, VUHDO_I18N_DRUIDS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K617);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K797);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -258,7 +258,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##23.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PALADINS, VUHDO_I18N_PALADINS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K618);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K798);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -275,7 +275,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##23.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PALADINS, VUHDO_I18N_PALADINS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K619);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K799);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -292,7 +292,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##28.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PRIESTS, VUHDO_I18N_PRIESTS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K620);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K800);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -309,7 +309,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##28.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PRIESTS, VUHDO_I18N_PRIESTS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K621);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K801);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -326,7 +326,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##24.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MAGES, VUHDO_I18N_MAGES);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K622);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K802);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -343,7 +343,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##24.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MAGES, VUHDO_I18N_MAGES);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K623);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K803);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -360,7 +360,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##29.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEATH_KNIGHT, VUHDO_I18N_DEATH_KNIGHT);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K624);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K804);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -377,7 +377,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##29.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEATH_KNIGHT, VUHDO_I18N_DEATH_KNIGHT);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K625);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K805);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -394,7 +394,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##30.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MONKS, VUHDO_I18N_MONKS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K626);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K806);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -411,7 +411,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##30.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_MONKS, VUHDO_I18N_MONKS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K627);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K807);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -428,7 +428,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##31.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEMON_HUNTERS, VUHDO_I18N_DEMON_HUNTERS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K628);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K808);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -445,7 +445,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##31.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_DEMON_HUNTERS, VUHDO_I18N_DEMON_HUNTERS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K629);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K809);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -462,7 +462,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##32.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_EVOKERS, VUHDO_I18N_EVOKERS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K630);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K810);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -479,7 +479,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##32.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_EVOKERS, VUHDO_I18N_EVOKERS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K631);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K811);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -496,7 +496,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##40.min");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PETS, VUHDO_I18N_PETS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K632);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K812);
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -513,7 +513,7 @@
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_USER_CLASS_GRADIENT_COLORS.##40.max");
 								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_PETS, VUHDO_I18N_PETS);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K633);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K813);
 							</OnLoad>
 						</Scripts>
 					</Frame>
