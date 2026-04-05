@@ -1,6 +1,7 @@
-## Changed in v2026.18
+## Changed in v2026.19
 
-* Add achievements to tooltips: Runestone Rush, More Than Just Their Roots
-* Sync: made it so that being in the same zone counts as "nearby", not just UnitInRange
-* Vignettes: make ignoring glowing moths from the popup ignore the whole group, because this is probably what you really meant
+* Show shared loot if known (currently only midnight rares); this will appear in loot listings but *not* count for announcements
+* Midnight
+    * Add Princess Bloodshed to Dame Bloodshed
+    * Add decor reward to Reliquary's Lost Paintbrush
 
