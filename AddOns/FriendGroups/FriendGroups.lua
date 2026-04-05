@@ -15,6 +15,7 @@ local EnableFriendGroups
 local FriendGroups_FriendsListUpdate
 local FriendGroups_FriendsListUpdateFriendButton
 local FriendGroups_FriendsListButtonTemplateClick
+local SetupGroupedView
 
 local ADDON_CHAT_PREFIX = "|cffFFE400[|r|cff3AFF00" .. "FriendGroups" .. "|r|cffFFE400]|r"
 local function Print(...)
@@ -36,9 +37,7 @@ local groupsTotal = {}
 local groupsSorted = {}
 local groupsCount = {}
 local expansionMaxLevel = {}
-local friendsListEmpty = false
 local searchBoxInit = false
-local lastFriendsListEmptyWarning = 0
 local currentExpansionMaxLevel, FriendGroups_Menu, FriendGroupsFrame, searchOpened
 local searchValue = ""
 local FriendGroups_SearchBox
@@ -411,15 +410,19 @@ function FriendGroups_Rename(self, oldGroup)
 
 	local groups = {}
 	for i = 1, BNGetNumFriends() do
-		local presenceID = C_BattleNet.GetFriendAccountInfo(i).bnetAccountID
-		local noteText = C_BattleNet.GetFriendAccountInfo(i).note
-		local note = FriendGroups_NoteAndGroups(noteText, groups)
-		if groups[oldGroup] then
-			groups[oldGroup] = nil
-			groups[input] = true
-			note = FriendGroups_CreateNote(note, groups)
-			BNSetFriendNote(presenceID, note)
-		end
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        -- SAFETY: Ensure the friend data actually loaded before trying to read it
+        if accountInfo then
+            local presenceID = accountInfo.bnetAccountID
+            local noteText = accountInfo.note
+            local note = FriendGroups_NoteAndGroups(noteText, groups)
+            if groups[oldGroup] then
+                groups[oldGroup] = nil
+                groups[input] = true
+                note = FriendGroups_CreateNote(note, groups)
+                BNSetFriendNote(presenceID, note)
+            end
+        end
 	end
 	for i = 1, C_FriendList.GetNumFriends() do
 		local note = C_FriendList.GetFriendInfoByIndex(i).notes
@@ -441,19 +444,22 @@ function FriendGroups_InviteOrGroup(groupName, invite)
 
 	for i = 1, BNGetNumFriends() do
 		local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(i)
-		local gameAccountInfo = friendAccountInfo.gameAccountInfo
-		local presenceID = friendAccountInfo.bnetAccountID
-		local noteText = friendAccountInfo.note
-		local note = FriendGroups_NoteAndGroups(noteText, groups)
-		if groups[groupName] then
-			if invite and gameAccountInfo and gameAccountInfo.gameAccountID then
-				BNInviteFriend(gameAccountInfo.gameAccountID)
-			elseif not invite then
-				groups[groupName] = nil
-				note = FriendGroups_CreateNote(note, groups)
-				BNSetFriendNote(presenceID, note)
-			end
-		end
+        -- SAFETY: Ensure the friend data actually loaded
+        if friendAccountInfo then
+            local gameAccountInfo = friendAccountInfo.gameAccountInfo
+            local presenceID = friendAccountInfo.bnetAccountID
+            local noteText = friendAccountInfo.note
+            local note = FriendGroups_NoteAndGroups(noteText, groups)
+            if groups[groupName] then
+                if invite and gameAccountInfo and gameAccountInfo.gameAccountID then
+                    BNInviteFriend(gameAccountInfo.gameAccountID)
+                elseif not invite then
+                    groups[groupName] = nil
+                    note = FriendGroups_CreateNote(note, groups)
+                    BNSetFriendNote(presenceID, note)
+                end
+            end
+        end
 	end
 	for i = 1, C_FriendList.GetNumFriends() do
 		local friend_info = C_FriendList.GetFriendInfoByIndex(i)
@@ -498,7 +504,10 @@ function FriendGroups_Create(self, data)
 end
 
 function FriendGroups_NoteAndGroups(note, groups)
-	if not note then
+    -- 12.0 FIX: Secure note string check to prevent strsplit crash
+    if type(note) ~= "string" then note = "" end
+
+	if not note or note == "" then
 		return FriendGroups_FillGroups(groups, "")
 	end
 	if groups then
@@ -552,182 +561,170 @@ function FriendGroups_HasValue(tab, val)
 end
 
 function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
-	local bnetfriend = nil
-	local note = ""
+    if not contextData then return end
 
-	if contextData.which == "BN_FRIEND" or contextData.which == "BN_FRIEND_OFFLINE" then
-		bnetfriend = true
-	else
-		bnetfriend = false
-	end
+    -- 12.0 FIX: Execution Guard. If this menu generation is NOT originating from our Friends List elements, 
+    -- instantly abort to prevent tainting Blizzard's Chat Frame Context Menus.
+    if ownerRegion and ownerRegion:GetParent() then
+        local parentName = ownerRegion:GetParent():GetName() or ""
+        if not string.find(parentName, "FriendsListFrame") and not string.find(parentName, "ScrollBox") then
+            return 
+        end
+    end
 
-	local accountInfo = FriendGroups_GetInfoByName(contextData.name, bnetfriend)
-	
-	if accountInfo then
-	
-		if bnetfriend then
-			note = accountInfo.note
-		else
-			note = accountInfo.notes
-		end
+    local bnetfriend = false
+    local accountInfo = nil
+    
+    local bnetIDAccount = contextData.bnetIDAccount
+    local wowName = contextData.name
 
-		local groups = FriendGroups_GetPlayerGroups(note)
+    if bnetIDAccount then
+        bnetfriend = true
+        accountInfo = C_BattleNet.GetAccountInfoByID(bnetIDAccount)
+    elseif wowName then
+        bnetfriend = false
+        accountInfo = C_FriendList.GetFriendInfo(wowName)
+    else
+        return
+    end
 
-		rootDescription:CreateDivider()
-		rootDescription:CreateTitle(L["DROP_TITLE"])
+    if not accountInfo then return end
 
-		-- [[ OPTION 1: Copy Name-Realm ]] --
-		rootDescription:CreateButton(L["DROP_COPY_NAME"], function(data)
-			local textToCopy = ""
-			if data.bnetfriend then
-				local info = C_BattleNet.GetAccountInfoByID(accountInfo.bnetAccountID)
-				if info and info.gameAccountInfo and info.gameAccountInfo.characterName then
-					local char = info.gameAccountInfo.characterName
-					local realm = info.gameAccountInfo.realmName
-					local richPresence = info.gameAccountInfo.richPresence
-					local friendProject = info.gameAccountInfo.wowProjectID
-					local myProject = WOW_PROJECT_ID
+    -- 12.0 FIX: Removed redundant string type-check here. FriendGroups_GetPlayerGroups handles it securely now.
+    local note = ""
+    if bnetfriend then
+        note = accountInfo.note
+    else
+        note = accountInfo.notes
+    end
 
-					-- 1. Try standard realm display name
-					if not realm or realm == "" then
-						realm = info.gameAccountInfo.realmDisplayName
-					end
+    local groups = FriendGroups_GetPlayerGroups(note)
 
-					-- 2. Try parsing Rich Presence (Critical for Classic friends viewed from Retail)
-					if (not realm or realm == "") and richPresence then
-						local extraction = richPresence:match("%s%-%s(.+)")
-						if extraction then
-							realm = extraction
-						end
-					end
+    rootDescription:CreateDivider()
+    rootDescription:CreateTitle(L["DROP_TITLE"])
 
-					-- 3. Fallback: Use Player's Realm ONLY if they are on the SAME Project
-					if (not realm or realm == "") and info.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
-						if friendProject == myProject then
-							realm = GetRealmName()
-						end
-					end
+    rootDescription:CreateButton(L["DROP_COPY_NAME"], function(data)
+        local textToCopy = ""
+        if data.bnetfriend then
+            local info = C_BattleNet.GetAccountInfoByID(data.id)
+            if info and info.gameAccountInfo and info.gameAccountInfo.characterName then
+                local char = info.gameAccountInfo.characterName
+                local realm = info.gameAccountInfo.realmName
+                local richPresence = info.gameAccountInfo.richPresence
+                local friendProject = info.gameAccountInfo.wowProjectID
+                local myProject = WOW_PROJECT_ID
 
-					if realm and realm ~= "" then
-						realm = realm:gsub("%s+", "") 
-						textToCopy = char .. "-" .. realm
-					else
-						textToCopy = char
-					end
-				elseif info and info.battleTag then
-					-- Fallback to BTag if no character found (e.g. Offline)
-					textToCopy = info.battleTag
-				end
+                if not realm or realm == "" then
+                    realm = info.gameAccountInfo.realmDisplayName
+                end
+                
+                -- 12.0 FIX: Verify richPresence is a valid string before using string.match
+                if (not realm or realm == "") and richPresence and type(richPresence) == "string" then
+                    local extraction = richPresence:match("%s%-%s(.+)")
+                    if extraction then
+                        realm = extraction
+                    end
+                end
+                if (not realm or realm == "") and info.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
+                    if friendProject == myProject then
+                        realm = GetRealmName()
+                    end
+                end
+
+                -- 12.0 FIX: Verify realm is a valid string before using string.gsub
+                if realm and realm ~= "" and type(realm) == "string" then
+                    realm = realm:gsub("%s+", "") 
+                    textToCopy = char .. "-" .. realm
+                else
+                    textToCopy = char
+                end
+            elseif info and info.battleTag and type(info.battleTag) == "string" then
+                textToCopy = info.battleTag
+            end
 			else
-				-- Standard WoW Friend
-				textToCopy = contextData.name
-				if textToCopy and textToCopy ~= "" and not string.find(textToCopy, "-") then
-					local myRealm = GetRealmName()
-					if myRealm then
-						textToCopy = textToCopy .. "-" .. myRealm:gsub("%s+", "")
-					end
-				end
-			end
+            textToCopy = data.name
+            if textToCopy and textToCopy ~= "" and type(textToCopy) == "string" and not string.find(textToCopy, "-") then
+                local myRealm = GetRealmName()
+                -- 12.0 FIX: Paranoia type-check on myRealm before gsub/concat
+                if type(myRealm) == "string" and myRealm ~= "" then
+                    textToCopy = textToCopy .. "-" .. myRealm:gsub("%s+", "")
+                end
+            end
+        end
+		
+        if textToCopy and textToCopy ~= "" then
+            local dialog = StaticPopup_Show("FRIENDGROUPS_COPY_POPUP")
+            if dialog and dialog.EditBox then
+                dialog.EditBox:SetText(textToCopy)
+                dialog.EditBox:HighlightText()
+                dialog.EditBox:SetFocus()
+            end
+        end
+    end, { id = bnetIDAccount, name = wowName, bnetfriend = bnetfriend })
 
-			if textToCopy and textToCopy ~= "" then
-				local dialog = StaticPopup_Show("FRIENDGROUPS_COPY_POPUP")
-				if dialog and dialog.EditBox then
-					dialog.EditBox:SetText(textToCopy)
-					dialog.EditBox:HighlightText()
-					dialog.EditBox:SetFocus()
-				end
-			end
-		end, { name = contextData.name, bnetfriend = bnetfriend })
+    if bnetfriend then
+        rootDescription:CreateButton(L["DROP_COPY_BTAG"], function(data)
+            local info = C_BattleNet.GetAccountInfoByID(data.id)
+            if info and info.battleTag and type(info.battleTag) == "string" then
+                local dialog = StaticPopup_Show("FRIENDGROUPS_COPY_POPUP")
+                if dialog and dialog.EditBox then
+                    dialog.EditBox:SetText(info.battleTag)
+                    dialog.EditBox:HighlightText()
+                    dialog.EditBox:SetFocus()
+                end
+            end
+        end, { id = bnetIDAccount })
+    end
 
-		-- [[ OPTION 2: Copy BattleTag (NEW) ]] --
-		if bnetfriend then
-			rootDescription:CreateButton(L["DROP_COPY_BTAG"], function(data)
-				local info = C_BattleNet.GetAccountInfoByID(accountInfo.bnetAccountID)
-				if info and info.battleTag then
-					local dialog = StaticPopup_Show("FRIENDGROUPS_COPY_POPUP")
-					if dialog and dialog.EditBox then
-						dialog.EditBox:SetText(info.battleTag)
-						dialog.EditBox:HighlightText()
-						dialog.EditBox:SetFocus()
-					end
-				end
-			end)
-		end
+    rootDescription:CreateButton(L["DROP_CREATE"], function(data)
+        if data.bnetfriend then
+            local info = C_BattleNet.GetAccountInfoByID(data.id)
+            if info then
+                StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil, { id = info.bnetAccountID, note = info.note, set = BNSetFriendNote })
+            end
+        else
+            local info = C_FriendList.GetFriendInfo(data.name)
+            if info then
+                StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil, { name = data.name, note = info.notes, set = C_FriendList.SetFriendNotes })
+            end
+        end
+    end, { id = bnetIDAccount, name = wowName, bnetfriend = bnetfriend })
 
-		-- [[ OPTION 3: Create New Group ]] --
-		rootDescription:CreateButton(L["DROP_CREATE"], function(data)
-			FriendGroups_CreateNewGroup(data.name, data.bnetfriend)
-		end, { name = contextData.name, bnetfriend = bnetfriend })
+    local add = rootDescription:CreateButton(L["DROP_ADD"])
 
-		-- [[ OPTION 4: Add to Group ]] --
-		local add = rootDescription:CreateButton(L["DROP_ADD"])
+    for _, group in ipairs(groupsSorted) do
+        if not FriendGroups_HasValue(groups, group) and group ~= "" and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_EMPTY"] and group ~= L["GROUP_NONE"] then
+            add:CreateButton(group, function(data)
+                local newNote = FriendGroups_AddGroup(data.note, data.group)
+                if data.bnetfriend then
+                    BNSetFriendNote(data.id, newNote)
+                else
+                    C_FriendList.SetFriendNotes(data.name, newNote)
+                end
+            end, { group = group, note = note, id = bnetIDAccount, name = wowName, bnetfriend = bnetfriend })
+        end
+    end
 
-		for _, group in ipairs(groupsSorted) do
-			if not FriendGroups_HasValue(groups, group) and not (group == "") and not (group == L["GROUP_FAVORITES"]) and not (group == L["GROUP_EMPTY"]) and not (group == L["GROUP_NONE"]) then
-				add:CreateButton(group, function(data)
-					local note = data.note
-					local group = data.group
+    local remove = rootDescription:CreateButton(L["DROP_REMOVE"])
 
-					note = FriendGroups_AddGroup(note, group)
-					if bnetfriend then
-						BNSetFriendNote(accountInfo.bnetAccountID, note)
-					else
-						C_FriendList.SetFriendNotes(contextData.name, note)
-					end
-				end, { group = group, note = note })
-			end
-		end
-
-		-- [[ OPTION 5: Remove from Group ]] --
-		local remove = rootDescription:CreateButton(L["DROP_REMOVE"])
-
-		for _, group in ipairs(groupsSorted) do
-			if FriendGroups_HasValue(groups, group) then
-				remove:CreateButton(group, function(data)
-					note = FriendGroups_RemoveGroup(data.note, data.group)
-					if bnetfriend then
-						BNSetFriendNote(accountInfo.bnetAccountID, note)
-					else
-						C_FriendList.SetFriendNotes(contextData.name, note)
-					end
-				end, { group = group, note = note })
-			end
-		end
-	end
-end
-
-function FriendGroups_GetInfoByName(name, bnetfriend)
-	if bnetfriend then
-		local accountID = 0
-		for i = 1, BNGetNumFriends() do
-			local acc = C_BattleNet.GetFriendAccountInfo(i)
-			if acc.accountName == name then
-				accountID = acc.bnetAccountID
-			end
-		end
-
-		return C_BattleNet.GetAccountInfoByID(accountID)
-	else
-		local info = C_FriendList.GetFriendInfo(name)
-		return info
-	end
-end
-
-function FriendGroups_CreateNewGroup(name, bnetfriend)
-	if bnetfriend then
-		local accountInfo = FriendGroups_GetInfoByName(name, bnetfriend)
-		StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil,
-			{ id = accountInfo.bnetAccountID, note = accountInfo.note, set = BNSetFriendNote })
-	else
-		local FriendInfo = C_FriendList.GetFriendInfo(name)
-		StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil,
-			{ name = name, note = FriendInfo.notes, set = C_FriendList.SetFriendNotes })
-	end
+    for _, group in ipairs(groupsSorted) do
+        if FriendGroups_HasValue(groups, group) then
+            remove:CreateButton(group, function(data)
+                local newNote = FriendGroups_RemoveGroup(data.note, data.group)
+                if data.bnetfriend then
+                    BNSetFriendNote(data.id, newNote)
+                else
+                    C_FriendList.SetFriendNotes(data.name, newNote)
+                end
+            end, { group = group, note = note, id = bnetIDAccount, name = wowName, bnetfriend = bnetfriend })
+        end
+    end
 end
 
 function FriendGroups_SplitBattleTag(battleTag)
-	local sep = "#"
+	if type(battleTag) ~= "string" then return battleTag end
 
+	local sep = "#"
 	if sep == nil then
 		sep = "%s"
 	end
@@ -770,8 +767,7 @@ function FriendGroups_GetClassColorCode(class, returnTable)
 	end
 end
 
-function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag,
-											timerunningSeasonID, realmName)
+function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID, realmName)
 	local nameText
 
 	-- set up player name and character name
@@ -801,8 +797,9 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 		if client == BNET_CLIENT_WOW then
 			if characterName ~= "" and level ~= 0 then
 				if not canCoop and FriendGroups_SavedVars.gray_faction then
+                    -- 12.0 FIX: Corrected typo '}' to ']' for cross-faction gray names
 					nameText = "|CFF949694" .. nameText .. " " .. "[" .. characterName .. characterNameSuffix ..
-						"}" .. "|r"
+						"]" .. "|r"
 				elseif FriendGroups_SavedVars.colour_classes then
 					local nameColor = FriendGroups_GetClassColorCode(class)
 					nameText = nameText ..
@@ -826,7 +823,10 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 end
 
 function FriendGroups_GetPlayerGroups(note)
-	if note then
+    -- 12.0 FIX: Secure note string check to prevent string.match crash
+    if type(note) ~= "string" then note = "" end
+
+	if note ~= "" then
 		local groups = {}
 		local formattedNote = string.match(note, "#.*")
 
@@ -900,6 +900,7 @@ function FriendGroups_GetFriendInfoById(id)
 	isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, battleTag, factionName,
 	gameText, realmName, timerunningSeasonID
 
+    -- 12.0 FIX: Strictly use C_BattleNet. Old global BNet functions are permanently removed.
 	if C_BattleNet and C_BattleNet.GetFriendAccountInfo then
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(id)
 		if accountInfo then
@@ -931,19 +932,6 @@ function FriendGroups_GetFriendInfoById(id)
 
 			canCoop = CanCooperateWithGameAccount(accountInfo)
 		end
-	else
-		_, accountName, _, _, characterName, bnetAccountId, client,
-		isOnline, lastOnline, isAFK, isDND, _, _, _, _, wowProjectID, _, _,
-		_, mobile = BNetAccountInfo(id)
-
-
-		if isOnline then
-			_, _, _, realmName, _, factionName, _, class, _, zoneName, level,
-			gameText, _, _, _, _, _, isGameAFK, isGameBusy, _,
-			wowProjectID, mobile = BNGetGameAccountInfo(bnetAccountId)
-		end
-
-		canCoop = CanCooperateWithGameAccount(bnetAccountId)
 	end
 
 	if realmName and realmName ~= "" then
@@ -1145,16 +1133,14 @@ function FriendGroups_SetGroups(id, buttonType)
 			table.insert(groupsSorted, groupName)
 		end
 
-		if buttonType == FRIENDS_BUTTON_TYPE_BNET then
+	if buttonType == FRIENDS_BUTTON_TYPE_BNET then
 			local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
-			if not friendAccountInfo then
-				friendsListEmpty = true
-			else
+			if friendAccountInfo and friendAccountInfo.gameAccountInfo then
 				isOnline = friendAccountInfo.gameAccountInfo.isOnline
 				client = friendAccountInfo.gameAccountInfo.clientProgram
 				isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
 			end
-		elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
+			elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
 			isOnline = C_FriendList.GetFriendInfoByIndex(id).connected
 			client = BNET_CLIENT_WOW
 		end
@@ -1193,91 +1179,14 @@ function FriendGroups_SetGroups(id, buttonType)
 end
 
 -- ============================================================================
--- [[ MENU INITIALIZATION ]]
+-- [[ FRIEND GROUPS FRAME (STATE) ]]
 -- ============================================================================
-
--- 1. Create the Frame object first
-FriendGroups_Menu = CreateFrame("Frame", "FriendGroups_Menu", UIParent, "UIDropDownMenuTemplate")
-FriendGroups_Menu.displayMode = "MENU"
-
--- 2. Define the behavior (Right-Click on Group Header)
-FriendGroups_Menu.initialize = function(self, level)
-    if level ~= 1 then return end
-    
-    local groupName = UIDROPDOWNMENU_MENU_VALUE
-    if not groupName then return end
-
-    -- Add Group Name Title 
-    local titleInfo = UIDropDownMenu_CreateInfo()
-    titleInfo.text = groupName
-    titleInfo.isTitle = true
-    titleInfo.notCheckable = true
-    UIDropDownMenu_AddButton(titleInfo, level)
-
-    -- Add Action Buttons (Rename, Remove, Invite) 
-    for i = 2, #groupMenuItems do
-        local item = groupMenuItems[i]
-        local info = UIDropDownMenu_CreateInfo()
-        info.text = item.text
-        info.notCheckable = true
-        info.func = item.func
-        info.arg1 = groupName 
-
-        -- RESTORED LOGIC: PROTECT SPECIAL GROUPS 
-        if groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" then
-            if item.text == L["MENU_RENAME"] or item.text == L["MENU_REMOVE"] then
-                info.disabled = true
-            end
-            if item.text == L["MENU_INVITE"] and groupName == L["GROUP_EMPTY"] then
-                info.disabled = true
-            end
-        end
-        
-        -- RESTORED LOGIC: 40 PLAYER LIMIT 
-        if item.text == L["MENU_INVITE"] then
-            if groupsCount[groupName] and groupsCount[groupName].Total > 40 then
-                info.disabled = true
-                info.text = item.text .. L["MENU_MAX_40"]
-            end
-        end
-
-        UIDropDownMenu_AddButton(info, level)
-    end
-end
-
--- 3. Also initialize the Settings Menu to prevent similar errors
-FriendGroups_SettingsMenu = CreateFrame("Frame", "FriendGroups_SettingsMenu", UIParent, "UIDropDownMenuTemplate")
-FriendGroups_SettingsMenu.displayMode = "MENU"
-
-FriendGroups_SettingsMenu.initialize = function(self, level)
-    if level ~= 1 then return end
-    
-    for _, items in ipairs(settingsMenuItems) do
-        local info = UIDropDownMenu_CreateInfo()
-        for prop, value in pairs(items) do
-            info[prop] = value
-        end
-        UIDropDownMenu_AddButton(info, level)
-    end
-end
-
---[[
-	FriendGroupsFrame
-]] --
 FriendGroupsFrame = CreateFrame("Frame", "FriendGroupsFrame")
-FriendGroupsFrame.displayMode = "MENU"
-FriendGroupsFrame.info = {}
-FriendGroupsFrame.UncheckHack = function(dropdownbutton)
-	_G[dropdownbutton:GetName() .. "Check"]:Hide()
-end
-FriendGroupsFrame.HideMenu = function()
-	if UIDROPDOWNMENU_OPEN_MENU == FriendGroupsFrame then
-		CloseDropDownMenus()
-	end
-end
-FriendGroupsFrame.initialize = function(self, level)
-    -- This was used for the old system. Keeping empty structure to prevent Lua errors if something calls it.
-end
+FriendGroupsFrame.selectionLocked = false
+
+-- Note: We no longer need the global UIDropDownMenu templates or initialization 
+-- functions here because we are using the modern inline MenuUtil API below.
+
 
 -- Popups
 StaticPopupDialogs["FRIENDGROUPS_CREATE"] = {
@@ -1402,15 +1311,26 @@ EnableFriendGroups = function()
         GameTooltip:Hide()
     end)
 
+	local FriendGroups_SearchDebounceTimer = nil
     FriendGroups_SearchBox:SetScript("OnTextChanged", function(self)
         SearchBoxTemplate_OnTextChanged(self)
         local text = self:GetText()
         if text ~= searchValue then
             searchValue = text
-            FriendGroups_FriendsListUpdate(true)
+            
+            -- Cancel the previous timer if the user is still typing
+            if FriendGroups_SearchDebounceTimer then
+                FriendGroups_SearchDebounceTimer:Cancel()
+            end
+            
+            -- Wait 0.3 seconds after they stop typing before rebuilding the list
+            FriendGroups_SearchDebounceTimer = C_Timer.NewTimer(0.3, function()
+                FriendGroups_FriendsListUpdate(true)
+                FriendGroups_SearchDebounceTimer = nil
+            end)
         end
     end)
-
+	
     -- 2. Create Settings Button
     local settingsBtn = CreateFrame("Button", "FriendGroupsGlobalSettings", FriendGroups_SearchBox)
     settingsBtn:SetSize(20, 20)
@@ -1418,8 +1338,31 @@ EnableFriendGroups = function()
     settingsBtn:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
     settingsBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
     
-    settingsBtn:SetScript("OnClick", function()
-        ToggleDropDownMenu(1, nil, FriendGroups_SettingsMenu, "cursor", 0, 0)
+	settingsBtn:SetScript("OnClick", function(self)
+        MenuUtil.CreateContextMenu(self, function(ownerRegion, rootDescription)
+            for _, item in ipairs(settingsMenuItems) do
+                if item.isTitle then
+                    if item.text == "" then
+                        rootDescription:CreateDivider()
+                    else
+                        rootDescription:CreateTitle(item.text)
+                    end
+                elseif item.notCheckable then
+                    -- Standard buttons (like Reset or Size)
+                    rootDescription:CreateButton(item.text, function()
+                        -- Run the function. (Modern menus auto-close on button clicks)
+                        if item.func then item.func() end
+                    end)
+                else
+                    -- Checkboxes (Filters, Appearance, Group Behavior)
+                    rootDescription:CreateCheckbox(
+                        item.text,
+                        function() return item.checked() end,
+                        function() item.func() end
+                    )
+                end
+            end
+        end)
     end)
     
     settingsBtn:SetScript("OnEnter", function(self) 
@@ -1467,71 +1410,6 @@ SetupGroupedView = function()
         end
     end);
     ScrollUtil.InitScrollBoxListWithScrollBar(FriendsListFrame.ScrollBox, FriendsListFrame.ScrollBar, view);
-end
-
--- [[ HELPER: Scans Text to find Realm & Region ]] --
-function FriendGroups_GetRealmInfo(gameAccountInfo)
-    if not gameAccountInfo then return nil, nil end
-
-    local rawRealm = gameAccountInfo.realmName
-    local richPresence = gameAccountInfo.richPresence or ""
-    local cleanBlob = (richPresence .. (rawRealm or "")):gsub("%p", ""):gsub("%s+", "") 
-
-    -- [[ 1. DETECT PLAYER REGION ]] --
-    -- Region 1 = Americas/Oceania, Region 3 = Europe
-    local myRegion = GetCurrentRegion() 
-    local primaryTable = (myRegion == 3) and FriendGroups_RealmDataEU or FriendGroups_RealmData
-    local secondaryTable = (myRegion == 3) and FriendGroups_RealmData or FriendGroups_RealmDataEU
-
-    -- [[ 2. REORGANIZED CLASSIC PRIORITY (Region-Sensitive) ]] --
-    local classicPriority = {
-        -- US/Oceanic Classic Hubs
-        ["Nightslayer"] = { icon="FlagUS.tga", region="US" },
-        ["Dreamscythe"] = { icon="FlagUS.tga", region="US" },
-        ["Doomhowl"] = { icon="FlagUS.tga", region="US" },
-        ["Whitemane"] = { icon="FlagUS.tga", region="US" },
-        ["Mankrik"] = { icon="FlagUS.tga", region="US" },
-        ["Maladath"] = { icon="FlagAU.tga", region="Oceania" },
-        ["Shadowstrike"] = { icon="FlagAU.tga", region="Oceania" },
-
-        -- EU Classic Hubs (Fixed to FlagGB)
-        ["Thunderstrike"] = { icon="FlagGB.tga", region="EU" },
-        ["Spineshatter"] = { icon="FlagGB.tga", region="EU" },
-        ["Soulseeker"] = { icon="FlagGB.tga", region="EU" },
-        ["Firemaw"] = { icon="FlagGB.tga", region="EU" },
-        ["Gehennas"] = { icon="FlagGB.tga", region="EU" },
-        ["Stitches"] = { icon="FlagGB.tga", region="EU" }
-    }
-
-    for name, data in pairs(classicPriority) do
-        if cleanBlob:find(name, 1, true) then
-            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
-        end
-    end
-
-    -- [[ 3. SMART LOOKUP ]] --
-    if rawRealm and rawRealm ~= "" then
-        local cleanRealm = rawRealm:gsub("%s+", "")
-        
-        -- Check Local Region Table First (Solves Blackhand overlap)
-        local data = primaryTable[cleanRealm] or secondaryTable[cleanRealm]
-        
-        if data then
-            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
-        end
-    end
-
-    -- 4. Final Fallback (Extraction)
-    local extraction = richPresence:match("%s%-%s(.+)$")
-    if extraction then
-        local cleanEx = extraction:gsub("%s+", "")
-        local data = primaryTable[cleanEx] or secondaryTable[cleanEx]
-        if data then
-            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
-        end
-    end
-
-    return nil, nil
 end
 
 FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
@@ -1716,11 +1594,12 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 			targetPoint = HelpTip.Point.RightEdgeCenter,
 			alignment = HelpTip.Alignment.Left,
 		};
-		crossFactionHelpTipInfo = helpTipInfo;
-		crossFactionHelpTipButton = button;
+		-- 12.0 FIX: Added 'local' to prevent global namespace taint
+		local crossFactionHelpTipInfo = helpTipInfo;
+		local crossFactionHelpTipButton = button;
 		HelpTip:Show(FriendsFrame, helpTipInfo, button.travelPassButton);
 	end
-
+	
 	if hasTravelPassButton then
 		if isCrossFactionInvite and inviteFaction == "Horde" then
 			button.travelPassButton.NormalTexture:SetAtlas("friendslist-invitebutton-horde-normal");
@@ -1857,11 +1736,6 @@ FriendGroups_FriendsListUpdate = function(forceUpdate)
 			FriendGroups_SavedVars.collapsed[groupName] = nil
 		end
 	end
-
-	if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime() + 0.5)) then
-		lastFriendsListEmptyWarning = math.floor(GetTime() + 0.5)
-		print(L["MSG_BUG_WARNING"])
-	end
 end
 
 function FriendGroups_FilterTable(tableData, filterFunction)
@@ -1874,19 +1748,7 @@ function FriendGroups_FilterTable(tableData, filterFunction)
 	return returnTable
 end
 
-function FriendGroups_ToggleSearch(searchBox, frame)
-    -- If the user has the search mode open, do NOT hide the box 
-    -- even if the text is currently empty.
-    if searchOpened then return end
-
-    if searchValue == "" then
-        searchBox:Hide()
-        frame.name:Show()
-    end
-end
-
--- [[ UPDATED SEARCH: Supports Region AND Faction Keywords ]] --
--- [[ UPDATED SEARCH: Filters by Specific Region Names in Realms.lua ]] --
+-- [[ UPDATED SEARCH: Supports Region AND Faction Keywords, 12.0 Secret String Secure ]] --
 function FriendGroups_Search(playerId, playerButtonType)
     if searchValue == "" then return true end
 
@@ -1898,14 +1760,15 @@ function FriendGroups_Search(playerId, playerButtonType)
     if playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
         local accountInfo = C_BattleNet.GetFriendAccountInfo(playerId)
         if accountInfo and accountInfo.gameAccountInfo then
-            bnetAccountName = accountInfo.accountName or ""
-            battleTag = accountInfo.battleTag or ""
-            noteText = accountInfo.note or ""
-            characterName = accountInfo.gameAccountInfo.characterName or ""
-            realmName = accountInfo.gameAccountInfo.realmName or ""
-            className = accountInfo.gameAccountInfo.className or ""
-            richPresence = accountInfo.gameAccountInfo.richPresence or ""
-            factionSearchText = accountInfo.gameAccountInfo.factionName or ""
+            -- 12.0 FIX: Strict Secret String type-checking before search assignment
+            bnetAccountName = (type(accountInfo.accountName) == "string") and accountInfo.accountName or ""
+            battleTag = (type(accountInfo.battleTag) == "string") and accountInfo.battleTag or ""
+            noteText = (type(accountInfo.note) == "string") and accountInfo.note or ""
+            characterName = (type(accountInfo.gameAccountInfo.characterName) == "string") and accountInfo.gameAccountInfo.characterName or ""
+            realmName = (type(accountInfo.gameAccountInfo.realmName) == "string") and accountInfo.gameAccountInfo.realmName or ""
+            className = (type(accountInfo.gameAccountInfo.className) == "string") and accountInfo.gameAccountInfo.className or ""
+            richPresence = (type(accountInfo.gameAccountInfo.richPresence) == "string") and accountInfo.gameAccountInfo.richPresence or ""
+            factionSearchText = (type(accountInfo.gameAccountInfo.factionName) == "string") and accountInfo.gameAccountInfo.factionName or ""
 
             -- [[ 1. DATABASE LOOKUP FOR REGION NAME ]] --
             local rid = accountInfo.gameAccountInfo.regionID
@@ -1922,10 +1785,11 @@ function FriendGroups_Search(playerId, playerButtonType)
     elseif playerButtonType == FRIENDS_BUTTON_TYPE_WOW then
         local info = C_FriendList.GetFriendInfoByIndex(playerId)
         if info then
-            characterName = info.name or ""
-            noteText = info.notes or ""
-            className = info.className or ""
-            factionSearchText = playerFactionGroup or ""
+            -- 12.0 FIX: Strict Secret String type-checking
+            characterName = (type(info.name) == "string") and info.name or ""
+            noteText = (type(info.notes) == "string") and info.notes or ""
+            className = (type(info.className) == "string") and info.className or ""
+            factionSearchText = (type(playerFactionGroup) == "string") and playerFactionGroup or ""
             regionSearchText = "Local" -- Standard WoW friends are always local
         end
     end
@@ -1948,23 +1812,54 @@ function FriendGroups_Search(playerId, playerButtonType)
     return false
 end
 
--- [[ REALM INFO: Using RegionID to prevent table overlap ]] --
+
 function FriendGroups_GetRealmInfo(gameAccountInfo)
     if not gameAccountInfo then return nil, nil end
 
-    -- Detect regionID: 1=US, 2=KR, 3=EU, 4=TW, 5=CN
+    -- 12.0 FIX: Secure String Verification up front
+    local rawRealm = gameAccountInfo.realmName
+    local safeRealm = (type(rawRealm) == "string") and rawRealm or ""
+    
+    local richPresence = gameAccountInfo.richPresence
+    local safePresence = (type(richPresence) == "string") and richPresence or ""
+
+    -- 1. Determine Region Database using API RegionID
     local rid = gameAccountInfo.regionID
-    local database = FriendGroups_RealmData -- Default Region 1
+    local database = FriendGroups_RealmData -- Default Region 1 (US/Oceanic)
     
     if rid == 3 then 
         database = FriendGroups_RealmDataEU 
     elseif rid == 2 or rid == 4 or rid == 5 then 
         database = FriendGroups_RealmDataAsia
     end
-    
-    local rawRealm = gameAccountInfo.realmName
-    if rawRealm and rawRealm ~= "" then
-        local cleanRealm = rawRealm:gsub("%s+", "")
+
+    -- 2. Classic Priority Check (Restored from dead code)
+    local cleanBlob = (safePresence .. safeRealm):gsub("%p", ""):gsub("%s+", "") 
+    local classicPriority = {
+        ["Nightslayer"] = { icon="FlagUS.tga", region="US" },
+        ["Dreamscythe"] = { icon="FlagUS.tga", region="US" },
+        ["Doomhowl"] = { icon="FlagUS.tga", region="US" },
+        ["Whitemane"] = { icon="FlagUS.tga", region="US" },
+        ["Mankrik"] = { icon="FlagUS.tga", region="US" },
+        ["Maladath"] = { icon="FlagAU.tga", region="Oceania" },
+        ["Shadowstrike"] = { icon="FlagAU.tga", region="Oceania" },
+        ["Thunderstrike"] = { icon="FlagGB.tga", region="EU" },
+        ["Spineshatter"] = { icon="FlagGB.tga", region="EU" },
+        ["Soulseeker"] = { icon="FlagGB.tga", region="EU" },
+        ["Firemaw"] = { icon="FlagGB.tga", region="EU" },
+        ["Gehennas"] = { icon="FlagGB.tga", region="EU" },
+        ["Stitches"] = { icon="FlagGB.tga", region="EU" }
+    }
+
+    for name, data in pairs(classicPriority) do
+        if cleanBlob:find(name, 1, true) then
+            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+        end
+    end
+
+    -- 3. Standard Realm Lookup
+    if safeRealm ~= "" then
+        local cleanRealm = safeRealm:gsub("%s+", "")
         local data = database[cleanRealm]
         
         if data then
@@ -1972,14 +1867,15 @@ function FriendGroups_GetRealmInfo(gameAccountInfo)
         end
     end
     
-    -- Final Fallback: Parse Rich Presence
-    local richPresence = gameAccountInfo.richPresence or ""
-    local extraction = richPresence:match("%s%-%s(.+)$")
-    if extraction then
-        local cleanEx = extraction:gsub("%s+", "")
-        local data = database[cleanEx]
-        if data then
-            return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+    -- 4. Final Fallback: Parse Rich Presence
+    if safePresence ~= "" then
+        local extraction = safePresence:match("%s%-%s(.+)$")
+        if extraction then
+            local cleanEx = extraction:gsub("%s+", "")
+            local data = database[cleanEx]
+            if data then
+                return "Interface\\AddOns\\FriendGroups\\Textures\\" .. data.icon, data.region
+            end
         end
     end
 
@@ -2069,12 +1965,44 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
             _G["FriendGroupsSearch"]:SetFocus()
         end
     elseif button == "RightButton" then
-        -- [[ CHANGE START ]] --
-        -- Fix: Pass 'groupName' as the value, not 'self'
         if groupName then
-            ToggleDropDownMenu(1, groupName, FriendGroups_Menu, "cursor", 0, 0)
+            -- Modern Menu API (replaces ToggleDropDownMenu)
+            MenuUtil.CreateContextMenu(self, function(ownerRegion, rootDescription)
+                rootDescription:CreateTitle(groupName)
+                
+                for i = 2, #groupMenuItems do
+                    local item = groupMenuItems[i]
+                    local disabled = false
+                    local text = item.text
+
+                    -- Protect special groups
+                    if groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" then
+                        if text == L["MENU_RENAME"] or text == L["MENU_REMOVE"] then
+                            disabled = true
+                        end
+                        if text == L["MENU_INVITE"] and groupName == L["GROUP_EMPTY"] then
+                            disabled = true
+                        end
+                    end
+                    
+                    -- Max 40 Limit
+                    if text == L["MENU_INVITE"] then
+                        if groupsCount[groupName] and groupsCount[groupName].Total > 40 then
+                            disabled = true
+                            text = text .. L["MENU_MAX_40"]
+                        end
+                    end
+
+                    local btn = rootDescription:CreateButton(text, function()
+                        item.func(nil, groupName)
+                    end)
+                    
+                    if disabled then
+                        btn:SetEnabled(false)
+                    end
+                end
+            end)
         end
-        -- [[ CHANGE END ]] --
     else
         FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down)
     end
@@ -2083,35 +2011,9 @@ end
 FriendGroups_FriendsListButtonTemplateClick = function(self, button, down)
     if not FriendGroups_Loaded then return end -- Let Blizzard handle click if disabled
     
-    if button == "LeftButton" and IsShiftKeyDown() then
-        -- Handle Shift+Click for Custom Menu (Prevents Taint)
-        local id = self.id
-        local buttonType = self.buttonType
-        local name = nil
-        local bnetfriend = false
-
-        if buttonType == FRIENDS_BUTTON_TYPE_WOW then
-            local info = C_FriendList.GetFriendInfoByIndex(id)
-            if info then name = info.name end
-        elseif buttonType == FRIENDS_BUTTON_TYPE_BNET then
-            local info = C_BattleNet.GetFriendAccountInfo(id)
-            if info then 
-                name = info.accountName 
-                bnetfriend = true
-            end
-        end
-
-        if name then
-            FriendGroups_ClickedData = { name = name, bnetfriend = bnetfriend, id = id }
-            ToggleDropDownMenu(1, nil, FriendGroups_ContextDropdown, "cursor", 0, 0)
-        end
-        
-        return -- Stop here so we don't select the friend in the UI
-    end
-
     -- Normal Click Behavior (Standard Selection)
     FriendGroupsFrame.selectionLocked = false
-	FriendGroups_FriendsListUpdate()
+    FriendGroups_FriendsListUpdate()
 end
 
 function FriendGroups_FriendsFrameUpdateFriendInviteHeaderButton(button, elementData)
@@ -2137,63 +2039,119 @@ function FriendGroups_FriendsFrameUpdateFriendInviteButton(button, elementData)
 	button.inviteIndex = button.id;
 end
 
--- [[ MAIN INITIALIZATION ]] --
+-- ============================================================================
+-- [[ FRIENDGROUPS SECURE HOUSING PROXY ]]
+-- ============================================================================
+local FG_Osirisnz_HousingProxy = nil
+local FG_Osirisnz_HookedButtons = {} -- NEW: External table prevents frame taint
+
+local function Osirisnz_ActuallyWorkingVisitHouse()
+    if FG_Osirisnz_HousingProxy then return FG_Osirisnz_HousingProxy end
+    if InCombatLockdown() then return nil end 
+
+    -- CRITICAL: Uses SecureActionButtonTemplate, entirely avoiding the taint trap
+    FG_Osirisnz_HousingProxy = CreateFrame("Button", "FriendGroups_Osirisnz_SecureHouseProxy", UIParent, "SecureActionButtonTemplate")
+    FG_Osirisnz_HousingProxy:SetFrameStrata("DIALOG")
+    FG_Osirisnz_HousingProxy:SetFrameLevel(9999)
+    FG_Osirisnz_HousingProxy:Hide()
+    FG_Osirisnz_HousingProxy:RegisterForClicks("AnyUp", "AnyDown")
+    FG_Osirisnz_HousingProxy:SetAttribute("type", "visithouse")
+
+    FG_Osirisnz_HousingProxy:SetScript("OnEnter", function(self)
+        if self.nativeButton then
+            self.nativeButton:LockHighlight()
+        end
+        -- Show a clean tooltip without touching native secure scripts
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(HOUSING_VISIT_HOUSE or "Visit House", 1, 1, 1)
+        GameTooltip:Show()
+    end)
+
+    FG_Osirisnz_HousingProxy:SetScript("OnLeave", function(self)
+        GameTooltip:Hide()
+        self:Hide()
+        self:ClearAllPoints()
+        if self.nativeButton then
+            self.nativeButton:UnlockHighlight()
+        end
+        self.nativeButton = nil
+    end)
+    
+    FG_Osirisnz_HousingProxy:SetScript("OnMouseDown", function(self)
+        if self.nativeButton then self.nativeButton:SetButtonState("PUSHED") end
+    end)
+    
+    FG_Osirisnz_HousingProxy:SetScript("OnMouseUp", function(self)
+        if self.nativeButton then self.nativeButton:SetButtonState("NORMAL") end
+    end)
+
+    return FG_Osirisnz_HousingProxy
+end
+
+local function Osirisnz_OnHouseButtonEnter(nativeButton)
+    if InCombatLockdown() then return end 
+
+    local parentRow = nativeButton:GetParent()
+    local houseInfo = parentRow and parentRow.houseInfo
+    
+    if not houseInfo or not houseInfo.neighborhoodGUID or not houseInfo.houseGUID then return end
+
+    local proxy = Osirisnz_ActuallyWorkingVisitHouse()
+    if not proxy then return end
+
+    proxy:ClearAllPoints()
+    proxy:SetAllPoints(nativeButton)
+
+    proxy:SetAttribute("house-neighborhood-guid", houseInfo.neighborhoodGUID)
+    proxy:SetAttribute("house-guid", houseInfo.houseGUID)
+    proxy:SetAttribute("house-plot-id", houseInfo.plotID)
+
+    proxy.nativeButton = nativeButton
+    
+    -- Trigger the proxy's OnEnter to show the tooltip and lock highlight securely
+    proxy:Show()
+    if proxy:GetScript("OnEnter") then
+        proxy:GetScript("OnEnter")(proxy)
+    end
+end
+
+local function Osirisnz_InitHousingScrollBox()
+    local houseFrame = _G.HouseListFrame
+    if not houseFrame or not houseFrame.ScrollBox then return end
+
+    houseFrame.ScrollBox:RegisterCallback("OnInitializedFrame", function(_, frame)
+        local btn = frame.VisitHouseButton
+        if btn and not FG_Osirisnz_HookedButtons[btn] then
+            btn:HookScript("OnEnter", Osirisnz_OnHouseButtonEnter)
+            FG_Osirisnz_HookedButtons[btn] = true
+        end
+    end)
+end
+
+-- ============================================================================
+-- [[ MAIN INITIALIZATION ]]
+-- ============================================================================
 local frame = CreateFrame("frame", "FriendGroups")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Added for combat safety
 
 frame:SetScript("OnEvent", function(self, event, arg1, ...)
-if event == "ADDON_LOADED" and arg1 == addonName then
+    if event == "ADDON_LOADED" and arg1 == addonName then
         local version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Unknown"
         -- Print(string.format(L["MSG_WELCOME"], version))
-        
-        -- [[[ DELETE OR COMMENT OUT THIS LINE ]]] --
-        -- self:UnregisterEvent("ADDON_LOADED") 
-        -- [[[ END CHANGE ]]] --
 
     elseif event == "PLAYER_LOGIN" then
-        -- Default Saved Vars
         if not FriendGroups_SavedVars then
-            FriendGroups_SavedVars = { collapsed = {}, hide_offline = true, colour_classes = true, show_faction_icons = true, show_realm = true, hide_high_level = true, add_favorite_group = true, add_mobile_text = true, show_search = true, auto_accept_invite = false, housing_mode_active = false, auto_accept_sync = false }
+            FriendGroups_SavedVars = { collapsed = {}, hide_offline = true, colour_classes = true, show_faction_icons = true, show_realm = true, hide_high_level = true, add_favorite_group = true, add_mobile_text = true, show_search = true, auto_accept_invite = false, auto_accept_sync = false }
         end
 
-        -- 1. Capture the current mode
-        local isHousingMode = FriendGroups_SavedVars.housing_mode_active
-
-        -- 2. AUTO-RESET: Immediately flip the saved var to false.
-        if isHousingMode then
-            FriendGroups_SavedVars.housing_mode_active = false
+        -- Silently clean up the old housing state flag if a user updates with it active
+        if FriendGroups_SavedVars.housing_mode_active ~= nil then
+            FriendGroups_SavedVars.housing_mode_active = nil
         end
 
-        if isHousingMode then
-            -- [[ SAFE MODE (HOUSING) ACTIVE ]] --
-            local masterBtn = CreateFrame("Button", "FriendGroupsMasterControl", FriendsListFrame, "UIPanelButtonTemplate")
-            
-            masterBtn:SetFrameStrata("FULLSCREEN_DIALOG") 
-            masterBtn:SetFrameLevel(9999)                 
-            
-            masterBtn:SetSize(374, 28)
-            masterBtn:SetPoint("TOP", FriendsListFrame, "TOP", 0, -57)
-            
-            masterBtn:SetText("|cff3AFF00" .. L["RELOAD_BTN_TEXT"] .. "|r")
-            
-            masterBtn:SetScript("OnClick", function()
-                ReloadUI()
-            end)
-
-            masterBtn:SetScript("OnEnter", function(s) 
-                GameTooltip:SetOwner(s, "ANCHOR_RIGHT")
-                GameTooltip:SetText(L["RELOAD_TOOLTIP_TITLE"])
-                GameTooltip:AddLine(L["RELOAD_TOOLTIP_DESC"], 1, 1, 1)
-                GameTooltip:Show()
-            end)
-            masterBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-
-            Print(L["SAFE_MODE_WARNING"])
-        else
-            -- [[ NORMAL MODE ]] --
-            EnableFriendGroups()
-        end
+        EnableFriendGroups()
 
         FriendsFrame:HookScript("OnHide", function()
             FriendsFrame.selectedFriend = nil
@@ -2207,32 +2165,25 @@ if event == "ADDON_LOADED" and arg1 == addonName then
             FriendGroupsFrame.selectionLocked = true 
             FriendGroups_FriendsListUpdate(true)
         end)
-    end
-    
--- [[ HOUSING SAFETY SHIELD ]] --
-    if event == "ADDON_LOADED" and arg1 == "Blizzard_HouseList" then
-        if FriendGroups_Loaded then
-            local w = CreateFrame("Frame", nil, HouseListFrame)
-            w:SetFrameStrata("DIALOG")
-            w:SetAllPoints(HouseListFrame)
-            w:EnableMouse(true)
-            
-            local bg = w:CreateTexture(nil, "BACKGROUND")
-            bg:SetAllPoints()
-            bg:SetColorTexture(0, 0, 0, 0.9)
-            
-            local msg = w:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-            msg:SetPoint("CENTER", 0, 30)
-            msg:SetText(L["SHIELD_MSG"])
-            
-            local b = CreateFrame("Button", nil, w, "UIPanelButtonTemplate")
-            b:SetSize(200, 30)
-            b:SetPoint("CENTER", 0, -50)
-            b:SetText(L["SHIELD_BTN_TEXT"])
-            b:SetScript("OnClick", function()
-                FriendGroups_SavedVars.housing_mode_active = true
-                ReloadUI()
-            end)
+        
+        -- Check if Blizzard_HouseList loaded before FriendGroups did
+        if C_AddOns.IsAddOnLoaded("Blizzard_HouseList") then
+            Osirisnz_InitHousingScrollBox()
+        end
+
+    elseif event == "ADDON_LOADED" and arg1 == "Blizzard_HouseList" then
+        Osirisnz_InitHousingScrollBox()
+        
+    elseif event == "PLAYER_REGEN_DISABLED" then
+        -- Combat Safety: Hide the proxy instantly if entering combat while hovering
+        if FG_Osirisnz_HousingProxy and FG_Osirisnz_HousingProxy:IsShown() then
+            FG_Osirisnz_HousingProxy:Hide()
+            FG_Osirisnz_HousingProxy:ClearAllPoints()
+            GameTooltip:Hide()
+            if FG_Osirisnz_HousingProxy.nativeButton then
+                FG_Osirisnz_HousingProxy.nativeButton:UnlockHighlight()
+                FG_Osirisnz_HousingProxy.nativeButton = nil
+            end
         end
     end
 end)
@@ -2240,6 +2191,21 @@ end)
 -- ============================================================================
 -- [[ AUTOMATION LOGIC ]]
 -- ============================================================================
+
+-- PROTECTIVE HELPER: Determine if player is in a restricted/busy state
+local function FG_IsPlayerBusy()
+    if InCombatLockdown() then return true end
+    
+    local inInstance, instanceType = IsInInstance()
+    if inInstance then
+        if instanceType == "pvp" or instanceType == "arena" then return true end
+        if instanceType == "party" and C_ChallengeMode and C_ChallengeMode.IsChallengeModeActive() then return true end
+        if IsEncounterInProgress() then return true end
+    end
+    
+    return false
+end
+
 local FriendGroups_Automation = CreateFrame("Frame")
 FriendGroups_Automation:RegisterEvent("PARTY_INVITE_REQUEST")
 FriendGroups_Automation:RegisterEvent("RESURRECT_REQUEST")
@@ -2250,8 +2216,10 @@ pcall(function()
 end)
 
 FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
-    -- 1. Auto Accept Group Invites (FIXED: Restored Popup Cleanup)
+    -- 1. Auto Accept Group Invites
     if event == "PARTY_INVITE_REQUEST" then
+        if FG_IsPlayerBusy() then return end -- Strict pre-check guard
+        
         local inviterName = ...
         if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_invite then
             if L["MSG_AUTO_INVITE"] then
@@ -2259,15 +2227,18 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
             end
             
             C_Timer.After(1.5, function()
-                AcceptGroup()
-                -- [[ RESTORED CODE START ]] --
-                for i = 1, (STATICPOPUP_NUMDIALOGS or 4) do
-                    local frame = _G["StaticPopup"..i]
-                    if frame and frame:IsShown() and (frame.which == "PARTY_INVITE" or frame.which == "PARTY_INVITE_XREALM") then
-                        frame:Hide()
+                if FG_IsPlayerBusy() then return end -- Secondary guard before execution
+                
+                -- Protected Call to gracefully catch API hardware restrictions
+                local success = pcall(AcceptGroup)
+                if success then
+                    StaticPopup_Hide("PARTY_INVITE")
+                    StaticPopup_Hide("PARTY_INVITE_XREALM")
+                else
+                    if L["MSG_AUTO_ACCEPT_FAILED"] then
+                        DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
                     end
                 end
-                -- [[ RESTORED CODE END ]] --
             end)
         end
 
@@ -2278,16 +2249,20 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
             if L["MSG_AUTO_RES"] then
                 DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_RES"], inviterName or "Unknown"))
             end
+            
             C_Timer.After(1.5, function()
-                AcceptResurrect()
-                -- Cleanup Popup
-                for i = 1, (STATICPOPUP_NUMDIALOGS or 4) do
-                    local frame = _G["StaticPopup"..i]
-                    if frame and frame:IsShown() and frame.which == "RESURRECT" then frame:Hide() end
+                -- Protected Call to gracefully catch API hardware restrictions
+                local success = pcall(AcceptResurrect)
+                if success then
+                    StaticPopup_Hide("RESURRECT")
+                else
+                    if L["MSG_AUTO_ACCEPT_FAILED"] then
+                        DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
+                    end
                 end
             end)
         end
-
+        
     -- 3. Auto Release Spirit
     elseif event == "PLAYER_DEAD" then
         if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_release then
@@ -2296,18 +2271,26 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
             end
             C_Timer.After(1.5, function()
                 -- Safety: Don't release if you have a Soulstone or Reincarnation option
-                -- Uses modern C_DeathInfo API instead of the removed HasSoulstone()
                 local selfResOptions = C_DeathInfo.GetSelfResurrectOptions()
                 if not selfResOptions or #selfResOptions == 0 then 
-                    RepopMe()
+                    -- Protected Call to gracefully catch API hardware restrictions
+                    local success = pcall(RepopMe)
+                    if not success then
+                        if L["MSG_AUTO_RELEASE_FAILED"] then
+                            DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_RELEASE_FAILED"])
+                        end
+                    end
                 end
             end)
         end
-
+        
     -- 4. Auto Accept Party Sync
     elseif event == "QUEST_SESSION_CREATED" then
         if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_sync then
             if UnitIsGroupLeader("player") then return end
+            
+            -- Strict Combat Guard to prevent secure hardware taint
+            if InCombatLockdown() then return end
             
             local leaderName = "Party Leader"
             if IsInGroup() then
@@ -2324,10 +2307,15 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
                 DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_SYNC"], leaderName))
             end
 
-            C_Timer.After(1.5, function()
-                if QuestSessionManager and QuestSessionManager.StartDialog and QuestSessionManager.StartDialog:IsShown() then
-                    QuestSessionManager.StartDialog:Confirm()
-                    QuestSessionManager.StartDialog:Hide()
+            -- Micro-delay (0.5s) to allow server state to settle
+            C_Timer.After(0.5, function()
+                -- Secondary combat guard
+                if InCombatLockdown() then return end
+                
+                -- DIRECT API CALL (12.0 Midnight Compliant)
+                -- Tells the server directly that the sync is accepted, bypassing UI interaction
+                if C_QuestSession and C_QuestSession.SendSessionBeginResponse then
+                    C_QuestSession.SendSessionBeginResponse(true)
                 end
             end)
         end
