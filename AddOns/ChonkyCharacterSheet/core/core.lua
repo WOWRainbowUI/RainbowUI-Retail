@@ -436,7 +436,7 @@ end
 ---------------------------
 do
     local currentVersion = CCS.GetCurrentVersion()
-    print("|cff00ff00[CCS]|r Current WoW version:", currentVersion)
+    -- print("|cff00ff00[CCS]|r Current WoW version:", currentVersion)
 
     local registeredCount = 0
 
