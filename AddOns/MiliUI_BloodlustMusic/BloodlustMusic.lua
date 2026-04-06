@@ -860,7 +860,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
             end
         end)
 
-        print(L["LOADED_MSG"])
+        -- print(L["LOADED_MSG"])
 
     elseif event == "UNIT_AURA" then
         if db then
