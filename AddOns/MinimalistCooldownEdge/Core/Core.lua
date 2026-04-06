@@ -66,6 +66,18 @@ function MCE:IsMiniCCAvailable()
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.MiniCCName) or false
 end
 
+function MCE:IsDominosAvailable()
+    if _G.DominosFrame1 or _G.DominosActionButton1 then
+        return true
+    end
+
+    return C_AddOns and C_AddOns.IsAddOnLoaded and (
+        C_AddOns.IsAddOnLoaded(C.Addon.DominosName)
+        or C_AddOns.IsAddOnLoaded(C.Addon.DominosCastName)
+        or C_AddOns.IsAddOnLoaded(C.Addon.DominosConfigName)
+    ) or false
+end
+
 function MCE:IsSArenaAvailable()
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.SArenaName) or false
 end
@@ -97,6 +109,15 @@ function MCE:IsShinyAurasAdapterEnabled()
     end
 
     return profile.shinyAurasAdapterEnabled ~= false
+end
+
+function MCE:IsDominosAdapterEnabled()
+    local profile = self.db and self.db.profile
+    if not profile then
+        return true
+    end
+
+    return profile.dominosAdapterEnabled ~= false
 end
 
 function MCE:IsElvUIAdapterEnabled()
@@ -649,6 +670,7 @@ MCE.defaults = {
     profile = {
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
         shinyAurasAdapterEnabled = true,
+        dominosAdapterEnabled = true,
         elvuiAdapterEnabled = true,
         compactPartyAuraText = compactPartyAuraTextDefaults,
         durationTextColors = defaultDurationTextColors,
@@ -672,6 +694,10 @@ function MCE:UpgradeProfile()
 
     if profile.shinyAurasAdapterEnabled == nil then
         profile.shinyAurasAdapterEnabled = true
+    end
+
+    if profile.dominosAdapterEnabled == nil then
+        profile.dominosAdapterEnabled = true
     end
 
     if profile.elvuiAdapterEnabled == nil then

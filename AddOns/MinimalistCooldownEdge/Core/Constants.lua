@@ -10,6 +10,9 @@ C.Addon = {
     ShortName = "MiniCE",
     SavedVariables = "MinimalistCooldownEdgeDB_v2",
     MiniCCName = "MiniCC",
+    DominosName = "Dominos",
+    DominosCastName = "Dominos_Cast",
+    DominosConfigName = "Dominos_Config",
     SArenaName = "sArena_Reloaded",
     TellMeWhenName = "TellMeWhen",
     ShinyAurasName = "ShinyAuras",
@@ -278,18 +281,61 @@ C.Classifier = {
     BlacklistNameContains = {
         "Glider", "VuhDo",
         "ElvUI", "ElvUF", "ElvNP", "elvnp", "Elv_", "ElvAB_", "Tukui",
-        "Gw2_","GW2", "Gw2", "GW2_", "Gw_", "GW_", 
+        "Gw2_","GW2", "Gw2", "GW2_", "Gw_", "GW_",
         "ArenaDrNP_",
-        "FloatingChatFrame", "ChatFrame"
+        "FloatingChatFrame", "ChatFrame",
+
+        -- Dominos
+        "Dominos",
+
+        -- EllesmereUI family
+        "Ellesmere",
+        "EUI_",
+        "ERB_",
+        "EABR_",
+
+        -- Nameplate GCD Tracker
+        "NGCDT",
     },
-    BlacklistParentNames = {    
+    BlacklistParentNames = {
         "Tukui", "Glider", "VuhDo",
-        "ElvUI", "ElvUF", "ElvNP", 
+        "ElvUI", "ElvUF", "ElvNP",
         "PVEFrame", "PVPQueueFrame",
         "LossOfControlFrame",
         "ContainerFrameCombinedBagsCooldown",
         "HousingDashboardFrame", "TotemFrame",
         "PlayerFrameBottomManagedFramesContainer",
+
+        -- EllesmereUI containers / roots
+        "EllesmereUIFrame",
+        "EllesmereUnlockMode",
+        "EllesmereUIPartyModeFrame",
+        "EllesmereUICursorFrame",
+        "EUI_QuestTrackerFrame",
+        "EllesmereUIResourceBarsFrame",
+        "ERB_CastBarFrame",
+        "ERB_SecondaryFrame",
+        "EABR_Reminders",
+        "EABR_Anchor",
+        "EABR_CombatAnchor",
+        "EABR_CursorAnchor",
+        "EABR_TalentAnchor",
+        "EABR_BeaconAnchor",
+        "EllesmereUIUnitFrames_Player",
+        "EllesmereUIUnitFrames_Target",
+        "EllesmereUIUnitFrames_Focus",
+        "EllesmereUIUnitFrames_Pet",
+        "EllesmereUIUnitFrames_TargetTarget",
+        "EllesmereUIUnitFrames_FocusTarget",
+        "EllesmereUIUnitFrames_Boss1",
+        "EllesmereUIUnitFrames_Boss2",
+        "EllesmereUIUnitFrames_Boss3",
+        "EllesmereUIUnitFrames_Boss4",
+        "EllesmereUIUnitFrames_Boss5",
+        "EllesmereUIUnitFrames_Boss6",
+        "EllesmereUIUnitFrames_Boss7",
+        "EllesmereUIUnitFrames_Boss8",
+
         "CharacterBackSlot",
         "CharacterShirtSlot",
         "CharacterMainHandSlot",
@@ -338,11 +384,23 @@ C.Adapter = {
         },
         ThirdPartyPrefixes = {
             "BT4Button",
-            "DominosActionButton",
         },
         ThirdPartyMaxIndex = 180,
         CooldownKeys = { "cooldown", "Cooldown" },
         ChargeCooldownKeys = { "chargeCooldown", "ChargeCooldown" },
+    },
+    Dominos = {
+        ButtonPrefixes = {
+            "DominosActionButton",
+            "MultiBarRightActionButton",
+            "MultiBarLeftActionButton",
+            "MultiBarBottomRightActionButton",
+            "MultiBarBottomLeftActionButton",
+            "MultiBar5ActionButton",
+            "MultiBar6ActionButton",
+            "MultiBar7ActionButton",
+        },
+        MaxAncestorDepth = 4,
     },
     Nameplates = {
         MaxAncestorDepth = 4,

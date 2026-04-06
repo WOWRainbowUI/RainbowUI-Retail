@@ -49,6 +49,7 @@ Modules/
   Styler.lua
   HookBridge.lua
 Adapters/
+  DominosAdapter.lua
   ActionBarAdapter.lua
   NameplateAdapter.lua
   UnitFrameAdapter.lua
