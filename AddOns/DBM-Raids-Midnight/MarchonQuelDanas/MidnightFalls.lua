@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2740, "DBM-Raids-Midnight", 1, 1308)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260329073722")
+mod:SetRevision("20260401070301")
 mod:SetCreatureID(214650)
 mod:SetEncounterID(3183)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -135,23 +135,23 @@ local function setFallback(self)
 end
 
 function mod:OnLimitedCombatStart(delay)
-	self.vb.deathCount = 0
-	self.vb.glaivesCount = 0
-	self.vb.prismCount = 0
-	self.vb.shatteredSkyCount = 0
-	self.vb.midnightCount = 0
-	self.vb.lightSiphonCount = 0
-	self.vb.darkConstellationCount = 0
-	self.vb.darkArchangelCount = 0
-	self.vb.severanceCount = 0
-	self.vb.heavensLanceCount = 0
-	self.vb.harvestCount = 0
-	self.vb.meltdownCount = 0
-	self.vb.starSplinterCount = 0
-	self.vb.galvanizeCount = 0
-	self.vb.terminationPrismCount = 0
-	self.vb.grimSymphonyCount = 0
-	self.vb.darkQuasarCount = 0
+	self.vb.deathCount = 1
+	self.vb.glaivesCount = 1
+	self.vb.prismCount = 1
+	self.vb.shatteredSkyCount = 1
+	self.vb.midnightCount = 1
+	self.vb.lightSiphonCount = 1
+	self.vb.darkConstellationCount = 1
+	self.vb.darkArchangelCount = 1
+	self.vb.severanceCount = 1
+	self.vb.heavensLanceCount = 1
+	self.vb.harvestCount = 1
+	self.vb.meltdownCount = 1
+	self.vb.starSplinterCount = 1
+	self.vb.galvanizeCount = 1
+	self.vb.terminationPrismCount = 1
+	self.vb.grimSymphonyCount = 1
+	self.vb.darkQuasarCount = 1
 	--Hardcode features first
 	--if DBM.Options.HardcodedTimer and self:IsEasy() and not badStateDetected then
 	--	self:IgnoreBlizzardAPI()

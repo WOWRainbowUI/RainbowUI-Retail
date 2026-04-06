@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2735, "DBM-Raids-Midnight", 3, 1307)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260330201247")
+mod:SetRevision("20260402070458")
 mod:SetCreatureID(250892)--Vaelgor main boss, 254109 for Ezzorak
 mod:SetEncounterID(3178)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -43,9 +43,9 @@ local timerCosmosisDreadBreathCD	= mod:NewCDCountTimer(20.5, 1277472, nil, nil, 
 local timerCosmosisVoidHowlCD		= mod:NewCDCountTimer(20.5, 1277473, nil, nil, nil, 2, nil, DBM_COMMON_L.MYTHIC_ICON)
 local timerRadiantBarrierCD			= mod:NewCDCountTimer(20.5, 1248847, nil, nil, nil, 5)
 
-mod:AddPrivateAuraSoundOption({1262999,1262676,1262656}, true, 1262623, 1, 3, "beamyou", 19)--Null Beam (soaked it)
+mod:AddPrivateAuraSoundOption({1262999,1262676,1262656}, false, 1262623, 1, 3, "beamyou", 19)--Null Beam (soaked it)
 mod:AddPrivateAuraSoundOption(1244672, true, 1262623, 1, 2, "lineapart", 2)--Null Zone Grippy hand
-mod:AddPrivateAuraSoundOption(1252157, true, 1262623, 1, 1, "debuffyou", 17)--Null Implosion
+mod:AddPrivateAuraSoundOption(1252157, false, 1262623, 1, 1, "debuffyou", 17)--Null Implosion
 mod:AddPrivateAuraSoundOption(1245554, true, 1245391, 1, 3, "gloomyou", 19)--Gloomtouched (soaked Gloom)
 mod:AddPrivateAuraSoundOption(1270852, false, 1245391, 1, 3, "debuffyou", 17)--Diminish (Gloomtouched ended, don't soak again)
 mod:AddPrivateAuraSoundOption(1245421, true, 1245391, 1, 2, "watchfeet", 8)--Gloomfield (GTFO left by gloom)
@@ -85,6 +85,11 @@ local next25H2Type = "rakfang"
 local next31H3IsVaelwing = true
 local next62H3IsNullbeam = true
 local next25H3Type = "voidhowl"
+local nullbeamH3InitialDone = false
+--Mythic stage 1 state variables
+local next50M1IsGloom = true
+local next25M1Type = "rakfang"
+local mythicStage2TransitionSeen = false
 
 ---@param self DBMMod
 local function setFallback(self)
@@ -149,6 +154,10 @@ function mod:OnLimitedCombatStart()
 	next31H3IsVaelwing = true
 	next62H3IsNullbeam = true
 	next25H3Type = "voidhowl"
+	nullbeamH3InitialDone = false
+	next50M1IsGloom = true
+	next25M1Type = "rakfang"
+	mythicStage2TransitionSeen = false
 	--Hardcode features first
 	if DBM.Options.HardcodedTimer and not badStateDetected then
 		self:SetStage(1)
@@ -170,6 +179,17 @@ function mod:OnCombatEnd()
 end
 
 do
+	---@param self DBMMod
+	local function fallbackMythicStage2(self)
+		if DBM.Options.IgnoreBlizzAPI then
+			DBM.Options.IgnoreBlizzAPI = false
+			DBM:FireEvent("DBM_ResumeBlizzAPI")
+		end
+		self:UnregisterShortTermEvents()
+		setFallback(self)
+		DBM:Debug("|cffffff00Mythic stage 2 hardcode is not implemented yet, falling back to Blizzard API|r", nil, nil, nil, true)
+	end
+
 	---@param self DBMMod
 	---@param timer number
 	---@param eventID number
@@ -224,10 +244,7 @@ do
 				return
 			else--Reached end of chain without finding a valid timer, hardcode has failed, fall back to Blizz API
 				badStateDetected = true
-				if DBM.Options.IgnoreBlizzAPI then
-					DBM.Options.IgnoreBlizzAPI = false
-					DBM:FireEvent("DBM_ResumeBlizzAPI")
-				end
+				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
 				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -285,10 +302,7 @@ do
 				return
 			else--Reached end of chain without finding a valid timer, hardcode has failed, fall back to Blizz API
 				badStateDetected = true
-				if DBM.Options.IgnoreBlizzAPI then
-					DBM.Options.IgnoreBlizzAPI = false
-					DBM:FireEvent("DBM_ResumeBlizzAPI")
-				end
+				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
 				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -381,10 +395,7 @@ do
 			else--Reached end of chain without finding a valid timer, hardcode has failed, fall back to Blizz API
 				if not DBM.Options.DebugMode then
 					badStateDetected = true
-					if DBM.Options.IgnoreBlizzAPI then
-						DBM.Options.IgnoreBlizzAPI = false
-						DBM:FireEvent("DBM_ResumeBlizzAPI")
-					end
+					self:ResumeBlizzardAPI()
 					self:UnregisterShortTermEvents()
 					setFallback(self)
 					DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -396,10 +407,7 @@ do
 			--TODO, get long pull that actually goes into stage 4. which should also be triggered by barrier/midnight flames combo
 			if not DBM.Options.DebugMode then
 				badStateDetected = true
-				if DBM.Options.IgnoreBlizzAPI then
-					DBM.Options.IgnoreBlizzAPI = false
-					DBM:FireEvent("DBM_ResumeBlizzAPI")
-				end
+				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
 				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -414,8 +422,67 @@ do
 	---@param timer number
 	---@param timerExact number
 	---@param eventID number
+	local function timersMythic(self, timer, timerExact, eventID)
+		if self:GetStage() ~= 1 then
+			fallbackMythicStage2(self)
+			return
+		end
+		if self:IsRoundedTimer(timer, 6) or self:IsRoundedTimer(timer, 17) or self:IsRoundedTimer(timer, 19) then--Vaelwing cadence confirmed in mythic stage 1
+			timerVaelwingCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "vaelwing", "vaelwingCount"))
+		elseif self:IsRoundedTimer(timer, 7) or self:IsRoundedTimer(timer, 65) then--Dread Breath opener and repeats
+			timerDreadBreathCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "dread", "dreadCount"))
+		elseif self:IsRoundedTimer(timer, 10) then--Gloom opener
+			timerGloomCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "gloom", "gloomCount"))
+		elseif self:IsRoundedTimer(timer, 12) then--Rakfang opener
+			timerRakfangCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "rakfang", "rakfangCount"))
+		elseif self:IsRoundedTimer(timer, 21) then--Rakfang recurring cadence
+			timerRakfangCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "rakfang", "rakfangCount"))
+		elseif self:IsRoundedTimer(timer, 25) then--Late stage-1 drift bucket: Rakfang first, then Vaelwing
+			if next25M1Type == "rakfang" then
+				timerRakfangCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "rakfang", "rakfangCount"))
+				next25M1Type = "vaelwing"
+			else
+				timerVaelwingCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "vaelwing", "vaelwingCount"))
+			end
+		elseif self:IsRoundedTimer(timer, 30) then--Nullbeam opener
+			timerNullBeamCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "nullbeam", "beamCount"))
+		elseif self:IsRoundedTimer(timer, 35) or self:IsRoundedTimer(timer, 40) then--Void Howl opener and repeats
+			timerVoidHowlCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "voidhowl", "howlCount"))
+		elseif self:IsRoundedTimer(timer, 50) then--Alternates Gloom then Nullbeam through mythic stage 1
+			if next50M1IsGloom then
+				timerGloomCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "gloom", "gloomCount"))
+				next50M1IsGloom = false
+			else
+				timerNullBeamCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "nullbeam", "beamCount"))
+				next50M1IsGloom = true
+			end
+		elseif self:IsRoundedTimer(timer, 120) then--Radiant Barrier at pull and again on the stage-2 handoff
+			timerRadiantBarrierCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "radiantbarrier", "radiantBarrierCount"))
+			if mythicStage2TransitionSeen then
+				fallbackMythicStage2(self)
+			else
+				mythicStage2TransitionSeen = true
+			end
+		elseif self:IsRoundedTimer(timer, 8) or self:IsRoundedTimer(timer, 13) or self:IsRoundedTimer(timer, 18) or self:IsRoundedTimer(timer, 23) then--Stage 2 bundle begins here in current mythic evidence
+			fallbackMythicStage2(self)
+		else--Reached end of mythic stage-1 evidence without a valid timer, hardcode has failed, fall back to Blizz API
+			badStateDetected = true
+			if DBM.Options.IgnoreBlizzAPI then
+				DBM.Options.IgnoreBlizzAPI = false
+				DBM:FireEvent("DBM_ResumeBlizzAPI")
+			end
+			self:UnregisterShortTermEvents()
+			setFallback(self)
+			DBM:Debug("|cffff0000Failed to match encounter timeline events to expected mythic stage 1 timers, falling back to Blizzard API|r", nil, nil, nil, true)
+		end
+	end
+
+	---@param self DBMMod
+	---@param timer number
+	---@param timerExact number
+	---@param eventID number
 	local function timersHeroic(self, timer, timerExact, eventID)
-		--Logic confirmed against heroic week 2 pulls. All 3 stages hardcoded.
+		--Logic confirmed against heroic week 2+3 pulls. All 3 stages hardcoded.
 		local stage = self:GetStage()
 		if stage == 1 then--Stage 1
 			if self:IsRoundedTimer(timer, 6) then--Vaelwing (initial)
@@ -464,10 +531,7 @@ do
 				return
 			else--Reached end of chain without finding a valid timer, hardcode has failed, fall back to Blizz API
 				badStateDetected = true
-				if DBM.Options.IgnoreBlizzAPI then
-					DBM.Options.IgnoreBlizzAPI = false
-					DBM:FireEvent("DBM_ResumeBlizzAPI")
-				end
+				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
 				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -516,14 +580,12 @@ do
 				next31H3IsVaelwing = true
 				next62H3IsNullbeam = true
 				next25H3Type = "voidhowl"
+				nullbeamH3InitialDone = false
 				self:SetStage(0)
 				return
 			else--Reached end of chain without finding a valid timer, hardcode has failed, fall back to Blizz API
 				badStateDetected = true
-				if DBM.Options.IgnoreBlizzAPI then
-					DBM.Options.IgnoreBlizzAPI = false
-					DBM:FireEvent("DBM_ResumeBlizzAPI")
-				end
+				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
 				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -543,8 +605,14 @@ do
 				timerVoidHowlCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "voidhowl", "howlCount"))
 			elseif self:IsRoundedTimer(timer, 46) then--Void Howl (late-stage variant)
 				timerVoidHowlCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "voidhowl", "howlCount"))
-			elseif self:IsRoundedTimer(timer, 13) then--Nullbeam (initial)
-				timerNullBeamCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "nullbeam", "beamCount"))
+			elseif self:IsRoundedTimer(timer, 13) then--Nullbeam (initial) or Rakfang (late-stage compressed cadence)
+				if not nullbeamH3InitialDone then
+					timerNullBeamCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "nullbeam", "beamCount"))
+					nullbeamH3InitialDone = true
+				else
+					timerRakfangCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "rakfang", "rakfangCount"))
+					next31H3IsVaelwing = true
+				end
 			elseif self:IsRoundedTimer(timer, 8) then--Vaelwing (initial)
 				timerVaelwingCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "vaelwing", "vaelwingCount"))
 			elseif self:IsRoundedTimer(timer, 15) then--Rakfang (initial)
@@ -573,13 +641,14 @@ do
 					timerRakfangCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "rakfang", "rakfangCount"))
 					next31H3IsVaelwing = true--Drifted Rakfang consumed outside ~31 alternator, reset to Vaelwing
 				end
+			elseif self:IsRoundedTimer(timer, 21) then--Void Howl (late-stage compressed cadence)
+				timerVoidHowlCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "voidhowl", "howlCount"))
+			elseif self:IsRoundedTimer(timer, 26) then--Gloom (late-stage compressed cadence)
+				timerGloomCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "gloom", "gloomCount"))
 			else--Reached end of chain without finding a valid timer, hardcode has failed, fall back to Blizz API
 				if not DBM.Options.DebugMode then
 					badStateDetected = true
-					if DBM.Options.IgnoreBlizzAPI then
-						DBM.Options.IgnoreBlizzAPI = false
-						DBM:FireEvent("DBM_ResumeBlizzAPI")
-					end
+					self:ResumeBlizzardAPI()
 					self:UnregisterShortTermEvents()
 					setFallback(self)
 					DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -592,14 +661,16 @@ do
 		end
 	end
 
-	--Note, bar stage changing and canceling is handled by core
+	--Note, bar state changing and canceling is handled by core
 	function mod:ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
 		if eventInfo.source ~= 0 then return end
 		local eventID = eventInfo.id
 		local timer = eventInfo.duration
 		local timerExact = math.floor(timer + 0.5)
 		if not badStateDetected then
-			if self:IsEasy() then
+			if self:IsMythic() then
+				timersMythic(self, timer, timerExact, eventID)
+			elseif self:IsEasy() then
 				timersEasy(self, timer, timerExact, eventID)
 			else
 				timersHeroic(self, timer, timerExact, eventID)

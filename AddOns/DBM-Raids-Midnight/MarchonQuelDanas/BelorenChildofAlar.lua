@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2739, "DBM-Raids-Midnight", 1, 1308)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260329073722")
+mod:SetRevision("20260401070301")
 --mod:SetCreatureID()--No Data Yet, has 4 CIDs
 mod:SetEncounterID(3182)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -92,14 +92,14 @@ local function setFallback(self)
 end
 
 function mod:OnLimitedCombatStart(delay)
-	self.vb.embersCount = 0
-	self.vb.echoesCount = 0
-	self.vb.edictCount = 0
-	self.vb.burnsCount = 0
-	self.vb.quillsCount = 0
-	self.vb.convergenceCount = 0
-	self.vb.deathDropCount = 0
-	self.vb.incubationCount = 0
+	self.vb.embersCount = 1
+	self.vb.echoesCount = 1
+	self.vb.edictCount = 1
+	self.vb.burnsCount = 1
+	self.vb.quillsCount = 1
+	self.vb.convergenceCount = 1
+	self.vb.deathDropCount = 1
+	self.vb.incubationCount = 1
 	--Hardcode features first
 	--if DBM.Options.HardcodedTimer and self:IsEasy() and not badStateDetected then
 	--	self:IgnoreBlizzardAPI()

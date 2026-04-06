@@ -1,70 +1,44 @@
 # DBM - Core
 
-## [12.0.35](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.35) (2026-03-31)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.34...12.0.35) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.0.36](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.36) (2026-04-05)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.35...12.0.36) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
-- Update translation (#2001)  
-- Update koKR (#2002)  
+- Prep new core, that's a mandatory update for last nights dungeons update.  
+- Update role (#2010)  
+- tweak that while at it  
+- make IEEU debug 12.0.5 safe  
+- Fix seat naming consistency  
+- simplify  
+- Tighten unit identity checks against compound unit token restrictions that C\_Secrets.ShouldUnitIdentnityBeSecret does NOT cover.  
+    Should fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2012  
+- Tighten search box to avoid strange secret taints  
+- Fix load race condition where private aura voice pack sounds are ignored (and defaulted to generic special warning noises) when reloading UI inside an instance.  
+    Update herioc Crown with far more hardcoded timer data  
+- Update localization.ru.lua (#2005)  
+- Role correction (#2007)  
     Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
     Co-authored-by: Artemis <QartemisT@gmail.com>  
-- Upd RU locale (#2003)  
-- prep new tag  
-- one small pull timer tweak to remove one function from addon userspace and be more consistent  
-- tweak some debug colors for clarity  
-- hide misleading option  
-- prevent skipping of crown cinematic when played manually by using recent kill logic fyrak had  
-- Fix tank warnings going off for non tanks when using hardcode on double dragons  
-- enable dread breath target warning  
-- Tweak audio and text warnings in LFR chimaerus to reflect that there is no soak here  
-- Fix brez timer not showing due to being called after "return"  
-- change default position to top left instead of dead center  
-- Bugfixes and GUi tweaks  
-- Add optional off by default Brez timer frame option (#1999)  
-    Very Basic Brez timer for retail only. No classic handling so no CLEU stuff. Completely off by default as not to be intrusive new frame that pops up to existing users already using another addon for this, but an option for those that aren't or want to eliminate another addon if they were only using it for this one thing.  
-- Update translations (#2000)  
-- update pull timer to be completely blocked in ANY combat (per blizzard new restrictions)  
-- Update builtin voice pack sounds  
-    make March of Quel danas modules public  
-- Enable Vorasius hardcoded timers on mythic too, since once again they appeal to be exactly the same as other 3 modes  
-- Update localization.ru.lua (#1996)  
-- Update koKR (#1995)  
-    Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
-    Co-authored-by: Artemis <QartemisT@gmail.com>  
-- Push voice pack sounds update  
-- Handle long stage 3s better (where dragons lift off again in stage 3 due to low damage.  
-- switch to checkoutV5 to meet node 24 requirement  
-- Update commonlocal.ru.lua (#1991)  
-- Update koKR (#1992)  
-    * Update koKR  
-- Fixes  
-- rework target messages to try and use a more secret sensitive approach for target messages when using blizz secret target information  
-- Make sure frame pixel size perfectly divisable by 14  
-    fix arrows  
-- make timeline features, when used, respect the globald disables for warnings and sounds  
-    Debuglog should now have scroll by page buttons  
-- couple tweaks  
-- Vaelgor and Ezzorak Update:  
-     - Deemphasize grabbling maw to just a generalized text alert, it's so inconsiquential that it's just white noise.  
-     - Changed audio on dread breath private aura to be a bit clearer and higher in emphasis  
-     - Removed Spammy barrier private aura sound (I thought I already did this, my bad)  
-     - Improved Zull Zone private aura sound to be much clearer and more correct.  
-     - Also, added heroic hardcode  
-- Enable same timers table on heroic VOrasius as normal and LFR, they are the same  
-- Preliminary heroic hardcode for chimaerus  
-- fix bad self definition  
-- fix event registers  
-- fix formatting error  
-- ugly experiment to fix class color on blizz warnings. by half hardcoding them because why not have yet another blizzard issue to work around.  
-- keep this one change though  
-- Revert "attempt to fix formaters that may be removing class color from special warning class text"  
-- Revert "In fact, eliminate wrapping text in icon textures entirely and use separate objects for icons, further reducing chance of deformating secret text"  
-- Revert "tweaks"  
-- tweaks  
-- Add new common locale strings (#1990)  
-    * Update translations  
-    * Update translations  
-    * Add new common locale strings  
-- In fact, eliminate wrapping text in icon textures entirely and use separate objects for icons, further reducing chance of deformating secret text  
-- attempt to fix formaters that may be removing class color from special warning class text  
-- fix invalid spellid  
+    Co-authored-by: MysticalOS <mysticalosx@gmail.com>  
+    Co-authored-by: Valdemar <54585769+Hollicsh@users.noreply.github.com>  
+    Co-authored-by: Elnarfim <37562642+Elnarfim@users.noreply.github.com>  
+- Improvements to fallback switching and code duplication cleanup  
+- Fix missed audio change  
+    force reset consume bar color  
+- Fix double dragon hardcode routing firing heroic timers on mythic. instead it'll route to the now added mythic timers (for stage 1) and correctly switch to fallback for the NYI stages  
+- Add mythic Salhadar hardcode  
+- satisfy LuaLS  
+- Handle rare niche case dive situation where the initial dive timer cancels with a state 3 without a 1 second state 2 ending bar to replace it if you manage to time early push at same time as natural push.  
+- Add support for mythic chimaerus hardcode  
+- missed one string  
+- Remove built in Ora3 checks. addon is not well maintained anymore since it's being phased out. Will be replaced with our own checks in future  
+- add stage 1 berserk timer to crown  
+- Added Phase 1 heroic crown hardcode.  
+- Add heroic Lightblined Vanguard hardcode  
+- extend P3 heroic hardcode for double dragons  
+-  - Fixed a race condition that caused the blizzard bug work around for first bosses soak to not be fully complete at filtering duplicate soak warning. This should work correctly now  
+     - Fixed bug where disabled timers didn't still forward timeline apis in fallback mode (since fallback mode cannot actually disable timers yet with shortfalls in blizzard api, we should at least register custom colors to them when they can't be hidden).  
+     - Fixed bug where debuglogs perfect page scroll wasn't so perfectand would clip 1 line from previous page.  
+     - Fixed bug where starting count on all timers/warnings for Lightblinded Vanguard were always off by -1 count.  
+     - Added work around to normal crown hardcode that now autocorrects 3 blizzard timers that are actually flat wrong.  
+- fix typos taht can lead to confusion  
 - bump alpha  

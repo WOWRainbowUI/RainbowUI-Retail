@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2734, "DBM-Raids-Midnight", 3, 1307)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260330201247")
+mod:SetRevision("20260402070458")
 mod:SetCreatureID(240434)
 mod:SetEncounterID(3177)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -96,10 +96,7 @@ do
 		else--Reached end of chain without finding a valid timer, this means hardcode mod has failed, so we need to disable hardcoded features and fall back to blizz API
 			if not DBM.Options.DebugMode then
 				badStateDetected = true
-				if DBM.Options.IgnoreBlizzAPI then
-					DBM.Options.IgnoreBlizzAPI = false
-					DBM:FireEvent("DBM_ResumeBlizzAPI")
-				end
+				self:ResumeBlizzardAPI()
 				self:UnregisterShortTermEvents()
 				setFallback(self)
 				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
@@ -108,11 +105,10 @@ do
 			end
 		end
 	end
-	--Note, bar stage changing and canceling is handled by core
+	--Note, bar state changing and canceling is handled by core
 	function mod:ENCOUNTER_TIMELINE_EVENT_ADDED(eventInfo)
 		if eventInfo.source ~= 0 then return end
 		local eventID = eventInfo.id
---		local eventState = C_EncounterTimeline.GetEventState(eventID)
 		local timerExact = eventInfo.duration
 		local timer = math.floor(timerExact + 0.5)
 		if not badStateDetected then
