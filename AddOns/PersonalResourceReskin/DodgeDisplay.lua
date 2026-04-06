@@ -31,6 +31,15 @@ end
 local function AnchorFrame()
     if InCombatLockdown() or (EditModeManagerFrame and EditModeManagerFrame.editModeActive) then return end
     f:ClearAllPoints()
+    -- Prefer the custom Brewmaster stagger bar when available
+    local customBar = _G.CustomBrewmasterStaggerBar
+    if customBar and customBar:IsShown() then
+        f:SetPoint("RIGHT", customBar, "RIGHT", 34, 0)
+        f:SetFrameStrata(customBar:GetFrameStrata())
+        f:SetFrameLevel(customBar:GetFrameLevel() + 10)
+        f:Show()
+        return
+    end
     local prd = _G["PersonalResourceDisplayFrame"]
     local altBar = prd and prd.AlternatePowerBar
     local anchor = altBar and altBar.background

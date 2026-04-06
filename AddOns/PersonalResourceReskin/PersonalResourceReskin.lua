@@ -594,6 +594,12 @@ local function ApplyReskinToPRD()
             prd.PowerBar:SetHeight(profile.powerBarHeight)
         end
         ReskinBar(prd.PowerBar, "power")
+           -- Ensure Mana Cost Prediction Bar texture is set from profile after reload/profile change
+           if prd.PowerBar.ManaCostPredictionBar and profile.manaCostPredictionBarTexture then
+               local LSM = LibStub("LibSharedMedia-3.0")
+               local tex = LSM:Fetch("statusbar", profile.manaCostPredictionBarTexture) or "Blizzard"
+               prd.PowerBar.ManaCostPredictionBar:SetTexture(tex)
+           end
         -- Hook SetStatusBarColor and OnValueChanged to reapply gradient
         if not prd.PowerBar.__PRD_GradientHooked then
             prd.PowerBar.__PRD_GradientHooked = true
