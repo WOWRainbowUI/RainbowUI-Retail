@@ -27,6 +27,14 @@ local function AnchorToPRDBar()
         Core_NeedsReanchor = true
         return
     end
+    -- Prefer the custom Brewmaster stagger bar when available
+    local customBar = _G.CustomBrewmasterStaggerBar
+    if customBar and customBar:IsShown() then
+        text:ClearAllPoints()
+        text:SetPoint("CENTER", customBar, "CENTER", 0, 0)
+        Core_NeedsReanchor = false
+        return
+    end
     local anchor = _G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.AlternatePowerBar and _G.PersonalResourceDisplayFrame.AlternatePowerBar.background
     if anchor then
         text:ClearAllPoints()
@@ -37,11 +45,12 @@ local function AnchorToPRDBar()
     end
     Core_NeedsReanchor = false
 end
-AnchorToPRDBar()
 
 -- Force it above most UI
 text:SetFrameStrata("DIALOG")
 text:SetFrameLevel(1000)
+-- Start hidden to prevent flash before custom bar loads
+text:Hide()
 
 text.value = text:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
 text.value:SetPoint("CENTER")
@@ -71,6 +80,13 @@ local function UpdateStagger()
     -- Only show for Brewmaster spec (specID 268)
     local specID = GetSpecialization() and GetSpecializationInfo(GetSpecialization())
     if specID ~= 268 then
+        if text then text:Hide() end
+        return
+    end
+
+    -- If CustomBrewmasterStaggerBar is active it has its own text — hide ours
+    local customBar = _G.CustomBrewmasterStaggerBar
+    if customBar and customBar:IsShown() then
         if text then text:Hide() end
         return
     end
@@ -159,8 +175,13 @@ end
 
 f:HookScript("OnEvent", function(_, event)
     if event == "PLAYER_ENTERING_WORLD" then
-        AnchorToPRDBar()
-        HookPRDBar()
+        -- Defer so CustomBrewmasterStaggerBar has time to create/show first
+        C_Timer.After(0.2, function()
+            AnchorToPRDBar()
+            HookPRDBar()
+            UpdateStagger()
+        end)
+        return
     elseif event == "PLAYER_REGEN_ENABLED" then
         if Core_NeedsReanchor then
             AnchorToPRDBar()

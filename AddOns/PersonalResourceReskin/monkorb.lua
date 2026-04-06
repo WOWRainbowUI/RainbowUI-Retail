@@ -9,6 +9,8 @@ if isMonk and GetSpecialization then
     isBrewmaster = (spec == 1)
 end
 
+local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
+
 -- Modified for PersonalResourceReskin by [Ckraigfriend], 2026
 -- This file is licensed under the GNU General Public License v3.0 (GPL-3.0)
 -- See LICENSE for details.
@@ -82,6 +84,48 @@ local MonkOrbTrackerOptions = {
             end,
             set = function(_, r, g, b, a)
                 set({"bgColor"}, {r, g, b, a})
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        barTexture = {
+            order = 2.5,
+            type = "select",
+            dialogControl = "LSM30_Statusbar",
+            name = "Bar Texture",
+            desc = "Select the statusbar texture for the orbs bar.",
+            values = function()
+                if LSM then return LSM:HashTable("statusbar") end
+                return {}
+            end,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return db and db.MonkOrbTracker_barTexture or "Blizzard"
+            end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_barTexture = val
+                if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
+            end,
+        },
+        bgTexture = {
+            order = 2.6,
+            type = "select",
+            dialogControl = "LSM30_Statusbar",
+            name = "Background Texture",
+            desc = "Select the background texture. Leave default for flat color.",
+            values = function()
+                if LSM then return LSM:HashTable("statusbar") end
+                return {}
+            end,
+            get = function()
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return db and db.MonkOrbTracker_bgTexture or ""
+            end,
+            set = function(_, val)
+                local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if not db then return end
+                db.MonkOrbTracker_bgTexture = val
                 if _G.MonkOrbTracker_Update then _G.MonkOrbTracker_Update() end
             end,
         },
@@ -327,6 +371,19 @@ end
 local function ApplySavedOptions()
     local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
     if not db then return end
+    -- Bar texture from SharedMedia
+    local texKey = db.MonkOrbTracker_barTexture
+    if texKey and LSM then
+        local path = LSM:Fetch("statusbar", texKey)
+        if path then
+            bar:SetStatusBarTexture(path)
+            local sbTex = bar:GetStatusBarTexture()
+            if sbTex then
+                sbTex:SetTexelSnappingBias(0)
+                sbTex:SetSnapToPixelGrid(false)
+            end
+        end
+    end
     -- Color or gradient
     local gradStart = db.MonkOrbTracker_segmentGradientStart
     local gradEnd = db.MonkOrbTracker_segmentGradientEnd
@@ -345,9 +402,24 @@ local function ApplySavedOptions()
             barTexture:SetColorTexture(c[1], c[2], c[3], c[4])
         end
     end
-    -- BG Color
+    -- BG Color + texture
     local bgc = db.MonkOrbTracker_bgColor or {0.08, 0.08, 0.08, 0.75}
-    if bar and bar.bg then bar.bg:SetColorTexture(unpack(bgc)) end
+    local bgTexKey = db.MonkOrbTracker_bgTexture
+    if bgTexKey and bgTexKey ~= "" and LSM and bar and bar.bg then
+        local path = LSM:Fetch("statusbar", bgTexKey)
+        if path then
+            bar.bg:SetTexture(path)
+            bar.bg:SetTexelSnappingBias(0)
+            bar.bg:SetSnapToPixelGrid(false)
+            bar.bg:SetVertexColor(bgc[1], bgc[2], bgc[3], bgc[4])
+        else
+            bar.bg:SetColorTexture(unpack(bgc))
+            bar.bg:SetVertexColor(1, 1, 1, 1)
+        end
+    elseif bar and bar.bg then
+        bar.bg:SetColorTexture(unpack(bgc))
+        bar.bg:SetVertexColor(1, 1, 1, 1)
+    end
     -- Size
     local w = db.MonkOrbTracker_width or 120
     local h = db.MonkOrbTracker_height or 24

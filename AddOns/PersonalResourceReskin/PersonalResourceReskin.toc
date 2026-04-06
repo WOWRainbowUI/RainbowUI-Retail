@@ -7,6 +7,7 @@
 ## OptionalDeps: Ace3, LibSharedMedia-3.0
 ## SavedVariables: PersonalResourceReskinDB,DevourTextDB,PlayerPowerTextDB,PlayerHealthTextDB,PRDHealthToggleDB,AbsorbBarsBlizzard_Config,CustomEssenceBarDB.locked,CustomEssenceBarDB.orbHeight,CustomEssenceBarDB.orbWidth,CustomEssenceBarDB,CustomHolyPowerBarDB,CustomDeathKnightRuneBarDB,CustomSoulShardBarDB,PRDRightClickMenuConfig,CustomDruidComboBarDB,CustomRogueComboBarDB,CustomMageArcaneOrbDB,CustomWindwalkerMonkOrbBarDB,CustomDruidComboBar
 ## SavedVariables: GuardianIronfurTrackerDB
+## SavedVariables: CustomBrewmasterStaggerBarDB
 
 # Portions of this addon are based on Enhanced Cooldown Manager by Argium (GPL-3)
 # See README.md and LICENSE for details.
@@ -40,6 +41,8 @@ libs\AceConfig-3.0\AceConfig-3.0.xml
 libs\AceSerializer-3.0\AceSerializer-3.0.xml
 # Media & utility libraries
 Libs/LibSharedMedia-3.0/lib.xml
+Libs/LibEditMode/LibEditMode.lua
+Libs/LibEditModeOverride/LibEditModeOverride.xml
 
 
 
@@ -52,11 +55,12 @@ MoveClassResource.lua
 PRDHealthToggle.lua
 PlayerHealthText.lua
 AbsorbBars_Blizzard.lua
+CustomBrewmasterStaggerBar.lua
 Core.lua
 DevourText.lua
 CustomEssenceBar.lua
 CustomHolyPowerBar.lua
-
+GuardianIronfurTracker.lua
 DodgeDisplay.lua
 soulstrackerveng.lua
 CustomRogueComboBar.lua
@@ -69,6 +73,5 @@ CustomWindwalkerMonkOrbBar.lua
 monkorb.lua
 CustomDeathKnightRuneBar.lua
 WarriorTracker.lua
-GuardianIronfurTracker.lua
 AldrachiReaverTrackers.lua
 CustomSoulShardBar.lua
