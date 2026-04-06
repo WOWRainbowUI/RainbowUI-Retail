@@ -50,6 +50,7 @@ L["Overlay.NoAttune"] = "NO\nSINT"
 L["Overlay.NoFamiliar"] = "NO\nFAM"
 L["Overlay.DropWell"] = "CREA\nPOZZO"
 L["Overlay.NoGrim"] = "NO\nGRIM"
+L["Overlay.BurningRush"] = "RUSH"
 L["Overlay.NoRite"] = "NO\nRITO"
 L["Overlay.ApplyPoison"] = "METTI\nVELENO"
 L["Overlay.NoForm"] = "NO\nFORMA"
@@ -148,8 +149,10 @@ L["Display.SlashCommands"] = "Comandi: /br, /br lock, /br unlock, /br test, /br 
 L["Display.MinimapLeftClick"] = "|cFFCFCFCFClick sinistro|r: Opzioni"
 L["Display.MinimapRightClick"] = "|cFFCFCFCFClick destro|r: Modalit\195\160 test"
 L["Display.DismissConsumables"] = "Nascondi promemoria consumabili fino alla prossima schermata di caricamento"
-L["Display.LoginDkRunes"] =
-    "Sono stati aggiunti i promemoria per le rune del Cavaliere della Morte. Se usi una configurazione non standard, puoi personalizzare quali rune monitorare per spec tramite l'icona ingranaggio accanto a Rune nella scheda Buff."
+L["Display.LoginFirstInstall"] =
+    "Grazie per l'installazione! Digita |cFFFFD100/br unlock|r per spostare il display dei buff, oppure usa il pulsante in fondo al pannello opzioni di |cFFFFD100/br|r."
+L["Display.LoginGearIcons"] =
+    "Alcune impostazioni buff (pietra della salute, pietra dell'anima, pet) sono state spostate nelle icone ingranaggio accanto alle relative caselle nella scheda Buff."
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -222,7 +225,6 @@ L["Options.DetachIcon.Desc"] = "Sposta questa icona in un frame posizionabile in
 -- ============================================================================
 -- OPTIONS: HEALTHSTONE
 -- ============================================================================
-L["Options.Healthstone"] = "Pietra della Salute"
 L["Options.Healthstone.ReadyCheckOnly"] = "Solo controllo prontezza"
 L["Options.Healthstone.ReadyCheckWarlock"] = "Controllo prontezza + stregone sempre"
 L["Options.Healthstone.AlwaysShow"] = "Mostra sempre"
@@ -233,6 +235,28 @@ L["Options.Healthstone.WarlockAlwaysDesc"] =
     "Gli stregoni vedono sempre il promemoria; le altre classi solo al controllo prontezza"
 L["Options.Healthstone.ReadyCheckDesc"] = "Mostra per 15 secondi dopo l'inizio di un controllo prontezza"
 L["Options.Healthstone.AlwaysDesc"] = "Mostra ogni volta che il tipo di contenuto corrisponde"
+L["Options.Healthstone.LowStock"] = "Avvisa quando poche"
+L["Options.Healthstone.LowStock.Desc"] =
+    "Mostra un avviso quando hai pietre della salute ma non abbastanza. Le pietre mancanti (0) vengono sempre tracciate indipendentemente da questa impostazione."
+L["Options.Healthstone.Threshold"] = "Avvisa quando ne hai"
+L["Options.Healthstone.Threshold.Desc"] =
+    "Mostra un avviso scorte basse quando hai questo numero di pietre della salute o meno.\n\n|cffffcc001:|r Avvisa quando ne hai esattamente 1.\n|cffffcc002:|r Avvisa quando ne hai 1 o 2."
+
+-- ============================================================================
+-- OPTIONS: SOULSTONE
+-- ============================================================================
+L["Options.Soulstone.Visibility"] = "Visibilit\195\160 Pietra dell'Anima"
+L["Options.Soulstone.Visibility.Desc"] =
+    "Controlla quando appare il promemoria pietra dell'anima.\n\n|cffffcc00Solo controllo prontezza:|r Solo durante i controlli prontezza (predefinito).\n|cffffcc00Controllo prontezza + stregone sempre:|r Gli stregoni lo vedono sempre; gli altri solo al controllo prontezza.\n|cffffcc00Mostra sempre:|r Visibile quando la categoria presenza \195\168 visibile."
+L["Options.Soulstone.ReadyCheckOnly"] = "Solo controllo prontezza"
+L["Options.Soulstone.ReadyCheckWarlock"] = "Controllo prontezza + stregone sempre"
+L["Options.Soulstone.AlwaysShow"] = "Mostra sempre"
+L["Options.Soulstone.ReadyCheckDesc"] = "Mostra per 15 secondi dopo l'inizio di un controllo prontezza"
+L["Options.Soulstone.WarlockAlwaysDesc"] = "Gli stregoni lo vedono sempre; le altre classi solo al controllo prontezza"
+L["Options.Soulstone.AlwaysDesc"] = "Mostra quando la categoria presenza \195\168 visibile"
+L["Options.Soulstone.HideCooldown"] = "Nascondi durante il recupero (stregone)"
+L["Options.Soulstone.HideCooldown.Desc"] =
+    "Se abilitato, gli stregoni non vedranno il promemoria pietra dell'anima mentre l'incantesimo \195\168 in recupero. Si applica solo agli stregoni."
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -339,6 +363,18 @@ L["Options.RuneMainHand"] = "Mano Principale"
 L["Options.RuneOffHand"] = "Mano Secondaria"
 L["Options.RuneTwoHanded"] = "Due Mani"
 L["Options.RuneDualWield"] = "Doppia Impugnatura"
+
+-- ============================================================================
+-- OPTIONS: BUFF SETTINGS GEAR ICONS
+-- ============================================================================
+L["Options.HealthstoneSettings"] = "Impostazioni Pietra della Salute"
+L["Options.HealthstoneSettings.Note"] = "Configura visibilit\195\160 e soglia scorte basse."
+L["Options.SoulstoneSettings"] = "Impostazioni Pietra dell'Anima"
+L["Options.SoulstoneSettings.Note"] = "Configura quando appare il promemoria pietra dell'anima."
+L["Options.PetPassiveSettings"] = "Impostazioni Pet Passivo"
+L["Options.PetPassiveSettings.Note"] = "Configura il promemoria pet in modalit\195\160 passiva."
+L["Options.PetSummonSettings"] = "Impostazioni Evocazione Pet"
+L["Options.PetSummonSettings.Note"] = "Configura il comportamento di evocazione pet."
 
 -- ============================================================================
 -- OPTIONS: LAYOUT

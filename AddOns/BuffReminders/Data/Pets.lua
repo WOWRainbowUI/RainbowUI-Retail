@@ -49,6 +49,9 @@ local WARLOCK_PET_NAMES = {
     [30146] = "Felguard",
 }
 
+-- Resolve Spirit Beast family name from Blizzard's creature family data (localized)
+local SPIRIT_BEAST_FAMILY = (C_CreatureInfo.GetCreatureFamilyInfo(46) or {}).name or "Spirit Beast"
+
 ---Build hunter pet actions from stable info
 ---@return PetAction[]?
 local function BuildHunterActions()
@@ -75,7 +78,7 @@ local function BuildHunterActions()
                     sortOrder = order,
                     petFamily = info.specialization,
                     petSpecIcon = PET_SPEC_ICONS[info.specialization],
-                    petSpiritBeast = info.familyName == "Spirit Beast" or nil,
+                    petSpiritBeast = info.familyName == SPIRIT_BEAST_FAMILY or nil,
                 }
             end
         end

@@ -253,6 +253,10 @@ local DefaultSettingKeys = {
     freeConsumableMode = "DisplayRefresh",
     freeConsumableVisibility = "DisplayRefresh",
     healthstoneVisibility = "DisplayRefresh",
+    healthstoneLowStock = "DisplayRefresh",
+    healthstoneThreshold = "DisplayRefresh",
+    soulstoneVisibility = "DisplayRefresh",
+    soulstoneHideCooldown = "DisplayRefresh",
     -- Consumable display mode
     consumableDisplayMode = "DisplayRefresh",
     consumableTextScale = "VisualsRefresh",
@@ -636,9 +640,9 @@ function BR.Config.GetCategorySetting(category, key)
         return catSettings[key]
     end
 
-    -- Glow style keys: inherit from defaults unless useCustomGlow is true
+    -- Glow style keys: inherit from defaults unless BOTH useCustomAppearance and useCustomGlow are true
     if GlowKeys[key] then
-        if not catSettings.useCustomGlow then
+        if not catSettings.useCustomAppearance or not catSettings.useCustomGlow then
             return db.defaults and db.defaults[key]
         end
         return catSettings[key]
@@ -663,7 +667,7 @@ function BR.Config.HasCustomAppearance(category)
     return db.categorySettings[category].useCustomAppearance == true
 end
 
----Check if a category has custom glow style enabled
+---Check if a category has custom glow style enabled (requires custom appearance)
 ---@param category string
 ---@return boolean
 function BR.Config.HasCustomGlow(category)
@@ -671,7 +675,8 @@ function BR.Config.HasCustomGlow(category)
     if not db or not db.categorySettings or not db.categorySettings[category] then
         return false
     end
-    return db.categorySettings[category].useCustomGlow == true
+    local cat = db.categorySettings[category]
+    return cat.useCustomAppearance == true and cat.useCustomGlow == true
 end
 
 -- ============================================================================
@@ -686,8 +691,9 @@ end
 ---@return table
 function BR.CreatePanel(name, width, height, options)
     options = options or {}
-    local bgColor = options.bgColor or { 0.1, 0.1, 0.1, 0.95 }
-    local borderColor = options.borderColor or { 0.3, 0.3, 0.3, 1 }
+    local isModal = options.modal
+    local bgColor = options.bgColor or (isModal and { 0.15, 0.15, 0.15, 0.98 } or { 0.1, 0.1, 0.1, 0.95 })
+    local borderColor = options.borderColor or (isModal and { 0.5, 0.5, 0.5, 1 } or { 0.3, 0.3, 0.3, 1 })
 
     local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
     panel:SetSize(width, height)
@@ -708,7 +714,7 @@ function BR.CreatePanel(name, width, height, options)
     if options.level then
         panel:SetFrameLevel(options.level)
     end
-    if options.modal then
+    if isModal then
         -- Modal panels handle ESC via keyboard input so they close themselves
         -- without also closing parent panels (unlike UISpecialFrames which closes all)
         panel:EnableKeyboard(true)

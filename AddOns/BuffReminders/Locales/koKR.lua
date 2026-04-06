@@ -53,6 +53,7 @@ L["Overlay.NoAttune"] = "조율\n없음"
 L["Overlay.NoFamiliar"] = "전령\n없음"
 L["Overlay.DropWell"] = "영혼샘\n깔기"
 L["Overlay.NoGrim"] = "흑마법서\n없음"
+L["Overlay.BurningRush"] = "RUSH"
 L["Overlay.NoRite"] = "의식\n없음"
 L["Overlay.ApplyPoison"] = "독\n바르기"
 L["Overlay.NoForm"] = "형상\n꺼짐"
@@ -151,8 +152,10 @@ L["Display.SlashCommands"] = "슬래시 명령어: /br, /br lock, /br unlock, /b
 L["Display.MinimapLeftClick"] = "|cFFCFCFCF좌클릭|r: 옵션"
 L["Display.MinimapRightClick"] = "|cFFCFCFCF우클릭|r: 테스트 모드"
 L["Display.DismissConsumables"] = "다음 로딩 화면 전까지 소모품 알림 숨기기"
-L["Display.LoginDkRunes"] =
-    "DK 룬조각 알림이 추가되었습니다. 비표준 설정을 사용하는 경우, 버프 탭의 룬 옆 톱니바퀴 아이콘을 통해 전문화별로 추적할 룬조각을 설정할 수 있습니다."
+L["Display.LoginFirstInstall"] =
+    "설치해 주셔서 감사합니다! |cFFFFD100/br unlock|r을 입력하여 버프 표시를 이동하거나, |cFFFFD100/br|r 옵션 패널 하단의 버튼을 사용하세요."
+L["Display.LoginGearIcons"] =
+    "일부 버프 설정(생명석, 영혼석, 소환수)이 버프 탭의 체크박스 옆 톱니바퀴 아이콘으로 이동했습니다."
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -225,7 +228,6 @@ L["Options.DetachIcon.Desc"] =
 -- ============================================================================
 -- OPTIONS: HEALTHSTONE
 -- ============================================================================
-L["Options.Healthstone"] = "생명석"
 L["Options.Healthstone.ReadyCheckOnly"] = "전투 준비 시에만"
 L["Options.Healthstone.ReadyCheckWarlock"] = "전투 준비 + 흑마법사는 항상 표시"
 L["Options.Healthstone.AlwaysShow"] = "항상 표시"
@@ -236,6 +238,28 @@ L["Options.Healthstone.WarlockAlwaysDesc"] =
     "흑마법사는 항상 알림 표시, 다른 직업은 전투 준비때만"
 L["Options.Healthstone.ReadyCheckDesc"] = "전투 준비 후 15초 동안 표시"
 L["Options.Healthstone.AlwaysDesc"] = "해당 콘텐츠 유형과 일치할 때 항상 표시"
+L["Options.Healthstone.LowStock"] = "부족 시 경고"
+L["Options.Healthstone.LowStock.Desc"] =
+    "생명석이 있지만 부족할 때 경고를 표시합니다. 생명석이 없는 경우(0개)는 이 설정과 관계없이 항상 추적됩니다."
+L["Options.Healthstone.Threshold"] = "경고 기준 수량"
+L["Options.Healthstone.Threshold.Desc"] =
+    "생명석이 이 수량 이하일 때 부족 경고를 표시합니다.\n\n|cffffcc001:|r 정확히 1개일 때 경고.\n|cffffcc002:|r 1개 또는 2개일 때 경고."
+
+-- ============================================================================
+-- OPTIONS: SOULSTONE
+-- ============================================================================
+L["Options.Soulstone.Visibility"] = "영혼석 표시"
+L["Options.Soulstone.Visibility.Desc"] =
+    "영혼석 알림이 표시되는 시점을 설정합니다.\n\n|cffffcc00전투 준비 시에만:|r 전투 준비 시에만 표시 (기본값).\n|cffffcc00전투 준비 + 흑마법사는 항상 표시:|r 흑마법사는 항상 보이고, 다른 직업은 전투 준비 시에만.\n|cffffcc00항상 표시:|r 존재 카테고리가 보일 때마다 표시."
+L["Options.Soulstone.ReadyCheckOnly"] = "전투 준비 시에만"
+L["Options.Soulstone.ReadyCheckWarlock"] = "전투 준비 + 흑마법사는 항상 표시"
+L["Options.Soulstone.AlwaysShow"] = "항상 표시"
+L["Options.Soulstone.ReadyCheckDesc"] = "전투 준비 후 15초 동안 표시"
+L["Options.Soulstone.WarlockAlwaysDesc"] = "흑마법사는 항상 알림 표시, 다른 직업은 전투 준비때만"
+L["Options.Soulstone.AlwaysDesc"] = "존재 카테고리가 보일 때마다 표시"
+L["Options.Soulstone.HideCooldown"] = "재사용 대기 중 숨기기 (흑마법사)"
+L["Options.Soulstone.HideCooldown.Desc"] =
+    "활성화 시, 주문이 재사용 대기 중일 때 흑마법사에게 영혼석 알림을 표시하지 않습니다. 흑마법사에게만 적용됩니다."
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -343,6 +367,18 @@ L["Options.RuneMainHand"] = "주 손"
 L["Options.RuneOffHand"] = "보조 손"
 L["Options.RuneTwoHanded"] = "양손"
 L["Options.RuneDualWield"] = "쌍수"
+
+-- ============================================================================
+-- OPTIONS: BUFF SETTINGS GEAR ICONS
+-- ============================================================================
+L["Options.HealthstoneSettings"] = "생명석 설정"
+L["Options.HealthstoneSettings.Note"] = "표시 조건 및 부족 기준값을 설정합니다."
+L["Options.SoulstoneSettings"] = "영혼석 설정"
+L["Options.SoulstoneSettings.Note"] = "영혼석 알림이 표시되는 시점을 설정합니다."
+L["Options.PetPassiveSettings"] = "소환수 수동 설정"
+L["Options.PetPassiveSettings.Note"] = "수동 모드 소환수 알림을 설정합니다."
+L["Options.PetSummonSettings"] = "소환수 소환 설정"
+L["Options.PetSummonSettings.Note"] = "소환수 소환 동작을 설정합니다."
 
 -- ============================================================================
 -- OPTIONS: LAYOUT

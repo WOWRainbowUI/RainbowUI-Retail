@@ -26,11 +26,13 @@ local _, BR = ...
 ---@field eatingExpirationTime number?      -- GetTime()-based expiration of eating aura
 ---@field petActions PetActionList?           -- Expanded pet summon actions
 ---@field dynamicIcon number|string|nil      -- Dynamic icon texture override (e.g. next poison to cast)
+---@field glowKindOverride "expiring"|"missing"|nil -- Override glow kind (e.g. healthstone low stock uses expiring glow)
 
 -- Lua stdlib locals (avoid repeated global lookups in hot paths)
 local ceil = math.ceil
 local format = string.format
 local tinsert = table.insert
+local tostring = tostring
 
 -- Reusable single-element buffer to avoid { spellID } allocations in hot loops.
 -- SAFETY: callers must consume the result immediately — the buffer is overwritten on next call.
@@ -1313,6 +1315,7 @@ end
 ---@return boolean shouldShow
 ---@return number? remainingTime seconds remaining if buff is present and has a duration
 ---@return number? activeSpellID the specific spell ID that matched (for multi-spell consumables)
+---@return number? itemCount total count of items in inventory (for item-based consumables)
 local function ShouldShowConsumableBuff(buff)
     -- Check buff auras by spell ID
     if buff.spellID then
@@ -1372,11 +1375,15 @@ local function ShouldShowConsumableBuff(buff)
     -- Check inventory for item
     if buff.itemID then
         local itemList = type(buff.itemID) == "table" and buff.itemID or { buff.itemID }
+        local totalCount = 0
         for _, id in ipairs(itemList) do
             local ok, count = pcall(C_Item.GetItemCount, id, false, true)
-            if ok and count and count > 0 then
-                return false, nil -- Has the item in inventory
+            if ok and count then
+                totalCount = totalCount + count
             end
+        end
+        if totalCount > 0 then
+            return false, nil, nil, totalCount -- Has the item in inventory
         end
     end
 
@@ -1562,6 +1569,7 @@ function BuffState.Refresh()
         entry.eatingExpirationTime = nil
         entry.petActions = nil
         entry.dynamicIcon = nil
+        entry.glowKindOverride = nil
     end
 
     -- Build valid unit cache once per refresh cycle
@@ -1659,7 +1667,10 @@ function BuffState.Refresh()
                             nil, -- skipSpellKnownCheck
                             buff.requiresBuffWithEnchant
                         )
-                        if shouldShow then
+                        -- showWhenPresent inverts the logic (e.g., Burning Rush: show when active)
+                        local wantPresent = buff.showWhenPresent
+                        local show = (wantPresent and shouldShow == false) or (not wantPresent and shouldShow)
+                        if show then
                             SetEntryText(entry, buff.overlayText, selfMissGlow)
                             entry.iconByRole = buff.iconByRole
                             if buff.getNextCastID then
@@ -1671,6 +1682,7 @@ function BuffState.Refresh()
                             end
                         elseif
                             shouldShow == false
+                            and not wantPresent
                             and not buff.enchantID
                             and not buff.noExpirationGlow
                             and not hideExpiring
@@ -1717,6 +1729,15 @@ function BuffState.Refresh()
                 and inInstanceEntry
                 and (not buff.casterClass or buff.casterClass == playerClass)
             local readyCheckOk = not buff.readyCheckOnly or inReadyCheck
+            -- Soulstone visibility mode overrides readyCheckOnly
+            if buff.key == "soulstone" and not readyCheckOk then
+                local ssMode = db.defaults and db.defaults.soulstoneVisibility or "readyCheck"
+                if ssMode == "always" then
+                    readyCheckOk = true
+                elseif ssMode == "casterOnly" then
+                    readyCheckOk = playerClass == "WARLOCK"
+                end
+            end
             if not readyCheckOk and not instanceEntryOk then
                 local overrides = db.readyCheckOnlyOverrides
                 local overrideKey = buff.groupId or buff.key
@@ -1736,7 +1757,15 @@ function BuffState.Refresh()
                         end
                     else
                         local hasBuff, minRemaining, targetEntry = HasPresenceBuff(buff.spellID, scope.playerOnly)
-                        if not hasBuff then
+                        -- customCheck gates display (e.g., soulstone CD tracking for warlocks)
+                        local customOk = true
+                        if not hasBuff and buff.customCheck then
+                            local result = buff.customCheck(isAuraRestricted)
+                            if result == false then
+                                customOk = false
+                            end
+                        end
+                        if not hasBuff and customOk then
                             SetEntryText(entry, buff.overlayText, presMissGlow)
                         elseif not buff.noExpirationGlow and not hideExpiring then
                             TrySetEntryExpiring(entry, minRemaining, presThreshold, presExGlow)
@@ -1901,9 +1930,21 @@ function BuffState.Refresh()
                             SetEntryText(entry, buff.overlayText, consMissGlow)
                         end
                     else
-                        local shouldShow, remainingTime, activeSpellID = ShouldShowConsumableBuff(buff)
+                        local shouldShow, remainingTime, activeSpellID, itemCount = ShouldShowConsumableBuff(buff)
                         if shouldShow then
                             SetEntryText(entry, buff.overlayText, consMissGlow)
+                        elseif
+                            buff.key == "healthstone"
+                            and itemCount
+                            and db.defaults
+                            and db.defaults.healthstoneLowStock
+                        then
+                            -- Healthstone low-stock check: show with expiring glow when at or below threshold
+                            local hsThreshold = db.defaults.healthstoneThreshold or 1
+                            if itemCount <= hsThreshold then
+                                SetEntryText(entry, tostring(itemCount), consMissGlow)
+                                entry.glowKindOverride = "expiring"
+                            end
                         elseif not buff.noExpirationGlow and not hideExpiring then
                             if TrySetEntryExpiring(entry, remainingTime, consThreshold, consExGlow) then
                                 if activeSpellID and type(buff.spellID) == "table" then
