@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1979, "DBM-Party-Legion", 13, 945)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260326003821")
+mod:SetRevision("20260401091148")
 mod:SetCreatureID(124871)
 mod:SetEncounterID(2065)
 mod:SetUsedIcons(1)
@@ -25,7 +25,6 @@ if DBM:IsPostMidnight() then
 	mod:AddPrivateAuraSoundOption(244588, true, 244588, 2, 1, "watchfeet", 8)--Void Sludge (GTFO)
 
 	function mod:OnLimitedCombatStart()
-		self:DisableSpecialWarningSounds()
 		self:EnableAlertOptions(1268916, 223, "frontal", 15)
 		self:EnableAlertOptions(1263399, 225, "mobsoon", 2)
 		if self:IsTank() then
