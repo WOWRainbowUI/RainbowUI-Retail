@@ -170,67 +170,68 @@ BR.CONSUMABLE_ITEMS = {
         -- [260286] = true, -- Shrooms and Nectar
         -- [260299] = true, -- Roasted Abyssal Eel
     },
-    -- Flask entries: { label, badge } for regular, { label, badge, priority } for fleeting/cauldron
-    -- badge = quality rank (R1/R2/R3), priority = sort order (fleeting sort first)
+    -- Flask entries: { label } for regular, { label, priority } for fleeting/cauldron
+    -- Quality is detected dynamically from item link atlas (shows tier icons instead of R1/R2/R3 text)
+    -- priority = sort order (fleeting sort first)
     flask = {
-        -- TWW 11.0.0 (3 tiers: R1 gold, R2 silver, R3 bronze)
-        [212269] = { label = "Crit", badge = "R1" }, -- Flask of Tempered Aggression
-        [212270] = { label = "Crit", badge = "R2" }, -- Flask of Tempered Aggression (quality 2)
-        [212271] = { label = "Crit", badge = "R3" }, -- Flask of Tempered Aggression (quality 3)
-        [212272] = { label = "Haste", badge = "R1" }, -- Flask of Tempered Swiftness
-        [212273] = { label = "Haste", badge = "R2" }, -- Flask of Tempered Swiftness (quality 2)
-        [212274] = { label = "Haste", badge = "R3" }, -- Flask of Tempered Swiftness (quality 3)
-        [212275] = { label = "Vers", badge = "R1" }, -- Flask of Tempered Versatility
-        [212276] = { label = "Vers", badge = "R2" }, -- Flask of Tempered Versatility (quality 2)
-        [212277] = { label = "Vers", badge = "R3" }, -- Flask of Tempered Versatility (quality 3)
-        [212278] = { label = "Mast", badge = "R1" }, -- Flask of Tempered Mastery
-        [212279] = { label = "Mast", badge = "R2" }, -- Flask of Tempered Mastery (quality 2)
-        [212280] = { label = "Mast", badge = "R3" }, -- Flask of Tempered Mastery (quality 3)
-        [212281] = { label = "Rand", badge = "R1" }, -- Flask of Alchemical Chaos
-        [212282] = { label = "Rand", badge = "R2" }, -- Flask of Alchemical Chaos (quality 2)
-        [212283] = { label = "Rand", badge = "R3" }, -- Flask of Alchemical Chaos (quality 3)
-        [212299] = { label = "Heal", badge = "R1" }, -- Flask of Saving Graces
-        [212300] = { label = "Heal", badge = "R2" }, -- Flask of Saving Graces (quality 2)
-        [212301] = { label = "Heal", badge = "R3" }, -- Flask of Saving Graces (quality 3)
-        -- TWW 11.0.0 (fleeting/cauldron, 3 tiers)
-        [212725] = { label = "Crit", badge = "F1", priority = 1 }, -- Fleeting Flask of Tempered Aggression
-        [212727] = { label = "Crit", badge = "F2", priority = 1 }, -- Fleeting Flask of Tempered Aggression (quality 2)
-        [212728] = { label = "Crit", badge = "F3", priority = 1 }, -- Fleeting Flask of Tempered Aggression (quality 3)
-        [212729] = { label = "Haste", badge = "F1", priority = 1 }, -- Fleeting Flask of Tempered Swiftness
-        [212730] = { label = "Haste", badge = "F2", priority = 1 }, -- Fleeting Flask of Tempered Swiftness (quality 2)
-        [212731] = { label = "Haste", badge = "F3", priority = 1 }, -- Fleeting Flask of Tempered Swiftness (quality 3)
-        [212732] = { label = "Vers", badge = "F1", priority = 1 }, -- Fleeting Flask of Tempered Versatility
-        [212733] = { label = "Vers", badge = "F2", priority = 1 }, -- Fleeting Flask of Tempered Versatility (quality 2)
-        [212734] = { label = "Vers", badge = "F3", priority = 1 }, -- Fleeting Flask of Tempered Versatility (quality 3)
-        [212735] = { label = "Mast", badge = "F1", priority = 1 }, -- Fleeting Flask of Tempered Mastery
-        [212736] = { label = "Mast", badge = "F2", priority = 1 }, -- Fleeting Flask of Tempered Mastery (quality 2)
-        [212738] = { label = "Mast", badge = "F3", priority = 1 }, -- Fleeting Flask of Tempered Mastery (quality 3)
-        [212739] = { label = "Rand", badge = "F1", priority = 1 }, -- Fleeting Flask of Alchemical Chaos
-        [212740] = { label = "Rand", badge = "F2", priority = 1 }, -- Fleeting Flask of Alchemical Chaos (quality 2)
-        [212741] = { label = "Rand", badge = "F3", priority = 1 }, -- Fleeting Flask of Alchemical Chaos (quality 3)
-        [212745] = { label = "Heal", badge = "F1", priority = 1 }, -- Fleeting Flask of Saving Graces
-        [212746] = { label = "Heal", badge = "F2", priority = 1 }, -- Fleeting Flask of Saving Graces (quality 2)
-        [212747] = { label = "Heal", badge = "F3", priority = 1 }, -- Fleeting Flask of Saving Graces (quality 3)
-        -- Midnight 12.0.0 (2 tiers: R1 gold, R2 silver)
-        [241320] = { label = "Vers", badge = "R1" }, -- Flask of Thalassian Resistance
-        [241321] = { label = "Vers", badge = "R2" }, -- Flask of Thalassian Resistance (quality 2)
-        [241322] = { label = "Mast", badge = "R1" }, -- Flask of the Magisters
-        [241323] = { label = "Mast", badge = "R2" }, -- Flask of the Magisters (quality 2)
-        [241324] = { label = "Haste", badge = "R1" }, -- Flask of the Blood Knights
-        [241325] = { label = "Haste", badge = "R2" }, -- Flask of the Blood Knights (quality 2)
-        [241326] = { label = "Crit", badge = "R1" }, -- Flask of the Shattered Sun
-        [241327] = { label = "Crit", badge = "R2" }, -- Flask of the Shattered Sun (quality 2)
-        [241334] = { label = "PvP", badge = "R1" }, -- Vicious Thalassian Flask of Honor
-        [241335] = { label = "PvP", badge = "R2" }, -- Vicious Thalassian Flask of Honor (quality 2)
-        -- Midnight 12.0.0 (fleeting, 2 tiers)
-        [245926] = { label = "Vers", badge = "F2", priority = 1 }, -- Fleeting Flask of Thalassian Resistance (quality 2)
-        [245927] = { label = "Vers", badge = "F1", priority = 1 }, -- Fleeting Flask of Thalassian Resistance
-        [245928] = { label = "Crit", badge = "F2", priority = 1 }, -- Fleeting Flask of the Shattered Sun (quality 2)
-        [245929] = { label = "Crit", badge = "F1", priority = 1 }, -- Fleeting Flask of the Shattered Sun
-        [245930] = { label = "Haste", badge = "F2", priority = 1 }, -- Fleeting Flask of the Blood Knights (quality 2)
-        [245931] = { label = "Haste", badge = "F1", priority = 1 }, -- Fleeting Flask of the Blood Knights
-        [245932] = { label = "Mast", badge = "F2", priority = 1 }, -- Fleeting Flask of the Magisters (quality 2)
-        [245933] = { label = "Mast", badge = "F1", priority = 1 }, -- Fleeting Flask of the Magisters
+        -- TWW 11.0.0 (3 quality tiers)
+        [212269] = { label = "Crit" }, -- Flask of Tempered Aggression
+        [212270] = { label = "Crit" }, -- Flask of Tempered Aggression (quality 2)
+        [212271] = { label = "Crit" }, -- Flask of Tempered Aggression (quality 3)
+        [212272] = { label = "Haste" }, -- Flask of Tempered Swiftness
+        [212273] = { label = "Haste" }, -- Flask of Tempered Swiftness (quality 2)
+        [212274] = { label = "Haste" }, -- Flask of Tempered Swiftness (quality 3)
+        [212275] = { label = "Vers" }, -- Flask of Tempered Versatility
+        [212276] = { label = "Vers" }, -- Flask of Tempered Versatility (quality 2)
+        [212277] = { label = "Vers" }, -- Flask of Tempered Versatility (quality 3)
+        [212278] = { label = "Mast" }, -- Flask of Tempered Mastery
+        [212279] = { label = "Mast" }, -- Flask of Tempered Mastery (quality 2)
+        [212280] = { label = "Mast" }, -- Flask of Tempered Mastery (quality 3)
+        [212281] = { label = "Rand" }, -- Flask of Alchemical Chaos
+        [212282] = { label = "Rand" }, -- Flask of Alchemical Chaos (quality 2)
+        [212283] = { label = "Rand" }, -- Flask of Alchemical Chaos (quality 3)
+        [212299] = { label = "Heal" }, -- Flask of Saving Graces
+        [212300] = { label = "Heal" }, -- Flask of Saving Graces (quality 2)
+        [212301] = { label = "Heal" }, -- Flask of Saving Graces (quality 3)
+        -- TWW 11.0.0 (fleeting/cauldron, 3 quality tiers)
+        [212725] = { label = "Crit", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Aggression
+        [212727] = { label = "Crit", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Aggression (quality 2)
+        [212728] = { label = "Crit", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Aggression (quality 3)
+        [212729] = { label = "Haste", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Swiftness
+        [212730] = { label = "Haste", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Swiftness (quality 2)
+        [212731] = { label = "Haste", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Swiftness (quality 3)
+        [212732] = { label = "Vers", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Versatility
+        [212733] = { label = "Vers", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Versatility (quality 2)
+        [212734] = { label = "Vers", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Versatility (quality 3)
+        [212735] = { label = "Mast", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Mastery
+        [212736] = { label = "Mast", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Mastery (quality 2)
+        [212738] = { label = "Mast", badge = "F", priority = 1 }, -- Fleeting Flask of Tempered Mastery (quality 3)
+        [212739] = { label = "Rand", badge = "F", priority = 1 }, -- Fleeting Flask of Alchemical Chaos
+        [212740] = { label = "Rand", badge = "F", priority = 1 }, -- Fleeting Flask of Alchemical Chaos (quality 2)
+        [212741] = { label = "Rand", badge = "F", priority = 1 }, -- Fleeting Flask of Alchemical Chaos (quality 3)
+        [212745] = { label = "Heal", badge = "F", priority = 1 }, -- Fleeting Flask of Saving Graces
+        [212746] = { label = "Heal", badge = "F", priority = 1 }, -- Fleeting Flask of Saving Graces (quality 2)
+        [212747] = { label = "Heal", badge = "F", priority = 1 }, -- Fleeting Flask of Saving Graces (quality 3)
+        -- Midnight 12.0.0 (2 quality tiers)
+        [241320] = { label = "Vers" }, -- Flask of Thalassian Resistance
+        [241321] = { label = "Vers" }, -- Flask of Thalassian Resistance (quality 2)
+        [241322] = { label = "Mast" }, -- Flask of the Magisters
+        [241323] = { label = "Mast" }, -- Flask of the Magisters (quality 2)
+        [241324] = { label = "Haste" }, -- Flask of the Blood Knights
+        [241325] = { label = "Haste" }, -- Flask of the Blood Knights (quality 2)
+        [241326] = { label = "Crit" }, -- Flask of the Shattered Sun
+        [241327] = { label = "Crit" }, -- Flask of the Shattered Sun (quality 2)
+        [241334] = { label = "PvP" }, -- Vicious Thalassian Flask of Honor
+        [241335] = { label = "PvP" }, -- Vicious Thalassian Flask of Honor (quality 2)
+        -- Midnight 12.0.0 (fleeting, 2 quality tiers)
+        [245926] = { label = "Vers", badge = "F", priority = 1 }, -- Fleeting Flask of Thalassian Resistance (quality 2)
+        [245927] = { label = "Vers", badge = "F", priority = 1 }, -- Fleeting Flask of Thalassian Resistance
+        [245928] = { label = "Crit", badge = "F", priority = 1 }, -- Fleeting Flask of the Shattered Sun (quality 2)
+        [245929] = { label = "Crit", badge = "F", priority = 1 }, -- Fleeting Flask of the Shattered Sun
+        [245930] = { label = "Haste", badge = "F", priority = 1 }, -- Fleeting Flask of the Blood Knights (quality 2)
+        [245931] = { label = "Haste", badge = "F", priority = 1 }, -- Fleeting Flask of the Blood Knights
+        [245932] = { label = "Mast", badge = "F", priority = 1 }, -- Fleeting Flask of the Magisters (quality 2)
+        [245933] = { label = "Mast", badge = "F", priority = 1 }, -- Fleeting Flask of the Magisters
     },
     -- Rune priority: lower number = use first (Ethereal > Soulgorged > Crystallized > legacy)
     rune = {

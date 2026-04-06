@@ -55,6 +55,7 @@ L["Overlay.NoAttune"] = "無\n同調"
 L["Overlay.NoFamiliar"] = "無\n魔寵"
 L["Overlay.DropWell"] = "放\n糖門"
 L["Overlay.NoGrim"] = "無\n魔典"
+L["Overlay.BurningRush"] = "燃燒衝鋒"
 L["Overlay.NoRite"] = "無\n儀式"
 L["Overlay.ApplyPoison"] = "上\n毒"
 L["Overlay.NoForm"] = "無\n形態"
@@ -153,7 +154,8 @@ L["Display.SlashCommands"] = "斜線指令：/br, /br lock, /br unlock, /br test
 L["Display.MinimapLeftClick"] = "|cFFCFCFCF左鍵點擊|r：選項"
 L["Display.MinimapRightClick"] = "|cFFCFCFCF右鍵點擊|r：測試模式"
 L["Display.DismissConsumables"] = "隱藏消耗品提醒直到下次讀取畫面"
-L["Display.LoginDkRunes"] = "已新增死騎符文鍛造提醒。若你使用非標準配置，可透過增益列表中符文旁的齒輪圖示，依專精自訂要追蹤的符文鍛造。"
+L["Display.LoginFirstInstall"] = "感謝安裝！輸入 |cFFFFD100/br unlock|r 可移動增益顯示位置，或使用 |cFFFFD100/br|r 選項面板底部的按鈕。"
+L["Display.LoginGearIcons"] = "部分增益設定（治療石、靈魂石、寵物）已移至「增益」頁籤中各核取方塊旁的齒輪圖示。"
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -222,7 +224,6 @@ L["Options.DetachIcon.Desc"] = "將此圖示移至可獨立定位的框架"
 -- ============================================================================
 -- OPTIONS: HEALTHSTONE
 -- ============================================================================
-L["Options.Healthstone"] = "治療石"
 L["Options.Healthstone.ReadyCheckOnly"] = "僅確認準備"
 L["Options.Healthstone.ReadyCheckWarlock"] = "確認準備 + 術士永遠顯示"
 L["Options.Healthstone.AlwaysShow"] = "永遠顯示"
@@ -232,6 +233,24 @@ L["Options.Healthstone.Visibility.Desc"] =
 L["Options.Healthstone.WarlockAlwaysDesc"] = "術士永遠可見提醒；其他職業僅在確認準備時顯示"
 L["Options.Healthstone.ReadyCheckDesc"] = "在確認準備開始後的 15 秒內顯示"
 L["Options.Healthstone.AlwaysDesc"] = "只要符合內容類型就會顯示"
+L["Options.Healthstone.LowStock"] = "存量不足時警告"
+L["Options.Healthstone.LowStock.Desc"] = "當你有治療石但數量不足時顯示提示。未持有治療石（0顆）的情況無論此設定為何皆會追蹤。"
+L["Options.Healthstone.Threshold"] = "警告門檻"
+L["Options.Healthstone.Threshold.Desc"] = "當治療石數量等於或少於此數值時顯示存量不足警告。\n\n|cffffcc001:|r 剩餘恰好1顆時警告。\n|cffffcc002:|r 剩餘1或2顆時警告。"
+
+-- ============================================================================
+-- OPTIONS: SOULSTONE
+-- ============================================================================
+L["Options.Soulstone.Visibility"] = "靈魂石顯示時機"
+L["Options.Soulstone.Visibility.Desc"] = "控制靈魂石提醒的出現時機。\n\n|cffffcc00僅準備確認:|r 僅在準備確認時顯示（預設）。\n|cffffcc00準備確認＋術士常駐:|r 術士永遠看得到；其他職業僅在準備確認時顯示。\n|cffffcc00永遠顯示:|r 只要在場狀態類別可見即顯示。"
+L["Options.Soulstone.ReadyCheckOnly"] = "僅準備確認"
+L["Options.Soulstone.ReadyCheckWarlock"] = "準備確認＋術士常駐"
+L["Options.Soulstone.AlwaysShow"] = "永遠顯示"
+L["Options.Soulstone.ReadyCheckDesc"] = "準備確認發起後顯示15秒"
+L["Options.Soulstone.WarlockAlwaysDesc"] = "術士永遠看得到；其他職業僅在準備確認時顯示"
+L["Options.Soulstone.AlwaysDesc"] = "只要在場狀態類別可見即顯示"
+L["Options.Soulstone.HideCooldown"] = "冷卻中隱藏（術士）"
+L["Options.Soulstone.HideCooldown.Desc"] = "啟用後，術士在靈魂石法術冷卻期間將不會看到提醒。僅對術士生效。"
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -335,6 +354,18 @@ L["Options.RuneMainHand"] = "主手"
 L["Options.RuneOffHand"] = "副手"
 L["Options.RuneTwoHanded"] = "雙手"
 L["Options.RuneDualWield"] = "雙持"
+
+-- ============================================================================
+-- OPTIONS: BUFF SETTINGS GEAR ICONS
+-- ============================================================================
+L["Options.HealthstoneSettings"] = "治療石設定"
+L["Options.HealthstoneSettings.Note"] = "設定顯示條件與存量不足門檻。"
+L["Options.SoulstoneSettings"] = "靈魂石設定"
+L["Options.SoulstoneSettings.Note"] = "設定靈魂石提醒的出現時機。"
+L["Options.PetPassiveSettings"] = "寵物被動提醒設定"
+L["Options.PetPassiveSettings.Note"] = "設定被動寵物提醒。"
+L["Options.PetSummonSettings"] = "寵物召喚設定"
+L["Options.PetSummonSettings.Note"] = "設定寵物召喚行為。"
 
 -- ============================================================================
 -- OPTIONS: LAYOUT

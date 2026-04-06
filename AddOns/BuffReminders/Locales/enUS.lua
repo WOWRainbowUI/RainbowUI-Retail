@@ -62,6 +62,7 @@ english["Overlay.NoAttune"] = "NO\nATTUNE"
 english["Overlay.NoFamiliar"] = "NO\nFAMILIAR"
 english["Overlay.DropWell"] = "DROP\nWELL"
 english["Overlay.NoGrim"] = "NO\nGRIM"
+english["Overlay.BurningRush"] = "RUSH"
 english["Overlay.NoRite"] = "NO\nRITE"
 english["Overlay.ApplyPoison"] = "APPLY\nPOISON"
 english["Overlay.NoForm"] = "NO\nFORM"
@@ -160,8 +161,10 @@ english["Display.SlashCommands"] = "Slash commands: /br, /br lock, /br unlock, /
 english["Display.MinimapLeftClick"] = "|cFFCFCFCFLeft click|r: Options"
 english["Display.MinimapRightClick"] = "|cFFCFCFCFRight click|r: Test mode"
 english["Display.DismissConsumables"] = "Hide consumable reminders until next loading screen"
-english["Display.LoginDkRunes"] =
-    "DK runeforge reminders have been added. If you use a non-standard setup, you can customize which runeforges to track per spec via the gear icon next to Runes in the Buffs tab."
+english["Display.LoginFirstInstall"] =
+    "Thanks for installing! Type |cFFFFD100/br unlock|r to move the buff display, or use the button at the bottom of the |cFFFFD100/br|r options panel."
+english["Display.LoginGearIcons"] =
+    "Some buff settings (healthstone, soulstone, pets) have moved to gear icons next to their checkboxes in the Buffs tab."
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -231,7 +234,6 @@ english["Options.DetachIcon.Desc"] = "Move this icon to its own independently-po
 -- ============================================================================
 -- OPTIONS: HEALTHSTONE
 -- ============================================================================
-english["Options.Healthstone"] = "Healthstone"
 english["Options.Healthstone.ReadyCheckOnly"] = "Ready check only"
 english["Options.Healthstone.ReadyCheckWarlock"] = "Ready check + warlock always"
 english["Options.Healthstone.AlwaysShow"] = "Always show"
@@ -241,6 +243,28 @@ english["Options.Healthstone.Visibility.Desc"] =
 english["Options.Healthstone.WarlockAlwaysDesc"] = "Warlocks always see the reminder; other classes only on ready check"
 english["Options.Healthstone.ReadyCheckDesc"] = "Show for 15 seconds after a ready check starts"
 english["Options.Healthstone.AlwaysDesc"] = "Show whenever the content type matches"
+english["Options.Healthstone.LowStock"] = "Warn when low"
+english["Options.Healthstone.LowStock.Desc"] =
+    "Show a soft warning when you have healthstones but not enough. Missing healthstones (0) are always tracked regardless of this setting."
+english["Options.Healthstone.Threshold"] = "Warn when having"
+english["Options.Healthstone.Threshold.Desc"] =
+    "Show a low-stock warning when you have this many healthstones or fewer.\n\n|cffffcc001:|r Warn when you have exactly 1.\n|cffffcc002:|r Warn when you have 1 or 2."
+
+-- ============================================================================
+-- OPTIONS: SOULSTONE
+-- ============================================================================
+english["Options.Soulstone.Visibility"] = "Soulstone visibility"
+english["Options.Soulstone.Visibility.Desc"] =
+    "Controls when the soulstone reminder appears.\n\n|cffffcc00Ready check only:|r Only during ready checks (default).\n|cffffcc00Ready check + warlock always:|r Warlocks always see it; others only on ready check.\n|cffffcc00Always show:|r Visible whenever the presence category is visible."
+english["Options.Soulstone.ReadyCheckOnly"] = "Ready check only"
+english["Options.Soulstone.ReadyCheckWarlock"] = "Ready check + warlock always"
+english["Options.Soulstone.AlwaysShow"] = "Always show"
+english["Options.Soulstone.ReadyCheckDesc"] = "Show for 15 seconds after a ready check starts"
+english["Options.Soulstone.WarlockAlwaysDesc"] = "Warlocks always see it; other classes only on ready check"
+english["Options.Soulstone.AlwaysDesc"] = "Show whenever the presence category is visible"
+english["Options.Soulstone.HideCooldown"] = "Hide when on cooldown (warlock)"
+english["Options.Soulstone.HideCooldown.Desc"] =
+    "When enabled, warlocks won't see the soulstone reminder while the spell is on cooldown. Only applies to warlocks."
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -345,6 +369,18 @@ english["Options.RuneMainHand"] = "Main Hand"
 english["Options.RuneOffHand"] = "Off Hand"
 english["Options.RuneTwoHanded"] = "Two-Handed"
 english["Options.RuneDualWield"] = "Dual Wield"
+
+-- ============================================================================
+-- OPTIONS: BUFF SETTINGS GEAR ICONS
+-- ============================================================================
+english["Options.HealthstoneSettings"] = "Healthstone Settings"
+english["Options.HealthstoneSettings.Note"] = "Configure visibility and low stock threshold."
+english["Options.SoulstoneSettings"] = "Soulstone Settings"
+english["Options.SoulstoneSettings.Note"] = "Configure when the soulstone reminder appears."
+english["Options.PetPassiveSettings"] = "Pet Passive Settings"
+english["Options.PetPassiveSettings.Note"] = "Configure the passive pet reminder."
+english["Options.PetSummonSettings"] = "Pet Summon Settings"
+english["Options.PetSummonSettings.Note"] = "Configure pet summoning behavior."
 
 -- ============================================================================
 -- OPTIONS: LAYOUT

@@ -7,6 +7,7 @@ local min = math.min
 
 -- WoW API locals
 local GetSpellTexture = C_Spell.GetSpellTexture
+local _, playerClass = UnitClass("player")
 
 -- ============================================================================
 -- BUFF DATA TABLES
@@ -109,6 +110,7 @@ BR.DK_RUNEFORGES = DK_RUNEFORGES
 ---@field getPetActions? fun(): PetAction[]?  -- Override pet actions (e.g., wrong pet → Felguard only)
 ---@field glowDetectable? boolean Use action bar glow as fallback detection when aura API is restricted
 ---@field showOnInstanceEntry? boolean Only show when entering an instance (not M+), skip normal buff checks
+---@field showWhenPresent? boolean Show when buff IS active (inverts normal "show when missing" logic)
 ---@field noExpirationGlow? boolean Suppress expiration glow (for permanent enchants or intentionally short buffs)
 ---@field skipSpellKnownCheck? boolean Skip the "player knows spell" check (for custom/dynamic entries)
 
@@ -399,6 +401,24 @@ BR.BUFF_TABLES = {
             readyCheckOnly = true,
             castOnOthers = true,
             noExpirationGlow = true,
+            customCheck = function(isRestricted)
+                -- CD tracking for warlocks only, gated by setting
+                if playerClass ~= "WARLOCK" then
+                    return nil
+                end
+                local db = BR.profile
+                if not (db.defaults and db.defaults.soulstoneHideCooldown) then
+                    return nil -- Setting off: no opinion, rely on aura presence
+                end
+                if isRestricted then
+                    return false
+                end
+                local ok, result = pcall(function()
+                    local info = C_Spell.GetSpellCooldown(20707)
+                    return not info or info.duration == 0
+                end)
+                return not ok or result
+            end,
             clickMacro = function(spellID)
                 local name = BR.GetSpellName(spellID) or ""
                 -- Priority: sticky last target > first living healer > mouseover > target > self
@@ -459,6 +479,17 @@ BR.BUFF_TABLES = {
             clickMacro = TargetedClickMacro("beaconOfLight"),
         },
         {
+            spellID = 360827,
+            key = "blisteringScales",
+            name = "灼熱鱗甲",
+            class = "EVOKER",
+            beneficiaryRole = "TANK",
+            overlayText = L["Overlay.NoScales"],
+            requireSpecId = 1473, -- Augmentation
+            requiresSpellID = 360827,
+            clickMacro = TargetedClickMacro("blisteringScales"),
+        },
+        {
             spellID = 974,
             key = "earthShieldOthers",
             name = "大地之盾",
@@ -480,17 +511,6 @@ BR.BUFF_TABLES = {
             clickMacro = TargetedClickMacro("sourceOfMagic"),
         },
         {
-            spellID = 360827,
-            key = "blisteringScales",
-            name = "爆裂鱗片",
-            class = "EVOKER",
-            beneficiaryRole = "TANK",
-            overlayText = L["Overlay.NoScales"],
-            requireSpecId = 1473, -- Augmentation
-            requiresSpellID = 360827,
-            clickMacro = TargetedClickMacro("blisteringScales"),
-        },
-        {
             spellID = 474750,
             casterBuffId = 474754, -- Check this combat-whitelisted buff on the caster instead of scanning group
             key = "symbioticRelationship",
@@ -502,11 +522,139 @@ BR.BUFF_TABLES = {
     },
     ---@type SelfBuff[]
     self = {
+        -- Mage Arcane Familiar
+        {
+            spellID = 205022,
+            buffIdOverride = 210126,
+            castSpellID = 1459,
+            key = "arcaneFamiliar",
+            name = "秘法使魔",
+            class = "MAGE",
+            overlayText = L["Overlay.NoFamiliar"],
+        },
+        -- Evoker Augmentation attunement (Black 403264 / Bronze 403265, player picks one)
+        {
+            spellID = { 403264, 403265 },
+            key = "evokerAttunement",
+            name = "調諧",
+            class = "EVOKER",
+            overlayText = L["Overlay.NoAttune"],
+            requireSpecId = 1473, -- Augmentation
+            requiresSpellID = 403208, -- Attunements talent
+        },
+        -- Soulwell reminder (warlock only, instance entry only)
+        {
+            spellID = 29893, -- Create Soulwell (used for icon resolution)
+            castSpellID = 29893, -- Click-to-cast: Create Soulwell
+            key = "soulwell",
+            name = "創造靈魂之泉",
+            class = "WARLOCK",
+            overlayText = L["Overlay.DropWell"],
+            showOnInstanceEntry = true, -- Only shows on instance entry
+            infoTooltip = {
+                title = L["Tooltip.InstanceEntryReminder"],
+                desc = L["Tooltip.InstanceEntryReminder.Desc"],
+            },
+            customCheck = function(isRestricted)
+                -- Cooldown API returns tainted values during combat/encounters/M+
+                if isRestricted then
+                    return false
+                end
+                local ok, result = pcall(function()
+                    local info = C_Spell.GetSpellCooldown(29893)
+                    return not info or info.duration == 0
+                end)
+                return not ok or result
+            end,
+        },
+        -- Warlock Grimoire of Sacrifice
+        {
+            spellID = 108503,
+            buffIdOverride = 196099,
+            key = "grimoireOfSacrifice",
+            name = "獻祭魔典",
+            class = "WARLOCK",
+            overlayText = L["Overlay.NoGrim"],
+        },
+        -- Warlock Burning Rush (show when active — it drains health)
+        {
+            spellID = 111400,
+            key = "burningRush",
+            name = "燃燒衝鋒",
+            class = "WARLOCK",
+            overlayText = L["Overlay.BurningRush"],
+            showWhenPresent = true,
+            glowDetectable = true, -- Action bar glow fallback when aura API is restricted
+        },
+        -- Paladin weapon rites (alphabetical: Adjuration, Sanctification)
+        -- NOTE: Due to a Blizzard bug, when changing talents the buff drops but enchant remains.
+        -- The effect doesn't work without the buff, so we check for BOTH enchant AND buff.
+        {
+            spellID = 433583,
+            key = "riteOfAdjuration",
+            name = "懇求聖禮",
+            class = "PALADIN",
+            overlayText = L["Overlay.NoRite"],
+            enchantID = 7144,
+            buffIdOverride = 433584, -- Actual buff ID on player
+            requiresBuffWithEnchant = true,
+            clickMacro = function(spellID)
+                return "/cast " .. (BR.GetSpellName(spellID) or "") .. "\n/use 16"
+            end,
+            groupId = "paladinRites",
+        },
+        {
+            spellID = 433568,
+            key = "riteOfSanctification",
+            name = "聖化聖禮",
+            class = "PALADIN",
+            overlayText = L["Overlay.NoRite"],
+            enchantID = 7143,
+            buffIdOverride = 433550, -- Actual buff ID on player
+            requiresBuffWithEnchant = true,
+            clickMacro = function(spellID)
+                return "/cast " .. (BR.GetSpellName(spellID) or "") .. "\n/use 16"
+            end,
+            groupId = "paladinRites",
+        },
+        -- Rogue poisons: lethal (Instant, Wound, Deadly, Amplifying) and non-lethal (Numbing, Atrophic, Crippling)
+        -- With Dragon-Tempered Blades (381801): need 2 lethal + 2 non-lethal
+        -- Without talent: need 1 lethal + 1 non-lethal
+        {
+            displayIcon = 136242, -- Deadly Poison
+            castSpellID = 315584, -- Instant Poison (baseline, ensures click-to-cast overlay is created)
+            key = "roguePoisons",
+            name = "盜賊毒藥",
+            class = "ROGUE",
+            overlayText = L["Overlay.ApplyPoison"],
+            customCheck = function()
+                RefreshPoisonCache()
+                -- Don't show if the player hasn't learned any poisons yet (e.g. low-level rogue)
+                if poisonCache.knownL == 0 and poisonCache.knownNL == 0 then
+                    return nil
+                end
+                return poisonCache.activeL < poisonCache.requiredL or poisonCache.activeNL < poisonCache.requiredNL
+            end,
+            getNextCastID = GetNextPoisonCastID,
+            getExpirationInfo = GetPoisonExpirationInfo,
+            clickMacro = function()
+                local castID = GetNextPoisonCastID()
+                if not castID then
+                    -- Nothing missing — fall back to soonest-expiring poison for re-application
+                    local _, expiringID = GetPoisonExpirationInfo()
+                    castID = expiringID
+                end
+                if castID then
+                    return "/cast " .. (BR.GetSpellName(castID) or "")
+                end
+                return ""
+            end,
+        },
         -- DK Runeforge (Main Hand) — reminder when MH enchant doesn't match configured preference
         {
             displayIcon = 237523, -- Runeforging icon
             key = "dkRuneMH",
-            name = "Runeforge (Main Hand)",
+            name = "符文鍛造 (主手)",
             class = "DEATHKNIGHT",
             overlayText = L["Overlay.DKWrongRune"],
             noExpirationGlow = true,
@@ -552,7 +700,7 @@ BR.BUFF_TABLES = {
         {
             displayIcon = 237523, -- Runeforging icon (same as MH, deduped in options)
             key = "dkRuneOH",
-            name = "Runeforge (Off Hand)",
+            name = "符文鍛造 (副手)",
             class = "DEATHKNIGHT",
             overlayText = L["Overlay.DKWrongRuneOH"],
             noExpirationGlow = true,
@@ -586,124 +734,6 @@ BR.BUFF_TABLES = {
                         end
                     end
                 end
-            end,
-        },
-        -- Evoker Augmentation attunement (Black 403264 / Bronze 403265, player picks one)
-        {
-            spellID = { 403264, 403265 },
-            key = "evokerAttunement",
-            name = "同調",
-            class = "EVOKER",
-            overlayText = L["Overlay.NoAttune"],
-            requireSpecId = 1473, -- Augmentation
-            requiresSpellID = 403208, -- Attunements talent
-        },
-        -- Mage Arcane Familiar
-        {
-            spellID = 205022,
-            buffIdOverride = 210126,
-            castSpellID = 1459,
-            key = "arcaneFamiliar",
-            name = "秘法魔寵",
-            class = "MAGE",
-            overlayText = L["Overlay.NoFamiliar"],
-        },
-        -- Soulwell reminder (warlock only, instance entry only)
-        {
-            spellID = 29893, -- Create Soulwell (used for icon resolution)
-            castSpellID = 29893, -- Click-to-cast: Create Soulwell
-            key = "soulwell",
-            name = "製造靈魂之井",
-            class = "WARLOCK",
-            overlayText = L["Overlay.DropWell"],
-            showOnInstanceEntry = true, -- Only shows on instance entry
-            infoTooltip = {
-                title = L["Tooltip.InstanceEntryReminder"],
-                desc = L["Tooltip.InstanceEntryReminder.Desc"],
-            },
-            customCheck = function(isRestricted)
-                -- Cooldown API returns tainted values during combat/encounters/M+
-                if isRestricted then
-                    return false
-                end
-                local ok, result = pcall(function()
-                    local info = C_Spell.GetSpellCooldown(29893)
-                    return not info or info.duration == 0
-                end)
-                return not ok or result
-            end,
-        },
-        -- Warlock Grimoire of Sacrifice
-        {
-            spellID = 108503,
-            buffIdOverride = 196099,
-            key = "grimoireOfSacrifice",
-            name = "犧牲魔典",
-            class = "WARLOCK",
-            overlayText = L["Overlay.NoGrim"],
-        },
-        -- Paladin weapon rites (alphabetical: Adjuration, Sanctification)
-        -- NOTE: Due to a Blizzard bug, when changing talents the buff drops but enchant remains.
-        -- The effect doesn't work without the buff, so we check for BOTH enchant AND buff.
-        {
-            spellID = 433583,
-            key = "riteOfAdjuration",
-            name = "誓絕儀式",
-            class = "PALADIN",
-            overlayText = L["Overlay.NoRite"],
-            enchantID = 7144,
-            buffIdOverride = 433584, -- Actual buff ID on player
-            requiresBuffWithEnchant = true,
-            clickMacro = function(spellID)
-                return "/cast " .. (BR.GetSpellName(spellID) or "") .. "\n/use 16"
-            end,
-            groupId = "paladinRites",
-        },
-        {
-            spellID = 433568,
-            key = "riteOfSanctification",
-            name = "聖化儀式",
-            class = "PALADIN",
-            overlayText = L["Overlay.NoRite"],
-            enchantID = 7143,
-            buffIdOverride = 433550, -- Actual buff ID on player
-            requiresBuffWithEnchant = true,
-            clickMacro = function(spellID)
-                return "/cast " .. (BR.GetSpellName(spellID) or "") .. "\n/use 16"
-            end,
-            groupId = "paladinRites",
-        },
-        -- Rogue poisons: lethal (Instant, Wound, Deadly, Amplifying) and non-lethal (Numbing, Atrophic, Crippling)
-        -- With Dragon-Tempered Blades (381801): need 2 lethal + 2 non-lethal
-        -- Without talent: need 1 lethal + 1 non-lethal
-        {
-            displayIcon = 136242, -- Deadly Poison
-            castSpellID = 315584, -- Instant Poison (baseline, ensures click-to-cast overlay is created)
-            key = "roguePoisons",
-            name = "盜賊毒藥",
-            class = "ROGUE",
-            overlayText = L["Overlay.ApplyPoison"],
-            customCheck = function()
-                RefreshPoisonCache()
-                -- Don't show if the player hasn't learned any poisons yet (e.g. low-level rogue)
-                if poisonCache.knownL == 0 and poisonCache.knownNL == 0 then
-                    return nil
-                end
-                return poisonCache.activeL < poisonCache.requiredL or poisonCache.activeNL < poisonCache.requiredNL
-            end,
-            getNextCastID = GetNextPoisonCastID,
-            getExpirationInfo = GetPoisonExpirationInfo,
-            clickMacro = function()
-                local castID = GetNextPoisonCastID()
-                if not castID then
-                    -- Nothing missing — fall back to soonest-expiring poison for re-application
-                    local _, expiringID = GetPoisonExpirationInfo()
-                    castID = expiringID
-                end
-                if castID then
-                    return "/cast " .. (BR.GetSpellName(castID) or "")
-                end
-                return ""
             end,
         },
         -- Voidform (194249) replaces Shadowform temporarily
@@ -810,20 +840,15 @@ BR.BUFF_TABLES = {
     },
     ---@type SelfBuff[]
     pet = {
-        -- Pet reminders (alphabetical: Frost Mage, Hunter, Passive, Unholy DK, Warlock)
         {
-            displayIcon = 135862, -- Summon Water Elemental
-            key = "frostMagePet",
-            name = "水元素",
-            class = "MAGE",
-            overlayText = L["Overlay.NoPet"],
-            requireSpecId = 64, -- Frost
-            requiresSpellID = 31687,
-            groupId = "pets",
-            customCheck = function()
-                return not UnitExists("pet")
-            end,
+            key = "petPassive",
+            name = "寵物被動",
+            -- No class: applies to any class with a pet
+            overlayText = L["Overlay.PassivePet"],
+            displayIcon = 132311,
+            customCheck = IsPetOnPassive,
         },
+        -- Pet reminders (alphabetical: Hunter, Unholy DK, Warlock Demon, Water Elemental, Wrong Demon)
         {
             key = "hunterPet",
             name = "獵人寵物",
@@ -840,20 +865,37 @@ BR.BUFF_TABLES = {
             end,
         },
         {
-            key = "petPassive",
-            name = "寵物被動",
-            -- No class: applies to any class with a pet
-            overlayText = L["Overlay.PassivePet"],
-            displayIcon = 132311,
-            customCheck = IsPetOnPassive,
-        },
-        {
             displayIcon = 1100170, -- Raise Dead
             key = "unholyPet",
             name = "穢邪食屍鬼",
             class = "DEATHKNIGHT",
             overlayText = L["Overlay.NoPet"],
             requireSpecId = 252, -- Unholy
+            groupId = "pets",
+            customCheck = function()
+                return not UnitExists("pet")
+            end,
+        },
+        {
+            key = "warlockPet",
+            name = "術士惡魔",
+            class = "WARLOCK",
+            overlayText = L["Overlay.NoPet"],
+            displayIcon = 136082, -- Summon Demon flyout icon
+            excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
+            groupId = "pets",
+            customCheck = function()
+                return not UnitExists("pet")
+            end,
+        },
+        {
+            displayIcon = 135862, -- Summon Water Elemental
+            key = "frostMagePet",
+            name = "水元素",
+            class = "MAGE",
+            overlayText = L["Overlay.NoPet"],
+            requireSpecId = 64, -- Frost
+            requiresSpellID = 31687,
             groupId = "pets",
             customCheck = function()
                 return not UnitExists("pet")
@@ -877,18 +919,6 @@ BR.BUFF_TABLES = {
             end,
             getPetActions = function()
                 return BR.PetHelpers.GetFelguardAction()
-            end,
-        },
-        {
-            key = "warlockPet",
-            name = "術士惡魔",
-            class = "WARLOCK",
-            overlayText = L["Overlay.NoPet"],
-            displayIcon = 136082, -- Summon Demon flyout icon
-            excludeSpellID = 108503, -- Grimoire of Sacrifice: pet intentionally sacrificed
-            groupId = "pets",
-            customCheck = function()
-                return not UnitExists("pet")
             end,
         },
     },
@@ -949,18 +979,6 @@ BR.BUFF_TABLES = {
             consumableCategory = "flask",
             disabledInCompetitivePvP = true,
         },
-        -- Food (all expansions - detected by icon ID)
-        {
-            buffIconID = 136000, -- All food buffs use this icon
-            key = "food",
-            name = "食物",
-            overlayText = L["Overlay.NoFood"],
-            groupId = "food",
-            consumableCategory = "food",
-            displayIcon = 136000,
-            visibilityCondition = IsNotEarthen,
-            disabledInCompetitivePvP = true,
-        },
         -- Delve Food (only when inside a delve with Brann or Valeera)
         {
             spellID = 442522,
@@ -974,6 +992,18 @@ BR.BUFF_TABLES = {
                 desc = L["Tooltip.DelvesOnly.Desc"],
             },
             visibilityCondition = BR.IsInDelve,
+            disabledInCompetitivePvP = true,
+        },
+        -- Food (all expansions - detected by icon ID)
+        {
+            buffIconID = 136000, -- All food buffs use this icon
+            key = "food",
+            name = "食物",
+            overlayText = L["Overlay.NoFood"],
+            groupId = "food",
+            consumableCategory = "food",
+            displayIcon = 136000,
+            visibilityCondition = IsNotEarthen,
             disabledInCompetitivePvP = true,
         },
         -- Healthstone (checks inventory, free consumable for warlocks)

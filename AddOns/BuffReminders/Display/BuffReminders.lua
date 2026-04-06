@@ -160,7 +160,8 @@ local addonName, BR = ...
 ---@field stackCount FontString
 ---@field buffText? FontString
 ---@field statLabel? FontString                  -- Consumable stat label (top-left)
----@field badgeLabel? FontString                  -- Consumable badge (bottom-left): hearty "H" or quality R1/R2/R3
+---@field badgeLabel? FontString                  -- Consumable badge (bottom-left): hearty "H" text
+---@field qualityIcon? Texture                    -- Consumable crafted quality icon (bottom-left atlas)
 ---@field isPlayerBuff? boolean
 ---@field buffCategory? CategoryName
 ---@field glowTexture? Texture
@@ -378,6 +379,8 @@ local defaults = {
             pvp = true,
         },
         healthstoneVisibility = "readyCheck",
+        healthstoneThreshold = 1,
+        soulstoneVisibility = "readyCheck",
         consumableDisplayMode = "sub_icons",
         consumableTextScale = 25,
         showConsumableTooltips = false,
@@ -928,6 +931,26 @@ local SetExpirationGlow = BR.Glow.SetExpiration
 local expiringGlowCache = {} ---@type table<string, table>
 local missingGlowCache = {} ---@type table<string, table>
 
+-- Prefixed key lists per glow type that BuildAdvancedParams reads (hoisted to avoid per-call allocation)
+local GLOW_ADVANCED_KEYS = {
+    [BR.Glow.Type.Pixel] = {
+        glow = { "glowPixelLines", "glowPixelFrequency", "glowPixelLength" },
+        missingGlow = { "missingGlowPixelLines", "missingGlowPixelFrequency", "missingGlowPixelLength" },
+    },
+    [BR.Glow.Type.AutoCast] = {
+        glow = { "glowAutocastParticles", "glowAutocastFrequency", "glowAutocastScale" },
+        missingGlow = { "missingGlowAutocastParticles", "missingGlowAutocastFrequency", "missingGlowAutocastScale" },
+    },
+    [BR.Glow.Type.Border] = {
+        glow = { "glowBorderFrequency" },
+        missingGlow = { "missingGlowBorderFrequency" },
+    },
+    [BR.Glow.Type.Proc] = {
+        glow = { "glowProcDuration", "glowProcStartAnim" },
+        missingGlow = { "missingGlowProcDuration", "missingGlowProcStartAnim" },
+    },
+}
+
 ---Get cached glow settings for a category and glow kind (populated once per render cycle)
 ---Glow style reads from per-category overrides when useCustomGlow is enabled, otherwise from defaults.
 ---@param category string
@@ -940,39 +963,36 @@ local function GetCachedGlowSettings(category, kind)
         return cached
     end
 
-    local db = BR.profile
-    local catSettings = db and db.categorySettings and db.categorySettings[category]
-    local useCustom = catSettings and catSettings.useCustomGlow
-    local source = (useCustom and catSettings) or (db and db.defaults) or {}
+    local GetSetting = BR.Config.GetCategorySetting
+    local prefix = kind == "missing" and "missingGlow" or "glow"
+    local typeFallback = kind == "missing" and BR.Glow.Type.Pixel or BR.Glow.Type.AutoCast
 
-    local typeIndex, color, size, xOff, yOff, params
-    if kind == "missing" then
-        typeIndex = source.missingGlowType or BR.Glow.Type.Pixel
-        color = source.missingGlowColor
-        if typeIndex == BR.Glow.Type.Proc and not source.missingGlowProcUseCustomColor then
-            color = nil
+    local typeIndex = GetSetting(category, prefix .. "Type") or typeFallback
+    local color = GetSetting(category, prefix .. "Color")
+    if typeIndex == BR.Glow.Type.Proc and not GetSetting(category, prefix .. "ProcUseCustomColor") then
+        color = nil
+    end
+    local size = GetSetting(category, prefix .. "Size") or 2
+    local xOff = GetSetting(category, prefix .. "XOffset") or 0
+    local yOff = GetSetting(category, prefix .. "YOffset") or 0
+
+    -- Build advanced params from effective settings (only fetch keys the resolved type needs)
+    local params
+    local keySet = GLOW_ADVANCED_KEYS[typeIndex]
+    local keys = keySet and keySet[prefix]
+    if keys then
+        local src = {}
+        for _, key in ipairs(keys) do
+            src[key] = GetSetting(category, key)
         end
-        size = source.missingGlowSize or 2
-        params = BR.Glow.BuildAdvancedParams(source, typeIndex, "missingGlow")
-        xOff = source.missingGlowXOffset or 0
-        yOff = source.missingGlowYOffset or 0
-    else
-        typeIndex = source.glowType or BR.Glow.Type.AutoCast
-        color = source.glowColor
-        if typeIndex == BR.Glow.Type.Proc and not source.glowProcUseCustomColor then
-            color = nil
-        end
-        size = source.glowSize or 2
-        params = BR.Glow.BuildAdvancedParams(source, typeIndex)
-        xOff = source.glowXOffset or 0
-        yOff = source.glowYOffset or 0
+        params = BR.Glow.BuildAdvancedParams(src, typeIndex, kind == "missing" and "missingGlow" or nil)
     end
 
     cached = {
         typeIndex = typeIndex,
         color = color,
         size = size,
-        borderSize = BR.Config.GetCategorySetting(category, "borderSize") or DEFAULT_BORDER_SIZE,
+        borderSize = GetSetting(category, "borderSize") or DEFAULT_BORDER_SIZE,
         params = params,
         glowXOffset = xOff,
         glowYOffset = yOff,
@@ -1006,6 +1026,9 @@ local function ShowTextFrame(frame, overlayText, shouldGlow, category, cachedGlo
     end
     if frame.badgeLabel then
         frame.badgeLabel:Hide()
+    end
+    if frame.qualityIcon then
+        frame.qualityIcon:Hide()
     end
     if overlayText then
         frame.count:SetFont(fontPath, GetFrameFontSize(frame, OVERLAY_TEXT_SCALE), "OUTLINE")
@@ -1959,12 +1982,12 @@ end
 -- Eating icon texture ID (from State.lua, matches the eating channel aura icon)
 local EATING_ICON = BR.EATING_AURA_ICON
 
----Apply consumable overlays (stat label top-left, badge bottom-left) to a frame.
+---Apply consumable overlays (stat label top-left, badge/quality bottom-left) to a frame.
 ---@param frame table
----@param item table Bucket item with .statLabel and .badge fields
+---@param item table Bucket item with .statLabel, .badge, and .qualityAtlas fields
 ---@param fontSize number? Explicit font size (computed from icon width if nil)
 local function ApplyConsumableOverlays(frame, item, fontSize)
-    if not item.statLabel and not item.badge then
+    if not item.statLabel and not item.badge and not item.qualityAtlas then
         return
     end
     if not fontSize then
@@ -1982,12 +2005,32 @@ local function ApplyConsumableOverlays(frame, item, fontSize)
     elseif frame.statLabel then
         frame.statLabel:Hide()
     end
+    -- Quality atlas icon (crafted quality tier) — bottom-left corner
+    if item.qualityAtlas then
+        if not frame.qualityIcon then
+            local holder = CreateFrame("Frame", nil, frame)
+            holder:SetAllPoints()
+            holder:SetFrameLevel(frame:GetFrameLevel() + 10)
+            frame.qualityIcon = holder:CreateTexture(nil, "OVERLAY", nil, 7)
+        end
+        local iconSize = frame:GetWidth()
+        local qOffset = -floor(iconSize * 0.125)
+        local qSize = max(14, floor(iconSize * 0.45))
+        frame.qualityIcon:ClearAllPoints()
+        frame.qualityIcon:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", qOffset, qOffset)
+        frame.qualityIcon:SetSize(qSize, qSize)
+        frame.qualityIcon:SetAtlas(item.qualityAtlas)
+        frame.qualityIcon:Show()
+    elseif frame.qualityIcon then
+        frame.qualityIcon:Hide()
+    end
+    -- Text badge (e.g. "F" fleeting, "H" hearty) — middle-left
     if item.badge then
         local bc = BR.SecureButtons.BADGE_COLORS[item.badge]
         if bc then
             if not frame.badgeLabel then
                 frame.badgeLabel = frame:CreateFontString(nil, "OVERLAY")
-                frame.badgeLabel:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 2, 2)
+                frame.badgeLabel:SetPoint("LEFT", frame, "LEFT", 2, 0)
             end
             frame.badgeLabel:SetFont(fontPath, fontSize, "OUTLINE")
             frame.badgeLabel:SetTextColor(bc.r, bc.g, bc.b, 1)
@@ -2007,6 +2050,9 @@ local function ClearConsumableOverlays(frame)
     end
     if frame.badgeLabel then
         frame.badgeLabel:Hide()
+    end
+    if frame.qualityIcon then
+        frame.qualityIcon:Hide()
     end
 end
 
@@ -2124,7 +2170,7 @@ local function RenderVisibleEntry(frame, entry)
     end
 
     -- Get cached glow settings for this entry's category (avoids repeated DB reads)
-    local glowKind = entry.displayType == "expiring" and "expiring" or "missing"
+    local glowKind = entry.glowKindOverride or (entry.displayType == "expiring" and "expiring" or "missing")
     local cachedGlow = entry.category and GetCachedGlowSettings(entry.category, glowKind) or nil
 
     -- Apply dynamic icon overrides (e.g. rogue poison expiring soonest, role-based shields)
@@ -2286,7 +2332,7 @@ local function ApplyConsumableDisplayMode(frame, entry, frameList, parentFrame)
             local cachedGlow = entry.category
                     and GetCachedGlowSettings(
                         entry.category,
-                        entry.displayType == "expiring" and "expiring" or "missing"
+                        entry.glowKindOverride or (entry.displayType == "expiring" and "expiring" or "missing")
                     )
                 or nil
             local expandedSize = frame:GetWidth()
@@ -2949,16 +2995,8 @@ local function DetachIcon(key)
     if not db.detachedIcons then
         db.detachedIcons = {}
     end
-    -- Initialize with position snapped from the icon's current screen location
-    local frame = buffFrames[key]
-    local x, y = 0, 0
-    if frame and frame:IsShown() then
-        local cx, cy = frame:GetCenter()
-        local px, py = UIParent:GetCenter()
-        x = floor(cx - px + 0.5)
-        y = floor(cy - py + 0.5)
-    end
-    db.detachedIcons[key] = { position = { x = x, y = y } }
+    -- Initialize at screen center so detached icons are easy to find
+    db.detachedIcons[key] = { position = { x = 0, y = 0 } }
     -- FramesReparent callback handles ResetLayoutSignatures + InvalidateSortedCategories
     -- + ReparentBuffFrames + UpdateVisuals
     BR.CallbackRegistry:TriggerEvent("FramesReparent")
@@ -3093,14 +3131,21 @@ local function UpdateVisuals()
         -- Frame alpha
         frame:SetAlpha(catSettings.iconAlpha or 1)
 
-        -- Consumable overlay font update
-        if frame.statLabel or frame.badgeLabel then
+        -- Consumable overlay font/size update
+        if frame.statLabel or frame.badgeLabel or frame.qualityIcon then
             local flSize = BR.SecureButtons.ComputeConsumableFontSize(size)
             if frame.statLabel then
                 frame.statLabel:SetFont(fontPath, flSize, "OUTLINE")
             end
             if frame.badgeLabel then
                 frame.badgeLabel:SetFont(fontPath, flSize, "OUTLINE")
+            end
+            if frame.qualityIcon then
+                local qOffset = -floor(size * 0.125)
+                local qSize = max(14, floor(size * 0.45))
+                frame.qualityIcon:ClearAllPoints()
+                frame.qualityIcon:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", qOffset, qOffset)
+                frame.qualityIcon:SetSize(qSize, qSize)
             end
         end
         if frame.buffText then
@@ -3375,6 +3420,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     if event == "ADDON_LOADED" and arg1 == addonName then
         _, playerClass = UnitClass("player")
         BR.BuffState.SetPlayerClass(playerClass)
+        local isFirstInstall = not BuffRemindersDB
         if not BuffRemindersDB then
             BuffRemindersDB = {}
         end
@@ -3456,7 +3502,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 36
+        local DB_VERSION = 37
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -4170,6 +4216,23 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     end
                 end
             end,
+            [37] = function()
+                -- Move Burning Rush from seeded custom buff to proper self-buff
+                if db.customBuffs and db.customBuffs.burningRush then
+                    db.customBuffs.burningRush = nil
+                end
+                -- enabledBuffs.burningRush is preserved as-is (same key)
+
+                -- Migrate soulstone readyCheckOnlyOverrides to soulstoneVisibility
+                local overrides = db.readyCheckOnlyOverrides
+                if overrides and overrides.soulstone == false then
+                    if not db.defaults then
+                        db.defaults = {}
+                    end
+                    db.defaults.soulstoneVisibility = "always"
+                    overrides.soulstone = nil
+                end
+            end,
         }
 
         -- Run pending migrations
@@ -4289,8 +4352,11 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
         -- Login messages
         C_Timer.After(5, function()
-            if db.showLoginMessages ~= false and playerClass == "DEATHKNIGHT" then
-                print("|cff00ccffBuffReminders:|r " .. L["Display.LoginDkRunes"])
+            if isFirstInstall then
+                print("|cff00ccffBuffReminders:|r " .. L["Display.LoginFirstInstall"])
+            end
+            if not isFirstInstall and db.showLoginMessages ~= false then
+                print("|cff00ccffBuffReminders:|r " .. L["Display.LoginGearIcons"])
             end
         end)
     elseif event == "PLAYER_ENTERING_WORLD" then

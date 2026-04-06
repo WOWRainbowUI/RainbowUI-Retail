@@ -82,7 +82,8 @@ local optionsPanel = nil
 local customBuffModal = nil
 
 -- Forward declarations
-local ShowGlowAdvanced, ShowCustomBuffModal, ShowRuneforgeModal
+local ShowGlowAdvanced, ShowCustomBuffModal
+local ShowRuneforgeModal, ShowHealthstoneModal, ShowSoulstoneModal, ShowPetPassiveModal, ShowPetSummonModal
 
 -- ============================================================================
 -- CONSTANTS
@@ -394,6 +395,46 @@ local function CreateOptionsPanel()
         return nil
     end
 
+    -- Buff-specific settings: key → { tooltip, note, onClick }
+    -- Gear icon shown in a fixed column (right of detach pin) for consistent alignment
+    local buffSettingsActions = {
+        healthstone = {
+            tooltip = L["Options.HealthstoneSettings"],
+            note = L["Options.HealthstoneSettings.Note"],
+            onClick = function()
+                ShowHealthstoneModal()
+            end,
+        },
+        soulstone = {
+            tooltip = L["Options.SoulstoneSettings"],
+            note = L["Options.SoulstoneSettings.Note"],
+            onClick = function()
+                ShowSoulstoneModal()
+            end,
+        },
+        dkRunes = {
+            tooltip = L["Options.RuneforgePreferences"],
+            note = L["Options.RuneforgeNote"],
+            onClick = function()
+                ShowRuneforgeModal()
+            end,
+        },
+        petPassive = {
+            tooltip = L["Options.PetPassiveSettings"],
+            note = L["Options.PetPassiveSettings.Note"],
+            onClick = function()
+                ShowPetPassiveModal()
+            end,
+        },
+        pets = {
+            tooltip = L["Options.PetSummonSettings"],
+            note = L["Options.PetSummonSettings.Note"],
+            onClick = function()
+                ShowPetSummonModal()
+            end,
+        },
+    }
+
     -- Create buff checkbox using Components.Checkbox
     local function CreateBuffCheckbox(
         parent,
@@ -426,8 +467,8 @@ local function CreateOptionsPanel()
         panel.buffCheckboxes[key] = holder
 
         -- Inline toggle: "Ready check only" / "Always show" (replaces info tooltip icon)
-        -- Skip for free consumables — controlled by the "Free consumables" dropdown instead
-        if readyCheckOnly and not freeConsumable then
+        -- Skip for free consumables (controlled by dropdown) and soulstone (controlled by gear icon modal)
+        if readyCheckOnly and not freeConsumable and key ~= "soulstone" then
             local function GetReadyCheckOnlyState()
                 local overrides = BR.profile.readyCheckOnlyOverrides
                 return not overrides or overrides[key] ~= false
@@ -464,11 +505,36 @@ local function CreateOptionsPanel()
             toggle:SetPoint("LEFT", holder.label, "RIGHT", 6, 0)
         end
 
+        -- Settings gear icon (fixed column, first icon right of checkbox)
+        local settings = buffSettingsActions[key]
+        if settings then
+            local gearBtn = CreateFrame("Button", nil, holder)
+            gearBtn:SetSize(14, 14)
+            gearBtn:SetPoint("LEFT", holder, "RIGHT", 4, 0)
+            gearBtn:SetFrameLevel(holder:GetFrameLevel() + 5)
+            local gearTex = gearBtn:CreateTexture(nil, "ARTWORK")
+            gearTex:SetAllPoints()
+            gearTex:SetTexture("Interface\\Buttons\\UI-OptionsButton")
+            gearTex:SetVertexColor(0.7, 0.7, 0.7, 0.8)
+            gearBtn:SetScript("OnEnter", function(self)
+                gearTex:SetVertexColor(1, 1, 1, 1)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetText(settings.tooltip, 1, 1, 1)
+                GameTooltip:AddLine(settings.note, 0.7, 0.7, 0.7, true)
+                GameTooltip:Show()
+            end)
+            gearBtn:SetScript("OnLeave", function()
+                gearTex:SetVertexColor(0.7, 0.7, 0.7, 0.8)
+                GameTooltip:Hide()
+            end)
+            gearBtn:SetScript("OnClick", settings.onClick)
+        end
+
         -- Detach button: small pin icon to toggle detached positioning
-        -- Anchored outside the holder (in the column's spare space) to avoid overlapping labels/toggles
+        -- Fixed offset from holder right edge (leaves gap for gear icon slot)
         local detachBtn = CreateFrame("Button", nil, holder)
         detachBtn:SetSize(14, 14)
-        detachBtn:SetPoint("LEFT", holder, "RIGHT", 4, 0)
+        detachBtn:SetPoint("LEFT", holder, "RIGHT", 22, 0)
 
         local detachIcon = detachBtn:CreateTexture(nil, "ARTWORK")
         detachIcon:SetAllPoints()
@@ -641,8 +707,8 @@ local function CreateOptionsPanel()
         label:SetText(L["Options.DetachIcon"])
     end
 
-    CreateDetachColumnHeader(buffsContent, buffsLeftX + 193, -8)
-    CreateDetachColumnHeader(buffsContent, buffsRightX + 193, -8)
+    CreateDetachColumnHeader(buffsContent, buffsLeftX + 211, -8)
+    CreateDetachColumnHeader(buffsContent, buffsRightX + 211, -8)
 
     -- LEFT COLUMN: Group-wide buffs
     -- Raid Buffs
@@ -689,40 +755,6 @@ local function CreateOptionsPanel()
     buffsRightY = buffsRightY - 14
     buffsRightY = RenderBuffCheckboxes(buffsContent, buffsRightX, buffsRightY, SelfBuffs)
     buffsRightY = buffsRightY - SECTION_SPACING
-
-    -- DK Runeforge gear icon (next to the dkRunes group checkbox)
-    do
-        local _, playerClass = UnitClass("player")
-        if playerClass == "DEATHKNIGHT" then
-            local runeCheckbox = panel.buffCheckboxes["dkRunes"]
-            if runeCheckbox then
-                local gearBtn = CreateFrame("Button", nil, buffsContent)
-                gearBtn:SetSize(14, 14)
-                gearBtn:SetPoint("LEFT", runeCheckbox.label, "RIGHT", 4, 0)
-                gearBtn:SetFrameLevel(runeCheckbox:GetFrameLevel() + 5)
-
-                local gearIcon = gearBtn:CreateTexture(nil, "ARTWORK")
-                gearIcon:SetAllPoints()
-                gearIcon:SetTexture("Interface\\Buttons\\UI-OptionsButton")
-                gearIcon:SetVertexColor(0.7, 0.7, 0.7, 0.8)
-
-                gearBtn:SetScript("OnEnter", function(self)
-                    gearIcon:SetVertexColor(1, 1, 1, 1)
-                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                    GameTooltip:SetText(L["Options.RuneforgePreferences"], 1, 1, 1)
-                    GameTooltip:AddLine(L["Options.RuneforgeNote"], 0.7, 0.7, 0.7, true)
-                    GameTooltip:Show()
-                end)
-                gearBtn:SetScript("OnLeave", function()
-                    gearIcon:SetVertexColor(0.7, 0.7, 0.7, 0.8)
-                    GameTooltip:Hide()
-                end)
-                gearBtn:SetScript("OnClick", function()
-                    ShowRuneforgeModal()
-                end)
-            end
-        end
-    end
 
     -- Pet Reminders
     _, buffsRightY = CreateSectionHeader(buffsContent, L["Category.PetReminders"], buffsRightX, buffsRightY)
@@ -1112,44 +1144,6 @@ local function CreateOptionsPanel()
                     return db.defaults.freeConsumableVisibility
                 end
                 catLayout:Space(SECTION_GAP)
-                local hsHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-                hsHeader:SetText("|cffffcc00" .. L["Options.Healthstone"] .. "|r")
-                catLayout:AddText(hsHeader, 12, COMPONENT_GAP)
-
-                local hsReadyCheckHolder = Components.Dropdown(catContent, {
-                    label = L["Options.Visibility"],
-                    width = 180,
-                    get = function()
-                        return BR.Config.Get("defaults.healthstoneVisibility", "readyCheck")
-                    end,
-                    options = {
-                        {
-                            value = "readyCheck",
-                            label = L["Options.Healthstone.ReadyCheckOnly"],
-                            desc = L["Options.Healthstone.ReadyCheckDesc"],
-                        },
-                        {
-                            value = "casterOnly",
-                            label = L["Options.Healthstone.ReadyCheckWarlock"],
-                            desc = L["Options.Healthstone.WarlockAlwaysDesc"],
-                        },
-                        {
-                            value = "always",
-                            label = L["Options.Healthstone.AlwaysShow"],
-                            desc = L["Options.Healthstone.AlwaysDesc"],
-                        },
-                    },
-                    tooltip = {
-                        title = L["Options.Healthstone.Visibility"],
-                        desc = L["Options.Healthstone.Visibility.Desc"],
-                    },
-                    onChange = function(val)
-                        BR.Config.Set("defaults.healthstoneVisibility", val)
-                    end,
-                })
-                catLayout:Add(hsReadyCheckHolder, nil, COMPONENT_GAP)
-
-                catLayout:Space(SECTION_GAP)
                 local freeHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                 freeHeader:SetText("|cffffcc00" .. L["Options.FreeConsumables"] .. "|r")
                 catLayout:AddText(freeHeader, 12, COMPONENT_GAP)
@@ -1459,47 +1453,9 @@ local function CreateOptionsPanel()
             catLayout:SetX(0)
         end
 
-        -- Behavior sub-header (pet only)
+        -- Pet display settings (pet only)
         if category == "pet" then
             catLayout:Space(SECTION_GAP)
-            local behaviorHeader = catContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-            behaviorHeader:SetText("|cffffcc00" .. L["Options.Behavior"] .. "|r")
-            catLayout:AddText(behaviorHeader, 12, COMPONENT_GAP)
-
-            local passiveCombatHolder = Components.Checkbox(catContent, {
-                label = L["Options.PetPassiveCombat"],
-                get = function()
-                    return BR.profile.petPassiveOnlyInCombat == true
-                end,
-                tooltip = {
-                    title = L["Options.PetPassiveCombat"],
-                    desc = L["Options.PetPassiveCombat.Desc"],
-                },
-                onChange = function(checked)
-                    BR.profile.petPassiveOnlyInCombat = checked
-                    UpdateDisplay()
-                end,
-            })
-            catLayout:Add(passiveCombatHolder, nil, COMPONENT_GAP)
-
-            local felDomHolder = Components.Checkbox(catContent, {
-                label = L["Options.FelDomination"],
-                get = function()
-                    return BR.Config.Get("defaults.useFelDomination", false)
-                end,
-                tooltip = {
-                    title = L["Options.FelDomination.Title"],
-                    desc = L["Options.FelDomination.Desc"],
-                },
-                enabled = function()
-                    local _, class = UnitClass("player")
-                    return class == "WARLOCK"
-                end,
-                onChange = function(checked)
-                    BR.Config.Set("defaults.useFelDomination", checked)
-                end,
-            })
-            catLayout:Add(felDomHolder, nil, COMPONENT_GAP)
 
             local updatePetDisplayModePreview -- forward declaration for preview update
             local petDisplayModeHolder = Components.Dropdown(catContent, {
@@ -3673,8 +3629,6 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
     end
 
     local modal = CreatePanel("BuffRemindersCustomBuffModal", MODAL_WIDTH, BASE_HEIGHT, {
-        bgColor = { 0.1, 0.1, 0.1, 0.98 },
-        borderColor = { 0.4, 0.4, 0.4, 1 },
         level = 200,
         modal = true,
     })
@@ -4471,8 +4425,10 @@ ShowCustomBuffModal = function(existingKey, refreshPanelCallback)
 end
 
 -- ============================================================================
--- DK RUNEFORGE MODAL
+-- BUFF SETTINGS MODALS (gear icon popups)
 -- ============================================================================
+
+-- ---- DK Runeforge ----
 
 local runeforgeModal = nil
 
@@ -4505,8 +4461,6 @@ ShowRuneforgeModal = function()
     local RUNE_LABEL_FONT = "GameFontHighlight"
 
     local modal = CreatePanel("BuffRemindersRuneforgeModal", MODAL_WIDTH, MODAL_HEIGHT, {
-        bgColor = { 0.1, 0.1, 0.1, 0.98 },
-        borderColor = { 0.4, 0.4, 0.4, 1 },
         level = 200,
         modal = true,
     })
@@ -4654,6 +4608,286 @@ ShowRuneforgeModal = function()
     SetActiveTab("blood")
 
     runeforgeModal = modal
+    modal:Show()
+end
+
+-- ---- Healthstone ----
+
+local healthstoneModal = nil
+
+ShowHealthstoneModal = function()
+    if healthstoneModal then
+        Components.RefreshAll()
+        healthstoneModal:Show()
+        return
+    end
+
+    local MODAL_WIDTH = 340
+    local MARGIN = 16
+
+    local modal = CreatePanel("BuffRemindersHealthstoneModal", MODAL_WIDTH, 1, {
+        level = 200,
+        modal = true,
+    })
+
+    local title = modal:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetPoint("TOP", 0, -12)
+    title:SetText(L["Options.HealthstoneSettings"])
+
+    local closeBtn = CreateButton(modal, "x", function()
+        modal:Hide()
+    end)
+    closeBtn:SetSize(22, 22)
+    closeBtn:SetPoint("TOPRIGHT", -5, -5)
+
+    local layout = Components.VerticalLayout(modal, { x = MARGIN, y = -36 })
+
+    local visHolder = Components.Dropdown(modal, {
+        label = L["Options.Visibility"],
+        width = 200,
+        get = function()
+            return BR.Config.Get("defaults.healthstoneVisibility", "readyCheck")
+        end,
+        options = {
+            {
+                value = "readyCheck",
+                label = L["Options.Healthstone.ReadyCheckOnly"],
+                desc = L["Options.Healthstone.ReadyCheckDesc"],
+            },
+            {
+                value = "casterOnly",
+                label = L["Options.Healthstone.ReadyCheckWarlock"],
+                desc = L["Options.Healthstone.WarlockAlwaysDesc"],
+            },
+            {
+                value = "always",
+                label = L["Options.Healthstone.AlwaysShow"],
+                desc = L["Options.Healthstone.AlwaysDesc"],
+            },
+        },
+        tooltip = { title = L["Options.Healthstone.Visibility"], desc = L["Options.Healthstone.Visibility.Desc"] },
+        onChange = function(val)
+            BR.Config.Set("defaults.healthstoneVisibility", val)
+        end,
+    })
+    layout:Add(visHolder, nil, COMPONENT_GAP)
+
+    local lowStockHolder = Components.Checkbox(modal, {
+        label = L["Options.Healthstone.LowStock"],
+        get = function()
+            return BR.Config.Get("defaults.healthstoneLowStock", false)
+        end,
+        tooltip = {
+            title = L["Options.Healthstone.LowStock"],
+            desc = L["Options.Healthstone.LowStock.Desc"],
+        },
+        onChange = function(checked)
+            BR.Config.Set("defaults.healthstoneLowStock", checked)
+            Components.RefreshAll()
+        end,
+    })
+    layout:Add(lowStockHolder, nil, COMPONENT_GAP)
+
+    local thresholdHolder = Components.Slider(modal, {
+        label = L["Options.Healthstone.Threshold"],
+        min = 1,
+        max = 2,
+        step = 1,
+        get = function()
+            return BR.Config.Get("defaults.healthstoneThreshold", 1)
+        end,
+        enabled = function()
+            return BR.Config.Get("defaults.healthstoneLowStock", false)
+        end,
+        tooltip = { title = L["Options.Healthstone.Threshold"], desc = L["Options.Healthstone.Threshold.Desc"] },
+        onChange = function(val)
+            BR.Config.Set("defaults.healthstoneThreshold", val)
+        end,
+    })
+    layout:Add(thresholdHolder, nil, COMPONENT_GAP)
+
+    modal:SetHeight(max(-layout:GetY() + MARGIN, 80))
+    healthstoneModal = modal
+    modal:Show()
+end
+
+-- ---- Soulstone ----
+
+local soulstoneModal = nil
+
+ShowSoulstoneModal = function()
+    if soulstoneModal then
+        Components.RefreshAll()
+        soulstoneModal:Show()
+        return
+    end
+
+    local MODAL_WIDTH = 340
+    local MARGIN = 16
+
+    local modal = CreatePanel("BuffRemindersSoulstoneModal", MODAL_WIDTH, 1, {
+        level = 200,
+        modal = true,
+    })
+
+    local title = modal:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetPoint("TOP", 0, -12)
+    title:SetText(L["Options.SoulstoneSettings"])
+
+    local closeBtn = CreateButton(modal, "x", function()
+        modal:Hide()
+    end)
+    closeBtn:SetSize(22, 22)
+    closeBtn:SetPoint("TOPRIGHT", -5, -5)
+
+    local layout = Components.VerticalLayout(modal, { x = MARGIN, y = -36 })
+
+    local visHolder = Components.Dropdown(modal, {
+        label = L["Options.Visibility"],
+        width = 200,
+        get = function()
+            return BR.Config.Get("defaults.soulstoneVisibility", "readyCheck")
+        end,
+        options = {
+            {
+                value = "readyCheck",
+                label = L["Options.Soulstone.ReadyCheckOnly"],
+                desc = L["Options.Soulstone.ReadyCheckDesc"],
+            },
+            {
+                value = "casterOnly",
+                label = L["Options.Soulstone.ReadyCheckWarlock"],
+                desc = L["Options.Soulstone.WarlockAlwaysDesc"],
+            },
+            { value = "always", label = L["Options.Soulstone.AlwaysShow"], desc = L["Options.Soulstone.AlwaysDesc"] },
+        },
+        tooltip = { title = L["Options.Soulstone.Visibility"], desc = L["Options.Soulstone.Visibility.Desc"] },
+        onChange = function(val)
+            BR.Config.Set("defaults.soulstoneVisibility", val)
+        end,
+    })
+    layout:Add(visHolder, nil, COMPONENT_GAP)
+
+    local cdHolder = Components.Checkbox(modal, {
+        label = L["Options.Soulstone.HideCooldown"],
+        get = function()
+            return BR.Config.Get("defaults.soulstoneHideCooldown", false)
+        end,
+        tooltip = {
+            title = L["Options.Soulstone.HideCooldown"],
+            desc = L["Options.Soulstone.HideCooldown.Desc"],
+        },
+        onChange = function(checked)
+            BR.Config.Set("defaults.soulstoneHideCooldown", checked)
+        end,
+    })
+    layout:Add(cdHolder, nil, COMPONENT_GAP)
+
+    modal:SetHeight(max(-layout:GetY() + MARGIN, 80))
+    soulstoneModal = modal
+    modal:Show()
+end
+
+-- ---- Pet Passive ----
+
+local petPassiveModal = nil
+
+ShowPetPassiveModal = function()
+    if petPassiveModal then
+        Components.RefreshAll()
+        petPassiveModal:Show()
+        return
+    end
+
+    local MODAL_WIDTH = 340
+    local MARGIN = 16
+
+    local modal = CreatePanel("BuffRemindersPetPassiveModal", MODAL_WIDTH, 1, {
+        level = 200,
+        modal = true,
+    })
+
+    local title = modal:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetPoint("TOP", 0, -12)
+    title:SetText(L["Options.PetPassiveSettings"])
+
+    local closeBtn = CreateButton(modal, "x", function()
+        modal:Hide()
+    end)
+    closeBtn:SetSize(22, 22)
+    closeBtn:SetPoint("TOPRIGHT", -5, -5)
+
+    local layout = Components.VerticalLayout(modal, { x = MARGIN, y = -36 })
+
+    local passiveCombatHolder = Components.Checkbox(modal, {
+        label = L["Options.PetPassiveCombat"],
+        get = function()
+            return BR.profile.petPassiveOnlyInCombat == true
+        end,
+        tooltip = {
+            title = L["Options.PetPassiveCombat"],
+            desc = L["Options.PetPassiveCombat.Desc"],
+        },
+        onChange = function(checked)
+            BR.profile.petPassiveOnlyInCombat = checked
+            BR.Display.Update()
+        end,
+    })
+    layout:Add(passiveCombatHolder, nil, COMPONENT_GAP)
+
+    modal:SetHeight(max(-layout:GetY() + MARGIN, 80))
+    petPassiveModal = modal
+    modal:Show()
+end
+
+-- ---- Pet Summon ----
+
+local petSummonModal = nil
+
+ShowPetSummonModal = function()
+    if petSummonModal then
+        Components.RefreshAll()
+        petSummonModal:Show()
+        return
+    end
+
+    local MODAL_WIDTH = 340
+    local MARGIN = 16
+
+    local modal = CreatePanel("BuffRemindersPetSummonModal", MODAL_WIDTH, 1, {
+        level = 200,
+        modal = true,
+    })
+
+    local title = modal:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    title:SetPoint("TOP", 0, -12)
+    title:SetText(L["Options.PetSummonSettings"])
+
+    local closeBtn = CreateButton(modal, "x", function()
+        modal:Hide()
+    end)
+    closeBtn:SetSize(22, 22)
+    closeBtn:SetPoint("TOPRIGHT", -5, -5)
+
+    local layout = Components.VerticalLayout(modal, { x = MARGIN, y = -36 })
+
+    local felDomHolder = Components.Checkbox(modal, {
+        label = L["Options.FelDomination"],
+        get = function()
+            return BR.Config.Get("defaults.useFelDomination", false)
+        end,
+        tooltip = {
+            title = L["Options.FelDomination.Title"],
+            desc = L["Options.FelDomination.Desc"],
+        },
+        onChange = function(checked)
+            BR.Config.Set("defaults.useFelDomination", checked)
+        end,
+    })
+    layout:Add(felDomHolder, nil, COMPONENT_GAP)
+
+    modal:SetHeight(max(-layout:GetY() + MARGIN, 80))
+    petSummonModal = modal
     modal:Show()
 end
 
