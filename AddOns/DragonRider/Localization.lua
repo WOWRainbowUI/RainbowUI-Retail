@@ -411,6 +411,39 @@ if LOCALE == "enUS" then
 	L["XPBarFlipbook"] = "Experience Bar (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Priest Insanity (Flipbook)"
 
+	L["VigorTheme_DR_Hexagem"] = "Dragon Rider Hexagem"
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus Hexagon Border"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Artifact"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Azerite"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Black"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Black Dragon"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Epic"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Heart"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Heirloom"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Legendary"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus N'Zoth"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Rare"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Special"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Uncommon"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Void"
+
+	L["GroundSkimming"] = "Ground Skimming"
+	--[[
+		dede Bodenkratzer
+		esmx Al ras del suelo
+		frfr Rase-mottes
+		itit Rasoterra
+		ptbr Rasante no Solo
+		ruru Бреющий полет
+		kokr 초저고도 비행
+		zhcn 掠地滑翔
+		zhtw 貼地飛掠
+	]]
+	L["GroundSkimming_Toggle"] = "Show Ground Skimming"
+	L["GroundSkimming_ToggleTT"] = "Toggle the glow effect beneath the Vigor widget associated with the Ground Skimming aura."
+	L["GroundSkimming_ColorPicker"] = "Ground Skimming Color"
+	L["GroundSkimming_ColorPickerTT"] = "Pick a color for Ground Skimming."
+
 
 return end
 
@@ -739,6 +772,28 @@ if LOCALE == "zhCN" then
 	L["XPBarFlipbook"] = "经验条 (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "牧师 疯狂 (Flipbook)"
 
+	L["VigorTheme_DR_Hexagem"] = "龙骑士六角宝石"
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus 六边形边框"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus 神器"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus 艾泽里特"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus 黑色"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus 黑龙"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus 史诗"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus 之心"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus 传家宝"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus 传说"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus 恩佐斯"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus 稀有"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus 特殊"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus 优秀"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus 虚空"
+
+	L["GroundSkimming"] = "掠地滑翔"
+	L["GroundSkimming_Toggle"] = "显示掠地滑翔"
+	L["GroundSkimming_ToggleTT"] = "切换与掠地滑翔光环关联的活力组件下方的发光效果。"
+	L["GroundSkimming_ColorPicker"] = "掠地滑翔颜色"
+	L["GroundSkimming_ColorPickerTT"] = "选择掠地滑翔的颜色。"
+
 
 return end
 
@@ -1064,6 +1119,28 @@ if LOCALE == "zhTW" then
 	L["ProfessionsQualityFlipbook"] = "專業品質 (Flipbook)"
 	L["XPBarFlipbook"] = "經驗條 (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "牧師 瘋狂 (Flipbook)"
+
+	L["VigorTheme_DR_Hexagem"] = "天空騎術六角寶石"
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus 六角邊框"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus 神兵"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus 艾澤萊特"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus 黑色"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus 黑龍"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus 史詩"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus 之心"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus 傳家寶"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus 傳說"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus 恩若司"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus 稀有"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus 特殊"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus 精良"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus 虛空"
+	
+	L["GroundSkimming"] = "貼地飛掠"
+	L["GroundSkimming_Toggle"] = "顯示貼地飛掠"
+	L["GroundSkimming_ToggleTT"] = "切換與貼地飛掠光環相關的活力元件下方的發光效果。"
+	L["GroundSkimming_ColorPicker"] = "貼地飛掠顏色"
+	L["GroundSkimming_ColorPickerTT"] = "選擇貼地飛掠的顏色。"
 
 
 return end

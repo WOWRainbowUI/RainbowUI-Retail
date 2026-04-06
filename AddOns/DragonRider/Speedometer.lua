@@ -1219,16 +1219,17 @@ end
 local DRAGON_RACE_AURA_ID = 369968;
 
 function DR.updateSpeed()
-	if not DR.IsPreviewMode then
-		if not LibAdvFlight.IsAdvFlyEnabled() and not DR.DriveUtils.IsDriving() then
-			return;
-		end
-	end
+	local advFlyEnabled = LibAdvFlight.IsAdvFlyEnabled()
+    if not DR.IsPreviewMode then
+        if not advFlyEnabled and not DR.DriveUtils.IsDriving() then
+            return;
+        end
+    end
 
 	local forwardSpeed;
 	if DR.IsPreviewMode and DR.previewSpeed then
 		forwardSpeed = DR.previewSpeed;
-	elseif LibAdvFlight.IsAdvFlyEnabled() then
+	elseif advFlyEnabled then
 		forwardSpeed = LibAdvFlight.GetForwardSpeed();
 	else
 		forwardSpeed = DR.DriveUtils.GetSmoothedSpeed();

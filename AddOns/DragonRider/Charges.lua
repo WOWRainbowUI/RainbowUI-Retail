@@ -301,6 +301,8 @@ end
 
 
 function DR.charge:OnEvent(event, ...)
+	if not LibAdvFlight or not LibAdvFlight.IsAdvFlyEnabled() then return end
+	
 	if event == "UNIT_AURA" then
 		local unit = select(1, ...)
 		if unit == "player" then
