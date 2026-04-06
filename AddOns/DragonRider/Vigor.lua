@@ -977,10 +977,16 @@ function DR.UpdateVigorTheme()
 			if options.Progress.Flipbook then
 				local flipbookOptions = options.Progress.Flipbook
 				if bar.flipAnim then
-					bar.flipAnim:SetDuration(flipbookOptions.Duration)
-					bar.flipAnim:SetFlipBookRows(flipbookOptions.Rows)
-					bar.flipAnim:SetFlipBookColumns(flipbookOptions.Columns)
-					bar.flipAnim:SetFlipBookFrames(flipbookOptions.Frames)
+					bar.flipAnim:SetDuration(flipbookOptions.Duration);
+					bar.flipAnim:SetFlipBookRows(flipbookOptions.Rows);
+					bar.flipAnim:SetFlipBookColumns(flipbookOptions.Columns);
+					bar.flipAnim:SetFlipBookFrames(flipbookOptions.Frames);
+				end
+			else
+				if bar.flipAnim then
+					bar.flipAnim:SetFlipBookRows(1);
+					bar.flipAnim:SetFlipBookColumns(1);
+					bar.flipAnim:SetFlipBookFrames(1);
 				end
 			end
 			
@@ -1088,7 +1094,7 @@ local function GetRGBA(colorTbl, fallbackTbl)
 	return c.r, c.g, c.b, c.a or 1
 end
 
-local function UpdateChargeBars()
+function DR.UpdateChargeBars()
 
 	local current, max, start, duration
 
@@ -1224,8 +1230,10 @@ local vigorUpdater = CreateFrame("Frame")
 local updateTimer = 0 -- throttle
 vigorUpdater:SetScript("OnUpdate", function(self, elapsed)
 	updateTimer = updateTimer + elapsed
-	if updateTimer > 0.1 then
-		UpdateChargeBars()
+	if updateTimer > 0.2 then
+		if LibAdvFlight and LibAdvFlight.IsAdvFlyEnabled() then
+			DR.UpdateChargeBars();
+		end
 		updateTimer = 0
 	end
 end)
@@ -1501,3 +1509,198 @@ function DR.EvaluateVigorVisibility(currentCharges, maxCharges)
 		DR.ShowWithFadeVigor()
 	end
 end
+
+local function DR_OnAddonLoaded()
+	if DragonRider_API then
+		do
+			local hexagemDesign = {
+				Full = {
+					Texture = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\dragonrider_hexagem_fill_s.png",
+					Desat = true,
+				},
+
+				Fill = {
+					Texture = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\dragonrider_hexagem_fill_s.png",
+					Desat = true,
+				},
+
+				Progress = {
+					Texture = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\dragonrider_hexagem_fill_s.png",
+					Desat = true,
+				},
+
+				Background = {
+					Texture = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\dragonrider_hexagem_background_s.png",
+					Desat = false,
+				},
+
+				Spark = {
+					Atlas = "dragonriding_sgvigor_spark",
+					Desat = true,
+				},
+
+				Mask = {
+					Texture = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\dragonrider_hexagem_background_s.png",
+				},
+
+				Cover = {
+					Texture = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\dragonrider_hexagem_cover_s.png",
+					Desat = true,
+				},
+
+				Flash = {
+					Texture = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\dragonrider_hexagem_cover_s.png",
+					Desat = true,
+				},
+
+				Overlay = {
+					X = 0,
+					Y = 0,
+				},
+			};
+
+			DragonRider_API.RegisterVigorTheme(
+				"DragonRider_Hexagem",
+				L["VigorTheme_DR_Hexagem"],
+				hexagemDesign
+			);
+		end
+	end
+end
+
+EventUtil.ContinueOnAddOnLoaded("DragonRider", DR_OnAddonLoaded);
+
+local function Narci_OnAddonLoaded()
+	if Narci then
+
+		local BASE_PATH = "Interface\\AddOns\\DragonRider\\Textures\\Vigor_Themes\\";
+		local NARCI_PATH = "Interface\\AddOns\\Narcissus\\Art\\Border\\";
+
+		local function CreateHexagonTheme(variant)
+			return {
+				Full = {
+					Texture = BASE_PATH .. "HexagonBorder_Fill.png",
+					Desat = true,
+				},
+				Fill = {
+					Texture = BASE_PATH .. "HexagonBorder_Fill.png",
+					Desat = true,
+				},
+				Progress = {
+					Texture = BASE_PATH .. "HexagonBorder_Fill.png",
+					Desat = true,
+				},
+				Background = {
+					Texture = NARCI_PATH .. "HexagonMask.tga",
+					Desat = false,
+				},
+				Spark = {
+					Atlas = "dragonriding_sgvigor_spark",
+					Desat = true,
+				},
+				Mask = {
+					Texture = NARCI_PATH .. "HexagonMask.tga",
+				},
+				Cover = {
+					Texture = NARCI_PATH .. variant,
+					Desat = false,
+				},
+				Flash = {
+					Texture = NARCI_PATH .. variant,
+					Desat = false,
+				},
+				Overlay = {
+					X = 0,
+					Y = 0,
+				},
+			};
+		end
+
+		local variants = {
+			{
+				key = "Narcissus_Hexagem",
+				locale = "VigorTheme_Narci_HexagonBorder",
+				texture = "HexagonBorder.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Artifact",
+				locale = "VigorTheme_Narci_HexagonBorder-Artifact",
+				texture = "HexagonBorder-Artifact.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Azerite",
+				locale = "VigorTheme_Narci_HexagonBorder-Azerite",
+				texture = "HexagonBorder-Azerite.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Black",
+				locale = "VigorTheme_Narci_HexagonBorder-Black",
+				texture = "HexagonBorder-Black.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-BlackDragon",
+				locale = "VigorTheme_Narci_HexagonBorder-BlackDragon",
+				texture = "HexagonBorder-BlackDragon.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Epic",
+				locale = "VigorTheme_Narci_HexagonBorder-Epic",
+				texture = "HexagonBorder-Epic.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Heart",
+				locale = "VigorTheme_Narci_HexagonBorder-Heart",
+				texture = "HexagonBorder-Heart.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Heirloom",
+				locale = "VigorTheme_Narci_HexagonBorder-Heirloom",
+				texture = "HexagonBorder-Heirloom.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Legendary",
+				locale = "VigorTheme_Narci_HexagonBorder-Legendary",
+				texture = "HexagonBorder-Legendary.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-NZoth",
+				locale = "VigorTheme_Narci_HexagonBorder-NZoth",
+				texture = "HexagonBorder-NZoth.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Rare",
+				locale = "VigorTheme_Narci_HexagonBorder-Rare",
+				texture = "HexagonBorder-Rare.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Special",
+				locale = "VigorTheme_Narci_HexagonBorder-Special",
+				texture = "HexagonBorder-Special.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Uncommon",
+				locale = "VigorTheme_Narci_HexagonBorder-Uncommon",
+				texture = "HexagonBorder-Uncommon.tga",
+			},
+			{
+				key = "Narcissus_HexagonBorder-Void",
+				locale = "VigorTheme_Narci_HexagonBorder-Void",
+				texture = "HexagonBorder-Void.tga",
+			},
+		};
+
+		for _, v in ipairs(variants) do
+			local theme = CreateHexagonTheme(v.texture);
+
+			DragonRider_API.RegisterVigorTheme(
+				v.key,
+				L[v.locale],
+				theme
+			);
+		end
+
+
+	end
+end
+
+EventUtil.ContinueOnAddOnLoaded("Narcissus", Narci_OnAddonLoaded);

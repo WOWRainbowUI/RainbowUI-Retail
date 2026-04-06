@@ -1,6 +1,6 @@
 ## Interface: 110207, 120000, 120001
 ## Author: Keyboardturner
-## Version: 1.1.2a
+## Version: 1.1.3
 ## Title: Dragon Rider
 ## Notes: Displays a speedometer paired with the vigor bar and some other dragonriding-related options.
 ## AddonCompartmentFunc: DragonRider_OnAddonCompartmentClick
@@ -60,4 +60,5 @@ DRJournal.lua
 Vigor.lua
 Speedometer.lua
 Charges.lua
+GroundSkimming.lua
 DragonRider.lua

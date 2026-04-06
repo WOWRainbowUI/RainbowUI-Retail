@@ -411,6 +411,39 @@ if LOCALE == "enUS" then
 	L["XPBarFlipbook"] = "Experience Bar (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Priest Insanity (Flipbook)"
 
+	L["VigorTheme_DR_Hexagem"] = "Dragon Rider Hexagem"
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus Hexagon Border"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Artifact"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Azerite"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Black"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Black Dragon"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Epic"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Heart"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Heirloom"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Legendary"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus N'Zoth"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Rare"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Special"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Uncommon"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Void"
+
+	L["GroundSkimming"] = "Ground Skimming"
+	--[[
+		dede Bodenkratzer
+		esmx Al ras del suelo
+		frfr Rase-mottes
+		itit Rasoterra
+		ptbr Rasante no Solo
+		ruru Бреющий полет
+		kokr 초저고도 비행
+		zhcn 掠地滑翔
+		zhtw 貼地飛掠
+	]]
+	L["GroundSkimming_Toggle"] = "Show Ground Skimming"
+	L["GroundSkimming_ToggleTT"] = "Toggle the glow effect beneath the Vigor widget associated with the Ground Skimming aura."
+	L["GroundSkimming_ColorPicker"] = "Ground Skimming Color"
+	L["GroundSkimming_ColorPickerTT"] = "Pick a color for Ground Skimming."
+
 
 return end
 
@@ -735,6 +768,28 @@ if LOCALE == "esES" or LOCALE == "esMX" then
 	L["ProfessionsQualityFlipbook"] = "Calidad de profesiones (Flipbook)"
 	L["XPBarFlipbook"] = "Barra de experiencia (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Locura del sacerdote (Flipbook)"
+
+	L["VigorTheme_DR_Hexagem"] = "Hexágema de Jinete de Dragón"
+	L["VigorTheme_Narci_HexagonBorder"] = "Borde hexagonal Narcissus"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Artefacto"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Azerita"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Negro"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Dragón Negro"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Épico"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Corazón"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Reliquia"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Legendario"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus N'Zoth"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Raro"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Especial"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Poco común"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Vacío"
+
+	L["GroundSkimming"] = "Al ras del suelo"
+	L["GroundSkimming_Toggle"] = "Mostrar Al ras del suelo"
+	L["GroundSkimming_ToggleTT"] = "Activa o desactiva el efecto de brillo debajo del widget de Vigor asociado con el aura Al ras del suelo."
+	L["GroundSkimming_ColorPicker"] = "Color de Al ras del suelo"
+	L["GroundSkimming_ColorPickerTT"] = "Elige un color para Al ras del suelo."
 
 
 return end
@@ -1062,6 +1117,28 @@ if LOCALE == "deDE" then
 	L["XPBarFlipbook"] = "Erfahrungsleiste (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Priester Wahnsinn (Flipbook)"
 
+	L["VigorTheme_DR_Hexagem"] = "Drachenreiter-Hexagem"
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus Sechseckrahmen"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Artefakt"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Azerit"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Schwarz"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Schwarzer Drache"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Episch"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Herz"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Erbstück"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Legendär"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus N'Zoth"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Selten"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Spezial"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Ungewöhnlich"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Leere"
+
+	L["GroundSkimming"] = "Bodenkratzer"
+	L["GroundSkimming_Toggle"] = "Bodenkratzer anzeigen"
+	L["GroundSkimming_ToggleTT"] = "Schaltet den Leuchteffekt unter dem Vigor-Widget um, der mit der Bodenkratzer-Aura verbunden ist."
+	L["GroundSkimming_ColorPicker"] = "Bodenkratzer-Farbe"
+	L["GroundSkimming_ColorPickerTT"] = "Wähle eine Farbe für Bodenkratzer."
+
 
 return end
 
@@ -1387,6 +1464,28 @@ if LOCALE == "frFR" then
 	L["XPBarFlipbook"] = "Barre d’expérience (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Folie du prêtre (Flipbook)"
 
+	L["VigorTheme_DR_Hexagem"] = "Hexagemme de chevaucheur de dragon"
+	L["VigorTheme_Narci_HexagonBorder"] = "Bord hexagonal Narcissus"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Artéfact"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Azérite"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Noir"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Dragon noir"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Épique"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Cœur"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Héritage"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Légendaire"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus N'Zoth"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Rare"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Spécial"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Inhabituel"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Vide"
+
+	L["GroundSkimming"] = "Rase-mottes"
+	L["GroundSkimming_Toggle"] = "Afficher Rase-mottes"
+	L["GroundSkimming_ToggleTT"] = "Active ou désactive l'effet lumineux sous le widget de Vigueur associé à l'aura Rase-mottes."
+	L["GroundSkimming_ColorPicker"] = "Couleur de Rase-mottes"
+	L["GroundSkimming_ColorPickerTT"] = "Choisissez une couleur pour Rase-mottes."
+
 return end
 
 if LOCALE == "itIT" then
@@ -1710,6 +1809,28 @@ if LOCALE == "itIT" then
 	L["ProfessionsQualityFlipbook"] = "Qualità professioni (Flipbook)"
 	L["XPBarFlipbook"] = "Barra esperienza (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Follia Sacerdote (Flipbook)"
+
+	L["VigorTheme_DR_Hexagem"] = "Hexagem del Cavaliere del Drago"
+	L["VigorTheme_Narci_HexagonBorder"] = "Bordo esagonale Narcissus"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Artefatto"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Azerite"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Nero"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Drago Nero"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Epico"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Cuore"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Cimelio"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Leggendario"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus N'Zoth"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Raro"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Speciale"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Non comune"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Vuoto"
+
+	L["GroundSkimming"] = "Rasoterra"
+	L["GroundSkimming_Toggle"] = "Mostra Rasoterra"
+	L["GroundSkimming_ToggleTT"] = "Attiva o disattiva l'effetto luminoso sotto il widget Vigore associato all'aura Rasoterra."
+	L["GroundSkimming_ColorPicker"] = "Colore Rasoterra"
+	L["GroundSkimming_ColorPickerTT"] = "Scegli un colore per Rasoterra."
 
 
 return end
@@ -2035,6 +2156,28 @@ if LOCALE == "ptBR" then
 	L["ProfessionsQualityFlipbook"] = "Qualidade de Profissões (Flipbook)"
 	L["XPBarFlipbook"] = "Barra de Experiência (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Insanidade do Sacerdote (Flipbook)"
+
+	L["VigorTheme_DR_Hexagem"] = "Hexágema do Cavaleiro do Dragão"
+	L["VigorTheme_Narci_HexagonBorder"] = "Borda hexagonal Narcissus"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Artefato"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Azerita"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Preto"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Dragão Negro"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Épico"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Coração"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Herança"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Lendário"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus N'Zoth"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Raro"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Especial"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Incomum"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Vazio"
+
+	L["GroundSkimming"] = "Rasante no Solo"
+	L["GroundSkimming_Toggle"] = "Mostrar Rasante no Solo"
+	L["GroundSkimming_ToggleTT"] = "Ativa ou desativa o efeito de brilho sob o widget de Vigor associado à aura Rasante no Solo."
+	L["GroundSkimming_ColorPicker"] = "Cor de Rasante no Solo"
+	L["GroundSkimming_ColorPickerTT"] = "Escolha uma cor para Rasante no Solo."
 
 
 -- Note that the EU Portuguese WoW client also
@@ -2363,6 +2506,28 @@ if LOCALE == "ruRU" then
 	L["XPBarFlipbook"] = "Полоса опыта (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "Безумие жреца (Flipbook)"
 
+	L["VigorTheme_DR_Hexagem"] = "Шестигранник Драконий Всадник"
+	L["VigorTheme_Narci_HexagonBorder"] = "Шестиугольная рамка Narcissus"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus Артефакт"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus Азерит"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus Чёрный"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus Чёрный дракон"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus Эпический"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus Сердце"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus Наследуемый"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus Легендарный"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus Н'Зот"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus Редкий"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus Особый"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus Необычный"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus Пустота"
+
+	L["GroundSkimming"] = "Бреющий полет"
+	L["GroundSkimming_Toggle"] = "Показать \"Бреющий полет\""
+	L["GroundSkimming_ToggleTT"] = "Включает или отключает эффект свечения под виджетом энергии, связанным с аурой \"Бреющий полет\"."
+	L["GroundSkimming_ColorPicker"] = "Цвет \"Бреющий полет\""
+	L["GroundSkimming_ColorPickerTT"] = "Выберите цвет для \"Бреющий полет\"."
+
 
 return end
 
@@ -2687,6 +2852,28 @@ if LOCALE == "koKR" then
 	L["ProfessionsQualityFlipbook"] = "전문기술 품질 (Flipbook)"
 	L["XPBarFlipbook"] = "경험치 바 (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "사제 광기 (Flipbook)"
+
+	L["VigorTheme_DR_Hexagem"] = "드래곤 라이더 헥사젬" 
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus 육각형 테두리"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus 유물"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus 아제라이트"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus 검정"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus 검은용"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus 영웅"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus 심장"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus 계승품"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus 전설"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus 느조스"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus 희귀"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus 특별"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus 고급"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus 공허"
+
+	L["GroundSkimming"] = "초저고도 비행"
+	L["GroundSkimming_Toggle"] = "초저고도 비행 표시"
+	L["GroundSkimming_ToggleTT"] = "초저고도 비행 오라와 연관된 기력 위젯 아래의 빛 효과를 켜거나 끕니다."
+	L["GroundSkimming_ColorPicker"] = "초저고도 비행 색상"
+	L["GroundSkimming_ColorPickerTT"] = "초저고도 비행의 색상을 선택하세요."
 
 
 return end
@@ -3015,6 +3202,28 @@ if LOCALE == "zhCN" then
 	L["XPBarFlipbook"] = "经验条 (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "牧师 疯狂 (Flipbook)"
 
+	L["VigorTheme_DR_Hexagem"] = "龙骑士六角宝石"
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus 六边形边框"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus 神器"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus 艾泽里特"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus 黑色"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus 黑龙"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus 史诗"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus 之心"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus 传家宝"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus 传说"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus 恩佐斯"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus 稀有"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus 特殊"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus 优秀"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus 虚空"
+
+	L["GroundSkimming"] = "掠地滑翔"
+	L["GroundSkimming_Toggle"] = "显示掠地滑翔"
+	L["GroundSkimming_ToggleTT"] = "切换与掠地滑翔光环关联的活力组件下方的发光效果。"
+	L["GroundSkimming_ColorPicker"] = "掠地滑翔颜色"
+	L["GroundSkimming_ColorPickerTT"] = "选择掠地滑翔的颜色。"
+
 
 return end
 
@@ -3340,6 +3549,28 @@ if LOCALE == "zhTW" then
 	L["ProfessionsQualityFlipbook"] = "專業品質 (Flipbook)"
 	L["XPBarFlipbook"] = "經驗條 (Flipbook)"
 	L["PowerPriestInsanityFlipbook"] = "牧師 瘋狂 (Flipbook)"
+
+	L["VigorTheme_DR_Hexagem"] = "龍騎士六角寶石"
+	L["VigorTheme_Narci_HexagonBorder"] = "Narcissus 六角邊框"
+	L["VigorTheme_Narci_HexagonBorder-Artifact"] = "Narcissus 神兵"
+	L["VigorTheme_Narci_HexagonBorder-Azerite"] = "Narcissus 艾澤萊特"
+	L["VigorTheme_Narci_HexagonBorder-Black"] = "Narcissus 黑色"
+	L["VigorTheme_Narci_HexagonBorder-BlackDragon"] = "Narcissus 黑龍"
+	L["VigorTheme_Narci_HexagonBorder-Epic"] = "Narcissus 史詩"
+	L["VigorTheme_Narci_HexagonBorder-Heart"] = "Narcissus 之心"
+	L["VigorTheme_Narci_HexagonBorder-Heirloom"] = "Narcissus 傳家寶"
+	L["VigorTheme_Narci_HexagonBorder-Legendary"] = "Narcissus 傳說"
+	L["VigorTheme_Narci_HexagonBorder-NZoth"] = "Narcissus 恩若司"
+	L["VigorTheme_Narci_HexagonBorder-Rare"] = "Narcissus 稀有"
+	L["VigorTheme_Narci_HexagonBorder-Special"] = "Narcissus 特殊"
+	L["VigorTheme_Narci_HexagonBorder-Uncommon"] = "Narcissus 精良"
+	L["VigorTheme_Narci_HexagonBorder-Void"] = "Narcissus 虛空"
+	
+	L["GroundSkimming"] = "貼地飛掠"
+	L["GroundSkimming_Toggle"] = "顯示貼地飛掠"
+	L["GroundSkimming_ToggleTT"] = "切換與貼地飛掠光環相關的活力元件下方的發光效果。"
+	L["GroundSkimming_ColorPicker"] = "貼地飛掠顏色"
+	L["GroundSkimming_ColorPickerTT"] = "選擇貼地飛掠的顏色。"
 
 
 return end
