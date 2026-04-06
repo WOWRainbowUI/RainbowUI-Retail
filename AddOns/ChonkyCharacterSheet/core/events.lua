@@ -250,10 +250,11 @@ local eventHandlers = {
     ["CURRENCY_DISPLAY_UPDATE"]  = {
         { fn = WrapHandler("CURRENCY_DISPLAY_UPDATE", CCS.CharacterStatsEventHandler, "CharacterStatsEventHandler"), versions = { CCS.RETAIL } },
     },
-
+--[[
     ["GOSSIP_CLOSED"] = {
         { fn = WrapHandler("GOSSIP_CLOSED", CCS.MythicPlusEventHandler, "MythicPlusEventHandler"), versions = { CCS.RETAIL } },
     },
+--]]
 
     ["INSPECT_READY"] = {
         { fn = WrapHandler("INSPECT_READY", CCS.InspectSheetEventHandler, "InspectSheetEventHandler"), versions = { CCS.RETAIL } },
@@ -380,13 +381,23 @@ local eventHandlers = {
             CCS.secretsdisabled = false
             CCS.MythicPlusEventHandler()
         end
+        if CCS.initall == true then
+            for _, module in pairs(CCS.Modules) do
+                if type(module.Initialize) == "function" then
+                    C_Timer.After(0.1, function() module:Initialize() end)
+                end
+            end
+            CCS:FireEvent("CCS_EVENT_OPTIONS")
+            CCS.initall = nil
+        end
         
         if CCS.incombat == true then
             CCS.incombat = false
             CCS.CharacterStatsEventHandler()
-            CCS.RaidProgressEventHandler()            
         end 
-        CCS.RaidProgressEventHandler()
+
+        if CCS.GetCurrentVersion() == CCS.RETAIL then CCS.RaidProgressEventHandler() end
+
     end),
 
     ["PLAYER_REGEN_DISABLED"] = WrapHandler("PLAYER_REGEN_DISABLED", function()

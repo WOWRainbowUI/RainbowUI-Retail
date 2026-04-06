@@ -1,0 +1,2 @@
+While many people have contributed ideas over the years, I want to specifically thank the following people:
+- Breckdareck, for writing the snippet for custom secondary priority profiles

@@ -1,6 +1,6 @@
 local addonName, ns = ...
 local CCS = ns.CCS
-
+local loopitems
 if CCS.GetCurrentVersion() ~= CCS.RETAIL then
     return
 end
@@ -868,7 +868,7 @@ local function updatemplussideframe()
 end
 
 local function initializemplusplanelframe()
-	if not InspectFrame or not InspectFrame.unit then return end
+	if not InspectFrame or not InspectFrame.unit or InCombatLockdown() == true then return end
 	
 	local unit = InspectFrame.unit
 	local bgr, bgg, bgb, bgalpha = option("ccsmbgcolor")[1], option("ccsmbgcolor")[2], option("ccsmbgcolor")[3], option("ccsmbgcolor")[4];
@@ -889,13 +889,14 @@ local function initializemplusplanelframe()
 	ccsmi_sf:SetPoint("BOTTOMLEFT", ccsmi_af, "BOTTOMRIGHT", 0, 0); 
 	ccsmi_sf:SetSize(660, 640)
 	ccsmi_sf.throttle = 0;
-
+	ccsmi_sf:Hide()
+--[[
 	if option("showm_sp") == true and (UnitLevel(unit) == CCS.MaxLevel) and (C_MythicPlus.GetCurrentAffixes() and C_MythicPlus.GetCurrentAffixes()[1]) then
 		ccsmi_sf:Show()
 	else
 		ccsmi_sf:Hide()
 	end
-	
+--]]	
 	--sf_bg:ClearAllPoints()
 	sf_bg:SetAllPoints()
 	sf_bg:SetTexture("Interface\\Masks\\SquareMask.BLP")
@@ -1393,7 +1394,7 @@ local function initclickframe()
             CCS.tooltip:Show()
     end)
     btn:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
-    btn:SetScript("OnClick", function() InspectClicky(1) end)
+    btn:SetScript("OnClick", function() InspectClicky(1); end)
 -- Button 2 (Compare Button)
     -- initialize button spacing.
     btn2 = _G["CCS_iclk_Btn2"] or CreateFrame("Button", "CCS_iclk_Btn2", InspectPaperDollItemsFrame, "BackdropTemplate")
@@ -1403,39 +1404,17 @@ local function initclickframe()
     CCS.SkinButton(btn2)
 
     btn2:SetScript("OnClick", function()
-        CCS:inspect()
+		if InCombatLockdown() then
+			PlaySound(8959)
+			RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])
+		else
+			CCS:inspect()
+		end
     end)
-
-    if not option("showmodel_inspect") then btn:Hide() else btn:Show() end
-    
-    -- Create the title text
-    local btnfont1 = _G[btn:GetName().."fs1"]
-    if btnfont1 == nil then 
-        btnfont1 = btn:CreateFontString(btn:GetName().."fs1")
-    end    
-    
-    btnfont1:SetPoint("BOTTOM", btn, "TOP", -3 ,0)
-    btnfont1:SetFont(CCS.fontname, 10, CCS.textoutline)
-	if option("showfontshadow") == true then
-		btnfont1:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-		btnfont1:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-	end	
-	
-    btnfont1:SetText(textstring)
-    btn:SetNormalTexture(texture)
-    
-    btn:SetScript("OnEnter", function(self) CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
-            CCS.tooltip:AddDoubleLine("", nil, 1, 1, 1, 1, 1, 1) 
-            CCS.tooltip:Show()
-    end)
-    btn:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
-    btn:SetScript("OnClick", function() InspectClicky(1) end)
-
-        
 end
 
 local function initializeinspectframe()
-    if not InspectFrame or not option("show_inspect") or InspectFrame.loaded == true then return end
+    if not InspectFrame or not option("show_inspect") or InspectFrame.loaded == true or InCombatLockdown() == true then return end
    
     InspectFrame:SetScale(option("sheetscale_inspect") or 1)
     InspectFrame:SetHeight(479+(7*option("vpad_inspect"))) -- Do not allow the frame to get any smaller than the default bliz frame
@@ -1673,14 +1652,15 @@ local function initializeinspectframe()
 end
 
 -- Loop through the Paperdoll Items and create/display information
-local function loopitems()
+loopitems = function()
 
     if not option("show_inspect") or InspectFrame.unit == nil then return end
-      
     local unit = InspectFrame.unit
  
     for slotIndex = 1,17 do 
         if slotIndex ~= 4 then
+			CCS.updateLocationInfo(unit, slotIndex, "Inspect")
+--[[
             local itemLink = GetInventoryItemLink(unit, slotIndex)
             local itemID = itemLink and tonumber(itemLink:match("item:(%d+)"))
 
@@ -1688,19 +1668,17 @@ local function loopitems()
                 local texture = select(10, C_Item.GetItemInfo(itemID))
                 if texture then
                     CCS.updateLocationInfo(unit, slotIndex, "Inspect")
-                    --updateLocationInfo(slotIndex, unit)
                 else
                     local slotFrameName = CCS.getSlotFrameName(slotIndex, "Inspect")
                     _G[slotFrameName]:RegisterEvent("GET_ITEM_INFO_RECEIVED")
                     _G[slotFrameName]:SetScript("OnEvent", function(self, event, arg)
                         if event == "GET_ITEM_INFO_RECEIVED" and arg == itemID then
                             CCS.updateLocationInfo(unit, slotIndex, "Inspect")
-                            --updateLocationInfo(slotIndex, unit)
                             self:UnregisterEvent("GET_ITEM_INFO_RECEIVED")
                         end
                     end)
                 end
-            end
+            end--]]
         end
     end 
 
@@ -1719,7 +1697,6 @@ local function loopitems()
 		ilvlTxt:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
 		ilvlTxt:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
 	end
-	
     
     ilvlTxt:SetText("|cFF".. color .. format("%.2f", iLvl or "") .. "|r")
     ilvlTxt:SetShown(option("showilvl_inspect"))
@@ -1728,8 +1705,9 @@ local function loopitems()
     initclickframe()
 end 
 
-
 local function IsInspectDataReady(unit)
+	if unit == nil or not UnitExists(unit) then return false end
+
     for slot = 1, 17 do
         if slot ~= 4 then
             local item = GetInventoryItemLink(unit, slot)
@@ -1740,6 +1718,7 @@ local function IsInspectDataReady(unit)
             end
         end
     end
+
     return true
 end
 
@@ -1747,10 +1726,15 @@ local function FinalizeInspect()
     initializeinspectframe()
     initializemplusplanelframe()
     loopitems()
+	C_Timer.After(.2, function()
+	InspectFrame:SetAlpha(1)
+	InspectModelFrame:SetAlpha(1)	
+	end)
 end
 
 local function WaitForInspectData(unit)
     C_Timer.After(0.05, function()
+		if unit == nil or not UnitExists(unit) then return false end
         if IsInspectDataReady(unit) then
             FinalizeInspect()
         else
@@ -1759,19 +1743,17 @@ local function WaitForInspectData(unit)
     end)
 end
 
-
 -- Event handler for inspect sheet
 function CCS.InspectSheetEventHandler(event, ...)
-
+	
     -- Retail-only inspect frame updates
     if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
     if not InspectFrame or not InspectFrame.unit then return end
-	if not InspectFrame.hooked then
-		InspectFrame:UnregisterEvent("PLAYER_TARGET_CHANGED")
-		InspectFrame:UnregisterEvent("UNIT_INVENTORY_CHANGED")
-		InspectFrame:UnregisterEvent("INSPECT_HONOR_UPDATE")
-		InspectFrame.hooked = true
-	end
+
+	local unit = InspectFrame.unit
+	
+    if not UnitExists(unit) then return end
+    if not CanInspect(unit) then return end
 
     if event == "CCS_EVENT_OPTIONS" then
         if not option("show_inspect") then
@@ -1782,32 +1764,18 @@ function CCS.InspectSheetEventHandler(event, ...)
             ReloadUI()
         end
 		InspectFrame.loaded = false
-        initializeinspectframe()
-        initializemplusplanelframe()
-        loopitems()
+		FinalizeInspect()
         return true
-
 	elseif event == "INSPECT_READY" then
 		if not CCS.inspectUpdatePending then
 			CCS.inspectUpdatePending = true
-			WaitForInspectData(InspectFrame.unit)
-			C_Timer.After(0.5, function() CCS.inspectUpdatePending = false end)
+			InspectFrame:SetAlpha(0)
+            InspectModelFrame:SetAlpha(0)
+			FinalizeInspect()
+			C_Timer.After(0.1, function() 
+				WaitForInspectData(InspectFrame.unit); 
+				CCS.inspectUpdatePending = false 
+				end)
 		end
 	end
---[[    elseif event == "INSPECT_READY" then
-        if not CCS.inspectUpdatePending then
-            CCS.inspectUpdatePending = true
-            InspectFrame:SetAlpha(0)
-            InspectModelFrame:SetAlpha(0)
-            C_Timer.After(0.1, function()
-                CCS.inspectUpdatePending = false
-                initializeinspectframe()
-                initializemplusplanelframe()
-                loopitems()
-                InspectFrame:SetAlpha(1)
-                InspectModelFrame:SetAlpha(1)
-            end)
-        end
-        return true
-    end--]]
 end

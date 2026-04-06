@@ -318,8 +318,8 @@ function module:Initialize()
     local ccsr_btn = _G["ccsr_btn1"] or CreateFrame("Frame", "ccsr_btn1", CharacterHandsSlot)
     local btnfont1 = _G["ccsr_btnfs1"] or ccsr_btn:CreateFontString("ccsr_btnfs1")
     local textstring = ""
-	local ccsrf_af = _G["ccsrf_af"] or CreateFrame("Frame", "ccsrf_af", CCS_CharacterFrame, "SecureHandlerBaseTemplate");
-    local ccsrf_sf = _G["ccsrf_sf"] or CreateFrame("Frame", "ccsrf_sf", CCS_CharacterFrame, "SecureHandlerBaseTemplate");
+	local ccsrf_af = _G["ccsrf_af"] or CreateFrame("Frame", "ccsrf_af", CharacterFrame, "SecureHandlerBaseTemplate");
+    local ccsrf_sf = _G["ccsrf_sf"] or CreateFrame("Frame", "ccsrf_sf", CharacterFrame, "SecureHandlerBaseTemplate");
     local rf_bg = _G["ccsrf_rf_bg"] or ccsrf_sf:CreateTexture("ccsrf_rf_bg", "BACKGROUND", nil, 1)        
     local rf_topbar = _G["ccsrf_rf_tb"] or ccsrf_sf:CreateTexture("ccsrf_rf_tb", "BACKGROUND", nil, 2)
     local rf_topstreaks = _G["ccsrf_rf_ts"] or ccsrf_sf:CreateTexture("ccsrf_rf_ts", "BACKGROUND", nil, 2)
@@ -351,6 +351,7 @@ function module:Initialize()
     local ccsr_btn2 = _G["ccsr_btn2"] or CreateFrame("Button", "ccsr_btn2", PaperDollFrame)
 	ccsr_btn2:SetSize(28, 28)
 	ccsr_btn2:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, -15)
+	ccsr_btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -30)
 	ccsr_btn2:SetFrameStrata("HIGH")
 
 	ccsr_btn2._ccs_OnEnter = function(self)
@@ -391,11 +392,11 @@ function module:Initialize()
 	local offsetX = (60 + hpad)
 
     if C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
-		ccsrf_af:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPRIGHT", offsetX-63, 0)
-		ccsrf_af:SetPoint("BOTTOMLEFT", CCS_CharacterFrame, "BOTTOMRIGHT", offsetX-63, 0)
+		ccsrf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX-63, 0)
+		ccsrf_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX-63, 0)
 	else
-		ccsrf_af:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPRIGHT", offsetX, 0)
-		ccsrf_af:SetPoint("BOTTOMLEFT", CCS_CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
+		ccsrf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX, 0)
+		ccsrf_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
 	end
 
 	ccsrf_sf:SetPoint("TOPLEFT", ccsrf_af, "TOPRIGHT", 0, 0); 

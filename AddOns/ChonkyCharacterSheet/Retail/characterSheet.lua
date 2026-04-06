@@ -19,45 +19,47 @@ modbg.retries = 0
 local modtex = _G["CharacterModelFramebgtex"] or modbg:CreateTexture("CharacterModelFramebgtex", "BACKGROUND")    
 local modelbtn = _G["CCS_clk_Btn"] or CreateFrame("Button", "CCS_clk_Btn", PaperDollFrame, "UIPanelButtonTemplate")
 local bg_texture = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\bgmidnight.png"
-local CCS_CharacterFrame = _G["CCS_CharacterFrame"] or CreateFrame("Frame", "CCS_CharacterFrame", CharacterFrame)
+
+--[[
+local CharacterFrame = _G["CharacterFrame"] or CreateFrame("Frame", "CharacterFrame", CharacterFrame)
+CharacterFrame:EnableMouse(false)
+CharacterFrame:EnableMouseWheel(false)
 
 local function CCS_CreateCharacterFrameProxy()
-    -- 1. Create the new layout root
-    CCS_CharacterFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
+    -- Create the new layout root
+    CharacterFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
     if C_AddOns.IsAddOnLoaded("Armory") ~= true then
-        CCS_CharacterFrame:SetPoint("TOPRIGHT", CharacterFrame, "TOPRIGHT", 0, 0)
+        CharacterFrame:SetPoint("TOPRIGHT", CharacterFrame, "TOPRIGHT", 0, 0)
     end
-    --CCS_CharacterFrame:SetSize(CharacterFrame:GetWidth(), CharacterFrame:GetHeight())
 
-    -- 2. Move all regions
+    -- Move all regions
     local numRegions = CharacterFrame:GetNumRegions()
 
     for i = 1, numRegions do
         local region = select(i, CharacterFrame:GetRegions())
         if region and region:GetObjectType() then
-            region:SetParent(CCS_CharacterFrame)
+            region:SetParent(CharacterFrame)
         end
     end
 
-    -- 3. Move all children (but don’t touch CCS_CharacterFrame itself)
+    -- Move all children (but don’t touch CharacterFrame itself)
     local numChildren = CharacterFrame:GetNumChildren()
     for i = 1, numChildren do
         local child = select(i, CharacterFrame:GetChildren())
-        if child and child ~= CCS_CharacterFrame then
-            child:SetParent(CCS_CharacterFrame)
+        if child and child ~= CharacterFrame then
+            child:SetParent(CharacterFrame)
         end
     end
 
-    -- 4. Re-anchor anything that was anchored to CharacterFrame,
-    --    but never re-anchor CCS_CharacterFrame itself.
+    -- Re-anchor anything that was anchored to CharacterFrame
     local function Reanchor(frame)
-        if not frame or frame == CCS_CharacterFrame or not frame.GetNumPoints then return end
+        if not frame or frame == CharacterFrame or not frame.GetNumPoints then return end
 
         local points = {}
         for p = 1, frame:GetNumPoints() do
             local point, relTo, relPoint, x, y = frame:GetPoint(p)
             if relTo == CharacterFrame then
-                table.insert(points, {point, CCS_CharacterFrame, relPoint, x, y})
+                table.insert(points, {point, CharacterFrame, relPoint, x, y})
             end
         end
 
@@ -83,8 +85,8 @@ local function CCS_CreateCharacterFrameProxy()
         Reanchor(region)
     end
 
-    return CCS_CharacterFrame
-end
+    return CharacterFrame
+end--]]
 
 local function hookfix() 
 
@@ -114,6 +116,9 @@ local function hookfix()
     if CharacterFrame.TopLeftCorner then CharacterFrame.TopLeftCorner:SetTexture(""); CharacterFrame.TopLeftCorner:Hide() end
     if CharacterFrameCloseButton.Texture then CharacterFrameCloseButton.Texture:SetTexture("") end
     if CharacterModelScene and CharacterModelScene.backdrop then CharacterModelScene.backdrop:Hide() end
+
+    CharacterModelScene:SetFrameStrata("Medium")
+    CharacterModelScene:SetFrameLevel(9000)
     
     if C_AddOns.IsAddOnLoaded("QuaziiUI") or C_AddOns.IsAddOnLoaded("QUI") then
         if QUI_CharacterFrameBg_Skin ~= nil then
@@ -174,9 +179,11 @@ end
 
 local function MoveModelRight() 
     CharacterModelScene:ClearAllPoints();
-    CharacterModelScene:SetHeight(CCS_CharacterFrame:GetHeight());
-    CharacterModelScene:SetWidth(CCS_CharacterFrame:GetHeight()/CCS.ModelAspect);
+    CharacterModelScene:SetHeight(CharacterFrame:GetHeight());
+    CharacterModelScene:SetWidth(CharacterFrame:GetHeight()/CCS.ModelAspect);
     CharacterModelScene:SetPoint("LEFT", CharacterFrameBg, "RIGHT", 0, 0);
+    CharacterModelScene:SetFrameStrata("Medium")
+    CharacterModelScene:SetFrameLevel(9000)
     CharacterModelScene:Show();
     
     _G["CharacterModelFramebg"]:ClearAllPoints()
@@ -1044,7 +1051,7 @@ function CCS.HookSetup()
         local EXPANDED_WIDTH  = 540  
         local COLLAPSED_WIDTH = 384 
         local CURRENT_STATE   = "collapsed"
-        CCS_CharacterFrame:SetWidth(EXPANDED_WIDTH)
+        CharacterFrame:SetWidth(EXPANDED_WIDTH)
         if PaperDollSidebarTabs then
         PaperDollSidebarTabs:SetParent(PaperDollFrame)
         PaperDollSidebarTabs:ClearAllPoints()
@@ -1278,37 +1285,43 @@ end
 -- Module Initialization
 function module:Initialize()
     -- Set up the character sheet for the current player
+
+    if InCombatLockdown() then 
+        CCS.initall = true
+        return 
+    end
+
     local scaling = option("sheetscale") or 1
     local Bgoffset = option("hpad")
 
-    CCS_CreateCharacterFrameProxy() -- Create our new proxy frame
+    --CCS_CreateCharacterFrameProxy() -- Create our new proxy frame
     LootSpecInit()
     SpecChangeInit()
-
-    CCS_CharacterFrame:SetHeight(479+(7*option("vpad"))) -- Do not allow the frame to get any smaller than the default bliz frame
+    
+    CharacterFrame:SetHeight(479+(7*option("vpad"))) -- Do not allow the frame to get any smaller than the default bliz frame
     
     CharacterFrameInset.Bg:ClearAllPoints();
-    CharacterFrameInset.Bg:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPLEFT", 4, -60)
-    CharacterFrameInset.Bg:SetPoint("BOTTOMRIGHT", CCS_CharacterFrame, "BOTTOMLEFT", 330+option("hpad"), 30)
+    CharacterFrameInset.Bg:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 4, -60)
+    CharacterFrameInset.Bg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMLEFT", 330+option("hpad"), 30)
     CharacterFrameInset:Hide();
     
     CharacterFrameBg:SetVertexColor(0,0,0,0);
     
     CharacterFrameBg:ClearAllPoints()
-    CharacterFrameBg:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPLEFT", 0, 0);
+    CharacterFrameBg:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0);
 
     if C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
-        CharacterFrameBg:SetPoint("BOTTOMRIGHT", CCS_CharacterFrame, "BOTTOMRIGHT",Bgoffset, 0); 
+        CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT",Bgoffset, 0); 
         DCS_configButton:SetPoint("BOTTOMRIGHT", CharacterFrameCloseButton, "BOTTOMLEFT", -20, -10)
         CharacterStatsPane:SetPoint("TOPLEFT", CharacterFrameInsetRight, "TOPLEFT", 13, -3)
         PaperDollSidebarTabs:SetPoint("BOTTOMRIGHT", CharacterFrameInsetRight, "TOPRIGHT", -70, -1)
     else
-        CharacterFrameBg:SetPoint("BOTTOMRIGHT", CCS_CharacterFrame, "BOTTOMRIGHT", Bgoffset+65, 0); --279  .449
+        CharacterFrameBg:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", Bgoffset+65, 0); --279  .449
     end    
     
     CharacterFrame.Background:ClearAllPoints()
-    CharacterFrame.Background:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPLEFT", 0, 0);
-    CharacterFrame.Background:SetPoint("BOTTOMRIGHT", CCS_CharacterFrame, "BOTTOMRIGHT", Bgoffset+50, 0); --275  .449
+    CharacterFrame.Background:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0);
+    CharacterFrame.Background:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", Bgoffset+50, 0); --275  .449
     CharacterFrame.Background:Hide()
     
     CharacterFrame.TopTileStreaks:Hide()
@@ -1316,7 +1329,7 @@ function module:Initialize()
     ReputationFrame.ReputationDetailFrame:SetFrameLevel(1000)
     ReputationFrame.ReputationDetailFrame.Border.Bg:SetColorTexture(0,0,0,1)
     
-    local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CCS_CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
+    local charbg = _G["CharacterFrameBgbg"] or CreateFrame("Frame", "CharacterFrameBgbg", CharacterFrame, BackdropTemplateMixin and "BackdropTemplate")
     local charbgtex = _G["CharacterFrameBgbgtex"] or charbg:CreateTexture("CharacterFrameBgbgtex", "BACKGROUND", nil, 1)    
     local bgr, bgg, bgb, bgalpha = option("bgcolor")[1], option("bgcolor")[2], option("bgcolor")[3], option("bgcolor")[4];
     
@@ -1349,7 +1362,7 @@ function module:Initialize()
     CCS:SkinBlizzardButton(CharacterFrameCloseButton, "x", 26)
     CharacterFrameCloseButton:SetScale(.5)
     
-    local CCSsetbtn = _G["CCSsetbtn"] or CreateFrame("Button", "CCSsetbtn", CCS_CharacterFrame)
+    local CCSsetbtn = _G["CCSsetbtn"] or CreateFrame("Button", "CCSsetbtn", CharacterFrame)
     CCSsetbtn:SetSize(32, 32)
     CCSsetbtn:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "TOPLEFT", -5, 0)
     CCSsetbtn:SetScale(.5)
@@ -1375,8 +1388,8 @@ function module:Initialize()
    
     CharacterModelScene.GearEnchantAnimation:ClearAllPoints()
     CharacterFrameTitleText:ClearAllPoints();
-    CharacterFrameTitleText:SetPoint("TOP", CCS_CharacterFrame, "TOP", 0, -5)
-    CharacterFrameTitleText:SetPoint("LEFT", CCS_CharacterFrame, "LEFT", 50, 0)
+    CharacterFrameTitleText:SetPoint("TOP", CharacterFrame, "TOP", 0, -5)
+    CharacterFrameTitleText:SetPoint("LEFT", CharacterFrame, "LEFT", 50, 0)
     CharacterFrameTitleText:SetPoint("RIGHT", CharacterFrameInset.Bg, "RIGHT", -40, 0)
     CharacterFrameTitleText:SetFont( option("fontname_nametitle") or CCS.fontname, (option("fontsize_nametitle") or 12) , CCS.textoutline)
     if option("showfontshadow") == true then
@@ -1610,6 +1623,7 @@ function module:Initialize()
         CharacterFrameTab2.Text:SetTextColor(1,1,1,1)
         CharacterFrameTab3.Text:SetTextColor(1,1,1,1)
 
+        CharacterFrameTab1:SetPoint("TOPLEFT", CharacterFrame, "BOTTOMLEFT", 11, 2)
         CharacterFrameTab1.Left:ClearAllPoints()
         CharacterFrameTab1.LeftActive:ClearAllPoints()
         CharacterFrameTab1.LeftHighlight:ClearAllPoints()
@@ -1627,6 +1641,8 @@ function module:Initialize()
         CharacterFrameTab1.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
         CharacterFrameTab1.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
         CharacterFrameTab1.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+
+        CharacterFrameTab2:SetPoint("TOPLEFT", CharacterFrameTab1, "TOPRIGHT", 3, 0)
         CharacterFrameTab2.Left:ClearAllPoints()
         CharacterFrameTab2.LeftActive:ClearAllPoints()
         CharacterFrameTab2.LeftHighlight:ClearAllPoints()
@@ -1644,6 +1660,8 @@ function module:Initialize()
         CharacterFrameTab2.MiddleHighlight:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray        
         CharacterFrameTab2.MiddleActive:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
         CharacterFrameTab2.Middle:SetGradient("Vertical", CreateColor(0, 0, 0, 1), CreateColor(0, 0, 0, 1)) -- Dark Gray
+
+        CharacterFrameTab3:SetPoint("TOPLEFT", CharacterFrameTab2, "TOPRIGHT", 3, 0)
         CharacterFrameTab3.Left:ClearAllPoints()
         CharacterFrameTab3.LeftActive:ClearAllPoints()
         CharacterFrameTab3.LeftHighlight:ClearAllPoints()
@@ -1698,12 +1716,13 @@ function module:Initialize()
     toast.description:SetFont(CCS.fontname, 12, CCS.textoutline)
     toast.description:Show()
     
-    if scaling ~= 1 then
+    if scaling ~= 1 or (scaling == 1 and CharacterFrame:GetScale() ~= 1) then
         CharacterFrame:SetScale(scaling); 
     end
+    
     ReputationFrame:SetScale(scaling);
     ReputationFrame:ClearAllPoints()
-    ReputationFrame:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPLEFT", 0, 0)
+    ReputationFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
     ReputationFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 7)
     ReputationFrame.ScrollBox:ClearAllPoints()
     ReputationFrame.ScrollBox:SetPoint("TOPLEFT", CharacterFrameInset, "TOPLEFT", 4, -4)
@@ -1715,7 +1734,7 @@ function module:Initialize()
     
     -- Create the character model button
     modelbtn:SetSize(23, 23)
-    modelbtn:SetPoint("BOTTOMRIGHT", CCS_CharacterFrame, "BOTTOMRIGHT", -100, 7)
+    modelbtn:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", -100, 7)
     modelbtn:SetFrameStrata("HIGH")
     
     if option("hideshowchbtn") == true then
@@ -1777,7 +1796,8 @@ function module:Initialize()
     CharacterModelScene:SetHeight(Height)
     CharacterModelScene:SetWidth(Height/CCS.ModelAspect)
     CharacterModelScene:SetPoint("LEFT", CharacterFrameBg, "LEFT", Left, -20);
-    CharacterModelScene:SetFrameLevel(2)
+    CharacterModelScene:SetFrameStrata("Medium")
+    CharacterModelScene:SetFrameLevel(9000)
     CharacterModelScene:Show();
     CharacterModelFrameBackgroundTopLeft:Hide();
     CharacterModelFrameBackgroundBotLeft:Hide();
@@ -1794,7 +1814,7 @@ function module:Initialize()
     --TokenFrame:SetScale(scaling); 
     if not TokenFrame.CCS_Init and not TokenFrame:IsProtected() then
         TokenFrame:ClearAllPoints()
-        TokenFrame:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPLEFT", 0, 0)
+        TokenFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
         TokenFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 0)
         TokenFrame.ScrollBox:ClearAllPoints()
         TokenFrame.ScrollBox:SetPoint("TOPLEFT", CharacterFrameInset, "TOPLEFT", 4, -4)
@@ -1809,11 +1829,11 @@ function module:Initialize()
  
     if not _G["ccs_sf"] then 
         
-        if not _G["CCSf"] then CreateFrame("Frame", "CCSf", CCS_CharacterFrame) end
-        local ccsf_af = _G["ccsf_af"] or CreateFrame("Frame", "ccsf_af", CCS_CharacterFrame, "SecureHandlerBaseTemplate");
+        if not _G["CCSf"] then CreateFrame("Frame", "CCSf", CharacterFrame) end
+        local ccsf_af = _G["ccsf_af"] or CreateFrame("Frame", "ccsf_af", CharacterFrame, "SecureHandlerBaseTemplate");
         
         ccsf_af:ClearAllPoints()
-        ccsf_af:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPRIGHT",  option("hpad")+63, 0);
+        ccsf_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT",  option("hpad")+63, 0);
         CCSf:ClearAllPoints(); 
         CCSf:SetPoint("TOPLEFT", ccsf_af, "TOPRIGHT", 0, 0); 
         CCSf:SetSize(900, 640)
@@ -1821,7 +1841,7 @@ function module:Initialize()
         
         --CharacterFrameCloseButton:SetScale(.7)
         
-        local sf = _G["ccs_sf"] or CreateFrame("Frame", "ccs_sf", CCS_CharacterFrame);
+        local sf = _G["ccs_sf"] or CreateFrame("Frame", "ccs_sf", CharacterFrame);
         local sf_bg = _G["ccs_sf_bg"] or sf:CreateTexture("ccs_sf_bg", "BACKGROUND", nil, 1)        
         local sf_topbar = _G["ccs_sf_tb"] or sf:CreateTexture("ccs_sf_tb", "BACKGROUND", nil, 2)
         local sf_topstreaks = _G["ccs_sf_ts"] or sf:CreateTexture("ccs_sf_ts", "BACKGROUND", nil, 2)
@@ -1905,7 +1925,7 @@ function CCS.CharacterSheetEventHandler(event, ...)
         ChangeModelBg()
         ReputationFrame_Update()
         CurrencyFrame_Update()
-        --print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "your message")
+        --print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "message")
         return true
     elseif event == "CCS_EVENT_CSHOW" then
 

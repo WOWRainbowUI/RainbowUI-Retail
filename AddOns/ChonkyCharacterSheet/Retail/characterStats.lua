@@ -211,9 +211,190 @@ local cachedPriorityLookup = {
     Versatility = 4,
 }
 
+-- Returns the key used to store/read the active mode for the current spec.
+local function GetActiveModeKey()
+    local specIdx = GetSpecialization() or 1
+    return "spec_" .. specIdx .. "_priority_mode"
+end
+
+-- Returns the priority_slots array for the current context.
+-- When use_per_spec_priority is ON each spec has its own independent slot list
+-- stored as spec_N_priority_slots.  On first access for a spec the global
+-- priority_slots array is deep-copied as the starting point so the user
+-- doesn't begin with an empty list.
+local function GetActiveSlots()
+    if not CCS.CurrentProfile then return {} end
+    if not CCS.CurrentProfile.priority_slots then
+        CCS.CurrentProfile.priority_slots = {}
+    end
+    local specIdx = GetSpecialization() or 1
+    local key     = "spec_" .. specIdx .. "_priority_slots"
+    if not CCS.CurrentProfile[key] then
+        local copy = {}
+        for _, s in ipairs(CCS.CurrentProfile.priority_slots) do
+            table.insert(copy, {
+                name    = s.name,
+                enabled = s.enabled,
+                s1      = s.s1,
+                s2      = s.s2,
+                s3      = s.s3,
+                s4      = s.s4,
+            })
+        end
+        CCS.CurrentProfile[key] = copy
+    end
+    return CCS.CurrentProfile[key]
+end
+
+-- Returns the canonical active priority mode.
+-- Modes: "slot_N" (N = 1-based index into priority_slots), "wowhead", or "none".
+-- Handles migration from legacy flat option keys, and per-spec storage.
+local function GetActiveMode()
+    if not CCS.CurrentProfile then return "none" end
+	if option("show_secondarypriority") then return "wowhead" end
+	
+    -- One-time migration from legacy "mythic"/"raid" flat option keys → priority_slots array
+    if not CCS.CurrentProfile._priority_slots_migrated then
+        -- Step 1: migrate old mythic/raid keys to custom_priority_slot_N_* flat keys
+        if CCS.CurrentProfile.use_custom_priority_mythic then
+            CCS.CurrentProfile.custom_priority_slot_1_enabled = true
+            for i = 1, 4 do
+                local v = CCS.CurrentProfile["custom_priority_mythic_" .. i]
+                if v then CCS.CurrentProfile["custom_priority_slot_1_" .. i] = v end
+            end
+        end
+        if CCS.CurrentProfile.use_custom_priority_raid then
+            CCS.CurrentProfile.custom_priority_slot_2_enabled = true
+            for i = 1, 4 do
+                local v = CCS.CurrentProfile["custom_priority_raid_" .. i]
+                if v then CCS.CurrentProfile["custom_priority_slot_2_" .. i] = v end
+            end
+        end
+        CCS.CurrentProfile._priority_slots_migrated = true
+    end
+
+    -- Step 2: migrate flat custom_priority_slot_N_* keys → priority_slots array
+    if not CCS.CurrentProfile.priority_slots then
+        CCS.CurrentProfile.priority_slots = {}
+        for n = 1, 8 do
+            local k = "custom_priority_slot_" .. n
+            if CCS.CurrentProfile[k .. "_enabled"] ~= nil then
+                table.insert(CCS.CurrentProfile.priority_slots, {
+                    name    = CCS.CurrentProfile[k .. "_name"] or ("Slot " .. n),
+                    enabled = CCS.CurrentProfile[k .. "_enabled"] == true,
+                    s1      = CCS.CurrentProfile[k .. "_1"] or "Mastery",
+                    s2      = CCS.CurrentProfile[k .. "_2"] or "CriticalStrike",
+                    s3      = CCS.CurrentProfile[k .. "_3"] or "Haste",
+                    s4      = CCS.CurrentProfile[k .. "_4"] or "Versatility",
+                })
+            end
+        end
+    end
+
+    local slots   = GetActiveSlots()
+    local modeKey = GetActiveModeKey()
+    local mode    = CCS.CurrentProfile[modeKey] or "wowhead"
+    -- Migrate old literal mode names to slot names
+    if mode == "mythic" then mode = "slot_1" end
+    if mode == "raid"   then mode = "slot_2" end
+
+    local hw = option("show_secondarypriority")
+
+    -- Check if any priority option is enabled
+    local anyEnabled = hw
+    if not anyEnabled then
+        for n = 1, #slots do
+            if slots[n].enabled then anyEnabled = true; break end
+        end
+    end
+    if not anyEnabled then
+        CCS.CurrentProfile[modeKey] = "none"
+        return "none"
+    end
+
+    -- If the stored mode's slot is now disabled, snap to the next valid mode
+    local slotNum = mode:match("^slot_(%d+)$")
+    if slotNum then
+        local n = tonumber(slotNum)
+        if not slots[n] or not slots[n].enabled then
+            mode = nil
+            for i = 1, #slots do
+                if slots[i].enabled then mode = "slot_" .. i; break end
+            end
+            mode = mode or (hw and "wowhead") or "none"
+        end
+    elseif (mode == "wowhead" or mode == "none") and not hw then
+        mode = nil
+        for i = 1, #slots do
+            if slots[i].enabled then mode = "slot_" .. i; break end
+        end
+        mode = mode or "none"
+    end
+
+    CCS.CurrentProfile[modeKey] = mode
+    return mode
+end
+
+-- Returns a short display name for the current active mode, e.g. "Secondary (PvP Prio)".
+local function GetActiveModeDisplayName()
+    local mode = GetActiveMode()
+    if mode == "none" then return L["Secondary"] or "Secondary" end
+    if mode == "wowhead" then return (L["Secondary"] or "Secondary") .. " (Wowhead)" end
+    local n = mode:match("^slot_(%d+)$")
+    if n then
+        local slots = GetActiveSlots()
+        local slot  = slots[tonumber(n)]
+        local name  = (slot and slot.name) or ("Slot " .. n)
+        return L["Secondary"] .. " (" .. name .. ")"
+    end
+    return L["Secondary"] or "Secondary"
+end
+
+local function ShouldShowPriority()
+    return GetActiveMode() ~= "none"
+end
+
 local function GetSortedStats(classID, specID, heroID)
-    if not classID or not specID or not heroID or not option("show_secondarypriority") then
-        -- return default order with dummy priorities
+    local mode = GetActiveMode()
+    local slotNum = mode:match("^slot_(%d+)$")
+    local priorities = nil
+
+    if slotNum then
+        local n    = tonumber(slotNum)
+        local slots = GetActiveSlots()
+        local slot  = slots[n]
+        if slot then
+            local mapping = {
+                [slot.s1 or "Mastery"]        = 1,
+                [slot.s2 or "CriticalStrike"] = 2,
+                [slot.s3 or "Haste"]          = 3,
+                [slot.s4 or "Versatility"]    = 4,
+            }
+            priorities = {mapping["Mastery"] or 5, mapping["CriticalStrike"] or 5, mapping["Haste"] or 5, mapping["Versatility"] or 5}
+        end
+    end
+
+    if not priorities then
+        if not classID or not specID or not heroID or not option("show_secondarypriority") then
+            local fallback = {}
+            for i,stat in ipairs(StatOrder) do
+                table.insert(fallback, {
+                    stat   = stat,
+                    prio   = i,
+                    tie    = i,
+                    name   = StatMap[stat].name,
+                    rating = StatMap[stat].rating,
+                })
+            end
+            return fallback
+        end
+
+        local classTable = CCS.ClassSpecStatPriority[classID]
+        local specTable = classTable and classTable[specID]
+        priorities = specTable and specTable[heroID]
+    end
+
+    if not priorities then
         local fallback = {}
         for i,stat in ipairs(StatOrder) do
             table.insert(fallback, {
@@ -226,15 +407,6 @@ local function GetSortedStats(classID, specID, heroID)
         end
         return fallback
     end
-
-    local classTable = CCS.ClassSpecStatPriority[classID]
-    if not classTable then return StatOrder end
-
-    local specTable = classTable[specID]
-    if not specTable then return StatOrder end
-
-    local priorities = specTable[heroID]
-    if not priorities then return StatOrder end
 
     -- build array of {statName, priority, tieIndex, localized name, rating constant}
     local stats = {
@@ -252,13 +424,10 @@ local function GetSortedStats(classID, specID, heroID)
         end
     end)
 
-    -- update the cached lookup table
-    cachedPriorityLookup = {
-        [stats[1].stat] = stats[1].prio,
-        [stats[2].stat] = stats[2].prio,
-        [stats[3].stat] = stats[3].prio,
-        [stats[4].stat] = stats[4].prio,
-    }
+    -- update the cached lookup table using sorted RANK (position 1-4), not raw prio value
+    for rank, statInfo in ipairs(stats) do
+        cachedPriorityLookup[statInfo.stat] = rank
+    end
 
     return stats
 end
@@ -1213,7 +1382,7 @@ local SecondaryKeyToStat = {
 }
 
 local function GetSortedSecondaryRows(section)
-    if not option("show_secondarypriority") then
+    if not ShouldShowPriority() then
         return section.rows
     end
 
@@ -1276,7 +1445,7 @@ local function UpdateLayout()
 				end
 
 				-------------------------------------------------
-				-- Determine header visibility (Option C)
+				-- Determine header visibility
 				-------------------------------------------------
 				local showHeader = isCollapsed or option("show_headers") ~= false
 
@@ -1304,8 +1473,25 @@ local function UpdateLayout()
 				local rows = section.rows
 				if section.key == "SECONDARY" then
 					rows = GetSortedSecondaryRows(section)
-				end
 
+					-- Refresh header title and cycle-button visibility on every
+					-- layout pass so that spec changes (and option toggles) are
+					-- immediately reflected without requiring a full re-Initialize.
+					-- CreateHeaderRow only runs at Initialize time, so this is the
+					-- only guaranteed refresh path for per-spec mode switches.
+					if header and header.headerText then
+						header.headerText:SetText(GetActiveModeDisplayName())
+					end
+					if header and header.prioToggle then
+						local numOpts = option("show_secondarypriority") and 1 or 0
+						local _sl = GetActiveSlots()
+						for _n = 1, #_sl do
+							if _sl[_n].enabled then numOpts = numOpts + 1 end
+						end
+						header.prioToggle:SetShown(numOpts > 1 and option("show_secondarypriority") == false)
+					end
+				end
+				
 				-------------------------------------------------
 				-- COLLAPSED SECTION
 				-------------------------------------------------
@@ -1379,6 +1565,8 @@ local function UpdateLayout()
 	end)
 
 end
+
+local UpdateAllStats
 
 local function CreateHeaderRow(parent, frameName, section)
     -- Reuse if it already exists
@@ -1480,9 +1668,75 @@ local function CreateHeaderRow(parent, frameName, section)
 	option("fontcolor_statheaders")[3] or 1,
 	option("fontcolor_statheaders")[4] or 1)
 	
-	if option("show_secondarypriority") and section.key == "SECONDARY" then
-		row.headerText:SetText(L["Secondary (Priority)"])
+	if section.key == "SECONDARY" then
+        -- Count enabled priority options for toggle visibility
+        local numOptions = option("show_secondarypriority") and 1 or 0
+        local _slots = GetActiveSlots()
+        for n = 1, #_slots do
+            if _slots[n].enabled then numOptions = numOptions + 1 end
+        end
+
+        if not row.prioToggle then
+            row.prioToggle = CreateFrame("Button", nil, row)
+            row.prioToggle:SetSize(16, 16)
+            row.prioToggle:SetPoint("RIGHT", row, "RIGHT", 3, 0)
+
+            row.prioToggle:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up")
+            row.prioToggle:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Down")
+            row.prioToggle:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
+
+            row.prioToggle:SetScript("OnClick", function()
+                if not CCS.CurrentProfile then return end
+                local mode = GetActiveMode()
+                local modeKey = GetActiveModeKey()
+
+                -- Build ordered list of enabled modes from this spec's slots then wowhead
+                local enabledModes = {}
+                local _pslots = GetActiveSlots()
+                for n = 1, #_pslots do
+                    if _pslots[n].enabled then
+                        table.insert(enabledModes, "slot_" .. n)
+                    end
+                end
+                if option("show_secondarypriority") then
+                    table.insert(enabledModes, "wowhead")
+                end
+
+                if #enabledModes > 1 then
+                    -- Find current position and advance to next, wrapping around
+                    local nextMode = enabledModes[1]
+                    for i, m in ipairs(enabledModes) do
+                        if m == mode then
+                            nextMode = enabledModes[(i % #enabledModes) + 1]
+                            break
+                        end
+                    end
+                    CCS.CurrentProfile[modeKey] = nextMode
+                end
+
+                -- Refresh stats, layout, and header text
+                if _G["CCS_stat_sc"] then
+                    UpdateAllStats(_G["CCS_stat_sc"])
+                    UpdateLayout()
+                    local hrow = _G["CCS_Header_SECONDARY"]
+                    if hrow then
+                        hrow.headerText:SetText(GetActiveModeDisplayName())
+                    end
+                end
+            end)
+        end
+		row.prioToggle:Hide()
+        if option("show_secondarypriority") == true then
+			row.prioToggle:Hide()
+		elseif numOptions > 1 then
+            row.prioToggle:Show()
+        else
+            row.prioToggle:Hide()
+        end
+
+        row.headerText:SetText(GetActiveModeDisplayName())
 	else
+        if row.prioToggle then row.prioToggle:Hide() end
 		row.headerText:SetText(title or "HEADER")
 	end
 
@@ -1734,9 +1988,16 @@ local function TruncateToWidth(fs, text, maxWidth)
     return ellipsis
 end
 
-local function UpdateAllStats(parent)
+UpdateAllStats = function(parent)
 
     CreateAndUpdateiLvlframe(parent)
+
+	if ShouldShowPriority() then
+        local _, _, classID = UnitClass("player")
+        local specID = GetSpecialization()
+        local heroID = (C_ClassTalents and C_ClassTalents.GetActiveHeroTalentSpec and C_ClassTalents.GetActiveHeroTalentSpec()) or nil
+        GetSortedStats(classID, specID, heroID)  -- side-effect: updates cachedPriorityLookup
+    end
 
     local mode = option("long_text_handling")  -- "Full Text", "Truncate", "Wrap Text"
 
@@ -2100,8 +2361,6 @@ function module:Initialize()
 	end
 end
 
-
-
 -- Event handler for character stats
 function CCS.CharacterStatsEventHandler(event, ...)
     local arg1 = ...
@@ -2143,6 +2402,13 @@ function CCS.CharacterStatsEventHandler(event, ...)
 			end
 			UpdateAllStats(_G["CCS_stat_sc"])
 			UpdateLayout()
+            -- Rebuild the options panel priority slots section for the new spec.
+            if event == "PLAYER_SPECIALIZATION_CHANGED" then
+                local optFrame = _G["CCS_Options"]
+                if optFrame and optFrame:IsShown() then
+                    CCS:RefreshOptionsUI()
+                end
+            end
         end)
     end
 end

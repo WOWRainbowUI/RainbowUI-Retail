@@ -22,6 +22,7 @@ CCS.ActiveFontMenu = nil
 CCS.secretsdisabled = false
 CCS.raidupdatedisabled = false
 CCS.activeClickedRow = nil
+CCS.initall = nil
 
 -- Game version flags
 CCS.RETAIL  = 1
@@ -197,22 +198,16 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showilvl", label=L["SHOW_ILVL"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showpvpilvl", label=L["SHOW_PVP_ILVL"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showenchantgemerrors", label=L["SHOW_ENCHANT_GEM_ERRORS"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showmissingsockets", label=L["SHOW_MISSING_SOCKETS"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showitemupgrade", label=L["SHOW_ITEM_UPGRADE"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="upgradecolorrarity", label=L["Upgrade Color by Rarity"], value=false, default=false, slots=1 },
     { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemupgradecolor", label=L["ITEM_UPGRADE_COLOR"], value={0.98,0.60,0.35,1}, default={0.98,0.60,0.35,1}, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showitemcolor", label=L["SHOW_ITEM_COLOR_BG"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetitems", label=L["SHOW_SET_ITEMS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetclasscolor", label=L["SHOW_SET_CLASS_COLOR"], value=true, default=true, slots=1 },
-    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="setitemcolor", label=L["SET_ITEM_COLOR"], value={0.05,0.75,0.45,1}, default={0.05,0.75,0.45,1}, slots=1 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="setitemcolor", label=L["SET_ITEM_COLOR"], value={0.05,0.75,0.45,1}, default={0.05,0.75,0.45,1}, slots=4 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcolorbrightness", label=L["Item Background Brightness"], value=1.00, default=1.00, min=0.30, max=1.00, step=0.01, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="enchantnamelength", label=L["ENCHANT_NAME_LENGTH"], value=100, default=100, min=20, max=100, step=1, slots=2 },
-
-    -- Loot Spec Display Options
-    { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), slots=4 },
-    { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key=nil, label=L["HEADER_LOOT_SPEC"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
-    { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), slots=4 },
-    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showlootspec", label=L["SHOW_LOOT_SPEC"], value=true, default=true, slots=1 },
-    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showlootspectitle", label=L["SHOW_LOOT_SPEC_TITLE"], value=true, default=true, slots=1 },
 
     -- Spec Display Options
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), slots=4 },
@@ -220,6 +215,8 @@ ns.optionDefs = {
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), slots=4 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showspec", label=L["SHOW_SPEC"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showspectitle", label=L["SHOW_SPEC_TITLE"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showlootspec", label=L["SHOW_LOOT_SPEC"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="showlootspectitle", label=L["SHOW_LOOT_SPEC_TITLE"], value=true, default=true, slots=1 },
 
     -- Character Sheet Font Settings
     { type="divider", cat="CHAR-FONT", ver=bit.bor(CCS.ALL), slots=4 },
@@ -354,6 +351,11 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_conquest",   label=L["pvp_conquest"],   value=true, default=true, slots=1 },
    -- { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_bloodtokens",label=L["pvp_bloodtokens"],value=true, default=true, slots=1 },
    -- { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key="pvp_trophy",     label=L["pvp_trophy"],     value=true, default=true, slots=1 },
+
+    -- Custom Priority Profiles (dynamic section - UI managed by options.lua)
+    { type="divider", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), slots=4 },
+    { type="header",  cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["Custom Priority Profiles"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
+    { type="priority_slots_section", cat="CHAR-STATS", ver=bit.bor(CCS.RETAIL), key=nil, slots=4 },
 
     -- TBC and Classic Stats Options
     { type="checkbox", cat="CHAR-STATS", ver=bit.bor(CCS.TBC), key="show_basestats", label=L["SHOW_BASESTATS"], value=true, default=true, slots=2 },
@@ -2084,9 +2086,9 @@ CCS.ClassSpecStatPriority = {
         },
         -- Retribution
         [3] = {
-            [48] = {1,3,2,4}, -- Templar
+            [48] = {1,2,3,4}, -- Templar
             [49] = {1,1,1,1}, -- *** Lightsmith
-            [50] = {1,3,2,4}, -- Herald of the Sun
+            [50] = {1,2,3,4}, -- Herald of the Sun
         },
     },
     [5] = { -- Priest
