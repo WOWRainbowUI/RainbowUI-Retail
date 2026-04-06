@@ -18,6 +18,7 @@ L["sArena"] = true
 L["TellMeWhen"] = true
 L["Profiles"] = true
 L["ShinyAuras"] = true
+L["Dominos"] = true
 L["ElvUI"] = true
 
 -- Group Headers
@@ -157,6 +158,7 @@ L["LIVE_CONTROLS_DESC"] = "Changes apply instantly. Keep only the categories you
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Enable Party / Raid Frames acts as the master switch for this category. Enable Raid Aura Text extends the same styling to Blizzard raid frames."
 L["ADDON_INTEGRATIONS_DESC"] = "Enable or disable optional addon bridges that route external cooldowns into MiniCE categories."
 L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."] = true
+L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."] = true
 L["Routes supported ElvUI action bar, unit frame, and nameplate cooldowns through MiniCE categories. Disable this if you want ElvUI to keep its native cooldown styling untouched."] = true
 
 -- Links

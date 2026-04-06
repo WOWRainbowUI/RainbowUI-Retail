@@ -238,6 +238,20 @@ local function SetShinyAurasAdapterEnabled(_, value)
     AceConfigRegistry:NotifyChange(addonName)
 end
 
+local function DominosAdapterEnabled()
+    return MCE:IsDominosAdapterEnabled()
+end
+
+local function SetDominosAdapterEnabled(_, value)
+    local profile = MCE.db and MCE.db.profile
+    if not profile then return end
+
+    profile.dominosAdapterEnabled = value
+    MCE:MarkReloadRequired()
+    MCE:ForceUpdateAll(true)
+    AceConfigRegistry:NotifyChange(addonName)
+end
+
 local function ElvUIAdapterEnabled()
     return MCE:IsElvUIAdapterEnabled()
 end
@@ -1373,6 +1387,7 @@ function MCE:GetOptions()
                         inline = true, order = 1.5,
                         hidden = function()
                             return not MCE:IsShinyAurasAvailable()
+                                and not MCE:IsDominosAvailable()
                                 and not MCE:IsElvUIAvailable()
                         end,
                         args = {
@@ -1388,8 +1403,16 @@ function MCE:GetOptions()
                                 get = ShinyAurasAdapterEnabled,
                                 set = SetShinyAurasAdapterEnabled,
                             },
-                            toggleElvUI = {
+                            toggleDominos = {
                                 type = "toggle", order = 2, width = "full",
+                                name = "|cffffd100" .. L["Dominos"] .. "|r",
+                                hidden = function() return not MCE:IsDominosAvailable() end,
+                                desc = L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."],
+                                get = DominosAdapterEnabled,
+                                set = SetDominosAdapterEnabled,
+                            },
+                            toggleElvUI = {
+                                type = "toggle", order = 3, width = "full",
                                 name = "|cffffd100" .. L["ElvUI"] .. "|r",
                                 hidden = function() return not MCE:IsElvUIAvailable() end,
                                 desc = L["Routes supported ElvUI action bar, unit frame, and nameplate cooldowns through MiniCE categories. Disable this if you want ElvUI to keep its native cooldown styling untouched."],

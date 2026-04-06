@@ -1,6 +1,15 @@
 
 # Changelog
 
+## [3.7.7] - 2026-04-05
+- Blacklisted the Nameplate GCD Tracker frame so MiniCE won't style it.
+
+## [3.7.6] - 2026-04-03
+- Add dedicated Dominos adapter for independent cooldown management.
+
+## [3.7.5] - 2026-04-03
+- Expanded classifier blacklists for Dominos and EllesmereUI so their known frames and parent containers are ignored by MiniCE styling.
+
 ## [3.7.4] - 2026-04-02
 - Improved MiniCC support so more widgets are detected and styled correctly, including Friendly CDs, Friendly Indicators, Portraits, Alerts, Healer CC, Kick Timer, and Precognition.
 - Added separate MiniCC text size controls for Friendly CDs and cleaned up the MiniCC options so the groups are easier to understand.

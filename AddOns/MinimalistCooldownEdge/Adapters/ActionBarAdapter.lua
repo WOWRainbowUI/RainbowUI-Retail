@@ -6,11 +6,48 @@ local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local Adapter = MCE:NewModule("ActionBarAdapter")
 
 local type, ipairs = type, ipairs
+local strfind = string.find
 
 local CATEGORY = C.Categories
 local AB = C.Adapter.ActionBars
+local DOM = C.Adapter.Dominos
 
 local Registry
+
+local function GetFrameName(frame)
+    if not frame or MCE:IsForbidden(frame) or not frame.GetName then
+        return nil
+    end
+
+    local name = frame:GetName()
+    if type(name) == "string" and name ~= "" then
+        return name
+    end
+
+    return nil
+end
+
+local function IsDominosManagedButton(button)
+    if not button or MCE:IsForbidden(button) then
+        return false
+    end
+
+    local current = button
+    for _ = 1, DOM.MaxAncestorDepth + 1 do
+        if not current or MCE:IsForbidden(current) then
+            break
+        end
+
+        local name = GetFrameName(current)
+        if type(name) == "string" and strfind(name, C.Addon.DominosName, 1, true) == 1 then
+            return true
+        end
+
+        current = current.GetParent and current:GetParent() or nil
+    end
+
+    return false
+end
 
 function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
@@ -18,7 +55,7 @@ function Adapter:OnEnable()
 end
 
 local function RegisterButton(button)
-    if not button or MCE:IsForbidden(button) then return end
+    if not button or MCE:IsForbidden(button) or IsDominosManagedButton(button) then return end
 
     for _, key in ipairs(AB.CooldownKeys) do
         local cd = button[key]
@@ -60,6 +97,7 @@ function Adapter:TryClaim(cooldown)
     if not cooldown then return nil end
     local parent = cooldown.GetParent and cooldown:GetParent()
     if not parent or MCE:IsForbidden(parent) then return nil end
+    if IsDominosManagedButton(parent) then return nil end
 
     if type(parent.action) == "number" then
         RegisterButton(parent)

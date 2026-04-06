@@ -148,9 +148,14 @@ The main cooldown path is:
 
 ### Adapters
 
+`Adapters/DominosAdapter.lua`
+
+- Detects Dominos action bar cooldowns, including bars that reuse Blizzard button names.
+- Marks supported Dominos cooldowns as safe despite the generic blacklist, and lets the UI toggle the integration on or off.
+
 `Adapters/ActionBarAdapter.lua`
 
-- Registers Blizzard action buttons plus supported third-party bars.
+- Registers Blizzard action buttons plus supported third-party bars outside of dedicated integrations.
 - Detects both main cooldowns and charge cooldowns.
 
 `Adapters/NameplateAdapter.lua`
