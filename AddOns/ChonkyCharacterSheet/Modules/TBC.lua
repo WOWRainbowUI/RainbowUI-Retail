@@ -1667,7 +1667,7 @@ function module:Initialize()
     CharacterFrameBg:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", -- optional background texture
     })
-    CharacterFrameBg:SetBackdropColor(0.1, 0.1, 0.1, 0.1)  -- match your dark grey background
+    CharacterFrameBg:SetBackdropColor(0.1, 0.1, 0.1, 0.1) 
     
     CharacterFrameBg:ClearAllPoints()
     CharacterFrameBg:SetAllPoints()
@@ -2470,7 +2470,7 @@ function InitializeStats()
     local Height = 22
     local yOffset = 2.3
     local r, g, b, alpha =1,1,1,1                 
-   -- print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "your message")
+   -- print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "message")
    
     if option("showcharacterstats") then
         C_CVar.SetCVar("breakUpLargeNumbers", "1")

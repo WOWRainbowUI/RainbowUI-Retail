@@ -53,7 +53,7 @@ chonkfont:SetJustifyV("TOP")
 
 -- Close button
 local closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
-closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, -10)
+closeBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, -8)
 CCS:SkinBlizzardButton(closeBtn, "x", 26)
 closeBtn:SetSize(32, 32)
 closeBtn:SetScale(.5)
@@ -82,7 +82,7 @@ frame:SetBackdrop({
     edgeSize = 16,                                              -- thickness of the border
     insets = { left = 3, right = 3, top = 3, bottom = 3 },      -- inset so content doesn't overlap border
 })
-frame:SetBackdropColor(0.1, 0.1, 0.1, 0.7)  -- match your dark grey background
+frame:SetBackdropColor(0.1, 0.1, 0.1, 0.7)  -- match dark grey background
 frame:SetBackdropBorderColor(0.4, .1, 0.6, .6)   -- purple border
 
 local fontests = _G["CCS_FONT_TEST"] or frame:CreateFontString("CCS_FONT_TEST", "OVERLAY", "GameFontNormal")
@@ -106,7 +106,7 @@ local categoryList = {
 
 -- Create scroll frame
 local scrollFrame = CreateFrame("ScrollFrame", nil, frame, "UIPanelScrollFrameTemplate")
-scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 200, -19)
+scrollFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 200, -24)
 scrollFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 3)
 
 local currentVersion = CCS.GetCurrentVersion()
@@ -254,7 +254,7 @@ StaticPopupDialogs["CCS_RESET_OPTIONS_CONFIRM"] = {
     whileDead = true,
     hideOnEscape = true,
     OnShow = function(self)
-        -- Set custom position: bottom center of your options frame
+        -- Set custom position: bottom center of options frame
         self:ClearAllPoints()
         self:SetPoint("CENTER", CCS_Options, "CENTER", 0, 0)
     end,    
@@ -266,7 +266,7 @@ defaultsBtn:SetSize(190, 25)
 defaultsBtn:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 5, 5)
 defaultsBtn:SetText(L["RESET_PROFILE"])
 
--- Apply your skin
+-- Apply skin
 CCS.SkinButton(defaultsBtn)
 
 -- OnClick behavior
@@ -436,7 +436,7 @@ do
 
             -- Create the Discordlabel
             local discordLabel = frame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-            discordLabel:SetPoint("TOPRIGHT", frame, "TOP", -10, -15)
+            discordLabel:SetPoint("TOPRIGHT", frame, "TOP", -10, -8)
             discordLabel:SetText("|cff3399ffhttps://discord.gg/bSyqqa7RC4|r")
             discordLabel:SetFont(CCS.GetDefaultFontForLocale(), 10, CCS.textoutline)
             discordLabel:SetJustifyH("CENTER")
@@ -473,6 +473,18 @@ end
 function CCS:RefreshOptionsUI()
     local profile = CCS.CurrentProfile
     if not profile or not ns.optionDefs then return end
+
+    -- Rebuild the dynamic priority slots panel when the profile changes,
+    -- syncing the viewed spec tab to whichever spec is currently active.
+    local charStatsChild = categoryScrollChildren and categoryScrollChildren["CHAR-STATS"]
+    local psc = charStatsChild and charStatsChild._prioritySlotsContainer
+    if psc then
+        if psc._syncActiveSpec then
+            psc._syncActiveSpec()
+        elseif psc._rebuildSlots then
+            psc._rebuildSlots()
+        end
+    end
 
     for _, def in ipairs(ns.optionDefs) do
         local value = profile[def.key]
@@ -1345,6 +1357,469 @@ local function newDivider(def, parent)
     return line
 end
 
+-- Dynamic Priority Slots Section
+-- Creates a self-managed container for unlimited custom stat priority profiles.
+-- Data is stored in CCS.CurrentProfile.priority_slots = {{name, enabled, s1, s2, s3, s4}, ...}
+local function newPrioritySlotsSection(def, parent)
+    local STAT_OPTIONS = {"Mastery", "CriticalStrike", "Haste", "Versatility"}
+    local PRIO_LABELS  = {
+        L["1st Priority"] or "1st Priority",
+        L["2nd Priority"] or "2nd Priority",
+        L["3rd Priority"] or "3rd Priority",
+        L["4th Priority"] or "4th Priority",
+    }
+    local slotW  = GlobalSlotWidth
+    local totalW = slotW * 4
+    local DIV_H  = 10   -- gap above each slot (divider line)
+    local HDR_H  = 34   -- checkbox + name row height
+    local STAT_H = 50   -- priority label + stat dropdown height (label ~14px + scaled dropdown ~36px)
+    local SLOT_H = DIV_H + HDR_H + STAT_H  -- 94px per slot
+    local ADD_H  = 40   -- add-button row height
+    local TABS_H = 42   -- spec selector tabs row height (includes 10px top gap)
+
+    -- Which spec's slots are currently shown in this panel. Defaults to the
+    -- active spec; user can click tabs to switch to any other spec.
+    local viewingSpecIdx = GetSpecialization and GetSpecialization() or 1
+
+    -- Migrate from old flat option keys on first access
+    local function ensureSlotsExist()
+        if not CCS.CurrentProfile then return end
+        if not CCS.CurrentProfile.priority_slots then
+            CCS.CurrentProfile.priority_slots = {}
+            for n = 1, 8 do
+                local k = "custom_priority_slot_" .. n
+                if CCS.CurrentProfile[k .. "_enabled"] ~= nil then
+                    table.insert(CCS.CurrentProfile.priority_slots, {
+                        name    = CCS.CurrentProfile[k .. "_name"] or ("Slot " .. n),
+                        enabled = CCS.CurrentProfile[k .. "_enabled"] == true,
+                        s1      = CCS.CurrentProfile[k .. "_1"] or "Mastery",
+                        s2      = CCS.CurrentProfile[k .. "_2"] or "CriticalStrike",
+                        s3      = CCS.CurrentProfile[k .. "_3"] or "Haste",
+                        s4      = CCS.CurrentProfile[k .. "_4"] or "Versatility",
+                    })
+                end
+            end
+        end
+    end
+
+    ensureSlotsExist()
+
+    local function getSlots()
+        ensureSlotsExist()
+        if not CCS.CurrentProfile then return {} end
+        local key = "spec_" .. viewingSpecIdx .. "_priority_slots"
+        if not CCS.CurrentProfile[key] then
+            local copy = {}
+            for _, s in ipairs(CCS.CurrentProfile.priority_slots) do
+                table.insert(copy, {
+                    name    = s.name,
+                    enabled = s.enabled,
+                    s1      = s.s1,
+                    s2      = s.s2,
+                    s3      = s.s3,
+                    s4      = s.s4,
+                })
+            end
+            CCS.CurrentProfile[key] = copy
+        end
+        return CCS.CurrentProfile[key]
+    end
+
+    local function calcH()
+        local s = getSlots()
+        return TABS_H + #s * SLOT_H + ADD_H
+    end
+
+    -- Container frame
+    local container = CreateFrame("Frame", "CCS_PrioSlotsContainer", parent)
+    container:SetSize(totalW, calcH())
+    -- Mark so the OnShow finalize loop can set _baseHeight and _initialized
+    parent._prioritySlotsContainer = container
+
+    -- Per-slot widget cache: slotWidgets[n] = {div, cb, lbl, eb, rm, dds={}, dlbls={}}
+    local slotWidgets = {}
+    container._slotWidgets = slotWidgets
+
+    local function RebuildSlots()
+        local slots = getSlots()
+        local newH  = calcH()
+        container:SetHeight(newH)
+
+        if container._initialized then
+            local sc = parent
+            sc:SetHeight(container._baseHeight + newH)
+            C_Timer.After(0, function()
+                scrollFrame:UpdateScrollChildRect()
+                UpdateScrollbarVisibility(scrollFrame)
+            end)
+        end
+
+        local borderColor = CCS.StyleColor and CCS.StyleColor.border or {0.4, 0.1, 0.6, 0.6}
+
+        -- Spec selector tabs
+        do
+            local numSpecs   = GetNumSpecializations and GetNumSpecializations() or 0
+            local activeSpec = GetSpecialization and GetSpecialization() or 1
+            if numSpecs > 0 then
+                if not container._specTabs then container._specTabs = {} end
+                local tabAreaW = totalW - 20   -- 10px left + right margin, matching slot content
+                local tabW = tabAreaW / numSpecs
+                for i = 1, numSpecs do
+                    local specName, specIcon
+                    if GetSpecializationInfo then
+                        local _, n, _, icn = GetSpecializationInfo(i)
+                        specName = n
+                        specIcon = icn
+                    end
+                    specName = specName or ("Spec " .. i)
+                    if i == activeSpec then specName = specName .. "  *" end
+
+                    -- Create button on first pass
+                    if not container._specTabs[i] then
+                        local btn = CreateFrame("Button", "CCSbtn_spectab_" .. i, container, "BackdropTemplate")
+                        btn:SetText(specName)
+                        CCS.SkinButton(btn)
+                        container._specTabs[i] = btn
+                        -- Spec icon texture (left side of tab)
+                        btn._icon = btn:CreateTexture(nil, "ARTWORK")
+                        btn._icon:SetSize(22, 22)
+                        btn._icon:SetPoint("LEFT", btn, "LEFT", 5, 0)
+                        -- Offset the text label to sit after the icon
+                        local fs = btn:GetFontString()
+                        if fs then
+                            fs:ClearAllPoints()
+                            fs:SetPoint("LEFT", btn, "LEFT", 32, 0)
+                            fs:SetPoint("RIGHT", btn, "RIGHT", -4, 0)
+                        end
+                        do
+                            local ci = i
+                            btn:SetScript("OnClick", function()
+                                viewingSpecIdx = ci
+                                RebuildSlots()
+                            end)
+                        end
+                    else
+                        -- Update text for existing button (active-spec marker may have moved)
+                        local fs = container._specTabs[i]:GetFontString()
+                        if fs then fs:SetText(specName) end
+                        container._specTabs[i]:Show()
+                    end
+
+                    local btn = container._specTabs[i]
+                    -- Update spec icon texture
+                    if btn._icon then
+                        if specIcon then
+                            btn._icon:SetTexture(specIcon)
+                            btn._icon:Show()
+                        else
+                            btn._icon:Hide()
+                        end
+                    end
+                    btn:ClearAllPoints()
+                    btn:SetPoint("TOPLEFT", container, "TOPLEFT", 10 + (i - 1) * tabW + 1, -10)
+                    btn:SetSize(tabW - 2, TABS_H - 14)
+                    if i == viewingSpecIdx then
+                        btn:SetBackdropColor(unpack(CCS.StyleColor.normal))
+                    else
+                        btn:SetBackdropColor(0.17, 0.17, 0.17, 0.9)
+                    end
+                    btn._isActive = (i == viewingSpecIdx)
+                end
+                for i = numSpecs + 1, #container._specTabs do
+                    container._specTabs[i]:Hide()
+                end
+            end
+        end
+
+        -- Hide widgets for slots that no longer exist
+        for n = #slots + 1, #slotWidgets do
+            local w = slotWidgets[n]
+            if w then
+                if w.div  then w.div:Hide()  end
+                if w.cb   then w.cb:Hide()   end
+                if w.lbl  then w.lbl:Hide()  end
+                if w.eb   then w.eb:Hide()   end
+                if w.rm   then w.rm:Hide()   end
+                if w.dds  then for _, dd in ipairs(w.dds)   do dd:Hide() end end
+                if w.dlbls then for _, dl in ipairs(w.dlbls) do dl:Hide() end end
+            end
+        end
+
+        -- Create or update each slot
+        for n, slot in ipairs(slots) do
+            if not slotWidgets[n] then slotWidgets[n] = {} end
+            local w    = slotWidgets[n]
+            local yTop = -(n - 1) * SLOT_H - TABS_H   -- top of this slot's block (below tabs)
+            local yHdr = yTop - DIV_H                 -- header row Y
+            local yLbl = yHdr - HDR_H                 -- stat priority label Y (dropdowns anchor below)
+
+            -- Divider line
+            if not w.div then
+                w.div = container:CreateTexture(nil, "ARTWORK")
+                w.div:SetHeight(2)
+                w.div:SetWidth(totalW - 20)
+            end
+            w.div:SetVertexColor(unpack(borderColor))
+            w.div:ClearAllPoints()
+            w.div:SetPoint("TOPLEFT", container, "TOPLEFT", 10, yTop)
+            w.div:Show()
+
+            -- Enabled checkbox
+            local cbName = "CCScb_prio_" .. n
+            if not w.cb then
+                w.cb = _G[cbName] or CreateFrame("CheckButton", cbName, container, "BackdropTemplate")
+                w.cb:SetSize(24, 24)
+                CCS.SkinCheckbox(w.cb)
+            end
+            w.cb:SetParent(container)
+            w.cb:ClearAllPoints()
+            w.cb:SetPoint("TOPLEFT", container, "TOPLEFT", 6, yHdr - 5)
+            w.cb:SetChecked(slot.enabled == true)
+            w.cb:Show()
+            do
+                local capturedSlot = slot
+                w.cb:SetScript("OnClick", function(self)
+                    capturedSlot.enabled = self:GetChecked()
+                    CCS.InitializeModules()
+                end)
+            end
+
+            -- "Slot N:" label
+            if not w.lbl then
+                w.lbl = container:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+            end
+            w.lbl:ClearAllPoints()
+            w.lbl:SetPoint("LEFT", w.cb, "RIGHT", 4, 0)
+            w.lbl:SetText((L["Slot"] or "Slot ").." " .. n .. ":")
+            w.lbl:Show()
+
+            -- Name EditBox (typed, no dropdown)
+            local ebName = "CCSeb_prio_" .. n
+            if not w.eb then
+                w.eb = _G[ebName] or CreateFrame("EditBox", ebName, container, "InputBoxTemplate, BackdropTemplate")
+                if w.eb.Left   then w.eb.Left:Hide()   end
+                if w.eb.Middle then w.eb.Middle:Hide() end
+                if w.eb.Right  then w.eb.Right:Hide()  end
+                w.eb:SetBackdrop({
+                    bgFile   = "Interface\\DialogFrame\\UI-DialogBox-Background",
+                    edgeFile = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\UI-Tooltip-SquareBorder.blp",
+                    tile = true, tileSize = 16, edgeSize = 16,
+                    insets = { left = 4, right = 4, top = 4, bottom = 4 }
+                })
+                w.eb:SetBackdropColor(0.1, 0.1, 0.1, 1)
+                w.eb:SetSize(180, 22)
+                w.eb:SetAutoFocus(false)
+            end
+            w.eb:SetParent(container)
+            w.eb:SetBackdropBorderColor(unpack(borderColor))
+            w.eb:ClearAllPoints()
+            w.eb:SetPoint("LEFT", w.lbl, "RIGHT", 8, 0)
+            w.eb:SetText(slot.name or ("Slot " .. n))
+            w.eb:SetTextInsets(6, 6, 0, 0)
+            w.eb:Show()
+            do
+                local capturedSlot = slot
+                w.eb:SetScript("OnEnterPressed", function(self)
+                    capturedSlot.name = self:GetText()
+                    self:ClearFocus()
+                    CCS.InitializeModules()
+                end)
+                w.eb:SetScript("OnEditFocusLost", function(self)
+                    capturedSlot.name = self:GetText()
+                    CCS.InitializeModules()
+                end)
+            end
+
+            -- Remove button
+            local rmName = "CCSbtn_priors_" .. n
+            if not w.rm then
+                w.rm = _G[rmName] or CreateFrame("Button", rmName, container, "BackdropTemplate")
+                w.rm:SetSize(120, 22)
+                w.rm:SetText(REMOVE or "Remove")  -- set text before skin so GetFontString() is non-nil
+                CCS.SkinButton(w.rm)
+            end
+            w.rm:SetParent(container)
+            w.rm:ClearAllPoints()
+            w.rm:SetPoint("TOPRIGHT", container, "TOPRIGHT", -6, yHdr - 5)
+            w.rm:Show()
+            do
+                local capturedIdx = n
+                w.rm:SetScript("OnClick", function()
+                    table.remove(getSlots(), capturedIdx)
+                    RebuildSlots()
+                end)
+            end
+
+            -- 4 Stat Dropdowns (label first, dropdown anchored below it — mirrors newDropdown pattern)
+            if not w.dds   then w.dds   = {} end
+            if not w.dlbls then w.dlbls = {} end
+
+            for i = 1, 4 do
+                local ddName = "CCSdd_prio_" .. n .. "_" .. i
+
+                -- Priority label: positioned absolutely at yLbl within the container
+                if not w.dlbls[i] then
+                    w.dlbls[i] = container:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+                end
+                w.dlbls[i]:ClearAllPoints()
+                w.dlbls[i]:SetPoint("TOPLEFT", container, "TOPLEFT", (i - 1) * slotW + 10, yLbl)
+                w.dlbls[i]:SetText(PRIO_LABELS[i])
+                w.dlbls[i]:Show()
+
+                -- Dropdown: anchored to its label's BOTTOMLEFT (same as newDropdown)
+                if not w.dds[i] then
+                    w.dds[i] = _G[ddName] or CreateFrame("Frame", ddName, container, "UIDropDownMenuTemplate, BackdropTemplate")
+                    CCS.SkinDropdown(w.dds[i], ddName)
+                    UIDropDownMenu_SetWidth(w.dds[i], slotW - 75)
+                    w.dds[i]:SetScale(0.75)
+                    _G[ddName .. "Text"]:SetFont(CCS:GetDefaultFontForLocale(), 14, CCS.textoutline)
+                end
+                w.dds[i]:SetParent(container)
+                w.dds[i]:ClearAllPoints()
+                w.dds[i]:SetPoint("TOPLEFT", w.dlbls[i], "BOTTOMLEFT", -10, -2)
+                w.dds[i]:Show()
+
+                do
+                    local capturedSlot = slot
+                    local capturedI    = i
+                    local capturedDD   = w.dds[i]
+                    UIDropDownMenu_Initialize(capturedDD, function()
+                        for _, v in ipairs(STAT_OPTIONS) do
+                            local info = UIDropDownMenu_CreateInfo()
+                            info.text  = L[v] or v
+                            info.value = v
+                            info.func  = function()
+                                capturedSlot["s" .. capturedI] = v
+                                UIDropDownMenu_SetSelectedValue(capturedDD, v)
+                                CCS.InitializeModules()
+                            end
+                            UIDropDownMenu_AddButton(info)
+                        end
+                    end)
+                    UIDropDownMenu_SetSelectedValue(capturedDD, slot["s" .. i] or STAT_OPTIONS[i])
+                end
+            end
+        end
+
+        -- "Add Priority Slot" button (always at the bottom)
+        local addName = "CCSbtn_prioradd"
+        if not container._addBtn then
+            container._addBtn = _G[addName] or CreateFrame("Button", addName, container, "BackdropTemplate")
+            container._addBtn:SetSize(totalW - 20, 28)
+            container._addBtn:SetText("+ ".. (L["Add Priority Slot"] or "Add Priority Slot"))  -- set text before skin
+            CCS.SkinButton(container._addBtn)
+            container._addBtn:SetScript("OnClick", function()
+                table.insert(getSlots(), {
+                    name    = CHANNEL_CATEGORY_CUSTOM or "Custom",
+                    enabled = false,
+                    s1      = "Mastery",
+                    s2      = "CriticalStrike",
+                    s3      = "Haste",
+                    s4      = "Versatility",
+                })
+                RebuildSlots()
+            end)
+        end
+        local addY = -(#slots * SLOT_H) - TABS_H - 6
+        container._addBtn:ClearAllPoints()
+        container._addBtn:SetPoint("TOPLEFT", container, "TOPLEFT", 10, addY)
+        container._addBtn:Show()
+    end
+
+    -- Store rebuild function for external refresh (e.g. profile switches)
+    container._rebuildSlots = RebuildSlots
+    -- Sync viewed spec to the currently active spec, then rebuild.
+    -- Called when the player changes spec in-game.
+    container._syncActiveSpec = function()
+        viewingSpecIdx = GetSpecialization and GetSpecialization() or 1
+        RebuildSlots()
+    end
+
+    RebuildSlots()
+    return container, container
+end
+
+function CCS:RefreshPrioritySlotColors()
+    if not CCS_PrioSlotsContainer then return end
+
+    local normalColor    = CCS.StyleColor.normal
+    local highlightColor = CCS.StyleColor.highlight
+    local borderColor    = CCS.StyleColor.border
+    local pushedColor    = CCS.DarkenColor(normalColor, 0.25)
+
+    local slotWidgets = CCS_PrioSlotsContainer._slotWidgets
+    local specTabs    = CCS_PrioSlotsContainer._specTabs
+    local addBtn      = CCS_PrioSlotsContainer._addBtn
+
+    -- Update Slot widgets
+    if slotWidgets then
+        for _, w in ipairs(slotWidgets) do
+            if w.div then
+                w.div:SetVertexColor(unpack(borderColor))
+            end
+            if w.cb then
+                CCS.SkinCheckbox(w.cb)
+            end
+            if w.lbl then
+                w.lbl:SetTextColor(1, 1, 1, 1)
+            end
+            if w.eb then
+                w.eb:SetBackdropBorderColor(unpack(borderColor))
+            end
+            if w.rm then
+                CCS.SkinButton(w.rm)
+            end
+            if w.dlbls then
+                for _, dl in ipairs(w.dlbls) do
+                    dl:SetTextColor(1, 1, 1, 1)
+                end
+            end
+            if w.dds then
+                for _, dd in ipairs(w.dds) do
+                    dd:SetBackdropBorderColor(unpack(borderColor))
+
+                    -- Dropdown text
+                    local fs = _G[dd:GetName() .. "Text"]
+                    if fs then fs:SetTextColor(1, 1, 1, 1) end
+
+                    -- Dropdown arrow
+                    local arrow = _G[dd:GetName() .. "Button"]
+                    if arrow then
+                        local normalTex = arrow:GetNormalTexture()
+                        if normalTex then
+                            normalTex:SetVertexColor(unpack(normalColor))
+                        end
+
+                        arrow.normalColor    = normalColor
+                        arrow.highlightColor = highlightColor
+                        arrow.pushedColor    = pushedColor
+                    end
+                end
+            end
+        end
+    end
+
+    -- Update Spec Tabs
+    if specTabs then
+        for _, tab in ipairs(specTabs) do
+        
+            if tab:IsShown() then
+                CCS.SkinButton(tab)
+                if tab._isActive then
+                    tab:SetBackdropColor(unpack(normalColor))
+                else
+                    tab:SetBackdropColor(0.17, 0.17, 0.17, 0.9)
+                end
+            end
+        end
+    end
+
+    -- Update Priority Slot button
+    if addBtn then
+        CCS.SkinButton(addBtn)
+    end
+end
+
 function CCS:RefreshOptionsSkins()
     local normalColor = CCS.StyleColor.normal
     local highlightColor = CCS.StyleColor.highlight
@@ -1382,6 +1857,11 @@ function CCS:RefreshOptionsSkins()
                 -- ignore at the moment.
             end
         end
+    end
+
+    -- Refresh the priority slot option colors
+    if CCS_PrioSlotsContainer and CCS_PrioSlotsContainer._slotWidgets then
+        CCS:RefreshPrioritySlotColors()
     end
 end
 
@@ -1490,7 +1970,7 @@ frame:SetScript("OnShow", function(self)
         slider = 45, font = 45, color = 45
     }
 
-    -- Dispatch wrappers: use your control methods if present
+    -- Dispatch wrappers: use control methods if present
     local function CCS_DD_SetSelectedValue(frame, value)
         if frame and frame.isCCSScrollDropdown and frame.SetSelectedValue then
             frame:SetSelectedValue(value)
@@ -1550,7 +2030,7 @@ frame:SetScript("OnShow", function(self)
                 end
 
                 if def.key == "optionsheetscale" then
-                    def.frame:SetPoint("TOPRIGHT", _G["CCS_Options"], "TOPRIGHT", -25, -13)
+                    def.frame:SetPoint("TOPRIGHT", _G["CCS_Options"], "TOPRIGHT", -25, -9)
                     def.frame:Show()
                 elseif def.key == "globalprofile" then
                     def.frame:SetPoint("TOPLEFT", _G["CCS_DeleteProfileDropdown"], "BOTTOMLEFT", 0, -2)
@@ -1566,97 +2046,115 @@ frame:SetScript("OnShow", function(self)
                 local state = layoutState[cat]
                 local scrollChild = state.scrollChild
                 local wSlots = def.slots or 1
-                local controlHeight = controlHeights[def.type] or 50
 
-                if (def.type == "header" and def.slots == 4) or (def.type == "divider" and def.slots == 4) or state.currentX + wSlots > maxSlots then
-                    placeRow(cat)
-                end
-
-                -- Create control
-                local frameContainer, ctrlWidget = controlCreators[def.type](def, scrollChild, controlHeight)
-                def.container = frameContainer
-
-                -- For dropdown/font, ensure def.frame is the actual interactive widget
-                if def.type == "dropdown" or def.type == "font" then
-                    def.frame = ctrlWidget or frameContainer.dropdown or frameContainer
+                 -- Special case: self-managed dynamic priority slots section
+                if def.type == "priority_slots_section" then
+                    placeRow(cat)  -- flush any pending row first
+                    local container = newPrioritySlotsSection(def, scrollChild)
+                    def.container = container
+                    def.frame     = container
+                    local containerY = state.currentY
+                    container:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, containerY)
+                    container._baseHeight = math.abs(containerY)
+                    state.currentY = containerY - container:GetHeight()
                 else
-                    def.frame = ctrlWidget or frameContainer
-                end
+                
+                    local controlHeight = controlHeights[def.type] or 50
 
-                -- Mark custom font dropdown
-                if def.type == "font" and def.frame then
-                    def.frame.isCCSScrollDropdown = true
-                end
-
-                -- Load value from profile
-                local value = (CCS.CurrentProfile[def.key] == nil) and def.default or CCS.CurrentProfile[def.key]
-                if type(def.default) == "table" then
-                    local defaultTbl = def.default
-                    local savedTbl = type(value) == "table" and value or {}
-                    local valueToUse = {}
-                    for i = 1, #defaultTbl do
-                        valueToUse[i] = savedTbl[i] ~= nil and savedTbl[i] or defaultTbl[i]
-                    end
-                    value = valueToUse
-                    if def.type == "color" then
-                        value[4] = value[4] or 1
-                    end
-                elseif def.type == "dropdown" or def.type == "font" then
-                    if value == nil or value == "" then
-                        value = def.default
-                    end
-                end
-
-                -- Update runtime profile
-                CCS:UpdateOption(def, value)
-
-                -- Populate control
-                if def.type == "slider" and ctrlWidget and ctrlWidget.updateThumbPosition then
-                    local numVal = tonumber(string.format("%.2f", tonumber(value) or 0))
-                    ctrlWidget.updateThumbPosition(numVal)
-
-                elseif def.type == "checkbox" and def.frame.SetChecked then
-                    def.frame:SetChecked(CCS.CurrentProfile[def.key] == true)
-
-                elseif def.type == "dropdown" or def.type == "font" then
-                    -- For font dropdowns, value is a font path; compute display name
-                    local display = value
-                    if def.type == "font" then
-                        local name = CCS.fonts and CCS.fonts[value] and value or (CCS.fonts and next(CCS.fonts)) -- safety
-                        local pathToName = CCS.fonts and (function()
-                            local t = {}
-                            for n, p in pairs(CCS.fonts) do t[p] = n end
-                            return t
-                        end)() or {}
-                        local fontName = pathToName[value] or value
-                        display = (CCS.fontLabels and CCS.fontLabels[fontName] and CCS.fontLabels[fontName][GetLocale()]) or fontName
+                    if (def.type == "header" and def.slots == 4) or (def.type == "divider" and def.slots == 4) or state.currentX + wSlots > maxSlots then
+                        placeRow(cat)
                     end
 
-                    CCS_DD_SetSelectedValue(def.frame, value)   -- routes to custom or Blizzard
-                    CCS_DD_SetText(def.frame, display)
+                    -- Create control
+                    local frameContainer, ctrlWidget = controlCreators[def.type](def, scrollChild, controlHeight)
+                    def.container = frameContainer
 
-                elseif def.type == "color" and def.frame.texture and type(value) == "table" then
-                    def.frame.texture:SetColorTexture(value[1], value[2], value[3], value[4] or 1)
-                end
+                    -- For dropdown/font, ensure def.frame is the actual interactive widget
+                    if def.type == "dropdown" or def.type == "font" then
+                        def.frame = ctrlWidget or frameContainer.dropdown or frameContainer
+                    else
+                        def.frame = ctrlWidget or frameContainer
+                    end
 
-                table.insert(state.rowControls, {
-                    container = frameContainer,
-                    height = controlHeight,
-                    x = state.currentX * slotWidth
-                })
-                state.currentX = state.currentX + wSlots
+                    -- Mark custom font dropdown
+                    if def.type == "font" and def.frame then
+                        def.frame.isCCSScrollDropdown = true
+                    end
 
-                if state.currentX >= maxSlots or def.type == "header" or def.type == "divider" then
-                    placeRow(cat)
-                end
-            end
-        end
-    end
+                    -- Load value from profile
+                    local value = (CCS.CurrentProfile[def.key] == nil) and def.default or CCS.CurrentProfile[def.key]
+                    if type(def.default) == "table" then
+                        local defaultTbl = def.default
+                        local savedTbl = type(value) == "table" and value or {}
+                        local valueToUse = {}
+                        for i = 1, #defaultTbl do
+                            valueToUse[i] = savedTbl[i] ~= nil and savedTbl[i] or defaultTbl[i]
+                        end
+                        value = valueToUse
+                        if def.type == "color" then
+                            value[4] = value[4] or 1
+                        end
+                    elseif def.type == "dropdown" or def.type == "font" then
+                        if value == nil or value == "" then
+                            value = def.default
+                        end
+                    end
+
+                    -- Update runtime profile
+                    CCS:UpdateOption(def, value)
+
+                    -- Populate control
+                    if def.type == "slider" and ctrlWidget and ctrlWidget.updateThumbPosition then
+                        local numVal = tonumber(string.format("%.2f", tonumber(value) or 0))
+                        ctrlWidget.updateThumbPosition(numVal)
+
+                    elseif def.type == "checkbox" and def.frame.SetChecked then
+                        def.frame:SetChecked(CCS.CurrentProfile[def.key] == true)
+
+                    elseif def.type == "dropdown" or def.type == "font" then
+                        -- For font dropdowns, value is a font path; compute display name
+                        local display = value
+                        if def.type == "font" then
+                            local name = CCS.fonts and CCS.fonts[value] and value or (CCS.fonts and next(CCS.fonts)) -- safety
+                            local pathToName = CCS.fonts and (function()
+                                local t = {}
+                                for n, p in pairs(CCS.fonts) do t[p] = n end
+                                return t
+                            end)() or {}
+                            local fontName = pathToName[value] or value
+                            display = (CCS.fontLabels and CCS.fontLabels[fontName] and CCS.fontLabels[fontName][GetLocale()]) or fontName
+                        end
+
+                        CCS_DD_SetSelectedValue(def.frame, value)   -- routes to custom or Blizzard
+                        CCS_DD_SetText(def.frame, display)
+
+                    elseif def.type == "color" and def.frame.texture and type(value) == "table" then
+                        def.frame.texture:SetColorTexture(value[1], value[2], value[3], value[4] or 1)
+                    end
+
+                    table.insert(state.rowControls, {
+                        container = frameContainer,
+                        height = controlHeight,
+                        x = state.currentX * slotWidth
+                    })
+                    state.currentX = state.currentX + wSlots
+
+                    if state.currentX >= maxSlots or def.type == "header" or def.type == "divider" then
+                        placeRow(cat)
+                    end
+                end -- end: priority_slots_section else
+            end -- end: if def.cat == "IGNORE"
+        end -- end: if def.ver
+    end -- end: for loop
 
     -- Finalize each scrollChild
     for cat, state in pairs(layoutState) do
         placeRow(cat)
         state.scrollChild:SetHeight(math.abs(state.currentY))
+        -- Allow priority slots container to resize scroll child dynamically
+        if state.scrollChild._prioritySlotsContainer then
+            state.scrollChild._prioritySlotsContainer._initialized = true
+        end
     end
 
     CCS:RefreshOptionsUI()

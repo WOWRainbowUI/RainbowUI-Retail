@@ -29,6 +29,21 @@ local defaultStrings = {
     ------------------------------------------------------------
     -- General / Common
     ------------------------------------------------------------
+	-- Stat dropdown display names
+	["CriticalStrike"] = ITEM_MOD_CRIT_RATING_SHORT or "Critical Strike", -- all
+	["Mastery"] = ITEM_MOD_MASTERY_RATING_SHORT or "Mastery", -- all
+	["Haste"] = ITEM_MOD_HASTE_RATING_SHORT or "Haste", -- all
+	["Versatility"] = STAT_VERSATILITY or "Versatility", -- all
+
+	["Slot"] = "Slot",   -- enUS / enGB
+	["Custom Priority Profiles"] = "Custom Priority Profiles",  -- enUS / enGB
+	["Add Priority Slot"] = "Add Priority Slot", -- enUS / enGB
+	["1st Priority"] = "1st", -- enUS / enGB
+	["2nd Priority"] = "2nd", -- enUS / enGB
+	["3rd Priority"] = "3rd", -- enUS / enGB
+	["4th Priority"] = "4th", -- enUS / enGB
+	
+	["SHOW_MISSING_SOCKETS"]= "Show Missing Sockets",  -- enUS / enGB
 	["ADDON COLORS"] = "Addon Colors", -- enUS / enGB
 	["Button Foreground Color"] = "Button Foreground Color", -- enUS / enGB
 	["Highlight Color"] = "Highlight Color", -- enUS / enGB
@@ -391,6 +406,14 @@ if locale == "enGB" then
     }
 elseif locale == "deDE" then
     localizedStrings = {
+		["Slot"] = "Platz",  -- deDE
+		["Custom Priority Profiles"] = "Benutzerdefinierte Prioritätsprofile",  -- deDE
+		["Add Priority Slot"] = "Prioritätsplatz hinzufügen", -- deDE
+		["1st Priority"] = "1.", -- deDE
+		["2nd Priority"] = "2.", -- deDE
+		["3rd Priority"] = "3.", -- deDE
+		["4th Priority"] = "4.", -- deDE
+		["SHOW_MISSING_SOCKETS"] = "Fehlende Sockel anzeigen",  -- deDE
         ["ADDON COLORS"] = "Addon-Farben", -- deDE
         ["Button Foreground Color"] = "Schaltflächenvordergrundfarbe", -- deDE
         ["Highlight Color"] = "Hervorhebungsfarbe", -- deDE
@@ -726,6 +749,14 @@ elseif locale == "deDE" then
     }	
 elseif locale == "frFR" then
     localizedStrings = {
+		["Slot"] = "Emplacement",  -- frFR
+		["Custom Priority Profiles"] = "Profils de priorité personnalisés",  -- frFR
+		["Add Priority Slot"] = "Ajouter un emplacement de priorité", -- frFR
+		["1st Priority"] = "1er", -- frFR
+		["2nd Priority"] = "2e", -- frFR
+		["3rd Priority"] = "3e", -- frFR
+		["4th Priority"] = "4e", -- frFR
+		["SHOW_MISSING_SOCKETS"] = "Afficher les châsses manquantes",  -- frFR
         ["ADDON COLORS"] = "Couleurs de l’addon", -- frFR
         ["Button Foreground Color"] = "Couleur de premier plan du bouton", -- frFR
         ["Highlight Color"] = "Couleur de surbrillance", -- frFR
@@ -1061,12 +1092,20 @@ elseif locale == "frFR" then
     }
 elseif locale == "esES" then
     localizedStrings = {
-        ["ADDON COLORS"] = "Colores del addon", -- esMX
-        ["Button Foreground Color"] = "Color frontal del botón", -- esMX
-        ["Highlight Color"] = "Color de resaltado", -- esMX
-        ["Border Color"] = "Color del borde", -- esMX
-        ["Use Class Color"] = "Usar color de clase", -- esMX
-		["STATS_TOGGLE"] = "Haz clic para activar o desactivar el resaltado de estadísticas del equipo", -- esMX
+		["Slot"] = "Ranura",  -- esES
+		["Custom Priority Profiles"] = "Perfiles de prioridad personalizados",  -- esES
+		["Add Priority Slot"] = "Agregar ranura de prioridad", -- esES
+		["1st Priority"] = "1.º", -- esES
+		["2nd Priority"] = "2.º", -- esES
+		["3rd Priority"] = "3.º", -- esES
+		["4th Priority"] = "4.º", -- esES
+		["SHOW_MISSING_SOCKETS"] = "Mostrar ranuras faltantes",  -- esES
+        ["ADDON COLORS"] = "Colores del addon", -- esES
+        ["Button Foreground Color"] = "Color frontal del botón", -- esES
+        ["Highlight Color"] = "Color de resaltado", -- esES
+        ["Border Color"] = "Color del borde", -- esES
+        ["Use Class Color"] = "Usar color de clase", -- esES
+		["STATS_TOGGLE"] = "Haz clic para activar o desactivar el resaltado de estadísticas del equipo", -- esES
 		["RAID_BG_COLOR"] = "Color de fondo del marco de banda", -- esES
 		["Long Text Handling"] = "Manejo de texto largo", -- esES
 		["Full Text"] = "Texto completo", -- esES
@@ -1396,6 +1435,14 @@ elseif locale == "esES" then
     }
 elseif locale == "esMX" then
     localizedStrings = {
+		["Slot"] = "Ranura",  -- esMX
+		["Custom Priority Profiles"] = "Perfiles de prioridad personalizados",  -- esMX
+		["Add Priority Slot"] = "Agregar ranura de prioridad", -- esMX
+		["1st Priority"] = "1.º", -- esMX
+		["2nd Priority"] = "2.º", -- esMX
+		["3rd Priority"] = "3.º", -- esMX
+		["4th Priority"] = "4.º", -- esMX
+		["SHOW_MISSING_SOCKETS"] = "Mostrar ranuras faltantes",  -- esMX
         ["ADDON COLORS"] = "Colores del addon", -- esMX
         ["Button Foreground Color"] = "Color frontal del botón", -- esMX
         ["Highlight Color"] = "Color de resaltado", -- esMX
@@ -1731,6 +1778,14 @@ elseif locale == "esMX" then
     }
 elseif locale == "ruRU" then
     localizedStrings = {
+		["Slot"] = "Ячейка",  -- ruRU
+		["Custom Priority Profiles"] = "Пользовательские профили приоритетов",  -- ruRU
+		["Add Priority Slot"] = "Добавить ячейку приоритета", -- ruRU
+		["1st Priority"] = "1‑й", -- ruRU
+		["2nd Priority"] = "2‑й", -- ruRU
+		["3rd Priority"] = "3‑й", -- ruRU
+		["4th Priority"] = "4‑й", -- ruRU
+		["SHOW_MISSING_SOCKETS"] = "Показать отсутствующие гнёзда",  -- ruRU
         ["ADDON COLORS"] = "Цвета аддона", -- ruRU
         ["Button Foreground Color"] = "Цвет переднего плана кнопки", -- ruRU
         ["Highlight Color"] = "Цвет подсветки", -- ruRU
@@ -2066,6 +2121,14 @@ elseif locale == "ruRU" then
     }
 elseif locale == "koKR" then
     localizedStrings = {
+		["Slot"] = "슬롯",  -- koKR
+		["Custom Priority Profiles"] = "사용자 지정 우선순위 프로필",  -- koKR
+		["Add Priority Slot"] = "우선순위 슬롯 추가", -- koKR
+		["1st Priority"] = "1순위", -- koKR
+		["2nd Priority"] = "2순위", -- koKR
+		["3rd Priority"] = "3순위", -- koKR
+		["4th Priority"] = "4순위", -- koKR
+		["SHOW_MISSING_SOCKETS"] = "누락된 소켓 표시",  -- koKR
         ["ADDON COLORS"] = "애드온 색상", -- koKR
         ["Button Foreground Color"] = "버튼 전경색", -- koKR
         ["Highlight Color"] = "강조 색상", -- koKR
@@ -2401,6 +2464,14 @@ elseif locale == "koKR" then
     }
 elseif locale == "zhCN" then
     localizedStrings = {
+		["Slot"] = "槽位",  -- zhCN
+		["Custom Priority Profiles"] = "自定义优先级配置",  -- zhCN
+		["Add Priority Slot"] = "添加优先级槽位", -- zhCN
+		["1st Priority"] = "第1", -- zhCN
+		["2nd Priority"] = "第2", -- zhCN
+		["3rd Priority"] = "第3", -- zhCN
+		["4th Priority"] = "第4", -- zhCN
+		["SHOW_MISSING_SOCKETS"] = "显示缺失的插槽",  -- zhCN
         ["ADDON COLORS"] = "插件颜色", -- zhCN
         ["Button Foreground Color"] = "按钮前景色", -- zhCN
         ["Highlight Color"] = "高亮颜色", -- zhCN
@@ -2736,6 +2807,14 @@ elseif locale == "zhCN" then
     }
 elseif locale == "zhTW" then
     localizedStrings = {
+		["Slot"] = "欄位",  -- zhTW
+		["Custom Priority Profiles"] = "自訂優先順序設定檔",  -- zhTW
+		["Add Priority Slot"] = "新增優先順序欄位", -- zhTW
+		["1st Priority"] = "第1", -- zhTW
+		["2nd Priority"] = "第2", -- zhTW
+		["3rd Priority"] = "第3", -- zhTW
+		["4th Priority"] = "第4", -- zhTW
+		["SHOW_MISSING_SOCKETS"] = "顯示缺少的插槽",  -- zhTW
         ["ADDON COLORS"] = "插件顏色", -- zhTW
         ["Button Foreground Color"] = "按鈕前景色", -- zhTW
         ["Highlight Color"] = "高亮顏色", -- zhTW
@@ -3071,6 +3150,14 @@ elseif locale == "zhTW" then
     }
 elseif locale == "ptBR" then
     localizedStrings = {
+		["Slot"] = "Espaço",  -- ptBR
+		["Custom Priority Profiles"] = "Perfis de prioridade personalizados",  -- ptBR
+		["Add Priority Slot"] = "Adicionar espaço de prioridade", -- ptBR
+		["1st Priority"] = "1º", -- ptBR
+		["2nd Priority"] = "2º", -- ptBR
+		["3rd Priority"] = "3º", -- ptBR
+		["4th Priority"] = "4º", -- ptBR
+		["SHOW_MISSING_SOCKETS"] = "Mostrar soquetes ausentes",  -- ptBR
         ["ADDON COLORS"] = "Cores do addon", -- ptBR
         ["Button Foreground Color"] = "Cor frontal do botão", -- ptBR
         ["Highlight Color"] = "Cor de destaque", -- ptBR
@@ -3406,6 +3493,14 @@ elseif locale == "ptBR" then
     }
 elseif locale == "itIT" then
     localizedStrings = {
+		["Slot"] = "Slot",  -- itIT
+		["Custom Priority Profiles"] = "Profili di priorità personalizzati",  -- itIT
+		["Add Priority Slot"] = "Aggiungi slot priorità", -- itIT
+		["1st Priority"] = "1º", -- itIT
+		["2nd Priority"] = "2º", -- itIT
+		["3rd Priority"] = "3º", -- itIT
+		["4th Priority"] = "4º", -- itIT
+		["SHOW_MISSING_SOCKETS"] = "Mostrare le gemme mancanti",  -- itIT
         ["ADDON COLORS"] = "Colori dell’addon", -- itIT
         ["Button Foreground Color"] = "Colore in primo piano del pulsante", -- itIT
         ["Highlight Color"] = "Colore evidenziato", -- itIT

@@ -498,11 +498,11 @@ function CCS:LoadBlizzardAddOns()
     if type(WeeklyRewards_LoadUI) == "function" then
         WeeklyRewards_LoadUI()
     end
-    TokenFrame:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPLEFT", 0, 0)
+    TokenFrame:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
     if CharacterFrameBg then
         TokenFrame:SetPoint("BOTTOMRIGHT", CharacterFrameBg, "BOTTOMRIGHT", 0, 0)
     else
-        TokenFrame:SetPoint("BOTTOMRIGHT", CCS_CharacterFrame, "BOTTOMRIGHT", 0, 0)
+        TokenFrame:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", 0, 0)
     end
 
     -- Safely configure WeeklyRewardsFrame
@@ -1769,6 +1769,93 @@ function CCS:GetUnitEquipmentStats(unit)
     return total
 end
 
+local ENCHANT_PREFIX_PATTERNS = {
+    -- "Enchant Weapon - NAME"
+    -- "Enchant Helm - NAME"
+    -- etc.
+    enUS = {
+        "^Enchant .-%s*[-:–—]%s*",
+    },
+    enGB = {
+        "^Enchant .-%s*[-:–—]%s*",
+    },
+
+    frFR = {
+        -- Strip "Enchantement d’anneau – "
+        "^Enchantement%s+[%z\1-\127\194-\244][\128-\191]*.-%s*[-:–—]%s*",
+        "anneau%s*[-–—:]%s*",   -- ring
+        "arme%s*[-–—:]%s*",     -- weapon (likely "arme - ")
+        "tête%s*[-–—:]%s*",     -- helm ("tête - ")
+        "épaules%s*[-–—:]%s*",  -- shoulders
+        "épaulières%s*[-–—:]%s*",  -- shoulders
+        "torse%s*[-–—:]%s*",    -- chest (or "plastron" if that’s what you see)
+        "bottes%s*[-–—:]%s*",   -- boots
+    },
+
+    deDE = {
+        "^[^%-–—:]+%s*[-:–—:]%s*",
+    },
+
+    esES = {
+        "^Encantar .-%s*[:%-–—]%s*",
+    },
+    esMX = {
+        "^Encantar .-%s*[:%-–—]%s*",
+    },
+
+    ruRU = {
+        "^Чары для [^–—:]+[-–—:]%s*",
+    },
+
+    ptBR = {
+        "^Encantamento d[ae]%s+",          -- strip leading "Encantamento da " or "Encantamento de "
+        "%s*[-:–—]%s*[%w%s\128-\255'’]+$",
+    },
+
+    itIT = {
+        "^Incantamento .-%s*[-:–—:]%s*",
+    },
+
+    -- zhCN, zhTW, koKR: we leave them alone since they are not all that long
+}
+
+local function StripEnchantPrefix(raw)
+    if not raw then return nil end
+
+    local loc = GetLocale()
+    local patterns = ENCHANT_PREFIX_PATTERNS[loc]
+
+    -- Extract and preserve icon (if present)
+    local icon = raw:match("(|A.-|a)$")
+    local text = raw:gsub("(|A.-|a)$", "")
+
+    if patterns then
+        for _, pat in ipairs(patterns) do
+            text = text:gsub(pat, "")
+        end
+    end
+
+    -- frFR/ruRU: clean up any leftover non-printable / non-text glyphs at the start
+    if loc == "frFR" or loc == "ruRU" then
+        -- Remove any leading characters that are not letters, digits, punctuation, or whitespace
+        text = text:gsub("^[^%w%p%s]+", "")
+    end
+
+    if loc == "ruRU" then
+        -- Remove a leading separator like " – " or "- " if it survived
+        text = text:gsub("^%s*[-–—:]%s*", "")
+        text = text:gsub("^[^%w%p%s]+", "") -- need to do clean-up again due to trash bytes remaining.  The ordering is apparently important
+    end
+
+    -- Reattach icon
+    if icon then
+        text = text .. icon
+    end
+
+    return text
+end
+
+
 function CCS.updateLocationInfo(unit, slotIndex, framename)
     if slotIndex == 18 then return end -- skip ranged slot
 
@@ -1799,7 +1886,6 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
         SubElementSetPoint2 = "LEFT" 
         neg = -1
     end
-	
     -- Get item link and info
     local link = GetInventoryItemLink(unit, slotIndex)
     local itemLoc = isPlayer and ItemLocation:CreateFromEquipmentSlot(slotIndex) or nil
@@ -1925,15 +2011,18 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
     gemIconframe1:SetSize(15, 15)
     gemIconframe1:SetPoint("TOP"..SubElementSetPoint2, slotFrameName, "TOP"..SubElementSetPoint, -3 * neg, 6)
     gemIconframe1:SetFrameStrata("HIGH")
+    gemIconframe1:SetFrameLevel(10)
     
     gemIconframe2:SetSize(15, 15)
     gemIconframe2:SetPoint(SubElementSetPoint2, slotFrameName, SubElementSetPoint, -3 * neg, 0)
     gemIconframe2:SetFrameStrata("HIGH")
+    gemIconframe2:SetFrameLevel(10)
     
     gemIconframe3:SetSize(15, 15)
     gemIconframe3:SetPoint("BOTTOM"..SubElementSetPoint2, slotFrameName, "BOTTOM"..SubElementSetPoint, -3 * neg, -6)
     gemIconframe3:SetFrameStrata("HIGH")
-
+    gemIconframe3:SetFrameLevel(10)
+    
 
     -- Hide all elements by default
     nameTxt:Hide()
@@ -1958,6 +2047,12 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
         local _, _, _, _, _, _, Gem1, Gem2, Gem3, _, _, _, _, _, _ = string.find(link, "|?c?f?f?(%x*)|?H?([^:]*):?(%d+):?(%d*):?(%d*):?(%d*):?(%d*):?(%d*):?(%-?%d*):?(%-?%d*):?(%d*):?(%d*)|?h?%[?([^%[%]]*)%]?|?h?|?r?")
         local itemName, _, itemRarity, itemiLevel, _, itemType, _, _, _, _, _, _, _, _, expacID, setID, _ = C_Item.GetItemInfo(link)
         local Color = "ffffffff"
+        local chigh, ahigh
+        local cilvl = itemiLevel
+        local chighc = "|cffff0000"
+        if isPlayer then
+            chigh, ahigh = C_ItemUpgrade.GetHighWatermarkForItem(GetInventoryItemLink("player",slotIndex))
+        end
 
         local itemID = tonumber(link:match("item:(%d+)"))
         if not C_Item.IsItemDataCachedByID(itemID) then
@@ -1992,10 +2087,12 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
                 if text then
                     -- Enchant line
                     local enchant = text:match(ENCHANTED_TOOLTIP_LINE:gsub("%%s", "(.+)"))
+
                     if enchant then
-                        Enchant = enchant
+                        --Enchant = enchant
+                        Enchant = StripEnchantPrefix(enchant)
                     end
-                    
+                   
                     -- Base item level
                     local ilvl = text:match(ITEM_LEVEL:gsub("%%d", "(%%d+)"))
                     if ilvl and (tonumber(ilvl) ~= tonumber(itemiLevel or 0)) then
@@ -2044,7 +2141,7 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
         local MISSING_SOCKET = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\missing-socket.png"
 
         -- Show Missing sockets
-        if option("showenchantgemerrors"..suffix) then
+        if option("showenchantgemerrors"..suffix) and option("showmissingsockets") then
 
             if CCS.expansionID == LE_EXPANSION_WAR_WITHIN or expacID == LE_EXPANSION_WAR_WITHIN then
                 if slotIndex == INVSLOT_HEAD or slotIndex == INVSLOT_WRIST or slotIndex == INVSLOT_WAIST then
@@ -2100,13 +2197,18 @@ function CCS.updateLocationInfo(unit, slotIndex, framename)
             else
                 ItemUpgradeLevel = ""
             end
+
+            if not CCS.AreSecretsDisabled() and isPlayer and chigh ~= nil and tonumber(chigh) and cilvl ~= nil and tonumber(cilvl) and tonumber(chigh) > tonumber(cilvl) then
+                chigh = "/"..chigh
+            else
+                chighc = ""
+                chigh = ""
+            end
             
             if displaytoleft and itemiLevel ~= nil then
-                ilvlTxt:SetText(ItemUpgradeLevel .." ".. itemiLevel) 
-                --ilvlTxt:SetText(ItemUpgradeLevel .. " |cFFffffff" .. itemiLevel .. "|r") 
+                ilvlTxt:SetText(ItemUpgradeLevel.." "..chighc.. itemiLevel.."|r"..chigh) 
             elseif itemiLevel ~= nil then
-                --ilvlTxt:SetText("|cFFffffff" .. itemiLevel .. " " .. ItemUpgradeLevel .. "|r")
-                ilvlTxt:SetText(itemiLevel .." ".. ItemUpgradeLevel) 
+                ilvlTxt:SetText(chighc..itemiLevel.."|r" ..chigh.." ".. ItemUpgradeLevel) 
             end
             ilvlTxt:Show()
         end
@@ -2449,7 +2551,7 @@ function CCS:ShowStatHighlights(statRowData)
 
                 if value and value > 0 then
                     -- Update icon + text
-                    ccsStat.icon:SetTexture(statRowData.icon)  -- your stat icon table
+                    ccsStat.icon:SetTexture(statRowData.icon)  -- stat icon table
                     ccsStat.text:SetText("+" .. value)
 
                     -- Show the overlay

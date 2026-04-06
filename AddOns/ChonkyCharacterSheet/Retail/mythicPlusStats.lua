@@ -346,14 +346,8 @@ local function UpdateAffixDisplay(index, affixData)
 end
 
 local function updatesideframe()
-	if option("showm_sp") ~= true then return end
+	if option("showm_sp") ~= true or InCombatLockdown() == true then return end
 	
---[[
-	if CCS.AreSecretsDisabled() then 
-		CCS.secretsdisabled = true
-		return
-	end
-	--]]
 	local tf = {WeeklyRewardsFrame:GetChildren()};
 	local x=1; -- M+
 	local x1=1; -- Raid
@@ -562,7 +556,8 @@ local function updatesideframe()
 			ccsm_bx_btn1_bg:SetTexCoord(0, 1, 0, 1)
 			ccsm_bx_btn1_bg:SetAlpha(1)
 			ccsm_bx_btn1_bg:SetAllPoints(ccsm_bx_btn2_bg)
-
+			ccsm_bx_btn1_bg:SetDesaturated(false)
+			ccsm_bx_btn1_bg:SetVertexColor(1, 1, 1, 1)  -- optional soft fade
 			
 			if ccsm_bx_btn2 then
 				ccsm_bx_btn2:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT", -7, -11);
@@ -833,15 +828,15 @@ local function CreateAffixButton(index, anchorFrame, parentFrame)
 end
 
 local function initializeframes()
-local CCS_CharacterFrame = _G["CCS_CharacterFrame"]
+local CharacterFrame = _G["CharacterFrame"]
     if InCombatLockdown()then CCS.secretsdisabled = true return end
 	if option("showm_sp") ~= true then return end
 	
 	local bgr, bgg, bgb, bgalpha = option("ccsmbgcolor")[1], option("ccsmbgcolor")[2], option("ccsmbgcolor")[3], option("ccsmbgcolor")[4];
 	
 	-- Create the basic side frame
-	local ccsm_af = _G["ccsm_af"] or CreateFrame("Frame", "ccsm_af", CCS_CharacterFrame, "SecureHandlerBaseTemplate");
-	local ccsm_sf = _G["ccsm_sf"] or CreateFrame("Frame", "ccsm_sf", CCS_CharacterFrame, "SecureHandlerBaseTemplate");
+	local ccsm_af = _G["ccsm_af"] or CreateFrame("Frame", "ccsm_af", CharacterFrame, "SecureHandlerBaseTemplate");
+	local ccsm_sf = _G["ccsm_sf"] or CreateFrame("Frame", "ccsm_sf", CharacterFrame, "SecureHandlerBaseTemplate");
 
 	if not ccsm_sf.hooked then
 		hooksecurefunc(ccsm_sf, "Show", CCS.MythicPlusEventHandler)
@@ -857,11 +852,11 @@ local CCS_CharacterFrame = _G["CCS_CharacterFrame"]
 	local offsetX = (60 + hpad)
 
     if C_AddOns.IsAddOnLoaded("DejaCharacterStats") then
-		ccsm_af:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPRIGHT", offsetX-63, 0)
-		ccsm_af:SetPoint("BOTTOMLEFT", CCS_CharacterFrame, "BOTTOMRIGHT", offsetX-63, 0)
+		ccsm_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX-63, 0)
+		ccsm_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX-63, 0)
 	else
-		ccsm_af:SetPoint("TOPLEFT", CCS_CharacterFrame, "TOPRIGHT", offsetX, 0)
-		ccsm_af:SetPoint("BOTTOMLEFT", CCS_CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
+		ccsm_af:SetPoint("TOPLEFT", CharacterFrame, "TOPRIGHT", offsetX, 0)
+		ccsm_af:SetPoint("BOTTOMLEFT", CharacterFrame, "BOTTOMRIGHT", offsetX, 0)
 	end
 	
 	ccsm_sf:SetPoint("TOPLEFT", ccsm_af, "TOPRIGHT", 0, 0); 
@@ -965,7 +960,7 @@ local CCS_CharacterFrame = _G["CCS_CharacterFrame"]
 	ccsm_fs4:SetText("|cFFFFFF00" .. WEEKLY_REWARDS_RETURN_TO_CLAIM .. "|r")
 	ccsm_fs4:Hide()               
 
-	local affixLevels = { "4", "7", "10", "12", "15" }
+	local affixLevels = { "2", "5", "7", "10", "12" }
 
 	for i = 1, 5 do
 		CreateAffixButton(i, sf_topbar, ccsm_sf)
@@ -1058,6 +1053,8 @@ local CCS_CharacterFrame = _G["CCS_CharacterFrame"]
 		ccsm_bx_btn1_bg:SetAllPoints()
 		ccsm_bx_btn1_bg:SetTexture("Interface\\Masks\\SquareMask.BLP")
 		ccsm_bx_btn1_bg:SetColorTexture(0, 0, 0, .3)
+		ccsm_bx_btn1_bg:SetDesaturated(true)
+		ccsm_bx_btn1_bg:SetVertexColor(1, 1, 1, 0.6)  -- optional soft fade		
 		ccsm_bx_btn1_bg:Show()
 		
 		local ccsm_bx_btn2 = _G["ccsm_b"..x.."_btn2"] or CreateFrame("Button", "ccsm_b"..x.."_btn2", _G["ccsm_sf"], "SecureActionButtonTemplate")--, "SecureHandlerBaseTemplate")
@@ -1284,7 +1281,7 @@ function module:Initialize()
 	-- Create the new button
 	local btn2 = _G["MPlusScoreIconBtn"] or CreateFrame("Button", "MPlusScoreIconBtn", PaperDollFrame)
 	btn2:SetSize(28, 28)
-	btn2:SetPoint("RIGHT", PaperDollSidebarTabs, "RIGHT", -0.5, 7)
+	btn2:SetPoint("TOPRIGHT", CharacterFrameCloseButton, "BOTTOMRIGHT", 0, -1)
 	btn2:SetFrameStrata("HIGH")
 
 	btn2._ccs_OnEnter = function(self)
@@ -1370,7 +1367,12 @@ function CCS.MythicPlusEventHandler(event, ...)
     if not CCS.mythicUpdatePending then
         CCS.mythicUpdatePending = true
 		-- Update the Weekly Rewards Frames
+		--print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "Mplus Update:", event)
+
+		C_WeeklyRewards.OnUIInteract();
+		C_WeeklyRewards.CloseInteraction();
 		WeeklyRewardsFrame:FullRefresh()
+		
         C_Timer.After(1, function()
             CCS.mythicUpdatePending = false
             updatesideframe()
