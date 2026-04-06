@@ -2930,7 +2930,8 @@ elseif locale == "zhTW" then
 		["SHEET_SCALE"] = "角色面板縮放比例",
 		["V_PAD"] = "裝備垂直間距",
 		["H_PAD"] = "裝備水平間距",
-		["MPLUS_SP_SCALE"] = "傳奇+側邊欄縮放比例",
+		["MPLUS_SP_SCALE"] = "傳奇+側邊面板縮放比例",
+		["RAID_SP_SCALE"] = "團隊側邊面板縮放比例",
 		["SHEET_SCALE_INSPECT"] = "觀察視窗縮放比例",
 		["V_PAD_INSPECT"] = "觀察裝備垂直間距",
 		-- Character Sheet General Display Settings
