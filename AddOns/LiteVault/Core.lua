@@ -1822,7 +1822,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
 
         -- Blizzard sends the first played-time line; addons cannot reliably suppress it.
         if not initialTimePlayedNoticeShown and (arg1 == true) then
-            print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. (L["MSG_TIMEPLAYED_INITIAL_UNSUPPRESSABLE"] or "Blizzard's initial time played message cannot be suppressed."))
+            -- print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. (L["MSG_TIMEPLAYED_INITIAL_UNSUPPRESSABLE"] or "Blizzard's initial time played message cannot be suppressed."))
             initialTimePlayedNoticeShown = true
         end
 
