@@ -1,6 +1,10 @@
 
 # Changelog
 
+## [3.7.8] - 2026-04-07
+- MiniCC: Added per-frame-group **Hide Swipe** toggles (CC, Friendly CDs, Nameplates, Portraits, Alerts/Healer/Timers). Toggling a group hides both the swipe animation and the swipe edge for that group while keeping countdown text visible.
+- Added French (frFR) locale strings for the new Hide Swipe options and several previously untranslated keys (Show Swipe Animation, Swipe Shade Alpha, CC Frames Text Size, Friendly CDs Text Size, Hide Stack Text).
+
 ## [3.7.7] - 2026-04-05
 - Blacklisted the Nameplate GCD Tracker frame so MiniCE won't style it.
 

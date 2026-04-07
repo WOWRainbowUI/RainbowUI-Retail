@@ -748,6 +748,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "ccHideCountdownNumbers", false),
                         set = CatSet(key, "ccHideCountdownNumbers"),
                     } or nil,
+                    ccHideSwipe = isMiniCC and {
+                        type = "toggle", order = 5.27, width = 0.8,
+                        name = L["Hide Swipe"],
+                        desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
+                        get = CatGet(key, "ccHideSwipe", false),
+                        set = CatSet(key, "ccHideSwipe"),
+                    } or nil,
                     ccRowBreak = isMiniCC and RowBreak(5.29) or nil,
                     friendlyCdFontSize = isMiniCC and {
                         type = "range", order = 5.291, width = 1.2,
@@ -763,6 +770,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "friendlyCdHideCountdownNumbers", false),
                         set = CatSet(key, "friendlyCdHideCountdownNumbers"),
+                    } or nil,
+                    friendlyCdHideSwipe = isMiniCC and {
+                        type = "toggle", order = 5.2925, width = 0.8,
+                        name = L["Hide Swipe"],
+                        desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
+                        get = CatGet(key, "friendlyCdHideSwipe", false),
+                        set = CatSet(key, "friendlyCdHideSwipe"),
                     } or nil,
                     friendlyCdRowBreak = isMiniCC and RowBreak(5.293) or nil,
                     nameplateFontSize = isMiniCC and {
@@ -780,6 +794,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "nameplateHideCountdownNumbers", false),
                         set = CatSet(key, "nameplateHideCountdownNumbers"),
                     } or nil,
+                    nameplateHideSwipe = isMiniCC and {
+                        type = "toggle", order = 5.37, width = 0.8,
+                        name = L["Hide Swipe"],
+                        desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
+                        get = CatGet(key, "nameplateHideSwipe", false),
+                        set = CatSet(key, "nameplateHideSwipe"),
+                    } or nil,
                     nameplateRowBreak = isMiniCC and RowBreak(5.39) or nil,
                     portraitFontSize = isMiniCC and {
                         type = "range", order = 5.4, width = 1.2,
@@ -796,6 +817,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         get = CatGet(key, "portraitHideCountdownNumbers", false),
                         set = CatSet(key, "portraitHideCountdownNumbers"),
                     } or nil,
+                    portraitHideSwipe = isMiniCC and {
+                        type = "toggle", order = 5.47, width = 0.8,
+                        name = L["Hide Swipe"],
+                        desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
+                        get = CatGet(key, "portraitHideSwipe", false),
+                        set = CatSet(key, "portraitHideSwipe"),
+                    } or nil,
                     portraitRowBreak = isMiniCC and RowBreak(5.49) or nil,
                     overlayFontSize = isMiniCC and {
                         type = "range", order = 5.5, width = 1.2,
@@ -811,6 +839,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
                         get = CatGet(key, "overlayHideCountdownNumbers", false),
                         set = CatSet(key, "overlayHideCountdownNumbers"),
+                    } or nil,
+                    overlayHideSwipe = isMiniCC and {
+                        type = "toggle", order = 5.57, width = 0.8,
+                        name = L["Hide Swipe"],
+                        desc = L["Hide the swipe animation for this frame group (countdown text still shows)."],
+                        get = CatGet(key, "overlayHideSwipe", false),
+                        set = CatSet(key, "overlayHideSwipe"),
                     } or nil,
                     sArenaHeaderTopSpacing = isSArena and SectionSpacer(5.05) or nil,
                     sArenaHeader = isSArena and {
