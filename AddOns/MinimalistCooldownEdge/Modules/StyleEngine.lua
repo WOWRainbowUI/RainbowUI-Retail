@@ -774,6 +774,58 @@ function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, i
 end
 
 -- =========================================================================
+-- DRAW SWIPE RESOLUTION
+-- =========================================================================
+
+function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge)
+    local baseWant = config.drawSwipe ~= false
+
+    if baseWant and category == CATEGORY.MiniCC then
+        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        local groupHideSwipe
+        if subtype == MINICC_FRAME_TYPE.CC then
+            groupHideSwipe = config.ccHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.FriendlyCD then
+            groupHideSwipe = config.friendlyCdHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.Nameplate then
+            groupHideSwipe = config.nameplateHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.Portrait then
+            groupHideSwipe = config.portraitHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.Overlay then
+            groupHideSwipe = config.overlayHideSwipe
+        end
+        if groupHideSwipe then
+            baseWant = false
+        end
+    end
+
+    return baseWant and (not isChargeCooldown or hasActiveCharge)
+end
+
+function StyleEngine:GetDesiredEdgeEnabled(cdFrame, category, config)
+    if not config.edgeEnabled then return false end
+
+    if category == CATEGORY.MiniCC then
+        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        local groupHideSwipe
+        if subtype == MINICC_FRAME_TYPE.CC then
+            groupHideSwipe = config.ccHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.FriendlyCD then
+            groupHideSwipe = config.friendlyCdHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.Nameplate then
+            groupHideSwipe = config.nameplateHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.Portrait then
+            groupHideSwipe = config.portraitHideSwipe
+        elseif subtype == MINICC_FRAME_TYPE.Overlay then
+            groupHideSwipe = config.overlayHideSwipe
+        end
+        if groupHideSwipe then return false end
+    end
+
+    return true
+end
+
+-- =========================================================================
 -- UNIT FRAME LARGE AURA
 -- =========================================================================
 
@@ -872,7 +924,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     local hasActiveCharge = isChargeCooldown and self:IsMainCooldownWithActiveChargeCooldown(cdFrame)
 
     -- Draw Swipe
-    local wantSwipe = config.drawSwipe ~= false and (not isChargeCooldown or hasActiveCharge)
+    local wantSwipe = self:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge)
     if cdFrame.SetDrawSwipe then
         if fs.drawSwipe ~= wantSwipe then
             fs.suppressSwipeDraw = true
@@ -883,14 +935,15 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     end
 
     -- Draw Edge
+    local wantEdge = self:GetDesiredEdgeEnabled(cdFrame, category, config)
     if cdFrame.SetDrawEdge then
-        if fs.edge ~= config.edgeEnabled then
+        if fs.edge ~= wantEdge then
             fs.suppressEdge = true
-            pcall(cdFrame.SetDrawEdge, cdFrame, config.edgeEnabled)
+            pcall(cdFrame.SetDrawEdge, cdFrame, wantEdge)
             fs.suppressEdge = nil
-            fs.edge = config.edgeEnabled
+            fs.edge = wantEdge
         end
-        if config.edgeEnabled and cdFrame.SetEdgeScale then
+        if wantEdge and cdFrame.SetEdgeScale then
             if fs.edgeScale ~= config.edgeScale then
                 fs.suppressEdgeScale = true
                 pcall(cdFrame.SetEdgeScale, cdFrame, config.edgeScale)
@@ -902,7 +955,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         end
     end
 
-    if config.edgeEnabled and cdFrame.SetEdgeColor then
+    if wantEdge and cdFrame.SetEdgeColor then
         local edgeColor = self:GetDesiredEdgeColor(cdFrame)
         if edgeColor and not IsSameSwipeColor(fs.edgeColor, edgeColor.r, edgeColor.g, edgeColor.b, edgeColor.a) then
             fs.suppressEdgeColor = true
