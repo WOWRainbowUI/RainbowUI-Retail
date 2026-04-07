@@ -12,17 +12,22 @@ end
 function Addon.GetInstanceDungeonId(map)
     if not map then return end
 
+    local instance = EJ_GetInstanceForMap(map)
+    if instance then
+        local id = Addon.instances[instance]
+        if id then return id end
+    end
+
     if MDT.zoneIdToDungeonIdx[map] then
         return MDT.zoneIdToDungeonIdx[map]
     end
 
-    local instance = EJ_GetInstanceForMap(map)
-    if not instance or instance == 0 then return end
-
-    for id,enemies in pairs(MDT.dungeonEnemies) do
-        for _,enemy in pairs(enemies) do
-            if enemy.instanceID == instance then
-                return id
+    if instance and instance ~= 0 then
+        for id,enemies in pairs(MDT.dungeonEnemies) do
+            for _,enemy in pairs(enemies) do
+                if enemy.instanceID == instance then
+                    return id
+                end
             end
         end
     end

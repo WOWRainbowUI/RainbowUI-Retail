@@ -1,3 +1,11 @@
+Version 2.04
+
+- Fix progress tracking in Pit of Saron
+
+Version 2.03
+
+- Fix error occuring when fade settings option is disabled
+
 Version 2.02
 
 - Add buttons to cycle thorugh pulls, as well as set a permanent pull offset

@@ -32,12 +32,11 @@ Addon.dungeons = {
     [46] = { start = { x = 070, y = -393, sublevel = 1 }, scale = 1.5 },
     -- Temple of the Jade Serpent
     [47] = { start = { x = 270, y = -253, sublevel = 1 }, scale = 1.1 },
-    -- Brackenhide Hollow
-    -- [48] = { start = { x = 000, y = -000, sublevel = 1 } },
-    -- Halls of Infusion
-    -- [49] = { start = { x = 000, y = -000, sublevel = 1 } },
-    -- Neltharus
-    -- [50] = { start = { x = 000, y = -000, sublevel = 1 } },
-    -- Uldaman Legacy of Tyr
-    -- [51] = { start = { x = 000, y = -000, sublevel = 1 } },
+}
+
+Addon.instances = {
+    -- Seat of the Triumvirate (Midnight)
+    [0945] = 11,
+    -- Algath'ar Academy (Midnight)
+    [1201] = 45,
 }

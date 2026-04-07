@@ -621,9 +621,9 @@ function Addon.GetNumDefeatedEncounters(real)
     local n = select(3, C_Scenario.GetStepInfo())
     if not n or n == 0 then return b end
 
-    for i = 1, n - 1 do
+    for i=1, n do
         local info = C_ScenarioInfo.GetCriteriaInfo(i)
-        if info.completed then b = b + 1 end
+        if info.criteriaType == 165 and info.completed then b = b + 1 end
     end
 
     return b
