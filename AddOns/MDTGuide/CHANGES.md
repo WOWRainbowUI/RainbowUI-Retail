@@ -1,1 +1,1 @@
-- Fix error occuring when fade settings option is disabled
+- Add workaround for bad zone to dungeon mapping for Academy and Seat
