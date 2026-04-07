@@ -102,7 +102,7 @@ local function RegisterPRDEditMode()
         -- =====================
         {
             kind = LibEditMode.SettingType.Dropdown,
-            name = "Bar Texture",
+            name = "計量條材質",
             height = 300,
             get = function()
                 local p = GetProfile()
@@ -116,7 +116,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Dropdown,
-            name = "Absorb Texture",
+            name = "吸收材質",
             height = 300,
             get = function()
                 local p = GetProfile()
@@ -130,7 +130,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Dropdown,
-            name = "Alt Power Texture",
+            name = "替代能量材質",
             height = 300,
             get = function()
                 local p = GetProfile()
@@ -147,7 +147,7 @@ local function RegisterPRDEditMode()
         -- =====================
         {
             kind = LibEditMode.SettingType.Dropdown,
-            name = "Width Mode",
+            name = "寬度模式",
             get = function()
                 local p = GetProfile()
                 return p and p.widthMode or "MANUAL"
@@ -157,14 +157,14 @@ local function RegisterPRDEditMode()
                 if p then p.widthMode = v; Refresh() end
             end,
             values = {
-                { text = "Manual", value = "MANUAL" },
-                { text = "Match Essential Viewer", value = "ESSENTIAL" },
-                { text = "Match Utility Viewer", value = "UTILITY" },
+                { text = "手動", value = "MANUAL" },
+                { text = "符合核心技能檢視器", value = "ESSENTIAL" },
+                { text = "符合輔助技能檢視器", value = "UTILITY" },
             },
         },
         {
             kind = LibEditMode.SettingType.Dropdown,
-            name = "Stagger Bar Sync Position",
+            name = "醉仙緩勁條同步位置",
             get = function()
                 local p = GetProfile()
                 return p and p.staggerSyncAnchor or "ABOVE"
@@ -174,13 +174,13 @@ local function RegisterPRDEditMode()
                 if p then p.staggerSyncAnchor = v; Refresh() end
             end,
             values = {
-                { text = "Above PRD", value = "ABOVE" },
-                { text = "Below PRD", value = "BELOW" },
+                { text = "個人資源條上方", value = "ABOVE" },
+                { text = "個人資源條下方", value = "BELOW" },
             },
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Stagger Bar Sync Offset",
+            name = "醉仙緩勁條同步偏移",
             default = 2,
             get = function()
                 local p = GetProfile()
@@ -194,7 +194,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Overall Frame Width",
+            name = "整體框架寬度",
             default = 220,
             get = function()
                 local p = GetProfile()
@@ -208,7 +208,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Power Bar Width",
+            name = "能量條寬度",
             default = 220,
             get = function()
                 local p = GetProfile()
@@ -222,7 +222,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Power Bar Height",
+            name = "能量條高度",
             default = 10,
             get = function()
                 local p = GetProfile()
@@ -236,7 +236,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Health Bar Height",
+            name = "血條高度",
             default = 24,
             get = function()
                 local p = GetProfile()
@@ -250,7 +250,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Health Text Scale",
+            name = "血量文字縮放",
             default = 100,
             get = function()
                 local p = GetProfile()
@@ -265,7 +265,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Alt Power Bar Width",
+            name = "替代能量條寬度",
             default = 220,
             get = function()
                 local p = GetProfile()
@@ -283,7 +283,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
-            name = "Alt Power Bar Height",
+            name = "替代能量條高度",
             default = 20,
             get = function()
                 local p = GetProfile()
@@ -304,7 +304,7 @@ local function RegisterPRDEditMode()
         -- =====================
         {
             kind = LibEditMode.SettingType.Checkbox,
-            name = "Use Class Color (Health)",
+            name = "使用職業顏色 (血條)",
             default = false,
             get = function()
                 local p = GetProfile()
@@ -317,7 +317,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Health Gradient Color 1",
+            name = "血條漸層色 1",
             hasOpacity = true,
             default = CreateColor(0.2, 0.8, 0.2, 1),
             get = function()
@@ -334,7 +334,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Health Gradient Color 2",
+            name = "血條漸層色 2",
             hasOpacity = true,
             default = CreateColor(1, 1, 0.2, 1),
             get = function()
@@ -351,7 +351,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Health Background",
+            name = "血條背景色",
             hasOpacity = true,
             default = CreateColor(0, 0, 0, 0.5),
             get = function()
@@ -368,7 +368,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Checkbox,
-            name = "Power Bar Gradient",
+            name = "能量條漸層",
             default = true,
             get = function()
                 local p = GetProfile()
@@ -388,7 +388,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Power Gradient Color 1",
+            name = "能量漸層色 1",
             hasOpacity = true,
             default = CreateColor(0, 0.8, 1, 1),
             get = function()
@@ -405,7 +405,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Power Gradient Color 2",
+            name = "能量漸層色 2",
             hasOpacity = true,
             default = CreateColor(0, 0.2, 1, 1),
             get = function()
@@ -422,7 +422,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Power Background",
+            name = "能量條背景色",
             hasOpacity = true,
             default = CreateColor(0, 0, 0, 0.5),
             get = function()
@@ -439,7 +439,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Checkbox,
-            name = "Alt Power Gradient",
+            name = "替代能量條漸層",
             default = true,
             get = function()
                 local p = GetProfile()
@@ -459,7 +459,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Alt Power Gradient 1",
+            name = "替代能量漸層色 1",
             hasOpacity = true,
             default = CreateColor(0.6, 0.2, 1, 1),
             get = function()
@@ -476,7 +476,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Alt Power Gradient 2",
+            name = "替代能量漸層色 2",
             hasOpacity = true,
             default = CreateColor(1, 0.2, 0.8, 1),
             get = function()
@@ -493,7 +493,7 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.ColorPicker,
-            name = "Alt Power Background",
+            name = "替代能量背景色",
             hasOpacity = true,
             default = CreateColor(0, 0, 0, 0.5),
             get = function()
@@ -513,7 +513,7 @@ local function RegisterPRDEditMode()
         -- =====================
         {
             kind = LibEditMode.SettingType.Checkbox,
-            name = "Hide PRD When Mounted",
+            name = "騎乘時隱藏個人資源條",
             default = true,
             get = function()
                 local p = GetProfile()
