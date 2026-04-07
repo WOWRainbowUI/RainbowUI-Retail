@@ -53,6 +53,7 @@ local addonName, BR = ...
 ---@field fontFace? string
 ---@field showConsumablesWithoutItems? boolean
 ---@field delveFoodOnly? boolean
+---@field delveFoodTimer? boolean
 ---@field freeConsumableMode? "follow"|"override"
 ---@field freeConsumableVisibility? table
 ---@field healthstoneVisibility? "readyCheck"|"always"|"casterOnly"
@@ -195,6 +196,13 @@ local DEFAULT_BORDER_SIZE = BR.DEFAULT_BORDER_SIZE
 local DEFAULT_ICON_ZOOM = BR.DEFAULT_ICON_ZOOM
 local TEXCOORD_INSET = BR.TEXCOORD_INSET
 
+-- WoW API locals
+local PlaySoundFile = PlaySoundFile
+local UnitLevel = UnitLevel
+local GetMaxLevelForPlayerExpansion = GetMaxLevelForPlayerExpansion
+local playerLevel -- Cached on PLAYER_ENTERING_WORLD, updated on PLAYER_LEVEL_UP
+local maxPlayerLevel -- Cached on PLAYER_ENTERING_WORLD, updated on UPDATE_EXPANSION_LEVEL
+
 -- LibSharedMedia for font resolution
 local LSM = LibStub("LibSharedMedia-3.0")
 
@@ -246,6 +254,16 @@ for _, buffArray in ipairs({ PresenceBuffs, TargetedBuffs, SelfBuffs, PetBuffs }
             for _, id in ipairs(spellList) do
                 IconOverrides[id] = buff.displayIcon
             end
+        end
+    end
+end
+
+-- Build buff key → setting key mapping (resolves individual keys to groupId when grouped)
+local buffKeyToSettingKey = {}
+for _, buffArray in ipairs({ RaidBuffs, PresenceBuffs, TargetedBuffs, SelfBuffs, PetBuffs, BUFF_TABLES.consumable }) do
+    for _, buff in ipairs(buffArray) do
+        if buff.groupId then
+            buffKeyToSettingKey[buff.key] = buff.groupId
         end
     end
 end
@@ -326,6 +344,7 @@ local defaults = {
     hideAllInVehicle = false,
     hideWhileMounted = false,
     hideInLegacyInstances = true,
+    hideWhileLeveling = false,
     showMissingCountOnly = false,
     petPassiveOnlyInCombat = false,
     optionsPanelScale = 1.2, -- base scale (displayed as 100%)
@@ -369,6 +388,7 @@ local defaults = {
         glowSize = 2,
         showConsumablesWithoutItems = false,
         delveFoodOnly = true,
+        delveFoodTimer = false,
         freeConsumableMode = "override",
         freeConsumableVisibility = {
             openWorld = false,
@@ -599,6 +619,10 @@ local CATEGORIES = { "raid", "presence", "targeted", "self", "pet", "consumable"
 
 -- Track previously visible frame keys for selective hiding (Phase 3 optimization)
 local previouslyVisibleKeys = {} ---@type table<string, boolean>
+
+-- Sound alert state: suppress on first cycle after load/test-toggle to avoid login spam
+local suppressSound = true
+local soundPlayedThisCycle = {} ---@type table<string, boolean>
 
 -- Layout signature tracking for skip-redundant-positioning (Phase 4 optimization)
 -- Signatures are concatenated visible frame keys; if unchanged, skip repositioning
@@ -1816,6 +1840,7 @@ ToggleTestMode = function()
             end
         end
         wipe(previouslyVisibleKeys)
+        suppressSound = true -- Prevent sound spam when exiting test mode
         -- Reset layout signatures so positioning runs fresh
         lastMainSignature = ""
         wipe(lastSplitSignatures)
@@ -2071,6 +2096,19 @@ local function SetIconDesaturated(icon, desaturate)
     end
 end
 
+-- Reset a consumable frame's icon to its buff definition fallback and clear overlays.
+local function RestoreFallbackIcon(frame)
+    ClearConsumableOverlays(frame)
+    local def = frame.buffDef
+    local fallback = def and (def.displayIcon or def.buffIconID)
+    if type(fallback) == "table" then
+        fallback = fallback[1]
+    end
+    if fallback then
+        frame.icon:SetTexture(fallback)
+    end
+end
+
 -- Resolve a consumable frame's icon from bag items.
 -- Returns "items" if bag items found (sets icon, quality overlay, stack count),
 -- "missing" if no items but showConsumablesWithoutItems is on (icon greyed out),
@@ -2084,7 +2122,9 @@ local function ResolveConsumableFrame(frame)
         frame._cachedItems = items
     end
     if items and items[1] then
-        frame.icon:SetTexture(items[1].icon)
+        if items[1].icon then
+            frame.icon:SetTexture(items[1].icon)
+        end
         SetIconDesaturated(frame.icon, false)
         local mainSize = frame:GetWidth()
         local cFontSize = BR.SecureButtons.ComputeConsumableFontSize(mainSize)
@@ -2096,15 +2136,7 @@ local function ResolveConsumableFrame(frame)
         return "items"
     end
     -- No items: fall back icon to buff definition
-    ClearConsumableOverlays(frame)
-    local def = frame.buffDef
-    local fallback = def and (def.displayIcon or def.buffIconID)
-    if type(fallback) == "table" then
-        fallback = fallback[1]
-    end
-    if fallback then
-        frame.icon:SetTexture(fallback)
-    end
+    RestoreFallbackIcon(frame)
     if (BR.profile.defaults or {}).showConsumablesWithoutItems then
         SetIconDesaturated(frame.icon, true)
         return "missing"
@@ -2200,7 +2232,12 @@ local function RenderVisibleEntry(frame, entry)
                 frame._cachedItems = items
             end
             if items and items[1] then
+                if items[1].icon then
+                    frame.icon:SetTexture(items[1].icon)
+                end
                 ApplyConsumableOverlays(frame, items[1])
+            else
+                RestoreFallbackIcon(frame)
             end
         end
     else -- "text"
@@ -2616,6 +2653,25 @@ HideDismissFrames = function()
     end
 end
 
+-- Play per-buff sound alert when an icon first appears.
+-- buffSounds is passed in from UpdateDisplay to avoid repeated BR.profile lookups.
+local function TryPlayBuffSound(key, buffSounds)
+    -- Resolve grouped buff keys (e.g. "beaconOfFaith" → "beacons")
+    local settingKey = buffKeyToSettingKey[key] or key
+    -- Deduplicate: don't play the same group sound twice in one cycle
+    if soundPlayedThisCycle[settingKey] then
+        return
+    end
+    local soundName = buffSounds[settingKey]
+    if soundName then
+        local soundFile = LSM:Fetch("sound", soundName)
+        if soundFile then
+            PlaySoundFile(soundFile, "Master")
+        end
+        soundPlayedThisCycle[settingKey] = true
+    end
+end
+
 -- Update the display
 UpdateDisplay = function()
     if not mainFrame then
@@ -2674,6 +2730,11 @@ UpdateDisplay = function()
             return
         end
 
+        if db.hideWhileLeveling and playerLevel and maxPlayerLevel and playerLevel < maxPlayerLevel then
+            HideAllDisplayFrames()
+            return
+        end
+
         -- PvP/Arena and M+: aura API is restricted but we use the normal display path
         -- (State.lua treats PvP the same as M+ for aura restriction purposes)
 
@@ -2683,6 +2744,13 @@ UpdateDisplay = function()
 
     local visibleByCategory = BR.BuffState.visibleByCategory
     local anyVisible = false
+
+    -- Cache buffSounds once per cycle; nil when suppressed or empty (skips all sound checks)
+    local buffSounds = (not testMode and not suppressSound) and BR.profile.buffSounds or nil
+    if buffSounds and not next(buffSounds) then
+        buffSounds = nil
+    end
+    wipe(soundPlayedThisCycle)
 
     -- Reuse module-level tables (wiped to avoid per-call allocation)
     wipe(reusableVisibleKeys)
@@ -2709,6 +2777,9 @@ UpdateDisplay = function()
                     if frame then
                         local shown = RenderVisibleEntry(frame, entry)
                         if shown then
+                            if buffSounds and not previouslyVisibleKeys[entry.key] then
+                                TryPlayBuffSound(entry.key, buffSounds)
+                            end
                             if IsIconDetached(entry.key) then
                                 PositionDetachedIcon(entry.key, frame)
                             else
@@ -2737,6 +2808,9 @@ UpdateDisplay = function()
                     if frame then
                         local shown = RenderVisibleEntry(frame, entry)
                         if shown then
+                            if buffSounds and not previouslyVisibleKeys[entry.key] then
+                                TryPlayBuffSound(entry.key, buffSounds)
+                            end
                             if IsIconDetached(entry.key) then
                                 PositionDetachedIcon(entry.key, frame)
                             else
@@ -2787,6 +2861,7 @@ UpdateDisplay = function()
     for key in pairs(reusableVisibleKeys) do
         previouslyVisibleKeys[key] = true
     end
+    suppressSound = false
 
     -- Consumable dismiss button: show X badge on last visible consumable icon
     local consumableEntries = not testMode and visibleByCategory["consumable"]
@@ -3245,6 +3320,11 @@ CallbackRegistry:RegisterCallback("DisplayRefresh", function()
     end
 end)
 
+-- Visibility toggles (hide-when, show-only-in-group, pet passive)
+CallbackRegistry:RegisterCallback("VisibilityRefresh", function()
+    UpdateDisplay()
+end)
+
 -- Structural changes (split categories)
 CallbackRegistry:RegisterCallback("FramesReparent", function()
     ResetLayoutSignatures()
@@ -3285,6 +3365,20 @@ BR.Helpers = {
     ValidateSpellID = ValidateSpellID,
     ValidateItemID = ValidateItemID,
     GenerateCustomBuffKey = GenerateCustomBuffKey,
+    SetBuffSound = function(key, soundName)
+        local db = BR.profile
+        if soundName then
+            if not db.buffSounds then
+                db.buffSounds = {}
+            end
+            db.buffSounds[key] = soundName
+        elseif db.buffSounds then
+            db.buffSounds[key] = nil
+            if not next(db.buffSounds) then
+                db.buffSounds = nil
+            end
+        end
+    end,
 }
 
 -- Toggle lock state: when unlocked, show mover frames for dragging
@@ -3396,6 +3490,8 @@ eventFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
 eventFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
 eventFrame:RegisterEvent("PLAYER_DIFFICULTY_CHANGED")
 eventFrame:RegisterEvent("PLAYER_UPDATE_RESTING")
+eventFrame:RegisterEvent("PLAYER_LEVEL_UP")
+eventFrame:RegisterEvent("UPDATE_EXPANSION_LEVEL")
 eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 eventFrame:RegisterEvent("PVP_MATCH_STATE_CHANGED")
 
@@ -4355,9 +4451,6 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
             if isFirstInstall then
                 print("|cff00ccffBuffReminders:|r " .. L["Display.LoginFirstInstall"])
             end
-            if not isFirstInstall and db.showLoginMessages ~= false then
-                print("|cff00ccffBuffReminders:|r " .. L["Display.LoginGearIcons"])
-            end
         end)
     elseif event == "PLAYER_ENTERING_WORLD" then
         -- Reset consumable dismiss on instance change
@@ -4370,6 +4463,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- Sync flags with current state (in case of reload)
         inCombat = InCombatLockdown()
         isResting = IsResting()
+        playerLevel = UnitLevel("player")
+        maxPlayerLevel = GetMaxLevelForPlayerExpansion()
         BR.BuffState.SetInCombat(inCombat)
         -- Detect PvP prep phase: in a PvP instance but match not yet started.
         -- Default is false (restricted), so reloads during active matches stay safe.
@@ -4448,6 +4543,20 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         C_Timer.After(0.5, function()
             BR.BuffState.InvalidateContentTypeCache()
             SetDirty()
+            -- Trigger delve entry for showOnInstanceEntry consumables (no loading screen on re-entry)
+            -- Skip if PLAYER_ENTERING_WORLD already started a timer for this entry
+            if BR.BuffState.ShouldTriggerDelveEntry() then
+                if not delveEntryTimer then
+                    BR.BuffState.SetDelveEntryState(true)
+                    UpdateDisplay()
+                    delveEntryTimer = C_Timer.NewTimer(30, function()
+                        ClearDelveEntryState()
+                        UpdateDisplay()
+                    end)
+                end
+            else
+                ClearDelveEntryState()
+            end
         end)
     elseif event == "GROUP_ROSTER_UPDATE" then
         SetDirty()
@@ -4460,11 +4569,13 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     elseif event == "PLAYER_REGEN_DISABLED" then
         inCombat = true
         BR.BuffState.SetInCombat(true)
+        ClearDelveEntryState()
         SetDirty()
     elseif event == "ENCOUNTER_START" then
         inEncounter = true
         inCombat = true
         BR.BuffState.SetInCombat(true)
+        ClearDelveEntryState()
         SetDirty()
     elseif event == "ENCOUNTER_END" then
         inEncounter = false
@@ -4511,6 +4622,12 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         SetDirty()
     elseif event == "PLAYER_UPDATE_RESTING" then
         isResting = IsResting()
+        SetDirty()
+    elseif event == "PLAYER_LEVEL_UP" then
+        playerLevel = arg1 -- PLAYER_LEVEL_UP passes new level as arg1
+        SetDirty()
+    elseif event == "UPDATE_EXPANSION_LEVEL" then
+        maxPlayerLevel = GetMaxLevelForPlayerExpansion()
         SetDirty()
     elseif event == "READY_CHECK" then
         -- Cancel any existing timer

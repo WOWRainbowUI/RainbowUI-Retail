@@ -1,4 +1,5 @@
 local _, BR = ...
+local L = BR.L
 
 -- ============================================================================
 -- PET HELPERS MODULE
@@ -94,7 +95,7 @@ local function BuildHunterActions()
                 spellID = REVIVE_PET,
                 spellName = BR.GetSpellName(REVIVE_PET),
                 icon = icon,
-                label = "Revive Pet",
+                label = L["Label.RevivePet"],
                 sortOrder = order,
             }
         end
@@ -190,7 +191,7 @@ local function BuildFelguardAction()
             spellID = spellID,
             spellName = info.name,
             icon = info.iconID,
-            label = "Felguard",
+            label = L["Label.Felguard"],
             sortOrder = 1,
         },
     }

@@ -332,13 +332,17 @@ local function GetPoisonExpirationInfo()
 end
 
 ---@type table<string, RaidBuff[]|PresenceBuff[]|TargetedBuff[]|SelfBuff[]|ConsumableBuff[]|CustomBuff[]>
---- START OF FILE Paste March 31, 2026 - 11:35AM ---
-
 BR.BUFF_TABLES = {
     ---@type RaidBuff[]
     raid = {
-        { spellID = { 1459, 432778 }, key = "intellect", name = "秘法智力", class = "MAGE", levelRequired = 8 }, -- 432778 = NPC version
-        { spellID = 6673, key = "attackPower", name = "戰鬥怒吼", class = "WARRIOR", levelRequired = 10 },
+        {
+            spellID = { 1459, 432778 },
+            key = "intellect",
+            name = L["Buff.ArcaneIntellect"],
+            class = "MAGE",
+            levelRequired = 8,
+        }, -- 432778 = NPC version
+        { spellID = 6673, key = "attackPower", name = L["Buff.BattleShout"], class = "WARRIOR", levelRequired = 10 },
         {
             spellID = {
                 381732,
@@ -357,26 +361,26 @@ BR.BUFF_TABLES = {
             },
             castSpellID = 364342,
             key = "bronze",
-            name = "青銅之龍祝福",
+            name = L["Buff.BlessingOfTheBronze"],
             class = "EVOKER",
             levelRequired = 30,
         },
         {
             spellID = { 1126, 432661 },
             key = "versatility",
-            name = "野性印記",
+            name = L["Buff.MarkOfTheWild"],
             class = "DRUID",
             levelRequired = 10,
         }, -- 432661 = NPC version
-        { spellID = 21562, key = "stamina", name = "真言術：韌", class = "PRIEST", levelRequired = 10 },
-        { spellID = 462854, key = "skyfury", name = "天怒", class = "SHAMAN", levelRequired = 16 },
+        { spellID = 21562, key = "stamina", name = L["Buff.PowerWordFortitude"], class = "PRIEST", levelRequired = 10 },
+        { spellID = 462854, key = "skyfury", name = L["Buff.Skyfury"], class = "SHAMAN", levelRequired = 16 },
     },
     ---@type PresenceBuff[]
     presence = {
         {
             spellID = { 381637, 5761 },
             key = "atrophicNumbingPoison",
-            name = "萎縮/極效致麻毒藥",
+            name = L["Buff.AtrophicNumbingPoison"],
             class = "ROGUE",
             levelRequired = 80,
             overlayText = L["Overlay.NoDrPoison"],
@@ -386,7 +390,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 465,
             key = "devotionAura",
-            name = "虔誠光環",
+            name = L["Buff.DevotionAura"],
             class = "PALADIN",
             levelRequired = 10,
             overlayText = L["Overlay.NoAura"],
@@ -394,7 +398,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 20707,
             key = "soulstone",
-            name = "靈魂石",
+            name = L["Buff.Soulstone"],
             class = "WARLOCK",
             levelRequired = 13,
             overlayText = L["Overlay.NoStone"],
@@ -457,7 +461,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 156910,
             key = "beaconOfFaith",
-            name = "信仰信標",
+            name = L["Buff.BeaconOfFaith"],
             class = "PALADIN",
             overlayText = L["Overlay.NoFaith"],
             groupId = "beacons",
@@ -468,7 +472,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 53563,
             key = "beaconOfLight",
-            name = "光明信標",
+            name = L["Buff.BeaconOfLight"],
             class = "PALADIN",
             overlayText = L["Overlay.NoLight"],
             groupId = "beacons",
@@ -481,7 +485,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 360827,
             key = "blisteringScales",
-            name = "灼熱鱗甲",
+            name = L["Buff.BlisteringScales"],
             class = "EVOKER",
             beneficiaryRole = "TANK",
             overlayText = L["Overlay.NoScales"],
@@ -492,7 +496,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 974,
             key = "earthShieldOthers",
-            name = "大地之盾",
+            name = L["Buff.EarthShield"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoES"],
             infoTooltip = {
@@ -504,7 +508,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 369459,
             key = "sourceOfMagic",
-            name = "魔法之源",
+            name = L["Buff.SourceOfMagic"],
             class = "EVOKER",
             beneficiaryRole = "HEALER",
             overlayText = L["Overlay.NoSource"],
@@ -514,7 +518,7 @@ BR.BUFF_TABLES = {
             spellID = 474750,
             casterBuffId = 474754, -- Check this combat-whitelisted buff on the caster instead of scanning group
             key = "symbioticRelationship",
-            name = "共生關係",
+            name = L["Buff.SymbioticRelationship"],
             class = "DRUID",
             overlayText = L["Overlay.NoLink"],
             clickMacro = TargetedClickMacro("symbioticRelationship"),
@@ -528,7 +532,7 @@ BR.BUFF_TABLES = {
             buffIdOverride = 210126,
             castSpellID = 1459,
             key = "arcaneFamiliar",
-            name = "秘法使魔",
+            name = L["Buff.ArcaneFamiliar"],
             class = "MAGE",
             overlayText = L["Overlay.NoFamiliar"],
         },
@@ -536,7 +540,7 @@ BR.BUFF_TABLES = {
         {
             spellID = { 403264, 403265 },
             key = "evokerAttunement",
-            name = "調諧",
+            name = L["Buff.Attunement"],
             class = "EVOKER",
             overlayText = L["Overlay.NoAttune"],
             requireSpecId = 1473, -- Augmentation
@@ -547,7 +551,7 @@ BR.BUFF_TABLES = {
             spellID = 29893, -- Create Soulwell (used for icon resolution)
             castSpellID = 29893, -- Click-to-cast: Create Soulwell
             key = "soulwell",
-            name = "創造靈魂之泉",
+            name = L["Buff.CreateSoulwell"],
             class = "WARLOCK",
             overlayText = L["Overlay.DropWell"],
             showOnInstanceEntry = true, -- Only shows on instance entry
@@ -572,7 +576,7 @@ BR.BUFF_TABLES = {
             spellID = 108503,
             buffIdOverride = 196099,
             key = "grimoireOfSacrifice",
-            name = "獻祭魔典",
+            name = L["Buff.GrimoireOfSacrifice"],
             class = "WARLOCK",
             overlayText = L["Overlay.NoGrim"],
         },
@@ -580,7 +584,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 111400,
             key = "burningRush",
-            name = "燃燒衝鋒",
+            name = L["Buff.BurningRush"],
             class = "WARLOCK",
             overlayText = L["Overlay.BurningRush"],
             showWhenPresent = true,
@@ -592,7 +596,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 433583,
             key = "riteOfAdjuration",
-            name = "懇求聖禮",
+            name = L["Buff.RiteOfAdjuration"],
             class = "PALADIN",
             overlayText = L["Overlay.NoRite"],
             enchantID = 7144,
@@ -606,7 +610,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 433568,
             key = "riteOfSanctification",
-            name = "聖化聖禮",
+            name = L["Buff.RiteOfSanctification"],
             class = "PALADIN",
             overlayText = L["Overlay.NoRite"],
             enchantID = 7143,
@@ -624,7 +628,7 @@ BR.BUFF_TABLES = {
             displayIcon = 136242, -- Deadly Poison
             castSpellID = 315584, -- Instant Poison (baseline, ensures click-to-cast overlay is created)
             key = "roguePoisons",
-            name = "盜賊毒藥",
+            name = L["Buff.RoguePoisons"],
             class = "ROGUE",
             overlayText = L["Overlay.ApplyPoison"],
             customCheck = function()
@@ -654,7 +658,7 @@ BR.BUFF_TABLES = {
         {
             displayIcon = 237523, -- Runeforging icon
             key = "dkRuneMH",
-            name = "符文鍛造 (主手)",
+            name = L["Buff.RuneforgeMH"],
             class = "DEATHKNIGHT",
             overlayText = L["Overlay.DKWrongRune"],
             noExpirationGlow = true,
@@ -700,7 +704,7 @@ BR.BUFF_TABLES = {
         {
             displayIcon = 237523, -- Runeforging icon (same as MH, deduped in options)
             key = "dkRuneOH",
-            name = "符文鍛造 (副手)",
+            name = L["Buff.RuneforgeOH"],
             class = "DEATHKNIGHT",
             overlayText = L["Overlay.DKWrongRuneOH"],
             noExpirationGlow = true,
@@ -740,7 +744,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 232698,
             key = "shadowform",
-            name = "暗影形態",
+            name = L["Buff.Shadowform"],
             class = "PRIEST",
             overlayText = L["Overlay.NoForm"],
             buffIdOverride = { 232698, 194249 },
@@ -750,7 +754,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 382021,
             key = "earthlivingWeapon",
-            name = "大地生命武器",
+            name = L["Buff.EarthlivingWeapon"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoEL"],
             enchantID = 6498,
@@ -759,7 +763,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 318038,
             key = "flametongueWeapon",
-            name = "火舌武器",
+            name = L["Buff.FlametongueWeapon"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoFT"],
             enchantID = 5400,
@@ -768,7 +772,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 457481,
             key = "tidecallersGuard",
-            name = "喚潮者守衛",
+            name = L["Buff.TidecallersGuard"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoTG"],
             enchantID = 7528,
@@ -788,7 +792,7 @@ BR.BUFF_TABLES = {
         {
             spellID = 33757,
             key = "windfuryWeapon",
-            name = "風怒武器",
+            name = L["Buff.WindfuryWeapon"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoWF"],
             enchantID = 5401,
@@ -806,7 +810,7 @@ BR.BUFF_TABLES = {
             spellID = 974, -- Earth Shield spell (for icon and spell check)
             buffIdOverride = 383648, -- The passive buff to check for
             key = "earthShieldSelfEO",
-            name = "大地之盾 (自身)",
+            name = L["Buff.EarthShieldSelf"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoSelfES"],
             requiresSpellID = 383010,
@@ -817,7 +821,7 @@ BR.BUFF_TABLES = {
         {
             spellID = { 192106, 52127 },
             key = "waterLightningShieldEO",
-            name = "水之/閃電之盾",
+            name = L["Buff.WaterLightningShield"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoShield"],
             requiresSpellID = 383010,
@@ -829,7 +833,7 @@ BR.BUFF_TABLES = {
         {
             spellID = { 974, 192106, 52127 },
             key = "shamanShieldBasic",
-            name = "護盾 (無天賦)",
+            name = L["Buff.ShieldNoTalent"],
             class = "SHAMAN",
             overlayText = L["Overlay.NoShield"],
             excludeSpellID = 383010,
@@ -842,7 +846,7 @@ BR.BUFF_TABLES = {
     pet = {
         {
             key = "petPassive",
-            name = "寵物被動",
+            name = L["Buff.PetPassive"],
             -- No class: applies to any class with a pet
             overlayText = L["Overlay.PassivePet"],
             displayIcon = 132311,
@@ -851,7 +855,7 @@ BR.BUFF_TABLES = {
         -- Pet reminders (alphabetical: Hunter, Unholy DK, Warlock Demon, Water Elemental, Wrong Demon)
         {
             key = "hunterPet",
-            name = "獵人寵物",
+            name = L["Buff.HunterPet"],
             class = "HUNTER",
             overlayText = L["Overlay.NoPet"],
             displayIcon = 132161,
@@ -867,7 +871,7 @@ BR.BUFF_TABLES = {
         {
             displayIcon = 1100170, -- Raise Dead
             key = "unholyPet",
-            name = "穢邪食屍鬼",
+            name = L["Buff.UnholyGhoul"],
             class = "DEATHKNIGHT",
             overlayText = L["Overlay.NoPet"],
             requireSpecId = 252, -- Unholy
@@ -878,7 +882,7 @@ BR.BUFF_TABLES = {
         },
         {
             key = "warlockPet",
-            name = "術士惡魔",
+            name = L["Buff.WarlockDemon"],
             class = "WARLOCK",
             overlayText = L["Overlay.NoPet"],
             displayIcon = 136082, -- Summon Demon flyout icon
@@ -891,7 +895,7 @@ BR.BUFF_TABLES = {
         {
             displayIcon = 135862, -- Summon Water Elemental
             key = "frostMagePet",
-            name = "水元素",
+            name = L["Buff.WaterElemental"],
             class = "MAGE",
             overlayText = L["Overlay.NoPet"],
             requireSpecId = 64, -- Frost
@@ -903,7 +907,7 @@ BR.BUFF_TABLES = {
         },
         {
             key = "warlockWrongPet",
-            name = "錯誤的惡魔",
+            name = L["Buff.WrongDemon"],
             class = "WARLOCK",
             overlayText = L["Overlay.WrongPet"],
             displayIcon = 136216, -- Felguard icon
@@ -940,7 +944,7 @@ BR.BUFF_TABLES = {
             },
             displaySpells = { 1264426, 1234969 }, -- Void-Touched (Midnight), Ethereal (TWW permanent)
             key = "rune",
-            name = "符文",
+            name = L["Buff.AugmentRune"],
             overlayText = L["Overlay.NoRune"],
             permanentRuneItemIDs = { 243191, 259085 }, -- Ethereal (TWW), Void-Touched (Midnight)
             groupId = "rune",
@@ -973,7 +977,7 @@ BR.BUFF_TABLES = {
                 1239355, -- Vicious Thalassian Flask of Honor
             },
             key = "flask",
-            name = "藥劑",
+            name = L["Buff.Flask"],
             overlayText = L["Overlay.NoFlask"],
             groupId = "flask",
             consumableCategory = "flask",
@@ -983,14 +987,10 @@ BR.BUFF_TABLES = {
         {
             spellID = 442522,
             key = "delveFood",
-            name = "探究食物",
+            name = L["Buff.DelveFood"],
             overlayText = L["Overlay.NoFood"],
             groupId = "delveFood",
             showOnInstanceEntry = true, -- Only show for 30s on delve entry (food is NPC-controlled)
-            infoTooltip = {
-                title = L["Tooltip.DelvesOnly"],
-                desc = L["Tooltip.DelvesOnly.Desc"],
-            },
             visibilityCondition = BR.IsInDelve,
             disabledInCompetitivePvP = true,
         },
@@ -998,7 +998,7 @@ BR.BUFF_TABLES = {
         {
             buffIconID = 136000, -- All food buffs use this icon
             key = "food",
-            name = "食物",
+            name = L["Buff.Food"],
             overlayText = L["Overlay.NoFood"],
             groupId = "food",
             consumableCategory = "food",
@@ -1011,7 +1011,7 @@ BR.BUFF_TABLES = {
             itemID = { 5512, 224464 }, -- Healthstone, Demonic Healthstone
             castSpellID = 29893, -- Create Soulwell
             key = "healthstone",
-            name = "治療石",
+            name = L["Buff.Healthstone"],
             casterClass = "WARLOCK",
             overlayText = L["Overlay.NoStone"],
             groupId = "healthstone",
@@ -1027,7 +1027,7 @@ BR.BUFF_TABLES = {
         {
             checkWeaponEnchant = true, -- Check if any weapon enchant exists
             key = "weaponBuff",
-            name = "武器",
+            name = L["Buff.Weapon"],
             overlayText = L["Overlay.NoWeaponBuff"],
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
@@ -1050,7 +1050,7 @@ BR.BUFF_TABLES = {
         {
             checkWeaponEnchantOH = true,
             key = "weaponBuffOH",
-            name = "武器 (副手)",
+            name = L["Buff.WeaponOH"],
             overlayText = L["Overlay.NoWeaponBuff"],
             groupId = "weaponBuff",
             displayIcon = { 7548987, 7548941, 7548938 }, -- Thalassian Phoenix Oil, Refulgent Whetstone, Refulgent Weightstone
@@ -1071,6 +1071,7 @@ BR.BUFF_TABLES = {
         },
     },
 }
+
 -- Derive buff key → consumable category mapping from data
 local buffKeyToCategory = {}
 for _, buff in ipairs(BR.BUFF_TABLES.consumable) do
