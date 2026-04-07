@@ -13,6 +13,7 @@ lib.frameCallbacks = lib.frameCallbacks or {}
 lib.frameDefaults = lib.frameDefaults or {}
 lib.frameSettings = lib.frameSettings or {}
 lib.frameButtons = lib.frameButtons or {}
+lib.hiddenFrames = lib.hiddenFrames or {}
 
 lib.anonCallbacksEnter = lib.anonCallbacksEnter or {}
 lib.anonCallbacksExit = lib.anonCallbacksExit or {}
@@ -59,10 +60,15 @@ local function resetSelection()
 			frame:SetMovable(false)
 		end
 
-		if not lib.isEditing then
+		local frameName = selection.system.GetSystemName()
+		if not lib.isEditing or lib.hiddenFrames[frameName] then
 			selection:Hide()
 			selection.isSelected = false
+			if lib.isEditing and lib.hiddenFrames[frameName] then
+				frame:Hide()
+			end
 		else
+			frame:Show()
 			selection:ShowHighlighted()
 		end
 	end
@@ -641,6 +647,45 @@ Returns:
 --]]
 function lib:GetFrameDefaultPosition(frame)
 	return lib.frameDefaults[frame]
+end
+
+function lib:SetFrameEditModeHidden(frameName, hidden)
+	if hidden then
+		lib.hiddenFrames[frameName] = true
+	else
+		lib.hiddenFrames[frameName] = nil
+	end
+	for frame, selection in next, lib.frameSelections do
+		if selection.system.GetSystemName() == frameName then
+			if hidden or not lib.isEditing then
+				selection:Hide()
+				selection.isSelected = false
+				frame:Hide()
+				resetDialogs()
+			else
+				frame:Show()
+				selection:ShowHighlighted()
+			end
+			break
+		end
+	end
+end
+
+function lib:IsFrameEditModeHidden(frameName)
+	return not not lib.hiddenFrames[frameName]
+end
+
+function lib:GetRegisteredFrames()
+	local frames = {}
+	for frame, selection in next, lib.frameSelections do
+		table.insert(frames, {
+			frame = frame,
+			name = selection.system.GetSystemName(),
+			selection = selection,
+		})
+	end
+	table.sort(frames, function(a, b) return a.name < b.name end)
+	return frames
 end
 
 function internal:TriggerCallback(frame, ...)

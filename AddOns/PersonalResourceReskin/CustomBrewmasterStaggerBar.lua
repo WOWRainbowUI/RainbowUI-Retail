@@ -39,6 +39,7 @@ local staggerText       -- FontString for stagger value
 local staggerStateKey   -- current color state key
 local blizzBarHidden = false
 local editModeRegistered = false
+local EvaluateVisibility  -- forward declaration (used in RegisterEditMode before definition)
 
 local DEFAULT_POS = { point = "CENTER", x = 0, y = -150 }
 local DEFAULT_WIDTH = 200
@@ -204,6 +205,17 @@ local function AnchorCustomBar()
     local db = GetSavedDB()
     local w = db.width or DEFAULT_WIDTH
     local h = db.height or DEFAULT_HEIGHT
+    -- Width sync: match cooldown viewer width if widthMode is not MANUAL
+    local profile = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+    local widthMode = profile and profile.widthMode or "MANUAL"
+    if widthMode ~= "MANUAL" then
+        local viewerName = (widthMode == "ESSENTIAL") and "EssentialCooldownViewer" or "UtilityCooldownViewer"
+        local viewer = _G[viewerName]
+        if viewer and viewer.GetWidth then
+            local vw = viewer:GetWidth()
+            if vw and vw > 10 then w = vw end
+        end
+    end
     barFrame:SetSize(w, h)
 
     if editModeRegistered then
@@ -317,6 +329,56 @@ local function CreateCustomStaggerBar()
     barFrame:Hide()
 
     _G.CustomBrewmasterStaggerBar = barFrame
+
+    -- Global function for width sync from PRD ticker
+    _G.CustomBrewmasterStaggerBar_SetSyncWidth = function(w)
+        if not barFrame or not w or w < 10 then return end
+        if InCombatLockdown() then
+            -- In combat, only update width (no re-anchoring)
+            barFrame:SetWidth(w)
+            return
+        end
+        barFrame:SetWidth(w)
+        if bgTexture then bgTexture:SetAllPoints(barFrame) end
+        if borderFrame then
+            borderFrame:ClearAllPoints()
+            borderFrame:SetPoint("TOPLEFT", barFrame, "TOPLEFT", -1, 1)
+            borderFrame:SetPoint("BOTTOMRIGHT", barFrame, "BOTTOMRIGHT", 1, -1)
+        end
+        if staggerText then
+            local db = GetSavedDB()
+            staggerText:ClearAllPoints()
+            staggerText:SetPoint("CENTER", barFrame, "CENTER", db.textOffsetX or 0, db.textOffsetY or 0)
+        end
+        -- Anchor to PRD so the bar follows the nameplate
+        local prd = _G.PersonalResourceDisplayFrame
+        local profile = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+        local anchor = profile and profile.staggerSyncAnchor or "ABOVE"
+        local offset = profile and profile.staggerSyncOffset or 2
+        if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar and anchor == "ABOVE" then
+            barFrame:ClearAllPoints()
+            barFrame:SetPoint("BOTTOM", prd.HealthBarsContainer.healthBar, "TOP", 0, offset)
+        elseif prd and prd.PowerBar then
+            barFrame:ClearAllPoints()
+            barFrame:SetPoint("TOP", prd.PowerBar, "BOTTOM", 0, -offset)
+        end
+    end
+
+    -- Global function to restore LibEditMode positioning (called when widthMode goes back to MANUAL)
+    _G.CustomBrewmasterStaggerBar_RestorePosition = function()
+        if not barFrame then return end
+        if InCombatLockdown() then return end
+        local db = GetSavedDB()
+        local saved = db.position
+        local pt = (saved and saved.point) or DEFAULT_POS.point
+        local x  = (saved and saved.x) or DEFAULT_POS.x
+        local y  = (saved and saved.y) or DEFAULT_POS.y
+        barFrame:ClearAllPoints()
+        barFrame:SetPoint(pt, UIParent, pt, x, y)
+        local w = db.width or DEFAULT_WIDTH
+        barFrame:SetWidth(w)
+        if bgTexture then bgTexture:SetAllPoints(barFrame) end
+    end
 end
 
 ------------------------------------------------------------
@@ -584,13 +646,53 @@ local function RegisterEditMode()
                 EvaluateVisibility()
             end,
         },
+        -- Sync Anchor Position (above/below PRD when width synced)
+        {
+            kind = LibEditMode.SettingType.Dropdown,
+            name = "Sync Position",
+            get = function()
+                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return p and p.staggerSyncAnchor or "ABOVE"
+            end,
+            set = function(_, v)
+                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if p then p.staggerSyncAnchor = v end
+                if type(_G.CustomBrewmasterStaggerBar_SetSyncWidth) == "function" then
+                    local bw = barFrame and barFrame:GetWidth() or 200
+                    _G.CustomBrewmasterStaggerBar_SetSyncWidth(bw)
+                end
+            end,
+            values = {
+                { text = "Above PRD", value = "ABOVE" },
+                { text = "Below PRD", value = "BELOW" },
+            },
+        },
+        -- Sync Offset (pixel gap from PRD when width synced)
+        {
+            kind = LibEditMode.SettingType.Slider,
+            name = "Sync Offset",
+            default = 2,
+            get = function()
+                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                return p and p.staggerSyncOffset or 2
+            end,
+            set = function(_, v)
+                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+                if p then p.staggerSyncOffset = v end
+                if type(_G.CustomBrewmasterStaggerBar_SetSyncWidth) == "function" then
+                    local bw = barFrame and barFrame:GetWidth() or 200
+                    _G.CustomBrewmasterStaggerBar_SetSyncWidth(bw)
+                end
+            end,
+            minValue = -20, maxValue = 40, valueStep = 1,
+        },
     })
 end
 
 ------------------------------------------------------------
 -- Show/hide logic
 ------------------------------------------------------------
-local function EvaluateVisibility()
+EvaluateVisibility = function()
     if not IsBrewmasterMonk() then
         if barFrame then barFrame:Hide() end
         RestoreBlizzardAltBar()

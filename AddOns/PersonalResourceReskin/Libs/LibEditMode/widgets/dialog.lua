@@ -1,4 +1,4 @@
-local MINOR = 12
+local MINOR = 13
 local lib, minor = LibStub("LibEditMode")
 if minor > MINOR then
 	return
@@ -45,6 +45,19 @@ function dialogMixin:UpdateSettings()
 	self.Settings.ResetButton.layoutIndex = num + 1
 	self.Settings.Divider.layoutIndex = num + 2
 	self.Settings.ResetButton:SetEnabled(num > 0)
+
+	-- After populating settings, update scroll range
+	if self.ScrollFrame then
+		C_Timer.After(0, function()
+			if not self.Settings or not self.ScrollFrame then return end
+			self.Settings:Layout()
+			local contentHeight = self.Settings:GetHeight() or 0
+			local scrollHeight = self.ScrollFrame:GetHeight() or 0
+			local maxScroll = math.max(0, contentHeight - scrollHeight)
+			self.ScrollFrame:SetVerticalScroll(0)
+			self._maxScroll = maxScroll
+		end)
+	end
 end
 
 function dialogMixin:Reset()
@@ -150,6 +163,8 @@ function dialogMixin:OnKeyDown(key)
 end
 
 function internal:CreateDialog()
+	local MAX_SETTINGS_HEIGHT = 500
+
 	local dialog = Mixin(CreateFrame("Frame", nil, UIParent, "ResizeLayoutFrame"), dialogMixin)
 	dialog:SetSize(300, 350)
 	dialog:SetFrameStrata("DIALOG")
@@ -183,9 +198,31 @@ function internal:CreateDialog()
 	dialogClose.ignoreInLayout = true
 	dialog.Close = dialogClose
 
-	local dialogSettings = CreateFrame("Frame", nil, dialog, "VerticalLayoutFrame")
-	dialogSettings:SetPoint("TOP", dialogTitle, "BOTTOM", 0, -12)
+	-- ScrollFrame wrapper for settings
+	local scrollFrame = CreateFrame("ScrollFrame", nil, dialog)
+	scrollFrame:SetPoint("TOP", dialogTitle, "BOTTOM", 0, -12)
+	scrollFrame:SetPoint("LEFT", dialog, "LEFT", 20, 0)
+	scrollFrame:SetPoint("RIGHT", dialog, "RIGHT", -20, 0)
+	scrollFrame:SetHeight(MAX_SETTINGS_HEIGHT)
+	scrollFrame:SetClipsChildren(true)
+	scrollFrame.layoutIndex = 1
+	scrollFrame.fixedHeight = MAX_SETTINGS_HEIGHT
+	dialog.ScrollFrame = scrollFrame
+	dialog._maxScroll = 0
+
+	scrollFrame:EnableMouseWheel(true)
+	scrollFrame:SetScript("OnMouseWheel", function(self, delta)
+		local cur = self:GetVerticalScroll()
+		local maxScroll = dialog._maxScroll or 0
+		local step = 30
+		local newScroll = math.max(0, math.min(maxScroll, cur - delta * step))
+		self:SetVerticalScroll(newScroll)
+	end)
+
+	local dialogSettings = CreateFrame("Frame", nil, scrollFrame, "VerticalLayoutFrame")
+	dialogSettings:SetWidth(260)
 	dialogSettings.spacing = 2
+	scrollFrame:SetScrollChild(dialogSettings)
 	dialog.Settings = dialogSettings
 
 	local resetSettingsButton = CreateFrame("Button", nil, dialogSettings, "EditModeSystemSettingsDialogButtonTemplate")
@@ -199,9 +236,25 @@ function internal:CreateDialog()
 	dialogSettings.Divider = divider
 
 	local dialogButtons = CreateFrame("Frame", nil, dialog, "VerticalLayoutFrame")
-	dialogButtons:SetPoint("TOP", dialogSettings, "BOTTOM", 0, -12)
+	dialogButtons:SetPoint("TOP", scrollFrame, "BOTTOM", 0, -12)
 	dialogButtons.spacing = 2
 	dialog.Buttons = dialogButtons
+
+	-- Auto-shrink the scroll frame when content is short
+	local origLayout = dialog.Layout
+	dialog.Layout = function(self)
+		if origLayout then origLayout(self) end
+		C_Timer.After(0, function()
+			if not dialogSettings:IsVisible() then return end
+			dialogSettings:Layout()
+			local contentHeight = dialogSettings:GetHeight() or 0
+			local visibleHeight = math.min(contentHeight, MAX_SETTINGS_HEIGHT)
+			scrollFrame:SetHeight(visibleHeight)
+			scrollFrame.fixedHeight = visibleHeight
+			dialog._maxScroll = math.max(0, contentHeight - visibleHeight)
+			scrollFrame:SetVerticalScroll(0)
+		end)
+	end
 
 	return dialog
 end

@@ -149,25 +149,14 @@ local function UpdateFontPosition()
     end
 end
 
-local cachedEligible = nil
-local cachedSegDuration = nil
-
-local function IsGuardianDruidOrHasIronfur()
-    if cachedEligible ~= nil then return cachedEligible end
+local function IsGuardianDruid()
     local _, class = UnitClass("player")
     if class == "DRUID" then
         local spec = GetSpecialization()
         local specID = spec and GetSpecializationInfo(spec)
-        if specID == 104 then cachedEligible = true return true end
+        if specID == 104 then return true end
     end
-    if C_Spell and C_Spell.IsSpellKnown then
-        cachedEligible = C_Spell.IsSpellKnown(192081)
-    elseif IsPlayerSpell then
-        cachedEligible = IsPlayerSpell(192081)
-    else
-        cachedEligible = GetSpellInfo(192081) ~= nil
-    end
-    return cachedEligible
+    return false
 end
 
 -- Only show bar if Guardian Druid or talented Ironfur
@@ -176,76 +165,60 @@ local function InBearForm()
     return (GetShapeshiftFormID and GetShapeshiftFormID() == 1) or (GetShapeshiftForm and GetShapeshiftForm() == 1)
 end
 
--- Lightweight update: only changes values and tick positions (called from OnUpdate)
-local function UpdateSegmentValues()
-    if not ironfurBar:IsShown() then return end
+local function UpdateSegments()
+    if not IsGuardianDruid() or not InBearForm() or GuardianIronfurTrackerDB.enabled == false then
+        -- Clear all active segments when leaving Bear Form or not eligible
+        for i = 1, #activeSegments do
+            activeSegments[i] = nil
+        end
+        if ironfurBar then ironfurBar:Hide() end
+        if centerText then centerText:Hide() end
+        return
+    end
+    CreateOrUpdateSegments()
+    UpdateFontPosition()
+    centerText.text:SetFont("Fonts\\FRIZQT__.TTF", GuardianIronfurTrackerDB.fontSize or 20, "OUTLINE")
     local now = GetTime()
-    local segDur = cachedSegDuration or GetSegmentDuration()
     local shown = 0
     for i, seg in ipairs(ironfurBar.segments) do
         local segData = activeSegments[i]
         if segData and segData.expire > now then
+            seg:Show()
+            local tickC = GuardianIronfurTrackerDB.tickColor or {0, 0, 0, 1}
+            seg.tick:SetColorTexture(tickC[1], tickC[2], tickC[3], tickC[4])
+            seg.tick:Show()
+            seg:SetMinMaxValues(0, GetSegmentDuration())
             local remaining = segData.expire - now
             seg:SetValue(remaining)
+            local c = GuardianIronfurTrackerDB.segmentColor or {0.5, 0.8, 1, 1}
+            seg:SetStatusBarColor(c[1], c[2], c[3], c[4])
             -- Move tick to draining end
             local barWidth = seg:GetWidth()
-            local percent = remaining / segDur
-            if percent < 0 then percent = 0 elseif percent > 1 then percent = 1 end
+            local percent = remaining / GetSegmentDuration()
+            percent = math.max(0, math.min(1, percent))
             local tickX = barWidth * percent
-            local maxX = barWidth - seg.tick:GetWidth()
-            if tickX > maxX then tickX = maxX end
-            if tickX < 0 then tickX = 0 end
+            tickX = math.max(0, math.min(barWidth - seg.tick:GetWidth(), tickX))
             seg.tick:ClearAllPoints()
             seg.tick:SetPoint("LEFT", seg, "LEFT", tickX, 0)
-            if not seg:IsShown() then
-                seg:Show()
-                seg.tick:Show()
-            end
             shown = shown + 1
         else
-            if seg:IsShown() then
-                seg:Hide()
-                seg.tick:Hide()
-            end
+            seg:Hide()
+            seg.tick:Hide()
         end
     end
+    -- Display the number of active segments in the center
     if shown > 0 then
         centerText.text:SetText(tostring(shown))
-        if not centerText:IsShown() then centerText:Show() end
+        centerText:Show()
     else
         centerText.text:SetText("")
-        if centerText:IsShown() then centerText:Hide() end
+        centerText:Hide()
     end
-end
-
--- Full update: checks eligibility, rebuilds styles, then updates values
-local function UpdateSegments()
-    if not IsGuardianDruidOrHasIronfur() or not InBearForm() then
-        for i = 1, #activeSegments do
-            activeSegments[i] = nil
-        end
-        if ironfurBar:IsShown() then ironfurBar:Hide() end
-        if centerText:IsShown() then centerText:Hide() end
-        return
-    end
-    cachedSegDuration = GetSegmentDuration()
-    CreateOrUpdateSegments()
-    UpdateFontPosition()
-    centerText.text:SetFont("Fonts\\FRIZQT__.TTF", GuardianIronfurTrackerDB.fontSize or 20, "OUTLINE")
-    -- Apply colors once
-    local c = GuardianIronfurTrackerDB.segmentColor or {0.5, 0.8, 1, 1}
-    local tickC = GuardianIronfurTrackerDB.tickColor or {0, 0, 0, 1}
-    for _, seg in ipairs(ironfurBar.segments) do
-        seg:SetStatusBarColor(c[1], c[2], c[3], c[4])
-        seg:SetMinMaxValues(0, cachedSegDuration)
-        seg.tick:SetColorTexture(tickC[1], tickC[2], tickC[3], tickC[4])
-    end
-    if GuardianIronfurTrackerDB.enabled ~= false then
-        if not ironfurBar:IsShown() then ironfurBar:Show() end
+    if ironfurBar and GuardianIronfurTrackerDB.enabled ~= false then
+        ironfurBar:Show()
     else
-        if ironfurBar:IsShown() then ironfurBar:Hide() end
+        if ironfurBar then ironfurBar:Hide() end
     end
-    UpdateSegmentValues()
 end
 
 local function AddIronfurSegment()
@@ -264,31 +237,15 @@ local function AddIronfurSegment()
     UpdateSegments()
 end
 
-local onUpdate_acc = 0
 local function OnUpdate(self, elapsed)
-    onUpdate_acc = onUpdate_acc + elapsed
-    if onUpdate_acc < 0.05 then return end
-    onUpdate_acc = 0
-    UpdateSegmentValues()
+    UpdateSegments()
 end
 
 ironfurBar:SetScript("OnUpdate", OnUpdate)
 
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 eventFrame:SetScript("OnEvent", function(_, event, unit, _, spellID)
-    if event == "PLAYER_SPECIALIZATION_CHANGED" then
-        cachedEligible = nil
-        cachedSegDuration = nil
-        UpdateSegments()
-        return
-    end
-    if event == "UPDATE_SHAPESHIFT_FORM" then
-        UpdateSegments()
-        return
-    end
     if unit ~= "player" then return end
     local now = GetTime()
     if spellID == MANGLE_SPELL_ID and HasTalent(GUARDIAN_OF_ELUNE_ID) then
@@ -309,6 +266,22 @@ GuardianIronfurTrackerOptions = {
     type = "group",
     name = "Guardian Ironfur Tracker",
     args = {
+        enabled = {
+            order = 1,
+            type = "toggle",
+            name = "Enable Ironfur Tracker",
+            desc = "Enable or disable the Guardian Ironfur Tracker.",
+            get = function() return GuardianIronfurTrackerDB.enabled ~= false end,
+            set = function(_, val)
+                GuardianIronfurTrackerDB.enabled = val
+                if val then
+                    if ironfurBar then ironfurBar:Show() end
+                else
+                    if ironfurBar then ironfurBar:Hide() end
+                end
+                UpdateSegments()
+            end,
+        },
         width = {
             order = 6,
             type = "range",
@@ -512,7 +485,10 @@ local function InitIronfurBar()
     CreateIronfurBar()
     ApplySavedSettingsToBar()
     CreateOrUpdateSegments()
-    -- No ticker needed — OnUpdate handles animation, events handle state changes
+    if ticker then
+        ticker:Cancel()
+    end
+    ticker = C_Timer.NewTicker(0.5, UpdateSegments) -- 0.5s for smoothness, much lower CPU than 0.5s
 end
 
 -- Register options and initializSQSSEe bar/settings after entering world
@@ -533,7 +509,9 @@ local optionsEventFrame = CreateFrame("Frame")
 optionsEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 optionsEventFrame:SetScript("OnEvent", function(self, event, ...)
     local _, class = UnitClass("player")
-    if class ~= "DRUID" then
+    local spec = GetSpecialization()
+    local specID = spec and GetSpecializationInfo(spec)
+    if class ~= "DRUID" or specID ~= 104 then
         self:UnregisterEvent("PLAYER_ENTERING_WORLD")
         return
     end
