@@ -217,7 +217,8 @@ local defaultsTable = {
 			a = 1.00,
 		},
 	},
-	toggleGroundSkimming = true,
+	toggleGroundSkimming = true, -- deprecated
+	showGroundSkimming = false,
 	groundSkimmingColor = {
 		main = {
 			r = 0.45,
@@ -1811,7 +1812,7 @@ function DR.OnAddonLoaded()
 		layoutVigor:AddInitializer(CreateSettingsListSectionHeaderInitializer(L["GroundSkimming"]));
 
 		do
-			local variable = "toggleGroundSkimming"
+			local variable = "showGroundSkimming"
 			local name = L["GroundSkimming_Toggle"]
 			local tooltip = L["GroundSkimming_ToggleTT"]
 			local defaultValue = defaultsTable[variable]
@@ -2001,6 +2002,7 @@ function DR.OnAddonLoaded()
 			DR.setPositions();
 			
 			if DR.EvaluateVigorVisibility then DR.EvaluateVigorVisibility() end
+			if DR.HideGroundSkimming then DR.HideGroundSkimming() end
 		end
 
 		-- when the player dismounts
@@ -2011,6 +2013,7 @@ function DR.OnAddonLoaded()
 			StopSpeedTicker();
 			
 			if DR.EvaluateVigorVisibility then DR.EvaluateVigorVisibility() end
+			if DR.HideGroundSkimming then DR.HideGroundSkimming() end
 		end
 
 		LibAdvFlight.RegisterCallback(LibAdvFlight.Events.ADV_FLYING_START, OnAdvFlyStart);
