@@ -10,18 +10,27 @@ function lv.IsMPlusTeleportsEnabled()
 	return false -- 自行修改
 end
 
+local skyreachSpellID = 1254557
+if C_SpellBook and C_SpellBook.IsSpellInSpellBook then
+    if not C_SpellBook.IsSpellInSpellBook(skyreachSpellID) then
+        skyreachSpellID = 159898
+    end
+elseif IsSpellKnown and not IsSpellKnown(skyreachSpellID) then
+    skyreachSpellID = 159898
+end
+
 -- Midnight Season 1 M+ dungeon pool.
 -- spellID = primary teleport spell learned after completing the dungeon at qualifying keystone level.
 -- alternateSpellIDs = fallback spell IDs observed for the same teleport.
 lv.TELEPORT_DUNGEONS = {
-    { name = "博學者殿堂",          spellID = 1254572 },
-    { name = "梅薩拉洞穴",          spellID = 1254559 },
-    { name = "奧核點瑟納斯",        spellID = 1254563 },
-    { name = "風行者塔",            spellID = 1254400 },
-    { name = "阿爾蓋薩學院",        spellID = 393273 },
-    { name = "薩倫之淵",            spellID = 1254555 },
-    { name = "三傑議會之座",        spellID = 1254551 },
-    { name = "擎天峰",                spellID = 1254557, alternateSpellIDs = {159898} },
+    { name = "Magisters' Terrace",      spellID = 1254572 },
+    { name = "Maisara Caverns",         spellID = 1254559 },
+    { name = "Nexus-Point Xenas",       spellID = 1254563 },
+    { name = "Windrunner Spire",        spellID = 1254400 },
+    { name = "Algethar Academy",        spellID = 393273 },
+    { name = "Pit of Saron",            spellID = 1254555 },
+    { name = "Seat of the Triumvirate", spellID = 1254551 },
+    { name = "Skyreach",                spellID = skyreachSpellID },
 }
 
 local function GetDungeonSpellIDs(dungeon)
@@ -94,6 +103,80 @@ end
 local panel = nil
 local rows = {}
 local combatFrame = CreateFrame("Frame")
+local pendingPanelPosition = false
+local pendingPanelShow = false
+local pendingPanelHide = false
+
+local function GetTeleportAnchorFrame()
+    return _G["PVEFrame"] or _G["GroupFinderFrame"]
+end
+
+local function PositionTeleportPanel()
+    if not panel then return end
+    if InCombatLockdown() then
+        pendingPanelPosition = true
+        return
+    end
+
+    pendingPanelPosition = false
+
+    panel:ClearAllPoints()
+
+    local pveFrame = GetTeleportAnchorFrame()
+    if pveFrame and pveFrame:IsShown() then
+        panel:SetPoint("TOPRIGHT", pveFrame, "TOPLEFT", -6, 0)
+    else
+        panel:SetPoint("CENTER")
+    end
+end
+
+local function HideTeleportPanel()
+    pendingPanelShow = false
+
+    if not panel then
+        pendingPanelHide = false
+        return
+    end
+
+    if InCombatLockdown() then
+        pendingPanelHide = true
+        return
+    end
+
+    pendingPanelHide = false
+    if panel:IsShown() then
+        panel:Hide()
+    end
+end
+
+local function ShowTeleportPanel()
+    if not panel then return end
+    if InCombatLockdown() then
+        pendingPanelShow = true
+        pendingPanelHide = false
+        return
+    end
+
+    pendingPanelShow = false
+    pendingPanelHide = false
+    panel:Show()
+    if lv.UpdateTeleportPanel then
+        lv.UpdateTeleportPanel()
+    end
+end
+
+local function FlushPendingTeleportPanelState()
+    if InCombatLockdown() then return end
+    if pendingPanelHide then
+        HideTeleportPanel()
+    end
+    if pendingPanelPosition then
+        PositionTeleportPanel()
+    end
+    if pendingPanelShow and lv.IsMPlusTeleportsEnabled() then
+        ShowTeleportPanel()
+    end
+end
 
 local function EnsurePanel()
     if panel then return end
@@ -131,10 +214,10 @@ local function EnsurePanel()
     closeBtn:SetBackdrop({ bgFile="Interface\\Buttons\\WHITE8X8",
         edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", edgeSize=12,
         insets={left=3,right=3,top=3,bottom=3} })
-    closeBtn.Text = closeBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    closeBtn.Text = closeBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     closeBtn.Text:SetPoint("CENTER")
     closeBtn.Text:SetText(L["BUTTON_CLOSE"] or "Close")
-    closeBtn:SetScript("OnClick", function() panel:Hide() end)
+    closeBtn:SetScript("OnClick", HideTeleportPanel)
 
     -- Dungeon rows (8 rows, 34px tall each, starting at y=-44)
     for i, dungeon in ipairs(lv.TELEPORT_DUNGEONS) do
@@ -146,7 +229,7 @@ local function EnsurePanel()
             insets={left=2,right=2,top=2,bottom=2} })
 
         -- Dungeon name
-        row.nameText = row:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+        row.nameText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         row.nameText:SetPoint("LEFT", 8, 0)
         row.nameText:SetWidth(160)
         row.nameText:SetText(LT(dungeon.name))
@@ -154,26 +237,24 @@ local function EnsurePanel()
         lv.ApplyLocaleFont(row.nameText, 11)
 
         -- Cast button
-        row.castBtn = CreateFrame("Button", nil, row, "SecureActionButtonTemplate,BackdropTemplate")
-        row.castBtn:SetSize(76, 22)
-        row.castBtn:SetPoint("RIGHT", -4, 0)
-        row.castBtn:SetBackdrop({ bgFile="Interface\\Buttons\\WHITE8X8",
+        row.castBtnSkin = CreateFrame("Frame", nil, row, "BackdropTemplate")
+        row.castBtnSkin:SetSize(76, 22)
+        row.castBtnSkin:SetPoint("RIGHT", -4, 0)
+        row.castBtnSkin:SetBackdrop({ bgFile="Interface\\Buttons\\WHITE8X8",
             edgeFile="Interface\\Tooltips\\UI-Tooltip-Border", edgeSize=10,
             insets={left=2,right=2,top=2,bottom=2} })
-        row.castBtn.Text = row.castBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+
+        row.castBtn = CreateFrame("Button", nil, row, "SecureActionButtonTemplate")
+        row.castBtn:SetSize(76, 22)
+        row.castBtn:SetPoint("RIGHT", -4, 0)
+        row.castBtn:SetFrameLevel(row.castBtnSkin:GetFrameLevel() + 1)
+        row.castBtn:SetAttribute("type", "spell")
+        row.castBtn:SetAttribute("spell", dungeon.spellID)
+        row.castBtn.Text = row.castBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         row.castBtn.Text:SetPoint("CENTER")
         row.castBtn.Text:SetText(L["TELEPORT_CAST_BTN"] or "Teleport")
         lv.ApplyLocaleFont(row.castBtn.Text, 11)
-
-        row.castBtn:SetScript("OnClick", function()
-            if InCombatLockdown() then
-                UIErrorsFrame:AddExternalErrorMessage(L["TELEPORT_ERR_COMBAT"] or "Cannot teleport during combat.")
-                return
-            end
-            if row.castBtn:GetAttribute("spell") then
-                panel:Hide()
-            end
-        end)
+        row.castBtn:RegisterForClicks("AnyUp", "AnyDown")
 
         row.castBtn:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
@@ -203,8 +284,8 @@ local function EnsurePanel()
                 for _, row in ipairs(rows) do
                     row:SetBackdropColor(unpack(t.backgroundAlt or t.background))
                     row:SetBackdropBorderColor(unpack(t.borderPrimary))
-                    row.castBtn:SetBackdropColor(unpack(t.buttonBg))
-                    row.castBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
+                    row.castBtnSkin:SetBackdropColor(unpack(t.buttonBg))
+                    row.castBtnSkin:SetBackdropBorderColor(unpack(t.borderPrimary))
                     row.castBtn.Text:SetTextColor(unpack(t.textSecondary))
                 end
             end
@@ -217,7 +298,7 @@ end
 function lv.UpdateTeleportPanel()
     if not panel or not panel:IsShown() then return end
     if not lv.IsMPlusTeleportsEnabled() then
-        panel:Hide()
+        HideTeleportPanel()
         return
     end
     local db = LiteVaultDB and lv.PLAYER_KEY and LiteVaultDB[lv.PLAYER_KEY]
@@ -227,57 +308,45 @@ function lv.UpdateTeleportPanel()
         local knownSpellID = GetKnownTeleportSpellID(row.dungeon, known)
         local isKnown = knownSpellID and true or false
 
-        if not InCombatLockdown() then
-            if knownSpellID then
-                row.castBtn:SetAttribute("type", "spell")
-                row.castBtn:SetAttribute("spell", knownSpellID)
-            else
-                row.castBtn:SetAttribute("type", nil)
-                row.castBtn:SetAttribute("spell", nil)
-            end
-        end
-
         if isKnown then
             row.castBtn:SetEnabled(true)
             row.castBtn:SetAlpha(1.0)
+            row.castBtnSkin:SetAlpha(1.0)
         else
             row.castBtn:SetEnabled(false)
             row.castBtn:SetAlpha(0.4)
+            row.castBtnSkin:SetAlpha(0.4)
         end
 
         -- Disable cast during combat regardless
         if InCombatLockdown() then
             row.castBtn:SetEnabled(false)
             row.castBtn:SetAlpha(0.4)
+            row.castBtnSkin:SetAlpha(0.4)
         end
     end
 end
 
 function lv.ShowTeleportPanel()
     if not lv.IsMPlusTeleportsEnabled() then
-        if panel and panel:IsShown() then
-            panel:Hide()
-        end
+        HideTeleportPanel()
         return
     end
     EnsurePanel()
+    PositionTeleportPanel()
     if lv.HideAllActionMenus then lv.HideAllActionMenus() end
     if lv.CloseAuxPanels then lv.CloseAuxPanels("teleports") end
-    if InCombatLockdown() then return end
-    panel:Show()
-    lv.UpdateTeleportPanel()
+    ShowTeleportPanel()
 end
 
 function lv.ToggleTeleportPanel()
     if not lv.IsMPlusTeleportsEnabled() then
-        if panel and panel:IsShown() then
-            panel:Hide()
-        end
+        HideTeleportPanel()
         return
     end
     EnsurePanel()
     if panel:IsShown() then
-        panel:Hide()
+        HideTeleportPanel()
     else
         lv.ShowTeleportPanel()
     end
@@ -286,29 +355,29 @@ end
 -- Hook WoW Group Finder ("I" key) to show panel alongside it.
 -- Try both frame names for compatibility across expansions.
 C_Timer.After(1, function()
-    local pveFrame = _G["PVEFrame"] or _G["GroupFinderFrame"]
+    local pveFrame = GetTeleportAnchorFrame()
     if pveFrame then
         pveFrame:HookScript("OnShow", function()
             if not lv.IsMPlusTeleportsEnabled() then
-                if panel then panel:Hide() end
+                HideTeleportPanel()
                 return
             end
             EnsurePanel()
-            -- Anchor to right side of the Group Finder frame
-            panel:ClearAllPoints()
-            panel:SetPoint("TOPLEFT", pveFrame, "TOPRIGHT", 6, 0)
-            panel:Show()
-            lv.UpdateTeleportPanel()
+            PositionTeleportPanel()
+            ShowTeleportPanel()
         end)
         pveFrame:HookScript("OnHide", function()
-            if panel then panel:Hide() end
+            HideTeleportPanel()
         end)
     end
 end)
 
 combatFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 combatFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-combatFrame:SetScript("OnEvent", function()
+combatFrame:SetScript("OnEvent", function(_, event)
+    if event == "PLAYER_REGEN_ENABLED" then
+        FlushPendingTeleportPanelState()
+    end
     lv.UpdateTeleportPanel()
 end)
 

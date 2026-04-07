@@ -337,17 +337,30 @@ GetCurrencyCapMeta = function(currencyID)
         return nil
     end
 
-    local earned = info.quantityEarnedThisWeek or info.totalEarned or 0
-    local cap = info.maxWeeklyQuantity or info.maxQuantity or 0
-    if info.useTotalEarnedForMaxQty and info.totalEarned then
-        earned = info.totalEarned
-    end
-
-    if cap and cap > 0 then
+    local function BuildCapMeta(earned, cap)
+        earned = tonumber(earned)
+        cap = tonumber(cap)
+        if not cap or cap <= 0 then
+            return nil
+        end
+        if earned and earned >= 0 and earned <= cap then
+            return {
+                earned = earned,
+                cap = cap,
+            }
+        end
         return {
-            earned = earned or 0,
+            earned = nil,
             cap = cap,
         }
+    end
+
+    local weeklyMeta = BuildCapMeta(info.quantityEarnedThisWeek, info.maxWeeklyQuantity)
+    if weeklyMeta and weeklyMeta.earned ~= nil then
+        return weeklyMeta
+    end
+    if weeklyMeta then
+        return weeklyMeta
     end
 
     if C_TooltipInfo and C_TooltipInfo.GetCurrencyByID then
@@ -361,11 +374,9 @@ GetCurrencyCapMeta = function(currencyID)
                     if earnedText and capText then
                         local parsedEarned = tonumber(earnedText)
                         local parsedCap = tonumber(capText)
-                        if parsedEarned and parsedCap and parsedCap > 0 then
-                            return {
-                                earned = parsedEarned,
-                                cap = parsedCap,
-                            }
+                        local tooltipMeta = BuildCapMeta(parsedEarned, parsedCap)
+                        if tooltipMeta then
+                            return tooltipMeta
                         end
                     end
                 end
@@ -373,14 +384,16 @@ GetCurrencyCapMeta = function(currencyID)
         end
     end
 
-    return nil
+    local fallbackEarned = info.useTotalEarnedForMaxQty and info.totalEarned or info.quantityEarnedThisWeek or info.totalEarned
+    return BuildCapMeta(fallbackEarned, info.maxWeeklyQuantity or info.maxQuantity)
+
 end
 
 lv.GetCurrencyCapMeta = GetCurrencyCapMeta
 
 -- FRAME SETUP
 local LVCurrencyWindow = CreateFrame("Frame", "LiteVaultCurrencyWindow", UIParent, "BackdropTemplate")
-LVCurrencyWindow:SetSize(390, 100) -- Height will auto-adjust
+LVCurrencyWindow:SetSize(320, 100) -- Height will auto-adjust
 LVCurrencyWindow:SetPoint("CENTER")
 LVCurrencyWindow:SetFrameStrata("DIALOG")
 LVCurrencyWindow:SetMovable(true)
@@ -416,7 +429,7 @@ local curClose = CreateFrame("Button", nil, LVCurrencyWindow, "BackdropTemplate"
 curClose:SetSize(60, 22)
 curClose:SetPoint("TOPRIGHT", -8, -8)
 curClose:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12, insets = { left = 3, right = 3, top = 3, bottom = 3 } })
-curClose.Text = curClose:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+curClose.Text = curClose:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 curClose.Text:SetPoint("CENTER"); curClose.Text:SetText(L["BUTTON_CLOSE"])
 lv.currencyCloseBtn = curClose
 
@@ -451,18 +464,34 @@ end)
 
 lv.LVCurrencyWindow = LVCurrencyWindow
 
-local VALUE_COL_AMOUNT = -150
-local VALUE_COL_ACCOUNT_DIVIDER = -132
-local VALUE_COL_ACCOUNT = -120
-local VALUE_COL_META_DIVIDER = -140
-local VALUE_COL_META = -128
-local VALUE_COL_CAP_DIVIDER = -96
-local VALUE_COL_CAP = -84
+local ROW_WIDTH = 280
+local NAME_COL_WIDTH = 195
+local VALUE_COL_AMOUNT = -8
+local VALUE_COL_ACCOUNT_DIVIDER = -162
+local VALUE_COL_ACCOUNT = -116
+local VALUE_COL_META_DIVIDER = -98
+local VALUE_COL_META = -116
+local VALUE_COL_CAP = -8
+
+local function ShowCurrencyTooltip(anchor, currencyID)
+    if not anchor or not currencyID then
+        return
+    end
+
+    GameTooltip:SetOwner(anchor, "ANCHOR_RIGHT")
+    if GameTooltip.SetCurrencyByID then
+        GameTooltip:SetCurrencyByID(currencyID)
+    elseif GameTooltip.SetHyperlink then
+        GameTooltip:SetHyperlink(("currency:%d"):format(currencyID))
+    end
+    GameTooltip:Show()
+end
 
 -- CREATE ROW POOL (We create them once, but position them later)
 for i = 1, #CURRENCY_DISPLAY_ORDER do
     local f = CreateFrame("Frame", nil, LVCurrencyWindow)
-    f:SetSize(350, 34)
+    f:SetSize(ROW_WIDTH, 34)
+    f:EnableMouse(true)
     
     f.icon = f:CreateTexture(nil, "ARTWORK")
     f.icon:SetSize(20, 20) -- Slightly tighter icon
@@ -470,56 +499,69 @@ for i = 1, #CURRENCY_DISPLAY_ORDER do
     
     f.name = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     f.name:SetPoint("LEFT", 28, 0)
-    f.name:SetWidth(150)
+    f.name:SetWidth(NAME_COL_WIDTH)
     f.name:SetJustifyH("LEFT")
     lv.ApplyLocaleFont(f.name, 12) -- Apply crisp font for zhTW
 
     f.val = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     f.val:SetPoint("RIGHT", f, "RIGHT", VALUE_COL_AMOUNT, 0)
+    f.val:SetWidth(48)
     f.val:SetJustifyH("RIGHT")
     lv.ApplyLocaleFont(f.val, 12) -- Apply crisp font for zhTW
 
-    f.accountVal = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-    f.accountVal:SetPoint("LEFT", f, "RIGHT", VALUE_COL_ACCOUNT, 0)
-    f.accountVal:SetJustifyH("LEFT")
+    f.accountVal = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.accountVal:SetPoint("RIGHT", f, "RIGHT", VALUE_COL_ACCOUNT, 0)
+    f.accountVal:SetWidth(42)
+    f.accountVal:SetJustifyH("RIGHT")
     lv.ApplyLocaleFont(f.accountVal, 10)
     f.accountVal:SetTextColor(0.75, 0.75, 0.75)
 
-    f.divider = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-    f.divider:SetPoint("LEFT", f, "RIGHT", VALUE_COL_ACCOUNT_DIVIDER, 0)
+    f.divider = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.divider:SetPoint("RIGHT", f, "RIGHT", VALUE_COL_ACCOUNT_DIVIDER, 0)
     lv.ApplyLocaleFont(f.divider, 10)
     f.divider:SetTextColor(0.75, 0.75, 0.75)
     f.divider:SetText("|")
 
-    f.metaVal = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-    f.metaVal:SetPoint("LEFT", f, "RIGHT", VALUE_COL_META, 0)
-    f.metaVal:SetJustifyH("LEFT")
+    f.metaVal = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.metaVal:SetPoint("RIGHT", f, "RIGHT", VALUE_COL_META, 0)
+    f.metaVal:SetWidth(42)
+    f.metaVal:SetJustifyH("RIGHT")
     lv.ApplyLocaleFont(f.metaVal, 10)
     f.metaVal:SetTextColor(0.75, 0.75, 0.75)
 
-    f.metaLeadDivider = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-    f.metaLeadDivider:SetPoint("LEFT", f, "RIGHT", VALUE_COL_META_DIVIDER, 0)
+    f.metaLeadDivider = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.metaLeadDivider:SetPoint("RIGHT", f, "RIGHT", VALUE_COL_META_DIVIDER, 0)
     lv.ApplyLocaleFont(f.metaLeadDivider, 10)
     f.metaLeadDivider:SetTextColor(0.75, 0.75, 0.75)
     f.metaLeadDivider:SetText("|")
 
-    f.metaCap = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-    f.metaCap:SetPoint("LEFT", f, "RIGHT", VALUE_COL_CAP, 0)
-    f.metaCap:SetJustifyH("LEFT")
+    f.metaCap = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.metaCap:SetPoint("RIGHT", f, "RIGHT", VALUE_COL_CAP, 0)
+    f.metaCap:SetWidth(74)
+    f.metaCap:SetJustifyH("RIGHT")
     lv.ApplyLocaleFont(f.metaCap, 10)
     f.metaCap:SetTextColor(0.75, 0.75, 0.75)
 
-    f.metaDivider = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-    f.metaDivider:SetPoint("LEFT", f, "RIGHT", VALUE_COL_CAP_DIVIDER, 0)
+    f.metaDivider = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.metaDivider:SetPoint("RIGHT", f.metaCap, "LEFT", -6, 0)
     lv.ApplyLocaleFont(f.metaDivider, 10)
     f.metaDivider:SetTextColor(0.75, 0.75, 0.75)
     f.metaDivider:SetText("|")
 
-    f.sectionTitle = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    f.sectionTitle = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     f.sectionTitle:SetPoint("CENTER")
     lv.ApplyLocaleFont(f.sectionTitle, 11)
     f.sectionTitle:SetTextColor(1, 0.82, 0)
     f.sectionTitle:Hide()
+
+    f:SetScript("OnEnter", function(self)
+        if self.currencyID and currentCurrencyChar == lv.PLAYER_KEY then
+            ShowCurrencyTooltip(self, self.currencyID)
+        end
+    end)
+    f:SetScript("OnLeave", function()
+        GameTooltip:Hide()
+    end)
 
     currencyRows[i] = f
 end
@@ -545,6 +587,7 @@ local function RenderCurrencyWindow(charKey)
             row.icon:Hide()
             row.name:Hide()
             row.val:Hide()
+            row.currencyID = nil
             row.accountVal:Hide()
             row.divider:Hide()
             row.metaVal:Hide()
@@ -566,7 +609,6 @@ local function RenderCurrencyWindow(charKey)
             if curData or ALWAYS_SHOW_ZERO[keyword] then
                 local amount = (curData and curData.amount) or 0
                 local currencyID = GetCurrencyIDByKeyword(keyword)
-                local accountTotal = UPGRADE_CREST_KEYS[keyword] and nil or GetAccountCurrencyTotal(currencyID, amount)
                 local capMeta = (curData and curData.capMeta) or nil
 
                 -- Populate Data
@@ -577,33 +619,20 @@ local function RenderCurrencyWindow(charKey)
                 row.icon:SetTexture((curData and curData.icon) or 134400)
                 row.name:SetText(L[keyword] or keyword) -- Localized when available, fallback to English key
                 row.val:SetText(BreakUpLargeNumbers(amount))
-                if accountTotal then
-                    row.divider:Show()
-                    row.accountVal:SetFormattedText("|cffbfbfbf%s|r", BreakUpLargeNumbers(accountTotal))
-                    row.accountVal:Show()
-                else
-                    row.divider:Hide()
-                    row.accountVal:SetText("")
-                    row.accountVal:Hide()
-                end
-                if capMeta then
-                    row.metaVal:SetText(BreakUpLargeNumbers(capMeta.earned))
-                    row.metaCap:SetFormattedText("|cffbfbfbf" .. ((((L["LABEL_CAP_SHORT"] ~= "LABEL_CAP_SHORT") and L["LABEL_CAP_SHORT"]) or "cap %s")) .. "|r", BreakUpLargeNumbers(capMeta.cap))
-                    row.metaLeadDivider:Show()
-                    row.metaDivider:Show()
-                    row.metaVal:Show()
-                    row.metaCap:Show()
-                    if not accountTotal then
-                        row.metaLeadDivider:Hide()
-                    end
-                else
-                    row.metaDivider:Hide()
-                    row.metaLeadDivider:Hide()
-                    row.metaVal:SetText("")
-                    row.metaCap:SetText("")
-                    row.metaVal:Hide()
-                    row.metaCap:Hide()
-                end
+                row.currencyID = currencyID
+                row.divider:Hide()
+                row.accountVal:SetText("")
+                row.accountVal:Hide()
+                row.metaLeadDivider:Hide()
+                row.metaDivider:Hide()
+                row.metaVal:SetText("")
+                row.metaVal:Hide()
+                row.metaDivider:Hide()
+                row.metaLeadDivider:Hide()
+                row.metaVal:SetText("")
+                row.metaCap:SetText("")
+                row.metaVal:Hide()
+                row.metaCap:Hide()
                 
                 -- Set Position (Dynamic!)
                 row:ClearAllPoints()
@@ -621,6 +650,7 @@ local function RenderCurrencyWindow(charKey)
                 row.metaVal:Hide()
                 row.metaCap:Hide()
                 row.sectionTitle:Hide()
+                row.currencyID = nil
                 row:Hide()
             end
         end

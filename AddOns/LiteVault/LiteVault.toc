@@ -5,7 +5,6 @@
 ## Version: 2026-03-25 v3 Fix
 ## SavedVariables: LiteVaultDB, LiteVaultOrder, LiteVaultMinimapDB
 ## IconTexture: Interface\AddOns\LiteVault\button.png
-## Category-zhTW: 戰隊
 
 ## Title-zhTW: |cffFF7F00[戰隊]|r 追蹤
 ## Notes-zhTW: LiteVault |n|n輕量級的角色與戰隊管理插件，集中顯示並追蹤多角色的各種重要資訊。|n|n|cffffd200使用方法: |r點小地圖按鈕。
