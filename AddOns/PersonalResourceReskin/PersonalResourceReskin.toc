@@ -27,6 +27,7 @@ Libs/LibEditModeOverride/LibEditModeOverride.xml
 
 
 PersonalResourceReskin.lua
+PRDEditModeSettings.lua
 AbbreviateNumbers.lua
 Options_Main.lua
 PlayerPowerText.lua

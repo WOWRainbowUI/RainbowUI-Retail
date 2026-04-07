@@ -257,10 +257,16 @@ local defaults = {
         fontFlags = "OUTLINE",
         fontColor = {1, 1, 1, 1},
         powerBgColor = {0, 0, 0, 0.5},
+        powerBgTexture = "White8x8",
         healthBgColor = {0, 0, 0, 0.5},
+        healthBgTexture = "White8x8",
         healthBarColor = {0.2, 0.8, 0.2, 1}, -- default green
         altPowerBgColor = {0, 0, 0, 0.5},
+        altPowerBgTexture = "White8x8",
         useClassColor = false,
+        widthMode = "MANUAL", -- "MANUAL", "ESSENTIAL", or "UTILITY"
+        staggerSyncAnchor = "ABOVE", -- "ABOVE" or "BELOW" the PRD when width synced
+        staggerSyncOffset = 2, -- pixel offset from PRD when width synced
         width = 220, -- PowerBar width
         frameWidth = 220, -- Overall frame width
         healthHeight = 24, -- Health bar height
@@ -471,11 +477,30 @@ end
     else
         bgColor = profile.healthBgColor
     end
+    -- Determine background texture key per bar type
+    local bgTexKey
+    if barType == "power" then
+        bgTexKey = profile.powerBgTexture
+    elseif barType == "altpower" then
+        bgTexKey = profile.altPowerBgTexture
+    else
+        bgTexKey = profile.healthBgTexture
+    end
+    local bgTexPath = bgTexKey and LSM:Fetch("statusbar", bgTexKey)
     if not bar.__PRD_BG then
-        local bg = bar:CreateTexture(nil, "BACKGROUND")
+        local bg = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
         bg:SetAllPoints(bar)
-        bg:SetColorTexture(unpack(bgColor))
         bar.__PRD_BG = bg
+        -- Hide Blizzard's own background regions so ours is visible
+        for _, region in ipairs({bar:GetRegions()}) do
+            if region ~= bg and region:IsObjectType("Texture") and region:GetDrawLayer() == "BACKGROUND" then
+                region:SetAlpha(0)
+            end
+        end
+    end
+    if bgTexPath then
+        bar.__PRD_BG:SetTexture(bgTexPath)
+        bar.__PRD_BG:SetVertexColor(unpack(bgColor))
     else
         bar.__PRD_BG:SetColorTexture(unpack(bgColor))
     end
@@ -581,15 +606,39 @@ local function ApplyReskinToPRD()
     local prd = _G["PersonalResourceDisplayFrame"]
     if not prd then return end
     local profile = GetProfile()
-    -- Apply saved frame width
-    if prd.SetWidth and profile.frameWidth then
-        prd:SetWidth(profile.frameWidth)
+
+    -- Determine effective width based on widthMode
+    local widthMode = profile.widthMode or "MANUAL"
+    local syncWidth = nil
+    if widthMode == "ESSENTIAL" then
+        local viewer = _G["EssentialCooldownViewer"]
+        if viewer and viewer.GetWidth then
+            local w = viewer:GetWidth()
+            if w and w > 10 then syncWidth = w end
+        end
+    elseif widthMode == "UTILITY" then
+        local viewer = _G["UtilityCooldownViewer"]
+        if viewer and viewer.GetWidth then
+            local w = viewer:GetWidth()
+            if w and w > 10 then syncWidth = w end
+        end
     end
-    -- Power Bar
-    if prd.PowerBar then
-        if profile.width then
+
+    -- Apply width: sync overrides manual
+    if syncWidth then
+        if prd.SetWidth then prd:SetWidth(syncWidth) end
+        if prd.PowerBar then prd.PowerBar:SetWidth(syncWidth) end
+    else
+        if prd.SetWidth and profile.frameWidth then
+            prd:SetWidth(profile.frameWidth)
+        end
+        if prd.PowerBar and profile.width then
             prd.PowerBar:SetWidth(profile.width)
         end
+    end
+
+    -- Power Bar
+    if prd.PowerBar then
         if profile.powerBarHeight then
             prd.PowerBar:SetHeight(profile.powerBarHeight)
         end
@@ -660,6 +709,7 @@ local function ApplyReskinToPRD()
         end
     end
     if healthBar then
+        if syncWidth then healthBar:SetWidth(syncWidth) end
         ReskinBar(healthBar, "health")
     end
     -- Scale health bar container for height adjustment
@@ -752,6 +802,7 @@ local function ApplyReskinToPRD()
     end
     -- Alternate Power Bar
     if prd.AlternatePowerBar then
+        if syncWidth then prd.AlternatePowerBar:SetWidth(syncWidth) end
         local _, class = UnitClass("player")
         local enabled = (GetProfile().altPowerGradientEnabled or {})[class]
         if enabled ~= false then
@@ -1341,12 +1392,25 @@ function PersonalResourceReskin:OnInitialize()
             get = function() return unpack(GetProfile().healthBgColor) end,
             set = function(_, r, g, b, a)
                 GetProfile().healthBgColor = {r, g, b, a}
-                local prd = _G["PersonalResourceDisplayFrame"]
-                if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar and prd.HealthBarsContainer.healthBar.__PRD_BG then
-                    prd.HealthBarsContainer.healthBar.__PRD_BG:SetColorTexture(r, g, b, a)
-                end
                 ApplyReskinToPRD()
             end,
+        },
+        healthBgTexture = {
+            name = "Health Bar Background Texture",
+            desc = "Select the texture for the health bar background.",
+            type = "select",
+            values = function()
+                local list = LSM:List("statusbar")
+                local short = {}
+                for _, v in ipairs(list) do short[v] = v end
+                return short
+            end,
+            get = function() return GetProfile().healthBgTexture or "White8x8" end,
+            set = function(_, val)
+                GetProfile().healthBgTexture = val
+                ApplyReskinToPRD()
+            end,
+            width = 2,
         },
         altPowerBgColor = {
             name = "特殊能量條背景",
@@ -1356,12 +1420,25 @@ function PersonalResourceReskin:OnInitialize()
             get = function() return unpack(GetProfile().altPowerBgColor) end,
             set = function(_, r, g, b, a)
                 GetProfile().altPowerBgColor = {r, g, b, a}
-                local prd = _G["PersonalResourceDisplayFrame"]
-                if prd and prd.AlternatePowerBar and prd.AlternatePowerBar.__PRD_BG then
-                    prd.AlternatePowerBar.__PRD_BG:SetColorTexture(r, g, b, a)
-                end
                 ApplyReskinToPRD()
             end,
+        },
+        altPowerBgTexture = {
+            name = "Alt Power Bar Background Texture",
+            desc = "Select the texture for the alternate power bar background.",
+            type = "select",
+            values = function()
+                local list = LSM:List("statusbar")
+                local short = {}
+                for _, v in ipairs(list) do short[v] = v end
+                return short
+            end,
+            get = function() return GetProfile().altPowerBgTexture or "White8x8" end,
+            set = function(_, val)
+                GetProfile().altPowerBgTexture = val
+                ApplyReskinToPRD()
+            end,
+            width = 2,
         },
         powerBgColor = {
             name = "能量條背景",
@@ -1371,12 +1448,37 @@ function PersonalResourceReskin:OnInitialize()
             get = function() return unpack(GetProfile().powerBgColor) end,
             set = function(_, r, g, b, a)
                 GetProfile().powerBgColor = {r, g, b, a}
-                local prd = _G["PersonalResourceDisplayFrame"]
-                if prd and prd.PowerBar and prd.PowerBar.__PRD_BG then
-                    prd.PowerBar.__PRD_BG:SetColorTexture(r, g, b, a)
-                end
                 ApplyReskinToPRD()
             end,
+        },
+        powerBgTexture = {
+            name = "Power Bar Background Texture",
+            desc = "Select the texture for the power bar background.",
+            type = "select",
+            values = function()
+                local list = LSM:List("statusbar")
+                local short = {}
+                for _, v in ipairs(list) do short[v] = v end
+                return short
+            end,
+            get = function() return GetProfile().powerBgTexture or "White8x8" end,
+            set = function(_, val)
+                GetProfile().powerBgTexture = val
+                ApplyReskinToPRD()
+            end,
+            width = 2,
+        },
+        widthMode = {
+            name = "Width Mode",
+            desc = "Manual: set widths yourself. Match Essential/Utility Viewer: auto-sync all PRD bar widths to the selected cooldown viewer.",
+            type = "select",
+            values = { MANUAL = "Manual", ESSENTIAL = "Match Essential Viewer", UTILITY = "Match Utility Viewer" },
+            get = function() return GetProfile().widthMode or "MANUAL" end,
+            set = function(_, val)
+                GetProfile().widthMode = val
+                ApplyReskinToPRD()
+            end,
+            order = 0.79,
         },
         width = {
             name = "能量條寬度",
@@ -1939,6 +2041,53 @@ if not _G.PRR_LegacyComboTicker then
     _G.PRR_LegacyComboTicker = C_Timer.NewTicker(0.5, function()
         if type(ApplyLegacyComboSpacing) == "function" then
             ApplyLegacyComboSpacing()
+        end
+    end)
+end
+
+-- Width sync ticker: when widthMode is ESSENTIAL or UTILITY, poll viewer width and update PRD
+do
+    local lastSyncWidth = 0
+    local wasManual = true
+    _G.PRR_WidthSyncTicker = _G.PRR_WidthSyncTicker or C_Timer.NewTicker(0.25, function()
+        local profile = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+        if not profile then return end
+        local mode = profile.widthMode or "MANUAL"
+        if mode == "MANUAL" then
+            -- Restore stagger bar position if we just switched back to manual
+            if not wasManual then
+                wasManual = true
+                if type(_G.CustomBrewmasterStaggerBar_RestorePosition) == "function" then
+                    _G.CustomBrewmasterStaggerBar_RestorePosition()
+                end
+            end
+            lastSyncWidth = 0
+            return
+        end
+        wasManual = false
+        local viewerName = (mode == "ESSENTIAL") and "EssentialCooldownViewer" or "UtilityCooldownViewer"
+        local viewer = _G[viewerName]
+        if not viewer or not viewer.GetWidth then return end
+        local w = viewer:GetWidth()
+        if not w or w < 10 then return end
+        -- Only update if width actually changed
+        if math.abs(w - lastSyncWidth) < 1 then return end
+        lastSyncWidth = w
+        local prd = _G["PersonalResourceDisplayFrame"]
+        if not prd then return end
+        if prd.SetWidth then prd:SetWidth(w) end
+        if prd.PowerBar then prd.PowerBar:SetWidth(w) end
+        if prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
+            local hb = prd.HealthBarsContainer.healthBar.healthBar or prd.HealthBarsContainer.healthBar
+            hb:SetWidth(w)
+        end
+        if prd.AlternatePowerBar then prd.AlternatePowerBar:SetWidth(w) end
+        -- Sync MonkOrbTracker width
+        local monkOrb = _G["MonkOrbTrackerFrame"]
+        if monkOrb and monkOrb.SetWidth then monkOrb:SetWidth(w) end
+        -- Sync CustomBrewmasterStaggerBar width
+        if type(_G.CustomBrewmasterStaggerBar_SetSyncWidth) == "function" then
+            _G.CustomBrewmasterStaggerBar_SetSyncWidth(w)
         end
     end)
 end
