@@ -75,6 +75,91 @@ L["Overlay.LessThanOneMinute"] = "<1m"
 L["Overlay.SecondsFormat"] = "%ds"
 
 -- ============================================================================
+-- CONSUMABLE STAT LABELS (icon overlays, keep very short)
+-- ============================================================================
+L["Label.Crit"] = "Crit"
+L["Label.Haste"] = "Cel"
+L["Label.Versatility"] = "Vers"
+L["Label.Mastery"] = "Maes"
+L["Label.Stamina"] = "Res"
+L["Label.Healing"] = "Cura"
+L["Label.Random"] = "Cas"
+L["Label.Speed"] = "Vel"
+L["Label.PvP"] = "PvP"
+L["Label.Feast"] = "Banch"
+L["Label.HasteShort"] = "C"
+L["Label.VersatilityShort"] = "V"
+L["Label.MasteryShort"] = "M"
+L["Label.CritVers"] = "Crit/V"
+L["Label.MasteryCrit"] = "M/Crit"
+L["Label.MasteryVers"] = "M/V"
+L["Label.MasteryHaste"] = "M/C"
+L["Label.HasteCrit"] = "C/Crit"
+L["Label.HasteVers"] = "C/V"
+L["Label.StaminaStr"] = "Res/For"
+L["Label.StaminaAgi"] = "Res/Agi"
+L["Label.StaminaInt"] = "Res/Int"
+L["Label.HighPrimary"] = "Al 1º"
+L["Label.HighSecondary"] = "Al 2º"
+L["Label.MidPrimary"] = "Me 1º"
+L["Label.LowPrimary"] = "Ba 1º"
+L["Label.LowSecondary"] = "Ba 2º"
+L["Label.RevivePet"] = "Risorgi anim."
+L["Label.Felguard"] = "Vilguardia"
+L["Badge.Hearty"] = "H"
+L["Badge.Fleeting"] = "F"
+
+-- ============================================================================
+-- BUFF NAMES
+-- ============================================================================
+L["Buff.ArcaneFamiliar"] = "Famiglio Arcano"
+L["Buff.ArcaneIntellect"] = "Intelletto Arcano"
+L["Buff.AtrophicNumbingPoison"] = "Veleno Atrofizzante/Intorpidente"
+L["Buff.Attunement"] = "Sintonia"
+L["Buff.AugmentRune"] = "Runa di Potenziamento"
+L["Buff.BattleShout"] = "Urlo di Battaglia"
+L["Buff.BeaconOfFaith"] = "Faro di Fede"
+L["Buff.BeaconOfLight"] = "Faro di Luce"
+L["Buff.BlessingOfTheBronze"] = "Benedizione del Bronzo"
+L["Buff.BlisteringScales"] = "Scaglie Ustionanti"
+L["Buff.BurningRush"] = "Impeto Ustionante"
+L["Buff.CreateSoulwell"] = "Crea Pozzo delle Anime"
+L["Buff.DelveFood"] = "Cibo delle Scorribande"
+L["Buff.DevotionAura"] = "Aura di Devozione"
+L["Buff.EarthShield"] = "Scudo di Terra"
+L["Buff.EarthShieldSelf"] = "Scudo di Terra (Se Stesso)"
+L["Buff.EarthlivingWeapon"] = "Arma Terraviva"
+L["Buff.FlametongueWeapon"] = "Arma Linguadifuoco"
+L["Buff.Flask"] = "Fiala"
+L["Buff.Food"] = "Cibo"
+L["Buff.GrimoireOfSacrifice"] = "Grimorio del Sacrificio"
+L["Buff.Healthstone"] = "Pietra della Salute"
+L["Buff.HunterPet"] = "Pet del Cacciatore"
+L["Buff.MarkOfTheWild"] = "Marchio del Selvaggio"
+L["Buff.PetPassive"] = "Pet Passivo"
+L["Buff.PowerWordFortitude"] = "Parola del Potere: Tempra"
+L["Buff.RiteOfAdjuration"] = "Rito di Scongiuro"
+L["Buff.RiteOfSanctification"] = "Rito di Santificazione"
+L["Buff.RoguePoisons"] = "Veleni del Ladro"
+L["Buff.RuneforgeMH"] = "Runeforgiatura (Mano Principale)"
+L["Buff.RuneforgeOH"] = "Runeforgiatura (Mano Secondaria)"
+L["Buff.Shadowform"] = "Forma d'Ombra"
+L["Buff.ShieldNoTalent"] = "Scudo (Nessun Talento)"
+L["Buff.Skyfury"] = "Furia Celeste"
+L["Buff.Soulstone"] = "Pietra dell'Anima"
+L["Buff.SourceOfMagic"] = "Fonte di Magia"
+L["Buff.SymbioticRelationship"] = "Relazione Simbiotica"
+L["Buff.TidecallersGuard"] = "Guardia dell'Evocamaree"
+L["Buff.UnholyGhoul"] = "Ghoul Empio"
+L["Buff.WarlockDemon"] = "Demone dello Stregone"
+L["Buff.WaterElemental"] = "Elementale d'Acqua"
+L["Buff.WaterLightningShield"] = "Scudo d'Acqua/di Fulmini"
+L["Buff.Weapon"] = "Arma"
+L["Buff.WeaponOH"] = "Arma (Sec.)"
+L["Buff.WindfuryWeapon"] = "Arma Furiaventosa"
+L["Buff.WrongDemon"] = "Demone Sbagliato"
+
+-- ============================================================================
 -- BUFF GROUP DISPLAY NAMES
 -- ============================================================================
 L["Group.Beacons"] = "Fari"
@@ -85,7 +170,7 @@ L["Group.Pets"] = "Pet"
 L["Group.ShamanShields"] = "Scudi Sciamanici"
 L["Group.Flask"] = "Fiala"
 L["Group.Food"] = "Cibo"
-L["Group.DelveFood"] = "Cibo delle Delve"
+L["Group.DelveFood"] = "Cibo delle Scorribande"
 L["Group.Healthstone"] = "Pietra della Salute"
 L["Group.AugmentRune"] = "Runa di Potenziamento"
 L["Group.WeaponBuff"] = "Potenziamento Arma"
@@ -95,13 +180,10 @@ L["Group.WeaponBuff"] = "Potenziamento Arma"
 -- ============================================================================
 L["Tooltip.MayShowExtraIcon"] = "Potrebbe mostrare un'icona aggiuntiva"
 L["Tooltip.MayShowExtraIcon.Desc"] =
-    "Finch\195\169 non lanci questo, potresti vedere sia questo che il promemoria per Scudo d'Acqua/Fulmineo. Non posso sapere se vuoi Scudo di Terra su te stesso, o Scudo di Terra su un alleato + Scudo d'Acqua/Fulmineo su di te."
+    "Finché non lanci questo, potresti vedere sia questo che il promemoria per Scudo d'Acqua/Fulmineo. Non posso sapere se vuoi Scudo di Terra su te stesso, o Scudo di Terra su un alleato + Scudo d'Acqua/Fulmineo su di te."
 L["Tooltip.InstanceEntryReminder"] = "Promemoria all'ingresso dell'istanza"
 L["Tooltip.InstanceEntryReminder.Desc"] =
     "Mostrato brevemente all'ingresso di una spedizione come promemoria per piazzare un Pozzo delle Anime. Scompare dopo il lancio o dopo 30 secondi."
-L["Tooltip.DelvesOnly"] = "Solo Delve"
-L["Tooltip.DelvesOnly.Desc"] =
-    "Mostrato brevemente all'ingresso di una delve come promemoria per mangiare il cibo di Valeera. Scompare dopo 30 secondi o quando il buff viene rilevato."
 
 -- ============================================================================
 -- GLOW TYPE NAMES
@@ -147,12 +229,10 @@ L["Display.Description"] = "Controlla i buff mancanti a colpo d'occhio."
 L["Display.OpenOptions"] = "Apri Opzioni"
 L["Display.SlashCommands"] = "Comandi: /br, /br lock, /br unlock, /br test, /br minimap"
 L["Display.MinimapLeftClick"] = "|cFFCFCFCFClick sinistro|r: Opzioni"
-L["Display.MinimapRightClick"] = "|cFFCFCFCFClick destro|r: Modalit\195\160 test"
+L["Display.MinimapRightClick"] = "|cFFCFCFCFClick destro|r: Modalità test"
 L["Display.DismissConsumables"] = "Nascondi promemoria consumabili fino alla prossima schermata di caricamento"
 L["Display.LoginFirstInstall"] =
     "Grazie per l'installazione! Digita |cFFFFD100/br unlock|r per spostare il display dei buff, oppure usa il pulsante in fondo al pannello opzioni di |cFFFFD100/br|r."
-L["Display.LoginGearIcons"] =
-    "Alcune impostazioni buff (pietra della salute, pietra dell'anima, pet) sono state spostate nelle icone ingranaggio accanto alle relative caselle nella scheda Buff."
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -161,6 +241,19 @@ L["Tab.Buffs"] = "Buff"
 L["Tab.DisplayBehavior"] = "Visualizzazione"
 L["Tab.Settings"] = "Impostazioni"
 L["Tab.Profiles"] = "Profili"
+L["Tab.Sounds"] = "Suoni"
+
+-- ============================================================================
+-- OPTIONS: SOUND ALERTS
+-- ============================================================================
+L["Options.Sound.NoAlerts"] = "Nessun avviso sonoro configurato."
+L["Options.Sound.AddAlert"] = "Aggiungi avviso sonoro"
+L["Options.Sound.Title"] = "Aggiungi avviso sonoro"
+L["Options.Sound.SelectBuff"] = "Seleziona beneficio"
+L["Options.Sound.SelectSound"] = "Seleziona suono"
+L["Options.Sound.Preview"] = "Anteprima"
+L["Options.Sound.Save"] = "Salva"
+L["Options.Sound.NoBuffs"] = "Tutti i benefici hanno già dei suoni."
 
 -- ============================================================================
 -- OPTIONS: GLOBAL DEFAULTS
@@ -180,8 +273,8 @@ L["Options.GlowReminderIcons.Desc"] =
     "Aggiunge un effetto bagliore alle icone promemoria. Personalizza per configurare indipendentemente i bagliori per buff in scadenza e mancanti."
 L["Options.GlowKind.Expiring"] = "In Scadenza"
 L["Options.GlowKind.Missing"] = "Mancante"
-L["Options.GlowSettings.Expiring"] = "Impostazioni Bagliore \226\128\148 In Scadenza"
-L["Options.GlowSettings.Missing"] = "Impostazioni Bagliore \226\128\148 Mancante"
+L["Options.GlowSettings.Expiring"] = "Impostazioni Bagliore — In Scadenza"
+L["Options.GlowSettings.Missing"] = "Impostazioni Bagliore — Mancante"
 L["Options.Glow.Enabled"] = "Abilitato"
 L["Options.Threshold"] = "Soglia"
 L["Options.GlowMissingPets"] = "Bagliore pet mancanti"
@@ -202,7 +295,7 @@ L["Options.Glow.Length"] = "Lunghezza"
 L["Options.Glow.Lines"] = "Linee"
 L["Options.Glow.Particles"] = "Particelle"
 L["Options.Glow.Scale"] = "Scala"
-L["Options.Glow.Speed"] = "Velocit\195\160"
+L["Options.Glow.Speed"] = "Velocità"
 L["Options.Glow.StartAnimation"] = "Animazione Iniziale"
 L["Options.Glow.XOffset"] = "Offset X"
 L["Options.Glow.YOffset"] = "Offset Y"
@@ -217,7 +310,7 @@ L["Options.HidePvPMatchStart.Desc"] =
 L["Options.ReadyCheckOnly"] = "Mostra solo al controllo prontezza"
 L["Options.ReadyCheckOnly.Desc"] =
     "Mostra i buff di questa categoria solo per 15 secondi dopo l'inizio di un controllo prontezza"
-L["Options.Visibility"] = "Visibilit\195\160"
+L["Options.Visibility"] = "Visibilità"
 L["Options.PerCategoryCustomization"] = "Personalizzazione per Categoria"
 L["Options.DetachIcon"] = "Separa"
 L["Options.DetachIcon.Desc"] = "Sposta questa icona in un frame posizionabile indipendentemente"
@@ -228,7 +321,7 @@ L["Options.DetachIcon.Desc"] = "Sposta questa icona in un frame posizionabile in
 L["Options.Healthstone.ReadyCheckOnly"] = "Solo controllo prontezza"
 L["Options.Healthstone.ReadyCheckWarlock"] = "Controllo prontezza + stregone sempre"
 L["Options.Healthstone.AlwaysShow"] = "Mostra sempre"
-L["Options.Healthstone.Visibility"] = "Visibilit\195\160 Pietra della Salute"
+L["Options.Healthstone.Visibility"] = "Visibilità Pietra della Salute"
 L["Options.Healthstone.Visibility.Desc"] =
     "Controlla quando appare il promemoria Pietra della Salute.\n\n|cffffcc00Solo controllo prontezza:|r Solo durante i controlli prontezza (finestra di 15s).\n|cffffcc00Controllo prontezza + stregone sempre:|r Gli stregoni lo vedono sempre; gli altri solo al controllo prontezza.\n|cffffcc00Mostra sempre:|r Visibile quando sei nel contenuto corrispondente."
 L["Options.Healthstone.WarlockAlwaysDesc"] =
@@ -245,18 +338,18 @@ L["Options.Healthstone.Threshold.Desc"] =
 -- ============================================================================
 -- OPTIONS: SOULSTONE
 -- ============================================================================
-L["Options.Soulstone.Visibility"] = "Visibilit\195\160 Pietra dell'Anima"
+L["Options.Soulstone.Visibility"] = "Visibilità Pietra dell'Anima"
 L["Options.Soulstone.Visibility.Desc"] =
-    "Controlla quando appare il promemoria pietra dell'anima.\n\n|cffffcc00Solo controllo prontezza:|r Solo durante i controlli prontezza (predefinito).\n|cffffcc00Controllo prontezza + stregone sempre:|r Gli stregoni lo vedono sempre; gli altri solo al controllo prontezza.\n|cffffcc00Mostra sempre:|r Visibile quando la categoria presenza \195\168 visibile."
+    "Controlla quando appare il promemoria pietra dell'anima.\n\n|cffffcc00Solo controllo prontezza:|r Solo durante i controlli prontezza (predefinito).\n|cffffcc00Controllo prontezza + stregone sempre:|r Gli stregoni lo vedono sempre; gli altri solo al controllo prontezza.\n|cffffcc00Mostra sempre:|r Visibile quando la categoria presenza è visibile."
 L["Options.Soulstone.ReadyCheckOnly"] = "Solo controllo prontezza"
 L["Options.Soulstone.ReadyCheckWarlock"] = "Controllo prontezza + stregone sempre"
 L["Options.Soulstone.AlwaysShow"] = "Mostra sempre"
 L["Options.Soulstone.ReadyCheckDesc"] = "Mostra per 15 secondi dopo l'inizio di un controllo prontezza"
 L["Options.Soulstone.WarlockAlwaysDesc"] = "Gli stregoni lo vedono sempre; le altre classi solo al controllo prontezza"
-L["Options.Soulstone.AlwaysDesc"] = "Mostra quando la categoria presenza \195\168 visibile"
+L["Options.Soulstone.AlwaysDesc"] = "Mostra quando la categoria presenza è visibile"
 L["Options.Soulstone.HideCooldown"] = "Nascondi durante il recupero (stregone)"
 L["Options.Soulstone.HideCooldown.Desc"] =
-    "Se abilitato, gli stregoni non vedranno il promemoria pietra dell'anima mentre l'incantesimo \195\168 in recupero. Si applica solo agli stregoni."
+    "Se abilitato, gli stregoni non vedranno il promemoria pietra dell'anima mentre l'incantesimo è in recupero. Si applica solo agli stregoni."
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -265,7 +358,7 @@ L["Options.FreeConsumables"] = "Consumabili Gratuiti"
 L["Options.FreeConsumables.Note"] = "(pietre della salute, rune di potenziamento permanenti)"
 L["Options.FreeConsumables.Override"] = "Ignora filtri contenuto"
 L["Options.FreeConsumables.Override.Desc"] =
-    "Se selezionato, i consumabili gratuiti usano le proprie impostazioni di visibilit\195\160 per tipo di contenuto qui sotto.\n\nSe deselezionato, seguono gli stessi filtri contenuto degli altri consumabili."
+    "Se selezionato, i consumabili gratuiti usano le proprie impostazioni di visibilità per tipo di contenuto qui sotto.\n\nSe deselezionato, seguono gli stessi filtri contenuto degli altri consumabili."
 
 -- ============================================================================
 -- OPTIONS: ICONS
@@ -286,7 +379,7 @@ L["Options.Size"] = "Dimensione"
 -- ============================================================================
 L["Options.ClickToCast"] = "Clicca per lanciare"
 L["Options.ClickToCast.DescFull"] =
-    "Rendi le icone buff cliccabili per lanciare l'incantesimo corrispondente (solo fuori dal combattimento). Funziona solo per gli incantesimi che il tuo personaggio pu\195\178 lanciare."
+    "Rendi le icone buff cliccabili per lanciare l'incantesimo corrispondente (solo fuori dal combattimento). Funziona solo per gli incantesimi che il tuo personaggio può lanciare."
 L["Options.HoverHighlight"] = "Evidenziazione al passaggio"
 L["Options.HoverHighlight.Desc"] =
     "Mostra una leggera evidenziazione al passaggio del mouse sulle icone buff cliccabili."
@@ -297,17 +390,17 @@ L["Options.HoverHighlight.Desc"] =
 L["Options.PetSpecIcon"] = "Mostra icona spec pet al passaggio del mouse"
 L["Options.PetSpecIcon.Title"] = "Icona spec pet al passaggio"
 L["Options.PetSpecIcon.Desc"] =
-    "Cambia l'icona del pet con la sua abilit\195\160 di specializzazione (Astuzia, Ferocia, Tenacia) al passaggio del mouse."
+    "Cambia l'icona del pet con la sua abilità di specializzazione (Astuzia, Ferocia, Tenacia) al passaggio del mouse."
 L["Options.ShowItemTooltips"] = "Mostra tooltip oggetti"
 L["Options.ShowItemTooltips.Desc"] = "Al passaggio del mouse su un'icona consumabile, mostra il tooltip dell'oggetto."
 L["Options.Behavior"] = "Comportamento"
 L["Options.PetPassiveCombat"] = "Pet passivo solo in combattimento"
 L["Options.PetPassiveCombat.Desc"] =
-    "Mostra il promemoria pet passivo solo durante il combattimento. Se disabilitato, il promemoria \195\168 sempre visibile."
+    "Mostra il promemoria pet passivo solo durante il combattimento. Se disabilitato, il promemoria è sempre visibile."
 L["Options.FelDomination"] = "Usa Dominazione Vile prima dell'evocazione"
 L["Options.FelDomination.Title"] = "Dominazione Vile"
 L["Options.FelDomination.Desc"] =
-    "Lancia automaticamente Dominazione Vile prima di evocare un demone tramite click-to-cast. Se Dominazione Vile \195\168 in recupero, l'evocazione procede normalmente. Richiede il talento Dominazione Vile."
+    "Lancia automaticamente Dominazione Vile prima di evocare un demone tramite click-to-cast. Se Dominazione Vile è in recupero, l'evocazione procede normalmente. Richiede il talento Dominazione Vile."
 
 -- ============================================================================
 -- OPTIONS: PET DISPLAY
@@ -317,7 +410,7 @@ L["Options.PetDisplay.Generic"] = "Icona generica"
 L["Options.PetDisplay.GenericDesc"] = "Una singola icona generica 'NO PET'"
 L["Options.PetDisplay.Summon"] = "Incantesimi di evocazione"
 L["Options.PetDisplay.SummonDesc"] = "Ogni incantesimo di evocazione pet come icona separata"
-L["Options.PetDisplay.Mode"] = "Modalit\195\160 visualizzazione pet"
+L["Options.PetDisplay.Mode"] = "Modalità visualizzazione pet"
 L["Options.PetDisplay.Mode.Desc"] = "Come vengono visualizzati i promemoria per pet mancanti."
 L["Options.PetLabels"] = "Etichette pet"
 L["Options.PetLabels.Desc"] = "Mostra il nome del pet e la specializzazione sotto ogni icona."
@@ -329,10 +422,10 @@ L["Options.PetLabels.SizePct"] = "Dimensione %"
 L["Options.ConsumableTextScale"] = "Scala testo"
 L["Options.ConsumableTextScale.Title"] = "Scala testo consumabili"
 L["Options.ConsumableTextScale.Desc"] =
-    "Dimensione del carattere per i conteggi degli oggetti e le etichette di qualit\195\160 (R1/R2/R3) in percentuale rispetto alla dimensione dell'icona."
+    "Dimensione del carattere per i conteggi degli oggetti e le etichette di qualità (R1/R2/R3) in percentuale rispetto alla dimensione dell'icona."
 L["Options.ItemDisplay"] = "Visualizzazione oggetti"
 L["Options.ItemDisplay.IconOnly"] = "Solo icona"
-L["Options.ItemDisplay.IconOnlyDesc"] = "Mostra l'oggetto con il conteggio pi\195\185 alto"
+L["Options.ItemDisplay.IconOnlyDesc"] = "Mostra l'oggetto con il conteggio più alto"
 L["Options.ItemDisplay.SubIcons"] = "Sotto-icone"
 L["Options.ItemDisplay.SubIconsDesc"] = "Piccole varianti oggetto cliccabili sotto ogni icona"
 L["Options.ItemDisplay.Expanded"] = "Espanso"
@@ -349,9 +442,9 @@ L["Options.ShowWithoutItems"] = "Mostra senza oggetto in borsa"
 L["Options.ShowWithoutItems.Title"] = "Mostra consumabili senza oggetti"
 L["Options.ShowWithoutItems.Desc"] =
     "Se abilitato, i promemoria consumabili vengono mostrati anche se non hai l'oggetto nelle borse. Se disabilitato, vengono mostrati solo i consumabili che hai effettivamente con te."
-L["Options.DelveFoodOnly"] = "Solo cibo delve nelle delve"
+L["Options.DelveFoodOnly"] = "Solo cibo scorribande nelle scorribande"
 L["Options.DelveFoodOnly.Desc"] =
-    "Quando sei in una delve, nascondi tutti i promemoria consumabili tranne il cibo delle delve."
+    "Quando sei in una scorribanda, nascondi tutti i promemoria consumabili tranne il cibo delle scorribande."
 
 -- ============================================================================
 -- OPTIONS: DK RUNEFORGE PREFERENCES
@@ -368,24 +461,29 @@ L["Options.RuneDualWield"] = "Doppia Impugnatura"
 -- OPTIONS: BUFF SETTINGS GEAR ICONS
 -- ============================================================================
 L["Options.HealthstoneSettings"] = "Impostazioni Pietra della Salute"
-L["Options.HealthstoneSettings.Note"] = "Configura visibilit\195\160 e soglia scorte basse."
+L["Options.HealthstoneSettings.Note"] = "Configura visibilità e soglia scorte basse."
 L["Options.SoulstoneSettings"] = "Impostazioni Pietra dell'Anima"
 L["Options.SoulstoneSettings.Note"] = "Configura quando appare il promemoria pietra dell'anima."
 L["Options.PetPassiveSettings"] = "Impostazioni Pet Passivo"
-L["Options.PetPassiveSettings.Note"] = "Configura il promemoria pet in modalit\195\160 passiva."
+L["Options.PetPassiveSettings.Note"] = "Configura il promemoria pet in modalità passiva."
 L["Options.PetSummonSettings"] = "Impostazioni Evocazione Pet"
 L["Options.PetSummonSettings.Note"] = "Configura il comportamento di evocazione pet."
+L["Options.DelveFoodSettings"] = "Impostazioni Cibo delle Scorribande"
+L["Options.DelveFoodSettings.Note"] = "Configura il comportamento del promemoria cibo delle scorribande."
+L["Options.DelveFoodTimer"] = "Nascondi automaticamente dopo 30 secondi"
+L["Options.DelveFoodTimer.Desc"] =
+    "Se attivo, il promemoria del cibo delle scorribande appare solo per 30 secondi dopo l'ingresso, poi si nasconde automaticamente. Se disattivo, il promemoria resta visibile finché sei in una scorribanda e ti manca il buff."
 
 -- ============================================================================
 -- OPTIONS: LAYOUT
 -- ============================================================================
 L["Options.Layout"] = "Disposizione"
-L["Options.Priority"] = "Priorit\195\160"
+L["Options.Priority"] = "Priorità"
 L["Options.Priority.Desc"] =
-    "Controlla l'ordine di questa categoria nel frame combinato. I valori pi\195\185 bassi vengono mostrati per primi."
+    "Controlla l'ordine di questa categoria nel frame combinato. I valori più bassi vengono mostrati per primi."
 L["Options.SplitFrame"] = "Separa in un frame indipendente"
 L["Options.SplitFrame.Desc"] = "Mostra i buff di questa categoria in un frame separato, spostabile indipendentemente"
-L["Options.DisplayPriority"] = "Priorit\195\160 di Visualizzazione"
+L["Options.DisplayPriority"] = "Priorità di Visualizzazione"
 
 -- ============================================================================
 -- OPTIONS: APPEARANCE
@@ -422,10 +520,13 @@ L["Options.HideWhen.Mounted"] = "In sella"
 L["Options.HideWhen.Mounted.Title"] = "Nascondi in sella"
 L["Options.HideWhen.Mounted.Desc"] =
     "Nascondi tutti i promemoria buff in sella. Sovrascrive l'impostazione di nascondimento pet per categoria"
-L["Options.HideWhen.Legacy"] = "In istanze eredit\195\160"
-L["Options.HideWhen.Legacy.Title"] = "Nascondi in istanze eredit\195\160"
+L["Options.HideWhen.Legacy"] = "In istanze eredità"
+L["Options.HideWhen.Legacy.Title"] = "Nascondi in istanze eredità"
 L["Options.HideWhen.Legacy.Desc"] =
-    "Nascondi tutti i promemoria buff nelle istanze banalmente vecchie (dove il bottino eredit\195\160 \195\168 attivato)"
+    "Nascondi tutti i promemoria buff nelle istanze banalmente vecchie (dove il bottino eredità è attivato)"
+L["Options.HideWhen.Leveling"] = "Durante il livellamento"
+L["Options.HideWhen.Leveling.Title"] = "Nascondi durante il livellamento"
+L["Options.HideWhen.Leveling.Desc"] = "Nascondi tutti i promemoria buff quando sei sotto il livello massimo"
 
 -- ============================================================================
 -- OPTIONS: BUFF TRACKING MODE
@@ -436,14 +537,14 @@ L["Options.BuffTracking.All.Desc"] =
     "Mostra tutti i buff del raid e di presenza per ogni classe, tracciando la copertura dell'intero gruppo."
 L["Options.BuffTracking.MyBuffs"] = "Solo i miei buff, tutti i giocatori"
 L["Options.BuffTracking.MyBuffs.Desc"] =
-    "Mostra solo i buff che la tua classe pu\195\178 fornire. Traccia comunque la copertura dell'intero gruppo."
+    "Mostra solo i buff che la tua classe può fornire. Traccia comunque la copertura dell'intero gruppo."
 L["Options.BuffTracking.OnlyMine"] = "Solo i buff che mi servono"
 L["Options.BuffTracking.OnlyMine.Desc"] =
     "Mostra tutti i tipi di buff, ma controlla solo se li hai personalmente. Nessun conteggio di gruppo."
 L["Options.BuffTracking.Smart"] = "Automatico"
 L["Options.BuffTracking.Smart.Desc"] =
     "I buff della tua classe tracciano la copertura dell'intero gruppo. I buff delle altre classi controllano solo te."
-L["Options.BuffTracking.Mode"] = "Modalit\195\160 tracciamento buff"
+L["Options.BuffTracking.Mode"] = "Modalità tracciamento buff"
 L["Options.BuffTracking.Mode.Desc"] =
     "Controlla quali buff del raid e di presenza vengono mostrati, e se tracciano l'intero gruppo o solo te."
 
@@ -451,8 +552,7 @@ L["Options.BuffTracking.Mode.Desc"] =
 -- OPTIONS: PROFILES TAB
 -- ============================================================================
 L["Options.ActiveProfile"] = "Profilo Attivo"
-L["Options.ActiveProfile.Desc"] =
-    "Passa tra le configurazioni salvate. Ogni personaggio pu\195\178 usare un profilo diverso."
+L["Options.ActiveProfile.Desc"] = "Passa tra le configurazioni salvate. Ogni personaggio può usare un profilo diverso."
 L["Options.SelectProfile"] = "Seleziona un profilo"
 L["Options.Profile"] = "Profilo"
 L["Options.CopyFrom"] = "Copia Da"
@@ -468,7 +568,7 @@ L["Options.ExportSettings"] = "Esporta Impostazioni"
 L["Options.ExportSettings.Desc"] = "Copia la stringa qui sotto per condividere le tue impostazioni."
 L["Options.ImportSettings"] = "Importa Impostazioni"
 L["Options.ImportSettings.DescPlain"] = "Incolla una stringa di impostazioni qui sotto."
-L["Options.ImportSettings.Overwrite"] = "Questo sovrascriver\195\160 il profilo attivo."
+L["Options.ImportSettings.Overwrite"] = "Questo sovrascriverà il profilo attivo."
 L["Options.Export"] = "Esporta"
 L["Options.Import"] = "Importa"
 L["Options.ImportSuccess"] = "Impostazioni importate con successo!"
@@ -481,7 +581,7 @@ L["Options.UnknownError"] = "Errore sconosciuto"
 L["Dialog.Cancel"] = "Annulla"
 L["Dialog.DeleteCustomBuff"] = 'Eliminare il buff personalizzato "%s"?'
 L["Dialog.ResetProfile"] =
-    "Ripristinare il profilo attivo ai valori predefiniti?\n\nQuesto canceller\195\160 tutte le personalizzazioni\nnel profilo corrente e ricaricher\195\160 l'interfaccia."
+    "Ripristinare il profilo attivo ai valori predefiniti?\n\nQuesto cancellerà tutte le personalizzazioni\nnel profilo corrente e ricaricherà l'interfaccia."
 L["Dialog.Reset"] = "Ripristina"
 L["Dialog.ReloadPrompt"] = "Impostazioni importate con successo!\nRicaricare l'interfaccia per applicare le modifiche?"
 L["Dialog.Reload"] = "Ricarica"
@@ -521,7 +621,7 @@ L["CustomBuff.Conditions"] = "CONDIZIONI"
 L["CustomBuff.ShowIn"] = "MOSTRA IN"
 L["CustomBuff.ClickAction"] = "AZIONE AL CLICK"
 L["CustomBuff.SettingsMovedNote"] =
-    "Le impostazioni di visibilit\195\160 e controllo prontezza sono state spostate nel menu di modifica di ogni buff."
+    "Le impostazioni di visibilità e controllo prontezza sono state spostate nel menu di modifica di ogni buff."
 
 -- Custom buff mode toggles
 L["CustomBuff.WhenActive"] = "Quando attivo"
@@ -551,7 +651,7 @@ L["CustomBuff.RequireItem"] = "Richiedi oggetto:"
 L["CustomBuff.RequireItem.EquippedBags"] = "Equipaggiato/Borse"
 L["CustomBuff.RequireItem.Equipped"] = "Equipaggiato"
 L["CustomBuff.RequireItem.InBags"] = "Nelle borse"
-L["CustomBuff.RequireItem.Hint"] = "ID oggetto \226\128\148 nascondi se non trovato"
+L["CustomBuff.RequireItem.Hint"] = "ID oggetto — nascondi se non trovato"
 
 -- Bar glow options
 L["CustomBuff.BarGlow.WhenGlowing"] = "Rileva quando brilla"
@@ -560,7 +660,7 @@ L["CustomBuff.BarGlow.Disabled"] = "Disabilitato"
 L["CustomBuff.BarGlow"] = "Bagliore barra:"
 L["CustomBuff.BarGlow.Title"] = "Bagliore barra azioni di riserva"
 L["CustomBuff.BarGlow.Desc"] =
-    "Rilevamento di riserva tramite il bagliore degli incantesimi nella barra azioni durante M+/PvP/combattimento quando l'API dei buff \195\168 limitata. Disabilita se vuoi solo il tracciamento della presenza del buff."
+    "Rilevamento di riserva tramite il bagliore degli incantesimi nella barra azioni durante M+/PvP/combattimento quando l'API dei buff è limitata. Disabilita se vuoi solo il tracciamento della presenza del buff."
 
 -- Ready check / level
 L["CustomBuff.ReadyCheckOnly"] = "Solo al controllo prontezza"
@@ -599,8 +699,7 @@ L["CustomBuff.Error"] = "Errore:"
 -- ============================================================================
 L["Options.JoinDiscord"] = "Unisciti al Discord"
 L["Options.JoinDiscord.Title"] = "Clicca per il link di invito"
-L["Options.JoinDiscord.Desc"] =
-    "Hai feedback, richieste di funzionalit\195\160 o segnalazioni di bug?\nUnisciti al Discord!"
+L["Options.JoinDiscord.Desc"] = "Hai feedback, richieste di funzionalità o segnalazioni di bug?\nUnisciti al Discord!"
 
 -- ============================================================================
 -- OPTIONS: CUSTOM ANCHOR FRAMES
@@ -624,11 +723,11 @@ L["Options.Min"] = "min"
 -- COMPONENTS (UI/Components.lua)
 -- ============================================================================
 -- Content filter tooltip
-L["Content.ClickToFilter"] = "Clicca per filtrare per difficolt\195\160 %s"
+L["Content.ClickToFilter"] = "Clicca per filtrare per difficoltà %s"
 
 -- Mover labels
-L["Mover.AnchorGrowth"] = "Ancora \194\183 Crescita %s"
-L["Mover.AnchorGrowthFrame"] = "Ancora \194\183 Crescita %s \194\183 > %s"
+L["Mover.AnchorGrowth"] = "Ancora · Crescita %s"
+L["Mover.AnchorGrowthFrame"] = "Ancora · Crescita %s · > %s"
 
 -- Pet labels
 L["Pet.SpiritBeast"] = "Bestia Spirito"
@@ -639,7 +738,7 @@ L["Appearance.Height"] = "Altezza"
 L["Appearance.Zoom"] = "Zoom"
 L["Appearance.Border"] = "Bordo"
 L["Appearance.Spacing"] = "Spaziatura"
-L["Appearance.Alpha"] = "Opacit\195\160"
+L["Appearance.Alpha"] = "Opacità"
 L["Appearance.Text"] = "Testo"
 L["Appearance.TextX"] = "Testo X"
 L["Appearance.TextY"] = "Testo Y"
@@ -653,7 +752,7 @@ L["Direction.Left"] = "Sinistra"
 L["Direction.Center"] = "Centro"
 L["Direction.Right"] = "Destra"
 L["Direction.Up"] = "Su"
-L["Direction.Down"] = "Gi\195\185"
+L["Direction.Down"] = "Giù"
 L["Direction.Label"] = "Direzione"
 
 -- Content visibility
@@ -662,13 +761,13 @@ L["Content.ShowIn"] = "Mostra in:"
 -- Content toggle definitions
 L["Content.OpenWorld"] = "Mondo Aperto"
 L["Content.Housing"] = "Dimora"
-L["Content.Scenarios"] = "Scenari (Delve, Torghast, ecc.)"
+L["Content.Scenarios"] = "Scenari (Scorribande, Torghast, ecc.)"
 L["Content.Dungeons"] = "Spedizioni (incluse M+)"
 L["Content.Raids"] = "Incursioni"
 L["Content.PvP"] = "PvP (Arena e Campi di Battaglia)"
 
 -- Scenario difficulty
-L["Content.Delves"] = "Delve"
+L["Content.Delves"] = "Scorribande"
 L["Content.OtherScenarios"] = "Altri Scenari (Torghast, ecc.)"
 
 -- Dungeon difficulty

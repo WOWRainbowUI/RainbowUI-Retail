@@ -87,6 +87,97 @@ english["Overlay.LessThanOneMinute"] = "<1m"
 english["Overlay.SecondsFormat"] = "%ds"
 
 -- ============================================================================
+-- CONSUMABLE STAT LABELS (icon overlays, keep very short)
+-- ============================================================================
+english["Label.Crit"] = "Crit"
+english["Label.Haste"] = "Haste"
+english["Label.Versatility"] = "Vers"
+english["Label.Mastery"] = "Mast"
+english["Label.Stamina"] = "Stam"
+english["Label.Healing"] = "Heal"
+english["Label.Random"] = "Rand"
+english["Label.Speed"] = "Speed"
+english["Label.PvP"] = "PvP"
+english["Label.Feast"] = "Feast"
+english["Label.HasteShort"] = "H"
+english["Label.VersatilityShort"] = "V"
+english["Label.MasteryShort"] = "M"
+english["Label.CritVers"] = "Crit/V"
+english["Label.MasteryCrit"] = "M/Crit"
+english["Label.MasteryVers"] = "M/V"
+english["Label.MasteryHaste"] = "M/H"
+english["Label.HasteCrit"] = "H/Crit"
+english["Label.HasteVers"] = "H/V"
+english["Label.StaminaStr"] = "Stam/Str"
+english["Label.StaminaAgi"] = "Stam/Agi"
+english["Label.StaminaInt"] = "Stam/Int"
+english["Label.HighPrimary"] = "Hi 1st"
+english["Label.HighSecondary"] = "Hi 2nd"
+english["Label.MidPrimary"] = "Mid 1st"
+english["Label.LowPrimary"] = "Lo 1st"
+english["Label.LowSecondary"] = "Lo 2nd"
+english["Label.RevivePet"] = "Revive Pet"
+english["Label.Felguard"] = "Felguard"
+english["Badge.Hearty"] = "H"
+english["Badge.Fleeting"] = "F"
+
+-- ============================================================================
+-- BUFF NAMES (used in Options panel checkboxes and sound notification list)
+-- ============================================================================
+-- Raid
+english["Buff.ArcaneIntellect"] = "Arcane Intellect"
+english["Buff.BattleShout"] = "Battle Shout"
+english["Buff.BlessingOfTheBronze"] = "Blessing of the Bronze"
+english["Buff.MarkOfTheWild"] = "Mark of the Wild"
+english["Buff.PowerWordFortitude"] = "Power Word: Fortitude"
+english["Buff.Skyfury"] = "Skyfury"
+-- Presence
+english["Buff.AtrophicNumbingPoison"] = "Atrophic/Numbing Poison"
+english["Buff.DevotionAura"] = "Devotion Aura"
+english["Buff.Soulstone"] = "Soulstone"
+-- Targeted
+english["Buff.BeaconOfFaith"] = "Beacon of Faith"
+english["Buff.BeaconOfLight"] = "Beacon of Light"
+english["Buff.BlisteringScales"] = "Blistering Scales"
+english["Buff.EarthShield"] = "Earth Shield"
+english["Buff.SourceOfMagic"] = "Source of Magic"
+english["Buff.SymbioticRelationship"] = "Symbiotic Relationship"
+-- Self
+english["Buff.ArcaneFamiliar"] = "Arcane Familiar"
+english["Buff.Attunement"] = "Attunement"
+english["Buff.CreateSoulwell"] = "Create Soulwell"
+english["Buff.GrimoireOfSacrifice"] = "Grimoire of Sacrifice"
+english["Buff.BurningRush"] = "Burning Rush"
+english["Buff.RiteOfAdjuration"] = "Rite of Adjuration"
+english["Buff.RiteOfSanctification"] = "Rite of Sanctification"
+english["Buff.RoguePoisons"] = "Rogue Poisons"
+english["Buff.RuneforgeMH"] = "Runeforge (Main Hand)"
+english["Buff.RuneforgeOH"] = "Runeforge (Off Hand)"
+english["Buff.Shadowform"] = "Shadowform"
+english["Buff.EarthlivingWeapon"] = "Earthliving Weapon"
+english["Buff.FlametongueWeapon"] = "Flametongue Weapon"
+english["Buff.TidecallersGuard"] = "Tidecaller's Guard"
+english["Buff.WindfuryWeapon"] = "Windfury Weapon"
+english["Buff.EarthShieldSelf"] = "Earth Shield (Self)"
+english["Buff.WaterLightningShield"] = "Water/Lightning Shield"
+english["Buff.ShieldNoTalent"] = "Shield (No Talent)"
+-- Pet
+english["Buff.PetPassive"] = "Pet Passive"
+english["Buff.HunterPet"] = "Hunter Pet"
+english["Buff.UnholyGhoul"] = "Unholy Ghoul"
+english["Buff.WarlockDemon"] = "Warlock Demon"
+english["Buff.WaterElemental"] = "Water Elemental"
+english["Buff.WrongDemon"] = "Wrong Demon"
+-- Consumable
+english["Buff.AugmentRune"] = "Augment Rune"
+english["Buff.Flask"] = "Flask"
+english["Buff.DelveFood"] = "Delve Food"
+english["Buff.Food"] = "Food"
+english["Buff.Healthstone"] = "Healthstone"
+english["Buff.Weapon"] = "Weapon"
+english["Buff.WeaponOH"] = "Weapon (OH)"
+
+-- ============================================================================
 -- BUFF GROUP DISPLAY NAMES
 -- ============================================================================
 english["Group.Beacons"] = "Beacons"
@@ -111,9 +202,6 @@ english["Tooltip.MayShowExtraIcon.Desc"] =
 english["Tooltip.InstanceEntryReminder"] = "Instance Entry Reminder"
 english["Tooltip.InstanceEntryReminder.Desc"] =
     "Briefly shown when entering a dungeon as a reminder to drop a Soulwell. Dismissed after casting or after 30 seconds."
-english["Tooltip.DelvesOnly"] = "Delves Only"
-english["Tooltip.DelvesOnly.Desc"] =
-    "Briefly shown when entering a delve as a reminder to eat Valeera's food. Disappears after 30 seconds or when the buff is detected."
 
 -- ============================================================================
 -- GLOW TYPE NAMES
@@ -163,8 +251,6 @@ english["Display.MinimapRightClick"] = "|cFFCFCFCFRight click|r: Test mode"
 english["Display.DismissConsumables"] = "Hide consumable reminders until next loading screen"
 english["Display.LoginFirstInstall"] =
     "Thanks for installing! Type |cFFFFD100/br unlock|r to move the buff display, or use the button at the bottom of the |cFFFFD100/br|r options panel."
-english["Display.LoginGearIcons"] =
-    "Some buff settings (healthstone, soulstone, pets) have moved to gear icons next to their checkboxes in the Buffs tab."
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -173,6 +259,20 @@ english["Tab.Buffs"] = "Buffs"
 english["Tab.DisplayBehavior"] = "Display/Behavior"
 english["Tab.Settings"] = "Settings"
 english["Tab.Profiles"] = "Profiles"
+english["Tab.Sounds"] = "Sounds"
+
+-- ============================================================================
+-- OPTIONS: SOUND ALERTS
+-- ============================================================================
+english["Options.Sound.NoAlerts"] = "No sound alerts configured."
+english["Options.Sound.AddAlert"] = "Add Sound Alert"
+english["Options.Sound.Title"] = "Add Sound Alert"
+english["Options.Sound.EditTitle"] = "Edit Sound Alert"
+english["Options.Sound.SelectBuff"] = "Select Buff"
+english["Options.Sound.SelectSound"] = "Select Sound"
+english["Options.Sound.Preview"] = "Preview"
+english["Options.Sound.Save"] = "Save"
+english["Options.Sound.NoBuffs"] = "All buffs already have sounds."
 
 -- ============================================================================
 -- OPTIONS: GLOBAL DEFAULTS
@@ -381,6 +481,11 @@ english["Options.PetPassiveSettings"] = "Pet Passive Settings"
 english["Options.PetPassiveSettings.Note"] = "Configure the passive pet reminder."
 english["Options.PetSummonSettings"] = "Pet Summon Settings"
 english["Options.PetSummonSettings.Note"] = "Configure pet summoning behavior."
+english["Options.DelveFoodSettings"] = "Delve Food Settings"
+english["Options.DelveFoodSettings.Note"] = "Configure the delve food reminder behavior."
+english["Options.DelveFoodTimer"] = "Auto-hide after 30 seconds"
+english["Options.DelveFoodTimer.Desc"] =
+    "When enabled, the delve food reminder only appears for 30 seconds after entering a delve, then hides automatically. When disabled, the reminder stays visible as long as you are in a delve and missing the buff."
 
 -- ============================================================================
 -- OPTIONS: LAYOUT
@@ -432,6 +537,9 @@ english["Options.HideWhen.Legacy"] = "In legacy instances"
 english["Options.HideWhen.Legacy.Title"] = "Hide in legacy instances"
 english["Options.HideWhen.Legacy.Desc"] =
     "Hide all buff reminders in trivially old instances (where legacy loot is enabled)"
+english["Options.HideWhen.Leveling"] = "While leveling"
+english["Options.HideWhen.Leveling.Title"] = "Hide while leveling"
+english["Options.HideWhen.Leveling.Desc"] = "Hide all buff reminders when below max level"
 
 -- ============================================================================
 -- OPTIONS: BUFF TRACKING MODE
@@ -631,8 +739,8 @@ english["Options.Min"] = "min"
 english["Content.ClickToFilter"] = "Click to filter by %s difficulty"
 
 -- Mover labels
-english["Mover.AnchorGrowth"] = "Anchor \194\183 Growth %s"
-english["Mover.AnchorGrowthFrame"] = "Anchor \194\183 Growth %s \194\183 > %s"
+english["Mover.AnchorGrowth"] = "Anchor · Growth %s"
+english["Mover.AnchorGrowthFrame"] = "Anchor · Growth %s · > %s"
 
 -- Pet labels
 english["Pet.SpiritBeast"] = "Spirit Beast"

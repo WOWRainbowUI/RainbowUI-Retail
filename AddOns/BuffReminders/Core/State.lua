@@ -1889,8 +1889,9 @@ function BuffState.Refresh()
         local entry = GetOrCreateEntry(buff.key, "consumable", i)
         local settingKey = buff.groupId or buff.key
 
-        if buff.showOnInstanceEntry then
-            -- Instance entry only consumable (e.g., delve food) — show for 30s on entry
+        if buff.showOnInstanceEntry and (db.defaults and db.defaults.delveFoodTimer) then
+            -- Instance entry only consumable (e.g., delve food) — show for 30s on entry then auto-hide
+            -- Combat safety handled by Display layer clearing entry state on PLAYER_REGEN_DISABLED
             if inDelveEntry and consumableVisible and IsBuffEnabled(settingKey) and PassesPreChecks(buff, nil, db) then
                 local shouldShow = ShouldShowConsumableBuff(buff)
                 if shouldShow then

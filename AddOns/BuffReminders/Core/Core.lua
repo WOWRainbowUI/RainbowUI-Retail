@@ -87,6 +87,7 @@ CallbackRegistry:GenerateCallbackEvents({
     "VisualsRefresh", -- Fired when visual properties (size, zoom, border) change
     "LayoutRefresh", -- Fired when layout needs recalculation (spacing, direction)
     "FramesReparent", -- Fired when frames need reparenting (split category change)
+    "VisibilityRefresh", -- Fired when visibility toggles change (hide-when, show-only-in-group)
     "BuffStateChanged", -- Fired when buff state entries are recomputed
 })
 BR.CallbackRegistry = CallbackRegistry
@@ -114,16 +115,20 @@ BR.Config.DebugMode = false
 -- Root-level settings (path = key directly)
 local RootSettings = {
     splitCategories = "FramesReparent",
-    frameLocked = nil, -- No refresh needed
-    hideInCombat = nil,
-    hideExpiringInCombat = nil,
-    showOnlyInGroup = nil,
-    position = nil, -- Table with x, y
-    buffTrackingMode = nil, -- No auto-refresh, manually calls UpdateDisplay
-    hideAllInVehicle = nil,
-    hideWhileMounted = nil,
-    hideInLegacyInstances = nil,
+    frameLocked = false, -- No refresh needed
+    position = false, -- Table with x, y
+    buffTrackingMode = false, -- No auto-refresh, manually calls UpdateDisplay
     showMissingCountOnly = "DisplayRefresh",
+    -- Visibility toggles (routed through Config.Set → VisibilityRefresh)
+    hideInCombat = "VisibilityRefresh",
+    hideExpiringInCombat = "VisibilityRefresh",
+    showOnlyInGroup = "VisibilityRefresh",
+    hideAllInVehicle = "VisibilityRefresh",
+    hideWhileMounted = "VisibilityRefresh",
+    hideWhileResting = "VisibilityRefresh",
+    hideInLegacyInstances = "VisibilityRefresh",
+    hideWhileLeveling = "VisibilityRefresh",
+    petPassiveOnlyInCombat = "VisibilityRefresh",
 }
 
 -- Per-category settings (path = categorySettings.{category}.{key})
@@ -250,6 +255,7 @@ local DefaultSettingKeys = {
     missingGlowYOffset = "VisualsRefresh",
     showConsumablesWithoutItems = "DisplayRefresh",
     delveFoodOnly = "DisplayRefresh",
+    delveFoodTimer = "DisplayRefresh",
     freeConsumableMode = "DisplayRefresh",
     freeConsumableVisibility = "DisplayRefresh",
     healthstoneVisibility = "DisplayRefresh",
@@ -260,7 +266,7 @@ local DefaultSettingKeys = {
     -- Consumable display mode
     consumableDisplayMode = "DisplayRefresh",
     consumableTextScale = "VisualsRefresh",
-    showConsumableTooltips = nil, -- No refresh needed, read at tooltip time
+    showConsumableTooltips = false, -- No refresh needed, read at tooltip time
     -- Pet display mode
     petDisplayMode = "DisplayRefresh",
     petLabels = "DisplayRefresh",
@@ -269,6 +275,7 @@ local DefaultSettingKeys = {
     useFelDomination = "DisplayRefresh",
     -- Font (global-only, lives under defaults)
     fontFace = "VisualsRefresh",
+    position = false, -- No auto-refresh, saved directly by movers
 }
 
 -- Valid category names
@@ -304,17 +311,8 @@ local function ValidatePath(segments)
 
     local root = segments[1]
 
-    -- Check root-level settings (explicit key check since some have nil refresh type)
-    local isRootSetting = root == "frameLocked"
-        or root == "hideInCombat"
-        or root == "hideExpiringInCombat"
-        or root == "showOnlyInGroup"
-        or root == "position"
-        or root == "buffTrackingMode"
-        or root == "hideAllInVehicle"
-        or root == "hideWhileMounted"
-        or root == "hideInLegacyInstances"
-        or root == "showMissingCountOnly"
+    -- Check root-level settings (false = valid but no refresh event)
+    local isRootSetting = RootSettings[root] ~= nil
     if isRootSetting then
         if #segments == 1 then
             return true, RootSettings[root]
@@ -336,10 +334,6 @@ local function ValidatePath(segments)
             if DefaultSettingKeys[setting] ~= nil then
                 return true, DefaultSettingKeys[setting]
             end
-            -- position is also valid under defaults
-            if setting == "position" then
-                return true, nil
-            end
             return false, nil
         end
         return false, nil
@@ -359,7 +353,7 @@ local function ValidatePath(segments)
         end
         if #segments == 3 then
             local setting = segments[3]
-            -- Check if it's a known category setting key (including those with nil refresh)
+            -- Check if it's a known category setting key (false = valid but no refresh)
             if CategorySettingKeys[setting] ~= nil then
                 return true, CategorySettingKeys[setting]
             end
@@ -388,22 +382,6 @@ function BR.Config.IsValidPath(path)
     end
     return ValidatePath(segments)
 end
-
--- Legacy RefreshType lookup (for backward compatibility with segment-based lookup)
-local RefreshType = {
-    -- Visual properties
-    ["iconSize"] = "VisualsRefresh",
-    ["iconZoom"] = "VisualsRefresh",
-    ["borderSize"] = "VisualsRefresh",
-    -- Layout properties
-    ["spacing"] = "LayoutRefresh",
-    ["growDirection"] = "LayoutRefresh",
-    -- Structural changes
-    ["splitCategories"] = "FramesReparent",
-    -- Display changes (enabledBuffs, visibility)
-    ["enabledBuffs"] = "DisplayRefresh",
-    ["categoryVisibility"] = "DisplayRefresh",
-}
 
 ---Set a config value and trigger appropriate callbacks
 ---@param path string Dot-separated path like "categorySettings.main.iconSize" or "enabledBuffs.intellect"
@@ -454,18 +432,9 @@ function BR.Config.Set(path, value)
     -- Fire SettingChanged callback
     CallbackRegistry:TriggerEvent("SettingChanged", path, value, oldValue)
 
-    -- Use validated refresh type if available, otherwise fall back to segment lookup
+    -- Fire refresh event if the setting has one registered
     if validatedRefreshType then
         CallbackRegistry:TriggerEvent(validatedRefreshType, path)
-    else
-        -- Legacy: check each segment for a refresh type
-        for _, segment in ipairs(segments) do
-            local refreshType = RefreshType[segment]
-            if refreshType then
-                CallbackRegistry:TriggerEvent(refreshType, path)
-                break
-            end
-        end
     end
 end
 
@@ -533,17 +502,9 @@ function BR.Config.SetMulti(changes)
                 parent[finalKey] = value
                 CallbackRegistry:TriggerEvent("SettingChanged", path, value, oldValue)
 
-                -- Collect refresh types (prefer validated, fall back to segment lookup)
+                -- Collect refresh types
                 if validatedRefreshType then
                     refreshTypes[validatedRefreshType] = true
-                else
-                    for _, segment in ipairs(segments) do
-                        local refreshType = RefreshType[segment]
-                        if refreshType then
-                            refreshTypes[refreshType] = true
-                            break
-                        end
-                    end
                 end
             end
         end
@@ -719,6 +680,9 @@ function BR.CreatePanel(name, width, height, options)
         -- without also closing parent panels (unlike UISpecialFrames which closes all)
         panel:EnableKeyboard(true)
         panel:SetScript("OnKeyDown", function(self, key)
+            if InCombatLockdown() then
+                return
+            end
             if key == "ESCAPE" then
                 self:SetPropagateKeyboardInput(false)
                 self:Hide()

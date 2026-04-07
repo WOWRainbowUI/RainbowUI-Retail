@@ -102,9 +102,6 @@ L["Tooltip.MayShowExtraIcon.Desc"] =
 L["Tooltip.InstanceEntryReminder"] = "인스턴스 입장 알림"
 L["Tooltip.InstanceEntryReminder.Desc"] =
     "던전 입장 시 영혼샘을 깔라는 알림이 잠시 표시됩니다. 시전하거나 30초가 지나면 사라집니다."
-L["Tooltip.DelvesOnly"] = "구렁 전용"
-L["Tooltip.DelvesOnly.Desc"] =
-    "구렁 입장 시 발리라의 음식을 먹으라는 알림이 잠시 표시됩니다. 30초 후 또는 버프가 감지되면 사라집니다."
 
 -- ============================================================================
 -- GLOW TYPE NAMES
@@ -154,8 +151,6 @@ L["Display.MinimapRightClick"] = "|cFFCFCFCF우클릭|r: 테스트 모드"
 L["Display.DismissConsumables"] = "다음 로딩 화면 전까지 소모품 알림 숨기기"
 L["Display.LoginFirstInstall"] =
     "설치해 주셔서 감사합니다! |cFFFFD100/br unlock|r을 입력하여 버프 표시를 이동하거나, |cFFFFD100/br|r 옵션 패널 하단의 버튼을 사용하세요."
-L["Display.LoginGearIcons"] =
-    "일부 버프 설정(생명석, 영혼석, 소환수)이 버프 탭의 체크박스 옆 톱니바퀴 아이콘으로 이동했습니다."
 
 -- ============================================================================
 -- OPTIONS: TAB LABELS
@@ -634,8 +629,8 @@ L["Options.Min"] = "분"
 L["Content.ClickToFilter"] = "%s 난이도별로 필터하려면 클릭"
 
 -- Mover labels
-L["Mover.AnchorGrowth"] = "앵커 \194\183 방향 %s"
-L["Mover.AnchorGrowthFrame"] = "앵커 \194\183 방향 %s \194\183 > %s"
+L["Mover.AnchorGrowth"] = "앵커 · 방향 %s"
+L["Mover.AnchorGrowthFrame"] = "앵커 · 방향 %s · > %s"
 
 -- Pet labels
 L["Pet.SpiritBeast"] = "야수 정령"

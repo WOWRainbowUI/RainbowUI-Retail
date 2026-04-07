@@ -1,4 +1,5 @@
 local _, BR = ...
+local L = BR.L
 
 -- ============================================================================
 -- SECURE BUTTONS & CLICK-TO-CAST OVERLAYS
@@ -328,8 +329,8 @@ local ACTION_ICON_OFFSET = -6
 
 -- Badge text → color for buff frame middle-left overlay (quality uses atlas icons separately)
 local BADGE_COLORS = {
-    H = { r = 0.4, g = 0.7, b = 1 }, -- Hearty (cyan)
-    F = { r = 0.4, g = 0.7, b = 1 }, -- Fleeting (cyan)
+    [L["Badge.Hearty"]] = { r = 0.4, g = 0.7, b = 1 }, -- Hearty (cyan)
+    [L["Badge.Fleeting"]] = { r = 0.4, g = 0.7, b = 1 }, -- Fleeting (cyan)
 }
 
 ---Compute consumable text font size from scale percentage.
