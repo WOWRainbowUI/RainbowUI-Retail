@@ -1,7 +1,7 @@
 ## Interface: 11508
 ## Title: HidingBar Options
 ## Author: sfmict
-## Version: v12.0.5
+## Version: v12.0.6
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: HidingBar Options
 ## Notes-esES: Opciones de HidingBar
@@ -30,6 +30,7 @@
 
 embeds.xml
 templates.xml
+DataDialog.lua
 Classic/templates.xml
 Main.lua
 Classic/IconData.lua
