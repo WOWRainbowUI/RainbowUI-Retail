@@ -25,7 +25,7 @@ local function CreateVaultProgressSegment(parent, point, relativeTo, relativePoi
     segment.icon:SetPoint("LEFT", 0, 0)
     segment.icon:SetAtlas(atlas, true)
 
-    segment.count = segment:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    segment.count = segment:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     segment.count:SetPoint("LEFT", segment.icon, "RIGHT", 4, 0)
     segment.count:SetJustifyH("LEFT")
     segment.count:SetTextColor(1, 0.82, 0)
@@ -440,7 +440,7 @@ function lv.InitList(parent, window)
     optionsPanelTitle:SetText(L["TITLE_OPTIONS"])
     optionsPanelTitle:SetTextColor(1, 0.82, 0)
     if lv.ApplyLocaleFont then
-        lv.ApplyLocaleFont(optionsPanelTitle, 14)
+        lv.ApplyLocaleFont(optionsPanelTitle, 12)
     end
 
     local optionsScroll = CreateFrame("ScrollFrame", nil, OptionsPanel)
@@ -546,7 +546,7 @@ function lv.InitList(parent, window)
     disableTimePlayedCB.Text:SetJustifyV("TOP")
 
     -- Description text
-    local timePlayedDesc = optionsContent:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    local timePlayedDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     timePlayedDesc:SetText(L["OPTION_DISABLE_TIMEPLAYED_DESC"])
     timePlayedDesc:SetTextColor(1, 0.82, 0)
     timePlayedDesc:SetWidth(optionsDescWidth)
@@ -581,7 +581,7 @@ function lv.InitList(parent, window)
     timeFormatCB.Text:SetJustifyH("LEFT")
     timeFormatCB.Text:SetJustifyV("TOP")
 
-    local timeFormatDesc = optionsContent:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    local timeFormatDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     timeFormatDesc:SetText(L["OPTION_ENABLE_24HR_CLOCK_DESC"])
     timeFormatDesc:SetTextColor(1, 0.82, 0)
     timeFormatDesc:SetWidth(optionsDescWidth)
@@ -620,7 +620,7 @@ function lv.InitList(parent, window)
     darkModeCB.Text:SetJustifyV("TOP")
 
     -- Description text for dark mode
-    local darkModeDesc = optionsContent:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    local darkModeDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     darkModeDesc:SetText(L["OPTION_DARK_MODE_DESC"])
     darkModeDesc:SetTextColor(1, 0.82, 0)
     darkModeDesc:SetWidth(optionsDescWidth)
@@ -650,7 +650,7 @@ function lv.InitList(parent, window)
     disableBagViewCB.Text:SetJustifyH("LEFT")
     disableBagViewCB.Text:SetJustifyV("TOP")
 
-    local disableBagViewDesc = optionsContent:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    local disableBagViewDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     disableBagViewDesc:SetText((L["OPTION_DISABLE_BAG_VIEWING_DESC"] ~= "OPTION_DISABLE_BAG_VIEWING_DESC") and L["OPTION_DISABLE_BAG_VIEWING_DESC"] or "Hide the Bags button and block LiteVault's saved bag, bank, and warband bank viewer.")
     disableBagViewDesc:SetTextColor(1, 0.82, 0)
     disableBagViewDesc:SetWidth(optionsDescWidth)
@@ -682,7 +682,7 @@ function lv.InitList(parent, window)
     disableOverlayCB.Text:SetJustifyH("LEFT")
     disableOverlayCB.Text:SetJustifyV("TOP")
 
-    local disableOverlayDesc = optionsContent:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    local disableOverlayDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     disableOverlayDesc:SetText((L["OPTION_DISABLE_CHARACTER_OVERLAY_DESC"] ~= "OPTION_DISABLE_CHARACTER_OVERLAY_DESC") and L["OPTION_DISABLE_CHARACTER_OVERLAY_DESC"] or "Hide LiteVault's item level and lock overlays on character and inspect gear.")
     disableOverlayDesc:SetTextColor(1, 0.82, 0)
     disableOverlayDesc:SetWidth(optionsDescWidth)
@@ -711,7 +711,7 @@ function lv.InitList(parent, window)
     disableTeleportsCB.Text:SetJustifyH("LEFT")
     disableTeleportsCB.Text:SetJustifyV("TOP")
 
-    local disableTeleportsDesc = optionsContent:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    local disableTeleportsDesc = optionsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     disableTeleportsDesc:SetText((L["OPTION_DISABLE_MPLUS_TELEPORTS_DESC"] ~= "OPTION_DISABLE_MPLUS_TELEPORTS_DESC") and L["OPTION_DISABLE_MPLUS_TELEPORTS_DESC"] or "Hide the M+ teleport badge and disable LiteVault's teleport panel.")
     disableTeleportsDesc:SetTextColor(1, 0.82, 0)
     disableTeleportsDesc:SetWidth(optionsDescWidth)
@@ -1048,7 +1048,7 @@ function lv.InitList(parent, window)
         edgeSize = 10,
         insets = { left = 2, right = 2, top = 2, bottom = 2 }
     })
-    changeLogBtn.Text = changeLogBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    changeLogBtn.Text = changeLogBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     changeLogBtn.Text:SetPoint("CENTER")
     lv.UpdateChangeLogButtonLabel()
     changeLogBtn:SetScript("OnClick", function()
@@ -1282,7 +1282,7 @@ function lv.UpdateList()
                         r.portraitTimeText = r:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
                         r.portraitTimeText:SetPoint("BOTTOMRIGHT", r.pFrame, "TOPRIGHT", 0, 7)
                         r.portraitTimeText:SetJustifyH("RIGHT")
-                        r.portraitTimeText:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
+                        r.portraitTimeText:SetFont(STANDARD_TEXT_FONT, 10, "OUTLINE")
                         r.portraitTimeText:SetShadowOffset(1, -1)
                         r.portraitTimeText:SetShadowColor(0, 0, 0, 1)
                         
@@ -1296,7 +1296,7 @@ function lv.UpdateList()
                         r.identityText:SetPoint("LEFT", r.nameText, "RIGHT", 12, -3)
                         r.identityText:SetJustifyH("LEFT")
                         if lv.ApplyLocaleFont then
-                            lv.ApplyLocaleFont(r.identityText, 12)
+                            lv.ApplyLocaleFont(r.identityText, 10)
                         end
 
                         -- Freshness Indicator under the currency button
@@ -1309,7 +1309,7 @@ function lv.UpdateList()
                         r.freshnessText:SetWidth(92)
                         r.freshnessText:SetJustifyH("LEFT")
                         if lv.ApplyLocaleFont then
-                            lv.ApplyLocaleFont(r.freshnessText, 12)
+                            lv.ApplyLocaleFont(r.freshnessText, 9)
                         end
                         
                         -- Raid Progress and Time (second line) - now includes iLvl
@@ -1424,11 +1424,11 @@ function lv.UpdateList()
                         r.teleportBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
                         
                         -- Gold - prominent on right side
-                        r.goldText = r.dataBox:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-                        r.goldText:SetPoint("TOPRIGHT", -80, -15) -- Moved further left from -50 to -95 to make room for pin button
+                        r.goldText = r.dataBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                        r.goldText:SetPoint("TOPRIGHT", -95, -15) -- Moved further left from -50 to -95 to make room for pin button
                         
                         -- Third row: M+ Key
-                        r.keyText = r.dataBox:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+                        r.keyText = r.dataBox:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                         r.keyText:SetPoint("TOPLEFT", r.mplusText, "BOTTOMLEFT", 0, -45)
                         r.keyText:SetWidth(190)
                         r.keyText:SetJustifyH("LEFT")
@@ -1456,14 +1456,14 @@ function lv.UpdateList()
                         r.prof1Badge:Hide()
                         r.prof1Icon = r.prof1Badge.icon
 
-                        r.prof1Text = r.professionFrame:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+                        r.prof1Text = r.professionFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                         r.prof1Text:SetPoint("LEFT", r.prof1Badge, "RIGHT", 4, 0)
 
                         r.prof2Badge = CreateProfessionBadge(r.professionFrame, "LEFT", r.prof1Text, "RIGHT", 15, 0)
                         r.prof2Badge:Hide()
                         r.prof2Icon = r.prof2Badge.icon
 
-                        r.prof2Text = r.professionFrame:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+                        r.prof2Text = r.professionFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                         r.prof2Text:SetPoint("LEFT", r.prof2Badge, "RIGHT", 4, 0)
                         r.professionFrame.prof1Badge = r.prof1Badge
                         r.professionFrame.prof2Badge = r.prof2Badge
@@ -1680,7 +1680,7 @@ function lv.UpdateList()
                         r.ledgerBtn.icon = r.ledgerBtn.badge.icon
                         SetCircularBadgeTexture(r.ledgerBtn.badge, "Interface\\Icons\\INV_Misc_Coin_02")
 
-                        r.ledgerBtn.text = r.ledgerBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+                        r.ledgerBtn.text = r.ledgerBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                         r.ledgerBtn.text:SetPoint("LEFT", r.ledgerBtn.badge, "RIGHT", 4, 0)
                         r.ledgerBtn.text:SetText(L["BUTTON_LEDGER"])
 
@@ -1711,7 +1711,7 @@ function lv.UpdateList()
 
                         -- Bags Button - positioned above the currency button
                         r.bagsBtn = CreateFrame("Button", nil, r, "BackdropTemplate")
-                        r.bagsBtn:SetSize(50, 22)
+                        r.bagsBtn:SetSize(74, 22)
                         r.bagsBtn:SetBackdrop({
                             bgFile = "Interface\\Buttons\\WHITE8X8",
                             edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -1726,8 +1726,8 @@ function lv.UpdateList()
                         r.bagsBtn.icon:SetPoint("LEFT", 4, 0)
                         r.bagsBtn.icon:SetTexture("Interface\\ContainerFrame\\Backpack-Bag-Icon")
 
-                        r.bagsBtn.text = r.bagsBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
-                        r.bagsBtn.text:SetPoint("LEFT", r.bagsBtn.icon, "RIGHT", -12, 0)
+                        r.bagsBtn.text = r.bagsBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                        r.bagsBtn.text:SetPoint("LEFT", r.bagsBtn.icon, "RIGHT", 4, 0)
                         r.bagsBtn.text:SetText((L["BUTTON_BAGS"] ~= "BUTTON_BAGS") and L["BUTTON_BAGS"] or "Bags")
 
                         r.bagsBtn:SetScript("OnClick", function(self)
@@ -1800,7 +1800,7 @@ function lv.UpdateList()
                         -- Data-box Options menu (Favorite / Ignore-Restore / Delete).
                         r.optionsBtn = CreateFrame("Button", nil, r.dataBox, "BackdropTemplate")
                         r.optionsBtn.isActionControl = true
-                        r.optionsBtn:SetSize(50, 22)
+                        r.optionsBtn:SetSize(74, 22)
                         r.optionsBtn:SetPoint("TOPRIGHT", r.dataBox, "TOPRIGHT", -6, -6)
                         r.optionsBtn:EnableMouse(true)
                         r.optionsBtn:SetBackdrop({
@@ -1811,7 +1811,7 @@ function lv.UpdateList()
                         })
                         r.optionsBtn:SetBackdropColor(unpack(t.dataBoxBgAlt))
                         r.optionsBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
-                        r.optionsBtn.text = r.optionsBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+                        r.optionsBtn.text = r.optionsBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                         r.optionsBtn.text:SetPoint("CENTER")
                         r.optionsBtn.text:SetText((L["BUTTON_ACTIONS"] ~= "BUTTON_ACTIONS") and L["BUTTON_ACTIONS"] or "Actions")
                         r.bagsBtn:ClearAllPoints()
@@ -1865,7 +1865,7 @@ function lv.UpdateList()
                             })
                             btn:SetBackdropColor(unpack(t.dataBoxBgAlt))
                             btn:SetBackdropBorderColor(unpack(t.borderPrimary))
-                            btn.text = btn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+                            btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
                             btn.text:SetPoint("CENTER")
                             btn.text:SetText(text)
                             btn:SetScript("OnEnter", function(self)

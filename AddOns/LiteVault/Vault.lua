@@ -300,7 +300,11 @@ local function GetVaultSnapshotForCharacter(charKey)
     if charKey == lv.PLAYER_KEY then
         local acts = C_WeeklyRewards.GetActivities and C_WeeklyRewards.GetActivities() or nil
         if acts and lv.BuildVaultSnapshotFromActivities then
-            return lv.BuildVaultSnapshotFromActivities(acts), true
+            local snapshot = lv.BuildVaultSnapshotFromActivities(acts)
+            if lv.ReconcileVaultSnapshotItemLevels then
+                snapshot = lv.ReconcileVaultSnapshotItemLevels(snapshot, data and data.vaultDetails)
+            end
+            return snapshot, true
         end
     end
 

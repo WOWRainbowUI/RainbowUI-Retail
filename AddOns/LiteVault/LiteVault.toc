@@ -5,13 +5,18 @@
 ## Version: 12.0.1
 ## SavedVariables: LiteVaultDB, LiteVaultOrder, LiteVaultMinimapDB
 ## IconTexture: Interface\AddOns\LiteVault\button.png
-## Category-zhTW: 戰隊
 
 # Localization (must load first)
 Locales\Localization.lua
 Locales\enUS.lua
+Locales\deDE.lua
+Locales\frFR.lua
+Locales\esES.lua
+Locales\ptBR.lua
+Locales\ruRU.lua
 Locales\zhCN.lua
 Locales\zhTW.lua
+Locales\koKR.lua
 
 # Libraries
 Libs\LibStub\LibStub.lua

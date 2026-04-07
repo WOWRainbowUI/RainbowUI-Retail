@@ -97,7 +97,7 @@ closeBtn.Text = closeBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 closeBtn.Text:SetPoint("CENTER")
 closeBtn.Text:SetText(L["BUTTON_CLOSE"])
 if lv.ApplyLocaleFont then
-    lv.ApplyLocaleFont(closeBtn.Text, 13)
+    lv.ApplyLocaleFont(closeBtn.Text, 11)
 end
 
 closeBtn:SetScript("OnClick", function() LVWindow:Hide() end)
@@ -141,7 +141,7 @@ instancesBtn.Text = instancesBtn:CreateFontString(nil, "OVERLAY", "GameFontNorma
 instancesBtn.Text:SetPoint("CENTER")
 instancesBtn.Text:SetText((L["BUTTON_INSTANCES"] ~= "BUTTON_INSTANCES") and L["BUTTON_INSTANCES"] or "Instances")
 if lv.ApplyLocaleFont then
-    lv.ApplyLocaleFont(instancesBtn.Text, 13)
+    lv.ApplyLocaleFont(instancesBtn.Text, 11)
 end
 lv.instancesBtn = instancesBtn
 
@@ -225,7 +225,7 @@ achievementsBtn.Text = achievementsBtn:CreateFontString(nil, "OVERLAY", "GameFon
 achievementsBtn.Text:SetPoint("CENTER")
 achievementsBtn.Text:SetText(UIText("BUTTON_ACHIEVEMENTS", "Achievements"))
 if lv.ApplyLocaleFont then
-    lv.ApplyLocaleFont(achievementsBtn.Text, 13)
+    lv.ApplyLocaleFont(achievementsBtn.Text, 11)
 end
 lv.achievementsBtn = achievementsBtn
 
@@ -242,7 +242,7 @@ factionsTab.Text = factionsTab:CreateFontString(nil, "OVERLAY", "GameFontNormal"
 factionsTab.Text:SetPoint("CENTER")
 factionsTab.Text:SetText((L["BUTTON_FACTIONS"] ~= "BUTTON_FACTIONS") and L["BUTTON_FACTIONS"] or "Factions")
 if lv.ApplyLocaleFont then
-    lv.ApplyLocaleFont(factionsTab.Text, 13)
+    lv.ApplyLocaleFont(factionsTab.Text, 11)
 end
 lv.factionsTab = factionsTab
 
@@ -854,6 +854,99 @@ local function UpdateWeeklyWarningLayout(warningText)
     end
 end
 
+local function NormalizeWeeklyQuestTitle(title)
+    if type(title) ~= "string" then return nil end
+    title = title:gsub("’", "'"):gsub("‘", "'")
+    title = title:gsub("ï¼š", ":"):gsub("：", ":")
+    title = title:gsub("%s+", " ")
+    title = title:match("^%s*(.-)%s*$")
+    if title == "" then return nil end
+    return title:lower()
+end
+
+local function NormalizeWeeklyQuestTitle(title)
+    if type(title) ~= "string" then return nil end
+    title = title:gsub("%s+", " ")
+    title = title:match("^%s*(.-)%s*$")
+    if title == "" then return nil end
+    return title:lower()
+end
+
+local function BuildWeeklyQuestTitleSet(quest)
+    local titles = {}
+    if not quest or not quest.name then return titles end
+
+    local localized = L[quest.name]
+    local localizedTitle = NormalizeWeeklyQuestTitle(localized)
+    local fallbackTitle = NormalizeWeeklyQuestTitle(quest.name)
+
+    if localizedTitle then
+        titles[localizedTitle] = true
+    end
+    if fallbackTitle then
+        titles[fallbackTitle] = true
+    end
+
+    return titles
+end
+
+local function GetSavedWeeklyQuestState(quest)
+    if not (quest and quest.accountWide and LiteVaultDB and LiteVaultDB.accountWideWeeklyQuests) then
+        return nil
+    end
+    local saved = LiteVaultDB.accountWideWeeklyQuests[quest.name]
+    return saved and saved.state or nil
+end
+
+local function FindNearbyWeeklyQuestState(quest)
+    if not (quest and quest.accountWide and quest.searchRange and C_QuestLog.GetTitleForQuestID) then
+        return nil
+    end
+
+    local minQuestID = quest.id
+    local maxQuestID = quest.id
+    if quest.variants then
+        for _, variantID in ipairs(quest.variants) do
+            minQuestID = math.min(minQuestID, variantID)
+            maxQuestID = math.max(maxQuestID, variantID)
+        end
+    end
+
+    local titleSet = BuildWeeklyQuestTitleSet(quest)
+    local foundInProgress = false
+
+    for candidateID = math.max(1, minQuestID - quest.searchRange), maxQuestID + quest.searchRange do
+        local title = C_QuestLog.GetTitleForQuestID(candidateID)
+        if titleSet[NormalizeWeeklyQuestTitle(title)] then
+            if C_QuestLog.IsQuestFlaggedCompleted(candidateID) then
+                return "done"
+            end
+            if C_QuestLog.IsQuestFlaggedCompletedOnAccount and C_QuestLog.IsQuestFlaggedCompletedOnAccount(candidateID) then
+                return "done"
+            end
+            if C_QuestLog.GetLogIndexForQuestID(candidateID) then
+                foundInProgress = true
+            end
+        end
+    end
+
+    if foundInProgress then
+        return "in_progress"
+    end
+
+    return nil
+end
+
+local function IsWeeklyQuestCompleted(questID, quest)
+    if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+        return true
+    end
+    if quest and quest.accountWide and C_QuestLog.IsQuestFlaggedCompletedOnAccount then
+        return C_QuestLog.IsQuestFlaggedCompletedOnAccount(questID) and true or false
+    end
+    return false
+end
+
 local function GetGroupedWeeklyQuestState(quest)
     local foundCompleted = false
     local foundInProgress = false
@@ -1016,7 +1109,7 @@ local function CreateFactionContentArea()
     content:SetJustifyH("LEFT")
     content:SetJustifyV("TOP")
     content:SetSpacing(lv.Layout.verticalPadding)
-    lv.ApplyLocaleFont(content, 14)
+    lv.ApplyLocaleFont(content, 12)
 
     return warning, scrollFrame, scrollChild, content
 end
@@ -1153,7 +1246,7 @@ local function CreateFactionTabButton(index, def)
     btn.Text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     btn.Text:SetPoint("CENTER")
     btn.Text:SetText(L[def.labelKey])
-    lv.ApplyLocaleFont(btn.Text, 13)
+    lv.ApplyLocaleFont(btn.Text, 11)
     btn.mode = def.key
     btn:SetScript("OnClick", function()
         factionWeeklyMode = def.key
@@ -1291,7 +1384,28 @@ local function GetFactionQuestState(quest)
     else
         savedChoice = trackedCfg and LiteVaultDB and LiteVaultDB.accountWideFactionChoices and LiteVaultDB.accountWideFactionChoices[factionWeeklyMode]
     end
+    local usesSilvermoonCharTracking = (
+        factionWeeklyMode == "silvermoon" and
+        trackedCfg and
+        trackedCfg.trackDailiesPerChar
+    )
+    local currentSilvermoonChoice = (
+        usesSilvermoonCharTracking and
+        savedChoice and
+        savedChoice.sourceKey == lv.PLAYER_KEY
+    ) and savedChoice or nil
+    if usesSilvermoonCharTracking then
+        savedChoice = nil
+    end
+    local charDB = LiteVaultDB and lv.PLAYER_KEY and LiteVaultDB[lv.PLAYER_KEY]
+    local weeklyDailies = charDB and charDB.factionDailiesThisWeek and charDB.factionDailiesThisWeek[factionWeeklyMode]
     if trackedCfg and quest.id == trackedCfg.parentID then
+            if usesSilvermoonCharTracking then
+                if weeklyDailies and weeklyDailies[quest.id] then return "done" end
+                if C_QuestLog.GetLogIndexForQuestID(quest.id) then return "in_progress" end
+                if currentSilvermoonChoice and currentSilvermoonChoice.state == "done" then return "done" end
+                return "not_started"
+            end
             if trackedCfg.permanent and C_QuestLog.IsQuestFlaggedCompleted(quest.id) then
                 return "done"
             end
@@ -1333,10 +1447,11 @@ local function GetFactionQuestState(quest)
 
             -- Daily quests: use per-character weekly DB only.
             if trackedCfg.trackDailiesPerChar then
-                local charDB = LiteVaultDB and lv.PLAYER_KEY and LiteVaultDB[lv.PLAYER_KEY]
-                local weeklyDailies = charDB and charDB.factionDailiesThisWeek and charDB.factionDailiesThisWeek[factionWeeklyMode]
                 if weeklyDailies and weeklyDailies[quest.id] then return "done" end
                 if C_QuestLog.GetLogIndexForQuestID(quest.id) then return "in_progress" end
+                if trackedCfg.subFactionLookup and currentSilvermoonChoice and currentSilvermoonChoice.questID == quest.id and currentSilvermoonChoice.state == "done" then
+                    return "done"
+                end
                 return "not_started"
             end
 
@@ -1368,6 +1483,8 @@ local function BuildFactionQuestStatusText(state)
         return "|cff00ff00" .. L["STATUS_DONE"] .. "|r"
     elseif state == "in_progress" then
         return "|cffffff00" .. L["STATUS_IN_PROGRESS"] .. "|r"
+    elseif state == "locked" then
+        return "|cffff9900" .. L["STATUS_LOCKED"] .. "|r"
     end
 
     return "|cffff0000" .. L["STATUS_NOT_STARTED"] .. "|r"

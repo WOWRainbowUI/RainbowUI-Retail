@@ -595,7 +595,7 @@ profClose:SetBackdrop({
     edgeSize = 12,
     insets = { left = 3, right = 3, top = 3, bottom = 3 }
 })
-profClose.Text = profClose:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+profClose.Text = profClose:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profClose.Text:SetPoint("CENTER")
 profClose.Text:SetText(L["BUTTON_CLOSE"])
 lv.ApplyLocaleFont(profClose.Text, 11)
@@ -610,7 +610,7 @@ profSourcesTabBtn:SetBackdrop({
     edgeSize = 12,
     insets = { left = 3, right = 3, top = 3, bottom = 3 }
 })
-profSourcesTabBtn.Text = profSourcesTabBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+profSourcesTabBtn.Text = profSourcesTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profSourcesTabBtn.Text:SetPoint("CENTER")
 profSourcesTabBtn.Text:SetText((L["TAB_SOURCES"] ~= "TAB_SOURCES") and L["TAB_SOURCES"] or "Sources")
 lv.ApplyLocaleFont(profSourcesTabBtn.Text, 11)
@@ -624,7 +624,7 @@ profTreasuresTabBtn:SetBackdrop({
     edgeSize = 12,
     insets = { left = 3, right = 3, top = 3, bottom = 3 }
 })
-profTreasuresTabBtn.Text = profTreasuresTabBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+profTreasuresTabBtn.Text = profTreasuresTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profTreasuresTabBtn.Text:SetPoint("CENTER")
 profTreasuresTabBtn.Text:SetText((L["TAB_TREASURES"] ~= "TAB_TREASURES") and L["TAB_TREASURES"] or "Treasures")
 lv.ApplyLocaleFont(profTreasuresTabBtn.Text, 11)
@@ -638,7 +638,7 @@ profGlyphsTabBtn:SetBackdrop({
     edgeSize = 12,
     insets = { left = 3, right = 3, top = 3, bottom = 3 }
 })
-profGlyphsTabBtn.Text = profGlyphsTabBtn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+profGlyphsTabBtn.Text = profGlyphsTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profGlyphsTabBtn.Text:SetPoint("CENTER")
 profGlyphsTabBtn.Text:SetText(LT("TAB_GLYPHS", "Glyphs"))
 lv.ApplyLocaleFont(profGlyphsTabBtn.Text, 11)
@@ -824,11 +824,11 @@ for i = 1, 2 do
     f.concBorder:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
 
     -- Concentration text
-    f.concText = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    f.concText = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     f.concText:SetPoint("CENTER", f.concBg, "CENTER", 0, 0)
 
     -- Concentration reset times (daily + weekly)
-    f.concReset = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    f.concReset = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     f.concReset:SetPoint("TOPLEFT", f.concBg, "BOTTOMLEFT", 0, -4)
 
     -- Knowledge points
@@ -838,10 +838,10 @@ for i = 1, 2 do
     -- Sources summary (always visible in Skills window)
     f.sourcesTop = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     f.sourcesTop:SetPoint("TOPLEFT", f.knowledge, "BOTTOMLEFT", 0, -3)
-    f.sourcesBottom = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    f.sourcesBottom = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     f.sourcesBottom:SetPoint("TOPLEFT", f.sourcesTop, "BOTTOMLEFT", 0, -2)
 
-    f.treasureHint = f:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+    f.treasureHint = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     f.treasureHint:SetPoint("TOPLEFT", f.skill, "BOTTOMLEFT", 0, -6)
     f.treasureHint:Hide()
 
@@ -860,7 +860,7 @@ for i = 1, 2 do
         local col = (idx <= 8) and 0 or 1
         local rowIdx = ((idx - 1) % 8)
         btn:SetPoint("TOPLEFT", 0 + (col * 228), -56 - (rowIdx * 18))
-        btn.text = btn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+        btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         btn.text:SetPoint("LEFT", 0, 0)
         btn.text:SetJustifyH("LEFT")
         btn.text:SetWidth(215)
@@ -912,7 +912,7 @@ for i = 1, 4 do
         local btnCol = ((idx - 1) % 2)
         local btnRow = math.floor((idx - 1) / 2)
         btn:SetPoint("TOPLEFT", btnCol * 114, -22 - (btnRow * 18))
-        btn.text = btn:CreateFontString(nil, "OVERLAY", "Tooltip_Med")
+        btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         btn.text:SetPoint("LEFT", 0, 0)
         btn.text:SetWidth(108)
         btn.text:SetJustifyH("LEFT")
