@@ -28,10 +28,11 @@ L["addon.name.long"] = "預組隊伍過濾"
 
 L["error.syntax"] = "|cffff0000過濾語法錯誤|r\n\n表示過濾語法不正確，例如缺少過濾條件、變數或運算符號，或是寫成 'tanks=1' 而不是 'tanks==1'。\n\n詳細錯誤訊息：\n|cffaaaaaa%s|r"
 L["error.semantic"] = "|cffff0000過濾語法的語意錯誤|r\n\n表示過濾語法正確，但是很可能變數寫錯字，例如寫成 tansk 而不是 tanks。\n\n詳細錯誤訊息：\n|cffaaaaaa%s|r"
-L["error.semantic.protected"] = "|cffff0000過濾語法的語意錯誤|r\n\n不再支持關鍵字 'name'，'comment' 和 'findnumber'。 請從高級過濾器表達方式中刪除他們或者點擊重置按鈕。 \n\n從爭霸艾澤拉斯開始，這些都受到暴雪的保護，任何插件都無法讀取。 \n\n使用列表上方的確認搜索欄過濾隊伍副本名稱。\n\n詳細錯誤訊息：\n|cffaaaaaa%s|r"
+L["error.semantic.protected"] = "|cffff0000過濾語法的語意錯誤|r\n\n不再支持關鍵字 'name' 和 'comment'。 請從高級過濾器表達方式中刪除他們或者點擊重置按鈕。 \n\n從爭霸艾澤拉斯開始，這些都受到暴雪的保護，任何插件都無法讀取。 \n\n使用列表上方的確認搜索欄過濾隊伍副本名稱。\n\n詳細錯誤訊息：\n|cffaaaaaa%s|r"
 L["message.settingsupgraded"] = "預組隊伍過濾: 設置遷移到版本 %s"
-L["message.sortingoverwritten"] = "預組隊伍過濾: 預設的預組隊伍排序已被 %s 覆寫。"
-L["message.sortingrestored"] = "預組隊伍過濾: 預設的預組隊伍排序已被 %s 恢復。"
+L["message.sortingoverwritten"] = "預組隊伍過濾: 預組隊伍的預設排序順序已被插件 %s 覆蓋。"
+L["message.sortingrestored"] = "預組隊伍過濾: 預組隊伍的預設排序順序已被插件 %s 恢復。"
+L["message.taint"] = "預組隊伍過濾: 插件限制現已生效。隊伍尋找器已被修改，可能會導致 Lua 錯誤。建議執行 /reload 來修復此問題。"
 
 L["dialog.settings"] = GAMEMENU_OPTIONS
 L["dialog.reset"] = "重置"
@@ -158,3 +159,8 @@ L["settings.cancelOldestApp.title"] = "取消最舊的申請"
 L["settings.cancelOldestApp.tooltip"] = "如果你的待處理申請達到上限，點擊任意小組以先取消最舊的申請。然後再點擊一次以申請。"
 L["settings.compactListEntries.title"] = "精簡列表項目"
 L["settings.compactListEntries.tooltip"] = "隱藏遊戲風格，讓隊伍列表的項目佔用更少的垂直空間（如同《至暗之夜》版本前夕內容更新之前）。"
+L["settings.info.reload"] = "* 變更這些選項將在關閉設定後自動重新載入介面。"
+L["settings.warning.taint"] = "此選項在受限情況下（如團隊副本或戰鬥中）可能導致Lua錯誤。"
+
+L["dialog.restriction.text"] = "插件限制已啟用。過濾可能導致Lua錯誤。"
+L["dialog.restriction.ok"] = "仍然過濾"
