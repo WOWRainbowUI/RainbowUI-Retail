@@ -185,6 +185,8 @@ local function HideGroundSkimming()
 	hideGroup:Play();
 end
 
+DR.HideGroundSkimming = HideGroundSkimming;
+
 local function HasGroundSkimmingAura()
 	if not issecretvalue(C_UnitAuras.GetPlayerAuraBySpellID(GROUND_SKIM_AURA)) then
 		return C_UnitAuras.GetPlayerAuraBySpellID(GROUND_SKIM_AURA) ~= nil;
@@ -192,7 +194,7 @@ local function HasGroundSkimmingAura()
 end
 
 function DR.EvaluateGroundSkimmingVisibility()
-	if not DragonRider_DB or not DragonRider_DB.toggleGroundSkimming then
+	if not DragonRider_DB or not DragonRider_DB.showGroundSkimming then
 		HideGroundSkimming();
 		return;
 	end
