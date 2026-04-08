@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 15
+local helpNumPages = 14
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -216,22 +216,6 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		{	-- 8
-			heading = "      Hacks",
-			text = "All hacks are enabled by default, you can disable them in "..KT.TITLE.." Options (section \"Hacks\").\n\n"..
-					cWarning.."Warning:|r Hacks may affect other addons!\n\n"..
-					cTitle.."LFG Hack|r\n\n"..
-					cBold.."Affects the small Eye buttons|r for finding groups inside the tracker. When the hack is active, "..
-					"the buttons work without errors. When the hack is inactive, the buttons are not available.\n\n"..
-					cWarning2.."Negative impacts:|r\n"..
-					"- Inside the dialog for create \"Premade Group\", the \"Title\" is not set"..
-					offs.."automatically (e.g. keystone level for Mythic+).\n\n"..
-					cTitle.."World Map Hack|r\n\n"..
-					cBold.."Affects the World Map|r and removes taint errors. The hack prevents calls to restricted "..
-					"functions. When the hack is inactive, the World Map display causes errors. It is not possible to "..
-					"get rid of these errors, since the tracker has a lot of interaction with the game frames.\n\n"..
-					cWarning2.."Negative impacts:|r unknown in WoW 12.0.0",
-		},
-		{	-- 9
 			image = HELP_PATH.."help_events",
 			heading = "Events",
 			text = "The Events module displays active ongoing events in the tracker. They are normally available on the World Map.\n\n"..
@@ -240,7 +224,7 @@ local function SetupTutorials()
 					"- "..cBold.."Show Long Events|r – In addition to active ongoing events, also shows those that"..
 					offs.."last 24 hours or more.",
 		},
-		{	-- 10
+		{	-- 9
 			image = HELP_PATH.."help_addon-masque",
 			heading = "Support addon Masque",
 			text = "Masque adds skinning support for Quest Item buttons. It also affects the Active Button (see prev page).\n"..
@@ -254,7 +238,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 11
+		{	-- 10
 			image = HELP_PATH.."help_addon-pettracker",
 			heading = "Support addon PetTracker",
 			text = "PetTracker support adjusts display of zone pet tracking inside "..KT.TITLE..".\nIt also fix some visual bugs.\n"..
@@ -268,7 +252,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-        {	-- 12
+        {	-- 11
             image = HELP_PATH.."help_addon-tomtom",
             heading = "Support addon TomTom",
             text = "TomTom support combines Blizzard's POI and TomTom's arrow.\n\n"..
@@ -279,7 +263,7 @@ local function SetupTutorials()
                     "Features:\n"..
                     "- Available for Quests and World Quests, but waypoints are only for current"..
                     offs.."continent (TomTom and Blizzard limitations).\n"..
-                    "- Other map POIs can also have a waypoint (see page 14).\n"..
+                    "- Other map POIs can also have a waypoint (see page 13).\n"..
                     "- "..cBold.."Left Click|r on POI button (in the tracker or on World Map) to set a waypoint.\n"..
                     "- The newly tracked or closest quest automatically gets a waypoint.\n"..
                     "- Waypoint of untracked or abandoned quest will be removed.\n"..
@@ -301,7 +285,7 @@ local function SetupTutorials()
 			shineLeft = -11,
 			shineRight = 11,
 		},
-		{	-- 13
+		{	-- 12
 			image = HELP_PATH.."help_addon-rarescanner",
 			heading = "Support addon RareScanner",
 			text = "RareScanner support replaces the original RareScanner button and displays detected Rare NPCs "..
@@ -324,7 +308,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 14
+		{	-- 13
 			image = HELP_PATH.."help_map-waypoints",
 			heading = "Map Waypoints",
 			text = KT.TITLE.." allows setting TomTom waypoints on any POI on the map. This includes new quests, "..
@@ -349,7 +333,7 @@ local function SetupTutorials()
 			shineLeft = -11,
 			shineRight = 11,
 		},
-		{	-- 15
+		{	-- 14
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -363,26 +347,18 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.3.1|r\n"..
-					"- CHANGED - Quest Item Button improvements\n"..
-					"- CHANGED - TomTom - waypoint improvements\n"..
-					"- FIXED - errors with addon BugGrabber 12.0.11\n"..
-					"\n")..
-
-					(cTitle.."Version 8.3.0|r\n"..
-					"- ADDED (QuestLog) - Show Quest Details on World Map (Experimental)\n"..
-					offs3.."- Custom Quest Details implemented by Kaliel's Tracker to avoid taint issues.\n"..
-					"- ADDED (achievements) - auto Achievement progress tracking\n"..
-					"- ADDED (achievements) - filter support for Midnight\n"..
-					"- CHANGED - addon support - TomTom 4.2.23\n"..
-					"- CHANGED - addon support - RareScanner 12.0.1.15\n"..
-					"- CHANGED - addon support - BtWQuests 2.61.0\n"..
-					"- CHANGED - addon support - Auctionator 318\n"..
-					"- CHANGED - TomTom - quest waypoint improvements\n"..
-					"- CHANGED - Options - update visibility rule for Silvermoon City\n"..
+					(cTitle.."Version 8.4.0|r\n"..
+					"- ADDED (Quests) - new sorting option \"Bottom Completed quests\"\n"..
+					"- ADDED - addon support - Narcissus 1.8.5\n"..
+					offs3.."- Opens achievements from the tracker in the Narcissus window.\n"..
 					"- CHANGED (help) - Active Patrons\n"..
-					"- FIXED - quest objective may show wrong dot (Blizz bug)\n"..
-					"- FIXED - taint errors (3)\n"..
+					"- CHANGED - addon support - TomTom 4.2.24\n"..
+					"- CHANGED - addon support - RareScanner 12.0.1.16\n"..
+					"- CHANGED - addon support - Auctionator 319\n"..
+					"- CHANGED - Libs\n"..
+					"- FIXED - taint errors (4)\n"..
+					"- FIXED - \"Show continent achievs\" filter option does not work\n"..
+					"- REMOVED - addon support - RealUI\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -467,18 +443,21 @@ local function SetupTutorials()
 					SetFormatedPatronName("Legendary", "Kaelandros")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Epic", "Soromeister")..
+                    SetFormatedPatronName("Rare", "David Blanchard")..
 					SetFormatedPatronName("Rare", "Ian F")..
 					SetFormatedPatronName("Rare", "Sal")..
 					SetFormatedPatronName("Rare", "Spance")..
+					SetFormatedPatronName("Uncommon", "Camalus")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Cool Blue")..
-					SetFormatedPatronName("Uncommon", "David Blanchard")..
 					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
 					SetFormatedPatronName("Uncommon", "Gremlin78")..
 					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
+					SetFormatedPatronName("Uncommon", "Naturegurl")..
                     SetFormatedPatronName("Uncommon", "Papus", "Ulduar")..
 					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
+					SetFormatedPatronName("Uncommon", "Scott Ingram")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Veratais")..
 					SetFormatedPatronName("Common", "Darren Divecha")..

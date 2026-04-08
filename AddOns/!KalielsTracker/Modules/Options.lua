@@ -536,7 +536,7 @@ local options = {
 							set = function(_, value)
 								db.border = value
 								KT:SetBackground()
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 3,
 						},
@@ -620,7 +620,7 @@ local options = {
 							set = function(_, value)
 								db.bgrInset = value
 								KT:SetBackground()
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 8,
 						},
@@ -1004,7 +1004,7 @@ local options = {
 								db.hdrOtherButtons = not db.hdrOtherButtons
 								KT:SetOtherButtons()
 								KT:SetBackground()
-								OTF:Update()
+                                KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 11,
 						},
@@ -1023,7 +1023,7 @@ local options = {
 							set = function()
 								db.qiBgrBorder = not db.qiBgrBorder
 								KT:SetBackground()
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 1,
 						},
@@ -1035,7 +1035,7 @@ local options = {
 							step = 1,
 							set = function(_, value)
 								db.qiXOffset = value
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 2,
 						},
@@ -1651,6 +1651,52 @@ local options = {
 					inline = true,
 					order = 1,
 					args = {
+                        addonAuctionator = {
+                            name = "Auctionator",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("Auctionator")
+                            end,
+                            set = function()
+                                db.addonAuctionator = not db.addonAuctionator
+                                ReloadUI()
+                            end,
+                            order = 1.1,
+                        },
+                        addonAuctionatorDesc = {
+                            name = "Enables an Auctionator search button inside the Profession module header.",
+                            type = "description",
+                            width = "double",
+                            order = 1.2,
+                        },
+                        addonBtWQuests = {
+                            name = "BtWQuests",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("BtWQuests")
+                            end,
+                            set = function()
+                                db.addonBtWQuests = not db.addonBtWQuests
+                                ReloadUI()
+                            end,
+                            order = 2.1,
+                        },
+                        addonBtWQuestsDesc = {
+                            name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
+                            type = "description",
+                            width = "double",
+                            order = 2.2,
+                        },
 						addonMasque = {
 							name = "Masque",
 							desc = "Version: %s",
@@ -1666,14 +1712,37 @@ local options = {
 								db.addonMasque = not db.addonMasque
 								ReloadUI()
 							end,
-							order = 1.1,
+							order = 3.1,
 						},
 						addonMasqueDesc = {
 							name = "Enables skinning of Quest Item buttons and the Active Button.",
 							type = "description",
 							width = "double",
-							order = 1.2,
+							order = 3.2,
 						},
+                        addonNarcissus = {
+                            name = "Narcissus",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("Narcissus")
+                            end,
+                            set = function()
+                                db.addonNarcissus = not db.addonNarcissus
+                                ReloadUI()
+                            end,
+                            order = 4.1,
+                        },
+                        addonNarcissusDesc = {
+                            name = "Opens achievements from the tracker in the Narcissus window.",
+                            type = "description",
+                            width = "double",
+                            order = 4.2,
+                        },
 						addonPetTracker = {
 							name = "PetTracker",
 							desc = "Version: %s",
@@ -1692,14 +1761,37 @@ local options = {
 								end
 								ReloadUI()
 							end,
-							order = 2.1,
+							order = 5.1,
 						},
 						addonPetTrackerDesc = {
 							name = "Enables display of zone pet tracking inside the tracker and fixes some visual issues.",
 							type = "description",
 							width = "double",
-							order = 2.2,
+							order = 5.2,
 						},
+                        addonRareScanner = {
+                            name = "RareScanner",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("RareScanner")
+                            end,
+                            set = function()
+                                db.addonRareScanner = not db.addonRareScanner
+                                ReloadUI()
+                            end,
+                            order = 6.1,
+                        },
+                        addonRareScannerDesc = {
+                            name = "Enables display of detected Rare NPCs inside the tracker.",
+                            type = "description",
+                            width = "double",
+                            order = 6.2,
+                        },
 						addonTomTom = {
 							name = "TomTom",
 							desc = "Version: %s",
@@ -1715,82 +1807,13 @@ local options = {
 								db.addonTomTom = not db.addonTomTom
 								ReloadUI()
 							end,
-							order = 3.1,
+							order = 7.1,
 						},
 						addonTomTomDesc = {
 							name = "Enables integration of Blizzard's POI with TomTom's Arrow for better navigation.",
 							type = "description",
 							width = "double",
-							order = 3.2,
-						},
-						addonRareScanner = {
-							name = "RareScanner",
-							desc = "Version: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("RareScanner")
-							end,
-							set = function()
-								db.addonRareScanner = not db.addonRareScanner
-								ReloadUI()
-							end,
-							order = 4.1,
-						},
-						addonRareScannerDesc = {
-							name = "Enables display of detected Rare NPCs inside the tracker.",
-							type = "description",
-							width = "double",
-							order = 4.2,
-						},
-						addonAuctionator = {
-							name = "Auctionator",
-							desc = "Version: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("Auctionator")
-							end,
-							set = function()
-								db.addonAuctionator = not db.addonAuctionator
-								ReloadUI()
-							end,
-							order = 5.1,
-						},
-						addonAuctionatorDesc = {
-							name = "Enables an Auctionator search button inside the Profession module header.",
-							type = "description",
-							width = "double",
-							order = 5.2,
-						},
-						addonBtWQuests = {
-							name = "BtWQuests",
-							desc = "Version: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("BtWQuests")
-							end,
-							set = function()
-								db.addonBtWQuests = not db.addonBtWQuests
-								ReloadUI()
-							end,
-							order = 6.1,
-						},
-						addonBtWQuestsDesc = {
-							name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
-							type = "description",
-							width = "double",
-							order = 6.2,
+							order = 7.2,
 						},
 					},
 				},
@@ -1811,12 +1834,6 @@ local options = {
 							type = "toggle",
 							disabled = true,
 							order = 2,
-						},
-						nibrealui = {
-							name = "RealUI",
-							type = "toggle",
-							disabled = true,
-							order = 3,
 						},
 					},
 				},

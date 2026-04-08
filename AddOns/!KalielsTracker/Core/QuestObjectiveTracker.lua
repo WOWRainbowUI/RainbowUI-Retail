@@ -140,7 +140,7 @@ function KT_QuestObjectiveTrackerMixin:GetDebugReportInfo(block)
 	return { debugType = "TrackedQuest", questID = block.id, };
 end
 
-local function CompareQuestWatchInfos(info1, info2)
+function KT.CompareQuestWatchInfos(info1, info2)  -- MSA
 	local quest1, quest2 = info1.quest, info2.quest;
 
 	if quest1:IsCalling() ~= quest2:IsCalling() then

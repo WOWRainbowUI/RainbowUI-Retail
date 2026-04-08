@@ -759,7 +759,7 @@ local function SetEvents()
 	-- Update waypoint after quest objectives changed
 	KT:RegEvent("QUEST_WATCH_UPDATE", function(_, questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
-			C_Timer.After(0.5, function()
+			C_Timer.After(0.6, function()
 				if not stopUpdate then
 					SetSuperTrackedQuestWaypoint(questID, true)
 				end
@@ -821,7 +821,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.23-release") and db.addonTomTom)
+    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.24-release") and db.addonTomTom)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")

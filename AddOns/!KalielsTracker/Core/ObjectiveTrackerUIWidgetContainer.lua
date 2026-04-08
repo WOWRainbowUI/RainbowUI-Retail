@@ -41,7 +41,7 @@ end
 KT_ObjectiveTrackerUIWidgetContainerMixin = {};
 
 local function WidgetsLayout(widgetContainer, sortedWidgets)
-	DefaultWidgetLayout(widgetContainer, sortedWidgets);
+	securecallfunction(DefaultWidgetLayout, widgetContainer, sortedWidgets)  -- MSA
 
 	-- When the widgets in this container update we also need to update the UI_WIDGET_TRACKER_MODULE (it needs to show or hide based on whether there are any widget showing)
 	KT_UIWidgetObjectiveTracker:MarkDirty();

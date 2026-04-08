@@ -1,9 +1,8 @@
 --- MSA-AceAddon-3.0
---- Extend default AceAddon-3.0
----
---- Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2024-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- All Rights Reserved.
 
-local name, version = "MSA-AceAddon-3.0", 1
+local name, version = "MSA-AceAddon-3.0", 2
 
 local AceAddon = LibStub:NewLibrary(name, version)
 if not AceAddon then return end

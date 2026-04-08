@@ -20,6 +20,8 @@ local eventFrame
 local activeFrame, abutton
 local blizzardButtonIconID = 0
 
+local buttons = KT.QuestButtons_GetButtons()
+
 local isBartender, isElvui, isTukui = false, false, false
 
 local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
@@ -273,7 +275,7 @@ function M:Update(id)
 	if not closestQuestID then
 		if not KT:IsCollapsed() then
 			local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
-			for questID in pairs(KT.fixedButtons) do
+			for questID in pairs(buttons) do
 				if questID == superTrackedQuestID then
 					closestQuestID = questID
 					break
@@ -286,7 +288,7 @@ function M:Update(id)
 	end
 
 	if closestQuestID and not KT.EXCLUDED_QUEST_ITEMS[closestQuestID] then
-		local button = KT:GetFixedButton(closestQuestID)
+		local button = KT.QuestButtons_Get(closestQuestID)
 		if button and button.item ~= blizzardButtonIconID then
 			local autoShowTooltip = false
 			if GameTooltip:IsShown() and GameTooltip:GetOwner() == abutton then
