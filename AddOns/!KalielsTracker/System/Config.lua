@@ -89,6 +89,7 @@ local defaults = {
         addonRareScanner = false,
         addonAuctionator = false,
         addonBtWQuests = false,
+        addonNarcissus = false,
     },
     char = {
         collapsed = false,

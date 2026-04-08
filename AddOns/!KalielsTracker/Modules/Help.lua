@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 15
+local helpNumPages = 14
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -216,23 +216,6 @@ local function SetupTutorials()
 			shineRight = 6,
 		},
 		{	-- 8
-			heading = "         遊戲修正",
-			text = "預設會啟用所有遊戲修正，可以在 "..KT.TITLE.." 的設定選項 (\"遊戲修正\") 中停用。\n\n"..
-					cWarning.."警告:|r 遊戲修正可能會影響其他插件!!\n\n"..
-					cTitle.."尋求組隊修正|r\n\n"..
-					cBold.."影響在任務追蹤清單中尋找隊伍用的小眼睛。|r"..
-					"啟用遊戲修正時按鈕可以正常使用，不會發生錯誤。停用時將無法使用按鈕。\n\n"..
-					cWarning2.."負面影響:|r\n"..
-					"- 建立預組隊伍的對話框不會自動設定好 \"標題\"，"..
-					offs.."例如 M+ 鑰石層數。\n\n"..
-					cTitle.."世界地圖修正|r "..beta.."\n\n"..
-					cBold.."影響世界地圖|r並且移除汙染錯誤。"..
-					"這個遊戲修正避免呼叫受限制的函數。"..
-					"停用遊戲修正時，世界地圖顯示會導致錯誤。"..
-					"由於任務追蹤清單與遊戲框架有很多互動，所以無法消除這些錯誤。\n\n"..
-					cWarning2.."負面影響:|r 在魔獸世界 12.0.0 尚未可知。",
-		},
-		{	-- 9
 			image = HELP_PATH.."help_events",
 			heading = "事件",
 			text = "事件模組會在追蹤清單中顯示當前進行中的事件。它們通常可在世界地圖上看到。\n\n"..
@@ -241,8 +224,7 @@ local function SetupTutorials()
 					"- "..cBold.."顯示長期事件|r – 除了當前進行中的事件，還會顯示那些"..
 					offs.."持續 24 小時或更久的事件。",
 		},
-
-		{	-- 10
+		{	-- 9
 			image = HELP_PATH.."help_addon-masque",
 			heading = "支援插件 Masque",
 			text = "Masque 提供更改任務物品按鈕外觀的功能，同時也會影響當前任務物品按鈕 (請看上一頁)。\n".. -- Combined translation
@@ -256,7 +238,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 11
+		{	-- 10
 			image = HELP_PATH.."help_addon-pettracker",
 			heading = "支援插件 PetTracker",
 			text = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。\n"..
@@ -270,7 +252,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-        {	-- 12 
+        {	-- 11 
 			image = HELP_PATH.."help_addon-tomtom",
 			heading = "支援插件 TomTom",
 			text = "TomTom 支援結合了暴雪的 POI 與 TomTom 的箭頭。\n\n".. 
@@ -281,7 +263,7 @@ local function SetupTutorials()
 
 					"功能特色：\n"..
 					"- 適用於任務與世界任務，但路徑點僅限於當前"..offs.."大陸（TomTom 與暴雪的限制）。\n"..
-					"- 其他地圖 POI 也可以設置路徑點（見第 14 頁）。\n"..
+					"- 其他地圖 POI 也可以設置路徑點（見第 13 頁）。\n"..
 					"- "..cBold.."左鍵點擊|r POI 按鈕（在追蹤器或世界地圖上）即可設置路徑點。\n"..
 					"- 新追蹤的任務或最近的任務會自動獲得路徑點。\n"..
 					"- 未追蹤或放棄的任務，其路徑點會被移除。\n"..
@@ -302,7 +284,7 @@ local function SetupTutorials()
 			shineLeft = -11,
 			shineRight = 11,
 		},
-		{	-- 13
+		{	-- 12
 			image = HELP_PATH.."help_addon-rarescanner",
 			heading = "支援插件 RareScanner ",
 			text = "RareScanner 支援會取代原本的 RareScanner 按鈕，並將偵測到的稀有 NPC "..
@@ -325,7 +307,7 @@ local function SetupTutorials()
 				}
 			},
 		},
-		{	-- 14
+		{	-- 13
 			image = HELP_PATH.."help_map-waypoints",
 			heading = "地圖導航",
 			text = KT.TITLE.." 允許在地圖上的任何 POI 設定 TomTom 導航路線。包括新任務、"..
@@ -349,7 +331,7 @@ local function SetupTutorials()
 			shineLeft = -11,
 			shineRight = 11,
 		},
-		{	-- 15
+		{	-- 14
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -363,26 +345,18 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 8.3.1|r\n"..
-					"- 修改：任務物品按鈕的改進\n"..
-					"- 修改：TomTom 路徑點功能改進\n"..
-					"- 修正：與插件 BugGrabber 12.0.11 的錯誤\n"..
-					"\n")..
-
-					(cTitle.."版本 8.3.0|r\n"..
-                    "- 新增 (任務日誌) - 在世界地圖顯示任務詳情（實驗性）\n"..
-                    offs3.."- Kaliel's Tracker 實作了自訂任務詳情以避免污染問題。\n"..
-                    "- 新增 (成就) - 自動成就進度追蹤\n"..
-                    "- 新增 (成就) - 支援至暗之夜過濾方式\n"..
-                    "- 修改 - 插件支援 - TomTom 4.2.23\n"..
-                    "- 修改 - 插件支援 - RareScanner 12.0.1.15\n"..
-                    "- 修改 - 插件支援 - BtWQuests 2.61.0\n"..
-                    "- 修改 - 插件支援 - Auctionator 318\n"..
-                    "- 修改 - TomTom - 任務路徑點改進\n"..
-                    "- 修改 - 選項 - 更新銀月城的顯示規則\n"..
-                    "- 修改 (說明) - 活躍贊助者\n"..
-                    "- 修正 - 任務目標可能顯示錯誤標記（暴雪 Bug）\n"..
-                    "- 修正 - 污染錯誤 (3)\n"..
+					(cTitle.."版本 8.4.0|r\n"..
+					"- 新增（任務）- 新排序選項「將已完成任務置底」\n"..
+					"- 新增 - 插件支援 - Narcissus 1.8.5\n"..
+					offs3.."- 可從任務追蹤器直接在 Narcissus 視窗開啟成就。\n"..
+					"- 變更（說明）- 活躍贊助者名單\n"..
+					"- 變更 - 插件支援 - TomTom 4.2.24\n"..
+					"- 變更 - 插件支援 - RareScanner 12.0.1.16\n"..
+					"- 變更 - 插件支援 - Auctionator 319\n"..
+					"- 變更 - 函式庫更新\n"..
+					"- 修正 - 界面污染錯誤（4 項）\n"..
+					"- 修正 -「顯示大陸成就」篩選選項無效的問題\n"..
+					"- 移除 - 插件支援 - RealUI\n"..
 					"\n")..
 
 					cTitle.."問題回報|r\n"..
@@ -467,18 +441,21 @@ local function SetupTutorials()
 					SetFormatedPatronName("Legendary", "Kaelandros")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Epic", "Soromeister")..
+                    SetFormatedPatronName("Rare", "David Blanchard")..
 					SetFormatedPatronName("Rare", "Ian F")..
 					SetFormatedPatronName("Rare", "Sal")..
 					SetFormatedPatronName("Rare", "Spance")..
+					SetFormatedPatronName("Uncommon", "Camalus")..
 					SetFormatedPatronName("Uncommon", "Charles Howarth")..
 					SetFormatedPatronName("Uncommon", "Cool Blue")..
-					SetFormatedPatronName("Uncommon", "David Blanchard")..
 					SetFormatedPatronName("Uncommon", "Gramm", "Ravenholdt")..
 					SetFormatedPatronName("Uncommon", "Gremlin78")..
 					SetFormatedPatronName("Uncommon", "Illidanclone", "Kazzak")..
 					SetFormatedPatronName("Uncommon", "Mystekal")..
+					SetFormatedPatronName("Uncommon", "Naturegurl")..
                     SetFormatedPatronName("Uncommon", "Papus", "Ulduar")..
 					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
+					SetFormatedPatronName("Uncommon", "Scott Ingram")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Veratais")..
 					SetFormatedPatronName("Common", "Darren Divecha")..

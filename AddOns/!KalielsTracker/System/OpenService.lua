@@ -176,7 +176,9 @@ local function RegisterDefaults()
     KT.OpenService_Default("endeavortask", function(id)
         if KT.InCombatBlocked() then return end
         HousingFramesUtil.OpenFrameToTaskID(id)
-        HousingFramesUtil.OpenFrameToTaskID(id)
+        C_Timer.After(0.1, function()
+            HousingFramesUtil.OpenFrameToTaskID(id)
+        end)
     end)
 
     KT.OpenService_Default("collectionitem", function(type, id)

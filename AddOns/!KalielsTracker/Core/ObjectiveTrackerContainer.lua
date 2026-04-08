@@ -125,15 +125,9 @@ function KT_ObjectiveTrackerContainerMixin:Update(dirtyUpdate)
 	end]]
 end
 
+-- MSA - External module injection is not supported (taint prevention).
 function KT_ObjectiveTrackerContainerMixin:AddModule(module)
-	if self:HasModule(module) then
-		return;
-	end
-
-	table.insert(self.modules, module);
-	self.needsSorting = true;
-	module:SetContainer(self);
-	self:MarkDirty();
+	-- no-op
 end
 
 function KT_ObjectiveTrackerContainerMixin:RemoveModule(module)

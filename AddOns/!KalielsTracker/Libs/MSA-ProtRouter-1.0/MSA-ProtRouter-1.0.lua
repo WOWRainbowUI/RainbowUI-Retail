@@ -1,8 +1,8 @@
 --- MSA-ProtRouter-1.0 - Router for Protected functions
---- Copyright (c) 2019-2024, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2019-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-ProtRouter-1.0", 4
+local name, version = "MSA-ProtRouter-1.0", 5
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -55,9 +55,7 @@ end)
 lib.eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 lib.eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-------------------------------------------------------------------------------------------------------------------------
--- Embed handling
-------------------------------------------------------------------------------------------------------------------------
+-- Embed handling ------------------------------------------------------------------------------------------------------
 
 lib.embeds = lib.embeds or {}
 

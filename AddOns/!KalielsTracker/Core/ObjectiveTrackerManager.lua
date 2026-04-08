@@ -48,6 +48,18 @@ function KT.ObjectiveTrackerManager:GetContainerForModule(module)
 	return self.moduleToContainerMap[module];
 end
 
+-- MSA
+local function AddModuleInternal(self, module)
+    if self:HasModule(module) then
+        return;
+    end
+
+    table.insert(self.modules, module);
+    self.needsSorting = true;
+    module:SetContainer(self);
+    self:MarkDirty();
+end
+
 function KT.ObjectiveTrackerManager:SetModuleContainer(module, container)
 	if not self.containers[container] then
 		return;
@@ -58,7 +70,7 @@ function KT.ObjectiveTrackerManager:SetModuleContainer(module, container)
 		oldContainer:RemoveModule(module);
 	end
 	self.moduleToContainerMap[module] = container;
-	container:AddModule(module);
+	AddModuleInternal(container, module);  -- MSA
 end
 
 function KT.ObjectiveTrackerManager:AcquireFrame(parent, template)

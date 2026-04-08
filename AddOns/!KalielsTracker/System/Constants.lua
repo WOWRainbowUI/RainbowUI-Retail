@@ -87,6 +87,9 @@ KT.EXCLUDED_QUEST_ITEMS = {
 
 -- Locations
 local MAP_CONTINENT_OVERRIDES = {
+    [2444] = { mapID = 2405 },        -- Slayer's Rise
+    [2405] = { mapID = 2405 },        -- Voidstorm
+    [2413] = { mapID = 2413 },        -- Harandar
     [2351] = { mapID = 2351 },        -- Razorwind Shores (Housing)
     [2352] = { mapID = 2352 },        -- Founder's Point (Housing)
     [2472] = { mapID = 2371 },        -- Tazavesh
@@ -104,20 +107,16 @@ local MAP_CONTINENT_OVERRIDES = {
 }
 KT.MAP_CONTINENT_INFO = setmetatable({}, {
     __index = function(self, mapID)
-        local info
-        local data = MAP_CONTINENT_OVERRIDES[mapID]
-        if data and data.mapID then
-            info = C_Map.GetMapInfo(data.mapID)
-            if info then
-                info.KTmapID = data.mapID
-            end
-        else
-            info = MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent)
-            if info then
-                info.KTmapID = data and data.virtualID or info.mapID
-            end
-        end
+        local info = MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent)
         if info then
+            local data = MAP_CONTINENT_OVERRIDES[mapID]
+            if data and data.mapID then
+                info.KTmapID = data.mapID
+            elseif data and data.virtualID then
+                info.KTmapID = data.virtualID
+            else
+                info.KTmapID = info.mapID
+            end
             rawset(self, mapID, info)
         end
         return info

@@ -143,7 +143,60 @@ local function SetHooks()
 		info.colorCode = "|cff009bff"
 		KT.Menu_AddCheck("最愛", IsFavorite("quests", block.id), ToggleFavorite, "quests", block.id)
 	end)
-	
+
+    function KT.CompareQuestWatchInfos(info1, info2)  -- R
+        local quest1, quest2 = info1.quest, info2.quest
+
+        if dbChar.filter.quests.sortBottomCompleted and quest1:IsComplete() ~= quest2:IsComplete() then
+            return not quest1:IsComplete()
+        end
+
+        if quest1:IsCalling() ~= quest2:IsCalling() then
+            return quest1:IsCalling()
+        end
+
+        if dbChar.filter.quests.sortTopOverride and quest1.overridesSortOrder ~= quest2.overridesSortOrder then
+            return quest1.overridesSortOrder
+        end
+
+        local sort = dbChar.filter.quests.sort
+        if sort == "newest" then
+            local time1 = info1.KTquest and info1.KTquest.updateTime or 0
+            local time2 = info2.KTquest and info2.KTquest.updateTime or 0
+            if time1 == time2 then
+                if quest1.level == quest2.level then
+                    return quest1.title < quest2.title
+                else
+                    return quest1.level > quest2.level
+                end
+            else
+                return time1 > time2
+            end
+        elseif sort == "zone" then
+            local zone1 = info1.KTquest and info1.KTquest.zone or ""
+            local zone2 = info2.KTquest and info2.KTquest.zone or ""
+            if zone1 == zone2 then
+                if quest1.level == quest2.level then
+                    return quest1.title < quest2.title
+                else
+                    return quest1.level > quest2.level
+                end
+            else
+                return zone1 < zone2
+            end
+        elseif sort == "level" then
+            if quest1.level == quest2.level then
+                return quest1.title < quest2.title
+            else
+                return quest1.level > quest2.level
+            end
+        elseif sort == "title" then
+            return quest1.title < quest2.title
+        end
+
+        return info1.index > info2.index
+    end
+
 	-- Achievements
 	local bck_KT_AchievementObjectiveTracker_UntrackAchievement = KT_AchievementObjectiveTracker.UntrackAchievement
 	function KT_AchievementObjectiveTracker:UntrackAchievement(achievementID)
@@ -286,6 +339,9 @@ local function GetActiveWorldEvents()
 	local numEvents = C_Calendar.GetNumDayEvents(0, date.monthDay)
 	for i=1, numEvents do
 		local event = C_Calendar.GetDayEvent(0, date.monthDay, i)
+        if not canaccessvalue(event.calendarType) then
+            break
+        end
 		if event.calendarType == "HOLIDAY" then
 			local gameHour, gameMinute = GetGameTime()
 			if event.sequenceType == "START" then
@@ -460,7 +516,7 @@ local function Filter_Quests(spec, idx)
 				end
 			end
 		end
-	elseif spec == "complete" then
+	elseif spec == "completed" then
 		for i = 1, numEntries do
 			local questInfo = C_QuestLog.GetInfo(i)
 			if IsFilterableQuest(questInfo) and C_QuestLog.IsComplete(questInfo.questID) then
@@ -494,11 +550,10 @@ local function GetCategoryByZone()
 		category = continent.name
 		local mapID = KT.GetCurrentMapAreaID()
         -- 11 - Midnight
-        if continent.mapID == 2537 then  -- Quel'Thalas
+        if continent.mapID == 2537 then
             category = EXPANSION_NAME11
 		-- 10 - The War Within
-		elseif continent.mapID == 2274 or     -- Khaz Algar
-				continent.mapID == 2369 then  -- Siren Isle
+		elseif continent.mapID == 2274 then
 			category = strsub(EXPANSION_NAME10, 5)
 			categoryAlt = EXPANSION_NAME10
 		-- 9 - Dragonflight
@@ -559,7 +614,7 @@ local function Filter_Achievements(spec)
 		local zoneNameAlt = zoneAlt[mapID] or "???"
 		local categoryName, categoryNameAlt = GetCategoryByZone()
 		local instance = KT.inInstance and 168 or nil
-        local showContinent = dbChar.filter.quests.showCampaign
+        local showContinent = dbChar.filter.achievements.showContinent
 		--_DBG(continentName.." / "..zoneName.." ("..zoneNameAlt..") ... "..mapID.." ... "..categoryName.." ("..categoryNameAlt..")", true)
 
 		-- Dungeons & Raids
@@ -859,7 +914,7 @@ local function DropDown_Initialize(self, level)
 		KT.Menu_AddButton("每日 / 每週", "daily")
 		KT.Menu_AddButton("副本", "instance")
 		KT.Menu_AddButton("未完成", "unfinished")
-		KT.Menu_AddButton("已完成", "complete")
+		KT.Menu_AddButton("已完成", "completed")
 		KT.Menu_AddButton("全部取消追蹤", "", (dbChar.filterAuto[1] ~= nil or C_QuestLog.GetNumQuestWatches() == 0))
 
 		info.disabled = false
@@ -1001,10 +1056,16 @@ local function DropDown_Initialize(self, level)
 			KT.Menu_AddRadio("等級", { dbChar.filter.quests, "sort" }, "level")
 			KT.Menu_AddRadio("標題", { dbChar.filter.quests, "sort" }, "title")
 
-			info.isNotRadio = true
+			KT.Menu_AddSeparator()
+			info.notCheckable = false
 
 			KT.Menu_AddCheck("熱門任務", { dbChar.filter.quests, "sortTopOverride" }, function(obj)
 				dbChar.filter.quests.sortTopOverride = not dbChar.filter.quests.sortTopOverride
+				KT:Update()
+				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
+			end)
+			KT.Menu_AddCheck("Bottom Completed quests", { dbChar.filter.quests, "sortBottomCompleted" }, function(obj)
+				dbChar.filter.quests.sortBottomCompleted = not dbChar.filter.quests.sortBottomCompleted
 				KT:Update()
 				MSA_DropDownMenu_Refresh(KT.DropDown, nil, obj:GetParent():GetID())
 			end)
@@ -1120,6 +1181,7 @@ function M:OnInitialize()
                     quests = {
                         sort = nil,
                         sortTopOverride = true,
+                        sortBottomCompleted = false,
                         showCampaign = true
                     },
                     achievements = {

@@ -1,11 +1,10 @@
 --- MSA-Event-1.0
---- Based on AceEvent-3.0
 --- - Wrapped API - aggregates all same events into one frame and control them separately
 --- - Unwrapped API - same as AceEvent
---- Copyright (c) 2024-2025, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2024-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 
-local name, version = "MSA-Event-1.0", 2
+local name, version = "MSA-Event-1.0", 3
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -88,6 +87,8 @@ function lib:UnregAllEvents()
     self:UnregisterAllEvents()
 end
 
+-- Registry Signal Handlers
+
 function lib:RegSignal(event, call, object, ...)
     local owner = object or self
     --print("|cff00ff00REG Signal|r ...", event, "...", owner.moduleName or owner.name or owner, "...", ...)
@@ -105,9 +106,7 @@ function lib:SendSignal(event, ...)
     EventRegistry:TriggerEvent(self.name.."."..event, ...)
 end
 
-------------------------------------------------------------------------------------------------------------------------
--- Embed handling
-------------------------------------------------------------------------------------------------------------------------
+-- Embed handling ------------------------------------------------------------------------------------------------------
 
 lib.embeds = lib.embeds or {}
 

@@ -9,6 +9,15 @@ local addonName, KT = ...
 
 local SS = KT:NewSubsystem("Telemetry")
 
+-- Lua API
+local format = string.format
+local pairs = pairs
+local pcall = pcall
+local select = select
+local tconcat = table.concat
+local tostring = tostring
+local type = type
+
 local TITLE_SLUG = gsub(KT.TITLE, "'", "")
 local LINE_PATTERN = "\n|cff8888ff%s|r |cff808080...|r |cffffffff%s|r"
 
@@ -30,35 +39,33 @@ local function FormatText(name, value1, ...)
         values[i] = tostring(values[i])
     end
 
-    return format(LINE_PATTERN, name, table.concat(values, "|cff808080 | |r"))
+    return format(LINE_PATTERN, name, tconcat(values, "|cff808080 | |r"))
 end
 
-local function FormatTable(table, prefix)
+local function FormatTable(tbl, prefix)
     prefix = prefix or ""
-    local result = ""
+    local parts = {}
 
-    for k, v in pairs(table) do
+    for k, v in pairs(tbl) do
         local valueType = type(v)
-        if valueType ~= "function"then
-            local line
+        if valueType ~= "function" then
             if valueType == "table" then
-                line = FormatText(prefix..k, "{")
-                line = line..FormatTable(v, prefix.."   ")
-                line = line.."\n|cffffffff"..prefix.."}|r"
+                parts[#parts+1] = FormatText(prefix..k, "{")
+                parts[#parts+1] = FormatTable(v, prefix.."   ")
+                parts[#parts+1] = "\n|cffffffff"..prefix.."}|r"
             else
-                line = FormatText(prefix..k, v)
+                parts[#parts+1] = FormatText(prefix..k, v)
             end
-            result = result..line
         end
     end
 
-    return result
+    return tconcat(parts)
 end
 
 local function BuildTelemetry()
     local mapID = KT.GetCurrentMapAreaID()
 
-    local telemetry = "\n\n|cff808080"..TITLE_SLUG.." Telemetry:|r"..
+    local telemetry = "\n|cff808080"..TITLE_SLUG.." Telemetry:|r"..
             FormatText("version", KT.VERSION)..
             FormatText("gameVersion", KT.GAME_VERSION.."."..KT.GAME_BUILD)..
             FormatText("gameLocale", KT.LOCALE)..
@@ -75,39 +82,58 @@ local function BuildTelemetry()
     return telemetry
 end
 
+local InstallTelemetry
+
 if BugGrabber then
+    local errors = {}
+
     EventRegistry:RegisterCallback("BugGrabber.BugGrabbed", function(_, tableID)
+        if errors[tableID] then return end
+        errors[tableID] = true
+
         local err = BugGrabber:GetErrorByID(tableID)
         if not err or not err.message then return end
         if not IsOwnError(err.message) then return end
 
-        local telemetry = BuildTelemetry()
-        if err.KTtelemetry and
-                (telemetry ~= err.KTtelemetry or
-                not err.stack or
-                not err.stack:find(err.KTtelemetry, 1, true)) then
-            err.KTtelemetry = nil
-        end
-        if not err.KTtelemetry then
+        local ok, telemetry = pcall(BuildTelemetry)
+        if ok and telemetry then
             err.KTtelemetry = telemetry
-            err.stack = (err.stack or "")..telemetry
         end
     end, KT)
+
+    function InstallTelemetry()
+        if not BugSack then return end
+
+        local bck_BugSack_FormatError = BugSack.FormatError
+        function BugSack:FormatError(err)
+            local result = bck_BugSack_FormatError(self, err)
+            if err.KTtelemetry then
+                result = result:gsub("(\n\nLocals:\n)", err.KTtelemetry.."%1", 1)
+                if not result:find(err.KTtelemetry, 1, true) then
+                    result = result..err.KTtelemetry
+                end
+            end
+            return result
+        end
+    end
 else
-    local function InstallErrorHandler()
+    function InstallTelemetry()
         local errorHandler = geterrorhandler()
         seterrorhandler(function(msg)
             if IsOwnError(msg) then
-                msg = msg..BuildTelemetry().."\n"
+                local ok, telemetry = pcall(BuildTelemetry)
+                if ok and telemetry then
+                    msg = msg.."\n"..telemetry.."\n"
+                end
             end
             errorHandler(msg)
         end)
     end
-
-    local f = CreateFrame("Frame")
-    f:SetScript("OnEvent", InstallErrorHandler)
-    f:RegisterEvent("PLAYER_LOGIN")
 end
+
+local f = CreateFrame("Frame")
+f:SetScript("OnEvent", InstallTelemetry)
+f:RegisterEvent("PLAYER_LOGIN")
 
 -- ---------------------------------------------------------------------------------------------------------------------
 

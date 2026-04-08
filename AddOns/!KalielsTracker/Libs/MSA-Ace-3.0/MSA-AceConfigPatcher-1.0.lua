@@ -1,8 +1,8 @@
 --- MSA-AceConfigPatcher-1.0
----
---- Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2025-2026, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- All Rights Reserved.
 
-local name, version = "MSA-AceConfigPatcher-1.0", 0
+local name, version = "MSA-AceConfigPatcher-1.0", 1
 
 local lib = LibStub:NewLibrary(name, version)
 if not lib then return end

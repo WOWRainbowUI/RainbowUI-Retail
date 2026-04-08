@@ -85,8 +85,8 @@ local SCENARIO_TRACKER_WIDGET_SET = 252;
 local SCENARIO_TRACKER_TOP_WIDGET_SET = 514;
 
 local function WidgetsLayoutWithOffset(widgetContainerFrame, sortedWidgets, containerOffset)
-	local containerBlock = widgetContainerFrame:GetParent(); 
-	DefaultWidgetLayout(widgetContainerFrame, sortedWidgets);
+	local containerBlock = widgetContainerFrame:GetParent();
+	securecallfunction(DefaultWidgetLayout, widgetContainerFrame, sortedWidgets)  -- MSA
 
 	if widgetContainerFrame:HasAnyWidgetsShowing() then
 		containerBlock:SetWidth(widgetContainerFrame:GetWidth());

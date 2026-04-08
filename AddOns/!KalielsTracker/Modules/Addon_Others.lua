@@ -51,7 +51,7 @@ end
 
 -- Auctionator
 local function Auctionator_SetSupport()
-    local isLoaded = (KT:CheckAddOn("Auctionator", "318") and db.addonAuctionator)
+    local isLoaded = (KT:CheckAddOn("Auctionator", "319") and db.addonAuctionator)
     if isLoaded then
         hooksecurefunc(Auctionator.CraftingInfo, "InitializeObjectiveTrackerFrame", function()
             local searchFrame = AuctionatorCraftingInfoObjectiveTrackerFrame
@@ -83,6 +83,43 @@ local function BtWQuests_SetSupport()
             end
         end
         KT:RegSignal("CONTEXT_MENU_UPDATE", MenuUpdate, BtWQuests)
+    end
+end
+
+-- Narcissus
+local function Narcissus_SetSupport()
+    local isLoaded = (KT:CheckAddOn("Narcissus", "1.8.5") and db.addonNarcissus)
+    if isLoaded then
+        local function ToggleAchievementFrame()
+            if Narci_AchievementFrame then
+                Narci_AchievementFrame:SetShown(not Narci_AchievementFrame:IsShown())
+            else
+                Narci.LoadAchievementPanel()
+            end
+        end
+
+        local function AttemptToOpenAchievement(achievementID, clickAgainToClose)
+            if Narci_AchievementFrame then
+                Narci_AchievementFrame:LocateAchievement(achievementID, clickAgainToClose)
+            else
+                Narci.LoadAchievementPanel(achievementID, clickAgainToClose)
+            end
+        end
+
+        KT.OpenService_Override("achievements", ToggleAchievementFrame)
+        KT.OpenService_Override("achievement", AttemptToOpenAchievement)
+
+        KT:RegSignal("OPTIONS_CHANGED", function()
+            if not KT.frame.AchievementsButton then return end
+
+            KT.frame.AchievementsButton:SetScript("OnEnter", function(self)
+                self:GetNormalTexture():SetVertexColor(1, 1, 1)
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:AddLine(MicroButtonTooltipText(ACHIEVEMENT_BUTTON, "CLICK Narci_Achievement_MinimapButton:LeftButton"), 1, 1, 1)
+                GameTooltip:AddLine("via Narcissus", 0.57, 0.57, 0.57)
+                GameTooltip:Show()
+            end)
+        end, Narci)
     end
 end
 
@@ -119,18 +156,6 @@ local function Tukui_SetSupport()
     end
 end
 
--- RealUI
-local function RealUI_SetSupport()
-    if KT:CheckAddOn("nibRealUI", "2.3.14", true) then
-        local R = _G.RealUI
-        local module = "Objectives Adv."
-        if R:GetModuleEnabled(module) then
-            R:SetModuleEnabled(module, false)
-            KT.StaticPopup_Show("ReloadUI", nil, "套用變更必須|cff00ffe3重新載入介面|r。")
-        end
-    end
-end
-
 -- External ------------------------------------------------------------------------------------------------------------
 
 function M:OnInitialize()
@@ -144,9 +169,9 @@ function M:OnEnable()
     Masque_SetSupport()
     Auctionator_SetSupport()
     BtWQuests_SetSupport()
+    Narcissus_SetSupport()
     ElvUI_SetSupport()
     Tukui_SetSupport()
-    RealUI_SetSupport()
 end
 
 -- Masque

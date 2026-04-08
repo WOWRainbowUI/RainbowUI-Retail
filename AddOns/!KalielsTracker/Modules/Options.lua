@@ -536,7 +536,7 @@ local options = {
 							set = function(_, value)
 								db.border = value
 								KT:SetBackground()
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 3,
 						},
@@ -620,7 +620,7 @@ local options = {
 							set = function(_, value)
 								db.bgrInset = value
 								KT:SetBackground()
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 8,
 						},
@@ -1004,7 +1004,7 @@ local options = {
 								db.hdrOtherButtons = not db.hdrOtherButtons
 								KT:SetOtherButtons()
 								KT:SetBackground()
-								OTF:Update()
+                                KT:SendSignal("OPTIONS_CHANGED")
 							end,
 							order = 11,
 						},
@@ -1023,7 +1023,7 @@ local options = {
 							set = function()
 								db.qiBgrBorder = not db.qiBgrBorder
 								KT:SetBackground()
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 1,
 						},
@@ -1035,7 +1035,7 @@ local options = {
 							step = 1,
 							set = function(_, value)
 								db.qiXOffset = value
-								KT:MoveButtons()
+								KT.QuestButtons_Move()
 							end,
 							order = 2,
 						},
@@ -1651,6 +1651,52 @@ local options = {
 					inline = true,
 					order = 1,
 					args = {
+                        addonAuctionator = {
+                            name = "Auctionator",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("Auctionator")
+                            end,
+                            set = function()
+                                db.addonAuctionator = not db.addonAuctionator
+                                ReloadUI()
+                            end,
+                            order = 1.1,
+                        },
+                        addonAuctionatorDesc = {
+                            name = "Enables an Auctionator search button inside the Profession module header.",
+                            type = "description",
+                            width = "double",
+                            order = 1.2,
+                        },
+                        addonBtWQuests = {
+                            name = "BtWQuests",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("BtWQuests")
+                            end,
+                            set = function()
+                                db.addonBtWQuests = not db.addonBtWQuests
+                                ReloadUI()
+                            end,
+                            order = 2.1,
+                        },
+                        addonBtWQuestsDesc = {
+                            name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
+                            type = "description",
+                            width = "double",
+                            order = 2.2,
+                        },
 						addonMasque = {
 							name = "按鈕外觀 Masque",
 							desc = "版本: %s",
@@ -1666,14 +1712,37 @@ local options = {
 								db.addonMasque = not db.addonMasque
 								ReloadUI()
 							end,
-							order = 1.1,
+							order = 3.1,
 						},
 						addonMasqueDesc = {
 							name = "啟用任務物品和當前任務物品的按鈕外觀。",
 							type = "description",
 							width = "double",
-							order = 1.2,
+							order = 3.2,
 						},
+                        addonNarcissus = {
+                            name = "Narcissus",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("Narcissus")
+                            end,
+                            set = function()
+                                db.addonNarcissus = not db.addonNarcissus
+                                ReloadUI()
+                            end,
+                            order = 4.1,
+                        },
+                        addonNarcissusDesc = {
+                            name = "Opens achievements from the tracker in the Narcissus window.",
+                            type = "description",
+                            width = "double",
+                            order = 4.2,
+                        },
 						addonPetTracker = {
 							name = "戰寵助手 PetTracker",
 							desc = "版本: %s",
@@ -1692,14 +1761,37 @@ local options = {
 								end
 								ReloadUI()
 							end,
-							order = 2.1,
+							order = 5.1,
 						},
 						addonPetTrackerDesc = {
 							name = "支援在任務追蹤清單增強裡面顯示區域寵物追蹤，同時也修正了一些顯示上的問題。",
 							type = "description",
 							width = "double",
-							order = 2.2,
+							order = 5.2,
 						},
+                        addonRareScanner = {
+                            name = "RareScanner",
+                            desc = "Version: %s",
+                            descStyle = "inline",
+                            type = "toggle",
+                            width = 1.05,
+                            confirm = true,
+                            confirmText = warning,
+                            disabled = function()
+                                return not C_AddOns.IsAddOnLoaded("RareScanner")
+                            end,
+                            set = function()
+                                db.addonRareScanner = not db.addonRareScanner
+                                ReloadUI()
+                            end,
+                            order = 6.1,
+                        },
+                        addonRareScannerDesc = {
+                            name = "Enables display of detected Rare NPCs inside the tracker.",
+                            type = "description",
+                            width = "double",
+                            order = 6.2,
+                        },
 						addonTomTom = {
 							name = "TomTom 導航箭頭",
 							desc = "版本: %s",
@@ -1715,82 +1807,13 @@ local options = {
 								db.addonTomTom = not db.addonTomTom
 								ReloadUI()
 							end,
-							order = 3.1,
+							order = 7.1,
 						},
 						addonTomTomDesc = {
 							name = "啟用整合暴雪的 POI 和 TomTom 導航箭頭，以獲得更佳的導航。",
 							type = "description",
 							width = "double",
-							order = 3.2,
-						},
-						addonRareScanner = {
-							name = "稀有怪掃描 RareScanner",
-							desc = "版本: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("RareScanner")
-							end,
-							set = function()
-								db.addonRareScanner = not db.addonRareScanner
-								ReloadUI()
-							end,
-							order = 4.1,
-						},
-						addonRareScannerDesc = {
-							name = "啟用在追蹤清單中顯示偵測到的稀有怪。",
-							type = "description",
-							width = "double",
-							order = 4.2,
-						},
-						addonAuctionator = {
-							name = "拍賣小幫手 Auctionator",
-							desc = "版本: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("Auctionator")
-							end,
-							set = function()
-								db.addonAuctionator = not db.addonAuctionator
-								ReloadUI()
-							end,
-							order = 5.1,
-						},
-						addonAuctionatorDesc = {
-							name = "啟用在專業模組標題列中顯示拍賣小幫手的搜尋按鈕。",
-							type = "description",
-							width = "double",
-							order = 5.2,
-						},
-						addonBtWQuests = {
-							name = "任務指南 BtWQuests",
-							desc = "版本: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("BtWQuests")
-							end,
-							set = function()
-								db.addonBtWQuests = not db.addonBtWQuests
-								ReloadUI()
-							end,
-							order = 6.1,
-						},
-						addonBtWQuestsDesc = {
-							name = "啟用在任務右鍵選單中的 \"打開任務串\" 選項。",
-							type = "description",
-							width = "double",
-							order = 6.2,
+							order = 7.2,
 						},
 					},
 				},
@@ -1811,12 +1834,6 @@ local options = {
 							type = "toggle",
 							disabled = true,
 							order = 2,
-						},
-						nibrealui = {
-							name = "RealUI",
-							type = "toggle",
-							disabled = true,
-							order = 3,
 						},
 					},
 				},
