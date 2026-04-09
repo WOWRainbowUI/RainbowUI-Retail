@@ -24,7 +24,8 @@ local GetNamePlateForUnit = C_NamePlate.GetNamePlateForUnit
 local GetPlayerInfoByGUID, UnitNameFromGUID = GetPlayerInfoByGUID, UnitNameFromGUID
 local IsInInstance, InCombatLockdown = IsInInstance, InCombatLockdown
 local NamePlateDriverFrame, UnitNameplateShowsWidgetsOnly = NamePlateDriverFrame, UnitNameplateShowsWidgetsOnly
-local GetSpecializationInfo, GetSpecialization = GetSpecializationInfo, GetSpecialization
+local GetSpecializationInfo = C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfo or _G.GetSpecializationInfo
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or _G.GetSpecialization
 local CastbarInterpolation = Enum.StatusBarInterpolation and Enum.StatusBarInterpolation.Immediate
 local CastbarCastingDirection = Enum.StatusBarTimerDirection and Enum.StatusBarTimerDirection.ElapsedTime
 local CastbarChannelDirection = Enum.StatusBarTimerDirection and Enum.StatusBarTimerDirection.RemainingTime
@@ -343,7 +344,9 @@ local NON_NAMEPLATE_UNITIDs = {
 
 function Addon:GetThreatPlateForUnit(unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if not unitid or unitid == "player" or UnitIsUnit("player", unitid) then return end
+  if not unitid or unitid == "player" then return end
+  local is_player = UnitIsUnit("player", unitid)
+  if not issecretvalue(is_player) and is_player then return end
 
   -- Non-nameplate unitids (target, focus, ...) are not added to PlatesByUnit in NAME_PLATE_UNIT_ADDED 
   -- and need to be accessed via GetNamePlateForUnit
@@ -466,9 +469,9 @@ end
 
 local function SetUnitAttributeHealth(unit, unitid)
   -- Health and Absorbs => UNIT_HEALTH_FREQUENT, UNIT_MAXHEALTH & UNIT_ABSORB_AMOUNT_CHANGED
-  unit.health = _G.UnitHealth(unitid) or 0
-  unit.healthmax = _G.UnitHealthMax(unitid) or 1
-  -- unit.Absorbs = UnitGetTotalAbsorbs(unitid) or 0
+  unit.health = _G.UnitHealth(unitid)
+  unit.healthmax = _G.UnitHealthMax(unitid)
+  -- unit.Absorbs = UnitGetTotalAbsorbs(unitid)
 end
 
 local function SetUnitAttributeTargetMarker(unit, unitid)
@@ -614,7 +617,10 @@ local function OnStartCasting(tp_frame, unitid, cast_guid, event_spell_id, castb
   if Addon.ExpansionIsAtLeastMidnight then
     local target_unit_name =  UnitSpellTargetName(unitid)
     if target_unit_name then
-      target_unit_name = UnitName(target_unit_name) or target_unit_name
+      local short_target_unit_name = UnitName(target_unit_name)
+      if short_target_unit_name then
+        target_unit_name = short_target_unit_name
+      end
       local class_name = UnitSpellTargetClass(unitid)
       if class_name then
         target_unit_name = WrapTextInColor(target_unit_name, GetClassColor(class_name))
@@ -1206,6 +1212,12 @@ function Addon:PLAYER_LOGIN(...)
   if NamePlateDriverFrame and NamePlateDriverFrame.AcquireUnitFrame then
     hooksecurefunc(NamePlateDriverFrame, "AcquireUnitFrame", NamePlateDriverFrame_AcquireUnitFrame)
   end
+
+  -- Initialize the player role here: GetSpecialization() returns nil/0 during OnInitialize
+  -- and ACTIVE_TALENT_GROUP_CHANGED does not reliably fire on initial login in modern WoW.
+  if Addon.ExpansionIsAtLeastMists then
+    self:ACTIVE_TALENT_GROUP_CHANGED()
+  end
 end
 
 local PVE_INSTANCE_TYPES = {
@@ -1583,10 +1595,7 @@ function Addon:UNIT_HEALTH(unitid)
   local tp_frame = Addon:GetThreatPlateForUnit(unitid)
   if tp_frame then
     SetUnitAttributeHealth(tp_frame.unit, unitid)  
-
-    if tp_frame.Active then
-      StyleModule.Update(tp_frame)
-    end
+    StyleModule.Update(tp_frame)
   end
 end
 
@@ -1749,9 +1758,11 @@ Addon.UNIT_SPELLCAST_NOT_INTERRUPTIBLE = UnitSpellcastMidway
 
 Addon.UNIT_SPELLCAST_EMPOWER_START = Addon.UNIT_SPELLCAST_CHANNEL_START
 Addon.UNIT_SPELLCAST_EMPOWER_UPDATE = UnitSpellcastMidway
-Addon.UNIT_SPELLCAST_EMPOWER_STOP = Addon.UNIT_SPELLCAST_STOP
 
--- UNIT_SPELLCAST_FAILED
+function Addon:UNIT_SPELLCAST_EMPOWER_STOP(unitid, cast_guid, spell_id, complete, interrupted_by, castbar_id)
+  -- Function parameters between UNIT_SPELLCAST_CHANNEL_STOP and UNIT_SPELLCAST_EMPOWER_STOP are different
+  self:UNIT_SPELLCAST_CHANNEL_STOP(unitid, cast_guid, spell_id, interrupted_by, castbar_id)
+end
 
 function Addon:UNIT_SPELLCAST_INTERRUPTED(unitid, cast_guid, spell_id, interrupted_by, castbar_id)
   -- Special unitids (target, personal nameplate) are skipped as they are not added to PlatesByUnit in NAME_PLATE_UNIT_ADDED
