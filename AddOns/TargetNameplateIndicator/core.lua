@@ -443,7 +443,8 @@ function NonTargetIndicator:OnUpdate()
 		return
 	end
 
-	local nameplate = C_NamePlate.GetNamePlateForUnit(self.unit)
+	local guid = UnitGUID(self.unit) -- 暫時修正
+	local nameplate = guid and C_NamePlate.GetNamePlateForUnit(UnitTokenFromGUID(guid) or self.unit)
 
 	local shouldDisplay = self:CheckAndHideLowerPriorityIndicators()
 
