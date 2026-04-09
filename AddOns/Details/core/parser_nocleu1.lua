@@ -17,6 +17,8 @@ local L = {}
 local debugMode = false
 local debugTime = GetTime()
 local debugTexts = {}
+local cantStartUpdater = nil
+local updaterTicker
 
 local printDebug = function(...)
     if debugMode then
@@ -236,88 +238,86 @@ local getDetailsSegmentIdFromSegment = function(sessionId)
 end
 
 local language = GetLocale()
+local useAsianAbbreviations = language == "zhCN" or language == "zhTW" or language == "koKR"
 
+local SECOND_NUMBER_CAP_NO_SPACE = "億"
+local FIRST_NUMBER_CAP_NO_SPACE = "萬"
 
-local abbreviateOptionsDamage =
-{
+if detailsFramework.IsAddonApocalypseWow() then
+    local abbreviateOptionsDamage =
     {
-        breakpoint = 1000000000,
-        abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
-        significandDivisor = 10000000,
-        fractionDivisor = 100,
-        --abbreviationIsGlobal = false
-    },
-    {
-        breakpoint = 1000000,
-        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
-        abbreviation = "M",
-        significandDivisor = 10000,
-        fractionDivisor = 100,
-        abbreviationIsGlobal = false
-    },
-    {
-        breakpoint = 10000,
-        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
-        abbreviation = "K",
-        significandDivisor = 1000,
-        fractionDivisor = 1,
-        abbreviationIsGlobal = false,
-    },
-    {
-        breakpoint = 1000,
-        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
-        abbreviation = "K",
-        significandDivisor = 100,
-        fractionDivisor = 10,
-        abbreviationIsGlobal = false,
-    },
-    {
-        breakpoint = 1,
-        abbreviation = "",
-        significandDivisor = 1,
-        fractionDivisor = 1,
-        abbreviationIsGlobal = false
-    },
-}
+        {
+            breakpoint = 1000000000,
+            abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
+            significandDivisor = 10000000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 1000000,
+            abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
+            significandDivisor = 10000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 10000,
+            abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+            significandDivisor = 1000,
+            fractionDivisor = 1,
+            abbreviationIsGlobal = useAsianAbbreviations,
+        },
+        {
+            breakpoint = 1000,
+            abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+            significandDivisor = 100,
+            fractionDivisor = 10,
+            abbreviationIsGlobal = useAsianAbbreviations,
+        },
+        {
+            breakpoint = 1,
+            abbreviation = "",
+            significandDivisor = 1,
+            fractionDivisor = 1,
+            abbreviationIsGlobal = false
+        },
+    }
 
-local abbreviateOptionsDPS =
-{
+    local abbreviateOptionsDPS =
     {
-        breakpoint = 1000000000,
-        abbreviation = "THIRD_NUMBER_CAP_NO_SPACE",
-        significandDivisor = 10000000,
-        fractionDivisor = 100,
-        abbreviationIsGlobal = false
-    },
-    {
-        breakpoint = 1000000,
-        --abbreviation = "SECOND_NUMBER_CAP_NO_SPACE",
-        abbreviation = "M",
-        significandDivisor = 10000,
-        fractionDivisor = 100,
-        abbreviationIsGlobal = false
-    },
-    {
-        breakpoint = 1000,
-        --abbreviation = "FIRST_NUMBER_CAP_NO_SPACE",
-        abbreviation = "K",
-        significandDivisor = 100,
-        fractionDivisor = 10,
-        abbreviationIsGlobal = false,
-    },
-    {
-        breakpoint = 1,
-        abbreviation = "",
-        significandDivisor = 1,
-        fractionDivisor = 1,
-        abbreviationIsGlobal = false
-    },
-}
+        {
+            breakpoint = 1000000000,
+            abbreviation = useAsianAbbreviations and "THIRD_NUMBER_CAP_NO_SPACE" or "B",
+            significandDivisor = 10000000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 1000000,
+            abbreviation = useAsianAbbreviations and "SECOND_NUMBER_CAP_NO_SPACE" or "M",
+            significandDivisor = 10000,
+            fractionDivisor = 100,
+            abbreviationIsGlobal = useAsianAbbreviations
+        },
+        {
+            breakpoint = 1000,
+            abbreviation = useAsianAbbreviations and "FIRST_NUMBER_CAP_NO_SPACE" or "K",
+            significandDivisor = 100,
+            fractionDivisor = 10,
+            abbreviationIsGlobal = useAsianAbbreviations,
+        },
+        {
+            breakpoint = 1,
+            abbreviation = "",
+            significandDivisor = 1,
+            fractionDivisor = 1,
+            abbreviationIsGlobal = false
+        },
+    }
 
-local abbreviateSettingsDamage
-local abbreviateSettingsDPS
+    local abbreviateSettingsDamage
+    local abbreviateSettingsDPS
 
-if CreateAbbreviateConfig then
     abbreviateSettingsDamage = CreateAbbreviateConfig(abbreviateOptionsDamage)
     abbreviateSettingsDamage = {config = abbreviateSettingsDamage}
     Details.abbreviateOptionsDamage = abbreviateSettingsDamage
@@ -326,8 +326,6 @@ if CreateAbbreviateConfig then
     abbreviateSettingsDPS = {config = abbreviateSettingsDPS}
     Details.abbreviateOptionsDPS = abbreviateSettingsDPS
 end
-
-
 
 --debug function
 local showActiveRestrictions = function()
@@ -1628,7 +1626,7 @@ local updateWindow = function(instance) --~update
 
                     local perCent = nil
                     local ruleToUse = 2 --total dps
-                    Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(value, abbreviateSettingsDamage), AbbreviateNumbers(totalAmountPerSecond, abbreviateSettingsDPS), perCent, ruleToUse)
+                    Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(value, Details.abbreviateOptionsDamage), AbbreviateNumbers(totalAmountPerSecond, Details.abbreviateOptionsDPS), perCent, ruleToUse)
 
                     instanceLine.statusbar:SetMinMaxValues(0, topValue, Enum.StatusBarInterpolation.ExponentialEaseOut)
                     instanceLine.statusbar:SetValue(value, Enum.StatusBarInterpolation.ExponentialEaseOut)
@@ -1700,6 +1698,10 @@ local showFontStringsForPrivateText = function(instance)
 end
 
 local formatTime = function(elapsedTime)
+    if not elapsedTime then
+        return ""
+    end
+
     local minutes = math.floor(elapsedTime / 60)
     local seconds = math.floor(elapsedTime % 60)
     local timeString = string.format("%02d:%02d", minutes, seconds)
@@ -1745,49 +1747,91 @@ end
 
 local setTitleText = function(instance, timeString)
     if instance.attribute_text.show_timer then
-        if instance:GetSegmentId() ~= DETAILS_SEGMENTID_OVERALL then
-            local attributeText = instance:GetInstanceAttributeText() --this return the title, like 'damage done'
-            timeString = timeString .. " " .. attributeText
-            instance:SetTitleBarText(timeString)
+        local attributeText = instance:GetInstanceAttributeText() --this return the title, like 'damage done'
+        if instance:GetSegmentType() == 0 then
+            attributeText = _G["DAMAGE_METER_OVERALL_SESSION"] .. " " .. attributeText
         end
+        timeString = format("%s %s", timeString, attributeText)
+        instance:SetTitleBarText(timeString)
     end
 end
 
 local timerUpdateInterval = 1 --time in seconds
-local timerUpdateObject = nil
+local timerUpdateObject = nil --the C_Timer.NewTicker object that will update the time in the window every X seconds
 local updateTime = function(timerObject) --~update ~time
+    local elapsedTime = 0
     ---@type instance
     local instance = timerObject.instance
     if Details:IsUsingBlizzardAPI() then
-        if instance:GetSegmentType() <= 1 then
-            local elapsed = Details222.B.GetCurrentTime(instance:GetSegmentType())
-            if elapsed and not issecretvalue(elapsed) then
-                setTitleText(instance, formatTime(elapsed))
-                return
-            else
-                elapsed = getSegmentCombatTime(instance:GetNewSegmentIdFromCurrent()) --'no cache for segment 1'
-                if elapsed then
-                    setTitleText(instance, formatTime(elapsed))
-                else
-                    setTitleText(instance, "")
-                end
-                return
-            end
+        if Details222.IsPTR1205() then
+
         else
-            local elapsed = Details222.B.GetCombatTime(instance:GetNewSegmentId())
-            if elapsed and not issecretvalue(elapsed) then
-                setTitleText(instance, formatTime(elapsed))
+            local segmentType = instance:GetSegmentType()
+            if segmentType >= 1 then
+                local allSegments = Details222.B.GetAllSegments()
+                if segmentType == 1 then
+                    elapsedTime = allSegments[#allSegments] and allSegments[#allSegments].durationSeconds
+                else
+                    local segmentId = instance:GetNewSegmentId()
+                    for i = 1, #allSegments do
+                        local thisSegment = allSegments[i]
+                        if thisSegment.sessionID == segmentId then
+                            elapsedTime = thisSegment.durationSeconds
+                            break
+                        end
+                    end
+                end
             else
-                setTitleText(instance, "")
+                elapsedTime = C_DamageMeter.GetSessionDurationSeconds(0)
             end
-            return
         end
+    else
+        local combat = instance:GetCombat()
+        elapsedTime = combat:GetCombatTime()
     end
-    setTitleText(instance, instance:GetFormattedTimeForTitleBar())
+
+    if issecretvalue(elapsedTime) then
+        setTitleText(instance, elapsedTime)
+    else
+        if elapsedTime == nil then
+            if instance:GetSegmentType() == 1 then
+                local combat = Details222.B.GetSegment(DETAILS_SEGMENTTYPE_TYPE, 1, 0)
+                if combat then
+                    elapsedTime = combat.durationSeconds
+                    if elapsedTime then
+                        if issecretvalue(elapsedTime) then
+                            setTitleText(instance, elapsedTime)
+                            return
+                        end
+                    end
+                end
+            end
+        end
+
+        if elapsedTime == nil then
+            elapsedTime = 1
+        end
+
+        if (elapsedTime > 1800 and instance:GetSegmentType() > 0) then
+            local detailsCombat = Details:GetTwinCombat(instance:GetNewSegmentId())
+            if detailsCombat then
+                elapsedTime = detailsCombat:GetCombatTime()
+            end
+        end
+        local timeFormatted = formatTime(elapsedTime)
+        setTitleText(instance, timeFormatted)
+    end
 end
 
 local updateTimeOnEvent = function(eventName, instance)
-    updateTime({instance=instance})
+    if detailsFramework.IsAddonApocalypseWow() then
+        local lowerInstanceId = Details:GetLowerInstanceNumber()
+        if lowerInstanceId then
+            if instance:GetId() == lowerInstanceId then
+                updateTime({instance=instance})
+            end
+        end
+    end
 end
 local changeSegmentListener = Details:CreateEventListener()
 changeSegmentListener:RegisterEvent("DETAILS_INSTANCE_CHANGESESSION", updateTimeOnEvent)
@@ -2329,7 +2373,7 @@ combatEventFrame:SetScript("OnEvent", function(mySelf, ev, ...)
             end
         end
 
-    elseif (ev == "PLAYER_REGEN_DISABLED") then --entered in combat
+    elseif (ev == "PLAYER_REGEN_DISABLED") then --entered in combat ~regen
         --print("(debug-event) PLAYER_REGEN_DISABLED", GetTime())
         Details:StopTestBarUpdate()
         Details:InstanceCallMethod("ResetTempSegment")
