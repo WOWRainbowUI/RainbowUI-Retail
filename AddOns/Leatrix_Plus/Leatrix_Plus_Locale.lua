@@ -729,7 +729,6 @@ L["If checked, item buttons will be shown in the dressing room.  You can click t
 L["If checked, jet aerial units will be quieter.|n|nThis applies to Aerial Unit R-21X and Rustbolt Resistor."] = "勾选后，喷气式载具会变得相对安静。|n|n这个应用于坐骑锈栓抵抗者和R-21X型空中单位。"
 L["If checked, keybind text will not be shown on action buttons."] = "勾选后，快捷键文字不会显示在动作条按钮上。"
 L["If checked, login screen sounds will be muted when you logout of the game.|n|nNote that login screen sounds will not be muted when you initially launch the game.|n|nThey will only be muted when you logout of the game.  This includes manually logging out as well as being forcefully logged out by the game server for reasons such as being away for an extended period of time."] = "勾选后，当您注销游戏时，登入屏幕声音将被静音。|n|n请注意，当您最初启动游戏时，登入屏幕的声音不会被静音。|n|n只有当您小退游戏时，它们才会被静音。包括手动退出，以及因长时间离开等原因被游戏服务器强制退出。"
-L["If checked, login screen sounds will be muted when you logout of the game.|n|nNote that login screen sounds will not be muted when you initially launch the game.|n|nThey will only be muted when you logout of the game.  This includes manually logging out as well as being forcefully logged out by the game server for reasons such as being away for an extended period of time.|n|nNo more dragons roaring when you fall asleep while the game is running!"] = "勾选后，当您注销游戏时，登入屏幕声音将被静音。|n|n请注意，当您最初启动游戏时，登入屏幕的声音不会被静音。|n|n只有当您退出游戏时，它们才会被静音。包括手动退出，以及因长时间离开等原因被游戏服务器强制退出。|n|n当您在打游戏不小心睡着时不再有巨龙咆哮！"
 L["If checked, macro and keybind text will not be shown on action buttons."] = "勾选后，隐藏动作条上的宏及快捷键文字。"
 L["If checked, macro text will not be shown on action buttons."] = "勾选后，宏文字不会显示在动作条按钮上。"
 L["If checked, mechanostriders will be quieter."] = "勾选后，机械陆行鸟会更安静。"
@@ -971,8 +970,6 @@ L["If checked, your gear will be repaired automatically when you visit a suitabl
 L["If checked, zeppelins will be muted.|n|nThis applies to zeppelin mounts and transports."] = "勾选后，齐柏林飞艇将被静音。|n|n这个应用于飞艇类坐骑及公共交通工具。"
 L["If checked, zone text will not be shown (eg. 'Ironforge')."] = "勾选后，切换地图时浮现在屏幕上方的区域文本不再显示。"
 L["If you toggle an addon minimap button, you may need to reload your UI for the change to take effect.  This only affects a few addons that use custom buttons."] = "如果您开关插件小地图按钮，您可能需要重载UI才能使变更生效。这仅影响一些使用自定义图标的插件。"
-L["If you use the 'Hide addon buttons' or 'Combine addon buttons' settings but you want some addon buttons to remain visible around the minimap, enter the addon names into the editbox separated by a comma.|n|nThe editbox tooltip shows the addon names that you can enter.  The names must match exactly with the names shown in the editbox tooltip though case does not matter.|n|nChanges to the list will require a UI reload to take effect."] = [=[如果你使用隐藏插件按钮或组合插件按钮设置，但你希望一些插件按钮在小地图周围保持可见，请在编辑框中输入插件名称，用逗号分隔。|n|n编辑框工具提示显示您可以输入的插件名称。 名称必须与编辑框工具提示中显示的名称完全匹配，不包括字母大小写。|n|n对列表的更改将需要重新加载 UI 才能生效。
-]=]
 L["If you want to listen to a sound file, enter the sound file ID into the editbox and click the play button.|n|nYou can scroll the mousewheel over the editbox to play neighbouring sound files."] = "如果您想收听一个音频，请在编辑框中输入音频ID，然后单击播放按钮。|n|n您可以在编辑框上滚动鼠标滚轮以播放相邻的音频。"
 L["Immolation"] = "献祭"
 L["Incarnates Released"] = "释放具象（？Incarnates Released）"
@@ -2516,7 +2513,6 @@ L["If checked, item buttons will be shown in the dressing room.  You can click t
 L["If checked, jet aerial units will be quieter.|n|nThis applies to Aerial Unit R-21X and Rustbolt Resistor."] = "勾選後，噴射飛行器單位將被靜音。|n|n這會套用於飛行單位R-21X以及防鏽電阻器。"
 L["If checked, keybind text will not be shown on action buttons."] = "勾選後，按鍵綁定文字不會顯示在動作按鈕上。"
 L["If checked, login screen sounds will be muted when you logout of the game.|n|nNote that login screen sounds will not be muted when you initially launch the game.|n|nThey will only be muted when you logout of the game.  This includes manually logging out as well as being forcefully logged out by the game server for reasons such as being away for an extended period of time."] = "勾選後，當您登出遊戲時，登入螢幕聲音將被靜音。|n|n請注意，當您最初啟動遊戲時，登入螢幕的聲音不會被靜音。|n|n只有當您退出遊戲時，它們才會被靜音。包括手動退出，以及因長時間離開等原因被遊戲服務器強制退出。"
-L["If checked, login screen sounds will be muted when you logout of the game.|n|nNote that login screen sounds will not be muted when you initially launch the game.|n|nThey will only be muted when you logout of the game.  This includes manually logging out as well as being forcefully logged out by the game server for reasons such as being away for an extended period of time.|n|nNo more dragons roaring when you fall asleep while the game is running!"] = "勾選後，當您登出遊戲時，登入螢幕聲音將被靜音。|n|n請注意，當您最初啟動遊戲時，登入螢幕的聲音不會被靜音。|n|n只有當您退出遊戲時，它們才會被靜音。包括手動退出，以及因長時間離開等原因被遊戲服務器強制退出。|n|n當您在遊戲運行時睡著時不再有巨龍咆哮！"
 L["If checked, macro and keybind text will not be shown on action buttons."] = "勾選後，巨集和按鍵綁定文字不會顯示在動作列按鈕上。"
 L["If checked, macro text will not be shown on action buttons."] = "勾選後，巨集文字不會顯示在動作按鈕上。"
 L["If checked, mechanostriders will be quieter."] = "勾選後，機械陸行鳥會更安靜。"
@@ -2756,7 +2752,6 @@ L["If checked, your gear will be repaired automatically when you visit a suitabl
 L["If checked, zeppelins will be muted.|n|nThis applies to zeppelin mounts and transports."] = "勾選後，飛船將被靜音。|n|n這適用於飛船坐騎以及運輸工具。"
 L["If checked, zone text will not be shown (eg. 'Ironforge')."] = "勾選後，區域文字不再顯示。"
 L["If you toggle an addon minimap button, you may need to reload your UI for the change to take effect.  This only affects a few addons that use custom buttons."] = "如果您切換插件小地圖按鈕，您可能需要重新載入UI才能使變更生效。這僅影響一些使用自訂按鈕的插件。"
-L["If you use the 'Hide addon buttons' or 'Combine addon buttons' settings but you want some addon buttons to remain visible around the minimap, enter the addon names into the editbox separated by a comma.|n|nThe editbox tooltip shows the addon names that you can enter.  The names must match exactly with the names shown in the editbox tooltip though case does not matter.|n|nChanges to the list will require a UI reload to take effect."] = "如果你使用'隱藏插件按鈕'或'合併插件按鈕'的設定，但是你希望一些插件按鈕在小地圖周圍保持可見，在編輯框中輸入插件名稱並用逗號分隔。|n|n編輯框工具提示顯示您可以輸入的插件名稱。儘管大小寫無關緊要，但名稱必須與編輯框工具提示中顯示的名稱完全匹配。|n|n對列表的更改需要重新載入UI才能生效。 "
 L["If you want to listen to a sound file, enter the sound file ID into the editbox and click the play button.|n|nYou can scroll the mousewheel over the editbox to play neighbouring sound files."] = "如果您想收聽一個聲音檔案，請在編輯框中輸入聲音檔案ID，然後單擊播放按鈕。|n|n您可以在編輯框上滾動鼠標滾輪以播放相鄰的聲音檔案。"
 L["Immolation"] = "獻祭"
 L["Incarnates Released"] = "釋放的化身"
