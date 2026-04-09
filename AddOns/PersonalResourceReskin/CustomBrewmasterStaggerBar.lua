@@ -238,6 +238,11 @@ end
 ------------------------------------------------------------
 local function UpdateStaggerBar()
     if not barFrame or not barFrame:IsShown() then return end
+    if not IsBrewmasterMonk() then
+        barFrame:Hide()
+        RestoreBlizzardAltBar()
+        return
+    end
 
     local stagger   = tonumber(UnitStagger("player")) or 0
     local maxHealth = tonumber(UnitHealthMax("player")) or 1
@@ -433,7 +438,7 @@ local function RegisterEditMode()
                 barFrame:SetWidth(v)
                 if bgTexture then bgTexture:SetAllPoints(barFrame) end
             end,
-            minValue = 50, maxValue = 500, valueStep = 1,
+            minValue = 50, maxValue = 500, valueStep = 0.5,
         },
         -- Height
         {
@@ -783,6 +788,11 @@ driver:SetScript("OnUpdate", function(self, elapsed)
     if elapsed_acc < 0.05 then return end
     elapsed_acc = 0
     if barFrame and barFrame:IsShown() then
+        if not IsBrewmasterMonk() then
+            barFrame:Hide()
+            RestoreBlizzardAltBar()
+            return
+        end
         UpdateStaggerBar()
     end
 end)

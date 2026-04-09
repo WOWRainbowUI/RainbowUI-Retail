@@ -289,8 +289,8 @@ local MonkOrbTrackerOptions = {
 
 _G.MonkOrbTrackerOptions = MonkOrbTrackerOptions
 
--- Only run the bar logic if Brewmaster Monk
-if not isBrewmaster then return end
+-- Only run the bar logic for Monk class (spec check is in event handler)
+if not isMonk then return end
 
 
 local function GetPRDHealthBar()
@@ -329,6 +329,13 @@ local DEFAULT_NUM_ORBS = 5
 local ORB_SPELL_ID = 322101 -- Brewmaster Monk orb spell
 local ORB_COLOR = {0.00, 1.00, 0.59, 1}
 local ORB_BG_COLOR = {0.08, 0.08, 0.08, 0.75}
+
+local function IsBrewmasterMonk()
+    local _, cls = UnitClass("player")
+    if cls ~= "MONK" then return false end
+    local spec = GetSpecialization()
+    return spec == 1
+end
 
 
 bar = CreateFrame("StatusBar", nil, MonkOrbTracker)
@@ -453,8 +460,8 @@ local function ApplySavedOptions()
             MonkOrbTracker:SetPoint("CENTER", UIParent, "CENTER", x, y)
         end
     end
-    -- Enable/disable
-    local enabled = db.MonkOrbTracker_enabled ~= false
+    -- Enable/disable (only show for Brewmaster)
+    local enabled = db.MonkOrbTracker_enabled ~= false and IsBrewmasterMonk()
     MonkOrbTracker:SetShown(enabled)
 end
 
@@ -484,6 +491,10 @@ local lastUpdate = 0
 local updateFrequency = 0.066 -- ~15 FPS, configurable if desired
 
 local function UpdateOrbs()
+    if not IsBrewmasterMonk() then
+        MonkOrbTracker:Hide()
+        return
+    end
     ApplySavedOptions()
     local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
     -- Hook to PRD if anchored
@@ -524,13 +535,6 @@ MonkOrbTracker:RegisterEvent("RUNE_POWER_UPDATE")
 MonkOrbTracker:RegisterEvent("RUNE_TYPE_UPDATE")
 MonkOrbTracker:RegisterEvent("UNIT_AURA")
 MonkOrbTracker:SetScript("OnEvent", function(self, event, ...)
-    local function IsBrewmasterMonk()
-        local _, class = UnitClass("player")
-        if class ~= "MONK" then return false end
-        local spec = GetSpecialization()
-        return spec == 1 -- 1 = Brewmaster
-    end
-
     if not IsBrewmasterMonk() then
         MonkOrbTracker:Hide()
         MonkOrbTracker:SetScript("OnUpdate", nil)
@@ -561,7 +565,7 @@ MonkOrbTracker:SetScript("OnEvent", function(self, event, ...)
         MonkOrbTracker:SetScript("OnUpdate", nil)
         return
     end
-    if event == "PLAYER_ENTERING_WORLD" then
+    if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_SPECIALIZATION_CHANGED" then
         ApplySavedOptions()
         UpdateOrbs()
         MonkOrbTracker:SetScript("OnUpdate", OnUpdateThrottled)
@@ -582,16 +586,9 @@ MonkOrbTracker:SetScript("OnEvent", function(self, event, ...)
     end
 end)
 
--- Only show for Brewmaster Monk
-local function ShouldShowMonkOrbBar()
-    local _, class = UnitClass("player")
-    if class ~= "MONK" then return false end
-    local spec = GetSpecialization()
-    return spec == 1 -- 1 = Brewmaster
-end
-
+-- Only show for Brewmaster Monk (uses shared IsBrewmasterMonk above)
 hooksecurefunc(MonkOrbTracker, "Show", function(self)
-    if not ShouldShowMonkOrbBar() then self:Hide() end
+    if not IsBrewmasterMonk() then self:Hide() end
 end)
 
 -- Expose for manual update/testing

@@ -491,11 +491,14 @@ end
         local bg = bar:CreateTexture(nil, "BACKGROUND", nil, 1)
         bg:SetAllPoints(bar)
         bar.__PRD_BG = bg
-        -- Hide Blizzard's own background regions so ours is visible
-        for _, region in ipairs({bar:GetRegions()}) do
-            if region ~= bg and region:IsObjectType("Texture") and region:GetDrawLayer() == "BACKGROUND" then
-                region:SetAlpha(0)
-            end
+    end
+    -- Always re-hide Blizzard's own background textures so ours stays visible.
+    -- Cannot iterate regions or call GetDrawLayer/GetSize — all return tainted values
+    -- that cannot be compared in addon code.  Target known named keys directly instead.
+    for _, key in ipairs({"background", "Background", "bg", "BG"}) do
+        local tex = bar[key]
+        if tex and tex ~= bar.__PRD_BG and tex.SetAlpha then
+            pcall(tex.SetAlpha, tex, 0)
         end
     end
     if bgTexPath then
@@ -717,15 +720,10 @@ local function ApplyReskinToPRD()
         local scaleVal = profile.healthHeight / 24 -- 24 is default height, scale relative to that
         prd.HealthBarsContainer:SetScale(scaleVal)
     end
-    -- Scale health text independently
-    if prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
-        for _, region in ipairs({prd.HealthBarsContainer.healthBar:GetRegions()}) do
-            if region and region:IsObjectType("FontString") and region:GetName() == "PlayerHealthTextFontString" then
-                if profile.healthTextScale and type(profile.healthTextScale) == "number" then
-                    region:SetScale(profile.healthTextScale)
-                end
-            end
-        end
+    -- Scale health text independently (use global name to avoid taint from GetRegions/IsObjectType)
+    local healthText = _G["PlayerHealthTextFontString"]
+    if healthText and profile.healthTextScale and type(profile.healthTextScale) == "number" then
+        healthText:SetScale(profile.healthTextScale)
     end
     if healthBar then
         -- Hook SetStatusBarColor and OnValueChanged to reapply gradient for HealthBar
@@ -830,6 +828,17 @@ local function ApplyReskinToPRD()
                 prd.AlternatePowerBar:HookScript("OnValueChanged", reapplyAltGradient)
             end
         end
+        -- Hook to persist background hiding when Blizzard's DH mixin (UpdateArt) resets it
+        if not prd.AlternatePowerBar.__PRD_BG_Hooked then
+            prd.AlternatePowerBar.__PRD_BG_Hooked = true
+            local function rehideBlizzBG(self)
+                if self.background and self.background.SetAlpha then self.background:SetAlpha(0) end
+            end
+            prd.AlternatePowerBar:HookScript("OnShow", rehideBlizzBG)
+            if prd.AlternatePowerBar.UpdateArt then
+                hooksecurefunc(prd.AlternatePowerBar, "UpdateArt", rehideBlizzBG)
+            end
+        end
     end
     if type(_G.UpdateMoveClassResource) == "function" then _G.UpdateMoveClassResource() end
     if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
@@ -883,6 +892,20 @@ C_Timer.After(0, function()
         prd:HookScript("OnHide", function()
             if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
         end)
+        -- Hook Blizzard's UpdateAdditionalBarAnchors to immediately re-apply our
+        -- custom AlternatePowerBar position after Blizzard resets it.
+        -- This prevents the visible "jump down then back up" on DH and other classes.
+        if prd.UpdateAdditionalBarAnchors then
+            hooksecurefunc(prd, "UpdateAdditionalBarAnchors", function()
+                if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+            end)
+        end
+        -- Also hook SetupAlternatePowerBar which calls UpdateAdditionalBarAnchors
+        if prd.SetupAlternatePowerBar then
+            hooksecurefunc(prd, "SetupAlternatePowerBar", function()
+                if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
+            end)
+        end
     end
 end)
 
@@ -1542,13 +1565,9 @@ function PersonalResourceReskin:OnInitialize()
             get = function() return GetProfile().healthTextScale end,
             set = function(_, val)
                 GetProfile().healthTextScale = val
-                local prd = _G["PersonalResourceDisplayFrame"]
-                if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
-                    for _, region in ipairs({prd.HealthBarsContainer.healthBar:GetRegions()}) do
-                        if region and region:IsObjectType("FontString") and region:GetName() == "PlayerHealthTextFontString" then
-                            region:SetScale(val)
-                        end
-                    end
+                local healthText = _G["PlayerHealthTextFontString"]
+                if healthText then
+                    healthText:SetScale(val)
                 end
                 ApplyReskinToPRD()
             end,
