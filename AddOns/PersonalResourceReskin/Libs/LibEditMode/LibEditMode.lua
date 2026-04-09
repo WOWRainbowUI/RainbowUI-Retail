@@ -55,9 +55,12 @@ local function resetDialogs()
 end
 
 local function resetSelection()
+	local inCombat = InCombatLockdown()
 	for frame, selection in next, lib.frameSelections do
 		if selection.isSelected then
-			frame:SetMovable(false)
+			if not inCombat then
+				frame:SetMovable(false)
+			end
 		end
 
 		local frameName = selection.system.GetSystemName()
@@ -65,10 +68,14 @@ local function resetSelection()
 			selection:Hide()
 			selection.isSelected = false
 			if lib.isEditing and lib.hiddenFrames[frameName] then
-				frame:Hide()
+				if not inCombat then
+					frame:Hide()
+				end
 			end
 		else
-			frame:Show()
+			if not inCombat then
+				frame:Show()
+			end
 			selection:ShowHighlighted()
 		end
 	end

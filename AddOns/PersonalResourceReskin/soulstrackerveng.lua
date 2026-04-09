@@ -499,8 +499,8 @@ SoulsTrackerVeng:SetScript("OnEvent", function(self, event, ...)
 
     if not IsVengeanceDH() then
         SoulsTrackerVeng:Hide()
-        SoulsTrackerVeng:UnregisterAllEvents()
         SoulsTrackerVeng:SetScript("OnUpdate", nil)
+        -- Keep PLAYER_SPECIALIZATION_CHANGED registered so we can detect swapping back to Vengeance
         return
     end
     local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
@@ -510,7 +510,7 @@ SoulsTrackerVeng:SetScript("OnEvent", function(self, event, ...)
         SoulsTrackerVeng:SetScript("OnUpdate", nil)
         return
     end
-    if event == "PLAYER_ENTERING_WORLD" then
+    if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_SPECIALIZATION_CHANGED" then
         ApplySavedOptions()
         UpdateSouls()
         SoulsTrackerVeng:SetScript("OnUpdate", OnUpdateThrottled)

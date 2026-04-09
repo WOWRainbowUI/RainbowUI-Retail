@@ -54,20 +54,19 @@ local function HideDefaultChiBar()
                 end
             end
         end
+        -- Only hide the parent frame, don't UnregisterAllEvents on it —
+        -- the parent is shared by all Monk specs and HidePRDClassFrame.lua manages it.
         prdClassFrame:Hide()
         prdClassFrame:SetAlpha(0)
-        if type(prdClassFrame.UnregisterAllEvents) == "function" then prdClassFrame:UnregisterAllEvents() end
     end
 end
 
 local function ShowDefaultChiBar()
     local _, class = UnitClass("player")
     if class ~= "MONK" then return end
-    local prdClassFrame = _G.prdClassFrame or (_G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame)
-    if prdClassFrame then
-        prdClassFrame:Show()
-        prdClassFrame:SetAlpha(1)
-    end
+    -- Do NOT Show/SetAlpha the parent prdClassFrame here.
+    -- HidePRDClassFrame.lua manages the parent frame's visibility for all specs.
+    -- We only need to undo hiding the Chi children (if needed by the new spec).
 end
 
 local chiBar = CreateFrame("Frame", "CustomWindwalkerMonkOrbBar", UIParent)
@@ -328,37 +327,7 @@ CustomWindwalkerMonkOrbBarDB = CustomWindwalkerMonkOrbBarDB or {
 
 
 
-local function HideDefaultChiBar()
-    local _, class = UnitClass("player")
-    if class ~= "MONK" then return end
-    local prdClassFrame = _G.prdClassFrame or (_G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame)
-    if prdClassFrame then
-        for _, child in ipairs({prdClassFrame:GetChildren()}) do
-            if child and child:IsShown() then
-                local n = child.GetName and child:GetName() or ""
-                if n:find("Chi") or child.ChiOrb or child.FX or child.Blur or child.DepleteFlipbook then
-                    child:Hide()
-                    child:SetAlpha(0)
-                    if type(child.UnregisterAllEvents) == "function" then child:UnregisterAllEvents() end
-                    if type(child.SetScript) == "function" then child:SetScript("OnEvent", nil) end
-                end
-            end
-        end
-        prdClassFrame:Hide()
-        prdClassFrame:SetAlpha(0)
-        if type(prdClassFrame.UnregisterAllEvents) == "function" then prdClassFrame:UnregisterAllEvents() end
-    end
-end
-
-local function ShowDefaultChiBar()
-    local _, class = UnitClass("player")
-    if class ~= "MONK" then return end
-    local prdClassFrame = _G.prdClassFrame or (_G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame)
-    if prdClassFrame then
-        prdClassFrame:Show()
-        prdClassFrame:SetAlpha(1)
-    end
-end
+-- (HideDefaultChiBar / ShowDefaultChiBar already defined above — no duplicate needed)
 
 -- Helper functions to get PRD anchor frames (from soulstrackerveng.lua)
 local function GetPRDHealthBar()
@@ -511,11 +480,9 @@ end)
 
 function UpdateVisibility()
     local mounted = IsMounted and IsMounted() or (IsPlayerMounted and IsPlayerMounted())
-    local prdClassFrame = _G.PersonalResourceDisplayFrame and _G.PersonalResourceDisplayFrame.classWidgetFrame
     if CustomWindwalkerMonkOrbBarDB.hideWhenMounted and mounted then
         chiBar:Hide()
         ShowDefaultChiBar()
-        if prdClassFrame then prdClassFrame:Show() end
         ApplyBarSettings()
         return
     end
@@ -524,12 +491,10 @@ function UpdateVisibility()
         chiBar:Show()
         UpdateChi()
         C_Timer.After(0.05, HideDefaultChiBar)
-        if prdClassFrame then prdClassFrame:Hide() end
         ApplyBarSettings()
     else
         chiBar:Hide()
         ShowDefaultChiBar()
-        if prdClassFrame then prdClassFrame:Show() end
         ApplyBarSettings()
     end
 end
