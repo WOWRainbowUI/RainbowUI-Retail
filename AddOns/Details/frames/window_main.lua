@@ -2162,6 +2162,19 @@ end
 --code for when hovering over the class/spec icon in the player bar
 local iconFrame_OnEnter = function(self)
 	local actor = self.row.minha_tabela
+	---@type detailsline
+	local instanceLine = self.row
+	local actor = instanceLine.minha_tabela
+
+	if not actor then
+		if instanceLine.sourceData and not Details222.Apocalypse.IsServerInCombat() then
+			local instance = Details:GetInstance(instanceLine.instance_id)
+			local settingsTable = Details:MakeSettingsForAdapter(instance, instanceLine.sourceData.name)
+			local adapter = Details:MakeActorAdapter(settingsTable)
+			actor = adapter
+		end
+	end
+
 	if (actor) then
 		if (actor.frags) then
 
@@ -2300,6 +2313,7 @@ local iconFrame_OnEnter = function(self)
 			end
 
 			local actorName = actor:GetName()
+			local actorName = actor.nome
 			local RaiderIO = _G.RaiderIO
 
 			local lineHeight = 21
@@ -5340,6 +5354,10 @@ function Details:InstanceRefreshRows(instance)
 			row.modelbox_low:Hide()
 		end
 
+		if detailsFramework.IsAddonApocalypseWow() then
+			local forceUpdate = true
+			Details222.Apocalypse.UpdatePlayerNameLength(self, row, forceUpdate)
+		end
 	end
 
 	self:SetBarGrowDirection()
@@ -6689,7 +6707,7 @@ local iconLoreCoords = {30/512, 355/512, 45/512, 290/512}
 --overlay color for the encounter journal "icon lore" image of the instance
 local wallpaperColor = {1, 1, 1, 0.5}
 
--- search key: ~segments
+-- search key: ~segments ~segment
 local buildSegmentTooltip = function(self, deltaTime, allInOneWindowFrame)
 	---@type instance
 	local instance = allInOneWindowFrame or parameters_table[1]

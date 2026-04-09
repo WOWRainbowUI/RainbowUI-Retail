@@ -917,6 +917,12 @@ L["STRING_OPTIONS_PERFORMANCECAPTURES_DESC"] = "Esta opção controla quais info
 L["STRING_OPTIONS_PERFORMANCEPROFILES_ANCHOR"] = "Perfis de performance:"
 L["STRING_OPTIONS_PICONS_DIRECTION"] = "Direção dos ícones de plugin"
 L["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "Muda a direção dos ícones dos plugins que são exibidos na barra de ferramentas."
+--[[Translation missing --]]
+L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
+--[[Translation missing --]]
+L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
+--[[Translation missing --]]
+L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"
 L["STRING_OPTIONS_PLUGINS"] = "Plugins"
 L["STRING_OPTIONS_PLUGINS_AUTHOR"] = "Autor"
 L["STRING_OPTIONS_PLUGINS_NAME"] = "Nome"

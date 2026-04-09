@@ -1812,6 +1812,9 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 		instanceObject:ReajustaGump()
 	end
 
+	local baseframe = instanceObject.baseframe
+	baseframe.reportData = session
+
 	---@type damagemeter_combat_source[]
 	local combatSources = session.combatSources
 	if not combatSources or #combatSources == 0 then
@@ -1829,6 +1832,12 @@ function Details:RefreshWindowAddOnApocalypse(instanceObject, session, durationI
 	local attributeId = instanceObject:GetAttributeType()
 	if attributeId == 9 then
 		combatSources = detailsFramework.table.reverse(combatSources)
+		for i = #combatSources, 1, -1 do
+			local thisPlayerDeath = combatSources[i]
+			if thisPlayerDeath.deathRecapID == -1 then
+				--table.remove(combatSources, i)
+			end
+		end
 	end
 
     ---@type attributeid, attributeid
@@ -3197,6 +3206,80 @@ local classColor_Red, classColor_Green, classColor_Blue
 	end
 end
 
+local dummyFrameForText = CreateFrame("frame", nil, UIParent)
+local dummyText = dummyFrameForText:CreateFontString(nil, "overlay", "GameFontNormal")
+
+if detailsFramework.IsAddonApocalypseWow() then
+	dummyFrameForText:SetSize(100, 100)
+	dummyFrameForText:RegisterEvent("PLAYER_REGEN_DISABLED")
+
+	dummyFrameForText:SetScript("OnEvent", function(self, event)
+		Details:InstanceCall(function(instance)
+			if instance:IsEnabled() then
+				---@cast instance instance
+				local allLines = instance:GetAllLines()
+				for _, line in ipairs(allLines) do
+					---@cast line detailsline
+					line.lineText1.__playerNameUpdated = nil
+				end
+			end
+		end)
+	end)
+end
+
+local dealWithPlayerName = function(instance, line, forceUpdate)
+	if InCombatLockdown() and line.lineText1.__playerNameUpdated and not forceUpdate then
+		local baseFrame = instance.baseframe
+		if not baseFrame.isStretching and not baseFrame.isResizing then
+			return
+		end
+	end
+
+	dummyText:SetFont(instance.row_info.font_face_file, instance.row_info.font_size, "")
+	dummyText:SetText("MMM")
+	local textHeight = dummyText:GetStringHeight()
+	local lineHeight = instance.row_info.height
+	local lineWidth = instance.baseframe:GetWidth()
+	local yOffset = -math.max((lineHeight - textHeight) / 2, 0)
+
+	line.lineText1:ClearAllPoints()
+	if (instance.row_info.no_icon) then
+		line.lineText1:SetPoint("topleft", line, "topleft", 2 + instance.row_info.textL_offset, yOffset)
+	else
+		line.lineText1:SetPoint("topleft", line.icone_classe, "topright", 2 + instance.row_info.textL_offset, yOffset)
+	end
+
+	local playerNameWidth = 0
+
+	if instance.row_info.playername_size_auto then
+		local minWidth = lineWidth - lineHeight - 2 - (dummyText:GetStringWidth()*2) - 14 --lineHeight is the width of the icon; -2 is the space between the icon and the text; dummy text is the damageDone and DPS space.
+		line.lineText1:SetWidth(minWidth)
+		playerNameWidth = minWidth
+	else
+		line.lineText1:SetWidth(instance.row_info.playername_size)
+		playerNameWidth = instance.row_info.playername_size
+	end
+	line.lineText1:SetHeight(lineHeight*2)
+
+	line.lineText1:SetNonSpaceWrap(true)
+	line.lineText1:SetWordWrap(false)
+	line.lineText1:SetJustifyH("LEFT")
+	line.lineText1:SetJustifyV("TOP")
+
+	line.lineText1.__playerNameUpdated = true
+end
+
+Details222.Apocalypse.UpdatePlayerNameLength = dealWithPlayerName
+
+function Details222.Apocalypse.UpdateInstancePlayerNameLength(instance)
+	local allLines = instance:GetAllLines()
+	for _, line in ipairs(allLines) do
+		---@cast line detailsline
+		local forceUpdate = true
+		dealWithPlayerName(instance, line, forceUpdate)
+	end
+end
+
 --~update ~bar ~apocalypse ~apoc ãpoc
 ---@param instanceLine detailsline
 ---@param source damagemeter_combat_source
@@ -3207,6 +3290,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	local percenNumber = 0
 	local mainDisplay, subDisplay = instance:GetDisplay()
 	instanceLine.statusbar:SetMinMaxValues(0, 100)
+	local attributeId = instance:GetAttributeType()
 
 	--total bar does not pass here, because it is handled in the main refresh function, so set this value to false
 	instanceLine.isTotalBar = false
@@ -3248,18 +3332,35 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			end
 		end)
 	else
-		actorName = UnitName(actorName)
+		--actorName = UnitName(actorName)
 	end
 
 	if not issecretvalue(actorName) then
-		actorName = actorName or source.name
+		if actorName then
+			actorName = detailsFramework:RemoveRealmName(actorName)
+		else
+			actorName = source.name
+			if not issecretvalue(actorName) then
+				actorName = detailsFramework:RemoveRealmName(actorName)
+			end
+		end
+	else
+		if specIcon then
+			actorName = UnitName(actorName)
+			if actorName == nil then
+				actorName = source.name
+			end
+		else
+			actorName = source.name
+		end
 	end
+
+	dealWithPlayerName(instance, instanceLine)
 
 	if (instance.row_info.textL_show_number) then
 		if issecretvalue(actorName) then
 			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
 		else
-			actorName = detailsFramework:RemoveRealmName(actorName)
 			instanceLine.lineText1:SetText(format("%d. %s", rank, actorName)) --left text
 		end
 	else
@@ -3334,6 +3435,10 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			local ruleToUse = -1 --only show total
 			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, nil, ruleToUse)
 			--percentNumber = math.floor((hps/instanceObject.top) * 100)
+
+		elseif (attributeId == DETAILS_SUBATTRIBUTE_HEALPOTION) then
+			local ruleToUse = 3 --total hps percent
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), source.percent, ruleToUse)
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_ENERGY then
@@ -3354,8 +3459,14 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 			else
 				--waiting a solution from blizzard
 			end
-			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
-			timeOfDeath, nil, nil, ruleToUse)
+			local recapId = instanceLine.deathRecapId
+			if recapId == -1 and instanceLine.classFilename == "HUNTER" then
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
+				format("%s (*?*)", timeOfDeath, recapId), nil, nil, ruleToUse)
+			else
+				Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4,
+				format("%s", timeOfDeath), nil, nil, ruleToUse)
+			end
 			instanceLine.statusbar:SetMinMaxValues(0, 100)
 			instanceLine.statusbar:SetValue(100)
 			--percentNumber = math.floor((deathsTotal/instanceObject.top) * 100)
