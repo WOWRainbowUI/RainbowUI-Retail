@@ -133,12 +133,31 @@ local function OnUpdate(self)
 		else
 			self.TimeText:SetText("")
 		end
-		
-		-- If still casting, return to skip standard drawing
+
+		-- If still casting, check unit is still casting (handles out-of-range / missed STOP events)
 		-- If finished/fading, fall through to allow fadeOut animation below
 		if self.channeling or self.casting then
-			if self.Spark then self.Spark:Hide() end
-			return
+			local stillCasting
+			if self.casting then
+				stillCasting = UnitCastingInfo(self.unit)
+			else
+				stillCasting = UnitChannelInfo(self.unit)
+			end
+
+			if not stillCasting then
+				-- Cast ended or unit went out of range
+				CancelTimerAnimation(self)
+				self.Bar:SetValue(self.casting and 1.0 or 0)
+				self.Bar:SetStatusBarColor(unpack(Quartz3.db.profile.completecolor))
+				self.casting, self.channeling = nil, nil
+				self.fadeOut = true
+				self.stopTime = currentTime
+				CleanupCastEnd(self)
+				-- Fall through to fadeOut block
+			else
+				if self.Spark then self.Spark:Hide() end
+				return
+			end
 		end
 	end
 	

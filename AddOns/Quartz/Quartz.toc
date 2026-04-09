@@ -2,11 +2,10 @@
 ## Interface: 11508, 20505, 50503, 120001
 ## Notes: Modular casting bar.
 ## Author: Nevcairiel, Nymbia
-## Version: 3.7.27
+## Version: 3.7.29
 ## X-License: GPL v2
 ## X-Credits: Ammo (some code based on PitBull_CastBar), kergoth (Tradeskill Merge module idea), Roartindon (Lag Embed mode for Latency module)
 ## X-Curse-Project-ID: 1456942
-## X-WoWI-ID: 7158
 
 ## Title-ruRU: Кварц
 ## Notes-ruRU: Модульная полоса применений.
