@@ -117,9 +117,14 @@ end
 
 function Focus:PreShowCondition(bar, unit)
 	if (not db.showfriendly and UnitIsFriend("player", unit)) or
-	   (not db.showhostile and UnitIsEnemy("player", unit)) or
-	   (not db.showtarget and UnitIsUnit("target", unit)) then
+	   (not db.showhostile and UnitIsEnemy("player", unit)) then
 		return true
+	end
+	if not db.showtarget then
+		local isTarget = UnitIsUnit("target", unit)
+		if not issecretvalue(isTarget) and isTarget then
+			return true
+		end
 	end
 end
 

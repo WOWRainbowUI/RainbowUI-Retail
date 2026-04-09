@@ -153,10 +153,13 @@ function GCD:ApplySettings()
 	gcdbar:ClearAllPoints()
 	gcdbar:SetAlpha(db.gcdalpha)
 	gcdbar:SetScale(Player.db.profile.scale)
+	local playerEnabled = Player:IsEnabled()
 
 	if db.displayMode == "bar" then
 		-- Dimensions
-		gcdbar_width = Player.Bar:GetWidth() - 8
+		local pw = Player.Bar:GetWidth()
+		if pw < 1 then pw = Player.db.profile.w + 10 end
+		gcdbar_width = pw - 8
 		gcdbar:SetWidth(gcdbar_width)
 		gcdbar:SetHeight(db.gcdheight)
 
@@ -167,18 +170,18 @@ function GCD:ApplySettings()
 		})
 		gcdbar:SetBackdropColor(0, 0, 0, 1)
 
-		-- Positionnement
-		if db.gcdposition == "bottom" then
+		-- Positionnement (fallback free si Player désactivé)
+		if db.gcdposition == "bottom" and playerEnabled then
 			gcdbar:SetPoint("TOP", Player.Bar, "BOTTOM", 0, db.gcdgap)
-		elseif db.gcdposition == "top" then
+		elseif db.gcdposition == "top" and playerEnabled then
 			gcdbar:SetPoint("BOTTOM", Player.Bar, "TOP", 0, -db.gcdgap)
-		else -- free
+		else -- free ou Player désactivé
 			gcdbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", db.x, db.y)
 		end
 
 		-- StatusBar (fill)
 		if not gcdbar.bar then
-			gcdbar.bar = CreateFrame("StatusBar", nil, gcdbar)
+			gcdbar.bar = Quartz3:CreateStatusBar(nil, gcdbar)
 			gcdbar.bar:SetAllPoints(gcdbar)
 		end
 		gcdbar.bar:SetStatusBarTexture(media:Fetch("statusbar", db.bartexture))
@@ -217,12 +220,12 @@ function GCD:ApplySettings()
 		gcdbar:SetBackdropColor(0, 0, 0, 0)
 		gcdbar:SetBackdropBorderColor(unpack(db.bordercolor))
 
-		-- Positionnement
-		if db.iconposition == "left" then
+		-- Positionnement (fallback free si Player désactivé)
+		if db.iconposition == "left" and playerEnabled then
 			gcdbar:SetPoint("RIGHT", Player.Bar, "LEFT", -db.icongap, 0)
-		elseif db.iconposition == "right" then
+		elseif db.iconposition == "right" and playerEnabled then
 			gcdbar:SetPoint("LEFT", Player.Bar, "RIGHT", db.icongap, 0)
-		else -- free
+		else -- free ou Player désactivé
 			gcdbar:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", db.x, db.y)
 		end
 
@@ -275,16 +278,18 @@ do
 		gcdbar:StopMovingOrSizing()
 	end
 
-	-- Fonctions hidden pour Ace3
+	-- Fonctions hidden/disabled pour Ace3
 	local function inIconMode()  return db.displayMode == "icon" end
 	local function inBarMode()   return db.displayMode == "bar"  end
+	local function playerDisabled() return not Player:IsEnabled() end
 	local function notFree()
+		if playerDisabled() then return false end
 		if db.displayMode == "bar"  then return db.gcdposition  ~= "free" end
 		if db.displayMode == "icon" then return db.iconposition ~= "free" end
 		return true
 	end
-	local function barNotFree()  return inIconMode() or db.gcdposition  == "free" end
-	local function iconNotFree() return inBarMode()  or db.iconposition == "free" end
+	local function barNotFree()  return inIconMode() or playerDisabled() or db.gcdposition  == "free" end
+	local function iconNotFree() return inBarMode()  or playerDisabled() or db.iconposition == "free" end
 
 	local function setOpt(info, value) db[info[#info]] = value; GCD:ApplySettings() end
 	local function getOpt(info) return db[info[#info]] end
@@ -375,6 +380,7 @@ do
 						values = { top = L["Top"], bottom = L["Bottom"], free = L["Free"] },
 						order = 205,
 						hidden = inIconMode,
+						disabled = playerDisabled,
 					},
 					gcdgap = {
 						type = "range",
@@ -449,6 +455,7 @@ do
 						values = { left = L["Left"], right = L["Right"], free = L["Free"] },
 						order = 306,
 						hidden = inBarMode,
+						disabled = playerDisabled,
 					},
 					icongap = {
 						type = "range",

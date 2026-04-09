@@ -95,7 +95,9 @@ end
 function Quartz3:ApplySettings()
 	db = self.db.profile
 
-	for k,v in self:IterateModules() do
+	for i = 1, #self.orderedModules do
+		local v = self.orderedModules[i]
+		local k = v.moduleName
 		if self:GetModuleEnabled(k) and not v:IsEnabled() then
 			self:EnableModule(k)
 		elseif not self:GetModuleEnabled(k) and v:IsEnabled() then
@@ -222,6 +224,7 @@ function Quartz3:SetModuleEnabled(module, value)
 		else
 			self:DisableModule(module)
 		end
+		self:ApplySettings()
 	end
 end
 

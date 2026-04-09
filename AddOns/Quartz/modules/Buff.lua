@@ -34,7 +34,6 @@ local lsmlist = AceGUIWidgetLSMlists
 -- Upvalues
 -- GLOBALS:
 local CreateFrame, GetTime, UIParent = CreateFrame, GetTime, UIParent
-local UnitIsUnit = UnitIsUnit
 local unpack, pairs, next, sort = unpack, pairs, next, sort
 
 local targetlocked = true
@@ -843,7 +842,7 @@ function Buff:UNIT_AURA(units)
 		if unit == "target" then
 			self:UpdateTargetBars()
 		end
-		if unit == "focus" or UnitIsUnit("focus", unit) then
+		if unit == "focus" then
 			self:UpdateFocusBars()
 		end
 	end
