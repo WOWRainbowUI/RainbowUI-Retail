@@ -444,8 +444,8 @@ function NonTargetIndicator:OnUpdate()
 	end
 
 	local guid = UnitGUID(self.unit) -- 暫時修正
-	local unitToken = guid and UnitTokenFromGUID(guid)
-	local nameplate = unitToken and C_NamePlate.GetNamePlateForUnit(unitToken)
+	local unitToken = guid and not issecretvalue(guid) and UnitTokenFromGUID(guid)
+	local nameplate = unitToken and not issecretvalue(unitToken) and C_NamePlate.GetNamePlateForUnit(unitToken)
 
 	local shouldDisplay = self:CheckAndHideLowerPriorityIndicators()
 
