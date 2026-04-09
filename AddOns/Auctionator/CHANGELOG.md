@@ -1,7 +1,8 @@
 # Auctionator
 
-## [319](https://github.com/TheMouseNest/Auctionator/tree/319) (2026-03-13)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/318...319) 
+## [320](https://github.com/TheMouseNest/Auctionator/tree/320) (2026-04-08)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/319...320) 
 
-- Update version slash command  
-- Retail: Professions: Fix concentration not updating profits value  
+- Classic Anniversary: Fix tooltips on character panel slots  
+- Shopping: Attempt to fix persistent anchors (across reloads) for item frame  
+- Restore Wago to build script  
