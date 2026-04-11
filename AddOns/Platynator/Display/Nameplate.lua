@@ -47,10 +47,13 @@ function addonTable.Display.NameplateMixin:OnLoad()
 
   self.BuffDisplay = CreateFrame("Frame", nil, self)
   self.BuffDisplay:SetSize(10, 10)
+  self.BuffDisplay:SetFlattensRenderLayers(true)
   self.DebuffDisplay = CreateFrame("Frame", nil, self)
   self.DebuffDisplay:SetSize(10, 10)
+  self.DebuffDisplay:SetFlattensRenderLayers(true)
   self.CrowdControlDisplay = CreateFrame("Frame", nil, self)
   self.CrowdControlDisplay:SetSize(10, 10)
+  self.CrowdControlDisplay:SetFlattensRenderLayers(true)
 
   self.AurasManager = addonTable.Utilities.InitFrameWithMixin(self, addonTable.Display.AurasManagerMixin)
   local borderAsset = LSM:Fetch("nineslice", "Platy: 1px")
@@ -109,6 +112,12 @@ function addonTable.Display.NameplateMixin:OnLoad()
       fb:SetTarget(frame.Pandemic.Right)
       frame.Pandemic.Animation:SetLooping("REPEAT")
       frame.Pandemic.Animation:Play()
+      function frame.Pandemic:SetVertexColor(...)
+        frame.Pandemic.Top:SetVertexColor(...)
+        frame.Pandemic.Bottom:SetVertexColor(...)
+        frame.Pandemic.Left:SetVertexColor(...)
+        frame.Pandemic.Right:SetVertexColor(...)
+      end
     end
     frame.Dispel = CreateFrame("Frame", nil, frame)
     frame.Dispel:SetAllPoints()
@@ -212,14 +221,6 @@ function addonTable.Display.NameplateMixin:OnLoad()
           auraFrame.expirationTime = aura.expirationTime
         end
 
-        auraFrame.Pandemic:SetShown(details.showPandemic)
-        if details.showPandemic then
-          auraFrame.Pandemic.Top:SetHeight(pandemicDim)
-          auraFrame.Pandemic.Bottom:SetHeight(pandemicDim)
-          auraFrame.Pandemic.Left:SetWidth(pandemicDim)
-          auraFrame.Pandemic.Right:SetWidth(pandemicDim)
-        end
-
         auraFrame.Icon:SetTexture(aura.icon);
         auraFrame.CountFrame.Count:SetText(aura.applicationsString)
 
@@ -254,6 +255,20 @@ function addonTable.Display.NameplateMixin:OnLoad()
           auraFrame.Icon:SetTexCoord(0.05, 0.95, 0.05 + texBase, 0.95 - texBase)
 
           auraFrame.Dispel:SetShown(details.showType)
+
+          if details.showStealable then
+            auraFrame.Pandemic:SetVertexColor(1, 171/255, 26/255)
+          elseif details.showPandemic then
+            auraFrame.Pandemic:SetVertexColor(1, 1, 1)
+          end
+
+          auraFrame.Pandemic:SetShown(details.showPandemic or details.showStealable)
+          if auraFrame.Pandemic:IsShown() then
+            auraFrame.Pandemic.Top:SetHeight(pandemicDim)
+            auraFrame.Pandemic.Bottom:SetHeight(pandemicDim)
+            auraFrame.Pandemic.Left:SetWidth(pandemicDim)
+            auraFrame.Pandemic.Right:SetWidth(pandemicDim)
+          end
         end
 
         if aura.durationSecret then
@@ -264,6 +279,9 @@ function addonTable.Display.NameplateMixin:OnLoad()
           if details.showType then
             local color = C_UnitAuras.GetAuraDispelTypeColor(self.unit, aura.auraInstanceID, dispelCurve)
             auraFrame.Dispel.Border:SetVertexColor(color:GetRGBA())
+          end
+          if details.showStealable then
+            auraFrame.Pandemic:SetAlphaFromBoolean(aura.isStealable)
           end
         elseif auraFrame.expirationTime then
           CooldownFrame_Set(auraFrame.Cooldown, aura.expirationTime - aura.duration, aura.duration, aura.duration > 0, true);
@@ -278,6 +296,9 @@ function addonTable.Display.NameplateMixin:OnLoad()
             else
               auraFrame.Dispel:SetAlpha(0)
             end
+          end
+          if details.showStealable then
+            auraFrame.Pandemic:SetShown(aura.isStealable)
           end
         else
           auraFrame.Cooldown:Clear()
@@ -379,7 +400,7 @@ function addonTable.Display.NameplateMixin:InitializeWidgets(design, scale)
     self.DebuffDisplay.enabled = true
     self.DebuffDisplay:ClearAllPoints()
     self.DebuffDisplay:SetFrameStrata("MEDIUM")
-    self.DebuffDisplay:SetFrameLevel(800 + 1)
+    self.DebuffDisplay:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * designInfo.debuffs.layer + 450)
     self.DebuffDisplay.details = designInfo.debuffs
     if self.DebuffDisplay.Wrapped then
       self.DebuffDisplay.Wrapped:ClearAllPoints()
@@ -393,7 +414,7 @@ function addonTable.Display.NameplateMixin:InitializeWidgets(design, scale)
     self.BuffDisplay.enabled = true
     self.BuffDisplay:ClearAllPoints()
     self.BuffDisplay:SetFrameStrata("MEDIUM")
-    self.BuffDisplay:SetFrameLevel(800 + 2)
+    self.BuffDisplay:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * designInfo.buffs.layer + 450 + 10)
     self.BuffDisplay.details = designInfo.buffs
     if self.BuffDisplay.Wrapped then
       self.BuffDisplay.Wrapped:ClearAllPoints()
@@ -407,7 +428,7 @@ function addonTable.Display.NameplateMixin:InitializeWidgets(design, scale)
     self.CrowdControlDisplay.enabled = true
     self.CrowdControlDisplay:ClearAllPoints()
     self.CrowdControlDisplay:SetFrameStrata("MEDIUM")
-    self.CrowdControlDisplay:SetFrameLevel(800 + 3)
+    self.CrowdControlDisplay:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * designInfo.crowdControl.layer + 450 + 20)
     self.CrowdControlDisplay.details = designInfo.crowdControl
     if self.CrowdControlDisplay.Wrapped then
       self.CrowdControlDisplay.Wrapped:ClearAllPoints()

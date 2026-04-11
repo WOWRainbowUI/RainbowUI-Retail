@@ -569,6 +569,8 @@ GenerateOptions = function(parent, yOffset, xOffset, entries)
       frame = addonTable.CustomiseDialog.Components.GetCheckbox(parent, e.label, 28 + xOffset, Setter)
     elseif e.kind == "colorPicker" then
       frame = addonTable.CustomiseDialog.Components.GetColorPicker(parent, e.label, 28 + xOffset, Setter)
+    elseif e.kind == "colorPickerWithCheckbox" then
+      frame = addonTable.CustomiseDialog.Components.GetColorPickerWithCheckbox(parent, e.label, 28 + xOffset, Setter)
     elseif e.kind == "autoColors" then
       frame = GetAutomaticColors(parent, e.lockedElements, e.addAlpha)
     elseif e.kind == "auraTextsPositioner" then
@@ -1100,9 +1102,12 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
         end
 
       elseif w.kind == "specialBars" and w.details.kind == "power" then
-        w.main:GetStatusBarTexture():SetVertexColor(234/255, 61/255, 247/255)
-        w.main:SetValue(4)
-        w.background:SetValue(6)
+        local points = {}
+        local color = CreateColor(234/255, 61/255, 247/255)
+        for i = 1, 6 do
+          table.insert(points, {set = i <= 4, color = color})
+        end
+        w:SetValue(points)
       elseif w.kind == "markers" then
         local asset = addonTable.Assets.Markers[w.details.asset]
         if asset.preview then
@@ -1154,11 +1159,11 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
       local container = auraContainers[details.kind]
       container:Show()
       if details.kind == "debuffs" then
-        container:SetFrameLevel(801)
+        container:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * details.layer + 450)
       elseif details.kind == "buffs" then
-        container:SetFrameLevel(802)
+        container:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * details.layer + 450 + 10)
       else
-        container:SetFrameLevel(803)
+        container:SetFrameLevel(addonTable.Constants.LayerFrameLevelStep * details.layer + 450 + 20)
       end
       local cdText = container.auras[1].Cooldown:GetRegions()
       cdText:SetFontObject(addonTable.CurrentFont)

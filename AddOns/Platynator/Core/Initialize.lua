@@ -176,6 +176,12 @@ function addonTable.Core.UpgradeDesign(design)
     if not aura.limit then
       aura.limit = 30
     end
+    if not aura.layer then
+      aura.layer = 1
+    end
+    if aura.kind == "buffs" and aura.showStealable == nil then
+      aura.showStealable = false
+    end
   end
 
   local function UpdateAutoColors(autoColors)
@@ -215,6 +221,9 @@ function addonTable.Core.UpgradeDesign(design)
       end
       if ac.kind == "threat" and ac.tanksOnly == nil then
         ac.tanksOnly = false
+      end
+      if ac.kind == "threat" and ac.useOffTankColor == nil then
+        ac.useOffTankColor = true
       end
 
       index = index + 1
@@ -279,6 +288,7 @@ function addonTable.Core.UpgradeDesign(design)
       reaction.colors.tapped = nil
 
       threat.combatOnly = not bar.aggroColoursOnHostiles
+      threat.useSafeColor = true
       bar.aggroColoursOnHostiles = nil
 
       bar.autoColors = {
@@ -482,6 +492,11 @@ function addonTable.Core.UpgradeDesign(design)
   for _, bar in ipairs(design.specialBars) do
     if bar.layer == nil then
       bar.layer = 3
+    end
+    if bar.kind == "power" and bar.filled then
+      bar.asset = addonTable.Assets.PowerBarsLegacyMap[bar.filled]
+      bar.filled = nil
+      bar.blank = nil
     end
   end
 

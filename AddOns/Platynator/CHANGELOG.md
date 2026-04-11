@@ -1,10 +1,8 @@
 # Platynator
 
-## [360](https://github.com/TheMouseNest/Platynator/tree/360) (2026-04-04)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/359...360) 
+## [366](https://github.com/TheMouseNest/Platynator/tree/366) (2026-04-10)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/365...366) 
 
-- Add "Feathered Holed" highlight texture  
-- Forgot to commit options entry for previous commit  
-- Add "Limit to" option on aura widgets to limit auras displayed  
-- Fix threat colours not reversing after role change if nameplates onscreen  
-- Add option to threat "Only apply when tank" - so that no DPS see threat colors  
+- Classic: Fix charged combo points code triggering (its Retail only)  
+- Fix for previous commit  
+- Classic: Show purgeable buffs on enemy players  
