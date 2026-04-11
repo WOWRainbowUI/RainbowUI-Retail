@@ -1,5 +1,5 @@
-## Interface: 30405, 38000
-## Version: v12.0.2
+## Interface: 30405, 38001
+## Version: v12.0.4
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
@@ -24,6 +24,7 @@
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
 ## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
 
+Init_Wrath.lua
 
 embeds.xml
 
