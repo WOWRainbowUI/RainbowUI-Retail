@@ -136,6 +136,10 @@ end
 -- Render the Great Vault tooltip with compact rewards + M+ keystone line.
 function VaultModule:ShowTooltip()
     if not xb.db.profile.modules.vault.showTooltip then return end
+    if not xb:ShouldShowTooltip() then
+        GameTooltip:Hide()
+        return
+    end
 
     local r, g, b, _ = unpack(xb:HoverColors())
 
@@ -231,7 +235,7 @@ function VaultModule:RegisterFrameEvents()
     end)
 
     if(not C_WeeklyRewards.IsWeeklyChestRetired()) then
-        self.vaultFrame:SetScript('OnClick', function(_, button)
+        self.vaultFrame:SetScript('OnClick', function()
             if not WeeklyRewardsFrame or not WeeklyRewardsFrame:IsShown() then
                 if not C_AddOns.IsAddOnLoaded("Blizzard_WeeklyRewards") then
                     C_AddOns.LoadAddOn("Blizzard_WeeklyRewards")

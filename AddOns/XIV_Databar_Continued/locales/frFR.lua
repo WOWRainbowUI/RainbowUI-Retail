@@ -6,16 +6,19 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "frFR", false, false)
 if not L then return end
 
--- NOTE: Some strings are sourced from BlizzardInterfaceResources:
--- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/frFR.lua
+-- Reference:
+-- Some strings below are sourced from BlizzardInterfaceResources.
+-- Source: https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/frFR.lua
+-- @Translation Team: If you find a false positive (a string that should stay identical),
+-- add `-- @no-translate` at the end of the line so the locale sync script ignores it.
 
-L["MODULES"] = "Modules"
+L["MODULES"] = "Modules" -- @no-translate
 L["LEFT_CLICK"] = "Clic gauche"
 L["RIGHT_CLICK"] = "Clic droit"
-L["k"] = true -- short for 1000
+-- TODO: L["k"] = true -- short for 1000
 L["M"] = "m" -- short for 1000000
 L["B"] = "M" -- short for 1000000000
-L["L"] = true -- For the local ping
+-- TODO: L["L"] = true -- For the local ping
 L["W"] = "M" -- For the world ping
 
 -- General
@@ -111,7 +114,7 @@ L["SHOW_GUILD_BUTTON"] = "Afficher le bouton Guilde"
 L["SHOW_SOCIAL_BUTTON"] = "Afficher le bouton Contacts"
 L["SHOW_CHARACTER_BUTTON"] = "Afficher le bouton Personnage"
 L["SHOW_SPELLBOOK_BUTTON"] = "Afficher le bouton Grimoire"
-L["SHOW_PROFESSIONS_BUTTON"] = "Afficher le bouton " .. PROFESSIONS_BUTTON
+L["SHOW_PROFESSIONS_BUTTON"] = "Afficher le bouton Métiers"
 L["SHOW_TALENTS_BUTTON"] = "Afficher le bouton Talents"
 L["SHOW_ACHIEVEMENTS_BUTTON"] = "Afficher le bouton Haut-faits"
 L["SHOW_QUESTS_BUTTON"] = "Afficher le bouton Quêtes"
@@ -125,6 +128,7 @@ L["SHOW_HOUSING_BUTTON"] = "Afficher le bouton Logis"
 L["NO_INFO"] = "Pas d'information"
 L["Alliance"] = FACTION_ALLIANCE
 L["Horde"] = FACTION_HORDE
+L["DISABLE_TOOLTIPS_IN_COMBAT"] = "Masquer les infobulles en combat"
 
 L["DURABILITY_WARNING_THRESHOLD"] = "Seuil d'avertissement de durabilité"
 L["SHOW_ITEM_LEVEL"] = "Afficher le niveau d'équipement"
@@ -146,13 +150,13 @@ L["OPEN_CLOCK"] = "Ouvrir l'horloge"
 L["HIDE_EVENT_TEXT"] = "Cacher le texte d'événement"
 L["REST_ICON"] = "Icône de repos"
 L["SHOW_REST_ICON"] = "Afficher l'icône de repos"
-L["TEXTURE"] = "Texture"
+L["TEXTURE"] = "Texture" -- @no-translate
 L["DEFAULT"] = "Par défaut"
 L["CUSTOM"] = "Personnalisée"
 L["CUSTOM_TEXTURE"] = "Texture personnalisée"
 L["HIDE_REST_ICON_MAX_LEVEL"] = "Masquer au niveau maximum"
 L["TEXTURE_SIZE"] = "Taille de la texture"
-L["POSITION"] = "Position"
+L["POSITION"] = "Position" -- @no-translate
 L["CUSTOM_TEXTURE_COLOR"] = "Couleur personnalisée"
 L["COLOR"] = "Couleur"
 
@@ -171,7 +175,8 @@ L["SHORTEN_GOLD"] = "Raccourcir le montant d'or"
 L["TOGGLE_BAGS"] = "Ouvrir/Fermer les sacs"
 L["SESSION_TOTAL"] = "Total sur la session"
 L["DAILY_TOTAL"] = "Total quotidien"
-L["SHOW_WARBAND_BANK_GOLD"] = "Afficher l'or de la " .. ACCOUNT_BANK_PANEL_TITLE
+L["SHOW_TOKEN_PRICE"] = "Afficher le prix d'un jeton"
+L["SHOW_WARBAND_BANK_GOLD"] = "Afficher l'or de la banque du bataillon"
 L["GOLD_ROUNDED_VALUES"] = "Valeurs arrondies à l'or"
 L["HIDE_CHAR_UNDER_THRESHOLD"] = "Masquer les personnages sous le seuil"
 L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "Seuil"
@@ -181,7 +186,7 @@ L["SHOW_XP_BAR_BELOW_MAX_LEVEL"] = "Montrer la barre d'XP quand le niveau max n'
 L["CLASS_COLORS_XP_BAR"] = "Utiliser la couleur de classe pour la barre d'XP"
 L["SHOW_TOOLTIPS"] = "Montrer les bulles"
 L["TEXT_ON_RIGHT"] = "Texte à droite"
-L["CURRENCY_SELECT"] = "Monnaies affichées dans la barre"
+L["BAR_CURRENCY_SELECT"] = "Monnaies affichées sur la barre"
 L["FIRST_CURRENCY"] = "Première monnaie"
 L["SECOND_CURRENCY"] = "Seconde monnaie"
 L["THIRD_CURRENCY"] = "Troisième monnaie"
@@ -215,19 +220,24 @@ L["PROGRESS"] = "Progression"
 L["RANK"] = "Rang"
 L["PARAGON"] = "Parangon"
 
+-- Tradeskills
 L["USE_CLASS_COLORS"] = "Utiliser les couleurs de classe"
+L["USE_INTERACTIVE_TOOLTIP"] = "Utiliser l'infobulle interactive"
 L["COOLDOWNS"] = "Temps de recharge"
-L["TOGGLE_PROFESSION_FRAME"] = 'Afficher le cadre de la profession'
-L["TOGGLE_PROFESSION_SPELLBOOK"] = 'Afficher le livre de sorts de la profession'
+L["TOGGLE_PROFESSION_FRAME"] = "Afficher l'interface de la profession"
+L["TOGGLE_PROFESSION_SPELLBOOK"] = "Afficher le livre de sorts de la profession"
 
 L["SET_SPECIALIZATION"] = "Choix de la spécialisation"
 L["SET_LOADOUT"] = "Choix de la configuration"
 L["SET_LOOT_SPECIALIZATION"] = "Spécialisation du butin"
 L["CURRENT_SPECIALIZATION"] = "Spécialisation actuelle"
 L["CURRENT_LOOT_SPECIALIZATION"] = "Spécialisation du butin actuelle"
+L["ENABLE_LOADOUT_SWITCHER"] = "Activer le changement de configuration"
 L["TALENT_MINIMUM_WIDTH"] = "Longueur minimum"
 L["OPEN_ARTIFACT"] = "Ouvrir l'Arme Prodigieuse"
 L["REMAINING"] = "Restant"
+L["KILLS_TO_LEVEL"] = "Monstres à tuer pour monter de niveau"
+L["LAST_XP_GAIN"] = "Dernier gain d'XP"
 L["AVAILABLE_RANKS"] = "Rangs disponibles"
 L["ARTIFACT_KNOWLEDGE"] = "Connaissance de l'arme prodigieuse"
 
@@ -242,7 +252,7 @@ L["HIDE_M_PLUS_TELEPORTS_TEXT"] = "Masquer le texte des téléportations M+"
 L["SHOW_MYTHIC_PLUS_TELEPORTS"] = "Montrer les téléportations Mythique+"
 L["USE_RANDOM_HEARTHSTONE"] = "Utiliser une pierre de foyer aléatoire"
 local retrievingData = "Récupération des données..."
-L["RETRIEVING_DATA"] = retrievingData
+L["RETRIEVING_DATA"] = retrievingData -- @no-translate
 L["EMPTY_HEARTHSTONES_LIST"] = "Si vous voyez '" .. retrievingData .. "' dans la liste ci-dessous, changez simplement d'onglet ou rouvrez ce menu pour rafraîchir les données."
 L["HEARTHSTONES_SELECT"] = "Sélection des pierres de foyers"
 L["HEARTHSTONES_SELECT_DESC"] = "Sélectionner les pierres de foyers à utiliser (Attention, si vous sélectionnez plusieurs pierres de foyers, il faudrait cocher l'option 'Sélection des pierres de foyers')"
@@ -252,7 +262,7 @@ L["HIDE_HOME_BUTTON"] = "Masquer le bouton Logis"
 L["HIDE_HEARTHSTONE_TEXT"] = "Masquer le texte de la pierre de foyer"
 L["HIDE_PORT_TEXT"] = "Masquer le texte des téléportations secondaires"
 L["HIDE_ADDITIONAL_TOOLTIP_TEXT"] = "Masquer les textes additionnels de l'infobulle"
-L["HIDE_ADDITIONAL_TOOLTIP_TEXT_DESC"] = "Masquer les textes additionnels de l'infobulle comme le point de liaison de la pierre de foyer et le bouton de téléportation secondaire sélectionné." -- To Translate
+L["HIDE_ADDITIONAL_TOOLTIP_TEXT_DESC"] = "Masquer le point de liaison de la pierre de foyer et le bouton de sélection des téléportations secondaires dans l'infobulle."
 L["NOT_LEARNED"] = "Non appris"
 L["SHOW_UNLEARNED_TELEPORTS"] = "Afficher les sorts de téléportation non appris"
 L["HIDE_BUTTON_DURING_OFF_SEASON"] = "Masquer le bouton pendant l’entre-saison"
@@ -261,13 +271,13 @@ L["HIDE_BUTTON_DURING_OFF_SEASON"] = "Masquer le bouton pendant l’entre-saison
 L["HOME"] = "Logis"
 L["UNKNOWN_HOUSE"] = "Maison Inconnue"
 L["HOUSE"] = "Logis"
-L["PLOT"] = NEIGHBORHOOD_ROSTER_COLUMN_TITLE_PLOT
+L["PLOT"] = NEIGHBORHOOD_ROSTER_COLUMN_TITLE_PLOT -- @no-translate
 L["SELECTED"] = "Sélectionné"
 L["CHANGE_HOME"] = "Changer de Logis"
 L["NO_HOUSES_OWNED"] = "Aucun logis possédé"
 L["VISIT_SELECTED_HOME"] = "Visiter le logis sélectionné"
 
-L["CLASSIC"] = "Classic"
+L["CLASSIC"] = "Classic" -- @no-translate
 L["Burning Crusade"] = true
 L["Wrath of the Lich King"] = true
 L["Cataclysm"] = true
@@ -302,12 +312,12 @@ L["IMPORT_PROFILE_DESC"] = "Importer un profil d'un autre joueur"
 
 -- Changelog
 L["DATE_FORMAT"] = "%day%/%month%/%year%"
-L["IMPORTANT"] = "Important"
+L["IMPORTANT"] = "Important" -- @no-translate
 L["NEW"] = "Nouveau"
 L["IMPROVEMENT"] = "Améliorations"
 L["BUGFIX"] = "Corrections de bugs"
 L["CHANGELOG"] = "Historique de modifications"
 
 -- Vault Module
-L["GREAT_VAULT_DISABLED"] = DELVES_GREAT_VAULT_LABEL .. " est actuellement désactivée jusqu'au début de la prochaine saison."
+L["GREAT_VAULT_DISABLED"] = "La grande chambre forte est actuellement désactivée jusqu'au début de la prochaine saison."
 L["MAX_LEVEL_DISCLAIMER"] = "Ce module ne s'affichera que lorsque vous atteindrez le niveau maximum."
