@@ -5,7 +5,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 local textureHeight = 20
 
-local function GetLabelsValues(allAssets, filter, showHeight)
+local function GetLabelsValues(allAssets, filter, showName, widthMod)
+  widthMod = widthMod or 0
   local labels, values = {}, {}
 
   local allKeys = GetKeysArray(allAssets)
@@ -26,7 +27,7 @@ local function GetLabelsValues(allAssets, filter, showHeight)
     if not filter or filter(allAssets[key]) then
       local details = allAssets[key]
       local height = textureHeight
-      local width = details.width * height/details.height
+      local width = details.width * height/details.height * widthMod
       if width > 180 then
         height = 180/width * height
         width = 180
@@ -34,6 +35,9 @@ local function GetLabelsValues(allAssets, filter, showHeight)
       local text = "|T".. (details.preview or details.file or details.horizontal) .. ":" .. (height - 1) .. ":" .. (width - 1) .. "|t"
       if details.text then
         text = text .. " " .. details.text
+      end
+      if showName then
+        text = text .. " " ..  (key:gsub("Platy: ", ""))
       end
       if details.isTransparent then
         text = addonTable.Locales.NONE
@@ -931,6 +935,18 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.scale * 100
             end,
           },
+          {
+            label = addonTable.Locales.LAYER,
+            kind = "slider",
+            min = 0, max = 6,
+            valuePattern = "%d",
+            setter = function(details, value)
+              details.layer = value
+            end,
+            getter = function(details)
+              return details.layer
+            end,
+          },
           { kind = "spacer" },
           {
             label = addonTable.Locales.HEIGHT,
@@ -977,7 +993,6 @@ addonTable.CustomiseDialog.WidgetsConfig = {
               return details.limit
             end,
           },
-          { kind = "spacer" },
           {
             label = addonTable.Locales.SHOW_TYPE_BORDER,
             kind = "checkbox",
@@ -1097,6 +1112,21 @@ addonTable.CustomiseDialog.WidgetsConfig = {
       }
     },
     ["buffs"] = {
+      {
+        label = addonTable.Locales.GENERAL,
+        entries = {
+          {
+            label = addonTable.Locales.SHOW_PURGEABLE,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showStealable = value
+            end,
+            getter = function(details)
+              return details.showStealable
+            end,
+          },
+        },
+      },
       {
         label = addonTable.Locales.TEXTS,
         entries = {
@@ -1369,29 +1399,16 @@ addonTable.CustomiseDialog.WidgetsConfig = {
           },
           { kind = "spacer" },
           {
-            label = addonTable.Locales.FILLED,
+            label = addonTable.Locales.VISUAL,
             kind = "dropdown",
             getInitData = function()
-              return GetLabelsValues(addonTable.Assets.PowerBars)
+              return GetLabelsValues(addonTable.Assets.PowerBars, nil, true, 2)
             end,
             setter = function(details, value)
-              details.filled = value
+              details.asset = value
             end,
             getter = function(details)
-              return details.filled
-            end
-          },
-          {
-            label = addonTable.Locales.EMPTY,
-            kind = "dropdown",
-            getInitData = function()
-              return GetLabelsValues(addonTable.Assets.PowerBars)
-            end,
-            setter = function(details, value)
-              details.blank = value
-            end,
-            getter = function(details)
-              return details.blank
+              return details.asset
             end
           },
         }
