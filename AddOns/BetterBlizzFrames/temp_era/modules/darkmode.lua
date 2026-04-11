@@ -399,9 +399,12 @@ local function darkModeBlizzardActionBars(desaturationValue, actionBarColor, bir
     end
 
     for i = 1, NUM_PET_ACTION_SLOTS do
-        local button = _G["PetActionButton" .. i .. "NormalTexture"]
-        applySettings(button, desaturationValue, actionBarColor)
-        BBF.HookVertexColor(button, actionBarColor, actionBarColor, actionBarColor, 1)
+        local nt1 = _G["PetActionButton" .. i .. "NormalTexture"]
+        local nt2 = _G["PetActionButton" .. i .. "NormalTexture2"]
+        applySettings(nt1, desaturationValue, actionBarColor)
+        applySettings(nt2, desaturationValue, actionBarColor)
+        BBF.HookVertexColor(nt1, actionBarColor, actionBarColor, actionBarColor, 1)
+        BBF.HookVertexColor(nt2, actionBarColor, actionBarColor, actionBarColor, 1)
     end
 
     for i = 1, NUM_STANCE_SLOTS do
@@ -417,6 +420,7 @@ local function darkModeBlizzardActionBars(desaturationValue, actionBarColor, bir
             _G["MainMenuBarTextureExtender"],
             _G["MainMenuMaxLevelBar"..i],
             _G["ReputationWatchBar"].StatusBar["XPBarTexture"..i],
+            _G["ReputationWatchBar"].StatusBar["WatchBarTexture"..i],
             _G["MainMenuXPBarTexture"..i],
             _G["SlidingActionBarTexture"..i]
         }
@@ -609,7 +613,7 @@ function BBF.DarkModeCastbars()
 
     applySettings(CastingBarFrame.Border, desat, borderColor)
     applySettings(CastingBarFrame.Background, desat, bgColor)
-    updateCastbarIconBorder(CastingBarFrame, enabled, borderColor)
+    updateCastbarIconBorder(CastingBarFrame, (enabled and BetterBlizzFramesDB.playerCastBarShowIcon), borderColor)
 
     if BetterBlizzFramesDB.showPartyCastbar then
         for i = 1, 5 do
@@ -617,7 +621,7 @@ function BBF.DarkModeCastbars()
             if partyCastbar then
                 applySettings(partyCastbar.Border, desat, borderColor)
                 applySettings(partyCastbar.Background, desat, bgColor)
-                updateCastbarIconBorder(partyCastbar, enabled, borderColor)
+                updateCastbarIconBorder(partyCastbar, (enabled and BetterBlizzFramesDB.showPartyCastBarIcon), borderColor)
             end
         end
     end
@@ -625,7 +629,7 @@ function BBF.DarkModeCastbars()
     if petCastbar then
         applySettings(petCastbar.Border, desat, borderColor)
         applySettings(petCastbar.Background, desat, bgColor)
-        updateCastbarIconBorder(petCastbar, enabled, borderColor)
+        updateCastbarIconBorder(petCastbar, (enabled and BetterBlizzFramesDB.showPetCastBarIcon), borderColor)
     end
 
     BBF.darkModeCastbars = enabled or nil
