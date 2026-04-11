@@ -4,17 +4,9 @@ local _G = _G
 local xb = XIVBar
 local L = XIVBar.L
 local compat = XIVBar.compat or {}
-local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
-local managedActionBarAddOns = {
-    Bartender4 = true,
-    Dominos = true,
-    ElvUI = true,
-    Tukui = true,
-}
 
 local GoldModule = xb:NewModule("GoldModule", 'AceEvent-3.0')
 
-local isSessionNegative = false
 local negativeSign = "|cffff0000- "
 
 local function shortenNumber(num)
@@ -29,7 +21,7 @@ local function shortenNumber(num)
     end
 end
 
-local function moneyWithTexture(amount, session)
+local function moneyWithTexture(amount, isNegative)
     local copper, silver
     local showSC = xb.db.profile.modules.gold.showSmallCoins
     local shortThousands = xb.db.profile.modules.gold.shortThousands
@@ -58,11 +50,11 @@ local function moneyWithTexture(amount, session)
         amountStringTexture = amountStringTexture:gsub(amount .. "|T", shortGold .. "|T")
     end
 
-    if not session then
-        return amountStringTexture
-    else
-        return isSessionNegative and negativeSign .. amountStringTexture or amountStringTexture
-    end
+    return isNegative and negativeSign .. amountStringTexture or amountStringTexture
+end
+
+local function moneyWithTextureSigned(amount)
+    return moneyWithTexture(math.abs(amount), amount < 0)
 end
 
 local function ConvertDateToNumber(month, day, year)
@@ -101,17 +93,11 @@ local function getPlayerData()
 end
 
 function GoldModule:GetExternalActionBarManagerName()
-    for addOnName in pairs(managedActionBarAddOns) do
-        if IsAddOnLoaded(addOnName) then
-            return addOnName
-        end
-    end
-
-    return nil
+    return xb.addons.GetExternalActionBarManagerName()
 end
 
 function GoldModule:HasExternalActionBarManager()
-    return self:GetExternalActionBarManagerName() ~= nil
+    return xb.addons.HasExternalActionBarManager()
 end
 
 function GoldModule:ToggleBlizzardBagsBar(force)
@@ -171,6 +157,10 @@ end
 function GoldModule:OnInitialize()
     local store = getGoldStore()
     local key = getCharacterKey()
+
+    if xb.db.profile.modules.gold.showTokenPrice == nil then
+        xb.db.profile.modules.gold.showTokenPrice = true
+    end
 
     if not store[key] then
         store[key] = {
@@ -234,6 +224,7 @@ function GoldModule:OnEnable()
 
     self:CreateFrames()
     self:RegisterFrameEvents()
+    self:RequestWowTokenPrice()
     self:Refresh()
 end
 
@@ -242,6 +233,7 @@ function GoldModule:OnDisable()
     self:ToggleBlizzardBagsBar(false)
     self:UnregisterEvent('PLAYER_MONEY')
     self:UnregisterEvent('BAG_UPDATE')
+    self:UnregisterEvent('TOKEN_MARKET_PRICE_UPDATED')
 end
 
 function GoldModule:Refresh()
@@ -324,12 +316,19 @@ function GoldModule:CreateFrames()
     self.bagText = self.bagText or self.goldButton:CreateFontString(nil, "OVERLAY")
 end
 
+function GoldModule:RequestWowTokenPrice()
+    if xb.db.profile.modules.gold.showTokenPrice then
+        C_WowTokenPublic.UpdateMarketPrice()
+    end
+end
+
 function GoldModule:RegisterFrameEvents()
     self.goldButton:EnableMouse(true)
     self.goldButton:RegisterForClicks("AnyUp")
 
     self:RegisterEvent('PLAYER_MONEY')
     self:RegisterEvent('BAG_UPDATE', 'Refresh')
+    self:RegisterEvent('TOKEN_MARKET_PRICE_UPDATED')
 
     self.goldButton:SetScript('OnEnter', function()
         self.goldText:SetTextColor(unpack(xb:HoverColors()))
@@ -348,7 +347,7 @@ function GoldModule:RegisterFrameEvents()
         GameTooltip:Hide()
     end)
 
-    self.goldButton:SetScript('OnClick', function(_, button)
+    self.goldButton:SetScript('OnClick', function()
         ToggleAllBags()
     end)
 
@@ -365,8 +364,26 @@ function GoldModule:RegisterFrameEvents()
     end)
 end
 
+function GoldModule:TOKEN_MARKET_PRICE_UPDATED()
+    if not xb.db.profile.modules.gold.showTokenPrice then
+        return
+    end
+
+    if GameTooltip:IsOwned(self.goldButton) and self.goldButton:IsMouseOver() then
+        if compat.isMainline then
+            self:ShowTooltipMainline()
+        else
+            self:ShowTooltipClassic()
+        end
+    end
+end
+
 function GoldModule:ShowTooltipClassic()
     if GameTooltip:IsOwned(self.goldButton) then
+        return
+    end
+    if not xb:ShouldShowTooltip() then
+        GameTooltip:Hide()
         return
     end
 
@@ -382,8 +399,18 @@ function GoldModule:ShowTooltipClassic()
 
     local playerData, store = getPlayerData()
     if playerData then
-        GameTooltip:AddDoubleLine(L["SESSION_TOTAL"], moneyWithTexture(math.abs(playerData.sessionMoney), true), r, g, b, 1, 1, 1)
-        GameTooltip:AddDoubleLine(L["DAILY_TOTAL"], moneyWithTexture(math.abs(playerData.dailyMoney), true), r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine(L["SESSION_TOTAL"], moneyWithTextureSigned(playerData.sessionMoney), r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine(L["DAILY_TOTAL"], moneyWithTextureSigned(playerData.dailyMoney), r, g, b, 1, 1, 1)
+    end
+
+    if xb.db.profile.modules.gold.showTokenPrice then
+        local tokenPrice = C_WowTokenPublic.GetCurrentMarketPrice()
+        if tokenPrice then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddDoubleLine(TOKEN_FILTER_LABEL, self:FormatGold(tokenPrice), r, g, b, 1, 1, 1)
+        else
+            self:RequestWowTokenPrice()
+        end
     end
 
     GameTooltip:AddLine(" ")
@@ -416,6 +443,10 @@ function GoldModule:ShowTooltipMainline()
     if GameTooltip:IsOwned(self.goldButton) then
         return
     end
+    if not xb:ShouldShowTooltip() then
+        GameTooltip:Hide()
+        return
+    end
 
     GameTooltip:SetOwner(self.goldButton, 'ANCHOR_' .. xb.miniTextPosition)
     GameTooltip:ClearLines()
@@ -429,9 +460,20 @@ function GoldModule:ShowTooltipMainline()
 
     local playerData = getGoldStore()[getCharacterKey()]
     if playerData then
-        GameTooltip:AddDoubleLine(L["SESSION_TOTAL"], self:FormatGold(math.abs(playerData.sessionMoney)), r, g, b, 1, 1, 1)
-        GameTooltip:AddDoubleLine(L["DAILY_TOTAL"], self:FormatGold(math.abs(playerData.dailyMoney)), r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine(L["SESSION_TOTAL"], self:FormatSignedGold(playerData.sessionMoney), r, g, b, 1, 1, 1)
+        GameTooltip:AddDoubleLine(L["DAILY_TOTAL"], self:FormatSignedGold(playerData.dailyMoney), r, g, b, 1, 1, 1)
     end
+
+    if xb.db.profile.modules.gold.showTokenPrice then
+        local tokenPrice = C_WowTokenPublic.GetCurrentMarketPrice()
+        if tokenPrice then
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddDoubleLine(TOKEN_FILTER_LABEL, self:FormatGold(tokenPrice), r, g, b, 1, 1, 1)
+        else
+            self:RequestWowTokenPrice()
+        end
+    end
+
     local warbandBankGold = 0
     if xb.db.profile.modules.gold.showWarbandBankGold then
         warbandBankGold = C_Bank.FetchDepositedMoney(Enum.BankType.Account)
@@ -541,6 +583,10 @@ function GoldModule:FormatGold(money)
     end
 end
 
+function GoldModule:FormatSignedGold(money)
+    return money < 0 and negativeSign .. self:FormatGold(math.abs(money)) or self:FormatGold(money)
+end
+
 function GoldModule:PLAYER_MONEY()
     local playerData = getGoldStore()[getCharacterKey()]
     if not playerData then
@@ -554,7 +600,6 @@ function GoldModule:PLAYER_MONEY()
     playerData.sessionMoney = playerData.sessionMoney + moneyDiff
     playerData.dailyMoney = playerData.dailyMoney + moneyDiff
 
-    isSessionNegative = playerData.sessionMoney < 0
     playerData.currentMoney = tmpMoney
     self:Refresh()
 end
@@ -697,7 +742,8 @@ function GoldModule:GetDefaultOptions()
         showFreeBagSpace = true,
         shortThousands = false,
         hideCharUnderThreshold = false,
-        hideCharUnderThresholdAmount = 0
+        hideCharUnderThresholdAmount = 0,
+        showTokenPrice = true,
     }
 
     if compat.isMainline then
@@ -793,6 +839,18 @@ function GoldModule:GetConfig()
                 return not xb.db.profile.modules.gold.hideCharUnderThreshold
             end,
             width = "full"
+        },
+        showTokenPrice = {
+            name = L["SHOW_TOKEN_PRICE"],
+            order = 3.8,
+            type = "toggle",
+            get = function()
+                return xb.db.profile.modules.gold.showTokenPrice
+            end,
+            set = function(_, val)
+                xb.db.profile.modules.gold.showTokenPrice = val
+                self:Refresh()
+            end,
         }
     }
 
@@ -854,6 +912,9 @@ function GoldModule:GetConfig()
                         end
 
                         return "|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16:16:0:0|t " .. text
+                    end,
+                    hidden = function()
+                        return not self:HasExternalActionBarManager()
                     end,
                     order = 2,
                     type = "description",

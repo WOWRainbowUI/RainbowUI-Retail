@@ -4,13 +4,6 @@ local _G = _G;
 local xb = XIVBar;
 local L = XIVBar.L;
 local compat = xb.compat
-local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
-local managedActionBarAddOns = {
-    Bartender4 = true,
-    Dominos = true,
-    ElvUI = true,
-    Tukui = true,
-}
 
 local MenuModule = xb:NewModule("MenuModule", 'AceEvent-3.0')
 
@@ -157,7 +150,7 @@ end
 -- Make sure to disable "Tooltip" in the Skins section of ElvUI together with
 -- unchecking "Use ElvUI for tooltips" in XIV options to not have ElvUI fuck with tooltips
 function MenuModule:SkinFrame(frame, name)
-    if xb.db.profile.general.useElvUI and (IsAddOnLoaded('ElvUI') or IsAddOnLoaded('Tukui')) then
+    if xb.db.profile.general.useElvUI and (compat.IsAddOnLoaded('ElvUI') or compat.IsAddOnLoaded('Tukui')) then
         if frame.StripTextures then
             frame:StripTextures()
         end
@@ -180,17 +173,11 @@ function MenuModule:SkinFrame(frame, name)
 end
 
 function MenuModule:GetExternalActionBarManagerName()
-    for addOnName in pairs(managedActionBarAddOns) do
-        if IsAddOnLoaded(addOnName) then
-            return addOnName
-        end
-    end
-
-    return nil
+    return xb.addons.GetExternalActionBarManagerName()
 end
 
 function MenuModule:HasExternalActionBarManager()
-    return self:GetExternalActionBarManagerName() ~= nil
+    return xb.addons.HasExternalActionBarManager()
 end
 
 function MenuModule:ToggleBlizzardMicroMenu(force)
@@ -763,6 +750,10 @@ function MenuModule:ShowButtonTooltip(name)
     if (name == "social" or name == "guild") then
         return
     end
+    if not xb:ShouldShowTooltip() then
+        GameTooltip:Hide()
+        return
+    end
 
     local frame = self.frames[name]
     if not frame then
@@ -818,6 +809,11 @@ function MenuModule:SocialHover(hoverFunc)
     return function()
         -- get out of here if showTooltips in the options is set to false
         if not xb.db.profile.modules.microMenu.showTooltips then
+            hoverFunc()
+            return
+        end
+        if not xb:ShouldShowTooltip() then
+            self.tipHover = false
             hoverFunc()
             return
         end
@@ -1260,6 +1256,11 @@ function MenuModule:GuildHover(hoverFunc)
             hoverFunc()
             return
         end
+        if not xb:ShouldShowTooltip() then
+            self.gtipHover = false
+            hoverFunc()
+            return
+        end
 
         -- determines whether SHIFT/ALT/CTRL has been pressed based on the user's designated modifier
         local modifierFunc = IsShiftKeyDown
@@ -1398,7 +1399,7 @@ function MenuModule:CreateClickFunctions()
         return;
     end
 
-    self.functions.menu = function(_, button, down)
+    self.functions.menu = function(_, button)
         if InCombatLockdown() and not xb.db.profile.modules.microMenu.combatEn then
             return;
         end
@@ -1417,7 +1418,7 @@ function MenuModule:CreateClickFunctions()
         end
     end; -- menu
 
-    self.functions.chat = function(_, button, down)
+    self.functions.chat = function(_, button)
         if InCombatLockdown() then
             return;
         end
@@ -1568,6 +1569,9 @@ function MenuModule:GetConfig()
 
                             return "|TInterface\\DialogFrame\\UI-Dialog-Icon-AlertNew:16:16:0:0|t " .. text
                         end,
+                        hidden = function()
+                            return not self:HasExternalActionBarManager()
+                        end,
                         order = 3,
                         type = "description",
                         width = "full"
@@ -1669,7 +1673,7 @@ function MenuModule:GetConfig()
                 get = function()
                     return xb.db.profile.modules.microMenu.modifierTooltip;
                 end,
-                set = function(info, val)
+                set = function(_, val)
                     xb.db.profile.modules.microMenu.modifierTooltip = val;
                     self:Refresh();
                 end,

@@ -194,7 +194,8 @@ function TravelModule:OnInitialize()
             210455, -- Draenic Hologem
             263489, -- Naaru's Embrace (Retail)
             260221, -- Naaru's Embrace (Classic)
-            184871 -- Dark Portal (Classic)
+            184871, -- Dark Portal (Classic)
+            206195 -- Path of the Naaru
         }
     end
 
@@ -692,7 +693,7 @@ function TravelModule:FindUsableTransport(ids, preferRandom)
     return available[1]
 end
 
-function TravelModule:SetButtonState(button, icon, text, isActive, isHover)
+function TravelModule:SetButtonState(_, icon, text, isActive, isHover)
     local db = xb.db.profile
 
     if isHover then
@@ -1605,7 +1606,7 @@ function TravelModule:CreateMythicPopup()
             end
         end, 'MENU')
     else -- Single-level menu
-        UIDropDownMenu_Initialize(self.mythicPopup, function(_, level, menuList)
+        UIDropDownMenu_Initialize(self.mythicPopup, function(_, level)
             AddMenuHeader(level)
 
             -- Add all teleports to the menu
@@ -1968,6 +1969,10 @@ end
 -- Optimized tooltip display using utility functions
 function TravelModule:ShowTooltip()
     if not self.portPopup:IsVisible() then
+        if not xb:ShouldShowTooltip() then
+            GameTooltip:Hide()
+            return
+        end
         GameTooltip:SetOwner(self.portButton, 'ANCHOR_' .. xb.miniTextPosition)
         GameTooltip:ClearLines()
         local r, g, b, _ = unpack(xb:HoverColors())

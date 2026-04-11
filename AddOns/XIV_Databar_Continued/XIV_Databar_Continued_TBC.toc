@@ -1,7 +1,7 @@
 ## Interface: 20505
 ## Title: XIV_Databar Continued
 ## Author: ZelionGG
-## Version: 5.3-fix1
+## Version: 5.4
 
 ## Notes: Adds a databar. Previously maintained by |cff00FF99Saxitoxin|r, |cffbbbbbbMille|r|cff990000XIV|r, |c03dbfcbbVicious|r, |cffbab86cKozoaku|r, and now |cffFF0000ZelionGG|r.
 ## SavedVariables: XIVBarDB
@@ -25,6 +25,7 @@ locales\locales.xml
 core.lua
 options.lua
 Core\compat.lua
+Core\utils\addons.lua
 
 Core\utils\changelog\Load_Changelog.xml
 

@@ -6,9 +6,11 @@ local L ---@type XIV_DatabarLocale
 L = AceLocale:NewLocale(AddOnName, "zhTW", false, false)
 if not L then return end
 
--- NOTE: Strings needing translation are marked with `-- TODO: To Translate`.
--- Some strings are sourced from BlizzardInterfaceResources:
--- https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/deDE.lua
+-- Reference:
+-- Some strings below are sourced from BlizzardInterfaceResources.
+-- Source: https://github.com/Ketho/BlizzardInterfaceResources/blob/live/Resources/GlobalStrings/zhTW.lua
+-- @Translation Team: If you find a false positive (a string that should stay identical),
+-- add `-- @no-translate` at the end of the line so the locale sync script ignores it.
 
 L["MODULES"] = "功能模組"
 L["LEFT_CLICK"] = "左鍵"
@@ -32,6 +34,8 @@ L["USE_CLASS_COLOR"] = "使用職業顏色"
 L["MISCELLANEOUS"] = "其他"
 L["HIDE_IN_COMBAT"] = "戰鬥中隱藏"
 L["HIDE_IN_FLIGHT"] = "飛行時隱藏"
+L["SHOW_ON_MOUSEOVER"] = "滑鼠指向時顯示"
+L["SHOW_ON_MOUSEOVER_DESC"] = "僅在滑鼠指向時顯示資訊列"
 L["BAR_PADDING"] = "資訊列內距"
 L["MODULE_SPACING"] = "模組間距"
 L["BAR_MARGIN"] = "資訊列間距"
@@ -114,7 +118,7 @@ L["SHOW_GUILD_BUTTON"] = "顯示公會按鈕"
 L["SHOW_SOCIAL_BUTTON"] = "顯示好友按鈕"
 L["SHOW_CHARACTER_BUTTON"] = "顯示角色按鈕"
 L["SHOW_SPELLBOOK_BUTTON"] = "顯示法術書按鈕"
-L["SHOW_PROFESSIONS_BUTTON"] = "顯示" .. PROFESSIONS_BUTTON .. "按鈕"
+L["SHOW_PROFESSIONS_BUTTON"] = "顯示專業按鈕"
 L["SHOW_TALENTS_BUTTON"] = "顯示天賦按鈕"
 L["SHOW_ACHIEVEMENTS_BUTTON"] = "顯示成就按鈕"
 L["SHOW_QUESTS_BUTTON"] = "顯示任務按鈕"
@@ -126,9 +130,9 @@ L["SHOW_SHOP_BUTTON"] = "顯示遊戲商城按鈕"
 L["SHOW_HELP_BUTTON"] = "顯示客服支援按鈕"
 L["SHOW_HOUSING_BUTTON"] = "顯示房屋按鈕"
 L["NO_INFO"] = "沒有資訊"
-L["CLASSIC"] = "經典版"
 L["Alliance"] = FACTION_ALLIANCE
 L["Horde"] = FACTION_HORDE
+L["DISABLE_TOOLTIPS_IN_COMBAT"] = "戰鬥中隱藏浮動提示資訊"
 
 L["DURABILITY_WARNING_THRESHOLD"] = "裝備耐久度警告門檻"
 L["SHOW_ITEM_LEVEL"] = "顯示物品等級"
@@ -175,7 +179,8 @@ L["SHORTEN_GOLD"] = "金額縮寫"
 L["TOGGLE_BAGS"] = "打開/關閉背包"
 L["SESSION_TOTAL"] = "本次登入總計"
 L["DAILY_TOTAL"] = "本日總計"
-L["SHOW_WARBAND_BANK_GOLD"] = "顯示" .. ACCOUNT_BANK_PANEL_TITLE .. "金錢"
+L["SHOW_TOKEN_PRICE"] = "顯示貨幣價格"
+L["SHOW_WARBAND_BANK_GOLD"] = "顯示銀行金錢"
 L["GOLD_ROUNDED_VALUES"] = "只顯示金的部分"
 L["HIDE_CHAR_UNDER_THRESHOLD"] = "隱藏低於閾值的角色"
 L["HIDE_CHAR_UNDER_THRESHOLD_AMOUNT"] = "閾值"
@@ -219,7 +224,9 @@ L["PROGRESS"] = "進度"
 L["RANK"] = "等級"
 L["PARAGON"] = "巔峰"
 
+-- Tradeskills
 L["USE_CLASS_COLORS"] = "使用職業顏色"
+L["USE_INTERACTIVE_TOOLTIP"] = "使用互動浮動提示資訊"
 L["COOLDOWNS"] = "冷卻時間"
 L["TOGGLE_PROFESSION_FRAME"] = "打開/關閉專業視窗"
 L["TOGGLE_PROFESSION_SPELLBOOK"] = "打開/關閉專業技能書"
@@ -233,6 +240,8 @@ L["ENABLE_LOADOUT_SWITCHER"] = "啟用切換天賦配置"
 L["TALENT_MINIMUM_WIDTH"] = "天賦最小寬度"
 L["OPEN_ARTIFACT"] = "檢視神兵武器"
 L["REMAINING"] = "還需要"
+L["KILLS_TO_LEVEL"] = " 次擊殺才能升級"
+L["LAST_XP_GAIN"] = "上次獲得的經驗值"
 L["AVAILABLE_RANKS"] = "神兵武器等級"
 L["ARTIFACT_KNOWLEDGE"] = "神兵知識等級"
 

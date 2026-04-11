@@ -733,6 +733,10 @@ function MenuModule:ShowButtonTooltip(name)
     if name == 'social' or name == 'guild' then
         return
     end
+    if not xb:ShouldShowTooltip() then
+        GameTooltip:Hide()
+        return
+    end
 
     local frame = self.frames[name]
     if not frame then
@@ -787,6 +791,11 @@ function MenuModule:SocialHover(hoverFunc)
     return function()
         -- get out of here if showTooltips in the options is set to false
         if not xb.db.profile.modules.microMenu.showTooltips then
+            hoverFunc()
+            return
+        end
+        if not xb:ShouldShowTooltip() then
+            self.tipHover = false
             hoverFunc()
             return
         end
@@ -1196,6 +1205,11 @@ function MenuModule:GuildHover(hoverFunc)
             hoverFunc()
             return
         end
+        if not xb:ShouldShowTooltip() then
+            self.gtipHover = false
+            hoverFunc()
+            return
+        end
 
         -- determines whether SHIFT/ALT/CTRL has been pressed based on the user's designated modifier
         local modifierFunc = IsShiftKeyDown
@@ -1315,7 +1329,7 @@ function MenuModule:CreateClickFunctions()
         return;
     end
 
-    self.functions.menu = function(_, button, down)
+    self.functions.menu = function(_, button)
         if InCombatLockdown() and not xb.db.profile.modules.microMenu.combatEn then
             return;
         end
@@ -1331,7 +1345,7 @@ function MenuModule:CreateClickFunctions()
         end
     end; -- menu
 
-    self.functions.chat = function(_, button, down)
+    self.functions.chat = function(_, button)
         if InCombatLockdown() then
             return;
         end
@@ -1344,7 +1358,7 @@ function MenuModule:CreateClickFunctions()
         end
     end; -- chat
 
-    self.functions.char = function(_, button, down)
+    self.functions.char = function(_, button)
         if (not xb.db.profile.modules.microMenu.combatEn) and InCombatLockdown() then
             return;
         end
@@ -1578,7 +1592,7 @@ function MenuModule:GetConfig()
                 get = function()
                     return xb.db.profile.modules.microMenu.modifierTooltip;
                 end,
-                set = function(info, val)
+                set = function(_, val)
                     xb.db.profile.modules.microMenu.modifierTooltip = val;
                     self:Refresh();
                 end,
