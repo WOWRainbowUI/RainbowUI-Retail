@@ -26,6 +26,7 @@ local Focus = Quartz3:GetModule("Focus", true)
 local Target = Quartz3:GetModule("Target", true)
 
 local TimeFmt = Quartz3.Util.TimeFormat
+local ApplyFontStyle = Quartz3.Util.ApplyFontStyle
 
 local media = LibStub("LibSharedMedia-3.0")
 local lsmlist = AceGUIWidgetLSMlists
@@ -77,6 +78,10 @@ local defaults = {
 		mirrorheight = 12,
 		mirrorfont = "Friz Quadrata TT",
 		mirrorfontsize = 9,
+		mirrorfontOutline = "SHADOW",
+		mirrorfontShadowColor = {0, 0, 0, 1},
+		mirrorfontShadowOffsetX = 0.8,
+		mirrorfontShadowOffsetY = -0.8,
 		mirroralpha = 1,
 
 		mirrortextcolor = {1, 1, 1},
@@ -519,7 +524,7 @@ function Mirror:LFG_PROPOSAL_End(event, msg)
 end
 function Mirror:READY_CHECK(event, msg, duration)
 	readycheckshowbase = GetTime()
-	readycheckshowduration = duration
+	readycheckshowduration = timeoutoverrides["READYCHECK"]
 	self:UpdateBars()
 end
 function Mirror:READY_CHECK_FINISHED(event, msg)
@@ -646,9 +651,7 @@ do
 		else
 			timetext:Hide()
 		end
-		timetext:SetFont(media:Fetch("font", db.mirrorfont), db.mirrorfontsize)
-		timetext:SetShadowColor( 0, 0, 0, 1)
-		timetext:SetShadowOffset( 0.8, -0.8 )
+		ApplyFontStyle(timetext, media:Fetch("font", db.mirrorfont), db.mirrorfontsize, db.mirrorfontOutline, db.mirrorfontShadowColor, db.mirrorfontShadowOffsetX, db.mirrorfontShadowOffsetY)
 		timetext:SetTextColor(unpack(db.mirrortextcolor))
 		timetext:SetNonSpaceWrap(false)
 		timetext:SetHeight(db.mirrorheight)
@@ -677,9 +680,7 @@ do
 		else
 			text:Hide()
 		end
-		text:SetFont(media:Fetch("font", db.mirrorfont), db.mirrorfontsize)
-		text:SetShadowColor( 0, 0, 0, 1)
-		text:SetShadowOffset( 0.8, -0.8 )
+		ApplyFontStyle(text, media:Fetch("font", db.mirrorfont), db.mirrorfontsize, db.mirrorfontOutline, db.mirrorfontShadowColor, db.mirrorfontShadowOffsetX, db.mirrorfontShadowOffsetY)
 		text:SetTextColor(unpack(db.mirrortextcolor))
 		text:SetNonSpaceWrap(false)
 		text:SetHeight(db.mirrorheight)
@@ -1019,13 +1020,46 @@ do
 								min = 3, max = 15, step = 1,
 								order = 123,
 							},
+							mirrorfontOutline = {
+								type = "select",
+								name = L["Font Outline"],
+								desc = L["Font Outline"],
+								values = {["SHADOW"] = L["Shadow"], [""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick Outline"]},
+								order = 124,
+							},
+							mirrorfontShadowColor = {
+								type = "color",
+								name = L["Shadow Color"],
+								desc = L["Shadow Color"],
+								hasAlpha = true,
+								get = getColor,
+								set = setColor,
+								disabled = function() return db.mirrorfontOutline ~= "SHADOW" end,
+								order = 125,
+							},
+							mirrorfontShadowOffsetX = {
+								type = "range",
+								name = L["Shadow X Offset"],
+								desc = L["Shadow X Offset"],
+								min = -5, max = 5, step = 0.1,
+								disabled = function() return db.mirrorfontOutline ~= "SHADOW" end,
+								order = 126,
+							},
+							mirrorfontShadowOffsetY = {
+								type = "range",
+								name = L["Shadow Y Offset"],
+								desc = L["Shadow Y Offset"],
+								min = -5, max = 5, step = 0.1,
+								disabled = function() return db.mirrorfontOutline ~= "SHADOW" end,
+								order = 127,
+							},
 							mirrortextcolor = {
 								type = "color",
 								name = L["Text Color"],
 								desc = L["Set the color of the text for the bars"],
 								get = getColor,
 								set = setColor,
-								order = 124,
+								order = 128,
 							},
 							hideblizzmirrors = {
 								type = "toggle",
