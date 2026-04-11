@@ -234,9 +234,24 @@ local function ParseSearchMessage(event, combatMessage)
 		local captureFunc = searchCaptureFuncs[globalStringName]
 		if captureFunc then
 
-			if not rareWords[globalStringName] or string_find(combatMessage, rareWords[globalStringName], 1, true) then
+			local canSearch = true
+			if rareWords[globalStringName] then
+				local okRareWord, rareWordMatch = pcall(string_find, combatMessage, rareWords[globalStringName], 1, true)
+				if not okRareWord then
+					canSearch = false
+				elseif not rareWordMatch then
+					canSearch = false
+				end
+			end
 
-				local matchEnd = CaptureData(string_find(combatMessage, searchPatterns[globalStringName]))
+			if canSearch then
+
+				local okPattern, matchStart, matchEnd, c1, c2, c3, c4, c5, c6, c7, c8, c9 = pcall(string_find, combatMessage, searchPatterns[globalStringName])
+				if not okPattern then
+					return
+				end
+
+				matchEnd = CaptureData(matchStart, matchEnd, c1, c2, c3, c4, c5, c6, c7, c8, c9)
 
 				if matchEnd then
 
