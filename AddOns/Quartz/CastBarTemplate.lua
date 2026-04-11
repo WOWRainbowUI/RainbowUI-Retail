@@ -48,6 +48,7 @@ local CastBarTemplate = CreateFrame("Frame")
 local CastBarTemplate_MT = {__index = CastBarTemplate}
 
 local TimeFmt = Quartz3.Util.TimeFormat
+local ApplyFontStyle = Quartz3.Util.ApplyFontStyle
 
 local playerName = UnitName("player")
 
@@ -662,9 +663,7 @@ function CastBarTemplate:ApplySettings()
 			self.TimeText:SetJustifyH("RIGHT")
 		end -- L["Cast Start Side"], L["Cast End Side"] -- handled at runtime
 	end
-	self.TimeText:SetFont(media:Fetch("font", db.font), db.timefontsize)
-	self.TimeText:SetShadowColor( 0, 0, 0, 1)
-	self.TimeText:SetShadowOffset( 0.8, -0.8 )
+	ApplyFontStyle(self.TimeText, media:Fetch("font", db.font), db.timefontsize, db.fontOutline, db.fontShadowColor, db.fontShadowOffsetX, db.fontShadowOffsetY)
 	self.TimeText:SetTextColor(unpack(Quartz3.db.profile.timetextcolor))
 	self.TimeText:SetNonSpaceWrap(false)
 	self.TimeText:SetHeight(db.h)
@@ -715,9 +714,7 @@ function CastBarTemplate:ApplySettings()
 			end
 		end
 	end
-	self.Text:SetFont(media:Fetch("font", db.font), db.fontsize)
-	self.Text:SetShadowColor( 0, 0, 0, 1)
-	self.Text:SetShadowOffset( 0.8, -0.8 )
+	ApplyFontStyle(self.Text, media:Fetch("font", db.font), db.fontsize, db.fontOutline, db.fontShadowColor, db.fontShadowOffsetX, db.fontShadowOffsetY)
 	self.Text:SetTextColor(unpack(Quartz3.db.profile.spelltextcolor))
 	self.Text:SetNonSpaceWrap(false)
 	self.Text:SetHeight(db.h)
@@ -1092,16 +1089,56 @@ do
 					values = lsmlist.font,
 					order = 399,
 				},
+				fontOutline = {
+					type = "select",
+					name = L["Font Outline"],
+					desc = L["Font Outline"],
+					values = {["SHADOW"] = L["Shadow"], [""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick Outline"]},
+					order = 400,
+				},
+				fontShadowColor = {
+					type = "color",
+					name = L["Shadow Color"],
+					desc = L["Shadow Color"],
+					hasAlpha = true,
+					get = function(info)
+						local bar = getBar(info)
+						return unpack(bar.config.fontShadowColor)
+					end,
+					set = function(info, r, g, b, a)
+						local bar = getBar(info)
+						bar.config.fontShadowColor = {r, g, b, a}
+						bar:ApplySettings()
+					end,
+					disabled = function(info) return getBar(info).config.fontOutline ~= "SHADOW" end,
+					order = 401,
+				},
+				fontShadowOffsetX = {
+					type = "range",
+					name = L["Shadow X Offset"],
+					desc = L["Shadow X Offset"],
+					min = -5, max = 5, step = 0.1,
+					disabled = function(info) return getBar(info).config.fontOutline ~= "SHADOW" end,
+					order = 402,
+				},
+				fontShadowOffsetY = {
+					type = "range",
+					name = L["Shadow Y Offset"],
+					desc = L["Shadow Y Offset"],
+					min = -5, max = 5, step = 0.1,
+					disabled = function(info) return getBar(info).config.fontOutline ~= "SHADOW" end,
+					order = 403,
+				},
 				nlfont = {
 					type = "description",
 					name = "",
-					order = 400,
+					order = 404,
 				},
 				hidenametext = {
 					type = "toggle",
 					name = L["Hide Spell Name"],
 					desc = L["Disable the text that displays the spell name"],
-					order = 401,
+					order = 405,
 				},
 				nametextposition = {
 					type = "select",
@@ -1109,14 +1146,14 @@ do
 					desc = L["Set the alignment of the spell name text"],
 					values = {["left"] = L["Left"], ["right"] = L["Right"], ["center"] = L["Center (CastBar)"], ["centerback"] = L["Center (Backdrop)"]},
 					disabled = hidenametextoptions,
-					order = 404,
+					order = 406,
 				},
 				fontsize = {
 					type = "range",
 					name = L["Spell Name Font Size"],
 					desc = L["Set the size of the spell name text"],
 					min = 7, max = 20, step = 1,
-					order = 405,
+					order = 407,
 					disabled = hidenametextoptions,
 				},
 				nametextx = {
@@ -1125,7 +1162,7 @@ do
 					desc = L["Adjust the X position of the spell name text"],
 					min = -35, max = 35, step = 1,
 					disabled = hidenametextoptions,
-					order = 406,
+					order = 408,
 				},
 				nametexty = {
 					type = "range",
@@ -1133,7 +1170,7 @@ do
 					desc = L["Adjust the Y position of the name text"],
 					min = -35, max = 35, step = 1,
 					disabled = hidenametextoptions,
-					order = 407,
+					order = 409,
 				},
 				nltimetext = {
 					type = "description",
@@ -1175,7 +1212,7 @@ do
 					desc = L["Adjust the X position of the time text"],
 					min = -35, max = 35, step = 1,
 					disabled = hidetimetextoptions,
-					order = 416,
+					order = 415,
 				},
 				timetexty = {
 					type = "range",
@@ -1183,7 +1220,7 @@ do
 					desc = L["Adjust the Y position of the time text"],
 					min = -35, max = 35, step = 1,
 					disabled = hidetimetextoptions,
-					order = 417,
+					order = 416,
 				},
 				casttimecountup = {
 					type = "toggle",
@@ -1327,6 +1364,10 @@ Quartz3.CastBarTemplate.defaults = {
 	hidetimetext = false,
 	hidecasttime = false,
 	timefontsize = 12,
+	fontOutline = "SHADOW",
+	fontShadowColor = {0, 0, 0, 1},
+	fontShadowOffsetX = 0.8,
+	fontShadowOffsetY = -0.8,
 	targetname = false,
 	border = "Blizzard Tooltip",
 	nametextx = 3,

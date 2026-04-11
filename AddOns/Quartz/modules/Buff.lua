@@ -26,6 +26,7 @@ local Focus = Quartz3:GetModule("Focus", true)
 local Target = Quartz3:GetModule("Target", true)
 
 local TimeFmt = Quartz3.Util.TimeFormat
+local ApplyFontStyle = Quartz3.Util.ApplyFontStyle
 
 local media = LibStub("LibSharedMedia-3.0")
 local lsmlist = AceGUIWidgetLSMlists
@@ -92,6 +93,10 @@ local defaults = {
 		bufftexture = "LiteStep",
 		bufffont = "Friz Quadrata TT",
 		bufffontsize = 9,
+		bufffontOutline = "SHADOW",
+		bufffontShadowColor = {0, 0, 0, 1},
+		bufffontShadowOffsetX = 0.8,
+		bufffontShadowOffsetY = -0.8,
 		buffalpha = 1,
 
 		buffcolor = {0,0.49, 1},
@@ -681,13 +686,46 @@ do
 								min = 3, max = 15, step = 1,
 								order = 111,
 							},
+							bufffontOutline = {
+								type = "select",
+								name = L["Font Outline"],
+								desc = L["Font Outline"],
+								values = {["SHADOW"] = L["Shadow"], [""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick Outline"]},
+								order = 112,
+							},
+							bufffontShadowColor = {
+								type = "color",
+								name = L["Shadow Color"],
+								desc = L["Shadow Color"],
+								hasAlpha = true,
+								get = getColor,
+								set = setColor,
+								disabled = function() return db.bufffontOutline ~= "SHADOW" end,
+								order = 113,
+							},
+							bufffontShadowOffsetX = {
+								type = "range",
+								name = L["Shadow X Offset"],
+								desc = L["Shadow X Offset"],
+								min = -5, max = 5, step = 0.1,
+								disabled = function() return db.bufffontOutline ~= "SHADOW" end,
+								order = 114,
+							},
+							bufffontShadowOffsetY = {
+								type = "range",
+								name = L["Shadow Y Offset"],
+								desc = L["Shadow Y Offset"],
+								min = -5, max = 5, step = 0.1,
+								disabled = function() return db.bufffontOutline ~= "SHADOW" end,
+								order = 115,
+							},
 							buffalpha = {
 								type = "range",
 								name = L["Alpha"],
 								desc = L["Set the alpha of the buff bars"],
 								min = 0.05, max = 1, step = 0.05,
 								isPercent = true,
-								order = 112,
+								order = 116,
 							},
 						},
 					},
@@ -969,7 +1007,7 @@ do
 				bar.cd:SetCooldownFromDurationObject(durationInfo)
 				bar.cd:Show()
 				if bar.cd.timerText then
-					bar.cd.timerText:SetFont(media:Fetch("font", db.bufffont), db.bufffontsize)
+					ApplyFontStyle(bar.cd.timerText, media:Fetch("font", db.bufffont), db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
 					bar.cd.timerText:SetTextColor(unpack(db.bufftextcolor))
 				end
 			end
@@ -1244,8 +1282,7 @@ do
 				timerText:SetPoint("RIGHT", bar, "RIGHT", -2, 0)
 				timerText:SetJustifyH("RIGHT")
 				
-				timerText:SetFont(media:Fetch("font", db.bufffont), db.bufffontsize)
-				timerText:SetShadowColor( 0, 0, 0, 1)
+				ApplyFontStyle(timerText, media:Fetch("font", db.bufffont), db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
 				timerText:SetTextColor(unpack(db.bufftextcolor))
 			else
 				timerText:Hide()
@@ -1269,9 +1306,7 @@ do
 		else
 			text:Hide()
 		end
-		text:SetFont(media:Fetch("font", db.bufffont), db.bufffontsize)
-		text:SetShadowColor( 0, 0, 0, 1)
-		text:SetShadowOffset( 0.8, -0.8 )
+		ApplyFontStyle(text, media:Fetch("font", db.bufffont), db.bufffontsize, db.bufffontOutline, db.bufffontShadowColor, db.bufffontShadowOffsetX, db.bufffontShadowOffsetY)
 		text:SetTextColor(unpack(db.bufftextcolor))
 		text:SetNonSpaceWrap(false)
 		text:SetHeight(height)

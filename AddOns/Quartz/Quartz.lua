@@ -241,6 +241,18 @@ function Quartz3:Merge(source, target)
 end
 
 Quartz3.Util = {}
+
+function Quartz3.Util.ApplyFontStyle(fontString, font, size, outline, shadowColor, shadowOffsetX, shadowOffsetY)
+	local flags = outline == "SHADOW" and "" or outline
+	fontString:SetFont(font, size, flags)
+	if outline == "SHADOW" then
+		fontString:SetShadowColor(unpack(shadowColor))
+		fontString:SetShadowOffset(shadowOffsetX, shadowOffsetY)
+	else
+		fontString:SetShadowOffset(0, 0)
+	end
+end
+
 function Quartz3.Util.TimeFormat(num, isCastTime)
 	if num <= 10 or (isCastTime and num <= 60) then
 		return ("%%.%df"):format(db.casttimeprecision), num

@@ -23,6 +23,8 @@ local MODNAME = "Latency"
 local Latency = Quartz3:NewModule(MODNAME, "AceEvent-3.0", "AceHook-3.0")
 local Player = Quartz3:GetModule("Player")
 
+local ApplyFontStyle = Quartz3.Util.ApplyFontStyle
+
 local media = LibStub("LibSharedMedia-3.0")
 local lsmlist = AceGUIWidgetLSMlists
 
@@ -42,6 +44,10 @@ local defaults = {
 		lagtext = true,
 		lagfont = "Friz Quadrata TT",
 		lagfontsize = 7,
+		lagfontOutline = "SHADOW",
+		lagfontShadowColor = {0, 0, 0, 1},
+		lagfontShadowOffsetX = 0.8,
+		lagfontShadowOffsetY = -0.8,
 		lagtextcolor = {0.7, 0.7, 0.7, 0.8},
 		lagtextalignment = "center", -- L["Left"], L["Right"]
 		lagtextposition = "bottom", --L["Top"], L["Above"], L["Below"]
@@ -225,9 +231,7 @@ function Latency:ApplySettings()
 		lagbox:SetAlpha(db.lagalpha)
 		lagbox:SetVertexColor(unpack(db.lagcolor))
 
-		lagtext:SetFont(media:Fetch("font", db.lagfont), db.lagfontsize)
-		lagtext:SetShadowColor( 0, 0, 0, 1)
-		lagtext:SetShadowOffset( 0.8, -0.8 )
+		ApplyFontStyle(lagtext, media:Fetch("font", db.lagfont), db.lagfontsize, db.lagfontOutline, db.lagfontShadowColor, db.lagfontShadowOffsetX, db.lagfontShadowOffsetY)
 		lagtext:SetTextColor(unpack(db.lagtextcolor))
 		lagtext:SetNonSpaceWrap(false)
 
@@ -382,13 +386,47 @@ do
 						disabled = hidelagtextoptions,
 						order = 117,
 					},
+					lagfontOutline = {
+						type = "select",
+						name = L["Font Outline"],
+						desc = L["Font Outline"],
+						values = {["SHADOW"] = L["Shadow"], [""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick Outline"]},
+						disabled = hidelagtextoptions,
+						order = 118,
+					},
+					lagfontShadowColor = {
+						type = "color",
+						name = L["Shadow Color"],
+						desc = L["Shadow Color"],
+						hasAlpha = true,
+						get = getColor,
+						set = setColor,
+						disabled = function() return hidelagtextoptions() or db.lagfontOutline ~= "SHADOW" end,
+						order = 119,
+					},
+					lagfontShadowOffsetX = {
+						type = "range",
+						name = L["Shadow X Offset"],
+						desc = L["Shadow X Offset"],
+						min = -5, max = 5, step = 0.1,
+						disabled = function() return hidelagtextoptions() or db.lagfontOutline ~= "SHADOW" end,
+						order = 120,
+					},
+					lagfontShadowOffsetY = {
+						type = "range",
+						name = L["Shadow Y Offset"],
+						desc = L["Shadow Y Offset"],
+						min = -5, max = 5, step = 0.1,
+						disabled = function() return hidelagtextoptions() or db.lagfontOutline ~= "SHADOW" end,
+						order = 121,
+					},
 					lagtextalignment = {
 						type = "select",
 						name = L["Text Alignment"],
 						desc = L["Set the position of the latency text"],
 						values = {["center"] = L["Center"], ["left"] = L["Left"], ["right"] = L["Right"], ["outside"] = L["Outside"]},
 						disabled = hidelagtextoptions,
-						order = 118,
+						order = 122,
 					},
 					lagtextposition = {
 						type = "select",
@@ -396,7 +434,7 @@ do
 						desc = L["Set the vertical position of the latency text"],
 						values = {["above"] = L["Above"], ["top"] = L["Top"], ["bottom"] = L["Bottom"], ["below"] = L["Below"]},
 						disabled = hidelagtextoptions,
-						order = 119,
+						order = 123,
 					},
 				},
 			}
