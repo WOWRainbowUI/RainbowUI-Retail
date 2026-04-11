@@ -238,10 +238,10 @@ function BBF.UpdatePetCastbar()
         petSpellBar:SetScale(castbarScale)
         petSpellBar:SetWidth(width)
         petSpellBar:SetHeight(height)
-        petSpellBar.Text:SetAlpha(BetterBlizzFramesDB.petCastbarShowText and 1 or 0)
-        petSpellBar.Border:SetAlpha(BetterBlizzFramesDB.petCastbarShowBorder and 1 or 0)
-        petSpellBar.BorderShield:SetAlpha(BetterBlizzFramesDB.petCastbarShowBorder and 1 or 0)
-        petSpellBar.Flash:SetParent(BetterBlizzFramesDB.petCastbarShowBorder and petSpellBar or hiddenFrame)
+        petSpellBar.Text:SetAlpha(BetterBlizzFramesDB.petCastBarShowText and 1 or 0)
+        petSpellBar.Border:SetAlpha(BetterBlizzFramesDB.petCastBarShowBorder and 1 or 0)
+        petSpellBar.BorderShield:SetAlpha(BetterBlizzFramesDB.petCastBarShowBorder and 1 or 0)
+        petSpellBar.Flash:SetParent(BetterBlizzFramesDB.petCastBarShowBorder and petSpellBar or hiddenFrame)
 
         adjustCastBarBorder(petSpellBar, petSpellBar.Border, 15, nil, nil, true)
         adjustCastBarBorder(petSpellBar, petSpellBar.Flash, 15, nil, nil, true)
@@ -873,10 +873,24 @@ local function CastingBarFrameMiscAdjustments()
     -- end
     --CastingBarFrame.InterruptGlow:SetSize(newInterruptGlowWidth, newInterruptGlowHeight)
 
-        if not CastingBarFrame.sparkHooked then
+    local playerSparkHeight = BetterBlizzFramesDB.playerCastBarHeight + 15
+    local targetSparkHeight = BetterBlizzFramesDB.targetCastBarHeight + 15
+    local focusSparkHeight = BetterBlizzFramesDB.focusCastBarHeight + 15
+
+    if not CastingBarFrame.sparkHooked then
         CastingBarFrame:HookScript("OnUpdate", function(self)
             --self.Spark:SetTexture(130877)
-            self.Spark:SetSize(33,BetterBlizzFramesDB.playerCastBarHeight + 20)
+            self.Spark:SetSize(30, playerSparkHeight)
+            UpdateSparkPosition(self)
+        end)
+        TargetFrameSpellBar:HookScript("OnUpdate", function(self)
+            --self.Spark:SetTexture(130877)
+            self.Spark:SetSize(30, targetSparkHeight)
+            UpdateSparkPosition(self)
+        end)
+        FocusFrameSpellBar:HookScript("OnUpdate", function(self)
+            --self.Spark:SetTexture(130877)
+            self.Spark:SetSize(30, focusSparkHeight)
             UpdateSparkPosition(self)
         end)
         CastingBarFrame.sparkHooked = true

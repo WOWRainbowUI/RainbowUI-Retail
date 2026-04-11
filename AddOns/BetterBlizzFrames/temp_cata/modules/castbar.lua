@@ -204,6 +204,7 @@ function BBF.UpdateCastbars()
             end
         end
     end
+    BBF.DarkModeCastbars()
 end
 
 
@@ -233,13 +234,14 @@ function BBF.UpdatePetCastbar()
             -- petSpellBar.BorderShield:SetScale(iconScale)
             -- petSpellBar.BorderShield:SetAlpha(1)
         end
+        BBF.DarkModeCastbars()
         petSpellBar:SetScale(castbarScale)
         petSpellBar:SetWidth(width)
         petSpellBar:SetHeight(height)
-        petSpellBar.Text:SetAlpha(BetterBlizzFramesDB.petCastbarShowText and 1 or 0)
-        petSpellBar.Border:SetAlpha(BetterBlizzFramesDB.petCastbarShowBorder and 1 or 0)
-        petSpellBar.BorderShield:SetAlpha(BetterBlizzFramesDB.petCastbarShowBorder and 1 or 0)
-        petSpellBar.Flash:SetParent(BetterBlizzFramesDB.petCastbarShowBorder and petSpellBar or hiddenFrame)
+        petSpellBar.Text:SetAlpha(BetterBlizzFramesDB.petCastBarShowText and 1 or 0)
+        petSpellBar.Border:SetAlpha(BetterBlizzFramesDB.petCastBarShowBorder and 1 or 0)
+        petSpellBar.BorderShield:SetAlpha(BetterBlizzFramesDB.petCastBarShowBorder and 1 or 0)
+        petSpellBar.Flash:SetParent(BetterBlizzFramesDB.petCastBarShowBorder and petSpellBar or hiddenFrame)
 
         adjustCastBarBorder(petSpellBar, petSpellBar.Border, 15, nil, nil, true)
         adjustCastBarBorder(petSpellBar, petSpellBar.Flash, 15, nil, nil, true)
@@ -845,6 +847,7 @@ function BBF.ShowPlayerCastBarIcon()
             CastingBarFrame.Icon:Hide()
             --CastingBarFrame.showShield = false
         end
+        BBF.DarkModeCastbars()
     else
         C_Timer.After(1, BBF.ShowPlayerCastBarIcon)
     end
