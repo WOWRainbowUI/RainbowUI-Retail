@@ -125,6 +125,7 @@ local OUTGOING_GROUP_DELAY = 0.2
 local INCOMING_GROUP_DELAY = 0.12
 local OUTGOING_FALLBACK_ATTRIBUTION_WINDOW = 0.9
 local OUTGOING_DELAYED_SPELL_ATTRIBUTION_WINDOW = 3.0
+local OUTGOING_SIGNAL_CONFIDENCE_WINDOW = 1.25
 local INCOMING_SELF_HEAL_ICON_ATTRIBUTION_WINDOW = 12.0
 local SELF_HEAL_MATCH_WINDOW = 1.0
 local SELF_HEAL_MATCH_TOLERANCE = 1
@@ -144,6 +145,7 @@ local lastDotFallbackSpellID
 local lastDotFallbackExpire = 0
 local lastDotFallbackAuraIDs
 local lastDotFallbackRequireAura = true
+local IsOutgoingCombatGatedEvent
 local DOT_FALLBACK_SPELLS = {
 	[8921] = {8921}, -- Moonfire
 	[93402] = {93402}, -- Sunfire
@@ -1035,7 +1037,7 @@ local function ParserEventsHandler(parserEvent)
 	-- Keep outgoing-only output combat-gated while allowing incoming and
 	-- notification/static output to continue out of combat.
 	if not InCombatLockdown() then
-		if string_find(eventTypeString, "OUTGOING", 1, true) == 1 or string_find(eventTypeString, "PET_OUTGOING", 1, true) == 1 then
+		if IsOutgoingCombatGatedEvent(eventTypeString) then
 			return
 		end
 	end
@@ -1347,7 +1349,11 @@ function eventFrame:PLAYER_REGEN_DISABLED()
 end
 
 function eventFrame:CHAT_MSG_MONSTER_EMOTE(message, sourceName)
-	if sourceName ~= UnitName("target") then
+	local targetName = UnitName("target")
+	local okCompare, isMatch = pcall(function()
+		return sourceName == targetName
+	end)
+	if not okCompare or not isMatch then
 		return
 	end
 	HandleMonsterEmotes(string_gsub(message, "%%s", sourceName))
@@ -1431,6 +1437,18 @@ local function CanUseAutoAttackFallback(now)
 	return (now - lastAutoAttackFallbackTime) >= minGap
 end
 
+local function IsOutgoingTargetContextValid()
+	-- UNIT_COMBAT("target") is ambiguous in group content; only accept it when
+	-- the live target unit is present and attackable by the player.
+	if not UnitExists("target") then
+		return false
+	end
+	if not UnitCanAttack("player", "target") then
+		return false
+	end
+	return true
+end
+
 local function IsDamageMeterOutgoingActive()
 	return USE_DAMAGE_METER_OUTGOING and IsRetail and C_DamageMeter and Enum and Enum.DamageMeterType
 end
@@ -1507,6 +1525,27 @@ local function HasPlayerAnyDebuffOnTarget(spellIDs)
 	return false
 end
 
+local function HasRecentOutgoingSignal(now, schoolMask)
+	-- Accept if we have a recent successful cast from the player.
+	if lastPlayerSpellID and (now - lastPlayerSpellTime) <= OUTGOING_SIGNAL_CONFIDENCE_WINDOW then
+		return true
+	end
+
+	-- Accept active DoT fallback windows only when the tracked aura/timed state is valid.
+	if lastDotFallbackSpellID and now <= lastDotFallbackExpire then
+		if (not lastDotFallbackRequireAura) or HasPlayerAnyDebuffOnTarget(lastDotFallbackAuraIDs) then
+			return true
+		end
+	end
+
+	-- Accept likely physical swings only when auto-attack fallback timing is valid.
+	if not IsLikelySpellSchool(schoolMask) and CanUseAutoAttackFallback(now) then
+		return true
+	end
+
+	return false
+end
+
 local function BuildOutgoingHitsMessage(totalAmount, hitCount, critCount, isSpell)
 	local currentProfile = MSBTProfiles.currentProfile
 	local formattedAmount = totalAmount
@@ -1532,6 +1571,27 @@ local function BuildOutgoingHitsMessage(totalAmount, hitCount, critCount, isSpel
 		return formattedAmount
 	end
 	return string_format("%s (%d %s)", formattedAmount, hitCount, hitsWord)
+end
+
+IsOutgoingCombatGatedEvent = function(eventTypeString)
+	if not eventTypeString then
+		return false
+	end
+
+	-- Allow outgoing heals outside combat; only gate damage/miss-style outgoing.
+	if eventTypeString == "OUTGOING_HEAL"
+		or eventTypeString == "OUTGOING_HEAL_CRIT"
+		or eventTypeString == "OUTGOING_HOT"
+		or eventTypeString == "OUTGOING_HOT_CRIT"
+		or eventTypeString == "PET_OUTGOING_HEAL"
+		or eventTypeString == "PET_OUTGOING_HEAL_CRIT"
+		or eventTypeString == "PET_OUTGOING_HOT"
+		or eventTypeString == "PET_OUTGOING_HOT_CRIT" then
+		return false
+	end
+
+	return string_find(eventTypeString, "OUTGOING", 1, true) == 1
+		or string_find(eventTypeString, "PET_OUTGOING", 1, true) == 1
 end
 
 local function StripRealm(name)
@@ -1616,8 +1676,6 @@ local function FlushOutgoingBatch(batchKey)
 		-- Keep routing on the same resolved scroll area for merged output.
 		displaySettings.scrollArea = eventSettings.scrollArea
 		displaySettings.isCrit = true
-		local baseSize = colorSourceSettings.fontSize or currentProfile.normalFontSize or 26
-		displaySettings.fontSize = math_floor((baseSize * 1.5) + 0.5)
 	end
 	DisplayEvent(displaySettings, message, batch.effectTexture)
 end
@@ -2005,8 +2063,6 @@ local function QueueIncomingDamageBatch(normalizedAmount, isCrit, damageSource)
 					displaySettings[k] = v
 				end
 				displaySettings.isCrit = true
-				local baseSize = eventSettings.fontSize or currentProfile.normalFontSize or 26
-				displaySettings.fontSize = math_floor((baseSize * 1.5) + 0.5)
 			end
 			DisplayEvent(displaySettings, message)
 		end)
@@ -2161,8 +2217,6 @@ local function QueueIncomingHealBatch(normalizedAmount, isCrit, effectTexture, s
 				-- Keep merged routing on the base scroll area.
 				displaySettings.scrollArea = eventSettings.scrollArea
 				displaySettings.isCrit = true
-				local baseSize = critSettings.fontSize or currentProfile.normalFontSize or 26
-				displaySettings.fontSize = math_floor((baseSize * 1.5) + 0.5)
 			end
 			DisplayEvent(displaySettings, message, queued.effectTexture)
 		end)
@@ -2285,10 +2339,16 @@ function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask
 		if not InCombatLockdown() then
 			return
 		end
+		if not IsOutgoingTargetContextValid() then
+			return
+		end
 
 		local effectTexture
 		local spellIDUsed
 		local now = GetTime()
+		if isDamageEvent and not HasRecentOutgoingSignal(now, schoolMask) then
+			return
+		end
 		if lastPlayerSpellID and (now - lastPlayerSpellTime) <= OUTGOING_FALLBACK_ATTRIBUTION_WINDOW then
 			spellIDUsed = lastPlayerSpellID
 			_, _, effectTexture = GetSpellInfo(lastPlayerSpellID)
@@ -2306,11 +2366,9 @@ function eventFrame:UNIT_COMBAT(unitTarget, action, flagText, amount, schoolMask
 			end
 		end
 		if not effectTexture then
-			-- In DamageMeter mode, do not fall back to auto-shot attribution.
-			if IsDamageMeterOutgoingActive() then
-				if (not isDamageEvent) or (not CanUseAutoAttackFallback(now)) then
-					return
-				end
+			-- Fall back to auto-attack attribution only with a valid swing signal.
+			if (not isDamageEvent) or (not CanUseAutoAttackFallback(now)) then
+				return
 			end
 			spellIDUsed = AUTOSHOT_SPELL_ID
 			_, _, effectTexture = GetSpellInfo(AUTOSHOT_SPELL_ID)

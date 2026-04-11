@@ -2758,7 +2758,6 @@ local function SetupBlizzardOptions()
 end
 
 local function DisableBlizzardCombatText()
-	SetCVar("enableFloatingCombatText", 0)
 	if not IsClassic then
 		SetCVar("floatingCombatTextCombatHealing", 0)
 	end
@@ -2774,7 +2773,6 @@ end
 
 local function SetBlizzardCombatTextV2Enabled(isEnabled)
 	local value = isEnabled and 1 or 0
-	SetCVar("enableFloatingCombatText", value)
 	if not IsClassic then
 		SetCVar("floatingCombatTextCombatHealing", value)
 	end
