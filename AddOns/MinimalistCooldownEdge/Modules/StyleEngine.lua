@@ -130,6 +130,21 @@ local function IsSameSwipeColor(state, r, g, b, a)
         and IsNearlyEqual(state.a, a)
 end
 
+local function IsMasqueManagedCooldown(cooldown)
+    return cooldown and cooldown._MSQ_Color ~= nil
+end
+
+-- mUI marks aura parents with mUIBorder when it owns swipe styling.
+local mUIAddonLoaded
+local function IsMUIStyledCooldown(cooldown)
+    if mUIAddonLoaded == nil then
+        mUIAddonLoaded = MCE:IsMUIAvailable()
+    end
+    if not mUIAddonLoaded then return false end
+    local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
+    return parent and parent.mUIBorder ~= nil
+end
+
 -- =========================================================================
 -- UNIT / AURA HELPERS
 -- =========================================================================
@@ -324,6 +339,10 @@ function StyleEngine:ResetSwipeColor(cdFrame)
     if not cdFrame or type(cdFrame.SetSwipeColor) ~= "function" then return end
     local fs = frameState[cdFrame]
     if not fs or not fs.swipeColor then return end
+    if IsMasqueManagedCooldown(cdFrame) or IsMUIStyledCooldown(cdFrame) then
+        fs.swipeColor = nil
+        return
+    end
     fs.suppressSwipe = true
     pcall(cdFrame.SetSwipeColor, cdFrame, 0, 0, 0)
     fs.suppressSwipe = nil
@@ -777,24 +796,31 @@ end
 -- DRAW SWIPE RESOLUTION
 -- =========================================================================
 
+local function GetMiniCCHideSwipeSetting(config, subtype)
+    if subtype == MINICC_FRAME_TYPE.CC then
+        return config.ccHideSwipe
+    end
+    if subtype == MINICC_FRAME_TYPE.FriendlyCD then
+        return config.friendlyCdHideSwipe
+    end
+    if subtype == MINICC_FRAME_TYPE.Nameplate then
+        return config.nameplateHideSwipe
+    end
+    if subtype == MINICC_FRAME_TYPE.Portrait then
+        return config.portraitHideSwipe
+    end
+    if subtype == MINICC_FRAME_TYPE.Overlay then
+        return config.overlayHideSwipe
+    end
+    return nil
+end
+
 function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge)
     local baseWant = config.drawSwipe ~= false
 
     if baseWant and category == CATEGORY.MiniCC then
         local subtype = Registry and Registry:GetSubtype(cdFrame)
-        local groupHideSwipe
-        if subtype == MINICC_FRAME_TYPE.CC then
-            groupHideSwipe = config.ccHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.FriendlyCD then
-            groupHideSwipe = config.friendlyCdHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.Nameplate then
-            groupHideSwipe = config.nameplateHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.Portrait then
-            groupHideSwipe = config.portraitHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.Overlay then
-            groupHideSwipe = config.overlayHideSwipe
-        end
-        if groupHideSwipe then
+        if GetMiniCCHideSwipeSetting(config, subtype) then
             baseWant = false
         end
     end
@@ -807,19 +833,7 @@ function StyleEngine:GetDesiredEdgeEnabled(cdFrame, category, config)
 
     if category == CATEGORY.MiniCC then
         local subtype = Registry and Registry:GetSubtype(cdFrame)
-        local groupHideSwipe
-        if subtype == MINICC_FRAME_TYPE.CC then
-            groupHideSwipe = config.ccHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.FriendlyCD then
-            groupHideSwipe = config.friendlyCdHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.Nameplate then
-            groupHideSwipe = config.nameplateHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.Portrait then
-            groupHideSwipe = config.portraitHideSwipe
-        elseif subtype == MINICC_FRAME_TYPE.Overlay then
-            groupHideSwipe = config.overlayHideSwipe
-        end
-        if groupHideSwipe then return false end
+        if GetMiniCCHideSwipeSetting(config, subtype) then return false end
     end
 
     return true
@@ -901,8 +915,6 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         end
     end
 
-    if category == CATEGORY.Blacklist then return end
-
     -- Guard: DB must be ready
     if not (MCE.db and MCE.db.profile and MCE.db.profile.categories) then return end
 
@@ -975,7 +987,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     end
 
     -- Swipe Color
-    if cdFrame.SetSwipeColor then
+    local isMasqueManaged = IsMasqueManagedCooldown(cdFrame)
+    local isMUIManaged = IsMUIStyledCooldown(cdFrame)
+    if cdFrame.SetSwipeColor and not isMasqueManaged and not isMUIManaged then
         if category == CATEGORY.Actionbar then
             local r, g, b, a = 0, 0, 0, self:GetSwipeShadeAlpha(config)
             if not IsSameSwipeColor(fs.swipeColor, r, g, b, a) then
@@ -987,6 +1001,8 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         else
             self:ResetSwipeColor(cdFrame)
         end
+    elseif (isMasqueManaged or isMUIManaged) and fs.swipeColor then
+        fs.swipeColor = nil
     end
 
     -- Hide countdown numbers

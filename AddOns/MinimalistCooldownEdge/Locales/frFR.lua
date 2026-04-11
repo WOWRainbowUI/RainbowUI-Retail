@@ -154,6 +154,7 @@ L["Enable categories styling"] = "Activer le style des catégories"
 L["LIVE_CONTROLS_DESC"] = "Les changements s'appliquent immédiatement. Ne laissez actives que les catégories que vous utilisez vraiment pour une configuration plus propre."
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Affiche un texte de compte à rebours stylisé sur les icônes d'améliorations et d'affaiblissements de Blizzard CompactPartyFrame et CompactRaidFrame. Le groupe et le raid peuvent être activés séparément. Cela reste indépendant de la catégorie Autres."
 L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."] = "Route les recharges prises en charge de Dominos vers la catégorie Barres d'action. Désactivez ceci si vous voulez que Dominos conserve son style natif inchangé."
+L["Routes supported Bartender4 action bar cooldowns through the Action Bars category. Disable this if you want Bartender4 to keep its native cooldown styling untouched."] = "Route les recharges prises en charge de Bartender4 vers la catégorie Barres d'action. Désactivez ceci si vous voulez que Bartender4 conserve son style natif inchangé."
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = "Copiez ce lien pour ouvrir la page du projet CurseForge dans votre navigateur."

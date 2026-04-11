@@ -11,6 +11,7 @@ local strfind = string.find
 local CATEGORY = C.Categories
 local AB = C.Adapter.ActionBars
 local DOM = C.Adapter.Dominos
+local BT4 = C.Adapter.Bartender4
 
 local Registry
 
@@ -25,6 +26,11 @@ local function GetFrameName(frame)
     end
 
     return nil
+end
+
+local function IsBT4ManagedButton(button)
+    local name = GetFrameName(button)
+    return type(name) == "string" and strfind(name, BT4.ButtonPrefix, 1, true) == 1
 end
 
 local function IsDominosManagedButton(button)
@@ -55,7 +61,7 @@ function Adapter:OnEnable()
 end
 
 local function RegisterButton(button)
-    if not button or MCE:IsForbidden(button) or IsDominosManagedButton(button) then return end
+    if not button or MCE:IsForbidden(button) or IsDominosManagedButton(button) or IsBT4ManagedButton(button) then return end
 
     for _, key in ipairs(AB.CooldownKeys) do
         local cd = button[key]
@@ -98,6 +104,10 @@ function Adapter:TryClaim(cooldown)
     local parent = cooldown.GetParent and cooldown:GetParent()
     if not parent or MCE:IsForbidden(parent) then return nil end
     if IsDominosManagedButton(parent) then return nil end
+    if IsBT4ManagedButton(parent) then return nil end
+
+    -- Exclude Blizzard's Loss-of-Control cooldown overlay
+    if parent.lossOfControlCooldown == cooldown then return nil end
 
     if type(parent.action) == "number" then
         RegisterButton(parent)

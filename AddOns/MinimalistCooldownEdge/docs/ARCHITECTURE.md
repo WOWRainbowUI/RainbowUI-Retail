@@ -71,8 +71,8 @@ The main cooldown path is:
 `Core/Core.lua`
 
 - Creates the Ace addon object.
-- Owns shared helpers like `MCE:IsForbidden()`, font normalization, and chat printing.
-- Builds defaults and migrates legacy profile data.
+- Owns shared helpers like `MCE:IsForbidden()`, safe table lookups, font normalization, and chat printing.
+- Builds defaults and normalizes active profile data.
 - Registers slash commands and the options tree.
 - Exposes public entry points such as `ForceUpdateAll()` and debounced refresh helpers.
 
@@ -87,9 +87,9 @@ The main cooldown path is:
 
 `Modules/Classifier.lua`
 
-- Lightweight fallback classifier.
-- Handles blacklist checks and last-resort classification when no adapter claims a cooldown.
-- Should stay secondary to adapters, not replace them.
+- Lightweight blacklist filter.
+- Handles ignore checks for unsupported or forbidden cooldown hierarchies before style work is queued or applied.
+- Does not assign categories or replace adapter-driven registration.
 
 ### Scheduling and styling
 
@@ -111,7 +111,7 @@ The main cooldown path is:
 - Resolves cooldown context from the parent chain.
 - Styles countdown text, stack counts, swipe, edge, and charge cooldown behavior.
 - Knows about category-specific font sizing and hide-countdown rules.
-- Applies generic styling for action bars, nameplates, unit frames, CooldownManager, MiniCC, sArena, TellMeWhen, and the global fallback category.
+- Applies generic styling for action bars, nameplates, unit frames, CooldownManager, MiniCC, sArena, TellMeWhen, and compact aura cooldowns that do not require the dedicated controller path.
 
 `Modules/DurationColorController.lua`
 
@@ -201,10 +201,6 @@ The main cooldown path is:
 - Exposes per-category controls, compact aura controls, duration text colors, help, and profile import/export.
 - Uses immediate or debounced refresh paths depending on the setting type.
 
-`UI/Alerts.lua`
-
-- Prints one-time version alerts after profile data is available.
-
 ## Category and subtype model
 
 The registry tracks a category for every cooldown and may also track a subtype.
@@ -219,11 +215,6 @@ The registry tracks a category for every cooldown and may also track a subtype.
 | `minicc` | `cc`, `nameplate`, `portrait`, or `overlay` |
 | `sarena` | `classicon`, `dr`, `trinket`, or `racial` |
 | `tellmewhen` | none |
-| `global` | none |
-| `blacklist` | none |
-| `aura_pending` | transient fallback only |
-
-`blacklist` and `aura_pending` are control categories, not normal style targets.
 
 ## Shared state and caching
 
@@ -245,7 +236,7 @@ Weak keys are important because many cooldown frames are transient or recycled b
 ## Important invariants
 
 1. The registry is the only authoritative category store.
-2. Adapters should register cooldowns directly; generic code should not invent categories unless it is the fallback classifier path.
+2. Adapters should register cooldowns directly; generic code should not invent categories outside explicit adapter or forced-category flows.
 3. Styling code must update cached state when it mutates cooldown visuals, otherwise `HookBridge` cannot enforce the intended value.
 4. Full rescans should go through `Styler:ForceUpdateAll(true)`, which resets state, asks adapters to rebuild, and re-queues tracked cooldowns.
 5. Compact party and raid auras are special-case controlled before generic styling.
@@ -259,7 +250,7 @@ Recommended order:
 1. Foundation modules
 2. Adapters
 3. Styling pipeline
-4. UI helpers and alerts
+4. UI helpers
 
 That order makes the startup path easier to reason about and reduces the chance of hook-driven work starting before adapters have registered.
 
@@ -277,7 +268,7 @@ When adding support for a new cooldown source:
 
 ## Practical debugging checklist
 
-- If a cooldown is never styled, first confirm an adapter or fallback classifier registers it.
+- If a cooldown is never styled, first confirm an adapter registers it.
 - If a cooldown flickers back to Blizzard defaults, inspect `frameState` usage and `HookBridge` enforcement hooks.
 - If duration colors do not update, verify the duration source resolves and the ticker has active tracked frames.
 - If compact party or raid aura text behaves strangely, check `GroupFrameAdapter` subtype resolution before touching generic style logic.

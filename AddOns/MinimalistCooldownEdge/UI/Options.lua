@@ -252,6 +252,20 @@ local function SetDominosAdapterEnabled(_, value)
     AceConfigRegistry:NotifyChange(addonName)
 end
 
+local function Bartender4AdapterEnabled()
+    return MCE:IsBartender4AdapterEnabled()
+end
+
+local function SetBartender4AdapterEnabled(_, value)
+    local profile = MCE.db and MCE.db.profile
+    if not profile then return end
+
+    profile.bartender4AdapterEnabled = value
+    MCE:MarkReloadRequired()
+    MCE:ForceUpdateAll(true)
+    AceConfigRegistry:NotifyChange(addonName)
+end
+
 local function ElvUIAdapterEnabled()
     return MCE:IsElvUIAdapterEnabled()
 end
@@ -1423,6 +1437,7 @@ function MCE:GetOptions()
                         hidden = function()
                             return not MCE:IsShinyAurasAvailable()
                                 and not MCE:IsDominosAvailable()
+                                and not MCE:IsBartender4Available()
                                 and not MCE:IsElvUIAvailable()
                         end,
                         args = {
@@ -1445,6 +1460,14 @@ function MCE:GetOptions()
                                 desc = L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."],
                                 get = DominosAdapterEnabled,
                                 set = SetDominosAdapterEnabled,
+                            },
+                            toggleBartender4 = {
+                                type = "toggle", order = 2.5, width = "full",
+                                name = "|cffffd100Bartender4|r",
+                                hidden = function() return not MCE:IsBartender4Available() end,
+                                desc = L["Routes supported Bartender4 action bar cooldowns through the Action Bars category. Disable this if you want Bartender4 to keep its native cooldown styling untouched."],
+                                get = Bartender4AdapterEnabled,
+                                set = SetBartender4AdapterEnabled,
                             },
                             toggleElvUI = {
                                 type = "toggle", order = 3, width = "full",
