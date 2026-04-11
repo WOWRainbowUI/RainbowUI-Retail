@@ -1,5 +1,5 @@
-## Interface: 30405, 38000
-## Version: v12.0.2
+## Interface: 30405, 38001
+## Version: v12.0.4
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-zhCN: 为你的小地图增趣添彩，并包含一些性感选项。
@@ -19,6 +19,8 @@
 ## Title-zhTW: |cff4DFF4D[地圖]|r 性感小地圖
 ## Notes-zhTW: SexyMap |n|n讓你的小地圖更具特色和樂趣，並增添一些性感的選項設定。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖，進行設定。
 ## Category-zhTW: 地圖
+
+Init_Wrath.lua
 
 embeds.xml
 
