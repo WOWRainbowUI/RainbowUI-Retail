@@ -159,6 +159,7 @@ L["COMPACT_PARTY_AURA_TEXT_DESC"] = "啟用隊伍/團隊框架是此類別的總
 L["ADDON_INTEGRATIONS_DESC"] = "啟用或停用可選的插件整合功能，將外部冷卻時間導入 MiniCE 類別。"
 L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."] = "將 ShinyAuras 的冷卻時間路由到單位框架類別。若要保留 ShinyAuras 原生的倒數顯示，請停用此選項。"
 L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."] = "將支援的達美樂快捷列冷卻效果導向至「快捷列」類別處理。若希望達美樂保留原生冷卻樣式，請停用此選項。"
+L["Routes supported Bartender4 action bar cooldowns through the Action Bars category. Disable this if you want Bartender4 to keep its native cooldown styling untouched."] = "透過「快捷列」類別路由 Bartender4 動作列冷卻時間顯示。若希望保留 Bartender4 原生冷卻樣式，請停用此選項。"
 L["Routes supported ElvUI action bar, unit frame, and nameplate cooldowns through MiniCE categories. Disable this if you want ElvUI to keep its native cooldown styling untouched."] = "路由支援 ElvUI 的快捷列、單位框架與名條冷卻，並透過 MiniCE 類別進行分類。若要讓 ElvUI 保持原生的冷卻樣式不受影響，請停用此選項。"
 
 -- Links

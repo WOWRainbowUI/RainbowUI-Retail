@@ -59,8 +59,16 @@ local function IsRestrictedCooldown(cooldown)
        or MCE:IsForbidden(cooldown)
 end
 
+local function GetTrackedFrameState(cooldown)
+    if not cooldown then
+        return nil
+    end
+
+    return MCE:SafeTableGet(frameState, cooldown)
+end
+
 local function IsBlacklistAllowed(cooldown)
-    local state = frameState[cooldown]
+    local state = GetTrackedFrameState(cooldown)
     return state and state.allowBlacklisted == true or false
 end
 
@@ -83,6 +91,28 @@ local function IsSameSwipeColor(state, r, g, b, a)
        and IsNearlyEqual(state.g, g)
        and IsNearlyEqual(state.b, b)
        and IsNearlyEqual(state.a, a)
+end
+
+local function IsMasqueManagedCooldown(cooldown)
+    if not cooldown
+       or IsSecretValue(cooldown)
+       or not CanAccessAllValues(cooldown)
+       or MCE:IsForbidden(cooldown) then
+        return false
+    end
+
+    return cooldown._MSQ_Color ~= nil
+end
+
+-- mUI marks aura parents with mUIBorder when it owns swipe styling.
+local mUIAddonLoaded
+local function IsMUIStyledCooldown(cooldown)
+    if mUIAddonLoaded == nil then
+        mUIAddonLoaded = MCE:IsMUIAvailable()
+    end
+    if not mUIAddonLoaded then return false end
+    local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
+    return parent and parent.mUIBorder ~= nil
 end
 
 -- =========================================================================
@@ -158,6 +188,7 @@ local function ShouldIgnoreCooldown(cooldown)
 end
 
 local function TryRegisterUnknown(cooldown)
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return end
     if Registry:IsRegistered(cooldown) then return end
     -- Only adapters can register cooldowns; unsupported frames are silently ignored
     local category = Registry:TryClaim(cooldown)
@@ -180,8 +211,9 @@ function HookBridge:SetupHooks()
         elseif not HasAuraLikeAncestor(cooldown) then
             return
         end
+        if not MCE:CanUseFrameAsTableKey(cooldown) then return end
 
-        local fs = frameState[cooldown]
+        local fs = GetTrackedFrameState(cooldown)
         if not fs then
             fs = {}
             frameState[cooldown] = fs
@@ -198,7 +230,7 @@ function HookBridge:SetupHooks()
         fs.pendingAuraRefresh = true
         C_Timer_After(0, function()
             if ShouldIgnoreCooldown(cooldown) then return end
-            local fs2 = frameState[cooldown]
+            local fs2 = GetTrackedFrameState(cooldown)
             local refreshDuration = fs2 and fs2.pendingAuraDurationRefresh == true
             if fs2 then
                 fs2.pendingAuraRefresh = nil
@@ -223,20 +255,32 @@ function HookBridge:SetupHooks()
     end
 
     local function HandleCooldownUpdate(cooldown, durationObject)
+        -- ---------------------------------------------------------------
+        -- FAST PATH: registered cooldowns already passed all security
+        -- checks when their adapter registered them. Skip the heavier
+        -- IsRestrictedCooldown + blacklist traversal for those frames and
+        -- use a single protected registry lookup for secret-safe access.
+        -- ---------------------------------------------------------------
+        local category = Registry:GetCategory(cooldown)
+        if category then
+            DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
+            BatchProcessor:QueueUpdate(cooldown)
+            if IsAuraRetryCategory(category) then
+                MaybeRetryAuraRefresh(cooldown, durationObject)
+            end
+            return
+        end
+
+        -- SLOW PATH: first-time discovery for unknown cooldowns
         if IsRestrictedCooldown(cooldown) then return end
 
-        local category = Registry:GetCategory(cooldown)
-        if not category then
-            -- Give adapters one chance to allow known blacklisted hierarchies
-            -- (ElvUI, etc.) before the hook-level blacklist rejects them.
-            category = Registry:TryClaim(cooldown)
-            if not category and HasHookBlacklistMatch(cooldown) then
-                return
-            end
+        category = Registry:TryClaim(cooldown)
+        if not category and HasHookBlacklistMatch(cooldown) then
+            return
+        end
             
-            if not category and not HasAuraLikeAncestor(cooldown) then
-                return
-            end
+        if not category and not HasAuraLikeAncestor(cooldown) then
+            return
         end
 
         DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
@@ -293,6 +337,11 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.Clear) == "function" then
         hooksecurefunc(cooldownAPI, "Clear", function(cooldown)
+            -- Fast path: registered cooldowns are known-safe
+            if Registry:IsRegistered(cooldown) then
+                DurationColor:ClearTrackedDurationColor(cooldown)
+                return
+            end
             if ShouldIgnoreCooldown(cooldown) then return end
             DurationColor:ClearTrackedDurationColor(cooldown)
         end)
@@ -300,89 +349,92 @@ function HookBridge:SetupHooks()
 
     -- =====================================================================
     -- ENFORCEMENT HOOKS
+    -- Reordered: try the tracked frameState lookup first, which still lets
+    -- unmanaged frames short-circuit quickly while safely ignoring secret
+    -- cooldown objects that cannot be used as table keys.
     -- =====================================================================
 
     if type(cooldownAPI.SetDrawEdge) == "function" then
         hooksecurefunc(cooldownAPI, "SetDrawEdge", function(cooldown, enabled)
-            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-            if IsSecretValue(enabled) then return end
-            local fs = frameState[cooldown]
+            local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressEdge then return end
-            if fs.edge ~= nil and fs.edge ~= enabled then
-                fs.suppressEdge = true
-                pcall(cooldown.SetDrawEdge, cooldown, fs.edge)
-                fs.suppressEdge = nil
-            end
+            if IsSecretValue(enabled) then return end
+            if fs.edge == nil or fs.edge == enabled then return end
+            fs.suppressEdge = true
+            pcall(cooldown.SetDrawEdge, cooldown, fs.edge)
+            fs.suppressEdge = nil
         end)
     end
 
     if type(cooldownAPI.SetEdgeScale) == "function" then
         hooksecurefunc(cooldownAPI, "SetEdgeScale", function(cooldown, scale)
-            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-            if IsSecretValue(scale) then return end
-            local fs = frameState[cooldown]
+            local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressEdgeScale then return end
-            if fs.edgeScale ~= nil and not IsNearlyEqual(fs.edgeScale, scale) then
-                fs.suppressEdgeScale = true
-                pcall(cooldown.SetEdgeScale, cooldown, fs.edgeScale)
-                fs.suppressEdgeScale = nil
-            end
+            if IsSecretValue(scale) then return end
+            if fs.edgeScale == nil or IsNearlyEqual(fs.edgeScale, scale) then return end
+            fs.suppressEdgeScale = true
+            pcall(cooldown.SetEdgeScale, cooldown, fs.edgeScale)
+            fs.suppressEdgeScale = nil
         end)
     end
 
     if type(cooldownAPI.SetEdgeColor) == "function" then
         hooksecurefunc(cooldownAPI, "SetEdgeColor", function(cooldown, r, g, b, a)
-            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-            if IsSecretValue(r) or IsSecretValue(g) or IsSecretValue(b) or IsSecretValue(a) then return end
-            local fs = frameState[cooldown]
+            local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressEdgeColor then return end
-            if fs.edgeColor and not IsSameSwipeColor(fs.edgeColor, r, g, b, a) then
-                fs.suppressEdgeColor = true
-                pcall(cooldown.SetEdgeColor, cooldown, fs.edgeColor.r, fs.edgeColor.g, fs.edgeColor.b, fs.edgeColor.a)
-                fs.suppressEdgeColor = nil
+            if IsSecretValue(r)
+               or IsSecretValue(g)
+               or IsSecretValue(b)
+               or IsSecretValue(a) then
+                return
             end
+            if not fs.edgeColor or IsSameSwipeColor(fs.edgeColor, r, g, b, a) then return end
+            fs.suppressEdgeColor = true
+            pcall(cooldown.SetEdgeColor, cooldown, fs.edgeColor.r, fs.edgeColor.g, fs.edgeColor.b, fs.edgeColor.a)
+            fs.suppressEdgeColor = nil
         end)
     end
 
     if type(cooldownAPI.SetSwipeColor) == "function" then
         hooksecurefunc(cooldownAPI, "SetSwipeColor", function(cooldown, r, g, b, a)
-            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-            if IsSecretValue(r) or IsSecretValue(g) or IsSecretValue(b) or IsSecretValue(a) then return end
-            local fs = frameState[cooldown]
+            local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressSwipe then return end
-            if fs.swipeColor and not IsSameSwipeColor(fs.swipeColor, r, g, b, a) then
-                fs.suppressSwipe = true
-                pcall(cooldown.SetSwipeColor, cooldown, fs.swipeColor.r, fs.swipeColor.g, fs.swipeColor.b, fs.swipeColor.a)
-                fs.suppressSwipe = nil
+            if IsMUIStyledCooldown(cooldown) then return end
+            if IsMasqueManagedCooldown(cooldown) then return end
+            if IsSecretValue(r)
+               or IsSecretValue(g)
+               or IsSecretValue(b)
+               or IsSecretValue(a) then
+                return
             end
+            if not fs.swipeColor or IsSameSwipeColor(fs.swipeColor, r, g, b, a) then return end
+            fs.suppressSwipe = true
+            pcall(cooldown.SetSwipeColor, cooldown, fs.swipeColor.r, fs.swipeColor.g, fs.swipeColor.b, fs.swipeColor.a)
+            fs.suppressSwipe = nil
         end)
     end
 
     if type(cooldownAPI.SetHideCountdownNumbers) == "function" then
         hooksecurefunc(cooldownAPI, "SetHideCountdownNumbers", function(cooldown, hide)
-            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-            if IsSecretValue(hide) then return end
-            local fs = frameState[cooldown]
+            local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressHideNums then return end
-            if fs.hideNums ~= nil and fs.hideNums ~= hide then
-                fs.suppressHideNums = true
-                pcall(cooldown.SetHideCountdownNumbers, cooldown, fs.hideNums)
-                fs.suppressHideNums = nil
-            end
+            if IsSecretValue(hide) then return end
+            if fs.hideNums == nil or fs.hideNums == hide then return end
+            fs.suppressHideNums = true
+            pcall(cooldown.SetHideCountdownNumbers, cooldown, fs.hideNums)
+            fs.suppressHideNums = nil
         end)
     end
 
     if type(cooldownAPI.SetDrawSwipe) == "function" then
         hooksecurefunc(cooldownAPI, "SetDrawSwipe", function(cooldown, enabled)
-            if not cooldown or IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
-            if IsSecretValue(enabled) then return end
-            local fs = frameState[cooldown]
+            local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressSwipeDraw then return end
-            if fs.drawSwipe ~= nil and fs.drawSwipe ~= enabled then
-                fs.suppressSwipeDraw = true
-                pcall(cooldown.SetDrawSwipe, cooldown, fs.drawSwipe)
-                fs.suppressSwipeDraw = nil
-            end
+            if IsSecretValue(enabled) then return end
+            if fs.drawSwipe == nil or fs.drawSwipe == enabled then return end
+            fs.suppressSwipeDraw = true
+            pcall(cooldown.SetDrawSwipe, cooldown, fs.drawSwipe)
+            fs.suppressSwipeDraw = nil
         end)
     end
 

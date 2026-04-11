@@ -13,9 +13,11 @@ C.Addon = {
     DominosName = "Dominos",
     DominosCastName = "Dominos_Cast",
     DominosConfigName = "Dominos_Config",
+    Bartender4Name = "Bartender4",
     SArenaName = "sArena_Reloaded",
     TellMeWhenName = "TellMeWhen",
     ShinyAurasName = "ShinyAuras",
+    MUIName = "mUI",
     VersionFallback = "Dev",
     SlashCommands = { "mce", "minice", "minimalistcooldownedge" },
 }
@@ -33,8 +35,6 @@ C.Categories = {
     MiniCC = "minicc",
     SArena = "sarena",
     TellMeWhen = "tellmewhen",
-    Blacklist = "blacklist",
-    AuraPending = "aura_pending",
     CompactPartyAura = "compactPartyAura",
 }
 
@@ -253,14 +253,6 @@ C.Urls = {
     SmartPvPTabTargeting = "https://www.curseforge.com/wow/addons/pvp-tab-targeting",
 }
 
-C.Alerts = {
-    VersionAlerts = {
-        ["3.2.0"] = {
-            updateLine = "|cff7dd3fcUpdate:|r CooldownManager viewers have their own dedicated category - style them with |cfffacc15/minice|r.",
-        },
-    },
-}
-
 C.ImportExport = {
     Prefix = "MCE1",
     Base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
@@ -290,8 +282,29 @@ C.Classifier = {
         "ArenaDrNP_",
         "FloatingChatFrame", "ChatFrame",
 
+        -- Blizzard UIs with cooldown widgets that MiniCE never styles
+        "SpellFlyoutButton",
+        "ContainerFrame",
+        "MailItem",
+        "SendMailAttachment",
+        "OpenMailAttachmentButton",
+        "OpenMailLetterButton",
+        "OpenMailMoneyButton",
+        "GuildBank",
+        "VoidStorage",
+        "ReagentBank",
+
         -- Dominos
         "Dominos",
+
+        -- Bartender4
+        "BT4", "Bartender4",
+
+        -- Explicit addon blacklists
+        "Platynator",
+        "Masque", "Masque_Caith",
+        "ShadowUF", "ShadowedUF", "SUF",
+        "Cell",
 
         -- EllesmereUI family
         "Ellesmere",
@@ -306,10 +319,57 @@ C.Classifier = {
         "Tukui", "Glider", "VuhDo",
         "ElvUI", "ElvUF", "ElvNP",
         "PVEFrame", "PVPQueueFrame",
+        "LFDQueueFrameRandomCooldownFrame",
         "LossOfControlFrame",
         "ContainerFrameCombinedBagsCooldown",
         "HousingDashboardFrame", "TotemFrame",
         "PlayerFrameBottomManagedFramesContainer",
+
+        -- Blizzard inventory / bank / mail roots
+        "ContainerFrame1",
+        "ContainerFrame2",
+        "ContainerFrame3",
+        "ContainerFrame4",
+        "ContainerFrame5",
+        "ContainerFrame6",
+        "ContainerFrameCombinedBags",
+        "BankFrame",
+        "BankPanel",
+        "ReagentBankFrame",
+        "GuildBankFrame",
+        "VoidStorageFrame",
+        "MailFrame",
+
+        -- Blizzard inspect paper doll slots
+        "InspectPaperDollFrame",
+        "InspectBackSlot",
+        "InspectChestSlot",
+        "InspectFeetSlot",
+        "InspectFinger0Slot",
+        "InspectFinger1Slot",
+        "InspectHandsSlot",
+        "InspectHeadSlot",
+        "InspectLegsSlot",
+        "InspectMainHandSlot",
+        "InspectNeckSlot",
+        "InspectSecondaryHandSlot",
+        "InspectShoulderSlot",
+        "InspectShirtSlot",
+        "InspectTabardSlot",
+        "InspectTrinket0Slot",
+        "InspectTrinket1Slot",
+        "InspectWaistSlot",
+        "InspectWristSlot",
+
+        -- Explicit addon roots / containers
+        "LibDBIcon10_Masque",
+        "SUFWrapperFrame",
+        "CellParent",
+        "CellMainFrame",
+        "CellAnchorFrame",
+        "CellMenuFrame",
+        "CellOptionsFrame",
+        "CellTooltip",
 
         -- EllesmereUI containers / roots
         "EllesmereUIFrame",
@@ -387,12 +447,15 @@ C.Adapter = {
             { prefix = "MultiBar6Button", count = 12 },
             { prefix = "MultiBar7Button", count = 12 },
         },
-        ThirdPartyPrefixes = {
-            "BT4Button",
-        },
+        ThirdPartyPrefixes = {},
         ThirdPartyMaxIndex = 180,
         CooldownKeys = { "cooldown", "Cooldown" },
         ChargeCooldownKeys = { "chargeCooldown", "ChargeCooldown" },
+    },
+    Bartender4 = {
+        AddonName = "Bartender4",
+        ButtonPrefix = "BT4Button",
+        MaxButtonIndex = 180,
     },
     Dominos = {
         ButtonPrefixes = {

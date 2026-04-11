@@ -3,7 +3,7 @@
 ## Title: |cff00ccffMiniCE|r (Minimalist Cooldown Edge)
 ## Notes: Clean cooldowns with category-specific styles.
 ## Author: Anahkas
-## Version: 3.7.8
+## Version: 3.8.4
 ## IconTexture: Interface\AddOns\MinimalistCooldownEdge\Assets\Textures\MinimalistCooldownEdge
 ## Category: Action Bars
 ## X-Curse-Project-ID: 1443896
@@ -31,6 +31,7 @@ Modules\Classifier.lua
 # Adapters
 Adapters\ElvUIAdapter.lua
 Adapters\DominosAdapter.lua
+Adapters\Bartender4Adapter.lua
 Adapters\ActionBarAdapter.lua
 Adapters\MiniCCAdapter.lua
 Adapters\SArenaAdapter.lua
@@ -51,4 +52,3 @@ Modules\HookBridge.lua
 # UI
 UI\ImportExport.lua
 UI\Options.lua
-UI\Alerts.lua

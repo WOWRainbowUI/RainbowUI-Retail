@@ -43,13 +43,21 @@ local function EnsureCategorySet(category)
     return set
 end
 
+local function TryGetEntry(cooldown)
+    if not cooldown then
+        return nil
+    end
+
+    return MCE:SafeTableGet(entries, cooldown)
+end
+
 -- Pre-create index sets for known categories
 for _, cat in pairs(C.Categories) do
     EnsureCategorySet(cat)
 end
 
 function Registry:Register(cooldown, category, subtype)
-    if not cooldown or not category then return end
+    if not category or not MCE:CanUseFrameAsTableKey(cooldown) then return end
 
     local existing = entries[cooldown]
     if existing then
@@ -68,6 +76,8 @@ function Registry:Register(cooldown, category, subtype)
 end
 
 function Registry:Unregister(cooldown)
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return end
+
     local entry = entries[cooldown]
     if not entry then return end
 
@@ -77,25 +87,25 @@ function Registry:Unregister(cooldown)
 end
 
 function Registry:IsRegistered(cooldown)
-    return entries[cooldown] ~= nil
+    return TryGetEntry(cooldown) ~= nil
 end
 
 function Registry:GetEntry(cooldown)
-    return entries[cooldown]
+    return TryGetEntry(cooldown)
 end
 
 function Registry:GetCategory(cooldown)
-    local entry = entries[cooldown]
+    local entry = TryGetEntry(cooldown)
     return entry and entry.category or nil
 end
 
 function Registry:GetSubtype(cooldown)
-    local entry = entries[cooldown]
+    local entry = TryGetEntry(cooldown)
     return entry and entry.subtype or nil
 end
 
 function Registry:SetSubtype(cooldown, subtype)
-    local entry = entries[cooldown]
+    local entry = TryGetEntry(cooldown)
     if entry then entry.subtype = subtype end
 end
 
@@ -139,6 +149,8 @@ end
 --- Ask each adapter to try claiming an unregistered cooldown.
 --- Returns category, subtype if claimed; nil otherwise.
 function Registry:TryClaim(cooldown)
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return nil end
+
     for i = 1, #adapterOrder do
         local adapter = adapterOrder[i]
         if adapter.TryClaim then

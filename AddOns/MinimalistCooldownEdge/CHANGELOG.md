@@ -1,6 +1,29 @@
 
 # Changelog
 
+## [3.8.4] - 2026-04-10
+- Reduced freezes and stuttering when using MiniCE with mUI on Retail.
+- MiniCE now leaves mUI's aura swipe styling alone instead of fighting it.
+
+## [3.8.3] - 2026-04-10
+- Improved compatibility with Masque and Masque skin packs/plugins.
+
+## [3.8.2] - 2026-04-10
+- Fixed freezes/stuttering when used alongside CooldownManagerCentered.
+
+## [3.8.1-beta] - 2026-04-08
+- compat: Expand classifier blacklists for Blizzard inventory, bank, mail, and inspect UI cooldown widgets.
+- compat: Add explicit blacklist coverage for Platynator, Masque, ShadowedUF, and Cell frame families.
+
+## [3.8.0] - 2026-04-08
+- feat: Add dedicated Bartender4 adapter with pre-registered cooldown frames and Options toggle.
+- fix: Preserve the 3.7.9 behavior for Bartender4 by excluding its Loss-of-Control cooldown overlay from MiniCE styling.
+- perf: HookBridge - registered cooldowns skip all security pcalls on every hook invocation, benefiting all adapters.
+- perf: Enforcement hooks check `frameState` first so unmanaged frames exit at zero pcall cost.
+
+## [3.7.9] - 2026-04-07
+- feat: Exclude Blizzard's Loss-of-Control cooldown overlay
+
 ## [3.7.8] - 2026-04-07
 - MiniCC: Added per-frame-group **Hide Swipe** toggles (CC, Friendly CDs, Nameplates, Portraits, Alerts/Healer/Timers). Toggling a group hides both the swipe animation and the swipe edge for that group while keeping countdown text visible.
 - Added French (frFR) locale strings for the new Hide Swipe options and several previously untranslated keys (Show Swipe Animation, Swipe Shade Alpha, CC Frames Text Size, Friendly CDs Text Size, Hide Stack Text).

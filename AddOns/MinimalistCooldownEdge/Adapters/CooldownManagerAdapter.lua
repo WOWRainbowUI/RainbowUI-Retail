@@ -5,19 +5,49 @@ local C = addon.Constants
 local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local Adapter = MCE:NewModule("CooldownManagerAdapter")
 
-local type, ipairs = type, ipairs
+local ipairs = ipairs
 local strfind = string.find
+local tinsert = table.insert
 
 local CATEGORY = C.Categories
 local VIEWER_TYPE = C.CooldownManagerViewers
 local CM = C.Adapter.CooldownManager
 -- Verified against Ayije_CDM/Core/Constants.lua viewer names.
 local VIEWER_PATTERNS = C.Classifier.CooldownManagerViewerPatterns
+local BLACKLIST_NAME_CONTAINS = C.Classifier.BlacklistNameContains
 
 local Registry
 
+local CMC_ADDON = "CooldownManagerCentered"
+local CMC_BLACKLIST_PATTERN = "CooldownViewer"
+
+local function IsAddonLoadedByName(addonName)
+    if C_AddOns and C_AddOns.IsAddOnLoaded then
+        return C_AddOns.IsAddOnLoaded(addonName)
+    end
+
+    return IsAddOnLoaded and IsAddOnLoaded(addonName) or false
+end
+
+local function EnsureBlacklistEntry(entries, value)
+    for i = 1, #entries do
+        if entries[i] == value then
+            return
+        end
+    end
+
+    tinsert(entries, value)
+end
+
 function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
+
+    if IsAddonLoadedByName(CMC_ADDON) then
+        -- Defer Blizzard Cooldown Manager viewers to CooldownManagerCentered.
+        EnsureBlacklistEntry(BLACKLIST_NAME_CONTAINS, CMC_BLACKLIST_PATTERN)
+        return
+    end
+
     Registry:RegisterAdapter(CATEGORY.CooldownManager, self)
 end
 

@@ -12,6 +12,7 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local pcall = pcall
 local select = select
 local tostring = tostring
+local type = type
 local tconcat = table.concat
 local C_Timer_NewTimer = C_Timer.NewTimer
 local C_Timer_After = C_Timer.After
@@ -20,6 +21,8 @@ local OPTION_SLIDER_DEBOUNCE_DELAY = C.Options.SliderDebounceDelay
 local StaticPopup_Show = StaticPopup_Show
 local StaticPopupDialogs = StaticPopupDialogs
 local hooksecurefunc = hooksecurefunc
+local issecretvalue = issecretvalue or function() return false end
+local canaccessallvalues = canaccessallvalues
 
 local RELOAD_PROMPT_POPUP_ID = "MCE_ReloadPrompt"
 
@@ -42,10 +45,54 @@ local function checkForbidden(frame)
     return frame:IsForbidden()
 end
 
+local function checkSecretValue(value)
+    return issecretvalue(value)
+end
+
+local function getTableValue(tbl, key)
+    return tbl[key]
+end
+
 function MCE:IsForbidden(frame)
     if not frame then return true end
     local ok, val = pcall(checkForbidden, frame)
     return not ok or val
+end
+
+function MCE:SafeTableGet(tbl, key)
+    if tbl == nil or key == nil then
+        return nil
+    end
+
+    local ok, value = pcall(getTableValue, tbl, key)
+    if not ok then
+        return nil
+    end
+
+    return value
+end
+
+function MCE:CanUseFrameAsTableKey(frame)
+    if not frame then return false end
+
+    local frameType = type(frame)
+    if frameType ~= "table" and frameType ~= "userdata" then
+        return false
+    end
+
+    local ok, isSecret = pcall(checkSecretValue, frame)
+    if not ok or isSecret then
+        return false
+    end
+
+    if canaccessallvalues then
+        local accessOk, canAccess = pcall(canaccessallvalues, frame)
+        if not accessOk or not canAccess then
+            return false
+        end
+    end
+
+    return not self:IsForbidden(frame)
 end
 
 --- WoW API expects "" not "NONE" for font outline flags.
@@ -78,6 +125,14 @@ function MCE:IsDominosAvailable()
     ) or false
 end
 
+function MCE:IsBartender4Available()
+    if _G.BT4Button1 then
+        return true
+    end
+
+    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.Bartender4Name) or false
+end
+
 function MCE:IsSArenaAvailable()
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.SArenaName) or false
 end
@@ -92,6 +147,14 @@ function MCE:IsElvUIAvailable()
     end
 
     return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded("ElvUI") or false
+end
+
+function MCE:IsMUIAvailable()
+    if type(_G.mUI) == "table" then
+        return true
+    end
+
+    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.MUIName) or false
 end
 
 function MCE:IsShinyAurasAvailable()
@@ -118,6 +181,15 @@ function MCE:IsDominosAdapterEnabled()
     end
 
     return profile.dominosAdapterEnabled ~= false
+end
+
+function MCE:IsBartender4AdapterEnabled()
+    local profile = self.db and self.db.profile
+    if not profile then
+        return true
+    end
+
+    return profile.bartender4AdapterEnabled ~= false
 end
 
 function MCE:IsElvUIAdapterEnabled()
@@ -484,128 +556,29 @@ local function EnsureCompactPartyAuraTextConfig(config)
     return config
 end
 
-local function IsCompactPartyAuraConfigAtDefaults(config)
-    if type(config) ~= "table" then
-        return false
-    end
-
-    local defaults = compactPartyAuraTextDefaults
-    local color = config.textColor
-    local defaultColor = defaults.textColor
-
-    local stackColor = config.stackColor
-    local defaultStackColor = defaults.stackColor
-
-    return config.enabled == defaults.enabled
-        and config.raidEnabled == defaults.raidEnabled
-        and config.font == defaults.font
-        and config.fontSize == defaults.fontSize
-        and config.defensiveBuffFontSize == defaults.defensiveBuffFontSize
-        and config.allowThresholdColors == defaults.allowThresholdColors
-        and config.fontStyle == defaults.fontStyle
-        and config.drawSwipe == defaults.drawSwipe
-        and config.edgeEnabled == defaults.edgeEnabled
-        and config.edgeScale == defaults.edgeScale
-        and config.textAnchor == defaults.textAnchor
-        and config.textOffsetX == defaults.textOffsetX
-        and config.textOffsetY == defaults.textOffsetY
-        and config.stackEnabled == defaults.stackEnabled
-        and config.hideStackText == defaults.hideStackText
-        and config.stackFont == defaults.stackFont
-        and config.stackSize == defaults.stackSize
-        and config.stackStyle == defaults.stackStyle
-        and config.stackAnchor == defaults.stackAnchor
-        and config.stackOffsetX == defaults.stackOffsetX
-        and config.stackOffsetY == defaults.stackOffsetY
-        and type(color) == "table"
-        and color.r == defaultColor.r
-        and color.g == defaultColor.g
-        and color.b == defaultColor.b
-        and color.a == defaultColor.a
-        and type(stackColor) == "table"
-        and stackColor.r == defaultStackColor.r
-        and stackColor.g == defaultStackColor.g
-        and stackColor.b == defaultStackColor.b
-        and stackColor.a == defaultStackColor.a
-end
-
-local function MigrateLegacyPartyRaidFramesConfig(profile)
+local function CleanupObsoleteProfileFields(profile)
     local categories = type(profile.categories) == "table" and profile.categories or nil
     if not categories then
         return
     end
 
-    local legacyCategory = rawget(categories, "partyraidframes")
-        or rawget(categories, C.Categories.CompactPartyAura)
-    if type(legacyCategory) ~= "table" then
-        return
-    end
-
-    local explicitCompactConfig = rawget(profile, "compactPartyAuraText")
-    local shouldMigrateLegacy = type(explicitCompactConfig) ~= "table"
-    if not shouldMigrateLegacy and next(explicitCompactConfig) == nil then
-        shouldMigrateLegacy = true
-    end
-    if not shouldMigrateLegacy and IsCompactPartyAuraConfigAtDefaults(EnsureCompactPartyAuraTextConfig(CopyTable(explicitCompactConfig))) then
-        shouldMigrateLegacy = true
-    end
-
-    if shouldMigrateLegacy then
-        explicitCompactConfig = {}
-        profile.compactPartyAuraText = explicitCompactConfig
-
-        if legacyCategory.enabled ~= nil then
-            explicitCompactConfig.enabled = legacyCategory.enabled and true or false
-        elseif legacyCategory.partyAuraTextEnabled ~= nil then
-            explicitCompactConfig.enabled = legacyCategory.partyAuraTextEnabled and true or false
-        end
-
-        if legacyCategory.enableForRaidOverFive ~= nil then
-            explicitCompactConfig.raidEnabled = legacyCategory.enableForRaidOverFive and true or false
-        elseif legacyCategory.raidAuraTextEnabled ~= nil then
-            explicitCompactConfig.raidEnabled = legacyCategory.raidAuraTextEnabled and true or false
-        end
-
-        if legacyCategory.font ~= nil then
-            explicitCompactConfig.font = legacyCategory.font
-        end
-        if legacyCategory.fontSize ~= nil then
-            explicitCompactConfig.fontSize = legacyCategory.fontSize
-        end
-        if legacyCategory.defensiveBuffFontSize ~= nil then
-            explicitCompactConfig.defensiveBuffFontSize = legacyCategory.defensiveBuffFontSize
-        end
-        if legacyCategory.allowThresholdColors ~= nil then
-            explicitCompactConfig.allowThresholdColors = legacyCategory.allowThresholdColors and true or false
-        end
-        if legacyCategory.fontStyle ~= nil then
-            explicitCompactConfig.fontStyle = legacyCategory.fontStyle
-        end
-        if legacyCategory.drawSwipe ~= nil then
-            explicitCompactConfig.drawSwipe = legacyCategory.drawSwipe and true or false
-        end
-        if legacyCategory.edgeEnabled ~= nil then
-            explicitCompactConfig.edgeEnabled = legacyCategory.edgeEnabled and true or false
-        end
-        if legacyCategory.edgeScale ~= nil then
-            explicitCompactConfig.edgeScale = legacyCategory.edgeScale
-        end
-        if type(legacyCategory.textColor) == "table" then
-            explicitCompactConfig.textColor = CopyTable(legacyCategory.textColor)
-        end
-        if legacyCategory.textAnchor ~= nil then
-            explicitCompactConfig.textAnchor = legacyCategory.textAnchor
-        end
-        if legacyCategory.textOffsetX ~= nil then
-            explicitCompactConfig.textOffsetX = legacyCategory.textOffsetX
-        end
-        if legacyCategory.textOffsetY ~= nil then
-            explicitCompactConfig.textOffsetY = legacyCategory.textOffsetY
-        end
-    end
-
     categories.partyraidframes = nil
     categories[C.Categories.CompactPartyAura] = nil
+
+    local actionbarCategory = categories[C.Categories.Actionbar]
+    if type(actionbarCategory) == "table" then
+        actionbarCategory.textColorByDuration = nil
+    end
+end
+
+local function CleanupObsoleteDatabaseFields(db, profile)
+    if type(db) == "table" and type(db.global) == "table" then
+        db.global.versionAlertsShown = nil
+    end
+
+    if profile then
+        CleanupObsoleteProfileFields(profile)
+    end
 end
 
 MCE.DurationTextColorDefaults = DurationTextColorDefaults
@@ -669,13 +642,11 @@ compactPartyAuraTextDefaults = {
 }
 
 MCE.defaults = {
-    global = {
-        versionAlertsShown = {},
-    },
     profile = {
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
         shinyAurasAdapterEnabled = true,
         dominosAdapterEnabled = true,
+        bartender4AdapterEnabled = true,
         elvuiAdapterEnabled = true,
         compactPartyAuraText = compactPartyAuraTextDefaults,
         durationTextColors = defaultDurationTextColors,
@@ -695,7 +666,7 @@ function MCE:UpgradeProfile()
     local profile = self.db and self.db.profile
     if not profile then return end
 
-    MigrateLegacyPartyRaidFramesConfig(profile)
+    CleanupObsoleteDatabaseFields(self.db, profile)
 
     if profile.shinyAurasAdapterEnabled == nil then
         profile.shinyAurasAdapterEnabled = true
@@ -705,20 +676,16 @@ function MCE:UpgradeProfile()
         profile.dominosAdapterEnabled = true
     end
 
+    if profile.bartender4AdapterEnabled == nil then
+        profile.bartender4AdapterEnabled = true
+    end
+
     if profile.elvuiAdapterEnabled == nil then
         profile.elvuiAdapterEnabled = true
     end
 
     if not profile.durationTextColors then
-        local legacyConfig = profile.categories
-            and profile.categories[C.Categories.Actionbar]
-            and profile.categories[C.Categories.Actionbar].textColorByDuration
-
-        if type(legacyConfig) == "table" then
-            profile.durationTextColors = CopyTable(legacyConfig)
-        else
-            profile.durationTextColors = CopyTable(defaultDurationTextColors)
-        end
+        profile.durationTextColors = CopyTable(defaultDurationTextColors)
     end
 
     EnsureDurationTextColorConfig(profile.durationTextColors)
