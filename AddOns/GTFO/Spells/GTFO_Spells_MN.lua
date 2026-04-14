@@ -87,7 +87,7 @@ GTFO.SpellID["1245919"] = {
 
 --- *****************
 --- * The Voidspire *
---- ******************
+--- *****************
 
 GTFO.SpellID["1284786"] = {
   --desc = "Shadow Phalanx (Imperator Averzian)";
@@ -178,14 +178,7 @@ GTFO.SpellID["1242553"] = {
 --- * March on Quel'Danas *
 --- ***********************
 
-GTFO.SpellID["1242553"] = {
-  --desc = "Light Patch (Beloren)";
-  sound = 1;
-  instance = 2913; 
-  --encounter = 3182;
-};
-
-GTFO.SpellID["1242553"] = {
+GTFO.SpellID["1241840"] = {
   --desc = "Light Patch (Belo'ren)";
   sound = 1;
   instance = 2913; 

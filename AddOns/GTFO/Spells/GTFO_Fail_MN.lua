@@ -90,5 +90,16 @@ GTFO.SpellID["1243753"] = {
   --encounter = 3181;
 };
 
+--- ***********************
+--- * March on Quel'Danas *
+--- ***********************
+
+GTFO.SpellID["1243866"] = {
+  --desc = "Voidlight Rupture (Belo'ren)";
+  sound = 3;
+  instance = 2913; 
+  --encounter = 3182;
+};
+
 end
 
