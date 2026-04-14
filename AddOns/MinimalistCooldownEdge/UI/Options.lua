@@ -8,13 +8,16 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 -- === UPVALUE LOCALS ===
 local format = string.format
 local sort = table.sort
+local tconcat = table.concat
 local strtrim = strtrim
 
 -- Retrieve version dynamically from TOC
-local addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or C.Addon.VersionFallback
+local addonVersion = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version"))
+    or C.Addon.VersionFallback
 
--- LibSharedMedia integration (optional – silently absent if not installed)
-local LSM = LibStub("LibSharedMedia-3.0", true)
+local function GetLibSharedMedia()
+    return LibStub("LibSharedMedia-3.0", true)
+end
 
 -- === SHARED LOOKUP TABLES ===
 
@@ -27,6 +30,7 @@ local FONT_OPTIONS_BASE = C.FontOptionsBase
 local function GetFontOptions()
     local opts = {}
     local usedNames = {}
+    local LSM = GetLibSharedMedia()
 
     if LSM then
         for name, path in pairs(LSM:HashTable("font")) do
@@ -278,6 +282,65 @@ local function SetElvUIAdapterEnabled(_, value)
     MCE:MarkReloadRequired()
     MCE:ForceUpdateAll(true)
     AceConfigRegistry:NotifyChange(addonName)
+end
+
+local function GetCooldownManagerCenteredProfile()
+    local cmc = _G[C.Addon.CooldownManagerCenteredName]
+    local db = type(cmc) == "table" and cmc.db or nil
+    local profile = db and db.profile
+    if type(profile) == "table" then
+        return profile
+    end
+
+    return nil
+end
+
+local function GetCooldownManagerCenteredTimerStyledViewers()
+    local profile = GetCooldownManagerCenteredProfile()
+    if not profile then
+        return nil
+    end
+
+    local viewers = {}
+    if profile.cooldownManager_cooldownFontSizeEssential_enabled then
+        viewers[#viewers + 1] = L["Essential Viewer"]
+    end
+    if profile.cooldownManager_cooldownFontSizeUtility_enabled then
+        viewers[#viewers + 1] = L["Utility Viewer"]
+    end
+    if profile.cooldownManager_cooldownFontSizeBuffIcons_enabled then
+        viewers[#viewers + 1] = L["Buff Icon Viewer"]
+    end
+
+    return viewers
+end
+
+local function GetCooldownManagerCenteredTimerConflictMessage()
+    if not MCE:IsCooldownManagerCenteredAvailable() then
+        return nil
+    end
+
+    local viewers = GetCooldownManagerCenteredTimerStyledViewers()
+    if not viewers or #viewers == 0 then
+        return nil
+    end
+
+    return format(
+        L["CooldownManagerCentered also styles %s. This may add a small performance cost. Disable CMC timer fonts if you want MiniCE to remain the only owner of those viewer timers."],
+        tconcat(viewers, ", ")
+    )
+end
+
+local function HasCooldownManagerCenteredTimerConflict()
+    return GetCooldownManagerCenteredTimerConflictMessage() ~= nil
+end
+
+local function ShouldShowAddonIntegrations()
+    return MCE:IsShinyAurasAvailable()
+        or MCE:IsDominosAvailable()
+        or MCE:IsBartender4Available()
+        or MCE:IsElvUIAvailable()
+        or HasCooldownManagerCenteredTimerConflict()
 end
 
 local function DurationOffsetGet()
@@ -548,6 +611,8 @@ local function CreateCategoryOptions(order, name, key, desc)
     local isTellMeWhen = (key == C.Categories.TellMeWhen)
     local isUnitframe = (key == C.Categories.Unitframe)
     local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe)
+    local allowThresholdColorsGet = CatGet(key, "allowThresholdColors", GetAllowThresholdDefault(key))
+    local allowThresholdColorsSet = CatSet(key, "allowThresholdColors")
 
     return {
         type = "group",
@@ -673,8 +738,8 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "toggle", order = 4.5, width = "full",
                         name = L["Allow Threshold Colors"],
                         desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
-                        get = CatGet(key, "allowThresholdColors", GetAllowThresholdDefault(key)),
-                        set = CatSet(key, "allowThresholdColors"),
+                        get = allowThresholdColorsGet,
+                        set = allowThresholdColorsSet,
                         hidden = function() return isSArena end,
                     },
                     hideCountdownNumbers = {
@@ -720,6 +785,15 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "header", name = L["CooldownManager Viewers"], order = 5.1,
                     } or nil,
                     cooldownManagerHeaderBottomSpacing = isCooldownManager and SectionSpacer(5.15) or nil,
+                    cooldownManagerCenteredConflictNotice = isCooldownManager and {
+                        type = "description", order = 5.16, width = "full", fontSize = "small",
+                        name = function()
+                            return "|cffff7a1a" .. (GetCooldownManagerCenteredTimerConflictMessage() or "") .. "|r"
+                        end,
+                        hidden = function()
+                            return not HasCooldownManagerCenteredTimerConflict()
+                        end,
+                    } or nil,
                     essentialFontSize = isCooldownManager and {
                         type = "range", order = 5.2, width = "full",
                         name = L["Essential Viewer Size"], min = 8, max = 36, step = 1,
@@ -737,6 +811,23 @@ local function CreateCategoryOptions(order, name, key, desc)
                         name = L["Buff Icon Viewer Size"], min = 8, max = 36, step = 1,
                         get = CatGet(key, "buffIconFontSize", 18),
                         set = CatRangeSet(key, "buffIconFontSize"),
+                    } or nil,
+                    auraColorEnabled = isCooldownManager and {
+                        type = "toggle", order = 5.45, width = "full",
+                        name = L["Use Buff Color"],
+                        desc = L["When a CooldownManager slot is temporarily showing aura time, use a dedicated buff color instead of remaining-time threshold colors."],
+                        get = CatGet(key, "auraColorEnabled", true),
+                        set = CatSet(key, "auraColorEnabled"),
+                    } or nil,
+                    auraColor = isCooldownManager and {
+                        type = "color", order = 5.46, width = "half", hasAlpha = true,
+                        name = L["Buff Color"],
+                        desc = L["Applied while the slot is showing aura duration. When the aura ends and the slot switches back to cooldown time, threshold colors resume."],
+                        get = CatColorGet(key, "auraColor"),
+                        set = CatColorSet(key, "auraColor"),
+                        disabled = function()
+                            return MCE.db.profile.categories[key].auraColorEnabled == false
+                        end,
                     } or nil,
                     miniCCHeaderTopSpacing = isMiniCC and SectionSpacer(5.05) or nil,
                     miniCCHeader = isMiniCC and {
@@ -1435,10 +1526,7 @@ function MCE:GetOptions()
                         type = "group", name = "|cffffd100" .. L["Addon Integrations"] .. "|r",
                         inline = true, order = 1.5,
                         hidden = function()
-                            return not MCE:IsShinyAurasAvailable()
-                                and not MCE:IsDominosAvailable()
-                                and not MCE:IsBartender4Available()
-                                and not MCE:IsElvUIAvailable()
+                            return not ShouldShowAddonIntegrations()
                         end,
                         args = {
                             integrationsDesc = {
@@ -1476,6 +1564,15 @@ function MCE:GetOptions()
                                 desc = L["Routes supported ElvUI action bar, unit frame, and nameplate cooldowns through MiniCE categories. Disable this if you want ElvUI to keep its native cooldown styling untouched."],
                                 get = ElvUIAdapterEnabled,
                                 set = SetElvUIAdapterEnabled,
+                            },
+                            cooldownManagerCenteredConflictNotice = {
+                                type = "description", order = 3.5, fontSize = "small", width = "full",
+                                hidden = function()
+                                    return not HasCooldownManagerCenteredTimerConflict()
+                                end,
+                                name = function()
+                                    return "|cffff7a1a" .. (GetCooldownManagerCenteredTimerConflictMessage() or "") .. "|r"
+                                end,
                             },
                         },
                     },

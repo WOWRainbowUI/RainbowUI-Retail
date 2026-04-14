@@ -134,13 +134,8 @@ local function IsMasqueManagedCooldown(cooldown)
     return cooldown and cooldown._MSQ_Color ~= nil
 end
 
--- mUI marks aura parents with mUIBorder when it owns swipe styling.
-local mUIAddonLoaded
 local function IsMUIStyledCooldown(cooldown)
-    if mUIAddonLoaded == nil then
-        mUIAddonLoaded = MCE:IsMUIAvailable()
-    end
-    if not mUIAddonLoaded then return false end
+    if not MCE:IsMUIAvailable() then return false end
     local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
     return parent and parent.mUIBorder ~= nil
 end
@@ -177,13 +172,94 @@ function StyleEngine:GetFrameAuraInstanceID(frame)
         or frame.auraDataInstanceId
 end
 
+local function GetCooldownInfoSafe(owner)
+    if not owner or type(owner.GetCooldownInfo) ~= "function" then
+        return nil
+    end
+
+    local ok, info = pcall(owner.GetCooldownInfo, owner)
+    if ok and type(info) == "table" then
+        return info
+    end
+
+    return nil
+end
+
+local function GetAccessibleBoolean(value)
+    if IsSecretValue(value) and not CanAccessAllValues(value) then
+        return nil
+    end
+
+    if type(value) == "boolean" then
+        return value
+    end
+
+    return nil
+end
+
 function StyleEngine:GetCooldownSpellID(owner)
     if not owner then return nil end
+    local info = GetCooldownInfoSafe(owner)
+    if info then
+        local spellID = info.overrideSpellID or info.spellID
+        if type(spellID) == "number" then return spellID end
+    end
     if type(owner.GetSpellID) == "function" then
         local ok, spellID = pcall(owner.GetSpellID, owner)
         if ok and spellID then return spellID end
     end
     return owner.spellID
+end
+
+function StyleEngine:IsCooldownManagerAuraDisplay(cdFrame)
+    if not cdFrame then return false end
+    if not Registry or Registry:GetCategory(cdFrame) ~= CATEGORY.CooldownManager then
+        return false
+    end
+
+    local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
+    if not parent or MCE:IsForbidden(parent) then
+        return false
+    end
+
+    return GetAccessibleBoolean(parent.wasSetFromAura) == true
+end
+
+function StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
+    if not cdFrame then return false end
+    if not Registry or Registry:GetCategory(cdFrame) ~= CATEGORY.CooldownManager then
+        return false
+    end
+
+    parent = parent or (cdFrame.GetParent and cdFrame:GetParent() or nil)
+    if not parent or MCE:IsForbidden(parent) then
+        return false
+    end
+
+    local chargesShown = GetAccessibleBoolean(parent.cooldownChargesShown)
+    if chargesShown ~= nil then
+        return chargesShown
+    end
+
+    local spellID = self:GetCooldownSpellID(parent)
+    if type(spellID) ~= "number" or not (C_Spell and C_Spell.GetSpellCharges) then
+        return false
+    end
+
+    local ok, charges = pcall(C_Spell.GetSpellCharges, spellID)
+    if not ok
+       or IsSecretValue(charges)
+       or not CanAccessAllValues(charges)
+       or type(charges) ~= "table" then
+        return false
+    end
+
+    local maxCharges = charges.maxCharges
+    if IsSecretValue(maxCharges) and not CanAccessAllValues(maxCharges) then
+        return false
+    end
+
+    return type(maxCharges) == "number" and maxCharges > 1 or false
 end
 
 -- =========================================================================

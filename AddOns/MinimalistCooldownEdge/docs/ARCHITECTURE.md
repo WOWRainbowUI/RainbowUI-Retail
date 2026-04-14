@@ -211,7 +211,7 @@ The registry tracks a category for every cooldown and may also track a subtype.
 | `nameplate` | none |
 | `unitframe` | none |
 | `compactPartyAura` | `party` or `raid` |
-| `cooldownmanager` | `essential`, `utility`, `bufficon`, or fallback `utility_or_essential` |
+| `cooldownmanager` | `essential`, `utility`, or `bufficon` |
 | `minicc` | `cc`, `nameplate`, `portrait`, or `overlay` |
 | `sarena` | `classicon`, `dr`, `trinket`, or `racial` |
 | `tellmewhen` | none |

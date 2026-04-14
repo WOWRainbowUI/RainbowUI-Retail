@@ -34,6 +34,25 @@ addon.weakMeta = weakMeta
 addon.frameState = setmetatable({}, weakMeta)
 addon.fontState = setmetatable({}, weakMeta)
 
+local addonLoadState = {}
+
+local function QueryAddonLoaded(addonName)
+    if type(addonName) ~= "string" or addonName == "" then
+        return false
+    end
+
+    if C_AddOns and type(C_AddOns.IsAddOnLoaded) == "function" then
+        return C_AddOns.IsAddOnLoaded(addonName) == true
+    end
+
+    if type(IsAddOnLoaded) == "function" then
+        local loaded = IsAddOnLoaded(addonName)
+        return loaded == true or loaded == 1
+    end
+
+    return false
+end
+
 -- =========================================================================
 -- SHARED UTILITIES  (used across all modules)
 -- =========================================================================
@@ -109,60 +128,95 @@ function MCE.ResolveFontPath(fontPath)
     return fontPath
 end
 
+function MCE:SetAddonLoadState(addonName, isLoaded)
+    if type(addonName) ~= "string" or addonName == "" then
+        return false
+    end
+
+    addonLoadState[addonName] = isLoaded == true
+    return addonLoadState[addonName]
+end
+
+function MCE:IsAddonLoadedCached(addonName)
+    if type(addonName) ~= "string" or addonName == "" then
+        return false
+    end
+
+    local cached = addonLoadState[addonName]
+    if cached ~= nil then
+        return cached
+    end
+
+    return self:SetAddonLoadState(addonName, QueryAddonLoaded(addonName))
+end
+
 function MCE:IsMiniCCAvailable()
-    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.MiniCCName) or false
+    return self:IsAddonLoadedCached(C.Addon.MiniCCName)
 end
 
 function MCE:IsDominosAvailable()
     if _G.DominosFrame1 or _G.DominosActionButton1 then
+        self:SetAddonLoadState(C.Addon.DominosName, true)
         return true
     end
 
-    return C_AddOns and C_AddOns.IsAddOnLoaded and (
-        C_AddOns.IsAddOnLoaded(C.Addon.DominosName)
-        or C_AddOns.IsAddOnLoaded(C.Addon.DominosCastName)
-        or C_AddOns.IsAddOnLoaded(C.Addon.DominosConfigName)
-    ) or false
+    return self:IsAddonLoadedCached(C.Addon.DominosName)
+        or self:IsAddonLoadedCached(C.Addon.DominosCastName)
+        or self:IsAddonLoadedCached(C.Addon.DominosConfigName)
 end
 
 function MCE:IsBartender4Available()
     if _G.BT4Button1 then
+        self:SetAddonLoadState(C.Addon.Bartender4Name, true)
         return true
     end
 
-    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.Bartender4Name) or false
+    return self:IsAddonLoadedCached(C.Addon.Bartender4Name)
 end
 
 function MCE:IsSArenaAvailable()
-    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.SArenaName) or false
+    return self:IsAddonLoadedCached(C.Addon.SArenaName)
 end
 
 function MCE:IsTellMeWhenAvailable()
-    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.TellMeWhenName) or false
+    return self:IsAddonLoadedCached(C.Addon.TellMeWhenName)
 end
 
 function MCE:IsElvUIAvailable()
     if type(_G.ElvUI) == "table" then
+        self:SetAddonLoadState("ElvUI", true)
         return true
     end
 
-    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded("ElvUI") or false
+    return self:IsAddonLoadedCached("ElvUI")
+end
+
+function MCE:IsCooldownManagerCenteredAvailable()
+    local addonName = C.Addon.CooldownManagerCenteredName
+    if type(_G[addonName]) == "table" then
+        self:SetAddonLoadState(addonName, true)
+        return true
+    end
+
+    return self:IsAddonLoadedCached(addonName)
 end
 
 function MCE:IsMUIAvailable()
     if type(_G.mUI) == "table" then
+        self:SetAddonLoadState(C.Addon.MUIName, true)
         return true
     end
 
-    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.MUIName) or false
+    return self:IsAddonLoadedCached(C.Addon.MUIName)
 end
 
 function MCE:IsShinyAurasAvailable()
     if _G.ShinyAurasFrame or type(_G.ShinyAurasDB) == "table" then
+        self:SetAddonLoadState(C.Addon.ShinyAurasName, true)
         return true
     end
 
-    return C_AddOns and C_AddOns.IsAddOnLoaded and C_AddOns.IsAddOnLoaded(C.Addon.ShinyAurasName) or false
+    return self:IsAddonLoadedCached(C.Addon.ShinyAurasName)
 end
 
 function MCE:IsShinyAurasAdapterEnabled()
@@ -562,6 +616,7 @@ local function CleanupObsoleteProfileFields(profile)
         return
     end
 
+    profile.cooldownManagerCenteredOverrideEnabled = nil
     categories.partyraidframes = nil
     categories[C.Categories.CompactPartyAura] = nil
 
@@ -589,6 +644,38 @@ local cooldownManagerDefaults = CategoryDefaults(C.Categories.CooldownManager, f
 cooldownManagerDefaults.essentialFontSize = C.Defaults.CooldownManager.EssentialFontSize
 cooldownManagerDefaults.utilityFontSize = C.Defaults.CooldownManager.UtilityFontSize
 cooldownManagerDefaults.buffIconFontSize = C.Defaults.CooldownManager.BuffIconFontSize
+cooldownManagerDefaults.auraColorEnabled = C.Defaults.CooldownManager.AuraColorEnabled
+cooldownManagerDefaults.auraColor = CopyTable(C.Defaults.CooldownManager.AuraColor)
+
+local function EnsureCooldownManagerConfig(config)
+    if type(config) ~= "table" then
+        return CopyTable(cooldownManagerDefaults)
+    end
+
+    if type(config.essentialFontSize) ~= "number" then
+        config.essentialFontSize = C.Defaults.CooldownManager.EssentialFontSize
+    end
+    if type(config.utilityFontSize) ~= "number" then
+        config.utilityFontSize = C.Defaults.CooldownManager.UtilityFontSize
+    end
+    if type(config.buffIconFontSize) ~= "number" then
+        config.buffIconFontSize = C.Defaults.CooldownManager.BuffIconFontSize
+    end
+    if config.auraColorEnabled == nil then
+        config.auraColorEnabled = C.Defaults.CooldownManager.AuraColorEnabled
+    end
+    if type(config.auraColor) ~= "table" then
+        config.auraColor = CopyTable(C.Defaults.CooldownManager.AuraColor)
+    else
+        local defaultColor = C.Defaults.CooldownManager.AuraColor
+        if config.auraColor.r == nil then config.auraColor.r = defaultColor.r end
+        if config.auraColor.g == nil then config.auraColor.g = defaultColor.g end
+        if config.auraColor.b == nil then config.auraColor.b = defaultColor.b end
+        if config.auraColor.a == nil then config.auraColor.a = defaultColor.a end
+    end
+
+    return config
+end
 
 local miniCCDefaults = CategoryDefaults(C.Categories.MiniCC, false, 18)
 miniCCDefaults.ccFontSize = C.Defaults.MiniCC.CCFontSize
@@ -688,6 +775,13 @@ function MCE:UpgradeProfile()
         profile.durationTextColors = CopyTable(defaultDurationTextColors)
     end
 
+    if type(profile.categories) ~= "table" then
+        profile.categories = CopyTable(self.defaults.profile.categories)
+    end
+
+    profile.categories[C.Categories.CooldownManager] =
+        EnsureCooldownManagerConfig(profile.categories[C.Categories.CooldownManager])
+
     EnsureDurationTextColorConfig(profile.durationTextColors)
     profile.compactPartyAuraText = EnsureCompactPartyAuraTextConfig(profile.compactPartyAuraText)
 end
@@ -700,11 +794,16 @@ function MCE:HandleProfileUpdated()
     AceConfigRegistry:NotifyChange(addonName)
 end
 
+function MCE:ADDON_LOADED(_, loadedAddonName)
+    self:SetAddonLoadState(loadedAddonName, true)
+end
+
 -- =========================================================================
 -- ACE LIFECYCLE
 -- =========================================================================
 
 function MCE:OnInitialize()
+    self:RegisterEvent("ADDON_LOADED")
     self.db = LibStub("AceDB-3.0"):New(C.Addon.SavedVariables, self.defaults, true)
     self.db.RegisterCallback(self, "OnProfileChanged", "HandleProfileUpdated")
     self.db.RegisterCallback(self, "OnProfileCopied", "HandleProfileUpdated")

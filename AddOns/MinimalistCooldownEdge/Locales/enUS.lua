@@ -13,6 +13,7 @@ L["Nameplates"] = true
 L["Unit Frames"] = true
 L["Party / Raid Frames"] = true
 L["CooldownManager"] = true
+L["CooldownManagerCentered"] = true
 L["MiniCC"] = true
 L["sArena"] = true
 L["TellMeWhen"] = true
@@ -56,11 +57,18 @@ L["Hide the swipe animation for this frame group (countdown text still shows)."]
 L["Only show cooldown timer text on your own auras. Uses Blizzard's large-aura heuristic instead of a direct sourceUnit check."] = true
 L["Shows styled countdown text on Blizzard CompactPartyFrame buff and debuff icons. Disabling this hides aura countdown text on party frames."] = true
 L["Shows styled countdown text on Blizzard CompactRaidFrame buff and debuff icons. Disabling this hides aura countdown text on raid frames."] = true
+L["When a CooldownManager slot is temporarily showing aura time, use a dedicated buff color instead of remaining-time threshold colors."] = true
+L["Applied while the slot is showing aura duration. When the aura ends and the slot switches back to cooldown time, threshold colors resume."] = true
 L["Anchor Point"] = true
 L["Offset X"] = true
 L["Offset Y"] = true
 L["Buff / Debuff Size"] = true
 L["Defensive Buff Size"] = true
+L["Use Buff Color"] = true
+L["Buff Color"] = true
+L["Essential Viewer"] = true
+L["Utility Viewer"] = true
+L["Buff Icon Viewer"] = true
 L["Essential Viewer Size"] = true
 L["Utility Viewer Size"] = true
 L["Buff Icon Viewer Size"] = true
@@ -163,6 +171,7 @@ L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if
 L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."] = true
 L["Routes supported Bartender4 action bar cooldowns through the Action Bars category. Disable this if you want Bartender4 to keep its native cooldown styling untouched."] = true
 L["Routes supported ElvUI action bar, unit frame, and nameplate cooldowns through MiniCE categories. Disable this if you want ElvUI to keep its native cooldown styling untouched."] = true
+L["CooldownManagerCentered also styles %s. This may add a small performance cost. Disable CMC timer fonts if you want MiniCE to remain the only owner of those viewer timers."] = true
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = true

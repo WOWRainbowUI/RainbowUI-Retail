@@ -9,6 +9,7 @@ C.Addon = {
     AceName = "MinimalistCooldownEdge",
     ShortName = "MiniCE",
     SavedVariables = "MinimalistCooldownEdgeDB_v2",
+    CooldownManagerCenteredName = "CooldownManagerCentered",
     MiniCCName = "MiniCC",
     DominosName = "Dominos",
     DominosCastName = "Dominos_Cast",
@@ -42,7 +43,6 @@ C.CooldownManagerViewers = {
     Essential = "essential",
     Utility = "utility",
     BuffIcon = "bufficon",
-    UtilityOrEssential = "utility_or_essential",
 }
 
 C.MiniCCFrameTypes = {
@@ -182,6 +182,8 @@ C.Defaults = {
         EssentialFontSize = 18,
         UtilityFontSize = 18,
         BuffIconFontSize = 18,
+        AuraColorEnabled = true,
+        AuraColor = C.Colors.Highlight,
     },
     MiniCC = {
         CCFontSize = 18,
