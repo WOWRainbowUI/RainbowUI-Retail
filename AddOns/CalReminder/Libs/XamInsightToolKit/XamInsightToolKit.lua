@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "XamInsightToolKit", 1
+local MAJOR, MINOR = "XamInsightToolKit-2.0", 2
 local XITK = LibStub:NewLibrary(MAJOR, MINOR)
 if not XITK then
     -- A newer version is already loaded
@@ -29,7 +29,7 @@ else
 	-- n/a
 end
 
-function XITK.GetMouseFocus()
+function XITK:GetMouseFocus()
 	local frame = nil
 	if GetMouseFoci then
 		local region = GetMouseFoci()
@@ -45,7 +45,7 @@ end
 ---------------------------------------------------------------------------------------------------
 
 -- Returns the "main version" number or 0 on invalid input.
-function XITK.getMainVersion(version)
+function XITK:getMainVersion(version)
     -- Validate the input first
     if type(version) ~= "string" or version == "" then
         return 0
@@ -68,9 +68,9 @@ function XITK.getMainVersion(version)
     return n1 * 100 + n2
 end
 
-function XITK.Error(addon, addonName, message)
+function XITK:Error(addon, addonName, message)
 	if addon and message then
-		local messageToPrint = string.format("%s"..XITK.GetPunctuationSpace()..": %s", addonName or "XITK", message)
+		local messageToPrint = string.format("%s"..XITK:GetPunctuationSpace()..": %s", addonName or "XITK", message)
 		UIErrorsFrame:AddMessage(messageToPrint, 1.0, 0.1, 0.1)
 		addon:Print("|cFFFF0000"..message)
 	end
@@ -82,15 +82,13 @@ end
 
 -- Tip by Gello - Hyjal
 -- takes an npcID and returns the name of the npc
-if (not XamInsightToolKitTooltip) then
+if not XamInsightToolKitTooltip then
 	CreateFrame("GameTooltip", "XamInsightToolKitTooltip", UIParent, "GameTooltipTemplate")
 	XamInsightToolKitTooltip:SetFrameStrata("TOOLTIP")
 	XamInsightToolKitTooltip:Hide()
-else
-	return
 end
 
-function XITK.GetNameFromNpcID(npcID)
+function XITK:GetNameFromNpcID(npcID)
 	local name = ""
 	
 	XamInsightToolKitTooltip:SetOwner(UIParent, "ANCHOR_NONE")
@@ -104,7 +102,7 @@ function XITK.GetNameFromNpcID(npcID)
 	return name
 end
 
-function XITK.IsPlayerUnitSafe(unit)
+function XITK:IsPlayerUnitSafe(unit)
     local ok, isPlayer = pcall(UnitIsPlayer, unit)
     if ok then
         return isPlayer
@@ -114,7 +112,7 @@ function XITK.IsPlayerUnitSafe(unit)
 end
 
 
-function XITK.addRealm(aName, aRealm)
+function XITK:addRealm(aName, aRealm)
 	if aName and (not issecretvalue or not issecretvalue(aName)) and not string.match(aName, "-") then
 		if aRealm and aRealm ~= "" then
 			aName = aName.."-"..aRealm
@@ -126,21 +124,21 @@ function XITK.addRealm(aName, aRealm)
 	return aName
 end
 
-function XITK.delRealm(aName)
+function XITK:delRealm(aName)
 	if aName and (not issecretvalue or not issecretvalue(aName)) and string.match(aName, "-") then
 		aName = strsplit("-", aName)
 	end
 	return aName
 end
 
-function XITK.fullName(unit)
+function XITK:fullName(unit)
 	local fullName = nil
 	if unit then
 		local playerName, playerRealm = UnitNameUnmodified(unit)
-		if not XITK.IsPlayerUnitSafe(unit) then
+		if not XITK:IsPlayerUnitSafe(unit) then
 			return playerName
 		end
-		if playerName and playerName ~= "" and playerName ~= UNKNOWN then
+		if playerName and (not issecretvalue or not issecretvalue(playerName)) and playerName ~= "" and playerName ~= UNKNOWN then
 			if not playerRealm or playerRealm == "" then
 				playerRealm = GetNormalizedRealmName()
 			end
@@ -154,19 +152,19 @@ function XITK.fullName(unit)
 	return fullName
 end
 
-function XITK.isPlayerCharacter(aName)
-	return XITK.playerCharacter() == XITK.addRealm(aName)
+function XITK:isPlayerCharacter(aName)
+	return XITK:playerCharacter() == XITK:addRealm(aName)
 end
 
 local playerCharacter
-function XITK.playerCharacter()
+function XITK:playerCharacter()
 	if not playerCharacter then
-		playerCharacter = XITK.fullName("player")
+		playerCharacter = XITK:fullName("player")
 	end
 	return playerCharacter
 end
 
-function XITK.isPartyMember(unit)
+function XITK:isPartyMember(unit)
 	return unit == "player" or UnitInParty(unit) or UnitInRaid(unit)
 end
 
@@ -178,7 +176,7 @@ local LOCALES_WITH_PUNCT_SPACE = {
     frFR = true,
 }
 
-function XITK.GetPunctuationSpace()
+function XITK:GetPunctuationSpace()
     return LOCALES_WITH_PUNCT_SPACE[GetLocale()] and " " or ""
 end
 
@@ -186,7 +184,7 @@ local function upperCaseBusiness(aText)
 	return string.utf8upper(aText)
 end
 
-function XITK.titleFormat(aText)
+function XITK:titleFormat(aText)
 	local retOK, ret
 	local newText = ""
 	if aText then
@@ -200,7 +198,7 @@ function XITK.titleFormat(aText)
 end
 
 
-function XITK.upperCase(aText)
+function XITK:upperCase(aText)
 	local retOK, ret
 	local newText = ""
 	if aText then
@@ -215,20 +213,20 @@ function XITK.upperCase(aText)
 end
 
 -- Converts a date into a timestamp (number of seconds since epoch)
-function XITK.dateToTimestamp(day, month, year)
+function XITK:dateToTimestamp(day, month, year)
     return time({year = year, month = month, day = day, hour = 0, min = 0, sec = 0})
 end
 
-function XITK.getCurrentDate()
+function XITK:getCurrentDate()
 	local curDate = C_DateAndTime.GetCurrentCalendarTime()
 	return curDate.monthDay, curDate.month, curDate.year
 end
 
-function XITK.getTimeUTCinMS()
-	return tostring(time(date("!*t")))
+function XITK:getTimeUTCinMS()
+	return time(date("!*t"))
 end
 
-function XITK.countTableElements(table)
+function XITK:countTableElements(table)
 	local count = 0
 	if table then
 		for _ in pairs(table) do
@@ -238,7 +236,7 @@ function XITK.countTableElements(table)
 	return count
 end
 
-function XITK.tonumberzeroonblankornil(aString)
+function XITK:tonumberzeroonblankornil(aString)
 	if aString and aString ~= "" then
 		return tonumber(aString)
 	else
@@ -246,7 +244,7 @@ function XITK.tonumberzeroonblankornil(aString)
 	end
 end
 
-function XITK.SimpleRound(val, valStep)
+function XITK:SimpleRound(val, valStep)
 	return floor(val/valStep)*valStep
 end
 
@@ -256,13 +254,13 @@ end
 
 local willPlay, soundHandle
 
-function XITK.PlaySound(soundID, channel, soundDisabled)
+function XITK:PlaySound(soundID, channel, soundDisabled)
 	if soundID and not soundDisabled then
 		PlaySound(soundID, channel or "master")
 	end
 end
 
-function XITK.PlaySoundFile(addonFolder, soundFile, channel, soundDisabled)
+function XITK:PlaySoundFile(addonFolder, soundFile, channel, soundDisabled)
 	if addonFolder and soundFile and not soundDisabled then
 		if soundHandle then
 			StopSound(soundHandle)
@@ -275,7 +273,7 @@ function XITK.PlaySoundFile(addonFolder, soundFile, channel, soundDisabled)
 	return soundHandle
 end
 
-function XITK.PlaySoundFileID(soundFileID, channel, playSound)
+function XITK:PlaySoundFileID(soundFileID, channel, playSound)
 	if playSound then
 		if soundHandle then
 			StopSound(soundHandle)
@@ -285,13 +283,19 @@ function XITK.PlaySoundFileID(soundFileID, channel, playSound)
 	return soundHandle
 end
 
-function XITK.PlayRandomSound(soundFileIDBank, channel, playSound)
+function XITK:PlayRandomSound(soundFileIDBank, channel, playSound)
 	if playSound and soundFileIDBank then
 		local nbSounds = #soundFileIDBank
 		if nbSounds > 0 then
 			local sound = math.random(1, nbSounds)
-			return XITK.PlaySoundFileID(soundFileIDBank[sound], channel, playSound)
+			return XITK:PlaySoundFileID(soundFileIDBank[sound], channel, playSound)
 		end
 	end
 	return nil
+end
+
+function XITK:DoEmote(emote)
+	if not UnitAffectingCombat("player") then
+		DoEmote(emote)
+	end
 end

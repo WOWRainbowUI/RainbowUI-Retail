@@ -1,3 +1,17 @@
+- v1.4.11
+	- Secret values management.
+- v1.4.10
+	- TOC for 12.0.5.
+- v1.4.9
+	- Added: NPCs.
+- v1.4.7
+	- Secret values management.
+- v1.4.6
+	- Added: Magister Umbric, Lyssabel Dawnpetal, Grand Magister Rommath and Tocho Cloudhide.
+- v1.4.5
+	- LibStub usage adjustments.
+- v1.4.4
+	- TOC for 12.0.1.
 - v1.4.3
 	- Code optimization.
 - v1.4.1
