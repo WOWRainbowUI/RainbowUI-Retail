@@ -210,8 +210,19 @@ private.Segments = {
                         local spell = {
                             targets = {},
                         }
-                        spell.id = spellId
-                        spellContainer._ActorTable[spellId] = spell
+                        spell.id = spellId or 1
+                        spellContainer._ActorTable[spellId or 1] = spell
+                        return spell
+                    end,
+                    _ActorTable = {},
+                }
+                actor.spells_damage_avoidable = {
+                    GetOrCreateSpell = function(spellContainer, spellId)
+                        local spell = {
+                            targets = {},
+                        }
+                        spell.id = spellId or 1
+                        spellContainer._ActorTable[spellId or 1] = spell
                         return spell
                     end,
                     _ActorTable = {},
@@ -221,8 +232,8 @@ private.Segments = {
                         local spell = {
                             targets = {},
                         }
-                        spell.id = spellId
-                        spellContainer._ActorTable[spellId] = spell
+                        spell.id = spellId or 1
+                        spellContainer._ActorTable[spellId or 1] = spell
                         return spell
                     end,
                     _ActorTable = {},
@@ -232,8 +243,8 @@ private.Segments = {
                         local spell = {
                             targets = {},
                         }
-                        spell.id = spellId
-                        spellContainer._ActorTable[spellId] = spell
+                        spell.id = spellId or 1
+                        spellContainer._ActorTable[spellId or 1] = spell
                         return spell
                     end,
                     _ActorTable = {},
@@ -489,6 +500,33 @@ private.Segments = {
                     actor.grupo = true
 
                     --actor damage taken to fill actor.damage_from
+                end
+            end
+        end
+
+        do
+            local actorList = segments[9].combatSources --avoidable damage taken
+            for i = 1, #actorList do
+                local thisActor = actorList[i]
+                if thisActor.sourceGUID and thisActor.specIconID then
+                    local actor = damageContainer:GetOrCreateActor(thisActor.sourceGUID, thisActor.name, 0x512, true, tempo)
+                    actor.nome = thisActor.name
+                    actor.damage_taken_avoidable = thisActor.totalAmount
+                    actor.damage_taken_ps_avoidable = thisActor.amountPerSecond
+                    actor.classe = thisActor.classFilename
+                    actor.specIcon = thisActor.specIconID
+                    actor.serial = thisActor.sourceGUID
+                    actor.grupo = true
+
+                    --spells
+                    local spells = private.Segments.GetActorSpells(Enum.DamageMeterType.AvoidableDamageTaken, thisActor.sourceGUID)
+                    for j = 1, #spells.combatSpells do
+                        local thisSpell = spells.combatSpells[j]
+                        local spellTable = actor.spells_damage_avoidable:GetOrCreateSpell(thisSpell.spellID)
+                        spellTable.total = thisSpell.totalAmount
+                        spellTable.id = thisSpell.spellID
+                        spellTable.counter = 1
+                    end
                 end
             end
         end

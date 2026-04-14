@@ -5,7 +5,7 @@
 ## Notes-ruRU: Добавляет в Details! гибкое расширение для М+ подземелий
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
-## Version: #DMP.20260402.019
+## Version: #DMP.20260411.020
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL
