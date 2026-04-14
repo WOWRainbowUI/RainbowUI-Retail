@@ -3227,6 +3227,7 @@ if detailsFramework.IsAddonApocalypseWow() then
 	end)
 end
 
+---@param instance instance
 local dealWithPlayerName = function(instance, line, forceUpdate)
 	if InCombatLockdown() and line.lineText1.__playerNameUpdated and not forceUpdate then
 		local baseFrame = instance.baseframe
@@ -3241,6 +3242,8 @@ local dealWithPlayerName = function(instance, line, forceUpdate)
 	local lineHeight = instance.row_info.height
 	local lineWidth = instance.baseframe:GetWidth()
 	local yOffset = -math.max((lineHeight - textHeight) / 2, 0)
+
+	yOffset = yOffset + instance.row_info.text_yoffset
 
 	line.lineText1:ClearAllPoints()
 	if (instance.row_info.no_icon) then
@@ -3346,9 +3349,13 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 		end
 	else
 		if specIcon then
-			actorName = UnitName(actorName)
-			if actorName == nil then
-				actorName = source.name
+			if Details222.IsTOCBiggerOrEqualTo(120005) then
+				actorName = Ambiguate(source.name, "none")
+			else
+				actorName = UnitName(actorName)
+				if actorName == nil then
+					actorName = source.name
+				end
 			end
 		else
 			actorName = source.name
