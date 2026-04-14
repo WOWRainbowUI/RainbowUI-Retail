@@ -18,9 +18,10 @@ local canaccessallvalues = canaccessallvalues
 local CLASSIFIER_CONSTANTS = C.Classifier
 local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
 local BLACKLIST_PARENT_NAMES = CLASSIFIER_CONSTANTS.BlacklistParentNames
+local weakMeta = addon.weakMeta
 local frameState = addon.frameState
 
-local blacklistCache = {}
+local blacklistCache = setmetatable({}, weakMeta)
 local blacklistParentNameLookup = {}
 
 for _, parentName in ipairs(BLACKLIST_PARENT_NAMES) do

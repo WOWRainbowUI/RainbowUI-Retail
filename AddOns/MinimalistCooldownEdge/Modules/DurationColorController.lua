@@ -176,6 +176,7 @@ function DurationColor:GetFallbackDurationObject(cdFrame, forceContextRefresh)
     if not parent then return nil end
 
     local fs = StyleEngine:ResolveCooldownContext(cdFrame, forceContextRefresh == true)
+    local category = Registry and Registry:GetCategory(cdFrame)
     local actionButton = fs.actionButton ~= false and fs.actionButton or parent
     local actionID = fs.actionID ~= false and fs.actionID or StyleEngine:GetActionIDFromButton(actionButton)
 
@@ -190,23 +191,39 @@ function DurationColor:GetFallbackDurationObject(cdFrame, forceContextRefresh)
         end
     end
 
-    local category = Registry and Registry:GetCategory(cdFrame)
     local shouldUseAura = self:ShouldUseAuraDurationFallback(cdFrame, category)
     if shouldUseAura then
         local auraOwner = fs.auraInstanceOwner ~= false and fs.auraInstanceOwner or nil
         local unitOwner = fs.auraUnitOwner ~= false and fs.auraUnitOwner or nil
         local auraInstanceID = auraOwner and StyleEngine:GetFrameAuraInstanceID(auraOwner)
         local unitToken = unitOwner and StyleEngine:GetFrameUnitToken(unitOwner)
+        -- CooldownManager always tracks the player's own auras; default to
+        -- "player" when the icon frame hierarchy exposes no unitToken.
+        if not unitToken and category == CATEGORY.CooldownManager then
+            unitToken = "player"
+        end
         if auraInstanceID and unitToken and C_UnitAuras and C_UnitAuras.GetAuraDuration then
             local ok, obj = pcall(C_UnitAuras.GetAuraDuration, unitToken, auraInstanceID)
             if ok and obj then return obj end
+        end
+
+        -- Aura-driven displays should wait for aura data rather than falling
+        -- back to a spell cooldown, which can incorrectly push them into the
+        -- shortest threshold band.
+        if category == CATEGORY.CooldownManager or self:IsAuraDrivenCooldown(cdFrame, category) then
+            return nil
         end
     end
 
     local spellOwner = (fs.spellOwner ~= false and fs.spellOwner) or actionButton or parent
     local spellID = StyleEngine:GetCooldownSpellID(spellOwner)
     if spellID and C_Spell then
-        if StyleEngine:IsChargeCooldownFrame(cdFrame, spellOwner or parent) and C_Spell.GetSpellChargeDuration then
+        local useChargeDuration = StyleEngine:IsChargeCooldownFrame(cdFrame, spellOwner or parent)
+        if not useChargeDuration and category == CATEGORY.CooldownManager then
+            useChargeDuration = StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
+        end
+
+        if useChargeDuration and C_Spell.GetSpellChargeDuration then
             local ok, obj = pcall(C_Spell.GetSpellChargeDuration, spellID)
             if ok and obj then return obj end
         end
@@ -433,6 +450,22 @@ local function GetDurationResetConfig(cdFrame, sourceKey, config)
     return categories and categories[CATEGORY.Nameplate] or config
 end
 
+local function GetStateOverrideTextColor(cdFrame, sourceKey, config)
+    if sourceKey ~= CATEGORY.CooldownManager or not config then
+        return nil
+    end
+
+    if not StyleEngine:IsCooldownManagerAuraDisplay(cdFrame) then
+        return nil
+    end
+
+    if config.auraColorEnabled == false then
+        return config.textColor
+    end
+
+    return config.auraColor or config.textColor
+end
+
 local function IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
     local durationConfig = GetDurationTextColorsConfig()
     if not durationConfig or not durationConfig.enabled or not config then return false end
@@ -516,6 +549,12 @@ function DurationColor:ClearTrackedDurationColor(cdFrame)
 end
 
 function DurationColor:RefreshTrackedDurationColor(cdFrame, sourceKey, config)
+    local overrideColor = GetStateOverrideTextColor(cdFrame, sourceKey, config)
+    if overrideColor then
+        self:ClearTrackedDurationColor(cdFrame)
+        return StyleEngine:ApplyTextColorToCooldownRegions(cdFrame, overrideColor)
+    end
+
     if not IsDurationColorEnabledForSource(cdFrame, sourceKey, config) then
         self:ClearTrackedDurationColor(cdFrame)
         StyleEngine:ResetCountdownTextColor(cdFrame, GetDurationResetConfig(cdFrame, sourceKey, config))
@@ -555,10 +594,22 @@ end
 local function UpdateDurationColors()
     local curve = GetColorCurve()
     if not curve then
+        local clearList
         for cdFrame, sourceKey in pairs(durationColoredFrames) do
             local config = GetDurationTextSourceConfig(sourceKey)
-            StyleEngine:ResetCountdownTextColor(cdFrame, GetDurationResetConfig(cdFrame, sourceKey, config))
-            DurationColor:ClearTrackedDurationColor(cdFrame)
+            local overrideColor = GetStateOverrideTextColor(cdFrame, sourceKey, config)
+            if overrideColor then
+                StyleEngine:ApplyTextColorToCooldownRegions(cdFrame, overrideColor)
+            else
+                StyleEngine:ResetCountdownTextColor(cdFrame, GetDurationResetConfig(cdFrame, sourceKey, config))
+            end
+            clearList = clearList or {}
+            clearList[#clearList + 1] = cdFrame
+        end
+        if clearList then
+            for i = 1, #clearList do
+                DurationColor:ClearTrackedDurationColor(clearList[i])
+            end
         end
         StopTicker()
         return
@@ -571,13 +622,19 @@ local function UpdateDurationColors()
     end
 
     local activeCount = 0
+    local clearList
     for cdFrame in pairs(activeDurationFrames) do
         local sourceKey = durationColoredFrames[cdFrame]
         if not sourceKey then
             RemoveActiveDurationFrame(cdFrame)
         else
             local config = GetDurationTextSourceConfig(sourceKey)
-            if cdFrame and not MCE:IsForbidden(cdFrame)
+            local overrideColor = GetStateOverrideTextColor(cdFrame, sourceKey, config)
+            if overrideColor then
+                StyleEngine:ApplyTextColorToCooldownRegions(cdFrame, overrideColor)
+                clearList = clearList or {}
+                clearList[#clearList + 1] = cdFrame
+            elseif cdFrame and not MCE:IsForbidden(cdFrame)
                and IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
                and ApplyCooldownDurationColor(cdFrame, sourceKey, config, curve) then
                 activeCount = activeCount + 1
@@ -587,6 +644,12 @@ local function UpdateDurationColors()
                 end
                 DurationColor:ClearTrackedDurationColor(cdFrame)
             end
+        end
+    end
+
+    if clearList then
+        for i = 1, #clearList do
+            DurationColor:ClearTrackedDurationColor(clearList[i])
         end
     end
 
@@ -605,6 +668,26 @@ end
 function DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
     if not cooldown or MCE:IsForbidden(cooldown) or StyleEngine.IsSecretValue(cooldown) then return end
 
+    -- Action bars re-fetch live duration data, so avoid extra validation work.
+    local category = Registry and Registry:GetCategory(cooldown)
+    if category == CATEGORY.Actionbar then
+        local sourceKey = durationColoredFrames[cooldown]
+        if not sourceKey then return end
+        local fs = frameState[cooldown]
+        if fs then fs.appliedTextColor = nil end
+        local curve = GetColorCurve()
+        local config = GetDurationTextSourceConfig(sourceKey)
+        if curve and IsDurationColorEnabledForSource(cooldown, sourceKey, config) then
+            ApplyCooldownDurationColor(cooldown, sourceKey, config, curve)
+        else
+            if config then
+                StyleEngine:ResetCountdownTextColor(cooldown, GetDurationResetConfig(cooldown, sourceKey, config))
+            end
+            self:ClearTrackedDurationColor(cooldown)
+        end
+        return
+    end
+
     self:SetCooldownDurationObject(cooldown, durationObject)
 
     local fs = frameState[cooldown]
@@ -614,7 +697,11 @@ function DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
     if sourceKey then
         local curve = GetColorCurve()
         local config = GetDurationTextSourceConfig(sourceKey)
-        if curve and IsDurationColorEnabledForSource(cooldown, sourceKey, config) then
+        local overrideColor = GetStateOverrideTextColor(cooldown, sourceKey, config)
+        if overrideColor then
+            StyleEngine:ApplyTextColorToCooldownRegions(cooldown, overrideColor)
+            self:ClearTrackedDurationColor(cooldown)
+        elseif curve and IsDurationColorEnabledForSource(cooldown, sourceKey, config) then
             ApplyCooldownDurationColor(cooldown, sourceKey, config, curve)
         else
             if config then

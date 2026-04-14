@@ -1,6 +1,35 @@
 
 # Changelog
 
+## [3.9.0] - 2026-04-12
+- Fixed buff icon issue where one timer could stay on the expiring color.
+- Added a safer compatibility refresh for CooldownManagerCentered buff icons without affecting normal CooldownManager setups.
+
+## [3.8.9] - 2026-04-12
+- Better aura timer tracking in CooldownManager, especially right after viewer refreshes.
+- Buff-icon slots now recover their timer color faster and more reliably.
+
+## [3.8.8] - 2026-04-11
+- CooldownManager slots that temporarily display aura/buff time now use a dedicated static buff color, then fall back to normal threshold colors once they return to the real cooldown.
+- CooldownManager viewer detection now follows tullaCTC-style first-named-frame matching, which keeps Essential and Utility viewers separated instead of falling back to a shared subtype.
+- Smoother aura cooldown handling in busy fights, with fewer wasted refresh attempts.
+- feat: Enhanced HookBridge with unmanaged aura claim retry logic and safer frame state handling.
+- CooldownManager no longer has its threshold colors forcibly disabled just because CooldownManagerCentered is loaded.
+- Removed the CooldownManagerCentered override switch; CooldownManager viewers now stay routed through MiniCE while keeping the compatibility alerts.
+
+## [3.8.7] - 2026-04-11
+- Improved startup reliability so cooldown styling initializes more consistently on Retail Midnight.
+- Better compatibility with late-loaded addons like mUI and LibSharedMedia.
+- Reduced extra addon detection work in cooldown styling paths.
+
+## [3.8.6] - 2026-04-11
+- Added a MiniCE override for CooldownManagerCentered on CooldownManager viewers.
+- Added a small orange warning when MiniCE and CMC style the same viewer timers.
+
+## [3.8.5] - 2026-04-10
+- Reduced stutters with Bartender4 and compatible BT4 plugins on Retail.
+- MiniCE now avoids fighting some BT4 cast animation swipe changes during combat.
+
 ## [3.8.4] - 2026-04-10
 - Reduced freezes and stuttering when using MiniCE with mUI on Retail.
 - MiniCE now leaves mUI's aura swipe styling alone instead of fighting it.

@@ -17,6 +17,7 @@ local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local GetTime = GetTime
 local C_Timer_After = C_Timer.After
+local CreateFrame = CreateFrame
 local issecretvalue = issecretvalue or function() return false end
 local canaccessallvalues = canaccessallvalues
 
@@ -24,6 +25,7 @@ local CATEGORY = C.Categories
 local CLASSIFIER_CONSTANTS = C.Classifier
 local STYLER_CONSTANTS = C.Styler
 local AURA_RETRY_MIN_INTERVAL = STYLER_CONSTANTS.AuraRetryMinInterval or 0.25
+local UNMANAGED_AURA_RETRY_INTERVAL = STYLER_CONSTANTS.UnmanagedAuraRetryInterval or (AURA_RETRY_MIN_INTERVAL * 4)
 local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
 local BLACKLIST_PARENT_NAMES = CLASSIFIER_CONSTANTS.BlacklistParentNames
 
@@ -72,6 +74,42 @@ local function IsBlacklistAllowed(cooldown)
     return state and state.allowBlacklisted == true or false
 end
 
+local function GetOrCreateTrackedFrameState(cooldown)
+    local state = GetTrackedFrameState(cooldown)
+    if state then
+        return state
+    end
+    if not MCE:CanUseFrameAsTableKey(cooldown) then
+        return nil
+    end
+
+    state = {}
+    frameState[cooldown] = state
+    return state
+end
+
+local function ClearUnmanagedAuraClaimRetry(cooldown)
+    local state = GetTrackedFrameState(cooldown)
+    if state then
+        state.unmanagedAuraRetryAt = nil
+    end
+end
+
+local function MarkUnmanagedAuraClaimRetry(cooldown, delay)
+    local state = GetOrCreateTrackedFrameState(cooldown)
+    if not state then
+        return
+    end
+
+    state.unmanagedAuraRetryAt = GetTime() + (delay or UNMANAGED_AURA_RETRY_INTERVAL)
+end
+
+local function IsUnmanagedAuraClaimRetryPending(cooldown, now)
+    local state = GetTrackedFrameState(cooldown)
+    local retryAt = state and state.unmanagedAuraRetryAt or nil
+    return type(retryAt) == "number" and retryAt > (now or GetTime())
+end
+
 -- =========================================================================
 -- NUMERIC COMPARISON
 -- =========================================================================
@@ -104,13 +142,8 @@ local function IsMasqueManagedCooldown(cooldown)
     return cooldown._MSQ_Color ~= nil
 end
 
--- mUI marks aura parents with mUIBorder when it owns swipe styling.
-local mUIAddonLoaded
 local function IsMUIStyledCooldown(cooldown)
-    if mUIAddonLoaded == nil then
-        mUIAddonLoaded = MCE:IsMUIAvailable()
-    end
-    if not mUIAddonLoaded then return false end
+    if not MCE:IsMUIAvailable() then return false end
     local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
     return parent and parent.mUIBorder ~= nil
 end
@@ -120,11 +153,58 @@ end
 -- =========================================================================
 
 local hooksInstalled = false
+local cooldownHookAPI
 
-local function IsAuraRetryCategory(category)
-    return category == CATEGORY.Nameplate
-        or category == CATEGORY.Unitframe
-        or category == CATEGORY.CompactPartyAura
+local function EnsureDependencies()
+    if not Registry then
+        Registry = MCE:GetModule("TargetRegistry")
+    end
+    if not BatchProcessor then
+        BatchProcessor = MCE:GetModule("BatchProcessor")
+    end
+    if not DurationColor then
+        DurationColor = MCE:GetModule("DurationColorController")
+    end
+
+    return Registry ~= nil and BatchProcessor ~= nil and DurationColor ~= nil
+end
+
+local function GetCooldownHookAPI()
+    if cooldownHookAPI then
+        return cooldownHookAPI
+    end
+
+    if type(CreateFrame) ~= "function" then
+        return nil
+    end
+
+    local probeCooldown = CreateFrame("Cooldown")
+    if not probeCooldown then
+        return nil
+    end
+
+    local probeMeta = getmetatable(probeCooldown)
+    local api = probeMeta and probeMeta.__index or nil
+    if type(api) ~= "table" then
+        return nil
+    end
+
+    cooldownHookAPI = api
+    return cooldownHookAPI
+end
+
+local VIEWER_TYPE = C.CooldownManagerViewers
+
+local function IsAuraRetryCategory(category, cooldown)
+    if category == CATEGORY.Nameplate
+       or category == CATEGORY.Unitframe
+       or category == CATEGORY.CompactPartyAura then
+        return true
+    end
+    if category == CATEGORY.CooldownManager and Registry then
+        return Registry:GetSubtype(cooldown) == VIEWER_TYPE.BuffIcon
+    end
+    return false
 end
 
 local function HasAuraLikeAncestor(cooldown)
@@ -188,115 +268,179 @@ local function ShouldIgnoreCooldown(cooldown)
 end
 
 local function TryRegisterUnknown(cooldown)
-    if not MCE:CanUseFrameAsTableKey(cooldown) then return end
-    if Registry:IsRegistered(cooldown) then return end
-    -- Only adapters can register cooldowns; unsupported frames are silently ignored
-    local category = Registry:TryClaim(cooldown)
-    if category then
-        BatchProcessor:QueueUpdate(cooldown)
+    if not EnsureDependencies() then
+        return nil
     end
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return nil end
+
+    local category = Registry:GetCategory(cooldown)
+    if category then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        return category
+    end
+
+    category = Registry:TryClaim(cooldown)
+    if category then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+    end
+    return category
+end
+
+local function InvalidateResolvedFrameState(fs, refreshDuration)
+    if not fs then
+        return
+    end
+
+    if refreshDuration then
+        fs.durationObject = nil
+    end
+    fs.forceTextRegionRefresh = true
+    fs.appliedTextColor = nil
+    fs.contextResolved = nil
+    fs.liveNameplateAuraContextResolved = nil
+    fs.liveNameplateAuraContext = nil
+    fs.compactPartyAuraTypeResolved = nil
+    fs.compactPartyAuraType = nil
+end
+
+local function ScheduleAuraRetry(cooldown, wantsDurationRefresh)
+    local fs = GetOrCreateTrackedFrameState(cooldown)
+    if not fs then
+        return
+    end
+
+    if wantsDurationRefresh then
+        fs.pendingAuraDurationRefresh = true
+    end
+    if fs.pendingAuraRefresh then
+        return
+    end
+
+    local now = GetTime()
+    if type(fs.nextAuraRefreshAt) == "number" and fs.nextAuraRefreshAt > now then
+        return
+    end
+
+    fs.nextAuraRefreshAt = now + AURA_RETRY_MIN_INTERVAL
+    fs.pendingAuraRefresh = true
+
+    C_Timer_After(0, function()
+        if ShouldIgnoreCooldown(cooldown) then
+            ClearUnmanagedAuraClaimRetry(cooldown)
+            return
+        end
+
+        if not EnsureDependencies() then
+            return
+        end
+
+        local fs2 = GetTrackedFrameState(cooldown)
+        local refreshDuration = fs2 and fs2.pendingAuraDurationRefresh == true
+
+        if fs2 then
+            fs2.pendingAuraRefresh = nil
+            fs2.pendingAuraDurationRefresh = nil
+        end
+
+        local retryCategory = Registry:GetCategory(cooldown)
+        if not retryCategory then
+            retryCategory = TryRegisterUnknown(cooldown)
+        end
+
+        if not retryCategory then
+            MarkUnmanagedAuraClaimRetry(cooldown)
+            return
+        end
+
+        InvalidateResolvedFrameState(fs2, refreshDuration)
+
+        if refreshDuration then
+            DurationColor:HandleCooldownDurationUpdate(cooldown, nil)
+        end
+        BatchProcessor:QueueUpdate(cooldown)
+    end)
+end
+
+local function ProcessCooldownUpdate(cooldown, durationObject)
+    if not EnsureDependencies() then
+        return
+    end
+
+    local category = Registry:GetCategory(cooldown)
+    if category then
+        local fs = frameState[cooldown]
+        if fs and fs.unmanagedAuraRetryAt then
+            fs.unmanagedAuraRetryAt = nil
+        end
+
+        DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
+        BatchProcessor:QueueUpdate(cooldown)
+
+        if IsAuraRetryCategory(category, cooldown) then
+            ScheduleAuraRetry(cooldown, durationObject == nil or category == CATEGORY.Nameplate)
+        end
+        return
+    end
+
+    if IsRestrictedCooldown(cooldown) then
+        return
+    end
+
+    local now = GetTime()
+    if IsUnmanagedAuraClaimRetryPending(cooldown, now) then
+        return
+    end
+
+    category = Registry:TryClaim(cooldown)
+    if category then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
+        BatchProcessor:QueueUpdate(cooldown)
+
+        if IsAuraRetryCategory(category, cooldown) then
+            ScheduleAuraRetry(cooldown, durationObject == nil or category == CATEGORY.Nameplate)
+        end
+        return
+    end
+
+    if HasHookBlacklistMatch(cooldown) then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        return
+    end
+
+    if not HasAuraLikeAncestor(cooldown) then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        return
+    end
+
+    MarkUnmanagedAuraClaimRetry(cooldown, UNMANAGED_AURA_RETRY_INTERVAL)
+    ScheduleAuraRetry(cooldown, durationObject == nil)
+end
+
+local function ProcessCooldownClear(cooldown)
+    if not EnsureDependencies() then
+        return
+    end
+
+    if Registry:IsRegistered(cooldown) then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        DurationColor:ClearTrackedDurationColor(cooldown)
+        return
+    end
+
+    if ShouldIgnoreCooldown(cooldown) then
+        return
+    end
+
+    ClearUnmanagedAuraClaimRetry(cooldown)
+    DurationColor:ClearTrackedDurationColor(cooldown)
 end
 
 function HookBridge:SetupHooks()
     if hooksInstalled then return end
 
-    -- Aura-driven cooldowns can finish constructing their countdown text after
-    -- the first cooldown setter runs. Queue one deferred follow-up pass so
-    -- nameplate aura styling wins on the first visible application. If the
-    -- initial hook also lacked duration data, rebuild that in the same retry.
-    local function MaybeRetryAuraRefresh(cooldown, durationObject)
-        local category = Registry:GetCategory(cooldown)
-        if category then
-            if not IsAuraRetryCategory(category) then return end
-        elseif not HasAuraLikeAncestor(cooldown) then
-            return
-        end
-        if not MCE:CanUseFrameAsTableKey(cooldown) then return end
-
-        local fs = GetTrackedFrameState(cooldown)
-        if not fs then
-            fs = {}
-            frameState[cooldown] = fs
-        end
-
-        if durationObject == nil or category == CATEGORY.Nameplate then
-            fs.pendingAuraDurationRefresh = true
-        end
-        if fs.pendingAuraRefresh then return end
-
-        local now = GetTime()
-        if type(fs.nextAuraRefreshAt) == "number" and fs.nextAuraRefreshAt > now then return end
-        fs.nextAuraRefreshAt = now + AURA_RETRY_MIN_INTERVAL
-        fs.pendingAuraRefresh = true
-        C_Timer_After(0, function()
-            if ShouldIgnoreCooldown(cooldown) then return end
-            local fs2 = GetTrackedFrameState(cooldown)
-            local refreshDuration = fs2 and fs2.pendingAuraDurationRefresh == true
-            if fs2 then
-                fs2.pendingAuraRefresh = nil
-                fs2.pendingAuraDurationRefresh = nil
-                if refreshDuration then
-                    fs2.durationObject = nil
-                end
-                fs2.forceTextRegionRefresh = true
-                fs2.appliedTextColor = nil
-                fs2.contextResolved = nil
-                fs2.liveNameplateAuraContextResolved = nil
-                fs2.liveNameplateAuraContext = nil
-                fs2.compactPartyAuraTypeResolved = nil
-                fs2.compactPartyAuraType = nil
-            end
-            if refreshDuration then
-                DurationColor:HandleCooldownDurationUpdate(cooldown, nil)
-            end
-            TryRegisterUnknown(cooldown)
-            BatchProcessor:QueueUpdate(cooldown)
-        end)
-    end
-
-    local function HandleCooldownUpdate(cooldown, durationObject)
-        -- ---------------------------------------------------------------
-        -- FAST PATH: registered cooldowns already passed all security
-        -- checks when their adapter registered them. Skip the heavier
-        -- IsRestrictedCooldown + blacklist traversal for those frames and
-        -- use a single protected registry lookup for secret-safe access.
-        -- ---------------------------------------------------------------
-        local category = Registry:GetCategory(cooldown)
-        if category then
-            DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
-            BatchProcessor:QueueUpdate(cooldown)
-            if IsAuraRetryCategory(category) then
-                MaybeRetryAuraRefresh(cooldown, durationObject)
-            end
-            return
-        end
-
-        -- SLOW PATH: first-time discovery for unknown cooldowns
-        if IsRestrictedCooldown(cooldown) then return end
-
-        category = Registry:TryClaim(cooldown)
-        if not category and HasHookBlacklistMatch(cooldown) then
-            return
-        end
-            
-        if not category and not HasAuraLikeAncestor(cooldown) then
-            return
-        end
-
-        DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
-        BatchProcessor:QueueUpdate(cooldown)
-        MaybeRetryAuraRefresh(cooldown, durationObject)
-    end
-
-    local sampleCooldown = ActionButton1Cooldown
-        or (ActionButton1 and (ActionButton1.cooldown or ActionButton1.Cooldown))
-
-    if not sampleCooldown then return end
-
-    local cooldownAPI = getmetatable(sampleCooldown)
-    cooldownAPI = cooldownAPI and cooldownAPI.__index or sampleCooldown
-
-    if type(cooldownAPI) ~= "table" then return end
+    local cooldownAPI = GetCooldownHookAPI()
+    if not cooldownAPI then return end
 
     -- =====================================================================
     -- COOLDOWN LIFETIME HOOKS
@@ -304,13 +448,19 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.SetCooldown) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldown", function(cooldown, startTime, duration, modRate)
+            if not EnsureDependencies() then
+                return
+            end
             local durationObject = DurationColor:CreateDurationObjectFromCooldownArgs(startTime, duration, modRate)
-            HandleCooldownUpdate(cooldown, durationObject)
+            ProcessCooldownUpdate(cooldown, durationObject)
         end)
     end
 
     if type(cooldownAPI.SetCooldownDuration) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldownDuration", function(cooldown, duration, modRate)
+            if not EnsureDependencies() then
+                return
+            end
             local durationObject
             if CanAccessAllValues(duration, modRate)
                and type(duration) == "number"
@@ -318,32 +468,29 @@ function HookBridge:SetupHooks()
                 durationObject = DurationColor:CreateDurationFromEndTime(GetTime() + duration, duration, modRate or 1)
             end
 
-            HandleCooldownUpdate(cooldown, durationObject)
+            ProcessCooldownUpdate(cooldown, durationObject)
         end)
     end
 
     if type(cooldownAPI.SetCooldownFromDurationObject) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldownFromDurationObject", function(cooldown, durationObject)
-            HandleCooldownUpdate(cooldown, durationObject)
+            ProcessCooldownUpdate(cooldown, durationObject)
         end)
     end
 
     if type(cooldownAPI.SetCooldownFromExpirationTime) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldownFromExpirationTime", function(cooldown, expirationTime, duration, modRate)
+            if not EnsureDependencies() then
+                return
+            end
             local durationObject = DurationColor:CreateDurationObjectFromExpirationArgs(expirationTime, duration, modRate)
-            HandleCooldownUpdate(cooldown, durationObject)
+            ProcessCooldownUpdate(cooldown, durationObject)
         end)
     end
 
     if type(cooldownAPI.Clear) == "function" then
         hooksecurefunc(cooldownAPI, "Clear", function(cooldown)
-            -- Fast path: registered cooldowns are known-safe
-            if Registry:IsRegistered(cooldown) then
-                DurationColor:ClearTrackedDurationColor(cooldown)
-                return
-            end
-            if ShouldIgnoreCooldown(cooldown) then return end
-            DurationColor:ClearTrackedDurationColor(cooldown)
+            ProcessCooldownClear(cooldown)
         end)
     end
 
@@ -401,6 +548,8 @@ function HookBridge:SetupHooks()
             if not fs or fs.suppressSwipe then return end
             if IsMUIStyledCooldown(cooldown) then return end
             if IsMasqueManagedCooldown(cooldown) then return end
+            -- Let BT4 cast VFX hide the swipe without triggering a revert loop.
+            if fs.bt4Supported and type(a) == "number" and a == 0 then return end
             if IsSecretValue(r)
                or IsSecretValue(g)
                or IsSecretValue(b)
@@ -441,14 +590,19 @@ function HookBridge:SetupHooks()
     hooksInstalled = true
 end
 
+function HookBridge:HandleCooldownUpdate(cooldown, durationObject)
+    ProcessCooldownUpdate(cooldown, durationObject)
+end
+
+function HookBridge:HandleCooldownClear(cooldown)
+    ProcessCooldownClear(cooldown)
+end
+
 -- =========================================================================
 -- LIFECYCLE
 -- =========================================================================
 
 function HookBridge:OnEnable()
-    Registry = MCE:GetModule("TargetRegistry")
-    BatchProcessor = MCE:GetModule("BatchProcessor")
-    DurationColor = MCE:GetModule("DurationColorController")
-
+    EnsureDependencies()
     self:SetupHooks()
 end
