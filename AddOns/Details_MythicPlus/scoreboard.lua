@@ -80,6 +80,7 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 ---@field scoreColor table
 ---@field deaths number
 ---@field damageTaken number
+---@field avoidableDamageTaken number
 ---@field dps number
 ---@field hps number
 ---@field interrupts number
@@ -91,6 +92,7 @@ local openRaidLib = LibStub:GetLibrary("LibOpenRaid-1.0", true)
 ---@field activityTimeDamage number
 ---@field activityTimeHeal number
 ---@field damageTakenFromSpells spell_hit_player[]
+---@field avoidableDamageTakenFromSpells avoidable_spell_hit_player[]
 ---@field loot string|nil
 ---@field keystoneLevel number
 ---@field keystoneIcon string|number
@@ -597,7 +599,9 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                 previousScore = playerInfo.scorePrevious or score or 0,
                 scoreColor = ratingColor,
                 damageTaken = playerInfo.totalDamageTaken or 0,
+                avoidableDamageTaken = playerInfo.totalAvoidableDamageTaken or 0,
                 damageTakenFromSpells = playerInfo.damageTakenFromSpells,
+                avoidableDamageTakenFromSpells = playerInfo.avoidableDamageTakenFromSpells,
                 damageDoneBySpells = playerInfo.damageDoneBySpells,
                 healDoneBySpells = playerInfo.healDoneBySpells,
                 dps = playerInfo.totalDamage / combatTime,
@@ -767,8 +771,9 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
     --print("runData.mapId", runData.mapId)
 
     local wallpapaers = {
+        [161] = true, --skyreach
+        [239] = true, --seat of the triumvirate
         [402] = true, --algeth'ar academy
-        --[499] = true, --skyreach
         [556] = true, --pit of saron
         [557] = true, --windrunner spire
         [558] = true, --magister's terrace
@@ -976,19 +981,21 @@ function mythicPlusBreakdown.CreateActivityPanel(mainFrame)
                 reservedUntil = after
             end
 
+            local CONST_ACTIVITYFRAME_LINE_HEIGHT = 15
+
             marker:Show()
             marker:ClearAllPoints()
             marker.TimestampLabel:ClearAllPoints()
             marker.LineTexture:ClearAllPoints()
             if (up) then
-                marker:SetPoint("bottom", activityFrame, "topleft", pointOnBar, 15)
+                marker:SetPoint("bottom", activityFrame, "topleft", pointOnBar, CONST_ACTIVITYFRAME_LINE_HEIGHT)
                 marker.LineTexture:SetPoint("top", marker, "bottom", 0, 0)
-                marker.LineTexture:SetPoint("bottom", activityFrame, "top", 0, 0)
+                marker.LineTexture:SetHeight(CONST_ACTIVITYFRAME_LINE_HEIGHT)
                 marker.TimestampLabel:SetPoint("bottom", marker, "top", 0, 5)
             else
-                marker:SetPoint("top", activityFrame, "bottomleft", pointOnBar, -15)
-                marker.LineTexture:SetPoint("top", marker, "top", 0, 0)
-                marker.LineTexture:SetPoint("bottom", activityFrame, "bottom", 0, 0)
+                marker:SetPoint("top", activityFrame, "bottomleft", pointOnBar, -CONST_ACTIVITYFRAME_LINE_HEIGHT)
+                marker.LineTexture:SetPoint("bottom", marker, "top", 0, 0)
+                marker.LineTexture:SetHeight(CONST_ACTIVITYFRAME_LINE_HEIGHT)
                 marker.TimestampLabel:SetPoint("top", marker, "bottom", 0, -5)
             end
         end
