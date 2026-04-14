@@ -37,25 +37,18 @@ end
 
 
 
--- Use the original percent logic: prefer UnitHealthPercent, fallback to (cur/max)*100
+-- UnitHealthPercent returns a secret number (0.0–1.0 range).
+-- We cannot do any Lua arithmetic or string.format on secret numbers.
+-- Store it raw; format via text:SetFormattedText (C++) at display time.
 local function SafeUnitHealthPercent(unit)
-    local pct = nil
     if type(UnitHealthPercent) == "function" then
-        local ok, val = pcall(UnitHealthPercent, unit)
+        local curve = _G.CurveConstants and _G.CurveConstants.ScaleTo100 or nil
+        local ok, val = pcall(UnitHealthPercent, unit, false, curve)
         if ok and type(val) == "number" then
-            pct = val
+            return val -- already scaled to 0-100 when curve is available
         end
     end
-    if type(pct) ~= "number" then
-        local cur = UnitHealth(unit)
-        local max = UnitHealthMax(unit)
-        if type(cur) == "number" and type(max) == "number" and max > 0 then
-            pct = (cur / max) * 100
-        else
-            pct = nil
-        end
-    end
-    return pct
+    return nil
 end
 
 local function SafeNumbers(unit)
@@ -73,15 +66,16 @@ local function FormatText(style, cur, max, pct)
         end
         return tostring(val)
     end
+    -- pct is a secret number (0.0–1.0); format percentage via SetFormattedText at display time
+    -- These helpers return strings for non-percent parts only
     if style == "percent" then
-        if type(pct) ~= "number" then return "?" end
-        return string.format("%.0f%%", pct)
+        return nil  -- caller must use SetFormattedText
     elseif style == "both" then
-        if type(cur) ~= "number" or type(pct) ~= "number" then return "?" end
-        return abbr(cur or 0) .. (CONFIG and CONFIG.separator or " - ") .. string.format("%.0f%%", pct)
+        if type(cur) ~= "number" then return "?" end
+        return nil  -- caller must use SetFormattedText
     elseif style == "both_reverse" then
-        if type(cur) ~= "number" or type(pct) ~= "number" then return "?" end
-        return string.format("%.0f%%", pct) .. (CONFIG and CONFIG.separator or " - ") .. abbr(cur or 0)
+        if type(cur) ~= "number" then return "?" end
+        return nil  -- caller must use SetFormattedText
     elseif style == "currentmax" then
         if type(cur) ~= "number" or type(max) ~= "number" then return "?" end
         return abbr(cur) .. " / " .. abbr(max)
@@ -128,6 +122,20 @@ local function SafeGetUnitHealth(unit)
     local cur = SafeNumberCall(UnitHealth, unit)
     local max = SafeNumberCall(UnitHealthMax, unit)
     return cur, max
+end
+
+local function AppendAbsorbSuffix(unit)
+    if not (PlayerHealthTextDB and PlayerHealthTextDB.showAbsorbs) then return end
+    local absorb = UnitGetTotalAbsorbs(unit)
+    if type(absorb) ~= "number" then return end
+    local okAbs, absText = pcall(AbbreviateNumbers, absorb)
+    if not okAbs or not absText then return end
+    local okBase, baseText = pcall(text.GetText, text)
+    if not okBase then return end
+    local okFmt = pcall(text.SetFormattedText, text, "%s +%s", baseText or "", absText)
+    if not okFmt then
+        pcall(text.SetText, text, absText)
+    end
 end
 
 function SafeSetFont(fs, fontChoice, size, fontFlags)
@@ -178,13 +186,24 @@ function ApplyDisplaySettings()
         text:SetJustifyH("CENTER")
     end
     if text.SetJustifyV then text:SetJustifyV("MIDDLE") end
-    text:SetAlpha(db.visibleAlpha or 1.0)
-    text:Show()
+    local alpha = db.visibleAlpha or 1.0
+    text:SetAlpha(alpha)
+    if alpha <= 0 then
+        text:Hide()
+    else
+        text:Show()
+    end
 end
 
 
 function UpdateHealthText()
     if not EnsureHealthTextCreated() then return end
+    -- Respect user hide state from buttons/options.
+    local db = PlayerHealthTextDB or {}
+    if (db.visibleAlpha or 1.0) <= 0 then
+        if text then text:Hide() end
+        return
+    end
     if not UnitExists("player") then
         if text then text:SetText(""); text:Hide() end
         return
@@ -263,85 +282,61 @@ function UpdateHealthText()
         end
         local textStr = abbr(Current)
         if displayMode == "bothfull" and Percent then
-            textStr = textStr .. " (" .. string.format("%.0f%%", Percent) .. ")"
+            local okPct, pctText = pcall(string.format, "%.0f%%", Percent)
+            if okPct and pctText then
+                textStr = textStr .. " (" .. pctText .. ")"
+            end
         end
-        if incomingHeals and incomingHeals > 0 then
-            textStr = textStr .. " +" .. abbr(incomingHeals)
+        local incomingStr = (type(incomingHeals) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(incomingHeals) or nil
+        if incomingStr then
+            textStr = textStr .. " +" .. incomingStr
         end
         local absorbParts = {}
-        if damageAbsorbs and damageAbsorbs > 0 then
-            table.insert(absorbParts, "Absorb " .. abbr(damageAbsorbs))
+        local dmgAbsStr = (type(damageAbsorbs) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(damageAbsorbs) or nil
+        if dmgAbsStr then
+            table.insert(absorbParts, "Absorb " .. dmgAbsStr)
         end
-        if healAbsorbs and healAbsorbs > 0 then
-            table.insert(absorbParts, "HealAbsorb " .. abbr(healAbsorbs))
+        local healAbsStr = (type(healAbsorbs) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(healAbsorbs) or nil
+        if healAbsStr then
+            table.insert(absorbParts, "HealAbsorb " .. healAbsStr)
         end
         if #absorbParts > 0 then
             textStr = textStr .. " (" .. table.concat(absorbParts, ", ") .. ")"
         end
         text:SetText(textStr)
     elseif displayMode == "both" then
-        text:SetText(FormatText("both", Current, nil, Percent))
-        if PlayerHealthTextDB.showAbsorbs then
-            local absorb = UnitGetTotalAbsorbs(Unit)
-            if absorb then
-                local function abbr(val)
-                    if type(val) == "number" then
-                        if AbbreviateNumbers then
-                            return AbbreviateNumbers(val)
-                        end
-                    end
-                    return tostring(val)
-                end
-                text:SetText(text:GetText() .. " +" .. abbr(absorb))
-            end
+        local sep = CONFIG and CONFIG.separator or " - "
+        local okFmt = false
+        if type(Current) == "number" and type(Percent) == "number" and type(AbbreviateNumbers) == "function" then
+            okFmt = pcall(text.SetFormattedText, text, "%s" .. sep .. "%.0f%%", AbbreviateNumbers(Current), Percent)
         end
+        if not okFmt then
+            local raw = FormatText("both", Current, nil, Percent)
+            text:SetText(raw or "?")
+        end
+        AppendAbsorbSuffix(Unit)
     elseif displayMode == "current" then
         text:SetText(FormatText("current", Current, nil, Percent))
-        if PlayerHealthTextDB.showAbsorbs then
-            local absorb = UnitGetTotalAbsorbs(Unit)
-            local absorbNum = absorb and tonumber(tostring(absorb)) or 0
-            if absorbNum > 0 then
-                local function abbr(val)
-                    if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                        return AbbreviateNumbers(val)
-                    end
-                    return tostring(val)
-                end
-                text:SetText(text:GetText() .. " +" .. abbr(absorbNum))
-            end
-        end
+        AppendAbsorbSuffix(Unit)
     elseif displayMode == "currentmax" then
         text:SetText(FormatText("currentmax", Current, Max, Percent))
-        if PlayerHealthTextDB.showAbsorbs then
-            local absorb = UnitGetTotalAbsorbs(Unit)
-            local absorbNum = absorb and tonumber(tostring(absorb)) or 0
-            if absorbNum > 0 then
-                local function abbr(val)
-                    if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                        return AbbreviateNumbers(val)
-                    end
-                    return tostring(val)
-                end
-                text:SetText(text:GetText() .. " +" .. abbr(absorbNum))
-            end
-        end
+        AppendAbsorbSuffix(Unit)
     else -- percent
-        text:SetText(FormatText("percent", Current, nil, Percent))
-        if PlayerHealthTextDB.showAbsorbs then
-            local absorb = UnitGetTotalAbsorbs(Unit)
-            local absorbNum = absorb and tonumber(tostring(absorb)) or 0
-            if absorbNum > 0 then
-                local function abbr(val)
-                    if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                        return AbbreviateNumbers(val)
-                    end
-                    return tostring(val)
-                end
-                text:SetText(text:GetText() .. " +" .. abbr(absorbNum))
-            end
+        local okFmt = false
+        if type(Percent) == "number" then
+            okFmt = pcall(text.SetFormattedText, text, "%.0f%%", Percent)
         end
+        if not okFmt then
+            local raw = FormatText("percent", Current, nil, Percent)
+            text:SetText(raw or "?")
+        end
+        AppendAbsorbSuffix(Unit)
     end
-    text:Show()
+    if (db.visibleAlpha or 1.0) > 0 then
+        text:Show()
+    else
+        text:Hide()
+    end
 end
 
 

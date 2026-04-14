@@ -37,48 +37,110 @@ reblockFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 reblockFrame:SetScript("OnEvent", function()
     BlockAllClampRectInsets()
 end)
--- Moves the Alternate Power Bar using X/Y offsets from the profile
+-- Moves the Alternate Power Bar using X/Y offsets from the profile.
+-- Uses a dedicated mover frame + taint-safe hooksecurefunc to prevent Blizzard from resetting the position.
+
+local altPowerMover = nil  -- mover anchor frame, created once
+local altPowerMoverGuard = false  -- recursion guard for hooksecurefunc
+
+local function GetOrCreateAltPowerMover()
+    if altPowerMover then return altPowerMover end
+
+    local prd = _G["PersonalResourceDisplayFrame"]
+    if not prd or not prd.AlternatePowerBar then return nil end
+
+    local bar = prd.AlternatePowerBar
+
+    -- Create an invisible anchor frame parented to UIParent so Blizzard PRD code cannot move it
+    altPowerMover = CreateFrame("Frame", "PRR_AltPowerMover", UIParent)
+    altPowerMover:SetSize(bar:GetWidth() or 220, bar:GetHeight() or 20)
+    altPowerMover:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    altPowerMover:SetFrameStrata("MEDIUM")
+    altPowerMover:Show()
+
+    -- Use hooksecurefunc (taint-safe) to snap the bar back after any Blizzard SetPoint call.
+    -- The hook fires AFTER the original, so Blizzard code runs unaltered (no taint),
+    -- then we immediately correct the position.
+    hooksecurefunc(bar, "SetPoint", function(self)
+        if altPowerMoverGuard then return end
+        altPowerMoverGuard = true
+        self:ClearAllPoints()
+        self:SetPoint("CENTER", altPowerMover, "CENTER", 0, 0)
+        altPowerMoverGuard = false
+    end)
+
+    -- Same for ClearAllPoints — re-anchor after Blizzard clears
+    hooksecurefunc(bar, "ClearAllPoints", function(self)
+        if altPowerMoverGuard then return end
+        altPowerMoverGuard = true
+        self:SetPoint("CENTER", altPowerMover, "CENTER", 0, 0)
+        altPowerMoverGuard = false
+    end)
+
+    -- If Blizzard reparents the bar, reparent it back
+    hooksecurefunc(bar, "SetParent", function(self, parent)
+        if parent == altPowerMover then return end
+        if altPowerMoverGuard then return end
+        altPowerMoverGuard = true
+        self:SetParent(altPowerMover)
+        self:ClearAllPoints()
+        self:SetPoint("CENTER", altPowerMover, "CENTER", 0, 0)
+        altPowerMoverGuard = false
+    end)
+
+    -- Do initial reparent + anchor
+    bar:SetParent(altPowerMover)
+    bar:ClearAllPoints()
+    bar:SetPoint("CENTER", altPowerMover, "CENTER", 0, 0)
+
+    return altPowerMover
+end
+
 function _G.MoveAlternatePowerBar()
     local profile = PersonalResourceReskin.db and PersonalResourceReskin.db.profile
     if not profile then return end
     local prd = _G["PersonalResourceDisplayFrame"]
-    if prd and prd.AlternatePowerBar then
-        if profile.altPowerBarWidth then
-            prd.AlternatePowerBar:SetWidth(profile.altPowerBarWidth)
+    if not prd or not prd.AlternatePowerBar then return end
+
+    local mover = GetOrCreateAltPowerMover()
+    if not mover then return end
+
+    local bar = prd.AlternatePowerBar
+
+    -- Apply size to both mover and bar
+    local w = profile.altPowerBarWidth or bar:GetWidth() or 220
+    local h = profile.altPowerBarHeight or bar:GetHeight() or 20
+    mover:SetSize(w, h)
+    bar:SetSize(w, h)
+
+    if EditModeManagerFrame and EditModeManagerFrame.editModeActive then return end
+
+    -- Position the mover frame (Blizzard cannot touch this)
+    mover:ClearAllPoints()
+    if profile.altPowerBarAnchorEnabled then
+        local anchorTarget = profile.altPowerBarAnchorTarget or "NONE"
+        local anchorPosition = profile.altPowerBarAnchorPosition or "BELOW"
+        local anchorOffset = profile.altPowerBarAnchorOffset or 10
+        local anchorX = profile.altPowerBarAnchorX or 0
+        local anchorFrame = nil
+        if anchorTarget == "HEALTH" and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
+            anchorFrame = prd.HealthBarsContainer.healthBar
+        elseif anchorTarget == "POWER" and prd.PowerBar then
+            anchorFrame = prd.PowerBar
         end
-        if profile.altPowerBarHeight then
-            prd.AlternatePowerBar:SetHeight(profile.altPowerBarHeight)
-        end
-        if not (EditModeManagerFrame and EditModeManagerFrame.editModeActive) then
-            prd.AlternatePowerBar:ClearAllPoints()
-            -- Anchoring logic
-            if profile.altPowerBarAnchorEnabled then
-                local anchorTarget = profile.altPowerBarAnchorTarget or "NONE"
-                local anchorPosition = profile.altPowerBarAnchorPosition or "BELOW"
-                local anchorOffset = profile.altPowerBarAnchorOffset or 10
-                local anchorX = profile.altPowerBarAnchorX or 0
-                local anchorFrame = nil
-                if anchorTarget == "HEALTH" and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar then
-                    anchorFrame = prd.HealthBarsContainer.healthBar
-                elseif anchorTarget == "POWER" and prd.PowerBar then
-                    anchorFrame = prd.PowerBar
-                end
-                if anchorFrame then
-                    if anchorPosition == "ABOVE" then
-                        prd.AlternatePowerBar:SetPoint("BOTTOM", anchorFrame, "TOP", anchorX, anchorOffset)
-                    elseif anchorPosition == "BELOW" then
-                        prd.AlternatePowerBar:SetPoint("TOP", anchorFrame, "BOTTOM", anchorX, -anchorOffset)
-                    else -- Custom fallback
-                        prd.AlternatePowerBar:SetPoint("CENTER", anchorFrame, "CENTER", anchorX, anchorOffset)
-                    end
-                else
-                    -- Fallback to UIParent if no anchor
-                    prd.AlternatePowerBar:SetPoint("CENTER", UIParent, "CENTER", profile.altPowerBarX or 0, profile.altPowerBarY or 0)
-                end
+        if anchorFrame then
+            if anchorPosition == "ABOVE" then
+                mover:SetPoint("BOTTOM", anchorFrame, "TOP", anchorX, anchorOffset)
+            elseif anchorPosition == "BELOW" then
+                mover:SetPoint("TOP", anchorFrame, "BOTTOM", anchorX, -anchorOffset)
             else
-                prd.AlternatePowerBar:SetPoint("CENTER", UIParent, "CENTER", profile.altPowerBarX or 0, profile.altPowerBarY or 0)
+                mover:SetPoint("CENTER", anchorFrame, "CENTER", anchorX, anchorOffset)
             end
+        else
+            mover:SetPoint("CENTER", UIParent, "CENTER", profile.altPowerBarX or 0, profile.altPowerBarY or 0)
         end
+    else
+        mover:SetPoint("CENTER", UIParent, "CENTER", profile.altPowerBarX or 0, profile.altPowerBarY or 0)
     end
 end
         -- Helper to apply legacy combo/rune spacing
@@ -882,30 +944,13 @@ f:SetScript("OnEvent", function(_, event)
     end
 end)
 
--- Ensure AlternatePowerBar is repositioned after PRD is shown/hidden
+-- Ensure AlternatePowerBar mover is set up after PRD is created/shown
 C_Timer.After(0, function()
     local prd = _G.PersonalResourceDisplayFrame
     if prd then
         prd:HookScript("OnShow", function()
             if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
         end)
-        prd:HookScript("OnHide", function()
-            if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
-        end)
-        -- Hook Blizzard's UpdateAdditionalBarAnchors to immediately re-apply our
-        -- custom AlternatePowerBar position after Blizzard resets it.
-        -- This prevents the visible "jump down then back up" on DH and other classes.
-        if prd.UpdateAdditionalBarAnchors then
-            hooksecurefunc(prd, "UpdateAdditionalBarAnchors", function()
-                if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
-            end)
-        end
-        -- Also hook SetupAlternatePowerBar which calls UpdateAdditionalBarAnchors
-        if prd.SetupAlternatePowerBar then
-            hooksecurefunc(prd, "SetupAlternatePowerBar", function()
-                if type(_G.MoveAlternatePowerBar) == "function" then _G.MoveAlternatePowerBar() end
-            end)
-        end
     end
 end)
 
@@ -955,10 +1000,13 @@ function PersonalResourceReskin:OnInitialize()
                             if _G.PlayerHealthTextDB then
                                 if PlayerHealthTextDB.visibleAlpha > 0 then
                                     PlayerHealthTextDB.visibleAlpha = 0
-                                    if PlayerHealthTextFrame then PlayerHealthTextFrame:Hide() end
+                                    local fs = _G.PlayerHealthTextFontString
+                                    if fs then fs:Hide() end
                                 else
                                     PlayerHealthTextDB.visibleAlpha = 1
-                                    if PlayerHealthTextFrame then PlayerHealthTextFrame:Show() end
+                                    local fs = _G.PlayerHealthTextFontString
+                                    if fs then fs:SetAlpha(1); fs:Show() end
+                                    if type(_G.UpdateHealthText) == "function" then pcall(_G.UpdateHealthText) end
                                 end
                             end
                         end,
@@ -969,8 +1017,10 @@ function PersonalResourceReskin:OnInitialize()
                         desc = "顯示血量數字。",
                         type = "execute",
                         func = function()
-                            if PlayerHealthTextFrame then PlayerHealthTextFrame:Show() end
                             if _G.PlayerHealthTextDB then PlayerHealthTextDB.visibleAlpha = 1 end
+                            local fs = _G.PlayerHealthTextFontString
+                            if fs then fs:SetAlpha(1); fs:Show() end
+                            if type(_G.UpdateHealthText) == "function" then pcall(_G.UpdateHealthText) end
                         end,
                         order = 2,
                     },
@@ -979,8 +1029,9 @@ function PersonalResourceReskin:OnInitialize()
                         desc = "隱藏血量數字。",
                         type = "execute",
                         func = function()
-                            if PlayerHealthTextFrame then PlayerHealthTextFrame:Hide() end
                             if _G.PlayerHealthTextDB then PlayerHealthTextDB.visibleAlpha = 0 end
+                            local fs = _G.PlayerHealthTextFontString
+                            if fs then fs:Hide() end
                         end,
                         order = 3,
                     },
@@ -1064,19 +1115,13 @@ function PersonalResourceReskin:OnInitialize()
                         type = "execute",
                         func = function()
                             if _G.PlayerHealthTextDB then
-                                PlayerHealthTextDB.point = nil
-                                PlayerHealthTextDB.x = nil
-                                PlayerHealthTextDB.y = nil
+                                PlayerHealthTextDB.textPosition = "center"
                                 PlayerHealthTextDB.offsetX = 0
-                                PlayerHealthTextDB.offsetY = -160
-                            end
-                            if PlayerHealthTextFrame then
-                                if not (InCombatLockdown() or (EditModeManagerFrame and EditModeManagerFrame.editModeActive)) then
-                                    PlayerHealthTextFrame:ClearAllPoints()
-                                    PlayerHealthTextFrame:SetPoint("CENTER", UIParent, "CENTER", 0, -160)
-                                end
+                                PlayerHealthTextDB.offsetY = 0
+                                PlayerHealthTextDB.visibleAlpha = 1
                             end
                             if type(_G.ApplyDisplaySettings) == "function" then pcall(_G.ApplyDisplaySettings) end
+                            if type(_G.UpdateHealthText) == "function" then pcall(_G.UpdateHealthText) end
                         end,
                         order = 7,
                     },
