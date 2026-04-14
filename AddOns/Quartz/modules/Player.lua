@@ -415,7 +415,15 @@ local function getChannelingTicks(spell, spellid)
 	if not db.showticks then
 		return 0
 	end
-	return channelingTicks[spellid] or channelingTicks[spell] or 0
+	if spellid and not issecretvalue(spellid) then
+		local ticks = channelingTicks[spellid]
+		if ticks then return ticks end
+	end
+	if spell and not issecretvalue(spell) then
+		local ticks = channelingTicks[spell]
+		if ticks then return ticks end
+	end
+	return 0
 end
 
 local function isTalentKnown(talentID)
@@ -481,6 +489,7 @@ function Player:UNIT_SPELLCAST_INTERRUPTED(bar, unit)
 end
 
 function Player:UNIT_SPELLCAST_DELAYED(bar, unit)
+	if bar.hasSecretTiming then return end
 	if bar.channeling and bar.endTime > bar.channelingEnd then
 		local duration = bar.endTime - bar.startTime
 		if bar.channelingDuration and duration > bar.channelingDuration and bar.channelingTicks > 0 then
@@ -523,6 +532,10 @@ function Player:AddStages(bar, numStages)
 
 	for i = 1, bar.NumStages-1, 1 do
 		local duration = self:GetStageDuration(bar, i)
+		if issecretvalue(duration) then
+			self:ClearStages(bar)
+			return
+		end
 		if duration > -1 then
 			sumDuration = sumDuration + duration
 			local portion = sumDuration / stageMaxValue
@@ -597,7 +610,7 @@ end
 
 function Player:UpdateStage(bar)
 	local maxStage = 0;
-	local stageValue = bar.Bar:GetValue() * (bar.endTime - bar.startTime) * 1000
+	local stageValue = (GetTime() - bar.startTime) * 1000
 	for i = 1, bar.NumStages do
 		if bar.StagePoints[i] then
 			if stageValue > bar.StagePoints[i] then
