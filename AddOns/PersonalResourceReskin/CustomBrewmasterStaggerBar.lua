@@ -131,7 +131,11 @@ end
 local function RefreshStrata()
     if not barFrame then return end
     local db = GetSavedDB()
-    barFrame:SetFrameStrata(db.strata or "MEDIUM")
+    local strata = db.strata or "MEDIUM"
+    barFrame:SetFrameStrata(strata)
+    if barFrame.overlayFrame then
+        barFrame.overlayFrame:SetFrameStrata(strata)
+    end
 end
 
 ------------------------------------------------------------
@@ -290,6 +294,7 @@ local function CreateCustomStaggerBar()
     barFrame:SetSize(db.width or DEFAULT_WIDTH, db.height or DEFAULT_HEIGHT)
     barFrame:SetFrameStrata(db.strata or "MEDIUM")
     barFrame:SetFrameLevel(100)
+    barFrame:SetClipsChildren(true)
 
     -- Background
     bgTexture = barFrame:CreateTexture(nil, "BACKGROUND")
@@ -311,19 +316,28 @@ local function CreateCustomStaggerBar()
         sbTex:SetSnapToPixelGrid(false)
     end
 
-    -- 1px solid border
-    borderFrame = CreateFrame("Frame", nil, barFrame, "BackdropTemplate")
-    borderFrame:SetPoint("TOPLEFT", -1, 1)
-    borderFrame:SetPoint("BOTTOMRIGHT", 1, -1)
-    borderFrame:SetFrameLevel(barFrame:GetFrameLevel() + 5)
+    -- Overlay frame for border + text (parented to UIParent so not clipped)
+    local overlayFrame = CreateFrame("Frame", nil, UIParent)
+    overlayFrame:SetAllPoints(barFrame)
+    overlayFrame:SetFrameStrata(barFrame:GetFrameStrata())
+    overlayFrame:SetFrameLevel(barFrame:GetFrameLevel() + 5)
+    overlayFrame:Hide()
+    barFrame.overlayFrame = overlayFrame
+    hooksecurefunc(barFrame, "Show", function() overlayFrame:Show() end)
+    hooksecurefunc(barFrame, "Hide", function() overlayFrame:Hide() end)
+
+    -- 1px solid border (on overlay so it isn't clipped)
+    borderFrame = CreateFrame("Frame", nil, overlayFrame, "BackdropTemplate")
+    borderFrame:SetPoint("TOPLEFT", barFrame, "TOPLEFT", -1, 1)
+    borderFrame:SetPoint("BOTTOMRIGHT", barFrame, "BOTTOMRIGHT", 1, -1)
+    borderFrame:SetFrameLevel(overlayFrame:GetFrameLevel() + 1)
     borderFrame:SetBackdrop({
         edgeFile = "Interface\\Buttons\\WHITE8x8",
         edgeSize = 1,
     })
     borderFrame:SetBackdropBorderColor(0, 0, 0, 1)
 
-    -- Stagger text (replaces Core.lua StaggerMonitor text)
-    -- Parent to borderFrame so text renders above the border edge
+    -- Stagger text (on borderFrame so it renders above the border edge)
     staggerText = borderFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
     staggerText:SetPoint("CENTER", barFrame, "CENTER")
     staggerText:SetDrawLayer("OVERLAY", 7)
