@@ -337,7 +337,7 @@ L.AUTO_ANNOUNCE_TEXTS.cast				= "Incantation %s: %.1f sec"
 L.AUTO_ANNOUNCE_TEXTS.soon				= "%s imminent"
 L.AUTO_ANNOUNCE_TEXTS.sooncount			= "%s (%%s) imminent"
 L.AUTO_ANNOUNCE_TEXTS.countdown			= "%s dans %%ds"
-L.AUTO_ANNOUNCE_TEXTS.prewarn			= "%s de %s"
+L.AUTO_ANNOUNCE_TEXTS.prewarn			= "%s dans %s"
 L.AUTO_ANNOUNCE_TEXTS.bait				= "%s imminent - appâtez maintenant"
 L.AUTO_ANNOUNCE_TEXTS.stage				= "Phase %s"
 L.AUTO_ANNOUNCE_TEXTS.prestage			= "Phase %s imminente"
@@ -619,7 +619,7 @@ L.AUTO_INFO_FRAME_OPTION_TEXT			= "Afficher la fenêtre d'information pour $spel
 L.AUTO_INFO_FRAME_OPTION_TEXT2 			= "Afficher la fenêtre d'information pour un aperçu de la rencontre"
 L.AUTO_INFO_FRAME_OPTION_TEXT3 			= "Afficher la fenêtre d'information pour $spell:%s (lorsque le seuil de %%s est atteint)"
 L.AUTO_READY_CHECK_OPTION_TEXT   		= "Jouer le son de l'appel lorsque le boss est engagé (même si ce dernier n'est pas la cible)"
-L.AUTO_SPEEDCLEAR_OPTION_TEXT			= "Afficher un chronomètre pour le run plus rapide %s"
+L.AUTO_SPEEDCLEAR_OPTION_TEXT			= "Afficher un chronomètre pour le run plus rapide de cette zone"
 L.AUTO_PRIVATEAURA_OPTION_TEXT			= "Jouer les alertes sonores des auras privées de DBM pour $spell:%s pendant cette rencontre"
 L.AUTO_PRIVATEAURA_OPTION_TARGET_TEXT	= "Jouer les alertes sonores des auras privées de DBM lorsque vous êtes ciblé par $spell:%s"
 L.AUTO_PRIVATEAURA_OPTION_GTFO_TEXT		= "Jouer les alertes sonores des auras privées de DBM lorsque vous devez vous éloigner de $spell:%s"
@@ -671,6 +671,9 @@ L.TIMER_RESPAWN				= "%s Réapparition"
 L.LAG_HEADER				= L.DBM .. " - Résultats sur la latence"
 L.DUR_HEADER 				= L.DBM .. " - Résultats de durabilité"
 L.KEYSTONES_HEADER			= L.DBM .. " - Mythiques"
+L.GEAR_HEADER				= L.DBM .. " - Résultats d'équipement"
+L.GEAR_MISSING_GEMS		= "Gemmes manquantes"
+L.GEAR_MISSING_ENCHANTS	= "Enchantements manquants"
 L.BREZ_HEADER				= "Rés. de combat"
 
 L.OVERRIDE_ACTIVATED 		= "Les remplacements de configuration ont été activés pour cette rencontre par le responsable de raid"
@@ -731,6 +734,16 @@ L.KEYSTONE_NAMES[503] = 'ARA' -- Ara-Kara, City of Echoes
 L.KEYSTONE_NAMES[505] = 'AUBE' -- The Dawnbreaker
 L.KEYSTONE_NAMES[525] = 'VANNES' -- Operation Floodgate
 L.KEYSTONE_NAMES[542] = 'DÔME' -- Eco-Dome Al'dani
+
+L.KEYSTONE_NAMES[161] = 'ORÉE' -- Skyreach
+L.KEYSTONE_NAMES[402] = 'ACADÉM' -- Algeth'ar Academy
+L.KEYSTONE_NAMES[556] = 'FOSSE' -- Pit of Saron
+L.KEYSTONE_NAMES[557] = 'FLÈCHE' -- Windrunner Spire
+L.KEYSTONE_NAMES[558] = 'TERRAS' -- Magister's Terrace
+L.KEYSTONE_NAMES[559] = 'NEXUS' -- Nexus-Point Xenas
+L.KEYSTONE_NAMES[560] = 'CAVERN' -- Maisara Caverns
+L.KEYSTONE_NAMES[583] = 'SIÈGE' -- Seat of the Triumvirate
+
 
 -- Midnight
 L.MN_TIMELINE_HEADER   = "Voulez-vous utiliser la ligne temporelle de Blizzard ou les barres de DBM ?"

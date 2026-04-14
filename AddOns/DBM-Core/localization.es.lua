@@ -360,7 +360,7 @@ L.AUTO_ANNOUNCE_OPTIONS.incoming		= "Mostrar anuncio cuando $spell:%s tiene perj
 L.AUTO_ANNOUNCE_OPTIONS.incomingcount	= "Mostrar anuncio cuando $spell:%s tiene perjuicios inminentes (con contador)"
 L.AUTO_ANNOUNCE_OPTIONS.ends			= "Mostrar anuncio cuando $spell:%s termine"
 L.AUTO_ANNOUNCE_OPTIONS.endtarget		= "Mostrar anuncio cuando $spell:%s termine"
-L.AUTO_ANNOUNCE_OPTIONS.fades			= "Mostrar anuncio cuando $spell:%s expire"
+L.AUTO_ANNOUNCE_OPTIONS.fades			= "Mostrar anuncio cuando $spell:%s se desvanezca"
 L.AUTO_ANNOUNCE_OPTIONS.addsleft		= "Mostrar anuncio para el número de $spell:%s restantes"
 L.AUTO_ANNOUNCE_OPTIONS.cast			= "Mostrar anuncio cuando $spell:%s comience a lanzarse"
 L.AUTO_ANNOUNCE_OPTIONS.soon			= prewarnOption
@@ -376,8 +376,8 @@ L.AUTO_ANNOUNCE_OPTIONS.stack			= "Mostrar anuncio para acumulaciones de $spell:
 L.AUTO_ANNOUNCE_OPTIONS.moveto			= "Mostrar anuncio para juntarse con alguien o ir a algún sitio para $spell:%s"
 
 L.AUTO_SPEC_WARN_TEXTS.spell		= "¡%s!"
-L.AUTO_SPEC_WARN_TEXTS.ends			= "%s ha terminado"
-L.AUTO_SPEC_WARN_TEXTS.fades		= "%s ha terminado"
+L.AUTO_SPEC_WARN_TEXTS.ends			= "%s se ha terminado"
+L.AUTO_SPEC_WARN_TEXTS.fades		= "%s se ha desvanecido"
 L.AUTO_SPEC_WARN_TEXTS.soon			= "%s en breve"
 L.AUTO_SPEC_WARN_TEXTS.sooncount	= "%s (%%s) en breve"
 L.AUTO_SPEC_WARN_TEXTS.bait			= "%s en breve - ¡Posiciónalo!"
@@ -425,8 +425,8 @@ L.AUTO_SPEC_WARN_TEXTS.targetchange	= "¡Cambia de objetivo a %%s!"
 
 -- Auto-generated Special Warning Localizations
 L.AUTO_SPEC_WARN_OPTIONS.spell 			= "Mostrar anuncio especial para $spell:%s"
-L.AUTO_SPEC_WARN_OPTIONS.ends 			= "Mostrar anuncio especial cuando termine $spell:%s"
-L.AUTO_SPEC_WARN_OPTIONS.fades 			= "Mostrar anuncio especial cuando expire $spell:%s"
+L.AUTO_SPEC_WARN_OPTIONS.ends 			= "Mostrar anuncio especial cuando $spell:%s termine"
+L.AUTO_SPEC_WARN_OPTIONS.fades 			= "Mostrar anuncio especial cuando $spell:%s se desvanezca"
 L.AUTO_SPEC_WARN_OPTIONS.soon 			= "Mostrar anuncio anticipado especial para $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.sooncount		= "Mostrar anuncio anticipado especial (con contador) para $spell:%s"
 L.AUTO_SPEC_WARN_OPTIONS.bait			= "Mostrar anuncio anticipado especial para posicionar $spell:%s"
@@ -479,7 +479,7 @@ L.AUTO_TIMER_TEXTS.cast			= "%s"
 L.AUTO_TIMER_TEXTS.castcount	= "%s (%%s)"
 L.AUTO_TIMER_TEXTS.castsource	= "%s: %%s"
 L.AUTO_TIMER_TEXTS.active		= "%s termina"--Buff/Debuff/event on boss
-L.AUTO_TIMER_TEXTS.fades		= "%s expira"--Buff/Debuff on players
+L.AUTO_TIMER_TEXTS.fades		= "%s se desvanece"--Buff/Debuff on players
 L.AUTO_TIMER_TEXTS.ai			= "IA de %s"
 
 L.AUTO_TIMER_TEXTS.cd			= "%s"
@@ -524,7 +524,7 @@ L.AUTO_TIMER_OPTIONS.castpnp			= "Mostrar temporizador de placa de nombre para e
 L.AUTO_TIMER_OPTIONS.castcount			= "Mostrar temporizador (con contador) para el lanzamiento de $spell:%s"
 L.AUTO_TIMER_OPTIONS.castsource			= "Mostrar temporizador (y quién lo lanza) para el lanzamiento de $spell:%s"
 L.AUTO_TIMER_OPTIONS.active				= "Mostrar temporizador para la duración de $spell:%s"
-L.AUTO_TIMER_OPTIONS.fades				= "Mostrar temporizador para el tiempo restante de $spell:%s en los jugadores"
+L.AUTO_TIMER_OPTIONS.fades				= "Mostrar temporizador cuando $spell:%s se desvanezca en los jugadores"
 L.AUTO_TIMER_OPTIONS.ai					= "Mostrar temporizador inteligente para el tiempo de reutilización de $spell:%s"
 
 L.AUTO_TIMER_OPTIONS.cd					= "Mostrar temporizador para el tiempo de reutilización de $spell:%s"
@@ -619,7 +619,7 @@ L.AUTO_INFO_FRAME_OPTION_TEXT			= "Mostrar marco de información para $spell:%s"
 L.AUTO_INFO_FRAME_OPTION_TEXT2			= "Mostrar marco de información con una vista general del encuentro"
 L.AUTO_INFO_FRAME_OPTION_TEXT3			= "Mostrar marco de información para $spell:%s (cuando se alcanza el umbral de %%s)"
 L.AUTO_READY_CHECK_OPTION_TEXT			= "Reproducir sonido de comprobación de banda cuando se inicie el encuentro (aunque no lo tengas como objetivo)"
-L.AUTO_SPEEDCLEAR_OPTION_TEXT			= "Mostrar temporizador para el récord actual de completar %s"
+L.AUTO_SPEEDCLEAR_OPTION_TEXT			= "Mostrar temporizador para el récord actual de completar esta zona"
 L.AUTO_PRIVATEAURA_OPTION_TEXT			= "Reproducir alertas de sonido de auras privadas de DBM para $spell:%s en este encuentro"
 L.AUTO_PRIVATEAURA_OPTION_TARGET_TEXT	= "Reproducir alertas de sonido de auras privadas de DBM cuando seas objetivo de $spell:%s"
 L.AUTO_PRIVATEAURA_OPTION_GTFO_TEXT		= "Reproducir alertas de sonido de auras privadas de DBM cuando necesites alejarte de $spell:%s"
@@ -671,6 +671,9 @@ L.TIMER_RESPAWN				= "%s reaparece"
 L.LAG_HEADER				= L.DBM.. " - Resultados de latencia"
 L.DUR_HEADER				= L.DBM.. " - Resultados de durabilidad"
 L.KEYSTONES_HEADER			= L.DBM.. " - Piedras angulares"
+L.GEAR_HEADER				= L.DBM.. " - Resultados de equipo"
+L.GEAR_MISSING_GEMS		= "Gemas faltantes"
+L.GEAR_MISSING_ENCHANTS	= "Encantamientos faltantes"
 L.BREZ_HEADER				= "Res en combate"
 
 L.OVERRIDE_ACTIVATED		= "Líder de banda ha activado las anulaciones de configuración para este encuentro"
