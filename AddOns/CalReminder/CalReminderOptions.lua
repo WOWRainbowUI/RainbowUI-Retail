@@ -1,8 +1,8 @@
 local ACR = LibStub("AceConfigRegistry-3.0")
 local ACD = LibStub("AceConfigDialog-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("CalReminder", true)
-local XITK = LibStub("XamInsightToolKit")
-local EZBUP = LibStub("EZBlizzardUiPopups")
+local XITK = LibStub("XamInsightToolKit-2.0")
+local EZBUP = LibStub("EZBlizzardUiPopups-2.0")
 
 CalReminder_allianceNpcValues = {
 	230055, -- ANDUIN
@@ -32,7 +32,13 @@ CalReminder_allianceNpcValues = {
 	235448, -- XAL'ATATH
 	241743, -- Archmage Khadgar
 	215113, -- Orweyna
-	207471, -- Widow Arak'nai
+	225585, -- Widow Arak'nai
+	255283, -- Magister Umbric
+	256078, -- Lyssabel Dawnpetal
+	253366, -- Arator
+	249488, -- Dundun
+	243708, -- Decimus
+	259222, -- Zul'jarra
 }
 
 CalReminder_hordeNpcValues = {
@@ -63,7 +69,13 @@ CalReminder_hordeNpcValues = {
 	241743, -- Archmage Khadgar
 	230062, -- ALLERIA
 	215113, -- Orweyna
-	207471, -- Widow Arak'nai
+	225585, -- Widow Arak'nai
+	250395, -- Grand Magister Rommath
+	233062, -- Tocho Cloudhide
+	253366, -- Arator
+	249488, -- Dundun
+	243708, -- Decimus
+	259222, -- Zul'jarra
 }
 
 
@@ -98,7 +110,7 @@ end
 function loadCalReminderOptions()
 	local allianceNpcValues = {}
 	for _, entry in ipairs(CalReminder_allianceNpcValues) do
-        allianceNpcValues[entry] = XITK.GetNameFromNpcID(entry)
+        allianceNpcValues[entry] = XITK:GetNameFromNpcID(entry)
     end
 
 	local allianceNpcValuesSorting = sorTableByNames(allianceNpcValues, "RANDOM")
@@ -106,7 +118,7 @@ function loadCalReminderOptions()
 	
 	local hordeNpcValues = {}
 	for _, entry in ipairs(CalReminder_hordeNpcValues) do
-        hordeNpcValues[entry] = XITK.GetNameFromNpcID(entry)
+        hordeNpcValues[entry] = XITK:GetNameFromNpcID(entry)
     end
 
 	local hordeNpcValuesSorting = sorTableByNames(hordeNpcValues, "RANDOM")
@@ -159,7 +171,7 @@ function loadCalReminderOptions()
 									if chief == "RANDOM" then
 										chief = chiefList[math.random(1, #chiefList)]
 									end
-									EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"])
+									EZBUP:PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"])
 								end
 							end
 						end,
@@ -199,8 +211,8 @@ function loadCalReminderOptions()
 							if chief == "RANDOM" then
 								chief = chiefList[math.random(1, #chiefList)]
 							end
-							EZBUP.npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), "???"))
-							EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
+							EZBUP:npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), "???"))
+							EZBUP:PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
 						end,
 						get = function(info)
 							return CalReminderOptionsData["ALLIANCE_NPC"] or "RANDOM"
@@ -220,8 +232,8 @@ function loadCalReminderOptions()
 							if chief == "RANDOM" then
 								chief = chiefList[math.random(1, #chiefList)]
 							end
-							EZBUP.npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), "???"))
-							EZBUP.PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
+							EZBUP:npcDialog(chief, string.format(L["CALREMINDER_DDAY_REMINDER"], UnitName("player"), "???"))
+							EZBUP:PlayNPCRandomSound(chief, "Dialog", not CalReminderOptionsData["SoundsDisabled"] and not CalReminderOptionsData["QuotesDisabled"])
 						end,
 						get = function(info)
 							return CalReminderOptionsData["HORDE_NPC"] or "RANDOM"
