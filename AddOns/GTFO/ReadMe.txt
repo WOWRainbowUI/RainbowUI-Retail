@@ -2388,3 +2388,7 @@ Change Log:
 * Fixed taint issues with encounters starting during combat
 * Added Midnight spells for The Voidspire
 * Added Midnight spells for March on Quel'Danas
+
+6.4.1
+* Fixed Midnight spells for The Voidspire
+* Fixed Midnight spells for March on Quel'Danas
