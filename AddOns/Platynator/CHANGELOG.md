@@ -1,8 +1,8 @@
 # Platynator
 
-## [366](https://github.com/TheMouseNest/Platynator/tree/366) (2026-04-10)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/365...366) 
+## [367](https://github.com/TheMouseNest/Platynator/tree/367) (2026-04-12)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/366...367) 
 
-- Classic: Fix charged combo points code triggering (its Retail only)  
-- Fix for previous commit  
-- Classic: Show purgeable buffs on enemy players  
+- Prevent alpha creation on opening and closing color picker if not existing  
+- Prevent aura widgets going smaller than 25%  
+- Include another cvar in auto-set cvars list nameplatePlayerMaxDistance  
