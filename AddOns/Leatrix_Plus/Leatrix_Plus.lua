@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.12 (8th April 2026)
+-- 	Leatrix Plus 12.0.13 (15th April 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.12"
+	LeaPlusLC["AddonVer"] = "12.0.13"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -968,7 +968,7 @@
 				if (not UnitExists("party1") or UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")) and strlower(strtrim(arg1)) == strlower(LeaPlusLC["InvKey"]) then
 					if not LeaPlusLC:IsInLFGQueue() then
 						if event == "CHAT_MSG_WHISPER" then
-							local void, void, void, void, viod, void, void, void, void, guid = ...
+							local void, void, void, void, void, void, void, void, void, guid = ...
 							if LeaPlusLC:FriendCheck(arg2, guid) or LeaPlusLC["InviteFriendsOnly"] == "Off" then
 								-- If whisper name is same realm, remove realm name
 								local theWhisperName, theWhisperRealm = strsplit("-", arg2, 2)
