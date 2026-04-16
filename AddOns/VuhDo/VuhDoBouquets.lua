@@ -22,10 +22,13 @@ local VUHDO_getDispelAbilities;
 local VUHDO_getPurgeAbilities;
 local VUHDO_isConfigDemoUsers;
 local VUHDO_displayAurasAtAnchorFromCache;
+local VUHDO_isAuraDisplaySuspended;
 local VUHDO_getSlotData;
 local VUHDO_getAuraGroupRaw;
 local VUHDO_getAuraBarColorType;
 local VUHDO_getAuraTextColorType;
+local VUHDO_determineAura;
+local VUHDO_updateHealthBarsFor;
 
 local VUHDO_BOUQUETS = { };
 local VUHDO_RAID = { };
@@ -35,6 +38,7 @@ local VUHDO_CUSTOM_ICONS;
 local VUHDO_USER_CLASS_COLORS;
 local VUHDO_POWER_TYPE_COLORS;
 local VUHDO_PANEL_SETUP;
+local VUHDO_PANEL_MODELS;
 local VUHDO_AURA_LIST_BOUQUETS;
 local VUHDO_UNIT_AURA_LIST_SLOTS;
 local VUHDO_MAX_PANELS;
@@ -64,6 +68,7 @@ local VUHDO_CYCLIC_BOUQUETS = { };
 
 VUHDO_UNIT_AURA_BOUQUET_ACTIVE = { };
 VUHDO_LIST_GROUP_COLOR_BOUQUETS = { };
+VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS = { };
 
 local VUHDO_CUSTOM_BOUQUETS = {
 	VUHDO_I18N_DEF_BOUQUET_TARGET_HEALTH,
@@ -134,6 +139,7 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_USER_CLASS_COLORS = _G["VUHDO_USER_CLASS_COLORS"];
 	VUHDO_POWER_TYPE_COLORS = _G["VUHDO_POWER_TYPE_COLORS"];
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
+	VUHDO_PANEL_MODELS = _G["VUHDO_PANEL_MODELS"];
 	VUHDO_AURA_LIST_BOUQUETS = _G["VUHDO_AURA_LIST_BOUQUETS"];
 	VUHDO_UNIT_AURA_LIST_SLOTS = _G["VUHDO_UNIT_AURA_LIST_SLOTS"];
 	VUHDO_MAX_PANELS = _G["VUHDO_MAX_PANELS"];
@@ -159,9 +165,14 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_isConfigDemoUsers = _G["VUHDO_isConfigDemoUsers"];
 	VUHDO_getAuraGroupRaw = _G["VUHDO_getAuraGroupRaw"];
 	VUHDO_displayAurasAtAnchorFromCache = _G["VUHDO_displayAurasAtAnchorFromCache"];
+	VUHDO_isAuraDisplaySuspended = _G["VUHDO_isAuraDisplaySuspended"];
 	VUHDO_getSlotData = _G["VUHDO_getSlotData"];
 	VUHDO_getAuraBarColorType = _G["VUHDO_getAuraBarColorType"];
 	VUHDO_getAuraTextColorType = _G["VUHDO_getAuraTextColorType"];
+	VUHDO_determineAura = _G["VUHDO_determineAura"];
+	VUHDO_updateHealthBarsFor = _G["VUHDO_updateHealthBarsFor"];
+
+	VUHDO_updateHealthBarsFor = _G["VUHDO_deferUpdateHealthBarsFor"];
 
 	sBouquetStatePool = VUHDO_createTablePool("BouquetState", 500);
 	sThresholdEntryPool = VUHDO_createTablePool("ThresholdEntry", 100);
@@ -3269,6 +3280,8 @@ do
 	local tListSlots;
 	local tMaxSlots;
 	local tInfo;
+	local tPreviouslyActive;
+	local tActiveStateChanged;
 	function VUHDO_listAuraGroupBouquetCallback(aUnit, anIsActive, anIcon, aTimer, aCounter, aDuration, aColor, aBuffName, aBouquetName, anImpact, aTimer2, aClipL, aClipR, aClipT, aClipB, aMaxColor, aLayerTemplate, aIsAliveTime)
 
 		tSlotMappings = VUHDO_AURA_LIST_BOUQUETS[aBouquetName];
@@ -3282,6 +3295,8 @@ do
 		if not tTier then
 			return;
 		end
+
+		tActiveStateChanged = false;
 
 		for _, tMapping in ipairs(tSlotMappings) do
 			tTier = tTier[tMapping["panelNum"]];
@@ -3325,7 +3340,12 @@ do
 					end
 
 					tInfo = VUHDO_RAID[aUnit];
+					tPreviouslyActive = tSlotData["isActive"] or false;
 					tSlotData["isActive"] = anIsActive and tInfo and tInfo["connected"] and not tInfo["dead"];
+
+					if tSlotData["isActive"] ~= tPreviouslyActive then
+						tActiveStateChanged = true;
+					end
 
 					tSlotData["name"] = aBuffName;
 					tSlotData["entryType"] = 2;
@@ -3349,7 +3369,7 @@ do
 			tTier = VUHDO_UNIT_AURA_LIST_SLOTS[aUnit];
 		end
 
-		if aUnit and VUHDO_displayAurasAtAnchorFromCache then
+		if aUnit and VUHDO_displayAurasAtAnchorFromCache and not VUHDO_isAuraDisplaySuspended() then
 			for _, tMapping in ipairs(tSlotMappings) do
 				tAnchorConfig = VUHDO_PANEL_SETUP[tMapping["panelNum"]] and
 					VUHDO_PANEL_SETUP[tMapping["panelNum"]]["AURA_ANCHORS"] and
@@ -3364,6 +3384,16 @@ do
 					VUHDO_displayAurasAtAnchorFromCache(aUnit, tMapping["panelNum"], tMapping["anchorKey"],
 						tAnchorConfig, tListSlots, tMaxSlots);
 				end
+			end
+		end
+
+		if tActiveStateChanged then
+			tInfo = VUHDO_RAID[aUnit];
+
+			if tInfo then
+				tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineAura(aUnit);
+
+				VUHDO_updateHealthBarsFor(aUnit, 4);
 			end
 		end
 
@@ -3384,7 +3414,18 @@ do
 			VUHDO_UNIT_AURA_BOUQUET_ACTIVE[aUnit] = sUnitBouquetActivePool:get();
 		end
 
+		tPreviouslyActive = VUHDO_UNIT_AURA_BOUQUET_ACTIVE[aUnit][aBouquetName] or false;
 		VUHDO_UNIT_AURA_BOUQUET_ACTIVE[aUnit][aBouquetName] = anIsActive;
+
+		if anIsActive ~= tPreviouslyActive then
+			tInfo = VUHDO_RAID[aUnit];
+
+			if tInfo then
+				tInfo["debuff"], tInfo["debuffName"] = VUHDO_determineAura(aUnit);
+
+				VUHDO_updateHealthBarsFor(aUnit, 4);
+			end
+		end
 
 		return;
 
@@ -3425,37 +3466,41 @@ do
 		tGroupsWithEnabledAnchor = sGroupsWithEnabledAnchorReusable;
 
 		for tPanelNum = 1, VUHDO_MAX_PANELS do
-			tAnchors = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"];
+			if VUHDO_PANEL_MODELS[tPanelNum] then
+				tAnchors = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"];
 
-			if tAnchors then
-				for tKey, tVal in pairs(tAnchors) do
-					if tVal["enabled"] ~= false and tVal["groupId"] then
-						tGroupsWithEnabledAnchor[tVal["groupId"]] = true;
-					end
+				if tAnchors then
+					for tKey, tVal in pairs(tAnchors) do
+						if tVal["enabled"] ~= false and tVal["groupId"] then
+							tGroupsWithEnabledAnchor[tVal["groupId"]] = true;
+						end
 
-					tGroup = VUHDO_getAuraGroupRaw(tVal["groupId"]);
+						tGroup = VUHDO_getAuraGroupRaw(tVal["groupId"]);
 
-					if tGroup and (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST and tGroup["entries"] then
-						for tEntryIndex, tEntry in ipairs(tGroup["entries"]) do
-							if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
-								tBouquetName = tEntry["value"];
+						if tGroup and (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST and tGroup["entries"] then
+							for tEntryIndex, tEntry in ipairs(tGroup["entries"]) do
+								if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
+									tBouquetName = tEntry["value"];
 
-								VUHDO_registerForBouquetUnique(
-									tBouquetName,
-									"ListAuraGroup",
-									VUHDO_listAuraGroupBouquetCallback,
-									anAlreadyRegistered
-								);
+									if tBouquetName then
+										VUHDO_registerForBouquetUnique(
+											tBouquetName,
+											"ListAuraGroup",
+											VUHDO_listAuraGroupBouquetCallback,
+											anAlreadyRegistered
+										);
 
-								if not VUHDO_AURA_LIST_BOUQUETS[tBouquetName] then
-									VUHDO_AURA_LIST_BOUQUETS[tBouquetName] = { };
+										if not VUHDO_AURA_LIST_BOUQUETS[tBouquetName] then
+											VUHDO_AURA_LIST_BOUQUETS[tBouquetName] = { };
+										end
+
+										tinsert(VUHDO_AURA_LIST_BOUQUETS[tBouquetName], {
+											["panelNum"] = tPanelNum,
+											["anchorKey"] = tKey,
+											["entryIndex"] = tEntryIndex,
+										});
+									end
 								end
-
-								tinsert(VUHDO_AURA_LIST_BOUQUETS[tBouquetName], {
-									["panelNum"] = tPanelNum,
-									["anchorKey"] = tKey,
-									["entryIndex"] = tEntryIndex,
-								});
 							end
 						end
 					end
@@ -3474,14 +3519,16 @@ do
 						if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
 							tBouquetName = tEntry["value"];
 
-							VUHDO_registerForBouquetUnique(
-								tBouquetName,
-								"ListAuraGroupColorOnly",
-								VUHDO_listAuraGroupBouquetColorOnlyCallback,
-								anAlreadyRegistered
-							);
+							if tBouquetName then
+								VUHDO_registerForBouquetUnique(
+									tBouquetName,
+									"ListAuraGroupColorOnly",
+									VUHDO_listAuraGroupBouquetColorOnlyCallback,
+									anAlreadyRegistered
+								);
 
-							VUHDO_LIST_GROUP_COLOR_BOUQUETS[tBouquetName] = true;
+								VUHDO_LIST_GROUP_COLOR_BOUQUETS[tBouquetName] = true;
+							end
 						end
 					end
 				end
@@ -3502,14 +3549,16 @@ do
 						if tEntry["entryType"] == VUHDO_AURA_LIST_ENTRY_BOUQUET then
 							tBouquetName = tEntry["value"];
 
-							VUHDO_registerForBouquetUnique(
-								tBouquetName,
-								"ListAuraGroupColorOnly",
-								VUHDO_listAuraGroupBouquetColorOnlyCallback,
-								anAlreadyRegistered
-							);
+							if tBouquetName then
+								VUHDO_registerForBouquetUnique(
+									tBouquetName,
+									"ListAuraGroupColorOnly",
+									VUHDO_listAuraGroupBouquetColorOnlyCallback,
+									anAlreadyRegistered
+								);
 
-							VUHDO_LIST_GROUP_COLOR_BOUQUETS[tBouquetName] = true;
+								VUHDO_LIST_GROUP_COLOR_BOUQUETS[tBouquetName] = true;
+							end
 						end
 					end
 				end
@@ -3532,6 +3581,7 @@ do
 		twipe(VUHDO_REGISTERED_BOUQUET_INDICATORS);
 		twipe(VUHDO_AURA_LIST_BOUQUETS);
 		twipe(VUHDO_LIST_GROUP_COLOR_BOUQUETS);
+		twipe(VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS);
 
 		for tUnit, _ in pairs(VUHDO_RAID or { }) do
 			VUHDO_clearUnitBouquetActiveCache(tUnit);
@@ -3680,11 +3730,40 @@ do
 		VUHDO_buildEventInterestCache();
 		VUHDO_initAllEventBouquets();
 
-		VUHDO_rebuildActiveAuraCaches();
+		VUHDO_rebuildCanColorBarGroupsCache();
 
 		return;
 
 	end
+end
+
+
+
+--
+local tBouquetStored;
+local tAuraGroupIdFromItem;
+function VUHDO_collectBouquetAuraGroupIds()
+
+	twipe(VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS);
+
+	for tBouquetName, _ in pairs(VUHDO_REGISTERED_BOUQUETS) do
+		tBouquetStored = VUHDO_BOUQUETS["STORED"][tBouquetName];
+
+		if tBouquetStored then
+			for _, tBouquetItemForAuraGroup in pairs(tBouquetStored) do
+				if "AURA_GROUP_ACTIVE" == tBouquetItemForAuraGroup["name"] and tBouquetItemForAuraGroup["custom"] then
+					tAuraGroupIdFromItem = tBouquetItemForAuraGroup["custom"]["auraGroupId"];
+
+					if tAuraGroupIdFromItem and tAuraGroupIdFromItem ~= "" then
+						VUHDO_BOUQUET_TRACKED_AURA_GROUP_IDS[tAuraGroupIdFromItem] = true;
+					end
+				end
+			end
+		end
+	end
+
+	return;
+
 end
 
 

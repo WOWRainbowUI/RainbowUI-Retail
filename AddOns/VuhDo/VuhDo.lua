@@ -123,6 +123,7 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost;
 local UnitIsFeignDeath = UnitIsFeignDeath;
 local UnitExists = UnitExists;
 local UnitHealth = UnitHealth;
+local GetUnitTotalModifiedMaxHealthPercent = GetUnitTotalModifiedMaxHealthPercent;
 -- Disable local alias so function can be overloaded by Velhari Health Fix addon
 --local UnitHealthMax = UnitHealthMax; 
 local UnitIsAFK = UnitIsAFK;
@@ -479,6 +480,7 @@ function VUHDO_setHealth(aUnit, aMode)
 			tInfo["classId"] = tClassId;
 			tInfo["sortMaxHp"] = VUHDO_getUnitSortMaxHp(aUnit);
 			tInfo["role"] = VUHDO_determineRole(aUnit);
+			tInfo["healthLossPerc"] = GetUnitTotalModifiedMaxHealthPercent(aUnit);
 
 			if sSecretsEnabled and issecretvalue(tRealm) then
 				tInfo["fullName"] = tName;
@@ -572,11 +574,17 @@ function VUHDO_setHealth(aUnit, aMode)
 				tInfo["dead"] = tIsDead;
 				tInfo["healthmax"] = UnitHealthMax(aUnit);
 				tInfo["sortMaxHp"] = VUHDO_getUnitSortMaxHp(aUnit);
+				tInfo["healthLossPerc"] = GetUnitTotalModifiedMaxHealthPercent(aUnit);
 
 				if sSecretsEnabled then
 					tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
 				else
 					tInfo["hasSecretHealthMax"] = false;
+				end
+
+			elseif VUHDO_UPDATE_HEALTH_LOSS == aMode then -- VUHDO_UPDATE_HEALTH_LOSS
+				if UnitExists(aUnit) then
+					tInfo["healthLossPerc"] = GetUnitTotalModifiedMaxHealthPercent(aUnit);
 				end
 
 			elseif 6 == aMode then -- VUHDO_UPDATE_AFK

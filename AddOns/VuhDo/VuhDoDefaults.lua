@@ -702,6 +702,7 @@ local VUHDO_DEFAULT_CONFIG = {
 	["SHOW_SHIELD_BAR"] = true,
 	["SHOW_OVERSHIELD_BAR"] = false,
 	["SHOW_HEAL_ABSORB_BAR"] = true,
+	["SHOW_HEALTH_LOSS_BAR"] = true,
 
 	["RANGE_CHECK_DELAY"] = 260,
 
@@ -3000,6 +3001,12 @@ local VUHDO_DEFAULT_PANEL_SETUP = {
 			["useText"] = false, ["useBackground"] = true,	["useOpacity"] = true,
 			["useClassColor"] = false,
 		},
+		["HEALTH_LOSS"] = {
+			["R"] = 0, ["G"] = 0, ["B"] = 0, ["O"] = 1,
+			["TR"] = 1, ["TG"] = 1, ["TB"] = 1, ["TO"] = 1,
+			["useText"] = true, ["useBackground"] = true, ["useOpacity"] = true,
+			["useClassColor"] = false,
+		},
 		["DIRECTION"] = {
 			["R"] = 1, ["G"] = 0.4, ["B"] = 0.4, ["O"] = 1,
 			["useBackground"] = true,
@@ -3802,6 +3809,22 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 		["type"] = 2,
 		["entries"] = {
 			{ ["entryType"] = 1, ["value"] = 124255, ["mine"] = true, ["others"] = false },
+		},
+		["displayName"] = nil,
+		["enabled"] = true,
+		["priority"] = 50,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_OFF,
+		["canColorBar"] = false,
+		["canColorText"] = false,
+		["canGlowBar"] = false,
+		["glowBarColor"] = nil,
+		["ignoreList"] = { },
+		["sound"] = nil,
+	},
+	["FERAL_DRUID_BUFFS"] = {
+		["type"] = 2,
+		["entries"] = {
+			{ ["entryType"] = 1, ["value"] = 405189, ["mine"] = true, ["others"] = false },
 		},
 		["displayName"] = nil,
 		["enabled"] = true,

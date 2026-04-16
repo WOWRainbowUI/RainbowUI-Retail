@@ -116,7 +116,6 @@
 						</Scripts>
 					</CheckButton>
 
-
 					<CheckButton name="$parentRaidIconsRadioButton" text="VUHDO_I18N_RAID_ICON" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
@@ -155,7 +154,7 @@
 
 			<Frame name="$parentContentPanel">
 				<Size>
-					<AbsDimension x="428" y="345" />
+					<AbsDimension x="610" y="345" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">

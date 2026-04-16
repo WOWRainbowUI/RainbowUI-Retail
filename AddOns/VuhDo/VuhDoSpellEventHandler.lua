@@ -124,11 +124,13 @@ function VUHDO_spellcastSent(aUnit, aTargetName, aSpellId)
 
 	tCateg = sUniqueSpells[tSpellName];
 
-	if tCateg and not InCombatLockdown()
-		and (VUHDO_BUFF_SETTINGS or sEmpty)[tCateg] and aTargetName ~= VUHDO_BUFF_SETTINGS[tCateg]["name"] then
-		VUHDO_BUFF_SETTINGS[tCateg]["name"] = aTargetName;
+	if tCateg and not InCombatLockdown() and (VUHDO_BUFF_SETTINGS or sEmpty)[tCateg] then
+		if (not VUHDO_BUFF_SETTINGS[tCateg]["targetMode"] or VUHDO_BUFF_SETTINGS[tCateg]["targetMode"] == "name")
+			and aTargetName ~= VUHDO_BUFF_SETTINGS[tCateg]["name"] then
+			VUHDO_BUFF_SETTINGS[tCateg]["name"] = aTargetName;
 
-		VUHDO_reloadBuffPanel();
+			VUHDO_reloadBuffPanel();
+		end
 	end
 
 	return;

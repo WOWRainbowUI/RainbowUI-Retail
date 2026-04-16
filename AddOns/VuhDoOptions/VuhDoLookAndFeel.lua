@@ -117,19 +117,39 @@ local tIsInCustomFunction = false;
 --
 local tSpellId;
 local tSecrecy;
-function VUHDO_checkSpellSecrecy(aSpellText)
+function VUHDO_getSpellAuraSecrecy(aSpellText)
+
+	if not aSpellText then
+		return 0;
+	end
 
 	if not GetSpellAuraSecrecy then
 		return 0;
 	end
 
-	tSpellId = GetSpellIDForSpellIdentifier and GetSpellIDForSpellIdentifier(aSpellText) or tonumber(aSpellText);
+	tSpellId = tonumber(aSpellText) or GetSpellIDForSpellIdentifier(aSpellText);
 
 	if not tSpellId then
 		return 0;
 	end
 
 	tSecrecy = GetSpellAuraSecrecy(tSpellId);
+
+	return tSecrecy or 0;
+
+end
+
+
+
+--
+local tSecrecy;
+function VUHDO_checkSpellSecrecy(aSpellText)
+
+	if not aSpellText then
+		return 0;
+	end
+
+	tSecrecy = VUHDO_getSpellAuraSecrecy(aSpellText);
 
 	if tSecrecy == 1 then
 		VUHDO_Msg(VUHDO_I18N_AURA_GROUP_SPELL_ALWAYS_SECRET, 1, 0.3, 0.3);
@@ -142,29 +162,6 @@ function VUHDO_checkSpellSecrecy(aSpellText)
 	end
 
 	return 0;
-
-end
-
-
-
---
-local tSpellId;
-local tSecrecy;
-function VUHDO_getSpellAuraSecrecy(aSpellText)
-
-	if not GetSpellAuraSecrecy then
-		return 0;
-	end
-
-	tSpellId = GetSpellIDForSpellIdentifier and GetSpellIDForSpellIdentifier(aSpellText) or tonumber(aSpellText);
-
-	if not tSpellId then
-		return 0;
-	end
-
-	tSecrecy = GetSpellAuraSecrecy(tSpellId);
-
-	return tSecrecy or 0;
 
 end
 
@@ -469,17 +466,23 @@ end
 
 --
 local function VUHDO_hideAllComponentExtensions(aComponent)
+
 	local tRootPane = aComponent:GetParent():GetParent();
-	local tSubPanel, tComponent, tSelectPanel;
+	local tSubPanel, tComponent, tSelectPanel, tName;
 
 	for tCnt = 1, select("#", tRootPane:GetChildren()) do
 		tSubPanel = select(tCnt, tRootPane:GetChildren());
+
 		for tCnt2 = 1, select("#", tSubPanel:GetChildren()) do
 			tComponent = select(tCnt2, tSubPanel:GetChildren());
+
 			if aComponent ~= tComponent then
 				-- 1. Combo-Flyouts
-				if tComponent and strfind(tComponent:GetName() or "", "Combo") then
-					tSelectPanel = _G[tComponent:GetName() .. "ScrollPanel"] or _G[tComponent:GetName() .. "SelectPanel"];
+				tName = tComponent and tComponent:GetName() or "";
+
+				if tName ~= "" and strfind(tName, "Combo") and string.sub(tName, -11) ~= "ScrollPanel" then
+					tSelectPanel = _G[tName .. "ScrollPanel"] or _G[tName .. "SelectPanel"];
+
 					if tSelectPanel then
 						tSelectPanel:Hide();
 					end
@@ -488,6 +491,9 @@ local function VUHDO_hideAllComponentExtensions(aComponent)
 			end
 		end
 	end
+
+	return;
+
 end
 
 

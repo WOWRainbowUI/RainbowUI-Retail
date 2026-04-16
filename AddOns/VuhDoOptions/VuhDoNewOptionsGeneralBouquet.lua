@@ -5,12 +5,53 @@ VUHDO_BOUQUET_SHARE_VERSION = 1;
 VUHDO_BOUQET_COMBO_MODEL = { };
 VUHDO_BOUQET_DETAILS_COMBO_MODEL = { };
 VUHDO_BOUQUET_ICON_COMBO_MODEL = { };
+VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL = { };
 
 local VUHDO_CURRENT_BOUQUET_CHOICE = nil;
 local VUHDO_CURR_SELECTED_ITEM_INDEX = 0;
 local VUHDO_BOUQUET_ITEMS = { };
 local VUHDO_SUPPRESS_COMBO_FEEDBACK = false;
 VUHDO_TEMP_BOUQUET_BUFF = nil;
+
+
+
+--
+local tAllAuraGroupsForBouquet;
+local tAuraComboSortTable;
+local tAuraComboRow;
+function VUHDO_rebuildBouquetAuraGroupComboModel()
+
+	table.wipe(VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL);
+
+	tAllAuraGroupsForBouquet = VUHDO_getAllAuraGroups();
+
+	if not tAllAuraGroupsForBouquet then
+		return;
+	end
+
+	if not tAuraComboSortTable then
+		tAuraComboSortTable = { };
+	else
+		table.wipe(tAuraComboSortTable);
+	end
+
+	for tGroupId, _ in pairs(tAllAuraGroupsForBouquet) do
+		tinsert(tAuraComboSortTable, { tGroupId, VUHDO_getAuraGroupDisplayName(tGroupId) });
+	end
+
+	table.sort(tAuraComboSortTable, function(anA, anotherA)
+		return (anA[2] or "") < (anotherA[2] or "");
+	end);
+
+	for tCnt = 1, #tAuraComboSortTable do
+		tAuraComboRow = tAuraComboSortTable[tCnt];
+
+		tinsert(VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL, { tAuraComboRow[1], tAuraComboRow[2] });
+	end
+
+	return;
+
+end
 
 
 
@@ -317,14 +358,6 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 		tModel = "VUHDO_BOUQUETS.STORED." .. tBouquetName .. ".##" .. tIndex;
 	end
 
-	tCombo = _G[tPanel:GetName() .. "NameComboBox"];
-	VUHDO_setComboModel(tCombo, tModel .. ".name", VUHDO_BOUQET_DETAILS_COMBO_MODEL);
-	VUHDO_lnfComboBoxInitFromModel(tCombo);
-
-	tEditBox = _G[tPanel:GetName() .. "NameEditBox"];
-	VUHDO_lnfSetModel(tEditBox, tModel .. ".name");
-	VUHDO_lnfEditBoxInitFromModel(tEditBox);
-
 	tCombo = _G[tPanel:GetName() .. "BuffOrIndicatorFrameIconComboBox"];
 	VUHDO_setComboModel(tCombo, tModel .. ".icon", VUHDO_BOUQUET_ICON_COMBO_MODEL);
 	VUHDO_lnfComboBoxInitFromModel(tCombo);
@@ -359,6 +392,16 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 	_G[tPanel:GetName() .. "BuffOrIndicatorFrameCustomFlagEditBox"]:Hide();
 	_G[tPanel:GetName() .. "BuffOrIndicatorFrameSpellTraceEditLabel"]:Hide();
 	_G[tPanel:GetName() .. "BuffOrIndicatorFrameSpellTraceEditBox"]:Hide();
+	_G[tPanel:GetName() .. "BuffOrIndicatorFrameAuraGroupLabel"]:Hide();
+	_G[tPanel:GetName() .. "BuffOrIndicatorFrameAuraGroupComboBox"]:Hide();
+
+	tCombo = _G[tPanel:GetName() .. "NameComboBox"];
+	VUHDO_setComboModel(tCombo, tModel .. ".name", VUHDO_BOUQET_DETAILS_COMBO_MODEL);
+	VUHDO_lnfComboBoxInitFromModel(tCombo);
+
+	tEditBox = _G[tPanel:GetName() .. "NameEditBox"];
+	VUHDO_lnfSetModel(tEditBox, tModel .. ".name");
+	VUHDO_lnfEditBoxInitFromModel(tEditBox);
 
 	tBuffName = VUHDO_lnfGetValueFrom(tModel .. ".name");
 
@@ -504,6 +547,13 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 		tInnerPanel = _G[tPanel:GetName() .. "BuffOrIndicatorFrame"];
 
 		if (VUHDO_BOUQUET_BUFFS_SPECIAL[tBuffName] ~= nil) then
+			_G[tInnerPanel:GetName() .. "PercentFrame"]:Hide();
+			_G[tInnerPanel:GetName() .. "CustomFlagEditBox"]:Hide();
+			_G[tInnerPanel:GetName() .. "SpellTraceEditLabel"]:Hide();
+			_G[tInnerPanel:GetName() .. "SpellTraceEditBox"]:Hide();
+			_G[tInnerPanel:GetName() .. "AuraGroupLabel"]:Hide();
+			_G[tInnerPanel:GetName() .. "AuraGroupComboBox"]:Hide();
+
 			if (VUHDO_BOUQUET_BUFFS_SPECIAL[tBuffName]["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_BRIGHTNESS) then
 				tSubPanel = _G[tInnerPanel:GetName() .. "PercentFrame"];
 				tSlider = _G[tSubPanel:GetName() .. "Slider"];
@@ -563,11 +613,14 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 
 				VUHDO_lnfSetModel(tSubPanel, tModel .. ".custom.spellTrace");
 				tSubPanel:Show();
-			else
-				_G[tInnerPanel:GetName() .. "PercentFrame"]:Hide();
-				_G[tInnerPanel:GetName() .. "CustomFlagEditBox"]:Hide();
-				_G[tInnerPanel:GetName() .. "SpellTraceEditLabel"]:Hide();
-				_G[tInnerPanel:GetName() .. "SpellTraceEditBox"]:Hide();
+			elseif (VUHDO_BOUQUET_BUFFS_SPECIAL[tBuffName]["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_AURA_GROUP) then
+				VUHDO_rebuildBouquetAuraGroupComboModel();
+
+				tCombo = _G[tInnerPanel:GetName() .. "AuraGroupComboBox"];
+				VUHDO_setComboModel(tCombo, tModel .. ".custom.auraGroupId", VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL);
+				VUHDO_lnfComboBoxInitFromModel(tCombo);
+				tCombo:Show();
+				_G[tInnerPanel:GetName() .. "AuraGroupLabel"]:Show();
 			end
 
 			if (VUHDO_BOUQUET_BUFFS_SPECIAL[tBuffName]["no_color"]) then
@@ -579,6 +632,9 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 			end
 		else
 			tInnerPanel = _G[tPanel:GetName() .. "BuffOrIndicatorFrame"];
+			_G[tInnerPanel:GetName() .. "AuraGroupLabel"]:Hide();
+			_G[tInnerPanel:GetName() .. "AuraGroupComboBox"]:Hide();
+
 			tSwatch = _G[tInnerPanel:GetName() .. "ColorTexture"];
 			tSwatch:Show();
 

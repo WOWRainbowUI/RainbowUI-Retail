@@ -9,7 +9,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="43" y="-200" />
+							<AbsDimension x="18" y="-148" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -158,12 +158,12 @@
 
 			<Frame name="$parentShieldPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="126" y="152" />
+					<AbsDimension x="126" y="192" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="313" y="-26" />
+							<AbsDimension x="313" y="-18" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -180,7 +180,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.SHOW_SHIELD_BAR");
-								VUHDO_lnfSetTooltip(self, nil);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K819);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -196,7 +196,7 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.SHOW_OVERSHIELD_BAR");
-								VUHDO_lnfSetTooltip(self, nil);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K820);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_CONFIG.SHOW_SHIELD_BAR", false);
 							</OnLoad>
 						</Scripts>
@@ -213,11 +213,26 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.SHOW_HEAL_ABSORB_BAR");
-								VUHDO_lnfSetTooltip(self, nil);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K821);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parentHealthLossBarCheckButton" text="VUHDO_I18N_SHOW_HEALTH_LOSS" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-148" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_CONFIG.SHOW_HEALTH_LOSS_BAR");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K818);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
 
 					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
 						<Layers>
@@ -237,7 +252,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="43" y="-26" />
+							<AbsDimension x="18" y="-18" />
 						</Offset>
 					</Anchor>
 				</Anchors>

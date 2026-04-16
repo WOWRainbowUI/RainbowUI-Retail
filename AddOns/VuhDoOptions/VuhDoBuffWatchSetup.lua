@@ -1,5 +1,6 @@
 local _;
 local pairs = pairs;
+local tinsert = table.insert;
 
 local VUHDO_BUFF_PANEL_X, VUHDO_BUFF_PANEL_Y;
 local VUHDO_BUFF_PANEL_WIDTH;
@@ -9,6 +10,86 @@ local VUHDO_PANEL_INSET_Y = 10;
 local VUHDO_PANEL_MAX_HEIGHT = 435;
 
 local BUFF_PANEL_BASE_HEIGHT = nil;
+
+
+
+--
+local tUniqueModeTable;
+local function VUHDO_buffWatchSetupGetTargetModeTable()
+
+	if not tUniqueModeTable then
+		tUniqueModeTable = {
+			{ "name", VUHDO_I18N_BW_TARGET_BY_NAME },
+			{ "target", VUHDO_I18N_BW_TARGET },
+			{ "focus", VUHDO_I18N_BW_FOCUS },
+		};
+
+		for _, tFilter in pairs(VUHDO_BUFF_FILTER_COMBO_TABLE) do
+			if tFilter[1] >= VUHDO_ID_MELEE_TANK and tFilter[1] <= VUHDO_ID_RANGED_HEAL then
+				tinsert(tUniqueModeTable, { tostring(tFilter[1]), tFilter[2] });
+			end
+		end
+	end
+
+	return tUniqueModeTable;
+
+end
+
+
+
+do
+	--
+	local tCombo;
+	local tEditBox;
+	local tNameLabel;
+	local tModeLabel;
+	local tValue;
+	function VUHDO_buffWatchSetupRefreshTargetMode(aGenericPanel)
+
+		tCombo = _G[aGenericPanel:GetName() .. "TargetModeComboBox"];
+		tEditBox = _G[aGenericPanel:GetName() .. "PlayerNameEditBox"];
+		tNameLabel = _G[aGenericPanel:GetName() .. "PlayerNameLabel"];
+		tModeLabel = _G[aGenericPanel:GetName() .. "TargetModeLabel"];
+
+		if not tCombo or not tEditBox then
+			return;
+		end
+
+		tValue = tCombo:GetAttribute("selected_value") or "name";
+
+		if tValue == "name" then
+			tEditBox:Show();
+			tNameLabel:Show();
+		else
+			tEditBox:Hide();
+			tNameLabel:Hide();
+		end
+
+		if tModeLabel then
+			tModeLabel:Show();
+		end
+
+		tCombo:Show();
+
+		return;
+
+	end
+end
+
+
+
+--
+function VUHDO_buffWatchSetupTargetModeChanged(aComboBox, aValue)
+
+	if aValue ~= aComboBox:GetAttribute("selected_value") then
+		aComboBox:SetAttribute("selected_value", aValue);
+		VUHDO_buffWatchSetupRefreshTargetMode(aComboBox:GetParent());
+		VUHDO_buffChanged(aComboBox);
+	end
+
+	return;
+
+end
 
 
 
@@ -47,7 +128,13 @@ local function VUHDO_buffSetupStoreSettings()
 				local tBuffTarget = tVariant[2];
 
 				if (VUHDO_BUFF_TARGET_UNIQUE == tBuffTarget) then
+					local tTargetModeCombo = _G[tGenericPanel:GetName() .. "TargetModeComboBox"];
 					local tEditBox = _G[tGenericPanel:GetName() .. "PlayerNameEditBox"];
+
+					if tTargetModeCombo then
+						tSettings["targetMode"] = VUHDO_comboGetSelectedBuff(tTargetModeCombo) or "name";
+					end
+
 					tSettings["name"] = tEditBox:GetText();
 				else -- Aura, Totem, own group, self
 					if (#tCategoryBuffs > 1) then
@@ -163,12 +250,16 @@ local function VUHDO_setupStaticBuffPanel(aCategoryName, aBuffPanel, anIsPresent
 	local tMissButton = _G[aBuffPanel:GetName() .. "MissingCheckButton"];
 	VUHDO_lnfSetModel(tMissButton, "VUHDO_BUFF_SETTINGS." .. aCategoryName .. ".missingColor.show");
 	VUHDO_lnfSetTooltip(tMissButton, VUHDO_I18N_TT.K386);
-	tMissButton:Hide();
+	tMissButton:Show();
+
+	VUHDO_lnfCheckButtonInitFromModel(tMissButton);
 
 	local tMissTexture = _G[aBuffPanel:GetName() .. "MissingTexture"];
 	VUHDO_lnfSetModel(tMissTexture, "VUHDO_BUFF_SETTINGS." .. aCategoryName .. ".missingColor");
 	VUHDO_lnfSetTooltip(tMissTexture, VUHDO_I18N_TT.K385);
-	tMissTexture:Hide();
+	tMissTexture:Show();
+
+	VUHDO_lnfColorSwatchInitFromModel(tMissTexture);
 
 	return;
 
@@ -249,7 +340,16 @@ local function VUHDO_setupGenericBuffPanel(aBuffVariant, aGenericPanel, someCate
 		end
 
 		local tEditBox = _G[aGenericPanel:GetName() .. "PlayerNameEditBox"];
+		local tTargetModeCombo = _G[aGenericPanel:GetName() .. "TargetModeComboBox"];
+
 		tEditBox:SetText(tSettings["name"]);
+
+		if tTargetModeCombo then
+			tTargetModeCombo:SetAttribute("combo_table", VUHDO_buffWatchSetupGetTargetModeTable());
+			VUHDO_lnfComboInitItems(tTargetModeCombo);
+			VUHDO_lnfComboSetSelectedValue(tTargetModeCombo, tSettings["targetMode"] or "name");
+			VUHDO_buffWatchSetupRefreshTargetMode(aGenericPanel);
+		end
 	else -- Aura, Totem, own group, self
 		if (tSettings["buff"] == nil) then
 			tSettings["buff"] = VUHDO_buffNameAvail(aBuffVariant[1]);

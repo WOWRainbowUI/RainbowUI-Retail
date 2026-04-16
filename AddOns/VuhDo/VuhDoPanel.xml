@@ -198,6 +198,13 @@
 			<Frame name="$parentPlTg" setAllPoints="true" hidden="true" inherits="VuhDoPlayerTargetFrameTemplate" />
 
 			<StatusBar name="$parentBgBar" setAllPoints="true" hidden="true" inherits="VuhDoStatusBar">
+				<Layers>
+					<Layer level="OVERLAY">
+						-- Raid Icon
+						<Texture name="$parentIc50" hidden="true" file="interface\targetingframe\ui-raidtargetingicons">
+						</Texture>
+					</Layer>
+				</Layers>
 				<Frames>
 					<StatusBar name="$parentHlBar" setAllPoints="true" inherits="VuhDoStatusBar">
 						<Frames>
@@ -218,80 +225,72 @@
 								</Scripts>
 							</StatusBar>
 
-							<Frame name="$parentTxPnl">
-								<Anchors>
-									<Anchor point="CENTER" relativePoint="CENTER">
-										<Offset>
-											<AbsDimension x="0" y="0"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-
-								<Layers>
-									<Layer>
-
-										<FontString name="$parentUnN" inherits="GameFontNormalSmall">
-											<FontHeight>
-												<AbsValue val="9" />
-											</FontHeight>
-										</FontString>
-
-										<FontString name="$parentUnNSolo" inherits="GameFontNormalSmall">
-											<FontHeight>
-												<AbsValue val="9" />
-											</FontHeight>
-										</FontString>
-
-										<FontString name="$parentLife" inherits="GameFontNormalSmall">
-											<FontHeight>
-												<AbsValue val="9" />
-											</FontHeight>
-										</FontString>
-
-									</Layer>
-								</Layers>
-								<Scripts>
-									<OnLoad>
-										self.addLevel = 2;
-									</OnLoad>
-								</Scripts>
-							</Frame>
-
-							<Frame name="$parentOvhPnl">
-								<Anchors>
-									<Anchor point="CENTER" relativePoint="CENTER">
-										<Offset>
-											<AbsDimension x="0" y="0"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Layers>
-									<Layer level="OVERLAY">
-										<FontString name="$parentT" inherits="SystemFont_Tiny">
-										<FontHeight>
-												<AbsValue val="9" />
-											</FontHeight>
-											<Shadow>
-												<Color r="0" g="0" b="0" />
-												<Offset>
-													<AbsDimension x="1" y="-1" />
-												</Offset>
-											</Shadow>
-										</FontString>
-									</Layer>
-								</Layers>
-							</Frame>
 						</Frames>
+					</StatusBar>
+
+					<Frame name="$parentTxPnl">
+						<Anchors>
+							<Anchor point="CENTER" relativePoint="CENTER">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
 
 						<Layers>
-							<Layer level="OVERLAY">
-								-- Raid Icon
-								<Texture name="$parentIc50" hidden="true" file="interface\targetingframe\ui-raidtargetingicons">
-								</Texture>
+							<Layer>
+
+								<FontString name="$parentUnN" inherits="GameFontNormalSmall">
+									<FontHeight>
+										<AbsValue val="9" />
+									</FontHeight>
+								</FontString>
+
+								<FontString name="$parentUnNSolo" inherits="GameFontNormalSmall">
+									<FontHeight>
+										<AbsValue val="9" />
+									</FontHeight>
+								</FontString>
+
+								<FontString name="$parentLife" inherits="GameFontNormalSmall">
+									<FontHeight>
+										<AbsValue val="9" />
+									</FontHeight>
+								</FontString>
+
 							</Layer>
 						</Layers>
+						<Scripts>
+							<OnLoad>
+								self.addLevel = 3;
+							</OnLoad>
+						</Scripts>
+					</Frame>
 
-					</StatusBar>
+					<Frame name="$parentOvhPnl">
+						<Anchors>
+							<Anchor point="CENTER" relativePoint="CENTER">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<FontString name="$parentT" inherits="SystemFont_Tiny">
+								<FontHeight>
+										<AbsValue val="9" />
+									</FontHeight>
+									<Shadow>
+										<Color r="0" g="0" b="0" />
+										<Offset>
+											<AbsDimension x="1" y="-1" />
+										</Offset>
+									</Shadow>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
 
 				</Frames>
 			</StatusBar>
@@ -377,11 +376,29 @@
 							</Scripts>
 						</StatusBar>
 
+					</Frames>
+					<Layers>
+						<Layer level="OVERLAY" textureSubLevel="6">
+							<Texture name="$parentAggro" hidden="true" file="Interface\AddOns\VuhDo\Images\aggro">
+								<Size>
+									<AbsDimension x="10" y="20" />
+								</Size>
+								<Anchors>
+									<Anchor point="LEFT" relativePoint="RIGHT" />
+									<Anchor point="RIGHT" relativePoint="LEFT" />
+								</Anchors>
+								<TexCoords left="0" right="1" top="0" bottom="1" />
+							</Texture>
+
+						</Layer>
+					</Layers>
+				</StatusBar>
+
 						<StatusBar name="$parentLsBar" hidden="true" inherits="VuhDoStatusBar">
 							<Scripts>
 								<OnLoad>
 									self.statusTexture = self:GetStatusBarTexture();
-									self.addLevel = 1;
+									self.addLevel = 2;
 								</OnLoad>
 							</Scripts>
 						</StatusBar>
@@ -390,7 +407,7 @@
 							<Scripts>
 								<OnLoad>
 									self.statusTexture = self:GetStatusBarTexture();
-									self.addLevel = 1;
+									self.addLevel = 2;
 								</OnLoad>
 							</Scripts>
 						</StatusBar>
@@ -398,7 +415,7 @@
 						<Frame name="$parentPlTg" setAllPoints="true" hidden="true" inherits="VuhDoPlayerTargetFrameTemplate">
 							<Scripts>
 								<OnLoad inherit="prepend">
-									self.addLevel = 2;
+									self.addLevel = 3;
 								</OnLoad>
 							</Scripts>
 						</Frame>
@@ -406,7 +423,7 @@
 						<Frame name="$parentClu" setAllPoints="true" hidden="true" inherits="VuhDoPlayerTargetFrameTemplate">
 							<Scripts>
 								<OnLoad inherit="prepend">
-									self.addLevel = 2;
+									self.addLevel = 3;
 								</OnLoad>
 							</Scripts>
 						</Frame>
@@ -415,7 +432,7 @@
 							<Scripts>
 								<OnLoad>
 									self.statusTexture = self:GetStatusBarTexture();
-									self.addLevel = 3;
+									self.addLevel = 4;
 								</OnLoad>
 							</Scripts>
 						</StatusBar>
@@ -424,7 +441,7 @@
 							<Scripts>
 								<OnLoad>
 									self.statusTexture = self:GetStatusBarTexture();
-									self.addLevel = 4;
+									self.addLevel = 5;
 								</OnLoad>
 							</Scripts>
 						</StatusBar>
@@ -462,7 +479,7 @@
 							</Layers>
 							<Scripts>
 								<OnLoad>
-									self.addLevel = 5;
+									self.addLevel = 6;
 								</OnLoad>
 							</Scripts>
 						</Frame>
@@ -489,7 +506,7 @@
 							</Layers>
 							<Scripts>
 								<OnLoad>
-									self.addLevel = 10;
+									self.addLevel = 11;
 								</OnLoad>
 							</Scripts>
 						</Frame>
@@ -512,7 +529,7 @@
 							</Layers>
 							<Scripts>
 								<OnLoad>
-									self.addLevel = 11;
+									self.addLevel = 12;
 								</OnLoad>
 							</Scripts>
 						</Frame>
@@ -521,7 +538,7 @@
 							<Scripts>
 								<OnLoad>
 									self.statusTexture = self:GetStatusBarTexture();
-									self.addLevel = 12;
+									self.addLevel = 13;
 								</OnLoad>
 							</Scripts>
 						</StatusBar>
@@ -560,24 +577,6 @@
 								</Frame>
 							</Frames>
 						</Frame>
-
-					</Frames>
-					<Layers>
-						<Layer level="OVERLAY" textureSubLevel="6">
-							<Texture name="$parentAggro" hidden="true" file="Interface\AddOns\VuhDo\Images\aggro">
-								<Size>
-									<AbsDimension x="10" y="20" />
-								</Size>
-								<Anchors>
-									<Anchor point="LEFT" relativePoint="RIGHT" />
-									<Anchor point="RIGHT" relativePoint="LEFT" />
-								</Anchors>
-								<TexCoords left="0" right="1" top="0" bottom="1" />
-							</Texture>
-
-						</Layer>
-					</Layers>
-				</StatusBar>
 
 				<Frame name="$parentClipBar" clipChildren="true">
 					<Anchors>
@@ -629,6 +628,23 @@
 							self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\healabsorb_bar");
 							self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
 							self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\healabsorb_bar", "REPEAT", "REPEAT");
+							self:GetStatusBarTexture():SetHorizTile(true);
+							self:GetStatusBarTexture():SetVertTile(true);
+							self:SetReverseFill(true);
+							self:SetMinMaxValues(0, 1);
+							self:SetValue(0);
+							self.addLevel = 1;
+						</OnLoad>
+					</Scripts>
+				</StatusBar>
+
+				<StatusBar name="$parentHlLossBar" hidden="true" inherits="VuhDoStatusBar">
+					<Scripts>
+						<OnLoad>
+							self.statusTexture = self:GetStatusBarTexture();
+							self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\healthloss_bar");
+							self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
+							self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\healthloss_bar", "REPEAT", "REPEAT");
 							self:GetStatusBarTexture():SetHorizTile(true);
 							self:GetStatusBarTexture():SetVertTile(true);
 							self:SetReverseFill(true);

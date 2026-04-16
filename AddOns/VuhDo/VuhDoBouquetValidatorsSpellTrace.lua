@@ -39,6 +39,10 @@ end
 local tInfo;
 local function VUHDO_spellTraceValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	tInfo = VUHDO_getSpellTraceForUnit(anInfo["unit"]);
 
 	if tInfo then
@@ -91,6 +95,10 @@ end
 local tInfo;
 local function VUHDO_spellTraceIncomingValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	tInfo = VUHDO_getSpellTraceIncomingForUnit(anInfo["unit"]);
 
 	if tInfo then
@@ -118,6 +126,10 @@ end
 --
 local tInfo;
 local function VUHDO_spellTraceHealValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	tInfo = VUHDO_getSpellTraceHealForUnit(anInfo["unit"]);
 
@@ -170,6 +182,10 @@ end
 --
 local tInfo;
 local function VUHDO_spellTraceSingleValidator(anInfo, aCustom)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if aCustom and aCustom["custom"] and aCustom["custom"]["spellTrace"] and aCustom["custom"]["spellTrace"] ~= "" then
 		tInfo = VUHDO_getSpellTraceForUnit(anInfo["unit"], aCustom["custom"]["spellTrace"]);
@@ -225,6 +241,10 @@ end
 local tInfo;
 local function VUHDO_trailOfLightValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	tInfo = VUHDO_getSpellTraceTrailOfLightForUnit(anInfo["unit"]);
 
 	if tInfo then
@@ -240,6 +260,10 @@ end
 --
 local function VUHDO_trailOfLightNextValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	return VUHDO_isSpellTraceTrailOfLightNextUnit(anInfo["unit"]), nil, -1, -1, -1;
 
 end
@@ -249,6 +273,11 @@ end
 --
 local tInfo;
 local function VUHDO_aoeAdviceValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	tInfo = VUHDO_getAoeAdviceForUnit(anInfo["unit"]);
 
 	if tInfo then

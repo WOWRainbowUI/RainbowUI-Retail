@@ -188,9 +188,43 @@
 
 	<Frame name="VuhDoBuffSetupUniqueSingleTargetPanelTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="229" y="55" />
+			<AbsDimension x="229" y="92" />
 		</Size>
 		<Frames>
+			<Frame name="$parentTargetModeLabel" inherits="VuhDoLabelFrameTemplate">
+				<Size>
+					<AbsDimension x="200" y="22" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-3" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer>
+						<FontString name="$parentLabel" text="VUHDO_I18N_BW_TARGET_MODE" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Frame name="$parentTargetModeComboBox" inherits="VuhDoComboBoxTemplate" id="1">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="10" y="-22" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:SetAttribute("custom_function", VUHDO_buffWatchSetupTargetModeChanged);
+					</OnLoad>
+				</Scripts>
+			</Frame>
+
 			<EditBox name="$parentPlayerNameEditBox" inherits="VuhDoEditBoxTemplate">
 				<Size>
 					<AbsDimension x="170" y="32" />
@@ -198,7 +232,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="10" y="-20" />
+							<AbsDimension x="10" y="-58" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -217,7 +251,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="10" y="-3" />
+							<AbsDimension x="10" y="-41" />
 						</Offset>
 					</Anchor>
 				</Anchors>

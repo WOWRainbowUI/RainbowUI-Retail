@@ -27,6 +27,7 @@ local CreateColor = CreateColor;
 local format = string.format;
 
 local VUHDO_PANEL_SETUP;
+local VUHDO_PANEL_MODELS;
 local VUHDO_CONFIG;
 local VUHDO_RAID;
 local VUHDO_AURA_IGNORE_LIST;
@@ -375,6 +376,18 @@ local sGrowthOffsets = {
 	["DOWN"] = { 0, -1 },
 };
 
+local sRelPointManaFactor = {
+	["TOPLEFT"] = 0,
+	["TOP"] = 0,
+	["TOPRIGHT"] = 0,
+	["LEFT"] = 0.5,
+	["CENTER"] = 0.5,
+	["RIGHT"] = 0.5,
+	["BOTTOMLEFT"] = 1,
+	["BOTTOM"] = 1,
+	["BOTTOMRIGHT"] = 1,
+};
+
 local sTimeAbbrevData = {
 	["breakpointData"] = {
 		{
@@ -456,6 +469,7 @@ local tPanelAnchors;
 function VUHDO_barCustomizerAurasInitLocalOverrides()
 
 	VUHDO_PANEL_SETUP = _G["VUHDO_PANEL_SETUP"];
+	VUHDO_PANEL_MODELS = _G["VUHDO_PANEL_MODELS"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_AURA_IGNORE_LIST = _G["VUHDO_AURA_IGNORE_LIST"];
@@ -1749,7 +1763,7 @@ do
 			end
 		end
 
-		tParent = _G[aButton:GetName() .. "BgBarHlBar"];
+		tParent = _G[aButton:GetName() .. "BgBar"];
 
 		if tParent then
 			tFrame:SetParent(tParent);
@@ -1846,7 +1860,7 @@ do
 			tFrame["childBar"]:SetFrameLevel(tFrame:GetFrameLevel() - 1);
 		end
 
-		tParent = _G[aButton:GetName() .. "BgBarHlBar"];
+		tParent = _G[aButton:GetName() .. "BgBar"];
 
 		if tParent then
 			tFrame:SetParent(tParent);
@@ -2008,6 +2022,7 @@ do
 		tIconFrame:ClearAllPoints();
 		VUHDO_PixelUtil.SetPoint(tIconFrame, tAnchor, aButton, tRelPoint, tPosX, tPosY);
 		VUHDO_PixelUtil.SetSize(tIconFrame, aWidth or 16, aHeight or 16);
+		VUHDO_PixelUtil.SetFrameLevel(tIconFrame, tIconFrame:GetParent():GetFrameLevel() + 11);
 		tIconFrame:SetAlpha(1);
 		tIconFrame:Show();
 
@@ -2201,6 +2216,15 @@ do
 
 
 	--
+	function VUHDO_isAuraDisplaySuspended()
+
+		return sAurasSuspended;
+
+	end
+
+
+
+	--
 	function VUHDO_hideAllAuras()
 
 		for tButtonName, tButtonFrames in pairs(VUHDO_AURA_FRAMES) do
@@ -2249,6 +2273,8 @@ do
 
 	--
 	function VUHDO_showAllAuras()
+
+		sEntrySettingsVersion = sEntrySettingsVersion + 1;
 
 		for tUnit, _ in pairs(VUHDO_RAID) do
 			VUHDO_updateAuraDisplaysForUnit(tUnit);
@@ -2465,7 +2491,7 @@ do
 		end
 
 		if "HealthBar" == tPos["relFrame"] then
-			tRelFrame = VUHDO_getHealthBar(aButton, 1);
+			tRelFrame = VUHDO_getHealthBar(aButton, 3);
 		else
 			tRelFrame = aButton;
 		end
@@ -2489,6 +2515,10 @@ do
 		if aRadioValue ~= 17 then
 			tBaseX = (tPos["xOffset"] or 0) + tBaseX;
 			tBaseY = (tPos["yOffset"] or 0) + tBaseY;
+		end
+
+		if "HealthBar" == tPos["relFrame"] then
+			tBaseY = tBaseY + (aButton["manaBarLayoutHeight"] or 0) * (sRelPointManaFactor[tPos["relPoint"]] or 0);
 		end
 
 		tGrowthDir = sGrowthOffsets[anAnchorConfig["growthDir"]] or sGrowthOffsets["RIGHT"];
@@ -2758,7 +2788,7 @@ do
 			return;
 		end
 
-		tRelFrame = VUHDO_getHealthBar(aButton, 1);
+		tRelFrame = VUHDO_getHealthBar(aButton, 3);
 
 		if not tRelFrame then
 			return;
@@ -2804,6 +2834,8 @@ do
 			tXOff = tXOff + tGrowthXOff;
 			tYOff = tYOff + tGrowthYOff;
 		end
+
+		tYOff = tYOff + (aButton["manaBarLayoutHeight"] or 0) * (sRelPointManaFactor[tSlotPos["relPoint"]] or 0);
 
 		aFrame:ClearAllPoints();
 		VUHDO_PixelUtil.SetPoint(aFrame, tSlotPos["anchor"], tRelFrame, tSlotPos["relPoint"], tXOff, tYOff);
@@ -3288,31 +3320,37 @@ local tSlots;
 local tMaxSlots;
 function VUHDO_updateInferredAuraDisplaysForUnit(aUnit)
 
+	if sAurasSuspended then
+		return;
+	end
+
 	if not aUnit then
 		return;
 	end
 
 	for tPanelNum = 1, VUHDO_MAX_PANELS do
-		tPanelAnchors = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"];
+		if VUHDO_PANEL_MODELS[tPanelNum] then
+			tPanelAnchors = VUHDO_PANEL_SETUP[tPanelNum] and VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"];
 
-		if tPanelAnchors then
-			for tAnchorIndex, tAnchorConfig in pairs(tPanelAnchors) do
-				if tAnchorConfig then
-					if tAnchorConfig["enabled"] == false then
-						VUHDO_clearAurasForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
-					else
-						tGroup = VUHDO_getAuraGroup(tAnchorConfig["groupId"]);
+			if tPanelAnchors then
+				for tAnchorIndex, tAnchorConfig in pairs(tPanelAnchors) do
+					if tAnchorConfig then
+						if tAnchorConfig["enabled"] == false then
+							VUHDO_clearAurasForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
+						else
+							tGroup = VUHDO_getAuraGroup(tAnchorConfig["groupId"]);
 
-						if tGroup and tGroup["isInferred"] then
-							VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
+							if tGroup and tGroup["isInferred"] then
+								VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
 
-							tAnchorSlots = VUHDO_UNIT_AURA_SLOTS[aUnit] and VUHDO_UNIT_AURA_SLOTS[aUnit][tPanelNum];
+								tAnchorSlots = VUHDO_UNIT_AURA_SLOTS[aUnit] and VUHDO_UNIT_AURA_SLOTS[aUnit][tPanelNum];
 
-							if tAnchorSlots then
-								tSlots = tAnchorSlots[tAnchorIndex];
-								tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
+								if tAnchorSlots then
+									tSlots = tAnchorSlots[tAnchorIndex];
+									tMaxSlots = tAnchorConfig["maxDisplay"] or 5;
 
-								VUHDO_displayAurasAtAnchorFromCache(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig, tSlots, tMaxSlots);
+									VUHDO_displayAurasAtAnchorFromCache(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig, tSlots, tMaxSlots);
+								end
 							end
 						end
 					end
@@ -3948,16 +3986,8 @@ do
 				end
 			end
 		else
-			if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+			if tUnit and anAuraData["auraInstanceID"] and not issecretvalue(anAuraData["auraInstanceID"]) and anAuraData["auraInstanceID"] >= 0 then
 				tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
-			elseif anAuraData["duration"] and anAuraData["duration"] > 0 and anAuraData["expirationTime"] then
-				if not tIconFrame["durationObj"] then
-					tIconFrame["durationObj"] = CreateDuration();
-				end
-
-				tDurationObj = tIconFrame["durationObj"];
-
-				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
 			end
 		end
 
@@ -4279,16 +4309,8 @@ do
 
 			tIsPermanent = (tCurrentDuration == 0 and (anAuraData["expirationTime"] or 0) == 0);
 		else
-			if tUnit and anAuraData["auraInstanceID"] and anAuraData["auraInstanceID"] >= 0 then
+			if tUnit and anAuraData["auraInstanceID"] and not issecretvalue(anAuraData["auraInstanceID"]) and anAuraData["auraInstanceID"] >= 0 then
 				tDurationObj = GetAuraDuration(tUnit, anAuraData["auraInstanceID"]);
-			elseif anAuraData["duration"] and anAuraData["duration"] > 0 and anAuraData["expirationTime"] then
-				if not tBarFrame["durationObj"] then
-					tBarFrame["durationObj"] = CreateDuration();
-				end
-
-				tDurationObj = tBarFrame["durationObj"];
-
-				tDurationObj:SetTimeFromEnd(anAuraData["expirationTime"], anAuraData["duration"]);
 			end
 
 			tIsPermanent = false;

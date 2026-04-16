@@ -76,3 +76,33 @@ function VUHDO_colorsModesApplySmoothHealAbsorbToAllPanels(_, aValue)
 	return;
 
 end
+
+
+
+--
+function VUHDO_colorsModesApplySmoothHealthLossToAllPanels(_, aValue)
+
+	for tPanelNum = 1, VUHDO_MAX_PANELS do
+		VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["smoothHealthLoss"] = aValue;
+	end
+
+	VUHDO_timeReloadUI(0.3, true);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_colorsModesApplyTurnAxisHealthLossToAllPanels(_, aValue)
+
+	for tPanelNum = 1, VUHDO_MAX_PANELS do
+		VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisHealthLoss"] = aValue;
+	end
+
+	VUHDO_timeReloadUI(0.3, true);
+
+	return;
+
+end

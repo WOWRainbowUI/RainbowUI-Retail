@@ -60,6 +60,7 @@ local sAllUnitEventNames = {
 	"UNIT_HEAL_PREDICTION",
 	"UNIT_ABSORB_AMOUNT_CHANGED",
 	"UNIT_HEAL_ABSORB_AMOUNT_CHANGED",
+	"UNIT_MAX_HEALTH_MODIFIERS_CHANGED",
 };
 
 local sPlayerPowerResourceBouquetModes = {
@@ -214,6 +215,15 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 
 		if anArg1 and VUHDO_RAID[anArg1] then
 			VUHDO_updateHealth(anArg1, VUHDO_UPDATE_HEALTH_MAX);
+		end
+
+	elseif "UNIT_MAX_HEALTH_MODIFIERS_CHANGED" == anEvent then
+		if not VUHDO_RAID then
+			return;
+		end
+
+		if anArg1 and VUHDO_RAID[anArg1] then
+			VUHDO_updateHealth(anArg1, VUHDO_UPDATE_HEALTH_LOSS);
 		end
 
 	elseif "UNIT_TARGET" == anEvent then
@@ -428,6 +438,15 @@ end
 
 
 --
+local function VUHDO_getHealthLossInterest()
+
+	return VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"];
+
+end
+
+
+
+--
 local tEvent;
 local function VUHDO_unregisterKnownUnitEventsFromFrame(aFrame)
 
@@ -490,6 +509,10 @@ local function VUHDO_applyCoreUnitRegistrations(aFrame, aUnit)
 
 	if VUHDO_getHealAbsorbInterest() then
 		aFrame:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", aUnit);
+	end
+
+	if VUHDO_getHealthLossInterest() then
+		aFrame:RegisterUnitEvent("UNIT_MAX_HEALTH_MODIFIERS_CHANGED", aUnit);
 	end
 
 	return;
