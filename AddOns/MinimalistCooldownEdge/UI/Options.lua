@@ -196,6 +196,14 @@ local function ProfileTableColorSet(tableKey, field)
     end
 end
 
+local function GetProfile()
+    return MCE.db and MCE.db.profile or nil
+end
+
+local function NotifyOptionsChanged()
+    AceConfigRegistry:NotifyChange(addonName)
+end
+
 local function GetCompactPartyAuraOptionsConfig()
     local profile = MCE.db and MCE.db.profile
     if not profile then
@@ -232,57 +240,37 @@ local function ShinyAurasAdapterEnabled()
     return MCE:IsShinyAurasAdapterEnabled()
 end
 
-local function SetShinyAurasAdapterEnabled(_, value)
-    local profile = MCE.db and MCE.db.profile
-    if not profile then return end
+local function SetAddonIntegrationEnabled(field)
+    return function(_, value)
+        local profile = GetProfile()
+        if not profile then return end
 
-    profile.shinyAurasAdapterEnabled = value
-    MCE:MarkReloadRequired()
-    MCE:ForceUpdateAll(true)
-    AceConfigRegistry:NotifyChange(addonName)
+        profile[field] = value
+        MCE:MarkReloadRequired()
+        MCE:ForceUpdateAll(true)
+        NotifyOptionsChanged()
+    end
 end
+
+local SetShinyAurasAdapterEnabled = SetAddonIntegrationEnabled("shinyAurasAdapterEnabled")
 
 local function DominosAdapterEnabled()
     return MCE:IsDominosAdapterEnabled()
 end
 
-local function SetDominosAdapterEnabled(_, value)
-    local profile = MCE.db and MCE.db.profile
-    if not profile then return end
-
-    profile.dominosAdapterEnabled = value
-    MCE:MarkReloadRequired()
-    MCE:ForceUpdateAll(true)
-    AceConfigRegistry:NotifyChange(addonName)
-end
+local SetDominosAdapterEnabled = SetAddonIntegrationEnabled("dominosAdapterEnabled")
 
 local function Bartender4AdapterEnabled()
     return MCE:IsBartender4AdapterEnabled()
 end
 
-local function SetBartender4AdapterEnabled(_, value)
-    local profile = MCE.db and MCE.db.profile
-    if not profile then return end
-
-    profile.bartender4AdapterEnabled = value
-    MCE:MarkReloadRequired()
-    MCE:ForceUpdateAll(true)
-    AceConfigRegistry:NotifyChange(addonName)
-end
+local SetBartender4AdapterEnabled = SetAddonIntegrationEnabled("bartender4AdapterEnabled")
 
 local function ElvUIAdapterEnabled()
     return MCE:IsElvUIAdapterEnabled()
 end
 
-local function SetElvUIAdapterEnabled(_, value)
-    local profile = MCE.db and MCE.db.profile
-    if not profile then return end
-
-    profile.elvuiAdapterEnabled = value
-    MCE:MarkReloadRequired()
-    MCE:ForceUpdateAll(true)
-    AceConfigRegistry:NotifyChange(addonName)
-end
+local SetElvUIAdapterEnabled = SetAddonIntegrationEnabled("elvuiAdapterEnabled")
 
 local function GetCooldownManagerCenteredProfile()
     local cmc = _G[C.Addon.CooldownManagerCenteredName]
@@ -480,21 +468,22 @@ local function RefreshDynamicCategoryLabels()
     end
 end
 
+local function SetCategoryEnabledValue(key, value)
+    MCE.db.profile.categories[key].enabled = value
+    MCE:MarkReloadRequired()
+    MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
+    NotifyOptionsChanged()
+end
+
 local function SetCategoryEnabled(key)
     return function(_, value)
-        MCE.db.profile.categories[key].enabled = value
-        MCE:MarkReloadRequired()
-        MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
-        AceConfigRegistry:NotifyChange(addonName)
+        SetCategoryEnabledValue(key, value)
     end
 end
 
 local function SetDashboardCategoryEnabled(key)
     return function(_, value)
-        MCE.db.profile.categories[key].enabled = value
-        MCE:MarkReloadRequired()
-        MCE:ForceUpdateAll(CategoryNeedsFullScan(key))
-        AceConfigRegistry:NotifyChange(addonName)
+        SetCategoryEnabledValue(key, value)
         RefreshDynamicCategoryLabels()
     end
 end
@@ -813,14 +802,14 @@ local function CreateCategoryOptions(order, name, key, desc)
                         set = CatRangeSet(key, "buffIconFontSize"),
                     } or nil,
                     auraColorEnabled = isCooldownManager and {
-                        type = "toggle", order = 5.45, width = "full",
+                        type = "toggle", order = 5.45, width = 0.8,
                         name = L["Use Buff Color"],
                         desc = L["When a CooldownManager slot is temporarily showing aura time, use a dedicated buff color instead of remaining-time threshold colors."],
                         get = CatGet(key, "auraColorEnabled", true),
                         set = CatSet(key, "auraColorEnabled"),
                     } or nil,
                     auraColor = isCooldownManager and {
-                        type = "color", order = 5.46, width = "half", hasAlpha = true,
+                        type = "color", order = 5.46, width = 1, hasAlpha = true,
                         name = L["Buff Color"],
                         desc = L["Applied while the slot is showing aura duration. When the aura ends and the slot switches back to cooldown time, threshold colors resume."],
                         get = CatColorGet(key, "auraColor"),
@@ -1139,15 +1128,22 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
         return config and config.enabled or false
     end
 
-    local function SetCompactPartyAuraToggle(field)
+    local function SetCompactPartyAuraField(field, markReload, refreshLabels)
         return function(_, val)
             local config = GetCompactPartyAuraOptionsConfig()
             if not config then return end
+
             config[field] = val
-            MCE:MarkReloadRequired()
+            if markReload then
+                MCE:MarkReloadRequired()
+            end
+
             MCE:ForceUpdateAll(true)
-            AceConfigRegistry:NotifyChange(addonName)
-            RefreshDynamicCategoryLabels()
+            NotifyOptionsChanged()
+
+            if refreshLabels then
+                RefreshDynamicCategoryLabels()
+            end
         end
     end
 
@@ -1180,7 +1176,7 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         name = "|cff33ff99" .. format(L["Enable %s"], name) .. "|r",
                         desc = L["Toggle styling for this category."],
                         get = ProfileTableGet("compactPartyAuraText", "enabled", true),
-                        set = SetCompactPartyAuraToggle("enabled"),
+                        set = SetCompactPartyAuraField("enabled", true, true),
                     },
                 },
             },
@@ -1204,7 +1200,7 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         name = L["Enable Raid Aura Text"],
                         desc = L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff icons. Requires Party / Raid Frames to be enabled."],
                         get = ProfileTableGet("compactPartyAuraText", "raidEnabled", false),
-                        set = SetCompactPartyAuraToggle("raidEnabled"),
+                        set = SetCompactPartyAuraField("raidEnabled", true, true),
                     },
                     compactPartyFont = {
                         type = "select", order = 2, width = 1.5,
@@ -1269,13 +1265,7 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         name = L["Hide Stack Text"],
                         desc = L["Hide stacks and charges entirely."],
                         get = ProfileTableGet("compactPartyAuraText", "hideStackText", false),
-                        set = function(_, val)
-                            local config = GetCompactPartyAuraOptionsConfig()
-                            if not config then return end
-                            config.hideStackText = val
-                            MCE:ForceUpdateAll(true)
-                            AceConfigRegistry:NotifyChange(addonName)
-                        end,
+                        set = SetCompactPartyAuraField("hideStackText", false, false),
                     },
                 },
             },
@@ -1321,13 +1311,7 @@ local function CreateCompactPartyAuraOptions(order, name, desc)
                         name = L["Customize Stack Text"],
                         desc = L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."],
                         get = ProfileTableGet("compactPartyAuraText", "stackEnabled", true),
-                        set = function(_, val)
-                            local config = GetCompactPartyAuraOptionsConfig()
-                            if not config then return end
-                            config.stackEnabled = val
-                            MCE:ForceUpdateAll(true)
-                            AceConfigRegistry:NotifyChange(addonName)
-                        end,
+                        set = SetCompactPartyAuraField("stackEnabled", false, false),
                     },
                     headerStyleTopSpacing = SectionSpacer(9.95, compactStackHiddenFn),
                     headerStyle = { type = "header", name = L["Style"], order = 10, hidden = compactStackHiddenFn },

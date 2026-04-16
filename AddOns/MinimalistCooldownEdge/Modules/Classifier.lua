@@ -12,8 +12,6 @@ local Classifier = MCE:NewModule("Classifier")
 
 local pcall = pcall
 local strfind, ipairs = string.find, ipairs
-local issecretvalue = issecretvalue or function() return false end
-local canaccessallvalues = canaccessallvalues
 
 local CLASSIFIER_CONSTANTS = C.Classifier
 local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
@@ -24,6 +22,9 @@ local frameState = addon.frameState
 local blacklistCache = setmetatable({}, weakMeta)
 local blacklistParentNameLookup = {}
 
+local IsSecretValue = addon.IsSecretValue
+local CanAccessAllValues = addon.CanAccessAllValues
+
 for _, parentName in ipairs(BLACKLIST_PARENT_NAMES) do
     blacklistParentNameLookup[parentName] = true
 end
@@ -32,21 +33,9 @@ end
 -- BLACKLIST
 -- =========================================================================
 
-local function IsSecretValue(value)
-    if not issecretvalue then return false end
-    local ok, result = pcall(issecretvalue, value)
-    return ok and result or false
-end
-
-local function CanAccessAllValues(...)
-    if not canaccessallvalues then return true end
-    local ok, result = pcall(canaccessallvalues, ...)
-    return ok and result or false
-end
-
 function Classifier:IsBlacklisted(frame, knownFrameName)
     if not frame then return false end
-    if IsSecretValue(frame) or not CanAccessAllValues(frame) or MCE:IsForbidden(frame) then
+    if IsSecretValue(frame) or not CanAccessAllValues(frame) or MCE:IsForbiddenCached(frame) then
         return true
     end
 
@@ -60,28 +49,31 @@ function Classifier:IsBlacklisted(frame, knownFrameName)
     local currentObj = frame
     local isFirstObject = true
 
-    while currentObj do
-        if IsSecretValue(currentObj) or not CanAccessAllValues(currentObj) or MCE:IsForbidden(currentObj) then
+    for _ = 1, CLASSIFIER_CONSTANTS.ScanDepth do
+        if not currentObj then break end
+        if IsSecretValue(currentObj) or not CanAccessAllValues(currentObj) or MCE:IsForbiddenCached(currentObj) then
             blacklistCache[frame] = true
             return true
         end
 
-        local name = currentObj.GetName and currentObj:GetName() or ""
+        local name = MCE:GetFrameName(currentObj) or ""
 
         if isFirstObject and knownFrameName then
-            name = knownFrameName
+            name = MCE:GetNonSecretString(knownFrameName) or name
         end
 
-        for _, key in ipairs(BLACKLIST_NAME_CONTAINS) do
-            if name ~= "" and strfind(name, key, 1, true) then
+        if name ~= "" then
+            for _, key in ipairs(BLACKLIST_NAME_CONTAINS) do
+                if strfind(name, key, 1, true) then
+                    blacklistCache[frame] = true
+                    return true
+                end
+            end
+
+            if blacklistParentNameLookup[name] then
                 blacklistCache[frame] = true
                 return true
             end
-        end
-
-        if name ~= "" and blacklistParentNameLookup[name] then
-            blacklistCache[frame] = true
-            return true
         end
 
         currentObj = currentObj.GetParent and currentObj:GetParent() or nil

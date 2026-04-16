@@ -15,8 +15,7 @@ local MINICC_PREFIX = C.Classifier.MiniCCNamePrefix
 -- MiniCC portrait containers are parented directly to unit frames.
 -- Skip them here so MiniCCAdapter retains ownership.
 local function IsMiniCCFrame(frame)
-    if not frame or not frame.GetName then return false end
-    local name = frame:GetName()
+    local name = MCE:GetFrameName(frame)
     return type(name) == "string" and strfind(name, MINICC_PREFIX, 1, true) == 1
 end
 
@@ -30,7 +29,8 @@ local FALLBACK_UNIT_TOKENS = {
 }
 
 local function IsCompactGroupFrameName(name)
-    if type(name) ~= "string" or name == "" then
+    name = MCE:GetNonSecretString(name)
+    if not name then
         return false
     end
 
@@ -118,7 +118,7 @@ function Adapter:TryClaim(cooldown)
     local current = cooldown.GetParent and cooldown:GetParent()
     for _ = 1, UF.MaxAncestorDepth do
         if not current then break end
-        local name = current.GetName and current:GetName() or ""
+        local name = MCE:GetFrameName(current) or ""
         local unitToken = ExtractUnitToken(current.unit)
             or ExtractUnitToken(current.unitToken)
             or ExtractUnitToken(current.displayedUnit)

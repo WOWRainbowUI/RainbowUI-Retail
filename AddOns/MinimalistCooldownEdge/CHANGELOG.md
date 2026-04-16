@@ -1,6 +1,26 @@
 
 # Changelog
 
+## [3.9.5] - 2026-04-15
+- Updated the TOC file to include the 12.0.5 interface versions
+
+## [3.9.4] - 2026-04-14
+- Performance improvements for cooldowns, styling, and update ticks
+- Lower CPU and memory overhead from better caching and less reprocessing
+- More efficient action bar and nameplate cooldown updates
+- Internal cleanup to remove duplicate helper logic
+
+## [3.9.3] - 2026-04-14
+- feat: Implement queuing mechanism for buff icon owners and viewer refreshes to prevent redundant updates
+
+## [3.9.2] - 2026-04-14
+- feat: Add new frame types to Classifier for enhanced compatibility with additional addons
+- perf: Reduce MiniCC integration overhead by reusing MiniCC's cached countdown FontString instead of rescanning cooldown regions on every update.
+- compat: Stop forcing per-pass MiniCC text-region refreshes once the countdown region is already known.
+
+## [3.9.1] - 2026-04-14
+- feat: Implement loss of control cooldown handling in HookBridge and adapters for improved cooldown management
+
 ## [3.9.0] - 2026-04-12
 - Fixed buff icon issue where one timer could stay on the expiring color.
 - Added a safer compatibility refresh for CooldownManagerCentered buff icons without affecting normal CooldownManager setups.

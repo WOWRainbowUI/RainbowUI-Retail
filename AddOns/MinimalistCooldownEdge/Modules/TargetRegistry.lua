@@ -24,14 +24,14 @@ local adapters = {}
 -- ordered adapter list for TryClaim fallback
 local adapterOrder = {}
 
-local function ListContains(list, value)
+local function InsertUnique(list, value)
     for i = 1, #list do
         if list[i] == value then
-            return true
+            return
         end
     end
 
-    return false
+    list[#list + 1] = value
 end
 
 local function EnsureCategorySet(category)
@@ -128,13 +128,9 @@ function Registry:RegisterAdapter(category, adapter)
         adapters[category] = categoryAdapters
     end
 
-    if not ListContains(categoryAdapters, adapter) then
-        categoryAdapters[#categoryAdapters + 1] = adapter
-    end
+    InsertUnique(categoryAdapters, adapter)
 
-    if not ListContains(adapterOrder, adapter) then
-        adapterOrder[#adapterOrder + 1] = adapter
-    end
+    InsertUnique(adapterOrder, adapter)
 end
 
 function Registry:GetAdapter(category)

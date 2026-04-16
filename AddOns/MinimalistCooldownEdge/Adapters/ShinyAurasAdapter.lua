@@ -24,7 +24,7 @@ local function IsShinyButton(frame)
         return true
     end
 
-    local name = frame.GetName and frame:GetName() or nil
+    local name = MCE:GetFrameName(frame)
     if type(name) == "string" then
         if name:find("ShinyBuffButton", 1, true) == 1
             or name:find("ShinyDebuffButton", 1, true) == 1
@@ -34,7 +34,7 @@ local function IsShinyButton(frame)
     end
 
     local parent = frame.GetParent and frame:GetParent() or nil
-    if parent and parent.GetName and parent:GetName() == SA.RootFrameName then
+    if MCE:GetFrameName(parent) == SA.RootFrameName then
         return true
     end
 
