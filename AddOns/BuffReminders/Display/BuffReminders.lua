@@ -52,6 +52,7 @@ local addonName, BR = ...
 ---@field missingGlowYOffset? number
 ---@field fontFace? string
 ---@field showConsumablesWithoutItems? boolean
+---@field showWithoutItemsOnlyOnReadyCheck? boolean
 ---@field delveFoodOnly? boolean
 ---@field delveFoodTimer? boolean
 ---@field freeConsumableMode? "follow"|"override"
@@ -198,10 +199,6 @@ local TEXCOORD_INSET = BR.TEXCOORD_INSET
 
 -- WoW API locals
 local PlaySoundFile = PlaySoundFile
-local UnitLevel = UnitLevel
-local GetMaxLevelForPlayerExpansion = GetMaxLevelForPlayerExpansion
-local playerLevel -- Cached on PLAYER_ENTERING_WORLD, updated on PLAYER_LEVEL_UP
-local maxPlayerLevel -- Cached on PLAYER_ENTERING_WORLD, updated on UPDATE_EXPANSION_LEVEL
 
 -- LibSharedMedia for font resolution
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -347,8 +344,11 @@ local defaults = {
     hideWhileLeveling = false,
     showMissingCountOnly = false,
     petPassiveOnlyInCombat = false,
+    bronzeHideInCombat = false,
     optionsPanelScale = 1.2, -- base scale (displayed as 100%)
     showLoginMessages = true,
+    requestBuffInChat = true,
+    chatRequestMessages = {},
 
     -- DK runeforge preferences: [specId] = { mainhand, dw_mainhand, dw_offhand }
     -- No runes selected = no reminder for that spec (implicit disable)
@@ -386,7 +386,8 @@ local defaults = {
         expirationThreshold = 15, -- minutes
         glowType = 2, -- BR.Glow.Type: Pixel=1, AutoCast=2, Border=3, Proc=4 (expiring default)
         glowSize = 2,
-        showConsumablesWithoutItems = false,
+        showConsumablesWithoutItems = true,
+        showWithoutItemsOnlyOnReadyCheck = true,
         delveFoodOnly = true,
         delveFoodTimer = false,
         freeConsumableMode = "override",
@@ -597,11 +598,27 @@ local glowingSpells = {} -- Track which spell IDs are currently glowing (for act
 
 -- Dirty flag system: events set dirty=true, OnUpdate checks flag with throttle
 local dirty = false
+local dirtyMode = "full"
 local lastUpdateTime = 0
 local MIN_UPDATE_INTERVAL = 0.5 -- seconds between actual updates
 
-local function SetDirty()
+---@param mode? "full"|"group"
+local function SetDirty(mode)
     dirty = true
+    if mode == "full" or dirtyMode ~= "full" then
+        dirtyMode = mode or "full"
+    end
+end
+
+-- Buff state only depends on the player, their pet, and real group-member units.
+-- Ignore raidpet/partypet/nameplate aura traffic; pet-heavy specs can generate a lot of it.
+---@param unit string?
+---@return boolean
+local function IsTrackedDisplayUnit(unit)
+    if not unit then
+        return false
+    end
+    return unit == "player" or unit == "pet" or unit:match("^party%d+$") ~= nil or unit:match("^raid%d+$") ~= nil
 end
 
 -- Track combat state via events (InCombatLockdown() can lag behind PLAYER_REGEN_DISABLED)
@@ -829,7 +846,9 @@ local FormatEatingTime = BR.StateHelpers.FormatEatingTime
 
 local GetPlayerRole = BR.BuffState.GetPlayerRole
 
--- Spell texture cache (textures are immutable per session, mirrors spellNameCache in Core.lua)
+-- Spell texture cache (mirrors spellNameCache in Core.lua).
+-- Wiped after deferred init to pick up cosmetic overrides (e.g. warlock green fire)
+-- that aren't available yet at login time.
 local spellTextureCache = {}
 
 -- Reusable single-element buffer to avoid { spellID } allocations in hot loops.
@@ -843,11 +862,18 @@ local function AsSpellList(val)
     return singleSpellBuf
 end
 
----Get spell texture (handles table of spellIDs and role-based icons)
+---Get spell texture (handles table of spellIDs, displayIcon overrides, and role-based icons)
 ---@param spellIDs SpellID
 ---@param iconByRole? table<RoleType, number>
+---@param displayIcon? number|number[] -- Explicit icon override (unwraps table automatically)
 ---@return number? textureID
-local function GetBuffTexture(spellIDs, iconByRole)
+local function GetBuffTexture(spellIDs, iconByRole, displayIcon)
+    -- Explicit displayIcon takes priority (unwrap table to first element)
+    if type(displayIcon) == "table" then
+        return displayIcon[1]
+    elseif displayIcon then
+        return displayIcon
+    end
     local id
     -- Check for role-based icon override
     if iconByRole then
@@ -875,6 +901,32 @@ local function GetBuffTexture(spellIDs, iconByRole)
     end)
     spellTextureCache[id] = texture or false
     return texture
+end
+
+---Resolve the display texture for a buff frame from its buffDef.
+---@param frame BuffFrame
+---@return number? textureID
+local function ResolveFrameTexture(frame)
+    local def = frame.buffDef
+    if not def then
+        return nil
+    end
+    return GetBuffTexture(def.spellID, def.iconByRole, def.displayIcon)
+end
+
+---Wipe the spell texture cache and re-apply icons on all existing frames.
+---Called via deferred timer after init to pick up cosmetic overrides (e.g. warlock
+---green fire) that aren't available yet at login time.
+local function InvalidateTextureCache()
+    wipe(spellTextureCache)
+    for _, frame in pairs(buffFrames) do
+        if frame.icon and frame.buffDef and not frame.buffDef.displayIcon then
+            local texture = ResolveFrameTexture(frame)
+            if texture then
+                frame.icon:SetTexture(texture)
+            end
+        end
+    end
 end
 
 -- Action bar button names to scan for glows
@@ -1260,12 +1312,7 @@ local function CreateBuffFrame(buff, category)
     frame:SetSize(iconWidth, iconSize)
 
     -- Icon + border textures
-    local displayIcon = buff.displayIcon
-    if type(displayIcon) == "table" then
-        displayIcon = displayIcon[1] -- Use first icon for buff frame
-    end
-    local texture = displayIcon or GetBuffTexture(buff.spellID, buff.iconByRole)
-    CreateIconTextures(frame, texture)
+    CreateIconTextures(frame, ResolveFrameTexture(frame))
 
     -- Register with Masque — provide Normal texture so skins like Caith can style it
     if masqueGroup then
@@ -2137,7 +2184,11 @@ local function ResolveConsumableFrame(frame)
     end
     -- No items: fall back icon to buff definition
     RestoreFallbackIcon(frame)
-    if (BR.profile.defaults or {}).showConsumablesWithoutItems then
+    local defs = BR.profile.defaults or {}
+    if defs.showConsumablesWithoutItems then
+        if defs.showWithoutItemsOnlyOnReadyCheck and not BR.BuffState.GetReadyCheckState() then
+            return false
+        end
         SetIconDesaturated(frame.icon, true)
         return "missing"
     end
@@ -2526,11 +2577,7 @@ local function ApplyPetDisplayMode(frame, entry, frameList)
     else
         local gi = entry.petActions.genericIndex or 1
         local preferredAction = entry.petActions[gi]
-        local displayIcon = frame.buffDef and frame.buffDef.displayIcon
-        if type(displayIcon) == "table" then
-            displayIcon = displayIcon[1]
-        end
-        local texture = displayIcon or GetBuffTexture(frame.spellIDs)
+        local texture = ResolveFrameTexture(frame)
         if texture then
             frame.icon:SetTexture(texture)
         end
@@ -2604,6 +2651,7 @@ local function GetOrCreateDismissButton()
     btn:SetScript("OnClick", function()
         BR.BuffState.SetConsumablesDismissed(true)
         UpdateDisplay()
+        print("|cff00ccffBuffReminders:|r " .. L["Display.DismissConsumablesChat"])
     end)
     btn:SetScript("OnEnter", function(self)
         icon:SetAlpha(1)
@@ -2673,18 +2721,23 @@ local function TryPlayBuffSound(key, buffSounds)
 end
 
 -- Update the display
-UpdateDisplay = function()
+---@param refreshMode? "full"|"group"
+UpdateDisplay = function(refreshMode)
     if not mainFrame then
         return
     end
+    refreshMode = refreshMode or "full"
+    local groupOnly = refreshMode == "group"
 
     -- Clear per-cycle caches (before early exits — fallback paths also use these)
-    wipe(expiringGlowCache)
-    wipe(missingGlowCache)
-    for key in pairs(BUFF_KEY_TO_CATEGORY) do
-        local frame = buffFrames[key]
-        if frame then
-            frame._cachedItems = nil
+    if not groupOnly then
+        wipe(expiringGlowCache)
+        wipe(missingGlowCache)
+        for key in pairs(BUFF_KEY_TO_CATEGORY) do
+            local frame = buffFrames[key]
+            if frame then
+                frame._cachedItems = nil
+            end
         end
     end
 
@@ -2730,7 +2783,8 @@ UpdateDisplay = function()
             return
         end
 
-        if db.hideWhileLeveling and playerLevel and maxPlayerLevel and playerLevel < maxPlayerLevel then
+        local playerLevel, maxExpansionLevel = BR.BuffState.GetLevelInfo()
+        if db.hideWhileLeveling and playerLevel < maxExpansionLevel then
             HideAllDisplayFrames()
             return
         end
@@ -2739,7 +2793,7 @@ UpdateDisplay = function()
         -- (State.lua treats PvP the same as M+ for aura restriction purposes)
 
         -- Refresh buff state
-        BR.BuffState.Refresh()
+        BR.BuffState.Refresh(refreshMode)
     end
 
     local visibleByCategory = BR.BuffState.visibleByCategory
@@ -2907,7 +2961,7 @@ UpdateDisplay = function()
 
         -- Sync click overlays on expanded extra frames (they are created above but
         -- UpdateActionButtons is the only place that wires up their click overlays).
-        if not InCombatLockdown() then
+        if not groupOnly and not InCombatLockdown() then
             local displayMode = (BR.profile.defaults or {}).consumableDisplayMode
             if displayMode == "expanded" then
                 BR.SecureButtons.UpdateActionButtons("consumable")
@@ -2934,14 +2988,17 @@ local function StartUpdates()
         if now - lastUpdateTime < MIN_UPDATE_INTERVAL then
             return
         end
+        local refreshMode = dirtyMode
         dirty = false
+        dirtyMode = "full"
         lastUpdateTime = now
-        UpdateDisplay()
+        UpdateDisplay(refreshMode)
     end)
     -- Immediate first update
     dirty = false
+    dirtyMode = "full"
     lastUpdateTime = GetTime()
-    UpdateDisplay()
+    UpdateDisplay("full")
 end
 
 -- Stop update ticker (preserved for easy revert when Blizzard re-protects spells)
@@ -3475,6 +3532,9 @@ eventFrame:RegisterEvent("ENCOUNTER_END")
 eventFrame:RegisterEvent("PLAYER_DEAD")
 eventFrame:RegisterEvent("PLAYER_UNGHOST")
 eventFrame:RegisterEvent("UNIT_AURA")
+eventFrame:RegisterEvent("UNIT_FLAGS")
+eventFrame:RegisterEvent("UNIT_CONNECTION")
+eventFrame:RegisterEvent("UNIT_PHASE")
 eventFrame:RegisterEvent("READY_CHECK")
 eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
 eventFrame:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
@@ -3502,6 +3562,7 @@ ClearInstanceEntryState = function()
     end
     BR.BuffState.SetInstanceEntryState(false)
     eventFrame:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+    eventFrame:UnregisterEvent("UNIT_SPELLCAST_START")
 end
 
 ClearDelveEntryState = function()
@@ -3515,7 +3576,6 @@ end
 eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     if event == "ADDON_LOADED" and arg1 == addonName then
         _, playerClass = UnitClass("player")
-        BR.BuffState.SetPlayerClass(playerClass)
         local isFirstInstall = not BuffRemindersDB
         if not BuffRemindersDB then
             BuffRemindersDB = {}
@@ -3598,7 +3658,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations — each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 37
+        local DB_VERSION = 38
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 → v3.x)
@@ -4329,6 +4389,14 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     overrides.soulstone = nil
                 end
             end,
+            [38] = function()
+                -- Enable "show consumables without items" + "only on ready check" for all users
+                if not db.defaults then
+                    db.defaults = {}
+                end
+                db.defaults.showConsumablesWithoutItems = true
+                db.defaults.showWithoutItemsOnlyOnReadyCheck = true
+            end,
         }
 
         -- Run pending migrations
@@ -4463,8 +4531,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- Sync flags with current state (in case of reload)
         inCombat = InCombatLockdown()
         isResting = IsResting()
-        playerLevel = UnitLevel("player")
-        maxPlayerLevel = GetMaxLevelForPlayerExpansion()
+        BR.BuffState.SetPlayerLevel(UnitLevel("player"))
+        BR.BuffState.SetMaxExpansionLevel(GetMaxLevelForPlayerExpansion())
         BR.BuffState.SetInCombat(inCombat)
         -- Detect PvP prep phase: in a PvP instance but match not yet started.
         -- Default is false (restricted), so reloads during active matches stay safe.
@@ -4485,6 +4553,9 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     BR.SecureButtons.UpdateActionButtons(cat)
                 end
             end
+            -- Deferred texture refresh: cosmetic overrides (e.g. warlock green fire)
+            -- aren't available yet at login, so re-fetch after spell data settles.
+            C_Timer.After(2, InvalidateTextureCache)
         end
         BR.SecureButtons.InvalidateConsumableCache()
         SeedGlowingSpells() -- Catch glows that were active before event registration
@@ -4501,6 +4572,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                 end
                 BR.BuffState.SetInstanceEntryState(true)
                 eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+                eventFrame:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
                 UpdateDisplay()
                 instanceEntryTimer = C_Timer.NewTimer(30, function()
                     ClearInstanceEntryState()
@@ -4559,7 +4631,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
             end
         end)
     elseif event == "GROUP_ROSTER_UPDATE" then
-        SetDirty()
+        SetDirty("group")
     elseif event == "PLAYER_REGEN_ENABLED" then
         inCombat = inEncounter
         BR.BuffState.SetInCombat(inCombat)
@@ -4585,15 +4657,30 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
     elseif event == "PLAYER_DEAD" then
         HideAllDisplayFrames()
     elseif event == "PLAYER_UNGHOST" then
-        SetDirty()
+        SetDirty("full")
     elseif event == "UNIT_AURA" then
+        if not IsTrackedDisplayUnit(arg1) then
+            return
+        end
         if arg1 == "player" then
             BR.StateHelpers.UpdateEatingState(arg2)
+            SetDirty("full")
+        elseif arg1 == "pet" then
+            SetDirty("full")
+        else
+            SetDirty("group")
         end
-        SetDirty()
+    elseif event == "UNIT_FLAGS" or event == "UNIT_CONNECTION" or event == "UNIT_PHASE" then
+        if IsTrackedDisplayUnit(arg1) then
+            if arg1 == "player" or arg1 == "pet" then
+                SetDirty("full")
+            else
+                SetDirty("group")
+            end
+        end
     elseif event == "UNIT_PET" then
         if arg1 == "player" then
-            SetDirty()
+            SetDirty("full")
         end
     elseif event == "PET_BAR_UPDATE" then
         SetDirty()
@@ -4624,10 +4711,10 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         isResting = IsResting()
         SetDirty()
     elseif event == "PLAYER_LEVEL_UP" then
-        playerLevel = arg1 -- PLAYER_LEVEL_UP passes new level as arg1
+        BR.BuffState.SetPlayerLevel(arg1)
         SetDirty()
     elseif event == "UPDATE_EXPANSION_LEVEL" then
-        maxPlayerLevel = GetMaxLevelForPlayerExpansion()
+        BR.BuffState.SetMaxExpansionLevel(GetMaxLevelForPlayerExpansion())
         SetDirty()
     elseif event == "READY_CHECK" then
         -- Cancel any existing timer
@@ -4694,7 +4781,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
             BR.BuffState.SetInVehicle(event == "UNIT_ENTERED_VEHICLE")
             UpdateDisplay()
         end
-    elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+    elseif event == "UNIT_SPELLCAST_SUCCEEDED" or event == "UNIT_SPELLCAST_START" then
         if SOULWELL_SPELL_IDS[arg3] then
             ClearInstanceEntryState()
             UpdateDisplay()
