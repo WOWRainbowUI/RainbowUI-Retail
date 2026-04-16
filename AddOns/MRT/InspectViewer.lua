@@ -919,7 +919,7 @@ function module.options:Load()
 	]=]
 	enchRankSubMenu = {
 		{text = L.RaidCheckMinRank, isTitle = true},
-		{text = "|A:Professions-ChatIcon-Quality-12-Tier1:20:20|a 2 ("..L.InspectViewerCheap..")", radio = true, arg1 = 2, checkState = (module.db.minEnchRank or 3) == 2 and module.db.checkCheap, func = function(self,checked)
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier1:20:20|a 1 ("..L.InspectViewerCheap..")", radio = true, arg1 = 2, checkState = (module.db.minEnchRank or 3) == 2 and module.db.checkCheap, func = function(self,checked)
 			module.db.minEnchRank = 2
 			module.db.checkCheap = true
 			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
@@ -928,7 +928,7 @@ function module.options:Load()
 			for k,v in pairs(enchRankSubMenu) do if v.radio then v.checkState = v.arg1 == 2 end end
 			ELib.ScrollDropDown.UpdateChecks()
 		end},
-		{text = "|A:Professions-ChatIcon-Quality-12-Tier2:20:20|a 3 ("..L.InspectViewerCheap..")", radio = true, arg1 = 3, checkState = (module.db.minEnchRank or 3) == 3 and module.db.checkCheap, func = function(self,checked)
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier2:20:20|a 2 ("..L.InspectViewerCheap..")", radio = true, arg1 = 3, checkState = (module.db.minEnchRank or 3) == 3 and module.db.checkCheap, func = function(self,checked)
 			module.db.minEnchRank = nil
 			module.db.checkCheap = true
 			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
@@ -937,7 +937,7 @@ function module.options:Load()
 			for k,v in pairs(enchRankSubMenu) do if v.radio then v.checkState = v.arg1 == 3 end end
 			ELib.ScrollDropDown.UpdateChecks()
 		end},
-		{text = "|A:Professions-ChatIcon-Quality-12-Tier1:20:20|a 2", radio = true, arg1 = 5, checkState = (module.db.minEnchRank or 3) == 2 and not module.db.checkCheap, func = function(self,checked)
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier1:20:20|a 1", radio = true, arg1 = 5, checkState = (module.db.minEnchRank or 3) == 2 and not module.db.checkCheap, func = function(self,checked)
 			module.db.minEnchRank = 2
 			module.db.checkCheap = false
 			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
@@ -946,7 +946,7 @@ function module.options:Load()
 			for k,v in pairs(enchRankSubMenu) do if v.radio then v.checkState = v.arg1 == 5 end end
 			ELib.ScrollDropDown.UpdateChecks()
 		end},
-		{text = "|A:Professions-ChatIcon-Quality-12-Tier2:20:20|a 3", radio = true, arg1 = 6, checkState = (module.db.minEnchRank or 3) == 3 and not module.db.checkCheap, func = function(self,checked)
+		{text = "|A:Professions-ChatIcon-Quality-12-Tier2:20:20|a 2", radio = true, arg1 = 6, checkState = (module.db.minEnchRank or 3) == 3 and not module.db.checkCheap, func = function(self,checked)
 			module.db.minEnchRank = nil
 			module.db.checkCheap = false
 			VMRT.InspectViewer.TopEnchGemsMinRank = module.db.minEnchRank
