@@ -52,6 +52,7 @@ english["Category.CustomNote"] = "(track any buff/glow by spell ID)"
 english["Overlay.NoDrPoison"] = "NO\nDR\nPOISON"
 english["Overlay.NoAura"] = "NO\nAURA"
 english["Overlay.NoStone"] = "NO\nSTONE"
+english["Overlay.NoSoulstone"] = "NO\nSS"
 english["Overlay.NoFaith"] = "NO\nFAITH"
 english["Overlay.NoLight"] = "NO\nLIGHT"
 english["Overlay.NoES"] = "NO\nES"
@@ -249,6 +250,7 @@ english["Display.SlashCommands"] = "Slash commands: /br, /br lock, /br unlock, /
 english["Display.MinimapLeftClick"] = "|cFFCFCFCFLeft click|r: Options"
 english["Display.MinimapRightClick"] = "|cFFCFCFCFRight click|r: Test mode"
 english["Display.DismissConsumables"] = "Hide consumable reminders until next loading screen"
+english["Display.DismissConsumablesChat"] = "Consumable reminders hidden until next loading screen."
 english["Display.LoginFirstInstall"] =
     "Thanks for installing! Type |cFFFFD100/br unlock|r to move the buff display, or use the button at the bottom of the |cFFFFD100/br|r options panel."
 
@@ -397,6 +399,26 @@ english["Options.ClickToCast.DescFull"] =
     "Make buff icons clickable to cast the corresponding spell (out of combat only). Only works for spells your character can cast."
 english["Options.HoverHighlight"] = "Hover highlight"
 english["Options.HoverHighlight.Desc"] = "Show a subtle highlight when hovering over clickable buff icons."
+english["Options.ChatRequests"] = "Chat Requests"
+english["Options.RequestBuffInChat"] = "Request missing buffs in chat"
+english["Options.RequestBuffInChat.Desc"] =
+    "Click a missing buff your class cannot provide to request it in chat. Auto-detects channel (instance/raid/party/say). 30-second cooldown per buff."
+english["Options.CustomizeChatMessages"] = "Customize Messages"
+english["Options.ChatRequestModal.Title"] = "Chat Request Messages"
+english["Options.ChatRequestModal.Desc"] = "Customize the message sent for each buff. Leave blank to use the default."
+english["Options.ChatRequestModal.ResetAll"] = "Reset All"
+-- Chat request messages (keyed by buff.key, sent as-is via SendChatMessage)
+-- EU/US translators: leave untranslated so chat messages stay in English.
+-- Asian translators: translate these so chat messages match your locale.
+english["ChatRequest.intellect"] = "Arcane Intellect buff pls"
+english["ChatRequest.attackPower"] = "Battle Shout buff pls"
+english["ChatRequest.bronze"] = "Blessing of the Bronze buff pls"
+english["ChatRequest.versatility"] = "Mark of the Wild buff pls"
+english["ChatRequest.stamina"] = "Power Word: Fortitude buff pls"
+english["ChatRequest.skyfury"] = "Skyfury buff pls"
+english["ChatRequest.atrophicNumbingPoison"] = "Atrophic/Numbing Poison pls"
+english["ChatRequest.devotionAura"] = "Devotion Aura pls"
+english["ChatRequest.soulstone"] = "Soulstone pls"
 
 -- ============================================================================
 -- OPTIONS: PET
@@ -456,6 +478,10 @@ english["Options.ShowWithoutItems"] = "Show when not in bags"
 english["Options.ShowWithoutItems.Title"] = "Show consumables without items"
 english["Options.ShowWithoutItems.Desc"] =
     "When enabled, consumable reminders are shown even if you don't have the item in your bags. When disabled, only consumables you actually carry are shown."
+english["Options.ShowWithoutItemsReadyCheckOnly"] = "Only on ready check"
+english["Options.ShowWithoutItemsReadyCheckOnly.Title"] = "Show missing items only on ready check"
+english["Options.ShowWithoutItemsReadyCheckOnly.Desc"] =
+    "When enabled, consumables not in your bags are only shown during a ready check. Useful for a quick reminder to restock before a pull."
 english["Options.DelveFoodOnly"] = "Only delve food in delves"
 english["Options.DelveFoodOnly.Desc"] = "When inside a delve, hide all consumable reminders except delve food."
 
@@ -477,6 +503,11 @@ english["Options.HealthstoneSettings"] = "Healthstone Settings"
 english["Options.HealthstoneSettings.Note"] = "Configure visibility and low stock threshold."
 english["Options.SoulstoneSettings"] = "Soulstone Settings"
 english["Options.SoulstoneSettings.Note"] = "Configure when the soulstone reminder appears."
+english["Options.BronzeSettings"] = "Blessing of the Bronze Settings"
+english["Options.BronzeSettings.Note"] = "Configure the Blessing of the Bronze reminder."
+english["Options.BronzeHideInCombat"] = "Hide in combat"
+english["Options.BronzeHideInCombat.Desc"] =
+    "Hide the Blessing of the Bronze reminder during combat. This buff is less critical and you may not want to rebuff mid-fight."
 english["Options.PetPassiveSettings"] = "Pet Passive Settings"
 english["Options.PetPassiveSettings.Note"] = "Configure the passive pet reminder."
 english["Options.PetSummonSettings"] = "Pet Summon Settings"
@@ -529,7 +560,7 @@ english["Options.HideWhen.Vehicle"] = "In vehicle"
 english["Options.HideWhen.Vehicle.Title"] = "Hide in vehicle"
 english["Options.HideWhen.Vehicle.Desc"] =
     "Hide all buff reminders while in a quest vehicle. When disabled, raid and presence buffs still show"
-english["Options.HideWhen.Mounted"] = "While mounted"
+english["Options.HideWhen.Mounted"] = "Mounted"
 english["Options.HideWhen.Mounted.Title"] = "Hide while mounted"
 english["Options.HideWhen.Mounted.Desc"] =
     "Hide all buff reminders while mounted. Overrides the per-category pet mount hiding setting"
@@ -537,7 +568,7 @@ english["Options.HideWhen.Legacy"] = "In legacy instances"
 english["Options.HideWhen.Legacy.Title"] = "Hide in legacy instances"
 english["Options.HideWhen.Legacy.Desc"] =
     "Hide all buff reminders in trivially old instances (where legacy loot is enabled)"
-english["Options.HideWhen.Leveling"] = "While leveling"
+english["Options.HideWhen.Leveling"] = "Leveling"
 english["Options.HideWhen.Leveling.Title"] = "Hide while leveling"
 english["Options.HideWhen.Leveling.Desc"] = "Hide all buff reminders when below max level"
 

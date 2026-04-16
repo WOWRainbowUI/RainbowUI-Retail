@@ -129,6 +129,8 @@ local RootSettings = {
     hideInLegacyInstances = "VisibilityRefresh",
     hideWhileLeveling = "VisibilityRefresh",
     petPassiveOnlyInCombat = "VisibilityRefresh",
+    bronzeHideInCombat = "VisibilityRefresh",
+    requestBuffInChat = false, -- No auto-refresh, handled manually
 }
 
 -- Per-category settings (path = categorySettings.{category}.{key})
@@ -254,6 +256,7 @@ local DefaultSettingKeys = {
     missingGlowXOffset = "VisualsRefresh",
     missingGlowYOffset = "VisualsRefresh",
     showConsumablesWithoutItems = "DisplayRefresh",
+    showWithoutItemsOnlyOnReadyCheck = "DisplayRefresh",
     delveFoodOnly = "DisplayRefresh",
     delveFoodTimer = "DisplayRefresh",
     freeConsumableMode = "DisplayRefresh",
