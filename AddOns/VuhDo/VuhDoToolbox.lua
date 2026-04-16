@@ -177,7 +177,7 @@ function VUHDO_getSpellCooldown(aSpellId)
 		return;
 	end
 
-if sSecretsEnabled then
+	if sSecretsEnabled then
 		tDuration = GetSpellCooldownDuration(aSpellId);
 
 		return tSpellCooldown.startTime, tSpellCooldown.duration, tSpellCooldown.isEnabled, tSpellCooldown.modRate, tSpellCooldown.isOnGCD, tDuration;

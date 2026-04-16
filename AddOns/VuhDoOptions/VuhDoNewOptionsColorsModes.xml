@@ -4,72 +4,14 @@
 
 	<Frame name="VuhDoNewOptionsColorsModesTemplate" virtual="true">
 		<Frames>
-			<Frame name="$parentEmergencyModePanel" inherits="VuhDoPanelTemplate">
-				<Size>
-					<AbsDimension x="168" y="131" />
-				</Size>
-				<Anchors>
-					<Anchor point="TOPLEFT">
-						<Offset>
-							<AbsDimension x="352" y="-302" />
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Frames>
-
-					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
-						<Layers>
-							<Layer>
-								<FontString name="$parentLabel" text="VUHDO_I18N_EMERGENCY_MODE" inherits="VuDoDefaultTitleFontTemplate">
-								</FontString>
-							</Layer>
-						</Layers>
-					</Frame>
-
-					<Frame name="$parentEmergencyTexture" inherits="VuhDoColorSwatchTexture">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="34" y="-43" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.EMERGENCY");
-								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_EMERGENCY, VUHDO_I18N_EMERGENCY);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K031);
-							</OnLoad>
-						</Scripts>
-					</Frame>
-
-					<Frame name="$parentNoEmergencyTexture" inherits="VuhDoColorSwatchTexture">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="34" y="-81" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.NO_EMERGENCY");
-								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_NO_EMEGENCY, VUHDO_I18N_NO_EMEGENCY);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K032);
-							</OnLoad>
-						</Scripts>
-					</Frame>
-				</Frames>
-			</Frame>
-
 			<Frame name="$parentLifeLeftPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="248" y="142" />
+					<AbsDimension x="350" y="108" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="13" y="-302" />
+							<AbsDimension x="13" y="-338" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -105,7 +47,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="20" y="-64" />
+									<AbsDimension x="125" y="-26" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -122,7 +64,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="20" y="-102" />
+									<AbsDimension x="230" y="-26" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -139,7 +81,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="130" y="-26" />
+									<AbsDimension x="20" y="-64" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -156,7 +98,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="130" y="-64" />
+									<AbsDimension x="125" y="-64" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -172,7 +114,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="130" y="-102" />
+									<AbsDimension x="230" y="-64" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -189,10 +131,68 @@
 				</Frames>
 			</Frame>
 
+			<Frame name="$parentEmergencyModePanel" inherits="VuhDoPanelTemplate">
+				<Size>
+					<AbsDimension x="168" y="104" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentLifeLeftPanel" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="10" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+
+					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_EMERGENCY_MODE" inherits="VuDoDefaultTitleFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Frame name="$parentEmergencyTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="34" y="-26" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.EMERGENCY");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_EMERGENCY, VUHDO_I18N_EMERGENCY);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K031);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentNoEmergencyTexture" inherits="VuhDoColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="34" y="-64" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.NO_EMERGENCY");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_NO_EMEGENCY, VUHDO_I18N_NO_EMEGENCY);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K032);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+				</Frames>
+			</Frame>
+
 
 			<Frame name="$parentNormalModePanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="452" y="283" />
+					<AbsDimension x="452" y="321" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -321,7 +321,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="302" y="-238" />
+									<AbsDimension x="302" y="-276" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -336,7 +336,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="247" y="-238" />
+									<AbsDimension x="247" y="-276" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -351,7 +351,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="192" y="-238" />
+									<AbsDimension x="192" y="-276" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -366,7 +366,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="136" y="-238" />
+									<AbsDimension x="136" y="-276" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -562,6 +562,100 @@
 						<Scripts>
 							<OnLoad>
 								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.HEAL_ABSORB.useBackground");
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentHealthLossSmoothCheckBox" inherits="VuhDoCheckBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="357" y="-238" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.smoothHealthLoss");
+
+								self:SetAttribute("custom_function_post", VUHDO_colorsModesApplySmoothHealthLossToAllPanels);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentHealthLossTurnAxisCheckBox" inherits="VuhDoCheckBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="402" y="-238" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.HEALTH_BAR.turnAxisHealthLoss");
+
+								self:SetAttribute("custom_function_post", VUHDO_colorsModesApplyTurnAxisHealthLossToAllPanels);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentHealthLossClassColorCheckBox" inherits="VuhDoCheckBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="302" y="-238" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.HEALTH_LOSS.useClassColor");
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentHealthLossOpacCheckBox" inherits="VuhDoCheckBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="247" y="-238" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.HEALTH_LOSS.useOpacity");
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentHealthLossTextCheckBox" inherits="VuhDoCheckBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="192" y="-238" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.HEALTH_LOSS.useText");
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parentHealthLossBackCheckBox" inherits="VuhDoCheckBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="136" y="-238" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.HEALTH_LOSS.useBackground");
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
@@ -864,11 +958,31 @@
 						</Scripts>
 					</Frame>
 
-					<Frame name="$parentRangeTexture" inherits="VuhDoContextColorSwatchTexture">
+					<Frame name="$parentHealthLossTexture" inherits="VuhDoContextColorSwatchTexture">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
 									<AbsDimension x="13" y="-238" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.HEALTH_LOSS");
+								VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_HEALTH_LOSS_BAR, VUHDO_I18N_HEALTH_LOSS_BAR);
+								VUHDO_lnfSetTooltip(self, nil);
+
+								_G[self:GetName() .. "Texture"]:SetTexture("Interface\\AddOns\\VuhDo\\Images\\healthloss_bar", "REPEAT");
+								_G[self:GetName() .. "Texture"]:SetTexCoord(0, self:GetWidth() / 32, 0, self:GetHeight() / 32);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Frame name="$parentRangeTexture" inherits="VuhDoContextColorSwatchTexture">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-276" />
 								</Offset>
 							</Anchor>
 						</Anchors>

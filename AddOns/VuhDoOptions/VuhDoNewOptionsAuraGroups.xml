@@ -972,12 +972,12 @@
 
 			<Frame name="$parentSpellEntrySettingsFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" enableMouse="true" hidden="true">
 				<Size>
-					<AbsDimension x="480" y="380" />
+					<AbsDimension x="518" y="428" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentStorePanel" relativePoint="TOPLEFT">
 						<Offset>
-							<AbsDimension x="18" y="-25" />
+							<AbsDimension x="0" y="0" />
 						</Offset>
 					</Anchor>
 				</Anchors>

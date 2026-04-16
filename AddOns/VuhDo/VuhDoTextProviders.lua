@@ -103,6 +103,10 @@ local tChiCount;
 local tChiMax;
 local function VUHDO_chiCalculator(anInfo)
 
+	if not anInfo["unit"] then
+		return "", nil;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tChiCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_CHI);
 		tChiMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_CHI);
@@ -124,6 +128,10 @@ end
 local tHolyPowerCount;
 local tHolyPowerMax;
 local function VUHDO_holyPowerCalculator(anInfo)
+
+	if not anInfo["unit"] then
+		return "", nil;
+	end
 
 	if anInfo["connected"] and not anInfo["dead"] then
 		tHolyPowerCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_HOLY_POWER);
@@ -147,6 +155,10 @@ local tComboPointsCount;
 local tComboPointsMax;
 local function VUHDO_comboPointsCalculator(anInfo)
 
+	if not anInfo["unit"] then
+		return "", nil;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tComboPointsCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_COMBO_POINTS);
 		tComboPointsMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_COMBO_POINTS);
@@ -168,6 +180,10 @@ end
 local tSoulShardsCount;
 local tSoulShardsMax;
 local function VUHDO_soulShardsCalculator(anInfo)
+
+	if not anInfo["unit"] then
+		return "", nil;
+	end
 
 	if anInfo["connected"] and not anInfo["dead"] then
 		tSoulShardsCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_SOUL_SHARDS);
@@ -217,6 +233,10 @@ local tArcaneChargesCount;
 local tArcaneChargesMax;
 local function VUHDO_arcaneChargesCalculator(anInfo)
 
+	if not anInfo["unit"] then
+		return "", nil;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tArcaneChargesCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_ARCANE_CHARGES);
 		tArcaneChargesMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_ARCANE_CHARGES);
@@ -243,6 +263,10 @@ local function VUHDO_overhealCalculator(anInfo)
 		return 0, nil;
 	end
 
+	if not anInfo["unit"] then
+		return 0, nil;
+	end
+
 	tAmountInc = VUHDO_getIncHealOnUnit(anInfo["unit"]);
 
 	if tAmountInc > 0 and anInfo["connected"] and not anInfo["dead"] then
@@ -257,6 +281,10 @@ end
 --
 local tAmountInc;
 local function VUHDO_incomingHealCalculator(anInfo)
+
+	if not anInfo["unit"] then
+		return 0, nil;
+	end
 
 	if sSecretsEnabled then
 		if not anInfo["connected"] or anInfo["dead"] then
@@ -287,6 +315,10 @@ end
 --
 local function VUHDO_shieldAbsorbCalculator(anInfo)
 
+	if not anInfo["unit"] then
+		return 0, nil;
+	end
+
 	if sSecretsEnabled then
 		if not sHealPredictionCalculator then
 			return 0, nil;
@@ -306,6 +338,10 @@ end
 
 --
 local function VUHDO_healAbsorbCalculator(anInfo)
+
+	if not anInfo["unit"] then
+		return 0, nil;
+	end
 
 	if sSecretsEnabled then
 		if not sHealPredictionCalculator then
@@ -400,6 +436,10 @@ local function VUHDO_percentValidator(anInfo, aValue, aMaxValue)
 	tIsHealth = (not anInfo["powertype"] or anInfo["powertype"] == -1);
 
 	if sSecretsEnabled then
+		if not anInfo["unit"] then
+			return "%s", "";
+		end
+
 		if tIsHealth and anInfo["hasSecretHealth"] then
 			tPercent = UnitHealthPercent(anInfo["unit"], true, CurveConstants.ScaleTo100);
 
@@ -423,6 +463,10 @@ end
 local function VUHDO_tenthPercentValidator(anInfo, aValue, aMaxValue)
 
 	if sSecretsEnabled and (issecretvalue(aValue) or issecretvalue(aMaxValue)) then
+		if not anInfo["unit"] then
+			return "%s", "";
+		end
+
 		tPercent = UnitPowerPercent(anInfo["unit"], anInfo["powertype"] or 0, false, CurveConstants.ScaleTo100);
 
 		return "%.0f", tPercent;

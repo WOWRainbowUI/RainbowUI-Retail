@@ -98,6 +98,10 @@ end
 --
 local function VUHDO_healthBelowValidator(anInfo, aSomeCustom, aSecretContext)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if sSecretsEnabled and anInfo["hasSecretHealthMax"] then
 		if not anInfo["healthmax"] then
 			return false, nil, -1, -1, -1;
@@ -131,6 +135,10 @@ end
 
 --
 local function VUHDO_healthAboveValidator(anInfo, aSomeCustom, aSecretContext)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if sSecretsEnabled and anInfo["hasSecretHealthMax"] then
 		if not anInfo["healthmax"] then
@@ -199,6 +207,10 @@ local function VUHDO_manaBelowValidator(anInfo, aSomeCustom, aSecretContext)
 		return false, nil, -1, -1, -1;
 	end
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if sSecretsEnabled and anInfo["hasSecretPower"] then
 		if not anInfo["powermax"] then
 			return false, nil, -1, -1, -1;
@@ -248,6 +260,10 @@ end
 local tPerc;
 local function VUHDO_alternatePowersAboveValidator(anInfo, aSomeCustom)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if anInfo["connected"] and anInfo["isAltPower"] and not anInfo["dead"] then
 		if not sSecretsEnabled then
 			tPerc = 100 * (UnitPower(anInfo["unit"], ALTERNATE_POWER_INDEX) or 0) / (UnitPowerMax(anInfo["unit"], ALTERNATE_POWER_INDEX) or 100);
@@ -268,6 +284,10 @@ end
 local tPower;
 local function VUHDO_holyPowersEqualsValidator(anInfo, aSomeCustom)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tPower = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_HOLY_POWER);
 		if tPower == aSomeCustom["custom"][1] then
@@ -284,6 +304,11 @@ end
 
 --
 local function VUHDO_chiEqualsValidator(anInfo, aSomeCustom)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tPower = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_CHI);
 		if tPower == aSomeCustom["custom"][1] then
@@ -300,6 +325,11 @@ end
 
 --
 local function VUHDO_comboPointsEqualsValidator(anInfo, aSomeCustom)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tPower = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_COMBO_POINTS);
 		if tPower == aSomeCustom["custom"][1] then
@@ -316,6 +346,11 @@ end
 
 --
 local function VUHDO_soulShardsEqualsValidator(anInfo, aSomeCustom)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tPower = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_SOUL_SHARDS);
 		if tPower == aSomeCustom["custom"][1] then
@@ -358,6 +393,11 @@ end
 
 --
 local function VUHDO_arcaneChargesEqualsValidator(anInfo, aSomeCustom)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if anInfo["connected"] and not anInfo["dead"] then
 		tPower = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_ARCANE_CHARGES);
 		if tPower == aSomeCustom["custom"][1] then
@@ -414,6 +454,10 @@ local tTotal;
 local tClamped;
 local function VUHDO_overhealHighlightValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	-- FIXME: restore this feature using calculator API (clamped secret bool) and conditional color curve
 	if sSecretsEnabled then
 		return false, nil, -1, -1, -1;
@@ -463,6 +507,10 @@ end
 --
 local function VUHDO_statusHealthValidator(anInfo, _, aSecretContext)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if aSecretContext then
 		tSecretColor = nil;
 
@@ -483,6 +531,10 @@ end
 local function VUHDO_statusManaValidator(anInfo, _, aSecretContext)
 
 	if anInfo["powertype"] ~= 0 then
+		return false, nil, -1, -1, -1;
+	end
+
+	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
 	end
 
@@ -511,6 +563,10 @@ local function VUHDO_statusManaHealerOnlyValidator(anInfo, _, aSecretContext)
 		return false, nil, -1, -1, -1;
 	end
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if aSecretContext then
 		tPowerCurve = aSecretContext["powerCurves"] and aSecretContext["powerCurves"][0];
 		tSecretColor = nil;
@@ -534,6 +590,10 @@ local tPowerType;
 local function VUHDO_statusPowerTankOnlyValidator(anInfo, _, aSecretContext)
 
 	if anInfo["powertype"] == 0 or anInfo["role"] ~= VUHDO_ID_MELEE_TANK then
+		return false, nil, -1, -1, -1;
+	end
+
+	if not anInfo["unit"] then
 		return false, nil, -1, -1, -1;
 	end
 
@@ -564,6 +624,10 @@ local function VUHDO_statusOtherPowersValidator(anInfo, _, aSecretContext)
 		return false, nil, -1, -1, -1;
 	end
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	tPowerType = anInfo["powertype"];
 
 	if aSecretContext then
@@ -591,6 +655,10 @@ local function VUHDO_statusAlternatePowersValidator(anInfo, _, aSecretContext)
 		return false, nil, -1, -1, -1;
 	end
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if not sSecretsEnabled then
 		return true, nil, UnitPower(anInfo["unit"], ALTERNATE_POWER_INDEX) or 0, -1,
 			UnitPowerMax(anInfo["unit"], ALTERNATE_POWER_INDEX) or 100;
@@ -610,6 +678,10 @@ local tIncomingFromOthers;
 local tIncomingClamped;
 local tHealthMax;
 local function VUHDO_statusIncomingValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if not sSecretsEnabled then
 		tIncomingTotal = VUHDO_getIncHealOnUnit(anInfo["unit"]);
@@ -637,6 +709,10 @@ end
 --
 local function VUHDO_statusExcessAbsorbValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if not sSecretsEnabled then
 		local healthmax = anInfo["healthmax"];
 		local excessAbsorb = (UnitGetTotalAbsorbs(anInfo["unit"]) or 0) + anInfo["health"] - healthmax;
@@ -660,6 +736,10 @@ local tAbsorbAmount;
 local tAbsorbClamped;
 local tHealthMax;
 local function VUHDO_statusTotalAbsorbValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if not sSecretsEnabled then
 		tAbsorbAmount = UnitGetTotalAbsorbs(anInfo["unit"]);
@@ -716,6 +796,10 @@ local function VUHDO_statusHealthIfActiveValidator(anInfo, _, aSecretContext)
 		return false, nil, -1, -1, -1;
 	end
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if aSecretContext then
 		tSecretColor = nil;
 
@@ -735,6 +819,11 @@ end
 --
 local tShieldLeft;
 local function VUHDO_overflowCountValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	tShieldLeft = select(16, VUHDO_unitDebuff(anInfo["unit"], VUHDO_SPELL_ID.DEBUFF_OVERFLOW)) or 0;
 	return tShieldLeft >= 1000, nil, -1, floor(tShieldLeft * 0.001 + 0.5), -1;
 end
@@ -744,6 +833,10 @@ end
 --
 local tShieldLeft;
 local function VUHDO_shieldCountValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if not sSecretsEnabled then
 		tShieldLeft = VUHDO_getUnitOverallShieldRemain(anInfo["unit"]);
@@ -768,6 +861,10 @@ end
 local tActiveAuras;
 local function VUHDO_activeAurasCountValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	tActiveAuras = VUHDO_getCurrentBouquetActiveAuras(anInfo["unit"]) or 0;
 	return tActiveAuras > 0, nil, -1, tActiveAuras, -1;
 
@@ -778,6 +875,10 @@ end
 --
 local tShieldLeft, tHealthMax;
 local function VUHDO_statusShieldFromHealthValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if sSecretsEnabled then
 		if not sHealPredictionCalculator then
@@ -806,6 +907,10 @@ end
 local tShieldLeft;
 local function VUHDO_healAbsorbCountValidator(anInfo, _)
 
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
+
 	if sSecretsEnabled then
 		if not sHealPredictionCalculator then
 			return false, nil, -1, -1, -1;
@@ -830,6 +935,10 @@ end
 --
 local tShieldLeft, tHealthMax;
 local function VUHDO_statusHealAbsorbFromHealthValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if sSecretsEnabled then
 		if not sHealPredictionCalculator then
@@ -857,6 +966,10 @@ end
 --
 local tShieldLeft, tHealthMax, tHealth;
 local function VUHDO_statusShieldOvershieldValidator(anInfo, _)
+
+	if not anInfo["unit"] then
+		return false, nil, -1, -1, -1;
+	end
 
 	if sSecretsEnabled then
 		if not sHealPredictionCalculator then

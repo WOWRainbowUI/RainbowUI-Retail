@@ -12,6 +12,10 @@ local GetLocale = GetLocale;
 local InCombatLockdown = InCombatLockdown;
 local UnitExists = UnitExists;
 local hooksecurefunc = hooksecurefunc;
+local CreateFrame = CreateFrame;
+local tinsert = table.insert;
+local twipe = table.wipe;
+
 local MEMBERS_PER_RAID_GROUP = MEMBERS_PER_RAID_GROUP or 5;
 
 local VUHDO_RAID_TARGET_TEXTURE_ROWS = 4;
@@ -25,8 +29,9 @@ local sShowPanels;
 local sIsHideEmptyAndClickThrough;
 local sIsPartyFrameHooked;
 local sEmpty = { };
-local sEventHooked = { };
-local sEventBlockedFrames = { };
+local sParentHooked = { };
+local sParentBlocked = { };
+local sPendingReparentFrames = { };
 local sIsUnregistering = false;
 local sCompactUnitFrameHooked = false;
 local sCompactPartyOnShowHooked = false;
@@ -480,18 +485,22 @@ local sFrameOrigParents = {};
 
 
 --
-local function VUHDO_blockRegisterEvent(aFrame)
+local function VUHDO_resetParentToHidden(aFrame, aParent)
 
 	if sIsUnregistering then
 		return;
 	end
 
-	if sEventBlockedFrames[aFrame] then
-		sIsUnregistering = true;
+	if sParentBlocked[aFrame] and aParent ~= sFrameHideParents[aFrame] then
+		if InCombatLockdown() and aFrame:IsProtected() then
+			sPendingReparentFrames[aFrame] = true;
+		else
+			sIsUnregistering = true;
 
-		aFrame:UnregisterAllEvents();
+			aFrame:SetParent(sFrameHideParents[aFrame]);
 
-		sIsUnregistering = false;
+			sIsUnregistering = false;
+		end
 	end
 
 	return;
@@ -501,9 +510,33 @@ end
 
 
 --
+local function VUHDO_onReparentManagerEvent()
+
+	for tFrame in next, sPendingReparentFrames do
+		if sParentBlocked[tFrame] and sFrameHideParents[tFrame] then
+			tFrame:SetParent(sFrameHideParents[tFrame]);
+		end
+	end
+
+	twipe(sPendingReparentFrames);
+
+	return;
+
+end
+
+
+
+--
+local sReparentManager = CreateFrame("Frame");
+sReparentManager:RegisterEvent("PLAYER_REGEN_ENABLED");
+sReparentManager:SetScript("OnEvent", VUHDO_onReparentManagerEvent);
+
+
+
+--
 local function VUHDO_onCompactUnitFrameUpdateUnitEvents(aFrame)
 
-	if sEventBlockedFrames[aFrame] then
+	if sParentBlocked[aFrame] then
 		aFrame:UnregisterAllEvents();
 	end
 
@@ -566,7 +599,25 @@ end
 
 
 --
-local function VUHDO_unregisterAndSaveEvents(anIsHide, ...)
+local function VUHDO_shouldRestoreBlizzFrameParent(aFrame, anIsShow)
+
+	if anIsShow then
+		return true;
+	end
+
+	if CompactRaidFrameManager
+		and (aFrame == CompactRaidFrameManager or aFrame == CompactRaidFrameManager.container) then
+		return false;
+	end
+
+	return true;
+
+end
+
+
+
+--
+local function VUHDO_unregisterAndSaveEvents(_, ...)
 
 	local tFrame;
 
@@ -587,18 +638,15 @@ local function VUHDO_unregisterAndSaveEvents(anIsHide, ...)
 
 			tFrame:UnregisterAllEvents();
 
-			if not sEventHooked[tFrame] then
-				hooksecurefunc(tFrame, "RegisterEvent", VUHDO_blockRegisterEvent);
-				hooksecurefunc(tFrame, "RegisterUnitEvent", VUHDO_blockRegisterEvent);
+			if not sParentHooked[tFrame] then
+				hooksecurefunc(tFrame, "SetParent", VUHDO_resetParentToHidden);
 
-				sEventHooked[tFrame] = true;
+				sParentHooked[tFrame] = true;
 			end
 
-			sEventBlockedFrames[tFrame] = true;
+			sParentBlocked[tFrame] = true;
 
-			if anIsHide then
-				VUHDO_hideFrame(tFrame);
-			end
+			VUHDO_hideFrame(tFrame);
 		end
 	end
 
@@ -615,7 +663,7 @@ local function VUHDO_registerOriginalEvents(anIsShow, ...)
 		tFrame = select(tCnt, ...);
 
 		if tFrame then
-			sEventBlockedFrames[tFrame] = nil;
+			sParentBlocked[tFrame] = nil;
 
 			if sEventsPerFrame[tFrame] then
 				for _, tIndex in pairs(sEventsPerFrame[tFrame]) do
@@ -629,7 +677,7 @@ local function VUHDO_registerOriginalEvents(anIsShow, ...)
 				tFrame:RegisterAllEvents();
 			end
 
-			if anIsShow then 
+			if VUHDO_shouldRestoreBlizzFrameParent(tFrame, anIsShow) then
 				VUHDO_showFrame(tFrame);
 			end
 		end
@@ -736,10 +784,6 @@ local function VUHDO_hideBlizzParty()
 
 		for tPartyMemberFrame in tPartyFrame.PartyMemberFramePool:EnumerateActive() do
 			VUHDO_unregisterAndSaveEvents(false, tPartyMemberFrame, tPartyMemberFrame.HealthBar, tPartyMemberFrame.ManaBar);
-
-			if tPartyMemberFrame.layoutIndex > 0 and UnitExists("party" .. tPartyMemberFrame.layoutIndex) then
-				VUHDO_hideFrame(tPartyMemberFrame);
-			end
 		end
 
 		for tCnt = 1, MEMBERS_PER_RAID_GROUP do
@@ -795,10 +839,6 @@ local function VUHDO_showBlizzParty()
 
 		for tPartyMemberFrame in tPartyFrame.PartyMemberFramePool:EnumerateActive() do
 			VUHDO_registerOriginalEvents(false, tPartyMemberFrame, tPartyMemberFrame.HealthBar, tPartyMemberFrame.ManaBar);
-
-			if tPartyMemberFrame.layoutIndex > 0 and UnitExists("party" .. tPartyMemberFrame.layoutIndex) then
-				VUHDO_showFrame(tPartyMemberFrame);
-			end
 		end
 
 		for tCnt = 1, MEMBERS_PER_RAID_GROUP do
@@ -840,7 +880,6 @@ end
 local function VUHDO_showBlizzPlayer()
 
 	VUHDO_registerOriginalEvents(false, PlayerFrame, PlayerFrameHealthBar, PlayerFrameManaBar);
-	VUHDO_showFrame(PlayerFrame);
 
 	if "DEATHKNIGHT" == VUHDO_PLAYER_CLASS then
 		VUHDO_registerOriginalEvents(true, RuneFrame);

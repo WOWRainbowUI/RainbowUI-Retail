@@ -868,6 +868,11 @@ VUHDO_I18N_TT.K813 = "Select the maximum gradient color for Pets.";
 VUHDO_I18N_TT.K814 = "Auto-enable this profile when switching to specialization 3.";
 VUHDO_I18N_TT.K815 = "Auto-enable this profile when switching to specialization 4.";
 VUHDO_I18N_TT.K816 = "Setup class gradient colors.";
+VUHDO_I18N_TT.K817 = "Feral Druid buffs: Overflowing Power.";
+VUHDO_I18N_TT.K818 = "Darken a portion of the health bar when a debuff temporarily reduces the unit's maximum health (such as some raid encounters).";
+VUHDO_I18N_TT.K819 = "Enable damage absorb (shield) bars on the health frame. Uncheck to hide absorbs.";
+VUHDO_I18N_TT.K820 = "When shields are larger than missing health, show the extra absorb as a bar (overshield).";
+VUHDO_I18N_TT.K821 = "Show a bar for heal absorption. Incoming heals are reduced until the absorb is cleared.";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1570,3 +1575,6 @@ VUHDO_I18N_NO_ICON = "No Icon";
 
 VUHDO_I18N_ARENA = "Arena";
 VUHDO_I18N_SMOOTH = "Smooth";
+
+VUHDO_I18N_SHOW_HEALTH_LOSS = "Show\nHealth Loss";
+VUHDO_I18N_HEALTH_LOSS_BAR = "Health Loss Bar";

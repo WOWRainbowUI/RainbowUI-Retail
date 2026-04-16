@@ -16,15 +16,16 @@ local VUHDO_BUFF_PANEL_GAP_TOP = 4;
 
 
 --
-local function VUHDO_addBuffSwatch(aBuffPanel, aGroupName, aBuffInfo, aBuffTarget, aCategSpec)
+local function VUHDO_addBuffSwatch(aBuffPanel, aGroupName, aBuffInfo, aTargetMode, aTarget, aCategSpec)
 	if not aBuffInfo then return nil; end
 
 	local tBuffName = aBuffInfo[1];
-	local tPostfix = tBuffName .. aBuffInfo[2] .. (aBuffTarget or "");
+	local tPostfix = tBuffName .. aBuffInfo[2] .. aTargetMode .. (aTarget and tostring(aTarget) or "");
 
 	local tSwatch = VUHDO_getOrCreateBuffSwatch("VuhDoBuffSwatch_" .. tPostfix, aBuffPanel);
 	tSwatch:SetAttribute("buff", aBuffInfo);
-	tSwatch:SetAttribute("target", aBuffTarget);
+	tSwatch:SetAttribute("targetmode", aTargetMode);
+	tSwatch:SetAttribute("target", aTarget);
 	tSwatch:SetAttribute("buffname", aCategSpec);
 
 	_G[tSwatch:GetName() .. "GroupLabelLabel"]:SetText(aGroupName);
@@ -90,6 +91,9 @@ local function VUHDO_addBuffPanel(aCategorySpec)
 	local tIconFrame;
 	local tTexture;
 	local tLabelText;
+	local tTargetModeStr;
+	local tRoleIdBuild;
+	local tVariants;
 
 	local tFirstVariant = VUHDO_getFirstBuffCategoryVariant(aCategorySpec);
 
@@ -136,11 +140,33 @@ local function VUHDO_addBuffPanel(aCategorySpec)
 
 	if VUHDO_BUFF_TARGET_UNIQUE == tTargetType then
 		if not tSettings["name"] then tSettings["name"] = VUHDO_PLAYER_NAME; end
-		tSwatch = VUHDO_addBuffSwatch(tBuffPanel, tSettings["name"], tFirstVariant, "N" .. tSettings["name"], aCategorySpec);
+
+		tTargetModeStr = tSettings["targetMode"];
+
+		if tTargetModeStr and tTargetModeStr ~= "name" then
+			tRoleIdBuild = tonumber(tTargetModeStr);
+
+			if tRoleIdBuild then
+				tSwatch = VUHDO_addBuffSwatch(tBuffPanel, VUHDO_HEADER_TEXTS[tRoleIdBuild], tFirstVariant,
+					VUHDO_BUFF_TARGET_MODE_ROLE, tRoleIdBuild, aCategorySpec);
+			elseif tTargetModeStr == "target" then
+				tSwatch = VUHDO_addBuffSwatch(tBuffPanel, VUHDO_I18N_BW_TARGET, tFirstVariant,
+					VUHDO_BUFF_TARGET_MODE_TARGET, "target", aCategorySpec);
+			elseif tTargetModeStr == "focus" then
+				tSwatch = VUHDO_addBuffSwatch(tBuffPanel, VUHDO_I18N_BW_FOCUS, tFirstVariant,
+					VUHDO_BUFF_TARGET_MODE_FOCUS, "focus", aCategorySpec);
+			else
+				tSwatch = VUHDO_addBuffSwatch(tBuffPanel, tSettings["name"], tFirstVariant,
+					VUHDO_BUFF_TARGET_MODE_NAME, tSettings["name"], aCategorySpec);
+			end
+		else
+			tSwatch = VUHDO_addBuffSwatch(tBuffPanel, tSettings["name"], tFirstVariant,
+				VUHDO_BUFF_TARGET_MODE_NAME, tSettings["name"], aCategorySpec);
+		end
 	else
-		local tVariants = VUHDO_getBuffInfoForName(tSettings["buff"], aCategorySpec) or VUHDO_getBuffInfoForName(tFirstVariant[1], aCategorySpec);
+		tVariants = VUHDO_getBuffInfoForName(tSettings["buff"], aCategorySpec) or VUHDO_getBuffInfoForName(tFirstVariant[1], aCategorySpec);
 		if tVariants then
-			tSwatch = VUHDO_addBuffSwatch(tBuffPanel, VUHDO_I18N_PLAYER, tVariants, "S", aCategorySpec);
+			tSwatch = VUHDO_addBuffSwatch(tBuffPanel, VUHDO_I18N_PLAYER, tVariants, VUHDO_BUFF_TARGET_MODE_STANDARD, nil, aCategorySpec);
 		end
 	end
 

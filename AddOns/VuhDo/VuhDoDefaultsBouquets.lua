@@ -1078,10 +1078,12 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 			["turnAxis"] = false,
 			["turnAxisOvershield"] = false,
 			["turnAxisHealAbsorb"] = false,
+			["turnAxisHealthLoss"] = false,
 			["smooth"] = false,
 			["smoothShield"] = false,
 			["smoothOvershield"] = false,
 			["smoothHealAbsorb"] = false,
+			["smoothHealthLoss"] = false,
 		},
 		["SIDE_LEFT"] = {
 			["TEXTURE"] = "VuhDo - Plain White",
@@ -1187,6 +1189,7 @@ VUHDO_SANE_BOUQUET_ITEM = {
 		["bright"] = 1.0,
 		["function"] = "return true;",
 		["spellTrace"] = "",
+		["auraGroupId"] = "",
 	},
 };
 

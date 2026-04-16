@@ -915,6 +915,41 @@
 								</Scripts>
 							</EditBox>
 
+							<Frame name="$parentAuraGroupLabel" inherits="VuhDoLabelFrameTemplate" hidden="true">
+								<Size>
+									<AbsDimension x="149" y="18" />
+								</Size>
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="30" y="-224" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Layers>
+									<Layer>
+										<FontString name="$parentLabel" text="VUHDO_I18N_GROUP" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+										</FontString>
+									</Layer>
+								</Layers>
+							</Frame>
+
+							<Button name="$parentAuraGroupComboBox" hidden="true" inherits="VuhDoComboBoxTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT">
+										<Offset>
+											<AbsDimension x="30" y="-239" />
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										VUHDO_setComboModel(self, nil, VUHDO_BOUQUET_AURA_GROUP_COMBO_MODEL);
+										VUHDO_lnfSetTooltip(self, VUHDO_I18N_BOUQUET_AURA_GROUP_ACTIVE);
+									</OnLoad>
+								</Scripts>
+							</Button>
+
 						</Frames>
 					</Frame>
 
