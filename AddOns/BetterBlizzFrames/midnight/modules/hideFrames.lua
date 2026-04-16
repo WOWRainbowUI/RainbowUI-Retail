@@ -9,6 +9,7 @@ BBF.hiddenFrame = hiddenFrame
 --------------------------------------
 local hookedRaidFrameManager = false
 local hookedChatButtons = false
+local hookedChatBackground = false
 local originalResourceParent
 local originalBossFrameParent
 local bossFrameHooked
@@ -380,42 +381,38 @@ function BBF.HideFrames()
                 for j = 1, 5 do
                     local frame = _G["CompactRaidGroup"..j.."Member"..i]
                     if frame and frame.DispelOverlay then
-                        if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder and not BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient then
-                            frame.DispelOverlay:SetAlpha(0)
+                        if BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder then
+                            frame.DispelOverlay.Border:Show()
                         else
-                            frame.DispelOverlay:SetAlpha(1)
-                            if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder then
-                                frame.DispelOverlay.Border:Hide()
-                            else
-                                frame.DispelOverlay.Border:Show()
-                            end
-                            if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient and frame.DispelOverlay.Gradient then
-                                frame.DispelOverlay.Gradient:Hide()
-                            else
-                                frame.DispelOverlay.Gradient:Show()
-                            end
-                            frame.DispelOverlay.Background:Hide()
+                            frame.DispelOverlay.Border:Hide()
                         end
+                        if BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient and frame.DispelOverlay.Gradient then
+                            frame.DispelOverlay.Gradient:Show()
+                        elseif frame.DispelOverlay.Gradient then
+                            frame.DispelOverlay.Gradient:Hide()
+                        end
+                        frame.DispelOverlay.Background:Hide()
                     end
                 end
             end
             for i = 1, 5 do
                 local frame = _G["CompactPartyFrameMember"..i]
                 if frame and frame.DispelOverlay then
-                    if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder and not BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient then
-                        frame.DispelOverlay:SetAlpha(0)
-                    else
-                        frame.DispelOverlay:SetAlpha(1)
-                        if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient then
-                            frame.DispelOverlay.Gradient:Hide()
-                        else
-                            frame.DispelOverlay.Gradient:Show()
-                        end
-                        if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder then
-                            frame.DispelOverlay.Border:Hide()
-                        else
+                    if frame.DispelOverlay.Border and not frame.DispelOverlay.Border:IsForbidden() then
+                        if BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder then
                             frame.DispelOverlay.Border:Show()
+                        else
+                            frame.DispelOverlay.Border:Hide()
                         end
+                    end
+                    if frame.DispelOverlay.Gradient and not frame.DispelOverlay.Gradient:IsForbidden() then
+                        if BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient then
+                            frame.DispelOverlay.Gradient:Show()
+                        else
+                            frame.DispelOverlay.Gradient:Hide()
+                        end
+                    end
+                    if frame.DispelOverlay.Background and not frame.DispelOverlay.Background:IsForbidden() then
                         frame.DispelOverlay.Background:Hide()
                     end
                 end
@@ -426,23 +423,23 @@ function BBF.HideFrames()
                         return
                     end
 
-                    if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder and not BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient then
-                        frame.DispelOverlay:SetAlpha(0)
-                    else
-                        frame.DispelOverlay:SetAlpha(1)
-
-                        if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder then
-                            frame.DispelOverlay.Border:Hide()
-                        else
+                    if frame.DispelOverlay.Border and not frame.DispelOverlay.Border:IsForbidden() then
+                        if BetterBlizzFramesDB.hidePartyDispelOverlayKeepBorder then
                             frame.DispelOverlay.Border:Show()
-                        end
-
-                        if not BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient and frame.DispelOverlay.Gradient then
-                            frame.DispelOverlay.Gradient:Hide()
                         else
-                            frame.DispelOverlay.Gradient:Show()
+                            frame.DispelOverlay.Border:Hide()
                         end
+                    end
 
+                    if frame.DispelOverlay.Gradient and not frame.DispelOverlay.Gradient:IsForbidden() then
+                        if BetterBlizzFramesDB.hidePartyDispelOverlayKeepGradient then
+                            frame.DispelOverlay.Gradient:Show()
+                        else
+                            frame.DispelOverlay.Gradient:Hide()
+                        end
+                    end
+
+                    if frame.DispelOverlay.Background and not frame.DispelOverlay.Background:IsForbidden() then
                         frame.DispelOverlay.Background:Hide()
                     end
                 end
@@ -459,24 +456,30 @@ function BBF.HideFrames()
                 for j = 1, 5 do
                     local frame = _G["CompactRaidGroup"..j.."Member"..i]
                     if frame and frame.DispelOverlay then
-                        frame.DispelOverlay:SetAlpha(1)
                         if frame.DispelOverlay.Border then
                             frame.DispelOverlay.Border:Show()
                         end
                         if frame.DispelOverlay.Gradient then
                             frame.DispelOverlay.Gradient:Show()
                         end
-                        frame.DispelOverlay.Background:Show()
+                        if frame.DispelOverlay.Background then
+                            frame.DispelOverlay.Background:Show()
+                        end
                     end
                 end
             end
             for i = 1, 5 do
                 local frame = _G["CompactPartyFrameMember"..i]
                 if frame and frame.DispelOverlay then
-                    frame.DispelOverlay:SetAlpha(1)
-                    frame.DispelOverlay.Gradient:Show()
-                    frame.DispelOverlay.Border:Show()
-                    frame.DispelOverlay.Background:Show()
+                    if frame.DispelOverlay.Gradient then
+                        frame.DispelOverlay.Gradient:Show()
+                    end
+                    if frame.DispelOverlay.Border then
+                        frame.DispelOverlay.Border:Show()
+                    end
+                    if frame.DispelOverlay.Background then
+                        frame.DispelOverlay.Background:Show()
+                    end
                 end
             end
         end
@@ -1041,6 +1044,100 @@ function BBF.HideFrames()
                     end)
                 end)
                 hookedChatButtons = true
+            end
+            if BetterBlizzFramesDB.hideChatBackground then
+                local chatBgTexSuffixes = {
+                    "Background", "TopLeftTexture", "BottomLeftTexture", "TopRightTexture",
+                    "BottomRightTexture", "LeftTexture", "RightTexture", "BottomTexture", "TopTexture",
+                }
+                for i = 1, NUM_CHAT_WINDOWS do
+                    for _, suffix in ipairs(chatBgTexSuffixes) do
+                        local tex = _G["ChatFrame"..i..suffix]
+                        if tex then tex:SetParent(BBF.hiddenFrame) end
+                    end
+                end
+
+                if not hookedChatBackground then
+                    local bbfChatMouseOver = false
+
+                    local function bbfShowChatTabs()
+                        bbfChatMouseOver = true
+                        for i = 1, NUM_CHAT_WINDOWS do
+                            local tab = _G["ChatFrame"..i.."Tab"]
+                            if tab then
+                                tab.bbfSettingAlpha = true
+                                UIFrameFadeRemoveFrame(tab)
+                                tab:SetAlpha(1)
+                                tab.bbfSettingAlpha = nil
+                            end
+                        end
+                        if GeneralDockManagerScrollFrame then
+                            GeneralDockManagerScrollFrame.bbfSettingAlpha = true
+                            GeneralDockManagerScrollFrame:SetAlpha(1)
+                            GeneralDockManagerScrollFrame.bbfSettingAlpha = nil
+                        end
+                    end
+
+                    local function bbfHideChatTabs()
+                        bbfChatMouseOver = false
+                        C_Timer.After(1, function()
+                            if bbfChatMouseOver then return end
+                            for i = 1, NUM_CHAT_WINDOWS do
+                                local tab = _G["ChatFrame"..i.."Tab"]
+                                if tab then
+                                    tab.bbfSettingAlpha = true
+                                    UIFrameFadeRemoveFrame(tab)
+                                    tab:SetAlpha(0)
+                                    tab.bbfSettingAlpha = nil
+                                end
+                            end
+                            if GeneralDockManagerScrollFrame then
+                                GeneralDockManagerScrollFrame.bbfSettingAlpha = true
+                                GeneralDockManagerScrollFrame:SetAlpha(0)
+                                GeneralDockManagerScrollFrame.bbfSettingAlpha = nil
+                            end
+                        end)
+                    end
+
+                    for i = 1, NUM_CHAT_WINDOWS do
+                        local chatFrame = _G["ChatFrame"..i]
+                        local tab = _G["ChatFrame"..i.."Tab"]
+                        if tab then
+                            hooksecurefunc(tab, "SetAlpha", function(self, alpha)
+                                if self.bbfSettingAlpha then return end
+                                if bbfChatMouseOver then return end
+                                if alpha > 0 then
+                                    self.bbfSettingAlpha = true
+                                    self:SetAlpha(0)
+                                    self.bbfSettingAlpha = nil
+                                end
+                            end)
+                            tab:HookScript("OnEnter", bbfShowChatTabs)
+                            tab:HookScript("OnLeave", bbfHideChatTabs)
+                            tab:SetAlpha(0)
+                        end
+                        if chatFrame then
+                            chatFrame:HookScript("OnEnter", bbfShowChatTabs)
+                            chatFrame:HookScript("OnLeave", bbfHideChatTabs)
+                        end
+                    end
+
+                    if GeneralDockManagerScrollFrame then
+                        GeneralDockManagerScrollFrame:SetAlpha(0)
+                        hooksecurefunc(GeneralDockManagerScrollFrame, "SetAlpha", function(self, alpha)
+                            if self.bbfSettingAlpha then return end
+                            if bbfChatMouseOver then return end
+                            if alpha > 0 then
+                                self.bbfSettingAlpha = true
+                                self:SetAlpha(0)
+                                self.bbfSettingAlpha = nil
+                            end
+                        end)
+                        GeneralDockManagerScrollFrame:HookScript("OnEnter", bbfShowChatTabs)
+                        GeneralDockManagerScrollFrame:HookScript("OnLeave", bbfHideChatTabs)
+                    end
+                    hookedChatBackground = true
+                end
             end
         else
             QuickJoinToastButton:SetAlpha(1)

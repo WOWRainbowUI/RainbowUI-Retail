@@ -127,7 +127,7 @@ local defaultSettings = {
     petCastBarWidth = 137,
     petCastBarHeight = 10,
     showPetCastBarIcon = true,
-    showPetCastBarTimer = false,
+    petCastBarTimer = false,
     petCastBarShowText = true,
     petCastBarShowBorder = true,
 
@@ -175,7 +175,7 @@ local defaultSettings = {
     playerCastBarWidth = 195,
     playerCastBarHeight = 13,
     playerCastBarTimer = false,
-    playerCastBarTimerCenter = false,
+    playerCastBarTimerCentered = false,
     playerCastBarShowText = true,
     playerCastBarShowBorder = true,
 

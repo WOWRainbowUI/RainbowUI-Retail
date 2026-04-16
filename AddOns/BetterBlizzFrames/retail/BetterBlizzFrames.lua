@@ -148,7 +148,7 @@ local defaultSettings = {
     petCastBarWidth = 103,
     petCastBarHeight = 10,
     showPetCastBarIcon = true,
-    showPetCastBarTimer = false,
+    petCastBarTimer = false,
 
     --Castbar edge highlight
     castBarInterruptHighlighterStartTime = 0.8,
@@ -188,7 +188,7 @@ local defaultSettings = {
     playerCastBarWidth = 208,
     playerCastBarHeight = 11,
     playerCastBarTimer = false,
-    playerCastBarTimerCenter = false,
+    playerCastBarTimerCentered = false,
 
     --Auras
     --playerAuraMaxBuffsPerRow = 10,

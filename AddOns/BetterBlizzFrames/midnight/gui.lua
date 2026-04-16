@@ -4285,6 +4285,18 @@ local function guiGeneralTab()
     hideChatButtons:SetPoint("TOPLEFT", chatFrameText, "BOTTOMLEFT", -24, pixelsOnFirstBox)
     CreateTooltip(hideChatButtons, L["Tooltip_Hide_Chat_Buttons"])
 
+    chatFrameText.hideChatBackground = CreateCheckbox("hideChatBackground", L["Hide_Chat_Background"], hideChatButtons, nil, BBF.HideFrames)
+    chatFrameText.hideChatBackground:SetPoint("LEFT", hideChatButtons.text, "RIGHT", 0, 0)
+    CreateTooltip(chatFrameText.hideChatBackground, L["Tooltip_Hide_Chat_Background"])
+
+    hideChatButtons:HookScript("OnClick", function(self)
+        if self:GetChecked() then
+            EnableElement(chatFrameText.hideChatBackground)
+        else
+            DisableElement(chatFrameText.hideChatBackground)
+        end
+    end)
+
     local chatFrameFilters = BetterBlizzFrames:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     chatFrameFilters:SetPoint("TOPLEFT", mainGuiAnchor, "BOTTOMLEFT", 232, -507)
     chatFrameFilters:SetText(L["Filters"])
@@ -4691,10 +4703,6 @@ local function guiGeneralTab()
     local noPortraitModes = CreateCheckbox("noPortraitModes", L["No_Portrait"], BetterBlizzFrames)
     noPortraitModes:SetPoint("LEFT", classicFrames.text, "RIGHT", 0, 0)
     CreateTooltipTwo(noPortraitModes, L["No_Portrait"], L["Tooltip_No_Portrait_Desc"])
-    noPortraitModes:HookScript("OnClick", function(self)
-        BetterBlizzFramesDB.classicFrames = false
-        StaticPopup_Show("BBF_CONFIRM_RELOAD")
-    end)
 
     local noPortraitPixelBorder = CreateCheckbox("noPortraitPixelBorder", L["NP_PixelBorder"], BetterBlizzFrames)
     noPortraitPixelBorder:SetPoint("BOTTOMLEFT", noPortraitModes, "TOPRIGHT", -14, -5)
@@ -4703,6 +4711,7 @@ local function guiGeneralTab()
         if self:GetChecked() then
             BetterBlizzFramesDB.classicFrames = false
             BetterBlizzFramesDB.noPortraitModes = true
+            noPortraitModes:SetChecked(true)
             if not BetterBlizzFramesDB.changeUnitFrameHealthbarTexture then
                 BetterBlizzFramesDB.changeUnitFrameHealthbarTexture = true
                 BetterBlizzFramesDB.unitFrameHealthbarTexture = "Blizzard Retail Bar Crop 2"
@@ -4711,6 +4720,16 @@ local function guiGeneralTab()
                 BetterBlizzFramesDB.changeUnitFrameManabarTexture = true
                 BetterBlizzFramesDB.unitFrameManabarTexture = BetterBlizzFramesDB.unitFrameHealthbarTexture or "Blizzard Retail Bar Crop 2"
             end
+        end
+        StaticPopup_Show("BBF_CONFIRM_RELOAD")
+    end)
+
+    noPortraitModes:HookScript("OnClick", function(self)
+        if self:GetChecked() then
+            BetterBlizzFramesDB.classicFrames = false
+        else
+            BetterBlizzFramesDB.noPortraitPixelBorder = false
+            noPortraitPixelBorder:SetChecked(false)
         end
         StaticPopup_Show("BBF_CONFIRM_RELOAD")
     end)
@@ -8948,7 +8967,7 @@ local function guiMisc()
 
     local moveResource = CreateCheckbox("moveResource", L["Move_Resource"], guiMisc)
     moveResource:SetPoint("TOPLEFT", instantComboPoints, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
-    CreateTooltipTwo(moveResource, L["Move_Resource"], L["Tooltip_Move_Resource_Desc"] .. playerClass, L["Tooltip_Move_Resource_SubText"])
+    CreateTooltipTwo(moveResource, L["Move_Resource"], string.format(L["Tooltip_Move_Resource_Desc"], playerClass), L["Tooltip_Move_Resource_SubText"])
     moveResource:HookScript("OnClick", function(self)
         if self:GetChecked() then
             BBF.EnableResourceMovement()
