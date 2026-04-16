@@ -1,0 +1,14 @@
+## Interface: 120001
+## Title: [神秘地瓜] 副本语音助手
+## Notes: 根据战斗时间轴播放自定义音频
+## Author: 神秘地瓜
+## Version: 1.2.1
+
+## Title-zhTW: |cffFF7F00[副本]|r 神秘地瓜副本語音助手
+## Notes-zhTW: DiGuaTimelineAudioHelper |n透過戰鬥時間軸系統在首領戰中提供精準的自訂語音提示。
+## Category-zhTW: 團隊
+## IconTexture: Interface\Icons\inv_cooking_80_brownpotato
+## DefaultState: disabled
+
+Core.lua
+Countdown.lua
