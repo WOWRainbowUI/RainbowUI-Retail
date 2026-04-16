@@ -20,8 +20,7 @@ function Adapter:OnEnable()
 end
 
 local function IsSArenaArenaFrame(frame)
-    if not frame or not frame.GetName then return false end
-    local name = frame:GetName()
+    local name = MCE:GetFrameName(frame)
     return type(name) == "string" and strmatch(name, "^sArenaEnemyFrame%d+$") ~= nil
 end
 

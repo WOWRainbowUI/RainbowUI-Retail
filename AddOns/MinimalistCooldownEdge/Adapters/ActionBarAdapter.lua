@@ -16,16 +16,7 @@ local BT4 = C.Adapter.Bartender4
 local Registry
 
 local function GetFrameName(frame)
-    if not frame or MCE:IsForbidden(frame) or not frame.GetName then
-        return nil
-    end
-
-    local name = frame:GetName()
-    if type(name) == "string" and name ~= "" then
-        return name
-    end
-
-    return nil
+    return MCE:GetFrameName(frame)
 end
 
 local function IsBT4ManagedButton(button)
@@ -106,8 +97,7 @@ function Adapter:TryClaim(cooldown)
     if IsDominosManagedButton(parent) then return nil end
     if IsBT4ManagedButton(parent) then return nil end
 
-    -- Exclude Blizzard's Loss-of-Control cooldown overlay
-    if parent.lossOfControlCooldown == cooldown then return nil end
+    if MCE:IsLossOfControlCooldown(cooldown) then return nil end
 
     if type(parent.action) == "number" then
         RegisterButton(parent)

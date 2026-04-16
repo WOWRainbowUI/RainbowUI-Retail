@@ -52,7 +52,7 @@ end
 -- =========================================================================
 
 function Styler:QueueUpdate(frame, forcedCategory)
-    if not frame or MCE:IsForbidden(frame) then return end
+    if not frame or MCE:IsForbiddenCached(frame) then return end
     if Classifier and Classifier:IsBlacklisted(frame) then return end
     BatchProcessor:QueueUpdate(frame, forcedCategory)
 end
@@ -82,7 +82,7 @@ function Styler:ForceUpdateAll(fullScan)
 
     -- Queue all registered cooldowns for restyling
     for cd in Registry:IterateAll() do
-        if cd and not MCE:IsForbidden(cd) then
+        if cd and not MCE:IsForbiddenCached(cd) then
             BatchProcessor:QueueUpdate(cd)
         end
     end

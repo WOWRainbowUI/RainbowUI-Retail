@@ -12,7 +12,6 @@ local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local StyleEngine = MCE:NewModule("StyleEngine")
 
 local pairs, type, pcall, wipe = pairs, type, pcall, wipe
-local math_abs = math.abs
 local strfind = string.find
 local select = select
 local hooksecurefunc = hooksecurefunc
@@ -34,6 +33,25 @@ local fontState = addon.fontState
 -- Lazy module references (resolved on first use in OnEnable)
 local Registry, DurationColor, CompactAura, Classifier
 
+-- Pre-computed style keys to avoid per-call string concatenation.
+-- category x subtype combinations are a small fixed set.
+local styleKeyCache = {}
+
+local function GetStyleKey(category, subtype)
+    if not subtype then return category end
+    local catCache = styleKeyCache[category]
+    if not catCache then
+        catCache = {}
+        styleKeyCache[category] = catCache
+    end
+    local key = catCache[subtype]
+    if not key then
+        key = category .. ":" .. subtype
+        catCache[subtype] = key
+    end
+    return key
+end
+
 function StyleEngine:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     DurationColor = MCE:GetModule("DurationColorController")
@@ -45,20 +63,12 @@ end
 -- SAFE VALUE HELPERS
 -- =========================================================================
 
-function StyleEngine.IsSecretValue(value)
-    if not issecretvalue then return false end
-    local ok, result = pcall(issecretvalue, value)
-    return ok and result or false
-end
+-- Re-export from shared addon namespace for external module access
+StyleEngine.IsSecretValue = addon.IsSecretValue
+StyleEngine.CanAccessAllValues = addon.CanAccessAllValues
 
-function StyleEngine.CanAccessAllValues(...)
-    if not canaccessallvalues then return true end
-    local ok, result = pcall(canaccessallvalues, ...)
-    return ok and result or false
-end
-
-local IsSecretValue = StyleEngine.IsSecretValue
-local CanAccessAllValues = StyleEngine.CanAccessAllValues
+local IsSecretValue = addon.IsSecretValue
+local CanAccessAllValues = addon.CanAccessAllValues
 
 local function IsInspectableUIObject(value)
     local valueType = type(value)
@@ -84,7 +94,7 @@ end
 
 local function IsUsableFontString(region)
     return GetObjectTypeSafe(region) == "FontString"
-        and not MCE:IsForbidden(region)
+        and not MCE:IsForbiddenCached(region)
 end
 
 -- =========================================================================
@@ -113,32 +123,14 @@ end
 -- NUMERIC COMPARISON
 -- =========================================================================
 
-local EPSILON = STYLER_CONSTANTS.NumericComparisonEpsilon
-
-local function IsNearlyEqual(a, b)
-    if issecretvalue(a) or issecretvalue(b) then return false end
-    if a == b then return true end
-    if type(a) ~= "number" or type(b) ~= "number" then return false end
-    return math_abs(a - b) < EPSILON
-end
-
-local function IsSameSwipeColor(state, r, g, b, a)
-    return state
-        and IsNearlyEqual(state.r, r)
-        and IsNearlyEqual(state.g, g)
-        and IsNearlyEqual(state.b, b)
-        and IsNearlyEqual(state.a, a)
-end
+local IsNearlyEqual = addon.IsNearlyEqual
+local IsSameSwipeColor = addon.IsSameSwipeColor
 
 local function IsMasqueManagedCooldown(cooldown)
     return cooldown and cooldown._MSQ_Color ~= nil
 end
 
-local function IsMUIStyledCooldown(cooldown)
-    if not MCE:IsMUIAvailable() then return false end
-    local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
-    return parent and parent.mUIBorder ~= nil
-end
+local IsMUIStyledCooldown = addon.IsMUIStyledCooldown
 
 -- =========================================================================
 -- UNIT / AURA HELPERS
@@ -218,7 +210,7 @@ function StyleEngine:IsCooldownManagerAuraDisplay(cdFrame)
     end
 
     local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
-    if not parent or MCE:IsForbidden(parent) then
+    if not parent or MCE:IsForbiddenCached(parent) then
         return false
     end
 
@@ -232,7 +224,7 @@ function StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
     end
 
     parent = parent or (cdFrame.GetParent and cdFrame:GetParent() or nil)
-    if not parent or MCE:IsForbidden(parent) then
+    if not parent or MCE:IsForbiddenCached(parent) then
         return false
     end
 
@@ -288,7 +280,7 @@ function StyleEngine:IsMainCooldownWithActiveChargeCooldown(cdFrame)
     local mainCD = parent.cooldown or parent.Cooldown
     if mainCD ~= cdFrame then return false end
     local chargeCD = parent.chargeCooldown or parent.ChargeCooldown
-    if chargeCD and chargeCD ~= cdFrame and not MCE:IsForbidden(chargeCD)
+    if chargeCD and chargeCD ~= cdFrame and not MCE:IsForbiddenCached(chargeCD)
        and chargeCD.IsShown and chargeCD:IsShown() then
         return true
     end
@@ -302,7 +294,7 @@ function StyleEngine:IsAssistedCombatActionCooldown(cdFrame)
 
     local fs = self:GetFrameState(cdFrame)
     local parent = cdFrame.GetParent and cdFrame:GetParent() or nil
-    if not parent or MCE:IsForbidden(parent) then return false end
+    if not parent or MCE:IsForbiddenCached(parent) then return false end
 
     local actionID = self:GetActionIDFromButton(parent)
     if not actionID then
@@ -373,7 +365,7 @@ function StyleEngine:ResolveCooldownContext(cdFrame, forceRefresh)
             end
         end
 
-        local name = current.GetName and current:GetName() or ""
+        local name = MCE:GetFrameName(current) or ""
         if strfind(name, "Buff", 1, true)
            or strfind(name, "Debuff", 1, true)
            or strfind(name, "Aura", 1, true) then
@@ -480,8 +472,20 @@ function StyleEngine:GetCooldownTextRegions(cdFrame)
     local count = 0
     local firstRegion = nil
 
+    -- MiniCC caches its countdown FontString on the cooldown frame after the
+    -- first size update. Reuse that reference so repeated MiniCC style passes
+    -- do not rescan every region on the frame.
+    local miniCCCountdownText = cdFrame.MiniCCFontString
+    if IsUsableFontString(miniCCCountdownText) then
+        textRegionScratch[1] = miniCCCountdownText
+        for i = 2, #textRegionScratch do
+            textRegionScratch[i] = nil
+        end
+        return textRegionScratch, 1
+    end
+
     local countdownText = cdFrame.GetCountdownFontString and cdFrame:GetCountdownFontString()
-    if countdownText and not MCE:IsForbidden(countdownText) then
+    if countdownText and not MCE:IsForbiddenCached(countdownText) then
         count = 1
         textRegionScratch[1] = countdownText
         firstRegion = countdownText
@@ -547,7 +551,7 @@ function StyleEngine:SetCooldownTextRegionsVisible(cdFrame, visible)
     local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
     for i = 1, textRegionCount do
         local region = textRegions[i]
-        if region and not MCE:IsForbidden(region) then
+        if region and not MCE:IsForbiddenCached(region) then
             if visible then
                 region:SetAlpha(1)
                 region:Show()
@@ -572,7 +576,7 @@ function StyleEngine:ApplyRGBAColorToCooldownRegions(cdFrame, r, g, b, a)
 
     for i = 1, textRegionCount do
         local region = textRegions[i]
-        if region and not MCE:IsForbidden(region) then
+        if region and not MCE:IsForbiddenCached(region) then
             region:SetTextColor(r, g, b, a)
         end
     end
@@ -626,7 +630,7 @@ end
 function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, fontStyle,
                                           color, point, relativePoint, offsetX, offsetY,
                                           drawLayer, drawLayerSubLevel, enforceFont)
-    if not region or MCE:IsForbidden(region) then return end
+    if not region or MCE:IsForbiddenCached(region) then return end
 
     relativePoint = relativePoint or point
     drawLayerSubLevel = drawLayerSubLevel or 0
@@ -684,7 +688,7 @@ end
 -- =========================================================================
 
 local function ResolveCountRegion(container)
-    if not container or MCE:IsForbidden(container) then return nil end
+    if not container or MCE:IsForbiddenCached(container) then return nil end
 
     local region = container.Count
         or container.count
@@ -694,8 +698,8 @@ local function ResolveCountRegion(container)
         return region
     end
 
-    local containerName = container.GetName and container:GetName() or nil
-    if type(containerName) == "string" and containerName ~= "" then
+    local containerName = MCE:GetFrameName(container)
+    if containerName then
         region = _G[containerName .. "Count"] or _G[containerName .. "StackCount"]
         if IsUsableFontString(region) then
             return region
@@ -784,9 +788,9 @@ end
 -- FONT SIZE RESOLUTION
 -- =========================================================================
 
-function StyleEngine:GetCooldownFontSize(cdFrame, category, config)
+function StyleEngine:GetCooldownFontSize(cdFrame, category, config, subtype)
     if category == CATEGORY.MiniCC then
-        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if subtype == MINICC_FRAME_TYPE.CC then return config.ccFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.FriendlyCD then return config.friendlyCdFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.Nameplate then return config.nameplateFontSize or config.fontSize end
@@ -796,7 +800,7 @@ function StyleEngine:GetCooldownFontSize(cdFrame, category, config)
     end
 
     if category == CATEGORY.SArena then
-        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if subtype == SARENA_FRAME_TYPE.ClassIcon then return config.classIconFontSize or config.fontSize end
         if subtype == SARENA_FRAME_TYPE.DR then return config.drFontSize or config.fontSize end
         if subtype == SARENA_FRAME_TYPE.Trinket or subtype == SARENA_FRAME_TYPE.Racial then
@@ -806,7 +810,7 @@ function StyleEngine:GetCooldownFontSize(cdFrame, category, config)
     end
 
     if category == CATEGORY.CooldownManager then
-        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if subtype == VIEWER_TYPE.Essential then return config.essentialFontSize or config.fontSize end
         if subtype == VIEWER_TYPE.Utility then return config.utilityFontSize or config.fontSize end
         if subtype == VIEWER_TYPE.BuffIcon then return config.buffIconFontSize or config.fontSize end
@@ -820,11 +824,11 @@ end
 -- HIDE COUNTDOWN NUMBERS RESOLUTION
 -- =========================================================================
 
-function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat)
+function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat, subtype)
     local hideNums = config.hideCountdownNumbers
 
     if category == CATEGORY.MiniCC then
-        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if subtype == MINICC_FRAME_TYPE.CC then
             return config.ccHideCountdownNumbers ~= nil and config.ccHideCountdownNumbers or hideNums
         end
@@ -891,11 +895,11 @@ local function GetMiniCCHideSwipeSetting(config, subtype)
     return nil
 end
 
-function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge)
+function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge, subtype)
     local baseWant = config.drawSwipe ~= false
 
     if baseWant and category == CATEGORY.MiniCC then
-        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if GetMiniCCHideSwipeSetting(config, subtype) then
             baseWant = false
         end
@@ -904,11 +908,11 @@ function StyleEngine:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCool
     return baseWant and (not isChargeCooldown or hasActiveCharge)
 end
 
-function StyleEngine:GetDesiredEdgeEnabled(cdFrame, category, config)
+function StyleEngine:GetDesiredEdgeEnabled(cdFrame, category, config, subtype)
     if not config.edgeEnabled then return false end
 
     if category == CATEGORY.MiniCC then
-        local subtype = Registry and Registry:GetSubtype(cdFrame)
+        subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if GetMiniCCHideSwipeSetting(config, subtype) then return false end
     end
 
@@ -934,7 +938,7 @@ function StyleEngine:IsUnitFrameLargeAura(cdFrame)
     local auraOwner = fs.auraInstanceOwner ~= false and fs.auraInstanceOwner or nil
     if not auraOwner then
         local parent = cdFrame.GetParent and cdFrame:GetParent()
-        if parent and not MCE:IsForbidden(parent) then
+        if parent and not MCE:IsForbiddenCached(parent) then
             auraOwner = parent
         else
             return nil
@@ -964,7 +968,7 @@ end
 -- =========================================================================
 
 function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
-    if MCE:IsForbidden(cdFrame) then return end
+    if MCE:IsForbiddenCached(cdFrame) then return end
 
     -- Check compact party/raid aura before generic styling
     if CompactAura and CompactAura:SyncCooldown(cdFrame) then
@@ -982,11 +986,11 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     if not category then return end
 
     -- Override: MiniCC takes precedence when detected
-    if forcedCategory == CATEGORY.Nameplate and Registry then
-        local sub = Registry:GetSubtype(cdFrame)
-        if sub and (sub == MINICC_FRAME_TYPE.CC or sub == MINICC_FRAME_TYPE.FriendlyCD
-                    or sub == MINICC_FRAME_TYPE.Nameplate or sub == MINICC_FRAME_TYPE.Portrait
-                    or sub == MINICC_FRAME_TYPE.Overlay) then
+    local subtype = Registry and Registry:GetSubtype(cdFrame) or nil
+    if forcedCategory == CATEGORY.Nameplate and subtype then
+        if subtype == MINICC_FRAME_TYPE.CC or subtype == MINICC_FRAME_TYPE.FriendlyCD
+           or subtype == MINICC_FRAME_TYPE.Nameplate or subtype == MINICC_FRAME_TYPE.Portrait
+           or subtype == MINICC_FRAME_TYPE.Overlay then
             category = CATEGORY.MiniCC
         end
     end
@@ -1012,7 +1016,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     local hasActiveCharge = isChargeCooldown and self:IsMainCooldownWithActiveChargeCooldown(cdFrame)
 
     -- Draw Swipe
-    local wantSwipe = self:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge)
+    local wantSwipe = self:GetDesiredDrawSwipe(cdFrame, category, config, isChargeCooldown, hasActiveCharge, subtype)
     if cdFrame.SetDrawSwipe then
         if fs.drawSwipe ~= wantSwipe then
             fs.suppressSwipeDraw = true
@@ -1023,7 +1027,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     end
 
     -- Draw Edge
-    local wantEdge = self:GetDesiredEdgeEnabled(cdFrame, category, config)
+    local wantEdge = self:GetDesiredEdgeEnabled(cdFrame, category, config, subtype)
     if cdFrame.SetDrawEdge then
         if fs.edge ~= wantEdge then
             fs.suppressEdge = true
@@ -1049,12 +1053,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
             fs.suppressEdgeColor = true
             pcall(cdFrame.SetEdgeColor, cdFrame, edgeColor.r, edgeColor.g, edgeColor.b, edgeColor.a)
             fs.suppressEdgeColor = nil
-            fs.edgeColor = {
-                r = edgeColor.r,
-                g = edgeColor.g,
-                b = edgeColor.b,
-                a = edgeColor.a,
-            }
+            local ec = fs.edgeColor or {}
+            ec.r, ec.g, ec.b, ec.a = edgeColor.r, edgeColor.g, edgeColor.b, edgeColor.a
+            fs.edgeColor = ec
         elseif not edgeColor then
             fs.edgeColor = nil
         end
@@ -1072,7 +1073,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
                 fs.suppressSwipe = true
                 pcall(cdFrame.SetSwipeColor, cdFrame, r, g, b, a)
                 fs.suppressSwipe = nil
-                fs.swipeColor = { r = r, g = g, b = b, a = a }
+                local sc = fs.swipeColor or {}
+                sc.r, sc.g, sc.b, sc.a = r, g, b, a
+                fs.swipeColor = sc
             end
         else
             self:ResetSwipeColor(cdFrame)
@@ -1084,7 +1087,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     -- Hide countdown numbers
     local hideNums
     if cdFrame.SetHideCountdownNumbers then
-        hideNums = self:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat)
+        hideNums = self:GetDesiredHideCountdownNumbers(cdFrame, category, config, isAssistedCombat, subtype)
         if fs.hideNums ~= hideNums then
             fs.suppressHideNums = true
             pcall(cdFrame.SetHideCountdownNumbers, cdFrame, hideNums)
@@ -1093,21 +1096,20 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         end
     end
 
-    -- Style key for change detection
-    local styleKey = category
-    if category == CATEGORY.CooldownManager then
-        local subtype = Registry and Registry:GetSubtype(cdFrame) or "default"
-        styleKey = category .. ":" .. subtype
-    elseif category == CATEGORY.MiniCC or category == CATEGORY.SArena then
-        local subtype = Registry and Registry:GetSubtype(cdFrame) or "default"
-        styleKey = category .. ":" .. subtype
+    -- Style key for change detection (cached to avoid per-call string concat)
+    local styleKey
+    if category == CATEGORY.CooldownManager
+       or category == CATEGORY.MiniCC
+       or category == CATEGORY.SArena then
+        styleKey = GetStyleKey(category, subtype or "default")
+    else
+        styleKey = category
     end
 
     local needsFullRestyle = fs.styledCat ~= styleKey
     local textRegions, textRegionCount, textRegionsChanged
     local needsDeferredTextRefresh = fs.forceTextRegionRefresh == true
     local shouldRefreshTextRegions = needsFullRestyle
-        or category == CATEGORY.MiniCC
         or category == CATEGORY.SArena
         or needsDeferredTextRefresh
         or (not hideNums and GetTrackedTextRegionCount(fs) == 0)
@@ -1141,7 +1143,7 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         fs.appliedTextColor = nil
         local fontStyle = MCE.NormalizeFontStyle(config.fontStyle)
         local resolvedFont = MCE.ResolveFontPath(config.font)
-        local fontSize = self:GetCooldownFontSize(cdFrame, category, config)
+        local fontSize = self:GetCooldownFontSize(cdFrame, category, config, subtype)
 
         -- Some third-party addons recalculate cooldown font size after MiniCE
         -- applies styling. Enforce our chosen font for those integrations so

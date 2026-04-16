@@ -27,7 +27,7 @@ local function ProcessDirtyFrames()
     if dirtyCount == 0 or not styleCallback then return end
 
     for frame, forcedCategory in pairs(dirtyFrames) do
-        if frame and not MCE:IsForbidden(frame) then
+        if frame and not MCE:IsForbiddenCached(frame) then
             styleCallback(frame, forcedCategory ~= true and forcedCategory or nil)
         end
     end
@@ -36,7 +36,7 @@ local function ProcessDirtyFrames()
 end
 
 function BatchProcessor:QueueUpdate(frame, forcedCategory)
-    if not frame or MCE:IsForbidden(frame) then return end
+    if not frame or MCE:IsForbiddenCached(frame) then return end
 
     local existing = dirtyFrames[frame]
     if existing == nil then

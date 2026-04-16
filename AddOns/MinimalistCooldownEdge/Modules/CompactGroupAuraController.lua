@@ -85,7 +85,7 @@ end
 
 local function GetNativeText(cdFrame)
     local nativeText = cdFrame.GetCountdownFontString and cdFrame:GetCountdownFontString()
-    if nativeText and not MCE:IsForbidden(nativeText) then return nativeText end
+    if nativeText and not MCE:IsForbiddenCached(nativeText) then return nativeText end
     return nil
 end
 
@@ -275,7 +275,7 @@ function CompactAura:Reset(restoreVisuals)
     end
 
     for cd in pairs(compactPartyAuraFrames) do
-        if cd and not MCE:IsForbidden(cd) then
+        if cd and not MCE:IsForbiddenCached(cd) then
             if restoreVisuals then
                 SetNativeTextVisible(cd, true)
                 SetNativeHide(cd, false)

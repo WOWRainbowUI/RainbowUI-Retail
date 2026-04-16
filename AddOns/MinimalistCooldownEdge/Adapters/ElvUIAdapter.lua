@@ -98,16 +98,7 @@ local function RegisterCooldown(cooldown, category)
 end
 
 local function GetFrameName(frame)
-    if not frame or MCE:IsForbidden(frame) or not frame.GetName then
-        return nil
-    end
-
-    local name = frame:GetName()
-    if type(name) == "string" and name ~= "" then
-        return name
-    end
-
-    return nil
+    return MCE:GetFrameName(frame)
 end
 
 local function IsElvUIFrameName(frame, prefix)

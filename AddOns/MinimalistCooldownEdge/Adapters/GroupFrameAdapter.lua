@@ -64,7 +64,7 @@ local function GetCompactGroupFrameType(frame)
         return nil
     end
 
-    local name = frame.GetName and frame:GetName() or ""
+    local name = MCE:GetFrameName(frame) or ""
     if strfind(name, "CompactPartyFrame", 1, true) then
         return GROUP_FRAME_TYPE.Party
     end
@@ -120,7 +120,7 @@ local function ResolveCompactPartyAuraType(cooldown)
         if not current then break end
         if MCE:IsForbidden(current) then break end
 
-        local name = current.GetName and current:GetName() or ""
+        local name = MCE:GetFrameName(current) or ""
 
         if strfind(name, "Buff", 1, true)
            or strfind(name, "Debuff", 1, true)

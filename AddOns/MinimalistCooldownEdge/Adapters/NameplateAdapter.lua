@@ -18,8 +18,7 @@ local Registry
 -- MiniCC creates cooldowns at a fixed depth inside containers that are parented
 -- to nameplates.  Skip them here so MiniCCAdapter retains ownership.
 local function IsMiniCCFrame(frame)
-    if not frame or not frame.GetName then return false end
-    local name = frame:GetName()
+    local name = MCE:GetFrameName(frame)
     return type(name) == "string" and strfind(name, MINICC_PREFIX, 1, true) == 1
 end
 
@@ -97,7 +96,7 @@ function Adapter:TryClaim(cooldown)
         if type(unit) == "string" and strfind(strlower(unit), "nameplate", 1, true) then
             return CATEGORY.Nameplate
         end
-        local name = current.GetName and current:GetName()
+        local name = MCE:GetFrameName(current)
         if name then
             local lowerName = strlower(name)
             for i = 1, #NP_PATTERNS do

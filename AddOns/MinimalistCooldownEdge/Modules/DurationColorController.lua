@@ -43,22 +43,37 @@ local activeDurationFrameCount = 0
 local durationCacheSweepCounter = 0
 local durationColorTicker = nil
 local durationColorCurve = nil
+local clearListScratch = {}  -- reusable scratch table for ticker clear passes
 
-local durationObjectCache = setmetatable({}, {
-    __call = function(self, endTime, duration, modRate)
-        if type(endTime) ~= "number" or type(duration) ~= "number" then return nil end
-        local key = endTime .. ":" .. duration .. ":" .. (modRate or 1)
-        local cached = self[key]
-        if not cached then
-            if not (C_DurationUtil and C_DurationUtil.CreateDuration) then return nil end
-            cached = C_DurationUtil.CreateDuration()
-            self[key] = cached
-        end
-        if not (cached and cached.SetTimeFromEnd) then return nil end
-        cached:SetTimeFromEnd(endTime, duration, modRate or 1)
-        return cached
+local durationObjectCache = {}
+
+local function GetOrCreateDurationObject(endTime, duration, modRate)
+    if type(endTime) ~= "number" or type(duration) ~= "number" then return nil end
+    modRate = modRate or 1
+
+    local byEnd = durationObjectCache[endTime]
+    if not byEnd then
+        byEnd = {}
+        durationObjectCache[endTime] = byEnd
     end
-})
+
+    local byDur = byEnd[duration]
+    if not byDur then
+        byDur = {}
+        byEnd[duration] = byDur
+    end
+
+    local cached = byDur[modRate]
+    if not cached then
+        if not (C_DurationUtil and C_DurationUtil.CreateDuration) then return nil end
+        cached = C_DurationUtil.CreateDuration()
+        byDur[modRate] = cached
+    end
+
+    if not (cached and cached.SetTimeFromEnd) then return nil end
+    cached:SetTimeFromEnd(endTime, duration, modRate)
+    return cached
+end
 
 -- =========================================================================
 -- TICKER CONTROL
@@ -93,7 +108,7 @@ end
 local StartTicker  -- forward ref
 
 local function OnTrackedCooldownShow(cooldown)
-    if not cooldown or StyleEngine.IsSecretValue(cooldown) or MCE:IsForbidden(cooldown) then return end
+    if not cooldown or StyleEngine.IsSecretValue(cooldown) or MCE:IsForbiddenCached(cooldown) then return end
     if durationColoredFrames[cooldown] then
         AddActiveDurationFrame(cooldown)
         StartTicker()
@@ -126,7 +141,7 @@ end
 -- =========================================================================
 
 function DurationColor:CreateDurationFromEndTime(endTime, duration, modRate)
-    return durationObjectCache(endTime, duration, modRate or 1)
+    return GetOrCreateDurationObject(endTime, duration, modRate or 1)
 end
 
 function DurationColor:CreateDurationObjectFromCooldownArgs(startTime, duration, modRate)
@@ -171,11 +186,11 @@ function DurationColor:SetCooldownDurationObject(cdFrame, durationObject)
     end
 end
 
-function DurationColor:GetFallbackDurationObject(cdFrame, forceContextRefresh)
+function DurationColor:GetFallbackDurationObject(cdFrame)
     local parent = cdFrame and cdFrame.GetParent and cdFrame:GetParent()
     if not parent then return nil end
 
-    local fs = StyleEngine:ResolveCooldownContext(cdFrame, forceContextRefresh == true)
+    local fs = StyleEngine:ResolveCooldownContext(cdFrame)
     local category = Registry and Registry:GetCategory(cdFrame)
     local actionButton = fs.actionButton ~= false and fs.actionButton or parent
     local actionID = fs.actionID ~= false and fs.actionID or StyleEngine:GetActionIDFromButton(actionButton)
@@ -219,8 +234,10 @@ function DurationColor:GetFallbackDurationObject(cdFrame, forceContextRefresh)
     local spellID = StyleEngine:GetCooldownSpellID(spellOwner)
     if spellID and C_Spell then
         local useChargeDuration = StyleEngine:IsChargeCooldownFrame(cdFrame, spellOwner or parent)
+        if issecretvalue(useChargeDuration) then useChargeDuration = false end
         if not useChargeDuration and category == CATEGORY.CooldownManager then
             useChargeDuration = StyleEngine:IsCooldownManagerChargeDisplay(cdFrame, parent)
+            if issecretvalue(useChargeDuration) then useChargeDuration = false end
         end
 
         if useChargeDuration and C_Spell.GetSpellChargeDuration then
@@ -274,12 +291,12 @@ end
 
 local function GetCooldownDurationObject(cdFrame, sourceKey)
     if sourceKey == CATEGORY.Actionbar then
-        local current = DurationColor:GetFallbackDurationObject(cdFrame, true)
+        local current = DurationColor:GetFallbackDurationObject(cdFrame)
         if current then return current end
         return GetStoredDurationObject(cdFrame, false)
     end
-    if sourceKey == CATEGORY.Nameplate then       
-        local current = DurationColor:GetFallbackDurationObject(cdFrame, true)
+    if sourceKey == CATEGORY.Nameplate then
+        local current = DurationColor:GetFallbackDurationObject(cdFrame)
         if current then
             DurationColor:SetCooldownDurationObject(cdFrame, current)
             return current
@@ -393,9 +410,10 @@ local function IsLiveNameplateAuraContext(cdFrame)
     while current and current ~= UIParent and depth < CLASSIFIER_CONSTANTS.ScanDepth do
         depth = depth + 1
         if not sawAuraContext then
-            local name = current.GetName and current:GetName() or ""
-            if type(name) == "string"
-               and (strfind(name, "Buff", 1, true) or strfind(name, "Debuff", 1, true) or strfind(name, "Aura", 1, true)) then
+            local name = MCE:GetFrameName(current) or ""
+            if strfind(name, "Buff", 1, true)
+               or strfind(name, "Debuff", 1, true)
+               or strfind(name, "Aura", 1, true) then
                 sawAuraContext = true
             elseif StyleEngine:GetFrameAuraInstanceID(current) ~= nil then
                 sawAuraContext = true
@@ -409,8 +427,8 @@ local function IsLiveNameplateAuraContext(cdFrame)
                 fs.liveNameplateAuraContext = true
                 return true
             end
-            local name = current.GetName and current:GetName() or ""
-            if type(name) == "string" and name ~= "" then
+            local name = MCE:GetFrameName(current)
+            if name then
                 if ContainsNameplatePattern(strlower(name)) then
                     fs = fs or resolved or StyleEngine:GetFrameState(cdFrame)
                     fs.liveNameplateAuraContextResolved = true
@@ -491,7 +509,7 @@ end
 -- =========================================================================
 
 local function ApplyCooldownDurationColor(cdFrame, sourceKey, config, curve)
-    if not cdFrame or MCE:IsForbidden(cdFrame) then return false end
+    if not cdFrame or MCE:IsForbiddenCached(cdFrame) then return false end
     if cdFrame.IsShown and not cdFrame:IsShown() then return false end
 
     local textRegions, textRegionCount = StyleEngine:GetCachedCooldownTextRegions(cdFrame)
@@ -584,9 +602,11 @@ end
 -- =========================================================================
 
 local function PurgeExpiredDurationObjects()
-    for key, obj in pairs(durationObjectCache) do
-        if obj and obj.IsZero and obj:IsZero() then
-            durationObjectCache[key] = nil
+    local now = GetTime()
+    for endTime, byEnd in pairs(durationObjectCache) do
+        -- endTime is an absolute timestamp; entries past it are expired
+        if endTime <= now then
+            durationObjectCache[endTime] = nil
         end
     end
 end
@@ -594,7 +614,7 @@ end
 local function UpdateDurationColors()
     local curve = GetColorCurve()
     if not curve then
-        local clearList
+        local clearCount = 0
         for cdFrame, sourceKey in pairs(durationColoredFrames) do
             local config = GetDurationTextSourceConfig(sourceKey)
             local overrideColor = GetStateOverrideTextColor(cdFrame, sourceKey, config)
@@ -603,13 +623,12 @@ local function UpdateDurationColors()
             else
                 StyleEngine:ResetCountdownTextColor(cdFrame, GetDurationResetConfig(cdFrame, sourceKey, config))
             end
-            clearList = clearList or {}
-            clearList[#clearList + 1] = cdFrame
+            clearCount = clearCount + 1
+            clearListScratch[clearCount] = cdFrame
         end
-        if clearList then
-            for i = 1, #clearList do
-                DurationColor:ClearTrackedDurationColor(clearList[i])
-            end
+        for i = 1, clearCount do
+            DurationColor:ClearTrackedDurationColor(clearListScratch[i])
+            clearListScratch[i] = nil
         end
         StopTicker()
         return
@@ -622,7 +641,7 @@ local function UpdateDurationColors()
     end
 
     local activeCount = 0
-    local clearList
+    local clearCount = 0
     for cdFrame in pairs(activeDurationFrames) do
         local sourceKey = durationColoredFrames[cdFrame]
         if not sourceKey then
@@ -632,9 +651,9 @@ local function UpdateDurationColors()
             local overrideColor = GetStateOverrideTextColor(cdFrame, sourceKey, config)
             if overrideColor then
                 StyleEngine:ApplyTextColorToCooldownRegions(cdFrame, overrideColor)
-                clearList = clearList or {}
-                clearList[#clearList + 1] = cdFrame
-            elseif cdFrame and not MCE:IsForbidden(cdFrame)
+                clearCount = clearCount + 1
+                clearListScratch[clearCount] = cdFrame
+            elseif cdFrame and not MCE:IsForbiddenCached(cdFrame)
                and IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
                and ApplyCooldownDurationColor(cdFrame, sourceKey, config, curve) then
                 activeCount = activeCount + 1
@@ -647,10 +666,9 @@ local function UpdateDurationColors()
         end
     end
 
-    if clearList then
-        for i = 1, #clearList do
-            DurationColor:ClearTrackedDurationColor(clearList[i])
-        end
+    for i = 1, clearCount do
+        DurationColor:ClearTrackedDurationColor(clearListScratch[i])
+        clearListScratch[i] = nil
     end
 
     if activeCount == 0 then StopTicker() end
@@ -666,7 +684,7 @@ end
 -- =========================================================================
 
 function DurationColor:HandleCooldownDurationUpdate(cooldown, durationObject)
-    if not cooldown or MCE:IsForbidden(cooldown) or StyleEngine.IsSecretValue(cooldown) then return end
+    if not cooldown or MCE:IsForbiddenCached(cooldown) or StyleEngine.IsSecretValue(cooldown) then return end
 
     -- Action bars re-fetch live duration data, so avoid extra validation work.
     local category = Registry and Registry:GetCategory(cooldown)

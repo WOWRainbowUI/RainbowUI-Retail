@@ -307,6 +307,11 @@ C.Classifier = {
         "Masque", "Masque_Caith",
         "ShadowUF", "ShadowedUF", "SUF",
         "Cell",
+        "AbilityTimeline",
+        "BattleGroundEnemies",
+        "MidnightDR",
+        "NaowhQOL_",
+        "TrGCD", "trgcd",
 
         -- EllesmereUI family
         "Ellesmere",
@@ -372,6 +377,17 @@ C.Classifier = {
         "CellMenuFrame",
         "CellOptionsFrame",
         "CellTooltip",
+        "AbilityTimelineBigIconFrame",
+        "AtSpellIconSettingsFrame",
+        "BattleGroundEnemies",
+        "BGEAllies",
+        "BGEEnemies",
+        "NaowhQOL_Dragonriding",
+        "NaowhQOL_MovementAlert",
+        "TrGCDBLScroll",
+        "TrGCDItemBLScroll",
+        "TrGCDActiveProfileSelect",
+        "TrGCDframeConfirmDelete",
 
         -- EllesmereUI containers / roots
         "EllesmereUIFrame",

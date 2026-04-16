@@ -34,6 +34,46 @@ addon.weakMeta = weakMeta
 addon.frameState = setmetatable({}, weakMeta)
 addon.fontState = setmetatable({}, weakMeta)
 
+-- Shared safe-value helpers (used by StyleEngine, HookBridge, Classifier, etc.)
+-- Exposed on addon namespace so each module can upvalue them without duplication.
+function addon.IsSecretValue(value)
+    if not issecretvalue then return false end
+    local ok, result = pcall(issecretvalue, value)
+    return ok and result or false
+end
+
+function addon.CanAccessAllValues(...)
+    if not canaccessallvalues then return true end
+    local ok, result = pcall(canaccessallvalues, ...)
+    return ok and result or false
+end
+
+do
+    local math_abs = math.abs
+    local EPSILON = C.Styler.NumericComparisonEpsilon
+
+    function addon.IsNearlyEqual(a, b)
+        if issecretvalue(a) or issecretvalue(b) then return false end
+        if a == b then return true end
+        if type(a) ~= "number" or type(b) ~= "number" then return false end
+        return math_abs(a - b) < EPSILON
+    end
+
+    function addon.IsSameSwipeColor(state, r, g, b, a)
+        return state
+            and addon.IsNearlyEqual(state.r, r)
+            and addon.IsNearlyEqual(state.g, g)
+            and addon.IsNearlyEqual(state.b, b)
+            and addon.IsNearlyEqual(state.a, a)
+    end
+end
+
+function addon.IsMUIStyledCooldown(cooldown)
+    if not MCE:IsMUIAvailable() then return false end
+    local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
+    return parent and parent.mUIBorder ~= nil
+end
+
 local addonLoadState = {}
 
 local function QueryAddonLoaded(addonName)
@@ -68,6 +108,14 @@ local function checkSecretValue(value)
     return issecretvalue(value)
 end
 
+local function getParentKey(frame)
+    return frame:GetParentKey()
+end
+
+local function getFrameName(frame)
+    return frame:GetName()
+end
+
 local function getTableValue(tbl, key)
     return tbl[key]
 end
@@ -85,6 +133,23 @@ function MCE:SafeTableGet(tbl, key)
 
     local ok, value = pcall(getTableValue, tbl, key)
     if not ok then
+        return nil
+    end
+
+    return value
+end
+
+function MCE:IsSecretValue(value)
+    local ok, result = pcall(checkSecretValue, value)
+    return ok and result or false
+end
+
+function MCE:GetNonSecretString(value)
+    if type(value) ~= "string" then
+        return nil
+    end
+
+    if self:IsSecretValue(value) or value == "" then
         return nil
     end
 
@@ -112,6 +177,94 @@ function MCE:CanUseFrameAsTableKey(frame)
     end
 
     return not self:IsForbidden(frame)
+end
+
+function MCE:GetNonSecretParentKey(frame)
+    if not frame or not frame.GetParentKey then
+        return nil
+    end
+
+    local ok, parentKey = pcall(getParentKey, frame)
+    if not ok then
+        return nil
+    end
+
+    parentKey = self:GetNonSecretString(parentKey)
+    if not parentKey then
+        return nil
+    end
+
+    return parentKey
+end
+
+function MCE:GetFrameName(frame)
+    if not frame or self:IsForbiddenCached(frame) or not frame.GetName then
+        return nil
+    end
+
+    local ok, name = pcall(getFrameName, frame)
+    if not ok then
+        return nil
+    end
+
+    return self:GetNonSecretString(name)
+end
+
+function MCE:IsLossOfControlCooldown(cooldown)
+    if not self:CanUseFrameAsTableKey(cooldown) then
+        return false
+    end
+
+    if self:GetNonSecretParentKey(cooldown) == "lossOfControlCooldown" then
+        return true
+    end
+
+    local parent = cooldown.GetParent and cooldown:GetParent() or nil
+    if not self:CanUseFrameAsTableKey(parent) then
+        return false
+    end
+
+    local overlay = self:SafeTableGet(parent, "lossOfControlCooldown")
+    if not self:CanUseFrameAsTableKey(overlay) then
+        return false
+    end
+
+    return overlay == cooldown
+end
+
+--- Cached wrappers for hot paths.
+-- Results are stored per-frame in frameState and invalidated by
+-- InvalidateResolvedFrameState in HookBridge on each new hook cycle.
+local frameState = addon.frameState
+
+function MCE:IsForbiddenCached(frame)
+    if not frame then return true end
+    local ok, fs = pcall(getTableValue, frameState, frame)
+    if not ok then fs = nil end
+    if fs then
+        local cached = fs.isForbidden
+        if cached ~= nil then return cached end
+    end
+    local result = self:IsForbidden(frame)
+    if fs then
+        fs.isForbidden = result
+    end
+    return result
+end
+
+function MCE:IsLossOfControlCooldownCached(cooldown)
+    if not cooldown then return false end
+    local ok, fs = pcall(getTableValue, frameState, cooldown)
+    if not ok then fs = nil end
+    if fs then
+        local cached = fs.isLoC
+        if cached ~= nil then return cached end
+    end
+    local result = self:IsLossOfControlCooldown(cooldown)
+    if fs then
+        fs.isLoC = result
+    end
+    return result
 end
 
 --- WoW API expects "" not "NONE" for font outline flags.

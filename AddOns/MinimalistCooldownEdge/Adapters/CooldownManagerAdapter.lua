@@ -24,6 +24,8 @@ local Registry, HookBridge, DurationColor, BatchProcessor
 local hookedCooldowns = setmetatable({}, weakMeta)
 local hookedBuffIconOwners = setmetatable({}, weakMeta)
 local hookedViewers = setmetatable({}, weakMeta)
+local queuedBuffIconOwners = setmetatable({}, weakMeta)
+local queuedViewerRefreshes = setmetatable({}, weakMeta)
 local RegisterCooldown
 
 local VIEWER_GLOBALS = {
@@ -75,8 +77,8 @@ local function ResolveViewerType(cooldown)
     for _ = 1, CM.MaxAncestorDepth do
         if not current then break end
 
-        local name = current.GetName and current:GetName() or nil
-        if name and name ~= "" then
+        local name = MCE:GetFrameName(current)
+        if name then
             return DetermineViewerType(name)
         end
 
@@ -136,8 +138,15 @@ local function QueueBuffIconOwnerResync(owner)
     if not owner or MCE:IsForbidden(owner) then
         return
     end
+    if queuedBuffIconOwners[owner] then
+        return
+    end
+
+    queuedBuffIconOwners[owner] = true
 
     C_Timer_After(0, function()
+        queuedBuffIconOwners[owner] = nil
+
         if not owner or MCE:IsForbidden(owner) then
             return
         end
@@ -305,7 +314,15 @@ local function HookViewerRefresh(viewerFrame, viewerType)
 
     if type(viewerFrame.RefreshLayout) == "function" then
         hooksecurefunc(viewerFrame, "RefreshLayout", function(self)
+            if queuedViewerRefreshes[self] then
+                return
+            end
+
+            queuedViewerRefreshes[self] = true
+
             C_Timer_After(0, function()
+                queuedViewerRefreshes[self] = nil
+
                 if not self or MCE:IsForbidden(self) then
                     return
                 end

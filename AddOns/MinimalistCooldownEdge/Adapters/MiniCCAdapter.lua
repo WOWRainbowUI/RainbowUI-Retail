@@ -54,8 +54,7 @@ end
 -- =========================================================================
 
 local function IsMiniCCNamedFrame(frame)
-    if not frame or not frame.GetName then return false end
-    local name = frame:GetName()
+    local name = MCE:GetFrameName(frame)
     return type(name) == "string" and strfind(name, MINICC_PREFIX, 1, true) == 1
 end
 
@@ -89,7 +88,7 @@ local function IsUnitFrameContext(frame)
     local unit = ExtractUnitToken(frame.unit) or ExtractUnitToken(frame.unitid)
         or ExtractUnitToken(frame.unitToken) or ExtractUnitToken(frame.displayedUnit)
     if unit and not strfind(unit, NP_PATTERNS[1], 1, true) then return true end
-    local name = frame.GetName and frame:GetName() or ""
+    local name = MCE:GetFrameName(frame) or ""
     return ContainsAnyPattern(name, UF_PATTERNS)
 end
 
@@ -141,8 +140,9 @@ local function ResolveMiniCCFrameTypeFromModule(container, anchor, cooldown)
 end
 
 local function ResolveMiniCCFrameTypeFromAnchor(anchor)
-    if not anchor or not anchor.GetName then return nil end
-    return MINICC_ANCHOR_TO_FRAME_TYPE[anchor:GetName()]
+    local anchorName = MCE:GetFrameName(anchor)
+    if not anchorName then return nil end
+    return MINICC_ANCHOR_TO_FRAME_TYPE[anchorName]
 end
 
 -- =========================================================================
@@ -168,7 +168,7 @@ local function ResolveMiniCCFrameType(cooldown)
     -- 2. Direct parent check (Nameplate and Portrait modules parent the
     --    container directly to the nameplate / unit frame).
     if anchor then
-        local anchorName  = anchor.GetName      and anchor:GetName()      or ""
+        local anchorName  = MCE:GetFrameName(anchor) or ""
         local anchorObjT  = anchor.GetObjectType and anchor:GetObjectType() or ""
         local anchorUnit  = GetFrameUnit(anchor)
 
@@ -191,7 +191,7 @@ local function ResolveMiniCCFrameType(cooldown)
     --    FriendlyIndicator, KickTimer, Trinkets …) – use the SetPoint anchor.
     local relativeTo = GetMiniCCPointRelativeFrame(container)
     if relativeTo then
-        local relativeName = relativeTo.GetName      and relativeTo:GetName()      or ""
+        local relativeName = MCE:GetFrameName(relativeTo) or ""
         local relativeObjT = relativeTo.GetObjectType and relativeTo:GetObjectType() or ""
         local relativeUnit = GetFrameUnit(relativeTo)
 

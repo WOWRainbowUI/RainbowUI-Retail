@@ -20,16 +20,7 @@ local function IsEnabled()
 end
 
 local function GetFrameName(frame)
-    if not frame or MCE:IsForbidden(frame) or not frame.GetName then
-        return nil
-    end
-
-    local name = frame:GetName()
-    if type(name) == "string" and name ~= "" then
-        return name
-    end
-
-    return nil
+    return MCE:GetFrameName(frame)
 end
 
 local function IsDominosNamedFrame(frame)
@@ -155,6 +146,10 @@ function Adapter:TryClaim(cooldown)
 
     local parent = cooldown.GetParent and cooldown:GetParent() or nil
     if not parent or not IsDominosButton(parent) then
+        return nil
+    end
+
+    if MCE:IsLossOfControlCooldown(cooldown) then
         return nil
     end
 

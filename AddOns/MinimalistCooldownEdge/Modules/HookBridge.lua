@@ -12,14 +12,11 @@ local MCE = LibStub("AceAddon-3.0"):GetAddon(C.Addon.AceName)
 local HookBridge = MCE:NewModule("HookBridge")
 
 local type, pcall, ipairs = type, pcall, ipairs
-local math_abs = math.abs
 local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local GetTime = GetTime
 local C_Timer_After = C_Timer.After
 local CreateFrame = CreateFrame
-local issecretvalue = issecretvalue or function() return false end
-local canaccessallvalues = canaccessallvalues
 
 local CATEGORY = C.Categories
 local CLASSIFIER_CONSTANTS = C.Classifier
@@ -42,23 +39,14 @@ end
 -- SECRET / FORBIDDEN GUARDS
 -- =========================================================================
 
-local function IsSecretValue(value)
-    if not issecretvalue then return false end
-    local ok, result = pcall(issecretvalue, value)
-    return ok and result or false
-end
-
-local function CanAccessAllValues(...)
-    if not canaccessallvalues then return true end
-    local ok, result = pcall(canaccessallvalues, ...)
-    return ok and result or false
-end
+local IsSecretValue = addon.IsSecretValue
+local CanAccessAllValues = addon.CanAccessAllValues
 
 local function IsRestrictedCooldown(cooldown)
     return not cooldown
        or IsSecretValue(cooldown)
        or not CanAccessAllValues(cooldown)
-       or MCE:IsForbidden(cooldown)
+       or MCE:IsForbiddenCached(cooldown)
 end
 
 local function GetTrackedFrameState(cooldown)
@@ -114,38 +102,24 @@ end
 -- NUMERIC COMPARISON
 -- =========================================================================
 
-local EPSILON = STYLER_CONSTANTS.NumericComparisonEpsilon
-
-local function IsNearlyEqual(a, b)
-    if issecretvalue(a) or issecretvalue(b) then return false end
-    if a == b then return true end
-    if type(a) ~= "number" or type(b) ~= "number" then return false end
-    return math_abs(a - b) < EPSILON
-end
-
-local function IsSameSwipeColor(state, r, g, b, a)
-    return state
-       and IsNearlyEqual(state.r, r)
-       and IsNearlyEqual(state.g, g)
-       and IsNearlyEqual(state.b, b)
-       and IsNearlyEqual(state.a, a)
-end
+local IsNearlyEqual = addon.IsNearlyEqual
+local IsSameSwipeColor = addon.IsSameSwipeColor
 
 local function IsMasqueManagedCooldown(cooldown)
     if not cooldown
        or IsSecretValue(cooldown)
        or not CanAccessAllValues(cooldown)
-       or MCE:IsForbidden(cooldown) then
+       or MCE:IsForbiddenCached(cooldown) then
         return false
     end
 
     return cooldown._MSQ_Color ~= nil
 end
 
-local function IsMUIStyledCooldown(cooldown)
-    if not MCE:IsMUIAvailable() then return false end
-    local parent = cooldown and cooldown.GetParent and cooldown:GetParent()
-    return parent and parent.mUIBorder ~= nil
+local IsMUIStyledCooldown = addon.IsMUIStyledCooldown
+
+local function IsLossOfControlCooldown(cooldown)
+    return MCE:IsLossOfControlCooldownCached(cooldown)
 end
 
 -- =========================================================================
@@ -212,7 +186,7 @@ local function HasAuraLikeAncestor(cooldown)
     for _ = 1, STYLER_CONSTANTS.MaxCooldownOwnerScanDepth do
         if not current then break end
 
-        local name = current.GetName and current:GetName() or ""
+        local name = MCE:GetFrameName(current) or ""
         if strfind(name, "Buff", 1, true)
            or strfind(name, "Debuff", 1, true)
            or strfind(name, "Aura", 1, true)
@@ -236,11 +210,11 @@ local function HasHookBlacklistMatch(cooldown)
     local current = cooldown
     for _ = 1, STYLER_CONSTANTS.MaxCooldownOwnerScanDepth + 1 do
         if not current then break end
-        if IsSecretValue(current) or not CanAccessAllValues(current) or MCE:IsForbidden(current) then
+        if IsSecretValue(current) or not CanAccessAllValues(current) or MCE:IsForbiddenCached(current) then
             return true
         end
 
-        local name = current.GetName and current:GetName() or ""
+        local name = MCE:GetFrameName(current) or ""
         if name ~= "" then
             for i = 1, #BLACKLIST_NAME_CONTAINS do
                 if strfind(name, BLACKLIST_NAME_CONTAINS[i], 1, true) then
@@ -260,7 +234,7 @@ local function HasHookBlacklistMatch(cooldown)
 end
 
 local function ShouldIgnoreCooldown(cooldown)
-    if IsRestrictedCooldown(cooldown) then
+    if IsRestrictedCooldown(cooldown) or IsLossOfControlCooldown(cooldown) then
         return true
     end
 
@@ -301,6 +275,8 @@ local function InvalidateResolvedFrameState(fs, refreshDuration)
     fs.liveNameplateAuraContext = nil
     fs.compactPartyAuraTypeResolved = nil
     fs.compactPartyAuraType = nil
+    fs.isForbidden = nil
+    fs.isLoC = nil
 end
 
 local function ScheduleAuraRetry(cooldown, wantsDurationRefresh)
@@ -362,6 +338,11 @@ local function ScheduleAuraRetry(cooldown, wantsDurationRefresh)
 end
 
 local function ProcessCooldownUpdate(cooldown, durationObject)
+    if IsLossOfControlCooldown(cooldown) then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        return
+    end
+
     if not EnsureDependencies() then
         return
     end
@@ -418,6 +399,14 @@ local function ProcessCooldownUpdate(cooldown, durationObject)
 end
 
 local function ProcessCooldownClear(cooldown)
+    if IsLossOfControlCooldown(cooldown) then
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        if EnsureDependencies() then
+            DurationColor:ClearTrackedDurationColor(cooldown)
+        end
+        return
+    end
+
     if not EnsureDependencies() then
         return
     end
@@ -448,6 +437,10 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.SetCooldown) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldown", function(cooldown, startTime, duration, modRate)
+            if IsLossOfControlCooldown(cooldown) then
+                ClearUnmanagedAuraClaimRetry(cooldown)
+                return
+            end
             if not EnsureDependencies() then
                 return
             end
@@ -458,6 +451,10 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.SetCooldownDuration) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldownDuration", function(cooldown, duration, modRate)
+            if IsLossOfControlCooldown(cooldown) then
+                ClearUnmanagedAuraClaimRetry(cooldown)
+                return
+            end
             if not EnsureDependencies() then
                 return
             end
@@ -474,12 +471,20 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.SetCooldownFromDurationObject) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldownFromDurationObject", function(cooldown, durationObject)
+            if IsLossOfControlCooldown(cooldown) then
+                ClearUnmanagedAuraClaimRetry(cooldown)
+                return
+            end
             ProcessCooldownUpdate(cooldown, durationObject)
         end)
     end
 
     if type(cooldownAPI.SetCooldownFromExpirationTime) == "function" then
         hooksecurefunc(cooldownAPI, "SetCooldownFromExpirationTime", function(cooldown, expirationTime, duration, modRate)
+            if IsLossOfControlCooldown(cooldown) then
+                ClearUnmanagedAuraClaimRetry(cooldown)
+                return
+            end
             if not EnsureDependencies() then
                 return
             end
@@ -490,6 +495,13 @@ function HookBridge:SetupHooks()
 
     if type(cooldownAPI.Clear) == "function" then
         hooksecurefunc(cooldownAPI, "Clear", function(cooldown)
+            if IsLossOfControlCooldown(cooldown) then
+                ClearUnmanagedAuraClaimRetry(cooldown)
+                if EnsureDependencies() then
+                    DurationColor:ClearTrackedDurationColor(cooldown)
+                end
+                return
+            end
             ProcessCooldownClear(cooldown)
         end)
     end
@@ -567,8 +579,10 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetHideCountdownNumbers", function(cooldown, hide)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressHideNums then return end
-            if IsSecretValue(hide) then return end
-            if fs.hideNums == nil or fs.hideNums == hide then return end
+            -- hide can be a tainted boolean (MiniCE-written value flowing back through Blizzard);
+            -- issecretvalue() does not detect taint, so wrap the comparison in pcall instead.
+            local ok, shouldRestore = pcall(function() return fs.hideNums ~= nil and fs.hideNums ~= hide end)
+            if not ok or not shouldRestore then return end
             fs.suppressHideNums = true
             pcall(cooldown.SetHideCountdownNumbers, cooldown, fs.hideNums)
             fs.suppressHideNums = nil
@@ -579,8 +593,9 @@ function HookBridge:SetupHooks()
         hooksecurefunc(cooldownAPI, "SetDrawSwipe", function(cooldown, enabled)
             local fs = GetTrackedFrameState(cooldown)
             if not fs or fs.suppressSwipeDraw then return end
-            if IsSecretValue(enabled) then return end
-            if fs.drawSwipe == nil or fs.drawSwipe == enabled then return end
+            -- enabled can be tainted for the same reason as hide above.
+            local ok, shouldRestore = pcall(function() return fs.drawSwipe ~= nil and fs.drawSwipe ~= enabled end)
+            if not ok or not shouldRestore then return end
             fs.suppressSwipeDraw = true
             pcall(cooldown.SetDrawSwipe, cooldown, fs.drawSwipe)
             fs.suppressSwipeDraw = nil

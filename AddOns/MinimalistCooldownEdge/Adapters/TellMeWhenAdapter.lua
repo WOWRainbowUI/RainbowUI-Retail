@@ -15,15 +15,15 @@ local TMW = C.Adapter.TellMeWhen
 local Registry
 
 local function IsTellMeWhenIconFrame(frame)
-    if not frame or not frame.GetName then return false end
-    local name = frame:GetName()
+    local name = MCE:GetFrameName(frame)
     return type(name) == "string"
         and (strmatch(name, "^TellMeWhen_Group%d+_Icon%d+$") ~= nil
             or strmatch(name, "^TellMeWhen_GlobalGroup%d+_Icon%d+$") ~= nil)
 end
 
 local function IsTellMeWhenCooldownName(name)
-    return type(name) == "string"
+    name = MCE:GetNonSecretString(name)
+    return name ~= nil
         and strfind(name, CLASSIFIER_CONSTANTS.TellMeWhenNamePrefix, 1, true) == 1
         and strfind(name, TMW.CooldownNameFragment, 1, true) ~= nil
 end
@@ -37,7 +37,7 @@ local function IsTellMeWhenCooldown(cooldown)
         return true
     end
 
-    if IsTellMeWhenCooldownName(cooldown.GetName and cooldown:GetName() or nil) then
+    if IsTellMeWhenCooldownName(MCE:GetFrameName(cooldown)) then
         return true
     end
 

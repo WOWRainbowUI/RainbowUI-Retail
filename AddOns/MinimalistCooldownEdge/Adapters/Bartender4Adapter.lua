@@ -104,8 +104,12 @@ function Adapter:TryClaim(cooldown)
     end
 
     local parent = cooldown.GetParent and cooldown:GetParent() or nil
+    
     if not parent or MCE:IsForbidden(parent) then return nil end
-    if parent.lossOfControlCooldown == cooldown then return nil end
+    
+    if MCE:IsLossOfControlCooldown(cooldown) then
+        return nil
+    end
 
     -- Fast set lookup (populated after Rebuild)
     if bt4ButtonSet[parent] then
@@ -115,7 +119,7 @@ function Adapter:TryClaim(cooldown)
 
     -- Name-based fallback so TryClaim works before Rebuild populates the set.
     -- All BT4 buttons are named "BT4Button<id>".
-    local name = parent.GetName and parent:GetName() or ""
+    local name = MCE:GetFrameName(parent) or ""
     if type(name) == "string" and strfind(name, BT4.ButtonPrefix, 1, true) == 1 then
         RegisterButton(parent)
         return CATEGORY.Actionbar
