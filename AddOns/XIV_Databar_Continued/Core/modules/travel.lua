@@ -47,6 +47,10 @@ local function BuildMacro(id, name)
     return "/cast " .. name
 end
 
+local function SupportsSecondaryPorts()
+    return compat.features and compat.features.travel and compat.features.travel.secondaryPorts
+end
+
 --------------------------------------------------------------------------------
 -- UTILITY FUNCTIONS - Centralized logic to reduce code duplication
 --------------------------------------------------------------------------------
@@ -195,7 +199,8 @@ function TravelModule:OnInitialize()
             263489, -- Naaru's Embrace (Retail)
             260221, -- Naaru's Embrace (Classic)
             184871, -- Dark Portal (Classic)
-            206195 -- Path of the Naaru
+            206195, -- Path of the Naaru
+            257736, -- Lightcalled Hearthstone
         }
     end
 
@@ -594,10 +599,13 @@ function TravelModule:UpdatePortOptions()
             end
         else
             if not self.portOptions[18960] then
-                self.portOptions[18960] = {
-                    portId = 18960,
-                    text = C_Map.GetMapInfo(1471).name
-                }
+                local mapInfo = C_Map.GetMapInfo(1471)
+                if mapInfo and mapInfo.name then
+                    self.portOptions[18960] = {
+                        portId = 18960,
+                        text = mapInfo.name
+                    }
+                end
             end
         end
     end
@@ -611,10 +619,12 @@ function TravelModule:UpdatePortOptions()
 
     if xb.constants.playerClass == 'SHAMAN' and not self.portOptions[556] then
         local spellInfo = GetSpellInfo(556)
-        self.portOptions[556] = {
-            portId = 556,
-            text = spellInfo.name
-        }
+        if spellInfo and spellInfo.name then
+            self.portOptions[556] = {
+                portId = 556,
+                text = spellInfo.name
+            }
+        end
     end
 
     if xb.constants.playerClass == 'MAGE' and not self.portOptions[193759] then
@@ -623,13 +633,17 @@ function TravelModule:UpdatePortOptions()
 
     if xb.constants.playerClass == 'MONK' and not self.portOptions[126892] then
         local spellInfo = GetSpellInfo(126892)
-        self.portOptions[126892] = {portId = 126892, text = spellInfo.name}
+        if spellInfo and spellInfo.name then
+            self.portOptions[126892] = {portId = 126892, text = spellInfo.name}
+        end
     end
 
     local _, race = UnitRace("player")
     if(race == "Harronir") and not self.portOptions[1238686] then
         local spellInfo = GetSpellInfo(1238686)
-        self.portOptions[1238686] = {portId = 1238686, text = spellInfo.name}
+        if spellInfo and spellInfo.name then
+            self.portOptions[1238686] = {portId = 1238686, text = spellInfo.name}
+        end
     end
 end
 
@@ -1652,10 +1666,7 @@ function TravelModule:Refresh()
     end
 
     if not xb.db.profile.randomizeHs then
-        -- Heartstone Randomizer
-        self.hearthButton:SetScript('PreClick', function()
-            -- end
-        end)
+        self.hearthButton:SetScript('PreClick', nil)
     else
         self.hearthButton:SetScript('PreClick', function()
             TravelModule:SetHearthColor()
@@ -1664,14 +1675,17 @@ function TravelModule:Refresh()
 
     local db = xb.db.profile
     local allowMythic = compat.isMainline and db.enableMythicPortals
+    local supportsSecondaryPorts = SupportsSecondaryPorts()
     local currentSeason = self:GetCurrentSeason()
     if db.hideMythicInOffSeason and not currentSeason then
         allowMythic = false
     end
 
-    self:UpdatePortOptions()
+    if supportsSecondaryPorts then
+        self:UpdatePortOptions()
+    end
     local hasPortOptions = false
-    if self.portOptions then
+    if supportsSecondaryPorts and self.portOptions then
         for _, option in pairs(self.portOptions) do
             if option and option.portId and self:IsUsable(option.portId) then
                 hasPortOptions = true
@@ -1703,19 +1717,23 @@ function TravelModule:Refresh()
         if not select(1, self.hearthText:GetFont()) then
             self.hearthText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
         end
-        if not select(1, self.portText:GetFont()) then
+        if supportsSecondaryPorts and not select(1, self.portText:GetFont()) then
             self.portText:SetFont(xb:GetFont(xb.db.profile.text.fontSize))
         end
 
         self.hearthText:SetText(hideHearthText and '' or GetBindLocation())
         self.hearthText:SetShown(not hideHearthText)
 
-        local combatPortItem = xb.db.char.portItem or self:FindFirstOption()
-        local combatPortText = combatPortItem and (combatPortItem.text or GetPortLabel(combatPortItem.portId)) or ''
-        self.portText:SetText(hidePortText and '' or combatPortText)
-        self.portText:SetShown(not hidePortText)
+        if supportsSecondaryPorts then
+            local combatPortItem = xb.db.char.portItem or self:FindFirstOption()
+            local combatPortText = combatPortItem and (combatPortItem.text or GetPortLabel(combatPortItem.portId)) or ''
+            self.portText:SetText(hidePortText and '' or combatPortText)
+            self.portText:SetShown(not hidePortText)
+        end
         self:SetHearthColor()
-        self:SetPortColor()
+        if supportsSecondaryPorts then
+            self:SetPortColor()
+        end
         if allowMythic then
             self:SetMythicColor()
         end
@@ -1738,6 +1756,7 @@ function TravelModule:Refresh()
         local hearthButtonWidth = hideHearthText and iconSize or (hearthTextWidth + iconSize + db.general.barPadding)
 
         self.hearthButton:SetSize(hearthButtonWidth, xb:GetHeight())
+        self.hearthButton:ClearAllPoints()
         self.hearthButton:SetPoint("RIGHT")
 
         self.hearthText:SetPoint("RIGHT")
@@ -1787,6 +1806,7 @@ function TravelModule:Refresh()
             parentPoint, relPoint, xOff = "RIGHT", "RIGHT", 0  -- Stick to the right
         end
 
+        self.portButton:ClearAllPoints()
         self.portButton:SetPoint(parentPoint, parent, relPoint, xOff, 0)
 
         self.portText:SetPoint("RIGHT")
@@ -1842,10 +1862,12 @@ function TravelModule:Refresh()
 
             if hideMythicText then
                 self.mythicButton:SetSize(iconSize + db.general.barPadding, xb:GetHeight())
+                self.mythicButton:ClearAllPoints()
                 self.mythicButton:SetPoint(parentPoint, parentFrame, relPoint, xOff, 0)
                 self.mythicIcon:SetPoint("RIGHT", self.mythicButton, "RIGHT", 0, 0)
             else
                 self.mythicButton:SetSize(self.mythicText:GetWidth() + iconSize + db.general.barPadding, xb:GetHeight())
+                self.mythicButton:ClearAllPoints()
                 self.mythicButton:SetPoint(parentPoint, parentFrame, relPoint, xOff, 0)
                 self.mythicText:SetPoint("RIGHT")
                 self.mythicIcon:SetPoint("RIGHT", self.mythicText, "LEFT", -(db.general.barPadding) + 5, 0)
@@ -1877,11 +1899,13 @@ function TravelModule:Refresh()
         end
 
         self.homeButton:SetSize(iconSize + db.general.barPadding, xb:GetHeight())
+        self.homeButton:ClearAllPoints()
         self.homeButton:SetPoint(homeParentPoint, homeParentFrame, homeRelPoint,
                                  homeXOff, 0)
 
         self.homeIcon:SetTexture(xb.constants.mediaPath .. 'datatexts\\house_tp')
         self.homeIcon:SetSize(iconSize, iconSize)
+        self.homeIcon:ClearAllPoints()
         self.homeIcon:SetPoint("RIGHT", self.homeButton, "RIGHT", 0, 0)
 
         self:SetHomeColor()
@@ -1934,27 +1958,27 @@ function TravelModule:Refresh()
     end
 
     local totalWidth, hasPrev = 0, false
-    if self.hearthButton:IsVisible() then
-        totalWidth = totalWidth + self.hearthButton:GetWidth()
-        hasPrev = true
-    end
-    if self.portButton:IsVisible() then
+    local function AddShownButtonWidth(button)
+        if not button or not button:IsShown() then
+            return
+        end
+
         if hasPrev then totalWidth = totalWidth + db.general.barPadding end
-        totalWidth = totalWidth + self.portButton:GetWidth()
+        totalWidth = totalWidth + button:GetWidth()
         hasPrev = true
     end
 
-    if allowMythic and self.mythicButton and self.mythicButton:IsVisible() then
-        if hasPrev then totalWidth = totalWidth + db.general.barPadding end
-        totalWidth = totalWidth + self.mythicButton:GetWidth()
-        hasPrev = true
-    end
-    if compat.isMainline and self.homeButton and self.homeButton:IsVisible() then
-        if hasPrev then totalWidth = totalWidth + db.general.barPadding end
-        totalWidth = totalWidth + self.homeButton:GetWidth()
-    end
+    AddShownButtonWidth(self.hearthButton)
+    if supportsSecondaryPorts then AddShownButtonWidth(self.portButton) end
+    if allowMythic then AddShownButtonWidth(self.mythicButton) end
+    if compat.isMainline then AddShownButtonWidth(self.homeButton) end
 
     self.hearthFrame:SetSize(totalWidth, xb:GetHeight())
+
+    if totalWidth <= 0 then
+        self.hearthFrame:Hide()
+        return
+    end
 
     if xb:ApplyModuleFreePlacement('travel', self.hearthFrame) then
         self.hearthFrame:Show()
@@ -2205,6 +2229,7 @@ function TravelModule:GetConfig()
                 name = L["HIDE_PORT_BUTTON"],
                 order = 14,
                 type = "toggle",
+                hidden = function() return not SupportsSecondaryPorts() end,
                 get = function()
                     return xb.db.profile.hidePortButton;
                 end,
@@ -2218,6 +2243,7 @@ function TravelModule:GetConfig()
                 name = L["HIDE_PORT_TEXT"],
                 order = 14.5,
                 type = "toggle",
+                hidden = function() return not SupportsSecondaryPorts() end,
                 get = function()
                     return xb.db.profile.hidePortText;
                 end,
