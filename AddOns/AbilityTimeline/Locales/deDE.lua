@@ -333,6 +333,10 @@ L["SpellnameDefaultColor"] = "Default Text Color"
 --[[Translation missing --]]
 L["SpellnameDefaultColorDescription"] = "Sets the default color of the text besides the icon when not impacted by specific information like the type of debuff e.G. Poison."
 --[[Translation missing --]]
+L["SpellnameEnableShadow"] = "Enable Text Shadow"
+--[[Translation missing --]]
+L["SpellnameEnableShadowDescription"] = "Enables or disables the shadow effect on the text."
+--[[Translation missing --]]
 L["SpellnameFont"] = "Font"
 --[[Translation missing --]]
 L["SpellnameFontDescription"] = "Sets the font of the text besides the icon."

@@ -177,6 +177,10 @@ L["SpellnameBackgroundTexture"] = "Texture du fond du texte"
 L["SpellnameBackgroundTextureDescription"] = "Définit la texture du fond derrière le nom du sort."
 L["SpellnameDefaultColor"] = "Couleur de texte par défaut"
 L["SpellnameDefaultColorDescription"] = "Définit la couleur par défaut du texte à côté de l’icône lorsqu’il n’est pas affecté par une information spécifique comme le type d’affaiblissement, par ex. Poison."
+--[[Translation missing --]]
+L["SpellnameEnableShadow"] = "Enable Text Shadow"
+--[[Translation missing --]]
+L["SpellnameEnableShadowDescription"] = "Enables or disables the shadow effect on the text."
 L["SpellnameFont"] = "Police"
 L["SpellnameFontDescription"] = "Définit la police du texte à côté de l’icône."
 --[[Translation missing --]]

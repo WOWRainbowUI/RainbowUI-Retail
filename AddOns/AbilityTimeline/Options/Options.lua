@@ -1,7 +1,6 @@
 local appName, app = ...
 ---@class AbilityTimeline
 local private = app
-local SharedMedia = LibStub("LibSharedMedia-3.0")
 ---@type AceConfigOptionsTable
 private.options = {
   name = private.getLocalisation("addonOptions"),
@@ -82,7 +81,7 @@ private.options = {
       type = "toggle",
       set = function(info, val) private.db.profile.disableLoginMessage = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
-        return private.db.profile.disableLoginMessage --Sets value of toggles depending on SavedVariables
+        return private.db.profile.disableLoginMessage                             --Sets value of toggles depending on SavedVariables
       end,
     },
     disableReadyCheck = {
@@ -93,7 +92,7 @@ private.options = {
       type = "toggle",
       set = function(info, val) private.db.profile.disableReadyCheck = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
-        return private.db.profile.disableReadyCheck --Sets value of toggles depending on SavedVariables
+        return private.db.profile.disableReadyCheck                             --Sets value of toggles depending on SavedVariables
       end,
     },
     disableBossModsBars = {
@@ -102,7 +101,12 @@ private.options = {
       order = 34,
       width = "full",
       type = "toggle",
-      set = function(info, val) private.db.profile.disableBossModsBars = val end, --Sets value of SavedVariables depending on toggles
+      set = function(info, val)
+        private.db.profile.disableBossModsBars = val
+        if private.initDbmSkin then
+          private.initDbmSkin()
+        end
+      end,                                            --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile.disableBossModsBars --Sets value of toggles depending on SavedVariables
       end,
@@ -113,7 +117,12 @@ private.options = {
       order = 35,
       width = "full",
       type = "toggle",
-      set = function(info, val) private.db.profile.disableBossModsEmphasisedBars = val end, --Sets value of SavedVariables depending on toggles
+      set = function(info, val)
+        private.db.profile.disableBossModsEmphasisedBars = val
+        if private.initDbmSkin then
+          private.initDbmSkin()
+        end
+      end,                                                      --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile.disableBossModsEmphasisedBars --Sets value of toggles depending on SavedVariables
       end,
@@ -138,7 +147,7 @@ private.options = {
       set = function(info, val) private.db.profile.useAudioCountdowns = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile
-        .useAudioCountdowns                                                      --Sets value of toggles depending on SavedVariables
+            .useAudioCountdowns --Sets value of toggles depending on SavedVariables
       end,
     },
     enableKeyRerollTimer = {
@@ -150,7 +159,7 @@ private.options = {
       set = function(info, val) private.db.profile.enableKeyRerollTimer = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile
-        .enableKeyRerollTimer                                                      --Sets value of toggles depending on SavedVariables
+            .enableKeyRerollTimer --Sets value of toggles depending on SavedVariables
       end,
     },
     enableDNDMessage = {
@@ -162,7 +171,7 @@ private.options = {
       set = function(info, val) private.db.profile.enableDNDMessage = val end, --Sets value of SavedVariables depending on toggles
       get = function(info)
         return private.db.profile
-        .enableDNDMessage                                                      --Sets value of toggles depending on SavedVariables
+            .enableDNDMessage --Sets value of toggles depending on SavedVariables
       end,
     },
     encounterOptions = {

@@ -177,6 +177,10 @@ L["SpellnameBackgroundTexture"] = "Textura del fondo del texto"
 L["SpellnameBackgroundTextureDescription"] = "Establece la textura del fondo detrás del nombre del hechizo."
 L["SpellnameDefaultColor"] = "Color de texto predeterminado"
 L["SpellnameDefaultColorDescription"] = "Establece el color predeterminado del texto junto al icono cuando no está afectado por información específica como el tipo de perjuicio, p. ej. Veneno."
+--[[Translation missing --]]
+L["SpellnameEnableShadow"] = "Enable Text Shadow"
+--[[Translation missing --]]
+L["SpellnameEnableShadowDescription"] = "Enables or disables the shadow effect on the text."
 L["SpellnameFont"] = "Fuente"
 L["SpellnameFontDescription"] = "Establece la fuente del texto junto al icono."
 --[[Translation missing --]]

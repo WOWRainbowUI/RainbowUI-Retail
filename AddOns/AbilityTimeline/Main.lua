@@ -55,7 +55,11 @@ function AbilityTimeline:OnInitialize()
     EncounterTimeline:HookScript("OnShow", function() EncounterTimeline:Hide() end)
     -- SetCVar("encounterWarningsEnabled", "1")
 
+    --init
     private.ToggleEventColorisation(private.db.profile.dispellTextColor)
+    if private.initDbmSkin then
+        private.initDbmSkin()
+    end
 end
 
 function AbilityTimeline:OnEnable()
@@ -263,6 +267,10 @@ function AbilityTimeline:START_PLAYER_COUNTDOWN(event, initiatedBy, timeRemainin
     local timeleft = tonumber(timeRemaining)
     local color
     local name = initiatedByName
+    if issecretvalue(timeleft) or InCombatLockdown() then
+        private.Debug("Received START_PLAYER_COUNTDOWN event while in combat or secret value for time left. Ignoring event.")
+        return
+    end
     if not issecretvalue(initiatedByName) and initiatedByName and UnitClass(initiatedByName) then
         local _, classFilename, _ = UnitClass(initiatedByName)
         local _, _, _, argbHex = GetClassColor(classFilename)

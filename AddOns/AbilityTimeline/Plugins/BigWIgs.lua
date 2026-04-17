@@ -4,7 +4,6 @@ local private = app
 
 if not C_AddOns.IsAddOnLoaded("BigWigs") then return end
 
-private.DisableBlizzTimersBW = true
 private.BWTimers = {}
 private.ActiveBossModTimers = private.ActiveBossModTimers or {}
 private.BossModsSpellIndicators = private.BossModsSpellIndicators or {}
@@ -47,7 +46,7 @@ local function TimerStarted(event, module, timerKey, timerMsg, timerDuration, ic
         maxQueueDuration = 0,
         overrideName = timerMsg,
         spellID = timerKey and type(timerKey) == "number" and timerKey or 58984,
-        iconFileID = icon,
+        iconFileID = icon and type (icon) == "number" and icon or 134400,
         severity = 1,
         paused = false,
     }
@@ -155,3 +154,15 @@ end
 
 BigWigsLoader.RegisterMessage(BWCallbackObj, "BigWigs_BarCreated", hideBWBar);
 BigWigsLoader.RegisterMessage(BWCallbackObj, "BigWigs_BarEmphasized", hideBWEmphasizedBar);
+
+
+local function DisableBlizApi(event)
+    private.DisableBlizzTimersBW= true
+end
+
+local function EnableBlizApi(event)
+    private.DisableBlizzTimersBW = false
+end
+
+BigWigsLoader.RegisterMessage(BWCallbackObj, "BigWigs_HideBlizzTimers", DisableBlizApi);
+BigWigsLoader.RegisterMessage(BWCallbackObj, "BigWigs_ShowBlizzTimers", EnableBlizApi);
