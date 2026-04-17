@@ -847,7 +847,7 @@ local function AuraHandler(parserEvent, currentProfile)
 			return
 		end
 
-		if not UnitIsEnemy("player", "target") then
+		if not SafeUnitBoolean(UnitIsEnemy, "player", "target") then
 			return
 		end
 
@@ -1369,6 +1369,26 @@ local function NormalizeNumber(value)
 	return nil
 end
 
+local function SafeUnitBoolean(func, ...)
+	if type(func) ~= "function" then
+		return false
+	end
+
+	local ok, value = pcall(func, ...)
+	if not ok then
+		return false
+	end
+
+	local okNormalize, normalized = pcall(function()
+		return value and true or false
+	end)
+	if okNormalize then
+		return normalized
+	end
+
+	return false
+end
+
 local function IsLikelySpellSchool(schoolMask)
 	local maskType = type(schoolMask)
 	if maskType == "number" then
@@ -1440,10 +1460,10 @@ end
 local function IsOutgoingTargetContextValid()
 	-- UNIT_COMBAT("target") is ambiguous in group content; only accept it when
 	-- the live target unit is present and attackable by the player.
-	if not UnitExists("target") then
+	if not SafeUnitBoolean(UnitExists, "target") then
 		return false
 	end
-	if not UnitCanAttack("player", "target") then
+	if not SafeUnitBoolean(UnitCanAttack, "player", "target") then
 		return false
 	end
 	return true
@@ -1462,7 +1482,7 @@ local function IsDamageMeterDeltaFresh(now)
 end
 
 local function HasPlayerDebuffOnTarget(spellID)
-	if not spellID or not UnitExists("target") then
+	if not spellID or not SafeUnitBoolean(UnitExists, "target") then
 		return false
 	end
 
@@ -1834,14 +1854,20 @@ local function GetLikelyIncomingHealSourceName()
 
 	-- Heuristic requested for fallback mode: with no target selected,
 	-- assume self-cast attribution.
-	if not UnitExists("target") then
+	if not SafeUnitBoolean(UnitExists, "target") then
 		return UnitName("player") or UNKNOWN
 	end
 
-	if UnitExists("target") and UnitCanAssist("player", "target") and UnitExists("targettarget") and UnitIsUnit("targettarget", "player") then
+	if SafeUnitBoolean(UnitExists, "target")
+		and SafeUnitBoolean(UnitCanAssist, "player", "target")
+		and SafeUnitBoolean(UnitExists, "targettarget")
+		and SafeUnitBoolean(UnitIsUnit, "targettarget", "player") then
 		return UnitName("target") or UNKNOWN
 	end
-	if UnitExists("focus") and UnitCanAssist("player", "focus") and UnitExists("focustarget") and UnitIsUnit("focustarget", "player") then
+	if SafeUnitBoolean(UnitExists, "focus")
+		and SafeUnitBoolean(UnitCanAssist, "player", "focus")
+		and SafeUnitBoolean(UnitExists, "focustarget")
+		and SafeUnitBoolean(UnitIsUnit, "focustarget", "player") then
 		return UnitName("focus") or UNKNOWN
 	end
 
