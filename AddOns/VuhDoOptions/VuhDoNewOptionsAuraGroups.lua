@@ -1276,6 +1276,8 @@ function VUHDO_auraGroupsSoundSelect(aComboBox, aValue, anArrayModel)
 
 	if sSelectedGroupId and VUHDO_CONFIG["AURA_GROUPS"] and VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
 		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["sound"] = (aValue ~= nil and aValue ~= "") and aValue or nil;
+
+		VUHDO_rebuildCanColorBarGroupsCache();
 	end
 
 	if aValue ~= nil and tOldValue ~= aValue then

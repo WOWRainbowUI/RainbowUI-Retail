@@ -103,7 +103,7 @@ local sIndicatorMetaModel = {
 			{
 				["name"] = VUHDO_I18N_SCALE,
 				["type"] = VUHDO_MIN_MAX_CONSTRAINTS,
-				["min"] = 0.5, ["max"] = 4, ["step"] = 0.05, ["unit"] = " x",
+				["min"] = 0.1, ["max"] = 4, ["step"] = 0.05, ["unit"] = " x",
 				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.CUSTOM.SWIFTMEND_INDICATOR.SCALE",
 				["tooltip"] = nil,
 			},

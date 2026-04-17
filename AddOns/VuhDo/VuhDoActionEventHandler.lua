@@ -34,6 +34,8 @@ local VUHDO_displayPlayerIcon;
 local VUHDO_hidePlayerIconsForButton;
 local VUHDO_getBarRoleIcon;
 local VUHDO_suspendSpecialDot;
+local VUHDO_getAllActionPanels;
+local VUHDO_buffWatchOnMouseUp;
 
 local VUHDO_SPELL_CONFIG;
 local VUHDO_SPELL_ASSIGNMENTS;
@@ -67,6 +69,8 @@ function VUHDO_actionEventHandlerInitLocalOverrides()
 	VUHDO_hidePlayerIconsForButton = _G["VUHDO_hidePlayerIconsForButton"];
 	VUHDO_getBarRoleIcon = _G["VUHDO_getBarRoleIcon"];
 	VUHDO_suspendSpecialDot = _G["VUHDO_suspendSpecialDot"];
+	VUHDO_getAllActionPanels = _G["VUHDO_getAllActionPanels"];
+	VUHDO_buffWatchOnMouseUp = _G["VUHDO_buffWatchOnMouseUp"];
 
 	VUHDO_SPELL_CONFIG = _G["VUHDO_SPELL_CONFIG"];
 	VUHDO_SPELL_ASSIGNMENTS = _G["VUHDO_SPELL_ASSIGNMENTS"];
@@ -547,6 +551,25 @@ function VUHDO_stopMoving(aPanel)
 
 		VUHDO_hideAllPlayerIcons();
 		VUHDO_initAllEventBouquets();
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_stopMovingAllPanels()
+
+	for _, tPanel in pairs(VUHDO_getAllActionPanels()) do
+		if tPanel["isMoving"] then
+			VUHDO_stopMoving(tPanel);
+		end
+	end
+
+	if VuhDoBuffWatchMainFrame and VuhDoBuffWatchMainFrame["isMoving"] then
+		VUHDO_buffWatchOnMouseUp(VuhDoBuffWatchMainFrame);
 	end
 
 	return;

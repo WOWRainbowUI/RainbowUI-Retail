@@ -47,6 +47,8 @@ local VUHDO_getDispelCurveForUnit;
 local VUHDO_getDispelTextCurveForUnit;
 local VUHDO_hasInferredAura;
 local VUHDO_createTablePool;
+local VUHDO_auraMatchesFilter;
+local VUHDO_isAuraIgnored;
 
 local sUnitDispellableAuraId = { };
 local sUnitAuraCanColorBar = { };
@@ -63,6 +65,8 @@ local sGlowWinnerSet;
 local sAuraColorWinnerPool;
 local sCanColorBarGroupPool;
 local sAuraGroupActiveColorPool;
+
+local sFilterResultCache = { };
 
 local sEmpty = { };
 
@@ -124,6 +128,7 @@ local function VUHDO_cleanupCanColorBarGroupDelegate(aGroup)
 	aGroup["groupId"] = nil;
 	aGroup["entries"] = nil;
 	aGroup["filter"] = nil;
+	aGroup["excludeFilter"] = nil;
 	aGroup["dispelCheckFilter"] = nil;
 	aGroup["isHelpful"] = nil;
 	aGroup["bouquetTrackOnly"] = nil;
@@ -195,6 +200,8 @@ function VUHDO_auraColorsInitLocalOverrides()
 	VUHDO_getDispelTextCurveForUnit = _G["VUHDO_getDispelTextCurveForUnit"];
 	VUHDO_hasInferredAura = _G["VUHDO_hasInferredAura"];
 	VUHDO_createTablePool = _G["VUHDO_createTablePool"];
+	VUHDO_auraMatchesFilter = _G["VUHDO_auraMatchesFilter"];
+	VUHDO_isAuraIgnored = _G["VUHDO_isAuraIgnored"];
 
 	sAuraColorWinnerPool = VUHDO_createTablePool("AuraColorWinner", 100, VUHDO_createAuraColorWinnerDelegate, VUHDO_cleanupAuraColorWinnerDelegate);
 	sCanColorBarGroupPool = VUHDO_createTablePool("CanColorBarGroup", 50, VUHDO_createCanColorBarGroupDelegate, VUHDO_cleanupCanColorBarGroupDelegate);
@@ -312,6 +319,7 @@ do
 						tinsert(sCanColorBarGroups, tColorBarGroup);
 					else
 						tColorBarGroup["filter"] = tGroup["filter"];
+						tColorBarGroup["excludeFilter"] = tGroup["excludeFilter"];
 
 						if tEffectiveColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
 							if strfind(tGroup["filter"], "HARMFUL", 1, true) then
@@ -415,6 +423,7 @@ do
 							tinsert(sCanColorBarGroups, tColorBarGroup);
 						else
 							tColorBarGroup["filter"] = tGroup["filter"];
+							tColorBarGroup["excludeFilter"] = tGroup["excludeFilter"];
 
 							if tEffectiveColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
 								if strfind(tGroup["filter"], "HARMFUL", 1, true) then
@@ -674,13 +683,40 @@ do
 
 
 	--
+	local function VUHDO_resetFilterResultCache()
+
+		twipe(sFilterResultCache);
+
+		return;
+
+	end
+
+
+
+	--
+	local tResult;
+	local function VUHDO_getCachedFilteredAuras(aUnit, aFilter)
+
+		if sFilterResultCache[aFilter] ~= nil then
+			return sFilterResultCache[aFilter];
+		end
+
+		tResult = GetUnitAuras(aUnit, aFilter, 40, Enum.UnitAuraSortRule.Default, 1);
+		sFilterResultCache[aFilter] = tResult or false;
+
+		return sFilterResultCache[aFilter];
+
+	end
+
+
+
+	--
 	local tBarWinnerSet;
 	local tTextWinnerSet;
 	local tCanColorGroup;
+	local tIsGroupActiveForBouquet;
+	local tAuras;
 	local function VUHDO_tryBouquetTrackOnlyForDispellableAura(aUnit, tCanColorGroup)
-
-		local tIsGroupActiveForBouquet;
-		local tAuras;
 
 		tIsGroupActiveForBouquet = false;
 
@@ -689,9 +725,18 @@ do
 		elseif tCanColorGroup["isInferred"] then
 			tIsGroupActiveForBouquet = VUHDO_hasInferredAura(aUnit) and VUHDO_INFERRED_AURAS[aUnit] and VUHDO_INFERRED_AURAS[aUnit][tCanColorGroup["inferredType"]];
 		elseif tCanColorGroup["filter"] then
-			tAuras = GetUnitAuras(aUnit, tCanColorGroup["filter"], 1, Enum.UnitAuraSortRule.Default, 1);
+			tAuras = VUHDO_getCachedFilteredAuras(aUnit, tCanColorGroup["filter"]);
 
-			tIsGroupActiveForBouquet = tAuras and #tAuras > 0;
+			if tAuras then
+				for tIdx = 1, #tAuras do
+					if not (tCanColorGroup["excludeFilter"] and VUHDO_auraMatchesFilter(aUnit, tAuras[tIdx]["auraInstanceID"], tCanColorGroup["excludeFilter"]))
+						and not VUHDO_isAuraIgnored(tAuras[tIdx], tCanColorGroup["groupId"]) then
+						tIsGroupActiveForBouquet = true;
+
+						break;
+					end
+				end
+			end
 		end
 
 		if tIsGroupActiveForBouquet then
@@ -705,22 +750,21 @@ do
 
 
 	--
+	local tWinnerId;
+	local tWinnerIdSecret;
+	local tWinnerAppTime;
+	local tWinnerAuraInstanceId;
+	local tIsHostile;
+	local tGroupActive;
+	local tPanelAnchors;
+	local tListSlots;
+	local tAuraCache;
+	local tAura;
+	local tDispelType;
+	local tAppTime;
+	local tFoundDispelAuraId;
+	local tNewWinner;
 	local function VUHDO_tryListGroupForDispellableAura(aUnit, tCanColorGroup)
-
-		local tWinnerId;
-		local tWinnerIdSecret;
-		local tWinnerAppTime;
-		local tWinnerAuraInstanceId;
-		local tIsHostile;
-		local tGroupActive;
-		local tPanelAnchors;
-		local tListSlots;
-		local tAuraCache;
-		local tAura;
-		local tDispelType;
-		local tAppTime;
-		local tFoundDispelAuraId;
-		local tNewWinner;
 
 		tWinnerId = nil;
 		tWinnerIdSecret = nil;
@@ -926,10 +970,9 @@ do
 
 
 	--
+	local tFoundDispelAuraId;
+	local tNewWinner;
 	local function VUHDO_tryInferredForDispellableAura(aUnit, tCanColorGroup)
-
-		local tFoundDispelAuraId;
-		local tNewWinner;
 
 		if not sUnitDispellableAuraId[aUnit] then
 			sUnitDispellableAuraId[aUnit] = VUHDO_INFERRED_AURA_SYNTHETIC_IDS[tCanColorGroup["inferredType"]] or -1;
@@ -976,58 +1019,60 @@ do
 
 
 	--
+	local tAuras;
+	local tAura;
+	local tAuraInstanceId;
+	local tFoundDispelAuraId;
+	local tNewWinner;
 	local function VUHDO_tryDispelCheckFilterForDispellableAura(aUnit, tCanColorGroup)
 
-		local tAuras;
-		local tAura;
-		local tAuraInstanceId;
-		local tFoundDispelAuraId;
-		local tNewWinner;
-
-		tAuras = GetUnitAuras(aUnit, tCanColorGroup["filter"], 40, Enum.UnitAuraSortRule.Default, 1);
+		tAuras = VUHDO_getCachedFilteredAuras(aUnit, tCanColorGroup["filter"]);
 
 		if tAuras then
 			for tIdx = 1, #tAuras do
 				tAura = tAuras[tIdx];
 				tAuraInstanceId = tAura["auraInstanceID"];
 
-				if not IsAuraFilteredOutByInstanceID(aUnit, tAuraInstanceId, tCanColorGroup["dispelCheckFilter"]) then
-					if not sUnitDispellableAuraId[aUnit] then
-						sUnitDispellableAuraId[aUnit] = tAuraInstanceId;
-					end
+				if not ((tCanColorGroup["excludeFilter"] and VUHDO_auraMatchesFilter(aUnit, tAuraInstanceId, tCanColorGroup["excludeFilter"]))
+					or VUHDO_isAuraIgnored(tAura, tCanColorGroup["groupId"])) then
+					if not IsAuraFilteredOutByInstanceID(aUnit, tAuraInstanceId, tCanColorGroup["dispelCheckFilter"]) then
+						if not sUnitDispellableAuraId[aUnit] then
+							sUnitDispellableAuraId[aUnit] = tAuraInstanceId;
+						end
 
-					tFoundDispelAuraId = tAuraInstanceId;
+						tFoundDispelAuraId = tAuraInstanceId;
 
-					if not tBarWinnerSet and tCanColorGroup["canColorBar"] then
-						tNewWinner = sAuraColorWinnerPool:get();
+						if not tBarWinnerSet and tCanColorGroup["canColorBar"] then
+							tNewWinner = sAuraColorWinnerPool:get();
 
-						tNewWinner["colorType"] = tCanColorGroup["colorType"];
-						tNewWinner["customColor"] = tCanColorGroup["customColor"];
-						tNewWinner["dispelAuraId"] = tFoundDispelAuraId;
+							tNewWinner["colorType"] = tCanColorGroup["colorType"];
+							tNewWinner["customColor"] = tCanColorGroup["customColor"];
+							tNewWinner["dispelAuraId"] = tFoundDispelAuraId;
 
-						sUnitAuraBarWinner[aUnit] = tNewWinner;
+							sUnitAuraBarWinner[aUnit] = tNewWinner;
 
-						tBarWinnerSet = true;
-					end
+							tBarWinnerSet = true;
+						end
 
-					if not tTextWinnerSet and tCanColorGroup["canColorText"] then
-						tNewWinner = sAuraColorWinnerPool:get();
+						if not tTextWinnerSet and tCanColorGroup["canColorText"] then
+							tNewWinner = sAuraColorWinnerPool:get();
 
-						tNewWinner["colorType"] = tCanColorGroup["colorType"];
-						tNewWinner["customColor"] = tCanColorGroup["customColor"];
-						tNewWinner["dispelAuraId"] = tFoundDispelAuraId;
+							tNewWinner["colorType"] = tCanColorGroup["colorType"];
+							tNewWinner["customColor"] = tCanColorGroup["customColor"];
+							tNewWinner["dispelAuraId"] = tFoundDispelAuraId;
 
-						sUnitAuraTextWinner[aUnit] = tNewWinner;
+							sUnitAuraTextWinner[aUnit] = tNewWinner;
 
-						tTextWinnerSet = true;
-					end
+							tTextWinnerSet = true;
+						end
 
-					VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
+						VUHDO_setGlowWinnerIfNeeded(aUnit, tCanColorGroup);
 
-					VUHDO_cacheAuraGroupBouquetColorForUnit(aUnit, tCanColorGroup, tFoundDispelAuraId);
+						VUHDO_cacheAuraGroupBouquetColorForUnit(aUnit, tCanColorGroup, tFoundDispelAuraId);
 
-					if tBarWinnerSet and tTextWinnerSet then
-						return true;
+						if tBarWinnerSet and tTextWinnerSet then
+							return true;
+						end
 					end
 				end
 			end
@@ -1040,20 +1085,34 @@ do
 
 
 	--
+	local tAuras;
+	local tAura;
+	local tAuraInstanceId;
+	local tFoundDispelAuraId;
+	local tNewWinner;
 	local function VUHDO_trySimpleFilterForDispellableAura(aUnit, tCanColorGroup)
 
-		local tAuras;
-		local tAura;
-		local tAuraInstanceId;
-		local tFoundDispelAuraId;
-		local tNewWinner;
+		tAuras = VUHDO_getCachedFilteredAuras(aUnit, tCanColorGroup["filter"]);
 
-		tAuras = GetUnitAuras(aUnit, tCanColorGroup["filter"], 1, Enum.UnitAuraSortRule.Default, 1);
+		tAura = nil;
+		tAuraInstanceId = nil;
 
-		if tAuras and #tAuras > 0 then
-			tAura = tAuras[1];
-			tAuraInstanceId = tAura["auraInstanceID"];
+		if tAuras then
+			for tIdx = 1, #tAuras do
+				tAura = tAuras[tIdx];
+				tAuraInstanceId = tAura["auraInstanceID"];
 
+				if (tCanColorGroup["excludeFilter"] and VUHDO_auraMatchesFilter(aUnit, tAuraInstanceId, tCanColorGroup["excludeFilter"]))
+					or VUHDO_isAuraIgnored(tAura, tCanColorGroup["groupId"]) then
+					tAura = nil;
+					tAuraInstanceId = nil;
+				else
+					break;
+				end
+			end
+		end
+
+		if tAura and tAuraInstanceId then
 			if not sUnitDispellableAuraId[aUnit] then
 				sUnitDispellableAuraId[aUnit] = tAuraInstanceId;
 			end
@@ -1100,13 +1159,11 @@ do
 
 
 	--
+	local tBuffConfig;
+	local tInfo;
+	local tMissingBuffCategory;
+	local tMissingColor;
 	local function VUHDO_applyMissingBuffColorsForDispellableAura(aUnit)
-
-		local tBuffConfig;
-		local tInfo;
-		local tMissingBuffCategory;
-		local tMissingColor;
-		local tNewWinner;
 
 		if (not tBarWinnerSet or not tTextWinnerSet) and VUHDO_RAID and VUHDO_RAID[aUnit] and VUHDO_RAID[aUnit]["missbuff"] then
 			tBuffConfig = VUHDO_BUFF_SETTINGS["CONFIG"];
@@ -1179,6 +1236,8 @@ do
 		sGlowWinnerSet = false;
 
 		VUHDO_resetUnitAuraGroupActiveSubtable(aUnit);
+
+		VUHDO_resetFilterResultCache();
 
 		for tCnt = 1, #sCanColorBarGroups do
 			tCanColorGroup = sCanColorBarGroups[tCnt];

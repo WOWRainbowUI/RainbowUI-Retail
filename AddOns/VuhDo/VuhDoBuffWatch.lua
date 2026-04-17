@@ -211,19 +211,34 @@ end
 
 --
 function VUHDO_buffWatchOnMouseDown(aPanel)
-	if VUHDO_mayMoveHealPanels() then aPanel:StartMoving(); end
+
+	if VUHDO_mayMoveHealPanels() then
+		aPanel["isMoving"] = true;
+
+		aPanel:StartMoving();
+	end
+
+	return;
+
 end
 
 
 
 --
+local tCoords;
 function VUHDO_buffWatchOnMouseUp(aPanel)
-	if VUHDO_mayMoveHealPanels() then
+
+	if aPanel["isMoving"] then
+		aPanel["isMoving"] = false;
+
 		VUHDO_PixelUtil.StopMovingOrSizing(aPanel);
 
-		local tCoords = VUHDO_BUFF_SETTINGS["CONFIG"]["POSITION"];
+		tCoords = VUHDO_BUFF_SETTINGS["CONFIG"]["POSITION"];
 		tCoords["point"], _, tCoords["relativePoint"], tCoords["x"], tCoords["y"] = aPanel:GetPoint();
 	end
+
+	return;
+
 end
 
 
