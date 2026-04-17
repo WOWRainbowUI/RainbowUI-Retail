@@ -2773,6 +2773,10 @@ function VUHDO_loadProfileNoInit(aName)
 	end
 
 	for tPanelNum = 1, VUHDO_MAX_PANELS do
+		if tProfile["PANEL_SETUP"] and tProfile["PANEL_SETUP"][tPanelNum] and tProfile["PANEL_SETUP"][tPanelNum]["AURA_ANCHORS"] and VUHDO_PANEL_SETUP[tPanelNum] then
+			VUHDO_PANEL_SETUP[tPanelNum]["AURA_ANCHORS"] = VUHDO_deepCopyTable(tProfile["PANEL_SETUP"][tPanelNum]["AURA_ANCHORS"]);
+		end
+
 		if tPanelPositions and tPanelPositions[tPanelNum] then
 			VUHDO_PANEL_SETUP[tPanelNum]["POSITION"] = VUHDO_deepCopyTable(tPanelPositions[tPanelNum]);
 		end
