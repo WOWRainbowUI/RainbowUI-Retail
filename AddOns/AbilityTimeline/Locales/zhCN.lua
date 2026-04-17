@@ -177,6 +177,10 @@ L["SpellnameBackgroundTexture"] = "文本背景材质"
 L["SpellnameBackgroundTextureDescription"] = "设置法术名称的背景材质。"
 L["SpellnameDefaultColor"] = "默认文本颜色"
 L["SpellnameDefaultColorDescription"] = "设置图标旁文本的默认颜色（当未受特定信息影响时，例如中毒等减益类型）。"
+--[[Translation missing --]]
+L["SpellnameEnableShadow"] = "Enable Text Shadow"
+--[[Translation missing --]]
+L["SpellnameEnableShadowDescription"] = "Enables or disables the shadow effect on the text."
 L["SpellnameFont"] = "字体"
 L["SpellnameFontDescription"] = "设置图标旁文本的字体。"
 --[[Translation missing --]]

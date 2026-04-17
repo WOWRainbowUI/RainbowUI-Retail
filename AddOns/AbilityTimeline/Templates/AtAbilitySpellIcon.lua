@@ -252,11 +252,12 @@ end
 ---@return integer y -- yPosition of an icon including potential offsets to handle overlaps
 ---@return boolean ismoving -- whether the icon is currently moving
 local calculateIconPosition = function(self, timeElapsed, moveHeight, isStopped)
-	local x, y, isMoving = getRawIconPosition(variables.IconSize.height, moveHeight,
+	local iconSize = private.db.profile.icon_settings and private.db.profile.icon_settings.size or variables.IconSize.height
+	local x, y, isMoving = getRawIconPosition(iconSize, moveHeight,
 		self.eventInfo.duration - timeElapsed, isStopped)
 	if self.eventInfo.duration - timeElapsed > private.AT_THRESHHOLD_TIME or isStopped then
 		-- only add offset for waiting icons
-		local xOffset, yOffset = calculateOffset(variables.IconSize.height, moveHeight, self.eventInfo.id, timeElapsed, x,
+		local xOffset, yOffset = calculateOffset(iconSize, moveHeight, self.eventInfo.id, timeElapsed, x,
 			y)
 		if private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].inverse_travel_direction then
 			return x - xOffset, y - yOffset, isMoving
@@ -324,7 +325,9 @@ local SetEventInfo          = function(self, eventInfo, disableOnUpdate)
 	private.Debug("============================")
 	if private.db.global.timeline_frame[private.ACTIVE_EDITMODE_LAYOUT].travel_direction == private.TIMELINE_DIRECTIONS.HORIZONTAL then
 		self.frame.SpellName:SetText("")
-		private.Debug("Timeline is in horizontal mode, hiding text for eventID: " .. eventInfo.id)
+		if eventInfo and eventInfo.id then
+			private.Debug("Timeline is in horizontal mode, hiding text for eventID: " .. eventInfo.id)
+		end
 	else
 		self.frame.SpellName:SetText(eventInfo.spellName)
 		if private.db.profile.text_settings.useEventColor then
@@ -508,6 +511,12 @@ local function ApplySettings(self)
 			private.db.profile.text_settings.defaultColor.g,
 			private.db.profile.text_settings.defaultColor.b
 		)
+	end
+
+	if private.db.profile.text_settings and private.db.profile.text_settings.enableShadow then
+		self.frame.SpellName:SetShadowColor(0, 0, 0, 1)
+	else
+		self.frame.SpellName:SetShadowColor(0, 0, 0, 0)
 	end
 
 	if private.db.profile.icon_settings and private.db.profile.icon_settings.strata then
