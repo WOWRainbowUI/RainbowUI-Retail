@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120001, 120005
 ## Title: |cFFFF6B6BMoney Frame Fix|r
 ## Notes: Money Frame Fix
 ## Version: 1.2.1

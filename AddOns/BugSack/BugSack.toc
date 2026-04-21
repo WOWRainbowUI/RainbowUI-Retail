@@ -1,4 +1,4 @@
-## Interface: 11508, 20505, 38000, 50503, 120001
+## Interface: 11508, 20505, 38000, 50503, 120001, 120005
 ## Version: v12.0.7
 ## Title: BugSack
 ## Notes: Toss those bugs inna sack.

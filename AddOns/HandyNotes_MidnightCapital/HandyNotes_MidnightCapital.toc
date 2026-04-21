@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120001, 120005
 ## Title: HandyNotes: Midnight - Capital
 ## Title-deDE: HandyNotes: Midnight - Hauptstadt
 ## Title-esES: HandyNotes: Midnight - Capital

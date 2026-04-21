@@ -1,4 +1,4 @@
-## Interface: 120005, 120001, 50503, 20505, 11508
+## Interface: 120005, 120001, 120005, 50503, 20505, 11508
 ## Title: HidingBar Options
 ## Author: sfmict
 ## Version: v12.0.6

@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120001, 120005
 ## Version: 4.4.1
 ## Title: RaidFrameSettings
 ## Author: Slothpala

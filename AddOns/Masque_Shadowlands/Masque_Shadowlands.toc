@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 50503, 120001
+## Interface: 11508, 20205, 50503, 120001, 120005
 ## Name: masque_Shadowlands
 ## Title: Masque: Shadowlands
 ## Version: 1.3-Release

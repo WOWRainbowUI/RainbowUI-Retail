@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120001, 120005
 ## Version: 12.0.7
 ## Title: FriendGroups
 ## Notes:|cfffe7b2cFriendGroups is a powerful contact manager and list enhancer. Organize friends with custom groups, advanced search capabilities, and seamless mass invites.|r

@@ -1,4 +1,4 @@
-## Interface: 120001
+## Interface: 120001, 120005
 ## Title: Clear Map Pin
 ## Author: Zealo_s
 ## Version: 1.0

@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 50503, 120001
+## Interface: 11508, 20205, 50503, 120001, 120005
 ## Title: OPie
 ## Version: 8.3.2
 ## License: All rights reserved. Do not redistribute, in whole or in part, without explicit prior permission from the author.
