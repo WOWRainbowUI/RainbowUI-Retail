@@ -1,6 +1,7 @@
 # Syndicator
 
-## [265](https://github.com/TheMouseNest/Syndicator/tree/265) (2026-03-18)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/264...265) [Previous Releases](https://github.com/TheMouseNest/Syndicator/releases)
+## [266](https://github.com/TheMouseNest/Syndicator/tree/266) (2026-04-18)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/265...266) 
 
-- Fix "active season" keyword including last season gear  
+- Add in additional weapon types for hunter on retail (new in 12.0)  
+- Restore Wago to build script  
