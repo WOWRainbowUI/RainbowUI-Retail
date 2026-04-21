@@ -333,6 +333,12 @@ local tDdFoundCur;
 local tDdUnitId;
 local tDdSelName;
 local tDdNextSel;
+local tDdEffectiveName;
+local tDdNameInPickList;
+local tDdMissGroup;
+local tDdLowGroup;
+local tDdOkayGroup;
+local tDdBuffedUnit;
 function VUHDO_buffSelectDropdown_Initialize(_, _)
 
 	if VUHDO_CLICKED_BUFF == nil or VUHDO_CLICKED_TARGET_MODE == nil or InCombatLockdown() then
@@ -429,6 +435,47 @@ function VUHDO_buffSelectDropdown_Initialize(_, _)
 			end
 
 			tDdPickList = (#tDdUnbuffedList > 0) and tDdUnbuffedList or tDdAllRoleList;
+			tDdEffectiveName = tDdSettings["name"];
+			tDdNameInPickList = false;
+
+			for tIdx = 1, #tDdPickList do
+				tDdUnitId = tDdPickList[tIdx];
+
+				if (VUHDO_RAID[tDdUnitId] or sEmpty)["name"] == tDdSettings["name"] then
+					tDdNameInPickList = true;
+
+					break;
+				end
+			end
+
+			if not tDdNameInPickList then
+				tDdMissGroup, tDdLowGroup, _, _, _, tDdOkayGroup
+					= VUHDO_getMissingBuffsForCode(VUHDO_CLICKED_TARGET_MODE, tDdRoleIdR, VUHDO_CLICKED_BUFF, tDdCategName, false);
+
+				tDdBuffedUnit = nil;
+
+				for tIdx = 1, #(tDdOkayGroup or sEmpty) do
+					tDdBuffedUnit = tDdOkayGroup[tIdx];
+
+					break;
+				end
+
+				if not tDdBuffedUnit then
+					for tIdx = 1, #(tDdLowGroup or sEmpty) do
+						tDdBuffedUnit = tDdLowGroup[tIdx];
+
+						break;
+					end
+				end
+
+				if tDdBuffedUnit and VUHDO_RAID[tDdBuffedUnit] then
+					tDdEffectiveName = VUHDO_RAID[tDdBuffedUnit]["name"];
+				elseif #tDdPickList > 0 then
+					tDdUnitId = tDdPickList[1];
+					tDdEffectiveName = (VUHDO_RAID[tDdUnitId] or sEmpty)["name"];
+				end
+			end
+
 			tDdNextName = nil;
 			tDdFoundCur = false;
 
@@ -440,7 +487,7 @@ function VUHDO_buffSelectDropdown_Initialize(_, _)
 					break;
 				end
 
-				if (VUHDO_RAID[tDdUnitId] or sEmpty)["name"] == tDdSettings["name"] then
+				if (VUHDO_RAID[tDdUnitId] or sEmpty)["name"] == tDdEffectiveName then
 					tDdFoundCur = true;
 				end
 			end
@@ -795,7 +842,7 @@ local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec, anSuppres
 						VUHDO_setUnitMissBuff(tUnit, aCategSpec, aBuffInfo, tCategName);
 					end
 
-					if tInRange then
+					if tInRange and (tLowestRest == nil or tLowestRest > 0) then
 						tLowestUnit = tUnit;
 						tLowestRest = 0;
 					end
@@ -1091,6 +1138,7 @@ local tGroupLabel;
 local tRoleTotal;
 local tIsSpellAuraSecret;
 local tInfo;
+local tBuffedRoleUnit;
 function VUHDO_updateBuffSwatch(aSwatch)
 
 	tSwatchName = aSwatch:GetName();
@@ -1182,6 +1230,25 @@ function VUHDO_updateBuffSwatch(aSwatch)
 			tRoleId = tTarget;
 			tBuffSettings = VUHDO_BUFF_SETTINGS[tCategSpec];
 			tPinnedUnit = VUHDO_RAID_NAMES[(tBuffSettings or sEmpty)["name"]];
+			tBuffedRoleUnit = nil;
+
+			for _, tRoleUnit in ipairs(tOkayGroup) do
+				if VUHDO_isUnitInRoleGroup(tRoleUnit, tRoleId) then
+					tBuffedRoleUnit = tRoleUnit;
+
+					break;
+				end
+			end
+
+			if not tBuffedRoleUnit then
+				for _, tRoleUnit in ipairs(tLowGroup) do
+					if VUHDO_isUnitInRoleGroup(tRoleUnit, tRoleId) then
+						tBuffedRoleUnit = tRoleUnit;
+
+						break;
+					end
+				end
+			end
 
 			if tPinnedUnit and VUHDO_isUnitInRoleGroup(tPinnedUnit, tRoleId) then
 				for _, tRoleUnit in pairs(tMissGroup) do
@@ -1203,12 +1270,17 @@ function VUHDO_updateBuffSwatch(aSwatch)
 				if not tGoodTarget and not tLowestUnit then
 					tGoodTarget = tPinnedUnit;
 				end
+			elseif tBuffedRoleUnit then
+				tGoodTarget = tBuffedRoleUnit;
+				tLowestUnit = tBuffedRoleUnit;
 			end
 
 			tGroupLabel = _G[tSwatchName .. "GroupLabelLabel"];
 
-			if tPinnedUnit and VUHDO_RAID[tPinnedUnit] then
+			if tPinnedUnit and VUHDO_RAID[tPinnedUnit] and VUHDO_isUnitInRoleGroup(tPinnedUnit, tRoleId) then
 				tGroupLabel:SetText(VUHDO_RAID[tPinnedUnit]["name"]);
+			elseif tBuffedRoleUnit and VUHDO_RAID[tBuffedRoleUnit] then
+				tGroupLabel:SetText(VUHDO_RAID[tBuffedRoleUnit]["name"]);
 			elseif tLowestUnit and VUHDO_RAID[tLowestUnit] then
 				tGroupLabel:SetText(VUHDO_RAID[tLowestUnit]["name"] or VUHDO_HEADER_TEXTS[tRoleId]);
 			elseif tGoodTarget and VUHDO_RAID[tGoodTarget] then

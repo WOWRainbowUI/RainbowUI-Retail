@@ -194,6 +194,19 @@ end
 --
 function VUHDO_panelAurasEnabledChanged(aCheckButton)
 
+	VUHDO_rebuildCanColorBarGroupsCache();
+	VUHDO_reloadUI(false);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_panelAurasGroupIdChanged(aCombo, aValue)
+
+	VUHDO_rebuildCanColorBarGroupsCache();
 	VUHDO_reloadUI(false);
 
 	return;
@@ -994,6 +1007,8 @@ function VUHDO_panelAurasRebindContentPanel()
 
 	VUHDO_lnfComboBoxInitFromModel(_G[tContentPanel:GetName() .. "GroupCombo"]);
 
+	_G[tContentPanel:GetName() .. "GroupCombo"]:SetAttribute("custom_function_post", VUHDO_panelAurasGroupIdChanged);
+
 	tEnabledCheck = _G[tContentPanel:GetName() .. "EnabledCheckButton"];
 
 	if tEnabledCheck then
@@ -1128,6 +1143,9 @@ function VUHDO_panelAurasRefreshUI()
 	end
 
 	VUHDO_panelAurasAnchorSelectionChanged();
+
+	VUHDO_rebuildCanColorBarGroupsCache();
+	VUHDO_reloadUI(false);
 
 	return;
 

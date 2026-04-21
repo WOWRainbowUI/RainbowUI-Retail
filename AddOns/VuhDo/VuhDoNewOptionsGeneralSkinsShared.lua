@@ -2824,6 +2824,9 @@ end
 function VUHDO_loadProfile(aName)
 
 	VUHDO_loadProfileNoInit(aName);
+
+	VUHDO_incrementAuraAnchorConfigVersion();
+
 	VUHDO_clearBackdropCache();
 	VUHDO_initAllBurstCaches();
 	VUHDO_loadVariables();
