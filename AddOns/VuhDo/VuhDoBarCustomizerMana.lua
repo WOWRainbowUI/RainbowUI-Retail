@@ -132,6 +132,7 @@ end
 --
 local tAllButtons, tManaBar;
 local tManaBarHeight;
+local tPrevManaLayoutHeight;
 local tRegularHeight;
 local tPanelNum;
 local tHealthBar;
@@ -152,8 +153,6 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 			if anIsActive then
 				tManaBarHeight = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["manaBarHeight"];
 			end
-
-			tButton["manaBarLayoutHeight"] = tManaBarHeight;
 
 			tManaBar = VUHDO_getHealthBar(tButton, 2);
 
@@ -177,6 +176,9 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 			end
 
 			if not InCombatLockdown() then
+				tPrevManaLayoutHeight = tButton["manaBarLayoutHeight"];
+				tButton["manaBarLayoutHeight"] = tManaBarHeight;
+
 				if tManaBarHeight > 0 then
 					VUHDO_PixelUtil.SetHeight(tManaBar, tManaBarHeight);
 				end
@@ -197,6 +199,10 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 
 				if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
 					VUHDO_updateHealthLossBar(aUnit);
+				end
+
+				if tPrevManaLayoutHeight ~= tManaBarHeight then
+					VUHDO_repositionAuraFramesForButton(tButton, tPanelNum);
 				end
 			end
 
@@ -231,8 +237,6 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 				tManaBarHeight = VUHDO_PANEL_SETUP[tPanelNum]["SCALING"]["manaBarHeight"];
 			end
 
-			tButton["manaBarLayoutHeight"] = tManaBarHeight;
-
 			tManaBar = VUHDO_getHealthBar(tButton, 2);
 
 			if anIsActive and tManaBarHeight > 0 then
@@ -255,6 +259,9 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 			end
 
 			if not InCombatLockdown() then
+				tPrevManaLayoutHeight = tButton["manaBarLayoutHeight"];
+				tButton["manaBarLayoutHeight"] = tManaBarHeight;
+
 				if tManaBarHeight > 0 then
 					VUHDO_PixelUtil.SetHeight(tManaBar, tManaBarHeight);
 				end
@@ -275,6 +282,10 @@ function VUHDO_manaBarBouquetCallback(aUnit, anIsActive, anIcon, aCurrValue, aCo
 
 				if VUHDO_CONFIG["SHOW_HEALTH_LOSS_BAR"] then
 					VUHDO_updateHealthLossBar(aUnit);
+				end
+
+				if tPrevManaLayoutHeight ~= tManaBarHeight then
+					VUHDO_repositionAuraFramesForButton(tButton, tPanelNum);
 				end
 			end
 

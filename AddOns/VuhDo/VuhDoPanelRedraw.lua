@@ -23,6 +23,7 @@ local VUHDO_getGroupMembers;
 local VUHDO_redrawPanel;
 local VUHDO_redrawAllPanels;
 local VUHDO_refreshAllUnitAuras;
+local VUHDO_redisplayAllUnitAuras;
 local VUHDO_calculateDerivedOrientation;
 local VUHDO_updateToggledUnitEvents;
 
@@ -109,6 +110,7 @@ function VUHDO_panelRedrawInitLocalOverrides()
 	VUHDO_getGroupMembersSorted = _G["VUHDO_getGroupMembersSorted"];
 	VUHDO_getGroupMembers = _G["VUHDO_getGroupMembers"];
 	VUHDO_refreshAllUnitAuras = _G["VUHDO_refreshAllUnitAuras"];
+	VUHDO_redisplayAllUnitAuras = _G["VUHDO_redisplayAllUnitAuras"];
 	VUHDO_calculateDerivedOrientation = _G["VUHDO_calculateDerivedOrientation"];
 	VUHDO_updateToggledUnitEvents = _G["VUHDO_updateToggledUnitEvents"];
 
@@ -719,7 +721,9 @@ do
 		tManaHeight = (anIsForceBar or not tInfo or tIsManaBouquet) and sPanelConfig[aPanelNum]["manaBarHeight"] or 0;
 
 		VUHDO_PixelUtil.SetWidth(aManaBar, aWidth);
+
 		aButton["regularHeight"] = sPanelConfig[aPanelNum]["barScaling"]["barHeight"];
+		aButton["manaBarLayoutHeight"] = 0;
 
 		if tIsManaBouquet then
 			VUHDO_PixelUtil.Show(aManaBar);
@@ -2352,6 +2356,8 @@ do
 			VUHDO_PixelUtil.Hide(tPanel);
 		end
 
+		VUHDO_redisplayAllUnitAuras();
+
 		if aCycleId and sRedrawAllPanelsSemaphore and VUHDO_extractCycleIdFromSemaphoreName(sRedrawAllPanelsSemaphore["name"]) == aCycleId then
 			if sRedrawAllPanelsSemaphore["count"] <= 0 then
 				return;
@@ -2600,10 +2606,12 @@ do
 			VUHDO_redrawAllPanels(anIsFixAllFrameLevels);
 		end
 
-		VUHDO_updateAllCustomDebuffs(true);
-		VUHDO_refreshAllUnitAuras();
-		VUHDO_rebuildTargets();
-		VUHDO_updatePanelVisibility();
+		if not VUHDO_CONFIG["USE_DEFERRED_REDRAW"] or VUHDO_IN_COMBAT_RELOG then
+			VUHDO_updateAllCustomDebuffs(true);
+			VUHDO_refreshAllUnitAuras();
+			VUHDO_rebuildTargets();
+			VUHDO_updatePanelVisibility();
+		end
 
 		VUHDO_IS_RELOADING = false;
 
@@ -2638,6 +2646,7 @@ do
 		_G["VUHDO_redrawAllPanels"](false);
 
 		VUHDO_initAllBurstCaches();
+		VUHDO_redisplayAllUnitAuras();
 
 		VUHDO_IS_RELOADING = false;
 
@@ -2829,7 +2838,10 @@ do
 
 		VUHDO_setupAllButtonsUnitWatch(VUHDO_CONFIG["HIDE_EMPTY_BUTTONS"] and not VUHDO_IS_PANEL_CONFIG and not VUHDO_isConfigDemoUsers());
 		VUHDO_updateAllRaidBars();
+		VUHDO_updateAllCustomDebuffs(true);
+		VUHDO_refreshAllUnitAuras();
 		VUHDO_rebuildTargets();
+		VUHDO_updatePanelVisibility();
 
 		if VUHDO_isShowGcd() then
 			tGcdCol = VUHDO_PANEL_SETUP["BAR_COLORS"]["GCD_BAR"];

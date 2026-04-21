@@ -11,6 +11,7 @@ local VUHDO_initGcd;
 local VUHDO_strempty;
 
 local VUHDO_RAID_NAMES;
+local VUHDO_GROUPS;
 local VUHDO_CONFIG = { };
 
 local sIsShowGcd;
@@ -27,6 +28,7 @@ function VUHDO_spellEventHandlerInitLocalOverrides()
 	VUHDO_strempty = _G["VUHDO_strempty"];
 
 	VUHDO_RAID_NAMES = _G["VUHDO_RAID_NAMES"];
+	VUHDO_GROUPS = _G["VUHDO_GROUPS"];
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
 
 	sIsShowGcd = VUHDO_isShowGcd();
@@ -67,6 +69,8 @@ end
 local tTargetUnit;
 local tCateg;
 local tSpellName;
+local tCastRoleId;
+local tIsCastTargetInRole;
 function VUHDO_spellcastSent(aUnit, aTargetName, aSpellId)
 
 	if "player" ~= aUnit then
@@ -125,7 +129,25 @@ function VUHDO_spellcastSent(aUnit, aTargetName, aSpellId)
 	tCateg = sUniqueSpells[tSpellName];
 
 	if tCateg and not InCombatLockdown() and (VUHDO_BUFF_SETTINGS or sEmpty)[tCateg] then
-		if (not VUHDO_BUFF_SETTINGS[tCateg]["targetMode"] or VUHDO_BUFF_SETTINGS[tCateg]["targetMode"] == "name")
+		tCastRoleId = tonumber(VUHDO_BUFF_SETTINGS[tCateg]["targetMode"]);
+
+		if tCastRoleId then
+			tIsCastTargetInRole = false;
+
+			for _, tRoleUnit in pairs((VUHDO_GROUPS or sEmpty)[tCastRoleId] or sEmpty) do
+				if tRoleUnit == tTargetUnit then
+					tIsCastTargetInRole = true;
+
+					break;
+				end
+			end
+
+			if tIsCastTargetInRole and aTargetName ~= VUHDO_BUFF_SETTINGS[tCateg]["name"] then
+				VUHDO_BUFF_SETTINGS[tCateg]["name"] = aTargetName;
+
+				VUHDO_reloadBuffPanel();
+			end
+		elseif (not VUHDO_BUFF_SETTINGS[tCateg]["targetMode"] or VUHDO_BUFF_SETTINGS[tCateg]["targetMode"] == "name")
 			and aTargetName ~= VUHDO_BUFF_SETTINGS[tCateg]["name"] then
 			VUHDO_BUFF_SETTINGS[tCateg]["name"] = aTargetName;
 

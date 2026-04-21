@@ -27,6 +27,7 @@ Bugfixes:
   
   
 Improvements:  
+-- Bump TOC interface for 12.0.5  
 -- Added new bouquet validator 'Flag: Aura Group Active'  
 -- Added new health loss bar for temporary max health reduction  
 -- Added target by role for unique cast spells in Buff Watch  

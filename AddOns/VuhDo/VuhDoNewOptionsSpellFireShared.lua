@@ -79,6 +79,8 @@ function VUHDO_activateLayout(aName)
 
 	VUHDO_activateLayoutNoInit(aName);
 
+	VUHDO_incrementAuraAnchorConfigVersion();
+
 	VUHDO_loadVariables();
 	VUHDO_initAllBurstCaches();
 	VUHDO_initFromSpellbook();

@@ -135,7 +135,11 @@ local function VUHDO_buffSetupStoreSettings()
 						tSettings["targetMode"] = VUHDO_comboGetSelectedBuff(tTargetModeCombo) or "name";
 					end
 
-					tSettings["name"] = tEditBox:GetText();
+					if tSettings["targetMode"] == "name" then
+						tSettings["name"] = tEditBox:GetText();
+					else
+						tSettings["name"] = nil;
+					end
 				else -- Aura, Totem, own group, self
 					if (#tCategoryBuffs > 1) then
 						local tCombo = _G[tGenericPanel:GetName() .. "DedicatedComboBox"];
