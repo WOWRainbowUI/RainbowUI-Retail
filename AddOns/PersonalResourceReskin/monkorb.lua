@@ -428,16 +428,6 @@ local function ApplySavedOptions()
     -- Size
     local w = db.MonkOrbTracker_width or 120
     local h = db.MonkOrbTracker_height or 24
-    -- Width sync: match cooldown viewer width if widthMode is not MANUAL
-    local widthMode = db.widthMode or "MANUAL"
-    if widthMode ~= "MANUAL" then
-        local viewerName = (widthMode == "ESSENTIAL") and "EssentialCooldownViewer" or "UtilityCooldownViewer"
-        local viewer = _G[viewerName]
-        if viewer and viewer.GetWidth then
-            local vw = viewer:GetWidth()
-            if vw and vw > 10 then w = vw end
-        end
-    end
     MonkOrbTracker:SetWidth(w)
     MonkOrbTracker:SetHeight(h)
     -- Position: anchor to PRD or use X/Y

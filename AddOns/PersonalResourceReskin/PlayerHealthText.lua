@@ -232,105 +232,99 @@ function UpdateHealthText()
         text:SetJustifyH("CENTER")
     end
     if text.SetJustifyV then text:SetJustifyV("MIDDLE") end
-    local Unit = "player"
-    local Percent = SafeUnitHealthPercent(Unit)
-    local Current, Max = SafeGetUnitHealth(Unit)
-    local displayMode = PlayerHealthTextDB and PlayerHealthTextDB.displayMode or "percent"
-    if displayMode == "absorbs" then
-        local absorb = UnitGetTotalAbsorbs(Unit)
-        local function abbr(val)
-            if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                return AbbreviateNumbers(val)
+    local okRender = pcall(function()
+        local Unit = "player"
+        local Percent = SafeUnitHealthPercent(Unit)
+        local Current, Max = SafeGetUnitHealth(Unit)
+        local displayMode = PlayerHealthTextDB and PlayerHealthTextDB.displayMode or "percent"
+        if displayMode == "absorbs" then
+            local absorb = UnitGetTotalAbsorbs(Unit)
+            local function abbr(val)
+                if type(AbbreviateNumbers) == "function" and type(val) == "number" then
+                    return AbbreviateNumbers(val)
+                end
+                return tostring(val)
             end
-            return tostring(val)
-        end
-        local textStr = "Absorbs " .. abbr(absorb)
-        text:SetText(textStr)
-    elseif displayMode == "full" or displayMode == "bothfull" then
-        local calculator = UnitHealPredictionCalculator and UnitHealPredictionCalculator.Create and UnitHealPredictionCalculator:Create(Unit)
-        local incomingHeals, fromHealer, fromOthers, incomingHealsClamped = 0, 0, 0, false
-        local damageAbsorbs, damageAbsorbsClamped = 0, false
-        local healAbsorbs, healAbsorbsClamped = 0, false
-        if calculator then
-            calculator:ResetPredictedValues()
-            local hasSecretValues = calculator:HasSecretValues()
-            local predictedValues = calculator:GetPredictedValues()
-            local amount, amountFromHealer, amountFromOthers, clamped = calculator:GetIncomingHeals()
-            calculator:SetToDefaults()
-            calculator:SetPredictedValues(predictedValues)
-            local incomingHealOverflowPercent = 0
-            calculator:SetIncomingHealOverflowPercent(incomingHealOverflowPercent)
-            local incomingHealClampMode = calculator:GetIncomingHealClampMode()
-            calculator:SetIncomingHealClampMode(incomingHealClampMode)
-            local damageAbsorbClampMode = calculator:GetDamageAbsorbClampMode()
-            calculator:SetDamageAbsorbClampMode(damageAbsorbClampMode)
-            local healAbsorbMode = calculator:GetHealAbsorbMode()
-            local healAbsorbClampMode = calculator:GetHealAbsorbClampMode()
-            calculator:SetHealAbsorbClampMode(healAbsorbClampMode)
-            calculator:SetHealAbsorbMode(healAbsorbMode)
-            -- New APIs
-            calculator:SetMaximumHealthMode(Enum and Enum.UnitMaximumHealthMode and Enum.UnitMaximumHealthMode.IncludeAbsorbs or 1) -- Assume 1 is include
-            incomingHeals = calculator:GetTotalIncomingHeals()
-            damageAbsorbs = calculator:GetTotalDamageAbsorbs()
-            healAbsorbs = calculator:GetTotalHealAbsorbs()
-        end
-        local function abbr(val)
-            if type(AbbreviateNumbers) == "function" and type(val) == "number" then
-                return AbbreviateNumbers(val)
+            local textStr = "Absorbs " .. abbr(absorb)
+            text:SetText(textStr)
+        elseif displayMode == "full" or displayMode == "bothfull" then
+            local calculator = _G.UnitHealPredictionCalculator and _G.UnitHealPredictionCalculator.Create and _G.UnitHealPredictionCalculator:Create(Unit)
+            local incomingHeals, damageAbsorbs, healAbsorbs = 0, 0, 0
+            if calculator then
+                calculator:ResetPredictedValues()
+                local predictedValues = calculator:GetPredictedValues()
+                calculator:SetToDefaults()
+                calculator:SetPredictedValues(predictedValues)
+                calculator:SetIncomingHealOverflowPercent(0)
+                calculator:SetIncomingHealClampMode(calculator:GetIncomingHealClampMode())
+                calculator:SetDamageAbsorbClampMode(calculator:GetDamageAbsorbClampMode())
+                calculator:SetHealAbsorbClampMode(calculator:GetHealAbsorbClampMode())
+                calculator:SetHealAbsorbMode(calculator:GetHealAbsorbMode())
+                incomingHeals = calculator:GetTotalIncomingHeals()
+                damageAbsorbs = calculator:GetTotalDamageAbsorbs()
+                healAbsorbs = calculator:GetTotalHealAbsorbs()
             end
-            return tostring(val)
-        end
-        local textStr = abbr(Current)
-        if displayMode == "bothfull" and Percent then
-            local okPct, pctText = pcall(string.format, "%.0f%%", Percent)
-            if okPct and pctText then
-                textStr = textStr .. " (" .. pctText .. ")"
+            local function abbr(val)
+                if type(AbbreviateNumbers) == "function" and type(val) == "number" then
+                    return AbbreviateNumbers(val)
+                end
+                return tostring(val)
             end
+            local textStr = abbr(Current)
+            if displayMode == "bothfull" and Percent then
+                local okPct, pctText = pcall(string.format, "%.0f%%", Percent)
+                if okPct and pctText then
+                    textStr = textStr .. " (" .. pctText .. ")"
+                end
+            end
+            local incomingStr = (type(incomingHeals) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(incomingHeals) or nil
+            if incomingStr then
+                textStr = textStr .. " +" .. incomingStr
+            end
+            local absorbParts = {}
+            local dmgAbsStr = (type(damageAbsorbs) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(damageAbsorbs) or nil
+            if dmgAbsStr then
+                table.insert(absorbParts, "Absorb " .. dmgAbsStr)
+            end
+            local healAbsStr = (type(healAbsorbs) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(healAbsorbs) or nil
+            if healAbsStr then
+                table.insert(absorbParts, "HealAbsorb " .. healAbsStr)
+            end
+            if #absorbParts > 0 then
+                textStr = textStr .. " (" .. table.concat(absorbParts, ", ") .. ")"
+            end
+            text:SetText(textStr)
+        elseif displayMode == "both" then
+            local sep = _G.CONFIG and _G.CONFIG.separator or " - "
+            local okFmt = false
+            if type(Current) == "number" and type(Percent) == "number" and type(AbbreviateNumbers) == "function" then
+                okFmt = pcall(text.SetFormattedText, text, "%s" .. sep .. "%.0f%%", AbbreviateNumbers(Current), Percent)
+            end
+            if not okFmt then
+                local raw = FormatText("both", Current, nil, Percent)
+                text:SetText(raw or "?")
+            end
+            AppendAbsorbSuffix(Unit)
+        elseif displayMode == "current" then
+            text:SetText(FormatText("current", Current, nil, Percent))
+            AppendAbsorbSuffix(Unit)
+        elseif displayMode == "currentmax" then
+            text:SetText(FormatText("currentmax", Current, Max, Percent))
+            AppendAbsorbSuffix(Unit)
+        else -- percent
+            local okFmt = false
+            if type(Percent) == "number" then
+                okFmt = pcall(text.SetFormattedText, text, "%.0f%%", Percent)
+            end
+            if not okFmt then
+                local raw = FormatText("percent", Current, nil, Percent)
+                text:SetText(raw or "?")
+            end
+            AppendAbsorbSuffix(Unit)
         end
-        local incomingStr = (type(incomingHeals) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(incomingHeals) or nil
-        if incomingStr then
-            textStr = textStr .. " +" .. incomingStr
-        end
-        local absorbParts = {}
-        local dmgAbsStr = (type(damageAbsorbs) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(damageAbsorbs) or nil
-        if dmgAbsStr then
-            table.insert(absorbParts, "Absorb " .. dmgAbsStr)
-        end
-        local healAbsStr = (type(healAbsorbs) == "number" and type(AbbreviateNumbers) == "function") and AbbreviateNumbers(healAbsorbs) or nil
-        if healAbsStr then
-            table.insert(absorbParts, "HealAbsorb " .. healAbsStr)
-        end
-        if #absorbParts > 0 then
-            textStr = textStr .. " (" .. table.concat(absorbParts, ", ") .. ")"
-        end
-        text:SetText(textStr)
-    elseif displayMode == "both" then
-        local sep = CONFIG and CONFIG.separator or " - "
-        local okFmt = false
-        if type(Current) == "number" and type(Percent) == "number" and type(AbbreviateNumbers) == "function" then
-            okFmt = pcall(text.SetFormattedText, text, "%s" .. sep .. "%.0f%%", AbbreviateNumbers(Current), Percent)
-        end
-        if not okFmt then
-            local raw = FormatText("both", Current, nil, Percent)
-            text:SetText(raw or "?")
-        end
-        AppendAbsorbSuffix(Unit)
-    elseif displayMode == "current" then
-        text:SetText(FormatText("current", Current, nil, Percent))
-        AppendAbsorbSuffix(Unit)
-    elseif displayMode == "currentmax" then
-        text:SetText(FormatText("currentmax", Current, Max, Percent))
-        AppendAbsorbSuffix(Unit)
-    else -- percent
-        local okFmt = false
-        if type(Percent) == "number" then
-            okFmt = pcall(text.SetFormattedText, text, "%.0f%%", Percent)
-        end
-        if not okFmt then
-            local raw = FormatText("percent", Current, nil, Percent)
-            text:SetText(raw or "?")
-        end
-        AppendAbsorbSuffix(Unit)
+    end)
+    if not okRender then
+        pcall(text.SetText, text, "")
     end
     if (db.visibleAlpha or 1.0) > 0 then
         text:Show()

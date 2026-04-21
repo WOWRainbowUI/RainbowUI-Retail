@@ -56,7 +56,6 @@ local SoulsTrackerVengOptions = {
             type = "select",
             name = "填充材質",
 			desc = "從 SharedMedia 選擇填充（主資源條）的材質。",
-            dialogControl = "LSM30_Statusbar",
             values = function() return GetLSMStatusbarList() end,
             get = function()
                 local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
@@ -74,7 +73,6 @@ local SoulsTrackerVengOptions = {
             type = "select",
             name = "分段材質",
 			desc = "從 SharedMedia 選擇分段 (刻度) 的材質。",
-            dialogControl = "LSM30_Statusbar",
             values = function() return GetLSMStatusbarList() end,
             get = function()
                 local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
@@ -271,15 +269,7 @@ local SoulsTrackerVengOptions = {
             set = function() end,
             width = "full",
             dialogControl = "EditBox",
-            desc = "原作者 Argium。Logo 可在插件資料夾中找到，檔名為 argium2.tga."
-        },
-        argiumlogo = {
-            order = 1001,
-            type = "description",
-            name = "",
-            image = "Interface\\AddOns\\PersonalResourceReskin\\argium.tga",
-            imageWidth = 500,
-            imageHeight = 500,
+            desc = "原作者 Argium."
         },
     },
 }

@@ -213,11 +213,19 @@ local function AnchorCustomBar()
     local profile = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
     local widthMode = profile and profile.widthMode or "MANUAL"
     if widthMode ~= "MANUAL" then
-        local viewerName = (widthMode == "ESSENTIAL") and "EssentialCooldownViewer" or "UtilityCooldownViewer"
-        local viewer = _G[viewerName]
-        if viewer and viewer.GetWidth then
-            local vw = viewer:GetWidth()
-            if vw and vw > 10 then w = vw end
+        local prd = _G.PersonalResourceDisplayFrame
+        if prd and prd.PowerBar and prd.PowerBar.GetWidth then
+            local pw = prd.PowerBar:GetWidth()
+            if pw and pw > 10 then
+                w = pw
+            end
+        else
+            local viewerName = (widthMode == "ESSENTIAL") and "EssentialCooldownViewer" or "UtilityCooldownViewer"
+            local viewer = _G[viewerName]
+            if viewer and viewer.GetWidth then
+                local vw = viewer:GetWidth()
+                if vw and vw > 10 then w = vw end
+            end
         end
     end
     barFrame:SetSize(w, h)
@@ -352,12 +360,53 @@ local function CreateCustomStaggerBar()
     -- Global function for width sync from PRD ticker
     _G.CustomBrewmasterStaggerBar_SetSyncWidth = function(w)
         if not barFrame or not w or w < 10 then return end
-        if InCombatLockdown() then
-            -- In combat, only update width (no re-anchoring)
-            barFrame:SetWidth(w)
+        local profile = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
+        local widthMode = profile and profile.widthMode or "MANUAL"
+        local finalWidth = w
+
+        if widthMode ~= "MANUAL" then
+            local prd = _G.PersonalResourceDisplayFrame
+            if prd and prd.PowerBar and prd.PowerBar.GetWidth then
+                local pw = prd.PowerBar:GetWidth()
+                if pw and pw > 10 then
+                    finalWidth = pw
+                end
+            end
+        end
+
+        -- In MANUAL mode, sync is width-only; never override EditMode/lib-saved anchor.
+        if widthMode == "MANUAL" then
+            if InCombatLockdown() then
+                barFrame:SetWidth(finalWidth)
+                return
+            end
+            barFrame:SetWidth(finalWidth)
+            if bgTexture then bgTexture:SetAllPoints(barFrame) end
+            if borderFrame then
+                borderFrame:ClearAllPoints()
+                borderFrame:SetPoint("TOPLEFT", barFrame, "TOPLEFT", -1, 1)
+                borderFrame:SetPoint("BOTTOMRIGHT", barFrame, "BOTTOMRIGHT", 1, -1)
+            end
+            if staggerText then
+                local db = GetSavedDB()
+                staggerText:ClearAllPoints()
+                staggerText:SetPoint("CENTER", barFrame, "CENTER", db.textOffsetX or 0, db.textOffsetY or 0)
+            end
             return
         end
-        barFrame:SetWidth(w)
+
+        -- Never fight Edit Mode while the user is placing the frame.
+        if EditModeManagerFrame and EditModeManagerFrame.editModeActive then
+            barFrame:SetWidth(finalWidth)
+            return
+        end
+
+        if InCombatLockdown() then
+            -- In combat, only update width (no re-anchoring)
+            barFrame:SetWidth(finalWidth)
+            return
+        end
+        barFrame:SetWidth(finalWidth)
         if bgTexture then bgTexture:SetAllPoints(barFrame) end
         if borderFrame then
             borderFrame:ClearAllPoints()
@@ -368,18 +417,6 @@ local function CreateCustomStaggerBar()
             local db = GetSavedDB()
             staggerText:ClearAllPoints()
             staggerText:SetPoint("CENTER", barFrame, "CENTER", db.textOffsetX or 0, db.textOffsetY or 0)
-        end
-        -- Anchor to PRD so the bar follows the nameplate
-        local prd = _G.PersonalResourceDisplayFrame
-        local profile = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-        local anchor = profile and profile.staggerSyncAnchor or "ABOVE"
-        local offset = profile and profile.staggerSyncOffset or 2
-        if prd and prd.HealthBarsContainer and prd.HealthBarsContainer.healthBar and anchor == "ABOVE" then
-            barFrame:ClearAllPoints()
-            barFrame:SetPoint("BOTTOM", prd.HealthBarsContainer.healthBar, "TOP", 0, offset)
-        elseif prd and prd.PowerBar then
-            barFrame:ClearAllPoints()
-            barFrame:SetPoint("TOP", prd.PowerBar, "BOTTOM", 0, -offset)
         end
     end
 
@@ -409,6 +446,24 @@ local function GetSMTextureList()
     return list
 end
 
+local function GetSavedAnchorPosition(db)
+    db = db or GetSavedDB()
+    local saved = db.position
+
+    if LibEditMode and LibEditMode.GetActiveLayoutName and db.layoutPositions then
+        local layoutName = LibEditMode:GetActiveLayoutName()
+        local byLayout = layoutName and db.layoutPositions[layoutName]
+        if byLayout then
+            saved = byLayout
+        end
+    end
+
+    local pt = (saved and saved.point) or DEFAULT_POS.point
+    local x = (saved and saved.x) or DEFAULT_POS.x
+    local y = (saved and saved.y) or DEFAULT_POS.y
+    return { point = pt, x = x, y = y }
+end
+
 ------------------------------------------------------------
 -- Register with LibEditMode
 ------------------------------------------------------------
@@ -418,11 +473,11 @@ local function RegisterEditMode()
 
     local db = GetSavedDB()
 
-    -- 還原已儲存的位置
-    local saved = db.position
-    local pt = (saved and saved.point) or DEFAULT_POS.point
-    local x  = (saved and saved.x) or DEFAULT_POS.x
-    local y  = (saved and saved.y) or DEFAULT_POS.y
+    -- Restore saved position
+    local savedAnchor = GetSavedAnchorPosition(db)
+    local pt = savedAnchor.point
+    local x = savedAnchor.x
+    local y = savedAnchor.y
     barFrame:ClearAllPoints()
     barFrame:SetPoint(pt, UIParent, pt, x, y)
 
@@ -431,7 +486,7 @@ local function RegisterEditMode()
         db.layoutPositions = db.layoutPositions or {}
         db.layoutPositions[layoutName] = { point = pt2, x = fx, y = fy }
         db.position = { point = pt2, x = fx, y = fy }
-    end, DEFAULT_POS, "醉仙緩勁條")
+    end, savedAnchor, "醉仙緩勁條")
 
     -- 從 SharedMedia 建立材質下拉選單值
     local texList = GetSMTextureList()
@@ -664,46 +719,6 @@ local function RegisterEditMode()
                 db.hideWhenMounted = v
                 EvaluateVisibility()
             end,
-        },
-        -- Sync Anchor Position (above/below PRD when width synced)
-        {
-            kind = LibEditMode.SettingType.Dropdown,
-            name = "Sync Position",
-            get = function()
-                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                return p and p.staggerSyncAnchor or "ABOVE"
-            end,
-            set = function(_, v)
-                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                if p then p.staggerSyncAnchor = v end
-                if type(_G.CustomBrewmasterStaggerBar_SetSyncWidth) == "function" then
-                    local bw = barFrame and barFrame:GetWidth() or 200
-                    _G.CustomBrewmasterStaggerBar_SetSyncWidth(bw)
-                end
-            end,
-            values = {
-                { text = "Above PRD", value = "ABOVE" },
-                { text = "Below PRD", value = "BELOW" },
-            },
-        },
-        -- Sync Offset (pixel gap from PRD when width synced)
-        {
-            kind = LibEditMode.SettingType.Slider,
-            name = "Sync Offset",
-            default = 2,
-            get = function()
-                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                return p and p.staggerSyncOffset or 2
-            end,
-            set = function(_, v)
-                local p = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
-                if p then p.staggerSyncOffset = v end
-                if type(_G.CustomBrewmasterStaggerBar_SetSyncWidth) == "function" then
-                    local bw = barFrame and barFrame:GetWidth() or 200
-                    _G.CustomBrewmasterStaggerBar_SetSyncWidth(bw)
-                end
-            end,
-            minValue = -20, maxValue = 40, valueStep = 1,
         },
     })
 end
