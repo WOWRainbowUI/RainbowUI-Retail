@@ -1,4 +1,16 @@
 ﻿------------------------------------------------------
+13.0.9 (2026-04-17)
+------------------------------------------------------
+* Fixed a Lua error that occurred when killing a mob while the mouse cursor was hovering over its nameplate [GH-682].
+
+------------------------------------------------------
+13.0.8 (2026-04-17)
+------------------------------------------------------
+* Fixed a Lua error that could occur when moving the mouse cursor away from a nameplate that was being removed at the same time [GH-679].
+* Fixed several Lua errors in WoW Midnight that could occur during combat or in instances.
+* Fixed a bug where raid target markers (skull, cross, etc.) on nameplates disappeared when entering combat [Comment #8189, #8190, #8204, #8211, #8219].
+
+------------------------------------------------------
 13.0.7 (2026-04-07)
 ------------------------------------------------------
 * Fixed a Lua error in WoW Midnight that occurred when nameplates were accessed, which was caused by restrictions on secret values [GH-678, GH-677, GH-676, Comment #8210, #8209, #8205].
@@ -29,7 +41,7 @@
 13.0.3 (2026-03-12)
 ------------------------------------------------------
 * Fixed several issues related to castbars. Castbars shown be shown more consistently now. 
-* The interruptor of a cast is shown again in WoW Midnight.
+* The interrupter of a cast is shown again in WoW Midnight.
 * Fixed a Lua error in Resource widget in WoW Midnight due to restrictions on secret values.
 * Fixed a Lua error in the NPC Role status text in WoW Midnight due to restrictions on secret values [Comment ##8058].
 
