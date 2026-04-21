@@ -628,7 +628,6 @@ L["CustomBuff.Name"] = "Nome:"
 L["CustomBuff.Text"] = "Testo:"
 L["CustomBuff.LineBreakHint"] = "(usa \\n per andare a capo)"
 L["CustomBuff.Appearance"] = "ASPETTO"
-L["CustomBuff.Conditions"] = "CONDIZIONI"
 L["CustomBuff.ShowIn"] = "MOSTRA IN"
 L["CustomBuff.ClickAction"] = "AZIONE AL CLICK"
 L["CustomBuff.SettingsMovedNote"] =

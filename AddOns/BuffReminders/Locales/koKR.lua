@@ -519,7 +519,6 @@ L["CustomBuff.Name"] = "이름:"
 L["CustomBuff.Text"] = "텍스트:"
 L["CustomBuff.LineBreakHint"] = "(줄바꿈은 \\n 텍스트 사용)"
 L["CustomBuff.Appearance"] = "모양"
-L["CustomBuff.Conditions"] = "조건"
 L["CustomBuff.ShowIn"] = "표시 위치"
 L["CustomBuff.ClickAction"] = "클릭 동작"
 L["CustomBuff.SettingsMovedNote"] =
