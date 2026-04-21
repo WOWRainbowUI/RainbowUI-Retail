@@ -21,9 +21,12 @@ local function applySettings(frame, desaturate, colorValue, hook, hookShow)
                     frame.bbfHooked = true
 
                     hooksecurefunc(frame, "SetVertexColor", function(self)
+                        if not self then return end
                         if self.changing or self:IsProtected() then return end
                         self.changing = true
-                        self:SetDesaturated(desaturate)
+                        if self.SetDesaturated then
+                            self:SetDesaturated(desaturate)
+                        end
                         self:SetVertexColor(colorValue, colorValue, colorValue)
                         self.changing = false
                     end)
@@ -383,7 +386,7 @@ function BBF.DarkmodeFrames(bypass)
                 end
             end
             hooksecurefunc("SharedTooltip_SetBackdropStyle", function(self)
-                if self and self.NineSlice then
+                if self and not self:IsForbidden() and self.NineSlice and self.NineSlice.SetCenterColor then
                     self.NineSlice:SetCenterColor(0, 0, 0, 1)
                 end
             end)
