@@ -2185,9 +2185,6 @@ do
             hb:SetWidth(w)
         end
         if prd.AlternatePowerBar then prd.AlternatePowerBar:SetWidth(w) end
-        -- Sync MonkOrbTracker width
-        local monkOrb = _G["MonkOrbTrackerFrame"]
-        if monkOrb and monkOrb.SetWidth then monkOrb:SetWidth(w) end
         -- Sync CustomBrewmasterStaggerBar width
         if type(_G.CustomBrewmasterStaggerBar_SetSyncWidth) == "function" then
             _G.CustomBrewmasterStaggerBar_SetSyncWidth(w)

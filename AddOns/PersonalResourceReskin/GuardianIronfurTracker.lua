@@ -504,18 +504,53 @@ local function RegisterGuardianIronfurTrackerOptions()
     _G.GuardianIronfurTracker_Update = UpdateSegments
 end
 
+local optionsRegistered = false
+
+local function EnsureGuardianIronfurOptionsRegistered()
+    if optionsRegistered then return end
+    RegisterGuardianIronfurTrackerOptions()
+    optionsRegistered = true
+end
+
+local function StopGuardianIronfurTracker()
+    if ticker then
+        ticker:Cancel()
+        ticker = nil
+    end
+    if ironfurBar then ironfurBar:Hide() end
+    if centerText then centerText:Hide() end
+end
+
+local function RefreshGuardianIronfurState()
+    local _, class = UnitClass("player")
+    if class ~= "DRUID" then
+        StopGuardianIronfurTracker()
+        return
+    end
+
+    -- Register options for Druids regardless of current spec so the page is available
+    -- immediately when switching to Guardian.
+    EnsureGuardianIronfurOptionsRegistered()
+
+    local spec = GetSpecialization()
+    local specID = spec and GetSpecializationInfo(spec)
+    if specID == 104 then
+        InitIronfurBar()
+        UpdateSegments()
+    else
+        StopGuardianIronfurTracker()
+    end
+end
+
 
 local optionsEventFrame = CreateFrame("Frame")
 optionsEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+optionsEventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+optionsEventFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 optionsEventFrame:SetScript("OnEvent", function(self, event, ...)
-    local _, class = UnitClass("player")
-    local spec = GetSpecialization()
-    local specID = spec and GetSpecializationInfo(spec)
-    if class ~= "DRUID" or specID ~= 104 then
-        self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    if event == "PLAYER_ENTERING_WORLD" then
+        C_Timer.After(0.1, RefreshGuardianIronfurState)
         return
     end
-    RegisterGuardianIronfurTrackerOptions()
-    if InitIronfurBar then InitIronfurBar() end
-    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    RefreshGuardianIronfurState()
 end)

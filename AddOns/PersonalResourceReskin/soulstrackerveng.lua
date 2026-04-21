@@ -56,7 +56,6 @@ local SoulsTrackerVengOptions = {
             type = "select",
             name = "Filling Texture",
             desc = "Select the filling (main bar) texture from SharedMedia.",
-            dialogControl = "LSM30_Statusbar",
             values = function() return GetLSMStatusbarList() end,
             get = function()
                 local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
@@ -74,7 +73,6 @@ local SoulsTrackerVengOptions = {
             type = "select",
             name = "Segment Texture",
             desc = "Select the segment (tick) texture from SharedMedia.",
-            dialogControl = "LSM30_Statusbar",
             values = function() return GetLSMStatusbarList() end,
             get = function()
                 local db = PersonalResourceReskin and PersonalResourceReskin.db and PersonalResourceReskin.db.profile
@@ -271,15 +269,7 @@ local SoulsTrackerVengOptions = {
             set = function() end,
             width = "full",
             dialogControl = "EditBox",
-            desc = "Original by Argium. Logo available in addon folder as argium2.tga."
-        },
-        argiumlogo = {
-            order = 1001,
-            type = "description",
-            name = "",
-            image = "Interface\\AddOns\\PersonalResourceReskin\\argium.tga",
-            imageWidth = 500,
-            imageHeight = 500,
+            desc = "Original by Argium."
         },
     },
 }
