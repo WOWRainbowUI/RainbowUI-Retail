@@ -52,11 +52,9 @@ local defaults = {
 		lagtextalignment = "center", -- L["Left"], L["Right"]
 		lagtextposition = "bottom", --L["Top"], L["Above"], L["Below"]
 
-		-- With "embed", the lag indicator is placed on the left hand side of the bar instead of right for normal casting
-		-- and the castbar time is shifted so that the end of the time accounting for lag lines up with the right hand side of the castbar
-		-- For channeled spells, the lag indicator is shown on the right, and the cast bar is adjusted down from there
-		-- lagpadding is applied only if lagembed is enabled
-		lagembed = false,
+		-- lagmode: "default" = lag at cast end side, "embed" = lag at cast start + time shift, "right" = always right
+		-- lagpadding is applied only if lagmode == "embed"
+		lagmode = "default",
 		lagpadding = 0.0,
 	}
 }
@@ -137,7 +135,7 @@ function Latency:UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 
 	lagbox:ClearAllPoints()
 	local side
-	if db.lagembed then
+	if db.lagmode == "embed" then
 		if bar.casting then
 			side = "LEFT"
 			lagbox:SetTexCoord(0,perc,0,1)
@@ -150,16 +148,19 @@ function Latency:UNIT_SPELLCAST_START(object, bar, unit, guid, spellID)
 		bar.startTime = startTime
 		endTime = endTime - timeDiff + db.lagpadding
 		bar.endTime = endTime
-	else
+	elseif db.lagmode == "right" then
+		side = "RIGHT"
+		lagbox:SetTexCoord(1-perc,1,0,1)
+	else -- "default"
 		if bar.casting then
 			side = "RIGHT"
 			lagbox:SetTexCoord(1-perc,1,0,1)
 		else -- channeling
 			side = "LEFT"
-			lagbox:SetTexCoord(perc,1,0,1)
+			lagbox:SetTexCoord(0,perc,0,1)
 		end
 	end
-	lagbox:SetDrawLayer(side == "LEFT" and "OVERLAY" or "BACKGROUND")
+	lagbox:SetDrawLayer("BACKGROUND")
 	lagbox:SetPoint(side, Player.Bar.Bar, side)
 	lagbox:SetWidth(Player.Bar.Bar:GetWidth() * perc)
 	lagbox:SetShown(perc > 0)
@@ -207,7 +208,7 @@ function Latency:UNIT_SPELLCAST_DELAYED(object, bar, unit)
 		return
 	end
 
-	if db.lagembed and timeDiff then
+	if db.lagmode == "embed" and timeDiff then
 		local startTime = bar.startTime - timeDiff + db.lagpadding
 		bar.startTime = startTime
 		local endTime = bar.endTime - timeDiff + db.lagpadding
@@ -316,10 +317,15 @@ do
 						end,
 						order = 100,
 					},
-					lagembed = {
-						type = "toggle",
-						name = L["Embed"],
-						desc = L["Include Latency time in the displayed cast bar."],
+					lagmode = {
+						type = "select",
+						name = L["Mode"],
+						desc = L["Set the position mode for the latency indicator"],
+						values = {
+							["default"] = L["Default"],
+							["embed"] = L["Embed"],
+							["right"] = L["Always Right"],
+						},
 						order = 101,
 					},
 					lagalpha ={
@@ -336,7 +342,7 @@ do
 						desc = L["Embed mode will decrease it's lag estimates by this amount.  Ideally, set it to the difference between your highest and lowest ping amounts.  (ie, if your ping varies from 200ms to 400ms, set it to 0.2)"],
 						min = 0, max = 1, bigStep = 0.05,
 						disabled = function()
-							return not db.lagembed
+							return db.lagmode ~= "embed"
 						end,
 						order = 103,
 					},

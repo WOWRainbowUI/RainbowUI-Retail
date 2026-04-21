@@ -46,6 +46,9 @@ local defaults = {
 		icons = true,
 		iconside = "left",
 
+		raidicons = true,
+		raidiconside = "left",
+
 		anchor = "free", -- "free"
 
 		x = 500,
@@ -107,7 +110,11 @@ local castbars = setmetatable({}, {
 		bar.Text = bar.TextFrame:CreateFontString(nil, "OVERLAY")
 		bar.TimeText = bar.TextFrame:CreateFontString(nil, "OVERLAY")
 		bar.Icon = bar:CreateTexture(nil, "ARTWORK")
-		
+
+		bar.RaidIcon = bar:CreateTexture(nil, "OVERLAY")
+		bar.RaidIcon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
+		bar.RaidIcon:Hide()
+
 		if k == 1 then
 			bar:SetMovable(true)
 			bar:RegisterForDrag("LeftButton")
@@ -155,6 +162,8 @@ function Enemy:OnEnable()
 	-- Clean up when leaving combat or dying
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_DEAD")
+	-- Refresh bars when raid markers change
+	self:RegisterEvent("RAID_TARGET_UPDATE")
 	
 	media.RegisterCallback(self, "LibSharedMedia_SetGlobal", function(mtype, override)
 		if mtype == "statusbar" then
@@ -187,6 +196,10 @@ function Enemy:PLAYER_DEAD()
 		bar:SetScript("OnUpdate", nil)
 		bar.durationObj = nil
 	end
+end
+
+function Enemy:RAID_TARGET_UPDATE()
+	self:UpdateBars()
 end
 
 -- Clean up when nameplate is removed
@@ -290,7 +303,20 @@ do
 					-- Store durationObj on bar for OnUpdate time text
 					bar.durationObj = durationObj
 					bar:SetScript("OnUpdate", onUpdate)
-					
+
+					-- Raid target marker
+					if db.raidicons then
+						local raidTargetIndex = GetRaidTargetIndex(unit)
+						if issecretvalue(raidTargetIndex) or raidTargetIndex then
+							SetRaidTargetIconTexture(bar.RaidIcon, raidTargetIndex)
+							bar.RaidIcon:Show()
+						else
+							bar.RaidIcon:Hide()
+						end
+					else
+						bar.RaidIcon:Hide()
+					end
+
 					-- Handle notInterruptible status with overlay
 					if bar.NoInterruptOverlay then
 						if issecretvalue(notInterruptible) then
@@ -390,6 +416,9 @@ do
 					if iconside == "right" and showicons then
 						offset = offset + db.height
 					end
+					if db.raidiconside == "right" and db.raidicons then
+						offset = offset + db.height
+					end
 					if qpdb.iconposition == "left" and not qpdb.hideicon then
 						offset = offset + qpdb.h
 					end
@@ -397,6 +426,9 @@ do
 					bar:SetPoint("BOTTOMRIGHT", anchorframe, "BOTTOMLEFT", -1 * offset, gap)
 				elseif position == "leftdown" then
 					if iconside == "right" and showicons then
+						offset = offset + db.height
+					end
+					if db.raidiconside == "right" and db.raidicons then
 						offset = offset + db.height
 					end
 					if qpdb.iconposition == "left" and not qpdb.hideicon then
@@ -408,6 +440,9 @@ do
 					if iconside == "left" and showicons then
 						offset = offset + db.height
 					end
+					if db.raidiconside == "left" and db.raidicons then
+						offset = offset + db.height
+					end
 					if qpdb.iconposition == "right" and not qpdb.hideicon then
 						offset = offset + qpdb.h
 					end
@@ -415,6 +450,9 @@ do
 					bar:SetPoint("BOTTOMLEFT", anchorframe, "BOTTOMRIGHT", offset, gap)
 				elseif position == "rightdown" then
 					if iconside == "left" and showicons then
+						offset = offset + db.height
+					end
+					if db.raidiconside == "left" and db.raidicons then
 						offset = offset + db.height
 					end
 					if qpdb.iconposition == "right" and not qpdb.hideicon then
@@ -482,6 +520,32 @@ do
 			end
 		else
 			icon:Hide()
+		end
+
+		local raidIcon = bar.RaidIcon
+		if db.raidicons then
+			local raidIconSize = db.height - 1
+			raidIcon:SetWidth(raidIconSize)
+			raidIcon:SetHeight(raidIconSize)
+			raidIcon:ClearAllPoints()
+			if db.raidiconside == "left" then
+				if showicons and iconside == "left" then
+					-- Both on the left: raid icon goes outside the spell icon
+					raidIcon:SetPoint("RIGHT", icon, "LEFT", -1, 0)
+				else
+					raidIcon:SetPoint("RIGHT", bar, "LEFT", -1, 0)
+				end
+			else
+				if showicons and iconside == "right" then
+					-- Both on the right: raid icon goes outside the spell icon
+					raidIcon:SetPoint("LEFT", icon, "RIGHT", 1, 0)
+				else
+					raidIcon:SetPoint("LEFT", bar, "RIGHT", 1, 0)
+				end
+			end
+			-- Visibility is controlled in UpdateBars based on actual marker data
+		else
+			raidIcon:Hide()
 		end
 
 		return direction
@@ -699,6 +763,29 @@ do
 								desc = L["Set the side of the bar that the icon appears on"],
 								values = {["left"] = L["Left"], ["right"] = L["Right"]},
 								order = 111,
+							},
+							nl4b = {
+								type = "description",
+								name = "",
+								order = 111.1,
+							},
+							raidicons = {
+								type = "toggle",
+								name = L["Show Raid Icons"],
+								desc = L["Show raid target markers on the cast bars"],
+								order = 111.5,
+							},
+							raidiconside = {
+								type = "select",
+								name = L["Raid Icon Position"],
+								desc = L["Set the side of the bar that the raid icon appears on"],
+								values = {["left"] = L["Left"], ["right"] = L["Right"]},
+								order = 111.6,
+							},
+							nl4c = {
+								type = "description",
+								name = "",
+								order = 111.7,
 							},
 							texture = {
 								type = "select",
