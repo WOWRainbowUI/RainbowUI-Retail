@@ -24,21 +24,22 @@ end
 function addonTable.Display.CastIconMarkerMixin:SetUnit(unit)
   self.unit = unit
   if self.unit then
-    self:RegisterUnitEvent("UNIT_SPELLCAST_START", self.unit)
-    self:RegisterUnitEvent("UNIT_SPELLCAST_STOP", self.unit)
+    addonTable.Display.Cache:RegisterCallback(self.unit, "cast", function(state)
+      if state.interrupterGUID then
+        self:ApplyInterrupt()
+      elseif state.cast[3] or state.channel[3] then
+        self:ApplyCasting(state.cast[3] or state.channel[3])
+      else
+        self:ClearCast()
+      end
+    end)
 
-    self:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", self.unit)
-    self:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", self.unit)
-
-    if addonTable.Constants.IsRetail then
-      self:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_START", self.unit)
-      self:RegisterUnitEvent("UNIT_SPELLCAST_EMPOWER_STOP", self.unit)
+    local state = addonTable.Display.Cache:Get(self.unit, "cast")
+    if state.cast[3] or state.channel[3] then
+      self:ApplyCasting(state.cast[3] or state.channel[3])
+    else
+      self:ClearCast()
     end
-
-    self:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", self.unit)
-    self:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", self.unit)
-
-    self:ApplyCasting()
   else
     self:StripInternal()
   end
@@ -65,28 +66,22 @@ function addonTable.Display.CastIconMarkerMixin:Strip()
   self.PostInit = nil
 end
 
-function addonTable.Display.CastIconMarkerMixin:OnEvent(eventName, ...)
-  if eventName == "UNIT_SPELLCAST_INTERRUPTED" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" and select(4, ...) ~= nil or eventName == "UNIT_SPELLCAST_EMPOWER_STOP" and select(5, ...) ~= nil then
-    self.interrupted = true
-    self:Show()
-    if self.background then
-      self.background:Show()
-    end
-    self.timer = C_Timer.NewTimer(addonTable.Constants.CastInterruptedDelay, function()
-      if self.interrupted then
-        self.interrupted = nil
-        self:Hide()
-        if self.background then
-          self.background:Hide()
-        end
-      end
-      self.timer = nil
-    end)
-  elseif eventName == "UNIT_SPELLCAST_CHANNEL_STOP" or eventName == "UNIT_SPELLCAST_EMPOWER_STOP" or eventName == "UNIT_SPELLCAST_STOP" then
-    self:ClearCast()
-  else
-    self:ApplyCasting()
+function addonTable.Display.CastIconMarkerMixin:ApplyInterrupt()
+  self.interrupted = true
+  self:Show()
+  if self.background then
+    self.background:Show()
   end
+  self.timer = C_Timer.NewTimer(addonTable.Constants.CastInterruptedDelay, function()
+    if self.interrupted then
+      self.interrupted = nil
+      self:Hide()
+      if self.background then
+        self.background:Hide()
+      end
+    end
+    self.timer = nil
+  end)
 end
 
 function addonTable.Display.CastIconMarkerMixin:ClearCast()
@@ -98,25 +93,16 @@ function addonTable.Display.CastIconMarkerMixin:ClearCast()
   end
 end
 
-function addonTable.Display.CastIconMarkerMixin:ApplyCasting()
-  local _, _, texture = UnitCastingInfo(self.unit)
-  if type(texture) == "nil" then
-    _, _, texture = UnitChannelInfo(self.unit)
+function addonTable.Display.CastIconMarkerMixin:ApplyCasting(texture)
+  if self.timer then
+    self.timer:Cancel()
+    self.interrupted = nil
+    self.timer = nil
   end
 
-  if type(texture) ~= "nil" then
-    if self.timer then
-      self.timer:Cancel()
-      self.interrupted = nil
-      self.timer = nil
-    end
-
-    self.marker:SetTexture(texture)
-    self:Show()
-    if self.background then
-      self.background:Show()
-    end
-  else
-    self:ClearCast()
+  self.marker:SetTexture(texture)
+  self:Show()
+  if self.background then
+    self.background:Show()
   end
 end
