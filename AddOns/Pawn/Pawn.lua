@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1308
+PawnVersion = 2.1309
 
 -- Remove this when 12.0's tooltip secret taint bugs are fixed.
 -- 1. Pawn hooks ShoppingTooltip1.ProcessInfo with PawnUpdateTooltip
@@ -15,14 +15,15 @@ PawnVersion = 2.1308
 -- 3. That calls calls Blizzard_MoneyFrame's UpdateFunc
 -- 4. If we're in combat, we introduce taint into MoneyFrame.staticMoney
 -- 5. Later calls to MoneyFrame_Update fail due to taint
-PawnTempBlockShoppingTooltipUpdates = VgerCore.IsMidnight
+-- Reverted in Pawn 2.13.9 after WoW 12.0.5.
+PawnTempBlockShoppingTooltipUpdates = nil
 
 -- Remove this when 12.0's tooltip secret taint bugs are fixed.
 -- Reverted in Pawn 2.13.8 after a game patch.
 PawnTempWrapWorldQuestTooltipResize = nil
 
 -- Pawn requires this version of VgerCore:
-local PawnVgerCoreVersionRequired = 1.20
+local PawnVgerCoreVersionRequired = 1.21
 
 -- Floating point math
 local PawnEpsilon = 0.0000000001
