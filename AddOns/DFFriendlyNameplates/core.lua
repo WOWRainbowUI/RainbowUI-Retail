@@ -29,7 +29,7 @@ DFFNamePlates.defaultFont2 = {
     flags = defaultFontFlags2,
 }
 
-local ADDON_VERSION = "2.7"
+local ADDON_VERSION = "2.8"
 local CONFIG_VERSION = "3.1"
 DFFNamePlates.DEFAULT_WORLD_TEXT_SIZE = 0
 DFFNamePlates.DEFAULT_WORLD_TEXT_ALPHA = 0.5
@@ -480,8 +480,6 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
             DFFNamePlates:UpdateLanguageApplyState()
         end
 
-
-
         --nameplates
         if DFFriendlyNamePlates.NamePlatesSettings["enabled"] then
             SetCVar("nameplateshowfriendlyPlayers", "1");
@@ -493,7 +491,8 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
 
         if DFFriendlyNamePlates.NamePlatesSettings["showOnlyName"] then
             SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", true)
-            TextureLoadingGroupMixin.RemoveTexture({ textures = NamePlateFriendlyFrameOptions }, "updateNameUsesGetUnitName")
+            TextureLoadingGroupMixin.RemoveTexture({ textures = NamePlateFriendlyFrameOptions },
+                "updateNameUsesGetUnitName")
         end
         if DFFriendlyNamePlates.NamePlatesSettings["showClassColor"] then
             SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", true)
@@ -617,8 +616,7 @@ httpsxFriendlyNamePlates:SetScript("OnEvent", function(s, event)
                 SetCVar("nameplateshowfriendlyPlayers", "1")
             end
         end
-        C_Timer.After(0.5, function() DFFNamePlates:reloadNP()end)
-       
+        C_Timer.After(0.5, function() DFFNamePlates:reloadNP() end)
     end
 end)
 
