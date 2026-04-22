@@ -15,6 +15,8 @@ local function DoesOtherTankHaveAggro(unit)
 end
 
 local IsTankRole = addonTable.Display.Utilities.IsTankRole
+local GetEliteType = addonTable.Display.Utilities.GetEliteType
+local GetDelveType = addonTable.Display.Utilities.GetDelveType
 
 local inRelevantThreatInstance, inRelevantEliteInstance, inRelevantDelveInstance = false, false, false
 
@@ -29,68 +31,7 @@ instanceTracker:SetScript("OnEvent", function(_, event)
   inRelevantThreatInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true, pvp = true})
   inRelevantEliteInstance = addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true})
   inRelevantDelveInstance = addonTable.Display.Utilities.IsInRelevantInstance({delve = true})
-  local _, _, _, _, _, _, _, _, _, lfgDungeonID = GetInstanceInfo()
-  if PLATYNATOR_LAST_INSTANCE == nil
-    or (inRelevantThreatInstance or inRelevantEliteInstance) ~= PLATYNATOR_LAST_INSTANCE.inInstance
-    or PLATYNATOR_LAST_INSTANCE.lastLFGInstanceID ~= lfgDungeonID
-    or not (inRelevantThreatInstance or inRelevantEliteInstance) then
-    PLATYNATOR_LAST_INSTANCE = {
-      lastLFGInstanceID = lfgDungeonID,
-      inInstance = inRelevantThreatInstance or inRelevantEliteInstance,
-      instanceLieutenantLevel = nil,
-    }
-    if lfgDungeonID and addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true}) then
-      PLATYNATOR_LAST_INSTANCE.level = GetMaxLevelForExpansionLevel(GetMaximumExpansionLevel())
-    else
-      PLATYNATOR_LAST_INSTANCE.level = UnitEffectiveLevel("player")
-    end
-  end
 end)
-
-local stateToEvent = {
-  cast = {
-    "UNIT_SPELLCAST_START",
-    "UNIT_SPELLCAST_STOP",
-    "UNIT_SPELLCAST_FAILED",
-    "UNIT_SPELLCAST_INTERRUPTED",
-    "UNIT_SPELLCAST_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_CHANNEL_START",
-    "UNIT_SPELLCAST_CHANNEL_STOP",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-  },
-  threat = {
-    "UNIT_THREAT_LIST_UPDATE",
-  }
-}
-
-local stateToCalculator = {
-  cast = function(state, unit, event)
-    state.cast = true
-    -- Special case, the cast info _might_ still exist even though the cast is over
-    if event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" or event == "UNIT_SPELLCAST_EMPOWER_STOP" then
-      state.castInfo = {}
-      state.channelInfo = {}
-    else
-      state.castInfo = {UnitCastingInfo(unit)}
-      state.channelInfo = {UnitChannelInfo(unit)}
-    end
-  end,
-  threat = function(state, unit)
-    state.threat = UnitThreatSituation("player", unit)
-    state.hostile = UnitCanAttack("player", unit) and UnitIsEnemy(unit, "player")
-  end
-}
-
-local eventToState = {}
-local eventToCalulator = {}
-for key, events in pairs(stateToEvent) do
-  for _, e in ipairs(events) do
-    eventToState[e] = key
-    eventToCalulator[e] = stateToCalculator[key]
-  end
-end
 
 local kindToEvent = {
   reaction = {"UNIT_FACTION"},
@@ -99,76 +40,7 @@ local kindToEvent = {
   notTarget = {"PLAYER_TARGET_CHANGED"},
   softTarget = {"PLAYER_TARGET_CHANGED", "PLAYER_SOFT_ENEMY_CHANGED", "PLAYER_SOFT_FRIEND_CHANGED"},
   focus = {"PLAYER_FOCUS_CHANGED"},
-  threat = {"UNIT_THREAT_LIST_UPDATE"},
   execute = {"UNIT_HEALTH"},
-  interruptReady = {
-    "UNIT_SPELLCAST_START",
-    "UNIT_SPELLCAST_STOP",
-    "UNIT_SPELLCAST_FAILED",
-    "UNIT_SPELLCAST_INTERRUPTED",
-    "UNIT_SPELLCAST_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_CHANNEL_START",
-    "UNIT_SPELLCAST_CHANNEL_STOP",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-  },
-  interruptNotReady = {
-    "UNIT_SPELLCAST_START",
-    "UNIT_SPELLCAST_STOP",
-    "UNIT_SPELLCAST_FAILED",
-    "UNIT_SPELLCAST_INTERRUPTED",
-    "UNIT_SPELLCAST_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_CHANNEL_START",
-    "UNIT_SPELLCAST_CHANNEL_STOP",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-  },
-  uninterruptableCast = {
-    "UNIT_SPELLCAST_START",
-    "UNIT_SPELLCAST_STOP",
-    "UNIT_SPELLCAST_FAILED",
-    "UNIT_SPELLCAST_INTERRUPTED",
-    "UNIT_SPELLCAST_CHANNEL_START",
-    "UNIT_SPELLCAST_CHANNEL_STOP",
-    "UNIT_SPELLCAST_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-  },
-  castTargetsYou = {
-    "UNIT_SPELLCAST_START",
-    "UNIT_SPELLCAST_STOP",
-    "UNIT_SPELLCAST_FAILED",
-    "UNIT_SPELLCAST_INTERRUPTED",
-    "UNIT_SPELLCAST_CHANNEL_START",
-    "UNIT_SPELLCAST_CHANNEL_STOP",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-  },
-  cast = {
-    "UNIT_SPELLCAST_START",
-    "UNIT_SPELLCAST_STOP",
-    "UNIT_SPELLCAST_FAILED",
-    "UNIT_SPELLCAST_INTERRUPTED",
-    "UNIT_SPELLCAST_CHANNEL_START",
-    "UNIT_SPELLCAST_CHANNEL_STOP",
-    "UNIT_SPELLCAST_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_NOT_INTERRUPTIBLE",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-  },
-  importantCast = {
-    "UNIT_SPELLCAST_START",
-    "UNIT_SPELLCAST_STOP",
-    "UNIT_SPELLCAST_FAILED",
-    "UNIT_SPELLCAST_INTERRUPTED",
-    "UNIT_SPELLCAST_CHANNEL_START",
-    "UNIT_SPELLCAST_CHANNEL_STOP",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-  },
   eliteType = {
     "UNIT_CLASSIFICATION_CHANGED",
   },
@@ -183,6 +55,14 @@ local kindToCallback = {
   quest = {"QuestInfoUpdate"},
   mouseover = {"MouseoverUpdate"},
   threat = {"CombatStatusChange", "RoleChange"},
+}
+local kindToCache = {
+  interruptReady = {"cast"},
+  interruptNotReady = {"cast"},
+  uninterruptableCast = {"cast"},
+  castTargetsYou = {"cast"},
+  importantCast = {"cast"},
+  threat = {"threat"},
 }
 
 function addonTable.Display.UnregisterForColorEvents(frame)
@@ -204,7 +84,9 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
   frame.colorState = {
     frequentUpdater = {},
     isPlayer = UnitIsPlayer(frame.unit) or UnitTreatAsPlayerForDisplay and UnitTreatAsPlayerForDisplay(frame.unit),
+    hostile = UnitCanAttack("player", frame.unit) and UnitIsEnemy(frame.unit, "player"),
     callbacks = {},
+    caches = {},
   }
   frame.colorState.defaultColor = defaultColor or transparency
   for _, s in ipairs(settings) do
@@ -212,11 +94,6 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
     if es then
       for _, e in ipairs(es) do
         events[e] = true
-        local stateKind = eventToState[e]
-        local state = frame.colorState[stateKind]
-        if stateKind and state == nil then
-          stateToCalculator[stateKind](frame.colorState, frame.unit, "")
-        end
         if C_EventUtils.IsEventValid(e) then
           if e:match("^UNIT") then
             frame:RegisterUnitEvent(e, frame.unit)
@@ -235,14 +112,21 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
         end, frame.colorState)
       end
     end
+    local cc = kindToCache[s.kind]
+    if cc then
+      for _, c in ipairs(cc) do
+        if not frame.colorState.caches[c] then
+          addonTable.Display.Cache:RegisterCallback(frame.unit, c, function()
+            frame:ColorEventHandler("FORCED")
+          end)
+        end
+      end
+    end
   end
 
   function frame:ColorEventHandler(eventName)
+    local start = debugprofilestop()
     if events[eventName] then
-      local calculator = eventToCalulator[eventName]
-      if calculator then
-        calculator(self.colorState, self.unit, eventName)
-      end
       self:SetColor(addonTable.Display.GetColor(settings, self.colorState, self.unit))
       if next(self.colorState.frequentUpdater) then
         if not self.colorState.timer then
@@ -299,7 +183,7 @@ function addonTable.Display.GetColor(settings, state, unit)
         break
       end
     elseif s.kind == "threat" then
-      local threat = state.threat
+      local threat = addonTable.Display.Cache:Get(unit, "threat")
       local hostile = state.hostile
       local isTank = IsTankRole()
       if not state.isPlayer and (inRelevantThreatInstance or not s.instancesOnly) and (threat or (hostile and not s.combatOnly) or IsInCombatWith(unit)) and (not s.tanksOnly or isTank) then
@@ -327,73 +211,17 @@ function addonTable.Display.GetColor(settings, state, unit)
       end
     elseif s.kind == "eliteType" then
       if (inRelevantEliteInstance or not s.instancesOnly) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
-        local classification = UnitClassification(unit)
-        if classification == "elite" then
-          local level = UnitEffectiveLevel(unit)
-          local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
-          local isRetail = addonTable.Constants.IsRetail
-          local lieutentantLevel = PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel
-          if isRetail and (level == dungeonLevel + 1 or UnitIsLieutenant(unit)) then
-            PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel = level
-            table.insert(colorQueue, {color = s.colors.miniboss})
-            break
-          elseif isRetail and (level == dungeonLevel + 2 or lieutentantLevel and level == lieutentantLevel + 1) or level == -1 then
-            table.insert(colorQueue, {color = s.colors.boss})
-            break
-          else
-            local class = UnitClassBase(unit)
-            if class == "PALADIN" or class == "MAGE" or class == "PRIEST" then
-              table.insert(colorQueue, {color = s.colors.caster})
-            else
-              table.insert(colorQueue, {color = s.colors.melee})
-            end
-            break
-          end
-        elseif classification == "normal" or classification == "trivial" or classification == "minus" then
-          if s.applyCasterAlways then
-            local class = UnitClassBase(unit)
-            if class == "PALADIN" or class == "MAGE" or class == "PRIEST" then
-              table.insert(colorQueue, {color = s.colors.caster})
-            else
-              table.insert(colorQueue, {color = s.colors.trivial})
-            end
-          else
-            table.insert(colorQueue, {color = s.colors.trivial})
-          end
+        local t = GetEliteType(unit, s.applyCasterAlways)
+        if t then
+          table.insert(colorQueue, {color = s.colors[t]})
           break
         end
       end
     elseif s.kind == "delveType" then
       if (inRelevantDelveInstance and s.delves or not inRelevantThreatInstance and s.outsideInstances) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
-        local classification = UnitClassification(unit)
-        if classification == "elite" then
-          local level = UnitEffectiveLevel(unit)
-          local dungeonLevel = PLATYNATOR_LAST_INSTANCE.level
-          local isRetail = addonTable.Constants.IsRetail
-          local lieutentantLevel = PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel
-          if isRetail and UnitIsLieutenant(unit) then
-            PLATYNATOR_LAST_INSTANCE.instanceLieutenantLevel = level
-            table.insert(colorQueue, {color = s.colors.elite})
-            break
-          elseif isRetail and (level == dungeonLevel + 2 or lieutentantLevel and level == lieutentantLevel + 1) or level == -1 then
-            table.insert(colorQueue, {color = s.colors.boss})
-            break
-          else
-            table.insert(colorQueue, {color = s.colors.elite})
-          end
-        elseif classification == "rareelite" then
-          table.insert(colorQueue, {color = s.colors.rare})
-          break
-        elseif classification == "normal" then
-          local class = UnitClassBase(unit)
-          if class == "PALADIN" or class == "MAGE" or class == "PRIEST" then
-            table.insert(colorQueue, {color = s.colors.caster})
-          else
-            table.insert(colorQueue, {color = s.colors.melee})
-          end
-          break
-        elseif classification == "trivial" or classification == "minus" then
-          table.insert(colorQueue, {color = s.colors.trivial})
+        local t = GetDelveType(unit)
+        if t then
+          table.insert(colorQueue, {color = s.colors[t]})
           break
         end
       end
@@ -440,8 +268,9 @@ function addonTable.Display.GetColor(settings, state, unit)
       table.insert(colorQueue, {color = s.colors[addonTable.Display.Utilities.GetUnitDifficulty(unit)]})
       break
     elseif s.kind == "interruptReady" then
-      local castInfo = state.castInfo
-      local channelInfo = state.channelInfo
+      local cacheInfo = addonTable.Display.Cache:Get(unit, "cast")
+      local castInfo = cacheInfo.cast
+      local channelInfo = cacheInfo.channel
       local notInterruptible = castInfo[8]
       if notInterruptible == nil then
         notInterruptible = channelInfo[7]
@@ -471,8 +300,9 @@ function addonTable.Display.GetColor(settings, state, unit)
         end
       end
     elseif s.kind == "interruptNotReady" then
-      local castInfo = state.castInfo
-      local channelInfo = state.channelInfo
+      local cacheInfo = addonTable.Display.Cache:Get(unit, "cast")
+      local castInfo = cacheInfo.cast
+      local channelInfo = cacheInfo.channel
       local notInterruptible = castInfo[8]
       if notInterruptible == nil then
         notInterruptible = channelInfo[7]
@@ -506,8 +336,9 @@ function addonTable.Display.GetColor(settings, state, unit)
         end
       end
     elseif s.kind == "castTargetsYou" then
-      local castInfo = state.castInfo
-      local channelInfo = state.channelInfo
+      local cacheInfo = addonTable.Display.Cache:Get(unit, "cast")
+      local castInfo = cacheInfo.cast
+      local channelInfo = cacheInfo.channel
       local name = castInfo[1]
       if name == nil then
         name = channelInfo[1]
@@ -521,8 +352,9 @@ function addonTable.Display.GetColor(settings, state, unit)
         end
       end
     elseif s.kind == "uninterruptableCast" then
-      local castInfo = state.castInfo
-      local channelInfo = state.channelInfo
+      local cacheInfo = addonTable.Display.Cache:Get(unit, "cast")
+      local castInfo = cacheInfo.cast
+      local channelInfo = cacheInfo.channel
       local uninterruptable = castInfo[8]
       if uninterruptable == nil then
         uninterruptable = channelInfo[7]
@@ -532,8 +364,9 @@ function addonTable.Display.GetColor(settings, state, unit)
       end
     elseif s.kind == "importantCast" then
       if C_Spell.IsSpellImportant then
-        local castInfo = state.castInfo
-        local channelInfo = state.channelInfo
+        local cacheInfo = addonTable.Display.Cache:Get(unit, "cast")
+        local castInfo = cacheInfo.cast
+        local channelInfo = cacheInfo.channel
         local spellID = castInfo[9]
         local isChannel = false
         if spellID == nil then
@@ -550,8 +383,9 @@ function addonTable.Display.GetColor(settings, state, unit)
         end
       end
     elseif s.kind == "cast" then
-      local castInfo = state.castInfo
-      local channelInfo = state.channelInfo
+      local cacheInfo = addonTable.Display.Cache:Get(unit, "cast")
+      local castInfo = cacheInfo.cast
+      local channelInfo = cacheInfo.channel
       local text = castInfo[1]
       local isChannel, isEmpowered = false, false
       if text == nil then
@@ -581,6 +415,18 @@ function addonTable.Display.GetColor(settings, state, unit)
             table.insert(colorQueue, {color = s.colors.execute})
           end
         end
+      end
+    elseif s.kind == "energy" then
+      local _, kind = UnitPowerType(unit)
+      if kind == "MANA" then
+        table.insert(colorQueue, {color = s.colors.mana})
+        break
+      elseif kind == "RAGE" then
+        table.insert(colorQueue, {color = s.colors.rage})
+        break
+      elseif kind == "ENERGY" then
+        table.insert(colorQueue, {color = s.colors.energy})
+        break
       end
     end
   end

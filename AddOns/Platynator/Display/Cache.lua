@@ -16,18 +16,23 @@ end
 addonTable.Display.CacheMixin = {}
 
 local getter = {
-  ["cast"] = function(oldState, unit, eventName, castID, interrupterGUID)
-    if eventName == "UNIT_SPELLCAST_INTERRUPTED" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" and interrupterGUID ~= nil then
+  ["cast"] = function(oldState, unit, eventName, ...)
+    if eventName == "UNIT_SPELLCAST_INTERRUPTED" or eventName == "UNIT_SPELLCAST_CHANNEL_STOP" then
+      local _, _, interrupterGUID = ...
       return {cast = {}, channel = {}, interrupterGUID = interrupterGUID}, true
-    else
-      if eventName == "UNIT_SPELLCAST_DELAYED" and next(oldState.cast) == nil or eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE" and next(oldState.channel) == nil then
-        return {cast = {}, channel = {}}
-      end
-      return {cast = {UnitCastingInfo(unit)}, channel = {UnitChannelInfo(unit)}}, addonTable.Constants.IsClassic or castID ~= nil
     end
+    if eventName == "UNIT_SPELLCAST_EMPOWER_STOP" then
+      local _, _, _, interrupterGUID = ...
+      return {cast = {}, channel = {}, interrupterGUID = interrupterGUID}, true
+    end
+    if eventName == "UNIT_SPELLCAST_DELAYED" and next(oldState.cast) == nil or eventName == "UNIT_SPELLCAST_CHANNEL_UPDATE" and next(oldState.channel) == nil then
+      return {cast = {}, channel = {}}, false
+    end
+    return {cast = {UnitCastingInfo(unit)}, channel = {UnitChannelInfo(unit)}}, true
   end,
   ["threat"] = function(oldState, unit)
-    return UnitThreatSituation("player", unit), true
+    local newThreat = UnitThreatSituation("player", unit)
+    return newThreat, newThreat ~= oldState
   end,
 }
 
@@ -43,14 +48,18 @@ local eventsFromKind = {
     "UNIT_SPELLCAST_CHANNEL_STOP",
     "UNIT_SPELLCAST_DELAYED",
     "UNIT_SPELLCAST_CHANNEL_UPDATE",
-    "UNIT_SPELLCAST_EMPOWER_START",
-    "UNIT_SPELLCAST_EMPOWER_STOP",
-    "UNIT_SPELLCAST_EMPOWER_UPDATE",
   },
   ["threat"] = {
     "UNIT_THREAT_LIST_UPDATE",
   }
 }
+if addonTable.Constants.IsRetail then
+  tAppendAll(eventsFromKind["cast"], {
+    "UNIT_SPELLCAST_EMPOWER_START",
+    "UNIT_SPELLCAST_EMPOWER_STOP",
+    "UNIT_SPELLCAST_EMPOWER_UPDATE",
+  })
+end
 local eventToKind = {}
 for kind, events in pairs(eventsFromKind) do
   for _, e in ipairs(events) do
@@ -130,11 +139,11 @@ function addonTable.Display.CacheMixin:OnEvent(eventName, unit, ...)
   end
   local kind = eventToKind[eventName]
   if self.monitoring[unit][kind] then
-    local update = false
-    self.state[unit][kind], update = getter[kind](self.state[unit][kind], unit, eventName, ...)
+    local data, update = getter[kind](self.state[unit][kind], unit, eventName, ...)
+    self.state[unit][kind] = data
     if update then
       for _, callback in ipairs(self.registeredCallbacks[unit][kind]) do
-        callback()
+        callback(data)
       end
     end
   end
