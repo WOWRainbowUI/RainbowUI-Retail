@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.1.0] - 2026-04-21
+
+### Added
+
+- Support for all locales
+
+### Changed
+
+- Minimized the Transport Frame's title
+
+## [2.0.13] - 2026-03-01
+
+- Version updates
+
+## [2.0.12] - 2026-01-24
+
+- Version updates
+
 ## [2.0.11] - 2026-01-17
 
 - Add support for Burning Crusade Anniversary
@@ -131,7 +149,6 @@
 ### Changed
 
 - The following options are now applied globally:
-
   1. `Bag Item Icons`
   2. `Bag Item Tooltips`
   3. `Chat Messages`
@@ -166,7 +183,6 @@
 ### Changed
 
 - Listeners registered using `DejunkApi:AddListener(listener)` now receive an `event` argument equal to one of the following values:
-
   1. `DejunkApi.Events.BagsUpdated` when Dejunk updates its internal bag cache
   2. `DejunkApi.Events.StateUpdated` when Dejunk's state has changed (e.g., the user changes an option, adds an item to a list, etc.)
 
