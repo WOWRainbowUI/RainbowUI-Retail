@@ -225,12 +225,12 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
         return
     end
     
-    if msg:match("^itemstat") then
-        local slot = tonumber(msg:match("^itemstat%s+(%d+)$"))
+    if msg:match("^slot") then
+        local slot = tonumber(msg:match("^slot%s+(%d+)$"))
 
         -- If no slot provided, print usage + slot list
         if not slot then
-            print("|c00ff0000Usage: /ccs itemstat <slotNumber>|r")
+            print("|c00ff0000Usage: /ccs slot <slotNumber>|r")
             print("Available slots:")
 
             for i = 1, 19 do
@@ -264,8 +264,10 @@ SlashCmdList["CHONKYCHARACTERSHEET"] = function(msg)
         return
     end
 
-    if msg == "font-test" then
+    if msg == "font" then
         CCS:ShowFontTester()
+        print(CCS.fontname)
+        print(option("default_font"))
         return
     end
     
@@ -470,4 +472,3 @@ do
 
     --print("|cff00ff00[CCS]|r Total modules registered:", registeredCount)
 end
-

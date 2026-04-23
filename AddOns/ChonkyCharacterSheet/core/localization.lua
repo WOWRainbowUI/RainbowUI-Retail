@@ -29,6 +29,12 @@ local defaultStrings = {
     ------------------------------------------------------------
     -- General / Common
     ------------------------------------------------------------
+	["Sort by"] = "Sort By", -- enUS / enGB
+	["Sort Direction"] = "Sort Direction",  -- enUS / enGB
+	["ALTERNATE_SIDE_BUTTON"] = "Alternate Side Button", -- enUS / enGB
+	["PARAGON_MAX_BAR"] = "Paragon Max Bar", -- enUS / enGB
+	["SHOW_TEMP_ENCHANTS"] = "Weapon Buffs", -- enUS / enGB
+	["SHOW_HIGHWATER"] = "iLvl Alerts", -- enUS / enGB
 	-- Stat dropdown display names
 	["CriticalStrike"] = ITEM_MOD_CRIT_RATING_SHORT or "Critical Strike", -- all
 	["Mastery"] = ITEM_MOD_MASTERY_RATING_SHORT or "Mastery", -- all
@@ -406,6 +412,12 @@ if locale == "enGB" then
     }
 elseif locale == "deDE" then
     localizedStrings = {
+		["Sort by"] = "Sortieren nach", -- deDE
+		["Sort Direction"] = "Sortierrichtung", -- deDE
+        ["ALTERNATE_SIDE_BUTTON"] = "Alternativer Seitenknopf", -- deDE
+		["PARAGON_MAX_BAR"] = "Paragon: Max-Leiste", -- deDE
+		["SHOW_TEMP_ENCHANTS"] = "Waffenstärkungen", -- deDE
+		["SHOW_HIGHWATER"] = "Gegenstandslevel-Warnungen", -- deDE
 		["Slot"] = "Platz",  -- deDE
 		["Custom Priority Profiles"] = "Benutzerdefinierte Prioritätsprofile",  -- deDE
 		["Add Priority Slot"] = "Prioritätsplatz hinzufügen", -- deDE
@@ -749,6 +761,12 @@ elseif locale == "deDE" then
     }	
 elseif locale == "frFR" then
     localizedStrings = {
+		["Sort by"] = "Trier par", -- frFR
+		["Sort Direction"] = "Sens du tri", -- frFR
+        ["ALTERNATE_SIDE_BUTTON"] = "Bouton latéral alternatif", -- frFR
+		["PARAGON_MAX_BAR"] = "Barre de parangon max", -- frFR
+		["SHOW_TEMP_ENCHANTS"] = "Améliorations d'arme", -- frFR
+		["SHOW_HIGHWATER"] = "Alertes de niveau d’objet", -- frFR
 		["Slot"] = "Emplacement",  -- frFR
 		["Custom Priority Profiles"] = "Profils de priorité personnalisés",  -- frFR
 		["Add Priority Slot"] = "Ajouter un emplacement de priorité", -- frFR
@@ -1092,6 +1110,12 @@ elseif locale == "frFR" then
     }
 elseif locale == "esES" then
     localizedStrings = {
+		["Sort by"] = "Ordenar por", -- esES
+		["Sort Direction"] = "Dirección de ordenación", -- esES
+        ["ALTERNATE_SIDE_BUTTON"] = "Botón lateral alternativo", -- esES
+		["PARAGON_MAX_BAR"] = "Barra de parangón al máximo", -- esES
+		["SHOW_TEMP_ENCHANTS"] = "Mejoras de arma", -- esES
+		["SHOW_HIGHWATER"] = "Alertas de nivel de objeto", -- esES
 		["Slot"] = "Ranura",  -- esES
 		["Custom Priority Profiles"] = "Perfiles de prioridad personalizados",  -- esES
 		["Add Priority Slot"] = "Agregar ranura de prioridad", -- esES
@@ -1435,6 +1459,12 @@ elseif locale == "esES" then
     }
 elseif locale == "esMX" then
     localizedStrings = {
+		["Sort by"] = "Ordenar por", -- esMX
+		["Sort Direction"] = "Dirección de ordenación", -- esMX
+        ["ALTERNATE_SIDE_BUTTON"] = "Botón lateral alternativo", -- esMX
+		["PARAGON_MAX_BAR"] = "Barra de parangón al máximo", -- esMX
+		["SHOW_TEMP_ENCHANTS"] = "Mejoras de arma", -- esMX
+		["SHOW_HIGHWATER"] = "Alertas de nivel de objeto", -- esES
 		["Slot"] = "Ranura",  -- esMX
 		["Custom Priority Profiles"] = "Perfiles de prioridad personalizados",  -- esMX
 		["Add Priority Slot"] = "Agregar ranura de prioridad", -- esMX
@@ -1778,6 +1808,12 @@ elseif locale == "esMX" then
     }
 elseif locale == "ruRU" then
     localizedStrings = {
+		["Sort by"] = "Сортировать по", -- ruRU
+		["Sort Direction"] = "Направление сортировки", -- ruRU
+        ["ALTERNATE_SIDE_BUTTON"] = "Альтернативная боковая кнопка", -- ruRU
+		["PARAGON_MAX_BAR"] = "Парагон: максимальная полоса", -- ruRU
+		["SHOW_TEMP_ENCHANTS"] = "Усиления оружия", -- ruRU
+		["SHOW_HIGHWATER"] = "Предупреждения об уровне предмета", -- ruRU
 		["Slot"] = "Ячейка",  -- ruRU
 		["Custom Priority Profiles"] = "Пользовательские профили приоритетов",  -- ruRU
 		["Add Priority Slot"] = "Добавить ячейку приоритета", -- ruRU
@@ -2121,6 +2157,12 @@ elseif locale == "ruRU" then
     }
 elseif locale == "koKR" then
     localizedStrings = {
+		["Sort by"] = "정렬 기준", -- koKR
+		["Sort Direction"] = "정렬 방향", -- koKR
+        ["ALTERNATE_SIDE_BUTTON"] = "대체 측면 버튼", -- koKR
+		["PARAGON_MAX_BAR"] = "만렙 막대", -- koKR
+		["SHOW_TEMP_ENCHANTS"] = "무기 강화", -- koKR
+		["SHOW_HIGHWATER"] = "아이템 레벨 알림", -- koKR (very short)
 		["Slot"] = "슬롯",  -- koKR
 		["Custom Priority Profiles"] = "사용자 지정 우선순위 프로필",  -- koKR
 		["Add Priority Slot"] = "우선순위 슬롯 추가", -- koKR
@@ -2464,6 +2506,12 @@ elseif locale == "koKR" then
     }
 elseif locale == "zhCN" then
     localizedStrings = {
+		["Sort by"] = "排序方式", -- zhCN
+		["Sort Direction"] = "排序方向", -- zhCN
+        ["ALTERNATE_SIDE_BUTTON"] = "替代侧边按钮", -- zhCN
+		["PARAGON_MAX_BAR"] = "巅峰声望满条", -- zhCN
+		["SHOW_TEMP_ENCHANTS"] = "武器增益", -- zhCN
+		["SHOW_HIGHWATER"] = "物品等级警示", -- zhCN
 		["Slot"] = "槽位",  -- zhCN
 		["Custom Priority Profiles"] = "自定义优先级配置",  -- zhCN
 		["Add Priority Slot"] = "添加优先级槽位", -- zhCN
@@ -2807,6 +2855,12 @@ elseif locale == "zhCN" then
     }
 elseif locale == "zhTW" then
     localizedStrings = {
+		["Sort by"] = "排序方式", -- zhTW
+		["Sort Direction"] = "排序方向", -- zhTW
+        ["ALTERNATE_SIDE_BUTTON"] = "替代側邊按鈕", -- zhTW
+		["PARAGON_MAX_BAR"] = "巔峰聲望滿條", -- zhTW
+		["SHOW_TEMP_ENCHANTS"] = "武器增益", -- zhTW
+		["SHOW_HIGHWATER"] = "物品等級警示", -- zhTW
 		["Slot"] = "欄位",  -- zhTW
 		["Custom Priority Profiles"] = "自訂優先順序設定檔",  -- zhTW
 		["Add Priority Slot"] = "新增優先順序欄位", -- zhTW
@@ -3149,6 +3203,12 @@ elseif locale == "zhTW" then
     }
 elseif locale == "ptBR" then
     localizedStrings = {
+		["Sort by"] = "Classificar por", -- ptBR
+		["Sort Direction"] = "Direção da classificação", -- ptBR
+        ["ALTERNATE_SIDE_BUTTON"] = "Botão lateral alternativo", -- ptBR
+		["PARAGON_MAX_BAR"] = "Barra de Paragon no máximo", -- ptBR
+		["SHOW_TEMP_ENCHANTS"] = "Aprimoramentos de Arma", -- ptBR
+		["SHOW_HIGHWATER"] = "Alertas de nível de item", -- ptBR
 		["Slot"] = "Espaço",  -- ptBR
 		["Custom Priority Profiles"] = "Perfis de prioridade personalizados",  -- ptBR
 		["Add Priority Slot"] = "Adicionar espaço de prioridade", -- ptBR
@@ -3492,6 +3552,12 @@ elseif locale == "ptBR" then
     }
 elseif locale == "itIT" then
     localizedStrings = {
+		["Sort by"] = "Ordina per", -- itIT
+		["Sort Direction"] = "Direzione di ordinamento", -- itIT
+        ["ALTERNATE_SIDE_BUTTON"] = "Pulsante laterale alternativo", -- itIT
+		["PARAGON_MAX_BAR"] = "Barra Paragon al massimo", -- itIT
+		["SHOW_TEMP_ENCHANTS"] = "Potenziamenti arma", -- itIT
+		["SHOW_HIGHWATER"] = "Avvisi livello oggetto", -- itIT
 		["Slot"] = "Slot",  -- itIT
 		["Custom Priority Profiles"] = "Profili di priorità personalizzati",  -- itIT
 		["Add Priority Slot"] = "Aggiungi slot priorità", -- itIT

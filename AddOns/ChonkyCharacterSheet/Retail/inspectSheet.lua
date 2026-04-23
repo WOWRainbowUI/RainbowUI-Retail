@@ -27,6 +27,27 @@ function module:Initialize()
 end
 
 
+function CCS.getraiderioscoreinspect()
+    if option("showmythicplusscore_inspect") ~= true or InspectFrame == nil or InspectFrame.unit == nil then return "" end    
+
+    if C_PlayerInfo == nil or C_PlayerInfo.GetPlayerMythicPlusRatingSummary == nil or C_PlayerInfo.GetPlayerMythicPlusRatingSummary(InspectFrame.unit) == nil or C_PlayerInfo.GetPlayerMythicPlusRatingSummary(InspectFrame.unit).currentSeasonScore == nil then return "" end    
+
+    local score=0
+    local returnvalue=""
+    local scorecolor=""
+    
+    score = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(InspectFrame.unit).currentSeasonScore
+    local color = C_ChallengeMode.GetDungeonScoreRarityColor(score)
+    local red = color.r
+    local green = color.g
+    local blue = color.b
+    
+    scorecolor = format("|cff%.2x%.2x%.2x", red*255,green*255,blue*255)
+    returnvalue = format(CHALLENGE_COMPLETE_DUNGEON_SCORE, format("%s\n", scorecolor) .. score .. format("|r\n") )
+
+    return returnvalue
+end
+
 function CCS:inspect()
   if not InspectFrame or not InspectFrame.unit then return end
   
@@ -56,6 +77,7 @@ function CCS:inspect()
     CCS_ic.name = addonName
     CCS_ic:SetPropagateKeyboardInput(true)
     CCS_ic:SetScript("OnKeyDown", function(self, key)
+		if InCombatLockdown() then CCS_ic:Hide() return end
         if key == "ESCAPE" then
             CCS_ic:Hide()
             CCS_ic:SetPropagateKeyboardInput(false)
@@ -726,24 +748,6 @@ function CCS:inspect()
 	--------------------------
 end
 
-local function display_time(timex, spelltimer)
-	local timestring = ""
-	
-	if timex < 0 then timex = timex*-1 end
-	
-	local hours = floor(mod(timex, 86400)/3600)
-	local minutes = floor(mod(timex, 3600)/60)
-	local seconds = floor(mod(timex,60))
-	if spelltimer == false then
-		timestring = format("%02d:%02d:%02d", hours, minutes, seconds)
-	else
-		if hours > 0 then timestring = timestring .. hours .. "h " end
-		if minutes > 0 then timestring = timestring .. format("%02dm ",minutes) end
-		if seconds > 0 and hours <= 0 then timestring = timestring .. format("%02ds ", seconds)  end
-	end
-	return timestring
-end
-
 local function stars(runtime, dungeontime)
 	local text = "|cFFFFFC33".."|r"
 	
@@ -755,37 +759,8 @@ local function stars(runtime, dungeontime)
 	return text
 end
 
-function CCS.getraiderioscoreinspect()
-    local name
-    
-    if InspectFrame and InspectFrame.unit then
-        name = UnitName(InspectFrame.unit)
-    else
-        name = ""
-    end
-    
-    local score=0
-    local returnvalue=""
-    local scorecolor=""
-    
-    if option("showmythicplusscore_inspect") ~= true or name == "" or name == nil or C_PlayerInfo.GetPlayerMythicPlusRatingSummary(InspectFrame.unit) == nil or C_PlayerInfo.GetPlayerMythicPlusRatingSummary(InspectFrame.unit).currentSeasonScore == nil then return "" end
-    
-    score = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(InspectFrame.unit).currentSeasonScore
-    local color = C_ChallengeMode.GetDungeonScoreRarityColor(score)
-    local red = color.r
-    local green = color.g
-    local blue = color.b
-    
-    scorecolor = format("|cff%.2x%.2x%.2x", red*255,green*255,blue*255)
-    
-    returnvalue = format(CHALLENGE_COMPLETE_DUNGEON_SCORE, format("%s\n", scorecolor) .. score .. format("|r\n") )
-    
-    
-    return returnvalue
-end
-
 local function updatemplussideframe()
-	if not InspectFrame or not InspectFrame.unit then return end
+	if not InspectFrame or not InspectFrame.unit or InCombatLockdown() == true then return end
 	local unit = InspectFrame.unit
 	local ccsmi_fs2 = _G["ccsmi_fs2"]
 	ccsmi_fs2:SetText(CCS.getraiderioscoreinspect())
@@ -796,8 +771,18 @@ local function updatemplussideframe()
 		local mapID = C_ChallengeMode.GetMapTable()[x] or 0
 		local mapspellID = 0
 		local mapName, _, MaptimeLimit, MapTexture = C_ChallengeMode.GetMapUIInfo(mapID)
-		local MapTable= C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit).runs[x]
-		local MapScore= MapTable and MapTable.mapScore or 0
+		local summary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit)
+		local runForThisMap = nil
+
+		for _, run in ipairs(summary.runs) do
+			if run.challengeModeID == mapID then
+				runForThisMap = run
+				break
+			end
+		end
+
+		local MapTable= runForThisMap
+		local MapScore= runForThisMap and runForThisMap.mapScore or 0
 		local ccsmi_bx_btn1 = _G["ccsmi_b"..x.."_btn1"]
 		local ccsmi_bx_btn2 = _G["ccsmi_b"..x.."_btn2"]
 		local ccsmi_bx_tex1 = _G["ccsmi_b"..x.."_tex1"]
@@ -831,8 +816,9 @@ local function updatemplussideframe()
 			local green = color.g
 			local blue = color.b
 			local scorecolor = format("|cff%.2x%.2x%.2x", red*255,green*255,blue*255)
-            local bestRunDuration = MapTable and MapTable.bestRunDurationMS/1000 or 0
-			
+			local bestRunDuration = MapTable.bestRunDurationMS and math.floor(MapTable.bestRunDurationMS / 1000) or 0
+			local timeLeft = (math.floor(MapTable.bestRunDurationMS / 1000) or 0) - MaptimeLimit			
+
 			ccsmi_bx_fs1:SetText(format("%s", scorecolor) .. MapScore or " " .. format("|r\n"))
 			
 			--== Fortified Score and Color
@@ -851,12 +837,12 @@ local function updatemplussideframe()
 				if (bestRunDuration) == 0 then
 					ccsmi_bx_fs7:SetText("     -")
 				elseif (bestRunDuration) - MaptimeLimit <= 0 then
-					ccsmi_bx_fs7:SetText(display_time(bestRunDuration, false).."  ".."(|cFF00AA00-"..display_time((bestRunDuration) - MaptimeLimit, false).."|r)\n");            
+					ccsmi_bx_fs7:SetText(CCS.display_time(bestRunDuration, false).."  ".."(|cFF00AA00-"..CCS.display_time(timeLeft, false).."|r)\n");            
 				else
-					ccsmi_bx_fs7:SetText(display_time(bestRunDuration, false).."  ".."(|cFFAA0000+"..display_time((bestRunDuration) - MaptimeLimit, false).."|r)\n");            
+					ccsmi_bx_fs7:SetText(CCS.display_time(bestRunDuration, false).."  ".."(|cFFAA0000+"..CCS.display_time(timeLeft, false).."|r)\n");            
 				end
 			else
-				ccsmi_bx_fs7:SetText(display_time(bestRunDuration, false).."\n");            
+				ccsmi_bx_fs7:SetText(CCS.display_time(bestRunDuration, false).."\n");            
 			end
 		else
 			ccsmi_bx_fs1:SetText("-")
@@ -890,19 +876,11 @@ local function initializemplusplanelframe()
 	ccsmi_sf:SetSize(660, 640)
 	ccsmi_sf.throttle = 0;
 	ccsmi_sf:Hide()
---[[
-	if option("showm_sp") == true and (UnitLevel(unit) == CCS.MaxLevel) and (C_MythicPlus.GetCurrentAffixes() and C_MythicPlus.GetCurrentAffixes()[1]) then
-		ccsmi_sf:Show()
-	else
-		ccsmi_sf:Hide()
-	end
---]]	
-	--sf_bg:ClearAllPoints()
+
 	sf_bg:SetAllPoints()
 	sf_bg:SetTexture("Interface\\Masks\\SquareMask.BLP")
 	sf_bg:SetColorTexture(bgr,bgg,bgb,bgalpha)
 	
-	--sf_topbar:ClearAllPoints()
 	sf_topbar:SetPoint("TOPLEFT", ccsmi_sf, "TOPLEFT")
 	sf_topbar:SetPoint("TOPRIGHT", ccsmi_sf, "TOPRIGHT")
 	sf_topbar:SetHeight(16)
@@ -1210,16 +1188,19 @@ local function initmplusframe()
 				_G["ccsmi_sf"]:Show()
 				if _G["CCSf"] then _G["CCSf"]:Hide() end
 				if _G["ccs_sf"] then _G["ccs_sf"]:Hide() end
-				if WeeklyRewardsFrame:IsVisible() then WeeklyRewardsFrame:Hide() end
+				--if WeeklyRewardsFrame:IsVisible() then WeeklyRewardsFrame:Hide() end
 			end
 		else
 			PlaySound(8959)
 			RaidNotice_AddMessage(RaidBossEmoteFrame, format("%s", ERR_AFFECTING_COMBAT), ChatTypeInfo["SYSTEM"])
 		end
 	end)
-
-	btn2:Show()
-    
+	
+	if option("showm_sp_btn_inspect") then
+		btn2:Show()
+	else    
+		btn2:Hide()
+	end
 end
 
 local function MoveInspectModelRight() 
@@ -1274,24 +1255,40 @@ local function MoveInspectModelLeft()
     
 end
 
+local function clamp(val, min, max)
+    if val < min then return min end
+    if val > max then return max end
+    return val
+end
 
 local function ChangeModelBg()
  if InspectFrame == nil or InspectFrame.unit == nil then return end
 
+    if option("bgtype_inspect") == "Hide" then
+        modtex:Hide()
+        return
+--[[    else
+        -- Default background
+		modtex:SetAllPoints()		
+        modtex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\MOTHERtalenttree.BLP")
+        modtex:SetTexCoord(0, 0.69, 0, 0.87)
+        modtex:SetVertexColor(0.4, 0, 0.4, 0.9)
+		modtex:Show()
+		return--]]
+    end
+
     local _, _, classID = UnitClass(InspectFrame.unit)
     local _, _, raceID = UnitRace(InspectFrame.unit)
-    local specID = GetSpecialization()
+    local specID = GetInspectSpecialization(InspectFrame.unit)
+	specID = CCS.GetSpecIndexFromSpecID(specID)
     local entry = nil
 
     if modbg:GetParent() == nil then
         modbg:SetParent(InspectModelFrame)
     end
     
-    if option("bgtype_inspect") == "Hide" then
-        modtex:Hide()
-        return
-    end
     modtex:Show()
+	
     if option("bgtype_inspect") == "Class" then 
         -- Class/Specialization background
         entry = CCS.Class_Bg[classID] and CCS.Class_Bg[classID][specID]        
@@ -1315,25 +1312,21 @@ local function ChangeModelBg()
         modtex:SetTexture(entry.texture)
         
         if option("bgtype_inspect") == "Class" then
-            -- Class/Specialization: right-aligned
-            modtex:SetTexCoord(
-                uMin + ((texWidth - (frameWidth / (frameHeight / texHeight))) / texWidth) * (uMax - uMin),
-                uMax,
-                vMin,
-                vMax
-            )
+			local visibleWidth = frameWidth / (frameHeight / texHeight)
+			local left = uMin + ((texWidth - visibleWidth) / texWidth) * (uMax - uMin)
+			left = clamp(left, uMin, uMax)
+
+			modtex:SetTexCoord(left, uMax, vMin, vMax)
         else
-            -- Race: horizontally centered
-            local visibleWidth = frameWidth / (frameHeight / texHeight) -- width in texture space
-            local uRange = uMax - uMin
-            local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
-            
-            modtex:SetTexCoord(
-                uMin + uOffset,
-                uMax - uOffset,
-                vMin,
-                vMax
-            )
+			-- Race: horizontally centered
+			local visibleWidth = frameWidth / (frameHeight / texHeight)
+			local uRange = uMax - uMin
+			local uOffset = (uRange - (visibleWidth / texWidth) * uRange) / 2
+
+			local left  = clamp(uMin + uOffset, uMin, uMax)
+			local right = clamp(uMax - uOffset, uMin, uMax)
+
+			modtex:SetTexCoord(left, right, vMin, vMax)
         end
     else
         -- Default background
@@ -1411,15 +1404,40 @@ local function initclickframe()
 			CCS:inspect()
 		end
     end)
+--[[
+-- Button 3 (Refresh Button)
+    btn3 = _G["CCS_iclk_Btn3"] or CreateFrame("Button", "CCS_iclk_Btn3", InspectPaperDollItemsFrame)
+    btn3:SetSize(16, 16)
+    btn3:SetPoint("TOPRIGHT", InspectFrameCloseButton, "TOPLEFT", -5, 0)
+	btn3:SetNormalAtlas("talents-button-undo")
+	btn3:SetPushedAtlas("talents-button-undo")
+	btn3:SetHighlightAtlas("talents-button-undo")
+
+    btn3:SetScript("OnEnter", function(self) 
+			CCS.tooltip:SetOwner(self, "ANCHOR_RIGHT")
+            CCS.tooltip:AddDoubleLine(REFRESH, nil, 1, 1, 1, 1, 1, 1) 
+            CCS.tooltip:Show()
+    end)
+    btn3:SetScript("OnLeave", function() CCS.tooltip:Hide() end)
+	btn3:SetScript("OnClick", function() loopitems() PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK) end)
+--]]
+	
 end
 
-local function initializeinspectframe()
+function CCS.initializeinspectframe()
     if not InspectFrame or not option("show_inspect") or InspectFrame.loaded == true or InCombatLockdown() == true then return end
    
     InspectFrame:SetScale(option("sheetscale_inspect") or 1)
     InspectFrame:SetHeight(479+(7*option("vpad_inspect"))) -- Do not allow the frame to get any smaller than the default bliz frame
     InspectFrame:SetWidth(617)
-    
+
+	if not InspectFrame.ccshooked then
+		-- This may be used if I need to in the future
+		--hooksecurefunc(InspectFrame, "Show", function() print("OPEN") end)
+		--hooksecurefunc(InspectFrame, "Hide", function() print("CLOSE") end)
+		InspectFrame.ccshooked = true
+	end
+	
     local Bgoffset = 209 + (610 - 540)
     
     InspectFrameInset:ClearAllPoints();
@@ -1594,7 +1612,7 @@ local function initializeinspectframe()
     modbg:SetFrameStrata("BACKGROUND")
     modbg:SetFrameLevel(100)
 
-    ChangeModelBg()
+    C_Timer.After(.1, function() ChangeModelBg() end)
 
     if InspectPaperDollFrame.ViewButton ~= nil then
         InspectPaperDollFrame.ViewButton.Left:Hide()
@@ -1648,7 +1666,7 @@ local function initializeinspectframe()
             r:Hide()
         end
     end end)
-	InspectFrame.loaded = true
+	InspectFrame.loaded = true 
 end
 
 -- Loop through the Paperdoll Items and create/display information
@@ -1660,25 +1678,6 @@ loopitems = function()
     for slotIndex = 1,17 do 
         if slotIndex ~= 4 then
 			CCS.updateLocationInfo(unit, slotIndex, "Inspect")
---[[
-            local itemLink = GetInventoryItemLink(unit, slotIndex)
-            local itemID = itemLink and tonumber(itemLink:match("item:(%d+)"))
-
-            if itemID then
-                local texture = select(10, C_Item.GetItemInfo(itemID))
-                if texture then
-                    CCS.updateLocationInfo(unit, slotIndex, "Inspect")
-                else
-                    local slotFrameName = CCS.getSlotFrameName(slotIndex, "Inspect")
-                    _G[slotFrameName]:RegisterEvent("GET_ITEM_INFO_RECEIVED")
-                    _G[slotFrameName]:SetScript("OnEvent", function(self, event, arg)
-                        if event == "GET_ITEM_INFO_RECEIVED" and arg == itemID then
-                            CCS.updateLocationInfo(unit, slotIndex, "Inspect")
-                            self:UnregisterEvent("GET_ITEM_INFO_RECEIVED")
-                        end
-                    end)
-                end
-            end--]]
         end
     end 
 
@@ -1705,56 +1704,16 @@ loopitems = function()
     initclickframe()
 end 
 
-local function IsInspectDataReady(unit)
-	if unit == nil or not UnitExists(unit) then return false end
-
-    for slot = 1, 17 do
-        if slot ~= 4 then
-            local item = GetInventoryItemLink(unit, slot)
-            if item then
-                if not C_Item.GetItemInfo(item) then
-                    return false
-                end
-            end
-        end
-    end
-
-    return true
-end
-
-local function FinalizeInspect()
-    initializeinspectframe()
-    initializemplusplanelframe()
-    loopitems()
-	C_Timer.After(.2, function()
-	InspectFrame:SetAlpha(1)
-	InspectModelFrame:SetAlpha(1)	
-	end)
-end
-
-local function WaitForInspectData(unit)
-    C_Timer.After(0.05, function()
-		if unit == nil or not UnitExists(unit) then return false end
-        if IsInspectDataReady(unit) then
-            FinalizeInspect()
-        else
-            WaitForInspectData(unit)
-        end
-    end)
-end
-
 -- Event handler for inspect sheet
 function CCS.InspectSheetEventHandler(event, ...)
-	
+
     -- Retail-only inspect frame updates
     if CCS.GetCurrentVersion() ~= CCS.RETAIL then return end
-    if not InspectFrame or not InspectFrame.unit then return end
+    if not InspectFrame or not InspectFrame.unit or not option("show_inspect") then return end
 
-	local unit = InspectFrame.unit
-	
-    if not UnitExists(unit) then return end
-    if not CanInspect(unit) then return end
-
+	if not InspectFrame.loaded then
+		CCS.initializeinspectframe()
+	end
     if event == "CCS_EVENT_OPTIONS" then
         if not option("show_inspect") then
             local msg = REQUIRES_RELOAD .. ". (" .. SLASH_RELOAD1 .. ")"
@@ -1764,18 +1723,23 @@ function CCS.InspectSheetEventHandler(event, ...)
             ReloadUI()
         end
 		InspectFrame.loaded = false
-		FinalizeInspect()
         return true
 	elseif event == "INSPECT_READY" then
-		if not CCS.inspectUpdatePending then
-			CCS.inspectUpdatePending = true
-			InspectFrame:SetAlpha(0)
-            InspectModelFrame:SetAlpha(0)
-			FinalizeInspect()
-			C_Timer.After(0.1, function() 
-				WaitForInspectData(InspectFrame.unit); 
+		--print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "INSPECT TEST")
+        if not CCS.inspectUpdatePending then
+            CCS.inspectUpdatePending = true
+			C_Timer.After(0.25, function() 
+				if not InspectFrame or not InspectFrame.unit then
+					CCS.inspectUpdatePending = false
+					return
+				end
+
+				ChangeModelBg()
 				CCS.inspectUpdatePending = false 
+				initializemplusplanelframe()
+				loopitems()
 				end)
 		end
 	end
 end
+

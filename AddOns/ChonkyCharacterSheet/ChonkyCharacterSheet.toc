@@ -1,7 +1,7 @@
-## Interface: 120001, 20505, 50503
+## Interface: 120001, 120005, 20505, 50503
 ## Title: Chonky Character Sheet
 ## Author: Cerdia @Area-52
-## Version: 2.2.22
+## Version: 2.2.33
 ## Notes: Chonky Character Sheet. Enhanced character sheet with options and profiles. Track stats, gear, and progress. Discord: https://discord.gg/bSyqqa7RC4
 ## SavedVariables: ChonkyCharacterSheetDB
 ## IconTexture: Interface\AddOns\ChonkyCharacterSheet\Media\Textures\chonky.tga

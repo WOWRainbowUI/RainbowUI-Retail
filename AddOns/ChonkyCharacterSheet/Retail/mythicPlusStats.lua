@@ -15,24 +15,6 @@ local module = {
 
 CCS.Modules[module.Name] = module
 
-local function display_time(timex, spelltimer)
-	local timestring = ""
-	
-	if timex < 0 then timex = timex*-1 end
-	
-	local hours = floor(mod(timex, 86400)/3600)
-	local minutes = floor(mod(timex, 3600)/60)
-	local seconds = floor(mod(timex,60))
-	if spelltimer == false then
-		timestring = format("%02d:%02d:%02d", hours, minutes, seconds)
-	else
-		if hours > 0 then timestring = timestring .. hours .. "h " end
-		if minutes > 0 then timestring = timestring .. format("%02dm ",minutes) end
-		if seconds > 0 and hours <= 0 then timestring = timestring .. format("%02ds ", seconds)  end
-	end
-	return timestring
-end
-
 local function stars(runtime, dungeontime)
 	local text = "|cFFFFFC33".."|r"
 	
@@ -345,8 +327,90 @@ local function UpdateAffixDisplay(index, affixData)
     end
 end
 
-local function updatesideframe()
+local function BuildDungeonData()
+    local maps = C_ChallengeMode.GetMapTable()
+    local t = {}
+
+    for i = 1, #maps do
+        local mapID = maps[i]
+        local mapName, _, MaptimeLimit, MapTexture = C_ChallengeMode.GetMapUIInfo(mapID)
+        local MapTable, MapScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(mapID)
+
+        local MapBest = nil
+        if MapTable and #MapTable > 0 then
+            MapBest = TableUtil.FindMax(MapTable, function(MapTable) return MapTable.score end)
+        end
+
+        table.insert(t, {
+            mapID      = mapID,
+            mapName       = mapName or "",
+            MapTexture    = MapTexture,
+            MaptimeLimit  = MaptimeLimit or 0,
+            MapScore      = MapScore or 0,
+            MapbestLevel  = MapBest and MapBest.level or 0,
+            MapbestTime   = MapBest and MapBest.durationSec or 0,
+        })
+    end
+
+    return t
+end
+
+local SORT_MODES = {
+    ["Name"]    = function(a, b) return a.mapName < b.mapName end,
+    ["Level"]   = function(a, b) return a.MapScore < b.MapScore end,
+    ["Rating"]  = function(a, b) return a.MapScore < b.MapScore end,
+    ["Time"]    = function(a, b) return a.MapbestTime < b.MapbestTime end,
+}
+
+local function ApplySort(tbl, mode, ascending)
+    local cmp = SORT_MODES[mode] or SORT_MODES["Name"]
+
+    table.sort(tbl, function(a, b)
+        if ascending == "Ascending" then
+            return cmp(a, b)
+        else
+            return cmp(b, a)
+        end
+    end)
+end
+
+local function UpdateSortIndicators()
+
+	local sortby = _G["ccsm_sf"].currentSortBy or "Name"
+	local dir    = _G["ccsm_sf"].currentDir or "Ascending"
+
+	local down   = "|TInterface\\Buttons\\Arrow-Down-Up:12:12|t"
+	local up = "|TInterface\\Buttons\\Arrow-Up-Up:12:12|t"
+	local empty = "|TInterface\\Buttons\\UI-MultiCheck-Disabled:12:12|t"
+	local mark = (dir == "Ascending") and up or down
+
+	-- Reset all headers, but keep an invisible icon for column text preservation
+	_G["ccsm_headerlvl_fs"]:SetText(empty..LEVEL)
+	_G["ccsm_header_fs_text"]:SetText(empty..PVP_RATING_HEADER)
+	_G["ccsm_fbt_fs"]:SetText(empty..BEST)
+	_G["ccsm_tp_fs"]:SetText(empty..LFG_TYPE_DUNGEON)
+
+	-- Apply indicator to active column
+	if sortby == "Level" then
+		_G["ccsm_headerlvl_fs"]:SetText(mark .. LEVEL )
+	elseif sortby == "Rating" then
+		_G["ccsm_header_fs_text"]:SetText(mark .. PVP_RATING_HEADER)
+	elseif sortby == "Time" then
+		_G["ccsm_fbt_fs"]:SetText(mark .. BEST)
+	elseif sortby == "Name" then
+		_G["ccsm_tp_fs"]:SetText(mark .. LFG_TYPE_DUNGEON)
+	end
+
+end
+
+function CCS.updatemplussideframe(sortby, sortdirection)
 	if option("showm_sp") ~= true or InCombatLockdown() == true then return end
+
+    -- fall back to stored state or default state if nil
+    sortby = sortby or ccsm_sf.currentSortBy or option("mplus_sortby") or "Name"
+    sortdirection= sortdirection or ccsm_sf.currentDir or option("mplus_direction") or "Ascending"
+    ccsm_sf.currentSortBy = sortby
+    ccsm_sf.currentDir = sortdirection
 	
 	local tf = {WeeklyRewardsFrame:GetChildren()};
 	local x=1; -- M+
@@ -448,14 +512,6 @@ local function updatesideframe()
 			})
 		end
 	end
-
-	-- Update the Mythic Plus portion
---[[	
-	if C_MythicPlus.GetCurrentAffixes() == nil or 
-	C_MythicPlus.GetCurrentAffixes()[1] == nil or 
-	C_MythicPlus.GetCurrentAffixes()[2] == nil or 
-	C_MythicPlus.GetCurrentAffixes()[3] == nil then return end 
---]]	
 	
 	if C_WeeklyRewards.HasAvailableRewards() and _G["ccsm_fs4"] ~= nil then _G["ccsm_fs4"]:Show() else _G["ccsm_fs4"]:Hide() end
 	
@@ -482,192 +538,202 @@ local function updatesideframe()
 	local ccsm_fs3 = _G["ccsm_fs3"]
 	ccsm_fs3:SetText("")
 	ccsm_fs3:Hide()
-	
-	for x=1,8 do 
-		
-		local ccsm_bx = _G["ccsm_b"..x] or CreateFrame("Frame", "ccsm_b"..x, _G["ccsm_sf"]);
-		local mapID = C_ChallengeMode.GetMapTable()[x] or 0
-		local mapspellID = 0
-		local mapName, _, MaptimeLimit, MapTexture = C_ChallengeMode.GetMapUIInfo(mapID)
-		local MapTable, MapScore = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap(mapID);
-		local ccsm_bx_btn1 = _G["ccsm_b"..x.."_btn1"]
-		local ccsm_bx_btn2 = _G["ccsm_b"..x.."_btn2"]
-		local ccsm_bx_tex1 = _G["ccsm_b"..x.."_tex1"]
-		local ccsm_bx_tex2 = _G["ccsm_b"..x.."_tex2"]
-		local ccsm_bx_fs1 = _G["ccsm_b"..x.."_fs1"]
-		local ccsm_bx_fs2 = _G["ccsm_b"..x.."_fs2"]
-		local ccsm_bx_fs3 = _G["ccsm_b"..x.."_fs3"]
-		local ccsm_bx_fs4 = _G["ccsm_b"..x.."_fs4"]
-		local ccsm_bx_fs7 = _G["ccsm_b"..x.."_fs7"]
-		local ccsm_bx_btn1_bg = _G["ccsm_b"..x.."_btn1_bg"] or ccsm_bx_btn1:CreateTexture("ccsm_b"..x.."_btn1_bg", "BACKGROUND", nil)
-		local ccsm_bx_btn2_bg = _G["ccsm_b"..x.."_btn2_bg"]
-		
-		
-		ccsm_bx_tex2:SetTexture(MapTexture or 5221804)
-		ccsm_bx_fs2:SetText(mapName or " ");
-		ccsm_bx_btn2_bg:SetTexture(MapTexture or "Interface\\CovenantRenown\\DragonflightMajorFactionsNiffen.BLP")
-		ccsm_bx_btn2_bg:SetTexCoord(0, 1, 0, 1)
-		ccsm_bx_btn2_bg:SetAlpha(1)
-		
-		if ccsm_bx_btn2 then
-			ccsm_bx_btn2:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT", -7, -11);
-					GameTooltip:AddDoubleLine(GARRISON_TROPHY_LOCKED_SUBTEXT, "", 1, 1, 1, 1, 1, 1) 
-					GameTooltip:Show()
-			end)
-			ccsm_bx_btn2:SetScript("OnLeave", function() GameTooltip:Hide() end)
-			ccsm_bx_btn1:Hide()
-		end
-		if mapID and mapID == 353 then -- Fix because blizzard...
-			if UnitFactionGroup("player") == "Horde" then
-				mapspellID =464256
-			else
-				mapspellID =445418
-			end
-		elseif mapID and mapID == 247 then -- Fix because blizzard...
-			mapspellID =467553
-			if IsSpellKnown(467553) then mapspellID =467553 end
-			if IsSpellKnown(467555) then mapspellID =467555 end
-		elseif CCS.Dungeon_Teleports[mapID] and CCS.Dungeon_Teleports[mapID].spellID and CCS.Dungeon_Teleports[mapID].spellID ~= 0 then
-			mapspellID = CCS.Dungeon_Teleports[mapID].spellID
-		end
-		
-		ccsm_bx_btn1:Show()
-		
-		if mapspellID ~= 0 and IsSpellKnown(mapspellID) then
-			local SpellLink = C_Spell.GetSpellLink(mapspellID)
-			local ccsm_bx_btn2_fs = _G["ccsm_b"..x.."_btn2_fs"]
-			local spellCooldownInfo = nil
-			local start = 0
-			local duration = 0
-			local enabled = 0
-			local modRate = 0
 
-			if not CCS.AreSecretsDisabled() then 
-				spellCooldownInfo = C_Spell.GetSpellCooldown(mapspellID)
-				start = spellCooldownInfo.startTime or 0
-				duration = spellCooldownInfo.duration or 0
-				enabled = spellCooldownInfo.isEnabled or 0
-				modRate = spellCooldownInfo.modRate or 0			
-			else
-				CCS.secretsdisabled = true
-			end
-				
-			ccsm_bx_btn1_bg:SetTexture(MapTexture or "Interface\\CovenantRenown\\DragonflightMajorFactionsNiffen.BLP")
-			ccsm_bx_btn1_bg:SetTexCoord(0, 1, 0, 1)
-			ccsm_bx_btn1_bg:SetAlpha(1)
-			ccsm_bx_btn1_bg:SetAllPoints(ccsm_bx_btn2_bg)
-			ccsm_bx_btn1_bg:SetDesaturated(false)
-			ccsm_bx_btn1_bg:SetVertexColor(1, 1, 1, 1)  -- optional soft fade
+	local data = BuildDungeonData()
+	ApplySort(data, sortby, sortdirection)
+
+	for x=1,8 do 
+		local d = data[x]
+		
+		if d then 
+			local ccsm_bx = _G["ccsm_b"..x] or CreateFrame("Frame", "ccsm_b"..x, _G["ccsm_sf"]);
+            local mapID     = d.mapID
+            local mapName   = d.mapName
+            local MapScore  = d.MapScore
+            local MapbestLevel = d.MapbestLevel
+            local MapbestTime  = d.MapbestTime
+            local MapTexture   = d.MapTexture
+            local MaptimeLimit = d.MaptimeLimit
+			local mapspellID = 0
+
+			local ccsm_bx_btn1 = _G["ccsm_b"..x.."_btn1"]
+			local ccsm_bx_btn2 = _G["ccsm_b"..x.."_btn2"]
+			local ccsm_bx_tex1 = _G["ccsm_b"..x.."_tex1"]
+			local ccsm_bx_tex2 = _G["ccsm_b"..x.."_tex2"]
+			local ccsm_bx_fs1 = _G["ccsm_b"..x.."_fs1"]
+			local ccsm_bx_fs2 = _G["ccsm_b"..x.."_fs2"]
+			local ccsm_bx_fs3 = _G["ccsm_b"..x.."_fs3"]
+			local ccsm_bx_fs4 = _G["ccsm_b"..x.."_fs4"]
+			local ccsm_bx_fs7 = _G["ccsm_b"..x.."_fs7"]
+			local ccsm_bx_btn1_bg = _G["ccsm_b"..x.."_btn1_bg"] or ccsm_bx_btn1:CreateTexture("ccsm_b"..x.."_btn1_bg", "BACKGROUND", nil)
+			local ccsm_bx_btn2_bg = _G["ccsm_b"..x.."_btn2_bg"]
+			
+			ccsm_bx_tex2:SetTexture(MapTexture or 5221804)
+			ccsm_bx_fs2:SetText(mapName or " ");
+			ccsm_bx_btn2_bg:SetTexture(MapTexture or "Interface\\CovenantRenown\\DragonflightMajorFactionsNiffen.BLP")
+			ccsm_bx_btn2_bg:SetTexCoord(0, 1, 0, 1)
+			ccsm_bx_btn2_bg:SetAlpha(1)
 			
 			if ccsm_bx_btn2 then
 				ccsm_bx_btn2:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT", -7, -11);
-						if SpellLink then
-							GameTooltip:SetHyperlink(SpellLink)
-						else
-							GameTooltip:AddDoubleLine(GARRISON_TROPHY_LOCKED_SUBTEXT, "", 1, 1, 1, 1, 1, 1) 
-						end
+						GameTooltip:AddDoubleLine(GARRISON_TROPHY_LOCKED_SUBTEXT, "", 1, 1, 1, 1, 1, 1) 
 						GameTooltip:Show()
-						ccsm_bx_btn1_bg:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
 				end)
-				ccsm_bx_btn2:SetScript("OnLeave", function() GameTooltip:Hide()
+				ccsm_bx_btn2:SetScript("OnLeave", function() GameTooltip:Hide() end)
+				ccsm_bx_btn1:Hide()
+			end
+			if mapID and mapID == 353 then -- Fix because blizzard...
+				if UnitFactionGroup("player") == "Horde" then
+					mapspellID =464256
+				else
+					mapspellID =445418
+				end
+			elseif mapID and mapID == 247 then -- Fix because blizzard...
+				mapspellID =467553
+				if IsSpellKnown(467553) then mapspellID =467553 end
+				if IsSpellKnown(467555) then mapspellID =467555 end
+			elseif CCS.Dungeon_Teleports[mapID] and CCS.Dungeon_Teleports[mapID].spellID and CCS.Dungeon_Teleports[mapID].spellID ~= 0 then
+				mapspellID = CCS.Dungeon_Teleports[mapID].spellID
+			end
+			
+			ccsm_bx_btn1:Show()
+			
+			if mapspellID ~= 0 and IsSpellKnown(mapspellID) then
+				local SpellLink = C_Spell.GetSpellLink(mapspellID)
+				local ccsm_bx_btn2_fs = _G["ccsm_b"..x.."_btn2_fs"]
+				local spellCooldownInfo = nil
+				local start = 0
+				local duration = 0
+				local enabled = 0
+				local modRate = 0
+
+				if not CCS.AreSecretsDisabled() then 
+					spellCooldownInfo = C_Spell.GetSpellCooldown(mapspellID)
+					start = spellCooldownInfo.startTime or 0
+					duration = spellCooldownInfo.duration or 0
+					enabled = spellCooldownInfo.isEnabled or 0
+					modRate = spellCooldownInfo.modRate or 0			
+				else
+					CCS.secretsdisabled = true
+				end
+					
+				ccsm_bx_btn1_bg:SetTexture(MapTexture or "Interface\\CovenantRenown\\DragonflightMajorFactionsNiffen.BLP")
+				ccsm_bx_btn1_bg:SetTexCoord(0, 1, 0, 1)
+				ccsm_bx_btn1_bg:SetAlpha(1)
+				ccsm_bx_btn1_bg:SetAllPoints(ccsm_bx_btn2_bg)
+				ccsm_bx_btn1_bg:SetDesaturated(false)
+				ccsm_bx_btn1_bg:SetVertexColor(1, 1, 1, 1)  -- optional soft fade
 				
-				ccsm_bx_btn1_bg:SetTexCoord(0,0,0,1,1,0,1,1)
-				end)
-				ccsm_bx_btn2:SetAttribute("spell", mapspellID)
-				ccsm_bx_btn2_fs:SetText("")
-				ccsm_bx_btn2:SetScript("OnUpdate", nil)                    
-				if duration > 0 and start > 0 then
-					ccsm_bx_btn2.start = start
-					ccsm_bx_btn2.duration = duration
-					ccsm_bx_btn2:SetScript("OnUpdate", function(self) 
+				if ccsm_bx_btn2 then
+					ccsm_bx_btn2:SetScript("OnEnter", function(self) GameTooltip:SetOwner(self, "ANCHOR_RIGHT", -7, -11);
+							if SpellLink then
+								GameTooltip:SetHyperlink(SpellLink)
+							else
+								GameTooltip:AddDoubleLine(GARRISON_TROPHY_LOCKED_SUBTEXT, "", 1, 1, 1, 1, 1, 1) 
+							end
+							GameTooltip:Show()
+							ccsm_bx_btn1_bg:SetTexCoord(.07,.07,.07,.93,.93,.07,.93,.93)
+					end)
+					ccsm_bx_btn2:SetScript("OnLeave", function() GameTooltip:Hide()
+					
+					ccsm_bx_btn1_bg:SetTexCoord(0,0,0,1,1,0,1,1)
+					end)
+					ccsm_bx_btn2:SetAttribute("spell", mapspellID)
+					ccsm_bx_btn2_fs:SetText("")
+					ccsm_bx_btn2:SetScript("OnUpdate", nil)                    
+					if duration > 0 and start > 0 then
+						ccsm_bx_btn2.start = start
+						ccsm_bx_btn2.duration = duration
+						ccsm_bx_btn2:SetScript("OnUpdate", function(self) 
 
-							ccsm_bx_btn1_bg:SetTexture(MapTexture or "Interface\\CovenantRenown\\DragonflightMajorFactionsNiffen.BLP")
-							ccsm_bx_btn1_bg:SetTexCoord(0, 1, 0, 1)
-							ccsm_bx_btn1_bg:SetAlpha(1)							
-							local spellCooldownInfo = nil
-							local start=self.start
-							local duration=self.duration
+								ccsm_bx_btn1_bg:SetTexture(MapTexture or "Interface\\CovenantRenown\\DragonflightMajorFactionsNiffen.BLP")
+								ccsm_bx_btn1_bg:SetTexCoord(0, 1, 0, 1)
+								ccsm_bx_btn1_bg:SetAlpha(1)							
+								local spellCooldownInfo = nil
+								local start=self.start
+								local duration=self.duration
 
-							if CCS.AreSecretsDisabled() then 
-								if self.start > 0 and self.duration > 0 then
-								  -- do nothing, we can process everything. 
+								if CCS.AreSecretsDisabled() then 
+									if self.start > 0 and self.duration > 0 then
+									  -- do nothing, we can process everything. 
+									else
+										CCS.secretsdisabled = true 
+										return 
+									end
+									
 								else
-									CCS.secretsdisabled = true 
-									return 
+										CCS.secretsdisabled = false
+										spellCooldownInfo = C_Spell.GetSpellCooldown(mapspellID)
+										start = spellCooldownInfo.startTime or 0
+										duration = spellCooldownInfo.duration or 0
+										self.start = start
+										self.duration = duration
 								end
 								
-							else
-									CCS.secretsdisabled = false
-									spellCooldownInfo = C_Spell.GetSpellCooldown(mapspellID)
-									start = spellCooldownInfo.startTime or 0
-									duration = spellCooldownInfo.duration or 0
-									self.start = start
-									self.duration = duration
-							end
-							
-							if duration > 0 and start > 0 then
-								ccsm_bx_btn2_fs:SetText(display_time(start+duration - GetTime(), true))
-								--  print("b",x, " ", CCS.Dungeon_Teleports[mapID].spellID, " ", GetSpellCooldown(spellID))
-							else
-								self.start = 0
-								self.duration = 0
-								ccsm_bx_btn2_fs:SetText("")  
-								ccsm_bx_btn2:SetScript("OnUpdate", nil)
-							end
-					end)
-				else
-					ccsm_bx_btn2_fs:SetText("")  
-					ccsm_bx_btn2:SetScript("OnUpdate", nil)
+								if duration > 0 and start > 0 then
+									ccsm_bx_btn2_fs:SetText(CCS.display_time(start+duration - GetTime(), true))
+									--  print("b",x, " ", CCS.Dungeon_Teleports[mapID].spellID, " ", GetSpellCooldown(spellID))
+								else
+									self.start = 0
+									self.duration = 0
+									ccsm_bx_btn2_fs:SetText("")  
+									ccsm_bx_btn2:SetScript("OnUpdate", nil)
+								end
+						end)
+					else
+						ccsm_bx_btn2_fs:SetText("")  
+						ccsm_bx_btn2:SetScript("OnUpdate", nil)
+					end
+					
 				end
 				
-			end
+				ccsm_bx_btn1_bg:Show()
+				ccsm_bx_btn2_bg:Hide()
+			end        
 			
-			ccsm_bx_btn1_bg:Show()
-			ccsm_bx_btn2_bg:Hide()
-		end        
-		
-		if MapTable ~= nil and MapScore ~= nil then
-			local MapFort = TableUtil.FindMax(MapTable, function(MapTable) return MapTable.score; end) or MapTable[1];
-			local color = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(MapScore) or HIGHLIGHT_FONT_COLOR
-			local red = color.r
-			local green = color.g
-			local blue = color.b
-			local scorecolor = format("|cff%.2x%.2x%.2x", red*255,green*255,blue*255)
-			
-			ccsm_bx_fs1:SetText(format("%s", scorecolor) .. MapScore or " " .. format("|r\n"))
-			
-			--== Fortified Score and Color
-			
-			ccsm_bx_fs3:SetText(stars(MapFort and MapFort.durationSec or 0, MaptimeLimit).. (MapFort and MapFort.level or "0"));
-			
-			color = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(MapScore) or HIGHLIGHT_FONT_COLOR
-			red = color.r
-			green = color.g
-			blue = color.b
-			scorecolor = format("|cff%.2x%.2x%.2x", red*255,green*255,blue*255)
-			
-			ccsm_bx_fs4:SetText(format("%s", scorecolor) .. format("%.f", MapScore).. format("|r\n"))
-			
-			if option("showm_overundertime") then
-				if (MapFort and MapFort.durationSec or 0) == 0 then
-					ccsm_bx_fs7:SetText("     -")
-				elseif (MapFort and MapFort.durationSec or 0) - MaptimeLimit <= 0 then
-					ccsm_bx_fs7:SetText(display_time(MapFort and MapFort.durationSec or 0, false).."  ".."(|cFF00AA00-"..display_time((MapFort and MapFort.durationSec or 0) - MaptimeLimit, false).."|r)\n");            
+			if MapScore ~= nil then
+				--local MapBest = TableUtil.FindMax(MapTable, function(MapTable) return MapTable.score; end) or MapTable[1];
+				local color = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(MapScore) or HIGHLIGHT_FONT_COLOR
+				local red = color.r
+				local green = color.g
+				local blue = color.b
+				local scorecolor = format("|cff%.2x%.2x%.2x", red*255,green*255,blue*255)
+				
+				ccsm_bx_fs1:SetText(format("%s", scorecolor) .. MapScore or " " .. format("|r\n"))
+				
+				--== Fortified Score and Color
+				
+				ccsm_bx_fs3:SetText(stars(MapbestTime or 0, MaptimeLimit).. (MapbestLevel or "0"));
+				
+				color = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(MapScore) or HIGHLIGHT_FONT_COLOR
+				red = color.r
+				green = color.g
+				blue = color.b
+				scorecolor = format("|cff%.2x%.2x%.2x", red*255,green*255,blue*255)
+				
+				ccsm_bx_fs4:SetText(format("%s", scorecolor) .. format("%.f", MapScore).. format("|r\n"))
+				
+				if option("showm_overundertime") then
+					if (MapbestTime or 0) == 0 then
+						ccsm_bx_fs7:SetText("     -")
+					elseif (MapbestTime or 0) - MaptimeLimit <= 0 then
+						ccsm_bx_fs7:SetText(CCS.display_time(MapbestTime or 0, false).."  ".."(|cFF00AA00-"..CCS.display_time((MapbestTime or 0) - MaptimeLimit, false).."|r)\n");            
+					else
+						ccsm_bx_fs7:SetText(CCS.display_time((MapbestTime or 0), false).."  ".."(|cFFAA0000+"..CCS.display_time((MapbestTime or 0) - MaptimeLimit, false).."|r)\n");            
+					end
 				else
-					ccsm_bx_fs7:SetText(display_time(MapFort.durationSec, false).."  ".."(|cFFAA0000+"..display_time((MapFort and MapFort.durationSec or 0) - MaptimeLimit, false).."|r)\n");            
+					ccsm_bx_fs7:SetText(CCS.display_time(MapbestTime or 0, false).."\n");            
 				end
 			else
-				ccsm_bx_fs7:SetText(display_time(MapFort and MapFort.durationSec or 0, false).."\n");            
-			end
-		else
-			ccsm_bx_fs1:SetText("-")
-			ccsm_bx_fs3:SetText("-")
-			ccsm_bx_fs4:SetText("-")
-			ccsm_bx_fs7:SetText("     -")
-		end 
+				ccsm_bx_fs1:SetText("-")
+				ccsm_bx_fs3:SetText("-")
+				ccsm_bx_fs4:SetText("-")
+				ccsm_bx_fs7:SetText("     -")
+			end 
+		end
 	end
+	UpdateSortIndicators()
 end
-
 
 local function CreateRewardFrame(name, anchorPoint, anchorFrame, relativePoint, parentFrame, offsetX, offsetY, opts)
     local frame = _G[name] or CreateFrame("Frame", name, parentFrame)
@@ -828,15 +894,18 @@ local function CreateAffixButton(index, anchorFrame, parentFrame)
 end
 
 local function initializeframes()
-local CharacterFrame = _G["CharacterFrame"]
+	local CharacterFrame = _G["CharacterFrame"]
     if InCombatLockdown()then CCS.secretsdisabled = true return end
 	if option("showm_sp") ~= true then return end
-	
+
 	local bgr, bgg, bgb, bgalpha = option("ccsmbgcolor")[1], option("ccsmbgcolor")[2], option("ccsmbgcolor")[3], option("ccsmbgcolor")[4];
 	
 	-- Create the basic side frame
 	local ccsm_af = _G["ccsm_af"] or CreateFrame("Frame", "ccsm_af", CharacterFrame, "SecureHandlerBaseTemplate");
 	local ccsm_sf = _G["ccsm_sf"] or CreateFrame("Frame", "ccsm_sf", CharacterFrame, "SecureHandlerBaseTemplate");
+
+	ccsm_sf.currentSortBy  = ccsm_sf.currentSortBy  or option("mplus_sortby") or "Name"
+	ccsm_sf.currentDir     = ccsm_sf.currentDir     or option("mplus_direction") or "Ascending"
 
 	if not ccsm_sf.hooked then
 		hooksecurefunc(ccsm_sf, "Show", CCS.MythicPlusEventHandler)
@@ -869,15 +938,12 @@ local CharacterFrame = _G["CharacterFrame"]
 	local sf_topstreaks = _G["ccsm_sf_ts"] or ccsm_sf:CreateTexture("ccsm_sf_ts", "BACKGROUND", nil, 2)
 	local sf_bottombar = _G["ccsm_sf_bb"] or ccsm_sf:CreateTexture("ccsm_sf_bb", "BACKGROUND", nil, 2)
 
-
--- 338 x 640 CharacterFrame
--- 884 x 640 CharacterFrameBg
-
-	if option("showm_sp") == true and (UnitLevel("player") == CCS.MaxLevel) and (C_MythicPlus.GetCurrentAffixes() and C_MythicPlus.GetCurrentAffixes()[1]) then
-		ccsm_sf:Show()
-	else
-		ccsm_sf:Hide()
-	end
+    if not CCS.AreSecretsDisabled() and _G["ccsm_sf"] and (option("showm_sp_onopen") == true) and (UnitLevel("player") == CCS.MaxLevel) then
+            _G["ccsm_sf"]:Show()
+    elseif _G["ccsm_sf"] and not CCS.AreSecretsDisabled() then
+        _G["ccsm_sf"]:Hide()
+    end
+	
 	ccsm_sf:SetShown(ccsm_sf:IsVisible())
 	sf_bg:SetAllPoints()
 	sf_bg:SetTexture("Interface\\Masks\\SquareMask.BLP")
@@ -1110,7 +1176,7 @@ local CharacterFrame = _G["CharacterFrame"]
 		ccsm_bx_fs2:Show()
 		
 		local ccsm_bx_fs3 = _G["ccsm_b"..x.."_fs3"] or  ccsm_bx:CreateFontString("ccsm_b"..x.."_fs3") -- Level
-		ccsm_bx_fs3:SetPoint("RIGHT", ccsm_bx_tex2, "RIGHT", 325 ,0);
+		ccsm_bx_fs3:SetPoint("RIGHT", ccsm_bx_tex2, "RIGHT", 310 ,0);
 		ccsm_bx_fs3:SetFont(option("fontname_mplus_row") or CCS.fontname, (option("fontsize_mplus_row") or 14), CCS.textoutline);
 		if option("showfontshadow") == true then
 			ccsm_bx_fs3:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -1121,7 +1187,7 @@ local CharacterFrame = _G["CharacterFrame"]
 		ccsm_bx_fs3:Show()
 		
 		local ccsm_bx_fs4 = _G["ccsm_b"..x.."_fs4"] or  ccsm_bx:CreateFontString("ccsm_b"..x.."_fs4") -- Rating
-		ccsm_bx_fs4:SetPoint("RIGHT", ccsm_bx_tex2, "RIGHT", 400 ,0);
+		ccsm_bx_fs4:SetPoint("RIGHT", ccsm_bx_tex2, "RIGHT", 415 ,0);
 		ccsm_bx_fs4:SetFont(option("fontname_mplus_row") or CCS.fontname, (option("fontsize_mplus_row") or 14), CCS.textoutline);
 		if option("showfontshadow") == true then
 			ccsm_bx_fs4:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -1132,7 +1198,7 @@ local CharacterFrame = _G["CharacterFrame"]
 		ccsm_bx_fs4:Show()
 		
 		local ccsm_bx_fs7 = _G["ccsm_b"..x.."_fs7"] or  ccsm_bx:CreateFontString("ccsm_b"..x.."_fs7") -- Best
-		ccsm_bx_fs7:SetPoint("LEFT", ccsm_bx_tex2, "RIGHT", 435 ,0);
+		ccsm_bx_fs7:SetPoint("LEFT", ccsm_bx_tex2, "RIGHT", 450 ,0);
 		ccsm_bx_fs7:SetFont(option("fontname_mplus_row") or CCS.fontname, (option("fontsize_mplus_row") or 14), CCS.textoutline);
 		if option("showfontshadow") == true then
 			ccsm_bx_fs7:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
@@ -1152,79 +1218,199 @@ local CharacterFrame = _G["CharacterFrame"]
 	_G["ccsm_b1"]:SetPoint("BOTTOMLEFT", _G["ccsm_b2"], "TOPLEFT", 0, 2)
 	
 	-- This is where the column header items are made
-	-- Fortified
-	
-	local ccsm_headerlvl_fs = _G["ccsm_headerlvl_fs"] or  ccsm_sf:CreateFontString("ccsm_headerlvl_fs")
-	ccsm_headerlvl_fs:SetPoint("BOTTOMRIGHT", ccsm_b1_fs3, "TOPRIGHT", 0 ,15)
+--[ Level Column ]--
+	local ccsm_headerlvl = _G["ccsm_headerlvl"] or CreateFrame("Button", "ccsm_headerlvl", ccsm_sf)
+	ccsm_headerlvl:SetPoint("BOTTOMRIGHT", ccsm_b1_fs3, "TOPRIGHT", 0, 15)
+	ccsm_headerlvl:SetSize(120, 20) -- adjust as needed
+	ccsm_headerlvl:EnableMouse(true)
+	ccsm_headerlvl:RegisterForClicks("LeftButtonUp")
+
+	local ccsm_headerlvl_fs = ccsm_headerlvl.fs or ccsm_headerlvl:CreateFontString("ccsm_headerlvl_fs", "OVERLAY")
+	ccsm_headerlvl.fs = ccsm_headerlvl_fs
+	ccsm_headerlvl_fs:SetAllPoints()
 	ccsm_headerlvl_fs:SetFont(option("fontname_mplus_header") or CCS.fontname, (option("fontsize_mplus_header") or 14), CCS.textoutline)
+	ccsm_headerlvl_fs:SetJustifyH("RIGHT")
+	ccsm_headerlvl_fs:SetText(LEVEL)
+	ccsm_headerlvl_fs:SetTextColor(unpack(option("fontcolor_mplus_header") or {1,1,1,1}))
+
 	if option("showfontshadow") == true then
 		ccsm_headerlvl_fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
 		ccsm_headerlvl_fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
 	end	                                                                
+
+	ccsm_headerlvl:SetScript("OnClick", function()
+		local currentSort = ccsm_sf.currentSortBy or "Name"
+		local currentDir  = ccsm_sf.currentDir    or "Ascending"
+
+		local newSortBy = "Level"
+		local newDir
+
+		if currentSort == newSortBy then
+			-- toggle direction
+			if currentDir == "Ascending" then
+				newDir = "Descending"
+			else
+				newDir = "Ascending"
+			end
+		else
+			-- If we click on a new column, reset to ascending
+			newDir = "Ascending"
+		end
+
+		ccsm_sf.currentSortBy = newSortBy
+		ccsm_sf.currentDir    = newDir
+		PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
+		CCS.updatemplussideframe(newSortBy, newDir)
+	end)
+
 	
-	ccsm_headerlvl_fs:SetText(LEVEL)
-    ccsm_headerlvl_fs:SetTextColor(
-        option("fontcolor_mplus_header")[1] or 1,
-        option("fontcolor_mplus_header")[2] or 1,
-        option("fontcolor_mplus_header")[3] or 1,
-        option("fontcolor_mplus_header")[4] or 1
-    )	
-	ccsm_headerlvl_fs:Show()        
-	
-	local ccsm_header_fs = _G["ccsm_header_fs"] or  ccsm_sf:CreateFontString("ccsm_header_fs")
-	ccsm_header_fs:SetPoint("BOTTOMRIGHT", ccsm_b1_fs4, "TOPRIGHT", 0 ,15)
-	ccsm_header_fs:SetFont(option("fontname_mplus_header") or CCS.fontname, (option("fontsize_mplus_header") or 14), CCS.textoutline)
+	ccsm_headerlvl_fs:Show()          
+--[ Rating Column ]--
+	local ccsm_header_fs = _G["ccsm_header_fs"] or CreateFrame("Button", "ccsm_header_fs", ccsm_sf)
+	ccsm_header_fs:SetPoint("LEFT", ccsm_headerlvl, "RIGHT", 12, 0)
+	ccsm_header_fs:SetSize(100, 20)
+	ccsm_header_fs:EnableMouse(true)
+	ccsm_header_fs:RegisterForClicks("LeftButtonUp")
+
+	local ccsm_header_fs_text = ccsm_header_fs.fs or ccsm_header_fs:CreateFontString("ccsm_header_fs_text", "OVERLAY")
+	ccsm_header_fs.fs = ccsm_header_fs_text
+	ccsm_header_fs_text:SetAllPoints()
+	ccsm_header_fs_text:SetJustifyH("RIGHT")
+	ccsm_header_fs_text:SetFont(option("fontname_mplus_header") or CCS.fontname, (option("fontsize_mplus_header") or 14), CCS.textoutline)
+	ccsm_header_fs_text:SetText(PVP_RATING_HEADER)
+	ccsm_header_fs_text:SetTextColor(unpack(option("fontcolor_mplus_header") or {1,1,1,1}))
+
 	if option("showfontshadow") == true then
-		ccsm_header_fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
-		ccsm_header_fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-	end	                                                                
-	
-	ccsm_header_fs:SetText(PVP_RATING_HEADER)
-    ccsm_header_fs:SetTextColor(
-        option("fontcolor_mplus_header")[1] or 1,
-        option("fontcolor_mplus_header")[2] or 1,
-        option("fontcolor_mplus_header")[3] or 1,
-        option("fontcolor_mplus_header")[4] or 1
-    )	
-	ccsm_header_fs:Show()
-	
-	local ccsm_fbt_fs = _G["ccsm_fbt_fs"] or  ccsm_sf:CreateFontString("ccsm_fbt_fs")
-	ccsm_fbt_fs:SetPoint("BOTTOMLEFT", ccsm_b1_fs7, "TOPLEFT", 0 ,15)
-	ccsm_fbt_fs:SetFont(option("fontname_mplus_header") or CCS.fontname, (option("fontsize_mplus_header") or 14), CCS.textoutline)
+		ccsm_header_fs_text:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
+		ccsm_header_fs_text:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
+	end
+
+	ccsm_header_fs:SetScript("OnClick", function()
+		local currentSort = ccsm_sf.currentSortBy or "Name"
+		local currentDir  = ccsm_sf.currentDir    or "Ascending"
+
+		local newSortBy = "Rating"
+		local newDir
+
+		if currentSort == newSortBy then
+			-- toggle direction
+			if currentDir == "Ascending" then
+				newDir = "Descending"
+			else
+				newDir = "Ascending"
+			end
+		else
+			newDir = "Ascending"
+		end
+
+		ccsm_sf.currentSortBy = newSortBy
+		ccsm_sf.currentDir    = newDir
+		PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
+		CCS.updatemplussideframe(newSortBy, newDir)
+	end)
+
+	ccsm_header_fs_text:Show()
+
+--[ Time Column ]--	
+	local ccsm_fbt = _G["ccsm_fbt"] or CreateFrame("Button", "ccsm_fbt", ccsm_sf)
+	ccsm_fbt:SetPoint("LEFT", ccsm_header_fs, "RIGHT", 30, 0)
+	ccsm_fbt:SetSize(140, 20)
+	ccsm_fbt:EnableMouse(true)
+	ccsm_fbt:RegisterForClicks("LeftButtonUp")
+
+	local ccsm_fbt_fs = ccsm_fbt.fs or ccsm_fbt:CreateFontString("ccsm_fbt_fs", "OVERLAY")
+	ccsm_fbt.fs = ccsm_fbt_fs
+	ccsm_fbt_fs:SetAllPoints()
+	ccsm_fbt_fs:SetFont(option("fontname_mplus_header") or CCS.fontname,
+						option("fontsize_mplus_header") or 14,
+						CCS.textoutline)
+
+	ccsm_fbt_fs:SetJustifyH("LEFT")
+	ccsm_fbt_fs:SetText(BEST)
+	ccsm_fbt_fs:SetTextColor(unpack(option("fontcolor_mplus_header") or {1,1,1,1}))
+
 	if option("showfontshadow") == true then
 		ccsm_fbt_fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
 		ccsm_fbt_fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-	end	                                                                
-	
-	ccsm_fbt_fs:SetText(BEST)
-    ccsm_fbt_fs:SetTextColor(
-        option("fontcolor_mplus_header")[1] or 1,
-        option("fontcolor_mplus_header")[2] or 1,
-        option("fontcolor_mplus_header")[3] or 1,
-        option("fontcolor_mplus_header")[4] or 1
-    )	
+	end
+
+	ccsm_fbt:SetScript("OnClick", function()
+		local currentSort = ccsm_sf.currentSortBy or "Name"
+		local currentDir  = ccsm_sf.currentDir    or "Ascending"
+
+		local newSortBy = "Time"
+		local newDir
+
+		if currentSort == newSortBy then
+			-- toggle direction
+			if currentDir == "Ascending" then
+				newDir = "Descending"
+			else
+				newDir = "Ascending"
+			end
+		else
+			newDir = "Ascending"
+		end
+
+		ccsm_sf.currentSortBy = newSortBy
+		ccsm_sf.currentDir    = newDir
+		PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
+		CCS.updatemplussideframe(newSortBy, newDir)
+	end)
+
 	ccsm_fbt_fs:Show()
-	
-	local ccsm_tp_fs = _G["ccsm_tp_fs"] or  ccsm_sf:CreateFontString("ccsm_tp_fs")
-	ccsm_tp_fs:SetPoint("BOTTOMLEFT", ccsm_b1_btn1, "TOPLEFT", 0 , 10)
-	ccsm_tp_fs:SetFont(option("fontname_mplus_header") or CCS.fontname, (option("fontsize_mplus_header") or 14), CCS.textoutline)
+
+--[ Name Column ]--	
+	local ccsm_tp = _G["ccsm_tp"] or CreateFrame("Button", "ccsm_tp", ccsm_sf)
+	ccsm_tp:SetPoint("BOTTOMLEFT", ccsm_b1_btn1, "TOPLEFT", -26, 10)
+	ccsm_tp:SetSize(180, 20) 
+	ccsm_tp:EnableMouse(true)
+	ccsm_tp:RegisterForClicks("LeftButtonUp")
+
+	local ccsm_tp_fs = ccsm_tp.fs or ccsm_tp:CreateFontString("ccsm_tp_fs", "OVERLAY")
+	ccsm_tp.fs = ccsm_tp_fs
+	ccsm_tp_fs:SetAllPoints()
+	ccsm_tp_fs:SetFont(option("fontname_mplus_header") or CCS.fontname,
+					   option("fontsize_mplus_header") or 14,
+					   CCS.textoutline)
+
+	ccsm_tp_fs:SetText(LFG_TYPE_DUNGEON)
+	ccsm_tp_fs:SetTextColor(unpack(option("fontcolor_mplus_header") or {1,1,1,1}))
+
 	if option("showfontshadow") == true then
 		ccsm_tp_fs:SetShadowColor(unpack(option("fontshadowcolor") or {0,0,0,1}))
 		ccsm_tp_fs:SetShadowOffset(option("fontshadowx") or 0, option("fontshadowy") or 0)
-	end	                                                                
-	
-	ccsm_tp_fs:SetText(TELEPORT_TO_DUNGEON)
-    ccsm_tp_fs:SetTextColor(
-        option("fontcolor_mplus_header")[1] or 1,
-        option("fontcolor_mplus_header")[2] or 1,
-        option("fontcolor_mplus_header")[3] or 1,
-        option("fontcolor_mplus_header")[4] or 1
-    )	
-	ccsm_tp_fs:Show()
+	end
 
+	ccsm_tp:SetScript("OnClick", function()
+		local currentSort = ccsm_sf.currentSortBy or "Name"
+		local currentDir  = ccsm_sf.currentDir    or "Ascending"
+
+		local newSortBy = "Name"
+		local newDir
+
+		if currentSort == newSortBy then
+			-- toggle direction
+			if currentDir == "Ascending" then
+				newDir = "Descending"
+			else
+				newDir = "Ascending"
+			end
+		else
+			newDir = "Ascending"
+		end
+
+		ccsm_sf.currentSortBy = newSortBy
+		ccsm_sf.currentDir    = newDir
+		PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
+		CCS.updatemplussideframe(newSortBy, newDir)
+	end)
+
+	ccsm_tp_fs:Show()
+	UpdateSortIndicators()
 	_G["ccsm_sf_bg"]:SetColorTexture(bgr,bgg,bgb,bgalpha)
 
-	C_Timer.After(1, function() updatesideframe(); end)
+	C_Timer.After(1, function() CCS.updatemplussideframe(); end)
 end
 
 function module:Initialize()     
@@ -1256,7 +1442,6 @@ function module:Initialize()
 	btnfont1:SetText(textstring)
 	btnfont1:SetJustifyH("CENTER")
 
-	
 	btn:SetScript("OnClick", function() 
 			PlaySound(SOUNDKIT.GS_LOGIN_CHANGE_REALM_OK);
 			if not InCombatLockdown() then
@@ -1266,7 +1451,7 @@ function module:Initialize()
 					_G["ccsm_sf"]:Show() 
 					if _G["CCSf"] then _G["CCSf"]:Hide() end
 					if _G["ccs_sf"] then _G["ccs_sf"]:Hide() end
-					if WeeklyRewardsFrame:IsVisible() then WeeklyRewardsFrame:Hide() end
+					--if WeeklyRewardsFrame:IsVisible() then WeeklyRewardsFrame:Hide() end
 				end
 			else
 				PlaySound(8959)
@@ -1295,8 +1480,20 @@ function module:Initialize()
 	btn2._ccs_OnLeave = function(self)
 		CCS.tooltip:Hide()
 	end
+	if option("showm_altbtn") then
+		local btn2_tex = btn2.tex or btn2:CreateTexture(nil, "ARTWORK")
+		btn2.tex = btn2_tex
+		CCS:ApplyIconStyle(btn2, "ightarrow", 20)
+		btn2_tex:SetAllPoints()
+		btn2_tex:Show()
+		btn2_tex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\mplus.png")
+	else
+		CCS:ApplyIconStyle(btn2, "rightarrow", 20)
+		if btn2 and btn2.tex ~= nil then
+			btn2.tex:Hide()
+		end
+	end
 
-	CCS:ApplyIconStyle(btn2, "rightarrow", 20)
 
 	-- Click behavior
 	btn2:SetScript("OnClick", function(self, button)
@@ -1319,7 +1516,7 @@ function module:Initialize()
 				_G["ccsm_sf"]:Show()
 				if _G["CCSf"] then _G["CCSf"]:Hide() end
 				if _G["ccs_sf"] then _G["ccs_sf"]:Hide() end
-				if WeeklyRewardsFrame:IsVisible() then WeeklyRewardsFrame:Hide() end
+				--if WeeklyRewardsFrame:IsVisible() then WeeklyRewardsFrame:Hide() end
 			end
 		else
 			PlaySound(8959)
@@ -1360,7 +1557,7 @@ function CCS.MythicPlusEventHandler(event, ...)
 
     if event == "CCS_EVENT_OPTIONS" then
 		initializeframes()
-        updatesideframe()
+        CCS.updatemplussideframe()
         return true
     end
 
@@ -1369,13 +1566,13 @@ function CCS.MythicPlusEventHandler(event, ...)
 		-- Update the Weekly Rewards Frames
 		--print(date("%H:%M:%S") .. format(".%03d", (GetTime() * 1000) % 1000), "Mplus Update:", event)
 
-		C_WeeklyRewards.OnUIInteract();
-		C_WeeklyRewards.CloseInteraction();
+		--C_WeeklyRewards.OnUIInteract();
+		--C_WeeklyRewards.CloseInteraction();
 		WeeklyRewardsFrame:FullRefresh()
 		
         C_Timer.After(1, function()
             CCS.mythicUpdatePending = false
-            updatesideframe()
+            CCS.updatemplussideframe()
 			if _G["MPlusScoreBtnfs1"] then _G["MPlusScoreBtnfs1"]:SetText(CCS.getraiderioscoreplayer(true) or "") end
         end)
     end
