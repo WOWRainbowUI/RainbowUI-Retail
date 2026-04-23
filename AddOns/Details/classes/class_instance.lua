@@ -665,10 +665,15 @@ local instanceMixins = {
 	---@return damagemeter_combat_source
 	GetSourceActorFromName = function(instance, actorName)
 		--if not issecretvalue(actorName) then
+			local foundSecret = false
 			local sources = instance:GetSources()
 			for i = 1, #sources do
-				if sources[i].name == actorName then
-					return sources[i]
+				if not issecretvalue(sources[i].name) then
+					if sources[i].name == actorName then
+						return sources[i]
+					end
+				else
+					foundSecret = true
 				end
 			end
 		--end
@@ -930,7 +935,32 @@ local instanceMixins = {
 		if (needRefreshRows) then
 			self:InstanceRefreshRows()
 		end
-	end
+	end,
+
+	---@param instance instance
+	GetModeButton = function(instance)
+		return instance.baseframe.cabecalho.modo_selecao
+	end,
+
+	---@param instance instance
+	GetSegmentButton = function(instance)
+		return instance.baseframe.cabecalho.segmento
+	end,
+
+	---@param instance instance
+	GetAttributeButton = function(instance)
+		return instance.baseframe.cabecalho.atributo
+	end,
+
+	---@param instance instance
+	GetReportButton = function(instance)
+		return instance.baseframe.cabecalho.report
+	end,
+
+	---@param instance instance
+	GetResetButton = function(instance)
+		return instance.baseframe.cabecalho.reset
+	end,
 }
 
 if detailsFramework.IsAddonApocalypseWow() then
@@ -3799,9 +3829,10 @@ function Details:ChangeIcon(icon)
 			self.baseframe.cabecalho.atributo_icon:SetSize(titleBarIconSize, titleBarIconSize)
 
 			self.baseframe.cabecalho.atributo_icon:ClearAllPoints()
-			if (self.menu_attribute_string) then
+			local titleBarFontString = self:GetTitleBarFontString()
+			if (titleBarFontString) then
 				local yOffset = getFineTunedIconCoords(self.atributo, self.sub_atributo)
-				self.baseframe.cabecalho.atributo_icon:SetPoint("right", self.menu_attribute_string.widget, "left", -4, 1 + yOffset)
+				self.baseframe.cabecalho.atributo_icon:SetPoint("right", titleBarFontString.widget, "left", -4, 1 + yOffset)
 			end
 
 			if (skin.attribute_icon_anchor) then
