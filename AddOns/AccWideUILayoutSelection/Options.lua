@@ -170,6 +170,7 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 						['**'] = {}
 					},
 					channelsJoined = {},
+					channelOrder = {},
 					info = {},
 					channelSpecial = {
 						['**'] = {
@@ -592,7 +593,7 @@ function AccWideUIAceAddon:GenerateOptions()
 					},
 					editModeSettings = {
 						type = "group",
-						name = "Edit Mode Specific Settings",
+						name = L["ACCWUI_OPT_EDITMODE_TITLE"],
 						order = 6,
 						inline = true,
 						get = "GetSyncToggle",
