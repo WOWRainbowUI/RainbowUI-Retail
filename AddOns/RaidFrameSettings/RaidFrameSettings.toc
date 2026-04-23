@@ -1,11 +1,11 @@
 ## Interface: 120000, 120001
-## Version: 4.4.1
+## Version: 4.6.0
 ## Title: RaidFrameSettings
 ## Author: Slothpala
 ## AddonCompartmentFunc: RaidFrameSettings_OpenSettings
 ## IconTexture: Interface\AddOns\RaidFrameSettings\Data\Textures\Icon.tga
 ## SavedVariables: RaidFrameSettingsDB
-## OptionalDeps: Ace3, LibSharedMedia-3.0
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibDeflate
 ## X-Curse-Project-ID: 688930
 
 embeds.xml
@@ -23,6 +23,8 @@ CallbackRegistry.lua
 FrameEnvironment.lua
 
 DB.lua
+
+Data\AuraIndicatorSpells.lua
 
 modules.xml
 
