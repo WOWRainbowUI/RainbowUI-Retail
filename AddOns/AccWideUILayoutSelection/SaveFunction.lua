@@ -464,24 +464,24 @@ function AccWideUIAceAddon:SaveUISettings(doNotSaveEditMode, isForced)
 					-- Chat Channels
 					do
 						self.db.profile.syncData.chat.channelsJoined = {}
+						--self.db.profile.syncData.chat.channelOrder = {}
 						local channels = {GetChannelList()}
 						for i = 1, #channels, 3 do
 							local id, name, disabled = channels[i], channels[i+1], channels[i+2]
 							
-							local saveThisChannel = true
+							local isCustomChannel = true
 							
-							--[[for k, v in pairs(AccWideUIAceAddon.chatChannelNames) do
+							if (self:IsMainline() ~= true) then -- 12.0.1 Sometimes Taints in Combat
+								self.db.profile.syncData.chat.channelOrder[id] = name
+							end
+							
+							for k, v in pairs(AccWideUIAceAddon.chatChannelNames) do
 								if v == name then
-									saveThisChannel = false
+									isCustomChannel = false
 								end
 							end
 							
-							if string.find(name, "Community:") then
-								saveThisChannel = false
-							end]]
-							
-							
-							if saveThisChannel == true then
+							if isCustomChannel == true then
 								self.db.profile.syncData.chat.channelsJoined[id] = name
 							end
 							
@@ -920,6 +920,7 @@ function AccWideUIAceAddon:RetailTaintableSaveChat(skipSaveMessage)
 	
 	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
 	
+		-- Visible Chat Channels
 		for thisChatFrame = 1, NUM_CHAT_WINDOWS do -- 12.0.0 Constants.ChatFrameConstants.MaxChatWindows
 				
 			local thisChatFrameVar = _G["ChatFrame" .. thisChatFrame]
@@ -934,8 +935,16 @@ function AccWideUIAceAddon:RetailTaintableSaveChat(skipSaveMessage)
 			end
 		
 		end
+		
+		-- Channel Order
+		local channels = {GetChannelList()}
+		for i = 1, #channels, 3 do
+			local id, name, disabled = channels[i], channels[i+1], channels[i+2]
+			self.db.profile.syncData.chat.channelOrder[id] = name
+		end
+		
 	
-		self:Print("[Midnight] Saved Chat Channels Per Tab Settings.")
+		self:Print("[Midnight] Saved Chat Tab Settings.")
 	end
 	
 end 

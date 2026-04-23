@@ -936,6 +936,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 					self:Print("[Chat Window] Loading Settings.")
 				end
 				
+				
 				if (self.db.profile.syncToggles.chatChannels == true) then
 				
 					self:ScheduleTimer(function() 
@@ -951,15 +952,19 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 						end
 					end, 10)
 					
-					
-					
+				end
+				
+				
+				
+				if (self:IsMainline() ~= true) then -- 12.0.1 Sometimes Taints in Combat
+				
 					self:ScheduleTimer(function() 
-					
+						
 						if (self.db.global.printDebugTextToChat == true) then
 							self:Print("[Chat Window] Reordering Channels.")
 						end
 						--Reorder Chat Channels
-						for k, v in pairs(self.db.profile.syncData.chat.channelsJoined) do
+						for k, v in pairs(self.db.profile.syncData.chat.channelOrder) do
 							
 							local id, name, instanceID, isCommunitiesChannel = GetChannelName(v)
 							
@@ -969,56 +974,54 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 							end
 							
 						end
-					end, 14)
-					
-	
-					
-					self:ScheduleTimer(function() 
-						if (self.db.global.printDebugTextToChat == true) then
-							self:Print("[Chat Window] Setting Channel Colors.")
+					end, 17)
+				
+				end
+				
+
+				self:ScheduleTimer(function() 
+					if (self.db.global.printDebugTextToChat == true) then
+						self:Print("[Chat Window] Setting Channel Colors.")
+					end
+					-- Chat Colours
+					for k, v in pairs(self.CVars.ChatTypes) do
+						if (type(ChatTypeInfo[v]) == "table" and type(self.db.profile.syncData.chat.info[v]) == "table") then
+							if (type(self.db.profile.syncData.chat.info[v][1]) == "table") then
+								ChangeChatColor(v, self.db.profile.syncData.chat.info[v][1].r, self.db.profile.syncData.chat.info[v][1].g, self.db.profile.syncData.chat.info[v][1].b)
+								
+								SetChatColorNameByClass(v, self.db.profile.syncData.chat.info[v][1].colorNameByClass)
+							end
 						end
-						-- Chat Colours
-						for k, v in pairs(self.CVars.ChatTypes) do
-							if (type(ChatTypeInfo[v]) == "table" and type(self.db.profile.syncData.chat.info[v]) == "table") then
-								if (type(self.db.profile.syncData.chat.info[v][1]) == "table") then
-									ChangeChatColor(v, self.db.profile.syncData.chat.info[v][1].r, self.db.profile.syncData.chat.info[v][1].g, self.db.profile.syncData.chat.info[v][1].b)
-									
-									SetChatColorNameByClass(v, self.db.profile.syncData.chat.info[v][1].colorNameByClass)
+					end
+				end, 20)
+				
+				
+				-- Newcomer Chat Exception
+				if (self:IsMainline() and self.chatChannelNames.newcomerChat) then
+					local id, name, instanceID, isCommunitiesChannel = GetChannelName(self.chatChannelNames.newcomerChat)
+					if (id ~= 0) then
+						self:ScheduleTimer(function()
+						
+							if (self.db.global.printDebugTextToChat == true) then
+								self:Print("[Chat Window] Setting Newcomer Chat Settings.")
+							end
+							
+							if (self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex) then
+								
+								
+								if (id ~= self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex) then
+									-- Move Channel
+									C_ChatInfo.SwapChatChannelsByChannelIndex(id, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex)
+								end
+								
+								if (self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.r) then
+									local v = "CHANNEL" .. self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex
+									ChangeChatColor(v, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.r, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.g, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.b)
+									SetChatColorNameByClass(v, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColorByClass)
 								end
 							end
-						end
-					end, 16)
-					
-					
-					-- Newcomer Chat Exception
-					if (self:IsMainline() and self.chatChannelNames.newcomerChat) then
-						local id, name, instanceID, isCommunitiesChannel = GetChannelName(self.chatChannelNames.newcomerChat)
-							if (id ~= 0) then
-								self:ScheduleTimer(function()
-								
-									if (self.db.global.printDebugTextToChat == true) then
-										self:Print("[Chat Window] Setting Newcomer Chat Settings.")
-									end
-									
-									if (self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex) then
-										
-										
-										if (id ~= self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex) then
-											-- Move Channel
-											C_ChatInfo.SwapChatChannelsByChannelIndex(id, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex)
-										end
-										
-										if (self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.r) then
-											local v = "CHANNEL" .. self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelIndex
-											ChangeChatColor(v, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.r, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.g, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColor.b)
-											SetChatColorNameByClass(v, self.db.profile.syncData.chat.channelSpecial.newcomerChat.channelColorByClass)
-										end
-									end
-								end, 20)
-							end
+						end, 22)
 					end
-				
-				
 				end
 				
 				
@@ -1359,7 +1362,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 						
 						end
 						
-					end, (25 + (thisChatFrame * 2)))
+					end, (30 + (thisChatFrame * 2)))
 				
 					
 				end
@@ -1393,7 +1396,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 			
 			
 			if (self.db.profile.syncToggles.bagOrganisation == true) then
-				LoadUIAllowSaveTime = 65
+				LoadUIAllowSaveTime = 70
 			end
 			
 			
@@ -1600,6 +1603,7 @@ function AccWideUIAceAddon:RetailTaintableLoadChat(skipLoadMessage)
 	
 	if (self:IsMainline() and not InCombatLockdown() and not IsEncounterInProgress()) then
 	
+		-- Visible Chat Channels
 		for thisChatFrame = 1, NUM_CHAT_WINDOWS do -- 12.0.0 Constants.ChatFrameConstants.MaxChatWindows
 		
 			local thisChatFrameVar = _G["ChatFrame" .. thisChatFrame]
@@ -1649,7 +1653,19 @@ function AccWideUIAceAddon:RetailTaintableLoadChat(skipLoadMessage)
 		
 		end
 		
-		self:Print("[Midnight] Loaded Chat Channels Per Tab Settings.")
+		-- Channel Order
+		for k, v in pairs(self.db.profile.syncData.chat.channelOrder) do
+			
+			local id, name, instanceID, isCommunitiesChannel = GetChannelName(v)
+			
+			if (id ~= k) then
+				-- Move Channel
+				C_ChatInfo.SwapChatChannelsByChannelIndex(id, k)
+			end
+			
+		end
+
+		self:Print("[Midnight] Loaded Chat Tab Settings.")
 		
 		if not skipLoadMessage then
 			StaticPopup_Show("ACCWIDEUI_LOAD_REQUIREDRELOAD")
