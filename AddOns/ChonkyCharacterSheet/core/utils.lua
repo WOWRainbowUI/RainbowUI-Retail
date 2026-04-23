@@ -450,10 +450,17 @@ function CCS:PrimeFontsAndTextures()
     
     for _, path in pairs(CCS.fonts) do
         local fs = preloadFrame:CreateFontString(nil, "OVERLAY")
-        fs:SetFont(path, 1)
-        fs:SetPoint("CENTER", preloadFrame, "CENTER")
-        fs:SetText(".") -- force render
-        fs:Show()
+        -- WoW 12.0.5: some built-in font assets (e.g. Fonts\BLEI00D.TTF, Fonts\ARHei.TTF,
+        -- Fonts\BKAI00M.TTF) were removed/renamed. Wrap in pcall and pass an explicit
+        -- flags argument so a single missing asset does not break the whole preload.
+        local ok = pcall(fs.SetFont, fs, path, 1, "")
+        if ok then
+            fs:SetPoint("CENTER", preloadFrame, "CENTER")
+            fs:SetText(".") -- force render
+            fs:Show()
+        else
+            fs:Hide()
+        end
     end
        -- Optional cleanup
     C_Timer.After(1, function()
