@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.13 (15th April 2026)
+-- 	Leatrix Plus 12.0.14 (22nd April 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.13"
+	LeaPlusLC["AddonVer"] = "12.0.14"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -34,7 +34,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 120001 then -- 12.0.1
+		if gametocversion and gametocversion >= 120007 then -- 12.0.7
 			LeaPlusLC.NewPatch = true
 		end
 	end
@@ -1626,8 +1626,8 @@
 			end)
 			MovieFrame:HookScript("OnKeyUp", function(self, key)
 				if key == "SPACE" or key == "ESCAPE" or key == "ENTER" then
-					if MovieFrame:IsShown() and MovieFrame.CloseDialog and MovieFrame.CloseDialog.ConfirmButton then
-						MovieFrame.CloseDialog.ConfirmButton:Click()
+					if MovieFrame.CloseDialog.Buttons.ConfirmButton then
+						MovieFrame.CloseDialog.Buttons.ConfirmButton:Click()
 					end
 				end
 			end)
