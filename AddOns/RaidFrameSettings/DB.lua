@@ -57,6 +57,35 @@ local defaults = {
         show_countdown = true,
         show_dispel_type_border = true,
       },
+      AuraSkin_BigDefensives = {
+        border_color = {0, 0.8, 0, 1},
+        border_size = 2,
+        indicator_scale = 0.8,
+      },
+      AuraIndicators = {
+        indicator_size = 28,
+        cooldown_text_size = 12,
+        show_cooldown = true,
+        cooldown_reverse = true,
+        cooldown_draw_edge = true,
+        cooldown_draw_swipe = true,
+        cooldown_draw_bling = false,
+        hide_default_buffs = false,
+        border_color = {0.8, 0.8, 0.8, 1},
+        border_size = 1,
+        class_indicators = {
+          ["*"] = {
+            [1] = { spell_id = 0, display_mode = "present" }, -- TOPLEFT
+            [2] = { spell_id = 0, display_mode = "present" }, -- LEFT
+            [3] = { spell_id = 0, display_mode = "present" }, -- BOTTOMLEFT
+            [4] = { spell_id = 0, display_mode = "present" }, -- TOP
+            [5] = { spell_id = 0, display_mode = "present" }, -- BOTTOM
+            [6] = { spell_id = 0, display_mode = "present" }, -- TOPRIGHT
+            [7] = { spell_id = 0, display_mode = "present" }, -- RIGHT
+            [8] = { spell_id = 0, display_mode = "present" }, -- BOTTOMRIGHT
+          },
+        },
+      },
     },
     health_bars = {
       health_value_colors = {
@@ -320,4 +349,3 @@ function private:InitDatabase()
   addon.db.RegisterCallback(addon, "OnProfileCopied", "ReloadAllModules")
   addon.db.RegisterCallback(addon, "OnProfileReset", "ReloadAllModules")
 end
-

@@ -1,5 +1,5 @@
 ## Interface: 120001, 120005
-## Version: 4.4.1
+## Version: 4.6.0
 ## Title: RaidFrameSettings Options
 ## LoadOnDemand: 1
 ## Dependencies: RaidFrameSettings
@@ -27,11 +27,13 @@ Templates\RaidFrameSettings_EditBoxAndButtonTemplate.xml
 Templates\RaidFrameSettings_ButtonTemplate.xml
 
 OptionsFrame.lua
+##IndicatorsFrame.lua
+ProfileSharing.lua
 
 DataProvider\DataHandler.lua
 DataProvider\GeneralSettingsDataProvider.lua
 DataProvider\TextSettingsDataProvider.lua
-DataProvider\AuraSettingsDataProvider.lua
+## DataProvider\AuraSettingsDataProvider.lua
 DataProvider\ProfilesSettingsDataProvider.lua
 
 OptionsFactory.lua

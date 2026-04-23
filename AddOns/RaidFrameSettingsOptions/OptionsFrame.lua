@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(addon_name)
 
 -- Main Frame
 local frame = CreateFrame("Frame", "RaidFrameSettingsOptions", UIParent, "PortraitFrameTemplate")
+frame:SetFrameStrata("DIALOG")
 
 -- Icon
 RaidFrameSettingsOptionsPortrait:SetTexture("Interface\\AddOns\\RaidFrameSettings\\Data\\Textures\\Icon.tga")
@@ -32,7 +33,6 @@ frame.scroll_view:SetPadding(10, 10, 10, 10, 4)
 ScrollUtil.InitScrollBoxListWithScrollBar(frame.inset_frame.scroll_box, frame.inset_frame.scroll_bar, frame.scroll_view)
 
 frame.Bg:SetColorTexture(0.1,0.1,0.1,0.95)
-frame:SetFrameStrata("DIALOG") -- @TODO: Check best options.
 table.insert(UISpecialFrames, frame:GetName())
 frame:SetSize(925,525)
 frame:SetResizeBounds(925, 400)
@@ -75,7 +75,8 @@ frame.tab_system:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 15, 2)
 for k, category in pairs({
   L["general_settings"],
   L["text_settings"],
-  L["aura_frame_settings"],
+  --L["aura_frame_settings"],
+  --L["indicator_settings"],
   L["profiles_settings"],
 }) do
   frame.tab_system:AddTab(category)
@@ -89,21 +90,34 @@ end
 
 --
 frame.tab_system.tabs[L["general_settings"]]:HookScript("OnClick", function()
+  --private.HideIndicatorsFrame()
   private.SetDataProvider("general_settings")
 end)
 
 -- text_settings
 frame.tab_system.tabs[L["text_settings"]]:HookScript("OnClick", function()
+  --private.HideIndicatorsFrame()
   private.SetDataProvider("text_settings")
 end)
 
+--[=====[
+As of version 12.0.5, aura functions are no longer accessible.
 -- aura_settings
 frame.tab_system.tabs[L["aura_frame_settings"]]:HookScript("OnClick", function()
+  private.HideIndicatorsFrame()
   private.SetDataProvider("aura_settings")
 end)
 
+-- indicator_settings
+frame.tab_system.tabs[L["indicator_settings"]]:HookScript("OnClick", function()
+  private.ShowIndicatorsFrame()
+end)
+
+--]=====]
+
 -- profiles_settings
 frame.tab_system.tabs[L["profiles_settings"]]:HookScript("OnClick", function()
+  --private.HideIndicatorsFrame()
   private.SetDataProvider("profiles_settings")
 end)
 
