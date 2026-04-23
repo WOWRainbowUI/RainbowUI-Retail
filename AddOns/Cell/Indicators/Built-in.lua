@@ -975,8 +975,9 @@ local function PrivateAuras_UpdatePrivateAuraAnchor(self, unit)
             parent = self,
             showCountdownFrame = _showCountdownFrame,
             showCountdownNumbers = _showCountdownNumbers,
+			isContainer = false,   -- 12.0.5 fix
             iconInfo = {
-                iconWidth = self:GetWidth(),
+				iconWidth = self:GetWidth(),
                 iconHeight = self:GetHeight(),
                 iconAnchor = {
                     point = "CENTER",
