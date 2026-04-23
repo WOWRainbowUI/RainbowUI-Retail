@@ -1449,7 +1449,12 @@ end
 
 function Addon:NAME_PLATE_UNIT_REMOVED(unitid)
   local plate = GetNamePlateForUnit(unitid)
-  local tp_frame = plate.TPFrame
+  -- Plate may be nil in rare cases, and TPFrame may not be set if the unit was ignored
+  -- by IgnoreUnitForThreatPlates in NAME_PLATE_UNIT_ADDED (e.g. personal nameplate or
+  -- widget-only nameplates). Without this guard, WoW 12.0.5 triggers a nil-index crash
+  -- on tp_frame.Active = false when entering the game.
+  local tp_frame = plate and plate.TPFrame
+  if not tp_frame then return end
 
   -- Clean up the mouseover reference before wiping unit data. If this plate is currently the
   -- mouseover plate, RemoveMouseoverFromNameplate must run while unit.style is still valid.
