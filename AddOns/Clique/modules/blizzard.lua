@@ -23,26 +23,48 @@ function addon:RegisterFrameByName(name, parentKey)
     end
 end
 
+-- Some frames in 12.0.5 no longer allow SetPropagateMouseMotion
+local debugPropagation = false
+
+local function isFrameForbidden(frame)
+    local ok, result = pcall(function() return frame.IsForbidden and frame:IsForbidden() end)
+    return not ok or result
+end
+
+local function trySetPropagateMouseMotion(frame, label)
+    if not frame then return end
+
+    if isFrameForbidden(frame) then
+        if debugPropagation then addon:Printf("SetPropagateMouseMotion skipped for %s: forbidden", label) end
+        return
+    end
+
+    local ok, err = pcall(frame.SetPropagateMouseMotion, frame, true)
+    if not ok and debugPropagation then
+        addon:Printf("SetPropagateMouseMotion failed for %s: %s", label, err)
+    end
+end
+
 local mouseMotionQueue = {}
 local mouseMotionSet = {}
-local function combatSafeSetPropagateMotion(frame)
-    if mouseMotionSet[frame] then return end
+local function combatSafeSetPropagateMotion(frame, label)
+    if not frame or mouseMotionSet[frame] then return end
 
     if InCombatLockdown() then
-        mouseMotionQueue[frame] = true
-        return
+        mouseMotionQueue[frame] = mouseMotionQueue[frame] or label
     else
         mouseMotionSet[frame] = true
-        frame:SetPropagateMouseMotion(frame, true)
+        trySetPropagateMouseMotion(frame, label)
     end
 end
 
 local function leavingCombat()
-    for frame in pairs(mouseMotionQueue) do
-        frame:SetPropagateMouseMotion(frame, true)
-    end
-
+    local pending = mouseMotionQueue
     mouseMotionQueue = {}
+    for frame, label in pairs(pending) do
+        trySetPropagateMouseMotion(frame, label)
+        mouseMotionSet[frame] = true
+    end
 end
 
 addon:RegisterEvent("PLAYER_REGEN_ENABLED", leavingCombat)
@@ -53,9 +75,9 @@ function addon:SetPropagateMouseMotionByName(name, parentKey)
         --self:Printf("Tried to set propagate motion for '%s' but it doesn't exist", tostring(name))
         return
     elseif frame and parentKey and frame[parentKey] then
-        combatSafeSetPropagateMotion(frame[parentKey])
+        combatSafeSetPropagateMotion(frame[parentKey], name .. "." .. parentKey)
     else
-        combatSafeSetPropagateMotion(frame)
+        combatSafeSetPropagateMotion(frame, name)
     end
 end
 
@@ -78,7 +100,7 @@ local frameElementsConfig = {
     },
     ["TargetFrame-Retail"] = {
         {configType = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "HealthBarsContainer", "HealthBar"},
-        {configtype = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "ManaBar"},
+        {configType = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "ManaBar"},
     },
 
     -- PetFrame doesn't have anything, but config it here anyway
@@ -86,8 +108,8 @@ local frameElementsConfig = {
 
    -- Focus Frame
     ["FocusFrame"] = {
-        {configtype = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "HealthBarsContainer", "HealthBar"},
-        {configtype = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "ManaBar"},
+        {configType = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "HealthBarsContainer", "HealthBar"},
+        {configType = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "ManaBar"},
     },
 
     -- Target of Target
@@ -114,7 +136,7 @@ local frameElementsConfig = {
     },
 }
 
-function addon:GetFrameConfig(frame, name)
+function addon:GetFrameConfig(name)
     local isRetail = addon:ProjectIsRetail()
 
     if name == "PlayerFrame" and isRetail then
@@ -139,7 +161,7 @@ function addon:GetFrameConfig(frame, name)
 end
 
 function addon:WalkChildrenAndSetPropagate(frame, name)
-    local config = self:GetFrameConfig(frame, name)
+    local config = self:GetFrameConfig(name)
 
     if not config then
         self:Printf("Tried to walk children for '%s' but no config", tostring(name))
@@ -148,24 +170,29 @@ function addon:WalkChildrenAndSetPropagate(frame, name)
 
     for _, path in ipairs(config) do
         local current = frame
+        local label
 
         if path.configType == "parentkey" then
+            local pathBits = {name}
             for _, bit in ipairs(path) do
                 if current then
                     current = current[bit]
+                    table.insert(pathBits, bit)
                 else
                     self:Printf("Tried to walk to key '%s' for frame '%s' but was nil", tostring(bit), tostring(name))
                 end
             end
+            label = table.concat(pathBits, ".")
         elseif path.configType == "global" then
             current = _G[path.name]
+            label = path.name
             if not current then
                 self:Printf("Tried to walk to global '%s' for frame '%s' but was nil", tostring(path.name), tostring(name))
             end
         end
 
         if current then
-            combatSafeSetPropagateMotion(current)
+            combatSafeSetPropagateMotion(current, label)
         end
     end
 end
@@ -260,7 +287,7 @@ function addon:IntegrateBlizzardFrames()
     -- Handle the compact unit frames here
     if settings.compactraid then
         hooksecurefunc("CompactUnitFrame_SetUpFrame", function(frame)
-            if frame == nil or frame:IsForbidden() then return end
+            if isFrameForbidden(frame) then return end
 
             local name = frame:GetName()
             if type(name) ~= "string" then return end
@@ -276,9 +303,6 @@ function addon:IntegrateBlizzardFrames()
 
             addon:SetPropagateMouseMotionByName(name .. "CenterStatusIcon")
             addon:SetPropagateMouseMotionByName(name .. "Icon")
-
-            -- This one only by parentKey
-            addon:SetPropagateMouseMotionByName(name, "CenterDefensiveBuff")
 
             addon:RegisterUnitFrame(frame)
         end)
