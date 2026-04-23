@@ -1,7 +1,7 @@
 ## Interface: 120005, 120001, 120005, 50503, 20505, 11508
 ## Title: HidingBar
 ## Author: sfmict
-## Version: v12.0.6
+## Version: v12.0.8
 ## IconTexture: Interface\AddOns\HidingBar\media\icon
 ## Notes: Convenient hiding panel
 ## Notes-esES: Panel de ocultación conveniente
@@ -9,6 +9,7 @@
 ## Notes-frFR: Panneau de dissimulation pratique
 ## Notes-ptBR: Painel de ocultação conveniente
 ## Notes-ruRU: Удобная скрывающаяся панель
+## Notes-zhCN: 便捷的插件钮收纳管理面板
 ## Category-enUS: User Interface
 ## Category-deDE: Benutzerinterface
 ## Category-esES: Interfaz de usuario

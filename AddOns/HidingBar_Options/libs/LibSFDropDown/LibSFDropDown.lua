@@ -2,14 +2,14 @@
 -----------------------------------------------------------
 -- LibSFDropDown - DropDown menu for non-Blizzard addons --
 -----------------------------------------------------------
-local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 34
+local MAJOR_VERSION, MINOR_VERSION = "LibSFDropDown-1.5", 35
 local lib, oldminor = LibStub:NewLibrary(MAJOR_VERSION, MINOR_VERSION)
 if not lib then return end
 oldminor = oldminor or 0
 
 
 local math, next, ipairs, rawget, type, wipe = math, next, ipairs, rawget, type, wipe
-local CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown = CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown
+local CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown, GetMouseFoci = CreateFrame, CreateFont, GetBindingKey, PlaySound, SOUNDKIT, GameTooltip, GetScreenWidth, UIParent, GetCursorPosition, InCombatLockdown, GetMouseFoci
 local SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, GetAtlasInfo = SearchBoxTemplate_OnTextChanged, CreateScrollBoxListLinearView, ScrollBoxConstants, ScrollUtil, CreateDataProvider, C_Texture.GetAtlasInfo
 local GameFontHighlightLeft, GameFontNormalLeft, GameFontDisableLeft, GameFontHighlightRight, GameFontHighlightSmall, GameFontHighlight = GameFontHighlightLeft, GameFontNormalLeft, GameFontDisableLeft, GameFontHighlightRight, GameFontHighlightSmall, GameFontHighlight
 
@@ -118,6 +118,7 @@ info.OnEnter = [function(self, arg1, arg2)] -- Handler OnEnter
 info.OnLeave = [function(self, arg1, arg2)] -- Handler OnLeave
 info.tooltipWhileDisabled = [nil, true] -- Show the tooltip, even when the button is disabled
 info.OnTooltipShow = [function(self, tooltipFrame, arg1, arg2)] -- Handler tooltip show
+
 info.widgets = [table] -- A table of widgets, that adds mini buttons to the button, looks like {
 	{
 		width = [nil, number], -- width of widget, default menuButtonHeight (20)
@@ -130,12 +131,15 @@ info.widgets = [table] -- A table of widgets, that adds mini buttons to the butt
 		OnTooltipShow = [function(infoBtn, tooltipFrame, arg1, arg2)] -- Handler tooltip show
 	},
 }
+
 info.customFrame = [frame] -- Allows this button to be a completely custom frame
 info.fixedWidth = [nil, true] -- If nil then custom frame is stretched
 info.OnLoad = [function(customFrame)] -- Function called when the custom frame is attached
+
 info.search = [function(searchString, infoText, infoRightText, btnInfo, highlightColorCode, defaultFunc)] -- Optional custom search function, must return true/false, textHighlighted/nil, rightTextHighlighted/nil
 info.highlightColor = [nil, hex color] -- A color for highlighted found text, default ffd200
 info.hideSearch = [nil, true] -- Remove SearchBox if info.list displays as scroll menu
+info.autoFocus = [nil, true] -- Auto focus SearchBox if it's visible
 info.listMaxSize = [number] -- Number of max size info.list, after a scroll frame is added
 info.list = [table] -- The table of info buttons, if there are more than 20 (default) buttons, a scroll frame is added. Available attributes in table "dropDownOptions".
 ]]
@@ -405,6 +409,11 @@ end
 
 
 local function DropDownMenuButton_OnEnterInit(self)
+	if v.selectedFrame then
+		v.selectedFrame:GetScript("OnLeave")(v.selectedFrame)
+	end
+	v.selectedFrame = self
+
 	local level = self:GetParent().id + 1
 	local f = v[level]
 	if f and f.highlight then f.highlight:Hide() end
@@ -456,6 +465,8 @@ local function DropDownMenuButton_OnEnter(self)
 		v.widgetInit(self)
 	end
 
+	DropDownMenuButton_OnEnterInit(self)
+
 	if self.OnTooltipShow and (self:IsEnabled() or self.tooltipWhileDisabled) then
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:ClearLines()
@@ -468,12 +479,14 @@ local function DropDownMenuButton_OnEnter(self)
 	if self.OnEnter then
 		self:OnEnter(self.arg1, self.arg2)
 	end
-
-	DropDownMenuButton_OnEnterInit(self)
 end
 
 
 local function DropDownMenuButton_OnLeave(self)
+	if v.selectedFrame == self then
+		v.selectedFrame = nil
+	end
+
 	local f = v[self:GetParent().id + 1]
 	if self ~= f then
 		self.highlight:Hide()
@@ -529,6 +542,9 @@ local function DropDownMenuButton_OnHide(self)
 	self:Hide()
 	self.highlight:Hide()
 	self.colorSwatch = nil
+	if v.selectedFrame == self then
+		v.selectedFrame = nil
+	end
 end
 
 
@@ -831,6 +847,51 @@ local function DropDownMenuSearchBox_OnEnter(self)
 end
 
 
+local function DropDownMenuSearchBox_OnKeyDown(self, key)
+	if key ~= "UP" and key ~= "DOWN" then return end
+	local f = self:GetParent()
+	local selBtn, index = v.selectedFrame
+
+	if f:isChild(selBtn) then
+		local btnData = selBtn:GetData()
+		index = f.dataProvider:FindByPredicate(function(data)
+			return data == btnData
+		end)
+	end
+
+	index = (index or 0) + (key == "UP" and -1 or 1)
+	local maxIndex = f.dataProvider:GetSize()
+
+	if index < 1 then index = maxIndex
+	elseif index > maxIndex then index = 1 end
+
+	local scrollOffset = f.scrollBox:GetDerivedScrollOffset()
+	local indexOffset = f.scrollBox:GetExtentUntil(index)
+
+	if indexOffset < scrollOffset then
+		f.scrollBox:ScrollToElementDataIndex(index, ScrollBoxConstants.AlignBegin)
+	elseif indexOffset + f.scrollBox:GetElementExtent(index) > scrollOffset + f.scrollBox:GetVisibleExtent() then
+		f.scrollBox:ScrollToElementDataIndex(index, ScrollBoxConstants.AlignEnd)
+	end
+
+	local btnData = f.dataProvider:Find(index)
+	local btn = f.view:FindFrameByPredicate(function(_, data)
+		return data == btnData
+	end)
+
+	if btn then btn:GetScript("OnEnter")(btn) end
+end
+
+
+local function DropDownMenuSearchBox_OnEnterPressed(self)
+	if self:GetParent():isChild(v.selectedFrame) then
+		if v.selectedFrame:IsEnabled() then v.selectedFrame:Click() end
+	else
+		self:ClearFocus()
+	end
+end
+
+
 local function DropDownMenuSearchBoxClear_OnClick(self)
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	local searchBox = self:GetParent()
@@ -1001,6 +1062,14 @@ end
 local DropDownMenuSearchMixin = {}
 
 
+function DropDownMenuSearchMixin:isChild(btn)
+	for i, f in ipairs(self.view:GetFrames()) do
+		if f == btn then return true end
+	end
+	return false
+end
+
+
 function DropDownMenuSearchMixin:reset()
 	self.index = 1
 	self.width = 0
@@ -1042,6 +1111,10 @@ function DropDownMenuSearchMixin:init(menu, info)
 	self.searchBox:SetText("")
 	self:updateFilters()
 	self:Show()
+
+	if info.autoFocus and not info.hideSearch then
+		self.searchBox:SetFocus()
+	end
 
 	return self.width, height
 end
@@ -1248,6 +1321,8 @@ local function CreateDropDownMenuSearch()
 	f.searchBox:SetPoint("TOPRIGHT", 1, -3)
 	f.searchBox:SetScript("OnTextChanged", DropDownMenuSearchBox_OnTextChanged)
 	f.searchBox:SetScript("OnEnter", DropDownMenuSearchBox_OnEnter)
+	f.searchBox:SetScript("OnKeyDown", DropDownMenuSearchBox_OnKeyDown)
+	f.searchBox:SetScript("OnEnterPressed", DropDownMenuSearchBox_OnEnterPressed)
 
 	f.searchBox.clearButton:SetScript("OnClick", DropDownMenuSearchBoxClear_OnClick)
 
@@ -1337,15 +1412,8 @@ local function ContainsMouse()
 end
 
 
-local GetMouseFocus = GetMouseFocus
-if not GetMouseFocus then
-	local GetMouseFoci = GetMouseFoci
-	GetMouseFocus = function() return GetMouseFoci()[1] end
-end
-
-
 local function ContainsFocus()
-	local focus = GetMouseFocus()
+	local focus = GetMouseFoci()[1]
 	return focus and focus.LibSFDropDownNoGMEvent
 end
 
@@ -2545,11 +2613,6 @@ if oldminor < 28 then
 		if i ~= 1 then
 			menu:SetScript("OnHide", DropDownMenuList_OnHide)
 		end
-		for j, btn in lib:IterateMenuButtons(i) do
-			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
-			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
-			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
-		end
 	end
 
 	for i, f in lib:IterateSearchFrames() do
@@ -2560,12 +2623,6 @@ if oldminor < 28 then
 		f.scrollBar.Forward:SetScript("OnEnter", MinimalScrollBarStepperScriptsMixin.OnEnter)
 		f.scrollBar.Track:SetScript("OnEnter", nil)
 		f.scrollBar.Track.Thumb:SetScript("OnEnter", MinimalScrollBarThumbScriptsMixin.OnEnter)
-
-		for j, btn in lib:IterateSearchFrameButtons(i) do
-			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
-			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
-			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
-		end
 	end
 
 	for i = 1, #v.widgetFrames do
@@ -2575,11 +2632,27 @@ if oldminor < 28 then
 	end
 end
 
-if oldminor < 34 then
+if oldminor < 35 then
+	for i in lib:IterateMenus() do
+		for j, btn in lib:IterateMenuButtons(i) do
+			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
+			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
+		end
+	end
+
 	for i, f in lib:IterateSearchFrames() do
 		for k, v in next, DropDownMenuSearchMixin do f[k] = v end
 		f.buttonsList = nil
 		f.view:SetElementInitializer("BUTTON", DropDownMenuSearchButtonInit)
 		f.view:RegisterCallback(f.view.Event.OnAcquiredFrame, DropDownMenuSearchButton_OnAcquired, f)
+		f.searchBox:SetScript("OnKeyDown", DropDownMenuSearchBox_OnKeyDown)
+		f.searchBox:SetScript("OnEnterPressed", DropDownMenuSearchBox_OnEnterPressed)
+
+		for j, btn in lib:IterateSearchFrameButtons(i) do
+			btn:SetScript("OnEnter", DropDownMenuButton_OnEnter)
+			btn:SetScript("OnLeave", DropDownMenuButton_OnLeave)
+			btn:SetScript("OnHide", DropDownMenuButton_OnHide)
+		end
 	end
 end

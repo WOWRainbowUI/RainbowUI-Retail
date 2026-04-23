@@ -67,7 +67,7 @@ local langs, last = {
 	{"itIT", "Grifo92, maylisdalan"},
 	{"koKR", "drixwow, Hayan, netaras, maylisdalan"},
 	{"ptBR", "cathzinhas, 6605270, maylisdalan"},
-	{"zhCN", "lambdapak, huchang47, kuaishan, LvWind"},
+	{"zhCN", "7peanuts, lambdapak, huchang47, kuaishan, LvWind"},
 	{"zhTW", "BNS333, terry1314, RainbowUI"},
 }
 
