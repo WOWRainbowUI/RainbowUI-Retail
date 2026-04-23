@@ -47,8 +47,6 @@ LSM:Register(MediaType_FONT, "SF Movie Poster",				[[Interface\Addons\SharedMedi
 LSM:Register(MediaType_FONT, "SF Wonder Comic",				[[Interface\Addons\SharedMedia_Rainbow\fonts\sf_wonder_comic\SFWonderComic.ttf]],	zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "swf!t",						[[Interface\Addons\SharedMedia_Rainbow\fonts\swf!t\SWF!T___.ttf]],					zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 源流明體123",					[[Interface\Addons\SharedMedia_Rainbow\fonts\GenRyuMin\GenRyuMin-B-Hoefler.ttf]],			zhCN + zhTW + western)
-LSM:Register(MediaType_FONT, "Hoefler Text Regular",		[[Interface\Addons\SharedMedia_Rainbow\fonts\hoefler\Hoefler_Text_Regular.ttf]],	zhCN + zhTW + western)
-LSM:Register(MediaType_FONT, "Miedinger Bold",				[[Interface\Addons\SharedMedia_Rainbow\fonts\miedinger\Miedinger-Bold.ttf]],		zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 微軟雅黑123",				[[Interface\Addons\SharedMedia_Rainbow\fonts\YaHei\YaHei.ttf]],		zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 簡轉繁-文泉驛微米黑",			[[Interface\Addons\SharedMedia_Rainbow\fonts\hiya1561gl\hiya1561gl.ttf]],		zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 王漢宗綜藝體",				[[Interface\Addons\SharedMedia_Rainbow\fonts\Rawhide_Raw\Rawhide_Raw.ttf]], zhTW + western)
