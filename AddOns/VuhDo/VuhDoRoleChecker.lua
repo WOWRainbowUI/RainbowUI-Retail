@@ -513,6 +513,7 @@ function VUHDO_determineRole(aUnit)
 	-- Role determined by non-hybrid class?
 	tClassId = tInfo["classId"];
 	tClassRole = VUHDO_CLASS_ROLES[tClassId];
+
 	if tClassRole then
 		return tClassRole;
 	end
@@ -607,7 +608,9 @@ function VUHDO_determineRole(aUnit)
 		tIntellect = UnitStat(aUnit, 4);
 		tStrength = UnitStat(aUnit, 1);
 
-		if tIntellect > tStrength then
+		if sSecretsEnabled and (issecretvalue(tIntellect) or issecretvalue(tStrength)) then
+			return 61; -- VUHDO_ID_MELEE_DAMAGE
+		elseif tIntellect > tStrength then
 			return 63; -- VUHDO_ID_RANGED_HEAL
 		else
 			VUHDO_FIX_ROLES[tName] = 61; -- VUHDO_ID_MELEE_DAMAGE
@@ -618,7 +621,15 @@ function VUHDO_determineRole(aUnit)
 		tIntellect = UnitStat(aUnit, 4);
 		tAgility = UnitStat(aUnit, 2);
 
-		if tAgility > tIntellect then
+		if sSecretsEnabled and (issecretvalue(tIntellect) or issecretvalue(tAgility)) then
+			tPowerType = UnitPowerType(aUnit);
+
+			if VUHDO_UNIT_POWER_MANA == tPowerType then
+				return 63; -- VUHDO_ID_RANGED_HEAL
+			else
+				return 62; -- VUHDO_ID_RANGED_DAMAGE
+			end
+		elseif tAgility > tIntellect then
 			return 61; -- VUHDO_ID_MELEE_DAMAGE
 		else
 			tPowerType = UnitPowerType(aUnit);

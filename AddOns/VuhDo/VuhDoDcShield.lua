@@ -104,7 +104,9 @@ local function VUHDO_buildSnippetArray()
 				VUHDO_CLASS_TO_MACRO[tInfo["classId"]] or "_",
 				VUHDO_ROLE_TO_MACRO[tInfo["role"]] or "_");
 
-			VUHDO_NAME_SNIPPETS[tMacroIndex] = string.utf8sub(tInfo["name"] or "", 1, 3);
+			if not tInfo["hasSecretName"] then
+				VUHDO_NAME_SNIPPETS[tMacroIndex] = string.utf8sub(tInfo["name"] or "", 1, 3);
+			end
 		end
 	end
 end
