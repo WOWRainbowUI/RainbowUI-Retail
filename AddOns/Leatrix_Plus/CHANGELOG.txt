@@ -1,4 +1,7 @@
-﻿12.0.12 - 8th April 2026
+﻿12.0.14 - 22nd April 2026
+- Updated for game patch 12.0.5.
+
+12.0.12 - 8th April 2026
 - For 'Media', added 'Atal'Aman', 'Silvermoon City (Midnight)' and 'Zul'Aman (Midnight)' ('Zones') and 'Dreamrift' and 'Windrunner Spire' ('Dungeons').
 
 12.0.11 - 26th March 2026
