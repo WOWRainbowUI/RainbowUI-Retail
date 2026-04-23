@@ -1,8 +1,22 @@
 # DBM - Core
 
-## [12.0.39](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.39) (2026-04-21)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.38...12.0.39) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.0.41](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.41) (2026-04-22)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.38...12.0.41) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
+- restore 12.0.1 backwards compat for one more day  
+- restore 12.0.1 for CN region for another day  
+- Tagging another update for more SetFont issue resolution for remaining users unable to use DBM due to undocumented 12.0.5 changes  
+- Fixes  
+- Switch to LSM validation  
+- Less aggressive  
+- SUPER strict font validation because over strict 12.0.5 changes  
+- Put extra strict nil guards against corrupt settings for SetFont  
+    remove 12.0.1 toc  
+- fix variable name  
+- fix one more threat check error  
+- fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2034  
+- bump alpha  
+- missed one setfont, so prepping another new tag  
 - bump version, make it mandatory update, even for classic cause these changes are probably going to appear on the two active classic PTRs as well  
 - blizzard changed how setfont works, it now no longer accepts nil for font flags and must be "" instead. Should fix and close https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2030  
 - Missed one isContainer  
