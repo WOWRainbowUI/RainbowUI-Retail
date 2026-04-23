@@ -1,6 +1,6 @@
 assert(LibStub, "LibStub not found.");
 
-local major, minor = "LibAdvFlight-1.1", 1;
+local major, minor = "LibAdvFlight-1.1", 2;
 
 ---@class LibAdvFlight-1.1
 local LibAdvFlight = LibStub:NewLibrary(major, minor);
@@ -8,8 +8,6 @@ local LibAdvFlight = LibStub:NewLibrary(major, minor);
 if not LibAdvFlight then
     return;
 end
-
-local issecretvalue = issecretvalue or function() return false; end;
 
 --- Event constants - for most cases, contains an 'on' and 'off' event, as well as a toggle event
 --- These can be registered using the API functions below, or by just registering a callback w/ the global EventRegistry
@@ -67,43 +65,11 @@ local State = {
 local EventFrame = CreateFrame("Frame");
 
 function EventFrame:OnUpdate()
-    local isGliding, canGlide, forwardSpeed = C_PlayerInfo.GetGlidingInfo();
-
-    -- we are just going off of the changes in our stored state to trigger events
-    -- because the relevant events (PLAYER_CAN_GLIDE_CHANGED and PLAYER_IS_GLIDING_CHANGED)
-    -- are unreliable
-
-    -- all of these are just
-    --  check stored state vs new state
-    --  update stored state
-    --  fire event and sometimes accompanying toggle event
-    -- this code is repetitive but works and is fast enough
-
-    -- adv fly enable state
-    if State.AdvFlyEnabled ~= canGlide then
-        if State.AdvFlyEnabled and not canGlide then
-            State.AdvFlyEnabled = false;
-            Registry:TriggerEvent(Events.ADV_FLYING_DISABLED);
-        elseif not State.AdvFlyEnabled and canGlide then
-            State.AdvFlyEnabled = true;
-            Registry:TriggerEvent(Events.ADV_FLYING_ENABLED);
-        end
-
-        Registry:TriggerEvent(Events.ADV_FLYING_ENABLE_STATE_CHANGED, State.AdvFlyEnabled);
+    if not State.AdvFlyEnabled then
+        return;
     end
 
-    -- glide state
-    if State.AdvFlying ~= isGliding then
-        if State.AdvFlying and not isGliding then
-            State.AdvFlying = false;
-            Registry:TriggerEvent(Events.ADV_FLYING_END);
-        elseif not State.AdvFlying and isGliding then
-            State.AdvFlying = true;
-            Registry:TriggerEvent(Events.ADV_FLYING_START);
-        end
-
-        Registry:TriggerEvent(Events.ADV_FLYING_STATE_CHANGED, State.AdvFlying);
-    end
+    local forwardSpeed = select(3, C_PlayerInfo.GetGlidingInfo());
 
     State.ForwardSpeed = forwardSpeed or 0;
     local heading = GetPlayerFacing();
@@ -126,7 +92,63 @@ function EventFrame:OnUpdate()
     end
 end
 
+function EventFrame:OnEvent(event, ...)
+    if self[event] then
+        self[event](self, ...);
+    end
+end
+
+function EventFrame:PLAYER_CAN_GLIDE_CHANGED(canGlide)
+    State.AdvFlyEnabled = canGlide;
+
+    local event = canGlide and Events.ADV_FLYING_ENABLED or Events.ADV_FLYING_DISABLED;
+    Registry:TriggerEvent(event);
+    Registry:TriggerEvent(Events.ADV_FLYING_ENABLE_STATE_CHANGED, canGlide);
+end
+
+function EventFrame:PLAYER_IS_GLIDING_CHANGED(isGliding)
+    State.AdvFlying = isGliding;
+
+    local event = isGliding and Events.ADV_FLYING_START or Events.ADV_FLYING_END;
+    Registry:TriggerEvent(event);
+    Registry:TriggerEvent(Events.ADV_FLYING_STATE_CHANGED, isGliding);
+end
+
+function EventFrame:PLAYER_ENTERING_WORLD()
+    local isGliding, canGlide, _ = C_PlayerInfo.GetGlidingInfo();
+    if isGliding ~= State.AdvFlying then
+        self:PLAYER_IS_GLIDING_CHANGED(isGliding);
+    end
+
+    if canGlide ~= State.AdvFlyEnabled then
+        self:PLAYER_CAN_GLIDE_CHANGED(canGlide);
+    end
+end
+
+function EventFrame:UNIT_FLAGS(unitToken)
+    if UnitOnTaxi(unitToken) then
+        if State.AdvFlyEnabled then
+            self:PLAYER_CAN_GLIDE_CHANGED(false);
+        end
+        if State.AdvFlying then
+            self:PLAYER_IS_GLIDING_CHANGED(false);
+        end
+    end
+end
+
+------
+
+local FRAME_EVENTS = {
+    "PLAYER_CAN_GLIDE_CHANGED",
+    "PLAYER_IS_GLIDING_CHANGED",
+    "PLAYER_ENTERING_WORLD"
+};
+
+FrameUtil.RegisterFrameForEvents(EventFrame, FRAME_EVENTS);
+EventFrame:RegisterUnitEvent("UNIT_FLAGS", "player");
+
 EventFrame:SetScript("OnUpdate", EventFrame.OnUpdate);
+EventFrame:SetScript("OnEvent", EventFrame.OnEvent);
 
 --------------
 -- public state accessors
@@ -143,12 +165,6 @@ function LibAdvFlight.CanSwitchFlightStyles()
     return LibAdvFlight.HasTalentChoice(OPTIONAL_SPELLS.SwitchFlightStyle);
 end
 
---- Returns true if the player has chosen the lightning rush talent in the Skyriding skill tree
----@return boolean canSwitchFlightStyles
-function LibAdvFlight.HasLightningRush()
-    return LibAdvFlight.HasTalentChoice(OPTIONAL_SPELLS.LightningRush);
-end
-
 --- Returns true if the player has enabled the ability to carry friends with ride along
 ---@return boolean canSwitchFlightStyles
 function LibAdvFlight.HasRideAlongEnabled()
@@ -162,6 +178,12 @@ function LibAdvFlight.HasTalentChoice(choice)
 end
 
 local LIGHTNING_RUSH_AURA_SPELLID = 418590;
+
+--- Returns true if the player has chosen the lightning rush talent in the Skyriding skill tree
+---@return boolean canSwitchFlightStyles
+function LibAdvFlight.HasLightningRush()
+    return LibAdvFlight.HasTalentChoice(OPTIONAL_SPELLS.LightningRush);
+end
 
 ---@return number charges Number of lightning rush charges
 function LibAdvFlight.GetLightningRushCharges()
