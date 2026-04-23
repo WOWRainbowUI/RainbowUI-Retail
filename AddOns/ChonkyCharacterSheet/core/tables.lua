@@ -23,6 +23,7 @@ CCS.secretsdisabled = false
 CCS.raidupdatedisabled = false
 CCS.activeClickedRow = nil
 CCS.initall = nil
+CCS.tempEnchantTicker = nil
 
 -- Game version flags
 CCS.RETAIL  = 1
@@ -128,9 +129,9 @@ ns.optionDefs = {
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.ALL), key="show_inspect", label=L["SHOW_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showraidprogress", label=L["SHOW_RAID_PROGRESS"], value=true, default=true, slots=1 },
     { type="header", cat="GENERAL", ver=bit.bor(CCS.ALL), key=nil, label="", slots=1, color={1, 1, 1}, fontSize=20, fontOutline="THICKOUTLINE" },
-    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp", label=L["SHOW_MYTHIC_SP"], value=true, default=false, slots=1 },
+    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp", label=L["SHOW_MYTHIC_SP"], value=true, default=true, slots=1 },
     { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp_btn", label=L["SHOW_MYTHIC_SP_BTN"], value=true, default=true, slots=1 },    
-    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp_onopen", label=L["SHOW_MYTHIC_SP_ONOPEN"], value=true, default=true, slots=2 },    
+    { type="checkbox", cat="GENERAL", ver=bit.bor(CCS.RETAIL), key="showm_sp_onopen", label=L["SHOW_MYTHIC_SP_ONOPEN"], value=false, default=false, slots=2 },    
     { type="divider", cat="GENERAL", ver=bit.bor(CCS.ALL), slots=4 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="sheetscale", label=L["SHEET_SCALE"], value=1, default=1, min=0.5, max=1.25, step=0.05, slots=2 },
     { type="slider", cat="GENERAL", ver=bit.bor(CCS.ALL), key="vpad", label=L["V_PAD"], value=23, default=23, min=0, max=40, step=1, slots=2 },
@@ -183,6 +184,7 @@ ns.optionDefs = {
     { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="bgcolor", label=L["CCS_BG_COLOR"], value={0,0,0,0.89}, default={0,0,0,0.89}, slots=1 },
     { type="dropdown", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="bgtype", label=L["BG_TYPE"], value="Midnight", default="Midnight", values={"Default", "Class", "Race", "Midnight", "Hide"}, slots=2 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showbganimations", label=ANIMATION, value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showparagonmax", label=L["PARAGON_MAX_BAR"], value=false, default=false, slots=1 },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key=nil, label=L["HEADER_ITEM_DISPLAY"], slots=4, color={1,1,1}, fontSize=16, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), slots=4 },
@@ -194,18 +196,20 @@ ns.optionDefs = {
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL, CCS.MOP), key="hideshowchbtn", label=L["HIDE_SHOW_CHAR_BTN"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="hideiconborders", label=L["HIDE_ICON_BORDERS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showenchants", label=L["SHOW_ENCHANTS"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showtempenchants", label=L["SHOW_TEMP_ENCHANTS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showgems", label=L["SHOW_GEMS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showilvl", label=L["SHOW_ILVL"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showpvpilvl", label=L["SHOW_PVP_ILVL"], value=true, default=true, slots=1 },
+    { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showhighwater", label=L["SHOW_HIGHWATER"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showenchantgemerrors", label=L["SHOW_ENCHANT_GEM_ERRORS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.RETAIL), key="showmissingsockets", label=L["SHOW_MISSING_SOCKETS"], value=false, default=false, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showitemupgrade", label=L["SHOW_ITEM_UPGRADE"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="upgradecolorrarity", label=L["Upgrade Color by Rarity"], value=false, default=false, slots=1 },
-    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemupgradecolor", label=L["ITEM_UPGRADE_COLOR"], value={0.98,0.60,0.35,1}, default={0.98,0.60,0.35,1}, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showitemcolor", label=L["SHOW_ITEM_COLOR_BG"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetitems", label=L["SHOW_SET_ITEMS"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="showsetclasscolor", label=L["SHOW_SET_CLASS_COLOR"], value=true, default=true, slots=1 },
-    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="setitemcolor", label=L["SET_ITEM_COLOR"], value={0.05,0.75,0.45,1}, default={0.05,0.75,0.45,1}, slots=4 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemupgradecolor", label=L["ITEM_UPGRADE_COLOR"], value={0.98,0.60,0.35,1}, default={0.98,0.60,0.35,1}, slots=2 },
+    { type="color", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="setitemcolor", label=L["SET_ITEM_COLOR"], value={0.05,0.75,0.45,1}, default={0.05,0.75,0.45,1}, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="itemcolorbrightness", label=L["Item Background Brightness"], value=1.00, default=1.00, min=0.30, max=1.00, step=0.01, slots=2 },
     { type="slider", cat="CHAR-SHEET", ver=bit.bor(CCS.ALL), key="enchantnamelength", label=L["ENCHANT_NAME_LENGTH"], value=100, default=100, min=20, max=100, step=1, slots=2 },
 
@@ -396,14 +400,17 @@ ns.optionDefs = {
     { type="slider", cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="fontsize_stats", label=FONT_SIZE, value=10, default=10, min=3, max=34, step=1, slots=1 },
     { type="color",  cat="CHAR-STATS-FONT", ver=bit.bor(CCS.RETAIL, CCS.TBC), key="fontcolor_stats", label=COLOR, value={1,1,1,1}, default={1,1,1,1}, slots=1 },
 
-
     -- Mythic+ Side Panel
     { type="divider", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_MYTHIC_PANEL"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showmythicplusscore", label=L["SHOW_MYTHIC_SCORE"], value=true, default=true, slots=1 },
     { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showm_overundertime", label=L["SHOW_M_OVERUNDER"], value=true, default=true, slots=1 },
-    { type="color", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="ccsmbgcolor", label=L["CCS_M_BG_COLOR"], value={0,0,0,0.85}, default={0,0,0,0.85}, slots=2 },
+    { type="checkbox", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="showm_altbtn", label=L["ALTERNATE_SIDE_BUTTON"], value=false, default=false, slots=2 },
+    { type="color", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="ccsmbgcolor", label=L["CCS_M_BG_COLOR"], value={0,0,0,0.85}, default={0,0,0,0.85}, slots=4 },
+    { type="dropdown", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="mplus_sortby", label=RAID_FRAME_SORT_LABELccccc, value="Name", default="Name", values={"Name", "Level", "Rating", "Time"}, slots=2 },
+    { type="dropdown", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="mplus_direction", label=L["Sort Direction"], value="Ascending", default="Ascending", values={"Ascending", "Descending"}, slots=2 },
+
     { type="divider", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="font",   cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="fontname_mplus", label=L["FONT_NAME_MPLUS"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="CHAR-MPLUS", ver=bit.bor(CCS.RETAIL), key="fontsize_mplus", label=L["FONT_SIZE_MPLUS"], value=11, default=11, min=3, max=34, step=1, slots=2 },
@@ -468,7 +475,9 @@ ns.optionDefs = {
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
     { type="header", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key=nil, label=L["HEADER_RAID_PROGRESS"], slots=4, color={1,1,1}, fontSize=20, fontOutline="THICKOUTLINE" },
     { type="divider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), slots=4 },
-    { type="color", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="bgcolor_raid", label=L["RAID_BG_COLOR"], value={.12,.12,.12,1}, default={.12,.12,.12,1}, slots=4 },
+    { type="color", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="bgcolor_raid", label=L["RAID_BG_COLOR"], value={.12,.12,.12,1}, default={.12,.12,.12,1}, slots=2 },
+    { type="checkbox", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="showr_altbtn", label=L["ALTERNATE_SIDE_BUTTON"], value=false, default=false, slots=2 },
+
     { type="font",   cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontname_raidtitle", label=L["FONT_NAME_RAID_TITLE"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
     { type="slider", cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontsize_raidtitle", label=L["FONT_SIZE_RAID_TITLE"], value=20, default=20, min=3, max=34, step=1, slots=2 },
     { type="font",   cat="CHAR-RAID", ver=bit.bor(CCS.RETAIL), key="fontname_raiddiff", label=L["FONT_NAME_RAID_DIFFICULTY"], value="Fonts\\FRIZQT__.TTF", default="Fonts\\FRIZQT__.TTF", slots=2 },
@@ -496,7 +505,7 @@ ns.optionDefs = {
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showitemcolor_inspect", label=L["SHOW_ITEM_COLOR_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showmodel_inspect", label=L["SHOW_MODEL_INSPECT"], value=true, default=true, slots=1 },
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="showmythicplusscore_inspect", label=L["SHOW_MYTHIC_SCORE_INSPECT"], value=true, default=true, slots=1 },
-
+    { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.RETAIL), key="showm_sp_btn_inspect", label=L["SHOW_MYTHIC_SP_BTN"], value=true, default=true, slots=1 },    
 
     { type="divider", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), slots=4 },        
     { type="checkbox", cat="INSPECT-SHEET", ver=bit.bor(CCS.ALL), key="showilvl_inspect", label=L["SHOW_ITEMILVL_INSPECT"], value=true, default=true, slots=1 },
@@ -555,6 +564,26 @@ CCS.fonts = {
     ["BHEI00M (Traditional Chinese)"] = "Fonts\\bHEI00M.ttf", -- BLIZ zhTW
     ["BL Hei"] = "Fonts\\BLEI00D.TTF", -- Bliz zhTW
     ["BKai Medium"] = "Fonts\\BKAI00M.TTF", -- Bliz zhTW    
+    ["Bradley Gratis"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\BradleyGratis.ttf",
+    ["Brave"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Brave.ttf",
+    ["CaptainMarvel"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Danvers.ttf",
+    ["Carlito"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Carlito-Regular.ttf",
+    ["Crystal"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\CRYSRG__.TTF",
+    ["DejaVu Sans Mono"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\DejaVuSansMono.ttf",
+    ["Doris PP"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\DORISPP.TTF",
+    ["El Messiri"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\ElMessiri-VariableFont_wght.ttf",
+    ["Emblem"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Emblem.ttf",
+    ["Enigmatic Unicode"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Enigma__2.TTF",
+    ["Expressway"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\Expressway.ttf",    
+    ["Fira Mono"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FiraMono-Regular.ttf",
+    ["Fira Mono Medium"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FiraMono-Medium.ttf",
+    ["Fira Sans Condensed Heavy"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FiraSansCondensed-Heavy.ttf",
+    ["Fira Sans Condensed Medium"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FiraSansCondensed-Medium.ttf",
+    ["Fira Sans Heavy"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FiraSans-Heavy.ttf",
+    ["Fira Sans Medium"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FiraSans-Medium.ttf",
+    ["Fixedsys Excelsior 3.01"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FSEX300.ttf",
+    ["FORCED SQUARE"] = "Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Fonts\\FORCED SQUARE.ttf",
+    ["Friz Quadrata (Cyrillic)"] = "Fonts\\FRIZQT___CYR.TTF", -- BLIZ ruRU
     ["Friz Quadrata TT"] = "Fonts\\FRIZQT__.TTF", -- BLIZ
     --["Morpheus"] = "Fonts\\MORPHEUS.TTF", -- BLIZ
     --["Skurri"] = "Fonts\\SKURRI.TTF", -- BLIZ   
@@ -593,8 +622,277 @@ CCS.fontLabels = {
     },
     ["BKai Medium"] = {
         enUS = "BKai Medium",
-        zhCN = "标楷体（繁体中文）",
-        zhTW = "BKAI00M (繁中傷害字型)",
+        koKR = "BKai 미디엄",
+        frFR = "BKai Moyen",
+        deDE = "BKai Mittel",
+        zhCN = "标楷体",
+        esES = "BKai Medio",
+        zhTW = "標楷體",
+        esMX = "BKai Medio",
+        ruRU = "BKai Средний",
+        ptBR = "BKai Médio",
+        itIT = "BKai Medio",
+    },    
+    ["Bradley Gratis"] = {
+        enUS = "Bradley Gratis",
+        koKR = "브래들리 그라티스",
+        frFR = "Bradley Gratuit",
+        deDE = "Bradley Kostenlos",
+        zhCN = "布拉德利免费体",
+        esES = "Bradley Gratis",
+        zhTW = "布拉德利免費體",
+        esMX = "Bradley Gratis",
+        ruRU = "Bradley Бесплатный",
+        ptBR = "Bradley Grátis",
+        itIT = "Bradley Gratis",
+    },
+    ["Brave"] = {
+        enUS = "Brave",
+        koKR = "브레이브",
+        frFR = "Brave",
+        deDE = "Tapfer",
+        zhCN = "勇敢体",
+        esES = "Valiente",
+        zhTW = "勇敢體",
+        esMX = "Valiente",
+        ruRU = "Храбрый",
+        ptBR = "Bravo",
+        itIT = "Coraggioso",
+    },
+    ["CaptainMarvel"] = {
+        enUS = "CaptainMarvel",
+        koKR = "캡틴마블",
+        frFR = "Captain Marvel",
+        deDE = "Captain Marvel",
+        zhCN = "惊奇队长体",
+        esES = "Capitana Marvel",
+        zhTW = "驚奇隊長體",
+        esMX = "Capitana Marvel",
+        ruRU = "Капитан Марвел",
+        ptBR = "Capitã Marvel",
+        itIT = "Capitan Marvel",
+    },
+    ["Carlito"] = {
+        enUS = "Carlito",
+        koKR = "카를리토",
+        frFR = "Carlito",
+        deDE = "Carlito",
+        zhCN = "卡利托体",
+        esES = "Carlito",
+        zhTW = "卡利托體",
+        esMX = "Carlito",
+        ruRU = "Карлито",
+        ptBR = "Carlito",
+        itIT = "Carlito",
+    },
+    ["Crystal"] = {
+        enUS = "Crystal",
+        koKR = "크리스탈",
+        frFR = "Cristal",
+        deDE = "Kristall",
+        zhCN = "水晶体",
+        esES = "Cristal",
+        zhTW = "水晶體",
+        esMX = "Cristal",
+        ruRU = "Кристалл",
+        ptBR = "Cristal",
+        itIT = "Cristallo",
+    },
+    ["DejaVu Sans Mono"] = {
+        enUS = "DejaVu Sans Mono",
+        koKR = "데자뷰 산스 모노",
+        frFR = "DejaVu Sans Mono",
+        deDE = "DejaVu Sans Mono",
+        zhCN = "DejaVu 等宽体",
+        esES = "DejaVu Sans Mono",
+        zhTW = "DejaVu 等寬體",
+        esMX = "DejaVu Sans Mono",
+        ruRU = "DejaVu Моно",
+        ptBR = "DejaVu Sans Mono",
+        itIT = "DejaVu Sans Mono",
+    },
+    ["Doris PP"] = {
+        enUS = "Doris PP",
+        koKR = "도리스 PP",
+        frFR = "Doris PP",
+        deDE = "Doris PP",
+        zhCN = "多丽丝 PP",
+        esES = "Doris PP",
+        zhTW = "多麗絲 PP",
+        esMX = "Doris PP",
+        ruRU = "Дорис PP",
+        ptBR = "Doris PP",
+        itIT = "Doris PP",
+    },
+    ["El Messiri"] = {
+        enUS = "El Messiri",
+        koKR = "엘 메시리",
+        frFR = "El Messiri",
+        deDE = "El Messiri",
+        zhCN = "埃尔·梅西里体",
+        esES = "El Messiri",
+        zhTW = "埃爾·梅西里體",
+        esMX = "El Messiri",
+        ruRU = "Эль Мессири",
+        ptBR = "El Messiri",
+        itIT = "El Messiri",
+    },
+    ["Emblem"] = {
+        enUS = "Emblem",
+        koKR = "엠블럼",
+        frFR = "Emblème",
+        deDE = "Emblem",
+        zhCN = "徽章体",
+        esES = "Emblema",
+        zhTW = "徽章體",
+        esMX = "Emblema",
+        ruRU = "Эмблема",
+        ptBR = "Emblema",
+        itIT = "Emblema",
+    },
+    ["Enigmatic Unicode"] = {
+        enUS = "Enigmatic Unicode",
+        koKR = "에니그매틱 유니코드",
+        frFR = "Unicode énigmatique",
+        deDE = "Rätselhafter Unicode",
+        zhCN = "神秘 Unicode",
+        esES = "Unicode enigmático",
+        zhTW = "神秘 Unicode",
+        esMX = "Unicode enigmático",
+        ruRU = "Загадочный Unicode",
+        ptBR = "Unicode enigmático",
+        itIT = "Unicode enigmatico",
+    },
+    ["Expressway"] = {
+        enUS = "Expressway",
+        koKR = "익스프레스웨이",  
+        frFR = "Expressway", 
+        deDE = "Expressway", 
+        zhCN = "Expressway", 
+        esES = "Expressway", 
+        zhTW = "Expressway", 
+        esMX = "Expressway", 
+        ruRU = "Экспрессуэй",
+        ptBR = "Expressway", 
+        itIT = "Expressway", 
+    },
+   
+    ["Fira Mono"] = {
+        enUS = "Fira Mono",
+        koKR = "피라 모노",
+        frFR = "Fira Mono",
+        deDE = "Fira Mono",
+        zhCN = "Fira 等宽体",
+        esES = "Fira Mono",
+        zhTW = "Fira 等寬體",
+        esMX = "Fira Mono",
+        ruRU = "Fira Моно",
+        ptBR = "Fira Mono",
+        itIT = "Fira Mono",
+    },
+    ["Fira Mono Medium"] = {
+        enUS = "Fira Mono Medium",
+        koKR = "피라 모노 미디엄",
+        frFR = "Fira Mono Medium",
+        deDE = "Fira Mono Medium",
+        zhCN = "Fira 中等宽体",
+        esES = "Fira Mono Medium",
+        zhTW = "Fira 中等寬體",
+        esMX = "Fira Mono Medium",
+        ruRU = "Fira Моно Средний",
+        ptBR = "Fira Mono Médio",
+        itIT = "Fira Mono Medio",
+    },
+    ["Fira Sans Condensed Heavy"] = {
+        enUS = "Fira Sans Condensed Heavy",
+        koKR = "피라 산스 압축 헤비",
+        frFR = "Fira Sans Condensé Gras",
+        deDE = "Fira Sans Komprimiert Fett",
+        zhCN = "Fira Sans 压缩粗体",
+        esES = "Fira Sans Condensado Negrita",
+        zhTW = "Fira Sans 壓縮粗體",
+        esMX = "Fira Sans Condensado Negrita",
+        ruRU = "Fira Sans Сжатый Жирный",
+        ptBR = "Fira Sans Condensado Pesado",
+        itIT = "Fira Sans Compresso Grassetto",
+    },
+    ["Fira Sans Condensed Medium"] = {
+        enUS = "Fira Sans Condensed Medium",
+        koKR = "피라 산스 압축 미디엄",
+        frFR = "Fira Sans Condensé Moyen",
+        deDE = "Fira Sans Komprimiert Mittel",
+        zhCN = "Fira Sans 压缩中等体",
+        esES = "Fira Sans Condensado Medio",
+        zhTW = "Fira Sans 壓縮中等體",
+        esMX = "Fira Sans Condensado Medio",
+        ruRU = "Fira Sans Сжатый Средний",
+        ptBR = "Fira Sans Condensado Médio",
+        itIT = "Fira Sans Compresso Medio",
+    },
+    ["Fira Sans Heavy"] = {
+        enUS = "Fira Sans Heavy",
+        koKR = "피라 산스 헤비",
+        frFR = "Fira Sans Gras",
+        deDE = "Fira Sans Fett",
+        zhCN = "Fira Sans 粗体",
+        esES = "Fira Sans Negrita",
+        zhTW = "Fira Sans 粗體",
+        esMX = "Fira Sans Negrita",
+        ruRU = "Fira Sans Жирный",
+        ptBR = "Fira Sans Pesado",
+        itIT = "Fira Sans Grassetto",
+    },
+    ["Fira Sans Medium"] = {
+        enUS = "Fira Sans Medium",
+        koKR = "피라 산스 미디엄",
+        frFR = "Fira Sans Moyen",
+        deDE = "Fira Sans Mittel",
+        zhCN = "Fira Sans 中等体",
+        esES = "Fira Sans Medio",
+        zhTW = "Fira Sans 中等體",
+        esMX = "Fira Sans Medio",
+        ruRU = "Fira Sans Средний",
+        ptBR = "Fira Sans Médio",
+        itIT = "Fira Sans Medio",
+    },
+    ["Fixedsys Excelsior 3.01"] = {
+        enUS = "Fixedsys Excelsior 3.01",
+        koKR = "픽스드시스 엑셀시오르 3.01",
+        frFR = "Fixedsys Excelsior 3.01",
+        deDE = "Fixedsys Excelsior 3.01",
+        zhCN = "固定系统卓越体 3.01",
+        esES = "Fixedsys Excelsior 3.01",
+        zhTW = "固定系統卓越體 3.01",
+        esMX = "Fixedsys Excelsior 3.01",
+        ruRU = "Fixedsys Excelsior 3.01",
+        ptBR = "Fixedsys Excelsior 3.01",
+        itIT = "Fixedsys Excelsior 3.01",
+    },
+    ["FORCED SQUARE"] = {
+        enUS = "FORCED SQUARE",
+        koKR = "포스드 스퀘어",
+        frFR = "Carré Forcé",
+        deDE = "Erzwungenes Quadrat",
+        zhCN = "强制方块体",
+        esES = "Cuadrado Forzado",
+        zhTW = "強制方塊體",
+        esMX = "Cuadrado Forzado",
+        ruRU = "Принудительный квадрат",
+        ptBR = "Quadrado Forçado",
+        itIT = "Quadrato Forzato",
+    },
+    ["Friz Quadrata (Cyrillic)"] = {
+        enUS = "Friz Quadrata (Cyrillic)",
+        koKR = "Friz Quadrata (키릴 문자)",
+        frFR = "Friz Quadrata (cyrillique)",
+        deDE = "Friz Quadrata (kyrillisch)",
+        zhCN = "Friz Quadrata（西里尔文）",
+        zhTW = "Friz Quadrata（西里爾文）",
+        esES = "Friz Quadrata (cirílico)",
+        esMX = "Friz Quadrata (cirílico)",
+        ruRU = "Friz Quadrata (кириллица)",
+        ptBR = "Friz Quadrata (cirílico)",
+        itIT = "Friz Quadrata (cirillico)",
     },
     ["Friz Quadrata TT"] = {
         enUS = "Friz Quadrata TT",
@@ -682,6 +980,13 @@ CCS.Paragon_Factions = {
     [79220] = { factionID = 2594},-- The Assembly of the Deeps
     [79196] = { factionID = 2600},-- The Severed Threads
     [79196] = { factionID = 2736},-- Manaforge Vandals
+    -- Midnight
+    [93566] = {factionID = 2696}, -- Amani Tribe
+    [89032] = {factionID = 2699}, -- The Singularity
+    [89035] = {factionID = 2704}, -- Hara'ti
+    [93811] = {factionID = 2710}, -- Silvermoon Court
+    [94492] = {factionID = 2770}, -- Slayer's Duellum
+
 }
 
 CCS.GemInfo = {
@@ -703,6 +1008,75 @@ CCS.GemInfo = {
     [136258]  = { text = EMPTY_SOCKET_RED, gtype = CCS.GEM_PRISMATIC},
     [136259]  = { text = EMPTY_SOCKET_YELLOW, gtype = CCS.GEM_PRISMATIC},    
 }    
+
+CCS.SPEC_ID_TO_INDEX = {
+    -- Death Knight
+    [250] = 1, -- Blood
+    [251] = 2, -- Frost
+    [252] = 3, -- Unholy
+
+    -- Demon Hunter
+    [577] = 1, -- Havoc
+    [581] = 2, -- Vengeance
+    [1480] = 3, -- Devourer
+
+    -- Druid
+    [102] = 1, -- Balance
+    [103] = 2, -- Feral
+    [104] = 3, -- Guardian
+    [105] = 4, -- Restoration
+
+    -- Evoker
+    [1467] = 1, -- Devastation
+    [1468] = 2, -- Preservation
+    [1473] = 3, -- Augmentation
+
+    -- Hunter
+    [253] = 1, -- Beast Mastery
+    [254] = 2, -- Marksmanship
+    [255] = 3, -- Survival
+
+    -- Mage
+    [62] = 1, -- Arcane
+    [63] = 2, -- Fire
+    [64] = 3, -- Frost
+
+    -- Monk
+    [268] = 1, -- Brewmaster
+    [270] = 2, -- Mistweaver
+    [269] = 3, -- Windwalker
+
+    -- Paladin
+    [65] = 1, -- Holy
+    [66] = 2, -- Protection
+    [70] = 3, -- Retribution
+
+    -- Priest
+    [256] = 1, -- Discipline
+    [257] = 2, -- Holy
+    [258] = 3, -- Shadow
+
+    -- Rogue
+    [259] = 1, -- Assassination
+    [260] = 2, -- Outlaw
+    [261] = 3, -- Subtlety
+
+    -- Shaman
+    [262] = 1, -- Elemental
+    [263] = 2, -- Enhancement
+    [264] = 3, -- Restoration
+
+    -- Warlock
+    [265] = 1, -- Affliction
+    [266] = 2, -- Demonology
+    [267] = 3, -- Destruction
+
+    -- Warrior
+    [71] = 1, -- Arms
+    [72] = 2, -- Fury
+    [73] = 3, -- Protection
+}
+
 
 CCS.Class_Bg = {
     [1] = { -- Warrior
@@ -764,6 +1138,7 @@ CCS.Class_Bg = {
     [12] = { -- Demon Hunter
         [1] = { name = "Havoc", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunter", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
         [2] = { name = "Vengeance", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunter", map = {1612, 774, 0.000488281, 0.787598, 0.379395, 0.757324} },
+        [3] = { name = "Devourer", texture = "Interface\\TalentFrame\\TalentsClassBackgroundDemonHunterDevourer", map = {1612, 774, 0.000488281, 0.787598, 0.000976562, 0.756836} },
     },
     [13] = { -- Evoker
         [1] = { name = "Devastation", texture = "Interface\\TalentFrame\\TalentsClassBackgroundEvoker", map = {1612, 774, 0.000488281, 0.787598, 0.000488281, 0.378418} },
@@ -819,12 +1194,16 @@ CCS.Race_Bg = {
     },
     [22] = { -- Worgen
         texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
-        map     = {1022, 664, 0.000488281, 0.999512, 0.000488281, 0.324707},
+        map     = {1022, 664, 0.5, 0.999512, 0.000488281, 0.324707},
     },
     [24] = { -- Pandaren
         texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
         map     = {1022, 664, 0.000488281, 0.499512, 0.000488281, 0.324707},
     },
+    [26] = { -- Pandaren
+        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones4",
+        map     = {1022, 664, 0.000488281, 0.499512, 0.000488281, 0.324707},
+    },    
     [27] = { -- Nightborne
         texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones3",
         map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
@@ -843,7 +1222,7 @@ CCS.Race_Bg = {
     },
     [31] = { -- Zandalari Troll
         texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
-        map     = {1022, 664, 0.000488281, 0.999512, 0.325684, 0.649902},
+        map     = {1022, 664, 0, 0.5, 0.325684, 0.649902},
     },
     [32] = { -- Kul Tiran
         texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones2",
@@ -875,19 +1254,27 @@ CCS.Race_Bg = {
     },
     [84] = { -- Earthen (Horde) 
         texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
-        map     = {1022, 664, 0.000488281, 0.999512, 0.650879, 0.975098},
+        map     = {1022, 664, 0.000488281, 0.5, 0.325684, 0.649902},
     },
     [85] = { -- Earthen (Alliance) 
         texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
-        map     = {1022, 664, 0.000488281, 0.999512, 0.650879, 0.975098},
+        map     = {1022, 664, 0.000488281, 0.5, 0.325684, 0.649902},
     },
+    [86] = { -- Haranir
+        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
+        map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
+    },    
+    [91] = { -- Haranir
+        texture = "Interface\\Glues\\CharacterCreate\\CharacterCreateStartingZones5",
+        map     = {1022, 664, 0.500488, 0.999512, 0.325684, 0.649902},
+    },        
     [998] = { -- Death Knight
         texture = "Interface\\Glues\\Models\\UI_DeathKnight\\UI_Deathknight_LowRes",
-        map     = {1024, 512, 0, 1, 0, 1},
+        map     = {2048, 2048, 0, 1, 0, 1},
     },
     [999] = { -- Demon Hunter
         texture = "Interface\\Glues\\Models\\UI_DemonHunter\\UI_DemonHunter_LowRes",
-        map     = {1024, 512, 0, 1, 0, 1},
+        map     = {2048, 2048, 0, 1, 0, 1},
     },
 }
 
@@ -1609,3 +1996,143 @@ CCS.statKeyMap = {
     secondary_versatility = "VERSATILITY",
 }
 
+-- These are not intended to be completely accurate as we only want a way to translate the enchantID to a localized spell name
+CCS.tempenchantLookup = {
+    [2623] = { spellID = 25117 }, -- Minor Wizard Oil
+    [2624] = { spellID = 25118 }, -- Minor Mana Oil
+    [2625] = { spellID = 25120 }, -- Lesser Mana Oil
+    [2626] = { spellID = 25119 }, -- Lesser Wizard Oil
+    [2627] = { spellID = 25121 }, -- Wizard Oil
+    [2628] = { spellID = 25122 }, -- Brilliant Wizard Oil
+    [2629] = { spellID = 25123 }, -- Brilliant Mana Oil
+
+    [2676] = { spellID = 28016 }, -- Superior Mana Oil
+    [2677] = { spellID = 28016 }, -- Superior Mana Oil
+    [2678] = { spellID = 28017 }, -- Superior Wizard Oil
+
+    [2713] = { spellID = 132775 }, -- Sharpened VII
+    [2718] = { spellID = 42135 }, -- Lesser Rune of Warding
+    [2719] = { spellID = 29507 }, -- Lesser Ward of Shielding
+
+    [2791] = { spellID = 32282 }, -- Greater Rune of Warding
+    [2795] = { spellID = 32427 }, -- Comfortable Insoles
+
+    [2955] = { spellID = 322763 }, -- Weighted VII
+    [3102] = { spellID = 8313 }, -- Poison
+
+    [3265] = { spellID = 45395 }, -- Blessed Weapon Coating
+    [3266] = { spellID = 45397 }, -- Righteous Weapon Coating
+
+    [3298] = { spellID = 47904 }, -- Exceptional Mana Oil
+    [3299] = { spellID = 25121 }, -- Exceptional Wizard Oil
+
+    [3322] = { spellID = 51385 }, -- Frozen Rune Weapon
+    [3341] = { spellID = 51385 }, -- Frozen Rune Weapon 2
+    [3342] = { spellID = 51385 }, -- Frozen Rune Weapon 3
+    [3343] = { spellID = 51385 }, -- Frozen Rune Weapon 4
+    [3344] = { spellID = 51385 }, -- Frozen Rune Weapon 5
+
+    [5332] = { spellID = 295576 }, -- Frostbrand
+    [5398] = { spellID = 382021 }, -- Earthliving
+    [5400] = { spellID = 176031 }, -- Flametongue
+    [5401] = { spellID = 32910 }, -- Windfury
+
+    [6188] = { spellID = 307118 }, -- Shadowcore Oil
+    [6190] = { spellID = 307119 }, -- Embalmer's Oil
+
+    [6198] = { spellID = 132775 }, -- Sharpened VIII
+    [6199] = { spellID = 322763 }, -- Weighted VIII
+    [6200] = { spellID = 132775 }, -- Sharpened IX
+    [6201] = { spellID = 322763 }, -- Weighted IX
+
+    [6498] = { spellID = 382021 }, -- Earthliving
+
+    [6512] = { spellID = 385325 }, -- Buzzing Rune
+    [6513] = { spellID = 385325 }, -- Buzzing Rune
+    [6514] = { spellID = 385325 }, -- Buzzing Rune
+    [6515] = { spellID = 383525 }, -- Chirping Rune
+    [6516] = { spellID = 383529 }, -- Howling Rune
+    [6517] = { spellID = 383529 }, -- Howling Rune
+    [6518] = { spellID = 383529 }, -- Howling Rune
+
+    [6529] = { spellID = 382365 }, -- Completely Safe Rockets (T1)
+    [6530] = { spellID = 382365 }, -- Completely Safe Rockets (T2)
+    [6531] = { spellID = 382365 }, -- Completely Safe Rockets (T3)
+
+    [6532] = { spellID = 382366 }, -- Endless Stack of Needles (T1)
+    [6533] = { spellID = 382366 }, -- Endless Stack of Needles (T2)
+    [6534] = { spellID = 382366 }, -- Endless Stack of Needles (T3)
+
+    [6694] = { spellID = 383525 }, -- Chirping Rune
+    [6695] = { spellID = 383525 }, -- Chirping Rune
+
+    [6696] = { spellID = 322763 }, -- Weighted AP (T1)
+    [6697] = { spellID = 322763 }, -- Weighted AP (T2)
+    [6698] = { spellID = 322763 }, -- Weighted AP (T3)
+
+    [6837] = { spellID = 408271 }, -- Hissing Rune
+    [6838] = { spellID = 408271 }, -- Hissing Rune
+    [6839] = { spellID = 408271 }, -- Hissing Rune
+
+    [7143] = { spellID = 433550 }, -- Rite of Sanctification
+    [7144] = { spellID = 433584 }, -- Rite of Adjuration
+
+    [7467] = { spellID = 444755 }, -- Bubbling Wax (merged)
+
+    -- TWW Oils
+    [7493] = { spellID = 451869 }, -- Algari Mana Oil (T1)
+    [7494] = { spellID = 451873 }, -- Algari Mana Oil (T2)
+    [7495] = { spellID = 451874 }, -- Algari Mana Oil (T3)
+
+    [7496] = { spellID = 451882 }, -- Oil of Deep Toxins (T1)
+    [7497] = { spellID = 451901 }, -- Oil of Deep Toxins (T2)
+    [7498] = { spellID = 451902 }, -- Oil of Deep Toxins (T3)
+
+    [7500] = { spellID = 451926 }, -- Oil of Beledar's Grace (T1)
+    [7501] = { spellID = 451925 }, -- Oil of Beledar's Grace (T2)
+    [7502] = { spellID = 451927 }, -- Oil of Beledar's Grace (T3)
+
+    [7528] = { spellID = 457481 }, -- Tidecaller's Guard
+
+    -- TWW Whetstones / Weightstones
+    [7543] = { spellID = 458932 }, -- Sharpened AP (T1)
+    [7544] = { spellID = 458933 }, -- Sharpened AP (T2)
+    [7545] = { spellID = 458934 }, -- Sharpened AP (T3)
+
+    [7546] = { spellID = 458935 }, -- Razor Sharp Finesse (T1)
+    [7547] = { spellID = 458936 }, -- Razor Sharp Finesse (T2)
+    [7548] = { spellID = 458937 }, -- Razor Sharp Finesse (T3)
+
+    [7549] = { spellID = 458935 }, -- Weighted AP (T1)
+    [7550] = { spellID = 458936 }, -- Weighted AP (T2)
+    [7551] = { spellID = 458937 }, -- Weighted AP (T3)
+
+    [7587] = { spellID = 462757 }, -- Thunderstrike Ward
+
+    -- Midnight
+    [7905] = { spellID = 1224328 }, -- Sharpened AP (12.0 Tier2)
+    [7906] = { spellID = 1224331 }, -- Sharpened AP (12.0 Tier1)
+
+    [7907] = { spellID = 1224332 }, -- Weighted AP (12.0 Tier1)
+    [7908] = { spellID = 1224333 }, -- Weighted AP (12.0 Tier2)
+
+    [7909] = { spellID = 1224332 }, -- Razor Sharp Finesse (12.0 Tier1)
+    [7910] = { spellID = 1224333 }, -- Razor Sharp Finesse (12.0 Tier2)
+
+    [8042] = { spellID = 1237006 }, -- Illusory Adornment - Blooming Light (T1)
+
+    [8051] = { spellID = 1237008 }, -- Thalassian Phoenix Oil (T1)
+    [8052] = { spellID = 1237006 }, -- Thalassian Phoenix Oil (T2)
+
+    [8053] = { spellID = 1237002 }, -- Oil of Dawn (T1)
+    [8054] = { spellID = 1237001 }, -- Oil of Dawn (T2)
+
+    [8055] = { spellID = 1237004 }, -- Smuggler's Enchanted Edge (T1)
+    [8056] = { spellID = 1237003 }, -- Smuggler's Enchanted Edge (T2)
+
+    [8608] = { spellID = 1262057 }, -- Laced Zoomshots (T1)
+    [8609] = { spellID = 1262110 }, -- Laced Zoomshots (T2)
+
+    [8610] = { spellID = 1262121 }, -- Weighted Boomshots (T1)
+    [8611] = { spellID = 1262123 }, -- Weighted Boomshots (T2)
+}

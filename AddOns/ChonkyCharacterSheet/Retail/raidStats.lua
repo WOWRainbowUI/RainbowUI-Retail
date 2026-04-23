@@ -364,8 +364,19 @@ function module:Initialize()
 	ccsr_btn2._ccs_OnLeave = function(self)
 		CCS.tooltip:Hide()
 	end
-
-	CCS:ApplyIconStyle(ccsr_btn2, "rightarrow", 20)
+	if option("showr_altbtn") then
+		local ccsr_btn2_tex = ccsr_btn2.tex or ccsr_btn2:CreateTexture(nil, "ARTWORK")
+		ccsr_btn2.tex = ccsr_btn2_tex
+		CCS:ApplyIconStyle(ccsr_btn2, "ightarrow", 20)
+		ccsr_btn2_tex:SetAllPoints()
+		ccsr_btn2_tex:Show()
+		ccsr_btn2_tex:SetTexture("Interface\\AddOns\\ChonkyCharacterSheet\\Media\\Textures\\raid.png")
+	else
+		CCS:ApplyIconStyle(ccsr_btn2, "rightarrow", 20)
+		if ccsr_btn2 and ccsr_btn2.tex ~= nil then
+			ccsr_btn2.tex:Hide()
+		end
+	end
 
 	-- Click behavior
 	ccsr_btn2:SetScript("OnClick", function(self, button)

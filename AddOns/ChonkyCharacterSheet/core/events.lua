@@ -376,11 +376,7 @@ local eventHandlers = {
 
     ["PLAYER_REGEN_ENABLED"] = WrapHandler("PLAYER_REGEN_ENABLED", function()
 
-       
-        if CCS.secretsdisabled == true then
-            CCS.secretsdisabled = false
-            CCS.MythicPlusEventHandler()
-        end
+
         if CCS.initall == true then
             for _, module in pairs(CCS.Modules) do
                 if type(module.Initialize) == "function" then
@@ -391,12 +387,25 @@ local eventHandlers = {
             CCS.initall = nil
         end
         
-        if CCS.incombat == true then
-            CCS.incombat = false
-            CCS.CharacterStatsEventHandler()
-        end 
+        if CCS.GetCurrentVersion() == CCS.RETAIL then 
 
-        if CCS.GetCurrentVersion() == CCS.RETAIL then CCS.RaidProgressEventHandler() end
+            if CCS.secretsdisabled == true then
+                CCS.secretsdisabled = false
+                CCS.MythicPlusEventHandler()
+            end
+
+            if CCS.incombat == true then
+                CCS.incombat = false
+                CCS.CharacterStatsEventHandler()
+            end 
+
+            CCS.RaidProgressEventHandler() 
+            
+            if InspectFrame and not InspectFrame.loaded and option("show_inspect") then
+                CCS.initializeinspectframe()
+            end
+
+        end
 
     end),
 

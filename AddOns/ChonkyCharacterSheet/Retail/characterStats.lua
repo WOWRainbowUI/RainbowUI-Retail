@@ -510,8 +510,12 @@ local function GetStatPrimary(rowData)
 		tt_desc = DEFAULT_STAT4_TOOLTIP;
 	end
 
-	isZero = (tmp_stat_value == 0)
-
+	if CCS.AreSecretsDisabled() then
+		isZero = false
+	else
+		isZero = (tmp_stat_value == 0)
+	end
+	
 	leftText=tmp_stat_name[primaryStat]
 	rightText=BreakUpLargeNumbers(tmp_stat_value)
 	
@@ -522,7 +526,7 @@ local function GetStatPrimary(rowData)
 	-- Set the tooltip text
 	
 	local tooltipText = ""
-	
+	--[[
 	if ( ( posBuff == 0 ) and ( negBuff == 0 ) ) then
 		tt_name = tt_name..effectiveStatDisplay..FONT_COLOR_CODE_CLOSE;
 	else
@@ -546,7 +550,7 @@ local function GetStatPrimary(rowData)
 		if ( negBuff < 0 and not GetPVPGearStatRules() ) then
 			effectiveStatDisplay = RED_FONT_COLOR_CODE..effectiveStatDisplay..FONT_COLOR_CODE_CLOSE;
 		end
-	end
+	end--]]
 
 	-- Strength
 	if ( statIndex == LE_UNIT_STAT_STRENGTH ) then
@@ -593,11 +597,11 @@ local function GetStatPrimary(rowData)
 			else
 				local result, druid = HasSPEffectsAttackPower();
 				if (result and druid) then
-					tt_desc = format(STAT_TOOLTIP_SP_AP_DRUID, max(0, effectiveStat), max(0, effectiveStat));
+					tt_desc = format(STAT_TOOLTIP_SP_AP_DRUID, effectiveStat, effectiveStat);
 				elseif (result) then
-					tt_desc = format(STAT_TOOLTIP_BONUS_AP_SP, max(0, effectiveStat));
+					tt_desc = format(STAT_TOOLTIP_BONUS_AP_SP, effectiveStat);
 				elseif (not primaryStat or primaryStat == LE_UNIT_STAT_INTELLECT) then
-					tt_desc = format(tt_desc, max(0, effectiveStat));
+					tt_desc = format(tt_desc, effectiveStat);
 				else
 					tt_desc = STAT_NO_BENEFIT_TOOLTIP;
 				end
@@ -1940,9 +1944,10 @@ local function CreateAndUpdateiLvlframe(parent)
 		local color = CCS:GetAverageEquippedRarityHex("player")
 		Color = color
 
-		avgItemLevelEquipped = format("%.2f", avgItemLevelEquipped)
-		avgItemLevel = format("%.2f", avgItemLevel)
-		avgItemLevelPvP = format("%.2f", avgItemLevelPvP)
+		avgItemLevelEquipped = format("%s", CCS.round(avgItemLevelEquipped))
+		avgItemLevelEquipped = format("%s", CCS.round(avgItemLevelEquipped))
+		avgItemLevel = format("%s", CCS.round(avgItemLevel))
+		avgItemLevelPvP = format("%s", CCS.round(avgItemLevelPvP))
 
 	if option("show_inbag_ilvl") == true then
 		btnfontilvl:SetText(format("|cFF%s%s / %s|r", Color, avgItemLevelEquipped, avgItemLevel))
@@ -1989,7 +1994,7 @@ local function TruncateToWidth(fs, text, maxWidth)
 end
 
 UpdateAllStats = function(parent)
-
+ if CCS.AreSecretsDisabled() then return end
     CreateAndUpdateiLvlframe(parent)
 
 	if ShouldShowPriority() then
