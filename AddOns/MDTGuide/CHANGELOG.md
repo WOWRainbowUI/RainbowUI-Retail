@@ -1,3 +1,7 @@
+Version 2.05
+
+- Add workaround for bad zone to dungeon mapping for Academy and Seat
+
 Version 2.04
 
 - Fix progress tracking in Pit of Saron
