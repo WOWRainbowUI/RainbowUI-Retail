@@ -1,7 +1,6 @@
 # Baganator
 
-## [797](https://github.com/TheMouseNest/Baganator/tree/797) (2026-04-21)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/796...797) 
+## [799](https://github.com/TheMouseNest/Baganator/tree/799) (2026-04-22)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/798...799) 
 
-- Update toc for 12.0.5  
-- Update CIMI integration to show icon on ensembles  
+- freeze mixins to prevent unintended modification  
