@@ -214,4 +214,6 @@ L["Color used when the remaining time exceeds all thresholds."] = "Couleur utili
 L["Abbreviate Above"] = "Abréger au-dessus de"
 L["Abbreviate Above (seconds)"] = "Abréger au-dessus de (secondes)"
 L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."] = "Les durées au-dessus de ce seuil seront abrégées (ex. 5m au lieu de 300)."
+L["Show Tenths Below (seconds)"] = "Afficher les dixièmes en dessous de (secondes)"
+L["Cooldown numbers below this threshold will show one decimal place (e.g. 8.7). Set 0 to disable."] = "Les durées en dessous de ce seuil afficheront une décimale (ex. 8,7). Mets 0 pour désactiver."
 L["ABBREV_THRESHOLD_DESC"] = "Définit quand les durées passent en format abrégé. Les minuteries au-dessus de ce seuil affichent des valeurs raccourcies comme 5m ou 1h."

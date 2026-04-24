@@ -589,6 +589,34 @@ function HookBridge:SetupHooks()
         end)
     end
 
+    if type(cooldownAPI.SetCountdownAbbrevThreshold) == "function" then
+        hooksecurefunc(cooldownAPI, "SetCountdownAbbrevThreshold", function(cooldown, seconds)
+            local fs = GetTrackedFrameState(cooldown)
+            if not fs or fs.suppressCountdownAbbrevThreshold then return end
+            local ok, shouldRestore = pcall(function()
+                return fs.countdownAbbrevThreshold ~= nil and fs.countdownAbbrevThreshold ~= seconds
+            end)
+            if not ok or not shouldRestore then return end
+            fs.suppressCountdownAbbrevThreshold = true
+            pcall(cooldown.SetCountdownAbbrevThreshold, cooldown, fs.countdownAbbrevThreshold)
+            fs.suppressCountdownAbbrevThreshold = nil
+        end)
+    end
+
+    if type(cooldownAPI.SetCountdownMillisecondsThreshold) == "function" then
+        hooksecurefunc(cooldownAPI, "SetCountdownMillisecondsThreshold", function(cooldown, seconds)
+            local fs = GetTrackedFrameState(cooldown)
+            if not fs or fs.suppressCountdownMillisecondsThreshold then return end
+            local ok, shouldRestore = pcall(function()
+                return fs.countdownMillisecondsThreshold ~= nil and fs.countdownMillisecondsThreshold ~= seconds
+            end)
+            if not ok or not shouldRestore then return end
+            fs.suppressCountdownMillisecondsThreshold = true
+            pcall(cooldown.SetCountdownMillisecondsThreshold, cooldown, fs.countdownMillisecondsThreshold)
+            fs.suppressCountdownMillisecondsThreshold = nil
+        end)
+    end
+
     if type(cooldownAPI.SetDrawSwipe) == "function" then
         hooksecurefunc(cooldownAPI, "SetDrawSwipe", function(cooldown, enabled)
             local fs = GetTrackedFrameState(cooldown)

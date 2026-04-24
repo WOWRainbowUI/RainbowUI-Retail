@@ -884,6 +884,7 @@ compactPartyAuraTextDefaults = {
 MCE.defaults = {
     profile = {
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
+        countdownMillisecondsThreshold = C.Options.DefaultMillisecondsThreshold,
         shinyAurasAdapterEnabled = true,
         dominosAdapterEnabled = true,
         bartender4AdapterEnabled = true,
@@ -922,6 +923,10 @@ function MCE:UpgradeProfile()
 
     if profile.elvuiAdapterEnabled == nil then
         profile.elvuiAdapterEnabled = true
+    end
+
+    if type(profile.countdownMillisecondsThreshold) ~= "number" then
+        profile.countdownMillisecondsThreshold = C.Options.DefaultMillisecondsThreshold
     end
 
     if not profile.durationTextColors then

@@ -1684,6 +1684,20 @@ function MCE:GetOptions()
                                     MCE:ForceUpdateAll(true)
                                 end,
                             },
+                            tenthsValue = {
+                                type = "range", order = 2, width = "full",
+                                name = L["Show Tenths Below (seconds)"],
+                                desc = L["Cooldown numbers below this threshold will show one decimal place (e.g. 8.7). Set 0 to disable."],
+                                min = 0, max = 30, step = 0.1, isPercent = false,
+                                get = function()
+                                    return MCE.db.profile.countdownMillisecondsThreshold
+                                        or C.Options.DefaultMillisecondsThreshold
+                                end,
+                                set = function(_, val)
+                                    MCE.db.profile.countdownMillisecondsThreshold = val
+                                    MCE:ForceUpdateAll(true)
+                                end,
+                            },
                         },
                     },
                     resetGroup = {

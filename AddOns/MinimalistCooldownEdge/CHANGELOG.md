@@ -1,6 +1,10 @@
 
 # Changelog
 
+## [3.9.6] - 2026-04-23
+- Added an option to show tenths of a second on very short cooldowns.
+- Improved cooldown timer accuracy and consistency across more UI elements on Retail 12.0.5.
+
 ## [3.9.5] - 2026-04-15
 - Updated the TOC file to include the 12.0.5 interface versions
 
