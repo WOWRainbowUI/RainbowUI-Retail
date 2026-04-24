@@ -77,16 +77,16 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260422072640")
+DBM.Revision = parseCurseDate("20260424013001")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 private.fakeBWVersion, private.fakeBWHash = 412, "5f04367"--412.7
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.41"--Core version
+DBM.DisplayVersion = "12.0.42"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 4, 22) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 4, 23) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -6140,6 +6140,27 @@ do
 	end
 
 	local LSMFontCacheBuilt, sharedMediaFontCache = false, {}
+	local fontValidationProbe
+
+	local function getFontValidationProbe()
+		if fontValidationProbe and fontValidationProbe.SetFont then
+			return fontValidationProbe
+		end
+		local existingProbe = _G["DBM_FontValidationProbe"]
+		if existingProbe and existingProbe.SetFont then
+			fontValidationProbe = existingProbe
+			return fontValidationProbe
+		end
+		if type(CreateFont) ~= "function" then
+			return nil
+		end
+		local ok, probe = pcall(CreateFont, "DBM_FontValidationProbe")
+		if ok and probe and probe.SetFont then
+			fontValidationProbe = probe
+			return fontValidationProbe
+		end
+		return nil
+	end
 
 	local function buildLSMFontCache()
 		local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
@@ -6193,6 +6214,13 @@ do
 		-- Cache may be stale if media registered after first build; rebuild once and re-check
 		buildLSMFontCache()
 		if sharedMediaFontCache[fontPath] then
+			return true
+		end
+		-- Final fallback: validate directly against WoW API.
+		-- This handles media paths that are valid files but not yet registered in LSM.
+		local probe = getFontValidationProbe()
+		if type(fontPath) == "string" and probe and pcall(probe.SetFont, probe, fontPath, 12, "") then
+			sharedMediaFontCache[fontPath] = true
 			return true
 		end
 		return false
@@ -8126,7 +8154,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260422071815" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260424013001" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
