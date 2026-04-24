@@ -12,7 +12,6 @@ local ADDON_NAME, Addon = ...
 -- WoW APIs
 local SystemFont_NamePlate, SystemFont_NamePlateFixed = SystemFont_NamePlate, SystemFont_NamePlateFixed
 local SystemFont_LargeNamePlate, SystemFont_LargeNamePlateFixed = SystemFont_LargeNamePlate, SystemFont_LargeNamePlateFixed
-local STANDARD_TEXT_FONT = STANDARD_TEXT_FONT
 
 -- ThreatPlates APIs
 local ANCHOR_POINT_TEXT = Addon.ANCHOR_POINT_TEXT
@@ -44,30 +43,6 @@ local DefaultSystemFonts = {
   LargeNamePlate = BackupSystemFont(SystemFont_LargeNamePlate),
   LargeNamePlateFixed = BackupSystemFont(SystemFont_LargeNamePlateFixed),
 }
-
----------------------------------------------------------------------------------------------------
--- Font fetch helpers (WoW 12.0 safety: ensure non-nil font path and valid flags)
----------------------------------------------------------------------------------------------------
-
--- 安全地從 LibSharedMedia 取得字型路徑；找不到時回退到內建字型，避免 SetFont 噴錯
-local function SafeFetchFont(typeface)
-  local font_path
-  if typeface then
-    font_path = Addon.LibSharedMedia:Fetch('font', typeface)
-  end
-  if not font_path or font_path == "" then
-    font_path = STANDARD_TEXT_FONT or "Fonts\\bHEI01B.ttf"
-  end
-  return font_path
-end
-
--- WoW 10.0+ flags 已不可選；"NONE" 不是合法值，需轉為空字串
-local function NormalizeFontFlags(flags)
-  if not flags or flags == "NONE" then
-    return ""
-  end
-  return flags
-end
 
 ---------------------------------------------------------------------------------------------------
 -- UI utility functions
@@ -105,10 +80,7 @@ function FontModule.SetJustify(font_string, horz, vert)
 end
 
 local function UpdateTextFont(font, db)
-  local font_path = SafeFetchFont(db.Typeface)
-  local flags = NormalizeFontFlags(db.flags)
-
-  font:SetFont(font_path, db.Size, flags)
+  font:SetFont(Addon.LibSharedMedia:Fetch('font', db.Typeface), db.Size, db.flags)
 
   if db.Shadow then
     font:SetShadowOffset(1, -1)
@@ -151,10 +123,8 @@ end
 ---------------------------------------------------------------------------------------------------
 
 local function UpdateSystemFont(obj, db)
-  local font_path = SafeFetchFont(db.Typeface)
-  local flags = NormalizeFontFlags(db.flags)
-
-  obj:SetFont(font_path, db.Size, flags)
+  local font, height, flags = db.Typeface, db.Size, db.flags
+  obj:SetFont(Addon.LibSharedMedia:Fetch('font', font), height, flags)
 
   if db.Shadow then
     local color = db.ShadowColor
