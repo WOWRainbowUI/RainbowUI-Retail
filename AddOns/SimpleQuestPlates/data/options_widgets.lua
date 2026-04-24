@@ -11,7 +11,7 @@ local CreateFrame = CreateFrame
 -- Create custom styled button
 function SQP:CreateStyledButton(parent, text, width, height)
     local button = CreateFrame("Button", nil, parent)
-    button:SetSize(width or 120, height or 30)
+    button:SetSize(width or 120, height or 22)
 
     -- Normal texture
     button:SetNormalTexture("Interface\\Buttons\\UI-DialogBox-Button-Up")
@@ -28,17 +28,17 @@ function SQP:CreateStyledButton(parent, text, width, height)
 
     -- Text
     button:SetText(text)
-    button:SetNormalFontObject("GameFontNormal")
-    button:SetHighlightFontObject("GameFontHighlight")
+    button:SetNormalFontObject("GameFontNormalSmall")
+    button:SetHighlightFontObject("GameFontHighlightSmall")
     button:SetDisabledFontObject("GameFontDisable")
 
     return button
 end
 
--- Create small inline reset button (↺ symbol)
+-- Create compact inline reset button using ASCII text so it renders reliably on all clients.
 function SQP:CreateInlineResetButton(parent, onClickFn)
     local btn = CreateFrame("Button", nil, parent)
-    btn:SetSize(22, 16)
+    btn:SetSize(20, 16)
     btn:SetNormalTexture("Interface\\Buttons\\UI-DialogBox-Button-Up")
     btn:GetNormalTexture():SetTexCoord(0, 1, 0, 0.71875)
     btn:SetHighlightTexture("Interface\\Buttons\\UI-DialogBox-Button-Highlight")
@@ -47,23 +47,30 @@ function SQP:CreateInlineResetButton(parent, onClickFn)
     btn:SetPushedTexture("Interface\\Buttons\\UI-DialogBox-Button-Down")
     btn:GetPushedTexture():SetTexCoord(0, 1, 0, 0.71875)
 
-    local lbl = btn:CreateFontString(nil, "OVERLAY")
-    lbl:SetFont("Fonts\\ARIALN.TTF", 13)
+    local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     lbl:SetAllPoints()
     lbl:SetJustifyH("CENTER")
-    lbl:SetText("\226\134\186") -- ↺ (U+21BA)
+    lbl:SetText("R")
 
     btn:SetAlpha(0.7)
     btn:SetScript("OnClick", onClickFn)
-    btn:SetScript("OnEnter", function(self) self:SetAlpha(1.0) end)
-    btn:SetScript("OnLeave", function(self) self:SetAlpha(0.7) end)
+    btn:SetScript("OnEnter", function(self)
+        self:SetAlpha(1.0)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText("Reset", 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    btn:SetScript("OnLeave", function(self)
+        self:SetAlpha(0.7)
+        GameTooltip:Hide()
+    end)
     return btn
 end
 
 -- Create custom slider
 function SQP:CreateStyledSlider(parent, min, max, step, width)
     local slider = CreateFrame("Slider", nil, parent, "BackdropTemplate")
-    slider:SetSize(width or 200, 16)
+    slider:SetSize(width or 200, 14)
     slider:SetOrientation("HORIZONTAL")
     slider:SetMinMaxValues(min, max)
     slider:SetValueStep(step)
@@ -96,12 +103,15 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, dropdownName, activateP
     if not self.optionControls then self.optionControls = {} end
 
     local defaultSize = typeKey == "percent" and 8 or 12
+    local defaultPath = "Fonts\\FRIZQT__.TTF"
+    local rgxFonts = SQP:GetRGXFonts()
 
     -- Section header
     local fontHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     fontHeader:SetPoint("TOPLEFT", 20, yOffset)
     fontHeader:SetText("|cff58be81Font|r")
-    yOffset = yOffset - 22
+    fontHeader:SetFontObject(GameFontNormalSmall)
+    yOffset = yOffset - 18
 
     -- ── Font Size ──────────────────────────────────────────────────────────
     local curSize = SQPSettings[typeKey.."FontSize"] or defaultSize
@@ -131,57 +141,83 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, dropdownName, activateP
         if activatePreviewFn then activatePreviewFn() end
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 36
+    yOffset = yOffset - 32
 
     -- ── Font Family ────────────────────────────────────────────────────────
     local familyLabel = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     familyLabel:SetPoint("TOPLEFT", 20, yOffset)
     familyLabel:SetText("Family")
-
-    local fontDd = CreateFrame("Frame", dropdownName, parent, "UIDropDownMenuTemplate")
     local familyReset = self:CreateInlineResetButton(parent, function()
-        SQP:SetSetting(typeKey.."FontFamily", "Fonts\\FRIZQT__.TTF")
-        UIDropDownMenu_SetText(fontDd, "Friz Quadrata")
+        SQP:SetSetting(typeKey.."FontFamily", defaultPath)
+        local control = self.optionControls[typeKey.."FontFamily"]
+        if control and type(control.Reset) == "function" then
+            control:Reset()
+        elseif control and type(control.SetPath) == "function" then
+            control:SetPath(defaultPath)
+        elseif control and UIDropDownMenu_SetText then
+            UIDropDownMenu_SetText(control, "Friz Quadrata")
+        end
         if activatePreviewFn then activatePreviewFn() end
         SQP:RefreshAllNameplates()
     end)
     familyReset:SetPoint("LEFT", familyLabel, "RIGHT", 5, 0)
     yOffset = yOffset - 20
 
-    fontDd:SetPoint("TOPLEFT", 5, yOffset)
-    UIDropDownMenu_SetWidth(fontDd, 160)
-    self.optionControls[typeKey.."FontFamily"] = fontDd
-
-    local fontOptions = {
-        {text = "Friz Quadrata", font = "Fonts\\FRIZQT__.TTF"},
-        {text = "Arial Narrow",  font = "Fonts\\ARIALN.TTF"},
-        {text = "Skurri",        font = "Fonts\\SKURRI.TTF"},
-        {text = "Morpheus",      font = "Fonts\\MORPHEUS.TTF"},
-        {text = "2002 (Pixel)",  font = "Fonts\\2002.TTF"},
-        {text = "2002 Bold",     font = "Fonts\\2002B.TTF"},
-        {text = "Nimrod MT",     font = "Fonts\\NIM_____.ttf"},
-    }
-
-    UIDropDownMenu_Initialize(fontDd, function(self, level)
-        for _, opt in ipairs(fontOptions) do
-            local info = UIDropDownMenu_CreateInfo()
-            info.text = opt.text
-            info.func = function()
-                SQP:SetSetting(typeKey.."FontFamily", opt.font)
-                UIDropDownMenu_SetText(fontDd, opt.text)
+    if rgxFonts and type(rgxFonts.CreateFontSettingControl) == "function" then
+        local fontControl = rgxFonts:CreateFontSettingControl(parent, {
+            label = nil,
+            width = 210,
+            buttonWidth = 160,
+            storage = SQPSettings,
+            key = typeKey .. "FontFamily",
+            defaultName = rgxFonts:FindByPath(defaultPath) or rgxFonts:GetDefault(),
+            defaultPath = defaultPath,
+            onChange = function(_, _, fontPath)
+                SQP:SetSetting(typeKey.."FontFamily", fontPath)
                 if activatePreviewFn then activatePreviewFn() end
                 SQP:RefreshAllNameplates()
-            end
-            info.checked = (SQPSettings[typeKey.."FontFamily"] == opt.font)
-            UIDropDownMenu_AddButton(info, level)
-        end
-    end)
+            end,
+        })
+        fontControl:SetPoint("TOPLEFT", 20, yOffset)
+        self.optionControls[typeKey.."FontFamily"] = fontControl
+    else
+        local fontDd = CreateFrame("Frame", dropdownName, parent, "UIDropDownMenuTemplate")
+        fontDd:SetPoint("TOPLEFT", 5, yOffset)
+        UIDropDownMenu_SetWidth(fontDd, 150)
+        self.optionControls[typeKey.."FontFamily"] = fontDd
 
-    local curFamily = SQPSettings[typeKey.."FontFamily"] or "Fonts\\FRIZQT__.TTF"
-    for _, opt in ipairs(fontOptions) do
-        if opt.font == curFamily then UIDropDownMenu_SetText(fontDd, opt.text); break end
+        local fontOptions = {
+            {text = "Friz Quadrata", font = "Fonts\\FRIZQT__.TTF"},
+            {text = "Arial Narrow",  font = "Fonts\\ARIALN.TTF"},
+            {text = "Skurri",        font = "Fonts\\SKURRI.TTF"},
+            {text = "Morpheus",      font = "Fonts\\MORPHEUS.TTF"},
+            {text = "2002 (Pixel)",  font = "Fonts\\2002.TTF"},
+            {text = "2002 Bold",     font = "Fonts\\2002B.TTF"},
+            {text = "Nimrod MT",     font = "Fonts\\NIM_____.ttf"},
+        }
+
+        UIDropDownMenu_Initialize(fontDd, function(self, level)
+            for _, opt in ipairs(fontOptions) do
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = opt.text
+                info.func = function()
+                    SQP:SetSetting(typeKey.."FontFamily", opt.font)
+                    UIDropDownMenu_SetText(fontDd, opt.text)
+                    if activatePreviewFn then activatePreviewFn() end
+                    SQP:RefreshAllNameplates()
+                end
+                info.checked = (SQPSettings[typeKey.."FontFamily"] == opt.font)
+                UIDropDownMenu_AddButton(info, level)
+            end
+        end)
+
+        local curFamily = SQPSettings[typeKey.."FontFamily"] or defaultPath
+        for _, opt in ipairs(fontOptions) do
+            if opt.font == curFamily then UIDropDownMenu_SetText(fontDd, opt.text); break end
+        end
     end
-    yOffset = yOffset - 34
+
+    yOffset = yOffset - 30
 
     return yOffset
 end
@@ -206,10 +242,11 @@ function SQP:CreateDisplayStyleSection(parent, typeKey, activatePreviewFn, yOffs
     local dsHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     dsHeader:SetPoint("TOPLEFT", 20, yOffset)
     dsHeader:SetText("|cff58be81Display Style|r")
-    yOffset = yOffset - 22
+    dsHeader:SetFontObject(GameFontNormalSmall)
+    yOffset = yOffset - 18
 
-    local iconStyleBtn = self:CreateStyledButton(parent, "Icon", 75, 25)
-    local textStyleBtn = self:CreateStyledButton(parent, "Text", 75, 25)
+    local iconStyleBtn = self:CreateStyledButton(parent, "Icon", 68, 22)
+    local textStyleBtn = self:CreateStyledButton(parent, "Text", 68, 22)
     iconStyleBtn:SetPoint("TOPLEFT", 20, yOffset)
     textStyleBtn:SetPoint("LEFT", iconStyleBtn, "RIGHT", 8, 0)
 
@@ -258,7 +295,7 @@ function SQP:CreateDisplayStyleSection(parent, typeKey, activatePreviewFn, yOffs
         if activatePreviewFn then activatePreviewFn() end
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 28
 
     return yOffset
 end
@@ -357,6 +394,7 @@ function SQP:CreateMainIconSection(parent, typeKey, activatePreviewFn, yOffset, 
     local header = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     header:SetPoint("TOPLEFT", 20, yOffset)
     header:SetText("|cff58be81Main Icon|r")
+    header:SetFontObject(GameFontNormalSmall)
     yOffset = yOffset - 18
 
     -- Animate Main Icon checkbox (skip if tab already exposes it in its own Animate section)
@@ -434,10 +472,10 @@ end
 -- Create custom checkbox
 function SQP:CreateStyledCheckbox(parent, text)
     local frame = CreateFrame("Frame", nil, parent)
-    frame:SetSize(300, 24)
+    frame:SetSize(300, 20)
 
     local checkbox = CreateFrame("CheckButton", nil, frame)
-    checkbox:SetSize(24, 24)
+    checkbox:SetSize(18, 18)
     checkbox:SetPoint("LEFT", 0, 0)
 
     checkbox:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Up")
@@ -445,7 +483,7 @@ function SQP:CreateStyledCheckbox(parent, text)
     checkbox:SetHighlightTexture("Interface\\Buttons\\UI-CheckBox-Highlight")
     checkbox:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 
-    local label = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local label = frame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     label:SetPoint("LEFT", checkbox, "RIGHT", 5, 0)
     label:SetText(text)
 

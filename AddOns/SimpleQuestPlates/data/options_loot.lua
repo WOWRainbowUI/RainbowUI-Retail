@@ -13,12 +13,12 @@ function SQP:CreateLootOptions(content)
     local leftColumn = CreateFrame("Frame", nil, content)
     leftColumn:SetPoint("TOPLEFT")
     leftColumn:SetPoint("BOTTOMLEFT")
-    leftColumn:SetWidth(300)
+    leftColumn:SetWidth(288)
 
     local rightColumn = CreateFrame("Frame", nil, content)
     rightColumn:SetPoint("TOPRIGHT")
     rightColumn:SetPoint("BOTTOMRIGHT")
-    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 20, 0)
+    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 14, 0)
 
     -- ── Slider helper ─────────────────────────────────────────────────────────
     local function MakeSlider(parent, labelText, key, defaultVal, minVal, maxVal, yOff)
@@ -62,10 +62,10 @@ function SQP:CreateLootOptions(content)
     -- ── LEFT COLUMN ────────────────────────────────────────────────────────────
     local yOffset = -15
 
-    local header = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local header = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     header:SetPoint("TOPLEFT", 20, yOffset)
     header:SetText("|cff58be81Loot Icon|r")
-    yOffset = yOffset - 22
+    yOffset = yOffset - 16
 
     -- Show Loot Icon
     local showFrame = self:CreateStyledCheckbox(leftColumn, "Show Loot Icon")
@@ -77,16 +77,16 @@ function SQP:CreateLootOptions(content)
         ActivateLoot()
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 30
+    yOffset = yOffset - 24
 
     -- Display Style
     yOffset = self:CreateDisplayStyleSection(leftColumn, "loot", ActivateLoot, yOffset)
 
     -- Animate Task Icons
-    local animHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local animHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     animHeader:SetPoint("TOPLEFT", 20, yOffset)
     animHeader:SetText("|cff58be81Animate|r")
-    yOffset = yOffset - 20
+    yOffset = yOffset - 16
 
     local animFrame = self:CreateStyledCheckbox(leftColumn, "Animate Task Icons")
     animFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -102,7 +102,7 @@ function SQP:CreateLootOptions(content)
         end
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 26
 
     local animMainFrame = self:CreateStyledCheckbox(leftColumn, "Animate Main Icon")
     animMainFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -112,7 +112,7 @@ function SQP:CreateLootOptions(content)
         SQP:SetSetting('lootAnimateMain', self:GetChecked())
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 26
 
     local lootAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     lootAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
@@ -140,13 +140,13 @@ function SQP:CreateLootOptions(content)
         ActivateLoot()
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 44
+    yOffset = yOffset - 38
 
     -- Loot Color
-    local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     colorHeader:SetPoint("TOPLEFT", 20, yOffset)
     colorHeader:SetText("|cff58be81Color|r")
-    yOffset = yOffset - 20
+    yOffset = yOffset - 16
 
     local lootDefault = {0.2, 1, 0.2}
     local colorBtn = CreateFrame("Button", nil, leftColumn)
@@ -159,7 +159,7 @@ function SQP:CreateLootOptions(content)
     sw:SetColorTexture(unpack(SQPSettings.itemColor or lootDefault))
     SQP.optionControls.lootColorSwatch = sw
 
-    local colorLbl = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local colorLbl = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     colorLbl:SetPoint("LEFT", colorBtn, "RIGHT", 6, 0)
     colorLbl:SetText("Loot Color")
 
@@ -184,7 +184,7 @@ function SQP:CreateLootOptions(content)
         end
         ColorPickerFrame:SetupColorPickerAndShow(info)
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 28
 
     -- Loot Icon Tinting (mini icon, compact inline row)
     yOffset = self:CreateMiniIconTintSection(leftColumn, "loot", ActivateLoot, yOffset)
@@ -192,10 +192,10 @@ function SQP:CreateLootOptions(content)
     -- ── RIGHT COLUMN ──────────────────────────────────────────────────────────
     local rightYOffset = -15
 
-    local posHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local posHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     posHeader:SetPoint("TOPLEFT", 20, rightYOffset)
     posHeader:SetText("|cff58be81Size & Position|r")
-    rightYOffset = rightYOffset - 22
+    rightYOffset = rightYOffset - 16
 
     rightYOffset = MakeSlider(rightColumn, "Size",     "lootIconSize",    14,   8,  40, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, "Offset X", "lootIconOffsetX", -38, -80, 80, rightYOffset)
@@ -205,7 +205,7 @@ function SQP:CreateLootOptions(content)
 
     -- Reset this tab to loot defaults
     rightYOffset = rightYOffset - 14
-    local resetBtn = self:CreateStyledButton(rightColumn, "Reset Loot Settings", 160, 22)
+    local resetBtn = self:CreateStyledButton(rightColumn, "Reset Loot Settings", 150, 22)
     resetBtn:SetPoint("TOPLEFT", 20, rightYOffset)
     resetBtn:SetScript("OnClick", function()
         local D = SQP.DEFAULTS
@@ -244,7 +244,13 @@ function SQP:CreateLootOptions(content)
         if oc.lootIconOffsetX then oc.lootIconOffsetX:SetValue(D.lootIconOffsetX) end
         if oc.lootIconOffsetY then oc.lootIconOffsetY:SetValue(D.lootIconOffsetY) end
         if oc.lootFontSize    then oc.lootFontSize:SetValue(D.lootFontSize) end
-        if oc.lootFontFamily and UIDropDownMenu_SetText then UIDropDownMenu_SetText(oc.lootFontFamily, "Friz Quadrata") end
+        if oc.lootFontFamily and type(oc.lootFontFamily.Reset) == "function" then
+            oc.lootFontFamily:Reset()
+        elseif oc.lootFontFamily and type(oc.lootFontFamily.SetPath) == "function" then
+            oc.lootFontFamily:SetPath(D.lootFontFamily)
+        elseif oc.lootFontFamily and UIDropDownMenu_SetText then
+            UIDropDownMenu_SetText(oc.lootFontFamily, "Friz Quadrata")
+        end
         SQP:RefreshAllNameplates()
         ActivateLoot()
     end)

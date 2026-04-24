@@ -15,19 +15,19 @@ local tonumber = tonumber
 function SQP:CreatePreviewSection(parent)
     -- Create preview container
     local previewFrame = CreateFrame("Frame", nil, parent)
-    previewFrame:SetSize(parent:GetWidth() - 40, 95)
+    previewFrame:SetSize(parent:GetWidth() - 28, 82)
     previewFrame:SetPoint("CENTER", parent, "CENTER", 0, 0)
 
     -- Preview title (centered at top)
-    local previewTitle = previewFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    previewTitle:SetPoint("TOP", previewFrame, "TOP", 0, -7)
+    local previewTitle = previewFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    previewTitle:SetPoint("TOP", previewFrame, "TOP", 0, -5)
     previewTitle:SetText("|cff58be81Live Preview|r")
 
-    -- Type-switcher buttons (centered at bottom: Kill=44, Loot=44, %=22, gaps=8 → total 118px)
-    local killTypeBtn = self:CreateStyledButton(previewFrame, "Kill", 44, 18)
-    local lootTypeBtn = self:CreateStyledButton(previewFrame, "Loot", 44, 18)
-    local pctTypeBtn  = self:CreateStyledButton(previewFrame, "%",   22, 18)
-    killTypeBtn:SetPoint("BOTTOMLEFT", previewFrame, "BOTTOM", -59, 5)
+    -- Type-switcher buttons (compact row)
+    local killTypeBtn = self:CreateStyledButton(previewFrame, "Kill", 40, 16)
+    local lootTypeBtn = self:CreateStyledButton(previewFrame, "Loot", 40, 16)
+    local pctTypeBtn  = self:CreateStyledButton(previewFrame, "%",   18, 16)
+    killTypeBtn:SetPoint("BOTTOMLEFT", previewFrame, "BOTTOM", -51, 3)
     lootTypeBtn:SetPoint("LEFT", killTypeBtn, "RIGHT", 4, 0)
     pctTypeBtn:SetPoint("LEFT",  lootTypeBtn, "RIGHT", 4, 0)
 
@@ -39,14 +39,23 @@ function SQP:CreatePreviewSection(parent)
     -- Nameplate background
     local nameplateBackground = nameplate:CreateTexture(nil, "BACKGROUND")
     nameplateBackground:SetAllPoints()
-    nameplateBackground:SetColorTexture(0.2, 0.2, 0.2, 0.8)
+    nameplateBackground:SetColorTexture(0.12, 0.12, 0.12, 0.45)
+
+    local nameplateBorder = CreateFrame("Frame", nil, nameplate, "BackdropTemplate")
+    nameplateBorder:SetAllPoints()
+    nameplateBorder:SetBackdrop({
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        edgeSize = 10,
+        insets = { left = 2, right = 2, top = 2, bottom = 2 },
+    })
+    nameplateBorder:SetBackdropBorderColor(0.18, 0.18, 0.18, 0.9)
 
     -- Health bar
     local healthBar = CreateFrame("StatusBar", nil, nameplate)
     healthBar:SetSize(100, 12)
     healthBar:SetPoint("CENTER", nameplate, "CENTER", 0, 0)
     healthBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-    healthBar:SetStatusBarColor(1, 0.2, 0.2)
+    healthBar:SetStatusBarColor(0.95, 0.16, 0.16)
     healthBar:SetMinMaxValues(0, 100)
     healthBar:SetValue(75)
 
@@ -57,13 +66,13 @@ function SQP:CreatePreviewSection(parent)
 
     -- Name text
     local nameText = nameplate:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    nameText:SetPoint("BOTTOM", healthBar, "TOP", 0, 2)
+    nameText:SetPoint("BOTTOM", healthBar, "TOP", 0, 1)
     nameText:SetText("Murloc Warrior")
     nameText:SetTextColor(1, 0.82, 0)
 
     -- Level text
     local levelText = nameplate:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    levelText:SetPoint("TOPLEFT", healthBar, "BOTTOMLEFT", 0, -2)
+    levelText:SetPoint("TOPLEFT", healthBar, "BOTTOMLEFT", 0, -1)
     levelText:SetText("Level 15")
     levelText:SetTextColor(0.8, 0.8, 0.8)
 
@@ -188,6 +197,7 @@ function SQP:CreatePreviewSection(parent)
 
     -- Store references
     previewFrame.nameplate = nameplate
+    previewFrame.nameplateBorder = nameplateBorder
     previewFrame.questFrame = questFrame
     previewFrame.icon = icon
     previewFrame.iconText = iconText
@@ -263,6 +273,13 @@ function SQP:CreatePreviewSection(parent)
             or plate.UnitFrame.health
     end
 
+    local function GetReferenceNameText(plate)
+        if not plate or not plate.UnitFrame then return nil end
+        return plate.UnitFrame.name
+            or plate.UnitFrame.Name
+            or plate.UnitFrame.nameText
+    end
+
     -- Stop preview pulses when panel hides
     previewFrame:SetScript("OnHide", function(self)
         if self.iconPulse and self.iconPulse:IsPlaying() then self.iconPulse:Stop() end
@@ -297,6 +314,34 @@ function SQP:CreatePreviewSection(parent)
                 healthHeight = Clamp(floor(refHealthHeight + 0.5), 6, 24)
             else
                 healthWidth = Clamp(plateWidth - 12, 70, 240)
+            end
+
+            local statusTexture = refHealth.GetStatusBarTexture and refHealth:GetStatusBarTexture()
+            if statusTexture and statusTexture.GetTexture then
+                local texturePath = statusTexture:GetTexture()
+                if texturePath then
+                    healthBar:SetStatusBarTexture(texturePath)
+                end
+            end
+            if refHealth.GetStatusBarColor then
+                local r, g, b, a = refHealth:GetStatusBarColor()
+                if r and g and b then
+                    healthBar:SetStatusBarColor(r, g, b, a or 1)
+                end
+            end
+
+            local refName = GetReferenceNameText(refPlate)
+            if refName and refName.GetFont and nameText.SetFont then
+                local font, size, flags = refName:GetFont()
+                if font and size then
+                    nameText:SetFont(font, size, flags)
+                end
+            end
+            if refName and refName.GetTextColor and nameText.SetTextColor then
+                local nr, ng, nb, na = refName:GetTextColor()
+                if nr and ng and nb then
+                    nameText:SetTextColor(nr, ng, nb, na or 1)
+                end
             end
         end
 

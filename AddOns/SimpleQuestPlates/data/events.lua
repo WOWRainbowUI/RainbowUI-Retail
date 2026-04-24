@@ -51,6 +51,7 @@ function SQP:PLAYER_LOGIN()
     
     -- Create options panel
     self:CreateOptionsPanel()
+    self:ApplyMinimapVisibility()
     
     -- Load world quests
     self:LoadWorldQuests()

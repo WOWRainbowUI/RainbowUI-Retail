@@ -13,12 +13,12 @@ function SQP:CreatePercentOptions(content)
     local leftColumn = CreateFrame("Frame", nil, content)
     leftColumn:SetPoint("TOPLEFT")
     leftColumn:SetPoint("BOTTOMLEFT")
-    leftColumn:SetWidth(300)
+    leftColumn:SetWidth(288)
 
     local rightColumn = CreateFrame("Frame", nil, content)
     rightColumn:SetPoint("TOPRIGHT")
     rightColumn:SetPoint("BOTTOMRIGHT")
-    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 20, 0)
+    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 14, 0)
 
     -- ── Slider helper ─────────────────────────────────────────────────────────
     local function MakeSlider(parent, labelText, key, defaultVal, minVal, maxVal, yOff)
@@ -62,10 +62,10 @@ function SQP:CreatePercentOptions(content)
     -- ── LEFT COLUMN ────────────────────────────────────────────────────────────
     local yOffset = -15
 
-    local header = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local header = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     header:SetPoint("TOPLEFT", 20, yOffset)
     header:SetText("|cff58be81Percent Icon|r")
-    yOffset = yOffset - 22
+    yOffset = yOffset - 16
 
     -- Show Percent Icon
     local showFrame = self:CreateStyledCheckbox(leftColumn, "Show Percent Icon")
@@ -77,16 +77,16 @@ function SQP:CreatePercentOptions(content)
         ActivatePercent()
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 30
+    yOffset = yOffset - 24
 
     -- Display Style
     yOffset = self:CreateDisplayStyleSection(leftColumn, "percent", ActivatePercent, yOffset)
 
     -- Animate
-    local animHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local animHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     animHeader:SetPoint("TOPLEFT", 20, yOffset)
     animHeader:SetText("|cff58be81Animate|r")
-    yOffset = yOffset - 20
+    yOffset = yOffset - 16
 
     local animTaskFrame = self:CreateStyledCheckbox(leftColumn, "Animate Task Icons")
     animTaskFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -104,7 +104,7 @@ function SQP:CreatePercentOptions(content)
         end
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 26
 
     local animFrame = self:CreateStyledCheckbox(leftColumn, "Animate Main Icon")
     animFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -115,7 +115,7 @@ function SQP:CreatePercentOptions(content)
         ActivatePercent()
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 26
 
     local percentAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     percentAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
@@ -143,13 +143,13 @@ function SQP:CreatePercentOptions(content)
         ActivatePercent()
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 44
+    yOffset = yOffset - 38
 
     -- Percent Color
-    local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     colorHeader:SetPoint("TOPLEFT", 20, yOffset)
     colorHeader:SetText("|cff58be81Color|r")
-    yOffset = yOffset - 20
+    yOffset = yOffset - 16
 
     local pctDefault = {0.2, 1, 1}
     local colorBtn = CreateFrame("Button", nil, leftColumn)
@@ -162,7 +162,7 @@ function SQP:CreatePercentOptions(content)
     sw:SetColorTexture(unpack(SQPSettings.percentColor or pctDefault))
     SQP.optionControls.percentColorSwatch = sw
 
-    local colorLbl = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local colorLbl = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     colorLbl:SetPoint("LEFT", colorBtn, "RIGHT", 6, 0)
     colorLbl:SetText("Percent Color")
 
@@ -187,7 +187,7 @@ function SQP:CreatePercentOptions(content)
         end
         ColorPickerFrame:SetupColorPickerAndShow(info)
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 28
 
     -- ── RIGHT COLUMN ──────────────────────────────────────────────────────────
     -- Percent Sign Tinting (compact inline row)
@@ -195,10 +195,10 @@ function SQP:CreatePercentOptions(content)
 
     local rightYOffset = -15
 
-    local posHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local posHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     posHeader:SetPoint("TOPLEFT", 20, rightYOffset)
     posHeader:SetText("|cff58be81Position|r")
-    rightYOffset = rightYOffset - 22
+    rightYOffset = rightYOffset - 16
 
     rightYOffset = MakeSlider(rightColumn, "Offset X", "percentIconOffsetX", 18, -80, 80, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, "Offset Y", "percentIconOffsetY",  0, -80, 80, rightYOffset)
@@ -207,7 +207,7 @@ function SQP:CreatePercentOptions(content)
 
     -- Reset this tab to percent defaults
     rightYOffset = rightYOffset - 14
-    local resetBtn = self:CreateStyledButton(rightColumn, "Reset Percent Settings", 170, 22)
+    local resetBtn = self:CreateStyledButton(rightColumn, "Reset Percent Settings", 160, 22)
     resetBtn:SetPoint("TOPLEFT", 20, rightYOffset)
     resetBtn:SetScript("OnClick", function()
         local D = SQP.DEFAULTS
@@ -241,7 +241,13 @@ function SQP:CreatePercentOptions(content)
         if oc.percentIconOffsetX then oc.percentIconOffsetX:SetValue(D.percentIconOffsetX) end
         if oc.percentIconOffsetY then oc.percentIconOffsetY:SetValue(D.percentIconOffsetY) end
         if oc.percentFontSize then oc.percentFontSize:SetValue(D.percentFontSize) end
-        if oc.percentFontFamily and UIDropDownMenu_SetText then UIDropDownMenu_SetText(oc.percentFontFamily, "Friz Quadrata") end
+        if oc.percentFontFamily and type(oc.percentFontFamily.Reset) == "function" then
+            oc.percentFontFamily:Reset()
+        elseif oc.percentFontFamily and type(oc.percentFontFamily.SetPath) == "function" then
+            oc.percentFontFamily:SetPath(D.percentFontFamily)
+        elseif oc.percentFontFamily and UIDropDownMenu_SetText then
+            UIDropDownMenu_SetText(oc.percentFontFamily, "Friz Quadrata")
+        end
         SQP:RefreshAllNameplates()
         ActivatePercent()
     end)

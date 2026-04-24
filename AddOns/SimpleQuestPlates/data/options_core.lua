@@ -8,7 +8,7 @@
 local addonName, SQP = ...
 
 -- Constants
-SQP.PANEL_NAME = "|TInterface\\AddOns\\SimpleQuestPlates\\images\\icon:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r"
+SQP.PANEL_NAME = "|TInterface\\AddOns\\SimpleQuestPlates\\media\\icon:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r"
 SQP.SECTION_COLOR = {0.345, 0.745, 0.506} -- #58be81
 SQP.PANEL_WIDTH = 700
 SQP.PANEL_HEIGHT = 600
@@ -42,7 +42,7 @@ function SQP:CreateOptionsPanel()
     
     -- Create preview section at the top
     local previewContainer = CreateFrame("Frame", nil, container, "BackdropTemplate")
-    previewContainer:SetHeight(108)
+    previewContainer:SetHeight(80)
     previewContainer:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, -6)
     previewContainer:SetPoint("TOPRIGHT", header, "BOTTOMRIGHT", 0, -6)
     previewContainer:SetBackdrop(self.BACKDROP_DARK)
@@ -55,13 +55,20 @@ function SQP:CreateOptionsPanel()
     
     -- Initialize tabs below preview
     local tabs, tabPanels = self:InitializeTabs(container, previewContainer)
+    if tabPanels.objectives and tabPanels.objectives.scrollFrame then
+        tabPanels.objectives.scrollFrame:Hide()
+    end
+    local objectiveTabs, objectivePanels = self:InitializeObjectiveTabs(tabPanels.objectives)
     
     -- Populate tab content
-    self:CreateGlobalOptions(tabPanels.global.content)
-    self:CreateKillOptions(tabPanels.kill.content)
-    self:CreateLootOptions(tabPanels.loot.content)
-    self:CreatePercentOptions(tabPanels.percent.content)
+    self:CreateGlobalOptions(tabPanels.general.content)
+    self:CreateKillOptions(objectivePanels.kill.content)
+    self:CreateLootOptions(objectivePanels.loot.content)
+    self:CreatePercentOptions(objectivePanels.percent.content)
     self:CreateAboutSection(tabPanels.about.content)
+
+    self.mainTabs = tabs
+    self.objectiveTabs = objectiveTabs
     
     -- Register the panel
     if Settings and Settings.RegisterCanvasLayoutCategory then

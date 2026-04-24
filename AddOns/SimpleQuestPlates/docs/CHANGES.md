@@ -1,20 +1,9 @@
-## v1.9.6
-- Fixed slash command robustness issues:
-  - Replaced unsafe input trimming with safe string normalization.
-  - Added explicit `/sqp version` handling.
-  - Added missing debug handlers for `debug target` and `debug nameplates`.
-  - Added resilient localization fallbacks for command/status output.
-- Expanded `enUS` baseline localization with missing runtime keys used by commands/options.
-- Removed legacy option modules that were no longer loaded by `SimpleQuestPlates.xml`:
-  - `data/options_colors.lua`
-  - `data/options_font.lua`
-  - `data/options_quest_icons.lua`
-  - `data/options_rgx.lua`
-- Cleaned and synchronized repository documentation (root README, directory READMEs, roadmap, assistant docs).
-- Updated release workflow support link to `discord.gg/rgxmods`.
-- Standardized release notes source to `docs/CHANGES.md` only (removed `docs/CHANGELOG.md` references).
-- Completed locale coverage:
-  - Added locale modules for `enGB`, `itIT`, `koKR`, `ptBR`, and `zhTW`.
-  - Filled all locale modules with full key coverage for runtime-safe lookups.
-- Updated options tab layout to dynamically fill the full tab row width with no trailing gap.
-- Refreshed the stylized root README and directory docs to match current commands, locale coverage, and assets.
+# v1.9.8 - 2026-04-23
+
+## Changes
+- Added RGX-Framework as RequiredDep for font tools.
+- Updated font initialization to use RGX.Font:Get() API.
+
+# v1.9.7 - 2026-04-23
+
+- TOC bump for interface 120005.

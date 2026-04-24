@@ -31,6 +31,7 @@
     <!-- Options sections -->
     <Script file="data\options_general.lua"/>
     <Script file="data\options_icon.lua"/>
+    <Script file="data\options_objectives.lua"/>
     <Script file="data\options_kill.lua"/>
     <Script file="data\options_loot.lua"/>
     <Script file="data\options_percent.lua"/>
