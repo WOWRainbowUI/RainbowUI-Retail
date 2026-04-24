@@ -87,6 +87,8 @@ L["Animated Guardian"] = "살아 움직이는 수호자"
 L["Animated Shadow"] = "살아 움직이는 어둠"
 L["Animated Storm"] = "살아난 폭풍"
 L["Animated Weapon"] = "살아 움직이는 무기"
+--[[Translation missing --]]
+L["Announce focus marker on ready check"] = "Announce my Focus Marker on ready check."
 L["Anodized Coilbearer"] = "양극산화 코일지기"
 L["Anomalus"] = "아노말루스"
 L["Anub'ar Champion"] = "아눕아르 용사"
@@ -179,6 +181,8 @@ L["Atik"] = "아틱"
 L["Atrium of Sethraliss"] = "세스랄리스의 안뜰"
 L["Attumen the Huntsman"] = "사냥꾼 어튜멘"
 L["Auriaya"] = "아우리아야"
+--[[Translation missing --]]
+L["Auto Assign"] = "Auto Assign"
 L["Automatic Coloring"] = "자동채색"
 L["Automatically color pulls"] = "자동 색상 추출"
 L["Avanoxx"] = "아바녹스"
@@ -771,6 +775,8 @@ L["Dokigg the Brutalizer"] = "야만전사 도키그"
 L["Domatrax"] = "도마트락스"
 L["Domina Venomblade"] = "도미나 베놈블레이드"
 --[[Translation missing --]]
+L["Don't show again"] = "Don't show again"
+--[[Translation missing --]]
 L["dotiLowerSublevel1"] = "Sublevel 1"
 --[[Translation missing --]]
 L["dotiUpperSublevel1"] = "Sublevel 1"
@@ -1100,7 +1106,31 @@ L["Fleshripper Vulture"] = "살점분리자 시체매"
 L["Flux Engineer"] = "Flux Engineer"
 --[[Translation missing --]]
 L["Flying Snow"] = "Flying Snow"
+--[[Translation missing --]]
+L["Focus Marker"] = "Focus Marker"
+--[[Translation missing --]]
+L["Focus Marker Assignments"] = "Focus Marker Assignments"
 L["Focused Ritualist"] = "몰두하는 의식술사"
+--[[Translation missing --]]
+L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after combat from %s."
+--[[Translation missing --]]
+L["focusMarkerAssignmentsTooltip"] = "Assign focus markers to group members and sync them to MDT users."
+--[[Translation missing --]]
+L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
+--[[Translation missing --]]
+L["focusMarkerKeybindMissingToast"] = "No key bind is set. Set one now or disable these notifications."
+--[[Translation missing --]]
+L["focusMarkerMacroDragTooltip"] = "Drag this macro to your action bar."
+--[[Translation missing --]]
+L["focusMarkerMacroQueued"] = "Focus marker action will update after combat."
+--[[Translation missing --]]
+L["focusMarkerMacroUpdated"] = "Focus marker action updated."
+--[[Translation missing --]]
+L["focusMarkerMacroUpdateFailed"] = "Could not update focus marker action: %s"
+--[[Translation missing --]]
+L["focusMarkerNoMacroSlotsText"] = "Delete a macro, then try the MDT focus marker macro again."
+--[[Translation missing --]]
+L["focusMarkerNoMacroSlotsTitle"] = "No macro slot available."
 L["Font of Fealty"] = "충성의 샘"
 L["Footbomb Hooligan"] = "축구탄 난동꾼"
 L["Forces"] = "병력"
@@ -1244,8 +1274,7 @@ L["Glintrok Scout"] = "Glintrok Scout"
 L["Glintrok Skulker"] = "Glintrok Skulker"
 L["Globgrog"] = "점액살거수"
 L["Gloom Horror"] = "어두운 공포"
---[[Translation missing --]]
-L["Gloombound Shadebringer"] = "Gloombound Shadebringer"
+L["Gloombound Shadebringer"] = "암영결속 그늘인도자"
 --[[Translation missing --]]
 L["Gloomwing Bat"] = "Gloomwing Bat"
 L["Gluth"] = "글루스"
@@ -1856,8 +1885,12 @@ L["Manifested Shadow"] = "실체화된 어둠"
 L["Manifested Timeways"] = "시간의 길 현신"
 L["Marauding Geist"] = "강탈자 외눈깨비"
 L["Margrave Stradama"] = "후작 스트라다마"
+--[[Translation missing --]]
+L["Mark Settings"] = "Mark Settings"
 L["Marked Sister"] = "징표 찍힌 자매"
 L["Market Peacekeeper"] = "시장 평화감시단"
+--[[Translation missing --]]
+L["Marks"] = "Marks"
 L["Maruuk"] = "마루크"
 --[[Translation missing --]]
 L["Master Archer"] = "Master Archer"
@@ -1878,6 +1911,8 @@ L["MDI Mode"] = "MDI 모드"
 L["MDT Error"] = "MDT 오류"
 --[[Translation missing --]]
 L["MDT Legacy maps"] = "MDT Legacy maps"
+--[[Translation missing --]]
+L["MDT Set Focus Macro"] = "MDT Set Focus Macro"
 L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: 적을 추가할 수 없습니다. 같은 종류의 적을 너무 많이 추가하려고 합니다."
 L["MDT: Error importing preset"] = "MDT: 경로 가져오기 오류 "
 L["MDT: Spells for %s:"] = "MDT: %s의 마법"
@@ -2029,6 +2064,8 @@ L["neltharusShortName"] = "넬타"
 L["Nerubian Hauler"] = "네루비안 운반꾼"
 L["Ner'zhul"] = "넬쥴"
 L["Netherspace"] = "황천의 영역"
+--[[Translation missing --]]
+L["Never show MDT focus marker notification."] = "Never show MDT focus marker notification."
 L["New"] = "신규 경로"
 L["New NPC at Cursor Position"] = "마우스 커서의 위치에서 새 NPC 추가"
 L["New Patrol Waypoint at Cursor Position"] = "마우스 커서 위치에서 새 로밍 웨이포인트 추가"
@@ -2055,6 +2092,8 @@ L["Nightmare Dweller"] = "악몽 외눈박이"
 L["Nitrogg Thundertower"] = "니트로그 썬더타워"
 --[[Translation missing --]]
 L["Njorndir Preparation"] = "Njorndir Preparation"
+--[[Translation missing --]]
+L["No player"] = "No player"
 L["Noble Skirmisher"] = "귀족 척후병"
 L["noDungeonData1"] = "당신은 아직 던전 데이터가 없는 것 같습니다."
 L["noDungeonData2"] = "/mdt devmode를 통해 나만의 데이터를 만들어 보세요"
@@ -2460,8 +2499,7 @@ L["Rotling"] = "Rotling"
 L["Rotmarrow Slime"] = "부패골수 수액"
 L["Rotspew"] = "썩은토"
 L["Rotspew Leftovers"] = "썩은토 찌꺼기"
---[[Translation missing --]]
-L["Rotting Ghoul"] = "Rotting Ghoul"
+L["Rotting Ghoul"] = "썩어가는 구울"
 L["Rotting Maggot"] = "썩어가는 구더기"
 L["Rotting Slimeclaw"] = "썩어가는 끈적손톱"
 L["Rowdy Reveler"] = "난폭한 구경꾼"
@@ -2615,6 +2653,8 @@ L["Sergeant Bainbridge"] = "하사관 베인브릿지"
 L["Sergeant Shaynemail"] = "하사관 셰인메일"
 L["Serpentrix"] = "서펜트릭스"
 L["Servant of Asaad"] = "아사드의 하수인"
+--[[Translation missing --]]
+L["Set Keybind"] = "Set Keybind"
 L["Set Target Marker"] = "징표 지정하기"
 L["Settings"] = "설정"
 L["Sewer Gate"] = "하수구 쇠살창"
@@ -2980,6 +3020,8 @@ L["Svala Sorrowgrave"] = "스발라 소로우그레이브"
 L["Swampface"] = "늪지면상"
 --[[Translation missing --]]
 L["Swiftshot Archer"] = "Swiftshot Archer"
+--[[Translation missing --]]
+L["Sync Marks"] = "Sync Marks"
 L["Taah'bat"] = "타바트"
 L["Taener Duelmal"] = "태너 듀얼말"
 L["Tainted Sentry"] = "타락한 파수병"
@@ -3376,6 +3418,8 @@ L["Urh Relic"] = "우르 유물"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "MDT의 위치와 스케일을 기본값으로 돌리려면 '/mdt reset' 를 입력 하시면 됩니다."
 L["Use as a starting point:"] = "출발점으로 사용하기"
 L["Use forces count"] = "사이드바에 병력 계산 표시"
+--[[Translation missing --]]
+L["Use macro instead of keybind"] = "Use macro instead of keybind."
 L["Utgarde Keep"] = "우트가드 성채"
 L["Utgarde Pinnacle"] = "우트가드 첨탑"
 L["Valarjar Aspirant"] = "발라리아르 지원자"
@@ -3584,8 +3628,7 @@ L["Yes Man"] = "아첨꾼"
 L["Ymirjar Berserker"] = "이미야르 광전사"
 L["Ymirjar Dusk Shaman"] = "이미야르 황혼의 주술사"
 L["Ymirjar Flesh Hunter"] = "이미야르 인간사냥꾼"
---[[Translation missing --]]
-L["Ymirjar Graveblade"] = "Ymirjar Graveblade"
+L["Ymirjar Graveblade"] = "이미르야르 그레이브블레이드"
 L["Ymirjar Harpooner"] = "이미야르 작살병"
 L["Ymirjar Necromancer"] = "이미야르 강령술사"
 L["Ymirjar Savage"] = "이미야르 야만전사"

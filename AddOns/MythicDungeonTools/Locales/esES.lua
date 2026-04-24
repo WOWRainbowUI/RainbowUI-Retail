@@ -102,6 +102,8 @@ L["Animated Guardian"] = "Guardián animado"
 L["Animated Shadow"] = "Animated Shadow"
 L["Animated Storm"] = "Tormenta animada"
 L["Animated Weapon"] = "Arma animada"
+--[[Translation missing --]]
+L["Announce focus marker on ready check"] = "Announce my Focus Marker on ready check."
 L["Anodized Coilbearer"] = "Portabobina anodizado"
 L["Anomalus"] = "Anomalus"
 L["Anub'ar Champion"] = "Campeón Anub'ar"
@@ -222,6 +224,8 @@ L["Atik"] = "Atik"
 L["Atrium of Sethraliss"] = "Atrio de Sethraliss"
 L["Attumen the Huntsman"] = "Attumen el Montero"
 L["Auriaya"] = "Auriaya"
+--[[Translation missing --]]
+L["Auto Assign"] = "Auto Assign"
 L["Automatic Coloring"] = "Coloreo automático"
 L["Automatically color pulls"] = "Colorea automáticamente pulls"
 --[[Translation missing --]]
@@ -918,6 +922,8 @@ L["Dokigg the Brutalizer"] = "Dokigg el Brutalizador"
 L["Domatrax"] = "Domatrax"
 L["Domina Venomblade"] = "Domina Hojaveneno"
 --[[Translation missing --]]
+L["Don't show again"] = "Don't show again"
+--[[Translation missing --]]
 L["dotiLowerSublevel1"] = "Sublevel 1"
 --[[Translation missing --]]
 L["dotiUpperSublevel1"] = "Sublevel 1"
@@ -1258,7 +1264,31 @@ L["Fleshripper Vulture"] = "Buitre desgarracarnes"
 L["Flux Engineer"] = "Flux Engineer"
 --[[Translation missing --]]
 L["Flying Snow"] = "Flying Snow"
+--[[Translation missing --]]
+L["Focus Marker"] = "Focus Marker"
+--[[Translation missing --]]
+L["Focus Marker Assignments"] = "Focus Marker Assignments"
 L["Focused Ritualist"] = "Ritualista enfocado"
+--[[Translation missing --]]
+L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after combat from %s."
+--[[Translation missing --]]
+L["focusMarkerAssignmentsTooltip"] = "Assign focus markers to group members and sync them to MDT users."
+--[[Translation missing --]]
+L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
+--[[Translation missing --]]
+L["focusMarkerKeybindMissingToast"] = "No key bind is set. Set one now or disable these notifications."
+--[[Translation missing --]]
+L["focusMarkerMacroDragTooltip"] = "Drag this macro to your action bar."
+--[[Translation missing --]]
+L["focusMarkerMacroQueued"] = "Focus marker action will update after combat."
+--[[Translation missing --]]
+L["focusMarkerMacroUpdated"] = "Focus marker action updated."
+--[[Translation missing --]]
+L["focusMarkerMacroUpdateFailed"] = "Could not update focus marker action: %s"
+--[[Translation missing --]]
+L["focusMarkerNoMacroSlotsText"] = "Delete a macro, then try the MDT focus marker macro again."
+--[[Translation missing --]]
+L["focusMarkerNoMacroSlotsTitle"] = "No macro slot available."
 L["Font of Fealty"] = "Fuente de la Lealtad"
 L["Footbomb Hooligan"] = "Hincha del bombalón"
 L["Forces"] = "Tropas"
@@ -2052,8 +2082,12 @@ L["Manifested Shadow"] = "Manifested Shadow"
 L["Manifested Timeways"] = "Líneas temporales manifestadas"
 L["Marauding Geist"] = "Geist merodeador"
 L["Margrave Stradama"] = "Margravina Stradama"
+--[[Translation missing --]]
+L["Mark Settings"] = "Mark Settings"
 L["Marked Sister"] = "Hermana marcada"
 L["Market Peacekeeper"] = "Pacificador del mercado"
+--[[Translation missing --]]
+L["Marks"] = "Marks"
 L["Maruuk"] = "Maruuk"
 --[[Translation missing --]]
 L["Master Archer"] = "Master Archer"
@@ -2074,6 +2108,8 @@ L["MDI Mode"] = "Modo MDI"
 L["MDT Error"] = "MDT Error"
 --[[Translation missing --]]
 L["MDT Legacy maps"] = "MDT Legacy maps"
+--[[Translation missing --]]
+L["MDT Set Focus Macro"] = "MDT Set Focus Macro"
 --[[Translation missing --]]
 L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
 L["MDT: Error importing preset"] = "MDT: Error importando la ruta"
@@ -2249,6 +2285,8 @@ L["neltharusShortName"] = "NELT"
 L["Nerubian Hauler"] = "Nerubian Hauler"
 L["Ner'zhul"] = "Ner'zhul"
 L["Netherspace"] = "Espacio Abisal"
+--[[Translation missing --]]
+L["Never show MDT focus marker notification."] = "Never show MDT focus marker notification."
 L["New"] = "Nuevo"
 L["New NPC at Cursor Position"] = "Nuevo NPC en la posición del ratón"
 L["New Patrol Waypoint at Cursor Position"] = "Nuevo Punto de Referencia de Patrulla en la posición del ratón"
@@ -2284,6 +2322,8 @@ L["Nightmare Dweller"] = "Habitante de la Pesadilla"
 L["Nitrogg Thundertower"] = "Nitrogg Torre del Trueno"
 --[[Translation missing --]]
 L["Njorndir Preparation"] = "Njorndir Preparation"
+--[[Translation missing --]]
+L["No player"] = "No player"
 L["Noble Skirmisher"] = "Hostigador noble"
 L["noDungeonData1"] = "Parece que aún no tienes datos de la mazmorra."
 L["noDungeonData2"] = "Crea tus propios datos mediante /mdt devmode"
@@ -2918,6 +2958,8 @@ L["Sergeant Shaynemail"] = "Sergeant Shaynemail"
 L["Serpentrix"] = "Serpentrix"
 L["Servant of Asaad"] = "Sirviente de Asaad"
 --[[Translation missing --]]
+L["Set Keybind"] = "Set Keybind"
+--[[Translation missing --]]
 L["Set Target Marker"] = "Set Target Marker"
 L["Settings"] = "Opciones"
 L["Sewer Gate"] = "Puerta de alcantarilla"
@@ -3327,6 +3369,8 @@ L["Svala Sorrowgrave"] = "Svala Tumbapena"
 L["Swampface"] = "Swampface"
 --[[Translation missing --]]
 L["Swiftshot Archer"] = "Swiftshot Archer"
+--[[Translation missing --]]
+L["Sync Marks"] = "Sync Marks"
 --[[Translation missing --]]
 L["Taah'bat"] = "Taah'bat"
 --[[Translation missing --]]
@@ -3774,6 +3818,8 @@ L["Use /mdt reset to restore the default position and scale of MDT."] = "Haga '/
 L["Use as a starting point:"] = "Usar como punto de referencia:"
 --[[Translation missing --]]
 L["Use forces count"] = "Use forces count in Sidebar"
+--[[Translation missing --]]
+L["Use macro instead of keybind"] = "Use macro instead of keybind."
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]
