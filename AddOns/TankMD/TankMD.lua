@@ -33,8 +33,7 @@ function TankMD:OnEnable()
 	self:RegisterChatCommand("tankmd", "SlashCommand")
 
 	AceConfig:RegisterOptionsTable(addonName, addon.optionsTable)
-	local frame, categoryID = AceConfigDialog:AddToBlizOptions(addonName, L.title) -- 自行修改
-	addon.db.profile.categoryID = categoryID
+	AceConfigDialog:AddToBlizOptions(addonName, L.title)
 
 	local profiles = AceDBOptions:GetOptionsTable(addon.db)
 	AceConfig:RegisterOptionsTable(addonName .. "_Profiles", profiles)

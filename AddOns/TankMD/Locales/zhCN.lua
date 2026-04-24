@@ -6,36 +6,20 @@ L.TANK = _G['TANK']
 L.HEALER = _G['HEALER']
 L.DAMAGER = _G['DAMAGER']
 
---[[Translation missing --]]
---[[ L["button_target"] = "Button %d: %s"--]] 
---[[Translation missing --]]
---[[ L["general"] = "General"--]] 
---[[Translation missing --]]
---[[ L["main_tanks_only"] = "Main Tanks Only"--]] 
---[[Translation missing --]]
---[[ L["prioritize_focus"] = "Prioritize Focus"--]] 
---[[Translation missing --]]
---[[ L["prioritize_focus_desc"] = "If enabled, your focus will be the highest priority. Otherwise, your focus will be ignored."--]] 
---[[Translation missing --]]
---[[ L["prioritize_main_tanks"] = "Prioritize Main Tanks, Include Tanks"--]] 
---[[Translation missing --]]
---[[ L["profiles"] = "Profiles"--]] 
---[[Translation missing --]]
---[[ L["tank_role_only"] = "Tank Role Only"--]] 
---[[Translation missing --]]
---[[ L["tank_selection_method"] = "Tank Selection Method"--]] 
---[[Translation missing --]]
---[[ L["tanks_and_main_tanks"] = "Tanks and Main Tanks"--]] 
---[[Translation missing --]]
---[[ L["title"] = "TankMD"--]] 
---[[Translation missing --]]
---[[ L["to_fifth"] = "%s to fifth %s"--]] 
---[[Translation missing --]]
---[[ L["to_first"] = "%s to first %s"--]] 
---[[Translation missing --]]
---[[ L["to_fourth"] = "%s to fourth %s"--]] 
---[[Translation missing --]]
---[[ L["to_second"] = "%s to second %s"--]] 
---[[Translation missing --]]
---[[ L["to_third"] = "%s to third %s"--]] 
+L["button_target"] = "按钮 %d: %s"
+L["general"] = "一般选项"
+L["main_tanks_only"] = "仅主坦克"
+L["prioritize_focus"] = "焦点目标优先"
+L["prioritize_focus_desc"] = "启用后，你的焦点目标将有最高优先级。否则，你的焦点目标将被忽略。"
+L["prioritize_main_tanks"] = "主坦克优先，其次是其他坦克"
+L["profiles"] = "配置文件"
+L["tank_role_only"] = "仅坦克职责"
+L["tank_selection_method"] = "坦克选择模式"
+L["tanks_and_main_tanks"] = "坦克和主坦克"
+L["title"] = "TankMD 坦克误导"
+L["to_fifth"] = "%s给第五个%s"
+L["to_first"] = "%s给第一个%s"
+L["to_fourth"] = "%s给第四个%s"
+L["to_second"] = "%s给第二个%s"
+L["to_third"] = "%s给第三个%s"
 
