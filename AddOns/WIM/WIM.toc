@@ -1,11 +1,11 @@
-## Interface: 11508, 20505, 30405, 40402, 50503, 120000, 120001
+## Interface: 11508, 20505, 30405, 40402, 50503, 120000, 120001, 120005
 ## X-Curse-Project-ID: 7474
 ## X-WoWI-ID: 5342
 ## X-Wago-ID: aNDmqo6o
 
 ## Title: WIM
 ## Author: Pazza (Bronzebeard), (Updated by Sylvanaar/MysticalOS/Humfras)
-## Version: 3.16.10
+## Version: 3.16.11
 ## Notes: Give whispers an instant messenger feel.
 ## Notes-esES: Dale a los susurros una sensación de mensajería instantánea.
 ## Notes-esMX: Dale a los susurros una sensación de mensajería instantánea.

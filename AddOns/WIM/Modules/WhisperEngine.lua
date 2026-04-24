@@ -830,21 +830,12 @@ hooksecurefunc(_G.C_ChatInfo or _G, "SendChatMessage", function(...)
 	end
 end);
 
-local stickyTypes = {};
-local function setSticky (sticky)
-	for i = 1, #stickyTypes do
-		local chatTypeInfo = _G.ChatTypeInfo[stickyTypes[i]] or {};
-		chatTypeInfo.sticky = sticky and 1 or 0;
-	end
-end
-
 local prevChatType, prevTellTarget;
 local function editBoxUpdateHeader(self, internalCall)
 	local chatType, tellTarget = self:GetAttribute("chatType"),  self:GetAttribute("tellTarget");
 
 	if HasAnySecretValues(chatType, tellTarget) or not db or not db.enabled then
 		prevChatType, prevTellTarget = nil, nil;
-		setSticky(true);
 		return;
 	end
 
@@ -876,7 +867,6 @@ local function editBoxUpdateHeader(self, internalCall)
 
 					if (_G.ChatTypeInfo[chatType] and _G.ChatTypeInfo[chatType].sticky) then
 						table.insert(stickyTypes, chatType);
-						setSticky(false);
 					end
 
 					if self:GetAttribute("chatType"):find("WHISPER") then
@@ -893,11 +883,7 @@ local function editBoxUpdateHeader(self, internalCall)
 
 					win.widgets.msg_box:SetFocus();
 				end
-			else
-				setSticky(true);
 			end
-		else
-			setSticky(true);
 		end
 	end
 
@@ -939,9 +925,24 @@ end
 
 local function sendBNetTell (tokenizedName)
 	-- used to close the editbox that is open.
-	if not InChatMessagingLockdown() then
-		if _G.LAST_ACTIVE_CHAT_EDIT_BOX and _G.LAST_ACTIVE_CHAT_EDIT_BOX.widgetName ~= "msg_box" then
-			(_G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.OnEscapePressed or _G.ChatEdit_OnEscapePressed)(_G.LAST_ACTIVE_CHAT_EDIT_BOX)
+	if not InChatMessagingLockdown() and db and db.enabled then
+
+		local curState = curState;
+		curState = db.pop_rules.whisper.alwaysOther and "other" or curState;
+
+		if (db.pop_rules.whisper.intercept and db.pop_rules.whisper[curState].onSend) then
+			local bNetID = _G.BNet_GetBNetIDAccount(tokenizedName);
+			local win = getWhisperWindowByUser(tokenizedName, true, bNetID);
+
+			if not win then return end	--due to a client bug, we can not receive the other player's name, so do nothing
+
+			win.widgets.msg_box.setText = 1;
+			win:Pop(true); -- force popup
+			win.widgets.msg_box:SetFocus();
+
+			if _G.LAST_ACTIVE_CHAT_EDIT_BOX and _G.LAST_ACTIVE_CHAT_EDIT_BOX.widgetName ~= "msg_box" then
+				(_G.ChatFrameEditBoxMixin and _G.ChatFrameEditBoxMixin.OnEscapePressed or _G.ChatEdit_OnEscapePressed)(_G.LAST_ACTIVE_CHAT_EDIT_BOX)
+			end
 		end
 	end
 end
