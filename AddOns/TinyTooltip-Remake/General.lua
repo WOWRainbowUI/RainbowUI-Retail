@@ -88,7 +88,7 @@ LibEvent:attachEvent("VARIABLES_LOADED", function()
     bar.bg:SetVertexColor(0.2, 0.2, 0.2, 0.8)
     bar.TextString = bar:CreateFontString(nil, "OVERLAY")
     bar.TextString:SetPoint("CENTER")
-    bar.TextString:SetFont((NumberFontNormal:GetFont()), 11, "THINOUTLINE")
+    bar.TextString:SetFont(NumberFontNormal:GetFont(), 11, "THINOUTLINE")
     bar.capNumericDisplay = true
     bar.lockShow = 1
     bar:HookScript("OnShow", function(self)
