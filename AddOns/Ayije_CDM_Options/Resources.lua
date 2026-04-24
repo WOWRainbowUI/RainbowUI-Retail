@@ -91,14 +91,13 @@ local function CreateResourcesTab(page, tabId)
 
     local selectedClassKey = nil
     local selectedBarKey = nil
-    local selectedGroupKey = nil
+    local selectedGlobal = false
     local hasMana = false
-    local manaSpecs = CDM.MANA_SPECS
-    if manaSpecs then
-        local _, _, classID = UnitClass("player")
-        for specID in pairs(manaSpecs) do
-            local _, _, _, _, _, sClassID = GetSpecializationInfoByID(specID)
-            if sClassID == classID then hasMana = true; break end
+    if currentSpecID then
+        local manaLoad = CDM:GetBarSettingForClass("General", "Mana", "load")
+        local loadSpec = manaLoad and manaLoad.spec
+        if type(loadSpec) == "table" and loadSpec[currentSpecID] == true then
+            hasMana = true
         end
     end
     local expandedGroups = { [playerClass] = true }
@@ -612,6 +611,17 @@ local function CreateResourcesTab(page, tabId)
                 API:Refresh("RESOURCES")
             end)
         tagEnabledCB:SetPoint("TOPLEFT", 0, yOff)
+
+        if barKey == "TipOfTheSpear" then
+            local tosTimeCB = UI.CreateModernCheckbox(rc, L["Show aura time"],
+                CDM:GetBarSettingForClass(classKey, barKey, "tagShowAuraTime") == true,
+                function(checked)
+                    CDM:SetBarSettingForClass(classKey, barKey, "tagShowAuraTime", checked)
+                    API:Refresh("RESOURCES")
+                end)
+            tosTimeCB:SetPoint("LEFT", tagEnabledCB, "LEFT", 150, 0)
+        end
+
         yOff = yOff - 35
 
         local tagFontSlider = UI.CreateModernSlider(rc, L["Font Size"], 8, 32,
@@ -696,32 +706,99 @@ local function CreateResourcesTab(page, tabId)
 
     local BuildLeftPanel
 
-    local function ShowGroupSettings(classKey)
+    local globalRow
+    do
+        local row = CreateFrame("Button", nil, leftChild)
+        row:SetSize(BAR_ROW_WIDTH, ROW_HEIGHT)
+        row:SetPoint("TOPLEFT", SCROLL_LEFT_PAD + BAR_ROW_INDENT, -4)
+
+        local bg = row:CreateTexture(nil, "BACKGROUND")
+        bg:SetPoint("TOPLEFT", -BAR_ROW_INDENT, 0)
+        bg:SetPoint("BOTTOMRIGHT", 0, 0)
+        bg:Hide()
+
+        local nameText = row:CreateFontString(nil, "ARTWORK", "AyijeCDM_Font14")
+        nameText:SetPoint("LEFT", 4, 0)
+        nameText:SetText(L["Global"])
+
+        row.bg = bg
+        row.nameText = nameText
+        globalRow = row
+    end
+
+    local function ShowGlobalSettings()
         if not rightManager then return end
-        local _, rc = rightManager.CreateScrollContent(300)
+        local _, rc = rightManager.CreateScrollContent(400)
         if not rc then return end
 
         local gold = CDM.CONST.GOLD
         local nameHeader = rc:CreateFontString(nil, "ARTWORK", "AyijeCDM_Font18")
-        nameHeader:SetText(CLASS_DISPLAY_NAMES[classKey] or (classKey == "General" and L["General"]) or classKey)
+        nameHeader:SetText(L["Global"])
         nameHeader:SetTextColor(gold.r, gold.g, gold.b, 1)
         nameHeader:SetPoint("TOPLEFT", 0, 0)
 
-        if classKey == "General" then
-            local note = rc:CreateFontString(nil, "ARTWORK", "AyijeCDM_Font14")
-            note:SetText(L["No group-level settings yet"])
-            note:SetPoint("TOPLEFT", 0, -40)
-            UI.SetTextMuted(note)
-            return
-        end
+        local yOff = -40
 
-        local cbUnified = UI.CreateModernCheckbox(rc, L["Unified Border (wrap all bars)"],
-            CDM:GetGroupSetting(classKey, "unifiedBorder") == true,
+        local cbUnified = UI.CreateModernCheckbox(rc, L["Wrap bars and display textured separators"],
+            CDM.db.unifiedBorder == true,
             function(checked)
-                CDM:SetGroupSetting(classKey, "unifiedBorder", checked and true or nil)
+                CDM.db.unifiedBorder = checked and true or nil
                 API:Refresh("RESOURCES", "LAYOUT")
             end)
-        cbUnified:SetPoint("TOPLEFT", 0, -40)
+        cbUnified:SetPoint("TOPLEFT", 0, yOff)
+        yOff = yOff - 35
+
+        local cbMoveBuffs = UI.CreateModernCheckbox(rc, L["Anchor buff icons to resources"],
+            CDM.db.moveBuffsDown == true,
+            function(checked)
+                CDM.db.moveBuffsDown = checked and true or nil
+                API:Refresh("RESOURCES", "LAYOUT")
+            end)
+        cbMoveBuffs:SetPoint("TOPLEFT", 0, yOff)
+        yOff = yOff - 45
+
+        local offsetSlider = UI.CreateModernSlider(rc, L["Y Offset"], -300, 300,
+            tonumber(CDM.db.moveBuffsDownOffset) or 0,
+            function(v)
+                CDM.db.moveBuffsDownOffset = UI.RoundToInt(v)
+                API:Refresh("RESOURCES", "LAYOUT")
+            end, SLIDER_LABEL_W, SLIDER_W)
+        offsetSlider:SetPoint("TOPLEFT", 0, yOff)
+        yOff = yOff - 50
+
+        local fallbackOptions = {
+            { value = "essential",    label = L["Essential"] },
+            { value = "lastResource", label = L["Last resource"] },
+            { value = "saved",        label = L["Buff viewer X/Y"] },
+        }
+
+        local fallbackLabel = rc:CreateFontString(nil, "ARTWORK", "AyijeCDM_Font14")
+        fallbackLabel:SetText(L["Fallback when no resources"])
+        fallbackLabel:SetPoint("TOPLEFT", 0, yOff)
+        yOff = yOff - 20
+
+        local ddFallback = CreateFrame("DropdownButton", nil, rc, "WowStyle1DropdownTemplate")
+        ddFallback:SetPoint("TOPLEFT", 0, yOff)
+        ddFallback:SetWidth(200)
+        local currentFallback = CDM.db.moveBuffsDownFallback or "lastResource"
+        ddFallback:SetDefaultText(UI.GetOptionLabel(fallbackOptions, currentFallback, currentFallback))
+        if rightManager and rightManager.RegisterDropdown then rightManager.RegisterDropdown(ddFallback) end
+        UI.SetupValueDropdown(ddFallback, fallbackOptions,
+            function() return CDM.db.moveBuffsDownFallback or "lastResource" end,
+            function(value, label)
+                CDM.db.moveBuffsDownFallback = value
+                ddFallback:SetDefaultText(label)
+                API:Refresh("RESOURCES", "LAYOUT")
+            end)
+        yOff = yOff - 50
+
+        local comingSoon = rc:CreateFontString(nil, "ARTWORK", "AyijeCDM_Font14")
+        comingSoon:SetText(L["More options coming soon..."])
+        comingSoon:SetPoint("TOPLEFT", 0, yOff)
+        UI.SetTextMuted(comingSoon)
+        yOff = yOff - 30
+
+        rc:SetHeight(math.abs(yOff) + 20)
     end
 
     local function SetSubTabButton(id, shown)
@@ -730,11 +807,16 @@ local function CreateResourcesTab(page, tabId)
         if shown then btn:Show() else btn:Hide() end
     end
 
-    local function SelectGroup(classKey)
-        selectedClassKey = classKey
+    local function ToggleGroupExpand(groupKey)
+        expandedGroups[groupKey] = not expandedGroups[groupKey]
+        BuildLeftPanel()
+    end
+
+    local function SelectGlobal()
+        selectedGlobal = true
+        selectedClassKey = nil
         selectedBarKey = nil
-        selectedGroupKey = classKey
-        ShowGroupSettings(classKey)
+        ShowGlobalSettings()
         if condManager and condManager.Clear then condManager.Clear() end
         if loadManager and loadManager.Clear then loadManager.Clear() end
         SetSubTabButton("conditions", false)
@@ -744,9 +826,9 @@ local function CreateResourcesTab(page, tabId)
     end
 
     local function SelectBar(classKey, barKey)
+        selectedGlobal = false
         selectedClassKey = classKey
         selectedBarKey = barKey
-        selectedGroupKey = nil
         ShowBarSettings(classKey, barKey)
         local condUI = ns.ResourceConditionsUI
         if condUI and condUI.ShowBarConditions then
@@ -769,11 +851,33 @@ local function CreateResourcesTab(page, tabId)
         BuildLeftPanel()
     end
 
+    globalRow:SetScript("OnClick", SelectGlobal)
+    globalRow:SetScript("OnEnter", function()
+        if not selectedGlobal then
+            globalRow.bg:SetAtlas("Options_List_Hover")
+            globalRow.bg:Show()
+        end
+    end)
+    globalRow:SetScript("OnLeave", function()
+        if not selectedGlobal then
+            globalRow.bg:Hide()
+        end
+    end)
+
     BuildLeftPanel = function()
         if barRowPool then barRowPool:ReleaseAll() end
         if headerPool then headerPool:ReleaseAll() end
 
-        local yOff = 0
+        if selectedGlobal then
+            globalRow.bg:SetAtlas("Options_List_Active")
+            globalRow.bg:Show()
+            UI.SetTextWhite(globalRow.nameText)
+        else
+            globalRow.bg:Hide()
+            UI.SetTextSubtle(globalRow.nameText)
+        end
+
+        local yOff = -ROW_HEIGHT - 10
         local CLASS_BARS = CDM.CLASS_BARS
         if not CLASS_BARS then return end
 
@@ -790,19 +894,17 @@ local function CreateResourcesTab(page, tabId)
 
                 if headerPool then
                     local h = headerPool:Acquire(leftChild)
-                    local isSelected = (selectedBarKey == nil and selectedGroupKey == groupKey)
-                    Shared.ConfigureExpandableHeader(h, yOff, isExpanded, group.label, isSelected)
+                    Shared.ConfigureExpandableHeader(h, yOff, isExpanded, group.label, false)
                     h.row:SetSize(HEADER_W, GROUP_HEADER_H)
                     if h.deleteBtn then h.deleteBtn:Hide() end
                     if h.selectBtn then
                         h.selectBtn:SetScript("OnClick", function()
-                            SelectGroup(groupKey)
+                            ToggleGroupExpand(groupKey)
                         end)
                     end
                     if h.expandBtn then
                         h.expandBtn:SetScript("OnClick", function()
-                            expandedGroups[groupKey] = not expandedGroups[groupKey]
-                            SelectGroup(groupKey)
+                            ToggleGroupExpand(groupKey)
                         end)
                     end
                 end

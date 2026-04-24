@@ -610,6 +610,13 @@ function UI.CreateScrollableEditBox(parent, width, height, editWidth)
     editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     scrollFrame:SetScrollChild(editBox)
 
+    local function FocusEditBox()
+        editBox:SetFocus()
+    end
+    boxFrame:EnableMouse(true)
+    boxFrame:SetScript("OnMouseDown", FocusEditBox)
+    scrollFrame:SetScript("OnMouseDown", FocusEditBox)
+
     return boxFrame, editBox
 end
 

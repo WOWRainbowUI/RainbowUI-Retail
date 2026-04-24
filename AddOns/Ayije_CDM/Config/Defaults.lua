@@ -27,10 +27,13 @@ local RESOURCE_BAR_PER_KEY = {
         displayAsPercent = false,
         smoothBars = true,
         loadMode = "conditional",
-        load = { spec = {
-            [65] = true, [256] = true, [257] = true, [264] = true,
-            [62] = true, [63] = true, [64] = true, [105] = true, [270] = true, [1468] = true,
-        } },
+        load = {
+            hideInFeralForm = true,
+            spec = {
+                [65] = true, [256] = true, [257] = true, [264] = true,
+                [62] = true, [63] = true, [64] = true, [105] = true, [270] = true, [1468] = true,
+            },
+        },
     },
     Rage            = { color = { r = 0.78, g = 0.26, b = 0.26, a = 1 }, smoothBars = true },
     Energy          = { color = { r = 1, g = 1, b = 0.34, a = 1 }, smoothBars = true },
@@ -52,17 +55,21 @@ local RESOURCE_BAR_PER_KEY = {
     SoulShards      = {
         color = { r = 0.58, g = 0.51, b = 0.79, a = 1 },
         rechargingColor = { r = 0.35, g = 0.30, b = 0.50, a = 1 },
+        anchorTo = "Mana",
+        offsetY = 1,
     },
-    LunarPower      = { color = { r = 0.3, g = 0.52, b = 0.9, a = 1 }, smoothBars = true },
-    HolyPower       = { color = { r = 0.95, g = 0.9, b = 0.6, a = 1 } },
-    Maelstrom       = { color = { r = 0, g = 0.5, b = 1, a = 1 }, smoothBars = true },
+    LunarPower      = { color = { r = 0.3, g = 0.52, b = 0.9, a = 1 }, smoothBars = true, anchorTo = "Mana", offsetY = 1 },
+    HolyPower       = { color = { r = 0.95, g = 0.9, b = 0.6, a = 1 }, anchorTo = "Mana", offsetY = 1 },
+    Maelstrom       = { color = { r = 0, g = 0.5, b = 1, a = 1 }, smoothBars = true, anchorTo = "Mana", offsetY = 1 },
     Chi             = { color = { r = 0.71, g = 1, b = 0.92, a = 1 }, anchorTo = "Energy" },
-    Insanity        = { color = { r = 0.4, g = 0, b = 0.8, a = 1 }, smoothBars = true },
-    ArcaneCharges   = { color = { r = 0.1, g = 0.1, b = 0.98, a = 1 } },
+    Insanity        = { color = { r = 0.4, g = 0, b = 0.8, a = 1 }, smoothBars = true, anchorTo = "Mana", offsetY = 1 },
+    ArcaneCharges   = { color = { r = 0.1, g = 0.1, b = 0.98, a = 1 }, anchorTo = "Mana", offsetY = 1 },
     Fury            = { color = { r = 0.79, g = 0.26, b = 0.99, a = 1 }, smoothBars = true },
     Essence         = {
         color = { r = 0.16, g = 0.57, b = 0.49, a = 1 },
         rechargingColor = { r = 0.08, g = 0.28, b = 0.25, a = 1 },
+        anchorTo = "Mana",
+        offsetY = 1,
     },
     SoulFragments   = { color = { r = 0.0, g = 0.8, b = 0.0, a = 1 }, anchorTo = "Fury" },
     Stagger         = {
@@ -71,11 +78,11 @@ local RESOURCE_BAR_PER_KEY = {
         heavyColor = { r = 1.0, g = 0.42, b = 0.42, a = 1 },
         anchorTo = "Energy",
     },
-    MaelstromWeapon = { color = { r = 0, g = 0.5, b = 1, a = 1 } },
+    MaelstromWeapon = { color = { r = 0, g = 0.5, b = 1, a = 1 }, anchorTo = "Mana", offsetY = 1 },
     DevourerSoulFragments = { color = { r = 0.11, g = 0.34, b = 0.71, a = 1 }, anchorTo = "Fury" },
     Ironfur         = { color = { r = 0.153, g = 0.616, b = 1.0, a = 1 }, anchorTo = "Rage" },
     IgnorePain      = { color = { r = 0.9, g = 0.8, b = 0.2, a = 1 }, hideIcon = false, anchorTo = "Rage" },
-    TipOfTheSpear   = { color = { r = 0.9, g = 0.3, b = 0.15, a = 1 }, anchorTo = "Focus" },
+    TipOfTheSpear   = { color = { r = 0.9, g = 0.3, b = 0.15, a = 1 }, anchorTo = "Focus", tagShowAuraTime = false },
 }
 
 local function BuildResourceBarDefaults()
@@ -93,8 +100,16 @@ local function BuildResourceBarDefaults()
     return result
 end
 
+local RESOURCE_BAR_PER_CLASS = {
+    DRUID = {
+        Rage   = { anchorTo = "Mana", offsetY = 1 },
+        Energy = { anchorTo = "Mana", offsetY = 1 },
+    },
+}
+
 CDM.RESOURCE_BAR_COMMON_DEFAULTS = RESOURCE_BAR_COMMON
 CDM.RESOURCE_BAR_DEFAULTS = BuildResourceBarDefaults()
+CDM.RESOURCE_BAR_PER_CLASS_DEFAULTS = RESOURCE_BAR_PER_CLASS
 
 CDM.defaults = {
     sizeEssRow1 = { w = 46, h = 40 },
@@ -167,6 +182,12 @@ CDM.defaults = {
     resourcesEnabled = true,
     externalsEnabled = true,
 
+    -- Resources global settings (moved from per-class in schema v21)
+    unifiedBorder = false,
+    moveBuffsDown = false,
+    moveBuffsDownOffset = 0,
+    moveBuffsDownFallback = "lastResource",
+
     -- Externals (ExternalDefensivesFrame) settings
     externalsIconWidth = 30,
     externalsIconHeight = 30,
@@ -184,7 +205,7 @@ CDM.defaults = {
     racialsCooldownFontSize = 15,
     racialsChargePosition = "BOTTOM",
     racialsChargeOffsetX = 0,
-    racialsChargeOffsetY = 0,
+    racialsChargeOffsetY = -2,
     racialsShowItemsAtZeroStacks = false,
     racialsCustomEntries = {},
     racialsOrderPerSpec = {},
@@ -200,7 +221,7 @@ CDM.defaults = {
     defensivesCooldownFontSize = 15,
     defensivesChargePosition = "TOP",
     defensivesChargeOffsetX = 0,
-    defensivesChargeOffsetY = 0,
+    defensivesChargeOffsetY = 2,
     defensivesDisabledSpells = {},
     defensivesCustomSpells = {},
     defensivesOrder = {},

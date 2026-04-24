@@ -121,6 +121,10 @@ ns.ConfigKeys = {
                 "resourcesEnabled",
                 "resourceBarSettings",
                 "resourceGroupSettings",
+                "unifiedBorder",
+                "moveBuffsDown",
+                "moveBuffsDownOffset",
+                "moveBuffsDownFallback",
             },
         },
         racials = {

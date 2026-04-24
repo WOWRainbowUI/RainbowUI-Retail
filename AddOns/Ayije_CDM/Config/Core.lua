@@ -409,7 +409,7 @@ local function StripDefaultMatchingValues(profile)
     end
 end
 
-local DB_SCHEMA_VERSION = 15
+local DB_SCHEMA_VERSION = 21
 
 local LEGACY_RESOURCE_KEYS = {
     "resourcesBarHeight", "resourcesBar2Height", "resourcesBarWidth",
@@ -933,6 +933,11 @@ local PROFILE_MIGRATIONS = {
     {
         version = 15,
         run = function(profile)
+            if profile.castBarAnchorToResources == nil
+               and profile.castBarResourcesSpacing == nil
+               and profile.castBarContainerLocked == nil then
+                return
+            end
             if profile.castBarAnchorToResources ~= false then
                 profile.castBarAnchor       = "resources"
                 profile.castBarAnchorPoint  = "BOTTOM"
@@ -950,6 +955,110 @@ local PROFILE_MIGRATIONS = {
             profile.castBarAnchorToResources = nil
             profile.castBarResourcesSpacing  = nil
             profile.castBarContainerLocked   = nil
+        end,
+    },
+    {
+        version = 16,
+        run = function(profile)
+            local rbs = profile.resourceBarSettings
+            local mana = rbs and rbs.General and rbs.General.Mana
+            if type(mana) ~= "table" then return end
+            mana.load = mana.load or {}
+            mana.load.hideInFeralForm = true
+        end,
+    },
+    {
+        version = 19,
+        run = function(profile)
+            local rbs = profile.resourceBarSettings
+            if type(rbs) ~= "table" then return end
+            local mana = rbs.General and rbs.General.Mana
+
+            local manaAvailable = false
+            if type(mana) == "table" and mana.enabled ~= false then
+                if mana.loadMode == "always" then
+                    manaAvailable = true
+                elseif mana.loadMode ~= "never" then
+                    local loadSpec = mana.load and mana.load.spec
+                    if type(loadSpec) == "table" then
+                        for _, v in pairs(loadSpec) do
+                            if v == true then manaAvailable = true break end
+                        end
+                    end
+                end
+            end
+
+            local manaX = (mana and mana.offsetX) or 0
+            local manaY = (mana and mana.offsetY) or -200
+
+            local BARS_TO_FLIP = {
+                Essence = true, LunarPower = true,
+                SoulShards = true, ArcaneCharges = true, Maelstrom = true,
+                MaelstromWeapon = true, Insanity = true, HolyPower = true,
+            }
+            local DRUID_ONLY_FLIP = { Rage = true, Energy = true }
+
+            for classKey, classEntries in pairs(rbs) do
+                if type(classEntries) == "table" then
+                    for barKey, entry in pairs(classEntries) do
+                        local shouldFlip = BARS_TO_FLIP[barKey]
+                                       or (classKey == "DRUID" and DRUID_ONLY_FLIP[barKey])
+                        if shouldFlip and type(entry) == "table"
+                           and entry.anchorTo == nil then
+                            if manaAvailable
+                               and (entry.offsetX or 0) == manaX
+                               and (entry.offsetY or -200) == manaY then
+                                entry.anchorTo = "Mana"
+                                entry.offsetY = 1
+                            else
+                                entry.anchorTo = "screen"
+                            end
+                        end
+                    end
+                end
+            end
+        end,
+    },
+    {
+        version = 20,
+        run = function(profile)
+            local rbs = profile.resourceBarSettings
+            if type(rbs) ~= "table" then return end
+            for classKey, classEntries in pairs(rbs) do
+                if type(classEntries) == "table" and classKey ~= "DRUID" then
+                    for _, barKey in ipairs({ "Rage", "Energy" }) do
+                        local entry = classEntries[barKey]
+                        if type(entry) == "table" and entry.anchorTo == "Mana" then
+                            entry.anchorTo = nil
+                            if entry.offsetY == 1 then
+                                entry.offsetY = nil
+                            end
+                        end
+                    end
+                end
+            end
+        end,
+    },
+    {
+        version = 21,
+        run = function(profile)
+            local rgs = profile.resourceGroupSettings
+            if type(rgs) ~= "table" then return end
+            local anyUnified = false
+            for classKey, entry in pairs(rgs) do
+                if type(entry) == "table" then
+                    if entry.unifiedBorder == true then
+                        anyUnified = true
+                    end
+                    entry.unifiedBorder = nil
+                    if next(entry) == nil then
+                        rgs[classKey] = nil
+                    end
+                end
+            end
+            if anyUnified then
+                profile.unifiedBorder = true
+            end
         end,
     },
 }
@@ -1427,6 +1536,11 @@ function CDM:GetBarSettingForClass(classKey, barKey, settingKey)
         local val = bs[classKey][barKey][settingKey]
         if val ~= nil then return val end
     end
+    local pc = CDM.RESOURCE_BAR_PER_CLASS_DEFAULTS
+    if pc and pc[classKey] and pc[classKey][barKey] then
+        local val = pc[classKey][barKey][settingKey]
+        if val ~= nil then return val end
+    end
     local ds = CDM.RESOURCE_BAR_DEFAULTS
     if ds and ds[barKey] then
         return ds[barKey][settingKey]
@@ -1458,30 +1572,6 @@ end
 function CDM:SetBarSetting(barKey, settingKey, value)
     self:SetBarSettingForClass(ResolveBarClass(barKey), barKey, settingKey, value)
 end
-
-function CDM:GetGroupSetting(classKey, settingKey)
-    local g = self.db and self.db.resourceGroupSettings
-    local entry = g and g[classKey]
-    return entry and entry[settingKey]
-end
-
-function CDM:SetGroupSetting(classKey, settingKey, value)
-    if not self.db then return end
-    if not self.db.resourceGroupSettings then
-        self.db.resourceGroupSettings = {}
-    end
-    if not self.db.resourceGroupSettings[classKey] then
-        self.db.resourceGroupSettings[classKey] = {}
-    end
-    self.db.resourceGroupSettings[classKey][settingKey] = value
-end
-
-function CDM:GetGroupSettingForPlayer(settingKey)
-    return RESOURCE_PLAYER_CLASS and self:GetGroupSetting(RESOURCE_PLAYER_CLASS, settingKey)
-end
-
-
-
 
 local function RefreshBuffViewer()
     if CDM.RefreshSpecData then CDM:RefreshSpecData() end

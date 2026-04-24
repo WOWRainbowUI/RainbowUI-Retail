@@ -53,6 +53,7 @@ local feralOverflowingStacks = 0
 
 local tipOfTheSpearInstanceID
 local tipOfTheSpearStacks = 0
+local tipOfTheSpearExpirationTime
 
 local devourerResourceInstanceID
 local devourerResourceStacks = 0
@@ -494,10 +495,19 @@ local function SeedTipOfTheSpear()
     local a = GetPlayerAuraBySpellID(CDM_C.TIP_OF_THE_SPEAR_SPELL_ID)
     tipOfTheSpearInstanceID = a and a.auraInstanceID or nil
     tipOfTheSpearStacks = a and a.applications or 0
+    tipOfTheSpearExpirationTime = a and a.expirationTime or nil
 end
 
 local function UpdateTipOfTheSpearBar()
     return tipOfTheSpearStacks, res.MAX_TIP_OF_THE_SPEAR
+end
+
+function CDM:GetTipOfTheSpearStacks()
+    return tipOfTheSpearStacks
+end
+
+function CDM:GetTipOfTheSpearExpirationTime()
+    return tipOfTheSpearExpirationTime
 end
 
 local function ApplyRuneStates(bar, readyColor, rechargingColor, textEnabled)
@@ -831,6 +841,7 @@ local function OnTipOfTheSpearUnitAura(event, unit, info)
                 if IsSafeNumber(a.spellId) and a.spellId == CDM_C.TIP_OF_THE_SPEAR_SPELL_ID then
                     tipOfTheSpearInstanceID = a.auraInstanceID
                     tipOfTheSpearStacks = a.applications or 0
+                    tipOfTheSpearExpirationTime = a.expirationTime
                 end
             end
         end
@@ -839,6 +850,7 @@ local function OnTipOfTheSpearUnitAura(event, unit, info)
                 if id == tipOfTheSpearInstanceID then
                     local a = C_UnitAuras.GetAuraDataByAuraInstanceID(unit, id)
                     tipOfTheSpearStacks = a and a.applications or 0
+                    tipOfTheSpearExpirationTime = a and a.expirationTime or nil
                 end
             end
         end
@@ -847,6 +859,7 @@ local function OnTipOfTheSpearUnitAura(event, unit, info)
                 if id == tipOfTheSpearInstanceID then
                     tipOfTheSpearInstanceID = nil
                     tipOfTheSpearStacks = 0
+                    tipOfTheSpearExpirationTime = nil
                 end
             end
         end
@@ -1030,6 +1043,7 @@ local function DisableTipOfTheSpearTracking()
     res.UnregisterResUnitEvent("UNIT_AURA")
     tipOfTheSpearInstanceID = nil
     tipOfTheSpearStacks = 0
+    tipOfTheSpearExpirationTime = nil
 end
 
 local function EnableDevourerTracking()
@@ -1135,6 +1149,7 @@ local function DisableAllTrackerTickers()
     feralOverflowingStacks = 0
     tipOfTheSpearInstanceID = nil
     tipOfTheSpearStacks = 0
+    tipOfTheSpearExpirationTime = nil
     devourerResourceInstanceID = nil
     devourerResourceStacks = 0
     devourerCollapsingStarInstanceID = nil
