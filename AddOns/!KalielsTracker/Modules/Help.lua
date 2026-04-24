@@ -347,18 +347,16 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.4.0|r\n"..
-					"- ADDED (Quests) - new sorting option \"Bottom Completed quests\"\n"..
-					"- ADDED - addon support - Narcissus 1.8.5\n"..
-					offs3.."- Opens achievements from the tracker in the Narcissus window.\n"..
-					"- CHANGED (help) - Active Patrons\n"..
-					"- CHANGED - addon support - TomTom 4.2.24\n"..
-					"- CHANGED - addon support - RareScanner 12.0.1.16\n"..
-					"- CHANGED - addon support - Auctionator 319\n"..
-					"- CHANGED - Libs\n"..
-					"- FIXED - taint errors (4)\n"..
-					"- FIXED - \"Show continent achievs\" filter option does not work\n"..
-					"- REMOVED - addon support - RealUI\n"..
+					(cTitle.."Version 8.5.0|r\n"..
+					"- ADDED - TomTom - waypoint support for Vignettes (e.g. War Supply Crate)\n"..
+					"- ADDED (Scenario) - Mythic+ - configurable Enemy Forces progress formats\n"..
+					"- ADDED - support for WoW 12.0.5.67088\n"..
+					"- ADDED - support for WoW 12.0.1.66384\n"..
+					"- ADDED - support for WoW 12.0.1.66192\n"..
+					"- CHANGED (Help) - Active Patrons\n"..
+					"- CHANGED - Options - reorganize Modules and Supported addons settings\n"..
+					offs3.."- Some settings were renamed and reset to defaults.\n"..
+					"- FIXED (Achievements) - some Delve achievements not filtered by zone\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -440,7 +438,6 @@ local function SetupTutorials()
 					"a small personal project into a large time-intensive system that requires continuous work.\n\n"..
 					"Many thanks to all supporters who help keep the project alive "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
-					SetFormatedPatronName("Legendary", "Kaelandros")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Epic", "Soromeister")..
                     SetFormatedPatronName("Rare", "David Blanchard")..

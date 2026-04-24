@@ -56,7 +56,7 @@ function KT_MonthlyActivitiesObjectiveTrackerMixin:OnBlockHeaderClick(block, mou
 			rootDescription:SetTag("MENU_MONTHLY_ACTVITIES_TRACKER");
 
 			rootDescription:CreateTitle(block.name);
-			rootDescription:CreateButton(OBJECTIVES_VIEW_IN_QUESTLOG, function()
+			rootDescription:CreateButton(OBJECTIVES_VIEW_IN_TRAVELERS_LOG, function()
 				self:OpenFrameToActivity(block.id);
 			end);
 			rootDescription:CreateButton(OBJECTIVES_STOP_TRACKING, function()

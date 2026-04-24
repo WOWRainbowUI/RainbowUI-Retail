@@ -12,6 +12,7 @@
     <Script file="QuestButtons.lua"/>
     <Script file="OpenService.lua"/>
     <Script file="Menu.lua"/>
+    <Script file="ProgressBar.lua"/>
     <Script file="StaticPopup.lua"/>
     <Script file="Visibility.lua"/>
     <Script file="AddonCompartment.lua"/>

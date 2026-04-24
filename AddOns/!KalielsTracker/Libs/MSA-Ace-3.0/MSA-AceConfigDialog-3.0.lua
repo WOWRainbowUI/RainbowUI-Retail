@@ -7,7 +7,7 @@ local LibStub = LibStub
 local gui = LibStub("AceGUI-3.0")
 local reg = LibStub("AceConfigRegistry-3.0")
 
-local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 89  -- MSA
+local MAJOR, MINOR = "MSA-AceConfigDialog-3.0", 90  -- MSA
 local AceConfigDialog, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceConfigDialog then return end
@@ -870,8 +870,18 @@ local function MultiControlOnClosed(widget, event, ...)
 	end
 end
 
+-- MSA
+local function ClearTabSelection(appName, path)
+	local status = AceConfigDialog:GetStatusTable(appName, path)
+	if status.groups then
+		status.groups.selected = nil
+	end
+end
+
 local function FrameOnClose(widget, event)
 	local appName = widget:GetUserData("appName")
+	local basepath = widget:GetUserData("basepath")  -- MSA
+	ClearTabSelection(appName, basepath)             -- MSA
 	AceConfigDialog.OpenFrames[appName] = nil
 	gui:Release(widget)
 end
@@ -1942,6 +1952,8 @@ end
 
 local function ClearBlizPanel(widget, event)
 	local appName = widget:GetUserData("appName")
+	local path = widget:GetUserData("path")  -- MSA
+	ClearTabSelection(appName, path)         -- MSA
 	AceConfigDialog.frame.closing[appName] = true
 	AceConfigDialog.frame:SetScript("OnUpdate", RefreshOnUpdate)
 end

@@ -531,7 +531,7 @@ local function Filter_Quests(spec, idx)
 	KT_QuestObjectiveTracker:MarkDirty()
 	if lastSuperTrackedQuestID > 0 and QuestUtils_IsQuestWatched(lastSuperTrackedQuestID) then
 		C_SuperTrack.SetSuperTrackedQuestID(lastSuperTrackedQuestID)
-	elseif db.questAutoFocusClosest and not C_SuperTrack.IsSuperTrackingAnything() then
+	elseif db.questsAutoFocusClosest and not C_SuperTrack.IsSuperTrackingAnything() then
 		KT.QuestSuperTracking_ChooseClosestQuest()
 	end
 end
@@ -613,7 +613,7 @@ local function Filter_Achievements(spec)
 		local zoneName = zoneSlug[mapID] or KT.GetMapNameByID(mapID) or "???"
 		local zoneNameAlt = zoneAlt[mapID] or "???"
 		local categoryName, categoryNameAlt = GetCategoryByZone()
-		local instance = KT.inInstance and 168 or nil
+		local instance = (KT.inInstance or KT.inScenario) and 168 or nil
         local showContinent = dbChar.filter.achievements.showContinent
 		--_DBG(continentName.." / "..zoneName.." ("..zoneNameAlt..") ... "..mapID.." ... "..categoryName.." ("..categoryNameAlt..")", true)
 
@@ -833,7 +833,7 @@ end
 
 local function Filter_Menu_Quests(self, spec, idx)
 	Filter_Quests(spec, idx)
-	if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
+	if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 		KT.QuestSuperTracking_ChooseClosestQuest()
 	end
 end
@@ -847,7 +847,7 @@ local function Filter_Menu_AutoTrack(self, id, spec)
 	if dbChar.filterAuto[id] then
 		if id == 1 then
 			Filter_Quests(spec)
-			if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
+			if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 				KT.QuestSuperTracking_ChooseClosestQuest()
 			end
 		elseif id == 2 then

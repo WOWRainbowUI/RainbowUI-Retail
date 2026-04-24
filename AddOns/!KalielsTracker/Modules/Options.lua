@@ -914,55 +914,14 @@ local options = {
 						sec4SpacerMid1 = {
 							name = " ",
 							type = "description",
-							order = 3.5,
-						},
-						hdrQuestsTitleAppend = {
-							name = "Show number of Quests",
-							desc = "Show number of Quests inside the Quests header.",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.hdrQuestsTitleAppend = not db.hdrQuestsTitleAppend
-								KT:SetQuestsHeaderText(true)
-							end,
 							order = 4,
-						},
-						hdrAchievsTitleAppend = {
-							name = "Show Achievement points",
-							desc = "Show Achievement points inside the Achievements header.",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.hdrAchievsTitleAppend = not db.hdrAchievsTitleAppend
-								KT:SetAchievsHeaderText(true)
-							end,
-							order = 5,
-						},
-						hdrPetTrackerTitleAppend = {  -- Addon - PetTracker
-							name = "Show number of owned Pets",
-							desc = "Show number of owned Pets inside the PetTracker header.",
-							type = "toggle",
-							width = "normal+half",
-							disabled = function()
-								return not KT.AddonPetTracker.isAvailable
-							end,
-							set = function()
-								db.hdrPetTrackerTitleAppend = not db.hdrPetTrackerTitleAppend
-								KT.AddonPetTracker:SetPetsHeaderText(true)
-							end,
-							order = 6,
-						},
-						sec4SpacerMid2 = {
-							name = " ",
-							type = "description",
-							order = 7,
 						},
 						hdrCollapsedTxtLabel = {
 							name = " Collapsed tracker text",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 9,
+							order = 5,
 						},
 						hdrCollapsedTxt1 = {
 							name = "None",
@@ -976,7 +935,7 @@ local options = {
 								db.hdrCollapsedTxt = 1
 								OTF:Update()
 							end,
-							order = 9.1,
+							order = 5.1,
 						},
 						hdrCollapsedTxt2 = {
 							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t "..KT.TITLE,
@@ -989,12 +948,12 @@ local options = {
 								db.hdrCollapsedTxt = 2
 								OTF:Update()
 							end,
-							order = 9.2,
+							order = 5.2,
 						},
 						sec4SpacerMid3 = {
 							name = " ",
 							type = "description",
-							order = 10,
+							order = 6,
 						},
 						hdrOtherButtons = {
 							name = "Show Quest Log and Achievements buttons",
@@ -1006,7 +965,7 @@ local options = {
 								KT:SetBackground()
                                 KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 11,
+							order = 7,
 						},
 					},
 				},
@@ -1104,199 +1063,11 @@ local options = {
 					inline = true,
 					order = 6,
 					args = {
-						tooltipTitle = {
-							name = cTitle.."Tooltips",
-							type = "description",
-							fontSize = "medium",
-							order = 2,
-						},
-						tooltipShow = {
-							name = "Show tooltips",
-							desc = "Show Quest / World Quest / Achievement / Scenario tooltips.",
-							type = "toggle",
-							set = function()
-								db.tooltipShow = not db.tooltipShow
-							end,
-							order = 2.1,
-						},
-						tooltipShowRewards = {
-							name = "Show Rewards",
-							desc = "Show Quest Rewards inside tooltips - Artifact Power, Order Resources, Money, Equipment etc.",
-							type = "toggle",
-							disabled = function()
-								return not db.tooltipShow
-							end,
-							set = function()
-								db.tooltipShowRewards = not db.tooltipShowRewards
-							end,
-							order = 2.2,
-						},
-						tooltipShowID = {
-							name = "Show ID",
-							desc = "Show Quest / World Quest / Achievement ID inside tooltips.",
-							type = "toggle",
-							disabled = function()
-								return not db.tooltipShow
-							end,
-							set = function()
-								db.tooltipShowID = not db.tooltipShowID
-							end,
-							order = 2.3,
-						},
-						menuTitle = {
-							name = "\n"..cTitle.."Menu items",
-							type = "description",
-							fontSize = "medium",
-							order = 3,
-						},
-                        menuWowheadURL = {
-							name = "Wowhead URL",
-							desc = "Show Wowhead URL menu item inside the tracker and Quest Log.",
-							type = "toggle",
-							set = function()
-								db.menuWowheadURL = not db.menuWowheadURL
-							end,
-							order = 3.1,
-						},
-                        menuWowheadURLModifier = {
-							name = "Wowhead URL click modifier",
-							type = "select",
-							values = modifiers,
-							get = function()
-								for k, v in pairs(modifiers) do
-									if db.menuWowheadURLModifier == k then
-										return k
-									end
-								end
-							end,
-							set = function(_, value)
-								db.menuWowheadURLModifier = value
-							end,
-							order = 3.2,
-						},
-						menuWowheadURLSpacer = {
-							name = " ",
-							type = "description",
-							width = "normal",
-							order = 3.3,
-						},
-						menuYouTubeURL = {
-							name = "YouTube Search URL",
-							desc = "Show YouTube Search URL menu item inside the tracker and Quest Log.",
-							type = "toggle",
-							set = function()
-								db.menuYouTubeURL = not db.menuYouTubeURL
-							end,
-							order = 3.4,
-						},
-						menuYouTubeURLModifier = {
-							name = "YouTube Search URL click modifier",
-							type = "select",
-							values = modifiers,
-							get = function()
-								for k, v in pairs(modifiers) do
-									if db.menuYouTubeURLModifier == k then
-										return k
-									end
-								end
-							end,
-							set = function(_, value)
-								db.menuYouTubeURLModifier = value
-							end,
-							order = 3.5,
-						},
-                        questTitle = {
-                            name = cTitle.."\n Quests",
-                            type = "description",
-                            fontSize = "medium",
-                            order = 4,
-                        },
-                        questShowTags = {
-							name = "Show Quest tags",
-							desc = "Show / Hide Quest tags (quest level, quest type) inside the tracker.",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.questShowTags = not db.questShowTags
-								OTF:Update()
-							end,
-							order = 4.1,
-						},
-						questShowZones = {
-							name = "Show Quest Zones",
-							desc = "Show / Hide Quest Zones inside the tracker.",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.questShowZones = not db.questShowZones
-								OTF:Update()
-							end,
-							order = 4.2,
-						},
-						taskShowFactions = {
-							name = "Show World Quest Factions",
-							desc = "Show / Hide World Quest Factions inside the tracker.",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.taskShowFactions = not db.taskShowFactions
-								OTF:Update()
-							end,
-							order = 4.3,
-						},
-						questAutoTrack = {
-							name = "Auto Quest tracking",
-							desc = "Quests are automatically watched when accepted. Uses Blizzard's value \"autoQuestWatch\".\n"..warning,
-							type = "toggle",
-							width = "normal+half",
-							confirm = true,
-							confirmText = warning,
-							get = function()
-								return GetCVarBool("autoQuestWatch")
-							end,
-							set = function(_, value)
-								SetCVar("autoQuestWatch", value)
-								ReloadUI()
-							end,
-							order = 4.4,
-						},
-						questProgressAutoTrack = {
-							name = "Auto Quest progress tracking",
-							desc = "Quests are automatically watched when progress updated. Uses Blizzard's value \"autoQuestProgress\".\n"..warning,
-							type = "toggle",
-							width = "normal+half",
-							confirm = true,
-							confirmText = warning,
-							get = function()
-								return GetCVarBool("autoQuestProgress")
-							end,
-							set = function(_, value)
-								SetCVar("autoQuestProgress", value)
-								ReloadUI()
-							end,
-							order = 4.5,
-						},
-						questAutoFocusClosest = {
-							name = "Auto focus closest Quest                            ",  -- space for a wider tooltip
-							desc = "Closest Quest is automatically focussed in specific situations:\n"..
-									"- Quest was turned in and was focused,\n"..
-									"- Quest was abandoned and was focused,\n"..
-									"- Quest was untracked and was focused,\n"..
-									"- World Quest was untracked and was focus,\n"..
-									"- you manually or automatically select a Zone Filter and nothing is focused.",
-							type = "toggle",
-							width = "normal+half",
-                            disabled = true,
-							set = function()
-								db.questAutoFocusClosest = not db.questAutoFocusClosest
-							end,
-							order = 4.6,
-						},
                         questLogTitle = {
-                            name = cTitle.."\n Quest Log",
+                            name = cTitle.."Quest Log",
                             type = "description",
                             fontSize = "medium",
-                            order = 5,
+                            order = 1,
                         },
                         questLogShowDetails = {
                             name = "Show Quest Details on World Map "..experimental,
@@ -1306,23 +1077,7 @@ local options = {
                             set = function()
                                 db.questLogShowDetails = not db.questLogShowDetails
                             end,
-                            order = 5.1,
-                        },
-                        achievTitle = {
-                            name = cTitle.."\n Achievements",
-                            type = "description",
-                            fontSize = "medium",
-                            order = 6,
-                        },
-                        achievProgressAutoTrack = {
-                            name = "Auto Achievement progress tracking",
-                            desc = "Achievements are automatically watched when progress updated.",
-                            type = "toggle",
-                            width = "normal+half",
-                            set = function()
-                                db.achievProgressAutoTrack = not db.achievProgressAutoTrack
-                            end,
-                            order = 6.1,
+                            order = 1.1,
                         },
 					},
 				},
@@ -1604,11 +1359,11 @@ local options = {
 		modules = {
 			name = "Modules",
 			type = "group",
+			childGroups = "tab",
 			args = {
 				sec1 = {
-					name = "Order of Modules",
+					name = "Order",
 					type = "group",
-					inline = true,
 					order = 1,
 					args = {
 						descCurOrder = {
@@ -1632,211 +1387,546 @@ local options = {
 						},
 					},
 				},
+				sec2 = {
+					name = "General",
+					type = "group",
+					order = 2,
+					args = {
+						tooltip = {
+							name = "Tooltips",
+							type = "group",
+							inline = true,
+							order = 1,
+							args = {
+								tooltipShow = {
+									name = "Show tooltips",
+									desc = "Show Quest / World Quest / Achievement / Scenario tooltips.",
+									type = "toggle",
+									set = function()
+										db.tooltipShow = not db.tooltipShow
+									end,
+									order = 1.1,
+								},
+								tooltipShowRewards = {
+									name = "Show Rewards",
+									desc = "Show Quest Rewards inside tooltips - Artifact Power, Order Resources, Money, Equipment etc.",
+									type = "toggle",
+									disabled = function()
+										return not db.tooltipShow
+									end,
+									set = function()
+										db.tooltipShowRewards = not db.tooltipShowRewards
+									end,
+									order = 1.2,
+								},
+								tooltipShowID = {
+									name = "Show ID",
+									desc = "Show Quest / World Quest / Achievement ID inside tooltips.",
+									type = "toggle",
+									disabled = function()
+										return not db.tooltipShow
+									end,
+									set = function()
+										db.tooltipShowID = not db.tooltipShowID
+									end,
+									order = 1.3,
+								},
+							},
+						},
+						contextMenu = {
+							name = "Context Menu",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								menuWowheadURL = {
+									name = "Wowhead URL",
+									desc = "Show Wowhead URL menu item inside the tracker and Quest Log.",
+									type = "toggle",
+									set = function()
+										db.menuWowheadURL = not db.menuWowheadURL
+									end,
+									order = 1.1,
+								},
+								menuWowheadURLModifierLabel = {
+									name = "Click modifier",
+									type = "description",
+									width = 0.6,
+									fontSize = "medium",
+									justifyH = "RIGHT",
+									order = 1.2,
+								},
+								menuWowheadURLModifier = {
+									name = "",
+									type = "select",
+									values = modifiers,
+									get = function()
+										for k, v in pairs(modifiers) do
+											if db.menuWowheadURLModifier == k then
+												return k
+											end
+										end
+									end,
+									set = function(_, value)
+										db.menuWowheadURLModifier = value
+									end,
+									order = 1.3,
+								},
+								menuYouTubeURL = {
+									name = "YouTube Search URL",
+									desc = "Show YouTube Search URL menu item inside the tracker and Quest Log.",
+									type = "toggle",
+									set = function()
+										db.menuYouTubeURL = not db.menuYouTubeURL
+									end,
+									order = 2.1,
+								},
+								menuYouTubeURLModifierLabel = {
+									name = "Click modifier",
+									type = "description",
+									width = 0.6,
+									fontSize = "medium",
+									justifyH = "RIGHT",
+									order = 2.2,
+								},
+								menuYouTubeURLModifier = {
+									name = "",
+									type = "select",
+									values = modifiers,
+									get = function()
+										for k, v in pairs(modifiers) do
+											if db.menuYouTubeURLModifier == k then
+												return k
+											end
+										end
+									end,
+									set = function(_, value)
+										db.menuYouTubeURLModifier = value
+									end,
+									order = 2.3,
+								},
+							},
+						},
+					},
+				},
+				sec3 = {
+					name = "Quests",
+					type = "group",
+					order = 3,
+					args = {
+						header = {
+							name = "Header",
+							type = "group",
+							inline = true,
+							order = 1,
+							args = {
+								questsHeaderAppend = {
+									name = "Show number of Quests",
+									desc = "Show number of Quests inside the Quests header.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsHeaderAppend = not db.questsHeaderAppend
+										KT:SetQuestsHeaderText(true)
+									end,
+									order = 1,
+								},
+							},
+						},
+						contentQuests = {
+							name = "Quests Content",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								questsShowTags = {
+									name = "Show Quest Tags",
+									desc = "Show / Hide Quest Tags (quest level, quest type) inside the tracker.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsShowTags = not db.questsShowTags
+										OTF:Update()
+									end,
+									order = 1,
+								},
+								questsShowZone = {
+									name = "Show Quest Zone",
+									desc = "Show / Hide Quest Zone inside the tracker.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsShowZone = not db.questsShowZone
+										OTF:Update()
+									end,
+									order = 2,
+								},
+								questAutoTrack = {
+									name = "Auto Quest tracking",
+									desc = "Quests are automatically watched when accepted. Uses Blizzard's value \"autoQuestWatch\".\n"..warning,
+									type = "toggle",
+									width = "normal+half",
+									confirm = true,
+									confirmText = warning,
+									get = function()
+										return GetCVarBool("autoQuestWatch")
+									end,
+									set = function(_, value)
+										SetCVar("autoQuestWatch", value)
+										ReloadUI()
+									end,
+									order = 3,
+								},
+								questProgressAutoTrack = {
+									name = "Auto Quest progress tracking",
+									desc = "Quests are automatically watched when progress updated. Uses Blizzard's value \"autoQuestProgress\".\n"..warning,
+									type = "toggle",
+									width = "normal+half",
+									confirm = true,
+									confirmText = warning,
+									get = function()
+										return GetCVarBool("autoQuestProgress")
+									end,
+									set = function(_, value)
+										SetCVar("autoQuestProgress", value)
+										ReloadUI()
+									end,
+									order = 4,
+								},
+								questsAutoFocusClosest = {
+									name = "Auto focus closest Quest                            ",  -- space for a wider tooltip
+									--[[desc = "Closest Quest is automatically focussed in specific situations:\n"..
+											"- Quest was turned in and was focused,\n"..
+											"- Quest was abandoned and was focused,\n"..
+											"- Quest was untracked and was focused,\n"..
+											"- World Quest was untracked and was focus,\n"..
+											"- you manually or automatically select a Zone Filter and nothing is focused.",]]
+									desc = cWarning2.."(Temporarily disabled)",
+									descStyle = "inline",
+									type = "toggle",
+									width = "normal+half",
+									disabled = true,
+									set = function()
+										db.questsAutoFocusClosest = not db.questsAutoFocusClosest
+									end,
+									order = 5,
+								},
+							},
+						},
+						contentWorldQuests = {
+							name = "World Quests Content",
+							type = "group",
+							inline = true,
+							order = 3,
+							args = {
+								tasksShowFaction = {
+									name = "Show World Quest Faction",
+									desc = "Show / Hide World Quest Faction inside the tracker.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.tasksShowFaction = not db.tasksShowFaction
+										OTF:Update()
+									end,
+									order = 1,
+								},
+							},
+						},
+					},
+				},
+				sec4 = {
+					name = "Achievements",
+					type = "group",
+					order = 4,
+					args = {
+						header = {
+							name = "Header",
+							type = "group",
+							inline = true,
+							order = 1,
+							args = {
+								achievsHeaderAppend = {
+									name = "Show Achievement points",
+									desc = "Show Achievement points inside the Achievements header.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.achievsHeaderAppend = not db.achievsHeaderAppend
+										KT:SetAchievsHeaderText(true)
+									end,
+									order = 1,
+								},
+							},
+						},
+						content = {
+							name = "Content",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								achievsProgressAutoTrack = {
+									name = "Auto Achievement progress tracking",
+									desc = "Achievements are automatically watched when progress updated.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.achievsProgressAutoTrack = not db.achievsProgressAutoTrack
+									end,
+									order = 1,
+								},
+							},
+						},
+					},
+				},
+				sec5 = {
+					name = "Scenario",
+					type = "group",
+					order = 5,
+					args = {
+						contentMythicPlus = {
+							name = "Mythic+ Content",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								scenarioEnemyForcesFormatLabel = {
+									name = " Enemy Forces Format",
+									type = "description",
+									width = "normal",
+									fontSize = "medium",
+									order = 1.1,
+								},
+								scenarioEnemyForcesFormat = {
+									name = "",
+									type = "select",
+									width = 1.21,
+									values = function()
+										return KT.ProgressBar_GetFormatOptions()
+									end,
+									set = function(_, value)
+										db.scenarioEnemyForcesFormat = value
+										KT_ScenarioObjectiveTracker:MarkDirty()
+									end,
+									order = 1.2,
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 		addons = {
 			name = "Supported addons",
 			type = "group",
+			childGroups = "tab",
 			args = {
-				desc = {
-					name = "|cff00d200Green|r - compatible version - this version was tested and support is inserted.\n"..
-							"|cffff0000Red|r - incompatible version - this version wasn't tested, maybe will need some code changes.\n"..
-							"Please report all problems.",
-					type = "description",
-					order = 0,
-				},
-				sec1 = {
-					name = "Addons",
+				general = {
+					name = "General",
 					type = "group",
-					inline = true,
 					order = 1,
 					args = {
-                        addonAuctionator = {
-                            name = "Auctionator",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("Auctionator")
-                            end,
-                            set = function()
-                                db.addonAuctionator = not db.addonAuctionator
-                                ReloadUI()
-                            end,
-                            order = 1.1,
-                        },
-                        addonAuctionatorDesc = {
-                            name = "Enables an Auctionator search button inside the Profession module header.",
-                            type = "description",
-                            width = "double",
-                            order = 1.2,
-                        },
-                        addonBtWQuests = {
-                            name = "BtWQuests",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("BtWQuests")
-                            end,
-                            set = function()
-                                db.addonBtWQuests = not db.addonBtWQuests
-                                ReloadUI()
-                            end,
-                            order = 2.1,
-                        },
-                        addonBtWQuestsDesc = {
-                            name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
-                            type = "description",
-                            width = "double",
-                            order = 2.2,
-                        },
-						addonMasque = {
-							name = "Masque",
-							desc = "Version: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return (not C_AddOns.IsAddOnLoaded("Masque") or not KT.AddonOthers:IsEnabled())
-							end,
-							set = function()
-								db.addonMasque = not db.addonMasque
-								ReloadUI()
-							end,
-							order = 3.1,
-						},
-						addonMasqueDesc = {
-							name = "Enables skinning of Quest Item buttons and the Active Button.",
+						desc = {
+							name = " |cff00d200Green|r - compatible version - this version was tested and support is inserted.\n"..
+									" |cffff0000Red|r - incompatible version - this version wasn't tested, maybe will need some code changes.\n"..
+									" Please report all problems.",
 							type = "description",
-							width = "double",
-							order = 3.2,
+							order = 0,
 						},
-                        addonNarcissus = {
-                            name = "Narcissus",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("Narcissus")
-                            end,
-                            set = function()
-                                db.addonNarcissus = not db.addonNarcissus
-                                ReloadUI()
-                            end,
-                            order = 4.1,
-                        },
-                        addonNarcissusDesc = {
-                            name = "Opens achievements from the tracker in the Narcissus window.",
-                            type = "description",
-                            width = "double",
-                            order = 4.2,
-                        },
-						addonPetTracker = {
-							name = "PetTracker",
-							desc = "Version: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("PetTracker")
-							end,
-							set = function()
-								db.addonPetTracker = not db.addonPetTracker
-								if PetTracker.sets then
-									PetTracker.sets.zoneTracker = db.addonPetTracker
-								end
-								ReloadUI()
-							end,
-							order = 5.1,
-						},
-						addonPetTrackerDesc = {
-							name = "Enables display of zone pet tracking inside the tracker and fixes some visual issues.",
-							type = "description",
-							width = "double",
-							order = 5.2,
-						},
-                        addonRareScanner = {
-                            name = "RareScanner",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("RareScanner")
-                            end,
-                            set = function()
-                                db.addonRareScanner = not db.addonRareScanner
-                                ReloadUI()
-                            end,
-                            order = 6.1,
-                        },
-                        addonRareScannerDesc = {
-                            name = "Enables display of detected Rare NPCs inside the tracker.",
-                            type = "description",
-                            width = "double",
-                            order = 6.2,
-                        },
-						addonTomTom = {
-							name = "TomTom",
-							desc = "Version: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("TomTom")
-							end,
-							set = function()
-								db.addonTomTom = not db.addonTomTom
-								ReloadUI()
-							end,
-							order = 7.1,
-						},
-						addonTomTomDesc = {
-							name = "Enables integration of Blizzard's POI with TomTom's Arrow for better navigation.",
-							type = "description",
-							width = "double",
-							order = 7.2,
-						},
-					},
-				},
-				sec2 = {
-					name = "User Interfaces",
-					type = "group",
-					inline = true,
-					order = 2,
-					args = {
-						elvui = {
-							name = "ElvUI",
-							type = "toggle",
-							disabled = true,
+						sec1 = {
+							name = "Addons",
+							type = "group",
+							inline = true,
 							order = 1,
+							args = {
+								addonAuctionator = {
+									name = "Auctionator",
+									desc = "Version: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("Auctionator")
+									end,
+									set = function()
+										db.addonAuctionator = not db.addonAuctionator
+										ReloadUI()
+									end,
+									order = 1.1,
+								},
+								addonAuctionatorDesc = {
+									name = "Enables an Auctionator search button inside the Profession module header.",
+									type = "description",
+									width = "double",
+									order = 1.2,
+								},
+								addonBtWQuests = {
+									name = "BtWQuests",
+									desc = "Version: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("BtWQuests")
+									end,
+									set = function()
+										db.addonBtWQuests = not db.addonBtWQuests
+										ReloadUI()
+									end,
+									order = 2.1,
+								},
+								addonBtWQuestsDesc = {
+									name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
+									type = "description",
+									width = "double",
+									order = 2.2,
+								},
+								addonMasque = {
+									name = "Masque",
+									desc = "Version: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return (not C_AddOns.IsAddOnLoaded("Masque") or not KT.AddonOthers:IsEnabled())
+									end,
+									set = function()
+										db.addonMasque = not db.addonMasque
+										ReloadUI()
+									end,
+									order = 3.1,
+								},
+								addonMasqueDesc = {
+									name = "Enables skinning of Quest Item buttons and the Active Button.",
+									type = "description",
+									width = "double",
+									order = 3.2,
+								},
+								addonNarcissus = {
+									name = "Narcissus",
+									desc = "Version: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("Narcissus")
+									end,
+									set = function()
+										db.addonNarcissus = not db.addonNarcissus
+										ReloadUI()
+									end,
+									order = 4.1,
+								},
+								addonNarcissusDesc = {
+									name = "Opens achievements from the tracker in the Narcissus window.",
+									type = "description",
+									width = "double",
+									order = 4.2,
+								},
+								addonPetTracker = {
+									name = "PetTracker",
+									desc = "Version: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("PetTracker")
+									end,
+									set = function()
+										db.addonPetTracker = not db.addonPetTracker
+										if PetTracker.sets then
+											PetTracker.sets.zoneTracker = db.addonPetTracker
+										end
+										ReloadUI()
+									end,
+									order = 5.1,
+								},
+								addonPetTrackerDesc = {
+									name = "Enables display of zone pet tracking inside the tracker and fixes some visual issues.",
+									type = "description",
+									width = "double",
+									order = 5.2,
+								},
+								addonRareScanner = {
+									name = "RareScanner",
+									desc = "Version: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("RareScanner")
+									end,
+									set = function()
+										db.addonRareScanner = not db.addonRareScanner
+										ReloadUI()
+									end,
+									order = 6.1,
+								},
+								addonRareScannerDesc = {
+									name = "Enables display of detected Rare NPCs inside the tracker.",
+									type = "description",
+									width = "double",
+									order = 6.2,
+								},
+								addonTomTom = {
+									name = "TomTom",
+									desc = "Version: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("TomTom")
+									end,
+									set = function()
+										db.addonTomTom = not db.addonTomTom
+										ReloadUI()
+									end,
+									order = 7.1,
+								},
+								addonTomTomDesc = {
+									name = "Enables integration of Blizzard's POI with TomTom's Arrow for better navigation.",
+									type = "description",
+									width = "double",
+									order = 7.2,
+								},
+							},
 						},
-						tukui = {
-							name = "Tukui",
-							type = "toggle",
-							disabled = true,
+						sec2 = {
+							name = "User Interfaces",
+							type = "group",
+							inline = true,
 							order = 2,
+							args = {
+								elvui = {
+									name = "ElvUI",
+									type = "toggle",
+									disabled = true,
+									order = 1,
+								},
+								tukui = {
+									name = "Tukui",
+									type = "toggle",
+									disabled = true,
+									order = 2,
+								},
+							},
 						},
 					},
 				},
+				-- addon options
 			},
 		},
 		hacks = {
@@ -1873,10 +1963,10 @@ function KT:CheckAddOn(addon, version, isUI)
 		result = true
 	end
 	if not isUI then
-		opt =  addons.args.sec1.args["addon"..name]
+		opt =  addons.args.general.args.sec1.args["addon"..name]
 		opt.desc = opt.desc:format(ver)
 	else
-		opt =  addons.args.sec2.args[strlower(name)]
+		opt =  addons.args.general.args.sec2.args[strlower(name)]
 		opt.name = opt.name..ver
 		opt.disabled = not result
 		opt.get = function() return result end
@@ -2251,7 +2341,7 @@ function M:OnInitialize()
 	dbChar = KT.db.char
     self.isAvailable = true
 
-    db.questAutoFocusClosest = false
+    db.questsAutoFocusClosest = false
 end
 
 function M:OnEnable()

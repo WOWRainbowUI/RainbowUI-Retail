@@ -27,7 +27,8 @@ local db, dbChar
 local tomtomArrow
 local questWaypoint
 local userWaypointID = 999999
-local superTrackedQuestID = 0
+local superTrackedID
+local ticker = {}
 local stopUpdate = false
 local autoQuestWatch = GetCVarBool("autoQuestWatch")
 
@@ -39,51 +40,58 @@ local OTF = KT_ObjectiveTrackerFrame
 -- Internal ------------------------------------------------------------------------------------------------------------
 
 local function SetupOptions()
-	if KT.optionsFrame then
-		KT.options.args.tomtom = {
-			name = "TomTom",
-			type = "group",
-			args = {
-				tomtomDesc = {
-					name = "TomTom support combines Blizzard's POI and TomTom's arrow.\n\n"..
-							"|cffff7f00Warning:|r Original \"TomTom > Quest Objectives\" options are ignored!\n\n\n"..
-							"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-							"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   Active POI button with TomTom waypoint.\n"..
-							"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
-							"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   Active POI button without TomTom waypoint (no data).",
-					type = "description",
-					order = 1,
-				},
-                tomtomArrow = {
-                    name = cTitle.."TomTom arrow",
-                    type = "description",
-                    fontSize = "medium",
-                    order = 2,
-                },
-                tomtomArrowDesc = {
-                    name = "- "..cBold.."Left Click|r - opens World Map.\n"..
-                            "- "..cBold.."Right Click|r - removes the waypoint from the arrow, clears the POI selection\n"..
-                            "   and deletes the waypoint (if created by "..KT.TITLE..").\n"..
-                            "- "..cBold.."Shift + Right Click|r - opens the TomTom context menu.\n\n",
-                    type = "description",
-                    order = 3,
-                },
-				tomtomArrival = {
-					name = "Arrival distance",
-					type = "range",
-					min = 0,
-					max = 150,
-					step = 5,
-					set = function(_, value)
-						db.tomtomArrival = value
-					end,
-					order = 4,
+	KT.options.args.addons.args.tomtom = {
+		name = "TomTom",
+		type = "group",
+		order = 7,
+		args = {
+			info = {
+				name = "Info",
+				type = "group",
+				inline = true,
+				order = 1,
+				args = {
+					tomtomDesc = {
+						name = " TomTom support combines Blizzard's POI and TomTom's arrow.\n\n"..
+								" |cffff7f00Warning:|r Original \"TomTom > Quest Objectives\" options are ignored!\n\n\n"..
+								"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
+								"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:0:16:0:16|t...   Active POI button with TomTom waypoint.\n"..
+								"|TInterface\\WorldMap\\UI-QuestPoi-NumberIcons:32:32:-2:10:256:256:128:160:96:128|t+"..
+								"|T"..KT.MEDIA_PATH.."KT-TomTomTag:32:32:-8:10:32:16:16:32:0:16|t...   Active POI button without TomTom waypoint (no data).",
+						type = "description",
+						order = 1,
+					},
 				},
 			},
-		}
-
-		KT.optionsFrame.tomtom = ACD:AddToBlizOptions(addonName, "Addon - "..KT.options.args.tomtom.name, KT.optionsFrame.general.name, "tomtom")
-	end
+			tomtomArrow = {
+				name = "TomTom Arrow",
+				type = "group",
+				inline = true,
+				order = 2,
+				args = {
+					tomtomArrowDesc = {
+						name = " - "..cBold.."Left Click|r - opens World Map.\n"..
+								" - "..cBold.."Right Click|r - removes the waypoint from the arrow, clears the POI selection\n"..
+								"    and deletes the waypoint (if created by "..KT.TITLE..").\n"..
+								" - "..cBold.."Shift + Right Click|r - opens the TomTom context menu.\n\n",
+						type = "description",
+						order = 1,
+					},
+					tomtomArrival = {
+						name = "Arrival distance",
+						type = "range",
+						min = 0,
+						max = 150,
+						step = 5,
+						set = function(_, value)
+							db.tomtomArrival = value
+						end,
+						order = 2,
+					},
+				},
+			},
+		},
+	}
 
 	-- Reverts the option to display Quest Objectives
 	if not GetCVarBool("questPOI") then
@@ -179,10 +187,10 @@ local function TaskQuestPOIGetIconInfo(questID)
 	return mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
-local function UserWaypointGetIconInfo()
+local function UserWaypointGetIconInfo(ignoreUI)
 	local x, y, waypointMapID, waypointText, fakeData
 	local mapID = dbChar.waypoint.mapID
-	if WorldMapFrame:IsShown() then
+	if not ignoreUI and WorldMapFrame:IsShown() then
 		mapID = WorldMapFrame:GetMapID()
 		mapID = GetMapIDByCursor(mapID)
 	end
@@ -196,10 +204,10 @@ local function UserWaypointGetIconInfo()
 	return mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
-local function AreaPOIGetIconInfo(id)
+local function AreaPOIGetIconInfo(id, ignoreUI)
 	local title, x, y, waypointMapID, waypointText, fakeData
 	local mapID = dbChar.waypoint.mapID > 0 and dbChar.waypoint.mapID or C_EventScheduler.GetEventUiMapID(id)
-	if WorldMapFrame:IsShown() then
+	if not ignoreUI and WorldMapFrame:IsShown() then
 		mapID = WorldMapFrame:GetMapID()
 		mapID = GetMapIDByCursor(mapID)
 	end
@@ -220,10 +228,10 @@ local function AreaPOIGetIconInfo(id)
 	return title, mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
-local function QuestOfferGetIconInfo(id)
+local function QuestOfferGetIconInfo(id, ignoreUI)
 	local title, x, y, waypointMapID, waypointText, fakeData
 	local mapID = dbChar.waypoint.mapID
-	if WorldMapFrame:IsShown() then
+	if not ignoreUI and WorldMapFrame:IsShown() then
 		mapID = WorldMapFrame:GetMapID()
 		mapID = GetMapIDByCursor(mapID)
 	end
@@ -243,10 +251,10 @@ local function QuestOfferGetIconInfo(id)
 	return title, mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
-local function TaxiNodeGetIconInfo(id)
+local function TaxiNodeGetIconInfo(id, ignoreUI)
 	local title, x, y, waypointMapID, waypointText, fakeData
 	local mapID = dbChar.waypoint.mapID
-	if WorldMapFrame:IsShown() then
+	if not ignoreUI and WorldMapFrame:IsShown() then
 		mapID = WorldMapFrame:GetMapID()
 		mapID = GetMapIDByCursor(mapID)
 	end
@@ -261,10 +269,10 @@ local function TaxiNodeGetIconInfo(id)
 	return title, mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
-local function DigSiteGetIconInfo(id)
+local function DigSiteGetIconInfo(id, ignoreUI)
 	local title, x, y, waypointMapID, waypointText, fakeData
 	local mapID = dbChar.waypoint.mapID
-	if WorldMapFrame:IsShown() then
+	if not ignoreUI and WorldMapFrame:IsShown() then
 		mapID = WorldMapFrame:GetMapID()
 		mapID = GetMapIDByCursor(mapID)
 	end
@@ -279,10 +287,10 @@ local function DigSiteGetIconInfo(id)
 	return title, mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
-local function HousingPlotGetIconInfo(id)
+local function HousingPlotGetIconInfo(id, ignoreUI)
     local title, x, y, waypointMapID, waypointText, fakeData
     local mapID = dbChar.waypoint.mapID
-    if WorldMapFrame:IsShown() then
+    if not ignoreUI and WorldMapFrame:IsShown() then
         mapID = WorldMapFrame:GetMapID()
         mapID = GetMapIDByCursor(mapID)
     end
@@ -335,6 +343,33 @@ local function ContentGetIconInfo(type, id)
 	return title, mapID, x, y, waypointMapID, waypointText, fakeData
 end
 
+local function VignetteGetIconInfo(guid, ignoreUI)
+	local title, x, y, waypointMapID, waypointText, fakeData
+	local mapID = dbChar.waypoint.mapID
+	if not ignoreUI and WorldMapFrame:IsShown() then
+		mapID = WorldMapFrame:GetMapID()
+		mapID = GetMapIDByCursor(mapID)
+	end
+
+	local info = C_VignetteInfo.GetVignetteInfo(guid)
+	if info then
+		if info.atlasName then
+			local width, height, offsetX, offsetY = 18, 18, -3, 0
+			local atlas = KT.GetPoiIcon(info.atlasName, "atlas") or info.atlasName
+			title = CreateAtlasMarkup(atlas, width, height, offsetX, offsetY)..info.name
+		else
+			title = info.name
+		end
+		local position = C_VignetteInfo.GetVignettePosition(guid, mapID)
+		if position then
+			x, y = position:GetXY()
+		end
+	end
+
+	mapID, x, y, waypointMapID, waypointText, fakeData = NormalizePOIData(mapID, x, y)
+	return title, mapID, x, y, waypointMapID, waypointText, fakeData
+end
+
 local function SetWaypointTag(button, show)
 	local tag = button.Display.KTtomtom
 	if not tag then return end
@@ -381,13 +416,30 @@ local function SetCharWaypointData(stype, id, type, mapID)
 	if not dbChar.waypoint then return end  -- WTF - because some addons create stupid things during PLAYER_LOGOUT
 
 	dbChar.waypoint.stype = stype
-	dbChar.waypoint.id = id or 0
+	dbChar.waypoint.id = id
 	dbChar.waypoint.type = type
 	dbChar.waypoint.mapID = mapID or 0
 end
 
-local function AddWaypoint(id, type)
-	if C_QuestLog.IsQuestCalling(id) then
+local function AddTicker(id, func, seconds)
+	if not ticker[id] then
+		ticker[id] = C_Timer.NewTicker(seconds or 0.5, function()
+			if id == superTrackedID then
+				func()
+			end
+		end)
+	end
+end
+
+local function RemoveTicker(id)
+	if ticker[id] then
+		ticker[id]:Cancel()
+		ticker[id] = nil
+	end
+end
+
+local function AddWaypoint(id, pinType, force)
+	if type(id) == "number" and C_QuestLog.IsQuestCalling(id) then
 		return false
 	end
 
@@ -406,22 +458,24 @@ local function AddWaypoint(id, type)
 	elseif superTrackingType == Enum.SuperTrackingType.UserWaypoint then
 		if id == userWaypointID then
 			title = KT.GetPoiIcon("MapPin", "markup").."My waypoint"
-			mapID, x, y, waypointMapID, waypointText, fakeData = UserWaypointGetIconInfo()
+			mapID, x, y, waypointMapID, waypointText, fakeData = UserWaypointGetIconInfo(force)
 		end
 	elseif superTrackingType == Enum.SuperTrackingType.Content then
-		title, mapID, x, y, waypointMapID, waypointText, fakeData = ContentGetIconInfo(type, id)
+		title, mapID, x, y, waypointMapID, waypointText, fakeData = ContentGetIconInfo(pinType, id)
 	elseif superTrackingType == Enum.SuperTrackingType.MapPin then
-		if type == Enum.SuperTrackingMapPinType.AreaPOI then
-			title, mapID, x, y, waypointMapID, waypointText, fakeData = AreaPOIGetIconInfo(id)
-		elseif type == Enum.SuperTrackingMapPinType.QuestOffer then
-			title, mapID, x, y, waypointMapID, waypointText, fakeData = QuestOfferGetIconInfo(id)
-		elseif type == Enum.SuperTrackingMapPinType.TaxiNode then
-			title, mapID, x, y, waypointMapID, waypointText, fakeData = TaxiNodeGetIconInfo(id)
-		elseif type == Enum.SuperTrackingMapPinType.DigSite then
-			title, mapID, x, y, waypointMapID, waypointText, fakeData = DigSiteGetIconInfo(id)
-		elseif type == Enum.SuperTrackingMapPinType.HousingPlot then
-			title, mapID, x, y, waypointMapID, waypointText, fakeData = HousingPlotGetIconInfo(id)
+		if pinType == Enum.SuperTrackingMapPinType.AreaPOI then
+			title, mapID, x, y, waypointMapID, waypointText, fakeData = AreaPOIGetIconInfo(id, force)
+		elseif pinType == Enum.SuperTrackingMapPinType.QuestOffer then
+			title, mapID, x, y, waypointMapID, waypointText, fakeData = QuestOfferGetIconInfo(id, force)
+		elseif pinType == Enum.SuperTrackingMapPinType.TaxiNode then
+			title, mapID, x, y, waypointMapID, waypointText, fakeData = TaxiNodeGetIconInfo(id, force)
+		elseif pinType == Enum.SuperTrackingMapPinType.DigSite then
+			title, mapID, x, y, waypointMapID, waypointText, fakeData = DigSiteGetIconInfo(id, force)
+		elseif pinType == Enum.SuperTrackingMapPinType.HousingPlot then
+			title, mapID, x, y, waypointMapID, waypointText, fakeData = HousingPlotGetIconInfo(id, force)
 		end
+	elseif superTrackingType == Enum.SuperTrackingType.Vignette then
+		title, mapID, x, y, waypointMapID, waypointText, fakeData = VignetteGetIconInfo(id, force)
 	end
 
 	if not title or not mapID or not x or not y then
@@ -445,64 +499,47 @@ local function AddWaypoint(id, type)
 		KTfakeData = fakeData,
 	})
 	questWaypoint = uid
-    SetCharWaypointData(superTrackingType, id, type, mapID)
+	SetCharWaypointData(superTrackingType, id, pinType, mapID)
 
 	return true
 end
 
-local function RemoveWaypoint(id)
-	if id == superTrackedQuestID then
-		TomTom:RemoveWaypoint(questWaypoint)
+local function OnWaypointRemoved(id)
+	if id == superTrackedID then
+		RemoveTicker(id)
 		questWaypoint = nil
-		superTrackedQuestID = 0
+		superTrackedID = nil
 		SetCharWaypointData()
+		OTF:Update()
 	end
 end
 
-local function SetSuperTrackedQuestWaypoint(questID, force)
-	if questID ~= superTrackedQuestID or force then
-		if not force and superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
-		end
-		if questID > 0 then
-			AddWaypoint(questID)
-			superTrackedQuestID = questID
-		end
+local function RemoveWaypoint(id)
+	if id == superTrackedID then
+		TomTom:RemoveWaypoint(questWaypoint)  -- see ClearWaypoint hook
+		OnWaypointRemoved(id)
 	end
 end
 
-local function SetSuperTrackedMapPinWaypoint(type, poiID, force)
-	if poiID ~= superTrackedQuestID or force then
-		if not force and superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
-		end
-		if poiID > 0 then
-			AddWaypoint(poiID, type)
-			superTrackedQuestID = poiID
-		end
-	end
-end
+local function SetSuperTrackedWaypoint(id, pinType, force)
+	if id == superTrackedID and not force then return end
+	local added = false
 
-local function SetSuperTrackedContentWaypoint(trackableType, trackableID, force)
-	if trackableID ~= superTrackedQuestID or force then
-		if not force and superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
-		end
-		if trackableID > 0 then
-			AddWaypoint(trackableID, trackableType)
-			superTrackedQuestID = trackableID
-		end
+	if not force and superTrackedID ~= nil then
+		RemoveWaypoint(superTrackedID)
 	end
+	local isEmpty = (id == nil or id == 0 or id == "")
+	if not isEmpty then
+		added = AddWaypoint(id, pinType, force)
+		superTrackedID = id
+	end
+
+	return added
 end
 
 local function SetSuperTrackedUserWaypoint(superTracked, force)
-	if not force and superTrackedQuestID > 0 then
-		RemoveWaypoint(superTrackedQuestID)
-	end
-	if superTracked then
-		AddWaypoint(userWaypointID)
-		superTrackedQuestID = userWaypointID
-	end
+	local id = superTracked and userWaypointID
+	SetSuperTrackedWaypoint(id, nil, force)
 end
 
 local function TomTom_PatchOptions()
@@ -561,18 +598,10 @@ local function SetHooks()
 	hooksecurefunc(TomTom, "ClearWaypoint", function(self, uid)
 		if not db.width then return end  -- WTF - because some addons create stupid things during PLAYER_LOGOUT
 
-		if uid.KTid == superTrackedQuestID then
-			questWaypoint = nil
-			superTrackedQuestID = 0
-			OTF:Update()
-		end
+		OnWaypointRemoved(uid.KTid)
 	end)
 
 	hooksecurefunc(TomTom, "SetCrazyArrow", function(self, uid, dist, title)
-		if superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
-		end
-
 		if not uid.KTid then
 			C_SuperTrack.ClearAllSuperTracked()
 		end
@@ -582,8 +611,8 @@ local function SetHooks()
 	end)
 
 	hooksecurefunc(TomTom, "ClearCrazyArrowPoint", function(self, remove)
-		if superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
+		if superTrackedID ~= nil then
+			RemoveWaypoint(superTrackedID)
 		end
 	end)
 
@@ -591,7 +620,7 @@ local function SetHooks()
 	local bck_TomTomCrazyArrow_OnClick = TomTomCrazyArrow:GetScript("OnClick")
 	TomTomCrazyArrow:SetScript("OnClick", function(self, btn, down)
 		if btn == "LeftButton" then
-            if not KT.InCombatBlocked() and dbChar.waypoint.id > 0 then
+            if not KT.InCombatBlocked() and dbChar.waypoint.id ~= nil and dbChar.waypoint.mapID > 0 then
                 C_Map.OpenWorldMap(dbChar.waypoint.mapID)
             end
 		else
@@ -609,33 +638,40 @@ local function SetHooks()
 
 	-- Blizzard
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedQuestID", function(questID)
-		SetSuperTrackedQuestWaypoint(questID)
+		SetSuperTrackedWaypoint(questID)
 	end)
 
 	hooksecurefunc(C_SuperTrack, "ClearAllSuperTracked", function()
-		if superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
+		if superTrackedID ~= nil then
+			RemoveWaypoint(superTrackedID)
 		end
 	end)
 
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedContent", function(trackableType, trackableID)
-		SetSuperTrackedContentWaypoint(trackableType, trackableID)
+		SetSuperTrackedWaypoint(trackableID, trackableType)
 	end)
 
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedMapPin", function(type, typeID)
-		SetSuperTrackedMapPinWaypoint(type, typeID)
+		SetSuperTrackedWaypoint(typeID, type)
 	end)
 
 	hooksecurefunc(C_SuperTrack, "ClearSuperTrackedMapPin", function()
-		if superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
+		if superTrackedID ~= nil then
+			RemoveWaypoint(superTrackedID)
 		end
 	end)
 
 	hooksecurefunc(C_SuperTrack, "SetSuperTrackedVignette", function(vignetteGUID)
-		-- Do not set superTrackedQuestID, because vignetteGUID is a string
-		if superTrackedQuestID > 0 then
-			RemoveWaypoint(superTrackedQuestID)
+		SetSuperTrackedWaypoint(vignetteGUID)
+
+		-- War Supply Crate
+		local info = C_VignetteInfo.GetVignetteInfo(vignetteGUID)
+		if info and info.atlasName == "Vehicle-Air-Occupied" then
+			AddTicker(vignetteGUID, function()
+				if not SetSuperTrackedWaypoint(vignetteGUID, nil, true) then
+					RemoveTicker(vignetteGUID)
+				end
+			end)
 		end
 	end)
 
@@ -650,7 +686,7 @@ local function SetHooks()
 
 	hooksecurefunc("QuestMapQuestOptions_TrackQuest", function(questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
-			SetSuperTrackedQuestWaypoint(questID, true)
+			SetSuperTrackedWaypoint(questID, nil, true)
 			QuestMapFrame:Refresh()
 		end
 	end)
@@ -662,7 +698,7 @@ local function SetHooks()
 
 	-- Only for Events
 	hooksecurefunc(KT_BonusObjectiveTracker, "OnQuestRemoved", function(self, questID)
-		if questID == superTrackedQuestID then
+		if questID == superTrackedID then
 			C_SuperTrack.ClearSuperTrackedMapPin()
 		end
 	end)
@@ -673,7 +709,7 @@ local function SetHooks()
 	end)
 
     hooksecurefunc(KT_POIButtonMixin, "UpdateButtonStyle", function(self)
-        local show = (superTrackedQuestID == self.questID or superTrackedQuestID == self.areaPOIID)
+        local show = (superTrackedID ~= nil and (superTrackedID == self.questID or superTrackedID == self.areaPOIID))
         SetWaypointTag(self, show)
     end)
 
@@ -729,6 +765,11 @@ local function SetEvents()
 			if type and superTrackedPoiID then
 				C_SuperTrack.SetSuperTrackedMapPin(type, superTrackedPoiID)
 			end
+		elseif dbChar.waypoint.stype == Enum.SuperTrackingType.Vignette then
+			local vignetteGUID = C_SuperTrack.GetSuperTrackedVignette()
+			if vignetteGUID then
+				C_SuperTrack.SetSuperTrackedVignette(vignetteGUID)
+			end
 		end
 		KT:UnregEvent(eventID)
 	end, M)
@@ -745,7 +786,7 @@ local function SetEvents()
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
 		if questID and QuestUtils_IsQuestWatched(questID) then
 			C_Timer.After(0, function()
-				SetSuperTrackedQuestWaypoint(questID)
+				SetSuperTrackedWaypoint(questID)
 				OTF:Update()
 			end)
 		end
@@ -761,7 +802,7 @@ local function SetEvents()
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
 			C_Timer.After(0.6, function()
 				if not stopUpdate then
-					SetSuperTrackedQuestWaypoint(questID, true)
+					SetSuperTrackedWaypoint(questID, nil, true)
 				end
 			end)
 		end
@@ -771,7 +812,7 @@ local function SetEvents()
 	KT:RegEvent("WAYPOINT_UPDATE", function()
 		local questID = C_SuperTrack.GetSuperTrackedQuestID()
 		if questID then
-			SetSuperTrackedQuestWaypoint(questID, true)
+			SetSuperTrackedWaypoint(questID, nil, true)
 			OTF:Update()
 		end
 	end, M)
@@ -782,7 +823,7 @@ local function SetEvents()
 			if dbChar.waypoint.stype == Enum.SuperTrackingType.Quest then
 				local questID = C_SuperTrack.GetSuperTrackedQuestID() or dbChar.waypoint.id
 				if questID and (QuestUtils_IsQuestWatched(questID) or C_QuestLog.IsComplete(questID) or QuestUtil.IsQuestTrackableTask(questID)) then
-					SetSuperTrackedQuestWaypoint(questID, true)
+					SetSuperTrackedWaypoint(questID, nil, true)
 				end
 			elseif dbChar.waypoint.stype == Enum.SuperTrackingType.UserWaypoint then
 				if dbChar.waypoint.id == userWaypointID and C_SuperTrack.IsSuperTrackingUserWaypoint() then
@@ -791,14 +832,16 @@ local function SetEvents()
 			elseif dbChar.waypoint.stype == Enum.SuperTrackingType.Content then
 				local trackableType, trackableID = C_SuperTrack.GetSuperTrackedContent()
 				if trackableType and trackableID then
-					SetSuperTrackedContentWaypoint(trackableType, trackableID, true)
+					SetSuperTrackedWaypoint(trackableID, trackableType, true)
 				end
 			elseif dbChar.waypoint.stype == Enum.SuperTrackingType.MapPin then
 				local type, superTrackedPoiID = C_SuperTrack.GetSuperTrackedMapPin()
 				if superTrackedPoiID then
-					SetSuperTrackedMapPinWaypoint(type, superTrackedPoiID, true)
+					SetSuperTrackedWaypoint(superTrackedPoiID, type, true)
 					OTF:Update()
 				end
+			elseif dbChar.waypoint.stype == Enum.SuperTrackingType.Vignette then
+				C_SuperTrack.ClearAllSuperTracked()
 			end
 		end)
 	end, M)
@@ -808,7 +851,7 @@ local function SetEvents()
         C_Timer.After(0.1, function()
             local questID = C_SuperTrack.GetSuperTrackedQuestID()
             if questID and QuestUtils_IsQuestWatched(questID) then
-                SetSuperTrackedQuestWaypoint(questID, true)
+                SetSuperTrackedWaypoint(questID, nil, true)
                 OTF:Update()
             end
         end)

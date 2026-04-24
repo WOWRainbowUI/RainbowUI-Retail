@@ -38,6 +38,49 @@ local texts = {
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
+local function SetPetsHeaderText(reset)
+	if db.pettrackerHeaderAppend then
+		local _, numPetsOwned = C_PetJournal.GetNumPets()
+		KT:SetHeaderText(KT_PetTrackerObjectiveTracker, numPetsOwned)
+	elseif reset then
+		KT:SetHeaderText(KT_PetTrackerObjectiveTracker)
+	end
+end
+
+local function SetupOptions()
+	KT.options.args.addons.args.pettracker = {
+		name = "PetTracker",
+		type = "group",
+		order = 5,
+		args = {
+			header = {
+				name = "Header",
+				type = "group",
+				inline = true,
+				order = 1,
+				args = {
+					pettrackerHeaderAppend = {
+						name = "Show number of owned Pets",
+						desc = "Show number of owned Pets inside the PetTracker header.",
+						type = "toggle",
+						width = "normal+half",
+						set = function()
+							db.pettrackerHeaderAppend = not db.pettrackerHeaderAppend
+							SetPetsHeaderText(true)
+						end,
+						order = 1,
+					},
+				},
+			},
+		},
+	}
+
+	-- Reverts the option to display Quest Objectives
+	if not GetCVarBool("questPOI") then
+		SetCVar("questPOI", 1)
+	end
+end
+
 local function SetHooks_Init()
 	if PetTracker then
 		if db.addonPetTracker then
@@ -147,7 +190,7 @@ end
 
 local function Event_PLAYER_ENTERING_WORLD(eventID)
 	KT:RegEvent("PET_JOURNAL_LIST_UPDATE", function()
-		M:SetPetsHeaderText()
+		SetPetsHeaderText()
 	end, M)
 	KT:UnregEvent(eventID)
 end
@@ -302,6 +345,13 @@ function M:OnInitialize()
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("PetTracker", "11.1.10")
 
+		local defaults = KT:MergeTables({
+			profile = {
+				pettrackerHeaderAppend = true,
+			}
+		}, KT.db.defaults)
+		KT.db:RegisterDefaults(defaults)
+
 		tinsert(KT.MODULES, "KT_PetTrackerObjectiveTracker")
 		KT.db:RegisterDefaults(KT.db.defaults)
 	end
@@ -312,6 +362,7 @@ end
 
 function M:OnEnable()
 	_DBG("|cff00ff00Enable|r - "..self:GetName(), true)
+	SetupOptions()
 	SetFrames()
 	SetHooks()
 
@@ -324,13 +375,4 @@ function M:IsShown()
 	return (self.isAvailable and
 			(PetTracker.sets and PetTracker.sets.zoneTracker) and
 			PetTracker.Objectives:IsShown())
-end
-
-function M:SetPetsHeaderText(reset)
-	if self.isAvailable and db.hdrPetTrackerTitleAppend then
-		local _, numPetsOwned = C_PetJournal.GetNumPets()
-		KT:SetHeaderText(KT_PetTrackerObjectiveTracker, numPetsOwned)
-	elseif reset then
-		KT:SetHeaderText(KT_PetTrackerObjectiveTracker)
-	end
 end
