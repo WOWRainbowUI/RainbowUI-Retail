@@ -86,7 +86,7 @@ SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQue
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
 SQP.ICON_TEXTURE = GetAddOnMetadataCompat(addonName, "IconTexture")
-    or ("Interface\\AddOns\\" .. (addonName or "SimpleQuestPlates") .. "\\images\\icon")
+    or ("Interface\\AddOns\\" .. (addonName or "SimpleQuestPlates") .. "\\media\\icon")
 
 do
     local _, _, _, tocversion = GetBuildInfo and GetBuildInfo() or nil
@@ -100,6 +100,49 @@ do
     SQP.tocversion = tocversion or 0
 end
 
+function SQP:GetRGX()
+    local rgx = rawget(_G, "RGXFramework")
+    if type(rgx) == "table" then
+        return rgx
+    end
+
+    return nil
+end
+
+function SQP:GetRGXModule(name, globalName)
+    if type(name) ~= "string" or name == "" then
+        return nil
+    end
+
+    local rgx = self:GetRGX()
+    if type(rgx) == "table" and type(rgx.RequireModule) == "function" then
+        local module = rgx:RequireModule(name)
+        if type(module) == "table" then
+            return module
+        end
+    end
+
+    if type(rgx) == "table" and type(rgx.GetModule) == "function" then
+        local module = rgx:GetModule(name)
+        if type(module) == "table" then
+            return module
+        end
+    end
+
+    if type(globalName) == "string" then
+        local module = rawget(_G, globalName)
+        if type(module) == "table" then
+            return module
+        end
+    end
+
+    return nil
+end
+
+function SQP:GetRGXFonts()
+    return self:GetRGXModule("fonts", "RGXFonts")
+end
+
 -- Default settings (based on tuned in-game values)
 SQP.DEFAULTS = {
     enabled = true,
@@ -110,9 +153,17 @@ SQP.DEFAULTS = {
     relativeTo = "LEFT",
     hideInCombat = false,
     hideInInstance = false,
+    minimapIconEnabled = true,
+    minimapAngle = 220,
     itemColor = {0.2, 1, 0.2},   -- Green
     killColor = {1, 0.82, 0},    -- Gold
     percentColor = {0.2, 1, 1},  -- Cyan
+    killColorNameplate = false,
+    killNameplateColor = {1, 0.82, 0},
+    lootColorNameplate = false,
+    lootNameplateColor = {0.2, 1, 0.2},
+    percentColorNameplate = false,
+    percentNameplateColor = {0.2, 1, 1},
     fontOutline = "",            -- No outline by default
     outlineWidth = 0,
     fontSize = 12,
@@ -190,6 +241,8 @@ SQP.DEFAULTS = {
     percentTintIconColor = {1, 1, 1},
     debug = false,
 }
+
+SQP.defaultMinimapAngle = 220
 
 -- Animation setting helpers
 function SQP:IsAnimationCombatAllowed()
@@ -324,7 +377,7 @@ SQP.SOUND_KIT_ID_QUEST_ACCEPT = 815 -- UI_QuestLog_QuestAccepted
 -- Constants for UI
 SQP.PANEL_WIDTH = 700
 SQP.PANEL_HEIGHT = 600
-SQP.PANEL_NAME = format("|TInterface\AddOns\%s\images\icon:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r", addonName)
+SQP.PANEL_NAME = format("|TInterface\\AddOns\\%s\\media\\icon:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r", addonName)
 SQP.SECTION_COLOR = { r = 0.58, g = 0.79, b = 1, a = 1 } -- RGX Blue
 SQP.BACKDROP_DARK = {
     bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -545,6 +598,178 @@ function SQP:DisableAddon()
     self:SaveSettings()
     self:PrintMessage(self.L["ADDON_DISABLED"])
     self:RefreshAllNameplates()
+end
+
+function SQP:UpdateMinimapButtonPosition()
+    if not self.minimapButton or not Minimap then
+        return
+    end
+
+    local angle = math.rad((SQPSettings and SQPSettings.minimapAngle) or self.defaultMinimapAngle)
+    local minimapRadius = math.max(Minimap:GetWidth() or 140, Minimap:GetHeight() or 140) / 2 + 10
+    local x = math.cos(angle) * minimapRadius
+    local y = math.sin(angle) * minimapRadius
+    self.minimapButton:ClearAllPoints()
+    self.minimapButton:SetPoint("CENTER", Minimap, "CENTER", x, y)
+end
+
+function SQP:UpdateMinimapPositionFromCursor()
+    if not self.minimapButton or not SQPSettings or not Minimap then
+        return
+    end
+
+    local mx, my = Minimap:GetCenter()
+    local scale = Minimap:GetEffectiveScale()
+    local cx, cy = GetCursorPosition()
+    cx = cx / scale
+    cy = cy / scale
+
+    if not mx or not my then
+        return
+    end
+
+    local dy = cy - my
+    local dx = cx - mx
+    local angle = math.deg((math.atan2 and math.atan2(dy, dx)) or math.atan(dy, dx))
+    if angle < 0 then
+        angle = angle + 360
+    end
+
+    SQPSettings.minimapAngle = angle
+    self:SaveSettings()
+    self:UpdateMinimapButtonPosition()
+end
+
+function SQP:CreateMinimapButton()
+    if self.minimapButton or not Minimap then
+        return
+    end
+
+    local button = CreateFrame("Button", "SQP_MinimapButton", Minimap)
+    self.minimapButton = button
+    button:SetSize(32, 32)
+    button:SetFrameStrata("MEDIUM")
+    button:SetFrameLevel(Minimap:GetFrameLevel() + 8)
+    button:SetMovable(true)
+    button:EnableMouse(true)
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    button:RegisterForDrag("LeftButton")
+
+    local backdrop = button:CreateTexture(nil, "BACKGROUND")
+    backdrop:SetSize(24, 24)
+    backdrop:SetPoint("CENTER", button, "CENTER", 1, 0)
+    backdrop:SetTexture("Interface\\Buttons\\WHITE8X8")
+    if backdrop.SetMask then
+        backdrop:SetMask("Interface\\CharacterFrame\\TempPortraitAlphaMaskSmall")
+    end
+    backdrop:SetVertexColor(0.03, 0.03, 0.03, 0.98)
+    button.backdrop = backdrop
+
+    local overlay = button:CreateTexture(nil, "OVERLAY")
+    overlay:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+    overlay:SetSize(54, 54)
+    overlay:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)
+    button.overlay = overlay
+
+    local icon = button:CreateTexture(nil, "ARTWORK")
+    icon:SetTexture(self.ICON_TEXTURE)
+    icon:SetSize(19, 19)
+    icon:SetPoint("CENTER", button, "CENTER", 0, -1)
+    icon:SetTexCoord(0.02, 0.98, 0.02, 0.98)
+    button.icon = icon
+
+    button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+
+    button:SetScript("OnClick", function(self, mouseButton)
+        if self.isDragging then
+            return
+        end
+
+        if mouseButton == "RightButton" and IsControlKeyDown() then
+            if GameTooltip then
+                GameTooltip:Hide()
+            end
+            SQP:ToggleMinimapIcon(false)
+            return
+        end
+
+        SQP:OpenOptions()
+    end)
+
+    button:SetScript("OnDragStart", function(self)
+        self.isDragging = true
+        if GameTooltip then
+            GameTooltip:Hide()
+        end
+        self:SetScript("OnUpdate", function()
+            SQP:UpdateMinimapPositionFromCursor()
+        end)
+    end)
+
+    button:SetScript("OnDragStop", function(self)
+        self.isDragging = false
+        self:SetScript("OnUpdate", nil)
+        SQP:UpdateMinimapButtonPosition()
+    end)
+
+    button:SetScript("OnEnter", function(self)
+        if not GameTooltip then
+            return
+        end
+
+        GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+        GameTooltip:ClearLines()
+        GameTooltip:AddLine("|T" .. (SQP.ICON_TEXTURE or "") .. ":18:18:0:0|t |cff58be81Simple Quest Plates!|r")
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddDoubleLine("|cff58be81Left-Click|r", "|cffffffffOpen options|r", 1, 1, 1, 1, 1, 1)
+        GameTooltip:AddDoubleLine("|cff4ecdc4Drag|r", "|cffffffffMove around minimap|r", 1, 1, 1, 1, 1, 1)
+        GameTooltip:AddDoubleLine("|cffe74c3cCtrl+Right-Click|r", "|cffffffffHide minimap icon|r", 1, 1, 1, 1, 1, 1)
+        GameTooltip:Show()
+    end)
+
+    button:SetScript("OnLeave", function()
+        if GameTooltip then
+            GameTooltip:Hide()
+        end
+    end)
+end
+
+function SQP:ToggleMinimapIcon(show, silent)
+    self:SetSetting("minimapIconEnabled", show and true or false)
+
+    if show then
+        if not self.minimapButton then
+            self:CreateMinimapButton()
+        end
+        if self.minimapButton then
+            self.minimapButton:Show()
+            self:UpdateMinimapButtonPosition()
+        end
+        if not silent then
+            self:PrintMessage("Minimap icon shown.")
+        end
+    else
+        if self.minimapButton then
+            self.minimapButton:Hide()
+        end
+        if not silent then
+            self:PrintMessage("Minimap icon hidden. Use |cfffff569/sqp icon on|r to show it again.")
+        end
+    end
+end
+
+function SQP:ApplyMinimapVisibility()
+    if SQPSettings and SQPSettings.minimapIconEnabled ~= false then
+        if not self.minimapButton then
+            self:CreateMinimapButton()
+        end
+        if self.minimapButton then
+            self.minimapButton:Show()
+            self:UpdateMinimapButtonPosition()
+        end
+    elseif self.minimapButton then
+        self.minimapButton:Hide()
+    end
 end
 
 -- Toggle options panel

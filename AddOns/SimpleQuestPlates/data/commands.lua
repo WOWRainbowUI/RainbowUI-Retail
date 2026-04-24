@@ -41,6 +41,7 @@ function SQP:ShowHelp()
     print(GetText(self, "CMD_HELP_SCALE", "  |cfffff569/sqp scale <0.5-2.0>|r - Set icon scale"))
     print(GetText(self, "CMD_HELP_OFFSET", "  |cfffff569/sqp offset <x> <y>|r - Set icon offset"))
     print(GetText(self, "CMD_HELP_ANCHOR", "  |cfffff569/sqp anchor <LEFT|RIGHT>|r - Set icon anchor side"))
+    print("  |cfffff569/sqp icon on|r / |cfffff569off|r - Show or hide the minimap icon")
     print(GetText(self, "CMD_HELP_RESET", "  |cfffff569/sqp reset|r - Reset all settings"))
     print(GetText(self, "CMD_HELP_OPTIONS", "  |cfffff569/sqp options|r - Open the options panel"))
     print(GetText(self, "CMD_HELP_VERSION", "  |cfffff569/sqp version|r - Show addon version"))
@@ -80,6 +81,9 @@ function SQP:ShowStatus()
     local scaleLine = GetText(self, "STATUS_SCALE", GetText(self, "CMD_STATUS_SCALE", "  Scale: |cff58be81%.1f|r"))
     local offsetLine = GetText(self, "STATUS_OFFSET", GetText(self, "CMD_STATUS_OFFSET", "  Offset: |cff58be81X=%d, Y=%d|r"))
     local anchorLine = GetText(self, "STATUS_ANCHOR", GetText(self, "CMD_STATUS_ANCHOR", "  Anchor: |cff58be81%s|r"))
+    local minimapLine = "  Minimap Icon: %s"
+    local shownText = "|cff00ff00SHOWN|r"
+    local hiddenText = "|cffff0000HIDDEN|r"
 
     self:PrintMessage(statusHeader)
     print(format(statusLine, SQPSettings.enabled and enabledText or disabledText))
@@ -87,6 +91,7 @@ function SQP:ShowStatus()
     print(format(scaleLine, SQPSettings.scale or 1))
     print(format(offsetLine, SQPSettings.offsetX or 0, SQPSettings.offsetY or 0))
     print(format(anchorLine, SQPSettings.anchor or "RIGHT"))
+    print(format(minimapLine, SQPSettings.minimapIconEnabled ~= false and shownText or hiddenText))
 end
 
 function SQP:DebugTarget()
@@ -207,6 +212,10 @@ function SQP:ProcessSlashCommand(input)
     elseif input:match("^anchor%s+(.+)") then
         local anchor = input:match("^anchor%s+(.+)")
         self:SetAnchor(anchor)
+    elseif input == "icon on" then
+        self:ToggleMinimapIcon(true)
+    elseif input == "icon off" then
+        self:ToggleMinimapIcon(false)
     elseif input == "options" or input == "config" then
         self:OpenOptions()
     elseif input == "debug" then

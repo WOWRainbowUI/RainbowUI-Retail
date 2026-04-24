@@ -58,7 +58,7 @@ function SQP:CreateAboutSection(content)
     local discordIcon = communityFrame:CreateTexture(nil, "ARTWORK")
     discordIcon:SetSize(34, 34)
     discordIcon:SetPoint("LEFT", 10, 0)
-    discordIcon:SetTexture("Interface\\AddOns\\SimpleQuestPlates\\images\\icon")
+    discordIcon:SetTexture("Interface\\AddOns\\SimpleQuestPlates\\media\\icon")
 
     local discordTitle = communityFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     discordTitle:SetPoint("TOPLEFT", discordIcon, "TOPRIGHT", 8, -4)
@@ -97,6 +97,7 @@ function SQP:CreateAboutSection(content)
         "|cff58be81/sqp test|r          Test quest detection\n" ..
         "|cff58be81/sqp reset|r         Reset all settings\n" ..
         "|cff58be81/sqp status|r        Show current settings\n" ..
+        "|cff58be81/sqp icon on|r       Show minimap icon\n" ..
         "|cff58be81/sqp scale 1.2|r     Set icon scale\n" ..
         "|cff58be81/sqp offset 0 3|r    Set X / Y offset"
     )

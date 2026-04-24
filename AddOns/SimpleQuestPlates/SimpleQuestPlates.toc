@@ -1,12 +1,13 @@
 ## Interface: 11508, 20205, 50503, 120001, 120005
 ## Title: |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r
 ## Notes: Displays quest progress icons on enemy nameplates.|nType |cff58be81/sqp|r for options.|n|cff8B1538[RGX]|r |cff58be81By DonnieDice|r
-## Version: 1.9.6
+## Version: 1.9.8
 ## Author: DonnieDice
 ## Email: donniedice@protonmail.com
 ## SavedVariables: SQPSettings
-## IconTexture: Interface\AddOns\SimpleQuestPlates\images\icon
+## IconTexture: Interface\AddOns\SimpleQuestPlates\media\icon
 ## DefaultState: Enabled
+### RequiredDeps: RGX-Framework
 
 ## X-Category: UI Media, Questing & Leveling, Miscellaneous
 ## X-Website: https://github.com/donniedice/SimpleQuestPlates

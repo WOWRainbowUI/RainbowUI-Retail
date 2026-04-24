@@ -131,6 +131,13 @@ L["Offset Y: %d"] = "垂直偏移 (Y): %d"
 L["Nameplate Side"] = "名條旁邊"
 L["Left Side"] = "左側"
 L["Right Side"] = "右側"
+L["|cff58be81Minimap Icon|r"] = "|cff58be81小地圖按鈕|r"
+L["Show minimap icon"] = "顯示小地圖按鈕"
+L["|cffaaaaaaLeft-click opens options. Drag to move. Ctrl-right-click hides it.|r"] = "|cffaaaaaa左鍵點擊開啟選項。拖曳可移動。Ctrl+右鍵點擊隱藏。|r"
+L["Nameplate Font|r"] = "名條字型|r"
+L["Apply to SQP nameplate text"] = "套用至 SQP 名條文字"
+L["|cff58be81Changes the font used on SQP nameplates.|r"] = "|cff58be81變更 SQP 名條所使用的字型。|r"
+L["RGX-Framework font tools are unavailable right now."] = "RGX-Framework 字型工具目前無法使用。"
 
 -- Icon
 L["OPTIONS_ICON_POSITION"] = "圖示位置"
@@ -185,11 +192,11 @@ L["Loot Quest"] = "拾取任務"
 L["% Quest"] = "% 任務"
 
 -- Tabs
-L["Global"]= "整體"
-L["Main Icon"] = "主圖示"
+L["General"]= "一般"
+L["Objectives"] = "任務目標"
 L["Kill"] = "擊殺"
 L["Loot"] = "拾取"
-L["Percent"] = "百分比"
+L["Quest %"]= "任務 %"
 L["About"] = "關於"
 
 -- header

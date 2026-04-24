@@ -13,12 +13,12 @@ function SQP:CreateKillOptions(content)
     local leftColumn = CreateFrame("Frame", nil, content)
     leftColumn:SetPoint("TOPLEFT")
     leftColumn:SetPoint("BOTTOMLEFT")
-    leftColumn:SetWidth(300)
+    leftColumn:SetWidth(288)
 
     local rightColumn = CreateFrame("Frame", nil, content)
     rightColumn:SetPoint("TOPRIGHT")
     rightColumn:SetPoint("BOTTOMRIGHT")
-    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 20, 0)
+    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 14, 0)
 
     -- ── Slider helper ─────────────────────────────────────────────────────────
     local function MakeSlider(parent, labelText, key, defaultVal, minVal, maxVal, yOff)
@@ -62,10 +62,10 @@ function SQP:CreateKillOptions(content)
     -- ── LEFT COLUMN ────────────────────────────────────────────────────────────
     local yOffset = -15
 
-    local header = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local header = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     header:SetPoint("TOPLEFT", 20, yOffset)
     header:SetText(self.L["|cff58be81Kill Icon|r"])
-    yOffset = yOffset - 22
+    yOffset = yOffset - 16
 
     -- Show Kill Icon
     local showFrame = self:CreateStyledCheckbox(leftColumn, self.L["Show Kill Icon"])
@@ -77,16 +77,16 @@ function SQP:CreateKillOptions(content)
         ActivateKill()
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 30
+    yOffset = yOffset - 24
 
     -- Display Style
     yOffset = self:CreateDisplayStyleSection(leftColumn, "kill", ActivateKill, yOffset)
 
     -- Animate Task Icons (kill + loot mini icons)
-    local animHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local animHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     animHeader:SetPoint("TOPLEFT", 20, yOffset)
     animHeader:SetText(self.L["|cff58be81Animate|r"])
-    yOffset = yOffset - 20
+    yOffset = yOffset - 16
 
     local animFrame = self:CreateStyledCheckbox(leftColumn, self.L["Animate Task Icons"])
     animFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -102,7 +102,7 @@ function SQP:CreateKillOptions(content)
         end
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 26
 
     local animMainFrame = self:CreateStyledCheckbox(leftColumn, self.L["Animate Main Icon"])
     animMainFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -112,7 +112,7 @@ function SQP:CreateKillOptions(content)
         SQP:SetSetting('killAnimateMain', self:GetChecked())
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 26
 
     local killAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     killAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
@@ -140,13 +140,13 @@ function SQP:CreateKillOptions(content)
         ActivateKill()
         SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 44
+    yOffset = yOffset - 38
 
     -- Kill Color
-    local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local colorHeader = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     colorHeader:SetPoint("TOPLEFT", 20, yOffset)
     colorHeader:SetText(self.L["|cff58be81Color|r"])
-    yOffset = yOffset - 20
+    yOffset = yOffset - 16
 
     local killDefault = {1, 0.82, 0}
     local colorBtn = CreateFrame("Button", nil, leftColumn)
@@ -159,7 +159,7 @@ function SQP:CreateKillOptions(content)
     sw:SetColorTexture(unpack(SQPSettings.killColor or killDefault))
     SQP.optionControls.killColorSwatch = sw
 
-    local colorLbl = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local colorLbl = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     colorLbl:SetPoint("LEFT", colorBtn, "RIGHT", 6, 0)
     colorLbl:SetText(self.L["Kill Color"])
 
@@ -184,7 +184,7 @@ function SQP:CreateKillOptions(content)
         end
         ColorPickerFrame:SetupColorPickerAndShow(info)
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 28
 
     -- Kill Icon Tinting (mini icon, compact inline row)
     yOffset = self:CreateMiniIconTintSection(leftColumn, "kill", ActivateKill, yOffset)
@@ -192,10 +192,10 @@ function SQP:CreateKillOptions(content)
     -- ── RIGHT COLUMN ──────────────────────────────────────────────────────────
     local rightYOffset = -15
 
-    local posHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local posHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     posHeader:SetPoint("TOPLEFT", 20, rightYOffset)
     posHeader:SetText(self.L["|cff58be81Size & Position|r"])
-    rightYOffset = rightYOffset - 22
+    rightYOffset = rightYOffset - 16
 
     rightYOffset = MakeSlider(rightColumn, self.L["Size"],     "killIconSize",    14,  8,   40, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, self.L["Offset X"], "killIconOffsetX",  2, -80,  80, rightYOffset)
@@ -205,7 +205,7 @@ function SQP:CreateKillOptions(content)
 
     -- Reset this tab to kill defaults
     rightYOffset = rightYOffset - 14
-    local resetBtn = self:CreateStyledButton(rightColumn, self.L["Reset Kill Settings"], 160, 22)
+    local resetBtn = self:CreateStyledButton(rightColumn, self.L["Reset Kill Settings"], 150, 22)
     resetBtn:SetPoint("TOPLEFT", 20, rightYOffset)
     resetBtn:SetScript("OnClick", function()
         local D = SQP.DEFAULTS
@@ -241,7 +241,13 @@ function SQP:CreateKillOptions(content)
         if oc.killIconOffsetX then oc.killIconOffsetX:SetValue(D.killIconOffsetX) end
         if oc.killIconOffsetY then oc.killIconOffsetY:SetValue(D.killIconOffsetY) end
         if oc.killFontSize    then oc.killFontSize:SetValue(D.killFontSize) end
-        if oc.killFontFamily and UIDropDownMenu_SetText then UIDropDownMenu_SetText(oc.killFontFamily, "Friz Quadrata") end
+        if oc.killFontFamily and type(oc.killFontFamily.Reset) == "function" then
+            oc.killFontFamily:Reset()
+        elseif oc.killFontFamily and type(oc.killFontFamily.SetPath) == "function" then
+            oc.killFontFamily:SetPath(D.killFontFamily)
+        elseif oc.killFontFamily and UIDropDownMenu_SetText then
+            UIDropDownMenu_SetText(oc.killFontFamily, "Friz Quadrata")
+        end
         SQP:RefreshAllNameplates()
         ActivateKill()
     end)

@@ -10,28 +10,30 @@ local format = string.format
 
 function SQP:CreateGlobalOptions(content)
     if not self.optionControls then self.optionControls = {} end
+    local rgxFonts = SQP:GetRGXFonts()
+    local rgxAccent = "bc6fa8"
 
     local leftColumn = CreateFrame("Frame", nil, content)
     leftColumn:SetPoint("TOPLEFT")
     leftColumn:SetPoint("BOTTOMLEFT")
-    leftColumn:SetWidth(300)
+    leftColumn:SetWidth(298)
 
     local rightColumn = CreateFrame("Frame", nil, content)
     rightColumn:SetPoint("TOPRIGHT")
     rightColumn:SetPoint("BOTTOMRIGHT")
-    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 20, 0)
+    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 10, 0)
 
     -- ── LEFT COLUMN: Addon state + toggles + combat ────────────────────────────
-    local yOffset = -15
+    local yOffset = -12
 
     -- Addon State
-    local addonStateLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local addonStateLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     addonStateLabel:SetPoint("TOPLEFT", 20, yOffset)
     addonStateLabel:SetText("|cff58be81" .. (self.L["OPTIONS_ADDON_STATE"] or "Addon State") .. "|r")
-    yOffset = yOffset - 20
+    yOffset = yOffset - 14
 
-    local enableButton  = self:CreateStyledButton(leftColumn, self.L["OPTIONS_ENABLE"]  or "Enable",  80, 25)
-    local disableButton = self:CreateStyledButton(leftColumn, self.L["OPTIONS_DISABLE"] or "Disable", 80, 25)
+    local enableButton  = self:CreateStyledButton(leftColumn, self.L["OPTIONS_ENABLE"]  or "Enable",  68, 20)
+    local disableButton = self:CreateStyledButton(leftColumn, self.L["OPTIONS_DISABLE"] or "Disable", 68, 20)
     enableButton:SetPoint("TOPLEFT", 20, yOffset)
     disableButton:SetPoint("LEFT", enableButton, "RIGHT", 10, 0)
 
@@ -51,13 +53,13 @@ function SQP:CreateGlobalOptions(content)
     disableButton:SetScript("OnClick", function()
         SQP:SetSetting('enabled', false); UpdateEnabledButtons(); SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 33
+    yOffset = yOffset - 24
 
     -- General Settings
-    local generalSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local generalSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     generalSection:SetPoint("TOPLEFT", 20, yOffset)
     generalSection:SetText("|cff58be81" .. (self.L["OPTIONS_GENERAL"] or "General Settings") .. "|r")
-    yOffset = yOffset - 20
+    yOffset = yOffset - 14
 
     local debugFrame = self:CreateStyledCheckbox(leftColumn, self.L["OPTIONS_DEBUG"] or "Enable Debug Mode")
     debugFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -67,7 +69,7 @@ function SQP:CreateGlobalOptions(content)
         SQP:SetSetting('debug', self:GetChecked())
         SQP:PrintMessage(SQPSettings.debug and "Debug mode enabled" or "Debug mode disabled")
     end)
-    yOffset = yOffset - 26
+    yOffset = yOffset - 18
 
     local chatFrame = self:CreateStyledCheckbox(leftColumn, self.L["OPTIONS_CHAT_MESSAGES"] or "Show Chat Messages")
     chatFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -76,137 +78,35 @@ function SQP:CreateGlobalOptions(content)
     chatFrame.checkbox:SetScript("OnClick", function(self)
         SQP:SetSetting('showMessages', self:GetChecked())
     end)
-    yOffset = yOffset - 30
+    yOffset = yOffset - 20
+
+    local minimapSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    minimapSection:SetPoint("TOPLEFT", 20, yOffset)
+    minimapSection:SetText(self.L["|cff58be81Minimap Icon|r"])
+    yOffset = yOffset - 14
+
+    local minimapFrame = self:CreateStyledCheckbox(leftColumn, self.L["Show minimap icon"])
+    minimapFrame:SetPoint("TOPLEFT", 20, yOffset)
+    minimapFrame.checkbox:SetChecked(SQPSettings.minimapIconEnabled ~= false)
+    self.optionControls.minimapIconEnabled = minimapFrame.checkbox
+    minimapFrame.checkbox:SetScript("OnClick", function(self)
+        SQP:ToggleMinimapIcon(self:GetChecked())
+    end)
+    yOffset = yOffset - 20
+
+    local minimapHint = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    minimapHint:SetPoint("TOPLEFT", 20, yOffset)
+    minimapHint:SetWidth(250)
+    minimapHint:SetJustifyH("LEFT")
+    minimapHint:SetText(self.L["|cffaaaaaaLeft-click opens options. Drag to move. Ctrl-right-click hides it.|r"])
+    yOffset = yOffset - 32
 
     -- Global Animation Override
-    local animSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    animSection:SetPoint("TOPLEFT", 20, yOffset)
-    animSection:SetText(self.L["|cff58be81Animation|r"])
-    yOffset = yOffset - 20
-
-    local overrideAnimFrame = self:CreateStyledCheckbox(leftColumn, self.L["Use Global Animation Override"])
-    overrideAnimFrame:SetPoint("TOPLEFT", 20, yOffset)
-    overrideAnimFrame.checkbox:SetChecked(SQPSettings.useGlobalAnimationSettings == true)
-    self.optionControls.useGlobalAnimationSettings = overrideAnimFrame.checkbox
-    yOffset = yOffset - 26
-
-    local globalAnimEnableFrame = self:CreateStyledCheckbox(leftColumn, self.L["Enable All Animations"])
-    globalAnimEnableFrame:SetPoint("TOPLEFT", 20, yOffset)
-    globalAnimEnableFrame.checkbox:SetChecked(SQPSettings.globalAnimationEnabled ~= false)
-    self.optionControls.globalAnimationEnabled = globalAnimEnableFrame.checkbox
-    yOffset = yOffset - 28
-
-    local function GetAnimationCombatMode()
-        local mode = SQPSettings.animationCombatMode
-        if mode ~= "always" and mode ~= "combat" and mode ~= "outofcombat" then
-            mode = "always"
-        end
-        return mode
-    end
-
-    local animModeLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    animModeLabel:SetPoint("TOPLEFT", 20, yOffset)
-    animModeLabel:SetText(self.L["Animate When"])
-    yOffset = yOffset - 20
-
-    local animAlwaysBtn = self:CreateStyledButton(leftColumn, self.L["Always"], 58, 22)
-    local animCombatBtn = self:CreateStyledButton(leftColumn, self.L["Combat"], 58, 22)
-    local animOutBtn = self:CreateStyledButton(leftColumn, self.L["No Combat"], 70, 22)
-    animAlwaysBtn:SetPoint("TOPLEFT", 20, yOffset)
-    animCombatBtn:SetPoint("LEFT", animAlwaysBtn, "RIGHT", 6, 0)
-    animOutBtn:SetPoint("LEFT", animCombatBtn, "RIGHT", 6, 0)
-    self.optionControls.animationCombatModeButtons = {
-        always = animAlwaysBtn,
-        combat = animCombatBtn,
-        outofcombat = animOutBtn,
-    }
-
-    local function UpdateAnimationModeButtons()
-        local mode = GetAnimationCombatMode()
-        animAlwaysBtn:SetAlpha(mode == "always" and 1 or 0.6)
-        animCombatBtn:SetAlpha(mode == "combat" and 1 or 0.6)
-        animOutBtn:SetAlpha(mode == "outofcombat" and 1 or 0.6)
-    end
-    UpdateAnimationModeButtons()
-    yOffset = yOffset - 30
-
-    animAlwaysBtn:SetScript("OnClick", function()
-        SQP:SetSetting('animationCombatMode', "always")
-        UpdateAnimationModeButtons()
-        SQP:RefreshAllNameplates()
-    end)
-    animCombatBtn:SetScript("OnClick", function()
-        SQP:SetSetting('animationCombatMode', "combat")
-        UpdateAnimationModeButtons()
-        SQP:RefreshAllNameplates()
-    end)
-    animOutBtn:SetScript("OnClick", function()
-        SQP:SetSetting('animationCombatMode', "outofcombat")
-        UpdateAnimationModeButtons()
-        SQP:RefreshAllNameplates()
-    end)
-
-    local globalIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    globalIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
-    globalIntensityLabel:SetText(format(self.L["Global Intensity: %d%%"], SQPSettings.globalAnimationIntensity or 100))
-    self.optionControls.globalAnimationIntensityLabel = globalIntensityLabel
-
-    local globalIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
-    globalIntensitySlider:SetPoint("TOPLEFT", globalIntensityLabel, "BOTTOMLEFT", 0, -4)
-    globalIntensitySlider:SetValue(SQPSettings.globalAnimationIntensity or 100)
-    self.optionControls.globalAnimationIntensity = globalIntensitySlider
-
-    local globalIntensityReset = self:CreateInlineResetButton(leftColumn, function()
-        SQP:SetSetting('globalAnimationIntensity', 100)
-        globalIntensitySlider:SetValue(100)
-        globalIntensityLabel:SetText(self.L["Global Intensity: 100%"])
-        SQP:RefreshAllNameplates()
-    end)
-    globalIntensityReset:SetPoint("LEFT", globalIntensitySlider, "RIGHT", 4, 0)
-    yOffset = yOffset - 44
-
-    local function UpdateGlobalAnimationControls()
-        local override = SQPSettings.useGlobalAnimationSettings == true
-        if globalAnimEnableFrame then
-            globalAnimEnableFrame:SetAlpha(override and 1 or 0.5)
-            if globalAnimEnableFrame.checkbox then
-                globalAnimEnableFrame.checkbox:SetEnabled(override)
-            end
-        end
-        if globalIntensitySlider then
-            globalIntensitySlider:SetEnabled(override)
-            globalIntensitySlider:SetAlpha(override and 1 or 0.5)
-        end
-        if globalIntensityReset then
-            globalIntensityReset:SetAlpha(override and 0.7 or 0.35)
-        end
-        if globalIntensityLabel then
-            globalIntensityLabel:SetAlpha(override and 1 or 0.6)
-        end
-    end
-
-    overrideAnimFrame.checkbox:SetScript("OnClick", function(self)
-        SQP:SetSetting('useGlobalAnimationSettings', self:GetChecked())
-        UpdateGlobalAnimationControls()
-        SQP:RefreshAllNameplates()
-    end)
-    globalAnimEnableFrame.checkbox:SetScript("OnClick", function(self)
-        SQP:SetSetting('globalAnimationEnabled', self:GetChecked())
-        SQP:RefreshAllNameplates()
-    end)
-    globalIntensitySlider:SetScript("OnValueChanged", function(self, value)
-        value = math.floor(value / 5 + 0.5) * 5
-        SQP:SetSetting('globalAnimationIntensity', value)
-        globalIntensityLabel:SetText(format(self.L["Global Intensity: %d%%"], value))
-        SQP:RefreshAllNameplates()
-    end)
-    UpdateGlobalAnimationControls()
-
     -- Combat Settings
-    local combatSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local combatSection = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     combatSection:SetPoint("TOPLEFT", 20, yOffset)
     combatSection:SetText("|cff58be81" .. (self.L["OPTIONS_COMBAT"] or "Combat Settings") .. "|r")
-    yOffset = yOffset - 20
+    yOffset = yOffset - 14
 
     local combatFrame = self:CreateStyledCheckbox(leftColumn, self.L["OPTIONS_HIDE_COMBAT"] or "Hide Icons in Combat")
     combatFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -215,7 +115,7 @@ function SQP:CreateGlobalOptions(content)
     combatFrame.checkbox:SetScript("OnClick", function(self)
         SQP:SetSetting('hideInCombat', self:GetChecked()); SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 26
+    yOffset = yOffset - 18
 
     local instanceFrame = self:CreateStyledCheckbox(leftColumn, self.L["OPTIONS_HIDE_INSTANCE"] or "Hide Icons in Instances")
     instanceFrame:SetPoint("TOPLEFT", 20, yOffset)
@@ -224,25 +124,24 @@ function SQP:CreateGlobalOptions(content)
     instanceFrame.checkbox:SetScript("OnClick", function(self)
         SQP:SetSetting('hideInInstance', self:GetChecked()); SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 34
+    yOffset = yOffset - 20
 
-    local testButton = self:CreateStyledButton(leftColumn, self.L["OPTIONS_TEST"] or "Test Detection", 140, 25)
+    local testButton = self:CreateStyledButton(leftColumn, self.L["OPTIONS_TEST"] or "Test Detection", 120, 20)
     testButton:SetPoint("TOPLEFT", 20, yOffset)
     testButton:SetScript("OnClick", function() SQP:TestQuestDetection() end)
-    yOffset = yOffset - 34
 
-    local resetButton = self:CreateStyledButton(leftColumn, self.L["OPTIONS_RESET"] or "Reset All Settings", 160, 25)
-    resetButton:SetPoint("TOPLEFT", 20, yOffset)
+    local resetButton = self:CreateStyledButton(leftColumn, self.L["OPTIONS_RESET"] or "Reset All Settings", 138, 20)
+    resetButton:SetPoint("LEFT", testButton, "RIGHT", 8, 0)
     resetButton:SetAlpha(0.8)
     resetButton:SetScript("OnClick", function() StaticPopup_Show("SQP_RESET_CONFIRM") end)
 
     -- ── RIGHT COLUMN: Position & Scale ────────────────────────────────────────
-    local rightYOffset = -15
+    local rightYOffset = -12
 
-    local posScaleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    local posScaleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     posScaleLabel:SetPoint("TOPLEFT", 20, rightYOffset)
     posScaleLabel:SetText(self.L["|cff58be81Position & Scale|r"])
-    rightYOffset = rightYOffset - 20
+    rightYOffset = rightYOffset - 14
 
     -- Global Scale
     local scaleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
@@ -269,7 +168,7 @@ function SQP:CreateGlobalOptions(content)
         scaleLabel:SetText(format(self.L["Scale: %.1f"], value))
         SQP:RefreshAllNameplates()
     end)
-    rightYOffset = rightYOffset - 48
+    rightYOffset = rightYOffset - 40
 
     -- X Offset
     local xLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
@@ -296,7 +195,7 @@ function SQP:CreateGlobalOptions(content)
         xLabel:SetText(format(self.L["Offset X: %d"], value))
         SQP:RefreshAllNameplates()
     end)
-    rightYOffset = rightYOffset - 48
+    rightYOffset = rightYOffset - 40
 
     -- Y Offset
     local yLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
@@ -323,16 +222,16 @@ function SQP:CreateGlobalOptions(content)
         yLabel:SetText(format(self.L["Offset Y: %d"], value))
         SQP:RefreshAllNameplates()
     end)
-    rightYOffset = rightYOffset - 48
+    rightYOffset = rightYOffset - 40
 
     -- Nameplate Side
     local anchorLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     anchorLabel:SetPoint("TOPLEFT", 20, rightYOffset)
     anchorLabel:SetText(self.L["Nameplate Side"])
-    rightYOffset = rightYOffset - 22
+    rightYOffset = rightYOffset - 18
 
-    local leftBtn  = self:CreateStyledButton(rightColumn, self.L["Left Side"],  90, 25)
-    local rightBtn = self:CreateStyledButton(rightColumn, self.L["Right Side"], 90, 25)
+    local leftBtn  = self:CreateStyledButton(rightColumn, self.L["Left Side"],  84, 20)
+    local rightBtn = self:CreateStyledButton(rightColumn, self.L["Right Side"], 84, 20)
     leftBtn:SetPoint("TOPLEFT", 20, rightYOffset)
     rightBtn:SetPoint("LEFT", leftBtn, "RIGHT", 8, 0)
     self.optionControls.anchorButtons = {left = leftBtn, right = rightBtn}
@@ -364,4 +263,54 @@ function SQP:CreateGlobalOptions(content)
         SQP:RefreshAllNameplates()
     end)
     anchorReset:SetPoint("LEFT", rightBtn, "RIGHT", 6, 0)
+
+    rightYOffset = rightYOffset - 30
+
+    local fontHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    fontHeader:SetPoint("TOPLEFT", 20, rightYOffset)
+    fontHeader:SetText("|cff" .. rgxAccent .. self.L["Nameplate Font|r"])
+    rightYOffset = rightYOffset - 14
+
+    if rgxFonts and type(rgxFonts.CreateFontSettingControl) == "function" then
+        local rgxDropdown = rgxFonts:CreateFontSettingControl(rightColumn, {
+            label = self.L["Apply to SQP nameplate text"],
+            width = 220,
+            buttonWidth = 172,
+            storage = SQPSettings,
+            key = "fontFamily",
+            defaultName = rgxFonts:FindByPath(SQPSettings.fontFamily) or rgxFonts:GetDefault(),
+            onChange = function(_, fontName, fontPath)
+                SQP:SetSetting('fontFamily', fontPath)
+                SQP:SetSetting('killFontFamily', fontPath)
+                SQP:SetSetting('lootFontFamily', fontPath)
+                SQP:SetSetting('percentFontFamily', fontPath)
+                if SQP.optionControls then
+                    if SQP.optionControls.killFontFamily and type(SQP.optionControls.killFontFamily.SetPath) == "function" then
+                        SQP.optionControls.killFontFamily:SetPath(fontPath)
+                    end
+                    if SQP.optionControls.lootFontFamily and type(SQP.optionControls.lootFontFamily.SetPath) == "function" then
+                        SQP.optionControls.lootFontFamily:SetPath(fontPath)
+                    end
+                    if SQP.optionControls.percentFontFamily and type(SQP.optionControls.percentFontFamily.SetPath) == "function" then
+                        SQP.optionControls.percentFontFamily:SetPath(fontPath)
+                    end
+                end
+                SQP:RefreshAllNameplates()
+            end,
+        })
+        rgxDropdown:SetPoint("TOPLEFT", 20, rightYOffset)
+        self.optionControls.rgxGeneralFontDropdown = rgxDropdown
+
+        local rgxNote = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        rgxNote:SetPoint("TOPLEFT", rgxDropdown, "BOTTOMLEFT", 0, -4)
+        rgxNote:SetWidth(220)
+        rgxNote:SetJustifyH("LEFT")
+        rgxNote:SetText(self.L["|cff58be81Changes the font used on SQP nameplates.|r"])
+    else
+        local rgxMissing = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        rgxMissing:SetPoint("TOPLEFT", 20, rightYOffset)
+        rgxMissing:SetWidth(220)
+        rgxMissing:SetJustifyH("LEFT")
+        rgxMissing:SetText(self.L["RGX-Framework font tools are unavailable right now."])
+    end
 end
