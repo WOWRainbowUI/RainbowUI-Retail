@@ -45,9 +45,6 @@ local defaults = {
         hdrTxtColorShare = false,
         hdrBtnColor = KT.TRACKER_DEFAULT_COLOR,
         hdrBtnColorShare = false,
-        hdrQuestsTitleAppend = true,
-        hdrAchievsTitleAppend = true,
-        hdrPetTrackerTitleAppend = true,
         hdrTrackerBgrShow = true,
         hdrCollapsedTxt = 2,
         hdrOtherButtons = true,
@@ -57,21 +54,7 @@ local defaults = {
         qiActiveButton = true,
         qiActiveButtonBindingShow = true,
 
-        hideEmptyTracker = false,
-
-        tooltipShow = true,
-        tooltipShowRewards = true,
-        tooltipShowID = true,
-        menuWowheadURL = true,
-        menuWowheadURLModifier = "",
-        menuYouTubeURL = true,
-        menuYouTubeURLModifier = "",
-        questShowTags = true,
-        questShowZones = true,
-        taskShowFactions = true,
-        questAutoFocusClosest = false,
         questLogShowDetails = true,
-        achievProgressAutoTrack = true,
 
         messageQuest = true,
         messageAchievement = true,
@@ -81,15 +64,34 @@ local defaults = {
         soundQuest = false,
         soundQuestComplete = "KT - Default",
 
+        hideEmptyTracker = false,
+
         modulesOrder = KT.MODULES,
 
-        addonMasque = false,
-        addonPetTracker = false,
-        addonTomTom = false,
-        addonRareScanner = false,
+        tooltipShow = true,
+        tooltipShowRewards = true,
+        tooltipShowID = true,
+        menuWowheadURL = true,
+        menuWowheadURLModifier = "",
+        menuYouTubeURL = true,
+        menuYouTubeURLModifier = "",
+
+        questsHeaderAppend = true,
+        questsShowTags = true,
+        questsShowZone = true,
+        questsAutoFocusClosest = false,
+        tasksShowFaction = true,
+        achievsHeaderAppend = true,
+        achievsProgressAutoTrack = true,
+        scenarioEnemyForcesFormat = 1,
+
         addonAuctionator = false,
         addonBtWQuests = false,
+        addonMasque = false,
         addonNarcissus = false,
+        addonPetTracker = false,
+        addonRareScanner = false,
+        addonTomTom = false,
     },
     char = {
         collapsed = false,
@@ -104,15 +106,18 @@ local defaults = {
         waypoint = {
             mapID = 0,
             id = 0,
-            type = nil
+            type = nil,
+            stype = nil
         }
     }
 }
+
 for cmd, int in pairs(KT.KEYBINDINGS) do
     if int then
         defaults.profile[cmd] = ""
     end
 end
+
 for _, ctx in ipairs(KT.VISIBILITY_CONTEXTS) do
     defaults.profile["visibility"..ctx] = "show"
 end

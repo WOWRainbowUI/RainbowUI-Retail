@@ -403,6 +403,7 @@ local function POIButton_UpdateNormalStyle(poiButton)
 
 	poiButton:UpdateUnderlay();
 	poiButton:UpdateSubTypeIcon();
+	poiButton:UpdateLockIcon();
 end
 
 KT_POIButtonMixin = {};
@@ -898,6 +899,23 @@ do
 
 	function KT_POIButtonMixin:UpdateSubTypeIcon()
 		CheckCreateExtraTexture(self, "SubTypeIcon", GetSubTypeAtlas, CreateSubTypeIcon, self.Display);
+	end
+
+	local function GetLockAtlas(self)
+		local areaPOIInfo = self:GetAreaPOIInfo();
+		if areaPOIInfo and areaPOIInfo.isLocked then
+			return "ui-eventpoi-lock", TextureKitConstants.UseAtlasSize;
+		end
+	end
+
+	local function CreateLockIcon(self) -- NOTE: self is a POIButton.Display here.
+		local t = self:CreateTexture(nil, "ARTWORK", nil, 2);
+		t:SetPoint("CENTER", self, "CENTER", 0, 0); -- TODO: Would be ideal to avoid hardcoding these offsets
+		return t;
+	end
+
+	function KT_POIButtonMixin:UpdateLockIcon()
+		CheckCreateExtraTexture(self, "LockIcon", GetLockAtlas, CreateLockIcon, self.Display);
 	end
 end
 

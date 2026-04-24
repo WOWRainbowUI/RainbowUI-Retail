@@ -48,6 +48,7 @@ KT.frame = KTF
 local OTF = KT_ObjectiveTrackerFrame
 local OTFHeader = OTF.Header
 local MawBuffs = KT_ScenarioObjectiveTracker.MawBuffsBlock.Container
+local TieredEntranceTraits = KT_ScenarioObjectiveTracker.TieredEntranceTraitsBlock.Container
 local UIWidgetBaseScenarioHeaderText
 
 local KTSetShown, KTSetWidth, KTSetHeight, KTSetPoint, KTClearAllPoints, KTSetScale, KTSetFrameStrata, KTSetAlpha
@@ -346,12 +347,12 @@ local function SetFrames()
 				dbChar.quests.num = KT.QuestsCache_Update()
 				KT:SetQuestsHeaderText()
 
-				if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
+				if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 					KT.QuestSuperTracking_ChooseClosestQuest()
 				end
 			end
 		elseif event == "QUEST_TURNED_IN" then
-			if db.questAutoFocusClosest then
+			if db.questsAutoFocusClosest then
 				KT.QuestSuperTracking_ChooseClosestQuest()
 			end
 		elseif event == "QUEST_WATCH_UPDATE" then
@@ -361,7 +362,7 @@ local function SetFrames()
 			KT:SetAchievsHeaderText()
         elseif event == "CRITERIA_EARNED" then
             local achievementID = ...
-            if db.achievProgressAutoTrack then
+            if db.achievsProgressAutoTrack then
                 KT.AddTrackedAchievement(achievementID)
             end
 		elseif event == "PLAYER_REGEN_ENABLED" and KT.combatLockdown then
@@ -470,6 +471,7 @@ local function SetFrames()
 	Scroll:SetScript("OnVerticalScroll", function(self, offset)
 		MSA_CloseDropDownMenus()
 		MawBuffs.List:Hide()
+		TieredEntranceTraits.List:Hide()
 	end)
 	KTF.Scroll = Scroll
 
@@ -550,6 +552,10 @@ local function SetFrames()
 	MawBuffs.List:SetParent(UIParent)
 	MawBuffs.List:SetFrameLevel(MawBuffs:GetFrameLevel() - 1)
 	MawBuffs.List:SetClampedToScreen(true)
+	TieredEntranceTraits:SetPoint("BOTTOM", TieredEntranceTraits:GetParent(), "BOTTOM", -2, 2)
+	TieredEntranceTraits.List:SetParent(UIParent)
+	TieredEntranceTraits.List:SetFrameLevel(TieredEntranceTraits:GetFrameLevel() - 1)
+	TieredEntranceTraits.List:SetClampedToScreen(true)
 	HelpTip:Hide(MawBuffs, JAILERS_TOWER_BUFFS_TUTORIAL)
 
 	-- Other buttons
@@ -1085,7 +1091,7 @@ local function SetHooks()
 	end
 
 	hooksecurefunc(QuestUtil, "UntrackWorldQuest", function(questID)
-		if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
+		if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 			KT.QuestSuperTracking_ChooseClosestQuest()
 		end
 	end)
@@ -1093,7 +1099,7 @@ local function SetHooks()
 	function KT_ObjectiveTrackerBlockMixin:SetHeader(text, questID, isQuestComplete, quest)
 		local isTask = questID and QuestUtil.IsQuestTrackableTask(questID)
 		if questID and not isTask then
-			if db.questShowTags then
+			if db.questsShowTags then
 				local tagInfo = KT.GetQuestTagInfo(questID)
 				text = KT:CreateQuestTag(quest.level, tagInfo.tagID, quest.frequency, quest.suggestedGroup)..text
 			end
@@ -1124,7 +1130,7 @@ local function SetHooks()
 			if not isTask then
 				local questsCache = dbChar.quests.cache
                 KT.T_Set("cache", questsCache[questID], self.parentModule.name, "questData")
-				if db.questShowZones and questsCache[questID] then
+				if db.questsShowZone and questsCache[questID] then
 					local infoText = questsCache[questID].zone
 					if infoText then
 						if questsCache[questID].isCalling then
@@ -1137,7 +1143,7 @@ local function SetHooks()
 					end
 				end
 			else
-				if db.taskShowFactions then
+				if db.tasksShowFaction then
 					local _, factionID, capped = C_TaskQuest.GetQuestInfoByQuestID(questID)
 					local factionData = factionID and C_Reputation.GetFactionDataByID(factionID)
 					local factionColor = KT_OBJECTIVE_TRACKER_COLOR["Zone"]
@@ -1189,59 +1195,10 @@ local function SetHooks()
 	end)
 	KT_WorldQuestObjectiveTracker.OnFreeBlock = KT_BonusObjectiveTracker.OnFreeBlock
 
-	local function SetProgressBarStyle(block, progressBar, xOffsetMod)
-		if progressBar.KTskinID ~= KT.skinID then
-			block.height = block.height - progressBar.height
-
-			progressBar:SetSize(240, 21)
-			progressBar.height = 21
-
-			local xOffset = KT.dashWidth + 2
-			progressBar.Bar:SetSize(205 - xOffset, 13)
-			progressBar.Bar:EnableMouse(false)
-			progressBar.Bar:ClearAllPoints()
-
-			if progressBar.Bar.BarFrame then
-				-- World Quest / Scenario
-				xOffsetMod = xOffsetMod or 0
-				progressBar.Bar:SetPoint("LEFT", xOffset + xOffsetMod, 0)
-				progressBar.Bar.BarFrame:Hide()
-				progressBar.Bar.BarFrame2:Hide()
-				progressBar.Bar.BarFrame3:Hide()
-				progressBar.Bar.BarGlow:Hide()
-				progressBar.Bar.Sheen:Hide()
-				progressBar.Bar.Starburst:Hide()
-			else
-				-- Default
-				progressBar.Bar:SetPoint("LEFT", xOffset, 0)
-				progressBar.Bar.BorderLeft:Hide()
-				progressBar.Bar.BorderRight:Hide()
-				progressBar.Bar.BorderMid:Hide()
-			end
-
-			local border1 = progressBar.Bar:CreateTexture(nil, "BACKGROUND", nil, -2)
-			border1:SetPoint("TOPLEFT", -1, 1)
-			border1:SetPoint("BOTTOMRIGHT", 1, -1)
-			border1:SetColorTexture(0, 0, 0)
-
-			local border2 = progressBar.Bar:CreateTexture(nil, "BACKGROUND", nil, -3)
-			border2:SetPoint("TOPLEFT", -2, 2)
-			border2:SetPoint("BOTTOMRIGHT", 2, -2)
-			border2:SetColorTexture(0.4, 0.4, 0.4)
-
-			progressBar.Bar.Label:SetPoint("CENTER", 0, 0.5)
-			progressBar.Bar.Label:SetFont(LSM:Fetch("font", "Arial Narrow"), 13, "")
-			progressBar.Bar:SetStatusBarTexture(LSM:Fetch("statusbar", db.progressBar))
-			progressBar.KTskinID = KT.skinID
-			progressBar.isSkinned = true  -- ElvUI hack
-
-			block.height = block.height + progressBar.height
-		end
-	end
-
 	function KT_ObjectiveTrackerBlockMixin:AddProgressBar(id, lineSpacing)
 		local progressBar = KT.KT_ObjectiveTrackerBlockMixin.AddProgressBar(self, id, lineSpacing)
-		SetProgressBarStyle(self, progressBar)
+		KT.ProgressBar_SetStyle(self, progressBar)
+		KT.ProgressBar_SetValue(self, progressBar, id)
 		return progressBar
 	end
 
@@ -1334,6 +1291,7 @@ local function SetHooks()
 			_DBG("COLLAPSE", true)
 			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.25)
 			MawBuffs.List:Hide()
+			TieredEntranceTraits.List:Hide()
 		else
 			_DBG("EXPAND", true)
 			KTF.MinimizeButton:GetNormalTexture():SetTexCoord(0, 0.5, 0.25, 0.5)
@@ -1450,7 +1408,7 @@ local function SetHooks()
 
 	function KT_QuestObjectiveTracker:UntrackQuest(questID)  -- N
 		C_QuestLog.RemoveQuestWatch(questID)
-		if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
+		if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 			KT.QuestSuperTracking_ChooseClosestQuest()
 		end
 	end
@@ -1760,7 +1718,7 @@ local function SetHooks()
 		info = KT.Menu_CreateInfo();
 		info.notCheckable = 1;
 
-		info.text = "Open "..TRACKER_HEADER_MONTHLY_ACTIVITIES;
+		info.text = OBJECTIVES_VIEW_IN_TRAVELERS_LOG;
 		info.func = function()
 			block.parentModule:OpenFrameToActivity(block.id)
 		end;
@@ -1806,7 +1764,7 @@ local function SetHooks()
         info = KT.Menu_CreateInfo();
         info.notCheckable = 1;
 
-        info.text = OBJECTIVES_VIEW_IN_QUESTLOG;
+        info.text = OBJECTIVES_VIEW_IN_ENDEAVORS_TAB;
         info.func = function()
             HousingFramesUtil.OpenFrameToTaskID(block.id)
         end;
@@ -1944,6 +1902,26 @@ local function SetHooks()
 	end)
 
 	MawBuffs.UpdateHelptip = function() end
+
+	-- Blizzard_TieredEntranceTraits.lua
+	hooksecurefunc(TieredEntranceTraits, "UpdateAlignment", function(self)
+		if KTF.anchorLeft == self.KTanchorLeft then return end
+
+		self.KTanchorLeft = KTF.anchorLeft
+
+		self.List:ClearAllPoints()
+		self.Arrow:ClearAllPoints()
+
+		if KTF.anchorLeft then
+			self.List:SetPoint("TOPLEFT", self, "TOPRIGHT", 17, 1)
+			self.Arrow:SetAtlas("themed-scenario-challenge-flyout-forwardarrow", TextureKitConstants.UseAtlasSize)
+			self.Arrow:SetPoint("LEFT", self, "RIGHT", -5, 0)
+		else
+			self.List:SetPoint("TOPRIGHT", self, "TOPLEFT", -17, 1)
+			self.Arrow:SetAtlas("themed-scenario-challenge-flyout-backarrow", TextureKitConstants.UseAtlasSize)
+			self.Arrow:SetPoint("RIGHT", self, "LEFT", 5, 0)
+		end
+	end)
 
 	-- Update Mixins
 	Default_UpdateMixins()
@@ -2218,7 +2196,7 @@ function KT:SetHeaderText(module, append)
 end
 
 function KT:SetQuestsHeaderText(reset)
-	if db.hdrQuestsTitleAppend then
+	if db.questsHeaderAppend then
 		self:SetHeaderText(KT_QuestObjectiveTracker, dbChar.quests.num.."/"..MAX_QUESTS)
 	elseif reset then
 		self:SetHeaderText(KT_QuestObjectiveTracker)
@@ -2226,7 +2204,7 @@ function KT:SetQuestsHeaderText(reset)
 end
 
 function KT:SetAchievsHeaderText(reset)
-	if db.hdrAchievsTitleAppend then
+	if db.achievsHeaderAppend then
 		self:SetHeaderText(KT_AchievementObjectiveTracker, GetTotalAchievementPoints())
 	elseif reset then
 		self:SetHeaderText(KT_AchievementObjectiveTracker)

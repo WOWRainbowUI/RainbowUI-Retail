@@ -105,7 +105,7 @@ local function SetHooks()
 	end)
 
 	hooksecurefunc("QuestMapQuestOptions_TrackQuest", function(questID)
-		if db.questAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
+		if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 			KT.QuestSuperTracking_ChooseClosestQuest()
 		end
 	end)

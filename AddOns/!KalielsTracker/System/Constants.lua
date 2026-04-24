@@ -90,6 +90,7 @@ local MAP_CONTINENT_OVERRIDES = {
     [2444] = { mapID = 2405 },        -- Slayer's Rise
     [2405] = { mapID = 2405 },        -- Voidstorm
     [2413] = { mapID = 2413 },        -- Harandar
+    [2541] = { mapID = 2541 },        -- Arcantina
     [2351] = { mapID = 2351 },        -- Razorwind Shores (Housing)
     [2352] = { mapID = 2352 },        -- Founder's Point (Housing)
     [2472] = { mapID = 2371 },        -- Tazavesh

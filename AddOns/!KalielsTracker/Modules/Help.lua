@@ -345,18 +345,16 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 8.4.0|r\n"..
-					"- 新增（任務）- 新排序選項「將已完成任務置底」\n"..
-					"- 新增 - 插件支援 - Narcissus 1.8.5\n"..
-					offs3.."- 可從任務追蹤器直接在 Narcissus 視窗開啟成就。\n"..
+					(cTitle.."版本 8.5.0|r\n"..
+					"- 新增 - TomTom - 奇珍異寶路徑點支援（例如：戰爭補給箱）\n"..
+					"- 新增（情境）- 史詩鑰石 - 可設定的敵方戰力進度格式\n"..
+					"- 新增 - 支援魔獸世界 12.0.5.67088\n"..
+					"- 新增 - 支援魔獸世界 12.0.1.66384\n"..
+					"- 新增 - 支援魔獸世界 12.0.1.66192\n"..
 					"- 變更（說明）- 活躍贊助者名單\n"..
-					"- 變更 - 插件支援 - TomTom 4.2.24\n"..
-					"- 變更 - 插件支援 - RareScanner 12.0.1.16\n"..
-					"- 變更 - 插件支援 - Auctionator 319\n"..
-					"- 變更 - 函式庫更新\n"..
-					"- 修正 - 界面污染錯誤（4 項）\n"..
-					"- 修正 -「顯示大陸成就」篩選選項無效的問題\n"..
-					"- 移除 - 插件支援 - RealUI\n"..
+					"- 變更 - 選項 - 重新整理模組與支援插件的設定版面\n"..
+					offs3.."- 部分設定已重新命名並重置為預設值。\n"..
+					"- 修正（成就）- 部分深淵探索成就未依區域篩選\n"..
 					"\n")..
 
 					cTitle.."問題回報|r\n"..
@@ -438,7 +436,6 @@ local function SetupTutorials()
 					"一個小型的個人專案，成長為需要投入大量時間且持續維護的龐大系統。\n\n"..
 					"非常感謝所有協助維持本專案運作的支持者們 "..ICON_HEART.."\n\n\n"..
 					cTitle.."Active Patrons|r\n"..
-					SetFormatedPatronName("Legendary", "Kaelandros")..
 					SetFormatedPatronName("Epic", "Liothen", "Emerald Dream")..
 					SetFormatedPatronName("Epic", "Soromeister")..
                     SetFormatedPatronName("Rare", "David Blanchard")..

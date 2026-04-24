@@ -914,55 +914,14 @@ local options = {
 						sec4SpacerMid1 = {
 							name = " ",
 							type = "description",
-							order = 3.5,
-						},
-						hdrQuestsTitleAppend = {
-							name = "顯示任務數量",
-							desc = "在任務標題中顯示任務數量。",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.hdrQuestsTitleAppend = not db.hdrQuestsTitleAppend
-								KT:SetQuestsHeaderText(true)
-							end,
 							order = 4,
-						},
-						hdrAchievsTitleAppend = {
-							name = "顯示成就點數",
-							desc = "在成就標題中顯示成就點數。",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.hdrAchievsTitleAppend = not db.hdrAchievsTitleAppend
-								KT:SetAchievsHeaderText(true)
-							end,
-							order = 5,
-						},
-						hdrPetTrackerTitleAppend = {  -- Addon - PetTracker
-							name = "顯示已收藏的戰寵數量",
-							desc = "在戰寵助手 PetTracker 的標題列中顯示已收藏的戰寵數量。",
-							type = "toggle",
-							width = "normal+half",
-							disabled = function()
-								return not KT.AddonPetTracker.isAvailable
-							end,
-							set = function()
-								db.hdrPetTrackerTitleAppend = not db.hdrPetTrackerTitleAppend
-								KT.AddonPetTracker:SetPetsHeaderText(true)
-							end,
-							order = 6,
-						},
-						sec4SpacerMid2 = {
-							name = " ",
-							type = "description",
-							order = 7,
 						},
 						hdrCollapsedTxtLabel = {
 							name = "      最小化時的摘要文字",
 							type = "description",
 							width = "normal",
 							fontSize = "medium",
-							order = 9,
+							order = 5,
 						},
 						hdrCollapsedTxt1 = {
 							name = "無",
@@ -976,7 +935,7 @@ local options = {
 								db.hdrCollapsedTxt = 1
 								OTF:Update()
 							end,
-							order = 9.1,
+							order = 5.1,
 						},
 						hdrCollapsedTxt2 = {
 							name = "|T"..KT.MEDIA_PATH.."KT_logo:22:22:2:0|t 所有目標",
@@ -989,12 +948,12 @@ local options = {
 								db.hdrCollapsedTxt = 2
 								OTF:Update()
 							end,
-							order = 9.2,
+							order = 5.2,
 						},
 						sec4SpacerMid3 = {
 							name = " ",
 							type = "description",
-							order = 10,
+							order = 6,
 						},
 						hdrOtherButtons = {
 							name = "顯示任務日誌和成就按鈕",
@@ -1006,7 +965,7 @@ local options = {
 								KT:SetBackground()
                                 KT:SendSignal("OPTIONS_CHANGED")
 							end,
-							order = 11,
+							order = 7,
 						},
 					},
 				},
@@ -1104,199 +1063,11 @@ local options = {
 					inline = true,
 					order = 6,
 					args = {
-						tooltipTitle = {
-							name = cTitle.."浮動提示資訊",
-							type = "description",
-							fontSize = "medium",
-							order = 2,
-						},
-						tooltipShow = {
-							name = "顯示浮動提示資訊",
-							desc = "顯示任務/世界任務/成就/事件的浮動提示資訊。",
-							type = "toggle",
-							set = function()
-								db.tooltipShow = not db.tooltipShow
-							end,
-							order = 2.1,
-						},
-						tooltipShowRewards = {
-							name = "顯示獎勵",
-							desc = "在浮動提示資訊內顯示任務獎勵 - 神兵之力、職業大廳資源、金錢、裝備...等。",
-							type = "toggle",
-							disabled = function()
-								return not db.tooltipShow
-							end,
-							set = function()
-								db.tooltipShowRewards = not db.tooltipShowRewards
-							end,
-							order = 2.2,
-						},
-						tooltipShowID = {
-							name = "顯示 ID",
-							desc = "在浮動提示資訊內顯示任務/世界任務/成就的 ID。",
-							type = "toggle",
-							disabled = function()
-								return not db.tooltipShow
-							end,
-							set = function()
-								db.tooltipShowID = not db.tooltipShowID
-							end,
-							order = 2.3,
-						},
-						menuTitle = {
-							name = "\n"..cTitle.."選單項目",
-							type = "description",
-							fontSize = "medium",
-							order = 3,
-						},
-                        menuWowheadURL = {
-							name = "Wowhead 網址",
-							desc = "在追蹤清單和任務記錄內顯示 Wowhead 網址選單項目。",
-							type = "toggle",
-							set = function()
-								db.menuWowheadURL = not db.menuWowheadURL
-							end,
-							order = 3.1,
-						},
-                        menuWowheadURLModifier = {
-							name = "Wowhead 網址輔助鍵",
-							type = "select",
-							values = modifiers,
-							get = function()
-								for k, v in pairs(modifiers) do
-									if db.menuWowheadURLModifier == k then
-										return k
-									end
-								end
-							end,
-							set = function(_, value)
-								db.menuWowheadURLModifier = value
-							end,
-							order = 3.2,
-						},
-						menuWowheadURLSpacer = {
-							name = " ",
-							type = "description",
-							width = "normal",
-							order = 3.3,
-						},
-						menuYouTubeURL = {
-							name = "YouTube 搜尋網址",
-							desc = "在追蹤清單與任務日誌中顯示 YouTube 搜尋連結選單項目。",
-							type = "toggle",
-							set = function()
-								db.menuYouTubeURL = not db.menuYouTubeURL
-							end,
-							order = 3.4,
-						},
-						menuYouTubeURLModifier = {
-							name = "YouTube 搜尋網址點擊輔助鍵",
-							type = "select",
-							values = modifiers,
-							get = function()
-								for k, v in pairs(modifiers) do
-									if db.menuYouTubeURLModifier == k then
-										return k
-									end
-								end
-							end,
-							set = function(_, value)
-								db.menuYouTubeURLModifier = value
-							end,
-							order = 3.5,
-						},
-                        questTitle = {
-                            name = cTitle.."\n 任務",
-                            type = "description",
-                            fontSize = "medium",
-                            order = 4,
-                        },
-                        questShowTags = {
-							name = "顯示任務標籤",
-							desc = "在任務追蹤清單中顯示/隱藏任務標籤 (任務等級、任務類型)。",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.questShowTags = not db.questShowTags
-								OTF:Update()
-							end,
-							order = 4.1,
-						},
-						questShowZones = {
-							name = "顯示任務區域",
-							desc = "在任務追蹤清單中顯示/隱藏任務區域。",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.questShowZones = not db.questShowZones
-								OTF:Update()
-							end,
-							order = 4.2,
-						},
-						taskShowFactions = {
-							name = "顯示世界任務陣營",
-							desc = "顯示/隱藏追蹤清單中的世界任務的陣營。",
-							type = "toggle",
-							width = "normal+half",
-							set = function()
-								db.taskShowFactions = not db.taskShowFactions
-								OTF:Update()
-							end,
-							order = 4.3,
-						},
-						questAutoTrack = {
-							name = "自動追蹤新任務",
-							desc = "接受任務時自動追蹤任務，使用遊戲內建的 \"autoQuestWatch\" 參數值。\n"..warning,
-							type = "toggle",
-							width = "normal+half",
-							confirm = true,
-							confirmText = warning,
-							get = function()
-								return GetCVarBool("autoQuestWatch")
-							end,
-							set = function(_, value)
-								SetCVar("autoQuestWatch", value)
-								ReloadUI()
-							end,
-							order = 4.4,
-						},
-						questProgressAutoTrack = {
-							name = "自動追蹤任務進度",
-							desc = "自動監控任務進度更新，使用遊戲內建的 \"autoQuestProgress\" 參數值。\n"..warning,
-							type = "toggle",
-							width = "normal+half",
-							confirm = true,
-							confirmText = warning,
-							get = function()
-								return GetCVarBool("autoQuestProgress")
-							end,
-							set = function(_, value)
-								SetCVar("autoQuestProgress", value)
-								ReloadUI()
-							end,
-							order = 4.5,
-						},
-						questAutoFocusClosest = {
-							name = "自動將最近的任務設為專注                            ",  -- space for a wider tooltip
-							desc = "下列情況會自動將最近的任務設為專注:\n"..
-									"- 交回設為專注的任務，\n"..
-									"- 放棄設為專注的任務，\n"..
-									"- 取消追蹤設為專注的任務，\n"..
-									"- 取消追蹤設為專注的世界任務，\n"..
-									"- 手動或自動選擇區域過濾方式時，沒有任何東西設為專注。",
-							type = "toggle",
-							width = "normal+half",
-                            disabled = true,
-							set = function()
-								db.questAutoFocusClosest = not db.questAutoFocusClosest
-							end,
-							order = 4.6,
-						},
                         questLogTitle = {
-                            name = cTitle.."\n 任務日誌",
+                            name = cTitle.."任務日誌",
                             type = "description",
                             fontSize = "medium",
-                            order = 5,
+                            order = 1,
                         },
                         questLogShowDetails = {
                             name = "在世界地圖上顯示任務內容 "..experimental,
@@ -1306,23 +1077,7 @@ local options = {
                             set = function()
                                 db.questLogShowDetails = not db.questLogShowDetails
                             end,
-                            order = 5.1,
-                        },
-                        achievTitle = {
-                            name = cTitle.."\n 成就",
-                            type = "description",
-                            fontSize = "medium",
-                            order = 6,
-                        },
-                        achievProgressAutoTrack = {
-                            name = "自動追蹤成就進度",
-							desc = "當成就進度更新時會自動加入監看。",
-                            type = "toggle",
-                            width = "normal+half",
-                            set = function()
-                                db.achievProgressAutoTrack = not db.achievProgressAutoTrack
-                            end,
-                            order = 6.1,
+                            order = 1.1,
                         },
 					},
 				},
@@ -1604,11 +1359,11 @@ local options = {
 		modules = {
 			name = "模組",
 			type = "group",
+			childGroups = "tab",
 			args = {
 				sec1 = {
 					name = "模組順序",
 					type = "group",
-					inline = true,
 					order = 1,
 					args = {
 						descCurOrder = {
@@ -1632,211 +1387,546 @@ local options = {
 						},
 					},
 				},
+				sec2 = {
+					name = "一般",
+					type = "group",
+					order = 2,
+					args = {
+						tooltip = {
+							name = "浮動提示資訊",
+							type = "group",
+							inline = true,
+							order = 1,
+							args = {
+								tooltipShow = {
+									name = "顯示浮動提示資訊",
+									desc = "顯示任務 / 世界任務 / 成就 / 任務型地下城的浮動提示資訊。",
+									type = "toggle",
+									set = function()
+										db.tooltipShow = not db.tooltipShow
+									end,
+									order = 1.1,
+								},
+								tooltipShowRewards = {
+									name = "顯示獎勵",
+									desc = "在浮動提示資訊中顯示任務獎勵－神器能量、教團資源、金錢、裝備等。",
+									type = "toggle",
+									disabled = function()
+										return not db.tooltipShow
+									end,
+									set = function()
+										db.tooltipShowRewards = not db.tooltipShowRewards
+									end,
+									order = 1.2,
+								},
+								tooltipShowID = {
+									name = "顯示 ID",
+									desc = "在浮動提示資訊中顯示任務 / 世界任務 / 成就的 ID 編號。",
+									type = "toggle",
+									disabled = function()
+										return not db.tooltipShow
+									end,
+									set = function()
+										db.tooltipShowID = not db.tooltipShowID
+									end,
+									order = 1.3,
+								},
+							},
+						},
+						contextMenu = {
+							name = "右鍵選單",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								menuWowheadURL = {
+									name = "Wowhead 網址",
+									desc = "在追蹤器與任務記錄中顯示 Wowhead 網址選單項目。",
+									type = "toggle",
+									set = function()
+										db.menuWowheadURL = not db.menuWowheadURL
+									end,
+									order = 1.1,
+								},
+								menuWowheadURLModifierLabel = {
+									name = "點擊輔助鍵",
+									type = "description",
+									width = 0.6,
+									fontSize = "medium",
+									justifyH = "RIGHT",
+									order = 1.2,
+								},
+								menuWowheadURLModifier = {
+									name = "",
+									type = "select",
+									values = modifiers,
+									get = function()
+										for k, v in pairs(modifiers) do
+											if db.menuWowheadURLModifier == k then
+												return k
+											end
+										end
+									end,
+									set = function(_, value)
+										db.menuWowheadURLModifier = value
+									end,
+									order = 1.3,
+								},
+								menuYouTubeURL = {
+									name = "YouTube 搜尋網址",
+									desc = "在追蹤器與任務記錄中顯示 YouTube 搜尋網址選單項目。",
+									type = "toggle",
+									set = function()
+										db.menuYouTubeURL = not db.menuYouTubeURL
+									end,
+									order = 2.1,
+								},
+								menuYouTubeURLModifierLabel = {
+									name = "點擊輔助鍵",
+									type = "description",
+									width = 0.6,
+									fontSize = "medium",
+									justifyH = "RIGHT",
+									order = 2.2,
+								},
+								menuYouTubeURLModifier = {
+									name = "",
+									type = "select",
+									values = modifiers,
+									get = function()
+										for k, v in pairs(modifiers) do
+											if db.menuYouTubeURLModifier == k then
+												return k
+											end
+										end
+									end,
+									set = function(_, value)
+										db.menuYouTubeURLModifier = value
+									end,
+									order = 2.3,
+								},
+							},
+						},
+					},
+				},
+				sec3 = {
+					name = "任務",
+					type = "group",
+					order = 3,
+					args = {
+						header = {
+							name = "標題列",
+							type = "group",
+							inline = true,
+							order = 1,
+							args = {
+								questsHeaderAppend = {
+									name = "顯示任務數量",
+									desc = "在任務標題列中顯示任務數量。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsHeaderAppend = not db.questsHeaderAppend
+										KT:SetQuestsHeaderText(true)
+									end,
+									order = 1,
+								},
+							},
+						},
+						contentQuests = {
+							name = "任務內容",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								questsShowTags = {
+									name = "顯示任務標籤",
+									desc = "在追蹤器中顯示／隱藏任務標籤（任務等級、任務類型）。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsShowTags = not db.questsShowTags
+										OTF:Update()
+									end,
+									order = 1,
+								},
+								questsShowZone = {
+									name = "顯示任務區域",
+									desc = "在追蹤器中顯示／隱藏任務所在區域。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsShowZone = not db.questsShowZone
+										OTF:Update()
+									end,
+									order = 2,
+								},
+								questAutoTrack = {
+									name = "自動追蹤任務",
+									desc = "接受任務時自動加入追蹤。使用暴雪的設定值 \"autoQuestWatch\"。\n"..warning,
+									type = "toggle",
+									width = "normal+half",
+									confirm = true,
+									confirmText = warning,
+									get = function()
+										return GetCVarBool("autoQuestWatch")
+									end,
+									set = function(_, value)
+										SetCVar("autoQuestWatch", value)
+										ReloadUI()
+									end,
+									order = 3,
+								},
+								questProgressAutoTrack = {
+									name = "自動追蹤任務進度",
+									desc = "任務進度更新時自動加入追蹤。使用暴雪的設定值 \"autoQuestProgress\"。\n"..warning,
+									type = "toggle",
+									width = "normal+half",
+									confirm = true,
+									confirmText = warning,
+									get = function()
+										return GetCVarBool("autoQuestProgress")
+									end,
+									set = function(_, value)
+										SetCVar("autoQuestProgress", value)
+										ReloadUI()
+									end,
+									order = 4,
+								},
+								questsAutoFocusClosest = {
+									name = "自動專注最近任務                            ",  -- space for a wider tooltip
+									--[[desc = "在特定情況下自動專注最近的任務：\n"..
+											"- 已繳交並曾專注的任務，\n"..
+											"- 已放棄並曾專注的任務，\n"..
+											"- 已取消追蹤並曾專注的任務，\n"..
+											"- 已取消追蹤並曾專注的世界任務，\n"..
+											"- 當您手動或自動選擇區域篩選且沒有任何專注任務時。",]]
+									desc = cWarning2.."（暫時停用）",
+									descStyle = "inline",
+									type = "toggle",
+									width = "normal+half",
+									disabled = true,
+									set = function()
+										db.questsAutoFocusClosest = not db.questsAutoFocusClosest
+									end,
+									order = 5,
+								},
+							},
+						},
+						contentWorldQuests = {
+							name = "世界任務內容",
+							type = "group",
+							inline = true,
+							order = 3,
+							args = {
+								tasksShowFaction = {
+									name = "顯示世界任務陣營",
+									desc = "在追蹤器中顯示／隱藏世界任務的所屬陣營。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.tasksShowFaction = not db.tasksShowFaction
+										OTF:Update()
+									end,
+									order = 1,
+								},
+							},
+						},
+					},
+				},
+				sec4 = {
+					name = "成就",
+					type = "group",
+					order = 4,
+					args = {
+						header = {
+							name = "標題列",
+							type = "group",
+							inline = true,
+							order = 1,
+							args = {
+								achievsHeaderAppend = {
+									name = "顯示成就點數",
+									desc = "在成就標題列中顯示成就點數。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.achievsHeaderAppend = not db.achievsHeaderAppend
+										KT:SetAchievsHeaderText(true)
+									end,
+									order = 1,
+								},
+							},
+						},
+						content = {
+							name = "內容",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								achievsProgressAutoTrack = {
+									name = "自動追蹤成就進度",
+									desc = "成就進度更新時自動加入追蹤。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.achievsProgressAutoTrack = not db.achievsProgressAutoTrack
+									end,
+									order = 1,
+								},
+							},
+						},
+					},
+				},
+				sec5 = {
+					name = "任務型地下城",
+					type = "group",
+					order = 5,
+					args = {
+						contentMythicPlus = {
+							name = "傳奇鑰石內容",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								scenarioEnemyForcesFormatLabel = {
+									name = " 敵軍進度格式",
+									type = "description",
+									width = "normal",
+									fontSize = "medium",
+									order = 1.1,
+								},
+								scenarioEnemyForcesFormat = {
+									name = "",
+									type = "select",
+									width = 1.21,
+									values = function()
+										return KT.ProgressBar_GetFormatOptions()
+									end,
+									set = function(_, value)
+										db.scenarioEnemyForcesFormat = value
+										KT_ScenarioObjectiveTracker:MarkDirty()
+									end,
+									order = 1.2,
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 		addons = {
 			name = "支援插件",
 			type = "group",
+			childGroups = "tab",
 			args = {
-				desc = {
-					name = "|cff00d200綠色|r - 相容版本 - 這個版本經過測試並且已經支援。\n"..
-							"|cffff0000紅色|r - 不相容版本 - 這個版本尚未經過測試，可能需要修改程式碼。\n"..
-							"請回報任何問題。",
-					type = "description",
-					order = 0,
-				},
-				sec1 = {
-					name = "插件",
+				general = {
+					name = "一般",
 					type = "group",
-					inline = true,
 					order = 1,
 					args = {
-                        addonAuctionator = {
-                            name = "Auctionator",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("Auctionator")
-                            end,
-                            set = function()
-                                db.addonAuctionator = not db.addonAuctionator
-                                ReloadUI()
-                            end,
-                            order = 1.1,
-                        },
-                        addonAuctionatorDesc = {
-                            name = "Enables an Auctionator search button inside the Profession module header.",
-                            type = "description",
-                            width = "double",
-                            order = 1.2,
-                        },
-                        addonBtWQuests = {
-                            name = "BtWQuests",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("BtWQuests")
-                            end,
-                            set = function()
-                                db.addonBtWQuests = not db.addonBtWQuests
-                                ReloadUI()
-                            end,
-                            order = 2.1,
-                        },
-                        addonBtWQuestsDesc = {
-                            name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
-                            type = "description",
-                            width = "double",
-                            order = 2.2,
-                        },
-						addonMasque = {
-							name = "按鈕外觀 Masque",
-							desc = "版本: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return (not C_AddOns.IsAddOnLoaded("Masque") or not db.addonMasque or not KT.AddonOthers:IsEnabled())
-							end,
-							set = function()
-								db.addonMasque = not db.addonMasque
-								ReloadUI()
-							end,
-							order = 3.1,
-						},
-						addonMasqueDesc = {
-							name = "啟用任務物品和當前任務物品的按鈕外觀。",
+						desc = {
+							name = " |cff00d200綠色|r - 相容版本 - 此版本已經過測試並提供支援。\n"..
+								   " |cffff0000紅色|r - 不相容版本 - 此版本未經測試，可能需要修改部分程式碼。\n"..
+								   " 請回報所有問題。",
 							type = "description",
-							width = "double",
-							order = 3.2,
+							order = 0,
 						},
-                        addonNarcissus = {
-                            name = "Narcissus",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("Narcissus")
-                            end,
-                            set = function()
-                                db.addonNarcissus = not db.addonNarcissus
-                                ReloadUI()
-                            end,
-                            order = 4.1,
-                        },
-                        addonNarcissusDesc = {
-                            name = "Opens achievements from the tracker in the Narcissus window.",
-                            type = "description",
-                            width = "double",
-                            order = 4.2,
-                        },
-						addonPetTracker = {
-							name = "戰寵助手 PetTracker",
-							desc = "版本: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("PetTracker")
-							end,
-							set = function()
-								db.addonPetTracker = not db.addonPetTracker
-								if PetTracker.sets then
-									PetTracker.sets.zoneTracker = db.addonPetTracker
-								end
-								ReloadUI()
-							end,
-							order = 5.1,
-						},
-						addonPetTrackerDesc = {
-							name = "支援在任務追蹤清單增強裡面顯示區域寵物追蹤，同時也修正了一些顯示上的問題。",
-							type = "description",
-							width = "double",
-							order = 5.2,
-						},
-                        addonRareScanner = {
-                            name = "RareScanner",
-                            desc = "Version: %s",
-                            descStyle = "inline",
-                            type = "toggle",
-                            width = 1.05,
-                            confirm = true,
-                            confirmText = warning,
-                            disabled = function()
-                                return not C_AddOns.IsAddOnLoaded("RareScanner")
-                            end,
-                            set = function()
-                                db.addonRareScanner = not db.addonRareScanner
-                                ReloadUI()
-                            end,
-                            order = 6.1,
-                        },
-                        addonRareScannerDesc = {
-                            name = "Enables display of detected Rare NPCs inside the tracker.",
-                            type = "description",
-                            width = "double",
-                            order = 6.2,
-                        },
-						addonTomTom = {
-							name = "TomTom 導航箭頭",
-							desc = "版本: %s",
-							descStyle = "inline",
-							type = "toggle",
-							width = 1.05,
-							confirm = true,
-							confirmText = warning,
-							disabled = function()
-								return not C_AddOns.IsAddOnLoaded("TomTom")
-							end,
-							set = function()
-								db.addonTomTom = not db.addonTomTom
-								ReloadUI()
-							end,
-							order = 7.1,
-						},
-						addonTomTomDesc = {
-							name = "啟用整合暴雪的 POI 和 TomTom 導航箭頭，以獲得更佳的導航。",
-							type = "description",
-							width = "double",
-							order = 7.2,
-						},
-					},
-				},
-				sec2 = {
-					name = "介面套裝插件",
-					type = "group",
-					inline = true,
-					order = 2,
-					args = {
-						elvui = {
-							name = "ElvUI",
-							type = "toggle",
-							disabled = true,
+						sec1 = {
+							name = "插件",
+							type = "group",
+							inline = true,
 							order = 1,
+							args = {
+								addonAuctionator = {
+									name = "Auctionator",
+									desc = "版本：%s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("Auctionator")
+									end,
+									set = function()
+										db.addonAuctionator = not db.addonAuctionator
+										ReloadUI()
+									end,
+									order = 1.1,
+								},
+								addonAuctionatorDesc = {
+									name = "在專業技能模組標題列中啟用 Auctionator 搜尋按鈕。",
+									type = "description",
+									width = "double",
+									order = 1.2,
+								},
+								addonBtWQuests = {
+									name = "BtWQuests",
+									desc = "版本：%s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("BtWQuests")
+									end,
+									set = function()
+										db.addonBtWQuests = not db.addonBtWQuests
+										ReloadUI()
+									end,
+									order = 2.1,
+								},
+								addonBtWQuestsDesc = {
+									name = "在任務右鍵選單中啟用「開啟任務鏈」選項。",
+									type = "description",
+									width = "double",
+									order = 2.2,
+								},
+								addonMasque = {
+									name = "Masque",
+									desc = "版本：%s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return (not C_AddOns.IsAddOnLoaded("Masque") or not KT.AddonOthers:IsEnabled())
+									end,
+									set = function()
+										db.addonMasque = not db.addonMasque
+										ReloadUI()
+									end,
+									order = 3.1,
+								},
+								addonMasqueDesc = {
+									name = "啟用任務物品按鈕與啟用按鈕的外觀美化功能。",
+									type = "description",
+									width = "double",
+									order = 3.2,
+								},
+								addonNarcissus = {
+									name = "Narcissus",
+									desc = "版本：%s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("Narcissus")
+									end,
+									set = function()
+										db.addonNarcissus = not db.addonNarcissus
+										ReloadUI()
+									end,
+									order = 4.1,
+								},
+								addonNarcissusDesc = {
+									name = "從追蹤器中點擊成就時，於 Narcissus 視窗中開啟。",
+									type = "description",
+									width = "double",
+									order = 4.2,
+								},
+								addonPetTracker = {
+									name = "PetTracker",
+									desc = "版本：%s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("PetTracker")
+									end,
+									set = function()
+										db.addonPetTracker = not db.addonPetTracker
+										if PetTracker.sets then
+											PetTracker.sets.zoneTracker = db.addonPetTracker
+										end
+										ReloadUI()
+									end,
+									order = 5.1,
+								},
+								addonPetTrackerDesc = {
+									name = "在追蹤器中顯示區域寵物追蹤資訊，並修正部分視覺問題。",
+									type = "description",
+									width = "double",
+									order = 5.2,
+								},
+								addonRareScanner = {
+									name = "RareScanner",
+									desc = "版本：%s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("RareScanner")
+									end,
+									set = function()
+										db.addonRareScanner = not db.addonRareScanner
+										ReloadUI()
+									end,
+									order = 6.1,
+								},
+								addonRareScannerDesc = {
+									name = "在追蹤器中顯示偵測到的稀有 NPC。",
+									type = "description",
+									width = "double",
+									order = 6.2,
+								},
+								addonTomTom = {
+									name = "TomTom",
+									desc = "版本：%s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("TomTom")
+									end,
+									set = function()
+										db.addonTomTom = not db.addonTomTom
+										ReloadUI()
+									end,
+									order = 7.1,
+								},
+								addonTomTomDesc = {
+									name = "整合暴雪的 POI 與 TomTom 的箭頭指引，提供更佳的導航體驗。",
+									type = "description",
+									width = "double",
+									order = 7.2,
+								},
+							},
 						},
-						tukui = {
-							name = "Tukui",
-							type = "toggle",
-							disabled = true,
+						sec2 = {
+							name = "使用者介面",
+							type = "group",
+							inline = true,
 							order = 2,
+							args = {
+								elvui = {
+									name = "ElvUI",
+									type = "toggle",
+									disabled = true,
+									order = 1,
+								},
+								tukui = {
+									name = "Tukui",
+									type = "toggle",
+									disabled = true,
+									order = 2,
+								},
+							},
 						},
 					},
 				},
+				-- addon options
 			},
 		},
 		hacks = {
@@ -1873,10 +1963,10 @@ function KT:CheckAddOn(addon, version, isUI)
 		result = true
 	end
 	if not isUI then
-		opt =  addons.args.sec1.args["addon"..name]
+		opt =  addons.args.general.args.sec1.args["addon"..name]
 		opt.desc = opt.desc:format(ver)
 	else
-		opt =  addons.args.sec2.args[strlower(name)]
+		opt =  addons.args.general.args.sec2.args[strlower(name)]
 		opt.name = opt.name..ver
 		opt.disabled = not result
 		opt.get = function() return result end
@@ -2251,7 +2341,7 @@ function M:OnInitialize()
 	dbChar = KT.db.char
     self.isAvailable = true
 
-    db.questAutoFocusClosest = false
+    db.questsAutoFocusClosest = false
 end
 
 function M:OnEnable()
