@@ -967,6 +967,8 @@ end
 -- 移動速度
 function addon:GetUnitSpeed(unit)
     local _, speed, flightSpeed, swimSpeed = GetUnitSpeed(unit)
+    -- 12.0 之後 GetUnitSpeed 回傳值可能為受保護的 secret value，無法比較或運算，直接略過
+    if (issecretvalue and (issecretvalue(speed) or issecretvalue(flightSpeed) or issecretvalue(swimSpeed))) then return end
     if (not speed or speed == 0) then return end
     speed = speed/BASE_MOVEMENT_SPEED*100
     swimSpeed = swimSpeed/BASE_MOVEMENT_SPEED*100
