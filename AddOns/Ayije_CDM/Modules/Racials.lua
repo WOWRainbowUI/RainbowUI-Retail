@@ -438,6 +438,7 @@ local function UpdateIcon(frame, updateCooldowns, updateCharges)
     local hasCharges = false
     local desatDurationObject = nil
     local desatSpellID = nil
+    local desatIsChargeSpell = false
     local itemCooldownActive = false
     local itemCount = nil
     local showEmptyItem = false
@@ -461,7 +462,7 @@ local function UpdateIcon(frame, updateCooldowns, updateCharges)
         end
 
         if updateCooldowns and itemSpellID then
-            local realDur = GetSpellCooldownDuration(itemSpellID, true)
+            local realDur = GetSpellCooldownDuration(itemSpellID)
             local itemCdStart, itemCdDuration = GetContainerItemCooldown(entry and entry._activeItemID or itemID)
             local hasItemCooldown = HasVisibleItemCooldown(itemCdStart, itemCdDuration)
 
@@ -517,17 +518,16 @@ local function UpdateIcon(frame, updateCooldowns, updateCharges)
 
         if updateCooldowns then
             local chargeDur = GetSpellChargeDuration(effectiveID)
-            local realDur = GetSpellCooldownDuration(effectiveID, true)
+            local scd = GetSpellCooldownDuration(effectiveID)
 
             local racialsChargeInfo = GetSpellCharges(effectiveID)
             local isChargeSpell = racialsChargeInfo and racialsChargeInfo.maxCharges and racialsChargeInfo.maxCharges > 1
 
-            if realDur and not (isChargeSpell and chargeDur) then
-                desatDurationObject = realDur
-                desatSpellID = effectiveID
-            end
+            desatDurationObject = scd
+            desatSpellID = effectiveID
+            desatIsChargeSpell = isChargeSpell == true
 
-            local durObj = (isChargeSpell and chargeDur) or realDur
+            local durObj = (isChargeSpell and chargeDur) or scd
             if durObj then
                 frame.Cooldown:SetCooldownFromDurationObject(durObj)
             else
@@ -557,7 +557,9 @@ local function UpdateIcon(frame, updateCooldowns, updateCharges)
             frame.Icon:SetDesaturation(1)
         elseif desatDurationObject and desatDurationObject.EvaluateRemainingDuration then
             local cdInfo = desatSpellID and GetSpellCooldown(desatSpellID)
-            if cdInfo and cdInfo.isActive then
+            local onRealCD = cdInfo and cdInfo.isActive and (desatIsChargeSpell and cdInfo.isOnGCD == false
+                or not desatIsChargeSpell and cdInfo.isOnGCD ~= true)
+            if onRealCD then
                 frame.Icon:SetDesaturation(desatDurationObject:EvaluateRemainingDuration(DesaturationCurve, 0) or 0)
             else
                 frame.Icon:SetDesaturation(0)

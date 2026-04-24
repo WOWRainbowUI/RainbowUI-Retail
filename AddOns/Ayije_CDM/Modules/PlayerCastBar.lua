@@ -111,9 +111,14 @@ local function BuildPrimaryComponent(primaryBarKey)
     return scratchComponent
 end
 
-local function ResolveResourcesAnchor()
+local function ResolveResourcesAnchor(allowHiddenFallback)
     if not CDM.resourceBars then return nil end
-    local primaryPT = UnitPowerType("player")
+    local primaryPT
+    if UnitClassBase("player") == "DRUID" and CDM.GetDruidPrimaryPowerType then
+        primaryPT = CDM.GetDruidPrimaryPowerType(CDM:GetCurrentSpecID())
+    else
+        primaryPT = UnitPowerType("player")
+    end
     local POWER_TYPE_TO_BAR_KEY = CDM.POWER_TYPE_TO_BAR_KEY
     local BAR_KEY_TO_POWER_TYPE = CDM.BAR_KEY_TO_POWER_TYPE
     if not POWER_TYPE_TO_BAR_KEY or not BAR_KEY_TO_POWER_TYPE then return nil end
@@ -139,7 +144,21 @@ local function ResolveResourcesAnchor()
     end
     if topBar then return topBar end
 
-    return primaryBar
+    if allowHiddenFallback then
+        for barKey in pairs(component) do
+            local pt = BAR_KEY_TO_POWER_TYPE[barKey]
+            local bar = pt and CDM.resourceBars[pt]
+            if bar then
+                local top = bar:GetTop()
+                if top and (not topY or top > topY) then
+                    topBar = bar
+                    topY = top
+                end
+            end
+        end
+    end
+
+    return topBar
 end
 
 local function ResolveViewerContainer(vName)
@@ -1097,3 +1116,5 @@ end
 CDM:RegisterRefreshCallback("playerCastBar", function()
     CDM:UpdatePlayerCastBar()
 end, 55, { "STYLE", "LAYOUT" })
+
+CDM.ResolveResourcesAnchor = ResolveResourcesAnchor

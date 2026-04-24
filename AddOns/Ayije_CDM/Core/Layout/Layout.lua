@@ -550,6 +550,27 @@ function CDM:UpdateBuffContainerPosition()
     local buffContainer = self.anchorContainers[VIEWERS.BUFF]
     if not buffContainer then return end
 
+    local db = CDM.db
+    if db and db.moveBuffsDown and db.resourcesEnabled ~= false then
+        local fallback = db.moveBuffsDownFallback or "lastResource"
+        local allowHidden = fallback == "lastResource"
+        local topBar = CDM.ResolveResourcesAnchor and CDM.ResolveResourcesAnchor(allowHidden)
+        local offsetY = tonumber(db.moveBuffsDownOffset) or 0
+        if topBar then
+            buffContainer:ClearAllPoints()
+            Pixel.SetPoint(buffContainer, "BOTTOM", topBar, "TOP", 0, offsetY)
+            return
+        end
+        if fallback == "essential" then
+            local essContainer = self.anchorContainers[VIEWERS.ESSENTIAL]
+            if essContainer and essContainer:IsShown() then
+                buffContainer:ClearAllPoints()
+                Pixel.SetPoint(buffContainer, "BOTTOM", essContainer, "TOP", 0, offsetY)
+                return
+            end
+        end
+    end
+
     local savedPos = GetPositionSettings(VIEWERS.BUFF, "Default")
 
     buffContainer:ClearAllPoints()

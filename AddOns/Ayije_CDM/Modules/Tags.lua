@@ -21,6 +21,7 @@ local math_floor = math.floor
 local math_abs = math.abs
 local GetSpellCastCount = C_Spell.GetSpellCastCount
 local GetPlayerAuraBySpellID = C_UnitAuras.GetPlayerAuraBySpellID
+local GetTime = GetTime
 local TruncateWhenZero = C_StringUtil.TruncateWhenZero
 local PowerTypeMana = Enum.PowerType.Mana
 local PowerTypeSoulShards = Enum.PowerType.SoulShards
@@ -115,6 +116,8 @@ local function GetCurrentPower(powerType)
             return CDM.GetIronfurStackCount and CDM:GetIronfurStackCount() or 0
         elseif powerType == "IgnorePain" then
             return CDM.GetIgnorePainValue and CDM:GetIgnorePainValue() or 0
+        elseif powerType == "TipOfTheSpear" then
+            return CDM.GetTipOfTheSpearStacks and CDM:GetTipOfTheSpearStacks() or 0
         end
         return 0
     end
@@ -128,6 +131,41 @@ local function GetCurrentPower(powerType)
 
     local current = UnitPower("player", powerType)
     return current or 0
+end
+
+local function RenderToSTimeText(textFrame)
+    local exp = CDM.GetTipOfTheSpearExpirationTime and CDM:GetTipOfTheSpearExpirationTime()
+    if not exp then
+        textFrame.text:SetText("")
+        return
+    end
+    local remaining = exp - GetTime()
+    if remaining <= 0 then
+        textFrame.text:SetText("")
+        return
+    end
+    textFrame.text:SetFormattedText("%d", math_floor(remaining + 0.5))
+end
+
+local function ToSTagOnUpdate(textFrame, elapsed)
+    textFrame._tosTimeAccum = (textFrame._tosTimeAccum or 0) + elapsed
+    if textFrame._tosTimeAccum < 0.1 then return end
+    textFrame._tosTimeAccum = 0
+    RenderToSTimeText(textFrame)
+end
+
+local function AttachToSTimeTicker(textFrame)
+    if textFrame._tosTimeActive then return end
+    textFrame._tosTimeActive = true
+    textFrame._tosTimeAccum = 0
+    textFrame:SetScript("OnUpdate", ToSTagOnUpdate)
+end
+
+local function DetachToSTimeTicker(textFrame)
+    if not textFrame._tosTimeActive then return end
+    textFrame._tosTimeActive = nil
+    textFrame._tosTimeAccum = nil
+    textFrame:SetScript("OnUpdate", nil)
 end
 
 local function CreateTagText(bar, powerType)
@@ -173,6 +211,17 @@ function TAGS:UpdateTagText(textFrame)
         return
     end
 
+    if textFrame.powerType == "TipOfTheSpear" and CDM:GetBarSetting("TipOfTheSpear", "tagShowAuraTime") == true then
+        AttachToSTimeTicker(textFrame)
+        RenderToSTimeText(textFrame)
+        textFrame._lastDisplayValue = nil
+        textFrame:Show()
+        AlignCenteredTagToBar(textFrame)
+        return
+    elseif textFrame.powerType == "TipOfTheSpear" then
+        DetachToSTimeTicker(textFrame)
+    end
+
     local current = GetCurrentPower(textFrame.powerType)
 
     local isSecret = (type(current) == "number" and issecretvalue(current))
@@ -180,7 +229,7 @@ function TAGS:UpdateTagText(textFrame)
 
     if isSecret or lastSecret or (textFrame._lastDisplayValue ~= current) then
         textFrame._lastDisplayValue = isSecret and nil or current
-        if textFrame.powerType == "Stagger" or textFrame.powerType == "SoulFragments" or textFrame.powerType == "DevourerSoulFragments" or textFrame.powerType == "Ironfur" or textFrame.powerType == "IgnorePain" then
+        if textFrame.powerType == "Stagger" or textFrame.powerType == "SoulFragments" or textFrame.powerType == "DevourerSoulFragments" or textFrame.powerType == "Ironfur" or textFrame.powerType == "IgnorePain" or textFrame.powerType == "MaelstromWeapon" or textFrame.powerType == "TipOfTheSpear" then
             textFrame.text:SetText(TruncateWhenZero(current))
         elseif textFrame.powerType == PowerTypeMana then
             if CDM:GetBarSetting("Mana", "displayAsPercent") then

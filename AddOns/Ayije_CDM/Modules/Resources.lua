@@ -547,7 +547,9 @@ CDM.activeBarKeys = {}
 CDM.resourceUnifiedHosts = {}
 
 local DRUID_TRAVEL_FORM_IDS = {[3] = true, [4] = true, [27] = true, [29] = true}
-local DRUID_FERAL_FORM_IDS = {[1] = true, [5] = true}
+local DRUID_CAT_FORM_ID = 1
+local DRUID_BEAR_FORM_ID = 5
+local DRUID_FERAL_FORM_IDS = {[DRUID_CAT_FORM_ID] = true, [DRUID_BEAR_FORM_ID] = true}
 local function IsEffectivelyMounted()
     return IsMounted()
         or UnitInVehicle("player")
@@ -557,6 +559,18 @@ end
 local function IsInFeralForm()
     return DRUID_FERAL_FORM_IDS[GetShapeshiftFormID()] or false
 end
+local function GetDruidPrimaryPowerType(specID)
+    local formID = GetShapeshiftFormID()
+    if formID == DRUID_BEAR_FORM_ID then
+        return POWER_TYPES.Rage
+    elseif formID == DRUID_CAT_FORM_ID then
+        return POWER_TYPES.Energy
+    elseif specID == 102 then
+        return POWER_TYPES.LunarPower
+    end
+    return POWER_TYPES.Mana
+end
+CDM.GetDruidPrimaryPowerType = GetDruidPrimaryPowerType
 local loadInCombat = InCombatLockdown() and true or false
 local loadIsMounted = IsEffectivelyMounted()
 local loadIsFeralForm = IsInFeralForm()
@@ -600,7 +614,7 @@ local function GetActiveBarKeys()
     local specPowers = SPEC_POWER_MAP[specID]
 
     if resourcesPlayerClass == "DRUID" then
-        local currentPowerType = UnitPowerType("player")
+        local currentPowerType = GetDruidPrimaryPowerType(specID)
         if currentPowerType == POWER_TYPES.Rage then
             specPowers = specID == 104 and {POWER_TYPES.Rage, CUSTOM_POWER_TYPES.Ironfur} or {POWER_TYPES.Rage}
         elseif currentPowerType == POWER_TYPES.Energy then
@@ -1261,7 +1275,7 @@ end
 
 local function UpdateBorders(activeKeys)
     local borderColor = (CDM.db and CDM.db.borderColor) or (CDM.defaults and CDM.defaults.borderColor) or CDM_C.WHITE
-    local unified = CDM:GetGroupSettingForPlayer("unifiedBorder") == true
+    local unified = CDM.db and CDM.db.unifiedBorder == true
 
     local chains, chainCount = BuildChains(activeKeys)
 
@@ -1699,7 +1713,11 @@ function CDM:UpdateResources()
         CDM._Res.RefreshIgnorePainVisibility()
     end
 
-    cachedPrimaryPowerType = UnitPowerType("player")
+    if resourcesPlayerClass == "DRUID" then
+        cachedPrimaryPowerType = GetDruidPrimaryPowerType(currentSpecID)
+    else
+        cachedPrimaryPowerType = UnitPowerType("player")
+    end
     RefreshCachedFontStyles()
     UpdateBarPositions()
     CDM._Res.RefreshCachedRuneTimerSlot()
@@ -1838,7 +1856,11 @@ local function ReevaluateLoadOnEvent()
 end
 
 local function OnUpdateShapeshiftForm()
-    cachedPrimaryPowerType = UnitPowerType("player")
+    if resourcesPlayerClass == "DRUID" then
+        cachedPrimaryPowerType = GetDruidPrimaryPowerType(currentSpecID)
+    else
+        cachedPrimaryPowerType = UnitPowerType("player")
+    end
     loadIsMounted = IsEffectivelyMounted()
     loadIsFeralForm = IsInFeralForm()
 

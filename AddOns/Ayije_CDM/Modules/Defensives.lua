@@ -261,29 +261,21 @@ local function UpdateIcon(frame)
     local effectiveID = GetEffectiveSpellID(spellID)
 
     local chargeDur = GetSpellChargeDuration(effectiveID)
-    local realDur = GetSpellCooldownDuration(effectiveID, true)
+    local scd = GetSpellCooldownDuration(effectiveID)
     local chargeInfo = GetSpellCharges(effectiveID)
     local isChargeSpell = chargeInfo and chargeInfo.maxCharges and chargeInfo.maxCharges > 1
 
-    local desatDurationObject = nil
-    if realDur and not (isChargeSpell and chargeDur) then
-        desatDurationObject = realDur
-    end
-
     local desatValue = 0
-    if desatDurationObject and desatDurationObject.EvaluateRemainingDuration then
+    if scd then
         local cdInfo = GetSpellCooldown(effectiveID)
-        if cdInfo and cdInfo.isActive then
-            desatValue = desatDurationObject:EvaluateRemainingDuration(DesaturationCurve, 0) or 0
+        local onRealCD = cdInfo and cdInfo.isActive and (isChargeSpell and cdInfo.isOnGCD == false
+            or not isChargeSpell and cdInfo.isOnGCD ~= true)
+        if onRealCD then
+            desatValue = scd:EvaluateRemainingDuration(DesaturationCurve, 0) or 0
         end
     end
 
-    local swipeDur
-    if isChargeSpell and chargeDur then
-        swipeDur = chargeDur
-    else
-        swipeDur = GetSpellCooldownDuration(effectiveID, false)
-    end
+    local swipeDur = (isChargeSpell and chargeDur) or scd
 
     if swipeDur then
         frame.Cooldown:SetCooldownFromDurationObject(swipeDur)
