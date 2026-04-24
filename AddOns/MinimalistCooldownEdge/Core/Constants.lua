@@ -75,6 +75,7 @@ C.Options = {
     FrameHeight = 600,
     TreeWidth = 210,
     DefaultAbbrevThreshold = 90,
+    DefaultMillisecondsThreshold = 0,
 }
 
 C.Style = {

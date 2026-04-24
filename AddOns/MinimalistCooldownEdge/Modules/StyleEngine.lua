@@ -29,6 +29,7 @@ local LARGE_AURA_WIDTH_THRESHOLD = 20
 -- Shared state from addon namespace
 local frameState = addon.frameState
 local fontState = addon.fontState
+local hookedFontStrings = setmetatable({}, addon.weakMeta)
 
 -- Lazy module references (resolved on first use in OnEnable)
 local Registry, DurationColor, CompactAura, Classifier
@@ -132,6 +133,55 @@ end
 
 local IsMUIStyledCooldown = addon.IsMUIStyledCooldown
 
+local function CaptureCountdownThresholdState(cdFrame, fs)
+    if not cdFrame or not fs then
+        return
+    end
+
+    if fs.originalCountdownAbbrevThreshold == nil
+       and type(cdFrame.GetCountdownAbbrevThreshold) == "function" then
+        local ok, seconds = pcall(cdFrame.GetCountdownAbbrevThreshold, cdFrame)
+        if ok and type(seconds) == "number" then
+            fs.originalCountdownAbbrevThreshold = seconds
+        end
+    end
+
+    if fs.originalCountdownMillisecondsThreshold == nil
+       and type(cdFrame.GetCountdownMillisecondsThreshold) == "function" then
+        local ok, seconds = pcall(cdFrame.GetCountdownMillisecondsThreshold, cdFrame)
+        if ok and type(seconds) == "number" then
+            fs.originalCountdownMillisecondsThreshold = seconds
+        end
+    end
+end
+
+local function RestoreCountdownThresholdState(cdFrame, fs)
+    if not cdFrame or not fs then
+        return
+    end
+
+    if fs.originalCountdownAbbrevThreshold ~= nil
+       and type(cdFrame.SetCountdownAbbrevThreshold) == "function"
+       and fs.countdownAbbrevThreshold ~= nil
+       and fs.countdownAbbrevThreshold ~= fs.originalCountdownAbbrevThreshold then
+        fs.suppressCountdownAbbrevThreshold = true
+        pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, fs.originalCountdownAbbrevThreshold)
+        fs.suppressCountdownAbbrevThreshold = nil
+    end
+
+    if fs.originalCountdownMillisecondsThreshold ~= nil
+       and type(cdFrame.SetCountdownMillisecondsThreshold) == "function"
+       and fs.countdownMillisecondsThreshold ~= nil
+       and fs.countdownMillisecondsThreshold ~= fs.originalCountdownMillisecondsThreshold then
+        fs.suppressCountdownMillisecondsThreshold = true
+        pcall(cdFrame.SetCountdownMillisecondsThreshold, cdFrame, fs.originalCountdownMillisecondsThreshold)
+        fs.suppressCountdownMillisecondsThreshold = nil
+    end
+
+    fs.originalCountdownAbbrevThreshold = nil
+    fs.originalCountdownMillisecondsThreshold = nil
+end
+
 -- =========================================================================
 -- UNIT / AURA HELPERS
 -- =========================================================================
@@ -178,12 +228,16 @@ local function GetCooldownInfoSafe(owner)
 end
 
 local function GetAccessibleBoolean(value)
-    if IsSecretValue(value) and not CanAccessAllValues(value) then
-        return nil
-    end
-
     if type(value) == "boolean" then
-        return value
+        local ok, normalized = pcall(function()
+            if value then
+                return true
+            end
+            return false
+        end)
+        if ok then
+            return normalized
+        end
     end
 
     return nil
@@ -260,6 +314,10 @@ end
 
 function StyleEngine:GetActionIDFromButton(parent)
     if not parent then return nil end
+    if type(parent.CalculateAction) == "function" then
+        local ok, actionID = pcall(parent.CalculateAction, parent)
+        if ok and type(actionID) == "number" then return actionID end
+    end
     local actionID = parent.action
     if type(actionID) == "number" then return actionID end
     if parent.GetAttribute then
@@ -324,9 +382,35 @@ end
 
 local MAX_OWNER_SCAN_DEPTH = STYLER_CONSTANTS.MaxCooldownOwnerScanDepth
 
+local function SyncResolvedActionContext(self, fs)
+    if not fs then
+        return
+    end
+
+    local actionButton = fs.actionButton ~= false and fs.actionButton or nil
+    if not actionButton then
+        return
+    end
+
+    local liveActionID = self:GetActionIDFromButton(actionButton)
+    local cachedActionID = fs.actionID ~= false and fs.actionID or nil
+    if liveActionID == cachedActionID then
+        return
+    end
+
+    fs.actionID = liveActionID or false
+    fs.durationObject = nil
+    fs.appliedTextColor = nil
+    fs.assistedCombatActionID = nil
+    fs.assistedCombatAction = nil
+end
+
 function StyleEngine:ResolveCooldownContext(cdFrame, forceRefresh)
     local fs = self:GetFrameState(cdFrame)
-    if fs.contextResolved and not forceRefresh then return fs end
+    if fs.contextResolved and not forceRefresh then
+        SyncResolvedActionContext(self, fs)
+        return fs
+    end
 
     local current = cdFrame and cdFrame.GetParent and cdFrame:GetParent() or nil
     local actionButton, actionID
@@ -419,6 +503,7 @@ end
 
 function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     local fs = self:GetFrameState(cdFrame)
+    RestoreCountdownThresholdState(cdFrame, fs)
     fs.edgeScale = nil
     fs.edgeColor = nil
     fs.hideNums = nil
@@ -427,6 +512,8 @@ function StyleEngine:ReleaseManagedVisualState(cdFrame, category)
     fs.swipeColor = nil
     fs.appliedTextColor = nil
     fs.assistedCombatTextHidden = nil
+    fs.countdownAbbrevThreshold = nil
+    fs.countdownMillisecondsThreshold = nil
 
     if category == CATEGORY.MiniCC or category == CATEGORY.SArena then
         local textRegions, textRegionCount = self:GetCooldownTextRegions(cdFrame)
@@ -608,7 +695,7 @@ local function EnsureFontStringSetFontHook(region)
         fs = {}
         fontState[region] = fs
     end
-    if fs.hooked or not region.SetFont then return end
+    if hookedFontStrings[region] or not region.SetFont then return end
 
     hooksecurefunc(region, "SetFont", function(self, fontPath, fontSize, fontStyle)
         if issecretvalue(self) or issecretvalue(fontPath) then return end
@@ -624,7 +711,7 @@ local function EnsureFontStringSetFontHook(region)
         s.suppressSetFont = nil
     end)
 
-    fs.hooked = true
+    hookedFontStrings[region] = true
 end
 
 function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, fontStyle,
@@ -1164,7 +1251,24 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     -- Abbreviation threshold
     local profile = MCE.db and MCE.db.profile
     if profile and cdFrame.SetCountdownAbbrevThreshold then
-        pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, profile.abbrevThreshold or C.Options.DefaultAbbrevThreshold)
+        CaptureCountdownThresholdState(cdFrame, fs)
+        local abbrevThreshold = profile.abbrevThreshold or C.Options.DefaultAbbrevThreshold
+        if fs.countdownAbbrevThreshold ~= abbrevThreshold then
+            fs.suppressCountdownAbbrevThreshold = true
+            pcall(cdFrame.SetCountdownAbbrevThreshold, cdFrame, abbrevThreshold)
+            fs.suppressCountdownAbbrevThreshold = nil
+            fs.countdownAbbrevThreshold = abbrevThreshold
+        end
+    end
+    if profile and cdFrame.SetCountdownMillisecondsThreshold then
+        CaptureCountdownThresholdState(cdFrame, fs)
+        local millisecondsThreshold = profile.countdownMillisecondsThreshold or C.Options.DefaultMillisecondsThreshold
+        if fs.countdownMillisecondsThreshold ~= millisecondsThreshold then
+            fs.suppressCountdownMillisecondsThreshold = true
+            pcall(cdFrame.SetCountdownMillisecondsThreshold, cdFrame, millisecondsThreshold)
+            fs.suppressCountdownMillisecondsThreshold = nil
+            fs.countdownMillisecondsThreshold = millisecondsThreshold
+        end
     end
 
     -- Duration colors

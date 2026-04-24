@@ -48,7 +48,7 @@ local clearListScratch = {}  -- reusable scratch table for ticker clear passes
 local durationObjectCache = {}
 
 local function GetOrCreateDurationObject(endTime, duration, modRate)
-    if type(endTime) ~= "number" or type(duration) ~= "number" then return nil end
+    if type(endTime) ~= "number" or type(duration) ~= "number" or duration <= 0 then return nil end
     modRate = modRate or 1
 
     local byEnd = durationObjectCache[endTime]
@@ -146,17 +146,91 @@ end
 
 function DurationColor:CreateDurationObjectFromCooldownArgs(startTime, duration, modRate)
     if not StyleEngine.CanAccessAllValues(startTime, duration, modRate) then return nil end
-    if type(startTime) ~= "number" or type(duration) ~= "number" then return nil end
+    if type(startTime) ~= "number" or type(duration) ~= "number" or duration <= 0 then return nil end
     return self:CreateDurationFromEndTime(startTime + duration, duration, modRate or 1)
 end
 
 function DurationColor:CreateDurationObjectFromExpirationArgs(expirationTime, duration, modRate)
     if not StyleEngine.CanAccessAllValues(expirationTime, duration, modRate) then return nil end
+    if type(expirationTime) ~= "number" or type(duration) ~= "number" or duration <= 0 then return nil end
     return self:CreateDurationFromEndTime(expirationTime, duration, modRate or 1)
 end
 
 local function getDurationEvaluate(obj)
     return obj.EvaluateRemainingDuration
+end
+
+local function getDurationIsZero(obj)
+    return obj.IsZero
+end
+
+local function GetAccessibleBoolean(value)
+    if type(value) == "boolean" then
+        local ok, normalized = pcall(function()
+            if value then
+                return true
+            end
+            return false
+        end)
+        if ok then
+            return normalized
+        end
+    end
+
+    return nil
+end
+
+local function IsActiveChargeInfo(chargeInfo)
+    if type(chargeInfo) ~= "table" then
+        return nil
+    end
+
+    local isActive = GetAccessibleBoolean(chargeInfo.isActive)
+    if isActive ~= nil then
+        return isActive
+    end
+
+    local currentCharges = chargeInfo.currentCharges
+    local maxCharges = chargeInfo.maxCharges
+    if type(currentCharges) == "number"
+       and type(maxCharges) == "number"
+       and StyleEngine
+       and StyleEngine.CanAccessAllValues(currentCharges, maxCharges) then
+        local ok, hasMissingCharge = pcall(function()
+            return currentCharges < maxCharges
+        end)
+        if ok then
+            return hasMissingCharge
+        end
+    end
+
+    return nil
+end
+
+local function HasActiveActionChargeCooldown(actionID)
+    if type(actionID) ~= "number" or not (C_ActionBar and C_ActionBar.GetActionCharges) then
+        return nil
+    end
+
+    local ok, chargeInfo = pcall(C_ActionBar.GetActionCharges, actionID)
+    if not ok or not chargeInfo then
+        return nil
+    end
+
+    return IsActiveChargeInfo(chargeInfo)
+end
+
+local function HasActiveSpellChargeCooldown(spellID)
+    if type(spellID) ~= "number" or not (C_Spell and C_Spell.GetSpellCharges) then
+        return nil
+    end
+
+    local ok, chargeInfo = pcall(C_Spell.GetSpellCharges, spellID)
+    if not ok or not chargeInfo then
+        return nil
+    end
+
+    return IsActiveChargeInfo(chargeInfo)
 end
 
 local function IsSupportedDurationObject(durationObject)
@@ -166,14 +240,37 @@ local function IsSupportedDurationObject(durationObject)
     return ok and type(fn) == "function"
 end
 
+local function NormalizeDurationObject(durationObject)
+    if not durationObject then
+        return nil
+    end
+
+    if StyleEngine and (StyleEngine.IsSecretValue(durationObject) or not StyleEngine.CanAccessAllValues(durationObject)) then
+        return nil
+    end
+
+    if not IsSupportedDurationObject(durationObject) then
+        return nil
+    end
+
+    local ok, fn = pcall(getDurationIsZero, durationObject)
+    if ok and type(fn) == "function" then
+        local zeroOk, isZero = pcall(fn, durationObject)
+        local accessibleIsZero
+        if zeroOk then
+            accessibleIsZero = GetAccessibleBoolean(isZero)
+        end
+        if accessibleIsZero == true then
+            return nil
+        end
+    end
+
+    return durationObject
+end
+
 function DurationColor:SetCooldownDurationObject(cdFrame, durationObject)
     if not cdFrame or StyleEngine.IsSecretValue(cdFrame) then return end
-    if durationObject and (StyleEngine.IsSecretValue(durationObject) or not StyleEngine.CanAccessAllValues(durationObject)) then
-        durationObject = nil
-    end
-    if durationObject and not IsSupportedDurationObject(durationObject) then
-        durationObject = nil
-    end
+    durationObject = NormalizeDurationObject(durationObject)
     if not durationObject then
         durationObject = self:GetFallbackDurationObject(cdFrame)
     end
@@ -197,12 +294,19 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
 
     if actionID and C_ActionBar then
         if StyleEngine:IsChargeCooldownFrame(cdFrame, actionButton) and C_ActionBar.GetActionChargeDuration then
+            local chargeActive = HasActiveActionChargeCooldown(actionID)
+            if chargeActive == false then
+                return nil
+            end
             local ok, obj = pcall(C_ActionBar.GetActionChargeDuration, actionID)
-            if ok and obj then return obj end
+            obj = ok and NormalizeDurationObject(obj) or nil
+            if obj then return obj end
+            return nil
         end
         if C_ActionBar.GetActionCooldownDuration then
-            local ok, obj = pcall(C_ActionBar.GetActionCooldownDuration, actionID)
-            if ok and obj then return obj end
+            local ok, obj = pcall(C_ActionBar.GetActionCooldownDuration, actionID, true)
+            obj = ok and NormalizeDurationObject(obj) or nil
+            if obj then return obj end
         end
     end
 
@@ -219,7 +323,8 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
         end
         if auraInstanceID and unitToken and C_UnitAuras and C_UnitAuras.GetAuraDuration then
             local ok, obj = pcall(C_UnitAuras.GetAuraDuration, unitToken, auraInstanceID)
-            if ok and obj then return obj end
+            obj = ok and NormalizeDurationObject(obj) or nil
+            if obj then return obj end
         end
 
         -- Aura-driven displays should wait for aura data rather than falling
@@ -241,12 +346,19 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
         end
 
         if useChargeDuration and C_Spell.GetSpellChargeDuration then
+            local chargeActive = HasActiveSpellChargeCooldown(spellID)
+            if chargeActive == false then
+                return nil
+            end
             local ok, obj = pcall(C_Spell.GetSpellChargeDuration, spellID)
-            if ok and obj then return obj end
+            obj = ok and NormalizeDurationObject(obj) or nil
+            if obj then return obj end
+            return nil
         end
         if C_Spell.GetSpellCooldownDuration then
-            local ok, obj = pcall(C_Spell.GetSpellCooldownDuration, spellID)
-            if ok and obj then return obj end
+            local ok, obj = pcall(C_Spell.GetSpellCooldownDuration, spellID, true)
+            obj = ok and NormalizeDurationObject(obj) or nil
+            if obj then return obj end
         end
     end
 
@@ -282,7 +394,13 @@ end
 
 local function GetStoredDurationObject(cdFrame, allowFallback)
     local fs = frameState[cdFrame]
-    if fs and fs.durationObject then return fs.durationObject end
+    if fs and fs.durationObject then
+        local normalized = NormalizeDurationObject(fs.durationObject)
+        if normalized then
+            return normalized
+        end
+        fs.durationObject = nil
+    end
     if allowFallback == false then return nil end
     local obj = DurationColor:GetFallbackDurationObject(cdFrame)
     if obj then DurationColor:SetCooldownDurationObject(cdFrame, obj) end

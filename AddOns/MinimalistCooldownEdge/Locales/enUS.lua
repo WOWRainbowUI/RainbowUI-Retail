@@ -234,6 +234,8 @@ L["Color used when the remaining time exceeds all thresholds."] = true
 L["Abbreviate Above"] = true
 L["Abbreviate Above (seconds)"] = true
 L["Cooldown numbers above this threshold will be abbreviated (e.g. 5m instead of 300)."] = true
+L["Show Tenths Below (seconds)"] = true
+L["Cooldown numbers below this threshold will show one decimal place (e.g. 8.7). Set 0 to disable."] = true
 L["ABBREV_THRESHOLD_DESC"] = "Controls when cooldown numbers switch to abbreviated format. Timers above this threshold display shortened values like 5m or 1h."
 
 -- 自行加入
