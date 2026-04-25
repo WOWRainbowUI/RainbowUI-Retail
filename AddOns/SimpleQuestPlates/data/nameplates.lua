@@ -6,6 +6,7 @@
 --=====================================================================================
 
 local addonName, SQP = ...
+local RGX = _G.RGXFramework
 
 -- Nameplate storage
 SQP.Nameplates = {} -- [plate] = frame
@@ -231,16 +232,13 @@ function SQP:OnPlateShow(nameplate, unitID)
     self:UpdateQuestIcon(nameplate, unitID)
 
     -- Recheck shortly after show to allow tooltip data to populate
-    if C_Timer and C_Timer.After then
-        local addon = self
-        local plateRef = nameplate
-        local unitRef = unitID
-        C_Timer.After(0.15, function()
-            if addon.ActiveNameplates[plateRef] and plateRef._unitID == unitRef then
-                addon:UpdateQuestIcon(plateRef, unitRef)
-            end
-        end)
-    end
+    local plateRef = nameplate
+    local unitRef = unitID
+    RGX:After(0.15, function()
+        if SQP.ActiveNameplates[plateRef] and plateRef._unitID == unitRef then
+            SQP:UpdateQuestIcon(plateRef, unitRef)
+        end
+    end)
 end
 
 -- Nameplate hide callback

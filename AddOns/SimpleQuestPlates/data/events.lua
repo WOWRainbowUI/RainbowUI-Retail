@@ -7,15 +7,7 @@
 
 local addonName, SQP = ...
 
--- Create main event frame
-SQP.eventFrame = CreateFrame("Frame", "SQPEventFrame", UIParent)
-
--- Event handler function
-local function OnEvent(self, event, ...)
-    if SQP[event] then
-        SQP[event](SQP, ...)
-    end
-end
+local RGX = _G.RGXFramework
 
 -- ADDON_LOADED: Initialize saved variables and settings
 function SQP:ADDON_LOADED(addon)
@@ -38,7 +30,7 @@ function SQP:ADDON_LOADED(addon)
         end
     end
     
-    self.eventFrame:UnregisterEvent("ADDON_LOADED")
+    RGX:UnregisterEvent("ADDON_LOADED", "SQP_ADDON_LOADED")
 end
 
 -- PLAYER_LOGIN: Initialize addon systems
@@ -156,11 +148,11 @@ end
 
 -- World state events
 function SQP:PLAYER_LEAVING_WORLD()
-    self.eventFrame:UnregisterEvent("QUEST_LOG_UPDATE")
+    RGX:UnregisterEvent("QUEST_LOG_UPDATE", "SQP_QUEST_LOG_UPDATE")
 end
 
 function SQP:PLAYER_ENTERING_WORLD()
-    self.eventFrame:RegisterEvent("QUEST_LOG_UPDATE")
+    RGX:RegisterEvent("QUEST_LOG_UPDATE", function(event, ...) SQP:QUEST_LOG_UPDATE(...) end, "SQP_QUEST_LOG_UPDATE")
     -- Refresh all nameplates when entering world
     self:RefreshAllNameplates()
 end
@@ -182,28 +174,27 @@ function SQP:PLAYER_REGEN_ENABLED()
     end
 end
 
--- Register all events
-SQP.eventFrame:SetScript("OnEvent", OnEvent)
-SQP.eventFrame:RegisterEvent("ADDON_LOADED")
-SQP.eventFrame:RegisterEvent("PLAYER_LOGIN")
+-- Register all events via RGX-Framework
+RGX:RegisterEvent("ADDON_LOADED", function(event, ...) SQP:ADDON_LOADED(...) end, "SQP_ADDON_LOADED")
+RGX:RegisterEvent("PLAYER_LOGIN", function(event, ...) SQP:PLAYER_LOGIN(...) end, "SQP_PLAYER_LOGIN")
 
 -- Register nameplate events based on version
 if C_NamePlate and C_NamePlate.GetNamePlateForUnit then
     -- Modern nameplate API is available
-    SQP.eventFrame:RegisterEvent("NAME_PLATE_CREATED")
-    SQP.eventFrame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-    SQP.eventFrame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
+    RGX:RegisterEvent("NAME_PLATE_CREATED", function(event, ...) SQP:NAME_PLATE_CREATED(...) end, "SQP_NAME_PLATE_CREATED")
+    RGX:RegisterEvent("NAME_PLATE_UNIT_ADDED", function(event, ...) SQP:NAME_PLATE_UNIT_ADDED(...) end, "SQP_NAME_PLATE_UNIT_ADDED")
+    RGX:RegisterEvent("NAME_PLATE_UNIT_REMOVED", function(event, ...) SQP:NAME_PLATE_UNIT_REMOVED(...) end, "SQP_NAME_PLATE_UNIT_REMOVED")
 end
 -- MoP and older versions use the OnUpdate script in compat_mop.lua
 
-SQP.eventFrame:RegisterEvent("UNIT_QUEST_LOG_CHANGED")
-SQP.eventFrame:RegisterEvent("QUEST_ACCEPTED")
-SQP.eventFrame:RegisterEvent("QUEST_REMOVED")
-SQP.eventFrame:RegisterEvent("QUEST_COMPLETE")
-SQP.eventFrame:RegisterEvent("QUEST_WATCH_LIST_CHANGED")
-SQP.eventFrame:RegisterEvent("PLAYER_LEAVING_WORLD")
-SQP.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-SQP.eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-SQP.eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-SQP.eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-SQP.eventFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+RGX:RegisterEvent("UNIT_QUEST_LOG_CHANGED", function(event, ...) SQP:UNIT_QUEST_LOG_CHANGED(...) end, "SQP_UNIT_QUEST_LOG_CHANGED")
+RGX:RegisterEvent("QUEST_ACCEPTED", function(event, ...) SQP:QUEST_ACCEPTED(...) end, "SQP_QUEST_ACCEPTED")
+RGX:RegisterEvent("QUEST_REMOVED", function(event, ...) SQP:QUEST_REMOVED(...) end, "SQP_QUEST_REMOVED")
+RGX:RegisterEvent("QUEST_COMPLETE", function(event, ...) SQP:QUEST_COMPLETE(...) end, "SQP_QUEST_COMPLETE")
+RGX:RegisterEvent("QUEST_WATCH_LIST_CHANGED", function(event, ...) SQP:QUEST_WATCH_LIST_CHANGED(...) end, "SQP_QUEST_WATCH_LIST_CHANGED")
+RGX:RegisterEvent("PLAYER_LEAVING_WORLD", function(event, ...) SQP:PLAYER_LEAVING_WORLD(...) end, "SQP_PLAYER_LEAVING_WORLD")
+RGX:RegisterEvent("PLAYER_ENTERING_WORLD", function(event, ...) SQP:PLAYER_ENTERING_WORLD(...) end, "SQP_PLAYER_ENTERING_WORLD")
+RGX:RegisterEvent("PLAYER_REGEN_DISABLED", function(event, ...) SQP:PLAYER_REGEN_DISABLED(...) end, "SQP_PLAYER_REGEN_DISABLED")
+RGX:RegisterEvent("PLAYER_REGEN_ENABLED", function(event, ...) SQP:PLAYER_REGEN_ENABLED(...) end, "SQP_PLAYER_REGEN_ENABLED")
+RGX:RegisterEvent("PLAYER_TARGET_CHANGED", function(event, ...) SQP:PLAYER_TARGET_CHANGED(...) end, "SQP_PLAYER_TARGET_CHANGED")
+RGX:RegisterEvent("UPDATE_MOUSEOVER_UNIT", function(event, ...) SQP:UPDATE_MOUSEOVER_UNIT(...) end, "SQP_UPDATE_MOUSEOVER_UNIT")

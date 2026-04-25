@@ -201,7 +201,7 @@ function SQP:CreateKillOptions(content)
     rightYOffset = MakeSlider(rightColumn, "Offset X", "killIconOffsetX",  2, -80,  80, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, "Offset Y", "killIconOffsetY", 15, -80,  80, rightYOffset)
 
-    rightYOffset = self:CreateFontSection(rightColumn, "kill", rightYOffset, "SQPKillFontDropdown", ActivateKill)
+    rightYOffset = self:CreateFontSection(rightColumn, "kill", rightYOffset, ActivateKill)
 
     -- Reset this tab to kill defaults
     rightYOffset = rightYOffset - 14

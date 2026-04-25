@@ -92,19 +92,17 @@ function SQP:CreateStyledSlider(parent, min, max, step, width)
     return slider
 end
 
--- Create a per-type font settings section (size + family only)
--- parent: frame to attach controls to
+-- Create a per-type font settings section (size + family)
 -- typeKey: "kill", "loot", or "percent"
--- yOffset: starting y position (negative)
--- dropdownName: unique global name for the dropdown frame
 -- activatePreviewFn: optional function to switch preview mode before refresh
 -- returns: next yOffset after all controls
-function SQP:CreateFontSection(parent, typeKey, yOffset, dropdownName, activatePreviewFn)
+function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
     if not self.optionControls then self.optionControls = {} end
 
+    local Fonts = _G.RGXFonts
     local defaultSize = typeKey == "percent" and 8 or 12
     local defaultPath = "Fonts\\FRIZQT__.TTF"
-    local rgxFonts = SQP:GetRGXFonts()
+    local defaultName = Fonts:FindByPath(defaultPath) or Fonts:GetDefault()
 
     -- Section header
     local fontHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -148,74 +146,28 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, dropdownName, activateP
     familyLabel:SetPoint("TOPLEFT", 20, yOffset)
     familyLabel:SetText("Family")
     local familyReset = self:CreateInlineResetButton(parent, function()
-        SQP:SetSetting(typeKey.."FontFamily", defaultPath)
         local control = self.optionControls[typeKey.."FontFamily"]
-        if control and type(control.Reset) == "function" then
-            control:Reset()
-        elseif control and type(control.SetPath) == "function" then
-            control:SetPath(defaultPath)
-        elseif control and UIDropDownMenu_SetText then
-            UIDropDownMenu_SetText(control, "Friz Quadrata")
-        end
-        if activatePreviewFn then activatePreviewFn() end
-        SQP:RefreshAllNameplates()
+        if control then control:Reset() end
     end)
     familyReset:SetPoint("LEFT", familyLabel, "RIGHT", 5, 0)
     yOffset = yOffset - 20
 
-    if rgxFonts and type(rgxFonts.CreateFontSettingControl) == "function" then
-        local fontControl = rgxFonts:CreateFontSettingControl(parent, {
-            label = nil,
-            width = 210,
-            buttonWidth = 160,
-            storage = SQPSettings,
-            key = typeKey .. "FontFamily",
-            defaultName = rgxFonts:FindByPath(defaultPath) or rgxFonts:GetDefault(),
-            defaultPath = defaultPath,
-            onChange = function(_, _, fontPath)
-                SQP:SetSetting(typeKey.."FontFamily", fontPath)
-                if activatePreviewFn then activatePreviewFn() end
-                SQP:RefreshAllNameplates()
-            end,
-        })
-        fontControl:SetPoint("TOPLEFT", 20, yOffset)
-        self.optionControls[typeKey.."FontFamily"] = fontControl
-    else
-        local fontDd = CreateFrame("Frame", dropdownName, parent, "UIDropDownMenuTemplate")
-        fontDd:SetPoint("TOPLEFT", 5, yOffset)
-        UIDropDownMenu_SetWidth(fontDd, 150)
-        self.optionControls[typeKey.."FontFamily"] = fontDd
-
-        local fontOptions = {
-            {text = "Friz Quadrata", font = "Fonts\\FRIZQT__.TTF"},
-            {text = "Arial Narrow",  font = "Fonts\\ARIALN.TTF"},
-            {text = "Skurri",        font = "Fonts\\SKURRI.TTF"},
-            {text = "Morpheus",      font = "Fonts\\MORPHEUS.TTF"},
-            {text = "2002 (Pixel)",  font = "Fonts\\2002.TTF"},
-            {text = "2002 Bold",     font = "Fonts\\2002B.TTF"},
-            {text = "Nimrod MT",     font = "Fonts\\NIM_____.ttf"},
-        }
-
-        UIDropDownMenu_Initialize(fontDd, function(self, level)
-            for _, opt in ipairs(fontOptions) do
-                local info = UIDropDownMenu_CreateInfo()
-                info.text = opt.text
-                info.func = function()
-                    SQP:SetSetting(typeKey.."FontFamily", opt.font)
-                    UIDropDownMenu_SetText(fontDd, opt.text)
-                    if activatePreviewFn then activatePreviewFn() end
-                    SQP:RefreshAllNameplates()
-                end
-                info.checked = (SQPSettings[typeKey.."FontFamily"] == opt.font)
-                UIDropDownMenu_AddButton(info, level)
-            end
-        end)
-
-        local curFamily = SQPSettings[typeKey.."FontFamily"] or defaultPath
-        for _, opt in ipairs(fontOptions) do
-            if opt.font == curFamily then UIDropDownMenu_SetText(fontDd, opt.text); break end
-        end
-    end
+    local fontControl = Fonts:CreateFontSettingControl(parent, {
+        width = 210,
+        buttonWidth = 160,
+        showReset = false,
+        storage = SQPSettings,
+        key = typeKey .. "FontFamily",
+        defaultName = defaultName,
+        defaultPath = defaultPath,
+        onChange = function(_, fontName, fontPath)
+            SQP:SetSetting(typeKey.."FontFamily", fontPath)
+            if activatePreviewFn then activatePreviewFn() end
+            SQP:RefreshAllNameplates()
+        end,
+    })
+    fontControl:SetPoint("TOPLEFT", 20, yOffset)
+    self.optionControls[typeKey.."FontFamily"] = fontControl
 
     yOffset = yOffset - 30
 
@@ -361,19 +313,14 @@ function SQP:CreateMiniIconTintSection(parent, typeKey, activatePreviewFn, yOffs
         if not SQPSettings[tintKey] then return end
         if activatePreviewFn then activatePreviewFn() end
         local r, g, b = unpack(SQPSettings[tintColorKey] or {1, 1, 1})
-        local info = {r = r, g = g, b = b, hasOpacity = false}
-        info.swatchFunc = function()
-            local nr, ng, nb = ColorPickerFrame:GetColorRGB()
-            SQP:SetSetting(tintColorKey, {nr, ng, nb})
-            tintSw:SetColorTexture(nr, ng, nb)
-            SQP:RefreshAllNameplates()
-        end
-        info.cancelFunc = function()
-            SQP:SetSetting(tintColorKey, {r, g, b})
-            tintSw:SetColorTexture(r, g, b)
-            SQP:RefreshAllNameplates()
-        end
-        ColorPickerFrame:SetupColorPickerAndShow(info)
+        _G.RGXColors:OpenPicker({
+            r = r, g = g, b = b,
+            onChanged = function(_, nr, ng, nb)
+                SQP:SetSetting(tintColorKey, {nr, ng, nb})
+                tintSw:SetColorTexture(nr, ng, nb)
+                SQP:RefreshAllNameplates()
+            end,
+        })
     end)
     yOffset = yOffset - 26
 
@@ -450,19 +397,14 @@ function SQP:CreateMainIconSection(parent, typeKey, activatePreviewFn, yOffset, 
         if not SQPSettings[tintKey] then return end
         if activatePreviewFn then activatePreviewFn() end
         local r, g, b = unpack(SQPSettings[tintColorKey] or {1, 1, 1})
-        local info = {r = r, g = g, b = b, hasOpacity = false}
-        info.swatchFunc = function()
-            local nr, ng, nb = ColorPickerFrame:GetColorRGB()
-            SQP:SetSetting(tintColorKey, {nr, ng, nb})
-            tintSw:SetColorTexture(nr, ng, nb)
-            SQP:RefreshAllNameplates()
-        end
-        info.cancelFunc = function()
-            SQP:SetSetting(tintColorKey, {r, g, b})
-            tintSw:SetColorTexture(r, g, b)
-            SQP:RefreshAllNameplates()
-        end
-        ColorPickerFrame:SetupColorPickerAndShow(info)
+        _G.RGXColors:OpenPicker({
+            r = r, g = g, b = b,
+            onChanged = function(_, nr, ng, nb)
+                SQP:SetSetting(tintColorKey, {nr, ng, nb})
+                tintSw:SetColorTexture(nr, ng, nb)
+                SQP:RefreshAllNameplates()
+            end,
+        })
     end)
     yOffset = yOffset - 26
 

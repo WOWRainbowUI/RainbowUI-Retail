@@ -205,8 +205,7 @@ function SQP:PLAYER_TARGET_CHANGED()
     end
 end
 
--- Register the event
-SQP.eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+-- PLAYER_TARGET_CHANGED is registered in events.lua via RGX:RegisterEvent
 
 -- Hook into UPDATE_MOUSEOVER_UNIT for better unit matching
 local originalMouseoverUpdate = SQP.UPDATE_MOUSEOVER_UNIT
@@ -225,5 +224,4 @@ function SQP:UPDATE_MOUSEOVER_UNIT()
     end
 end
 
--- Register the event
-SQP.eventFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+-- UPDATE_MOUSEOVER_UNIT is registered in events.lua via RGX:RegisterEvent
