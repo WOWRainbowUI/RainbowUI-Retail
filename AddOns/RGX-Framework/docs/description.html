@@ -1,0 +1,122 @@
+<div style="background:linear-gradient(180deg,#11141b 0%,#0b0e14 100%);color:#e6edf3;font-family:'Segoe UI',Tahoma,sans-serif;padding:16px;border:1px solid #2d333b">
+
+<div style="padding:14px 16px;background:linear-gradient(135deg,#1a1320 0%,#111827 100%);border:1px solid #3b2f46">
+<div style="font-size:26px;font-weight:800;letter-spacing:0.4px;color:#bc6fa8">RGX-Framework</div>
+<div style="margin-top:4px;color:#c7d0db;font-size:14px">Shared media, UI helpers, and addon foundation primitives for WoW addon authors.</div>
+<div style="margin-top:10px">
+<span style="display:inline-block;background-color:#201827;border:1px solid #5a3b6d;color:#f3d3ff;padding:3px 8px;margin-right:6px"><strong>Version</strong> 1.0.0</span>
+<span style="display:inline-block;background-color:#13202a;border:1px solid #29566f;color:#b9ecff;padding:3px 8px;margin-right:6px">Retail</span>
+<span style="display:inline-block;background-color:#1a2115;border:1px solid #546c39;color:#ddf2b1;padding:3px 8px">Library AddOn</span>
+</div>
+</div>
+
+<div style="height:12px"></div>
+
+<div style="padding:12px 14px;background-color:#151a22;border:1px solid #30363d">
+<div style="font-size:18px;font-weight:700;color:#ffd166">Overview</div>
+<div style="margin-top:8px;color:#e6edf3;line-height:1.5">
+RGX-Framework is a Retail World of Warcraft shared addon foundation built to give addon suites one coordinated resource layer for fonts, colors, textures, lightweight UI helpers, and reusable framework plumbing.
+</div>
+<div style="margin-top:8px;color:#c7d0db;line-height:1.5">
+It stays quiet for players and useful for authors. If another addon depends on RGX-Framework, install it and leave it enabled. If you are building addons yourself, use it to avoid shipping duplicate media folders, scattered visual constants, and repeated framework glue in every project.
+</div>
+</div>
+
+<div style="height:12px"></div>
+
+<table style="width:100%;border-collapse:separate;border-spacing:12px 0">
+<tr>
+<td style="width:50%;vertical-align:top;padding:12px 14px;background-color:#141b20;border:1px solid #2f454d">
+<div style="font-size:18px;font-weight:700;color:#4ecdc4">Features</div>
+<div style="margin-top:10px;color:#e6edf3;line-height:1.7">
+• <strong>RGXFonts</strong> for shared font lookup and fallback-safe font paths<br/>
+• <strong>RGXColors</strong> for reusable color helpers and a drop-in color-picker flow<br/>
+• <strong>RGXTextures</strong> for shared status bars, panel textures, and UI media<br/>
+• Native RGX event and message plumbing without depending on Ace-style library chains<br/>
+• Smaller addon packages through one shared media source<br/>
+• Consistent branding and visual language across RGX-based addons
+</div>
+</td>
+<td style="width:50%;vertical-align:top;padding:12px 14px;background-color:#1b1520;border:1px solid #4a3147">
+<div style="font-size:18px;font-weight:700;color:#ff8fab">Highlights In 1.0.0</div>
+<div style="margin-top:10px;color:#e6edf3;line-height:1.7">
+• Expanded the font lineup beyond near-identical UI sans fonts<br/>
+• Added clearer variation across pixel, display, fantasy, serif, and monospace styles<br/>
+• Improved shared integration for addons like PetBuddy2<br/>
+• Added reusable color-picker helpers for drop-in addon use
+</div>
+</td>
+</tr>
+</table>
+
+<div style="height:12px"></div>
+
+<div style="padding:12px 14px;background-color:#151a22;border:1px solid #30363d">
+<div style="font-size:18px;font-weight:700;color:#ffd166">Font Coverage</div>
+<div style="margin-top:10px;color:#e6edf3;line-height:1.7">
+<span style="color:#ffd166"><strong>Sans/UI:</strong></span> Inter, Ubuntu, Liberation Sans, DejaVu Sans, Lato, Poppins, Montserrat, Rajdhani<br/>
+<span style="color:#ffd166"><strong>Serif:</strong></span> Crimson Text, Merriweather, Playfair Display<br/>
+<span style="color:#ffd166"><strong>Monospace:</strong></span> IBM Plex Mono, JetBrains Mono<br/>
+<span style="color:#ffd166"><strong>Display:</strong></span> Bebas Neue, Bangers, Creepster, Oswald, Orbitron, Audiowide, Anton<br/>
+<span style="color:#ffd166"><strong>Pixel:</strong></span> Press Start 2P, Silkscreen, VT323<br/>
+<span style="color:#ffd166"><strong>Fantasy/Themed:</strong></span> Uncial Antiqua, Cinzel<br/>
+<span style="color:#ffd166"><strong>WoW defaults:</strong></span> Friz Quadrata, Arial Narrow, Morpheus, Skurri
+</div>
+</div>
+
+<div style="height:12px"></div>
+
+<table style="width:100%;border-collapse:separate;border-spacing:12px 0">
+<tr>
+<td style="width:58%;vertical-align:top;padding:12px 14px;background-color:#141b20;border:1px solid #2f454d">
+<div style="font-size:18px;font-weight:700;color:#4ecdc4">Basic Usage</div>
+<pre style="margin-top:10px;background-color:#0d1117;color:#c9d1d9;border:1px solid #30363d;padding:10px;white-space:pre-wrap">## RequiredDeps: RGX-Framework
+
+local path = _G.RGXFonts:GetPath("Inter-Regular")
+MyFontString:SetFont(path, 12, "OUTLINE")</pre>
+</td>
+<td style="width:42%;vertical-align:top">
+<div style="padding:12px 14px;background-color:#1b1520;border:1px solid #4a3147;margin-bottom:12px">
+<div style="font-size:18px;font-weight:700;color:#ff8fab">Compatibility</div>
+<div style="margin-top:10px;color:#e6edf3;line-height:1.7">
+• WoW Retail only<br/>
+• Interface versions: <span style="color:#58a6ff">120000</span>, <span style="color:#58a6ff">120001</span>
+</div>
+</div>
+
+<div style="padding:12px 14px;background-color:#151a22;border:1px solid #30363d">
+<div style="font-size:18px;font-weight:700;color:#ffd166">Best Used For</div>
+<div style="margin-top:10px;color:#e6edf3;line-height:1.7">
+• addon suites with one visual identity<br/>
+• shared font and texture menus<br/>
+• smaller addon packages<br/>
+• cleaner media reuse across projects
+</div>
+</div>
+</td>
+</tr>
+</table>
+
+<div style="height:12px"></div>
+
+<table style="width:100%;border-collapse:separate;border-spacing:12px 0">
+<tr>
+<td style="width:50%;vertical-align:top;padding:12px 14px;background-color:#151a22;border:1px solid #30363d">
+<div style="font-size:18px;font-weight:700;color:#ffd166">Support</div>
+<div style="margin-top:10px;color:#e6edf3;line-height:1.8">
+Discord:<br/><span style="color:#58a6ff">https://discord.gg/N7kdKAHVVF</span><br/><br/>
+GitHub:<br/><span style="color:#58a6ff">https://github.com/DonnieDice/RGX-Framework</span><br/><br/>
+Issues:<br/><span style="color:#58a6ff">https://github.com/DonnieDice/RGX-Framework/issues</span>
+</div>
+</td>
+<td style="width:50%;vertical-align:top;padding:12px 14px;background-color:#141b20;border:1px solid #2f454d">
+<div style="font-size:18px;font-weight:700;color:#4ecdc4">License</div>
+<div style="margin-top:10px;color:#e6edf3;line-height:1.7">
+MIT for framework code.<br/><br/>
+Bundled fonts retain their own original open licenses.
+</div>
+</td>
+</tr>
+</table>
+
+</div>

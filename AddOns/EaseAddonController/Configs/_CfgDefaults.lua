@@ -1615,7 +1615,7 @@ D["SimpleAssistedCombatIcon"] = {
         callback = function() SlashCmdList["ACECONSOLE_SACI"]("") end,
     },
 };
-D["SimpleQuestPlates"] = {
+D["RGX-Framework"] = {
     defaultEnable = 1,
 	tags = { "QUEST" },
 	title = "簡易任務怪提示",

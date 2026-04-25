@@ -203,7 +203,7 @@ function SQP:CreatePercentOptions(content)
     rightYOffset = MakeSlider(rightColumn, self.L["Offset X"], "percentIconOffsetX", 18, -80, 80, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, self.L["Offset Y"], "percentIconOffsetY",  0, -80, 80, rightYOffset)
 
-    rightYOffset = self:CreateFontSection(rightColumn, "percent", rightYOffset, "SQPPercentFontDropdown", ActivatePercent)
+    rightYOffset = self:CreateFontSection(rightColumn, "percent", rightYOffset, ActivatePercent)
 
     -- Reset this tab to percent defaults
     rightYOffset = rightYOffset - 14

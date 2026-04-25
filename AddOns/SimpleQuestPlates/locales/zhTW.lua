@@ -196,11 +196,11 @@ L["General"]= "一般"
 L["Objectives"] = "任務目標"
 L["Kill"] = "擊殺"
 L["Loot"] = "拾取"
-L["Quest %"]= "任務 %"
+L["Percent"] = "百分比"
 L["About"] = "關於"
 
 -- header
-L["|cff58be81S|r|cffffffffimple |cff58be81Q|r|cffffffffuest |cff58be81P|r|cfffffffflates|r|cff58be81!|r"] = "簡易任務怪提示 |cff58be81S|r|cffffffffimple |cff58be81Q|r|cffffffffuest |cff58be81P|r|cfffffffflates|r|cff58be81!|r"
+L["|cff58be81S|rimple |cff58be81Q|ruest |cff58be81P|rlates|cff58be81!|r"] = "任務怪提示"
 L["Quest tracking overlay for enemy nameplates"] = "在怪物血條上顯示任務追蹤圖示"
 
 -- widgets

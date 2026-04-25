@@ -10,7 +10,7 @@ local format = string.format
 
 function SQP:CreateGlobalOptions(content)
     if not self.optionControls then self.optionControls = {} end
-    local rgxFonts = SQP:GetRGXFonts()
+    local rgxFonts = _G.RGXFonts
     local rgxAccent = "bc6fa8"
 
     local leftColumn = CreateFrame("Frame", nil, content)
@@ -271,7 +271,7 @@ function SQP:CreateGlobalOptions(content)
     fontHeader:SetText("|cff" .. rgxAccent .. self.L["Nameplate Font|r"])
     rightYOffset = rightYOffset - 14
 
-    if rgxFonts and type(rgxFonts.CreateFontSettingControl) == "function" then
+    do
         local rgxDropdown = rgxFonts:CreateFontSettingControl(rightColumn, {
             label = self.L["Apply to SQP nameplate text"],
             width = 220,
@@ -306,11 +306,5 @@ function SQP:CreateGlobalOptions(content)
         rgxNote:SetWidth(220)
         rgxNote:SetJustifyH("LEFT")
         rgxNote:SetText(self.L["|cff58be81Changes the font used on SQP nameplates.|r"])
-    else
-        local rgxMissing = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-        rgxMissing:SetPoint("TOPLEFT", 20, rightYOffset)
-        rgxMissing:SetWidth(220)
-        rgxMissing:SetJustifyH("LEFT")
-        rgxMissing:SetText(self.L["RGX-Framework font tools are unavailable right now."])
     end
 end

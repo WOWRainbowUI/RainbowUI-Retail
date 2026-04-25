@@ -1,0 +1,17 @@
+## Interface: 120001, 120005
+## Version: 1.3.0
+## Title: RGX-Framework
+## Notes: Modular WoW addon library — events, timers, minimap, fonts, colors, textures, dropdowns, UI controls, pet battles, combat, reputation, data broker
+## Author: RGX
+## SavedVariables: RGXFrameworkDB
+## X-Category: Library
+## X-License: MIT
+## X-Curse-Project-ID: 1516939
+## X-Website: https://github.com/DonnieDice/RGX-Framework
+
+## Title-zhTW: |cff00FFFF[任務]|r 簡易任務怪提示-函式庫
+## Notes-zhTW: |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r |n|n在任務怪名字和血條的左側顯示任務目標進度的提示圖示，開啟敵方血條就會出現。|n圖示內的數字表示完成任務還需要多少數量或百分比。
+## IconTexture: Interface\AddOns\SimpleQuestPlates\media\icon
+## Category-zhTW: 任務
+
+RGX-Framework.xml

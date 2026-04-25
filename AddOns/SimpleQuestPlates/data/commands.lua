@@ -6,6 +6,7 @@
 --=====================================================================================
 
 local addonName, SQP = ...
+local RGX = _G.RGXFramework
 local format = string.format
 local tonumber = tonumber
 local type = type
@@ -230,8 +231,7 @@ function SQP:ProcessSlashCommand(input)
     end
 end
 
--- Register slash commands
-SLASH_SQP1 = "/" .. CHAT_COMMAND
-SlashCmdList["SQP"] = function(input)
+-- Register slash command via RGX-Framework
+RGX:RegisterSlashCommand("/" .. CHAT_COMMAND, function(input)
     SQP:ProcessSlashCommand(input)
-end
+end, "SQP")
