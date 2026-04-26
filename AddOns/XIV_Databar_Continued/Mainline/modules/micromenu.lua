@@ -390,7 +390,7 @@ function MenuModule:CreateFrames()
             key = 'guild', frameName = 'XIVBar_GuildButton', template = 'SecureActionButtonTemplate,SecureHandlerStateTemplate',
             micro = GuildMicroButton,
             extra = function(frame)
-                self.text.guild = frame:CreateFontString(nil, 'OVERLAY')
+                self.text.guild = frame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal') -- 12.0.5 fix
                 self.bgTexture.guild = frame:CreateTexture(nil, 'OVERLAY')
             end
         },
@@ -398,7 +398,7 @@ function MenuModule:CreateFrames()
             key = 'social', frameName = 'XIVBar_SocialButton', template = 'SecureActionButtonTemplate,SecureHandlerStateTemplate',
             micro = QuickJoinToastButton,
             extra = function(frame)
-                self.text.social = frame:CreateFontString(nil, 'OVERLAY')
+                self.text.social = frame:CreateFontString(nil, 'OVERLAY', 'GameFontNormal') -- 12.0.5 fix
                 self.bgTexture.social = frame:CreateTexture(nil, 'OVERLAY')
             end
         },
