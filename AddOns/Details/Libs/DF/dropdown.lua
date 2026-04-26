@@ -703,9 +703,10 @@ function DropDownMetaFunctions:Selected(thisOption)
 
 	else
 		if select(4, GetBuildInfo()) >= 120005 then
-			self.label:SetFont(GameFontHighlightSmall:GetFont(), 14)
+			local fontFace, fontSize, fontFlags = GameFontHighlight:GetFont()
+			DF:SetFont(self.label, fontFace, fontSize, fontFlags)
 		else
-			self.label:SetFont("GameFontHighlightSmall", 14)
+			self.label:SetFont("GameFontHighlight", 14)
 		end
 	end
 
@@ -961,7 +962,7 @@ function DetailsFrameworkDropDownOnMouseDown(button, buttontype)
 						thisOptionFrame.label:SetFont(thisOption.font, 14)
 
 					else
-						thisOptionFrame.label:SetFontObject("GameFontHighlight")
+						thisOptionFrame.label:SetFontObject(_G["GameFontHighlight"])
 						local font, _, flags = thisOptionFrame.label:GetFont()
 						thisOptionFrame.label:SetFont(font, 14, flags)
 					end
