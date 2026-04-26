@@ -1,1 +1,1 @@
-- Update ToC version for patch 12.0.5
+- Fix boss kill tracking in Seat of the Triumvirate
