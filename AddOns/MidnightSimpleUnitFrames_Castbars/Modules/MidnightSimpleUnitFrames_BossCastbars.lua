@@ -44,6 +44,10 @@ local function SafeCall(fn, ...)
     return nil
 end
 
+local ResolveFontPath = (ns and ns.Util and ns.Util.ResolveFontPath) or _G.MSUF_ResolveFontPath or function(path)
+    return path or "Fonts\\FRIZQT__.TTF"
+end
+
 -- PERF: Resolve time source once at load.
 local _BossNow = _G.GetTimePreciseSec or _G.GetTime or function() return 0 end
 local function MSUF_Now()
@@ -194,6 +198,7 @@ local function MSUF_GetGlobalFontPack_Boss()
     g = (g ~= nil) and g or 1
     b = (b ~= nil) and b or 1
     baseSize = tonumber(baseSize) or 12
+    path = ResolveFontPath(path, baseSize, flags)
     useShadow = useShadow and true or false
     return path, flags, r, g, b, baseSize, useShadow
 end
