@@ -1,6 +1,6 @@
 # Baganator
 
-## [799](https://github.com/TheMouseNest/Baganator/tree/799) (2026-04-22)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/798...799) 
+## [800](https://github.com/TheMouseNest/Baganator/tree/800) (2026-04-25)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/799...800) 
 
-- freeze mixins to prevent unintended modification  
+- Retail: Fix item upgrade track grouping for Champion, Hero and Myth gear  
