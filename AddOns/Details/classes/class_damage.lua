@@ -3450,7 +3450,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 	elseif mainDisplay == DETAILS_ATTRIBUTE_HEAL then
 		if (subDisplay == DETAILS_SUBATTRIBUTE_HEALDONE or subDisplay == DETAILS_SUBATTRIBUTE_OVERHEAL) then
 			local ruleToUse = 2 --total hps
-			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), nil, ruleToUse)
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), nil, ruleToUse)
 			--percentNumber = math.floor((healingTotal/instanceObject.top) * 100)
 		elseif (subDisplay == DETAILS_SUBATTRIBUTE_HPS) then
 			local ruleToUse = -1 --only show total
@@ -3459,7 +3459,7 @@ function Details:UpdateBarApocalypseWow(instanceLine, source, instance, topValue
 
 		elseif (attributeId == DETAILS_SUBATTRIBUTE_HEALPOTION) then
 			local ruleToUse = 3 --total hps percent
-			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsHPS), source.percent, ruleToUse)
+			Details:SimpleFormat(instanceLine.lineText2, instanceLine.lineText3, instanceLine.lineText4, AbbreviateNumbers(source.totalAmount, Details.abbreviateOptionsHealing), AbbreviateNumbers(source.amountPerSecond, Details.abbreviateOptionsDPS), source.percent, ruleToUse)
 		end
 
 	elseif mainDisplay == DETAILS_ATTRIBUTE_ENERGY then
@@ -4259,11 +4259,28 @@ function Details:SetClassIcon(texture, instance, class) --[[exported]] --~icons
 			if (self.thisSpecIcon) then
 				local specInfo = detailsFramework:GetSpecInfoFromSpecIcon(self.thisSpecIcon)
 				local specId = specInfo and specInfo.specId
+
+				if (specId and not Details.class_specs_coords[specId]) then
+					if (self.thisSpecIcon == 461112) then --bm hunter
+						specId = 253
+					elseif (self.thisSpecIcon == 608953) then --windwalker monk
+						specId = 269
+					elseif (self.thisSpecIcon == 135846) then --frost mage
+						specId = 64
+					elseif (self.thisSpecIcon == 136145) then --affliction warlock
+						specId = 265
+					end
+				end
+
+				--print(specId, specInfo, self.thisSpecIcon)
+
 				if (specId and Details.class_specs_coords[specId]) then
+					--print(1)
 					texture:SetTexture(instance.row_info.spec_file)
 					texture:SetTexCoord(unpack(Details.class_specs_coords[specId]))
 					texture:SetVertexColor(1, 1, 1)
 				else
+					--print(2)
 					texture:SetTexture(self.thisSpecIcon)
 					texture:SetTexCoord(.1, .9, .1, .9)
 					texture:SetVertexColor(1, 1, 1)
