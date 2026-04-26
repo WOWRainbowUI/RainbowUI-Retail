@@ -922,7 +922,14 @@ end
 function _G.MSUF_CB_ApplyColor(frame, state)
     if frame and frame.UpdateColorForInterruptible then
         -- Keep existing SSoT for interrupt/color caches inside UpdateColorForInterruptible().
-        return frame:UpdateColorForInterruptible()
+        local ret = frame:UpdateColorForInterruptible()
+        -- Kick-indicator refresh trailer: the castbar fill/border color may
+        -- have changed, so the kick indicator needs to re-evaluate its tint
+        -- (the user's outline color is part of the rawNI compose path).
+        if _G.MSUF_KickReady_RefreshFrame then
+            _G.MSUF_KickReady_RefreshFrame(frame, state)
+        end
+        return ret
     end
 end
 
