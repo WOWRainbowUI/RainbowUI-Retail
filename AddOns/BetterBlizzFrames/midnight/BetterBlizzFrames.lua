@@ -3025,6 +3025,17 @@ end
 function BBF.ShowCooldownDuringCC()
     if not BetterBlizzFramesDB.fixActionBarCDs then return end
     if BBF.ShowCooldownDuringCCActive then return end
+    BBF.ShowCooldownDuringCCActive = true
+    if C_AddOns.IsAddOnLoaded("Bartender4") then
+        local BARTENDER4_NUM_MAX_BUTTONS = 180
+        for i = 1, BARTENDER4_NUM_MAX_BUTTONS do
+            local button = _G["BT4Button" .. i]
+            if button and button.lossOfControlCooldown then
+                button.lossOfControlCooldown:SetParent(BBF.hiddenFrame)
+            end
+        end
+        return
+    end
     local blizzPrefixes = {
         "ActionButton", "MultiBarBottomLeftButton", "MultiBarBottomRightButton",
         "MultiBarRightButton", "MultiBarLeftButton", "MultiBar5Button",
@@ -3039,7 +3050,6 @@ function BBF.ShowCooldownDuringCC()
             end
         end
     end
-    BBF.ShowCooldownDuringCCActive = true
 end
 
 
@@ -3155,7 +3165,36 @@ end)
 
 
 local LSM = LibStub("LibSharedMedia-3.0")
-BBF.LSM = LSM
+local FontValidatorString = UIParent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+
+local function IsFontFileValid(path)
+	if type(path) ~= "string" or path == "" then
+		return false
+	end
+
+	local ok, result = pcall(FontValidatorString.SetFont, FontValidatorString, path, 12, "")
+	if not ok or result == false then
+		return false
+	end
+
+	return path
+end
+
+BBF.LSM = setmetatable({}, {
+	__index = function(_, k)
+		if k == "Register" then
+			return function(_, mediaType, key, data, langMask)
+				if mediaType == "font" and not IsFontFileValid(data) then
+					return false
+				end
+				return LSM:Register(mediaType, key, data, langMask)
+			end
+		end
+
+		return LSM[k]
+	end
+})
+
 BBF.allLocales = LSM.LOCALE_BIT_western+LSM.LOCALE_BIT_ruRU+LSM.LOCALE_BIT_zhCN+LSM.LOCALE_BIT_zhTW+LSM.LOCALE_BIT_koKR
 LSM:Register("statusbar", "Blizzard DF", [[Interface\TargetingFrame\UI-TargetingFrame-BarFill]])
 LSM:Register("statusbar", "Blizzard CF", [[Interface\AddOns\BetterBlizzFrames\media\ui-statusbar-cf]])
@@ -5177,6 +5216,21 @@ First:SetScript("OnEvent", function(_, event, addonName)
         end
         if BetterBlizzFramesDB.noPortraitPixelBorder then
             BetterBlizzFramesDB.noPortraitModes = true
+        end
+        if not BetterBlizzFramesDB.fontOutlineFix then
+            local outlineKeys = {
+                "unitFrameFontOutline", "unitFrameValueFontOutline",
+                "partyFrameFontOutline", "actionBarFontOutline", "actionBarKeyFontOutline"
+            }
+            for _, key in ipairs(outlineKeys) do
+                local val = BetterBlizzFramesDB[key]
+                if val == "THINOUTLINE" then
+                    BetterBlizzFramesDB[key] = "OUTLINE"
+                elseif val == "NONE" then
+                    BetterBlizzFramesDB[key] = ""
+                end
+            end
+            BetterBlizzFramesDB.fontOutlineFix = true
         end
         FetchAndSaveValuesOnFirstLogin()
         TurnTestModesOff()
