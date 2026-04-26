@@ -1,3 +1,7 @@
+Version 2.06
+
+- Update ToC version for patch 12.0.5
+
 Version 2.05
 
 - Add workaround for bad zone to dungeon mapping for Academy and Seat
