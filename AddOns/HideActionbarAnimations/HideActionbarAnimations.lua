@@ -1,4 +1,6 @@
 
+if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+
 	local ActionBarAnimationEvents = {
 		"UNIT_SPELLCAST_INTERRUPTED",
 		"UNIT_SPELLCAST_SUCCEEDED",
@@ -17,7 +19,7 @@
 	local AfterAddOnHasLoadedFrame = CreateFrame("Frame")
 	AfterAddOnHasLoadedFrame:RegisterEvent("PLAYER_LOGIN")
 	AfterAddOnHasLoadedFrame:SetScript("OnEvent", function(self, event, ...)
-		if ActionBarActionEventsFrame then
+		if ActionBarActionEventsFrame and type(ActionBarActionEventsFrame) == "table" then
 			for _, events in ipairs(ActionBarAnimationEvents) do
 				ActionBarActionEventsFrame:UnregisterEvent(events)
 			end
@@ -42,15 +44,17 @@
 			end
 		end
 	end
-	if ActionButton_ApplyCooldown then -- Action Buttons no longer use CooldownFrame_Set
+	if ActionButton_ApplyCooldown and type(ActionButton_ApplyCooldown) == "function" then -- Action Buttons no longer use CooldownFrame_Set
 		hooksecurefunc("ActionButton_ApplyCooldown", function(normalCooldown, cooldownInfo, chargeCooldown, chargeInfo, lossOfControlCooldown, lossOfControlInfo)
 			ApplyEdgeTexture(normalCooldown)
 			ApplyEdgeTexture(chargeCooldown)
 			ApplyEdgeTexture(lossOfControlCooldown)
 		end)
 	end
-	if CooldownFrame_Set then
+	if CooldownFrame_Set and type(ActionButton_ApplyCooldown) == "function" then
 		hooksecurefunc("CooldownFrame_Set", function(self)
 			ApplyEdgeTexture(self)
 		end)
 	end
+
+end

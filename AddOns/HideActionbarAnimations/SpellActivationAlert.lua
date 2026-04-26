@@ -7,7 +7,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 	local IsAddOnEnabled = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
 	if IsAddOnEnabled("HideButtonGlow") then return end
 
-	local function CreateGoldenBorder(button) -- hooksecurefunc("ActionButton_SetupOverlayGlow", function(button)
+	local function CreateGoldenBorder(button)
 
 		if button.HideActionbarAnimations_SpellActivationAlert then return end
 
@@ -124,7 +124,7 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 
 	end --end)
 
-	hooksecurefunc(ActionButtonSpellAlertManager, "ShowAlert", function(self, button) -- hooksecurefunc("ActionButton_ShowOverlayGlow", function(button)
+	local function ShowSpellActivationAlert(button)
 		if button.HideActionbarAnimations_SpellActivationAlert then
 			if not button.HideActionbarAnimations_SpellActivationAlert:IsVisible() then
 				button.HideActionbarAnimations_SpellActivationAlert:Show()
@@ -147,9 +147,9 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 		if button.SpellActivationAlert then
 			button.SpellActivationAlert:Hide() --button.SpellActivationAlert.ProcStartFlipbook:Hide() button.SpellActivationAlert.ProcLoopFlipbook:Hide()
 		end
-    end)
-
-	hooksecurefunc(ActionButtonSpellAlertManager, "HideAlert", function(self, button) -- hooksecurefunc("ActionButton_HideOverlayGlow", function(button)
+	end
+	
+	local function HideSpellActivationAlert(button)
 		if not button.HideActionbarAnimations_SpellActivationAlert then return end
 
         if button.HideActionbarAnimations_SpellActivationAlert.animIn:IsPlaying() then
@@ -161,6 +161,25 @@ ApplyActionBarSkinOnLogin:SetScript("OnEvent", function()
 		else
 			button.HideActionbarAnimations_SpellActivationAlert:Hide() --We aren't shown anyway, so we'll instantly hide it.
         end
-    end)
+	end
+
+	if ActionButton_ShowOverlayGlow and type(ActionButton_ShowOverlayGlow) == "function" then
+		hooksecurefunc("ActionButton_ShowOverlayGlow", function(button)
+			ShowSpellActivationAlert(button)
+		end)
+	elseif ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.ShowAlert and type(ActionButtonSpellAlertManager.ShowAlert) == "function" then
+		hooksecurefunc(ActionButtonSpellAlertManager, "ShowAlert", function(self, button)
+			ShowSpellActivationAlert(button)
+		end)
+	end
+	if ActionButton_HideOverlayGlow and type(ActionButton_HideOverlayGlow) == "function" then
+		hooksecurefunc("ActionButton_HideOverlayGlow", function(button)
+			HideSpellActivationAlert(button)
+		end)
+	elseif ActionButtonSpellAlertManager and ActionButtonSpellAlertManager.HideAlert and type(ActionButtonSpellAlertManager.HideAlert) == "function" then
+		hooksecurefunc(ActionButtonSpellAlertManager, "HideAlert", function(self, button)
+			HideSpellActivationAlert(button)
+		end)
+	end
 
 end)
