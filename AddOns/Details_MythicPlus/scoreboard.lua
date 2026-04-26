@@ -470,7 +470,7 @@ function mythicPlusBreakdown.CreateScoreboardFrame()
         local itemLevelText = readyFrame:CreateFontString("$parentItemLevelText", "artwork", "GameFontNormal")
         detailsFramework:SetFontSize(itemLevelText, 11)
         detailsFramework:SetFontColor(itemLevelText, "silver")
-        itemLevelText:SetText("0.0")
+        itemLevelText:SetText("0")
         itemLevelText:SetPoint("left", itemLevelIcon, "right", 6, -3)
         readyFrame.ItemLevelText = itemLevelText
 
@@ -586,6 +586,12 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                 ratingColor = _G["HIGHLIGHT_FONT_COLOR"]
             end
 
+			if (playerInfo.scorePrevious == 0 and score > 450) then
+				-- in case there's an issue and the actual score is incorrectly set to 0
+				-- it'll show "1530" instead of "1530 (+1530)"
+				playerInfo.scorePrevious = score
+			end
+
             ---@type scoreboard_playerdata
             local thisPlayerData = {
                 runId = runData.runId,
@@ -604,8 +610,8 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
                 avoidableDamageTakenFromSpells = playerInfo.avoidableDamageTakenFromSpells,
                 damageDoneBySpells = playerInfo.damageDoneBySpells,
                 healDoneBySpells = playerInfo.healDoneBySpells,
-                dps = playerInfo.totalDamage / combatTime,
-                hps = playerInfo.totalHeal / combatTime,
+                dps = (playerInfo.totalDamage or 0) / combatTime,
+                hps = (playerInfo.totalHeal or 0) / combatTime,
                 activityTimeDamage = playerInfo.activityTimeDamage or combatTime,
                 activityTimeHeal = playerInfo.activityTimeHeal or combatTime,
                 interrupts = playerInfo.totalInterrupts or 0,
@@ -722,20 +728,7 @@ function mythicPlusBreakdown.RefreshScoreboardFrame(mainFrame, runData)
         local timeLimitToCompletion = runData.timeLimit
 
         --mainFrame.ItemLevelText:SetText(runData.completionInfo.itemLevel or 0.0)
-        --get the item level of all player in the run and sum all of them, and then divide by the total of players found, item level is stored here: runInfo.combatData.groupMembers[unitName].ilevel
-        local totalItemLevel = 0
-        local totalPlayers = 0
-        for playerName, playerInfo in pairs(runData.combatData.groupMembers) do
-            if (playerInfo.ilevel) then
-                totalItemLevel = totalItemLevel + playerInfo.ilevel
-                totalPlayers = totalPlayers + 1
-            end
-        end
-        if (totalPlayers > 0) then
-            mainFrame.ItemLevelText:SetText(math.floor(totalItemLevel / totalPlayers))
-        else
-            mainFrame.ItemLevelText:SetText("0.0")
-        end
+        mainFrame.ItemLevelText:SetText(math.floor(addon.GetRunAverageItemLevel(runData)))
 
         if (detailsFramework.Math.IsNearlyEqual(timeLimitToCompletion, flooredRunTime, 2)) then
             mainFrame.ElapsedTimeText:SetText(detailsFramework:IntegerToTimer(flooredRunTime) .. WrapTextInColorCode("." .. math.floor((runTime - flooredRunTime) * 1000), "FFBA8E23"))
@@ -859,6 +852,12 @@ function mythicPlusBreakdown.CreateActivityPanel(mainFrame)
     activityFrame:SetPoint("topleft", mainFrame, "topleft", lineOffset * 2, activityFrameY)
     activityFrame:SetPoint("topright", mainFrame, "topright", -lineOffset * 2 - 1, activityFrameY)
 
+    local gradientAboveTheLine = detailsFramework:CreateTexture(activityFrame, {gradient = "vertical", fromColor = {0, 0, 0, 0.65}, toColor = "transparent"}, 1, 65, "artwork", {0, 1, 0, 1}, "gradient1")
+    gradientAboveTheLine:SetPoint("bottoms")
+
+    local gradientBelowTheLine = detailsFramework:CreateTexture(activityFrame, {gradient = "vertical", fromColor = "transparent", toColor = {0, 0, 0, 0.40}}, 1, 60, "artwork", {0, 1, 0, 1}, "gradient2")
+    gradientBelowTheLine:SetPoint("tops")
+
     local backgroundTexture = activityFrame:CreateTexture("$parentBackgroundTexture", "border")
     backgroundTexture:SetColorTexture(0, 0, 0, 0.834)
     backgroundTexture:SetAllPoints()
@@ -946,58 +945,65 @@ function mythicPlusBreakdown.CreateActivityPanel(mainFrame)
         ---@field Portrait texture
         ---@field RoleIcon texture
 
-        local reservedUntil = -100
-        local up = true
+        local allEvents = {}
+        --arrange the events in the order they should be rendered
         for event, marker in addon.activityTimeline.PrepareEventFrames(self, events) do
-            local relativeTimestamp = event.timestamp - runData.startTime
-            local pointOnBar = relativeTimestamp * multiplier
+            local timestamp = event.timestamp
+            allEvents[#allEvents+1] = {eventInfo = event, markerFrame = marker, timestamp = timestamp}
+        end
+        table.sort(allEvents, function(t1, t2) return t1.timestamp < t2.timestamp end)
 
+        local lastTimestamp = 0
+        local markerYOffset = 0
+        for _, eventTable in ipairs(allEvents) do
+            local eventData = eventTable.eventInfo
+            local marker = eventTable.markerFrame
+            local timestamp = eventTable.timestamp
+            local originalTimestamp = timestamp
+
+            --calculate if this timestamp is too close from the previous one, if it is, we need to alternate the position of the marker to avoid overlapping
+            if detailsFramework.Math.IsNearlyEqual(timestamp, lastTimestamp, 15) then
+                timestamp = lastTimestamp + 7
+                if markerYOffset == 0 then
+                    markerYOffset = -17
+                else
+                    markerYOffset = 0
+                end
+            else
+                markerYOffset = 0
+            end
+            lastTimestamp = timestamp
+
+            local relativeTimestamp = timestamp - runData.startTime
+            local originalRelativeTimestamp = originalTimestamp - runData.startTime
+            local pointOnBar = relativeTimestamp * multiplier
+            local originalPointOnBar = originalRelativeTimestamp * multiplier
+
+            --timestamp label
             detailsFramework:SetFontColor(marker.TimestampLabel, 1, 1, 1)
             detailsFramework:SetFontSize(marker.TimestampLabel, 12)
-            marker.TimestampLabel:SetText(detailsFramework:IntegerToTimer(relativeTimestamp))
+            marker.TimestampLabel:SetText(detailsFramework:IntegerToTimer(originalRelativeTimestamp))
 
             ---@type activitytimeline_marker_data
-            local markerData = {}
-            if (event.type == addon.Enum.ScoreboardEventType.Death) then
-                markerData = addon.activityTimeline.RenderDeathMarker(self, event, marker, runData)
+            if (eventData.type == addon.Enum.ScoreboardEventType.Death) then
+                addon.activityTimeline.RenderDeathMarker(self, eventData, marker, runData)
 
-            elseif (event.type == addon.Enum.ScoreboardEventType.KeyFinished) then
-                markerData = addon.activityTimeline.RenderKeyFinishedMarker(self, event, marker, runData)
+            elseif (eventData.type == addon.Enum.ScoreboardEventType.KeyFinished) then
+                addon.activityTimeline.RenderKeyFinishedMarker(self, eventData, marker, runData)
             end
 
-            local offset = marker:GetWidth() * 0.4
-            local before = pointOnBar - offset
-            local after = pointOnBar + offset
-
-            if (markerData.forceDirection) then
-                up = markerData.forceDirection == "up" and true or false
-            elseif (before < reservedUntil) then
-                up = not up
-            else
-                up = markerData.preferUp and true or false
-            end
-
-            if (after > reservedUntil) then
-                reservedUntil = after
-            end
-
-            local CONST_ACTIVITYFRAME_LINE_HEIGHT = 15
+            local CONST_ACTIVITYFRAME_LINE_HEIGHT = 22
 
             marker:Show()
             marker:ClearAllPoints()
             marker.TimestampLabel:ClearAllPoints()
             marker.LineTexture:ClearAllPoints()
-            if (up) then
-                marker:SetPoint("bottom", activityFrame, "topleft", pointOnBar, CONST_ACTIVITYFRAME_LINE_HEIGHT)
-                marker.LineTexture:SetPoint("top", marker, "bottom", 0, 0)
-                marker.LineTexture:SetHeight(CONST_ACTIVITYFRAME_LINE_HEIGHT)
-                marker.TimestampLabel:SetPoint("bottom", marker, "top", 0, 5)
-            else
-                marker:SetPoint("top", activityFrame, "bottomleft", pointOnBar, -CONST_ACTIVITYFRAME_LINE_HEIGHT)
-                marker.LineTexture:SetPoint("bottom", marker, "top", 0, 0)
-                marker.LineTexture:SetHeight(CONST_ACTIVITYFRAME_LINE_HEIGHT)
-                marker.TimestampLabel:SetPoint("top", marker, "bottom", 0, -5)
-            end
+
+            marker:SetPoint("top", activityFrame, "bottomleft", pointOnBar, -CONST_ACTIVITYFRAME_LINE_HEIGHT + markerYOffset + 15)
+            marker.LineTexture:SetPoint("top", activityFrame, "bottomleft", originalPointOnBar, 15  -CONST_ACTIVITYFRAME_LINE_HEIGHT + markerYOffset)
+            marker.LineTexture:SetHeight(CONST_ACTIVITYFRAME_LINE_HEIGHT + (markerYOffset*-1))
+            marker.LineTexture:Hide()
+            marker.TimestampLabel:SetPoint("top", marker, "bottom", 0, -5)
         end
 
     end

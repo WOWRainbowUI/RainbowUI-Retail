@@ -1,11 +1,11 @@
 ## Interface: 120001, 120005
-## Title: Details!: Mythic Plus Extension
-## Title-ruRU: Details!: Расширение М+
-## Notes: Add Mythic Plus stuff on Details!
-## Notes-ruRU: Добавляет в Details! гибкое расширение для М+ подземелий
+## Title: Details! Mythic+ Scoreboard
+## Title-ruRU: Details! Таблица результатов M+
+## Notes: A Details! team addon that shows a scoreboard at the end of Mythic+, and lets you keep track of your runs
+## Notes-ruRU: Дополнение для Details!, которое показывает таблицу результатов в конце подземелья M+ и позволяет отслеживать Ваши прохождения
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
-## Version: #DMP.20260411.020
+## Version: #DMP.20260422.023
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL

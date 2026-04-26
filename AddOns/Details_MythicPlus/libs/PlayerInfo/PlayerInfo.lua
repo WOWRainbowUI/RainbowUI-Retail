@@ -139,7 +139,7 @@ end
 ---@diagnostic disable-next-line: undefined-global
 local Enum = Enum
 
-local thisVersion = 1
+local thisVersion = 2
 
 PLAYER_INFO_VERSION = PLAYER_INFO_VERSION or 0
 
