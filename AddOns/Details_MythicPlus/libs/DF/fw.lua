@@ -1,5 +1,5 @@
 
-local dversion = 706
+local dversion = 718
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -1422,6 +1422,23 @@ function DF:RemoveRealName(name)
 	return name:gsub(("%-.*"), "")
 end
 
+---set the font face, size and flags of a font
+---@param fontString fontstring
+---@param fontface string?
+---@param size number?
+---@param flags string?
+function DF:SetFont(fontString, fontface, size, flags)
+	if fontface then
+		DF:SetFontFace(fontString, fontface)
+	end
+	if size then
+		DF:SetFontSize(fontString, size)
+	end
+	if flags then
+		DF:SetFontOutline(fontString, flags)
+	end
+end
+
 ---get the UIObject of type 'FontString' named fontString and set the font size to the maximum value of the arguments
 ---@param self table
 ---@param fontString fontstring
@@ -1450,8 +1467,8 @@ function DF:SetFontFace(fontString, fontface)
 		fontface = _G[fontface]:GetFont()
 	end
 
-	local _, size, flags = fontString:GetFont()
-	return fontString:SetFont(fontface, size, flags)
+	local origFont, size, flags = fontString:GetFont()
+	local ok = pcall(fontString.SetFont, fontString, fontface, size, flags) -- silently fail this one
 end
 
 local dummyFontString = UIParent:CreateFontString(nil, "background", "GameFontNormal")
@@ -1524,6 +1541,22 @@ function DF:SetFontRotation(fontString, degrees) --deprecated, use fontString:Se
 		fontString.__rotationAnimation:Play()
 		fontString.__rotationAnimation:Pause()
 	end
+end
+
+function DF:RemoveColorCodes(text)
+    --remove color code: |cFFFFFFFF
+    text = string.gsub(text, "%|c%w+", "")
+    --remove the end code: |r
+    text = string.gsub(text, "%|r", "")
+    return text
+end
+
+--function to remove |T...|t style codes from text
+--removes portions starting with |T and ending with |t, including both delimiters
+function DF:RemoveTextureCodes(text)
+	--remove |T...|t style codes
+	text = string.gsub(text, "%|T.-%|t", "")
+	return text
 end
 
 ---receives a string and a color and return the string wrapped with the color using |c and |r scape codes
@@ -1755,7 +1788,7 @@ function DF:GetFontFace(fontString)
 end
 
 local ValidOutlines = {
-	["NONE"] = true,
+	[""] = true,
 	["MONOCHROME"] = true,
 	["OUTLINE"] = true,
 	["THICKOUTLINE"] = true,
@@ -1802,7 +1835,11 @@ function DF:SetFontOutline(fontString, outline)
         end
     end
 
-    outline = (not outline or outline == "NONE") and "" or outline
+	outline = (not outline or outline == "NONE") and "" or outline
+
+	if not ValidOutlines[outline] then
+		outline = ""
+	end
 
     fontString:SetFont(font, fontSize, outline)
 end
@@ -6081,7 +6118,7 @@ do
             --need to create the new object
             local newObject = self.newObjectFunc(self, unpack(self.payload))
             if (newObject) then
-				self.objectsCreated = self.objectsCreated + 0
+				self.objectsCreated = self.objectsCreated + 1
 				table.insert(self.inUse, newObject)
 				if (self.onAcquire) then
 					DF:QuickDispatch(self.onAcquire, newObject)
