@@ -3670,6 +3670,66 @@ local function guiGeneralTab()
         end
     end)
 
+    local biggerHealthbarsOptionsFrame
+    local function OpenBiggerHealthbarsOptionsWindow()
+        if not biggerHealthbarsOptionsFrame then
+            biggerHealthbarsOptionsFrame = CreateFrame("Frame", "BiggerHealthbarsOptionsFrame", UIParent, "BasicFrameTemplateWithInset")
+            biggerHealthbarsOptionsFrame:SetSize(185, 135)
+            biggerHealthbarsOptionsFrame:SetPoint("CENTER")
+            biggerHealthbarsOptionsFrame:SetFrameStrata("DIALOG")
+            biggerHealthbarsOptionsFrame:SetMovable(true)
+            biggerHealthbarsOptionsFrame:EnableMouse(true)
+            biggerHealthbarsOptionsFrame:RegisterForDrag("LeftButton")
+            biggerHealthbarsOptionsFrame:SetScript("OnDragStart", biggerHealthbarsOptionsFrame.StartMoving)
+            biggerHealthbarsOptionsFrame:SetScript("OnDragStop", biggerHealthbarsOptionsFrame.StopMovingOrSizing)
+            biggerHealthbarsOptionsFrame.title = biggerHealthbarsOptionsFrame:CreateFontString(nil, "OVERLAY")
+            biggerHealthbarsOptionsFrame.title:SetFontObject("GameFontHighlight")
+            biggerHealthbarsOptionsFrame.title:SetPoint("LEFT", biggerHealthbarsOptionsFrame.TitleBg, "LEFT", 5, 0)
+            biggerHealthbarsOptionsFrame.title:SetText(L["Frame_Options"])
+
+            local options = {
+                { var = "biggerHealthbarsNoPlayer", label = L["Ignore_On_Player_Frame"] },
+                { var = "biggerHealthbarsNoTarget", label = L["Ignore_On_Target_Frame"] },
+                { var = "biggerHealthbarsNoFocus",  label = L["Ignore_On_Focus_Frame"] },
+            }
+
+            local previousCheckbox
+            for i, optData in ipairs(options) do
+                local optCheckbox = CreateFrame("CheckButton", nil, biggerHealthbarsOptionsFrame, "UICheckButtonTemplate")
+                optCheckbox:SetSize(24, 24)
+                optCheckbox.Text:SetText(optData.label)
+
+                if i == 1 then
+                    optCheckbox:SetPoint("TOPLEFT", biggerHealthbarsOptionsFrame, "TOPLEFT", 10, -30)
+                else
+                    optCheckbox:SetPoint("TOPLEFT", previousCheckbox, "BOTTOMLEFT", 0, 3)
+                end
+
+                optCheckbox:SetChecked(BetterBlizzFramesDB[optData.var])
+
+                optCheckbox:SetScript("OnClick", function(self)
+                    BetterBlizzFramesDB[optData.var] = self:GetChecked() or nil
+                    StaticPopup_Show("BBF_CONFIRM_RELOAD")
+                end)
+
+                previousCheckbox = optCheckbox
+            end
+            biggerHealthbarsOptionsFrame:Show()
+        else
+            if biggerHealthbarsOptionsFrame:IsShown() then
+                biggerHealthbarsOptionsFrame:Hide()
+            else
+                biggerHealthbarsOptionsFrame:Show()
+            end
+        end
+    end
+
+    biggerHealthbars:SetScript("OnMouseDown", function(self, button)
+        if button == "RightButton" then
+            OpenBiggerHealthbarsOptionsWindow()
+        end
+    end)
+
     local formatStatusBarText = CreateCheckbox("formatStatusBarText", L["Format_Numbers"], BetterBlizzFrames, nil, BBF.HookStatusBarText)
     formatStatusBarText:SetPoint("TOPLEFT", biggerHealthbars, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(formatStatusBarText, L["Format_Numbers"], L["Tooltip_Format_Numbers_Desc"], L["Tooltip_Requires_Reload"])
@@ -6420,17 +6480,19 @@ local function guiFrameAuras()
     personalAuraSettings:SetPoint("TOP", PlayerAuraBorder, "BOTTOM", 0, -5)
     personalAuraSettings:SetText(L["Label_Player_Aura_Settings"])
 
-    local repositionBuffFrame = CreateCheckbox("repositionBuffFrame", L["Move_Auras"], contentFrame)
-    repositionBuffFrame:SetPoint("LEFT", personalAuraSettings, "RIGHT", 2, 0)
-    repositionBuffFrame:HookScript("OnClick", function(self)
-        BBF.RepositionBuffFrame()
-    end)
-    CreateTooltipTwo(repositionBuffFrame, L["Tooltip_Move_Player_Auras_Desc"], L["Tooltip_Move_Player_Auras_Desc"])
-    repositionBuffFrame:HookScript("OnClick", function(self)
-        if not self:GetChecked() then
-            StaticPopup_Show("BBF_CONFIRM_RELOAD")
-        end
-    end)
+    if not BBF.isTBC then
+        local repositionBuffFrame = CreateCheckbox("repositionBuffFrame", L["Move_Auras"], contentFrame)
+        repositionBuffFrame:SetPoint("LEFT", personalAuraSettings, "RIGHT", 2, 0)
+        repositionBuffFrame:HookScript("OnClick", function(self)
+            BBF.RepositionBuffFrame()
+        end)
+        CreateTooltipTwo(repositionBuffFrame, L["Tooltip_Move_Player_Auras_Desc"], L["Tooltip_Move_Player_Auras_Desc"])
+        repositionBuffFrame:HookScript("OnClick", function(self)
+            if not self:GetChecked() then
+                StaticPopup_Show("BBF_CONFIRM_RELOAD")
+            end
+        end)
+    end
 
 
     local targetAndFocusAuraSettings = contentFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -6533,14 +6595,16 @@ local function guiFrameAuras()
     local playerAuraBuffScale = CreateSlider(contentFrame, "Aura Size", 0.5, 2, 0.01, "playerAuraBuffScale")
     playerAuraBuffScale:SetPoint("TOP", PlayerAuraBorder, "BOTTOM", 0, -35)
 
-    local playerAuraXOffset = CreateSlider(contentFrame, "PlayerAura x offset", -200, 100, 1, "playerAuraXOffset", "X")
-    playerAuraXOffset:SetPoint("TOP", playerAuraBuffScale, "BOTTOM", 0, -15)
+    if not BBF.isTBC then
+        contentFrame.playerAuraXOffset = CreateSlider(contentFrame, "PlayerAura x offset", -200, 100, 1, "playerAuraXOffset", "X")
+        contentFrame.playerAuraXOffset:SetPoint("TOP", playerAuraBuffScale, "BOTTOM", 0, -15)
 
-    local playerAuraYOffset = CreateSlider(contentFrame, "PlayerAura y offset", -200, 12, 1, "playerAuraYOffset", "Y")
-    playerAuraYOffset:SetPoint("TOP", playerAuraXOffset, "BOTTOM", 0, -15)
+        contentFrame.playerAuraYOffset = CreateSlider(contentFrame, "PlayerAura y offset", -200, 12, 1, "playerAuraYOffset", "Y")
+        contentFrame.playerAuraYOffset:SetPoint("TOP", contentFrame.playerAuraXOffset, "BOTTOM", 0, -15)
+    end
 
     local playerAuraSpacingX = CreateSlider(playerAuraFiltering, "Horizontal Padding", -2, 10, 1, "playerAuraSpacingX", "X")
-    playerAuraSpacingX:SetPoint("TOP", playerAuraYOffset, "BOTTOM", 0, -15)
+    playerAuraSpacingX:SetPoint("TOP", BBF.isTBC and playerAuraBuffScale or contentFrame.playerAuraYOffset, "BOTTOM", 0, -15)
     CreateTooltip(playerAuraSpacingX, L["Tooltip_Horizontal_Aura_Padding"], "ANCHOR_LEFT")
 
     local playerAuraSpacingY = CreateSlider(playerAuraFiltering, "Vertical Padding", -10, 10, 1, "playerAuraSpacingY", "Y")
@@ -6754,8 +6818,14 @@ local function guiMisc()
         BBF.MinimapHider()
     end)
 
+    if BBF.isTBC then
+        guiMisc.removeAddonListCategories = CreateCheckbox("removeAddonListCategories", L["Improved_AddonList"], guiMisc, nil, BBF.RemoveAddonCategories)
+        guiMisc.removeAddonListCategories:SetPoint("TOPLEFT", hideObjectiveTracker, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+        CreateTooltipTwo(guiMisc.removeAddonListCategories, L["Improved_AddonList"], L["Tooltip_Improved_AddonList_Desc"])
+    end
+
     local zoomActionBarIcons = CreateCheckbox("zoomActionBarIcons", L["Zoom_ActionBar_Icons"], guiMisc)
-    zoomActionBarIcons:SetPoint("TOPLEFT", hideObjectiveTracker, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
+    zoomActionBarIcons:SetPoint("TOPLEFT", guiMisc.removeAddonListCategories or hideObjectiveTracker, "BOTTOMLEFT", 0, pixelsBetweenBoxes)
     CreateTooltipTwo(zoomActionBarIcons, L["Zoom_ActionBar_Icons"], L["Tooltip_Zoom_ActionBar_Icons_Desc"])
     zoomActionBarIcons:HookScript("OnClick", function()
         BBF.ZoomDefaultActionbarIcons(zoomActionBarIcons:GetChecked())

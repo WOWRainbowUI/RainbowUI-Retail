@@ -595,7 +595,7 @@ end
 
 function BBF.PlayerElite(mode)
     local playerElite = PlayerFrameTexture
-    local bigHealthbars = BetterBlizzFramesDB["biggerHealthbars"]
+    local bigHealthbars = BetterBlizzFramesDB["biggerHealthbars"] and not BetterBlizzFramesDB.biggerHealthbarsNoPlayer
     local hideMana = BetterBlizzFramesDB.hidePlayerManabar
 
     -- Set Elite style according to value
@@ -1933,8 +1933,8 @@ local function IsFontFileValid(path)
 		return false
 	end
 
-	local ok, result = pcall(FontValidatorString.SetFont, FontValidatorString, path, 12, "")
-	if not ok or result == false then
+	local ok = pcall(FontValidatorString.SetFont, FontValidatorString, path, 12, "")
+	if not ok then
 		return false
 	end
 
@@ -2878,6 +2878,17 @@ First:SetScript("OnEvent", function(_, event, addonName)
             BBF.ZoomDefaultActionbarIcons()
             --TurnOnEnabledFeaturesOnLogin()
             BBF.RaiseTargetCastbarStratas()
+
+            if not BetterBlizzFramesDB.disableHealAbsorbRecolor then
+                local function SkinUnitFrameHealAbsorbBar(bar)
+                    bar.Fill:SetTexture(texture, true, true)
+                    bar.Fill:SetVertexColor(1, 1, 1, alpha)
+                end
+
+                SkinUnitFrameHealAbsorbBar(TargetFrame.HealthBar.HealAbsorbBar)
+                SkinUnitFrameHealAbsorbBar(FocusFrame.HealthBar.HealAbsorbBar)
+                SkinUnitFrameHealAbsorbBar(PlayerFrame.HealthBar.HealAbsorbBar)
+            end
 
             C_Timer.After(1, function()
                 BBF.HookStatusBarText()
