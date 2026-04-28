@@ -5,7 +5,7 @@
 ## Notes-ruRU: Дополнение для Details!, которое показывает таблицу результатов в конце подземелья M+ и позволяет отслеживать Ваши прохождения
 ## SavedVariables: Details_MythicPlusDB
 ## SavedVariablesPerCharacter: Details_MythicPlus_CharacterDB
-## Version: #DMP.20260422.023
+## Version: #DMP.20260426.024
 ## IconTexture: Interface\AddOns\Details\images\minimap
 
 ## X-Wago-ID: 4N2m7QGL
