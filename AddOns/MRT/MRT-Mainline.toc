@@ -1,9 +1,9 @@
-## Interface: 120001, 120005
+## Interface: 120005
 ## Title: Method Raid Tools
 ## Author: ykiigor
 ## Notes: Method Raid Tools
 ## SavedVariables: VMRT
-## Version: 5285
+## Version: 5291
 ## AddonCompartmentFunc: MRT_MinimapClickFunction
 ## IconTexture: Interface\AddOns\MRT\media\MiniMap.tga
 core.lua
