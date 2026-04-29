@@ -1,15 +1,20 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r246](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r246) (2026-04-18)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r245...r246) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r247](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r247) (2026-04-29)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r246...r247) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Fix invalid spellid on Vordaza that was causing timer/warning to display wrong spell name  
-    Attempt to better handle timer routing on Murojin and Nekraxx when one of them dies early.  
-- Some routing fixes for Kroluk  
-- Add more Custos routing for more slight variances  
-- Bring tocs in compliance with current standards  
-- Mist toc bumps for PTR  
-- Better handling of personal bomb alert on doragosa so that blizzard warning is NOT surpressed when using hardcode, since it's only warning hardcode doesn't cover.  
-- add aggressive use of renames to AA as well  
-- enable algethar hardcode in all difficulties  
-- raid frames won again. cast down is no longer a private aura, so remove alert for it  
+- Correct wrong KR name (#600)  
+- always use fallback, even in debugmode  
+- Fixes  
+- Switch Lumbering fixation to full special warning object  
+- forgot to add hardcode object  
+- revisions to apis  
+- enable pit of saron hardcodes in all difficulties  
+-  - Lura's Discordant beam will now use a full special warning personal alert instead of private aura, enabling text alert, custom text, and UI flash when you're targetted  
+     - Muro'jin's Carrion Swoop will now announce target name  
+     - Derelict Duo's Heaving Yank will now use full special warning personal alert instead of private aura, enabling text alert, custom text, and UI flash when you're targetted  
+     - VIryx's Cast down will now announce target name  
+     - Garfrosts Orebreaker will now use full special warning personal alert instead of private aura, enabling text alert, custom text, and UI flash when you're targetted  
+- remove 12.0.1 toc, take 2 (CN and KR updated now)  
+- Update all dungeon hardcodes to check if user actually has DBM bars enabled and use timeline fallbacks immediately if they don't, so they still get audio countdowns and custom colors on timeline api.  
+- Cleanup debug prints on zuraal by ignoring 2 placeholder timers and canceling other abilities when their timers get updated due to spell queuing.  

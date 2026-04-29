@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260407043946")
+mod:SetRevision("20260428075838")
 mod:SetCreatureID(76141)
 mod:SetEncounterID(1699)
 
@@ -26,16 +26,19 @@ if DBM:IsPostMidnight() then
 	local badStateDetected = false
 
 	---@param self DBMMod
-	local function setFallback(self)
-		if self:IsTank() then
-			specWarnFierySmash:SetAlert(302, "frontal", 15, 1)
+	---@param dontSetAlerts boolean? Called when user has disabled DBM bars and is ONLY using timeline, therefor we must enable SetTimeline calls even in hardcodes
+	local function setFallback(self, dontSetAlerts)
+		if not dontSetAlerts then
+			if self:IsTank() then
+				specWarnFierySmash:SetAlert(302, "frontal", 15, 1)
+			end
+			if not self:IsTank() then
+				--Tank frontals are cast during soak
+				--so do NOT tell tank to help with the soaking
+				specWarnEnergize:SetAlert(303, "soakbeam", 17, 1)
+			end
+			specWarnSupernova:SetAlert(304, "aesoon", 2, 2)
 		end
-		if not self:IsTank() then
-			--Tank frontals are cast during soak
-			--so do NOT tell tank to help with the soaking
-			specWarnEnergize:SetAlert(303, "soakbeam", 17, 1)
-		end
-		specWarnSupernova:SetAlert(304, "aesoon", 2, 2)
 		timerSmashCD:SetTimeline(302)
 		timerEnergizeCD:SetTimeline(303)
 		timerSupernovaCD:SetTimeline(304)
@@ -52,6 +55,10 @@ if DBM:IsPostMidnight() then
 				"ENCOUNTER_TIMELINE_EVENT_ADDED",
 				"ENCOUNTER_TIMELINE_EVENT_STATE_CHANGED"
 			)
+			--SetTimeline events since user has disabled DBM Bars (so they can still get countdowns in blizzard timeline API instead)
+			if DBM.Options.HideDBMBars then
+				setFallback(self, true)
+			end
 		else
 			setFallback(self)
 		end
@@ -75,15 +82,11 @@ if DBM:IsPostMidnight() then
 			elseif timer == 50 then--Supernova
 				timerSupernovaCD:TLStart(timerExact, eventID, self:TLCountStart(eventID, "supernova", "supernovaCount"))
 			else
-				if not DBM.Options.DebugMode then
-					badStateDetected = true
-					self:ResumeBlizzardAPI()
-					self:UnregisterShortTermEvents()
-					setFallback(self)
-					DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
-				else
-					DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers|r", nil, nil, nil, true)
-				end
+				badStateDetected = true
+				self:ResumeBlizzardAPI()
+				self:UnregisterShortTermEvents()
+				setFallback(self)
+				DBM:Debug("|cffff0000Failed to match encounter timeline events to expected timers, falling back to Blizzard API|r", nil, nil, nil, true)
 			end
 		end
 
