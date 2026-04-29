@@ -1016,6 +1016,8 @@ L["STRING_OPTIONS_SCROLLBAR_DESC"] = [=[启用或禁用滚动条。
  |cFFFFFF00拉伸处理|r 超出了窗口键/菜单（关闭按钮左边）。]=]
 L["STRING_OPTIONS_SEGMENTSSAVE"] = "存储片段"
 L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = "这些选项控制你想要在游戏登录会话之间保存多少个片段。较高的值可能会增加角色注销时所需的时间。"
+--[[Translation missing --]]
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "反馈"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "显示边框"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "显示或隐藏窗口边框。"
@@ -1101,6 +1103,10 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "文本轮廓"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "右文本："
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "启用或禁用右边文字的下划线。"
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "图标："
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "括号"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "选择哪个字符是用来打开和关闭每秒和百分比块。"
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "显示百分比"
