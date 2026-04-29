@@ -1101,6 +1101,8 @@ Details! 的捲軸預設會由拉伸視窗的功能來取代。
 |cFFFFFF00拉伸點|r在視窗按鈕/選單 (關閉按鈕左側) 的上方。]=]
 L["STRING_OPTIONS_SEGMENTSSAVE"] = "戰鬥記錄保存"
 L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = "每次登入遊戲的期間要保存多少個戰鬥記錄片段。數值愈高，角色登出時所花的時間就愈久。"
+--[[Translation missing --]]
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "回饋"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "顯示邊框"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "顯示或隱藏視窗邊框。"
@@ -1186,6 +1188,10 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "文字外框"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "右側文字:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "啟用或停用右側文字的外框。"
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "圖示:"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "括號"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "選擇每秒和百分比的開始和結束括號要使用哪個字元。"
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "顯示百分比"

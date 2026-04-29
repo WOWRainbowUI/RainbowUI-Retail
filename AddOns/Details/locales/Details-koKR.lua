@@ -1104,6 +1104,8 @@ L["STRING_OPTIONS_SEGMENTSSAVE"] = "세분화 저장"
 L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = [=[게임 세션 간에 얼마나 많은 세분화를 저장할 지 설정합니다.
 
 값이 클수록 캐릭터가 접속 종료하는 데 시간이 오래 걸릴 수 있습니다.]=]
+--[[Translation missing --]]
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "피드백"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "테두리 표시"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "창 테두리를 표시하거나 숨깁니다."
@@ -1191,6 +1193,10 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "텍스트 외곽선"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "우측 문자:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "우측 문자에 외곽선을 켜거나 끕니다."
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "아이콘:"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "괄호"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "백분율과 초당 수치 영역을 열고 닫을 부호를 선택하세요."
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "백분율 표시"

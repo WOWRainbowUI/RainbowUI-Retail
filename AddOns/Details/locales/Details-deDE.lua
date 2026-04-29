@@ -1099,6 +1099,8 @@ L["STRING_OPTIONS_SEGMENTSSAVE"] = "Segmente gespeichert"
 L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = [=[Zeigt die Anzahl der zu speichernden Segmente nach Spielende.
 
 Ein hoher Wert kann das Ausloggen verzögern.]=]
+--[[Translation missing --]]
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "Rückmeldung"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "Skin Rand anzeigen"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "Zeigt oder versteckt Fensterrahmen."
@@ -1186,6 +1188,10 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "Textumriss"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "Rechter Text:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Aktiviert oder deaktiviert den Umriss des rechten Textes."
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "Symbole:"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "Einklammern"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "Wähle das Zeichen, das den Pro-Sekunde- und Prozent-Block umschließt."
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "Prozent zeigen"

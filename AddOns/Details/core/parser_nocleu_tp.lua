@@ -30,6 +30,31 @@ local cantStartUpdater = false
 local updaterTicker = nil
 local amountOfTargetLines = 3
 
+---Recursively checks all keys and values in a table for secret values.
+---@param t table the table to inspect
+---@param visited table|nil tracks already-visited tables to prevent infinite loops
+---@return boolean hasSecret true if any secret value was found
+local function containsSecretValues(t, visited)
+    visited = visited or {}
+    if visited[t] then
+        return false
+    end
+    visited[t] = true
+
+    for k, v in pairs(t) do
+        if issecretvalue(k) or issecretvalue(v) then
+            print("secret value:", k, v, issecretvalue(k), issecretvalue(v))
+        end
+        if type(v) == "table" then
+            if containsSecretValues(v, visited) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
 local MAX_TOOLTIP_HELP = 30
 
 ---@return detailstooltip
@@ -111,7 +136,7 @@ local getTooltipFrame = function() --~tooltip
     ---@param data table an indexed table with subtables holding the data necessary to refresh each line
     ---@param offset number used to know which line to start showing
     ---@param totalLines number of lines shown in the scroll box
-    local refresFunc = function(self, data, offset, totalLines) --~refresh
+    local refreshFunc = function(self, data, offset, totalLines) --~refresh
 		local showHeader = Details.tooltip.show_header
 		local showHelp = Details.tooltip.show_help
 
@@ -149,6 +174,21 @@ local getTooltipFrame = function() --~tooltip
                 else
                     line.SpellName:SetText(spellName)
 
+                    if not issecretvalue(spellName) then
+                        Details:BleachFontString(line.SpellName)
+                        detailsFramework:TruncateText(line.SpellName, tooltip:GetWidth() / 2.3)
+                    end
+
+                    detailsFramework:SetFontFace(line.SpellName, line.SpellName.settings.font)
+                    detailsFramework:SetFontSize(line.SpellName, line.SpellName.settings.size)
+                    detailsFramework:SetFontOutline(line.SpellName, line.SpellName.settings.outline)
+                    detailsFramework:SetFontColor(line.SpellName, unpack(line.SpellName.settings.color))
+                    line.SpellName:SetPoint("left", line.SpellIcon, "right", 2, 0)
+                    line.SpellName:SetParent(line.StatusBar)
+                    line.SpellName:SetDrawLayer("overlay", 7)
+
+                    line.SpellName:SetText(spellName)
+
                     line.SpellIcon:ClearAllPoints()
                     line.SpellIcon:SetPoint("left", line.StatusBar, "left", -tooltipLineHeight, 0)
                     line.SpellIcon:SetTexture(thisData.icon)
@@ -156,8 +196,14 @@ local getTooltipFrame = function() --~tooltip
                     local iconSize = thisData.iconsize or tooltipLineHeight
                     line.SpellIcon:SetSize(iconSize, iconSize)
 
-                    line.StatusBar:SetMinMaxValues(0, tooltip.maxAmount)
-                    line.StatusBar:SetValue(thisData.amount)
+                    if thisData.amount and thisData.topBarValue then
+                        line.StatusBar:SetMinMaxValues(0, thisData.topBarValue)
+                        line.StatusBar:SetValue(thisData.amount)
+                    else
+                        line.StatusBar:SetMinMaxValues(0, tooltip.maxAmount)
+                        line.StatusBar:SetValue(thisData.amount)
+                    end
+
                     line.StatusBar:SetPoint("left", line, "left", tooltipLineHeight, 0)
                     line.StatusBar:SetSize(tooltip:GetWidth() - tooltipLineHeight - 4, tooltipLineHeight)
 
@@ -291,7 +337,7 @@ local getTooltipFrame = function() --~tooltip
 
     local dataPlaceholder = {}
 
-    local scrollBox = detailsFramework:CreateScrollBox(tooltip, "$parentScrollbox", refresFunc, dataPlaceholder, 1, 1, tooltipAmountOfLines, tooltipLineHeight)
+    local scrollBox = detailsFramework:CreateScrollBox(tooltip, "$parentScrollbox", refreshFunc, dataPlaceholder, 1, 1, tooltipAmountOfLines, tooltipLineHeight)
     --used 1 for width and height because we will set the size using anchors
     scrollBox:SetPoint("topleft", tooltip, "topleft", 0, 0)
     scrollBox:SetPoint("bottomright", tooltip, "bottomright", 0, 0)
@@ -319,6 +365,9 @@ local getTooltipFrame = function() --~tooltip
         local r, g, b, a = unpack(Details.tooltip.bar_color)
         local rBG, gBG, bBG, aBG = unpack(Details.tooltip.background)
 
+        local SharedMedia = LibStub:GetLibrary("LibSharedMedia-3.0")
+        local font = SharedMedia:Fetch("font", Details.tooltip.fontface, true)
+
         local allTooltipLines = self:GetLines()
         for i = 1, #allTooltipLines do
             local line = allTooltipLines[i]
@@ -329,15 +378,27 @@ local getTooltipFrame = function() --~tooltip
                 local fontString = line.dataFontStrings[j]
                 fontString:SetTextColor(unpack(Details.tooltip.fontcolor_right)) --
                 detailsFramework:SetFontSize(fontString, Details.tooltip.fontsize) --
-                detailsFramework:SetFontFace(fontString, Details.tooltip.fontface) --
+                detailsFramework:SetFontFace(fontString, font) --
                 detailsFramework:SetFontOutline(fontString, Details.tooltip.fontshadow  and "OUTLINE") --
+                fontString.settings = {
+                    color = Details.tooltip.fontcolor_right,
+                    size = Details.tooltip.fontsize,
+                    font = font,
+                    outline = Details.tooltip.fontshadow and "OUTLINE" or nil,
+                }
             end
 
             local fontString = line.SpellName
             fontString:SetTextColor(unpack(Details.tooltip.fontcolor)) --
             detailsFramework:SetFontSize(fontString, Details.tooltip.fontsize) --
-            detailsFramework:SetFontFace(fontString, Details.tooltip.fontface) --
+            detailsFramework:SetFontFace(fontString, font) --
             detailsFramework:SetFontOutline(fontString, Details.tooltip.fontshadow  and "OUTLINE")
+            fontString.settings = {
+                color = Details.tooltip.fontcolor,
+                size = Details.tooltip.fontsize,
+                font = font,
+                outline = Details.tooltip.fontshadow and "OUTLINE" or nil,
+            }
 
             line.Background:SetVertexColor(classColor.r, classColor.g, classColor.b, aBG)
             line.StatusBar:GetStatusBarTexture():SetVertexColor(r, g, b, a)
@@ -496,7 +557,7 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             GameCooltip:Preset(2)
 
             if not issecretvalue(instanceLine.actorName) then
-                local adapter = Details:MakeDeathLogAdapter(instance, instanceLine.actorName, events, maxHealth)
+                local adapter = Details:MakeDeathLogAdapter(instance, instanceLine.actorName, events, maxHealth) --[Details/core/parser_nocleu_tp.lua]:560: in function <Details/core/parser_nocleu_tp.lua:494>
                 Details:ToolTipDead(instance, adapter.deathLog, instanceLine)
             else
                 Details.ShowDeathTooltip2(instance, instanceLine) do return end
@@ -510,14 +571,12 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
 
     elseif (damageMeterType < 0) then
         sourceSpells = Details222.BParser.GetCustomDataForTooltip(instance, damageMeterType, sourcePlayer)
-        --dumpt(sourceSpells)
         hasSourceSpells = true
     else
         local creature = not issecretvalue(sourcePlayer.sourceCreatureID) and sourcePlayer.sourceCreatureID
         if guid or creature then
             sourceSpells = Details222.B.GetSpells(sessionType <= 1 and DETAILS_SEGMENTTYPE_TYPE or DETAILS_SEGMENTTYPE_ID, sessionType <= 1 and sessionType or sessionId, damageMeterType, guid, creature)
             hasSourceSpells = true
-            --dumpt(sourceSpells)
 
             if not issecretvalue(sourcePlayer.name) then
                 targets = Details222.BreakdownWindowMidnight.LoadTargets(sessionType, sessionId, sourcePlayer.name)
@@ -653,6 +712,10 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
         local canShowPercent = showPercent and not issecretvalue(totalAmount)
         couldGetPercent = couldGetPercent or canShowPercent
 
+    	if not issecretvalue(dps) and dps < 1 then
+			dps = 1
+		end
+
         local thisAmount = AbbreviateNumbers(spellAmount, Details.abbreviateOptionsDamage) or ""
         local thisDPS = showDPS and AbbreviateNumbers(dps, Details.abbreviateOptionsDPS)
         local thisPercent = canShowPercent and format("%.1f%%", spellAmount / totalAmount * 100)
@@ -702,8 +765,18 @@ function bParser.ShowTooltip_Hook(instanceLine, mouse)
             isHeader = true,
         }
 
+        table.sort(targets, function(a, b) return a.amount > b.amount end)
+        targets.topValue = targets[1] and targets[1].amount or 0
+
+        --containsSecretValues(targets)
+
         for i = 1, min(#targets, amountOfTargetLines) do
             tooltipData[#tooltipData + 1] = targets[i]
+            targets[i].topBarValue = targets.topValue
+            local dps = targets[i].amountPerSecond
+            --if not issecretvalue(dps) and dps < 1 then
+                --dps = 1
+            --end
         end
     end
 

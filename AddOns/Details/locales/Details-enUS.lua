@@ -5,13 +5,13 @@ if not L then return end
 L = L or {}
 
 
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
 L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
 L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
 L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"
-
 L["STRING_ATTRIBUTE_HEAL_POTIONS"] = "Potions"
-
-
 L["STRING_SIMPLE_TEXT_FORMAT_TITLE"] = "Midnight Right Text: Simple or Aligned"
 L["STRING_SIMPLE_TEXT_FORMAT"] = "Use Simple Text Formatting"
 L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Enable the use of the three rules below."
@@ -20,7 +20,7 @@ L["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] = "When the line has information\nabout the
 L["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] = "When the line has information\nabout the total and percent.\n|cFFAAAAAA%s order: total, percent."
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = "Use Aligned Text"
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = "The text is aligned in columns, setup the spacing between columns."
-L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Space Between Columns"
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Columns Gap"
 L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = "Don't Show Percent"
 L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"] = "Only Show Total"
 L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE4"] = "Separate | by | Pipe"
@@ -195,9 +195,11 @@ L["STRING_CUSTOM_TARGET_DESC"] = [=[This is the target of the source.
 
 The button in the right shows a list of npcs from raid encounters.]=]
 L["STRING_CUSTOM_TEMPORARILY"] = " (|cFFFFC000temporarily|r)"
-L["STRING_CUSTOM_TEXTURE_GUIDE"] = [=[To load a texture file in the World of Warcraft client you need a file in .TGA format and its width and height must be multiples of 8.
-
-Place the texture inside /WoW Install Folder/retail/Interface/]=]
+L["STRING_CUSTOM_TEXTURE_GUIDE"] = [=[To use a custom file for icons:
+- The file must be in the .TGA format.
+- The file must be 512x512 pixels.
+- For spec, the file name must contain 'spec_'.
+- Place the texture inside /WoW Install Folder/_retail_/Interface/]=]
 L["STRING_DAMAGE"] = "Damage"
 L["STRING_DAMAGE_DPS_IN"] = "DPS received from"
 L["STRING_DAMAGE_FROM"] = "Took damage from"
@@ -1937,9 +1939,11 @@ L["STRING_CUSTOM_TARGET_DESC"] = [=[This is the target of the source.
 
 The button in the right shows a list of npcs from raid encounters.]=]
 L["STRING_CUSTOM_TEMPORARILY"] = " (|cFFFFC000temporarily|r)"
-L["STRING_CUSTOM_TEXTURE_GUIDE"] = [=[To load a texture file in the World of Warcraft client you need a file in .TGA format and its width and height must be multiples of 8.
-
-Place the texture inside /WoW Install Folder/retail/Interface/]=]
+L["STRING_CUSTOM_TEXTURE_GUIDE"] = [=[To use a custom file for icons:
+- The file must be in the .TGA format.
+- The file must be 512x512 pixels.
+- For spec, the file name must contain 'spec_'.
+- Place the texture inside /WoW Install Folder/_retail_/Interface/]=]
 L["STRING_DAMAGE"] = "Damage"
 L["STRING_DAMAGE_DPS_IN"] = "DPS received from"
 L["STRING_DAMAGE_FROM"] = "Took damage from"
@@ -2873,6 +2877,7 @@ L["STRING_OPTIONS_SEGMENTSSAVE"] = "Segments Saved"
 L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = [=[How many segments you want to save between game sessions.
 
 High values may increase the time your character takes to logoff.]=]
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "Feedback"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "Show Skin Border"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "Show the border of the window from the skin file, use the same color as the 'Window Color'."
@@ -2960,6 +2965,8 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "Text Outline"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "Right Text:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Enable or disable the outline for right text."
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "Icons:"
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "Bracket"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "Choose which character is used to open and close the per second and percent block."
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "Show Percent"
@@ -3327,8 +3334,7 @@ L["STRING_SIMPLE_TEXT_FORMAT"] = "Use Simple Text Formatting"
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED"] = ""
 --[[Translation missing --]]
 L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"] = ""
---[[Translation missing --]]
-L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = ""
+L["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"] = "Columns Gap"
 L["STRING_SIMPLE_TEXT_FORMAT_DESC"] = "Enable the use of the three rules below."
 --[[Translation missing --]]
 L["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"] = ""

@@ -105,6 +105,7 @@ end
 
 local afterUpdate = function(instance)
     Details:SendOptionsModifiedEvent(instance or currentInstance)
+    Details222.OptionsPanel.RefreshInstances(instance or currentInstance)
 end
 
 local isGroupEditing = function()
@@ -1781,10 +1782,12 @@ do
             profileTable.format_tp = value[3]
             Details:RefreshMainWindow(-1, true)
             afterUpdate()
-            self:GetParent():RefreshOptions()
+            self:GetParent():GetParent():RefreshOptions()
         end
 
         local rightTextTemplates = {
+            {value = {"Select a template"}, label = Loc["STRING_OPTIONS_SELECT_TEMPLATE"], onclick = function()end, icon = ""},
+
             {value = {"%s (%s, %s)", "%s (%s)", "%s (%s)"}, label = Loc["STRING_OPTIONS_RESET_TO_DEFAULT"], onclick = onSelectRightTextTemplate, icon = ""},
             {value = {"%s (%s)", "%s (%s)", "%s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE2"], onclick = onSelectRightTextTemplate, icon = ""},
             {value = {"%s", "%s", "%s"}, label = Loc["STRING_SIMPLE_TEXT_FORMAT_TEMPLATE3"], onclick = onSelectRightTextTemplate, icon = ""},
@@ -1865,49 +1868,6 @@ do
             --left text options 6
             {type = "label", get = function() return Loc ["STRING_OPTIONS_TEXT_LEFT_ANCHOR"] end, text_template = subSectionTitleTextTemplate},
 
-            {--use class colors 7
-                type = "toggle",
-                get = function() return currentInstance.row_info.textL_class_colors end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, value)
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
-            },
-            {--outline 8
-                type = "toggle",
-                get = function() return currentInstance.row_info.textL_outline end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, value)
-                    afterUpdate()
-                end,
-                name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
-                desc = Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"],
-            },
-            {--outline small 9
-                type = "toggle",
-                get = function() return currentInstance.row_info.textL_outline_small end,
-                set = function(self, fixedparam, value)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
-                    afterUpdate()
-                end,
-                name = "Outline", --localize-me
-                desc = "Text Outline",
-            },
-			{--outline small color 10
-                type = "color",
-                get = function()
-                    local r, g, b, a = unpack(currentInstance.row_info.textL_outline_small_color)
-                    return {r, g, b, a}
-                end,
-                set = function(self, r, g, b, a)
-                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
-                    afterUpdate()
-                end,
-                name = "Outline Color",
-                desc = "Outline Color",
-            },
             {--position number 11
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_show_number end,
@@ -1918,6 +1878,7 @@ do
                 name = Loc ["STRING_OPTIONS_TEXT_LPOSITION"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LPOSITION_DESC"],
             },
+
             {--translit text 12
                 type = "toggle",
                 get = function() return currentInstance.row_info.textL_translit_text end,
@@ -1928,6 +1889,18 @@ do
                 name = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LTRANSLIT_DESC"],
             },
+
+            {--use class colors 7
+                type = "toggle",
+                get = function() return currentInstance.row_info.textL_class_colors end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
+                desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
+            },
+
             {--text offset
                 type = "range",
                 get = function() return currentInstance.row_info.textL_offset end,
@@ -1941,6 +1914,100 @@ do
                 name = "Offset", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET"]
                 desc = "Change the horizontal offset.", -- Loc ["STRING_OPTIONS_TEXT_LOFFSET_DESC"]
             },
+
+            {type = "blank"},
+            {--outline mode
+                type = "selectoutline",
+                get = function() return currentInstance.row_info.textL_outline_mode end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+                desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+            },
+			{--shadow color
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.row_info.textL_shadow_color)
+                    return {r, g, b, a}
+                end,
+                set = function(self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, {r, g, b, a})
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+                desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+            },
+            {--shadow offset x
+                type = "range",
+                get = function() return currentInstance.row_info.textL_shadow_offset[1] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+            },
+            {--shadow offset y
+                type = "range",
+                get = function() return currentInstance.row_info.textL_shadow_offset[2] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "left", nil, nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+            },
+
+
+            {--outline 8
+                type = "toggle",
+                get = function() return currentInstance.row_info.textL_outline end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
+                desc = Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"],
+                hidden = true,
+            },
+            {--outline small 9
+                type = "toggle",
+                get = function() return currentInstance.row_info.textL_outline_small end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, value)
+                    afterUpdate()
+                end,
+                name = "Outline", --localize-me
+                desc = "Text Outline",
+                hidden = true,
+            },
+			{--outline small color 10
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.row_info.textL_outline_small_color)
+                    return {r, g, b, a}
+                end,
+                set = function(self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, {r, g, b, a})
+                    afterUpdate()
+                end,
+                name = "Outline Color",
+                desc = "Outline Color",
+                hidden = true,
+            },
+
 
             {type = "blank"}, --13
 
@@ -1981,10 +2048,69 @@ do
                 set = function(self, fixedparam, value)
                     editInstanceSetting(currentInstance, "SetBarTextSettings", nil, nil, nil, nil, value)
                     afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
                 end,
                 name = Loc ["STRING_OPTIONS_BAR_COLORBYCLASS"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LCLASSCOLOR_DESC"],
             },
+
+
+            {type = "blank"},
+            {--outline mode
+                type = "selectoutline",
+                get = function() return currentInstance.row_info.textR_outline_mode end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+                desc = Loc["STRING_OPTIONS_TEXT_OUTLINE"],
+            },
+			{--shadow color
+                type = "color",
+                get = function()
+                    local r, g, b, a = unpack(currentInstance.row_info.textR_shadow_color)
+                    return {r, g, b, a}
+                end,
+                set = function(self, r, g, b, a)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, {r, g, b, a})
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+                desc = Loc["STRING_OPTIONS_TEXT_SHADOWCOLOR"],
+            },
+            {--shadow offset x
+                type = "range",
+                get = function() return currentInstance.row_info.textR_shadow_offset[1] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "X"),
+            },
+            {--shadow offset y
+                type = "range",
+                get = function() return currentInstance.row_info.textR_shadow_offset[2] end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "SetBarOutlineSettings", "right", nil, nil, nil, value)
+                    afterUpdate()
+                    Details222.OptionsPanel.RefreshInstances(currentInstance)
+                end,
+                min = -5,
+                max = 5,
+                step = 1,
+                name = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+                desc = format(Loc["STRING_OPTIONS_TEXT_SHADOWOFFSET"], "Y"),
+            },
+
+
             {--outline 19
                 type = "toggle",
                 get = function() return currentInstance.row_info.textR_outline end,
@@ -1994,6 +2120,7 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_TEXT_LOUTILINE"],
                 desc = Loc ["STRING_OPTIONS_TEXT_LOUTILINE_DESC"],
+                hidden = true,
             },
             {--outline small 20
                 type = "toggle",
@@ -2004,6 +2131,7 @@ do
                 end,
                 name = "Outline", --localize-me
                 desc = "Text Outline",
+                hidden = true,
             },
 			{--outline small color 21
                 type = "color",
@@ -2017,6 +2145,7 @@ do
                 end,
                 name = "Outline Color",
                 desc = "Outline Color",
+                hidden = true,
             },
 
             {type = "blank"}, --22
@@ -2248,6 +2377,28 @@ do
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TITLE"] end, text_template = subSectionTitleTextTemplate},
 
+            ---@type df_menu_group
+            {
+                type = "group",
+                UseBackdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tileSize = 16, tile = true, tileEdge = true, edgeSize = 16, insets = {left = 3, right = 3, top = 3, bottom = 3}},
+                BackgroundColor = {0, 0, 0, .2},
+                BackdropBorderColor = {1, 1, 1, 0.5},
+                name = "simpletext",
+                padding = 2,
+                width = 260,
+            },
+
+            ---@type df_menu_group
+            {
+                type = "group",
+                UseBackdrop = {bgFile = [[Interface\Tooltips\UI-Tooltip-Background]], edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", tileSize = 16, tile = true, tileEdge = true, edgeSize = 16, insets = {left = 3, right = 3, top = 3, bottom = 3}},
+                BackgroundColor = {0, 0, 0, .2},
+                BackdropBorderColor = {1, 1, 1, 0.5},
+                name = "alignmenttext",
+                padding = 2,
+                width = 260,
+            },
+
             {--use simple text
                 type = "toggle",
                 get = function() return Details.righttext_simple_formatting.enabled end,
@@ -2264,19 +2415,38 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_DESC"],
                 id = "use_simple_formatting_toggle",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
+            },
+
+            {type = "blank"},
+            {type = "label", get = function() return Loc["STRING_OPTIONS_SELECT_TEMPLATE"] end, text_template = subSectionTitleTextTemplate,
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            {--templates
+                type = "select",
+                get = function() return rightTextTemplates[1].value end,
+                values = function()
+                    return buildRightTextTemplateMenu()
+                end,
+                name = "",
+                desc = "",
+                id = "selecttemplate_dropdown",
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE3"] end,
             text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true, group = "simpletext"},
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
             {--total dps percent
                 type = "textentry",
@@ -2290,13 +2460,15 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE3"],
                 id = "format_tsp_textentry",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE2"] end, text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true, group = "simpletext"},
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
             {--total dps
                 type = "textentry",
@@ -2310,13 +2482,15 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE2"],
                 id = "format_ts_textentry",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
             {type = "label", get = function() return Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE1"] end, text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
+            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true, group = "simpletext"},
             {--blank
                 type = "blank",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
             {--total percent
                 type = "textentry",
@@ -2330,23 +2504,10 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_TYPE1"],
                 id = "format_tp_textentry",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "simpletext",
             },
 
-            {type = "label", get = function() return "Select a template:" end, text_template = subSectionTitleTextTemplate,
-            hidden = not detailsFramework.IsAddonApocalypseWow(), spacement = true},
-
-            {--templates
-                type = "select",
-                get = function() return rightTextTemplates[1].value end,
-                values = function()
-                    return buildRightTextTemplateMenu()
-                end,
-                name = "",
-                desc = "",
-                hidden = not detailsFramework.IsAddonApocalypseWow(),
-            },
-
-            {type = "blank", hidden = not detailsFramework.IsAddonApocalypseWow(),},
+            {type = "blank", hidden = not detailsFramework.IsAddonApocalypseWow()},
 
             {--use alignment
                 type = "toggle",
@@ -2364,7 +2525,22 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_DESC"],
                 id = "use_alignment_toggle",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "alignmenttext",
             },
+
+            {--show percent
+                type = "toggle",
+                get = function() return currentInstance.row_info.show_percent end,
+                set = function(self, fixedparam, value)
+                    Details:InstanceCallMethod("SetSimpleFormattingSettings", value)
+                    afterUpdate()
+                end,
+                name = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
+                desc = Loc["STRING_OPTIONS_TEXT_SHOW_PERCENT"],
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "alignmenttext",
+            },
+
             {--alignment space
                 type = "range",
                 get = function() return Details.righttext_simple_formatting.alignment_space end,
@@ -2381,6 +2557,7 @@ do
                 desc = Loc["STRING_SIMPLE_TEXT_FORMAT_ASLIGNED_SPACE_BETWEEN"],
                 id = "alignment_space_range",
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
+                group = "alignmenttext",
             },
         }
 
@@ -2399,6 +2576,7 @@ do
             local formatTSP = sectionFrame:GetWidgetById("format_tsp_textentry")
             local formatTS = sectionFrame:GetWidgetById("format_ts_textentry")
             local formatTP = sectionFrame:GetWidgetById("format_tp_textentry")
+            local selectTemplate = sectionFrame:GetWidgetById("selecttemplate_dropdown")
             local useAlignment = sectionFrame:GetWidgetById("use_alignment_toggle")
             local alignmentSpace = sectionFrame:GetWidgetById("alignment_space_range")
 
@@ -2410,6 +2588,7 @@ do
                     formatTP:Enable()
                     useAlignment:SetChecked(false)
                     alignmentSpace:Disable()
+                    selectTemplate:Disable()
                 else
                     useSimpleText:SetChecked(false)
                     formatTSP:Disable()
@@ -2417,6 +2596,7 @@ do
                     formatTP:Disable()
                     --useAlignment:Enable()
                     alignmentSpace:Enable()
+                    selectTemplate:Enable()
                 end
             end
 

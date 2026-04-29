@@ -1101,6 +1101,7 @@ L["STRING_OPTIONS_SEGMENTSSAVE"] = "Сохраненные сегменты"
 L["STRING_OPTIONS_SEGMENTSSAVE_DESC"] = [=[Сколько сегментов Вы хотите сохранить между игровыми сеансами.
 
 Высокие значения могут увеличить время, затрачиваемое на выход из системы.]=]
+L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Выбрать шаблон"
 L["STRING_OPTIONS_SENDFEEDBACK"] = "Обратная связь"
 L["STRING_OPTIONS_SHOW_SIDEBARS"] = "Показывать границы:"
 L["STRING_OPTIONS_SHOW_SIDEBARS_DESC"] = "Показать или скрыть границы окна."
@@ -1188,6 +1189,8 @@ L["STRING_OPTIONS_TEXT_OUTLINE"] = "Контур текста"
 L["STRING_OPTIONS_TEXT_RIGHT_ANCHOR"] = "Текст справа:"
 L["STRING_OPTIONS_TEXT_ROUTILINE_DESC"] = "Включение или отключение контура для правого текста."
 L["STRING_OPTIONS_TEXT_ROWICONS_ANCHOR"] = "Значки:"
+L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Цвет тени"
+L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Смещение тени %s"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET"] = "Скобка"
 L["STRING_OPTIONS_TEXT_SHOW_BRACKET_DESC"] = "Выберите символ, используемый для открытия и закрытия блока в секунду и процент."
 L["STRING_OPTIONS_TEXT_SHOW_PERCENT"] = "Показывать процент"
