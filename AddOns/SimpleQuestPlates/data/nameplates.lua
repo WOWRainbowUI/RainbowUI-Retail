@@ -8,6 +8,40 @@
 local addonName, SQP = ...
 local RGX = _G.RGXFramework
 
+local function nowSeconds()
+    if type(GetTimePreciseSec) == "function" then
+        return GetTimePreciseSec()
+    end
+    if type(debugprofilestop) == "function" then
+        return debugprofilestop() / 1000
+    end
+    if type(GetTime) == "function" then
+        return GetTime()
+    end
+    return 0
+end
+
+local function reportSlowPath(label, started)
+    local elapsed = nowSeconds() - started
+    if elapsed < 0.050 then
+        return
+    end
+
+    local now = nowSeconds()
+    SQP._lastSlowPathReport = SQP._lastSlowPathReport or {}
+    if (SQP._lastSlowPathReport[label] or 0) + 2 > now then
+        return
+    end
+
+    SQP._lastSlowPathReport[label] = now
+    local message = string.format("[SQP:slow] %s took %.1fms", tostring(label), elapsed * 1000)
+    if type(_G.geterrorhandler) == "function" then
+        _G.geterrorhandler()(message)
+    else
+        print("|cffffaa00" .. message .. "|r")
+    end
+end
+
 -- Nameplate storage
 SQP.Nameplates = {} -- [plate] = frame
 SQP.ActiveNameplates = {} -- [plate] = frame (visible only)
@@ -220,9 +254,15 @@ end
 
 -- Nameplate show callback
 function SQP:OnPlateShow(nameplate, unitID)
+    local started = nowSeconds()
+
     -- Store unit ID on nameplate itself
     nameplate._unitID = unitID
     self.ActiveNameplates[nameplate] = nameplate
+
+    if not self.QuestPlates[nameplate] then
+        self:CreateQuestPlate(nameplate)
+    end
     
     local ok, guid = pcall(UnitGUID, unitID)
     if ok and guid then
@@ -234,11 +274,19 @@ function SQP:OnPlateShow(nameplate, unitID)
     -- Recheck shortly after show to allow tooltip data to populate
     local plateRef = nameplate
     local unitRef = unitID
-    RGX:After(0.15, function()
+    local function delayedRecheck()
         if SQP.ActiveNameplates[plateRef] and plateRef._unitID == unitRef then
             SQP:UpdateQuestIcon(plateRef, unitRef)
         end
-    end)
+    end
+
+    if C_Timer and type(C_Timer.After) == "function" then
+        C_Timer.After(0.15, delayedRecheck)
+    elseif RGX and type(RGX.After) == "function" then
+        RGX:After(0.15, delayedRecheck, "SQP nameplate recheck")
+    end
+
+    reportSlowPath("OnPlateShow", started)
 end
 
 -- Nameplate hide callback
@@ -261,11 +309,13 @@ end
 -- Update font for quest text
 -- typeKey: "kill", "loot", "percent", or nil (falls back to global settings)
 function SQP:UpdateQuestFont(fontString, outlineFontString, percentFontString, percentOutlineFontString, typeKey)
+    local started = nowSeconds()
     local S = SQPSettings or {}
 
-    local function applyFont(main, outline, tk)
-        local fontName    = (tk and S[tk.."FontFamily"])   or S.fontFamily  or STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
-        local fontSize    = (tk and S[tk.."FontSize"])     or S.fontSize    or 12
+    local function applyFont(main, outline, tk, sizeOverride)
+        local requestedFont = (tk and S[tk.."FontFamily"]) or S.fontFamily or STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
+        local fontName    = requestedFont
+        local fontSize    = sizeOverride or (tk and S[tk.."FontSize"]) or S.fontSize or 12
         local fontOutline = (tk and S[tk.."FontOutline"])  or S.fontOutline or ""
         local outlineWidth= (tk and S[tk.."OutlineWidth"])
         if outlineWidth == nil then outlineWidth = S.outlineWidth or 0 end
@@ -276,6 +326,11 @@ function SQP:UpdateQuestFont(fontString, outlineFontString, percentFontString, p
         local noOutline = fontOutline == "" or fontOutline == "NONE"
         if noOutline then outlineWidth = 0 end
         if outlineWidth < 0 then outlineWidth = 0 end
+
+        local Fonts = _G.RGXFonts
+        if Fonts and type(Fonts.ResolvePath) == "function" then
+            fontName = Fonts:ResolvePath(requestedFont, S.fontFamily or STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF")
+        end
 
         local mainFlag = outline and "" or (noOutline and "" or fontOutline)
         main:SetFont(fontName, fontSize, mainFlag)
@@ -305,10 +360,13 @@ function SQP:UpdateQuestFont(fontString, outlineFontString, percentFontString, p
     -- Main count text uses the provided typeKey
     applyFont(fontString, outlineFontString, typeKey)
 
-    -- Percent symbol always uses "percent" settings
+    -- Percent symbol uses percentIconSize for independent size control
     if percentFontString then
-        applyFont(percentFontString, percentOutlineFontString, "percent")
+        local signSize = S.percentIconSize or nil
+        applyFont(percentFontString, percentOutlineFontString, "percent", signSize)
     end
+
+    reportSlowPath("UpdateQuestFont", started)
 end
 
 -- Refresh all nameplate positions and settings

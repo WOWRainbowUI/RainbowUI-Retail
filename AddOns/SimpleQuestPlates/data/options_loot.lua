@@ -201,8 +201,6 @@ function SQP:CreateLootOptions(content)
     rightYOffset = MakeSlider(rightColumn, "Offset X", "lootIconOffsetX", -38, -80, 80, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, "Offset Y", "lootIconOffsetY",  16, -80, 80, rightYOffset)
 
-    rightYOffset = self:CreateFontSection(rightColumn, "loot", rightYOffset, ActivateLoot)
-
     -- Reset this tab to loot defaults
     rightYOffset = rightYOffset - 14
     local resetBtn = self:CreateStyledButton(rightColumn, "Reset Loot Settings", 150, 22)

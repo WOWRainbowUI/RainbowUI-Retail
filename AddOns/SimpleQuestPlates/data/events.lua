@@ -9,11 +9,21 @@ local addonName, SQP = ...
 
 local RGX = _G.RGXFramework
 
+local function TryInitializeUI()
+    if not SQPSettings then
+        return
+    end
+    if SQP and type(SQP.InitializeFrameworkUI) == "function" then
+        SQP:InitializeFrameworkUI()
+    end
+end
+
 -- ADDON_LOADED: Initialize saved variables and settings
 function SQP:ADDON_LOADED(addon)
     if addon ~= addonName then return end
     
     self:LoadSettings()
+    TryInitializeUI()
     
     -- Reanchor existing plates after settings load
     for plate, questFrame in pairs(self.QuestPlates) do
@@ -37,13 +47,12 @@ end
 function SQP:PLAYER_LOGIN()
     -- Welcome message (two-line SQP green format)
     local loadedLine = self.L["MSG_LOADED_LINE1"] or "Loaded successfully. Type |cfffff569/sqp help|r for commands."
-    local versionLine = self.L["MSG_LOADED_LINE2"] or "|cfffff569Version:|r |cff7598b6v%s|r"
+    local versionLine = self.L["MSG_LOADED_LINE2"] or "|cffffff00Version:|r |cff8080ff%s|r"
     self:PrintMessage(loadedLine)
     self:PrintMessage(string.format(versionLine, self.VERSION))
     
-    -- Create options panel
-    self:CreateOptionsPanel()
-    self:ApplyMinimapVisibility()
+    -- Framework-driven UI bootstrap
+    TryInitializeUI()
     
     -- Load world quests
     self:LoadWorldQuests()
@@ -54,7 +63,9 @@ end
 
 -- Nameplate events
 function SQP:NAME_PLATE_CREATED(plate)
-    self:CreateQuestPlate(plate)
+    -- Keep NAME_PLATE_CREATED cheap. Building the full overlay here can happen
+    -- in large batches during login/area transitions and trip WoW's script timer.
+    self.Nameplates[plate] = plate
 end
 
 function SQP:NAME_PLATE_UNIT_ADDED(unitID)
@@ -177,6 +188,9 @@ end
 -- Register all events via RGX-Framework
 RGX:RegisterEvent("ADDON_LOADED", function(event, ...) SQP:ADDON_LOADED(...) end, "SQP_ADDON_LOADED")
 RGX:RegisterEvent("PLAYER_LOGIN", function(event, ...) SQP:PLAYER_LOGIN(...) end, "SQP_PLAYER_LOGIN")
+RGX:OnReady(function()
+    TryInitializeUI()
+end)
 
 -- Register nameplate events based on version
 if C_NamePlate and C_NamePlate.GetNamePlateForUnit then

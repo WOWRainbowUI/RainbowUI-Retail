@@ -13,6 +13,88 @@ function SQP:CreateGlobalOptions(content)
     local rgxFonts = _G.RGXFonts
     local rgxAccent = "bc6fa8"
 
+    local function CreateNameplateFontControl(parent, y)
+        local fontHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        fontHeader:SetPoint("TOPLEFT", 20, y)
+        fontHeader:SetText("|cff" .. rgxAccent .. "Nameplate Font|r")
+        y = y - 14
+
+        if not rgxFonts or type(rgxFonts.CreateFontSettingControl) ~= "function" then
+            if DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("|cffffaa00[SQP:fonts]|r RGXFonts missing or CreateFontSettingControl unavailable.")
+            end
+            local missing = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+            missing:SetPoint("TOPLEFT", 20, y)
+            missing:SetWidth(250)
+            missing:SetJustifyH("LEFT")
+            missing:SetText("|cffff5555RGX font dropdown is unavailable.|r")
+            return y - 26
+        end
+
+        local fallbackName = type(rgxFonts.GetDefault) == "function" and rgxFonts:GetDefault() or "FrizQuadrata"
+        local defaultName =
+            (type(rgxFonts.ResolveName) == "function" and rgxFonts:ResolveName(SQPSettings.fontFamily, fallbackName))
+            or (type(rgxFonts.FindByPath) == "function" and rgxFonts:FindByPath(SQPSettings.fontFamily))
+            or fallbackName
+
+        local ok, fontControl = pcall(function()
+            if rgxFonts.DebugStatus then
+                rgxFonts:DebugStatus("SQP CreateNameplateFontControl")
+            end
+            return rgxFonts:CreateFontSettingControl(parent, {
+                label = "Nameplate text font",
+                width = 240,
+                height = 56,
+                dropdownHeight = 56,
+                buttonWidth = 188,
+                storage = SQPSettings,
+                key = "fontFamily",
+                defaultName = defaultName,
+                onChange = function(_, fontName, fontPath)
+                    SQP:SetSetting('fontFamily', fontPath)
+                    SQP:SetSetting('killFontFamily', fontPath)
+                    SQP:SetSetting('lootFontFamily', fontPath)
+                    SQP:SetSetting('percentFontFamily', fontPath)
+                    SQP:RefreshAllNameplates()
+                end,
+            })
+        end)
+
+        if not ok or not fontControl then
+            if DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("|cffffaa00[SQP:fonts]|r Unable to build RGX font dropdown: " .. tostring(fontControl))
+            end
+            local failed = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+            failed:SetPoint("TOPLEFT", 20, y)
+            failed:SetWidth(250)
+            failed:SetJustifyH("LEFT")
+            failed:SetText("|cffff5555Unable to build RGX font dropdown.|r")
+            if not ok then
+                local details = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+                details:SetPoint("TOPLEFT", 20, y - 14)
+                details:SetWidth(250)
+                details:SetJustifyH("LEFT")
+                details:SetText("|cffaaaaaa" .. tostring(fontControl) .. "|r")
+                return y - 44
+            end
+            return y - 26
+        end
+
+        fontControl:SetPoint("TOPLEFT", 20, y)
+        if DEFAULT_CHAT_FRAME then
+            DEFAULT_CHAT_FRAME:AddMessage("|cff58be81[SQP:fonts]|r RGX font dropdown built.")
+        end
+        self.optionControls.rgxGeneralFontDropdown = fontControl
+        y = y - 58
+
+        local note = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        note:SetPoint("TOPLEFT", 20, y)
+        note:SetWidth(250)
+        note:SetJustifyH("LEFT")
+        note:SetText("|cff58be81Changes the text font used by SQP nameplate icons.|r")
+        return y - 30
+    end
+
     local leftColumn = CreateFrame("Frame", nil, content)
     leftColumn:SetPoint("TOPLEFT")
     leftColumn:SetPoint("BOTTOMLEFT")
@@ -160,7 +242,7 @@ function SQP:CreateGlobalOptions(content)
         scaleLabel:SetText("Scale: 1.1")
         SQP:RefreshAllNameplates()
     end)
-    scaleReset:SetPoint("LEFT", scaleSlider, "RIGHT", 4, 0)
+    scaleReset:SetPoint("TOPLEFT", scaleSlider, "TOPRIGHT", 8, 0)
 
     scaleSlider:SetScript("OnValueChanged", function(self, value)
         value = math.floor(value * 10 + 0.5) / 10
@@ -187,7 +269,7 @@ function SQP:CreateGlobalOptions(content)
         xLabel:SetText("Offset X: 0")
         SQP:RefreshAllNameplates()
     end)
-    xReset:SetPoint("LEFT", xSlider, "RIGHT", 4, 0)
+    xReset:SetPoint("TOPLEFT", xSlider, "TOPRIGHT", 8, 0)
 
     xSlider:SetScript("OnValueChanged", function(self, value)
         value = math.floor(value + 0.5)
@@ -214,7 +296,7 @@ function SQP:CreateGlobalOptions(content)
         yLabel:SetText("Offset Y: 3")
         SQP:RefreshAllNameplates()
     end)
-    yReset:SetPoint("LEFT", ySlider, "RIGHT", 4, 0)
+    yReset:SetPoint("TOPLEFT", ySlider, "TOPRIGHT", 8, 0)
 
     ySlider:SetScript("OnValueChanged", function(self, value)
         value = math.floor(value + 0.5)
@@ -264,47 +346,20 @@ function SQP:CreateGlobalOptions(content)
     end)
     anchorReset:SetPoint("LEFT", rightBtn, "RIGHT", 6, 0)
 
-    rightYOffset = rightYOffset - 30
+    rightYOffset = rightYOffset - 38
 
-    local fontHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    fontHeader:SetPoint("TOPLEFT", 20, rightYOffset)
-    fontHeader:SetText("|cff" .. rgxAccent .. "Nameplate Font|r")
-    rightYOffset = rightYOffset - 14
-
-    do
-        local rgxDropdown = rgxFonts:CreateFontSettingControl(rightColumn, {
-            label = "Apply to SQP nameplate text",
-            width = 220,
-            buttonWidth = 172,
-            storage = SQPSettings,
-            key = "fontFamily",
-            defaultName = rgxFonts:FindByPath(SQPSettings.fontFamily) or rgxFonts:GetDefault(),
-            onChange = function(_, fontName, fontPath)
-                SQP:SetSetting('fontFamily', fontPath)
-                SQP:SetSetting('killFontFamily', fontPath)
-                SQP:SetSetting('lootFontFamily', fontPath)
-                SQP:SetSetting('percentFontFamily', fontPath)
-                if SQP.optionControls then
-                    if SQP.optionControls.killFontFamily and type(SQP.optionControls.killFontFamily.SetPath) == "function" then
-                        SQP.optionControls.killFontFamily:SetPath(fontPath)
-                    end
-                    if SQP.optionControls.lootFontFamily and type(SQP.optionControls.lootFontFamily.SetPath) == "function" then
-                        SQP.optionControls.lootFontFamily:SetPath(fontPath)
-                    end
-                    if SQP.optionControls.percentFontFamily and type(SQP.optionControls.percentFontFamily.SetPath) == "function" then
-                        SQP.optionControls.percentFontFamily:SetPath(fontPath)
-                    end
-                end
-                SQP:RefreshAllNameplates()
-            end,
-        })
-        rgxDropdown:SetPoint("TOPLEFT", 20, rightYOffset)
-        self.optionControls.rgxGeneralFontDropdown = rgxDropdown
-
-        local rgxNote = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-        rgxNote:SetPoint("TOPLEFT", rgxDropdown, "BOTTOMLEFT", 0, -4)
-        rgxNote:SetWidth(220)
-        rgxNote:SetJustifyH("LEFT")
-        rgxNote:SetText("|cff58be81Changes the font used on SQP nameplates.|r")
-    end
+    local fontCard = CreateFrame("Frame", nil, rightColumn, "BackdropTemplate")
+    fontCard:SetPoint("TOPLEFT", rightColumn, "TOPLEFT", 10, rightYOffset)
+    fontCard:SetSize(270, 98)
+    fontCard:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        tile = true,
+        tileSize = 16,
+        edgeSize = 1,
+        insets = { left = 1, right = 1, top = 1, bottom = 1 },
+    })
+    fontCard:SetBackdropColor(0.04, 0.05, 0.07, 0.72)
+    fontCard:SetBackdropBorderColor(0.20, 0.26, 0.34, 0.95)
+    CreateNameplateFontControl(fontCard, -10)
 end

@@ -14,6 +14,40 @@ local strmatch = string.match
 local tonumber = tonumber
 local ceil = math.ceil
 
+local function nowSeconds()
+    if type(GetTimePreciseSec) == "function" then
+        return GetTimePreciseSec()
+    end
+    if type(debugprofilestop) == "function" then
+        return debugprofilestop() / 1000
+    end
+    if type(GetTime) == "function" then
+        return GetTime()
+    end
+    return 0
+end
+
+local function reportSlowPath(label, started)
+    local elapsed = nowSeconds() - started
+    if elapsed < 0.050 then
+        return
+    end
+
+    local now = nowSeconds()
+    SQP._lastSlowPathReport = SQP._lastSlowPathReport or {}
+    if (SQP._lastSlowPathReport[label] or 0) + 2 > now then
+        return
+    end
+
+    SQP._lastSlowPathReport[label] = now
+    local message = string.format("[SQP:slow] %s took %.1fms", tostring(label), elapsed * 1000)
+    if type(_G.geterrorhandler) == "function" then
+        _G.geterrorhandler()(message)
+    else
+        print("|cffffaa00" .. message .. "|r")
+    end
+end
+
 -- Quest storage
 SQP.ActiveWorldQuests = {}
 SQP.QuestLogIndex = {}
@@ -312,6 +346,7 @@ end
 
 -- Update quest icon on nameplate
 function SQP:UpdateQuestIcon(plate, unitID)
+    local started = nowSeconds()
     if not SQPSettings.enabled then return end
     
     local Q = self.QuestPlates[plate]
@@ -685,6 +720,8 @@ function SQP:UpdateQuestIcon(plate, unitID)
             end
         end
     end
+
+    reportSlowPath("UpdateQuestIcon", started)
 end
 
 -- Cache quest indexes for faster lookups
