@@ -70,6 +70,8 @@ L["Altairus"] = "Altairus"
 L["AltarOfShadow"] = "Autel d'ombre"
 L["altKeyDownStatusText"] = "Affichage des numéros des groupes ennemis"
 L["altKeyGroupsTip"] = "Maintenez la touche ALT enfoncée pour afficher les numéros des groupes d'ennemis"
+--[[Translation missing --]]
+L["Always overwrite matching routes on import"] = "Always overwrite matching routes on import"
 L["Amalgam of Souls"] = "Amalgame d’âmes"
 L["Amanitar"] = "Amanitar"
 L["Amarth"] = "Amarth"
@@ -86,8 +88,7 @@ L["Animated Guardian"] = "Gardien animé"
 L["Animated Shadow"] = "Ombre animée"
 L["Animated Storm"] = "Tempête animée"
 L["Animated Weapon"] = "Arme animée"
---[[Translation missing --]]
-L["Announce focus marker on ready check"] = "Announce my Focus Marker on ready check."
+L["Announce focus marker on ready check"] = "Annoncer mon marqueur de focus lors du ready check."
 L["Anodized Coilbearer"] = "Porte-bobine anodisé"
 L["Anomalus"] = "Anomalus"
 L["Anub'ar Champion"] = "Champion anub'ar"
@@ -136,7 +137,6 @@ L["Arcanist Cadaver"] = "Arcaniste cadavérique"
 L["Arcanotron Custos"] = "Assemblage arcanique de dispersion des foules"
 L["Archdruid Glaidalis"] = "Archidruide Glaidalis"
 L["Archmage Sol"] = "Archimage Sol"
---[[Translation missing --]]
 L["arcwayShortName"] = "ARC"
 L["Ardent Cutthroat"] = "Coupe-gorge ardent"
 L["Ardent Paladin"] = "Paladin ardent"
@@ -164,8 +164,7 @@ L["Ashvane Warden"] = "Gardien corsandre"
 L["Aspiring Forgehand"] = "Forgeron en herbe"
 L["Aspix"] = "Aspis"
 L["Asset Manager"] = "Gestionnaire d'actifs"
---[[Translation missing --]]
-L["assignmentWarning"] = "MDT will NOT automatically set target markers on enemies in the game world."
+L["assignmentWarning"] = "MDT ne placera PAS automatiquement des marqueurs de cible sur les ennemis dans le jeu."
 L["Assistant Unnaturaler"] = "Assistant contre nature"
 L["Astral Attendant"] = "Auxiliaire astral"
 L["Astronos"] = "Astronos"
@@ -212,7 +211,6 @@ L["Azure Spellbinder"] = "Lieur de sort azur"
 L["Azure Stalker"] = "Traqueur azur"
 L["Azure Warder"] = "Gardien azur"
 L["Azureblade"] = "Lame-Azur"
---[[Translation missing --]]
 L["azureVaultShortName"] = "AV"
 L["B.O.O.M.B.A."] = "B.O.U.M.B.A."
 L["Baalgar the Watchful"] = "Baalgar le Vigilant"
@@ -270,7 +268,6 @@ L["Bitterbrine Slave"] = "Esclave mer-amère"
 L["Black and Yellow"] = "Noir et jaune "
 L["Black Blood"] = "Sang noir"
 L["Black Rook Hold"] = "Bastion du Freux "
---[[Translation missing --]]
 L["blackrookHoldShortName"] = "BRH"
 L["Blacktar Bomber"] = "Bombardier carbutan"
 L["Blacktooth"] = "Mort-aux-Dents "
@@ -350,6 +347,9 @@ after this pull]=] ] = ""
 --[[Translation missing --]]
 L[ [=[Bounty stacks
 after this pull]=] ] = ""
+--[[Translation missing --]]
+L[ [=[Bounty stacks
+after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Fléau-de-guerre des fougères"
 L["Brackenhide Shaper"] = "Façonneuse fougerobe"
 --[[Translation missing --]]
@@ -396,12 +396,13 @@ L["Cannot create preset '%s'"] = "Impossible de créer la route '%s'"
 L["Cannot export while in combat"] = "Impossible d'exporter pendant le combat"
 L["Cannot import while in combat"] = "Impossible d'importer pendant le combat"
 L["Cannot rename preset to '%s'"] = "Impossible de renommer la route en '%s'"
---[[Translation missing --]]
-L["Cannot share routes right now due to blizzard restrictions."] = "Cannot share routes right now due to blizzard restrictions."
+L["Cannot share routes right now due to blizzard restrictions."] = "Impossible de partager les itinéraires pour le moment en raison des restrictions de Blizzard."
 L["Captain Dailcry"] = "Capitaine Dailcri"
 L["Captain Eudora"] = "Capitaine Eudora"
 L["Captain Jolly"] = "Capitaine Jolly"
 L["Captain Raoul"] = "Capitaine Raoul"
+--[[Translation missing --]]
+L["Captive"] = "Captive"
 L["Careless Hopgoblin"] = "Houbgobelin imprudent"
 L["Carrion Spinner"] = "Tisse-charogne"
 L["Carrion Worm"] = "Ver putride"
@@ -1068,26 +1069,17 @@ L["Focus Marker"] = "Focus Marker"
 --[[Translation missing --]]
 L["Focus Marker Assignments"] = "Focus Marker Assignments"
 L["Focused Ritualist"] = "Ritualiste concentré"
---[[Translation missing --]]
-L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after combat from %s."
---[[Translation missing --]]
-L["focusMarkerAssignmentsTooltip"] = "Assign focus markers to group members and sync them to MDT users."
---[[Translation missing --]]
-L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
---[[Translation missing --]]
-L["focusMarkerKeybindMissingToast"] = "No key bind is set. Set one now or disable these notifications."
---[[Translation missing --]]
-L["focusMarkerMacroDragTooltip"] = "Drag this macro to your action bar."
---[[Translation missing --]]
-L["focusMarkerMacroQueued"] = "Focus marker action will update after combat."
+L["focusMarkerAssignmentQueuedToast"] = "Le marqueur de focus sera mis à jour vers %s après le combat depuis %s."
+L["focusMarkerAssignmentsTooltip"] = "Assigne des marqueurs de focus aux membres du groupe et les synchronise avec les utilisateurs de MDT."
+L["focusMarkerAssignmentToast"] = "Marqueur de focus défini sur %s. (Envoyé par %s)"
+L["focusMarkerKeybindMissingToast"] = "Aucune touche de raccourci n’est définie. Configurez-en une maintenant ou désactivez ces notifications"
+L["focusMarkerMacroDragTooltip"] = "Faites glisser cette macro dans votre barre d’actions."
+L["focusMarkerMacroQueued"] = "L’action du marqueur de focus sera mise à jour après le combat."
 --[[Translation missing --]]
 L["focusMarkerMacroUpdated"] = "Focus marker action updated."
---[[Translation missing --]]
-L["focusMarkerMacroUpdateFailed"] = "Could not update focus marker action: %s"
---[[Translation missing --]]
-L["focusMarkerNoMacroSlotsText"] = "Delete a macro, then try the MDT focus marker macro again."
---[[Translation missing --]]
-L["focusMarkerNoMacroSlotsTitle"] = "No macro slot available."
+L["focusMarkerMacroUpdateFailed"] = "Impossible de mettre à jour l’action du marqueur de focus : %s"
+L["focusMarkerNoMacroSlotsText"] = "Supprimez une macro, puis essayez à nouveau la macro de marqueur de focus MDT."
+L["focusMarkerNoMacroSlotsTitle"] = "Aucun emplacement de macro disponible."
 L["Font of Fealty"] = "Fontaine de Fidélité"
 L["Footbomb Hooligan"] = "Hooligan de footbombe"
 L["Forces"] = "Forces "
@@ -1328,12 +1320,10 @@ L["Halls of Valor Sublevel"] = "Salles des Valeureux "
 L["HallsOfAtonementFloor1"] = "Salles de l’Expiation"
 L["HallsOfAtonementFloor2"] = "Nef de la Douleur"
 L["HallsOfAtonementFloor3"] = "Sanctuaire des Âmes"
---[[Translation missing --]]
 L["hallsOfAtonementShortName"] = "HOA"
 L["HallsOfInfusion"] = "Salles de l’Imprégnation"
 --[[Translation missing --]]
 L["hallsOfInfusionShortName"] = "HOI"
---[[Translation missing --]]
 L["hallsOfValorShortName"] = "HOV"
 --[[Translation missing --]]
 L["Hapless Assistant"] = "Hapless Assistant"
@@ -1756,9 +1746,10 @@ L["Maiden of Virtue"] = "Damoiselle de vertu"
 L["MaisaraCaverns"] = "Cavernes de Maisara"
 --[[Translation missing --]]
 L["MaisaraCavernsShortName"] = "CAVNS"
-L["Make this preset the live preset"] = "Faire de cette route la route en direct"
 --[[Translation missing --]]
-L["Make window transparent in combat"] = "Make window transparent in combat"
+L["Make copy"] = "Make copy"
+L["Make this preset the live preset"] = "Faire de cette route la route en direct"
+L["Make window transparent in combat"] = "Rendre la fenêtre transparente en combat"
 L["Makogg Emberblade"] = "Makogg Braiselame"
 L["Mak'rana Hardshell"] = "Durécaille de Mak'rana"
 L["Mak'rana Siltwalker"] = "Marche-vase de Mak’rana"
@@ -1782,6 +1773,8 @@ L["Manifested Shadow"] = "Ombre manifestée"
 L["Manifested Timeways"] = "Voies temporelles matérialisées"
 L["Marauding Geist"] = "Geist maraudeur"
 L["Margrave Stradama"] = "Margrave Stradama"
+--[[Translation missing --]]
+L["Mark as my route"] = "Mark as my route"
 --[[Translation missing --]]
 L["Mark Settings"] = "Mark Settings"
 L["Marked Sister"] = "Soeur marquée"
@@ -1809,8 +1802,7 @@ L["MDT Error"] = "Erreur MDT"
 L["MDT Legacy maps"] = "MDT Legacy maps"
 --[[Translation missing --]]
 L["MDT Set Focus Macro"] = "MDT Set Focus Macro"
---[[Translation missing --]]
-L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"
+L["MDT: Cannot add enemy - you are trying to add too many enemies of the same kind"] = "MDT : Impossible d’ajouter l’ennemi — vous essayez d’ajouter trop d’ennemis du même type."
 L["MDT: Error importing preset"] = "MDT : Erreur lors de l'importation de la route"
 L["MDT: Spells for %s:"] = "MDT : Sorts pour %s : "
 L["MDT: Use /mdt minimap to show the minimap icon again"] = "MDT : utilisez /mdt minimap pour afficher à nouveau l'icône de la mini-carte"
@@ -1846,8 +1838,7 @@ L["Merektha"] = "Merekpha"
 L["Metal Gunk"] = "Crasse métallique"
 L["Middle-click to disable Minimap Button"] = "Clic + milieu pour désactiver le bouton de la mini-carte"
 L["Midnight"] = "Minuit"
---[[Translation missing --]]
-L["Midnight Season 1"] = "Midnight Season 1"
+L["Midnight Season 1"] = "Midnight Saison 1"
 L["Mightstone Breaker"] = "Briseur pierre-puissance"
 L["Millhouse Manastorm"] = "Milhouse Tempête-de-Mana"
 L["Millificent Manastorm"] = "Millificent Tempête-de-Mana"
@@ -1967,8 +1958,7 @@ L["neltharusShortName"] = "NELT"
 L["Nerubian Hauler"] = "Nerubian Hauler"
 L["Ner'zhul"] = "Ner’zhul"
 L["Netherspace"] = "Néantespace "
---[[Translation missing --]]
-L["Never show MDT focus marker notification."] = "Never show MDT focus marker notification."
+L["Never show MDT focus marker notification."] = "Ne plus jamais afficher les notifications du marqueur de focus MDT."
 L["New"] = "Nouveau "
 L["New NPC at Cursor Position"] = "Nouveau PNJ à la position du curseur "
 L["New Patrol Waypoint at Cursor Position"] = "Nouveau point de passe de la patrouille à la position du curseur "
@@ -2084,6 +2074,8 @@ L["Overseer Korgus"] = "Surveillant Korgus"
 L["Overseer Lahar"] = "Surveillant Lahar"
 L["Overseer's Redoubt"] = "Redoute du Surveillant "
 L["Overseer's Summit"] = "Sommet du Surveillant "
+--[[Translation missing --]]
+L["Overwrite"] = "Overwrite"
 L["Ozumat"] = "Ozumat"
 L["P.O.S.T. Master"] = "Maître de P.O.S.T.E."
 L["P.O.S.T. Worker"] = "Employé de P.O.S.T.E."
@@ -3448,6 +3440,8 @@ L["Wither Biter"] = "Mordeur flétri"
 --[[Translation missing --]]
 L["Wither Slasher"] = "Wither Slasher"
 L["Witherbark"] = "Fanécorce"
+--[[Translation missing --]]
+L["Witherbark Prisoner"] = "Witherbark Prisoner"
 L["Withered Fiend"] = "Démon flétri"
 L["Withered Manawraith"] = "Ame en peine de mana flétrie"
 L["Witherling"] = "Faisande"

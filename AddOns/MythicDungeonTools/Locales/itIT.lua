@@ -85,6 +85,8 @@ L["AltarOfShadow"] = "Altar of Shadow"
 L["altKeyDownStatusText"] = "Showing enemy group numbers"
 --[[Translation missing --]]
 L["altKeyGroupsTip"] = "Hold ALT to show enemy group numbers on all enemies"
+--[[Translation missing --]]
+L["Always overwrite matching routes on import"] = "Always overwrite matching routes on import"
 L["Amalgam of Souls"] = "Amalgama di Anime"
 L["Amanitar"] = "Amanitar"
 L["Amarth"] = "Amarth"
@@ -437,6 +439,9 @@ after this pull]=] ] = ""
 --[[Translation missing --]]
 L[ [=[Bounty stacks
 after this pull]=] ] = ""
+--[[Translation missing --]]
+L[ [=[Bounty stacks
+after this pull]=] ] = ""
 L["Bracken Warscourge"] = "Strillaguerra Felcepelle"
 L["Brackenhide Shaper"] = "Plasmatrice Felcepelle"
 --[[Translation missing --]]
@@ -501,6 +506,8 @@ L["Captain Dailcry"] = "Captain Dailcry"
 L["Captain Eudora"] = "Capitano Eudora"
 L["Captain Jolly"] = "Capitano Jolly"
 L["Captain Raoul"] = "Capitano Raoul"
+--[[Translation missing --]]
+L["Captive"] = "Captive"
 --[[Translation missing --]]
 L["Careless Hopgoblin"] = "Careless Hopgoblin"
 L["Carrion Spinner"] = "Filatore Carogna"
@@ -2084,6 +2091,8 @@ L["Maiden of Virtue"] = "Ancella della Virtù"
 L["MaisaraCaverns"] = "Maisara Caverns"
 --[[Translation missing --]]
 L["MaisaraCavernsShortName"] = "CAVNS"
+--[[Translation missing --]]
+L["Make copy"] = "Make copy"
 L["Make this preset the live preset"] = "Attiva questo percorso"
 --[[Translation missing --]]
 L["Make window transparent in combat"] = "Make window transparent in combat"
@@ -2113,6 +2122,8 @@ L["Manifested Shadow"] = "Manifested Shadow"
 L["Manifested Timeways"] = "Manifested Timeways"
 L["Marauding Geist"] = "Geist Assalitore"
 L["Margrave Stradama"] = "Margravio Stradama"
+--[[Translation missing --]]
+L["Mark as my route"] = "Mark as my route"
 --[[Translation missing --]]
 L["Mark Settings"] = "Mark Settings"
 L["Marked Sister"] = "Sorella Marchiata"
@@ -2463,6 +2474,8 @@ L["Overseer Korgus"] = "Sovrintendente Korgus"
 L["Overseer Lahar"] = "Sovrintendente Lahar"
 L["Overseer's Redoubt"] = "Ridotta del Sovrintendente"
 L["Overseer's Summit"] = "Terrazza del Sovrintendente"
+--[[Translation missing --]]
+L["Overwrite"] = "Overwrite"
 L["Ozumat"] = "Ozumat"
 L["P.O.S.T. Master"] = "Direttore della P.O.S.T.A."
 L["P.O.S.T. Worker"] = "Operatore della P.O.S.T.A."
@@ -4118,6 +4131,8 @@ L["Wither Biter"] = "Morsicatrice Indebolente"
 --[[Translation missing --]]
 L["Wither Slasher"] = "Wither Slasher"
 L["Witherbark"] = "Scorzasecca"
+--[[Translation missing --]]
+L["Witherbark Prisoner"] = "Witherbark Prisoner"
 L["Withered Fiend"] = "Avvizzito Demoniaco"
 L["Withered Manawraith"] = "Avvizzito del Mana Spettrale"
 L["Witherling"] = "Avvizzitrice"
