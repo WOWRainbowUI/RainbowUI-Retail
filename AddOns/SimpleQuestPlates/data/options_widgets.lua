@@ -8,62 +8,35 @@
 local addonName, SQP = ...
 local CreateFrame = CreateFrame
 
--- Create custom styled button
+-- Create custom styled button — delegates to RGXDesign via RGXUI
 function SQP:CreateStyledButton(parent, text, width, height)
-    local button = CreateFrame("Button", nil, parent)
+    local UI = _G.RGXUI
+    if UI and type(UI.CreateButton) == "function" then
+        return UI:CreateButton(parent, text, width, height)
+    end
+    local button = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
     button:SetSize(width or 120, height or 22)
-
-    -- Normal texture
-    button:SetNormalTexture("Interface\\Buttons\\UI-DialogBox-Button-Up")
-    button:GetNormalTexture():SetTexCoord(0, 1, 0, 0.71875)
-
-    -- Highlight texture
-    button:SetHighlightTexture("Interface\\Buttons\\UI-DialogBox-Button-Highlight")
-    button:GetHighlightTexture():SetTexCoord(0, 1, 0, 0.71875)
-    button:GetHighlightTexture():SetBlendMode("ADD")
-
-    -- Pushed texture
-    button:SetPushedTexture("Interface\\Buttons\\UI-DialogBox-Button-Down")
-    button:GetPushedTexture():SetTexCoord(0, 1, 0, 0.71875)
-
-    -- Text
-    button:SetText(text)
-    button:SetNormalFontObject("GameFontNormalSmall")
-    button:SetHighlightFontObject("GameFontHighlightSmall")
-    button:SetDisabledFontObject("GameFontDisable")
-
+    button:SetText(text or "")
     return button
 end
 
--- Create compact inline reset button using ASCII text so it renders reliably on all clients.
+-- Create compact inline reset button — delegates to RGXUI
 function SQP:CreateInlineResetButton(parent, onClickFn)
+    local UI = _G.RGXUI
+    if UI and type(UI.CreateResetButton) == "function" then
+        return UI:CreateResetButton(parent, onClickFn)
+    end
     local btn = CreateFrame("Button", nil, parent)
     btn:SetSize(20, 16)
-    btn:SetNormalTexture("Interface\\Buttons\\UI-DialogBox-Button-Up")
-    btn:GetNormalTexture():SetTexCoord(0, 1, 0, 0.71875)
-    btn:SetHighlightTexture("Interface\\Buttons\\UI-DialogBox-Button-Highlight")
-    btn:GetHighlightTexture():SetTexCoord(0, 1, 0, 0.71875)
-    btn:GetHighlightTexture():SetBlendMode("ADD")
-    btn:SetPushedTexture("Interface\\Buttons\\UI-DialogBox-Button-Down")
-    btn:GetPushedTexture():SetTexCoord(0, 1, 0, 0.71875)
-
     local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     lbl:SetAllPoints()
     lbl:SetJustifyH("CENTER")
     lbl:SetText("R")
-
+    btn.lbl = lbl
     btn:SetAlpha(0.7)
     btn:SetScript("OnClick", onClickFn)
-    btn:SetScript("OnEnter", function(self)
-        self:SetAlpha(1.0)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText("重置", 1, 1, 1)
-        GameTooltip:Show()
-    end)
-    btn:SetScript("OnLeave", function(self)
-        self:SetAlpha(0.7)
-        GameTooltip:Hide()
-    end)
+    btn:SetScript("OnEnter", function(self) self:SetAlpha(1.0) end)
+    btn:SetScript("OnLeave", function(self) self:SetAlpha(0.7) end)
     return btn
 end
 
@@ -130,7 +103,7 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
         if activatePreviewFn then activatePreviewFn() end
         SQP:RefreshAllNameplates()
     end)
-    sizeReset:SetPoint("LEFT", sizeSlider, "RIGHT", 5, 0)
+    sizeReset:SetPoint("TOPLEFT", sizeSlider, "TOPRIGHT", 8, 0)
 
     sizeSlider:SetScript("OnValueChanged", function(self, val)
         val = math.floor(val + 0.5)

@@ -10,7 +10,12 @@ local addonName, SQP = ...
 SQP.SECTION_COLOR = {0.345, 0.745, 0.506}
 
 function SQP:CreateOptionsPanel()
-    local UI = _G.RGXUI
+    if self.optionsPanel then
+        return self.optionsPanel
+    end
+
+    local RGX = _G.RGXFramework
+    local UI = RGX and RGX:GetUI() or _G.RGXUI
     if not UI then
         print("|cFFFF4444[SQP] RGXUI not available — options panel cannot be created.|r")
         return
@@ -18,9 +23,14 @@ function SQP:CreateOptionsPanel()
 
     self.optionsPanel = UI:CreateOptionsPanel({
         addonName    = "SimpleQuestPlates",
-        title        = self.L["|cff58be81S|rimple |cff58be81Q|ruest |cff58be81P|rlates|cff58be81!|r"],
+        title        = self.L["|cff58be81S|cffffffffimple |cff58be81Q|cffffffffuest |cff58be81P|cfffffffflates|cff58be81!|r"],
         subtitle     = self.L["Quest tracking overlay for enemy nameplates"],
-        icon         = "Interface\\AddOns\\SimpleQuestPlates\\media\\icon",
+        author       = SQP.AUTHOR or "DonnieDice",
+        website      = "|cff7289daDiscord:|r |cffffd700discord.gg/rgxmods|r",
+        brand        = "|cff8b4b5cRGX|r |cffffd700Mods|r",
+        icon         = "Interface\\AddOns\\SimpleQuestPlates\\media\\logo.tga",
+        openInSettings = true,
+        registerInSettings = true,
         bannerHeight = 88,
         banner       = function(frame)
             SQP.previewFrame = SQP:CreatePreviewSection(frame)
@@ -36,12 +46,17 @@ function SQP:CreateOptionsPanel()
             { text = self.L["About"],  content = function(f) SQP:CreateAboutSection(f) end },
         },
     })
+
+    return self.optionsPanel
 end
 
 function SQP:OpenOptions()
     if InCombatLockdown() then
         self:PrintMessage(self.L["ERROR_COMBAT_LOCKDOWN"] or "Cannot open options during combat.")
         return
+    end
+    if not self.optionsPanel then
+        self:CreateOptionsPanel()
     end
     if self.optionsPanel then self.optionsPanel:Open() end
 end

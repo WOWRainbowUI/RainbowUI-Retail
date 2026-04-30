@@ -197,13 +197,12 @@ function SQP:CreatePercentOptions(content)
 
     local posHeader = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     posHeader:SetPoint("TOPLEFT", 20, rightYOffset)
-    posHeader:SetText(self.L["|cff58be81Position|r"])
+    posHeader:SetText(self.L["|cff58be81Size & Position|r"])
     rightYOffset = rightYOffset - 16
 
+    rightYOffset = MakeSlider(rightColumn, self.L["Size"],     "percentIconSize",    8,   8,  40, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, self.L["Offset X"], "percentIconOffsetX", 18, -80, 80, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, self.L["Offset Y"], "percentIconOffsetY",  0, -80, 80, rightYOffset)
-
-    rightYOffset = self:CreateFontSection(rightColumn, "percent", rightYOffset, ActivatePercent)
 
     -- Reset this tab to percent defaults
     rightYOffset = rightYOffset - 14
@@ -220,6 +219,7 @@ function SQP:CreatePercentOptions(content)
         SQP:SetSetting('percentColor', {unpack(D.percentColor)})
         SQP:SetSetting('percentTintIcon', D.percentTintIcon)
         SQP:SetSetting('percentTintIconColor', {unpack(D.percentTintIconColor)})
+        SQP:SetSetting('percentIconSize', D.percentIconSize)
         SQP:SetSetting('percentFontSize', D.percentFontSize)
         SQP:SetSetting('percentFontFamily', D.percentFontFamily)
         SQP:SetSetting('percentIconOffsetX', D.percentIconOffsetX)
@@ -238,6 +238,7 @@ function SQP:CreatePercentOptions(content)
         if oc.percentColorSwatch then oc.percentColorSwatch:SetColorTexture(unpack(D.percentColor)) end
         if oc.percentTintIconColorSwatch then oc.percentTintIconColorSwatch:SetColorTexture(unpack(D.percentTintIconColor)) end
         if oc.percentTintIconAlphaUpdate then oc.percentTintIconAlphaUpdate() end
+        if oc.percentIconSize   then oc.percentIconSize:SetValue(D.percentIconSize) end
         if oc.percentIconOffsetX then oc.percentIconOffsetX:SetValue(D.percentIconOffsetX) end
         if oc.percentIconOffsetY then oc.percentIconOffsetY:SetValue(D.percentIconOffsetY) end
         if oc.percentFontSize then oc.percentFontSize:SetValue(D.percentFontSize) end

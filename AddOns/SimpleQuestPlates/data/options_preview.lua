@@ -13,28 +13,33 @@ local tonumber = tonumber
 
 -- Create preview nameplate section
 function SQP:CreatePreviewSection(parent)
-    -- Create preview container
-    local previewFrame = CreateFrame("Frame", nil, parent)
-    previewFrame:SetSize(parent:GetWidth() - 28, 82)
-    previewFrame:SetPoint("CENTER", parent, "CENTER", 0, 0)
+    -- Create preview container. Keep the newer framed banner, but render the
+    -- marker using the older live-style nameplate anchoring inside it.
+    local previewFrame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    previewFrame:SetHeight(82)
+    previewFrame:SetPoint("TOPLEFT",  parent, "TOPLEFT",  14, -3)
+    previewFrame:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -14, -3)
+    previewFrame:SetBackdrop({
+        bgFile   = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        tile = true, tileSize = 16, edgeSize = 1,
+        insets = {left=1, right=1, top=1, bottom=1},
+    })
+    previewFrame:SetBackdropColor(0.05, 0.07, 0.10, 0.80)
+    previewFrame:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
 
-    -- Preview title (centered at top)
-    local previewTitle = previewFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    previewTitle:SetPoint("TOP", previewFrame, "TOP", 0, -5)
-    previewTitle:SetText(self.L["|cff58be81Live Preview|r"])
-
-    -- Type-switcher buttons (compact row)
+    -- Type-switcher buttons (compact row, centered)
     local killTypeBtn = self:CreateStyledButton(previewFrame, self.L["Kill"], 40, 16)
     local lootTypeBtn = self:CreateStyledButton(previewFrame, self.L["Loot"], 40, 16)
-    local pctTypeBtn  = self:CreateStyledButton(previewFrame, "%",   18, 16)
-    killTypeBtn:SetPoint("BOTTOMLEFT", previewFrame, "BOTTOM", -51, 3)
+    local pctTypeBtn  = self:CreateStyledButton(previewFrame, "%",   24, 16)
+    killTypeBtn:SetPoint("BOTTOMLEFT", previewFrame, "BOTTOM", -56, 4)
     lootTypeBtn:SetPoint("LEFT", killTypeBtn, "RIGHT", 4, 0)
     pctTypeBtn:SetPoint("LEFT",  lootTypeBtn, "RIGHT", 4, 0)
 
     -- Create fake nameplate (geometry is synced to a live nameplate when available)
     local nameplate = CreateFrame("Frame", nil, previewFrame)
     nameplate:SetSize(112, 44)
-    nameplate:SetPoint("CENTER", previewFrame, "CENTER", 0, -5)
+    nameplate:SetPoint("CENTER", previewFrame, "CENTER", 0, 8)
 
     -- Nameplate background
     local nameplateBackground = nameplate:CreateTexture(nil, "BACKGROUND")
@@ -83,7 +88,7 @@ function SQP:CreatePreviewSection(parent)
     -- Quest icon
     local icon = questFrame:CreateTexture(nil, "OVERLAY", nil, 1)
     icon:SetSize(28, 22)
-    icon:SetTexture('Interface/QuestFrame/AutoQuest-Parts')
+    icon:SetTexture('Interface\\QuestFrame\\AutoQuest-Parts')
     icon:SetTexCoord(0.30273438, 0.41992188, 0.015625, 0.953125)
 
     -- Quest count text
@@ -136,7 +141,7 @@ function SQP:CreatePreviewSection(parent)
     if lootIcon.SetAtlas then
         lootIcon:SetAtlas('Banker')
     else
-        lootIcon:SetTexture('Interface/Icons/INV_Misc_Bag_10')
+        lootIcon:SetTexture('Interface\\Icons\\INV_Misc_Bag_10')
         lootIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     end
     lootIcon:SetSize(16, 16)
@@ -145,9 +150,9 @@ function SQP:CreatePreviewSection(parent)
 
     -- Kill icon (hostile cursor knife/sword)
     local killIcon = questFrame:CreateTexture(nil, "OVERLAY", nil, 1)
-    killIcon:SetTexture('Interface/Cursor/Attack')
+    killIcon:SetTexture('Interface\\Cursor\\Attack')
     if not killIcon:GetTexture() then
-        killIcon:SetTexture('Interface/Icons/INV_Sword_04')
+        killIcon:SetTexture('Interface\\Icons\\INV_Sword_04')
         killIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     end
     killIcon:SetSize(16, 16)
@@ -299,7 +304,10 @@ function SQP:CreatePreviewSection(parent)
         -- Sync preview nameplate + health bar size to a real nameplate when possible.
         local plateWidth, plateHeight = 112, 44
         local healthWidth, healthHeight = 100, 12
-        local refPlate = GetReferenceNameplate()
+        -- Keep the new preview shell stable. The SQP marker still applies live
+        -- settings below, but the sample nameplate itself should not stretch to
+        -- match an active in-world plate.
+        local refPlate = nil
         if refPlate then
             local refPlateWidth = GetFrameDimension(refPlate, "GetWidth", plateWidth)
             local refPlateHeight = GetFrameDimension(refPlate, "GetHeight", plateHeight)
@@ -348,7 +356,7 @@ function SQP:CreatePreviewSection(parent)
         nameplate:SetSize(plateWidth, plateHeight)
         healthBar:SetSize(healthWidth, healthHeight)
 
-        -- Update icon position
+        icon:SetSize(28, 22)
         icon:ClearAllPoints()
         icon:SetPoint(
             SQPSettings.anchor or 'RIGHT',
@@ -381,12 +389,16 @@ function SQP:CreatePreviewSection(parent)
             self.lootIcon:SetSize(SQPSettings.lootIconSize or 14, SQPSettings.lootIconSize or 14)
         end
 
-        -- Update scale
         questFrame:SetScale(SQPSettings.scale or 1)
 
-        -- Update font with current quest type
+        -- Update font with current quest type. Wrap in pcall so a font
+        -- resolution failure (e.g. the registry not yet populated) cannot
+        -- abort UpdatePreview before the icons get shown below.
         local previewTypeKey = self.questType or "kill"
-        SQP:UpdateQuestFont(iconText, iconTextOutline, percentIcon, percentIconOutline, previewTypeKey)
+        local fontOk, fontErr = pcall(SQP.UpdateQuestFont, SQP, iconText, iconTextOutline, percentIcon, percentIconOutline, previewTypeKey)
+        if not fontOk and DEFAULT_CHAT_FRAME then
+            DEFAULT_CHAT_FRAME:AddMessage("|cffffaa00[SQP:preview]|r font apply failed: " .. tostring(fontErr))
+        end
 
         -- Main icon tinting removed (redundant with color controls)
         icon:SetVertexColor(1, 1, 1, 1)
@@ -510,7 +522,6 @@ function SQP:CreatePreviewSection(parent)
                     end
                 end
             else
-                -- showPercentIcon disabled
                 if self.percentIcon then self.percentIcon:Hide() end
                 if self.percentIconOutline then self.percentIconOutline:Hide() end
                 if percentIconMode then

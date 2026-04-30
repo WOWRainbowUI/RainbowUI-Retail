@@ -82,7 +82,7 @@ local function GetAddOnMetadataCompat(name, field)
     return nil
 end
 
-SQP.VERSION = "2.0.0" -- Addon version (also in TOC file)
+SQP.VERSION = "2.0.16" -- Addon version (also in TOC file)
 SQP.NAME = GetAddOnMetadataCompat(addonName, "Title") or addonName or "SimpleQuestPlates"
 SQP.AUTHOR = GetAddOnMetadataCompat(addonName, "Author") or "DonnieDice"
 SQP.LOCALE = GetLocale()
@@ -336,7 +336,7 @@ SQP.SOUND_KIT_ID_QUEST_ACCEPT = 815 -- UI_QuestLog_QuestAccepted
 -- Constants for UI
 SQP.PANEL_WIDTH = 700
 SQP.PANEL_HEIGHT = 600
-SQP.PANEL_NAME = format("|TInterface\\AddOns\\%s\\media\\icon:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r", addonName)
+SQP.PANEL_NAME = format("|TInterface\\AddOns\\%s\\media\\logo.tga:16:16:0:0|t |cff58be81S|r|cffffffffimple|r |cff58be81Q|r|cffffffffuest|r |cff58be81P|r|cfffffffflates|r|cff58be81!|r", addonName)
 SQP.SECTION_COLOR = { r = 0.58, g = 0.79, b = 1, a = 1 } -- RGX Blue
 SQP.BACKDROP_DARK = {
     bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -362,8 +362,12 @@ end
 function SQP:PrintMessage(msg, level)
     if not msg then return end
     if DEFAULT_CHAT_FRAME then
-        local icon = format("|T%s:0|t", self.ICON_TEXTURE or "")
-        local prefix = format("%s - |cffffffff[|r|cff58be81SQP|r|cffffffff]|r", icon)
+        local prefix = RGX and RGX.CreateChatPrefix and RGX:CreateChatPrefix({
+            icon = self.ICON_TEXTURE,
+            tag = "SQP",
+            tagColor = "58be81",
+            iconSize = 16,
+        }) or format("|T%s:16:16:0:0|t - |cffffffff[|r|cff58be81SQP|r|cffffffff]|r", self.ICON_TEXTURE or "")
         if level and level ~= "" then
             local levelColor = "fffff569"
             if tostring(level) == "DEBUG" then
@@ -561,7 +565,7 @@ end
 
 function SQP:SetupMinimapButton()
 --[[
-    local MM = RGX:GetMinimap()
+    local MM = RGX and RGX:GetMinimap() or nil
     if not MM then return end
 
     self.minimapBtn = MM:Create({
@@ -572,15 +576,25 @@ function SQP:SetupMinimapButton()
         angleKey     = "minimapAngle",
         enabledKey   = "minimapIconEnabled",
         tooltip = {
-            title = "|cff58be81Simple Quest Plates!|r",
-            icon  = self.ICON_TEXTURE,
+            title = format("|T%s:18:18:0:0|t |cff58be81S|r|cffffffffimple |cff58be81Q|r|cffffffffuest |cff58be81P|r|cfffffffflates|cff58be81!|r", self.ICON_TEXTURE or ""),
             lines = {
                 { left = "|cff58be81Left-Click|r",       right = "Open options" },
                 { left = "|cff4ecdc4Drag|r",             right = "Move around minimap" },
                 { left = "|cffe74c3cCtrl+Right-Click|r", right = "Hide minimap icon" },
             },
         },
-        onLeftClick = function() SQP:OpenOptions() end,
+        onLeftClick = function()
+            local function openOptions()
+                SQP:OpenOptions()
+            end
+            if C_Timer and type(C_Timer.After) == "function" then
+                C_Timer.After(0, openOptions)
+            elseif RGX and type(RGX.After) == "function" then
+                RGX:After(0, openOptions)
+            else
+                openOptions()
+            end
+        end,
         onCtrlRight = function() SQP:ToggleMinimapIcon(false) end,
     })
 --]]
@@ -607,9 +621,30 @@ function SQP:ApplyMinimapVisibility()
     end
 end
 
+function SQP:InitializeFrameworkUI()
+    if self._frameworkUIInitialized then
+        return
+    end
+
+    local rgx = _G.RGXFramework
+    if not rgx then
+        return
+    end
+
+    self:ApplyMinimapVisibility()
+
+    self._frameworkUIInitialized = true
+end
+
 -- Toggle options panel
 function SQP:OpenOptions()
-    if self.optionsPanel and self.optionsPanel.Show then
+    if not self.optionsPanel then
+        self:CreateOptionsPanel()
+    end
+
+    if self.optionsPanel and self.optionsPanel.Open then
+        self.optionsPanel:Open()
+    elseif self.optionsPanel and self.optionsPanel.Show then
         self.optionsPanel:Show()
     end
 end

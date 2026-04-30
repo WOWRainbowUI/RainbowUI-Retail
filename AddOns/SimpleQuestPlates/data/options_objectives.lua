@@ -431,13 +431,6 @@ function SQP:CreateStyleOptions(content)
             ActivatePreview(objective.preview)
         end, rightOffset, true)
 
-        self:CreateFontSection(
-            rightColumn,
-            objective.key,
-            rightOffset,
-            objective.fontDropdown,
-            function() ActivatePreview(objective.preview) end
-        )
     end
 
     if content.panel then

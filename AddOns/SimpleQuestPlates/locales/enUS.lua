@@ -105,7 +105,7 @@ local L = {
     -- Messages
     ["MSG_LOADED"] = "v%s loaded successfully. Type |cfffff569/sqp help|r for commands.",
     ["MSG_LOADED_LINE1"] = "Loaded successfully. Type |cfffff569/sqp help|r for commands.",
-    ["MSG_LOADED_LINE2"] = "|cfffff569Version:|r |cff7598b6v%s|r",
+    ["MSG_LOADED_LINE2"] = "|cffffff00Version:|r |cff8080ff%s|r",
     ["MSG_DISCORD"] = "Join our Discord: |cff58be81discord.gg/rgxmods|r",
     ["COMMUNITY_MESSAGE"] = "Join our Discord: |cff58be81discord.gg/rgxmods|r",
     ["SETTINGS_RESET"] = "|cff58be81All settings have been reset to defaults|r",

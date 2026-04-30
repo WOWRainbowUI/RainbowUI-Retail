@@ -201,8 +201,6 @@ function SQP:CreateKillOptions(content)
     rightYOffset = MakeSlider(rightColumn, self.L["Offset X"], "killIconOffsetX",  2, -80,  80, rightYOffset)
     rightYOffset = MakeSlider(rightColumn, self.L["Offset Y"], "killIconOffsetY", 15, -80,  80, rightYOffset)
 
-    rightYOffset = self:CreateFontSection(rightColumn, "kill", rightYOffset, ActivateKill)
-
     -- Reset this tab to kill defaults
     rightYOffset = rightYOffset - 14
     local resetBtn = self:CreateStyledButton(rightColumn, self.L["Reset Kill Settings"], 150, 22)

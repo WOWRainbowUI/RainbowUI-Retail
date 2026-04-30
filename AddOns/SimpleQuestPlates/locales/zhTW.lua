@@ -135,9 +135,10 @@ L["|cff58be81Minimap Icon|r"] = "|cff58be81小地圖按鈕|r"
 L["Show minimap icon"] = "顯示小地圖按鈕"
 L["|cffaaaaaaLeft-click opens options. Drag to move. Ctrl-right-click hides it.|r"] = "|cffaaaaaa左鍵點擊開啟選項。拖曳可移動。Ctrl+右鍵點擊隱藏。|r"
 L["Nameplate Font|r"] = "名條字型|r"
-L["Apply to SQP nameplate text"] = "套用至 SQP 名條文字"
-L["|cff58be81Changes the font used on SQP nameplates.|r"] = "|cff58be81變更 SQP 名條所使用的字型。|r"
-L["RGX-Framework font tools are unavailable right now."] = "RGX-Framework 字型工具目前無法使用。"
+L["Nameplate text font"] = "名條文字字型"
+L["|cffff5555RGX font dropdown is unavailable.|r"] = "|cffff5555RGX 字型下拉選單目前無法使用。|r"
+L["|cffff5555Unable to build RGX font dropdown.|r"] = "|cffff5555無法建立 RGX 字型下拉選單。|r"
+L["|cff58be81Changes the text font used by SQP nameplate icons.|r"] = "|cff58be81變更 SQP 名條圖示使用的字型。|r"
 
 -- Icon
 L["OPTIONS_ICON_POSITION"] = "圖示位置"
@@ -200,7 +201,7 @@ L["Percent"] = "百分比"
 L["About"] = "關於"
 
 -- header
-L["|cff58be81S|rimple |cff58be81Q|ruest |cff58be81P|rlates|cff58be81!|r"] = "任務怪提示"
+L["|cff58be81S|cffffffffimple |cff58be81Q|cffffffffuest |cff58be81P|cfffffffflates|cff58be81!|r"] = "任務怪提示"
 L["Quest tracking overlay for enemy nameplates"] = "在怪物血條上顯示任務追蹤圖示"
 
 -- widgets
