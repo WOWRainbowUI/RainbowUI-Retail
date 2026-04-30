@@ -73,6 +73,8 @@ L["Altairus"] = "艾塔伊洛斯"
 L["AltarOfShadow"] = "暗影祭壇"
 L["altKeyDownStatusText"] = "顯示敵群數量"
 L["altKeyGroupsTip"] = "在所有敵人上面按住 ALT 不放來顯示敵方群組數量"
+--[[Translation missing --]]
+L["Always overwrite matching routes on import"] = "Always overwrite matching routes on import"
 L["Amalgam of Souls"] = "眾魂融合體"
 L["Amanitar"] = "Amanitar"
 L["Amarth"] = "亞瑪斯"
@@ -363,6 +365,9 @@ after this pull]=] ] = [=[這波拉怪後
 L[ [=[Bounty stacks 
 after this pull]=] ] = [=[這波拉怪後
 連帶幾堆]=]
+--[[Translation missing --]]
+L[ [=[Bounty stacks
+after this pull]=] ] = ""
 L[ [=[Bounty stacks
 after this pull]=] ] = "這波拉怪後 連帶幾堆"
 L["Bracken Warscourge"] = "蕨皮戰譴者"
@@ -415,6 +420,8 @@ L["Captain Dailcry"] = "德爾凱隊長"
 L["Captain Eudora"] = "尤多拉船長"
 L["Captain Jolly"] = "喬利船長"
 L["Captain Raoul"] = "拉沃船長"
+--[[Translation missing --]]
+L["Captive"] = "Captive"
 L["Careless Hopgoblin"] = "粗心的蹦跳哥布林"
 L["Carrion Spinner"] = "Carrion Spinner"
 L["Carrion Worm"] = "食腐骨蟲"
@@ -1753,6 +1760,8 @@ L["Maiden of Virtue"] = "貞潔聖女"
 L["MaisaraCaverns"] = "Maisara Caverns"
 --[[Translation missing --]]
 L["MaisaraCavernsShortName"] = "CAVNS"
+--[[Translation missing --]]
+L["Make copy"] = "Make copy"
 L["Make this preset the live preset"] = "將此路線變成即時連線的路線"
 --[[Translation missing --]]
 L["Make window transparent in combat"] = "Make window transparent in combat"
@@ -1780,6 +1789,8 @@ L["Manifested Shadow"] = "現形暗影"
 L["Manifested Timeways"] = "時間之道化身"
 L["Marauding Geist"] = "Marauding Geist"
 L["Margrave Stradama"] = "藩侯史特拉達瑪"
+--[[Translation missing --]]
+L["Mark as my route"] = "Mark as my route"
 --[[Translation missing --]]
 L["Mark Settings"] = "Mark Settings"
 L["Marked Sister"] = "符印女巫"
@@ -2064,6 +2075,8 @@ L["Overseer Korgus"] = "監督者寇格斯"
 L["Overseer Lahar"] = "監督者來哈爾"
 L["Overseer's Redoubt"] = "監督者壁壘"
 L["Overseer's Summit"] = "監督者瞭望台"
+--[[Translation missing --]]
+L["Overwrite"] = "Overwrite"
 L["Ozumat"] = "歐蘇瑪特"
 L["P.O.S.T. Master"] = "郵務主管"
 L["P.O.S.T. Worker"] = "郵務工作員"
@@ -3438,6 +3451,8 @@ L["Wise Mari"] = "智者瑪利"
 L["Wither Biter"] = "枯萎啃噬者"
 L["Wither Slasher"] = "新手斬擊者"
 L["Witherbark"] = "枯木"
+--[[Translation missing --]]
+L["Witherbark Prisoner"] = "Witherbark Prisoner"
 L["Withered Fiend"] = "凋萎魔"
 L["Withered Manawraith"] = "凋萎者法力怨靈"
 L["Witherling"] = "枯萎者"
