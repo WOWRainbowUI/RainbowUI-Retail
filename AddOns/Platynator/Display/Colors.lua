@@ -55,6 +55,7 @@ local kindToCallback = {
   quest = {"QuestInfoUpdate"},
   mouseover = {"MouseoverUpdate"},
   threat = {"CombatStatusChange", "RoleChange"},
+  inCombat = {"CombatStatusChange"},
 }
 local kindToCache = {
   interruptReady = {"cast"},
@@ -141,6 +142,9 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
       end
     end
   end
+
+  -- Set the color at least once
+  frame:ColorEventHandler("FORCED")
 end
 
 local function SplitEvaluate(state, r1, g1, b1, a1, r2, g2, b2, a2)
@@ -213,7 +217,7 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "eliteType" then
       if (inRelevantEliteInstance or not s.instancesOnly) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
         local t = GetEliteType(unit, s.applyCasterAlways)
-        if t then
+        if t and s.enabled[t] then
           table.insert(colorQueue, {color = s.colors[t]})
           break
         end
@@ -221,7 +225,7 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "delveType" then
       if (inRelevantDelveInstance and s.delves or not inRelevantThreatInstance and s.outsideInstances) and not addonTable.Display.Utilities.IsNeutralUnit(unit) then
         local t = GetDelveType(unit)
-        if t then
+        if t and s.enabled[t] then
           table.insert(colorQueue, {color = s.colors[t]})
           break
         end
@@ -277,7 +281,10 @@ function addonTable.Display.GetColor(settings, state, unit)
         notInterruptible = channelInfo[7]
       end
       state.frequentUpdater.interruptReady = nil
-      if notInterruptible ~= nil then
+      if castInfo[1] or channelInfo[1] then
+        if notInterruptible == nil then
+          notInterruptible = false
+        end
         local interruptSpells = GetInterruptSpells()
         state.frequentUpdater.interruptReady = true
         if C_Spell.GetSpellCooldownDuration then
@@ -285,7 +292,7 @@ function addonTable.Display.GetColor(settings, state, unit)
             local duration = C_Spell.GetSpellCooldownDuration(spellID)
             table.insert(colorQueue, {state = {{value = duration:IsZero()}, {value = notInterruptible, invert = true}}, color = s.colors.ready})
           end
-        elseif notInterruptible == false then
+        elseif notInterruptible ~= true then
           local any = false
           for _, spellID in ipairs(interruptSpells) do
             local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
@@ -308,11 +315,14 @@ function addonTable.Display.GetColor(settings, state, unit)
       if notInterruptible == nil then
         notInterruptible = channelInfo[7]
       end
-      state.frequentUpdater.interruptReady = nil
-      if notInterruptible ~= nil then
+      state.frequentUpdater.interruptNotReady = nil
+      if castInfo[1] or channelInfo[1] then
+        if notInterruptible == nil then
+          notInterruptible = false
+        end
         local spells = GetInterruptSpells()
         if #spells > 0 then
-          state.frequentUpdater.interruptReady = true
+          state.frequentUpdater.interruptNotReady = true
           if C_Spell.GetSpellCooldownDuration then
             local conditions = {{value = notInterruptible, invert = true}}
             for _, spellID in ipairs(spells) do
@@ -320,7 +330,7 @@ function addonTable.Display.GetColor(settings, state, unit)
               table.insert(conditions, {value = duration:IsZero(), invert = true})
             end
             table.insert(colorQueue, {state = conditions, color = s.colors.notReady})
-          elseif notInterruptible == false then
+          elseif notInterruptible ~= true then
             local any = false
             for _, spellID in ipairs(spells) do
               local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
@@ -414,8 +424,14 @@ function addonTable.Display.GetColor(settings, state, unit)
           local percent = UnitHealth(unit) / UnitHealthMax(unit)
           if percent <= addonTable.Display.Utilities.GetExecuteRange() then
             table.insert(colorQueue, {color = s.colors.execute})
+            break
           end
         end
+      end
+    elseif s.kind == "inCombat" then
+      if IsInCombatWith(unit) then
+        table.insert(colorQueue, {color = s.colors.inCombat})
+        break
       end
     elseif s.kind == "energy" then
       local _, kind = UnitPowerType(unit)
