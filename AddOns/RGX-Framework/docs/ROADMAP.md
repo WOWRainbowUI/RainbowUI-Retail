@@ -39,6 +39,7 @@ The player-facing experience stays quiet. The author-facing experience should be
 | Combat event library | RGXCombat | ✅ Done |
 | Reputation + renown tracking | RGXReputation | ✅ Done |
 | Data broker registry | RGXDataBroker | ✅ Done |
+| Level-up sound system (variant playback, mute, settings) | RGXSound | ✅ Done |
 
 ---
 
@@ -119,6 +120,25 @@ end)
 **Compatibility:** existing LibSharedMedia packs (Caith, SharedMedia-Fonts, etc.) already work via `RGXSharedMedia:ImportLibSharedMedia()`. The pack system extends this to RGX-native packs with richer metadata (categories, families, licenses, previews).
 
 **Initial media size:** default bundled assets stay lean — packs are how users expand options, not something every consumer pays for upfront.
+
+---
+
+### Hello RGX — Reference Addon
+**Priority: MEDIUM — developer experience**
+
+A minimal, fully-commented "Hello World" addon built on RGX-Framework. Ships as a standalone CurseForge addon and lives in the workspace as the canonical starting point for new consumers.
+
+**What it demonstrates:**
+- TOC setup with `RequiredDeps: RGX-Framework` and the `assert` pattern
+- `RGX:OnReady` bootstrap flow
+- `RGX:RegisterEvent` and `RGX:After`
+- A minimap button via `RGX:GetMinimap()`
+- A slash command via `RGX:RegisterSlashCommand`
+- A font lookup via `RGX.Fonts:GetPath`
+- A dropdown via `RGX:GetDropdowns()`
+- A simple saved variable via `RGX:NewDatabase` (once the profile system ships)
+
+**Why it matters:** every new addon author spends time wiring the same boilerplate. Hello RGX eliminates that — copy the folder, rename, remove comments, start building. Also serves as a live integration test that RGX-Framework's public API is working.
 
 ---
 

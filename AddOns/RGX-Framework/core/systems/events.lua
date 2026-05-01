@@ -8,7 +8,7 @@
     - lightweight callback emitters for module-local signals
 --]]
 
-local _, RGX = ...
+local addonName, RGX = ...
 
 RGX.events = RGX.events or {}
 RGX.messages = RGX.messages or {}
@@ -28,6 +28,63 @@ local function reportDispatchError(channel, name, id, err)
     end
 
     print("|cFFFF4444" .. message .. "|r")
+end
+
+local function reportEventRegistrationError(action, event, err)
+    local message = string.format(
+        "[RGX:event] %s failed for '%s': %s",
+        tostring(action),
+        tostring(event),
+        tostring(err)
+    )
+
+    if type(_G.geterrorhandler) == "function" then
+        _G.geterrorhandler()(message)
+        return
+    end
+
+    print("|cFFFF4444" .. message .. "|r")
+end
+
+local function safeRegisterFrameEvent(frame, event)
+    if not frame or type(event) ~= "string" or event == "" then
+        return false
+    end
+
+    local ok, result = pcall(frame.RegisterEvent, frame, event)
+    if not ok then
+        if string.find(tostring(result), "unknown event", 1, true) then
+            if RGX and type(RGX.Debug) == "function" then
+                RGX:Debug("RegisterEvent unknown event", event)
+            end
+            return false
+        end
+        reportEventRegistrationError("RegisterEvent", event, result)
+        return false
+    end
+
+    if result == false then
+        if RGX and type(RGX.Debug) == "function" then
+            RGX:Debug("RegisterEvent rejected", event)
+        end
+        return false
+    end
+
+    return true
+end
+
+local function safeUnregisterFrameEvent(frame, event)
+    if not frame or type(event) ~= "string" or event == "" then
+        return false
+    end
+
+    local ok, err = pcall(frame.UnregisterEvent, frame, event)
+    if not ok then
+        reportEventRegistrationError("UnregisterEvent", event, err)
+        return false
+    end
+
+    return true
 end
 
 local function makeHandlerId(callback, id)
@@ -142,7 +199,7 @@ local function dispatchHandlers(container, channel, key, ...)
     return #queued
 end
 
-RGX.eventFrame = RGX.eventFrame or CreateFrame("Frame")
+RGX.eventFrame = RGX.eventFrame or _G.RGXFrameworkEventFrame or CreateFrame("Frame", "RGXFrameworkEventFrame")
 RGX.eventFrame:SetScript("OnEvent", function(_, event, ...)
     RGX:FireEvent(event, ...)
 end)
@@ -154,8 +211,9 @@ function RGX:RegisterEvent(event, callback, id, owner)
         return false
     end
 
-    if created then
-        self.eventFrame:RegisterEvent(event)
+    if created and not safeRegisterFrameEvent(self.eventFrame, event) then
+        unregisterHandler(self.events, event, handlerId)
+        return false
     end
 
     return handlerId
@@ -164,7 +222,7 @@ end
 function RGX:UnregisterEvent(event, id)
     local removed = unregisterHandler(self.events, event, id)
     if removed and not self.events[event] then
-        self.eventFrame:UnregisterEvent(event)
+        safeUnregisterFrameEvent(self.eventFrame, event)
     end
 
     return removed
@@ -181,7 +239,7 @@ function RGX:UnregisterAllEvents(id)
 
         if not next(bucket) then
             self.events[event] = nil
-            self.eventFrame:UnregisterEvent(event)
+            safeUnregisterFrameEvent(self.eventFrame, event)
         end
     end
 
@@ -212,6 +270,44 @@ RGX.RegisterCallback = RGX.RegisterMessage
 RGX.UnregisterCallback = RGX.UnregisterMessage
 RGX.UnregisterAllCallbacks = RGX.UnregisterAllMessages
 RGX.FireMessage = RGX.SendMessage
+
+local lastBlockedReport = 0
+local function reportActionBlock(event, blockedAddon, blockedFunction)
+    local blocked = tostring(blockedAddon or "UNKNOWN")
+    if blocked ~= "UNKNOWN"
+        and blocked ~= addonName
+        and blocked ~= "RGX-Framework"
+        and not string.find(blocked, "RGX", 1, true) then
+        return
+    end
+
+    local now = type(GetTimePreciseSec) == "function" and GetTimePreciseSec()
+        or (type(GetTime) == "function" and GetTime())
+        or 0
+    if lastBlockedReport + 1 > now then
+        return
+    end
+
+    lastBlockedReport = now
+    local message = string.format(
+        "[RGX:blocked] event=%s addon=%s function=%s",
+        tostring(event),
+        blocked,
+        tostring(blockedFunction or "UNKNOWN")
+    )
+
+    if DEFAULT_CHAT_FRAME then
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff5555" .. message .. "|r")
+    end
+
+    reportDispatchError("blocked", event, blocked, string.format(
+        "function=%s",
+        tostring(blockedFunction or "UNKNOWN")
+    ))
+end
+
+RGX:RegisterEvent("ADDON_ACTION_BLOCKED", reportActionBlock, "RGX_ActionBlockedDiag")
+RGX:RegisterEvent("ADDON_ACTION_FORBIDDEN", reportActionBlock, "RGX_ActionForbiddenDiag")
 
 function RGX:CreateEmitter(name)
     local emitter = {

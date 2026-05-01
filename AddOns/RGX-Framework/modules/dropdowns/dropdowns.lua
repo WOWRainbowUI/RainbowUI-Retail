@@ -53,9 +53,90 @@ end
 Dropdowns.name    = "dropdowns"
 Dropdowns.version = "2.0.0"
 
+local _dropdownCounter = 0
+
 -- WoW measures buttons as listFrame:GetWidth() - (BORDER * 2)
 local BORDER_THICKNESS = UIDROPDOWNMENU_BORDER_THICKNESS or 15
 local BORDER_PAD       = BORDER_THICKNESS * 2
+
+local function EnsureDropDownAPI()
+    if type(UIDropDownMenu_Initialize) == "function"
+        and type(UIDropDownMenu_AddButton) == "function"
+        and type(UIDropDownMenu_CreateInfo) == "function" then
+        return true
+    end
+
+    local loadAddon = nil
+    if C_AddOns and type(C_AddOns.LoadAddOn) == "function" then
+        loadAddon = C_AddOns.LoadAddOn
+    elseif type(LoadAddOn) == "function" then
+        loadAddon = LoadAddOn
+    end
+
+    if loadAddon then
+        pcall(loadAddon, "Blizzard_UIDropDownMenu")
+        pcall(loadAddon, "Blizzard_Deprecated")
+    end
+
+    return type(UIDropDownMenu_Initialize) == "function"
+        and type(UIDropDownMenu_AddButton) == "function"
+        and type(UIDropDownMenu_CreateInfo) == "function"
+end
+
+local function SetDropdownText(dropdown, text)
+    if RGX and type(RGX.SafeUIDropDownMenu_SetText) == "function" then
+        return RGX:SafeUIDropDownMenu_SetText(dropdown, text)
+    end
+    if type(UIDropDownMenu_SetText) == "function" then
+        UIDropDownMenu_SetText(dropdown, text)
+        return true
+    end
+    return false
+end
+
+local function InitializeDropdown(dropdown, initializer, displayMode)
+    if RGX and type(RGX.SafeUIDropDownMenu_Initialize) == "function" then
+        return RGX:SafeUIDropDownMenu_Initialize(dropdown, initializer, displayMode)
+    end
+    if type(UIDropDownMenu_Initialize) == "function" then
+        UIDropDownMenu_Initialize(dropdown, initializer, displayMode)
+        return true
+    end
+    return false
+end
+
+local function EnableDropdown(dropdown)
+    if RGX and type(RGX.SafeUIDropDownMenu_EnableDropDown) == "function" then
+        return RGX:SafeUIDropDownMenu_EnableDropDown(dropdown)
+    end
+    if type(UIDropDownMenu_EnableDropDown) == "function" then
+        UIDropDownMenu_EnableDropDown(dropdown)
+        return true
+    end
+    return false
+end
+
+local function DisableDropdown(dropdown)
+    if RGX and type(RGX.SafeUIDropDownMenu_DisableDropDown) == "function" then
+        return RGX:SafeUIDropDownMenu_DisableDropDown(dropdown)
+    end
+    if type(UIDropDownMenu_DisableDropDown) == "function" then
+        UIDropDownMenu_DisableDropDown(dropdown)
+        return true
+    end
+    return false
+end
+
+local function CloseMenus()
+    if RGX and type(RGX.SafeCloseDropDownMenus) == "function" then
+        return RGX:SafeCloseDropDownMenus()
+    end
+    if type(CloseDropDownMenus) == "function" then
+        CloseDropDownMenus()
+        return true
+    end
+    return false
+end
 
 --[[============================================================================
     ITEM NORMALIZATION
@@ -63,16 +144,63 @@ local BORDER_PAD       = BORDER_THICKNESS * 2
 
 local function CopyItem(item)
     if type(item) ~= "table" then return nil end
+
     local copy = {}
     for k, v in pairs(item) do
         if k == "children" and type(v) == "table" then
             local children = {}
-            for i, child in ipairs(v) do children[i] = CopyItem(child) end
+            for i, child in ipairs(v) do
+                children[i] = CopyItem(child)
+            end
             copy.children = children
         else
             copy[k] = v
         end
     end
+
+    -- UIDropDownMenu compatibility layer
+    -- Normalize old schema fields to RGXDropdowns schema
+    local originalText = copy.text
+    local originalValue = copy.value
+
+    copy.text = copy.text or copy.label or copy.name or ""
+
+    -- Handle legacy value fields
+    if copy.value == nil then
+        if copy.arg1 ~= nil then
+            copy.value = copy.arg1
+            RGX:Debug("Dropdowns:Normalize", "Converted arg1->value", tostring(copy.arg1))
+        elseif copy.font ~= nil then
+            copy.value = copy.font
+            RGX:Debug("Dropdowns:Normalize", "Converted font->value", tostring(copy.font))
+        elseif copy.name ~= nil and copy.path ~= nil then
+            copy.value = copy.name
+            RGX:Debug("Dropdowns:Normalize", "Converted name->value", tostring(copy.name))
+        end
+    end
+
+    -- Log normalization if values changed
+    if (originalText ~= copy.text or originalValue ~= copy.value) then
+        RGX:Debug("Dropdowns:Normalize", "Item text:", tostring(originalText), "->", tostring(copy.text), "value:", tostring(originalValue), "->", tostring(copy.value))
+    end
+
+    -- Convert menuList to children
+    if copy.menuList then
+        copy.children = copy.children or copy.menuList
+        copy.menuList = nil
+    end
+
+    -- Recursively normalize children
+    if type(copy.children) == "table" then
+        copy.children = Dropdowns:NormalizeItems(copy.children)
+    end
+
+    -- Preserve legacy callback as onClick wrapper
+    if copy.func and not copy.onClick then
+        local func = copy.func
+        copy.onClick = function() func(copy, copy.arg1, copy.arg2, nil) end
+    end
+
     return copy
 end
 
@@ -343,8 +471,39 @@ end
         tooltipTitle(string)
         tooltipText (string)
         keepOpen    (bool)     — don't CloseDropDownMenus on select
+        keepShownOnClick(bool) — UIDropDownMenu-compatible alias for keepOpen
 ]]
-function Dropdowns:CreateNestedDropdown(parent, opts)
+-- ─────────────────────────────────────────────────────────────────────────────
+-- MenuUtil path (TWW / Midnight 12.x).
+--
+-- Blizzard removed Blizzard_UIDropDownMenu in 11.0; what remains is a deprecation
+-- shim that taints any insecure code path that touches it, producing
+-- "ADDON FORBIDDEN" errors when our dropdowns are opened next to secure UI.
+-- Modern clients use MenuUtil + WowStyle1ArrowDropdownTemplate, which has no
+-- such taint surface. We dispatch to this path when MenuUtil is available and
+-- fall back to the legacy implementation for Classic Era / Cata Classic /
+-- MoP Classic where MenuUtil does not exist.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+local function HasMenuUtil()
+    return _G.MenuUtil ~= nil and type(_G.MenuUtil.CreateContextMenu) == "function"
+end
+
+local _hasModernDropdownTemplate = nil
+local function HasModernDropdownTemplate()
+    -- WowStyle1ArrowDropdownTemplate is the new selection dropdown widget.
+    -- We can probe its existence by trying to create one; the template is
+    -- registered globally as soon as UIParent loads on a TWW+ client.
+    if _hasModernDropdownTemplate ~= nil then
+        return _hasModernDropdownTemplate
+    end
+    if not HasMenuUtil() then return false end
+    local probe = pcall(CreateFrame, "DropdownButton", nil, UIParent, "WowStyle1ArrowDropdownTemplate")
+    _hasModernDropdownTemplate = probe == true
+    return _hasModernDropdownTemplate
+end
+
+function Dropdowns:CreateNestedDropdown_MenuUtil(parent, opts)
     opts = opts or {}
     parent = parent or UIParent
 
@@ -357,9 +516,170 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
 
     holder.value = opts.value
 
-    holder.dropdown = CreateFrame("Frame", nil, holder, "UIDropDownMenuTemplate")
+    _dropdownCounter = _dropdownCounter + 1
+    holder.dropdown = CreateFrame("DropdownButton", "RGXDropdown_" .. _dropdownCounter, holder, "WowStyle1ArrowDropdownTemplate")
+    holder.dropdown:SetPoint("TOPLEFT", holder.label, "BOTTOMLEFT", 0, -2)
+    holder.dropdown:SetWidth(opts.buttonWidth or 210)
+    if type(holder.dropdown.SetDefaultText) == "function" then
+        holder.dropdown:SetDefaultText(opts.placeholder or "Select")
+    end
+
+    -- Item helpers (same names/shapes as the legacy path so the holder is
+    -- API-compatible with Fonts:CreateFontDropdown and similar callers).
+    function holder:GetItems()
+        if type(opts.items) == "function" then
+            return Dropdowns:NormalizeItems(opts.items(self))
+        end
+        return Dropdowns:NormalizeItems(opts.items)
+    end
+
+    function holder:GetItemText(item)
+        if type(opts.getItemText) == "function" then
+            return opts.getItemText(item, self.value, self) or ""
+        end
+        return item and (item.text or item.label or tostring(item.value or "")) or ""
+    end
+
+    function holder:GetValueText(value)
+        if type(opts.getValueText) == "function" then
+            return opts.getValueText(value, self) or ""
+        end
+        local function findText(items)
+            for _, item in ipairs(items) do
+                if item.value == value then return self:GetItemText(item) end
+                if type(item.children) == "table" then
+                    local n = findText(item.children)
+                    if n then return n end
+                end
+            end
+        end
+        return findText(self:GetItems()) or opts.placeholder or "Select"
+    end
+
+    -- Locate an item by value across the (possibly nested) tree, so onChange
+    -- can receive the same `(value, item, holder)` arguments as the legacy
+    -- dropdown — callers like Fonts and PB2 rely on the item being passed.
+    local function FindItemByValue(items, target)
+        for _, item in ipairs(items or {}) do
+            if item.value == target then return item end
+            if type(item.children) == "table" then
+                local found = FindItemByValue(item.children, target)
+                if found then return found end
+            end
+        end
+        return nil
+    end
+
+    -- Generator runs every time the menu opens, so radio "checked" state
+    -- always reflects the current holder.value.
+	local _genCalledOnce = false
+	local function generator(_, rootDescription)
+		if not _genCalledOnce then
+			_genCalledOnce = true
+			local items = holder:GetItems()
+			local leafCount, groupCount = 0, 0
+			for _, it in ipairs(items or {}) do
+				if type(it.children) == "table" and #it.children > 0 then groupCount = groupCount + 1 else leafCount = leafCount + 1 end
+			end
+			RGX:Debug("RGXDropdown:generator first call, items=" .. #items .. " groups=" .. groupCount .. " leafs=" .. leafCount)
+		end
+		local function isSelected(value) return holder.value == value end
+        local function setSelected(value)
+            holder.value = value
+            local item = FindItemByValue(holder:GetItems(), value)
+            if type(opts.onChange) == "function" then
+                opts.onChange(value, item, holder)
+            end
+        end
+
+        local function addItems(items, parentDesc)
+            for _, item in ipairs(items or {}) do
+                if item.isSeparator then
+                    parentDesc:CreateDivider()
+                elseif item.isHeader then
+                    parentDesc:CreateTitle(holder:GetItemText(item))
+                elseif type(item.children) == "table" and #item.children > 0 then
+                    -- Submenu: a button whose own description we add children to.
+                    local sub = parentDesc:CreateButton(holder:GetItemText(item))
+                    addItems(item.children, sub)
+                else
+                    -- Leaf. Selectable items (with a value, not flagged
+                    -- notCheckable) become radios; everything else becomes a
+                    -- plain button that fires onChange like the legacy path.
+                    if item.value ~= nil and item.notCheckable ~= true then
+                        parentDesc:CreateRadio(holder:GetItemText(item), isSelected, setSelected, item.value)
+                    else
+                        local label = holder:GetItemText(item)
+                        parentDesc:CreateButton(label, function()
+                            if type(opts.onChange) == "function" then
+                                opts.onChange(item.value, item, holder)
+                            end
+                        end)
+                    end
+                end
+            end
+        end
+
+        addItems(holder:GetItems(), rootDescription)
+    end
+
+    holder.dropdown:SetupMenu(generator)
+
+    function holder:Refresh(value)
+        if value ~= nil then self.value = value end
+        local text = self:GetValueText(self.value)
+        -- OverrideText pins the displayed label regardless of which radio is
+        -- currently selected; useful for getValueText callers (e.g. fonts)
+        -- that format the displayed label differently from the menu items.
+        if type(self.dropdown.OverrideText) == "function" and type(opts.getValueText) == "function" then
+            self.dropdown:OverrideText(text)
+        end
+    end
+
+    function holder:SetEnabled(enabled)
+        local on = enabled ~= false
+        self.label:SetAlpha(on and 1 or 0.6)
+        if type(self.dropdown.SetEnabled) == "function" then
+            self.dropdown:SetEnabled(on)
+        end
+        self.dropdown:SetAlpha(on and 1 or 0.45)
+    end
+
+    holder:Refresh(holder.value)
+    return holder
+end
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Legacy UIDropDownMenu path (Classic Era / Cata Classic / MoP Classic).
+-- Used as a fallback when MenuUtil is unavailable.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+function Dropdowns:CreateNestedDropdown_Legacy(parent, opts)
+    opts = opts or {}
+    parent = parent or UIParent
+
+    if not EnsureDropDownAPI() then
+        RGX:Debug("RGXDropdowns: UIDropDownMenu API unavailable")
+        return nil
+    end
+
+    local holder = CreateFrame("Frame", nil, parent)
+    holder:SetSize(opts.width or 260, opts.height or 56)
+
+    holder.label = holder:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    holder.label:SetPoint("TOPLEFT", 0, 0)
+    holder.label:SetText(opts.label or "Select")
+
+    holder.value = opts.value
+
+    _dropdownCounter = _dropdownCounter + 1
+    holder.dropdown = CreateFrame("Frame", "RGXDropdown_" .. _dropdownCounter, holder, "UIDropDownMenuTemplate")
     holder.dropdown:SetPoint("TOPLEFT", holder.label, "BOTTOMLEFT", -18, -2)
-    UIDropDownMenu_SetWidth(holder.dropdown, opts.buttonWidth or 210)
+    if type(UIDropDownMenu_SetWidth) == "function" then
+        UIDropDownMenu_SetWidth(holder.dropdown, opts.buttonWidth or 210)
+    elseif holder.dropdown.SetWidth then
+        holder.dropdown:SetWidth((opts.buttonWidth or 210) + 40)
+    end
 
     -- Item helpers
     function holder:GetItems()
@@ -402,16 +722,21 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
     function holder:Select(item)
         if not item then return end
         self.value = item.value
-        UIDropDownMenu_SetText(self.dropdown, self:GetValueText(self.value))
+        SetDropdownText(self.dropdown, self:GetValueText(self.value))
         if type(opts.onChange) == "function" then
             opts.onChange(item.value, item, self)
         end
-        if not item.keepOpen then
-            CloseDropDownMenus()
+        if not item.keepOpen and not item.keepShownOnClick then
+            CloseMenus()
         end
     end
 
     local autoW = opts.autoWidth
+
+    -- String-key registry for sub-menu children (TWW UIDropDownMenu compat:
+    -- table references in menuList may not survive the callback round-trip).
+    holder._menuData = {}
+    local menuKeyCounter = 0
 
     local function addItems(items, level)
         for _, item in ipairs(items or {}) do
@@ -438,12 +763,15 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
                 info.text          = holder:GetItemText(item)
                 info.notCheckable  = item.notCheckable ~= false
                 info.hasArrow      = true
-                info.menuList      = item.children
                 info.disabled      = item.disabled
                 info.tooltipTitle  = item.tooltipTitle
                 info.tooltipText   = item.tooltipText
                 if item.icon       then info.icon = item.icon end
                 if item.colorCode  then info.colorCode = item.colorCode end
+                menuKeyCounter = menuKeyCounter + 1
+                local key = "m" .. menuKeyCounter
+                holder._menuData[key] = item.children
+                info.menuList = key
                 UIDropDownMenu_AddButton(info, level)
 
             -- Leaf item
@@ -464,6 +792,7 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
                 info.func = function()
                     holder:Select(item)
                 end
+                info.keepShownOnClick = item.keepShownOnClick or item.keepOpen
                 UIDropDownMenu_AddButton(info, level)
 
                 -- Let the caller attach inline buttons
@@ -492,30 +821,47 @@ function Dropdowns:CreateNestedDropdown(parent, opts)
         end
     end
 
-    UIDropDownMenu_Initialize(holder.dropdown, function(_, level, menuList)
+    InitializeDropdown(holder.dropdown, function(_, level, menuList)
         level = level or 1
         if level == 1 then
+            -- Rebuild data registry fresh on every open (BLU pattern).
+            -- Prevents stale key accumulation and ensures TWW compat.
+            holder._menuData = {}
+            menuKeyCounter = 0
             addItems(holder:GetItems(), level)
-        elseif type(menuList) == "table" then
-            addItems(menuList, level)
+        else
+            local children = type(menuList) == "table" and menuList
+                or (holder._menuData and holder._menuData[menuList])
+            if type(children) == "table" then
+                addItems(children, level)
+            end
         end
     end)
 
     function holder:Refresh(value)
         if value ~= nil then self.value = value end
-        UIDropDownMenu_SetText(self.dropdown, self:GetValueText(self.value))
+        SetDropdownText(self.dropdown, self:GetValueText(self.value))
     end
 
     function holder:SetEnabled(enabled)
         local on = enabled ~= false
         self.label:SetAlpha(on and 1 or 0.6)
-        UIDropDownMenu_DisableDropDown(self.dropdown)
-        if on then UIDropDownMenu_EnableDropDown(self.dropdown) end
+        DisableDropdown(self.dropdown)
+        if on then EnableDropdown(self.dropdown) end
         self.dropdown:SetAlpha(on and 1 or 0.45)
     end
 
     holder:Refresh(holder.value)
     return holder
+end
+
+function Dropdowns:CreateNestedDropdown(parent, opts)
+	if HasModernDropdownTemplate() then
+		RGX:Debug("RGXDropdown: dispatching to MenuUtil path")
+		return self:CreateNestedDropdown_MenuUtil(parent, opts)
+	end
+	RGX:Debug("RGXDropdown: dispatching to Legacy path")
+	return self:CreateNestedDropdown_Legacy(parent, opts)
 end
 
 --[[============================================================================

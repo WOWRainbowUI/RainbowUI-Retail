@@ -1,10 +1,9 @@
 <div style="background:linear-gradient(180deg,#11141b 0%,#0b0e14 100%);color:#e6edf3;font-family:'Segoe UI',Tahoma,sans-serif;padding:16px;border:1px solid #2d333b">
 
 <div style="padding:14px 16px;background:linear-gradient(135deg,#1a1320 0%,#111827 100%);border:1px solid #3b2f46">
-<div style="font-size:26px;font-weight:800;letter-spacing:0.4px;color:#bc6fa8">RGX-Framework</div>
+<div style="font-size:26px;font-weight:800;letter-spacing:0.4px;color:#bc6fa8"><img src="https://github.com/DonnieDice/RGX-Framework/blob/main/media/logo.png?raw=true" width="24" height="24"> <span style="color:#8b4b5c">R</span><span style="color:#8b4b5c">G</span><span style="color:#8b4b5c">X</span> <span style="color:#bc6fa8">| </span><span style="color:#bc6fa8">F</span><span style="color:#fff">ramework</span></div>
 <div style="margin-top:4px;color:#c7d0db;font-size:14px">Shared media, UI helpers, and addon foundation primitives for WoW addon authors.</div>
 <div style="margin-top:10px">
-<span style="display:inline-block;background-color:#201827;border:1px solid #5a3b6d;color:#f3d3ff;padding:3px 8px;margin-right:6px"><strong>Version</strong> 1.0.0</span>
 <span style="display:inline-block;background-color:#13202a;border:1px solid #29566f;color:#b9ecff;padding:3px 8px;margin-right:6px">Retail</span>
 <span style="display:inline-block;background-color:#1a2115;border:1px solid #546c39;color:#ddf2b1;padding:3px 8px">Library AddOn</span>
 </div>
@@ -15,10 +14,10 @@
 <div style="padding:12px 14px;background-color:#151a22;border:1px solid #30363d">
 <div style="font-size:18px;font-weight:700;color:#ffd166">Overview</div>
 <div style="margin-top:8px;color:#e6edf3;line-height:1.5">
-RGX-Framework is a Retail World of Warcraft shared addon foundation built to give addon suites one coordinated resource layer for fonts, colors, textures, lightweight UI helpers, and reusable framework plumbing.
+RGX-Framework is a Retail World of Warcraft shared addon foundation. One dependency gives your addon suite coordinated fonts, colors, textures, UI helpers, event plumbing, timers, slash commands, dropdown menus, minimap buttons, and a full addon lifecycle system — without duplicating any of it per addon.
 </div>
 <div style="margin-top:8px;color:#c7d0db;line-height:1.5">
-It stays quiet for players and useful for authors. If another addon depends on RGX-Framework, install it and leave it enabled. If you are building addons yourself, use it to avoid shipping duplicate media folders, scattered visual constants, and repeated framework glue in every project.
+It stays quiet for players and useful for authors. If another addon requires RGX-Framework, install it and leave it enabled. If you are building addons, use it as an alternative to Ace3 — a single shared library with a clean API and no embedding required.
 </div>
 </div>
 
@@ -29,21 +28,26 @@ It stays quiet for players and useful for authors. If another addon depends on R
 <td style="width:50%;vertical-align:top;padding:12px 14px;background-color:#141b20;border:1px solid #2f454d">
 <div style="font-size:18px;font-weight:700;color:#4ecdc4">Features</div>
 <div style="margin-top:10px;color:#e6edf3;line-height:1.7">
-• <strong>RGXFonts</strong> for shared font lookup and fallback-safe font paths<br/>
-• <strong>RGXColors</strong> for reusable color helpers and a drop-in color-picker flow<br/>
-• <strong>RGXTextures</strong> for shared status bars, panel textures, and UI media<br/>
-• Native RGX event and message plumbing without depending on Ace-style library chains<br/>
-• Smaller addon packages through one shared media source<br/>
-• Consistent branding and visual language across RGX-based addons
+• <strong>RGXFonts</strong> — shared font lookup, fallback-safe paths, 30+ fonts<br/>
+• <strong>RGXColors</strong> — reusable color helpers and drop-in color picker<br/>
+• <strong>RGXTextures</strong> — shared status bars, panel textures, UI media<br/>
+• <strong>Dropdowns</strong> — fully self-contained dropdown menu system<br/>
+• <strong>Minimap buttons</strong> — drag-to-reposition minimap icon builder<br/>
+• <strong>Event &amp; message bus</strong> — <code>RGX:RegisterEvent</code>, <code>RGX:SendMessage</code><br/>
+• <strong>Timers</strong> — <code>RGX:After</code> / <code>RGX:Every</code>, no C_Timer dependency<br/>
+• <strong>Slash commands</strong> — <code>RGX:RegisterSlashCommand</code><br/>
+• <strong>Lifecycle</strong> — <code>RGX:OnReady(fn)</code> / <code>RGX:IsReady()</code><br/>
+• <strong>Utilities</strong> — <code>RGX:Print</code>, <code>RGX:Warn</code>, <code>RGX:Error</code>, <code>RGX:Mixin</code>
 </div>
 </td>
 <td style="width:50%;vertical-align:top;padding:12px 14px;background-color:#1b1520;border:1px solid #4a3147">
-<div style="font-size:18px;font-weight:700;color:#ff8fab">Highlights In 1.0.0</div>
+<div style="font-size:18px;font-weight:700;color:#ff8fab">What's New</div>
 <div style="margin-top:10px;color:#e6edf3;line-height:1.7">
-• Expanded the font lineup beyond near-identical UI sans fonts<br/>
-• Added clearer variation across pixel, display, fantasy, serif, and monospace styles<br/>
-• Improved shared integration for addons like PetBuddy2<br/>
-• Added reusable color-picker helpers for drop-in addon use
+• <strong>RGX:OnReady(fn)</strong> — queue callbacks that fire once the framework is fully initialized; fires immediately if already ready<br/>
+• <strong>RGX:IsReady()</strong> — poll readiness state at any time<br/>
+• <strong>RGX:Print / Warn / Error</strong> — colored <code>[RGX]</code> prefix output helpers (green / yellow / red)<br/>
+• <strong>RGX:Mixin(target, ...)</strong> — copy all fields from source tables into target<br/>
+• <strong>Dropdowns self-contained</strong> — ForceWidth uses <code>RGX:After(0)</code> instead of <code>C_Timer.After</code>
 </div>
 </td>
 </tr>
@@ -54,13 +58,15 @@ It stays quiet for players and useful for authors. If another addon depends on R
 <div style="padding:12px 14px;background-color:#151a22;border:1px solid #30363d">
 <div style="font-size:18px;font-weight:700;color:#ffd166">Font Coverage</div>
 <div style="margin-top:10px;color:#e6edf3;line-height:1.7">
-<span style="color:#ffd166"><strong>Sans/UI:</strong></span> Inter, Ubuntu, Liberation Sans, DejaVu Sans, Lato, Poppins, Montserrat, Rajdhani<br/>
-<span style="color:#ffd166"><strong>Serif:</strong></span> Crimson Text, Merriweather, Playfair Display<br/>
+<span style="color:#ffd166"><strong>Sans/UI:</strong></span> Inter, Ubuntu, Liberation Sans, DejaVu Sans, Lato, Poppins, Rajdhani<br/>
+<span style="color:#ffd166"><strong>Serif:</strong></span> Crimson Text<br/>
 <span style="color:#ffd166"><strong>Monospace:</strong></span> IBM Plex Mono, JetBrains Mono<br/>
-<span style="color:#ffd166"><strong>Display:</strong></span> Bebas Neue, Bangers, Creepster, Oswald, Orbitron, Audiowide, Anton<br/>
+<span style="color:#ffd166"><strong>Display:</strong></span> Bebas Neue, Bangers, Creepster, Anton<br/>
 <span style="color:#ffd166"><strong>Pixel:</strong></span> Press Start 2P, Silkscreen, VT323<br/>
-<span style="color:#ffd166"><strong>Fantasy/Themed:</strong></span> Uncial Antiqua, Cinzel<br/>
-<span style="color:#ffd166"><strong>WoW defaults:</strong></span> Friz Quadrata, Arial Narrow, Morpheus, Skurri
+<span style="color:#ffd166"><strong>Fantasy/Themed:</strong></span> Uncial Antiqua<br/>
+<span style="color:#ffd166"><strong>WoW defaults:</strong></span> Friz Quadrata, Arial Narrow, Morpheus, Skurri<br/>
+<br/>
+<span style="color:#ff8fab"><em>Temporarily unavailable:</em></span> Montserrat, Merriweather, Playfair Display, Oswald, Orbitron, Audiowide, Cinzel (corrupted assets)
 </div>
 </div>
 
@@ -69,18 +75,23 @@ It stays quiet for players and useful for authors. If another addon depends on R
 <table style="width:100%;border-collapse:separate;border-spacing:12px 0">
 <tr>
 <td style="width:58%;vertical-align:top;padding:12px 14px;background-color:#141b20;border:1px solid #2f454d">
-<div style="font-size:18px;font-weight:700;color:#4ecdc4">Basic Usage</div>
+<div style="font-size:18px;font-weight:700;color:#4ecdc4">Quick Start</div>
 <pre style="margin-top:10px;background-color:#0d1117;color:#c9d1d9;border:1px solid #30363d;padding:10px;white-space:pre-wrap">## RequiredDeps: RGX-Framework
 
-local path = _G.RGXFonts:GetPath("Inter-Regular")
-MyFontString:SetFont(path, 12, "OUTLINE")</pre>
+local RGX = assert(_G.RGXFramework, "MyAddon: RGX-Framework not loaded")
+
+RGX:OnReady(function()
+    -- safe to use all RGX APIs here
+    local path = RGX.Fonts:GetPath("Inter-Regular")
+    MyFontString:SetFont(path, 12, "OUTLINE")
+end)</pre>
 </td>
 <td style="width:42%;vertical-align:top">
 <div style="padding:12px 14px;background-color:#1b1520;border:1px solid #4a3147;margin-bottom:12px">
 <div style="font-size:18px;font-weight:700;color:#ff8fab">Compatibility</div>
 <div style="margin-top:10px;color:#e6edf3;line-height:1.7">
 • WoW Retail only<br/>
-• Interface versions: <span style="color:#58a6ff">120000</span>, <span style="color:#58a6ff">120001</span>
+• Interface versions: <span style="color:#58a6ff">120000</span>, <span style="color:#58a6ff">120001</span>, <span style="color:#58a6ff">120005</span>
 </div>
 </div>
 

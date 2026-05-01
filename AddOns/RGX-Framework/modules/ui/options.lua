@@ -29,6 +29,9 @@ local addonName, RGX = ...
 
 -- This file extends the existing RGXUI module registered in controls.lua.
 -- It waits until UI is available via the module system.
+-- GetUI/GetDesign read _G directly: options.lua patches RGXUI after the module
+-- registers itself, so RGX:GetUI() / RGX:GetDesign() are equivalent but the
+-- _G read makes the bootstrap dependency explicit and avoids a forward reference.
 
 local function GetUI()
     return _G.RGXUI
@@ -40,7 +43,7 @@ end
 
 -- ── Layout constants ──────────────────────────────────────────────────────────
 
-local TAB_W        = 94
+local TAB_W = 94
 local TAB_H        = 22
 local TAB_SPACING  = 6
 local TAB_ROW_PAD  = 8
@@ -74,22 +77,14 @@ end
 
 -- ── Create a single tab button ────────────────────────────────────────────────
 
-local function CreateTabButton(parent, text, tabIndex, row, col, maxPerRow, panelRef, icon, addonKey)
+local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon, addonKey)
     local frameName = "RGXTab_" .. addonKey .. "_" .. tabIndex
     local btn = CreateFrame("Button", frameName, parent)
     btn:SetSize(TAB_W, TAB_H)
     btn.tabIndex = tabIndex
     btn.tabRow   = row
     btn.tabCol   = col
-
-    local function UpdatePos()
-        local xOff = TAB_ROW_PAD + (col - 1) * (TAB_W + TAB_SPACING)
-        local yOff = -(TAB_ROW_PAD + (row - 1) * (TAB_H + TAB_ROW_GAP))
-        btn:ClearAllPoints()
-        btn:SetPoint("TOPLEFT", parent, "TOPLEFT", xOff, yOff)
-    end
-    UpdatePos()
-    btn:HookScript("OnShow", function() UpdatePos() end)
+    -- Positioning is handled externally by RepositionTabs for dynamic centering.
 
     local bg = btn:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
@@ -106,7 +101,7 @@ local function CreateTabButton(parent, text, tabIndex, row, col, maxPerRow, pane
     if icon then
         local iconTex = btn:CreateTexture(nil, "ARTWORK")
         iconTex:SetSize(14, 14)
-        iconTex:SetPoint("LEFT", 6, 0)
+        iconTex:SetPoint("LEFT", 8, 0)
         iconTex:SetTexture(icon)
         btn.iconTex = iconTex
         btnText:SetPoint("LEFT", iconTex, "RIGHT", 4, 0)
@@ -158,6 +153,95 @@ local function CreateTabButton(parent, text, tabIndex, row, col, maxPerRow, pane
     return btn
 end
 
+-- ── Auto-layout helper (passed to tab content functions) ─────────────────────
+-- Widgets stack vertically so authors never need to call SetPoint.
+--
+-- Usage inside a tab content function:
+--   content = function(add)
+--       add:Toggle("Enable",  db, "enabled")
+--       add:Slider("Volume",  db, "volume",  0, 100)
+--       add:Color("Bar Color", db, "barColor")
+--   end
+
+local function CreateAddHelper(frame)
+    local UI = GetUI()
+    local yOff = 0
+    local X    = 16
+    local Y0   = 16
+    local GAP  = 10
+
+    local function Place(w)
+        w:SetPoint("TOPLEFT", frame, "TOPLEFT", X, -(Y0 + yOff))
+        yOff = yOff + w:GetHeight() + GAP
+    end
+
+    -- Extend the frame itself with helper methods so it remains a valid WoW
+    -- frame (usable as a parent, CreateTexture target, etc.) while also
+    -- supporting the auto-layout API.
+    frame._frame = frame
+
+    function frame:Toggle(label, storage, key, default, onChange)
+        if not UI then return end
+        local w = UI:CreateToggle(frame, {
+            label    = label,
+            storage  = storage,
+            key      = key,
+            default  = default ~= false,
+            onChange = onChange,
+        })
+        Place(w)
+        return w
+    end
+
+    function frame:Slider(label, storage, key, min, max, default, suffix)
+        if not UI then return end
+        local w = UI:CreateSlider(frame, {
+            label   = label,
+            storage = storage,
+            key     = key,
+            min     = min or 0,
+            max     = max or 100,
+            step    = 1,
+            default = default,
+            suffix  = suffix or "",
+        })
+        Place(w)
+        return w
+    end
+
+    function frame:Color(label, storage, key, default)
+        if not UI then return end
+        local w = UI:CreateColorPicker(frame, {
+            label   = label,
+            storage = storage,
+            key     = key,
+            default = default or { r = 1, g = 1, b = 1 },
+        })
+        Place(w)
+        return w
+    end
+
+    function frame:Section(title)
+        if not UI then return end
+        local w = UI:CreateLabel(frame, { text = title, size = "normal", color = "accent" })
+        w:SetPoint("TOPLEFT", frame, "TOPLEFT", X, -(Y0 + yOff))
+        yOff = yOff + 28 + GAP
+        return w
+    end
+
+    function frame:Text(text)
+        if not UI then return end
+        local w = UI:CreateLabel(frame, { text = text, size = "small", color = "muted" })
+        local y = -(Y0 + yOff)
+        w:SetPoint("TOPLEFT",  frame, "TOPLEFT",  X,  y)
+        w:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -X, y)
+        yOff = yOff + 20 + GAP
+        return w
+    end
+
+    return frame
+end
+
 -- ── Build the full content area ───────────────────────────────────────────────
 
 local function ClearContent(frame)
@@ -187,8 +271,17 @@ local function CreateOptionsPanel(UI, opts)
 
     -- ── Panel frame ───────────────────────────────────────────────────────────
     local panel = CreateFrame("Frame", "RGXOptionsPanel_" .. addonKey, UIParent, "BackdropTemplate")
-    panel.name = opts.title or tAddonName
-    panel.settingsCategoryName = opts.title or tAddonName
+    panel:SetSize(opts.width or 760, opts.height or 620)
+    panel:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    panel:SetFrameStrata("DIALOG")
+    panel:EnableMouse(true)
+    local _sidebarIcon  = opts.icon or GetMeta(tAddonName, "IconTexture")
+    local _sidebarTitle = opts.title or tAddonName
+    local _sidebarName  = _sidebarIcon
+        and format("|T%s:16:16:0:0|t %s", _sidebarIcon, _sidebarTitle)
+        or  _sidebarTitle
+    panel.name = _sidebarName
+    panel.settingsCategoryName = _sidebarName
     panel.tabs     = {}
     panel.contents = {}
 
@@ -244,27 +337,32 @@ local function CreateOptionsPanel(UI, opts)
     local rightX = -14
 
     local titleStr = header:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    titleStr:SetPoint("TOPLEFT", leftX, -14)
+    titleStr:SetPoint("LEFT", header, "TOPLEFT", leftX, -14)
+    titleStr:SetJustifyV("MIDDLE")
     titleStr:SetText(opts.title or tAddonName)
 
     if opts.subtitle then
         local sub = header:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        sub:SetPoint("TOPLEFT", leftX, -26)
+        sub:SetPoint("LEFT", header, "TOPLEFT", leftX, -26)
+        sub:SetJustifyV("MIDDLE")
         sub:SetText(opts.subtitle)
         sub:SetTextColor(0.70, 0.70, 0.70)
     end
 
     if opts.website then
         local site = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        site:SetPoint("TOPLEFT", leftX, -38)
+        site:SetPoint("LEFT", header, "TOPLEFT", leftX, -38)
+        site:SetJustifyV("MIDDLE")
         site:SetText(opts.website)
         site:SetTextColor(0.85, 0.85, 0.85)
     end
 
     local verText = opts.version or GetMeta(tAddonName, "Version") or ""
     if verText ~= "" then
+        if not verText:match("^v") then verText = "v" .. verText end
         local ver = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        ver:SetPoint("TOPRIGHT", rightX, -14)
+        ver:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -14)
+        ver:SetJustifyV("MIDDLE")
         ver:SetText(verText)
         ver:SetJustifyH("RIGHT")
         do
@@ -275,10 +373,19 @@ local function CreateOptionsPanel(UI, opts)
 
     if opts.author then
         local auth = header:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        auth:SetPoint("TOPRIGHT", rightX, -26)
+        auth:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -26)
+        auth:SetJustifyV("MIDDLE")
         auth:SetText("by " .. opts.author)
         auth:SetTextColor(0.70, 0.70, 0.70)
         auth:SetJustifyH("RIGHT")
+    end
+
+    if opts.brand then
+        local brand = header:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        brand:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -38)
+        brand:SetJustifyV("MIDDLE")
+        brand:SetText(opts.brand)
+        brand:SetJustifyH("RIGHT")
     end
 
     -- ── Banner (optional, sits between header and tabs) ───────────────────────
@@ -299,10 +406,6 @@ local function CreateOptionsPanel(UI, opts)
         bannerFrame:SetBackdropBorderColor(0.12, 0.22, 0.30, 1)
         panel.bannerFrame = bannerFrame
         tabAnchor = bannerFrame
-        if type(opts.banner) == "function" then
-            local ok, err = pcall(opts.banner, bannerFrame)
-            if not ok then RGX:Debug("[RGXOptions] Banner build error: " .. tostring(err)) end
-        end
     end
 
     -- ── Tab container ─────────────────────────────────────────────────────────
@@ -324,7 +427,7 @@ local function CreateOptionsPanel(UI, opts)
         local col = ((i - 1) % maxPerRow) + 1
 
         local tabBtn = CreateTabButton(
-            tabArea, tabInfo.text, i, row, col, maxPerRow, panel, tabInfo.icon, addonKey
+            tabArea, tabInfo.text, i, row, col, panel, tabInfo.icon, addonKey
         )
         panel.tabs[i] = tabBtn
 
@@ -342,18 +445,82 @@ local function CreateOptionsPanel(UI, opts)
         content:SetBackdropBorderColor(0.20, 0.20, 0.20, 1)
         content:Hide()
 
-        -- Build initial content
-        if type(tabInfo.content) == "function" then
-            local ok, err = pcall(tabInfo.content, content)
-            if not ok then RGX:Debug("[RGXOptions] Tab build error '" .. tabInfo.text .. "': " .. tostring(err)) end
-        end
-
         panel.contents[i] = content
         panel.tabs[i]._tabInfo = tabInfo
     end
 
+    -- ── Dynamic centered tab positioning ─────────────────────────────────────
+    -- Group buttons by row, then center each row within the tab area width.
+    local rowGroups = {}
+    for _, btn in ipairs(panel.tabs) do
+        local r = btn.tabRow
+        rowGroups[r] = rowGroups[r] or {}
+        table.insert(rowGroups[r], btn)
+    end
+
+    local function RepositionTabs()
+        local w = tabArea:GetWidth()
+        if w <= 0 then return end
+        for row, btns in pairs(rowGroups) do
+            local count    = #btns
+            local rowWidth = count * TAB_W + (count - 1) * TAB_SPACING
+            local startX   = math.floor((w - rowWidth) / 2 + 0.5)
+            local yOff     = -(TAB_ROW_PAD + (row - 1) * (TAB_H + TAB_ROW_GAP))
+            for idx, btn in ipairs(btns) do
+                local xOff = startX + (idx - 1) * (TAB_W + TAB_SPACING)
+                btn:ClearAllPoints()
+                btn:SetPoint("TOPLEFT", tabArea, "TOPLEFT", xOff, yOff)
+            end
+        end
+    end
+
+    tabArea:HookScript("OnSizeChanged", RepositionTabs)
+    tabArea:HookScript("OnShow",        RepositionTabs)
+    RepositionTabs()
+
+local function RunSoon(delay, fn)
+  -- Prefer RGX timer API for framework budget/diagnostics
+  if RGX and type(RGX.After) == "function" then
+    RGX:After(delay or 0, fn, "Options:RunSoon")
+  elseif C_Timer and type(C_Timer.After) == "function" then
+    C_Timer.After(delay or 0, fn)
+  else
+    fn()
+  end
+end
+
+    local bannerQueued = false
+
+    local function BuildBanner()
+        if panel._bannerBuilt then
+            return
+        end
+
+        panel._bannerBuilt = true
+        if panel.bannerFrame and type(opts.banner) == "function" then
+            local ok, err = pcall(opts.banner, panel.bannerFrame)
+            if not ok then RGX:Debug("[RGXOptions] Banner build error: " .. tostring(err)) end
+        end
+    end
+
+    local function QueueBannerBuild()
+        if panel._bannerBuilt or bannerQueued then
+            return
+        end
+
+        bannerQueued = true
+        RunSoon(opts.bannerDelay or 0.05, function()
+            bannerQueued = false
+            if panel:IsShown() then
+                BuildBanner()
+            end
+        end)
+    end
+
     -- ── SelectTab ─────────────────────────────────────────────────────────────
     function panel:SelectTab(index)
+        QueueBannerBuild()
+
         for i = 1, #self.tabs do
             if self.tabs[i] then
                 self.tabs[i]:SetActive(i == index)
@@ -362,20 +529,25 @@ local function CreateOptionsPanel(UI, opts)
                 self.contents[i]:SetShown(i == index)
                 if i == index then
                     local content = self.contents[i]
-                    if content._dirty then
-                        ClearContent(content)
-                        content._dirty = nil
-                        local tabInfo = self.tabs[i] and self.tabs[i]._tabInfo
+                    local tabInfo = self.tabs[i] and self.tabs[i]._tabInfo
+                    if not content._built or content._dirty then
+                        if content._dirty then
+                            ClearContent(content)
+                            content._dirty = nil
+                        end
                         if tabInfo and type(tabInfo.content) == "function" then
-                            local ok, err = pcall(tabInfo.content, content)
-                            if not ok then
-                                RGX:Debug("[RGXOptions] Tab rebuild error: " .. tostring(err))
+                            local ok, err = pcall(tabInfo.content, CreateAddHelper(content))
+                            if ok then
+                                content._built = true
+                            else
+                                RGX:Debug("[RGXOptions] Tab build error: " .. tostring(err))
                             end
+                        else
+                            content._built = true
                         end
                     elseif type(content.Refresh) == "function" then
                         pcall(content.Refresh, content)
                     end
-                    local tabInfo = self.tabs[i] and self.tabs[i]._tabInfo
                     if tabInfo and type(tabInfo.onSelect) == "function" then
                         pcall(tabInfo.onSelect)
                     end
@@ -401,6 +573,8 @@ local function CreateOptionsPanel(UI, opts)
     end
 
     function panel:Refresh()
+        QueueBannerBuild()
+
         for i, content in ipairs(self.contents) do
             if content:IsShown() then
                 if content._dirty then
@@ -409,7 +583,8 @@ local function CreateOptionsPanel(UI, opts)
                         ClearContent(content)
                         content._dirty = nil
                         if type(tabInfo.content) == "function" then
-                            pcall(tabInfo.content, content)
+                            local ok = pcall(tabInfo.content, CreateAddHelper(content))
+                            content._built = ok == true
                         end
                     end
                 elseif type(content.Refresh) == "function" then
@@ -419,47 +594,180 @@ local function CreateOptionsPanel(UI, opts)
         end
     end
 
-    -- ── Open ──────────────────────────────────────────────────────────────────
-    function panel:Open()
-        if InCombatLockdown and InCombatLockdown() then
-            RGX:Debug("[RGXOptions] Cannot open panel in combat")
-            return
+    local function ExtractCategoryID(category)
+        if type(category) ~= "table" then
+            return nil
         end
 
-        if not self._category then return end
-
-        local opened = false
-
-        if Settings and Settings.OpenToCategory then
-            if self._categoryID then
-                local ok = pcall(Settings.OpenToCategory, self._categoryID)
-                opened = ok
-            end
-            if not opened then
-                local ok = pcall(Settings.OpenToCategory, self.settingsCategoryName)
-                opened = ok
+        if type(category.GetID) == "function" then
+            local ok, id = pcall(category.GetID, category)
+            if ok and type(id) == "number" then
+                return id
             end
         end
 
-        if not opened and InterfaceOptionsFrame_OpenToCategory then
-            pcall(InterfaceOptionsFrame_OpenToCategory, self)
-            pcall(InterfaceOptionsFrame_OpenToCategory, self)
+        if type(category.ID) == "number" then
+            return category.ID
         end
 
-        if not opened then
-            if SettingsPanel then SettingsPanel:Show()
-            elseif InterfaceOptionsFrame then InterfaceOptionsFrame:Show() end
+        if type(category.GetOrder) == "function" then
+            local ok, id = pcall(category.GetOrder, category)
+            if ok and type(id) == "number" then
+                return id
+            end
         end
     end
 
+    function panel:ResolveCategoryID()
+        if self._categoryID ~= nil then
+            return self._categoryID
+        end
+
+        local directID = ExtractCategoryID(self._category)
+        if directID ~= nil then
+            self._categoryID = directID
+            return directID
+        end
+
+        if Settings and type(Settings.GetCategory) == "function" then
+            local names = {
+                self.settingsCategoryName,
+                self.name,
+                opts.categoryName,
+                opts.title,
+                tAddonName,
+            }
+
+            for _, categoryName in ipairs(names) do
+                if type(categoryName) == "string" and categoryName ~= "" then
+                    local ok, category = pcall(Settings.GetCategory, categoryName)
+                    if ok and category then
+                        local id = ExtractCategoryID(category)
+                        if id ~= nil then
+                            self._category = self._category or category
+                            self._categoryID = id
+                            return id
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    local function TryOpenToCategory(target)
+        if not target or not Settings or type(Settings.OpenToCategory) ~= "function" then
+            return false
+        end
+
+        local ok, result = pcall(Settings.OpenToCategory, target)
+
+        -- Some client builds return nil even when the Settings panel opens.
+        -- Treat only an explicit error/false as failure so we do not continue
+        -- into protected Blizzard panel fallbacks after a successful open.
+        return ok and result ~= false
+    end
+
+    local function TryLegacyOpen(settingsPanel)
+        if type(InterfaceOptionsFrame_OpenToCategory) ~= "function" or not settingsPanel then
+            return false
+        end
+
+        -- Blizzard's legacy path often needs two calls to select the category.
+        local okFirst = pcall(InterfaceOptionsFrame_OpenToCategory, settingsPanel)
+        local okSecond = pcall(InterfaceOptionsFrame_OpenToCategory, settingsPanel)
+        return okFirst or okSecond
+    end
+
+local function DeferOptionsOpen(fn)
+  -- Prefer RGX timer API for framework budget/diagnostics
+  if RGX and type(RGX.After) == "function" then
+    RGX:After(0, fn, "Options:DeferOptionsOpen")
+  elseif C_Timer and type(C_Timer.After) == "function" then
+    C_Timer.After(0, fn)
+  else
+    fn()
+  end
+end
+
+    -- ── Open ──────────────────────────────────────────────────────────────────
+    function panel:Open()
+        if InCombatLockdown and InCombatLockdown() then
+            RGX:Debug("[RGXOptions] Options open queued until combat ends")
+            if RGX and type(RGX.QueueForCombat) == "function" then
+                return RGX:QueueForCombat(function()
+                    return panel:Open()
+                end)
+            end
+            return false
+        end
+
+        if opts.openInSettings ~= false and not self._rgxOpeningDeferred and not self._rgxOpeningNow then
+            self._rgxOpeningDeferred = true
+            DeferOptionsOpen(function()
+                if self then
+                    self._rgxOpeningDeferred = nil
+                    self._rgxOpeningNow = true
+                    self:Open()
+                    self._rgxOpeningNow = nil
+                end
+            end)
+            return true
+        end
+
+        local opened = false
+
+        if opts.openInSettings ~= false then
+            local categoryID = self:ResolveCategoryID()
+            local categoryName = self.settingsCategoryName or self.name
+
+            if Settings and type(Settings.OpenToCategory) == "function" and categoryID ~= nil then
+                opened = TryOpenToCategory(categoryID)
+            end
+
+            if Settings and type(Settings.OpenToCategory) == "function" and not opened and categoryName then
+                opened = TryOpenToCategory(categoryName)
+            end
+
+            if not (Settings and type(Settings.OpenToCategory) == "function") and not opened then
+                opened = TryLegacyOpen(self)
+            end
+
+            if Settings and type(Settings.OpenToCategory) == "function" and not opened then
+                RGX:Debug("[RGXOptions] Settings.OpenToCategory failed for", categoryName or categoryID)
+                return false
+            end
+        end
+
+        if not opened then
+            self:ClearAllPoints()
+            self:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+            self:Show()
+        end
+    end
+
+    panel:SetScript("OnShow", function(self)
+        if #self.tabs > 0 and not self._activeTab then
+            local initialTab = opts.initialTab or 1
+            local function selectInitialTab()
+                if self:IsShown() and not self._activeTab then
+                    self:SelectTab(initialTab)
+                end
+            end
+
+            RunSoon(0, selectInitialTab)
+        else
+            QueueBannerBuild()
+        end
+    end)
+
     -- ── Register with WoW Settings ────────────────────────────────────────────
-    if Settings and Settings.RegisterCanvasLayoutCategory then
+    if opts.registerInSettings == false then
+        panel._category = panel
+    elseif Settings and Settings.RegisterCanvasLayoutCategory then
         local cat = Settings.RegisterCanvasLayoutCategory(panel, panel.settingsCategoryName)
         Settings.RegisterAddOnCategory(cat)
         panel._category = cat
-        if type(cat.GetID) == "function" then
-            panel._categoryID = cat:GetID()
-        end
+        panel._categoryID = ExtractCategoryID(cat)
     else
         -- Classic / pre-10.x
         panel.name = panel.settingsCategoryName
@@ -469,9 +777,10 @@ local function CreateOptionsPanel(UI, opts)
         panel._category = panel
     end
 
-    -- Show first tab by default
-    if #panel.tabs > 0 then
-        panel:SelectTab(1)
+    panel:Hide()
+
+    if type(UISpecialFrames) == "table" and panel.GetName and panel:GetName() then
+        table.insert(UISpecialFrames, panel:GetName())
     end
 
     return panel
@@ -482,18 +791,20 @@ end
 
 local function Inject()
     local UI = _G.RGXUI
-    if not UI then return end
+    if not UI then return false end
     UI.CreateOptionsPanel = function(self, opts)
         return CreateOptionsPanel(self, opts)
     end
+    return true
 end
 
--- Defer injection so controls.lua has time to register the module
-local injectFrame = CreateFrame("Frame")
-injectFrame:RegisterEvent("ADDON_LOADED")
-injectFrame:SetScript("OnEvent", function(_, _, name)
-    if name == addonName then
-        Inject()
-        injectFrame:UnregisterAllEvents()
-    end
-end)
+-- controls.lua loads before this file, so inject immediately in normal loads.
+-- Keep an event-bus fallback for unusual load-order changes without creating
+-- another raw event frame.
+if not Inject() then
+    RGX:RegisterEvent("ADDON_LOADED", function(_, name)
+        if name == addonName and Inject() then
+            RGX:UnregisterEvent("ADDON_LOADED", "RGX_UIOptionsInject")
+        end
+    end, "RGX_UIOptionsInject")
+end

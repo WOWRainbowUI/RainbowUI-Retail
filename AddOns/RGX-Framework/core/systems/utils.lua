@@ -102,6 +102,34 @@ function RGX:Error(...)
     print("|cffff4444[RGX]|r", ...)
 end
 
+-- Chat
+function RGX:CreateChatPrefix(opts)
+    opts = opts or {}
+
+    local icon = opts.icon or ""
+    local tag = opts.tag or "RGX"
+    local tagColor = opts.tagColor or "58be81"
+    local iconSize = tonumber(opts.iconSize) or 16
+    local spacer = opts.spacer
+
+    if spacer == nil then
+        spacer = " - "
+    end
+
+    local iconMarkup = ""
+    if icon ~= "" then
+        iconMarkup = string.format("|T%s:%d:%d:0:0|t", icon, iconSize, iconSize)
+    end
+
+    return string.format(
+        "%s%s|cffffffff[|r|cff%s%s|r|cffffffff]|r",
+        iconMarkup,
+        spacer,
+        tagColor,
+        tag
+    )
+end
+
 -- WoW
 function RGX:GetWoWVersion()
     return select(4, GetBuildInfo())

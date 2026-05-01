@@ -24,3 +24,21 @@ end
 function RGX:GetDB()
     return self.db
 end
+
+-- Initialize a SavedVariables global and return it. Call inside OnLoad/OnLogin
+-- so WoW has already restored saved values. Optional defaults table is applied
+-- shallowly (keys are only set if nil).
+--   local db = RGX:DB("MyAddonDB")
+--   local db = RGX:DB("MyAddonDB", { volume = 1.0, debug = false })
+function RGX:DB(name, defaults)
+    _G[name] = _G[name] or {}
+    local db = _G[name]
+    if type(defaults) == "table" then
+        for k, v in pairs(defaults) do
+            if db[k] == nil then
+                db[k] = v
+            end
+        end
+    end
+    return db
+end

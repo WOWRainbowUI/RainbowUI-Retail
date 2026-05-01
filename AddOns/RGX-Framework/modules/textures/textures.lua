@@ -273,7 +273,7 @@ function Textures:CreateBarDropdown(parent, opts)
     opts = opts or {}
     parent = parent or UIParent
 
-    local dropdowns = _G.RGXDropdowns or RGX:GetModule("dropdowns")
+    local dropdowns = RGX:GetDropdowns()
     if not dropdowns or type(dropdowns.CreateNestedDropdown) ~= "function" then
         return nil
     end

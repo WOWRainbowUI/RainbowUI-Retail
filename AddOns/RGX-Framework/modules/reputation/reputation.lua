@@ -217,17 +217,20 @@ function Rep:CheckChanges()
 end
 
 function Rep:_QueueCheck()
-    if self._pendingScan then return end
-    self._pendingScan = true
-    if C_Timer and C_Timer.After then
-        C_Timer.After(SCAN_DELAY, function()
-            self._pendingScan = false
-            self:CheckChanges()
-        end)
-    else
-        self._pendingScan = false
-        self:CheckChanges()
-    end
+  if self._pendingScan then return end
+  self._pendingScan = true
+  -- Prefer RGX timer API for framework budget/diagnostics
+  local function run()
+    self._pendingScan = false
+    self:CheckChanges()
+  end
+  if RGX and type(RGX.After) == "function" then
+    RGX:After(SCAN_DELAY, run, "Reputation:_QueueCheck")
+  elseif C_Timer and C_Timer.After then
+    C_Timer.After(SCAN_DELAY, run)
+  else
+    run()
+  end
 end
 
 -- ── Public accessors ──────────────────────────────────────────────────────────

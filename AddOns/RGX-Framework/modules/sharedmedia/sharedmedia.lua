@@ -591,22 +591,25 @@ function SM:Scan()
 end
 
 function SM:QueueScan(delay)
-    if self._pendingScan then return end
-    self._pendingScan = true
+  if self._pendingScan then return end
+  self._pendingScan = true
 
-    local function run()
-        self._pendingScan = false
-        local ok, err = pcall(function() self:Scan() end)
-        if not ok then
-            RGX:Debug("[RGXSharedMedia] Scan error: " .. tostring(err))
-        end
+  local function run()
+    self._pendingScan = false
+    local ok, err = pcall(function() self:Scan() end)
+    if not ok then
+      RGX:Debug("[RGXSharedMedia] Scan error: " .. tostring(err))
     end
+  end
 
-    if C_Timer and C_Timer.After then
-        C_Timer.After(delay or 0, run)
-    else
-        run()
-    end
+  -- Prefer RGX timer API for framework budget/diagnostics
+  if RGX and type(RGX.After) == "function" then
+    RGX:After(delay or 0, run, "SharedMedia:QueueScan")
+  elseif C_Timer and C_Timer.After then
+    C_Timer.After(delay or 0, run)
+  else
+    run()
+  end
 end
 
 -- ── Event handling ────────────────────────────────────────────────────────────

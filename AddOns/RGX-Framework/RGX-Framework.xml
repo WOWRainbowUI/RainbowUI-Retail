@@ -11,7 +11,20 @@
 
 <!-- Modules -->
 <Script file="modules/dropdowns/dropdowns.lua"/>
-<Script file="modules/fonts/fonts.lua"/>
+ <Script file="modules/fonts/definitions.lua"/>
+	<Script file="modules/fonts/init.lua"/>
+	<Script file="modules/fonts/registry.lua"/>
+	<Script file="modules/fonts/query.lua"/>
+	<Script file="modules/fonts/defaults.lua"/>
+	<Script file="modules/fonts/apply.lua"/>
+	<Script file="modules/fonts/normalize.lua"/>
+	<Script file="modules/fonts/styles.lua"/>
+	<Script file="modules/fonts/grouping.lua"/>
+	<Script file="modules/fonts/dropdowns.lua"/>
+	<Script file="modules/fonts/controls.lua"/>
+	<Script file="modules/fonts/menuitems.lua"/>
+	<Script file="modules/fonts/selectors.lua"/>
+	<Script file="modules/fonts/preview.lua"/>
 <Script file="modules/colors/colors.lua"/>
 <Script file="modules/colors/colorpicker.lua"/>
 <Script file="modules/textures/textures.lua"/>
@@ -19,13 +32,10 @@
 <Script file="modules/ui/controls.lua"/>
 <Script file="modules/ui/options.lua"/>
 <Script file="modules/minimap/minimap.lua"/>
-<Script file="modules/petbattles/petbattles.lua"/>
-<Script file="modules/sharedmedia/sharedmedia.lua"/>
-<Script file="modules/combat/combat.lua"/>
-<Script file="modules/reputation/reputation.lua"/>
-<Script file="modules/databroker/databroker.lua"/>
+  <Script file="modules/databroker/databroker.lua"/>
+  <Script file="modules/sound/sound.lua"/>
 
-<!-- Commands -->
+  <!-- Commands -->
 <Script file="core/commands.lua"/>
 
 <!-- Init -->

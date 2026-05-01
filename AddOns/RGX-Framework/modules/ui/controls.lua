@@ -6,13 +6,6 @@
     Usage:
         local UI = RGX:GetModule("ui")
         
-        -- Font dropdown
-        UI:CreateFontDropdown(parent, {
-            key = "fontFamily",
-            label = "Font",
-            onChange = function(fontName, fontPath) ... end
-        })
-        
         -- Color picker
         UI:CreateColorPicker(parent, {
             key = "textColor",
@@ -59,62 +52,6 @@ UI.backdrop = {
     insets = {left = 0, right = 0, top = 0, bottom = 0}
 }
 
---[[============================================================================
-    FONT DROPDOWN
-============================================================================]]
-
-function UI:CreateFontDropdown(parent, options)
-    options = options or {}
-    local key = options.key or "fontFamily"
-    local label = options.label or "Font"
-    local width = options.width or 200
-    local storage = options.storage or {}
-    local defaultName = options.defaultName or "FRIZQT"
-    local onChange = options.onChange or function() end
-    
-    local Fonts = RGX:GetModule("fonts")
-    if not Fonts then
-        return self:CreateLabel(parent, {text = "RGX-Framework not loaded", color = "red"})
-    end
-    
-    -- Container
-    local container = CreateFrame("Frame", nil, parent)
-    container:SetSize(width, 50)
-    
-    -- Label
-    container.label = self:CreateLabel(container, {
-        text = label,
-        size = "small",
-        color = "muted"
-    })
-    container.label:SetPoint("TOPLEFT", 0, 0)
-    
-    -- Dropdown button
-    local button = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
-    button:SetSize(width, 25)
-    button:SetPoint("TOPLEFT", container.label, "BOTTOMLEFT", 0, -4)
-    
-    -- Current font display
-    local currentFont = storage[key] or Fonts:GetDefault()
-    local fontInfo = Fonts:GetInfo(currentFont)
-    button:SetText(fontInfo and fontInfo.name or currentFont)
-    
-    -- Click to open font menu
-    button:SetScript("OnClick", function()
-        self:OpenFontMenu(button, {
-            current = currentFont,
-            onSelect = function(fontName, fontPath)
-                storage[key] = fontPath
-                button:SetText(fontName)
-                onChange(fontName, fontPath)
-            end
-        })
-    end)
-    
-    container.button = button
-    return container
-end
-
 function UI:CreateStatusBarDropdown(parent, options)
     options = options or {}
 
@@ -127,100 +64,6 @@ function UI:CreateStatusBarDropdown(parent, options)
 end
 
 UI.CreateTextureDropdown = UI.CreateStatusBarDropdown
-
-function UI:OpenFontMenu(anchor, options)
-    local Fonts = RGX:GetModule("fonts")
-    if not Fonts then return end
-    
-    local menu = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
-    menu:SetSize(250, 300)
-    menu:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -4)
-    menu:SetBackdrop(self.backdrop)
-    menu:SetBackdropColor(0.1, 0.1, 0.1, 0.95)
-    menu:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
-    
-    -- Close on escape or click outside
-    menu:SetScript("OnKeyDown", function(self, key)
-        if key == "ESCAPE" then self:Hide() end
-    end)
-    menu:EnableKeyboard(true)
-    
-    local closeTimer
-    menu:SetScript("OnUpdate", function(self)
-        if not MouseIsOver(self) and not MouseIsOver(anchor) then
-            closeTimer = (closeTimer or 0) + 1
-            if closeTimer > 5 then self:Hide() end
-        else
-            closeTimer = 0
-        end
-    end)
-    
-    -- Scroll frame
-    local scroll = CreateFrame("ScrollFrame", nil, menu, "UIPanelScrollFrameTemplate")
-    scroll:SetPoint("TOPLEFT", 8, -8)
-    scroll:SetPoint("BOTTOMRIGHT", -24, 8)
-    
-    local content = CreateFrame("Frame")
-    content:SetSize(200, 1)
-    scroll:SetScrollChild(content)
-    
-    -- Add fonts by category
-    local categories = Fonts:GetCategories()
-    local yOffset = 0
-    
-    for _, category in ipairs(categories) do
-        -- Category header
-        local header = self:CreateLabel(content, {
-            text = category,
-            size = "small",
-            color = "accent"
-        })
-        header:SetPoint("TOPLEFT", 0, yOffset)
-        yOffset = yOffset - 20
-        
-        -- Fonts in category
-        local fonts = Fonts:ListByCategory(category)
-        for _, fontName in ipairs(fonts) do
-            local btn = CreateFrame("Button", nil, content)
-            btn:SetSize(200, 20)
-            btn:SetPoint("TOPLEFT", 0, yOffset)
-            
-            local fontInfo = Fonts:GetInfo(fontName)
-            local displayText = fontInfo and fontInfo.name or fontName
-            
-            -- Font preview
-            btn.text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-            btn.text:SetPoint("LEFT", 4, 0)
-            btn.text:SetText(displayText)
-            
-            -- Try to apply actual font
-            local path = Fonts:GetPath(fontName)
-            if path then
-                btn.text:SetFont(path, 11, "")
-            end
-            
-            -- Highlight current
-            if fontName == options.current then
-                btn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
-                btn:SetBackdropColor(0.2, 0.4, 0.6, 0.5)
-            end
-            
-            btn:SetScript("OnClick", function()
-                options.onSelect(fontName, path)
-                menu:Hide()
-            end)
-            
-            yOffset = yOffset - 22
-        end
-        
-        yOffset = yOffset - 10
-    end
-    
-    content:SetHeight(-yOffset)
-    menu:Show()
-    
-    return menu
-end
 
 --[[============================================================================
     COLOR PICKER CONTROL
@@ -370,8 +213,8 @@ function UI:CreateSlider(parent, options)
         container.valueLabel:SetText(default .. suffix)
         onChange(default)
     end)
-    reset:SetPoint("LEFT", slider, "RIGHT", 8, 0)
-    
+    reset:SetPoint("TOPLEFT", slider, "TOPRIGHT", 8, 0)
+
     container.slider = slider
     return container
 end
@@ -464,27 +307,84 @@ end
 ============================================================================]]
 
 function UI:CreateResetButton(parent, onClick)
-    local btn = CreateFrame("Button", nil, parent)
-    btn:SetSize(16, 16)
-    
-    btn:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
-    btn:GetNormalTexture():SetTexCoord(0, 0.5, 0, 0.5)
-    
-    btn:SetHighlightTexture("Interface\\Buttons\\UI-OptionsButton")
-    btn:GetHighlightTexture():SetTexCoord(0, 0.5, 0, 0.5)
-    
+    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    -- 24px wide: 2px transparent margin each side keeps the visual clear of adjacent controls
+    btn:SetSize(24, 16)
+
+    local bg = btn:CreateTexture(nil, "BACKGROUND")
+    bg:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
+    bg:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
+    bg:SetColorTexture(0.05, 0.07, 0.10, 1)
+    btn.bg = bg
+
+    local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
+    border:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
+    border:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
+    border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+    border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    btn.border = border
+
+    local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    lbl:SetAllPoints()
+    lbl:SetJustifyH("CENTER")
+    lbl:SetJustifyV("MIDDLE")
+    lbl:SetText("R")
+    lbl:SetTextColor(0.70, 0.70, 0.70, 1)
+    btn.lbl = lbl
+
     btn:SetScript("OnClick", onClick)
-    
     btn:SetScript("OnEnter", function(self)
+        local D = RGX:GetDesign()
+        local pr, pg, pb = D and D:Unpack("primary") or 0.345, 0.745, 0.506
+        self.border:SetBackdropBorderColor(pr, pg, pb, 1)
+        self.bg:SetColorTexture(0.11, 0.18, 0.24, 1)
+        self.lbl:SetTextColor(pr, pg, pb, 1)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText("Reset to default")
         GameTooltip:Show()
     end)
-    
-    btn:SetScript("OnLeave", function()
+    btn:SetScript("OnLeave", function(self)
+        self.border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+        self.bg:SetColorTexture(0.05, 0.07, 0.10, 1)
+        self.lbl:SetTextColor(0.70, 0.70, 0.70, 1)
         GameTooltip:Hide()
     end)
-    
+    return btn
+end
+
+function UI:CreateButton(parent, text, w, h)
+    h = h or 22
+    local D = RGX:GetDesign()
+    if D and type(D.CreateButton) == "function" then
+        return D:CreateButton(parent, text, w, h)
+    end
+    local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    btn:SetSize(w or 120, h or 22)
+    local bg = btn:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(0.05, 0.07, 0.10, 1)
+    local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
+    border:SetAllPoints()
+    border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
+    border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    lbl:SetAllPoints()
+    lbl:SetJustifyH("CENTER")
+    lbl:SetJustifyV("MIDDLE")
+    lbl:SetText(text or "")
+    lbl:SetTextColor(0.80, 0.80, 0.80, 1)
+    btn:SetScript("OnEnter", function()
+        local D2 = RGX:GetDesign()
+        local pr, pg, pb = D2 and D2:Unpack("primary") or 0.345, 0.745, 0.506
+        border:SetBackdropBorderColor(pr, pg, pb, 1)
+        bg:SetColorTexture(0.11, 0.18, 0.24, 1)
+        lbl:SetTextColor(pr, pg, pb, 1)
+    end)
+    btn:SetScript("OnLeave", function()
+        border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+        bg:SetColorTexture(0.05, 0.07, 0.10, 1)
+        lbl:SetTextColor(0.80, 0.80, 0.80, 1)
+    end)
     return btn
 end
 
@@ -562,6 +462,7 @@ end
 
 function UI:Init()
     RGX:RegisterModule("ui", self)
+    _G.RGXUI = self
 end
 
 UI:Init()

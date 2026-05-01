@@ -1,9 +1,10 @@
-## Interface: 120001, 120005
-## Version: 1.3.0
+## Interface: 120005
+## Version: 1.6.0
 ## Title: RGX-Framework
-## Notes: Modular WoW addon library — events, timers, minimap, fonts, colors, textures, dropdowns, UI controls, pet battles, combat, reputation, data broker
+## Notes: Modular WoW addon library — events, timers, minimap, fonts, colors, textures, dropdowns, UI controls, pet battles, combat, reputation, data broker, sound
 ## Author: RGX
 ## SavedVariables: RGXFrameworkDB
+## IconTexture: Interface\AddOns\RGX-Framework\media\logo.tga
 ## X-Category: Library
 ## X-License: MIT
 ## X-Curse-Project-ID: 1516939

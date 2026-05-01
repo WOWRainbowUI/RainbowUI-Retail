@@ -21,13 +21,17 @@ The practical replacement is:
 - DejaVu Sans — https://dejavu-fonts.github.io/
 - Lato — https://fonts.google.com/specimen/Lato
 - Poppins — https://fonts.google.com/specimen/Poppins
-- Montserrat — https://fonts.google.com/specimen/Montserrat
 - Rajdhani — https://fonts.google.com/specimen/Rajdhani
+
+### Sans / UI — Temporarily Unavailable (corrupted assets)
+- ~~Montserrat~~ — blocked in `unavailableFonts` pending asset replacement
 
 ### Serif
 - Crimson Text — https://fonts.google.com/specimen/Crimson+Text
-- Merriweather — https://fonts.google.com/specimen/Merriweather
-- Playfair Display — https://fonts.google.com/specimen/Playfair+Display
+
+### Serif — Temporarily Unavailable (corrupted assets)
+- ~~Merriweather~~ — blocked in `unavailableFonts` pending asset replacement
+- ~~Playfair Display~~ — blocked in `unavailableFonts` pending asset replacement
 
 ### Monospace
 - IBM Plex Mono — https://fonts.google.com/specimen/IBM+Plex+Mono
@@ -37,10 +41,12 @@ The practical replacement is:
 - Bebas Neue — https://fonts.google.com/specimen/Bebas+Neue
 - Bangers — https://fonts.google.com/specimen/Bangers
 - Creepster — https://fonts.google.com/specimen/Creepster
-- Oswald — https://fonts.google.com/specimen/Oswald
-- Orbitron — https://fonts.google.com/specimen/Orbitron
-- Audiowide — https://fonts.google.com/specimen/Audiowide
 - Anton — https://fonts.google.com/specimen/Anton
+
+### Display — Temporarily Unavailable (corrupted assets)
+- ~~Oswald~~ — blocked in `unavailableFonts` pending asset replacement
+- ~~Orbitron~~ — blocked in `unavailableFonts` pending asset replacement
+- ~~Audiowide~~ — blocked in `unavailableFonts` pending asset replacement
 
 ### Pixel
 - Press Start 2P — https://fonts.google.com/specimen/Press+Start+2P
@@ -49,7 +55,9 @@ The practical replacement is:
 
 ### Fantasy / Themed
 - Uncial Antiqua — https://fonts.google.com/specimen/Uncial+Antiqua
-- Cinzel — https://fonts.google.com/specimen/Cinzel
+
+### Fantasy / Themed — Temporarily Unavailable (corrupted assets)
+- ~~Cinzel~~ — blocked in `unavailableFonts` pending asset replacement
 
 ## Packaging Notes
 

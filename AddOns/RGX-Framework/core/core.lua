@@ -72,19 +72,20 @@ RGX.debugMode = false
 RGX.modules = {}
 RGX.loadedModules = {}
 RGX.moduleAliases = {
-    fonts = "RGXFonts",
-    colors = "RGXColors",
-    textures = "RGXTextures",
-    dropdowns = "RGXDropdowns",
-    ui = "RGXUI",
-    colorpicker = "RGXColorPicker",
-    minimap     = "RGXMinimap",
-    petbattles  = "RGXPetBattles",
-    sharedmedia = "RGXSharedMedia",
-    design      = "RGXDesign",
-    combat      = "RGXCombat",
-    reputation  = "RGXReputation",
-    databroker  = "RGXDataBroker",
+  fonts = "RGXFonts",
+  colors = "RGXColors",
+  textures = "RGXTextures",
+  dropdowns = "RGXDropdowns",
+  ui = "RGXUI",
+  colorpicker = "RGXColorPicker",
+  minimap = "RGXMinimap",
+  petbattles = "RGXPetBattles",
+  sharedmedia = "RGXSharedMedia",
+  design = "RGXDesign",
+  combat = "RGXCombat",
+  reputation = "RGXReputation",
+  databroker = "RGXDataBroker",
+  sound = "RGXSound",
 }
 
 local function ResolveModuleAlias(self, normalizedName)
@@ -159,7 +160,8 @@ function RGX:GetSharedMedia()  return self:GetModule("sharedmedia")  end
 function RGX:GetDesign()       return self:GetModule("design")       end
 function RGX:GetCombat()       return self:GetModule("combat")       end
 function RGX:GetReputation()   return self:GetModule("reputation")   end
-function RGX:GetDataBroker()   return self:GetModule("databroker")   end
+function RGX:GetDataBroker() return self:GetModule("databroker") end
+function RGX:GetSound() return self:GetModule("sound") end
 
 -- One-call sound playback: looks up path from RGXSharedMedia and plays it.
 -- RGX:PlaySound("mysoundpack:Kill Shot")
