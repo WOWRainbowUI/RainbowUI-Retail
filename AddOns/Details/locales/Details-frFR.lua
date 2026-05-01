@@ -1161,6 +1161,8 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "Infobulles"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Fenêtre : Fond d'écran"
 L["STRING_OPTIONSMENU_WINDOW"] = "Fenêtre : Général"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "Paramètres de la fenêtre"
+--[[Translation missing --]]
+L["STRING_OR"] = "Or"
 L["STRING_OVERALL"] = "Global"
 L["STRING_OVERHEAL"] = "Excès de soins"
 L["STRING_OVERHEALED"] = "Soigné en excès"

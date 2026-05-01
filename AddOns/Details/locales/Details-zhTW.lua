@@ -1426,6 +1426,8 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "浮動提示資訊"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "背景圖案"
 L["STRING_OPTIONSMENU_WINDOW"] = "視窗: 一般"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "視窗設定"
+--[[Translation missing --]]
+L["STRING_OR"] = "Or"
 L["STRING_OVERALL"] = "整場"
 L["STRING_OVERHEAL"] = "過量治療"
 L["STRING_OVERHEALED"] = "已造成過量治療"

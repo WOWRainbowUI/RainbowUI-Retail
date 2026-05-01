@@ -169,7 +169,7 @@ L["STRING_CUSTOM_TARGET_DESC"] = [=[Эта цель источник.
 
 Кнопка справа показывает список нипов из сражений в рейде.]=]
 L["STRING_CUSTOM_TEMPORARILY"] = "(|cFFFFC000временно|r)"
-L["STRING_CUSTOM_TEXTURE_GUIDE"] = "Чтобы загрузить файл текстуры в клиент World of Warcraft, Вам нужен файл в формате .TGA, а также его ширина и высота должны быть кратны 8. Поместите текстуру в папку /место установленного клиента WoW/retail/Interface/"
+L["STRING_CUSTOM_TEXTURE_GUIDE"] = "Чтобы использовать пользовательский файл для иконок: - Файл должен быть в формате .TGA. - Размер файла должен быть 512x512 пикселей. - Для специализаций имя файла должно содержать 'spec_'. - Поместите текстуру в папку /Папка установки WoW /_retail_/Interface/"
 L["STRING_DAMAGE"] = "Урон"
 L["STRING_DAMAGE_DPS_IN"] = "Урон, полученный от "
 L["STRING_DAMAGE_FROM"] = "Получил урон от"
@@ -1425,6 +1425,7 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "Подсказки"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Окно: Обои"
 L["STRING_OPTIONSMENU_WINDOW"] = "Окно: Общее"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "Настройки окон"
+L["STRING_OR"] = "Или"
 L["STRING_OVERALL"] = "Общий"
 L["STRING_OVERHEAL"] = "Избыточное лечение"
 L["STRING_OVERHEALED"] = "Избыточно исцелено"

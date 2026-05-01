@@ -1177,6 +1177,8 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "Descripciones"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Fondo de pantalla"
 L["STRING_OPTIONSMENU_WINDOW"] = "Configuración de ventana"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "Configuraciones de ventana"
+--[[Translation missing --]]
+L["STRING_OR"] = "Or"
 L["STRING_OVERALL"] = "Total"
 L["STRING_OVERHEAL"] = "Sobresanar"
 L["STRING_OVERHEALED"] = "Sobresanado"

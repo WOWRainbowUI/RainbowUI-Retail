@@ -1417,6 +1417,8 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "Tooltips"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Janela: Papel de Parede"
 L["STRING_OPTIONSMENU_WINDOW"] = "Janela: Configurações"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "Configurações de janela"
+--[[Translation missing --]]
+L["STRING_OR"] = "Or"
 L["STRING_OVERALL"] = "Dados Gerais"
 L["STRING_OVERHEAL"] = "Sobrecura"
 L["STRING_OVERHEALED"] = "Sobrecura"

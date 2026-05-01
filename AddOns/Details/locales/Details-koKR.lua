@@ -1429,6 +1429,8 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "툴팁"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "창: 배경화면"
 L["STRING_OPTIONSMENU_WINDOW"] = "창: 일반"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "창 설정"
+--[[Translation missing --]]
+L["STRING_OR"] = "Or"
 L["STRING_OVERALL"] = "종합"
 L["STRING_OVERHEAL"] = "초과 치유"
 L["STRING_OVERHEALED"] = "초과 치유됨"

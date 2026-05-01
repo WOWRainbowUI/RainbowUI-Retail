@@ -1162,6 +1162,8 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "Tooltips"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Sfondo"
 L["STRING_OPTIONSMENU_WINDOW"] = "Finestra: Generale"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "Impostazioni Finestra"
+--[[Translation missing --]]
+L["STRING_OR"] = "Or"
 L["STRING_OVERALL"] = "Complessivamente"
 L["STRING_OVERHEAL"] = "Sovraccura"
 L["STRING_OVERHEALED"] = "Sovraccurato"
