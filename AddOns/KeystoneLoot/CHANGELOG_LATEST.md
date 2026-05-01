@@ -1,7 +1,8 @@
-## Bugfixes
-- Loot spec reminder no longer suggests switch when loot pools are equal
+## New Features
+- Wide mode setting (12 item slots instead of 6)
 
-## Other Changes
-- Update ruRU.lua
-- Merge branch 'main' of https://github.com/Wolkenschutz/KeystoneLoot
-- Merge pull request [#51](https://github.com/Wolkenschutz/KeystoneLoot/pull/51) by [Hollicsh](https://github.com/Hollicsh) from Hollicsh/main
+## Bugfixes
+- Loot spec reminder no longer shows efficiency arrow when loot pools are equal
+
+## Improvements
+- Enhance tooltip display for teleport button during combat lockdown
