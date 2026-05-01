@@ -27,6 +27,8 @@ L["Abyssal Eel"] = "深海鰻魚"
 L["Achillite"] = "亞奇力特"
 L["Acidic Bile"] = "酸性膽汁"
 L["Acolyte"] = "Acolyte"
+--[[Translation missing --]]
+L["Action blocked: Restricted environment"] = "Action blocked: Restricted environment"
 L["Adderis"] = "阿德利斯"
 L["Addled Arcanomancer"] = "混亂的秘卜師"
 L["Addled Thug"] = "笨拙的搬運工"
