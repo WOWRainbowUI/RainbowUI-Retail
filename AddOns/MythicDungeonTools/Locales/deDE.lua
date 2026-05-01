@@ -26,6 +26,8 @@ L["Abyssal Eel"] = "Abgrundaal"
 L["Achillite"] = "Achillites"
 L["Acidic Bile"] = "Saure Galle"
 L["Acolyte"] = "Akolyth"
+--[[Translation missing --]]
+L["Action blocked: Restricted environment"] = "Action blocked: Restricted environment"
 L["Adderis"] = "Adderis"
 L["Addled Arcanomancer"] = "Verwirrter Arkanomant"
 L["Addled Thug"] = "Benebelter Rohling"

@@ -27,6 +27,8 @@ L["Abyssal Eel"] = "심연 장어"
 L["Achillite"] = "아칠라이트"
 L["Acidic Bile"] = "산성 위액괴물"
 L["Acolyte"] = "수행사제"
+--[[Translation missing --]]
+L["Action blocked: Restricted environment"] = "Action blocked: Restricted environment"
 L["Adderis"] = "애더리스"
 L["Addled Arcanomancer"] = "정신이상의 비전역술사"
 L["Addled Thug"] = "띨띨한 불량배"

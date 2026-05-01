@@ -30,6 +30,8 @@ L["Abyssal Eel"] = "Enguia Abissal"
 L["Achillite"] = "Aquilita"
 L["Acidic Bile"] = "Bile Ácida"
 L["Acolyte"] = "Acólito"
+--[[Translation missing --]]
+L["Action blocked: Restricted environment"] = "Action blocked: Restricted environment"
 L["Adderis"] = "Vipperis"
 L["Addled Arcanomancer"] = "Arcanomante Atordoado"
 L["Addled Thug"] = "Bandido Atrapalhado"
