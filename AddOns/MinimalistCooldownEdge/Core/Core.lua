@@ -834,6 +834,9 @@ local miniCCDefaults = CategoryDefaults(C.Categories.MiniCC, false, 18)
 miniCCDefaults.ccFontSize = C.Defaults.MiniCC.CCFontSize
 miniCCDefaults.ccHideCountdownNumbers = C.Defaults.MiniCC.CCHideCountdownNumbers
 miniCCDefaults.ccHideSwipe = C.Defaults.MiniCC.CCHideSwipe
+miniCCDefaults.enemyCdFontSize = C.Defaults.MiniCC.EnemyCDFontSize
+miniCCDefaults.enemyCdHideCountdownNumbers = C.Defaults.MiniCC.EnemyCDHideCountdownNumbers
+miniCCDefaults.enemyCdHideSwipe = C.Defaults.MiniCC.EnemyCDHideSwipe
 miniCCDefaults.friendlyCdFontSize = C.Defaults.MiniCC.FriendlyCDFontSize
 miniCCDefaults.friendlyCdHideCountdownNumbers = C.Defaults.MiniCC.FriendlyCDHideCountdownNumbers
 miniCCDefaults.friendlyCdHideSwipe = C.Defaults.MiniCC.FriendlyCDHideSwipe
@@ -846,6 +849,34 @@ miniCCDefaults.portraitHideSwipe = C.Defaults.MiniCC.PortraitHideSwipe
 miniCCDefaults.overlayFontSize = C.Defaults.MiniCC.OverlayFontSize
 miniCCDefaults.overlayHideCountdownNumbers = C.Defaults.MiniCC.OverlayHideCountdownNumbers
 miniCCDefaults.overlayHideSwipe = C.Defaults.MiniCC.OverlayHideSwipe
+miniCCDefaults.healerWarningTextColor = CopyTable(C.Defaults.MiniCC.HealerWarningTextColor)
+
+local function EnsureMiniCCConfig(config)
+    if type(config) ~= "table" then
+        return CopyTable(miniCCDefaults)
+    end
+
+    if type(config.enemyCdFontSize) ~= "number" then
+        config.enemyCdFontSize = C.Defaults.MiniCC.EnemyCDFontSize
+    end
+    if config.enemyCdHideCountdownNumbers == nil then
+        config.enemyCdHideCountdownNumbers = C.Defaults.MiniCC.EnemyCDHideCountdownNumbers
+    end
+    if config.enemyCdHideSwipe == nil then
+        config.enemyCdHideSwipe = C.Defaults.MiniCC.EnemyCDHideSwipe
+    end
+    if type(config.healerWarningTextColor) ~= "table" then
+        config.healerWarningTextColor = CopyTable(C.Defaults.MiniCC.HealerWarningTextColor)
+    else
+        local defaultColor = C.Defaults.MiniCC.HealerWarningTextColor
+        if config.healerWarningTextColor.r == nil then config.healerWarningTextColor.r = defaultColor.r end
+        if config.healerWarningTextColor.g == nil then config.healerWarningTextColor.g = defaultColor.g end
+        if config.healerWarningTextColor.b == nil then config.healerWarningTextColor.b = defaultColor.b end
+        if config.healerWarningTextColor.a == nil then config.healerWarningTextColor.a = defaultColor.a end
+    end
+
+    return config
+end
 
 local sArenaDefaults = CategoryDefaults(C.Categories.SArena, false, 18)
 sArenaDefaults.classIconFontSize = C.Defaults.SArena.ClassIconFontSize
@@ -939,6 +970,8 @@ function MCE:UpgradeProfile()
 
     profile.categories[C.Categories.CooldownManager] =
         EnsureCooldownManagerConfig(profile.categories[C.Categories.CooldownManager])
+    profile.categories[C.Categories.MiniCC] =
+        EnsureMiniCCConfig(profile.categories[C.Categories.MiniCC])
 
     EnsureDurationTextColorConfig(profile.durationTextColors)
     profile.compactPartyAuraText = EnsureCompactPartyAuraTextConfig(profile.compactPartyAuraText)

@@ -197,11 +197,17 @@ local function ScanMemberFrame(memberFrame, groupType)
     local auraDisp = memberFrame.DispelDebuffFrame or memberFrame.dispelDebuffFrame
     local defensiveBuff = memberFrame.CenterDefensiveBuff
 
-    local containers = { buffFrame, debuffFrame, auraDisp, defensiveBuff }
-    for _, container in ipairs(containers) do
-        if container and not MCE:IsForbidden(container) then
-            ScanAuraSubtree(container, groupType, 0)
-        end
+    if buffFrame and not MCE:IsForbidden(buffFrame) then
+        ScanAuraSubtree(buffFrame, groupType, 0)
+    end
+    if debuffFrame and not MCE:IsForbidden(debuffFrame) then
+        ScanAuraSubtree(debuffFrame, groupType, 0)
+    end
+    if auraDisp and not MCE:IsForbidden(auraDisp) then
+        ScanAuraSubtree(auraDisp, groupType, 0)
+    end
+    if defensiveBuff and not MCE:IsForbidden(defensiveBuff) then
+        ScanAuraSubtree(defensiveBuff, groupType, 0)
     end
 end
 

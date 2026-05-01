@@ -1,6 +1,14 @@
 
 # Changelog
 
+## [3.9.8] - 2026-05-01
+- feat: add healer warning text color customization and apply it in MiniCC
+
+## [3.9.7] - 2026-04-24
+- refactor: streamline aura scanning logic and remove unused charge cooldown functions
+- Added MiniCC Enemy CDs text options for both Arena Frames and Linear Bar.
+- Font size sliders can now go down to 6 for extra-small cooldown text.
+
 ## [3.9.6] - 2026-04-23
 - Added an option to show tenths of a second on very short cooldowns.
 - Improved cooldown timer accuracy and consistency across more UI elements on Retail 12.0.5.

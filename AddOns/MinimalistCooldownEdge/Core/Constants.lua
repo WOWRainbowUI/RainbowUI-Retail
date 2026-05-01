@@ -47,6 +47,7 @@ C.CooldownManagerViewers = {
 
 C.MiniCCFrameTypes = {
     CC = "cc",
+    EnemyCD = "enemycd",
     FriendlyCD = "friendlycd",
     Nameplate = "nameplate",
     Portrait = "portrait",
@@ -190,6 +191,9 @@ C.Defaults = {
         CCFontSize = 18,
         CCHideCountdownNumbers = false,
         CCHideSwipe = false,
+        EnemyCDFontSize = 18,
+        EnemyCDHideCountdownNumbers = false,
+        EnemyCDHideSwipe = false,
         FriendlyCDFontSize = 18,
         FriendlyCDHideCountdownNumbers = false,
         FriendlyCDHideSwipe = false,
@@ -202,6 +206,7 @@ C.Defaults = {
         OverlayFontSize = 18,
         OverlayHideCountdownNumbers = false,
         OverlayHideSwipe = false,
+        HealerWarningTextColor = { r = 1, g = 0.1, b = 0.1, a = 1 },
     },
     SArena = {
         ClassIconFontSize = 18,
