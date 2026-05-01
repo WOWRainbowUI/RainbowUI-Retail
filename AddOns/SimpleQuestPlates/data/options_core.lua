@@ -26,7 +26,7 @@ function SQP:CreateOptionsPanel()
         title        = self.L["|cff58be81S|cffffffffimple |cff58be81Q|cffffffffuest |cff58be81P|cfffffffflates|cff58be81!|r"],
         subtitle     = self.L["Quest tracking overlay for enemy nameplates"],
         author       = SQP.AUTHOR or "DonnieDice",
-        website      = "|cff7289daDiscord:|r |cffffd700discord.gg/rgxmods|r",
+        website      = "|cff7289daDiscord:|r |cffffd700discord.gg/N7kdKAHVVF|r",
         brand        = "|cff8b4b5cRGX|r |cffffd700Mods|r",
         icon         = "Interface\\AddOns\\SimpleQuestPlates\\media\\logo.tga",
         openInSettings = true,

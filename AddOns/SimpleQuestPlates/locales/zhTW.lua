@@ -139,6 +139,7 @@ L["Nameplate text font"] = "名條文字字型"
 L["|cffff5555RGX font dropdown is unavailable.|r"] = "|cffff5555RGX 字型下拉選單目前無法使用。|r"
 L["|cffff5555Unable to build RGX font dropdown.|r"] = "|cffff5555無法建立 RGX 字型下拉選單。|r"
 L["|cff58be81Changes the text font used by SQP nameplate icons.|r"] = "|cff58be81變更 SQP 名條圖示使用的字型。|r"
+L["Font"] = "字型"
 
 -- Icon
 L["OPTIONS_ICON_POSITION"] = "圖示位置"

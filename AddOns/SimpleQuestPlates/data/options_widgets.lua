@@ -133,9 +133,9 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
         key = typeKey .. "FontFamily",
         defaultName = defaultName,
         defaultPath = defaultPath,
-        onChange = function(_, fontName, fontPath)
-            SQP:SetSetting(typeKey.."FontFamily", fontPath)
-            if activatePreviewFn then activatePreviewFn() end
+        onChange = function(_, _, fontPath)
+            SQP:SetSetting(typeKey .. "FontFamily", fontPath)
+            SQP:RefreshOptionsPreview(activatePreviewFn)
             SQP:RefreshAllNameplates()
         end,
     })
@@ -263,7 +263,7 @@ function SQP:CreateMiniIconTintSection(parent, typeKey, activatePreviewFn, yOffs
         if activatePreviewFn then activatePreviewFn() end
         SQP:RefreshAllNameplates()
     end)
-    tintReset:SetPoint("LEFT", tintCbFrame.label, "RIGHT", 6, 0)
+    tintReset:SetPoint("LEFT", tintCbFrame.label, "RIGHT", 6, 2)
 
     local function UpdateTintAlpha()
         local a = SQPSettings[tintKey] == true and 1 or 0.4

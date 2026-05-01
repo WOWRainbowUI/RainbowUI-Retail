@@ -131,7 +131,7 @@ function SQP:CreateKillOptions(content)
         ActivateKill()
         SQP:RefreshAllNameplates()
     end)
-    killAnimIntensityReset:SetPoint("LEFT", killAnimIntensitySlider, "RIGHT", 5, 0)
+    killAnimIntensityReset:SetPoint("LEFT", killAnimIntensitySlider, "RIGHT", 5, -2)
 
     killAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
         newVal = math.floor(newVal / 5 + 0.5) * 5

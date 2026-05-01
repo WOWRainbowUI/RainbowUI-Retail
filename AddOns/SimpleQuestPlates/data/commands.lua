@@ -46,7 +46,7 @@ function SQP:ShowHelp()
     print(GetText(self, "CMD_HELP_RESET", "  |cfffff569/sqp reset|r - Reset all settings"))
     print(GetText(self, "CMD_HELP_OPTIONS", "  |cfffff569/sqp options|r - Open the options panel"))
     print(GetText(self, "CMD_HELP_VERSION", "  |cfffff569/sqp version|r - Show addon version"))
-    self:PrintMessage(GetText(self, "COMMUNITY_MESSAGE", GetText(self, "MSG_DISCORD", "Join our Discord: |cff58be81discord.gg/rgxmods|r")))
+    self:PrintMessage(GetText(self, "COMMUNITY_MESSAGE", GetText(self, "MSG_DISCORD", "Join our Discord: |cff58be81discord.gg/N7kdKAHVVF|r")))
 end
 
 -- Test quest detection on current nameplates

@@ -61,19 +61,19 @@ function SQP:CreateAboutSection(content)
     discordIcon:SetTexture("Interface\\AddOns\\SimpleQuestPlates\\media\\logo.tga")
 
     local discordTitle = communityFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    discordTitle:SetPoint("TOPLEFT", discordIcon, "TOPRIGHT", 8, -4)
+    discordTitle:SetPoint("TOPLEFT", discordIcon, "TOPRIGHT", 8, -1)
     discordTitle:SetPoint("RIGHT", communityFrame, "RIGHT", -8, 0)
     discordTitle:SetText("|cff58be81RGX Mods Community|r")
 
     local discordDesc = communityFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    discordDesc:SetPoint("TOPLEFT", discordTitle, "BOTTOMLEFT", 0, -3)
+    discordDesc:SetPoint("TOPLEFT", discordTitle, "BOTTOMLEFT", 0, -2)
     discordDesc:SetPoint("RIGHT", communityFrame, "RIGHT", -8, 0)
     discordDesc:SetText("Join us for support, feedback, and more!")
 
     local discordLink = communityFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    discordLink:SetPoint("TOPLEFT", discordDesc, "BOTTOMLEFT", 0, -3)
+    discordLink:SetPoint("TOPLEFT", discordDesc, "BOTTOMLEFT", 0, -2)
     discordLink:SetPoint("RIGHT", communityFrame, "RIGHT", -8, 0)
-    discordLink:SetText("|cffffffdadiscord.gg/rgxmods|r")
+    discordLink:SetText("|cffffffdadiscord.gg/N7kdKAHVVF|r")
 
     -- ── RIGHT COLUMN ──────────────────────────────────────────────────────────
     local rightYOffset = -15
