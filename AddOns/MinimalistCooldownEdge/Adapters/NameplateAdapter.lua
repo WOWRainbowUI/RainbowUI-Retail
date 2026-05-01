@@ -9,7 +9,7 @@ local type, ipairs, pairs = type, ipairs, pairs
 local strfind, strlower = string.find, string.lower
 
 local CATEGORY = C.Categories
-local MAX_DEPTH = C.Adapter.Nameplates.MaxAncestorDepth
+local MAX_DEPTH = C.Adapter.Nameplates.MaxAncestorDepth or 4
 local NP_PATTERNS = C.Classifier.NameplatePatterns
 local MINICC_PREFIX = C.Classifier.MiniCCNamePrefix
 
@@ -36,7 +36,7 @@ end
 
 -- Scan a nameplate subtree for Cooldown children (limited depth)
 local function ScanChildren(frame, depth)
-    if not frame or depth > 4 or MCE:IsForbidden(frame) then return end
+    if not frame or depth > MAX_DEPTH or MCE:IsForbidden(frame) then return end
     -- Bail out of any MiniCC-managed subtree; MiniCCAdapter owns these.
     if IsMiniCCFrame(frame) then return end
 

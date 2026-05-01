@@ -180,59 +180,6 @@ local function GetAccessibleBoolean(value)
     return nil
 end
 
-local function IsActiveChargeInfo(chargeInfo)
-    if type(chargeInfo) ~= "table" then
-        return nil
-    end
-
-    local isActive = GetAccessibleBoolean(chargeInfo.isActive)
-    if isActive ~= nil then
-        return isActive
-    end
-
-    local currentCharges = chargeInfo.currentCharges
-    local maxCharges = chargeInfo.maxCharges
-    if type(currentCharges) == "number"
-       and type(maxCharges) == "number"
-       and StyleEngine
-       and StyleEngine.CanAccessAllValues(currentCharges, maxCharges) then
-        local ok, hasMissingCharge = pcall(function()
-            return currentCharges < maxCharges
-        end)
-        if ok then
-            return hasMissingCharge
-        end
-    end
-
-    return nil
-end
-
-local function HasActiveActionChargeCooldown(actionID)
-    if type(actionID) ~= "number" or not (C_ActionBar and C_ActionBar.GetActionCharges) then
-        return nil
-    end
-
-    local ok, chargeInfo = pcall(C_ActionBar.GetActionCharges, actionID)
-    if not ok or not chargeInfo then
-        return nil
-    end
-
-    return IsActiveChargeInfo(chargeInfo)
-end
-
-local function HasActiveSpellChargeCooldown(spellID)
-    if type(spellID) ~= "number" or not (C_Spell and C_Spell.GetSpellCharges) then
-        return nil
-    end
-
-    local ok, chargeInfo = pcall(C_Spell.GetSpellCharges, spellID)
-    if not ok or not chargeInfo then
-        return nil
-    end
-
-    return IsActiveChargeInfo(chargeInfo)
-end
-
 local function IsSupportedDurationObject(durationObject)
     local dt = type(durationObject)
     if dt ~= "table" and dt ~= "userdata" then return false end
@@ -294,10 +241,6 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
 
     if actionID and C_ActionBar then
         if StyleEngine:IsChargeCooldownFrame(cdFrame, actionButton) and C_ActionBar.GetActionChargeDuration then
-            local chargeActive = HasActiveActionChargeCooldown(actionID)
-            if chargeActive == false then
-                return nil
-            end
             local ok, obj = pcall(C_ActionBar.GetActionChargeDuration, actionID)
             obj = ok and NormalizeDurationObject(obj) or nil
             if obj then return obj end
@@ -346,10 +289,6 @@ function DurationColor:GetFallbackDurationObject(cdFrame)
         end
 
         if useChargeDuration and C_Spell.GetSpellChargeDuration then
-            local chargeActive = HasActiveSpellChargeCooldown(spellID)
-            if chargeActive == false then
-                return nil
-            end
             local ok, obj = pcall(C_Spell.GetSpellChargeDuration, spellID)
             obj = ok and NormalizeDurationObject(obj) or nil
             if obj then return obj end

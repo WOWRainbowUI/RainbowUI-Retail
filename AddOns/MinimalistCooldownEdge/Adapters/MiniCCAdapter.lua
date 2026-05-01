@@ -25,6 +25,7 @@ local UF_PATTERNS = CLASSIFIER_CONSTANTS.UnitFramePatterns
 local MINICC_MODULE_TO_FRAME_TYPE = {
     Alerts = MINICC_FRAME_TYPE.Overlay,
     CC = MINICC_FRAME_TYPE.CC,
+    ["Enemy CDs"] = MINICC_FRAME_TYPE.EnemyCD,
     ["Friendly CDs"] = MINICC_FRAME_TYPE.FriendlyCD,
     ["Friendly Indicators"] = MINICC_FRAME_TYPE.FriendlyCD,
     Nameplates = MINICC_FRAME_TYPE.Nameplate,
@@ -44,9 +45,24 @@ local CONTAINER_DEPTH = 3
 local Registry
 local trackedCooldowns = setmetatable({}, addon.weakMeta)
 
+local function ApplyHealerWarningTextColor()
+    local profile = MCE.db and MCE.db.profile
+    local config = profile and profile.categories and profile.categories[CATEGORY.MiniCC]
+    local color = config and config.enabled and config.healerWarningTextColor
+    local healerContainer = _G.MiniCCHealerContainer
+    local text = healerContainer and healerContainer.HealerWarning
+
+    if not color or not text or not text.SetTextColor or MCE:IsForbidden(text) then
+        return
+    end
+
+    text:SetTextColor(color.r or 1, color.g or 0.1, color.b or 0.1, color.a or 1)
+end
+
 function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     Registry:RegisterAdapter(CATEGORY.MiniCC, self)
+    C_Timer.After(2, ApplyHealerWarningTextColor)
 end
 
 -- =========================================================================
@@ -211,6 +227,8 @@ end
 -- =========================================================================
 
 function Adapter:Rebuild()
+    ApplyHealerWarningTextColor()
+
     for cooldown in pairs(trackedCooldowns) do
         if cooldown and not MCE:IsForbidden(cooldown) then
             local frameType = ResolveMiniCCFrameType(cooldown)
@@ -225,6 +243,8 @@ end
 
 function Adapter:TryClaim(cooldown)
     if not MCE:IsMiniCCAvailable() then return nil end
+    ApplyHealerWarningTextColor()
+
     local frameType = ResolveMiniCCFrameType(cooldown)
     if frameType then
         trackedCooldowns[cooldown] = true

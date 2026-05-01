@@ -879,6 +879,7 @@ function StyleEngine:GetCooldownFontSize(cdFrame, category, config, subtype)
     if category == CATEGORY.MiniCC then
         subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if subtype == MINICC_FRAME_TYPE.CC then return config.ccFontSize or config.fontSize end
+        if subtype == MINICC_FRAME_TYPE.EnemyCD then return config.enemyCdFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.FriendlyCD then return config.friendlyCdFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.Nameplate then return config.nameplateFontSize or config.fontSize end
         if subtype == MINICC_FRAME_TYPE.Portrait then return config.portraitFontSize or config.fontSize end
@@ -918,6 +919,9 @@ function StyleEngine:GetDesiredHideCountdownNumbers(cdFrame, category, config, i
         subtype = subtype or (Registry and Registry:GetSubtype(cdFrame))
         if subtype == MINICC_FRAME_TYPE.CC then
             return config.ccHideCountdownNumbers ~= nil and config.ccHideCountdownNumbers or hideNums
+        end
+        if subtype == MINICC_FRAME_TYPE.EnemyCD then
+            return config.enemyCdHideCountdownNumbers ~= nil and config.enemyCdHideCountdownNumbers or hideNums
         end
         if subtype == MINICC_FRAME_TYPE.FriendlyCD then
             return config.friendlyCdHideCountdownNumbers ~= nil and config.friendlyCdHideCountdownNumbers or hideNums
@@ -966,6 +970,9 @@ end
 local function GetMiniCCHideSwipeSetting(config, subtype)
     if subtype == MINICC_FRAME_TYPE.CC then
         return config.ccHideSwipe
+    end
+    if subtype == MINICC_FRAME_TYPE.EnemyCD then
+        return config.enemyCdHideSwipe
     end
     if subtype == MINICC_FRAME_TYPE.FriendlyCD then
         return config.friendlyCdHideSwipe
@@ -1075,9 +1082,9 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     -- Override: MiniCC takes precedence when detected
     local subtype = Registry and Registry:GetSubtype(cdFrame) or nil
     if forcedCategory == CATEGORY.Nameplate and subtype then
-        if subtype == MINICC_FRAME_TYPE.CC or subtype == MINICC_FRAME_TYPE.FriendlyCD
-           or subtype == MINICC_FRAME_TYPE.Nameplate or subtype == MINICC_FRAME_TYPE.Portrait
-           or subtype == MINICC_FRAME_TYPE.Overlay then
+        if subtype == MINICC_FRAME_TYPE.CC or subtype == MINICC_FRAME_TYPE.EnemyCD
+           or subtype == MINICC_FRAME_TYPE.FriendlyCD or subtype == MINICC_FRAME_TYPE.Nameplate
+           or subtype == MINICC_FRAME_TYPE.Portrait or subtype == MINICC_FRAME_TYPE.Overlay then
             category = CATEGORY.MiniCC
         end
     end
