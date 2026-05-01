@@ -68,7 +68,7 @@ L["QUEST_TEST_NONE"] = "Активные цели заданий не найде
 
 -- Messages
 L["MSG_LOADED"] = "v%s успешно загружен. Введите |cfffff569/sqp help|r для команд."
-L["MSG_DISCORD"] = "Присоединяйтесь к нашему Discord: |cff58be81discord.gg/rgxmods|r"
+L["MSG_DISCORD"] = "Присоединяйтесь к нашему Discord: |cff58be81discord.gg/N7kdKAHVVF|r"
 -- enUS fallback keys (auto-filled for full locale coverage)
 L["OPTIONS_DISABLE"] = "Disable"
 L["OPTIONS_GENERAL"] = "General Settings"
@@ -110,7 +110,7 @@ L["TEST_FOUND_QUESTS"] = "Found %d units with quest objectives"
 L["TEST_NO_QUESTS"] = "No quest objectives found on visible nameplates"
 L["MSG_LOADED_LINE1"] = "Loaded successfully. Type |cfffff569/sqp help|r for commands."
 L["MSG_LOADED_LINE2"] = "|cffffff00Version:|r |cff8080ff%s|r"
-L["COMMUNITY_MESSAGE"] = "Join our Discord: |cff58be81discord.gg/rgxmods|r"
+L["COMMUNITY_MESSAGE"] = "Join our Discord: |cff58be81discord.gg/N7kdKAHVVF|r"
 L["SETTINGS_RESET"] = "|cff58be81All settings have been reset to defaults|r"
 L["SETTINGS_SCALE_SET"] = "Icon scale set to: |cff58be81%.1f|r"
 L["SETTINGS_OFFSET_SET"] = "Icon offset set to: |cff58be81X=%d, Y=%d|r"

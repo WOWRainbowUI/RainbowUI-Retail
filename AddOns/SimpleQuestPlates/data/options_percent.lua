@@ -134,7 +134,7 @@ function SQP:CreatePercentOptions(content)
         ActivatePercent()
         SQP:RefreshAllNameplates()
     end)
-    percentAnimIntensityReset:SetPoint("LEFT", percentAnimIntensitySlider, "RIGHT", 5, 0)
+    percentAnimIntensityReset:SetPoint("LEFT", percentAnimIntensitySlider, "RIGHT", 5, -2)
 
     percentAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
         newVal = math.floor(newVal / 5 + 0.5) * 5

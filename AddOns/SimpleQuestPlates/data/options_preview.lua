@@ -29,10 +29,10 @@ function SQP:CreatePreviewSection(parent)
     previewFrame:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
 
     -- Type-switcher buttons (compact row, centered)
-    local killTypeBtn = self:CreateStyledButton(previewFrame, "Kill", 40, 16)
-    local lootTypeBtn = self:CreateStyledButton(previewFrame, "Loot", 40, 16)
-    local pctTypeBtn  = self:CreateStyledButton(previewFrame, "%",   24, 16)
-    killTypeBtn:SetPoint("BOTTOMLEFT", previewFrame, "BOTTOM", -56, 4)
+    local killTypeBtn = self:CreateStyledButton(previewFrame, "Kill", 46, 16)
+    local lootTypeBtn = self:CreateStyledButton(previewFrame, "Loot", 46, 16)
+    local pctTypeBtn  = self:CreateStyledButton(previewFrame, "%",   28, 16)
+    killTypeBtn:SetPoint("BOTTOMLEFT", previewFrame, "BOTTOM", -62, 4)
     lootTypeBtn:SetPoint("LEFT", killTypeBtn, "RIGHT", 4, 0)
     pctTypeBtn:SetPoint("LEFT",  lootTypeBtn, "RIGHT", 4, 0)
 
@@ -395,10 +395,7 @@ function SQP:CreatePreviewSection(parent)
         -- resolution failure (e.g. the registry not yet populated) cannot
         -- abort UpdatePreview before the icons get shown below.
         local previewTypeKey = self.questType or "kill"
-        local fontOk, fontErr = pcall(SQP.UpdateQuestFont, SQP, iconText, iconTextOutline, percentIcon, percentIconOutline, previewTypeKey)
-        if not fontOk and DEFAULT_CHAT_FRAME then
-            DEFAULT_CHAT_FRAME:AddMessage("|cffffaa00[SQP:preview]|r font apply failed: " .. tostring(fontErr))
-        end
+        pcall(SQP.UpdateQuestFont, SQP, iconText, iconTextOutline, percentIcon, percentIconOutline, previewTypeKey)
 
         -- Main icon tinting removed (redundant with color controls)
         icon:SetVertexColor(1, 1, 1, 1)

@@ -76,7 +76,7 @@ L["TEST_NO_QUESTS"] = "可见姓名板上未找到任务目标"
 
 -- Messages
 L["MSG_LOADED"] = "v%s 读取成功. 输入 |cfffff569/sqp help|r 获取命令帮助."
-L["MSG_DISCORD"] = "加入我们的Discord: |cff58be81discord.gg/rgxmods|r"
+L["MSG_DISCORD"] = "加入我们的Discord: |cff58be81discord.gg/N7kdKAHVVF|r"
 -- enUS fallback keys (auto-filled for full locale coverage)
 L["OPTIONS_DISABLE"] = "Disable"
 L["OPTIONS_GENERAL"] = "General Settings"
@@ -110,7 +110,7 @@ L["CMD_HELP_ANCHOR"] = "  |cfffff569/sqp anchor <LEFT|RIGHT>|r - Set icon anchor
 L["TEST_SCANNING"] = "Testing quest detection..."
 L["MSG_LOADED_LINE1"] = "Loaded successfully. Type |cfffff569/sqp help|r for commands."
 L["MSG_LOADED_LINE2"] = "|cffffff00Version:|r |cff8080ff%s|r"
-L["COMMUNITY_MESSAGE"] = "Join our Discord: |cff58be81discord.gg/rgxmods|r"
+L["COMMUNITY_MESSAGE"] = "Join our Discord: |cff58be81discord.gg/N7kdKAHVVF|r"
 L["SETTINGS_RESET"] = "|cff58be81All settings have been reset to defaults|r"
 L["SETTINGS_SCALE_SET"] = "Icon scale set to: |cff58be81%.1f|r"
 L["SETTINGS_OFFSET_SET"] = "Icon offset set to: |cff58be81X=%d, Y=%d|r"

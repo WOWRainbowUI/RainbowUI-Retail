@@ -131,7 +131,7 @@ function SQP:CreateLootOptions(content)
         ActivateLoot()
         SQP:RefreshAllNameplates()
     end)
-    lootAnimIntensityReset:SetPoint("LEFT", lootAnimIntensitySlider, "RIGHT", 5, 0)
+    lootAnimIntensityReset:SetPoint("LEFT", lootAnimIntensitySlider, "RIGHT", 5, -2)
 
     lootAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
         newVal = math.floor(newVal / 5 + 0.5) * 5

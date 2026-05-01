@@ -7,16 +7,118 @@
 
 local addonName, SQP = ...
 local format = string.format
+local generalFontDropdownCount = 0
+
+function SQP:RefreshOptionsPreview(activatePreviewFn)
+    if type(activatePreviewFn) == "function" then
+        activatePreviewFn()
+    end
+
+    if self.previewFrame and type(self.previewFrame.UpdatePreview) == "function" then
+        self.previewFrame:UpdatePreview()
+    end
+end
 
 function SQP:CreateGlobalOptions(content)
     if not self.optionControls then self.optionControls = {} end
     local rgxFonts = _G.RGXFonts
-    local rgxAccent = "bc6fa8"
 
     local function CreateNameplateFontControl(parent, y)
+        local defaultSharedSize = 12
+        local function CreateBluStyleFontDropdown(anchorParent, defaultFontName)
+            generalFontDropdownCount = generalFontDropdownCount + 1
+
+            local holder = CreateFrame("Frame", nil, anchorParent)
+            holder:SetSize(220, 28)
+
+            local dropdownName = "SQPGeneralFontDropdown" .. generalFontDropdownCount
+            local dropdown = CreateFrame("Frame", dropdownName, holder, "UIDropDownMenuTemplate")
+            dropdown:ClearAllPoints()
+            dropdown:SetPoint("TOPLEFT", holder, "TOPLEFT", -15, 8)
+            dropdown:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 17, -8)
+            dropdown:SetScript("OnHide", nil)
+
+            local left = _G[dropdownName .. "Left"]
+            local middle = _G[dropdownName .. "Middle"]
+            local right = _G[dropdownName .. "Right"]
+            if left and middle and right then
+                middle:ClearAllPoints()
+                right:ClearAllPoints()
+                middle:SetPoint("LEFT", left, "RIGHT", 0, 0)
+                middle:SetPoint("RIGHT", right, "LEFT", 0, 0)
+                right:SetPoint("TOPRIGHT", dropdown, "TOPRIGHT", 0, 17)
+            end
+
+            local text = _G[dropdownName .. "Text"]
+            if text and left and right then
+                text:ClearAllPoints()
+                text:SetPoint("RIGHT", right, "RIGHT", -43, 2)
+                text:SetPoint("LEFT", left, "LEFT", 25, 2)
+                text:SetJustifyH("LEFT")
+            end
+
+            local currentFontName = rgxFonts:ResolveName(SQPSettings.fontFamily, defaultFontName) or defaultFontName
+
+            local function SetSelected(fontName)
+                local resolvedName = rgxFonts:ResolveName(fontName, defaultFontName) or defaultFontName
+                local fontPath = rgxFonts:GetPath(resolvedName)
+                currentFontName = resolvedName
+                SQP:SetSetting("fontFamily", fontPath)
+                SQP:SetSetting("killFontFamily", fontPath)
+                SQP:SetSetting("lootFontFamily", fontPath)
+                SQP:SetSetting("percentFontFamily", fontPath)
+                UIDropDownMenu_SetText(dropdown, rgxFonts:GetDropdownFontLabel(resolvedName))
+                SQP:RefreshOptionsPreview()
+                SQP:RefreshAllNameplates()
+            end
+
+            local function AddItems(items, level)
+                for _, item in ipairs(items or {}) do
+                    local info = UIDropDownMenu_CreateInfo()
+                    info.text = item.text
+                    info.notCheckable = item.notCheckable == true or item.value == nil
+                    info.disabled = item.disabled == true
+
+                    if type(item.children) == "table" and #item.children > 0 then
+                        info.hasArrow = true
+                        info.menuList = item.children
+                        info.notCheckable = true
+                    elseif item.value ~= nil then
+                        info.value = item.value
+                        info.checked = (currentFontName == item.value)
+                        info.func = function()
+                            SetSelected(item.value)
+                            CloseDropDownMenus()
+                        end
+                    end
+
+                    UIDropDownMenu_AddButton(info, level)
+                end
+            end
+
+            UIDropDownMenu_Initialize(dropdown, function(_, level, menuList)
+                level = level or 1
+                if level == 1 then
+                    currentFontName = rgxFonts:ResolveName(SQPSettings.fontFamily, defaultFontName) or defaultFontName
+                    AddItems(rgxFonts:BuildGroupedFontItems({ current = currentFontName, keepShownOnClick = false }), level)
+                elseif menuList then
+                    AddItems(menuList, level)
+                end
+            end)
+
+            UIDropDownMenu_SetWidth(dropdown, 176)
+            UIDropDownMenu_SetText(dropdown, rgxFonts:GetDropdownFontLabel(currentFontName))
+
+            function holder:Reset()
+                SetSelected(defaultFontName)
+            end
+
+            return holder
+        end
+
         local fontHeader = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
         fontHeader:SetPoint("TOPLEFT", 20, y)
-        fontHeader:SetText("|cff" .. rgxAccent .. "Nameplate Font|r")
+        fontHeader:SetText("|cff58be81Nameplate Text|r")
         y = y - 14
 
         if not rgxFonts or type(rgxFonts.CreateFontSettingControl) ~= "function" then
@@ -37,28 +139,12 @@ function SQP:CreateGlobalOptions(content)
             or (type(rgxFonts.FindByPath) == "function" and rgxFonts:FindByPath(SQPSettings.fontFamily))
             or fallbackName
 
-        local ok, fontControl = pcall(function()
-            if rgxFonts.DebugStatus then
-                rgxFonts:DebugStatus("SQP CreateNameplateFontControl")
-            end
-            return rgxFonts:CreateFontSettingControl(parent, {
-                label = "Nameplate text font",
-                width = 240,
-                height = 56,
-                dropdownHeight = 56,
-                buttonWidth = 188,
-                storage = SQPSettings,
-                key = "fontFamily",
-                defaultName = defaultName,
-                onChange = function(_, fontName, fontPath)
-                    SQP:SetSetting('fontFamily', fontPath)
-                    SQP:SetSetting('killFontFamily', fontPath)
-                    SQP:SetSetting('lootFontFamily', fontPath)
-                    SQP:SetSetting('percentFontFamily', fontPath)
-                    SQP:RefreshAllNameplates()
-                end,
-            })
-        end)
+        local familyLabel = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        familyLabel:SetPoint("TOPLEFT", 20, y)
+        familyLabel:SetText("Font")
+        y = y - 14
+
+        local ok, fontControl = pcall(CreateBluStyleFontDropdown, parent, defaultName)
 
         if not ok or not fontControl then
             if DEFAULT_CHAT_FRAME then
@@ -80,30 +166,68 @@ function SQP:CreateGlobalOptions(content)
             return y - 26
         end
 
-        fontControl:SetPoint("TOPLEFT", 20, y)
-        if DEFAULT_CHAT_FRAME then
-            DEFAULT_CHAT_FRAME:AddMessage("|cff58be81[SQP:fonts]|r RGX font dropdown built.")
-        end
+        fontControl:SetPoint("TOPLEFT", 20, y - 4)
         self.optionControls.rgxGeneralFontDropdown = fontControl
-        y = y - 58
+
+        local familyReset = self:CreateInlineResetButton(parent, function()
+            if type(fontControl.Reset) == "function" then
+                fontControl:Reset()
+            end
+        end)
+        familyReset:SetPoint("LEFT", fontControl, "RIGHT", 6, 6)
+        y = y - 62
+
+        local sharedSize = tonumber(SQPSettings.killFontSize) or tonumber(SQPSettings.fontSize) or defaultSharedSize
+        local sizeLabel = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+        sizeLabel:SetPoint("TOPLEFT", 20, y)
+        sizeLabel:SetText(string.format("Size: %d", sharedSize))
+
+        local sizeSlider = self:CreateStyledSlider(parent, 6, 26, 1, 160)
+        sizeSlider:SetPoint("TOPLEFT", sizeLabel, "BOTTOMLEFT", 0, -4)
+        sizeSlider:SetValue(sharedSize)
+        self.optionControls.sharedFontSize = sizeSlider
+
+        local sizeReset = self:CreateInlineResetButton(parent, function()
+            SQP:SetSetting("fontSize", defaultSharedSize)
+            SQP:SetSetting("killFontSize", defaultSharedSize)
+            SQP:SetSetting("lootFontSize", defaultSharedSize)
+            SQP:SetSetting("percentFontSize", defaultSharedSize)
+            sizeSlider:SetValue(defaultSharedSize)
+            sizeLabel:SetText(string.format("Size: %d", defaultSharedSize))
+            SQP:RefreshOptionsPreview()
+            SQP:RefreshAllNameplates()
+        end)
+        sizeReset:SetPoint("LEFT", sizeSlider, "RIGHT", 6, 0)
+
+        sizeSlider:SetScript("OnValueChanged", function(_, value)
+            local nextValue = math.floor(value + 0.5)
+            SQP:SetSetting("fontSize", nextValue)
+            SQP:SetSetting("killFontSize", nextValue)
+            SQP:SetSetting("lootFontSize", nextValue)
+            SQP:SetSetting("percentFontSize", nextValue)
+            sizeLabel:SetText(string.format("Size: %d", nextValue))
+            SQP:RefreshOptionsPreview()
+            SQP:RefreshAllNameplates()
+        end)
+        y = y - 36
 
         local note = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
         note:SetPoint("TOPLEFT", 20, y)
-        note:SetWidth(250)
+        note:SetWidth(220)
         note:SetJustifyH("LEFT")
-        note:SetText("|cff58be81Changes the text font used by SQP nameplate icons.|r")
+        note:SetText("|cffaaaaaaChanges kill, loot, and percent numbers. Percent sign sizing stays separate.|r")
         return y - 30
     end
 
     local leftColumn = CreateFrame("Frame", nil, content)
     leftColumn:SetPoint("TOPLEFT")
     leftColumn:SetPoint("BOTTOMLEFT")
-    leftColumn:SetWidth(298)
+    leftColumn:SetWidth(288)
 
     local rightColumn = CreateFrame("Frame", nil, content)
     rightColumn:SetPoint("TOPRIGHT")
     rightColumn:SetPoint("BOTTOMRIGHT")
-    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 10, 0)
+    rightColumn:SetPoint("LEFT", leftColumn, "RIGHT", 14, 0)
 
     -- ── LEFT COLUMN: Addon state + toggles + combat ────────────────────────────
     local yOffset = -12
@@ -206,7 +330,7 @@ function SQP:CreateGlobalOptions(content)
     instanceFrame.checkbox:SetScript("OnClick", function(self)
         SQP:SetSetting('hideInInstance', self:GetChecked()); SQP:RefreshAllNameplates()
     end)
-    yOffset = yOffset - 20
+    yOffset = yOffset - 26
 
     local testButton = self:CreateStyledButton(leftColumn, self.L["OPTIONS_TEST"] or "Test Detection", 120, 20)
     testButton:SetPoint("TOPLEFT", 20, yOffset)
@@ -346,20 +470,6 @@ function SQP:CreateGlobalOptions(content)
     end)
     anchorReset:SetPoint("LEFT", rightBtn, "RIGHT", 6, 0)
 
-    rightYOffset = rightYOffset - 38
-
-    local fontCard = CreateFrame("Frame", nil, rightColumn, "BackdropTemplate")
-    fontCard:SetPoint("TOPLEFT", rightColumn, "TOPLEFT", 10, rightYOffset)
-    fontCard:SetSize(270, 98)
-    fontCard:SetBackdrop({
-        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Buttons\\WHITE8x8",
-        tile = true,
-        tileSize = 16,
-        edgeSize = 1,
-        insets = { left = 1, right = 1, top = 1, bottom = 1 },
-    })
-    fontCard:SetBackdropColor(0.04, 0.05, 0.07, 0.72)
-    fontCard:SetBackdropBorderColor(0.20, 0.26, 0.34, 0.95)
-    CreateNameplateFontControl(fontCard, -10)
+    rightYOffset = rightYOffset - 30
+    CreateNameplateFontControl(rightColumn, rightYOffset)
 end
