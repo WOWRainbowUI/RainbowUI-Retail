@@ -1947,7 +1947,10 @@ end
 		if (Details.CombatTicker) then
 			Details.CombatTicker:Cancel()
 		end
-		Details.CombatTicker = Details.Schedules.NewTicker(1, combatTicker)
+
+		if not detailsFramework.IsAddonApocalypseWow() then
+			Details.CombatTicker = Details.Schedules.NewTicker(1, combatTicker)
+		end
 	end
 
 	function Details:StopCombatTicker()

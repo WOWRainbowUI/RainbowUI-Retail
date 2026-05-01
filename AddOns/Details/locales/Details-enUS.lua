@@ -4,6 +4,7 @@ if not L then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 L = L or {}
 
+L["STRING_OR"] = "Or"
 
 L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
@@ -3210,6 +3211,7 @@ L["STRING_OPTIONSMENU_TOOLTIP"] = "Tooltips"
 L["STRING_OPTIONSMENU_WALLPAPER"] = "Wallpaper"
 L["STRING_OPTIONSMENU_WINDOW"] = "Window: General"
 L["STRING_OPTIONSMENU_WINDOWBODY"] = "Window Body"
+L["STRING_OR"] = "Or"
 L["STRING_OVERALL"] = "Overall"
 L["STRING_OVERHEAL"] = "Overheal"
 L["STRING_OVERHEALED"] = "Overhealed"
