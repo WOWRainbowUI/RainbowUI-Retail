@@ -255,7 +255,7 @@ securecall(function() -- horde/alliance
 end)
 securecall(function() -- moving
 	KR:SetNonSecureConditional("moving", function()
-		return GetUnitSpeed("player") > 0
+		return IsPlayerMoving()
 	end)
 end)
 securecall(function() -- falling
