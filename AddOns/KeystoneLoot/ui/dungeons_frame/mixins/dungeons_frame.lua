@@ -27,6 +27,13 @@ function KeystoneLootDungeonsFrameMixin:Init()
     DB:AddObserver("ui.selectedTab", OnChanged);
     DB:AddObserver("settings.highlighting.*", OnChanged);
     DB:AddObserver("settings.wideMode", OnChanged);
+    DB:AddObserver("voidcore", function()
+        for Frame in self.entryPool:EnumerateActive() do
+            for _, Button in Frame.IconScrollBox:EnumerateFrames() do
+                Button:UpdateVoidcoreIcon();
+            end
+        end
+    end);
 
     self:Refresh();
 end

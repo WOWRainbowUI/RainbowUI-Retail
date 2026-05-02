@@ -89,6 +89,15 @@ function KeystoneLootRaidsFrameMixin:Init()
     DB:AddObserver("ui.selectedTab", OnChanged);
     DB:AddObserver("settings.highlighting.*", OnChanged);
     DB:AddObserver("settings.wideMode", OnChanged);
+    DB:AddObserver("voidcore", function()
+        for Block in self.blockPool:EnumerateActive() do
+            for Frame in Block.entryPool:EnumerateActive() do
+                for _, Button in Frame.IconScrollBox:EnumerateFrames() do
+                    Button:UpdateVoidcoreIcon();
+                end
+            end
+        end
+    end);
 
     if (stackedMode) then
         self.DropdownButton:Hide();

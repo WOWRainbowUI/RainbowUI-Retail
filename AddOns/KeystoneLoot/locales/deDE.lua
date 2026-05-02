@@ -58,6 +58,7 @@ L["No valid items found."] = "Keine gültigen Gegenstände gefunden.";
 L["Set Favorite"] = "Favorit festlegen";
 L["Nice to have"] = "Wäre schön";
 L["Must have"] = "Muss haben";
+L["Voidcore used"] = "Leerenkern benutzt";
 
 -- loot_reminder_frame.lua
 L["Correct loot specialization set?"] = "Richtige Beutespezialisierung eingestellt?";

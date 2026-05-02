@@ -7,7 +7,7 @@ local DB = KeystoneLoot.DB;
 local CURRENT_SEASON = KeystoneLoot.Config.season;
 
 local DB_VERSION = 4;
-local CHAR_DB_VERSION = 1;
+local CHAR_DB_VERSION = 2;
 
 local observers = {};
 
@@ -120,6 +120,10 @@ function DB:MigrateCharDB(fromVersion)
             selectedTab = "dungeons",
             selectedRaidTab = KeystoneLoot.RaidDatabase[1].journalInstanceId
         }
+    end
+
+    if (fromVersion == 1) then
+        KeystoneLootCharDB.voidcore = {};
     end
 end
 
