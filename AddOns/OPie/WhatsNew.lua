@@ -2,6 +2,7 @@ local _, T = ...
 
 function T.WhatsNewData(vh, uv, li)
 	vh("v8.3")
+	li("[.3] Compatibility update for patch 12.0.5.")
 	li("Added <tt>[in:midnight]</tt> extended conditional token.")
 	li("Added <tt>[prey]</tt> extended conditional, satisfied while hunting Prey.")
 	li("<b>Path of the Seasoned Hero</b> now teleports to Midnight Season 1 Mythic+ dungeons.")

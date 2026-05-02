@@ -3,9 +3,9 @@ local _, T = ...
 
 local C, z, V, K = GetLocale(), nil
 V =
-    C == "deDE" and { -- 233/234 (99%)
+    C == "deDE" and { -- 234/234 (100%)
       "%d |4minute:minuten; früher (%s)", "%s, um abzubrechen", "%s, um in aktuellen Ergebnissen zu suchen", "Alle Ausrüstungssets", "(Standard)", "(Gebe hier einen Icon-Namen oder Pfad ein)", "Ring hinzufügen", "Neuen Abschnitt hinzufügen", "Weiter drehen nach Gebrauch", "Alle %s-Charaktere",
-      "Alle %s-Spezialisierungen", "Alle Einstellungen", "Alle Charaktere", "Als Schnellaktion erlauben", "Klicke bei gedrückter Alt-Taste, um die bedingte Bindung festzulegen", z, "Übergänge animieren", "Animation", "Alle jetzt getätigten Änderungen werden nicht gespeichert.", "Aussehen",
+      "Alle %s-Spezialisierungen", "Alle Einstellungen", "Alle Charaktere", "Als Schnellaktion erlauben", "Klicke bei gedrückter Alt-Taste, um die bedingte Bindung festzulegen", "Beim Laden von OPie ist ein Fehler aufgetreten.", "Übergänge animieren", "Animation", "Alle jetzt getätigten Änderungen werden nicht gespeichert.", "Aussehen",
       "Allen Spezialisierungen zuweisen", "An HUD Tooltip Position", "In der Mitte des Rings", "Basiert auf der Aktion des Abschnitts", "Verhalten", "Tastaturbelegungskonflikt", "Tastaturbelegung:", "Kamera-Analogstick", "Abbrechen", "Aktion ändern",
       "Mit %s gekennzeichnete Änderungen wurden durch eingereichtes Feedback inspiriert.", "Änderungen werden nicht gespeichert", "Wähle eine Tastenbelegung für diesen Ring aus oder aktiviere die Option %s in den OPie-Optionen.", "Ring schließen", "Nach kurzer Aktion schließen", "Farbe:", "Kampf", "Bedingte Tastaturbelegungen", "Kollidiert mit: %s", "Controller-Interaktionsmodus",
       "Kopiere die oben angezeigte URL und rufe sie mit einem Webbrowser auf.", "Profil erstellen", "Neues Profil erstellen", "Neuen Ring erstellen", "Neues Profil erstellen", "Eigene Ringe", "Benutzerdefinierter Abschnitt", "Passe OPie an, indem du bestehende Ringe änderst oder eigene erstellst.", "Hier können die Tastaturbelegungen für OPie angepasst werden. |cffa0a0a0Graue|r und |cffFA2800Rote|r Belegungen kollidieren mit anderen und sind im Moment nicht aktiv.", "Passe die Tastenbelegung für den OPie-Ring und die Tasten im Ring an.",
@@ -26,7 +26,7 @@ V =
       "Zeige diesen Abschnitt für:", "Tooltips zeigen", "Simuliere einen Rechtsklick", "Abschnitt #%d", "Slice-Bindung kollidiert mit %s.", "Schnappschuss:", "Spezialisierungen und Reise", "Gebe ein Symbol an, indem Du einen Symboldateinamen, einen Texturpfad, einen Atlasnamen oder einen bekannten Fähigkeitsnamen eingibst.", "Speichert eine Momentaufnahme dieses Ringes, um ihn mit anderen Spielern zu teilen.", "Zielmarkierungen",
       "Teleportiere dich dorthin, wo du gebraucht wirst... solange du den Weg kennst.", "Die Tastenbelegung wird aktualisiert, um den Wert dieser Makro-Bedingung widerzuspiegeln.", "Der folgende Makrobefehl öffnet diesen Ring:", "Diese Einstellungen", "Dieses Erscheinungsbild unterstützt möglicherweise nicht alle OPie-Funktionen.", "Diese Belegung wird bereits von einem anderen Addon benutzt.", "Diese Belegung ist nicht aktiv, weil sie mit ein anderen kollidiert.", "Handwerksfertigkeiten", "OPie übersetzen", "Beim Drücken aktivieren",
       "Beim Loslassen aktivieren", "Verstanden. Trotzdem bearbeiten.", "Änderungen rückgängig machen", "Unbewegter Cursor", "Unbewegter Cursor oder in der Ringmitte", "Update erforderlich", "Standardbelegungen nutzen", "Benutze den ersten Abschnitt beim öffnen", "Verwende globale Einstellungen", "Scheibe verwenden",
-      "Abschnitt verwenden und Ring schließen", "Nützlichkeit", "Virtueller Mauszeiger", "Sichtbarkeitsbedingung:", "Was gibt es Neues?", "Während ein Ring geöffnet ist:", "Weltmarkierungen", "World of Warcraft könnte die Einstellungen von OPie aufgrund unzureichenden Speichers nicht laden. Versucht, einige Addons zu deaktivieren.", "Du kannst den Vorgang später abbrechen oder zu den vorherigen Einstellungen zurückkehren.", "Du kannst bei der Übersetzung von OPie helfen, indem du folgende Website besuchst:",
+      "Abschnitt verwenden und Ring schließen", "Nützlichkeit", "Virtueller Mauszeiger", "Sichtbarkeitsbedingung:", "Was gibt es Neues?", "Während ein Ring geöffnet ist:", "Weltmarkierungen", "World of Warcraft konnte die Einstellungen von OPie aufgrund unzureichenden Speichers nicht laden. Versuche einige Addons zu deaktivieren.", "Du kannst den Vorgang später abbrechen oder zu den vorherigen Einstellungen zurückkehren.", "Du kannst bei der Übersetzung von OPie helfen, indem du folgende Website besuchst:",
       "Man kann erweiterte Makro-Bedingungen benutzen; siehe %s für Details.", "Um die Schnellwahl nutzen zu können, muss die Option %s in den OPie-Einstellungen aktiviert sein.", "Dein Charakter kann dies momentan nicht nutzen", "Standard",
     }
     or C == "esES" and { -- 231/234 (98%)
@@ -133,9 +133,9 @@ V =
       "Usa la sezione e chiudi l’anello", "Utilità", "Cursore virtuale", "Condizionale di visibilità:", "Novità", "Mentre un anello è aperto:", "Segnali Mondiali (Flares)", "World of Warcraft non è riuscito a caricare le variabili salvate di OPie a causa di memoria insufficiente. Prova a disattivare altri addon.", "Puoi annullare o tornare alle impostazioni precedenti in un secondo momento.", "Puoi contribuire alla traduzione di OPie visitando:",
       "Puoi usare condizioni estese; consulta %s per i dettagli.", "Per usare le azioni rapide, è necessario attivare un’interazione %s per questo anello nelle opzioni di OPie.", "Il tuo personaggio non può utilizzarlo al momento.", "predefinito",
     }
-    or C == "koKR" and { -- 233/234 (99%)
+    or C == "koKR" and { -- 234/234 (100%)
       "%d분 전 (%s)", "%s로 취소", "%s로 현재 결과 내에서 검색하기", "(모든 세트)", "(기본값)", "(아이콘 이름 또는 경로를 입력하세요)", "고리 추가", "새로운 조각 추가", "사용 후 고급 기능 표시", "모든 %s 캐릭터",
-      "%s의 모든 전문화", "모든 설정", "모든 캐릭터", "빠른 동작 허용", "Alt+클릭하여 조건 단축키 설정", z, "애니메이션 전환 효과", "애니메이션", "지금 변경한 내용은 저장되지 않습니다.", "모양",
+      "%s의 모든 전문화", "모든 설정", "모든 캐릭터", "빠른 동작 허용", "Alt+클릭하여 조건 단축키 설정", "OPie를 불러오는 동안 오류가 발생했습니다.", "애니메이션 전환 효과", "애니메이션", "지금 변경한 내용은 저장되지 않습니다.", "모양",
       "모든 전문화에 적용", "HUD 툴팁 위치", "고리 중앙에 표시", "조각별 표시", "동작", "단축키 중복", "단축키:", "시점 모의 컨트롤러", "취소", "동작 변경",
       "%s로 표시된 변경 사항은 제출된 피드백에서 영감을 받았습니다.", "변경 사항이 저장되지 않습니다.", "이 고리에 대한 단축키를 선택하거나 OPie 옵션에서 %s 옵션을 활성화하세요.", "고리 닫기", "빠른 동작 후 고리 닫기", "색상:", "전투", "조건부 단축키", "중복되는 단축키: %s", "컨트롤러 상호작용 모드:",
       "위에 표시된 URL을 복사하여 웹 브라우저를 사용하여 방문하세요.", "프로필 생성", "새 프로필 만들기", "새 고리 만들기", "새 프로필 만들기", "사용자 정의 고리", "사용자 정의 조각", "기존 고리를 수정하거나 자신만의 고리를 만들어 OPie를 사용자 정의할 수 있습니다.", "아래에서 OPie 단축키를 사용자 정의할 수 있습니다. 단축키 버튼 위에 마우스를 올려놓으면 추가 정보와 옵션을 확인할 수 있습니다.", "OPie 링과 링 내 단축키를 사용자 정의합니다.",
@@ -186,34 +186,34 @@ V =
       "Вы можете использовать расширенные макро условия; см. %s.", "Вы должны включить опцию %s для этого кольца в настройках OPie для использования быстрых действий.", "Ваш персонаж не может использовать это в данный момент.", "по умолчанию",
     }
     or C == "zhCN" and { -- 234/234 (100%)
-      "%d 分钟前 (%s)", "%s取消", "%s在当前结果内搜索", "（所有套装）", "(默认)", "（输入图标名称或路径）", "添加环", "添加一个新功能", "使用后切换下一个", "所有%s角色",
-      "%s的所有专精", "所有设置", "全部角色", "允许作为快捷动作", "Alt点击设置条件快捷键", "加载OPie时发生了一个错误。", "动画过渡", "动画", "现在你所做的任何改动都不会被保存。", "外观",
-      "分配到所有专精", "在HUD提示位置", "在环中央时", "按功能显示", "行为", "快捷键冲突", "快捷键：", "视角模拟摇杆", "取消", "改变行为",
-      "标记为%s的修改是受提交的反馈启发而作出的。", "修改将不被保存", "为此环绑定快捷键，或在OPie设置中启用%s选项。", "关闭环", "执行快捷动作后关闭环", "颜色：", "战斗", "条件快捷键", "快捷键冲突：%s", "手柄输入方向时：",
-      "复制上面显示的URL，并使用网页浏览器访问它。", "创建配置文件", "创建一份新的配置文件", "创建一个新的环", "创建新配置", "自定义环", "自定义功能", "修改已有环或创建你自己的环来个性化OPie。", "在下面自定义OPie快捷键。鼠标悬停在绑定按钮上查看更多信息和选项。", "自定义OPie环和环内的快捷键绑定。",
-      "自定义OPie的外观和行为。", "自定义OPie的外观和行为。右键点击选项框可将该项恢复为默认值。", "自定义快捷键", "自定义环内快捷键", "自定义选项", "自定义图标", "默认按键已禁用", "默认", "全局默认", "删除当前配置",
-      "删除环", "删除功能", "召唤恶魔", "已停用", "显示跳转功能", "显示为嵌套环", "显示为：", "不显示", "什么也不做", "您想要将所有 %s 设置重置为其默认值，还是仅重置 %s 类别中的设置？",
-      "编辑现有的环，或创建您自己的自定义OPie环。", "默认嵌入其它环", "嵌入这个环中的功能", "空环", "放大选中的功能", "套装方案", "装备方案", "例如：%s.", "额外操作", "更多传送门",
-      "野性", "如需其他选项，请使用{可见条件}。", "炉石", "隐藏环", "隐藏姿势条", "隐藏此环", "打开圆环时隐藏提示信息", "图标：", "如果OPie中的某些内容表现得不正确（或者您希望它表现得不同），请访问以下链接创建问题：", "如果环已打开：",
-      "如果这个宏条件的返回值为%s，或者没有适用条件，此功能将被隐藏。", "导入%s个嵌套环", "导入快照", "单击上面的%s以导入快照。", "环内快捷键", "未激活的环", "包含嵌套环", "输入功能动作说明：", "安装此外观的更新版本以选择它", "安装并启用 %s 以按文件名搜索。",
-      "根据鼠标指针即时旋转", "互动", "点击后依然显示", "左键点击设置绑定", "可用此环的角色：", "小地图追踪", "无鼠标", "下移环", "右移环", "移动模拟摇杆",
-      "嵌套环：%s", "嵌套环", "创建新环", "新配置名称：", "没有%s专精", "空", "未绑定", "不能针对每个环进行单独配置。", "未自定义", "所选外观不支持此功能。",
-      "OPie环", "OPie环：%s", "OPie环", "左键点击时：", "右键点击时：", "按下环快捷键时：", "松开环快捷键时：", "仅%s", "打开嵌套环", "在鼠标位置打开环",
-      "在屏幕中心打开环", "设置选项", "选项：", "旋转消失", "覆盖图标", "覆盖标签：", "英雄之路", "独立角色的环旋转", "功能快捷键位", "按下单个功能快捷键时：",
-      "宠物", "变形术", "传送门与传送", "预先选中快捷动作", "按%s键保存。", "按%s搜索", "环功能置顶", "配置", "在你切换专精后相应配置文件会自动激活。", "配置文件保存设置与环快捷键。",
-      "任务物品", "快速", "环中央使用快捷动作", "鼠标未移动时使用快捷动作", "快捷重复上次动作的触发条件：", "使用后随机切换", "显示时随机", "放松", "记住最近的选择", "重新打开环",
-      "报告问题", "显示时重置", "重启魔兽世界。如果此信息持续存在，删除后重装OPie。", "重置为默认设置", "恢复默认设置", "回复已删除的环", "还原...", "右键点击解除绑定", "环快捷键", "环名称：",
-      "环尺寸", "环边", "环：%s", "旋转：", "旋转嵌套环（下）", "旋转嵌套环（上）", "搜索", "选择 %s 互动方式以启用此选项。", "选择要修改的环", "双击一个动作以加入到这个环",
-      "以下总结了OPie最近更新的精选亮点。有关完整的发行说明，请访问%s", "选择的功能（关闭环）", "当前选择环（环保持打开）", "设置名称过滤器：", "变形", "分享环", "按住 Shift 键单击查看环宏命令", "显示冷却数字", "显示充能数字", "显示功能标签",
-      "显示给：", "显示鼠标提示", "模拟右键点击", "功能#%d", "功能快捷键与%s存在冲突。", "快照：", "专精和旅行", "通过输入图标文件名、纹理路径、纹理图集名称或已知的技能名称来指定图标。", "获取该环的快照与他人分享。", "标记目标",
-      "如果你已经开启了该副本的英雄之路，便可直接传送至你需要的副本。", "按键设置将根据该宏条件的返回值更新。", "用以下宏命令打开此环：", "这些设置", "此外观可能不支持全部的OPie功能。", "此快捷键正被另一个插件使用。", "此快捷键当前无法使用，因为它和另一个绑定冲突。", "专业技能", "翻译OPie", "按下快捷键时触发",
-      "松开快捷键时触发", "明白了；继续编辑", "撤销变动", "鼠标未移动时", "鼠标未移动时，或者在环中央时", "需要更新", "使用默认环快捷键", "打开时使用第一个功能", "使用全局设定", "使用功能",
-      "使用功能并关闭环", "工具", "虚拟鼠标光标", "可见条件：", "最新动态", "环展开时：", "世界标记", "由于内存不足，魔兽世界不能加载已保存的OPie数据。请尝试禁用其他插件。", "您可以稍后取消或恢复到之前的设置。", "您可以通过访问以下链接来帮助翻译OPie：",
-      "你可以使用扩展的宏条件；详情见%s。", "必须为此环启用 %s 选项，以使用快捷动作。", "你的当前角色目前无法使用该物品。", "默认",
+      "%d 分钟前（%s）", "%s 取消", "%s 在当前分类中搜索", "（所有套装）", "(默认)", "（输入图标名称或路径）", "添加圆环", "添加新扇格", "使用后切换下一个", "所有%s角色",
+      "所有%s专精", "全部设置", "所有角色", "允许作为快捷动作", "按 Alt 点击，设置条件快捷键", "加载 OPie 时出错。", "启用圆环过渡动画", "动画效果", "你现在所做的任何更改都不会被保存。", "指示外观",
+      "分配至所有专精", "HUD 提示框处", "指针在圆环中心", "默认动作图标", "显示行为", "快捷键冲突", "快捷键：", "视角模拟摇杆", "取消", "更改动作",
+      "标有%s的更新，由用户提交的反馈启发。", "更改将不会保存", "设置此圆环快捷键，或在OPie显示行为中启用[%s]选项。", "关闭圆环", "仅在快捷动作后关闭圆环", "扇格颜色：", "战斗相关", "条件快捷键", "冲突项：%s", "手柄方向输入：",
+      "复制上方显示的网址并在浏览器中打开。", "创建配置文件", "新建配置文件", "新建圆环", "创建新配置", "自定义圆环", "自定义扇格", "修改现有圆环或创建新圆环来打造个性化 OPie。", "自定义 OPie 快捷键。鼠标悬停在快捷键按钮上查看更多信息和选项。", "自定义OPie圆环及环内扇格的快捷键。",
+      "自定义 OPie 圆环的界面及操作。", "自定义 OPie 圆环的界面及操作。右键点击勾选框将该项设为默认圆环设置。", "自定义快捷键", "自定义扇格快捷键", "当前圆环设置", "自定义图标", "默认按键已禁用", "默认", "默认圆环设置", "删除当前配置",
+      "删除圆环", "删除扇格", "召唤恶魔", "已禁用", "跳转扇格", "子圆环扇格", "嵌套显示方式：", "不显示", "什么也不做", "是否要将所有%s设置恢复为默认设值，还是仅重置%s页面中的设置？",
+      "编辑现有圆环，或创建你的自定义OPie圆环。", "嵌套时默认平铺嵌入其他圆环", "平铺嵌入扇格", "空圆环", "放大选中的扇格", "套装方案：", "装备方案", "示例：%s", "OPie内置动作", "更多传送门",
+      "野性（德鲁伊）", "其他选项请使用{显示条件}设置。", "炉石相关", "隐藏的圆环", "隐藏姿态条", "隐藏此圆环", "圆环存在时隐藏事件等弹出通知", "图标：", "如果OPie运行出现异常（或你希望它有所改变），请通过以下链接提交问题：", "若圆环处已存在：",
+      "如果这个宏条件的返回值为%s，或者没有适用条件，此功能将被隐藏。", "导入%s个嵌套圆环", "导入快照", "点击上方的%s导入快照。", "扇格快捷键", "未激活的圆环", "包含嵌套圆环", "输入扇格动作规格：", "需安装此外观的更新版本方可选择。", "安装并启用 %s 以按文件名搜索。",
+      "禁用环指针旋转动画", "触发模式", "使用后保持打开", "左键分配快捷键，右键解除", "圆环可用于：", "小地图追踪", "键盘模式", "向下移动圆环", "向右移动圆环", "移动模拟摇杆",
+      "嵌套子圆环：%s", "悬停显示嵌套子圆环", "新建圆环...", "新配置名称：", "无%s专精", "无", "未设置", "不能对单个圆环进行配置。", "默认方式", "所选外观不支持此功能。",
+      "OPie圆环", "OPie圆环：%s", "OPie圆环", "左键点击时：", "右键点击时：", "按下圆环快捷键时：", "松开圆环快捷键时：", "仅%s", "打开嵌套圆环", "在鼠标位置打开圆环",
+      "在屏幕中心打开圆环", "常规设置", "其他选项：", "隐藏时向外螺旋消失", "覆盖图标", "自定义标签：", "秘境团本传送", "角色独立的嵌套子圆环转动角度", "显示扇格快捷键", "使用扇格快捷键时：",
+      "宠物", "变形术（法师）", "传送门与传送", "自动选用快捷动作", "按%s保存", "按%s搜索", "阻止其他UI交互", "配置文件", "切换角色专精时，配置文件将自动激活。", "配置文件会保存选项和圆环快捷键设置。",
+      "任务物品", "快速模式", "指针在圆环中心触发快捷动作", "指针保持静止时触发快捷动作", "快捷动作重复触发条件：", "使用后随机切换", "显示时随机选择", "宽松模式", "记住上次的选择", "重新打开圆环",
+      "反馈问题", "显示时重置选择", "重启游戏。若此提示持续出现，请删除并重新安装OPie。", "恢复默认", "恢复默认设置", "恢复已删除的圆环", "恢复备份", "左键点击再右键点击，还原默认键位", "圆环快捷键", "圆环名称：",
+      "圆环缩放比例", "圆环边", "圆环：%s", "顺时针转动：", "顺时针转动嵌套圆环", "逆时针转动嵌套圆环", "搜索", "开启%s后，此选项可用。", "选择要修改的圆环", "双击图标添加动作。",
+      "以下是 OPie 近期更新的重点内容。完整更新日志请访问 %s", "选中的扇格（关闭圆环）", "选中的扇格（保持圆环打开）", "套装名称过滤器：", "变形（德鲁伊）", "分享圆环", "按 Shift 点击，查看圆环宏命令", "显示冷却时间", "显示充能时间", "显示自定义标签",
+      "此扇格显示于：", "提示框位置：", "模拟右键点击", "扇格#%d", "扇格快捷键与%s冲突。", "快照：", "专精与旅行", "输入图标文件名、纹理路径、图集名称或已知技能名称来指定图标。", "为此圆环创建快照以与他人分享。", "目标标记",
+      "若可用，则传送至对应的秘境或团本。", "快捷键将根据此宏表达式的值更新。", "以下宏命令可打开此圆环：", "当前页面设置", "此外观可能不支持OPie的全部功能。", "此快捷键已被其他插件占用。", "此快捷键当前未激活，因与其他快捷键冲突。", "专业技能", "翻译 OPie", "按下快捷键时触发",
+      "松开快捷键时触发", "已知晓；仍要编辑", "撤销更改", "指针未移动", "指针未移动或在圆环中心", "需要更新", "使用默认环快捷键", "自动使用（且隐藏）第一个扇格", "使用全局设置", "使用扇格",
+      "使用扇格并关闭圆环", "实用功能", "虚拟鼠标指针", "显示条件：", "更新日志", "圆环存在时：", "世界标记", "内存不足，无法加载OPie的已保存数据。请尝试禁用其他插件。", "稍后你可取消或恢复为之前的设置。", "你可以通过以下链接来帮助翻译 OPie：",
+      "可使用扩展宏条件，详见 %s。", "在常规设置中开启%s后，此选项可用。", "你的角色当前无法使用此项。", "默认",
     }
-    or C == "zhTW" and { -- 233/234 (99%)
+    or C == "zhTW" and { -- 234/234 (100%)
       "%d 分鐘前 (%s)", "%s取消", "%s在目前的結果內搜尋", "(所有套裝)", "(預設)", "(在此輸入圖示名稱或路徑)", "新增環", "加入一個新的功能", "使用後進階顯示", "所有 %s 角色",
-      "所有 %s 專精", "所有設定", "所有角色", "設為快速動作", "Alt+左鍵 設定條件式綁定", z, "轉換動畫", "動畫", "現在做的任何變更都不會被儲存。", "外觀",
+      "所有 %s 專精", "所有設定", "所有角色", "設為快速動作", "Alt+左鍵 設定條件式綁定", "載入 OPie 環形快捷列時發生錯誤。", "轉換動畫", "動畫", "現在做的任何變更都不會被儲存。", "外觀",
       "給所有專精使用", "在畫面上顯示浮動提示資訊的位置", "在環中心", "依據自身的功能顯示圖示", "行為", "按鍵已被使用", "按鍵綁定:", "移動視角用的類比搖桿", "取消", "更改動作",
       "標記為 %s 的變更是受到提交的回饋啟發而進行的。", "不會儲存變更", "選擇這個環的按鍵綁定，或是在 OPie 選項中啟用 %s。", "關閉環", "執行快速動作後關閉環", "顏色:", "戰鬥", "條件式綁定", "按鍵已被使用: %s", "搖桿互動模式",
       "複製上方顯示的網址，並使用網頁瀏覽器前往該網址。", "建立設定檔", "建立新的設定檔", "建立新的環", "建立新的設定檔", "自訂環", "自訂功能", "修改已有的環來自訂 OPie，或是建立新的環。", "自訂下列的 OPie 按鍵綁定。滑鼠指向綁定按鈕時會顯示額外的資訊和選項。", "自訂環形選單與環內按鍵綁定。",
@@ -225,7 +225,7 @@ V =
       "即時指向旋轉", "互動", "使用後保持展開狀態", "點一下左鍵來設定按鍵綁定", "此環可用於:", "小地圖追蹤", "不用滑鼠", "環向下偏移", "環向右偏移", "移動類比搖桿",
       "環中環: %s", "環中環", "建立新的環...", "新的設定檔名稱:", "沒有 %s 專精", "無", "未綁定", "不可針對每個環進行配置。", "未自訂", "不支援所選的外觀。",
       "OPie 環", "OPie 環: %s", "OPie 環", "左鍵點擊:", "右鍵點擊:", "按下環按鍵綁定:", "放開環按鍵綁定:", "只供 %s", "展開環中環", "在滑鼠位置顯示環",
-      "在畫面中央顯示環", "選項", "選項:", "旋轉消失", "取代圖示", "取代標籤:", "老練英雄之路", "每個角色的環旋轉", "每個功能各自綁定快速鍵", "每個功能各自綁定快速鍵:",
+      "在畫面中央顯示環", "選項", "選項:", "旋轉消失", "取代圖示", "取代標籤:", "老練英雄之路", "每個角色的環旋轉", "每個功能各自綁定快速鍵", "每個功能各自的按鍵綁定:",
       "寵物", "變形術", "傳送門和傳送術", "預選一個功能做為快速動作", "按 %s 儲存。", "按 %s 搜尋", "顯示在最前方", "設定檔", "切換專精時會自動啟用設定檔。", "設定檔儲存選項和環按鍵綁定。",
       "任務物品", "快速", "環中心的快速功能", "滑鼠停留時的快速動作", "快速重複動作:", "使用後隨機顯示", "隨機顯示", "輕鬆", "記憶上次旋轉", "重新展開環",
       "回報問題", "重置顯示", "重新啟動魔獸世界。如果持續出現此訊息，請刪除並重新安裝 OPie。", "重置為預設值", "恢復為預設值", "恢復已刪除的環", "還原...", "點右鍵取消綁定", "環按鍵綁定", "環的名稱:",
@@ -234,7 +234,7 @@ V =
       "顯示給:", "顯示浮動提示資訊", "模擬右鍵點擊", "功能 #%d", "功能的按鍵綁定和 %s 衝突。", "字串:", "天賦專精和旅行", "輸入圖示檔案名稱、材質路徑、圖集名稱或已知的技能名稱來指定圖示。", "將環的設定字串分享給其他人用。", "目標標記圖示",
       "傳送到你需要的地方... 若你知曉那條道路。", "將會依據巨集條件更新按鍵綁定。", "使用下列的巨集指令來展開這個環:", "這些設定", "這個外觀可能不支援 OPie 的全部功能。", "其他插件正在使用這個按鍵綁定。", "無法使用這個按鍵綁定，因為已用於其他地方。", "專業技能", "翻譯 OPie", "按下按鍵綁定時觸發",
       "放開按鍵綁定時觸發", "瞭解; 仍要繼續編輯", "復原變更", "游標未移動", "游標未移動，或在環中心", "需要更新", "使用預設的環按鍵綁定", "展開時使用第一個功能", "使用整體設定", "使用功能",
-      "使用功能後關閉環", "工具", "虛擬滑鼠游標", "顯示條件:", "更新資訊", "環展開時:", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 已儲存的變數，請停用其它插件。", "稍後可以取消或還原成先前的設定。", "你可以前往以下頁面協助翻譯 OPie：",
+      "使用功能後關閉環", "工具", "虛擬滑鼠游標", "顯示條件:", "更新資訊", "環展開時:", "世界標記圖示", "記憶體不足! 魔獸世界無法載入 OPie 環形快捷列已儲存的變數，請停用其它插件。", "稍後可以取消或還原成先前的設定。", "你可以前往以下頁面協助翻譯 OPie：",
       "可以使用擴充的巨集條件式；詳細內容請看 %s。", "要使用快速功能，必須在 OPie 選項中替這個環啟用 %s 互動。", "你的角色目前無法使用此功能。", "預設",
     }
     or C == "ptBR" and { -- 234/234 (100%)

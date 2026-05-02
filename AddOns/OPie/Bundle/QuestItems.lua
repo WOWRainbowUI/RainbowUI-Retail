@@ -146,6 +146,7 @@ if MODERN or CF_WRATH then
 			[152106]=have1, [152107]=have1, [152108]=have1, -- paragon boxes
 			-- Midnight
 			[255825]=onPreyHunt, -- disarmed trap
+			[268297]=c1, -- bag o' gold
 			[264274]=have1, -- fabled adventurer's
 			[268545]=have1, [257023]=have1, [257026]=have1, [262346]=have1, -- preyseeker's
 			[265995]=have1, -- quel'thalas adventurer's
@@ -153,7 +154,9 @@ if MODERN or CF_WRATH then
 			[250116]=have1, -- quel'thalas treasures [sign weekly]
 			[269702]=have1, -- abundant [rare]
 			[269703]=have1, -- avid learner's [rare]
-			[269701]=have1, -- surplus party favors [rare]
+			[269701]=have1, -- surplus party270244 favors [rare]
+			[270244]=have1, -- field pouch
+			[264914]=have1, -- ranger's cache
 			-- Midnight Apex [S1]
 			[254677]=have1, -- apex cache
 			[263465]=have1, -- saltheril's soiree
