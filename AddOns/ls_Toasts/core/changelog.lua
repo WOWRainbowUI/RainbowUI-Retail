@@ -6,7 +6,5 @@ local _G = getfenv(0)
 
 -- Mine
 E.CHANGELOG = [[
-### Transmogrification
-
-- Fixed an issue that prevented transmog toasts from working altogether.
+- Added 12.0.5 support.
 ]]
