@@ -250,6 +250,37 @@ local function RegisterPRDEditMode()
         },
         {
             kind = LibEditMode.SettingType.Slider,
+            name = "Power Text Font Size",
+            default = 14,
+            get = function()
+                if _G.PlayerPowerTextDB and _G.PlayerPowerTextDB.fontSize then
+                    return _G.PlayerPowerTextDB.fontSize
+                end
+                local p = GetProfile()
+                return (p and p.powerTextFontSize) or 14
+            end,
+            set = function(_, v)
+                v = math.floor(v + 0.5)
+                if not _G.PlayerPowerTextDB then _G.PlayerPowerTextDB = {} end
+                _G.PlayerPowerTextDB.fontSize = v
+                local p = GetProfile()
+                if p then p.powerTextFontSize = v end
+                -- Apply immediately to the FontString
+                local fs = _G.PlayerPowerTextFontString
+                if fs then
+                    local path = fs:GetFont()
+                    if not path or not path:find("\\", 1, true) then
+                        path = "Fonts\\FRIZQT__.TTF"
+                    end
+                    local flags = (_G.PlayerPowerTextDB.fontFlags and _G.PlayerPowerTextDB.fontFlags ~= "NONE") and _G.PlayerPowerTextDB.fontFlags or "OUTLINE"
+                    fs:SetFont(path, v, flags)
+                end
+                if type(_G.UpdatePlayerPowerText) == "function" then _G.UpdatePlayerPowerText() end
+            end,
+            minValue = 8, maxValue = 100, valueStep = 1,
+        },
+        {
+            kind = LibEditMode.SettingType.Slider,
             name = "Health Text Scale",
             default = 100,
             get = function()

@@ -335,6 +335,7 @@ local defaults = {
         prdScale = 1, -- Overall PRD scale
         healthTextScale = 1, -- Health text scale
         healthTextSize = 14,
+        powerTextFontSize = 14,
         showHealthText = true,
         legacyComboScale = 1,
         legacyComboSpacing = 0,
@@ -1147,6 +1148,38 @@ function PersonalResourceReskin:OnInitialize()
                     if type(_G.UpdatePlayerPowerText) == "function" then _G.UpdatePlayerPowerText() end
                 end,
                 order = 0.6,
+            },
+            powerTextFontSize = {
+                name = "Power Text Font Size",
+                desc = "Adjust the font size of the power text on the Personal Resource Display.",
+                type = "range",
+                min = 8,
+                max = 100,
+                step = 1,
+                get = function()
+                    if _G.PlayerPowerTextDB and _G.PlayerPowerTextDB.fontSize then
+                        return _G.PlayerPowerTextDB.fontSize
+                    end
+                    return GetProfile().powerTextFontSize or 14
+                end,
+                set = function(_, val)
+                    GetProfile().powerTextFontSize = val
+                    if not _G.PlayerPowerTextDB then _G.PlayerPowerTextDB = {} end
+                    _G.PlayerPowerTextDB.fontSize = val
+                    -- Directly update the FontString by its global name (avoids upvalue/closure issues)
+                    local fs = _G.PlayerPowerTextFontString
+                    if fs then
+                        local path = fs:GetFont()
+                        -- GetFont() may return a FontObject name rather than a file path; detect this
+                        if not path or not path:find("\\", 1, true) then
+                            path = "Fonts\\FRIZQT__.TTF"
+                        end
+                        local flags = (_G.PlayerPowerTextDB.fontFlags and _G.PlayerPowerTextDB.fontFlags ~= "NONE") and _G.PlayerPowerTextDB.fontFlags or "OUTLINE"
+                        fs:SetFont(path, val, flags)
+                    end
+                    if type(_G.UpdatePlayerPowerText) == "function" then _G.UpdatePlayerPowerText() end
+                end,
+                order = 0.61,
             },
             playerPowerTextOptions = {
                 name = "PlayerPowerText Style",
@@ -2190,4 +2223,21 @@ do
             _G.CustomBrewmasterStaggerBar_SetSyncWidth(w)
         end
     end)
+end
+
+-- Slash command to open the PersonalResourceReskin options panel
+SLASH_PRR1 = "/prr"
+SlashCmdList["PRR"] = function()
+    local ACD = LibStub and LibStub("AceConfigDialog-3.0", true)
+    if ACD and ACD.Open then
+        -- Options_Main.lua registers the parent table as "PersonalResourceReskinPlus"
+        pcall(ACD.Open, ACD, "PersonalResourceReskinPlus")
+        return
+    end
+    if type(InterfaceOptionsFrame_OpenToCategory) == "function" then
+        pcall(InterfaceOptionsFrame_OpenToCategory, "Personal Resource Reskin Plus")
+        pcall(InterfaceOptionsFrame_OpenToCategory, "Personal Resource Reskin Plus")
+    elseif Settings and Settings.OpenToCategory then
+        pcall(Settings.OpenToCategory, "Personal Resource Reskin Plus")
+    end
 end
