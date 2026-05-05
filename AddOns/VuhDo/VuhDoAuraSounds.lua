@@ -185,7 +185,7 @@ function VUHDO_checkAuraGroupSounds(aUnit, anAuraData)
 				tGroupType = tGroup["type"] or VUHDO_AURA_GROUP_TYPE_FILTER;
 
 				if tGroupType == VUHDO_AURA_GROUP_TYPE_FILTER then
-					if tGroup["filter"] and VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["filter"]) then
+					if tGroup["filter"] and VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["resolvedFilter"], tGroup["dispellableOnly"]) then
 						if (not tGroup["excludeFilter"] or not VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["excludeFilter"]))
 							and not VUHDO_isAuraIgnored(anAuraData, tGroupId) then
 							VUHDO_playAuraGroupSound(tGroupId);

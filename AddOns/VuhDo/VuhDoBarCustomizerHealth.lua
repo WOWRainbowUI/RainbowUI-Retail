@@ -1615,11 +1615,13 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 
 	elseif 9 == anUpdateMode then -- VUHDO_UPDATE_INC
 		VUHDO_determineIncHeal(aUnit);
+
 		if sIsOverhealText then
 			for _, tButton in pairs(tAllButtons) do
 				VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
 			end
 		end
+
 		VUHDO_updateIncHeal(aUnit);
 
 	elseif 7 == anUpdateMode then -- VUHDO_UPDATE_AGGRO
@@ -1631,23 +1633,28 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 
 	elseif 5 == anUpdateMode then -- VUHDO_UPDATE_RANGE
 		VUHDO_determineIncHeal(aUnit);
+
 		for _, tButton in pairs(tAllButtons) do
-			VUHDO_customizeText(tButton, 2, false); -- für d/c tag -- VUHDO_UPDATE_HEALTH
+			VUHDO_customizeText(tButton, 2, false); -- for d/c tag -- VUHDO_UPDATE_HEALTH
 			VUHDO_customizeDebuffIconsRange(tButton);
 		end
+
 		VUHDO_updateIncHeal(aUnit);
 
 	elseif 3 == anUpdateMode then -- VUHDO_UPDATE_HEALTH_MAX
 		VUHDO_determineIncHeal(aUnit);
+
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeText(tButton, 2, false); -- VUHDO_UPDATE_HEALTH
 		end
+
 		VUHDO_updateIncHeal(aUnit);
 
 	elseif 6 == anUpdateMode then -- VUHDO_UPDATE_AFK
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeText(tButton, 1, false); -- VUHDO_UPDATE_ALL
 		end
+
 	elseif 10 == anUpdateMode then -- VUHDO_UPDATE_ALIVE
 		VUHDO_determineIncHeal(aUnit);
 
@@ -1673,6 +1680,7 @@ function VUHDO_updateHealthBarsFor(aUnit, anUpdateMode)
 
 	elseif 1 == anUpdateMode then -- VUHDO_UPDATE_ALL
 		VUHDO_determineIncHeal(aUnit);
+
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_customizeHealButton(tButton);
 		end

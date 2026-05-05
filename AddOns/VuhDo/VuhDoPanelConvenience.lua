@@ -981,3 +981,12 @@ function VUHDO_getPrivateAuraDuration(aButton, anIconNumber)
 	return _G[format("%sBgBarPaCnPa%dDurFr", aButton:GetName(), anIconNumber)];
 
 end
+
+
+
+--
+function VUHDO_getPrivateAuraDispelOverlayContainer(aButton)
+
+	return _G[format("%sDsOl", aButton:GetName())];
+
+end

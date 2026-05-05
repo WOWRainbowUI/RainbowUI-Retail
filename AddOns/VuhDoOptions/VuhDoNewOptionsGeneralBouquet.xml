@@ -979,6 +979,7 @@
 										VUHDO_lnfRadioButtonClicked(self);
 										VUHDO_lnfRadioButtonUpdateModel(self);
 										VUHDO_rebuildBouquetContextEditors(nil);
+										VUHDO_refreshAllBouquets();
 									</OnClick>
 								</Scripts>
 							</CheckButton>
@@ -1017,6 +1018,7 @@
 										VUHDO_lnfRadioButtonClicked(self);
 										VUHDO_lnfRadioButtonUpdateModel(self);
 										VUHDO_rebuildBouquetContextEditors(nil);
+										VUHDO_refreshAllBouquets();
 									</OnClick>
 								</Scripts>
 							</CheckButton>
@@ -1032,6 +1034,11 @@
 										</Offset>
 									</Anchor>
 								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self:SetAttribute("custom_function_post", VUHDO_bouquetsBuffColorChanged);
+									</OnLoad>
+								</Scripts>
 							</Frame>
 
 							<CheckButton name="$parentGradientRadioButton" text="VUHDO_I18N_LIFE_GRADIENT" inherits="VuhDoRadioButtonTemplate">
@@ -1047,6 +1054,7 @@
 										VUHDO_lnfRadioButtonClicked(self);
 										VUHDO_lnfRadioButtonUpdateModel(self);
 										VUHDO_rebuildBouquetContextEditors(nil);
+										VUHDO_refreshAllBouquets();
 									</OnClick>
 								</Scripts>
 							</CheckButton>
@@ -1069,6 +1077,7 @@
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_LOW, VUHDO_I18N_LOW);
 										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K461);
+										self:SetAttribute("custom_function_post", VUHDO_bouquetsBuffColorChanged);
 									</OnLoad>
 								</Scripts>
 							</Frame>
@@ -1091,6 +1100,7 @@
 									<OnLoad>
 										VUHDO_lnfInitColorSwatch(self, VUHDO_I18N_FAIR, VUHDO_I18N_FAIR);
 										VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K462);
+										self:SetAttribute("custom_function_post", VUHDO_bouquetsBuffColorChanged);
 									</OnLoad>
 								</Scripts>
 							</Frame>
@@ -1192,7 +1202,7 @@
 				</Scripts>
 			</Button>
 
-			<Frame name="$parentExportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP">
+			<Frame name="$parentExportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" enableMouse="true" enableKeyboard="true">
 				<Size>
 					<AbsDimension x="580" y="350"/>
 				</Size>
@@ -1289,7 +1299,7 @@
 				</Scripts>
 			</Frame>
 
-			<Frame name="$parentImportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP">
+			<Frame name="$parentImportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" enableMouse="true" enableKeyboard="true">
 				<Size>
 					<AbsDimension x="580" y="350"/>
 				</Size>

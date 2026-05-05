@@ -1657,9 +1657,9 @@ local UnpackAuraData = VUHDO_unpackAuraData;
 --
 local tSpellId;
 local tAuraData;
-function VUHDO_unitAura(aUnit, aSpell, aFilter)
+function VUHDO_unitAura(aUnit, aSpell, aFilter, anAllowSecret)
 
-	if ShouldSpellAuraBeSecret(aSpell) then
+	if not anAllowSecret and ShouldSpellAuraBeSecret(aSpell) then
 		return nil;
 	end
 
@@ -1699,6 +1699,19 @@ end
 function VUHDO_unitBuff(aUnit, aSpell)
 
 	return VUHDO_unitAura(aUnit, aSpell, "HELPFUL");
+
+end
+
+
+
+--
+function VUHDO_unitBuffAllowSecret(aUnit, aSpell)
+
+	if not aUnit or not aSpell then
+		return;
+	end
+
+	return VUHDO_unitAura(aUnit, aSpell, "HELPFUL", true);
 
 end
 

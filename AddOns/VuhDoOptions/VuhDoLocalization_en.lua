@@ -873,6 +873,11 @@ VUHDO_I18N_TT.K818 = "Darken a portion of the health bar when a debuff temporari
 VUHDO_I18N_TT.K819 = "Enable damage absorb (shield) bars on the health frame. Uncheck to hide absorbs.";
 VUHDO_I18N_TT.K820 = "When shields are larger than missing health, show the extra absorb as a bar (overshield).";
 VUHDO_I18N_TT.K821 = "Show a bar for heal absorption. Incoming heals are reduced until the absorb is cleared.";
+VUHDO_I18N_TT.K822 = "Show the Blizzard private aura dispel overlay.";
+VUHDO_I18N_TT.K823 = "Select when to show a dispel border or overlay (e.g. only dispellable by you).";
+VUHDO_I18N_TT.K824 = "Show the Blizzard private aura dispel overlay for standard dispellable auras (Magic, Curse, etc.).";
+VUHDO_I18N_TT.K825 = "Select when to show a dispel overlay (e.g. only dispellable by you).";
+VUHDO_I18N_TT.K826 = "Shows every dispellable harmful aura (Magic, Curse, etc.) regardless of whether your current class/spec can dispel it.";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1578,3 +1583,11 @@ VUHDO_I18N_SMOOTH = "Smooth";
 
 VUHDO_I18N_SHOW_HEALTH_LOSS = "Show\nHealth Loss";
 VUHDO_I18N_HEALTH_LOSS_BAR = "Health Loss Bar";
+
+VUHDO_I18N_PRIVATE_AURA_DISPEL_OVERLAY = "Show Dispel\nOverlay";
+VUHDO_I18N_PRIVATE_AURA_DISPEL_TYPE = "Dispel Type";
+VUHDO_I18N_PRIVATE_AURA_DISPEL_DISABLED = "Disabled";
+VUHDO_I18N_PRIVATE_AURA_DISPEL_BY_ME = "My Dispellable Debuffs";
+VUHDO_I18N_PRIVATE_AURA_DISPEL_ALL = "All Dispellable Debuffs";
+
+VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE = "All Dispellable";

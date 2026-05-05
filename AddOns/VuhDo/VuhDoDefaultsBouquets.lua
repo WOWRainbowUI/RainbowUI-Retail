@@ -1315,6 +1315,8 @@ local function _VUHDO_buildGenericHealthBarBouquet(aType, aName)
 			tItem["custom"]["grad_med"]["useOpacity"] = true;
 			tItem["custom"]["grad_low"] = VUHDO_deepCopyColor(VUHDO_PANEL_SETUP["BAR_COLORS"]["LIFE_LEFT"]["LOW"]);
 			tItem["custom"]["grad_low"]["useOpacity"] = true;
+			tItem["custom"]["grad_high"] = VUHDO_deepCopyColor(VUHDO_PANEL_SETUP["BAR_COLORS"]["LIFE_LEFT"]["GOOD"]);
+			tItem["custom"]["grad_high"]["useOpacity"] = true;
 			tItem["custom"]["radio"] = 3; -- gradient
 
 		elseif aType == 1 then
@@ -1447,6 +1449,8 @@ function VUHDO_buildGenericTargetHealthBouquet()
 		tItem["custom"]["grad_med"]["useOpacity"] = true;
 		tItem["custom"]["grad_low"] = VUHDO_deepCopyColor(VUHDO_PANEL_SETUP["BAR_COLORS"]["LIFE_LEFT"]["LOW"]);
 		tItem["custom"]["grad_low"]["useOpacity"] = true;
+		tItem["custom"]["grad_high"] = VUHDO_deepCopyColor(VUHDO_PANEL_SETUP["BAR_COLORS"]["LIFE_LEFT"]["GOOD"]);
+		tItem["custom"]["grad_high"]["useOpacity"] = true;
 		tItem["custom"]["radio"] = 3; -- gradient
 	end
 
@@ -1513,16 +1517,29 @@ local function VUHDO_ensureBouquetItemSanity(aName, anIndex)
 			};
 		end
 
+		if tItem["custom"]["grad_high"] == nil then
+			tItem["custom"]["grad_high"] = VUHDO_deepCopyTable(tItem["color"]);
+			tItem["custom"]["grad_high"]["useBackground"] = true;
+			tItem["custom"]["grad_high"]["useOpacity"] = true;
+			tItem["custom"]["grad_high"]["useText"] = false;
+			tItem["custom"]["grad_high"]["TR"] = nil;
+			tItem["custom"]["grad_high"]["TG"] = nil;
+			tItem["custom"]["grad_high"]["TB"] = nil;
+			tItem["custom"]["grad_high"]["TO"] = nil;
+		end
+
 		tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]]; -- Statusbalken haben keine Textfarbe
 		if tSpecial and tSpecial["custom_type"] == VUHDO_BOUQUET_CUSTOM_TYPE_STATUSBAR then
 			tItem["color"].TR, tItem["color"].TG, tItem["color"].TB, tItem["color"].useText = nil, nil, nil, false;
 			tItem["custom"]["grad_med"].TR, tItem["custom"]["grad_med"].TG, tItem["custom"]["grad_med"].TB, tItem["custom"]["grad_med"].useText = nil, nil, nil, false;
 			tItem["custom"]["grad_low"].TR, tItem["custom"]["grad_low"].TG, tItem["custom"]["grad_low"].TB, tItem["custom"]["grad_low"].useText = nil, nil, nil, false;
+			tItem["custom"]["grad_high"]["TR"], tItem["custom"]["grad_high"]["TG"], tItem["custom"]["grad_high"]["TB"], tItem["custom"]["grad_high"]["useText"] = nil, nil, nil, false;
 		end
 
 	else -- kein gradient
 		tItem["custom"]["grad_med"] = nil;
 		tItem["custom"]["grad_low"] = nil;
+		tItem["custom"]["grad_high"] = nil;
 	end
 end
 

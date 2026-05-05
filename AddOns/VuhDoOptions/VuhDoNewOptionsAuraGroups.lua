@@ -66,6 +66,7 @@ VUHDO_AURA_FILTER_OPTIONS = {
 	{ "HELPFUL|PLAYER|RAID_IN_COMBAT", VUHDO_I18N_AURA_GROUP_MY_HOTS, nil, nil, VUHDO_I18N_TT.K637 },
 	{ "HELPFUL|RAID_IN_COMBAT", VUHDO_I18N_AURA_GROUP_ALL_HOTS, nil, nil, VUHDO_I18N_TT.K638 },
 	{ "HARMFUL|RAID_PLAYER_DISPELLABLE", VUHDO_I18N_AURA_FILTER_HARMFUL_DISPELLABLE, nil, nil, VUHDO_I18N_TT.K639 },
+	{ "HARMFUL|VUHDO_ALL_DISPELLABLE", VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE, nil, nil, VUHDO_I18N_TT.K826 },
 	{ "HARMFUL|CROWD_CONTROL", VUHDO_I18N_AURA_GROUP_CC, nil, nil, VUHDO_I18N_TT.K640 },
 	{ "HELPFUL|BIG_DEFENSIVE", VUHDO_I18N_AURA_GROUP_BIG_DEF, nil, nil, VUHDO_I18N_TT.K641 },
 	{ "HELPFUL|EXTERNAL_DEFENSIVE", VUHDO_I18N_AURA_GROUP_EXTERNAL_DEF, nil, nil, VUHDO_I18N_TT.K642 },
@@ -118,6 +119,7 @@ local VUHDO_AURA_FILTER_TOOLTIPS = {
 	["HELPFUL|PLAYER|RAID_IN_COMBAT"] = VUHDO_I18N_TT.K637,
 	["HELPFUL|RAID_IN_COMBAT"] = VUHDO_I18N_TT.K638,
 	["HARMFUL|RAID_PLAYER_DISPELLABLE"] = VUHDO_I18N_TT.K639,
+	["HARMFUL|VUHDO_ALL_DISPELLABLE"] = VUHDO_I18N_TT.K826,
 	["HARMFUL|CROWD_CONTROL"] = VUHDO_I18N_TT.K640,
 	["HELPFUL|BIG_DEFENSIVE"] = VUHDO_I18N_TT.K641,
 	["HELPFUL|EXTERNAL_DEFENSIVE"] = VUHDO_I18N_TT.K642,
@@ -1138,6 +1140,8 @@ function VUHDO_auraGroupsOnNewGroup()
 		["sound"] = nil,
 	};
 
+	VUHDO_resolveAuraGroupFilter(VUHDO_CONFIG["AURA_GROUPS"][tNewId]);
+
 	sSelectedGroupId = tNewId;
 	VUHDO_AURA_GROUPS_SELECTED = tNewId;
 
@@ -1164,6 +1168,8 @@ function VUHDO_auraGroupsOnCloneGroup(aSourceId)
 	tNewId = VUHDO_cloneAuraGroup(aSourceId, VUHDO_ensureUniqueAuraGroupDisplayName(VUHDO_getAuraGroupDisplayName(aSourceId) .. " (Copy)"));
 
 	if tNewId then
+		VUHDO_resolveAuraGroupFilter(VUHDO_CONFIG["AURA_GROUPS"][tNewId]);
+
 		sSelectedGroupId = tNewId;
 		VUHDO_AURA_GROUPS_SELECTED = tNewId;
 
@@ -1216,6 +1222,8 @@ function VUHDO_auraGroupsTypeChanged(aComboBox, aValue, anArrayModel)
 		end
 	end
 
+	VUHDO_resolveAuraGroupFilter(VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]);
+
 	VUHDO_auraGroupsRefreshRightPanel();
 
 	return;
@@ -1229,6 +1237,8 @@ function VUHDO_auraGroupsFilterChanged(aComboBox, aValue, anArrayModel)
 
 	if sSelectedGroupId and VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId] then
 		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["filter"] = aValue or "";
+
+		VUHDO_resolveAuraGroupFilter(VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]);
 
 		VUHDO_CONFIG["AURA_GROUPS"][sSelectedGroupId]["isHarmful"] = (aValue and strfind(aValue, "HARMFUL")) and true or false;
 	end

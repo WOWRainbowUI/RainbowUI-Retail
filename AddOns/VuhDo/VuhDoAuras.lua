@@ -7,6 +7,7 @@ local tremove = table.remove;
 local twipe = table.wipe;
 local floor = math.floor;
 local strfind = string.find;
+local gsub = string.gsub;
 local strsub = string.sub;
 local format = string.format;
 
@@ -75,6 +76,8 @@ VUHDO_AURA_GROUP_COLOR_OFF = 1;
 VUHDO_AURA_GROUP_COLOR_DISPEL = 2;
 VUHDO_AURA_GROUP_COLOR_CUSTOM = 3;
 
+local VUHDO_ALL_DISPELLABLE_TOKEN = "VUHDO_ALL_DISPELLABLE";
+
 local VUHDO_HOTS_RADIOVALUE_GROWTH = {
 	[1] = "LEFT",
 	[2] = "RIGHT",
@@ -140,6 +143,8 @@ local sAssignedAuras = { };
 local sSlotsToClear = { };
 local sSlotsToClearCount = 0;
 local sFilteredAuras = { };
+
+local sDispellableFilteredResult = { };
 
 local sAuraDataPool;
 local sSlotIndexPool;
@@ -807,11 +812,95 @@ end
 
 
 --
+local tFilter;
+local tNative;
+function VUHDO_resolveAuraGroupFilter(aGroup)
+
+	if not aGroup then
+		return;
+	end
+
+	tFilter = aGroup["filter"];
+
+	if not tFilter then
+		aGroup["resolvedFilter"] = nil;
+		aGroup["dispellableOnly"] = nil;
+
+		return;
+	end
+
+	if strfind(tFilter, VUHDO_ALL_DISPELLABLE_TOKEN, 1, true) then
+		tNative = gsub(tFilter, "|" .. VUHDO_ALL_DISPELLABLE_TOKEN, "");
+		tNative = gsub(tNative, VUHDO_ALL_DISPELLABLE_TOKEN .. "|?", "");
+
+		if tNative == "" then
+			tNative = "HARMFUL";
+		end
+
+		aGroup["resolvedFilter"] = tNative;
+		aGroup["dispellableOnly"] = true;
+	else
+		aGroup["resolvedFilter"] = tFilter;
+		aGroup["dispellableOnly"] = nil;
+	end
+
+	return;
+
+end
+
+
+
+--
+local tAuraGroups;
+function VUHDO_resolveAllAuraGroupFilters()
+
+	for _, tGroup in pairs(VUHDO_DEFAULT_AURA_GROUPS or sEmpty) do
+		VUHDO_resolveAuraGroupFilter(tGroup);
+	end
+
+	tAuraGroups = VUHDO_CONFIG and VUHDO_CONFIG["AURA_GROUPS"];
+
+	for _, tGroup in pairs(tAuraGroups or sEmpty) do
+		VUHDO_resolveAuraGroupFilter(tGroup);
+	end
+
+	return;
+
+end
+
+
+
+--
 local tAuras;
-function VUHDO_getFilteredAuras(aUnit, aFilter, aMaxCount, aSortRule, aSortDir)
+local tLimit;
+local tCnt;
+function VUHDO_getFilteredAuras(aUnit, aFilter, aMaxCount, aSortRule, aSortDir, anIsDispellableOnly)
 
 	if not aUnit or not aFilter then
 		return { };
+	end
+
+	if anIsDispellableOnly then
+		tAuras = GetUnitAuras(aUnit, aFilter, 40, aSortRule or 0, aSortDir or 0);
+
+		twipe(sDispellableFilteredResult);
+
+		tLimit = aMaxCount or 40;
+		tCnt = 0;
+
+		for _, tAura in ipairs(tAuras or sEmpty) do
+			if tAura["dispelName"] then
+				tinsert(sDispellableFilteredResult, tAura);
+
+				tCnt = tCnt + 1;
+
+				if tCnt >= tLimit then
+					break;
+				end
+			end
+		end
+
+		return sDispellableFilteredResult;
 	end
 
 	tAuras = GetUnitAuras(aUnit, aFilter, aMaxCount or 40, aSortRule or 0, aSortDir or 0);
@@ -823,8 +912,8 @@ end
 
 
 --
-local tMatches;
-function VUHDO_auraMatchesFilter(aUnit, anAuraInstanceId, aFilter)
+local tAuraMatchData;
+function VUHDO_auraMatchesFilter(aUnit, anAuraInstanceId, aFilter, anIsDispellableOnly)
 
 	if not aUnit or not anAuraInstanceId or not aFilter then
 		return false;
@@ -834,9 +923,43 @@ function VUHDO_auraMatchesFilter(aUnit, anAuraInstanceId, aFilter)
 		return false;
 	end
 
-	tMatches = not IsAuraFilteredOutByInstanceID(aUnit, anAuraInstanceId, aFilter);
+	if IsAuraFilteredOutByInstanceID(aUnit, anAuraInstanceId, aFilter) then
+		return false;
+	end
 
-	return tMatches;
+	if anIsDispellableOnly then
+		tAuraMatchData = GetAuraDataByAuraInstanceID(aUnit, anAuraInstanceId);
+
+		return tAuraMatchData ~= nil and tAuraMatchData["dispelName"] ~= nil;
+	end
+
+	return true;
+
+end
+
+
+
+--
+local tCache;
+function VUHDO_hasAnyDispellableAura(aUnit)
+
+	if not aUnit then
+		return false;
+	end
+
+	tCache = VUHDO_UNIT_AURA_CACHE[aUnit];
+
+	if not tCache then
+		return false;
+	end
+
+	for _, tAura in pairs(tCache) do
+		if tAura["isHarmful"] and tAura["dispelName"] then
+			return true;
+		end
+	end
+
+	return false;
 
 end
 
@@ -1867,7 +1990,7 @@ do
 				if tGroup then
 					if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST then
 						VUHDO_updateListSlotsForAnchor(aUnit, aPanelNum, tAnchorIndex, tAnchorConfig);
-					elseif VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["filter"]) then
+					elseif VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["resolvedFilter"], tGroup["dispellableOnly"]) then
 						if (not tGroup["excludeFilter"] or not VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["excludeFilter"]))
 							and not VUHDO_isAuraIgnored(anAuraData, tAnchorConfig["groupId"]) then
 							VUHDO_tryAddAuraToAnchor(aUnit, aPanelNum, tAnchorIndex, tAnchorConfig, anAuraData);
@@ -2045,7 +2168,7 @@ function VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, aPanelNum, anAnchorIndex, 
 
 				if tInstanceId then
 					if tUnitCache and tUnitCache[tInstanceId] then
-						if VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["filter"]) then
+						if VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["resolvedFilter"], tGroup["dispellableOnly"]) then
 							if not tGroup["excludeFilter"] or not VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["excludeFilter"]) then
 								if not VUHDO_isAuraIgnored(tUnitCache[tInstanceId], anAnchorConfig["groupId"]) then
 									sAssignedAuras[tInstanceId] = true;
@@ -2068,7 +2191,7 @@ function VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, aPanelNum, anAnchorIndex, 
 		if tUnitCache then
 			for tInstanceId, tAuraData in pairs(tUnitCache) do
 				if not sAssignedAuras[tInstanceId] then
-					if VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["filter"]) then
+					if VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["resolvedFilter"], tGroup["dispellableOnly"]) then
 						if not tGroup["excludeFilter"] or not VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["excludeFilter"]) then
 							if not VUHDO_isAuraIgnored(tAuraData, anAnchorConfig["groupId"]) then
 								for tSlotIdx = 1, tMaxSlots do
@@ -2097,7 +2220,7 @@ function VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, aPanelNum, anAnchorIndex, 
 
 		if tUnitCache then
 			for tInstanceId, tAuraData in pairs(tUnitCache) do
-				if VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["filter"]) then
+				if VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["resolvedFilter"], tGroup["dispellableOnly"]) then
 					if not tGroup["excludeFilter"] or not VUHDO_auraMatchesFilter(aUnit, tInstanceId, tGroup["excludeFilter"]) then
 						if not VUHDO_isAuraIgnored(tAuraData, anAnchorConfig["groupId"]) then
 							tSlotIndex = tSlotIndex + 1;
@@ -2270,7 +2393,7 @@ do
 			return;
 		end
 
-		tAuras = VUHDO_getFilteredAuras(aUnit, tGroup["filter"], tAnchorConfig["maxDisplay"], tAnchorConfig["sortRule"], tAnchorConfig["sortDir"]);
+		tAuras = VUHDO_getFilteredAuras(aUnit, tGroup["resolvedFilter"], tAnchorConfig["maxDisplay"], tAnchorConfig["sortRule"], tAnchorConfig["sortDir"], tGroup["dispellableOnly"]);
 
 		twipe(sFilteredAuras);
 

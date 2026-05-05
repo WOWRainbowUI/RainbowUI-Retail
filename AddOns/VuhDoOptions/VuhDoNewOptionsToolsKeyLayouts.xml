@@ -359,7 +359,7 @@
 	
 			</Frame>
 	
-			<Frame name="$parentExportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP">
+			<Frame name="$parentExportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" enableMouse="true" enableKeyboard="true">
 				<Size>
 					<AbsDimension x="580" y="350"/>
 				</Size>
@@ -456,7 +456,7 @@
 				</Scripts>
 			</Frame>
 
-			<Frame name="$parentImportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP">
+			<Frame name="$parentImportFrame" inherits="VuhDoFrameTemplate" frameStrata="TOOLTIP" enableMouse="true" enableKeyboard="true">
 				<Size>
 					<AbsDimension x="580" y="350"/>
 				</Size>

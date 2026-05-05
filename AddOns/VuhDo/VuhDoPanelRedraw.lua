@@ -1069,7 +1069,7 @@ do
 
 		tFrameLevel = sPanelConfig[aPanelNum]["privateAura"]["frameLevel"] or 13;
 		tPrivateAura["addLevel"] = tFrameLevel;
-		VUHDO_PixelUtil.SetFrameLevel(tPrivateAura, aHealthBar:GetFrameLevel() + tPrivateAura["addLevel"]);
+		VUHDO_PixelUtil.SetFrameLevel(tPrivateAura, tPrivateAuraContainer:GetFrameLevel() + 1 + tPrivateAura["addLevel"]);
 
 		tGrowthDir = sGrowthOffsets[sPanelConfig[aPanelNum]["privateAura"]["growthDir"]] or sGrowthOffsets["RIGHT"];
 		tWrapDir = sGrowthOffsets[sPanelConfig[aPanelNum]["privateAura"]["wrapDir"]] or sGrowthOffsets["DOWN"];

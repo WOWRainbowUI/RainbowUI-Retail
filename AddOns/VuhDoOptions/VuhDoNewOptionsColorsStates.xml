@@ -63,7 +63,7 @@
 
 			<Frame name="$parentDebuffsPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="198" y="406" />
+					<AbsDimension x="480" y="265" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -90,7 +90,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="98" y="-26" />
+									<AbsDimension x="98" y="-7" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -109,7 +109,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="182" y="-26" />
+									<AbsDimension x="182" y="-7" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -128,7 +128,45 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="128" y="-26" />
+									<AbsDimension x="118" y="-7" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_BORDER" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Frame name="$parentBorderRightLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="75" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="271" y="-7" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_BORDER" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Frame name="$parentBorderCol3Label" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="75" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="424" y="-7" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -144,7 +182,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-164" />
+									<AbsDimension x="274" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -159,7 +197,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="177" y="-164" />
+									<AbsDimension x="177" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -177,7 +215,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-164" />
+									<AbsDimension x="284" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -195,7 +233,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-126" />
+									<AbsDimension x="121" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -210,7 +248,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="177" y="-126" />
+									<AbsDimension x="177" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -228,7 +266,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-126" />
+									<AbsDimension x="131" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -246,7 +284,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-88" />
+									<AbsDimension x="121" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -261,7 +299,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="177" y="-88" />
+									<AbsDimension x="177" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -279,7 +317,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-88" />
+									<AbsDimension x="131" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -297,7 +335,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-202" />
+									<AbsDimension x="427" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -312,7 +350,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="177" y="-202" />
+									<AbsDimension x="177" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -330,7 +368,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-202" />
+									<AbsDimension x="131" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -348,7 +386,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-240" />
+									<AbsDimension x="274" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -363,7 +401,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="177" y="-240" />
+									<AbsDimension x="177" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -381,7 +419,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-240" />
+									<AbsDimension x="131" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -399,7 +437,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-50" />
+									<AbsDimension x="121" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -414,7 +452,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-278" />
+									<AbsDimension x="274" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -429,7 +467,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="177" y="-278" />
+									<AbsDimension x="177" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -447,7 +485,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-278" />
+									<AbsDimension x="131" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -461,26 +499,11 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentPoisonBorderCheckBox" inherits="VuhDoCheckBoxTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="131" y="-50" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.DEBUFF1.useBorder");
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
 					<CheckButton name="$parentPoisonTextCheckBox" inherits="VuhDoCheckBoxTemplate" hidden="true">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="177" y="-50" />
+									<AbsDimension x="177" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -498,7 +521,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="131" y="-50" />
+									<AbsDimension x="131" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -516,7 +539,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-50" />
+									<AbsDimension x="13" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -535,7 +558,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-88" />
+									<AbsDimension x="13" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -554,7 +577,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-126" />
+									<AbsDimension x="13" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -573,7 +596,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-164" />
+									<AbsDimension x="166" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -592,7 +615,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-202" />
+									<AbsDimension x="319" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -611,7 +634,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-316" />
+									<AbsDimension x="13" y="-143" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -628,7 +651,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-354" />
+									<AbsDimension x="166" y="-143" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -645,7 +668,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-240" />
+									<AbsDimension x="166" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -664,7 +687,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-278" />
+									<AbsDimension x="166" y="-105" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -679,17 +702,77 @@
 						</Scripts>
 					</Frame>
 
+					<CheckButton name="$parentShowDispelOverlayCheckBox" text="VUHDO_I18N_PRIVATE_AURA_DISPEL_OVERLAY" inherits="VuhDoCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-185" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.BAR_COLORS.showDispelOverlay");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K824);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<Frame name="$parentDispelIndicatorTypeLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="50" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-228" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_PRIVATE_AURA_DISPEL_TYPE" justifyH="LEFT" inherits="VuDoDefaultFontTemplate" />
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.BAR_COLORS.showDispelOverlay", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Button name="$parentDispelIndicatorTypeCombo" inherits="VuhDoScrollComboBoxTemplate">
+						<Size>
+							<AbsDimension x="120" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parentDispelIndicatorTypeLabel" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="12" y="-18" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_dispelIndicatorTypeComboOnLoad(self);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
 				</Frames>
 			</Frame>
 	
 			<Frame name="$parentAnomaliesPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="236" y="135" />
+					<AbsDimension x="236" y="110" />
 				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentDebuffsPanel" relativePoint="TOPRIGHT">
+					<Anchor point="TOPLEFT" relativeTo="$parentDebuffsPanel" relativePoint="BOTTOMLEFT">
 						<Offset>
-							<AbsDimension x="20" y="0" />
+							<AbsDimension x="0" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -708,7 +791,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-50" />
+									<AbsDimension x="13" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -725,7 +808,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="13" y="-88" />
+									<AbsDimension x="13" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -742,7 +825,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="123" y="-50" />
+									<AbsDimension x="123" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -759,7 +842,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="123" y="-88" />
+									<AbsDimension x="123" y="-67" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -777,12 +860,12 @@
 
 			<Frame name="$parentMiscPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="125" y="95" />
+					<AbsDimension x="125" y="70" />
 				</Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentAnomaliesPanel" relativePoint="BOTTOMLEFT">
+					<Anchor point="TOPLEFT" relativeTo="$parentAnomaliesPanel" relativePoint="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="0" y="-20" />
+							<AbsDimension x="12" y="0" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -801,7 +884,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="12" y="-50" />
+									<AbsDimension x="12" y="-29" />
 								</Offset>
 							</Anchor>
 						</Anchors>

@@ -920,6 +920,7 @@ local function VUHDO_init()
 
 	VUHDO_loadVariables(); -- 2. umgekehrt undefiniertes Verhalten (VUHDO_CONFIG ist nil etc.)
 	VUHDO_initAllBurstCaches();
+	VUHDO_resolveAllAuraGroupFilters();
 	VUHDO_initDefaultProfiles();
 
 	VUHDO_VARIABLES_LOADED = true;
