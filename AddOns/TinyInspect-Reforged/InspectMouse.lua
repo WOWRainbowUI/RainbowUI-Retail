@@ -1,17 +1,5 @@
 local LibEvent = LibStub:GetLibrary("LibEvent.7000")
 
---local function FindLine(tooltip, keyword)
---    local line, text
---    for i = 2, tooltip:NumLines() do
---        line = _G[tooltip:GetName() .. "TextLeft" .. i]
---        text = line:GetText() or ""
---        local check, found = pcall(string.find, text, keyword)
---        if (check and found) then
---            return line, i, _G[tooltip:GetName() .. "TextRight" .. i]
---        end
---    end
---end
-
 function FindLine(tooltip, keyword)
     local line, text
     for i = 2, tooltip:NumLines() do
