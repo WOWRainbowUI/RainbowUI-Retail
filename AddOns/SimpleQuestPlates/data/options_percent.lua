@@ -22,34 +22,25 @@ function SQP:CreatePercentOptions(content)
 
     -- ── Slider helper ─────────────────────────────────────────────────────────
     local function MakeSlider(parent, labelText, key, defaultVal, minVal, maxVal, yOff)
-        local val = SQPSettings[key] ~= nil and SQPSettings[key] or defaultVal
-        local lbl = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-        lbl:SetPoint("TOPLEFT", 20, yOff)
-        lbl:SetText(string.format("%s: %d", labelText, val))
-        SQP.optionControls[key .. "Label"] = lbl
-
-        local sl = SQP:CreateStyledSlider(parent, minVal, maxVal, 1, 160)
-        sl:SetPoint("TOPLEFT", lbl, "BOTTOMLEFT", 0, -4)
-        sl:SetValue(val)
-        SQP.optionControls[key] = sl
-
-        local resetBtn = SQP:CreateInlineResetButton(parent, function()
-            SQP:SetSetting(key, defaultVal)
-            sl:SetValue(defaultVal)
-            lbl:SetText(string.format("%s: %d", labelText, defaultVal))
-            SQP:RefreshAllNameplates()
-        end)
-        resetBtn:SetPoint("LEFT", sl, "RIGHT", 5, 0)
-
-        sl:SetScript("OnValueChanged", function(self, newVal)
-            newVal = math.floor(newVal + 0.5)
-            SQP:SetSetting(key, newVal)
-            lbl:SetText(string.format("%s: %d", labelText, newVal))
-            if SQP.previewFrame and SQP.previewFrame.activatePercentMode then
-                SQP.previewFrame.activatePercentMode()
-            end
-            SQP:RefreshAllNameplates()
-        end)
+        local slider = SQP:CreateStyledSlider(parent, {
+            key = key,
+            label = labelText,
+            min = minVal,
+            max = maxVal,
+            step = 1,
+            default = defaultVal,
+            storage = SQPSettings,
+            width = 160,
+            onChange = function(val)
+                if SQP.previewFrame and SQP.previewFrame.activatePercentMode then
+                    SQP.previewFrame.activatePercentMode()
+                end
+                SQP:RefreshAllNameplates()
+            end,
+        })
+        slider:SetPoint("TOPLEFT", 20, yOff)
+        SQP.optionControls[key] = slider
+        SQP.optionControls[key .. "Label"] = slider.valueLabel
         return yOff - 36
     end
 
@@ -117,32 +108,26 @@ function SQP:CreatePercentOptions(content)
     end)
     yOffset = yOffset - 26
 
-    local percentAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    percentAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
-    percentAnimIntensityLabel:SetText(string.format(self.L["Intensity: %d%%"], SQPSettings.percentAnimationIntensity or 100))
-    self.optionControls.percentAnimationIntensityLabel = percentAnimIntensityLabel
-
-    local percentAnimIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
-    percentAnimIntensitySlider:SetPoint("TOPLEFT", percentAnimIntensityLabel, "BOTTOMLEFT", 0, -4)
-    percentAnimIntensitySlider:SetValue(SQPSettings.percentAnimationIntensity or 100)
+    local percentAnimIntensitySlider = SQP:CreateStyledSlider(leftColumn, {
+        key = "percentAnimationIntensity",
+        label = "Intensity",
+        min = 25,
+        max = 200,
+        step = 5,
+        default = 100,
+        storage = SQPSettings,
+        width = 160,
+        suffix = "%%",
+        onChange = function(val)
+            if SQP.previewFrame and SQP.previewFrame.activatePercentMode then
+                SQP.previewFrame.activatePercentMode()
+            end
+            SQP:RefreshAllNameplates()
+        end,
+    })
+    percentAnimIntensitySlider:SetPoint("TOPLEFT", 20, yOffset)
     self.optionControls.percentAnimationIntensity = percentAnimIntensitySlider
-
-    local percentAnimIntensityReset = self:CreateInlineResetButton(leftColumn, function()
-        SQP:SetSetting('percentAnimationIntensity', 100)
-        percentAnimIntensitySlider:SetValue(100)
-        percentAnimIntensityLabel:SetText(self.L["Intensity: 100%"])
-        ActivatePercent()
-        SQP:RefreshAllNameplates()
-    end)
-    percentAnimIntensityReset:SetPoint("LEFT", percentAnimIntensitySlider, "RIGHT", 5, -2)
-
-    percentAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
-        newVal = math.floor(newVal / 5 + 0.5) * 5
-        SQP:SetSetting('percentAnimationIntensity', newVal)
-        percentAnimIntensityLabel:SetText(string.format(self.L["Intensity: %d%%"], newVal))
-        ActivatePercent()
-        SQP:RefreshAllNameplates()
-    end)
+    self.optionControls.percentAnimationIntensityLabel = percentAnimIntensitySlider.valueLabel
     yOffset = yOffset - 38
 
     -- Percent Color
@@ -230,9 +215,8 @@ function SQP:CreatePercentOptions(content)
         if oc.animateQuestIcons then oc.animateQuestIcons:SetChecked(D.animateQuestIcons) end
         if oc.animateQuestIconsLoot then oc.animateQuestIconsLoot:SetChecked(D.animateQuestIcons) end
         if oc.percentAnimateMain then oc.percentAnimateMain:SetChecked(D.percentAnimateMain) end
-        if oc.percentAnimationIntensity then oc.percentAnimationIntensity:SetValue(D.percentAnimationIntensity) end
-        if oc.percentAnimationIntensityLabel then
-            oc.percentAnimationIntensityLabel:SetText(string.format(self.L["Intensity: %d%%"], D.percentAnimationIntensity))
+        if oc.percentAnimationIntensity and oc.percentAnimationIntensity.Reset then
+            oc.percentAnimationIntensity:Reset()
         end
         if oc.percentTintIcon then oc.percentTintIcon:SetChecked(D.percentTintIcon) end
         if oc.percentColorSwatch then oc.percentColorSwatch:SetColorTexture(unpack(D.percentColor)) end

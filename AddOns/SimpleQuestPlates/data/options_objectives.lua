@@ -150,60 +150,26 @@ local function CreateObjectiveColorControl(parent, objective, yOffset)
 end
 
 local function CreateCompactSlider(parent, title, key, defaultValue, minValue, maxValue, step, yOffset, previewMethod)
-    local label = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    label:SetPoint("TOPLEFT", 12, yOffset)
-    label:SetText(title)
+	local slider = SQP:CreateStyledSlider(parent, {
+		key = key,
+		label = title,
+		min = minValue,
+		max = maxValue,
+		step = step,
+		default = defaultValue,
+		storage = SQPSettings,
+		width = 150,
+		onChange = function(value)
+			if previewMethod then
+				ActivatePreview(previewMethod)
+			end
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	slider:SetPoint("TOPLEFT", 12, yOffset)
+	SQP.optionControls[key] = slider
 
-    local valueLabel = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    valueLabel:SetPoint("RIGHT", parent, "TOPRIGHT", -12, yOffset)
-
-    local slider = SQP:CreateStyledSlider(parent, minValue, maxValue, step, 150)
-    slider:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -4)
-    slider:SetValue(SQPSettings[key] ~= nil and SQPSettings[key] or defaultValue)
-    SQP.optionControls[key] = slider
-
-    local reset = SQP:CreateInlineResetButton(parent, function()
-        SQP:SetSetting(key, defaultValue)
-        slider:SetValue(defaultValue)
-        if previewMethod then
-            ActivatePreview(previewMethod)
-        end
-        SQP:RefreshAllNameplates()
-    end)
-    reset:SetPoint("LEFT", slider, "RIGHT", 4, 0)
-
-    local function formatValue(value)
-        if step == 0.1 then
-            return format("%.1f", value)
-        end
-        return tostring(value)
-    end
-
-    local function normalize(value)
-        if step == 0.1 then
-            return math.floor(value * 10 + 0.5) / 10
-        elseif step == 5 then
-            return math.floor(value / 5 + 0.5) * 5
-        end
-        return math.floor(value + 0.5)
-    end
-
-    local function updateLabel(value)
-        valueLabel:SetText(formatValue(value))
-    end
-
-    slider:SetScript("OnValueChanged", function(self, value)
-        value = normalize(value)
-        SQP:SetSetting(key, value)
-        updateLabel(value)
-        if previewMethod then
-            ActivatePreview(previewMethod)
-        end
-        SQP:RefreshAllNameplates()
-    end)
-
-    updateLabel(SQPSettings[key] ~= nil and SQPSettings[key] or defaultValue)
-    return yOffset - 38
+	return yOffset - 38
 end
 
 function SQP:CreateAnimationOptions(content)
@@ -301,51 +267,46 @@ function SQP:CreateAnimationOptions(content)
         mainFrame.checkbox:SetChecked(SQPSettings[objective.animateMainKey] == true)
         self.optionControls[objective.animateMainKey] = mainFrame.checkbox
 
-        local label = perTypeSection:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-        label:SetPoint("TOPLEFT", 34, startY - 42)
-        label:SetText(format("Intensity: %d%%", SQPSettings[objective.intensityKey] or 100))
-        self.optionControls[objective.intensityKey .. "Label"] = label
+	local label = perTypeSection:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+	label:SetPoint("TOPLEFT", 34, startY - 42)
+	label:SetText(format("Intensity: %d%%", SQPSettings[objective.intensityKey] or 100))
+	self.optionControls[objective.intensityKey .. "Label"] = label
 
-        local slider = self:CreateStyledSlider(perTypeSection, 25, 200, 5, 132)
-        slider:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -4)
-        slider:SetValue(SQPSettings[objective.intensityKey] or 100)
-        self.optionControls[objective.intensityKey] = slider
+	local slider = self:CreateStyledSlider(perTypeSection, {
+		key = objective.intensityKey,
+		label = "Intensity",
+		min = 25,
+		max = 200,
+		step = 5,
+		default = 100,
+		storage = SQPSettings,
+		suffix = "%%",
+		width = 132,
+		onChange = function(value)
+			label:SetText(format("Intensity: %d%%", value))
+			ActivatePreview(objective.preview)
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	slider:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -4)
+	self.optionControls[objective.intensityKey] = slider
 
-        local reset = self:CreateInlineResetButton(perTypeSection, function()
-            SQP:SetSetting(objective.intensityKey, 100)
-            slider:SetValue(100)
-            label:SetText("Intensity: 100%")
-            ActivatePreview(objective.preview)
-            SQP:RefreshAllNameplates()
-        end)
-        reset:SetPoint("LEFT", slider, "RIGHT", 4, 0)
+	mainFrame.checkbox:SetScript("OnClick", function(self)
+		SQP:SetSetting(objective.animateMainKey, self:GetChecked())
+		ActivatePreview(objective.preview)
+		SQP:RefreshAllNameplates()
+	end)
 
-        mainFrame.checkbox:SetScript("OnClick", function(self)
-            SQP:SetSetting(objective.animateMainKey, self:GetChecked())
-            ActivatePreview(objective.preview)
-            SQP:RefreshAllNameplates()
-        end)
-
-        slider:SetScript("OnValueChanged", function(self, value)
-            value = math.floor(value / 5 + 0.5) * 5
-            SQP:SetSetting(objective.intensityKey, value)
-            label:SetText(format("Intensity: %d%%", value))
-            ActivatePreview(objective.preview)
-            SQP:RefreshAllNameplates()
-        end)
-
-        updaters[#updaters + 1] = function(disabled)
-            local alpha = disabled and 0.45 or 1
-            title:SetAlpha(alpha)
-            mainFrame:SetAlpha(alpha)
-            if mainFrame.checkbox then
-                mainFrame.checkbox:SetEnabled(not disabled)
-            end
-            slider:SetEnabled(not disabled)
-            slider:SetAlpha(alpha)
-            label:SetAlpha(alpha)
-            reset:SetAlpha(disabled and 0.35 or 0.7)
-        end
+	updaters[#updaters + 1] = function(disabled)
+		local alpha = disabled and 0.45 or 1
+		title:SetAlpha(alpha)
+		mainFrame:SetAlpha(alpha)
+		if mainFrame.checkbox then
+			mainFrame.checkbox:SetEnabled(not disabled)
+		end
+		slider:SetAlpha(alpha)
+		label:SetAlpha(alpha)
+	end
 
         startY = startY - 56
     end

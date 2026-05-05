@@ -1,3 +1,13 @@
+# v2.1.0 - 2026-05-02
+
+## Changes
+
+- Migrated all sliders to the RGX Framework `UI:CreateSlider` with custom track-style design using RGX brand colors.
+- Removed per-slider manual label, reset button, and OnValueChanged boilerplate — the framework now handles all of this internally.
+- `SQP:CreateStyledSlider` now delegates to `UI:CreateSlider` when RGXUI is available, with fallback to the old Blizzard slider.
+- Sliders support click, drag, scroll wheel, and show value label on hover.
+- Net reduction of ~160 lines of manual slider setup code across all options files.
+
 # v2.0.17 - 2026-05-01
 
 ## Changes
