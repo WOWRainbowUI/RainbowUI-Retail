@@ -211,7 +211,7 @@ if (EquipmentFlyout_DisplayButton) then
     hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
         local location = button.location
         if (not location) then return end
-        local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
+ --       local player, bank, bags, voidStorage, slot, bag, tab, voidSlot = EquipmentManager_UnpackLocation(location)
         if (not player and not bank and not bags and not voidStorage) then return end
         if (voidStorage) then
             SetItemLevel(button, nil, "AltEquipment")

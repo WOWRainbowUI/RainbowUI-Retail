@@ -53,7 +53,8 @@ local function GetInspectItemListFrame(parent)
         frame.title:SetPoint("TOPLEFT", frame, "TOPLEFT", 66, -18)
         frame.level = frame:CreateFontString(nil, "ARTWORK", itemfont)
         frame.level:SetPoint("TOPLEFT", frame, "TOPLEFT", 66, -42)
-        frame.level:SetFont(frame.level:GetFont(), 14, "THINOUTLINE")
+        local levelFont = frame.level:GetFont()
+        frame.level:SetFont(levelFont, 14, "THINOUTLINE")
 
         local itemframe
         local fontsize = GetLocale():sub(1,2) == "zh" and 12 or 9
