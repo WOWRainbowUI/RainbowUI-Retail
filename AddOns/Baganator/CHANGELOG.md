@@ -1,6 +1,6 @@
 # Baganator
 
-## [800](https://github.com/TheMouseNest/Baganator/tree/800) (2026-04-25)
-[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/799...800) 
+## [802](https://github.com/TheMouseNest/Baganator/tree/802) (2026-05-02)
+[Full Changelog](https://github.com/TheMouseNest/Baganator/compare/801...802) 
 
-- Retail: Fix item upgrade track grouping for Champion, Hero and Myth gear  
+- Single bag: Bugfix for exporting profiles using hidden special containers  
