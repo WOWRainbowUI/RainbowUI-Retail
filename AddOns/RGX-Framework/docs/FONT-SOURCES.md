@@ -66,7 +66,7 @@ When adding another font family:
 1. Download the font from its official source.
 2. Keep only the specific weights/styles RGX plans to expose.
 3. Place the files in `media/fonts/`.
-4. Register them in `modules/fonts/fonts.lua`.
+4. Register them in `modules/fonts/definitions.lua`.
 5. Update `media/fonts/README.md` and this file.
 
 ## License Notes

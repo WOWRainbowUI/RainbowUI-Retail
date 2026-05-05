@@ -150,7 +150,7 @@ To add more fonts:
 
 1. Download TTF or OTF font files from open source font repositories
 2. Copy them to this folder
-3. Add entries to `modules/fonts/fonts.lua` in the `Fonts.definitions` table
+3. Add entries to `modules/fonts/definitions.lua` in the `Fonts.definitions` table
 4. Restart WoW
 
 ## Recommended Sources

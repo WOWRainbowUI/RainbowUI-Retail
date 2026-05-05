@@ -1,5 +1,5 @@
 ## Interface: 120005
-## Version: 1.6.0
+## Version: 1.7.0
 ## Title: RGX-Framework
 ## Notes: Modular WoW addon library — events, timers, minimap, fonts, colors, textures, dropdowns, UI controls, pet battles, combat, reputation, data broker, sound
 ## Author: RGX
