@@ -236,13 +236,17 @@ L["Display.LoginFirstInstall"] =
     "Grazie per l'installazione! Digita |cFFFFD100/br unlock|r per spostare il display dei buff, oppure usa il pulsante in fondo al pannello opzioni di |cFFFFD100/br|r."
 
 -- ============================================================================
--- OPTIONS: TAB LABELS
+-- OPTIONS: NAVIGATION LABELS
 -- ============================================================================
-L["Tab.Buffs"] = "Buff"
 L["Tab.DisplayBehavior"] = "Visualizzazione"
-L["Tab.Settings"] = "Impostazioni"
-L["Tab.Profiles"] = "Profili"
-L["Tab.Sounds"] = "Suoni"
+
+-- Sidebar groups
+L["Sidebar.Buffs"] = "Buff"
+L["Sidebar.Profiles"] = "Profili"
+
+-- Page titles
+L["Page.Profiles"] = "Profili"
+L["Page.Sounds"] = "Suoni"
 
 -- ============================================================================
 -- OPTIONS: SOUND ALERTS
@@ -275,8 +279,8 @@ L["Options.GlowReminderIcons.Desc"] =
     "Aggiunge un effetto bagliore alle icone promemoria. Personalizza per configurare indipendentemente i bagliori per buff in scadenza e mancanti."
 L["Options.GlowKind.Expiring"] = "In Scadenza"
 L["Options.GlowKind.Missing"] = "Mancante"
-L["Options.GlowSettings.Expiring"] = "Impostazioni Bagliore — In Scadenza"
-L["Options.GlowSettings.Missing"] = "Impostazioni Bagliore — Mancante"
+L["Options.GlowSettings.Expiring"] = "Impostazioni Bagliore - In Scadenza"
+L["Options.GlowSettings.Missing"] = "Impostazioni Bagliore - Mancante"
 L["Options.Glow.Enabled"] = "Abilitato"
 L["Options.Threshold"] = "Soglia"
 L["Options.GlowMissingPets"] = "Bagliore pet mancanti"
@@ -313,9 +317,6 @@ L["Options.ReadyCheckOnly"] = "Mostra solo al controllo prontezza"
 L["Options.ReadyCheckOnly.Desc"] =
     "Mostra i buff di questa categoria solo per 15 secondi dopo l'inizio di un controllo prontezza"
 L["Options.Visibility"] = "Visibilità"
-L["Options.PerCategoryCustomization"] = "Personalizzazione per Categoria"
-L["Options.DetachIcon"] = "Separa"
-L["Options.DetachIcon.Desc"] = "Sposta questa icona in un frame posizionabile indipendentemente"
 
 -- ============================================================================
 -- OPTIONS: HEALTHSTONE
@@ -489,12 +490,8 @@ L["Options.DelveFoodTimer.Desc"] =
 -- OPTIONS: LAYOUT
 -- ============================================================================
 L["Options.Layout"] = "Disposizione"
-L["Options.Priority"] = "Priorità"
-L["Options.Priority.Desc"] =
-    "Controlla l'ordine di questa categoria nel frame combinato. I valori più bassi vengono mostrati per primi."
 L["Options.SplitFrame"] = "Separa in un frame indipendente"
 L["Options.SplitFrame.Desc"] = "Mostra i buff di questa categoria in un frame separato, spostabile indipendentemente"
-L["Options.DisplayPriority"] = "Priorità di Visualizzazione"
 
 -- ============================================================================
 -- OPTIONS: APPEARANCE
@@ -511,7 +508,6 @@ L["Options.MasqueNote"] = "Le impostazioni di Zoom e Bordo sono gestite da Masqu
 -- ============================================================================
 L["Options.ShowLoginMessages"] = "Mostra messaggi di accesso"
 L["Options.ShowMinimapButton"] = "Mostra pulsante minimappa"
-L["Options.ShowOnlyInGroup"] = "Mostra solo in gruppo/incursione"
 
 -- Hide when section
 L["Options.HideWhen"] = "Nascondi quando:"
@@ -616,7 +612,7 @@ L["Options.Lock"] = "Blocca"
 L["Options.Unlock"] = "Sblocca"
 
 -- ============================================================================
--- OPTIONS: CUSTOM BUFF MODAL
+-- OPTIONS: CUSTOM BUFF DIALOG
 -- ============================================================================
 L["CustomBuff.Edit"] = "Modifica Buff Personalizzato"
 L["CustomBuff.Add"] = "Aggiungi Buff Personalizzato"
@@ -630,8 +626,6 @@ L["CustomBuff.LineBreakHint"] = "(usa \\n per andare a capo)"
 L["CustomBuff.Appearance"] = "ASPETTO"
 L["CustomBuff.ShowIn"] = "MOSTRA IN"
 L["CustomBuff.ClickAction"] = "AZIONE AL CLICK"
-L["CustomBuff.SettingsMovedNote"] =
-    "Le impostazioni di visibilità e controllo prontezza sono state spostate nel menu di modifica di ogni buff."
 
 -- Custom buff mode toggles
 L["CustomBuff.WhenActive"] = "Quando attivo"
@@ -661,7 +655,7 @@ L["CustomBuff.RequireItem"] = "Richiedi oggetto:"
 L["CustomBuff.RequireItem.EquippedBags"] = "Equipaggiato/Borse"
 L["CustomBuff.RequireItem.Equipped"] = "Equipaggiato"
 L["CustomBuff.RequireItem.InBags"] = "Nelle borse"
-L["CustomBuff.RequireItem.Hint"] = "ID oggetto — nascondi se non trovato"
+L["CustomBuff.RequireItem.Hint"] = "ID oggetto - nascondi se non trovato"
 
 -- Bar glow options
 L["CustomBuff.BarGlow.WhenGlowing"] = "Rileva quando brilla"
@@ -694,10 +688,6 @@ L["CustomBuff.Action.MacroHint"] = "es. /use item:12345\\n/use 13"
 L["CustomBuff.Save"] = "Salva"
 L["CustomBuff.ValidateError"] = "Convalida almeno un ID incantesimo"
 
--- Custom buff tooltip
-L["CustomBuff.Tooltip.Title"] = "Buff Personalizzato"
-L["CustomBuff.Tooltip.Desc"] = "Click destro per modificare o eliminare"
-
 -- Custom buff status
 L["CustomBuff.InvalidID"] = "ID non valido"
 L["CustomBuff.NotFound"] = "Non trovato"
@@ -714,7 +704,6 @@ L["Options.JoinDiscord.Desc"] = "Hai feedback, richieste di funzionalità o segn
 -- ============================================================================
 -- OPTIONS: CUSTOM ANCHOR FRAMES
 -- ============================================================================
-L["Options.CustomAnchorFrames"] = "Frame di Ancoraggio Personalizzati"
 L["Options.CustomAnchorFrames.Desc"] =
     "Aggiungi nomi di frame globali al menu di ancoraggio (es. MyAddon_PlayerFrame).\nI frame che non esistono nel gioco vengono ignorati automaticamente."
 L["Options.Add"] = "Aggiungi"

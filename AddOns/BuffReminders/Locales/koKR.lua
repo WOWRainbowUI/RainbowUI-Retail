@@ -30,7 +30,7 @@ L["Category.CustomBuffs"] = "사용자 지정 버프"
 -- Category notes
 L["Category.RaidNote"] = "(그룹 전체 대상)"
 L["Category.TargetedNote"] = "(다른 대상에게 거는 버프)"
-L["Category.ConsumableNote"] = "(물약, 음식, 룬, 오일)"
+L["Category.ConsumableNote"] = "(영약, 음식, 증강 룬, 기름)"
 L["Category.PresenceNote"] = "(최소 1명 필요)"
 L["Category.SelfNote"] = "(자신에게만 거는 버프)"
 L["Category.PetNote"] = "(소환수 소환 알림)"
@@ -42,33 +42,37 @@ L["Category.CustomNote"] = "(주문 ID로 버프/반짝임 추적)"
 -- These must be kept very short (2-4 chars per line) to fit on small icons.
 L["Overlay.NoDrPoison"] = "독\n없음"
 L["Overlay.NoAura"] = "오라\n없음"
-L["Overlay.NoStone"] = "영석\n없음"
+L["Overlay.NoStone"] = "생석\n없음"
+L["Overlay.NoSoulstone"] = "영석\n없음"
 L["Overlay.NoFaith"] = "신봉\n없음"
 L["Overlay.NoLight"] = "봉화\n없음"
 L["Overlay.NoES"] = "대보\n없음"
 L["Overlay.NoSource"] = "원천\n없음"
 L["Overlay.NoScales"] = "비늘\n없음"
 L["Overlay.NoLink"] = "공생\n없음"
+L["Overlay.NoTimeless"] = "무궁\n없음"
 L["Overlay.NoAttune"] = "조율\n없음"
 L["Overlay.NoFamiliar"] = "전령\n없음"
 L["Overlay.DropWell"] = "영혼샘\n깔기"
 L["Overlay.NoGrim"] = "흑마법서\n없음"
-L["Overlay.BurningRush"] = "RUSH"
+L["Overlay.BurningRush"] = "불돌"
 L["Overlay.NoRite"] = "의식\n없음"
 L["Overlay.ApplyPoison"] = "독\n바르기"
-L["Overlay.NoForm"] = "형상\n꺼짐"
+L["Overlay.NoForm"] = "형상\n없음"
 L["Overlay.NoEL"] = "대지생명\n없음"
 L["Overlay.NoFT"] = "불꽃\n없음"
 L["Overlay.NoTG"] = "수호\n없음"
-L["Overlay.NoWF"] = "바람분노\n없음"
+L["Overlay.NoWF"] = "질풍\n없음"
 L["Overlay.NoSelfES"] = "내 대보\n없음"
 L["Overlay.NoShield"] = "보호막\n없음"
 L["Overlay.NoPet"] = "소환수\n없음"
 L["Overlay.PassivePet"] = "수동적\n소환수"
 L["Overlay.WrongPet"] = "잘못된\n소환수"
+L["Overlay.WrongStance"] = "잘못된\n태세"
+L["Overlay.WrongForm"] = "잘못된\n형상"
 L["Overlay.NoRune"] = "증강\n없음"
-L["Overlay.DKWrongRune"] = "룬 조각\n오류"
-L["Overlay.DKWrongRuneOH"] = "보조손\n룬\n오류"
+L["Overlay.DKWrongRune"] = "잘못된\n룬"
+L["Overlay.DKWrongRuneOH"] = "잘못된\n보조\n룬"
 L["Overlay.NoFlask"] = "영약\n없음"
 L["Overlay.NoFood"] = "음식\n없음"
 L["Overlay.NoWeaponBuff"] = "무기 버프\n없음"
@@ -78,10 +82,104 @@ L["Overlay.LessThanOneMinute"] = "<1분"
 L["Overlay.SecondsFormat"] = "%d초"
 
 -- ============================================================================
+-- CONSUMABLE STAT LABELS (icon overlays, keep very short)
+-- ============================================================================
+L["Label.Crit"] = "치명타"
+L["Label.Haste"] = "가속"
+L["Label.Versatility"] = "유연성"
+L["Label.Mastery"] = "특화"
+L["Label.Stamina"] = "체력"
+L["Label.Healing"] = "치유"
+L["Label.Random"] = "무작위"
+L["Label.Speed"] = "이속"
+L["Label.PvP"] = "PvP"
+L["Label.Feast"] = "잔칫상"
+L["Label.HasteShort"] = "가"
+L["Label.VersatilityShort"] = "유"
+L["Label.MasteryShort"] = "특"
+L["Label.CritVers"] = "치/유"
+L["Label.MasteryCrit"] = "특/치"
+L["Label.MasteryVers"] = "특/유"
+L["Label.MasteryHaste"] = "특/가"
+L["Label.HasteCrit"] = "가/치"
+L["Label.HasteVers"] = "가/유"
+L["Label.StaminaStr"] = "체/힘"
+L["Label.StaminaAgi"] = "체/민"
+L["Label.StaminaInt"] = "체/지"
+L["Label.HighPrimary"] = "상급 1차"
+L["Label.HighSecondary"] = "상급 2차"
+L["Label.MidPrimary"] = "중급 1차"
+L["Label.LowPrimary"] = "하급 1차"
+L["Label.LowSecondary"] = "하급 2차"
+L["Label.RevivePet"] = "야수 되살리기"
+L["Label.Felguard"] = "지옥수호병"
+L["Badge.Hearty"] = "든"
+L["Badge.Fleeting"] = "덧"
+
+-- ============================================================================
+-- BUFF NAMES (used in Options panel checkboxes and sound notification list)
+-- ============================================================================
+-- Raid
+L["Buff.ArcaneIntellect"] = "신비한 지능"
+L["Buff.BattleShout"] = "전투의 함성"
+L["Buff.BlessingOfTheBronze"] = "청동용군단의 축복"
+L["Buff.MarkOfTheWild"] = "야생의 징표"
+L["Buff.PowerWordFortitude"] = "신의 권능: 인내"
+L["Buff.Skyfury"] = "하늘의 격노"
+-- Presence
+L["Buff.AtrophicNumbingPoison"] = "위축/마취 독"
+L["Buff.DevotionAura"] = "헌신의 오라"
+L["Buff.Soulstone"] = "영혼석"
+-- Targeted
+L["Buff.BeaconOfFaith"] = "신념의 봉화"
+L["Buff.BeaconOfLight"] = "빛의 봉화"
+L["Buff.BlisteringScales"] = "끓어오르는 비늘"
+L["Buff.EarthShield"] = "대지의 보호막"
+L["Buff.SourceOfMagic"] = "마법의 원천"
+L["Buff.SymbioticRelationship"] = "공생관계"
+L["Buff.Timelessness"] = "무궁"
+-- Self
+L["Buff.ArcaneFamiliar"] = "비전 전령"
+L["Buff.Attunement"] = "조율"
+L["Buff.CreateSoulwell"] = "영혼의 샘 창조"
+L["Buff.DruidForm"] = "드루이드 변신"
+L["Buff.GrimoireOfSacrifice"] = "흑마법서: 희생"
+L["Buff.BurningRush"] = "불타는 돌진"
+L["Buff.RiteOfAdjuration"] = "서원의 의식"
+L["Buff.RiteOfSanctification"] = "축성의 의식"
+L["Buff.RoguePoisons"] = "도적 독"
+L["Buff.RuneforgeMH"] = "룬벼리기 (주장비)"
+L["Buff.RuneforgeOH"] = "룬벼리기 (보조장비)"
+L["Buff.Shadowform"] = "어둠의 형상"
+L["Buff.EarthlivingWeapon"] = "대지생명의 무기"
+L["Buff.FlametongueWeapon"] = "불꽃혓바닥 무기"
+L["Buff.TidecallersGuard"] = "파도소환사의 수호"
+L["Buff.WindfuryWeapon"] = "질풍의 무기"
+L["Buff.EarthShieldSelf"] = "대지의 보호막 (자신)"
+L["Buff.WaterLightningShield"] = "물/번개 보호막"
+L["Buff.ShieldNoTalent"] = "보호막 (특성 없음)"
+-- Pet
+L["Buff.PetPassive"] = "수동적 소환수"
+L["Buff.HunterPet"] = "사냥꾼 야수"
+L["Buff.UnholyGhoul"] = "부죽 구울"
+L["Buff.WarlockDemon"] = "흑마법사 악마"
+L["Buff.WaterElemental"] = "물의 정령"
+L["Buff.WrongDemon"] = "잘못된 악마"
+L["Buff.WarriorStance"] = "전사 태세"
+-- Consumable
+L["Buff.AugmentRune"] = "증강 룬"
+L["Buff.Flask"] = "영약"
+L["Buff.DelveFood"] = "구렁 음식"
+L["Buff.Food"] = "음식"
+L["Buff.Healthstone"] = "생명석"
+L["Buff.Weapon"] = "무기"
+L["Buff.WeaponOH"] = "무기 (보조장비)"
+
+-- ============================================================================
 -- BUFF GROUP DISPLAY NAMES
 -- ============================================================================
 L["Group.Beacons"] = "봉화"
-L["Group.DKRunes"] = "룬 조각"
+L["Group.DKRunes"] = "룬벼리기"
 L["Group.ShamanImbues"] = "주술사 무기 강화"
 L["Group.PaladinRites"] = "성기사 의식"
 L["Group.Pets"] = "소환수"
@@ -126,11 +224,11 @@ L["Profile.Switched"] = "'%s' 프로필로 전환했습니다."
 -- MOVERS
 -- ============================================================================
 L["Mover.SetPosition"] = "위치 설정"
-L["Mover.AnchorFrame"] = "고정할 프레임"
-L["Mover.AnchorPoint"] = "고정 지점"
+L["Mover.AnchorFrame"] = "앵커 프레임"
+L["Mover.AnchorPoint"] = "앵커 지점"
 L["Mover.NoneScreenCenter"] = "없음 (화면 중앙)"
 L["Mover.Apply"] = "적용"
-L["Mover.BuffAnchor"] = "버프 위치"
+L["Mover.BuffAnchor"] = "버프 앵커"
 L["Mover.DragTooltip"] = "드래그로 위치 조정\n클릭으로 좌표 편집기 열기/닫기"
 L["Mover.MainEmpty"] = "메인 (비어있음)"
 L["Mover.MainAll"] = "메인 (전체)"
@@ -146,19 +244,41 @@ L["Display.MinimapShown"] = "미니맵 아이콘이 표시됩니다."
 L["Display.Description"] = "누락된 버프를 한꺼번에 확인하세요."
 L["Display.OpenOptions"] = "옵션 열기"
 L["Display.SlashCommands"] = "슬래시 명령어: /br, /br lock, /br unlock, /br test, /br minimap"
-L["Display.MinimapLeftClick"] = "|cFFCFCFCF좌클릭|r: 옵션"
-L["Display.MinimapRightClick"] = "|cFFCFCFCF우클릭|r: 테스트 모드"
+L["Display.MinimapLeftClick"] = "|cFFCFCFCF왼쪽 클릭|r: 옵션"
+L["Display.MinimapRightClick"] = "|cFFCFCFCF오른쪽 클릭|r: 테스트 모드"
 L["Display.DismissConsumables"] = "다음 로딩 화면 전까지 소모품 알림 숨기기"
+L["Display.DismissConsumablesChat"] = "소모품 알림이 다음 로딩 화면까지 숨겨집니다."
 L["Display.LoginFirstInstall"] =
     "설치해 주셔서 감사합니다! |cFFFFD100/br unlock|r을 입력하여 버프 표시를 이동하거나, |cFFFFD100/br|r 옵션 패널 하단의 버튼을 사용하세요."
+L["Display.LoginSelfOnlyOutside"] =
+    "새로운 기본값: 야외에서는 내 스스로 거는 버프만 추적합니다. 변경하려면 설정 탭에서 |cFFFFD100던전/공격대 외에선 내것만 추적|r 옵션을 설정하세요."
 
 -- ============================================================================
--- OPTIONS: TAB LABELS
+-- OPTIONS: NAVIGATION LABELS
 -- ============================================================================
-L["Tab.Buffs"] = "버프"
 L["Tab.DisplayBehavior"] = "표시/동작"
-L["Tab.Settings"] = "설정"
-L["Tab.Profiles"] = "프로필"
+
+-- Sidebar groups
+L["Sidebar.Buffs"] = "버프"
+L["Sidebar.Profiles"] = "프로필"
+
+-- Page titles
+L["Page.ChatRequests"] = "채팅 요청"
+L["Page.Profiles"] = "프로필"
+L["Page.Sounds"] = "효과음"
+
+-- ============================================================================
+-- OPTIONS: SOUND ALERTS
+-- ============================================================================
+L["Options.Sound.NoAlerts"] = "설정된 효과음 알림이 없습니다."
+L["Options.Sound.AddAlert"] = "효과음 알림 추가"
+L["Options.Sound.Title"] = "효과음 알림 추가"
+L["Options.Sound.EditTitle"] = "효과음 알림 편집"
+L["Options.Sound.SelectBuff"] = "버프 선택"
+L["Options.Sound.SelectSound"] = "효과음 선택"
+L["Options.Sound.Preview"] = "미리듣기"
+L["Options.Sound.Save"] = "저장"
+L["Options.Sound.NoBuffs"] = "모든 버프에 효과음이 있습니다."
 
 -- ============================================================================
 -- OPTIONS: GLOBAL DEFAULTS
@@ -167,7 +287,14 @@ L["Options.GlobalDefaults"] = "전체 기본값"
 L["Options.GlobalDefaults.Note"] =
     "(사용자 지정 외형으로 덮어쓰지 않는 한 모든 카테고리에 적용됨)"
 L["Options.Default"] = "기본값"
-L["Options.Font"] = "폰트"
+L["Options.Font"] = "글꼴"
+L["Options.TextOutline"] = "외곽선 스타일"
+L["Options.TextOutline.None"] = "없음"
+L["Options.TextOutline.Outline"] = "외곽선"
+L["Options.TextOutline.Thick"] = "두꺼운 외곽선"
+L["Options.TextOutline.Monochrome"] = "모노크롬"
+L["Options.TextOutline.OutlineMono"] = "외곽선 + 모노크롬"
+L["Options.TextOutline.ThickMono"] = "두꺼운 + 모노크롬"
 
 -- ============================================================================
 -- OPTIONS: GLOW SETTINGS
@@ -175,21 +302,24 @@ L["Options.Font"] = "폰트"
 L["Options.GlowReminderIcons"] = "알림 아이콘 반짝임"
 L["Options.GlowReminderIcons.Title"] = "알림 아이콘 반짝임"
 L["Options.GlowReminderIcons.Desc"] =
-    "누락 및 만료 버프를 포함해 표시되는 모든 알림 아이콘에 반짝임 효과를 추가합니다."
-L["Options.GlowKind.Expiring"] = "만료"
+    "알림 아이콘에 반짝임 효과를 추가합니다. 만료 임박과 누락 반짝임 효과를 각자 독립적으로 설정할 수 있습니다."
+L["Options.GlowKind.Expiring"] = "만료 임박"
 L["Options.GlowKind.Missing"] = "누락"
-L["Options.GlowSettings.Expiring"] = "반짝임 설정 — 만료"
-L["Options.GlowSettings.Missing"] = "반짝임 설정 — 누락"
+L["Options.GlowSettings.Expiring"] = "반짝임 설정 - 만료 임박"
+L["Options.GlowSettings.Missing"] = "반짝임 설정 - 누락"
 L["Options.Glow.Enabled"] = "활성화"
 L["Options.Threshold"] = "기준값"
-L["Options.GlowMissingPets"] = "누락 소환수 반짝임"
+L["Options.GlowMissingPets"] = "소환수 없음 반짝임"
 L["Options.CustomGlowStyle"] = "사용자 지정 반짝임 스타일"
-L["Options.Expiration"] = "만료"
+L["Options.Expiration"] = "만료 임박"
 L["Options.Glow"] = "반짝임"
 L["Options.UseCustomColor"] = "사용자 지정 색상 사용"
 L["Options.UseCustomColor.Desc"] =
-    "활성화하면 발동 반짝임의 채도를 낮추고 색상을 변경합니다.\n기본 발동 반짝임보다 덜 선명하게 보일 수 있습니다."
-L["Options.ExpirationReminder"] = "만료 알림"
+    "활성화하면 발동 반짝임의 채도가 내려가고 색상이 변경됩니다.\n기본 발동 반짝임보다 덜 선명하게 보일 수 있습니다."
+L["Options.ExpirationReminder"] = "만료 임박 알림"
+L["Options.PreKeyThreshold"] = "쐐기 전 기준값"
+L["Options.PreKeyThreshold.Desc"] =
+    "신화 던전(M0)에서 쐐기돌을 넣기 전에는 더 긴 만료 임박 기준값을 사용합니다.\n쐐기를 시작하기 전 버프 작업할 때 도움이 됩니다."
 
 -- Glow params
 L["Options.Glow.Type"] = "유형:"
@@ -214,11 +344,7 @@ L["Options.HidePvPMatchStart.Desc"] =
     "PvP 경기가 시작되면 (준비 단계 종료 후) 이 카테고리를 숨깁니다."
 L["Options.ReadyCheckOnly"] = "전투 준비 시에만 표시"
 L["Options.ReadyCheckOnly.Desc"] = "전투 준비 후 15초 동안만 이 카테고리의 버프를 표시합니다."
-L["Options.Visibility"] = "표시 조건"
-L["Options.PerCategoryCustomization"] = "카테고리별 사용자 지정"
-L["Options.DetachIcon"] = "분리"
-L["Options.DetachIcon.Desc"] =
-    "이 아이콘을 독립적으로 위치를 옮길 수 있는 별도의 프레임으로 이동시킵니다."
+L["Options.Visibility"] = "표시 설정"
 
 -- ============================================================================
 -- OPTIONS: HEALTHSTONE
@@ -238,32 +364,32 @@ L["Options.Healthstone.LowStock.Desc"] =
     "생명석이 있지만 부족할 때 경고를 표시합니다. 생명석이 없는 경우(0개)는 이 설정과 관계없이 항상 추적됩니다."
 L["Options.Healthstone.Threshold"] = "경고 기준 수량"
 L["Options.Healthstone.Threshold.Desc"] =
-    "생명석이 이 수량 이하일 때 부족 경고를 표시합니다.\n\n|cffffcc001:|r 정확히 1개일 때 경고.\n|cffffcc002:|r 1개 또는 2개일 때 경고."
+    "생명석이 이 수량 이하일 때 부족 경고를 표시합니다.\n\n|cffffcc001:|r 정확히 1개일 때 경고.\n|cffffcc002:|r 1개나 2개일 때 경고합니다."
 
 -- ============================================================================
 -- OPTIONS: SOULSTONE
 -- ============================================================================
 L["Options.Soulstone.Visibility"] = "영혼석 표시"
 L["Options.Soulstone.Visibility.Desc"] =
-    "영혼석 알림이 표시되는 시점을 설정합니다.\n\n|cffffcc00전투 준비 시에만:|r 전투 준비 시에만 표시 (기본값).\n|cffffcc00전투 준비 + 흑마법사는 항상 표시:|r 흑마법사는 항상 보이고, 다른 직업은 전투 준비 시에만.\n|cffffcc00항상 표시:|r 존재 카테고리가 보일 때마다 표시."
+    "영혼석 알림이 표시되는 시점을 설정합니다.\n\n|cffffcc00전투 준비 시에만:|r 전투 준비 시에만 표시 (기본값).\n|cffffcc00전투 준비 + 흑마법사는 항상 표시:|r 흑마법사는 항상 보이고, 다른 직업은 전투 준비 시에만.\n|cffffcc00항상 표시:|r 특수 버프 카테고리가 보일 때마다 표시."
 L["Options.Soulstone.ReadyCheckOnly"] = "전투 준비 시에만"
 L["Options.Soulstone.ReadyCheckWarlock"] = "전투 준비 + 흑마법사는 항상 표시"
 L["Options.Soulstone.AlwaysShow"] = "항상 표시"
 L["Options.Soulstone.ReadyCheckDesc"] = "전투 준비 후 15초 동안 표시"
 L["Options.Soulstone.WarlockAlwaysDesc"] = "흑마법사는 항상 알림 표시, 다른 직업은 전투 준비때만"
-L["Options.Soulstone.AlwaysDesc"] = "존재 카테고리가 보일 때마다 표시"
-L["Options.Soulstone.HideCooldown"] = "재사용 대기 중 숨기기 (흑마법사)"
+L["Options.Soulstone.AlwaysDesc"] = "특수 버프 카테고리가 보일 때마다 표시"
+L["Options.Soulstone.HideCooldown"] = "쿨타임일 때 숨기기 (흑마법사)"
 L["Options.Soulstone.HideCooldown.Desc"] =
-    "활성화 시, 주문이 재사용 대기 중일 때 흑마법사에게 영혼석 알림을 표시하지 않습니다. 흑마법사에게만 적용됩니다."
+    "활성화하면 주문이 쿨타임일 때 흑마법사에게 영혼석 알림을 표시하지 않습니다. 흑마법사에게만 적용됩니다."
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
 -- ============================================================================
 L["Options.FreeConsumables"] = "무료 소모품"
 L["Options.FreeConsumables.Note"] = "(생명석, 영구 증강 룬)"
-L["Options.FreeConsumables.Override"] = "콘텐츠 필터 임의 적용"
+L["Options.FreeConsumables.Override"] = "콘텐츠 필터 적용"
 L["Options.FreeConsumables.Override.Desc"] =
-    "체크 시, 무료 소모품은 아래 임의의 콘텐츠 유형 설정을 사용합니다.\n\n체크 해제 시, 다른 소모품과 동일한 콘텐츠 필터를 따릅니다."
+    "체크 시, 무료 소모품은 아래의 콘텐츠 유형 설정을 사용합니다.\n\n체크 해제 시, 다른 소모품과 동일한 콘텐츠 필터를 따릅니다."
 
 -- ============================================================================
 -- OPTIONS: ICONS
@@ -271,8 +397,8 @@ L["Options.FreeConsumables.Override.Desc"] =
 L["Options.Icons"] = "아이콘"
 L["Options.ShowText"] = "아이콘에 텍스트 표시"
 L["Options.ShowText.Desc"] =
-    "이 카테고리의 버프 아이콘에 횟수나 누락 텍스트 오버레이를 표시합니다."
-L["Options.ShowMissingCountOnly"] = "누락 숫자만 표시"
+    "이 카테고리의 버프 아이콘에 버프 개수나 누락 텍스트 오버레이를 표시합니다."
+L["Options.ShowMissingCountOnly"] = "누락 수량만 표시"
 L["Options.ShowMissingCountOnly.Desc"] =
     '전체 숫자(예: "19/20") 대신 누락된 버프 수(예: "1")만 표시합니다.'
 L["Options.ShowBuffReminderText"] = '"버프!" 알림 텍스트 표시'
@@ -285,18 +411,33 @@ L["Options.Size"] = "크기"
 -- ============================================================================
 L["Options.ClickToCast"] = "클릭으로 시전"
 L["Options.ClickToCast.DescFull"] =
-    "버프 아이콘을 클릭해 해당 주문을 시전할 수 있습니다.(비전투 시에만) 당신의 캐릭터가 시전 가능한 주문에만 작동합니다."
-L["Options.HoverHighlight"] = "마우스 오버 강조"
+    "버프 아이콘을 클릭해 해당 주문을 시전할 수 있습니다.(비전투 시에만) 내 캐릭터가 시전 가능한 주문에만 작동합니다."
+L["Options.HoverHighlight"] = "마우스오버 강조"
 L["Options.HoverHighlight.Desc"] =
     "클릭 가능한 버프 아이콘에 마우스를 올리면 희미한 강조 효과가 표시됩니다."
+L["Options.RequestBuffInChat"] = "없는 버프를 채팅으로 요청"
+L["Options.RequestBuffInChat.Desc"] =
+    "내 직업이 걸 수 없는 누락된 버프를 클릭하면 채팅으로 요청합니다. 채널(인스턴스/공격대/파티/일반)을 자동으로 감지합니다. 버프당 30초의 쿨타임이 있습니다."
+-- Chat request messages (keyed by buff.key, sent as-is via SendChatMessage)
+-- EU/US translators: leave untranslated so chat messages stay in English.
+-- Asian translators: translate these so chat messages match your locale.
+L["ChatRequest.intellect"] = "신비한 지능 버프 주세요"
+L["ChatRequest.attackPower"] = "전투의 함성 버프 주세요"
+L["ChatRequest.bronze"] = "청동용군단의 축복 버프 주세요"
+L["ChatRequest.versatility"] = "야생의 징표 버프 주세요"
+L["ChatRequest.stamina"] = "신의 권능: 인내 버프 주세요"
+L["ChatRequest.skyfury"] = "하늘의 격노 버프 주세요"
+L["ChatRequest.atrophicNumbingPoison"] = "위축/마취 독 발라주세요"
+L["ChatRequest.devotionAura"] = "헌신의 오라 켜주세요"
+L["ChatRequest.soulstone"] = "영혼석 걸어주세요"
 
 -- ============================================================================
 -- OPTIONS: PET
 -- ============================================================================
-L["Options.PetSpecIcon"] = "마우스 오버시 사냥꾼 소환수 특성 아이콘 표시"
-L["Options.PetSpecIcon.Title"] = "마우스 오버시 소환수 특성 아이콘"
+L["Options.PetSpecIcon"] = "마우스를 올렸을 때 사냥꾼 소환수 특성 아이콘 표시"
+L["Options.PetSpecIcon.Title"] = "마우스를 올리면 소환수 특성 아이콘으로"
 L["Options.PetSpecIcon.Desc"] =
-    "마우스를 올리면 소환수 아이콘이 해당 특성 능력(교활, 야성, 인내)으로 바뀝니다."
+    "마우스를 올리면 소환수 아이콘이 특성 능력(교활, 야성, 끈기)으로 바뀝니다."
 L["Options.ShowItemTooltips"] = "아이템 툴팁 표시"
 L["Options.ShowItemTooltips.Desc"] =
     "소모품 아이콘에 마우스를 올리면 아이템 툴팁이 표시됩니다."
@@ -314,12 +455,12 @@ L["Options.FelDomination.Desc"] =
 -- ============================================================================
 L["Options.PetDisplay"] = "소환수 표시"
 L["Options.PetDisplay.Generic"] = "기본 아이콘"
-L["Options.PetDisplay.GenericDesc"] = "단일 기본 '소환수 없음' 아이콘"
+L["Options.PetDisplay.GenericDesc"] = "기본 '소환수 없음' 아이콘 1개"
 L["Options.PetDisplay.Summon"] = "소환 주문"
 L["Options.PetDisplay.SummonDesc"] = "각 소환수 주문을 개별 아이콘으로 표시"
 L["Options.PetDisplay.Mode"] = "소환수 표시 모드"
-L["Options.PetDisplay.Mode.Desc"] = "누락 소환수 알림의 표시 방식을 설정합니다."
-L["Options.PetLabels"] = "소환수 레이블"
+L["Options.PetDisplay.Mode.Desc"] = "소환수 없음 알림의 표시 방식을 설정합니다."
+L["Options.PetLabels"] = "소환수 라벨"
 L["Options.PetLabels.Desc"] = "각 아이콘 아래에 소환수 이름과 특성을 표시합니다."
 L["Options.PetLabels.SizePct"] = "크기 %"
 
@@ -329,70 +470,101 @@ L["Options.PetLabels.SizePct"] = "크기 %"
 L["Options.ConsumableTextScale"] = "텍스트 크기"
 L["Options.ConsumableTextScale.Title"] = "소모품 텍스트 크기"
 L["Options.ConsumableTextScale.Desc"] =
-    "아이콘 크기 대비 아이템 수량 및 등급(R1/R2/R3) 레이블의 폰트 크기 비율입니다."
+    "아이콘 크기 대비 아이템 수량 및 등급(R1/R2/R3) 라벨의 폰트 크기 비율입니다."
+L["Options.HideConsumableLabels"] = "능력치 라벨 숨기기"
+L["Options.HideConsumableLabels.Title"] = "소모품 능력치 라벨 숨기기"
+L["Options.HideConsumableLabels.Desc"] =
+    '소모품 아이콘 왼쪽 상단에 표시되는 작은 능력치 라벨(예: "상급 1차", "하급 2차")을 숨깁니다.'
 L["Options.ItemDisplay"] = "아이템 표시"
 L["Options.ItemDisplay.IconOnly"] = "아이콘만 표시"
 L["Options.ItemDisplay.IconOnlyDesc"] = "수량이 가장 많은 아이템 표시"
 L["Options.ItemDisplay.SubIcons"] = "하위 아이콘"
-L["Options.ItemDisplay.SubIconsDesc"] = "각 아이콘 아래에 작은 아이템 변형 아이콘 표시"
+L["Options.ItemDisplay.SubIconsDesc"] =
+    "각 아이콘 아래에 클릭되는 다른 등급의 작은 아이템을 표시합니다"
 L["Options.ItemDisplay.Expanded"] = "확장"
-L["Options.ItemDisplay.ExpandedDesc"] = "각 아이템 변형을 전체 크기 아이콘으로 표시"
+L["Options.ItemDisplay.ExpandedDesc"] = "다른 등급 아이템 아이콘을 전체 크기로 확장합니다"
 L["Options.ItemDisplay.Mode"] = "소모품 아이템 표시"
 L["Options.ItemDisplay.Mode.Desc"] =
-    "여러 변종이 있는 소모품 아이템(예: 다양한 영약 유형)의 표시 방식을 설정합니다."
+    "복수의 등급이 있는 소모품 아이템(예: 다양한 영약 등급)의 표시 방식을 설정합니다."
 L["Options.SubIconSide"] = "방향"
 L["Options.SubIconSide.Bottom"] = "아래"
 L["Options.SubIconSide.Top"] = "위"
 L["Options.SubIconSide.Left"] = "왼쪽"
 L["Options.SubIconSide.Right"] = "오른쪽"
 L["Options.ShowWithoutItems"] = "소지품에 없을 때도 표시"
-L["Options.ShowWithoutItems.Title"] = "아이템이 없어도 표시"
+L["Options.ShowWithoutItems.Title"] = "가지고 있지 않은 소모품 표시"
 L["Options.ShowWithoutItems.Desc"] =
-    "활성화 시, 소지품에 아이템이 없어도 소모품 알림이 표시됩니다. 비활성화 시, 실제로 보유한 소모품만 표시됩니다."
+    "활성화 시, 소지품에 아이템이 없어도 소모품 알림이 표시됩니다. 비활성화 시, 실제 보유한 소모품만 표시됩니다."
+L["Options.ShowWithoutItemsReadyCheckOnly"] = "전투 준비 시에만"
+L["Options.ShowWithoutItemsReadyCheckOnly.Title"] = "전투 준비 시 없는 아이템 표시"
+L["Options.ShowWithoutItemsReadyCheckOnly.Desc"] =
+    "활성화하면 가방에 없는 소모품은 전투 준비 시에만 표시됩니다. 풀링 전 보충을 위한 빠른 알림으로 유용합니다."
 L["Options.DelveFoodOnly"] = "구렁에선 구렁 음식만 표시"
 L["Options.DelveFoodOnly.Desc"] = "구렁에선 구렁 음식을 제외한 모든 소모품 알림을 숨깁니다."
+L["Options.HideLegacyConsumables"] = "구 확장팩 소모품 숨기기"
+L["Options.HideLegacyConsumables.Title"] = "구 확장팩 소모품 숨기기"
+L["Options.HideLegacyConsumables.Desc"] =
+    "활성화하면 구 확장팩의 음식, 영약, 증강 룬이 액션 버튼에서 제외됩니다. 시간여행, 구 레이드 파밍, 부캐 육성에 예전 소모품을 쓰고 있다면 비활성화하세요."
 
 -- ============================================================================
 -- OPTIONS: DK RUNEFORGE PREFERENCES
 -- ============================================================================
-L["Options.RuneforgePreferences"] = "룬 조각 설정"
+L["Options.RuneforgePreferences"] = "룬벼리기 설정"
 L["Options.RuneforgeNote"] =
-    "각 전문화별 기대하는 룬 조각을 선택하세요. 잘못된 룬 조각이 적용되어 있거나 없으면 알림이 표시됩니다."
-L["Options.RuneMainHand"] = "주 손"
-L["Options.RuneOffHand"] = "보조 손"
-L["Options.RuneTwoHanded"] = "양손"
-L["Options.RuneDualWield"] = "쌍수"
+    "전문화별로 선호하는 룬벼리기를 선택하세요. 잘못된 룬벼리기나 안했을 경우 알림이 표시됩니다."
+L["Options.RuneMainHand"] = "주장비"
+L["Options.RuneOffHand"] = "보조장비"
+L["Options.RuneTwoHanded"] = "양손 무기"
+L["Options.RuneDualWield"] = "쌍수 무기"
+
+-- ============================================================================
+-- OPTIONS: ROGUE POISON PREFERENCES
+-- ============================================================================
+L["Options.RoguePoisonPreferences"] = "도적 독 설정"
+L["Options.RoguePoisonNote"] =
+    "바를 독과 우선순위(맨 위 = 제일 높음)를 선택하세요. 비활성화된 독은 시전되지 않으며 알림도 발생하지 않습니다."
+L["Options.PoisonLethal"] = "살상용"
+L["Options.PoisonNonLethal"] = "비살상용"
+L["Options.PoisonMoveUp"] = "우선순위 위로"
+L["Options.PoisonMoveDown"] = "우선순위 아래로"
+L["Options.PoisonReset"] = "기본값으로 초기화"
 
 -- ============================================================================
 -- OPTIONS: BUFF SETTINGS GEAR ICONS
 -- ============================================================================
 L["Options.HealthstoneSettings"] = "생명석 설정"
-L["Options.HealthstoneSettings.Note"] = "표시 조건 및 부족 기준값을 설정합니다."
+L["Options.HealthstoneSettings.Note"] = "표시 조건 및 낮은 수량 기준값을 설정합니다."
 L["Options.SoulstoneSettings"] = "영혼석 설정"
 L["Options.SoulstoneSettings.Note"] = "영혼석 알림이 표시되는 시점을 설정합니다."
-L["Options.PetPassiveSettings"] = "소환수 수동 설정"
-L["Options.PetPassiveSettings.Note"] = "수동 모드 소환수 알림을 설정합니다."
+L["Options.BronzeSettings"] = "청동용군단의 축복 설정"
+L["Options.BronzeSettings.Note"] = "청동용군단의 축복 알림을 설정합니다."
+L["Options.BronzeHideInCombat"] = "전투 중 숨기기"
+L["Options.BronzeHideInCombat.Desc"] =
+    "전투 중에 청동용군단의 축복 알림을 숨깁니다. 이 버프는 덜 중요하기 때문에 전투 중에 다시 걸고 싶지 않을 수 있습니다."
+L["Options.PetPassiveSettings"] = "수동적 소환수 설정"
+L["Options.PetPassiveSettings.Note"] = "수동적 소환수 알림을 설정합니다."
 L["Options.PetSummonSettings"] = "소환수 소환 설정"
 L["Options.PetSummonSettings.Note"] = "소환수 소환 동작을 설정합니다."
+L["Options.DelveFoodSettings"] = "구렁 음식 설정"
+L["Options.DelveFoodSettings.Note"] = "구렁 음식 알림 동작을 설정합니다."
+L["Options.DelveFoodTimer"] = "30초 후 자동 숨김"
+L["Options.DelveFoodTimer.Desc"] =
+    "활성화하면 구렁 입장 후 30초 동안만 알림이 표시되고 자동으로 숨겨집니다. 비활성화하면 구렁에서 버프가 없는 동안 계속 알림이 표시됩니다."
 
 -- ============================================================================
 -- OPTIONS: LAYOUT
 -- ============================================================================
 L["Options.Layout"] = "레이아웃"
-L["Options.Priority"] = "우선순위"
-L["Options.Priority.Desc"] =
-    "통합 프레임에서 이 카테고리의 순서를 조정합니다. 낮은 값이 먼저 표시됩니다."
 L["Options.SplitFrame"] = "개별 프레임으로 분리"
 L["Options.SplitFrame.Desc"] =
     "이 카테고리의 버프를 독립적으로 이동 가능한 별도의 프레임에 표시합니다."
-L["Options.DisplayPriority"] = "표시 우선순위"
 
 -- ============================================================================
 -- OPTIONS: APPEARANCE
 -- ============================================================================
 L["Options.CustomAppearance"] = "사용자 지정 외형 사용"
 L["Options.CustomAppearance.Desc"] =
-    "비활성화 시, 이 카테고리는 전체 기본값의 외형 설정을 상속받습니다. 성장 방향은 개별 프레임으로 분리해야 합니다."
+    "비활성화 시, 이 카테고리는 전체 기본값의 외형 설정을 상속받습니다. 성장 방향은 개별 프레임마다 따로 설정해야 합니다."
 L["Options.Customize"] = "사용자 지정"
 L["Options.ResetPosition"] = "위치 초기화"
 L["Options.MasqueNote"] = "확대 및 테두리 설정은 Masque에서 관리합니다."
@@ -402,7 +574,6 @@ L["Options.MasqueNote"] = "확대 및 테두리 설정은 Masque에서 관리합
 -- ============================================================================
 L["Options.ShowLoginMessages"] = "로그인 메시지 표시"
 L["Options.ShowMinimapButton"] = "미니맵 버튼 표시"
-L["Options.ShowOnlyInGroup"] = "파티/공격대에서만 표시"
 
 -- Hide when section
 L["Options.HideWhen"] = "숨김 조건:"
@@ -410,42 +581,51 @@ L["Options.HideWhen.Resting"] = "휴식 중"
 L["Options.HideWhen.Resting.Title"] = "휴식 중 숨김"
 L["Options.HideWhen.Resting.Desc"] = "여관이나 대도시에 있을 때 버프 알림을 숨깁니다."
 L["Options.HideWhen.Combat"] = "전투 중"
-L["Options.HideWhen.Expiring"] = "전투 중에 만료 버프만"
-L["Options.HideWhen.Expiring.Title"] = "전투 중 만료 버프 숨기기"
+L["Options.HideWhen.Expiring"] = "전투 중에 만료 임박 버프만"
+L["Options.HideWhen.Expiring.Title"] = "전투 중 만료 임박 버프 숨기기"
 L["Options.HideWhen.Expiring.Desc"] =
-    "전투 중에는 곧 끝날 버프를 숨기고 완전히 누락된 버프만 표시합니다."
+    "전투 중에는 곧 만료될 버프를 숨기고 완전히 사라진 버프만 표시합니다."
 L["Options.HideWhen.Vehicle"] = "차량 탑승 중"
-L["Options.HideWhen.Vehicle.Title"] = "차량 탑승 중 숨기기"
+L["Options.HideWhen.Vehicle.Title"] = "차량 탑승 중에 숨기기"
 L["Options.HideWhen.Vehicle.Desc"] =
     "퀘스트 차량을 이용 중일 때 모든 버프 알림을 숨깁니다. 비활성화 시에도 공격대 및 특수 버프는 표시됩니다."
 L["Options.HideWhen.Mounted"] = "탈것 탔을 때"
-L["Options.HideWhen.Mounted.Title"] = "탈것 타는 중 숨기기"
+L["Options.HideWhen.Mounted.Title"] = "탈것 타는 중에 숨기기"
 L["Options.HideWhen.Mounted.Desc"] =
     "탈것을 탔을 때 모든 버프 알림을 숨깁니다. 카테고리별 소환수 탈것 숨기기 설정보다 우선 적용됩니다."
 L["Options.HideWhen.Legacy"] = "구 인스턴스"
 L["Options.HideWhen.Legacy.Title"] = "구 인스턴스에서 숨기기"
 L["Options.HideWhen.Legacy.Desc"] =
-    "유산 전리품이 활성화된 구 인스턴스에서 모든 버프 알림을 숨깁니다."
+    "구 인스턴스(유산 전리품이 활성화된 곳)에서 모든 버프 알림을 숨깁니다."
+L["Options.HideWhen.Leveling"] = "레벨링"
+L["Options.HideWhen.Leveling.Title"] = "레벨링 중에 숨기기"
+L["Options.HideWhen.Leveling.Desc"] = "만렙이 안됐을 때 모든 버프 알림을 숨깁니다."
 
 -- ============================================================================
 -- OPTIONS: BUFF TRACKING MODE
 -- ============================================================================
 L["Options.BuffTracking"] = "버프 추적"
-L["Options.BuffTracking.All"] = "모든 버프, 모든 플레이어"
+L["Options.BuffTracking.All"] = "모든 버프, 모든 사람에게"
 L["Options.BuffTracking.All.Desc"] =
     "모든 직업의 공격대 및 특수 버프를 표시하고 그룹 전체 적용 여부를 추적합니다."
-L["Options.BuffTracking.MyBuffs"] = "내 버프만, 모든 플레이어"
+L["Options.BuffTracking.MyBuffs"] = "내 버프만, 모든 사람에게"
 L["Options.BuffTracking.MyBuffs.Desc"] =
-    "내 직업이 제공할 수 있는 버프만 표시하되, 그룹 전체 적용 여부는 추적합니다."
-L["Options.BuffTracking.OnlyMine"] = "내가 필요한 버프만"
+    "내 직업이 걸 수 있는 버프만 표시하되, 그룹 전체 적용 여부는 추적합니다."
+L["Options.BuffTracking.OnlyMine"] = "모든 버프, 나한테만"
 L["Options.BuffTracking.OnlyMine.Desc"] =
-    "모든 버프 유형을 표시하지만, 자신에게 적용됐는지만 확인합니다. 그룹 수량 없음."
+    "모든 버프 유형을 표시하지만 나한테 있는지만을 확인합니다. 그룹은 세지 않습니다."
+L["Options.BuffTracking.SelfOnly"] = "내 버프만, 나한테만"
+L["Options.BuffTracking.SelfOnly.Desc"] =
+    "내 직업이 걸 수 있는 버프만 표시하고 나한테 있는지만 확인합니다. 그룹 및 다른 사람에게 건 버프 수는 세지 않습니다."
 L["Options.BuffTracking.Smart"] = "스마트"
 L["Options.BuffTracking.Smart.Desc"] =
-    "내 직업이 제공하는 버프는 그룹 전체 적용 여부를 추적하고, 다른 직업 버프는 자신에게만 확인합니다."
+    "내 직업이 걸 수 있는 버프가 그룹에 몇이나 걸려있는지 추적합니다. 다른 직업 버프는 나한테 있는지만 확인합니다."
 L["Options.BuffTracking.Mode"] = "버프 추적 모드"
 L["Options.BuffTracking.Mode.Desc"] =
-    "표시할 공격대 및 특수 버프와 그룹 전체 또는 자신만 추적할지 설정합니다."
+    "표시할 공격대 및 특수 버프를 설정하고 그룹 전체 또는 자신만 추적할지 설정합니다."
+L["Options.BuffTracking.SelfOnlyOutsideInstances"] = "던전/공격대 외에선 내것만 추적"
+L["Options.BuffTracking.SelfOnlyOutsideInstances.Desc"] =
+    "활성화하면 야외에서는 나에게 걸린 내 직업 버프만 추적합니다. 선택한 추적 모드는 던전, 공격대, 시나리오, PvP 내에서 계속 사용됩니다."
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB
@@ -479,13 +659,13 @@ L["Options.UnknownError"] = "알 수 없는 오류"
 -- OPTIONS: DIALOGS
 -- ============================================================================
 L["Dialog.Cancel"] = "취소"
-L["Dialog.DeleteCustomBuff"] = '사용자 지정 버프 "%s"|1을;를; 삭제하시겠습니까?'
+L["Dialog.DeleteCustomBuff"] = '사용자 지정 버프 "%s"|1을;를; 삭제할까요?'
 L["Dialog.ResetProfile"] =
-    "활성 프로필을 기본값으로 초기화하시겠습니까?\n\n현재 프로필의 모든 사용자 지정 설정이\n삭제되고 UI가 재로드됩니다."
+    "활성 프로필을 기본값으로 초기화할까요?\n\n현재 프로필의 모든 사용자 지정\n설정이 삭제되고 UI가 재시작됩니다."
 L["Dialog.Reset"] = "초기화"
 L["Dialog.ReloadPrompt"] =
-    "설정을 성공적으로 가져왔습니다!\n변경 사항을 적용하려면 UI를 재로드하시겠습니까?"
-L["Dialog.Reload"] = "재로드"
+    "설정을 성공적으로 가져왔습니다!\nUI를 재시작해서 변경 사항을 적용할까요?"
+L["Dialog.Reload"] = "재시작"
 L["Dialog.NewProfilePrompt"] = "새 프로필의 이름을 입력하세요:"
 L["Dialog.Create"] = "생성"
 L["Dialog.DiscordPrompt"] = "BuffReminders Discord에 참여하세요!\n아래 URL을 복사하세요 (Ctrl+C):"
@@ -497,42 +677,42 @@ L["Dialog.Close"] = "닫기"
 L["Options.LockUnlock"] = "잠금 / 해제"
 L["Options.LockUnlock.Desc"] =
     "잠금을 해제하면 버프 프레임 위치를 조정할 수 있는 앵커 핸들이 표시됩니다."
-L["Options.TestAppearance"] = "아이콘 모양 테스트"
+L["Options.TestAppearance"] = "아이콘 외형 테스트"
 L["Options.TestAppearance.Desc"] =
-    "가짜 값으로 선택한 버프를 표시해서 모양을 미리 볼 수 있습니다."
+    "가짜 값으로 선택한 버프를 표시해서 외형을 미리 볼 수 있습니다."
 L["Options.Test"] = "테스트"
 L["Options.StopTest"] = "테스트 중지"
-L["Options.AnchorHint"] = "앵커를 클릭해서 앵커 지점 또는 좌표를 변경하세요."
+L["Options.AnchorHint"] = "앵커를 클릭하면 앵커 지점이나 좌표값을 업데이트합니다."
 L["Options.Lock"] = "잠금"
 L["Options.Unlock"] = "잠금 해제"
 
 -- ============================================================================
--- OPTIONS: CUSTOM BUFF MODAL
+-- OPTIONS: CUSTOM BUFF DIALOG
 -- ============================================================================
 L["CustomBuff.Edit"] = "사용자 지정 버프 편집"
 L["CustomBuff.Add"] = "사용자 지정 버프 추가"
 L["CustomBuff.AddButton"] = "+ 사용자 지정 버프 추가"
 L["CustomBuff.SpellIDs"] = "주문 ID:"
-L["CustomBuff.Lookup"] = "조회"
+L["CustomBuff.Lookup"] = "검색"
 L["CustomBuff.AddSpellID"] = "+ 주문 ID 추가"
 L["CustomBuff.Name"] = "이름:"
 L["CustomBuff.Text"] = "텍스트:"
-L["CustomBuff.LineBreakHint"] = "(줄바꿈은 \\n 텍스트 사용)"
-L["CustomBuff.Appearance"] = "모양"
+L["CustomBuff.LineBreakHint"] = "(\\n을 사용해서 줄바꿈)"
+L["CustomBuff.Appearance"] = "외형"
+L["CustomBuff.BuffTracking"] = "버프 추적"
+L["CustomBuff.Requirements"] = "필요 조건"
 L["CustomBuff.ShowIn"] = "표시 위치"
 L["CustomBuff.ClickAction"] = "클릭 동작"
-L["CustomBuff.SettingsMovedNote"] =
-    "표시 조건 및 전투 준비 설정이 각 버프의 편집 메뉴로 이동했습니다."
 
 -- Custom buff mode toggles
-L["CustomBuff.WhenActive"] = "활성 상태일 때"
+L["CustomBuff.WhenActive"] = "있을 때"
 L["CustomBuff.WhenMissing"] = "없을 때"
-L["CustomBuff.OnlyIfSpellKnown"] = "주문을 알고 있을 때만"
+L["CustomBuff.OnlyIfSpellKnown"] = "주문을 배웠을 때만"
 
 -- Custom buff class dropdown
 L["Class.Any"] = "모두"
 L["Class.DeathKnight"] = "죽음의 기사"
-L["Class.DemonHunter"] = "악마 사냥꾼"
+L["Class.DemonHunter"] = "악마사냥꾼"
 L["Class.Druid"] = "드루이드"
 L["Class.Evoker"] = "기원사"
 L["Class.Hunter"] = "사냥꾼"
@@ -552,23 +732,27 @@ L["CustomBuff.RequireItem"] = "아이템 필요:"
 L["CustomBuff.RequireItem.EquippedBags"] = "착용 중/소지품"
 L["CustomBuff.RequireItem.Equipped"] = "착용 중"
 L["CustomBuff.RequireItem.InBags"] = "소지품"
-L["CustomBuff.RequireItem.Hint"] = "아이템 ID — 없으면 숨김"
+L["CustomBuff.RequireItem.Hint"] = "아이템 ID - 없으면 숨김"
+L["CustomBuff.ItemCooldown"] = "쿨타임:"
+L["CustomBuff.ItemCooldown.Any"] = "모두"
+L["CustomBuff.ItemCooldown.OffCooldown"] = "쿨타임 아님"
+L["CustomBuff.ItemCooldown.OnCooldown"] = "쿨타임 상태"
 
 -- Bar glow options
-L["CustomBuff.BarGlow.WhenGlowing"] = "반짝임 상태일 때 감지"
-L["CustomBuff.BarGlow.WhenNotGlowing"] = "반짝임 상태가 아닐 때 감지"
+L["CustomBuff.BarGlow.WhenGlowing"] = "반짝일 때 감지"
+L["CustomBuff.BarGlow.WhenNotGlowing"] = "반짝이지 않을 때 감지"
 L["CustomBuff.BarGlow.Disabled"] = "비활성화"
 L["CustomBuff.BarGlow"] = "액션 바 반짝임:"
-L["CustomBuff.BarGlow.Title"] = "액션 바 반짝임 대체 감지"
+L["CustomBuff.BarGlow.Title"] = "액션 바 반짝임을 대신 사용"
 L["CustomBuff.BarGlow.Desc"] =
-    "버프 API가 제한되는 신화+/PvP/전투 중에 액션 바 주문 반짝임을 사용한 대체 감지 방식입니다. 버프 존재 여부만 추적하려면 비활성화하세요."
+    "버프 API가 제한되는 신화+/PvP/전투 중에는 대신 액션 바 주문 반짝임을 사용해서 감지합니다. 버프 유무만 추적하고 싶다면 비활성화하세요."
 
 -- Ready check / level
 L["CustomBuff.ReadyCheckOnly"] = "전투 준비 시에만"
 L["CustomBuff.Level"] = "레벨:"
 L["CustomBuff.Level.Any"] = "모든 레벨"
-L["CustomBuff.Level.Max"] = "최대 레벨만"
-L["CustomBuff.Level.BelowMax"] = "최대 레벨 미만"
+L["CustomBuff.Level.Max"] = "만렙만"
+L["CustomBuff.Level.BelowMax"] = "만렙이 아닐 때"
 
 -- Click action
 L["CustomBuff.Action.None"] = "없음"
@@ -585,10 +769,6 @@ L["CustomBuff.Action.MacroHint"] = "예: /사용 item:12345\n/사용 13"
 L["CustomBuff.Save"] = "저장"
 L["CustomBuff.ValidateError"] = "유효한 주문 ID가 1개 이상 필요합니다"
 
--- Custom buff tooltip
-L["CustomBuff.Tooltip.Title"] = "사용자 지정 버프"
-L["CustomBuff.Tooltip.Desc"] = "우클릭으로 편집 또는 삭제"
-
 -- Custom buff status
 L["CustomBuff.InvalidID"] = "잘못된 ID"
 L["CustomBuff.NotFound"] = "찾을 수 없음"
@@ -599,18 +779,16 @@ L["CustomBuff.Error"] = "오류:"
 -- OPTIONS: DISCORD
 -- ============================================================================
 L["Options.JoinDiscord"] = "Discord 참여"
-L["Options.JoinDiscord.Title"] = "초대 링크를 보려면 클릭"
-L["Options.JoinDiscord.Desc"] =
-    "피드백, 기능 요청, 버그 제보가 있으신가요?\nDiscord에 참여하세요!"
+L["Options.JoinDiscord.Title"] = "클릭하면 초대 링크 표시"
+L["Options.JoinDiscord.Desc"] = "피드백, 기능 요청, 버그 신고를 하려면?\nDiscord에 참여하세요!"
 
 -- ============================================================================
 -- OPTIONS: CUSTOM ANCHOR FRAMES
 -- ============================================================================
-L["Options.CustomAnchorFrames"] = "사용자 지정 앵커 프레임"
 L["Options.CustomAnchorFrames.Desc"] =
     "앵커 드롭다운에 전역 프레임 이름을 추가합니다. (예: MyAddon_PlayerFrame)\n게임 내에 존재하지 않는 프레임은 자동으로 건너뜁니다."
 L["Options.Add"] = "추가"
-L["Options.New"] = "새로 만들기"
+L["Options.New"] = "새로 제작"
 L["Options.ResetToDefaults"] = "기본값으로 초기화"
 
 -- ============================================================================
@@ -625,7 +803,7 @@ L["Options.Min"] = "분"
 -- COMPONENTS (UI/Components.lua)
 -- ============================================================================
 -- Content filter tooltip
-L["Content.ClickToFilter"] = "%s 난이도별로 필터하려면 클릭"
+L["Content.ClickToFilter"] = "클릭하면 %s 난이도별로 필터 설정을 합니다"
 
 -- Mover labels
 L["Mover.AnchorGrowth"] = "앵커 · 방향 %s"
@@ -640,7 +818,7 @@ L["Appearance.Height"] = "높이"
 L["Appearance.Zoom"] = "확대"
 L["Appearance.Border"] = "테두리"
 L["Appearance.Spacing"] = "간격"
-L["Appearance.Alpha"] = "투명도"
+L["Appearance.Alpha"] = "불투명도"
 L["Appearance.Text"] = "텍스트"
 L["Appearance.TextX"] = "텍스트 X"
 L["Appearance.TextY"] = "텍스트 Y"
@@ -677,7 +855,7 @@ L["Content.NormalDungeons"] = "일반 던전"
 L["Content.HeroicDungeons"] = "영웅 던전"
 L["Content.MythicDungeons"] = "신화 던전"
 L["Content.MythicPlus"] = "신화+ 쐐기돌"
-L["Content.TimewalkingDungeons"] = "시간 여행 던전"
+L["Content.TimewalkingDungeons"] = "시간여행 던전"
 L["Content.FollowerDungeons"] = "추종자 던전"
 
 -- Raid difficulty
