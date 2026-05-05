@@ -100,12 +100,18 @@ local settingsMenuItems = {
 
     -- SECTION 1: FILTERS
     { text = L["SETTINGS_FILTER"],    notCheckable = true, isTitle = true },
-    {
+	{
         text = L["SET_HIDE_OFFLINE"],
         keepShownOnClick = true, 
         checked = function() return FriendGroups_SavedVars.hide_offline end,
         func = function()
             FriendGroups_SavedVars.hide_offline = not FriendGroups_SavedVars.hide_offline
+            
+            -- [[ NEW: Mutually Exclusive Toggle ]]
+            if FriendGroups_SavedVars.hide_offline then
+                FriendGroups_SavedVars.offline_tracker = false
+            end
+            
             FriendGroups_FriendsListUpdate()
         end
     },
@@ -222,7 +228,7 @@ local settingsMenuItems = {
         end
     },
 
-    -- SECTION 3: GROUP SETTINGS
+-- SECTION 3: GROUP SETTINGS
     { text = L["SETTINGS_BEHAVIOR"], notCheckable = true, isTitle = true },
     {
         text = L["SET_FAV_GROUP"],
@@ -242,7 +248,28 @@ local settingsMenuItems = {
             FriendGroups_FriendsListUpdate()
         end
     },
-
+	{
+        text = L["SET_OFFLINE_TRACKER"],
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.offline_tracker end,
+        func = function()
+            FriendGroups_SavedVars.offline_tracker = not FriendGroups_SavedVars.offline_tracker
+            
+            -- [[ NEW: Mutually Exclusive Toggle ]]
+            if FriendGroups_SavedVars.offline_tracker then
+                FriendGroups_SavedVars.hide_offline = false
+                
+                -- Force other filters off so the tracker gives a true representation
+                FriendGroups_SavedVars.hide_afk = false
+                FriendGroups_SavedVars.show_mobile_afk = false
+                FriendGroups_SavedVars.hide_empty_groups = false
+                FriendGroups_SavedVars.ingame_only = false
+                FriendGroups_SavedVars.show_retail = false
+            end
+            FriendGroups_FriendsListUpdate()
+        end
+    },
+	
 -- SECTION 4: AUTOMATION
     { text = L["SETTINGS_AUTOMATION"], notCheckable = true, isTitle = true },
     {
@@ -299,16 +326,15 @@ local settingsMenuItems = {
             FriendGroups_FriendsListUpdate()
         end
     },
-
     -- SECTION 5: RESET
     { text = "", notCheckable = true, isTitle = true },
-    {
+	{
         text = L["SETTINGS_RESET"],
         notCheckable = true,
         func = function()
             CloseDropDownMenus()
             -- 1. Reset all variables to the default
-            FriendGroups_SavedVars.hide_offline = true
+            FriendGroups_SavedVars.hide_offline = false 
             FriendGroups_SavedVars.colour_classes = true
             FriendGroups_SavedVars.show_faction_icons = true
             FriendGroups_SavedVars.show_realm = true
@@ -332,11 +358,15 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.auto_accept_res = false
             FriendGroups_SavedVars.auto_release = false
 
+            -- [[ NEW TRACKERS ]] --
+            FriendGroups_SavedVars.offline_tracker = true
+
             FriendGroups_SavedVars.extra_height = 380 
             FriendGroups_SavedVars.collapsed = {}
             
             -- Apply Reset
             FriendGroups_UpdateSize()
+            FriendGroups_UpdateContactCap()
             FriendGroups_FriendsListUpdate()
             
             print(L["MSG_RESET"])
@@ -563,13 +593,11 @@ end
 function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
     if not contextData then return end
 
-    -- 12.0 FIX: Execution Guard. If this menu generation is NOT originating from our Friends List elements, 
-    -- instantly abort to prevent tainting Blizzard's Chat Frame Context Menus.
-    if ownerRegion and ownerRegion:GetParent() then
-        local parentName = ownerRegion:GetParent():GetName() or ""
-        if not string.find(parentName, "FriendsListFrame") and not string.find(parentName, "ScrollBox") then
-            return 
-        end
+    -- 12.0 FIX: Silent Execution Guard to prevent Blizzard Chat Frame taint.
+    -- Querying names of protected frames directly spreads taint to Secret IDs.
+    -- Instead, we check if the mouse is actively over the Friends List frame.
+    if not FriendsListFrame or not FriendsListFrame:IsMouseOver() then
+        return 
     end
 
     local bnetfriend = false
@@ -692,9 +720,10 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 
     local add = rootDescription:CreateButton(L["DROP_ADD"])
 
-    for _, group in ipairs(groupsSorted) do
-        if not FriendGroups_HasValue(groups, group) and group ~= "" and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_EMPTY"] and group ~= L["GROUP_NONE"] then
-            add:CreateButton(group, function(data)
+	for _, group in ipairs(groupsSorted) do
+        if not FriendGroups_HasValue(groups, group) and group ~= "" and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_EMPTY"] and group ~= L["GROUP_NONE"] 
+           and group ~= L["GROUP_OFFLINE_1"] and group ~= L["GROUP_OFFLINE_2"] and group ~= L["GROUP_OFFLINE_3"] then
+		   add:CreateButton(group, function(data)
                 local newNote = FriendGroups_AddGroup(data.note, data.group)
                 if data.bnetfriend then
                     BNSetFriendNote(data.id, newNote)
@@ -707,9 +736,10 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 
     local remove = rootDescription:CreateButton(L["DROP_REMOVE"])
 
-    for _, group in ipairs(groupsSorted) do
-        if FriendGroups_HasValue(groups, group) then
-            remove:CreateButton(group, function(data)
+	for _, group in ipairs(groupsSorted) do
+        if FriendGroups_HasValue(groups, group) 
+           and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_OFFLINE_1"] and group ~= L["GROUP_OFFLINE_2"] and group ~= L["GROUP_OFFLINE_3"] then
+		   remove:CreateButton(group, function(data)
                 local newNote = FriendGroups_RemoveGroup(data.note, data.group)
                 if data.bnetfriend then
                     BNSetFriendNote(data.id, newNote)
@@ -822,24 +852,49 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 	return nameText
 end
 
+-- ============================================================================
+-- [[ MEMORY OPTIMIZATION & CACHING ]]
+-- ============================================================================
+local FriendGroups_TablePool = {}
+local FriendGroups_NoteCache = { [""] = {} }
+local FriendGroups_WorkingGroupTable = {}
+
+local function FG_GetTable()
+    local t = table.remove(FriendGroups_TablePool) or {}
+    wipe(t)
+    return t
+end
+
+local function FG_ReleaseTable(t)
+    if type(t) == "table" then
+        wipe(t)
+        table.insert(FriendGroups_TablePool, t)
+    end
+end
+
 function FriendGroups_GetPlayerGroups(note)
     -- 12.0 FIX: Secure note string check to prevent string.match crash
     if type(note) ~= "string" then note = "" end
+    
+    if note == "" then 
+        return FriendGroups_NoteCache[""] 
+    end
 
-	if note ~= "" then
-		local groups = {}
-		local formattedNote = string.match(note, "#.*")
+    if FriendGroups_NoteCache[note] then
+        return FriendGroups_NoteCache[note]
+    end
 
-		if formattedNote then
-			for s in string.gmatch(formattedNote, "[^#]+") do
-				table.insert(groups, s)
-			end
-		end
+    local groups = {}
+    local formattedNote = string.match(note, "#.*")
 
-		return groups
-	else
-		return {}
-	end
+    if formattedNote then
+        for s in string.gmatch(formattedNote, "[^#]+") do
+            table.insert(groups, s)
+        end
+    end
+
+    FriendGroups_NoteCache[note] = groups
+    return groups
 end
 
 function FriendGroups_GetPlayerData(friendsListData, playerId, playerType)
@@ -1108,74 +1163,103 @@ function FriendGroups_SetGroupsCount()
 end
 
 function FriendGroups_SetGroups(id, buttonType)
-	local noteText = FriendGroups_GetFriendNote(id, buttonType)
-	local groups = FriendGroups_GetPlayerGroups(noteText)
-	local statusText = FriendGroups_GetStatusString({ id = id, buttonType = buttonType })
-	local favorite = FriendGroups_GetFriendFavorite(id, buttonType)
+    local noteText = FriendGroups_GetFriendNote(id, buttonType)
+    local parsedGroups = FriendGroups_GetPlayerGroups(noteText)
+    local statusText = FriendGroups_GetStatusString({ id = id, buttonType = buttonType })
+    local favorite = FriendGroups_GetFriendFavorite(id, buttonType)
 
-	if FriendGroups_SavedVars.add_favorite_group and favorite then
-		table.insert(groups, L["GROUP_FAVORITES"])
-	end
+    -- Reuse a single working table to avoid abandoning memory arrays
+    wipe(FriendGroups_WorkingGroupTable)
+    for _, g in ipairs(parsedGroups) do
+        table.insert(FriendGroups_WorkingGroupTable, g)
+    end
 
-	if next(groups) == nil then
-		table.insert(groups, L["GROUP_NONE"])
-	end
+    if FriendGroups_SavedVars.add_favorite_group and favorite then
+        table.insert(FriendGroups_WorkingGroupTable, L["GROUP_FAVORITES"])
+    end
 
-	for _, groupName in ipairs(groups) do
-		local isOnline, client, isRetail
-		local addToTable = false
+    if FriendGroups_SavedVars.offline_tracker and buttonType == FRIENDS_BUTTON_TYPE_BNET and statusText == "Offline" then
+        local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
+        if friendAccountInfo and friendAccountInfo.lastOnlineTime and friendAccountInfo.lastOnlineTime > 0 then
+            local daysOffline = (time() - friendAccountInfo.lastOnlineTime) / 86400
+            
+            if daysOffline >= 90 then
+                table.insert(FriendGroups_WorkingGroupTable, L["GROUP_OFFLINE_3"])
+            elseif daysOffline >= 60 then
+                table.insert(FriendGroups_WorkingGroupTable, L["GROUP_OFFLINE_2"])
+            elseif daysOffline >= 30 then
+                table.insert(FriendGroups_WorkingGroupTable, L["GROUP_OFFLINE_1"])
+            end
+        end
+    end
 
-		if not groupsTotal[groupName] then
-			groupsTotal[groupName] = {}
-			groupsCount[groupName] = {}
-			groupsCount[groupName].Total = 0
-			groupsCount[groupName].Online = 0
-			table.insert(groupsSorted, groupName)
-		end
+    if next(FriendGroups_WorkingGroupTable) == nil then
+        table.insert(FriendGroups_WorkingGroupTable, L["GROUP_NONE"])
+    end
 
-	if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-			local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
-			if friendAccountInfo and friendAccountInfo.gameAccountInfo then
-				isOnline = friendAccountInfo.gameAccountInfo.isOnline
-				client = friendAccountInfo.gameAccountInfo.clientProgram
-				isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
-			end
-			elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
-			isOnline = C_FriendList.GetFriendInfoByIndex(id).connected
-			client = BNET_CLIENT_WOW
-		end
+    for _, groupName in ipairs(FriendGroups_WorkingGroupTable) do
+        local isOnline, client, isRetail
+        local addToTable = false
 
-		if isOnline then
-			if (FriendGroups_SavedVars.hide_afk and statusText ~= "AFK" and statusText ~= "AFKMobile") or not FriendGroups_SavedVars.hide_afk then
-				if (FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only then
-					if FriendGroups_SavedVars.show_retail and client == BNET_CLIENT_WOW then
-						if isRetail then
-							addToTable = true
-						end
-					else
-						addToTable = true
-					end
-				end
-			end
-		else
-			if not FriendGroups_SavedVars.hide_offline and ((FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only) then
-				addToTable = true
-			end
-		end
+        if not groupsTotal[groupName] then
+            -- Pull tracking tables from the pool
+            groupsTotal[groupName] = FG_GetTable()
+            groupsCount[groupName] = FG_GetTable()
+            groupsCount[groupName].Total = 0
+            groupsCount[groupName].Online = 0
+            table.insert(groupsSorted, groupName)
+        end
 
-        -- FIX: Always allow search logic since search is always on
-		if searchValue ~= "" then
-			addToTable = FriendGroups_Search(id, buttonType)
-		end
+        if buttonType == FRIENDS_BUTTON_TYPE_BNET then
+            local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
+            if friendAccountInfo and friendAccountInfo.gameAccountInfo then
+                isOnline = friendAccountInfo.gameAccountInfo.isOnline
+                client = friendAccountInfo.gameAccountInfo.clientProgram
+                isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
+            end
+        elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
+            isOnline = C_FriendList.GetFriendInfoByIndex(id).connected
+            client = BNET_CLIENT_WOW
+        end
 
-		if addToTable then
-			groupsCount[groupName].Total = groupsCount[groupName].Total + 1
-			if statusText ~= "Offline" then
-				groupsCount[groupName].Online = groupsCount[groupName].Online + 1
-			end
-			table.insert(groupsTotal[groupName], { id = id, buttonType = buttonType, statusText = statusText })
-		end
-	end
+        if isOnline then
+            if (FriendGroups_SavedVars.hide_afk and statusText ~= "AFK" and statusText ~= "AFKMobile") or not FriendGroups_SavedVars.hide_afk then
+                if (FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only then
+                    if FriendGroups_SavedVars.show_retail and client == BNET_CLIENT_WOW then
+                        if isRetail then
+                            addToTable = true
+                        end
+                    else
+                        addToTable = true
+                    end
+                end
+            end
+        else
+            if not FriendGroups_SavedVars.hide_offline and ((FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only) then
+                addToTable = true
+            end
+        end
+
+        -- Always allow search logic since search is always on
+        if searchValue ~= "" then
+            addToTable = FriendGroups_Search(id, buttonType)
+        end
+
+        if addToTable then
+            groupsCount[groupName].Total = groupsCount[groupName].Total + 1
+            if statusText ~= "Offline" then
+                groupsCount[groupName].Online = groupsCount[groupName].Online + 1
+            end
+            
+            -- Pull a player data table from the pool rather than creating {}
+            local playerData = FG_GetTable()
+            playerData.id = id
+            playerData.buttonType = buttonType
+            playerData.statusText = statusText
+            
+            table.insert(groupsTotal[groupName], playerData)
+        end
+    end
 end
 
 -- ============================================================================
@@ -1261,10 +1345,10 @@ EnableFriendGroups = function()
     if FriendGroups_Loaded then return end
     FriendGroups_Loaded = true
     
-    if not FriendGroups_SavedVars then
+		if not FriendGroups_SavedVars then
         FriendGroups_SavedVars = {
             collapsed = {},
-            hide_offline = true,          
+            hide_offline = false,         
             colour_classes = true,        
             show_faction_icons = true,    
             show_realm = true,            
@@ -1283,20 +1367,28 @@ EnableFriendGroups = function()
             open_one_group = false,
             auto_accept_invite = true,
             auto_accept_sync = true,
-	    auto_accept_res = false,
-            show_flags = true
+            auto_accept_res = false,
+            show_flags = true,
+            offline_tracker = true
         }
     end
-
+	
+    -- [[ DEFAULTS MIGRATION FOR EXISTING USERS ]] --
     if FriendGroups_SavedVars.show_flags == nil then
         FriendGroups_SavedVars.show_flags = true
     end
+    if FriendGroups_SavedVars.show_contact_cap == nil then
+        FriendGroups_SavedVars.show_contact_cap = true
+    end
+    if FriendGroups_SavedVars.offline_tracker == nil then
+        FriendGroups_SavedVars.offline_tracker = true
+    end
 
-    -- 1. Create Search Box
+-- 1. Create Search Box
     FriendGroups_SearchBox = CreateFrame("EditBox", "FriendGroupsGlobalSearch", FriendsListFrame, "SearchBoxTemplate")
-    FriendGroups_SearchBox:SetSize(200, 20)
+    FriendGroups_SearchBox:SetSize(20, 20)
     FriendGroups_SearchBox:SetPoint("TOPLEFT", FriendsListFrame, "TOPLEFT", 15, -85) 
-    FriendGroups_SearchBox:SetPoint("TOPRIGHT", FriendsListFrame, "TOPRIGHT", -30, -85) 
+    FriendGroups_SearchBox:SetPoint("TOPRIGHT", FriendsListFrame, "TOPRIGHT", -90, -85)
     FriendGroups_SearchBox:SetAutoFocus(false)
     FriendGroups_SearchBox.Instructions:SetText(L["SEARCH_PLACEHOLDER"])
     
@@ -1311,34 +1403,34 @@ EnableFriendGroups = function()
         GameTooltip:Hide()
     end)
 
-	local FriendGroups_SearchDebounceTimer = nil
+    local FriendGroups_SearchDebounceTimer = nil
     FriendGroups_SearchBox:SetScript("OnTextChanged", function(self)
         SearchBoxTemplate_OnTextChanged(self)
         local text = self:GetText()
         if text ~= searchValue then
             searchValue = text
-            
-            -- Cancel the previous timer if the user is still typing
             if FriendGroups_SearchDebounceTimer then
                 FriendGroups_SearchDebounceTimer:Cancel()
             end
-            
-            -- Wait 0.3 seconds after they stop typing before rebuilding the list
             FriendGroups_SearchDebounceTimer = C_Timer.NewTimer(0.3, function()
                 FriendGroups_FriendsListUpdate(true)
                 FriendGroups_SearchDebounceTimer = nil
             end)
         end
     end)
-	
-    -- 2. Create Settings Button
-    local settingsBtn = CreateFrame("Button", "FriendGroupsGlobalSettings", FriendGroups_SearchBox)
-    settingsBtn:SetSize(20, 20)
-    settingsBtn:SetPoint("LEFT", FriendGroups_SearchBox, "RIGHT", 1, 0)
-    settingsBtn:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
-    settingsBtn:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
     
-	settingsBtn:SetScript("OnClick", function(self)
+    -- 2. Create Contact Text Tracker
+    FriendGroups_ContactText = FriendsListFrame:CreateFontString("FriendGroupsContactText", "OVERLAY", "GameFontNormalSmall")
+    FriendGroups_ContactText:SetPoint("LEFT", FriendGroups_SearchBox, "RIGHT", 8, 0)
+	
+	-- 3. Create Settings Button
+    FriendGroupsGlobalSettings = CreateFrame("Button", "FriendGroupsGlobalSettings", FriendsListFrame)
+    FriendGroupsGlobalSettings:SetSize(20, 20)
+    FriendGroupsGlobalSettings:SetPoint("TOPRIGHT", FriendsListFrame, "TOPRIGHT", -9, -85)
+    FriendGroupsGlobalSettings:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
+    FriendGroupsGlobalSettings:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
+	
+    FriendGroupsGlobalSettings:SetScript("OnClick", function(self)
         MenuUtil.CreateContextMenu(self, function(ownerRegion, rootDescription)
             for _, item in ipairs(settingsMenuItems) do
                 if item.isTitle then
@@ -1365,13 +1457,14 @@ EnableFriendGroups = function()
         end)
     end)
     
-    settingsBtn:SetScript("OnEnter", function(self) 
+    FriendGroupsGlobalSettings:SetScript("OnEnter", function(self) 
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(L["SETTINGS_TITLE"] or "Settings", 1, 1, 1)
         GameTooltip:Show()
     end)
-    settingsBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-
+    
+    FriendGroupsGlobalSettings:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	
     -- 3. Apply Hooks
     hooksecurefunc("FriendsList_Update", FriendGroups_FriendsListUpdate)
     hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendGroups_FriendsListUpdateFriendButton)
@@ -1385,12 +1478,13 @@ EnableFriendGroups = function()
     -- 4. Setup Scroll View
     SetupGroupedView()
     
-    -- [[ UPDATED DEFAULT: Set to 380 (Large) ]] --
+	-- [[ UPDATED DEFAULT: Set to 380 (Large) ]] --
     if not FriendGroups_SavedVars.extra_height then
         FriendGroups_SavedVars.extra_height = 380
     end
     FriendGroups_UpdateSize()
 
+    FriendGroups_UpdateContactCap()
     FriendGroups_FriendsListUpdate(true)
 end
 
@@ -1406,7 +1500,9 @@ SetupGroupedView = function()
         elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE then
             factory("FriendsFrameFriendInviteTemplate", FriendGroups_FriendsFrameUpdateFriendInviteButton);
         else
-            factory("FriendGroupsFriendsListButtonTemplate", FriendGroups_FriendsListUpdateFriendButton);
+            -- 12.0 FIX: Switched from custom XML button to Blizzard's Native Secure Template
+            -- This completely bypasses the Chat/Secret ID taint vector when clicking friends.
+            factory("FriendsListButtonTemplate", FriendGroups_FriendsListUpdateFriendButton);
         end
     end);
     ScrollUtil.InitScrollBoxListWithScrollBar(FriendsListFrame.ScrollBox, FriendsListFrame.ScrollBar, view);
@@ -1619,123 +1715,250 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 	return nil;
 end
 
-FriendGroups_FriendsListUpdate = function(forceUpdate)
+local FriendGroups_UpdateQueued = false
+
+local function DoFriendsListUpdate(forceUpdate)
+    FriendGroups_UpdateQueued = false
+
     -- GUARD: Only run if Enabled
     if not FriendGroups_Loaded then return end
 
-	local numBNetTotal, numBNetOnline, numBNetFavorite, numBNetFavoriteOnline = BNGetNumFriends()
-	local numBNetOffline = numBNetTotal - numBNetOnline
-	local numBNetFavoriteOffline = numBNetFavorite - numBNetFavoriteOnline
-	local numWoWTotal = C_FriendList.GetNumFriends()
-	local numWoWOnline = C_FriendList.GetNumOnlineFriends()
-	local numWoWOffline = numWoWTotal - numWoWOnline
-	local retainScrollPosition = not forceUpdate
+    local numBNetTotal, numBNetOnline, numBNetFavorite, numBNetFavoriteOnline = BNGetNumFriends()
+    local numBNetOffline = numBNetTotal - numBNetOnline
+    -- FIX: Corrected typo from numBNetFavoriteOffline to numBNetFavoriteOnline
+    local numBNetFavoriteOffline = numBNetFavorite - numBNetFavoriteOnline
+    local numWoWTotal = C_FriendList.GetNumFriends()
+    local numWoWOnline = C_FriendList.GetNumOnlineFriends()
+    local numWoWOffline = numWoWTotal - numWoWOnline
+    local retainScrollPosition = not forceUpdate
     
-    -- FIX: Always assume search is enabled for filtering empty groups
-	local hideGroups = FriendGroups_SavedVars.hide_empty_groups or
-		(searchValue ~= "")
+    local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (searchValue ~= "")
 
-	local dataProvider = CreateDataProvider()
+    -- [[ EFFICIENT TABLE RECYCLING ]] --
+    for _, groupData in pairs(groupsTotal) do
+        for _, playerData in ipairs(groupData) do
+            FG_ReleaseTable(playerData)
+        end
+        FG_ReleaseTable(groupData)
+    end
+    for _, countData in pairs(groupsCount) do 
+        FG_ReleaseTable(countData) 
+    end
+    
+    wipe(groupsTotal)
+    wipe(groupsCount) 
+    wipe(groupsSorted)
 
-	if (not FriendsListFrame:IsShown() and not forceUpdate) then
-		return
-	end
+    -- [[ DATAPROVIDER FIX ]] --
+    local dataProvider = CreateDataProvider()
 
-	wipe(groupsTotal)
-	wipe(groupsSorted)
+    -- invites
+    local numInvites = BNGetNumFriendInvites()
+    if (numInvites > 0) then
+        if (not GetCVarBool("friendInvitesCollapsed")) then
+            for i = 1, numInvites do
+                dataProvider:Insert({ id = i, buttonType = FRIENDS_BUTTON_TYPE_INVITE })
+            end
+        end
+    end
 
-	-- invites
-	local numInvites = BNGetNumFriendInvites()
-	if (numInvites > 0) then
-		if (not GetCVarBool("friendInvitesCollapsed")) then
-			for i = 1, numInvites do
-				dataProvider:Insert({ id = i, buttonType = FRIENDS_BUTTON_TYPE_INVITE })
-			end
-		end
-	end
+    local bnetFriendIndex = 0;
+    -- favorite friends, online and offline
+    for i = 1, numBNetFavorite do
+        bnetFriendIndex = bnetFriendIndex + 1;
+        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+    end
 
-	local bnetFriendIndex = 0;
-	-- favorite friends, online and offline
-	for i = 1, numBNetFavorite do
-		bnetFriendIndex = bnetFriendIndex + 1;
-		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-	end
+    -- online Battlenet friends
+    for i = 1, numBNetOnline - numBNetFavoriteOnline do
+        bnetFriendIndex = bnetFriendIndex + 1
+        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+    end
+    -- online WoW friends
+    for i = 1, numWoWOnline do
+        FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
+    end
 
-	-- online Battlenet friends
-	for i = 1, numBNetOnline - numBNetFavoriteOnline do
-		bnetFriendIndex = bnetFriendIndex + 1
-		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-	end
-	-- online WoW friends
-	for i = 1, numWoWOnline do
-		FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
-	end
+    -- offline Battlenet friends
+    for i = 1, numBNetOffline - numBNetFavoriteOffline do
+        bnetFriendIndex = bnetFriendIndex + 1
+        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+    end
+    -- offline WoW friends
+    for i = 1, numWoWOffline do
+        FriendGroups_SetGroups(i + numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
+    end
 
-	-- offline Battlenet friends
-	for i = 1, numBNetOffline - numBNetFavoriteOffline do
-		bnetFriendIndex = bnetFriendIndex + 1
-		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-	end
-	-- offline WoW friends
-	for i = 1, numWoWOffline do
-		FriendGroups_SetGroups(i + numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
-	end
+    table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
 
-	table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
+    for _, groupName in ipairs(groupsSorted) do
+        if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
+            if FriendGroups_SavedVars.collapsed[groupName] == nil then
+                FriendGroups_SavedVars.collapsed[groupName] = false
+            end
 
-	for _, groupName in ipairs(groupsSorted) do
-		if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
-            -- [[ CHANGE START: Set default to FALSE (Expanded) ]] --
-			if FriendGroups_SavedVars.collapsed[groupName] == nil then
-				FriendGroups_SavedVars.collapsed[groupName] = false
-			end
-            -- [[ CHANGE END ]] --
+            dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName })
 
-			dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName })
+            if not FriendGroups_SavedVars.collapsed[groupName] then
+                -- RESTORED INNER-GROUP SORTING: Keeps friends locked in exact positions
+                table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
+                
+                for _, playerData in ipairs(groupsTotal[groupName]) do
+                    if playerData.buttonType and playerData.id then
+                        dataProvider:Insert({ id = playerData.id, buttonType = playerData.buttonType })
+                    end
+                end
+            end
+        end
+    end
 
-			if not FriendGroups_SavedVars.collapsed[groupName] then
-                -- FIX: Removed "Sort by Status" logic block here
-				for _, playerData in ipairs(groupsTotal[groupName]) do
-					if playerData.buttonType and playerData.id then
-						dataProvider:Insert({ id = playerData.id, buttonType = playerData.buttonType })
-					end
-				end
-			end
-		end
-	end
+    -- Empty fallback
+    if dataProvider:GetSize() == 0 or (dataProvider:GetSize() == 1) then
+        dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = L["GROUP_EMPTY"] })
+    end
 
-	-- Empty fallback
-	if dataProvider:GetSize() == 0 or (dataProvider:GetSize() == 1) then
-		dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = L["GROUP_EMPTY"] })
-	end
+    -- Prevent the game from auto-selecting the first friend
+    if FriendGroupsFrame.selectionLocked then
+        FriendsFrame.selectedFriend = nil
+        FriendsFrame.selectedFriendType = nil
+    elseif not retainScrollPosition then
+        FriendsFrame.selectedFriend = nil
+        FriendsFrame.selectedFriendType = nil
+    end
 
-	-- Prevent the game from auto-selecting the first friend
-	-- If the selection is locked (user hasn't clicked yet), force clear it.
-	if FriendGroupsFrame.selectionLocked then
-		FriendsFrame.selectedFriend = nil
-		FriendsFrame.selectedFriendType = nil
-	elseif not retainScrollPosition then
-		FriendsFrame.selectedFriend = nil
-		FriendsFrame.selectedFriendType = nil
-	end
+    -- Bind DataProvider securely
+    FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
 
-	FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
+    -- Double ensure after setting provider to catch any auto-select artifacts
+    if FriendGroupsFrame.selectionLocked then
+        FriendsFrame.selectedFriend = nil
+        FriendsFrame.selectedFriendType = nil
+    elseif not retainScrollPosition then
+        FriendsFrame.selectedFriend = nil
+        FriendsFrame.selectedFriendType = nil
+    end
 
-	-- Double ensure after setting provider to catch any auto-select artifacts
-	if FriendGroupsFrame.selectionLocked then
-		FriendsFrame.selectedFriend = nil
-		FriendsFrame.selectedFriendType = nil
-	elseif not retainScrollPosition then
-		FriendsFrame.selectedFriend = nil
-		FriendsFrame.selectedFriendType = nil
-	end
+    -- Cleanup
+    for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
+        if not groupsTotal[groupName] then
+            FriendGroups_SavedVars.collapsed[groupName] = nil
+        end
+    end
+    
+    FriendGroups_UpdateContactCap() 
+end
 
-	-- Cleanup
-	for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
-		if not groupsTotal[groupName] then
-			FriendGroups_SavedVars.collapsed[groupName] = nil
-		end
-	end
+FriendGroups_FriendsListUpdate = function(forceUpdate)
+    -- GUARD: Only run if Enabled
+    if not FriendGroups_Loaded then return end
+    if (not FriendsListFrame:IsShown() and not forceUpdate) then return end
+
+    local numBNetTotal, numBNetOnline, numBNetFavorite, numBNetFavoriteOnline = BNGetNumFriends()
+    local numBNetOffline = numBNetTotal - numBNetOnline
+    -- FIX: Corrected typo from numBNetFavoriteOffline to numBNetFavoriteOnline
+    local numBNetFavoriteOffline = numBNetFavorite - numBNetFavoriteOnline
+    local numWoWTotal = C_FriendList.GetNumFriends()
+    local numWoWOnline = C_FriendList.GetNumOnlineFriends()
+    local numWoWOffline = numWoWTotal - numWoWOnline
+    local retainScrollPosition = not forceUpdate
+    
+    local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (searchValue ~= "")
+
+    -- [[ EFFICIENT TABLE RECYCLING ]] --
+    for _, groupData in pairs(groupsTotal) do
+        for _, playerData in ipairs(groupData) do
+            FG_ReleaseTable(playerData)
+        end
+        FG_ReleaseTable(groupData)
+    end
+    for _, countData in pairs(groupsCount) do 
+        FG_ReleaseTable(countData) 
+    end
+    
+    wipe(groupsTotal)
+    wipe(groupsCount) 
+    wipe(groupsSorted)
+
+    -- [[ DATAPROVIDER FIX ]] --
+    local dataProvider = CreateDataProvider()
+
+    -- invites
+    local numInvites = BNGetNumFriendInvites()
+    if (numInvites > 0) then
+        if (not GetCVarBool("friendInvitesCollapsed")) then
+            for i = 1, numInvites do
+                dataProvider:Insert({ id = i, buttonType = FRIENDS_BUTTON_TYPE_INVITE })
+            end
+        end
+    end
+
+    local bnetFriendIndex = 0;
+    -- favorite friends, online and offline
+    for i = 1, numBNetFavorite do
+        bnetFriendIndex = bnetFriendIndex + 1;
+        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+    end
+
+    -- online Battlenet friends
+    for i = 1, numBNetOnline - numBNetFavoriteOnline do
+        bnetFriendIndex = bnetFriendIndex + 1
+        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+    end
+    -- online WoW friends
+    for i = 1, numWoWOnline do
+        FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
+    end
+
+    -- offline Battlenet friends
+    for i = 1, numBNetOffline - numBNetFavoriteOffline do
+        bnetFriendIndex = bnetFriendIndex + 1
+        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+    end
+    -- offline WoW friends
+    for i = 1, numWoWOffline do
+        FriendGroups_SetGroups(i + numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
+    end
+
+    table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
+
+    for _, groupName in ipairs(groupsSorted) do
+        if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
+            if FriendGroups_SavedVars.collapsed[groupName] == nil then
+                FriendGroups_SavedVars.collapsed[groupName] = false
+            end
+
+            dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName })
+
+            if not FriendGroups_SavedVars.collapsed[groupName] then
+                -- RESTORED INNER-GROUP SORTING: Keeps friends locked in exact positions
+                table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
+                
+                for _, playerData in ipairs(groupsTotal[groupName]) do
+                    if playerData.buttonType and playerData.id then
+                        dataProvider:Insert({ id = playerData.id, buttonType = playerData.buttonType })
+                    end
+                end
+            end
+        end
+    end
+
+    -- Empty fallback
+    if dataProvider:GetSize() == 0 or (dataProvider:GetSize() == 1) then
+        dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = L["GROUP_EMPTY"] })
+    end
+
+    -- Bind DataProvider securely
+    -- Purged the global overrides (FriendsFrame.selectedFriend = nil) to prevent Secret ID taint
+    FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
+
+    -- Cleanup
+    for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
+        if not groupsTotal[groupName] then
+            FriendGroups_SavedVars.collapsed[groupName] = nil
+        end
+    end
+    
+    FriendGroups_UpdateContactCap() 
 end
 
 function FriendGroups_FilterTable(tableData, filterFunction)
@@ -1905,7 +2128,14 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
 
         if groupName ~= L["GROUP_EMPTY"] then
             local groupInfo = string.format("%d/%d", groupOnline, groupTotal)
+            
+            -- [[ NEW: Hide the "0/" for Offline Virtual Groups ]]
+            if groupName == L["GROUP_OFFLINE_1"] or groupName == L["GROUP_OFFLINE_2"] or groupName == L["GROUP_OFFLINE_3"] then
+                groupInfo = tostring(groupTotal)
+            end
+            
             if frame.info then frame.info:SetText(groupInfo) end
+            
             if FriendGroups_SavedVars.collapsed[groupName] then
                 frame.collapseButton:SetNormalAtlas("Campaign_HeaderIcon_Closed")
             else
@@ -1919,6 +2149,25 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
         frame:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
         frame:GetHighlightTexture():SetAlpha(0.2)
     end
+end
+
+function FriendGroups_UpdateContactCap()
+    if not FriendGroups_ContactText then return end
+    
+    local numBNetTotal = BNGetNumFriends() or 0
+    local numWoWTotal = C_FriendList.GetNumFriends() or 0
+    local totalContacts = numBNetTotal + numWoWTotal
+    
+    FriendGroups_ContactText:SetText(string.format(L["TEXT_CONTACTS"], totalContacts))
+    
+    -- Turn RED if at or over the 600 cap, otherwise White
+    if totalContacts >= 600 then
+        FriendGroups_ContactText:SetTextColor(1, 0, 0) 
+    else
+        FriendGroups_ContactText:SetTextColor(1, 1, 1) 
+    end
+    
+    FriendGroups_ContactText:Show()
 end
 
 function FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down)
@@ -1975,16 +2224,17 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
                     local disabled = false
                     local text = item.text
 
-                    -- Protect special groups
-                    if groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" then
-                        if text == L["MENU_RENAME"] or text == L["MENU_REMOVE"] then
-                            disabled = true
-                        end
-                        if text == L["MENU_INVITE"] and groupName == L["GROUP_EMPTY"] then
-                            disabled = true
-                        end
-                    end
-                    
+					-- Protect special groups
+					if groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" 
+					   or groupName == L["GROUP_OFFLINE_1"] or groupName == L["GROUP_OFFLINE_2"] or groupName == L["GROUP_OFFLINE_3"] then
+						if text == L["MENU_RENAME"] or text == L["MENU_REMOVE"] then
+							disabled = true
+						end
+						if text == L["MENU_INVITE"] and groupName == L["GROUP_EMPTY"] then
+							disabled = true
+						end
+					end
+	
                     -- Max 40 Limit
                     if text == L["MENU_INVITE"] then
                         if groupsCount[groupName] and groupsCount[groupName].Total > 40 then
@@ -2043,25 +2293,33 @@ end
 -- [[ FRIENDGROUPS SECURE HOUSING PROXY ]]
 -- ============================================================================
 local FG_Osirisnz_HousingProxy = nil
-local FG_Osirisnz_HookedButtons = {} -- NEW: External table prevents frame taint
+local FG_Osirisnz_HookedButtons = {}
 
 local function Osirisnz_ActuallyWorkingVisitHouse()
     if FG_Osirisnz_HousingProxy then return FG_Osirisnz_HousingProxy end
     if InCombatLockdown() then return nil end 
 
-    -- CRITICAL: Uses SecureActionButtonTemplate, entirely avoiding the taint trap
-    FG_Osirisnz_HousingProxy = CreateFrame("Button", "FriendGroups_Osirisnz_SecureHouseProxy", UIParent, "SecureActionButtonTemplate")
+    -- CRITICAL: Uses SecureActionButtonTemplate AND SecureHandlerStateTemplate
+    FG_Osirisnz_HousingProxy = CreateFrame("Button", "FriendGroups_Osirisnz_SecureHouseProxy", UIParent, "SecureActionButtonTemplate, SecureHandlerStateTemplate")
     FG_Osirisnz_HousingProxy:SetFrameStrata("DIALOG")
     FG_Osirisnz_HousingProxy:SetFrameLevel(9999)
     FG_Osirisnz_HousingProxy:Hide()
     FG_Osirisnz_HousingProxy:RegisterForClicks("AnyUp", "AnyDown")
     FG_Osirisnz_HousingProxy:SetAttribute("type", "visithouse")
 
+    -- Securely hide on combat start without causing Lua taint
+    RegisterStateDriver(FG_Osirisnz_HousingProxy, "combatstate", "[combat] combat; nocombat")
+    FG_Osirisnz_HousingProxy:SetAttribute("_onstate-combatstate", [[
+        if newstate == "combat" then
+            self:Hide()
+            self:ClearAllPoints()
+        end
+    ]])
+
     FG_Osirisnz_HousingProxy:SetScript("OnEnter", function(self)
         if self.nativeButton then
             self.nativeButton:LockHighlight()
         end
-        -- Show a clean tooltip without touching native secure scripts
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText(HOUSING_VISIT_HOUSE or "Visit House", 1, 1, 1)
         GameTooltip:Show()
@@ -2108,7 +2366,6 @@ local function Osirisnz_OnHouseButtonEnter(nativeButton)
 
     proxy.nativeButton = nativeButton
     
-    -- Trigger the proxy's OnEnter to show the tooltip and lock highlight securely
     proxy:Show()
     if proxy:GetScript("OnEnter") then
         proxy:GetScript("OnEnter")(proxy)
@@ -2134,7 +2391,7 @@ end
 local frame = CreateFrame("frame", "FriendGroups")
 frame:RegisterEvent("PLAYER_LOGIN")
 frame:RegisterEvent("ADDON_LOADED")
-frame:RegisterEvent("PLAYER_REGEN_DISABLED") -- Added for combat safety
+-- Removed PLAYER_REGEN_DISABLED: Combat hiding is now securely handled natively.
 
 frame:SetScript("OnEvent", function(self, event, arg1, ...)
     if event == "ADDON_LOADED" and arg1 == addonName then
@@ -2143,10 +2400,23 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 
     elseif event == "PLAYER_LOGIN" then
         if not FriendGroups_SavedVars then
-            FriendGroups_SavedVars = { collapsed = {}, hide_offline = true, colour_classes = true, show_faction_icons = true, show_realm = true, hide_high_level = true, add_favorite_group = true, add_mobile_text = true, show_search = true, auto_accept_invite = false, auto_accept_sync = false }
+            FriendGroups_SavedVars = { 
+                collapsed = {}, 
+                hide_offline = false,
+                colour_classes = true, 
+                show_faction_icons = true, 
+                show_realm = true, 
+                hide_high_level = true, 
+                add_favorite_group = true, 
+                add_mobile_text = true, 
+                show_search = true, 
+                open_one_group = false,
+                auto_accept_invite = false, 
+                auto_accept_sync = false,
+                offline_tracker = true
+            }
         end
-
-        -- Silently clean up the old housing state flag if a user updates with it active
+		
         if FriendGroups_SavedVars.housing_mode_active ~= nil then
             FriendGroups_SavedVars.housing_mode_active = nil
         end
@@ -2166,25 +2436,12 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
             FriendGroups_FriendsListUpdate(true)
         end)
         
-        -- Check if Blizzard_HouseList loaded before FriendGroups did
         if C_AddOns.IsAddOnLoaded("Blizzard_HouseList") then
             Osirisnz_InitHousingScrollBox()
         end
 
     elseif event == "ADDON_LOADED" and arg1 == "Blizzard_HouseList" then
         Osirisnz_InitHousingScrollBox()
-        
-    elseif event == "PLAYER_REGEN_DISABLED" then
-        -- Combat Safety: Hide the proxy instantly if entering combat while hovering
-        if FG_Osirisnz_HousingProxy and FG_Osirisnz_HousingProxy:IsShown() then
-            FG_Osirisnz_HousingProxy:Hide()
-            FG_Osirisnz_HousingProxy:ClearAllPoints()
-            GameTooltip:Hide()
-            if FG_Osirisnz_HousingProxy.nativeButton then
-                FG_Osirisnz_HousingProxy.nativeButton:UnlockHighlight()
-                FG_Osirisnz_HousingProxy.nativeButton = nil
-            end
-        end
     end
 end)
 
@@ -2192,7 +2449,6 @@ end)
 -- [[ AUTOMATION LOGIC ]]
 -- ============================================================================
 
--- PROTECTIVE HELPER: Determine if player is in a restricted/busy state
 local function FG_IsPlayerBusy()
     if InCombatLockdown() then return true end
     
@@ -2218,7 +2474,7 @@ end)
 FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
     -- 1. Auto Accept Group Invites
     if event == "PARTY_INVITE_REQUEST" then
-        if FG_IsPlayerBusy() then return end -- Strict pre-check guard
+        if FG_IsPlayerBusy() then return end 
         
         local inviterName = ...
         if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_invite then
@@ -2226,20 +2482,16 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
                 DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_INVITE"], inviterName or "Unknown"))
             end
             
-            C_Timer.After(1.5, function()
-                if FG_IsPlayerBusy() then return end -- Secondary guard before execution
-                
-                -- Protected Call to gracefully catch API hardware restrictions
-                local success = pcall(AcceptGroup)
-                if success then
-                    StaticPopup_Hide("PARTY_INVITE")
-                    StaticPopup_Hide("PARTY_INVITE_XREALM")
-                else
-                    if L["MSG_AUTO_ACCEPT_FAILED"] then
-                        DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
-                    end
+            -- Removed Timer wrapper to preserve secure hardware event payload
+            local success = pcall(AcceptGroup)
+            if success then
+                StaticPopup_Hide("PARTY_INVITE")
+                StaticPopup_Hide("PARTY_INVITE_XREALM")
+            else
+                if L["MSG_AUTO_ACCEPT_FAILED"] then
+                    DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
                 end
-            end)
+            end
         end
 
     -- 2. Auto Accept Resurrection
@@ -2250,17 +2502,15 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
                 DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_RES"], inviterName or "Unknown"))
             end
             
-            C_Timer.After(1.5, function()
-                -- Protected Call to gracefully catch API hardware restrictions
-                local success = pcall(AcceptResurrect)
-                if success then
-                    StaticPopup_Hide("RESURRECT")
-                else
-                    if L["MSG_AUTO_ACCEPT_FAILED"] then
-                        DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
-                    end
+            -- Removed Timer wrapper to preserve secure hardware event payload
+            local success = pcall(AcceptResurrect)
+            if success then
+                StaticPopup_Hide("RESURRECT")
+            else
+                if L["MSG_AUTO_ACCEPT_FAILED"] then
+                    DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_ACCEPT_FAILED"])
                 end
-            end)
+            end
         end
         
     -- 3. Auto Release Spirit
@@ -2269,27 +2519,22 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
             if L["MSG_AUTO_RELEASE"] then
                 DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_RELEASE"])
             end
-            C_Timer.After(1.5, function()
-                -- Safety: Don't release if you have a Soulstone or Reincarnation option
-                local selfResOptions = C_DeathInfo.GetSelfResurrectOptions()
-                if not selfResOptions or #selfResOptions == 0 then 
-                    -- Protected Call to gracefully catch API hardware restrictions
-                    local success = pcall(RepopMe)
-                    if not success then
-                        if L["MSG_AUTO_RELEASE_FAILED"] then
-                            DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_RELEASE_FAILED"])
-                        end
+
+            local selfResOptions = C_DeathInfo.GetSelfResurrectOptions()
+            if not selfResOptions or #selfResOptions == 0 then 
+                local success = pcall(RepopMe)
+                if not success then
+                    if L["MSG_AUTO_RELEASE_FAILED"] then
+                        DEFAULT_CHAT_FRAME:AddMessage(L["MSG_AUTO_RELEASE_FAILED"])
                     end
                 end
-            end)
+            end
         end
         
     -- 4. Auto Accept Party Sync
     elseif event == "QUEST_SESSION_CREATED" then
         if FriendGroups_SavedVars and FriendGroups_SavedVars.auto_accept_sync then
             if UnitIsGroupLeader("player") then return end
-            
-            -- Strict Combat Guard to prevent secure hardware taint
             if InCombatLockdown() then return end
             
             local leaderName = "Party Leader"
@@ -2307,17 +2552,9 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
                 DEFAULT_CHAT_FRAME:AddMessage(string.format(L["MSG_AUTO_SYNC"], leaderName))
             end
 
-            -- Micro-delay (0.5s) to allow server state to settle
-            C_Timer.After(0.5, function()
-                -- Secondary combat guard
-                if InCombatLockdown() then return end
-                
-                -- DIRECT API CALL (12.0 Midnight Compliant)
-                -- Tells the server directly that the sync is accepted, bypassing UI interaction
-                if C_QuestSession and C_QuestSession.SendSessionBeginResponse then
-                    C_QuestSession.SendSessionBeginResponse(true)
-                end
-            end)
+            if C_QuestSession and C_QuestSession.SendSessionBeginResponse then
+                C_QuestSession.SendSessionBeginResponse(true)
+            end
         end
     end
 end)

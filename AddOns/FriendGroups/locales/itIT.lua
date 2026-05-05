@@ -116,3 +116,14 @@ L["RELOAD_TOOLTIP_DESC"]  = "Ricarica l'UI per ripristinare FriendGroups."
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups è Attivo|r\n\nA causa delle restrizioni di sicurezza Blizzard,\ndevi ricaricare per vedere le Case."
 L["SHIELD_BTN_TEXT"]      = "Ricarica per vedere Case"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000ALLOGGI:|r FriendGroups disabilitato per vedere le Case. Ricarica per abilitare."
+
+-- ============================================================================
+-- 12.0.8
+-- ============================================================================
+L["SETTINGS_CONTACTS"]   = "Gestione Contatti"
+L["SET_CONTACT_CAP"]     = "Mostra indicatore limite contatti"
+L["SET_OFFLINE_TRACKER"] = "Abilita gruppi di tracciamento offline"
+L["GROUP_OFFLINE_1"]     = "[Offline 1 mese]"
+L["GROUP_OFFLINE_2"]     = "[Offline 2 mesi]"
+L["GROUP_OFFLINE_3"]     = "[Offline 3+ mesi]"
+L["TEXT_CONTACTS"]       = "%d/600"

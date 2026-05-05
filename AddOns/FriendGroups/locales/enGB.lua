@@ -116,3 +116,14 @@ L["RELOAD_TOOLTIP_DESC"]  = "Reloads the UI to restore FriendGroups."
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups is Active|r\n\nDue to Blizzard Secure Frame restrictions,\nyou must reload to View Houses."
 L["SHIELD_BTN_TEXT"]      = "Reload to View Houses"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000VIEW HOUSES:|r FriendGroups disabled to View Houses. Reload to enable."
+
+-- ============================================================================
+-- 12.0.8
+-- ============================================================================
+L["SETTINGS_CONTACTS"]   = "Contact Management"
+L["SET_CONTACT_CAP"]     = "Show Contact Cap Tracker"
+L["SET_OFFLINE_TRACKER"] = "Enable Offline Tracker Groups"
+L["GROUP_OFFLINE_1"]     = "[Offline 1 Month]"
+L["GROUP_OFFLINE_2"]     = "[Offline 2 Months]"
+L["GROUP_OFFLINE_3"]     = "[Offline 3+ Months]"
+L["TEXT_CONTACTS"]       = "%d/600"

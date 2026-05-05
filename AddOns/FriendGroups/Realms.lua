@@ -15,7 +15,7 @@ FriendGroups_RealmData = {
     ["Drakkari"] = {icon = "FlagMX.tga", region = "Latin America"},
     ["Quel'Thalas"] = {icon = "FlagMX.tga", region = "Latin America"},
     ["Ragnaros"] = {icon = "FlagMX.tga", region = "Latin America"},
-    ["Loatheb"] = {icon = "FlagMX.tga", region = "Latin America"}, -- Classic
+    ["Loatheb"] = {icon = "FlagMX.tga", region = "Latin America"},
 
     -- [[ OCEANIA (FlagAU.tga) ]] --
     ["Aman'Thul"] = {icon = "FlagAU.tga", region = "Oceania"},
@@ -30,12 +30,13 @@ FriendGroups_RealmData = {
     ["Nagrand"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Saurfang"] = {icon = "FlagAU.tga", region = "Oceania"},
     ["Thaurissan"] = {icon = "FlagAU.tga", region = "Oceania"},
-    ["Arugal"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
-    ["Yojamba"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
-    ["Remulos"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
-    ["Felstriker"] = {icon = "FlagAU.tga", region = "Oceania"}, -- Classic
-    ["Shadowstrike"] = {icon = "FlagAU.tga", region = "Oceania"}, -- SOD
-    ["Penance"] = {icon = "FlagAU.tga", region = "Oceania"}, -- SOD
+    ["Arugal"] = {icon = "FlagAU.tga", region = "Oceania"}, 
+    ["Yojamba"] = {icon = "FlagAU.tga", region = "Oceania"}, 
+    ["Remulos"] = {icon = "FlagAU.tga", region = "Oceania"}, 
+    ["Felstriker"] = {icon = "FlagAU.tga", region = "Oceania"}, 
+    ["Shadowstrike"] = {icon = "FlagAU.tga", region = "Oceania"}, 
+    ["Penance"] = {icon = "FlagAU.tga", region = "Oceania"}, 
+    ["Maladath"] = {icon = "FlagAU.tga", region = "Oceania"}, 
 
     -- [[ US / NORTH AMERICA (FlagUS.tga) ]] --
     ["Aegwynn"] = {icon = "FlagUS.tga", region = "US"},
@@ -106,7 +107,8 @@ FriendGroups_RealmData = {
     ["Draenor"] = {icon = "FlagUS.tga", region = "US"},
     ["Dragonblight"] = {icon = "FlagUS.tga", region = "US"},
     ["Dragonmaw"] = {icon = "FlagUS.tga", region = "US"},
-    ["Drenden"] = {icon = "FlagUS.tga", region = "US"},
+    ["Drak'thul"] = {icon = "FlagUS.tga", region = "US"},
+	["Drenden"] = {icon = "FlagUS.tga", region = "US"},
     ["Dunemaul"] = {icon = "FlagUS.tga", region = "US"},
     ["Durotan"] = {icon = "FlagUS.tga", region = "US"},
     ["Duskwood"] = {icon = "FlagUS.tga", region = "US"},
@@ -242,7 +244,7 @@ FriendGroups_RealmData = {
     ["Trollbane"] = {icon = "FlagUS.tga", region = "US"},
     ["Turalyon"] = {icon = "FlagUS.tga", region = "US"},
     ["TwistingNether"] = {icon = "FlagUS.tga", region = "US"},
-    ["Uldaman"] = {icon = "FlagUS.tga", region = "US"}, -- US VERSION
+    ["Uldaman"] = {icon = "FlagUS.tga", region = "US"}, 
     ["Uldum"] = {icon = "FlagUS.tga", region = "US"},
     ["Undermine"] = {icon = "FlagUS.tga", region = "US"},
     ["Ursin"] = {icon = "FlagUS.tga", region = "US"},
@@ -285,7 +287,12 @@ FriendGroups_RealmData = {
     ["Pagle"] = {icon = "FlagUS.tga", region = "US"},
     ["SkullRock"] = {icon = "FlagUS.tga", region = "US"},
     ["WildGrowth"] = {icon = "FlagUS.tga", region = "US"},
-    ["Maladath"] = {icon = "FlagAU.tga", region = "Oceania"}, 
+    ["DeviateDelight"] = {icon = "FlagUS.tga", region = "US"},
+    ["Mutanus"] = {icon = "FlagUS.tga", region = "US"},
+    ["JomGabbar"] = {icon = "FlagUS.tga", region = "US"},
+    ["BarmanShanker"] = {icon = "FlagUS.tga", region = "US"},
+    ["Nightfall"] = {icon = "FlagUS.tga", region = "US"},
+    ["ObsidianEdge"] = {icon = "FlagUS.tga", region = "US"},
 }
 
 -- [[ REGION 3: EUROPE & RUSSIA ]] --
@@ -413,7 +420,7 @@ FriendGroups_RealmDataEU = {
     ["Suramar"] = {icon = "FlagFR.tga", region = "France"},
     ["Templenoir"] = {icon = "FlagFR.tga", region = "France"},
     ["Throk'Feroth"] = {icon = "FlagFR.tga", region = "France"},
-    ["Uldaman"] = {icon = "FlagFR.tga", region = "France"}, -- FRENCH VERSION
+    ["Uldaman"] = {icon = "FlagFR.tga", region = "France"}, 
     ["Varimathras"] = {icon = "FlagFR.tga", region = "France"},
     ["Vol'jin"] = {icon = "FlagFR.tga", region = "France"},
     ["Ysondre"] = {icon = "FlagFR.tga", region = "France"},
@@ -438,7 +445,7 @@ FriendGroups_RealmDataEU = {
 
     -- [[ PORTUGUESE (FlagPT.tga) ]] --
     ["Aggra"] = {icon = "FlagPT.tga", region = "Portugal"},
-    ["GrimBatol"] = {icon = "FlagPT.tga", region = "Portugal"}, -- Often mixed, but Aggra is the main one
+    ["GrimBatol"] = {icon = "FlagPT.tga", region = "Portugal"}, 
 
     -- [[ RUSSIAN (FlagRU.tga) ]] --
     ["Ashenvale"] = {icon = "FlagRU.tga", region = "Russia"},
@@ -588,6 +595,11 @@ FriendGroups_RealmDataEU = {
     ["Thunderstrike"] = {icon = "FlagGB.tga", region = "EU"},
     ["WildGrowth"] = {icon = "FlagGB.tga", region = "EU"},
     ["ZandalarTribe"] = {icon = "FlagGB.tga", region = "EU"},
+    ["CrusaderStrike"] = {icon = "FlagGB.tga", region = "EU"},
+    ["LivingFlame"] = {icon = "FlagGB.tga", region = "EU"},
+    ["LoneWolf"] = {icon = "FlagGB.tga", region = "EU"},
+    ["ChaosBolt"] = {icon = "FlagGB.tga", region = "EU"},
+    ["LavaLash"] = {icon = "FlagGB.tga", region = "EU"},
 }
 
 -- [[ REGIONS 2, 4, 5: ASIA & CHINA ]] --

@@ -116,3 +116,14 @@ L["RELOAD_TOOLTIP_DESC"]  = "Lädt das UI neu, um FriendGroups wiederherzustelle
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups ist aktiv|r\n\nAufgrund von Blizzard-Sicherheitsbeschränkungen\nmust du neu laden, um Häuser zu sehen."
 L["SHIELD_BTN_TEXT"]      = "Neu laden für Hausansicht"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000HÄUSER:|r FriendGroups für Hausansicht deaktiviert. Zum Aktivieren neu laden."
+
+-- ============================================================================
+-- 12.0.8
+-- ============================================================================
+L["SETTINGS_CONTACTS"]   = "Kontaktverwaltung"
+L["SET_CONTACT_CAP"]     = "Kontaktlimit-Tracker anzeigen"
+L["SET_OFFLINE_TRACKER"] = "Offline-Tracker-Gruppen aktivieren"
+L["GROUP_OFFLINE_1"]     = "[1 Monat offline]"
+L["GROUP_OFFLINE_2"]     = "[2 Monate offline]"
+L["GROUP_OFFLINE_3"]     = "[3+ Monate offline]"
+L["TEXT_CONTACTS"]       = "%d/600"

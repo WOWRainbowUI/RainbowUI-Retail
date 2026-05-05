@@ -116,3 +116,14 @@ L["RELOAD_TOOLTIP_DESC"]  = "FriendGroups를 복구하기 위해 UI를 재시작
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups 활성 상태|r\n\n블리자드 보안 제한으로 인해,\n하우징을 보려면 재시작해야 합니다."
 L["SHIELD_BTN_TEXT"]      = "하우징 보기 (재시작)"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000하우징:|r 하우징을 보기 위해 FriendGroups가 비활성화되었습니다. 다시 활성화하려면 재시작하세요."
+
+-- ============================================================================
+-- 12.0.8
+-- ============================================================================
+L["SETTINGS_CONTACTS"]   = "연락처 관리"
+L["SET_CONTACT_CAP"]     = "연락처 한도 추적기 표시"
+L["SET_OFFLINE_TRACKER"] = "오프라인 추적기 그룹 활성화"
+L["GROUP_OFFLINE_1"]     = "[오프라인 1개월]"
+L["GROUP_OFFLINE_2"]     = "[오프라인 2개월]"
+L["GROUP_OFFLINE_3"]     = "[오프라인 3개월 이상]"
+L["TEXT_CONTACTS"]       = "%d/600"

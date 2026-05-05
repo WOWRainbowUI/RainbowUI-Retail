@@ -116,3 +116,14 @@ L["RELOAD_TOOLTIP_DESC"]  = "重載介面以還原 FriendGroups。"
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups 已啟用|r\n\n由於暴雪安全框架限制，\n你需要重載介面才能檢視房屋。"
 L["SHIELD_BTN_TEXT"]      = "重載以檢視房屋"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000房屋:|r FriendGroups 已停用以檢視房屋。重載以啟用。"
+
+-- ============================================================================
+-- 12.0.8
+-- ============================================================================
+L["SETTINGS_CONTACTS"]   = "聯絡人管理"
+L["SET_CONTACT_CAP"]     = "顯示聯絡人上限追蹤"
+L["SET_OFFLINE_TRACKER"] = "啟用離線追蹤群組"
+L["GROUP_OFFLINE_1"]     = "[離線 1 個月]"
+L["GROUP_OFFLINE_2"]     = "[離線 2 個月]"
+L["GROUP_OFFLINE_3"]     = "[離線 3 個月以上]"
+L["TEXT_CONTACTS"]       = "%d/600"

@@ -116,3 +116,14 @@ L["RELOAD_TOOLTIP_DESC"]  = "Recarga la interfaz para restaurar FriendGroups."
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups Activo|r\n\nDebido a restricciones de Blizzard,\ndebes recargar para ver casas."
 L["SHIELD_BTN_TEXT"]      = "Recargar para ver casas"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000VIVIENDA:|r FriendGroups desactivado para ver casas. Recarga para activar."
+
+-- ============================================================================
+-- 12.0.8
+-- ============================================================================
+L["SETTINGS_CONTACTS"]   = "Gestión de contactos"
+L["SET_CONTACT_CAP"]     = "Mostrar indicador de límite de contactos"
+L["SET_OFFLINE_TRACKER"] = "Activar grupos de rastreo de desconectados"
+L["GROUP_OFFLINE_1"]     = "[Desconectado 1 mes]"
+L["GROUP_OFFLINE_2"]     = "[Desconectado 2 meses]"
+L["GROUP_OFFLINE_3"]     = "[Desconectado 3+ meses]"
+L["TEXT_CONTACTS"]       = "%d/600"

@@ -116,3 +116,14 @@ L["RELOAD_TOOLTIP_DESC"]  = "重载界面以恢复 FriendGroups。"
 L["SHIELD_MSG"]           = "|cffFF0000FriendGroups 已激活|r\n\n由于暴雪安全框架限制，\n你需要重载界面才能查看房屋。"
 L["SHIELD_BTN_TEXT"]      = "重载以查看房屋"
 L["SAFE_MODE_WARNING"]    = "|cffFF0000房屋:|r FriendGroups 已禁用以查看房屋。重载以启用。"
+
+-- ============================================================================
+-- 12.0.8
+-- ============================================================================
+L["SETTINGS_CONTACTS"]   = "联系人管理"
+L["SET_CONTACT_CAP"]     = "显示联系人上限追踪"
+L["SET_OFFLINE_TRACKER"] = "启用离线追踪分组"
+L["GROUP_OFFLINE_1"]     = "[离线 1 个月]"
+L["GROUP_OFFLINE_2"]     = "[离线 2 个月]"
+L["GROUP_OFFLINE_3"]     = "[离线 3 个月以上]"
+L["TEXT_CONTACTS"]       = "%d/600"
