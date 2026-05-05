@@ -250,6 +250,8 @@ end
 --
 local tName, tTexture;
 local tSecrecy;
+local tPreviewColorTable;
+local tColor;
 local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIndex, aBuffInfo)
 	tName = VUHDO_getBouquetItemDisplayText(aBuffInfo["name"]) or aBuffInfo["name"];
 	anItemPanel:ClearAllPoints();
@@ -282,7 +284,13 @@ local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIn
 		_G[anItemPanel:GetName() .. "DemoTextureIcon"]:SetVertexColor(1, 1, 1);
 		_G[anItemPanel:GetName() .. "DemoTextureIcon"]:SetTexture(VUHDO_CUSTOM_ICONS[aBuffInfo["icon"]][2] or "Interface\\AddOns\\VuhDo\\Images\\white_square_16_16");
 
-		local tColor = VUHDO_deepCopyColorWithFlags(aBuffInfo["color"]);
+		if (aBuffInfo["name"] == "STATUS_HEALTH" and aBuffInfo["custom"] and (aBuffInfo["custom"]["radio"] or 3) == 3) then
+			tPreviewColorTable = aBuffInfo["custom"]["grad_high"] or aBuffInfo["color"];
+		else
+			tPreviewColorTable = aBuffInfo["color"];
+		end
+
+		tColor = VUHDO_deepCopyColorWithFlags(tPreviewColorTable);
 
 		if (tColor.useBackground) then
 			_G[anItemPanel:GetName() .. "DemoTextureIcon"]:SetVertexColor(tColor.R, tColor.G, tColor.B, tColor.O);
@@ -429,8 +437,15 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 		VUHDO_lnfRadioButtonInitFromModel(tRadioButton);
 
 		tSwatch = _G[tInnerPanel:GetName() .. "ColorTexture"];
-		VUHDO_lnfSetModel(tSwatch, tModel .. ".color");
-		VUHDO_lnfColorSwatchInitFromModel(tSwatch);
+
+		if (tCurrentItem ~= nil and tCurrentItem["custom"]["radio"] == 3) then
+			VUHDO_lnfSetModel(tSwatch, nil);
+			tSwatch:Hide();
+		else
+			VUHDO_lnfSetModel(tSwatch, tModel .. ".color");
+			tSwatch:Show();
+			VUHDO_lnfColorSwatchInitFromModel(tSwatch);
+		end
 
 		if (tCurrentItem ~= nil and tCurrentItem["custom"]["radio"] == 3) then
 
@@ -450,6 +465,17 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 				};
 			end
 
+			if (tCurrentItem["custom"]["grad_high"] == nil) then
+				tCurrentItem["custom"]["grad_high"] = VUHDO_deepCopyTable(tCurrentItem["color"]);
+				tCurrentItem["custom"]["grad_high"]["useBackground"] = true;
+				tCurrentItem["custom"]["grad_high"]["useOpacity"] = true;
+				tCurrentItem["custom"]["grad_high"]["useText"] = false;
+				tCurrentItem["custom"]["grad_high"]["TR"] = nil;
+				tCurrentItem["custom"]["grad_high"]["TG"] = nil;
+				tCurrentItem["custom"]["grad_high"]["TB"] = nil;
+				tCurrentItem["custom"]["grad_high"]["TO"] = nil;
+			end
+
 			tSwatch = _G[tInnerPanel:GetName() .. "LowColorTexture"];
 			tSwatch:Show();
 			VUHDO_lnfSetModel(tSwatch, tModel .. ".custom.grad_low");
@@ -462,7 +488,7 @@ function VUHDO_rebuildBouquetContextEditors(anIndex)
 
 			tSwatch = _G[tInnerPanel:GetName() .. "GoodColorTexture"];
 			tSwatch:Show();
-			VUHDO_lnfSetModel(tSwatch, tModel .. ".color");
+			VUHDO_lnfSetModel(tSwatch, tModel .. ".custom.grad_high");
 			VUHDO_lnfColorSwatchInitFromModel(tSwatch);
 		else
 			tSwatch = _G[tInnerPanel:GetName() .. "LowColorTexture"];
@@ -1245,6 +1271,24 @@ function VUHDO_generalBouquetBackButtonClicked(aPanel)
 end
 
 
+
+--
+function VUHDO_refreshAllBouquets()
+
+	VUHDO_rebuildAllBouquetItems(nil, VUHDO_CURR_SELECTED_ITEM_INDEX);
+	VUHDO_initAllEventBouquets();
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_bouquetsBuffColorChanged()
-	VUHDO_rebuildAllBouquetItems(nil, 0);
+
+	VUHDO_refreshAllBouquets();
+
+	return;
+
 end

@@ -1598,6 +1598,8 @@ do
 
 		VUHDO_updateDispellableAuraForUnit(aUnit);
 
+		VUHDO_deferTask(VUHDO_DEFER_REFRESH_PRIVATE_AURA_DISPEL_OVERLAY, VUHDO_DEFERRED_TASK_PRIORITY_CRITICAL, aUnit);
+
 		if VUHDO_hasDispellableAura(aUnit) then
 			return VUHDO_getDispellableAuraId(aUnit), nil;
 		end

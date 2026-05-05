@@ -525,7 +525,7 @@ local function VUHDO_absoluteValidator(anInfo, aValue)
 		return "%s", TruncateWhenZero(aValue);
 	end
 
-	if aValue > 0 then
+	if type(aValue) == "number" and aValue > 0 then
 		return "%s", aValue;
 	end
 

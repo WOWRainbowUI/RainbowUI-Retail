@@ -801,13 +801,7 @@ local function VUHDO_statusHealthIfActiveValidator(anInfo, _, aSecretContext)
 	end
 
 	if aSecretContext then
-		tSecretColor = nil;
-
-		if aSecretContext["healthCurve"] then
-			tSecretColor = UnitHealthPercent(anInfo["unit"], true, aSecretContext["healthCurve"]);
-		end
-
-		return true, nil, -1, -1, -1, nil, nil, nil, nil, nil, nil, nil, tSecretColor;
+		return true, nil, anInfo["health"], -1, anInfo["healthmax"], nil, anInfo["health"], nil, nil, nil, nil, nil, nil;
 	end
 
 	return true, nil, anInfo["health"], -1, anInfo["healthmax"], VUHDO_getCurrentBouquetColor(), anInfo["health"];

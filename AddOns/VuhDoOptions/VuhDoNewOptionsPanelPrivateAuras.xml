@@ -458,33 +458,32 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentShowDispelTypeCheck" text="VUHDO_I18N_SHOW_DISPEL_TYPE" inherits="VuhDoCheckButtonTemplate">
+					<CheckButton name="$parentDispelOverlayCheck" text="VUHDO_I18N_PRIVATE_AURA_DISPEL_OVERLAY" inherits="VuhDoCheckButtonTemplate">
 						<Anchors>
-							<Anchor point="TOPLEFT66i6">
+							<Anchor point="TOPLEFT" relativeTo="$parentShowBorderCheck" relativePoint="BOTTOMLEFT">
 								<Offset>
-									<AbsDimension x="20" y="-384" />
+									<AbsDimension x="0" y="-2" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.PRIVATE_AURA_SHOW_DISPEL_TYPE");
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K756);
+								VUHDO_lnfSetModel(self, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showDispelOverlay");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K822);
 
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
-								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showBorder", false);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
 
 					<CheckButton name="$parentShowTooltipCheck" text="VUHDO_I18N_SHOW_TOOLTIP" inherits="VuhDoCheckButtonTemplate">
 						<Size>
-							<AbsDimension x="106" y="32" />
+							<AbsDimension x="110" y="32" />
 						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentShowDispelTypeCheck" relativePoint="TOPRIGHT">
+							<Anchor point="TOPLEFT" relativeTo="$parentDispelOverlayCheck" relativePoint="TOPLEFT">
 								<Offset>
-									<AbsDimension x="6" y="0" />
+									<AbsDimension x="105" y="0" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -659,6 +658,51 @@
 
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
 								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.showDuration", false);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+					<Frame name="$parentDispelTypeLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="50" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentDurationPositionLabel" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-8" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_PRIVATE_AURA_DISPEL_TYPE" justifyH="RIGHT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfAddConstraint(self, VUHDO_LF_CONSTRAINT_DISABLE, "VUHDO_PANEL_SETUP.#PNUM#.PRIVATE_AURA.show", false);
+							</OnLoad>
+						</Scripts>
+					</Frame>
+
+					<Button name="$parentDispelTypeCombo" inherits="VuhDoScrollComboBoxTemplate">
+						<Size>
+							<AbsDimension x="120" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parentDispelTypeLabel" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="4" y="-18" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_privateAuraDispelIndicatorComboOnLoad(self);
 							</OnLoad>
 							<OnShow>
 								VUHDO_lnfComboBoxInitFromModel(self);
