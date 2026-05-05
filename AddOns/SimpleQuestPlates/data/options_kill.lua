@@ -22,34 +22,25 @@ function SQP:CreateKillOptions(content)
 
     -- ── Slider helper ─────────────────────────────────────────────────────────
     local function MakeSlider(parent, labelText, key, defaultVal, minVal, maxVal, yOff)
-        local val = SQPSettings[key] ~= nil and SQPSettings[key] or defaultVal
-        local lbl = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-        lbl:SetPoint("TOPLEFT", 20, yOff)
-        lbl:SetText(string.format("%s: %d", labelText, val))
-        SQP.optionControls[key .. "Label"] = lbl
-
-        local sl = SQP:CreateStyledSlider(parent, minVal, maxVal, 1, 160)
-        sl:SetPoint("TOPLEFT", lbl, "BOTTOMLEFT", 0, -4)
-        sl:SetValue(val)
-        SQP.optionControls[key] = sl
-
-        local resetBtn = SQP:CreateInlineResetButton(parent, function()
-            SQP:SetSetting(key, defaultVal)
-            sl:SetValue(defaultVal)
-            lbl:SetText(string.format("%s: %d", labelText, defaultVal))
-            SQP:RefreshAllNameplates()
-        end)
-        resetBtn:SetPoint("LEFT", sl, "RIGHT", 5, 0)
-
-        sl:SetScript("OnValueChanged", function(self, newVal)
-            newVal = math.floor(newVal + 0.5)
-            SQP:SetSetting(key, newVal)
-            lbl:SetText(string.format("%s: %d", labelText, newVal))
-            if SQP.previewFrame and SQP.previewFrame.activateKillMode then
-                SQP.previewFrame.activateKillMode()
-            end
-            SQP:RefreshAllNameplates()
-        end)
+        local slider = SQP:CreateStyledSlider(parent, {
+            key = key,
+            label = labelText,
+            min = minVal,
+            max = maxVal,
+            step = 1,
+            default = defaultVal,
+            storage = SQPSettings,
+            width = 160,
+            onChange = function(val)
+                if SQP.previewFrame and SQP.previewFrame.activateKillMode then
+                    SQP.previewFrame.activateKillMode()
+                end
+                SQP:RefreshAllNameplates()
+            end,
+        })
+        slider:SetPoint("TOPLEFT", 20, yOff)
+        SQP.optionControls[key] = slider
+        SQP.optionControls[key .. "Label"] = slider.valueLabel
         return yOff - 36
     end
 
@@ -114,32 +105,26 @@ function SQP:CreateKillOptions(content)
     end)
     yOffset = yOffset - 26
 
-    local killAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    killAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
-    killAnimIntensityLabel:SetText(string.format("Intensity: %d%%", SQPSettings.killAnimationIntensity or 100))
-    self.optionControls.killAnimationIntensityLabel = killAnimIntensityLabel
-
-    local killAnimIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
-    killAnimIntensitySlider:SetPoint("TOPLEFT", killAnimIntensityLabel, "BOTTOMLEFT", 0, -4)
-    killAnimIntensitySlider:SetValue(SQPSettings.killAnimationIntensity or 100)
+    local killAnimIntensitySlider = SQP:CreateStyledSlider(leftColumn, {
+        key = "killAnimationIntensity",
+        label = "Intensity",
+        min = 25,
+        max = 200,
+        step = 5,
+        default = 100,
+        storage = SQPSettings,
+        width = 160,
+        suffix = "%%",
+        onChange = function(val)
+            if SQP.previewFrame and SQP.previewFrame.activateKillMode then
+                SQP.previewFrame.activateKillMode()
+            end
+            SQP:RefreshAllNameplates()
+        end,
+    })
+    killAnimIntensitySlider:SetPoint("TOPLEFT", 20, yOffset)
     self.optionControls.killAnimationIntensity = killAnimIntensitySlider
-
-    local killAnimIntensityReset = self:CreateInlineResetButton(leftColumn, function()
-        SQP:SetSetting('killAnimationIntensity', 100)
-        killAnimIntensitySlider:SetValue(100)
-        killAnimIntensityLabel:SetText("Intensity: 100%")
-        ActivateKill()
-        SQP:RefreshAllNameplates()
-    end)
-    killAnimIntensityReset:SetPoint("LEFT", killAnimIntensitySlider, "RIGHT", 5, -2)
-
-    killAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
-        newVal = math.floor(newVal / 5 + 0.5) * 5
-        SQP:SetSetting('killAnimationIntensity', newVal)
-        killAnimIntensityLabel:SetText(string.format("Intensity: %d%%", newVal))
-        ActivateKill()
-        SQP:RefreshAllNameplates()
-    end)
+    self.optionControls.killAnimationIntensityLabel = killAnimIntensitySlider.valueLabel
     yOffset = yOffset - 38
 
     -- Kill Color
@@ -225,9 +210,8 @@ function SQP:CreateKillOptions(content)
         if oc.animateQuestIconsLoot then oc.animateQuestIconsLoot:SetChecked(D.animateQuestIcons) end
         if oc.animateQuestIconsPercent then oc.animateQuestIconsPercent:SetChecked(D.animateQuestIcons) end
         if oc.killAnimateMain   then oc.killAnimateMain:SetChecked(D.killAnimateMain) end
-        if oc.killAnimationIntensity then oc.killAnimationIntensity:SetValue(D.killAnimationIntensity) end
-        if oc.killAnimationIntensityLabel then
-            oc.killAnimationIntensityLabel:SetText(string.format("Intensity: %d%%", D.killAnimationIntensity))
+        if oc.killAnimationIntensity and oc.killAnimationIntensity.Reset then
+            oc.killAnimationIntensity:Reset()
         end
         if oc.killTintIcon      then oc.killTintIcon:SetChecked(D.killTintIcon) end
         -- Update color swatches

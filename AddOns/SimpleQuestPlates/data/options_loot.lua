@@ -22,34 +22,25 @@ function SQP:CreateLootOptions(content)
 
     -- ── Slider helper ─────────────────────────────────────────────────────────
     local function MakeSlider(parent, labelText, key, defaultVal, minVal, maxVal, yOff)
-        local val = SQPSettings[key] ~= nil and SQPSettings[key] or defaultVal
-        local lbl = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-        lbl:SetPoint("TOPLEFT", 20, yOff)
-        lbl:SetText(string.format("%s: %d", labelText, val))
-        SQP.optionControls[key .. "Label"] = lbl
-
-        local sl = SQP:CreateStyledSlider(parent, minVal, maxVal, 1, 160)
-        sl:SetPoint("TOPLEFT", lbl, "BOTTOMLEFT", 0, -4)
-        sl:SetValue(val)
-        SQP.optionControls[key] = sl
-
-        local resetBtn = SQP:CreateInlineResetButton(parent, function()
-            SQP:SetSetting(key, defaultVal)
-            sl:SetValue(defaultVal)
-            lbl:SetText(string.format("%s: %d", labelText, defaultVal))
-            SQP:RefreshAllNameplates()
-        end)
-        resetBtn:SetPoint("LEFT", sl, "RIGHT", 5, 0)
-
-        sl:SetScript("OnValueChanged", function(self, newVal)
-            newVal = math.floor(newVal + 0.5)
-            SQP:SetSetting(key, newVal)
-            lbl:SetText(string.format("%s: %d", labelText, newVal))
-            if SQP.previewFrame and SQP.previewFrame.activateLootMode then
-                SQP.previewFrame.activateLootMode()
-            end
-            SQP:RefreshAllNameplates()
-        end)
+        local slider = SQP:CreateStyledSlider(parent, {
+            key = key,
+            label = labelText,
+            min = minVal,
+            max = maxVal,
+            step = 1,
+            default = defaultVal,
+            storage = SQPSettings,
+            width = 160,
+            onChange = function(val)
+                if SQP.previewFrame and SQP.previewFrame.activateLootMode then
+                    SQP.previewFrame.activateLootMode()
+                end
+                SQP:RefreshAllNameplates()
+            end,
+        })
+        slider:SetPoint("TOPLEFT", 20, yOff)
+        SQP.optionControls[key] = slider
+        SQP.optionControls[key .. "Label"] = slider.valueLabel
         return yOff - 36
     end
 
@@ -114,32 +105,26 @@ function SQP:CreateLootOptions(content)
     end)
     yOffset = yOffset - 26
 
-    local lootAnimIntensityLabel = leftColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    lootAnimIntensityLabel:SetPoint("TOPLEFT", 20, yOffset)
-    lootAnimIntensityLabel:SetText(string.format("Intensity: %d%%", SQPSettings.lootAnimationIntensity or 100))
-    self.optionControls.lootAnimationIntensityLabel = lootAnimIntensityLabel
-
-    local lootAnimIntensitySlider = self:CreateStyledSlider(leftColumn, 25, 200, 5, 160)
-    lootAnimIntensitySlider:SetPoint("TOPLEFT", lootAnimIntensityLabel, "BOTTOMLEFT", 0, -4)
-    lootAnimIntensitySlider:SetValue(SQPSettings.lootAnimationIntensity or 100)
+    local lootAnimIntensitySlider = SQP:CreateStyledSlider(leftColumn, {
+        key = "lootAnimationIntensity",
+        label = "Intensity",
+        min = 25,
+        max = 200,
+        step = 5,
+        default = 100,
+        storage = SQPSettings,
+        width = 160,
+        suffix = "%%",
+        onChange = function(val)
+            if SQP.previewFrame and SQP.previewFrame.activateLootMode then
+                SQP.previewFrame.activateLootMode()
+            end
+            SQP:RefreshAllNameplates()
+        end,
+    })
+    lootAnimIntensitySlider:SetPoint("TOPLEFT", 20, yOffset)
     self.optionControls.lootAnimationIntensity = lootAnimIntensitySlider
-
-    local lootAnimIntensityReset = self:CreateInlineResetButton(leftColumn, function()
-        SQP:SetSetting('lootAnimationIntensity', 100)
-        lootAnimIntensitySlider:SetValue(100)
-        lootAnimIntensityLabel:SetText("Intensity: 100%")
-        ActivateLoot()
-        SQP:RefreshAllNameplates()
-    end)
-    lootAnimIntensityReset:SetPoint("LEFT", lootAnimIntensitySlider, "RIGHT", 5, -2)
-
-    lootAnimIntensitySlider:SetScript("OnValueChanged", function(self, newVal)
-        newVal = math.floor(newVal / 5 + 0.5) * 5
-        SQP:SetSetting('lootAnimationIntensity', newVal)
-        lootAnimIntensityLabel:SetText(string.format("Intensity: %d%%", newVal))
-        ActivateLoot()
-        SQP:RefreshAllNameplates()
-    end)
+    self.optionControls.lootAnimationIntensityLabel = lootAnimIntensitySlider.valueLabel
     yOffset = yOffset - 38
 
     -- Loot Color
@@ -228,9 +213,8 @@ function SQP:CreateLootOptions(content)
         if oc.animateQuestIcons then oc.animateQuestIcons:SetChecked(D.animateQuestIcons) end
         if oc.animateQuestIconsPercent then oc.animateQuestIconsPercent:SetChecked(D.animateQuestIcons) end
         if oc.lootAnimateMain      then oc.lootAnimateMain:SetChecked(D.lootAnimateMain) end
-        if oc.lootAnimationIntensity then oc.lootAnimationIntensity:SetValue(D.lootAnimationIntensity) end
-        if oc.lootAnimationIntensityLabel then
-            oc.lootAnimationIntensityLabel:SetText(string.format("Intensity: %d%%", D.lootAnimationIntensity))
+        if oc.lootAnimationIntensity and oc.lootAnimationIntensity.Reset then
+            oc.lootAnimationIntensity:Reset()
         end
         if oc.lootTintIcon         then oc.lootTintIcon:SetChecked(D.lootTintIcon) end
         -- Update color swatches

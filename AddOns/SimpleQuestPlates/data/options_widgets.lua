@@ -40,29 +40,26 @@ function SQP:CreateInlineResetButton(parent, onClickFn)
     return btn
 end
 
--- Create custom slider
-function SQP:CreateStyledSlider(parent, min, max, step, width)
-    local slider = CreateFrame("Slider", nil, parent, "BackdropTemplate")
-    slider:SetSize(width or 200, 14)
-    slider:SetOrientation("HORIZONTAL")
-    slider:SetMinMaxValues(min, max)
-    slider:SetValueStep(step)
-    slider:SetObeyStepOnDrag(true)
-
-    -- Background
-    slider:SetBackdrop({
-        bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
-        edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
-        tile = true,
-        tileSize = 8,
-        edgeSize = 8,
-        insets = {left = 3, right = 3, top = 6, bottom = 6}
-    })
-
-    -- Thumb
-    slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
-
-    return slider
+-- Create custom styled slider — delegates to RGXUI
+function SQP:CreateStyledSlider(parent, options)
+	local UI = _G.RGXUI
+	if UI and type(UI.CreateSlider) == "function" then
+		return UI:CreateSlider(parent, options)
+	end
+	local slider = CreateFrame("Slider", nil, parent, "BackdropTemplate")
+	slider:SetSize((options and options.width) or 200, 14)
+	slider:SetOrientation("HORIZONTAL")
+	slider:SetMinMaxValues((options and options.min) or 0, (options and options.max) or 100)
+	slider:SetValueStep((options and options.step) or 1)
+	slider:SetObeyStepOnDrag(true)
+	slider:SetBackdrop({
+		bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
+		edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
+		tile = true, tileSize = 8, edgeSize = 8,
+		insets = {left = 3, right = 3, top = 6, bottom = 6}
+	})
+	slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
+	return slider
 end
 
 -- Create a per-type font settings section (size + family)
@@ -84,35 +81,26 @@ function SQP:CreateFontSection(parent, typeKey, yOffset, activatePreviewFn)
     fontHeader:SetFontObject(GameFontNormalSmall)
     yOffset = yOffset - 18
 
-    -- ── Font Size ──────────────────────────────────────────────────────────
-    local curSize = SQPSettings[typeKey.."FontSize"] or defaultSize
-    local sizeLabel = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    sizeLabel:SetPoint("TOPLEFT", 20, yOffset)
-    sizeLabel:SetText(string.format("Size: %d", curSize))
-    self.optionControls[typeKey.."FontSizeLabel"] = sizeLabel
+	-- ── Font Size ──────────────────────────────────────────────────────────
+	local curSize = SQPSettings[typeKey.."FontSize"] or defaultSize
+	local sizeSlider = self:CreateStyledSlider(parent, {
+		key = typeKey.."FontSize",
+		label = "Size",
+		min = 6,
+		max = 26,
+		step = 1,
+		default = defaultSize,
+		storage = SQPSettings,
+		width = 160,
+		onChange = function(val)
+			if activatePreviewFn then activatePreviewFn() end
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	sizeSlider:SetPoint("TOPLEFT", 20, yOffset)
+	self.optionControls[typeKey.."FontSize"] = sizeSlider
 
-    local sizeSlider = self:CreateStyledSlider(parent, 6, 26, 1, 160)
-    sizeSlider:SetPoint("TOPLEFT", sizeLabel, "BOTTOMLEFT", 0, -4)
-    sizeSlider:SetValue(curSize)
-    self.optionControls[typeKey.."FontSize"] = sizeSlider
-
-    local sizeReset = self:CreateInlineResetButton(parent, function()
-        SQP:SetSetting(typeKey.."FontSize", defaultSize)
-        sizeSlider:SetValue(defaultSize)
-        sizeLabel:SetText(string.format("Size: %d", defaultSize))
-        if activatePreviewFn then activatePreviewFn() end
-        SQP:RefreshAllNameplates()
-    end)
-    sizeReset:SetPoint("TOPLEFT", sizeSlider, "TOPRIGHT", 8, 0)
-
-    sizeSlider:SetScript("OnValueChanged", function(self, val)
-        val = math.floor(val + 0.5)
-        SQP:SetSetting(typeKey.."FontSize", val)
-        sizeLabel:SetText(string.format("Size: %d", val))
-        if activatePreviewFn then activatePreviewFn() end
-        SQP:RefreshAllNameplates()
-    end)
-    yOffset = yOffset - 32
+	yOffset = yOffset - 38
 
     -- ── Font Family ────────────────────────────────────────────────────────
     local familyLabel = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")

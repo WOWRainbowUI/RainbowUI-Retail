@@ -177,39 +177,29 @@ function SQP:CreateGlobalOptions(content)
         familyReset:SetPoint("LEFT", fontControl, "RIGHT", 6, 6)
         y = y - 62
 
-        local sharedSize = tonumber(SQPSettings.killFontSize) or tonumber(SQPSettings.fontSize) or defaultSharedSize
-        local sizeLabel = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-        sizeLabel:SetPoint("TOPLEFT", 20, y)
-        sizeLabel:SetText(string.format("Size: %d", sharedSize))
+	local sharedSize = tonumber(SQPSettings.killFontSize) or tonumber(SQPSettings.fontSize) or defaultSharedSize
+	local sizeSlider = self:CreateStyledSlider(parent, {
+		key = "killFontSize",
+		label = "Size",
+		min = 6,
+		max = 26,
+		step = 1,
+		default = defaultSharedSize,
+		storage = SQPSettings,
+		width = 160,
+		onChange = function(val)
+			SQP:SetSetting("fontSize", val)
+			SQP:SetSetting("killFontSize", val)
+			SQP:SetSetting("lootFontSize", val)
+			SQP:SetSetting("percentFontSize", val)
+			SQP:RefreshOptionsPreview()
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	sizeSlider:SetPoint("TOPLEFT", 20, y)
+	self.optionControls.sharedFontSize = sizeSlider
 
-        local sizeSlider = self:CreateStyledSlider(parent, 6, 26, 1, 160)
-        sizeSlider:SetPoint("TOPLEFT", sizeLabel, "BOTTOMLEFT", 0, -4)
-        sizeSlider:SetValue(sharedSize)
-        self.optionControls.sharedFontSize = sizeSlider
-
-        local sizeReset = self:CreateInlineResetButton(parent, function()
-            SQP:SetSetting("fontSize", defaultSharedSize)
-            SQP:SetSetting("killFontSize", defaultSharedSize)
-            SQP:SetSetting("lootFontSize", defaultSharedSize)
-            SQP:SetSetting("percentFontSize", defaultSharedSize)
-            sizeSlider:SetValue(defaultSharedSize)
-            sizeLabel:SetText(string.format("Size: %d", defaultSharedSize))
-            SQP:RefreshOptionsPreview()
-            SQP:RefreshAllNameplates()
-        end)
-        sizeReset:SetPoint("LEFT", sizeSlider, "RIGHT", 6, 0)
-
-        sizeSlider:SetScript("OnValueChanged", function(_, value)
-            local nextValue = math.floor(value + 0.5)
-            SQP:SetSetting("fontSize", nextValue)
-            SQP:SetSetting("killFontSize", nextValue)
-            SQP:SetSetting("lootFontSize", nextValue)
-            SQP:SetSetting("percentFontSize", nextValue)
-            sizeLabel:SetText(string.format("Size: %d", nextValue))
-            SQP:RefreshOptionsPreview()
-            SQP:RefreshAllNameplates()
-        end)
-        y = y - 36
+	y = y - 38
 
         local note = parent:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
         note:SetPoint("TOPLEFT", 20, y)
@@ -349,86 +339,66 @@ function SQP:CreateGlobalOptions(content)
     posScaleLabel:SetText("|cff58be81Position & Scale|r")
     rightYOffset = rightYOffset - 14
 
-    -- Global Scale
-    local scaleLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    scaleLabel:SetPoint("TOPLEFT", 20, rightYOffset)
-    scaleLabel:SetText(format("Scale: %.1f", SQPSettings.scale or 1.1))
-    self.optionControls.scaleLabel = scaleLabel
+	-- Global Scale
+	local scaleSlider = self:CreateStyledSlider(rightColumn, {
+		key = "scale",
+		label = "Scale",
+		min = 0.5,
+		max = 3.0,
+		step = 0.1,
+		default = 1.1,
+		storage = SQPSettings,
+		suffix = "",
+		width = 160,
+		onChange = function(value)
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	scaleSlider:SetPoint("TOPLEFT", 20, rightYOffset)
+	self.optionControls.scale = scaleSlider
+	self.optionControls.scaleLabel = scaleSlider.valueLabel
 
-    local scaleSlider = self:CreateStyledSlider(rightColumn, 0.5, 3.0, 0.1, 160)
-    scaleSlider:SetPoint("TOPLEFT", scaleLabel, "BOTTOMLEFT", 0, -4)
-    scaleSlider:SetValue(SQPSettings.scale or 1.1)
-    self.optionControls.scale = scaleSlider
+	rightYOffset = rightYOffset - 42
 
-    local scaleReset = self:CreateInlineResetButton(rightColumn, function()
-        SQP:SetSetting('scale', 1.1)
-        scaleSlider:SetValue(1.1)
-        scaleLabel:SetText("Scale: 1.1")
-        SQP:RefreshAllNameplates()
-    end)
-    scaleReset:SetPoint("TOPLEFT", scaleSlider, "TOPRIGHT", 8, 0)
+	-- X Offset
+	local xSlider = self:CreateStyledSlider(rightColumn, {
+		key = "offsetX",
+		label = "Offset X",
+		min = -100,
+		max = 100,
+		step = 1,
+		default = 0,
+		storage = SQPSettings,
+		width = 160,
+		onChange = function(value)
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	xSlider:SetPoint("TOPLEFT", 20, rightYOffset)
+	self.optionControls.offsetX = xSlider
+	self.optionControls.offsetXLabel = xSlider.valueLabel
 
-    scaleSlider:SetScript("OnValueChanged", function(self, value)
-        value = math.floor(value * 10 + 0.5) / 10
-        SQP:SetSetting('scale', value)
-        scaleLabel:SetText(format("Scale: %.1f", value))
-        SQP:RefreshAllNameplates()
-    end)
-    rightYOffset = rightYOffset - 40
+	rightYOffset = rightYOffset - 42
 
-    -- X Offset
-    local xLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    xLabel:SetPoint("TOPLEFT", 20, rightYOffset)
-    xLabel:SetText(format("Offset X: %d", SQPSettings.offsetX or 0))
-    self.optionControls.offsetXLabel = xLabel
+	-- Y Offset
+	local ySlider = self:CreateStyledSlider(rightColumn, {
+		key = "offsetY",
+		label = "Offset Y",
+		min = -100,
+		max = 100,
+		step = 1,
+		default = 3,
+		storage = SQPSettings,
+		width = 160,
+		onChange = function(value)
+			SQP:RefreshAllNameplates()
+		end,
+	})
+	ySlider:SetPoint("TOPLEFT", 20, rightYOffset)
+	self.optionControls.offsetY = ySlider
+	self.optionControls.offsetYLabel = ySlider.valueLabel
 
-    local xSlider = self:CreateStyledSlider(rightColumn, -100, 100, 1, 160)
-    xSlider:SetPoint("TOPLEFT", xLabel, "BOTTOMLEFT", 0, -4)
-    xSlider:SetValue(SQPSettings.offsetX or 0)
-    self.optionControls.offsetX = xSlider
-
-    local xReset = self:CreateInlineResetButton(rightColumn, function()
-        SQP:SetSetting('offsetX', 0)
-        xSlider:SetValue(0)
-        xLabel:SetText("Offset X: 0")
-        SQP:RefreshAllNameplates()
-    end)
-    xReset:SetPoint("TOPLEFT", xSlider, "TOPRIGHT", 8, 0)
-
-    xSlider:SetScript("OnValueChanged", function(self, value)
-        value = math.floor(value + 0.5)
-        SQP:SetSetting('offsetX', value)
-        xLabel:SetText(format("Offset X: %d", value))
-        SQP:RefreshAllNameplates()
-    end)
-    rightYOffset = rightYOffset - 40
-
-    -- Y Offset
-    local yLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    yLabel:SetPoint("TOPLEFT", 20, rightYOffset)
-    yLabel:SetText(format("Offset Y: %d", SQPSettings.offsetY or 3))
-    self.optionControls.offsetYLabel = yLabel
-
-    local ySlider = self:CreateStyledSlider(rightColumn, -100, 100, 1, 160)
-    ySlider:SetPoint("TOPLEFT", yLabel, "BOTTOMLEFT", 0, -4)
-    ySlider:SetValue(SQPSettings.offsetY or 3)
-    self.optionControls.offsetY = ySlider
-
-    local yReset = self:CreateInlineResetButton(rightColumn, function()
-        SQP:SetSetting('offsetY', 3)
-        ySlider:SetValue(3)
-        yLabel:SetText("Offset Y: 3")
-        SQP:RefreshAllNameplates()
-    end)
-    yReset:SetPoint("TOPLEFT", ySlider, "TOPRIGHT", 8, 0)
-
-    ySlider:SetScript("OnValueChanged", function(self, value)
-        value = math.floor(value + 0.5)
-        SQP:SetSetting('offsetY', value)
-        yLabel:SetText(format("Offset Y: %d", value))
-        SQP:RefreshAllNameplates()
-    end)
-    rightYOffset = rightYOffset - 40
+	rightYOffset = rightYOffset - 42
 
     -- Nameplate Side
     local anchorLabel = rightColumn:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
