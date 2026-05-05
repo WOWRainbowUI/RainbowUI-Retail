@@ -5,6 +5,13 @@
 
 local ADDON = "PlayerPowerText"
 
+-- Forward-declare locals so the two function definitions below assign to these
+-- locals instead of the GLOBAL `ApplyDisplaySettings` (which is also defined by
+-- PlayerHealthText.lua and would otherwise be overwritten by it, breaking power
+-- text font/size restoration on /reload).
+local ApplyDisplaySettings
+local SafeSetFont
+
 -- Default settings
 local defaults = {
     anchorToPlayerFrame = false,
@@ -24,6 +31,16 @@ local defaults = {
 }
 
 -- SavedVariables
+-- DEBUG: log what was loaded from SavedVariables BEFORE CopyDefaults touches it
+do
+    local existing = rawget(_G, "PlayerPowerTextDB")
+    if type(existing) == "table" then
+        print(string.format("|cffff8800[PPT DEBUG]|r SV loaded: fontSize=%s (type=%s)", tostring(existing.fontSize), type(existing.fontSize)))
+    else
+        print(string.format("|cffff8800[PPT DEBUG]|r SV NOT LOADED (PlayerPowerTextDB is %s) — TOC SavedVariables may be broken", type(existing)))
+    end
+end
+
 PlayerPowerTextDB = PlayerPowerTextDB or {}
 
 local function CopyDefaults(dest, src)
@@ -37,6 +54,30 @@ local function CopyDefaults(dest, src)
     end
 end
 CopyDefaults(PlayerPowerTextDB, defaults)
+print(string.format("|cffff8800[PPT DEBUG]|r After CopyDefaults: fontSize=%s", tostring(PlayerPowerTextDB.fontSize)))
+
+-- Trap any subsequent overwrite of PlayerPowerTextDB.fontSize
+do
+    local realDB = PlayerPowerTextDB
+    local proxy = setmetatable({}, {
+        __index = realDB,
+        __newindex = function(t, k, v)
+            if k == "fontSize" then
+                local old = rawget(realDB, "fontSize")
+                if old ~= v then
+                    print(string.format("|cffff0000[PPT TRAP]|r fontSize change: %s -> %s", tostring(old), tostring(v)))
+                    print(debugstack(2, 5, 0))
+                end
+            end
+            rawset(realDB, k, v)
+        end,
+        __pairs = function() return pairs(realDB) end,
+    })
+    -- Note: replacing the global with a proxy table breaks SavedVariables persistence
+    -- because WoW serializes _G.PlayerPowerTextDB by table identity. So instead of
+    -- using a proxy, we'll just hook the slash command path with explicit logging.
+    -- (Proxy disabled — keeping realDB as the global.)
+end
 
 
 -- Deferred: frames may not exist at load time
@@ -65,15 +106,17 @@ end
 local PPT_EDITMODE_ACTIVE = false
 local function PPT_Disable()
     PPT_EDITMODE_ACTIVE = true
-    if text then text:SetText(""); text:Hide() end
-    print("|cff00ff80PlayerPowerText|r: 打開編輯模式時停用")
+    -- Show a static preview so the font size slider is usable during Edit Mode
+    if EnsurePowerTextCreated() then
+        ApplyDisplaySettings()
+        if text then text:SetText("100 / 100"); text:Show() end
+    end
 end
 local function PPT_Enable()
     PPT_EDITMODE_ACTIVE = false
     if text then text:Show() end
     ApplyDisplaySettings()
     UpdatePowerText()
-    print("|cff00ff80PlayerPowerText|r: 關閉編輯模式後已啟用")
 end
 
 
@@ -122,32 +165,33 @@ local function SafeGetUnitPower(unit)
     return cur, max
 end
 
--- Safe font setter: prefer SetFontObject for built-in FontObjects, guard SetFont with pcall
+-- Safe font setter: always resolve to a font path so the custom size is respected
 function SafeSetFont(fs, fontChoice, size, fontFlags)
+    local flags = (fontFlags and fontFlags ~= "NONE") and fontFlags or nil
     if type(fontChoice) == "string" and _G[fontChoice] and type(_G[fontChoice]) == "table" then
-        fs:SetFontObject(_G[fontChoice])
+        local fontObj = _G[fontChoice]
+        local path = fontObj.GetFont and fontObj:GetFont() or nil
+        if path then
+            local ok = pcall(function() fs:SetFont(path, size, flags) end)
+            if not ok then fs:SetFontObject(fontObj) end
+            return
+        end
+        fs:SetFontObject(fontObj)
         pcall(function()
-            local fontPath = fs:GetFont()
-            if fontPath then fs:SetFont(fontPath, size, fontFlags ~= "NONE" and fontFlags or nil) end
+            local p = fs:GetFont()
+            if p then fs:SetFont(p, size, flags) end
         end)
     else
-        local ok = pcall(function() fs:SetFont(fontChoice, size, fontFlags ~= "NONE" and fontFlags or nil) end)
+        local ok = pcall(function() fs:SetFont(fontChoice, size, flags) end)
         if not ok then
-            fs:SetFontObject(GameFontNormal)
-            pcall(function()
-                local fontPath = fs:GetFont()
-                if fontPath then fs:SetFont(fontPath, size, fontFlags ~= "NONE" and fontFlags or nil) end
-            end)
+            local fallbackPath = GameFontNormal.GetFont and GameFontNormal:GetFont() or "Fonts\\FRIZQT__.TTF"
+            pcall(function() fs:SetFont(fallbackPath, size, flags) end)
         end
     end
 end
 
-function ApplyDisplaySettings()
+ApplyDisplaySettings = function()
     if not EnsurePowerTextCreated() then return end
-    if PPT_EDITMODE_ACTIVE then
-        if text then text:SetText(""); text:Hide() end
-        return
-    end
     local db = PlayerPowerTextDB
     -- Font and size
     local fontChoice = (type(_G.PlayerPowerTextDB) == "table" and _G.PlayerPowerTextDB.fontChoice) or db.fontChoice or defaults.fontChoice
@@ -180,7 +224,9 @@ end
 function UpdatePowerText()
     if not EnsurePowerTextCreated() then return end
     if PPT_EDITMODE_ACTIVE then
-        if text then text:SetText(""); text:Hide() end
+        -- In Edit Mode: keep preview text, just re-apply font settings
+        ApplyDisplaySettings()
+        if text then text:SetText("100 / 100"); text:Show() end
         return
     end
     local db = PlayerPowerTextDB
@@ -342,7 +388,7 @@ UIDropDownMenu_SetWidth(fontDropdown, 160)
 local sizeSlider = CreateFrame("Slider", "PlayerPowerText_SizeSlider", panel, "OptionsSliderTemplate")
 sizeSlider:SetPoint("TOPLEFT", fontDropdown, "BOTTOMLEFT", 0, -36)
 sizeSlider:SetWidth(260)
-sizeSlider:SetMinMaxValues(8, 36)
+sizeSlider:SetMinMaxValues(8, 100)
 sizeSlider:SetValueStep(1)
 sizeSlider:SetObeyStepOnDrag(true)
 do
@@ -351,9 +397,10 @@ do
     local low = _G["PlayerPowerText_SizeSliderLow"]
     local high = _G["PlayerPowerText_SizeSliderHigh"]
     if low then low:SetText("8") end
-    if high then high:SetText("36") end
+    if high then high:SetText("100") end
 end
 sizeSlider:SetScript("OnValueChanged", function(self, val)
+    if self._initializing then return end
     PlayerPowerTextDB.fontSize = math.floor(val + 0.5)
     ApplyDisplaySettings()
 end)
@@ -464,7 +511,7 @@ resetBtn:SetScript("OnClick", function()
     if ySlider then ySlider:SetValue(PlayerPowerTextDB.offsetY) end
     if UIDropDownMenu_SetSelectedValue and fontDropdown then UIDropDownMenu_SetSelectedValue(fontDropdown, PlayerPowerTextDB.fontChoice) end
     if UIDropDownMenu_SetSelectedValue and formatDropdown then UIDropDownMenu_SetSelectedValue(formatDropdown, PlayerPowerTextDB.textFormat) end
-    if sizeSlider then sizeSlider:SetValue(PlayerPowerTextDB.fontSize) end
+    if sizeSlider then sizeSlider._initializing = true; sizeSlider:SetValue(PlayerPowerTextDB.fontSize); sizeSlider._initializing = false end
     UpdateColorButton()
     if fadeCheck then fadeCheck:SetChecked(PlayerPowerTextDB.fadeWhenFull) end
     if fadeSlider then fadeSlider._initializing = true; fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha); fadeSlider._initializing = false end
@@ -480,7 +527,7 @@ panel.refresh = function()
     if ySlider then ySlider:SetValue(PlayerPowerTextDB.offsetY) end
     if UIDropDownMenu_SetSelectedValue and fontDropdown then UIDropDownMenu_SetSelectedValue(fontDropdown, PlayerPowerTextDB.fontChoice) end
     if UIDropDownMenu_SetSelectedValue and formatDropdown then UIDropDownMenu_SetSelectedValue(formatDropdown, PlayerPowerTextDB.textFormat) end
-    if sizeSlider then sizeSlider:SetValue(PlayerPowerTextDB.fontSize) end
+    if sizeSlider then sizeSlider._initializing = true; sizeSlider:SetValue(PlayerPowerTextDB.fontSize); sizeSlider._initializing = false end
     UpdateColorButton()
     if fadeCheck then fadeCheck:SetChecked(PlayerPowerTextDB.fadeWhenFull) end
     if fadeSlider then fadeSlider._initializing = true; fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha); fadeSlider._initializing = false end
@@ -539,7 +586,7 @@ optionsRegistrar:SetScript("OnEvent", function(self)
     if unlockCheck then unlockCheck:SetChecked(not PlayerPowerTextDB.locked) end
     if xSlider then xSlider:SetValue(PlayerPowerTextDB.offsetX) end
     if ySlider then ySlider:SetValue(PlayerPowerTextDB.offsetY) end
-    if sizeSlider then sizeSlider:SetValue(PlayerPowerTextDB.fontSize) end
+    if sizeSlider then sizeSlider._initializing = true; sizeSlider:SetValue(PlayerPowerTextDB.fontSize); sizeSlider._initializing = false end
     UpdateColorButton()
     if fadeCheck then fadeCheck:SetChecked(PlayerPowerTextDB.fadeWhenFull) end
     if fadeSlider then fadeSlider._initializing = true; fadeSlider:SetValue(PlayerPowerTextDB.fadeAlpha); fadeSlider._initializing = false end
@@ -571,7 +618,9 @@ ApplyDisplaySettings()
 -- Listen for external font/color/fontFlags changes (from main config menu)
 local lastFont, lastColor, lastFontFlags
 local function MonitorExternalFontColor()
-    local db = _G.PersonalResourceReskinDB and _G.PersonalResourceReskinDB.profile
+    -- Use the AceDB proxy object (PersonalResourceReskin.db.profile), NOT the raw
+    -- _G.PersonalResourceReskinDB.profile which is always nil in AceDB.
+    local db = _G.PersonalResourceReskin and _G.PersonalResourceReskin.db and _G.PersonalResourceReskin.db.profile
     if db then
         -- Font
         if db.font and db.font ~= PlayerPowerTextDB.fontChoice then
@@ -579,6 +628,9 @@ local function MonitorExternalFontColor()
             ApplyDisplaySettings()
             UpdatePowerText()
         end
+        -- Font size: do NOT sync from AceDB here — the /prr slider set function
+        -- already writes directly to PlayerPowerTextDB.fontSize. Syncing from AceDB
+        -- would overwrite the saved value if AceDB defaults differ.
         -- Font color
         if db.fontColor and (not PlayerPowerTextDB.color or db.fontColor[1] ~= PlayerPowerTextDB.color[1] or db.fontColor[2] ~= PlayerPowerTextDB.color[2] or db.fontColor[3] ~= PlayerPowerTextDB.color[3]) then
             PlayerPowerTextDB.color = {db.fontColor[1], db.fontColor[2], db.fontColor[3]}
@@ -596,61 +648,101 @@ local function MonitorExternalFontColor()
 end
 C_Timer.After(2, MonitorExternalFontColor)
 
-local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
-local orig_ApplyDisplaySettings = ApplyDisplaySettings
+local _LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
 function ApplyDisplaySettings()
     if not EnsurePowerTextCreated() then return end
     local db = PlayerPowerTextDB
-    local fontFlags = db.fontFlags or (_G.PersonalResourceReskinDB and _G.PersonalResourceReskinDB.profile and _G.PersonalResourceReskinDB.profile.fontFlags) or "OUTLINE"
-    local fontChoice = db.fontChoice
-    if LSM and LSM:Fetch("font", fontChoice) then
-        fontChoice = LSM:Fetch("font", fontChoice)
+    -- PlayerPowerTextDB.fontSize is the single source of truth; it is written by
+    -- both the /prr slider set function and by MonitorExternalFontColor.
+    local size = db.fontSize or defaults.fontSize
+    local fontFlags = db.fontFlags or "OUTLINE"
+    local flags = (fontFlags ~= "NONE") and fontFlags or nil
+
+    -- Resolve to an actual font file path.
+    -- "GameFontNormal" etc. are FontObject names, not paths — LSM won't find them.
+    -- Fall straight through to the hardcoded WoW built-in path in that case.
+    local fontPath
+    if _LSM then
+        fontPath = _LSM:Fetch("font", db.fontChoice or defaults.fontChoice)
     end
-    -- Font and size with style
-    SafeSetFont(text, fontChoice or defaults.fontChoice, db.fontSize or defaults.fontSize, fontFlags)
+    if not fontPath then
+        -- "Fonts\FRIZQT__.TTF" is the file GameFontNormal uses and always exists in WoW
+        fontPath = "Fonts\\FRIZQT__.TTF"
+    end
+
+    -- Direct SetFont — no pcall, so any real error will be visible in the log
+    text:SetFont(fontPath, size, flags)
+
     -- Color
     local r, g, b = unpack(db.color or defaults.color)
-    if type(r) ~= "number" or type(g) ~= "number" or type(b) ~= "number" then
-        r, g, b = unpack(defaults.color)
+    if type(r) == "number" and type(g) == "number" and type(b) == "number" then
+        text:SetTextColor(r, g, b)
     end
-    text:SetTextColor(r, g, b)
-    -- No frame positioning or drag logic
+    text:Show()
 end
 
-function SafeSetFont(fs, fontChoice, size, fontFlags)
+SafeSetFont = function(fs, fontChoice, size, fontFlags)
+    local flags = (fontFlags and fontFlags ~= "NONE") and fontFlags or nil
+    -- Resolve FontObject name to an actual font path so SetFont works with our custom size
     if type(fontChoice) == "string" and _G[fontChoice] and type(_G[fontChoice]) == "table" then
-        fs:SetFontObject(_G[fontChoice])
+        local fontObj = _G[fontChoice]
+        local path = fontObj.GetFont and fontObj:GetFont() or nil
+        if path then
+            local ok = pcall(function() fs:SetFont(path, size, flags) end)
+            if not ok then
+                fs:SetFontObject(fontObj)
+            end
+            return
+        end
+        -- fallback: set the object then immediately override size
+        fs:SetFontObject(fontObj)
         pcall(function()
-            local fontPath = fs:GetFont()
-            if fontPath then fs:SetFont(fontPath, size, fontFlags ~= "NONE" and fontFlags or nil) end
+            local p = fs:GetFont()
+            if p then fs:SetFont(p, size, flags) end
         end)
     else
-        local ok = pcall(function() fs:SetFont(fontChoice, size, fontFlags ~= "NONE" and fontFlags or nil) end)
+        local ok = pcall(function() fs:SetFont(fontChoice, size, flags) end)
         if not ok then
-            fs:SetFontObject(GameFontNormal)
-            pcall(function()
-                local fontPath = fs:GetFont()
-                if fontPath then fs:SetFont(fontPath, size, fontFlags ~= "NONE" and fontFlags or nil) end
-            end)
+            -- last resort: use default font path
+            local fallbackPath = GameFontNormal.GetFont and GameFontNormal:GetFont() or "Fonts\\FRIZQT__.TTF"
+            pcall(function() fs:SetFont(fallbackPath, size, flags) end)
         end
     end
 end
 
 
--- Slash command to toggle PlayerPowerText visibility
+-- Slash command to toggle PlayerPowerText visibility and size
 SLASH_PLAYERPOWERTEXT1 = "/pptpower"
 SlashCmdList["PLAYERPOWERTEXT"] = function(msg)
     if not PlayerPowerTextDB then PlayerPowerTextDB = {} end
+    msg = (msg or ""):lower():match("^%s*(.-)%s*$") -- trim
     if msg == "show" then
         PlayerPowerTextDB.hidden = false
         if text then text:Show() end
-        print("|cff00ff80PlayerPowerText|r: 能量文字會在重新載入後保持顯示。")
+        print("|cff00ff80PlayerPowerText|r: Power text shown.")
     elseif msg == "hide" then
         PlayerPowerTextDB.hidden = true
         if text then text:Hide() end
-        print("|cff00ff80PlayerPowerText|r: 能量文字會在重新載入後保持隱藏。")
+        print("|cff00ff80PlayerPowerText|r: Power text hidden.")
+    elseif msg == "size+" then
+        PlayerPowerTextDB.fontSize = math.min(72, (PlayerPowerTextDB.fontSize or 14) + 1)
+        ApplyDisplaySettings()
+        print("|cff00ff80PlayerPowerText|r: Font size " .. PlayerPowerTextDB.fontSize)
+    elseif msg == "size-" then
+        PlayerPowerTextDB.fontSize = math.max(6, (PlayerPowerTextDB.fontSize or 14) - 1)
+        ApplyDisplaySettings()
+        print("|cff00ff80PlayerPowerText|r: Font size " .. PlayerPowerTextDB.fontSize)
+    elseif msg:match("^size%s+(%d+)$") then
+        local val = tonumber(msg:match("^size%s+(%d+)$"))
+        if val and val >= 6 and val <= 72 then
+            PlayerPowerTextDB.fontSize = val
+            ApplyDisplaySettings()
+            print("|cff00ff80PlayerPowerText|r: Font size " .. val)
+        else
+            print("|cffffff00PlayerPowerText|r: Size must be between 6 and 72.")
+        end
     else
-        print("|cffffff00Usage: /pptpower show|hide|r")
+        print("|cffffff00/pptpower|r: show | hide | size <6-72> | size+ | size-")
     end
 end
 
