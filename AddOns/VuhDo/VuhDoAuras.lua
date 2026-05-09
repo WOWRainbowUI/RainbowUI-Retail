@@ -144,6 +144,9 @@ local sSlotsToClear = { };
 local sSlotsToClearCount = 0;
 local sFilteredAuras = { };
 
+local sIsBatchingListAnchors = false;
+local sPendingListAnchors = { };
+
 local sDispellableFilteredResult = { };
 
 local sAuraDataPool;
@@ -1652,6 +1655,63 @@ end
 
 
 --
+local function VUHDO_markPendingListAnchor(aPanelNum, anAnchorIndex, anAnchorConfig)
+
+	if not aPanelNum or not anAnchorIndex then
+		return;
+	end
+
+	if not sPendingListAnchors[aPanelNum] then
+		sPendingListAnchors[aPanelNum] = { };
+	end
+
+	sPendingListAnchors[aPanelNum][anAnchorIndex] = anAnchorConfig;
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_refreshListSlotsForAnchor(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig)
+
+	if sIsBatchingListAnchors then
+		VUHDO_markPendingListAnchor(aPanelNum, anAnchorIndex, anAnchorConfig);
+
+		return;
+	end
+
+	VUHDO_updateListSlotsForAnchor(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig);
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_drainPendingListAnchors(aUnit)
+
+	if not aUnit then
+		return;
+	end
+
+	for tPanelNum, tAnchorMap in pairs(sPendingListAnchors) do
+		for tAnchorIndex, tAnchorConfig in pairs(tAnchorMap) do
+			VUHDO_updateListSlotsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
+		end
+
+		twipe(tAnchorMap);
+	end
+
+	return;
+
+end
+
+
+
+--
 local tTriValue;
 function VUHDO_getAnchorTriStateBool(anAnchorConfig, aFieldName, aDefaultValue)
 
@@ -1788,6 +1848,9 @@ do
 			return;
 		end
 
+		twipe(sPendingListAnchors);
+		sIsBatchingListAnchors = true;
+
 		if aUpdateInfo["addedAuras"] then
 			for _, tAura in pairs(aUpdateInfo["addedAuras"]) do
 				if VUHDO_shouldCacheAura(aUnit, tAura) then
@@ -1808,6 +1871,7 @@ do
 					tCachedData["applications"] = tAura["applications"];
 					tCachedData["duration"] = tAura["duration"];
 					tCachedData["expirationTime"] = tAura["expirationTime"];
+					tCachedData["icon"] = tAura["icon"];
 				end
 
 				if tAura then
@@ -1825,6 +1889,10 @@ do
 				VUHDO_onAuraRemoved(aUnit, tAuraInstanceId, tCachedData and tCachedData["spellId"], tCachedData and tCachedData["name"]);
 			end
 		end
+
+		sIsBatchingListAnchors = false;
+
+		VUHDO_drainPendingListAnchors(aUnit);
 
 		VUHDO_updateAuraDisplaysForUnit(aUnit);
 
@@ -1877,7 +1945,7 @@ do
 								tGroup = VUHDO_getAuraGroupRaw(tAnchorConfig["groupId"]);
 
 								if tGroup and tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST then
-									VUHDO_updateListSlotsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
+									VUHDO_refreshListSlotsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfig);
 								end
 							end
 						end
@@ -1947,7 +2015,7 @@ do
 								tGroupRemove = VUHDO_getAuraGroup(tAnchorConfigRemove["groupId"]);
 
 								if tGroupRemove and (tGroupRemove["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
-									VUHDO_updateListSlotsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfigRemove);
+									VUHDO_refreshListSlotsForAnchor(aUnit, tPanelNum, tAnchorIndex, tAnchorConfigRemove);
 								end
 							end
 						end
@@ -1989,7 +2057,7 @@ do
 
 				if tGroup then
 					if tGroup["type"] == VUHDO_AURA_GROUP_TYPE_LIST then
-						VUHDO_updateListSlotsForAnchor(aUnit, aPanelNum, tAnchorIndex, tAnchorConfig);
+						VUHDO_refreshListSlotsForAnchor(aUnit, aPanelNum, tAnchorIndex, tAnchorConfig);
 					elseif VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["resolvedFilter"], tGroup["dispellableOnly"]) then
 						if (not tGroup["excludeFilter"] or not VUHDO_auraMatchesFilter(aUnit, anAuraData["auraInstanceID"], tGroup["excludeFilter"]))
 							and not VUHDO_isAuraIgnored(anAuraData, tAnchorConfig["groupId"]) then
@@ -2135,7 +2203,7 @@ function VUHDO_rebuildSlotAssignmentsForAnchor(aUnit, aPanelNum, anAnchorIndex, 
 	end
 
 	if (tGroup["type"] or 1) == VUHDO_AURA_GROUP_TYPE_LIST then
-		VUHDO_updateListSlotsForAnchor(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig);
+		VUHDO_refreshListSlotsForAnchor(aUnit, aPanelNum, anAnchorIndex, anAnchorConfig);
 
 		return;
 	end

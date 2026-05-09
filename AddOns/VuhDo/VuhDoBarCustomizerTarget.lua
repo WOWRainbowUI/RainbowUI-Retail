@@ -340,34 +340,45 @@ end
 
 
 --
-local sTargetSourceUnits = {};
-local sUnitTargetsUnits = {};
-local sUnitTotUnits = {};
+local sTargetSourceUnits = { };
+local sUnitTargetsUnits = { };
+local sUnitTotUnits = { };
+
+
 
 --
 local tTargetButton, tTotButton;
 local tAllButtons;
 local tTarget;
 local tTargetOfTarget;
+local tCachedInfo;
+local tCachedRange;
 function VUHDO_updateTargetBars(aUnit)
+
 	if strfind(aUnit, "target", 1, true) and aUnit ~= "target" then
 		if not sTargetSourceUnits[aUnit] then
 			sTargetSourceUnits[aUnit] = gsub(aUnit, "target", "");
 		end
+
 		aUnit = sTargetSourceUnits[aUnit];
 	end
 
 	tAllButtons = VUHDO_getUnitButtons(aUnit);
-	if not tAllButtons then return; end
+
+	if not tAllButtons then
+		return;
+	end
 
 	if not sUnitTargetsUnits[aUnit] then
 		sUnitTargetsUnits[aUnit] = aUnit .. "target";
 	end
+
 	tTarget = sUnitTargetsUnits[aUnit];
 
 	if not sUnitTotUnits[tTarget] then
 		sUnitTotUnits[tTarget] = tTarget .. "target";
 	end
+
 	tTargetOfTarget = sUnitTotUnits[tTarget];
 
 	for _, tButton in pairs(tAllButtons) do
@@ -390,11 +401,20 @@ function VUHDO_updateTargetBars(aUnit)
 	-- Target
 	VUHDO_fillCustomInfo(tTarget);
 
+	tCachedInfo = VUHDO_RAID[tTarget];
+	tCachedRange = tCachedInfo and tCachedInfo["range"];
+
+	if tCachedRange == nil then
+		tCachedRange = VUHDO_isInRange(tTarget);
+	end
+
 	for _, tButton in pairs(tAllButtons) do
 		if VUHDO_PANEL_SETUP[VUHDO_BUTTON_CACHE[tButton]]["SCALING"]["showTarget"] then
 			tTargetButton = VUHDO_getTargetButton(tButton);
-			VUHDO_customizeTargetBar(tTargetButton, tTarget, VUHDO_isInRange(tTarget));
+
+			VUHDO_customizeTargetBar(tTargetButton, tTarget, tCachedRange);
 			tTargetButton:SetAlpha(1);
+
 			VUHDO_rememberTargetButton(tTarget, tTargetButton);
 		end
 	end
@@ -404,19 +424,32 @@ function VUHDO_updateTargetBars(aUnit)
 		for _, tButton in pairs(tAllButtons) do
 			VUHDO_getTotButton(tButton):SetAlpha(0);
 		end
+
 		return;
 	end
 
 	VUHDO_fillCustomInfo(tTargetOfTarget);
 
+	tCachedInfo = VUHDO_RAID[tTargetOfTarget];
+	tCachedRange = tCachedInfo and tCachedInfo["range"];
+
+	if tCachedRange == nil then
+		tCachedRange = VUHDO_isInRange(tTargetOfTarget);
+	end
+
 	for _, tButton in pairs(tAllButtons) do
 		if VUHDO_PANEL_SETUP[VUHDO_BUTTON_CACHE[tButton]]["SCALING"]["showTot"] then
 			tTotButton = VUHDO_getTotButton(tButton);
-			VUHDO_customizeTargetBar(tTotButton, tTargetOfTarget, VUHDO_isInRange(tTargetOfTarget));
+
+			VUHDO_customizeTargetBar(tTotButton, tTargetOfTarget, tCachedRange);
 			tTotButton:SetAlpha(1);
+
 			VUHDO_rememberTargetButton(tTargetOfTarget, tTotButton);
 		end
 	end
+
+	return;
+
 end
 local VUHDO_updateTargetBars = VUHDO_updateTargetBars;
 
@@ -440,6 +473,8 @@ end
 --
 local tTotUnit, tGuid;
 local tAllButtons;
+local tCachedInfo;
+local tCachedRange;
 local function VUHDO_updateTargetHealth(aUnit, aTargetUnit)
 
 	tAllButtons = VUHDO_getUnitButtons(aUnit);
@@ -451,8 +486,15 @@ local function VUHDO_updateTargetHealth(aUnit, aTargetUnit)
 	if not VUHDO_IN_RAID_TARGETS[aTargetUnit] then
 		VUHDO_fillCustomInfo(aTargetUnit);
 
+		tCachedInfo = VUHDO_RAID[aTargetUnit];
+		tCachedRange = tCachedInfo and tCachedInfo["range"];
+
+		if tCachedRange == nil then
+			tCachedRange = VUHDO_isInRange(aTargetUnit);
+		end
+
 		for _, tButton in pairs(tAllButtons) do
-			VUHDO_customizeTargetBar(VUHDO_getTargetButton(tButton), aTargetUnit, VUHDO_isInRange(aTargetUnit));
+			VUHDO_customizeTargetBar(VUHDO_getTargetButton(tButton), aTargetUnit, tCachedRange);
 		end
 	end
 
@@ -474,8 +516,15 @@ local function VUHDO_updateTargetHealth(aUnit, aTargetUnit)
 	elseif VUHDO_IN_RAID_TARGETS[tTotUnit] == nil and UnitExists(tTotUnit) then
 		VUHDO_fillCustomInfo(tTotUnit);
 
+		tCachedInfo = VUHDO_RAID[tTotUnit];
+		tCachedRange = tCachedInfo and tCachedInfo["range"];
+
+		if tCachedRange == nil then
+			tCachedRange = VUHDO_isInRange(tTotUnit);
+		end
+
 		for _, tButton in pairs(tAllButtons) do
-			VUHDO_customizeTargetBar(VUHDO_getTotButton(tButton), tTotUnit, VUHDO_isInRange(tTotUnit));
+			VUHDO_customizeTargetBar(VUHDO_getTotButton(tButton), tTotUnit, tCachedRange);
 		end
 	end
 

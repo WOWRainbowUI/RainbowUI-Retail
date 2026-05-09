@@ -19,6 +19,7 @@ local VUHDO_getPlayerTargetFrame;
 local VUHDO_cleanupSpellTraceForUnit;
 local VUHDO_applyAllLayersToBorder;
 local VUHDO_unregisterUnitForEvents;
+local VUHDO_updateUnitRange;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -42,6 +43,7 @@ function VUHDO_playerTargetEventHandlerInitLocalOverrides()
 	VUHDO_cleanupSpellTraceForUnit = _G["VUHDO_cleanupSpellTraceForUnit"];
 	VUHDO_applyAllLayersToBorder = _G["VUHDO_applyAllLayersToBorder"];
 	VUHDO_unregisterUnitForEvents = _G["VUHDO_unregisterUnitForEvents"];
+	VUHDO_updateUnitRange = _G["VUHDO_updateUnitRange"];
 
 	return;
 
@@ -71,6 +73,8 @@ function VUHDO_updatePlayerTarget()
 	end
 
 	if VUHDO_RAID["target"] then
+		VUHDO_updateUnitRange("target");
+
 		VUHDO_determineIncHeal("target");
 		VUHDO_updateHealth("target", 9); -- VUHDO_UPDATE_INC
 	end
@@ -92,6 +96,7 @@ function VUHDO_updatePlayerTarget()
 			VUHDO_fullAuraRefresh("target");
 
 			VUHDO_setHealth("target", 1); -- VUHDO_UPDATE_ALL
+
 		else
 			VUHDO_clearUnitAuraCache("target");
 
@@ -114,6 +119,7 @@ function VUHDO_updatePlayerTarget()
 
 		VUHDO_updateHealthBarsFor("target", 1); -- VUHDO_UPDATE_ALL
 		VUHDO_initEventBouquetsFor("target");
+
 	end
 
 	return;
