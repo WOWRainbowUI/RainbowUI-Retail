@@ -2402,7 +2402,7 @@ do
 
 					tResultSlot = aLayerTemplate["nonSecretResults"][tValidatorEntry["resultIdx"]];
 
-					if tResultSlot["isActive"] then
+					if tResultSlot and tResultSlot["isActive"] then
 						txState["active"] = true;
 						txState["level"] = aLayerTemplate["nonSecretValidators"][tValidatorEntry["resultIdx"]]["index"];
 
@@ -2427,7 +2427,10 @@ do
 								txState["color"]["TR"] = tColor["TR"];
 								txState["color"]["TG"] = tColor["TG"];
 								txState["color"]["TB"] = tColor["TB"];
-								txState["color"]["TO"] = tColor["TO"];
+
+								if not tColor["useOpacity"] then
+									txState["color"]["TO"] = tColor["TO"];
+								end
 							end
 
 							if tColor["useBackground"] then
@@ -2435,7 +2438,10 @@ do
 								txState["color"]["R"] = tColor["R"];
 								txState["color"]["G"] = tColor["G"];
 								txState["color"]["B"] = tColor["B"];
-								txState["color"]["O"] = tColor["O"];
+
+								if not tColor["useOpacity"] then
+									txState["color"]["O"] = tColor["O"];
+								end
 							end
 
 							if tColor["useOpacity"] then
@@ -2467,7 +2473,10 @@ do
 									txState["maxColor"]["TR"] = tMaxColor["TR"];
 									txState["maxColor"]["TG"] = tMaxColor["TG"];
 									txState["maxColor"]["TB"] = tMaxColor["TB"];
-									txState["maxColor"]["TO"] = tMaxColor["TO"];
+
+									if not tMaxColor["useOpacity"] then
+										txState["maxColor"]["TO"] = tMaxColor["TO"];
+									end
 								end
 
 								if tMaxColor["useBackground"] then
@@ -2475,7 +2484,10 @@ do
 									txState["maxColor"]["R"] = tMaxColor["R"];
 									txState["maxColor"]["G"] = tMaxColor["G"];
 									txState["maxColor"]["B"] = tMaxColor["B"];
-									txState["maxColor"]["O"] = tMaxColor["O"];
+
+									if not tMaxColor["useOpacity"] then
+										txState["maxColor"]["O"] = tMaxColor["O"];
+									end
 								end
 
 								if tMaxColor["useOpacity"] then
@@ -2513,6 +2525,7 @@ do
 							end
 						end
 					end
+
 				elseif VUHDO_BOUQUET_LAYER_TYPE_AURA == tValidatorEntry["type"] then
 					tInfos = aBouquet[tCnt];
 					tResultSlot = aLayerTemplate["auraResults"][tValidatorEntry["resultIdx"]];
@@ -2591,7 +2604,7 @@ do
 
 					tResultSlot = aLayerTemplate["auraResults"][tValidatorEntry["resultIdx"]];
 
-					if tResultSlot["isActive"] then
+					if tResultSlot and tResultSlot["isActive"] then
 						txState["active"] = true;
 						txState["name"] = tResultSlot["name"];
 						txState["level"] = aLayerTemplate["auraValidators"][tValidatorEntry["resultIdx"]]["index"];
@@ -2613,7 +2626,10 @@ do
 								txState["color"]["TR"] = tColor["TR"];
 								txState["color"]["TG"] = tColor["TG"];
 								txState["color"]["TB"] = tColor["TB"];
-								txState["color"]["TO"] = tColor["TO"];
+
+								if not tColor["useOpacity"] then
+									txState["color"]["TO"] = tColor["TO"];
+								end
 							end
 
 							if tColor["useBackground"] then
@@ -2621,7 +2637,10 @@ do
 								txState["color"]["R"] = tColor["R"];
 								txState["color"]["G"] = tColor["G"];
 								txState["color"]["B"] = tColor["B"];
-								txState["color"]["O"] = tColor["O"];
+
+								if not tColor["useOpacity"] then
+									txState["color"]["O"] = tColor["O"];
+								end
 							end
 
 							if tColor["useOpacity"] then
@@ -2714,7 +2733,7 @@ do
 
 					tResultSlot = aLayerTemplate["curveResults"][tValidatorEntry["resultIdx"]];
 
-					if tResultSlot["isActive"] then
+					if tResultSlot and tResultSlot["isActive"] then
 						txState["active"] = true;
 
 						tTimer = tResultSlot["timer"] or 0;
@@ -2847,7 +2866,7 @@ do
 
 					tResultSlot = aLayerTemplate["spriteCellResults"][tValidatorEntry["resultIdx"]];
 
-					if tResultSlot["isActive"] then
+					if tResultSlot and tResultSlot["isActive"] then
 						txState["active"] = true;
 						txState["icon"] = tResultSlot["icon"];
 					end
@@ -3030,11 +3049,25 @@ do
 					end
 
 					if tColor["useText"] then
-						txState["color"]["useText"], txState["color"]["TR"], txState["color"]["TG"], txState["color"]["TB"], txState["color"]["TO"] = true, tColor["TR"], tColor["TG"], tColor["TB"], tColor["TO"];
+						txState["color"]["useText"] = true;
+						txState["color"]["TR"] = tColor["TR"];
+						txState["color"]["TG"] = tColor["TG"];
+						txState["color"]["TB"] = tColor["TB"];
+
+						if not tColor["useOpacity"] then
+							txState["color"]["TO"] = tColor["TO"];
+						end
 					end
 
 					if tColor["useBackground"] then
-						txState["color"]["useBackground"], txState["color"]["R"], txState["color"]["G"], txState["color"]["B"], txState["color"]["O"] = true, tColor["R"], tColor["G"], tColor["B"], tColor["O"];
+						txState["color"]["useBackground"] = true;
+						txState["color"]["R"] = tColor["R"];
+						txState["color"]["G"] = tColor["G"];
+						txState["color"]["B"] = tColor["B"];
+
+						if not tColor["useOpacity"] then
+							txState["color"]["O"] = tColor["O"];
+						end
 					end
 
 					if tColor["useOpacity"] then
@@ -3060,13 +3093,25 @@ do
 						end
 
 						if tMaxColor["useText"] then
-							txState["maxColor"]["useText"], txState["maxColor"]["TR"], txState["maxColor"]["TG"], txState["maxColor"]["TB"], txState["maxColor"]["TO"] =
-								true, tMaxColor["TR"], tMaxColor["TG"], tMaxColor["TB"], tMaxColor["TO"];
+							txState["maxColor"]["useText"] = true;
+							txState["maxColor"]["TR"] = tMaxColor["TR"];
+							txState["maxColor"]["TG"] = tMaxColor["TG"];
+							txState["maxColor"]["TB"] = tMaxColor["TB"];
+
+							if not tMaxColor["useOpacity"] then
+								txState["maxColor"]["TO"] = tMaxColor["TO"];
+							end
 						end
 
 						if tMaxColor["useBackground"] then
-							txState["maxColor"]["useBackground"], txState["maxColor"]["R"], txState["maxColor"]["G"], txState["maxColor"]["B"], txState["maxColor"]["O"] =
-								true, tMaxColor["R"], tMaxColor["G"], tMaxColor["B"], tMaxColor["O"];
+							txState["maxColor"]["useBackground"] = true;
+							txState["maxColor"]["R"] = tMaxColor["R"];
+							txState["maxColor"]["G"] = tMaxColor["G"];
+							txState["maxColor"]["B"] = tMaxColor["B"];
+
+							if not tMaxColor["useOpacity"] then
+								txState["maxColor"]["O"] = tMaxColor["O"];
+							end
 						end
 
 						if tMaxColor["useOpacity"] then
@@ -3202,8 +3247,7 @@ end
 
 
 
-
---
+	--
 do
 	--
 	local tBouquet;
@@ -3902,6 +3946,7 @@ do
 
 			VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName, tIsActive);
 		elseif VUHDO_ACTIVE_BOUQUETS[aUnit][aBouquetName] then
+
 			for _, tDelegate in pairs(VUHDO_REGISTERED_BOUQUETS[aBouquetName]) do
 				tDelegate(aUnit, tIsActive, tIcon, tTimer, tCounter, tDuration, tColor, tBuffName, aBouquetName,
 					tImpact, tTimer2, tClipL, tClipR, tClipT, tClipB, tMaxColor, tLayerTemplate, tIsAliveTime);

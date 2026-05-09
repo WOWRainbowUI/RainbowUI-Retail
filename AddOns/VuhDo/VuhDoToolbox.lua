@@ -661,7 +661,8 @@ local tIsGuessRange;
 local tRangeSpell;
 local tUnitReaction;
 local tIsSpellInRange;
-function VUHDO_isInRange(aUnit)
+local tUnitInfo;
+function VUHDO_isInRange(aUnit, anIsForceUpdate)
 
 	if not aUnit then
 		return nil;
@@ -669,6 +670,14 @@ function VUHDO_isInRange(aUnit)
 
 	if "player" == aUnit or VUHDO_unitIsUnit(aUnit, "player") then
 		return true;
+	end
+
+	if not anIsForceUpdate and VUHDO_RAID then
+		tUnitInfo = VUHDO_RAID[aUnit];
+
+		if tUnitInfo and tUnitInfo["isEventRange"] then
+			return tUnitInfo["range"];
+		end
 	end
 
 	if VUHDO_unitPhaseReason(aUnit) then

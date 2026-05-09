@@ -176,7 +176,6 @@ end
 
 --
 local tUnitInfo;
-local tIsCharmed;
 local tIsInRange;
 function VUHDO_updateUnitRange(aUnit, aMode)
 
@@ -187,18 +186,9 @@ function VUHDO_updateUnitRange(aUnit, aMode)
 	tUnitInfo = VUHDO_RAID[aUnit];
 
 	if tUnitInfo then
-		tIsCharmed = UnitIsCharmed(aUnit) and UnitCanAttack("player", aUnit) and not tUnitInfo["dead"];
+		tUnitInfo["isEventRange"] = false;
 
-		tUnitInfo["baseRange"] = "player" == aUnit or "pet" == aUnit or UnitInRange(aUnit);
-		tUnitInfo["visible"] = UnitIsVisible(aUnit);
-
-		if tUnitInfo["charmed"] ~= tIsCharmed then
-			tUnitInfo["charmed"] = tIsCharmed;
-
-			VUHDO_updateHealthBarsFor(aUnit, 4);
-		end
-
-		tIsInRange = VUHDO_isInRange(aUnit);
+		tIsInRange = VUHDO_isInRange(aUnit, true);
 
 		if sSecretsEnabled then
 			tUnitInfo["hasSecretRange"] = issecretvalue(tIsInRange);
@@ -208,6 +198,7 @@ function VUHDO_updateUnitRange(aUnit, aMode)
 			tUnitInfo["range"] = tIsInRange;
 
 			VUHDO_updateHealthBarsFor(aUnit, 5);
+			VUHDO_updateBouquetsForEvent(aUnit, 5);
 
 			if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
 				and (VuhDoDirectionFrame["shown"] or VUHDO_CONFIG["DIRECTION"]["isAlways"]) then
@@ -218,6 +209,7 @@ function VUHDO_updateUnitRange(aUnit, aMode)
 				tUnitInfo["range"] = tIsInRange;
 
 				VUHDO_updateHealthBarsFor(aUnit, 5);
+				VUHDO_updateBouquetsForEvent(aUnit, 5);
 
 				if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
 					and (VuhDoDirectionFrame["shown"] or (not tIsInRange or VUHDO_CONFIG["DIRECTION"]["isAlways"])) then
@@ -225,6 +217,106 @@ function VUHDO_updateUnitRange(aUnit, aMode)
 				end
 			end
 		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tUnitInfo;
+local tPolledRange;
+function VUHDO_onUnitInRangeUpdate(aUnit, anIsInRange)
+
+	if not VUHDO_RAID then
+		return;
+	end
+
+	tUnitInfo = VUHDO_RAID[aUnit];
+
+	if not tUnitInfo then
+		return;
+	end
+
+	tUnitInfo["baseRange"] = anIsInRange;
+	tUnitInfo["isEventRange"] = true;
+
+	if sSecretsEnabled then
+		tUnitInfo["hasSecretRange"] = issecretvalue(anIsInRange);
+	end
+
+	if sSecretsEnabled and tUnitInfo["hasSecretRange"] then
+		tPolledRange = VUHDO_isInRange(aUnit, true);
+
+		if not issecretvalue(tPolledRange) then
+			anIsInRange = tPolledRange;
+			tUnitInfo["baseRange"] = anIsInRange;
+
+			tUnitInfo["hasSecretRange"] = false;
+		end
+	end
+
+	if sSecretsEnabled and tUnitInfo["hasSecretRange"] then
+		tUnitInfo["range"] = anIsInRange;
+
+		VUHDO_updateHealthBarsFor(aUnit, 5);
+		VUHDO_updateBouquetsForEvent(aUnit, 5);
+
+		if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
+			and (VuhDoDirectionFrame["shown"] or VUHDO_CONFIG["DIRECTION"]["isAlways"]) then
+			VUHDO_updateDirectionFrame();
+		end
+	else
+		if issecretvalue(tUnitInfo["range"]) or tUnitInfo["range"] ~= anIsInRange then
+			tUnitInfo["range"] = anIsInRange;
+
+			VUHDO_updateHealthBarsFor(aUnit, 5);
+			VUHDO_updateBouquetsForEvent(aUnit, 5);
+
+			if VUHDO_getIsDirectionArrow() and VUHDO_getCurrentMouseOver() == aUnit
+				and (VuhDoDirectionFrame["shown"] or (not anIsInRange or VUHDO_CONFIG["DIRECTION"]["isAlways"])) then
+				VUHDO_updateDirectionFrame();
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tUnitInfo;
+local tIsCharmed;
+function VUHDO_updateUnitVisibilityCharmRange(aUnit)
+
+	if not VUHDO_RAID then
+		return;
+	end
+
+	tUnitInfo = VUHDO_RAID[aUnit];
+
+	if not tUnitInfo then
+		return;
+	end
+
+	tUnitInfo["visible"] = UnitIsVisible(aUnit);
+
+	if not tUnitInfo["isEventRange"] then
+		tUnitInfo["baseRange"] = "player" == aUnit or "pet" == aUnit or UnitInRange(aUnit);
+
+		VUHDO_updateUnitRange(aUnit);
+	end
+
+	tIsCharmed = UnitIsCharmed(aUnit) and UnitCanAttack("player", aUnit) and not tUnitInfo["dead"];
+
+	if tUnitInfo["charmed"] ~= tIsCharmed then
+		tUnitInfo["charmed"] = tIsCharmed;
+
+		VUHDO_updateHealthBarsFor(aUnit, 4);
 	end
 
 	return;
@@ -268,6 +360,23 @@ end
 
 
 --
+function VUHDO_updateAllVisibilityCharmRange()
+
+	if not VUHDO_RAID then
+		return;
+	end
+
+	for tUnit, _ in pairs(VUHDO_RAID) do
+		VUHDO_updateUnitVisibilityCharmRange(tUnit);
+	end
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_deferUpdateAllAggro(aPriority)
 
 	if not VUHDO_RAID then
@@ -302,6 +411,23 @@ end
 
 
 --
+function VUHDO_deferUpdateAllVisibilityCharmRange(aPriority)
+
+	if not VUHDO_RAID then
+		return;
+	end
+
+	for tUnit, _ in pairs(VUHDO_RAID) do
+		VUHDO_deferTask(VUHDO_DEFER_UPDATE_UNIT_VISIBILITY_CHARM_RANGE, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_NORMAL, tUnit);
+	end
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_deferUpdateUnitAggro(aUnit, aPriority)
 
 	VUHDO_deferTask(VUHDO_DEFER_UPDATE_UNIT_AGGRO, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_NORMAL, aUnit);
@@ -316,6 +442,17 @@ end
 function VUHDO_deferUpdateUnitRange(aUnit, aPriority)
 
 	VUHDO_deferTask(VUHDO_DEFER_UPDATE_UNIT_RANGE, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_NORMAL, aUnit);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_deferUpdateUnitVisibilityCharmRange(aUnit, aPriority)
+
+	VUHDO_deferTask(VUHDO_DEFER_UPDATE_UNIT_VISIBILITY_CHARM_RANGE, aPriority or VUHDO_DEFERRED_TASK_PRIORITY_NORMAL, aUnit);
 
 	return;
 
