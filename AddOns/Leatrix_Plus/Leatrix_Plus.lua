@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.15 (29th April 2026)
+-- 	Leatrix Plus 12.0.16 (6th May 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.15"
+	LeaPlusLC["AddonVer"] = "12.0.16"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -2428,6 +2428,29 @@
 			----------------------------------------------------------------------
 			-- Wardrobe and inspect system
 			----------------------------------------------------------------------
+
+			-- Set zoom speed for mount and pet journal
+			EventUtil.ContinueOnAddOnLoaded("Blizzard_Collections",function()
+
+				-- Set zoom speed for mount journal
+				MountJournal.MountDisplay.ModelScene:SetScript("OnMouseWheel", function(self, delta)
+					for i = 1, LeaPlusLC["DressupFasterZoom"] do
+						if MountJournal.MountDisplay.ModelScene.activeCamera then
+							MountJournal.MountDisplay.ModelScene.activeCamera:OnMouseWheel(delta)
+						end
+					end
+				end)
+
+				-- Set zoom speed for pet journal
+				PetJournalPetCard.modelScene:SetScript("OnMouseWheel", function(self, delta)
+					for i = 1, LeaPlusLC["DressupFasterZoom"] do
+						if PetJournalPetCard.modelScene.activeCamera then
+							PetJournalPetCard.modelScene.activeCamera:OnMouseWheel(delta)
+						end
+					end
+				end)
+
+			end)
 
 			EventUtil.ContinueOnAddOnLoaded("Blizzard_Transmog",function()
 
