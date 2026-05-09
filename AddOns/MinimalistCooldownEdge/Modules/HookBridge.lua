@@ -2,7 +2,7 @@
 --
 -- Installs permanent hooksecurefunc hooks on the Cooldown widget metatable.
 -- Routes cooldown lifetime events to TargetRegistry, DurationColorController,
--- CompactGroupAuraController, and BatchProcessor.
+-- and BatchProcessor.
 -- Also installs enforcement hooks that prevent Blizzard from silently reverting
 -- visual state (edge, swipe, hideNums) between style passes.
 
@@ -171,8 +171,7 @@ local VIEWER_TYPE = C.CooldownManagerViewers
 
 local function IsAuraRetryCategory(category, cooldown)
     if category == CATEGORY.Nameplate
-       or category == CATEGORY.Unitframe
-       or category == CATEGORY.CompactPartyAura then
+       or category == CATEGORY.Unitframe then
         return true
     end
     if category == CATEGORY.CooldownManager and Registry then
@@ -273,8 +272,6 @@ local function InvalidateResolvedFrameState(fs, refreshDuration)
     fs.contextResolved = nil
     fs.liveNameplateAuraContextResolved = nil
     fs.liveNameplateAuraContext = nil
-    fs.compactPartyAuraTypeResolved = nil
-    fs.compactPartyAuraType = nil
     fs.isForbidden = nil
     fs.isLoC = nil
 end

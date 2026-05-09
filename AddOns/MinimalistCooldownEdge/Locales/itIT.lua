@@ -10,6 +10,7 @@ L["MiniCC test command is unavailable."] = "Il comando di test di MiniCC non è 
 L["Action Bars"] = "Barre d'azione"
 L["Nameplates"] = "Targhette dei nomi"
 L["Unit Frames"] = "Riquadri unità"
+L["Party / Raid Frames"] = "Riquadri gruppo/incursione"
 L["CooldownManager"] = "CooldownManager"
 L["MiniCC"] = "MiniCC"
 L["Others"] = "Altro"
@@ -108,14 +109,19 @@ L["Profile reset. Reloading UI..."] = "Profilo ripristinato. Ricaricamento dell'
 -- Status Indicators
 L["ON"] = "ON"
 L["OFF"] = "OFF"
+L["Retired"] = "Ritirato"
 
 -- General Dashboard
 L["Enable categories styling"] = "Abilita stile categorie"
 L["LIVE_CONTROLS_DESC"] = "Le modifiche si applicano subito. Tieni attive solo le categorie che usi davvero per una configurazione più pulita."
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Mostra testo del conto alla rovescia stilizzato sulle icone di benefici e penalità di Blizzard CompactPartyFrame e CompactRaidFrame. Gruppo e incursione possono essere attivati separatamente. Questa opzione è indipendente da Altro."
+L["PARTY_RAID_FRAMES_RETIRED_DESC"] = "Il supporto ai riquadri gruppo/incursione è stato ritirato. Dal patch Blizzard 12.0.5, MiniCE non aggancia né modifica più i riquadri compatti di gruppo e incursione."
+L["PARTY_RAID_FRAMES_AURAS_TITLE"] = "Nuovo addon in sviluppo: Raid Frame Auras"
+L["PARTY_RAID_FRAMES_AURAS_DESC"] = "Raid Frame Auras è ora disponibile su CurseForge. Rimane separato da MiniCE perché usa propri frame in overlay invece di modificare le icone Blizzard esistenti, quindi funziona meglio come addon autonomo."
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = "Copia questo link per aprire la pagina del progetto su CurseForge nel tuo browser."
+L["Copy this link to open Raid Frame Auras on CurseForge."] = "Copia questo link per aprire Raid Frame Auras su CurseForge."
 L["Copy this link to view other projects from Anahkas on CurseForge."] = "Copia questo link per vedere altri progetti di Anahkas su CurseForge."
 
 -- Help
@@ -151,7 +157,7 @@ L["Dynamic Text Colors"] = "Colori dinamici del testo"
 L["Color by Remaining Time"] = "Colore in base al tempo restante"
 L["Dynamically colors the countdown text based on how much time is left."] = "Colora dinamicamente il testo del conto alla rovescia in base al tempo restante."
 L["DYNAMIC_COLORS_DESC"] = "Cambia il colore del testo in base alla durata residua del cooldown. Quando è attivo, sostituisce il colore statico sopra."
-L["DYNAMIC_COLORS_GENERAL_DESC"] = "Applica le stesse soglie di tempo rimanente a tutte le categorie MiniCE abilitate, incluso il testo delle aure compatte di gruppo/incursione. La gestione della durata resta sicura anche al cambio di mezzanotte quando Blizzard espone valori nascosti."
+L["DYNAMIC_COLORS_GENERAL_DESC"] = "Applica soglie di tempo rimanente alle categorie MiniCE attive. La gestione della durata resta sicura anche al cambio di mezzanotte quando Blizzard espone valori nascosti."
 L["Expiring Soon"] = "In scadenza"
 L["Short Duration"] = "Durata breve"
 L["Long Duration"] = "Durata lunga"

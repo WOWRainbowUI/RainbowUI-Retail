@@ -152,16 +152,21 @@ L["Some changes require a UI reload to be fully applied.\n\nReload the interface
 -- Status Indicators
 L["ON"] = "ON"
 L["OFF"] = "OFF"
+L["Retired"] = "Retiré"
 
 -- General Dashboard
 L["Enable categories styling"] = "Activer le style des catégories"
 L["LIVE_CONTROLS_DESC"] = "Les changements s'appliquent immédiatement. Ne laissez actives que les catégories que vous utilisez vraiment pour une configuration plus propre."
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Affiche un texte de compte à rebours stylisé sur les icônes d'améliorations et d'affaiblissements de Blizzard CompactPartyFrame et CompactRaidFrame. Le groupe et le raid peuvent être activés séparément. Cela reste indépendant de la catégorie Autres."
+L["PARTY_RAID_FRAMES_RETIRED_DESC"] = "Le support des cadres de groupe / raid est retiré. Depuis le patch Blizzard 12.0.5, MiniCE ne hook plus et ne stylise plus les cadres compacts de groupe et de raid."
+L["PARTY_RAID_FRAMES_AURAS_TITLE"] = "Nouvel addon en développement : Raid Frame Auras"
+L["PARTY_RAID_FRAMES_AURAS_DESC"] = "Raid Frame Auras est maintenant disponible sur CurseForge. Il reste séparé de MiniCE, car il utilise ses propres frames en overlay au lieu de styliser les icônes Blizzard existantes, ce qui le rend plus adapté à un addon autonome."
 L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."] = "Route les recharges prises en charge de Dominos vers la catégorie Barres d'action. Désactivez ceci si vous voulez que Dominos conserve son style natif inchangé."
 L["Routes supported Bartender4 action bar cooldowns through the Action Bars category. Disable this if you want Bartender4 to keep its native cooldown styling untouched."] = "Route les recharges prises en charge de Bartender4 vers la catégorie Barres d'action. Désactivez ceci si vous voulez que Bartender4 conserve son style natif inchangé."
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = "Copiez ce lien pour ouvrir la page du projet CurseForge dans votre navigateur."
+L["Copy this link to open Raid Frame Auras on CurseForge."] = "Copiez ce lien pour ouvrir Raid Frame Auras sur CurseForge."
 L["Copy this link to view other projects from Anahkas on CurseForge."] = "Copiez ce lien pour voir les autres projets d'Anahkas sur CurseForge."
 
 -- Help
@@ -199,7 +204,7 @@ L["Dynamic Text Colors"] = "Couleurs dynamiques du texte"
 L["Color by Remaining Time"] = "Colorer selon le temps restant"
 L["Dynamically colors the countdown text based on how much time is left."] = "Colorie dynamiquement le texte du compte à rebours selon le temps restant."
 L["DYNAMIC_COLORS_DESC"] = "Change la couleur du texte en fonction du temps de recharge restant. Remplace la couleur statique ci-dessus lorsqu'elle est activée."
-L["DYNAMIC_COLORS_GENERAL_DESC"] = "Les seuils de temps restant peuvent être autorisés ou bloqués par catégorie MiniCE, y compris pour le texte d'aura de groupe / raid compact. La gestion des durées reste fiable même au passage de minuit lorsque Blizzard n'expose que des valeurs cachées."
+L["DYNAMIC_COLORS_GENERAL_DESC"] = "Les seuils de temps restant peuvent être autorisés ou bloqués par catégorie MiniCE active. La gestion des durées reste fiable même au passage de minuit lorsque Blizzard n'expose que des valeurs cachées."
 L["Allow Threshold Colors"] = "Autoriser les couleurs de seuil"
 L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."] = "Autorise les seuils globaux de temps restant à remplacer la couleur statique de cette catégorie."
 L["Expiring Soon"] = "Expiration imminente"

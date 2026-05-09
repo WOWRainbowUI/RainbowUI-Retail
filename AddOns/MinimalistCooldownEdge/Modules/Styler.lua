@@ -14,7 +14,7 @@ local C_Timer_After = C_Timer.After
 
 local CATEGORY = C.Categories
 
-local Registry, BatchProcessor, StyleEngine, DurationColor, CompactAura, Classifier
+local Registry, BatchProcessor, StyleEngine, DurationColor, Classifier
 
 -- =========================================================================
 -- LIFECYCLE
@@ -25,7 +25,6 @@ function Styler:OnEnable()
     BatchProcessor = MCE:GetModule("BatchProcessor")
     StyleEngine    = MCE:GetModule("StyleEngine")
     DurationColor  = MCE:GetModule("DurationColorController")
-    CompactAura    = MCE:GetModule("CompactGroupAuraController")
     Classifier     = MCE:GetModule("Classifier")
 
     -- Wire batch processor → StyleEngine
@@ -41,7 +40,6 @@ end
 
 function Styler:OnDisable()
     DurationColor:Reset()
-    CompactAura:Reset(true)
     BatchProcessor:Reset()
     StyleEngine:WipeState()
     Registry:WipeAll()
@@ -68,9 +66,6 @@ end
 function Styler:ForceUpdateAll(fullScan)
     -- Reset all module state
     DurationColor:Reset()
-    -- During an internal refresh, keep current compact-aura visuals until the
-    -- next style pass instead of briefly restoring Blizzard native text.
-    CompactAura:Reset(false)
     StyleEngine:WipeState()
     BatchProcessor:Reset()
 

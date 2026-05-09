@@ -9,17 +9,17 @@ The addon is built around an adapter-driven registry. Cooldowns are discovered b
 - Action bars, including charge cooldowns and assisted combat actions.
 - Nameplate auras.
 - Blizzard and third-party unit frames.
-- Blizzard compact party and raid aura frames.
 - CooldownManager viewers.
 - MiniCC overlays.
 - sArena_Reloaded cooldown timers.
 - TellMeWhen cooldown and charge sweeps.
 
+Party / Raid Frames are no longer supported. The options menu keeps a retired notice for this category because Blizzard Patch 12.0.5 changed the compact party and raid frame surface MiniCE previously styled.
+
 ## Main features
 
 - Per-category font, text color, edge, swipe, and stack-count styling.
 - Optional duration-based text coloring with threshold curves.
-- Dedicated styling rules for compact party and raid aura frames.
 - Import and export for profile data.
 - Embedded Ace3 configuration UI with profile support.
 - Optional LibSharedMedia font integration when it is installed.
@@ -44,7 +44,6 @@ Modules/
   Classifier.lua
   StyleEngine.lua
   DurationColorController.lua
-  CompactGroupAuraController.lua
   Styler.lua
   HookBridge.lua
 Adapters/
@@ -52,7 +51,6 @@ Adapters/
   ActionBarAdapter.lua
   NameplateAdapter.lua
   UnitFrameAdapter.lua
-  GroupFrameAdapter.lua
   CooldownManagerAdapter.lua
   MiniCCAdapter.lua
   SArenaAdapter.lua

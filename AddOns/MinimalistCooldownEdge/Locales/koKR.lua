@@ -10,6 +10,7 @@ L["MiniCC test command is unavailable."] = "MiniCC 테스트 명령을 사용할
 L["Action Bars"] = "행동 단축바"
 L["Nameplates"] = "이름표"
 L["Unit Frames"] = "유닛 프레임"
+L["Party / Raid Frames"] = "파티/공격대 프레임"
 L["CooldownManager"] = "CooldownManager"
 L["MiniCC"] = "MiniCC"
 L["Others"] = "기타"
@@ -108,14 +109,19 @@ L["Profile reset. Reloading UI..."] = "프로필이 초기화되었습니다. UI
 -- Status Indicators
 L["ON"] = "켜짐"
 L["OFF"] = "꺼짐"
+L["Retired"] = "지원 중단"
 
 -- General Dashboard
 L["Enable categories styling"] = "카테고리 스타일 활성화"
 L["LIVE_CONTROLS_DESC"] = "변경 사항은 즉시 적용됩니다. 더 깔끔한 설정을 위해 실제로 사용하는 카테고리만 활성화해 두세요."
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Blizzard CompactPartyFrame 및 CompactRaidFrame의 강화 및 약화 효과 아이콘에 스타일이 적용된 카운트다운 텍스트를 표시합니다. 파티와 공격대는 각각 따로 전환할 수 있습니다. 이 기능은 기타 카테고리와 별개입니다."
+L["PARTY_RAID_FRAMES_RETIRED_DESC"] = "파티/공격대 프레임 지원은 중단되었습니다. Blizzard 패치 12.0.5 이후 MiniCE는 더 이상 간소형 파티 및 공격대 프레임을 후킹하거나 스타일링하지 않습니다."
+L["PARTY_RAID_FRAMES_AURAS_TITLE"] = "새로 개발 중인 애드온: Raid Frame Auras"
+L["PARTY_RAID_FRAMES_AURAS_DESC"] = "Raid Frame Auras는 이제 CurseForge에서 받을 수 있습니다. Blizzard의 기존 아이콘을 스타일링하는 대신 자체 오버레이 프레임을 사용하므로 MiniCE와 분리되어 있으며, 독립 애드온으로 두는 편이 더 잘 맞습니다."
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = "이 링크를 복사해 브라우저에서 CurseForge 프로젝트 페이지를 여세요."
+L["Copy this link to open Raid Frame Auras on CurseForge."] = "이 링크를 복사해 CurseForge에서 Raid Frame Auras를 여세요."
 L["Copy this link to view other projects from Anahkas on CurseForge."] = "이 링크를 복사해 CurseForge에서 Anahkas의 다른 프로젝트를 확인하세요."
 
 -- Help
@@ -151,7 +157,7 @@ L["Dynamic Text Colors"] = "동적 텍스트 색상"
 L["Color by Remaining Time"] = "남은 시간에 따라 색상 지정"
 L["Dynamically colors the countdown text based on how much time is left."] = "남은 시간에 따라 카운트다운 텍스트 색상을 동적으로 바꿉니다."
 L["DYNAMIC_COLORS_DESC"] = "남은 쿨다운 시간에 따라 텍스트 색상을 바꿉니다. 활성화하면 위의 고정 색상을 덮어씁니다."
-L["DYNAMIC_COLORS_GENERAL_DESC"] = "간소형 파티/공격대 오라 텍스트를 포함해 활성화된 모든 MiniCE 카테고리에 동일한 남은 시간 임계값을 적용합니다. Blizzard가 숨겨진 값을 제공할 때도 자정 경계를 안전하게 처리합니다."
+L["DYNAMIC_COLORS_GENERAL_DESC"] = "활성 MiniCE 카테고리에 남은 시간 임계값을 적용합니다. Blizzard가 숨겨진 값을 제공할 때도 자정 경계를 안전하게 처리합니다."
 L["Expiring Soon"] = "곧 만료"
 L["Short Duration"] = "짧은 지속시간"
 L["Long Duration"] = "긴 지속시간"

@@ -20,7 +20,6 @@ local function IsMiniCCFrame(frame)
 end
 
 local Registry
-local GroupFrameAdapter
 local FALLBACK_UNIT_TOKENS = {
     player = true,
     target = true,
@@ -40,7 +39,6 @@ end
 
 function Adapter:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
-    GroupFrameAdapter = MCE:GetModule("GroupFrameAdapter")
     Registry:RegisterAdapter(CATEGORY.Unitframe, self)
 end
 
@@ -113,8 +111,6 @@ function Adapter:TryClaim(cooldown)
     if not cooldown then return nil end
     -- MiniCC cooldowns carry the MiniCC_ prefix; skip them entirely.
     if IsMiniCCFrame(cooldown) then return nil end
-    local compactGroupType = GroupFrameAdapter and GroupFrameAdapter.ResolveCompactPartyAuraType
-        and GroupFrameAdapter:ResolveCompactPartyAuraType(cooldown) or nil
     local current = cooldown.GetParent and cooldown:GetParent()
     for _ = 1, UF.MaxAncestorDepth do
         if not current then break end
@@ -123,7 +119,7 @@ function Adapter:TryClaim(cooldown)
             or ExtractUnitToken(current.unitToken)
             or ExtractUnitToken(current.displayedUnit)
 
-        if IsCompactGroupFrameName(name) or compactGroupType then
+        if IsCompactGroupFrameName(name) then
             return nil
         end
 

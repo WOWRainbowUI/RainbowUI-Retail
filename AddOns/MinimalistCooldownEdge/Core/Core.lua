@@ -619,7 +619,6 @@ unitframeDefaults.stackOffsetX = C.Defaults.Unitframe.StackOffsetX
 unitframeDefaults.stackOffsetY = C.Defaults.Unitframe.StackOffsetY
 
 local defaultDurationTextColors = DurationTextColorDefaults()
-local compactPartyAuraTextDefaults
 
 local function EnsureDurationTextColorConfig(config)
     if type(config) ~= "table" then
@@ -671,107 +670,18 @@ local function EnsureDurationTextColorConfig(config)
     return config
 end
 
-local function EnsureCompactPartyAuraTextConfig(config)
-    if type(config) ~= "table" then
-        return CopyTable(compactPartyAuraTextDefaults)
-    end
-
-    if config.enabled == nil then
-        config.enabled = compactPartyAuraTextDefaults.enabled
-    end
-    if config.raidEnabled == nil then
-        config.raidEnabled = compactPartyAuraTextDefaults.raidEnabled
-    end
-    if config.font == nil then
-        config.font = compactPartyAuraTextDefaults.font
-    end
-    if type(config.fontSize) ~= "number" then
-        config.fontSize = compactPartyAuraTextDefaults.fontSize
-    end
-    if type(config.defensiveBuffFontSize) ~= "number" then
-        config.defensiveBuffFontSize = compactPartyAuraTextDefaults.defensiveBuffFontSize
-    end
-    if config.allowThresholdColors == nil then
-        config.allowThresholdColors = compactPartyAuraTextDefaults.allowThresholdColors
-    end
-    if config.fontStyle == nil then
-        config.fontStyle = compactPartyAuraTextDefaults.fontStyle
-    end
-    if config.drawSwipe == nil then
-        config.drawSwipe = compactPartyAuraTextDefaults.drawSwipe
-    end
-    if config.edgeEnabled == nil then
-        config.edgeEnabled = compactPartyAuraTextDefaults.edgeEnabled
-    end
-    if type(config.edgeScale) ~= "number" then
-        config.edgeScale = compactPartyAuraTextDefaults.edgeScale
-    end
-    if config.textAnchor == nil then
-        config.textAnchor = compactPartyAuraTextDefaults.textAnchor
-    end
-    if type(config.textOffsetX) ~= "number" then
-        config.textOffsetX = compactPartyAuraTextDefaults.textOffsetX
-    end
-    if type(config.textOffsetY) ~= "number" then
-        config.textOffsetY = compactPartyAuraTextDefaults.textOffsetY
-    end
-
-    if config.stackEnabled == nil then
-        config.stackEnabled = compactPartyAuraTextDefaults.stackEnabled
-    end
-    if config.hideStackText == nil then
-        config.hideStackText = compactPartyAuraTextDefaults.hideStackText
-    end
-    if config.stackFont == nil then
-        config.stackFont = compactPartyAuraTextDefaults.stackFont
-    end
-    if type(config.stackSize) ~= "number" then
-        config.stackSize = compactPartyAuraTextDefaults.stackSize
-    end
-    if config.stackStyle == nil then
-        config.stackStyle = compactPartyAuraTextDefaults.stackStyle
-    end
-    if config.stackAnchor == nil then
-        config.stackAnchor = compactPartyAuraTextDefaults.stackAnchor
-    end
-    if type(config.stackOffsetX) ~= "number" then
-        config.stackOffsetX = compactPartyAuraTextDefaults.stackOffsetX
-    end
-    if type(config.stackOffsetY) ~= "number" then
-        config.stackOffsetY = compactPartyAuraTextDefaults.stackOffsetY
-    end
-    if type(config.stackColor) ~= "table" then
-        config.stackColor = CopyTable(compactPartyAuraTextDefaults.stackColor)
-    else
-        local defaultStackColor = compactPartyAuraTextDefaults.stackColor
-        if config.stackColor.r == nil then config.stackColor.r = defaultStackColor.r end
-        if config.stackColor.g == nil then config.stackColor.g = defaultStackColor.g end
-        if config.stackColor.b == nil then config.stackColor.b = defaultStackColor.b end
-        if config.stackColor.a == nil then config.stackColor.a = defaultStackColor.a end
-    end
-
-    if type(config.textColor) ~= "table" then
-        config.textColor = CopyTable(compactPartyAuraTextDefaults.textColor)
-    else
-        local defaultColor = compactPartyAuraTextDefaults.textColor
-        if config.textColor.r == nil then config.textColor.r = defaultColor.r end
-        if config.textColor.g == nil then config.textColor.g = defaultColor.g end
-        if config.textColor.b == nil then config.textColor.b = defaultColor.b end
-        if config.textColor.a == nil then config.textColor.a = defaultColor.a end
-    end
-
-    return config
-end
-
 local function CleanupObsoleteProfileFields(profile)
+    profile.cooldownManagerCenteredOverrideEnabled = nil
+    profile.compactPartyAuraText = nil
+
     local categories = type(profile.categories) == "table" and profile.categories or nil
     if not categories then
         return
     end
 
-    profile.cooldownManagerCenteredOverrideEnabled = nil
     categories.partyraidframes = nil
-    categories[C.Categories.CompactPartyAura] = nil
+    categories.compactPartyAura = nil
+    categories[C.Categories.PartyRaidRetired] = nil
 
     local actionbarCategory = categories[C.Categories.Actionbar]
     if type(actionbarCategory) == "table" then
@@ -791,7 +701,6 @@ end
 
 MCE.DurationTextColorDefaults = DurationTextColorDefaults
 MCE.EnsureDurationTextColorConfig = EnsureDurationTextColorConfig
-MCE.EnsureCompactPartyAuraTextConfig = EnsureCompactPartyAuraTextConfig
 
 local cooldownManagerDefaults = CategoryDefaults(C.Categories.CooldownManager, false, 18)
 cooldownManagerDefaults.essentialFontSize = C.Defaults.CooldownManager.EssentialFontSize
@@ -885,33 +794,6 @@ sArenaDefaults.trinketRacialFontSize = C.Defaults.SArena.TrinketRacialFontSize
 
 local tellMeWhenDefaults = CategoryDefaults(C.Categories.TellMeWhen, false, C.Defaults.TellMeWhen.FontSize)
 
-local compactPartyAuraDefaults = C.Defaults.CompactPartyAuraText
-compactPartyAuraTextDefaults = {
-    enabled = compactPartyAuraDefaults.Enabled,
-    raidEnabled = compactPartyAuraDefaults.RaidEnabled,
-    font = compactPartyAuraDefaults.Font,
-    fontSize = compactPartyAuraDefaults.FontSize,
-    defensiveBuffFontSize = compactPartyAuraDefaults.DefensiveBuffFontSize,
-    allowThresholdColors = C.Defaults.AllowThresholdColorsByCategory[C.Categories.CompactPartyAura] == true,
-    fontStyle = compactPartyAuraDefaults.FontStyle,
-    drawSwipe = compactPartyAuraDefaults.DrawSwipe,
-    edgeEnabled = compactPartyAuraDefaults.EdgeEnabled,
-    edgeScale = compactPartyAuraDefaults.EdgeScale,
-    textColor = CopyTable(compactPartyAuraDefaults.TextColor),
-    textAnchor = compactPartyAuraDefaults.TextAnchor,
-    textOffsetX = compactPartyAuraDefaults.TextOffsetX,
-    textOffsetY = compactPartyAuraDefaults.TextOffsetY,
-    stackEnabled = compactPartyAuraDefaults.StackEnabled,
-    hideStackText = compactPartyAuraDefaults.HideStackText,
-    stackFont = compactPartyAuraDefaults.StackFont,
-    stackSize = compactPartyAuraDefaults.StackSize,
-    stackStyle = compactPartyAuraDefaults.StackStyle,
-    stackColor = CopyTable(compactPartyAuraDefaults.StackColor),
-    stackAnchor = compactPartyAuraDefaults.StackAnchor,
-    stackOffsetX = compactPartyAuraDefaults.StackOffsetX,
-    stackOffsetY = compactPartyAuraDefaults.StackOffsetY,
-}
-
 MCE.defaults = {
     profile = {
         abbrevThreshold = C.Options.DefaultAbbrevThreshold,
@@ -920,7 +802,6 @@ MCE.defaults = {
         dominosAdapterEnabled = true,
         bartender4AdapterEnabled = true,
         elvuiAdapterEnabled = true,
-        compactPartyAuraText = compactPartyAuraTextDefaults,
         durationTextColors = defaultDurationTextColors,
         categories = {
             [C.Categories.Actionbar] = actionbarDefaults,
@@ -974,7 +855,6 @@ function MCE:UpgradeProfile()
         EnsureMiniCCConfig(profile.categories[C.Categories.MiniCC])
 
     EnsureDurationTextColorConfig(profile.durationTextColors)
-    profile.compactPartyAuraText = EnsureCompactPartyAuraTextConfig(profile.compactPartyAuraText)
 end
 
 function MCE:HandleProfileUpdated()
@@ -1027,7 +907,7 @@ function MCE:OnInitialize()
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Action Bars"], C.Addon.ShortName, C.Categories.Actionbar))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Nameplates"], C.Addon.ShortName, C.Categories.Nameplate))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Unit Frames"], C.Addon.ShortName, C.Categories.Unitframe))
-    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.CompactPartyAura))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.PartyRaidRetired))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena))

@@ -55,9 +55,8 @@ The main cooldown path is:
 3. `BatchProcessor` coalesces repeated updates into a single deferred style pass.
 4. `Styler` receives batched frames and delegates to `StyleEngine:ApplyStyle()`.
 5. `StyleEngine` applies generic styling rules.
-6. `CompactGroupAuraController` can short-circuit generic styling for compact party or raid auras.
-7. `DurationColorController` updates text colors over time when duration coloring is active.
-8. `HookBridge` re-enforces edge, swipe, and countdown flags if Blizzard changes them after styling.
+6. `DurationColorController` updates text colors over time when duration coloring is active.
+7. `HookBridge` re-enforces edge, swipe, and countdown flags if Blizzard changes them after styling.
 
 ## Main modules
 
@@ -120,13 +119,6 @@ The main cooldown path is:
 - Tracks active cooldowns, caches duration objects, and drives a ticker while tracked cooldowns are visible.
 - Resolves duration sources from action APIs, aura APIs, or spell APIs depending on context.
 
-`Modules/CompactGroupAuraController.lua`
-
-- Special-case controller for Blizzard compact party and raid aura frames.
-- Reuses Blizzard native cooldown text where possible.
-- Applies party and raid specific text, edge, and swipe behavior.
-- Takes precedence over generic styling in `StyleEngine:ApplyStyle()`.
-
 ### Hooking and enforcement
 
 `Modules/HookBridge.lua`
@@ -165,11 +157,6 @@ The main cooldown path is:
 `Adapters/UnitFrameAdapter.lua`
 
 - Scans Blizzard and supported third-party unit frame aura containers.
-
-`Adapters/GroupFrameAdapter.lua`
-
-- Scans compact party and raid member aura containers.
-- Supplies `party` and `raid` subtypes for compact aura styling.
 
 `Adapters/CooldownManagerAdapter.lua`
 
@@ -210,7 +197,6 @@ The registry tracks a category for every cooldown and may also track a subtype.
 | `actionbar` | none |
 | `nameplate` | none |
 | `unitframe` | none |
-| `compactPartyAura` | `party` or `raid` |
 | `cooldownmanager` | `essential`, `utility`, or `bufficon` |
 | `minicc` | `cc`, `nameplate`, `portrait`, or `overlay` |
 | `sarena` | `classicon`, `dr`, `trinket`, or `racial` |
@@ -239,7 +225,7 @@ Weak keys are important because many cooldown frames are transient or recycled b
 2. Adapters should register cooldowns directly; generic code should not invent categories outside explicit adapter or forced-category flows.
 3. Styling code must update cached state when it mutates cooldown visuals, otherwise `HookBridge` cannot enforce the intended value.
 4. Full rescans should go through `Styler:ForceUpdateAll(true)`, which resets state, asks adapters to rebuild, and re-queues tracked cooldowns.
-5. Compact party and raid auras are special-case controlled before generic styling.
+5. Party / Raid Frames are retained only as a retired options page; no adapter or styling module owns those frames after Blizzard Patch 12.0.5.
 
 ## Why the current `.toc` order is the best fit
 
@@ -271,4 +257,4 @@ When adding support for a new cooldown source:
 - If a cooldown is never styled, first confirm an adapter registers it.
 - If a cooldown flickers back to Blizzard defaults, inspect `frameState` usage and `HookBridge` enforcement hooks.
 - If duration colors do not update, verify the duration source resolves and the ticker has active tracked frames.
-- If compact party or raid aura text behaves strangely, check `GroupFrameAdapter` subtype resolution before touching generic style logic.
+- If Party / Raid Frames appear in bug reports, first confirm the retired notice is visible in options; MiniCE no longer hooks compact group frames.

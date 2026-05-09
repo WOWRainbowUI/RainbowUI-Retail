@@ -1,5 +1,8 @@
-
 # Changelog
+
+## [4.0.1] - 2026-05-05
+- Retired Party / Raid Frames support for Blizzard Patch 12.0.5 compatibility. The options entry now shows an informational notice and MiniCE no longer loads the compact group frame adapter/controller.
+- Blacklist: Add CompactPartyFrame, CompactRaidFrame, RaidFrameAuras, and RFA_ to Classifier
 
 ## [3.9.8] - 2026-05-01
 - feat: add healer warning text color customization and apply it in MiniCC
