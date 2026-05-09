@@ -1,9 +1,9 @@
-## Interface: 120005
+## Interface: 120005, 120007
 
 ## Title: Leatrix Plus
 ## Notes: curseforge.com/wow/addons/leatrix-plus
 
-## Version: 12.0.15
+## Version: 12.0.16
 ## Author: Leatrix
 ## SavedVariables: LeaPlusDB
 ## LoadSavedVariablesFirst: true
@@ -11,7 +11,7 @@
 ## AddonCompartmentFunc:LeaPlusGlobalMiniBtnClickFunc
 ## IconTexture: Interface\HELPFRAME\ReportLagIcon-Movement
 ## X-Curse-Project-ID: 94855
-## OptionalDeps: Leatrix_enUS, ElvUI
+## OptionalDeps: ElvUI
 
 ## Title-zhCN: Leatrix Plus [|cffeda55f功能百宝箱|r]
 ## Title-zhTW: Leatrix Plus [|cffeda55f功能百寶箱|r]
