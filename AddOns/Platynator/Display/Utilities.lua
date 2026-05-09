@@ -143,7 +143,7 @@ else
   interruptMap = {
     ["DEATHKNIGHT"] = {47528},
     ["WARRIOR"] = {6552},
-    ["WARLOCK"] = {89766, 119910},
+    ["WARLOCK"] = {89766, 119910, 132409},
     ["SHAMAN"] = {57994},
     ["ROGUE"] = {1766},
     ["PRIEST"] = {15487},
@@ -654,5 +654,37 @@ do
 
   function addonTable.Display.Utilities.GetOtherTanks()
     return knownTanksAndPetsList
+  end
+end
+
+do
+  local encounterID
+  local showEnergy = true
+
+  local encountersForNoEnergy = {
+    -- Midnight: Magister's Terrace
+    [3073] = true, -- Gemellus
+    [3074] = true, -- Degentrius
+    -- Draenor: Skyreach
+    [1698] = true, -- Ranjit
+  }
+
+  local encounterTracker = CreateFrame("Frame")
+  encounterTracker:RegisterEvent("ENCOUNTER_START")
+  encounterTracker:RegisterEvent("ENCOUNTER_END")
+  encounterTracker:SetScript("OnEvent", function(_, event, newEncounterID)
+    if event == "ENCOUNTER_START" then
+      encounterID = newEncounterID
+      showEnergy = encountersForNoEnergy[encounterID] == nil
+    else
+      encounterID = nil
+      showEnergy = true
+    end
+
+    addonTable.CallbackRegistry:TriggerEvent("EncounterUpdate")
+  end)
+
+  function addonTable.Display.Utilities.ShouldShowEnergy()
+    return showEnergy
   end
 end
