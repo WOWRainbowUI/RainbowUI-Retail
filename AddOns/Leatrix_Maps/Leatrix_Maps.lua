@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.0.15 (29th April 2026)
+	-- 	Leatrix Maps 12.0.16 (6th May 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.0.15"
+	LeaMapsLC["AddonVer"] = "12.0.16"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -28,7 +28,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 120000 then -- 12.0.0
+		if gametocversion and gametocversion >= 120007 then -- 12.0.7
 			LeaMapsLC.NewPatch = true
 		end
 	end
