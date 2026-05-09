@@ -19,6 +19,7 @@ local fmod = math.fmod
 local format = string.format
 local gsub = string.gsub
 local ipairs = ipairs
+local max = math.max
 local pairs = pairs
 local strfind = string.find
 local tonumber = tonumber
@@ -55,7 +56,7 @@ local KTSetShown, KTSetWidth, KTSetHeight, KTSetPoint, KTClearAllPoints, KTSetSc
 
 -- Prototype -----------------------------------------------------------------------------------------------------------
 
----@type KT|Options|Hacks|Filters|Events|QuestLog|ActiveButton|AddonPetTracker|AddonTomTom|AddonRareScanner|AddonOthers|Help
+---@type KT|Options|Hacks|Filters|Events|QuestLog|ActiveButton|AddonPetTracker|AddonBattlePetCompletionist|AddonTomTom|AddonRareScanner|AddonOthers|Help
 local prototype = {}
 
 ---SetForced (prototype)
@@ -198,6 +199,47 @@ local function SlashHandler(msg)
 	end
 end
 
+local function CreateQuestTags(quest)
+	local level, tag = "", ""
+	local result = ""
+
+	if db.questsShowLevel then
+		level = tostring(quest.level)
+	end
+
+	if db.questsShowTags then
+		local questID = quest:GetID()
+		local tagInfo = C_QuestLog.GetQuestTagInfo(questID)
+		local questTag = tagInfo and tagInfo.tagID
+		if questTag then
+			tag = KT.QUEST_TAGS[questTag] or ""
+			if questTag == Enum.QuestTag.Group then
+				local suggestedGroup = quest.suggestedGroup
+				if suggestedGroup and suggestedGroup > 0 then
+					tag = tag..suggestedGroup
+				end
+			end
+		end
+
+		if C_QuestLog.IsAccountQuest(questID) then
+			tag = "•"..tag
+		end
+
+		local frequency = quest.frequency
+		if frequency == Enum.QuestFrequency.Daily then
+			tag = tag.."!"
+		elseif frequency == Enum.QuestFrequency.Weekly or frequency == Enum.QuestFrequency.ResetByScheduler then
+			tag = tag.."!!"
+		end
+	end
+
+	if level ~= "" or tag ~= "" then
+		result = format("[%s|cff00b3ff%s|r] ", level, tag)
+	end
+
+	return result
+end
+
 local function GetTaskTimeLeftData(questID)
 	local timeString = ""
 	local timeColor = KT_OBJECTIVE_TRACKER_COLOR["TimeLeft2"]
@@ -333,7 +375,7 @@ local function SetFrames()
 		elseif event == "QUEST_ACCEPTED" then
 			local questID = ...
 			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
-				dbChar.quests.num = KT.QuestsCache_Update()
+				dbChar.quests.num, dbChar.quests.numOver = KT.QuestsCache_Update()
 				KT:SetQuestsHeaderText()
 
 				KT.QuestsCache_UpdateProperty(questID, "startMapID", KT.GetCurrentMapAreaID())
@@ -344,7 +386,7 @@ local function SetFrames()
 			if not C_QuestLog.IsQuestTask(questID) and not C_QuestLog.IsQuestBounty(questID) then
 				KT.QuestsCache_RemoveQuest(questID)
 
-				dbChar.quests.num = KT.QuestsCache_Update()
+				dbChar.quests.num, dbChar.quests.numOver = KT.QuestsCache_Update()
 				KT:SetQuestsHeaderText()
 
 				if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
@@ -382,7 +424,7 @@ local function SetFrames()
 				KT:Update()
 			end)
 		elseif event == "QUEST_POI_UPDATE" then
-			dbChar.quests.num = KT.GetNumQuests()
+			dbChar.quests.num, dbChar.quests.numOver = KT.GetNumQuests()
 			KT:SetQuestsHeaderText()
 			self:UnregisterEvent(event)
 		end
@@ -673,7 +715,7 @@ local function SetHooks()
 			if tonumber(numHave) > 0 and tonumber(numHave) < tonumber(numNeed) then
 				progress = "|cffc8c800" .. progress .. "|r"
 			end
-			if not db.objNumSwitch then
+			if not db.questsObjectiveNumAtStart then
 				text = leftText .. colon .. progress .. rightText
 			else
 				text = progress
@@ -738,8 +780,8 @@ local function SetHooks()
 		line:SetPoint("RIGHT", self.rightEdgeOffset, 0);
 
 		-- set the text
-		local textHeight = self:SetStringText(line.Text, text, useFullHeight, colorStyle, self.isHighlighted);
-		local height = overrideHeight or textHeight;
+		local textHeight = self:SetStringText(line.Text, text, useFullHeight, colorStyle, self.isHighlighted or line.isHighlighted);  -- MSA
+		local height = overrideHeight and max(overrideHeight,  textHeight) or textHeight;  -- MSA
 		line:SetHeight(height);
 
 		self.height = self.height + height + lineSpacing;
@@ -813,14 +855,14 @@ local function SetHooks()
 			if self.isHighlighted then
 				if self.questCompleted then
 					colorStyle = KT_OBJECTIVE_TRACKER_COLOR["CompleteHighlight"]
-				elseif db.colorDifficulty then
+				elseif db.questsColorByDifficulty then
 					_, colorStyle = GetQuestDifficultyColor(self.level)
 				end
 				colorStyleTag = KT_OBJECTIVE_TRACKER_COLOR["NormalHighlight"]
 			else
 				if self.questCompleted then
 					colorStyle = KT_OBJECTIVE_TRACKER_COLOR["Complete"]
-				elseif db.colorDifficulty then
+				elseif db.questsColorByDifficulty then
 					colorStyle = GetQuestDifficultyColor(self.level)
 				end
 				colorStyleTag = KT_OBJECTIVE_TRACKER_COLOR["Normal"]
@@ -1078,18 +1120,6 @@ local function SetHooks()
 		end
 	end
 
-	function KT_ObjectiveTrackerBlockMixin:OnEnter()
-		self:OnHeaderEnter()
-	end
-
-	function KT_ObjectiveTrackerBlockMixin:OnLeave()
-		self:OnHeaderLeave()
-	end
-
-	function KT_ObjectiveTrackerBlockMixin:OnMouseUp(mouseButton)
-		self:OnHeaderClick(mouseButton)
-	end
-
 	hooksecurefunc(QuestUtil, "UntrackWorldQuest", function(questID)
 		if db.questsAutoFocusClosest and not C_SuperTrack.GetSuperTrackedQuestID() then
 			KT.QuestSuperTracking_ChooseClosestQuest()
@@ -1099,10 +1129,7 @@ local function SetHooks()
 	function KT_ObjectiveTrackerBlockMixin:SetHeader(text, questID, isQuestComplete, quest)
 		local isTask = questID and QuestUtil.IsQuestTrackableTask(questID)
 		if questID and not isTask then
-			if db.questsShowTags then
-				local tagInfo = KT.GetQuestTagInfo(questID)
-				text = KT:CreateQuestTag(quest.level, tagInfo.tagID, quest.frequency, quest.suggestedGroup)..text
-			end
+			text = CreateQuestTags(quest)..text
 			self.level = quest.level
             KT.T_Set("level", self.level, self.parentModule.name, "block")
 			self.title = text
@@ -1117,7 +1144,7 @@ local function SetHooks()
 		if self.parentModule == KT_QuestObjectiveTracker or self.parentModule == KT_CampaignQuestObjectiveTracker then
 			if self.questCompleted then
 				colorStyle = KT_OBJECTIVE_TRACKER_COLOR["Complete"]
-			elseif db.colorDifficulty then
+			elseif db.questsColorByDifficulty then
 				colorStyle = GetQuestDifficultyColor(self.level)
 			end
 		end
@@ -1164,6 +1191,9 @@ local function SetHooks()
 		if settings.template == "KT_QuestObjectiveItemButtonTemplate" then
 			KT.QuestButtons_Add(self, 3, 4)
 			frame = self.ItemButton
+        else
+            frame = KT.KT_ObjectiveTrackerBlockMixin.AddRightEdgeFrame(self, settings, identifier, ...)
+            frame:SetFrameLevel(self:GetFrameLevel() + 1)
 		end
 		return frame
 	end
@@ -1215,7 +1245,7 @@ local function SetHooks()
 		if progressBar.KTskinID ~= KT.skinID then
 			block.height = block.height - progressBar.height
 
-			local barHeight = math.max(12, db.fontSize + fmod(db.fontSize, 2))
+			local barHeight = max(12, db.fontSize + fmod(db.fontSize, 2))
 			progressBar:SetSize(240, barHeight)
 			progressBar.height = barHeight
 
@@ -1279,9 +1309,6 @@ local function SetHooks()
 		end
 	end)
 
-	-- Disable all spell effects (I can't beat the magic of Blizzard widgets)
-	UIWidgetTemplateScenarioHeaderDelvesMixin.UpdateSpellFrameEffects = function() end
-
 	KT_ScenarioObjectiveTracker.StageBlock:HookScript("OnEnter", function(self)
 		TooltipPosition(self, 19, -2 - self.KTtooltipOffsetYmod, -24 - self.KTtooltipOffsetXmod, -2 - self.KTtooltipOffsetYmod, true)
 	end)
@@ -1322,12 +1349,22 @@ local function SetHooks()
 		poiButton:SetPingWorldMap(isWorldQuest)
 	end
 
+	-- Blizzard_UIWidgetTemplateBase.lua
 	hooksecurefunc(UIWidgetBaseScenarioHeaderTemplateMixin, "Setup", function(self, widgetInfo, widgetContainer)
 		if self.KTskinID ~= KT.skinID then
 			local fontSize = db.fontSize + 4
 			self.HeaderText:SetFont(KT.font, fontSize, db.fontFlag)  -- see KT:SetText()
 			UIWidgetBaseScenarioHeaderText = self.HeaderText
 			self.KTskinID = KT.skinID
+		end
+	end)
+
+	-- Blizzard_UIWidgetTemplateScenarioHeaderDelves.lua
+	hooksecurefunc(UIWidgetTemplateScenarioHeaderDelvesMixin, "UpdateSpellFrameEffects", function(self, widgetInfo, spellInfo, spellFrame)
+		-- Disable all spell effects
+		if spellFrame.effectController then
+			spellFrame.effectController:CancelEffect()
+			spellFrame.effectController = nil
 		end
 	end)
 
@@ -1836,20 +1873,18 @@ local function SetHooks()
 
 	-- Torghast - Blizzard_UIWidgetTemplateStatusBar.lua
 	hooksecurefunc(UIWidgetTemplateStatusBarMixin, "Setup", function(self, widgetInfo, widgetContainer)
-		if self.frameTextureKit == "jailerstower-scorebar" and self.KTskinID ~= KT.skinID then
-			local bck_Bar_OnEnter = self.Bar:GetScript("OnEnter")
-			self.Bar:SetScript("OnEnter", function(self)
+		if self.frameTextureKit == "jailerstower-scorebar" and not self.KThooked then
+			hooksecurefunc(self.Bar, "SetTooltipOwner", function(self2)
+				if self2:GetParent().frameTextureKit ~= "jailerstower-scorebar" then return end
+				EmbeddedItemTooltip:SetOwner(self2, "ANCHOR_NONE")
+				EmbeddedItemTooltip:ClearAllPoints()
 				if KTF.anchorLeft then
-					self:SetTooltipLocation(Enum.UIWidgetTooltipLocation.Right)
-					self.tooltipXOffset = 30
+					EmbeddedItemTooltip:SetPoint("LEFT", self2, "RIGHT", 30, 0)
 				else
-					self:SetTooltipLocation(Enum.UIWidgetTooltipLocation.Left)
-					self.tooltipXOffset = -31
+					EmbeddedItemTooltip:SetPoint("RIGHT", self2, "LEFT", -31, 0)
 				end
-				self.tooltipYOffset = 0
-				bck_Bar_OnEnter(self)
 			end)
-			self.KTskinID = KT.skinID
+			self.KThooked = true
 		end
 	end)
 
@@ -2187,28 +2222,21 @@ function KT:SetModuleHeader(module)
 	module.Header.Icon = icon
 end
 
-function KT:SetHeaderText(module, append)
-	local text = module.headerText
-	if append then
-		text = format("%s (%s)", text, append)
+function KT:SetQuestsHeaderText()
+	local suffix
+	if db.questsHeaderSuffix then
+		local numOver = dbChar.quests.numOver > 0 and " +"..dbChar.quests.numOver or ""
+		suffix = dbChar.quests.num.."/"..MAX_QUESTS..numOver
 	end
-	module.Header.Text:SetText(text)
+	KT_QuestObjectiveTracker:SetHeaderSuffix(suffix)
 end
 
-function KT:SetQuestsHeaderText(reset)
-	if db.questsHeaderAppend then
-		self:SetHeaderText(KT_QuestObjectiveTracker, dbChar.quests.num.."/"..MAX_QUESTS)
-	elseif reset then
-		self:SetHeaderText(KT_QuestObjectiveTracker)
+function KT:SetAchievsHeaderText()
+	local suffix
+	if db.achievsHeaderSuffix then
+		suffix = GetTotalAchievementPoints()
 	end
-end
-
-function KT:SetAchievsHeaderText(reset)
-	if db.achievsHeaderAppend then
-		self:SetHeaderText(KT_AchievementObjectiveTracker, GetTotalAchievementPoints())
-	elseif reset then
-		self:SetHeaderText(KT_AchievementObjectiveTracker)
-	end
+	KT_AchievementObjectiveTracker:SetHeaderSuffix(suffix)
 end
 
 function KT:SetOtherButtons()
@@ -2270,58 +2298,6 @@ function KT:SetOtherButtons()
 		KTF.QuestLogButton = button
 	end
 	self:SetHeaderButtons(2)
-end
-
-function KT:CreateQuestTag(level, questTag, frequency, suggestedGroup)
-	local tag = ""
-
-	if level == -1 then
-		level = "*"
-	else
-		level = tostring(level)
-	end
-
-	if questTag then
-		if questTag == Enum.QuestTag.Group then
-			tag = "g"
-			if suggestedGroup and suggestedGroup > 0 then
-				tag = tag..suggestedGroup
-			end
-		elseif questTag == Enum.QuestTag.PvP then
-			tag = "pvp"
-		elseif questTag == Enum.QuestTag.Dungeon then
-			tag = "d"
-		elseif questTag == Enum.QuestTag.Heroic then
-			tag = "hc"
-		elseif questTag == Enum.QuestTag.Raid then
-			tag = "r"
-		elseif questTag == Enum.QuestTag.Raid10 then
-			tag = "r10"
-		elseif questTag == Enum.QuestTag.Raid25 then
-			tag = "r25"
-		elseif questTag == Enum.QuestTag.Delve then
-			tag = "de"
-		elseif questTag == Enum.QuestTag.Scenario then
-			tag = "s"
-		elseif questTag == Enum.QuestTag.Account then
-			tag = "a"
-		elseif questTag == Enum.QuestTag.Legendary then
-			tag = "leg"
-		end
-	end
-
-	if frequency == Enum.QuestFrequency.Daily then
-		tag = tag.."!"
-	elseif frequency == Enum.QuestFrequency.Weekly then
-		tag = tag.."!!"
-	end
-
-	if tag ~= "" then
-		tag = ("|cff00b3ff%s|r"):format(tag)
-	end
-
-	tag = ("[%s%s] "):format(level, tag)
-	return tag
 end
 
 local function ShowState(state)
@@ -2481,7 +2457,7 @@ function KT:OnEnable()
 		self:UnregEvent(eventID)
 	end)
 
-	self:EnableModules()
+	self:Addon_EnableModules()
 
 	if self.db.global.version ~= self.VERSION then
 		self.db.global.version = self.VERSION

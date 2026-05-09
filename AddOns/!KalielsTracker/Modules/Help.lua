@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 14
+local helpNumPages = 15
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -33,15 +33,14 @@ local offs = "\n|T:1:9|t"
 local offs2 = "\n|T:1:21|t"
 local offs3 = "|T:1:9|t"
 local ebSpace = "|T:16:1|t\n"
-local beta = "|cffff7fff[Beta]|r"
-local new = "|cffff7fff[NEW]|r"
 
 local KTF = KT.frame
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
-local function AddonInfo(name)
-	local info = "\nAddon "..name
+local function AddonInfo(name, title)
+	title = title or name
+	local info = "\nAddon "..title
 	if C_AddOns.IsAddOnLoaded(name) then
 		info = info.." |cff00ff00is installed|r. Support you can enable/disable in Options.\n"..ebSpace
 	else
@@ -131,17 +130,29 @@ local function SetupTutorials()
 			shineRight = 15,
 		},
 		{	-- 3
-			image = HELP_PATH.."help_quest-title-tags",
+			image = HELP_PATH.."help_quests",
 			imageHeight = 128,
-			heading = "Quest title tags",
-			text = "At the start of quest titles you see tags like this |cffff8000[100|r|cff00b3ffhc!|r|cffff8000]|r.\n"..
-					"Tags are also in quest titles inside Quest Log.\n\n"..
-					"|cff00b3ff!|r|T:14:3|t "..cDots..".......|r Daily quest|T:14:121|t|cff00b3ffr|r "..cDots..".......|r Raid quest\n"..
-					"|cff00b3ff!!|r "..cDots.."......|r Weekly quest|T:14:108|t|cff00b3ffr10|r "..cDots.."...|r 10-man raid quest\n"..
-					"|cff00b3ffg3|r "..cDots..".....|r Group quest w/ group size|T:14:22|t|cff00b3ffr25|r "..cDots.."...|r 25-man raid quest\n"..
-					"|cff00b3ffpvp|r "..cDots.."...|r PvP quest|T:14:133|t|cff00b3ffs|r "..cDots..".......|r Scenario quest\n"..
-					"|cff00b3ffd|r "..cDots..".......|r Dungeon quest|T:14:97|t|cff00b3ffa|r "..cDots..".......|r Account quest\n"..
-					"|cff00b3ffhc|r "..cDots..".....|r Heroic quest|T:14:113|t|cff00b3ffleg|r "..cDots.."....|r Legendary quest",
+			heading = "Quests",
+			text = cTitle.."Module header|r\n\n"..
+					"Header text can show quest counts "..cDots.."...|r "..cBold.."Quests (14/"..MAX_QUESTS.." +3)|r.\n\n"..
+					"    "..cBold.."14|r "..cDots.."...|r Current number of quests in Quest Log\n"..
+					"    "..cBold..MAX_QUESTS.."|r "..cDots.."...|r Maximum number of quests in Quest Log\n"..
+					"    "..cBold.."+3|r "..cDots.."...|r Account/Calling quests (not counted toward the limit)\n\n"..
+					cTitle.."Title tags|r\n\n"..
+					"At the start of quest titles you see tags like this |cffff8000[90|r|cff00b3ff•!!|r|cffff8000]|r.\n\n"..
+					"    |cff00b3ff•|r "..cDots..".......|r Account/Warband quest\n"..
+					"    |cff00b3ff!|r|T:14:3|t "..cDots..".......|r Daily quest\n"..
+					"    |cff00b3ff!!|r "..cDots.."......|r Weekly quest\n"..
+					"    |cff00b3ffg3|r "..cDots..".....|r Group quest with group size\n"..
+					"    |cff00b3ffd|r "..cDots..".......|r Dungeon quest\n"..
+					"    |cff00b3ffhc|r "..cDots..".....|r Heroic quest\n"..
+					"    |cff00b3ffr|r "..cDots.."........|r Raid quest\n"..
+					"    |cff00b3ffr10|r "..cDots.."...|r 10-man raid quest\n"..
+					"    |cff00b3ffr25|r "..cDots.."...|r 25-man raid quest\n"..
+					"    |cff00b3ffde|r "..cDots..".....|r Delve quest\n"..
+					"    |cff00b3ffs|r "..cDots..".......|r Scenario quest\n"..
+					"    |cff00b3ffpvp|r "..cDots.."...|r PvP quest\n"..
+					"    |cff00b3ffleg|r "..cDots.."....|r Legendary quest",
 			paddingBottom = 16,
 			shineTop = 11,
 			shineBottom = -9,
@@ -170,7 +181,7 @@ local function SetupTutorials()
 			image = HELP_PATH.."help_quest-item-buttons",
 			heading = "Quest Item buttons",
 			text = "Buttons are out of the tracker, because Blizzard doesn't allow to work with the action buttons in the default UI.\n\n"..
-					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:1:0:64:32:0:32:0:32|t "..cDots.."...|r  This tag indicates quest item in quest. The number inside is for\n"..
+					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:0:0:64:32:0:32:0:32|t "..cDots.."...|r  This tag indicates quest item in quest. The number inside is for\n"..
 					"              identification moved quest item button.\n\n"..
 					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:0:3:64:32:32:64:0:32|t "..cDots.."...|r  Real quest item button is moved out of the tracker to the left/right\n"..
 					"              side (by selected anchor point). The number is the same as for the tag.\n\n"..
@@ -219,8 +230,8 @@ local function SetupTutorials()
 			image = HELP_PATH.."help_events",
 			heading = "Events",
 			text = "The Events module displays active ongoing events in the tracker. They are normally available on the World Map.\n\n"..
-					"Filter dropdown menu options:\n"..
-					"- "..cBold.."Track Events|r – Enables or disables tracking of events in the tracker.\n"..
+					"Filter |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t menu options:\n"..
+					"- "..cBold.."Track Events|r – Enables or disables Events module in the tracker.\n"..
 					"- "..cBold.."Show Long Events|r – In addition to active ongoing events, also shows those that"..
 					offs.."last 24 hours or more.",
 		},
@@ -241,7 +252,11 @@ local function SetupTutorials()
 		{	-- 10
 			image = HELP_PATH.."help_addon-pettracker",
 			heading = "Support addon PetTracker",
-			text = "PetTracker support adjusts display of zone pet tracking inside "..KT.TITLE..".\nIt also fix some visual bugs.\n"..
+			text = "PetTracker support adds zone pet tracking to "..KT.TITLE.." with a custom layout and improved "..
+					"visual presentation.\n\n"..
+					"Filter |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t menu options:\n"..
+					"- "..cBold.."Track Pets|r – Enables or disables Pets module in the tracker.\n"..
+					"- "..cBold.."Show Captured|r – Show or hide captured zone pets.\n"..
 					AddonInfo("PetTracker"),
 			editbox = {
 				{
@@ -289,7 +304,7 @@ local function SetupTutorials()
 			image = HELP_PATH.."help_addon-rarescanner",
 			heading = "Support addon RareScanner",
 			text = "RareScanner support replaces the original RareScanner button and displays detected Rare NPCs "..
-					"directly inside "..KT.TITLE.." as a separate module.\n\n"..
+					"inside "..KT.TITLE.." as a separate module.\n\n"..
 					"Features:\n"..
 					"- Displays only Rare NPCs - model and name. Treasures/Chests are not shown.\n"..
 					"- Shows loot icons including tooltip (if enabled in RareScanner).\n"..
@@ -334,6 +349,26 @@ local function SetupTutorials()
 			shineRight = 11,
 		},
 		{	-- 14
+			image = HELP_PATH.."help_addon-battlepetcompletionist",
+			heading = "Support addon Battle Pet Completionist "..KT.TEXT.OPTION_BETA,
+			text = "Battle Pet Completionist support adds zone pet tracking to "..KT.TITLE.." with\na custom layout "..
+					"and improved visual presentation.\n\n"..
+					"Features:\n"..
+					"- Individual pet rows are clickable and open the selected pet in Pet Journal.\n\n"..
+					"Filter |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:209:170:0|t menu options:\n"..
+					"- "..cBold.."Track Pets|r – Enables or disables Pets module in the tracker.\n"..
+					"- "..cBold.."Show Captured|r – Show or hide captured zone pets.\n"..
+					AddonInfo("BattlePetCompletionist", "Battle Pet Completionist"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/battle-pet-completionist",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+		{	-- 15
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -347,16 +382,27 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." is developed and maintained by one person.|r\n"..ebSpace.."\n"..
 
-					(cTitle.."Version 8.5.0|r\n"..
-					"- ADDED - TomTom - waypoint support for Vignettes (e.g. War Supply Crate)\n"..
-					"- ADDED (Scenario) - Mythic+ - configurable Enemy Forces progress formats\n"..
-					"- ADDED - support for WoW 12.0.5.67088\n"..
-					"- ADDED - support for WoW 12.0.1.66384\n"..
-					"- ADDED - support for WoW 12.0.1.66192\n"..
+					(cTitle.."Version 8.6.1|r\n"..
+					"- FIXED (Help) - addon info error\n"..
+					"\n")..
+
+					(cTitle.."Version 8.6.0|r\n"..
+					"- ADDED - addon support - Battle Pet Completionist (zone pet tracking inside the tracker), see Help page 14\n"..
+					"- ADDED - small Eye button for finding groups for difficult quests/world quests\n"..
+					"- ADDED (Quests) - extra quest count in module header, see Help page 3\n"..
+					"- ADDED (Quests) - separate quest level and quest tags visibility options\n"..
+					"- CHANGED - addon support - TomTom 4.3.1\n"..
+					"- CHANGED - addon support - RareScanner 12.0.5.2\n"..
+					"- CHANGED - addon support - Narcissus 1.8.5d\n"..
+					"- CHANGED - addon support - ElvUI 15.13\n"..
+					"- CHANGED - addon support - BtWQuests 2.62.0\n"..
+					"- CHANGED - addon support - Auctionator 321\n"..
 					"- CHANGED (Help) - Active Patrons\n"..
-					"- CHANGED - Options - reorganize Modules and Supported addons settings\n"..
+					"- CHANGED (Help) - refresh images\n"..
+					"- CHANGED (Achievements) - improve scenario achievements filtering (Ritual Sites)\n"..
+					"- CHANGED - Options - reorganize Modules and Supported addons settings (2)\n"..
 					offs3.."- Some settings were renamed and reset to defaults.\n"..
-					"- FIXED (Achievements) - some Delve achievements not filtered by zone\n"..
+					"- FIXED - taint errors (5)\n"..
 					"\n")..
 
 					cTitle.."Issue reporting|r\n"..
@@ -394,24 +440,20 @@ local function SetupTutorials()
 					self[i].shineLeft = db.hdrOtherButtons and -54 or -14
 				end
 			elseif i == 3 then
-				local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(1)
-				local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
+				local block = KT_QuestObjectiveTracker.firstBlock
 				if block then
 					self[i].shine = block
 				end
 			elseif i == 5 then
 				self[i].shine = KTF.Buttons
-			elseif i == 10 then
+			elseif i == 11 then
+				local block = KT_QuestObjectiveTracker.firstBlock
 				local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
-				for j = 1, C_QuestLog.GetNumQuestWatches() do
-					local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(j)
-					local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
-					if block and block.poiButton then
-						if superTrackedQuestID == 0 or superTrackedQuestID == questID then
-							self[i].shine = block.poiButton
-							break
-						end
-					end
+				if superTrackedQuestID > 0 then
+					block = KT_QuestObjectiveTracker:GetExistingBlock(superTrackedQuestID)
+				end
+				if block and block.poiButton then
+					self[i].shine = block.poiButton
 				end
 			end
 		end,
@@ -454,6 +496,7 @@ local function SetupTutorials()
 					SetFormatedPatronName("Uncommon", "Naturegurl")..
                     SetFormatedPatronName("Uncommon", "Papus", "Ulduar")..
 					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
+					SetFormatedPatronName("Uncommon", "ScaryLarryGames")..
 					SetFormatedPatronName("Uncommon", "Scott Ingram")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Veratais")..

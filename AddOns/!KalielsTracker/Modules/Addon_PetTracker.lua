@@ -15,7 +15,6 @@ local LSM = LibStub("LibSharedMedia-3.0")
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
-local OTF = KT_ObjectiveTrackerFrame
 local PetTracker = PetTracker
 
 local content
@@ -23,6 +22,7 @@ local contentWidth = 237
 
 local settings = {
 	headerText = PETS,
+	events = { "PET_JOURNAL_LIST_UPDATE" },
 	blockOffsetX = 10
 }
 KT_PetTrackerObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin, settings)
@@ -38,20 +38,20 @@ local texts = {
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
-local function SetPetsHeaderText(reset)
-	if db.pettrackerHeaderAppend then
+local function SetPetsHeaderText()
+	local suffix
+	if db.pettrackerHeaderSuffix then
 		local _, numPetsOwned = C_PetJournal.GetNumPets()
-		KT:SetHeaderText(KT_PetTrackerObjectiveTracker, numPetsOwned)
-	elseif reset then
-		KT:SetHeaderText(KT_PetTrackerObjectiveTracker)
+		suffix = numPetsOwned
 	end
+	KT_PetTrackerObjectiveTracker:SetHeaderSuffix(suffix)
 end
 
 local function SetupOptions()
 	KT.options.args.addons.args.pettracker = {
 		name = "PetTracker",
 		type = "group",
-		order = 5,
+		order = 6,
 		args = {
 			header = {
 				name = "Header",
@@ -59,14 +59,14 @@ local function SetupOptions()
 				inline = true,
 				order = 1,
 				args = {
-					pettrackerHeaderAppend = {
+					pettrackerHeaderSuffix = {
 						name = "Show number of owned Pets",
 						desc = "Show number of owned Pets inside the PetTracker header.",
 						type = "toggle",
 						width = "normal+half",
 						set = function()
-							db.pettrackerHeaderAppend = not db.pettrackerHeaderAppend
-							SetPetsHeaderText(true)
+							db.pettrackerHeaderSuffix = not db.pettrackerHeaderSuffix
+							SetPetsHeaderText()
 						end,
 						order = 1,
 					},
@@ -121,10 +121,6 @@ local function SetHooks_Init()
 end
 
 local function SetHooks()
-	hooksecurefunc(KT.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
-		self:SetModuleContainer(KT_PetTrackerObjectiveTracker, OTF)
-	end)
-
 	local bck_PetTracker_SpecieLine_New = PetTracker.SpecieLine.New
 	function PetTracker.SpecieLine:New(parent, text, icon, subicon, r, g, b)
 		local line = bck_PetTracker_SpecieLine_New(self, parent, text, icon, subicon, r, g, b)
@@ -186,13 +182,6 @@ local function SetHooks_PetTracker_Journal()
 			end
 		end)
 	end
-end
-
-local function Event_PLAYER_ENTERING_WORLD(eventID)
-	KT:RegEvent("PET_JOURNAL_LIST_UPDATE", function()
-		SetPetsHeaderText()
-	end, M)
-	KT:UnregEvent(eventID)
 end
 
 local function SetEvents_Init()
@@ -287,6 +276,12 @@ end
 
 -- External ------------------------------------------------------------------------------------------------------------
 
+function KT_PetTrackerObjectiveTrackerMixin:OnEvent(event, ...)
+	if event == "PET_JOURNAL_LIST_UPDATE" then
+		SetPetsHeaderText()
+	end
+end
+
 function KT_PetTrackerObjectiveTrackerMixin:InitModule()
 	self.PThasContent = false
 
@@ -347,13 +342,12 @@ function M:OnInitialize()
 
 		local defaults = KT:MergeTables({
 			profile = {
-				pettrackerHeaderAppend = true,
+				pettrackerHeaderSuffix = true,
 			}
 		}, KT.db.defaults)
 		KT.db:RegisterDefaults(defaults)
 
-		tinsert(KT.MODULES, "KT_PetTrackerObjectiveTracker")
-		KT.db:RegisterDefaults(KT.db.defaults)
+		KT:Tracker_RegisterModule("KT_PetTrackerObjectiveTracker", not self.isAvailable)
 	end
 
 	SetEvents_Init()
@@ -368,7 +362,6 @@ function M:OnEnable()
 
 	KT:RegSignal("OPTIONS_CHANGED", "Update", self)
 	KT:RegSignal("FILTER_MENU_UPDATE", FilterMenuUpdate, self)
-	KT:RegEvent("PLAYER_ENTERING_WORLD", Event_PLAYER_ENTERING_WORLD, self)
 end
 
 function M:IsShown()

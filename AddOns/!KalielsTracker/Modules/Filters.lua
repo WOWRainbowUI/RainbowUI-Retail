@@ -14,7 +14,6 @@ KT.Filters = M
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 -- Lua API
-local gsub = string.gsub
 local ipairs = ipairs
 local pairs = pairs
 local strlower = string.lower
@@ -22,18 +21,13 @@ local strfind = string.find
 local strfindp = function(s, p) return strfind(strlower(s), strlower(p), 1, true) end
 local strsub = string.sub
 
--- WoW API
-local _G = _G
-
 local db, dbChar
 local remixID = 15554  -- Remix: Legion
 local OBJECTIVES_WATCH_TOO_MANY = OBJECTIVES_WATCH_TOO_MANY..".. max. %d"
 
 local KTF = KT.frame
 local OTF = KT_ObjectiveTrackerFrame
-local OTFHeader = OTF.HeaderMenu
 
-local continents = KT.GetMapContinents()
 local achievCategory = GetCategoryList()
 local instanceQuestDifficulty = {
 	[DifficultyUtil.ID.DungeonNormal] = { Enum.QuestTag.Dungeon },
@@ -53,11 +47,13 @@ local instanceQuestDifficulty = {
 	[DifficultyUtil.ID.PrimaryRaidMythic] = { Enum.QuestTag.Raid },
 	[DifficultyUtil.ID.PrimaryRaidLFR] = { Enum.QuestTag.Raid },
 }
-local zoneSlug = {
-	[198] = "Hyjal",     -- Mount Hyjal
-	[201] = "Vashj'ir",  -- Kelp'thar Forest
-	[204] = "Vashj'ir",  -- Abyssal Depths
-	[205] = "Vashj'ir",  -- Shimmering Expanse
+local zoneOverride = {
+	[2594] = RITUAL_SITE_LABEL,  -- Eversong Woods / Daggerspine Point
+	[2585] = RITUAL_SITE_LABEL,  -- Zul'Aman
+	[198] = "Hyjal",             -- Mount Hyjal
+	[201] = "Vashj'ir",          -- Kelp'thar Forest
+	[204] = "Vashj'ir",          -- Abyssal Depths
+	[205] = "Vashj'ir",          -- Shimmering Expanse
 }
 local zoneAlt = {
 	[646] = C_CampaignInfo.GetCampaignInfo(290).name,  -- Broken Shore
@@ -610,34 +606,42 @@ local function Filter_Achievements(spec)
 		local continent = KT.GetCurrentMapContinent()
 		local continentName = continent and continent.name or "???"
 		local mapID = KT.GetCurrentMapAreaID()
-		local zoneName = zoneSlug[mapID] or KT.GetMapNameByID(mapID) or "???"
+		local zoneName = zoneOverride[mapID] or KT.GetMapNameByID(mapID) or "???"
 		local zoneNameAlt = zoneAlt[mapID] or "???"
 		local categoryName, categoryNameAlt = GetCategoryByZone()
-		local instance = (KT.inInstance or KT.inScenario) and 168 or nil
         local showContinent = dbChar.filter.achievements.showContinent
-		--_DBG(continentName.." / "..zoneName.." ("..zoneNameAlt..") ... "..mapID.." ... "..categoryName.." ("..categoryNameAlt..")", true)
 
-		-- Dungeons & Raids
-		local instanceDifficulty, instanceSize
-		if instance and dbChar.filterAchievCat[instance] then
+		-- Dungeon / Raid / Scenario
+		local instanceType, instanceDifficulty, instanceSize
+		if KT.inInstance or KT.inScenario then
 			local _, type, difficulty, difficultyName = GetInstanceInfo()
+			instanceType = type
 			instanceDifficulty = difficultyName
 			instanceSize = ""
-			if strfind(difficultyName, "^%d+.*$") then
-				local _, _, size, diff = strfind(difficultyName, "^(.*) %((.*)%)$")
-				instanceDifficulty = diff or "Normal"
-				instanceSize = size or difficultyName
+
+			if KT.inInstance then
+				if strfind(difficultyName, "^%d+.*$") then
+					local _, _, size, diff = strfind(difficultyName, "^(.*) %((.*)%)$")
+					instanceDifficulty = diff or "Normal"
+					instanceSize = size or difficultyName
+				end
+			elseif KT.inScenario then
+				zoneName = C_Scenario.GetInfo()
+				zoneNameAlt = "???"
 			end
+
 			_DBG(type.." ... "..difficulty.." ... "..instanceDifficulty.." ... "..instanceSize, true)
 		end
-		
+
+		--_DBG(continentName.." / "..zoneName.." ("..zoneNameAlt..") ... "..mapID.." ... "..categoryName.." ("..categoryNameAlt..")", true)
+
 		-- World Events
 		local events = ""
 		if dbChar.filterAchievCat[155] then
 			events = GetActiveWorldEvents()
 		end
 
-		if not instance then
+		if not instanceType then
 			-- Basic (out of Instance)
 			for _, categoryID in ipairs(achievCategory) do
 				local name, parentID = GetCategoryInfo(categoryID)
@@ -725,6 +729,45 @@ local function Filter_Achievements(spec)
 					--_DBG(categoryID.." ... "..name, true)
 				end
 			end
+		elseif instanceType == "scenario" or instanceType == "none" then
+			-- Instance - Scenario
+			for _, categoryID in ipairs(achievCategory) do
+				local name, parentID = GetCategoryInfo(categoryID)
+
+				if dbChar.filterAchievCat[parentID] then
+					if (parentID == 97 and (name == categoryName or name == categoryNameAlt)) or                    -- Exploration
+							(parentID == 15301 and (strfindp(name, zoneName) or strfindp(name, zoneNameAlt))) then  -- Expansion Features
+						local achievList = KT.AchievementsCache_GetCategory(categoryID)
+						for id, achiev in pairs(achievList) do
+							local track = false
+							local _, _, _, completed = GetAchievementInfo(id)
+							if not completed then
+								--_DBG(id.." ... "..achiev.name, true)
+								if parentID == 15301 then
+									track = true
+								else
+									local aText = achiev.name.." - "..achiev.description
+									if strfindp(aText, zoneName) or strfindp(aText, zoneNameAlt) then
+										track = true
+									end
+								end
+								if track then
+									KT.AddTrackedAchievement(id)
+								end
+							end
+							if KT.GetNumTrackedAchievements() == Constants.ContentTrackingConsts.MaxTrackedAchievements then
+								break
+							end
+						end
+					end
+				end
+				if KT.GetNumTrackedAchievements() == Constants.ContentTrackingConsts.MaxTrackedAchievements then
+					break
+				end
+				if parentID == -1 then
+					--_DBG(categoryID.." ... "..name, true)
+				end
+			end
 		else
 			-- Instance - Other
 			for _, categoryID in ipairs(achievCategory) do
@@ -733,10 +776,9 @@ local function Filter_Achievements(spec)
 				if dbChar.filterAchievCat[parentID] then
 					local nameMatch = strfindp(name, zoneName)
 					if (parentID == 95 and nameMatch) or                                                   -- Player vs. Player
-							((categoryID == instance or parentID == instance) and
+							((categoryID == 168 or parentID == 168) and
 									(strfindp(name, categoryName) or strfindp(name, categoryNameAlt))) or  -- Dungeons & Raids
 							(parentID == 155 and strfindp(events, name)) or                                -- World Events
-							(parentID == 15301 and categoryID == 15440) or                                 -- Expansion Features (only Torghast)
 							(parentID == remixID and (categoryID == 15559 or categoryID == 15560)) then    -- Remix
 						local achievList = KT.AchievementsCache_GetCategory(categoryID)
 						for id, achiev in pairs(achievList) do
@@ -899,7 +941,7 @@ local function DropDown_Initialize(self, level)
 
 		info.hasArrow = (dbChar.filterAuto[1] == nil)
 		info.value = "questCategories"
-		KT.Menu_AddButton("All  ("..dbChar.quests.num..")", "all")
+		KT.Menu_AddButton("All  ("..(dbChar.quests.num + dbChar.quests.numOver)..")", "all")
 
 		info.hasArrow = false
 
@@ -1101,6 +1143,10 @@ local function SetFrames()
 				Filter_Quests("zone")
 				KT.questStateStopUpdate = false
 				self:UnregisterEvent(event)
+			elseif event == "SCENARIO_UPDATE" then
+				if dbChar.filterAuto[2] == "zone" then
+					Filter_Achievements("zone")
+				end
 			elseif event == "ZONE_CHANGED_NEW_AREA" then
 				if not KT.IsInBetween() then
 					C_Timer.After(0.3, function()
@@ -1126,6 +1172,7 @@ local function SetFrames()
 	eventFrame:RegisterEvent("QUEST_REMOVED")
 	eventFrame:RegisterEvent("QUEST_COMPLETE")
 	eventFrame:RegisterEvent("ACHIEVEMENT_EARNED")
+	eventFrame:RegisterEvent("SCENARIO_UPDATE")
 	eventFrame:RegisterEvent("ZONE_CHANGED")
 	eventFrame:RegisterEvent("ZONE_CHANGED_INDOORS")
 	eventFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")

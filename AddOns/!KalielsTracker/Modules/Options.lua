@@ -49,8 +49,6 @@ local cBold = "|cff00ffe3"
 local cBold2 = "|cffffd200"
 local cWarning = "|cffff7f00"
 local cWarning2 = "|cffff4200"
-local beta = "|cffff7fff[Beta]|r"
-local experimental = "|cffff7fff[Experimental]|r"
 local warning = cWarning.."Warning:|r UI will be re-loaded!"
 
 local KTF = KT.frame
@@ -701,17 +699,6 @@ local options = {
 							end,
 							order = 4,
 						},
-						colorDifficulty = {
-							name = "Color by difficulty",
-							desc = "Quest titles color by difficulty.",
-							type = "toggle",
-							set = function()
-								db.colorDifficulty = not db.colorDifficulty
-								OTF:Update()
-								QuestMapFrame_UpdateAll()
-							end,
-							order = 5,
-						},
 						textWordWrap = {
 							name = "Wrap long texts",
 							desc = "Long texts shows on two lines or on one line with ellipsis (...).",
@@ -720,23 +707,7 @@ local options = {
 								db.textWordWrap = not db.textWordWrap
 								KT:Update(true)
 							end,
-							order = 6,
-						},
-						objNumSwitch = {
-							name = "Objective numbers at the beginning",
-							desc = "Changing the position of objective numbers at the beginning of the line. "..
-								   cBold.."Only for deDE, esES, frFR, ruRU locale.",
-							descStyle = "inline",
-							type = "toggle",
-							width = 2.2,
-							disabled = function()
-								return not IsSpecialLocale()
-							end,
-							set = function()
-								db.objNumSwitch = not db.objNumSwitch
-								OTF:Update()
-							end,
-							order = 7,
+							order = 5,
 						},
 					},
 				},
@@ -1070,7 +1041,7 @@ local options = {
                             order = 1,
                         },
                         questLogShowDetails = {
-                            name = "Show Quest Details on World Map "..experimental,
+                            name = "Show Quest Details on World Map "..KT.TEXT.OPTION_EXPERIMENTAL,
                             desc = "Show Quest Details when opening the quest map from the tracker. This feature uses a custom Quest Details implementation.",
                             type = "toggle",
                             width = "double",
@@ -1520,16 +1491,40 @@ local options = {
 							inline = true,
 							order = 1,
 							args = {
-								questsHeaderAppend = {
+								questsHeaderSuffix = {
 									name = "Show number of Quests",
 									desc = "Show number of Quests inside the Quests header.",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
-										db.questsHeaderAppend = not db.questsHeaderAppend
-										KT:SetQuestsHeaderText(true)
+										db.questsHeaderSuffix = not db.questsHeaderSuffix
+										KT:SetQuestsHeaderText()
 									end,
 									order = 1,
+								},
+							},
+						},
+						content = {
+							name = "Content",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								questsObjectiveNumAtStart = {
+									name = "Objective numbers first",
+									desc = "Moves objective numbers to the start of the line.\n"..
+											cBold.."Only for deDE, esES, frFR, ruRU locale.",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.7,
+									disabled = function()
+										return not IsSpecialLocale()
+									end,
+									set = function()
+										db.questsObjectiveNumAtStart = not db.questsObjectiveNumAtStart
+										OTF:Update()
+									end,
+									order = 10,
 								},
 							},
 						},
@@ -1537,18 +1532,45 @@ local options = {
 							name = "Quests Content",
 							type = "group",
 							inline = true,
-							order = 2,
+							order = 3,
 							args = {
+								questsColorByDifficulty = {
+									name = "Color by difficulty",
+									desc = "Quest titles color by difficulty.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsColorByDifficulty = not db.questsColorByDifficulty
+										OTF:Update()
+									end,
+									order = 1,
+								},
+								questsSpacer1 = {
+									name = " ",
+									type = "description",
+									order = 2,
+								},
+								questsShowLevel = {
+									name = "Show Quest Level",
+									desc = "Show / Hide Quest Level inside the tracker.",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsShowLevel = not db.questsShowLevel
+										OTF:Update()
+									end,
+									order = 3,
+								},
 								questsShowTags = {
 									name = "Show Quest Tags",
-									desc = "Show / Hide Quest Tags (quest level, quest type) inside the tracker.",
+									desc = "Show / Hide Quest Tags (type, frequency) inside the tracker.",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
 										db.questsShowTags = not db.questsShowTags
 										OTF:Update()
 									end,
-									order = 1,
+									order = 4,
 								},
 								questsShowZone = {
 									name = "Show Quest Zone",
@@ -1559,9 +1581,9 @@ local options = {
 										db.questsShowZone = not db.questsShowZone
 										OTF:Update()
 									end,
-									order = 2,
+									order = 5,
 								},
-								questAutoTrack = {
+								questsAutoTrack = {
 									name = "Auto Quest tracking",
 									desc = "Quests are automatically watched when accepted. Uses Blizzard's value \"autoQuestWatch\".\n"..warning,
 									type = "toggle",
@@ -1575,9 +1597,9 @@ local options = {
 										SetCVar("autoQuestWatch", value)
 										ReloadUI()
 									end,
-									order = 3,
+									order = 6,
 								},
-								questProgressAutoTrack = {
+								questsProgressAutoTrack = {
 									name = "Auto Quest progress tracking",
 									desc = "Quests are automatically watched when progress updated. Uses Blizzard's value \"autoQuestProgress\".\n"..warning,
 									type = "toggle",
@@ -1591,7 +1613,7 @@ local options = {
 										SetCVar("autoQuestProgress", value)
 										ReloadUI()
 									end,
-									order = 4,
+									order = 7,
 								},
 								questsAutoFocusClosest = {
 									name = "Auto focus closest Quest                            ",  -- space for a wider tooltip
@@ -1609,7 +1631,7 @@ local options = {
 									set = function()
 										db.questsAutoFocusClosest = not db.questsAutoFocusClosest
 									end,
-									order = 5,
+									order = 8,
 								},
 							},
 						},
@@ -1617,7 +1639,7 @@ local options = {
 							name = "World Quests Content",
 							type = "group",
 							inline = true,
-							order = 3,
+							order = 4,
 							args = {
 								tasksShowFaction = {
 									name = "Show World Quest Faction",
@@ -1645,14 +1667,14 @@ local options = {
 							inline = true,
 							order = 1,
 							args = {
-								achievsHeaderAppend = {
+								achievsHeaderSuffix = {
 									name = "Show Achievement points",
 									desc = "Show Achievement points inside the Achievements header.",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
-										db.achievsHeaderAppend = not db.achievsHeaderAppend
-										KT:SetAchievsHeaderText(true)
+										db.achievsHeaderSuffix = not db.achievsHeaderSuffix
+										KT:SetAchievsHeaderText()
 									end,
 									order = 1,
 								},
@@ -1761,6 +1783,29 @@ local options = {
 									width = "double",
 									order = 1.2,
 								},
+								addonBattlePetCompletionist = {
+									name = "Battle Pet Completionist",
+									desc = "Ver.: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("BattlePetCompletionist")
+									end,
+									set = function()
+										db.addonBattlePetCompletionist = not db.addonBattlePetCompletionist
+										ReloadUI()
+									end,
+									order = 2.1,
+								},
+								addonBattlePetCompletionistDesc = {
+									name = KT.TEXT.OPTION_BETA.." Enables display of zone pet tracking inside the tracker with a custom layout and improved visual presentation.",
+									type = "description",
+									width = "double",
+									order = 2.2,
+								},
 								addonBtWQuests = {
 									name = "BtWQuests",
 									desc = "Version: %s",
@@ -1776,13 +1821,13 @@ local options = {
 										db.addonBtWQuests = not db.addonBtWQuests
 										ReloadUI()
 									end,
-									order = 2.1,
+									order = 3.1,
 								},
 								addonBtWQuestsDesc = {
 									name = "Enables an \"Open Quest Chain\" option in the Quest context menu.",
 									type = "description",
 									width = "double",
-									order = 2.2,
+									order = 3.2,
 								},
 								addonMasque = {
 									name = "Masque",
@@ -1799,13 +1844,13 @@ local options = {
 										db.addonMasque = not db.addonMasque
 										ReloadUI()
 									end,
-									order = 3.1,
+									order = 4.1,
 								},
 								addonMasqueDesc = {
 									name = "Enables skinning of Quest Item buttons and the Active Button.",
 									type = "description",
 									width = "double",
-									order = 3.2,
+									order = 4.2,
 								},
 								addonNarcissus = {
 									name = "Narcissus",
@@ -1822,13 +1867,13 @@ local options = {
 										db.addonNarcissus = not db.addonNarcissus
 										ReloadUI()
 									end,
-									order = 4.1,
+									order = 5.1,
 								},
 								addonNarcissusDesc = {
 									name = "Opens achievements from the tracker in the Narcissus window.",
 									type = "description",
 									width = "double",
-									order = 4.2,
+									order = 5.2,
 								},
 								addonPetTracker = {
 									name = "PetTracker",
@@ -1848,13 +1893,13 @@ local options = {
 										end
 										ReloadUI()
 									end,
-									order = 5.1,
+									order = 6.1,
 								},
 								addonPetTrackerDesc = {
-									name = "Enables display of zone pet tracking inside the tracker and fixes some visual issues.",
+									name = "Enables display of zone pet tracking inside the tracker with a custom layout and improved visual presentation.",
 									type = "description",
 									width = "double",
-									order = 5.2,
+									order = 6.2,
 								},
 								addonRareScanner = {
 									name = "RareScanner",
@@ -1871,13 +1916,13 @@ local options = {
 										db.addonRareScanner = not db.addonRareScanner
 										ReloadUI()
 									end,
-									order = 6.1,
+									order = 7.1,
 								},
 								addonRareScannerDesc = {
 									name = "Enables display of detected Rare NPCs inside the tracker.",
 									type = "description",
 									width = "double",
-									order = 6.2,
+									order = 7.2,
 								},
 								addonTomTom = {
 									name = "TomTom",
@@ -1894,13 +1939,13 @@ local options = {
 										db.addonTomTom = not db.addonTomTom
 										ReloadUI()
 									end,
-									order = 7.1,
+									order = 8.1,
 								},
 								addonTomTomDesc = {
 									name = "Enables integration of Blizzard's POI with TomTom's Arrow for better navigation.",
 									type = "description",
 									width = "double",
-									order = 7.2,
+									order = 8.2,
 								},
 							},
 						},
@@ -2214,7 +2259,7 @@ local function Setup()
 
 	-- Disable some options
 	if not IsSpecialLocale() then
-		db.objNumSwitch = false
+		db.questsObjectiveNumAtStart = false
 	end
 end
 

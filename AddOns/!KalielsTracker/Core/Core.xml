@@ -34,6 +34,9 @@
     <Include file="ObjectiveTrackerQuestPOIBlock.xml"/>
     <Script file="ObjectiveTrackerQuestPOIBlock.lua"/>
 
+    <Script file="CoreExtensions.lua"/>
+    <Include file="CoreExtensions.xml"/>
+
     <Script file="AchievementObjectiveTracker.lua"/>
     <Include file="AchievementObjectiveTracker.xml"/>
     <Script file="MonthlyActivitiesObjectiveTracker.lua"/>

@@ -70,6 +70,20 @@ KT.WORLD_QUEST_REWARD_TYPE_FLAG_REPUTATION = 0x0020
 KT.WORLD_QUEST_REWARD_TYPE_FLAG_OTHERS = 0x10000
 
 -- Tags
+KT.QUEST_TAGS = {
+    [Enum.QuestTag.Group] = "g",
+    [Enum.QuestTag.Dungeon] = "d",
+    [Enum.QuestTag.Heroic] = "hc",
+    [Enum.QuestTag.Raid] = "r",
+    [Enum.QuestTag.Raid10] = "r10",
+    [Enum.QuestTag.Raid25] = "r25",
+    [Enum.QuestTag.Delve] = "de",
+    [Enum.QuestTag.Scenario] = "s",
+    [Enum.QuestTag.Account] = "a",
+    [Enum.QuestTag.PvP] = "pvp",
+    [Enum.QuestTag.Legendary] = "leg",
+}
+
 KT.INSTANCE_TAGS = {
     [Enum.QuestTag.Dungeon] = true,
     [Enum.QuestTag.Heroic] = true,
@@ -97,8 +111,11 @@ local MAP_CONTINENT_OVERRIDES = {
     [2371] = { mapID = 2371 },        -- K'aresh
     [2346] = { mapID = 2214 },        -- Undermine
     [2369] = { mapID = 2369 },        -- Siren Isle
+    [2200] = { mapID = 2200 },        -- Emerald Dream
     [2133] = { mapID = 2133 },        -- Zaralek Cavern
+    [1970] = { mapID = 1970 },        -- Zereth Mortis
     [1961] = { mapID = 1543 },        -- Korthia
+    [1662] = { mapID = 1565 },        -- Queen's Conservatory
     [1355] = { mapID = 1355 },        -- Nazjatar
     [2214] = { virtualID = 2274.1 },  -- The Ringing Deeps
     [2215] = { virtualID = 2274.1 },  -- Hallowfall
@@ -213,7 +230,10 @@ KT.FORMAT_LABEL_VALUE = "%s: %s"
 KT.FORMAT_TEXT_HINT = "%s |cffaaaaaa(%s)|r"
 KT.TEXT = {
     ADDON_IS_ACTIVE = "|cff00ffffAddon "..KT.TITLE.." is active.|r",
-    ADDON_IS_ACTIVE_DISABLED = "|cff00ffffAddon "..KT.TITLE.." is active. Some options are disabled.|r"
+    ADDON_IS_ACTIVE_DISABLED = "|cff00ffffAddon "..KT.TITLE.." is active. Some options are disabled.|r",
+    OPTION_NEW = "|cffff7fff[New]|r",
+    OPTION_BETA = "|cffff7fff[Beta]|r",
+    OPTION_EXPERIMENTAL = "|cffff7fff[Experimental]|r",
 }
 
 -- Core Constants

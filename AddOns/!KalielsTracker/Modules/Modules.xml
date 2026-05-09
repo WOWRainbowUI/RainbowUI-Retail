@@ -8,6 +8,8 @@
 	<Script file="QuestLog.lua"/>
 	<Script file="Addon_PetTracker.lua"/>
 	<Include file="Addon_PetTracker.xml"/>
+	<Script file="Addon_BattlePetCompletionist.lua"/>
+	<Include file="Addon_BattlePetCompletionist.xml"/>
 	<Script file="Addon_TomTom.lua"/>
 	<Script file="Addon_RareScanner.lua"/>
 	<Include file="Addon_RareScanner.xml"/>

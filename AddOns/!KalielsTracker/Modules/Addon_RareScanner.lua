@@ -14,7 +14,6 @@ KT.AddonRareScanner = M
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
-local OTF = KT_ObjectiveTrackerFrame
 local RareScanner = RareScanner
 local RSbutton = RARESCANNER_BUTTON
 local L
@@ -192,10 +191,6 @@ local function SetFrames()
 end
 
 local function SetHooks()
-	hooksecurefunc(KT.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
-		self:SetModuleContainer(KT_RareScannerObjectiveTracker, OTF)
-	end)
-
 	hooksecurefunc(RSbutton, "ShowButton", function(self)
 		RS_HideButton()
 		RS_SetOptions()
@@ -352,13 +347,12 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("RareScanner", "12.0.1.16") and db.addonRareScanner)
+    self.isAvailable = (KT:CheckAddOn("RareScanner", "12.0.5.2") and db.addonRareScanner)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("RareScanner", "11.2.0.11")
 
-		tinsert(KT.MODULES, "KT_RareScannerObjectiveTracker")
-		KT.db:RegisterDefaults(KT.db.defaults)
+		KT:Tracker_RegisterModule("KT_RareScannerObjectiveTracker", not self.isAvailable)
 	end
 end
 

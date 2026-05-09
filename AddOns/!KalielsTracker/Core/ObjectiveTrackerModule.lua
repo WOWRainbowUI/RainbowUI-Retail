@@ -90,6 +90,9 @@ end
 -- MSA
 function KT_ObjectiveTrackerModuleMixin:StopUpdate()
 	-- override in your mixin
+	if self.disabled then
+		return true
+	end
 	return false
 end
 

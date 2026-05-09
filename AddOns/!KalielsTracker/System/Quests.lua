@@ -13,6 +13,7 @@ local questsCache = {}
 
 function KT.QuestsCache_Update(force)
     local numQuests = 0
+    local numQuestsOver = 0
     local numEntries = C_QuestLog.GetNumQuestLogEntries()
     local headerTitle
     local validIDs = {}
@@ -30,6 +31,7 @@ function KT.QuestsCache_Update(force)
                             title = questInfo.title,
                             level = questInfo.level,
                             zone = headerTitle,
+                            isAccount = C_QuestLog.IsAccountQuest(questInfo.questID),
                             isCalling = C_QuestLog.IsQuestCalling(questInfo.questID),
                             startMapID = quest and quest.startMapID,
                             state = quest and quest.state or "",
@@ -38,8 +40,11 @@ function KT.QuestsCache_Update(force)
                         questsCache[questInfo.questID] = quest
                     end
                     validIDs[questInfo.questID] = true
-                    if not C_QuestLog.IsQuestCalling(questInfo.questID) then
+
+                    if not quest.isAccount and not quest.isCalling then
                         numQuests = numQuests + 1
+                    else
+                        numQuestsOver = numQuestsOver + 1
                     end
                 end
             end
@@ -54,7 +59,7 @@ function KT.QuestsCache_Update(force)
         end
     end
 
-    return numQuests
+    return numQuests, numQuestsOver
 end
 
 function KT.QuestsCache_RemoveQuest(questID)
