@@ -50,11 +50,26 @@ end
 
 -- Module
 
----Enable all modules.
-function KT:EnableModules()
+---Enable all addon modules.
+function KT:Addon_EnableModules()
     for _, module in ipairs(self.orderedModules) do
         if module.isAvailable and module.OnEnable then
             module:Enable()
         end
     end
+end
+
+---Register Tracker Module.
+---@param name string Module (frame) name
+---@param isDisabled boolean|nil Module state in the tracker (true = disabled, false/nil = enabled)
+function KT:Tracker_RegisterModule(name, isDisabled)
+    local module = _G[name]
+    module.disabled = isDisabled
+
+    tinsert(self.MODULES, name)
+    self.db:RegisterDefaults(self.db.defaults)
+
+    hooksecurefunc(self.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self2, isInitialLogin, isReloadingUI)
+        self2:SetModuleContainer(module, KT_ObjectiveTrackerFrame)
+    end)
 end

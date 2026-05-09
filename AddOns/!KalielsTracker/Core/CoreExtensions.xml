@@ -34,6 +34,14 @@
         </Scripts>
     </Frame>
 
+    <Frame name="KT_ObjectiveTrackerStaticBlockTemplate" inherits="KT2_ObjectiveTrackerBlockTemplate" hidden="true" virtual="true">
+        <Scripts>
+            <OnEnter/>
+            <OnLeave/>
+            <OnMouseUp/>
+        </Scripts>
+    </Frame>
+
     <Frame name="KT_ObjectiveTrackerBlockIconTemplate" hidden="true" virtual="true">
         <Size x="31" y="31"/>
         <Layers>
@@ -62,4 +70,31 @@
             </Frame>
         </Frames>
     </Button>
+
+    <Frame name="KT_ObjectiveTrackerClickLineTemplate" mixin="KT_ObjectiveTrackerClickLineMixin" inherits="KT_ObjectiveTrackerAnimLineTemplate" virtual="true">
+        <Scripts>
+            <OnEnter method="OnEnter"/>
+            <OnLeave method="OnLeave"/>
+            <OnMouseUp method="OnMouseUp"/>
+        </Scripts>
+    </Frame>
+
+    <Frame name="KT_ObjectiveTrackerClickLineWithIconTemplate" inherits="KT_ObjectiveTrackerClickLineTemplate" virtual="true">
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="Icon2">
+                    <Size x="16" y="16"/>
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="Text" inherits="KT_ObjectiveTrackerLineFont">
+                    <Anchors>
+                        <Anchor point="LEFT" x="19"/>
+                        <Anchor point="RIGHT"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
 </Ui>

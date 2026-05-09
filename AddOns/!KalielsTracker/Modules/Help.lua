@@ -21,7 +21,7 @@ local ICON_HEART = "|T"..HELP_PATH.."help_patreon:14:14:2:0:256:32:174:190:0:16|
 
 local db, dbChar
 local helpName = "help"
-local helpNumPages = 14
+local helpNumPages = 15
 local supportersName = "supporters"
 local supportersNumPages = 1
 local cTitle = "|cffffd200"
@@ -33,15 +33,14 @@ local offs = "\n|T:1:9|t"
 local offs2 = "\n|T:1:21|t"
 local offs3 = "|T:1:9|t"
 local ebSpace = "|T:16:1|t\n"
-local beta = "|cffff7fff[Beta]|r"
-local new = "|cffff7fff[新功能]|r"
 
 local KTF = KT.frame
 
 -- Internal ------------------------------------------------------------------------------------------------------------
 
-local function AddonInfo(name)
-	local info = "\n插件 "..name
+local function AddonInfo(name, title)
+	title = title or name
+	local info = "\n插件 "..title
 	if C_AddOns.IsAddOnLoaded(name) then
 		info = info.." |cff00ff00已安裝|r。支援性可以在設定選項中啟用/停用。\n"..ebSpace
 	else
@@ -131,17 +130,29 @@ local function SetupTutorials()
 			shineRight = 15,
 		},
 		{	-- 3
-			image = HELP_PATH.."help_quest-title-tags",
+			image = HELP_PATH.."help_quests",
 			imageHeight = 128,
-			heading = "任務標題標籤",
-			text = "任務標題的前方可以看到像是這樣的標籤 |cffff8000[100|r|cff00b3ffhc!|r|cffff8000]|r。\n"..
-					"任務日誌中的標題也會顯示任務標籤。\n\n"..
-					"|cff00b3ff!|r|T:14:3|t "..cDots.."........|r 每日任務|T:14:108|t|cff00b3ffr|r "..cDots..".......|r 團隊任務\n"..         -- Kept new icons
-					"|cff00b3ff!!|r "..cDots.."........|r 每週任務|T:14:108|t|cff00b3ffr10|r "..cDots.."...|r 10人團隊任務\n"..     -- Kept new icons
-					"|cff00b3ffg3|r "..cDots..".....|r 組隊任務 (含隊伍人數)|T:14:30|t|cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n".. -- Kept new icons
-					"|cff00b3ffpvp|r "..cDots.."...|r PvP 任務|T:14:112|t|cff00b3ffs|r "..cDots..".......|r 事件任務\n"..         -- Kept new icons (Scenario -> Event translation kept from old)
-					"|cff00b3ffd|r "..cDots..".......|r 地城任務|T:14:109|t|cff00b3ffa|r "..cDots..".......|r 帳號共通任務\n"..     -- Kept new icons
-					"|cff00b3ffhc|r "..cDots..".....|r 英雄任務|T:14:109|t|cff00b3ffleg|r "..cDots.."....|r 傳說任務", -- Kept new icons
+			heading = "任務",
+			text = cTitle.."模組標題|r\n\n"..
+					"標題文字可顯示任務數量 "..cDots.."...|r "..cBold.."任務 (14/"..MAX_QUESTS.." +3)|r。\n\n"..
+					"    "..cBold.."14|r "..cDots.."...|r 任務日誌中的目前任務數量\n"..
+					"    "..cBold..MAX_QUESTS.."|r "..cDots.."...|r 任務日誌的最大任務數量\n"..
+					"    "..cBold.."+3|r "..cDots.."...|r 帳號/召喚任務（不計入上限）\n\n"..
+					cTitle.."標題標籤|r\n\n"..
+					"在任務標題開頭，你會看到像這樣的標籤 |cffff8000[90|r|cff00b3ff•!!|r|cffff8000]|r。\n\n"..
+					"    |cff00b3ff•|r "..cDots..".......|r 帳號/戰團任務\n"..
+					"    |cff00b3ff!|r|T:14:3|t "..cDots..".......|r 每日任務\n"..
+					"    |cff00b3ff!!|r "..cDots.."......|r 每週任務\n"..
+					"    |cff00b3ffg3|r "..cDots..".....|r 組隊任務（附組隊人數）\n"..
+					"    |cff00b3ffd|r "..cDots..".......|r 地城任務\n"..
+					"    |cff00b3ffhc|r "..cDots..".....|r 英雄難度任務\n"..
+					"    |cff00b3ffr|r "..cDots.."........|r 團隊任務\n"..
+					"    |cff00b3ffr10|r "..cDots.."...|r 10人團隊任務\n"..
+					"    |cff00b3ffr25|r "..cDots.."...|r 25人團隊任務\n"..
+					"    |cff00b3ffde|r "..cDots..".....|r 深淵任務\n"..
+					"    |cff00b3ffs|r "..cDots..".......|r 事件任務\n"..
+					"    |cff00b3ffpvp|r "..cDots.."...|r PvP 任務\n"..
+					"    |cff00b3ffleg|r "..cDots.."....|r 傳說任務",
 			paddingBottom = 16,
 			shineTop = 11,
 			shineBottom = -9,
@@ -170,7 +181,7 @@ local function SetupTutorials()
 			image = HELP_PATH.."help_quest-item-buttons",
 			heading = "任務物品按鈕",
 			text = "按鈕在任務追蹤清單外面，因為暴雪不允許預設的清單介面使用動作按鈕。\n\n"..
-					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:1:0:64:32:0:32:0:32|t "..cDots.."...|r  這個標籤代表任務中的任務物品。裡面的數字用來辨別\n"..
+					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:0:0:64:32:0:32:0:32|t "..cDots.."...|r  這個標籤代表任務中的任務物品。裡面的數字用來辨別\n"..
 					"              移動後的任務物品按鈕。\n\n"..
 					"|T"..HELP_PATH.."help_quest-item-buttons_2:32:32:0:3:64:32:32:64:0:32|t "..cDots.."...|r  真正的任務物品按鈕已經移動到清單的左/右側\n"..
 					"              (依據所選擇的對齊畫面位置)。標籤數字仍然相同。\n\n"..
@@ -219,7 +230,7 @@ local function SetupTutorials()
 			image = HELP_PATH.."help_events",
 			heading = "事件",
 			text = "事件模組會在追蹤清單中顯示當前進行中的事件。它們通常可在世界地圖上看到。\n\n"..
-					"過濾下拉選單選項：\n"..
+					"過濾 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t 下拉選單選項：\n"..
 					"- "..cBold.."追蹤事件|r – 啟用或停用在追蹤清單中追蹤事件。\n"..
 					"- "..cBold.."顯示長期事件|r – 除了當前進行中的事件，還會顯示那些"..
 					offs.."持續 24 小時或更久的事件。",
@@ -241,7 +252,10 @@ local function SetupTutorials()
 		{	-- 10
 			image = HELP_PATH.."help_addon-pettracker",
 			heading = "支援插件 PetTracker",
-			text = "支援在任務追蹤清單增強裡面顯示 PetTracker 的區域寵物追蹤，同時也修正了顯示上的一些問題。\n"..
+			text = "PetTracker 支援功能為 "..KT.TITLE.." 新增區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。\n\n"..
+					"篩選 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:2:32:64:16:30:32:46:209:170:0|t 選單選項：\n"..
+					"- "..cBold.."追蹤寵物|r – 啟用或停用追蹤器中的寵物模組。\n"..
+					"- "..cBold.."顯示已捕獲|r – 顯示或隱藏已捕獲的區域寵物。\n"..
 					AddonInfo("PetTracker"),
 			editbox = {
 				{
@@ -286,17 +300,16 @@ local function SetupTutorials()
 		},
 		{	-- 12
 			image = HELP_PATH.."help_addon-rarescanner",
-			heading = "支援插件 RareScanner ",
-			text = "RareScanner 支援會取代原本的 RareScanner 按鈕，並將偵測到的稀有 NPC "..
-					"直接顯示在任務追蹤清單內，作為獨立模組。\n\n"..
-					"功能：\n"..
-					"- 僅顯示稀有 NPC - 模型與名稱。寶藏/寶箱不會顯示。\n"..
-					"- 顯示戰利品圖示與浮動提示資訊 (若有在 RareScanner 中啟用)。\n"..
-					"- "..cBold.."左鍵點擊|r - 建立 TomTom 導航 (若有在 RareScanner 中啟用)。\n"..
-					"- "..cBold.."右鍵點擊|r - 從追蹤清單移除已偵測到的 NPC。\n"..
-					"- 由於暴雪的限制，不支援透過左鍵點擊選取 NPC。"..
-					offs.."請使用 RareScanner 的按鍵綁定進行選取。\n"..
-					"- RareScanner 的其他設定皆會反映在此模組的行為上。\n"..
+			heading = "支援插件 RareScanner",
+			text = "RareScanner 支援功能取代原本的 RareScanner 按鈕，並將偵測到的稀有 NPC 以獨立模組的形式顯示於 "..KT.TITLE.." 中。\n\n"..
+					"功能特色：\n"..
+					"- 僅顯示稀有 NPC 的模型與名稱，不顯示寶藏／寶箱。\n"..
+					"- 顯示戰利品圖示並附帶提示框（若已在 RareScanner 中啟用）。\n"..
+					"- "..cBold.."左鍵點擊|r - 建立 TomTom 路徑點（若已在 RareScanner 中啟用）。\n"..
+					"- "..cBold.."右鍵點擊|r - 從追蹤器中移除已偵測到的 NPC。\n"..
+					"- 由於暴雪的限制，不支援透過左鍵點擊來鎖定 NPC。"..
+					offs.."請使用 RareScanner 的快捷鍵進行鎖定。\n"..
+					"- 所有其他 RareScanner 設定均會反映在此模組的行為上。\n"..
 					AddonInfo("RareScanner"),
 			editbox = {
 				{
@@ -332,6 +345,25 @@ local function SetupTutorials()
 			shineRight = 11,
 		},
 		{	-- 14
+			image = HELP_PATH.."help_addon-battlepetcompletionist",
+			heading = "支援插件 Battle Pet Completionist "..KT.TEXT.OPTION_BETA,
+			text = "Battle Pet Completionist 支援功能為 "..KT.TITLE.." 新增區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。\n\n"..
+					"功能特色：\n"..
+					"- 每列寵物項目均可點擊，並將在寵物日誌中開啟所選寵物。\n\n"..
+					"篩選 |T"..KT.MEDIA_PATH.."UI-KT-HeaderButtons:14:14:-1:1:32:64:16:30:32:46:209:170:0|t 選單選項：\n"..
+					"- "..cBold.."追蹤寵物|r – 啟用或停用追蹤器中的寵物模組。\n"..
+					"- "..cBold.."顯示已捕獲|r – 顯示或隱藏已捕獲的區域寵物。\n"..
+					AddonInfo("BattlePetCompletionist", "Battle Pet Completionist"),
+			editbox = {
+				{
+					icon = ICON_URL,
+					text = "https://www.curseforge.com/wow/addons/battle-pet-completionist",
+					width = 510,
+					bottom = 2,
+				}
+			},
+		},
+		{	-- 15
 			image = HELP_PATH.."help_whats-new_logo",
 			imageWidth = 512,
 			imageHeight = 128,
@@ -345,16 +377,26 @@ local function SetupTutorials()
 			headingSize = 26,
 			text = "|cff66ff66"..KT.TITLE.." 是由一人獨自開發與維護的。|r\n"..ebSpace.."\n"..
 
-					(cTitle.."版本 8.5.0|r\n"..
-					"- 新增 - TomTom - 奇珍異寶路徑點支援（例如：戰爭補給箱）\n"..
-					"- 新增（情境）- 史詩鑰石 - 可設定的敵方戰力進度格式\n"..
-					"- 新增 - 支援魔獸世界 12.0.5.67088\n"..
-					"- 新增 - 支援魔獸世界 12.0.1.66384\n"..
-					"- 新增 - 支援魔獸世界 12.0.1.66192\n"..
-					"- 變更（說明）- 活躍贊助者名單\n"..
-					"- 變更 - 選項 - 重新整理模組與支援插件的設定版面\n"..
-					offs3.."- 部分設定已重新命名並重置為預設值。\n"..
-					"- 修正（成就）- 部分深淵探索成就未依區域篩選\n"..
+					(cTitle.."版本 8.6.1|r\n"..
+					"- 修正 (說明) - 插件資訊錯誤\n"..
+					"\n")..
+					(cTitle.."版本 8.6.0|r\n"..
+					"- 新增 - 插件支援 - Battle Pet Completionist（追蹤器內的區域寵物追蹤），詳見說明第 14 頁\n"..
+					"- 新增 - 小型「眼睛」按鈕，用於為困難任務／世界任務尋找隊伍\n"..
+					"- 新增 (任務) - 模組標題中的額外任務計數，詳見說明第 3 頁\n"..
+					"- 新增 (任務) - 獨立的任務等級與任務標籤顯示選項\n"..
+					"- 變更 - 插件支援 - TomTom 4.3.1\n"..
+					"- 變更 - 插件支援 - RareScanner 12.0.5.2\n"..
+					"- 變更 - 插件支援 - Narcissus 1.8.5d\n"..
+					"- 變更 - 插件支援 - ElvUI 15.13\n"..
+					"- 變更 - 插件支援 - BtWQuests 2.62.0\n"..
+					"- 變更 - 插件支援 - Auctionator 321\n"..
+					"- 變更 (說明) - 贊助名單\n"..
+					"- 變更 (說明) - 更新圖片\n"..
+					"- 變更 (成就) - 改善事件成就篩選（儀式遺址）\n"..
+					"- 變更 - 選項 - 重新整理模組與支援插件設定 (2)\n"..
+					offs3.."- 部分設定已重新命名並重設為預設值。\n"..
+					"- 修正 - 污染錯誤 (5)\n"..
 					"\n")..
 
 					cTitle.."問題回報|r\n"..
@@ -392,24 +434,20 @@ local function SetupTutorials()
 					self[i].shineLeft = db.hdrOtherButtons and -54 or -14
 				end
 			elseif i == 3 then
-				local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(1)
-				local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
+				local block = KT_QuestObjectiveTracker.firstBlock
 				if block then
 					self[i].shine = block
 				end
 			elseif i == 5 then
 				self[i].shine = KTF.Buttons
-			elseif i == 10 then
+			elseif i == 11 then
+				local block = KT_QuestObjectiveTracker.firstBlock
 				local superTrackedQuestID = C_SuperTrack.GetSuperTrackedQuestID() or 0
-				for j = 1, C_QuestLog.GetNumQuestWatches() do
-					local questID = C_QuestLog.GetQuestIDForQuestWatchIndex(j)
-					local block = KT_QuestObjectiveTracker:GetExistingBlock(questID)
-					if block and block.poiButton then
-						if superTrackedQuestID == 0 or superTrackedQuestID == questID then
-							self[i].shine = block.poiButton
-							break
-						end
-					end
+				if superTrackedQuestID > 0 then
+					block = KT_QuestObjectiveTracker:GetExistingBlock(superTrackedQuestID)
+				end
+				if block and block.poiButton then
+					self[i].shine = block.poiButton
 				end
 			end
 		end,
@@ -452,6 +490,7 @@ local function SetupTutorials()
 					SetFormatedPatronName("Uncommon", "Naturegurl")..
                     SetFormatedPatronName("Uncommon", "Papus", "Ulduar")..
 					SetFormatedPatronName("Uncommon", "Paul Westervelt")..
+					SetFormatedPatronName("Uncommon", "ScaryLarryGames")..
 					SetFormatedPatronName("Uncommon", "Scott Ingram")..
 					SetFormatedPatronName("Uncommon", "Semy", "Ravencrest")..
 					SetFormatedPatronName("Uncommon", "Veratais")..

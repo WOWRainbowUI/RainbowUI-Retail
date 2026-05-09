@@ -105,6 +105,7 @@ function KT.Menu_AddSeparator()
     MSA_DropDownMenu_AddSeparator(MSA_DROPDOWNMENU_MENU_LEVEL)
     _info.notCheckable = true
     _info.isNotRadio = true
+    _info.hasArrow = false
 end
 
 function KT.Menu_AddButton(text, ...)

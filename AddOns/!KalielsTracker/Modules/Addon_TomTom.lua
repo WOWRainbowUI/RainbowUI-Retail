@@ -43,7 +43,7 @@ local function SetupOptions()
 	KT.options.args.addons.args.tomtom = {
     name = "TomTom",
     type = "group",
-    order = 7,
+    order = 8,
     args = {
         info = {
             name = "資訊",
@@ -686,7 +686,6 @@ local function SetHooks()
 	hooksecurefunc("QuestMapQuestOptions_TrackQuest", function(questID)
 		if questID == C_SuperTrack.GetSuperTrackedQuestID() then
 			SetSuperTrackedWaypoint(questID, nil, true)
-			QuestMapFrame:Refresh()
 		end
 	end)
 
@@ -863,7 +862,7 @@ function M:OnInitialize()
 	_DBG("|cffffff00Init|r - "..self:GetName(), true)
 	db = KT.db.profile
 	dbChar = KT.db.char
-    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.2.24-release") and db.addonTomTom)
+    self.isAvailable = (KT:CheckAddOn("TomTom", "v4.3.1-release") and db.addonTomTom)
 
 	if self.isAvailable then
 		KT:Alert_IncompatibleAddon("TomTom", "v4.1.2-release")

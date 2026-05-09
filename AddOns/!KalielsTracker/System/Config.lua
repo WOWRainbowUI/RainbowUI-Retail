@@ -34,9 +34,7 @@ local defaults = {
         fontSize = 16,
         fontFlag = "",
         fontShadow = 1,
-        colorDifficulty = false,
         textWordWrap = false,
-        objNumSwitch = false,
 
         hdrBgr = 2,
         hdrBgrColor = KT.TRACKER_DEFAULT_COLOR,
@@ -76,16 +74,20 @@ local defaults = {
         menuYouTubeURL = true,
         menuYouTubeURLModifier = "",
 
-        questsHeaderAppend = true,
+        questsHeaderSuffix = true,
+        questsObjectiveNumAtStart = false,
+        questsColorByDifficulty = false,
+        questsShowLevel = true,
         questsShowTags = true,
         questsShowZone = true,
         questsAutoFocusClosest = false,
         tasksShowFaction = true,
-        achievsHeaderAppend = true,
+        achievsHeaderSuffix = true,
         achievsProgressAutoTrack = true,
         scenarioEnemyForcesFormat = 1,
 
         addonAuctionator = false,
+        addonBattlePetCompletionist = false,
         addonBtWQuests = false,
         addonMasque = false,
         addonNarcissus = false,
@@ -97,6 +99,7 @@ local defaults = {
         collapsed = false,
         quests = {
             num = 0,
+            numOver = 0,
             favorites = {},
             cache = {}
         },

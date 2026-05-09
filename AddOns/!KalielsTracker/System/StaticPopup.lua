@@ -64,11 +64,27 @@ local function StaticPopup_OnShow(self)
     self.SubText:SetTextColor(1, 1, 1)
 end
 
+local function StaticPopupWide_OnShow(self)
+    StaticPopup_OnShow(self)
+    self.SubText:SetJustifyH("LEFT")
+end
+
 StaticPopupDialogs[addonName.."_Info"] = {
     text = DIALOG_TITLE,
     subText = "...",
     button2 = CLOSE,
     OnShow = StaticPopup_OnShow,
+    timeout = 0,
+    whileDead = 1
+}
+
+StaticPopupDialogs[addonName.."_InfoWide"] = {
+    text = DIALOG_TITLE,
+    subText = "...",
+    button2 = CLOSE,
+    wide = true,
+    wideText = true,
+    OnShow = StaticPopupWide_OnShow,
     timeout = 0,
     whileDead = 1
 }

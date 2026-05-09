@@ -14,7 +14,6 @@ KT.Events = M
 local _DBG = function(...) if _DBG then _DBG("KT", ...) end end
 
 local db, dbChar
-local OTF = KT_ObjectiveTrackerFrame
 local EVENT_LONG_DURATION_LIMIT = 86400
 local EVENT_LONG_DURATION = {}
 
@@ -30,10 +29,6 @@ KT_EventObjectiveTrackerMixin = CreateFromMixins(KT_ObjectiveTrackerModuleMixin,
 -- Internal ------------------------------------------------------------------------------------------------------------
 
 local function SetHooks()
-    hooksecurefunc(KT.ObjectiveTrackerManager, "OnPlayerEnteringWorld", function(self, isInitialLogin, isReloadingUI)
-        self:SetModuleContainer(KT_EventObjectiveTracker, OTF)
-    end)
-
     -- fix Blizz bug
     local EVENT_MAPID = {
         [8174] = 2215,  -- Nightfall
@@ -68,7 +63,7 @@ end
 -- External ------------------------------------------------------------------------------------------------------------
 
 function KT_EventObjectiveTrackerMixin:InitModule()
-    self.stopUpdate = false
+    self.userDisabled = false
 
     if not C_EventScheduler.HasData() then
         C_EventScheduler.RequestEvents()
@@ -84,13 +79,16 @@ function KT_EventObjectiveTrackerMixin:OnFreeBlock(block)
 end
 
 function KT_EventObjectiveTrackerMixin:StopUpdate()
-    if self.stopUpdate and dbChar.filter.events.track then
-        self.stopUpdate = false
-    end
-    if self.stopUpdate or not C_EventScheduler.CanShowEvents() then
+    -- StopUpdate state is static (see mixin)
+    if KT_ObjectiveTrackerModuleMixin.StopUpdate(self) then
         return true
     end
-    return false
+
+    if self.userDisabled and dbChar.filter.events.track then
+        self.userDisabled = false
+    end
+
+    return self.userDisabled or not C_EventScheduler.CanShowEvents()
 end
 
 function KT_EventObjectiveTrackerMixin:LayoutContents()
@@ -107,7 +105,7 @@ function KT_EventObjectiveTrackerMixin:LayoutContents()
     self.tickerSeconds = 0
 
     if not dbChar.filter.events.track then
-        self.stopUpdate = true
+        self.userDisabled = true
         return
     end
 
@@ -252,8 +250,7 @@ function M:OnInitialize()
     self.isAvailable = true
 
     if self.isAvailable then
-        tinsert(KT.MODULES, "KT_EventObjectiveTracker")
-        KT.db:RegisterDefaults(KT.db.defaults)
+        KT:Tracker_RegisterModule("KT_EventObjectiveTracker", not self.isAvailable)
     end
 end
 

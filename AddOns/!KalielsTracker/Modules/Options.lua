@@ -49,8 +49,6 @@ local cBold = "|cff00ffe3"
 local cBold2 = "|cffffd200"
 local cWarning = "|cffff7f00"
 local cWarning2 = "|cffff4200"
-local beta = "|cffff7fff[Beta]|r"
-local experimental = "|cffff7fff[實驗性功能]|r"
 local warning = cWarning.."注意:|r 將會重新載入介面!"
 
 local KTF = KT.frame
@@ -701,17 +699,6 @@ local options = {
 							end,
 							order = 4,
 						},
-						colorDifficulty = {
-							name = "使用難度顏色",
-							desc = "任務標題的顏色代表難度。",
-							type = "toggle",
-							set = function()
-								db.colorDifficulty = not db.colorDifficulty
-								OTF:Update()
-								QuestMapFrame_UpdateAll()
-							end,
-							order = 5,
-						},
 						textWordWrap = {
 							name = "文字自動換行",
 							desc = "單行或兩行過長的文字使用 ... 來省略。 ",
@@ -720,23 +707,7 @@ local options = {
 								db.textWordWrap = not db.textWordWrap
 								KT:Update(true)
 							end,
-							order = 6,
-						},
-						objNumSwitch = {
-							name = "目標數字在前面",
-							desc = "將目標數字移動至每行的最前方。 "..
-								   cBold.."只適用於德文, 西班牙文, 法文和俄文。",
-							descStyle = "inline",
-							type = "toggle",
-							width = 2.2,
-							disabled = function()
-								return not IsSpecialLocale()
-							end,
-							set = function()
-								db.objNumSwitch = not db.objNumSwitch
-								OTF:Update()
-							end,
-							order = 7,
+							order = 5,
 						},
 					},
 				},
@@ -1070,8 +1041,8 @@ local options = {
                             order = 1,
                         },
                         questLogShowDetails = {
-                            name = "在世界地圖上顯示任務內容 "..experimental,
-                            desc = "從追蹤清單打開任務地圖時顯示任務詳情。本功能使用自訂的任務詳情實作。",
+                            name = "在世界地圖上顯示任務內容 "..KT.TEXT.OPTION_EXPERIMENTAL,
+                            desc = "從追蹤清單打開任務地圖時顯示任務詳情。本功能使用自訂的任務詳情。",
                             type = "toggle",
                             width = "double",
                             set = function()
@@ -1520,16 +1491,40 @@ local options = {
 							inline = true,
 							order = 1,
 							args = {
-								questsHeaderAppend = {
+								questsHeaderSuffix = {
 									name = "顯示任務數量",
 									desc = "在任務標題列中顯示任務數量。",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
-										db.questsHeaderAppend = not db.questsHeaderAppend
-										KT:SetQuestsHeaderText(true)
+										db.questsHeaderSuffix = not db.questsHeaderSuffix
+										KT:SetQuestsHeaderText()
 									end,
 									order = 1,
+								},
+							},
+						},
+						content = {
+							name = "內容",
+							type = "group",
+							inline = true,
+							order = 2,
+							args = {
+								questsObjectiveNumAtStart = {
+									name = "目標數字優先",
+									desc = "將目標數字移至行首。\n"..
+										cBold.."僅適用於 deDE、esES、frFR、ruRU 語系。",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.7,
+									disabled = function()
+										return not IsSpecialLocale()
+									end,
+									set = function()
+										db.questsObjectiveNumAtStart = not db.questsObjectiveNumAtStart
+										OTF:Update()
+									end,
+									order = 10,
 								},
 							},
 						},
@@ -1537,31 +1532,58 @@ local options = {
 							name = "任務內容",
 							type = "group",
 							inline = true,
-							order = 2,
+							order = 3,
 							args = {
+								questsColorByDifficulty = {
+									name = "顯示難度顏色",
+									desc = "依難度為任務標題上色。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsColorByDifficulty = not db.questsColorByDifficulty
+										OTF:Update()
+									end,
+									order = 1,
+								},
+								questsSpacer1 = {
+									name = " ",
+									type = "description",
+									order = 2,
+								},
+								questsShowLevel = {
+									name = "顯示任務等級",
+									desc = "在追蹤器中顯示/隱藏任務等級。",
+									type = "toggle",
+									width = "normal+half",
+									set = function()
+										db.questsShowLevel = not db.questsShowLevel
+										OTF:Update()
+									end,
+									order = 3,
+								},
 								questsShowTags = {
 									name = "顯示任務標籤",
-									desc = "在追蹤器中顯示／隱藏任務標籤（任務等級、任務類型）。",
+									desc = "在追蹤器中顯示/隱藏任務標籤 (類型、頻率)。",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
 										db.questsShowTags = not db.questsShowTags
 										OTF:Update()
 									end,
-									order = 1,
+									order = 4,
 								},
 								questsShowZone = {
 									name = "顯示任務區域",
-									desc = "在追蹤器中顯示／隱藏任務所在區域。",
+									desc = "在追蹤器中顯示/隱藏任務所在區域。",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
 										db.questsShowZone = not db.questsShowZone
 										OTF:Update()
 									end,
-									order = 2,
+									order = 5,
 								},
-								questAutoTrack = {
+								questsAutoTrack = {
 									name = "自動追蹤任務",
 									desc = "接受任務時自動加入追蹤。使用暴雪的設定值 \"autoQuestWatch\"。\n"..warning,
 									type = "toggle",
@@ -1575,9 +1597,9 @@ local options = {
 										SetCVar("autoQuestWatch", value)
 										ReloadUI()
 									end,
-									order = 3,
+									order = 6,
 								},
-								questProgressAutoTrack = {
+								questsProgressAutoTrack = {
 									name = "自動追蹤任務進度",
 									desc = "任務進度更新時自動加入追蹤。使用暴雪的設定值 \"autoQuestProgress\"。\n"..warning,
 									type = "toggle",
@@ -1591,7 +1613,7 @@ local options = {
 										SetCVar("autoQuestProgress", value)
 										ReloadUI()
 									end,
-									order = 4,
+									order = 7,
 								},
 								questsAutoFocusClosest = {
 									name = "自動專注最近任務                            ",  -- space for a wider tooltip
@@ -1609,7 +1631,7 @@ local options = {
 									set = function()
 										db.questsAutoFocusClosest = not db.questsAutoFocusClosest
 									end,
-									order = 5,
+									order = 8,
 								},
 							},
 						},
@@ -1617,11 +1639,11 @@ local options = {
 							name = "世界任務內容",
 							type = "group",
 							inline = true,
-							order = 3,
+							order = 4,
 							args = {
 								tasksShowFaction = {
 									name = "顯示世界任務陣營",
-									desc = "在追蹤器中顯示／隱藏世界任務的所屬陣營。",
+									desc = "在追蹤器中顯示/隱藏世界任務的所屬陣營。",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
@@ -1645,14 +1667,14 @@ local options = {
 							inline = true,
 							order = 1,
 							args = {
-								achievsHeaderAppend = {
+								achievsHeaderSuffix = {
 									name = "顯示成就點數",
 									desc = "在成就標題列中顯示成就點數。",
 									type = "toggle",
 									width = "normal+half",
 									set = function()
-										db.achievsHeaderAppend = not db.achievsHeaderAppend
-										KT:SetAchievsHeaderText(true)
+										db.achievsHeaderSuffix = not db.achievsHeaderSuffix
+										KT:SetAchievsHeaderText()
 									end,
 									order = 1,
 								},
@@ -1761,6 +1783,29 @@ local options = {
 									width = "double",
 									order = 1.2,
 								},
+								addonBattlePetCompletionist = {
+									name = "Battle Pet Completionist",
+									desc = "Ver.: %s",
+									descStyle = "inline",
+									type = "toggle",
+									width = 1.05,
+									confirm = true,
+									confirmText = warning,
+									disabled = function()
+										return not C_AddOns.IsAddOnLoaded("BattlePetCompletionist")
+									end,
+									set = function()
+										db.addonBattlePetCompletionist = not db.addonBattlePetCompletionist
+										ReloadUI()
+									end,
+									order = 2.1,
+								},
+								addonBattlePetCompletionistDesc = {
+									name = KT.TEXT.OPTION_BETA.." 在追蹤器中啟用區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。",
+									type = "description",
+									width = "double",
+									order = 2.2,
+								},
 								addonBtWQuests = {
 									name = "BtWQuests",
 									desc = "版本：%s",
@@ -1776,13 +1821,13 @@ local options = {
 										db.addonBtWQuests = not db.addonBtWQuests
 										ReloadUI()
 									end,
-									order = 2.1,
+									order = 3.1,
 								},
 								addonBtWQuestsDesc = {
 									name = "在任務右鍵選單中啟用「開啟任務鏈」選項。",
 									type = "description",
 									width = "double",
-									order = 2.2,
+									order = 3.2,
 								},
 								addonMasque = {
 									name = "Masque",
@@ -1799,13 +1844,13 @@ local options = {
 										db.addonMasque = not db.addonMasque
 										ReloadUI()
 									end,
-									order = 3.1,
+									order = 4.1,
 								},
 								addonMasqueDesc = {
 									name = "啟用任務物品按鈕與啟用按鈕的外觀美化功能。",
 									type = "description",
 									width = "double",
-									order = 3.2,
+									order = 4.2,
 								},
 								addonNarcissus = {
 									name = "Narcissus",
@@ -1822,13 +1867,13 @@ local options = {
 										db.addonNarcissus = not db.addonNarcissus
 										ReloadUI()
 									end,
-									order = 4.1,
+									order = 5.1,
 								},
 								addonNarcissusDesc = {
 									name = "從追蹤器中點擊成就時，於 Narcissus 視窗中開啟。",
 									type = "description",
 									width = "double",
-									order = 4.2,
+									order = 5.2,
 								},
 								addonPetTracker = {
 									name = "PetTracker",
@@ -1848,13 +1893,13 @@ local options = {
 										end
 										ReloadUI()
 									end,
-									order = 5.1,
+									order = 6.1,
 								},
 								addonPetTrackerDesc = {
-									name = "在追蹤器中顯示區域寵物追蹤資訊，並修正部分視覺問題。",
+									name = "在追蹤器中啟用區域寵物追蹤，並提供自訂版面與更佳的視覺呈現。",
 									type = "description",
 									width = "double",
-									order = 5.2,
+									order = 6.2,
 								},
 								addonRareScanner = {
 									name = "RareScanner",
@@ -1871,13 +1916,13 @@ local options = {
 										db.addonRareScanner = not db.addonRareScanner
 										ReloadUI()
 									end,
-									order = 6.1,
+									order = 7.1,
 								},
 								addonRareScannerDesc = {
 									name = "在追蹤器中顯示偵測到的稀有 NPC。",
 									type = "description",
 									width = "double",
-									order = 6.2,
+									order = 7.2,
 								},
 								addonTomTom = {
 									name = "TomTom",
@@ -1894,13 +1939,13 @@ local options = {
 										db.addonTomTom = not db.addonTomTom
 										ReloadUI()
 									end,
-									order = 7.1,
+									order = 8.1,
 								},
 								addonTomTomDesc = {
 									name = "整合暴雪的 POI 與 TomTom 的箭頭指引，提供更佳的導航體驗。",
 									type = "description",
 									width = "double",
-									order = 7.2,
+									order = 8.2,
 								},
 							},
 						},
@@ -2214,7 +2259,7 @@ local function Setup()
 
 	-- Disable some options
 	if not IsSpecialLocale() then
-		db.objNumSwitch = false
+		db.questsObjectiveNumAtStart = false
 	end
 end
 
