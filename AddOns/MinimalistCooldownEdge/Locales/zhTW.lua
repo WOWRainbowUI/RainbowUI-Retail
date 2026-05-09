@@ -164,12 +164,16 @@ L["Some changes require a UI reload to be fully applied.\n\nReload the interface
 -- Status Indicators
 L["ON"] = "開啟"
 L["OFF"] = "關閉"
+L["Retired"] = "已停止維護"
 
 -- General Dashboard
 L["Enable categories styling"] = "啟用分類樣式"
 L["Addon Integrations"] = "整合插件"
 L["LIVE_CONTROLS_DESC"] = "變更會立即生效。只保留你實際使用的分類啟用，以保持更乾淨的設定。"
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "啟用隊伍/團隊框架是此類別的總開關。啟用團隊光環文字會將相同的樣式延伸到暴雪原生的團隊框架。"
+L["PARTY_RAID_FRAMES_RETIRED_DESC"] = "小隊/團隊框架支援已停止維護。自暴雪 12.0.5 更新後，MiniCE 不再掛勾或自訂小隊與團隊的緊湊框架。"
+L["PARTY_RAID_FRAMES_AURAS_TITLE"] = "新插件開發中：Raid Frame Auras"
+L["PARTY_RAID_FRAMES_AURAS_DESC"] = "Raid Frame Auras 現已在 CurseForge 上架。它與 MiniCE 分開維護，因為它使用自己的覆蓋框架，而非對暴雪現有圖示進行樣式調整，因此更適合作為獨立插件發布。"
 L["ADDON_INTEGRATIONS_DESC"] = "啟用或停用可選的插件整合功能，將外部冷卻時間導入 MiniCE 類別。"
 L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."] = "將 ShinyAuras 的冷卻時間路由到單位框架類別。若要保留 ShinyAuras 原生的倒數顯示，請停用此選項。"
 L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."] = "將支援的達美樂快捷列冷卻效果導向至「快捷列」類別處理。若希望達美樂保留原生冷卻樣式，請停用此選項。"
@@ -179,6 +183,7 @@ L["CooldownManagerCentered also styles %s. This may add a small performance cost
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = "複製此連結以在瀏覽器中開啟 CurseForge 專案頁面。"
+L["Copy this link to open Raid Frame Auras on CurseForge."] = "複製此連結以在 CurseForge 上開啟 Raid Frame Auras。"
 L["Copy this link to view other projects from Anahkas on CurseForge."] = "複製此連結以查看 Anahkas 在 CurseForge 上的其他專案。"
 
 -- Help

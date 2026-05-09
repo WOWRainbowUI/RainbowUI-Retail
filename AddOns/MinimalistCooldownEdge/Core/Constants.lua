@@ -36,7 +36,7 @@ C.Categories = {
     MiniCC = "minicc",
     SArena = "sarena",
     TellMeWhen = "tellmewhen",
-    CompactPartyAura = "compactPartyAura",
+    PartyRaidRetired = "partyRaidRetired",
 }
 
 C.CooldownManagerViewers = {
@@ -59,11 +59,6 @@ C.SArenaFrameTypes = {
     DR = "dr",
     Trinket = "trinket",
     Racial = "racial",
-}
-
-C.GroupFrameTypes = {
-    Party = "party",
-    Raid = "raid",
 }
 
 C.Chat = {
@@ -137,7 +132,6 @@ C.Defaults = {
         [C.Categories.MiniCC] = false,
         [C.Categories.SArena] = false,
         [C.Categories.TellMeWhen] = false,
-        [C.Categories.CompactPartyAura] = true,
     },
     Category = {
         Font = C.Style.Fonts.GameDefault,
@@ -216,30 +210,6 @@ C.Defaults = {
     TellMeWhen = {
         FontSize = 18,
     },
-    CompactPartyAuraText = {
-        Enabled = true,
-        RaidEnabled = false,
-        Font = C.Style.Fonts.GameDefault,
-        FontSize = 12,
-        DefensiveBuffFontSize = 16,
-        FontStyle = C.Style.FontStyles.Outline,
-        TextColor = C.Colors.Highlight,
-        TextAnchor = C.Style.Anchors.Center,
-        TextOffsetX = 0,
-        TextOffsetY = 0,
-        DrawSwipe = true,
-        EdgeEnabled = true,
-        EdgeScale = 1.4,
-        StackEnabled = false,
-        HideStackText = false,
-        StackFont = C.Style.Fonts.GameDefault,
-        StackSize = 8,
-        StackStyle = C.Style.FontStyles.Outline,
-        StackColor = C.Colors.White,
-        StackAnchor = C.Style.Anchors.BottomRight,
-        StackOffsetX = 0,
-        StackOffsetY = 0,
-    },
     DurationTextColors = {
         Enabled = false,
         Offset = 0,
@@ -256,6 +226,7 @@ C.Urls = {
     CurseForge = "https://www.curseforge.com/wow/addons/minice-cooldown-styler",
     Developer = "https://www.curseforge.com/members/anahkas/projects",
     MiniCC = "https://www.curseforge.com/wow/addons/minicc",
+    RaidFrameAuras = "https://www.curseforge.com/wow/addons/raid-party-frame-auras",
     ArenaDRNameplates = "https://www.curseforge.com/wow/addons/arena-dr-nameplates",
     TellMeWhen = "https://www.curseforge.com/wow/addons/tellmewhen",
     SmartPvPTabTargeting = "https://www.curseforge.com/wow/addons/pvp-tab-targeting",
@@ -301,6 +272,8 @@ C.Classifier = {
         "GuildBank",
         "VoidStorage",
         "ReagentBank",
+        "CompactPartyFrame",
+        "CompactRaidFrame",
 
         -- Dominos
         "Dominos",
@@ -317,6 +290,8 @@ C.Classifier = {
         "BattleGroundEnemies",
         "MidnightDR",
         "NaowhQOL_",
+        "RaidFrameAuras",
+        "RFA_",
         "TrGCD", "trgcd",
 
         -- EllesmereUI family
@@ -501,13 +476,6 @@ C.Adapter = {
         BlizzardRoots = { "PlayerFrame", "TargetFrame", "FocusFrame", "PetFrame" },
         ThirdPartyPatterns = { "SUF", "TPerl" },
         MaxAncestorDepth = 5,
-    },
-    GroupFrames = {
-        PartyMemberPrefix = "CompactPartyFrameMember",
-        PartyMemberCount = 5,
-        RaidFramePrefix = "CompactRaidFrame",
-        RaidFrameMaxCount = 40,
-        MaxAncestorDepth = 8,
     },
     CooldownManager = {
         MaxAncestorDepth = 6,

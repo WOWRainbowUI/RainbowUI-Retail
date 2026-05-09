@@ -110,8 +110,6 @@ local function InvalidateCooldownState(cooldown)
     fs.contextResolved = nil
     fs.liveNameplateAuraContextResolved = nil
     fs.liveNameplateAuraContext = nil
-    fs.compactPartyAuraTypeResolved = nil
-    fs.compactPartyAuraType = nil
 end
 
 local function ForwardCooldownUpdate(cooldown, durationObject)

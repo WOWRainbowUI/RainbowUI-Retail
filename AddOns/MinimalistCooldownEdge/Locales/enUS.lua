@@ -164,12 +164,16 @@ L["Some changes require a UI reload to be fully applied.\n\nReload the interface
 -- Status Indicators
 L["ON"] = "ON"
 L["OFF"] = "OFF"
+L["Retired"] = "Retired"
 
 -- General Dashboard
 L["Enable categories styling"] = true
 L["Addon Integrations"] = true
 L["LIVE_CONTROLS_DESC"] = "Changes apply instantly. Keep only the categories you actively use enabled for a cleaner setup."
 L["COMPACT_PARTY_AURA_TEXT_DESC"] = "Enable Party / Raid Frames acts as the master switch for this category. Enable Raid Aura Text extends the same styling to Blizzard raid frames."
+L["PARTY_RAID_FRAMES_RETIRED_DESC"] = "Party / Raid Frames support has been retired. Since Blizzard Patch 12.0.5, MiniCE no longer hooks or styles compact party and raid frames."
+L["PARTY_RAID_FRAMES_AURAS_TITLE"] = "New addon in development: Raid Frame Auras"
+L["PARTY_RAID_FRAMES_AURAS_DESC"] = "Raid Frame Auras is now available on CurseForge. It stays separate from MiniCE because it uses its own overlay frames instead of styling Blizzard's existing icons, which makes it a better fit as a standalone addon."
 L["ADDON_INTEGRATIONS_DESC"] = "Enable or disable optional addon bridges that route external cooldowns into MiniCE categories."
 L["Routes ShinyAuras cooldowns through the Unit Frames category. Disable this if you want ShinyAuras to keep its native countdowns untouched."] = true
 L["Routes supported Dominos action bar cooldowns through the Action Bars category. Disable this if you want Dominos to keep its native cooldown styling untouched."] = true
@@ -179,6 +183,7 @@ L["CooldownManagerCentered also styles %s. This may add a small performance cost
 
 -- Links
 L["Copy this link to open the CurseForge project page in your browser."] = true
+L["Copy this link to open Raid Frame Auras on CurseForge."] = true
 L["Copy this link to view other projects from Anahkas on CurseForge."] = true
 
 -- Help
@@ -217,7 +222,7 @@ L["Dynamic Text Colors"] = true
 L["Color by Remaining Time"] = true
 L["Dynamically colors the countdown text based on how much time is left."] = true
 L["DYNAMIC_COLORS_DESC"] = "Changes the text color based on the remaining cooldown duration. Overrides the static color above when enabled."
-L["DYNAMIC_COLORS_GENERAL_DESC"] = "Remaining-time thresholds can be allowed or blocked per MiniCE category, including Compact Party / Raid aura text. Midnight-safe duration handling is used when Blizzard exposes secret values."
+L["DYNAMIC_COLORS_GENERAL_DESC"] = "Remaining-time thresholds can be allowed or blocked per active MiniCE category. Midnight-safe duration handling is used when Blizzard exposes secret values."
 L["Allow Threshold Colors"] = true
 L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."] = true
 L["Behavior"] = true

@@ -155,63 +155,12 @@ local function CatColorSet(key, field)
     end
 end
 
-local function ProfileTableGet(tableKey, field, fallback)
-    return function()
-        local group = MCE.db.profile[tableKey]
-        local v = group and group[field]
-        if v ~= nil then
-            return v
-        end
-        return fallback
-    end
-end
-
-local function ProfileTableSet(tableKey, field)
-    return function(_, val)
-        MCE.db.profile[tableKey][field] = val
-        MCE:ForceUpdateAll(true)
-        AceConfigRegistry:NotifyChange(addonName)
-    end
-end
-
-local function ProfileTableRangeSet(tableKey, field)
-    return function(_, val)
-        MCE.db.profile[tableKey][field] = val
-        MCE:RequestDebouncedOptionRefresh(true)
-    end
-end
-
-local function ProfileTableColorGet(tableKey, field)
-    return function()
-        local c = MCE.db.profile[tableKey][field]
-        return c.r, c.g, c.b, c.a
-    end
-end
-
-local function ProfileTableColorSet(tableKey, field)
-    return function(_, r, g, b, a)
-        local c = MCE.db.profile[tableKey][field]
-        c.r, c.g, c.b, c.a = r, g, b, a
-        MCE:ForceUpdateAll(true)
-    end
-end
-
 local function GetProfile()
     return MCE.db and MCE.db.profile or nil
 end
 
 local function NotifyOptionsChanged()
     AceConfigRegistry:NotifyChange(addonName)
-end
-
-local function GetCompactPartyAuraOptionsConfig()
-    local profile = MCE.db and MCE.db.profile
-    if not profile then
-        return nil
-    end
-
-    profile.compactPartyAuraText = MCE.EnsureCompactPartyAuraTextConfig(profile.compactPartyAuraText)
-    return profile.compactPartyAuraText
 end
 
 local function GetDurationTextColorsConfig()
@@ -1153,274 +1102,38 @@ local function CreateCategoryOptions(order, name, key, desc)
     }
 end
 
-local function CreateCompactPartyAuraOptions(order, name, desc)
-    local function IsCompactPartyAuraEnabled()
-        local config = GetCompactPartyAuraOptionsConfig()
-        return config and config.enabled or false
-    end
-
-    local function SetCompactPartyAuraField(field, markReload, refreshLabels)
-        return function(_, val)
-            local config = GetCompactPartyAuraOptionsConfig()
-            if not config then return end
-
-            config[field] = val
-            if markReload then
-                MCE:MarkReloadRequired()
-            end
-
-            MCE:ForceUpdateAll(true)
-            NotifyOptionsChanged()
-
-            if refreshLabels then
-                RefreshDynamicCategoryLabels()
-            end
-        end
-    end
-
-    local compactDisabledFn = function()
-        return not IsCompactPartyAuraEnabled()
-    end
-
-    local compactStackHiddenFn = function()
-        local config = GetCompactPartyAuraOptionsConfig()
-        return not config or not config.stackEnabled or config.hideStackText
-    end
-
+local function CreatePartyRaidRetiredOptions(order, name)
     return {
         type = "group",
         name = function()
-            if not MCE.db or not MCE.db.profile then return name end
-            if IsCompactPartyAuraEnabled() then
-                return "|cff33ff99" .. L["ON"] .. "|r  " .. name
-            end
-
-            return "|cff555555" .. L["OFF"] .. "|r  |cff888888" .. name .. "|r"
+            return "|cffff8855" .. L["Retired"] .. "|r  |cffdddddd" .. name .. "|r"
         end,
         order = order,
         args = {
-            enableGroup = {
-                type = "group", name = "", inline = true, order = 1,
+            retiredNotice = {
+                type = "group", name = "|cffff8855" .. name .. " - " .. L["Retired"] .. "|r", inline = true, order = 1,
                 args = {
-                    enabled = {
-                        type = "toggle", order = 1, width = "full",
-                        name = "|cff33ff99" .. format(L["Enable %s"], name) .. "|r",
-                        desc = L["Toggle styling for this category."],
-                        get = ProfileTableGet("compactPartyAuraText", "enabled", true),
-                        set = SetCompactPartyAuraField("enabled", true, true),
+                    message = {
+                        type = "description", order = 1, fontSize = "medium", width = "full",
+                        name = "|cffdddddd" .. L["PARTY_RAID_FRAMES_RETIRED_DESC"] .. "|r",
                     },
                 },
             },
-            categoryOverview = desc and {
-                type = "group", name = "", inline = true, order = 2,
+            projectSpacing = SectionSpacer(1.1),
+            projectGroup = {
+                type = "group", name = "|cffffd100" .. L["PARTY_RAID_FRAMES_AURAS_TITLE"] .. "|r", inline = true, order = 2,
                 args = {
-                    catDesc = {
-                        type = "description", order = 0.1, fontSize = "medium", width = "full",
-                        name = BuildCategoryDescription(desc),
+                    projectDesc = {
+                        type = "description", order = 1, fontSize = "medium", width = "full",
+                        name = "|cffdddddd" .. L["PARTY_RAID_FRAMES_AURAS_DESC"] .. "|r",
                     },
-                    bottomSpacing = SectionSpacer(0.12),
-                },
-            } or nil,
-            typography = {
-                type = "group", name = "|cffffd100" .. L["Typography (Cooldown Numbers)"] .. "|r",
-                inline = true, order = 10,
-                disabled = compactDisabledFn,
-                args = {
-                    compactRaidEnabled = {
-                        type = "toggle", order = 1, width = "full",
-                        name = L["Enable Raid Aura Text"],
-                        desc = L["Also apply styled countdown text to Blizzard CompactRaidFrame buff and debuff icons. Requires Party / Raid Frames to be enabled."],
-                        get = ProfileTableGet("compactPartyAuraText", "raidEnabled", false),
-                        set = SetCompactPartyAuraField("raidEnabled", true, true),
-                    },
-                    compactPartyFont = {
-                        type = "select", order = 2, width = 1.5,
-                        name = L["Font Face"], values = GetFontOptions,
-                        get = ProfileTableGet("compactPartyAuraText", "font"),
-                        set = ProfileTableSet("compactPartyAuraText", "font"),
-                    },
-                    compactPartyFontStyle = {
-                        type = "select", order = 3, width = 0.8,
-                        name = L["Outline"], values = OUTLINE_OPTIONS,
-                        get = ProfileTableGet("compactPartyAuraText", "fontStyle"),
-                        set = ProfileTableSet("compactPartyAuraText", "fontStyle"),
-                    },
-                    compactPartyTextColor = {
-                        type = "color", order = 4, width = "half",
-                        name = L["Color"], hasAlpha = true,
-                        get = ProfileTableColorGet("compactPartyAuraText", "textColor"),
-                        set = ProfileTableColorSet("compactPartyAuraText", "textColor"),
-                    },
-                    compactPartyAllowThresholdColors = {
-                        type = "toggle", order = 4.5, width = "full",
-                        name = L["Allow Threshold Colors"],
-                        desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
-                        get = ProfileTableGet("compactPartyAuraText", "allowThresholdColors", GetAllowThresholdDefault(C.Categories.CompactPartyAura)),
-                        set = ProfileTableSet("compactPartyAuraText", "allowThresholdColors"),
-                    },
-                    compactPartyFontSize = {
-                        type = "range", order = 5, width = 1.0,
-                        name = L["Buff / Debuff Size"], min = 6, max = 36, step = 1,
-                        get = ProfileTableGet("compactPartyAuraText", "fontSize", 12),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "fontSize"),
-                    },
-                    compactPartyDefensiveBuffFontSize = {
-                        type = "range", order = 6, width = 1.2,
-                        name = L["Defensive Buff Size"], min = 6, max = 36, step = 1,
-                        get = ProfileTableGet("compactPartyAuraText", "defensiveBuffFontSize", 12),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "defensiveBuffFontSize"),
-                    },
-                    compactPartyPosSpacing = SectionSpacer(6.9),
-                    compactPartyPosHeader = { type = "header", name = L["Positioning"], order = 7 },
-                    compactPartyPosSpacingAfter = SectionSpacer(7.05),
-                    compactPartyTextAnchor = {
-                        type = "select", order = 8,
-                        name = L["Anchor Point"], values = ANCHOR_OPTIONS,
-                        get = ProfileTableGet("compactPartyAuraText", "textAnchor", C.Style.Anchors.Center),
-                        set = ProfileTableSet("compactPartyAuraText", "textAnchor"),
-                    },
-                    compactPartyTextOffsetX = {
-                        type = "range", order = 9, width = "half",
-                        name = L["Offset X"], min = -30, max = 30, step = 1,
-                        get = ProfileTableGet("compactPartyAuraText", "textOffsetX", 0),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetX"),
-                    },
-                    compactPartyTextOffsetY = {
-                        type = "range", order = 10, width = "half",
-                        name = L["Offset Y"], min = -30, max = 30, step = 1,
-                        get = ProfileTableGet("compactPartyAuraText", "textOffsetY", 0),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "textOffsetY"),
-                    },
-                    compactPartyHideStackText = {
-                        type = "toggle", order = 11, width = "1",
-                        name = L["Hide Stack Text"],
-                        desc = L["Hide stacks and charges entirely."],
-                        get = ProfileTableGet("compactPartyAuraText", "hideStackText", false),
-                        set = SetCompactPartyAuraField("hideStackText", false, false),
-                    },
-                },
-            },
-            swipeAnimation = {
-                type = "group", name = "|cffffd100" .. L["Swipe Animation"] .. "|r",
-                inline = true, order = 20,
-                disabled = compactDisabledFn,
-                args = {
-                    drawSwipe = {
-                        type = "toggle", order = 1, width = "normal",
-                        name = L["Show Swipe Animation"],
-                        desc = L["Shows the dark overlay that sweeps during a cooldown."],
-                        get = ProfileTableGet("compactPartyAuraText", "drawSwipe", true),
-                        set = ProfileTableSet("compactPartyAuraText", "drawSwipe"),
-                    },
-                    edgeEnabled = {
-                        type = "toggle", order = 2, width = "normal",
-                        name = L["Show Swipe Edge"],
-                        desc = L["Shows the white line indicating cooldown progress."],
-                        get = ProfileTableGet("compactPartyAuraText", "edgeEnabled", true),
-                        set = ProfileTableSet("compactPartyAuraText", "edgeEnabled"),
-                    },
-                    edgeScale = {
-                        type = "range", order = 3,
-                        name = L["Edge Thickness"],
-                        desc = L["Scale of the swipe line (1.0 = Default)."],
-                        min = 0.5, max = 2.0, step = 0.1,
-                        get = ProfileTableGet("compactPartyAuraText", "edgeScale", 1.4),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "edgeScale"),
-                    },
-                },
-            },
-            stackGroup = {
-                type = "group", name = "|cffffd100" .. L["Stack Counters / Charges"] .. "|r",
-                inline = true, order = 30, disabled = compactDisabledFn,
-                hidden = function()
-                    local config = GetCompactPartyAuraOptionsConfig()
-                    return config and config.hideStackText or false
-                end,
-                args = {
-                    stackEnabled = {
-                        type = "toggle", order = 2, width = "full",
-                        name = L["Customize Stack Text"],
-                        desc = L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."],
-                        get = ProfileTableGet("compactPartyAuraText", "stackEnabled", true),
-                        set = SetCompactPartyAuraField("stackEnabled", false, false),
-                    },
-                    headerStyleTopSpacing = SectionSpacer(9.95, compactStackHiddenFn),
-                    headerStyle = { type = "header", name = L["Style"], order = 10, hidden = compactStackHiddenFn },
-                    headerStyleBottomSpacing = SectionSpacer(10.05, compactStackHiddenFn),
-                    stackFont = {
-                        type = "select", order = 11, width = 1.5,
-                        name = L["Font"], values = GetFontOptions,
-                        get = ProfileTableGet("compactPartyAuraText", "stackFont"),
-                        set = ProfileTableSet("compactPartyAuraText", "stackFont"),
-                        hidden = compactStackHiddenFn,
-                    },
-                    stackSize = {
-                        type = "range", order = 12, width = 0.7,
-                        name = L["Size"], min = 6, max = 36, step = 1,
-                        get = ProfileTableGet("compactPartyAuraText", "stackSize", 8),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "stackSize"),
-                        hidden = compactStackHiddenFn,
-                    },
-                    stackStyle = {
-                        type = "select", order = 13, width = 0.8,
-                        name = L["Outline"], values = OUTLINE_OPTIONS,
-                        get = ProfileTableGet("compactPartyAuraText", "stackStyle"),
-                        set = ProfileTableSet("compactPartyAuraText", "stackStyle"),
-                        hidden = compactStackHiddenFn,
-                    },
-                    stackColor = {
-                        type = "color", order = 14, width = 0.8,
-                        name = L["Color"], hasAlpha = true,
-                        get = ProfileTableColorGet("compactPartyAuraText", "stackColor"),
-                        set = ProfileTableColorSet("compactPartyAuraText", "stackColor"),
-                        hidden = compactStackHiddenFn,
-                    },
-                    headerPosTopSpacing = SectionSpacer(19.95, compactStackHiddenFn),
-                    headerPos = { type = "header", name = L["Positioning"], order = 20, hidden = compactStackHiddenFn },
-                    headerPosBottomSpacing = SectionSpacer(20.05, compactStackHiddenFn),
-                    stackAnchor = {
-                        type = "select", order = 21,
-                        name = L["Anchor Point"], values = ANCHOR_OPTIONS,
-                        get = ProfileTableGet("compactPartyAuraText", "stackAnchor"),
-                        set = ProfileTableSet("compactPartyAuraText", "stackAnchor"),
-                        hidden = compactStackHiddenFn,
-                    },
-                    stackOffsetX = {
-                        type = "range", order = 22, width = "half",
-                        name = L["Offset X"], min = -20, max = 20, step = 1,
-                        get = ProfileTableGet("compactPartyAuraText", "stackOffsetX", 0),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "stackOffsetX"),
-                        hidden = compactStackHiddenFn,
-                    },
-                    stackOffsetY = {
-                        type = "range", order = 23, width = "half",
-                        name = L["Offset Y"], min = -20, max = 20, step = 1,
-                        get = ProfileTableGet("compactPartyAuraText", "stackOffsetY", 0),
-                        set = ProfileTableRangeSet("compactPartyAuraText", "stackOffsetY"),
-                        hidden = compactStackHiddenFn,
-                    },
-                },
-            },
-            maintenance = {
-                type = "group", name = "|cff999999" .. L["Maintenance"] .. "|r",
-                inline = true, order = 100,
-                args = {
-                    maintenanceDesc = {
-                        type = "description", order = 0, fontSize = "small",
-                        name = "|cff666666" .. L["MAINTENANCE_DESC"] .. "|r\n",
-                    },
-                    resetCategory = {
-                        type = "execute", order = 1, width = "full",
-                        name = "|cffff8888" .. format(L["Reset %s"], name) .. "|r",
-                        desc = L["Revert this category to default settings."],
-                        confirm = true,
-                        func = function()
-                            MCE.db.profile.compactPartyAuraText = CopyTable(MCE.defaults.profile.compactPartyAuraText)
-                            MCE:ForceUpdateAll(true)
-                            AceConfigRegistry:NotifyChange(addonName)
-                            RefreshDynamicCategoryLabels()
-                            MCE:Print(format(L["%s settings reset."], name))
-                        end,
+                    projectSpacing = SectionSpacer(1.1),
+                    projectUrl = {
+                        type = "input", order = 2, width = "full",
+                        name = "|cff88bbdd" .. L["Project"] .. "|r",
+                        desc = L["Copy this link to open Raid Frame Auras on CurseForge."],
+                        get = function() return C.Urls.RaidFrameAuras end,
+                        set = function() end,
                     },
                 },
             },
@@ -1486,22 +1199,9 @@ function MCE:GetOptions()
                                 get = function() return MCE.db.profile.categories[C.Categories.Unitframe].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.Unitframe),
                             },
-                            togglePartyRaidFrames = {
-                                type = "toggle", order = 4, width = 1.0,
-                                name = "|cffffd100" .. L["Party / Raid Frames"] .. "|r",
-                                get = function()
-                                    local config = GetCompactPartyAuraOptionsConfig()
-                                    return config and config.enabled or false
-                                end,
-                                set = function(_, v)
-                                    local config = GetCompactPartyAuraOptionsConfig()
-                                    if not config then return end
-                                    config.enabled = v
-                                    MCE:MarkReloadRequired()
-                                    MCE:ForceUpdateAll(true)
-                                    AceConfigRegistry:NotifyChange(addonName)
-                                    RefreshDynamicCategoryLabels()
-                                end,
+                            partyRaidFramesRetired = {
+                                type = "description", order = 4, width = 1.0, fontSize = "small",
+                                name = "|cff777777" .. L["Party / Raid Frames"] .. "\n" .. L["Retired"] .. "|r",
                             },
                             quickRowBreak2 = RowBreak(4.1),
                             toggleCooldownMgr = {
@@ -1762,8 +1462,7 @@ function MCE:GetOptions()
                 L["NAMEPLATE_DESC"]),
             [C.Categories.Unitframe] = CreateCategoryOptions(4, L["Unit Frames"], C.Categories.Unitframe,
                 L["UNITFRAME_DESC"]),
-            [C.Categories.CompactPartyAura] = CreateCompactPartyAuraOptions(5, L["Party / Raid Frames"],
-                L["COMPACT_PARTY_AURA_TEXT_DESC"]),
+            [C.Categories.PartyRaidRetired] = CreatePartyRaidRetiredOptions(5, L["Party / Raid Frames"]),
             [C.Categories.CooldownManager] = CreateCategoryOptions(6, L["CooldownManager"], C.Categories.CooldownManager,
                 L["COOLDOWNMANAGER_DESC"]),
             [C.Categories.MiniCC] = CreateCategoryOptions(7, L["MiniCC"], C.Categories.MiniCC,

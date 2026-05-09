@@ -24,12 +24,11 @@ local weakMeta = addon.weakMeta
 local frameState = addon.frameState
 
 -- Module references (lazy)
-local StyleEngine, Registry, CompactAura
+local StyleEngine, Registry
 
 function DurationColor:OnEnable()
     StyleEngine = MCE:GetModule("StyleEngine")
     Registry = MCE:GetModule("TargetRegistry")
-    CompactAura = MCE:GetModule("CompactGroupAuraController")
 end
 
 -- =========================================================================
@@ -421,12 +420,6 @@ end
 -- =========================================================================
 
 local function GetDurationTextSourceConfig(sourceKey)
-    if sourceKey == CATEGORY.CompactPartyAura then
-        if CompactAura and CompactAura.GetConfig then
-            return CompactAura:GetConfig()
-        end
-        return nil
-    end
     local categories = MCE.db and MCE.db.profile and MCE.db.profile.categories
     return categories and categories[sourceKey] or nil
 end
@@ -548,16 +541,6 @@ local function IsDurationColorEnabledForSource(cdFrame, sourceKey, config)
         return false
     end
     if ShouldSuppressDurationColorsForNameplate(cdFrame, sourceKey) then return false end
-    if sourceKey == CATEGORY.CompactPartyAura then
-        if CompactAura then
-            local frameType = CompactAura:GetCompactPartyAuraFrameType(cdFrame)
-            local compactConfig = CompactAura:GetConfig() or config
-            return frameType
-                and CompactAura:ShouldUseCompactPartyAuraText(compactConfig, frameType)
-                and IsThresholdColorAllowedForSource(sourceKey, compactConfig) or false
-        end
-        return false
-    end
     return config.enabled == true and IsThresholdColorAllowedForSource(sourceKey, config)
 end
 

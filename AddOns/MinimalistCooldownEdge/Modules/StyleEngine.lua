@@ -3,8 +3,7 @@
 -- Owns frameState / fontState helpers, text region discovery, font styling,
 -- swipe/edge application, stack count styling, charge cooldown detection,
 -- cooldown context resolution, and the main ApplyStyle entry point.
--- Duration colors and compact-group aura overrides are handled by their
--- respective controller modules.
+-- Duration colors are handled by DurationColorController.
 
 local _, addon = ...
 local C = addon.Constants
@@ -32,7 +31,7 @@ local fontState = addon.fontState
 local hookedFontStrings = setmetatable({}, addon.weakMeta)
 
 -- Lazy module references (resolved on first use in OnEnable)
-local Registry, DurationColor, CompactAura, Classifier
+local Registry, DurationColor, Classifier
 
 -- Pre-computed style keys to avoid per-call string concatenation.
 -- category x subtype combinations are a small fixed set.
@@ -56,7 +55,6 @@ end
 function StyleEngine:OnEnable()
     Registry = MCE:GetModule("TargetRegistry")
     DurationColor = MCE:GetModule("DurationColorController")
-    CompactAura = MCE:GetModule("CompactGroupAuraController")
     Classifier = MCE:GetModule("Classifier")
 end
 
@@ -804,8 +802,7 @@ local function GetStackCountRegion(cdFrame, category)
     if category == CATEGORY.Actionbar then
         countRegion = ResolveCountRegion(parent)
     elseif category == CATEGORY.Nameplate
-           or category == CATEGORY.Unitframe
-           or category == CATEGORY.CompactPartyAura then
+           or category == CATEGORY.Unitframe then
         local countFrame = parent.CountFrame or parent.countFrame
         countRegion = ResolveCountRegion(countFrame) or ResolveCountRegion(parent)
     elseif category == CATEGORY.CooldownManager then
@@ -853,8 +850,7 @@ function StyleEngine:StyleStackCount(cdFrame, config, category)
     if not config.stackEnabled then return end
 
     if category ~= CATEGORY.Nameplate
-       and category ~= CATEGORY.Unitframe
-       and category ~= CATEGORY.CompactPartyAura then
+       and category ~= CATEGORY.Unitframe then
         countRegion:SetAlpha(1)
         countRegion:Show()
     end
@@ -1063,11 +1059,6 @@ end
 
 function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
     if MCE:IsForbiddenCached(cdFrame) then return end
-
-    -- Check compact party/raid aura before generic styling
-    if CompactAura and CompactAura:SyncCooldown(cdFrame) then
-        return
-    end
 
     -- Check blacklist
     if Classifier and Classifier:IsBlacklisted(cdFrame) then return end
