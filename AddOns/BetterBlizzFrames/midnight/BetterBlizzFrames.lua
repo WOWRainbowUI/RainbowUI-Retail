@@ -3789,9 +3789,11 @@ function BBF.HookUnitFrameTextures()
                     end)
                 end
 
-                hooksecurefunc(statusBar, "PlayFinishAnim", function(self)
-                    self:SetStatusBarTexture(castbarTexture)
-                end)
+                if statusBar.PlayFinishAnim then
+                    hooksecurefunc(statusBar, "PlayFinishAnim", function(self)
+                        self:SetStatusBarTexture(castbarTexture)
+                    end)
+                end
 
                 statusBar.textureChangedNeedsColor = true
             end
@@ -5002,7 +5004,6 @@ Frame:SetScript("OnEvent", function(...)
             -- add setings updates
             BBF.AllNameChanges()
             BBF.UpdateUserDarkModeSettings()
-            BBF.ChatFilterCaller()
             HookClassComboPoints()
             BBF.FadeMicroMenu()
             BBF.HideTalkingHeads()
@@ -5229,6 +5230,7 @@ First:SetScript("OnEvent", function(_, event, addonName)
         end
         FetchAndSaveValuesOnFirstLogin()
         TurnTestModesOff()
+        BBF.ChatFilterCaller()
         BBF.FixLegacyComboPointsLocation()
         BBF.AlwaysShowLegacyComboPoints()
         BBF.GenericLegacyComboSupport()
