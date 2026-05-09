@@ -2372,6 +2372,8 @@ L["Nitrogg Thundertower"] = "Nitrogg Torretonante"
 --[[Translation missing --]]
 L["Njorndir Preparation"] = "Njorndir Preparation"
 --[[Translation missing --]]
+L["No changelog entries available."] = "No changelog entries available."
+--[[Translation missing --]]
 L["No player"] = "No player"
 L["Noble Skirmisher"] = "Schermagliatore Nobile"
 --[[Translation missing --]]
@@ -2437,6 +2439,8 @@ L["Ook-Ook"] = "Ook-Ook"
 L["Oozing Leftovers"] = "Rimasugli Melmosi"
 --[[Translation missing --]]
 L["Open an issue on GitHub"] = "Open an issue on GitHub"
+--[[Translation missing --]]
+L["Open changelog / version check"] = "Open changelog / version check"
 --[[Translation missing --]]
 L["Open Enemy Info"] = "Open Enemy Info"
 L["Open MDI override options"] = "Apri le opzioni della Modalità MDI"
@@ -3887,6 +3891,8 @@ L["Unyielding Contender"] = "Contendente Inflessibile"
 L["Unyielding Garrison"] = "Unyielding Garrison"
 L["Update"] = "Aggiorna"
 --[[Translation missing --]]
+L["update available"] = "update available"
+--[[Translation missing --]]
 L["updateNote"] = "Please update this AddOn to the latest version or remove it"
 L["Upper Broken Stair"] = "Scala Spezzata Superiore"
 L["Upper Library"] = "Biblioteca Superiore"
@@ -3964,6 +3970,8 @@ L["Venture Co. Surveyor"] = "Venture Co. Surveyor"
 L["Venture Co. War Machine"] = "Macchina da Guerra della S.P.R. & Co."
 L["Venza Goldfuse"] = "Venza Micciadoro"
 L["Vermin Trapper"] = "Mastro Braccaparassiti"
+--[[Translation missing --]]
+L["Version Check / Change Log"] = "Version Check / Change Log"
 L["Vestige of Doubt"] = "Vestigia del Dubbio"
 --[[Translation missing --]]
 L["Vestige of Hatred"] = "Vestige of Hatred"

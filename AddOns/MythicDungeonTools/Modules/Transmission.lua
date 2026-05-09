@@ -290,6 +290,7 @@ local function filterFunc(chatFrame, event, msg, player, l, cs, t, flag, channel
 end
 
 local presetCommPrefix = "MDTPreset"
+MDT.versionCheckPrefix = "MDTVersion"
 
 MDT.liveSessionPrefixes = {
   ["enabled"] = "MDTLiveEnabled",
@@ -314,6 +315,7 @@ MDT.liveSessionPrefixes = {
 ---@diagnostic disable-next-line: duplicate-set-field
 function MDTcommsObject:OnEnable()
   self:RegisterComm(presetCommPrefix)
+  self:RegisterComm(MDT.versionCheckPrefix)
   for _, prefix in pairs(MDT.liveSessionPrefixes) do
     self:RegisterComm(prefix)
   end
@@ -392,6 +394,13 @@ function MDTcommsObject:OnCommReceived(prefix, message, distribution, sender)
     realm = r
   end
   local fullName = name.."-"..realm
+
+  if prefix == MDT.versionCheckPrefix then
+    if MDT.VersionCheck_OnCommReceived then
+      MDT:VersionCheck_OnCommReceived(message, distribution, fullName)
+    end
+    return
+  end
 
   --standard preset transmission
   --we cache the preset here already

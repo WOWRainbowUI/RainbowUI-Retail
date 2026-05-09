@@ -183,8 +183,7 @@ L["Atik"] = "Atik"
 L["Atrium of Sethraliss"] = "Atrium de Sephraliss"
 L["Attumen the Huntsman"] = "Attumen le Veneur"
 L["Auriaya"] = "Auriaya"
---[[Translation missing --]]
-L["Auto Assign"] = "Auto Assign"
+L["Auto Assign"] = "Attribution automatique"
 L["Automatic Coloring"] = "Coloration automatique"
 L["Automatically color pulls"] = "Colorer automatiquement les pulls"
 L["Avanoxx"] = "Avanoxx"
@@ -456,8 +455,7 @@ L["CityOfThreads"] = "Cité des Fils"
 --[[Translation missing --]]
 L["cityOfThreadsShortName"] = "COT"
 L["Claw Fighter"] = "Combattant griffu"
---[[Translation missing --]]
-L["Clear all Markers"] = "Clear all Markers"
+L["Clear all Markers"] = "Effacer les marqueurs"
 L["Click the fullscreen button for a maximized view of MDT."] = "Cliquez sur le bouton plein écran pour une vue agrandie de MDT."
 L["Click to adjust color settings"] = "Cliquez pour ajuster les paramètres de couleur"
 L["Click to assign player"] = "Cliquez pour attribuer un joueur"
@@ -759,8 +757,7 @@ L["Does not delete your drawings"] = "Ne supprime pas vos dessins"
 L["Dokigg the Brutalizer"] = "Dokigg le Brutalisateur"
 L["Domatrax"] = "Domatrax"
 L["Domina Venomblade"] = "Domina Lamevenin"
---[[Translation missing --]]
-L["Don't show again"] = "Don't show again"
+L["Don't show again"] = "Ne plus afficher"
 --[[Translation missing --]]
 L["dotiLowerSublevel1"] = "Sublevel 1"
 --[[Translation missing --]]
@@ -1068,8 +1065,7 @@ L["Flux Engineer"] = "Ingénieur en flux"
 L["Flying Snow"] = "Flying Snow"
 --[[Translation missing --]]
 L["Focus Marker"] = "Focus Marker"
---[[Translation missing --]]
-L["Focus Marker Assignments"] = "Focus Marker Assignments"
+L["Focus Marker Assignments"] = "Attributions des marqueurs de focus"
 L["Focused Ritualist"] = "Ritualiste concentré"
 L["focusMarkerAssignmentQueuedToast"] = "Le marqueur de focus sera mis à jour vers %s après le combat depuis %s."
 L["focusMarkerAssignmentsTooltip"] = "Assigne des marqueurs de focus aux membres du groupe et les synchronise avec les utilisateurs de MDT."
@@ -1777,12 +1773,10 @@ L["Marauding Geist"] = "Geist maraudeur"
 L["Margrave Stradama"] = "Margrave Stradama"
 --[[Translation missing --]]
 L["Mark as my route"] = "Mark as my route"
---[[Translation missing --]]
-L["Mark Settings"] = "Mark Settings"
+L["Mark Settings"] = "Paramètres des marqueurs"
 L["Marked Sister"] = "Soeur marquée"
 L["Market Peacekeeper"] = "Garde-paix du marché"
---[[Translation missing --]]
-L["Marks"] = "Marks"
+L["Marks"] = "Marqueurs"
 L["Maruuk"] = "Maruuk"
 L["Master Archer"] = "Maître-archer"
 L["Master Necromancer"] = "Maître nécromancien"
@@ -1986,6 +1980,8 @@ L["Nightmare Dweller"] = "Habitant du Cauchemar"
 L["Nitrogg Thundertower"] = "Nitrogg Tour-de-Tonnerre"
 L["Njorndir Preparation"] = "Préparation du Njorndir"
 --[[Translation missing --]]
+L["No changelog entries available."] = "No changelog entries available."
+--[[Translation missing --]]
 L["No player"] = "No player"
 L["Noble Skirmisher"] = "Tirailleur noble"
 L["noDungeonData1"] = "Il semblerait que vous n'ayez aucunes données de donjons pour le moment."
@@ -2042,6 +2038,8 @@ L["Omega Buster"] = "Casseur Oméga"
 L["Ook-Ook"] = "Ook-Ook"
 L["Oozing Leftovers"] = "Restes suintants"
 L["Open an issue on GitHub"] = "Ouvrir un ticket sur GitHub"
+--[[Translation missing --]]
+L["Open changelog / version check"] = "Open changelog / version check"
 --[[Translation missing --]]
 L["Open Enemy Info"] = "Open Enemy Info"
 L["Open MDI override options"] = "Ouvrir les options de contournements MDI "
@@ -2117,8 +2115,7 @@ L["Pistonhead Blaster"] = "Mitrailleur tête-de-piston"
 L["Pistonhead Mechanic"] = "Mécano tête-de-piston"
 L["Pistonhead Scrapper"] = "Ferrailleuse tête-de-piston"
 L["PitOfSaron"] = "Fosse de Saron"
---[[Translation missing --]]
-L["PitOfSaronShortName"] = "PIT"
+L["PitOfSaronShortName"] = "PIT "
 L["Pitwarden Gwarnok"] = "Gardefosse Gwarnok"
 L["Plague Beast"] = "Bête de peste"
 L["Plague Bomb"] = "Bombe de peste"
@@ -2511,7 +2508,6 @@ L["Seat of the Triumvirate"] = "Siège du triumvirat "
 L["Seat of the Triumvirate Sublevel"] = "Sous niveau du Siège du triumvirat "
 --[[Translation missing --]]
 L["seatItemA"] = "Most enemies gain this buff when stepping into the Void area"
---[[Translation missing --]]
 L["seatOfTheTriumvirateShortName"] = "SEAT"
 L["Select all"] = "Tout sélectionner"
 L["Select the dungeon level"] = "Sélectionnez le niveau du donjon "
@@ -2526,10 +2522,8 @@ L["Sergeant Bainbridge"] = "Sergent Bainbridge"
 L["Sergeant Shaynemail"] = "Sergente Maÿ"
 L["Serpentrix"] = "Serpentrix"
 L["Servant of Asaad"] = "Serviteur d'Asaad"
---[[Translation missing --]]
-L["Set Keybind"] = "Set Keybind"
---[[Translation missing --]]
-L["Set Target Marker"] = "Set Target Marker"
+L["Set Keybind"] = "Définir un raccourci"
+L["Set Target Marker"] = "Définir un marqueur de cible"
 L["Settings"] = "Paramètres "
 L["Sewer Gate"] = "Porte d'égout "
 L["Sewer Vicejaw"] = "Vile-mâchoire des égouts"
@@ -2874,8 +2868,7 @@ L["Surgical Assistant"] = "Assistant en chirurgie"
 L["Svala Sorrowgrave"] = "Svala Tristetombe"
 L["Swampface"] = "Face de marais"
 L["Swiftshot Archer"] = "Archère tiréclair"
---[[Translation missing --]]
-L["Sync Marks"] = "Sync Marks"
+L["Sync Marks"] = "Synchro marqueurs"
 L["Taah'bat"] = "Taah'bat"
 L["Taener Duelmal"] = "Taener Duelmal"
 L["Tainted Sentry"] = "Factionnaire corrompu"
@@ -3244,6 +3237,8 @@ L["Unyielding Contender"] = "Belligérant inflexible"
 --[[Translation missing --]]
 L["Unyielding Garrison"] = "Unyielding Garrison"
 L["Update"] = "Mise à jour "
+--[[Translation missing --]]
+L["update available"] = "update available"
 L["updateNote"] = "Veuillez mettre à jour cet addon vers la dernière version ou le supprimer"
 L["Upper Broken Stair"] = "Partie supérieure de l'escalier brisé "
 L["Upper Library"] = "Bibliothèque supérieure "
@@ -3258,8 +3253,7 @@ L["Urh Relic"] = "Relique d'Urh"
 L["Use /mdt reset to restore the default position and scale of MDT."] = "Utilisez '/mdt reset' pour rétablir la position et l'échelle par défaut de MDT. "
 L["Use as a starting point:"] = "A utiliser comme point de départ : "
 L["Use forces count"] = "Utiliser le nombre d’ennemi dans la barre latérale"
---[[Translation missing --]]
-L["Use macro instead of keybind"] = "Use macro instead of keybind."
+L["Use macro instead of keybind"] = "Utiliser une macro au lieu d’un raccourci clavier."
 --[[Translation missing --]]
 L["Utgarde Keep"] = "Utgarde Keep"
 --[[Translation missing --]]
@@ -3309,6 +3303,8 @@ L["Venture Co. Surveyor"] = "Géomètre de la KapitalRisk"
 L["Venture Co. War Machine"] = "Machine de guerre de la KapitalRisk"
 L["Venza Goldfuse"] = "Venza Mèchedor"
 L["Vermin Trapper"] = "Trappeur de vermine"
+--[[Translation missing --]]
+L["Version Check / Change Log"] = "Version Check / Change Log"
 L["Vestige of Doubt"] = "Vestige de doute"
 --[[Translation missing --]]
 L["Vestige of Hatred"] = "Vestige of Hatred"

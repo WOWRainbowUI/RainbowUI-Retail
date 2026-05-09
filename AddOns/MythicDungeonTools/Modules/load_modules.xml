@@ -6,6 +6,7 @@
 	<Script file='Pointsofinterest.lua'/>
 	<Script file='Toolbar.lua'/>
 	<Script file='Transmission.lua'/>
+	<Script file='ExternalLinks.lua'/>
 	<Script file='LiveSession.lua'/>
 	<Script file='FocusMarker.lua'/>
 	<Script file='Maximize.lua'/>
@@ -14,4 +15,6 @@
 	<Script file='Conflicts.lua'/>
 	<Script file='PrePatchWarning.lua'/>
 	<Script file='ErrorHandling.lua'/>
+	<Script file='InGameChangeLog.lua'/>
+	<Script file='VersionCheck.lua'/>
 </Ui>

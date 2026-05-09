@@ -2106,6 +2106,8 @@ L["Nitrogg Thundertower"] = "니트로그 썬더타워"
 --[[Translation missing --]]
 L["Njorndir Preparation"] = "Njorndir Preparation"
 --[[Translation missing --]]
+L["No changelog entries available."] = "No changelog entries available."
+--[[Translation missing --]]
 L["No player"] = "No player"
 L["Noble Skirmisher"] = "귀족 척후병"
 L["noDungeonData1"] = "당신은 아직 던전 데이터가 없는 것 같습니다."
@@ -2159,6 +2161,8 @@ L["Omega Buster"] = "오메가 섬멸로봇"
 L["Ook-Ook"] = "Ook-Ook"
 L["Oozing Leftovers"] = "진물 찌꺼기"
 L["Open an issue on GitHub"] = "GitHub에 이슈 열기"
+--[[Translation missing --]]
+L["Open changelog / version check"] = "Open changelog / version check"
 L["Open Enemy Info"] = "몹 정보 열기"
 L["Open MDI override options"] = "MDI 옵션을 재정의 열기"
 L["openSettingsTooltip"] = "클릭하여 설정 열기"
@@ -3419,6 +3423,8 @@ L["Unyielding Contender"] = "불굴의 경쟁자"
 --[[Translation missing --]]
 L["Unyielding Garrison"] = "Unyielding Garrison"
 L["Update"] = "업데이트하기"
+--[[Translation missing --]]
+L["update available"] = "update available"
 L["updateNote"] = "이 AddOn을 최신 버전으로 업데이트하거나 제거해 주세요."
 L["Upper Broken Stair"] = "부서진 계단 상층"
 L["Upper Library"] = "도서관 상층"
@@ -3481,6 +3487,8 @@ L["Venture Co. Surveyor"] = "투자개발회사 감독관"
 L["Venture Co. War Machine"] = "투자개발회사 전쟁 기계"
 L["Venza Goldfuse"] = "벤자 골드퓨즈"
 L["Vermin Trapper"] = "야생 덫사냥꾼"
+--[[Translation missing --]]
+L["Version Check / Change Log"] = "Version Check / Change Log"
 L["Vestige of Doubt"] = "의심의 잔재"
 L["Vestige of Hatred"] = "증오의 형적"
 L["Veteran Sparkcaster"] = "노련한 불꽃술사"
