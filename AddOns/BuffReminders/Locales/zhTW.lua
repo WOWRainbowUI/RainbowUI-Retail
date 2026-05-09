@@ -423,12 +423,11 @@ L["Options.ClickToCast.DescFull"] =
     "你可以點擊增益圖示來施放對應的法術（僅限非戰鬥狀態）。只對你的角色可施放的法術有效。"
 L["Options.HoverHighlight"] = "懸停高亮"
 L["Options.HoverHighlight.Desc"] = "將鼠標懸停在可點擊的增益圖示上時，顯示微弱的高亮效果。"
-L["Options.ChatRequests"] = "聊天請求"
 L["Options.RequestBuffInChat"] = "在聊天中請求缺失的增益"
 L["Options.RequestBuffInChat.Desc"] =
     "點擊您的職業無法提供的缺失增益，並在聊天中請求它。自動偵測頻道（副本/團隊/隊伍/說）。每個增益有30秒冷卻時間。"
 
-L["Options.ChatRequestModal.ResetAll"] = "重置全部"
+L["Options.ChatRequest.ResetAll"] = "重置全部"
 L["ChatRequests.PerBuffMessages"] = "每個增益的訊息"
 -- Chat request messages (keyed by buff.key, sent as-is via SendChatMessage)
 -- EU/US translators: leave untranslated so chat messages stay in English.
@@ -813,7 +812,6 @@ L["Options.JoinDiscord.Desc"] = "有反饋、功能請求或發現BUG？\n歡迎
 -- ============================================================================
 -- OPTIONS: CUSTOM ANCHOR FRAMES
 -- ============================================================================
-L["Options.CustomAnchorFrames"] = "自定義定位點框架"
 L["Options.CustomAnchorFrames.Desc"] =
     "在定位點下拉選單中添加全局框架名稱。（例：MyAddon_PlayerFrame）\n游戲中不存在的框架會自動跳過。"
 L["Options.Add"] = "添加"
