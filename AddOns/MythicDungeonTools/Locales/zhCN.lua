@@ -5,6 +5,10 @@ local addonName, MDT = ...
 local L = MDT.L
 L = L or {}
 -- MDT
+L["No changelog entries available."] = "暂无更新日志。"
+L["Open changelog / version check"] = "打开更新日志 / 版本检查"
+L["update available"] = "有可用更新"
+L["Version Check / Change Log"] = "版本检查 / 更新日志"
 L["Action blocked: Restricted environment"] = "操作已被阻止：受限环境"
 L["seatItemA"] = "大多数怪物踏入虚空区域(地图边的黑水)时 会获得此BUFF"
 L["Spellwoven Familiar"] = "魔网编织魔宠"
