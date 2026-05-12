@@ -241,6 +241,8 @@ L["Display.FramesLocked"] = "框架已鎖定。"
 L["Display.FramesUnlocked"] = "框架已解鎖。"
 L["Display.MinimapHidden"] = "小地圖圖示已隱藏。"
 L["Display.MinimapShown"] = "小地圖圖示已顯示。"
+L["Display.DebugEnabled"] = "偵錯模式已啟用。再次運行 |cFFFFD100/br debug|r 來關閉。"
+L["Display.DebugDisabled"] = "偵錯模式已停用"
 L["Display.Description"] = "一目了然地查看所有缺失的增益。"
 L["Display.OpenOptions"] = "打開選項"
 L["Display.SlashCommands"] = "使用指令: /br, /br lock, /br unlock, /br test, /br minimap"
@@ -425,9 +427,11 @@ L["Options.HoverHighlight"] = "懸停高亮"
 L["Options.HoverHighlight.Desc"] = "將鼠標懸停在可點擊的增益圖示上時，顯示微弱的高亮效果。"
 L["Options.RequestBuffInChat"] = "在聊天中請求缺失的增益"
 L["Options.RequestBuffInChat.Desc"] =
-    "點擊您的職業無法提供的缺失增益，並在聊天中請求它。自動偵測頻道（副本/團隊/隊伍/說）。每個增益有30秒冷卻時間。"
-
-L["Options.ChatRequest.ResetAll"] = "重置全部"
+    "點擊您的職業無法提供的缺失增益，並在聊天中請求它。自動偵測頻道（副本/團隊/隊伍/說）。"
+L["Options.ChatRequest.FixAttempt"] = "|cffffd200實驗性功能|r 嘗試修復聊天請求未送出的問題"
+L["Options.ChatRequest.FixAttempt.Desc"] =
+    "僅在聊天請求無法送出時啟用此選項。啟用後亦會停用防止誤按的 5 秒點擊冷卻。"
+L["Options.ChatRequest.ResetAll"] = "全部重置"
 L["ChatRequests.PerBuffMessages"] = "每個增益的訊息"
 -- Chat request messages (keyed by buff.key, sent as-is via SendChatMessage)
 -- EU/US translators: leave untranslated so chat messages stay in English.
