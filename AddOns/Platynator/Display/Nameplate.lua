@@ -370,9 +370,9 @@ function addonTable.Display.NameplateMixin:ApplyPixelPerfectSizing()
   self.lastScale = self:GetEffectiveScale()
 end
 
-function addonTable.Display.NameplateMixin:InitializeWidgets(design, scale)
-  self.offsetScale = (scale or 1) * UIParent:GetEffectiveScale() * addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
-  self.scale = design.scale
+function addonTable.Display.NameplateMixin:InitializeWidgets(design, scaleOffset, scaleMod)
+  self.offsetScale = (scaleOffset or 1) * UIParent:GetEffectiveScale() * addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
+  self.scale = design.scale * scaleMod
 
   self.lastScale = self:GetEffectiveScale()
 
@@ -445,10 +445,10 @@ function addonTable.Display.NameplateMixin:InitializeWidgets(design, scale)
   self:SetScript("OnUpdate", nil)
 end
 
-function addonTable.Display.NameplateMixin:Install(nameplate)
+function addonTable.Display.NameplateMixin:Install(nameplate, offsetY)
   self:Show()
   self:SetFrameStrata("BACKGROUND")
-  self:SetPoint("CENTER", nameplate)
+  self:SetPoint("CENTER", nameplate, "CENTER", 0, offsetY)
   self:SetSize(10, 10)
 
   -- We force a sizing immediately to avoid 0 size widgets breaking the textures from the Blizz animations

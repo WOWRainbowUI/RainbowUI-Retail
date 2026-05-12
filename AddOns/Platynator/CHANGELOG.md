@@ -1,7 +1,6 @@
 # Platynator
 
-## [377](https://github.com/TheMouseNest/Platynator/tree/377) (2026-05-05)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/376...377) 
+## [385](https://github.com/TheMouseNest/Platynator/tree/385) (2026-05-10)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/384...385) 
 
-- Fix interrupt colouring for Warlock when pet sacrificed  
-- Automatically disable the energy bar on some bosses  
+- Finally fix the formula to calculate assigned click regions accurately  

@@ -302,40 +302,11 @@ local function SetupBehaviour(parent)
 
   local simplifiedScaleSlider
   if addonTable.Constants.IsRetail then
-    local simplifiedPlatesDropdown = addonTable.CustomiseDialog.Components.GetBasicDropdown(container, addonTable.Locales.SIMPLIFIED_NAMEPLATES)
-    simplifiedPlatesDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
-    do
-      local values = {
-        "instancesNormal",
-        "minion",
-        "minor",
-      }
-      local labels = {
-        addonTable.Locales.NORMAL_INSTANCES_ONLY,
-        addonTable.Locales.MINION,
-        addonTable.Locales.MINOR,
-      }
-
-      simplifiedPlatesDropdown.DropDown:SetDefaultText(NONE)
-      simplifiedPlatesDropdown.DropDown:SetupMenu(function(_, rootDescription)
-        for index, l in ipairs(labels) do
-          rootDescription:CreateCheckbox(l, function()
-            return addonTable.Config.Get(addonTable.Config.Options.SIMPLIFIED_NAMEPLATES)[values[index]]
-          end, function()
-            local current = addonTable.Config.Get(addonTable.Config.Options.SIMPLIFIED_NAMEPLATES)[values[index]]
-            addonTable.Config.Get(addonTable.Config.Options.SIMPLIFIED_NAMEPLATES)[values[index]] = not current
-            addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Simplified] = true})
-          end)
-        end
-      end)
-    end
-    table.insert(allFrames, simplifiedPlatesDropdown)
-
     if C_CVar.GetCVarInfo("nameplateSimplifiedScale") then
       simplifiedScaleSlider = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.SIMPLIFIED_SCALE, 1, 100, function(value) return ("%d%%"):format(value) end, function(value)
         addonTable.Config.Set(addonTable.Config.Options.SIMPLIFIED_SCALE, value / 100)
       end)
-      simplifiedScaleSlider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
+      simplifiedScaleSlider:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
       table.insert(allFrames, simplifiedScaleSlider)
     end
   end
@@ -535,170 +506,29 @@ local function SetupPositioning(parent)
   stackRegionSliderY:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, 0)
   table.insert(allFrames, stackRegionSliderY)
 
+  local verticalOffset
+  if addonTable.Constants.IsRetail then
+    verticalOffset = addonTable.CustomiseDialog.Components.GetSlider(container, addonTable.Locales.VERTICAL_OFFSET, 0, 500, function(value) return ("%d%%"):format(value) end, function(value)
+      addonTable.Config.Set(addonTable.Config.Options.VERTICAL_OFFSET, value / 100)
+    end)
+    verticalOffset:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
+    table.insert(allFrames, verticalOffset)
+  end
+
   container:SetScript("OnShow", function()
     clickRegionSliderX:SetValue(addonTable.Config.Get(addonTable.Config.Options.CLICK_REGION_SCALE_X) * 100)
     clickRegionSliderY:SetValue(addonTable.Config.Get(addonTable.Config.Options.CLICK_REGION_SCALE_Y) * 100)
     stackRegionSliderX:SetValue(addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_X) * 100)
     stackRegionSliderY:SetValue(addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_Y) * 100)
+    if verticalOffset then
+      verticalOffset:SetValue(addonTable.Config.Get(addonTable.Config.Options.VERTICAL_OFFSET) * 100)
+    end
 
     for _, f in ipairs(allFrames) do
       if f.SetValue and f.option then
         f:SetValue(addonTable.Config.Get(f.option))
       end
     end
-  end)
-
-  return container
-end
-
-local function SetupStyleSelect(parent)
-  local container = CreateFrame("Frame", nil, parent)
-
-  local allFrames = {}
-
-  local defaultContainer = CreateFrame("Frame", nil, container)
-  local combatContainer = CreateFrame("Frame", nil, container)
-  local pvpContainer = CreateFrame("Frame", nil, container)
-
-  local function GenerateDropdown(parent, label, key)
-    local dropdown = addonTable.CustomiseDialog.Components.GetBasicDropdown(parent, label, function(value)
-      return addonTable.Config.Get(addonTable.Config.Options.DESIGNS_ASSIGNED)[key] == value
-    end, function(value)
-      addonTable.Config.Get(addonTable.Config.Options.DESIGNS_ASSIGNED)[key] = value
-      addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Design] = true})
-    end)
-
-    return dropdown
-  end
-  local function GenerateEnableCheckbox(parent, label, key)
-    local checkbox = addonTable.CustomiseDialog.Components.GetCheckbox(parent, label, 28, function(value)
-      addonTable.Config.Get(addonTable.Config.Options.DESIGNS_ENABLED)[key] = value
-    end)
-    function checkbox:CustomSetValue()
-      checkbox:SetValue(addonTable.Config.Get(addonTable.Config.Options.DESIGNS_ENABLED)[key])
-    end
-    return checkbox
-  end
-
-  local friendlyStyleDropdown = GenerateDropdown(defaultContainer, addonTable.Locales.FRIENDLY, "friend")
-  friendlyStyleDropdown:SetPoint("TOP")
-  table.insert(allFrames, friendlyStyleDropdown)
-
-  local enemyStyleDropdown = GenerateDropdown(defaultContainer, addonTable.Locales.ENEMY, "enemy")
-  enemyStyleDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
-  table.insert(allFrames, enemyStyleDropdown)
-
-  local simplifiedStyleDropdown
-  if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
-    simplifiedStyleDropdown = GenerateDropdown(defaultContainer, addonTable.Locales.SIMPLIFIED, "enemySimplified")
-    simplifiedStyleDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
-    table.insert(allFrames, simplifiedStyleDropdown)
-  end
-
-  local combatCheckbox = GenerateEnableCheckbox(combatContainer, addonTable.Locales.ENABLE_OVERRIDE, "combat")
-  combatCheckbox:SetPoint("TOP")
-  table.insert(allFrames, combatCheckbox)
-
-  local friendlyCombatStyleDropdown = GenerateDropdown(combatContainer, addonTable.Locales.FRIENDLY, "friendCombat")
-  friendlyCombatStyleDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
-  table.insert(allFrames, friendlyCombatStyleDropdown)
-
-  local enemyCombatStyleDropdown = GenerateDropdown(combatContainer, addonTable.Locales.ENEMY, "enemyCombat")
-  enemyCombatStyleDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
-  table.insert(allFrames, enemyCombatStyleDropdown)
-
-  local simplifiedCombatStyleDropdown
-  if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
-    simplifiedCombatStyleDropdown = GenerateDropdown(combatContainer, addonTable.Locales.SIMPLIFIED, "enemySimplifiedCombat")
-    simplifiedCombatStyleDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
-    table.insert(allFrames, simplifiedCombatStyleDropdown)
-  end
-
-  local pvpCheckbox = GenerateEnableCheckbox(pvpContainer, addonTable.Locales.ENABLE_OVERRIDE_INSTANCES, "pvpInstance")
-  pvpCheckbox:SetPoint("TOP")
-  table.insert(allFrames, pvpCheckbox)
-  table.insert(allFrames, pvpCheckbox)
-
-  local pvpWorldCheckbox = GenerateEnableCheckbox(pvpContainer, addonTable.Locales.ENABLE_OVERRIDE_WORLD, "pvpWorld")
-  pvpWorldCheckbox:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
-  table.insert(allFrames, pvpWorldCheckbox)
-
-  local friendlyPvPPlayerStyleDropdown = GenerateDropdown(pvpContainer, addonTable.Locales.FRIENDLY_PLAYER, "friendPvPPlayer")
-  friendlyPvPPlayerStyleDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM", 0, -30)
-  table.insert(allFrames, friendlyPvPPlayerStyleDropdown)
-
-  local enemyPvPPlayerStyleDropdown = GenerateDropdown(pvpContainer, addonTable.Locales.ENEMY_PLAYER, "enemyPvPPlayer")
-  enemyPvPPlayerStyleDropdown:SetPoint("TOP", allFrames[#allFrames], "BOTTOM")
-  table.insert(allFrames, enemyPvPPlayerStyleDropdown)
-
-  local tabContainers = {
-    {name = addonTable.Locales.DEFAULT, container = defaultContainer},
-    {name = addonTable.Locales.COMBAT, container = combatContainer},
-    {name = addonTable.Locales.PVP, container = pvpContainer},
-  }
-
-  local Tabs = {}
-  local lastTab
-  for _, setup in ipairs(tabContainers) do
-    local tabContainer = setup.container
-    tabContainer:SetPoint("TOPLEFT", addonTable.Constants.ButtonFrameOffset, -45)
-    tabContainer:SetPoint("BOTTOMRIGHT")
-
-    local tabButton = addonTable.CustomiseDialog.Components.GetTab(container, setup.name)
-    if lastTab then
-      tabButton:SetPoint("LEFT", lastTab, "RIGHT", 5, 0)
-    else
-      tabButton:SetPoint("TOPLEFT", 0 + addonTable.Constants.ButtonFrameOffset + 5, 0)
-    end
-    lastTab = tabButton
-    tabContainer.button = tabButton
-    tabButton:SetScript("OnClick", function()
-      for _, c in ipairs(tabContainers) do
-        PanelTemplates_DeselectTab(c.container.button)
-        c.container:Hide()
-      end
-      PanelTemplates_SelectTab(tabButton)
-      tabContainer:Show()
-    end)
-    tabContainer:Hide()
-
-    table.insert(Tabs, tabButton)
-  end
-  container.Tabs = Tabs
-  PanelTemplates_SetNumTabs(container, #container.Tabs)
-  tabContainers[1].container.button:Click()
-
-  local function Update()
-    local styles = {}
-    for key, value in pairs(addonTable.Config.Get(addonTable.Config.Options.DESIGNS)) do
-      table.insert(styles, {label = key ~= addonTable.Constants.CustomName and key or addonTable.Locales.CUSTOM, value = key})
-    end
-    table.sort(styles, function(a, b) return a.label < b.label end)
-    local stylesBuiltIn = {}
-    for key, label in pairs(addonTable.Design.NameMap) do
-      if key ~= addonTable.Constants.CustomName then
-        table.insert(stylesBuiltIn, {label = label .. " " .. addonTable.Locales.DEFAULT_BRACKETS, value = key})
-      end
-    end
-    table.sort(stylesBuiltIn, function(a, b) return a.label < b.label end)
-    tAppendAll(styles, stylesBuiltIn)
-    local labels, values = {}, {}
-    for _, entry in ipairs(styles) do
-      table.insert(labels, entry.label)
-      table.insert(values, entry.value)
-    end
-
-    for _, frame in ipairs(allFrames) do
-      if frame.DropDown then
-        frame:Init(labels, values)
-      elseif frame.CustomSetValue then
-        frame:CustomSetValue()
-      end
-    end
-    tabContainers[1].container.button:Click()
-  end
-  container:SetScript("OnShow", function()
-    Update()
   end)
 
   return container
@@ -843,20 +673,18 @@ function addonTable.CustomiseDialog.GetStyleDropdown(parent)
           addonTable.Dialogs.ShowConfirm(addonTable.Locales.CONFIRM_DELETE_STYLE_X:format(entry.label), YES, NO, function()
             addonTable.Config.Get(addonTable.Config.Options.DESIGNS)[entry.value] = nil
             ---@type table
-            local assigned = addonTable.Config.Get(addonTable.Config.Options.DESIGNS_ASSIGNED)
-            local keys = GetKeysArray(assigned)
-            for _, k in ipairs(keys) do
-              local value = assigned[k]
-              if value == entry.value then
-                if k:match("^enemySimplified") then
-                  assigned[k] = "_hare_simplified"
+            local assignments = addonTable.Config.Get(addonTable.Config.Options.DESIGN_ASSIGNMENTS)
+            for _, a in ipairs(assignments) do
+              if a.style == entry.value then
+                if a.simplified then
+                  a.style = "_hare_simplified"
                 else
-                  assigned[k] = addonTable.Constants.CustomName
+                  a.style = addonTable.Constants.CustomName
                 end
               end
             end
             if addonTable.Config.Get(addonTable.Config.Options.STYLE) == entry.value then
-              addonTable.Config.Set(addonTable.Config.Options.STYLE, addonTable.Constants.CustomName) 
+              addonTable.Config.Set(addonTable.Config.Options.STYLE, addonTable.Constants.CustomName)
             end
             addonTable.CallbackRegistry:TriggerEvent("RefreshStateChange", {[addonTable.Constants.RefreshReason.Design] = true})
           end)
@@ -945,7 +773,7 @@ end
 local TabSetups = {
   {callback = SetupGeneral, name = addonTable.Locales.GENERAL},
   {callback = addonTable.CustomiseDialog.GetMainDesigner, name = addonTable.Locales.DESIGNER},
-  {callback = SetupStyleSelect, name = addonTable.Locales.STYLE_SELECT},
+  {callback = addonTable.CustomiseDialog.GetStyleSelection, name = addonTable.Locales.STYLE_SELECT},
   {callback = SetupBehaviour, name = addonTable.Locales.BEHAVIOUR},
   {callback = SetupPositioning, name = addonTable.Locales.POSITIONING},
   {callback = SetupFont, name = addonTable.Locales.FONT},
