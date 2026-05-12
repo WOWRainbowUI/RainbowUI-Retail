@@ -973,7 +973,7 @@ local function Build()
         { key = "pet",    label = "Pet"    },
         { key = "boss",   label = "Boss"   },
     }
-    local SKIP_COPY = { offsetX=true, offsetY=true }
+    local SKIP_COPY = { offsetX=true, offsetY=true, anchorFrameName=true, anchorToUnitframe=true }
     local copyRow = F.CopyDropdown(pf, pf._scrollChild, nil, {
         anchorTo = dC,
         sources = UNIT_SOURCES,

@@ -2052,7 +2052,10 @@ function ns.MSUF_Options_Player_ApplyFromDB(panel, currentKey, conf, g, GetOffse
         if v ~= "player" and v ~= "target" and v ~= "focus" and v ~= "pet" and v ~= "targettarget" then v = "GLOBAL" end
         if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel.unitAnchorToDD, v) end
         if UIDropDownMenu_SetText then
-            local txt = ({ player = "Player frame", target = "Target frame", focus = "Focus frame", pet = "Pet frame", targettarget = "Target of Target frame" })[v] or "Free (global anchor)"
+            local custom = (type(conf.anchorFrameName) == "string" and conf.anchorFrameName) or ""
+            if #custom > 24 then custom = custom:sub(1, 21) .. "..." end
+            local txt = custom ~= "" and ("Custom: " .. custom)
+                or (({ player = "Player frame", target = "Target frame", focus = "Focus frame", pet = "Pet frame", targettarget = "Target of Target frame" })[v] or "Global anchor")
             UIDropDownMenu_SetText(panel.unitAnchorToDD, txt)
         end
         if panel.unitCustomAnchorValueText then
@@ -2413,7 +2416,7 @@ function ns.MSUF_Options_Player_InstallHandlers(panel, api)
                     if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel.playerPortraitDropDown, cur) end
                     if UIDropDownMenu_SetText then UIDropDownMenu_SetText(panel.playerPortraitDropDown, PortraitText(cur)) end
                     ApplyCurrent()
-                    local sync = _G.MSUF_3DPortraits_SyncUnit
+                    local sync = _G.MSUF_Portraits_SyncUnit
                     if type(sync) == "function" then pcall(sync, CurrentKey()) end
                 end
                 info.checked = function() return GetPortraitVal(EnsureKeyDB()) == opt.value end
@@ -2536,7 +2539,7 @@ function ns.MSUF_Options_Player_InstallHandlers(panel, api)
         local on = self:GetChecked() and true or false
         MSUF_DB.general.bossTargetHighlightEnabled = on; MSUF_DB.general.bossTargetOutlineMode = on and 1 or 0
         if _G.MSUF_UFCore_RefreshSettingsCache then _G.MSUF_UFCore_RefreshSettingsCache("BOSS_TARGET_HL") end
-        if _G.MSUF_UpdateBossTargetHighlight then _G.MSUF_UpdateBossTargetHighlight() end
+        if _G.MSUF_UpdateBossTargetHighlight then _G.MSUF_UpdateBossTargetHighlight(true) end
     end) end
 
     -- Unitframe status icons: selector-driven binding.
@@ -2913,11 +2916,11 @@ function ns.MSUF_Options_Player_InstallHandlers(panel, api)
 
     -- Per-unit anchor dropdown
     local ANCHOR_CHOICES = {
-        {"Free (global anchor)","GLOBAL"},{"Player frame","player"},{"Target frame","target"},
+        {"Global anchor","GLOBAL"},{"Player frame","player"},{"Target frame","target"},
         {"Target of Target frame","targettarget"},{"Focus frame","focus"},{"Pet frame","pet"},
     }
     local function AnchorTextFor(v)
-        return ({ player = "Player frame", target = "Target frame", focus = "Focus frame", pet = "Pet frame", targettarget = "Target of Target frame" })[v] or "Free (global anchor)"
+        return ({ player = "Player frame", target = "Target frame", focus = "Focus frame", pet = "Pet frame", targettarget = "Target of Target frame" })[v] or "Global anchor"
     end
     local function AnchorVal(c) local v = c and c.anchorToUnitframe; if v == "player" or v == "target" or v == "focus" or v == "pet" or v == "targettarget" then return v end; return "GLOBAL" end
     local function AnchorKey() local k = CanonKey(CurrentKey()); return (k == "player" or k == "target" or k == "targettarget" or k == "focus" or k == "pet" or k == "boss") and k or nil end
@@ -2926,7 +2929,11 @@ function ns.MSUF_Options_Player_InstallHandlers(panel, api)
         if not panel.unitAnchorToDD or not IsFramesTab() or not AnchorKey() then return end
         local c = EnsureKeyDB(); local v = AnchorVal(c)
         if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel.unitAnchorToDD, v) end
-        if UIDropDownMenu_SetText then UIDropDownMenu_SetText(panel.unitAnchorToDD, AnchorTextFor(v)) end
+        if UIDropDownMenu_SetText then
+            local an = (type(c.anchorFrameName) == "string" and c.anchorFrameName) or ""
+            if #an > 24 then an = an:sub(1, 21) .. "..." end
+            UIDropDownMenu_SetText(panel.unitAnchorToDD, an ~= "" and ("Custom: " .. an) or AnchorTextFor(v))
+        end
         if panel.unitCustomAnchorValueText then
             local an = (type(c.anchorFrameName) == "string" and c.anchorFrameName) or ""
             panel.unitCustomAnchorValueText:SetText(TR("Current custom anchor: ") .. (an ~= "" and an or "none"))
@@ -2943,7 +2950,9 @@ function ns.MSUF_Options_Player_InstallHandlers(panel, api)
                     info.text, info.value = pair[1], pair[2]
                     info.func = function()
                         if not IsFramesTab() then return end
-                        EnsureKeyDB().anchorToUnitframe = pair[2]
+                        local c = EnsureKeyDB()
+                        c.anchorToUnitframe = pair[2]
+                        c.anchorFrameName = nil
                         if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(panel.unitAnchorToDD, pair[2]) end
                         if UIDropDownMenu_SetText then UIDropDownMenu_SetText(panel.unitAnchorToDD, pair[1]) end
                         if CloseDropDownMenus then CloseDropDownMenus() end; ApplyCurrent()

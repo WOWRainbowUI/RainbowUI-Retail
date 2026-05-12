@@ -1386,63 +1386,6 @@ local function FullRefresh()
         end)
     end
 
-    -- Hook CDM frames (Essential/Utility/Tracked Buffs) for width-sync + anchor mode.
-    -- COMBAT LOCKDOWN: zero overhead in combat. OnSizeChanged fires but callback
-    -- exits at first line (InCombatLockdown check). A single catch-up relayout
-    -- runs on PLAYER_REGEN_ENABLED to sync any width changes that occurred mid-fight.
-    -- Out of combat: lightweight CP_Layout only (not FullRefresh).
-    for i = 1, 3 do
-        local def = CPConst.CDM_HOOK_DEFS[i]
-        if not CP[def.flag] then
-            local cdm = _G[def.name]
-            if cdm and cdm.HookScript then
-                CP[def.flag] = true
-                local myMode = def.mode
-                local function _cdmRefresh()
-                    -- COMBAT LOCKDOWN: zero work in combat
-                    if InCombatLockdown() then
-                        CP._cdmDirty = true
-                        return
-                    end
-                    local bars = _cpDB.bars
-                    if not bars then return end
-                    if (bars.classPowerWidthMode == myMode)
-                    or (bars.classPowerAnchorToCooldown == true) then
-                        if CP.visible and CP._pf and CP.currentMax and CP.currentMax > 0 then
-                            CP_Layout(CP._pf, CP.currentMax, CP._layoutH or (bars.classPowerHeight or 4))
-                        end
-                    end
-                    if bars.detachedPowerBarWidthMode == myMode then
-                        if _G.MSUF_ApplyPowerBarEmbedLayout_All then
-                            _G.MSUF_ApplyPowerBarEmbedLayout_All()
-                        end
-                    end
-                end
-                cdm:HookScript("OnSizeChanged", _cdmRefresh)
-                cdm:HookScript("OnShow", _cdmRefresh)
-                cdm:HookScript("OnHide", _cdmRefresh)
-            end
-        end
-    end
-
-    -- Combat end catch-up: single relayout for any CDM width changes during combat.
-    if not CP._regenHooked then
-        CP._regenHooked = true
-        local regenFrame = CreateFrame("Frame")
-        regenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-        regenFrame:SetScript("OnEvent", function()
-            if not CP._cdmDirty then return end
-            CP._cdmDirty = false
-            if CP.visible and CP._pf and CP.currentMax and CP.currentMax > 0 then
-                local bars = _cpDB.bars
-                CP_Layout(CP._pf, CP.currentMax, CP._layoutH or (bars and bars.classPowerHeight or 4))
-            end
-            if _G.MSUF_ApplyPowerBarEmbedLayout_All then
-                _G.MSUF_ApplyPowerBarEmbedLayout_All()
-            end
-        end)
-    end
-
     -- Edit mode: keep class power visible as live preview so bars-menu
     -- adjustments (width, height, offsets) are visible immediately.
     -- Alt-mana bar has no user-facing settings → stay hidden in edit mode.
@@ -1762,6 +1705,87 @@ local function CP_SetEventBound(frame, event, want, unit)
     end
 end
 
+CP._cdmWidthSig = CP._cdmWidthSig or {}
+CP._cdmWidthEventsActive = false
+
+function CP.CDMWidthIsPositionLocked()
+    if type(_G.MSUF_IsUnitFramePositionLocked) == "function" and _G.MSUF_IsUnitFramePositionLocked() then
+        return true
+    end
+    return (InCombatLockdown and InCombatLockdown()) and true or false
+end
+
+function CP.CDMWidthGetDetachedPowerBarName()
+    local b = _cpDB.bars or {}
+    local cdmName = CPConst.CDM_FRAMES and CPConst.CDM_FRAMES[b.detachedPowerBarWidthMode or ""]
+    if not cdmName then return nil end
+    local db = MSUF_DB
+    if not db then return nil end
+    local readEnabled = _G.MSUF_ReadUnitPowerBarEnabled
+    local player = db.player
+    if not player or player.powerBarDetached ~= true or player.detachedPowerBarSyncClassPower == false then return nil end
+    if readEnabled and readEnabled("player", db) == false then return nil end
+    return cdmName
+end
+
+function CP.CDMWidthGetNames()
+    local b = _cpDB.bars or {}
+    local cpName = (CP.visible and CPConst.CDM_FRAMES and CPConst.CDM_FRAMES[b.classPowerWidthMode or ""]) or nil
+    local pbName = CP.CDMWidthGetDetachedPowerBarName()
+    return cpName, pbName
+end
+
+function CP.CDMWidthWantsSync()
+    local cpName, pbName = CP.CDMWidthGetNames()
+    return (cpName ~= nil or pbName ~= nil), (cpName == "BuffIconCooldownViewer" or pbName == "BuffIconCooldownViewer")
+end
+
+function CP.CDMWidthReadSig(frameName)
+    local cdm = (type(_G.MSUF_GetEffectiveCooldownFrame) == "function" and _G.MSUF_GetEffectiveCooldownFrame(frameName)) or _G[frameName]
+    if not cdm or not cdm.GetWidth or (cdm.IsShown and not cdm:IsShown()) then return 0 end
+    local w = cdm:GetWidth()
+    if not w or w < 1 then return 0 end
+    local s = (cdm.GetEffectiveScale and cdm:GetEffectiveScale()) or 1
+    if s <= 0 then s = 1 end
+    return math_floor((w * s) + 0.5)
+end
+
+function CP.CDMWidthMarkChanged(tag, frameName, force)
+    if not frameName then return false end
+    local sig = CP.CDMWidthReadSig(frameName)
+    local key = tag .. ":" .. frameName
+    local cache = CP._cdmWidthSig
+    if force or cache[key] ~= sig then
+        cache[key] = sig
+        return true
+    end
+    return false
+end
+
+function CP.CDMWidthSyncLayouts(force)
+    if CP.CDMWidthIsPositionLocked() then return end
+    local cpName, pbName = CP.CDMWidthGetNames()
+    if not cpName and not pbName then return end
+
+    local cpChanged = CP.CDMWidthMarkChanged("cp", cpName, force)
+    local pbChanged = CP.CDMWidthMarkChanged("pb", pbName, force)
+
+    if cpChanged and CP.visible and CP._pf and CP.currentMax and CP.currentMax > 0 and CP_Layout then
+        local b = _cpDB.bars or {}
+        CP_Layout(CP._pf, CP.currentMax, CP._layoutH or (b.classPowerHeight or 4))
+    end
+    if pbChanged and type(_G.MSUF_ApplyPowerBarEmbedLayout_All) == "function" then
+        _G.MSUF_ApplyPowerBarEmbedLayout_All()
+    end
+end
+
+function CP.CDMWidthSetEvents(active)
+    CP._cdmWidthEventsActive = active == true
+    CP_SetEventBound(eventFrame, "SPELL_UPDATE_COOLDOWN", active)
+    CP_SetEventBound(eventFrame, "ACTIONBAR_UPDATE_COOLDOWN", active)
+    CP_SetEventBound(eventFrame, "BAG_UPDATE_COOLDOWN", active)
+end
+
 local function CP_ShouldUseValuePowerEvents()
     if AM.visible then return true end
     local profile = CP.modeProfile
@@ -1784,6 +1808,9 @@ end
 
 CP_RefreshEventBindings = function()
     local useLite = CP_ShouldUseLiteBindings()
+    CP._liteBindingsActive = useLite
+    local wantCDMWidthSync, wantCDMTrackedBuffs = CP.CDMWidthWantsSync()
+    local cdmWidthEventsActive = wantCDMWidthSync and not CP.CDMWidthIsPositionLocked()
 
     if not useLite then
         CP_SetEventBound(eventFrame, "UNIT_POWER_UPDATE", true, "player")
@@ -1803,6 +1830,7 @@ CP_RefreshEventBindings = function()
         CP_SetEventBound(eventFrame, "PLAYER_REGEN_DISABLED", true)
         CP_SetEventBound(eventFrame, "PLAYER_DEAD", true)
         CP_SetEventBound(eventFrame, "PLAYER_ALIVE", true)
+        CP.CDMWidthSetEvents(cdmWidthEventsActive)
         return
     end
 
@@ -1824,7 +1852,7 @@ CP_RefreshEventBindings = function()
     CP_SetEventBound(eventFrame, "UNIT_MAXPOWER", wantMaxPower, "player")
     CP_SetEventBound(eventFrame, "UNIT_DISPLAYPOWER", wantDisplayPower, "player")
     CP_SetEventBound(eventFrame, "UNIT_POWER_POINT_CHARGE", wantPointCharge, "player")
-    CP_SetEventBound(eventFrame, "UNIT_AURA", wantAura, "player")
+    CP_SetEventBound(eventFrame, "UNIT_AURA", wantAura or (wantCDMTrackedBuffs and cdmWidthEventsActive), "player")
     CP_SetEventBound(eventFrame, "RUNE_POWER_UPDATE", wantRune)
     CP_SetEventBound(eventFrame, "UNIT_HEALTH", wantHealth, "player")
     CP_SetEventBound(eventFrame, "UNIT_SPELLCAST_START", wantWarlockPred, "player")
@@ -1832,10 +1860,11 @@ CP_RefreshEventBindings = function()
     CP_SetEventBound(eventFrame, "UNIT_SPELLCAST_FAILED", wantWarlockPred, "player")
     CP_SetEventBound(eventFrame, "UNIT_SPELLCAST_INTERRUPTED", wantWarlockPred, "player")
     CP_SetEventBound(eventFrame, "UNIT_SPELLCAST_SUCCEEDED", wantSpellSucceeded, "player")
-    CP_SetEventBound(eventFrame, "PLAYER_REGEN_ENABLED", wantRegen)
-    CP_SetEventBound(eventFrame, "PLAYER_REGEN_DISABLED", wantRegen)
+    CP_SetEventBound(eventFrame, "PLAYER_REGEN_ENABLED", wantRegen or wantCDMWidthSync)
+    CP_SetEventBound(eventFrame, "PLAYER_REGEN_DISABLED", wantRegen or wantCDMWidthSync)
     CP_SetEventBound(eventFrame, "PLAYER_DEAD", wantDeadAlive)
     CP_SetEventBound(eventFrame, "PLAYER_ALIVE", wantDeadAlive)
+    CP.CDMWidthSetEvents(cdmWidthEventsActive)
 end
 
 eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
@@ -1857,8 +1886,22 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
     if event == "UNIT_AURA" then
         if arg1 == "player" then
-            OnAuraUpdate(arg1)
+            local profile = CP.modeProfile or CP_GetModeEventProfile(CP.renderMode, CP.powerType, CP.isAuraPower)
+            if CP._liteBindingsActive == false or (CP.visible and profile and profile.aura == true) then
+                OnAuraUpdate(arg1)
+            end
+            if CP._cdmWidthEventsActive then
+                CP.CDMWidthSyncLayouts(false)
+            end
         end
+        return
+    end
+
+    if event == "SPELL_UPDATE_COOLDOWN"
+    or event == "ACTIONBAR_UPDATE_COOLDOWN"
+    or event == "BAG_UPDATE_COOLDOWN"
+    then
+        CP.CDMWidthSyncLayouts(false)
         return
     end
 
@@ -1956,6 +1999,10 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
 
     -- Combat state change: re-evaluate auto-hide (OOC toggle)
     if event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
+        CP_RefreshEventBindings()
+        if event == "PLAYER_REGEN_ENABLED" then
+            CP.CDMWidthSyncLayouts(true)
+        end
         if _autoHideActive and CP.visible and CP.container then
             -- Re-run the current mode's update to trigger CP_CheckAutoHide
             CP_RunActiveUpdate(CP.powerType, CP.currentMax)
@@ -2001,23 +2048,6 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                 if C_Timer and C_Timer.After then
                     C_Timer.After(0.35, _CP_DeferredPBRelayout)
                 end
-                -- CDM frames (from another addon) may load after MSUF.
-                -- Retry hook installation at increasing intervals until all 3 CDM hooks are placed.
-                if C_Timer and C_Timer.After then
-                    local cdmRetries = 0
-                    local function TryCDMHooks()
-                        cdmRetries = cdmRetries + 1
-                        local allHooked = CP._ecvHooked and CP._ucvHooked and CP._bicvHooked
-                        if allHooked then return end
-                        -- FullRefresh installs hooks for any newly-available CDM frame.
-                        FullRefresh()
-                        if cdmRetries < 8 then
-                            -- Backoff: 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0 (total ~18s)
-                            C_Timer.After(0.5 * cdmRetries, TryCDMHooks)
-                        end
-                    end
-                    C_Timer.After(0.5, TryCDMHooks)
-                end
             elseif retries < 20 then
                 -- Not ready yet — retry quickly (total max ≈ 1s)
                 C_Timer.After(0.05, TryRefresh)
@@ -2056,6 +2086,14 @@ function _G.MSUF_ClassPower_Refresh()
     _cachedColorToken = nil  -- Invalidate color cache
     _cachedBgColorToken = nil
     FullRefresh()
+end
+
+function _G.MSUF_ClassPower_RefreshCDMWidthBindings(syncNow)
+    _CP_RefreshConfig()
+    CP_RefreshEventBindings()
+    if syncNow == true then
+        CP.CDMWidthSyncLayouts(true)
+    end
 end
 
 -- Refresh bar textures (call after texture change in settings)

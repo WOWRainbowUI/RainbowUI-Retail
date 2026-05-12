@@ -1268,7 +1268,6 @@ Elements.Portrait = {
     dirty = DIRTY_PORTRAIT,
     events = {
         "UNIT_PORTRAIT_UPDATE",
-        "UNIT_MODEL_CHANGED",
     },
     Enable = function(f, conf) end,
     Disable = function(f) end,
@@ -1283,14 +1282,14 @@ Elements.Portrait = {
         local unit = f.unit
         if not unit then return true end
 
-        -- Performance: ignore UNIT_PORTRAIT_UPDATE / UNIT_MODEL_CHANGED spam for frames that should behave
+        -- Performance: ignore UNIT_PORTRAIT_UPDATE spam for frames that should behave
         -- as "static" or only update once per unit swap.
         -- Player + Boss: static portraits (only touch when explicitly dirty or settings/layout changed).
         -- Target/Focus: update portrait texture only once per swap (handled via GUID change in the main UF update path).
         if (unit == "player" or unit == "target" or unit == "focus" or unit == "pet" or unit == "targettarget" or f.isBoss) and (not f._msufPortraitDirty) then
             local mode = conf.portraitMode or "OFF"
             local render = conf.portraitRender
-            if render ~= "3D" and render ~= "CLASS" then
+            if render ~= "CLASS" then
                 render = "2D"
             end
             local h = tonumber(conf.height) or (f.GetHeight and f:GetHeight()) or 0
@@ -2689,12 +2688,6 @@ local _UF_DISPATCH = {
         self._msufPortraitNextAt = 0
         Core.MarkDirty(self, DIRTY_PORTRAIT, false, "UNIT_PORTRAIT_UPDATE")
     end,
-    UNIT_MODEL_CHANGED = function(self)
-        self._msufPortraitDirty = true
-        self._msufPortraitNextAt = 0
-        Core.MarkDirty(self, DIRTY_PORTRAIT, false, "UNIT_MODEL_CHANGED")
-    end,
-
     -- Threat
     UNIT_THREAT_SITUATION_UPDATE = function(self)
         Core.MarkDirty(self, DIRTY_THREAT, nil, "UNIT_THREAT_SITUATION_UPDATE")
@@ -3189,6 +3182,10 @@ Global:SetScript("OnEvent", function(_, event, arg1)
     end
 
     if event == "PLAYER_REGEN_ENABLED" then
+        if _G.MSUF_UnitFramePositionDirty and type(_G.MSUF_RunPostCombatReanchorPass) == "function" then
+            _G.MSUF_UnitFramePositionDirty = false
+            _G.MSUF_RunPostCombatReanchorPass()
+        end
         local set = Core._layoutDeferredSet
         if set then
             for f in pairs(set) do
@@ -3204,6 +3201,9 @@ Global:SetScript("OnEvent", function(_, event, arg1)
     end
 
     if event == "PLAYER_REGEN_DISABLED" then
+        if type(_G.MSUF_CacheExternalAnchorFrameScreenPositions) == "function" then
+            _G.MSUF_CacheExternalAnchorFrameScreenPositions()
+        end
         MarkPlayerStatusIf("showCombatStateIndicator", true, event)
         return
     end
@@ -3414,7 +3414,7 @@ local _BTH_issecret = _UFCORE_issecret
 local _BTH_UnitIsUnit = UnitIsUnit
 local _BTH_UnitExists = UnitExists
 
-local function UFCore_UpdateBossTargetHighlight()
+local function UFCore_UpdateBossTargetHighlight(forceRefresh)
     local uf = _G.MSUF_UnitFrames
     if not uf then return end
     local fn = _G.MSUF_RefreshRareBarVisuals
@@ -3435,7 +3435,7 @@ local function UFCore_UpdateBossTargetHighlight()
 
             -- Diff-gate: nil == false for this comparison (avoid spurious RefreshRare on empty boss frames)
             local prev = frame._msufBossTargetHLOn or false
-            if prev ~= isTarget then
+            if forceRefresh or prev ~= isTarget then
                 frame._msufBossTargetHLOn = isTarget
                 if type(fn) == "function" then fn(frame) end
             end
