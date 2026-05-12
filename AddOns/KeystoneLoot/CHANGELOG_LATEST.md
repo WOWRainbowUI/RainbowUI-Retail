@@ -1,2 +1,2 @@
 ## Improvements
-- Preserve All Specs filter on login
+- Combination mode for stat highlighting
