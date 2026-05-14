@@ -30,6 +30,7 @@ LSM:Register(MediaType_BORDER, "fer13", [[Interface\AddOns\SharedMedia_BNS\Borde
 LSM:Register(MediaType_FONT, " 昭源黑體改123",					[[Interface\Addons\SharedMedia_BNS\font\ChironHeiHKText-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 月星楷123",					    [[Interface\Addons\SharedMedia_BNS\font\MoonStarsKai-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, " 朱雀仿宋123",					[[Interface\Addons\SharedMedia_BNS\font\ZhuqueFangsong-Semibold.ttf]], zhCN + zhTW + western)
+LSM:Register(MediaType_FONT, " 漢儀碑刻黑123",					[[Interface\Addons\SharedMedia_BNS\font\漢儀碑刻黑+文楷.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "Alata",							[[Interface\Addons\SharedMedia_BNS\font\Alata.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "MaJi Bold",						[[Interface\Addons\SharedMedia_BNS\font\MaJi-Bold.ttf]], zhCN + zhTW + western)
 LSM:Register(MediaType_FONT, "US Damage text",					[[Interface\Addons\SharedMedia_BNS\font\US_damage_Font_Bold.TTF]], zhCN + zhTW + western)
@@ -74,12 +75,19 @@ LSM:Register("sound", "#|cff00c0ff語音：危險危險|r", [[Interface\Addons\S
 LSM:Register("sound", "#|cff00c0ff語音：注意減傷|r", [[Interface\Addons\SharedMedia_BNS\sound\defensive.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：跑開人群|r", [[Interface\Addons\SharedMedia_BNS\sound\runout.ogg]])
 LSM:Register("sound", "#|cff00c0ff語音：躲開正面|r", [[Interface\Addons\SharedMedia_BNS\sound\躲開正面.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：進入戰鬥|r", [[Interface\Addons\SharedMedia_BNS\sound\EQInCombat.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：離開戰鬥|r", [[Interface\Addons\SharedMedia_BNS\sound\EQLCombat.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：焦點打斷|r", [[Interface\Addons\SharedMedia_BNS\sound\Focus Interrupt.ogg]])
+LSM:Register("sound", "#|cff00c0ff語音：嗜血好了|r", [[Interface\Addons\SharedMedia_BNS\sound\sxhl.ogg]])
 LSM:Register("sound", "$|cff00c0ff爐石：好膽麥走|r", [[Interface\Addons\SharedMedia_BNS\sound\好膽麥走.ogg]]) 
 LSM:Register("sound", "$|cff00c0ff爐石：開火|r", [[Interface\Addons\SharedMedia_BNS\sound\開火.ogg]]) 
 
 -- -----
 --   STATUSBAR
 -- -----
+LSM:Register(MediaType_STATUSBAR, "BlizzardCast",		        [[Interface\Addons\SharedMedia_BNS\statusbar\BlizzardCast]])
+LSM:Register(MediaType_STATUSBAR, "BlizzardCastBackground",		[[Interface\Addons\SharedMedia_BNS\statusbar\BlizzardCastBackground]])
+LSM:Register(MediaType_STATUSBAR, "BlizzardCastLite",		    [[Interface\Addons\SharedMedia_BNS\statusbar\BlizzardCastLite]])
 LSM:Register(MediaType_STATUSBAR, "Cloud",				[[Interface\Addons\SharedMedia_BNS\statusbar\Cloud]])
 LSM:Register(MediaType_STATUSBAR, "Comet",				[[Interface\Addons\SharedMedia_BNS\statusbar\Comet]])
 LSM:Register(MediaType_STATUSBAR, "Dabs",				[[Interface\Addons\SharedMedia_BNS\statusbar\Dabs]])
@@ -92,6 +100,7 @@ LSM:Register(MediaType_STATUSBAR, "Glamour5",			[[Interface\Addons\SharedMedia_B
 LSM:Register(MediaType_STATUSBAR, "Glamour6",			[[Interface\Addons\SharedMedia_BNS\statusbar\Glamour6]])
 LSM:Register(MediaType_STATUSBAR, "Glamour7",			[[Interface\Addons\SharedMedia_BNS\statusbar\Glamour7]])
 LSM:Register(MediaType_STATUSBAR, "Okidoki",			[[Interface\Addons\SharedMedia_BNS\statusbar\Okidoki]])
+LSM:Register(MediaType_STATUSBAR, "hdskada",		    [[Interface\Addons\SharedMedia_BNS\statusbar\hdskada]])
 LSM:Register(MediaType_STATUSBAR, "Perl v2",			[[Interface\Addons\SharedMedia_BNS\statusbar\Perl2]])
 LSM:Register(MediaType_STATUSBAR, "Rainbow",			[[Interface\Addons\SharedMedia_BNS\statusbar\Rainbow]])
 LSM:Register(MediaType_STATUSBAR, "Rocks",				[[Interface\Addons\SharedMedia_BNS\statusbar\Rocks]])
