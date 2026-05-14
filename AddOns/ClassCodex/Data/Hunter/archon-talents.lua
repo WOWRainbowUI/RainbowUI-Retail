@@ -1,0 +1,1242 @@
+ClassCodexArchonData = ClassCodexArchonData or {}
+ClassCodexArchonData["HUNTER"] = {
+  ["beast-mastery"] = {
+    label = "Beast Mastery Hunter",
+    contexts = {
+      ["mythic-plus:high-keys:algethar-academy"] = {
+        zoneType = "mythic-plus",
+        encounter = "algethar-academy",
+        encounterLabel = "阿爾蓋薩學院",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:all-dungeons"] = {
+        zoneType = "mythic-plus",
+        encounter = "all-dungeons",
+        encounterLabel = "全部地下城",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:magisters"] = {
+        zoneType = "mythic-plus",
+        encounter = "magisters",
+        encounterLabel = "博學者殿堂",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:maisara-caverns"] = {
+        zoneType = "mythic-plus",
+        encounter = "maisara-caverns",
+        encounterLabel = "梅薩拉洞穴",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:nexus-point-xenas"] = {
+        zoneType = "mythic-plus",
+        encounter = "nexus-point-xenas",
+        encounterLabel = "奧核點瑟納斯",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:pit-of-saron"] = {
+        zoneType = "mythic-plus",
+        encounter = "pit-of-saron",
+        encounterLabel = "薩倫之淵",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:seat"] = {
+        zoneType = "mythic-plus",
+        encounter = "seat",
+        encounterLabel = "三傑議會之座",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:skyreach"] = {
+        zoneType = "mythic-plus",
+        encounter = "skyreach",
+        encounterLabel = "擎天峰",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:windrunner-spire"] = {
+        zoneType = "mythic-plus",
+        encounter = "windrunner-spire",
+        encounterLabel = "風行者塔",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+          },
+        },
+      },
+      ["raid:heroic:all-bosses"] = {
+        zoneType = "raid",
+        encounter = "all-bosses",
+        encounterLabel = "全部首領",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:heroic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:heroic:chimaerus"] = {
+        zoneType = "raid",
+        encounter = "chimaerus",
+        encounterLabel = "奇美魯斯",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:heroic:crown"] = {
+        zoneType = "raid",
+        encounter = "crown",
+        encounterLabel = "宇宙之冠",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:heroic:imperator"] = {
+        zoneType = "raid",
+        encounter = "imperator",
+        encounterLabel = "統治者阿瓦齊恩",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:heroic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:heroic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王薩哈達爾",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:heroic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZMjZYZMNDAAAAAAAAgxYAzsBYYWAbDA",
+          },
+        },
+      },
+      ["raid:heroic:vanguard"] = {
+        zoneType = "raid",
+        encounter = "vanguard",
+        encounterLabel = "Lightblinded Vanguard",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZMjZYZMNDAAAAAAAAgxYAzsBYYWAbDA",
+          },
+        },
+      },
+      ["raid:heroic:vorasius"] = {
+        zoneType = "raid",
+        encounter = "vorasius",
+        encounterLabel = "瓦拉西斯",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:mythic:all-bosses"] = {
+        zoneType = "raid",
+        encounter = "all-bosses",
+        encounterLabel = "全部首領",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZMjZYZMNDAAAAAAAAgxYAzsBYYWAbDA",
+          },
+        },
+      },
+      ["raid:mythic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:mythic:chimaerus"] = {
+        zoneType = "raid",
+        encounter = "chimaerus",
+        encounterLabel = "奇美魯斯",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzgZGzYGM0MAAAAAAAAgZGzAMzGALzsA2GA",
+          },
+        },
+      },
+      ["raid:mythic:crown"] = {
+        zoneType = "raid",
+        encounter = "crown",
+        encounterLabel = "宇宙之冠",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzgx0MAAAAAmBAAg5BmZAMzGgZxsA2GA",
+          },
+        },
+      },
+      ["raid:mythic:imperator"] = {
+        zoneType = "raid",
+        encounter = "imperator",
+        encounterLabel = "統治者阿瓦齊恩",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZMjZYZMNDAAAAAAAAgxYAzsBYYWAbDA",
+          },
+        },
+      },
+      ["raid:mythic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:mythic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王薩哈達爾",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+      ["raid:mythic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZYMDGTzAAAAAAAAAGjZGwMbAYmFw2AA",
+          },
+        },
+      },
+      ["raid:mythic:vanguard"] = {
+        zoneType = "raid",
+        encounter = "vanguard",
+        encounterLabel = "Lightblinded Vanguard",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZYMDGTzAAAAAAAAAmZMAmZDAzsA2GA",
+          },
+        },
+      },
+      ["raid:mythic:vorasius"] = {
+        zoneType = "raid",
+        encounter = "vorasius",
+        encounterLabel = "瓦拉西斯",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
+          },
+        },
+      },
+    },
+    contextOrder = {
+      "mythic-plus:high-keys:all-dungeons",
+      "mythic-plus:high-keys:algethar-academy",
+      "mythic-plus:high-keys:magisters",
+      "mythic-plus:high-keys:maisara-caverns",
+      "mythic-plus:high-keys:nexus-point-xenas",
+      "mythic-plus:high-keys:pit-of-saron",
+      "mythic-plus:high-keys:seat",
+      "mythic-plus:high-keys:skyreach",
+      "mythic-plus:high-keys:windrunner-spire",
+      "raid:heroic:all-bosses",
+      "raid:mythic:all-bosses",
+      "raid:heroic:imperator",
+      "raid:mythic:imperator",
+      "raid:heroic:vorasius",
+      "raid:mythic:vorasius",
+      "raid:heroic:salhadaar",
+      "raid:mythic:salhadaar",
+      "raid:heroic:vaelgor-ezzorak",
+      "raid:mythic:vaelgor-ezzorak",
+      "raid:heroic:vanguard",
+      "raid:mythic:vanguard",
+      "raid:heroic:crown",
+      "raid:mythic:crown",
+      "raid:heroic:chimaerus",
+      "raid:mythic:chimaerus",
+      "raid:heroic:beloren",
+      "raid:mythic:beloren",
+      "raid:heroic:midnight-falls",
+      "raid:mythic:midnight-falls",
+    },
+  },
+  ["marksmanship"] = {
+    label = "Marksmanship Hunter",
+    contexts = {
+      ["mythic-plus:high-keys:algethar-academy"] = {
+        zoneType = "mythic-plus",
+        encounter = "algethar-academy",
+        encounterLabel = "阿爾蓋薩學院",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:all-dungeons"] = {
+        zoneType = "mythic-plus",
+        encounter = "all-dungeons",
+        encounterLabel = "全部地下城",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:magisters"] = {
+        zoneType = "mythic-plus",
+        encounter = "magisters",
+        encounterLabel = "博學者殿堂",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:maisara-caverns"] = {
+        zoneType = "mythic-plus",
+        encounter = "maisara-caverns",
+        encounterLabel = "梅薩拉洞穴",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:nexus-point-xenas"] = {
+        zoneType = "mythic-plus",
+        encounter = "nexus-point-xenas",
+        encounterLabel = "奧核點瑟納斯",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:pit-of-saron"] = {
+        zoneType = "mythic-plus",
+        encounter = "pit-of-saron",
+        encounterLabel = "薩倫之淵",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:seat"] = {
+        zoneType = "mythic-plus",
+        encounter = "seat",
+        encounterLabel = "三傑議會之座",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:skyreach"] = {
+        zoneType = "mythic-plus",
+        encounter = "skyreach",
+        encounterLabel = "擎天峰",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:windrunner-spire"] = {
+        zoneType = "mythic-plus",
+        encounter = "windrunner-spire",
+        encounterLabel = "風行者塔",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+          },
+        },
+      },
+      ["raid:heroic:all-bosses"] = {
+        zoneType = "raid",
+        encounter = "all-bosses",
+        encounterLabel = "全部首領",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+      ["raid:heroic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMzMzsgZZYmBAAMzMzYGgZGbbsYAWYGA",
+          },
+        },
+      },
+      ["raid:heroic:chimaerus"] = {
+        zoneType = "raid",
+        encounter = "chimaerus",
+        encounterLabel = "奇美魯斯",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+      ["raid:heroic:crown"] = {
+        zoneType = "raid",
+        encounter = "crown",
+        encounterLabel = "宇宙之冠",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+      ["raid:heroic:imperator"] = {
+        zoneType = "raid",
+        encounter = "imperator",
+        encounterLabel = "統治者阿瓦齊恩",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+      ["raid:heroic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+      ["raid:heroic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王薩哈達爾",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+      ["raid:heroic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMmZmFMLDzMAAgZmZGAMzYbzwAsxMzM",
+          },
+        },
+      },
+      ["raid:heroic:vanguard"] = {
+        zoneType = "raid",
+        encounter = "vanguard",
+        encounterLabel = "Lightblinded Vanguard",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMmZmFMLDzMAAgZmZGAMzYbzwAsxMzM",
+          },
+        },
+      },
+      ["raid:heroic:vorasius"] = {
+        zoneType = "raid",
+        encounter = "vorasius",
+        encounterLabel = "瓦拉西斯",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+      ["raid:mythic:all-bosses"] = {
+        zoneType = "raid",
+        encounter = "all-bosses",
+        encounterLabel = "全部首領",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMmZmFMLDzMAAgZmZGAMzYbzwAsxMzM",
+          },
+        },
+      },
+      ["raid:mythic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMzMzsgZZYmBAAMzMzYGgZGbbsYAWYGA",
+          },
+        },
+      },
+      ["raid:mythic:chimaerus"] = {
+        zoneType = "raid",
+        encounter = "chimaerus",
+        encounterLabel = "奇美魯斯",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYxsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWYmlhZGAAwYmZmZmZADbwAsxMA",
+          },
+        },
+      },
+      ["raid:mythic:crown"] = {
+        zoneType = "raid",
+        encounter = "crown",
+        encounterLabel = "宇宙之冠",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZWmZmZmZWwsMMzAAAmZmZMAmZstxiBYjZA",
+          },
+        },
+      },
+      ["raid:mythic:imperator"] = {
+        zoneType = "raid",
+        encounter = "imperator",
+        encounterLabel = "統治者阿瓦齊恩",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYxsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWYmlhZGAAwYmZmZmZADbwAsxMA",
+          },
+        },
+      },
+      ["raid:mythic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDzsttZmZMzMzMzswMLDzMAAgxMzMDgZGbbwAsxMA",
+          },
+        },
+      },
+      ["raid:mythic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王薩哈達爾",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYxsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWYmlhZGAAwYmZmZmZADbwAsxMA",
+          },
+        },
+      },
+      ["raid:mythic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMmZmFMLDzMAAgZmZGAMzYbzwAsxMzM",
+          },
+        },
+      },
+      ["raid:mythic:vanguard"] = {
+        zoneType = "raid",
+        encounter = "vanguard",
+        encounterLabel = "Lightblinded Vanguard",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMmZmFMLDzMAAgZmZGAMzYbzwAsxMzM",
+          },
+        },
+      },
+      ["raid:mythic:vorasius"] = {
+        zoneType = "raid",
+        encounter = "vorasius",
+        encounterLabel = "瓦拉西斯",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Dark Ranger",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+          },
+        },
+      },
+    },
+    contextOrder = {
+      "mythic-plus:high-keys:all-dungeons",
+      "mythic-plus:high-keys:algethar-academy",
+      "mythic-plus:high-keys:magisters",
+      "mythic-plus:high-keys:maisara-caverns",
+      "mythic-plus:high-keys:nexus-point-xenas",
+      "mythic-plus:high-keys:pit-of-saron",
+      "mythic-plus:high-keys:seat",
+      "mythic-plus:high-keys:skyreach",
+      "mythic-plus:high-keys:windrunner-spire",
+      "raid:heroic:all-bosses",
+      "raid:mythic:all-bosses",
+      "raid:heroic:imperator",
+      "raid:mythic:imperator",
+      "raid:heroic:vorasius",
+      "raid:mythic:vorasius",
+      "raid:heroic:salhadaar",
+      "raid:mythic:salhadaar",
+      "raid:heroic:vaelgor-ezzorak",
+      "raid:mythic:vaelgor-ezzorak",
+      "raid:heroic:vanguard",
+      "raid:mythic:vanguard",
+      "raid:heroic:crown",
+      "raid:mythic:crown",
+      "raid:heroic:chimaerus",
+      "raid:mythic:chimaerus",
+      "raid:heroic:beloren",
+      "raid:mythic:beloren",
+      "raid:heroic:midnight-falls",
+      "raid:mythic:midnight-falls",
+    },
+  },
+  ["survival"] = {
+    label = "Survival Hunter",
+    contexts = {
+      ["mythic-plus:high-keys:algethar-academy"] = {
+        zoneType = "mythic-plus",
+        encounter = "algethar-academy",
+        encounterLabel = "阿爾蓋薩學院",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:all-dungeons"] = {
+        zoneType = "mythic-plus",
+        encounter = "all-dungeons",
+        encounterLabel = "全部地下城",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:magisters"] = {
+        zoneType = "mythic-plus",
+        encounter = "magisters",
+        encounterLabel = "博學者殿堂",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:maisara-caverns"] = {
+        zoneType = "mythic-plus",
+        encounter = "maisara-caverns",
+        encounterLabel = "梅薩拉洞穴",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:nexus-point-xenas"] = {
+        zoneType = "mythic-plus",
+        encounter = "nexus-point-xenas",
+        encounterLabel = "奧核點瑟納斯",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:pit-of-saron"] = {
+        zoneType = "mythic-plus",
+        encounter = "pit-of-saron",
+        encounterLabel = "薩倫之淵",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:seat"] = {
+        zoneType = "mythic-plus",
+        encounter = "seat",
+        encounterLabel = "三傑議會之座",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:skyreach"] = {
+        zoneType = "mythic-plus",
+        encounter = "skyreach",
+        encounterLabel = "擎天峰",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
+          },
+        },
+      },
+      ["mythic-plus:high-keys:windrunner-spire"] = {
+        zoneType = "mythic-plus",
+        encounter = "windrunner-spire",
+        encounterLabel = "風行者塔",
+        difficulty = "high-keys",
+        difficultyLabel = "High Keys",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
+          },
+        },
+      },
+      ["raid:heroic:all-bosses"] = {
+        zoneType = "raid",
+        encounter = "all-bosses",
+        encounterLabel = "全部首領",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmxyMGzYGMmmBAAAgBAGLLzMziZmZMGzMgZ2AgxYmZzAA",
+          },
+        },
+      },
+      ["raid:heroic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawixMzMzYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzMzDMzAYmNADjxM2MA",
+          },
+        },
+      },
+      ["raid:heroic:chimaerus"] = {
+        zoneType = "raid",
+        encounter = "chimaerus",
+        encounterLabel = "奇美魯斯",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
+          },
+        },
+      },
+      ["raid:heroic:crown"] = {
+        zoneType = "raid",
+        encounter = "crown",
+        encounterLabel = "宇宙之冠",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGaGAAAAGAYssMzMLmZmxYMzAmZDAGjZmNDA",
+          },
+        },
+      },
+      ["raid:heroic:imperator"] = {
+        zoneType = "raid",
+        encounter = "imperator",
+        encounterLabel = "統治者阿瓦齊恩",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
+          },
+        },
+      },
+      ["raid:heroic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGaGAAAAGAYssMzMLmZmxYMzAmZDAGjZmNDA",
+          },
+        },
+      },
+      ["raid:heroic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王薩哈達爾",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgNYGGawixMzMzYZAAAAAAwMmZmhZ8AmxMYMNDAAAAAgxyyMzsYmZmZMzYAzsBYWmxYGbGA",
+          },
+        },
+      },
+      ["raid:heroic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
+          },
+        },
+      },
+      ["raid:heroic:vanguard"] = {
+        zoneType = "raid",
+        encounter = "vanguard",
+        encounterLabel = "Lightblinded Vanguard",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmxyMGzYGMmmBAAAgBAGLLzMziZmZMGzMgZ2AgxYmZzAA",
+          },
+        },
+      },
+      ["raid:heroic:vorasius"] = {
+        zoneType = "raid",
+        encounter = "vorasius",
+        encounterLabel = "瓦拉西斯",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgNYGGawixMzMzYZAAAAAAwMmZmhZ8AmxMYMNDAAAAAgxyyMzsYmZmZMzYAzsBYWmxYGbGA",
+          },
+        },
+      },
+      ["raid:mythic:all-bosses"] = {
+        zoneType = "raid",
+        encounter = "all-bosses",
+        encounterLabel = "全部首領",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
+          },
+        },
+      },
+      ["raid:mythic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawiZmZmZYZAAAAAAwMmxMMjxMmhlx0MAAAAAAGLLzMziZmZMmZMgZ2AMLGjZmFDA",
+          },
+        },
+      },
+      ["raid:mythic:chimaerus"] = {
+        zoneType = "raid",
+        encounter = "chimaerus",
+        encounterLabel = "奇美魯斯",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
+          },
+        },
+      },
+      ["raid:mythic:crown"] = {
+        zoneType = "raid",
+        encounter = "crown",
+        encounterLabel = "宇宙之冠",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmxMMjxMmBjpZAAAAYAgxyyMzsYmZGjZGDYmNAzixYmZzAA",
+          },
+        },
+      },
+      ["raid:mythic:imperator"] = {
+        zoneType = "raid",
+        encounter = "imperator",
+        encounterLabel = "統治者阿瓦齊恩",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
+          },
+        },
+      },
+      ["raid:mythic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawixMzMzYZAAAAAAwMmxMMjxMmhlx0MAAAAAAGLLzMziZmZYmZMgZ2AMMGzMbGA",
+          },
+        },
+      },
+      ["raid:mythic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王薩哈達爾",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
+          },
+        },
+      },
+      ["raid:mythic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzM8AjxAmZDAGjZmNDA",
+          },
+        },
+      },
+      ["raid:mythic:vanguard"] = {
+        zoneType = "raid",
+        encounter = "vanguard",
+        encounterLabel = "Lightblinded Vanguard",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzM8AjxAmZDAGjZmNDA",
+          },
+        },
+      },
+      ["raid:mythic:vorasius"] = {
+        zoneType = "raid",
+        encounter = "vorasius",
+        encounterLabel = "瓦拉西斯",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Pack Leader",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawixMzMzYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzMzDMzAYmNADjxM2MA",
+          },
+        },
+      },
+    },
+    contextOrder = {
+      "mythic-plus:high-keys:all-dungeons",
+      "mythic-plus:high-keys:algethar-academy",
+      "mythic-plus:high-keys:magisters",
+      "mythic-plus:high-keys:maisara-caverns",
+      "mythic-plus:high-keys:nexus-point-xenas",
+      "mythic-plus:high-keys:pit-of-saron",
+      "mythic-plus:high-keys:seat",
+      "mythic-plus:high-keys:skyreach",
+      "mythic-plus:high-keys:windrunner-spire",
+      "raid:heroic:all-bosses",
+      "raid:mythic:all-bosses",
+      "raid:heroic:imperator",
+      "raid:mythic:imperator",
+      "raid:heroic:vorasius",
+      "raid:mythic:vorasius",
+      "raid:heroic:salhadaar",
+      "raid:mythic:salhadaar",
+      "raid:heroic:vaelgor-ezzorak",
+      "raid:mythic:vaelgor-ezzorak",
+      "raid:heroic:vanguard",
+      "raid:mythic:vanguard",
+      "raid:heroic:crown",
+      "raid:mythic:crown",
+      "raid:heroic:chimaerus",
+      "raid:mythic:chimaerus",
+      "raid:heroic:beloren",
+      "raid:mythic:beloren",
+      "raid:heroic:midnight-falls",
+      "raid:mythic:midnight-falls",
+    },
+  },
+}

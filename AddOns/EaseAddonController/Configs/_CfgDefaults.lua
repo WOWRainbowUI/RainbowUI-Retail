@@ -465,6 +465,33 @@ D["ChonkyCharacterSheet"] = {
         text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
 	},
 };
+D["ClassCodex"] = {
+	defaultEnable = 1,
+	tags = { "CLASSALL" },
+	title = "職業寶典",
+	desc = "直接在角色面板中提供完整的職業指南，幫助玩家快速掌握角色的最佳配置與操作。``功能涵蓋屬性優先順序、天賦配置、技能循環、BiS 裝備清單、附魔與寶石建議、消耗品推薦、飾品分級以及製作優先度，並且會依據玩家當前專精與英雄天賦自動匹配最適合的資訊。``此外，它支援所有 13 個職業、40 種專精，資料來源於 Wowhead 並每週多次更新，確保內容即時可靠。``對於想要快速比較裝備、複製天賦字串或學習新循環的玩家，Class Codex 提供直覺的介面與即時提示，是提升角色表現的高效工具。",
+	modifier = "BNS",
+	{
+        text = "打開寶典",
+        callback = function() SlashCmdList["CLASSCODEX"]("compendium") end,
+    },
+	{
+        text = "設定選項",
+        callback = function() SlashCmdList["CLASSCODEX"]("settings") end,
+    },
+	{
+        text = "重置設定",
+        callback = function() SlashCmdList["CLASSCODEX"]("reset") end,
+    },
+	{
+		type = "text",
+        text = "|cffFF2D2D啟用插件後需要重新載入介面。|r",       
+	},
+	{
+		type = "text",
+        text = "點 '職業寶典' 的小地圖按鈕也可以打開視窗。",       
+	},
+};
 D["ClearMapPin"] = {
 	defaultEnable = 1,
 	tags = { "MAP" },
