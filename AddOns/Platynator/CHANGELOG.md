@@ -1,6 +1,7 @@
 # Platynator
 
-## [385](https://github.com/TheMouseNest/Platynator/tree/385) (2026-05-10)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/384...385) 
+## [387](https://github.com/TheMouseNest/Platynator/tree/387) (2026-05-12)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/386...387) 
 
-- Finally fix the formula to calculate assigned click regions accurately  
+- Fix stack region not being accurate on scaled up designs  
+- Add "Activation" as locale string  
