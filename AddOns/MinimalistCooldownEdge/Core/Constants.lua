@@ -32,6 +32,7 @@ C.Categories = {
     Actionbar = "actionbar",
     Nameplate = "nameplate",
     Unitframe = "unitframe",
+    PlayerAura = "playeraura",
     CooldownManager = "cooldownmanager",
     MiniCC = "minicc",
     SArena = "sarena",
@@ -128,6 +129,7 @@ C.Defaults = {
         [C.Categories.Actionbar] = true,
         [C.Categories.Nameplate] = false,
         [C.Categories.Unitframe] = true,
+        [C.Categories.PlayerAura] = false,
         [C.Categories.CooldownManager] = false,
         [C.Categories.MiniCC] = false,
         [C.Categories.SArena] = false,
@@ -173,6 +175,11 @@ C.Defaults = {
         StackAnchor = C.Style.Anchors.BottomRight,
         StackOffsetX = 0,
         StackOffsetY = 0,
+    },
+    PlayerAura = {
+        DisableFading = false,
+        ReverseSwipe = true,
+        SwipeAlpha = 80,
     },
     CooldownManager = {
         EssentialFontSize = 18,
