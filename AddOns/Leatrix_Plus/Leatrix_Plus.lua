@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.16 (6th May 2026)
+-- 	Leatrix Plus 12.0.17 (13th May 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.16"
+	LeaPlusLC["AddonVer"] = "12.0.17"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -5895,6 +5895,17 @@
 						myButton:HookScript("OnLeave", function()
 							_G[name]:GetScript("OnLeave")()
 						end)
+					elseif name == "LibDBIcon10_WoWtility" then
+						-- Wowtility
+						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
+						myButton.icon:SetTexture("Interface\\AddOns\\WoWtility\\WoWtility.blp")
+						myButton:SetScript("OnClick", function(self, btn) LibDBIcon10_WoWtility:Click(btn) end)
+						myButton:HookScript("OnEnter", function()
+							_G[name]:GetScript("OnEnter")(_G[name], true)
+						end)
+						myButton:HookScript("OnLeave", function()
+							_G[name]:GetScript("OnLeave")()
+						end)
 					elseif name == "AltoholicMinimapButton" then
 						-- Altoholic
 						local myButton = LibStub("LibDBIcon-1.0"):GetMinimapButton("LeaPlusCustomIcon_" .. name)
@@ -5984,6 +5995,7 @@
 				-- Create LibDBIcon buttons for these addons that have LibDBIcon prefixes
 				local customButtonTable = {
 					"LibDBIcon10_MethodRaidTools", -- Method Raid Tools
+					"LibDBIcon10_WoWtility", -- Wowtility
 				}
 
 				-- Do not create LibDBIcon buttons for these special case buttons
