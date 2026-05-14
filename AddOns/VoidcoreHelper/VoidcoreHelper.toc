@@ -1,0 +1,22 @@
+## Interface: 120001, 120005
+## Title: VoidcoreHelper
+## Author: York
+## Notes: 晦暗虚空核心助手
+## SavedVariables: VOIDCOREHELPER_DB
+## Version: 1.1.2
+## IconTexture: 7658128
+## X-Curse-Project-ID: 1530072
+## Category-zhTW: 物品
+
+## Title-zhTW: |cffB973CC[物品]|r 虚空核心助手
+## Notes-zhTW: VoidcoreHelper |n讓你能夠隨時在遊戲中查看晦暗虛空核心的掉落列表。|n|n|cffffd200使用方法: 打開冒險指南或點小地圖按鈕。
+## Category-zhTW: 物品
+## DefaultState: disabled
+
+libs\Init.xml
+Init.lua
+Template/Init.xml
+Save.lua
+VoidcoreHelper.lua
+VoidcoreHelperIntegration.lua
+GUI.lua

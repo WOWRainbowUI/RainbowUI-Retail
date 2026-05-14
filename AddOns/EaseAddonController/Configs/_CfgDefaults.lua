@@ -1917,6 +1917,12 @@ D["UnlimitedMapPinDistance"] = {
         callback = function() SlashCmdList["UMPDO"]("") end,
     },
 };
+D["VoidcoreHelper"] = {
+    defaultEnable = 0,
+	tags = { "ITEM" },
+	title = "虚空核心助手",
+	desc = "讓你能夠隨時在遊戲中查看 「晦暗虛空核心」的掉落列表。``透過這個插件，你可以直接打開地下城手冊，快速檢視相關掉落物，並且支援切換拾取專精或副本難度來查看其他可能的掉落。``此外，它還在小地圖按鈕中整合了 地下堡與夢魘狩獵 的資訊，方便玩家即時查詢。`",
+};
 D["VCB"] = {
     defaultEnable = 0,
 	title = "(請刪除) 內建施法條增強",
