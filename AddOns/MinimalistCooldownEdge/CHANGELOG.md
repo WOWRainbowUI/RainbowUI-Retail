@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+## [4.0.3] - 2026-05-13
+- Improved Player Auras swipe behavior on Blizzard buffs, debuffs, and external defensives.
+- Added a Reverse Swipe option for Player Auras.
+- Updated the Player Auras swipe settings layout.
+
+## [4.0.2] - 2026-05-13
+- Added Player Auras styling for Blizzard default player buffs and debuffs.
+- Added player aura duration, stack/count, fading, and swipe overlay options.
+- Added Player Auras to the General quick-toggle dashboard.
+
 ## [4.0.1] - 2026-05-05
 - Retired Party / Raid Frames support for Blizzard Patch 12.0.5 compatibility. The options entry now shows an informational notice and MiniCE no longer loads the compact group frame adapter/controller.
 - Blacklist: Add CompactPartyFrame, CompactRaidFrame, RaidFrameAuras, and RFA_ to Classifier

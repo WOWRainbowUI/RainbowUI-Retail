@@ -618,6 +618,11 @@ unitframeDefaults.stackAnchor = C.Defaults.Unitframe.StackAnchor
 unitframeDefaults.stackOffsetX = C.Defaults.Unitframe.StackOffsetX
 unitframeDefaults.stackOffsetY = C.Defaults.Unitframe.StackOffsetY
 
+local playerAuraDefaults = CategoryDefaults(C.Categories.PlayerAura, false, 12)
+playerAuraDefaults.disableFading = C.Defaults.PlayerAura.DisableFading
+playerAuraDefaults.reverseSwipe = C.Defaults.PlayerAura.ReverseSwipe
+playerAuraDefaults.swipeAlpha = C.Defaults.PlayerAura.SwipeAlpha
+
 local defaultDurationTextColors = DurationTextColorDefaults()
 
 local function EnsureDurationTextColorConfig(config)
@@ -670,6 +675,20 @@ local function EnsureDurationTextColorConfig(config)
     return config
 end
 
+local function EnsurePlayerAuraConfig(config)
+    if type(config) ~= "table" then
+        return CopyTable(playerAuraDefaults)
+    end
+
+    for field, defaultValue in pairs(playerAuraDefaults) do
+        if config[field] == nil then
+            config[field] = type(defaultValue) == "table" and CopyTable(defaultValue) or defaultValue
+        end
+    end
+
+    return config
+end
+
 local function CleanupObsoleteProfileFields(profile)
     profile.cooldownManagerCenteredOverrideEnabled = nil
     profile.compactPartyAuraText = nil
@@ -686,6 +705,11 @@ local function CleanupObsoleteProfileFields(profile)
     local actionbarCategory = categories[C.Categories.Actionbar]
     if type(actionbarCategory) == "table" then
         actionbarCategory.textColorByDuration = nil
+    end
+
+    local playerAuraCategory = categories[C.Categories.PlayerAura]
+    if type(playerAuraCategory) == "table" then
+        playerAuraCategory.compactDurationText = nil
     end
 end
 
@@ -807,6 +831,7 @@ MCE.defaults = {
             [C.Categories.Actionbar] = actionbarDefaults,
             [C.Categories.Nameplate] = nameplateDefaults,
             [C.Categories.Unitframe] = unitframeDefaults,
+            [C.Categories.PlayerAura] = playerAuraDefaults,
             [C.Categories.CooldownManager] = cooldownManagerDefaults,
             [C.Categories.MiniCC] = miniCCDefaults,
             [C.Categories.SArena] = sArenaDefaults,
@@ -853,6 +878,8 @@ function MCE:UpgradeProfile()
         EnsureCooldownManagerConfig(profile.categories[C.Categories.CooldownManager])
     profile.categories[C.Categories.MiniCC] =
         EnsureMiniCCConfig(profile.categories[C.Categories.MiniCC])
+    profile.categories[C.Categories.PlayerAura] =
+        EnsurePlayerAuraConfig(profile.categories[C.Categories.PlayerAura])
 
     EnsureDurationTextColorConfig(profile.durationTextColors)
 end
@@ -907,6 +934,7 @@ function MCE:OnInitialize()
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Action Bars"], C.Addon.ShortName, C.Categories.Actionbar))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Nameplates"], C.Addon.ShortName, C.Categories.Nameplate))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Unit Frames"], C.Addon.ShortName, C.Categories.Unitframe))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Player Auras"], C.Addon.ShortName, C.Categories.PlayerAura))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.PartyRaidRetired))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC))
@@ -963,4 +991,9 @@ end
 function MCE:ForceUpdateAll(fullScan)
     self:CancelDebouncedOptionRefresh()
     self:GetModule("Styler"):ForceUpdateAll(fullScan)
+
+    local playerAuraStyler = self:GetModule("PlayerAuraStyler", true)
+    if playerAuraStyler and playerAuraStyler.ForceUpdateAll then
+        playerAuraStyler:ForceUpdateAll()
+    end
 end

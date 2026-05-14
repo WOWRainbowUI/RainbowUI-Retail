@@ -548,7 +548,8 @@ local function CreateCategoryOptions(order, name, key, desc)
     local isSArena = (key == C.Categories.SArena)
     local isTellMeWhen = (key == C.Categories.TellMeWhen)
     local isUnitframe = (key == C.Categories.Unitframe)
-    local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe)
+    local isPlayerAura = (key == C.Categories.PlayerAura)
+    local isStackCategory = (key == C.Categories.Actionbar or key == C.Categories.Nameplate or key == C.Categories.CooldownManager or key == C.Categories.Unitframe or isPlayerAura)
     local allowThresholdColorsGet = CatGet(key, "allowThresholdColors", GetAllowThresholdDefault(key))
     local allowThresholdColorsSet = CatSet(key, "allowThresholdColors")
 
@@ -678,7 +679,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
                         get = allowThresholdColorsGet,
                         set = allowThresholdColorsSet,
-                        hidden = function() return isSArena end,
+                        hidden = function() return isSArena or isPlayerAura end,
                     },
                     hideCountdownNumbers = {
                         type = "toggle", order = 5, width = "1",
@@ -704,6 +705,13 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Hide stacks and charges entirely."],
                         get = CatGet(key, "hideStackText", false),
                         set = CatSet(key, "hideStackText"),
+                    } or nil,
+                    disableFading = isPlayerAura and {
+                        type = "toggle", order = 5.015, width = "full",
+                        name = L["Disable fading/blinking"],
+                        desc = L["Keeps player aura buttons fully opaque when they are close to expiring."],
+                        get = CatGet(key, "disableFading", false),
+                        set = CatSet(key, "disableFading"),
                     } or nil,
                     hideChargeTimers = (key == C.Categories.Actionbar) and {
                         type = "toggle", order = 5.02, width = "full",
@@ -953,6 +961,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         name = L["Anchor Point"], values = ANCHOR_OPTIONS,
                         get = CatGet(key, "textAnchor", C.Style.Anchors.Center),
                         set = CatSet(key, "textAnchor"),
+                        hidden = function() return isPlayerAura end,
                     },
                     textOffsetX = {
                         type = "range", order = 8, width = "half",
@@ -974,34 +983,42 @@ local function CreateCategoryOptions(order, name, key, desc)
                 inline = true, order = 20, disabled = disabledFn,
                 args = {
                     drawSwipe = {
-                        type = "toggle", order = 0, width = "normal",
+                        type = "toggle", order = 0, width = 1.20,
                         name = L["Show Swipe Animation"],
                         desc = L["Shows the dark overlay that sweeps during a cooldown."],
                         get = CatGet(key, "drawSwipe", true),
                         set = CatSet(key, "drawSwipe"),
                     },
+                    swipeAlpha = (key == C.Categories.Actionbar or isPlayerAura) and {
+                        type = "range", order = 1, width = 1,
+                        name = L["Swipe Shade Alpha"],
+                        desc = L["0% = transparent, 100% = full dark."],
+                        min = 0, max = 100, step = 1,
+                        get = CatGet(key, "swipeAlpha", 80),
+                        set = CatRangeSet(key, "swipeAlpha"),
+                    } or nil,
+                    swipeEdgeRowBreak1 = RowBreak(1.1),
                     edgeEnabled = {
-                        type = "toggle", order = 1, width = "normal",
+                        type = "toggle", order = 2, width = "1",
                         name = L["Show Swipe Edge"],
                         desc = L["Shows the white line indicating cooldown progress."],
                         get = CatGet(key, "edgeEnabled"),
                         set = CatSet(key, "edgeEnabled"),
                     },
                     edgeScale = {
-                        type = "range", order = 2,
+                        type = "range", order = 3, width = "2",
                         name = L["Edge Thickness"],
                         desc = L["Scale of the swipe line (1.0 = Default)."],
                         min = 0.5, max = 2.0, step = 0.1,
                         get = CatGet(key, "edgeScale"),
                         set = CatRangeSet(key, "edgeScale"),
                     },
-                    swipeAlpha = (key == C.Categories.Actionbar) and {
-                        type = "range", order = 3,
-                        name = L["Swipe Shade Alpha"],
-                        desc = L["0% = transparent, 100% = full dark."],
-                        min = 0, max = 100, step = 1,
-                        get = CatGet(key, "swipeAlpha", 80),
-                        set = CatRangeSet(key, "swipeAlpha"),
+                    reverseSwipe = isPlayerAura and {
+                        type = "toggle", order = 4, width = "full",
+                        name = L["Reverse Swipe"],
+                        desc = L["Reverse the swipe direction so the shade fills in the opposite direction."],
+                        get = CatGet(key, "reverseSwipe", true),
+                        set = CatSet(key, "reverseSwipe"),
                     } or nil,
                 },
             },
@@ -1199,9 +1216,11 @@ function MCE:GetOptions()
                                 get = function() return MCE.db.profile.categories[C.Categories.Unitframe].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.Unitframe),
                             },
-                            partyRaidFramesRetired = {
-                                type = "description", order = 4, width = 1.0, fontSize = "small",
-                                name = "|cff777777" .. L["Party / Raid Frames"] .. "\n" .. L["Retired"] .. "|r",
+                            togglePlayerAura = {
+                                type = "toggle", order = 4, width = 1.0,
+                                name = "|cffffd100" .. L["Player Auras"] .. "|r",
+                                get = function() return MCE.db.profile.categories[C.Categories.PlayerAura].enabled end,
+                                set = SetDashboardCategoryEnabled(C.Categories.PlayerAura),
                             },
                             quickRowBreak2 = RowBreak(4.1),
                             toggleCooldownMgr = {
@@ -1230,6 +1249,10 @@ function MCE:GetOptions()
                                 hidden = function() return not MCE:IsTellMeWhenAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.TellMeWhen].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.TellMeWhen),
+                            },
+                            partyRaidFramesRetired = {
+                                type = "description", order = 8.5, width = "full", fontSize = "small",
+                                name = "|cff777777" .. L["Party / Raid Frames"] .. " - " .. L["Retired"] .. "|r",
                             },
                             quickFooter = {
                                 type = "description", order = 9, fontSize = "small", width = "full",
@@ -1462,18 +1485,20 @@ function MCE:GetOptions()
                 L["NAMEPLATE_DESC"]),
             [C.Categories.Unitframe] = CreateCategoryOptions(4, L["Unit Frames"], C.Categories.Unitframe,
                 L["UNITFRAME_DESC"]),
-            [C.Categories.PartyRaidRetired] = CreatePartyRaidRetiredOptions(5, L["Party / Raid Frames"]),
-            [C.Categories.CooldownManager] = CreateCategoryOptions(6, L["CooldownManager"], C.Categories.CooldownManager,
+            [C.Categories.PlayerAura] = CreateCategoryOptions(5, L["Player Auras"], C.Categories.PlayerAura,
+                L["PLAYERAURA_DESC"]),
+            [C.Categories.PartyRaidRetired] = CreatePartyRaidRetiredOptions(6, L["Party / Raid Frames"]),
+            [C.Categories.CooldownManager] = CreateCategoryOptions(7, L["CooldownManager"], C.Categories.CooldownManager,
                 L["COOLDOWNMANAGER_DESC"]),
-            [C.Categories.MiniCC] = CreateCategoryOptions(7, L["MiniCC"], C.Categories.MiniCC,
+            [C.Categories.MiniCC] = CreateCategoryOptions(8, L["MiniCC"], C.Categories.MiniCC,
                 L["MINICC_DESC"]),
-            [C.Categories.SArena] = CreateCategoryOptions(8, L["sArena"], C.Categories.SArena,
+            [C.Categories.SArena] = CreateCategoryOptions(9, L["sArena"], C.Categories.SArena,
                 L["SARENA_DESC"]),
-            [C.Categories.TellMeWhen] = CreateCategoryOptions(9, L["TellMeWhen"], C.Categories.TellMeWhen,
+            [C.Categories.TellMeWhen] = CreateCategoryOptions(10, L["TellMeWhen"], C.Categories.TellMeWhen,
                 L["TELLMEWHEN_DESC"]),
 
             help = {
-                type = "group", name = L["Help & Support"], order = 10,
+                type = "group", name = L["Help & Support"], order = 11,
                 args = {
                     aboutHeader = {
                         type = "description", order = 0.1, fontSize = "large",
