@@ -1,0 +1,15 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ UI.xsd">
+    <Button name="VCHButton" virtual="true">
+        <Size x="40" y="22" />
+        <ButtonText name="$parentText" parentKey="Text" />
+        <NormalFont style="GameFontNormal" />
+        <Scripts>
+            <OnLoad function="VCHButton_OnLoad"/>
+            <OnEnter function="VCHButton_OnMouseEnter" />
+            <OnLeave function="VCHButton_OnMouseLeave" />
+            <OnDisable function="VCHButton_OnDisable" />
+            <OnEnable function="VCHButton_OnEnable" />
+        </Scripts>
+    </Button>
+</Ui>

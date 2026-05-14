@@ -1,0 +1,17 @@
+## Interface: 120005
+## Title: VoidcoreHelper
+## Author: York
+## Notes: 晦暗虚空核心助手
+## SavedVariables: VOIDCOREHELPER_DB
+## Version: 1.1.2
+## IconTexture: 7658128
+## X-Curse-Project-ID: 1530072
+## Category-zhTW: 物品
+
+libs\Init.xml
+Init.lua
+Template/Init.xml
+Save.lua
+VoidcoreHelper.lua
+VoidcoreHelperIntegration.lua
+GUI.lua
