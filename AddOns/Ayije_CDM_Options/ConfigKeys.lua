@@ -55,6 +55,11 @@ ns.ConfigKeys = {
                 "hideDebuffBorder",
                 "hidePandemicIndicator",
                 "hideCooldownBling",
+                "pandemicCustomizationEnabled",
+                "pandemicBorderEnabled",
+                "pandemicBorderColor",
+                "chargeShowEdge",
+                "chargeHideSwipe",
                 "swipeColor",
                 "hideGCDSwipe",
             },
@@ -100,6 +105,7 @@ ns.ConfigKeys = {
                 "buffBarNameOffsetY",
                 "buffBarDurationFontSize",
                 "buffBarDurationColor",
+                "buffBarDurationPosition",
                 "buffBarDurationOffsetX",
                 "buffBarDurationOffsetY",
             },
@@ -195,6 +201,7 @@ ns.ConfigKeys = {
                 "trinketsOffsetY",
                 "trinketsCooldownFontSize",
                 "trinketsShowPassive",
+                "trinketsBlacklist",
                 "trinketsMode",
                 "trinketsEssentialRow",
                 "trinketsEssentialPosition",
@@ -221,6 +228,7 @@ ns.ConfigKeys = {
                 "castBarShowSpellName",
                 "castBarNameMaxChars",
                 "castBarShowTimer",
+                "castBarShowTotalDuration",
                 "castBarShowSpark",
                 "castBarNameOffsetX",
                 "castBarNameOffsetY",
@@ -343,7 +351,7 @@ do
     for catName, catDef in pairs(ns.ConfigKeys.categories) do
         for _, key in ipairs(catDef.keys) do
             if keysInCategories[key] then
-                print("|cffff6600[CDM] ConfigKeys: '" .. key .. "' in both '" .. keysInCategories[key] .. "' and '" .. catName .. "'|r")
+                print("|cffff6600[ACDM] ConfigKeys: '" .. key .. "' in both '" .. keysInCategories[key] .. "' and '" .. catName .. "'|r")
             end
             keysInCategories[key] = catName
         end
@@ -351,13 +359,13 @@ do
 
     for key in pairs(defaults) do
         if not keysInCategories[key] then
-            print("|cffff6600[CDM] ConfigKeys: default key '" .. key .. "' not in any export category|r")
+            print("|cffff6600[ACDM] ConfigKeys: default key '" .. key .. "' not in any export category|r")
         end
     end
 
     for key, catName in pairs(keysInCategories) do
         if defaults[key] == nil then
-            print("|cffff6600[CDM] ConfigKeys: export key '" .. key .. "' (in '" .. catName .. "') has no default|r")
+            print("|cffff6600[ACDM] ConfigKeys: export key '" .. key .. "' (in '" .. catName .. "') has no default|r")
         end
     end
 end
