@@ -1209,6 +1209,16 @@ D["MiliUI_BloodlustMusic"] = {
 		text = "|cffFF2D2D替換或修改檔案後需要重新載入介面。|r",
 	},
 };
+D["MiniCC"] = {
+    defaultEnable = 0,
+	tags = { "COMBAT" },
+	title = "隊友技能和控場監控",
+	desc = "在隊伍或團隊框架上即時顯示敵方的控場技能、重要法術提示，並追蹤友方技能冷卻狀態。``除了圖示顯示外，還提供音效與語音提醒，讓玩家在激烈戰鬥中不會錯過關鍵資訊。``插件支援踢技計時器、隊友飾品顯示、名條整合，以及多種框架插件 (如 ElvUI、Grid2、Shadowed Unit Frames 等)，並具備多語言版本。``簡單來說，MiniCC 的用途就是幫助玩家在戰場或競技場中更快掌握敵我雙方的技能狀態，提升反應速度與團隊協作效率。`",
+    {
+        text = "設定選項",
+        callback = function() SlashCmdList["MINICC"]("") end,
+    },
+};
 D["MinimalistCooldownEdge"] = {
     defaultEnable = 0,
 	tags = { "ACTIONBAR" },
