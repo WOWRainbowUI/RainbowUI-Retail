@@ -1,0 +1,97 @@
+## Interface: 120005
+## Title: Class Codex
+## Notes: Stat priorities, talent builds, rotation guides, and gearing recommendations for your current spec.
+## Author: jfstn
+## Version: 0.25.6
+## SavedVariables: ClassCodexDB
+## SavedVariablesPerCharacter: ClassCodexCharDB
+## X-Curse-Project-ID: 1480030
+## X-Wago-ID: rNkynwKa
+## X-Website: https://www.curseforge.com/wow/addons/class-codex
+## IconTexture: Interface\AddOns\ClassCodex\icon
+## AddonCompartmentFunc: ClassCodex_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: ClassCodex_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: ClassCodex_OnAddonCompartmentLeave
+## Title-zhTW: Class Codex 職業法典
+## Notes-zhTW: 為你當前專精提供屬性優先級、天賦構建、輸出迴圈指南和裝備推薦。
+## Category-zhTW: 職業
+
+Libs\embeds.xml
+
+Data\DeathKnight\guide.lua
+Data\DeathKnight\gear-wowhead.lua
+Data\DeathKnight\gear-icyveins.lua
+Data\DeathKnight\archon-talents.lua
+Data\DeathKnight\archon-stats.lua
+Data\DemonHunter\guide.lua
+Data\DemonHunter\gear-wowhead.lua
+Data\DemonHunter\gear-icyveins.lua
+Data\DemonHunter\archon-talents.lua
+Data\DemonHunter\archon-stats.lua
+Data\Druid\guide.lua
+Data\Druid\gear-wowhead.lua
+Data\Druid\gear-icyveins.lua
+Data\Druid\archon-talents.lua
+Data\Druid\archon-stats.lua
+Data\Evoker\guide.lua
+Data\Evoker\gear-wowhead.lua
+Data\Evoker\gear-icyveins.lua
+Data\Evoker\archon-talents.lua
+Data\Evoker\archon-stats.lua
+Data\Hunter\guide.lua
+Data\Hunter\gear-wowhead.lua
+Data\Hunter\gear-icyveins.lua
+Data\Hunter\archon-talents.lua
+Data\Hunter\archon-stats.lua
+Data\Mage\guide.lua
+Data\Mage\gear-wowhead.lua
+Data\Mage\gear-icyveins.lua
+Data\Mage\archon-talents.lua
+Data\Mage\archon-stats.lua
+Data\Monk\guide.lua
+Data\Monk\gear-wowhead.lua
+Data\Monk\gear-icyveins.lua
+Data\Monk\archon-talents.lua
+Data\Monk\archon-stats.lua
+Data\Paladin\guide.lua
+Data\Paladin\gear-wowhead.lua
+Data\Paladin\gear-icyveins.lua
+Data\Paladin\archon-talents.lua
+Data\Paladin\archon-stats.lua
+Data\Priest\guide.lua
+Data\Priest\gear-wowhead.lua
+Data\Priest\gear-icyveins.lua
+Data\Priest\archon-talents.lua
+Data\Priest\archon-stats.lua
+Data\Rogue\guide.lua
+Data\Rogue\gear-wowhead.lua
+Data\Rogue\gear-icyveins.lua
+Data\Rogue\archon-talents.lua
+Data\Rogue\archon-stats.lua
+Data\Shaman\guide.lua
+Data\Shaman\gear-wowhead.lua
+Data\Shaman\gear-icyveins.lua
+Data\Shaman\archon-talents.lua
+Data\Shaman\archon-stats.lua
+Data\Warlock\guide.lua
+Data\Warlock\gear-wowhead.lua
+Data\Warlock\gear-icyveins.lua
+Data\Warlock\archon-talents.lua
+Data\Warlock\archon-stats.lua
+Data\Warrior\guide.lua
+Data\Warrior\gear-wowhead.lua
+Data\Warrior\gear-icyveins.lua
+Data\Warrior\archon-talents.lua
+Data\Warrior\archon-stats.lua
+Locales.lua
+ItemLabel.lua
+ImportExport.lua
+ReduceTaint.lua
+StatTargets.lua
+ClassCodex.lua
+TalentBuildList.lua
+ArchonContext.lua
+GearingSections.lua
+Compendium.lua
+TalentPaneDropdown.lua
+LoadoutDock.lua
