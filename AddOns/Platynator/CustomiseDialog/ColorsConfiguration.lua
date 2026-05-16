@@ -955,6 +955,91 @@ addonTable.CustomiseDialog.ColorsConfig = {
       },
     },
   },
+  ["inRange"] = {
+    label = addonTable.Locales.IN_RANGE,
+    default = {
+      kind = "inRange",
+      colors = {
+        inRange = GetColor("34edd1"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.IN_RANGE,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.inRange = value
+        end,
+        getter = function(details)
+          return details.colors.inRange
+        end,
+      },
+    },
+  },
+  ["outOfRange"] = {
+    label = addonTable.Locales.OUT_OF_RANGE,
+    default = {
+      kind = "outOfRange",
+      colors = {
+        outOfRange = GetColor("34edd1"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.OUT_OF_RANGE,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.outOfRange = value
+        end,
+        getter = function(details)
+          return details.colors.outOfRange
+        end,
+      },
+    },
+  },
+  ["party"] = {
+    label = addonTable.Locales.PARTY,
+    default = {
+      kind = "party",
+      colors = {
+        damage = GetColor("34edd1"),
+        healer = GetColor("34edd1"),
+        tank = GetColor("34edd1"),
+      },
+    },
+    entries = {
+      {
+        label = addonTable.Locales.DAMAGE,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.damage = value
+        end,
+        getter = function(details)
+          return details.colors.damage
+        end,
+      },
+      {
+        label = addonTable.Locales.HEALER,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.healer = value
+        end,
+        getter = function(details)
+          return details.colors.healer
+        end,
+      },
+      {
+        label = addonTable.Locales.TANK,
+        kind = "colorPicker",
+        setter = function(details, value)
+          details.colors.tank = value
+        end,
+        getter = function(details)
+          return details.colors.tank
+        end,
+      },
+    },
+  },
 }
 
 addonTable.CustomiseDialog.ColorsConfigOrder = {
@@ -966,10 +1051,13 @@ addonTable.CustomiseDialog.ColorsConfigOrder = {
   "mouseover",
   "threat",
   "inCombat",
+  "inRange",
+  "outOfRange",
   "delveType",
   "eliteType",
   "rarity",
   "quest",
+  "party",
   "guild",
   "classColors",
   "difficulty",

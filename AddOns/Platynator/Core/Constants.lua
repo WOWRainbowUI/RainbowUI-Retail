@@ -74,3 +74,84 @@ addonTable.Constants.PowerMap = {
   [Enum.PowerType.Rage] = "rage",
   [Enum.PowerType.Energy] = "energy",
 }
+
+addonTable.Constants.DefaultRange = {
+  -- Death Knight
+  ["DEATHKNIGHT"] = 30, -- (death's reach (40))
+  [250] = 30, -- Blood
+  [251] = 30, -- Frost
+  [252] = 30, -- Unholy
+  [1455] = 30,
+  -- Demon Hunter
+  ["DEMONHUNTER"] = 30, -- (champion of the glaive (40))
+  [577] = 30, -- Havoc,
+  [581] = 30, -- Vengeance
+  [1480] = 30, -- Devourer
+  [1456] = 30,
+  -- Druid
+  ["DRUID"] = 30, -- (astral influence (45))
+  [102] = 40, -- Balance
+  [103] = 40, -- Feral (8)
+  [104] = 40, -- Guardian
+  [105] = 40, -- Resto
+  [1447] = 40,
+  -- Evoker
+  ["EVOKER"] = 25,
+  [1467] = 25, -- Devastation
+  [1468] = 25, -- Preservation
+  [1473] = 25, -- Augmentation
+  [1465] = 25,
+  -- Hunter
+  ["HUNTER"] = 40,
+  [253] = 40, -- Beast Mastery
+  [254] = 40, -- Marksmanship
+  [255] = 40, -- Survival
+  [1448] = 40,
+  -- Mage
+  ["MAGE"] = 30,
+  [62] = 40, -- Arcane
+  [63] = 40, -- Fire
+  [64] = 40, -- Frost
+  [1449] = 40,
+  -- Monk
+  ["MONK"] = 30,
+  [268] = 40, -- Brewmaster
+  [270] = 40, -- Mistweaver
+  [269] = 40, -- Windwalker
+  [1450] = 30,
+  -- Paladin
+  ["PALADIN"] = 30,
+  [65] = 40, -- Holy
+  [66] = 30, -- Protection
+  [70] = 30, -- Retribution
+  [1451] = 30,
+  -- Priest
+  ["PRIEST"] = 30, -- (Phantom Reach (46))
+  [256] = 40, -- Discipline
+  [257] = 40, -- Holy
+  [258] = 40, -- Shadow
+  [1452] = 40,
+  -- Rogue
+  ["ROGUE"] = 30,
+  [259] = 30, -- Assassination (8)
+  [260] = 20, -- Outlaw (Precision shot (30))
+  [261] = 30, -- Subtlety
+  [1453] = 30,
+  -- Shaman
+  ["SHAMAN"] = 30,
+  [262] = 40, -- Elemental
+  [263] = 40, -- Enhancement
+  [264] = 40, -- Restoration
+  [1444] = 40,
+  -- Warlock
+  ["WARLOCK"] = 30,
+  [265] = 40, -- Affliction
+  [266] = 40, -- Demonology
+  [267] = 40, -- Destruction
+  [1454] = 40,
+  ["WARRIOR"] = 20, -- (Javelineer (35))
+  [71] = 30, -- Arms
+  [72] = 30, -- Fury
+  [73] = 30, -- Protection
+  [1446] = 30,
+}
