@@ -33,6 +33,38 @@ local GetSpecializationInfo = GetSpecializationInfo
 local tonumber            = tonumber
 local math_floor          = math.floor
 
+local function Tr(text)
+    if type(text) ~= "string" then return text end
+    if type(ns) == "table" and type(ns.Translate) == "function" then
+        return ns.Translate(text)
+    end
+    local locale = (type(ns) == "table" and ns.L) or _G.MSUF_L
+    if type(locale) == "table" then
+        local translated = rawget(locale, text)
+        if translated ~= nil then return translated end
+    end
+    return text
+end
+
+local L_GAMEPLAY_COLORS_TIP
+local L_FIRST_DANCE_READY
+local L_FIRST_DANCE_FORMAT
+local L_BLIZZARD_TOTEM_PREVIEW
+local L_DRAG_OR_ARROW_KEYS
+
+local function RefreshLocaleText()
+    L_GAMEPLAY_COLORS_TIP = Tr("Tip: Gameplay colors are in Colors > Gameplay")
+    L_FIRST_DANCE_READY = Tr("First Dance!")
+    L_FIRST_DANCE_FORMAT = Tr("First Dance: %.1f")
+    L_BLIZZARD_TOTEM_PREVIEW = Tr("Blizzard TotemFrame Preview")
+    L_DRAG_OR_ARROW_KEYS = Tr("Drag or arrow keys to move.")
+end
+
+RefreshLocaleText()
+if type(ns.RegisterLocaleCallback) == "function" then
+    ns.RegisterLocaleCallback("MSUF_Gameplay", RefreshLocaleText)
+end
+
 -- Per-spec helper: returns the current specialization ID (globally unique)
 -- or nil if unavailable.  Used as key in nameplateMeleeSpellIDBySpec.
 local function MSUF_GetPlayerSpecID()
@@ -107,6 +139,36 @@ local function MSUF_Gameplay_GetNudgeStep()
     if IsControlKeyDown and IsControlKeyDown() then return 10 end
     if IsShiftKeyDown and IsShiftKeyDown() then return 5 end
     return 1
+end
+
+local function MSUF_Gameplay_CheckpointHistory(label, source)
+    local h = _G.MSUF2
+    local checkpoint = h and h.CheckpointHistory
+    if type(checkpoint) ~= "function" then return false end
+    local ok, result = pcall(checkpoint, label or "Gameplay position", source or "gameplay:position")
+    return ok and result or false
+end
+
+local function MSUF_Gameplay_BeginHistory(frame, label, source)
+    local h = _G.MSUF2
+    local begin = h and h.BeginHistoryTransaction
+    if not (frame and type(begin) == "function") then return false end
+    local ok, started = pcall(begin, label or "Gameplay position", source or "gameplay:position")
+    if ok and started then
+        frame._msufGameplayHistoryTransaction = true
+        return true
+    end
+    return false
+end
+
+local function MSUF_Gameplay_CommitHistory(frame)
+    if not (frame and frame._msufGameplayHistoryTransaction) then return false end
+    frame._msufGameplayHistoryTransaction = nil
+    local h = _G.MSUF2
+    local commit = h and h.CommitHistoryTransaction
+    if type(commit) ~= "function" then return false end
+    local ok, result = pcall(commit)
+    return ok and result or false
 end
 
 local function MSUF_Gameplay_SelectNudgeFrame(frame, selected)
@@ -469,7 +531,7 @@ do
         if not _G.StaticPopupDialogs[POPUP_KEY] then
             _G.StaticPopupDialogs[POPUP_KEY] = {
                 -- ASCII only (avoid missing glyph boxes in some fonts)
-                text = "Tip: Gameplay colors are in Colors > Gameplay",
+                text = L_GAMEPLAY_COLORS_TIP,
                 button1 = OKAY,
                 timeout = 0,
                 whileDead = true,
@@ -969,6 +1031,7 @@ local function EnsureFirstDanceFrame()
                 p:MSUF_SyncFirstDanceOffsetSliders()
             end
             _ApplyFirstDanceLockState()
+            MSUF_Gameplay_CheckpointHistory("First Dance position", "gameplay:firstDance:position")
             return true
         end,
         function(self)
@@ -983,6 +1046,7 @@ local function EnsureFirstDanceFrame()
             if not (IsAltKeyDown and IsAltKeyDown()) then return end
         end
         MSUF_Gameplay_SelectNudgeFrame(self, true)
+        MSUF_Gameplay_BeginHistory(self, "First Dance position", "gameplay:firstDance:position")
         self._msufDragging = true
         self:StartMoving()
     end)
@@ -1005,6 +1069,7 @@ local function EnsureFirstDanceFrame()
         end
         MSUF_Gameplay_SelectNudgeFrame(self, true)
         _ApplyFirstDanceLockState()
+        MSUF_Gameplay_CommitHistory(self)
     end)
 
     -- Text mode elements
@@ -1291,6 +1356,7 @@ EnsureCombatStateText = function()
                 db.combatStateOffsetY = _MSUF_RoundInt((tonumber(db.combatStateOffsetY) or 80) + (dy or 0))
                 self:ClearAllPoints()
                 self:SetPoint("CENTER", UIParent, "CENTER", db.combatStateOffsetX, db.combatStateOffsetY)
+                MSUF_Gameplay_CheckpointHistory("Combat enter/leave position", "gameplay:combatState:position")
                 return true
             end,
             function(self)
@@ -1302,19 +1368,23 @@ EnsureCombatStateText = function()
             local gd = EnsureGameplayDefaults()
             if gd.lockCombatState then return end
             MSUF_Gameplay_SelectNudgeFrame(self, true)
+            MSUF_Gameplay_BeginHistory(self, "Combat enter/leave position", "gameplay:combatState:position")
             self:StartMoving()
         end)
 
         combatStateFrame:SetScript("OnDragStop", function(self)
             self:StopMovingOrSizing()
-        local x, y = self:GetCenter()
+            local x, y = self:GetCenter()
             local ux, uy = UIParent:GetCenter()
-            local dx = x - ux
-            local dy = y - uy
-            local db = EnsureGameplayDefaults()
-            db.combatStateOffsetX = dx
-            db.combatStateOffsetY = dy
+            if x and y and ux and uy then
+                local dx = x - ux
+                local dy = y - uy
+                local db = EnsureGameplayDefaults()
+                db.combatStateOffsetX = dx
+                db.combatStateOffsetY = dy
+            end
             MSUF_Gameplay_SelectNudgeFrame(self, true)
+            MSUF_Gameplay_CommitHistory(self)
         end)
     end
 
@@ -1482,7 +1552,7 @@ _TickFirstDance = function()
                 if firstDanceCooldown and firstDanceCooldown.SetCooldown then firstDanceCooldown:SetCooldown(0, 0) end
                 if firstDanceIcon then firstDanceIcon:SetDesaturated(false) end
             else
-                if firstDanceText then firstDanceText:SetText("First Dance!") end
+    if firstDanceText then firstDanceText:SetText(L_FIRST_DANCE_READY) end
             end
             -- Frame stays visible; hidden on Shadow Dance cast
         else
@@ -1501,7 +1571,7 @@ _TickFirstDance = function()
         end
     else
         -- Text mode
-        local text = string_format("First Dance: %.1f", remaining)
+        local text = string_format(L_FIRST_DANCE_FORMAT, remaining)
         if text ~= firstDanceLastText then
             firstDanceLastText = text
             if firstDanceText then firstDanceText:SetText(text) end
@@ -1896,6 +1966,7 @@ local function CreateCombatTimerFrame()
                 p:MSUF_SyncCombatTimerOffsetSliders()
             end
             ApplyLockState()
+            MSUF_Gameplay_CheckpointHistory("Combat timer position", "gameplay:combatTimer:position")
             return true
         end,
         function(self)
@@ -1914,6 +1985,7 @@ local function CreateCombatTimerFrame()
         end
 
         MSUF_Gameplay_SelectNudgeFrame(self, true)
+        MSUF_Gameplay_BeginHistory(self, "Combat timer position", "gameplay:combatTimer:position")
         self._msufDragging = true
         self:StartMoving()
     end)
@@ -1951,6 +2023,7 @@ local function CreateCombatTimerFrame()
         MSUF_Gameplay_SelectNudgeFrame(self, true)
         -- Re-apply click-through / ALT-to-drag state after the drag ends.
         ApplyLockState()
+        MSUF_Gameplay_CommitHistory(self)
     end)
 
     combatTimerText = combatFrame:CreateFontString(nil, "OVERLAY")
@@ -2563,7 +2636,7 @@ local function MSUF_Gameplay_ApplyCombatStateText(g)
             if iconMode then
                 if firstDanceCDText then firstDanceCDText:SetText("6.0") end
             else
-                if firstDanceText then firstDanceText:SetText("First Dance: 6.0") end
+        if firstDanceText then firstDanceText:SetText(string_format(L_FIRST_DANCE_FORMAT, 6.0)) end
             end
             firstDanceFrame:Show()
         elseif firstDanceFrame and not firstDanceActive and not firstDanceReady then
@@ -2918,8 +2991,8 @@ do
             if self._msufHi then self._msufHi:Show() end
             if GameTooltip then
                 GameTooltip:SetOwner(self, "ANCHOR_TOP")
-                GameTooltip:AddLine("Blizzard TotemFrame Preview", 1, 1, 1)
-                GameTooltip:AddLine("Drag or arrow keys to move.", 0.9, 0.9, 0.9)
+        GameTooltip:AddLine(L_BLIZZARD_TOTEM_PREVIEW, 1, 1, 1)
+        GameTooltip:AddLine(L_DRAG_OR_ARROW_KEYS, 0.9, 0.9, 0.9)
                 GameTooltip:Show()
             end
         end)
@@ -2944,6 +3017,7 @@ do
             self._msufDragLastOffX = self._msufDragStartOffX
             self._msufDragLastOffY = self._msufDragStartOffY
             self._msufDragging = true
+            MSUF_Gameplay_BeginHistory(self, "TotemFrame position", "gameplay:totems:position")
 
             self:SetScript("OnUpdate", function(frame)
                 if not frame._msufDragging then return end
@@ -2985,6 +3059,7 @@ do
             if opt and opt.MSUF_SyncTotemOffsetSliders then
                 opt:MSUF_SyncTotemOffsetSliders()
             end
+            MSUF_Gameplay_CommitHistory(self)
         end)
 
         MSUF_Gameplay_SetupArrowNudge(overlay,
@@ -3005,6 +3080,7 @@ do
                 if opt and opt.MSUF_SyncTotemOffsetSliders then
                     opt:MSUF_SyncTotemOffsetSliders()
                 end
+                MSUF_Gameplay_CheckpointHistory("TotemFrame position", "gameplay:totems:position")
                 return true
             end,
             function()
@@ -3272,7 +3348,7 @@ do
 end
 
 ------------------------------------------------------
--- ns: runtime exports for MSUF_Options_Gameplay.lua
+-- ns: runtime exports
 ------------------------------------------------------
 do
     ns.MSUF_EnsureGameplayDefaults            = EnsureGameplayDefaults
@@ -3289,17 +3365,6 @@ do
     ns.MSUF_GetFirstDanceFrame                = function() return firstDanceFrame end
     ns.MSUF_ApplyFirstDanceLockState          = function() _ApplyFirstDanceLockState() end
     ns.MSUF_ApplyFirstDanceDisplayMode        = function() _ApplyFirstDanceDisplayMode() end
-end
-
--- Options panel registration: see MSUF_Options_Gameplay.lua
--- These stubs ensure backward compat if called before the options file loads.
-function ns.MSUF_RegisterGameplayOptions_Full(parentCategory)
-    -- Options UI is built in MSUF_Options_Gameplay.lua (lazy-loaded).
-    -- This stub is a no-op safety net; the real implementation overrides it.
-end
-
-function ns.MSUF_RegisterGameplayOptions(parentCategory)
-    -- Overridden by MSUF_Options_Gameplay.lua on load.
 end
 
 ------------------------------------------------------

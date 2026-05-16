@@ -1,14 +1,16 @@
 ## Interface: 120001, 120005
-## Title: Midnight Simple UnitFrames - Castbars
+## Title: |cff38c7f0Midnight|r |cffcce0ffSimple Unit Frames - Castbars|r
 ## Notes: Castbar LoD for MSUF
 ## Author: Mapko 
-## Version: 4.3
+## Version: v5.1
 ## Category: Combat
 ## Dependencies: MidnightSimpleUnitFrames
 ## OptionalDeps:
 ## LoadOnDemand: 1
 ## IconTexture: Interface\AddOns\MidnightSimpleUnitFrames\Media\MSUF_MinimapIcon.tga
+## X-Curse-Project-ID: 1384660
 ## X-Wago-ID: XKq9aoKy
+## X-Localizations: enUS, deDE, zhCN, zhTW, frFR, esES, esMX, itIT, koKR, ptBR, ruRU, enGB
 
 ## Title-zhTW: |cff4DD2FF[頭像]|r至暗之夜頭像-施法條
 ## Notes-zhTW: Midnight Simple UnitFrames - Castbars |n|n替換遊戲內建的單位框架，提供更簡潔、直觀且可高度自訂的介面。它的設計理念是將戰鬥資訊集中在角色附近，避免玩家需要分散注意力到螢幕角落。|n|n|cffffd200使用方法: |r輸入 /msuf ，或從 Esc>選項>插件>頭像，開啟設定。|n|n|cffFF2D2D特別注意: |r請勿和其他頭像插件同時載入使用。

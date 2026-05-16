@@ -15,6 +15,7 @@ local type, tostring, tonumber, select = type, tostring, tonumber, select
 local pairs, ipairs, next = pairs, ipairs, next
 local math_min, math_max, math_floor = math.min, math.max, math.floor
 local string_format, string_match, string_sub = string.format, string.match, string.sub
+local string_byte, string_gsub = string.byte, string.gsub
 local UnitExists, UnitIsPlayer = UnitExists, UnitIsPlayer
 local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
 local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
@@ -105,6 +106,8 @@ local _healthSmoothInterp = (type(Enum) == "table"
 -- Eliminates cache table lookups in RefreshHealthBarColorFast hot path.
 local _ufcBarMode   = "dark"  -- "dark" | "class" | "unified" | "gradient"
 local _ufcBarModeIsGradient = false  -- PERF: pre-resolved flag (avoids string compare in hot path)
+local _ufcHealthGradientEnabled = true
+local _ufcHealthColorGradientActive = false
 local _ufcDarkR, _ufcDarkG, _ufcDarkB       = 0, 0, 0
 local _ufcUnifiedR, _ufcUnifiedG, _ufcUnifiedB = 0.10, 0.60, 0.90
 local _ufcNpcTypeColorBar = false
@@ -220,7 +223,9 @@ local function UFCore_RefreshSettingsCache(reason)
     if mode ~= "dark" and mode ~= "class" and mode ~= "unified" and mode ~= "gradient" then
         mode = (g and g.useClassColors and "class") or (g and g.darkMode and "dark") or "dark"
     end
+    local healthGradientEnabled = (not g) or (g.enableHealthGradient ~= false)
     cache.barMode = mode
+    cache.healthGradientEnabled = healthGradientEnabled
 
     -- NPC Color Mode: "reaction" (default) or "type" (classification-based)
     -- Force "reaction" outside 5-man instances → zero overhead in raids/solo.
@@ -259,6 +264,8 @@ local function UFCore_RefreshSettingsCache(reason)
     -- Phase 7: Sync file-scope locals (read by RefreshHealthBarColorFast without cache lookup)
     _ufcBarMode   = mode
     _ufcBarModeIsGradient = (mode == "gradient")
+    _ufcHealthGradientEnabled = healthGradientEnabled
+    _ufcHealthColorGradientActive = _ufcBarModeIsGradient and healthGradientEnabled
     _ufcDarkR, _ufcDarkG, _ufcDarkB          = darkR, darkG, darkB
     _ufcUnifiedR, _ufcUnifiedG, _ufcUnifiedB = cache.unifiedBarR, cache.unifiedBarG, cache.unifiedBarB
     _ufcNpcTypeColorBar = cache.npcTypeColorBar
@@ -479,6 +486,9 @@ local function UFCore_RefreshFrameInvariantFlags(f, cache)
     if not f then return end
     cache = cache or UFCore_GetSettingsCache()
     local mode = (cache and cache.barMode) or "dark"
+    if mode == "gradient" and not _ufcHealthGradientEnabled then
+        mode = "class"
+    end
 
     local staticHealthColor = false
     if mode == "dark" or mode == "unified" then
@@ -603,6 +613,8 @@ function Core.InvalidateAllFrameConfigs()
             -- PERF: Invalidate per-frame combat hot-path caches (absorb text, HP/power text config, status config).
             f._msufCachedShowAbsorbText = nil
             f._msufAbsorbTextDirty = true
+            f._msufCachedHpMaxValue = nil
+            f._msufCachedHpMaxStr = nil
             f._msufCachedAbsorbText = nil
             f._msufCachedAbsorbStyle = nil
             f._msufPwrTextConf = nil
@@ -1047,6 +1059,9 @@ local function UFCore_RefreshHealthBarColorFast(frame, conf)
 
     -- Bar mode (authoritative): read from file-scope local (synced in RefreshSettingsCache)
     local mode = _ufcBarMode
+    if mode == "gradient" and not _ufcHealthGradientEnabled then
+        mode = "class"
+    end
 
     local barR, barG, barB
 
@@ -1163,7 +1178,7 @@ Elements.Health = {
         -- Color refresh is only needed on explicit unit swap/show (visual queue) or
         -- when a reaction/flag event marked it dirty.
         -- EXCEPTION: gradient mode is HP-derived and must update every health tick.
-        if f._msufVisualQueuedUFCore or f._msufHealthColorDirty or _ufcBarModeIsGradient then
+        if f._msufVisualQueuedUFCore or f._msufHealthColorDirty or _ufcHealthColorGradientActive then
             f._msufHealthColorDirty = nil
             UFCore_RefreshHealthBarColorFast(f, conf)
         end
@@ -1482,6 +1497,16 @@ local function UFCore_IsAbsorbBarEnabledForFrame(f, conf)
     return true
 end
 
+local function UFCore_IsHealPredictionEnabled()
+    local db = _G.MSUF_DB or UFCore_EnsureDBOnce()
+    local g = db and db.general
+    if g then
+        if g.showSelfHealPrediction ~= nil then return g.showSelfHealPrediction == true end
+        if g.enableHealPrediction ~= nil then return g.enableHealPrediction ~= false end
+    end
+    return false
+end
+
 local function UFCore_WantEvent(f, conf, desired, unsupported, ev)
     ev = UFCORE_EVENT_ALIAS[ev] or ev
     if (unsupported and unsupported[ev]) then return end
@@ -1501,10 +1526,65 @@ local function UFCore_WantEvent(f, conf, desired, unsupported, ev)
         if not UFCore_IsAbsorbBarEnabledForFrame(f, conf) then return end
     end
     if ev == "UNIT_HEAL_PREDICTION" then
-        local g = MSUF_DB and MSUF_DB.general
-        if g and g.showSelfHealPrediction == false then return end
+        if not UFCore_IsHealPredictionEnabled() then return end
+        if not (f.incomingHealBar or f.selfHealPredBar) then return end
     end
     desired[ev] = true
+end
+
+local UFCORE_TOT_INLINE_CUSTOM_SEPARATOR = "__CUSTOM__"
+local UFCORE_TOT_INLINE_CUSTOM_SEPARATOR_MAX = 5
+local UFCORE_TOT_INLINE_PRESET_SEPARATOR = {
+    [" "] = true,
+    ["-"] = true,
+    ["/"] = true,
+    ["\\"] = true,
+    ["|"] = true,
+    ["<"] = true,
+    [">"] = true,
+    ["~"] = true,
+    [":"] = true,
+}
+
+local function UFCore_TruncateUtf8Chars(value, maxChars)
+    value = tostring(value or "")
+    maxChars = tonumber(maxChars) or 0
+    if maxChars <= 0 or value == "" then return "" end
+
+    local bytePos = 1
+    local valueLen = #value
+    local chars = 0
+    while bytePos <= valueLen and chars < maxChars do
+        local b = string_byte(value, bytePos)
+        if not b then break end
+        if b < 128 then
+            bytePos = bytePos + 1
+        elseif b < 224 then
+            bytePos = bytePos + 2
+        elseif b < 240 then
+            bytePos = bytePos + 3
+        else
+            bytePos = bytePos + 4
+        end
+        chars = chars + 1
+    end
+    return string_sub(value, 1, bytePos - 1)
+end
+
+local function UFCore_CleanToTInlineCustomSeparator(value)
+    value = string_gsub(tostring(value or ""), "[%c]", " ")
+    return UFCore_TruncateUtf8Chars(value, UFCORE_TOT_INLINE_CUSTOM_SEPARATOR_MAX)
+end
+
+local function UFCore_ResolveToTInlineSeparator(conf)
+    local token = conf and conf.totInlineSeparator
+    if token == UFCORE_TOT_INLINE_CUSTOM_SEPARATOR then
+        token = conf and conf.totInlineCustomSeparator
+        if type(token) ~= "string" or token == "" then token = " " end
+    elseif type(token) ~= "string" or token == "" then
+        token = "|"
+    end
+    return token
 end
 
 -- Ensure the targettarget DB node exists even when the ToT unitframe is disabled.
@@ -1556,6 +1636,17 @@ function UFCore_GetTargetToTInlineConf()
         end
         if type(tt.totInlineSeparator) ~= "string" or tt.totInlineSeparator == "" then
             tt.totInlineSeparator = "|"
+        end
+        if tt.totInlineCustomSeparator == nil then
+            local t = db.target
+            if type(t) == "table" and type(t.totInlineCustomSeparator) == "string" then
+                tt.totInlineCustomSeparator = t.totInlineCustomSeparator
+            end
+        end
+        tt.totInlineCustomSeparator = UFCore_CleanToTInlineCustomSeparator(tt.totInlineCustomSeparator)
+        if tt.totInlineSeparator ~= UFCORE_TOT_INLINE_CUSTOM_SEPARATOR and not UFCORE_TOT_INLINE_PRESET_SEPARATOR[tt.totInlineSeparator] then
+            tt.totInlineCustomSeparator = UFCore_CleanToTInlineCustomSeparator(tt.totInlineSeparator)
+            tt.totInlineSeparator = UFCORE_TOT_INLINE_CUSTOM_SEPARATOR
         end
 
         if tt.showToTInTargetName == nil then
@@ -1616,8 +1707,7 @@ function UFCore_UpdateToTInline(f)
     -- Separator token (stored in DB; render with spaces around it, legacy-style).
     do
         local conf = UFCore_GetTargetToTInlineConf()
-        local token = (conf and conf.totInlineSeparator) or "|"
-        if type(token) ~= "string" or token == "" then token = "|" end
+        local token = UFCore_ResolveToTInlineSeparator(conf)
         _SetText(f._msufToTInlineSep, " " .. token .. " ")
     end
 
@@ -2219,7 +2309,7 @@ local function _HealthValueFast(f)
     -- Mirrors GF dispatchHealthLean gradient handling. Calc is created in
     -- MSUF_Bars.HealthCalcUpdate on UNIT_MAXHEALTH; nil-guard skips silently
     -- on rare cold-start race (next MAXHEALTH event creates it).
-    if _ufcBarModeIsGradient then
+    if _ufcHealthColorGradientActive then
         local calc = f._msufHealthCalc
         if calc and _ufcGradientCurve then
             UnitGetDetailedHealPrediction(f.unit, "player", calc)
@@ -2432,12 +2522,17 @@ local function _HealAbsorbValueFast(f)
     _RefreshAbsorbTextFast(f, hp, nil)
 end
 
--- UNIT_HEAL_PREDICTION: only self-heal prediction bar
+-- UNIT_HEAL_PREDICTION: incoming heal prediction overlay only
 local function _HealPredValueFast(f)
-    local spb = f.selfHealPredBar
+    local spb = f and (f.incomingHealBar or f.selfHealPredBar)
     if not spb then return end
+    if not UFCore_IsHealPredictionEnabled() then
+        if spb.SetValue then spb:SetValue(0) end
+        if spb.Hide then spb:Hide() end
+        return
+    end
     local calc = f._msufHealthCalc
-    if not calc then
+    if not calc or not UnitGetDetailedHealPrediction then
         if _HealthFullFast then _HealthFullFast(f) end
         return
     end
@@ -2446,8 +2541,9 @@ local function _HealPredValueFast(f)
     UnitGetDetailedHealPrediction(unit, "player", calc)
     local maxHP = calc:GetMaximumHealth()
     local hp = calc:GetCurrentHealth()
-    -- Delegate to existing self-heal prediction function
-    local fn = _G.MSUF_UpdateSelfHealPrediction
+    -- Delegate to the bars backend so fast events and full health updates stay identical.
+    local bars = addon and addon.Bars
+    local fn = (bars and bars._UpdateSelfHealPrediction) or _G.MSUF_UpdateSelfHealPrediction
     if fn then fn(f, unit, maxHP, hp, calc) end
     local bar = f.hpBar
     if bar then UFCore_SetHealthBarValue(f, bar, hp) end
@@ -2842,6 +2938,11 @@ local function UFCore_FlushTask()
     Core._frameNow = GetTime()
     Core._frameNowSerial = (Core._frameNowSerial or 0) + 1
     _G._MSUF_FrameSerial = Core._frameNowSerial
+    -- PERF (Stage 1): Activate the per-flush-cycle fast path in UFCore_GetSettingsCache.
+    -- Without this, _flushSettingsCacheSerial was never set, so the cache always ran
+    -- the 4 table-reference comparisons every call instead of skipping them after the
+    -- first validation per flush cycle.
+    Core._flushSettingsCacheSerial = Core._frameNowSerial
 
     local frameStart = debugprofilestop and debugprofilestop() or nil
     _G._MSUF_FrameBudgetStart = frameStart

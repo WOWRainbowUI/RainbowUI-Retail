@@ -303,7 +303,9 @@ do
     local stacks       = 0
     local expiresAt    = nil
     local noConsumeUntil = 0
-    local seenCastGUID = {}
+    local SEEN_CAST_GUID_MAX = 32
+    local seenCastGUID, seenCastRing = {}, {}
+    local seenCastWrite, seenCastCount = 1, 0
     local _expiryTimer = nil  -- pending C_Timer handle for expiry
 
     WW.MAX_STACKS = MAX_STACKS
@@ -339,6 +341,35 @@ do
         end)
     end
 
+    local function ResetSeenCastGUID()
+        for i = 1, SEEN_CAST_GUID_MAX do
+            local guid = seenCastRing[i]
+            if guid then
+                seenCastGUID[guid] = nil
+                seenCastRing[i] = nil
+            end
+        end
+        seenCastWrite, seenCastCount = 1, 0
+    end
+
+    local function CastGUIDSeen(guid)
+        if not guid then return false end
+        if seenCastGUID[guid] then return true end
+
+        if seenCastCount >= SEEN_CAST_GUID_MAX then
+            local old = seenCastRing[seenCastWrite]
+            if old then seenCastGUID[old] = nil end
+        else
+            seenCastCount = seenCastCount + 1
+        end
+
+        seenCastRing[seenCastWrite] = guid
+        seenCastGUID[guid] = true
+        seenCastWrite = (seenCastWrite % SEEN_CAST_GUID_MAX) + 1
+
+        return false
+    end
+
     -- Warrior-only: own event frame (Sensei pattern)
     if PLAYER_CLASS == "WARRIOR" then
         local f = CreateFrame("Frame")
@@ -349,7 +380,7 @@ do
             if event == "PLAYER_DEAD" or event == "PLAYER_ALIVE" then
                 stacks = 0
                 expiresAt = nil
-                seenCastGUID = {}
+                ResetSeenCastGUID()
                 if _wwRender then _wwRender() end
                 return
             end
@@ -358,8 +389,7 @@ do
             local known = C_SpellBook and C_SpellBook.IsSpellKnown
 
             -- castGUID dedup
-            if castGUID and seenCastGUID[castGUID] then return end
-            if castGUID then seenCastGUID[castGUID] = true end
+            if CastGUIDSeen(castGUID) then return end
 
             -- Unhinged no-consume window
             if known and known(UNHINGED) and BLADESTORMS[spellID] then
@@ -415,6 +445,7 @@ local function EnsureDefaults()
     if b.classPowerWidthMode  == nil then b.classPowerWidthMode  = "player" end
     if b.classPowerOffsetX    == nil then b.classPowerOffsetX    = 0     end
     if b.classPowerOffsetY    == nil then b.classPowerOffsetY    = 0     end
+    if b.classPowerFrameLevelOffset == nil then b.classPowerFrameLevelOffset = 5 end
     if b.smoothPowerBar       == nil then b.smoothPowerBar       = false end
     if b.showChargedComboPoints == nil then b.showChargedComboPoints = true end
     if b.classPowerComboPointColorMode == nil then b.classPowerComboPointColorMode = "default" end
@@ -1365,6 +1396,37 @@ local function GetPlayerFrame()
     return _G.MSUF_player or (_G.MSUF_UnitFrames and _G.MSUF_UnitFrames.player) or nil
 end
 
+local function CP_ShouldMaintainHiddenAnchor()
+    local p = MSUF_DB and MSUF_DB.player
+    if not p or p.powerBarDetached ~= true or p.detachedPowerBarAnchorToClassPower ~= true then
+        return false
+    end
+    local b = _cpDB.bars or {}
+    return b.showClassPower ~= false
+end
+
+local function CP_EnsureHiddenAnchorGeometry(playerFrame, cpHeight)
+    if not (playerFrame and CP_Create and CP_EnsureBars and CP_Layout) then return false end
+    if not CP_ShouldMaintainHiddenAnchor() then return false end
+
+    CP_Create(playerFrame)
+
+    local maxP = tonumber(CP.currentMax) or 5
+    if maxP < 1 then maxP = 5 end
+    if maxP > CPConst.MAX_CLASS_POWER then maxP = CPConst.MAX_CLASS_POWER end
+
+    CP_EnsureBars(playerFrame, maxP)
+    CP_Layout(playerFrame, maxP, cpHeight)
+    CP._pf = playerFrame
+    CP._layoutH = cpHeight
+
+    if CP.container then
+        CP.container._msufAnchorOnly = true
+        CP.container:Hide()
+    end
+    return true
+end
+
 -- Full refresh (called on spec change, form change, config change)
 local CP_RefreshEventBindings
 local function FullRefresh()
@@ -1524,6 +1586,7 @@ local function FullRefresh()
         -- Dispatch to correct update function
         CP_RunActiveUpdate(powerType, maxP)
 
+        CP.container._msufAnchorOnly = nil
         CP.container:Show()
         CP.visible = true
         -- Belt-and-suspenders: ensure outline survives parent Hide/Show cycle
@@ -1537,6 +1600,7 @@ local function FullRefresh()
         if SetTimerBarOnUpdate then SetTimerBarOnUpdate(false) end
         if CP.essenceOUAAny and CP_StopEssenceOnUpdates then CP_StopEssenceOnUpdates() end
         CP_StopCentralTick()
+        CP_EnsureHiddenAnchorGeometry(playerFrame, cpHeight)
         if CP.container then
             CP.container:Hide()
         end
@@ -2235,6 +2299,7 @@ local _predAmt = 0
 local _solarExp, _lunarExp, _caExp, _incExp = 0, 0, 0, 0
 local _predTex = nil
 local _eclColor = nil
+local _eclColorScratch = { 1, 1, 1 }
 
 local function GetColorOverrides()
     local db = _G.MSUF_DB
@@ -2277,6 +2342,15 @@ local function _resolveEclColor(token)
     return nil
 end
 
+local function _SetEclipseColor(r, g, b, fallback)
+    if r then
+        _eclColorScratch[1], _eclColorScratch[2], _eclColorScratch[3] = r, g, b
+        _eclColor = _eclColorScratch
+    else
+        _eclColor = fallback
+    end
+end
+
 local function _refreshEclipses()
     local getAura = C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID
     if not getAura then return end
@@ -2295,13 +2369,13 @@ local function _refreshEclipses()
     local inCA, inInc = (_caExp > now), (_incExp > now)
     if inCA or inInc then
         local r, g, b = _resolveEclColor("ECLIPSE_CA")
-        _eclColor = r and { r, g, b } or CPK.BAL.CLR_CA
+        _SetEclipseColor(r, g, b, CPK.BAL.CLR_CA)
     elseif _solarExp > now then
         local r, g, b = _resolveEclColor("ECLIPSE_SOLAR")
-        _eclColor = r and { r, g, b } or CPK.BAL.CLR_SOLAR
+        _SetEclipseColor(r, g, b, CPK.BAL.CLR_SOLAR)
     elseif _lunarExp > now then
         local r, g, b = _resolveEclColor("ECLIPSE_LUNAR")
-        _eclColor = r and { r, g, b } or CPK.BAL.CLR_LUNAR
+        _SetEclipseColor(r, g, b, CPK.BAL.CLR_LUNAR)
     else
         _eclColor = nil
     end
@@ -2399,25 +2473,49 @@ local function _cleanup()
 end
 
 local f = CreateFrame("Frame")
-f:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
-f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
-f:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
-f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
-f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
-f:RegisterUnitEvent("UNIT_AURA", "player")
-f:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
+local _hotEventsBound = false
+
+local function _setHotEventsBound(active)
+    active = active and true or false
+    if _hotEventsBound == active then return end
+    _hotEventsBound = active
+
+    if active then
+        f:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
+        f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player")
+        f:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
+        f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
+        f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+        f:RegisterUnitEvent("UNIT_AURA", "player")
+        f:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
+    else
+        f:UnregisterEvent("UNIT_SPELLCAST_START")
+        f:UnregisterEvent("UNIT_SPELLCAST_STOP")
+        f:UnregisterEvent("UNIT_SPELLCAST_FAILED")
+        f:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+        f:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+        f:UnregisterEvent("UNIT_AURA")
+        f:UnregisterEvent("UNIT_POWER_UPDATE")
+    end
+end
+
+local function _refreshActiveState()
+    _checkActive()
+    _setHotEventsBound(_active)
+    if _active then
+        _refreshEclipses()
+        _applyEclipseColor()
+    else
+        _cleanup()
+    end
+end
+
 f:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
 f:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:SetScript("OnEvent", function(_, event, arg1, _, arg3)
     if event == "ACTIVE_PLAYER_SPECIALIZATION_CHANGED" or event == "UPDATE_SHAPESHIFT_FORM" or event == "PLAYER_ENTERING_WORLD" then
-        _checkActive()
-        if _active then
-            _refreshEclipses()
-            _applyEclipseColor()
-        else
-            _cleanup()
-        end
+        _refreshActiveState()
         return
     end
     if not _active then return end
@@ -2447,6 +2545,8 @@ f:SetScript("OnEvent", function(_, event, arg1, _, arg3)
         if _eclColor then _applyEclipseColor() end
     end
 end)
+
+_refreshActiveState()
 
 _G.MSUF_BAL_InvalidateColors = function()
     if not _active then return end

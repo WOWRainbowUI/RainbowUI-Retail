@@ -34,6 +34,19 @@ local canaccessvalue = _G.canaccessvalue
 local issecretvalue = _G.issecretvalue
 local _hasCanaccessvalue = (type(canaccessvalue) == "function")
 
+local function Tr(text)
+    if type(text) ~= "string" then return text end
+    if type(ns) == "table" and type(ns.Translate) == "function" then
+        return ns.Translate(text)
+    end
+    local locale = (type(ns) == "table" and ns.L) or _G.MSUF_L
+    if type(locale) == "table" then
+        local translated = rawget(locale, text)
+        if translated ~= nil then return translated end
+    end
+    return text
+end
+
 local function _GetIcon(spellId)
     if C_Spell_GetSpellTexture then
         local ok, tex = pcall(C_Spell_GetSpellTexture, spellId)
@@ -131,6 +144,16 @@ local _providerMinRem  = {}
 
 local _getPlayerAuraBySpellID, _getUnitAuraBySpellID, _auraLookupBound
 
+local function _ProviderWanted(idx, reminders)
+    local p = _PROVIDERS[idx]
+    if not p then return false end
+    if reminders and reminders[p.key] == false then return false end
+    if p.providerClass == "ROGUE_SELF" then
+        return _playerClass == "ROGUE"
+    end
+    return _presentClasses[p.providerClass] == true
+end
+
 local function _BindAuraLookups()
     if _auraLookupBound then return end
     local CUA = C_UnitAuras or _G.C_UnitAuras
@@ -172,21 +195,23 @@ local function _AddProviderAura(idx, data, threshold)
     end
 end
 
-local function _ScanPlayerAurasDirect(threshold)
+local function _ScanPlayerAurasDirect(threshold, reminders)
     _BindAuraLookups()
     if not _getPlayerAuraBySpellID and not _getUnitAuraBySpellID then return false end
     for i = 1, _providerCount do
-        local spells = _PROVIDERS[i].satisfiedBy
-        for sid in next, spells do
-            local data
-            if _getPlayerAuraBySpellID then
-                data = _getPlayerAuraBySpellID(sid)
-            end
-            if not data and _getUnitAuraBySpellID then
-                data = _getUnitAuraBySpellID("player", sid)
-            end
-            if data then
-                _AddProviderAura(i, data, threshold)
+        if _ProviderWanted(i, reminders) then
+            local spells = _PROVIDERS[i].satisfiedBy
+            for sid in next, spells do
+                local data
+                if _getPlayerAuraBySpellID then
+                    data = _getPlayerAuraBySpellID(sid)
+                end
+                if not data and _getUnitAuraBySpellID then
+                    data = _getUnitAuraBySpellID("player", sid)
+                end
+                if data then
+                    _AddProviderAura(i, data, threshold)
+                end
             end
         end
     end
@@ -213,25 +238,37 @@ function Reminder.MarkDirty()
     _lastResultSig = ""  -- force re-render
 end
 
-local function _ScanPlayerAuras(threshold)
-    if _ScanPlayerAurasDirect(threshold) then return true end
-
+local function _ScanPlayerAurasCached(threshold, reminders)
     local Cache = API.Cache
     local s = Cache._units and Cache._units.player
     if not s or not s.all then return false end
     local thr = threshold
     local lookup = _spellToProvider
     for _, data in next, s.all do
-        local sid = data._msufA2_sid
-        if not sid or sid == 0 then sid = _DecodeSpellId(data) end
-        if sid and sid ~= 0 then
-            local idx = lookup[sid]
-            if idx then
-                _AddProviderAura(idx, data, thr)
+        local idx = data._msufA2_remProvider
+        if idx == nil then
+            local sid = data._msufA2_sid
+            if sid == nil then
+                sid = _DecodeSpellId(data)
+                data._msufA2_sid = sid or 0
             end
+            if sid and sid ~= 0 then
+                idx = lookup[sid] or false
+            else
+                idx = false
+            end
+            data._msufA2_remProvider = idx
+        end
+        if idx and _ProviderWanted(idx, reminders) then
+            _AddProviderAura(idx, data, thr)
         end
     end
     return true
+end
+
+local function _ScanPlayerAuras(threshold, reminders)
+    if _ScanPlayerAurasCached(threshold, reminders) then return true end
+    return _ScanPlayerAurasDirect(threshold, reminders)
 end
 
 -- Build compact result signature (zero-alloc via reusable buffer)
@@ -290,32 +327,24 @@ local function _ComputeMissing(reminders, threshold, isPreview)
         _providerMinRem[i] = nil
     end
 
-    if not _ScanPlayerAuras(thr) then
+    if not _ScanPlayerAuras(thr, reminders) then
         _lastEpoch = -1
         return true
     end
 
     for i = 1, _providerCount do
         local p = _PROVIDERS[i]
-        if not reminders or reminders[p.key] ~= false then
-            local shouldCheck = false
-            if p.providerClass == "ROGUE_SELF" then
-                shouldCheck = (_playerClass == "ROGUE")
-            else
-                shouldCheck = (_presentClasses[p.providerClass] == true)
-            end
-            if shouldCheck then
-                if not _providerHasBuff[i] then
+        if _ProviderWanted(i, reminders) then
+            if not _providerHasBuff[i] then
+                _resultCount = _resultCount + 1
+                local r = _results[_resultCount]
+                r.provider = p; r.state = "MISSING"; r.remaining = nil
+            elseif thr > 0 then
+                local rem = _providerMinRem[i]
+                if rem and rem < thr then
                     _resultCount = _resultCount + 1
                     local r = _results[_resultCount]
-                    r.provider = p; r.state = "MISSING"; r.remaining = nil
-                elseif thr > 0 then
-                    local rem = _providerMinRem[i]
-                    if rem and rem < thr then
-                        _resultCount = _resultCount + 1
-                        local r = _results[_resultCount]
-                        r.provider = p; r.state = "EXPIRING"; r.remaining = rem
-                    end
+                    r.provider = p; r.state = "EXPIRING"; r.remaining = rem
                 end
             end
         end
@@ -388,21 +417,21 @@ local function _AcquireGhost(container, index)
         GameTooltip:ClearLines()
         local r = self._result
         if self._isPreview then
-            GameTooltip:AddLine("Buff Reminder Preview", 0.4, 0.7, 1)
+            GameTooltip:AddLine(Tr("Buff Reminder Preview"), 0.4, 0.7, 1)
             GameTooltip:AddLine(r.provider.label, 1, 1, 1)
-            GameTooltip:AddLine("Click the mover to open position settings.", 0.7, 0.7, 0.7, true)
+            GameTooltip:AddLine(Tr("Click the mover to open position settings."), 0.7, 0.7, 0.7, true)
         elseif r.state == "EXPIRING" then
-            GameTooltip:AddLine("Expiring: " .. r.provider.label, 1, 0.6, 0.1)
-            GameTooltip:AddLine(_FormatTime(r.remaining) .. " remaining", 0.9, 0.9, 0.9)
+            GameTooltip:AddLine(format(Tr("Expiring: %s"), r.provider.label), 1, 0.6, 0.1)
+            GameTooltip:AddLine(format(Tr("%s remaining"), _FormatTime(r.remaining)), 0.9, 0.9, 0.9)
         else
-            GameTooltip:AddLine("Missing: " .. r.provider.label, 1, 0.3, 0.3)
+            GameTooltip:AddLine(format(Tr("Missing: %s"), r.provider.label), 1, 0.3, 0.3)
             if r.provider.providerClass == "ROGUE_SELF" then
-                GameTooltip:AddLine("Apply your poison!", 0.8, 0.8, 0.8, true)
+                GameTooltip:AddLine(Tr("Apply your poison!"), 0.8, 0.8, 0.8, true)
             else
                 local cls = r.provider.providerClass
                 local color = RAID_CLASS_COLORS and RAID_CLASS_COLORS[cls]
                 local cName = color and color.colorStr and ("|c" .. color.colorStr .. cls .. "|r") or cls
-                GameTooltip:AddLine("A " .. cName .. " in your group can provide this.", 0.8, 0.8, 0.8, true)
+                GameTooltip:AddLine(format(Tr("A %s in your group can provide this."), cName), 0.8, 0.8, 0.8, true)
             end
         end
         GameTooltip:Show()
@@ -554,7 +583,7 @@ local function _EnsurePopup()
     -- Title
     local title = pf:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -12)
-    title:SetText("MSUF Edit  Player Reminders")
+    title:SetText(Tr("MSUF Edit - Player Reminders"))
     pf.title = title
 
     -- Close button
@@ -565,7 +594,7 @@ local function _EnsurePopup()
     -- Section header
     local header = pf:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     header:SetPoint("TOPLEFT", pf, "TOPLEFT", 16, -36)
-    header:SetText("Reminder Icons")
+    header:SetText(Tr("Reminder Icons"))
     header:SetTextColor(1, 0.82, 0, 1)
 
     -- Apply callback — reads all boxes, writes to DB, refreshes
@@ -609,15 +638,15 @@ local function _EnsurePopup()
     end
 
     -- Build numeric rows
-    pf._rowX = _CreateNumericRow(pf, "Offset X:", header, -10, Apply)
-    pf._rowY = _CreateNumericRow(pf, "Offset Y:", pf._rowX.label, -8, Apply)
-    pf._rowSize = _CreateNumericRow(pf, "Icon Size:", pf._rowY.label, -8, Apply)
-    pf._rowSpacing = _CreateNumericRow(pf, "Spacing:", pf._rowSize.label, -8, Apply)
+    pf._rowX = _CreateNumericRow(pf, Tr("Offset X:"), header, -10, Apply)
+    pf._rowY = _CreateNumericRow(pf, Tr("Offset Y:"), pf._rowX.label, -8, Apply)
+    pf._rowSize = _CreateNumericRow(pf, Tr("Icon Size:"), pf._rowY.label, -8, Apply)
+    pf._rowSpacing = _CreateNumericRow(pf, Tr("Spacing:"), pf._rowSize.label, -8, Apply)
 
     -- Step hint
     local stepHint = pf:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     stepHint:SetPoint("BOTTOM", pf, "BOTTOM", 0, 14)
-    stepHint:SetText("Hold Shift for \194\177 10 steps")
+    stepHint:SetText(Tr("Hold Shift for +/- 10 steps"))
     stepHint:SetTextColor(0.5, 0.5, 0.5, 0.8)
 
     pf:Hide()
@@ -726,7 +755,7 @@ function Reminder.EnsureMover(entry, unit, shared)
     lbl:SetPoint("LEFT", ico, "RIGHT", 6, 0)
     lbl:SetPoint("RIGHT", hdr, "RIGHT", -6, 0)
     lbl:SetJustifyH("LEFT")
-    lbl:SetText("Player Reminders")
+    lbl:SetText(Tr("Player Reminders"))
     lbl:SetTextColor(0.95, 0.95, 0.95, 0.92)
 
     mover:Hide()
@@ -749,6 +778,18 @@ function Reminder.EnsureMover(entry, unit, shared)
         if Reminder.SyncPopup then Reminder.SyncPopup() end
     end
 
+    local function ReminderDragUpdate(self)
+        if not self._isDragging then
+            self:SetScript("OnUpdate", nil)
+            return
+        end
+        local cx, cy = _GetCursorScaled()
+        local dx = cx - (self._dragStartCX or cx)
+        local dy = cy - (self._dragStartCY or cy)
+        if (dx * dx + dy * dy) > 4 then _dragged = true end
+        ApplyDrag(self, dx, dy)
+    end
+
     mover:SetScript("OnMouseDown", function(self, button)
         if button ~= "LeftButton" then return end
         if InCombatLockdown() then return end
@@ -766,20 +807,13 @@ function Reminder.EnsureMover(entry, unit, shared)
         self._dragStartCX = cx
         self._dragStartCY = cy
         self._isDragging = true
-    end)
-
-    mover:SetScript("OnUpdate", function(self)
-        if not self._isDragging then return end
-        local cx, cy = _GetCursorScaled()
-        local dx = cx - (self._dragStartCX or cx)
-        local dy = cy - (self._dragStartCY or cy)
-        if (dx * dx + dy * dy) > 4 then _dragged = true end
-        ApplyDrag(self, dx, dy)
+        self:SetScript("OnUpdate", ReminderDragUpdate)
     end)
 
     mover:SetScript("OnMouseUp", function(self, button)
         if button ~= "LeftButton" then return end
         self._isDragging = false
+        self:SetScript("OnUpdate", nil)
         if not _G.MSUF__UndoRestoring then
             local ac = _G.MSUF_EM_UndoAfterChange
             if type(ac) == "function" then ac("aura", "player") end

@@ -7,6 +7,26 @@ local type, tonumber, ipairs, pairs = type, tonumber, ipairs, pairs
 local string_format = string.format
 local LSM = (ns and ns.LSM) or _G.MSUF_LSM or (LibStub and LibStub("LibSharedMedia-3.0", true))
 local FONT_LIST = _G.MSUF_FONT_LIST
+
+local function CurrentLSM()
+    local lsm = (ns and ns.LSM) or _G.MSUF_LSM or LSM
+    if lsm then LSM = lsm end
+    return lsm
+end
+
+local function Tr(text)
+    if type(text) ~= "string" then return text end
+    if type(ns) == "table" and type(ns.Translate) == "function" then
+        return ns.Translate(text)
+    end
+    local locale = (type(ns) == "table" and ns.L) or _G.MSUF_L
+    if type(locale) == "table" then
+        local translated = rawget(locale, text)
+        if translated ~= nil then return translated end
+    end
+    return text
+end
+
 local ResolveFontPath = _G.MSUF_ResolveFontPath or function(path)
     if type(_G.MSUF_NormalizeFontPath) == "function" then
         return _G.MSUF_NormalizeFontPath(path)
@@ -160,10 +180,22 @@ local function MSUF_GetFontPath()
     local g = MSUF_DB.general or {}
     MSUF_DB.general = g
     local key = g.fontKey
+    local pathForKey = _G.MSUF_GetFontPathForKey or (ns and ns.MSUF_GetFontPathForKey)
+    if type(pathForKey) == "function" and key and key ~= "" then
+        local p = pathForKey(key)
+        if p then return ResolveFontPath(p, g.fontSize or 14, MSUF_GetFontFlags()) end
+    end
+
+    local internalPath
+    if type(GetInternalFontPathByKey) == "function" then
+        internalPath = GetInternalFontPathByKey(key)
+        if internalPath then return ResolveFontPath(internalPath, g.fontSize or 14, MSUF_GetFontFlags()) end
+    end
+
     local lsm = LSM or (ns and ns.LSM) or _G.MSUF_LSM
-    local normalizeFontKey = _G.MSUF_NormalizeFontKey or function(k) return k end
-    local lsmKey = normalizeFontKey(key)
     if lsm and key and key ~= "" then
+        local normalizeFontKey = _G.MSUF_NormalizeFontKey or function(k) return k end
+        local lsmKey = normalizeFontKey(key)
         local p
         if type(lsm.Fetch) == "function" then
             p = lsm:Fetch("font", lsmKey, true)
@@ -173,13 +205,7 @@ local function MSUF_GetFontPath()
         end
         if p then return ResolveFontPath(p, g.fontSize or 14, MSUF_GetFontFlags()) end
     end
-    local internalPath
-    if type(GetInternalFontPathByKey) == "function" then
-        internalPath = GetInternalFontPathByKey(lsmKey) or GetInternalFontPathByKey(key)
-    end
-    if internalPath then
-         return ResolveFontPath(internalPath, g.fontSize or 14, MSUF_GetFontFlags())
-    end
+
     local fallback = (FONT_LIST and FONT_LIST[1] and FONT_LIST[1].path) or "Fonts\\FRIZQT__.TTF"
     return ResolveFontPath(fallback, g.fontSize or 14, MSUF_GetFontFlags())
 end
@@ -231,28 +257,38 @@ function MSUF_GetCastbarTexture()
     end
     local function TryResolve(key)
         if type(key) ~= "string" or key == "" then
-             return nil
+             return nil, true
         end
         local builtins = _G.MSUF_BUILTIN_BAR_TEXTURES
         if type(builtins) == "table" then
             local t = builtins[key]
             if type(t) == "string" and t ~= "" then
-                 return t
+                 return t, true
             end
         end
         if key:find("\\") or key:find("/") then
-             return key
+             return key, true
         end
-        if LSM and LSM.Fetch then
-            local tex = LSM:Fetch("statusbar", key)
+        local lsm = CurrentLSM()
+        if lsm and lsm.Fetch then
+            local tex = lsm:Fetch("statusbar", key, true)
             if tex and tex ~= "" then
-                 return tex
+                 return tex, true
             end
         end
-         return nil
+         return nil, false
     end
-    local tex = TryResolve(castKey) or TryResolve(barKey) or "Interface\\TARGETINGFRAME\\UI-StatusBar"
-    cache[ck] = tex
+    local tex, castResolved = TryResolve(castKey)
+    local cacheable = castResolved
+    if not tex then
+        local barTex, barResolved = TryResolve(barKey)
+        tex = barTex
+        cacheable = cacheable and barResolved
+    end
+    tex = tex or "Interface\\TARGETINGFRAME\\UI-StatusBar"
+    if cacheable then
+        cache[ck] = tex
+    end
      return tex
 end
 _G.MSUF_GetCastbarTexture = MSUF_GetCastbarTexture
@@ -483,6 +519,28 @@ function MSUF_UpdateCastbarFillDirection()
  end
 -- PERF: Result cache — key→texture mapping never changes during runtime.
 local _resolveTexCache = {}
+function MSUF_ClearResolvedStatusbarTextureCache()
+    _resolveTexCache = {}
+
+    local castbarCache = _G.MSUF_CastbarTextureCache
+    if type(castbarCache) == "table" then
+        for key in pairs(castbarCache) do
+            castbarCache[key] = nil
+        end
+    end
+
+    local dpb = ns and ns.Bars and ns.Bars._DetachedPowerBarTextures
+    if dpb then
+        dpb.fgK = false
+        dpb.fgC = nil
+        dpb.bgK = false
+        dpb.bgC = nil
+    end
+
+    CurrentLSM()
+end
+_G.MSUF_ClearResolvedStatusbarTextureCache = MSUF_ClearResolvedStatusbarTextureCache
+
 function MSUF_ResolveStatusbarTextureKey(key)
     if type(key) ~= "string" or key == "" then
         return "Interface\\TargetingFrame\\UI-StatusBar"
@@ -491,24 +549,35 @@ function MSUF_ResolveStatusbarTextureKey(key)
     if cached then return cached end
 
     local result
+    local cacheable = false
     local builtins = _G.MSUF_BUILTIN_BAR_TEXTURES
     if type(builtins) == "table" then
         local t = builtins[key]
         if type(t) == "string" and t ~= "" then
             result = t
+            cacheable = true
         end
     end
     if not result then
         if key:find("\\") or key:find("/") then
             result = key
-        elseif LSM and type(LSM.Fetch) == "function" then
-            local tex = LSM:Fetch("statusbar", key, true)
-            if tex then result = tex end
+            cacheable = true
+        else
+            local lsm = CurrentLSM()
+            if lsm and type(lsm.Fetch) == "function" then
+                local tex = lsm:Fetch("statusbar", key, true)
+                if tex then
+                    result = tex
+                    cacheable = true
+                end
+            end
         end
     end
-    result = result or "Interface\\TargetingFrame\\UI-StatusBar"
-    _resolveTexCache[key] = result
-    return result
+    if result then
+        if cacheable then _resolveTexCache[key] = result end
+        return result
+    end
+    return "Interface\\TargetingFrame\\UI-StatusBar"
 end
 _G.MSUF_ResolveStatusbarTextureKey = MSUF_ResolveStatusbarTextureKey
 _G.MSUF_BUILTIN_BAR_TEXTURES = _G.MSUF_BUILTIN_BAR_TEXTURES or {
@@ -631,9 +700,9 @@ local function MSUF_InitPlayerCastbarPreviewToggle()
         local g       = MSUF_DB.general or {}
         local active  = g.castbarPlayerPreviewEnabled and true or false
         if active then
-            btn:SetText("Castbar Edit Mode: ON")
+            btn:SetText(Tr("Castbar Edit Mode: ON"))
         else
-            btn:SetText("Castbar Edit Mode: OFF")
+            btn:SetText(Tr("Castbar Edit Mode: OFF"))
     end
      end
     btn:SetScript("OnClick", function(self)
@@ -667,9 +736,9 @@ local function MSUF_InitPlayerCastbarPreviewToggle()
     end
         g.castbarPlayerPreviewEnabled = not (g.castbarPlayerPreviewEnabled and true or false)
         if g.castbarPlayerPreviewEnabled then
-            print("|cffffd700MSUF:|r Castbar Edit Mode |cff00ff00ON|r drag player/target/focus castbars with the mouse.")
+            print(Tr("|cffffd700MSUF:|r Castbar Edit Mode |cff00ff00ON|r drag player/target/focus castbars with the mouse."))
         else
-            print("|cffffd700MSUF:|r Castbar Edit Mode |cffff0000OFF|r.")
+            print(Tr("|cffffd700MSUF:|r Castbar Edit Mode |cffff0000OFF|r."))
     end
         if MSUF_UpdatePlayerCastbarPreview then
             MSUF_UpdatePlayerCastbarPreview()
@@ -720,8 +789,13 @@ MSUF_BumpCastbarStyleRevision()
     local useShadow = g.textBackdrop and true or false
     local baseSize = g.fontSize or 14
     local effectiveSize = (fontSize > 0) and fontSize or baseSize
+    local safeSetFont = _G.MSUF_SetFontSafe
     local function ApplyFontColor(fs, size)
-        fs:SetFont(fontPath, size, fontFlags)
+        if type(safeSetFont) == "function" then
+            safeSetFont(fs, fontPath, size, fontFlags, g.fontKey)
+        else
+            fs:SetFont(fontPath, size, fontFlags)
+        end
         fs:SetTextColor(fr, fg, fb, 1)
      end
     local function ApplyShadow(fs)

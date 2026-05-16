@@ -15,6 +15,24 @@
 
 local addonName, ns = ...
 ns = (rawget(_G, "MSUF_NS") or ns) or {}
+
+ns.MSUF_A2_L_RELOAD_COMBAT = "|cffff5555MSUF|r: Can't reload UI in combat. Leave combat, then type /reload."
+ns.MSUF_A2_L_RELOAD_UI = "Reload UI"
+ns.MSUF_A2_L_CANCEL = "Cancel"
+
+ns.MSUF_A2_RefreshLocaleText = function()
+    if type(ns.Translate) == "function" then
+        ns.MSUF_A2_L_RELOAD_COMBAT = ns.Translate("|cffff5555MSUF|r: Can't reload UI in combat. Leave combat, then type /reload.")
+        ns.MSUF_A2_L_RELOAD_UI = ns.Translate("Reload UI")
+        ns.MSUF_A2_L_CANCEL = ns.Translate("Cancel")
+    end
+end
+
+ns.MSUF_A2_RefreshLocaleText()
+if type(ns.RegisterLocaleCallback) == "function" then
+    ns.RegisterLocaleCallback("MSUF_A2_Render", ns.MSUF_A2_RefreshLocaleText)
+end
+
 -- PERF LOCALS (Auras2 runtime)
 --  - Reduce global table lookups in high-frequency aura pipelines.
 --  - Secret-safe: localizing function references only (no value comparisons).
@@ -892,6 +910,8 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
         entry._privateArgs = args
     end
 
+    local Native = ns and ns.MSUF_AuraNative
+    local ensureDispelOverlay = Native and Native.EnsurePrivateAuraDispelOverlay
     for i = 1, maxN do
         local slot = slots[i]
         if not slot then
@@ -905,6 +925,9 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
                 end)
             end
             slots[i] = slot
+        end
+        if ensureDispelOverlay then
+            ensureDispelOverlay(slot)
         end
         slot:ClearAllPoints()
         local off = (i - 1) * step
@@ -923,9 +946,11 @@ local function PrivateRebuild(entry, shared, privateIconSize, spacing, privateGr
         args.iconInfo.borderScale = borderScale
         args.iconInfo.iconAnchor.relativeTo = slot
 
-        local ok, anchorID = true, C_UnitAuras.AddPrivateAuraAnchor(args)
+        local ok, anchorID = pcall(C_UnitAuras.AddPrivateAuraAnchor, args)
         if ok and anchorID then
             entry._privateAnchorIDs[#entry._privateAnchorIDs + 1] = anchorID
+        elseif not ok then
+            entry._privateLastError = anchorID
         end
     end
 
@@ -1289,16 +1314,12 @@ local function RenderUnit(entry)
                 cfg.bossHealHideOthers = (bha.hideOthers == true)
             end
         end
-        -- Global Ignore List (reads from shared, per-unit overridable, boss excluded)
-        if _IS_BOSS[unit] then
-            cfg.ignoreCats = nil
-        else
-            local cats = shared.ignoreCats
-            if pu and pu.overrideIgnore == true and type(pu.ignoreCats) == "table" then
-                cats = pu.ignoreCats
-            end
-            cfg.ignoreCats = (cats) and cats or nil
+        -- Global Ignore List (shared for boss frames, per-unit overridable elsewhere)
+        local cats = shared.ignoreCats
+        if pu and pu.overrideIgnore == true and type(pu.ignoreCats) == "table" then
+            cats = pu.ignoreCats
         end
+        cfg.ignoreCats = (cats) and cats or nil
         -- Display flags
         cfg.showBuffs = (shared.showBuffs == true)
         cfg.showDebuffs = (shared.showDebuffs == true)
@@ -1543,10 +1564,10 @@ local function RenderUnit(entry)
         -- Player edit mode: debuff layout already handled by preview path.
     elseif customDebuffs then
         -- Numeric stamp: eliminates 13 string allocs per type per render call.
-        local debuffLayoutStamp = debuffCount * 100000007 + debuffIconSize * 10000019 + spacing * 100003 + perRow * 10007 + (_DIR_HASH[debuffGrowth] or 0) * 1009 + (_DIR_HASH[debuffRowWrap] or 0) * 101 + gen
+        local debuffLayoutStamp = debuffCount * 100000007 + debuffIconSize * 10000019 + spacing * 100003 + perRow * 10007 + (_DIR_HASH[debuffGrowth] or 0) * 1009 + (_DIR_HASH[debuffRowWrap] or 0) * 101
         if entry._msufA2_lastDebuffLayoutStamp ~= debuffLayoutStamp then
             entry._msufA2_lastDebuffLayoutStamp = debuffLayoutStamp
-            _LayoutIcons(entry.debuffs, debuffCount, debuffIconSize, spacing, perRow, debuffGrowth, debuffRowWrap, gen)
+            _LayoutIcons(entry.debuffs, debuffCount, debuffIconSize, spacing, perRow, debuffGrowth, debuffRowWrap, debuffLayoutStamp)
         end
         if debuffCount ~= lastDebuffCount then
             _HideUnused(entry.debuffs, debuffCount + 1)
@@ -1559,10 +1580,10 @@ local function RenderUnit(entry)
     end
 
     if customBuffs then
-        local buffLayoutStamp = buffCount * 100000007 + buffIconSize * 10000019 + spacing * 100003 + perRow * 10007 + (_DIR_HASH[buffGrowth] or 0) * 1009 + (_DIR_HASH[buffRowWrap] or 0) * 101 + gen
+        local buffLayoutStamp = buffCount * 100000007 + buffIconSize * 10000019 + spacing * 100003 + perRow * 10007 + (_DIR_HASH[buffGrowth] or 0) * 1009 + (_DIR_HASH[buffRowWrap] or 0) * 101
         if entry._msufA2_lastBuffLayoutStamp ~= buffLayoutStamp then
             entry._msufA2_lastBuffLayoutStamp = buffLayoutStamp
-            _LayoutIcons(entry.buffs, buffCount, buffIconSize, spacing, perRow, buffGrowth, buffRowWrap, gen)
+            _LayoutIcons(entry.buffs, buffCount, buffIconSize, spacing, perRow, buffGrowth, buffRowWrap, buffLayoutStamp)
         end
         if buffCount ~= lastBuffCount then
             _HideUnused(entry.buffs, buffCount + 1)
@@ -1690,29 +1711,46 @@ local function MarkAllDirty(delay)
     _ForEachDirtyUnit(true, _MarkDirtyEachUnit)
 end
 
--- Combat-leave guard: tear down + rebuild all private aura anchors.
--- Engine-managed private aura visuals can survive encounter cleanup if the engine
--- fails to remove stale anchor state, leaving ghost icons stuck on frames.
--- Forcing a PrivateClear → MarkAllDirty cycle on PLAYER_REGEN_ENABLED
--- guarantees a clean slate; PrivateRebuild runs on the next RenderUnit pass
--- because _lastPrivateGen was reset.
+-- Combat-leave guard: tear down private aura anchors only when there is private
+-- state to clear. Engine-managed private aura visuals can survive encounter
+-- cleanup, but a broad aura redraw on every PLAYER_REGEN_ENABLED is wasteful
+-- when no private anchors were active.
 API._OnCombatLeave = function()
     _FlushPendingRemoveIDs()
-    for _, entry in pairs(AurasByUnit) do
-        if entry then
+
+    local Store = API.Store
+    local CM = API.Cache
+    local needsCacheAll = false
+    local function hasPrivateAuraState(entry)
+        if not entry then return false end
+        if type(entry._privateAnchorIDs) == "table" then return true end
+        if entry._privUnit or entry._privToken or entry._privSize or entry._privMax then return true end
+        if entry.private and entry.private.IsShown and entry.private:IsShown() then return true end
+        local slots = entry._privateSlots
+        if type(slots) == "table" then
+            for i = 1, #slots do
+                local slot = slots[i]
+                if slot and slot.IsShown and slot:IsShown() then return true end
+            end
+        end
+        return false
+    end
+
+    for unit, entry in pairs(AurasByUnit) do
+        if hasPrivateAuraState(entry) then
             PrivateClear(entry)
             entry._lastPrivateGen = nil
+            if Store and Store.InvalidateUnit then Store.InvalidateUnit(unit) end
+            if CM and CM.Invalidate then
+                CM.Invalidate(unit)
+            else
+                needsCacheAll = true
+            end
+            MarkDirty(unit, 0)
         end
     end
-    local Store = API.Store
-    if Store and Store.InvalidateUnit then
-        _storeInvalidateEachUnit = Store.InvalidateUnit
-        _ForEachDirtyUnit(true, _InvalidateStoreEachUnit)
-        _storeInvalidateEachUnit = nil
-    end
-    local CM = API.Cache
-    if CM and CM.InvalidateAll then CM.InvalidateAll() end
-    MarkAllDirty(0)
+
+    if needsCacheAll and CM and CM.InvalidateAll then CM.InvalidateAll() end
 end
 
 local function RefreshAll()
@@ -2076,7 +2114,7 @@ local function EnsureReloadPopup()
 
     local function DoReload()
         if _G.InCombatLockdown and _G.InCombatLockdown() then
-            print("|cffff5555MSUF|r: Can't reload UI in combat. Leave combat, then type /reload.")
+            print(ns.MSUF_A2_L_RELOAD_COMBAT)
             return
         end
         if _G.ReloadUI then _G.ReloadUI() end
@@ -2085,9 +2123,9 @@ local function EnsureReloadPopup()
     local function MakeDialog(dialogKey, text, prevGlobalKey, cbGlobalKey, sharedField)
         if _G.StaticPopupDialogs[dialogKey] then return end
         _G.StaticPopupDialogs[dialogKey] = {
-            text = text,
-            button1 = "Reload UI",
-            button2 = "Cancel",
+            text = (ns.Translate and ns.Translate(text)) or text,
+            button1 = ns.MSUF_A2_L_RELOAD_UI,
+            button2 = ns.MSUF_A2_L_CANCEL,
             OnAccept = DoReload,
             OnCancel = function()
                 local prev = _G[prevGlobalKey]

@@ -12,6 +12,7 @@ if not GF then return end
 local issecretvalue = _G.issecretvalue
 local C_Timer = _G.C_Timer
 local CreateFrame = _G.CreateFrame
+local InCombatLockdown = _G.InCombatLockdown
 local UnitExists = _G.UnitExists
 local UnitClass = _G.UnitClass
 local UnitHealth = _G.UnitHealth
@@ -24,6 +25,16 @@ local type = type
 local tonumber = tonumber
 local math_max = math.max
 local math_floor = math.floor
+
+local function RuntimeEnabledForFrame(f)
+    if not f then return false end
+    if f._msufGFPreviewActive then return true end
+    if f.unit and UnitExists and UnitExists(f.unit) and f.IsVisible and f:IsVisible() then
+        return true
+    end
+    local kind = f._msufGFKind or (GF.frames and GF.frames[f]) or "party"
+    return not (GF.IsKindEnabled and not GF.IsKindEnabled(kind))
+end
 
 local MSUF_BETTER_BLIZZARD_TEXTURE = "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\Bars\\BetterBlizzard.blp"
 local UNHALTED_BG_R, UNHALTED_BG_G, UNHALTED_BG_B = 34/255, 34/255, 34/255
@@ -146,7 +157,7 @@ local DIRTY_GEOMETRY = 0x01   -- size, powerHeight
 local DIRTY_TEXTURE  = 0x02   -- bar texture / background
 local DIRTY_FONT     = 0x04   -- font path / size / outline / color
 local DIRTY_COLOR    = 0x08   -- health color mode, bg, power color
-local DIRTY_BORDER   = 0x10   -- border enable / size / color, aggro/target border style
+local DIRTY_BORDER   = 0x10   -- border paint/color/state, aggro/target border style
 local DIRTY_LAYOUT   = 0x20   -- text anchors, icon positions
 local DIRTY_ALL      = 0x3F
 
@@ -183,10 +194,14 @@ local function _Enqueue(f)
     _queued[f] = true
 end
 
+local _flushQueued = false
 local function _DoFlush()
+    _flushQueued = false
     GF._FlushDirty()
 end
 local function ScheduleFlush()
+    if _flushQueued then return end
+    _flushQueued = true
     local sched = _G.MSUF_ScheduleOnce
     if sched then
         sched("GF_RENDER_FLUSH", _DoFlush)
@@ -367,7 +382,7 @@ local function _GF_ApplyGradientToBar(bar, conf, gen, isPower)
     if isPower then
         if _GF_GradientValue(conf, gen, "enablePowerGradient", false) ~= true then strength = 0 end
     else
-        if _GF_GradientValue(conf, gen, "enableGradient", true) == false then strength = 0 end
+        if _GF_GradientValue(conf, gen, "enableGradient", false) ~= true then strength = 0 end
     end
     if strength <= 0 then
         local grads = bar._msufGFGrads
@@ -497,12 +512,48 @@ local function ApplyBackgroundTint(f, kind)
     end
 end
 
+local function ApplyBackgroundAlpha(f, kind)
+    if not f then return end
+    local conf = GF.GetConf(kind)
+    if not conf then return end
+    local layerA = GetGFBackgroundAlpha(kind, conf)
+    if f.barGroup and f.barGroup.SetBackdropColor then
+        f.barGroup:SetBackdropColor(
+            conf.bgR or 0.1, conf.bgG or 0.1,
+            conf.bgB or 0.1, (conf.bgA or 0.85) * layerA)
+    end
+    ApplyBackgroundTint(f, kind)
+end
+GF.ApplyBackgroundAlpha = ApplyBackgroundAlpha
+
 ------------------------------------------------------------------------
 -- Apply: frame border (backdrop bg + edge)
 -- Reuses shared tables to avoid allocation per-call
 ------------------------------------------------------------------------
 local _bgOnlyBd = { bgFile = "Interface\\Buttons\\WHITE8x8" }
 local _borderBd = { edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 }
+
+local function ApplyFrameBorderLevel(f, border)
+    if not (f and border and border.SetFrameLevel) then return end
+    local anchor = f.barGroup or f
+    local anchorLevel = anchor and anchor.GetFrameLevel and anchor:GetFrameLevel() or 0
+    local wantLevel = anchorLevel + 3
+    local minTextLevel
+    local layers = { f.nameTextLayer, f.healthTextLayer, f.powerTextLayer, f.statusTextLayer }
+    for i = 1, #layers do
+        local layer = layers[i]
+        local level = layer and layer.GetFrameLevel and layer:GetFrameLevel()
+        if level and (not minTextLevel or level < minTextLevel) then
+            minTextLevel = level
+        end
+    end
+    if minTextLevel and wantLevel >= minTextLevel then wantLevel = minTextLevel - 1 end
+    if wantLevel <= anchorLevel then wantLevel = anchorLevel + 1 end
+    if border._msufGFFrameBorderLevel ~= wantLevel then
+        border._msufGFFrameBorderLevel = wantLevel
+        border:SetFrameLevel(wantLevel)
+    end
+end
 
 local function ApplyFrameBorder(f, kind)
     local conf = GF.GetConf(kind)
@@ -519,6 +570,7 @@ local function ApplyFrameBorder(f, kind)
     if bf then
         local borderSize = (GF.GetBarOutlineThickness and GF.GetBarOutlineThickness(kind)) or 2
         if fScale ~= 1 then borderSize = ScaleValue(borderSize, fScale, 0) end
+        ApplyFrameBorderLevel(f, bf)
         if borderSize > 0 then
             _borderBd.edgeSize = borderSize
             bf:SetBackdrop(_borderBd)
@@ -549,10 +601,17 @@ local function ApplyEffectBorderStyles(f, kind)
 
     local hb = f._msufGFHighlightBorder
     if hb then
-        hb:ClearAllPoints()
-        hb:SetPoint("TOPLEFT", -hlOfs, hlOfs)
-        hb:SetPoint("BOTTOMRIGHT", hlOfs, -hlOfs)
-        hb:SetFrameLevel(hlLay == "ABOVE_BORDER" and baseLvl + 8 or baseLvl + 3)
+        local wantLevel = hlLay == "ABOVE_BORDER" and baseLvl + 8 or baseLvl + 3
+        if hb._msufGFStyleOfs ~= hlOfs then
+            hb._msufGFStyleOfs = hlOfs
+            hb:ClearAllPoints()
+            hb:SetPoint("TOPLEFT", -hlOfs, hlOfs)
+            hb:SetPoint("BOTTOMRIGHT", hlOfs, -hlOfs)
+        end
+        if hb._msufGFStyleLevel ~= wantLevel then
+            hb._msufGFStyleLevel = wantLevel
+            hb:SetFrameLevel(wantLevel)
+        end
     end
 end
 
@@ -564,6 +623,8 @@ local function ApplyFonts(f, kind)
     local fontPath   = GF.ResolveFontPath(kind)
     local fontFlags  = GF.ResolveFontFlags(kind)
     local fr, fg, fb = GF.ResolveFontColor(kind)
+    local db = _G.MSUF_DB
+    local fontKey = db and db.general and db.general.fontKey
     local fScale     = conf._resolvedFrameScale or 1
     local nameSize   = (conf.nameFontSize  or 12) * fScale
     local hpSize     = (conf.hpFontSize    or 10) * fScale
@@ -580,11 +641,16 @@ local function ApplyFonts(f, kind)
     end
 
     -- Skip redundant SetFont (path+size compare) + SetTextColor (color compare)
+    local safeSetFont = _G.MSUF_SetFontSafe
     local function set(fs, size, r, g, b, a)
         if not fs then return end
         local curP, curS = fs:GetFont()
         if curP ~= fontPath or curS ~= size then
-            fs:SetFont(fontPath, size, fontFlags)
+            if type(safeSetFont) == "function" then
+                safeSetFont(fs, fontPath, size, fontFlags, fontKey)
+            else
+                fs:SetFont(fontPath, size, fontFlags)
+            end
         end
         if r and colorChanged then fs:SetTextColor(r, g, b, a or 1) end
         fs:SetShadowOffset(0, 0)
@@ -813,21 +879,34 @@ local function EnsurePreserveMissingHP(f, kind)
         f._msufGFMissingHPBg = bg
     end
 
-    bg:ClearAllPoints()
-    bg:SetAllPoints(h)
+    if bg._msufGFMissingAnchor ~= h then
+        bg:ClearAllPoints()
+        bg:SetAllPoints(h)
+        bg._msufGFMissingAnchor = h
+    end
     if bg.SetFrameLevel and h.GetFrameLevel then
         local lvl = (h:GetFrameLevel() or 1) - 1
         if lvl < 0 then lvl = 0 end
-        bg:SetFrameLevel(lvl)
+        if bg._msufGFMissingLevel ~= lvl then
+            bg:SetFrameLevel(lvl)
+            bg._msufGFMissingLevel = lvl
+        end
     end
     local tex = ResolveUnhaltedTexture() or GF.ResolveBarBgTexture(kind)
     if tex and bg._msufGFMissingBgTex ~= tex then
         bg:SetStatusBarTexture(tex)
         bg._msufGFMissingBgTex = tex
     end
-    bg:SetStatusBarColor(UNHALTED_BG_R, UNHALTED_BG_G, UNHALTED_BG_B, 1)
+    if bg._msufGFMissingColorSet ~= true then
+        bg:SetStatusBarColor(UNHALTED_BG_R, UNHALTED_BG_G, UNHALTED_BG_B, 1)
+        bg._msufGFMissingColorSet = true
+    end
     if bg.SetReverseFill and h.GetReverseFill then
-        bg:SetReverseFill(not h:GetReverseFill())
+        local rev = not h:GetReverseFill()
+        if bg._msufGFMissingReverse ~= rev then
+            bg:SetReverseFill(rev)
+            bg._msufGFMissingReverse = rev
+        end
     end
     return bg
 end
@@ -835,12 +914,22 @@ end
 local function SyncPreserveMissingHP(f, kind, hp, hpMax)
     if not f or not f.health then return end
     kind = kind or f._msufGFKind or "party"
-    local conf = GF.GetConf(kind)
-    local preserve = conf and conf.alphaPreserveHPColor == true
-    if f.healthBg and f.healthBg.SetAlpha then f.healthBg:SetAlpha(preserve and 0 or 1) end
-    if f._msufBehindBarBg and f._msufBehindBarBg.SetAlpha then f._msufBehindBarBg:SetAlpha(preserve and 0 or 1) end
+    local c = f._c
+    local preserve
+    if c and c.alphaPreserveHPColor ~= nil then
+        preserve = c.alphaPreserveHPColor == true
+    else
+        local conf = GF.GetConf(kind)
+        preserve = conf and conf.alphaPreserveHPColor == true
+    end
+    if f._msufGFPreserveAlphaState ~= preserve then
+        f._msufGFPreserveAlphaState = preserve
+        if f.healthBg and f.healthBg.SetAlpha then f.healthBg:SetAlpha(preserve and 0 or 1) end
+        if f._msufBehindBarBg and f._msufBehindBarBg.SetAlpha then f._msufBehindBarBg:SetAlpha(preserve and 0 or 1) end
+    end
     if not preserve then
-        HidePreserveMissingHP(f)
+        if f._msufGFMissingHPBg then HidePreserveMissingHP(f) end
+        f._msufGFMissingValue, f._msufGFMissingMax = nil, nil
         return
     end
 
@@ -854,10 +943,15 @@ local function SyncPreserveMissingHP(f, kind, hp, hpMax)
     end
 
     local missing
-    if unit and _G.UnitHealthMissing then
+    local iss = issecretvalue
+    local comparable = type(hpMax) == "number" and type(hp) == "number"
+        and not (iss and (iss(hpMax) or iss(hp)))
+    if comparable then
+        missing = hpMax - hp
+        if missing < 0 then missing = 0 end
+    elseif unit and _G.UnitHealthMissing then
         missing = _G.UnitHealthMissing(unit, true)
-    end
-    if missing == nil then
+    else
         if hp == nil and unit and UnitHealth then hp = UnitHealth(unit) end
         if type(hpMax) == "number" and type(hp) == "number" then
             missing = hpMax - hp
@@ -865,9 +959,23 @@ local function SyncPreserveMissingHP(f, kind, hp, hpMax)
         end
     end
 
-    bg:SetMinMaxValues(0, hpMax or 1)
-    bg:SetValue(missing or 0)
-    bg:Show()
+    local maxValue = hpMax or 1
+    if not (iss and iss(maxValue)) and bg._msufGFMissingMax ~= maxValue then
+        bg:SetMinMaxValues(0, maxValue)
+        bg._msufGFMissingMax = maxValue
+    elseif iss and iss(maxValue) then
+        bg:SetMinMaxValues(0, maxValue)
+        bg._msufGFMissingMax = nil
+    end
+    local value = missing or 0
+    if not (iss and iss(value)) and bg._msufGFMissingValue ~= value then
+        bg:SetValue(value)
+        bg._msufGFMissingValue = value
+    elseif iss and iss(value) then
+        bg:SetValue(value)
+        bg._msufGFMissingValue = nil
+    end
+    if not bg:IsShown() then bg:Show() end
 end
 GF.SyncPreserveMissingHP = SyncPreserveMissingHP
 
@@ -1334,7 +1442,7 @@ end
 local function ApplyVisuals(f, bits)
     if not f then return end
     local kind = f._msufGFKind or "party"
-    local needGeometry = (band(bits, DIRTY_GEOMETRY) ~= 0) or (band(bits, DIRTY_BORDER) ~= 0)
+    local needGeometry = (band(bits, DIRTY_GEOMETRY) ~= 0)
 
     if needGeometry then
         ApplyGeometry(f, kind)
@@ -1416,7 +1524,7 @@ function GF._FlushDirty()
             _dirtyBits[f] = nil
             _queued[f] = nil
 
-            if bits then
+            if bits and RuntimeEnabledForFrame(f) then
                 anyFlushed = true
                 ApplyVisuals(f, bits)
                 if f._msufGFPreviewActive then
@@ -1490,6 +1598,7 @@ end
 ------------------------------------------------------------------------
 function GF.MarkDirty(f, bits)
     if not f then return end
+    if not RuntimeEnabledForFrame(f) then return end
     bits = bits or DIRTY_ALL
     local prev = _dirtyBits[f] or 0
     _dirtyBits[f] = bor(prev, bits)
@@ -1514,6 +1623,15 @@ end
 ------------------------------------------------------------------------
 function GF.MarkAllDirty(bits)
     bits = bits or DIRTY_ALL
+    if InCombatLockdown and InCombatLockdown() then
+        if GF.UpdateAnyEnabledFlag then GF.UpdateAnyEnabledFlag() end
+        if GF._anyEnabled == false then return end
+        if band(bits, bor(DIRTY_GEOMETRY, DIRTY_LAYOUT)) ~= 0 then
+            GF._pendingRefreshGeometry = true
+        end
+        GF._pendingRefreshVisuals = true
+        return
+    end
 
     -- OOC Options path: one coalesced full refresh. This preserves exact live
     -- feedback for legacy option widgets while combat/runtime remains granular.
@@ -1526,7 +1644,7 @@ function GF.MarkAllDirty(bits)
     if list then
         for i = 1, #list do
             local f = list[i]
-            if f then
+            if f and RuntimeEnabledForFrame(f) then
                 local prev = _dirtyBits[f] or 0
                 _dirtyBits[f] = bor(prev, bits)
                 _Enqueue(f)
@@ -1534,9 +1652,11 @@ function GF.MarkAllDirty(bits)
         end
     else
         for f in pairs(GF.frames) do
-            local prev = _dirtyBits[f] or 0
-            _dirtyBits[f] = bor(prev, bits)
-            _Enqueue(f)
+            if RuntimeEnabledForFrame(f) then
+                local prev = _dirtyBits[f] or 0
+                _dirtyBits[f] = bor(prev, bits)
+                _Enqueue(f)
+            end
         end
     end
     -- Also mark preview frames
@@ -1560,6 +1680,12 @@ end
 -- Use for Options "Apply" when user expects instant feedback.
 ------------------------------------------------------------------------
 function GF.RefreshVisuals()
+    if InCombatLockdown and InCombatLockdown() then
+        if GF.UpdateAnyEnabledFlag then GF.UpdateAnyEnabledFlag() end
+        if GF._anyEnabled == false then return end
+        GF._pendingRefreshVisuals = true
+        return
+    end
     if not _cachedUpdateAll then
         local fn = _G.MSUF_GF_UpdateAll
         if type(fn) == "function" then _cachedUpdateAll = fn end
@@ -1568,7 +1694,7 @@ function GF.RefreshVisuals()
     if list then
         for i = 1, #list do
             local f = list[i]
-            if f then
+            if f and RuntimeEnabledForFrame(f) then
                 ApplyVisuals(f, DIRTY_ALL)
                 if f.unit and UnitExists(f.unit) and not f._msufGFPreviewActive then
                     if _cachedUpdateAll then _cachedUpdateAll(f, f.unit) end
@@ -1577,9 +1703,11 @@ function GF.RefreshVisuals()
         end
     else
         for f in pairs(GF.frames) do
-            ApplyVisuals(f, DIRTY_ALL)
-            if f.unit and UnitExists(f.unit) and not f._msufGFPreviewActive then
-                if _cachedUpdateAll then _cachedUpdateAll(f, f.unit) end
+            if RuntimeEnabledForFrame(f) then
+                ApplyVisuals(f, DIRTY_ALL)
+                if f.unit and UnitExists(f.unit) and not f._msufGFPreviewActive then
+                    if _cachedUpdateAll then _cachedUpdateAll(f, f.unit) end
+                end
             end
         end
     end
@@ -1599,6 +1727,7 @@ function GF.RefreshVisuals()
     end
     -- Options panel preview (drag-to-position mock frame)
     if GF.RefreshPreviewBox then GF.RefreshPreviewBox() end
+    if GF.RefreshGroupBorders then GF.RefreshGroupBorders() end
 end
 
 ------------------------------------------------------------------------
@@ -1624,6 +1753,10 @@ function GF.RefreshColors()
 end
 
 function GF.RefreshGeometry()
+    if InCombatLockdown and InCombatLockdown() then
+        GF._pendingRefreshGeometry = true
+        return
+    end
     GF.MarkAllDirty(bor(DIRTY_GEOMETRY, DIRTY_LAYOUT))
 end
 
@@ -1662,6 +1795,7 @@ do
     if type(origInit) == "function" then
         _G.MSUF_GF_InitButton = function(f, kind)
             origInit(f, kind)
+            if not RuntimeEnabledForFrame(f) then return end
             ApplyVisuals(f, DIRTY_ALL)
         end
     end
