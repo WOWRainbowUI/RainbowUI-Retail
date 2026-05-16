@@ -30,9 +30,19 @@ local math_floor    = math.floor
 local math_max      = math.max
 local table_sort    = table.sort
 local table_concat  = table.concat
+local setmetatable  = setmetatable
 
 -- Reusable tables (cleared per call, zero GC allocation)
 local _siBestByType = {}
+local _siBestTypes = { "healthtint", "border", "glow", "pulse", "namecolor" }
+local _siBestSlots = {
+    healthtint = {},
+    border = {},
+    glow = {},
+    pulse = {},
+    namecolor = {},
+}
+local _defaultFrameColor = { 1, 1, 1, 1 }
 
 ------------------------------------------------------------------------
 -- Compiled lookup: spellId → auraName (rebuilt on spec change)
@@ -43,6 +53,61 @@ local _reverseLookup
 local _nameLookup
 local _auraSpecMap = {} -- auraName → specKey (multi-spec config routing)
 local _isMultiMode = false
+local _siConfigRev = 1
+local _specConfigListCache = setmetatable({}, { __mode = "k" })
+local _multiSpecListCache = setmetatable({}, { __mode = "k" })
+
+local function InvalidateRuntimeCaches()
+    _siConfigRev = _siConfigRev + 1
+    _compiledSpec = nil
+    _compiledMultiKey = nil
+    _reverseLookup = nil
+    _nameLookup = nil
+    _isMultiMode = false
+    for k in pairs(_auraSpecMap) do _auraSpecMap[k] = nil end
+end
+
+SI.InvalidateRuntimeCaches = InvalidateRuntimeCaches
+_G.MSUF_GF_InvalidateSpellIndicatorsRuntimeCaches = InvalidateRuntimeCaches
+
+do
+    local oldInvalidate = GF.InvalidateConfCache
+    if type(oldInvalidate) == "function" and not GF._msufSIInvalidateWrapped then
+        GF._msufSIInvalidateWrapped = true
+        GF.InvalidateConfCache = function(...)
+            InvalidateRuntimeCaches()
+            return oldInvalidate(...)
+        end
+        _G.MSUF_GF_InvalidateConfCache = GF.InvalidateConfCache
+    end
+end
+
+local function GetMultiSpecList(siCfg)
+    local ms = siCfg and siCfg.multiSpecs
+    if not ms then return nil, 0, nil end
+
+    local cached = _multiSpecListCache[siCfg]
+    if cached and cached.rev == _siConfigRev and cached.source == ms then
+        return cached.list, cached.count, cached.key
+    end
+
+    local list, count = {}, 0
+    for sk in pairs(ms) do
+        count = count + 1
+        list[count] = sk
+    end
+    if count > 1 then table_sort(list) end
+
+    local key = table_concat(list, ",")
+    _multiSpecListCache[siCfg] = {
+        rev = _siConfigRev,
+        source = ms,
+        list = list,
+        count = count,
+        key = key,
+    }
+    return list, count, key
+end
 
 local function CompileLookup(specKey, siCfg)
     if specKey ~= "multi" then
@@ -57,12 +122,8 @@ local function CompileLookup(specKey, siCfg)
         return
     end
     -- Multi-spec mode
-    local ms = siCfg and siCfg.multiSpecs
-    if not ms then return end
-    local parts = {}
-    for sk in pairs(ms) do parts[#parts + 1] = sk end
-    table_sort(parts)
-    local key = table_concat(parts, ",")
+    local parts, count, key = GetMultiSpecList(siCfg)
+    if not parts or count <= 0 then return end
     if key == _compiledMultiKey and _reverseLookup and _isMultiMode then return end
     _compiledMultiKey = key
     _compiledSpec     = nil
@@ -70,7 +131,8 @@ local function CompileLookup(specKey, siCfg)
     _reverseLookup    = {}
     _nameLookup       = nil
     for k in pairs(_auraSpecMap) do _auraSpecMap[k] = nil end
-    for _, sk in ipairs(parts) do
+    for pi = 1, count do
+        local sk = parts[pi]
         local ids = SI.SpellIDs[sk]
         if ids then
             for auraName, spellId in pairs(ids) do
@@ -123,10 +185,8 @@ local function ResolveSpec(siCfg)
     if not siCfg then return nil end
     local spec = siCfg.spec or "auto"
     if spec == "multi" then
-        local ms = siCfg.multiSpecs
-        if ms then
-            for _ in pairs(ms) do return "multi" end
-        end
+        local _, count = GetMultiSpecList(siCfg)
+        if count > 0 then return "multi" end
         return nil
     end
     if spec == "auto" then return SI.GetPlayerSpec() end
@@ -179,6 +239,29 @@ end
 
 function SI.EnsureSpecConfig(siCfg, specKey)
     return EnsureSpecConfig(siCfg, specKey)
+end
+
+local function GetSpecConfigList(siCfg, specKey)
+    local specCfg = EnsureSpecConfig(siCfg, specKey)
+    if not specCfg then return nil, 0, nil end
+
+    local cached = _specConfigListCache[specCfg]
+    if cached and cached.rev == _siConfigRev then
+        return cached.list, cached.count, specCfg
+    end
+
+    local list, count = {}, 0
+    for auraName, auraCfg in pairs(specCfg) do
+        count = count + 1
+        list[count] = { name = auraName, cfg = auraCfg }
+    end
+
+    _specConfigListCache[specCfg] = {
+        rev = _siConfigRev,
+        list = list,
+        count = count,
+    }
+    return list, count, specCfg
 end
 
 ------------------------------------------------------------------------
@@ -237,26 +320,24 @@ local function BuildScanConfig(siCfg, specKey)
     local wantsAllCasters = false
 
     if specKey == "multi" then
-        local ms = siCfg and siCfg.multiSpecs
-        if ms then
-            for sk in pairs(ms) do
-                local specCfg = EnsureSpecConfig(siCfg, sk)
-                if specCfg then
-                    for auraName, auraCfg in pairs(specCfg) do
-                        if MarkScanAuraConfig(auraName, auraCfg) then
-                            wantsAllCasters = true
-                        end
+        local specs, specCount = GetMultiSpecList(siCfg)
+        if specs then
+            for si = 1, specCount do
+                local specList, auraCount = GetSpecConfigList(siCfg, specs[si])
+                if specList then
+                    for ai = 1, auraCount do
+                        local item = specList[ai]
+                        if MarkScanAuraConfig(item.name, item.cfg) then wantsAllCasters = true end
                     end
                 end
             end
         end
     else
-        local specCfg = EnsureSpecConfig(siCfg, specKey)
-        if specCfg then
-            for auraName, auraCfg in pairs(specCfg) do
-                if MarkScanAuraConfig(auraName, auraCfg) then
-                    wantsAllCasters = true
-                end
+        local specList, auraCount = GetSpecConfigList(siCfg, specKey)
+        if specList then
+            for ai = 1, auraCount do
+                local item = specList[ai]
+                if MarkScanAuraConfig(item.name, item.cfg) then wantsAllCasters = true end
             end
         end
     end
@@ -452,10 +533,13 @@ local function ApplyPlacedCooldownFont(ind, cfg, fontSizeOverride)
         ff = GF and GF.ResolveFontFlags and GF.ResolveFontFlags() or "OUTLINE"
     end
     local wantFlags = cfg.cooldownOutline or ff or "OUTLINE"
-    if cd._msufGFCdTextSize ~= cdSize or cd._msufGFCdFontPath ~= fp then
+    if cd._msufGFCdTextSize ~= cdSize or cd._msufGFCdFontPath ~= fp
+        or cd._msufGFCdFontFlags ~= wantFlags
+    then
         fs:SetFont(fp, cdSize, wantFlags)
         cd._msufGFCdTextSize = cdSize
         cd._msufGFCdFontPath = fp
+        cd._msufGFCdFontFlags = wantFlags
     end
     if cd._msufGFCdAnchor ~= "CENTER" or cd._msufGFCdOX ~= 0 or cd._msufGFCdOY ~= 0 then
         cd._msufGFCdAnchor = "CENTER"
@@ -496,6 +580,103 @@ local function ApplyPreviewTextStyle(fs, cfg, fallbackSize, forceFallbackSize)
     fs:SetFont(fp, fontSize or 8, cfg.cooldownOutline or ff or "OUTLINE")
     local r, g, b, a = ResolveCooldownBaseColor()
     fs:SetTextColor(r, g, b, a)
+end
+
+local function SetShownIfChanged(region, shown)
+    if not region then return end
+    shown = shown and true or false
+    if region.IsShown and region:IsShown() == shown then return end
+    if shown then region:Show() else region:Hide() end
+end
+
+local function SetSizeIfChanged(frame, w, h)
+    if not frame then return end
+    h = h or w
+    if frame._msufSISizeW == w and frame._msufSISizeH == h then return end
+    frame._msufSISizeW = w
+    frame._msufSISizeH = h
+    frame:SetSize(w, h)
+end
+
+local function SetPointIfChanged(frame, point, relativeTo, relativePoint, x, y)
+    if not frame then return end
+    x = x or 0
+    y = y or 0
+    relativePoint = relativePoint or point
+    if frame._msufSIAnchorPoint == point
+        and frame._msufSIAnchorRel == relativeTo
+        and frame._msufSIAnchorRelPoint == relativePoint
+        and frame._msufSIAnchorX == x
+        and frame._msufSIAnchorY == y
+    then
+        return
+    end
+    frame._msufSIAnchorPoint = point
+    frame._msufSIAnchorRel = relativeTo
+    frame._msufSIAnchorRelPoint = relativePoint
+    frame._msufSIAnchorX = x
+    frame._msufSIAnchorY = y
+    frame:ClearAllPoints()
+    frame:SetPoint(point, relativeTo, relativePoint, x, y)
+end
+
+local function SetTextureIfChanged(texRegion, texture)
+    if not texRegion then return end
+    if texRegion._msufSITexture == texture then return end
+    texRegion._msufSITexture = texture
+    texRegion:SetTexture(texture)
+end
+
+local function SetDesaturatedIfChanged(texRegion, desaturated)
+    if not texRegion or not texRegion.SetDesaturated then return end
+    desaturated = desaturated and true or false
+    if texRegion._msufSIDesaturated == desaturated then return end
+    texRegion._msufSIDesaturated = desaturated
+    texRegion:SetDesaturated(desaturated)
+end
+
+local function SetAlphaIfChanged(region, alpha)
+    if not region or not region.SetAlpha then return end
+    if region._msufSIAlpha == alpha then return end
+    region._msufSIAlpha = alpha
+    region:SetAlpha(alpha)
+end
+
+local function SetCountTextIfChanged(fs, text)
+    if not fs then return end
+    if issecretvalue and issecretvalue(text) then
+        fs._msufSIText = nil
+        fs:SetText(text)
+        return
+    end
+    if fs._msufSIText == text then return end
+    fs._msufSIText = text
+    fs:SetText(text)
+end
+
+local function ClearPlacedText(fs)
+    SetCountTextIfChanged(fs, "")
+    SetShownIfChanged(fs, false)
+end
+
+local function SetCooldownNumbersHidden(cd, hidden)
+    if not cd then return end
+    hidden = hidden and true or false
+    if cd._msufSIHideNumbers == hidden then return end
+    cd._msufSIHideNumbers = hidden
+    cd:SetHideCountdownNumbers(hidden)
+end
+
+local function ClearPlacedCooldown(ind)
+    local cd = ind and ind.cooldown
+    if not cd then return end
+    if cd._msufSICooldownCleared then
+        ClearA2CooldownScope(ind)
+        return
+    end
+    cd:Clear()
+    cd._msufSICooldownCleared = true
+    ClearA2CooldownScope(ind)
 end
 
 local function GetPlacedNumberSize(size)
@@ -599,7 +780,12 @@ local function GetOrCreatePlaced(f, auraName, itype, size, parent, barWidth, lay
     f._msufSIPlaced = f._msufSIPlaced or {}
     local ind = f._msufSIPlaced[auraName]
     if not ind or ind._siType ~= itype then
-        if ind then ind:Hide() end
+        if ind then
+            ClearPlacedCooldown(ind)
+            ClearPlacedText(ind.count)
+            ClearPlacedText(ind.previewText)
+            SetShownIfChanged(ind, false)
+        end
         if itype == "bar" then
             ind = CreatePlacedBar(parent, barWidth or (size * 3), size)
         elseif itype == "number" then
@@ -613,19 +799,27 @@ local function GetOrCreatePlaced(f, auraName, itype, size, parent, barWidth, lay
         f._msufSIPlaced[auraName] = ind
     end
     if itype == "bar" then
-        ind:SetSize(barWidth or (size * 3), size)
+        SetSizeIfChanged(ind, barWidth or (size * 3), size)
     elseif itype == "number" then
         local w, h = GetPlacedNumberSize(size)
-        ind:SetSize(w, h)
+        SetSizeIfChanged(ind, w, h)
     else
-        ind:SetSize(size, size)
+        SetSizeIfChanged(ind, size, size)
     end
-    if ind:GetParent() ~= parent then ind:SetParent(parent) end
+    if ind:GetParent() ~= parent then
+        ind:SetParent(parent)
+        ind._msufSIAnchorRel = nil
+    end
     if ind.SetFrameLevel then
+        local wantLevel
         if GF.SetFrameLayerLevel then
-            GF.SetFrameLayerLevel(ind, f, layer, 9)
+            wantLevel = GF.GetFrameLayerLevel and GF.GetFrameLayerLevel(f, layer, 9)
         elseif parent.GetFrameLevel then
-            ind:SetFrameLevel(parent:GetFrameLevel() + (layer or 9))
+            wantLevel = parent:GetFrameLevel() + (layer or 9)
+        end
+        if wantLevel and ind._msufSIFrameLevel ~= wantLevel then
+            ind._msufSIFrameLevel = wantLevel
+            ind:SetFrameLevel(wantLevel)
         end
     end
     return ind
@@ -656,7 +850,12 @@ end
 local function ApplyPlaced(f, unit, auraName, cfg, auraData, parent, specKey, isPreview, scale, layer)
     if not cfg or cfg.type == "none" then
         local old = f and f._msufSIPlaced and f._msufSIPlaced[auraName]
-        if old then old:Hide() end
+        if old then
+            ClearPlacedCooldown(old)
+            ClearPlacedText(old.count)
+            ClearPlacedText(old.previewText)
+            SetShownIfChanged(old, false)
+        end
         return
     end
     local itype  = cfg.type or "icon"
@@ -674,13 +873,11 @@ local function ApplyPlaced(f, unit, auraName, cfg, auraData, parent, specKey, is
     local displaySize = size
     local ind = GetOrCreatePlaced(f, auraName, itype, displaySize, parent, barWidth, layer)
 
-    ind:ClearAllPoints()
-    ind:SetPoint(anchor, parent, anchor, cfg.x or 0, cfg.y or 0)
+    SetPointIfChanged(ind, anchor, parent, anchor, cfg.x or 0, cfg.y or 0)
 
     if auraData then
         if ind.previewText then
-            ind.previewText:SetText("")
-            ind.previewText:Hide()
+            ClearPlacedText(ind.previewText)
         end
 
         if itype == "icon" or itype == "number" then
@@ -689,12 +886,12 @@ local function ApplyPlaced(f, unit, auraName, cfg, auraData, parent, specKey, is
 
             if ind.texture then
                 if isNumber then
-                    ind.texture:Hide()
+                    SetShownIfChanged(ind.texture, false)
                 else
-                    ind.texture:SetTexture(SI.GetAuraIcon(sk, auraName))
-                    ind.texture:SetDesaturated(false)
-                    ind.texture:SetAlpha(1)
-                    ind.texture:Show()
+                    SetTextureIfChanged(ind.texture, SI.GetAuraIcon(sk, auraName))
+                    SetDesaturatedIfChanged(ind.texture, false)
+                    SetAlphaIfChanged(ind.texture, 1)
+                    SetShownIfChanged(ind.texture, true)
                 end
             end
 
@@ -702,92 +899,88 @@ local function ApplyPlaced(f, unit, auraName, cfg, auraData, parent, specKey, is
                 local aid = auraData.auraInstanceID
                 local showCdText = isNumber or cfg.showCooldown ~= false
                 ApplyPlacedCooldownStyle(ind.cooldown, f, isNumber)
-                ind.cooldown:SetHideCountdownNumbers(not showCdText)
+                SetCooldownNumbersHidden(ind.cooldown, not showCdText)
                 if aid and unit and C_UnitAuras and C_UnitAuras.GetAuraDuration then
                     local obj = C_UnitAuras.GetAuraDuration(unit, aid)
                     if obj and ind.cooldown.SetCooldownFromDurationObject then
                         ind.cooldown:SetCooldownFromDurationObject(obj)
+                        ind.cooldown._msufSICooldownCleared = nil
                         ClearA2CooldownScope(ind)
                         if showCdText then
                             ApplyPlacedCooldownFont(ind, cfg, isNumber and displaySize or nil)
                         end
                     else
-                        ind.cooldown:Clear()
-                        ClearA2CooldownScope(ind)
+                        ClearPlacedCooldown(ind)
                     end
                 else
-                    ind.cooldown:Clear()
-                    ClearA2CooldownScope(ind)
+                    ClearPlacedCooldown(ind)
                 end
             end
 
             if ind.count then
                 if isNumber then
-                    ind.count:SetText("")
-                    ind.count:Hide()
+                    ClearPlacedText(ind.count)
                 else
                     local aid = auraData.auraInstanceID
                     if aid and unit and C_UnitAuras and C_UnitAuras.GetAuraApplicationDisplayCount then
                         local display = C_UnitAuras.GetAuraApplicationDisplayCount(unit, aid, 2, 99)
                         if display ~= nil then
-                            ind.count:SetText(display)
-                            ind.count:Show()
+                            SetCountTextIfChanged(ind.count, display)
+                            SetShownIfChanged(ind.count, true)
                         else
-                            ind.count:SetText("")
-                            ind.count:Hide()
+                            ClearPlacedText(ind.count)
                         end
                     else
-                        ind.count:SetText("")
-                        ind.count:Hide()
+                        ClearPlacedText(ind.count)
                     end
                 end
             end
         elseif itype == "square" or itype == "bar" then
             local sk = _isMultiMode and (_auraSpecMap[auraName] or specKey) or specKey
             local c = GetAuraColor(sk, auraName) or {0.5, 0.8, 0.5}
-            ind.texture:SetColorTexture(c[1], c[2], c[3], 1)
+            if ind._msufSIColorR ~= c[1] or ind._msufSIColorG ~= c[2]
+                or ind._msufSIColorB ~= c[3] or ind._msufSIColorA ~= 1
+            then
+                ind._msufSIColorR, ind._msufSIColorG, ind._msufSIColorB, ind._msufSIColorA = c[1], c[2], c[3], 1
+                ind.texture:SetColorTexture(c[1], c[2], c[3], 1)
+            end
         end
-        ind:Show()
-    elseif cfg.missing and isPreview then
+        SetShownIfChanged(ind, true)
+    elseif cfg.missing then
         if itype == "icon" then
             local sk = _isMultiMode and (_auraSpecMap[auraName] or specKey) or specKey
-            ind.texture:SetTexture(SI.GetAuraIcon(sk, auraName))
-            ind.texture:SetDesaturated(true)
-            ind.texture:SetAlpha(0.35)
-            ind.texture:Show()
-            if ind.cooldown then ind.cooldown:Clear() end
-            if ind.count then ind.count:SetText(""); ind.count:Hide() end
-            if ind.previewText then ind.previewText:SetText(""); ind.previewText:Hide() end
+            SetTextureIfChanged(ind.texture, SI.GetAuraIcon(sk, auraName))
+            SetDesaturatedIfChanged(ind.texture, true)
+            SetAlphaIfChanged(ind.texture, 0.35)
+            SetShownIfChanged(ind.texture, true)
+            ClearPlacedCooldown(ind)
+            ClearPlacedText(ind.count)
+            ClearPlacedText(ind.previewText)
         elseif itype == "number" then
             if ind.cooldown then
                 ApplyPlacedCooldownStyle(ind.cooldown, f, true)
-                ind.cooldown:Clear()
-                ind.cooldown:SetHideCountdownNumbers(false)
+                ClearPlacedCooldown(ind)
+                SetCooldownNumbersHidden(ind.cooldown, false)
             end
-            ClearA2CooldownScope(ind)
             if ind.previewText then
                 ApplyPreviewTextStyle(ind.previewText, cfg, displaySize, true)
-                ind.previewText:SetText("9")
-                ind.previewText:Show()
+                SetCountTextIfChanged(ind.previewText, isPreview and "9" or "0")
+                SetShownIfChanged(ind.previewText, true)
             end
         elseif itype == "square" or itype == "bar" then
-            ind.texture:SetColorTexture(0.3, 0.3, 0.3, 0.5)
+            if ind._msufSIColorR ~= 0.3 or ind._msufSIColorG ~= 0.3
+                or ind._msufSIColorB ~= 0.3 or ind._msufSIColorA ~= 0.5
+            then
+                ind._msufSIColorR, ind._msufSIColorG, ind._msufSIColorB, ind._msufSIColorA = 0.3, 0.3, 0.3, 0.5
+                ind.texture:SetColorTexture(0.3, 0.3, 0.3, 0.5)
+            end
         end
-        ind:Show()
+        SetShownIfChanged(ind, true)
     else
-        if ind.cooldown then
-            ind.cooldown:Clear()
-            ClearA2CooldownScope(ind)
-        end
-        if ind.count then
-            ind.count:SetText("")
-            ind.count:Hide()
-        end
-        if ind.previewText then
-            ind.previewText:SetText("")
-            ind.previewText:Hide()
-        end
-        ind:Hide()
+        ClearPlacedCooldown(ind)
+        ClearPlacedText(ind.count)
+        ClearPlacedText(ind.previewText)
+        SetShownIfChanged(ind, false)
     end
 
     -- Highlight: yellow pulsing border when this SI is selected in the editor
@@ -813,11 +1006,11 @@ local function ApplyPlaced(f, unit, auraName, cfg, auraData, parent, specKey, is
             hl._animGroup = ag
             ind._msufSIHighlight = hl
         end
-        ind._msufSIHighlight:Show()
+        SetShownIfChanged(ind._msufSIHighlight, true)
         if ind._msufSIHighlight._animGroup then ind._msufSIHighlight._animGroup:Play() end
     elseif ind._msufSIHighlight then
         if ind._msufSIHighlight._animGroup then ind._msufSIHighlight._animGroup:Stop() end
-        ind._msufSIHighlight:Hide()
+        SetShownIfChanged(ind._msufSIHighlight, false)
     end
 end
 
@@ -920,6 +1113,9 @@ local function ResetFrameEffects(f)
     f._msufSIHealthColorR = nil
     f._msufSIHealthColorG = nil
     f._msufSIHealthColorB = nil
+    f._msufSIHealthAppliedR = nil
+    f._msufSIHealthAppliedG = nil
+    f._msufSIHealthAppliedB = nil
     if hadHealthTint then
         -- Invalidate diff-gate stamp so ApplyHealthColor re-applies unconditionally
         f._msufGFHCStamp = nil
@@ -940,6 +1136,10 @@ local function ResetFrameEffects(f)
     end
     if f._msufSINameColorActive and f.nameText then
         f._msufSINameColorActive = nil
+        f._msufSINameColorR = nil
+        f._msufSINameColorG = nil
+        f._msufSINameColorB = nil
+        f._msufSINameColorA = nil
         -- Restore configured name color (CLASS/CUSTOM/DEFAULT — not hardcoded white)
         local kind = f._msufGFKind or "party"
         local unit = f.unit
@@ -960,7 +1160,7 @@ end
 
 local function ApplyFrameEffect(f, auraName, cfg, auraData)
     if not cfg or not cfg.type or not auraData then return end
-    local c = cfg.color or {1, 1, 1, 1}
+    local c = cfg.color or _defaultFrameColor
 
     if cfg.type == "healthtint" then
         -- Full bar color override (not a tint overlay)
@@ -969,7 +1169,12 @@ local function ApplyFrameEffect(f, auraName, cfg, auraData)
             f._msufSIHealthColorR = c[1]
             f._msufSIHealthColorG = c[2]
             f._msufSIHealthColorB = c[3]
-            f.health:SetStatusBarColor(c[1], c[2], c[3], 1)
+            if f._msufSIHealthAppliedR ~= c[1] or f._msufSIHealthAppliedG ~= c[2]
+                or f._msufSIHealthAppliedB ~= c[3]
+            then
+                f._msufSIHealthAppliedR, f._msufSIHealthAppliedG, f._msufSIHealthAppliedB = c[1], c[2], c[3]
+                f.health:SetStatusBarColor(c[1], c[2], c[3], 1)
+            end
             if GF.ApplyHealthBarAlpha then
                 GF.ApplyHealthBarAlpha(f, f._msufGFKind or "party")
             end
@@ -984,8 +1189,14 @@ local function ApplyFrameEffect(f, auraName, cfg, auraData)
                 overlay:SetBackdropColor(0, 0, 0, 0)
                 overlay._msufThickness = thickness
             end
-            overlay:SetBackdropBorderColor(c[1], c[2], c[3], c[4] or 1)
-            overlay:Show()
+            local a = c[4] or 1
+            if overlay._msufSIColorR ~= c[1] or overlay._msufSIColorG ~= c[2]
+                or overlay._msufSIColorB ~= c[3] or overlay._msufSIColorA ~= a
+            then
+                overlay._msufSIColorR, overlay._msufSIColorG, overlay._msufSIColorB, overlay._msufSIColorA = c[1], c[2], c[3], a
+                overlay:SetBackdropBorderColor(c[1], c[2], c[3], a)
+            end
+            SetShownIfChanged(overlay, true)
         end
     elseif cfg.type == "glow" then
         local glow = EnsureGlowOverlay(f)
@@ -997,12 +1208,23 @@ local function ApplyFrameEffect(f, auraName, cfg, auraData)
                 glow:SetBackdropColor(0, 0, 0, 0)
                 glow._msufThickness = thickness
             end
-            glow:ClearAllPoints()
-            glow:SetPoint("TOPLEFT", (f.barGroup or f), "TOPLEFT", -thickness, thickness)
-            glow:SetPoint("BOTTOMRIGHT", (f.barGroup or f), "BOTTOMRIGHT", thickness, -thickness)
-            glow:SetBackdropBorderColor(c[1], c[2], c[3], c[4] or 0.9)
-            glow:SetAlpha(1)
-            glow:Show()
+            local anchor = f.barGroup or f
+            if glow._msufSIAnchorRel ~= anchor or glow._msufSIAnchorX ~= thickness then
+                glow._msufSIAnchorRel = anchor
+                glow._msufSIAnchorX = thickness
+                glow:ClearAllPoints()
+                glow:SetPoint("TOPLEFT", anchor, "TOPLEFT", -thickness, thickness)
+                glow:SetPoint("BOTTOMRIGHT", anchor, "BOTTOMRIGHT", thickness, -thickness)
+            end
+            local a = c[4] or 0.9
+            if glow._msufSIColorR ~= c[1] or glow._msufSIColorG ~= c[2]
+                or glow._msufSIColorB ~= c[3] or glow._msufSIColorA ~= a
+            then
+                glow._msufSIColorR, glow._msufSIColorG, glow._msufSIColorB, glow._msufSIColorA = c[1], c[2], c[3], a
+                glow:SetBackdropBorderColor(c[1], c[2], c[3], a)
+            end
+            SetAlphaIfChanged(glow, 1)
+            SetShownIfChanged(glow, true)
             if glow._animGroup and not glow._animGroup:IsPlaying() then
                 glow._animGroup:Play()
             end
@@ -1011,9 +1233,14 @@ local function ApplyFrameEffect(f, auraName, cfg, auraData)
         local pulse = EnsurePulseOverlay(f)
         if pulse then
             local a = cfg.alpha or c[4] or 0.25
-            pulse._tex:SetColorTexture(c[1], c[2], c[3], a)
-            pulse:SetAlpha(1)
-            pulse:Show()
+            if pulse._msufSIColorR ~= c[1] or pulse._msufSIColorG ~= c[2]
+                or pulse._msufSIColorB ~= c[3] or pulse._msufSIColorA ~= a
+            then
+                pulse._msufSIColorR, pulse._msufSIColorG, pulse._msufSIColorB, pulse._msufSIColorA = c[1], c[2], c[3], a
+                pulse._tex:SetColorTexture(c[1], c[2], c[3], a)
+            end
+            SetAlphaIfChanged(pulse, 1)
+            SetShownIfChanged(pulse, true)
             if pulse._animGroup and not pulse._animGroup:IsPlaying() then
                 pulse._animGroup:Play()
             end
@@ -1021,8 +1248,21 @@ local function ApplyFrameEffect(f, auraName, cfg, auraData)
     elseif cfg.type == "namecolor" then
         if f.nameText then
             f._msufSINameColorActive = auraName
-            f.nameText:SetTextColor(c[1], c[2], c[3], c[4] or 1)
+            local a = c[4] or 1
+            if f._msufSINameColorR ~= c[1] or f._msufSINameColorG ~= c[2]
+                or f._msufSINameColorB ~= c[3] or f._msufSINameColorA ~= a
+            then
+                f._msufSINameColorR, f._msufSINameColorG, f._msufSINameColorB, f._msufSINameColorA = c[1], c[2], c[3], a
+                f.nameText:SetTextColor(c[1], c[2], c[3], a)
+            end
         end
+    end
+end
+
+local function ApplyBestFrameEffects(f, bestByType)
+    for i = 1, #_siBestTypes do
+        local fx = bestByType[_siBestTypes[i]]
+        if fx then ApplyFrameEffect(f, fx.name, fx.cfg, fx.data) end
     end
 end
 
@@ -1031,11 +1271,36 @@ end
 ------------------------------------------------------------------------
 local _multiProcessed = {}
 
+local function ClearBestByType(bestByType)
+    for i = 1, #_siBestTypes do
+        local ft = _siBestTypes[i]
+        local slot = _siBestSlots[ft]
+        slot.name, slot.cfg, slot.data, slot.prio = nil, nil, nil, nil
+        bestByType[ft] = nil
+    end
+end
+
+local function StoreBestFrameEffect(bestByType, ft, auraName, cfg, auraData, prio)
+    local slot = _siBestSlots[ft]
+    if not slot then return end
+
+    local best = bestByType[ft]
+    if best and prio >= best.prio then return end
+
+    slot.name = auraName
+    slot.cfg = cfg
+    slot.data = auraData
+    slot.prio = prio
+    bestByType[ft] = slot
+end
+
 ------------------------------------------------------------------------
 -- Core update iteration (shared logic for single/multi)
 ------------------------------------------------------------------------
-local function IterateSpecConfig(f, unit, specKey, specCfg, parent, scale, bestByType, dedup, processed, siLayer)
-    for auraName, auraCfg in pairs(specCfg) do
+local function IterateSpecConfig(f, unit, specKey, specList, specCount, parent, scale, bestByType, dedup, processed, siLayer)
+    for i = 1, specCount do
+        local item = specList[i]
+        local auraName, auraCfg = item.name, item.cfg
         if auraCfg and auraCfg.enabled ~= false then
             if not processed or not processed[auraName] then
                 if processed then processed[auraName] = true end
@@ -1055,10 +1320,7 @@ local function IterateSpecConfig(f, unit, specKey, specCfg, parent, scale, bestB
                 if auraCfg.frame and auraCfg.frame.type and auraData then
                     local ft = auraCfg.frame.type
                     local prio = auraCfg.frame.priority or 5
-                    local best = bestByType[ft]
-                    if not best or prio < best.prio then
-                        bestByType[ft] = { name = auraName, cfg = auraCfg.frame, data = auraData, prio = prio }
-                    end
+                    StoreBestFrameEffect(bestByType, ft, auraName, auraCfg.frame, auraData, prio)
                 end
             end
         end
@@ -1094,37 +1356,37 @@ function GF.UpdateSpellIndicators(f, unit)
 
     -- Reuse module-level table (cleared per call, zero GC)
     local bestByType = _siBestByType
-    for k in pairs(bestByType) do bestByType[k] = nil end
+    ClearBestByType(bestByType)
     local siLayer = siCfg.layer or 9
 
     if specKey == "multi" then
         for k in pairs(_multiProcessed) do _multiProcessed[k] = nil end
-        local ms = siCfg.multiSpecs
-        if ms then
-            for sk in pairs(ms) do
-                local specCfg = EnsureSpecConfig(siCfg, sk)
-                if specCfg then
-                    IterateSpecConfig(f, unit, sk, specCfg, parent, scale, bestByType, dedup, _multiProcessed, siLayer)
+        local specs, specCount = GetMultiSpecList(siCfg)
+        if specs then
+            for si = 1, specCount do
+                local sk = specs[si]
+                local specList, auraCount = GetSpecConfigList(siCfg, sk)
+                if specList then
+                    IterateSpecConfig(f, unit, sk, specList, auraCount, parent, scale, bestByType, dedup, _multiProcessed, siLayer)
                 end
             end
         end
     else
-        local specCfg = EnsureSpecConfig(siCfg, specKey)
-        if not specCfg then GF.HideSpellIndicators(f); return end
-        IterateSpecConfig(f, unit, specKey, specCfg, parent, scale, bestByType, dedup, nil, siLayer)
+        local specList, auraCount = GetSpecConfigList(siCfg, specKey)
+        if not specList then GF.HideSpellIndicators(f); return end
+        IterateSpecConfig(f, unit, specKey, specList, auraCount, parent, scale, bestByType, dedup, nil, siLayer)
     end
 
-    for _, fx in pairs(bestByType) do
-        ApplyFrameEffect(f, fx.name, fx.cfg, fx.data)
-    end
+    ApplyBestFrameEffects(f, bestByType)
 
     if f._msufSIPlaced then
         for auraName, ind in pairs(f._msufSIPlaced) do
             local enabled = false
             if specKey == "multi" then
-                local ms = siCfg.multiSpecs
-                if ms then
-                    for sk in pairs(ms) do
+                local specs, specCount = GetMultiSpecList(siCfg)
+                if specs then
+                    for si = 1, specCount do
+                        local sk = specs[si]
                         local sc = siCfg.specs and siCfg.specs[sk]
                         local ac = sc and sc[auraName]
                         if ac and ac.enabled ~= false and ac.placed then enabled = true; break end
@@ -1135,14 +1397,24 @@ function GF.UpdateSpellIndicators(f, unit)
                 local ac = sc and sc[auraName]
                 if ac and ac.enabled ~= false and ac.placed then enabled = true end
             end
-            if not enabled then ind:Hide() end
+            if not enabled then
+                ClearPlacedCooldown(ind)
+                ClearPlacedText(ind.count)
+                ClearPlacedText(ind.previewText)
+                SetShownIfChanged(ind, false)
+            end
         end
     end
 end
 
 function GF.HideSpellIndicators(f)
     if f._msufSIPlaced then
-        for _, ind in pairs(f._msufSIPlaced) do ind:Hide() end
+        for _, ind in pairs(f._msufSIPlaced) do
+            ClearPlacedCooldown(ind)
+            ClearPlacedText(ind.count)
+            ClearPlacedText(ind.previewText)
+            SetShownIfChanged(ind, false)
+        end
     end
     if f._msufSIDedupIDs then
         for k in pairs(f._msufSIDedupIDs) do f._msufSIDedupIDs[k] = nil end
@@ -1352,6 +1624,10 @@ end
 
 local function EnsureBlizzardAuraDefaults(auras)
     if type(auras) ~= "table" then return end
+    if auras.dynamicScale == nil then auras.dynamicScale = false end
+    if auras.showTooltip == nil then auras.showTooltip = true end
+    if auras.sortByDuration == nil then auras.sortByDuration = false end
+    if auras.preferPlayer == nil then auras.preferPlayer = true end
     if auras.renderer == nil then auras.renderer = "BLIZZARD" end
     if type(auras.blizzardTypes) ~= "table" then auras.blizzardTypes = {} end
     local types = auras.blizzardTypes
@@ -1364,6 +1640,10 @@ local function EnsureBlizzardAuraDefaults(auras)
     if auras.blizzardShowCooldownText == nil then auras.blizzardShowCooldownText = true end
     if auras.blizzardOrganizationType == nil then auras.blizzardOrganizationType = "default" end
     if auras.blizzardDispelMode == nil then auras.blizzardDispelMode = "allDispellable" end
+    if auras.blizzardContainerStrata == nil then auras.blizzardContainerStrata = "AUTO" end
+    if auras.blizzardContainerFrameLevel == nil then auras.blizzardContainerFrameLevel = 1 end
+    if auras.blizzardPrivateLayerFix == nil then auras.blizzardPrivateLayerFix = true end
+    if auras.blizzardPrivateLayerOffset == nil then auras.blizzardPrivateLayerOffset = 1 end
     auras.blizzardContainerAnchor = "FRAME"
     auras.blizzardContainerX = 0
     auras.blizzardContainerY = 0

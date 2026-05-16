@@ -148,6 +148,10 @@ local function _AlphaShouldRangeFadePortrait()
     return (g and g.rangeFadePortrait == true) and true or false
 end
 
+local function _AlphaRangeFadeUsesHealth(conf)
+    return conf and _AlphaNormalizeLayerMode(conf.rangeFadeLayerMode) == "health"
+end
+
 local function _AlphaSetPortraitAlpha(frame, a)
     if not frame then return end
     a = tonumber(a) or 1
@@ -342,6 +346,10 @@ end
 
 local function _AlphaNearlyEqual(a, b)
     if type(a) ~= "number" or type(b) ~= "number" then return false end
+    -- Secret-safe: GetAlpha()/GetStatusBarColor() return secret values when execution
+    -- is tainted. type() reports "number" but arithmetic/comparison raise an error.
+    -- Return false (mismatch) so the caller falls through to SetAlpha — safe re-apply.
+    if issecretvalue and (issecretvalue(a) or issecretvalue(b)) then return false end
     local d = a - b
     if d < 0 then d = -d end
     return d <= 0.001
@@ -449,7 +457,8 @@ end
 
 local function MSUF_Alpha_SetFlat(frame, a)
     local cur = frame.GetAlpha and (frame:GetAlpha() or 1) or nil
-    if cur == nil then
+    -- Secret-safe: GetAlpha() returns secret under tainted execution; arithmetic would crash.
+    if cur == nil or (issecretvalue and issecretvalue(cur)) then
         frame:SetAlpha(a)
     else
         local d = cur - a
@@ -603,7 +612,9 @@ local function MSUF_Alpha_ApplyLayered(frame, alphaFG, alphaBG, mode, preserveHP
 
     if frame.SetAlpha then
         local cur = frame.GetAlpha and (frame:GetAlpha() or 1) or nil
-        if cur == nil then
+        -- Secret-safe: GetAlpha() can return a secret value under tainted execution.
+        -- If secret or nil, conservatively call SetAlpha(1) — layered mode owns per-layer alpha.
+        if cur == nil or (issecretvalue and issecretvalue(cur)) then
             frame:SetAlpha(1)
         else
             local d = cur - 1
@@ -750,8 +761,11 @@ function _G.MSUF_ApplyUnitAlpha(frame, key)
             frame._msufAlphaBaseLayerMode = staticLayerMode
             frame._msufAlphaBasePreserveHPColor = staticPreserveHPColor == true
             MSUF_Alpha_ApplyLayered(frame, staticA, staticB, staticLayerMode, staticPreserveHPColor)
-            if isEditMode and (frame:GetAlpha() or 0) < 0.35 then
-                frame:SetAlpha(0.35)
+            if isEditMode then
+                local curA = frame:GetAlpha()
+                if not (issecretvalue and issecretvalue(curA)) and (curA or 0) < 0.35 then
+                    frame:SetAlpha(0.35)
+                end
             end
             return
         end
@@ -784,6 +798,7 @@ function _G.MSUF_ApplyUnitAlpha(frame, key)
         frame._msufAlphaBasePreserveHPColor = preserveHPColor
 
         local rangeMul = 1
+        local rangeHealthMode = _AlphaRangeFadeUsesHealth(conf)
         local rfT = _rfMulTable
         if rfT then
             local m = rfT[key] or rfT[unit]
@@ -791,16 +806,31 @@ function _G.MSUF_ApplyUnitAlpha(frame, key)
                 if m < 0 then m = 0 end
                 if m > 1 then m = 1 end
                 rangeMul = m
-                alphaFG = alphaFG * m
-                alphaBG = alphaBG * m
+                if rangeHealthMode and frame._msufAlphaSupportsLayered then
+                    MSUF_Alpha_ApplyLayered(frame, alphaFG * m, alphaBG, "health", preserveHPColor, 1)
+                    MSUF_Alpha_SetTextAlpha(frame, 1)
+                    if isEditMode then
+                        local curA = frame:GetAlpha()
+                        if not (issecretvalue and issecretvalue(curA)) and (curA or 0) < 0.35 then
+                            frame:SetAlpha(0.35)
+                        end
+                    end
+                    return
+                else
+                    alphaFG = alphaFG * m
+                    alphaBG = alphaBG * m
+                end
             end
         end
 
         MSUF_Alpha_ApplyLayered(frame, alphaFG, alphaBG, layerMode, preserveHPColor,
             _AlphaShouldRangeFadePortrait() and rangeMul or 1)
         MSUF_Alpha_SetTextAlpha(frame, rangeMul)
-        if isEditMode and (frame:GetAlpha() or 0) < 0.35 then
-            frame:SetAlpha(0.35)
+        if isEditMode then
+            local curA = frame:GetAlpha()
+            if not (issecretvalue and issecretvalue(curA)) and (curA or 0) < 0.35 then
+                frame:SetAlpha(0.35)
+            end
         end
         return
     end
@@ -821,14 +851,28 @@ function _G.MSUF_ApplyUnitAlpha(frame, key)
     frame._msufAlphaBaseLayerMode = nil
     frame._msufAlphaBasePreserveHPColor = nil
 
+    local rangeMul = 1
     local rfT = _rfMulTable
     if rfT then
         local m = rfT[key] or rfT[unit]
         if m and m < 1 then
             if m < 0 then m = 0 end
-            a = a * m
+            rangeMul = m
         end
     end
+
+    if rangeMul < 1 and _AlphaRangeFadeUsesHealth(conf) and frame._msufAlphaSupportsLayered then
+        MSUF_Alpha_ApplyLayered(frame, a * rangeMul, a, "health", false, 1)
+        if isEditMode then
+            local curA = frame:GetAlpha()
+            if not (issecretvalue and issecretvalue(curA)) and (curA or 0) < 0.35 then
+                frame:SetAlpha(0.35)
+            end
+        end
+        return
+    end
+
+    a = a * rangeMul
 
     if frame._msufAlphaLayeredMode then
         MSUF_Alpha_ResetLayered(frame)
@@ -874,6 +918,7 @@ function _G.MSUF_ApplyRangeFadeAlphaFast(frame, key, mul)
     if type(m) ~= "number" then m = 1 end
     if m < 0 then m = 0 elseif m > 1 then m = 1 end
 
+    local rangeHealthMode = _AlphaRangeFadeUsesHealth(conf)
     if frame._msufAlphaBaseMode == "layered" and frame._msufAlphaSupportsLayered then
         local fg = frame._msufAlphaBaseFG
         local bg = frame._msufAlphaBaseBG
@@ -881,6 +926,11 @@ function _G.MSUF_ApplyRangeFadeAlphaFast(frame, key, mul)
         local preserveHPColor = frame._msufAlphaBasePreserveHPColor == true
         if type(fg) ~= "number" or type(bg) ~= "number" or mode == nil then
             return false
+        end
+        if rangeHealthMode and m < 1 then
+            MSUF_Alpha_ApplyLayered(frame, fg * m, bg, "health", preserveHPColor, 1)
+            MSUF_Alpha_SetTextAlpha(frame, 1)
+            return true
         end
         MSUF_Alpha_ApplyLayered(frame, fg * m, bg * m, mode, preserveHPColor,
             _AlphaShouldRangeFadePortrait() and m or 1)
@@ -891,6 +941,10 @@ function _G.MSUF_ApplyRangeFadeAlphaFast(frame, key, mul)
     if frame._msufAlphaBaseMode == "flat" then
         local a = frame._msufAlphaBaseA
         if type(a) ~= "number" then return false end
+        if rangeHealthMode and m < 1 and frame._msufAlphaSupportsLayered then
+            MSUF_Alpha_ApplyLayered(frame, a * m, a, "health", false, 1)
+            return true
+        end
         a = a * m
         if frame._msufAlphaLayeredMode then
             MSUF_Alpha_ResetLayered(frame)

@@ -30,6 +30,30 @@ local L  = ns.L or setmetatable({}, { __index = function(_, k) return k end })
 local GameTooltip = _G.GameTooltip
 local SI = GF.SpellIndicators or (_G.MSUF_GF_SpellIndicators)
 local W8 = "Interface\\Buttons\\WHITE8x8"
+local PREVIEW_TEXT_FONT = _G.STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
+
+local function Tr(text)
+    if type(text) ~= "string" then return text end
+    if type(ns) == "table" and type(ns.Translate) == "function" then
+        return ns.Translate(text)
+    end
+    local translated = rawget(L, text)
+    if translated ~= nil then return translated end
+    return text
+end
+
+local function SetPreviewLabelFont(fs, size, flags)
+    if not fs or not fs.SetFont then return end
+    fs:SetFont(PREVIEW_TEXT_FONT, size or 9, flags or "")
+    if fs.SetShadowColor then fs:SetShadowColor(0, 0, 0, 1) end
+    if fs.SetShadowOffset then fs:SetShadowOffset(1, -1) end
+end
+
+local function PreviewScopeLabel(kind)
+    if kind == "mythicraid" then return Tr("Mythic Raid") end
+    if kind == "raid" then return Tr("Raid") end
+    return Tr("Party")
+end
 
 ------------------------------------------------------------------------
 -- Health text sample strings for preview (per text-mode key)
@@ -239,11 +263,11 @@ end
 local function UpdateCoordDisplay(key, anchor, offX, offY)
     if not _coordLabel then return end
     if not key then
-        _coordLabel:SetText("Click a handle to select - custom layers can be moved; Blizzard is locked")
+        _coordLabel:SetText(Tr("Click a handle to select - custom layers can be moved; Blizzard is locked"))
     elseif anchor == "LOCKED" then
-        _coordLabel:SetText((key or "?") .. "   locked: Blizzard controls native aura placement")
+        _coordLabel:SetText((key or "?") .. "   " .. Tr("locked: Blizzard controls native aura placement"))
     else
-        _coordLabel:SetText((key or "?") .. "   anchor: " .. (anchor or "?") .. "   x: " .. (offX or 0) .. "   y: " .. (offY or 0))
+        _coordLabel:SetText((key or "?") .. "   " .. string.format(Tr("anchor: %s"), (anchor or "?")) .. "   x: " .. (offX or 0) .. "   y: " .. (offY or 0))
     end
 end
 
@@ -575,7 +599,7 @@ local function CreateHandle(parent, key, sectionKey, w, h, colorKey)
 
     local c = HANDLE_COLORS[colorKey or key] or HANDLE_COLORS.status
     local lbl = f:CreateFontString(nil, "OVERLAY")
-    lbl:SetFont("Fonts\\FRIZQT__.TTF", 7, "OUTLINE")
+    SetPreviewLabelFont(lbl, 9, "OUTLINE")
     lbl:SetText(key)
     lbl:SetTextColor(c[1], c[2], c[3], 0.9)
     f._label = lbl
@@ -588,17 +612,17 @@ local function CreateHandle(parent, key, sectionKey, w, h, colorKey)
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:AddLine(self._cfgKey or "?", 1, 1, 1)
             if IsHandleLocked(self) then
-                GameTooltip:AddLine("Locked: Blizzard controls native aura placement.", 0.7, 0.7, 0.7)
-                GameTooltip:AddLine("The preview shows where Blizzard-rendered auras can appear.", 0.4, 0.4, 0.5)
+                GameTooltip:AddLine(Tr("Locked: Blizzard controls native aura placement."), 0.7, 0.7, 0.7)
+                GameTooltip:AddLine(Tr("The preview shows where Blizzard-rendered auras can appear."), 0.4, 0.4, 0.5)
             elseif self._getCurrentAnchor then
                 local anc = self:_getCurrentAnchor() or "?"
-                GameTooltip:AddLine("Anchor: " .. anc, 0.7, 0.7, 0.7)
+                GameTooltip:AddLine(string.format(Tr("Anchor: %s"), anc), 0.7, 0.7, 0.7)
             end
             if self._sectionKey then
-                GameTooltip:AddLine("Section: " .. self._sectionKey, 0.5, 0.5, 0.6)
+                GameTooltip:AddLine(string.format(Tr("Section: %s"), self._sectionKey), 0.5, 0.5, 0.6)
             end
             if not IsHandleLocked(self) then
-                GameTooltip:AddLine("Drag to reposition. Arrow keys nudge by 1.", 0.4, 0.4, 0.5)
+                GameTooltip:AddLine(Tr("Drag to reposition. Arrow keys nudge by 1."), 0.4, 0.4, 0.5)
             end
             GameTooltip:Show()
         end
@@ -685,6 +709,44 @@ local function EnsureMockPowerBar(f, kind, conf)
     return power
 end
 
+local function RefreshMockGroupBorder(f, conf, previewScale)
+    if not f then return end
+    local border = f._groupBorderPreview
+    if not border then
+        border = CreateFrame("Frame", nil, f, "BackdropTemplate")
+        border:EnableMouse(false)
+        f._groupBorderPreview = border
+    end
+    if not conf or conf.groupBorderEnabled ~= true then
+        border:Hide()
+        return
+    end
+
+    local scale = tonumber(previewScale) or 1
+    if scale <= 0 then scale = 1 end
+    local size = floor(((tonumber(conf.groupBorderSize) or 1) * scale) + 0.5)
+    if size < 1 then size = 1 elseif size > 24 then size = 24 end
+    local pad = floor(((tonumber(conf.groupBorderPadding) or 2) * scale) + 0.5)
+    if pad < 0 then pad = 0 elseif pad > 96 then pad = 96 end
+
+    if border._msufPreviewGBSize ~= size then
+        border._msufPreviewGBSize = size
+        border:SetBackdrop({ edgeFile = W8, edgeSize = size })
+        border:SetBackdropColor(0, 0, 0, 0)
+    end
+    border:SetBackdropBorderColor(
+        tonumber(conf.groupBorderR) or 0.38,
+        tonumber(conf.groupBorderG) or 0.68,
+        tonumber(conf.groupBorderB) or 1.00,
+        tonumber(conf.groupBorderA) or 0.95
+    )
+    border:SetFrameLevel((f.GetFrameLevel and f:GetFrameLevel() or 0) + 14)
+    border:ClearAllPoints()
+    border:SetPoint("TOPLEFT", f, "TOPLEFT", -pad, pad)
+    border:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", pad, -pad)
+    border:Show()
+end
+
 local function BuildMockFrame(parent)
     local kind = _getKind and _getKind() or "party"
     local conf = GF.GetConf(kind)
@@ -720,6 +782,7 @@ local function BuildMockFrame(parent)
         insets = { left = inset, right = inset, top = inset, bottom = inset } })
     f:SetBackdropColor(conf.bgR or 0.1, conf.bgG or 0.1, conf.bgB or 0.1, conf.bgA or 0.85)
     f:SetBackdropBorderColor(conf.borderR or 0, conf.borderG or 0, conf.borderB or 0, conf.borderA or 1)
+    RefreshMockGroupBorder(f, conf, rawToMock)
 
     local health = CreateFrame("StatusBar", nil, f)
     health:SetStatusBarTexture(GF.ResolveBarTexture(kind))
@@ -913,6 +976,9 @@ function GF.RefreshPreviewBox()
     local kind = _getKind()
     local conf = GF.GetConf(kind)
     local m    = _mockFrame
+    if _box and _box._previewTitle then
+        _box._previewTitle:SetText(Tr("Group Frame Preview") .. " - " .. PreviewScopeLabel(kind))
+    end
 
     -- Size (aspect-faithful scaling — mirrors BuildMockFrame exactly).
     -- Pick a uniform scale so the mock fits inside PREVIEW_MIN_W ×
@@ -942,6 +1008,7 @@ function GF.RefreshPreviewBox()
     -- Background
     m:SetBackdropColor(conf.bgR or 0.1, conf.bgG or 0.1, conf.bgB or 0.1, conf.bgA or 0.85)
     m:SetBackdropBorderColor(conf.borderR or 0, conf.borderG or 0, conf.borderB or 0, conf.borderA or 1)
+    RefreshMockGroupBorder(m, conf, rawToMock)
     if m._healthBg then
         m._healthBg:SetVertexColor(conf.bgR or 0.1, conf.bgG or 0.1, conf.bgB or 0.1, conf.bgA or 0.85)
     end
@@ -1280,14 +1347,51 @@ function GF.RefreshPreviewBox()
         local gen = _G.MSUF_DB and _G.MSUF_DB.general
         local gfDbKey = GF.GetConfigDBKey and GF.GetConfigDBKey(kind) or ((kind == "raid") and "gf_raid" or "gf_party")
         local gfDb = _G.MSUF_DB and _G.MSUF_DB[gfDbKey]
+        local function outlineModeToEnabled(mode)
+            if mode == nil then return nil end
+            if mode == true or mode == false then return mode end
+            local n = tonumber(mode)
+            if n ~= nil then return n == 1 end
+            return nil
+        end
+        local function outlineModeKey(key)
+            if key == "hlAggroEnabled" then return "aggroOutlineMode" end
+            if key == "hlDispelEnabled" then return "dispelOutlineMode" end
+            return nil
+        end
         local function resolveHL(key, fallback)
-            if gfDb and gfDb.hlOverride and gfDb[key] ~= nil then return gfDb[key] end
-            if gen and gen[key] ~= nil then return gen[key] end
+            local modeKey = outlineModeKey(key)
+            if gfDb and gfDb.hlOverride then
+                if modeKey then
+                    local enabled = outlineModeToEnabled(gfDb[modeKey])
+                    if enabled ~= nil then return enabled end
+                end
+                if gfDb[key] ~= nil then
+                    if modeKey then
+                        local enabled = outlineModeToEnabled(gfDb[key])
+                        if enabled ~= nil then return enabled end
+                    end
+                    return gfDb[key]
+                end
+            end
+            if gen then
+                if modeKey then
+                    local enabled = outlineModeToEnabled(gen[modeKey])
+                    if enabled ~= nil then return enabled end
+                end
+                if gen[key] ~= nil then
+                    if modeKey then
+                        local enabled = outlineModeToEnabled(gen[key])
+                        if enabled ~= nil then return enabled end
+                    end
+                    return gen[key]
+                end
+            end
             return fallback
         end
 
-        local aggroEn  = resolveHL("hlAggroEnabled",  conf.aggroHighlight)
-        local targetEn = resolveHL("hlTargetEnabled", conf.targetHighlight)
+        local aggroEn  = resolveHL("hlAggroEnabled",  conf.aggroEnabled)
+        local targetEn = resolveHL("hlTargetEnabled", conf.targetIndicator)
         local hlEn = (aggroEn ~= false) or (targetEn ~= false)
         if hlEn then
             local sz  = max(1, tonumber(resolveHL("hlAggroSize", (gen and gen.highlightBorderThickness) or 2)) or 2)
@@ -1509,14 +1613,13 @@ local function GetAuraMockStackColor()
     return ReadAuraMockColor(g and g.aurasStackCountColor, 1, 1, 1)
 end
 
-------------------------------------------------------------------------
--- Apply cooldown + stack text to a single mock icon. Reads the same
--- gcfg keys the real aura pipeline uses so the options sliders provide
--- live visual feedback on the mock frame.
+-- Apply cooldown + stack text to a single mock icon. Reads the same gcfg
+-- keys the real aura pipeline uses so the options sliders provide live
+-- visual feedback on the mock frame.
 -- `showText` gates whether the text layer is rendered. Cooldown and stack
 -- text still obey the group's own showCooldown/showStacks settings.
 ------------------------------------------------------------------------
-local function ApplyMockIconText(ic, gcfg, kind, showText, previewScale)
+local function ApplyMockIconText(ic, gcfg, kind, showText)
     if not ic or not gcfg then return end
 
     -- Hide path: if caller doesn't want text on this icon, hide any
@@ -1624,7 +1727,7 @@ local function BuildAuraGroupHandles(mockFrame)
 
     local nativeHandle = CreateHandle(mockFrame, "blizzard", "blizzrenderer", 56, 24, "blizzard")
     nativeHandle._label:SetPoint("BOTTOM", nativeHandle, "TOP", 0, 1)
-    nativeHandle._label:SetText("Blizzard locked")
+    nativeHandle._label:SetText(Tr("Blizzard locked"))
     nativeHandle._getAnchorFrame = function() return _mockFrame end
     nativeHandle._previewLocked = true
     nativeHandle._getCurrentAnchor = function()
@@ -1852,7 +1955,7 @@ end
 local function BuildPrivateAuraHandle(mockFrame)
     local handle = CreateHandle(mockFrame, "private", "priv", 16, 16, "private")
     handle._label:SetPoint("BOTTOM", handle, "TOP", 0, 1)
-    handle._label:SetText("Private")
+    handle._label:SetText(Tr("Private"))
     handle._onDragFinish = function(anchor, offX, offY)
         local kind = _getKind and _getKind() or "party"
         local conf = GF.GetConf(kind)
@@ -2127,7 +2230,7 @@ function GF.RefreshPreviewHandles()
                 -- sliders.  Gated by the "CD/Stack" sidebar toggle (+
                 -- solo-on-auraText override).  Default ON.
                 local showAuraText = (_visToggles.auraText ~= false) or (_soloKey == "auraText")
-                ApplyMockIconText(ic, gcfg, kind, showAuraText, sc)
+                ApplyMockIconText(ic, gcfg, kind, showAuraText)
                 if masqueActive and GF.Masque and GF.Masque.SyncIconGeometry then
                     GF.Masque.SyncIconGeometry(ic, sz, kind)
                 end
@@ -2349,7 +2452,35 @@ function GF.RefreshPreviewHandles()
                 h:SetSize(w, hh)
                 h:ClearAllPoints()
                 h:SetPoint(anchor, _mockFrame, anchor, offX, offY)
-                h:SetFrameLevel(_mockFrame:GetFrameLevel() + 10)
+                local Native = ns and ns.MSUF_AuraNative
+                local layerCfg = {
+                    containerStrata = auras.blizzardContainerStrata or "AUTO",
+                    containerFrameLevel = auras.blizzardContainerFrameLevel,
+                    privateLayerFix = auras.blizzardPrivateLayerFix ~= false,
+                    privateLayerOffset = auras.blizzardPrivateLayerOffset or 1,
+                }
+                if Native and Native.ApplyBlizzardAuraContainerLayer then
+                    if Native.ApplyBlizzardAuraContainerLayerForConfig then
+                        Native.ApplyBlizzardAuraContainerLayerForConfig(h, kind, layerCfg, _mockFrame, _mockFrame)
+                    else
+                        Native.ApplyBlizzardAuraContainerLayer(h, kind, {
+                            config = layerCfg,
+                            parent = _mockFrame,
+                            levelParent = _mockFrame,
+                        })
+                    end
+                    if privateOn and layerCfg.privateLayerFix ~= false and Native.EnsurePrivateAuraHost then
+                        if Native.EnsurePrivateAuraHostForConfig then
+                            Native.EnsurePrivateAuraHostForConfig(h, kind, layerCfg)
+                        else
+                            Native.EnsurePrivateAuraHost(h, kind, { config = layerCfg })
+                        end
+                    elseif Native.ClearPrivateAuraHost then
+                        Native.ClearPrivateAuraHost(h)
+                    end
+                else
+                    h:SetFrameLevel(_mockFrame:GetFrameLevel() + 10)
+                end
 
                 local pool = h._blizzIcons or {}
                 h._blizzIcons = pool
@@ -2357,11 +2488,12 @@ function GF.RefreshPreviewHandles()
                 h._blizzTags = tagPool
                 local poolIndex = 1
                 local function PlaceEntry(entry, x, y, cellSize)
-                    local tex = pool[poolIndex]
+                    local idx = poolIndex
+                    local tex = pool[idx]
                     if not tex then
                         tex = h:CreateTexture(nil, "ARTWORK")
                         tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-                        pool[poolIndex] = tex
+                        pool[idx] = tex
                     end
                     local iconIDs = AURA_GRP_ICON_IDS[entry.kind] or AURA_GRP_ICON_IDS.debuff
                     local spellId = iconIDs[((entry.seq - 1) % #iconIDs) + 1]
@@ -2374,11 +2506,11 @@ function GF.RefreshPreviewHandles()
                     tex:SetVertexColor(1, 1, 1, 0.92)
                     tex:Show()
 
-                    local tag = tagPool[poolIndex]
+                    local tag = tagPool[idx]
                     if not tag then
                         tag = h:CreateFontString(nil, "OVERLAY")
                         tag:SetFont("Fonts\\FRIZQT__.TTF", 6, "OUTLINE")
-                        tagPool[poolIndex] = tag
+                        tagPool[idx] = tag
                     end
                     if entry.tag then
                         local tc = entry.tagColor or { 1, 1, 1 }
@@ -2390,7 +2522,8 @@ function GF.RefreshPreviewHandles()
                     else
                         tag:Hide()
                     end
-                    poolIndex = poolIndex + 1
+
+                    poolIndex = idx + 1
                 end
                 local function PlaceGrid(entries, startX, startY, cellSize, cols)
                     if #entries <= 0 then return end
@@ -2860,11 +2993,23 @@ end
 ------------------------------------------------------------------------
 
 function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
-    if _box then return _box end
+    if _box then
+        _getKind = getKindFn or _getKind
+        _onSectionOpen = onSectionOpenFn or _onSectionOpen
+        if parent then
+            _box:SetParent(parent)
+            _box:ClearAllPoints()
+            _box:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
+        end
+        _box:Show()
+        if GF.RefreshPreviewBox then GF.RefreshPreviewBox() end
+        if GF.ResizePreviewContainer then GF.ResizePreviewContainer() end
+        return _box
+    end
     _getKind       = getKindFn
     _onSectionOpen = onSectionOpenFn
 
-    local sideW = 62
+    local sideW = 72
 
     -- Outer container
     local container = CreateFrame("Frame", "MSUF_GFPreviewContainer", parent, "BackdropTemplate")
@@ -2885,23 +3030,25 @@ function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
 
     -- Header bar (elevated surface)
     local headerBar = CreateFrame("Frame", nil, container, "BackdropTemplate")
-    headerBar:SetHeight(22)
+    headerBar:SetHeight(26)
     headerBar:SetPoint("TOPLEFT", container, "TOPLEFT", 1, -2)
     headerBar:SetPoint("TOPRIGHT", container, "TOPRIGHT", -1, -2)
     headerBar:SetBackdrop({ bgFile = W8 })
     headerBar:SetBackdropColor(0.065, 0.065, 0.085, 1)
 
     local hdr = headerBar:CreateFontString(nil, "OVERLAY")
-    hdr:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
-    hdr:SetPoint("LEFT", headerBar, "LEFT", 10, 0)
-    hdr:SetText("PREVIEW")
-    hdr:SetTextColor(0.55, 0.60, 0.72, 0.8)
+    SetPreviewLabelFont(hdr, 12, "")
+    hdr:SetPoint("LEFT", headerBar, "LEFT", 10, 1)
+    hdr:SetText(Tr("Group Frame Preview") .. " - " .. PreviewScopeLabel(_getKind and _getKind() or "party"))
+    hdr:SetTextColor(0.92, 0.95, 1.00, 1)
+    container._previewTitle = hdr
 
     local hint = headerBar:CreateFontString(nil, "OVERLAY")
-    hint:SetFont("Fonts\\FRIZQT__.TTF", 8, "")
-    hint:SetPoint("LEFT", hdr, "RIGHT", 8, 0)
-    hint:SetText("click to configure - custom layers drag; Blizzard is locked")
-    hint:SetTextColor(0.32, 0.32, 0.40, 0.5)
+    SetPreviewLabelFont(hint, 9, "")
+    hint:SetPoint("LEFT", hdr, "RIGHT", 12, 0)
+    hint:SetText(Tr("click to configure - custom layers drag; Blizzard is locked"))
+    hint:SetTextColor(0.55, 0.58, 0.70, 0.85)
+    container._previewHint = hint
 
     -- Header separator
     local sep = container:CreateTexture(nil, "ARTWORK", nil, 1)
@@ -2912,7 +3059,7 @@ function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
 
     -- Preview canvas (dark recessed surface)
     local area = CreateFrame("Frame", nil, container, "BackdropTemplate")
-    area:SetPoint("TOPLEFT", container, "TOPLEFT", 4, -26)
+    area:SetPoint("TOPLEFT", container, "TOPLEFT", 4, -30)
     area:SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -(sideW + 8), 22)
     area:SetBackdrop({ bgFile = W8, edgeFile = W8, edgeSize = 1,
         insets = { left = 1, right = 1, top = 1, bottom = 1 } })
@@ -2948,10 +3095,10 @@ function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
         sidebar:SetBackdropBorderColor(0.08, 0.08, 0.11, 0.4)
 
         local sHdr = sidebar:CreateFontString(nil, "OVERLAY")
-        sHdr:SetFont("Fonts\\FRIZQT__.TTF", 7, "")
+        SetPreviewLabelFont(sHdr, 8, "")
         sHdr:SetPoint("TOP", sidebar, "TOP", 0, -4)
-        sHdr:SetText("LAYERS")
-        sHdr:SetTextColor(0.35, 0.38, 0.48, 0.6)
+        sHdr:SetText(Tr("LAYERS"))
+        sHdr:SetTextColor(0.45, 0.50, 0.62, 0.82)
 
         local VIS_BTNS = {
             { key="buff",      label="Buffs",   color={0.40,0.82,0.40} },
@@ -2979,10 +3126,10 @@ function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
             end
         end
 
-        local btnH, gap, topPad = 20, 1, 16
+        local btnH, gap, topPad = 18, 2, 20
         for i, spec in ipairs(VIS_BTNS) do
             local btn = CreateFrame("Button", nil, sidebar)
-            btn:SetSize(sideW - 6, btnH)
+            btn:SetSize(sideW - 10, btnH)
             btn:SetPoint("TOP", sidebar, "TOP", 0, -(topPad + (i-1) * (btnH + gap)))
             btn:EnableMouse(true)
             -- Accept right-click so Shift+RightClick can also exit solo mode
@@ -3013,7 +3160,7 @@ function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
             btn._soloEdge = soloEdge
 
             local fs = btn:CreateFontString(nil, "OVERLAY")
-            fs:SetFont("Fonts\\FRIZQT__.TTF", 8, "")
+            SetPreviewLabelFont(fs, 9, "")
             fs:SetPoint("LEFT", bar, "RIGHT", 5, 0)
             fs:SetText(spec.label)
             btn._fs = fs
@@ -3028,7 +3175,7 @@ function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
                 else
                     bg:SetColorTexture(0.04, 0.04, 0.05, 0.3)
                     bar:SetColorTexture(0.18, 0.18, 0.22, 0.3)
-                    fs:SetTextColor(0.30, 0.30, 0.35, 0.45)
+                    fs:SetTextColor(0.38, 0.40, 0.48, 0.65)
                 end
                 -- Solo indicator: shown on the single soloed button. Also
                 -- brighten its label so it reads clearly when solo-dimming
@@ -3161,10 +3308,10 @@ function GF.CreatePreviewBox(parent, getKindFn, onSectionOpenFn)
 
     -- Coord display (in status bar)
     local coord = statusBar:CreateFontString(nil, "OVERLAY")
-    coord:SetFont("Fonts\\FRIZQT__.TTF", 8, "")
+    SetPreviewLabelFont(coord, 9, "")
     coord:SetPoint("LEFT", statusBar, "LEFT", 10, 0)
     coord:SetTextColor(1, 0.82, 0, 0.9)
-    coord:SetText("Click a handle to select - custom layers can be moved; Blizzard is locked")
+    coord:SetText(Tr("Click a handle to select - custom layers can be moved; Blizzard is locked"))
     _coordLabel = coord
 
     container:EnableKeyboard(true)

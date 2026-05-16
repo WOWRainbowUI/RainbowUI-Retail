@@ -20,6 +20,7 @@ local select        = select
 local pairs         = pairs
 local type          = type
 local tonumber      = tonumber
+local table_sort    = table.sort
 local math_min      = math.min
 local math_max      = math.max
 local math_ceil     = math.ceil
@@ -182,6 +183,26 @@ local function _GetReadableDispelName(dispelName)
     return dispelName
 end
 
+local function _CanReadAuraValue(value)
+    if _hasCanaccessvalue then return canaccessvalue(value) == true end
+    return not (issecretvalue and issecretvalue(value) == true)
+end
+
+local function _ReadAuraNumber(value, fallback)
+    if value == nil or not _CanReadAuraValue(value) then return fallback end
+    return tonumber(value) or fallback
+end
+
+local function _ReadAuraString(value)
+    if value == nil or not _CanReadAuraValue(value) then return nil end
+    return type(value) == "string" and value or nil
+end
+
+local function _ReadAuraBool(value)
+    if value == nil or not _CanReadAuraValue(value) then return false end
+    return value == true
+end
+
 -- Grid2-compatible dispel type ids for GetAuraDispelTypeColor():
 -- None=0, Magic=1, Curse=2, Disease=3, Poison=4, Enrage=9, Bleed=11.
 -- Using the hardcoded ids is more reliable than Enum.DispelType here.
@@ -321,6 +342,33 @@ local function SyncAuraIconGeometry(icon, size)
     return changed
 end
 
+local function SetStackTextIfChanged(fs, text)
+    if not fs then return end
+    if issecretvalue and issecretvalue(text) then
+        fs._msufGFStackText = nil
+        fs:SetText(text)
+        return
+    end
+    if fs._msufGFStackText ~= text then
+        fs._msufGFStackText = text
+        fs:SetText(text)
+    end
+end
+
+local function SetStackShownIfChanged(fs, shown)
+    if not fs then return end
+    shown = shown and true or false
+    if fs._msufGFStackShown == shown then return end
+    fs._msufGFStackShown = shown
+    if shown then fs:Show() else fs:Hide() end
+end
+
+local function ClearStackText(fs)
+    if not fs then return end
+    SetStackTextIfChanged(fs, "")
+    SetStackShownIfChanged(fs, false)
+end
+
 local function AcquireAuraIcon(parent, size)
     if _iconRecyclerN > 0 then
         local icon = _iconRecycler[_iconRecyclerN]
@@ -332,8 +380,18 @@ local function AcquireAuraIcon(parent, size)
         if icon.texture then icon.texture:SetTexCoord(0, 1, 0, 1); icon.texture:SetDesaturated(false) end
         if _GF_UnregisterCooldownTextIcon then _GF_UnregisterCooldownTextIcon(icon) end
         icon._msufGF_cdDurationObj = nil
-        if icon.cooldown then icon.cooldown._msufGF_cdDurationObj = nil; icon.cooldown:Clear(); if icon.cooldown.SetDrawBling then icon.cooldown:SetDrawBling(false) end end
-        if icon.count then icon.count:SetText(""); icon.count:Hide() end
+        icon._msufGF_cdCleared = true
+        if icon.cooldown then
+            icon.cooldown._msufGF_cdDurationObj = nil
+            if icon.cooldown._msufGFCdAuraTime ~= false and icon.cooldown.SetUseAuraDisplayTime then
+                icon.cooldown._msufGFCdAuraTime = false
+                icon.cooldown:SetUseAuraDisplayTime(false)
+            end
+            icon.cooldown._msufGF_cdCleared = true
+            icon.cooldown:Clear()
+            if icon.cooldown.SetDrawBling then icon.cooldown:SetDrawBling(false) end
+        end
+        ClearStackText(icon.count)
         -- Defensive: ensure tracking fields are clean (Recycle clears them, but
         -- belt-and-braces in case future code paths feed the recycler differently).
         icon._msufAuraID       = nil
@@ -432,6 +490,11 @@ local function CreateAuraIcon(parent, size)
         icon:EnableMouse(true)
     end
     icon:SetScript("OnEnter", function(self)
+        local owner = self._msufGFOwner
+        local kind = owner and owner._msufGFKind or "party"
+        local conf = GF.GetConf and GF.GetConf(kind)
+        local root = conf and conf.auras
+        if root and root.showTooltip == false then return end
         local unit = self._msufUnit
         local aid  = self._msufAuraID
         if not unit or not aid then return end
@@ -474,8 +537,7 @@ local function CreateAuraIcon(parent, size)
     count:SetDrawLayer("OVERLAY", 2)
     count:SetJustifyH("RIGHT")
     count:SetTextColor(1, 1, 1, 1)
-    count:SetText("")
-    count:Hide()
+    ClearStackText(count)
     icon.count = count
 
     icon:SetBackdrop({
@@ -615,30 +677,31 @@ end
 -- transitions (most aura updates re-enter ApplyCooldown but keep the
 -- same on/off state). Cheap when state is steady.
 ------------------------------------------------------------------------
+local function ClearCooldownIfNeeded(ic, cd)
+    if not cd then return end
+    if ic._msufGF_cdCleared and cd._msufGF_cdCleared then return end
+    ic._msufGF_cdDurationObj = nil
+    cd._msufGF_cdDurationObj = nil
+    if _GF_UnregisterCooldownTextIcon then _GF_UnregisterCooldownTextIcon(ic) end
+    if cd._msufGFCdAuraTime ~= false and cd.SetUseAuraDisplayTime then
+        cd._msufGFCdAuraTime = false
+        cd:SetUseAuraDisplayTime(false)
+    end
+    cd:Clear()
+    ic._msufGF_cdCleared = true
+    cd._msufGF_cdCleared = true
+end
+
 local function ApplyCooldown(ic, unit, auraInstanceID, showCooldown, showText)
     local cd = ic.cooldown
     if not cd then return end
     if not showCooldown then
-        ic._msufGF_cdDurationObj = nil
-        cd._msufGF_cdDurationObj = nil
-        if _GF_UnregisterCooldownTextIcon then _GF_UnregisterCooldownTextIcon(ic) end
-        if cd._msufGFCdAuraTime ~= false and cd.SetUseAuraDisplayTime then
-            cd._msufGFCdAuraTime = false
-            cd:SetUseAuraDisplayTime(false)
-        end
-        cd:Clear()
+        ClearCooldownIfNeeded(ic, cd)
         return
     end
     if not _apisBound then BindAPIs() end
     if not _getDuration or not auraInstanceID then
-        ic._msufGF_cdDurationObj = nil
-        cd._msufGF_cdDurationObj = nil
-        if _GF_UnregisterCooldownTextIcon then _GF_UnregisterCooldownTextIcon(ic) end
-        if cd._msufGFCdAuraTime ~= false and cd.SetUseAuraDisplayTime then
-            cd._msufGFCdAuraTime = false
-            cd:SetUseAuraDisplayTime(false)
-        end
-        cd:Clear()
+        ClearCooldownIfNeeded(ic, cd)
         return
     end
     local obj = _getDuration(unit, auraInstanceID)
@@ -646,6 +709,8 @@ local function ApplyCooldown(ic, unit, auraInstanceID, showCooldown, showText)
         local fn = cd.SetCooldownFromDurationObject
         if fn then
             fn(cd, obj)
+            ic._msufGF_cdCleared = nil
+            cd._msufGF_cdCleared = nil
             ic._msufGF_cdDurationObj = obj
             cd._msufGF_cdDurationObj = obj
             cd._msufCooldownFontStringDirty = true
@@ -657,14 +722,7 @@ local function ApplyCooldown(ic, unit, auraInstanceID, showCooldown, showText)
             return
         end
     end
-    if cd._msufGFCdAuraTime ~= false and cd.SetUseAuraDisplayTime then
-        cd._msufGFCdAuraTime = false
-        cd:SetUseAuraDisplayTime(false)
-    end
-    ic._msufGF_cdDurationObj = nil
-    cd._msufGF_cdDurationObj = nil
-    if _GF_UnregisterCooldownTextIcon then _GF_UnregisterCooldownTextIcon(ic) end
-    cd:Clear()
+    ClearCooldownIfNeeded(ic, cd)
 end
 
 ------------------------------------------------------------------------
@@ -673,7 +731,7 @@ end
 local function ApplyStacks(ic, unit, auraInstanceID, applications, showStacks, cfg)
     local fs = ic.count
     if not fs then return end
-    if not showStacks then fs:SetText(""); fs:Hide(); return end
+    if not showStacks then ClearStackText(fs); return end
 
     -- EQoL pattern: use GetAuraApplicationDisplayCount for display (handles secrets C-side)
     if not _apisBound then BindAPIs() end
@@ -681,8 +739,8 @@ local function ApplyStacks(ic, unit, auraInstanceID, applications, showStacks, c
         local display = _getStackCount(unit, auraInstanceID, 2, 99)
         if display ~= nil then
             -- SetText accepts secret values natively (C-side renders)
-            fs:SetText(display)
-            fs:Show()
+            SetStackTextIfChanged(fs, display)
+            SetStackShownIfChanged(fs, true)
             return
         end
     end
@@ -690,13 +748,19 @@ local function ApplyStacks(ic, unit, auraInstanceID, applications, showStacks, c
     -- Fallback: direct applications field
     if applications ~= nil then
         if issecretvalue and issecretvalue(applications) then
-            fs:SetText("?"); fs:Show(); return
+            SetStackTextIfChanged(fs, "?")
+            SetStackShownIfChanged(fs, true)
+            return
         end
         local n = tonumber(applications)
-        if n and n >= 2 then fs:SetText(n); fs:Show(); return end
+        if n and n >= 2 then
+            SetStackTextIfChanged(fs, n)
+            SetStackShownIfChanged(fs, true)
+            return
+        end
     end
 
-    fs:SetText(""); fs:Hide()
+    ClearStackText(fs)
 end
 
 ------------------------------------------------------------------------
@@ -1240,6 +1304,8 @@ do
         f:RegisterEvent("PLAYER_REGEN_ENABLED")
         f:RegisterEvent("PLAYER_ENTERING_WORLD")
         f:SetScript("OnEvent", function()
+            if GF.UpdateAnyEnabledFlag then GF.UpdateAnyEnabledFlag() end
+            if GF._anyEnabled == false then return end
             if _gfCdTextMgr and _gfCdTextMgr.count and _gfCdTextMgr.count > 0 then
                 GF.ForceCooldownTextRecolor()
             end
@@ -1329,7 +1395,12 @@ local function ApplyCooldownFont(ic, gcfg, gFont, wantFlags, baseR, baseG, baseB
     if fsChanged or cd._msufGFCdTextSize ~= size or cd._msufGFCdFontPath ~= gFont
        or cd._msufGFCdFontFlags ~= wantFlags then
         if gFont and fs.SetFont then
-            fs:SetFont(gFont, size, wantFlags)
+            local g = _G.MSUF_DB and _G.MSUF_DB.general
+            if type(_G.MSUF_SetFontSafe) == "function" then
+                _G.MSUF_SetFontSafe(fs, gFont, size, wantFlags, (g and g.fontKey) or "FRIZQT")
+            else
+                fs:SetFont(gFont, size, wantFlags)
+            end
         end
         cd._msufGFCdTextSize = size
         cd._msufGFCdFontPath = gFont
@@ -1381,7 +1452,12 @@ local function ApplyStackLayout(ic, gcfg, gFont, wantFlags, frameScale)
 
     if ic._msufGFStkSize ~= size or ic._msufGFStkFont ~= gFont then
         if gFont and fs.SetFont then
-            fs:SetFont(gFont, size, wantFlags)
+            local g = _G.MSUF_DB and _G.MSUF_DB.general
+            if type(_G.MSUF_SetFontSafe) == "function" then
+                _G.MSUF_SetFontSafe(fs, gFont, size, wantFlags, (g and g.fontKey) or "FRIZQT")
+            else
+                fs:SetFont(gFont, size, wantFlags)
+            end
         end
         ic._msufGFStkSize = size
         ic._msufGFStkFont = gFont
@@ -1524,6 +1600,57 @@ local function CompactAuraCache(cache)
     end
     for i = write, #order do order[i] = nil end
     cache._orderDirty = nil
+end
+
+local _AURA_SORT_PERMANENT = 1e30
+
+local function AuraIsPlayerOwned(aura)
+    if not aura then return false end
+    if _ReadAuraBool(aura.isFromPlayerOrPlayerPet) then return true end
+    local source = _ReadAuraString(aura.sourceUnit)
+    return source == "player" or source == "pet"
+end
+
+local function AuraSortTime(aura)
+    if not aura then return _AURA_SORT_PERMANENT end
+    local expirationTime = _ReadAuraNumber(aura.expirationTime)
+    if expirationTime and expirationTime > 0 then return expirationTime end
+    local duration = _ReadAuraNumber(aura.duration)
+    if duration and duration > 0 then return GetTime() + duration end
+    return _AURA_SORT_PERMANENT
+end
+
+local function SortAuraCacheOrder(cache, sortByDuration, preferPlayer)
+    if not (cache and (sortByDuration or preferPlayer)) then return end
+    CompactAuraCache(cache)
+    local order = cache.order
+    local count = #order
+    if count <= 1 then return end
+
+    local auras = cache.auras
+    local oldIndex = cache.indexById
+    table_sort(order, function(aID, bID)
+        local a = auras[aID]
+        local b = auras[bID]
+
+        if preferPlayer then
+            local aPlayer = AuraIsPlayerOwned(a)
+            local bPlayer = AuraIsPlayerOwned(b)
+            if aPlayer ~= bPlayer then return aPlayer end
+        end
+
+        if sortByDuration then
+            local aTime = AuraSortTime(a)
+            local bTime = AuraSortTime(b)
+            if aTime ~= bTime then return aTime < bTime end
+        end
+
+        return (oldIndex[aID] or 0) < (oldIndex[bID] or 0)
+    end)
+
+    for i = 1, count do
+        oldIndex[order[i]] = i
+    end
 end
 
 local function AuraCacheVisibleIndex(cache, auraInstanceID, maxIcons, includeSpare)
@@ -1947,6 +2074,47 @@ function GF.IsBlizzardAuraTypeEnabled(conf, key)
     return type(types) ~= "table" or types[key] ~= false
 end
 
+function GF.GetBlizzardAuraTypeFlags(conf)
+    if not GF.IsAuraRendererBlizzard(conf) then
+        return false, false, false, false, false
+    end
+
+    local auras = conf and conf.auras
+    if not auras or auras.enabled == false then
+        return false, false, false, false, false
+    end
+
+    local types = GF.EnsureBlizzardAuraTypes(conf)
+    local Native = GetNativeAuraAPI()
+    if Native and Native.Supported and not Native.Supported() then
+        return false, false, false, false, false
+    end
+
+    local function TypeEnabled(key)
+        if Native and Native.TypeEnabled then
+            return Native.TypeEnabled(types, key, true)
+        end
+        return type(types) ~= "table" or types[key] ~= false
+    end
+
+    local privateAuras = TypeEnabled("privateAuras")
+    local pa = conf and conf.privateAuras
+    if pa and pa.enabled == false then
+        privateAuras = false
+    end
+
+    local dispels = TypeEnabled("dispels")
+    if conf and conf.dispelEnabled == false then
+        dispels = false
+    end
+
+    return TypeEnabled("buffs"),
+        TypeEnabled("debuffs"),
+        dispels,
+        TypeEnabled("externals"),
+        privateAuras
+end
+
 function GF.GetBlizzardAuraIconSize(conf, scale, frameScale)
     local auras = conf and conf.auras
     local raw = auras and tonumber(auras.blizzardIconSize)
@@ -1958,6 +2126,42 @@ function GF.GetBlizzardAuraIconSize(conf, scale, frameScale)
         raw = (buffCfg and buffCfg.size) or (debCfg and debCfg.size) or (extCfg and extCfg.size) or (paCfg and paCfg.size) or 20
     end
     return ScaleFrameValue(raw, (scale or 1) * (frameScale or 1), 8)
+end
+
+local function BuildBlizzardLayerConfig(auras)
+    auras = auras or _EMPTY_AURA_CFG
+    return {
+        containerStrata = auras.blizzardContainerStrata or "AUTO",
+        containerFrameLevel = auras.blizzardContainerFrameLevel,
+        privateLayerFix = auras.blizzardPrivateLayerFix ~= false,
+        privateLayerOffset = auras.blizzardPrivateLayerOffset or 1,
+    }
+end
+
+function GF.GetBlizzardAuraLayerConfig(conf)
+    return BuildBlizzardLayerConfig(conf and conf.auras)
+end
+
+local _blizzardLayerEventFrame
+local function QueueBlizzardLayeringAfterCombat(kind, forceReapply)
+    GF._pendingBlizzardAuraLayering = GF._pendingBlizzardAuraLayering or {}
+    local key = kind or "_all"
+    GF._pendingBlizzardAuraLayering[key] = GF._pendingBlizzardAuraLayering[key] or (forceReapply and true or false)
+    if forceReapply then GF._pendingBlizzardAuraLayering[key] = true end
+
+    if not _blizzardLayerEventFrame then
+        _blizzardLayerEventFrame = CreateFrame("Frame")
+        _blizzardLayerEventFrame:SetScript("OnEvent", function(self)
+            self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+            local pending = GF._pendingBlizzardAuraLayering
+            GF._pendingBlizzardAuraLayering = nil
+            if not pending then return end
+            for pendingKind, pendingForce in pairs(pending) do
+                GF.ApplyBlizzardAuraContainerLayering(pendingKind ~= "_all" and pendingKind or nil, pendingForce)
+            end
+        end)
+    end
+    _blizzardLayerEventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 end
 
 local function ClearOneBlizzardAuraContainer(container)
@@ -2116,6 +2320,11 @@ function GF.UpdateBlizzardAuraContainer(f, unit, conf, scale, frameScale, update
         iconOffsetX = iconOffsetX,
         iconOffsetY = iconOffsetY,
     }
+    local layerCfg = BuildBlizzardLayerConfig(auras)
+    cfg.containerStrata = layerCfg.containerStrata
+    cfg.containerFrameLevel = layerCfg.containerFrameLevel
+    cfg.privateLayerFix = layerCfg.privateLayerFix
+    cfg.privateLayerOffset = layerCfg.privateLayerOffset
 
     local effectiveUnit = Native.ResolveUnitToken and Native.ResolveUnitToken(unit) or unit
     local desiredSig = Native.Signature and Native.Signature(effectiveUnit, cfg)
@@ -2124,7 +2333,18 @@ function GF.UpdateBlizzardAuraContainer(f, unit, conf, scale, frameScale, update
         and (not desiredSig or container._msufNativeAuraSignature == desiredSig)
     if ready then
         if Native.ApplyFrameStrata then
-            Native.ApplyFrameStrata(container, parent, levelParent)
+            Native.ApplyFrameStrata(container, parent, levelParent, cfg)
+        end
+        if Native.EnsurePrivateAuraHost then
+            if cfg.privateAuras ~= false and cfg.privateLayerFix ~= false then
+                if Native.EnsurePrivateAuraHostForConfig then
+                    Native.EnsurePrivateAuraHostForConfig(container, effectiveUnit, cfg)
+                else
+                    Native.EnsurePrivateAuraHost(container, effectiveUnit, { config = cfg })
+                end
+            elseif Native.ClearPrivateAuraHost then
+                Native.ClearPrivateAuraHost(container)
+            end
         end
         container:Show()
         return {
@@ -2147,10 +2367,52 @@ function GF.UpdateBlizzardAuraContainer(f, unit, conf, scale, frameScale, update
     }
 end
 
+function GF.ApplyBlizzardAuraContainerLayering(kind, forceReapply)
+    local Native = GetNativeAuraAPI()
+    if not (Native and GF.ForEachFrame) then return end
+    if _G.InCombatLockdown and _G.InCombatLockdown() then
+        QueueBlizzardLayeringAfterCombat(kind, forceReapply)
+        return
+    end
+
+    GF.ForEachFrame(function(f, frameKind)
+        if kind and frameKind ~= kind then return end
+        local container = f and f._msufGFNativeAuras
+        if not container then return end
+        local conf = GF.GetConf and GF.GetConf(frameKind)
+        if not (conf and conf.auras) then return end
+        local unit = f._msufGFRegisteredUnit or (f.GetAttribute and f:GetAttribute("unit"))
+        if forceReapply and unit and GF.UpdateBlizzardAuraContainer then
+            GF.UpdateBlizzardAuraContainer(f, unit, conf, GetDynamicScale(conf), GetFrameScale(frameKind, conf), { isFullUpdate = true })
+            return
+        end
+        local parent = f.statusIconLayer or f.barGroup or f
+        local layerCfg = BuildBlizzardLayerConfig(conf.auras)
+        if Native.ApplyFrameStrata then
+            Native.ApplyFrameStrata(container, parent, parent, layerCfg)
+        end
+        if Native.EnsurePrivateAuraHost then
+            local types = GF.EnsureBlizzardAuraTypes(conf)
+            local paCfg = conf.privateAuras or _EMPTY_AURA_CFG
+            local privateOn = Native.TypeEnabled(types, "privateAuras", true) and paCfg.enabled ~= false
+            if privateOn and layerCfg.privateLayerFix ~= false then
+                if Native.EnsurePrivateAuraHostForConfig then
+                    Native.EnsurePrivateAuraHostForConfig(container, unit or frameKind, layerCfg)
+                else
+                    Native.EnsurePrivateAuraHost(container, unit or frameKind, { config = layerCfg })
+                end
+            elseif Native.ClearPrivateAuraHost then
+                Native.ClearPrivateAuraHost(container)
+            end
+        end
+        container:Show()
+    end)
+end
+
 ------------------------------------------------------------------------
 -- Main render: one aura group
 ------------------------------------------------------------------------
-local function RenderGroup(f, unit, groupKey, gcfg, filter, isHarmful, parent, dedupIDs, scale, frameScale, sourceCache)
+local function RenderGroup(f, unit, groupKey, gcfg, filter, isHarmful, parent, dedupIDs, scale, frameScale, sourceCache, sortByDuration, preferPlayer)
     if not gcfg or gcfg.enabled == false then
         HidePool(f[POOL_KEYS[groupKey]], 1)
         return 0, nil
@@ -2249,6 +2511,7 @@ local function RenderGroup(f, unit, groupKey, gcfg, filter, isHarmful, parent, d
     local order, aurasById, orderCount
     if sourceCache then
         CompactAuraCache(sourceCache)
+        SortAuraCacheOrder(sourceCache, sortByDuration == true, preferPlayer == true)
         order = sourceCache.order
         aurasById = sourceCache.auras
         orderCount = #order
@@ -2877,6 +3140,9 @@ function GF.UpdateFrameAuras(f, unit, updateInfo)
     local debOn = debCfg and debCfg.enabled ~= false and not nativeDebuffs
     local buffOn = buffCfg and buffCfg.enabled ~= false and not nativeBuffs
     local dispelNeeded = _playerCanDispel and conf.dispelEnabled ~= false and not nativeDispels
+    local sortByDuration = auras.sortByDuration == true
+    local preferPlayer = auras.preferPlayer ~= false
+    local orderedAuras = sortByDuration or preferPlayer
 
     -- PERF (4.22 Beta hotfix): cache settings-stable filter/max resolutions
     -- on the frame settings cache `c`. Was: 3× ResolveDebuff/Buff function
@@ -2909,9 +3175,13 @@ function GF.UpdateFrameAuras(f, unit, updateInfo)
         end
     end
 
+    local extScanMax = orderedAuras and nil or extMax
+    local debScanMax = orderedAuras and nil or debMax
+    local buffScanMax = orderedAuras and nil or buffMax
+
     local sig = c and c.auraCacheSig
     if not sig then
-        sig = BuildAuraCacheSig(buffFilter, debFilter, extFilter, buffMax, debMax, extMax, buffOn, debOn, extOn, dispelNeeded)
+        sig = BuildAuraCacheSig(buffFilter, debFilter, extFilter, buffScanMax, debScanMax, extScanMax, buffOn, debOn, extOn, dispelNeeded)
         if c then c.auraCacheSig = sig end
     end
 
@@ -2924,14 +3194,20 @@ function GF.UpdateFrameAuras(f, unit, updateInfo)
         st, touchBuff, touchDebuff, touchExt, touchDispel = UpdateFrameAuraCacheDelta(
             f, unit, updateInfo,
             buffFilter, debFilter, extFilter,
-            buffMax, debMax, extMax,
+            buffScanMax, debScanMax, extScanMax,
             buffOn, debOn, extOn, dispelNeeded
         )
+        if orderedAuras then
+            touchBuff = buffOn
+            touchDebuff = debOn
+            touchExt = extOn
+            touchDispel = dispelNeeded
+        end
     else
         st = FullScanFrameAuraCache(
             f, unit, sig,
             buffFilter, debFilter, extFilter,
-            buffMax, debMax, extMax,
+            buffScanMax, debScanMax, extScanMax,
             buffOn, debOn, extOn, dispelNeeded
         )
         touchBuff = buffOn
@@ -2948,7 +3224,7 @@ function GF.UpdateFrameAuras(f, unit, updateInfo)
     elseif extOn then
         if touchExt then
             for k in pairs(_externalsIDs) do _externalsIDs[k] = nil end
-            RenderGroup(f, unit, "externals", extCfg, extFilter, false, parent, nil, scale, frameScale, st and st.externals)
+            RenderGroup(f, unit, "externals", extCfg, extFilter, false, parent, nil, scale, frameScale, st and st.externals, sortByDuration, preferPlayer)
         else
             FillDisplayedExternalIDs(f, _externalsIDs)
         end
@@ -2971,7 +3247,7 @@ function GF.UpdateFrameAuras(f, unit, updateInfo)
             f._msufGFDispelAuraID = nil
             f._msufGFDispelColorObj = nil
             f._msufGFDispelColorRev = nil
-            local _, md, mdColor = RenderGroup(f, unit, "debuff", debCfg, debFilter, true, parent, nil, scale, frameScale, st and st.debuff)
+            local _, md, mdColor = RenderGroup(f, unit, "debuff", debCfg, debFilter, true, parent, nil, scale, frameScale, st and st.debuff, sortByDuration, preferPlayer)
             if not nativeDispels then
                 if touchDispel and dispelNeeded and not md then
                     if _getByIndex then
@@ -3054,7 +3330,7 @@ function GF.UpdateFrameAuras(f, unit, updateInfo)
     elseif buffOn then
         if touchBuff or touchExt then
             if not touchExt then FillDisplayedExternalIDs(f, _externalsIDs) end
-            RenderGroup(f, unit, "buff", buffCfg, buffFilter, false, parent, f._msufSIDedupIDs, scale, frameScale, st and st.buff)
+            RenderGroup(f, unit, "buff", buffCfg, buffFilter, false, parent, f._msufSIDedupIDs, scale, frameScale, st and st.buff, sortByDuration, preferPlayer)
         end
         f._msufGFBufHidden = nil
     elseif not f._msufGFBufHidden then
@@ -3093,18 +3369,23 @@ local function _DoAuraOptionsRefresh()
         end)
     elseif GF.frames then
         for f in pairs(GF.frames) do
-            if f and GF.BuildFrameCache then GF.BuildFrameCache(f) end
-            if f and f.unit and GF.RegisterUnitEvents then GF.RegisterUnitEvents(f, f.unit) end
-            if f and f.unit and UnitExists(f.unit) then
-                GF.UpdateFrameAuras(f, f.unit)
-                local c = f._c
-                if c and c.paEn and GF.ApplyPrivateAuras then
-                    GF.ApplyPrivateAuras(f, f.unit)
-                elseif GF.ClearPrivateAuras then
-                    GF.ClearPrivateAuras(f)
+            if GF.IsFrameRuntimeEnabled and not GF.IsFrameRuntimeEnabled(f, f and f._msufGFKind) then
+                if f and GF.HideFrameAuras then GF.HideFrameAuras(f) end
+                if f and GF.ClearPrivateAuras then GF.ClearPrivateAuras(f) end
+            else
+                if f and GF.BuildFrameCache then GF.BuildFrameCache(f) end
+                if f and f.unit and GF.RegisterUnitEvents then GF.RegisterUnitEvents(f, f.unit) end
+                if f and f.unit and UnitExists(f.unit) then
+                    GF.UpdateFrameAuras(f, f.unit)
+                    local c = f._c
+                    if c and c.paEn and GF.ApplyPrivateAuras then
+                        GF.ApplyPrivateAuras(f, f.unit)
+                    elseif GF.ClearPrivateAuras then
+                        GF.ClearPrivateAuras(f)
+                    end
+                elseif f then
+                    GF.HideFrameAuras(f)
                 end
-            elseif f then
-                GF.HideFrameAuras(f)
             end
         end
     end
@@ -3289,8 +3570,8 @@ do
                 if ic then
                     ic.texture:SetTexture(MOCK_BUFFS[i])
                     ic.texture:Show()
-                    if ic.cooldown then ic.cooldown:Clear() end
-                    if ic.count then ic.count:SetText(""); ic.count:Hide() end
+                    if ic.cooldown then ClearCooldownIfNeeded(ic, ic.cooldown) end
+                    ClearStackText(ic.count)
                     ic:SetBackdropBorderColor(0, 0, 0, 1)
                     PositionIcon(ic, anchor, container, i, perRow, size, spacing, gv, maxShow)
                     ic:Show()
@@ -3327,8 +3608,8 @@ do
                 if ic then
                     ic.texture:SetTexture(MOCK_DEBUFFS[i])
                     ic.texture:Show()
-                    if ic.cooldown then ic.cooldown:Clear() end
-                    if ic.count then ic.count:SetText(""); ic.count:Hide() end
+                    if ic.cooldown then ClearCooldownIfNeeded(ic, ic.cooldown) end
+                    ClearStackText(ic.count)
                     local disp = MOCK_DISPELS[i]
                     local showDisp = debCfg.showDispelBorder ~= false
                     if disp and showDisp then
@@ -3373,8 +3654,8 @@ do
                 if ic then
                     ic.texture:SetTexture(MOCK_EXTERNALS[i])
                     ic.texture:Show()
-                    if ic.cooldown then ic.cooldown:Clear() end
-                    if ic.count then ic.count:SetText(""); ic.count:Hide() end
+                    if ic.cooldown then ClearCooldownIfNeeded(ic, ic.cooldown) end
+                    ClearStackText(ic.count)
                     ic:SetBackdropBorderColor(0, 0, 0, 1)
                     PositionIcon(ic, anchor, container, i, perRow, size, spacing, gv, maxShow)
                     ic:Show()

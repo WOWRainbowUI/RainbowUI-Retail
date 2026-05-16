@@ -9,6 +9,8 @@ _G.MSUF_NS = ns
 local GF = ns.GF
 if not GF then return end
 
+local _RuntimeEnabledForFrame
+
 local issecretvalue = _G.issecretvalue
 local InCombatLockdown = _G.InCombatLockdown
 local UnitExists = _G.UnitExists
@@ -79,9 +81,6 @@ local function _MSUF_ScheduleDelayOnce(key, delay, fn)
 end
 local AuraUtil = _G.AuraUtil
 local CreateFrame = _G.CreateFrame
-local IsSpellInRange = _G.C_Spell and _G.C_Spell.IsSpellInRange
-local CheckInteractDistance = _G.CheckInteractDistance
-local IsPlayerSpell = _G.IsPlayerSpell
 local PowerBarColor = _G.PowerBarColor
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
 local SetRaidTargetIconTexture = _G.SetRaidTargetIconTexture
@@ -455,7 +454,7 @@ end
 
 ------------------------------------------------------------------------
 -- Highlight value resolver: Bars hl* keys → old GF conf key fallback
--- Bars system uses hlAggroEnabled, hlAggroColorR, etc.
+-- Bars system uses hlAggroEnabled/aggroOutlineMode, hlAggroColorR, etc.
 -- Old GF DB uses aggroEnabled, aggroR, etc.
 -- Single-pass resolution: conf.hlOverride → general → conf[fallback]
 ------------------------------------------------------------------------
@@ -472,68 +471,102 @@ local _HL_FALLBACK = {
     hlTargetColorB  = "targetB",
 }
 
+local _HL_OUTLINE_MODE = {
+    hlAggroEnabled  = "aggroOutlineMode",
+    hlDispelEnabled = "dispelOutlineMode",
+}
+
+local function OutlineModeToEnabled(mode)
+    if mode == nil then return nil end
+    if mode == true or mode == false then return mode end
+    local n = tonumber(mode)
+    if n ~= nil then return n == 1 end
+    return nil
+end
+
 local function HLVal(kind, key)
     local conf = GF.GetConf(kind)
     -- Priority 1: GF-local override
-    if conf.hlOverride and conf[key] ~= nil then return conf[key] end
-    -- Priority 2: global general (always fresh — 2 table lookups)
+    local modeKey = _HL_OUTLINE_MODE[key]
     local gen = _G.MSUF_DB and _G.MSUF_DB.general
-    if gen and gen[key] ~= nil then return gen[key] end
+    if modeKey then
+        if conf.hlOverride then
+            local enabled = OutlineModeToEnabled(conf[modeKey])
+            if enabled ~= nil then return enabled end
+            if conf[key] ~= nil then
+                enabled = OutlineModeToEnabled(conf[key])
+                if enabled ~= nil then return enabled end
+                return conf[key]
+            end
+        end
+        if gen then
+            local enabled = OutlineModeToEnabled(gen[modeKey])
+            if enabled ~= nil then return enabled end
+            if gen[key] ~= nil then
+                enabled = OutlineModeToEnabled(gen[key])
+                if enabled ~= nil then return enabled end
+                return gen[key]
+            end
+        end
+    elseif conf.hlOverride then
+        if conf[key] ~= nil then return conf[key] end
+    end
+    if not modeKey and gen then
+        if gen[key] ~= nil then return gen[key] end
+    end
     -- Priority 3: legacy GF conf fallback
     local fb = _HL_FALLBACK[key]
-    if fb and conf[fb] ~= nil then return conf[fb] end
+    if fb and conf[fb] ~= nil then
+        if modeKey then
+            local enabled = OutlineModeToEnabled(conf[fb])
+            if enabled ~= nil then return enabled end
+        end
+        return conf[fb]
+    end
+    return nil
+end
+
+local function HLValCached(conf, gen, key)
+    local modeKey = _HL_OUTLINE_MODE[key]
+    if modeKey then
+        if conf.hlOverride then
+            local enabled = OutlineModeToEnabled(conf[modeKey])
+            if enabled ~= nil then return enabled end
+            if conf[key] ~= nil then
+                enabled = OutlineModeToEnabled(conf[key])
+                if enabled ~= nil then return enabled end
+                return conf[key]
+            end
+        end
+        if gen then
+            local enabled = OutlineModeToEnabled(gen[modeKey])
+            if enabled ~= nil then return enabled end
+            if gen[key] ~= nil then
+                enabled = OutlineModeToEnabled(gen[key])
+                if enabled ~= nil then return enabled end
+                return gen[key]
+            end
+        end
+    elseif conf.hlOverride then
+        if conf[key] ~= nil then return conf[key] end
+    end
+    if not modeKey and gen then
+        if gen[key] ~= nil then return gen[key] end
+    end
+    local fb = _HL_FALLBACK[key]
+    if fb and conf[fb] ~= nil then
+        if modeKey then
+            local enabled = OutlineModeToEnabled(conf[fb])
+            if enabled ~= nil then return enabled end
+        end
+        return conf[fb]
+    end
     return nil
 end
 
 ------------------------------------------------------------------------
--- Range check spells (Grid2 pattern — IsSpellInRange, NOT secret)
+-- Range fade uses the same UnitInRange-only path as EQoL group frames.
 ------------------------------------------------------------------------
-local _playerClass = select(2, UnitClass("player"))
-local _rangeFriendlySpell
-local _rangeNeedsTicker = false
-
-do
-    local function KnownSpell(id)
-        if not id then return nil end
-        local spellBook = _G.C_SpellBook
-        local inBook = spellBook and spellBook.IsSpellInSpellBook
-        if inBook and inBook(id, nil, true) == true then return id end
-        return IsPlayerSpell and IsPlayerSpell(id) and id or nil
-    end
-    local function Pick(...)
-        for i = 1, select("#", ...) do
-            local id = KnownSpell(select(i, ...))
-            if id then return id end
-        end
-        return nil
-    end
-    local spells = {
-        DRUID       = function() return Pick(8936, 774, 88423, 2782) end,        -- Regrowth/Rejuvenation/Nature's Cure
-        PRIEST      = function() return Pick(2061, 17, 21562, 527) end,          -- Flash Heal/Shield/Purify
-        SHAMAN      = function() return Pick(8004, 188070, 546) end,             -- Healing Surge/Healing Stream/Water Walking
-        PALADIN     = function() return Pick(19750, 85673, 4987, 213644) end,    -- Flash of Light/Word of Glory/Cleanse
-        MONK        = function() return Pick(116670, 115450) end,                -- Vivify/Detox
-        EVOKER      = function() return Pick(361469, 355913, 360823) end,        -- Living Flame/Emerald Blossom/Naturalize
-        WARLOCK     = function() return Pick(20707) end,                         -- Soulstone
-        MAGE        = function() return Pick(475) end,                           -- Remove Curse
-        HUNTER      = function() return Pick(34477) end,                         -- Misdirection
-        ROGUE       = function() return Pick(57934, 36554) end,                  -- Tricks/Shadowstep
-        DEATHKNIGHT = function() return Pick(47541) end,                         -- Death Coil
-        WARRIOR     = function() return Pick(3411) end,                          -- Intervene
-        DEMONHUNTER = function() return nil end,
-    }
-    local _spellGetter = spells[_playerClass]
-
-    -- Exported: re-resolve on SPELLS_CHANGED, spec change, instance entry.
-    -- Called from recovery ticker OnEvent + PLAYER_LOGIN.
-    function GF._RebuildRangeSpell()
-        local old = _rangeFriendlySpell
-        _rangeFriendlySpell = _spellGetter and _spellGetter() or nil
-        _rangeNeedsTicker = (_rangeFriendlySpell == nil)
-    end
-    GF._RebuildRangeSpell()  -- initial resolve at file load
-end
-
 ------------------------------------------------------------------------
 -- Dispel type colors (fallback for pre-Midnight clients)
 ------------------------------------------------------------------------
@@ -734,7 +767,12 @@ local _gfGlowColor = { 0, 0, 0, 1 }
 
 local function _GF_StartDispelGlow(f, r, g, b)
     local kind = f._msufGFKind or "party"
-    if not LCG or not HLVal(kind, "hlDispelGlowEnabled") then
+    local blizzardOwnsThisScope = false
+    local blocksGlow = _G.MSUF_GroupBlizzardAuraRenderingBlocksDispelGlow
+    if type(blocksGlow) == "function" then
+        blizzardOwnsThisScope = blocksGlow(kind) == true
+    end
+    if not LCG or blizzardOwnsThisScope or not HLVal(kind, "hlDispelGlowEnabled") then
         f._msufGFDispelGlowActive = nil
         local offAnchor = f._msufGFDispelGlowAnchor
         f._msufGFDispelGlowAnchor = nil
@@ -1201,8 +1239,14 @@ end
 _gfFlushDirtyAuras = function()
     _gfAuraBudget = 0
     _gfAuraDirtyPending = false
+
+    -- Process at most the same number of deferred full aura scans that the
+    -- immediate path allows per frame. The previous loop walked the whole
+    -- queue and relied on dispatchAura to re-queue overflow frames, which was
+    -- correct but created extra Lua churn during large raid-wide aura bursts.
+    local processed = 0
     local stopTail = _gfAuraDirtyTail
-    while _gfAuraDirtyHead <= stopTail do
+    while _gfAuraDirtyHead <= stopTail and processed < _GF_AURA_BUDGET_MAX do
         local f = _gfAuraDirtyQueue[_gfAuraDirtyHead]
         _gfAuraDirtyQueue[_gfAuraDirtyHead] = nil
         _gfAuraDirtyHead = _gfAuraDirtyHead + 1
@@ -1219,6 +1263,7 @@ _gfFlushDirtyAuras = function()
                 end
             end
         end
+        processed = processed + 1
     end
     if _gfAuraDirtyHead > _gfAuraDirtyTail then
         _gfAuraDirtyHead, _gfAuraDirtyTail = 1, 0
@@ -1254,13 +1299,14 @@ local function _GF_GetFrameAlpha(kind, conf)
 end
 
 local function _GF_ApplyFrameAlpha(f, kind, conf)
-    if f and f.SetAlpha then
+    local target = (f and f.barGroup) or f
+    if target and target.SetAlpha then
         local c = f._c
         local a = c and c.frameAlpha
         if type(a) ~= "number" then
             a = _GF_GetFrameAlpha(kind, conf or GF.GetConf(kind))
         end
-        f:SetAlpha(a)
+        target:SetAlpha(a)
     end
 end
 
@@ -1307,225 +1353,71 @@ end
 
 local ApplyRangeFade
 do
-    local RANGE_FADE_DISTANCE_SQ = 40 * 40
-
-    local function IsSecretValue(value)
-        return issecretvalue and issecretvalue(value)
-    end
-
-    local function ToPlainRangeBool(value)
-        if IsSecretValue(value) then return nil end
-        if value == true or value == 1 then return true end
-        if value == false or value == 0 then return false end
-        if type(value) == "nil" then return nil end
-        return value and true or false
-    end
-
-    local function CheckedRangeIsFalse(checkedRange)
-        if type(checkedRange) == "nil" then return false end
-        if IsSecretValue(checkedRange) then return false end
-        return checkedRange == false
-    end
-
-    local function IsSelfUnit(unit)
-        if unit == "player" then return true end
-        if not unit then return false end
-        local unitGUID = _G.UnitGUID
-        if unitGUID then
-            local playerGUID = unitGUID("player")
-            local frameGUID = unitGUID(unit)
-            if playerGUID and frameGUID
-                and not (issecretvalue and (issecretvalue(playerGUID) or issecretvalue(frameGUID)))
-                and playerGUID == frameGUID then
-                return true
-            end
+    ApplyRangeFade = function(f, unit, inRange)
+        local c = f._c
+        local kind = f._msufGFKind or "party"
+        if not c and GF.BuildFrameCache then GF.BuildFrameCache(f); c = f._c end
+        if f._msufGFRangeFadeUnit ~= unit then
+            f._msufGFRangeFadeUnit = unit
         end
-        if UnitInRaid then
-            local raidIndex = UnitInRaid("player")
-            if raidIndex and unit == ("raid" .. raidIndex) then return true end
-        end
-        if not UnitIsUnit then return false end
-        local secrets = _G.C_Secrets
-        local shouldBeSecret = secrets and secrets.ShouldUnitComparisonBeSecret
-        if shouldBeSecret and shouldBeSecret(unit, "player") then return false end
-        local canCompare = secrets and secrets.CanCompareUnitTokens
-        if canCompare and canCompare(unit, "player") == false then return false end
-        local isSelf = UnitIsUnit(unit, "player")
-        if issecretvalue and issecretvalue(isSelf) then return false end
-        return isSelf and true or false
-    end
-
-    local function DistanceRange(unit)
-        local UnitDistanceSquared = _G.UnitDistanceSquared
-        if not (unit and UnitDistanceSquared) then return nil end
-        local distSq, checkedDistance = UnitDistanceSquared(unit)
-        if CheckedRangeIsFalse(checkedDistance) then return nil end
-        if type(distSq) == "nil" or IsSecretValue(distSq) then return nil end
-        distSq = tonumber(distSq)
-        if not distSq then return nil end
-        return distSq <= RANGE_FADE_DISTANCE_SQ
-    end
-
-    local function FriendlySpellRange(unit)
-        if not (unit and _rangeFriendlySpell and IsSpellInRange) then return nil end
-        local r = IsSpellInRange(_rangeFriendlySpell, unit)
-        if type(r) == "nil" then return nil end
-        return ToPlainRangeBool(r)
-    end
-
-    local function InteractPositiveRange(unit)
-        if not (unit and CheckInteractDistance) then return nil end
-        local ci = CheckInteractDistance(unit, 4)
-        if type(ci) == "nil" or IsSecretValue(ci) then return nil end
-        return ci and true or nil
-    end
-
-    local function FriendlyFallbackRange(unit)
-        local byDistance = DistanceRange(unit)
-        if type(byDistance) ~= "nil" then return byDistance end
-
-        local bySpell = FriendlySpellRange(unit)
-        if type(bySpell) ~= "nil" then return bySpell end
-
-        return InteractPositiveRange(unit)
-    end
-
-    ApplyRangeFade = function(f, unit, inRange, checkedRange)
-    local c = f._c
-    local kind = f._msufGFKind or "party"
-    if not c and GF.BuildFrameCache then GF.BuildFrameCache(f); c = f._c end
-    if f._msufGFRangeFadeUnit ~= unit then
-        f._msufGFRangeFadeUnit = unit
-        f._msufGFRangeFadeApplied = nil
-        f._msufGFRangeFadeLastBool = nil
-    end
-    local conf
-    if not c then conf = GF.GetConf(kind) end
-    local frameAlpha = (c and c.frameAlpha) or _GF_GetFrameAlpha(kind, conf)
-    if (c and not c.rfEn) or (conf and conf.rangeFadeEnabled == false) then
-        f._msufGFRangeFadeUnit = nil
-        f._msufGFRangeFadeApplied = nil
-        f._msufGFRangeFadeLastBool = nil
-        _ClearHealthRangeFade(f, kind)
-        if f.SetAlpha then f:SetAlpha(frameAlpha) end
-        return
-    end
-    local fadeAlpha = (c and c.rfAlpha) or (conf and conf.rangeFadeAlpha) or 0.4
-    local hpMode = ((c and c.rfLayerMode) or (conf and _NormalizeRangeFadeLayerMode(conf.rangeFadeLayerMode)) or "frame") == "health"
-
-    -- Solo guard (EQoL: IsInGroup + IsInRaid)
-    if IsInGroup and IsInRaid then
-        if not IsInGroup() and not IsInRaid() then
+        local conf
+        if not c then conf = GF.GetConf(kind) end
+        local frameAlpha = (c and c.frameAlpha) or _GF_GetFrameAlpha(kind, conf)
+        if (c and not c.rfEn) or (conf and conf.rangeFadeEnabled == false) then
             f._msufGFRangeFadeUnit = nil
-            f._msufGFRangeFadeApplied = nil
-            f._msufGFRangeFadeLastBool = nil
             _ClearHealthRangeFade(f, kind)
-            if f.SetAlpha then f:SetAlpha(frameAlpha) end
+            local target = (f and f.barGroup) or f
+            if target and target.SetAlpha then target:SetAlpha(frameAlpha) end
             return
         end
-    end
+        local fadeAlpha = (c and c.rfAlpha) or (conf and conf.rangeFadeAlpha) or 0.4
+        local hpMode = ((c and c.rfLayerMode) or (conf and _NormalizeRangeFadeLayerMode(conf.rangeFadeLayerMode)) or "frame") == "health"
 
-    -- Offline (EQoL: UnsecretBool on UnitIsConnected)
-    local connected = unit and UnitIsConnected and _UnsecretBool(UnitIsConnected(unit)) or nil
-    if connected == false then
-        f._msufGFRangeFadeUnit = nil
-        f._msufGFRangeFadeApplied = nil
-        f._msufGFRangeFadeLastBool = nil
-        local offA = (c and c.offAlpha) or conf.offlineAlpha or fadeAlpha
-        if hpMode then
-            _ApplyHealthRangeFade(f, kind, nil, offA, offA)
-        else
-            _ClearHealthRangeFade(f, kind)
-            if f.SetAlpha then f:SetAlpha(frameAlpha * offA) end
-        end
-        return
-    end
-
-    if not hpMode then
-        _ClearHealthRangeFade(f, kind)
-    end
-
-    if IsSelfUnit(unit) then
-        inRange = true
-        checkedRange = true
-    end
-
-    -- EQoL base pattern plus checkedRange and positive fallbacks. Some clients
-    -- can report unchecked/false for friendly group units out of combat; do not
-    -- let those values become a stale out-of-range fade.
-    if CheckedRangeIsFalse(checkedRange) then
-        inRange = nil
-    end
-    if unit and UnitInRange and type(checkedRange) == "nil"
-        and type(inRange) ~= "nil" and not IsSecretValue(inRange)
-        and ToPlainRangeBool(inRange) == false
-    then
-        local queriedRange, queriedChecked = UnitInRange(unit)
-        checkedRange = queriedChecked
-        if CheckedRangeIsFalse(checkedRange) then
-            inRange = nil
-        elseif type(queriedRange) ~= "nil" then
-            inRange = queriedRange
-        end
-    end
-    if inRange == nil and unit and UnitInRange then
-        local checked
-        inRange, checked = UnitInRange(unit)
-        checkedRange = checked
-        if CheckedRangeIsFalse(checkedRange) then
-            inRange = nil
-        end
-    end
-
-    if type(inRange) ~= "nil" and not IsSecretValue(inRange) then
-        local plain = ToPlainRangeBool(inRange)
-        if plain == false then
-            local fallback = FriendlyFallbackRange(unit)
-            if fallback == true then
-                inRange = true
-            else
-                inRange = false
-            end
-        else
-            inRange = plain
-        end
-    end
-
-    if type(inRange) == "nil" then
-        inRange = FriendlyFallbackRange(unit)
-        if type(inRange) == "nil" then
-            inRange = true
-        end
-    end
-
-    if type(inRange) ~= "nil" then
-        f._msufGFRangeFadeApplied = true
-        if not (issecretvalue and issecretvalue(inRange)) then
-            f._msufGFRangeFadeLastBool = inRange and true or false
-        end
-        if hpMode then
-            _ApplyHealthRangeFade(f, kind, inRange, fadeAlpha)
-        else
-            if f.SetAlphaFromBoolean then
-                f:SetAlphaFromBoolean(inRange, frameAlpha, frameAlpha * fadeAlpha)
-            elseif f.SetAlpha then
-                f:SetAlpha(frameAlpha)
+        if IsInGroup and IsInRaid then
+            local inGroup = IsInGroup()
+            local inRaid = IsInRaid()
+            if not inGroup and not inRaid then
+                f._msufGFRangeFadeUnit = nil
+                _ClearHealthRangeFade(f, kind)
+                local target = (f and f.barGroup) or f
+                if target and target.SetAlpha then target:SetAlpha(frameAlpha) end
+                return
             end
         end
-    else
-        local last = f._msufGFRangeFadeLastBool
-        if f._msufGFRangeFadeApplied and type(last) ~= "nil" then
+
+        local connected = unit and UnitIsConnected and _UnsecretBool(UnitIsConnected(unit)) or nil
+        if connected == false then
+            f._msufGFRangeFadeUnit = nil
+            local offA = (c and c.offAlpha) or (conf and conf.offlineAlpha) or fadeAlpha
             if hpMode then
-                _ApplyHealthRangeFade(f, kind, last, fadeAlpha)
-            elseif f.SetAlphaFromBoolean then
-                f:SetAlphaFromBoolean(last, frameAlpha, frameAlpha * fadeAlpha)
-            elseif f.SetAlpha then
-                f:SetAlpha(frameAlpha)
+                _ApplyHealthRangeFade(f, kind, nil, offA, offA)
+            else
+                _ClearHealthRangeFade(f, kind)
+                local target = (f and f.barGroup) or f
+                if target and target.SetAlpha then target:SetAlpha(frameAlpha * offA) end
             end
-        elseif f.SetAlpha then
-            f:SetAlpha(frameAlpha)
+            return
         end
-    end
+
+        if not hpMode then
+            _ClearHealthRangeFade(f, kind)
+        end
+        if inRange == nil and unit and UnitInRange then inRange = UnitInRange(unit) end
+        if type(inRange) ~= "nil" then
+            if hpMode then
+                _ApplyHealthRangeFade(f, kind, inRange, fadeAlpha)
+            else
+                local target = (f and f.barGroup) or f
+                if target and target.SetAlphaFromBoolean then
+                    target:SetAlphaFromBoolean(inRange, frameAlpha, frameAlpha * fadeAlpha)
+                elseif target and target.SetAlpha then
+                    local boolValue = _UnsecretBool(inRange)
+                    if type(boolValue) ~= "nil" then
+                        target:SetAlpha((boolValue and frameAlpha) or (frameAlpha * fadeAlpha))
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -1537,7 +1429,6 @@ function GF.RefreshRangeFade()
         for i = 1, #list do
             local f = list[i]
             if f then
-                if GF.BuildFrameCache then GF.BuildFrameCache(f) end
                 local unit = f.unit
                 if unit and UnitExists(unit) then
                     ApplyRangeFade(f, unit)
@@ -1553,7 +1444,6 @@ function GF.RefreshRangeFade()
     else
         for f in pairs(frames) do
             if f then
-                if GF.BuildFrameCache then GF.BuildFrameCache(f) end
                 local unit = f.unit
                 if unit and UnitExists(unit) then
                     ApplyRangeFade(f, unit)
@@ -1576,11 +1466,12 @@ function GF.RefreshGroupAlphas()
         if list then
             for i = 1, #list do
                 local f = list[i]
-                if f then
+                if f and _RuntimeEnabledForFrame(f) then
                     local kind = f._msufGFKind or "party"
                     if GF.BuildFrameCache then GF.BuildFrameCache(f) end
                     if GF.ApplyHealthBarAlpha then GF.ApplyHealthBarAlpha(f, kind) end
                     if GF.ApplyPowerBarAlpha then GF.ApplyPowerBarAlpha(f, kind) end
+                    if GF.ApplyBackgroundAlpha then GF.ApplyBackgroundAlpha(f, kind) end
                     if f.unit and UnitExists(f.unit) then
                         ApplyRangeFade(f, f.unit)
                     else
@@ -1590,11 +1481,12 @@ function GF.RefreshGroupAlphas()
             end
         else
             for f in pairs(frames) do
-                if f then
+                if f and _RuntimeEnabledForFrame(f) then
                     local kind = f._msufGFKind or "party"
                     if GF.BuildFrameCache then GF.BuildFrameCache(f) end
                     if GF.ApplyHealthBarAlpha then GF.ApplyHealthBarAlpha(f, kind) end
                     if GF.ApplyPowerBarAlpha then GF.ApplyPowerBarAlpha(f, kind) end
+                    if GF.ApplyBackgroundAlpha then GF.ApplyBackgroundAlpha(f, kind) end
                     if f.unit and UnitExists(f.unit) then
                         ApplyRangeFade(f, f.unit)
                     else
@@ -1604,10 +1496,10 @@ function GF.RefreshGroupAlphas()
             end
         end
     end
-    local bits = 0
-    if GF.DIRTY_COLOR then bits = bits + GF.DIRTY_COLOR end
-    if GF.DIRTY_BORDER then bits = bits + GF.DIRTY_BORDER end
-    if bits > 0 and GF.MarkAllDirty then GF.MarkAllDirty(bits) end
+    -- Runtime alpha transitions are already applied above. Do not dirty the
+    -- visual pipeline here: in combat, MarkAllDirty promotes to a post-combat
+    -- RefreshVisuals fan-out, turning alpha-only state changes into full
+    -- frame/aura refreshes.
 end
 
 local function _GF_ShouldApplyRangeOrFrameAlpha(f, c, kind)
@@ -1676,6 +1568,11 @@ local function HLColor(key, fallback)
     return fallback
 end
 
+local function HLColorCached(gen, key, fallback)
+    if gen and gen[key] ~= nil then return gen[key] end
+    return fallback
+end
+
 ------------------------------------------------------------------------
 -- Per-frame settings cache (cold-path build, hot-path read)
 -- Eliminates GF.GetConf + key reads from every UNIT_HEALTH/POWER event.
@@ -1684,6 +1581,7 @@ end
 function GF.BuildFrameCache(f)
     local kind = f._msufGFKind or "party"
     local conf = GF.GetConf(kind)
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
     local c = f._c
     if not c then c = {}; f._c = c end
     f._msufGFStatusLayoutState = nil
@@ -1768,6 +1666,30 @@ function GF.BuildFrameCache(f)
     c.rfEn    = conf.rangeFadeEnabled ~= false
     c.rfAlpha = conf.rangeFadeAlpha or 0.4
     c.offAlpha = conf.offlineAlpha or 0.5
+    c.hideOfflineEn = conf.hideOfflineEnabled == true
+    c.hideOfflineCombat = c.hideOfflineEn and conf.hideOfflineInCombat == true
+    c.hideOfflineDelay = c.hideOfflineEn and (tonumber(conf.hideOfflineDelay) or 0) or 0
+    if c.hideOfflineDelay < 0 then c.hideOfflineDelay = 0 end
+    c.hideOfflineActive = c.hideOfflineEn and (c.hideOfflineCombat or not (_G.MSUF_InCombat == true or (InCombatLockdown and InCombatLockdown()))) or false
+    f._msufGFOfflineConfigured = c.hideOfflineEn or nil
+    f._msufGFOfflineCombatAllowed = c.hideOfflineCombat or nil
+    f._msufGFOfflineActive = c.hideOfflineActive or nil
+    if c.hideOfflineEn then
+        GF._offlineHideAnyEnabled = true
+    else
+        if (f._msufGFOfflineHidden or f._msufGFOfflineHideTimer or f._msufGFOfflineKey or f._msufGFOfflineSince or f._msufGFOfflineHideDueAt)
+            and GF.ResetOfflineHiddenFrame
+        then
+            GF.ResetOfflineHiddenFrame(f)
+        end
+        if GF._offlineHideAnyEnabled and GF.RefreshOfflineHideEnabledFlag and not GF._offlineHideFlagRefreshQueued then
+            GF._offlineHideFlagRefreshQueued = true
+            _MSUF_ScheduleOnce("GF_OFFLINE_HIDE_FLAG_REFRESH", function()
+                GF._offlineHideFlagRefreshQueued = nil
+                if GF.RefreshOfflineHideEnabledFlag then GF.RefreshOfflineHideEnabledFlag() end
+            end)
+        end
+    end
     c.rfLayerMode = _NormalizeRangeFadeLayerMode(conf.rangeFadeLayerMode)
     c.hpBarAlpha = (GF.GetEffectiveHealthAlpha and GF.GetEffectiveHealthAlpha(kind, conf)) or tonumber(conf.hpBarAlpha) or 1
     if c.hpBarAlpha < 0 then c.hpBarAlpha = 0 elseif c.hpBarAlpha > 1 then c.hpBarAlpha = 1 end
@@ -1784,13 +1706,22 @@ function GF.BuildFrameCache(f)
     local auraMasterOn = c.aurasOn == true
 
     local pa = conf.privateAuras
-    c.nativeBlizzardBuffs = GF.IsBlizzardAuraTypeEnabled and GF.IsBlizzardAuraTypeEnabled(conf, "buffs") == true
-    c.nativeBlizzardDebuffs = GF.IsBlizzardAuraTypeEnabled and GF.IsBlizzardAuraTypeEnabled(conf, "debuffs") == true
-    c.nativeBlizzardExt = GF.IsBlizzardAuraTypeEnabled and GF.IsBlizzardAuraTypeEnabled(conf, "externals") == true
-    c.nativeBlizzardDispels = _GF_IsBlizzardDispelRendererActive(conf)
-    c.nativeBlizzardPrivate = GF.IsBlizzardAuraTypeEnabled
-        and GF.IsBlizzardAuraTypeEnabled(conf, "privateAuras") == true
-        and pa and pa.enabled ~= false
+    if GF.GetBlizzardAuraTypeFlags then
+        local nativeBuffs, nativeDebuffs, nativeDispels, nativeExt, nativePrivate = GF.GetBlizzardAuraTypeFlags(conf)
+        c.nativeBlizzardBuffs = nativeBuffs == true
+        c.nativeBlizzardDebuffs = nativeDebuffs == true
+        c.nativeBlizzardExt = nativeExt == true
+        c.nativeBlizzardDispels = nativeDispels == true
+        c.nativeBlizzardPrivate = nativePrivate == true and pa and pa.enabled ~= false
+    else
+        c.nativeBlizzardBuffs = GF.IsBlizzardAuraTypeEnabled and GF.IsBlizzardAuraTypeEnabled(conf, "buffs") == true
+        c.nativeBlizzardDebuffs = GF.IsBlizzardAuraTypeEnabled and GF.IsBlizzardAuraTypeEnabled(conf, "debuffs") == true
+        c.nativeBlizzardExt = GF.IsBlizzardAuraTypeEnabled and GF.IsBlizzardAuraTypeEnabled(conf, "externals") == true
+        c.nativeBlizzardDispels = _GF_IsBlizzardDispelRendererActive(conf)
+        c.nativeBlizzardPrivate = GF.IsBlizzardAuraTypeEnabled
+            and GF.IsBlizzardAuraTypeEnabled(conf, "privateAuras") == true
+            and pa and pa.enabled ~= false
+    end
 
     -- Dispel overlay (color wash on health bar)
     c.doEn    = auraMasterOn and conf.dispelOverlayEnabled == true and not c.nativeBlizzardDispels
@@ -1811,27 +1742,27 @@ function GF.BuildFrameCache(f)
     c.dsB     = conf.debuffStripeColorB or 0.20
 
     -- Highlight border (pre-resolve HLVal)
-    c.aggroEn   = HLVal(kind, "hlAggroEnabled") ~= false
-    c.aggroMode = HLVal(kind, "hlAggroMode") or "ALL"
-    c.dispelEn  = auraMasterOn and HLVal(kind, "hlDispelEnabled") ~= false and not c.nativeBlizzardDispels
-    c.targetEn  = HLVal(kind, "hlTargetEnabled") ~= false
+    c.aggroEn   = HLValCached(conf, gen, "hlAggroEnabled") ~= false
+    c.aggroMode = HLValCached(conf, gen, "hlAggroMode") or "ALL"
+    c.dispelEn  = auraMasterOn and HLValCached(conf, gen, "hlDispelEnabled") ~= false and not c.nativeBlizzardDispels
+    c.targetEn  = HLValCached(conf, gen, "hlTargetEnabled") ~= false
     c.focusEn   = conf.hlFocusEnabled ~= false
-    c.aggroSize = HLVal(kind, "hlAggroSize") or 2
-    c.aggroOfs = HLVal(kind, "hlAggroOffset") or 0
-    c.aggroTex = HLVal(kind, "hlAggroTexture")
-    c.aggroLayer = HLVal(kind, "hlAggroLayer") or "DEFAULT"
-    c.aggroR = HLColor("hlAggroColorR", 1)
-    c.aggroG = HLColor("hlAggroColorG", 0.55)
-    c.aggroB = HLColor("hlAggroColorB", 0)
+    c.aggroSize = HLValCached(conf, gen, "hlAggroSize") or 2
+    c.aggroOfs = HLValCached(conf, gen, "hlAggroOffset") or 0
+    c.aggroTex = HLValCached(conf, gen, "hlAggroTexture")
+    c.aggroLayer = HLValCached(conf, gen, "hlAggroLayer") or "DEFAULT"
+    c.aggroR = HLColorCached(gen, "hlAggroColorR", 1)
+    c.aggroG = HLColorCached(gen, "hlAggroColorG", 0.55)
+    c.aggroB = HLColorCached(gen, "hlAggroColorB", 0)
 
     -- Target color (pre-resolve HLColor)
-    c.tgtSize = HLVal(kind, "hlTargetSize") or 2
-    c.tgtOfs = HLVal(kind, "hlTargetOffset") or 0
-    c.tgtTex = HLVal(kind, "hlTargetTexture")
-    c.tgtLayer = HLVal(kind, "hlTargetLayer") or "DEFAULT"
-    c.tgtR = HLColor("hlTargetColorR", 1)
-    c.tgtG = HLColor("hlTargetColorG", 1)
-    c.tgtB = HLColor("hlTargetColorB", 1)
+    c.tgtSize = HLValCached(conf, gen, "hlTargetSize") or 2
+    c.tgtOfs = HLValCached(conf, gen, "hlTargetOffset") or 0
+    c.tgtTex = HLValCached(conf, gen, "hlTargetTexture")
+    c.tgtLayer = HLValCached(conf, gen, "hlTargetLayer") or "DEFAULT"
+    c.tgtR = HLColorCached(gen, "hlTargetColorR", 1)
+    c.tgtG = HLColorCached(gen, "hlTargetColorG", 1)
+    c.tgtB = HLColorCached(gen, "hlTargetColorB", 1)
 
     -- Focus color
     c.focSize = conf.hlFocusSize or 2
@@ -1893,21 +1824,24 @@ function GF.BuildFrameCache(f)
 
     -- Raid debuffs
 
-    -- Heal prediction (GF override -> global Bars toggle -> default off)
+    -- Heal prediction (Group Frame menu -> default off)
     c.healPredEn = (GF.IsHealPredictionEnabled and GF.IsHealPredictionEnabled(kind, conf)) or false
 
     -- Absorb: independently gated from heal prediction
     c.absorbEn = _GF_IsAbsorbEnabled(kind)
     c.healAbsorbEn = conf.healAbsorbEnabled ~= false
+    c.healPredEventEn = c.healPredEn and f.incomingHealBar ~= nil
+    c.absorbEventEn = c.absorbEn and f.absorbBar ~= nil and UnitGetTotalAbsorbs ~= nil
+    c.healAbsorbEventEn = c.healAbsorbEn and f.healAbsorbBar ~= nil and UnitGetTotalHealAbsorbs ~= nil
 
     -- Name display
     c.nameEn = conf.showName ~= false
-    c.nameMaxChars = conf.nameMaxChars or 0
-    c.nameNoEllipsis = conf.nameNoEllipsis
+    c.nameMaxChars, c.nameNoEllipsis, c.nameClipSide = GF.ResolveNameTruncation(kind)
     local gen = _G.MSUF_DB and _G.MSUF_DB.general
     c.nameStyleKey = tostring(c.nameEn) .. "\001"
         .. tostring(c.nameMaxChars) .. "\001"
         .. tostring(c.nameNoEllipsis) .. "\001"
+        .. tostring(c.nameClipSide) .. "\001"
         .. tostring(conf.fontOverride) .. "\001"
         .. tostring(conf.useGlobalFontColor) .. "\001"
         .. tostring(conf.nameColorMode) .. "\001"
@@ -1927,10 +1861,15 @@ function GF.BuildFrameCache(f)
     -- Status/icons: pre-resolve event/update consumers. Disabled features should
     -- not receive events and should not be called from shared dispatch paths.
     local showAFK, showDND, showDead, showGhost = GF.GetStatusIndicatorFlags()
-    c.statusTextEn = ((showDead and conf.statusText ~= false)
-        or (showGhost and conf.statusGhostText ~= false)
-        or ((showAFK or showDND) and conf.statusAFKText ~= false))
-    c.statusAwayEn = (showAFK or showDND) and conf.statusAFKText ~= false
+    c.statusShowAFK = showAFK
+    c.statusShowDND = showDND
+    c.statusShowDead = showDead
+    c.statusShowGhost = showGhost
+    c.statusDeadTextEn = showDead and conf.statusText ~= false
+    c.statusGhostTextEn = showGhost and conf.statusGhostText ~= false
+    c.statusAwayTextEn = (showAFK or showDND) and conf.statusAFKText ~= false
+    c.statusTextEn = c.statusDeadTextEn or c.statusGhostTextEn or c.statusAwayTextEn
+    c.statusAwayEn = c.statusAwayTextEn
     c.roleIconEn   = conf.roleIcon ~= false
     c.powerRoleGated = c.hasPowerElement and ((not c.powTank) or (not c.powHealer) or (not c.powDPS))
     c.roleStateEn  = c.roleIconEn or c.powerRoleGated
@@ -1946,7 +1885,7 @@ function GF.BuildFrameCache(f)
     -- subscribe every raid button to UNIT_FLAGS: boss pulls and stealth/vanish
     -- transitions can flood it for the whole group.
     c.flagsEn      = false
-    c.connectionEn = c.statusTextEn or c.rfEn
+    c.connectionEn = c.statusTextEn or c.rfEn or c.hideOfflineActive
 
     -- Composite: does anything need UNIT_AURA?
     c.needAura = c.customAuraGrp or c.ciAura
@@ -1967,9 +1906,9 @@ function GF.BuildFrameCache(f)
     if c.summonEn   then evBits = evBits + 32   end
     if c.resEn      then evBits = evBits + 64   end
     if c.phaseEn    then evBits = evBits + 128  end
-    if c.healPredEn then evBits = evBits + 256  end
-    if c.absorbEn   then evBits = evBits + 512  end
-    if c.healAbsorbEn and not c.absorbEn then evBits = evBits + 1024 end
+    if c.healPredEventEn then evBits = evBits + 256  end
+    if c.absorbEventEn   then evBits = evBits + 512  end
+    if c.healAbsorbEventEn then evBits = evBits + 1024 end
     if c.powFrequent then evBits = evBits + 2048 end
     if c.connectionEn then evBits = evBits + 4096 end
     if c.flagsEn then evBits = evBits + 8192 end
@@ -2875,7 +2814,13 @@ local function ApplyStatusTextStateLayout(f, conf, state)
     local fontPath = GF.ResolveFontPath and GF.ResolveFontPath(kind)
     local fontFlags = GF.ResolveFontFlags and GF.ResolveFontFlags(kind)
     if fontPath and st.SetFont then
-        st:SetFont(fontPath, size, fontFlags or "")
+        local db = _G.MSUF_DB
+        local fontKey = db and db.general and db.general.fontKey
+        if type(_G.MSUF_SetFontSafe) == "function" then
+            _G.MSUF_SetFontSafe(st, fontPath, size, fontFlags or "", fontKey)
+        else
+            st:SetFont(fontPath, size, fontFlags or "")
+        end
     end
 
     local anchor = conf[s.anchorKey] or s.defAnchor
@@ -2917,10 +2862,20 @@ local function UpdateStatusText(f, unit, forceAway)
         end
         return
     end
-    local showAFK, showDND, showDead, showGhost = GF.GetStatusIndicatorFlags()
-    local deadTextEnabled = IsStatusTextStateEnabled(conf, 2)
-    local ghostTextEnabled = IsStatusTextStateEnabled(conf, 3)
-    local awayTextEnabled = IsStatusTextStateEnabled(conf, 4)
+    local showAFK, showDND, showDead, showGhost
+    local deadTextEnabled, ghostTextEnabled, awayTextEnabled
+    if c then
+        showAFK, showDND = c.statusShowAFK, c.statusShowDND
+        showDead, showGhost = c.statusShowDead, c.statusShowGhost
+        deadTextEnabled = c.statusDeadTextEn
+        ghostTextEnabled = c.statusGhostTextEn
+        awayTextEnabled = c.statusAwayTextEn
+    else
+        showAFK, showDND, showDead, showGhost = GF.GetStatusIndicatorFlags()
+        deadTextEnabled = IsStatusTextStateEnabled(conf, 2)
+        ghostTextEnabled = IsStatusTextStateEnabled(conf, 3)
+        awayTextEnabled = IsStatusTextStateEnabled(conf, 4)
+    end
 
     if not unit or not UnitExists(unit) then
         if f._msufGFStatusState ~= 0 then
@@ -2942,28 +2897,62 @@ local function UpdateStatusText(f, unit, forceAway)
     if connected == false and showDead and deadTextEnabled then
         newState = 1
     else
-        -- Secret-safe (12.0): UnitIsDeadOrGhost may return secret booleans for
-        -- non-self units. Guard via issecretvalue; treat secret as "alive" so
-        -- we fall through to AFK/DND check.
-        local dog = UnitIsDeadOrGhost(unit)
-        if issecretvalue and issecretvalue(dog) then dog = false end
-        if dog then
-            local ghost = UnitIsGhost and UnitIsGhost(unit)
-            if issecretvalue and ghost and issecretvalue(ghost) then ghost = false end
-            if ghost then
-                if showGhost and ghostTextEnabled then
-                    newState = 3
-                elseif not showGhost and showDead and deadTextEnabled then
-                    newState = 2
-                end
-            elseif showDead and deadTextEnabled then
+        -- Secret-safe (12.0): UnitIsDeadOrGhost can return secret booleans for
+        -- non-self units. Prefer the more specific APIs and use HP==0 as a
+        -- final non-secret fallback so dead group members do not look alive
+        -- after both players are dead and range data starts updating again.
+        local ghost = false
+        if UnitIsGhost then
+            local g = UnitIsGhost(unit)
+            if not (issecretvalue and issecretvalue(g)) and g then ghost = true end
+        end
+
+        local isDead = false
+        local unitIsDead = _G.UnitIsDead
+        if unitIsDead then
+            local d = unitIsDead(unit)
+            if not (issecretvalue and issecretvalue(d)) and d then isDead = true end
+        end
+        if not isDead and UnitIsDeadOrGhost then
+            local dog = UnitIsDeadOrGhost(unit)
+            if not (issecretvalue and issecretvalue(dog)) and dog then isDead = true end
+        end
+        if not isDead and UnitHealth then
+            local hp = UnitHealth(unit)
+            if not (issecretvalue and issecretvalue(hp)) and hp == 0 then isDead = true end
+        end
+
+        if ghost then
+            if showGhost and ghostTextEnabled then
+                newState = 3
+            elseif not showGhost and showDead and deadTextEnabled then
                 newState = 2
             end
+        elseif isDead and showDead and deadTextEnabled then
+            newState = 2
         else
             if awayTextEnabled and (showAFK or showDND) then
                 local getAway = _G.MSUF_GetCachedAwayStatus
                 if getAway then
-                    local away = getAway(unit, showAFK, showDND, forceAway == true)
+                    local force = forceAway == true
+                    local rev = ns and ns._msufAwayRevision or 0
+                    local away
+                    if not force
+                        and f._msufGFAwayStatusUnit == unit
+                        and f._msufGFAwayStatusRev == rev
+                        and f._msufGFAwayStatusAFK == showAFK
+                        and f._msufGFAwayStatusDND == showDND
+                    then
+                        away = f._msufGFAwayStatusFlags or 0
+                    end
+                    if away == nil then
+                        away = getAway(unit, showAFK, showDND, force)
+                        f._msufGFAwayStatusUnit = unit
+                        f._msufGFAwayStatusRev = rev
+                        f._msufGFAwayStatusAFK = showAFK
+                        f._msufGFAwayStatusDND = showDND
+                        f._msufGFAwayStatusFlags = away or 0
+                    end
                     if showAFK and (away == 1 or away == 3) then
                         newState = 4
                     elseif showDND and (away == 2 or away == 3) then
@@ -2998,30 +2987,36 @@ local function UpdateStatusText(f, unit, forceAway)
 
     if newState == 0 then
         f._msufGFStatusLayoutState = nil
+        if st.SetIgnoreParentAlpha then st:SetIgnoreParentAlpha(false) end
         st:SetText("")
         st:Hide()
         _GF_RestoreHealthText(f, conf)
     elseif newState == 1 then
+        if st.SetIgnoreParentAlpha then st:SetIgnoreParentAlpha(true) end
         st:SetText("OFFLINE")
         st:SetTextColor(0.6, 0.6, 0.6, 1)
         st:Show()
         _GF_HideHealthText(f)
     elseif newState == 2 then
+        if st.SetIgnoreParentAlpha then st:SetIgnoreParentAlpha(true) end
         st:SetText("DEAD")
         st:SetTextColor(1, 1, 1, 1)
         st:Show()
         _GF_HideHealthText(f)
     elseif newState == 3 then
+        if st.SetIgnoreParentAlpha then st:SetIgnoreParentAlpha(true) end
         st:SetText("GHOST")
         st:SetTextColor(1, 1, 1, 1)
         st:Show()
         _GF_HideHealthText(f)
     elseif newState == 4 then
+        if st.SetIgnoreParentAlpha then st:SetIgnoreParentAlpha(false) end
         st:SetText("AFK")
         st:SetTextColor(1, 0.6, 0, 1)
         st:Show()
         _GF_HideHealthText(f)
     elseif newState == 5 then
+        if st.SetIgnoreParentAlpha then st:SetIgnoreParentAlpha(false) end
         st:SetText("DND")
         st:SetTextColor(1, 0.6, 0, 1)
         st:Show()
@@ -3196,14 +3191,272 @@ local function ApplyPowerColor(f, unit)
 end
 
 ------------------------------------------------------------------------
+-- Offline box hiding
+-- hideOfflineEnabled gates the feature completely. When enabled, keep the
+-- normal offline state visible for N seconds, then hide the visual box until
+-- the unit reconnects. The secure click button remains owned by
+-- SecureGroupHeader; only non-secure visual children are hidden.
+------------------------------------------------------------------------
+do
+local function _GF_BumpOfflineToken(f)
+    local token = (f._msufGFOfflineHideToken or 0) + 1
+    f._msufGFOfflineHideToken = token
+    return token
+end
+
+local function _GF_CancelOfflineHideTimer(f)
+    local timer = f and f._msufGFOfflineHideTimer
+    if timer and timer.Cancel then
+        timer:Cancel()
+    end
+    if f then
+        f._msufGFOfflineHideTimer = nil
+        f._msufGFOfflineHideDueAt = nil
+    end
+end
+
+local function _GF_SetOfflineHidden(f, hidden)
+    if not f then return end
+    hidden = hidden and true or false
+    if f._msufGFOfflineHidden == hidden then return end
+    f._msufGFOfflineHidden = hidden or nil
+
+    if hidden then
+        GF._offlineHideRuntimeActive = true
+        if f.barGroup then f.barGroup:Hide() end
+        if f._msufGFHoverBorder then f._msufGFHoverBorder:Hide() end
+        if f._msufGFHighlightBorder then f._msufGFHighlightBorder:Hide() end
+        if f._msufGFDispelOverlay then f._msufGFDispelOverlay:Hide() end
+        if f._msufGFDebuffStripe then f._msufGFDebuffStripe:Hide() end
+        if GF.HideFrameAuras then GF.HideFrameAuras(f) end
+        if GF.HideSpellIndicators then GF.HideSpellIndicators(f) end
+        if GF.ClearPrivateAuras then GF.ClearPrivateAuras(f) end
+    else
+        if f.barGroup then f.barGroup:Show() end
+    end
+end
+
+local function _GF_ClearOfflineHiddenFrame(f)
+    if not f then return end
+    if not f._msufGFOfflineHidden and not f._msufGFOfflineKey
+        and not f._msufGFOfflineSince and not f._msufGFOfflineHideDueAt
+        and not f._msufGFOfflineHideTimer
+    then
+        return
+    end
+    _GF_CancelOfflineHideTimer(f)
+    _GF_BumpOfflineToken(f)
+    f._msufGFOfflineKey = nil
+    f._msufGFOfflineSince = nil
+    f._msufGFOfflineHideDueAt = nil
+    _GF_SetOfflineHidden(f, false)
+    if GF.RefreshOfflineHideRuntimeFlag then GF.RefreshOfflineHideRuntimeFlag() end
+end
+
+local function _GF_GetOfflineDelay(f, kind)
+    local c = f and f._c
+    local delay = c and c.hideOfflineDelay
+    if delay == nil and GF.GetConf then
+        local conf = GF.GetConf(kind or (f and f._msufGFKind) or "party")
+        delay = (conf and conf.hideOfflineEnabled == true) and conf.hideOfflineDelay or 0
+    end
+    delay = tonumber(delay) or 0
+    if delay < 0 then delay = 0 elseif delay > 120 then delay = 120 end
+    return delay
+end
+
+local function _GF_CanRunOfflineHideNow(f, kind)
+    if f and not _RuntimeEnabledForFrame(f) then return false end
+    if not (InCombatLockdown and InCombatLockdown()) then return true end
+    local c = f and f._c
+    if c then return c.hideOfflineCombat == true end
+    if GF.GetConf then
+        local conf = GF.GetConf(kind or (f and f._msufGFKind) or "party")
+        return conf and conf.hideOfflineEnabled == true and conf.hideOfflineInCombat == true or false
+    end
+    return false
+end
+
+local function _GF_ScheduleOfflineHide(f, unit, dueAt, remaining)
+    if not (f and dueAt) then return end
+    if not _GF_CanRunOfflineHideNow(f) then return end
+    if f._msufGFOfflineHideDueAt == dueAt then return end
+    _GF_CancelOfflineHideTimer(f)
+    local token = _GF_BumpOfflineToken(f)
+    f._msufGFOfflineHideDueAt = dueAt
+    remaining = tonumber(remaining) or 0
+    if remaining < 0 then remaining = 0 end
+    local function run()
+        if not f or f._msufGFOfflineHideToken ~= token then return end
+        f._msufGFOfflineHideTimer = nil
+        if not _GF_CanRunOfflineHideNow(f) then return end
+        if GF.UpdateOfflineHiddenFrame then GF.UpdateOfflineHiddenFrame(f, f.unit or unit, true) end
+    end
+    if C_Timer and C_Timer.NewTimer then
+        GF._offlineHideRuntimeActive = true
+        f._msufGFOfflineHideTimer = C_Timer.NewTimer(remaining, run)
+    else
+        GF._offlineHideRuntimeActive = true
+        _MSUF_ScheduleDelayOnce("GF_OFFLINE_HIDE:" .. tostring(f) .. ":" .. tostring(token), remaining, run)
+    end
+end
+
+function GF.UpdateOfflineHiddenFrame(f, unit, force)
+    if not f then return false end
+    if not _RuntimeEnabledForFrame(f) then
+        _GF_ClearOfflineHiddenFrame(f)
+        return false
+    end
+    local kind = f._msufGFKind or "party"
+    if not _GF_CanRunOfflineHideNow(f, kind) then return false end
+    if f._msufGFPreviewActive then
+        _GF_ClearOfflineHiddenFrame(f)
+        return false
+    end
+
+    unit = unit or f.unit
+    local delay = _GF_GetOfflineDelay(f, kind)
+    if delay <= 0 or not unit or not UnitExists(unit) then
+        _GF_ClearOfflineHiddenFrame(f)
+        return false
+    end
+
+    local connected = UnitIsConnected and UnitIsConnected(unit)
+    if issecretvalue and connected ~= nil and issecretvalue(connected) then connected = true end
+    if connected ~= false then
+        _GF_ClearOfflineHiddenFrame(f)
+        return false
+    end
+
+    local guidFn = _G.UnitGUID
+    local key = unit
+    if guidFn then
+        local guid = guidFn(unit)
+        if guid and not (issecretvalue and issecretvalue(guid)) then key = guid end
+    end
+
+    local now = (GetTime and GetTime()) or 0
+    if f._msufGFOfflineKey ~= key then
+        _GF_BumpOfflineToken(f)
+        f._msufGFOfflineKey = key
+        f._msufGFOfflineSince = now
+        f._msufGFOfflineHideDueAt = nil
+        _GF_SetOfflineHidden(f, false)
+    elseif not f._msufGFOfflineSince then
+        f._msufGFOfflineSince = now
+    end
+
+    local dueAt = (f._msufGFOfflineSince or now) + delay
+    if force == true or now >= dueAt then
+        f._msufGFOfflineHideDueAt = dueAt
+        _GF_SetOfflineHidden(f, true)
+        return true
+    end
+
+    _GF_SetOfflineHidden(f, false)
+    _GF_ScheduleOfflineHide(f, unit, dueAt, dueAt - now)
+    return false
+end
+
+GF.ResetOfflineHiddenFrame = _GF_ClearOfflineHiddenFrame
+
+function GF.RefreshOfflineHideEnabledFlag()
+    if not GF.GetConf then
+        GF._offlineHideAnyEnabled = false
+        return false
+    end
+    local party = GF.GetConf("party")
+    local raid = GF.GetConf("raid")
+    local mythic = GF.GetConf("mythicraid")
+    local enabled = (party and party.enabled == true and party.hideOfflineEnabled == true)
+        or (raid and raid.enabled == true and raid.hideOfflineEnabled == true)
+        or (mythic and mythic.enabled == true and mythic.hideOfflineEnabled == true)
+    GF._offlineHideCombatAnyEnabled = ((party and party.enabled == true and party.hideOfflineEnabled == true and party.hideOfflineInCombat == true)
+        or (raid and raid.enabled == true and raid.hideOfflineEnabled == true and raid.hideOfflineInCombat == true)
+        or (mythic and mythic.enabled == true and mythic.hideOfflineEnabled == true and mythic.hideOfflineInCombat == true)) or false
+    GF._offlineHideAnyEnabled = enabled or false
+    return GF._offlineHideAnyEnabled
+end
+
+local function _GF_ForEachOfflineFrame(fn)
+    if type(fn) ~= "function" then return end
+    local list = GF.frameList
+    if list then
+        for i = 1, #list do
+            local f = list[i]
+            if f and _RuntimeEnabledForFrame(f) then fn(f) end
+        end
+    elseif GF.frames then
+        for f in pairs(GF.frames) do
+            if _RuntimeEnabledForFrame(f) then fn(f) end
+        end
+    end
+end
+
+function GF.RefreshOfflineHideRuntimeFlag()
+    local active = false
+    _GF_ForEachOfflineFrame(function(f)
+        if f and (f._msufGFOfflineHidden or f._msufGFOfflineHideTimer or f._msufGFOfflineHideDueAt) then
+            active = true
+        end
+    end)
+    GF._offlineHideRuntimeActive = active or nil
+    return active
+end
+
+function GF.SuspendOfflineHideForCombat()
+    if not GF._offlineHideRuntimeActive then return end
+    _GF_ForEachOfflineFrame(function(f)
+        if f and not f._msufGFOfflineCombatAllowed
+            and (f._msufGFOfflineConfigured or f._msufGFOfflineHidden or f._msufGFOfflineHideTimer)
+        then
+            _GF_CancelOfflineHideTimer(f)
+            _GF_BumpOfflineToken(f)
+            _GF_SetOfflineHidden(f, false)
+            f._msufGFOfflineActive = nil
+        end
+    end)
+    if GF.RefreshOfflineHideRuntimeFlag then GF.RefreshOfflineHideRuntimeFlag() end
+end
+
+function GF.RefreshOfflineHiddenFrames()
+    if InCombatLockdown and InCombatLockdown() then return end
+    if not (GF.RefreshOfflineHideEnabledFlag and GF.RefreshOfflineHideEnabledFlag()) then return end
+    _GF_ForEachOfflineFrame(function(f)
+        if f and f.unit and UnitExists(f.unit) then
+            if GF.BuildFrameCache then GF.BuildFrameCache(f) end
+            if f._msufGFOfflineActive and GF.UpdateOfflineHiddenFrame then
+                GF.UpdateOfflineHiddenFrame(f, f.unit)
+            end
+        end
+    end)
+end
+end
+
+------------------------------------------------------------------------
 -- Full update for a single frame (called on unit assignment + events)
 ------------------------------------------------------------------------
 local dispatchOverlays, dispatchIncomingHeal, dispatchAbsorb, dispatchHealAbsorb
 local _GF_DispatchOverlaysFromCalc
+
+local function _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
+    if type(testFn) == "function" then
+        return testFn(f, f and f._msufGFKind) and true or false
+    end
+    return _G.MSUF_AbsorbTextureTestMode and true or false
+end
+
 local function UpdateAll(f, unit)
     if not f or not unit then return end
+    if not _RuntimeEnabledForFrame(f) then return end
     local c = f._c
     if not c then GF.BuildFrameCache(f); c = f._c end
+    if f._msufGFOfflineActive and (_G.MSUF_InCombat ~= true or f._msufGFOfflineCombatAllowed)
+        and GF.UpdateOfflineHiddenFrame and GF.UpdateOfflineHiddenFrame(f, unit)
+    then
+        return
+    end
     GF.UpdateButton(f, unit)
     if _GF_ShouldApplyRangeOrFrameAlpha(f, c, f._msufGFKind or "party") then ApplyRangeFade(f, unit) end
     if c.needThreat then UpdateAggro(f, unit) end
@@ -3259,7 +3512,12 @@ local function UpdateAll(f, unit)
     end
     UpdateTargetIndicator(f, unit)
     if c.statusTextEn or f._msufGFStatusState ~= 0 then UpdateStatusText(f, unit) end
-    if c.healPredEn then dispatchOverlays(f, unit) end
+    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local wasAbsorbTestMode = f._msufGFAbsorbTestActive
+    if c.healPredEn or absorbTestMode or wasAbsorbTestMode then
+        dispatchOverlays(f, unit)
+        if wasAbsorbTestMode and not absorbTestMode then f._msufGFAbsorbTestActive = nil end
+    end
     if c.roleStateEn or (f.roleIcon and f.roleIcon:IsShown()) then UpdateRoleIcon(f, unit) end
     if c.raidMarkerEn or (f.raidIcon and f.raidIcon:IsShown()) then UpdateRaidMarker(f, unit) end
     if c.leaderEn
@@ -3488,6 +3746,13 @@ local function dispatchHealthLean(f, unit)
     local secretHP = iss and iss(hp)
     if not secretHP then
         if f._msufGFLastHealthValue == hp then
+            if c and c.statusTextEn and hp == 0 then
+                local state = f._msufGFStatusState or 0
+                if not (state == 1 or state == 2 or state == 3) then
+                    f._msufGFStatusDirty = true
+                    _gfMarkTextDirty(f)
+                end
+            end
             return
         end
         f._msufGFLastHealthValue = hp
@@ -3501,7 +3766,7 @@ local function dispatchHealthLean(f, unit)
     else
         bar:SetValue(hp)
     end
-    if GF.SyncPreserveMissingHP then
+    if c and (c.alphaPreserveHPColor or f._msufGFMissingHPBg or f._msufGFPreserveAlphaState == true) and GF.SyncPreserveMissingHP then
         GF.SyncPreserveMissingHP(f, f._msufGFKind or "party", hp, f._msufGFCachedHpMax)
     end
 
@@ -3694,9 +3959,12 @@ local function dispatchHealthFull(f, unit)
         ihBar:SetValue(0)
         if ihBar:IsShown() then ihBar:Hide() end
     end
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
-    local absorbTestMode = type(testFn) == "function" and testFn(f, f._msufGFKind) or _G.MSUF_AbsorbTextureTestMode
-    if calc and not absorbTestMode then
+    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local wasAbsorbTestMode = f._msufGFAbsorbTestActive
+    if absorbTestMode or wasAbsorbTestMode then
+        _GF_DispatchOverlaysFromCalc(f, unit, calc, hp, hpMax)
+        if wasAbsorbTestMode and not absorbTestMode then f._msufGFAbsorbTestActive = nil end
+    elseif calc then
         if ihBar then
             if c.healPredEn ~= false then
                 local v = calc:GetIncomingHeals()
@@ -3720,7 +3988,7 @@ local function dispatchHealthFull(f, unit)
                 else if haBar:IsShown() then haBar:Hide() end end
             else if haBar:IsShown() then haBar:Hide() end end
         end
-    elseif not calc then
+    else
         _GF_DispatchOverlaysFromCalc(f, unit, nil, hp, hpMax)
     end
 
@@ -3733,6 +4001,47 @@ end
 -- OVERLAY-ONLY PATH: UNIT_HEAL_PREDICTION / UNIT_ABSORB / UNIT_HEAL_ABSORB
 -- Calculator → overlay bars ONLY. No HP bar, no text, no color.
 ------------------------------------------------------------------------
+function GF._ClearOverlayBar(bar)
+    if not bar then return end
+    if bar._msufGFOverlayMax ~= 1 then
+        bar:SetMinMaxValues(0, 1)
+        bar._msufGFOverlayMax = 1
+    end
+    if bar._msufGFOverlayValue ~= 0 then
+        bar:SetValue(0)
+        bar._msufGFOverlayValue = 0
+    end
+    if bar:IsShown() then bar:Hide() end
+end
+
+function GF._SetOverlayBarValue(bar, hpMax, value)
+    if not bar then return end
+    if value == nil then
+        if bar:IsShown() then bar:Hide() end
+        bar._msufGFOverlayValue = nil
+        return
+    end
+
+    local iss = issecretvalue
+    local maxValue = hpMax or 1
+    if iss and iss(maxValue) then
+        bar:SetMinMaxValues(0, maxValue)
+        bar._msufGFOverlayMax = nil
+    elseif bar._msufGFOverlayMax ~= maxValue then
+        bar:SetMinMaxValues(0, maxValue)
+        bar._msufGFOverlayMax = maxValue
+    end
+
+    if iss and iss(value) then
+        bar:SetValue(value)
+        bar._msufGFOverlayValue = nil
+    elseif bar._msufGFOverlayValue ~= value then
+        bar:SetValue(value)
+        bar._msufGFOverlayValue = value
+    end
+    if not bar:IsShown() then bar:Show() end
+end
+
 local function dispatchOverlaysOnly(f, unit)
     if not f.health then return end
 
@@ -3740,10 +4049,17 @@ local function dispatchOverlaysOnly(f, unit)
     if not c then return end
 
     local ihBar = f.incomingHealBar
-    if ihBar and c.healPredEn == false then
-        ihBar:SetMinMaxValues(0, 1)
-        ihBar:SetValue(0)
-        if ihBar:IsShown() then ihBar:Hide() end
+    local abBar = f.absorbBar
+    local haBar = f.healAbsorbBar
+    local ihEnabled = ihBar and c.healPredEn ~= false
+    local abEnabled = abBar and c.absorbEn
+    local haEnabled = haBar and c.healAbsorbEn ~= false
+    if ihBar and not ihEnabled then GF._ClearOverlayBar(ihBar) end
+
+    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
+    local absorbTestMode = type(testFn) == "function" and testFn(f, f._msufGFKind) or _G.MSUF_AbsorbTextureTestMode
+    if not (ihEnabled or abEnabled or haEnabled or absorbTestMode or f._msufGFAbsorbTestActive) then
+        return
     end
 
     -- PERF: Same-frame dedup. UNIT_HEAL_PREDICTION + UNIT_ABSORB_AMOUNT_CHANGED
@@ -3767,26 +4083,16 @@ local function dispatchOverlaysOnly(f, unit)
     UnitGetDetailedHealPrediction(unit, "player", calc)
     local hpMax = f._msufGFCachedHpMax or calc:GetMaximumHealth()
 
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
-    local absorbTestMode = type(testFn) == "function" and testFn(f, f._msufGFKind) or _G.MSUF_AbsorbTextureTestMode
     if absorbTestMode then return end
 
-    if ihBar and c.healPredEn ~= false then
-        local v = calc:GetIncomingHeals()
-        if v ~= nil then ihBar:SetMinMaxValues(0, hpMax); ihBar:SetValue(v); if not ihBar:IsShown() then ihBar:Show() end
-        else if ihBar:IsShown() then ihBar:Hide() end end
+    if ihEnabled then
+        GF._SetOverlayBarValue(ihBar, hpMax, calc:GetIncomingHeals())
     end
-    local abBar = f.absorbBar
-    if abBar and c.absorbEn then
-        local v = calc:GetTotalDamageAbsorbs()
-        if v ~= nil then abBar:SetMinMaxValues(0, hpMax); abBar:SetValue(v); if not abBar:IsShown() then abBar:Show() end
-        else if abBar:IsShown() then abBar:Hide() end end
+    if abEnabled then
+        GF._SetOverlayBarValue(abBar, hpMax, calc:GetTotalDamageAbsorbs())
     end
-    local haBar = f.healAbsorbBar
-    if haBar and c.healAbsorbEn ~= false then
-        local v = calc:GetTotalHealAbsorbs()
-        if v ~= nil then haBar:SetMinMaxValues(0, hpMax); haBar:SetValue(v); if not haBar:IsShown() then haBar:Show() end
-        else if haBar:IsShown() then haBar:Hide() end end
+    if haEnabled then
+        GF._SetOverlayBarValue(haBar, hpMax, calc:GetTotalHealAbsorbs())
     end
 end
 
@@ -3994,9 +4300,9 @@ dispatchIncomingHeal = function(f, unit, calc, hp, hpMax)
         return
     end
     -- Test mode: fixed values (same as main UF preview)
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
-    local absorbTestMode = type(testFn) == "function" and testFn(f, f._msufGFKind) or _G.MSUF_AbsorbTextureTestMode
+    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
     if absorbTestMode then
+        f._msufGFAbsorbTestActive = true
         bar:SetMinMaxValues(0, 100)
         bar:SetValue(20)
         if not bar:IsShown() then bar:Show() end
@@ -4039,9 +4345,9 @@ dispatchAbsorb = function(f, unit, calc, hpMax)
     local bar = f.absorbBar
     if not bar then return end
     -- Test mode: fixed values, no unit/secret dependency (same as main UF)
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
-    local absorbTestMode = type(testFn) == "function" and testFn(f, f._msufGFKind) or _G.MSUF_AbsorbTextureTestMode
+    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
     if absorbTestMode then
+        f._msufGFAbsorbTestActive = true
         bar:SetMinMaxValues(0, 100)
         bar:SetValue(25)
         if not bar:IsShown() then bar:Show() end
@@ -4078,9 +4384,9 @@ end
 dispatchHealAbsorb = function(f, unit, calc, hpMax)
     local bar = f.healAbsorbBar
     if not bar then return end
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
-    local absorbTestMode = type(testFn) == "function" and testFn(f, f._msufGFKind) or _G.MSUF_AbsorbTextureTestMode
+    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
     if absorbTestMode then
+        f._msufGFAbsorbTestActive = true
         bar:SetMinMaxValues(0, 100)
         bar:SetValue(15)
         if not bar:IsShown() then bar:Show() end
@@ -4282,7 +4588,7 @@ local function dispatchName(f, unit)
     local name = UnitName(unit) or ""
     local maxC = (c and c.nameMaxChars) or 0
     if maxC > 0 then
-        name = GF.TruncateName(name, maxC, c and c.nameNoEllipsis)
+        name = GF.TruncateName(name, maxC, c and c.nameNoEllipsis, c and c.nameClipSide)
     end
 
     if f._msufGFNameText ~= name then
@@ -4318,6 +4624,16 @@ local UNIT_DISPATCH = {
     UNIT_DISPLAYPOWER                 = dispatchDisplayPower,
     UNIT_NAME_UPDATE                  = dispatchName,
     UNIT_CONNECTION                   = function(f, u)
+        local wasOfflineHidden = f and f._msufGFOfflineHidden == true
+        if f and f._msufGFOfflineActive and (_G.MSUF_InCombat ~= true or f._msufGFOfflineCombatAllowed)
+            and GF.UpdateOfflineHiddenFrame and GF.UpdateOfflineHiddenFrame(f, u)
+        then
+            return
+        end
+        if wasOfflineHidden then
+            UpdateAll(f, u)
+            return
+        end
         local c = f._c
         if c and c.statusTextEn then UpdateStatusText(f, u) end
         if c and _GF_ShouldApplyRangeOrFrameAlpha(f, c, f._msufGFKind or "party") then ApplyRangeFade(f, u) end
@@ -4328,7 +4644,21 @@ local UNIT_DISPATCH = {
             UpdateStatusText(f, u, true)
         end
     end,
-    UNIT_IN_RANGE_UPDATE              = function(f, u, inRange, checkedRange) ApplyRangeFade(f, u, inRange, checkedRange) end,
+    UNIT_IN_RANGE_UPDATE              = function(f, u, inRange)
+        local c = f._c
+        if c and c.statusTextEn then
+            local state = f._msufGFStatusState or 0
+            if state ~= 0 then
+                UpdateStatusText(f, u)
+            elseif UnitHealth then
+                local hp = UnitHealth(u)
+                if not (issecretvalue and issecretvalue(hp)) and hp == 0 then
+                    UpdateStatusText(f, u)
+                end
+            end
+        end
+        ApplyRangeFade(f, u, inRange)
+    end,
     UNIT_AURA                         = function(f, u, updateInfo)
         dispatchAura(f, u, updateInfo)
     end,
@@ -4349,7 +4679,21 @@ local UNIT_DISPATCH = {
 -- UNIT_MAXHEALTH → full path (calc + bar + overlays + text)
 -- UNIT_HEAL_PREDICTION/ABSORB → overlays only
 ------------------------------------------------------------------------
+_RuntimeEnabledForFrame = function(f)
+    if not f then return false end
+    if f._msufGFPreviewActive then return true end
+    if f.unit and UnitExists and UnitExists(f.unit) and f.IsVisible and f:IsVisible() then
+        return true
+    end
+    local kind = f._msufGFKind or (GF.frames and GF.frames[f]) or "party"
+    return not (GF.IsKindEnabled and not GF.IsKindEnabled(kind))
+end
+
 local function GF_OnEvent(self, event, unit, ...)
+    if not _RuntimeEnabledForFrame(self) then
+        if GF.UnregisterUnitEvents then GF.UnregisterUnitEvents(self) end
+        return
+    end
     local u = self.unit
     if not u then return end
     -- PERF: unified hash-table dispatch. The prior hot-path if-elseif chain
@@ -4371,6 +4715,13 @@ end
 function GF.RegisterUnitEvents(f, unit)
     if not (f and unit) then return end
     f._msufGFFullPending = nil
+
+    if not _RuntimeEnabledForFrame(f) then
+        if GF.UnregisterUnitEvents then GF.UnregisterUnitEvents(f) end
+        f._msufGFRegUnit = nil
+        f._msufGFRegBits = nil
+        return
+    end
 
     if not f._c then GF.BuildFrameCache(f) end
     local c = f._c
@@ -4447,21 +4798,14 @@ function GF.RegisterUnitEvents(f, unit)
     if c.phaseEn then
         f:RegisterUnitEvent("UNIT_PHASE", unit); regTbl["UNIT_PHASE"] = true
     end
-    if c.healPredEn then
+    if c.healPredEventEn then
         f:RegisterUnitEvent("UNIT_HEAL_PREDICTION", unit); regTbl["UNIT_HEAL_PREDICTION"] = true
     end
-    if c.absorbEn then
-        if UnitGetTotalAbsorbs then
-            f:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", unit); regTbl["UNIT_ABSORB_AMOUNT_CHANGED"] = true
-        end
-        if UnitGetTotalHealAbsorbs then
-            f:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", unit); regTbl["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = true
-        end
-    elseif c.healAbsorbEn then
-        -- Heal absorb enabled independently of shield absorb bar
-        if UnitGetTotalHealAbsorbs then
-            f:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", unit); regTbl["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = true
-        end
+    if c.absorbEventEn then
+        f:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", unit); regTbl["UNIT_ABSORB_AMOUNT_CHANGED"] = true
+    end
+    if c.healAbsorbEventEn then
+        f:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", unit); regTbl["UNIT_HEAL_ABSORB_AMOUNT_CHANGED"] = true
     end
 
     f:SetScript("OnEvent", GF_OnEvent)
@@ -4493,6 +4837,7 @@ local _gfFocusFrame  = nil -- the frame whose unit was last "focus"
 local _gfRosterPending = false
 local function _gfRosterFlushFrame(f, gmap)
     if not f then return end
+    if not _RuntimeEnabledForFrame(f) then return end
 
     local u = f.unit
     if not (u and UnitExists(u)) then
@@ -4669,20 +5014,95 @@ end
 function GF._AnyGroupConfFlag(key)
     if not key or not GF.GetConf then return false end
     local party = GF.GetConf("party")
-    if party and party[key] ~= false then return true end
+    if party and party.enabled == true and party[key] ~= false then return true end
     local raidKind = (GF.GetLiveRaidKind and GF.GetLiveRaidKind()) or "raid"
     local raid = GF.GetConf(raidKind)
-    if raid and raid[key] ~= false then return true end
+    if raid and raid.enabled == true and raid[key] ~= false then return true end
     if raidKind ~= "raid" then
         raid = GF.GetConf("raid")
-        if raid and raid[key] ~= false then return true end
+        if raid and raid.enabled == true and raid[key] ~= false then return true end
     end
     return false
 end
 
+function GF._RangeFadeWanted()
+    if GF._anyEnabled == false then return false end
+    if IsInGroup and IsInRaid then
+        local inGroup = IsInGroup()
+        local inRaid = IsInRaid()
+        if not inGroup and not inRaid then return false end
+    end
+    return GF._AnyGroupConfFlag("rangeFadeEnabled") == true
+end
+
+function GF._StopRangeFadeCombatPulse()
+    GF._rangeCombatPulse = nil
+end
+
+function GF._RangeFadeCombatPulseStep(token)
+    if GF._rangeCombatPulse ~= token then return end
+    if not (_G.MSUF_InCombat == true or (InCombatLockdown and InCombatLockdown())) then
+        GF._StopRangeFadeCombatPulse()
+        return
+    end
+    if not GF._RangeFadeWanted() then
+        GF._StopRangeFadeCombatPulse()
+        return
+    end
+    if GF.RefreshRangeFade then GF.RefreshRangeFade() end
+    if C_Timer and C_Timer.After then
+        C_Timer.After(GF._rangeCombatPulseInterval or 0.50, function()
+            GF._RangeFadeCombatPulseStep(token)
+        end)
+    else
+        GF._StopRangeFadeCombatPulse()
+    end
+end
+
+function GF._EnsureRangeFadeCombatPulse()
+    if GF._rangeCombatPulse then return end
+    if not (C_Timer and C_Timer.After) then return end
+    if not (_G.MSUF_InCombat == true or (InCombatLockdown and InCombatLockdown())) then return end
+    if not GF._RangeFadeWanted() then return end
+    local token = {}
+    GF._rangeCombatPulse = token
+    C_Timer.After(GF._rangeCombatPulseInterval or 0.50, function()
+        GF._RangeFadeCombatPulseStep(token)
+    end)
+end
+
 do
     local _globalEventBits
+    local _baseEventsActive
     local _globalEventSyncQueued = false
+    local BASE_EVENTS = {
+        "PLAYER_FOCUS_CHANGED",
+        "GROUP_ROSTER_UPDATE",
+        "SPELLS_CHANGED",
+        "ACTIVE_PLAYER_SPECIALIZATION_CHANGED",
+        "PLAYER_TALENT_UPDATE",
+        "TRAIT_CONFIG_UPDATED",
+        "PLAYER_ENTERING_WORLD",
+        "BARBER_SHOP_OPEN",
+        "BARBER_SHOP_CLOSE",
+        "PLAYER_REGEN_DISABLED",
+        "PLAYER_REGEN_ENABLED",
+    }
+
+    local function SetBaseEvents(active)
+        active = active and true or false
+        if active == _baseEventsActive then return end
+        for i = 1, #BASE_EVENTS do
+            local ev = BASE_EVENTS[i]
+            if active then
+                _globalFrame:RegisterEvent(ev)
+            else
+                _globalFrame:UnregisterEvent(ev)
+            end
+        end
+        _baseEventsActive = active
+    end
+
     local function _DoSyncGroupGlobalEvents()
         _globalEventSyncQueued = false
         if GF.SyncGroupGlobalEvents then GF.SyncGroupGlobalEvents() end
@@ -4697,11 +5117,23 @@ do
     function GF.SyncGroupGlobalEvents()
         if not _globalFrame then return end
 
-        local ready = GF._AnyGroupConfFlag("readyCheckIcon")
-        local raidMarker = GF._AnyGroupConfFlag("raidMarker")
-        local leader = GF._AnyGroupConfFlag("leaderIcon") or GF._AnyGroupConfFlag("assistIcon")
-        local showAFK, showDND, showDead, showGhost = GF.GetStatusIndicatorFlags()
-        local flags = showAFK or showDND or showDead or showGhost
+        local anyEnabled = true
+        if GF.UpdateAnyEnabledFlag then
+            anyEnabled = GF.UpdateAnyEnabledFlag() and true or false
+        elseif GF._anyEnabled == false then
+            anyEnabled = false
+        end
+
+        SetBaseEvents(anyEnabled)
+
+        local ready, raidMarker, leader, flags = false, false, false, false
+        if anyEnabled then
+            ready = GF._AnyGroupConfFlag("readyCheckIcon")
+            raidMarker = GF._AnyGroupConfFlag("raidMarker")
+            leader = GF._AnyGroupConfFlag("leaderIcon") or GF._AnyGroupConfFlag("assistIcon")
+            local showAFK, showDND, showDead, showGhost = GF.GetStatusIndicatorFlags()
+            flags = showAFK or showDND or showDead or showGhost
+        end
 
         local bits = 0
         if ready then bits = bits + 1 end
@@ -4754,9 +5186,14 @@ do
     local function _ForEachFrame(cb, ...)
         local list = GF.frameList
         if list then
-            for i = 1, #list do cb(list[i], ...) end
+            for i = 1, #list do
+                local f = list[i]
+                if _RuntimeEnabledForFrame(f) then cb(f, ...) end
+            end
         else
-            for f in pairs(GF.frames) do cb(f, ...) end
+            for f in pairs(GF.frames) do
+                if _RuntimeEnabledForFrame(f) then cb(f, ...) end
+            end
         end
     end
 
@@ -4767,27 +5204,43 @@ do
 
     H.PLAYER_REGEN_DISABLED = function(_, event)
         _G.MSUF_InCombat = (event == "PLAYER_REGEN_DISABLED")
+        if event == "PLAYER_REGEN_ENABLED" and GF._StopRangeFadeCombatPulse then
+            GF._StopRangeFadeCombatPulse()
+        end
+        if event == "PLAYER_REGEN_DISABLED" and GF._offlineHideRuntimeActive and GF.SuspendOfflineHideForCombat then
+            GF.SuspendOfflineHideForCombat()
+        end
         if GF.RefreshGroupAlphas then
             GF.RefreshGroupAlphas()
         elseif GF.RefreshRangeFade then
             GF.RefreshRangeFade()
         end
+        if event == "PLAYER_REGEN_DISABLED" and GF._EnsureRangeFadeCombatPulse then
+            GF._EnsureRangeFadeCombatPulse()
+        end
+        if event == "PLAYER_REGEN_ENABLED" and GF._offlineHideAnyEnabled and GF.RefreshOfflineHiddenFrames then
+            GF.RefreshOfflineHiddenFrames()
+        end
     end
     H.PLAYER_REGEN_ENABLED = H.PLAYER_REGEN_DISABLED
 
     do
-        local function RebuildRangeSpell()
-            if GF._RebuildRangeSpell then GF._RebuildRangeSpell() end
+        local function RefreshRangeFadeDelayed()
             if GF.RefreshRangeFade then GF.RefreshRangeFade() end
+            if (_G.MSUF_InCombat == true or (InCombatLockdown and InCombatLockdown()))
+                and GF._EnsureRangeFadeCombatPulse
+            then
+                GF._EnsureRangeFadeCombatPulse()
+            end
         end
-        local function QueueRangeSpellRebuild()
-            _MSUF_ScheduleDelayOnce("GF_RANGE_SPELL_REBUILD", 0.05, RebuildRangeSpell)
+        local function QueueRangeRefresh()
+            _MSUF_ScheduleDelayOnce("GF_RANGE_REFRESH", 0.05, RefreshRangeFadeDelayed)
         end
-        H.SPELLS_CHANGED = QueueRangeSpellRebuild
-        H.ACTIVE_PLAYER_SPECIALIZATION_CHANGED = QueueRangeSpellRebuild
-        H.PLAYER_TALENT_UPDATE = QueueRangeSpellRebuild
-        H.TRAIT_CONFIG_UPDATED = QueueRangeSpellRebuild
-        H.PLAYER_ENTERING_WORLD = QueueRangeSpellRebuild
+        H.SPELLS_CHANGED = QueueRangeRefresh
+        H.ACTIVE_PLAYER_SPECIALIZATION_CHANGED = QueueRangeRefresh
+        H.PLAYER_TALENT_UPDATE = QueueRangeRefresh
+        H.TRAIT_CONFIG_UPDATED = QueueRangeRefresh
+        H.PLAYER_ENTERING_WORLD = QueueRangeRefresh
     end
 
     H.PLAYER_FOCUS_CHANGED = function()
@@ -4922,17 +5375,6 @@ do
     end
 end
 
-_globalFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
-_globalFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
-_globalFrame:RegisterEvent("SPELLS_CHANGED")
-_globalFrame:RegisterEvent("ACTIVE_PLAYER_SPECIALIZATION_CHANGED")
-_globalFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
-_globalFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
-_globalFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-_globalFrame:RegisterEvent("BARBER_SHOP_OPEN")
-_globalFrame:RegisterEvent("BARBER_SHOP_CLOSE")
-_globalFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-_globalFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 GF.SyncGroupGlobalEvents()
 _globalFrame:SetScript("OnEvent", GF._OnGlobalEvent)
 
@@ -4961,29 +5403,115 @@ local function _GF_IsHighlightEnabled()
     return true
 end
 
-local _hoverBdCache = { edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 }
-
-local function EnsureMouseoverHighlight(f)
-    if not _GF_IsHighlightEnabled() then return nil end
-    local hb = f._msufGFHoverBorder
-    if hb then
-        -- Already exists: just return it. Style is set at creation + config change.
-        return hb
+local function _GF_EnsureHoverLine(hb, key)
+    local lines = hb._msufGFHoverLines
+    if not lines then
+        lines = {}
+        hb._msufGFHoverLines = lines
     end
+    local t = lines[key]
+    if not t and hb.CreateTexture then
+        t = hb:CreateTexture(nil, "OVERLAY")
+        t:SetTexture("Interface\\Buttons\\WHITE8x8")
+        lines[key] = t
+    end
+    return t
+end
+
+local function _GF_StyleMouseoverHighlight(f, hb)
+    if not (f and hb) then return end
     local kind = f._msufGFKind or "party"
     local sz = math_max(1, tonumber(HLVal(kind, "hlHoverSize")) or 1)
     local ofs = tonumber(HLVal(kind, "hlHoverOffset")) or 0
     local r, g, b = _GF_GetHighlightColor()
     local anchor = f.barGroup or f
+
+    if hb.SetBackdrop then hb:SetBackdrop(nil) end
+    if hb.SetClipsChildren then hb:SetClipsChildren(false) end
+
+    if hb._msufGFHoverOffset ~= ofs or hb._msufGFHoverSize ~= sz then
+        hb._msufGFHoverOffset = ofs
+        hb._msufGFHoverSize = sz
+        hb:ClearAllPoints()
+        hb:SetPoint("TOPLEFT", anchor, "TOPLEFT", 0, 0)
+        hb:SetPoint("BOTTOMRIGHT", anchor, "BOTTOMRIGHT", 0, 0)
+    end
+
+    local ext = ofs + sz
+    local top = _GF_EnsureHoverLine(hb, "top")
+    local bottom = _GF_EnsureHoverLine(hb, "bottom")
+    local left = _GF_EnsureHoverLine(hb, "left")
+    local right = _GF_EnsureHoverLine(hb, "right")
+    if top then
+        top:ClearAllPoints()
+        top:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", -ext, ofs)
+        top:SetPoint("BOTTOMRIGHT", anchor, "TOPRIGHT", ext, ofs)
+        top:SetHeight(sz)
+        top:SetVertexColor(r, g, b, 0.7)
+        top:Show()
+    end
+    if bottom then
+        bottom:ClearAllPoints()
+        bottom:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", -ext, -ofs)
+        bottom:SetPoint("TOPRIGHT", anchor, "BOTTOMRIGHT", ext, -ofs)
+        bottom:SetHeight(sz)
+        bottom:SetVertexColor(r, g, b, 0.7)
+        bottom:Show()
+    end
+    if left then
+        left:ClearAllPoints()
+        left:SetPoint("TOPRIGHT", anchor, "TOPLEFT", -ofs, ext)
+        left:SetPoint("BOTTOMRIGHT", anchor, "BOTTOMLEFT", -ofs, -ext)
+        left:SetWidth(sz)
+        left:SetVertexColor(r, g, b, 0.7)
+        left:Show()
+    end
+    if right then
+        right:ClearAllPoints()
+        right:SetPoint("TOPLEFT", anchor, "TOPRIGHT", ofs, ext)
+        right:SetPoint("BOTTOMLEFT", anchor, "BOTTOMRIGHT", ofs, -ext)
+        right:SetWidth(sz)
+        right:SetVertexColor(r, g, b, 0.7)
+        right:Show()
+    end
+
+    if hb.SetFrameLevel and anchor.GetFrameLevel then
+        local anchorLevel = anchor:GetFrameLevel() or 0
+        local wantLevel = anchorLevel + 3
+        local minTextLevel
+        local layers = { f.nameTextLayer, f.healthTextLayer, f.powerTextLayer, f.statusTextLayer }
+        for i = 1, #layers do
+            local layer = layers[i]
+            local level = layer and layer.GetFrameLevel and layer:GetFrameLevel()
+            if level and (not minTextLevel or level < minTextLevel) then
+                minTextLevel = level
+            end
+        end
+        if minTextLevel and wantLevel >= minTextLevel then
+            wantLevel = minTextLevel - 1
+        end
+        if wantLevel <= anchorLevel then
+            wantLevel = anchorLevel + 1
+        end
+        if hb._msufGFHoverLevel ~= wantLevel then
+            hb._msufGFHoverLevel = wantLevel
+            hb:SetFrameLevel(wantLevel)
+        end
+    end
+end
+GF.StyleMouseoverHighlight = _GF_StyleMouseoverHighlight
+
+local function EnsureMouseoverHighlight(f)
+    if not _GF_IsHighlightEnabled() then return nil end
+    local hb = f._msufGFHoverBorder
+    if hb then
+        _GF_StyleMouseoverHighlight(f, hb)
+        return hb
+    end
+    local anchor = f.barGroup or f
     hb = CreateFrame("Frame", nil, anchor, "BackdropTemplate")
-    hb:SetPoint("TOPLEFT", -ofs, ofs)
-    hb:SetPoint("BOTTOMRIGHT", ofs, -ofs)
-    hb:SetFrameLevel(anchor:GetFrameLevel() + 6)
     hb:EnableMouse(false)
-    _hoverBdCache.edgeSize = sz
-    hb:SetBackdrop(_hoverBdCache)
-    hb:SetBackdropBorderColor(r, g, b, 0.7)
-    hb:SetBackdropColor(0, 0, 0, 0)
+    _GF_StyleMouseoverHighlight(f, hb)
     hb:Hide()
     f._msufGFHoverBorder = hb
     return hb
@@ -5064,6 +5592,7 @@ if type(_origInit) == "function" then
         -- Add tooltip scripts
         f:SetScript("OnEnter", OnEnter)
         f:SetScript("OnLeave", OnLeave)
+        if GF.ClickCastEnabled then GF.RegisterClickCastFrame(f, true) end
         -- GF frames do NOT use the main Alpha module.
         -- Range fade is handled exclusively by ApplyRangeFade → SetAlphaFromBoolean.
         -- The Alpha module (MSUF_ApplyUnitAlpha) would override SetAlphaFromBoolean
@@ -5101,6 +5630,11 @@ _G.MSUF_GF_UpdateVisualDirty = function(f, unit, bits)
     if not f or not unit then return end
     local c = f._c
     if not c then GF.BuildFrameCache(f); c = f._c end
+    if f._msufGFOfflineActive and (_G.MSUF_InCombat ~= true or f._msufGFOfflineCombatAllowed)
+        and GF.UpdateOfflineHiddenFrame and GF.UpdateOfflineHiddenFrame(f, unit)
+    then
+        return
+    end
 
     -- Visual settings changed; avoid the legacy full UpdateAll unless the change
     -- actually needs max-health/power/layout-dependent recomputation. This keeps
@@ -5198,6 +5732,7 @@ _G.MSUF_GF_OnFrameRetire = function(f)
     -- Cancel + clear pending ready-check fade timer (closure captures `f`)
     if GF.CancelReadyCheckTimer then GF.CancelReadyCheckTimer(f) end
     _GF_StopDispelGlow(f)
+    if GF.ResetOfflineHiddenFrame then GF.ResetOfflineHiddenFrame(f) end
     if GF.HideFrameAuras then GF.HideFrameAuras(f) end
     if GF.RecycleFramePools then GF.RecycleFramePools(f) end
     if GF.UnregisterUnitEvents then GF.UnregisterUnitEvents(f) end
@@ -5245,11 +5780,11 @@ local function _GF_ForEachLiveGroupFrame(fn)
     if list then
         for i = 1, #list do
             local f = list[i]
-            if f and f._msufIsGroupFrame then fn(f) end
+            if f and f._msufIsGroupFrame and _RuntimeEnabledForFrame(f) then fn(f) end
         end
     elseif GF.frames then
         for f in pairs(GF.frames) do
-            if f and f._msufIsGroupFrame then fn(f) end
+            if f and f._msufIsGroupFrame and _RuntimeEnabledForFrame(f) then fn(f) end
         end
     end
 end
@@ -5286,16 +5821,18 @@ _G.MSUF_GF_GlobalEventFrame     = _globalFrame
 --- Called from Bars options when test mode or absorb settings change.
 _G.MSUF_GF_RefreshOverlays = function()
     if not GF.frames then return end
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
     _GF_ForEachLiveGroupFrame(function(f)
         _GF_ApplyAbsorbAnchor(f)
         local u = f.unit
         if u then
+            local wasAbsorbTestMode = f._msufGFAbsorbTestActive
             dispatchOverlays(f, u)
-        elseif (type(testFn) == "function" and testFn(f, f._msufGFKind)) or (_G.MSUF_AbsorbTextureTestMode and type(testFn) ~= "function") then
+            if wasAbsorbTestMode and not _GF_ShouldShowAbsorbTextureTestForFrame(f) then f._msufGFAbsorbTestActive = nil end
+        elseif _GF_ShouldShowAbsorbTextureTestForFrame(f) or f._msufGFAbsorbTestActive then
             dispatchIncomingHeal(f, nil)
             dispatchAbsorb(f, nil)
             dispatchHealAbsorb(f, nil)
+            if not _GF_ShouldShowAbsorbTextureTestForFrame(f) then f._msufGFAbsorbTestActive = nil end
         end
     end)
     if GF._previewFrames then
@@ -5306,11 +5843,14 @@ _G.MSUF_GF_RefreshOverlays = function()
                     _GF_ApplyAbsorbAnchor(pf)
                     local u = pf.unit or pf._msufGFPreviewUnit
                     if u then
+                        local wasAbsorbTestMode = pf._msufGFAbsorbTestActive
                         dispatchOverlays(pf, u)
-                    elseif (type(testFn) == "function" and testFn(pf, pf._msufGFKind)) or (_G.MSUF_AbsorbTextureTestMode and type(testFn) ~= "function") then
+                        if wasAbsorbTestMode and not _GF_ShouldShowAbsorbTextureTestForFrame(pf) then pf._msufGFAbsorbTestActive = nil end
+                    elseif _GF_ShouldShowAbsorbTextureTestForFrame(pf) or pf._msufGFAbsorbTestActive then
                         dispatchIncomingHeal(pf, nil)
                         dispatchAbsorb(pf, nil)
                         dispatchHealAbsorb(pf, nil)
+                        if not _GF_ShouldShowAbsorbTextureTestForFrame(pf) then pf._msufGFAbsorbTestActive = nil end
                     end
                 end
             end
@@ -5328,4 +5868,6 @@ _G.MSUF_GF_DispatchAura    = dispatchAura
 _G.MSUF_GF_DispatchOverlays = dispatchOverlays
 _G.MSUF_GF_ApplyPowerColor = ApplyPowerColor
 _G.MSUF_GF_OnEvent         = GF_OnEvent
+-- Exported diagnostic helper. Do not wire this into health/power hotpaths
+-- without profiling and visual regression validation.
 _G.MSUF_GF_PixelSnap       = _GF_PixelSnappedSetValue

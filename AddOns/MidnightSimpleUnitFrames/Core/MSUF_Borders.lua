@@ -9,6 +9,72 @@ local type, tonumber, ipairs, pairs = type, tonumber, ipairs, pairs
 local MSUF_TEX_WHITE8 = "Interface\\Buttons\\WHITE8x8"
 local issecretvalue = _G.issecretvalue
 
+local _FRIENDLY_DISPEL_CLASS = {
+    DRUID = true,
+    EVOKER = true,
+    MAGE = true,
+    MONK = true,
+    PALADIN = true,
+    PRIEST = true,
+    SHAMAN = true,
+}
+local _PURGE_CLASS = {
+    DEMONHUNTER = true,
+    HUNTER = true,
+    MAGE = true,
+    PRIEST = true,
+    SHAMAN = true,
+    WARLOCK = true,
+}
+local _playerFriendlyDispelCapable
+local _playerPurgeCapable
+
+local function PlayerMayFriendlyDispel()
+    if _playerFriendlyDispelCapable ~= nil then
+        return _playerFriendlyDispelCapable
+    end
+
+    local class
+    if UnitClass then
+        local _, classToken = UnitClass("player")
+        class = classToken
+    end
+    if not class then
+        return true
+    end
+
+    _playerFriendlyDispelCapable = (_FRIENDLY_DISPEL_CLASS[class] == true)
+    return _playerFriendlyDispelCapable
+end
+
+local function PlayerMayPurge()
+    if _playerPurgeCapable ~= nil then
+        return _playerPurgeCapable
+    end
+
+    local class
+    if UnitClass then
+        local _, classToken = UnitClass("player")
+        class = classToken
+    end
+    if not class then
+        return true
+    end
+
+    local race
+    if UnitRace then
+        local _, raceToken = UnitRace("player")
+        race = raceToken
+    end
+    _playerPurgeCapable = (_PURGE_CLASS[class] == true) or (race == "BloodElf")
+    return _playerPurgeCapable
+end
+
+local function ClearFriendlyDispelCapabilityCache()
+    _playerFriendlyDispelCapable = nil
+    _playerPurgeCapable = nil
+end
+
 -- From main file (exported to _G)
 local MSUF_ForEachUnitFrame = _G.MSUF_ForEachUnitFrame
 local MSUF_GetDesiredBarBorderThicknessAndStamp = _G.MSUF_GetDesiredBarBorderThicknessAndStamp
@@ -78,33 +144,77 @@ local function _Clamp01(v, def)
     if v < 0 then return 0 elseif v > 1 then return 1 end
     return v
 end
+
+local function _OutlineModeToNumber(value, fallback)
+    if value == true then return 1 end
+    if value == false then return 0 end
+    local n = tonumber(value)
+    if n ~= nil then return (n == 1) and 1 or 0 end
+    return fallback
+end
+
+local function _ReadOutlineMode(db, key, legacyKey, fallback)
+    if db and db[key] ~= nil then
+        return _OutlineModeToNumber(db[key], fallback)
+    end
+    if legacyKey and db and db[legacyKey] ~= nil then
+        return _OutlineModeToNumber(db[legacyKey], fallback)
+    end
+    return fallback
+end
+
+local function _ReadColorValue(db, key, legacyKey, fallback)
+    local value = db and db[key]
+    if type(value) ~= "number" and legacyKey then
+        value = db and db[legacyKey]
+    end
+    return _Clamp01(value, fallback)
+end
+
+local function _NormalizeBorderScope(unit)
+    if type(unit) ~= "string" or unit == "" then return "shared" end
+    if unit == "boss" or unit:sub(1, 4) == "boss" then return "boss" end
+    return unit
+end
+
+local function _GetUnitBorderScopeDB(unit)
+    local scope = _NormalizeBorderScope(unit)
+    if scope == "shared" then return nil, scope end
+    local db = MSUF_DB and MSUF_DB[scope]
+    if type(db) == "table" and db.hlOverride == true then
+        return db, scope
+    end
+    return nil, scope
+end
+
 local function _RefreshBorderSettingsCache()
     local serial = _G.MSUF_UFCORE_SETTINGS_SERIAL or 0
     if _borderCfg.serial == serial then return _borderCfg end
     _borderCfg.serial = serial
 
     local g = (MSUF_DB and MSUF_DB.general) or nil
-    _borderCfg.aggroOutlineMode = (g and g.aggroOutlineMode) or 0
-    _borderCfg.dispelOutlineMode = (g and g.dispelOutlineMode) or 0
-    _borderCfg.purgeOutlineMode = (g and g.purgeOutlineMode) or 0
-    _borderCfg.bossTargetOutlineMode = (g and g.bossTargetOutlineMode) or ((g and g.bossTargetHighlightEnabled ~= false) and 1 or 0)
+    _borderCfg.aggroOutlineMode = _ReadOutlineMode(g, "aggroOutlineMode", "hlAggroEnabled", 0)
+    _borderCfg.dispelOutlineMode = _ReadOutlineMode(g, "dispelOutlineMode", "hlDispelEnabled", 0)
+    _borderCfg.purgeOutlineMode = _ReadOutlineMode(g, "purgeOutlineMode", nil, 0)
+    _borderCfg.bossTargetOutlineMode = _ReadOutlineMode(g, "bossTargetOutlineMode", nil, ((g and g.bossTargetHighlightEnabled ~= false) and 1 or 0))
     _borderCfg.highlightBorderThickness = tonumber(g and g.highlightBorderThickness) or 2
     if _borderCfg.highlightBorderThickness < 1 then _borderCfg.highlightBorderThickness = 1 end
+    _borderCfg.dispelColorMode = (g and g.hlDispelColorMode) or "SINGLE"
     local prioEnabled = g and g.hlPrioEnabled
     if prioEnabled == nil then prioEnabled = g and (g.highlightPrioEnabled == 1) end
     _borderCfg.highlightPrioEnabled = (prioEnabled == true)
     _borderCfg.highlightPrioOrder = (g and type(g.hlPrioOrder) == "table" and g.hlPrioOrder)
         or (g and type(g.highlightPrioOrder) == "table" and g.highlightPrioOrder)
         or nil
-    _borderCfg.aggroR  = _Clamp01(g and g.aggroBorderColorR,  1.00)
-    _borderCfg.aggroG  = _Clamp01(g and g.aggroBorderColorG,  0.50)
-    _borderCfg.aggroB  = _Clamp01(g and g.aggroBorderColorB,  0.00)
-    _borderCfg.dispelR = _Clamp01(g and g.dispelBorderColorR, 0.25)
-    _borderCfg.dispelG = _Clamp01(g and g.dispelBorderColorG, 0.75)
-    _borderCfg.dispelB = _Clamp01(g and g.dispelBorderColorB, 1.00)
-    _borderCfg.purgeR  = _Clamp01(g and g.purgeBorderColorR,  1.00)
-    _borderCfg.purgeG  = _Clamp01(g and g.purgeBorderColorG,  0.85)
-    _borderCfg.purgeB  = _Clamp01(g and g.purgeBorderColorB,  0.00)
+    _borderCfg.aggroR  = _ReadColorValue(g, "hlAggroColorR",  "aggroBorderColorR",  1.00)
+    _borderCfg.aggroG  = _ReadColorValue(g, "hlAggroColorG",  "aggroBorderColorG",  0.50)
+    _borderCfg.aggroB  = _ReadColorValue(g, "hlAggroColorB",  "aggroBorderColorB",  0.00)
+    _borderCfg.dispelR = _ReadColorValue(g, "hlDispelColorR", "dispelBorderColorR", 0.25)
+    _borderCfg.dispelG = _ReadColorValue(g, "hlDispelColorG", "dispelBorderColorG", 0.75)
+    _borderCfg.dispelB = _ReadColorValue(g, "hlDispelColorB", "dispelBorderColorB", 1.00)
+    _borderCfg.purgeR  = _ReadColorValue(g, "hlPurgeColorR",  "purgeBorderColorR",  1.00)
+    _borderCfg.purgeG  = _ReadColorValue(g, "hlPurgeColorG",  "purgeBorderColorG",  0.85)
+    _borderCfg.purgeB  = _ReadColorValue(g, "hlPurgeColorB",  "purgeBorderColorB",  0.00)
     local btc = g and g.bossTargetHighlightColor
     _borderCfg.bossTargetR = _Clamp01(type(btc) == "table" and btc[1], 1.00)
     _borderCfg.bossTargetG = _Clamp01(type(btc) == "table" and btc[2], 0.82)
@@ -116,6 +226,88 @@ local function _RefreshBorderSettingsCache()
     _borderCfg.dispelGlowFreq    = tonumber(g and g.hlDispelGlowFrequency) or 0.25
     _borderCfg.dispelGlowThick   = tonumber(g and g.hlDispelGlowThickness) or 2
     return _borderCfg
+end
+
+local _scopedBorderCfg = {}
+local _BORDER_CFG_FIELDS = {
+    "aggroOutlineMode",
+    "dispelOutlineMode",
+    "purgeOutlineMode",
+    "bossTargetOutlineMode",
+    "highlightBorderThickness",
+    "dispelColorMode",
+    "highlightPrioEnabled",
+    "highlightPrioOrder",
+    "aggroR", "aggroG", "aggroB",
+    "dispelR", "dispelG", "dispelB",
+    "purgeR", "purgeG", "purgeB",
+    "bossTargetR", "bossTargetG", "bossTargetB",
+    "dispelGlowEnabled",
+    "dispelGlowStyle",
+    "dispelGlowLines",
+    "dispelGlowFreq",
+    "dispelGlowThick",
+}
+
+local function _CopyBorderCfg(dst, src)
+    for i = 1, #_BORDER_CFG_FIELDS do
+        local key = _BORDER_CFG_FIELDS[i]
+        dst[key] = src[key]
+    end
+    return dst
+end
+
+local function _RefreshBorderSettingsForFrame(frame)
+    local base = _RefreshBorderSettingsCache()
+    local db = _GetUnitBorderScopeDB(frame and frame.unit)
+    if not db then return base end
+
+    local cfg = _CopyBorderCfg(_scopedBorderCfg, base)
+    cfg.aggroOutlineMode = _ReadOutlineMode(db, "aggroOutlineMode", "hlAggroEnabled", base.aggroOutlineMode)
+    cfg.dispelOutlineMode = _ReadOutlineMode(db, "dispelOutlineMode", "hlDispelEnabled", base.dispelOutlineMode)
+    cfg.purgeOutlineMode = _ReadOutlineMode(db, "purgeOutlineMode", nil, base.purgeOutlineMode)
+    cfg.bossTargetOutlineMode = _ReadOutlineMode(db, "bossTargetOutlineMode", nil, base.bossTargetOutlineMode)
+
+    cfg.highlightBorderThickness = tonumber(db.highlightBorderThickness or db.hlAggroSize) or base.highlightBorderThickness
+    if cfg.highlightBorderThickness < 1 then cfg.highlightBorderThickness = 1 end
+    cfg.dispelColorMode = db.hlDispelColorMode or base.dispelColorMode
+
+    if db.hlPrioEnabled ~= nil then
+        cfg.highlightPrioEnabled = (db.hlPrioEnabled == true)
+    elseif db.highlightPrioEnabled ~= nil then
+        cfg.highlightPrioEnabled = (db.highlightPrioEnabled == 1 or db.highlightPrioEnabled == true)
+    end
+    if type(db.hlPrioOrder) == "table" then
+        cfg.highlightPrioOrder = db.hlPrioOrder
+    elseif type(db.highlightPrioOrder) == "table" then
+        cfg.highlightPrioOrder = db.highlightPrioOrder
+    end
+
+    cfg.aggroR  = _ReadColorValue(db, "hlAggroColorR",  "aggroBorderColorR",  base.aggroR)
+    cfg.aggroG  = _ReadColorValue(db, "hlAggroColorG",  "aggroBorderColorG",  base.aggroG)
+    cfg.aggroB  = _ReadColorValue(db, "hlAggroColorB",  "aggroBorderColorB",  base.aggroB)
+    cfg.dispelR = _ReadColorValue(db, "hlDispelColorR", "dispelBorderColorR", base.dispelR)
+    cfg.dispelG = _ReadColorValue(db, "hlDispelColorG", "dispelBorderColorG", base.dispelG)
+    cfg.dispelB = _ReadColorValue(db, "hlDispelColorB", "dispelBorderColorB", base.dispelB)
+    cfg.purgeR  = _ReadColorValue(db, "hlPurgeColorR",  "purgeBorderColorR",  base.purgeR)
+    cfg.purgeG  = _ReadColorValue(db, "hlPurgeColorG",  "purgeBorderColorG",  base.purgeG)
+    cfg.purgeB  = _ReadColorValue(db, "hlPurgeColorB",  "purgeBorderColorB",  base.purgeB)
+
+    if db.hlDispelGlowEnabled ~= nil then cfg.dispelGlowEnabled = db.hlDispelGlowEnabled == true end
+    cfg.dispelGlowStyle = db.hlDispelGlowStyle or cfg.dispelGlowStyle
+    cfg.dispelGlowLines = tonumber(db.hlDispelGlowLines) or cfg.dispelGlowLines
+    cfg.dispelGlowFreq = tonumber(db.hlDispelGlowFrequency) or cfg.dispelGlowFreq
+    cfg.dispelGlowThick = tonumber(db.hlDispelGlowThickness) or cfg.dispelGlowThick
+    return cfg
+end
+
+local function _OutlineModeEnabledForUnit(unit, key, legacyKey)
+    local db = _GetUnitBorderScopeDB(unit)
+    local base = _RefreshBorderSettingsCache()
+    if db then
+        return _ReadOutlineMode(db, key, legacyKey, base[key]) == 1
+    end
+    return base and base[key] == 1
 end
 
 local _borderIterState = {}
@@ -161,16 +353,6 @@ local function MSUF_IsAggroOutlineUnit(unit)
     end
     return false
 end
--- Helper: read an RGB triplet from DB general table with fallback defaults.
--- Eliminates the 3x repeated pattern of g.prefixR / g.prefixG / g.prefixB extraction.
-local function _ReadRGB(g, rKey, gKey, bKey, dr, dg, db)
-    if not g then return dr, dg, db end
-    local r, gg, b = g[rKey], g[gKey], g[bKey]
-    if type(r) == "number" and type(gg) == "number" and type(b) == "number" then
-        return r, gg, b
-    end
-    return dr, dg, db
-end
 local _UF_DISPEL_INDEX_BY_NAME = { Magic = 1, Curse = 2, Disease = 3, Poison = 4, Bleed = 5, None = 0 }
 
 -- UF dispel color resolve.
@@ -187,14 +369,16 @@ local _UF_DISPEL_INDEX_BY_NAME = { Magic = 1, Curse = 2, Disease = 3, Poison = 4
 -- always nil and colour resolution silently fell through to the single-
 -- color default. Only TYPE colours in SINGLE mode worked — exactly the
 -- "multi-color dispel broken" symptom users reported.
-local function _GetUFDispelColor(dispelName, unit, auraID)
+local function _GetUFDispelColor(dispelName, unit, auraID, cfg)
     local g = MSUF_DB and MSUF_DB.general
-    local mode = g and g.hlDispelColorMode or "SINGLE"
+    local mode = (cfg and cfg.dispelColorMode) or (g and g.hlDispelColorMode) or "SINGLE"
     if mode ~= "TYPE" then
-        local r = (g and (g.hlDispelColorR or g.dispelBorderColorR)) or 0.25
-        local gg = (g and (g.hlDispelColorG or g.dispelBorderColorG)) or 0.75
-        local b = (g and (g.hlDispelColorB or g.dispelBorderColorB)) or 1.00
-        return r, gg, b
+        if cfg then
+            return cfg.dispelR or 0.25, cfg.dispelG or 0.75, cfg.dispelB or 1.00
+        end
+        return _ReadColorValue(g, "hlDispelColorR", "dispelBorderColorR", 0.25),
+               _ReadColorValue(g, "hlDispelColorG", "dispelBorderColorG", 0.75),
+               _ReadColorValue(g, "hlDispelColorB", "dispelBorderColorB", 1.00)
     end
 
     local CUA = _G.C_UnitAuras
@@ -250,7 +434,12 @@ local function _GetUFDispelColor(dispelName, unit, auraID)
         end
     end
 
-    return (g and g.dispelBorderColorR) or 0.25, (g and g.dispelBorderColorG) or 0.75, (g and g.dispelBorderColorB) or 1.00
+    if cfg then
+        return cfg.dispelR or 0.25, cfg.dispelG or 0.75, cfg.dispelB or 1.00
+    end
+    return _ReadColorValue(g, "hlDispelColorR", "dispelBorderColorR", 0.25),
+           _ReadColorValue(g, "hlDispelColorG", "dispelBorderColorG", 0.75),
+           _ReadColorValue(g, "hlDispelColorB", "dispelBorderColorB", 1.00)
 end
 
 local function _ApplyUFBarBorderTint(self, showTint, r, g, b)
@@ -264,6 +453,84 @@ local function _ApplyUFBarBorderTint(self, showTint, r, g, b)
     end
 end
 
+local function MSUF_ReadDetachedPowerBarBorder(self)
+    local unitKey = self and (self.msufConfigKey or self.unit)
+    local readEnabled = _G.MSUF_ReadUnitPowerBarBorderEnabled
+    local readSize = _G.MSUF_ReadUnitPowerBarBorderThickness
+    local barsDB = MSUF_DB and MSUF_DB.bars
+
+    local enabled
+    if type(readEnabled) == "function" then
+        enabled = readEnabled(unitKey)
+    else
+        enabled = barsDB and (barsDB.powerBarBorderEnabled == true) or false
+    end
+
+    local thickness
+    if type(readSize) == "function" then
+        thickness = readSize(unitKey)
+    else
+        thickness = barsDB and tonumber(barsDB.powerBarBorderThickness or barsDB.powerBarBorderSize) or 1
+    end
+    local detachedOverride = barsDB and barsDB.detachedPowerBarOutline
+    if detachedOverride ~= nil then
+        local override = tonumber(detachedOverride)
+        if override ~= nil then thickness = override end
+    end
+    thickness = tonumber(thickness) or 1
+    if thickness < 0 then thickness = 0 elseif thickness > 6 then thickness = 6 end
+    return enabled == true, thickness
+end
+
+local function MSUF_ApplyDetachedPowerBarOutline(self)
+    local pb = self and self.targetPowerBar
+    local outline = self and self._msufDetachedPBOutline
+    if not (self and pb and self._msufPowerBarDetached and pb.IsShown and pb:IsShown()) then
+        if outline then outline:Hide() end
+        return
+    end
+
+    local enabled, thickness = MSUF_ReadDetachedPowerBarBorder(self)
+    if not enabled or thickness <= 0 then
+        if outline then outline:Hide() end
+        return
+    end
+
+    if not outline then
+        local template = (BackdropTemplateMixin and "BackdropTemplate") or nil
+        outline = F.CreateFrame("Frame", nil, pb, template)
+        outline:EnableMouse(false)
+        self._msufDetachedPBOutline = outline
+        outline._msufLastEdgeSize = -1
+        outline._msufLastFrameLevel = -1
+    end
+
+    local frameLevel = (pb.GetFrameLevel and pb:GetFrameLevel() or 0) + 2
+    if outline._msufLastFrameLevel ~= frameLevel and outline.SetFrameLevel then
+        outline:SetFrameLevel(frameLevel)
+        outline._msufLastFrameLevel = frameLevel
+    end
+
+    local snap = _G.MSUF_Snap
+    local edge = (type(snap) == "function") and snap(outline, thickness) or thickness
+    if outline._msufLastEdgeSize ~= edge then
+        outline:SetBackdrop({ edgeFile = MSUF_TEX_WHITE8, edgeSize = edge })
+        outline:SetBackdropBorderColor(0, 0, 0, 1)
+        outline._msufLastEdgeSize = edge
+        outline._msufDetachedPBStamp = nil
+    end
+
+    local stamp = tostring(edge) .. ":" .. tostring(frameLevel)
+    if outline._msufDetachedPBStamp ~= stamp then
+        outline:ClearAllPoints()
+        outline:SetPoint("TOPLEFT", pb, "TOPLEFT", -edge, edge)
+        outline:SetPoint("BOTTOMRIGHT", pb, "BOTTOMRIGHT", edge, -edge)
+        outline._msufDetachedPBStamp = stamp
+    end
+    outline:Show()
+end
+_G.MSUF_ApplyDetachedPowerBarOutline = MSUF_ApplyDetachedPowerBarOutline
+
 
 -- Sub-function: apply the normal black bar outline.
 local function MSUF_ApplyBarOutline(self, thickness, o)
@@ -274,6 +541,7 @@ local function MSUF_ApplyBarOutline(self, thickness, o)
         self._msufBarOutlineThickness = 0
         self._msufBarOutlineEdgeSize = 0
         self._msufBarOutlineBottomIsPower = false
+        MSUF_ApplyDetachedPowerBarOutline(self)
         return
     end
     if not o then
@@ -330,39 +598,7 @@ local function MSUF_ApplyBarOutline(self, thickness, o)
         f:SetBackdropBorderColor(0, 0, 0, 1)
     end
 
-    -- Detached power bar: apply its own outline frame.
-    -- Uses its own thickness setting (detachedPowerBarOutline) so the user
-    -- can match class power outline independently from the main frame outline.
-    if pb and pbDetached and pb.IsShown and pb:IsShown() then
-        local dpbO = self._msufDetachedPBOutline
-        if not dpbO then
-            local template = (BackdropTemplateMixin and "BackdropTemplate") or nil
-            dpbO = F.CreateFrame("Frame", nil, pb, template)
-            dpbO:EnableMouse(false)
-            dpbO:SetFrameLevel((pb.GetFrameLevel and pb:GetFrameLevel() or 0) + 2)
-            self._msufDetachedPBOutline = dpbO
-            dpbO._msufLastEdgeSize = -1
-        end
-        local barsDB = MSUF_DB and MSUF_DB.bars
-        local dpbThick = (barsDB and tonumber(barsDB.detachedPowerBarOutline)) or thickness
-        if dpbThick < 0 then dpbThick = 0 elseif dpbThick > 6 then dpbThick = 6 end
-        if dpbThick <= 0 then
-            dpbO:Hide()
-        else
-            local dpbEdge = (type(snap) == "function") and snap(dpbO, dpbThick) or dpbThick
-            if dpbO._msufLastEdgeSize ~= dpbEdge then
-                dpbO:SetBackdrop({ edgeFile = MSUF_TEX_WHITE8, edgeSize = dpbEdge })
-                dpbO:SetBackdropBorderColor(0, 0, 0, 1)
-                dpbO._msufLastEdgeSize = dpbEdge
-            end
-            dpbO:ClearAllPoints()
-            dpbO:SetPoint("TOPLEFT", pb, "TOPLEFT", -dpbEdge, dpbEdge)
-            dpbO:SetPoint("BOTTOMRIGHT", pb, "BOTTOMRIGHT", dpbEdge, -dpbEdge)
-            dpbO:Show()
-        end
-    elseif self._msufDetachedPBOutline then
-        self._msufDetachedPBOutline:Hide()
-    end
+    MSUF_ApplyDetachedPowerBarOutline(self)
 end
 
 -- Sub-function: create/update highlight overlay frame for aggro/dispel/purge.
@@ -447,13 +683,23 @@ MSUF_ApplyRareVisuals = function(self)
     end
     baseThickness = tonumber(baseThickness) or 0
 
-    local cfg = _RefreshBorderSettingsCache()
+    local cfg = _RefreshBorderSettingsForFrame(self)
 
     -- Aggro state detection (target/focus/boss only).
-    local wantAggro = MSUF_IsAggroOutlineUnit(self.unit) and ((cfg.aggroOutlineMode == 1) or (_G.MSUF_AggroBorderTestMode))
+    local aggroTest = _G.MSUF_AggroBorderTestMode and true or false
+    if aggroTest then
+        local testScope = _G.MSUF_AggroBorderTestScope or "shared"
+        local u = self.unit
+        if testScope == "party" or testScope == "raid" or testScope == "mythicraid" or testScope == "gf_party" or testScope == "gf_raid" or testScope == "gf_mythicraid" then
+            aggroTest = false
+        elseif testScope ~= "shared" and not (testScope == "boss" and type(u) == "string" and u:sub(1, 4) == "boss") and u ~= testScope then
+            aggroTest = false
+        end
+    end
+    local wantAggro = MSUF_IsAggroOutlineUnit(self.unit) and ((cfg.aggroOutlineMode == 1) or aggroTest)
     local threat = false
     if wantAggro then
-        if _G.MSUF_AggroBorderTestMode then
+        if aggroTest then
             threat = true
         elseif UnitThreatSituation then
             local raw = UnitThreatSituation("player", self.unit)
@@ -469,7 +715,7 @@ MSUF_ApplyRareVisuals = function(self)
     end
 
     local aggroR, aggroG, aggroB = cfg.aggroR, cfg.aggroG, cfg.aggroB
-    local dispelR, dispelG, dispelB = _GetUFDispelColor(self._msufDispelType, self.unit, self._msufDispelAuraID)
+    local dispelR, dispelG, dispelB = _GetUFDispelColor(self._msufDispelType, self.unit, self._msufDispelAuraID, cfg)
     local purgeR, purgeG, purgeB = cfg.purgeR, cfg.purgeG, cfg.purgeB
     local bossTargetR, bossTargetG, bossTargetB = cfg.bossTargetR, cfg.bossTargetG, cfg.bossTargetB
 
@@ -502,6 +748,15 @@ MSUF_ApplyRareVisuals = function(self)
     local purge = false
     do
         local test = (_G.MSUF_PurgeBorderTestMode) and true or false
+        if test then
+            local testScope = _G.MSUF_PurgeBorderTestScope or "shared"
+            local u = self.unit
+            if testScope == "party" or testScope == "raid" or testScope == "mythicraid" or testScope == "gf_party" or testScope == "gf_raid" or testScope == "gf_mythicraid" then
+                test = false
+            elseif testScope ~= "shared" and u ~= testScope then
+                test = false
+            end
+        end
         local wantPurge = (cfg.purgeOutlineMode == 1) or test
         if wantPurge then
             local u = self.unit
@@ -601,6 +856,8 @@ _G.MSUF_SetAggroBorderTestMode = _G.MSUF_SetAggroBorderTestMode or function(acti
             local t = frames.target; if t and t.unit == "target" then fn(t) end
             local f = frames.focus; if f and f.unit == "focus" then fn(f) end
             for i = 1, 5 do local b = frames["boss" .. i]; if b and b.unit == ("boss" .. i) then fn(b) end end
+        elseif testScope == "boss" then
+            for i = 1, 5 do local b = frames["boss" .. i]; if b and b.unit == ("boss" .. i) then fn(b) end end
         elseif not isGF then
             local uf = frames[testScope]; if uf and uf.unit == testScope then fn(uf) end
         end
@@ -685,8 +942,12 @@ _G.MSUF_SetDispelBorderTestMode = _G.MSUF_SetDispelBorderTestMode or function(ac
 end
 
 -- Options-only: Test mode to force the purge border on while the Settings panel is open.
-_G.MSUF_SetPurgeBorderTestMode = _G.MSUF_SetPurgeBorderTestMode or function(active)
+_G.MSUF_SetPurgeBorderTestMode = _G.MSUF_SetPurgeBorderTestMode or function(active, scope)
     _G.MSUF_PurgeBorderTestMode = active and true or false
+    _G.MSUF_PurgeBorderTestScope = scope or "shared"
+    local testScope = _G.MSUF_PurgeBorderTestScope
+    local isShared = (testScope == "shared")
+    local isGF = (testScope == "party" or testScope == "raid" or testScope == "mythicraid" or testScope == "gf_party" or testScope == "gf_raid" or testScope == "gf_mythicraid")
     local frames = _G.MSUF_UnitFrames
     if not frames then return end
 
@@ -694,7 +955,8 @@ _G.MSUF_SetPurgeBorderTestMode = _G.MSUF_SetPurgeBorderTestMode or function(acti
     local units = { "target", "focus", "targettarget" }
     for _, u in ipairs(units) do
         local uf = frames[u]
-        if uf and uf.unit == u then
+        local scopeMatch = isShared or (not isGF and testScope == u)
+        if uf and uf.unit == u and scopeMatch then
             if active then
                 -- Show one sentinel at full alpha for test preview
                 local pool = uf._msufPurgeSentinels
@@ -716,14 +978,13 @@ _G.MSUF_SetPurgeBorderTestMode = _G.MSUF_SetPurgeBorderTestMode or function(acti
                     pool[1] = s
                 end
                 local s = pool[1]
-                local g = MSUF_DB and MSUF_DB.general
-                local hlThickness = (g and g.highlightBorderThickness) or 2
-                hlThickness = tonumber(hlThickness) or 2
+                local cfg = _RefreshBorderSettingsForFrame(uf)
+                local hlThickness = tonumber(cfg and cfg.highlightBorderThickness) or 2
                 if hlThickness < 1 then hlThickness = 1 end
                 local snap = _G.MSUF_Snap
                 local edge = (type(snap) == "function") and snap(s, hlThickness) or hlThickness
                 s:SetBackdrop({ edgeFile = MSUF_TEX_WHITE8, edgeSize = edge })
-                local pr, pg, pb = _ReadRGB(g, "purgeBorderColorR", "purgeBorderColorG", "purgeBorderColorB", 1.00, 0.85, 0.00)
+                local pr, pg, pb = (cfg and cfg.purgeR) or 1.00, (cfg and cfg.purgeG) or 0.85, (cfg and cfg.purgeB) or 0.00
                 s:SetBackdropBorderColor(pr, pg, pb, 1)
                 s:ClearAllPoints()
                 local hb = uf.hpBar
@@ -745,6 +1006,12 @@ _G.MSUF_SetPurgeBorderTestMode = _G.MSUF_SetPurgeBorderTestMode or function(acti
                 end
             end
             -- Refresh overlay so highlight priority system picks up the change.
+            if type(fn) == "function" then fn(uf) end
+        elseif uf and uf.unit == u then
+            local pool = uf._msufPurgeSentinels
+            if pool then
+                for i = 1, #pool do pool[i]:SetAlpha(0) end
+            end
             if type(fn) == "function" then fn(uf) end
         end
     end
@@ -771,13 +1038,29 @@ end
 
 -- Aggro outline event driver (event-only, no OnUpdate)
 do
+    local function AnyAggroOutlineEnabled()
+        if _OutlineModeEnabledForUnit("target", "aggroOutlineMode", "hlAggroEnabled") then return true end
+        if _OutlineModeEnabledForUnit("focus", "aggroOutlineMode", "hlAggroEnabled") then return true end
+        for i = 1, 5 do
+            if _OutlineModeEnabledForUnit("boss" .. i, "aggroOutlineMode", "hlAggroEnabled") then return true end
+        end
+        return false
+    end
+
     local function RefreshAggroForUnit(u)
-        local g = MSUF_DB and MSUF_DB.general
-        if not (g and g.aggroOutlineMode == 1) then return end
         if not u or not MSUF_IsAggroOutlineUnit(u) then return end
         local frames = _G.MSUF_UnitFrames
         local uf = frames and frames[u]
         if not uf or uf.unit ~= u then return end
+        local cfg = _RefreshBorderSettingsForFrame(uf)
+        if not (_G.MSUF_AggroBorderTestMode or (cfg and cfg.aggroOutlineMode == 1)) then
+            if uf._msufAggroOutlineOn then
+                uf._msufAggroOutlineOn = nil
+                local fn = _G.MSUF_RefreshRareBarVisuals
+                if type(fn) == "function" then fn(uf) end
+            end
+            return
+        end
 
         if not _G.MSUF_AggroBorderTestMode then
             local on = false
@@ -802,8 +1085,7 @@ do
         RefreshAggroForUnit(unit)
     end)
     local function ApplyAggroOutlineEventRegistration()
-        local g = MSUF_DB and MSUF_DB.general
-        local want = (g and g.aggroOutlineMode == 1) and true or false
+        local want = AnyAggroOutlineEnabled()
 
         if want then
             if not ef:IsEventRegistered("UNIT_THREAT_SITUATION_UPDATE") then
@@ -944,7 +1226,7 @@ do
     local function UpdatePurgeSentinels(uf, unit, cfg)
         if type(_getSlots) ~= "function" or type(_getBySlot) ~= "function" then return false end
 
-        cfg = cfg or _RefreshBorderSettingsCache()
+        cfg = cfg or _RefreshBorderSettingsForFrame(uf)
         _RefreshPurgeColor(cfg)
 
         local hlThickness = cfg.highlightBorderThickness or 2
@@ -1005,7 +1287,7 @@ do
         local uf = _G.MSUF_UnitFrames and _G.MSUF_UnitFrames[unit]
         if not uf or uf.unit ~= unit then return end
 
-        local cfg = _RefreshBorderSettingsCache()
+        local cfg = _RefreshBorderSettingsForFrame(uf)
         local dispelEnabled = (cfg.dispelOutlineMode == 1)
         local purgeEnabled  = (cfg.purgeOutlineMode  == 1)
 
@@ -1016,14 +1298,14 @@ do
         local canAssist = UnitCanAssist and UnitCanAssist("player", unit)
         local canAttack = UnitCanAttack and UnitCanAttack("player", unit)
         local dispelAid, dispelType
-        if dispelEnabled and canAssist then
+        if dispelEnabled and canAssist and PlayerMayFriendlyDispel() then
             dispelOn, dispelAid, dispelType = HasDispellableDebuff(unit)
         end
 
         -- Purge: sentinel frames handle rendering via SetAlpha with secret values.
         -- Secret constraints prevent boolean tracking ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â sentinels ARE the border.
         -- Purge participates in highlight priority only via test mode.
-        if purgeEnabled and canAttack and unit ~= "player" then
+        if purgeEnabled and canAttack and unit ~= "player" and PlayerMayPurge() then
             UpdatePurgeSentinels(uf, unit, cfg)
         else
             HideAllPurgeSentinels(uf)
@@ -1056,6 +1338,27 @@ do
     local _dispelAuraUnitsN = 0
     local _dispelAuraFlushQueued = false
     local _dispelAuraWant = false
+    local _friendlyDispelAuraWant = false
+    local _purgeAuraWant = false
+    local function ResolveDispelAuraEventWants()
+        local friendlyDispel = false
+        if PlayerMayFriendlyDispel() then
+            friendlyDispel = _OutlineModeEnabledForUnit("player", "dispelOutlineMode", "hlDispelEnabled")
+                or _OutlineModeEnabledForUnit("target", "dispelOutlineMode", "hlDispelEnabled")
+                or _OutlineModeEnabledForUnit("focus", "dispelOutlineMode", "hlDispelEnabled")
+                or _OutlineModeEnabledForUnit("targettarget", "dispelOutlineMode", "hlDispelEnabled")
+        end
+        local purge = false
+        if PlayerMayPurge() then
+            purge = _OutlineModeEnabledForUnit("target", "purgeOutlineMode")
+                or _OutlineModeEnabledForUnit("focus", "purgeOutlineMode")
+                or _OutlineModeEnabledForUnit("targettarget", "purgeOutlineMode")
+        end
+        return (purge or friendlyDispel), friendlyDispel, purge
+    end
+
+    local ApplyDispelOutlineEventRegistration
+
     local function FlushDispelAuraUnits()
         _dispelAuraFlushQueued = false
         for i = 1, _dispelAuraUnitsN do
@@ -1083,30 +1386,108 @@ do
         end
     end
 
+    local function AuraDataMayAffectFriendlyDispel(aura)
+        if type(aura) ~= "table" then return true end
+
+        local dn = aura.dispelName
+        if issecretvalue and issecretvalue(dn) then return true end
+        if type(dn) == "string" then
+            return dn ~= "" and dn ~= "None"
+        end
+
+        local harmful = aura.isHarmful
+        if issecretvalue and issecretvalue(harmful) then return true end
+        if harmful == true then return true end
+        if harmful == false then return false end
+
+        return true
+    end
+
+    local function UpdateInfoMayAffectFriendlyDispel(unit, updateInfo)
+        if type(updateInfo) ~= "table" or updateInfo.isFullUpdate then return true end
+
+        local added = updateInfo.addedAuras
+        if added then
+            for i = 1, #added do
+                if AuraDataMayAffectFriendlyDispel(added[i]) then return true end
+            end
+        end
+
+        local updated = updateInfo.updatedAuraInstanceIDs
+        if updated and #updated > 0 then return true end
+
+        local removed = updateInfo.removedAuraInstanceIDs
+        if removed and #removed > 0 then
+            local uf = _G.MSUF_UnitFrames and _G.MSUF_UnitFrames[unit]
+            return uf and (uf._msufDispelOutlineOn or uf._msufDispelAuraID ~= nil) or false
+        end
+
+        return false
+    end
+
+    local function AuraDataMayAffectPurge(aura)
+        if type(aura) ~= "table" then return true end
+
+        local helpful = aura.isHelpful
+        if issecretvalue and issecretvalue(helpful) then return true end
+        if helpful == true then return true end
+        if helpful == false then return false end
+
+        local harmful = aura.isHarmful
+        if issecretvalue and issecretvalue(harmful) then return true end
+        if harmful == true then return false end
+
+        return true
+    end
+
+    local function UpdateInfoMayAffectPurge(updateInfo)
+        if type(updateInfo) ~= "table" or updateInfo.isFullUpdate then return true end
+
+        local added = updateInfo.addedAuras
+        if added then
+            for i = 1, #added do
+                if AuraDataMayAffectPurge(added[i]) then return true end
+            end
+        end
+
+        local removed = updateInfo.removedAuraInstanceIDs
+        if removed and #removed > 0 then return true end
+
+        local updated = updateInfo.updatedAuraInstanceIDs
+        if updated and #updated > 0 then return true end
+
+        return false
+    end
+
     f:SetScript("OnEvent", function(_, event, unit, updateInfo)
         if event == "UNIT_AURA" then
             if unit ~= "player" and unit ~= "target" and unit ~= "focus" and unit ~= "targettarget" then return end
             if not _dispelAuraWant or _dispelAuraQueued[unit] then return end
-            if type(updateInfo) == "table" and not updateInfo.isFullUpdate then
-                local a = updateInfo.addedAuras
-                local r = updateInfo.removedAuraInstanceIDs
-                local u = updateInfo.updatedAuraInstanceIDs
-                if (not a or #a == 0) and (not r or #r == 0) and (not u or #u == 0) then return end
+            local shouldQueue = false
+            if _friendlyDispelAuraWant and UnitCanAssist and UnitCanAssist("player", unit) then
+                shouldQueue = UpdateInfoMayAffectFriendlyDispel(unit, updateInfo)
             end
+            if not shouldQueue and _purgeAuraWant and unit ~= "player" and UnitCanAttack and UnitCanAttack("player", unit) then
+                shouldQueue = UpdateInfoMayAffectPurge(updateInfo)
+            end
+            if not shouldQueue then return end
             QueueDispelAuraUnit(unit)
             return
         end
 
         -- Init / safety clear so state is correct without requiring Edit Mode / manual refresh.
         if event == "PLAYER_ENTERING_WORLD" then
+            ClearFriendlyDispelCapabilityCache()
+            ApplyDispelOutlineEventRegistration()
             _G.MSUF_RefreshDispelOutlineStates(true)
             return
         end
     end)
-    local function ApplyDispelOutlineEventRegistration()
-        local g = MSUF_DB and MSUF_DB.general
-        local want = (g and (g.dispelOutlineMode == 1 or g.purgeOutlineMode == 1)) and true or false
+    ApplyDispelOutlineEventRegistration = function()
+        local want, friendlyDispelWant, purgeWant = ResolveDispelAuraEventWants()
         _dispelAuraWant = want
+        _friendlyDispelAuraWant = friendlyDispelWant
+        _purgeAuraWant = purgeWant
 
         if want then
             if not f:IsEventRegistered("PLAYER_ENTERING_WORLD") then

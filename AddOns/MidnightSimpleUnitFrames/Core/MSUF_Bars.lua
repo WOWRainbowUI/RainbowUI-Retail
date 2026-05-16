@@ -1,4 +1,4 @@
--- Core/MSUF_Bars.lua — Bar subsystems: self-heal prediction, gradients, absorb bars, reverse fill
+-- Core/MSUF_Bars.lua - Bar subsystems: incoming heal prediction, gradients, absorb bars, reverse fill
 -- Merged from MSUF_SelfHealPred.lua + MSUF_Gradients.lua (Phase 2 file split)
 -- Loads AFTER MidnightSimpleUnitFrames.lua in the TOC.
 local addonName, ns = ...
@@ -175,7 +175,7 @@ ns.Bars._ResolveAbsorbOpacity     = _MSUF_ResolveAbsorbOpacity
 ns.Bars._ResolveHealAbsorbOpacity = _MSUF_ResolveHealAbsorbOpacity
 
 -- ══════════════════════════════════════════════════════════════
--- Self-heal prediction overlay
+-- Incoming heal prediction overlay
 -- ══════════════════════════════════════════════════════════════
 
 -- ═══════════════════════════════════════════════════════════════════════
@@ -194,6 +194,34 @@ end
 
 -- Forward declaration (defined after _MSUF_HealthCalcUpdate)
 local _MSUF_UpdateSelfHealPrediction
+
+local function _MSUF_GetIncomingHealPredictionBar(frame)
+    return frame and (frame.incomingHealBar or frame.selfHealPredBar) or nil
+end
+
+local function _MSUF_IsHealPredictionEnabled()
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    if gen then
+        if gen.showSelfHealPrediction ~= nil then return gen.showSelfHealPrediction == true end
+        if gen.enableHealPrediction ~= nil then return gen.enableHealPrediction ~= false end
+    end
+    return false
+end
+
+local function _MSUF_ApplyHealPredictionColor(bar)
+    if not (bar and bar.SetStatusBarColor) then return end
+    local serial = _G.MSUF_UFCORE_SETTINGS_SERIAL or 0
+    if bar._msufHealPredColorSerial == serial then return end
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    local r, g, b = 0.0, 1.0, 0.4
+    if gen then
+        if type(gen.healPredColorR) == "number" then r = gen.healPredColorR end
+        if type(gen.healPredColorG) == "number" then g = gen.healPredColorG end
+        if type(gen.healPredColorB) == "number" then b = gen.healPredColorB end
+    end
+    bar:SetStatusBarColor(r, g, b, 0.45)
+    bar._msufHealPredColorSerial = serial
+end
 
 local function _MSUF_GetDamageAbsorbs(calc, unit)
     if calc then
@@ -312,8 +340,8 @@ local function _MSUF_HealthCalcUpdate(frame, unit)
             end
         end
 
-        -- Self-heal prediction bar
-        if frame.selfHealPredBar then
+        -- Incoming heal prediction bar
+        if _MSUF_GetIncomingHealPredictionBar(frame) then
             _MSUF_UpdateSelfHealPrediction(frame, unit, maxHP, hp, calc)
         end
 
@@ -332,7 +360,7 @@ local function _MSUF_HealthCalcUpdate(frame, unit)
     if frame.healAbsorbBar then
         MSUF_UpdateHealAbsorbBar(frame, unit, maxHP)
     end
-    if frame.selfHealPredBar then
+    if _MSUF_GetIncomingHealPredictionBar(frame) then
         _MSUF_UpdateSelfHealPrediction(frame, unit, maxHP, hp, nil)
     end
     return hp, maxHP
@@ -340,8 +368,8 @@ end
 ns.Bars.HealthCalcUpdate = _MSUF_HealthCalcUpdate
 
 local function _MSUF_HideSelfHealPredBar(frame)
-    if not frame or not frame.selfHealPredBar then return end
-    local bar = frame.selfHealPredBar
+    local bar = _MSUF_GetIncomingHealPredictionBar(frame)
+    if not bar then return end
     bar:Hide()
     bar._msufSelfHealPredLastW = nil
     bar._msufSelfHealPredAnchorTex = nil
@@ -349,14 +377,14 @@ local function _MSUF_HideSelfHealPredBar(frame)
 end
 
 _MSUF_UpdateSelfHealPrediction = function(frame, unit, maxHP, hp, calc)
-    local g = MSUF_DB and MSUF_DB.general
-    if not g or not g.showSelfHealPrediction then
+    if not _MSUF_IsHealPredictionEnabled() then
         _MSUF_HideSelfHealPredBar(frame)
         return
     end
 
-    if not frame or not frame.selfHealPredBar or not frame.hpBar then return end
-    local predBar = frame.selfHealPredBar
+    if not frame or not frame.hpBar then return end
+    local predBar = _MSUF_GetIncomingHealPredictionBar(frame)
+    if not predBar then return end
     local hpBar = frame.hpBar
 
     -- Early outs
@@ -401,16 +429,42 @@ _MSUF_UpdateSelfHealPrediction = function(frame, unit, maxHP, hp, calc)
     if predBar.SetReverseFill then
         predBar:SetReverseFill(rev and true or false)
     end
+    _MSUF_ApplyHealPredictionColor(predBar)
 
-    -- Incoming heals: use calculator if available, else fallback to legacy API.
-    -- Secret-safe: all values from calculator are C-side computed.
-    local inc = 0
+    -- Incoming heals: match group frames and show total incoming heals, not only
+    -- player-cast heals.
+    local inc
     if calc and calc.GetIncomingHeals then
-        local _, playerHeal = calc:GetIncomingHeals()
-        if playerHeal ~= nil then inc = playerHeal end
+        inc = calc:GetIncomingHeals()
     elseif UnitGetIncomingHeals then
-        local v = UnitGetIncomingHeals(unit, "player")
-        if v ~= nil then inc = v end
+        inc = UnitGetIncomingHeals(unit)
+    end
+    if inc == nil then
+        _MSUF_HideSelfHealPredBar(frame)
+        return
+    end
+
+    local isSecret = _G.issecretvalue
+    if not (isSecret and isSecret(inc)) then
+        local n = tonumber(inc) or 0
+        if n <= 0 then
+            _MSUF_HideSelfHealPredBar(frame)
+            return
+        end
+        if maxHP ~= nil and not (isSecret and isSecret(maxHP)) then
+            if hp == nil then
+                hp = (calc and calc.GetCurrentHealth) and calc:GetCurrentHealth() or (F.UnitHealth and F.UnitHealth(unit)) or nil
+            end
+            if not (isSecret and isSecret(hp)) then
+                local missing = (tonumber(maxHP) or 0) - (tonumber(hp) or 0)
+                if missing < 0 then missing = 0 end
+                if missing <= 0 then
+                    _MSUF_HideSelfHealPredBar(frame)
+                    return
+                end
+                if n > missing then inc = missing end
+            end
+        end
     end
 
     if maxHP ~= nil then
@@ -424,6 +478,8 @@ end
 
 -- Export for ns.Bars.ApplyHealthBars (remains in main file)
 ns.Bars._UpdateSelfHealPrediction = _MSUF_UpdateSelfHealPrediction
+_G.MSUF_UpdateSelfHealPrediction = _MSUF_UpdateSelfHealPrediction
+ns.Bars._IsHealPredictionEnabled = _MSUF_IsHealPredictionEnabled
 
 -- ══════════════════════════════════════════════════════════════
 -- Gradient system + Absorb bars + Reverse fill (was MSUF_Gradients.lua)
@@ -518,7 +574,7 @@ local function MSUF_ApplyBarGradient(frameOrTex, isPower)
     if isPower then
         enabled = (_MSUF_ResolveGradientValue(frameOrTex, "enablePowerGradient", false) == true)
     else
-        enabled = (_MSUF_ResolveGradientValue(frameOrTex, "enableGradient", true) ~= false)
+        enabled = (_MSUF_ResolveGradientValue(frameOrTex, "enableGradient", false) == true)
     end
     if not enabled then strength = 0 end
     -- Allow applying to a standalone texture (used by some indicators).
@@ -626,9 +682,16 @@ function _G.MSUF_ApplyPowerBarBorder(bar)
     local size = (type(readSize) == "function") and readSize(unitKey) or (bdb and tonumber(bdb.powerBarBorderThickness or bdb.powerBarBorderSize) or 1)
     if type(size) ~= 'number' then size = 1 end
     if size < 0 then size = 0 elseif size > 10 then size = 10 end
-    -- Detached power bars use the outline system in MSUF_Borders so they can
-    -- share the detached bar outline controls.
     local detached = parentUF and parentUF._msufPowerBarDetached
+    if detached then
+        local border = bar._msufPowerBorder
+        if border and border.Hide then border:Hide() end
+        local applyDetached = _G.MSUF_ApplyDetachedPowerBarOutline
+        if type(applyDetached) == "function" then
+            applyDetached(parentUF)
+        end
+        return
+    end
     local border = bar._msufPowerBorder
     if not border then
         local template = (BackdropTemplateMixin and "BackdropTemplate") or nil
@@ -640,8 +703,8 @@ function _G.MSUF_ApplyPowerBarBorder(bar)
     local frameLevel = (bar.GetFrameLevel and bar:GetFrameLevel() or 0) + 2
     local snap = _G.MSUF_Snap
     local edge = (type(snap) == "function") and snap(border, size) or size
-    local stamp = (enabled and 1 or 0) .. ":" .. (detached and 1 or 0) .. ":" .. (barShown and 1 or 0) .. ":" .. edge .. ":" .. frameLevel
-    if not enabled or detached or not barShown or edge <= 0 then
+    local stamp = (enabled and 1 or 0) .. ":" .. (barShown and 1 or 0) .. ":" .. edge .. ":" .. frameLevel
+    if not enabled or not barShown or edge <= 0 then
         if border._msufPowerBorderStamp ~= stamp or (border.IsShown and border:IsShown()) then
             if border.Hide then border:Hide() end
             border._msufPowerBorderStamp = stamp
@@ -701,7 +764,10 @@ end
 local function MSUF_UpdateAbsorbBars(self, unit, maxHP, isHeal)
     local bar = isHeal and self and self.healAbsorbBar or self and self.absorbBar
     local api = isHeal and UnitGetTotalHealAbsorbs or UnitGetTotalAbsorbs
-    if not self or not bar or type(api) ~= 'function' then  return end
+    if not self or not bar then  return end
+    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
+    local absorbTestMode = type(testFn) == "function" and testFn(self) or _G.MSUF_AbsorbTextureTestMode
+    if not absorbTestMode and type(api) ~= 'function' then  return end
     -- P0: Cache anchor-mode applier (defined later in this file, resolves once on first call)
     if not _cachedApplyAbsorbAnchorMode then
         _cachedApplyAbsorbAnchorMode = _G.MSUF_ApplyAbsorbAnchorMode
@@ -714,13 +780,11 @@ local function MSUF_UpdateAbsorbBars(self, unit, maxHP, isHeal)
         if not MSUF_DB then EnsureDB() end
         MSUF_ApplyAbsorbOverlayColor(bar, unit)
         local enableBar = _MSUF_ResolveAbsorbDisplay(unit)
-        if not enableBar then
+        if not enableBar and not absorbTestMode then
             MSUF_ResetBarZero(bar, true)
              return
     end
     end
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
-    local absorbTestMode = type(testFn) == "function" and testFn(self) or _G.MSUF_AbsorbTextureTestMode
     if absorbTestMode then
         bar:SetMinMaxValues(0, 100)
         bar:SetValue(isHeal and 15 or 25)
@@ -741,6 +805,97 @@ local function MSUF_UpdateAbsorbBar(self, unit, maxHP)  return MSUF_UpdateAbsorb
 local function MSUF_UpdateHealAbsorbBar(self, unit, maxHP)  return MSUF_UpdateAbsorbBars(self, unit, maxHP, true) end
     _G.MSUF_UpdateAbsorbBar = _G.MSUF_UpdateAbsorbBar or MSUF_UpdateAbsorbBar
     _G.MSUF_UpdateHealAbsorbBar = _G.MSUF_UpdateHealAbsorbBar or MSUF_UpdateHealAbsorbBar
+
+local function _MSUF_NormalizeAbsorbTestScope(scope)
+    scope = tostring(scope or "shared"):lower()
+    if scope == "" then return "shared" end
+    if scope == "gf_party" or scope == "groupparty" or scope == "group_party" then return "party" end
+    if scope == "gf_raid" or scope == "gf_mythicraid" or scope == "mythicraid"
+        or scope == "groupraid" or scope == "group_raid" then
+        return "raid"
+    end
+    return scope
+end
+
+local function _MSUF_FrameMatchesAbsorbTestScope(frame, kind)
+    if not _G.MSUF_AbsorbTextureTestMode then return false end
+    local scope = _MSUF_NormalizeAbsorbTestScope(_G.MSUF_AbsorbTextureTestScope)
+    if scope == "shared" then return true end
+
+    kind = _MSUF_NormalizeAbsorbTestScope(kind or (frame and frame._msufGFKind))
+    local unit = frame and frame.unit
+    local configKey = frame and (frame.msufConfigKey or frame._msufConfigKey or frame.unitKey)
+
+    if scope == "party" then
+        return kind == "party" or (type(unit) == "string" and unit:sub(1, 5) == "party")
+    end
+    if scope == "raid" then
+        return kind == "raid" or kind == "mythicraid" or (type(unit) == "string" and unit:sub(1, 4) == "raid")
+    end
+    if scope == "boss" then
+        return configKey == "boss" or (type(unit) == "string" and unit:sub(1, 4) == "boss")
+    end
+    return unit == scope or configKey == scope
+end
+
+_G.MSUF_ShouldShowAbsorbTextureTest = _G.MSUF_ShouldShowAbsorbTextureTest or function(frame, kind)
+    return _MSUF_FrameMatchesAbsorbTestScope(frame, kind)
+end
+
+_G.MSUF_SetAbsorbTextureTestMode = _G.MSUF_SetAbsorbTextureTestMode or function(enabled, scope)
+    _G.MSUF_AbsorbTextureTestMode = enabled and true or false
+    _G.MSUF_AbsorbTextureTestScope = enabled and _MSUF_NormalizeAbsorbTestScope(scope) or nil
+end
+
+_G.MSUF_ClearAbsorbTextureTestMode = _G.MSUF_ClearAbsorbTextureTestMode or function()
+    _G.MSUF_AbsorbTextureTestMode = false
+    _G.MSUF_AbsorbTextureTestScope = nil
+end
+
+local function _MSUF_RefreshAbsorbTestUnitFrame(frame)
+    if not frame or frame._msufGFBuilt or frame._msufGFKind or not frame.hpBar then return end
+    local unit = frame.unit
+    if not unit then return end
+    if ns.Bars and ns.Bars.ApplyHealthBars then
+        ns.Bars.ApplyHealthBars(frame, unit)
+    elseif ns.UF and ns.UF.RequestUpdate then
+        ns.UF.RequestUpdate(frame, true, false, "AbsorbTextureTest")
+    end
+end
+
+_G.MSUF_Bars_RefreshAbsorbTextureTestPreview = function()
+    if type(_G.MSUF_UpdateAbsorbBarTextures) == "function" then
+        _G.MSUF_UpdateAbsorbBarTextures()
+    end
+
+    local seen = {}
+    local function refresh(frame)
+        if frame and not seen[frame] then
+            seen[frame] = true
+            _MSUF_RefreshAbsorbTestUnitFrame(frame)
+        end
+    end
+
+    local each = _G.MSUF_ForEachUnitFrame
+    if type(each) == "function" then
+        each(refresh)
+    else
+        local frames = _G.MSUF_UnitFrames
+        if type(frames) == "table" then
+            for _, frame in pairs(frames) do refresh(frame) end
+        end
+    end
+    refresh(_G.MSUF_player)
+    refresh(_G.MSUF_target)
+    refresh(_G.MSUF_focus)
+    refresh(_G.MSUF_targettarget or _G.MSUF_tot)
+    refresh(_G.MSUF_pet)
+    for i = 1, 8 do refresh(_G["MSUF_boss" .. i]) end
+
+    if type(_G.MSUF_GF_RefreshOverlays) == "function" then
+        _G.MSUF_GF_RefreshOverlays()
+    end
+end
 
     -- Absorb / Heal-Absorb anchoring modes
     -- 1/2: legacy (edge-anchored) with reverse-fill swap
@@ -951,8 +1106,9 @@ local function MSUF_ApplyReverseFillBars(self, conf)
     if self.hpBar and self.hpBar.SetReverseFill then
         self.hpBar:SetReverseFill(rf and true or false)
     end
-    if self.selfHealPredBar and self.selfHealPredBar.SetReverseFill then
-        self.selfHealPredBar:SetReverseFill(rf and true or false)
+    local healPredBar = self.incomingHealBar or self.selfHealPredBar
+    if healPredBar and healPredBar.SetReverseFill then
+        healPredBar:SetReverseFill(rf and true or false)
     end
     local p = self.targetPowerBar or self.powerBar
     if p and p.SetReverseFill then

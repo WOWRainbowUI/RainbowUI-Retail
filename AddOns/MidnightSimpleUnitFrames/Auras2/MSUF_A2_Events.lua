@@ -47,17 +47,6 @@ local function _ScheduleOnce(key, fn)
     end
 end
 
-local function _ScheduleDelayOnce(key, delay, fn)
-    local sched = _G.MSUF_ScheduleDelayOnce
-    if sched then
-        sched(key, delay, fn)
-    elseif C_Timer and C_Timer.After then
-        C_Timer.After(delay or 0, fn)
-    elseif type(fn) == "function" then
-        fn()
-    end
-end
-
 -- P3: Boss UNIT_AURA gate.
 -- UNIT_AURA for boss slots is only meaningful during an active encounter.
 -- Between encounters the engine still dispatches these events (boss units exist
@@ -193,8 +182,17 @@ local function _flushTargetRender()
 end
 
 Events._flushTargetSwap = function()
-    Events._targetRenderExpected = _targetRenderEpoch
-    _ScheduleDelayOnce("A2_TARGET_RENDER_FLUSH", 0.05, _flushTargetRender)
+    local expected = _targetRenderEpoch
+    Events._targetRenderExpected = expected
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0.05, function()
+            if _targetRenderEpoch ~= expected then return end
+            Events._targetRenderExpected = expected
+            _flushTargetRender()
+        end)
+    else
+        _flushTargetRender()
+    end
 end
 
 Events._ClearUnitAuraRescanQueued = function(unit)
@@ -965,28 +963,41 @@ end
                 if unit == "target" and Events._targetSwapQueued then return end
 
                 local now = GetTime()
-                local nextAt = _unitAuraPending[unit]
-                if nextAt and now < nextAt then
-                    if not _refsBound then BindCachedRefs() end
-                    local invalid = _cachedInvalidUnit
-                    if invalid and not _unitAuraRescanQueued[unit] then
-                        _unitAuraRescanQueued[unit] = true
-                        invalid(unit)
-                    end
-                    -- Correctness guard: refresh/removal deltas can arrive inside
-                    -- the coalesce window after the previous render already ran.
-                    -- Force one render so expired icons disappear and refreshed
-                    -- duration objects are reattached immediately.
-                    MarkDirty(unit, 0)
-                    return
-                end
-
                 local infoIsTable = (type(updateInfo) == "table")
                 if infoIsTable and not updateInfo.isFullUpdate then
                     local a = updateInfo.addedAuras
                     local r = updateInfo.removedAuraInstanceIDs
                     local u = updateInfo.updatedAuraInstanceIDs
                     if (not a or a[1] == nil) and (not r or r[1] == nil) and (not u or u[1] == nil) then return end
+                end
+
+                local nextAt = _unitAuraPending[unit]
+                if nextAt and now < nextAt then
+                    if not _refsBound then BindCachedRefs() end
+                    local forceRescan = true
+                    if not _unitAuraRescanQueued[unit] and infoIsTable and not updateInfo.isFullUpdate then
+                        -- Delta payloads are already handled incrementally by Cache.OnUnitAura.
+                        -- Do not collapse larger-but-valid deltas into render-time FullScan.
+                        forceRescan = false
+                    end
+                    if forceRescan then
+                        local invalid = _cachedInvalidUnit
+                        if invalid and not _unitAuraRescanQueued[unit] then
+                            _unitAuraRescanQueued[unit] = true
+                            invalid(unit)
+                        end
+                    else
+                        local onAura = _cachedOnUnitAura
+                        if onAura then
+                            onAura(unit, updateInfo)
+                        end
+                    end
+                    -- Correctness guard: refresh/removal deltas can arrive inside
+                    -- the coalesce window after the previous render already ran.
+                    -- MarkDirty dedupes by unit and only accelerates an existing
+                    -- delayed flush when delay == 0, so force the render forward.
+                    MarkDirty(unit, 0)
+                    return
                 end
 
                 if not ShouldScheduleLiveRenderFast(unit, self, now) then
@@ -1004,14 +1015,7 @@ end
                     if not _refsBound then BindCachedRefs() end
                     local forceRescan = (_unitAuraRescanQueued[unit] == true)
                     if (not forceRescan) and infoIsTable then
-                        if updateInfo.isFullUpdate then
-                            forceRescan = true
-                        else
-                            local a = updateInfo.addedAuras
-                            local r = updateInfo.removedAuraInstanceIDs
-                            local u = updateInfo.updatedAuraInstanceIDs
-                            forceRescan = (a and a[5] ~= nil) or (r and r[5] ~= nil) or (u and u[9] ~= nil)
-                        end
+                        forceRescan = (updateInfo.isFullUpdate == true)
                     end
 
                     if forceRescan then

@@ -260,41 +260,43 @@ local function _DecodeSpellId(data)
 end
 
 -- Build flat ignore hashtable from enabled category keys.
--- PERF: Caches result via generation counter. Only rebuilds when
--- Cache.InvalidateIgnoreHash() is called (Options toggle).
+-- PERF: Caches per category table. Shared + per-unit overrides can coexist
+-- without rebuilding on every frame or leaking one unit's hash into another.
 -- Zero allocation on steady-state (no string building, no table.concat).
-local _ignoreHashPool = {}  -- reusable table
-local _ignoreHashValid = false
-local _ignoreHashAny = false
+local _ignoreHashPools = setmetatable({}, { __mode = "k" })
+local _ignoreHashValid = setmetatable({}, { __mode = "k" })
 
 function Cache.BuildIgnoreHash(enabledCats)
     if not enabledCats then return nil end
     -- PERF: return cached result if still valid
-    if _ignoreHashValid then
-        return _ignoreHashAny and _ignoreHashPool or nil
+    local hash = _ignoreHashPools[enabledCats]
+    if hash and _ignoreHashValid[enabledCats] then
+        return hash._any and hash or nil
     end
-    _ignoreHashValid = true
-    local hash = _ignoreHashPool
+    if not hash then
+        hash = {}
+        _ignoreHashPools[enabledCats] = hash
+    end
     wipe(hash)
-    local any = false
+    hash._any = false
     for catKey, enabled in next, enabledCats do
         if enabled == true then
             local spells = _IGNORE_CAT_SPELLS[catKey]
             if spells then
                 for sid in next, spells do
                     hash[sid] = true
-                    any = true
+                    hash._any = true
                 end
             end
         end
     end
-    _ignoreHashAny = any
-    return any and hash or nil
+    _ignoreHashValid[enabledCats] = true
+    return hash._any and hash or nil
 end
 
 -- Invalidate ignore hash cache (called when user changes ignore settings)
 function Cache.InvalidateIgnoreHash()
-    _ignoreHashValid = false
+    wipe(_ignoreHashValid)
 end
 
 -- Per-unit state
@@ -758,6 +760,39 @@ end
 -- cfg.sortOrder:
 --   0 or nil: Pure cache iteration (ZERO C API calls) — fastest path
 --   1-6:      C++ sorted via GetAuraSlots, cache provides enrichment
+local function PrepareFilterConfig(cfg, cfgGen)
+    if cfg._msufA2FilterPrepGen == cfgGen and cfg._msufA2FilterPrepIgnoreCats == cfg.ignoreCats then
+        return
+    end
+    cfg._msufA2FilterPrepGen = cfgGen
+    cfg._msufA2FilterPrepIgnoreCats = cfg.ignoreCats
+
+    cfg._maxBuffs  = cfg.maxBuffs or 12
+    cfg._maxDebuffs = cfg.maxDebuffs or 12
+    cfg._buffsOnlyMine    = cfg.buffsOnlyMine
+    cfg._debuffsOnlyMine  = cfg.debuffsOnlyMine
+    cfg._hidePermanent    = cfg.hidePermanentBuffs
+    cfg._onlyBoss         = cfg.onlyBossAuras
+    cfg._onlyImpBuffs     = cfg.onlyImportantBuffs
+    cfg._onlyImpDebuffs   = cfg.onlyImportantDebuffs
+    cfg._useMergeBuffs    = cfg.buffsOnlyMine and cfg.buffsIncludeBoss
+    cfg._useMergeDebuffs  = cfg.debuffsOnlyMine and cfg.debuffsIncludeBoss
+    cfg._hideOtherBossHealAuras = (cfg.bossHealHideOthers == true)
+    cfg._showSated = (cfg.showSated ~= false)
+    local satedThr = cfg.satedShowAtSeconds
+    cfg._satedShowAt = (type(satedThr) == "number" and satedThr > 0) and satedThr or 0
+    cfg._checkSated = (cfg._showSated ~= true) or (cfg._satedShowAt > 0)
+
+    local ic = cfg.ignoreCats
+    cfg._ignoreHash = (type(ic) == "table" and next(ic) ~= nil) and Cache.BuildIgnoreHash(ic) or nil
+    cfg._noFilters = not cfg._ignoreHash and not cfg._checkSated and not cfg._onlyBoss
+        and not cfg._buffsOnlyMine and not cfg._debuffsOnlyMine
+        and not cfg._hidePermanent and not cfg._onlyImpBuffs and not cfg._onlyImpDebuffs
+        and not cfg._useMergeBuffs and not cfg._useMergeDebuffs
+        and not cfg._hideOtherBossHealAuras
+    cfg._sortOrder = cfg.sortOrder or cfg.capsSortOrder or 0
+end
+
 function Cache.FilterAndSort(unit, cfg, buffOut, debuffOut)
     if not _apisBound then BindAPIs() end
     BindDoesExpire()
@@ -781,40 +816,20 @@ function Cache.FilterAndSort(unit, cfg, buffOut, debuffOut)
     s.structureChanged = false
 
     -- Pre-compute config flags (avoid repeated table lookups in inner loop)
-    local maxBuffs  = cfg.maxBuffs or 12
-    local maxDebuffs = cfg.maxDebuffs or 12
-    cfg._buffsOnlyMine    = cfg.buffsOnlyMine
-    cfg._debuffsOnlyMine  = cfg.debuffsOnlyMine
-    cfg._hidePermanent    = cfg.hidePermanentBuffs
-    cfg._onlyBoss         = cfg.onlyBossAuras
-    cfg._onlyImpBuffs     = cfg.onlyImportantBuffs
-    cfg._onlyImpDebuffs   = cfg.onlyImportantDebuffs
-    cfg._useMergeBuffs    = cfg.buffsOnlyMine and cfg.buffsIncludeBoss
-    cfg._useMergeDebuffs  = cfg.debuffsOnlyMine and cfg.debuffsIncludeBoss
-    cfg._hideOtherBossHealAuras = (cfg.bossHealHideOthers == true)
+    PrepareFilterConfig(cfg, cfgGen)
+    local maxBuffs  = cfg._maxBuffs
+    local maxDebuffs = cfg._maxDebuffs
     -- Sated/Exhaustion runtime flags (from shared, not filters)
-    cfg._showSated = (cfg.showSated ~= false)
-    local _satedThr = cfg.satedShowAtSeconds
-    cfg._satedShowAt = (type(_satedThr) == "number" and _satedThr > 0) and _satedThr or 0
     -- PERF: _checkSated = false means sated code is COMPLETELY skipped in FilterAura.
     -- Only active when sated is hidden OR threshold is set (actual filtering work to do).
-    cfg._checkSated = (cfg._showSated ~= true) or (cfg._satedShowAt > 0)
     -- Global Ignore List: ZERO overhead when no categories enabled.
     -- Only call BuildIgnoreHash if ignoreCats table exists and is non-empty.
-    local ic = cfg.ignoreCats
-    cfg._ignoreHash = (type(ic) == "table" and next(ic) ~= nil) and Cache.BuildIgnoreHash(ic) or nil
 
     local secretsNow = cfg._hidePermanent and SecretsActive() or false
     local now = GetTime()  -- PERF: cache once, passed to FilterAura
 
     -- PERF: Pre-computed "no filters active" flag — single boolean check in FilterAura
     -- covers ~90% of default configurations where all filters are off.
-    cfg._noFilters = not cfg._ignoreHash and not cfg._checkSated and not cfg._onlyBoss
-        and not cfg._buffsOnlyMine and not cfg._debuffsOnlyMine
-        and not cfg._hidePermanent and not cfg._onlyImpBuffs and not cfg._onlyImpDebuffs
-        and not cfg._useMergeBuffs and not cfg._useMergeDebuffs
-        and not cfg._hideOtherBossHealAuras
-
     -- Localize for inner loop
     local lIsFiltered = _isFiltered
     local lDoesExpire = _doesExpire
@@ -827,7 +842,7 @@ function Cache.FilterAndSort(unit, cfg, buffOut, debuffOut)
     local bossBufScratch = cfg._useMergeBuffs and _mergedBossBuffScratch or nil
     local bossDebScratch = cfg._useMergeDebuffs and _mergedBossDebuffScratch or nil
 
-    local sortOrder = cfg.sortOrder or cfg.capsSortOrder or 0
+    local sortOrder = cfg._sortOrder
 
     -- PERF: Hoist _noFilters gate out of FilterAura.
     -- FilterAura() line 613: `if cfg._noFilters then return true end` — so when
@@ -1422,6 +1437,11 @@ local function ResolveGlobalFont()
     return _globalFontPath, _globalFontFlags
 end
 
+local function ResolveGlobalFontKey()
+    local g = _G.MSUF_DB and _G.MSUF_DB.general
+    return (g and g.fontKey) or "FRIZQT"
+end
+
 local function RefreshSharedFlags(shared, gen)
     if not shared then return end
     if _sharedFlagsGen == gen then return end
@@ -1660,7 +1680,11 @@ icon.countFrame = countFrame
         if type(p) == "string" then _initFont = p end
         if type(fl) == "string" then _initFlags = fl end
     end
-    count:SetFont(_initFont, 14, _initFlags)
+    if type(_G.MSUF_SetFontSafe) == "function" then
+        _G.MSUF_SetFontSafe(count, _initFont, 14, _initFlags, ResolveGlobalFontKey())
+    else
+        count:SetFont(_initFont, 14, _initFlags)
+    end
     count:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", -1, 1)
     count:SetJustifyH("RIGHT")
     count:SetTextColor(GetStackCountRGB())
@@ -2203,7 +2227,11 @@ local function ApplyCooldownTextStyle(icon, cd, now, force)
         local wantFlags = gFlags or curFlags or "OUTLINE"
         if cd._msufA2_cdTextSize ~= size or cd._msufA2_cdFontPath ~= wantFont then
             if wantFont then
-                fs:SetFont(wantFont, size, wantFlags)
+                if type(_G.MSUF_SetFontSafe) == "function" then
+                    _G.MSUF_SetFontSafe(fs, wantFont, size, wantFlags, ResolveGlobalFontKey())
+                else
+                    fs:SetFont(wantFont, size, wantFlags)
+                end
             end
             cd._msufA2_cdTextSize = size
             cd._msufA2_cdFontPath = wantFont
@@ -2529,7 +2557,11 @@ function Icons._ApplyStacks(icon, unit, aid, shared, stackCountAnchor, aura)
             local wantFlags = gFlags or curFlags or "OUTLINE"
             if icon._msufA2_lastStackFontSize ~= wantSize or icon._msufA2_lastStackFontPath ~= wantFont then
                 if wantFont then
-                    countFS:SetFont(wantFont, wantSize, wantFlags)
+                    if type(_G.MSUF_SetFontSafe) == "function" then
+                        _G.MSUF_SetFontSafe(countFS, wantFont, wantSize, wantFlags, ResolveGlobalFontKey())
+                    else
+                        countFS:SetFont(wantFont, wantSize, wantFlags)
+                    end
                 end
                 icon._msufA2_lastStackFontSize = wantSize
                 icon._msufA2_lastStackFontPath = wantFont
@@ -3095,7 +3127,11 @@ function Apply.ApplyFontsFromGlobal()
         local newFlags = fontFlags or curFlags or "OUTLINE"
         local newSize = wantSize or curSize or 14
         if newFont then
-            fs:SetFont(newFont, newSize, newFlags)
+            if type(_G.MSUF_SetFontSafe) == "function" then
+                _G.MSUF_SetFontSafe(fs, newFont, newSize, newFlags, ResolveGlobalFontKey())
+            else
+                fs:SetFont(newFont, newSize, newFlags)
+            end
         end
     end
 
@@ -3248,7 +3284,11 @@ function Apply.ApplyStackTextOffsets(icon, unit, shared, stackCountAnchor)
         local wantFont = gFont or curFont
         local wantFlags = gFlags or curFlags or "OUTLINE"
         if wantFont then
-            countFS:SetFont(wantFont, wantSize, wantFlags)
+            if type(_G.MSUF_SetFontSafe) == "function" then
+                _G.MSUF_SetFontSafe(countFS, wantFont, wantSize, wantFlags, ResolveGlobalFontKey())
+            else
+                countFS:SetFont(wantFont, wantSize, wantFlags)
+            end
         end
     end
     icon._msufA2_lastStackFontSize = wantSize
