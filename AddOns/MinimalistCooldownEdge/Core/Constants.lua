@@ -19,6 +19,7 @@ C.Addon = {
     TellMeWhenName = "TellMeWhen",
     ShinyAurasName = "ShinyAuras",
     MUIName = "mUI",
+    BetterBlizzFramesName = "BetterBlizzFrames",
     VersionFallback = "Dev",
     SlashCommands = { "mce", "minice", "minimalistcooldownedge" },
 }
@@ -44,6 +45,12 @@ C.CooldownManagerViewers = {
     Essential = "essential",
     Utility = "utility",
     BuffIcon = "bufficon",
+}
+
+C.PlayerAuraTypes = {
+    Buff = "buff",
+    Debuff = "debuff",
+    ExternalDefensiveBuffs = "externalDefensiveBuffs",
 }
 
 C.MiniCCFrameTypes = {
@@ -180,6 +187,7 @@ C.Defaults = {
         DisableFading = false,
         ReverseSwipe = true,
         SwipeAlpha = 80,
+        TimerInsideIcon = false,
     },
     CooldownManager = {
         EssentialFontSize = 18,

@@ -11,6 +11,7 @@ local Registry = MCE:NewModule("TargetRegistry")
 
 local setmetatable, wipe, pairs, next = setmetatable, wipe, pairs, next
 local weakMeta = addon.weakMeta
+local INTERNAL_VISUAL_COOLDOWN_KEY = "MCEPlayerAuraVisualOnly"
 
 -- cooldown -> { category, subtype }
 local entries = setmetatable({}, weakMeta)
@@ -43,8 +44,27 @@ local function EnsureCategorySet(category)
     return set
 end
 
+local function IsInternalVisualCooldown(cooldown)
+    return MCE:SafeTableGet(cooldown, INTERNAL_VISUAL_COOLDOWN_KEY) == true
+end
+
+local function RemoveEntry(cooldown)
+    if not MCE:CanUseFrameAsTableKey(cooldown) then return end
+
+    local entry = entries[cooldown]
+    if not entry then return end
+
+    local catSet = categoryIndex[entry.category]
+    if catSet then catSet[cooldown] = nil end
+    entries[cooldown] = nil
+end
+
 local function TryGetEntry(cooldown)
     if not cooldown then
+        return nil
+    end
+    if IsInternalVisualCooldown(cooldown) then
+        RemoveEntry(cooldown)
         return nil
     end
 
@@ -58,6 +78,10 @@ end
 
 function Registry:Register(cooldown, category, subtype)
     if not category or not MCE:CanUseFrameAsTableKey(cooldown) then return end
+    if IsInternalVisualCooldown(cooldown) then
+        RemoveEntry(cooldown)
+        return
+    end
 
     local existing = entries[cooldown]
     if existing then
@@ -76,14 +100,7 @@ function Registry:Register(cooldown, category, subtype)
 end
 
 function Registry:Unregister(cooldown)
-    if not MCE:CanUseFrameAsTableKey(cooldown) then return end
-
-    local entry = entries[cooldown]
-    if not entry then return end
-
-    local catSet = categoryIndex[entry.category]
-    if catSet then catSet[cooldown] = nil end
-    entries[cooldown] = nil
+    RemoveEntry(cooldown)
 end
 
 function Registry:IsRegistered(cooldown)
@@ -146,6 +163,10 @@ end
 --- Returns category, subtype if claimed; nil otherwise.
 function Registry:TryClaim(cooldown)
     if not MCE:CanUseFrameAsTableKey(cooldown) then return nil end
+    if IsInternalVisualCooldown(cooldown) then
+        RemoveEntry(cooldown)
+        return nil
+    end
 
     for i = 1, #adapterOrder do
         local adapter = adapterOrder[i]

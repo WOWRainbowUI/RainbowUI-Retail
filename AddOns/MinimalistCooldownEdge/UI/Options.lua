@@ -68,6 +68,8 @@ local ANCHOR_OPTIONS = {
     [C.Style.Anchors.BottomRight] = L["Bottom Right"],
 }
 
+local PLAYER_AURA_TYPE = C.PlayerAuraTypes
+
 -- =========================================================================
 -- HELPERS  – DRY accessor builders to eliminate repetitive get/set closures
 -- =========================================================================
@@ -161,6 +163,109 @@ end
 
 local function NotifyOptionsChanged()
     AceConfigRegistry:NotifyChange(addonName)
+end
+
+local function GetPlayerAuraConfig()
+    local profile = GetProfile()
+    local categories = profile and profile.categories
+    return categories and categories[C.Categories.PlayerAura] or nil
+end
+
+local function GetPlayerAuraTypeConfig(typeKey)
+    local config = GetPlayerAuraConfig()
+    if not config then
+        return nil, nil
+    end
+
+    if type(config[typeKey]) ~= "table" then
+        config[typeKey] = {}
+    end
+
+    return config, config[typeKey]
+end
+
+local function PlayerAuraTypeGet(typeKey, field, fallback)
+    return function()
+        local _, typeConfig = GetPlayerAuraTypeConfig(typeKey)
+        local value = typeConfig and typeConfig[field]
+        if value ~= nil then
+            return value
+        end
+
+        return fallback
+    end
+end
+
+local function PlayerAuraTypeSet(typeKey, field)
+    return function(_, value)
+        local _, typeConfig = GetPlayerAuraTypeConfig(typeKey)
+        if not typeConfig then return end
+
+        typeConfig[field] = value
+        MCE:ForceUpdateAll(false)
+        NotifyOptionsChanged()
+    end
+end
+
+local function PlayerAuraTypeRangeSet(typeKey, field)
+    return function(_, value)
+        local _, typeConfig = GetPlayerAuraTypeConfig(typeKey)
+        if not typeConfig then return end
+
+        typeConfig[field] = value
+        MCE:RequestDebouncedOptionRefresh(false)
+    end
+end
+
+local function PlayerAuraTypeColorGet(typeKey, field, fallbackColor)
+    return function()
+        local _, typeConfig = GetPlayerAuraTypeConfig(typeKey)
+        if not typeConfig then
+            local c = fallbackColor or C.Colors.White
+            return c.r, c.g, c.b, c.a
+        end
+
+        local color = typeConfig[field]
+        if type(color) ~= "table" then
+            color = CopyTable(fallbackColor or C.Colors.White)
+            typeConfig[field] = color
+        end
+
+        return color.r, color.g, color.b, color.a
+    end
+end
+
+local function PlayerAuraTypeColorSet(typeKey, field)
+    return function(_, r, g, b, a)
+        local _, typeConfig = GetPlayerAuraTypeConfig(typeKey)
+        if not typeConfig then return end
+
+        if type(typeConfig[field]) ~= "table" then
+            typeConfig[field] = {}
+        end
+
+        local color = typeConfig[field]
+        color.r, color.g, color.b, color.a = r, g, b, a
+        MCE:ForceUpdateAll(false)
+    end
+end
+
+local function IsPlayerAuraTypeEnabledByDefault(typeKey)
+    return typeKey ~= PLAYER_AURA_TYPE.ExternalDefensiveBuffs
+end
+
+local function IsPlayerAuraTypeUnchecked(typeKey)
+    local _, typeConfig = GetPlayerAuraTypeConfig(typeKey)
+    if type(typeConfig) ~= "table" or typeConfig.enabled == nil then
+        return not IsPlayerAuraTypeEnabledByDefault(typeKey)
+    end
+
+    return typeConfig.enabled == false
+end
+
+local function IsPlayerAuraTypeStackStyleHidden(typeKey)
+    return PlayerAuraTypeGet(typeKey, "hideStackText", false)()
+        or not PlayerAuraTypeGet(typeKey, "stackEnabled", true)()
 end
 
 local function GetDurationTextColorsConfig()
@@ -536,6 +641,196 @@ local function BuildProfileImportExportOptions(order)
     }
 end
 
+local function BuildPlayerAuraTypeOptions(typeKey, title, order)
+    local categoryKey = C.Categories.PlayerAura
+    local disabledFn = function() return IsCatDisabled(categoryKey) end
+    local hiddenFn = function() return IsPlayerAuraTypeUnchecked(typeKey) end
+    local stackHiddenFn = function() return IsPlayerAuraTypeStackStyleHidden(typeKey) end
+
+    return {
+        type = "group",
+        name = "|cffffd100" .. title .. "|r",
+        inline = true,
+        order = order,
+        disabled = disabledFn,
+        hidden = hiddenFn,
+        args = {
+            typographyHeader = {
+                type = "header", name = L["Typography (Cooldown Numbers)"], order = 1,
+            },
+            font = {
+                type = "select", order = 2, width = 1.5,
+                name = L["Font Face"], values = GetFontOptions,
+                get = PlayerAuraTypeGet(typeKey, "font", C.Defaults.Category.Font),
+                set = PlayerAuraTypeSet(typeKey, "font"),
+            },
+            fontSize = {
+                type = "range", order = 3, width = 0.7,
+                name = L["Size"], min = 6, max = 36, step = 1,
+                get = PlayerAuraTypeGet(typeKey, "fontSize", 12),
+                set = PlayerAuraTypeRangeSet(typeKey, "fontSize"),
+            },
+            fontStyle = {
+                type = "select", order = 4, width = 0.8,
+                name = L["Outline"], values = OUTLINE_OPTIONS,
+                get = PlayerAuraTypeGet(typeKey, "fontStyle", C.Defaults.Category.FontStyle),
+                set = PlayerAuraTypeSet(typeKey, "fontStyle"),
+            },
+            textColor = {
+                type = "color", order = 5, width = "half",
+                name = L["Color"], hasAlpha = true,
+                get = PlayerAuraTypeColorGet(typeKey, "textColor", C.Colors.Highlight),
+                set = PlayerAuraTypeColorSet(typeKey, "textColor"),
+            },
+            hideCountdownNumbers = {
+                type = "toggle", order = 6, width = "1",
+                name = L["Hide Numbers"],
+                desc = L["Hide the text entirely (useful if you only want the swipe edge or stacks)."],
+                get = PlayerAuraTypeGet(typeKey, "hideCountdownNumbers", false),
+                set = PlayerAuraTypeSet(typeKey, "hideCountdownNumbers"),
+            },
+            posHeaderTopSpacing = SectionSpacer(9.95),
+            posHeader = { type = "header", name = L["Positioning"], order = 10 },
+            posHeaderBottomSpacing = SectionSpacer(10.05),
+            timerInsideIcon = {
+                type = "toggle", order = 10.5, width = 1.3,
+                name = L["Timer Inside Icon"],
+                desc = L["Place the aura timer in the center of the icon instead of Blizzard's default outside position."],
+                get = PlayerAuraTypeGet(typeKey, "timerInsideIcon", false),
+                set = PlayerAuraTypeSet(typeKey, "timerInsideIcon"),
+            },
+            textOffsetX = {
+                type = "range", order = 11, width = "half",
+                name = L["Offset X"], min = -30, max = 30, step = 1,
+                get = PlayerAuraTypeGet(typeKey, "textOffsetX", 0),
+                set = PlayerAuraTypeRangeSet(typeKey, "textOffsetX"),
+            },
+            textOffsetY = {
+                type = "range", order = 12, width = "half",
+                name = L["Offset Y"], min = -30, max = 30, step = 1,
+                get = PlayerAuraTypeGet(typeKey, "textOffsetY", 0),
+                set = PlayerAuraTypeRangeSet(typeKey, "textOffsetY"),
+            },
+            swipeHeaderTopSpacing = SectionSpacer(19.95),
+            swipeHeader = { type = "header", name = L["Swipe Animation"], order = 20 },
+            swipeHeaderBottomSpacing = SectionSpacer(20.05),
+            drawSwipe = {
+                type = "toggle", order = 21, width = 1.20,
+                name = L["Show Swipe Animation"],
+                desc = L["Shows the dark overlay that sweeps during a cooldown."],
+                get = PlayerAuraTypeGet(typeKey, "drawSwipe", true),
+                set = PlayerAuraTypeSet(typeKey, "drawSwipe"),
+            },
+            swipeAlpha = {
+                type = "range", order = 22, width = 1,
+                name = L["Swipe Shade Alpha"],
+                desc = L["0% = transparent, 100% = full dark."],
+                min = 0, max = 100, step = 1,
+                get = PlayerAuraTypeGet(typeKey, "swipeAlpha", 80),
+                set = PlayerAuraTypeRangeSet(typeKey, "swipeAlpha"),
+            },
+            swipeRowBreak1 = RowBreak(22.1),
+            edgeEnabled = {
+                type = "toggle", order = 23, width = "1",
+                name = L["Show Swipe Edge"],
+                desc = L["Shows the white line indicating cooldown progress."],
+                get = PlayerAuraTypeGet(typeKey, "edgeEnabled", true),
+                set = PlayerAuraTypeSet(typeKey, "edgeEnabled"),
+            },
+            edgeScale = {
+                type = "range", order = 24, width = "2",
+                name = L["Edge Thickness"],
+                desc = L["Scale of the swipe line (1.0 = Default)."],
+                min = 0.5, max = 2.0, step = 0.1,
+                get = PlayerAuraTypeGet(typeKey, "edgeScale", 1.4),
+                set = PlayerAuraTypeRangeSet(typeKey, "edgeScale"),
+            },
+            reverseSwipe = {
+                type = "toggle", order = 25, width = "full",
+                name = L["Reverse Swipe"],
+                desc = L["Reverse the swipe direction so the shade fills in the opposite direction."],
+                get = PlayerAuraTypeGet(typeKey, "reverseSwipe", true),
+                set = PlayerAuraTypeSet(typeKey, "reverseSwipe"),
+            },
+            stackHeaderTopSpacing = SectionSpacer(39.95),
+            stackHeader = { type = "header", name = L["Stack Counters / Charges"], order = 40 },
+            stackHeaderBottomSpacing = SectionSpacer(40.05),
+            hideStackText = {
+                type = "toggle", order = 41, width = "1",
+                name = L["Hide Stack Text"],
+                desc = L["Hide stacks and charges entirely."],
+                get = PlayerAuraTypeGet(typeKey, "hideStackText", false),
+                set = PlayerAuraTypeSet(typeKey, "hideStackText"),
+            },
+            stackEnabled = {
+                type = "toggle", order = 42, width = 1.3,
+                name = L["Customize Stack Text"],
+                desc = L["Take control over the charge counter (e.g., 2 stacks of Conflagrate)."],
+                get = PlayerAuraTypeGet(typeKey, "stackEnabled", true),
+                set = PlayerAuraTypeSet(typeKey, "stackEnabled"),
+                hidden = function()
+                    return PlayerAuraTypeGet(typeKey, "hideStackText", false)()
+                end,
+            },
+            stackStyleTopSpacing = SectionSpacer(49.95, stackHiddenFn),
+            stackStyleHeader = { type = "header", name = L["Style"], order = 50, hidden = stackHiddenFn },
+            stackStyleBottomSpacing = SectionSpacer(50.05, stackHiddenFn),
+            stackFont = {
+                type = "select", order = 51, width = 1.5,
+                name = L["Font"], values = GetFontOptions,
+                get = PlayerAuraTypeGet(typeKey, "stackFont", C.Defaults.Category.StackFont),
+                set = PlayerAuraTypeSet(typeKey, "stackFont"),
+                hidden = stackHiddenFn,
+            },
+            stackSize = {
+                type = "range", order = 52, width = 0.7,
+                name = L["Size"], min = 6, max = 36, step = 1,
+                get = PlayerAuraTypeGet(typeKey, "stackSize", 16),
+                set = PlayerAuraTypeRangeSet(typeKey, "stackSize"),
+                hidden = stackHiddenFn,
+            },
+            stackStyle = {
+                type = "select", order = 53, width = 0.8,
+                name = L["Outline"], values = OUTLINE_OPTIONS,
+                get = PlayerAuraTypeGet(typeKey, "stackStyle", C.Defaults.Category.StackStyle),
+                set = PlayerAuraTypeSet(typeKey, "stackStyle"),
+                hidden = stackHiddenFn,
+            },
+            stackColor = {
+                type = "color", order = 54, width = 0.8,
+                name = L["Color"], hasAlpha = true,
+                get = PlayerAuraTypeColorGet(typeKey, "stackColor", C.Colors.White),
+                set = PlayerAuraTypeColorSet(typeKey, "stackColor"),
+                hidden = stackHiddenFn,
+            },
+            stackPosTopSpacing = SectionSpacer(59.95, stackHiddenFn),
+            stackPosHeader = { type = "header", name = L["Positioning"], order = 60, hidden = stackHiddenFn },
+            stackPosBottomSpacing = SectionSpacer(60.05, stackHiddenFn),
+            stackAnchor = {
+                type = "select", order = 61,
+                name = L["Anchor Point"], values = ANCHOR_OPTIONS,
+                get = PlayerAuraTypeGet(typeKey, "stackAnchor", C.Defaults.Category.StackAnchor),
+                set = PlayerAuraTypeSet(typeKey, "stackAnchor"),
+                hidden = stackHiddenFn,
+            },
+            stackOffsetX = {
+                type = "range", order = 62, width = "half",
+                name = L["Offset X"], min = -20, max = 20, step = 1,
+                get = PlayerAuraTypeGet(typeKey, "stackOffsetX", -3),
+                set = PlayerAuraTypeRangeSet(typeKey, "stackOffsetX"),
+                hidden = stackHiddenFn,
+            },
+            stackOffsetY = {
+                type = "range", order = 63, width = "half",
+                name = L["Offset Y"], min = -20, max = 20, step = 1,
+                get = PlayerAuraTypeGet(typeKey, "stackOffsetY", 3),
+                set = PlayerAuraTypeRangeSet(typeKey, "stackOffsetY"),
+                hidden = stackHiddenFn,
+            },
+        },
+    }
+end
+
 -- =========================================================================
 -- OPTIONS BUILDER
 -- =========================================================================
@@ -646,8 +941,63 @@ local function CreateCategoryOptions(order, name, key, desc)
                 },
             } or nil,
 
+            playerAuraTargets = isPlayerAura and {
+                type = "group", name = "|cffffd100" .. L["Aura Targets"] .. "|r",
+                inline = true, order = 5, disabled = disabledFn,
+                args = {
+                    styleBuffs = {
+                        type = "toggle", order = 1, width = 1,
+                        name = L["Style Buffs"],
+                        desc = L["Style Blizzard's default player buff buttons."],
+                        get = PlayerAuraTypeGet(PLAYER_AURA_TYPE.Buff, "enabled", true),
+                        set = PlayerAuraTypeSet(PLAYER_AURA_TYPE.Buff, "enabled"),
+                    },
+                    styleDebuffs = {
+                        type = "toggle", order = 2, width = 1,
+                        name = L["Style Debuffs"],
+                        desc = L["Style Blizzard's default player debuff buttons."],
+                        get = PlayerAuraTypeGet(PLAYER_AURA_TYPE.Debuff, "enabled", true),
+                        set = PlayerAuraTypeSet(PLAYER_AURA_TYPE.Debuff, "enabled"),
+                    },
+                    styleExternalDefensiveBuffs = {
+                        type = "toggle", order = 3, width = 1.3,
+                        name = L["Style External Defensive Buffs"],
+                        desc = L["Style Blizzard's external defensive buff buttons."],
+                        get = PlayerAuraTypeGet(PLAYER_AURA_TYPE.ExternalDefensiveBuffs, "enabled", false),
+                        set = PlayerAuraTypeSet(PLAYER_AURA_TYPE.ExternalDefensiveBuffs, "enabled"),
+                    },
+                    disableFading = {
+                        type = "toggle", order = 4, width = "full",
+                        name = L["Disable fading/blinking"],
+                        desc = L["Keeps player aura buttons fully opaque when they are close to expiring."],
+                        get = CatGet(key, "disableFading", false),
+                        set = CatSet(key, "disableFading"),
+                    },
+                },
+            } or nil,
+
+            playerAuraBuffStyle = isPlayerAura and BuildPlayerAuraTypeOptions(
+                PLAYER_AURA_TYPE.Buff, L["Buff Styling"], 10
+            ) or nil,
+
+            playerAuraStyleSpacing = isPlayerAura and SectionSpacer(19.8, function()
+                return IsPlayerAuraTypeUnchecked(PLAYER_AURA_TYPE.Debuff)
+            end) or nil,
+
+            playerAuraDebuffStyle = isPlayerAura and BuildPlayerAuraTypeOptions(
+                PLAYER_AURA_TYPE.Debuff, L["Debuff Styling"], 20
+            ) or nil,
+
+            playerAuraExternalDefensiveBuffsStyleSpacing = isPlayerAura and SectionSpacer(29.8, function()
+                return IsPlayerAuraTypeUnchecked(PLAYER_AURA_TYPE.ExternalDefensiveBuffs)
+            end) or nil,
+
+            playerAuraExternalDefensiveBuffsStyle = isPlayerAura and BuildPlayerAuraTypeOptions(
+                PLAYER_AURA_TYPE.ExternalDefensiveBuffs, L["External Defensive Buffs Styling"], 30
+            ) or nil,
+
             -- ── 2. Typography ───────────────────────────────────────────
-            typography = {
+            typography = (not isPlayerAura) and {
                 type = "group", name = "|cffffd100" .. L["Typography (Cooldown Numbers)"] .. "|r",
                 inline = true, order = 10, disabled = disabledFn,
                 args = {
@@ -976,9 +1326,9 @@ local function CreateCategoryOptions(order, name, key, desc)
                         set = CatRangeSet(key, "textOffsetY"),
                     },
                 },
-            },
+            } or nil,
             -- ── 3. Swipe Edge ───────────────────────────────────────────
-            swipeEdge = {
+            swipeEdge = (not isPlayerAura) and {
                 type = "group", name = "|cffffd100" .. L["Swipe Animation"] .. "|r",
                 inline = true, order = 20, disabled = disabledFn,
                 args = {
@@ -1021,10 +1371,10 @@ local function CreateCategoryOptions(order, name, key, desc)
                         set = CatSet(key, "reverseSwipe"),
                     } or nil,
                 },
-            },
+            } or nil,
 
             -- ── 4. Stack Counters / Charges ────────────────────────────
-            stackGroup = isStackCategory and {
+            stackGroup = (isStackCategory and not isPlayerAura) and {
                 type = "group", name = "|cffffd100" .. L["Stack Counters / Charges"] .. "|r",
                 inline = true, order = 30, disabled = disabledFn,
                 hidden = function()

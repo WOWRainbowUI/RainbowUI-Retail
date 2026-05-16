@@ -1,6 +1,20 @@
 # Changelog
 
-## [Unreleased]
+
+## [4.0.6] - 2026-05-15
+- Added BetterBlizzFrames support for Player Auras.
+- Improved Player Aura timer handling with BetterBlizzFrames.
+
+
+## [4.0.5] - 2026-05-14
+- Added Player Aura styling for external defensive buffs.
+- Added a separate toggle for external defensive buff styling.
+- Added a Timer Inside Icon option for Player Auras.
+
+## [4.0.4] - 2026-05-14
+- Added separate Buff Styling and Debuff Styling options for Player Auras.
+- Added separate toggles for styling player buffs and debuffs.
+- Player Aura buffs and debuffs now use separate styling settings.
 
 ## [4.0.3] - 2026-05-13
 - Improved Player Auras swipe behavior on Blizzard buffs, debuffs, and external defensives.
