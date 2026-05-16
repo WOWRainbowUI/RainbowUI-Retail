@@ -40,32 +40,6 @@ Addon.GetUnitVisibility = function(full_unit_type)
   return show, unit_visibility.UseHeadlineView
 end
 
-if Addon.ExpansionIsAtLeastMidnight then
-  Addon.SetNamePlateClickThrough = function()
-    Addon:CallbackWhenOoC(function()
-      local db = Addon.db.profile
-      if db.NamePlateFriendlyClickThrough then
-        C_NamePlateManager.SetNamePlateHitTestInsets(Enum.NamePlateType.Friendly, 10000, 10000, 10000, 10000)
-      else
-        C_NamePlateManager.SetNamePlateHitTestInsets(Enum.NamePlateType.Friendly, -10000, -10000, -10000, -10000)
-      end
-      if db.NamePlateEnemyClickThrough then
-        C_NamePlateManager.SetNamePlateHitTestInsets(Enum.NamePlateType.Enemy, 10000, 10000, 10000, 10000)
-      else
-        C_NamePlateManager.SetNamePlateHitTestInsets(Enum.NamePlateType.Enemy, -10000, -10000, -10000, -10000)
-      end
-    end, L["Nameplate clickthrough cannot be changed while in combat."])
-  end
-else
-  Addon.SetNamePlateClickThrough = function()
-    Addon:CallbackWhenOoC(function()
-      local db = Addon.db.profile
-      C_NamePlate.SetNamePlateFriendlyClickThrough(db.NamePlateFriendlyClickThrough)
-      C_NamePlate.SetNamePlateEnemyClickThrough(db.NamePlateEnemyClickThrough)
-    end, L["Nameplate clickthrough cannot be changed while in combat."])
-  end
-end
-
 Addon.LEGACY_CUSTOM_NAMEPLATES = {
   ["**"] = {
     Name = "",
@@ -582,7 +556,7 @@ end
 local CurrentVersion = VersionToNumber(Addon.Meta("version"))
 
 function TidyPlatesThreat:VersionIsAtLeast(min_version)
-  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.11")
+  if CurrentVersion == 0 then return true end -- Always return true in development (version = "13.0.12")
 
   local min_version_no, _ = VersionToNumber(min_version)
   return min_version_no > 0 and CurrentVersion >= min_version_no
