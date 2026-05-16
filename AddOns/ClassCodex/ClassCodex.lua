@@ -4407,7 +4407,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             ns.RegisterDockHost(_G.GwCharacterWindow, { priority = 50 })
         end
         local ver = C_AddOns.GetAddOnMetadata(addonName, "Version") or ""
-        print("|cff00ccffClass Codex|r v" .. ver .. " " .. L["loaded — type |cff00ccff/cc|r to open"])
+        -- print("|cff00ccffClass Codex|r v" .. ver .. " " .. L["loaded — type |cff00ccff/cc|r to open"])
         -- Restore floating panel if it was open before logout
         if isFloating and ClassCodexCharDB and ClassCodexCharDB.panelOpen then
             ns:UpdatePanel()
