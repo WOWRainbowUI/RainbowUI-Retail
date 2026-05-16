@@ -63,6 +63,13 @@ function addonTable.Utilities.GenerateRects(design)
     end
   end
 
+  for _, specialBarDetails in ipairs(design.specialBars) do
+    if specialBarDetails.kind == "healthFillText" then
+      local rect = addonTable.Utilities.GetRectFromRegion({width = 0.7, height = 10/addonTable.Assets.BarBordersSize.height }, specialBarDetails.scale, specialBarDetails.anchor)
+      CacheSize(rect)
+    end
+  end
+
   local hit
   if left ~= nil then
     hit = {left = left * design.scale, bottom = bottom * design.scale, width = (right - left) * design.scale, height = (top - bottom) * design.scale}
@@ -70,7 +77,7 @@ function addonTable.Utilities.GenerateRects(design)
 
   for _, textDetails in ipairs(design.texts) do
     if textDetails.kind == "creatureName" then
-      local rect = addonTable.Utilities.GetRectFromRegion({width = textDetails.maxWidth, height = 10/addonTable.Assets.BarBordersSize.height}, 1, textDetails.anchor)
+      local rect = addonTable.Utilities.GetRectFromRegion({width = textDetails.maxWidth, height = 10/addonTable.Assets.BarBordersSize.height * textDetails.scale}, 1, textDetails.anchor)
       CacheSize(rect)
     end
   end

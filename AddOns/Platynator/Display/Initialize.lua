@@ -136,6 +136,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
         local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
         addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
         self.styleIndex = self.styleIndex + 1
+        self:UpdateFriendlyFont()
         self:UpdateNamePlateSize()
         self:SetScript("OnUpdate", nil)
         for unit in pairs(self.nameplateDisplays) do
@@ -145,7 +146,6 @@ function addonTable.Display.ManagerMixin:OnLoad()
         if self.lastInteract and self.lastInteract.interactUnit then
           self.lastInteract:UpdateSoftInteract()
         end
-        self:UpdateFriendlyFont()
         self:UpdateStacking()
         self:UpdateAllClickRegions()
         self:UpdateTargetScale()
@@ -155,6 +155,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self:UpdateSimplifiedScale()
     end
     if state[addonTable.Constants.RefreshReason.Scale] or state[addonTable.Constants.RefreshReason.TargetBehaviour] then
+      self:UpdateFriendlyFont()
       self:UpdateNamePlateSize()
 
       for unit, display in pairs(self.nameplateDisplays) do
@@ -165,7 +166,6 @@ function addonTable.Display.ManagerMixin:OnLoad()
           self:UpdateStackingRegion(unit)
         end
       end
-      self:UpdateFriendlyFont()
       self:UpdateAllClickRegions()
       self:UpdateTargetScale()
     end
@@ -633,8 +633,13 @@ function addonTable.Display.ManagerMixin:UpdateNamePlateSize()
       end
     end
   elseif C_NamePlate.SetNamePlateSize then
-    width = math.max(200, width)
-    height = height
+    width = math.max(math.min(250, 200 * NamePlateConstants.NAME_PLATE_SCALES[tonumber(C_CVar.GetCVar("nameplateSize"))].horizontal), width)
+    if addonTable.Constants.IsRetail then
+      if self.baseBlizzHeight and self.baseBlizzHeight > height then
+        self.baseOffset = self.baseOffset - (self.baseBlizzHeight - height) / 2
+        height = self.baseBlizzHeight
+      end
+    end
     C_NamePlate.SetNamePlateSize(width, height)
   end
 end
@@ -771,15 +776,30 @@ function addonTable.Display.ManagerMixin:UpdateFriendlyFont()
     local design = addonTable.Core.GetDesignByName(designName)
     local scale
     self.friendlyNameOnlyClassColors = false
-    for _, t in ipairs(design.texts) do
-      if t.kind == "creatureName" then
-        for _, c in ipairs(t.autoColors) do
-          if c.kind == "classColors" then
-            self.friendlyNameOnlyClassColors = true
+    do
+      for _, t in ipairs(design.texts) do
+        if t.kind == "creatureName" then
+          for _, c in ipairs(t.autoColors) do
+            if c.kind == "classColors" then
+              self.friendlyNameOnlyClassColors = true
+            end
           end
+          scale = t.scale
+          break
         end
-        scale = t.scale
-        break
+      end
+    end
+    if not self.friendlyNameOnlyClassColors then
+      for _, t in ipairs(design.specialBars) do
+        if t.kind == "healthFillText" then
+          for _, c in ipairs(t.autoColors) do
+            if c.kind == "classColors" then
+              self.friendlyNameOnlyClassColors = true
+            end
+          end
+          scale = t.scale
+          break
+        end
       end
     end
     C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", addonTable.Display.Utilities.IsInRelevantInstance({dungeon = true, raid = true, delve = true}) and self.friendlyNameOnlyClassColors and "1" or "0")
@@ -894,6 +914,10 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     self:UpdateStacking()
     self:UpdateShowState()
     self:UpdateTargetScale()
+    if addonTable.Constants.IsRetail then
+      local _
+      _, self.baseBlizzHeight = C_NamePlate.GetNamePlateSize()
+    end
     self:UpdateNamePlateSize()
     self:UpdateSimplifiedScale()
     self:UpdateObscuredAlpha()
