@@ -27,6 +27,7 @@ local BLACKLIST_NAME_CONTAINS = CLASSIFIER_CONSTANTS.BlacklistNameContains
 local BLACKLIST_PARENT_NAMES = CLASSIFIER_CONSTANTS.BlacklistParentNames
 
 local frameState = addon.frameState
+local INTERNAL_VISUAL_COOLDOWN_KEY = "MCEPlayerAuraVisualOnly"
 
 local Registry, BatchProcessor, DurationColor
 
@@ -232,8 +233,15 @@ local function HasHookBlacklistMatch(cooldown)
     return false
 end
 
+local function IsInternalVisualCooldown(cooldown)
+    return MCE:SafeTableGet(cooldown, INTERNAL_VISUAL_COOLDOWN_KEY) == true
+end
+
 local function ShouldIgnoreCooldown(cooldown)
     if IsRestrictedCooldown(cooldown) or IsLossOfControlCooldown(cooldown) then
+        return true
+    end
+    if IsInternalVisualCooldown(cooldown) then
         return true
     end
 
@@ -343,6 +351,11 @@ local function ProcessCooldownUpdate(cooldown, durationObject)
     if not EnsureDependencies() then
         return
     end
+    if IsInternalVisualCooldown(cooldown) then
+        Registry:Unregister(cooldown)
+        ClearUnmanagedAuraClaimRetry(cooldown)
+        return
+    end
 
     local category = Registry:GetCategory(cooldown)
     if category then
@@ -405,6 +418,11 @@ local function ProcessCooldownClear(cooldown)
     end
 
     if not EnsureDependencies() then
+        return
+    end
+    if IsInternalVisualCooldown(cooldown) then
+        Registry:Unregister(cooldown)
+        ClearUnmanagedAuraClaimRetry(cooldown)
         return
     end
 

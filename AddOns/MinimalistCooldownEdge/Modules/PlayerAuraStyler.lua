@@ -1,4 +1,4 @@
--- PlayerAuraStyler.lua - Styling for Blizzard default player buffs/debuffs
+-- PlayerAuraStyler.lua - Styling for Blizzard default player buffs, debuffs, and external defensives
 
 local _, addon = ...
 local C = addon.Constants
@@ -7,27 +7,67 @@ local PlayerAuraStyler = MCE:NewModule("PlayerAuraStyler", "AceEvent-3.0")
 
 local type, pcall, tostring = type, pcall, tostring
 local ipairs, pairs = ipairs, pairs
+local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
 local C_Timer_After = C_Timer.After
 
 local CATEGORY = C.Categories.PlayerAura
+local AURA_TYPE = C.PlayerAuraTypes
+local AURA_TYPE_BUFF = AURA_TYPE.Buff
+local AURA_TYPE_DEBUFF = AURA_TYPE.Debuff
+local AURA_TYPE_EXTERNAL_DEFENSIVE_BUFFS = AURA_TYPE.ExternalDefensiveBuffs
 local STYLER = C.Styler
 local PLAYER_UNIT = "player"
 local MAX_PARENT_SCAN_DEPTH = 8
 
 local managedButtons = setmetatable({}, addon.weakMeta)
 local hookedButtons = setmetatable({}, addon.weakMeta)
+local assignedAuraTypes = setmetatable({}, addon.weakMeta)
 local originalFontStrings = setmetatable({}, addon.weakMeta)
 
 local hooksInstalled = false
 local pendingForceUpdate = false
 
 local function IsTrackedAuraRoot(frame)
-    return frame == BuffFrame
-        or frame == DebuffFrame
-        or frame == DeadlyDebuffFrame
-        or frame == ExternalDefensivesFrame
+    return (BuffFrame and frame == BuffFrame)
+        or (DebuffFrame and frame == DebuffFrame)
+        or (DeadlyDebuffFrame and frame == DeadlyDebuffFrame)
+        or (ExternalDefensivesFrame and frame == ExternalDefensivesFrame)
+end
+
+local function GetAuraRoot(button)
+    local current = button
+    for _ = 1, MAX_PARENT_SCAN_DEPTH do
+        if not current then break end
+        if IsTrackedAuraRoot(current) then
+            return current
+        end
+
+        current = current.GetParent and current:GetParent() or nil
+    end
+
+    return nil
+end
+
+local function GetAuraTypeFromRoot(root)
+    if not root then
+        return nil
+    end
+
+    if BuffFrame and root == BuffFrame then
+        return AURA_TYPE_BUFF
+    end
+
+    if (DebuffFrame and root == DebuffFrame) or (DeadlyDebuffFrame and root == DeadlyDebuffFrame) then
+        return AURA_TYPE_DEBUFF
+    end
+
+    if ExternalDefensivesFrame and root == ExternalDefensivesFrame then
+        return AURA_TYPE_EXTERNAL_DEFENSIVE_BUFFS
+    end
+
+    return nil
 end
 
 local function GetConfig()
@@ -38,6 +78,24 @@ end
 
 local function IsConfigEnabled(config)
     return config and config.enabled == true
+end
+
+local function IsAuraTypeEnabled(config, auraType)
+    local typeConfig = config and config[auraType]
+    if auraType == AURA_TYPE_EXTERNAL_DEFENSIVE_BUFFS then
+        return type(typeConfig) == "table" and typeConfig.enabled == true
+    end
+
+    return type(typeConfig) ~= "table" or typeConfig.enabled ~= false
+end
+
+local function GetAuraStyleConfig(config, auraType)
+    local typeConfig = config and config[auraType]
+    if type(typeConfig) == "table" then
+        return typeConfig
+    end
+
+    return config
 end
 
 local function IsForbidden(frame)
@@ -189,8 +247,12 @@ local function ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, f
     if point and relativeFrame and region.ClearAllPoints and region.SetPoint then
         relativePoint = relativePoint or point
         if not IsSamePoint(region, point, relativeFrame, relativePoint, offsetX or 0, offsetY or 0) then
+            local previousChangingPoint = region.changingPoint
+            -- BetterBlizzFrames guards its aura Duration:SetPoint hook with this field.
+            region.changingPoint = true
             pcall(region.ClearAllPoints, region)
             pcall(region.SetPoint, region, point, relativeFrame, relativePoint, offsetX or 0, offsetY or 0)
+            region.changingPoint = previousChangingPoint
         end
     end
 end
@@ -245,10 +307,72 @@ local function GetAuraDurationObject(button)
     return nil
 end
 
+local function HideFontString(region)
+    if not region or IsForbidden(region) then
+        return
+    end
+
+    if region.SetText then
+        pcall(region.SetText, region, "")
+    end
+    if region.SetAlpha then
+        pcall(region.SetAlpha, region, 0)
+    end
+    if region.Hide then
+        pcall(region.Hide, region)
+    end
+end
+
+local function IsFontString(region)
+    if not (region and region.GetObjectType) then
+        return false
+    end
+
+    local ok, objectType = pcall(region.GetObjectType, region)
+    return ok and objectType == "FontString"
+end
+
+local function SuppressSwipeCooldownText(cooldown)
+    if not cooldown or IsForbidden(cooldown) then
+        return
+    end
+
+    cooldown.MCEPlayerAuraVisualOnly = true
+    cooldown.noCooldownCount = true
+    cooldown.noOCC = true
+
+    if cooldown.SetHideCountdownNumbers then
+        pcall(cooldown.SetHideCountdownNumbers, cooldown, true)
+    end
+
+    if cooldown.GetCountdownFontString then
+        local ok, countdownText = pcall(cooldown.GetCountdownFontString, cooldown)
+        if ok then
+            HideFontString(countdownText)
+        end
+    end
+
+    if cooldown.GetRegions then
+        local ok, regions = pcall(function()
+            return { cooldown:GetRegions() }
+        end)
+        if ok and type(regions) == "table" then
+            for i = 1, #regions do
+                local region = regions[i]
+                if IsFontString(region) then
+                    HideFontString(region)
+                end
+            end
+        end
+    end
+end
+
 local function ApplyAuraDurationObject(cooldown, button)
     if not (cooldown and cooldown.SetCooldownFromDurationObject) then
         return false
     end
+
+    SuppressSwipeCooldownText(cooldown)
 
     local durationObject = GetAuraDurationObject(button)
     if not durationObject then
@@ -261,6 +385,7 @@ local function ApplyAuraDurationObject(cooldown, button)
     end
 
     cooldown.MCEPlayerAuraSignature = nil
+    SuppressSwipeCooldownText(cooldown)
     cooldown:Show()
     return true
 end
@@ -278,20 +403,44 @@ local function IsPlayerAuraButton(button)
         return false
     end
 
-    local current = button
-    for _ = 1, MAX_PARENT_SCAN_DEPTH do
-        if not current then break end
-        if IsTrackedAuraRoot(current) then
-            return true
-        end
-
-        current = current.GetParent and current:GetParent() or nil
-    end
-
-    return false
+    return assignedAuraTypes[button] ~= nil or GetAuraTypeFromRoot(GetAuraRoot(button)) ~= nil
 end
 
-local function GetDurationPoint(button)
+local function GetPlayerAuraButtonType(button)
+    if not IsPlayerAuraButton(button) then
+        return nil
+    end
+
+    local assignedType = assignedAuraTypes[button]
+    if assignedType == AURA_TYPE_BUFF
+        or assignedType == AURA_TYPE_DEBUFF
+        or assignedType == AURA_TYPE_EXTERNAL_DEFENSIVE_BUFFS then
+        return assignedType
+    end
+
+    local auraType = GetAuraTypeFromRoot(GetAuraRoot(button))
+    if auraType then
+        return auraType
+    end
+
+    local filter = button.GetFilter and button:GetFilter() or nil
+    if type(filter) == "string" then
+        if strfind(filter, "HARMFUL", 1, true) then
+            return AURA_TYPE_DEBUFF
+        end
+        if strfind(filter, "HELPFUL", 1, true) then
+            return AURA_TYPE_BUFF
+        end
+    end
+
+    return nil
+end
+
+local function GetDurationPoint(button, config)
+    if config and config.timerInsideIcon == true then
+        return "CENTER", "CENTER"
+    end
+
     local container = button and button.GetParent and button:GetParent() or nil
     if container and container.isHorizontal ~= nil then
         if container.isHorizontal then
@@ -321,11 +470,16 @@ end
 
 local function EnsureSwipeCooldown(button)
     local cooldown = button and button.MCEPlayerAuraCooldown
-    if cooldown or not (button and button.Icon and CreateFrame) then
+    if cooldown then
+        SuppressSwipeCooldownText(cooldown)
+        return cooldown
+    end
+    if not (button and button.Icon and CreateFrame) then
         return cooldown
     end
 
     cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
+    SuppressSwipeCooldownText(cooldown)
     cooldown:SetAllPoints(button.Icon)
 
     if cooldown.SetFrameStrata and button.GetFrameStrata then
@@ -382,6 +536,7 @@ local function SyncSwipeCooldown(button, config)
 
     cooldown = EnsureSwipeCooldown(button)
     if not cooldown then return end
+    SuppressSwipeCooldownText(cooldown)
 
     local alpha = GetSwipeShadeAlpha(config)
     local reverseSwipe = config.reverseSwipe ~= false
@@ -433,6 +588,7 @@ local function SyncSwipeCooldown(button, config)
         cooldown.MCEPlayerAuraSignature = signature
     end
 
+    SuppressSwipeCooldownText(cooldown)
     cooldown:Show()
 end
 
@@ -500,7 +656,7 @@ local function StyleDuration(button, config)
 
     duration:SetAlpha(1)
 
-    local point, relativePoint = GetDurationPoint(button)
+    local point, relativePoint = GetDurationPoint(button, config)
     ApplyFontStringStyle(
         duration,
         button.Icon or button,
@@ -550,21 +706,24 @@ local function StyleCount(button, config)
 end
 
 function PlayerAuraStyler:StyleAuraButton(button)
-    if not IsPlayerAuraButton(button) then
-        return
-    end
-
-    local config = GetConfig()
-    if not IsConfigEnabled(config) then
+    local auraType = GetPlayerAuraButtonType(button)
+    if not auraType then
         RestoreButton(button)
         return
     end
 
+    local config = GetConfig()
+    if not IsConfigEnabled(config) or not IsAuraTypeEnabled(config, auraType) then
+        RestoreButton(button)
+        return
+    end
+
+    local styleConfig = GetAuraStyleConfig(config, auraType)
     managedButtons[button] = true
 
-    StyleDuration(button, config)
-    StyleCount(button, config)
-    SyncSwipeCooldown(button, config)
+    StyleDuration(button, styleConfig)
+    StyleCount(button, styleConfig)
+    SyncSwipeCooldown(button, styleConfig)
 
     if config.disableFading then
         button:SetAlpha(1)
@@ -601,20 +760,21 @@ local function HookButton(button)
 end
 
 local function ForEachKnownAuraButton(callback)
-    local function ScanRoot(root)
+    local function ScanRoot(root, auraType)
         local auraFrames = root and root.auraFrames
         if type(auraFrames) == "table" then
             for _, button in ipairs(auraFrames) do
                 if button then
+                    assignedAuraTypes[button] = auraType
                     callback(button)
                 end
             end
         end
     end
 
-    ScanRoot(BuffFrame)
-    ScanRoot(DebuffFrame)
-    ScanRoot(ExternalDefensivesFrame)
+    ScanRoot(BuffFrame, AURA_TYPE_BUFF)
+    ScanRoot(DebuffFrame, AURA_TYPE_DEBUFF)
+    ScanRoot(ExternalDefensivesFrame, AURA_TYPE_EXTERNAL_DEFENSIVE_BUFFS)
 
     if BuffFrame and BuffFrame.ConsolidatedBuffs
         and BuffFrame.ConsolidatedBuffs.Tooltip
@@ -622,12 +782,14 @@ local function ForEachKnownAuraButton(callback)
         and type(BuffFrame.ConsolidatedBuffs.Tooltip.Auras.auraFrames) == "table" then
         for _, button in ipairs(BuffFrame.ConsolidatedBuffs.Tooltip.Auras.auraFrames) do
             if button then
+                assignedAuraTypes[button] = AURA_TYPE_BUFF
                 callback(button)
             end
         end
     end
 
     if DeadlyDebuffFrame and DeadlyDebuffFrame.Debuff then
+        assignedAuraTypes[DeadlyDebuffFrame.Debuff] = AURA_TYPE_DEBUFF
         callback(DeadlyDebuffFrame.Debuff)
     end
 end
@@ -695,7 +857,9 @@ function PlayerAuraStyler:ForceUpdateAll()
 end
 
 function PlayerAuraStyler:ADDON_LOADED(_, loadedAddonName)
-    if loadedAddonName == "Blizzard_BuffFrame" or loadedAddonName == C.Addon.Name then
+    if loadedAddonName == "Blizzard_BuffFrame"
+        or loadedAddonName == C.Addon.Name
+        or loadedAddonName == C.Addon.BetterBlizzFramesName then
         self:ScheduleForceUpdate()
     end
 end

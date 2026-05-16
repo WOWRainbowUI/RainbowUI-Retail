@@ -583,6 +583,62 @@ local function CategoryDefaults(categoryKey, enabled, fontSize)
     }
 end
 
+local PLAYER_AURA_STYLE_FIELDS = {
+    "font",
+    "fontSize",
+    "fontStyle",
+    "textColor",
+    "timerInsideIcon",
+    "textOffsetX",
+    "textOffsetY",
+    "hideCountdownNumbers",
+    "drawSwipe",
+    "edgeEnabled",
+    "edgeScale",
+    "reverseSwipe",
+    "swipeAlpha",
+    "stackEnabled",
+    "hideStackText",
+    "stackFont",
+    "stackSize",
+    "stackStyle",
+    "stackColor",
+    "stackAnchor",
+    "stackOffsetX",
+    "stackOffsetY",
+}
+
+local PLAYER_AURA_TYPE_KEYS = {
+    C.PlayerAuraTypes.Buff,
+    C.PlayerAuraTypes.Debuff,
+    C.PlayerAuraTypes.ExternalDefensiveBuffs,
+}
+
+local LEGACY_PLAYER_AURA_DEFENSIVE_BUFF_KEY = "defensiveBuff"
+local LEGACY_PLAYER_AURA_EXTERNAL_DEFENSIVE_BUFF_KEY = "externalDefensiveBuff"
+
+local PLAYER_AURA_TYPE_KEY_LOOKUP = {}
+for i = 1, #PLAYER_AURA_TYPE_KEYS do
+    PLAYER_AURA_TYPE_KEY_LOOKUP[PLAYER_AURA_TYPE_KEYS[i]] = true
+end
+
+local function CopyConfigValue(value)
+    return type(value) == "table" and CopyTable(value) or value
+end
+
+local function PlayerAuraTypeDefaults(sourceConfig)
+    local defaults = {
+        enabled = true,
+    }
+
+    for i = 1, #PLAYER_AURA_STYLE_FIELDS do
+        local field = PLAYER_AURA_STYLE_FIELDS[i]
+        defaults[field] = CopyConfigValue(sourceConfig[field])
+    end
+
+    return defaults
+end
+
 local function DurationTextColorDefaults()
     local defaults = C.Defaults.DurationTextColors
     local thresholds = {}
@@ -618,10 +674,21 @@ unitframeDefaults.stackAnchor = C.Defaults.Unitframe.StackAnchor
 unitframeDefaults.stackOffsetX = C.Defaults.Unitframe.StackOffsetX
 unitframeDefaults.stackOffsetY = C.Defaults.Unitframe.StackOffsetY
 
-local playerAuraDefaults = CategoryDefaults(C.Categories.PlayerAura, false, 12)
-playerAuraDefaults.disableFading = C.Defaults.PlayerAura.DisableFading
-playerAuraDefaults.reverseSwipe = C.Defaults.PlayerAura.ReverseSwipe
-playerAuraDefaults.swipeAlpha = C.Defaults.PlayerAura.SwipeAlpha
+local playerAuraStyleDefaults = CategoryDefaults(C.Categories.PlayerAura, true, 12)
+playerAuraStyleDefaults.reverseSwipe = C.Defaults.PlayerAura.ReverseSwipe
+playerAuraStyleDefaults.swipeAlpha = C.Defaults.PlayerAura.SwipeAlpha
+playerAuraStyleDefaults.timerInsideIcon = C.Defaults.PlayerAura.TimerInsideIcon
+
+local playerAuraExternalDefensiveBuffsDefaults = PlayerAuraTypeDefaults(playerAuraStyleDefaults)
+playerAuraExternalDefensiveBuffsDefaults.enabled = false
+
+local playerAuraDefaults = {
+    enabled = false,
+    disableFading = C.Defaults.PlayerAura.DisableFading,
+    [C.PlayerAuraTypes.Buff] = PlayerAuraTypeDefaults(playerAuraStyleDefaults),
+    [C.PlayerAuraTypes.Debuff] = PlayerAuraTypeDefaults(playerAuraStyleDefaults),
+    [C.PlayerAuraTypes.ExternalDefensiveBuffs] = playerAuraExternalDefensiveBuffsDefaults,
+}
 
 local defaultDurationTextColors = DurationTextColorDefaults()
 
@@ -681,8 +748,35 @@ local function EnsurePlayerAuraConfig(config)
     end
 
     for field, defaultValue in pairs(playerAuraDefaults) do
-        if config[field] == nil then
+        if not PLAYER_AURA_TYPE_KEY_LOOKUP[field] and config[field] == nil then
             config[field] = type(defaultValue) == "table" and CopyTable(defaultValue) or defaultValue
+        end
+    end
+
+    local externalDefensiveBuffsKey = C.PlayerAuraTypes.ExternalDefensiveBuffs
+    if type(config[externalDefensiveBuffsKey]) ~= "table" then
+        if type(config[LEGACY_PLAYER_AURA_EXTERNAL_DEFENSIVE_BUFF_KEY]) == "table" then
+            config[externalDefensiveBuffsKey] = config[LEGACY_PLAYER_AURA_EXTERNAL_DEFENSIVE_BUFF_KEY]
+        elseif type(config[LEGACY_PLAYER_AURA_DEFENSIVE_BUFF_KEY]) == "table" then
+            config[externalDefensiveBuffsKey] = config[LEGACY_PLAYER_AURA_DEFENSIVE_BUFF_KEY]
+        end
+    end
+    config[LEGACY_PLAYER_AURA_EXTERNAL_DEFENSIVE_BUFF_KEY] = nil
+    config[LEGACY_PLAYER_AURA_DEFENSIVE_BUFF_KEY] = nil
+
+    for i = 1, #PLAYER_AURA_TYPE_KEYS do
+        local typeKey = PLAYER_AURA_TYPE_KEYS[i]
+        local defaultTypeConfig = playerAuraDefaults[typeKey]
+        local typeConfig = config[typeKey]
+        if type(typeConfig) ~= "table" then
+            typeConfig = CopyTable(defaultTypeConfig)
+            config[typeKey] = typeConfig
+        else
+            for field, defaultValue in pairs(defaultTypeConfig) do
+                if typeConfig[field] == nil then
+                    typeConfig[field] = CopyConfigValue(defaultValue)
+                end
+            end
         end
     end
 
@@ -710,6 +804,12 @@ local function CleanupObsoleteProfileFields(profile)
     local playerAuraCategory = categories[C.Categories.PlayerAura]
     if type(playerAuraCategory) == "table" then
         playerAuraCategory.compactDurationText = nil
+        for i = 1, #PLAYER_AURA_STYLE_FIELDS do
+            playerAuraCategory[PLAYER_AURA_STYLE_FIELDS[i]] = nil
+        end
+        playerAuraCategory.textAnchor = nil
+        playerAuraCategory.allowThresholdColors = nil
+        playerAuraCategory.auraCdTextOnlyMine = nil
     end
 end
 
