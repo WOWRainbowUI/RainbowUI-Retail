@@ -6,7 +6,7 @@ end
 -- @EXACT = false: Translation can be done freely, because text is only descriptive
 -- Class Names
 -- @EXACT = false
-VUHDO_I18N_WARRIORS="戰士"
+VUHDO_I18N_WARRIORS = "戰士";
 VUHDO_I18N_ROGUES = "盜賊";
 VUHDO_I18N_HUNTERS = "獵人";
 VUHDO_I18N_PALADINS = "聖騎士";

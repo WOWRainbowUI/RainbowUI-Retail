@@ -3,7 +3,7 @@ if (GetLocale() ~= "ruRU") then
 end
 -- Class Names
 -- @EXACT = false
-VUHDO_I18N_WARRIORS="Воины"
+VUHDO_I18N_WARRIORS = "Воины";
 VUHDO_I18N_ROGUES = "Разбойники";
 VUHDO_I18N_HUNTERS = "Охотники";
 VUHDO_I18N_PALADINS = "Паладины";

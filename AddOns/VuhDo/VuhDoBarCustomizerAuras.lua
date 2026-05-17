@@ -1214,10 +1214,13 @@ do
 	local tFadeLoopAlpha;
 	local tFlashLoopThreshold;
 	local tFadeLoopThreshold;
+	local tHasSecretDuration;
 	local function VUHDO_auraTimerOnLoop()
 
 		for tFontString, tDurationObj in pairs(sAuraTimer["data"]) do
 			if tDurationObj and sCurves["timerVisible"] then
+				tHasSecretDuration = tDurationObj:HasSecretValues();
+
 				if sAuraTimer["isAlive"][tFontString] then
 					tRemainingSeconds = tDurationObj:GetElapsedDuration();
 					tTimerVisibility = tDurationObj:EvaluateElapsedDuration(sCurves["timerVisibleElapsed"]);
@@ -1231,7 +1234,7 @@ do
 
 				if tDurationMode == VUHDO_SPELL_DURATION_MODE_FULL then
 					tTimerVisibility = 1;
-				elseif (tDurationMode == nil or tDurationMode == VUHDO_SPELL_DURATION_MODE_THRESHOLD) and tTimerThreshold and tRemainingSeconds and not sAuraTimer["isAlive"][tFontString] then
+				elseif (tDurationMode == nil or tDurationMode == VUHDO_SPELL_DURATION_MODE_THRESHOLD) and tTimerThreshold and tRemainingSeconds and not sAuraTimer["isAlive"][tFontString] and not tHasSecretDuration then
 					tTimerVisibility = (tRemainingSeconds <= tTimerThreshold) and 1 or 0;
 				end
 
@@ -3821,6 +3824,7 @@ do
 	local tEntryOverride;
 	local tDurationMode;
 	local tTimerThreshold;
+	local tHasSecretDuration;
 	function VUHDO_updateAuraTimerAndStacks(aTimerText, aCountText, aChargeTexture, anAnchorConfig, anAuraData, aDurationObj, aUnit, aPanelNum, anAnchorIndex)
 
 		if aTimerText then
@@ -3835,6 +3839,8 @@ do
 			end
 
 			if tShowTimer and aDurationObj and sCurves["timerVisible"] then
+				tHasSecretDuration = aDurationObj:HasSecretValues();
+
 				if anAuraData["isAliveTime"] then
 					tRemainingSeconds = aDurationObj:GetElapsedDuration();
 					tTimerVisibility = aDurationObj:EvaluateElapsedDuration(sCurves["timerVisibleElapsed"]);
@@ -3848,7 +3854,7 @@ do
 
 				if tDurationMode == VUHDO_SPELL_DURATION_MODE_FULL then
 					tTimerVisibility = 1;
-				elseif (tDurationMode == nil or tDurationMode == VUHDO_SPELL_DURATION_MODE_THRESHOLD) and tTimerThreshold and tRemainingSeconds and not anAuraData["isAliveTime"] then
+				elseif (tDurationMode == nil or tDurationMode == VUHDO_SPELL_DURATION_MODE_THRESHOLD) and tTimerThreshold and tRemainingSeconds and not anAuraData["isAliveTime"] and not tHasSecretDuration then
 					tTimerVisibility = (tRemainingSeconds <= tTimerThreshold) and 1 or 0;
 				end
 

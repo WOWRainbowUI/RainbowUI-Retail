@@ -3,7 +3,7 @@
 -- @EXACT = false: Translation can be done freely, because text is only descriptive
 -- Class Names
 -- @EXACT = false
-VUHDO_I18N_WARRIORS="Warriors"
+VUHDO_I18N_WARRIORS = "Warriors";
 VUHDO_I18N_ROGUES = "Rogues";
 VUHDO_I18N_HUNTERS = "Hunters";
 VUHDO_I18N_PALADINS = "Paladins";

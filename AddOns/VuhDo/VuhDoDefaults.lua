@@ -3241,7 +3241,7 @@ VUHDO_DEFAULT_AURA_GROUPS = {
 		["dispellableOnly"] = true,
 		["excludeFilter"] = nil,
 		["priority"] = 1,
-		["colorType"] = VUHDO_AURA_GROUP_COLOR_DISPEL,
+		["colorType"] = VUHDO_AURA_GROUP_COLOR_ALL_DISPEL,
 		["canColorBar"] = false,
 		["canColorText"] = false,
 		["canGlowBar"] = false,
@@ -4298,7 +4298,7 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 		["showTooltip"] = false,
 		["showDispelOverlay"] = true,
 		["dispelIndicatorType"] = 1,
-		["VERSION"] = 4,
+		["VERSION"] = 5,
 	},
 
 	["RAID_ICON"] = {
@@ -4327,6 +4327,7 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 --
 local tAktPanel;
 local tPrivateAura;
+local tBarColors;
 function VUHDO_loadDefaultPanelSetup()
 
 	if not VUHDO_PANEL_SETUP then
@@ -4459,6 +4460,15 @@ function VUHDO_loadDefaultPanelSetup()
 
 				tPrivateAura["VERSION"] = 4;
 			end
+
+			if (tPrivateAura["VERSION"] or 0) < 5 then
+				if 0 == tPrivateAura["dispelIndicatorType"] then
+					tPrivateAura["showDispelOverlay"] = false;
+					tPrivateAura["dispelIndicatorType"] = 1;
+				end
+
+				tPrivateAura["VERSION"] = 5;
+			end
 		end
 
 		if VUHDO_PANEL_SETUP["PRIVATE_AURA_SHOW_DISPEL_TYPE"] == nil then
@@ -4466,6 +4476,14 @@ function VUHDO_loadDefaultPanelSetup()
 		end
 
 		VUHDO_PANEL_SETUP[tPanelNum] = VUHDO_ensureSanity("VUHDO_PANEL_SETUP[" .. tPanelNum .. "]", VUHDO_PANEL_SETUP[tPanelNum], VUHDO_DEFAULT_PER_PANEL_SETUP);
+	end
+
+	tBarColors = VUHDO_PANEL_SETUP["BAR_COLORS"];
+
+	if tBarColors and 0 == tBarColors["dispelIndicatorType"] then
+		tBarColors["showDispelOverlay"] = false;
+
+		tBarColors["dispelIndicatorType"] = 1;
 	end
 
 	if VUHDO_PANEL_SETUP["HOTS"] and not VUHDO_PANEL_SETUP["HOTS"]["VERSION"] then

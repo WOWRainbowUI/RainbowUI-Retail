@@ -1049,7 +1049,9 @@ do
 			VUHDO_setIsOutOfCombat(true);
 
 		elseif "PLAYER_REGEN_DISABLED" == anEvent then
-			VUHDO_stopMovingAllPanels();
+			if VUHDO_VARIABLES_LOADED then
+				VUHDO_stopMovingAllPanels();
+			end
 
 			if VuhDoNewOptionsTabbedFrame and VuhDoNewOptionsTabbedFrame:IsShown() then
 				VuhDoNewOptionsTabbedFrame:SetShown(false);

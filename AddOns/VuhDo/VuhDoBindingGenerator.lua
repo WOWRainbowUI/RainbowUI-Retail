@@ -82,6 +82,8 @@ local function VUHDO_escapeForLuaString(aStr)
 	tEscaped = gsub(aStr, "\\", "\\\\");
 	tEscaped = gsub(tEscaped, '"', '\\"');
 	tEscaped = gsub(tEscaped, "\n", "\\n");
+	tEscaped = gsub(tEscaped, "{", "\\123");
+	tEscaped = gsub(tEscaped, "}", "\\125");
 
 	return tEscaped;
 
@@ -144,8 +146,8 @@ function VUHDO_generateSetupClicksCode()
 					));
 
 					tinsert(tLines, format(
-						'button:SetAttribute("%sspell%s", %q)',
-						tAttrPrefix, tAttrSuffix, tTemplate
+						'button:SetAttribute("%sspell%s", "%s")',
+						tAttrPrefix, tAttrSuffix, VUHDO_escapeForLuaString(tTemplate)
 					));
 				elseif tType == "macro" and tTemplate and tTemplate ~= "" then
 					tinsert(tLines, format(
@@ -206,8 +208,8 @@ function VUHDO_generateSetupClicksCode()
 					));
 
 					tinsert(tLines, format(
-						'button:SetAttribute("%sitem%s", %q)',
-						tAttrPrefix, tAttrSuffix, tTemplate
+						'button:SetAttribute("%sitem%s", "%s")',
+						tAttrPrefix, tAttrSuffix, VUHDO_escapeForLuaString(tTemplate)
 					));
 				elseif tType == "togglemenu" then
 					tinsert(tLines, format(
