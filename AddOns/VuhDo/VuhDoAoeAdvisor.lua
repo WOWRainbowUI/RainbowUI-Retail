@@ -221,6 +221,11 @@ end
 
 --
 function VUHDO_aoeUpdateSpellAverages()
+
+	if sSecretsEnabled then
+		return;
+	end
+
 	local tBonus = GetSpellBonusHealing();
 	local tSpellModi;
 

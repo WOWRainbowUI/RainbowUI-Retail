@@ -259,7 +259,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["frameLevel"] = 13,
 					["showDispelOverlay"] = true,
 					["dispelIndicatorType"] = 1,
-					["VERSION"] = 4,
+					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -1024,7 +1024,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["frameLevel"] = 13,
 					["showDispelOverlay"] = true,
 					["dispelIndicatorType"] = 1,
-					["VERSION"] = 4,
+					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -1216,7 +1216,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["frameLevel"] = 13,
 					["showDispelOverlay"] = true,
 					["dispelIndicatorType"] = 1,
-					["VERSION"] = 4,
+					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -1400,7 +1400,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["frameLevel"] = 13,
 					["showDispelOverlay"] = true,
 					["dispelIndicatorType"] = 1,
-					["VERSION"] = 4,
+					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,
@@ -1584,7 +1584,7 @@ local VUHDO_DEFAULT_PROFILES = {
 					["frameLevel"] = 13,
 					["showDispelOverlay"] = true,
 					["dispelIndicatorType"] = 1,
-					["VERSION"] = 4,
+					["VERSION"] = 5,
 				},
 				["RAID_ICON"] = {
 					["show"] = true,

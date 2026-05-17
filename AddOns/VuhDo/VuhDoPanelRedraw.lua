@@ -729,6 +729,11 @@ do
 			VUHDO_PixelUtil.Show(aManaBar);
 			VUHDO_PixelUtil.SetHeight(aManaBar, tManaHeight);
 
+			if not tInfo then
+				aManaBar:SetMinMaxValues(0, 1, Enum.StatusBarInterpolation.Immediate);
+				aManaBar:SetValue(aManaBar["isInverted"] and 1 or 0);
+			end
+
 			if (VUHDO_getHealthBar(aButton, 1):GetHeight() == 0) then
 				VUHDO_PixelUtil.SetHeight(VUHDO_getHealthBar(aButton, 1), sPanelConfig[aPanelNum]["barHeight"]);
 			end

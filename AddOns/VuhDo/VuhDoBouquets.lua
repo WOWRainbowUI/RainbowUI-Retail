@@ -47,6 +47,7 @@ local VUHDO_AURA_LIST_ENTRY_BOUQUET;
 local VUHDO_DEFAULT_AURA_GROUPS;
 local VUHDO_AURA_GROUP_COLOR_OFF;
 local VUHDO_AURA_GROUP_COLOR_DISPEL;
+local VUHDO_AURA_GROUP_COLOR_ALL_DISPEL;
 local VUHDO_PLAYER_CLASS;
 
 local VUHDO_BOUQUET_LAYER_TYPE_NONSECRET;
@@ -126,6 +127,8 @@ local VUHDO_DISPEL_TYPE_COLOR_KEY_MAP = {
 	[9] = "DEBUFF9",
 };
 
+local sIsDispelColorType = { };
+
 
 
 --
@@ -149,7 +152,12 @@ function VUHDO_bouquetsInitLocalOverrides()
 	VUHDO_DEFAULT_AURA_GROUPS = _G["VUHDO_DEFAULT_AURA_GROUPS"];
 	VUHDO_AURA_GROUP_COLOR_OFF = _G["VUHDO_AURA_GROUP_COLOR_OFF"];
 	VUHDO_AURA_GROUP_COLOR_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_DISPEL"];
+	VUHDO_AURA_GROUP_COLOR_ALL_DISPEL = _G["VUHDO_AURA_GROUP_COLOR_ALL_DISPEL"];
 	VUHDO_PLAYER_CLASS = _G["VUHDO_PLAYER_CLASS"];
+
+	twipe(sIsDispelColorType);
+	sIsDispelColorType[VUHDO_AURA_GROUP_COLOR_DISPEL] = true;
+	sIsDispelColorType[VUHDO_AURA_GROUP_COLOR_ALL_DISPEL] = true;
 
 	VUHDO_BOUQUET_LAYER_TYPE_NONSECRET = _G["VUHDO_BOUQUET_LAYER_TYPE_NONSECRET"];
 	VUHDO_BOUQUET_LAYER_TYPE_CURVE = _G["VUHDO_BOUQUET_LAYER_TYPE_CURVE"];
@@ -2792,7 +2800,7 @@ do
 
 								tNeedsCopy = false;
 
-								if tBarColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
+								if sIsDispelColorType[tBarColorType] then
 									tResultSlot["r"] = tColor["R"];
 									tResultSlot["g"] = tColor["G"];
 									tResultSlot["b"] = tColor["B"];
@@ -2811,7 +2819,7 @@ do
 									end
 								end
 
-								if tTextColorType == VUHDO_AURA_GROUP_COLOR_DISPEL then
+								if sIsDispelColorType[tTextColorType] then
 									tResultSlot["tr"] = tColor["TR"];
 									tResultSlot["tg"] = tColor["TG"];
 									tResultSlot["tb"] = tColor["TB"];
@@ -2830,7 +2838,7 @@ do
 									end
 								end
 
-								if tBarColorType ~= VUHDO_AURA_GROUP_COLOR_DISPEL or tTextColorType ~= VUHDO_AURA_GROUP_COLOR_DISPEL then
+								if not sIsDispelColorType[tBarColorType] or not sIsDispelColorType[tTextColorType] then
 									tResultSlot["barColor"] = tColor;
 								end
 							end
