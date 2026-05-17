@@ -1217,6 +1217,24 @@ for i = 1, STAT_TARGETS_MAX_ROWS do
     statTargets.rows[i] = row
 end
 
+-- Shown in place of the rating rows when the PvP context is selected
+-- for a spec without Murlok data. Keeps PvP discoverable in the
+-- dropdown while making it explicit that nothing is being suppressed.
+statTargets.pvpFallback = statTargets.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+statTargets.pvpFallback:SetTextColor(0.5, 0.5, 0.5)
+statTargets.pvpFallback:SetJustifyH("LEFT")
+statTargets.pvpFallback:SetWordWrap(true)
+statTargets.pvpFallback:Hide()
+
+-- Shown in place of the rating rows while the player is in combat —
+-- Blizzard's taint protection returns "secret" values from
+-- GetCombatRating in combat, so we can't compute the bars reliably.
+statTargets.combatFallback = statTargets.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+statTargets.combatFallback:SetTextColor(0.5, 0.5, 0.5)
+statTargets.combatFallback:SetJustifyH("LEFT")
+statTargets.combatFallback:SetWordWrap(true)
+statTargets.combatFallback:Hide()
+
 -------------------------------------------------------------------------------
 -- Section: Talents
 -------------------------------------------------------------------------------
@@ -1484,6 +1502,7 @@ allTalentFallback:Hide()
 -- texture escape — no extra widget plumbing needed.
 local SOURCE_ICON_WOWHEAD = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
 local SOURCE_ICON_ARCHON  = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
+local SOURCE_ICON_PVP     = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
 
 local allTalentSourceDropdown = CreateOptionDropdown("ClassCodexAllTalentSourceDropdown", allTalentContent, 140)
 allTalentSourceDropdown:Hide()
@@ -1714,6 +1733,93 @@ local function RenderAllTalentsArchon(class, spec, yPos)
     return yPos
 end
 
+-- Render the PvP source on the docked Talents side tab. Brackets are
+-- grouped under "Arena" / "Battleground" headers (same split the
+-- LoadoutDock submenu uses) and rendered using the existing talent-row
+-- pool. When no PvP data exists for the spec, writes the talent
+-- fallback line — same pattern as RenderAllTalentsArchon.
+local function RenderAllTalentsPvP(class, spec, yPos)
+    local brackets = ns.GetPvPBracketsWithData
+        and ns.GetPvPBracketsWithData(class, spec)
+        or {}
+    if not brackets or #brackets == 0 then
+        allTalentFallback:SetText(L["No PvP builds available."] or "No PvP builds available.")
+        allTalentFallback:ClearAllPoints()
+        allTalentFallback:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
+        allTalentFallback:Show()
+        return yPos + 20
+    end
+
+    local ARENA_GROUP = { "pvp-shuffle", "pvp-2v2", "pvp-3v3" }
+    local BG_GROUP    = { "pvp-blitz", "pvp-rbg" }
+    local available = {}
+    for _, k in ipairs(brackets) do available[k] = true end
+
+    local matchActive = ns.BuildMatchesActive
+    local hdrIdx, rowIdx = 0, 0
+
+    local function emitSection(headerText, group)
+        local hasAny = false
+        for _, k in ipairs(group) do if available[k] then hasAny = true; break end end
+        if not hasAny then return end
+        hdrIdx = hdrIdx + 1
+        local hdr = EnsureTalentHeader(hdrIdx)
+        hdr.label:SetText(headerText)
+        hdr.label:SetTextColor(1, 0.82, 0)
+        if hdr.arrow then hdr.arrow:Hide() end
+        hdr:SetScript("OnClick", nil)
+        hdr:ClearAllPoints()
+        hdr:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
+        hdr:SetPoint("RIGHT", allTalentContent, "RIGHT", 0, 0)
+        hdr:Show()
+        yPos = yPos + TALENT_CONTEXT_HEADER_HEIGHT
+
+        for _, bracketKey in ipairs(group) do
+            if available[bracketKey] then
+                local data = ns.GetPvPBuilds and ns.GetPvPBuilds(class, spec, bracketKey)
+                local build = data and data.builds and data.builds[1]
+                if build then
+                    rowIdx = rowIdx + 1
+                    local row = EnsureTalentRow(rowIdx)
+                    if row.heroIcon then row.heroIcon:Hide() end
+
+                    local isActive = matchActive and matchActive({ exportString = build.exportString }) or false
+                    row.isActive = isActive
+                    if isActive then
+                        row:SetBackdropBorderColor(0.2, 0.8, 0.2, 1)
+                        row.label:SetTextColor(0.3, 1, 0.3)
+                    else
+                        row:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+                        row.label:SetTextColor(0.8, 0.8, 0.8)
+                    end
+
+                    local bracketLabel = (ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey
+                    if data.lowConfidence then
+                        bracketLabel = bracketLabel .. " |cff999999(low confidence)|r"
+                    end
+                    row.label:ClearAllPoints()
+                    row.label:SetPoint("LEFT", row, "LEFT", 8, 0)
+                    row.label:SetPoint("RIGHT", row.copyBtn, "LEFT", -4, 0)
+                    row.label:SetText(bracketLabel)
+
+                    row:ClearAllPoints()
+                    row:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", ALL_TALENT_INDENT, -yPos)
+                    row:SetPoint("RIGHT", allTalentContent, "RIGHT", 0, 0)
+                    BindAllTalentCopy(row, build.exportString)
+                    BindAllTalentApply(row, build.exportString, "PvP " .. bracketLabel)
+                    row:Show()
+                    yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
+                end
+            end
+        end
+        yPos = yPos + 4
+    end
+
+    emitSection(L["Arena"] or "Arena", ARENA_GROUP)
+    emitSection(L["Battleground"] or "Battleground", BG_GROUP)
+    return yPos
+end
+
 function ns:UpdateAllTalents(specData, classToken, specKey)
     for _, h in ipairs(allTalentHeaders) do h:Hide() end
     for _, r in ipairs(allTalentRows) do r:Hide() end
@@ -1728,12 +1834,15 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
     allTalentSourceDropdown:ClearAllPoints()
     allTalentSourceDropdown:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, 0)
     allTalentSourceDropdown:SetPoint("TOPRIGHT", allTalentContent, "TOPRIGHT", 0, 0)
+    -- PvP always appears for discoverability; RenderAllTalentsPvP shows
+    -- the fallback line when no data exists for the spec.
     local sourceOpts = {
         { label = SOURCE_ICON_WOWHEAD, value = "wowhead" },
     }
     if archonAvailable then
         sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_ARCHON, value = "archon" }
     end
+    sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_PVP, value = "pvp" }
     allTalentSourceDropdown:SetOptions(sourceOpts, source, function(picked)
         if ns.SetPersistedTalentSource then ns.SetPersistedTalentSource(picked) end
         ns:UpdatePanel()
@@ -1743,6 +1852,8 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
     local yPos = ALL_TALENT_TOGGLE_HEIGHT
     if source == "archon" then
         yPos = RenderAllTalentsArchon(classToken, specKey, yPos)
+    elseif source == "pvp" then
+        yPos = RenderAllTalentsPvP(classToken, specKey, yPos)
     else
         yPos = RenderAllTalentsWowhead(specData, yPos)
     end
@@ -1834,10 +1945,89 @@ footerVersion:SetPoint("LEFT", 0, 0)
 footerVersion:SetTextColor(0.4, 0.4, 0.4)
 footerVersion:SetText("v" .. (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version") or GetAddOnMetadata(addonName, "Version") or "?"))
 
-local footerDate = footerFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-footerDate:SetPoint("RIGHT", footerFrame, "RIGHT", 0, 0)
-footerDate:SetTextColor(0.4, 0.4, 0.4)
-footerDate:SetText("")
+-- Wrapped in `do ... end` so the date helpers don't add to the main-chunk
+-- local count — ClassCodex.lua sits close to Lua's 200-locals-per-function
+-- ceiling and these helpers don't need to leak outward.
+do
+    local footerDateButton = CreateFrame("Frame", nil, footerFrame)
+    footerDateButton:SetPoint("RIGHT", footerFrame, "RIGHT", 0, 0)
+    footerDateButton:SetHeight(18)
+    footerDateButton:EnableMouse(true)
+    footerDateButton:Hide()
+
+    local footerDate = footerDateButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    footerDate:SetAllPoints(footerDateButton)
+    footerDate:SetJustifyH("RIGHT")
+    footerDate:SetTextColor(0.4, 0.4, 0.4)
+
+    local MONTH_ABBREV = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
+
+    local function ParseISODate(iso)
+        if type(iso) ~= "string" then return nil end
+        local y, m, d = iso:match("^(%d+)-(%d+)-(%d+)$")
+        if not y then return nil end
+        return tonumber(y), tonumber(m), tonumber(d)
+    end
+
+    local function DaysSinceISO(iso)
+        local y, m, d = ParseISODate(iso)
+        if not y then return nil end
+        local then_ = time({ year = y, month = m, day = d, hour = 12 })
+        local diff = math.floor((time() - then_) / 86400)
+        if diff < 0 then return 0 end
+        return diff
+    end
+
+    local function FormatAbsoluteDate(iso)
+        local y, m, d = ParseISODate(iso)
+        if not y then return iso or "" end
+        return string.format("%s %d, %d", MONTH_ABBREV[m] or tostring(m), d, y)
+    end
+
+    local function FormatRelativeDate(iso)
+        local days = DaysSinceISO(iso)
+        if not days then return iso or "" end
+        if days == 0 then return L["Today"] end
+        if days == 1 then return L["Yesterday"] end
+        if days <= 6 then return L["%d days ago"]:format(days) end
+        return FormatAbsoluteDate(iso)
+    end
+
+    -- Muted yellow/red so a stale stamp catches the eye without looking jarring
+    -- against the soft-grey footer text the player sees on normal days.
+    local function StaleColor(iso)
+        local days = DaysSinceISO(iso)
+        if not days then return 0.4, 0.4, 0.4 end
+        if days >= 5 then return 0.78, 0.40, 0.40 end
+        if days >= 2 then return 0.80, 0.66, 0.30 end
+        return 0.4, 0.4, 0.4
+    end
+
+    local function RefreshFooterDate()
+        local iso = ClassCodex_LastScrape
+        if type(iso) ~= "string" or iso == "" then
+            footerDate:SetText("")
+            footerDateButton:Hide()
+            return
+        end
+        footerDate:SetText(FormatRelativeDate(iso))
+        footerDate:SetTextColor(StaleColor(iso))
+        footerDateButton:SetWidth(math.max(footerDate:GetStringWidth() + 4, 1))
+        footerDateButton:Show()
+    end
+
+    footerDateButton:SetScript("OnEnter", function(self)
+        local iso = ClassCodex_LastScrape
+        if type(iso) ~= "string" or iso == "" then return end
+        GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+        GameTooltip:SetText(L["Last refreshed: %s"]:format(FormatAbsoluteDate(iso)), 1, 0.82, 0)
+        GameTooltip:AddLine(L["Data refreshes daily. Update Class Codex to get the latest."], 1, 1, 1, true)
+        GameTooltip:Show()
+    end)
+    footerDateButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+    RefreshFooterDate()
+end
 
 
 -------------------------------------------------------------------------------
@@ -1860,9 +2050,16 @@ supporters.content:Hide()
 
 -- Hand-curated for now. Tomorrow this becomes an auto-fetched list
 -- pulled from the Patreon API; until then, names land here in the
--- order they pledged.
-local SUPPORTERS = {
+-- order they pledged. Tier order matches display order — Champions
+-- render above Supporters.
+local CHAMPIONS = {
     "Tantify",
+}
+local SUPPORTERS = {
+    "Bxnane",
+    "Rod",
+    "Alida Bell",
+    "Furkan Yünkül",
 }
 
 do
@@ -1876,7 +2073,7 @@ do
 
     -- supporters.lastChild is the bottom-most rendered element, so the
     -- layout in the supporters tab can size the content frame correctly.
-    if #SUPPORTERS == 0 then
+    if #CHAMPIONS == 0 and #SUPPORTERS == 0 then
         supporters.empty = supporters.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         supporters.empty:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -16)
         supporters.empty:SetTextColor(0.5, 0.5, 0.5)
@@ -1885,13 +2082,29 @@ do
     else
         local heart = "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:14:14:0:0|t"
         local prev = desc
-        for i, name in ipairs(SUPPORTERS) do
-            local row = supporters.content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            row:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, i == 1 and -14 or -2)
-            row:SetText(heart .. "  " .. name)
-            row:SetTextColor(0.98, 0.65, 0.50) -- coral, matches Patreon button tint
-            prev = row
+        local firstName = true
+
+        -- Renders each name in `names` with `color`. Tier is conveyed by
+        -- colour alone — Champions (gold) above Supporters (coral) —
+        -- with no header rows separating the groups so a short list
+        -- doesn't feel padded. `firstName` toggles the larger top gap
+        -- on the very first row, regardless of which tier it belongs to.
+        local function renderTier(names, color)
+            for _, name in ipairs(names) do
+                local row = supporters.content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                row:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, firstName and -14 or -2)
+                row:SetText(heart .. "  " .. name)
+                row:SetTextColor(color[1], color[2], color[3])
+                prev = row
+                firstName = false
+            end
         end
+
+        -- Champions: gold to signal the higher tier. Supporters keep
+        -- the coral tint that matches the Patreon button so the colour
+        -- language already familiar to users carries over.
+        renderTier(CHAMPIONS, { 0.98, 0.78, 0.18 })
+        renderTier(SUPPORTERS, { 0.98, 0.65, 0.50 })
         supporters.lastChild = prev
     end
 end
@@ -2161,30 +2374,56 @@ local function UpdateStatTargetsInfoIcon(snapshot)
 end
 
 local function RenderStatTargets(classToken, specKey)
+    statTargets.combatFallback:Hide()
     if not classToken or not specKey then
         for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
         UpdateStatTargetsInfoIcon(nil)
         return 0
     end
 
-    -- Build the list of contexts that have data so the dropdown only shows
-    -- options that actually resolve.
+    -- Build the list of contexts. Mythic+ / Raid only show when Archon
+    -- has data; PvP is ALWAYS surfaced so users can discover the feature
+    -- — when Murlok has no priority for this spec the dropdown still
+    -- offers PvP and we render a "no data" line inside instead of bars.
     local availableContexts = {}
     for _, ctx in ipairs({ "Mythic+", "Raid" }) do
         if ns.GetStatTargets(classToken, specKey, ctx) then
             availableContexts[#availableContexts + 1] = ctx
         end
     end
+    local pvpTargets = ns.GetPvPStatTargets and ns.GetPvPStatTargets(classToken, specKey) or nil
+    availableContexts[#availableContexts + 1] = "PvP"
 
-    if #availableContexts == 0 then
+    -- If Mythic+ / Raid ALSO have no data and Murlok has none, the
+    -- whole side tab is empty — hide it instead of showing a lone
+    -- PvP-no-data line for a spec we know nothing about.
+    if #availableContexts == 1 and not pvpTargets then
         statTargets.ctxDropdown:Hide()
+        statTargets.pvpFallback:Hide()
         for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
         UpdateStatTargetsInfoIcon(nil)
         return 0
     end
 
-    if not statTargets.currentCtx or not ns.GetStatTargets(classToken, specKey, statTargets.currentCtx) then
-        statTargets.currentCtx = availableContexts[1]
+    -- Resolve "still has data?" for the persisted context. Mythic+ /
+    -- Raid bail upstream if missing; PvP-with-no-data routes to the
+    -- fallback branch below.
+    local function resolveCtx(ctx)
+        if ctx == "PvP" then return pvpTargets end
+        return ns.GetStatTargets(classToken, specKey, ctx)
+    end
+
+    -- Mythic+ / Raid coverage check excludes PvP — the fallback branch
+    -- below handles that case explicitly. Without this, PvP-only specs
+    -- (where Mythic+/Raid both miss) would skip the persisted-context
+    -- correction and possibly land on a stale Mythic+ value.
+    local hasNonPvpCtx = false
+    for _, ctx in ipairs(availableContexts) do
+        if ctx ~= "PvP" then hasNonPvpCtx = true; break end
+    end
+    if not statTargets.currentCtx or
+        (statTargets.currentCtx ~= "PvP" and not resolveCtx(statTargets.currentCtx)) then
+        statTargets.currentCtx = hasNonPvpCtx and availableContexts[1] or "PvP"
     end
 
     if #availableContexts > 1 then
@@ -2197,11 +2436,46 @@ local function RenderStatTargets(classToken, specKey)
         statTargets.ctxDropdown:Hide()
     end
 
-    local snapshot = ns.GetStatTargets(classToken, specKey, statTargets.currentCtx)
+    -- PvP-no-data branch: dropdown stays visible, bars hide, fallback
+    -- line shows. Returns a row count of 1 so LayoutPanel reserves
+    -- vertical space for the fallback line.
+    if statTargets.currentCtx == "PvP" and not pvpTargets then
+        for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
+        UpdateStatTargetsInfoIcon(nil)
+        local yOffset = (#availableContexts > 1) and -28 or -4
+        statTargets.pvpFallback:SetText(L["No PvP stat targets for this spec yet."]
+            or "No PvP stat targets for this spec yet.")
+        statTargets.pvpFallback:ClearAllPoints()
+        statTargets.pvpFallback:SetPoint("TOPLEFT", statTargets.content, "TOPLEFT", 4, yOffset)
+        statTargets.pvpFallback:SetPoint("RIGHT", statTargets.content, "RIGHT", -4, 0)
+        statTargets.pvpFallback:Show()
+        return 1
+    end
+    statTargets.pvpFallback:Hide()
+
+    local snapshot = resolveCtx(statTargets.currentCtx)
     if not snapshot or not snapshot.targets then
         for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
         UpdateStatTargetsInfoIcon(nil)
         return 0
+    end
+
+    -- In combat, GetCombatRating / GetCombatRatingBonus return Blizzard
+    -- "secret" values to tainted code — they pass type() but error on
+    -- arithmetic. Skip rendering the bars and surface a placeholder;
+    -- PLAYER_REGEN_ENABLED triggers a full re-render once combat ends.
+    if InCombatLockdown() then
+        for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
+        UpdateStatTargetsInfoIcon(snapshot)
+        local yOffset = (#availableContexts > 1) and -28 or -4
+        statTargets.combatFallback:SetText(
+            L["Stat targets can't be computed in combat — values update after combat ends."]
+            or "Stat targets can't be computed in combat — values update after combat ends.")
+        statTargets.combatFallback:ClearAllPoints()
+        statTargets.combatFallback:SetPoint("TOPLEFT", statTargets.content, "TOPLEFT", 4, yOffset)
+        statTargets.combatFallback:SetPoint("RIGHT", statTargets.content, "RIGHT", -4, 0)
+        statTargets.combatFallback:Show()
+        return 1
     end
 
     UpdateStatTargetsInfoIcon(snapshot)
@@ -2356,9 +2630,6 @@ function ns:UpdatePanel()
 
     local panelWidth = GetPanelWidth()
     panel:SetWidth(panelWidth)
-
-    -- Footer date (when spec data last changed)
-    footerDate:SetText(specData.scrapedAt or "")
 
     -- Spec icon
     local icon = GetSpecIcon()
@@ -2758,6 +3029,10 @@ function ns:LayoutPanel()
         end
         if n > 0 then
             h = h + n * STAT_TARGET_ROW_HEIGHT + (n - 1) * STAT_TARGET_ROW_GAP + 4
+        elseif statTargets.pvpFallback:IsShown() then
+            -- "No PvP stat targets..." line replaces the row stack; one
+            -- text line + a small bottom margin.
+            h = h + 24
         end
         statTargets.section:ClearAllPoints()
         statTargets.section:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
@@ -3768,7 +4043,7 @@ local function OnTooltipItem(tooltip, tooltipData)
         local tier, tierColor = ns:GetTrinketTier(itemId)
         if tier and tierColor then
             local titleRight = _G[tooltip:GetName() .. "TextRight1"]
-            if titleRight then
+            if titleRight and titleRight:GetFont() then
                 local hex = string.format("|cff%02x%02x%02x", tierColor.r * 255, tierColor.g * 255, tierColor.b * 255)
                 titleRight:SetText(hex .. tier .. "|r")
                 titleRight:Show()
@@ -3834,7 +4109,7 @@ local function OnTooltipItem(tooltip, tooltipData)
             if text then
                 -- Skip tainted/secret strings (secure tooltip contexts like quest items)
                 local ok, _ = pcall(string.len, text)
-                if ok then
+                if ok and line:GetFont() then
                     for localizedStat, englishStat in pairs(STAT_LOOKUP) do
                         if text:find(localizedStat, 1, true) and not text:find("#%d") then
                             local rank = ranks[englishStat]
@@ -4215,6 +4490,11 @@ eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 eventFrame:RegisterEvent("COMBAT_RATING_UPDATE")
 eventFrame:RegisterEvent("UNIT_STATS")
 eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+-- Re-render Stat Targets on combat transitions so the in-combat
+-- placeholder swaps in/out predictably (GetCombatRating only returns
+-- real values to tainted code outside combat).
+eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 eventFrame:SetScript("OnEvent", function(_, event, arg1)
     if event == "ADDON_LOADED" and arg1 == addonName then
@@ -4452,6 +4732,11 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
     elseif event == "COMBAT_RATING_UPDATE" or event == "UNIT_STATS" or event == "PLAYER_EQUIPMENT_CHANGED" then
         -- Cheap path: only re-render when the Stats tab is visible. Other
         -- tabs don't display live ratings so they don't need to repaint.
+        if panel:IsShown() and activeTab == "stats" then
+            ns:UpdatePanel()
+        end
+
+    elseif event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
         if panel:IsShown() and activeTab == "stats" then
             ns:UpdatePanel()
         end

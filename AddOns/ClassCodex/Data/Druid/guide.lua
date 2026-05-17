@@ -3,7 +3,6 @@ ClassCodexData["DRUID"] = {
   ["balance"] = {
     label = "Balance Druid",
     sourceUrl = "https://www.wowhead.com/guide/classes/druid/balance/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Keeper of the Grove",
@@ -140,7 +139,7 @@ ClassCodexData["DRUID"] = {
         heroTalent = "All",
         context = "Starweaver",
         steps = {
-          "On low target count fights like Vaelgor & Ezzorak, Lightblinded Vanguard or various two-target fights from the M+ dungeon pool, it is now worth keeping track of {450212} on your targets when playing {393940}. Stellar Amplification is a debuff that gets applied from {78674} and increases the damage the target takes from a lot of your damage sources. Playing around this effect can be annoying since it requires you to constantly swap your target between spending free Starsurge procs to keep this up on both targets.",
+          "On low target count fights like 維爾葛與艾札瑞克, 光盲先鋒 or various two-target fights from the M+ dungeon pool, it is now worth keeping track of {450212} on your targets when playing {393940}. Stellar Amplification is a debuff that gets applied from {78674} and increases the damage the target takes from a lot of your damage sources. Playing around this effect can be annoying since it requires you to constantly swap your target between spending free Starsurge procs to keep this up on both targets.",
           "Whenever playing Starweaver you also want to bank up procs before entering your {1239669} in order to spend {1261564} as soon as possible inside your {394048} window.",
           "Maximize uptime on {343647}: Shooting Stars is now a considerable amount of your damage, so maintaining uptime on Solstice through the {469004} interactions with Starweaver and {450356} is important.",
         },
@@ -150,7 +149,6 @@ ClassCodexData["DRUID"] = {
   ["feral"] = {
     label = "Feral Druid",
     sourceUrl = "https://www.wowhead.com/guide/classes/druid/feral/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Druid of the Claw",
@@ -327,7 +325,6 @@ ClassCodexData["DRUID"] = {
   ["guardian"] = {
     label = "Guardian Druid",
     sourceUrl = "https://www.wowhead.com/guide/classes/druid/guardian/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Druid of the Claw",
@@ -400,7 +397,7 @@ ClassCodexData["DRUID"] = {
       {
         heroTalent = "Elune's Chosen",
         context = "團隊單目標",
-        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxs4BGjxmZZmZMLLDMbwoJamZWmZmZGjZMDAAAAAYYZGw22MDGz2AYKAAAwGmZAWMDGMYZbAmZAM",
+        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxs4BGjZ2MLzMMLLDMbwoJamZWmZmZGjZMDAAAAAYGLzA22mZwY2GATBAAA2wMDwiZwAWsYAmZAM",
       },
     },
     rotation = {
@@ -501,7 +498,6 @@ ClassCodexData["DRUID"] = {
   ["restoration"] = {
     label = "Restoration Druid",
     sourceUrl = "https://www.wowhead.com/guide/classes/druid/restoration/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Keeper of the Grove",

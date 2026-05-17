@@ -460,7 +460,153 @@ local function BuildLoadoutMenu(_, root)
         end
     end
 
-    if not hasBlizzard and not hasArchon and (not specData or not specData.talents or #specData.talents == 0) then
+    -- Section 4: Class Codex - PvP (per-bracket recommendations from
+    -- Bnet talent_loadout_code + Murlok). Mirrors Archon's submenu
+    -- pattern (M+ Dungeons / Raid Heroic / Raid Mythic above): an
+    -- "Arena" submenu groups Solo Shuffle / 2v2 / 3v3, and a
+    -- "Battleground" submenu groups Blitz / RBG. Clicking a bracket
+    -- applies the top class talent build for that bracket and, when in
+    -- a PvP zone, also applies the top honor talent set.
+    local hasPvp = false
+    if classToken and specSlug and ns.GetPvPBracketsWithData then
+        local pvpBrackets = ns.GetPvPBracketsWithData(classToken, specSlug)
+        if pvpBrackets and #pvpBrackets > 0 then
+            local ARENA_GROUP = { "pvp-shuffle", "pvp-2v2", "pvp-3v3" }
+            local BG_GROUP    = { "pvp-blitz", "pvp-rbg" }
+            local available = {}
+            for _, k in ipairs(pvpBrackets) do available[k] = true end
+
+            -- `parent` is whichever menu node we're attaching to (root
+            -- for fallback flat rendering, an Arena/BG submenu otherwise).
+            local function emitBracket(parent, bracketKey)
+                local bracketData = ns.GetPvPBuilds(classToken, specSlug, bracketKey)
+                if not bracketData or not bracketData.builds or not bracketData.builds[1] then return end
+                local topBuild = bracketData.builds[1]
+                local label = (ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey
+                -- Hero icon prefix mirrors the Archon submenu pattern above so
+                -- the user can tell which hero tree the PvP build runs at a
+                -- glance. Skipped silently when the build predates the hero
+                -- talent attribution (pre-scrape Lua files, or null tree).
+                if topBuild.heroTalent and ns.HERO_TALENT_ATLAS then
+                    local atlas = ns.HERO_TALENT_ATLAS[topBuild.heroTalent]
+                    if atlas then
+                        label = "|A:" .. atlas .. ":12:12|a " .. label
+                    end
+                end
+                local capturedBuild = topBuild
+                local capturedKey = bracketKey
+                local capturedHonor = (bracketData.pvpTalentSets
+                    and bracketData.pvpTalentSets[1]
+                    and bracketData.pvpTalentSets[1].talents) or nil
+                -- Append honor talent icon strip so the bracket entry shows
+                -- *what* will be applied, not just the bracket name. The
+                -- talents themselves still get applied lazily on click,
+                -- gated by War Mode / instance — see ApplyPvpHonorTalents.
+                if capturedHonor and ns.FormatHonorTalentIcon then
+                    local icons = ""
+                    for _, talentId in ipairs(capturedHonor) do
+                        icons = icons .. ns.FormatHonorTalentIcon(talentId)
+                    end
+                    if icons ~= "" then label = label .. "  " .. icons end
+                end
+                if bracketData.lowConfidence then
+                    label = label .. " |cff999999(low confidence)|r"
+                end
+                if activeMatches(topBuild.exportString) then
+                    label = "|cff00cc00" .. label .. "|r"
+                end
+                local capturedHero = topBuild.heroTalent
+                local capturedLowConf = bracketData.lowConfidence
+                local capturedSample = bracketData.sampleSize
+                local entry = parent:CreateButton(label, function()
+                    if InCombatLockdown() then
+                        UIErrorsFrame:AddMessage(L["Cannot switch loadouts in combat."], 1, 0.3, 0.3)
+                        return
+                    end
+                    local loadoutLabel = "PvP — " ..
+                        ((ns.GetPvPBracketName and ns.GetPvPBracketName(capturedKey)) or capturedKey)
+                    rememberApplied(capturedBuild.exportString)
+                    if ns.ApplyTalentExportString then
+                        ns.ApplyTalentExportString(capturedBuild.exportString, loadoutLabel)
+                    end
+                    if capturedHonor and ns.ApplyPvpHonorTalents then
+                        ns.ApplyPvpHonorTalents(capturedHonor)
+                    end
+                end)
+                -- Attach a hover tooltip listing the hero talent + the three
+                -- honor talents. SetTooltip is the modern MenuUtil hook; if a
+                -- client predates it, the call is no-op and the label icons
+                -- still convey the picks at a glance.
+                if entry and entry.SetTooltip then
+                    entry:SetTooltip(function(tooltip)
+                        local bracketName = (ns.GetPvPBracketName and ns.GetPvPBracketName(capturedKey)) or capturedKey
+                        tooltip:AddLine("PvP — " .. bracketName, 1, 0.82, 0)
+                        if capturedHero then
+                            local atlas = ns.HERO_TALENT_ATLAS and ns.HERO_TALENT_ATLAS[capturedHero]
+                            local prefix = atlas and ("|A:" .. atlas .. ":14:14|a ") or ""
+                            tooltip:AddLine(prefix .. capturedHero, 1, 1, 1)
+                        end
+                        if capturedHonor and #capturedHonor > 0 then
+                            tooltip:AddLine(" ")
+                            tooltip:AddLine(L["Honor Talents"] or "Honor Talents", 1, 0.82, 0)
+                            for _, talentId in ipairs(capturedHonor) do
+                                local info = ns.GetHonorTalentInfo and ns.GetHonorTalentInfo(talentId)
+                                local name = (info and info.name) or ("#" .. tostring(talentId))
+                                local icon = info and info.icon and ("|T" .. info.icon .. ":14:14:0:0|t ") or ""
+                                tooltip:AddLine(icon .. name, 1, 1, 1)
+                            end
+                            tooltip:AddLine(" ")
+                            tooltip:AddLine(
+                                L["Honor talents apply in War Mode or PvP instances."]
+                                    or "Honor talents apply in War Mode or PvP instances.",
+                                0.7, 0.7, 0.7)
+                        end
+                        if capturedLowConf then
+                            tooltip:AddLine(" ")
+                            tooltip:AddLine(
+                                string.format(L["Low confidence — only %d samples."]
+                                    or "Low confidence — only %d samples.", capturedSample or 0),
+                                0.7, 0.7, 0.7)
+                        end
+                    end)
+                end
+            end
+
+            local function groupHasAny(group)
+                for _, k in ipairs(group) do if available[k] then return true end end
+                return false
+            end
+            local arenaHas = groupHasAny(ARENA_GROUP)
+            local bgHas = groupHasAny(BG_GROUP)
+
+            if hasBlizzard or hasWowhead or hasArchon then root:CreateDivider() end
+            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:14:14:0:0|t  " .. (L["PvP"] or "PvP"))
+
+            if not arenaHas and not bgHas then
+                -- Defensive fallback: all brackets fall outside the
+                -- known groups (e.g. a new bracket key the scraper
+                -- adds). Render them flat at the top level instead of
+                -- silently swallowing them.
+                for _, bracketKey in ipairs(pvpBrackets) do emitBracket(root, bracketKey) end
+            else
+                if arenaHas then
+                    local arenaSub = root:CreateButton(L["Arena"] or "Arena")
+                    for _, k in ipairs(ARENA_GROUP) do
+                        if available[k] then emitBracket(arenaSub, k) end
+                    end
+                end
+                if bgHas then
+                    local bgSub = root:CreateButton(L["Battleground"] or "Battleground")
+                    for _, k in ipairs(BG_GROUP) do
+                        if available[k] then emitBracket(bgSub, k) end
+                    end
+                end
+            end
+            hasPvp = true
+        end
+    end
+
+    if not hasBlizzard and not hasArchon and not hasPvp and (not specData or not specData.talents or #specData.talents == 0) then
         root:CreateTitle(L["No loadouts available"])
     end
 end

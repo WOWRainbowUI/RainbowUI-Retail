@@ -3,7 +3,6 @@ ClassCodexData["ROGUE"] = {
   ["assassination"] = {
     label = "Assassination Rogue",
     sourceUrl = "https://www.wowhead.com/guide/classes/rogue/assassination/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Fatebound",
@@ -199,7 +198,6 @@ ClassCodexData["ROGUE"] = {
   ["outlaw"] = {
     label = "Outlaw Rogue",
     sourceUrl = "https://www.wowhead.com/guide/classes/rogue/outlaw/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Trickster",
@@ -357,7 +355,6 @@ ClassCodexData["ROGUE"] = {
   ["subtlety"] = {
     label = "Subtlety Rogue",
     sourceUrl = "https://www.wowhead.com/guide/classes/rogue/subtlety/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Deathstalker",

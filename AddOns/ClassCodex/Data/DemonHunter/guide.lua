@@ -3,7 +3,6 @@ ClassCodexData["DEMONHUNTER"] = {
   ["devourer"] = {
     label = "Devourer Demon Hunter",
     sourceUrl = "https://www.wowhead.com/guide/classes/demon-hunter/devourer/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Annihilator",
@@ -113,7 +112,7 @@ ClassCodexData["DEMONHUNTER"] = {
       },
       {
         heroTalent = "Void-Scarred",
-        context = "ST 開場",
+        context = "單目標開場",
         steps = {
           "{1241937} 2s before pull",
           "{473662} 1s before pull",
@@ -165,7 +164,7 @@ ClassCodexData["DEMONHUNTER"] = {
       },
       {
         heroTalent = "Annihilator",
-        context = "ST 開場",
+        context = "單目標開場",
         steps = {
           "{1241937} 2s before pull",
           "{473662} 1s before pull",
@@ -230,7 +229,6 @@ ClassCodexData["DEMONHUNTER"] = {
   ["havoc"] = {
     label = "Havoc Demon Hunter",
     sourceUrl = "https://www.wowhead.com/guide/classes/demon-hunter/havoc/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Fel-Scarred",
@@ -475,7 +473,6 @@ ClassCodexData["DEMONHUNTER"] = {
   ["vengeance"] = {
     label = "Vengeance Demon Hunter",
     sourceUrl = "https://www.wowhead.com/guide/classes/demon-hunter/vengeance/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Aldrachi Reaver",

@@ -3,7 +3,6 @@ ClassCodexData["PALADIN"] = {
   ["holy"] = {
     label = "Holy Paladin",
     sourceUrl = "https://www.wowhead.com/guide/classes/paladin/holy/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Herald of the Sun",
@@ -29,7 +28,7 @@ ClassCodexData["PALADIN"] = {
         heroTalent = "All",
         context = "團隊單目標",
         buildLabel = "Default - Raid",
-        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YMGzyYbmZxoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
+        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YwYWGbzMLzoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
       },
       {
         heroTalent = "Herald of the Sun",
@@ -44,7 +43,7 @@ ClassCodexData["PALADIN"] = {
       {
         heroTalent = "Herald of the Sun",
         context = "團隊單目標",
-        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YMGzyYbmZxoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
+        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YwYWGbzMLzoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
       },
       {
         heroTalent = "Herald of the Sun",
@@ -100,7 +99,6 @@ ClassCodexData["PALADIN"] = {
   ["protection"] = {
     label = "Protection Paladin",
     sourceUrl = "https://www.wowhead.com/guide/classes/paladin/protection/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Templar",
@@ -271,7 +269,6 @@ ClassCodexData["PALADIN"] = {
   ["retribution"] = {
     label = "Retribution Paladin",
     sourceUrl = "https://www.wowhead.com/guide/classes/paladin/retribution/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Templar",

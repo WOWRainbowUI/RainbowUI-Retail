@@ -3,7 +3,6 @@ ClassCodexData["MAGE"] = {
   ["arcane"] = {
     label = "Arcane Mage",
     sourceUrl = "https://www.wowhead.com/guide/classes/mage/arcane/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Spellslinger",
@@ -118,7 +117,7 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Spellslinger Missile Build",
-        context = "開場 / 冷卻",
+        context = "開場/冷卻",
         steps = {
           "{365350}.",
           "{44425} and then {321507} while it is mid-air.",
@@ -127,7 +126,7 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Spellslinger Orb Build",
-        context = "開場 / 冷卻",
+        context = "開場/冷卻",
         steps = {
           "{365350}.",
           "{44425} and then {321507} while it is mid-air.",
@@ -136,7 +135,7 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Sunfury",
-        context = "開場 / 冷卻",
+        context = "開場/冷卻",
         steps = {
           "Use any potions, racials, items, or trinkets that buff your stats so that they will last through {321507}. As examples; if its a 30-second effect, you can use it before {365350}; if its an 8-second effect you should use it when {321507} has around 8 seconds remaining; and a 15-second effect would be best used 3 seconds before using {321507}.",
           "{365350}, this can be your prepull cast.",
@@ -150,7 +149,6 @@ ClassCodexData["MAGE"] = {
   ["fire"] = {
     label = "Fire Mage",
     sourceUrl = "https://www.wowhead.com/guide/classes/mage/fire/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Sunfury",
@@ -326,7 +324,6 @@ ClassCodexData["MAGE"] = {
   ["frost"] = {
     label = "Frost Mage",
     sourceUrl = "https://www.wowhead.com/guide/classes/mage/frost/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Frostfire",
