@@ -185,6 +185,8 @@ builders.LAYOUT = function(E)
         local tickW = tonumber(b.classPowerTickWidth) or 1
         if tickW < 0 then tickW = 0 elseif tickW > 4 then tickW = 4 end
 
+        local snap = _G.MSUF_Snap
+
         local widthMode = b.classPowerWidthMode or "player"
         local userW
 
@@ -228,6 +230,10 @@ builders.LAYOUT = function(E)
             end
             userW = userW - 4
         end
+        if type(snap) == "function" then
+            userW = snap(CP.container, userW)
+        end
+        if not userW or userW < 1 then userW = 1 end
 
         local oX = tonumber(b.classPowerOffsetX) or 0
         local oY = tonumber(b.classPowerOffsetY) or 0
@@ -295,10 +301,8 @@ builders.LAYOUT = function(E)
 
         local outlineThick = tonumber(b.classPowerOutline) or 1
         if outlineThick < 0 then outlineThick = 0 elseif outlineThick > 4 then outlineThick = 4 end
-        local snap = _G.MSUF_Snap
 
         if outlineThick > 0 then
-            local edge = (type(snap) == "function") and snap(CP.container, outlineThick) or outlineThick
             if not CP._outline then
                 local tpl = (BackdropTemplateMixin and "BackdropTemplate") or nil
                 local ol = CreateFrame("Frame", nil, CP.container, tpl)
@@ -306,18 +310,23 @@ builders.LAYOUT = function(E)
                 CP._outline = ol
                 CP._outlineEdge = -1
             end
-            -- Frame level above bars (bars inherit container+1, outline must be higher)
-            CP._outline:SetFrameLevel(CP.container:GetFrameLevel() + 3)
-            if CP._outlineEdge ~= edge then
-                CP._outline:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = edge })
-                CP._outline:SetBackdropColor(0, 0, 0, 0)
-                CP._outline:SetBackdropBorderColor(0, 0, 0, 1)
-                CP._outlineEdge = edge
+            local edge = (type(snap) == "function") and snap(CP._outline, outlineThick) or outlineThick
+            if not edge or edge <= 0 then
+                CP._outline:Hide()
+            else
+                -- Frame level above bars (bars inherit container+1, outline must be higher)
+                CP._outline:SetFrameLevel(CP.container:GetFrameLevel() + 3)
+                if CP._outlineEdge ~= edge then
+                    CP._outline:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = edge })
+                    CP._outline:SetBackdropColor(0, 0, 0, 0)
+                    CP._outline:SetBackdropBorderColor(0, 0, 0, 1)
+                    CP._outlineEdge = edge
+                end
+                CP._outline:ClearAllPoints()
+                CP._outline:SetPoint("TOPLEFT", CP.container, "TOPLEFT", -edge, edge)
+                CP._outline:SetPoint("BOTTOMRIGHT", CP.container, "BOTTOMRIGHT", edge, -edge)
+                CP._outline:Show()
             end
-            CP._outline:ClearAllPoints()
-            CP._outline:SetPoint("TOPLEFT", CP.container, "TOPLEFT", -edge, edge)
-            CP._outline:SetPoint("BOTTOMRIGHT", CP.container, "BOTTOMRIGHT", edge, -edge)
-            CP._outline:Show()
         else
             if CP._outline then CP._outline:Hide() end
         end

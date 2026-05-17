@@ -15,6 +15,8 @@ local CreateFrame = _G.CreateFrame
 local InCombatLockdown = _G.InCombatLockdown
 local UnitExists = _G.UnitExists
 local UnitClass = _G.UnitClass
+local UnitGUID = _G.UnitGUID
+local UnitIsPlayer = _G.UnitIsPlayer
 local UnitHealth = _G.UnitHealth
 local UnitHealthMax = _G.UnitHealthMax
 local RAID_CLASS_COLORS = _G.RAID_CLASS_COLORS
@@ -434,6 +436,8 @@ ApplyGradient = function(f, kind)
     if f.power  then _GF_ApplyGradientToBar(f.power,  conf, gen, true)  end
 end
 
+local ResolveClassColor
+
 ------------------------------------------------------------------------
 -- Apply: bar background tint (missing-health / missing-power background)
 --
@@ -455,11 +459,48 @@ local function ApplyBackgroundTint(f, kind)
     local r = conf.bgR or 0.1
     local g = conf.bgG or 0.1
     local b = conf.bgB or 0.1
+    local hr, hg, hb = r, g, b
     local a = conf.bgA or 0.85
     local hpBgA = conf.hpBgAlpha or a
     local layerA = GetGFBackgroundAlpha(kind, conf)
     local effA = a * layerA
     local effHpBgA = hpBgA * layerA
+
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    if gen and gen.barBgClassColor then
+        local cls
+        if f.unit and UnitExists and UnitExists(f.unit) then
+            local guid = UnitGUID and UnitGUID(f.unit) or f.unit
+            if f._msufGFClassBgGuid == guid then
+                cls = f._msufGFClassBgClass
+            elseif UnitClass and ((not UnitIsPlayer) or UnitIsPlayer(f.unit)) then
+                local _
+                _, cls = UnitClass(f.unit)
+                f._msufGFClassBgGuid = guid
+                f._msufGFClassBgClass = cls
+            else
+                f._msufGFClassBgGuid = guid
+                f._msufGFClassBgClass = nil
+            end
+        else
+            f._msufGFClassBgGuid = nil
+            f._msufGFClassBgClass = nil
+            cls = f._msufGFPreviewClass
+        end
+        if ResolveClassColor then
+            local rev = _G.MSUF_ColorStyleRevision or 0
+            local cr, cg, cb
+            if f._msufGFClassBgColorToken == cls and f._msufGFClassBgColorRev == rev then
+                cr, cg, cb = f._msufGFClassBgR, f._msufGFClassBgG, f._msufGFClassBgB
+            else
+                cr, cg, cb = ResolveClassColor(cls)
+                f._msufGFClassBgColorToken = cls
+                f._msufGFClassBgColorRev = rev
+                f._msufGFClassBgR, f._msufGFClassBgG, f._msufGFClassBgB = cr, cg, cb
+            end
+            if cr then hr, hg, hb = cr, cg, cb end
+        end
+    end
 
     -- Detect if any aura group uses behind-bar
     local auras = conf.auras
@@ -481,9 +522,9 @@ local function ApplyBackgroundTint(f, kind)
         local bbBg = f._msufBehindBarBg
         bbBg:SetAllPoints(f.health)
         bbBg:SetTexture(GF.ResolveBarBgTexture(kind))
-        if f._msufBBgR ~= r or f._msufBBgG ~= g or f._msufBBgB ~= b or f._msufBBgA ~= effHpBgA then
-            f._msufBBgR, f._msufBBgG, f._msufBBgB, f._msufBBgA = r, g, b, effHpBgA
-            bbBg:SetVertexColor(r, g, b, effHpBgA)
+        if f._msufBBgR ~= hr or f._msufBBgG ~= hg or f._msufBBgB ~= hb or f._msufBBgA ~= effHpBgA then
+            f._msufBBgR, f._msufBBgG, f._msufBBgB, f._msufBBgA = hr, hg, hb, effHpBgA
+            bbBg:SetVertexColor(hr, hg, hb, effHpBgA)
         end
         bbBg:Show()
         f._msufBehindBarActive = true
@@ -495,10 +536,10 @@ local function ApplyBackgroundTint(f, kind)
             f._msufBehindBarActive = nil
         end
         if f.healthBg then
-            if f._msufGFCachedHBgR ~= r or f._msufGFCachedHBgG ~= g
-               or f._msufGFCachedHBgB ~= b or f._msufGFCachedHBgA ~= effHpBgA then
-                f._msufGFCachedHBgR, f._msufGFCachedHBgG, f._msufGFCachedHBgB, f._msufGFCachedHBgA = r, g, b, effHpBgA
-                f.healthBg:SetVertexColor(r, g, b, effHpBgA)
+            if f._msufGFCachedHBgR ~= hr or f._msufGFCachedHBgG ~= hg
+               or f._msufGFCachedHBgB ~= hb or f._msufGFCachedHBgA ~= effHpBgA then
+                f._msufGFCachedHBgR, f._msufGFCachedHBgG, f._msufGFCachedHBgB, f._msufGFCachedHBgA = hr, hg, hb, effHpBgA
+                f.healthBg:SetVertexColor(hr, hg, hb, effHpBgA)
             end
         end
     end
@@ -539,13 +580,23 @@ local function ApplyFrameBorderLevel(f, border)
     local anchorLevel = anchor and anchor.GetFrameLevel and anchor:GetFrameLevel() or 0
     local wantLevel = anchorLevel + 3
     local minTextLevel
-    local layers = { f.nameTextLayer, f.healthTextLayer, f.powerTextLayer, f.statusTextLayer }
-    for i = 1, #layers do
-        local layer = layers[i]
-        local level = layer and layer.GetFrameLevel and layer:GetFrameLevel()
-        if level and (not minTextLevel or level < minTextLevel) then
-            minTextLevel = level
-        end
+    local layer = f.nameTextLayer
+    local level = layer and layer.GetFrameLevel and layer:GetFrameLevel()
+    if level then minTextLevel = level end
+    layer = f.healthTextLayer
+    level = layer and layer.GetFrameLevel and layer:GetFrameLevel()
+    if level and (not minTextLevel or level < minTextLevel) then
+        minTextLevel = level
+    end
+    layer = f.powerTextLayer
+    level = layer and layer.GetFrameLevel and layer:GetFrameLevel()
+    if level and (not minTextLevel or level < minTextLevel) then
+        minTextLevel = level
+    end
+    layer = f.statusTextLayer
+    level = layer and layer.GetFrameLevel and layer:GetFrameLevel()
+    if level and (not minTextLevel or level < minTextLevel) then
+        minTextLevel = level
     end
     if minTextLevel and wantLevel >= minTextLevel then wantLevel = minTextLevel - 1 end
     if wantLevel <= anchorLevel then wantLevel = anchorLevel + 1 end
@@ -561,10 +612,22 @@ local function ApplyFrameBorder(f, kind)
     if not bg then return end
     local fScale = conf._resolvedFrameScale or 1
 
-    bg:SetBackdrop(_bgOnlyBd)
-    bg:SetBackdropColor(
-        conf.bgR or 0.1, conf.bgG or 0.1,
-        conf.bgB or 0.1, (conf.bgA or 0.85) * GetGFBackgroundAlpha(kind, conf))
+    if bg._msufGFBackdropKind ~= "bg" then
+        bg:SetBackdrop(_bgOnlyBd)
+        bg._msufGFBackdropKind = "bg"
+        bg._msufGFBackdropR = nil
+    end
+    local br = conf.bgR or 0.1
+    local bgc = conf.bgG or 0.1
+    local bb = conf.bgB or 0.1
+    local ba = (conf.bgA or 0.85) * GetGFBackgroundAlpha(kind, conf)
+    if bg._msufGFBackdropR ~= br or bg._msufGFBackdropG ~= bgc
+        or bg._msufGFBackdropB ~= bb or bg._msufGFBackdropA ~= ba
+    then
+        bg:SetBackdropColor(br, bgc, bb, ba)
+        bg._msufGFBackdropR, bg._msufGFBackdropG = br, bgc
+        bg._msufGFBackdropB, bg._msufGFBackdropA = bb, ba
+    end
 
     local bf = f._msufGFBorderFrame
     if bf then
@@ -572,13 +635,16 @@ local function ApplyFrameBorder(f, kind)
         if fScale ~= 1 then borderSize = ScaleValue(borderSize, fScale, 0) end
         ApplyFrameBorderLevel(f, bf)
         if borderSize > 0 then
-            _borderBd.edgeSize = borderSize
-            bf:SetBackdrop(_borderBd)
-            bf:SetBackdropColor(0, 0, 0, 0)
-            bf:SetBackdropBorderColor(0, 0, 0, 1)
-            bf:Show()
+            if bf._msufGFBorderSize ~= borderSize then
+                bf._msufGFBorderSize = borderSize
+                _borderBd.edgeSize = borderSize
+                bf:SetBackdrop(_borderBd)
+                bf:SetBackdropColor(0, 0, 0, 0)
+                bf:SetBackdropBorderColor(0, 0, 0, 1)
+            end
+            if not bf:IsShown() then bf:Show() end
         else
-            bf:Hide()
+            if bf:IsShown() then bf:Hide() end
         end
     end
 end
@@ -742,7 +808,7 @@ end
 -- Resolve bar color for a class token (shared by live + preview)
 -- Respects global Colors menu custom class color overrides.
 ------------------------------------------------------------------------
-local function ResolveClassColor(cls)
+ResolveClassColor = function(cls)
     if not cls then return nil end
     local fastClass = _G.MSUF_UFCore_GetClassBarColorFast
     if type(fastClass) == "function" then
@@ -928,6 +994,12 @@ local function SyncPreserveMissingHP(f, kind, hp, hpMax)
         if f._msufBehindBarBg and f._msufBehindBarBg.SetAlpha then f._msufBehindBarBg:SetAlpha(preserve and 0 or 1) end
     end
     if not preserve then
+        if f._msufGFPreserveAlphaState == false
+            and not f._msufGFMissingHPBg
+            and f._msufGFMissingValue == nil
+            and f._msufGFMissingMax == nil then
+            return
+        end
         if f._msufGFMissingHPBg then HidePreserveMissingHP(f) end
         f._msufGFMissingValue, f._msufGFMissingMax = nil, nil
         return
@@ -1173,6 +1245,12 @@ local function ApplyTextLayout(f, kind)
     -- 3-slot health text
     local hox = ScaleValue(conf.hpOffsetX or 0, fScale)
     local hoy = ScaleValue(conf.hpOffsetY or 0, fScale)
+    local hlx = ScaleValue(conf.hpTextLeftOffsetX or 0, fScale)
+    local hly = ScaleValue(conf.hpTextLeftOffsetY or 0, fScale)
+    local hcx = ScaleValue(conf.hpTextCenterOffsetX or 0, fScale)
+    local hcy = ScaleValue(conf.hpTextCenterOffsetY or 0, fScale)
+    local hrx = ScaleValue(conf.hpTextRightOffsetX or 0, fScale)
+    local hry = ScaleValue(conf.hpTextRightOffsetY or 0, fScale)
     local hpTextOn = conf.showHPText ~= false
     local tl = hpTextOn and (conf.textLeft  or "NONE") or "NONE"
     local tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
@@ -1180,19 +1258,19 @@ local function ApplyTextLayout(f, kind)
 
     if f.textLeftFS then
         f.textLeftFS:ClearAllPoints()
-        f.textLeftFS:SetPoint("LEFT", f.health, "LEFT", pad3 + hox, hoy)
+        f.textLeftFS:SetPoint("LEFT", f.health, "LEFT", pad3 + hox + hlx, hoy + hly)
         f.textLeftFS:SetJustifyH("LEFT")
         if tl ~= "NONE" then f.textLeftFS:Show() else f.textLeftFS:SetText(""); f.textLeftFS:Hide() end
     end
     if f.textCenterFS then
         f.textCenterFS:ClearAllPoints()
-        f.textCenterFS:SetPoint("CENTER", f.health, "CENTER", hox, hoy)
+        f.textCenterFS:SetPoint("CENTER", f.health, "CENTER", hox + hcx, hoy + hcy)
         f.textCenterFS:SetJustifyH("CENTER")
         if tc ~= "NONE" then f.textCenterFS:Show() else f.textCenterFS:SetText(""); f.textCenterFS:Hide() end
     end
     if f.textRightFS then
         f.textRightFS:ClearAllPoints()
-        f.textRightFS:SetPoint("RIGHT", f.health, "RIGHT", -pad3 + hox, hoy)
+        f.textRightFS:SetPoint("RIGHT", f.health, "RIGHT", -pad3 + hox + hrx, hoy + hry)
         f.textRightFS:SetJustifyH("RIGHT")
         if tr ~= "NONE" then f.textRightFS:Show() else f.textRightFS:SetText(""); f.textRightFS:Hide() end
     end
@@ -1235,6 +1313,12 @@ local function ApplyTextLayout(f, kind)
     -- 3-slot power text
     local pox = ScaleValue(conf.powerOffsetX or 0, fScale)
     local poy = ScaleValue(conf.powerOffsetY or 0, fScale)
+    local plx = ScaleValue(conf.powerTextLeftOffsetX or 0, fScale)
+    local ply = ScaleValue(conf.powerTextLeftOffsetY or 0, fScale)
+    local pcx = ScaleValue(conf.powerTextCenterOffsetX or 0, fScale)
+    local pcy = ScaleValue(conf.powerTextCenterOffsetY or 0, fScale)
+    local prx = ScaleValue(conf.powerTextRightOffsetX or 0, fScale)
+    local pry = ScaleValue(conf.powerTextRightOffsetY or 0, fScale)
     local effectivePowerH = (GF.GetEffectivePowerHeight and GF.GetEffectivePowerHeight(kind, f.unit, f._msufGFPreviewRole, conf))
         or ((GF.GetScaledPowerHeight and GF.GetScaledPowerHeight(kind))
         or ScaleValue(conf.powerHeight or 6, fScale, 0))
@@ -1246,19 +1330,19 @@ local function ApplyTextLayout(f, kind)
 
     if f.powerTextLeftFS then
         f.powerTextLeftFS:ClearAllPoints()
-        f.powerTextLeftFS:SetPoint("LEFT", powerTextAnchor, "LEFT", pad2 + pox, poy)
+        f.powerTextLeftFS:SetPoint("LEFT", powerTextAnchor, "LEFT", pad2 + pox + plx, poy + ply)
         f.powerTextLeftFS:SetJustifyH("LEFT")
         if ptl ~= "NONE" then f.powerTextLeftFS:Show() else f.powerTextLeftFS:Hide() end
     end
     if f.powerTextCenterFS then
         f.powerTextCenterFS:ClearAllPoints()
-        f.powerTextCenterFS:SetPoint("CENTER", powerTextAnchor, "CENTER", pox, poy)
+        f.powerTextCenterFS:SetPoint("CENTER", powerTextAnchor, "CENTER", pox + pcx, poy + pcy)
         f.powerTextCenterFS:SetJustifyH("CENTER")
         if ptc ~= "NONE" then f.powerTextCenterFS:Show() else f.powerTextCenterFS:Hide() end
     end
     if f.powerTextRightFS then
         f.powerTextRightFS:ClearAllPoints()
-        f.powerTextRightFS:SetPoint("RIGHT", powerTextAnchor, "RIGHT", -pad2 + pox, poy)
+        f.powerTextRightFS:SetPoint("RIGHT", powerTextAnchor, "RIGHT", -pad2 + pox + prx, poy + pry)
         f.powerTextRightFS:SetJustifyH("RIGHT")
         if ptr ~= "NONE" then f.powerTextRightFS:Show() else f.powerTextRightFS:Hide() end
     end
@@ -1455,6 +1539,7 @@ local function ApplyVisuals(f, bits)
     end
     if band(bits, DIRTY_COLOR) ~= 0 then
         ApplyHealthColor(f, kind, f.unit)
+        ApplyBackgroundTint(f, kind)
         ApplyOverlayColors(f)
         ApplyHealthBarAlpha(f, kind)
         ApplyPowerBarAlpha(f, kind)

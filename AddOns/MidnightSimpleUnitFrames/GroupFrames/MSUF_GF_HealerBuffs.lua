@@ -32,16 +32,9 @@ local HB = {}
 GF.HealerBuffs = HB
 
 ------------------------------------------------------------------------
--- Spell Family Data (EQoL parity — all healer specs + augmentation + shared)
+-- Spell Family Data (EQoL parity: healer specs + augmentation)
 ------------------------------------------------------------------------
 local FAMILY_DATA = {
-    -- Shared class buffs
-    { id = "druid_mark_of_the_wild",     classToken = "DRUID",   spellIds = {1126},    name = "Mark of the Wild",    scanAll = true },
-    { id = "mage_arcane_intellect",      classToken = "MAGE",    spellIds = {1459},    name = "Arcane Intellect",    scanAll = true },
-    { id = "priest_power_word_fortitude", classToken = "PRIEST",  spellIds = {21562},   name = "Power Word: Fortitude", scanAll = true },
-    { id = "warrior_battle_shout",       classToken = "WARRIOR", spellIds = {6673},    name = "Battle Shout",        scanAll = true },
-    { id = "evoker_blessing_of_the_bronze", classToken = "EVOKER", spellIds = {381732,381741,381746,381748,381749,381750,381751,381752,381753,381754,381756,381757,381758}, name = "Blessing of the Bronze", scanAll = true },
-    { id = "shaman_skyfury",             classToken = "SHAMAN",  spellIds = {462854},  name = "Skyfury",             scanAll = true },
     -- Preservation Evoker
     { id = "evoker_pres_reversion",      classToken = "EVOKER",  specId = 1468, spellIds = {366155},  name = "Reversion" },
     { id = "evoker_pres_echo",           classToken = "EVOKER",  specId = 1468, spellIds = {364343},  name = "Echo" },
@@ -210,7 +203,6 @@ local function CompileSlots(kind)
                         spellIds = fam.spellIds,
                         texture  = tex,
                         name     = fam.name,
-                        scanAll  = fam.scanAll,
                     }
                 end
             end
@@ -227,7 +219,6 @@ local function CompileSlots(kind)
                         spellIds = fam.spellIds,
                         texture  = tex,
                         name     = fam.name,
-                        scanAll  = fam.scanAll,
                         -- Per-slot overrides
                         size     = slotCfg.size,
                         anchor   = slotCfg.anchor,
@@ -344,7 +335,6 @@ end
 
 -- Returns: activeFamilies[familyId] = auraData
 local _wantedPlayerSpells = {}
-local _wantedAllSpells = {}
 local _activeFamilies = {}
 
 local function ScanFamiliesForUnit(unit, compiledSlots, kind)
@@ -360,18 +350,13 @@ local function ScanFamiliesForUnit(unit, compiledSlots, kind)
     if not ((GF and GF.QueryAuraSlots and GF.GetAuraDataBySlot) or (CUA_GetAuraSlots and CUA_GetAuraDataBySlot)) then return result end
 
     for k in pairs(_wantedPlayerSpells) do _wantedPlayerSpells[k] = nil end
-    for k in pairs(_wantedAllSpells) do _wantedAllSpells[k] = nil end
 
-    local wantsAllCasters = false
     for i = 1, #compiledSlots do
         local slot = compiledSlots[i]
-        local fam = slot.familyId and FAMILY_BY_ID[slot.familyId]
-        local dst = (fam and fam.scanAll == true) and _wantedAllSpells or _wantedPlayerSpells
-        if dst == _wantedAllSpells then wantsAllCasters = true end
         local spellIds = slot.spellIds
         for j = 1, #spellIds do
             local sid = spellIds[j]
-            dst[sid] = slot.familyId
+            _wantedPlayerSpells[sid] = slot.familyId
         end
     end
 
@@ -382,26 +367,9 @@ local function ScanFamiliesForUnit(unit, compiledSlots, kind)
             local sid = aura.spellId
             if sid ~= nil and not (issecretvalue and issecretvalue(sid)) then
                 sid = tonumber(sid)
-                local famId = sid and (_wantedPlayerSpells[sid] or _wantedAllSpells[sid])
+                local famId = sid and _wantedPlayerSpells[sid]
                 if famId and not result[famId] then
                     result[famId] = aura
-                end
-            end
-        end
-    end
-
-    if wantsAllCasters then
-        local allSlots, allCount = QueryAuraSlots(unit, "HELPFUL")
-        for i = 2, allCount do
-            local aura = QueryAuraData(unit, allSlots[i])
-            if aura and not (AuraFilter and AuraFilter.ShouldHideBuffAura and AuraFilter.ShouldHideBuffAura(kind, aura)) then
-                local sid = aura.spellId
-                if sid ~= nil and not (issecretvalue and issecretvalue(sid)) then
-                    sid = tonumber(sid)
-                    local famId = sid and _wantedAllSpells[sid]
-                    if famId and not result[famId] then
-                        result[famId] = aura
-                    end
                 end
             end
         end
@@ -613,10 +581,21 @@ local function FrameWantsHealerBuffs(f, kind, conf)
     return not (si and si.enabled)
 end
 
+local function AnyHealerBuffsEnabled()
+    if type(GF.GetConf) ~= "function" then return true end
+    local party = GF.GetConf("party")
+    local raid = GF.GetConf("raid")
+    if not party or not raid then return true end
+    return (party.healerBuffs and party.healerBuffs.enabled == true)
+        or (raid.healerBuffs and raid.healerBuffs.enabled == true)
+end
+
+local _installRuntimeHooks = AnyHealerBuffsEnabled()
+
 ------------------------------------------------------------------------
 -- Hook into UNIT_AURA coalescing (from Effects.lua)
 ------------------------------------------------------------------------
-do
+if _installRuntimeHooks then
     local origUpdateDispel = GF._UpdateDispel
     if type(origUpdateDispel) == "function" then
         GF._UpdateDispel = function(f, unit)
@@ -636,7 +615,7 @@ end
 ------------------------------------------------------------------------
 -- Hook into full refresh
 ------------------------------------------------------------------------
-do
+if _installRuntimeHooks then
     local origUpdateButton = GF.UpdateButton
     if type(origUpdateButton) == "function" then
         GF.UpdateButton = function(f, unit)
@@ -661,7 +640,7 @@ end
 ------------------------------------------------------------------------
 -- Spec change listener (re-compile on spec swap)
 ------------------------------------------------------------------------
-do
+if _installRuntimeHooks then
     local ef = CreateFrame("Frame")
     ef:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
     ef:RegisterEvent("PLAYER_TALENT_UPDATE")

@@ -84,6 +84,21 @@ local BindNestedDropdown = GP.BindNestedDropdown
 local SetOptionEnabled = GP.SetOptionEnabled
 local SetOptionsEnabled = GP.SetOptionsEnabled
 local ApplyScopeEnabledGate = GP.ApplyScopeEnabledGate
+local SetSectionHeaderStatus = GP.SetSectionHeaderStatus
+
+local function HeaderHintColor()
+    return { 0.45, 0.52, 0.65, 1 }
+end
+
+local function HealthModeHint(mode)
+    if not mode or mode == "GLOBAL" then return "follows global style" end
+    if mode == "CLASS" then return "class-colored health bars" end
+    if mode == "GRADIENT" then return "health gradient active" end
+    if mode == "CUSTOM" then return "custom health color" end
+    if mode == "dark" then return "dark bar style" end
+    if mode == "unified" then return "unified bar style" end
+    return tostring(mode)
+end
 local function BuildGFBars(ctx)
     local b = W.PageBuilder(ctx)
     ScopeSection(ctx, b)
@@ -144,7 +159,7 @@ local function BuildGFBars(ctx)
             end
             QueueGF(CurrentScope(), "visual")
         end)
-    M.AddRefresher(ctx, function()
+    local function RefreshHealthColorState()
         local conf = Conf(CurrentScope())
         local m = conf.gfBarMode
         local editable = (m == "dark" or m == "unified" or m == "CUSTOM")
@@ -158,7 +173,14 @@ local function BuildGFBars(ctx)
         else
             colorHint:Hide()
         end
-    end)
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(hcolor, nil) end
+    end
+    M.AddRefresher(ctx, RefreshHealthColorState)
+    RefreshHealthColorState()
+    do
+        local entry = hcolor and hcolor._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshHealthColorState end
+    end
 
     local bars = b:CollapsibleSection("bars", "Bars  (Custom)", 206, false)
     BindScopeDropdown(ctx, W.Dropdown(bars, "Foreground Texture", SIMPLE_TEXTURES, 280), "barTexture", "", "visual")
@@ -186,8 +208,18 @@ local function BuildGFBars(ctx)
     W.MoveWidget(showTank, power, powerRightX, -88)
     W.MoveWidget(showHealer, power, powerRightX, -122)
     W.MoveWidget(showDamager, power, powerRightX, -156)
+    local function RefreshPowerHeader()
+        if type(SetSectionHeaderStatus) ~= "function" then return end
+        SetSectionHeaderStatus(power, nil)
+    end
+    M.AddRefresher(ctx, RefreshPowerHeader)
+    RefreshPowerHeader()
+    do
+        local entry = power and power._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshPowerHeader end
+    end
 
-    local text = b:CollapsibleSection("text", "Text", 560, false)
+    local text = b:CollapsibleSection("text", "Text", 760, false)
     local textW = text._msuf2Width or b.width or 720
     local textLeftX = 24
     local textRightX = max(430, floor(textW * 0.52))
@@ -196,6 +228,36 @@ local function BuildGFBars(ctx)
     local textSliderW = min(310, max(230, textLeftW))
     local hpSliderW = min(310, max(230, textRightW))
     local textDropW = min(310, max(220, textLeftW))
+
+    local function TextModeExampleStr(mode, delim, isPower)
+        local cur     = isPower and "100"  or "12,450"
+        local max_    = isPower and "100"  or "15,000"
+        local pct     = isPower and "100%" or "83%"
+        local deficit = isPower and "0"    or "-2,550"
+        if mode == "PERCENT"        then return pct
+        elseif mode == "CURRENT"    then return cur
+        elseif mode == "MAX"        then return max_
+        elseif mode == "DEFICIT"    then return deficit
+        elseif mode == "CURMAX"     then return cur  .. delim .. max_
+        elseif mode == "CURPERCENT" then return cur  .. delim .. pct
+        elseif mode == "CURMAXPERCENT"  then return cur  .. delim .. max_ .. delim .. pct
+        elseif mode == "MAXPERCENT"     then return max_ .. delim .. pct
+        elseif mode == "PERCENTCUR"     then return pct  .. delim .. cur
+        elseif mode == "PERCENTMAX"     then return pct  .. delim .. max_
+        elseif mode == "PERCENTCURMAX"  then return pct  .. delim .. cur  .. delim .. max_
+        end
+        return nil
+    end
+
+    local function BuildTextPreviewStr(leftMode, centerMode, rightMode, delim, reverse, isPower)
+        local slots = reverse and { rightMode, centerMode, leftMode } or { leftMode, centerMode, rightMode }
+        local parts = {}
+        for _, mode in ipairs(slots) do
+            local ex = TextModeExampleStr(mode, delim, isPower)
+            if ex then parts[#parts + 1] = ex end
+        end
+        return #parts > 0 and table.concat(parts, "  ") or "(none)"
+    end
 
     local hint = W.Text(text, "Font style is shared in Global Style > Fonts. Position can be adjusted here or dragged in Edit Mode.", 14, -38, textW - 210, { 0.60, 0.75, 1.00, 1 })
     if hint.SetWordWrap then hint:SetWordWrap(true) end
@@ -217,6 +279,42 @@ local function BuildGFBars(ctx)
         local key = M.gfTextTabSelection[scope] or "name"
         if key ~= "name" and key ~= "hp" and key ~= "power" and key ~= "advanced" then key = "name" end
         return key
+    end
+    M.gfTextSlotSelection = M.gfTextSlotSelection or {}
+    M.gfTextMoveTogether = M.gfTextMoveTogether or {}
+    local function CurrentSlot(kind)
+        local scope = CurrentScope()
+        local byScope = M.gfTextSlotSelection[scope]
+        local slot = byScope and byScope[kind] or "center"
+        if slot ~= "left" and slot ~= "center" and slot ~= "right" then slot = "center" end
+        return slot
+    end
+    local function SetCurrentSlot(kind, slot)
+        local scope = CurrentScope()
+        M.gfTextSlotSelection[scope] = M.gfTextSlotSelection[scope] or {}
+        M.gfTextSlotSelection[scope][kind] = slot or "center"
+    end
+    local function SlotOffsetKeys(kind)
+        local slot = CurrentSlot(kind)
+        local prefix
+        if kind == "hp" then
+            prefix = (slot == "left" and "hpTextLeft") or (slot == "right" and "hpTextRight") or "hpTextCenter"
+        else
+            prefix = (slot == "left" and "powerTextLeft") or (slot == "right" and "powerTextRight") or "powerTextCenter"
+        end
+        return prefix .. "OffsetX", prefix .. "OffsetY"
+    end
+    local function MoveTogether(kind)
+        local scope = CurrentScope()
+        local byScope = M.gfTextMoveTogether[scope]
+        local value = byScope and byScope[kind]
+        if value == nil then return true end
+        return value == true
+    end
+    local function SetMoveTogether(kind, value)
+        local scope = CurrentScope()
+        M.gfTextMoveTogether[scope] = M.gfTextMoveTogether[scope] or {}
+        M.gfTextMoveTogether[scope][kind] = value ~= false
     end
 
     local function ScopeDisplayName()
@@ -317,7 +415,7 @@ local function BuildGFBars(ctx)
     PlaceSlider(nameTab, nameSize, textRightX, -112, hpSliderW)
 
     SectionLabel(hpTab, "HP Text", textLeftX, -4)
-    PreviewText(hpTab, "630.0k / 100%", textRightX, -4, textRightW)
+    local hpPreviewLabel = PreviewText(hpTab, "", textRightX, -4, textRightW)
 
     local showHP = BindScopeToggle(ctx, W.Toggle(hpTab, "Show HP Text"), "showHPText", true, "font")
     W.MoveWidget(showHP, hpTab, textLeftX, -34)
@@ -340,12 +438,56 @@ local function BuildGFBars(ctx)
     PlaceSlider(hpTab, healthX, textRightX, -112, hpSliderW)
     PlaceSlider(hpTab, healthY, textRightX, -170, hpSliderW)
 
-    SectionLabel(hpTab, "Appearance", textRightX, -252)
+    SectionLabel(hpTab, "Selected Slot", textRightX, -232)
+    local hpMoveTogether = W.ToggleAt(hpTab, "Move text as one group", textRightX, -262, hpSliderW)
+    M.BindToggle(ctx, hpMoveTogether,
+        function() return MoveTogether("hp") end,
+        function(v)
+            SetMoveTogether("hp", v)
+            if M.RefreshGFNativePreviews then M.RefreshGFNativePreviews() end
+            M.Refresh(ctx)
+        end)
+    local hpSlot = W.Segment(hpTab, "Slot", {
+        { value = "left", text = "Left" },
+        { value = "center", text = "Center" },
+        { value = "right", text = "Right" },
+    }, hpSliderW)
+    W.MoveWidget(hpSlot, hpTab, textRightX, -304, hpSliderW, "LEFT")
+    M.BindSegment(ctx, hpSlot,
+        function() return CurrentSlot("hp") end,
+        function(v)
+            SetCurrentSlot("hp", v)
+            M.Refresh(ctx)
+        end)
+    local hpSlotX = W.Slider(hpTab, "Slot X", -100, 100, 1, hpSliderW)
+    PlaceSlider(hpTab, hpSlotX, textRightX, -366, hpSliderW)
+    M.BindSlider(ctx, hpSlotX,
+        function()
+            local xKey = SlotOffsetKeys("hp")
+            return Val(CurrentScope(), xKey, 0)
+        end,
+        function(v)
+            local xKey = SlotOffsetKeys("hp")
+            Set(CurrentScope(), xKey, v, "geometry")
+        end)
+    local hpSlotY = W.Slider(hpTab, "Slot Y", -100, 100, 1, hpSliderW)
+    PlaceSlider(hpTab, hpSlotY, textRightX, -424, hpSliderW)
+    M.BindSlider(ctx, hpSlotY,
+        function()
+            local _, yKey = SlotOffsetKeys("hp")
+            return Val(CurrentScope(), yKey, 0)
+        end,
+        function(v)
+            local _, yKey = SlotOffsetKeys("hp")
+            Set(CurrentScope(), yKey, v, "geometry")
+        end)
+
+    SectionLabel(hpTab, "Appearance", textRightX, -506)
     local healthSize = BindScopeSlider(ctx, W.Slider(hpTab, "Size", 6, 48, 1, hpSliderW), "hpFontSize", 10, "font")
-    PlaceSlider(hpTab, healthSize, textRightX, -282, hpSliderW)
+    PlaceSlider(hpTab, healthSize, textRightX, -536, hpSliderW)
 
     SectionLabel(powerTab, "Power Text", textLeftX, -4)
-    PreviewText(powerTab, "100 Energy", textRightX, -4, textRightW)
+    local powerPreviewLabel = PreviewText(powerTab, "", textRightX, -4, textRightW)
 
     local powerText = W.Toggle(powerTab, "Show Power Text")
     M.BindToggle(ctx, powerText,
@@ -372,9 +514,53 @@ local function BuildGFBars(ctx)
     PlaceSlider(powerTab, powerX, textRightX, -112, hpSliderW)
     PlaceSlider(powerTab, powerY, textRightX, -170, hpSliderW)
 
-    SectionLabel(powerTab, "Appearance", textRightX, -252)
+    SectionLabel(powerTab, "Selected Slot", textRightX, -232)
+    local powerMoveTogether = W.ToggleAt(powerTab, "Move text as one group", textRightX, -262, hpSliderW)
+    M.BindToggle(ctx, powerMoveTogether,
+        function() return MoveTogether("power") end,
+        function(v)
+            SetMoveTogether("power", v)
+            if M.RefreshGFNativePreviews then M.RefreshGFNativePreviews() end
+            M.Refresh(ctx)
+        end)
+    local powerSlot = W.Segment(powerTab, "Slot", {
+        { value = "left", text = "Left" },
+        { value = "center", text = "Center" },
+        { value = "right", text = "Right" },
+    }, hpSliderW)
+    W.MoveWidget(powerSlot, powerTab, textRightX, -304, hpSliderW, "LEFT")
+    M.BindSegment(ctx, powerSlot,
+        function() return CurrentSlot("power") end,
+        function(v)
+            SetCurrentSlot("power", v)
+            M.Refresh(ctx)
+        end)
+    local powerSlotX = W.Slider(powerTab, "Slot X", -100, 100, 1, hpSliderW)
+    PlaceSlider(powerTab, powerSlotX, textRightX, -366, hpSliderW)
+    M.BindSlider(ctx, powerSlotX,
+        function()
+            local xKey = SlotOffsetKeys("power")
+            return Val(CurrentScope(), xKey, 0)
+        end,
+        function(v)
+            local xKey = SlotOffsetKeys("power")
+            Set(CurrentScope(), xKey, v, "geometry")
+        end)
+    local powerSlotY = W.Slider(powerTab, "Slot Y", -100, 100, 1, hpSliderW)
+    PlaceSlider(powerTab, powerSlotY, textRightX, -424, hpSliderW)
+    M.BindSlider(ctx, powerSlotY,
+        function()
+            local _, yKey = SlotOffsetKeys("power")
+            return Val(CurrentScope(), yKey, 0)
+        end,
+        function(v)
+            local _, yKey = SlotOffsetKeys("power")
+            Set(CurrentScope(), yKey, v, "geometry")
+        end)
+
+    SectionLabel(powerTab, "Appearance", textRightX, -506)
     local powerSize = BindScopeSlider(ctx, W.Slider(powerTab, "Size", 6, 48, 1, hpSliderW), "powerFontSize", 9, "font")
-    PlaceSlider(powerTab, powerSize, textRightX, -282, hpSliderW)
+    PlaceSlider(powerTab, powerSize, textRightX, -536, hpSliderW)
 
     SectionLabel(advancedTab, "Text Layers", textLeftX, -4)
     local layerHint = W.Text(advancedTab, "Controls draw order when text overlaps bars, icons, or indicators.", textLeftX, -28, textLeftW, T.colors.dim)
@@ -394,18 +580,49 @@ local function BuildGFBars(ctx)
         if tabs and tabs.SetValue then tabs:SetValue(tab) end
         scopeLabel:SetText("Editing " .. ScopeDisplayName())
         SetOptionsEnabled({ nameSize, nameAnchor, nameX, nameY, nameLayer }, Bool(CurrentScope(), "showName", true))
-        SetOptionsEnabled({ healthLeft, healthCenter, healthRight, healthDelimiter, reverseHP, healthSize, healthX, healthY, hpLayer }, Bool(CurrentScope(), "showHPText", true))
-        SetOptionsEnabled({ powerLeft, powerCenter, powerRight, powerDelimiter, powerSize, powerX, powerY, powerLayer }, IsPowerTextEnabled())
+        SetOptionsEnabled({ healthLeft, healthCenter, healthRight, healthDelimiter, reverseHP, healthSize, healthX, healthY, hpMoveTogether, hpLayer }, Bool(CurrentScope(), "showHPText", true))
+        SetOptionsEnabled({ hpSlot, hpSlotX, hpSlotY }, Bool(CurrentScope(), "showHPText", true) and not MoveTogether("hp"))
+        SetOptionsEnabled({ powerLeft, powerCenter, powerRight, powerDelimiter, powerSize, powerX, powerY, powerMoveTogether, powerLayer }, IsPowerTextEnabled())
+        SetOptionsEnabled({ powerSlot, powerSlotX, powerSlotY }, IsPowerTextEnabled() and not MoveTogether("power"))
         SetOptionEnabled(showName, true)
         SetOptionEnabled(showHP, true)
         SetOptionEnabled(powerText, true)
+        local kind = CurrentScope()
+        if hpPreviewLabel then
+            local delim = Val(kind, "textDelimiter", " / ")
+            hpPreviewLabel:SetText(BuildTextPreviewStr(
+                Val(kind, "textLeft", "NONE"), Val(kind, "textCenter", "PERCENT"), Val(kind, "textRight", "NONE"),
+                delim, Bool(kind, "hpTextReverse", false), false))
+        end
+        if powerPreviewLabel then
+            local delim = Val(kind, "powerTextDelimiter", " / ")
+            powerPreviewLabel:SetText(BuildTextPreviewStr(
+                Val(kind, "powerTextLeft", "NONE"), Val(kind, "powerTextCenter", "PERCENT"), Val(kind, "powerTextRight", "NONE"),
+                delim, false, true))
+        end
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(text, nil) end
     end
     M.AddRefresher(ctx, refreshTextControls)
     refreshTextControls()
+    do
+        local entry = text and text._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = refreshTextControls end
+    end
 
     local healpred = b:CollapsibleSection("healpred", "Heal Prediction", 120, false)
     BindScopeToggle(ctx, W.Toggle(healpred, "Heal Prediction Overlay"), "healPredEnabled", false, "visual")
     W.Text(healpred, "Shows incoming heals as a lighter overlay on the health bar.", 14, -74, ctx.width - 28, T.colors.muted)
+    local function RefreshHealPredHeader()
+        if type(SetSectionHeaderStatus) ~= "function" then return end
+        local enabled = Bool(CurrentScope(), "healPredEnabled", false)
+        SetSectionHeaderStatus(healpred, nil)
+    end
+    M.AddRefresher(ctx, RefreshHealPredHeader)
+    RefreshHealPredHeader()
+    do
+        local entry = healpred and healpred._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshHealPredHeader end
+    end
 
     local dispel = b:CollapsibleSection("dispel", "Dispel Overlay", 284, false)
     local dispelToggle = BindScopeToggle(ctx, W.Toggle(dispel, "Enable Dispel Overlay"), "dispelOverlayEnabled", true, "visual")
@@ -414,10 +631,17 @@ local function BuildGFBars(ctx)
     local dispelStyle = BindScopeDropdown(ctx, W.Dropdown(dispel, "Overlay style", DISPEL_OVERLAY_STYLES, 220), "dispelOverlayStyle", "FULL", "visual")
     local dispelCurrent = BindScopeToggle(ctx, W.Toggle(dispel, "Show on current health only"), "dispelOverlayOnHealth", true, "visual")
     local dispelAlpha = BindScopeSlider(ctx, W.Slider(dispel, "Overlay opacity", 0.05, 1, 0.05, 300), "dispelOverlayAlpha", 0.35, "visual")
-    M.AddRefresher(ctx, function()
+    local function RefreshDispelState()
         SetOptionsEnabled({ dispelStyle, dispelCurrent, dispelAlpha }, Bool(CurrentScope(), "dispelOverlayEnabled", true))
         SetOptionEnabled(dispelToggle, true)
-    end)
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(dispel, nil) end
+    end
+    M.AddRefresher(ctx, RefreshDispelState)
+    RefreshDispelState()
+    do
+        local entry = dispel and dispel._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshDispelState end
+    end
 
     local stripe = b:CollapsibleSection("dstripe", "Debuff Stripe", 276, false)
     local stripeToggle = BindScopeToggle(ctx, W.Toggle(stripe, "Enable Debuff Stripe"), "debuffStripeEnabled", false, "visual")
@@ -426,10 +650,17 @@ local function BuildGFBars(ctx)
     local stripeEdge = BindScopeDropdown(ctx, W.Dropdown(stripe, "Stripe edge", DEBUFF_STRIPE_EDGES, 220), "debuffStripeEdge", "BOTTOM", "visual")
     local stripeHeight = BindScopeSlider(ctx, W.Slider(stripe, "Stripe height", 1, 8, 1, 300), "debuffStripeHeight", 3, "visual")
     local stripeAlpha = BindScopeSlider(ctx, W.Slider(stripe, "Stripe opacity", 0.10, 1, 0.05, 300), "debuffStripeAlpha", 0.60, "visual")
-    M.AddRefresher(ctx, function()
+    local function RefreshStripeState()
         SetOptionsEnabled({ stripeEdge, stripeHeight, stripeAlpha }, Bool(CurrentScope(), "debuffStripeEnabled", false))
         SetOptionEnabled(stripeToggle, true)
-    end)
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(stripe, nil) end
+    end
+    M.AddRefresher(ctx, RefreshStripeState)
+    RefreshStripeState()
+    do
+        local entry = stripe and stripe._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshStripeState end
+    end
 
     local range = b:CollapsibleSection("range", "Range Fade", 190, false)
     local rangeToggle = BindScopeToggle(ctx, W.Toggle(range, "Enable Range Fade"), "rangeFadeEnabled", false, "visual")
@@ -496,10 +727,19 @@ local function BuildGFBars(ctx)
         function(v) return string.format("Offline Alpha: %.0f%%", (tonumber(v) or 0) * 100) end)
     PlaceRangeSlider(offlineAlpha, rangeRightX, -108, rangeRightWidth)
 
-    M.AddRefresher(ctx, function()
+    local function RefreshRangeState()
         SetOptionsEnabled({ rangeMode, rangeAlpha, offlineAlpha }, Bool(CurrentScope(), "rangeFadeEnabled", false))
         SetOptionEnabled(rangeToggle, true)
-    end)
+        if type(SetSectionHeaderStatus) == "function" then
+            SetSectionHeaderStatus(range, nil)
+        end
+    end
+    M.AddRefresher(ctx, RefreshRangeState)
+    RefreshRangeState()
+    do
+        local entry = range and range._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshRangeState end
+    end
 
     if type(ApplyScopeEnabledGate) == "function" then
         M.AddRefresher(ctx, function() ApplyScopeEnabledGate(ctx) end)

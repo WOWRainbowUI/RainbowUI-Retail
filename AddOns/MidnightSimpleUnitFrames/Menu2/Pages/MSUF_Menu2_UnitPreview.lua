@@ -206,14 +206,18 @@ local function SeedTextFromGeneral(db)
         if db.hpTextMode == nil then db.hpTextMode = g.hpTextMode end
         if db.hpTextReverse == nil then db.hpTextReverse = g.hpTextReverse end
         if db.powerTextMode == nil then db.powerTextMode = g.powerTextMode end
+        if db.textLeft == nil and db.textCenter == nil and db.textRight == nil then
+            db.textLeft = "NONE"
+            db.textCenter = "NONE"
+            db.textRight = db.hpTextMode or g.hpTextMode or "CURPERCENT"
+        end
+        if db.powerTextLeft == nil and db.powerTextCenter == nil and db.powerTextRight == nil then
+            db.powerTextLeft = "NONE"
+            db.powerTextCenter = "NONE"
+            db.powerTextRight = db.powerTextMode or g.powerTextMode or "CURPERCENT"
+        end
         if db.hpTextSeparator == nil then db.hpTextSeparator = g.hpTextSeparator end
         if db.powerTextSeparator == nil then db.powerTextSeparator = g.powerTextSeparator end
-        if db.hpTextSpacerEnabled == nil then db.hpTextSpacerEnabled = g.hpTextSpacerEnabled end
-        if db.hpTextSpacerX == nil then db.hpTextSpacerX = g.hpTextSpacerX end
-        if db.powerTextSpacerEnabled == nil then db.powerTextSpacerEnabled = g.powerTextSpacerEnabled end
-        if db.powerTextSpacerX == nil then db.powerTextSpacerX = g.powerTextSpacerX end
-        if db.hpTextAnchor == nil then db.hpTextAnchor = g.hpTextAnchor end
-        if db.powerTextAnchor == nil then db.powerTextAnchor = g.powerTextAnchor end
     end
     if db.nameTextLayer == nil then db.nameTextLayer = 5 end
     if db.hpTextLayer == nil then db.hpTextLayer = 5 end
@@ -247,6 +251,23 @@ local function TextScopeGet(key, field, defaultValue)
     if u[field] ~= nil then return u[field] end
     if g[field] ~= nil then return g[field] end
     return defaultValue
+end
+
+local function TextScopeHasSlots(key, leftKey, centerKey, rightKey)
+    local u, g = UnitDB(key)
+    SeedTextFromGeneral(u)
+    return (u and (u[leftKey] ~= nil or u[centerKey] ~= nil or u[rightKey] ~= nil))
+        or (g and (g[leftKey] ~= nil or g[centerKey] ~= nil or g[rightKey] ~= nil))
+end
+
+local function TextScopeSlotGet(key, field, fallback, normalizer)
+    local u, g = UnitDB(key)
+    SeedTextFromGeneral(u)
+    local value = u[field]
+    if value == nil and g then value = g[field] end
+    if value == nil or value == "" then value = fallback or "NONE" end
+    if normalizer then value = normalizer(value) end
+    return value or fallback or "NONE"
 end
 
 local TOTINLINE_SEP_VALID = {
@@ -659,8 +680,9 @@ local function DarkMatchHPColor(r, g, b, cache)
     return Clamp01(r, 0), Clamp01(g, 0), Clamp01(b, 0)
 end
 
-local function HealthBackgroundColor(hr, hg, hb)
+local function HealthBackgroundColor(hr, hg, hb, data)
     local cache = SettingsCache()
+    local gen = (cache and cache.generalRef) or (_G.MSUF_DB and _G.MSUF_DB.general)
     local r, g, b, a
     if cache then
         r, g, b, a = cache.barBgTintR, cache.barBgTintG, cache.barBgTintB, cache.barBgTintA
@@ -668,7 +690,9 @@ local function HealthBackgroundColor(hr, hg, hb)
         r, g, b, a = _G.MSUF_GetBarBackgroundTintRGBA()
     end
     r, g, b, a = Clamp01(r, 0), Clamp01(g, 0), Clamp01(b, 0), Clamp01(a, 0.9)
-    if cache and cache.barBgMatchHPColor then
+    if ((cache and cache.barBgClassColor) or ((not cache) and gen and gen.barBgClassColor)) and data and data.isPlayer then
+        r, g, b = ClassColor(data.class)
+    elseif (cache and cache.barBgMatchHPColor) or ((not cache) and gen and gen.barBgMatchHPColor) then
         r, g, b = DarkMatchHPColor(hr, hg, hb, cache)
     end
     a = a * Clamp01(cache and cache.barBackgroundAlpha, 0.9)
@@ -764,18 +788,6 @@ local function ReadPowerBarHeight(conf)
     return h
 end
 
-local function ResolveTextAnchor(anchor, isTop)
-    if anchor == "LEFT" then
-        local pt = isTop and "TOPLEFT" or "BOTTOMLEFT"
-        return pt, pt, 4, "LEFT", 1
-    elseif anchor == "CENTER" then
-        local pt = isTop and "TOP" or "BOTTOM"
-        return pt, pt, 0, "CENTER", 1
-    end
-    local pt = isTop and "TOPRIGHT" or "BOTTOMRIGHT"
-    return pt, pt, -4, "RIGHT", -1
-end
-
 local function ResolveNameAnchor(anchor, x)
     x = tonumber(x) or 0
     if anchor == "RIGHT" then return "TOPRIGHT", "TOPRIGHT", -x, "RIGHT" end
@@ -818,12 +830,31 @@ local function FormatMode(mode, cur, maxVal, pct, sep, isPower)
     return c .. s .. p
 end
 
-local function PositionText(fs, anchor, isTop, x, y, parent, defaultX)
-    if not fs then return end
-    fs:ClearAllPoints()
-    local pt, relPt, defX, justify = ResolveTextAnchor(anchor, isTop)
-    fs:SetPoint(pt, parent, relPt, tonumber(x) or defaultX or defX, tonumber(y) or (isTop and -4 or 4))
-    fs:SetJustifyH(justify)
+local UnitPreviewText = {}
+
+function UnitPreviewText.PlaceHandleAroundRegions(handle, parent, regions, pad)
+    if not (handle and parent and parent.GetLeft and regions) then return false end
+    pad = tonumber(pad) or 3
+    local left, right, top, bottom
+    for i = 1, #regions do
+        local r = regions[i]
+        if r and r.IsShown and r:IsShown() and r.GetLeft then
+            local l, rr, t, b = r:GetLeft(), r:GetRight(), r:GetTop(), r:GetBottom()
+            if l and rr and t and b then
+                left = left and min(left, l) or l
+                right = right and max(right, rr) or rr
+                top = top and max(top, t) or t
+                bottom = bottom and min(bottom, b) or b
+            end
+        end
+    end
+    local pLeft, pBottom = parent:GetLeft(), parent:GetBottom()
+    if not (left and right and top and bottom and pLeft and pBottom) then return false end
+    handle:ClearAllPoints()
+    handle:SetSize(max(18, right - left + pad * 2), max(18, top - bottom + pad * 2))
+    handle:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", left - pLeft - pad, bottom - pBottom - pad)
+    handle:Show()
+    return true
 end
 
 local function PositionFromAnchor(frame, anchor, x, y, target, size)
@@ -845,6 +876,48 @@ local function PositionFromAnchor(frame, anchor, x, y, target, size)
     else frame:SetPoint("CENTER", target, "TOPLEFT", x + size * 0.5, y - size * 0.5) end
 end
 
+local function ResolveRuntimeIconLayoutAnchor(anchor, allowCenter)
+    if allowCenter and anchor == "CENTER" then return "CENTER", "CENTER" end
+    if anchor == "TOPRIGHT" then return "RIGHT", "TOPRIGHT" end
+    if anchor == "BOTTOMLEFT" then return "LEFT", "BOTTOMLEFT" end
+    if anchor == "BOTTOMRIGHT" then return "RIGHT", "BOTTOMRIGHT" end
+    return "LEFT", "TOPLEFT"
+end
+
+local function PositionRuntimeLayoutIconPreview(frame, anchor, x, y, target, allowCenter)
+    if not frame or not target then return end
+    frame:ClearAllPoints()
+    local point, relPoint = ResolveRuntimeIconLayoutAnchor(tostring(anchor or "TOPLEFT"), allowCenter)
+    frame:SetPoint(point, target, relPoint, tonumber(x) or 0, tonumber(y) or 0)
+end
+
+local function PositionStatusCornerPreview(frame, anchor, x, y, target, pad)
+    if not frame or not target then return end
+    frame:ClearAllPoints()
+    anchor = tostring(anchor or "TOPLEFT")
+    x = tonumber(x) or 0
+    y = tonumber(y) or 0
+    pad = tonumber(pad) or 2
+    if anchor == "CENTER" then
+        frame:SetPoint("CENTER", target, "CENTER", x, y)
+    elseif anchor == "TOPRIGHT" then
+        frame:SetPoint("TOPRIGHT", target, "TOPRIGHT", -pad + x, -pad + y)
+    elseif anchor == "BOTTOMLEFT" then
+        frame:SetPoint("BOTTOMLEFT", target, "BOTTOMLEFT", pad + x, pad + y)
+    elseif anchor == "BOTTOMRIGHT" then
+        frame:SetPoint("BOTTOMRIGHT", target, "BOTTOMRIGHT", -pad + x, pad + y)
+    else
+        frame:SetPoint("TOPLEFT", target, "TOPLEFT", pad + x, -pad + y)
+    end
+end
+
+local function PositionSameAnchorPreview(frame, anchor, x, y, target)
+    if not frame or not target then return end
+    frame:ClearAllPoints()
+    anchor = tostring(anchor or "CENTER")
+    frame:SetPoint(anchor, target, anchor, tonumber(x) or 0, tonumber(y) or 0)
+end
+
 local function PositionLevelPreview(frame, anchor, x, y, mock, gap)
     if not frame or not mock then return end
     frame:ClearAllPoints()
@@ -857,7 +930,7 @@ local function PositionLevelPreview(frame, anchor, x, y, mock, gap)
     elseif anchor == "NAMERIGHT" and mock.nameText then
         frame:SetPoint("LEFT", mock.nameText, "RIGHT", gap + x, y)
     else
-        PositionFromAnchor(frame, anchor, x, y, mock.textFrame or mock, frame.GetWidth and frame:GetWidth() or 14)
+        PositionSameAnchorPreview(frame, anchor, x, y, mock.textFrame or mock)
     end
 end
 
@@ -1054,6 +1127,23 @@ local function ReadHandleOffsets(handle)
     return x, y, xKey, yKey
 end
 
+local function UnitPreviewTextMovesTogether(unitKey, kind)
+    local m = _G.MSUF2
+    local byUnit = m and m.unitTextMoveTogether and m.unitTextMoveTogether[unitKey or "player"]
+    local value = byUnit and byUnit[kind]
+    if value == nil then return true end
+    return value == true
+end
+
+local function UnitPreviewSetTextMoveTogether(unitKey, kind, value)
+    local m = _G.MSUF2
+    if not m then return end
+    unitKey = unitKey or "player"
+    m.unitTextMoveTogether = m.unitTextMoveTogether or {}
+    m.unitTextMoveTogether[unitKey] = m.unitTextMoveTogether[unitKey] or {}
+    m.unitTextMoveTogether[unitKey][kind] = value ~= false
+end
+
 local function UpdateHandleHint(box, handle)
     if not box or not box.hint then return end
     if not handle then
@@ -1077,11 +1167,12 @@ local function RefreshHandleSelectionVisuals(box)
                 if isSel then h._selBorder:Show() else h._selBorder:Hide() end
             end
             local c = h._color or { 0.7, 0.8, 1.0 }
+            local isDrag = h._dragging == true
             if h.tex then
-                h.tex:SetColorTexture(c[1], c[2], c[3], isSel and 0.24 or (isHover and 0.15 or 0))
+                h.tex:SetColorTexture(c[1], c[2], c[3], isDrag and 0.18 or (isHover and 0.14 or 0))
             end
             if h.edge then
-                h.edge:SetColorTexture(c[1], c[2], c[3], isSel and 0.92 or (isHover and 0.58 or 0))
+                h.edge:SetColorTexture(c[1], c[2], c[3], isDrag and 0.18 or (isHover and 0.08 or 0))
             end
             if h.SetAlpha then h:SetAlpha(1) end
         end
@@ -1183,11 +1274,35 @@ SelectPreviewHandle = function(handle, skipSectionOpen)
     if handle then
         local p = box._msufPanel
         local fields = handle._fields or {}
+        local menu = _G.MSUF2
         if fields.statusRefresh then
             Preview.selectedStatusId = NormalizeStatusPreviewId(handle._key)
             if not skipSectionOpen and p and type(p._msufUFStatusSet) == "function" then
                 p._msufUFStatusSet("selected", handle._key)
             end
+        end
+        if menu and (handle._key == "hpLeft" or handle._key == "hpCenter" or handle._key == "hpRight") then
+            UnitPreviewSetTextMoveTogether(box.key, "hp", false)
+            menu.unitTextTabSelection = menu.unitTextTabSelection or {}
+            menu.unitTextSlotSelection = menu.unitTextSlotSelection or {}
+            menu.unitTextTabSelection[box.key or "player"] = "hp"
+            menu.unitTextSlotSelection[box.key or "player"] = menu.unitTextSlotSelection[box.key or "player"] or {}
+            menu.unitTextSlotSelection[box.key or "player"].hp = (handle._key == "hpLeft" and "left") or (handle._key == "hpRight" and "right") or "center"
+        elseif menu and handle._key == "hp" then
+            UnitPreviewSetTextMoveTogether(box.key, "hp", true)
+            menu.unitTextTabSelection = menu.unitTextTabSelection or {}
+            menu.unitTextTabSelection[box.key or "player"] = "hp"
+        elseif menu and (handle._key == "powerLeft" or handle._key == "powerCenter" or handle._key == "powerRight") then
+            UnitPreviewSetTextMoveTogether(box.key, "power", false)
+            menu.unitTextTabSelection = menu.unitTextTabSelection or {}
+            menu.unitTextSlotSelection = menu.unitTextSlotSelection or {}
+            menu.unitTextTabSelection[box.key or "player"] = "power"
+            menu.unitTextSlotSelection[box.key or "player"] = menu.unitTextSlotSelection[box.key or "player"] or {}
+            menu.unitTextSlotSelection[box.key or "player"].power = (handle._key == "powerLeft" and "left") or (handle._key == "powerRight" and "right") or "center"
+        elseif menu and handle._key == "power" then
+            UnitPreviewSetTextMoveTogether(box.key, "power", true)
+            menu.unitTextTabSelection = menu.unitTextTabSelection or {}
+            menu.unitTextTabSelection[box.key or "player"] = "power"
         end
         if not skipSectionOpen and p and type(p._msufOpenUnitSection) == "function" then
             p._msufOpenUnitSection(fields.section or "text")
@@ -1243,10 +1358,26 @@ local function MakeHandle(preview, key, fields, label, color)
     h._key = key
     h._preview = preview
     h._color = color
-    h._selBorder = h:CreateTexture(nil, "OVERLAY", nil, 7)
-    h._selBorder:SetPoint("TOPLEFT", h, "TOPLEFT", -2, 2)
-    h._selBorder:SetPoint("BOTTOMRIGHT", h, "BOTTOMRIGHT", 2, -2)
-    h._selBorder:SetColorTexture(0.30, 0.58, 0.95, 0.48)
+    h._selBorder = CreateFrame("Frame", nil, h)
+    h._selBorder:SetPoint("TOPLEFT", h, "TOPLEFT", -1, 1)
+    h._selBorder:SetPoint("BOTTOMRIGHT", h, "BOTTOMRIGHT", 1, -1)
+    for _, side in ipairs({ "top", "bottom", "left", "right" }) do
+        local line = h._selBorder:CreateTexture(nil, "OVERLAY")
+        line:SetColorTexture(0.30, 0.58, 0.95, 0.70)
+        h._selBorder[side] = line
+    end
+    h._selBorder.top:SetPoint("TOPLEFT")
+    h._selBorder.top:SetPoint("TOPRIGHT")
+    h._selBorder.top:SetHeight(1)
+    h._selBorder.bottom:SetPoint("BOTTOMLEFT")
+    h._selBorder.bottom:SetPoint("BOTTOMRIGHT")
+    h._selBorder.bottom:SetHeight(1)
+    h._selBorder.left:SetPoint("TOPLEFT")
+    h._selBorder.left:SetPoint("BOTTOMLEFT")
+    h._selBorder.left:SetWidth(1)
+    h._selBorder.right:SetPoint("TOPRIGHT")
+    h._selBorder.right:SetPoint("BOTTOMRIGHT")
+    h._selBorder.right:SetWidth(1)
     h._selBorder:Hide()
     h:SetScript("OnEnter", function(self)
         self._hovering = true
@@ -1394,6 +1525,24 @@ local function SetPreviewIconTexture(icon, spec, conf, g, key, data)
     end
 end
 
+local function ResolveStatusPreviewAnchor(spec, conf, g)
+    if not spec then return "TOPLEFT" end
+    conf = conf or {}
+    g = g or {}
+    local anchor = spec.anchor and (conf[spec.anchor] or g[spec.anchor]) or nil
+    if anchor == nil then
+        if spec.id == "statusCombat" then
+            anchor = conf.combatStateIndicatorPos or g.combatStateIndicatorPos
+        elseif spec.id == "statusResting" then
+            anchor = conf.combatStateIndicatorAnchor or g.combatStateIndicatorAnchor
+                or conf.combatStateIndicatorPos or g.combatStateIndicatorPos
+        elseif spec.id == "statusIncomingRes" then
+            anchor = conf.incomingResIndicatorPos or g.incomingResIndicatorPos
+        end
+    end
+    return anchor or spec.defaultAnchor or "TOPLEFT"
+end
+
 local STATUS_PREVIEW = {
     { id = "raidmarker", show = "showRaidMarker", size = "raidMarkerSize", anchor = "raidMarkerAnchor", x = "raidMarkerOffsetX", y = "raidMarkerOffsetY", defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 16, defaultY = 3, text = "8", color = { 1, 0.82, 0.05 }, label = "Raid marker", refresh = "MSUF_RefreshRaidMarkerFrames" },
     { id = "leader", show = "showLeaderIcon", size = "leaderIconSize", anchor = "leaderIconAnchor", x = "leaderIconOffsetX", y = "leaderIconOffsetY", defaultSize = 14, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 3, text = "L", color = { 0.95, 0.82, 0.20 }, label = "Leader icon", refresh = "MSUF_RefreshLeaderIconFrames", allowed = function(k) return k == "player" or k == "target" end },
@@ -1402,7 +1551,7 @@ local STATUS_PREVIEW = {
     { id = "statusText", show = "statusTextEnabled", size = "statusTextSize", anchor = "statusTextAnchor", x = "statusTextOffsetX", y = "statusTextOffsetY", defaultSize = 16, defaultAnchor = "CENTER", defaultX = 0, defaultY = 0, text = "DEAD", color = { 0.68, 0.70, 0.74 }, label = "Dead text", refresh = "MSUF_RequestStatusTextRefresh" },
     { id = "statusCombat", show = "showCombatStateIndicator", size = "combatStateIndicatorSize", anchor = "combatStateIndicatorAnchor", x = "combatStateIndicatorOffsetX", y = "combatStateIndicatorOffsetY", defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 0, text = "C", color = { 1.0, 0.22, 0.16 }, label = "Combat icon", refresh = "MSUF_RequestStatusCombatIndicatorRefresh", allowed = function(k) return k == "player" or k == "target" end },
     { id = "statusResting", show = "showRestingIndicator", size = "restedStateIndicatorSize", anchor = "restedStateIndicatorAnchor", x = "restedStateIndicatorOffsetX", y = "restedStateIndicatorOffsetY", defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 0, text = "Z", color = { 0.34, 0.62, 1.0 }, label = "Rested icon", refresh = "MSUF_RequestStatusRestingIndicatorRefresh", defaultShow = false, allowed = function(k) return k == "player" end },
-    { id = "statusIncomingRes", show = "showIncomingResIndicator", size = "incomingResIndicatorSize", anchor = "incomingResIndicatorAnchor", x = "incomingResIndicatorOffsetX", y = "incomingResIndicatorOffsetY", defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 0, text = "+", color = { 0.22, 1.0, 0.56 }, label = "Incoming Rez icon", refresh = "MSUF_RequestStatusIncomingResIndicatorRefresh", allowed = function(k) return k == "player" or k == "target" end },
+    { id = "statusIncomingRes", show = "showIncomingResIndicator", size = "incomingResIndicatorSize", anchor = "incomingResIndicatorAnchor", x = "incomingResIndicatorOffsetX", y = "incomingResIndicatorOffsetY", defaultSize = 18, defaultAnchor = "TOPRIGHT", defaultX = 0, defaultY = 0, text = "+", color = { 0.22, 1.0, 0.56 }, label = "Incoming Rez icon", refresh = "MSUF_RequestStatusIncomingResIndicatorRefresh", allowed = function(k) return k == "player" or k == "target" end },
 }
 
 local PREVIEW_LAYERS = {
@@ -1488,14 +1637,29 @@ local function BuildPreview(parent, panel, width, height)
         btn.bar = bar
         local fs = btn:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
         fs:SetPoint("LEFT", bar, "RIGHT", 5, 0)
+        fs:SetPoint("RIGHT", btn, "RIGHT", -18, 0)
+        fs:SetJustifyH("LEFT")
         fs:SetText(TR(def.label))
         btn.fs = fs
+        local off = btn:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+        off:SetPoint("RIGHT", btn, "RIGHT", -2, 0)
+        off:SetText("OFF")
+        off:SetJustifyH("RIGHT")
+        off:Hide()
+        btn.off = off
         btn.key = def.key
         btn.color = def.color
         btn.refresh = function(self)
             local on = box.layerVisibility[self.key] ~= false
+            local available = not (box.layerAvailable and box.layerAvailable[self.key] == false)
             local c = self.color
-            if on then
+            self.off:SetShown(not available)
+            if not available then
+                self.bg:SetColorTexture(0.020, 0.020, 0.028, 0.48)
+                self.bar:SetColorTexture(0.18, 0.18, 0.22, 0.35)
+                self.fs:SetTextColor(0.30, 0.30, 0.36, 0.55)
+                self.off:SetTextColor(0.36, 0.36, 0.42, 0.65)
+            elseif on then
                 self.bg:SetColorTexture(c[1] * 0.12, c[2] * 0.12, c[3] * 0.12, 0.58)
                 self.bar:SetColorTexture(c[1], c[2], c[3], 0.88)
                 self.fs:SetTextColor(0.76, 0.80, 0.90, 0.95)
@@ -1506,20 +1670,42 @@ local function BuildPreview(parent, panel, width, height)
             end
         end
         btn:SetScript("OnClick", function(self)
+            if box.layerAvailable and box.layerAvailable[self.key] == false then
+                box.hint:SetText(TR("This layer is off in settings and cannot be shown in preview."))
+                return
+            end
             box.layerVisibility[self.key] = (box.layerVisibility[self.key] == false)
             for j = 1, #box.layerButtons do box.layerButtons[j]:refresh() end
             Preview.Refresh(box)
         end)
         btn:SetScript("OnEnter", function(self)
             local c = self.color
-            if box.layerVisibility[self.key] ~= false then
+            if box.layerAvailable and box.layerAvailable[self.key] == false then
+                self.bg:SetColorTexture(0.045, 0.045, 0.055, 0.62)
+                self.fs:SetTextColor(0.42, 0.42, 0.48, 0.75)
+                box.hint:SetText(TR("This layer is off in settings and cannot be shown in preview."))
+                if GameTooltip then
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(TR("Layer disabled"), 1, 1, 1)
+                    GameTooltip:AddLine(TR("Turn this feature on in settings to make the preview layer available."), 0.82, 0.82, 0.82, true)
+                    GameTooltip:Show()
+                end
+            elseif box.layerVisibility[self.key] ~= false then
                 self.bg:SetColorTexture(c[1] * 0.18, c[2] * 0.18, c[3] * 0.18, 0.78)
+                if GameTooltip then GameTooltip:Hide() end
             else
                 self.bg:SetColorTexture(0.08, 0.08, 0.10, 0.55)
+                if GameTooltip then GameTooltip:Hide() end
             end
-            self.fs:SetTextColor(0.90, 0.92, 1.0, 1)
+            if not (box.layerAvailable and box.layerAvailable[self.key] == false) then
+                self.fs:SetTextColor(0.90, 0.92, 1.0, 1)
+            end
         end)
-        btn:SetScript("OnLeave", function(self) self:refresh() end)
+        btn:SetScript("OnLeave", function(self)
+            if GameTooltip then GameTooltip:Hide() end
+            self:refresh()
+            UpdateHandleHint(box, box._selectedHandle)
+        end)
         box.layerButtons[#box.layerButtons + 1] = btn
         btn:refresh()
     end
@@ -1593,8 +1779,14 @@ local function BuildPreview(parent, panel, width, height)
     mock.nameText = MakeFS(mock.nameLayer, "OVERLAY", 12)
     mock.totInlineSep = MakeFS(mock.nameLayer, "OVERLAY", 12)
     mock.totInlineText = MakeFS(mock.nameLayer, "OVERLAY", 12)
+    mock.hpTextLeft = MakeFS(mock.hpLayer, "OVERLAY", 12)
+    mock.hpTextCenter = MakeFS(mock.hpLayer, "OVERLAY", 12)
     mock.hpText = MakeFS(mock.hpLayer, "OVERLAY", 12)
+    mock.hpTextPct = MakeFS(mock.hpLayer, "OVERLAY", 12)
+    mock.powerTextLeft = MakeFS(mock.powerLayer, "OVERLAY", 12)
+    mock.powerTextCenter = MakeFS(mock.powerLayer, "OVERLAY", 12)
     mock.powerText = MakeFS(mock.powerLayer, "OVERLAY", 12)
+    mock.powerTextPct = MakeFS(mock.powerLayer, "OVERLAY", 12)
 
     mock.cast = CreateFrame("Frame", nil, canvas, "BackdropTemplate")
     mock.cast:SetBackdrop({ bgFile = TEX_W8, edgeFile = TEX_W8, edgeSize = 1 })
@@ -1655,7 +1847,13 @@ local function BuildPreview(parent, panel, width, height)
 
     box.handleName = MakeHandle(box, "name", { x = "nameOffsetX", y = "nameOffsetY", defaultX = 4, defaultY = -4, text = true, section = "text" }, "Name text", { 0.30, 0.66, 1.0 })
     box.handleHP = MakeHandle(box, "hp", { x = "hpOffsetX", y = "hpOffsetY", defaultX = -4, defaultY = -4, text = true, section = "text" }, "HP text", { 0.25, 0.90, 0.42 })
+    box.handleHPLeft = MakeHandle(box, "hpLeft", { x = "hpTextLeftOffsetX", y = "hpTextLeftOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "HP left text", { 0.25, 0.90, 0.42 })
+    box.handleHPCenter = MakeHandle(box, "hpCenter", { x = "hpTextCenterOffsetX", y = "hpTextCenterOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "HP center text", { 0.25, 0.90, 0.42 })
+    box.handleHPRight = MakeHandle(box, "hpRight", { x = "hpTextRightOffsetX", y = "hpTextRightOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "HP right text", { 0.25, 0.90, 0.42 })
     box.handlePower = MakeHandle(box, "power", { x = "powerOffsetX", y = "powerOffsetY", defaultX = -4, defaultY = 4, text = true, section = "text" }, "Power text", { 0.95, 0.72, 0.18 })
+    box.handlePowerLeft = MakeHandle(box, "powerLeft", { x = "powerTextLeftOffsetX", y = "powerTextLeftOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "Power left text", { 0.95, 0.72, 0.18 })
+    box.handlePowerCenter = MakeHandle(box, "powerCenter", { x = "powerTextCenterOffsetX", y = "powerTextCenterOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "Power center text", { 0.95, 0.72, 0.18 })
+    box.handlePowerRight = MakeHandle(box, "powerRight", { x = "powerTextRightOffsetX", y = "powerTextRightOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "Power right text", { 0.95, 0.72, 0.18 })
     box.handlePortrait = MakeHandle(box, "portrait", { x = "portraitOffsetX", y = "portraitOffsetY", defaultX = 0, defaultY = 0, portrait = true, section = "portrait" }, "Portrait", { 0.90, 0.42, 1.0 })
     box.handleDetachedPower = MakeHandle(box, "detachedPower", { x = "detachedPowerBarOffsetX", y = "detachedPowerBarOffsetY", defaultX = 0, defaultY = -4, detachedPower = true, section = "power" }, "Detached power bar", { 0.95, 0.72, 0.18 })
     box.handleCastbar = MakeHandle(box, "castbar", { castbar = true, global = true, section = "castbar" }, "Castbar", { 0.20, 0.90, 0.85 })
@@ -1690,8 +1888,11 @@ local function BuildPreview(parent, panel, width, height)
         if self.SetPropagateKeyboardInput then self:SetPropagateKeyboardInput(true) end
     end)
     box:SetScript("OnEvent", function(_, event)
-        if event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
+        if event == "PLAYER_REGEN_ENABLED" then
             Preview.RequestRefresh("COMBAT_ALPHA")
+        elseif event == "PLAYER_REGEN_DISABLED" then
+            box._refreshReason = nil
+            box._refreshQueued = nil
         end
     end)
 
@@ -1736,17 +1937,21 @@ end
 local function ApplyPreviewLayerVisibility(box)
     if not box or not box.mock then return end
     local v = box.layerVisibility or {}
+    local available = box.layerAvailable or {}
+    local function LayerOn(key)
+        return available[key] ~= false and v[key] ~= false
+    end
     local mock = box.mock
-    local bodyOn = v.body ~= false
-    local powerOn = v.power ~= false
-    local nameOn = v.nameText ~= false
-    local hpTextOn = v.hpText ~= false
-    local powerTextOn = v.powerText ~= false
-    local portraitOn = v.portrait ~= false
-    local classOn = v.classPower ~= false
-    local castOn = v.castbar ~= false
-    local statusOn = v.status ~= false
-    local boundsOn = v.bounds ~= false
+    local bodyOn = LayerOn("body")
+    local powerOn = LayerOn("power")
+    local nameOn = LayerOn("nameText")
+    local hpTextOn = LayerOn("hpText")
+    local powerTextOn = LayerOn("powerText")
+    local portraitOn = LayerOn("portrait")
+    local classOn = LayerOn("classPower")
+    local castOn = LayerOn("castbar")
+    local statusOn = LayerOn("status")
+    local boundsOn = LayerOn("bounds")
 
     if bodyOn then
         mock:SetBackdropColor(0, 0, 0, 0.92)
@@ -1774,8 +1979,26 @@ local function ApplyPreviewLayerVisibility(box)
         SetShownSafe(mock.totInlineText, false)
         SetShownSafe(box.handleName, false)
     end
-    if not hpTextOn then SetShownSafe(mock.hpText, false); SetShownSafe(box.handleHP, false) end
-    if not powerTextOn then SetShownSafe(mock.powerText, false); SetShownSafe(box.handlePower, false) end
+    if not hpTextOn then
+        SetShownSafe(mock.hpTextLeft, false)
+        SetShownSafe(mock.hpTextCenter, false)
+        SetShownSafe(mock.hpText, false)
+        SetShownSafe(mock.hpTextPct, false)
+        SetShownSafe(box.handleHP, false)
+        SetShownSafe(box.handleHPLeft, false)
+        SetShownSafe(box.handleHPCenter, false)
+        SetShownSafe(box.handleHPRight, false)
+    end
+    if not powerTextOn then
+        SetShownSafe(mock.powerTextLeft, false)
+        SetShownSafe(mock.powerTextCenter, false)
+        SetShownSafe(mock.powerText, false)
+        SetShownSafe(mock.powerTextPct, false)
+        SetShownSafe(box.handlePower, false)
+        SetShownSafe(box.handlePowerLeft, false)
+        SetShownSafe(box.handlePowerCenter, false)
+        SetShownSafe(box.handlePowerRight, false)
+    end
     if not portraitOn then
         SetShownSafe(mock.portrait, false)
         SetShownSafe(box.handlePortrait, false)
@@ -1878,7 +2101,8 @@ local function ApplyPreviewTransparency(box, conf)
     local mock = box.mock
     local alpha = PreviewAlphaState(conf)
     local v = box.layerVisibility or {}
-    local bodyOn = v.body ~= false
+    local available = box.layerAvailable or {}
+    local bodyOn = available.body ~= false and v.body ~= false
 
     if mock.SetAlpha then mock:SetAlpha(1) end
     if bodyOn then
@@ -1910,6 +2134,7 @@ end
 function Preview.Refresh(box, reason)
     box = box or Preview.active
     if not box or not box:IsShown() then return end
+    if PreviewInCombat() then return end
     local panel = box._msufPanel
     local key = CurrentPanelKey(panel)
     local conf, g = UnitDB(key)
@@ -2072,7 +2297,7 @@ function Preview.Refresh(box, reason)
     mock.hp:SetPoint("BOTTOMLEFT", mock.hpBG, "BOTTOMLEFT", 0, 0)
     mock.hp:SetWidth(max(1, (sw - S(4)) * data.hp))
     local hr, hg, hb = HealthColor(key, data)
-    local hbr, hbg, hbb, hba = HealthBackgroundColor(hr, hg, hb)
+    local hbr, hbg, hbb, hba = HealthBackgroundColor(hr, hg, hb, data)
     mock.hpBG:SetVertexColor(hbr, hbg, hbb, hba)
     mock.hp:SetVertexColor(hr, hg, hb, 1)
     if powerOn then
@@ -2157,33 +2382,86 @@ function Preview.Refresh(box, reason)
     mock.nameText:SetFont(FONT, nameSize, "OUTLINE")
     mock.totInlineSep:SetFont(FONT, nameSize, "OUTLINE")
     mock.totInlineText:SetFont(FONT, nameSize, "OUTLINE")
+    mock.hpTextLeft:SetFont(FONT, hpSize, "OUTLINE")
+    mock.hpTextCenter:SetFont(FONT, hpSize, "OUTLINE")
     mock.hpText:SetFont(FONT, hpSize, "OUTLINE")
+    mock.hpTextPct:SetFont(FONT, hpSize, "OUTLINE")
+    mock.powerTextLeft:SetFont(FONT, pwrSize, "OUTLINE")
+    mock.powerTextCenter:SetFont(FONT, pwrSize, "OUTLINE")
     mock.powerText:SetFont(FONT, pwrSize, "OUTLINE")
+    mock.powerTextPct:SetFont(FONT, pwrSize, "OUTLINE")
     mock.nameText:SetTextColor(fr, fg, fb, 1)
     mock.totInlineSep:SetTextColor(0.72, 0.76, 0.84, 1)
     mock.totInlineText:SetTextColor(fr, fg, fb, 1)
+    mock.hpTextLeft:SetTextColor(fr, fg, fb, 1)
+    mock.hpTextCenter:SetTextColor(fr, fg, fb, 1)
     mock.hpText:SetTextColor(fr, fg, fb, 1)
+    mock.hpTextPct:SetTextColor(fr, fg, fb, 1)
     if g.colorPowerTextByType == true then
         local prt, pgt, pbt = PowerColor(data.powerToken)
+        mock.powerTextLeft:SetTextColor(prt, pgt, pbt, 1)
+        mock.powerTextCenter:SetTextColor(prt, pgt, pbt, 1)
         mock.powerText:SetTextColor(prt, pgt, pbt, 1)
+        mock.powerTextPct:SetTextColor(prt, pgt, pbt, 1)
     else
+        mock.powerTextLeft:SetTextColor(fr, fg, fb, 1)
+        mock.powerTextCenter:SetTextColor(fr, fg, fb, 1)
         mock.powerText:SetTextColor(fr, fg, fb, 1)
+        mock.powerTextPct:SetTextColor(fr, fg, fb, 1)
     end
     mock.nameText:SetText(ShortenPreviewName(data.name, key, conf))
     local hpMax, pMax = 1000000, 240000
     local hpCur, pCur = floor(hpMax * data.hp + 0.5), floor(pMax * powerFrac + 0.5)
-    local hpMode = TextScopeGet(key, "hpTextMode", "CURPERCENT")
+    local hpSlots = TextScopeHasSlots(key, "textLeft", "textCenter", "textRight")
+    local hpLeftMode, hpCenterMode, hpRightMode
+    if hpSlots then
+        hpLeftMode = TextScopeSlotGet(key, "textLeft", "NONE", NormalizeHpMode)
+        hpCenterMode = TextScopeSlotGet(key, "textCenter", "NONE", NormalizeHpMode)
+        hpRightMode = TextScopeSlotGet(key, "textRight", "CURPERCENT", NormalizeHpMode)
+    else
+        hpLeftMode, hpCenterMode, hpRightMode = "NONE", "NONE", NormalizeHpMode(TextScopeGet(key, "hpTextMode", "CURPERCENT"))
+    end
     if TextScopeGet(key, "hpTextReverse", false) == true then
         local rev = { CURPERCENT = "PERCENTCUR", PERCENTCUR = "CURPERCENT", CURMAX = "MAXCUR", MAXCUR = "CURMAX", CURMAXPERCENT = "PERCENTMAXCUR", PERCENTMAXCUR = "CURMAXPERCENT", MAXPERCENT = "PERCENTMAX", PERCENTMAX = "MAXPERCENT", PERCENTCURMAX = "CURMAXPERCENT" }
-        hpMode = rev[NormalizeHpMode(hpMode)] or hpMode
+        hpLeftMode = rev[hpLeftMode] or hpLeftMode
+        hpCenterMode = rev[hpCenterMode] or hpCenterMode
+        hpRightMode = rev[hpRightMode] or hpRightMode
     end
-    mock.hpText:SetText(FormatMode(hpMode, hpCur, hpMax, floor(data.hp * 100 + 0.5), TextScopeGet(key, "hpTextSeparator", ""), false))
-    mock.powerText:SetText(FormatMode(TextScopeGet(key, "powerTextMode", "CURPERCENT"), pCur, pMax, floor(powerFrac * 100 + 0.5), TextScopeGet(key, "powerTextSeparator", TextScopeGet(key, "hpTextSeparator", "")), true))
+    local hpPctValue = floor(data.hp * 100 + 0.5)
+    local hpSepRaw = TextScopeGet(key, "hpTextSeparator", "")
+    mock.hpTextLeft:SetText(FormatMode(hpLeftMode, hpCur, hpMax, hpPctValue, hpSepRaw, false))
+    mock.hpTextCenter:SetText(FormatMode(hpCenterMode, hpCur, hpMax, hpPctValue, hpSepRaw, false))
+    mock.hpText:SetText(FormatMode(hpRightMode, hpCur, hpMax, hpPctValue, hpSepRaw, false))
+    mock.hpTextPct:SetText("")
+
+    local powerSlots = TextScopeHasSlots(key, "powerTextLeft", "powerTextCenter", "powerTextRight")
+    local powerLeftMode, powerCenterMode, powerRightMode
+    if powerSlots then
+        powerLeftMode = TextScopeSlotGet(key, "powerTextLeft", "NONE", NormalizePowerMode)
+        powerCenterMode = TextScopeSlotGet(key, "powerTextCenter", "NONE", NormalizePowerMode)
+        powerRightMode = TextScopeSlotGet(key, "powerTextRight", "CURPERCENT", NormalizePowerMode)
+    else
+        powerLeftMode, powerCenterMode, powerRightMode = "NONE", "NONE", NormalizePowerMode(TextScopeGet(key, "powerTextMode", "CURPERCENT"))
+    end
+    local powerPctValue = floor(powerFrac * 100 + 0.5)
+    local powerSepRaw = TextScopeGet(key, "powerTextSeparator", TextScopeGet(key, "hpTextSeparator", ""))
+    mock.powerTextLeft:SetText(FormatMode(powerLeftMode, pCur, pMax, powerPctValue, powerSepRaw, true))
+    mock.powerTextCenter:SetText(FormatMode(powerCenterMode, pCur, pMax, powerPctValue, powerSepRaw, true))
+    mock.powerText:SetText(FormatMode(powerRightMode, pCur, pMax, powerPctValue, powerSepRaw, true))
+    mock.powerTextPct:SetText("")
     mock.nameText:SetShown(conf.showName ~= false)
     mock.totInlineSep:Hide()
     mock.totInlineText:Hide()
-    mock.hpText:SetShown(conf.showHP ~= false)
-    mock.powerText:SetShown(conf.showPower ~= false)
+    local hpTextOn = conf.showHP ~= false
+    local powerTextOn = conf.showPower ~= false
+    mock.hpTextLeft:SetShown(hpTextOn and hpLeftMode ~= "NONE")
+    mock.hpTextCenter:SetShown(hpTextOn and hpCenterMode ~= "NONE")
+    mock.hpText:SetShown(hpTextOn and hpRightMode ~= "NONE")
+    mock.hpTextPct:SetShown(false)
+    mock.powerTextLeft:SetShown(powerTextOn and powerLeftMode ~= "NONE")
+    mock.powerTextCenter:SetShown(powerTextOn and powerCenterMode ~= "NONE")
+    mock.powerText:SetShown(powerTextOn and powerRightMode ~= "NONE")
+    mock.powerTextPct:SetShown(false)
 
     mock.nameText:ClearAllPoints()
     local npt, nrel, nx, njust = ResolveNameAnchor(conf.nameTextAnchor or "LEFT", S(tonumber(conf.nameOffsetX) or 4))
@@ -2205,13 +2483,44 @@ function Preview.Refresh(box, reason)
             mock.totInlineText:Show()
         end
     end
-    PositionText(mock.hpText, conf.hpTextAnchor or g.hpTextAnchor or "RIGHT", true, S(tonumber(conf.hpOffsetX) or -4), S(tonumber(conf.hpOffsetY) or -4), mock.textFrame, S(-4))
+    local function PlacePreviewSlot(fs, parent, point, relPoint, x, y, justify)
+        if not fs then return end
+        fs:ClearAllPoints()
+        fs:SetPoint(point, parent, relPoint, x, y)
+        fs:SetJustifyH(justify)
+    end
+
+    local hpOX = S(tonumber(conf.hpOffsetX) or -4)
+    local hpOY = S(tonumber(conf.hpOffsetY) or -4)
+    local hpLeftOX = S(tonumber(conf.hpTextLeftOffsetX) or 0)
+    local hpLeftOY = S(tonumber(conf.hpTextLeftOffsetY) or 0)
+    local hpCenterOX = S(tonumber(conf.hpTextCenterOffsetX) or 0)
+    local hpCenterOY = S(tonumber(conf.hpTextCenterOffsetY) or 0)
+    local hpRightOX = S(tonumber(conf.hpTextRightOffsetX) or 0)
+    local hpRightOY = S(tonumber(conf.hpTextRightOffsetY) or 0)
+    PlacePreviewSlot(mock.hpTextLeft, mock.textFrame, "TOPLEFT", "TOPLEFT", S(4) + hpOX + hpLeftOX, hpOY + hpLeftOY, "LEFT")
+    PlacePreviewSlot(mock.hpTextCenter, mock.textFrame, "TOP", "TOP", hpOX + hpCenterOX, hpOY + hpCenterOY, "CENTER")
+    PlacePreviewSlot(mock.hpText, mock.textFrame, "TOPRIGHT", "TOPRIGHT", -S(4) + hpOX + hpRightOX, hpOY + hpRightOY, "RIGHT")
+    PlacePreviewSlot(mock.hpTextPct, mock.textFrame, "TOPRIGHT", "TOPRIGHT", -S(4) + hpOX + hpRightOX, hpOY + hpRightOY, "RIGHT")
+
+    local pOX = S(tonumber(conf.powerOffsetX) or -4)
+    local pOY = S(tonumber(conf.powerOffsetY) or 4)
+    local pLeftOX = S(tonumber(conf.powerTextLeftOffsetX) or 0)
+    local pLeftOY = S(tonumber(conf.powerTextLeftOffsetY) or 0)
+    local pCenterOX = S(tonumber(conf.powerTextCenterOffsetX) or 0)
+    local pCenterOY = S(tonumber(conf.powerTextCenterOffsetY) or 0)
+    local pRightOX = S(tonumber(conf.powerTextRightOffsetX) or 0)
+    local pRightOY = S(tonumber(conf.powerTextRightOffsetY) or 0)
     if detachedPower and conf.detachedPowerBarTextOnBar == true and mock.detachedPower:IsShown() then
-        mock.powerText:ClearAllPoints()
-        mock.powerText:SetPoint("CENTER", mock.detachedPower, "CENTER", S(tonumber(conf.powerOffsetX) or 0), S(tonumber(conf.powerOffsetY) or 0))
-        mock.powerText:SetJustifyH("CENTER")
+        PlacePreviewSlot(mock.powerTextLeft, mock.detachedPower, "LEFT", "LEFT", S(2) + pOX + pLeftOX, pOY + pLeftOY, "LEFT")
+        PlacePreviewSlot(mock.powerTextCenter, mock.detachedPower, "CENTER", "CENTER", pOX + pCenterOX, pOY + pCenterOY, "CENTER")
+        PlacePreviewSlot(mock.powerText, mock.detachedPower, "RIGHT", "RIGHT", -S(2) + pOX + pRightOX, pOY + pRightOY, "RIGHT")
+        PlacePreviewSlot(mock.powerTextPct, mock.detachedPower, "RIGHT", "RIGHT", -S(2) + pOX + pRightOX, pOY + pRightOY, "RIGHT")
     else
-        PositionText(mock.powerText, conf.powerTextAnchor or g.powerTextAnchor or "RIGHT", false, S(tonumber(conf.powerOffsetX) or -4), S(tonumber(conf.powerOffsetY) or 4), mock.textFrame, S(-4))
+        PlacePreviewSlot(mock.powerTextLeft, mock.textFrame, "BOTTOMLEFT", "BOTTOMLEFT", S(4) + pOX + pLeftOX, pOY + pLeftOY, "LEFT")
+        PlacePreviewSlot(mock.powerTextCenter, mock.textFrame, "BOTTOM", "BOTTOM", pOX + pCenterOX, pOY + pCenterOY, "CENTER")
+        PlacePreviewSlot(mock.powerText, mock.textFrame, "BOTTOMRIGHT", "BOTTOMRIGHT", -S(4) + pOX + pRightOX, pOY + pRightOY, "RIGHT")
+        PlacePreviewSlot(mock.powerTextPct, mock.textFrame, "BOTTOMRIGHT", "BOTTOMRIGHT", -S(4) + pOX + pRightOX, pOY + pRightOY, "RIGHT")
     end
 
     if hasPortrait then
@@ -2362,6 +2671,7 @@ function Preview.Refresh(box, reason)
         box.handleCastbar:Hide()
     end
 
+    local statusLayerAvailable = false
     for i = 1, #STATUS_PREVIEW do
         local spec = STATUS_PREVIEW[i]
         local icon = mock.icons[spec.id]
@@ -2378,6 +2688,7 @@ function Preview.Refresh(box, reason)
         end
         icon:SetShown(show)
         if show then
+            statusLayerAvailable = true
             local rawSize = tonumber(conf[spec.size]) or tonumber(g[spec.size]) or spec.defaultSize
             local sz = S(rawSize)
             if spec.id == "level" then
@@ -2388,6 +2699,9 @@ function Preview.Refresh(box, reason)
             if icon.SetFrameLevel then icon:SetFrameLevel(baseLevel + 20) end
             SetPreviewIconTexture(icon, spec, conf, g, key, data)
             if spec.id == "level" then
+                local anchor = ResolveStatusPreviewAnchor(spec, conf, g)
+                local x = S(tonumber(conf[spec.x]) or tonumber(g[spec.x]) or spec.defaultX or 0)
+                local y = S(tonumber(conf[spec.y]) or tonumber(g[spec.y]) or spec.defaultY or 0)
                 if icon.txt then
                     icon.txt:SetFont(FONT, max(7, sz), "OUTLINE")
                     icon.txt:ClearAllPoints()
@@ -2397,7 +2711,21 @@ function Preview.Refresh(box, reason)
                 local textW = icon.txt and icon.txt.GetStringWidth and icon.txt:GetStringWidth() or sz
                 local textH = icon.txt and icon.txt.GetStringHeight and icon.txt:GetStringHeight() or sz
                 icon:SetSize(max(1, floor((tonumber(textW) or sz) + 0.5)), max(1, floor((tonumber(textH) or sz) + 0.5)))
-                PositionLevelPreview(icon, conf[spec.anchor] or g[spec.anchor] or spec.defaultAnchor, S(tonumber(conf[spec.x]) or tonumber(g[spec.x]) or spec.defaultX or 0), S(tonumber(conf[spec.y]) or tonumber(g[spec.y]) or spec.defaultY or 0), mock, S(6))
+                PositionLevelPreview(icon, anchor, x, y, mock, S(6))
+            elseif spec.id == "statusText" then
+                local anchor = ResolveStatusPreviewAnchor(spec, conf, g)
+                local x = S(tonumber(conf[spec.x]) or tonumber(g[spec.x]) or spec.defaultX or 0)
+                local y = S(tonumber(conf[spec.y]) or tonumber(g[spec.y]) or spec.defaultY or 0)
+                if icon.txt then
+                    icon.txt:SetFont(FONT, max(7, sz), "OUTLINE")
+                    icon.txt:ClearAllPoints()
+                    icon.txt:SetPoint("CENTER")
+                    icon.txt:SetJustifyH("CENTER")
+                end
+                local textW = icon.txt and icon.txt.GetStringWidth and icon.txt:GetStringWidth() or sz
+                local textH = icon.txt and icon.txt.GetStringHeight and icon.txt:GetStringHeight() or sz
+                icon:SetSize(max(1, floor((tonumber(textW) or sz) + 0.5)), max(1, floor((tonumber(textH) or sz) + 0.5)))
+                PositionSameAnchorPreview(icon, anchor, x, y, mock.hpBG or mock)
             else
                 icon:SetSize(sz, sz)
                 if icon.txt then
@@ -2406,7 +2734,18 @@ function Preview.Refresh(box, reason)
                     icon.txt:SetPoint("CENTER")
                     icon.txt:SetJustifyH("CENTER")
                 end
-                PositionFromAnchor(icon, conf[spec.anchor] or g[spec.anchor] or spec.defaultAnchor, S(tonumber(conf[spec.x]) or tonumber(g[spec.x]) or spec.defaultX or 0), S(tonumber(conf[spec.y]) or tonumber(g[spec.y]) or spec.defaultY or 0), mock, sz)
+                local anchor = ResolveStatusPreviewAnchor(spec, conf, g)
+                local x = S(tonumber(conf[spec.x]) or tonumber(g[spec.x]) or spec.defaultX or 0)
+                local y = S(tonumber(conf[spec.y]) or tonumber(g[spec.y]) or spec.defaultY or 0)
+                if spec.id == "raidmarker" then
+                    PositionRuntimeLayoutIconPreview(icon, anchor, x, y, mock, true)
+                elseif spec.id == "leader" or spec.id == "elite" then
+                    PositionRuntimeLayoutIconPreview(icon, anchor, x, y, mock, false)
+                elseif spec.id == "statusCombat" or spec.id == "statusResting" or spec.id == "statusIncomingRes" then
+                    PositionStatusCornerPreview(icon, anchor, x, y, mock, S(2))
+                else
+                    PositionFromAnchor(icon, anchor, x, y, mock, sz)
+                end
             end
             handle:SetSize(max(18, icon:GetWidth() + 8), max(18, icon:GetHeight() + 8))
             PlaceHandle(handle, icon)
@@ -2415,16 +2754,79 @@ function Preview.Refresh(box, reason)
         end
     end
 
+    box.layerAvailable = {
+        body = true,
+        nameText = conf.showName ~= false,
+        hpText = conf.showHP ~= false,
+        powerText = conf.showPower ~= false,
+        portrait = hasPortrait,
+        power = ReadPowerBarEnabled(conf, key),
+        classPower = classPowerOn,
+        castbar = castEnabled,
+        status = statusLayerAvailable,
+        bounds = true,
+    }
+    for i = 1, #(box.layerButtons or {}) do
+        if box.layerButtons[i].refresh then box.layerButtons[i]:refresh() end
+    end
+
     local nameHandleW = mock.nameText:GetStringWidth() + 10
     if mock.totInlineSep and mock.totInlineSep:IsShown() then
         nameHandleW = nameHandleW + mock.totInlineSep:GetStringWidth() + mock.totInlineText:GetStringWidth() + S(8)
     end
     box.handleName:SetSize(max(46, nameHandleW), max(18, mock.nameText:GetStringHeight() + 6))
-    box.handleHP:SetSize(max(46, mock.hpText:GetStringWidth() + 10), max(18, mock.hpText:GetStringHeight() + 6))
-    box.handlePower:SetSize(max(46, mock.powerText:GetStringWidth() + 10), max(18, mock.powerText:GetStringHeight() + 6))
-    PlaceHandle(box.handleName, mock.nameText)
-    PlaceHandle(box.handleHP, mock.hpText)
-    PlaceHandle(box.handlePower, mock.powerText)
+    if not UnitPreviewText.PlaceHandleAroundRegions(box.handleName, canvas, { mock.nameText, mock.totInlineSep, mock.totInlineText }, 3) then
+        PlaceHandle(box.handleName, mock.nameText)
+    end
+    local function PlaceTextSlotHandle(handle, region)
+        if not handle then return end
+        if not (region and region.IsShown and region:IsShown()) then
+            handle:Hide()
+            return
+        end
+        local w = (region.GetStringWidth and region:GetStringWidth()) or region:GetWidth() or 36
+        local h = (region.GetStringHeight and region:GetStringHeight()) or region:GetHeight() or 12
+        handle:SetSize(max(26, w + 10), max(18, h + 6))
+        if not UnitPreviewText.PlaceHandleAroundRegions(handle, canvas, { region }, 3) then
+            PlaceHandle(handle, region)
+        end
+    end
+    if UnitPreviewTextMovesTogether(key, "hp") then
+        SetShownSafe(box.handleHPLeft, false)
+        SetShownSafe(box.handleHPCenter, false)
+        SetShownSafe(box.handleHPRight, false)
+        if not UnitPreviewText.PlaceHandleAroundRegions(box.handleHP, canvas, { mock.hpTextLeft, mock.hpTextCenter, mock.hpText }, 3) then
+            if not ((mock.hpTextLeft and mock.hpTextLeft:IsShown()) or (mock.hpTextCenter and mock.hpTextCenter:IsShown()) or (mock.hpText and mock.hpText:IsShown())) then
+                box.handleHP:Hide()
+            else
+                box.handleHP:SetSize(max(46, mock.hpText:GetStringWidth() + 10), max(18, mock.hpText:GetStringHeight() + 6))
+                PlaceHandle(box.handleHP, mock.hpText)
+            end
+        end
+    else
+        if box.handleHP then box.handleHP:Hide() end
+        PlaceTextSlotHandle(box.handleHPLeft, mock.hpTextLeft)
+        PlaceTextSlotHandle(box.handleHPCenter, mock.hpTextCenter)
+        PlaceTextSlotHandle(box.handleHPRight, mock.hpText)
+    end
+    if UnitPreviewTextMovesTogether(key, "power") then
+        SetShownSafe(box.handlePowerLeft, false)
+        SetShownSafe(box.handlePowerCenter, false)
+        SetShownSafe(box.handlePowerRight, false)
+        if not UnitPreviewText.PlaceHandleAroundRegions(box.handlePower, canvas, { mock.powerTextLeft, mock.powerTextCenter, mock.powerText }, 3) then
+            if not ((mock.powerTextLeft and mock.powerTextLeft:IsShown()) or (mock.powerTextCenter and mock.powerTextCenter:IsShown()) or (mock.powerText and mock.powerText:IsShown())) then
+                box.handlePower:Hide()
+            else
+                box.handlePower:SetSize(max(46, mock.powerText:GetStringWidth() + 10), max(18, mock.powerText:GetStringHeight() + 6))
+                PlaceHandle(box.handlePower, mock.powerText)
+            end
+        end
+    else
+        if box.handlePower then box.handlePower:Hide() end
+        PlaceTextSlotHandle(box.handlePowerLeft, mock.powerTextLeft)
+        PlaceTextSlotHandle(box.handlePowerCenter, mock.powerTextCenter)
+        PlaceTextSlotHandle(box.handlePowerRight, mock.powerText)
+    end
     ApplyPreviewLayerVisibility(box)
     ApplyPreviewTransparency(box, conf)
     RefreshHandleSelectionVisuals(box)
@@ -2433,6 +2835,11 @@ end
 function Preview.RequestRefresh(reason)
     local box = Preview.active
     if not box or not box:IsShown() then return end
+    if PreviewInCombat() then
+        box._refreshReason = nil
+        box._refreshQueued = nil
+        return
+    end
     if InstallPreviewHooks then InstallPreviewHooks() end
     if reason == "OPTIONS_APPLY_DB_IMMEDIATE" then
         box._refreshQueued = nil
@@ -2453,6 +2860,7 @@ function Preview.RequestRefresh(reason)
 end
 
 _G.MSUF_UFPreview_RequestRefresh = function(reason)
+    if PreviewInCombat() then return end
     Preview.RequestRefresh(reason)
 end
 
@@ -2508,7 +2916,9 @@ InstallPreviewHooks = function()
         if type(fn) == "function" and type(hooksecurefunc) == "function" then
             if not hookedNames[name] then
                 hookedNames[name] = true
-                hooksecurefunc(name, function() Preview.RequestRefresh(name) end)
+                hooksecurefunc(name, function()
+                    if not PreviewInCombat() then Preview.RequestRefresh(name) end
+                end)
             end
         end
     end

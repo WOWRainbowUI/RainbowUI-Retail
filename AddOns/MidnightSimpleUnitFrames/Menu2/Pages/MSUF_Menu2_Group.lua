@@ -12,6 +12,12 @@ local floor = math.floor
 local ceil = math.ceil
 local max = math.max
 local min = math.min
+local WARNING_HINT = { 0.90, 0.84, 0.76, 1 }
+local WARNING_BG = { 0.105, 0.082, 0.052, 0.44 }
+local WARNING_ARROW = { 0.88, 0.62, 0.22, 1 }
+local WARNING_NOTICE_BG = { 0.105, 0.082, 0.052, 0.34 }
+local WARNING_NOTICE_TOP = { 0.48, 0.36, 0.20, 0.55 }
+local WARNING_NOTICE_BOTTOM = { 0.28, 0.21, 0.12, 0.48 }
 
 local SCOPE_VALUES = {
     { value = "party", text = "Party" },
@@ -448,6 +454,103 @@ local function RefreshContext(ctx)
     end
 end
 
+local function SetSectionHeaderStatus(sec, opts)
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if not entry then return end
+
+    T.ApplyCollapseVisual(entry.arrow, entry.hint, entry.open)
+    if entry.headerBg and entry.headerBg.SetColorTexture then
+        entry.headerBg:SetColorTexture(0.060, 0.070, 0.130, 0.48)
+    end
+    if entry.label and entry.label.SetTextColor and T.colors and T.colors.text then
+        local c = T.colors.text
+        entry.label:SetTextColor(c[1], c[2], c[3], c[4] or 1)
+    end
+
+    opts = opts or {}
+    if opts.bg and entry.headerBg and entry.headerBg.SetColorTexture then
+        local bg = opts.bg
+        entry.headerBg:SetColorTexture(bg[1] or 0.060, bg[2] or 0.070, bg[3] or 0.130, bg[4] or 0.48)
+    end
+    if opts.labelColor and entry.label and entry.label.SetTextColor then
+        local c = opts.labelColor
+        entry.label:SetTextColor(c[1] or 1, c[2] or 1, c[3] or 1, c[4] or 1)
+    end
+    if opts.arrowColor and entry.arrow and entry.arrow.SetVertexColor then
+        local c = opts.arrowColor
+        entry.arrow:SetVertexColor(c[1] or 1, c[2] or 1, c[3] or 1, c[4] or 1)
+    end
+    if entry.hint and entry.hint.SetText then
+        if opts.hint ~= nil then
+            entry.hint:SetText(opts.hint)
+            if opts.hintColor and entry.hint.SetTextColor then
+                local c = opts.hintColor
+                entry.hint:SetTextColor(c[1] or 1, c[2] or 1, c[3] or 1, c[4] or 1)
+            end
+        else
+            entry.hint:SetText(entry.open and "" or "click to expand")
+        end
+    end
+end
+
+local function CreateSectionNotice(sec, topY, buttonLabel, buttonWidth)
+    local notice = CreateFrame("Frame", nil, sec)
+    notice:SetPoint("TOPLEFT", sec, "TOPLEFT", 14, topY)
+    notice:SetPoint("TOPRIGHT", sec, "TOPRIGHT", -14, topY)
+    notice:SetHeight(24)
+    notice._msuf2GroupFrameGateAlwaysEnabled = true
+
+    local bg = notice:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(0.018, 0.040, 0.088, 0.30)
+    local top = notice:CreateTexture(nil, "BORDER")
+    top:SetPoint("TOPLEFT", notice, "TOPLEFT", 0, 0)
+    top:SetPoint("TOPRIGHT", notice, "TOPRIGHT", 0, 0)
+    top:SetHeight(1)
+    top:SetColorTexture(0.16, 0.34, 0.66, 0.55)
+    local bottom = notice:CreateTexture(nil, "BORDER")
+    bottom:SetPoint("BOTTOMLEFT", notice, "BOTTOMLEFT", 0, 0)
+    bottom:SetPoint("BOTTOMRIGHT", notice, "BOTTOMRIGHT", 0, 0)
+    bottom:SetHeight(1)
+    bottom:SetColorTexture(0.10, 0.20, 0.38, 0.48)
+
+    local text = T.Font(notice, "GameFontDisableSmall", "", T.colors.dim)
+    text:SetPoint("LEFT", notice, "LEFT", 10, 0)
+    text:SetJustifyH("LEFT")
+
+    local button
+    if buttonLabel and buttonLabel ~= "" then
+        button = (W.StyleTopActionButton and W.StyleTopActionButton(T.Button(notice, buttonLabel, buttonWidth or 92, 20))) or T.Button(notice, buttonLabel, buttonWidth or 92, 20)
+        button:SetPoint("RIGHT", notice, "RIGHT", -2, 0)
+        button._msuf2GroupFrameGateAlwaysEnabled = true
+        text:SetPoint("RIGHT", notice, "RIGHT", -(buttonWidth or 92) - 18, 0)
+    else
+        text:SetPoint("RIGHT", notice, "RIGHT", -10, 0)
+    end
+
+    function notice:SetTone(kind)
+        if kind == "warning" then
+            bg:SetColorTexture(WARNING_NOTICE_BG[1], WARNING_NOTICE_BG[2], WARNING_NOTICE_BG[3], WARNING_NOTICE_BG[4])
+            top:SetColorTexture(WARNING_NOTICE_TOP[1], WARNING_NOTICE_TOP[2], WARNING_NOTICE_TOP[3], WARNING_NOTICE_TOP[4])
+            bottom:SetColorTexture(WARNING_NOTICE_BOTTOM[1], WARNING_NOTICE_BOTTOM[2], WARNING_NOTICE_BOTTOM[3], WARNING_NOTICE_BOTTOM[4])
+            if text.SetTextColor then text:SetTextColor(WARNING_HINT[1], WARNING_HINT[2], WARNING_HINT[3], WARNING_HINT[4]) end
+        else
+            bg:SetColorTexture(0.018, 0.040, 0.088, 0.30)
+            top:SetColorTexture(0.16, 0.34, 0.66, 0.55)
+            bottom:SetColorTexture(0.10, 0.20, 0.38, 0.48)
+            if text.SetTextColor then text:SetTextColor(T.colors.dim[1], T.colors.dim[2], T.colors.dim[3], T.colors.dim[4] or 1) end
+        end
+    end
+
+    function notice:SetMessage(message, tone)
+        self:SetTone(tone)
+        text:SetText(tostring(message or ""))
+    end
+
+    notice:Hide()
+    return notice, text, button
+end
+
 local function ScopeSection(ctx, builder)
     local compactTop = (tonumber(builder.width) or 0) < 600
     local h = compactTop and 72 or 40
@@ -512,6 +615,31 @@ local function ScopeSection(ctx, builder)
         return _G.MSUF_UnitEditModeActive == true
     end
 
+    local function AddScopeTooltip(frame, title, text)
+        if not (frame and frame.HookScript) then return end
+        frame:HookScript("OnEnter", function(self)
+            if not GameTooltip then return end
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine(M.Tr(title or ""), 1, 1, 1)
+            if text and text ~= "" then GameTooltip:AddLine(M.Tr(text), 0.85, 0.85, 0.85, true) end
+            GameTooltip:Show()
+        end)
+        frame:HookScript("OnLeave", function()
+            if GameTooltip then GameTooltip:Hide() end
+        end)
+    end
+
+    local function ScopeTooltipText(kind)
+        if kind == "party" then
+            return "Use this scope for normal 5-player party layouts."
+        elseif kind == "raid" then
+            return "Use this scope for flexible raid layouts. Mythic Raid has its own scope."
+        elseif kind == "mythicraid" then
+            return "Use this scope for 20-player Mythic Raid layouts."
+        end
+        return ""
+    end
+
     local function SelectScope(kind)
         M.gfScope = kind or "party"
         local gf = GF()
@@ -545,6 +673,7 @@ local function ScopeSection(ctx, builder)
             btn:SetPoint("LEFT", editing, "RIGHT", 8, 2)
         end
         btn:SetScript("OnClick", function() SelectScope(info.value) end)
+        AddScopeTooltip(btn, ScopeShortLabel(info.value), ScopeTooltipText(info.value))
         scopeBtns[info.value] = btn
         previous = btn
     end
@@ -554,7 +683,7 @@ local function ScopeSection(ctx, builder)
     copy:SetPoint("TOPRIGHT", sec, "TOPRIGHT", -8, actionY)
     local edit = MakeTopButton(sec, "MSUF Edit Mode", compactTop and 118 or 128)
     edit:SetPoint("RIGHT", copy, "LEFT", -8, 0)
-    local reset = MakeTopButton(sec, "Reset All", compactTop and 78 or 84, {
+    local reset = MakeTopButton(sec, "Reset Scopes", compactTop and 94 or 104, {
         bg = { 0.070, 0.026, 0.034, 0.94 },
         border = { 0.340, 0.090, 0.110, 0.82 },
         textColor = { 1.00, 0.82, 0.82, 1 },
@@ -565,6 +694,8 @@ local function ScopeSection(ctx, builder)
         activeTextColor = { 1.00, 0.82, 0.82, 1 },
     })
     reset:SetPoint("RIGHT", edit, "LEFT", -8, 0)
+    AddScopeTooltip(reset, "Reset Scopes", "Resets Party, Raid, and Mythic Raid Group Frame settings for the active profile.")
+    AddScopeTooltip(edit, "MSUF Edit Mode", "Drag frames to move them. Group aura handles can be selected in previews; Blizzard-controlled aura blocks cannot be dragged.")
 
     local function RefreshTop()
         local current = CurrentScope()
@@ -1626,3 +1757,5 @@ GroupPage.BindNestedDropdown = BindNestedDropdown
 GroupPage.SetOptionEnabled = SetOptionEnabled
 GroupPage.SetOptionsEnabled = SetOptionsEnabled
 GroupPage.ApplyScopeEnabledGate = ApplyScopeEnabledGate
+GroupPage.SetSectionHeaderStatus = SetSectionHeaderStatus
+GroupPage.CreateSectionNotice = CreateSectionNotice

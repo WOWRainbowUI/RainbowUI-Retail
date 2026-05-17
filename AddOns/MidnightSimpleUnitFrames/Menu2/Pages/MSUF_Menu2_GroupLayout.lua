@@ -83,12 +83,29 @@ local BindNestedDropdown = GP.BindNestedDropdown
 local SetOptionEnabled = GP.SetOptionEnabled
 local SetOptionsEnabled = GP.SetOptionsEnabled
 local ApplyScopeEnabledGate = GP.ApplyScopeEnabledGate
+local SetSectionHeaderStatus = GP.SetSectionHeaderStatus
+local CreateSectionNotice = GP.CreateSectionNotice
+
+local function ScopeLabel()
+    local scope = CurrentScope() or "party"
+    for i = 1, #SCOPE_VALUES do
+        local info = SCOPE_VALUES[i]
+        if info and info.value == scope then return info.text or scope end
+    end
+    return tostring(scope)
+end
+
+local function TooltipModeHint(mode)
+    if mode == "OFF" then return "tooltip hidden" end
+    if mode == "MODIFIER" then return "hold modifier to show" end
+    return "tooltip always visible"
+end
 local function BuildGFLayout(ctx)
     local b = W.PageBuilder(ctx)
     ScopeSection(ctx, b)
     M.GroupPreview.Add(ctx, b)
 
-    local general = b:CollapsibleSection("general", "General", 310, false)
+    local general = b:CollapsibleSection("general", "General", 350, false)
     local generalW = general._msuf2Width or b.width or 720
     local generalLeftX = 32
     local generalRightX = min(max(430, floor(generalW * 0.52)), max(360, generalW - 360))
@@ -98,13 +115,13 @@ local function BuildGFLayout(ctx)
 
     W.LabelAt(general, "Frame", generalLeftX, -38, generalLeftW, "GameFontNormalSmall", T.colors.accent)
     W.LabelAt(general, "Behavior", generalRightX, -38, generalRightW, "GameFontNormalSmall", T.colors.accent)
-    local enableGroup = BindScopeToggle(ctx, W.Toggle(general, "Enable group frames"), "enabled", false, "rebuild")
+    local enableGroup = BindScopeToggle(ctx, W.Toggle(general, "Enable MSUF group frames"), "enabled", false, "rebuild")
     enableGroup._msuf2GroupFrameGateAlwaysEnabled = true
     local showPlayer = BindScopeToggle(ctx, W.Toggle(general, "Show player"), "showPlayer", true, "rebuild")
-    local showSolo = BindScopeToggle(ctx, W.Toggle(general, "Show solo"), "showSolo", false, "rebuild")
+    local showSolo = BindScopeToggle(ctx, W.Toggle(general, "Show while solo"), "showSolo", false, "rebuild")
     local reverseFill = BindScopeToggle(ctx, W.Toggle(general, "Reverse fill direction"), "reverseFill", false, "visual")
     local smoothFill = BindScopeToggle(ctx, W.Toggle(general, "Smooth health fill"), "smoothFill", true, "visual")
-    local hideClient = BindScopeToggle(ctx, W.Toggle(general, "Hide in client scene"), "hideInClientScene", true, "visual")
+    local hideClient = BindScopeToggle(ctx, W.Toggle(general, "Hide during client scene"), "hideInClientScene", true, "visual")
     W.MoveWidget(enableGroup, general, generalLeftX, -64)
     W.MoveWidget(showPlayer, general, generalLeftX, -94)
     W.MoveWidget(showSolo, general, generalLeftX, -124)
@@ -112,22 +129,54 @@ local function BuildGFLayout(ctx)
     W.MoveWidget(reverseFill, general, generalRightX, -94)
     W.MoveWidget(hideClient, general, generalRightX, -124)
 
-    W.DividerAt(general, -166, generalLeftX, 32)
-    W.LabelAt(general, "Offline Members", generalLeftX, -184, generalLeftW, "GameFontNormalSmall", T.colors.accent)
+    W.Text(general, "When this scope is disabled, Blizzard party/raid frames stay in control. Party is for 5-player groups; Raid and Mythic Raid use their own layouts.", generalLeftX, -154, generalW - (generalLeftX * 2), T.colors.muted)
+
+    W.DividerAt(general, -196, generalLeftX, 32)
+    W.LabelAt(general, "Offline Members", generalLeftX, -214, generalLeftW, "GameFontNormalSmall", T.colors.accent)
     local hideOfflineEnabled = BindScopeToggle(ctx, W.Toggle(general, "Hide offline members"), "hideOfflineEnabled", false, "visual")
     local hideOfflineCombat = BindScopeToggle(ctx, W.Toggle(general, "Hide offline in combat"), "hideOfflineInCombat", false, "visual")
     local hideOffline = BindScopeSlider(ctx, W.Slider(general, "Hide offline after", 0, 120, 1, offlineSliderW), "hideOfflineDelay", 0, "visual")
-    W.MoveWidget(hideOfflineEnabled, general, generalLeftX, -210)
-    W.MoveWidget(hideOfflineCombat, general, generalRightX, -210)
-    W.MoveWidget(hideOffline, general, generalLeftX, -244, offlineSliderW, "LEFT")
+    W.MoveWidget(hideOfflineEnabled, general, generalLeftX, -240)
+    W.MoveWidget(hideOfflineCombat, general, generalRightX, -240)
+    W.MoveWidget(hideOffline, general, generalLeftX, -274, offlineSliderW, "LEFT")
+    local generalNotice, _, generalNoticeButton = CreateSectionNotice and CreateSectionNotice(general, -304, "Enable Scope", 104)
+    if generalNoticeButton then
+        generalNoticeButton:SetScript("OnClick", function()
+            Set(CurrentScope(), "enabled", true, "rebuild")
+        end)
+    end
 
     local function RefreshHideOfflineState()
         local enabled = Bool(CurrentScope(), "hideOfflineEnabled", false)
         SetOptionEnabled(hideOfflineCombat, enabled)
         SetOptionEnabled(hideOffline, enabled)
+        if type(SetSectionHeaderStatus) == "function" then
+            local scopeEnabled = Bool(CurrentScope(), "enabled", false)
+            if not scopeEnabled then
+                SetSectionHeaderStatus(general, {
+                    hint = "scope disabled",
+                    hintColor = { 0.90, 0.84, 0.76, 1 },
+                    bg = { 0.105, 0.082, 0.052, 0.44 },
+                    arrowColor = { 0.88, 0.62, 0.22, 1 },
+                })
+            else
+                SetSectionHeaderStatus(general, nil)
+            end
+        end
+        if generalNotice then
+            local scopeEnabled = Bool(CurrentScope(), "enabled", false)
+            generalNotice:SetShown(not scopeEnabled)
+            if not scopeEnabled then
+                generalNotice:SetMessage(ScopeLabel() .. " group frames are disabled. Blizzard frames stay in control.", "warning")
+            end
+        end
     end
     M.AddRefresher(ctx, RefreshHideOfflineState)
     RefreshHideOfflineState()
+    do
+        local entry = general and general._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshHideOfflineState end
+    end
 
     local layout = b:CollapsibleSection("layout", "Layout", 450, false)
     local layoutW = layout._msuf2Width or b.width or 720
@@ -149,9 +198,14 @@ local function BuildGFLayout(ctx)
     W.MoveWidget(preserveRaidGroups, layout, layoutLeftX, -360)
     local function RefreshRaidGroupLayoutState()
         SetOptionEnabled(preserveRaidGroups, CurrentScope() ~= "party")
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(layout, nil) end
     end
     M.AddRefresher(ctx, RefreshRaidGroupLayoutState)
     RefreshRaidGroupLayoutState()
+    do
+        local entry = layout and layout._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshRaidGroupLayoutState end
+    end
 
     local sorting = b:CollapsibleSection("sorting", "Sorting", 300, false)
     local sortingW = sorting._msuf2Width or b.width or 720
@@ -215,8 +269,14 @@ local function BuildGFLayout(ctx)
             if roleRows.Refresh then roleRows.Refresh() end
             if roleRows.SetRowsEnabled then roleRows:SetRowsEnabled(enabled) end
         end
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(sorting, nil) end
     end
     M.AddRefresher(ctx, refreshSortingControls)
+    refreshSortingControls()
+    do
+        local entry = sorting and sorting._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = refreshSortingControls end
+    end
 
     local scale = b:CollapsibleSection("scaling", "Frame Scaling", 380, false)
     local scaleW = scale._msuf2Width or b.width or 720
@@ -320,11 +380,16 @@ local function BuildGFLayout(ctx)
             end
         end
         if scaleHint then scaleHint:SetAlpha((manualOn or autoOn) and 1 or 0.55) end
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(scale, nil) end
     end
     M.AddRefresher(ctx, RefreshScalingState)
     RefreshScalingState()
+    do
+        local entry = scale and scale._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshScalingState end
+    end
 
-    local transparency = b:CollapsibleSection("border", "Transparency", 310, false)
+    local transparency = b:CollapsibleSection("border", "Transparency", 328, false)
     local transparencyW = transparency._msuf2Width or b.width or 720
     local transLeftX = 32
     local transRightX = min(max(470, floor(transparencyW * 0.54)), max(380, transparencyW - 380))
@@ -332,16 +397,18 @@ local function BuildGFLayout(ctx)
     local transRightW = max(280, min(360, transparencyW - transRightX - 38))
     local tHint = W.Text(transparency, "Outline border thickness is configured in\nGlobal Style > Bars > Outline & Highlight Border.", transLeftX, -38, transLeftW, { 0.60, 0.75, 1.00, 1 })
     if tHint.SetWordWrap then tHint:SetWordWrap(true) end
+    local alphaGuide = W.Text(transparency, "Backdrop = frame  ·  HP Fill = health bar  ·  HP Track = empty bar area", transLeftX, -80, transparencyW - transLeftX - 32, T.colors.dim)
+    if alphaGuide and alphaGuide.SetWordWrap then alphaGuide:SetWordWrap(false) end
 
     local bgColor = W.Color(transparency, "Background Color")
     if bgColor._msuf2Title then
         bgColor._msuf2Title:ClearAllPoints()
-        bgColor._msuf2Title:SetPoint("TOPLEFT", transparency, "TOPLEFT", transLeftX, -100)
+        bgColor._msuf2Title:SetPoint("TOPLEFT", transparency, "TOPLEFT", transLeftX, -118)
         bgColor._msuf2Title:SetWidth(120)
         bgColor._msuf2Title:SetJustifyH("LEFT")
     end
     bgColor:ClearAllPoints()
-    bgColor:SetPoint("TOPLEFT", transparency, "TOPLEFT", transLeftX + 138, -98)
+    bgColor:SetPoint("TOPLEFT", transparency, "TOPLEFT", transLeftX + 138, -116)
     bgColor:SetSize(34, 16)
     M.BindColor(ctx, bgColor,
         function()
@@ -384,19 +451,23 @@ local function BuildGFLayout(ctx)
     end
 
     local bgAlpha = BindTransparencySlider(W.Slider(transparency, "", 0, 1, 0.05, transLeftW), "bgA", 0.85,
-        function(v) return string.format("Background Alpha: %.0f%%", (tonumber(v) or 0) * 100) end)
-    PlaceTransparencySlider(bgAlpha, transLeftX, -130, transLeftW)
+        function(v) return string.format("Backdrop: %.0f%%", (tonumber(v) or 0) * 100) end)
+    PlaceTransparencySlider(bgAlpha, transLeftX, -148, transLeftW)
 
     local hpFg = BindTransparencySlider(W.Slider(transparency, "", 0.3, 1, 0.05, transRightW), "hpBarAlpha", 1,
-        function(v) return string.format("HP Bar Foreground: %.0f%%", (tonumber(v) or 0) * 100) end)
-    PlaceTransparencySlider(hpFg, transRightX, -82, transRightW)
+        function(v) return string.format("HP Fill: %.0f%%", (tonumber(v) or 0) * 100) end)
+    PlaceTransparencySlider(hpFg, transRightX, -100, transRightW)
 
-    local preserveHP = W.ToggleAt(transparency, "Preserve HP color", transRightX, -128, transRightW)
+    local preserveHP = W.ToggleAt(transparency, "Preserve HP color", transRightX, -146, transRightW)
     M.BindToggle(ctx, preserveHP,
         function() return Bool(CurrentScope(), "alphaPreserveHPColor", false) end,
-        function(v) Set(CurrentScope(), "alphaPreserveHPColor", v and true or false, "visual") end)
+        function(v)
+            v = v and true or false
+            Set(CurrentScope(), "alphaPreserveHPColor", v, "visual")
+            if M.WarnPreserveHPColorIfNeeded then M.WarnPreserveHPColorIfNeeded(v) end
+        end)
 
-    local textIgnore = W.ToggleAt(transparency, "Text ignores HP opacity", transLeftX, -184, transLeftW)
+    local textIgnore = W.ToggleAt(transparency, "Text ignores HP opacity", transLeftX, -202, transLeftW)
     M.BindToggle(ctx, textIgnore,
         function() return Bool(CurrentScope(), "hpTextIgnoreAlpha", true) end,
         function(v) Set(CurrentScope(), "hpTextIgnoreAlpha", v and true or false, "visual") end)
@@ -417,15 +488,15 @@ local function BuildGFLayout(ctx)
     local function RefreshHPBgLabel()
         if hpBg and hpBg._msuf2Title then
             local conf = Conf(CurrentScope())
-            hpBg._msuf2Title:SetText(string.format("HP Background: %.0f%%", (tonumber(conf.hpBgAlpha) or tonumber(conf.bgA) or 0.85) * 100))
+            hpBg._msuf2Title:SetText(string.format("HP Track: %.0f%%", (tonumber(conf.hpBgAlpha) or tonumber(conf.bgA) or 0.85) * 100))
         end
     end
     hpBg:HookScript("OnValueChanged", function(_, value)
-        if hpBg._msuf2Title then hpBg._msuf2Title:SetText(string.format("HP Background: %.0f%%", (tonumber(value) or 0) * 100)) end
+        if hpBg._msuf2Title then hpBg._msuf2Title:SetText(string.format("HP Track: %.0f%%", (tonumber(value) or 0) * 100)) end
     end)
     M.AddRefresher(ctx, RefreshHPBgLabel)
     RefreshHPBgLabel()
-    PlaceTransparencySlider(hpBg, transRightX, -176, transRightW)
+    PlaceTransparencySlider(hpBg, transRightX, -194, transRightW)
 
     local anchor = b:CollapsibleSection("anchor", "Anchoring", 220, false)
 
@@ -540,6 +611,16 @@ local function BuildGFLayout(ctx)
     end)
 
     M.AddRefresher(ctx, RefreshCustomAnchorBox)
+    local function RefreshAnchorHeader()
+        if type(SetSectionHeaderStatus) ~= "function" then return end
+        SetSectionHeaderStatus(anchor, nil)
+    end
+    M.AddRefresher(ctx, RefreshAnchorHeader)
+    RefreshAnchorHeader()
+    do
+        local entry = anchor and anchor._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshAnchorHeader end
+    end
 
     local tooltip = b:CollapsibleSection("tooltip", "Tooltip", 150, false)
     local tooltipW = tooltip._msuf2Width or b.width or 720
@@ -561,9 +642,14 @@ local function BuildGFLayout(ctx)
     W.MoveWidget(tooltipModifier, tooltip, tooltipRightX, -54, tooltipRightW, "LEFT")
     refreshTooltipState = function()
         SetOptionEnabled(tooltipModifier, Val(CurrentScope(), "tooltipMode", "ALWAYS") == "MODIFIER")
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(tooltip, nil) end
     end
     M.AddRefresher(ctx, refreshTooltipState)
     refreshTooltipState()
+    do
+        local entry = tooltip and tooltip._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = refreshTooltipState end
+    end
 
     if type(ApplyScopeEnabledGate) == "function" then
         M.AddRefresher(ctx, function() ApplyScopeEnabledGate(ctx) end)

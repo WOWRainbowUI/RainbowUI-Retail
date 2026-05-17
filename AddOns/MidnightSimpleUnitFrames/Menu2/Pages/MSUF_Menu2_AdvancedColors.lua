@@ -1,4 +1,4 @@
-local addonName, ns = ...
+﻿local addonName, ns = ...
 ns = ns or {}
 
 local M = ns.MSUF2 or {}
@@ -480,9 +480,12 @@ local function BuildColors(ctx)
         ApplyColors()
     end)
 
-    local classColors = b:CollapsibleSection("colors_classes", "Class Bar Colors", 190, false)
-    LabelAt(classColors, "Choose an override bar color per class.", 12, -8, 540, "GameFontHighlightSmall", T.colors.muted)
     local tokens = GetClassTokens()
+    local classRows = max(1, floor((#tokens + 3) / 4))
+    local classResetY = -36 - (classRows * 36)
+    local classHeight = max(190, math.abs(classResetY) + 48)
+    local classColors = b:CollapsibleSection("colors_classes", "Class Bar Colors", classHeight, false)
+    LabelAt(classColors, "Choose an override bar color per class.", 12, -8, 540, "GameFontHighlightSmall", T.colors.muted)
     local classW = classColors._msuf2Width or ctx.width or 720
     local classColW = max(142, floor((classW - 24) / 4))
     local classLabelW = max(76, min(112, classColW - 62))
@@ -506,13 +509,13 @@ local function BuildColors(ctx)
                 if type(api.SetClassColor) == "function" then pcall(api.SetClassColor, token, r, g, c) else ApplyColors() end
             end, classLabelW, 44)
     end
-    ButtonAt(classColors, "Reset all class colors", 12, -154, 190, function()
+    ButtonAt(classColors, "Reset all class colors", 12, classResetY, 190, function()
         local fn = ColorAPI().ResetAllClassColors
         if type(fn) == "function" then pcall(fn) else DB().classColors = nil end
         ApplyColors()
     end)
 
-    local background = b:CollapsibleSection("colors_background", "Bar Background Tint", 196, false)
+    local background = b:CollapsibleSection("colors_background", "Bar Background Tint", 224, false)
     LabelAt(background, "Tint applied to the bar background in *all* bar modes. Dark Mode uses this tint too.", 12, -8, 660, "GameFontHighlightSmall", T.colors.muted)
     ColorValueAt(ctx, background, "Bar background tint", 12, -46,
         function() return ApiRGB("GetClassBarBgColor", 0, 0, 0) end,
@@ -528,13 +531,34 @@ local function BuildColors(ctx)
         end,
         function(v)
             local fn = ColorAPI().SetBarBgMatchHP
-            if type(fn) == "function" then pcall(fn, v) else G().barBgMatchHPColor = v and true or false end
+            if type(fn) == "function" then
+                pcall(fn, v)
+            else
+                G().barBgMatchHPColor = v and true or false
+                if v then G().barBgClassColor = false end
+            end
             ApplyColors()
         end)
-    ValueToggleAt(ctx, background, "Custom color in Dark Mode", 12, -114,
+    ValueToggleAt(ctx, background, "Health background follows class color", 12, -114,
+        function()
+            local fn = ColorAPI().GetBarBgClassColor
+            if type(fn) == "function" then local ok, v = pcall(fn); if ok then return v end end
+            return G().barBgClassColor == true
+        end,
+        function(v)
+            local fn = ColorAPI().SetBarBgClassColor
+            if type(fn) == "function" then
+                pcall(fn, v)
+            else
+                G().barBgClassColor = v and true or false
+                if v then G().barBgMatchHPColor = false end
+            end
+            ApplyColors()
+        end)
+    ValueToggleAt(ctx, background, "Custom color in Dark Mode", 12, -142,
         function() return G().darkBgCustomColor == true end,
         function(v) G().darkBgCustomColor = v and true or false; ApplyColors() end)
-    ButtonAt(background, "Reset to black", 12, -154, 140, function()
+    ButtonAt(background, "Reset to black", 12, -182, 140, function()
         local fn = ColorAPI().ResetClassBarBgColor
         if type(fn) == "function" then pcall(fn) else G().classBarBgR, G().classBarBgG, G().classBarBgB = nil, nil, nil end
         ApplyColors()
