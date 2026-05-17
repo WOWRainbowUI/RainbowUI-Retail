@@ -9,9 +9,9 @@ local print = _G.print
 local tonumber = _G.tonumber
 
 -- Mine
-E.VER = {}
-E.VER.string = C_AddOns.GetAddOnMetadata(addonName, "Version")
-E.VER.number = tonumber(E.VER.string:gsub("%D", ""), nil)
+addon.VER = {}
+addon.VER.string = C_AddOns.GetAddOnMetadata(addonName, "Version")
+addon.VER.number = tonumber(addon.VER.string:gsub("%D", ""), nil)
 
 local BLACKLISTED_EVENTS = {
 	["ACHIEVEMENT_EARNED"] = false,
@@ -62,7 +62,7 @@ local function updateCallback()
 end
 
 local function shutdownCallback()
-	C.db.profile.version = E.VER.number
+	C.db.profile.version = addon.VER.number
 end
 
 E:RegisterEvent("ADDON_LOADED", function(arg1)
@@ -111,6 +111,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		end
 	end
 
+	addon:CreateImportExport()
 	-- addon:CreateBlizzConfig() -- 移除內建選項
 	addon:CreateAceConfig()
 
@@ -150,9 +151,7 @@ E:RegisterEvent("ADDON_LOADED", function(arg1)
 		SLASH_LSTOASTS2 = "/lst"
 		SlashCmdList["LSTOASTS"] = function(msg)
 			if msg == "" then
-				if not InCombatLockdown() then
-					LibStub("AceConfigDialog-3.0"):Open(addonName)
-				end
+				addon:OpenAceConfig()
 			elseif msg == "test" then
 				P:TestAllSystems()
 			elseif msg == "flush" then

@@ -22,6 +22,7 @@ L["DEFAULT_VALUE"] = "預設值：|cffffd200%s|r"
 L["DND"] = "勿擾"
 L["DND_DESC"] = "通知處於勿擾模式將不會在戰鬥中顯示，但會取代成在系統佇列。一但你離開戰鬥，就會開始跳出通知。"
 L["DOWNLOADS"] = "下載"
+L["EXPORT"] = "輸出"
 L["FADE_OUT_DELAY"] = "淡出延遲"
 L["FLUSH_QUEUE"] = "刷新佇列"
 L["FONTS"] = "字體"
@@ -73,4 +74,4 @@ L["YOU_LOST"] = "你失去"
 L["YOU_RECEIVED"] = "你收到"
 
 -- 自行加入
-L["LS_TOASTS"] = "通知面板增強"
+L["ADDON_NAME"] = "通知面板增強"
