@@ -920,6 +920,10 @@ L["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "Muda a direção dos ícones dos pl
 --[[Translation missing --]]
 L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
 --[[Translation missing --]]
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
+--[[Translation missing --]]
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
+--[[Translation missing --]]
 L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
 --[[Translation missing --]]
 L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"

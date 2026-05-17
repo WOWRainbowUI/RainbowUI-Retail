@@ -6943,7 +6943,8 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 		--save the config
 		tinsert(_detalhes_global.exit_log, "6 - Saving Config.")
 		currentStep = "Saving Config"
-		xpcall(Details.SaveConfig, logSaverError)
+		--xpcall(Details.SaveConfig, logSaverError)
+		xpcall(Details222.SaveVariables.SaveConfig, logSaverError)
 
 		tinsert(_detalhes_global.exit_log, "7 - Saving Profiles.")
 		currentStep = "Saving Profile"
@@ -7753,6 +7754,10 @@ local SPELL_POWER_PAIN = SPELL_POWER_PAIN or (PowerEnum and PowerEnum.Pain) or 1
 	end
 
 	function Details.pvp_parser_frame:ReadPvPData()
+		if detailsFramework.IsAddonApocalypseWow() then
+			return
+		end
+
 		local players = GetNumBattlefieldScores()
 
 		local _player, realmName = UnitFullName("player")

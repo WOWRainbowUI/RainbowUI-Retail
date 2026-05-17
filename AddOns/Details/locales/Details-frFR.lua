@@ -768,6 +768,10 @@ L["STRING_OPTIONS_PERFORMANCEPROFILES_ANCHOR"] = "Profils de performances :"
 L["STRING_OPTIONS_PICONS_DIRECTION"] = "Les plugins se fixent à droite"
 L["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "Quand activé, les boutons de plugin sont affichés sur le côté droit des boutons de menu."
 L["STRING_OPTIONS_PLAYERNAME"] = "Nom du joueur"
+--[[Translation missing --]]
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
+--[[Translation missing --]]
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
 L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Longueur auto"
 L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Longueur"
 L["STRING_OPTIONS_PLUGINS"] = "Plugins"

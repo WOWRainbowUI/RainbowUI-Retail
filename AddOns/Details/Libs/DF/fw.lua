@@ -1,5 +1,7 @@
+-- SPDX-License-Identifier: LGPL-2.1-or-later
+-- Details Framework (DetailsFramework-1.0) -- see Libs/DF/LICENSE
 
-local dversion = 723
+local dversion = 736
 local major, minor = "DetailsFramework-1.0", dversion
 local DF, oldminor = LibStub:NewLibrary(major, minor)
 
@@ -257,6 +259,11 @@ function DF.IsAddonApocalypseWow()
 	return buildInfo >= 120000
 end
 
+function DF.IsMidnightWowAPI()
+	if (buildInfo < 130000 and buildInfo >= 120000) then		return true	end
+	if (buildInfo < 60000 and buildInfo >= 50504) then        return true    end
+	return false
+end
 
 ---return true if the player is playing in the WotLK version of wow with the retail api
 ---@return boolean
@@ -938,7 +945,7 @@ function DF.table.duplicate(t1, t2)
 	for key, value in pairs(t2) do
 		if (key ~= "__index" and key ~= "__newindex") then
 			--preserve a UIObject passing it to the new table with copying it
-			if (type(value) == "table" and table.GetObjectType and table:GetObjectType()) then
+			if (type(value) == "table" and value.GetObjectType and value:GetObjectType()) then
 				t1[key] = value
 
 			elseif (type(value) == "table") then
@@ -1687,7 +1694,7 @@ function DF:AddClassIconToText(text, playerName, englishClassName, useSpec, icon
 		end
 	end
 
-	if (englishClassName) then
+	if (englishClassName and Details and Details.class_coords and Details.class_coords[englishClassName]) then
 		local classString = ""
 		--Details.class_coords uses english class names as keys and the values are tables containing texture coordinates
 		local L, R, T, B = unpack(Details.class_coords[englishClassName])
@@ -2018,7 +2025,8 @@ function DF:TruncateNumber(number, fractionDigits)
 	if (number >= 0) then
 		truncatedNumber = floor(number * mult + 0.5) / mult
 	else
-		truncatedNumber = ceil(number * mult + 0.5) / mult
+		--for negative numbers, subtract 0.5 before ceiling so that .5 rounds away from zero
+		truncatedNumber = ceil(number * mult - 0.5) / mult
 	end
 
 	return truncatedNumber
@@ -2912,7 +2920,7 @@ end
 
 		--
 		TutorialAlertFrame.label = type(maintext) == "string" and maintext or type(desctext) == "string" and desctext or ""
-		MicroButtonAlert_SetText (TutorialAlertFrame, alert.label)
+		MicroButtonAlert_SetText (TutorialAlertFrame, TutorialAlertFrame.label)
 		--
 
 		TutorialAlertFrame.clickfunc = clickfunc
