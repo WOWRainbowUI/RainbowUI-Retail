@@ -2152,7 +2152,7 @@ do
             {type = "label", get = function() return Loc ["STRING_OPTIONS_PLAYERNAME"] end, text_template = subSectionTitleTextTemplate,
             hidden = not detailsFramework.IsAddonApocalypseWow()},
 
-            {--automatic player name length
+            {--automatic player name length | length auto
                 type = "toggle",
                 get = function() return currentInstance.row_info.playername_size_auto end,
                 set = function(self, fixedparam, value)
@@ -2162,6 +2162,19 @@ do
                 end,
                 name = Loc ["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"],
                 desc = Loc ["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"],
+                hidden = not detailsFramework.IsAddonApocalypseWow(),
+            },
+
+            {--automatic player name alignment | alignment auto
+                type = "toggle",
+                get = function() return currentInstance.row_info.playername_alignment_auto end,
+                set = function(self, fixedparam, value)
+                    editInstanceSetting(currentInstance, "row_info", "playername_alignment_auto", value)
+                    afterUpdate()
+                    Details:RefreshMainWindow(-1, true)
+                end,
+                name = "Auto Alignment", --L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
+                desc = "Disable this only if you experience player name alignment issues.", --L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
                 hidden = not detailsFramework.IsAddonApocalypseWow(),
             },
 
@@ -2564,6 +2577,8 @@ do
                 group = "alignmenttext",
             },
         }
+
+        --local previewLine = CreateFrame()
 
         sectionFrame.sectionOptions = sectionOptions
         sectionOptions.always_boxfirst = true
@@ -5116,7 +5131,7 @@ do
                     afterUpdate()
                 end,
                 min = 230,
-                max = 370,
+                max = 550,
                 step = 1,
                 name = "Tooltip Width",
                 desc = "Set the width of the midnight tooltip",

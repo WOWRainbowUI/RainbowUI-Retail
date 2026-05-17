@@ -4,8 +4,23 @@ if not L then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 L = L or {}
 
-L["STRING_OR"] = "Or"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
 
+L["LE_EXPANSION_CLASSIC"] = "Classic"
+L["LE_EXPANSION_BURNING_CRUSADE"] = "The Burning Crusade"
+L["LE_EXPANSION_WRATH_OF_THE_LICH_KING"] = "Wrath of the Lich King"
+L["LE_EXPANSION_CATACLYSM"] = "Cataclysm"
+L["LE_EXPANSION_MISTS_OF_PANDARIA"] = "Mists of Pandaria"
+L["LE_EXPANSION_WARLORDS_OF_DRAENOR"] = "Warlords of Draenor"
+L["LE_EXPANSION_LEGION"] = "Legion"
+L["LE_EXPANSION_BATTLE_FOR_AZEROTH"] = "Battle for Azeroth"
+L["LE_EXPANSION_SHADOWLANDS"] = "Shadowlands"
+L["LE_EXPANSION_DRAGONFLIGHT"] = "Dragonflight"
+L["LE_EXPANSION_WAR_WITHIN"] = "The War Within"
+L["LE_EXPANSION_MIDNIGHT"] = "Midnight"
+
+L["STRING_OR"] = "Or"
 L["STRING_OPTIONS_SELECT_TEMPLATE"] = "Select Template"
 L["STRING_OPTIONS_TEXT_SHADOWCOLOR"] = "Shadow Color"
 L["STRING_OPTIONS_TEXT_SHADOWOFFSET"] = "Shadow Offset %s"
@@ -2699,6 +2714,8 @@ L["STRING_OPTIONS_PERFORMANCEPROFILES_ANCHOR"] = "Performance Profiles:"
 L["STRING_OPTIONS_PICONS_DIRECTION"] = "Plugins Attach on Right"
 L["STRING_OPTIONS_PICONS_DIRECTION_DESC"] = "When checked, plugin buttons are shown on right side of the menu buttons."
 L["STRING_OPTIONS_PLAYERNAME"] = "Player Name"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
+L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
 L["STRING_OPTIONS_PLAYERNAME_AUTO_WIDTH"] = "Length Auto"
 L["STRING_OPTIONS_PLAYERNAME_WIDTH"] = "Length"
 L["STRING_OPTIONS_PLUGINS"] = "Plugins"
