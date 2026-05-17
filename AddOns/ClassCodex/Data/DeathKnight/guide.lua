@@ -3,14 +3,13 @@ ClassCodexData["DEATHKNIGHT"] = {
   ["blood"] = {
     label = "Blood Death Knight",
     sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/blood/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "San'layn",
         context = "通用",
         stats = {
           { "加速" },
-          { "精通", "致命一擊", "臨機應變" },
+          { "Mastery", "致命一擊", "臨機應變" },
         },
       },
       {
@@ -18,7 +17,7 @@ ClassCodexData["DEATHKNIGHT"] = {
         context = "通用",
         stats = {
           { "致命一擊" },
-          { "精通", "臨機應變" },
+          { "Mastery", "臨機應變" },
           { "加速" },
         },
       },
@@ -154,7 +153,6 @@ ClassCodexData["DEATHKNIGHT"] = {
   ["frost"] = {
     label = "Frost Death Knight",
     sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/frost/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Deathbringer",
@@ -318,7 +316,6 @@ ClassCodexData["DEATHKNIGHT"] = {
   ["unholy"] = {
     label = "Unholy Death Knight",
     sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/unholy/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "San'layn",

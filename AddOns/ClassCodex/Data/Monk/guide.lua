@@ -3,7 +3,6 @@ ClassCodexData["MONK"] = {
   ["brewmaster"] = {
     label = "Brewmaster Monk",
     sourceUrl = "https://www.wowhead.com/guide/classes/monk/brewmaster/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Shado-Pan",
@@ -225,7 +224,6 @@ ClassCodexData["MONK"] = {
   ["mistweaver"] = {
     label = "Mistweaver Monk",
     sourceUrl = "https://www.wowhead.com/guide/classes/monk/mistweaver/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Conduit of the Celestials",
@@ -279,7 +277,7 @@ ClassCodexData["MONK"] = {
         heroTalent = "All",
         context = "傳奇+",
         buildLabel = "No Spiritfont",
-        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswMaGzAGMYMLzMzMMbYGsMTAAAAAEgFbzsMLzMAAwAAMDYMwiMmBA",
+        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswQzYGwgBjZZmZmhZDzwsMTAAAAAEgFbzsMLzMAAwAAMDYMwiMmBA",
       },
       {
         heroTalent = "Conduit of the Celestials",
@@ -297,7 +295,7 @@ ClassCodexData["MONK"] = {
         heroTalent = "Conduit of the Celestials",
         context = "傳奇+",
         recommended = true,
-        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswMaGzAGMYMLzMzMMbYGsMTAAAAAEgFbzsMLzMAAwAAMDYMwiMmBA",
+        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswQzYGwgBjZZmZmhZDzwsMTAAAAAEgFbzsMLzMAAwAAMDYMwiMmBA",
       },
       {
         heroTalent = "Master of Harmony",
@@ -307,7 +305,7 @@ ClassCodexData["MONK"] = {
       {
         heroTalent = "Master of Harmony",
         context = "傳奇+",
-        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsZstsMjZ2Mz2yyMjFmRzYGwgBjZZmZmhZDzglHYCAAAAMLTbz2MLzGAAAADwMDAMGYRGA",
+        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghxyMLjZx2MmZsZstsMjZ2Mz2yyMjFGaGzAGMYMLzMzMMbYGmlHYCAAAAMLTbz2MLzGAAAADwMDAMGYRGA",
       },
       {
         heroTalent = "Master of Harmony",
@@ -318,7 +316,7 @@ ClassCodexData["MONK"] = {
     rotation = {
       {
         heroTalent = "Conduit of the Celestials",
-        context = "團隊 Priority",
+        context = "團隊優先",
         steps = {
           "{116670} to keep someone alive that would otherwise die without your intervention",
           "Debuff enemies with {8647}",
@@ -334,7 +332,7 @@ ClassCodexData["MONK"] = {
       },
       {
         heroTalent = "Master of Harmony",
-        context = "團隊 Priority",
+        context = "團隊優先",
         steps = {
           "{116670} to keep someone alive that would otherwise die without your intervention",
           "Debuff enemies with {8647}",
@@ -392,7 +390,7 @@ ClassCodexData["MONK"] = {
       },
       {
         heroTalent = "Conduit of the Celestials",
-        context = "DPS Priority",
+        context = "DPS優先",
         steps = {
           "{101546} with a {438439} proc",
           "{443294} abilities while under its effects Priority {116680} with {107428}",
@@ -401,7 +399,7 @@ ClassCodexData["MONK"] = {
       },
       {
         heroTalent = "Master of Harmony",
-        context = "DPS Priority",
+        context = "DPS優先",
         steps = {
           "{101546} with a {438439} proc",
           "While in {450508} withdraw period Priority {101546} with {438439}",
@@ -415,7 +413,6 @@ ClassCodexData["MONK"] = {
   ["windwalker"] = {
     label = "Windwalker Monk",
     sourceUrl = "https://www.wowhead.com/guide/classes/monk/windwalker/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Shado-Pan",

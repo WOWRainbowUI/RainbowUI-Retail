@@ -380,15 +380,28 @@ function ns.ApplyTalentExportString(exportString, buildLabel)
         return nil, "Empty export string"
     end
 
-    if C_ClassTalents.CanChangeTalents then
-        local canChange, _, changeError = C_ClassTalents.CanChangeTalents()
-        if not canChange then
-            return nil, changeError or "Cannot change talents right now"
-        end
-    end
-
     local activeConfigID = C_ClassTalents.GetActiveConfigID()
     if not activeConfigID then return nil, "No active talent configuration" end
+
+    -- Combat is the only failure cause we can't recover from — staging
+    -- and CommitConfig are both protected from combat lockdown. Check
+    -- explicitly so the user gets a clear message instead of a mid-
+    -- stage failure that looks like a bug.
+    if InCombatLockdown and InCombatLockdown() then
+        return nil, "Cannot change talents in combat."
+    end
+
+    -- We deliberately don't pre-flight C_ClassTalents.CanChangeTalents()
+    -- here: it returns false whenever the tree has unspent currency,
+    -- which would lock levelling players out of the apply path entirely.
+    -- ResetAndPurchaseDeferred starts with ResetTree (refunds the whole
+    -- tree) and then stages purchases until the player's currency is
+    -- consumed — so unspent vs spent at entry doesn't matter, and the
+    -- post-stage partial-apply warning surfaces if the build exceeds
+    -- the player's budget. Other CanChangeTalents=false reasons (talent
+    -- UI not loaded, PvP-zone restrictions, etc.) fall through to the
+    -- existing CommitConfig branch which prints "Commit failed. Open
+    -- talent frame and click Apply Changes."
 
     -- Fast path: if the CC loadout already has these exact talents AND
     -- it's the spec's currently-selected saved loadout, just rename it.
@@ -454,6 +467,13 @@ function ns.ApplyTalentExportString(exportString, buildLabel)
     -- Re-fetch activeConfigID after LoadConfig may have changed it
     activeConfigID = C_ClassTalents.GetActiveConfigID()
 
+    -- Snapshot for the partial-apply path (B): ResetAndPurchaseDeferred
+    -- nils out entries from entryInfo as it successfully purchases
+    -- them, so the leftover count after staging tells us how many
+    -- nodes we couldn't afford at the player's current level.
+    local originalNodeCount = 0
+    for _ in pairs(entryInfo) do originalNodeCount = originalNodeCount + 1 end
+
     -- Reset + purchase: deferred across frames so the UI doesn't
     -- freeze on a ~50-node tree. Commit happens in the onComplete
     -- callback once all nodes are staged.
@@ -483,6 +503,27 @@ function ns.ApplyTalentExportString(exportString, buildLabel)
                 Msg("Already using this build.")
             end
             return
+        end
+
+        -- (B) Partial-apply warning. The staging loop is already
+        -- robust to "ran out of currency" — failed PurchaseRank calls
+        -- leave the node in entryInfo and a pass that makes zero
+        -- progress terminates the loop. So if any nodes remain in
+        -- entryInfo, it's because the player's current level couldn't
+        -- afford or unlock them (typical levelling-vs-max-level-build
+        -- case). Surface that as a single info line before committing
+        -- so the user knows why their loadout looks shorter than the
+        -- build description. We still call CommitConfig normally —
+        -- if Blizzard rejects the partial state (e.g. leftover
+        -- currency from multi-point nodes) the existing commit-fail
+        -- branch directs them to the talent UI.
+        local remainingNodes = 0
+        for _ in pairs(entryInfo) do remainingNodes = remainingNodes + 1 end
+        if remainingNodes > 0 then
+            local applied = originalNodeCount - remainingNodes
+            Msg(string.format(
+                "Applying %d of %d nodes — your current level can't fit the rest. Level up and re-apply to fill in the remaining %d.",
+                applied, originalNodeCount, remainingNodes))
         end
 
         if not C_ClassTalents.CommitConfig(ccConfigID) then

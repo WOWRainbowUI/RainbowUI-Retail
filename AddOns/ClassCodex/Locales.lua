@@ -151,6 +151,7 @@ L["Stat Priority Source Line"] = "属性优先级来源行"
 L["Stat priority"] = "属性优先级"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is docked."] = "面板停靠时,在属性标签上显示属性目标部分(实时条形图与 Archon 实测目标对比)。"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is floating."] = "面板浮动时,在属性标签上显示属性目标部分(实时条形图与 Archon 实测目标对比)。"
+L["Stat targets can't be computed in combat — values update after combat ends."] = "战斗中无法计算属性目标 — 战斗结束后数值会更新。"
 
 -- Tooltip / data source labels
 L["Source Display"] = "来源显示"
@@ -371,6 +372,7 @@ L["Stat Priority Source Line"] = "屬性優先順序來源行"
 L["Stat priority"] = "屬性優先順序"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is docked."] = "面板停靠時,在屬性分頁顯示屬性目標區段(即時條形圖對比 Archon 實測目標)。"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is floating."] = "面板浮動時,在屬性分頁顯示屬性目標區段(即時條形圖對比 Archon 實測目標)。"
+L["Stat targets can't be computed in combat — values update after combat ends."] = "戰鬥中無法計算屬性目標 — 戰鬥結束後數值會更新。"
 
 -- Tooltip / data source labels
 L["Source Display"] = "來源顯示"
@@ -449,5 +451,12 @@ L["Horizontal Offset"] = "水平偏移"
 L["Horizontal offset (pixels) from the character pane top-right corner."] = "相對於角色面板右上角的水平偏移(像素)。"
 L["Vertical Offset"] = "垂直偏移"
 L["Vertical offset (pixels) from the character pane top-right corner."] = "相對於角色面板右上角的垂直偏移(像素)。"
+
+-- Footer
+L["Today"] = "今天"
+L["Yesterday"] = "昨天"
+L["%d days ago"] = "%d 天前"
+L["Last refreshed: %s"] = "上次更新：%s"
+L["Data refreshes daily. Update Class Codex to get the latest."] = "資料每日更新。請更新 Class Codex 以取得最新內容。"
 
 end -- locale

@@ -3,13 +3,12 @@ ClassCodexData["WARLOCK"] = {
   ["affliction"] = {
     label = "Affliction Warlock",
     sourceUrl = "https://www.wowhead.com/guide/classes/warlock/affliction/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Hellcaller",
         context = "通用",
         stats = {
-          { "精通", "致命一擊" },
+          { "Mastery", "致命一擊" },
           { "加速" },
           { "臨機應變" },
         },
@@ -18,7 +17,7 @@ ClassCodexData["WARLOCK"] = {
         heroTalent = "Soul Harvester",
         context = "通用",
         stats = {
-          { "精通", "致命一擊" },
+          { "Mastery", "致命一擊" },
           { "加速" },
           { "臨機應變" },
         },
@@ -156,7 +155,6 @@ ClassCodexData["WARLOCK"] = {
   ["demonology"] = {
     label = "Demonology Warlock",
     sourceUrl = "https://www.wowhead.com/guide/classes/warlock/demonology/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Diabolist",
@@ -324,14 +322,13 @@ ClassCodexData["WARLOCK"] = {
   ["destruction"] = {
     label = "Destruction Warlock",
     sourceUrl = "https://www.wowhead.com/guide/classes/warlock/destruction/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Diabolist",
         context = "通用",
         stats = {
           { "加速" },
-          { "精通", "致命一擊" },
+          { "Mastery", "致命一擊" },
           { "臨機應變" },
         },
       },
@@ -340,7 +337,7 @@ ClassCodexData["WARLOCK"] = {
         context = "通用",
         stats = {
           { "加速" },
-          { "精通", "致命一擊" },
+          { "Mastery", "致命一擊" },
           { "臨機應變" },
         },
       },

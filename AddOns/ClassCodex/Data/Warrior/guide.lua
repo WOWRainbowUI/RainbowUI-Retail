@@ -3,7 +3,6 @@ ClassCodexData["WARRIOR"] = {
   ["arms"] = {
     label = "Arms Warrior",
     sourceUrl = "https://www.wowhead.com/guide/classes/warrior/arms/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Colossus",
@@ -143,7 +142,6 @@ ClassCodexData["WARRIOR"] = {
   ["fury"] = {
     label = "Fury Warrior",
     sourceUrl = "https://www.wowhead.com/guide/classes/warrior/fury/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Mountain Thane",
@@ -274,7 +272,6 @@ ClassCodexData["WARRIOR"] = {
   ["protection"] = {
     label = "Protection Warrior",
     sourceUrl = "https://www.wowhead.com/guide/classes/warrior/protection/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Mountain Thane",

@@ -169,6 +169,39 @@ local function GetSpecGearData()
     return classData[specKey]
 end
 
+-- Resolve the (classToken, spec-without-class-prefix) pair the docked
+-- panel uses for PvP data lookups via PvPData.lua. The docked surface
+-- always reflects the player's current spec.
+local function GetPlayerClassSpec()
+    local classToken = select(2, UnitClass("player"))
+    local specKey = ns.GetSpecKey()
+    if not classToken or not specKey then return nil, nil end
+    local spec = specKey:match("-(.+)") or specKey
+    return classToken, spec
+end
+
+-- PvP shape conversion lives in PvPData.lua so the Compendium and the
+-- docked panel consume the same builders. Bundled into one table to
+-- minimise upvalue pressure on UpdateGearingSections (Lua's 60-upvalue
+-- limit was tripping after these helpers were added).
+local PvP = {
+    bis = function()
+        if not ns.BuildPvPBisTabs then return nil end
+        local classToken, spec = GetPlayerClassSpec()
+        return ns.BuildPvPBisTabs(classToken, spec)
+    end,
+    enchants = function()
+        if not ns.BuildPvPEnchantsRows then return nil end
+        local classToken, spec = GetPlayerClassSpec()
+        return ns.BuildPvPEnchantsRows(classToken, spec)
+    end,
+    gems = function()
+        if not ns.BuildPvPGemsRecord then return nil end
+        local classToken, spec = GetPlayerClassSpec()
+        return ns.BuildPvPGemsRecord(classToken, spec)
+    end,
+}
+
 -- Expose trinket tier lookup for tooltip integration
 function ns:GetTrinketTier(itemId)
     local gearData = GetSpecGearData()
@@ -498,6 +531,27 @@ enchantContent:SetPoint("TOPLEFT", enchantHeader, "BOTTOMLEFT", 0, 0)
 enchantContent:SetPoint("RIGHT", 0, 0)
 local enchantCollapsed = false
 ns.SetCollapsed(enchantContent, enchantHeader, enchantCollapsed)
+
+-- All PvP-related dock state bundled into one table to keep
+-- UpdateGearingSections under Lua's 60-upvalue ceiling. Includes:
+--   sourceDropdown — Wowhead/PvP toggle above the enchant rows
+--   fallback       — "No PvP enchant/gem data..." line shown when PvP
+--                    is selected for a spec without Murlok data
+--   bisFallback    — same idea for the BiS section
+--   currentSource  — "Wowhead" or "PvP", session state
+--   lastSpecKey    — guard for "reset on spec switch"
+local pvpDock = {
+    sourceDropdown = ns.CreateOptionDropdown("ClassCodexDockEnhancementsSourceDropdown", enchantContent),
+    currentSource  = "Wowhead",
+    lastSpecKey    = nil,
+}
+pvpDock.sourceDropdown:SetPoint("TOPLEFT", 0, 0)
+pvpDock.sourceDropdown:SetPoint("TOPRIGHT", 0, 0)
+pvpDock.sourceDropdown:Hide()
+
+pvpDock.fallback = enchantContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+pvpDock.fallback:SetTextColor(0.5, 0.5, 0.5)
+pvpDock.fallback:Hide()
 
 enchantHeader:SetScript("OnClick", function()
     enchantCollapsed = not enchantCollapsed
@@ -847,6 +901,15 @@ for i = 1, MAX_BIS_ROWS do
     bisRows[i] = row
 end
 
+-- BiS-side PvP fallback FontString — kept on the pvpDock table so it
+-- doesn't add another upvalue to UpdateGearingSections.
+pvpDock.bisFallback = bisContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+pvpDock.bisFallback:SetTextColor(0.5, 0.5, 0.5)
+pvpDock.bisFallback:Hide()
+
+-- Brand-icon labels live in PvPData.lua so the Compendium and the dock
+-- share one definition (ns.BIS_SOURCE_LABELS / ns.ENH_SOURCE_LABELS).
+
 local function SaveBisPrefs(source, tabLabel)
     local specKey = ns.GetSpecKey()
     if not specKey or not ClassCodexCharDB then return end
@@ -868,6 +931,8 @@ local function GetActiveBisGear()
         local spec = specKey:match("-(.+)") or specKey
         local ivSpec = ns:GetIcyVeinsSpecData(classToken, spec)
         return ivSpec and ivSpec.bisGear
+    elseif currentBisSource == "PvP" then
+        return PvP.bis()
     else
         local gearData = GetSpecGearData()
         return gearData and gearData.bisGear
@@ -915,15 +980,79 @@ function ns:UpdateGearingSections()
         end
     end
 
+    -- Enhancements (enchants + gems) source resolution.
+    -- Reset on spec change so a "PvP" choice on a previous spec doesn't
+    -- bleed into the next one — matches the Compendium Enhancements tab
+    -- (Compendium.lua:lastEnhancementsSpecKey).
+    local dockEnhancementsSpecKey = ns.GetSpecKey() or ""
+    if dockEnhancementsSpecKey ~= pvpDock.lastSpecKey then
+        pvpDock.currentSource = "Wowhead"
+        pvpDock.lastSpecKey = dockEnhancementsSpecKey
+    end
+    -- Wowhead falls back to PvP when missing; PvP stays sticky so the
+    -- fallback line below tells the user the source choice was honoured.
+    local pvpEnchants = PvP.enchants()
+    local pvpGems = PvP.gems()
+    local hasPvPEnh = pvpEnchants ~= nil or pvpGems ~= nil
+    local hasWowheadEnh = gearData and (gearData.enchants or gearData.gems)
+    if pvpDock.currentSource == "Wowhead" and not hasWowheadEnh then
+        pvpDock.currentSource = "PvP"
+    end
+
+    -- Source dropdown — only show if Wowhead has data; otherwise the
+    -- PvP option is the only sensible state and a 1-option dropdown is
+    -- noise. Falls back to plain "Wowhead"/"PvP" labels if the brand-icon
+    -- table from PvPData.lua isn't available yet (defensive — ns is
+    -- shared but order-of-init issues have surprised us before).
+    local showEnhDropdown = hasWowheadEnh
+    if showEnhDropdown then
+        local labels = ns.ENH_SOURCE_LABELS or {}
+        pvpDock.sourceDropdown:Show()
+        pvpDock.sourceDropdown:SetOptions(
+            {
+                { label = labels["Wowhead"] or "Wowhead", value = "Wowhead" },
+                { label = labels["PvP"]     or "PvP",     value = "PvP" },
+            },
+            pvpDock.currentSource,
+            function(picked)
+                pvpDock.currentSource = picked
+                ns:UpdateGearingSections()
+                ns:LayoutPanel()
+            end
+        )
+    else
+        pvpDock.sourceDropdown:Hide()
+    end
+
+    local enhPvpNoData = pvpDock.currentSource == "PvP" and not hasPvPEnh
+    local activeEnchants, activeGems
+    if pvpDock.currentSource == "PvP" then
+        activeEnchants = pvpEnchants
+        activeGems = pvpGems
+    else
+        activeEnchants = gearData and gearData.enchants
+        activeGems = gearData and gearData.gems
+    end
+
     -- Enchants
     for i = 1, MAX_ENCHANT_ROWS do enchantRows[i]:Hide() end
+    pvpDock.fallback:Hide()
     lastEnchantCount = 0
     lastEnchantHeight = 0
-    if gearData and gearData.enchants and #gearData.enchants > 0 then
-        local count = math.min(#gearData.enchants, MAX_ENCHANT_ROWS)
-        local yOff = 0
+    local enchBaseY = showEnhDropdown and -30 or 0
+    if enhPvpNoData then
+        pvpDock.fallback:SetText(L["No PvP enchant/gem data for this spec yet."]
+            or "No PvP enchant/gem data for this spec yet.")
+        pvpDock.fallback:ClearAllPoints()
+        pvpDock.fallback:SetPoint("TOPLEFT", 4, enchBaseY - 4)
+        pvpDock.fallback:Show()
+        lastEnchantHeight = math.abs(enchBaseY) + 20
+        enchantSection:Show()
+    elseif activeEnchants and #activeEnchants > 0 then
+        local count = math.min(#activeEnchants, MAX_ENCHANT_ROWS)
+        local yOff = enchBaseY
         for i = 1, count do
-            local e = gearData.enchants[i]
+            local e = activeEnchants[i]
             local row = enchantRows[i]
             row.slotText:SetText(e.slot)
 
@@ -964,25 +1093,27 @@ function ns:UpdateGearingSections()
     -- Gems
     for i = 1, MAX_GEM_ROWS do gemRows[i]:Hide() end
     lastGemCount = 0
-    if gearData and gearData.gems then
+    if not enhPvpNoData and activeGems then
         local idx = 0
-        idx = idx + 1
-        local row = gemRows[idx]
-        row.labelText:SetText(L["Primary"])
-        row.itemText:SetText(FormatItem(gearData.gems.primary))
-        row.itemId = gearData.gems.primary.itemId
-        row.altItemId = nil
-        row.embItemId = nil
-        SetRowIcon(row, gearData.gems.primary.itemId)
-        row:ClearAllPoints()
-        row:SetPoint("TOPLEFT", 0, 0)
-        row:SetPoint("RIGHT", 0, 0)
-        row:Show()
-        if gearData.gems.secondary then
-            for _, gem in ipairs(gearData.gems.secondary) do
+        if activeGems.primary then
+            idx = idx + 1
+            local row = gemRows[idx]
+            row.labelText:SetText(L["Primary"])
+            row.itemText:SetText(FormatItem(activeGems.primary))
+            row.itemId = activeGems.primary.itemId
+            row.altItemId = nil
+            row.embItemId = nil
+            SetRowIcon(row, activeGems.primary.itemId)
+            row:ClearAllPoints()
+            row:SetPoint("TOPLEFT", 0, 0)
+            row:SetPoint("RIGHT", 0, 0)
+            row:Show()
+        end
+        if activeGems.secondary then
+            for _, gem in ipairs(activeGems.secondary) do
                 idx = idx + 1
                 if idx > MAX_GEM_ROWS then break end
-                row = gemRows[idx]
+                local row = gemRows[idx]
                 row.labelText:SetText(L["Secondary"])
                 row.itemText:SetText(FormatItem(gem))
                 row.itemId = gem.itemId
@@ -996,7 +1127,7 @@ function ns:UpdateGearingSections()
             end
         end
         lastGemCount = idx
-        gemSection:Show()
+        if idx > 0 then gemSection:Show() else gemSection:Hide() end
     else
         gemSection:Hide()
     end
@@ -1214,6 +1345,7 @@ function ns:UpdateGearingSections()
 
     -- BiS Gear
     for i = 1, MAX_BIS_ROWS do bisRows[i]:Hide() end
+    pvpDock.bisFallback:Hide()
     lastBisCount = 0
 
     local wowheadBis = gearData and gearData.bisGear
@@ -1222,24 +1354,36 @@ function ns:UpdateGearingSections()
     local spec = specKey and (specKey:match("-(.+)") or specKey)
     local ivSpecData = classToken and spec and ns:GetIcyVeinsSpecData(classToken, spec)
     local ivBis = ivSpecData and ivSpecData.bisGear
+    local pvpBis = PvP.bis()
     local hasWH = wowheadBis and #wowheadBis > 0
     local hasIV = ivBis and #ivBis > 0
+    local hasPvP = pvpBis ~= nil
 
-    if hasWH or hasIV then
+    if hasWH or hasIV or hasPvP then
         -- Restore persisted source preference
         currentBisSource = "Wowhead"
         if specKey and ClassCodexCharDB and ClassCodexCharDB.perSpec
             and ClassCodexCharDB.perSpec[specKey] and ClassCodexCharDB.perSpec[specKey].bisSource then
             currentBisSource = ClassCodexCharDB.perSpec[specKey].bisSource
         end
-        -- Auto-correct if saved source has no data
+        -- Wowhead/Icy Veins fall back to each other when missing, but
+        -- PvP stays sticky — if PvP is selected on a spec without
+        -- Murlok data, the pvpDock.bisFallback line below tells the user
+        -- the source choice was honoured.
         if currentBisSource == "Icy Veins" and not hasIV then currentBisSource = "Wowhead" end
-        if currentBisSource == "Wowhead" and not hasWH then currentBisSource = "Icy Veins" end
+        if currentBisSource == "Wowhead" and not hasWH then currentBisSource = hasIV and "Icy Veins" or "PvP" end
 
-        -- Show source dropdown when both sources available
-        if hasWH and hasIV then
+        -- Source dropdown — PvP always appears for discoverability when
+        -- multiple sources are even theoretically available. Options
+        -- carry the brand-icon labels for visible source attribution.
+        local labels = ns.BIS_SOURCE_LABELS or {}
+        local availableSources = {}
+        if hasWH then availableSources[#availableSources + 1] = { label = labels["Wowhead"] or "Wowhead", value = "Wowhead" } end
+        if hasIV then availableSources[#availableSources + 1] = { label = labels["Icy Veins"] or "Icy Veins", value = "Icy Veins" } end
+        availableSources[#availableSources + 1] = { label = labels["PvP"] or "PvP", value = "PvP" }
+        if #availableSources > 1 then
             bisSourceDropdown:Show()
-            bisSourceDropdown:SetOptions({ "Wowhead", "Icy Veins" }, currentBisSource, function(picked)
+            bisSourceDropdown:SetOptions(availableSources, currentBisSource, function(picked)
                 currentBisSource = picked
                 currentBisTab = "Overall" -- reset tab on source change
                 SaveBisPrefs(currentBisSource, currentBisTab)
@@ -1250,74 +1394,100 @@ function ns:UpdateGearingSections()
             bisSourceDropdown:Hide()
         end
 
-        -- Determine active bis gear from selected source
-        local activeBis = (currentBisSource == "Icy Veins") and ivBis or wowheadBis
-        if not activeBis or #activeBis == 0 then
-            activeBis = wowheadBis or ivBis
-        end
-
-        -- Default to first available tab if current selection is invalid
-        local tabValid = false
-        for _, tab in ipairs(activeBis) do
-            if tab.label == currentBisTab then tabValid = true; break end
-        end
-        if not tabValid then currentBisTab = activeBis[1].label end
-
-        -- Show tab dropdown when multiple tabs exist
-        local showTabDropdown = #activeBis > 1
-        if showTabDropdown then
-            local labels = {}
-            for _, tab in ipairs(activeBis) do labels[#labels + 1] = tab.label end
-            bisTabDropdown:Show()
-            bisTabDropdown:SetOptions(labels, currentBisTab, function(picked)
-                currentBisTab = picked
-                SaveBisPrefs(nil, currentBisTab)
-                ns:UpdateGearingSections()
-                ns:LayoutPanel()
-            end)
-        else
+        -- PvP-no-data: render the fallback line and skip the row loop.
+        if currentBisSource == "PvP" and not hasPvP then
             bisTabDropdown:Hide()
-        end
+            local yOffset = bisSourceDropdown:IsShown() and -30 or 0
+            pvpDock.bisFallback:SetText(L["No PvP gear data for this spec yet."]
+                or "No PvP gear data for this spec yet.")
+            pvpDock.bisFallback:ClearAllPoints()
+            pvpDock.bisFallback:SetPoint("TOPLEFT", 4, yOffset - 4)
+            pvpDock.bisFallback:Show()
+            bisSection:Show()
+        else
+            -- Determine active bis gear from selected source. Guard
+            -- everything from here to row-render against malformed /
+            -- empty data — a single Lua error here would abort the
+            -- function before trinkets / per-mode visibility runs,
+            -- leaving the whole tab strip half-rendered.
+            local activeBis
+            if currentBisSource == "PvP" then activeBis = pvpBis
+            elseif currentBisSource == "Icy Veins" then activeBis = ivBis
+            else activeBis = wowheadBis end
+            if not activeBis or #activeBis == 0 then
+                activeBis = wowheadBis or ivBis or pvpBis
+            end
 
-        -- Find the selected tab's slots
-        local selectedSlots = nil
-        for _, tab in ipairs(activeBis) do
-            if tab.label == currentBisTab then
-                selectedSlots = tab.slots
-                break
+            if not activeBis or not activeBis[1] then
+                -- No populated tab anywhere — bail with section hidden
+                -- rather than nil-dereffing activeBis[1].label below.
+                bisTabDropdown:Hide()
+                bisSection:Hide()
+            else
+                -- Default to first available tab if current selection is invalid
+                local tabValid = false
+                for _, tab in ipairs(activeBis) do
+                    if tab.label == currentBisTab then tabValid = true; break end
+                end
+                if not tabValid then currentBisTab = activeBis[1].label end
+
+                -- Show tab dropdown when multiple tabs exist
+                local showTabDropdown = #activeBis > 1
+                if showTabDropdown then
+                    local labels = {}
+                    for _, tab in ipairs(activeBis) do labels[#labels + 1] = tab.label end
+                    bisTabDropdown:Show()
+                    bisTabDropdown:SetOptions(labels, currentBisTab, function(picked)
+                        currentBisTab = picked
+                        SaveBisPrefs(nil, currentBisTab)
+                        ns:UpdateGearingSections()
+                        ns:LayoutPanel()
+                    end)
+                else
+                    bisTabDropdown:Hide()
+                end
+
+                -- Find the selected tab's slots
+                local selectedSlots
+                for _, tab in ipairs(activeBis) do
+                    if tab.label == currentBisTab then
+                        selectedSlots = tab.slots
+                        break
+                    end
+                end
+
+                local yOffset = 0
+                if bisSourceDropdown:IsShown() then yOffset = yOffset - 30 end
+                if showTabDropdown then
+                    bisTabDropdown:ClearAllPoints()
+                    bisTabDropdown:SetPoint("TOPLEFT", 0, yOffset)
+                    bisTabDropdown:SetPoint("TOPRIGHT", 0, yOffset)
+                    yOffset = yOffset - 30
+                end
+
+                local count = selectedSlots and math.min(#selectedSlots, MAX_BIS_ROWS) or 0
+                for i = 1, count do
+                    local entry = selectedSlots[i]
+                    local row = bisRows[i]
+                    row.slotText:SetText(entry.slot)
+                    row.itemText:SetText(FormatItem(entry.item))
+                    row.sourceLabel:SetText(entry.source or "")
+
+                    row.itemId = entry.item.itemId
+                    row.bonusIDs = entry.item.bonusIDs
+                    row.altItemId = nil
+                    row.embItemId = nil
+                    row.sourceText = entry.source or nil
+                    SetRowIcon(row, entry.item.itemId)
+                    row:ClearAllPoints()
+                    row:SetPoint("TOPLEFT", 0, yOffset - (i - 1) * ROW_HEIGHT)
+                    row:SetPoint("RIGHT", 0, 0)
+                    row:Show()
+                end
+                lastBisCount = count
+                bisSection:Show()
             end
         end
-
-        local yOffset = 0
-        if bisSourceDropdown:IsShown() then yOffset = yOffset - 30 end
-        if showTabDropdown then
-            bisTabDropdown:ClearAllPoints()
-            bisTabDropdown:SetPoint("TOPLEFT", 0, yOffset)
-            bisTabDropdown:SetPoint("TOPRIGHT", 0, yOffset)
-            yOffset = yOffset - 30
-        end
-
-        local count = math.min(#selectedSlots, MAX_BIS_ROWS)
-        for i = 1, count do
-            local entry = selectedSlots[i]
-            local row = bisRows[i]
-            row.slotText:SetText(entry.slot)
-            row.itemText:SetText(FormatItem(entry.item))
-            row.sourceLabel:SetText(entry.source or "")
-
-            row.itemId = entry.item.itemId
-            row.bonusIDs = entry.item.bonusIDs
-            row.altItemId = nil
-            row.embItemId = nil
-            row.sourceText = entry.source or nil
-            SetRowIcon(row, entry.item.itemId)
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", 0, yOffset - (i - 1) * ROW_HEIGHT)
-            row:SetPoint("RIGHT", 0, 0)
-            row:Show()
-        end
-        lastBisCount = count
-        bisSection:Show()
     else
         bisSourceDropdown:Hide()
         bisTabDropdown:Hide()
@@ -1378,6 +1548,9 @@ function ns:LayoutGearingSections(y)
     y = LayoutSection(gemSection, gemCollapsed, lastGemCount * ROW_HEIGHT)
     y = LayoutSection(consumSection, consumCollapsed, lastConsumCount * ROW_HEIGHT)
 
+    -- (lastEnchantHeight already includes the source-dropdown offset and
+    -- the fallback line when shown — see UpdateGearingSections.)
+
     local trinketContentHeight = lastTrinketCount * ROW_HEIGHT
     if trinketCtxDropdown:IsShown() then
         trinketContentHeight = trinketContentHeight + 30
@@ -1392,6 +1565,9 @@ function ns:LayoutGearingSections(y)
     end
     if bisTabDropdown:IsShown() then
         bisContentHeight = bisContentHeight + 30
+    end
+    if pvpDock.bisFallback:IsShown() then
+        bisContentHeight = bisContentHeight + 20
     end
     y = LayoutSection(bisSection, bisCollapsed, bisContentHeight)
 

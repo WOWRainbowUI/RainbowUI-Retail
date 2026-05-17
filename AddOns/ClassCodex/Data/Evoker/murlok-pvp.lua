@@ -1,0 +1,75 @@
+ClassCodexMurlokPvp = ClassCodexMurlokPvp or {}
+ClassCodexMurlokPvp["EVOKER"] = {
+  ["augmentation"] = {
+    statPriority = { { key = "versatility", rating = 952 }, { key = "haste", rating = 849 }, { key = "crit", rating = 60 }, { key = "mastery", rating = 0 } },
+    bisGear = {
+      ["Rings"] = { { itemId = 240951, pickrate = 6 } },
+    },
+    gems = {
+      ["Prismatic"] = { { itemId = 240894, name = "Flawless Versatile Peridot" } },
+    },
+  },
+  ["devastation"] = {
+    statPriority = { { key = "versatility", rating = 786 }, { key = "mastery", rating = 531 }, { key = "haste", rating = 412 }, { key = "crit", rating = 114 } },
+    bisGear = {
+      ["Back"] = { { itemId = 239678, pickrate = 10 }, { itemId = 255339, pickrate = 9 } },
+      ["Chest"] = { { itemId = 244562, pickrate = 16 }, { itemId = 250000, pickrate = 9 } },
+      ["Feet"] = { { itemId = 255495, pickrate = 14 }, { itemId = 255494, pickrate = 7 }, { itemId = 255301, pickrate = 5 } },
+      ["Hands"] = { { itemId = 249998, pickrate = 32 } },
+      ["Head"] = { { itemId = 249997, pickrate = 27 } },
+      ["Legs"] = { { itemId = 249996, pickrate = 32 } },
+      ["Main Hand"] = { { itemId = 255631, pickrate = 12 }, { itemId = 255622, pickrate = 10 }, { itemId = 255624, pickrate = 7 } },
+      ["Neck"] = { { itemId = 240952, pickrate = 13 }, { itemId = 255336, pickrate = 8 }, { itemId = 255612, pickrate = 5 } },
+      ["Off Hand"] = { { itemId = 255625, pickrate = 9 } },
+      ["Rings"] = { { itemId = 240951, pickrate = 37 } },
+      ["Shoulders"] = { { itemId = 249995, pickrate = 24 } },
+      ["Trinkets"] = { { itemId = 255614, pickrate = 26 }, { itemId = 255327, pickrate = 20 } },
+      ["Waist"] = { { itemId = 244565, pickrate = 22 } },
+      ["Wrist"] = { { itemId = 255506, pickrate = 12 }, { itemId = 244568, pickrate = 12 } },
+    },
+    embellishments = { { itemId = 244565, name = "Arcanoweave Lining" } },
+    enchants = {
+      ["Chest"] = { { itemId = 0, name = "Enchant Chest - Mark of the Worldsoul" } },
+      ["Feet"] = { { itemId = 0, name = "Enchant Boots - Farstrider's Hunt" } },
+      ["Head"] = { { itemId = 0, name = "Enchant Helm - Empowered Blessing of Speed" } },
+      ["Legs"] = { { itemId = 240133, name = "Sunfire Silk Spellthread" } },
+      ["Main Hand"] = { { itemId = 0, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
+      ["Rings"] = { { itemId = 0, name = "Enchant Ring - Silvermoon's Tenacity" } },
+      ["Shoulders"] = { { itemId = 0, name = "Enchant Shoulders - Akil'zon's Swiftness" } },
+    },
+    gems = {
+      ["Prismatic"] = { { itemId = 240916, name = "Flawless Quick Lapis" }, { itemId = 240902, name = "Flawless Versatile Amethyst" } },
+    },
+  },
+  ["preservation"] = {
+    statPriority = { { key = "versatility", rating = 779 }, { key = "haste", rating = 723 }, { key = "mastery", rating = 272 }, { key = "crit", rating = 111 } },
+    bisGear = {
+      ["Back"] = { { itemId = 255509, pickrate = 26 } },
+      ["Chest"] = { { itemId = 244562, pickrate = 21 } },
+      ["Feet"] = { { itemId = 255494, pickrate = 17 }, { itemId = 255269, pickrate = 12 }, { itemId = 244577, pickrate = 9 } },
+      ["Hands"] = { { itemId = 249998, pickrate = 50 } },
+      ["Head"] = { { itemId = 249997, pickrate = 40 } },
+      ["Legs"] = { { itemId = 249996, pickrate = 50 } },
+      ["Main Hand"] = { { itemId = 255622, pickrate = 45 } },
+      ["Neck"] = { { itemId = 240952, pickrate = 35 } },
+      ["Rings"] = { { itemId = 240951, pickrate = 80 } },
+      ["Shoulders"] = { { itemId = 249995, pickrate = 44 } },
+      ["Trinkets"] = { { itemId = 255614, pickrate = 40 } },
+      ["Waist"] = { { itemId = 255504, pickrate = 30 } },
+      ["Wrist"] = { { itemId = 255507, pickrate = 18 }, { itemId = 244568, pickrate = 14 }, { itemId = 255324, pickrate = 8 } },
+    },
+    embellishments = { { itemId = 240951, name = "Blessed Pango Charm" } },
+    enchants = {
+      ["Chest"] = { { itemId = 0, name = "Enchant Chest - Mark of the Magister" } },
+      ["Feet"] = { { itemId = 0, name = "Enchant Boots - Farstrider's Hunt" } },
+      ["Head"] = { { itemId = 0, name = "Enchant Helm - Empowered Blessing of Speed" } },
+      ["Legs"] = { { itemId = 240155, name = "Arcanoweave Spellthread" } },
+      ["Main Hand"] = { { itemId = 0, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
+      ["Rings"] = { { itemId = 0, name = "Enchant Ring - Silvermoon's Tenacity" } },
+      ["Shoulders"] = { { itemId = 0, name = "Enchant Shoulders - Akil'zon's Swiftness" } },
+    },
+    gems = {
+      ["Prismatic"] = { { itemId = 240916, name = "Flawless Quick Lapis" } },
+    },
+  },
+}

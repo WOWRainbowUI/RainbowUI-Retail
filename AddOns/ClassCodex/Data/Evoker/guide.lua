@@ -3,7 +3,6 @@ ClassCodexData["EVOKER"] = {
   ["augmentation"] = {
     label = "Augmentation Evoker",
     sourceUrl = "https://www.wowhead.com/guide/classes/evoker/augmentation/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Chronowarden",
@@ -166,7 +165,6 @@ ClassCodexData["EVOKER"] = {
   ["devastation"] = {
     label = "Devastation Evoker",
     sourceUrl = "https://www.wowhead.com/guide/classes/evoker/devastation/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Flameshaper",
@@ -332,7 +330,6 @@ ClassCodexData["EVOKER"] = {
   ["preservation"] = {
     label = "Preservation Evoker",
     sourceUrl = "https://www.wowhead.com/guide/classes/evoker/preservation/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Flameshaper",

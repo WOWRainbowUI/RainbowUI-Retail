@@ -3,7 +3,6 @@ ClassCodexData["HUNTER"] = {
   ["beast-mastery"] = {
     label = "Beast Mastery Hunter",
     sourceUrl = "https://www.wowhead.com/guide/classes/hunter/beast-mastery/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Pack Leader",
@@ -119,7 +118,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Pack Leader",
-        context = "Single-target 開場",
+        context = "單目標開場",
         steps = {
           "Before pull, apply {259558} on your priority target.",
           "As pull starts, cast {217200}.",
@@ -130,7 +129,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Dark Ranger",
-        context = "Single-target 開場",
+        context = "單目標開場",
         steps = {
           "Before pull, apply {259558} on your priority target.",
           "As pull starts, cast {466930}.",
@@ -180,7 +179,6 @@ ClassCodexData["HUNTER"] = {
   ["marksmanship"] = {
     label = "Marksmanship Hunter",
     sourceUrl = "https://www.wowhead.com/guide/classes/hunter/marksmanship/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Sentinel",
@@ -214,30 +212,30 @@ ClassCodexData["HUNTER"] = {
         heroTalent = "Sentinel",
         context = "團隊單目標",
         buildLabel = "Heavy Cleave/AoE",
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmttNzMjZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmtttZmhZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
       },
       {
         heroTalent = "Dark Ranger",
         context = "傳奇+",
         recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYLwsAAAAAAAAAMjZmZsNjZmxMsMmmxgZZjZmZZmZmZmZhZWGmZAAAMzYmZmBMBMAbMDA",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYJwsAAAAAAAAAMjZmZsZMzMmhlx0MGMLbmZGmZGzMzCzsMMzAAAMjxMzMDYCYA2YmxA",
       },
       {
         heroTalent = "Sentinel",
         context = "探究",
         recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjNjHYmxMsMmmxgZbjZmxMzYmZ2YmthZGAAgZMmBwMTbwMAbMzMD",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjNjHYmxMsMmmxgZbbbmZYmZmZmZjZ2GmZAAAmxYAYmpNYGgNmZM",
       },
       {
         heroTalent = "Sentinel",
         context = "團隊 MT",
         recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmttNzMjZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmtttZmhZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
       },
       {
         heroTalent = "Sentinel",
         context = "傳奇+",
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjtZMzMmhlx0MGMLbbmZGzMzMzMLMzywMDAAgZGDAzMtBGgNmZM",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjtZMzMmhlx0MGMLbbzMDzMzMzMLMzywMDAAgZGDAzMtBGgNmZM",
       },
       {
         heroTalent = "Dark Ranger",
@@ -362,7 +360,6 @@ ClassCodexData["HUNTER"] = {
   ["survival"] = {
     label = "Survival Hunter",
     sourceUrl = "https://www.wowhead.com/guide/classes/hunter/survival/cheat-sheet",
-    scrapedAt = "2026-05-11",
     priorities = {
       {
         heroTalent = "Pack Leader",

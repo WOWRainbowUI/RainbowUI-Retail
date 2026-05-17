@@ -16,8 +16,8 @@ local L = ns.L
 -- Constants
 -------------------------------------------------------------------------------
 
-local FRAME_WIDTH = 500
-local FRAME_HEIGHT = 424
+local FRAME_WIDTH = 540
+local FRAME_HEIGHT = 480
 local INSET_PAD = 8
 local ROW_HEIGHT = 22
 local SECTION_HEADER_HEIGHT = 24
@@ -111,6 +111,9 @@ local selectedSpec = nil
 local selectedHero = nil
 local activeTab = "guide"
 local currentStatContext = nil
+local currentEnhancementsSource = "Wowhead" -- "Wowhead" | "PvP"
+local lastEnhancementsSpecKey = nil
+local lastTalentSpecKey = nil
 local currentTrinketContext = "All"
 local currentBisTab = nil
 local currentBisSource = "Wowhead"
@@ -665,6 +668,12 @@ local function InitFrame()
         row.statName = name
         UI.statFrames[i] = row
     end
+    -- Shown when the PvP stat-priority context is selected for a spec
+    -- with no Murlok data — keeps the dropdown discoverable instead of
+    -- silently swallowing the user's selection.
+    UI.statPvpFallback = UI.statContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    UI.statPvpFallback:SetTextColor(0.5, 0.5, 0.5)
+    UI.statPvpFallback:Hide()
     UI.statHeader:SetScript("OnClick", function()
         UI.statCollapsed = not UI.statCollapsed
         SetCollapsed(UI.statContent, UI.statHeader, UI.statCollapsed)
@@ -746,13 +755,16 @@ local function InitFrame()
     UI._ensureTalentHeroHeader = CreateTalentHeroHeader
     for i = 1, MAX_TALENT_HERO_HEADERS do CreateTalentHeroHeader(i) end
 
-    -- Source dropdown (Wowhead | Archon) — only shown by the Talents
-    -- tab. Mirrors the docked panel and the addon's other dropdowns.
-    -- Each option carries the brand icon via a |T...|t escape.
+    -- Source dropdown (Wowhead | Archon | PvP) — only shown by the
+    -- Talents tab. Mirrors the docked panel and the addon's other
+    -- dropdowns. Each option carries the brand icon via a |T...|t escape.
     local SOURCE_ICON_WOWHEAD = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
     local SOURCE_ICON_ARCHON  = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
+    local SOURCE_ICON_PVP     = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
     local function SourceLabel(source)
-        return source == "archon" and SOURCE_ICON_ARCHON or SOURCE_ICON_WOWHEAD
+        if source == "archon" then return SOURCE_ICON_ARCHON end
+        if source == "pvp" then return SOURCE_ICON_PVP end
+        return SOURCE_ICON_WOWHEAD
     end
 
     UI.talentSource = "wowhead" -- per-spec source within the Compendium
@@ -760,10 +772,18 @@ local function InitFrame()
     UI.talentSourceDropdown:Hide()
 
     UI._refreshTalentSourceDropdown = function(archonAvailable)
+        -- PvP always appears so users discover the feature even on specs
+        -- without scraped data — RenderPvPTalentList surfaces the
+        -- "No PvP builds available." fallback when empty.
         local opts = { { label = SOURCE_ICON_WOWHEAD, value = "wowhead" } }
         if archonAvailable then
             opts[#opts + 1] = { label = SOURCE_ICON_ARCHON, value = "archon" }
         end
+        opts[#opts + 1] = { label = SOURCE_ICON_PVP, value = "pvp" }
+        -- Archon is the only source that can vanish (per-spec coverage gap).
+        local current = UI.talentSource
+        if current == "archon" and not archonAvailable then current = "wowhead" end
+        if current ~= UI.talentSource then UI.talentSource = current end
         UI.talentSourceDropdown:SetOptions(opts, UI.talentSource, function(picked)
             if UI.talentSource ~= picked then
                 UI.talentSource = picked
@@ -813,6 +833,14 @@ local function InitFrame()
     UI.enchantHeader = CreateSectionHeader(UI.enchantSection, L["Enchants"], true)
     UI.enchantContent = CreateFrame("Frame", nil, UI.enchantSection)
     UI.enchantContent:SetPoint("TOPLEFT", UI.enchantHeader, "BOTTOMLEFT", 0, -2); UI.enchantContent:SetPoint("RIGHT", 0, 0)
+    -- Enhancements source dropdown — Wowhead vs Murlok (PvP) toggle for
+    -- the Enchants + Gems sections. Hidden by default; shown when PvP
+    -- data exists for the spec. Sits above the enchant content rows.
+    UI.enhancementsSourceDropdown = CreateFrame("DropdownButton", "ClassCodexCompEnhancementsSourceDD", UI.enchantContent, "WowStyle1DropdownTemplate")
+    UI.enhancementsSourceDropdown:SetPoint("TOPLEFT", 0, 0)
+    UI.enhancementsSourceDropdown:SetPoint("TOPRIGHT", 0, 0)
+    UI.enhancementsSourceDropdown:SetHeight(24)
+    UI.enhancementsSourceDropdown:Hide()
     -- Enchant rows: outer frame holds icon + slot label, then a stack
     -- of two sub-rows (bestSub / altSub) — each sub is its own Button
     -- with its own tooltip + click target. Mirrors the docked panel.
@@ -879,6 +907,12 @@ local function InitFrame()
 
         UI.enchantRows[i] = row
     end
+    -- Shown when the PvP enhancements source is selected for a spec with
+    -- no Murlok enchant/gem data — keeps the dropdown choice honoured
+    -- instead of rendering an empty section.
+    UI.enchantPvpFallback = UI.enchantContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    UI.enchantPvpFallback:SetTextColor(0.5, 0.5, 0.5)
+    UI.enchantPvpFallback:Hide()
     UI.enchantHeader:SetScript("OnClick", function()
         UI.enchantCollapsed = not UI.enchantCollapsed; SetCollapsed(UI.enchantContent, UI.enchantHeader, UI.enchantCollapsed); ns:LayoutCompendium()
     end)
@@ -1005,6 +1039,12 @@ local function InitFrame()
         row.source = source
         UI.bisRows[i] = row
     end
+    -- Shown when the PvP source is selected for a spec without Murlok
+    -- gear data — keeps the dropdown discoverable instead of falling
+    -- back to a different source silently.
+    UI.bisPvpFallback = UI.bisContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    UI.bisPvpFallback:SetTextColor(0.5, 0.5, 0.5)
+    UI.bisPvpFallback:Hide()
     -- Single-section tab — not collapsible
 
     -- Empty state
@@ -1179,10 +1219,36 @@ function ns:UpdateCompendium()
     ns:LayoutCompendium()
 end
 
+-- Build a synthetic priority record from Murlok's per-spec PvP stat data
+-- so the existing rendering loop (which expects priority.stats as an
+-- array of stat-label tiers) works without source-specific branches.
+local function BuildPvPPrioritySynthetic()
+    if not selectedClass or not selectedSpec or not ns.GetPvPStats then return nil end
+    local stats = ns.GetPvPStats(selectedClass, selectedSpec)
+    if not stats or #stats == 0 then return nil end
+    local labels = ns.STAT_LABELS or {}
+    local tiers = {}
+    for _, s in ipairs(stats) do
+        local label = labels[s.key] or s.key
+        tiers[#tiers + 1] = { label }
+    end
+    return { stats = tiers }
+end
+
 -- Render the Stat Priority section (shared between Guide and Stats tabs).
 -- Pure layout — caller decides which other sections to show alongside it.
 local function RenderStatPrioritySection(specData, heroTalent)
     local statCtxOptions = GetStatContextOptions(specData, heroTalent)
+    -- PvP always appears as a sibling context so users discover the
+    -- feature; when Murlok has no priority for this spec the section
+    -- shows a small "no data" line instead of stat rows. The dropdown
+    -- only renders if there's more than one option to pick.
+    local pvpPriority = BuildPvPPrioritySynthetic()
+    if #statCtxOptions == 0 then
+        statCtxOptions = { "General", "PvP" }
+    else
+        statCtxOptions[#statCtxOptions + 1] = "PvP"
+    end
     local showStatCtx = #statCtxOptions > 0
 
     if showStatCtx then
@@ -1195,7 +1261,16 @@ local function RenderStatPrioritySection(specData, heroTalent)
 
         UI.statCtxDropdown:SetupMenu(function(_, rootDescription)
             for _, ctx in ipairs(statCtxOptions) do
-                rootDescription:CreateRadio(ctx,
+                -- PvP context carries the Murlok brand icon — same
+                -- attribution pattern the Talents/Gear source dropdowns
+                -- use for Wowhead/Archon. Other contexts ("General",
+                -- "Mythic+", "Raid") come from Wowhead's guide so they
+                -- inherit the tab's existing Wowhead context.
+                local label = ctx
+                if ctx == "PvP" then
+                    label = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  PvP"
+                end
+                rootDescription:CreateRadio(label,
                     function() return currentStatContext == ctx end,
                     function()
                         currentStatContext = ctx
@@ -1211,10 +1286,16 @@ local function RenderStatPrioritySection(specData, heroTalent)
     end
 
     local statLookupCtx = currentStatContext or "General"
-    local priority = FindMatch(specData.priorities, heroTalent, statLookupCtx)
+    local priority
+    if currentStatContext == "PvP" then
+        priority = pvpPriority -- may be nil; handled below
+    else
+        priority = FindMatch(specData.priorities, heroTalent, statLookupCtx)
+    end
+    UI.statPvpFallback:Hide()
+    for i = 1, MAX_STATS do UI.statFrames[i]:Hide() end
     if priority then
         local yOffset = showStatCtx and -30 or 0
-        for i = 1, MAX_STATS do UI.statFrames[i]:Hide() end
         for i = 1, math.min(#priority.stats, MAX_STATS) do
             local row = UI.statFrames[i]
             local color = RANK_COLORS[i]
@@ -1231,6 +1312,15 @@ local function RenderStatPrioritySection(specData, heroTalent)
         end
         local statCount = math.min(#priority.stats, MAX_STATS)
         UI.statContent:SetHeight(math.abs(yOffset) + statCount * ROW_HEIGHT)
+        UI.statSection:Show()
+    elseif currentStatContext == "PvP" then
+        local yOffset = showStatCtx and -30 or 0
+        UI.statPvpFallback:SetText(L["No PvP stat priority for this spec yet."]
+            or "No PvP stat priority for this spec yet.")
+        UI.statPvpFallback:ClearAllPoints()
+        UI.statPvpFallback:SetPoint("TOPLEFT", UI.statContent, "TOPLEFT", 4, yOffset - 4)
+        UI.statPvpFallback:Show()
+        UI.statContent:SetHeight(math.abs(yOffset) + 20)
         UI.statSection:Show()
     end
 end
@@ -1458,19 +1548,99 @@ local function RenderArchonTalentList(class, spec, yPos)
     return yPos
 end
 
+-- PvP view: rows are brackets, top class talent loadout per bracket.
+-- One section header ("PvP"); one row per available bracket. Honor
+-- talents are stored on the build but not rendered as separate rows
+-- here — Apply takes care of them via ns.ApplyPvpHonorTalents.
+local function RenderPvPTalentList(class, spec, yPos)
+    if not ns.GetPvPBracketsWithData then
+        UI.talentFallback:SetText(L["No PvP builds available."] or "No PvP builds available.")
+        UI.talentFallback:ClearAllPoints()
+        UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
+        UI.talentFallback:Show()
+        return yPos + 20
+    end
+    local brackets = ns.GetPvPBracketsWithData(class, spec)
+    if not brackets or #brackets == 0 then
+        UI.talentFallback:SetText(L["No PvP builds available."] or "No PvP builds available.")
+        UI.talentFallback:ClearAllPoints()
+        UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
+        UI.talentFallback:Show()
+        return yPos + 20
+    end
+
+    local hdrIdx, rowIdx = 0, 0
+    hdrIdx = hdrIdx + 1
+    local hdr = UI._ensureTalentHeroHeader(hdrIdx)
+    hdr.label:SetText("PvP")
+    hdr.label:SetTextColor(1, 0.82, 0)
+    hdr:ClearAllPoints()
+    hdr:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 0, -yPos)
+    hdr:SetPoint("RIGHT", UI.talentContent, "RIGHT", 0, 0)
+    hdr:Show()
+    yPos = yPos + TALENT_HERO_HEADER_HEIGHT
+
+    for _, bracketKey in ipairs(brackets) do
+        local data = ns.GetPvPBuilds(class, spec, bracketKey)
+        if data and data.builds and data.builds[1] then
+            local build = data.builds[1]
+            rowIdx = rowIdx + 1
+            local btn = UI._ensureTalentButton(rowIdx)
+            if btn.heroIcon then btn.heroIcon:Hide() end
+            btn.label:ClearAllPoints()
+            btn.label:SetPoint("LEFT", 8, 0)
+            btn.label:SetPoint("RIGHT", -8, 0)
+            local label = (ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey
+            if data.lowConfidence then
+                label = label .. " |cff999999(low confidence)|r"
+            end
+            btn.label:SetText(label)
+            local isActive = ns.BuildMatchesActive and ns.BuildMatchesActive({ exportString = build.exportString })
+            if isActive then
+                btn:SetBackdropBorderColor(0.2, 0.8, 0.2, 1)
+                btn.label:SetTextColor(0.3, 1, 0.3)
+            else
+                btn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+                btn.label:SetTextColor(0.8, 0.8, 0.8)
+            end
+            btn:ClearAllPoints()
+            btn:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 8, -yPos)
+            btn:SetPoint("RIGHT", UI.talentContent, "RIGHT", 0, 0)
+            BindCopyClick(btn, build.exportString)
+            btn:Show()
+            yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
+        end
+    end
+    yPos = yPos + 4
+
+    return yPos
+end
+
 function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     for _, b in ipairs(UI.talentButtons) do b:Hide() end
     for _, h in ipairs(UI.talentHeroHeaders) do h:Hide() end
     UI.talentFallback:Hide()
 
-    -- Source dropdown is the first row of talentContent. Drop Archon
-    -- from the option list when no archon data exists for this spec.
+    -- Reset source on spec change so users land on Wowhead by default
+    -- when browsing a new spec, matching the BiS / Enhancements tabs.
+    local talentSpecKey = (classFile or "") .. "-" .. (specKey or "")
+    if talentSpecKey ~= lastTalentSpecKey then
+        UI.talentSource = "wowhead"
+        lastTalentSpecKey = talentSpecKey
+    end
+
+    -- Source dropdown is the first row of talentContent. Archon may not
+    -- cover every spec, so its option drops out when missing. PvP always
+    -- shows so users can discover the feature; RenderPvPTalentList
+    -- handles the "no data" copy inline.
     local archonAvailable = classFile and specKey
         and ns.GetArchonSpecData and ns.GetArchonSpecData(classFile, specKey) ~= nil
     if not archonAvailable and UI.talentSource == "archon" then
         UI.talentSource = "wowhead"
     end
-    if UI._refreshTalentSourceDropdown then UI._refreshTalentSourceDropdown(archonAvailable) end
+    if UI._refreshTalentSourceDropdown then
+        UI._refreshTalentSourceDropdown(archonAvailable)
+    end
 
     UI.talentSourceDropdown:ClearAllPoints()
     UI.talentSourceDropdown:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 0, 0)
@@ -1480,6 +1650,11 @@ function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     local yPos = 32 -- leave room for the dropdown row (DROPDOWN_HEIGHT 26 + 6 gap)
     if UI.talentSource == "archon" and archonAvailable then
         yPos = RenderArchonTalentList(classFile, specKey, yPos)
+    elseif UI.talentSource == "pvp" then
+        -- RenderPvPTalentList itself handles the no-data case and
+        -- writes the talentFallback ("No PvP builds available."), so
+        -- we route through it regardless of whether PvP data exists.
+        yPos = RenderPvPTalentList(classFile, specKey, yPos)
     else
         yPos = RenderWowheadTalentList(specData, yPos)
     end
@@ -1488,21 +1663,106 @@ function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     UI.talentSection:Show()
 end
 
+-- Compendium enchant/gem renderers consume the slim PvP shape via
+-- ns.BuildPvPEnchantsRows / ns.BuildPvPGemsRecord (PvPData.lua) — the
+-- same builders the docked panel uses, so slot ordering and field
+-- mapping stay in one place.
+local function BuildPvPEnchantsSynthetic()
+    if not ns.BuildPvPEnchantsRows then return nil end
+    return ns.BuildPvPEnchantsRows(selectedClass, selectedSpec)
+end
+
+local function BuildPvPGemsSynthetic()
+    if not ns.BuildPvPGemsRecord then return nil end
+    return ns.BuildPvPGemsRecord(selectedClass, selectedSpec)
+end
+
 function ns:UpdateCompendiumEnchants()
     if not GEAR_DATA then return end
     local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
-    if not gearData then return end
 
-    if gearData.enchants then
+    UI.enchantPvpFallback:Hide()
+
+    -- Reset source on spec change to match the BiS / Talents tabs —
+    -- Wowhead is the default landing source when browsing a new spec.
+    local enhancementsSpecKey = (selectedClass or "") .. "-" .. (selectedSpec or "")
+    if enhancementsSpecKey ~= lastEnhancementsSpecKey then
+        currentEnhancementsSource = "Wowhead"
+        lastEnhancementsSpecKey = enhancementsSpecKey
+    end
+
+    local pvpEnchants = BuildPvPEnchantsSynthetic()
+    local pvpGems = BuildPvPGemsSynthetic()
+    local hasPvP = pvpEnchants ~= nil or pvpGems ~= nil
+    local hasWowhead = gearData and (gearData.enchants or gearData.gems)
+    if not hasWowhead and not hasPvP then return end
+
+    -- Wowhead falls back to PvP when missing, but PvP stays sticky —
+    -- selecting it on a spec with no Murlok data shows a "no data" line
+    -- below so users see the dropdown choice was honoured.
+    if currentEnhancementsSource == "Wowhead" and not hasWowhead then currentEnhancementsSource = "PvP" end
+
+    -- PvP always appears as a dropdown option for discoverability, so the
+    -- dropdown shows whenever Wowhead exists (the second slot is PvP).
+    local showSourceDropdown = hasWowhead and UI.enhancementsSourceDropdown
+    if showSourceDropdown then
+        UI.enhancementsSourceDropdown:SetupMenu(function(_, rootDescription)
+            for _, src in ipairs({ "Wowhead", "PvP" }) do
+                rootDescription:CreateRadio(ns.ENH_SOURCE_LABELS[src] or src,
+                    function() return currentEnhancementsSource == src end,
+                    function()
+                        currentEnhancementsSource = src
+                        ns:UpdateCompendiumEnchants()
+                        ns:LayoutCompendium()
+                    end,
+                    src)
+            end
+        end)
+        UI.enhancementsSourceDropdown:Show()
+    elseif UI.enhancementsSourceDropdown then
+        UI.enhancementsSourceDropdown:Hide()
+    end
+
+    -- Resolve which enchants/gems to render based on the active source.
+    local pvpNoData = currentEnhancementsSource == "PvP" and not hasPvP
+    local activeEnchants, activeGems
+    if currentEnhancementsSource == "PvP" then
+        activeEnchants = pvpEnchants
+        activeGems = pvpGems
+    else
+        activeEnchants = gearData and gearData.enchants
+        activeGems = gearData and gearData.gems
+    end
+
+    if pvpNoData then
+        for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
+        for i = 1, MAX_GEM_ROWS do UI.gemRows[i]:Hide() end
+        local yOff = showSourceDropdown and -30 or 0
+        UI.enchantPvpFallback:SetText(L["No PvP enchant/gem data for this spec yet."]
+            or "No PvP enchant/gem data for this spec yet.")
+        UI.enchantPvpFallback:ClearAllPoints()
+        UI.enchantPvpFallback:SetPoint("TOPLEFT", UI.enchantContent, "TOPLEFT", 4, yOff - 4)
+        UI.enchantPvpFallback:Show()
+        UI.enchantContent:SetHeight(math.abs(yOff) + 20)
+        UI.enchantSection:Show()
+        UI.gemSection:Hide()
+        return
+    end
+
+    -- Y-offset for first enchant row; bumped down when the source
+    -- dropdown is showing.
+    local enchantBaseY = showSourceDropdown and -30 or 0
+
+    if activeEnchants then
         for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
         -- Each entry renders as one row with stacked best / alt
         -- sub-rows; row height grows to 2x when an alternate exists.
         -- Each sub-row carries its own itemId so hovers and clicks
         -- target the right item.
-        local count = math.min(#gearData.enchants, MAX_ENCHANT_ROWS)
-        local yOff = 0
+        local count = math.min(#activeEnchants, MAX_ENCHANT_ROWS)
+        local yOff = enchantBaseY
         for i = 1, count do
-            local e = gearData.enchants[i]
+            local e = activeEnchants[i]
             local row = UI.enchantRows[i]
             row.slot:SetText(e.slot or "")
             SetRowIcon(row, e.best and e.best.itemId, e.best and e.best.spellId)
@@ -1536,23 +1796,23 @@ function ns:UpdateCompendiumEnchants()
         UI.enchantSection:Show()
     end
 
-    if gearData.gems then
+    if activeGems then
         for i = 1, MAX_GEM_ROWS do UI.gemRows[i]:Hide() end
         local gIdx = 0
-        if gearData.gems.primary then
+        if activeGems.primary then
             gIdx = gIdx + 1
             local row = UI.gemRows[gIdx]
             row.label:SetText(L["Primary"])
-            row.name:SetText(FormatItem(gearData.gems.primary))
-            row.itemId = gearData.gems.primary.itemId
-            SetRowIcon(row, gearData.gems.primary.itemId)
+            row.name:SetText(FormatItem(activeGems.primary))
+            row.itemId = activeGems.primary.itemId
+            SetRowIcon(row, activeGems.primary.itemId)
             row:ClearAllPoints()
             row:SetPoint("TOPLEFT", UI.gemContent, "TOPLEFT", 0, 0)
             row:SetPoint("RIGHT", UI.gemContent, "RIGHT", 0, 0)
             row:Show()
         end
-        if gearData.gems.secondary then
-            for _, gem in ipairs(gearData.gems.secondary) do
+        if activeGems.secondary then
+            for _, gem in ipairs(activeGems.secondary) do
                 gIdx = gIdx + 1
                 if gIdx > MAX_GEM_ROWS then break end
                 local row = UI.gemRows[gIdx]
@@ -1749,6 +2009,11 @@ function ns:UpdateCompendiumCrafts()
     UI.craftSection:Show()
 end
 
+local function BuildPvPBisSyntheticTabs()
+    if not ns.BuildPvPBisTabs then return nil end
+    return ns.BuildPvPBisTabs(selectedClass, selectedSpec)
+end
+
 function ns:UpdateCompendiumBis()
     for i = 1, MAX_BIS_ROWS do UI.bisRows[i]:Hide() end
 
@@ -1764,21 +2029,34 @@ function ns:UpdateCompendiumBis()
         and GEAR_DATA[selectedClass][selectedSpec].bisGear
     local ivSpecData = ns.GetIcyVeinsSpecData and ns:GetIcyVeinsSpecData(selectedClass, selectedSpec)
     local ivBis = ivSpecData and ivSpecData.bisGear
+    local pvpBis = BuildPvPBisSyntheticTabs()
     local hasWH = wowheadBis and #wowheadBis > 0
     local hasIV = ivBis and #ivBis > 0
+    local hasPvP = pvpBis ~= nil
 
-    if not hasWH and not hasIV then return end
+    UI.bisPvpFallback:Hide()
+    if not hasWH and not hasIV and not hasPvP then return end
 
-    -- Auto-correct source if saved one has no data
+    -- Auto-correct source if saved one has no data. Wowhead/Icy Veins
+    -- still fall back to a sibling, but PvP stays sticky — selecting it
+    -- on a spec without Murlok data shows a "no data" line so users see
+    -- the dropdown choice was honoured.
     if currentBisSource == "Icy Veins" and not hasIV then currentBisSource = "Wowhead" end
-    if currentBisSource == "Wowhead" and not hasWH then currentBisSource = "Icy Veins" end
+    if currentBisSource == "Wowhead" and not hasWH then currentBisSource = hasIV and "Icy Veins" or "PvP" end
 
-    -- Source dropdown
-    local showSourceDropdown = hasWH and hasIV
+    -- Source dropdown — PvP always appears as a third option for
+    -- discoverability, even when Murlok hasn't sampled this spec. Each
+    -- entry carries the brand icon (ns.BIS_SOURCE_LABELS) as visible
+    -- source attribution.
+    local availableSources = {}
+    if hasWH then availableSources[#availableSources + 1] = "Wowhead" end
+    if hasIV then availableSources[#availableSources + 1] = "Icy Veins" end
+    availableSources[#availableSources + 1] = "PvP"
+    local showSourceDropdown = #availableSources > 1
     if showSourceDropdown then
         UI.bisSourceDropdown:SetupMenu(function(_, rootDescription)
-            for _, src in ipairs({"Wowhead", "Icy Veins"}) do
-                rootDescription:CreateRadio(src,
+            for _, src in ipairs(availableSources) do
+                rootDescription:CreateRadio(ns.BIS_SOURCE_LABELS[src] or src,
                     function() return currentBisSource == src end,
                     function()
                         currentBisSource = src
@@ -1794,10 +2072,33 @@ function ns:UpdateCompendiumBis()
         UI.bisSourceDropdown:Hide()
     end
 
-    -- Determine active bis gear from selected source
-    local activeBis = (currentBisSource == "Icy Veins") and ivBis or wowheadBis
-    if not activeBis or #activeBis == 0 then
-        activeBis = wowheadBis or ivBis
+    -- Determine active bis gear from selected source. When PvP is
+    -- selected with no Murlok data, route to the PvP-no-data fallback
+    -- path below — DO NOT silently fall back to Wowhead/Icy Veins.
+    local pvpNoData = currentBisSource == "PvP" and not hasPvP
+    local activeBis
+    if currentBisSource == "PvP" then
+        activeBis = pvpBis
+    elseif currentBisSource == "Icy Veins" then
+        activeBis = ivBis
+    else
+        activeBis = wowheadBis
+    end
+    if not pvpNoData and (not activeBis or #activeBis == 0) then
+        activeBis = wowheadBis or ivBis or pvpBis
+    end
+
+    if pvpNoData then
+        local yOffset = showSourceDropdown and -30 or 0
+        UI.bisPvpFallback:SetText(L["No PvP gear data for this spec yet."]
+            or "No PvP gear data for this spec yet.")
+        UI.bisPvpFallback:ClearAllPoints()
+        UI.bisPvpFallback:SetPoint("TOPLEFT", UI.bisContent, "TOPLEFT", 4, yOffset - 4)
+        UI.bisPvpFallback:Show()
+        UI.bisTabDropdown:Hide()
+        UI.bisContent:SetHeight(math.abs(yOffset) + 20)
+        UI.bisSection:Show()
+        return
     end
 
     -- Resolve current tab — default to first available
@@ -1896,6 +2197,7 @@ function ns:LayoutCompendium()
         local statH = 0
         if UI.statCtxDropdown:IsShown() then statH = statH + 30 end
         for i = 1, MAX_STATS do if UI.statFrames[i]:IsShown() then statH = statH + ROW_HEIGHT end end
+        if UI.statPvpFallback and UI.statPvpFallback:IsShown() then statH = statH + 20 end
         LayoutSection(UI.statSection, UI.statCollapsed, UI.statContent, statH)
         local talentH = 0
         -- Iterate the actual pool (which can grow past MAX_TALENT_BUTTONS
@@ -1921,6 +2223,12 @@ function ns:LayoutCompendium()
     elseif activeTab == "bis" then
         local bisH = 0
         for i = 1, MAX_BIS_ROWS do if UI.bisRows[i]:IsShown() then bisH = bisH + ROW_HEIGHT end end
+        if UI.bisPvpFallback and UI.bisPvpFallback:IsShown() then
+            -- Source dropdown is 30px and the fallback line replaces the row stack —
+            -- include both so the section's bottom edge isn't above the fallback text.
+            if UI.bisSourceDropdown and UI.bisSourceDropdown:IsShown() then bisH = bisH + 30 end
+            bisH = bisH + 20
+        end
         LayoutSection(UI.bisSection, UI.bisCollapsed, UI.bisContent, bisH)
     elseif activeTab == "trinkets" then
         local trinketH = 0
@@ -1929,6 +2237,7 @@ function ns:LayoutCompendium()
         LayoutSection(UI.trinketSection, UI.trinketCollapsed, UI.trinketContent, trinketH)
     elseif activeTab == "enhancements" then
         local enchH = 0
+        if UI.enhancementsSourceDropdown and UI.enhancementsSourceDropdown:IsShown() then enchH = enchH + 30 end
         -- Each enchant row is 1× or 2× ROW_HEIGHT depending on whether
         -- it has an alternate sub-row, so read each row's actual height
         -- instead of multiplying by a constant.
@@ -1937,6 +2246,7 @@ function ns:LayoutCompendium()
                 enchH = enchH + UI.enchantRows[i]:GetHeight()
             end
         end
+        if UI.enchantPvpFallback and UI.enchantPvpFallback:IsShown() then enchH = enchH + 20 end
         LayoutSection(UI.enchantSection, UI.enchantCollapsed, UI.enchantContent, enchH)
         local gemH = 0
         for i = 1, MAX_GEM_ROWS do if UI.gemRows[i]:IsShown() then gemH = gemH + ROW_HEIGHT end end
