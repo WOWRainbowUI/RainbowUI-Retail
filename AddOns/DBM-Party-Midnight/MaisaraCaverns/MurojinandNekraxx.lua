@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2810, "DBM-Party-Midnight", 7, 1315)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260510213350")
+mod:SetRevision("20260515084636")
 mod:SetCreatureID(247570)--Muro, Nekraxx is 247572
 mod:SetEncounterID(3212)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -57,7 +57,8 @@ local function setFallback(self, dontSetAlerts)
 		end
 		specWarnFetidQuillstorm:SetAlert(151, "watchstep", 2)
 		specWarnFreezingTrap:SetAlert(152, "trapsincoming", 19)
-		specWarnBarrage:SetAlert(154, "frontal", 15)
+		specWarnBarrage:SetAlert(153, "frontal", 15)
+--		specWarnInfectedPinions:SetAlert(154, "helpdispel", 2)
 	end
 	timerFlankingSpearCD:SetTimeline(150)
 	timerFetidQuillstormCD:SetTimeline(151)

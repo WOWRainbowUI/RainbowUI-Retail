@@ -18,9 +18,9 @@ if IsTestBuild() or IsBetaBuild() then
 		self:EnableTimelineOptions(1280946, 421)
 		self:EnableTimelineOptions(1280958, 422)
 		self:EnableTimelineOptions(1280960, 423)
-		self:EnableAlertOptions(1280946, 421, "kickcast", 2)
+		self:EnableAlertOptions(1280946, 421, "watchstep", 2)
 		self:EnableAlertOptions(1280958, 422, "kickcast", 2)
-		self:EnableAlertOptions(1280960, 423, "watchstep", 2)
+		self:EnableAlertOptions(1280960, 423, "kickcast", 2)
 	end
 end
 
@@ -28,7 +28,7 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("MotherloadTrash", "DBM-Party-BfA", 7)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260401091148")
+mod:SetRevision("20260514211641")
 mod:SetZone(1594)
 mod:RegisterZoneCombat(1594)
 --mod:SetModelID(47785)
