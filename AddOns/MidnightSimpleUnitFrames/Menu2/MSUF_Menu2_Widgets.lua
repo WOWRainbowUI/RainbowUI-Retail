@@ -146,6 +146,7 @@ function W.PageBuilder(ctx)
             entry.outer:SetHeight(entry.headerHeight + (open and entry.contentHeight or 0))
             entry.body:SetShown(open)
             T.ApplyCollapseVisual(entry.arrow, entry.hint, open)
+            if entry._msuf2RefreshState then pcall(entry._msuf2RefreshState, entry) end
             y = y - entry.outer:GetHeight() - 8
         end
         self.y = y
@@ -206,12 +207,9 @@ function W.PageBuilder(ctx)
 
         local label = T.Font(header, "GameFontNormal", Tr(title or ""), T.colors.text)
         SetSearchText(label, title)
-        label:SetPoint("LEFT", arrow, "RIGHT", 6, 0)
-        label:SetPoint("RIGHT", header, "RIGHT", -140, 0)
         label:SetJustifyH("LEFT")
 
         local hint = T.Font(header, "GameFontDisableSmall", "", T.colors.dim)
-        hint:SetPoint("RIGHT", header, "RIGHT", -12, 0)
         hint:SetJustifyH("RIGHT")
 
         local body = CreateFrame("Frame", nil, outer)
@@ -225,6 +223,8 @@ function W.PageBuilder(ctx)
         local entry = {
             outer = outer,
             header = header,
+            headerBg = headerBg,
+            headerHover = headerHover,
             body = body,
             arrow = arrow,
             label = label,
@@ -234,6 +234,23 @@ function W.PageBuilder(ctx)
             contentHeight = height or 120,
             stateKey = stateKey,
         }
+        local function RefreshHeaderLayout()
+            local headerW = (header.GetWidth and header:GetWidth()) or self.width or 240
+            local reserve = math.max(120, math.min(136, math.floor(headerW * 0.38 + 0.5)))
+            if not entry._msuf2ManualHintLayout then
+                hint:ClearAllPoints()
+                hint:SetPoint("TOPRIGHT", header, "TOPRIGHT", -12, -1)
+                hint:SetPoint("BOTTOMRIGHT", header, "BOTTOMRIGHT", -12, 1)
+                hint:SetPoint("LEFT", header, "RIGHT", -(12 + reserve), 0)
+                hint:SetJustifyH("RIGHT")
+
+                label:ClearAllPoints()
+                label:SetPoint("LEFT", arrow, "RIGHT", 6, 0)
+                label:SetPoint("RIGHT", hint, "LEFT", -8, 0)
+                label:SetJustifyH("LEFT")
+            end
+        end
+        entry._msuf2RefreshLayout = RefreshHeaderLayout
         outer._msuf2CollapsibleEntry = entry
         body._msuf2CollapsibleEntry = entry
         self.collapsibles[#self.collapsibles + 1] = entry
@@ -242,8 +259,10 @@ function W.PageBuilder(ctx)
             M.accordionState[stateKey] = entry.open
             self:RelayoutCollapsibles()
         end)
+        header:HookScript("OnSizeChanged", RefreshHeaderLayout)
 
         self.y = self.y - outer:GetHeight() - 8
+        RefreshHeaderLayout()
         self:RelayoutCollapsibles()
         return body
     end
@@ -838,6 +857,189 @@ function W.Button(section, label, width)
     RegisterSearchObject(btn, label, "button")
     btn:SetPoint("TOPLEFT", x, y)
     return btn
+end
+
+local function InstallPinnedPreviewUpdater(scroll)
+    if not scroll or scroll._msuf2PinnedPreviewUpdater then return end
+    scroll._msuf2PinnedPreviewUpdater = true
+    scroll:HookScript("OnUpdate", function(self, elapsed)
+        self._msuf2PinnedPreviewElapsed = (self._msuf2PinnedPreviewElapsed or 0) + (elapsed or 0)
+        if self._msuf2PinnedPreviewElapsed < 0.04 then return end
+        self._msuf2PinnedPreviewElapsed = 0
+        local offset = (self.GetVerticalScroll and self:GetVerticalScroll()) or 0
+        local h = (self.GetHeight and self:GetHeight()) or 0
+        if offset == self._msuf2PinnedPreviewLastOffset and h == self._msuf2PinnedPreviewLastHeight then return end
+        self._msuf2PinnedPreviewLastOffset = offset
+        self._msuf2PinnedPreviewLastHeight = h
+        if M.RefreshPinnedPreviews then M.RefreshPinnedPreviews(self) end
+    end)
+    scroll:HookScript("OnShow", function(self)
+        if M.RefreshPinnedPreviews then M.RefreshPinnedPreviews(self) end
+    end)
+    scroll:HookScript("OnSizeChanged", function(self)
+        if M.RefreshPinnedPreviews then M.RefreshPinnedPreviews(self) end
+    end)
+end
+
+function M.RefreshPinnedPreviews(scroll)
+    local list = M._pinnedPreviews
+    if not list then return end
+    for i = 1, #list do
+        local r = list[i]
+        if r and r.update and (not scroll or r.scroll == scroll) then r.update() end
+    end
+end
+
+function W.AttachPinnedPreview(body, box, opts)
+    if not (body and box) then return nil end
+    opts = opts or {}
+    local scroll = M.scrollFrame
+    if not scroll then return nil end
+
+    M.previewPinState = M.previewPinState or {}
+    local stateKey = tostring(opts.stateKey or box._msuf2PinStateKey or "preview")
+    local originalParent = box:GetParent()
+    local point, relTo, relPoint, xOfs, yOfs = box:GetPoint(1)
+    local scrollParent = scroll:GetParent()
+    local originalFrameLevel = (box.GetFrameLevel and box:GetFrameLevel()) or 1
+    local pinned = false
+    local record
+
+    local pinBtn = T.Button(box, Tr("Pinned"), opts.buttonWidth or 86, 22)
+    pinBtn:SetPoint("TOPRIGHT", box, "TOPRIGHT", -10, -6)
+    pinBtn._msuf2SearchText = "Pin Preview"
+    pinBtn._msuf2ControlKind = "button"
+    RegisterSearchObject(pinBtn, "Pin Preview", "button")
+
+    local hint = opts.hint or box.hint or box._hint
+    if hint and hint.SetPoint then
+        hint:ClearAllPoints()
+        hint:SetPoint("LEFT", opts.title or box.title or box._title, "RIGHT", 12, 0)
+        hint:SetPoint("RIGHT", pinBtn, "LEFT", -10, 0)
+        hint:SetJustifyH("LEFT")
+    end
+
+    local placeholder = body.CreateFontString and body:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall") or nil
+    if placeholder then
+        placeholder:SetPoint("CENTER", body, "CENTER", 0, 0)
+        placeholder:SetText(Tr("\226\134\145 Preview pinned at top"))
+        placeholder:SetTextColor(0.38, 0.44, 0.58, 0.55)
+        placeholder:Hide()
+    end
+
+    local function PinEnabled()
+        return M.previewPinState[stateKey] ~= false
+    end
+
+    local function RefreshButton()
+        local enabled = PinEnabled()
+        pinBtn:SetText(enabled and "Pinned" or "Pin Preview")
+        if pinBtn.SetActive then pinBtn:SetActive(enabled) end
+    end
+
+    local function Restore()
+        if not pinned then return end
+        pinned = false
+        box._msuf2PinnedFloating = nil
+        if placeholder then placeholder:Hide() end
+        if scroll._msuf2PinnedPreviewActiveRecord == record then
+            scroll._msuf2PinnedPreviewActiveRecord = nil
+        end
+        box:SetParent(originalParent)
+        box:ClearAllPoints()
+        box:SetPoint(point or "TOPLEFT", relTo or body, relPoint or "TOPLEFT", xOfs or 0, yOfs or 0)
+        if box.SetFrameLevel then box:SetFrameLevel(originalFrameLevel) end
+    end
+
+    local function BodyVisible()
+        -- IsVisible checks the full ancestor chain; IsShown only checks the frame itself
+        return (not body.IsVisible or body:IsVisible())
+            and (not scroll.IsShown or scroll:IsShown())
+    end
+
+    local function ShouldPin()
+        if not PinEnabled() or not BodyVisible() then return false end
+        local offset = (scroll.GetVerticalScroll and scroll:GetVerticalScroll()) or 0
+        local activateAt = opts.activateAfter or 64
+        if offset <= (pinned and math.floor(activateAt * 0.45) or activateAt) then return false end
+        local scrollTop = scroll.GetTop and scroll:GetTop()
+        local bodyTop = body.GetTop and body:GetTop()
+        if not (scrollTop and bodyTop) then return false end
+        if bodyTop <= (scrollTop + (opts.threshold or 6)) then return false end
+        return true
+    end
+
+    local function ApplyPinnedState()
+        if ShouldPin() then
+            local active = scroll._msuf2PinnedPreviewActiveRecord
+            if active and active ~= record and active.restore then active.restore() end
+            if not pinned then
+                pinned = true
+                box._msuf2PinnedFloating = true
+                scroll._msuf2PinnedPreviewActiveRecord = record
+                -- Float as a pure overlay — scroll frame is never moved
+                local level = ((scrollParent and scrollParent.GetFrameLevel and scrollParent:GetFrameLevel()) or 1)
+                    + (opts.frameLevelOffset or 80)
+                box:SetParent(scrollParent or scroll)
+                box:ClearAllPoints()
+                box:SetPoint("TOPLEFT", scroll, "TOPLEFT", opts.left or 14, opts.top or -8)
+                box:SetPoint("TOPRIGHT", scroll, "TOPRIGHT", -(opts.right or 14), opts.top or -8)
+                if box.SetFrameLevel then box:SetFrameLevel(level) end
+                if placeholder then placeholder:Show() end
+            end
+        else
+            Restore()
+        end
+        RefreshButton()
+    end
+
+    pinBtn:SetScript("OnClick", function()
+        M.previewPinState[stateKey] = not PinEnabled()
+        if not PinEnabled() then
+            pinned = true  -- force Restore() to run fully even if state drifted
+            Restore()
+        end
+        ApplyPinnedState()
+    end)
+    pinBtn:SetScript("OnEnter", function(self)
+        self._msuf2Hover = true
+        if self.RefreshVisual then self:RefreshVisual() end
+        if GameTooltip then
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(Tr("Pin Preview"), 1, 1, 1)
+            GameTooltip:AddLine(Tr("Keeps this preview visible while you edit lower options."), 0.82, 0.82, 0.82, true)
+            GameTooltip:Show()
+        end
+    end)
+    pinBtn:SetScript("OnLeave", function(self)
+        self._msuf2Hover = nil
+        if self.RefreshVisual then self:RefreshVisual() end
+        if GameTooltip then GameTooltip:Hide() end
+    end)
+
+    record = { scroll = scroll, update = ApplyPinnedState, restore = Restore, box = box, stateKey = stateKey }
+    M._pinnedPreviews = M._pinnedPreviews or {}
+    for i = #M._pinnedPreviews, 1, -1 do
+        local r = M._pinnedPreviews[i]
+        if r and r.box == box then  -- same box = this exact page was rebuilt, replace its record
+            if r.restore then r.restore() end
+            table.remove(M._pinnedPreviews, i)
+        end
+    end
+    M._pinnedPreviews[#M._pinnedPreviews + 1] = record
+    InstallPinnedPreviewUpdater(scroll)
+
+    if body.HookScript then
+        body:HookScript("OnShow", ApplyPinnedState)
+        body:HookScript("OnHide", Restore)
+    end
+    if box.HookScript then
+        box:HookScript("OnHide", Restore)
+        box:HookScript("OnSizeChanged", ApplyPinnedState)
+    end
+    if C_Timer and C_Timer.After then C_Timer.After(0, ApplyPinnedState) end
+    RefreshButton()
+    return record
 end
 
 function W.Slider(section, label, minVal, maxVal, step, width)
@@ -1820,7 +2022,7 @@ function W.Color(section, label)
     RegisterSearchObject(btn, label, "color", { anchor = title })
     btn:SetPoint("TOPLEFT", x + 250, y + 2)
     btn:SetSize(44, 18)
-    btn._msuf2Swatch, btn._msuf2Edge = T.CreateSuperellipseLayers(btn, "_msuf2Color", 1, "ARTWORK", "OVERLAY")
+    btn._msuf2Swatch, btn._msuf2Edge = T.CreateSuperellipseLayers(btn, "_msuf2Color", 1, "ARTWORK", "ARTWORK")
     btn._msuf2Edge:SetVertexColor(T.colors.borderSoft[1], T.colors.borderSoft[2], T.colors.borderSoft[3], 0.75)
 
     function btn:SetRGB(r, g, b)

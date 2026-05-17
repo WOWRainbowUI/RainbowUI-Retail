@@ -1266,6 +1266,23 @@ function Ticker.EndDrag()
     local moved = abs(cx - d.startCX) > 0.5 or abs(cy - d.startCY) > 0.5
 
     if moved then
+        if type(MSUF_DB) == "table" then
+            MSUF_DB.general = MSUF_DB.general or {}
+            MSUF_DB.general.hasMovedFramesInEditMode = true
+        end
+        if type(_G.MSUF_EditState) == "table" then
+            _G.MSUF_EditState.hasMovedFramesInEditMode = true
+        end
+        local menu = (type(ns) == "table" and ns.MSUF2) or _G.MSUF2
+        if menu and menu.activeKey == "home" and menu.InvalidatePage and menu.SelectPage then
+            local function RefreshHomeDashboard()
+                if menu.frame and menu.frame.IsShown and menu.frame:IsShown() then
+                    menu.InvalidatePage("home")
+                    menu.SelectPage("home")
+                end
+            end
+            if C_Timer and C_Timer.After then C_Timer.After(0.08, RefreshHomeDashboard) else RefreshHomeDashboard() end
+        end
         if d.isGroupFrame and d.conf then
             d.conf.offsetX = round(cx - d.screenW * 0.5)
             d.conf.offsetY = round(cy - d.screenH * 0.5)

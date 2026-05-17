@@ -97,6 +97,7 @@ local RESTED_SYMBOLS = {
     { value = "DEFAULT", text = "Default" },
     { value = "rested_moonzzz", text = "Moon (3 z)" },
     { value = "rested_moonzzzz", text = "Moon (4 z)" },
+    { value = "rested_sleep_zzzz", text = "Sleep ZzzZ" },
     { value = "rested_zzz_compact", text = "Compact Zzz" },
     { value = "rested_zzz_diag", text = "Diagonal Zzz" },
     { value = "rested_zzz_stack", text = "Stacked Zzz" },
@@ -330,10 +331,10 @@ local COPY_PORTRAIT_FIELDS = {
 
 local COPY_TEXT_FIELDS = {
     "nameTextAnchor", "nameOffsetX", "nameOffsetY", "nameFontSize",
-    "hpTextAnchor", "hpOffsetX", "hpOffsetY", "hpFontSize",
-    "hpTextMode", "hpTextReverse", "hpTextSeparator", "hpTextSpacerEnabled", "hpTextSpacerX",
-    "powerTextAnchor", "powerOffsetX", "powerOffsetY", "powerFontSize",
-    "powerTextMode", "powerTextSeparator", "powerTextSpacerEnabled", "powerTextSpacerX",
+    "hpOffsetX", "hpOffsetY", "hpFontSize",
+    "hpTextMode", "textLeft", "textCenter", "textRight", "hpTextReverse", "hpTextSeparator",
+    "powerOffsetX", "powerOffsetY", "powerFontSize",
+    "powerTextMode", "powerTextLeft", "powerTextCenter", "powerTextRight", "powerTextSeparator",
     "nameTextLayer", "hpTextLayer", "powerTextLayer",
 }
 
@@ -687,6 +688,13 @@ end
 
 local function SyncBossPagePreview()
     local active = (_G.MSUF2_BossUnitframePreviewActive == true)
+    if BossPagePreviewInCombat() then
+        if active then
+            _G.MSUF2_BossUnitframePreviewActive = nil
+            bossPagePreviewPendingCleanup = true
+        end
+        return
+    end
     if not BossPagePreviewInCombat() and type(_G.MSUF_ApplyBossUnitframePreviewState) == "function" then
         _G.MSUF_ApplyBossUnitframePreviewState(active, active and "MSUF2_BOSS_PAGE" or "MSUF2_BOSS_PAGE_OFF")
         return
@@ -717,9 +725,16 @@ end
 
 local function SetBossPagePreviewActive(active)
     active = active and true or false
+    if active and BossPagePreviewInCombat() then
+        _G.MSUF2_BossUnitframePreviewActive = nil
+        bossPagePreviewPendingCleanup = nil
+        if bossPagePreviewEvents then bossPagePreviewEvents:UnregisterAllEvents() end
+        return
+    end
     local current = _G.MSUF2_BossUnitframePreviewActive == true
     if current == active then
-        if active then SyncBossPagePreview() end
+        if active and not BossPagePreviewInCombat() then SyncBossPagePreview() end
+        if not active and _G.MSUF_BossTestMode == true and not BossPagePreviewInCombat() then SyncBossPagePreview() end
         return
     end
 
@@ -734,6 +749,7 @@ local function SetBossPagePreviewActive(active)
         bossPagePreviewPendingCleanup = true
         events:UnregisterEvent("PLAYER_REGEN_DISABLED")
         events:RegisterEvent("PLAYER_REGEN_ENABLED")
+        return
     else
         bossPagePreviewPendingCleanup = nil
         events:UnregisterAllEvents()

@@ -36,6 +36,13 @@ local _PADLOCK_ICON = 134400
 local _GF_RegisterCooldownTextIcon
 local _GF_UnregisterCooldownTextIcon
 local _GF_TouchCooldownTextIcon
+local _Debug = ns.Debug
+
+local function DebugHover(message, ...)
+    if _Debug and type(_Debug.PrintGFHover) == "function" then
+        _Debug.PrintGFHover(message, ...)
+    end
+end
 
 ------------------------------------------------------------------------
 -- Class-based dispel detection (set once at load)
@@ -478,6 +485,37 @@ function GF.RecycleFramePools(f)
     if GF.ClearFrameAuraCache then GF.ClearFrameAuraCache(f) end
 end
 
+local function IsAuraTooltipAllowed(owner)
+    if not owner then return false end
+    local kind = owner._msufGFKind or "party"
+    local conf = GF.GetConf and GF.GetConf(kind)
+    if not conf then return false end
+
+    local root = conf.auras
+    if root and root.showTooltip == false then
+        return false
+    end
+
+    local mode = conf.tooltipMode or "ALWAYS"
+    if mode == "NEVER" then return false end
+    if mode == "OOC" and _G.InCombatLockdown and _G.InCombatLockdown() then
+        return false
+    end
+    if mode == "MODIFIER" then
+        local mod = conf.tooltipModifier or "ALT"
+        if mod == "ALT" then
+            return _G.IsAltKeyDown and _G.IsAltKeyDown() or false
+        elseif mod == "CTRL" then
+            return _G.IsControlKeyDown and _G.IsControlKeyDown() or false
+        elseif mod == "SHIFT" then
+            return _G.IsShiftKeyDown and _G.IsShiftKeyDown() or false
+        end
+        return false
+    end
+
+    return true
+end
+
 local function CreateAuraIcon(parent, size)
     local icon = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     icon:SetSize(size, size)
@@ -491,20 +529,29 @@ local function CreateAuraIcon(parent, size)
     end
     icon:SetScript("OnEnter", function(self)
         local owner = self._msufGFOwner
-        local kind = owner and owner._msufGFKind or "party"
-        local conf = GF.GetConf and GF.GetConf(kind)
-        local root = conf and conf.auras
-        if root and root.showTooltip == false then return end
+        if not IsAuraTooltipAllowed(owner) then
+            DebugHover("Aura OnEnter blocked unit=%s kind=%s filter=%s aura=%s", tostring(self._msufUnit or "nil"), tostring(owner and owner._msufGFKind or "party"), tostring(self._msufFilter or "HELPFUL"), tostring(self._msufAuraID or "nil"))
+            return
+        end
         local unit = self._msufUnit
         local aid  = self._msufAuraID
-        if not unit or not aid then return end
+        if not unit or not aid then
+            DebugHover("Aura OnEnter missing-data unit=%s filter=%s aura=%s", tostring(unit or "nil"), tostring(self._msufFilter or "HELPFUL"), tostring(aid or "nil"))
+            return
+        end
+        DebugHover("Aura OnEnter unit=%s kind=%s filter=%s aura=%s", tostring(unit), tostring(owner and owner._msufGFKind or "party"), tostring(self._msufFilter or "HELPFUL"), tostring(aid))
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
-        if GameTooltip.SetUnitAuraByAuraInstanceID then
+        if self._msufFilter == "HARMFUL" and GameTooltip.SetUnitDebuffByAuraInstanceID then
+            GameTooltip:SetUnitDebuffByAuraInstanceID(unit, aid)
+        elseif GameTooltip.SetUnitBuffByAuraInstanceID then
+            GameTooltip:SetUnitBuffByAuraInstanceID(unit, aid)
+        elseif GameTooltip.SetUnitAuraByAuraInstanceID then
             GameTooltip:SetUnitAuraByAuraInstanceID(unit, aid, self._msufFilter or "HELPFUL")
         end
         GameTooltip:Show()
     end)
     icon:SetScript("OnLeave", function(self)
+        DebugHover("Aura OnLeave unit=%s filter=%s aura=%s", tostring(self._msufUnit or "nil"), tostring(self._msufFilter or "HELPFUL"), tostring(self._msufAuraID or "nil"))
         if GameTooltip:IsOwned(self) then GameTooltip:Hide() end
     end)
 

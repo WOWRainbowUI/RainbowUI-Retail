@@ -44,6 +44,9 @@ local CastbarsRunNextFrame = _G.MSUF_Castbars_RunNextFrame or function(fn)
 end
 
 local function _MSUF_DeferredBossPreviewEditModeRefresh()
+    if _G.MSUF_InCombat == true or ((_G.InCombatLockdown and _G.InCombatLockdown()) and true or false) then
+        return
+    end
     if _G.MSUF_UpdateBossCastbarPreview then
         _G.MSUF_UpdateBossCastbarPreview()
     end
@@ -150,7 +153,9 @@ function MSUF_ApplyCastbarUnitAndSync(unitKey)
         if _G.MSUF_ApplyBossCastbarTimeSetting then
             _G.MSUF_ApplyBossCastbarTimeSetting()
     end
-        if _G.MSUF_UpdateBossCastbarPreview then
+        if not (_G.MSUF_InCombat == true or ((_G.InCombatLockdown and _G.InCombatLockdown()) and true or false))
+            and _G.MSUF_UpdateBossCastbarPreview
+        then
             _G.MSUF_UpdateBossCastbarPreview()
     end
         if type(MSUF_SyncCastbarPositionPopup) == "function" then
@@ -730,7 +735,9 @@ local function MSUF_InitPlayerCastbarPreviewToggle()
             if _G.MSUF_ApplyBossCastbarPositionSetting then
                 _G.MSUF_ApplyBossCastbarPositionSetting()
             end
-            if _G.MSUF_UpdateBossCastbarPreview then
+            if not (_G.MSUF_InCombat == true or ((_G.InCombatLockdown and _G.InCombatLockdown()) and true or false))
+                and _G.MSUF_UpdateBossCastbarPreview
+            then
                 _G.MSUF_UpdateBossCastbarPreview()
             end
     end
@@ -747,7 +754,9 @@ local function MSUF_InitPlayerCastbarPreviewToggle()
             if _G.MSUF_ApplyBossCastbarPositionSetting then
                 _G.MSUF_ApplyBossCastbarPositionSetting()
             end
-            if _G.MSUF_UpdateBossCastbarPreview then
+            if not (_G.MSUF_InCombat == true or ((_G.InCombatLockdown and _G.InCombatLockdown()) and true or false))
+                and _G.MSUF_UpdateBossCastbarPreview
+            then
                 _G.MSUF_UpdateBossCastbarPreview()
             end
             if _G.MSUF_SetupBossCastbarPreviewEditMode then
@@ -983,13 +992,16 @@ MSUF_BumpCastbarStyleRevision()
     ApplyMSUF(MSUF_PlayerCastbar)
     ApplyMSUF(MSUF_TargetCastbar)
     ApplyMSUF(MSUF_FocusCastbar)
-    ApplyMSUF(MSUF_PlayerCastbarPreview)
-    ApplyMSUF(MSUF_TargetCastbarPreview)
-    ApplyMSUF(MSUF_FocusCastbarPreview)
-    if _G.MSUF_BossCastbarPreview then
-        ApplyMSUF(_G.MSUF_BossCastbarPreview)
+    local previewCombatLocked = _G.MSUF_InCombat == true or ((_G.InCombatLockdown and _G.InCombatLockdown()) and true or false)
+    if not previewCombatLocked then
+        ApplyMSUF(MSUF_PlayerCastbarPreview)
+        ApplyMSUF(MSUF_TargetCastbarPreview)
+        ApplyMSUF(MSUF_FocusCastbarPreview)
+        if _G.MSUF_BossCastbarPreview then
+            ApplyMSUF(_G.MSUF_BossCastbarPreview)
+        end
     end
-    if type(_G.MSUF_UpdateBossCastbarPreview) == "function" and not _G.MSUF_BossPreviewRefreshLock then
+    if not previewCombatLocked and type(_G.MSUF_UpdateBossCastbarPreview) == "function" and not _G.MSUF_BossPreviewRefreshLock then
         _G.MSUF_BossPreviewRefreshLock = true
         _G.MSUF_UpdateBossCastbarPreview()
         if _G.MSUF_SetupBossCastbarPreviewEditMode then

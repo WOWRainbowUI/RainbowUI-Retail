@@ -1,4 +1,4 @@
--- MSUF_GF_Effects.lua — Group Frames Phase 2: Events + Effects
+﻿-- MSUF_GF_Effects.lua â€” Group Frames Phase 2: Events + Effects
 -- Per-frame RegisterUnitEvent, range fade (Grid2 pattern), aggro/dispel/target
 -- borders, AFK/DND text, UNIT_AURA coalescing
 -- Midnight 12.0 secret-safe, zero combat overhead
@@ -34,13 +34,6 @@ local UnitThreatSituation = _G.UnitThreatSituation
 local C_Timer = _G.C_Timer
 local GetTime = _G.GetTime
 
-local UpdateRoleIcon = GF.UpdateRoleIcon
-local UpdateRaidMarker = GF.UpdateRaidMarker
-local UpdateLeaderIcon = GF.UpdateLeaderIcon
-local UpdateReadyCheck = GF.UpdateReadyCheck
-local UpdateSummonIcon = GF.UpdateSummonIcon
-local UpdateResurrectIcon = GF.UpdateResurrectIcon
-local UpdatePhaseIcon = GF.UpdatePhaseIcon
 local function UpdateGroupNumber(f)
     local fn = GF.UpdateGroupNumberFrame
     if fn then return fn(f) end
@@ -90,10 +83,10 @@ local UnitGetTotalHealAbsorbs = _G.UnitGetTotalHealAbsorbs
 local CreateUnitHealPredictionCalculator = _G.CreateUnitHealPredictionCalculator
 local UnitGetDetailedHealPrediction      = _G.UnitGetDetailedHealPrediction
 
--- C-side gradient color curve (red→yellow→green) for GRADIENT health color mode.
--- Evaluated via calc:EvaluateCurrentHealthPercent(curve) — fully secret-safe,
+-- C-side gradient color curve (redâ†’yellowâ†’green) for GRADIENT health color mode.
+-- Evaluated via calc:EvaluateCurrentHealthPercent(curve) â€” fully secret-safe,
 -- zero Lua arithmetic. Replaces 6 Lua ops (UnitHealth, UnitHealthMax,
--- issecretvalue×2, tonumber×2, division, conditional) with 1 C-call.
+-- issecretvalueÃ—2, tonumberÃ—2, division, conditional) with 1 C-call.
 local _gfGradientCurve
 do
     local CCU = _G.C_CurveUtil
@@ -113,7 +106,7 @@ local math_max   = math.max
 -- Each GF text slot gets a closure at BuildFrameCache time that calls
 -- C-side APIs directly. Zero mode dispatch, zero FormatHealthText,
 -- zero issecretvalue dedup (C-side SetText handles it internally).
--- Cost: ~0.3μs/slot vs ~7.5μs/slot with FormatHealthText.
+-- Cost: ~0.3Î¼s/slot vs ~7.5Î¼s/slot with FormatHealthText.
 ------------------------------------------------------------------------
 local _ftHpPct     = _G.UnitHealthPercent
 local _ftHpMissing = _G.UnitHealthMissing
@@ -124,7 +117,7 @@ local _ftAbbrFB    = _G.AbbreviateLargeNumbers or _G.ShortenNumber
 
 -- Build a compiled text function for a given mode.
 -- Returns fn(fontString, unit, hp, hpMax) or nil for NONE.
--- All string ops on secret values produce secret strings → C-side SetText.
+-- All string ops on secret values produce secret strings â†’ C-side SetText.
 local function _BuildTextFn(mode, abbrFn, delim, pctFmt)
     if not mode or mode == "NONE" then return nil end
 
@@ -313,10 +306,6 @@ local function _BuildSlotFns(c)
     -- Flag: any slot needs fallback (unknown mode)
     c.anySlowText = (c.tlOn and not c.tlFn) or (c.tcOn and not c.tcFn) or (c.trOn and not c.trFn) or false
 end
-local pairs = pairs
-local type = type
-local tonumber = tonumber
-local tostring = tostring
 local IsAltKeyDown     = _G.IsAltKeyDown
 local IsControlKeyDown = _G.IsControlKeyDown
 local IsShiftKeyDown   = _G.IsShiftKeyDown
@@ -453,10 +442,10 @@ local function _GF_PixelSnappedSetValue(bar, value, smooth, forceImmediate)
 end
 
 ------------------------------------------------------------------------
--- Highlight value resolver: Bars hl* keys → old GF conf key fallback
+-- Highlight value resolver: Bars hl* keys â†’ old GF conf key fallback
 -- Bars system uses hlAggroEnabled/aggroOutlineMode, hlAggroColorR, etc.
 -- Old GF DB uses aggroEnabled, aggroR, etc.
--- Single-pass resolution: conf.hlOverride → general → conf[fallback]
+-- Single-pass resolution: conf.hlOverride â†’ general â†’ conf[fallback]
 ------------------------------------------------------------------------
 local _HL_FALLBACK = {
     hlAggroEnabled  = "aggroEnabled",
@@ -643,19 +632,19 @@ end
 ------------------------------------------------------------------------
 -- Secret-safe dispel color resolution.
 --
--- SINGLE mode → plain (r,g,b) triplet from the Colors panel.
--- TYPE mode   → a *Color object* from C_UnitAuras.GetAuraDispelTypeColor.
+-- SINGLE mode â†’ plain (r,g,b) triplet from the Colors panel.
+-- TYPE mode   â†’ a *Color object* from C_UnitAuras.GetAuraDispelTypeColor.
 --               The Color object carries secret-safe RGBA that can ONLY be
 --               applied via texture:SetVertexColor(color:GetRGBA()). It
 --               MUST NOT be unpacked into Lua locals and fed to
---               CreateColor / SetGradient / arithmetic — that taints the
+--               CreateColor / SetGradient / arithmetic â€” that taints the
 --               values and breaks everything but flat fills (which is the
 --               "only single-color works" bug in Beta 4/5).
 --
 -- Returns (colorObj, r, g, b):
---   colorObj ~= nil  → TYPE mode resolved via curve. Apply via
+--   colorObj ~= nil  â†’ TYPE mode resolved via curve. Apply via
 --                      tex:SetVertexColor(colorObj:GetRGBA())
---   colorObj == nil  → SINGLE/fallback. Use (r, g, b) directly.
+--   colorObj == nil  â†’ SINGLE/fallback. Use (r, g, b) directly.
 ------------------------------------------------------------------------
 local function ResolveDispelColorObj(f, dispelName)
     local gen = _G.MSUF_DB and _G.MSUF_DB.general
@@ -742,7 +731,7 @@ end
 ------------------------------------------------------------------------
 -- Legacy wrapper: keeps (r, g, b) shape for non-overlay callers (glow).
 -- Glow APIs don't take a Color object, so we accept a *minor* loss of
--- secret-safety here — values feed into LCG's color table which is
+-- secret-safety here â€” values feed into LCG's color table which is
 -- only read by C-side SetVertexColor downstream, so it's still safe
 -- in practice.
 ------------------------------------------------------------------------
@@ -761,7 +750,7 @@ local function ResolveDispelColor(dispelName, f)
 end
 
 ------------------------------------------------------------------------
--- Dispel glow helpers (GF) — zero-alloc color table reuse
+-- Dispel glow helpers (GF) â€” zero-alloc color table reuse
 ------------------------------------------------------------------------
 local _gfGlowColor = { 0, 0, 0, 1 }
 
@@ -898,7 +887,7 @@ local _GF_ClearNativeSuppressedDispel
 
 ------------------------------------------------------------------------
 -- UNIT_AURA: per-frame dispatch with burst-dedup (A2 P2 pattern)
--- Fast-paths (update-only 16µs, remove-only-not-displayed) still fire
+-- Fast-paths (update-only 16Âµs, remove-only-not-displayed) still fire
 -- instantly. Full pipeline is gated: first event runs immediately,
 -- subsequent same-frame events within 20ms are skipped.
 -- Zero steady-state alloc: clear-callback allocated once per frame.
@@ -907,9 +896,9 @@ local _GF_ClearNativeSuppressedDispel
 
 ------------------------------------------------------------------------
 -- PERF: Global per-frame budget for full aura scans.
--- AoE heal/damage → 20 UNIT_AURA events in same frame → 20 × 138µs = 2.8ms spike.
+-- AoE heal/damage â†’ 20 UNIT_AURA events in same frame â†’ 20 Ã— 138Âµs = 2.8ms spike.
 -- Budget limits full scans to 8 per frame. Excess deferred to next frame via C_Timer.After(0).
--- Max spike capped to 8 × 138µs ≈ 1.1ms.
+-- Max spike capped to 8 Ã— 138Âµs â‰ˆ 1.1ms.
 ------------------------------------------------------------------------
 local _GF_AURA_BUDGET_MAX = 8
 local _gfAuraBudget = 0
@@ -932,13 +921,16 @@ end
 -- Forward-declared; assigned after dispatchAura is defined.
 local _gfFlushDirtyAuras
 local function SpellIndicatorsNeedRefresh(f, updateInfo)
+    if not updateInfo or updateInfo.isFullUpdate then return true end
+
     if GF.SpellIndicatorsUnitAuraRelevant then
         return GF.SpellIndicatorsUnitAuraRelevant(f, f and f.unit, f and f._msufGFKind or "party", updateInfo)
     end
-    if not updateInfo or updateInfo.isFullUpdate then return true end
 
     local added = updateInfo.addedAuras
-    if added and #added > 0 then return true end
+    if added and #added > 0 then
+        return true
+    end
 
     local tracked = f and f._msufSIDedupIDs
     if not tracked then return false end
@@ -1043,7 +1035,7 @@ local function dispatchAura(f, unit, updateInfo)
                     if removed and #removed > 0 then
                         local trackedAid = f._msufGFDispelAuraID
                         if not trackedAid then
-                            -- No tracked dispel — new removals might reveal nothing, but
+                            -- No tracked dispel â€” new removals might reveal nothing, but
                             -- added check above covers new dispels. Skip.
                         else
                             -- Check if OUR tracked dispel aura was removed
@@ -1120,7 +1112,7 @@ local function dispatchAura(f, unit, updateInfo)
 
         local displayed = f._msufDisplayedAuraIDs
 
-        -- Update-only: direct icon refresh (16µs vs 115µs)
+        -- Update-only: direct icon refresh (16Âµs vs 115Âµs)
         if not hasAdd and not hasRem and hasUpd then
             if displayed and GF.RefreshAuraIcon then
                 local needsDeltaPipeline = false
@@ -1171,13 +1163,13 @@ local function dispatchAura(f, unit, updateInfo)
         f._msufGFLastFullAura = now
     end
 
-    -- ════════════════════════════════════════════════════════════════
+    -- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     -- P1: In-combat burst-dedup (A2 P2 pattern)
     -- First event runs the full pipeline immediately (zero latency).
     -- Subsequent events for the SAME frame within 20ms are skipped.
     -- Saves N-1 full pipeline runs per AoE burst (N=simultaneous aura
     -- changes per unit). Clear-callback allocated once per frame.
-    -- ════════════════════════════════════════════════════════════════
+    -- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     if f._msufGFFullPending then
         return
     end
@@ -1197,12 +1189,12 @@ local function dispatchAura(f, unit, updateInfo)
         _MSUF_ScheduleDelayOnce(key, 0.02, cb)
     end
 
-    -- ════════════════════════════════════════════════════════════════
+    -- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     -- P2: Global per-frame budget (AoE spike limiter)
     -- AoE events fire 20+ UNIT_AURA for different units in one frame.
-    -- Each full scan costs ~138µs. 20 × 138µs = 2.8ms spike.
-    -- Budget caps to 8 scans/frame → max ~1.1ms. Rest deferred.
-    -- ════════════════════════════════════════════════════════════════
+    -- Each full scan costs ~138Âµs. 20 Ã— 138Âµs = 2.8ms spike.
+    -- Budget caps to 8 scans/frame â†’ max ~1.1ms. Rest deferred.
+    -- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
     _gfAuraBudget = _gfAuraBudget + 1
     local now = GetTime()
     if now ~= _gfAuraBudgetFrame then
@@ -1234,7 +1226,7 @@ end
 
 ------------------------------------------------------------------------
 -- Deferred aura flush: processes frames that exceeded the per-frame budget.
--- Fires via C_Timer.After(0) → runs at the start of the next frame.
+-- Fires via C_Timer.After(0) â†’ runs at the start of the next frame.
 ------------------------------------------------------------------------
 _gfFlushDirtyAuras = function()
     _gfAuraBudget = 0
@@ -1276,7 +1268,7 @@ end
 -- Range fade (1:1 EQoL pattern)
 -- Secret-safe: NEVER compare/type()/conditional on inRange.
 -- Pass raw value to SetAlphaFromBoolean (C-side accepts secrets).
--- 1:1 EQoL GF:UpdateRange pattern — NO extra UnitPhaseReason/UnitIsVisible.
+-- 1:1 EQoL GF:UpdateRange pattern â€” NO extra UnitPhaseReason/UnitIsVisible.
 ------------------------------------------------------------------------
 
 -- EQoL UnsecretBool equivalent
@@ -1421,44 +1413,6 @@ do
     end
 end
 
-function GF.RefreshRangeFade()
-    local frames = GF.frames
-    if not frames then return end
-    local list = GF.frameList
-    if list then
-        for i = 1, #list do
-            local f = list[i]
-            if f then
-                local unit = f.unit
-                if unit and UnitExists(unit) then
-                    ApplyRangeFade(f, unit)
-                else
-                    f._msufGFRangeFadeUnit = nil
-                    f._msufGFRangeFadeApplied = nil
-                    f._msufGFRangeFadeLastBool = nil
-                    _ClearHealthRangeFade(f, f._msufGFKind or "party")
-                    _GF_ApplyFrameAlpha(f, f._msufGFKind or "party")
-                end
-            end
-        end
-    else
-        for f in pairs(frames) do
-            if f then
-                local unit = f.unit
-                if unit and UnitExists(unit) then
-                    ApplyRangeFade(f, unit)
-                else
-                    f._msufGFRangeFadeUnit = nil
-                    f._msufGFRangeFadeApplied = nil
-                    f._msufGFRangeFadeLastBool = nil
-                    _ClearHealthRangeFade(f, f._msufGFKind or "party")
-                    _GF_ApplyFrameAlpha(f, f._msufGFKind or "party")
-                end
-            end
-        end
-    end
-end
-
 function GF.RefreshGroupAlphas()
     local frames = GF.frames
     if frames then
@@ -1558,9 +1512,9 @@ end
 
 ------------------------------------------------------------------------
 -- HLColor: read highlight COLORS always from MSUF_DB.general first
--- (same source as main UF — Colors panel writes there).
+-- (same source as main UF â€” Colors panel writes there).
 -- hlOverride only gates geometry (size/offset/layer) and enable flags,
--- NOT colors — prevents stale-seeded color copies in gf_party/gf_raid.
+-- NOT colors â€” prevents stale-seeded color copies in gf_party/gf_raid.
 ------------------------------------------------------------------------
 local function HLColor(key, fallback)
     local gen = _G.MSUF_DB and _G.MSUF_DB.general
@@ -1601,17 +1555,17 @@ function GF.BuildFrameCache(f)
     c.tlOn  = c.tl ~= "NONE"
     c.tcOn  = c.tc ~= "NONE"
     c.trOn  = c.tr ~= "NONE"
-    -- PERF: Aggregate flag — skip all 3 text blocks when no text enabled
+    -- PERF: Aggregate flag â€” skip all 3 text blocks when no text enabled
     c.anyText = c.tlOn or c.tcOn or c.trOn
     c.delim = conf.textDelimiter or " / "
     c.rev   = conf.hpTextReverse
-    -- Compile fast text functions (oUF-style: mode → C-side closure)
+    -- Compile fast text functions (oUF-style: mode â†’ C-side closure)
     _BuildSlotFns(c)
 
     -- Cooldown swipe direction (Fix B): pre-cached so ApplyCooldownVisualStyle
     -- in RenderGroup hot path / RefreshAuraIcon doesn't need GF.GetConf.
-    -- Live-apply via Options toggle: GF.RefreshVisuals → ApplyVisuals →
-    -- BuildFrameCache (this function) → c.cdReverse refreshed.
+    -- Live-apply via Options toggle: GF.RefreshVisuals â†’ ApplyVisuals â†’
+    -- BuildFrameCache (this function) â†’ c.cdReverse refreshed.
     c.cdReverse = conf.cooldownSwipeDarkenOnLoss == true
     c.reverseFill = conf.reverseFill == true
 
@@ -1775,17 +1729,24 @@ function GF.BuildFrameCache(f)
 
     -- Aura dispatch
     c.dispelScan = auraMasterOn and conf.dispelEnabled ~= false and not c.nativeBlizzardDispels
-    c.siEn       = auraMasterOn and conf.spellIndicators and conf.spellIndicators.enabled == true
+    local siRuntimeActive = false
+    if auraMasterOn and conf.spellIndicators and conf.spellIndicators.enabled == true then
+        local siActiveFn = GF.SpellIndicatorsRuntimeActive
+        siRuntimeActive = type(siActiveFn) == "function"
+            and siActiveFn(kind, conf.spellIndicators) == true
+    end
+    c.siEn       = siRuntimeActive
     c.healerBuffsEn = auraMasterOn and conf.healerBuffs and conf.healerBuffs.enabled == true and not c.siEn
+    local customBuffs = auraMasterOn and auras.buff and auras.buff.enabled ~= false and not c.nativeBlizzardBuffs
+    local customDebuffs = auraMasterOn and auras.debuff and auras.debuff.enabled ~= false and not c.nativeBlizzardDebuffs
+    local customExt = auraMasterOn and auras.externals and auras.externals.enabled ~= false and not c.nativeBlizzardExt
+    local customDispels = auraMasterOn and c.dispelScan and GF._playerCanDispel
+
     c.nativeBlizzardAuras = c.aurasOn and (
                    c.nativeBlizzardBuffs or c.nativeBlizzardDebuffs
                    or c.nativeBlizzardExt or c.nativeBlizzardDispels
                    or c.nativeBlizzardPrivate)
-    c.customAuraGrp = c.aurasOn and (
-                   (auras.debuff and auras.debuff.enabled ~= false and not c.nativeBlizzardDebuffs) or
-                   (auras.buff and auras.buff.enabled ~= false and not c.nativeBlizzardBuffs) or
-                   (auras.externals and auras.externals.enabled ~= false and not c.nativeBlizzardExt) or
-                   (c.dispelScan and GF._playerCanDispel))
+    c.customAuraGrp = customBuffs or customDebuffs or customExt or customDispels
     c.anyAuraGrp = c.nativeBlizzardAuras or c.customAuraGrp
     c.nativeBlizzardAuraOnly = c.nativeBlizzardAuras and not c.customAuraGrp
     c.auraCacheSig = nil
@@ -1802,7 +1763,7 @@ function GF.BuildFrameCache(f)
     if c.ciSize < 4 then c.ciSize = 4 elseif c.ciSize > 24 then c.ciSize = 24 end
     c.ciAlpha = tonumber(conf.ciAlpha) or 1.0
     if c.ciAlpha < 0 then c.ciAlpha = 0 elseif c.ciAlpha > 1 then c.ciAlpha = 1 end
-    -- PERF: Pre-compute slot→category map (eliminates 63K SlotCat calls/session)
+    -- PERF: Pre-compute slotâ†’category map (eliminates 63K SlotCat calls/session)
     c.ciSlotTL = (conf.ciSlotTL or "none")
     c.ciSlotTR = (conf.ciSlotTR or "none")
     c.ciSlotBL = (conf.ciSlotBL or "none")
@@ -1930,7 +1891,7 @@ function GF.BuildFrameCache(f)
 end
 
 ------------------------------------------------------------------------
--- Lightweight border activation (NO SetBackdrop — color + show/hide only)
+-- Lightweight border activation (NO SetBackdrop â€” color + show/hide only)
 -- Called from PLAYER_TARGET_CHANGED / PLAYER_FOCUS_CHANGED
 -- Full _GF_RefreshBorder is only needed when dispel/aggro state changes
 -- or on config refresh (RefreshVisuals)
@@ -1994,14 +1955,14 @@ end
 --   Secret-tainted RGB values CAN pass through tex:SetVertexColor varargs
 --   (C-side handles them) but CANNOT pass through CreateColor/SetGradient
 --   (Lua-side taints). We therefore:
---     • use pre-baked gradient *textures* (Media/MSUF_Grad_*.tga) for the
---       TOP/BOTTOM/LEFT/RIGHT/EDGE styles — no SetGradient needed,
---     • apply the tint via tex:SetVertexColor(color:GetRGBA()) in a single
---       varargs passthrough — no Lua arithmetic on the tint values,
---     • use SetAlpha on the StatusBar frame for the user's doAlpha slider.
+--     â€¢ use pre-baked gradient *textures* (Media/MSUF_Grad_*.tga) for the
+--       TOP/BOTTOM/LEFT/RIGHT/EDGE styles â€” no SetGradient needed,
+--     â€¢ apply the tint via tex:SetVertexColor(color:GetRGBA()) in a single
+--       varargs passthrough â€” no Lua arithmetic on the tint values,
+--     â€¢ use SetAlpha on the StatusBar frame for the user's doAlpha slider.
 --
 --   This replaces the Beta 5 path that called CreateColor(secret_r, ...)
---   in SetGradient branches — that was the "TYPE mode broken / only
+--   in SetGradient branches â€” that was the "TYPE mode broken / only
 --   SINGLE works" bug.
 ------------------------------------------------------------------------
 local _MSUF_GRAD_PATH = "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\"
@@ -2039,7 +2000,7 @@ _GF_ApplyDispelOverlay = function(f)
     end
 
     -- Pick gradient texture for the style (cheap diff-gate to avoid spamming
-    -- SetStatusBarTexture — Blizzard reloads the atlas every call).
+    -- SetStatusBarTexture â€” Blizzard reloads the atlas every call).
     local style = c.doStyle or "FULL"
     local texPath = _GRAD_TEXTURES[style] or _GRAD_TEXTURES.FULL
     if dov._msufDOStylePath ~= texPath then
@@ -2084,7 +2045,7 @@ end
 
 ------------------------------------------------------------------------
 -- Debuff stripe (thin edge indicator for a configured debuff match).
--- Independent from dispel overlay — honors the Debuffs filter/list and
+-- Independent from dispel overlay â€” honors the Debuffs filter/list and
 -- still works for non-dispellable debuffs when that filter allows them.
 ------------------------------------------------------------------------
 _GF_ApplyDebuffStripe = function(f)
@@ -2133,7 +2094,7 @@ end
 _GF_RefreshBorder = function(f, unit)
     -- NOTE: Dispel overlay is fully decoupled from border highlight.
     -- Overlay lives in _GF_ApplyDispelOverlay and is called separately
-    -- from dispel-change sites only — never from aggro/target/test paths.
+    -- from dispel-change sites only â€” never from aggro/target/test paths.
 
     local border = f._msufGFHighlightBorder
     if not border then return end
@@ -2159,7 +2120,7 @@ _GF_RefreshBorder = function(f, unit)
     end
 
     -- Configurable priority: read hlPrioOrder from Bars menu (general DB).
-    -- Maps "dispel"/"magic"/"curse"/etc → dispel, "aggro" → aggro.
+    -- Maps "dispel"/"magic"/"curse"/etc â†’ dispel, "aggro" â†’ aggro.
     -- Purge/bossTarget are UF-only, skip for GF.
     local gen = _G.MSUF_DB and _G.MSUF_DB.general
     local prioEnabled = gen and gen.highlightPrioEnabled
@@ -2287,7 +2248,7 @@ local function UpdateAggro(f, unit)
     local c = f._c
     if not c and GF.BuildFrameCache then GF.BuildFrameCache(f); c = f._c end
 
-    local testMode = _G.MSUF_AggroBorderTestMode
+    local testMode = (_G.MSUF_BorderTestModesActive == true) and _G.MSUF_AggroBorderTestMode
     -- Scope filtering
     if testMode then
         local testScope = _G.MSUF_AggroBorderTestScope or "shared"
@@ -2439,7 +2400,7 @@ function GF._UpdateDispel(f, unit)
     local kind = f._msufGFKind or "party"
     local conf = GF.GetConf and GF.GetConf(kind)
 
-    local testMode = _G.MSUF_DispelBorderTestMode
+    local testMode = (_G.MSUF_BorderTestModesActive == true) and _G.MSUF_DispelBorderTestMode
     -- Scope filtering: if test scope doesn't match this frame's kind, ignore test mode
     if testMode then
         local testScope = _G.MSUF_DispelBorderTestScope or "shared"
@@ -2555,7 +2516,7 @@ function GF._UpdateDispel(f, unit)
 
     f._msufGFColorStyleRevision = colorRev
     _GF_RefreshBorder(f, unit)
-    -- Overlay only for real dispels — border test mode is border-only
+    -- Overlay only for real dispels â€” border test mode is border-only
     if not testMode then
         _GF_ApplyDispelOverlay(f)
     end
@@ -2665,7 +2626,7 @@ local function UpdateTargetIndicator(f, unit)
         return
     end
 
-    local isTarget = UnitIsUnit and UnitIsUnit(unit, "target")
+    local isTarget = UnitIsUnit and _UnsecretBool(UnitIsUnit(unit, "target")) == true
     if isTarget then
         _applyHighlightBorderStyle(border, nil,
             c.tgtSize or 2,
@@ -2682,7 +2643,7 @@ local function UpdateTargetIndicator(f, unit)
 end
 
 ------------------------------------------------------------------------
--- Status text helpers (module-level — zero closure allocation)
+-- Status text helpers (module-level â€” zero closure allocation)
 ------------------------------------------------------------------------
 local function _GF_HideHealthText(f)
     if f.textLeftFS then f.textLeftFS:SetText(""); f.textLeftFS:Hide() end
@@ -3028,7 +2989,7 @@ end
 -- Health color (GF-independent barMode, then global fallback)
 -- Optional hp / hpMax parameters: when the caller (e.g. dispatchHealthFull)
 -- already has fresh values, pass them to skip the GRADIENT-no-calc fallback's
--- duplicate UnitHealth/UnitHealthMax C-calls. nil/omitted → fetch as before.
+-- duplicate UnitHealth/UnitHealthMax C-calls. nil/omitted â†’ fetch as before.
 ------------------------------------------------------------------------
 local function ApplyHealthColor(f, kind, unit, hp, hpMax)
     if not f.health then return end
@@ -3071,7 +3032,7 @@ local function ApplyHealthColor(f, kind, unit, hp, hpMax)
         end
     end
     if mode == "GRADIENT" and unit then
-        -- C-side path: ColorCurve + calculator → fully secret-safe, zero Lua math
+        -- C-side path: ColorCurve + calculator â†’ fully secret-safe, zero Lua math
         local calc = f._msufHPCalc
         if calc and _gfGradientCurve then
             local color = calc:EvaluateCurrentHealthPercent(_gfGradientCurve)
@@ -3088,7 +3049,7 @@ local function ApplyHealthColor(f, kind, unit, hp, hpMax)
             end
         end
         -- Fallback: Lua-side (non-secret values only). Reuse caller-provided
-        -- hp/hpMax if available — avoids redundant UnitHealth/UnitHealthMax
+        -- hp/hpMax if available â€” avoids redundant UnitHealth/UnitHealthMax
         -- calls when dispatchHealthFull already has fresh values.
         if hp == nil then hp = UnitHealth(unit) end
         if hpMax == nil then hpMax = UnitHealthMax(unit) end
@@ -3440,11 +3401,13 @@ local dispatchOverlays, dispatchIncomingHeal, dispatchAbsorb, dispatchHealAbsorb
 local _GF_DispatchOverlaysFromCalc
 
 local function _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    if not _G.MSUF_AbsorbTextureTestMode then return false end
+    if _G.MSUF_InCombat or (_G.InCombatLockdown and _G.InCombatLockdown()) then return false end
     local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
     if type(testFn) == "function" then
         return testFn(f, f and f._msufGFKind) and true or false
     end
-    return _G.MSUF_AbsorbTextureTestMode and true or false
+    return true
 end
 
 local function UpdateAll(f, unit)
@@ -3503,7 +3466,7 @@ local function UpdateAll(f, unit)
         f._msufGFHasAnyDebuff = (_FrameHasStripeDebuff and _FrameHasStripeDebuff(f, unit)) or false
         _GF_ApplyDebuffStripe(f)
     else
-        -- Feature disabled — clear cached presence and hide stripe so the
+        -- Feature disabled â€” clear cached presence and hide stripe so the
         -- option toggle takes effect live (without it the visual lingers
         -- until the next aura event re-evaluates).
         f._msufGFHasAnyDebuff = false
@@ -3512,23 +3475,26 @@ local function UpdateAll(f, unit)
     end
     UpdateTargetIndicator(f, unit)
     if c.statusTextEn or f._msufGFStatusState ~= 0 then UpdateStatusText(f, unit) end
-    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
+        and _G.MSUF_InCombat ~= true
+        and not (_G.InCombatLockdown and _G.InCombatLockdown())
+        and _GF_ShouldShowAbsorbTextureTestForFrame(f) or false
     local wasAbsorbTestMode = f._msufGFAbsorbTestActive
     if c.healPredEn or absorbTestMode or wasAbsorbTestMode then
         dispatchOverlays(f, unit)
         if wasAbsorbTestMode and not absorbTestMode then f._msufGFAbsorbTestActive = nil end
     end
-    if c.roleStateEn or (f.roleIcon and f.roleIcon:IsShown()) then UpdateRoleIcon(f, unit) end
-    if c.raidMarkerEn or (f.raidIcon and f.raidIcon:IsShown()) then UpdateRaidMarker(f, unit) end
+    if c.roleStateEn or (f.roleIcon and f.roleIcon:IsShown()) then GF.UpdateRoleIcon(f, unit) end
+    if c.raidMarkerEn or (f.raidIcon and f.raidIcon:IsShown()) then GF.UpdateRaidMarker(f, unit) end
     if c.leaderEn
         or (f.leaderIcon and f.leaderIcon:IsShown())
         or (f.assistIcon and f.assistIcon:IsShown())
     then
-        UpdateLeaderIcon(f, unit)
+        GF.UpdateLeaderIcon(f, unit)
     end
-    if c.summonEn or (f.summonIcon and f.summonIcon:IsShown()) then UpdateSummonIcon(f, unit) end
-    if c.resEn or (f.resurrectIcon and f.resurrectIcon:IsShown()) then UpdateResurrectIcon(f, unit) end
-    if c.phaseEn or (f.phaseIcon and f.phaseIcon:IsShown()) then UpdatePhaseIcon(f, unit) end
+    if c.summonEn or (f.summonIcon and f.summonIcon:IsShown()) then GF.UpdateSummonIcon(f, unit) end
+    if c.resEn or (f.resurrectIcon and f.resurrectIcon:IsShown()) then GF.UpdateResurrectIcon(f, unit) end
+    if c.phaseEn or (f.phaseIcon and f.phaseIcon:IsShown()) then GF.UpdatePhaseIcon(f, unit) end
     if c.groupNumberEn
         or (f._msufGroupNumberFS and f._msufGroupNumberFS:IsShown())
         or (f.groupNumberText and f.groupNumberText:IsShown())
@@ -3553,7 +3519,7 @@ end
 -- Per-frame event dispatch table
 ------------------------------------------------------------------------
 
--- ════════════════════════════════════════════════════════════════════════
+-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 -- oUF-STYLE EVENT SPLIT: Each event only does what changed.
 --
 -- UNIT_HEALTH (10-50/s):      Bar + Text only. NO calculator, NO overlays.
@@ -3563,17 +3529,17 @@ end
 -- UNIT_HEAL_ABSORB_CHANGED:   Overlays only (heal absorbs changed).
 --
 -- This eliminates ~60% of Lua work per UNIT_HEALTH event.
--- Before: Calculator + SetMinMax + SetValue + Color + 3×Text
---         + 3×Overlay + HealthFade + StatusText = ~15 ops
+-- Before: Calculator + SetMinMax + SetValue + Color + 3Ã—Text
+--         + 3Ã—Overlay + HealthFade + StatusText = ~15 ops
 -- After:  UnitHealth + SetValue + Text + StatusText = ~5 ops
--- ════════════════════════════════════════════════════════════════════════
+-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 ------------------------------------------------------------------------
--- COALESCED TEXT FLUSH — batch all dirty GF frames via C_Timer.After(0)
--- Moves 3×FormatHealthText + 6×issecretvalue + UpdateStatusText (4 C-API
+-- COALESCED TEXT FLUSH â€” batch all dirty GF frames via C_Timer.After(0)
+-- Moves 3Ã—FormatHealthText + 6Ã—issecretvalue + UpdateStatusText (4 C-API
 -- calls) OUT of the UNIT_HEALTH hot path into a single deferred flush.
 -- In a 40-man raid at 50 UNIT_HEALTH/sec/unit = 2000 events/sec, this
--- eliminates ~20 Lua ops per event → ~40 000 ops/sec saved.
+-- eliminates ~20 Lua ops per event â†’ ~40 000 ops/sec saved.
 ------------------------------------------------------------------------
 local _gfTextDirtyFrames = {}    -- sparse: f = true (kept for cleanup compatibility)
 local _gfTextQueue = {}           -- dense queue avoids pairs() burst during flush
@@ -3718,29 +3684,29 @@ GF._TextDirtyFrames = _gfTextDirtyFrames
 GF._MarkTextDirty = _gfMarkTextDirty
 
 ------------------------------------------------------------------------
--- LEAN PATH: UNIT_HEALTH (hottest: 10-50/s per unit, ×40 in raids)
+-- LEAN PATH: UNIT_HEALTH (hottest: 10-50/s per unit, Ã—40 in raids)
 --
 -- oUF-style: absolute minimum work per event.
---   1. UnitHealth(unit)             — 1 C-call (secret)
---   2. bar:SetValue(hp)             — 1 C-call (secret-safe)
+--   1. UnitHealth(unit)             â€” 1 C-call (secret)
+--   2. bar:SetValue(hp)             â€” 1 C-call (secret-safe)
 --   3. Text/status refresh only when needed
---   4. Color (GRADIENT only)        — other modes stamp-gated elsewhere
---   5. Dirty flag for text+status   — coalesced flush next frame
+--   4. Color (GRADIENT only)        â€” other modes stamp-gated elsewhere
+--   5. Dirty flag for text+status   â€” coalesced flush next frame
 --
 -- REMOVED from hot path (vs. previous):
---   • UnitHealthMax()        — cached from UNIT_MAXHEALTH/init
---   • SetMinMaxValues()      — only on UNIT_MAXHEALTH
---   • 3×FormatHealthText     — coalesced text flush
---   • 6×issecretvalue        — coalesced text flush
---   • UpdateStatusText       — coalesced (AFK/DND cached; refreshed on flag events)
---   • Non-gradient health color — stamp-gated outside the lean path
+--   â€¢ UnitHealthMax()        â€” cached from UNIT_MAXHEALTH/init
+--   â€¢ SetMinMaxValues()      â€” only on UNIT_MAXHEALTH
+--   â€¢ 3Ã—FormatHealthText     â€” coalesced text flush
+--   â€¢ 6Ã—issecretvalue        â€” coalesced text flush
+--   â€¢ UpdateStatusText       â€” coalesced (AFK/DND cached; refreshed on flag events)
+--   â€¢ Non-gradient health color â€” stamp-gated outside the lean path
 ------------------------------------------------------------------------
 local function dispatchHealthLean(f, unit)
     local bar = f.health
     if not bar then return end
     local c = f._c
 
-    -- 1 C-call → secret value → C-side SetValue
+    -- 1 C-call â†’ secret value â†’ C-side SetValue
     local hp = UnitHealth(unit)
     local iss = issecretvalue
     local secretHP = iss and iss(hp)
@@ -3770,12 +3736,12 @@ local function dispatchHealthLean(f, unit)
         GF.SyncPreserveMissingHP(f, f._msufGFKind or "party", hp, f._msufGFCachedHpMax)
     end
 
-    -- Dispel overlay health sync ("current health only" — secret-safe SetValue)
+    -- Dispel overlay health sync ("current health only" â€” secret-safe SetValue)
     local dov = f._msufGFDispelOverlay
     if dov and dov._msufDOSyncHP then dov:SetValue(hp) end
 
     -- Compiled fast text: pre-resolved closures call C-side directly.
-    -- ~0.3μs/slot (vs 7.5μs with FormatHealthText). Zero mode dispatch,
+    -- ~0.3Î¼s/slot (vs 7.5Î¼s with FormatHealthText). Zero mode dispatch,
     -- zero issecretvalue, zero string compare dedup.
     if c and c.anyFastText then
         local hm = f._msufGFCachedHpMax
@@ -3856,8 +3822,8 @@ local function dispatchHealthLean(f, unit)
 end
 
 ------------------------------------------------------------------------
--- FULL PATH: UNIT_MAXHEALTH (rare — ~0.5/s)
--- Calculator → bar + text + ALL overlays. Full refresh.
+-- FULL PATH: UNIT_MAXHEALTH (rare â€” ~0.5/s)
+-- Calculator â†’ bar + text + ALL overlays. Full refresh.
 ------------------------------------------------------------------------
 local function dispatchHealthFull(f, unit)
     if not f.health then return end
@@ -3900,20 +3866,20 @@ local function dispatchHealthFull(f, unit)
         GF.SyncPreserveMissingHP(f, f._msufGFKind or "party", hp, hpMax)
     end
 
-    -- Dispel overlay health sync ("current health only" — secret-safe)
+    -- Dispel overlay health sync ("current health only" â€” secret-safe)
     local dov = f._msufGFDispelOverlay
     if dov and dov._msufDOSyncHP then
         dov:SetMinMaxValues(0, hpMax)
         dov:SetValue(hp)
     end
 
-    -- Color (full apply on maxHP change — handles unit-type transitions).
+    -- Color (full apply on maxHP change â€” handles unit-type transitions).
     -- Pass hp/hpMax through so the GRADIENT-no-calc fallback inside
     -- ApplyHealthColor doesn't re-fetch them.
     ApplyHealthColorWithAlpha(f, f._msufGFKind or "party", unit, hp, hpMax)
 
-    -- Text: prefer compiled closures (oUF-style C-side dispatch, ~0.3µs/slot)
-    -- over FormatHealthText (~7.5µs/slot). Falls back to FormatHealthText only
+    -- Text: prefer compiled closures (oUF-style C-side dispatch, ~0.3Âµs/slot)
+    -- over FormatHealthText (~7.5Âµs/slot). Falls back to FormatHealthText only
     -- for unknown/uncompiled modes (c.anySlowText). Closures handle secret
     -- values C-side via SetText / SetFormattedText.
     if c.anyText then
@@ -3959,7 +3925,10 @@ local function dispatchHealthFull(f, unit)
         ihBar:SetValue(0)
         if ihBar:IsShown() then ihBar:Hide() end
     end
-    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
+        and _G.MSUF_InCombat ~= true
+        and not (_G.InCombatLockdown and _G.InCombatLockdown())
+        and _GF_ShouldShowAbsorbTextureTestForFrame(f) or false
     local wasAbsorbTestMode = f._msufGFAbsorbTestActive
     if absorbTestMode or wasAbsorbTestMode then
         _GF_DispatchOverlaysFromCalc(f, unit, calc, hp, hpMax)
@@ -3999,7 +3968,7 @@ end
 
 ------------------------------------------------------------------------
 -- OVERLAY-ONLY PATH: UNIT_HEAL_PREDICTION / UNIT_ABSORB / UNIT_HEAL_ABSORB
--- Calculator → overlay bars ONLY. No HP bar, no text, no color.
+-- Calculator â†’ overlay bars ONLY. No HP bar, no text, no color.
 ------------------------------------------------------------------------
 function GF._ClearOverlayBar(bar)
     if not bar then return end
@@ -4017,13 +3986,20 @@ end
 function GF._SetOverlayBarValue(bar, hpMax, value)
     if not bar then return end
     if value == nil then
-        if bar:IsShown() then bar:Hide() end
-        bar._msufGFOverlayValue = nil
+        GF._ClearOverlayBar(bar)
         return
     end
 
     local iss = issecretvalue
     local maxValue = hpMax or 1
+    if not (iss and iss(value)) then
+        local n = tonumber(value) or 0
+        if n <= 0 then
+            GF._ClearOverlayBar(bar)
+            return
+        end
+    end
+
     if iss and iss(maxValue) then
         bar:SetMinMaxValues(0, maxValue)
         bar._msufGFOverlayMax = nil
@@ -4056,8 +4032,10 @@ local function dispatchOverlaysOnly(f, unit)
     local haEnabled = haBar and c.healAbsorbEn ~= false
     if ihBar and not ihEnabled then GF._ClearOverlayBar(ihBar) end
 
-    local testFn = _G.MSUF_ShouldShowAbsorbTextureTest
-    local absorbTestMode = type(testFn) == "function" and testFn(f, f._msufGFKind) or _G.MSUF_AbsorbTextureTestMode
+    local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
+        and _G.MSUF_InCombat ~= true
+        and not (_G.InCombatLockdown and _G.InCombatLockdown())
+        and _GF_ShouldShowAbsorbTextureTestForFrame(f) or false
     if not (ihEnabled or abEnabled or haEnabled or absorbTestMode or f._msufGFAbsorbTestActive) then
         return
     end
@@ -4099,7 +4077,7 @@ end
 ------------------------------------------------------------------------
 -- Health prediction overlays (absorb + incoming heal + heal absorb)
 -- All 12.0 secret-safe: raw API values passed to C-side SetValue/SetMinMaxValues.
--- Show/hide: issecretvalue(val) → secret = Show (non-nil means has value).
+-- Show/hide: issecretvalue(val) â†’ secret = Show (non-nil means has value).
 -- Colors read from global MSUF_DB.general (same keys as main UF overlays).
 --
 -- Absorb enable: read from MSUF_DB.general (tied to Bars menu).
@@ -4133,8 +4111,8 @@ end
 
 ------------------------------------------------------------------------
 -- Absorb anchoring: apply SetReverseFill based on general.absorbAnchorMode
--- Mode 1: left anchor (fill L→R)   absorbReverse=false
--- Mode 2: right anchor (fill R→L)  absorbReverse=true  (DEFAULT)
+-- Mode 1: left anchor (fill Lâ†’R)   absorbReverse=false
+-- Mode 2: right anchor (fill Râ†’L)  absorbReverse=true  (DEFAULT)
 -- Mode 3: follow HP edge (clipped to bar)
 -- Mode 4: follow HP edge + overflow (extends beyond bar)
 -- Mode 5: reverse from max         absorbReverse=true (normal HP bar)
@@ -4164,7 +4142,7 @@ local function _GF_ApplyAbsorbAnchor(f)
 
             local isOverflow = (mode == 4)
 
-            -- Clip frame (mode 3 only — prevents absorb extending beyond bar)
+            -- Clip frame (mode 3 only â€” prevents absorb extending beyond bar)
             local clip = f._msufAbsorbFollowClip
             if not clip then
                 clip = CreateFrame("Frame", nil, hpBar)
@@ -4300,7 +4278,10 @@ dispatchIncomingHeal = function(f, unit, calc, hp, hpMax)
         return
     end
     -- Test mode: fixed values (same as main UF preview)
-    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
+        and _G.MSUF_InCombat ~= true
+        and not (_G.InCombatLockdown and _G.InCombatLockdown())
+        and _GF_ShouldShowAbsorbTextureTestForFrame(f) or false
     if absorbTestMode then
         f._msufGFAbsorbTestActive = true
         bar:SetMinMaxValues(0, 100)
@@ -4345,7 +4326,10 @@ dispatchAbsorb = function(f, unit, calc, hpMax)
     local bar = f.absorbBar
     if not bar then return end
     -- Test mode: fixed values, no unit/secret dependency (same as main UF)
-    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
+        and _G.MSUF_InCombat ~= true
+        and not (_G.InCombatLockdown and _G.InCombatLockdown())
+        and _GF_ShouldShowAbsorbTextureTestForFrame(f) or false
     if absorbTestMode then
         f._msufGFAbsorbTestActive = true
         bar:SetMinMaxValues(0, 100)
@@ -4384,7 +4368,10 @@ end
 dispatchHealAbsorb = function(f, unit, calc, hpMax)
     local bar = f.healAbsorbBar
     if not bar then return end
-    local absorbTestMode = _GF_ShouldShowAbsorbTextureTestForFrame(f)
+    local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
+        and _G.MSUF_InCombat ~= true
+        and not (_G.InCombatLockdown and _G.InCombatLockdown())
+        and _GF_ShouldShowAbsorbTextureTestForFrame(f) or false
     if absorbTestMode then
         f._msufGFAbsorbTestActive = true
         bar:SetMinMaxValues(0, 100)
@@ -4458,7 +4445,7 @@ local function dispatchPower(f, unit)
         f.power:Hide()
     end
 
-    -- Coalesced power text: dirty flag → flush next frame
+    -- Coalesced power text: dirty flag â†’ flush next frame
     if c.anyPowerText then
         local pwMax = f._msufGFCachedPwMax
         if pwMax == nil then
@@ -4664,20 +4651,25 @@ local UNIT_DISPATCH = {
     end,
     UNIT_THREAT_SITUATION_UPDATE      = function(f, u) UpdateAggro(f, u) end,
     UNIT_THREAT_LIST_UPDATE           = function(f, u) UpdateAggro(f, u) end,
-    INCOMING_SUMMON_CHANGED           = function(f, u) UpdateSummonIcon(f, u); UpdateResurrectIcon(f, u) end,
-    INCOMING_RESURRECT_CHANGED        = function(f, u) UpdateResurrectIcon(f, u) end,
-    -- UNIT_PHASE: phasing transitions can change UnitExists / aura visibility /
-    -- name resolution (Unknown → real). A full refresh is the only correct
-    -- response. Rare event, so the cost is negligible.
-    UNIT_PHASE                        = function(f, u) UpdateAll(f, u) end,
+    INCOMING_SUMMON_CHANGED           = function(f, u) GF.UpdateSummonIcon(f, u); GF.UpdateResurrectIcon(f, u) end,
+    INCOMING_RESURRECT_CHANGED        = function(f, u) GF.UpdateResurrectIcon(f, u) end,
+    -- UNIT_PHASE still does a full refresh for phase icon and
+    -- name resolution (Unknown â†’ real). A full refresh is the only correct
+    -- path; CTR/party-change events only refresh range fade.
+    UNIT_PHASE                        = function(f, u)
+        local c = f and f._c
+        if c and c.phaseEn then UpdateAll(f, u) else ApplyRangeFade(f, u) end
+    end,
+    UNIT_CTR_OPTIONS                  = function(f, u) ApplyRangeFade(f, u) end,
+    UNIT_OTHER_PARTY_CHANGED          = function(f, u) ApplyRangeFade(f, u) end,
 }
 
 ------------------------------------------------------------------------
 -- Per-frame OnEvent handler
 -- oUF-STYLE: Each event dispatches ONLY to the handler that needs it.
--- UNIT_HEALTH → lean path (bar + text only, NO calc/overlays)
--- UNIT_MAXHEALTH → full path (calc + bar + overlays + text)
--- UNIT_HEAL_PREDICTION/ABSORB → overlays only
+-- UNIT_HEALTH â†’ lean path (bar + text only, NO calc/overlays)
+-- UNIT_MAXHEALTH â†’ full path (calc + bar + overlays + text)
+-- UNIT_HEAL_PREDICTION/ABSORB â†’ overlays only
 ------------------------------------------------------------------------
 _RuntimeEnabledForFrame = function(f)
     if not f then return false end
@@ -4690,15 +4682,17 @@ _RuntimeEnabledForFrame = function(f)
 end
 
 local function GF_OnEvent(self, event, unit, ...)
-    if not _RuntimeEnabledForFrame(self) then
+    local u = self and self.unit
+    if not u then return end
+    if unit ~= nil and unit ~= u then return end
+
+    if self._msufGFEventActive ~= true and not _RuntimeEnabledForFrame(self) then
         if GF.UnregisterUnitEvents then GF.UnregisterUnitEvents(self) end
         return
     end
-    local u = self.unit
-    if not u then return end
     -- PERF: unified hash-table dispatch. The prior hot-path if-elseif chain
-    -- did 6-7 string compares (~1µs) before falling through to UNIT_DISPATCH.
-    -- A direct table lookup is O(1) (~0.05µs). Net win: ~1µs per event.
+    -- did 6-7 string compares (~1Âµs) before falling through to UNIT_DISPATCH.
+    -- A direct table lookup is O(1) (~0.05Âµs). Net win: ~1Âµs per event.
     local fn = UNIT_DISPATCH[event]
     if fn then return fn(self, u, ...) end
 end
@@ -4720,6 +4714,7 @@ function GF.RegisterUnitEvents(f, unit)
         if GF.UnregisterUnitEvents then GF.UnregisterUnitEvents(f) end
         f._msufGFRegUnit = nil
         f._msufGFRegBits = nil
+        f._msufGFEventActive = nil
         return
     end
 
@@ -4743,7 +4738,7 @@ function GF.RegisterUnitEvents(f, unit)
     f._msufGFRegBits = evBits
     f._msufGFLastHealthValue = nil
 
-    -- GUID→frame map (rebuilt on roster change, used for O(1) target/focus scan)
+    -- GUIDâ†’frame map (rebuilt on roster change, used for O(1) target/focus scan)
     local guid = _G.UnitGUID and _G.UnitGUID(unit)
     if guid and not (issecretvalue and issecretvalue(guid)) then
         local gmap = GF._guidMap
@@ -4773,7 +4768,7 @@ function GF.RegisterUnitEvents(f, unit)
     end
     if powerEvents then
         f:RegisterUnitEvent("UNIT_POWER_UPDATE", unit);  regTbl["UNIT_POWER_UPDATE"] = true
-        if c.powFrequent and UnitIsUnit and UnitIsUnit(unit, "player") then
+        if c.powFrequent and UnitIsUnit and _UnsecretBool(UnitIsUnit(unit, "player")) == true then
             f:RegisterUnitEvent("UNIT_POWER_FREQUENT", unit); regTbl["UNIT_POWER_FREQUENT"] = true
         end
         f:RegisterUnitEvent("UNIT_MAXPOWER", unit);      regTbl["UNIT_MAXPOWER"] = true
@@ -4781,6 +4776,8 @@ function GF.RegisterUnitEvents(f, unit)
     end
     if c.rfEn then
         f:RegisterUnitEvent("UNIT_IN_RANGE_UPDATE", unit); regTbl["UNIT_IN_RANGE_UPDATE"] = true
+        f:RegisterUnitEvent("UNIT_CTR_OPTIONS", unit); regTbl["UNIT_CTR_OPTIONS"] = true
+        f:RegisterUnitEvent("UNIT_OTHER_PARTY_CHANGED", unit); regTbl["UNIT_OTHER_PARTY_CHANGED"] = true
     end
     if c.needAura then
         f:RegisterUnitEvent("UNIT_AURA", unit); regTbl["UNIT_AURA"] = true
@@ -4795,7 +4792,7 @@ function GF.RegisterUnitEvents(f, unit)
     if c.resEn then
         f:RegisterUnitEvent("INCOMING_RESURRECT_CHANGED", unit); regTbl["INCOMING_RESURRECT_CHANGED"] = true
     end
-    if c.phaseEn then
+    if c.phaseEn or c.rfEn then
         f:RegisterUnitEvent("UNIT_PHASE", unit); regTbl["UNIT_PHASE"] = true
     end
     if c.healPredEventEn then
@@ -4809,6 +4806,7 @@ function GF.RegisterUnitEvents(f, unit)
     end
 
     f:SetScript("OnEvent", GF_OnEvent)
+    f._msufGFEventActive = true
 end
 
 function GF.UnregisterUnitEvents(f)
@@ -4820,6 +4818,7 @@ function GF.UnregisterUnitEvents(f)
         f._msufGFRegEv = nil
     end
     f:SetScript("OnEvent", nil)
+    f._msufGFEventActive = nil
     f._msufGFDispelKnown = nil
     if GF.ClearPrivateAuras then GF.ClearPrivateAuras(f) end
 end
@@ -4883,8 +4882,8 @@ local function _gfRosterFlushFrame(f, gmap)
     if sameRosterUnit then
         -- Same button/unit after a roster event: skip full visual refresh.
         -- Role, leader/assist and group-number metadata can still change.
-        if roleChanged then UpdateRoleIcon(f, u) end
-        if leaderChanged then UpdateLeaderIcon(f, u) end
+        if roleChanged then GF.UpdateRoleIcon(f, u) end
+        if leaderChanged then GF.UpdateLeaderIcon(f, u) end
         if (c and c.groupNumberEn)
             or (f._msufGroupNumberFS and f._msufGroupNumberFS:IsShown())
             or (f.groupNumberText and f.groupNumberText:IsShown())
@@ -4896,9 +4895,9 @@ local function _gfRosterFlushFrame(f, gmap)
         ApplyHealthColorWithAlpha(f, f._msufGFKind or "party", u)
         ApplyPowerColor(f, u)
         if c and (c.statusTextEn or f._msufGFStatusState ~= 0) then UpdateStatusText(f, u) end
-        if c and c.roleStateEn then UpdateRoleIcon(f, u) end
-        if c and c.raidMarkerEn then UpdateRaidMarker(f, u) end
-        if c and c.leaderEn then UpdateLeaderIcon(f, u) end
+        if c and c.roleStateEn then GF.UpdateRoleIcon(f, u) end
+        if c and c.raidMarkerEn then GF.UpdateRaidMarker(f, u) end
+        if c and c.leaderEn then GF.UpdateLeaderIcon(f, u) end
         if (c and c.groupNumberEn)
             or (f._msufGroupNumberFS and f._msufGroupNumberFS:IsShown())
             or (f.groupNumberText and f.groupNumberText:IsShown())
@@ -5025,52 +5024,6 @@ function GF._AnyGroupConfFlag(key)
     return false
 end
 
-function GF._RangeFadeWanted()
-    if GF._anyEnabled == false then return false end
-    if IsInGroup and IsInRaid then
-        local inGroup = IsInGroup()
-        local inRaid = IsInRaid()
-        if not inGroup and not inRaid then return false end
-    end
-    return GF._AnyGroupConfFlag("rangeFadeEnabled") == true
-end
-
-function GF._StopRangeFadeCombatPulse()
-    GF._rangeCombatPulse = nil
-end
-
-function GF._RangeFadeCombatPulseStep(token)
-    if GF._rangeCombatPulse ~= token then return end
-    if not (_G.MSUF_InCombat == true or (InCombatLockdown and InCombatLockdown())) then
-        GF._StopRangeFadeCombatPulse()
-        return
-    end
-    if not GF._RangeFadeWanted() then
-        GF._StopRangeFadeCombatPulse()
-        return
-    end
-    if GF.RefreshRangeFade then GF.RefreshRangeFade() end
-    if C_Timer and C_Timer.After then
-        C_Timer.After(GF._rangeCombatPulseInterval or 0.50, function()
-            GF._RangeFadeCombatPulseStep(token)
-        end)
-    else
-        GF._StopRangeFadeCombatPulse()
-    end
-end
-
-function GF._EnsureRangeFadeCombatPulse()
-    if GF._rangeCombatPulse then return end
-    if not (C_Timer and C_Timer.After) then return end
-    if not (_G.MSUF_InCombat == true or (InCombatLockdown and InCombatLockdown())) then return end
-    if not GF._RangeFadeWanted() then return end
-    local token = {}
-    GF._rangeCombatPulse = token
-    C_Timer.After(GF._rangeCombatPulseInterval or 0.50, function()
-        GF._RangeFadeCombatPulseStep(token)
-    end)
-end
-
 do
     local _globalEventBits
     local _baseEventsActive
@@ -5078,11 +5031,6 @@ do
     local BASE_EVENTS = {
         "PLAYER_FOCUS_CHANGED",
         "GROUP_ROSTER_UPDATE",
-        "SPELLS_CHANGED",
-        "ACTIVE_PLAYER_SPECIALIZATION_CHANGED",
-        "PLAYER_TALENT_UPDATE",
-        "TRAIT_CONFIG_UPDATED",
-        "PLAYER_ENTERING_WORLD",
         "BARBER_SHOP_OPEN",
         "BARBER_SHOP_CLOSE",
         "PLAYER_REGEN_DISABLED",
@@ -5164,7 +5112,7 @@ do
     end
 end
 
--- ════════════════════════════════════════════════════════════════════════
+-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 -- OnGlobalEvent: dispatch table + shared frame-iteration helper.
 -- (4.22 Beta hotfix.)
 --
@@ -5178,7 +5126,7 @@ end
 -- closure has captured it. This keeps simultaneously-active locals well
 -- below the Lua 5.1 200-per-function limit. The dispatch table and the
 -- final OnEvent function are stashed in GF (no new file-scope locals).
--- ════════════════════════════════════════════════════════════════════════
+-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 do
     -- Iterate either GF.frameList (preferred ordered list) or GF.frames
     -- (fallback hash). Forwards extra args to the callback. Mirrors the
@@ -5204,44 +5152,16 @@ do
 
     H.PLAYER_REGEN_DISABLED = function(_, event)
         _G.MSUF_InCombat = (event == "PLAYER_REGEN_DISABLED")
-        if event == "PLAYER_REGEN_ENABLED" and GF._StopRangeFadeCombatPulse then
-            GF._StopRangeFadeCombatPulse()
-        end
+        local refreshOfflineAlpha = GF._offlineHideRuntimeActive or GF._offlineHideAnyEnabled
         if event == "PLAYER_REGEN_DISABLED" and GF._offlineHideRuntimeActive and GF.SuspendOfflineHideForCombat then
             GF.SuspendOfflineHideForCombat()
         end
-        if GF.RefreshGroupAlphas then
-            GF.RefreshGroupAlphas()
-        elseif GF.RefreshRangeFade then
-            GF.RefreshRangeFade()
-        end
-        if event == "PLAYER_REGEN_DISABLED" and GF._EnsureRangeFadeCombatPulse then
-            GF._EnsureRangeFadeCombatPulse()
-        end
+        if refreshOfflineAlpha and GF.RefreshGroupAlphas then GF.RefreshGroupAlphas() end
         if event == "PLAYER_REGEN_ENABLED" and GF._offlineHideAnyEnabled and GF.RefreshOfflineHiddenFrames then
             GF.RefreshOfflineHiddenFrames()
         end
     end
     H.PLAYER_REGEN_ENABLED = H.PLAYER_REGEN_DISABLED
-
-    do
-        local function RefreshRangeFadeDelayed()
-            if GF.RefreshRangeFade then GF.RefreshRangeFade() end
-            if (_G.MSUF_InCombat == true or (InCombatLockdown and InCombatLockdown()))
-                and GF._EnsureRangeFadeCombatPulse
-            then
-                GF._EnsureRangeFadeCombatPulse()
-            end
-        end
-        local function QueueRangeRefresh()
-            _MSUF_ScheduleDelayOnce("GF_RANGE_REFRESH", 0.05, RefreshRangeFadeDelayed)
-        end
-        H.SPELLS_CHANGED = QueueRangeRefresh
-        H.ACTIVE_PLAYER_SPECIALIZATION_CHANGED = QueueRangeRefresh
-        H.PLAYER_TALENT_UPDATE = QueueRangeRefresh
-        H.TRAIT_CONFIG_UPDATED = QueueRangeRefresh
-        H.PLAYER_ENTERING_WORLD = QueueRangeRefresh
-    end
 
     H.PLAYER_FOCUS_CHANGED = function()
         local oldFocus = _gfFocusFrame
@@ -5264,7 +5184,7 @@ do
 
     H.GROUP_ROSTER_UPDATE = function()
         -- PERF: Coalesce roster updates. At a world boss, GROUP_ROSTER_UPDATE
-        -- fires 0.5/sec with 672µs P50 per call (iterates all 40 GF frames × 10 functions).
+        -- fires 0.5/sec with 672Âµs P50 per call (iterates all 40 GF frames Ã— 10 functions).
         -- Multiple updates can fire in the same frame (join + promote + type change).
         -- Coalescing to next-frame eliminates burst spikes in the Blizzard profiler.
         if not _gfRosterPending then
@@ -5276,12 +5196,12 @@ do
     end
 
     -- READY_CHECK / READY_CHECK_CONFIRM / READY_CHECK_FINISHED share one
-    -- handler. The per-frame CB closes over UpdateReadyCheck and is freed
+    -- handler. The per-frame CB calls GF.UpdateReadyCheck and is freed
     -- when this nested do/end ends.
     do
         local function CB(f, event)
             local c = f and f._c
-            if c and c.readyEn and f.unit then UpdateReadyCheck(f, f.unit, event) end
+            if c and c.readyEn and f.unit then GF.UpdateReadyCheck(f, f.unit, event) end
         end
         local h = function(_, event)
             if not GF._AnyGroupConfFlag("readyCheckIcon") then return end
@@ -5295,7 +5215,7 @@ do
     do
         local function CB(f)
             local c = f and f._c
-            if c and c.raidMarkerEn and f.unit and UnitExists(f.unit) then UpdateRaidMarker(f, f.unit) end
+            if c and c.raidMarkerEn and f.unit and UnitExists(f.unit) then GF.UpdateRaidMarker(f, f.unit) end
         end
         H.RAID_TARGET_UPDATE = function()
             if not GF._AnyGroupConfFlag("raidMarker") then return end
@@ -5306,7 +5226,7 @@ do
     do
         local function CB(f)
             local c = f and f._c
-            if c and c.leaderEn and f.unit and UnitExists(f.unit) then UpdateLeaderIcon(f, f.unit) end
+            if c and c.leaderEn and f.unit and UnitExists(f.unit) then GF.UpdateLeaderIcon(f, f.unit) end
         end
         H.PARTY_LEADER_CHANGED = function()
             if not (GF._AnyGroupConfFlag("leaderIcon") or GF._AnyGroupConfFlag("assistIcon")) then return end
@@ -5348,9 +5268,12 @@ do
     do
         local function CB(f, changedUnit)
             local c = f and f._c
-            if c and c.statusTextEn and f.unit and UnitExists(f.unit)
-                and (f.unit == changedUnit or (UnitIsUnit and UnitIsUnit(f.unit, changedUnit)))
-            then
+            if not (c and c.statusTextEn and f.unit and UnitExists(f.unit)) then return end
+            local sameUnit = (f.unit == changedUnit)
+            if not sameUnit and UnitIsUnit then
+                sameUnit = _UnsecretBool(UnitIsUnit(f.unit, changedUnit)) == true
+            end
+            if sameUnit then
                 UpdateStatusText(f, f.unit, true)
             end
         end
@@ -5522,8 +5445,16 @@ end
 ------------------------------------------------------------------------
 local _tooltipPendingToken = 0 -- invalidates deferred tooltip callbacks
 local _tooltipTarget  -- frame awaiting tooltip
+local _Debug = ns and ns.Debug
+
+local function DebugHover(message, ...)
+    if _Debug and type(_Debug.PrintGFHover) == "function" then
+        _Debug.PrintGFHover(message, ...)
+    end
+end
 
 local function OnEnter(f)
+    DebugHover("GF OnEnter frame=%s unit=%s kind=%s", tostring(f and f:GetName() or "<anon>"), tostring(f and f.unit or "nil"), tostring(f and f._msufGFKind or "party"))
     -- Mouseover highlight
     local hb = EnsureMouseoverHighlight(f)
     if hb then hb:Show() end
@@ -5534,38 +5465,50 @@ local function OnEnter(f)
     if not f.unit or not UnitExists(f.unit) then return end
     local conf = GF.GetConf(f._msufGFKind or "party")
     local mode = conf.tooltipMode or "ALWAYS"
-    if mode == "NEVER" then return end
-    if mode == "OOC" and InCombatLockdown() then return end
+    if mode == "NEVER" then
+        DebugHover("GF tooltip blocked frame=%s reason=mode-never", tostring(f and f:GetName() or "<anon>"))
+        return
+    end
+    if mode == "OOC" and InCombatLockdown() then
+        DebugHover("GF tooltip blocked frame=%s reason=in-combat-ooc-mode", tostring(f and f:GetName() or "<anon>"))
+        return
+    end
     if mode == "MODIFIER" then
         local mod = conf.tooltipModifier or "ALT"
-        if mod == "ALT"   and not IsAltKeyDown()     then return end
-        if mod == "CTRL"  and not IsControlKeyDown()  then return end
-        if mod == "SHIFT" and not IsShiftKeyDown()    then return end
+        if mod == "ALT"   and not IsAltKeyDown() then
+            DebugHover("GF tooltip blocked frame=%s reason=alt-not-held", tostring(f and f:GetName() or "<anon>"))
+            return
+        end
+        if mod == "CTRL"  and not IsControlKeyDown() then
+            DebugHover("GF tooltip blocked frame=%s reason=ctrl-not-held", tostring(f and f:GetName() or "<anon>"))
+            return
+        end
+        if mod == "SHIFT" and not IsShiftKeyDown() then
+            DebugHover("GF tooltip blocked frame=%s reason=shift-not-held", tostring(f and f:GetName() or "<anon>"))
+            return
+        end
     end
     local token = _tooltipPendingToken
     C_Timer.After(0.15, function()
-        if _tooltipPendingToken ~= token then return end
-        if _tooltipTarget ~= f then return end
-        if not f.unit or not UnitExists(f.unit) then return end
-        if _G.GameTooltip and not _G.GameTooltip:IsForbidden() then
+        if _tooltipPendingToken ~= token then
+            DebugHover("GF tooltip canceled frame=%s reason=token-changed", tostring(f and f:GetName() or "<anon>"))
+            return
+        end
+        if _tooltipTarget ~= f then
+            DebugHover("GF tooltip canceled frame=%s reason=target-changed", tostring(f and f:GetName() or "<anon>"))
+            return
+        end
+        if not f.unit or not UnitExists(f.unit) then
+            DebugHover("GF tooltip canceled frame=%s reason=unit-gone", tostring(f and f:GetName() or "<anon>"))
+            return
+        end
+        DebugHover("GF tooltip firing frame=%s unit=%s", tostring(f and f:GetName() or "<anon>"), tostring(f and f.unit or "nil"))
+        local tips = ns and ns.Tooltips
+        if tips and type(tips.ShowUnit) == "function" then
+            tips.ShowUnit(f, f.unit)
+        elseif _G.GameTooltip and not _G.GameTooltip:IsForbidden() then
             local gt = _G.GameTooltip
-            local g = (_G.MSUF_DB and _G.MSUF_DB.general) or {}
-            if g.disableUnitInfoTooltips then
-                if (g.unitInfoTooltipStyle or "classic") == "modern" then
-                    gt:SetOwner(_G.UIParent, "ANCHOR_CURSOR", 0, -100)
-                else
-                    gt:SetOwner(_G.UIParent, "ANCHOR_NONE")
-                    gt:ClearAllPoints()
-                    local cx, cy = g.tooltipPosX, g.tooltipPosY
-                    if type(cx) == "number" and type(cy) == "number" then
-                        gt:SetPoint("BOTTOMLEFT", _G.UIParent, "BOTTOMLEFT", cx, cy)
-                    else
-                        gt:SetPoint("BOTTOMRIGHT", _G.UIParent, "BOTTOMRIGHT", -16, 16)
-                    end
-                end
-            else
-                gt:SetOwner(f, "ANCHOR_RIGHT")
-            end
+            gt:SetOwner(f, "ANCHOR_RIGHT")
             gt:SetUnit(f.unit)
             gt:Show()
         end
@@ -5573,13 +5516,17 @@ local function OnEnter(f)
 end
 
 local function OnLeave(f)
+    DebugHover("GF OnLeave frame=%s unit=%s kind=%s", tostring(f and f:GetName() or "<anon>"), tostring(f and f.unit or "nil"), tostring(f and f._msufGFKind or "party"))
     -- Cancel pending tooltip
     _tooltipPendingToken = _tooltipPendingToken + 1
     _tooltipTarget = nil
     -- Hide highlight
     if f._msufGFHoverBorder then f._msufGFHoverBorder:Hide() end
     -- Hide tooltip
-    if _G.GameTooltip and not _G.GameTooltip:IsForbidden() then
+    local tips = ns and ns.Tooltips
+    if tips and type(tips.HideUnit) == "function" then
+        tips.HideUnit(f)
+    elseif _G.GameTooltip and not _G.GameTooltip:IsForbidden() then
         _G.GameTooltip:Hide()
     end
 end
@@ -5594,7 +5541,7 @@ if type(_origInit) == "function" then
         f:SetScript("OnLeave", OnLeave)
         if GF.ClickCastEnabled then GF.RegisterClickCastFrame(f, true) end
         -- GF frames do NOT use the main Alpha module.
-        -- Range fade is handled exclusively by ApplyRangeFade → SetAlphaFromBoolean.
+        -- Range fade is handled exclusively by ApplyRangeFade â†’ SetAlphaFromBoolean.
         -- The Alpha module (MSUF_ApplyUnitAlpha) would override SetAlphaFromBoolean
         -- with SetAlpha(1), killing the range fade.
     end
@@ -5603,7 +5550,7 @@ end
 ------------------------------------------------------------------------
 -- Expose
 ------------------------------------------------------------------------
---- Combined highlight refresh (aggro + dispel + target) — called by
+--- Combined highlight refresh (aggro + dispel + target) â€” called by
 --- Borders.lua test mode buttons via _G.MSUF_GF_UpdateHighlight
 local function UpdateHighlight(f, unit)
     unit = unit or f.unit
@@ -5611,7 +5558,7 @@ local function UpdateHighlight(f, unit)
     UpdateAggro(f, unit)
     local c = f._c
     if not c and GF.BuildFrameCache then GF.BuildFrameCache(f); c = f._c end
-    local dispelTest = _G.MSUF_DispelBorderTestMode == true
+    local dispelTest = _G.MSUF_BorderTestModesActive == true and _G.MSUF_DispelBorderTestMode == true
     if c and c.nativeBlizzardDispels and not dispelTest then
         if _GF_ClearNativeSuppressedDispel then _GF_ClearNativeSuppressedDispel(f, unit) end
     elseif dispelTest or (c and c.dispelScan and GF._playerCanDispel) then
@@ -5679,14 +5626,14 @@ _G.MSUF_GF_UpdateVisualDirty = function(f, unit, bits)
         -- Group Frame Fonts > Name Shortening without reintroducing aura scans.
         dispatchName(f, unit)
         if c and (c.statusTextEn or f._msufGFStatusState ~= 0) then UpdateStatusText(f, unit) end
-        if c and (c.roleStateEn or (f.roleIcon and f.roleIcon:IsShown())) then UpdateRoleIcon(f, unit) end
-        if c and (c.raidMarkerEn or (f.raidIcon and f.raidIcon:IsShown())) then UpdateRaidMarker(f, unit) end
+        if c and (c.roleStateEn or (f.roleIcon and f.roleIcon:IsShown())) then GF.UpdateRoleIcon(f, unit) end
+        if c and (c.raidMarkerEn or (f.raidIcon and f.raidIcon:IsShown())) then GF.UpdateRaidMarker(f, unit) end
         if c and (
             c.leaderEn
             or (f.leaderIcon and f.leaderIcon:IsShown())
             or (f.assistIcon and f.assistIcon:IsShown())
         ) then
-            UpdateLeaderIcon(f, unit)
+            GF.UpdateLeaderIcon(f, unit)
         end
         if (c and c.groupNumberEn)
             or (f._msufGroupNumberFS and f._msufGroupNumberFS:IsShown())
@@ -5705,7 +5652,6 @@ _G.MSUF_GF_UpdateVisualDirty = function(f, unit, bits)
         end
     end
 end
-_G.MSUF_GF_UpdateRange    = ApplyRangeFade
 _G.MSUF_GF_UpdateTarget   = UpdateTargetIndicator
 _G.MSUF_GF_UpdateStatus   = UpdateStatusText
 _G.MSUF_GF_UpdateGroupNum = UpdateGroupNumber
@@ -5760,7 +5706,7 @@ _G.MSUF_GF_OnFrameRetire = function(f)
     f._msufGFNameColorKey = nil
     _gfAuraDirtyQueued[f] = nil
 
-    -- Remove from GUID→frame map (search by value — guid hash unknown here)
+    -- Remove from GUIDâ†’frame map (search by value â€” guid hash unknown here)
     local gmap = GF._guidMap
     if gmap then
         for guid, framef in pairs(gmap) do
@@ -5821,18 +5767,21 @@ _G.MSUF_GF_GlobalEventFrame     = _globalFrame
 --- Called from Bars options when test mode or absorb settings change.
 _G.MSUF_GF_RefreshOverlays = function()
     if not GF.frames then return end
+    local absorbTestMayRun = (_G.MSUF_AbsorbTextureTestMode == true)
+        and _G.MSUF_InCombat ~= true
+        and not (_G.InCombatLockdown and _G.InCombatLockdown())
     _GF_ForEachLiveGroupFrame(function(f)
         _GF_ApplyAbsorbAnchor(f)
         local u = f.unit
         if u then
             local wasAbsorbTestMode = f._msufGFAbsorbTestActive
             dispatchOverlays(f, u)
-            if wasAbsorbTestMode and not _GF_ShouldShowAbsorbTextureTestForFrame(f) then f._msufGFAbsorbTestActive = nil end
-        elseif _GF_ShouldShowAbsorbTextureTestForFrame(f) or f._msufGFAbsorbTestActive then
+            if wasAbsorbTestMode and not (absorbTestMayRun and _GF_ShouldShowAbsorbTextureTestForFrame(f)) then f._msufGFAbsorbTestActive = nil end
+        elseif (absorbTestMayRun and _GF_ShouldShowAbsorbTextureTestForFrame(f)) or f._msufGFAbsorbTestActive then
             dispatchIncomingHeal(f, nil)
             dispatchAbsorb(f, nil)
             dispatchHealAbsorb(f, nil)
-            if not _GF_ShouldShowAbsorbTextureTestForFrame(f) then f._msufGFAbsorbTestActive = nil end
+            if not (absorbTestMayRun and _GF_ShouldShowAbsorbTextureTestForFrame(f)) then f._msufGFAbsorbTestActive = nil end
         end
     end)
     if GF._previewFrames then
@@ -5845,12 +5794,12 @@ _G.MSUF_GF_RefreshOverlays = function()
                     if u then
                         local wasAbsorbTestMode = pf._msufGFAbsorbTestActive
                         dispatchOverlays(pf, u)
-                        if wasAbsorbTestMode and not _GF_ShouldShowAbsorbTextureTestForFrame(pf) then pf._msufGFAbsorbTestActive = nil end
-                    elseif _GF_ShouldShowAbsorbTextureTestForFrame(pf) or pf._msufGFAbsorbTestActive then
+                        if wasAbsorbTestMode and not (absorbTestMayRun and _GF_ShouldShowAbsorbTextureTestForFrame(pf)) then pf._msufGFAbsorbTestActive = nil end
+                    elseif (absorbTestMayRun and _GF_ShouldShowAbsorbTextureTestForFrame(pf)) or pf._msufGFAbsorbTestActive then
                         dispatchIncomingHeal(pf, nil)
                         dispatchAbsorb(pf, nil)
                         dispatchHealAbsorb(pf, nil)
-                        if not _GF_ShouldShowAbsorbTextureTestForFrame(pf) then pf._msufGFAbsorbTestActive = nil end
+                        if not (absorbTestMayRun and _GF_ShouldShowAbsorbTextureTestForFrame(pf)) then pf._msufGFAbsorbTestActive = nil end
                     end
                 end
             end

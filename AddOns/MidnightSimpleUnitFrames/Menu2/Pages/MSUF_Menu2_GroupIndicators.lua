@@ -93,6 +93,11 @@ local BindNestedDropdown = GP.BindNestedDropdown
 local SetOptionEnabled = GP.SetOptionEnabled
 local SetOptionsEnabled = GP.SetOptionsEnabled
 local ApplyScopeEnabledGate = GP.ApplyScopeEnabledGate
+local SetSectionHeaderStatus = GP.SetSectionHeaderStatus
+
+local function HeaderHintColor()
+    return { 0.45, 0.52, 0.65, 1 }
+end
 local function BuildGFIndicators(ctx)
     local b = W.PageBuilder(ctx)
     ScopeSection(ctx, b)
@@ -193,7 +198,7 @@ local function BuildGFIndicators(ctx)
     local groupNumberControls = { groupNumberSize, groupNumberAnchor, groupNumberX, groupNumberY }
     local focusControls = { focusSize, focusColor }
     local groupBorderControls = { groupBorderSize, groupBorderPadding, groupBorderColor }
-    M.AddRefresher(ctx, function()
+    local function RefreshIndicatorsState()
         local groupNumberEnabled = Bool(CurrentScope(), "showGroupNumber", false)
         SetOptionsEnabled(groupNumberControls, groupNumberEnabled)
         SetOptionEnabled(groupNumberToggle, true)
@@ -212,7 +217,14 @@ local function BuildGFIndicators(ctx)
         local groupBorderEnabled = Bool(CurrentScope(), "groupBorderEnabled", false)
         SetOptionsEnabled(groupBorderControls, groupBorderEnabled)
         SetOptionEnabled(groupBorderToggle, true)
-    end)
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(indicators, nil) end
+    end
+    M.AddRefresher(ctx, RefreshIndicatorsState)
+    RefreshIndicatorsState()
+    do
+        local entry = indicators and indicators._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshIndicatorsState end
+    end
 
     local sicons = b:CollapsibleSection("sicons", "Status Icons", 444, false)
     local siconW = sicons._msuf2Width or ctx.width or 720
@@ -255,27 +267,44 @@ local function BuildGFIndicators(ctx)
             if M.SelectPage then M.SelectPage(ctx.key) end
         end)
 
+    -- Role filter group: only visible when Role Icon indicator is selected
+    local roleFilterGroup = CreateFrame("Frame", nil, sicons)
+    roleFilterGroup:SetPoint("TOPLEFT", sicons, "TOPLEFT", 0, -294)
+    roleFilterGroup:SetSize((siconLeftW + siconLeftX + 10), 60)
+
+    W.LabelAt(roleFilterGroup, "Show for:", siconLeftX, -8, siconLeftW, "GameFontNormalSmall", T.colors.accent)
+
+    local rfColW   = floor(siconLeftW / 3)
+    local rfLabelW = rfColW - 30  -- subtract checkbox(24) + gap(6) so hit areas don't overlap the next column
+    local rfTank   = BindScopeToggle(ctx, W.ToggleAt(roleFilterGroup, "Tank",   siconLeftX,              -26, rfLabelW), "roleIconShowTank",   true, "visual")
+    local rfHealer = BindScopeToggle(ctx, W.ToggleAt(roleFilterGroup, "Healer", siconLeftX + rfColW,     -26, rfLabelW), "roleIconShowHealer", true, "visual")
+    local rfDPS    = BindScopeToggle(ctx, W.ToggleAt(roleFilterGroup, "DPS",    siconLeftX + rfColW * 2, -26, rfLabelW), "roleIconShowDPS",    true, "visual")
+
     W.LabelAt(sicons, "Status Preview", siconRightX, -42, siconRightW, "GameFontNormalSmall", T.colors.accent)
-    local previewCurrent = W.Button(sicons, "Current", 118)
+    local previewCurrent = W.Button(sicons, "Preview current", 142)
     previewCurrent:SetScript("OnClick", function()
         local gf = GF()
+        M.gfStatusPreviewMode = "current"
+        if gf and gf.SetPreviewFocus then gf.SetPreviewFocus("sicons") end
         if gf and gf.SetStatusPreviewMode then gf.SetStatusPreviewMode("current") end
         if gf and gf._PreviewSelectStatusIcon then gf._PreviewSelectStatusIcon(CurrentGFStatusSpec().value) end
-        QueueGF(CurrentScope(), "visual")
+        if RefreshGFPreview then RefreshGFPreview() end
     end)
     previewCurrent:ClearAllPoints()
     previewCurrent:SetPoint("TOPLEFT", sicons, "TOPLEFT", siconRightX, -66)
-    previewCurrent:SetSize(118, 24)
+    previewCurrent:SetSize(142, 24)
 
-    local previewAll = W.Button(sicons, "Show All", 118)
+    local previewAll = W.Button(sicons, "Show all", 112)
     previewAll:SetScript("OnClick", function()
         local gf = GF()
+        M.gfStatusPreviewMode = "all"
+        if gf and gf.SetPreviewFocus then gf.SetPreviewFocus("sicons") end
         if gf and gf.SetStatusPreviewMode then gf.SetStatusPreviewMode("all") end
-        QueueGF(CurrentScope(), "visual")
+        if RefreshGFPreview then RefreshGFPreview() end
     end)
     previewAll:ClearAllPoints()
     previewAll:SetPoint("LEFT", previewCurrent, "RIGHT", 10, 0)
-    previewAll:SetSize(118, 24)
+    previewAll:SetSize(112, 24)
 
     local statusReset = W.Button(sicons, "Reset selected", 160)
     statusReset:SetScript("OnClick", function()
@@ -360,7 +389,7 @@ local function BuildGFIndicators(ctx)
         end)
     W.MoveWidget(statusLayer, sicons, siconRightX, -394, siconRightW, "LEFT")
 
-    M.AddRefresher(ctx, function()
+    local function RefreshStatusIconState()
         local spec = CurrentGFStatusSpec()
         local enabled = Bool(CurrentScope(), spec.enabled, true)
         SetOptionEnabled(statusSize, enabled)
@@ -372,7 +401,21 @@ local function BuildGFIndicators(ctx)
         SetOptionEnabled(previewCurrent, spec ~= nil)
         SetOptionEnabled(previewAll, true)
         SetOptionEnabled(midnightStyle, true)
-    end)
+        local isRoleIcon = spec.value == "roleIcon"
+        roleFilterGroup:SetShown(isRoleIcon)
+        if isRoleIcon then
+            SetOptionEnabled(rfTank,   enabled)
+            SetOptionEnabled(rfHealer, enabled)
+            SetOptionEnabled(rfDPS,    enabled)
+        end
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(sicons, nil) end
+    end
+    M.AddRefresher(ctx, RefreshStatusIconState)
+    RefreshStatusIconState()
+    do
+        local entry = sicons and sicons._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshStatusIconState end
+    end
 
     local spells = b:CollapsibleSection("si", Tr("Spell Indicators"), 824, false)
     local siW = spells._msuf2Width or ctx.width or 720
@@ -618,7 +661,7 @@ local function BuildGFIndicators(ctx)
             tile:SetScript("OnEnter", function(self)
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:AddLine(info.display or info.name, 1, 1, 1)
-                if info.secret then GameTooltip:AddLine(Tr("Secret aura (name-matched)"), 0.72, 0.62, 0.95) end
+                if info.secret then GameTooltip:AddLine(Tr("Secret aura (name/fingerprint matched)"), 0.72, 0.62, 0.95) end
                 GameTooltip:AddLine(Tr("Left-click to configure"), 0.75, 0.78, 0.86)
                 GameTooltip:AddLine(Tr("Right-click to toggle"), 0.55, 0.82, 0.55)
                 GameTooltip:AddLine(Tr("Drag to reorder"), 0.55, 0.70, 0.95)
@@ -692,6 +735,7 @@ local function BuildGFIndicators(ctx)
                 else
                     M.gfSpellIndicatorSelection = M.gfSpellIndicatorSelection or {}
                     M.gfSpellIndicatorSelection[currentKind] = self._auraName
+                    if RefreshGFPreview then RefreshGFPreview() end
                 end
                 if M.SelectPage then M.SelectPage(ctx.key) end
             end)
@@ -706,6 +750,7 @@ local function BuildGFIndicators(ctx)
         function(value)
             M.gfSpellIndicatorSelection = M.gfSpellIndicatorSelection or {}
             M.gfSpellIndicatorSelection[CurrentScope()] = value
+            if RefreshGFPreview then RefreshGFPreview() end
             if M.SelectPage then M.SelectPage(ctx.key) end
         end)
     W.MoveWidget(auraDrop, spells, siRightX, -228, siRightW, "LEFT")
@@ -960,7 +1005,7 @@ local function BuildGFIndicators(ctx)
         end)
     W.MoveWidget(placedCooldownSize, spells, siRightX, -754, siRightW, "LEFT")
 
-    M.AddRefresher(ctx, function()
+    local function RefreshSpellIndicatorState()
         EnsureSpellDefaults(CurrentScope(), EffectiveSpellSpec(CurrentScope()))
         RefreshSpellTiles()
         local multi = SpellIndicators(CurrentScope()).spec == "multi"
@@ -996,7 +1041,14 @@ local function BuildGFIndicators(ctx)
         SetOptionEnabled(framePriority, hasFrame)
         SetOptionEnabled(frameAlpha, hasFrame and (frameKind == "healthtint" or frameKind == "pulse"))
         SetOptionEnabled(frameThickness, hasFrame and (frameKind == "border" or frameKind == "glow"))
-    end)
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(spells, nil) end
+    end
+    M.AddRefresher(ctx, RefreshSpellIndicatorState)
+    RefreshSpellIndicatorState()
+    do
+        local entry = spells and spells._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshSpellIndicatorState end
+    end
 
     local corners = b:CollapsibleSection("ci", "Corner Indicators", 620, false)
     local cornerW = corners._msuf2Width or ctx.width or 720
@@ -1131,7 +1183,7 @@ local function BuildGFIndicators(ctx)
     local customHelp = W.Text(corners, "Tip: HELPFUL|PLAYER and HARMFUL|PLAYER are the safest filters because WoW exposes your own spell IDs reliably.", rightX, -506, rightW, T.colors.dim)
     if customHelp.SetWordWrap then customHelp:SetWordWrap(true) end
 
-    M.AddRefresher(ctx, function()
+    local function RefreshCornerIndicatorState()
         local slot = CurrentCISlot()
         local category = Val(CurrentScope(), "ciSlot" .. slot, CI_SLOT_DEFAULTS[slot] or "none")
         local showCustom = category == "custom"
@@ -1155,7 +1207,14 @@ local function BuildGFIndicators(ctx)
             customStatus:SetText(M.Format("%s is set to %s. Set Selected Slot Indicator to Custom Spell to activate this editor.", slotLabel, tostring(category or "none")))
             customStatus:SetTextColor(T.colors.dim[1], T.colors.dim[2], T.colors.dim[3], 0.90)
         end
-    end)
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(corners, nil) end
+    end
+    M.AddRefresher(ctx, RefreshCornerIndicatorState)
+    RefreshCornerIndicatorState()
+    do
+        local entry = corners and corners._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshCornerIndicatorState end
+    end
 
     if type(ApplyScopeEnabledGate) == "function" then
         M.AddRefresher(ctx, function() ApplyScopeEnabledGate(ctx) end)

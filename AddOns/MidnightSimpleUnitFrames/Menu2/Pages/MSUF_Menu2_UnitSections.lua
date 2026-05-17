@@ -38,6 +38,15 @@ local UF_COPY_CATEGORIES = UP.UF_COPY_CATEGORIES or {}
 
 local TOT_INLINE_CUSTOM_SEPARATOR = "__CUSTOM__"
 local TOT_INLINE_CUSTOM_SEPARATOR_MAX = 5
+local WARNING_HINT = { 0.90, 0.84, 0.76, 1 }
+local WARNING_BG = { 0.105, 0.082, 0.052, 0.44 }
+local WARNING_ARROW = { 0.88, 0.62, 0.22, 1 }
+local WARNING_NOTICE_BG = { 0.105, 0.082, 0.052, 0.34 }
+local WARNING_NOTICE_TOP = { 0.48, 0.36, 0.20, 0.55 }
+local WARNING_NOTICE_BOTTOM = { 0.28, 0.21, 0.12, 0.48 }
+local WARNING_BADGE_FILL = { 0.205, 0.148, 0.080, 0.96 }
+local WARNING_BADGE_EDGE = { 0.52, 0.39, 0.18, 0.78 }
+local WARNING_HEADER_BG = { 0.096, 0.078, 0.050, 0.56 }
 local TOT_INLINE_SEPARATOR_VALUES = {}
 local TOT_INLINE_SEPARATOR_OPTIONS = {}
 for i = 1, #SEPARATORS do
@@ -175,13 +184,123 @@ local function ApplyUnitFrameEnabledGate(ctx, unit)
     end)
 end
 
+local function SetSectionHeaderStatus(sec, opts)
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if not entry then return end
+
+    T.ApplyCollapseVisual(entry.arrow, entry.hint, entry.open)
+
+    if entry.headerBg and entry.headerBg.SetColorTexture then
+        entry.headerBg:SetColorTexture(0.060, 0.070, 0.130, 0.48)
+    end
+    if entry.label and entry.label.SetTextColor and T and T.colors and T.colors.text then
+        local c = T.colors.text
+        entry.label:SetTextColor(c[1], c[2], c[3], c[4] or 1)
+    end
+
+    opts = opts or {}
+    if opts.bg and entry.headerBg and entry.headerBg.SetColorTexture then
+        local bg = opts.bg
+        entry.headerBg:SetColorTexture(bg[1] or 0.060, bg[2] or 0.070, bg[3] or 0.130, bg[4] or 0.48)
+    end
+    if opts.labelColor and entry.label and entry.label.SetTextColor then
+        local c = opts.labelColor
+        entry.label:SetTextColor(c[1] or 1, c[2] or 1, c[3] or 1, c[4] or 1)
+    end
+    if opts.arrowColor and entry.arrow and entry.arrow.SetVertexColor then
+        local c = opts.arrowColor
+        entry.arrow:SetVertexColor(c[1] or 1, c[2] or 1, c[3] or 1, c[4] or 1)
+    end
+    if entry.hint and entry.hint.SetText then
+        if opts.hint ~= nil then
+            entry.hint:SetText(opts.hint)
+            if opts.hintColor and entry.hint.SetTextColor then
+                local c = opts.hintColor
+                entry.hint:SetTextColor(c[1] or 1, c[2] or 1, c[3] or 1, c[4] or 1)
+            end
+        else
+            entry.hint:SetText(entry.open and "" or M.Tr("click to expand"))
+        end
+    end
+end
+
+local function CreateSectionNotice(sec, topY, buttonLabel, buttonWidth)
+    local notice = CreateFrame("Frame", nil, sec)
+    notice:SetPoint("TOPLEFT", sec, "TOPLEFT", 14, topY)
+    notice:SetPoint("TOPRIGHT", sec, "TOPRIGHT", -14, topY)
+    notice:SetHeight(24)
+    notice._msuf2UnitFrameGateAlwaysEnabled = true
+
+    local bg = notice:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(0.018, 0.040, 0.088, 0.30)
+    local top = notice:CreateTexture(nil, "BORDER")
+    top:SetPoint("TOPLEFT", notice, "TOPLEFT", 0, 0)
+    top:SetPoint("TOPRIGHT", notice, "TOPRIGHT", 0, 0)
+    top:SetHeight(1)
+    top:SetColorTexture(0.16, 0.34, 0.66, 0.55)
+    local bottom = notice:CreateTexture(nil, "BORDER")
+    bottom:SetPoint("BOTTOMLEFT", notice, "BOTTOMLEFT", 0, 0)
+    bottom:SetPoint("BOTTOMRIGHT", notice, "BOTTOMRIGHT", 0, 0)
+    bottom:SetHeight(1)
+    bottom:SetColorTexture(0.10, 0.20, 0.38, 0.48)
+
+    local text = T.Font(notice, "GameFontDisableSmall", "", T.colors.dim)
+    text:SetPoint("LEFT", notice, "LEFT", 10, 0)
+    text:SetJustifyH("LEFT")
+
+    local button
+    if buttonLabel and buttonLabel ~= "" then
+        button = (W.StyleTopActionButton and W.StyleTopActionButton(T.Button(notice, buttonLabel, buttonWidth or 92, 20))) or T.Button(notice, buttonLabel, buttonWidth or 92, 20)
+        button:SetPoint("RIGHT", notice, "RIGHT", -2, 0)
+        button._msuf2UnitFrameGateAlwaysEnabled = true
+        text:SetPoint("RIGHT", notice, "RIGHT", -(buttonWidth or 92) - 18, 0)
+    else
+        text:SetPoint("RIGHT", notice, "RIGHT", -10, 0)
+    end
+
+    function notice:SetTone(kind)
+        if kind == "warning" then
+            bg:SetColorTexture(WARNING_NOTICE_BG[1], WARNING_NOTICE_BG[2], WARNING_NOTICE_BG[3], WARNING_NOTICE_BG[4])
+            top:SetColorTexture(WARNING_NOTICE_TOP[1], WARNING_NOTICE_TOP[2], WARNING_NOTICE_TOP[3], WARNING_NOTICE_TOP[4])
+            bottom:SetColorTexture(WARNING_NOTICE_BOTTOM[1], WARNING_NOTICE_BOTTOM[2], WARNING_NOTICE_BOTTOM[3], WARNING_NOTICE_BOTTOM[4])
+            if text.SetTextColor then text:SetTextColor(WARNING_HINT[1], WARNING_HINT[2], WARNING_HINT[3], WARNING_HINT[4]) end
+        else
+            bg:SetColorTexture(0.018, 0.040, 0.088, 0.30)
+            top:SetColorTexture(0.16, 0.34, 0.66, 0.55)
+            bottom:SetColorTexture(0.10, 0.20, 0.38, 0.48)
+            if text.SetTextColor then text:SetTextColor(T.colors.dim[1], T.colors.dim[2], T.colors.dim[3], T.colors.dim[4] or 1) end
+        end
+    end
+
+    function notice:SetMessage(message, tone)
+        self:SetTone(tone)
+        text:SetText(tostring(message or ""))
+    end
+
+    notice:Hide()
+    return notice, text, button
+end
+
 local function BuildPreview(ctx, builder, unit)
-    local sec = builder:CollapsibleSection("preview", "Hide Preview", 352, true)
+    local sec = builder:CollapsibleSection("preview", "Hide Preview", 378, true)
     if W.SetCollapsibleToggleText then W.SetCollapsibleToggleText(sec, "Hide Preview", "Show Preview") end
+
+    local previewNote = "Preview updates live here. Use MSUF Edit Mode to drag and place frames."
+    if unit == "pet" then
+        previewNote = previewNote .. " Pet frames only appear in game while you have an active pet."
+    elseif unit == "focus" then
+        previewNote = previewNote .. " Focus frames only appear when a focus unit exists."
+    elseif unit == "targettarget" then
+        previewNote = previewNote .. " Target of Target only appears when your target has a target."
+    elseif unit == "boss" then
+        previewNote = previewNote .. " Boss frames only appear during encounters with boss units."
+    end
+    W.Text(sec, previewNote, 14, -38, ctx.width - 28, T.colors.muted)
 
     local createPreview = ns.MSUF_Menu2_CreateUnitPreviewBox or _G.MSUF_Menu2_CreateUnitPreviewBox
     if not createPreview then
-        W.Text(sec, "The shared unit preview module is not loaded.", 14, -42, ctx.width - 28, T.colors.muted)
+        W.Text(sec, "The shared unit preview module is not loaded.", 14, -70, ctx.width - 28, T.colors.muted)
         return
     end
 
@@ -201,8 +320,8 @@ local function BuildPreview(ctx, builder, unit)
     }
     panel._msufOpenUnitSection = function() end
 
-    local box = createPreview(sec, panel, ctx.width - 28, 300)
-    box:SetPoint("TOPLEFT", sec, "TOPLEFT", 14, -38)
+    local box = createPreview(sec, panel, ctx.width - 28, 292)
+    box:SetPoint("TOPLEFT", sec, "TOPLEFT", 14, -70)
     box:Show()
     if box.title and box.title.SetTextColor then
         local c = T.colors.accent
@@ -239,16 +358,27 @@ local function BuildPreview(ctx, builder, unit)
         end)
     end
 
-    M.AddRefresher(ctx, function()
+    local function RefreshPreviewState()
+        SetSectionHeaderStatus(sec, nil)
         if box:IsShown() then RefreshThisPreview("MSUF2_UNIT_PAGE") end
-    end)
+    end
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if entry then entry._msuf2RefreshState = RefreshPreviewState end
+    M.AddRefresher(ctx, RefreshPreviewState)
+    RefreshPreviewState()
+    if W and W.AttachPinnedPreview then
+        W.AttachPinnedPreview(sec, box, { stateKey = "unitFramePreview", title = box.title, hint = box.hint, left = 14, right = 14, top = -8 })
+    end
 end
 
 local function BuildTopActions(ctx, builder, unit, label)
+    local compactTop = (tonumber(builder.width) or 0) < 600
+    local sectionH = compactTop and 72 or 30
     local sec = CreateFrame("Frame", nil, builder.parent)
     sec:SetPoint("TOPLEFT", builder.parent, "TOPLEFT", builder.x, builder.y)
-    sec:SetSize(builder.width, 30)
-    builder.y = builder.y - 38
+    sec:SetSize(builder.width, sectionH)
+    sec._msuf2Width = builder.width
+    builder.y = builder.y - sectionH - 8
     if ctx.SetContentHeight then ctx:SetContentHeight(math.abs(builder.y) + 28) end
 
     local line = sec:CreateTexture(nil, "ARTWORK")
@@ -340,7 +470,7 @@ local function BuildTopActions(ctx, builder, unit, label)
     end
 
     local editing = T.Font(sec, "GameFontNormalSmall", "Editing:", { 0.72, 0.82, 1.00, 1 })
-    editing:SetPoint("LEFT", sec, "LEFT", 8, 2)
+    editing:SetPoint("TOPLEFT", sec, "TOPLEFT", 8, compactTop and -15 or -6)
 
     local unitPill = MakeTopButton(sec, UnitTopLabel(unit), UnitTopPillWidth(unit), true, {
         bg = { 0.030, 0.045, 0.092, 0.94 },
@@ -352,16 +482,17 @@ local function BuildTopActions(ctx, builder, unit, label)
         activeBorder = { 0.205, 0.390, 0.820, 0.92 },
         activeTextColor = { 0.94, 0.98, 1.00, 1 },
     })
-    unitPill:SetPoint("LEFT", editing, "RIGHT", 8, 2)
+    unitPill:SetPoint("LEFT", editing, "RIGHT", 8, 0)
     unitPill:EnableMouse(false)
 
-    local copy = MakeTopButton(sec, "Copy To", 86, false, TOP_ACTION_STYLE)
-    copy:SetPoint("RIGHT", sec, "RIGHT", -8, 2)
+    local actionY = compactTop and -42 or -2
+    local copy = MakeTopButton(sec, "Copy To", compactTop and 82 or 86, false, TOP_ACTION_STYLE)
+    copy:SetPoint("TOPRIGHT", sec, "TOPRIGHT", -8, actionY)
 
-    local edit = MakeTopButton(sec, "MSUF Edit Mode", 128, false, TOP_ACTION_STYLE)
+    local edit = MakeTopButton(sec, "MSUF Edit Mode", compactTop and 118 or 128, false, TOP_ACTION_STYLE)
     edit:SetPoint("RIGHT", copy, "LEFT", -8, 0)
     if W.CreatePageResetButton then
-        W.CreatePageResetButton(ctx, sec, edit, { width = 88 })
+        W.CreatePageResetButton(ctx, sec, edit, { width = compactTop and 84 or 88 })
     end
 
     local function RefreshEditButton()
@@ -587,7 +718,7 @@ local function BuildTopActions(ctx, builder, unit, label)
 end
 
 local function BuildBasics(ctx, builder, unit, label)
-    local sec = builder:CollapsibleSection("frame_basics", "Frame Basics", 72, false)
+    local sec = builder:CollapsibleSection("frame_basics", "Frame Basics", 104, false)
     local sectionW = (sec and sec._msuf2Width) or (ctx and ctx.width) or 720
     local gap = 24
     local colW = math.floor((sectionW - 28 - (gap * 2)) / 3)
@@ -617,11 +748,120 @@ local function BuildBasics(ctx, builder, unit, label)
         function() return ReadBool(unit, "smoothFill", true) end,
         function(v) SetBool(unit, "smoothFill", v, "MSUF2_SMOOTH_FILL", { preview = true }) end)
 
+    local sectionEntry = sec and sec._msuf2CollapsibleEntry
+    local badge
+    local badgeFill
+    local badgeEdge
+    local badgeLabel
+    if sectionEntry and sectionEntry.header then
+        sectionEntry._msuf2ManualHintLayout = true
+        badge = CreateFrame("Frame", nil, sectionEntry.header)
+        badge:SetSize(116, 18)
+        badgeFill, badgeEdge = T.CreateSuperellipseLayers(badge, "_msuf2DisabledBadge", 1, "ARTWORK", "ARTWORK")
+        badgeLabel = T.Font(badge, "GameFontDisableSmall", "Frame disabled", { 1.00, 0.86, 0.74, 1 })
+        badgeLabel:SetPoint("CENTER", badge, "CENTER", 0, 0)
+        badgeLabel:SetWidth(104)
+        badgeLabel:SetJustifyH("CENTER")
+        badge:Hide()
+
+        if sectionEntry.hint then
+            sectionEntry.hint:ClearAllPoints()
+            sectionEntry.hint:SetPoint("RIGHT", sectionEntry.header, "RIGHT", -12, 0)
+            sectionEntry.hint:SetWidth(110)
+            sectionEntry.hint:SetJustifyH("RIGHT")
+        end
+        badge:SetPoint("RIGHT", sectionEntry.hint, "LEFT", -8, 0)
+        if sectionEntry.label then
+            sectionEntry.label:ClearAllPoints()
+            sectionEntry.label:SetPoint("LEFT", sectionEntry.arrow, "RIGHT", 6, 0)
+            sectionEntry.label:SetPoint("RIGHT", badge, "LEFT", -10, 0)
+            sectionEntry.label:SetJustifyH("LEFT")
+        end
+    end
+
+    local notice = CreateFrame("Frame", nil, sec)
+    notice:SetPoint("TOPLEFT", sec, "TOPLEFT", 14, -70)
+    notice:SetPoint("TOPRIGHT", sec, "TOPRIGHT", -14, -70)
+    notice:SetHeight(24)
+    notice._msuf2UnitFrameGateAlwaysEnabled = true
+    local noticeBg = notice:CreateTexture(nil, "BACKGROUND")
+    noticeBg:SetAllPoints()
+    noticeBg:SetColorTexture(WARNING_NOTICE_BG[1], WARNING_NOTICE_BG[2], WARNING_NOTICE_BG[3], WARNING_NOTICE_BG[4])
+    local noticeEdge = notice:CreateTexture(nil, "BORDER")
+    noticeEdge:SetPoint("TOPLEFT", notice, "TOPLEFT", 0, 0)
+    noticeEdge:SetPoint("TOPRIGHT", notice, "TOPRIGHT", 0, 0)
+    noticeEdge:SetHeight(1)
+    noticeEdge:SetColorTexture(WARNING_NOTICE_TOP[1], WARNING_NOTICE_TOP[2], WARNING_NOTICE_TOP[3], WARNING_NOTICE_TOP[4])
+    local noticeBottom = notice:CreateTexture(nil, "BORDER")
+    noticeBottom:SetPoint("BOTTOMLEFT", notice, "BOTTOMLEFT", 0, 0)
+    noticeBottom:SetPoint("BOTTOMRIGHT", notice, "BOTTOMRIGHT", 0, 0)
+    noticeBottom:SetHeight(1)
+    noticeBottom:SetColorTexture(WARNING_NOTICE_BOTTOM[1], WARNING_NOTICE_BOTTOM[2], WARNING_NOTICE_BOTTOM[3], WARNING_NOTICE_BOTTOM[4])
+
+    local unitLabel = label or UnitTopLabel(unit)
+    local noticeText = T.Font(notice, "GameFontDisableSmall", "", { 0.92, 0.82, 0.72, 1 })
+    noticeText:SetPoint("LEFT", notice, "LEFT", 10, 0)
+    noticeText:SetPoint("RIGHT", notice, "RIGHT", -122, 0)
+    noticeText:SetJustifyH("LEFT")
+    noticeText:SetText(unitLabel .. " frame is disabled and will not appear.")
+
+    local enableNow = W.StyleTopActionButton and W.StyleTopActionButton(T.Button(notice, "Enable", 92, 20)) or T.Button(notice, "Enable", 92, 20)
+    enableNow:SetPoint("RIGHT", notice, "RIGHT", -2, 0)
+    enableNow._msuf2UnitFrameGateAlwaysEnabled = true
+    enableNow:SetScript("OnClick", function()
+        SetBool(unit, "enabled", true, "MSUF2_FRAME_ENABLED", { preview = true })
+        if M.Refresh then M.Refresh(ctx) end
+    end)
+    notice:Hide()
+
+    local function RefreshBasicsState()
+        if not sectionEntry then return end
+        T.ApplyCollapseVisual(sectionEntry.arrow, sectionEntry.hint, sectionEntry.open)
+
+        local on = ReadBool(unit, "enabled", true)
+        if sectionEntry.headerBg then
+            if on then
+                sectionEntry.headerBg:SetColorTexture(0.060, 0.070, 0.130, 0.48)
+            else
+                sectionEntry.headerBg:SetColorTexture(WARNING_HEADER_BG[1], WARNING_HEADER_BG[2], WARNING_HEADER_BG[3], WARNING_HEADER_BG[4])
+            end
+        end
+        if sectionEntry.label and sectionEntry.label.SetTextColor then
+            if on then
+                sectionEntry.label:SetTextColor(T.colors.text[1], T.colors.text[2], T.colors.text[3], T.colors.text[4] or 1)
+            else
+                sectionEntry.label:SetTextColor(0.92, 0.88, 0.82, 1)
+            end
+        end
+        if badge then
+            badge:SetShown(not on)
+            if not on and badgeFill and badgeEdge then
+                badgeFill:SetVertexColor(WARNING_BADGE_FILL[1], WARNING_BADGE_FILL[2], WARNING_BADGE_FILL[3], WARNING_BADGE_FILL[4])
+                badgeEdge:SetVertexColor(WARNING_BADGE_EDGE[1], WARNING_BADGE_EDGE[2], WARNING_BADGE_EDGE[3], WARNING_BADGE_EDGE[4])
+            end
+        end
+        if sectionEntry.hint then
+            if on then
+                sectionEntry.hint:SetText(sectionEntry.open and "" or M.Tr("click to expand"))
+                sectionEntry.hint:SetTextColor(0.45, 0.52, 0.65, 1)
+            else
+                sectionEntry.hint:SetText(M.Tr("OFF"))
+                sectionEntry.hint:SetTextColor(WARNING_HINT[1], WARNING_HINT[2], WARNING_HINT[3], WARNING_HINT[4])
+            end
+        end
+        if sectionEntry.arrow and sectionEntry.arrow.SetVertexColor and not on then
+                sectionEntry.arrow:SetVertexColor(WARNING_ARROW[1], WARNING_ARROW[2], WARNING_ARROW[3], WARNING_ARROW[4])
+        end
+    end
+    if sectionEntry then sectionEntry._msuf2RefreshState = RefreshBasicsState end
+
     local function RefreshBasicsEnabled()
         local on = ReadBool(unit, "enabled", true)
         SetControlEnabled(enable, true)
         SetControlEnabled(reverse, on)
         SetControlEnabled(smooth, on)
+        notice:SetShown(not on)
+        RefreshBasicsState()
     end
     M.AddRefresher(ctx, RefreshBasicsEnabled)
     RefreshBasicsEnabled()
@@ -723,16 +963,21 @@ local function BuildLayout(ctx, builder, unit)
     current:SetPoint("RIGHT", sec, "RIGHT", -14, 0)
     current:SetJustifyH("LEFT")
 
-    M.AddRefresher(ctx, function()
+    local function RefreshLayoutState()
         local conf = GetConf(unit)
         local custom = (type(conf.anchorFrameName) == "string" and conf.anchorFrameName) or ""
         current:SetText("Current custom anchor: " .. (custom ~= "" and custom or "none"))
         if anchorTo.SetValue then anchorTo:SetValue(AnchorValue()) end
-    end)
+        SetSectionHeaderStatus(sec, nil)
+    end
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if entry then entry._msuf2RefreshState = RefreshLayoutState end
+    M.AddRefresher(ctx, RefreshLayoutState)
+    RefreshLayoutState()
 end
 
 local function BuildText(ctx, builder, unit)
-    local sec = builder:CollapsibleSection("text", "Text", 560, false)
+    local sec = builder:CollapsibleSection("text", "Text", 760, false)
     local sectionW = (sec and sec._msuf2Width) or (ctx and ctx.width) or 720
     local leftX = 24
     local rightX = math.max(430, floor(sectionW * 0.52))
@@ -771,6 +1016,38 @@ local function BuildText(ctx, builder, unit)
         if key ~= "name" and key ~= "hp" and key ~= "power" and key ~= "advanced" then key = "name" end
         return key
     end
+    M.unitTextSlotSelection = M.unitTextSlotSelection or {}
+    M.unitTextMoveTogether = M.unitTextMoveTogether or {}
+    local function CurrentSlot(kind)
+        local unitSlots = M.unitTextSlotSelection[unit]
+        local slot = unitSlots and unitSlots[kind] or "center"
+        if slot ~= "left" and slot ~= "center" and slot ~= "right" then slot = "center" end
+        return slot
+    end
+    local function SetCurrentSlot(kind, slot)
+        M.unitTextSlotSelection[unit] = M.unitTextSlotSelection[unit] or {}
+        M.unitTextSlotSelection[unit][kind] = slot or "center"
+    end
+    local function SlotOffsetKeys(kind)
+        local slot = CurrentSlot(kind)
+        local prefix
+        if kind == "hp" then
+            prefix = (slot == "left" and "hpTextLeft") or (slot == "right" and "hpTextRight") or "hpTextCenter"
+        else
+            prefix = (slot == "left" and "powerTextLeft") or (slot == "right" and "powerTextRight") or "powerTextCenter"
+        end
+        return prefix .. "OffsetX", prefix .. "OffsetY"
+    end
+    local function MoveTogether(kind)
+        local byUnit = M.unitTextMoveTogether[unit]
+        local value = byUnit and byUnit[kind]
+        if value == nil then return true end
+        return value == true
+    end
+    local function SetMoveTogether(kind, value)
+        M.unitTextMoveTogether[unit] = M.unitTextMoveTogether[unit] or {}
+        M.unitTextMoveTogether[unit][kind] = value ~= false
+    end
 
     local tabs = W.Segment(sec, "Text area", tabValues, math.min(520, sectionW - 48))
     W.MoveWidget(tabs, sec, 20, -68, math.min(520, sectionW - 48), "LEFT")
@@ -803,6 +1080,12 @@ local function BuildText(ctx, builder, unit)
         local fs = T.Font(parent, "GameFontNormalSmall", text, T.colors.accent)
         fs:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
         return fs
+    end
+
+    local function ReadSlot(unitKey, slotKey, legacyKey, fallback)
+        local value = ReadText(unitKey, slotKey, nil)
+        if value == nil or value == "" then value = ReadText(unitKey, legacyKey, fallback) end
+        return value or fallback
     end
 
     local function EffectiveTextSize(unitKey, generalKey)
@@ -878,25 +1161,31 @@ local function BuildText(ctx, builder, unit)
         end)
 
     SectionLabel(hpTab, "Content", leftX, -82)
-    local hpMode = W.Dropdown(hpTab, "Pattern", HP_MODES, 260)
-    PlaceDropdown(hpTab, hpMode, leftX, -112, dropdownW)
-    M.BindDropdown(ctx, hpMode,
-        function() return ReadText(unit, "hpTextMode", "CURPERCENT") end,
-        function(v) SetText(unit, "hpTextMode", v or "CURPERCENT", "MSUF2_HP_MODE") end)
+    local hpLeft = W.Dropdown(hpTab, "Left", HP_MODES, 260)
+    PlaceDropdown(hpTab, hpLeft, leftX, -112, dropdownW)
+    M.BindDropdown(ctx, hpLeft,
+        function() return ReadSlot(unit, "textLeft", "hpTextMode", "NONE") end,
+        function(v) SetText(unit, "textLeft", v or "NONE", "MSUF2_HP_LEFT") end)
 
-    local hpAnchor = W.Dropdown(hpTab, "Anchor", TEXT_ANCHORS, 210)
-    PlaceDropdown(hpTab, hpAnchor, leftX, -166, smallDropdownW)
-    M.BindDropdown(ctx, hpAnchor,
-        function() return ReadText(unit, "hpTextAnchor", "RIGHT") end,
-        function(v) SetText(unit, "hpTextAnchor", v or "RIGHT", "MSUF2_HP_ANCHOR") end)
+    local hpCenter = W.Dropdown(hpTab, "Center", HP_MODES, 260)
+    PlaceDropdown(hpTab, hpCenter, leftX, -166, dropdownW)
+    M.BindDropdown(ctx, hpCenter,
+        function() return ReadSlot(unit, "textCenter", "hpTextMode", "NONE") end,
+        function(v) SetText(unit, "textCenter", v or "NONE", "MSUF2_HP_CENTER") end)
+
+    local hpRight = W.Dropdown(hpTab, "Right", HP_MODES, 260)
+    PlaceDropdown(hpTab, hpRight, leftX, -220, dropdownW)
+    M.BindDropdown(ctx, hpRight,
+        function() return ReadSlot(unit, "textRight", "hpTextMode", "CURPERCENT") end,
+        function(v) SetText(unit, "textRight", v or "NONE", "MSUF2_HP_RIGHT") end)
 
     local hpSep = W.Dropdown(hpTab, "Delimiter", SEPARATORS, 160)
-    PlaceDropdown(hpTab, hpSep, leftX, -220, smallDropdownW)
+    PlaceDropdown(hpTab, hpSep, leftX, -274, smallDropdownW)
     M.BindDropdown(ctx, hpSep,
         function() return ReadText(unit, "hpTextSeparator", "") end,
         function(v) SetText(unit, "hpTextSeparator", v or "", "MSUF2_HP_SEPARATOR") end)
 
-    local hpReverse = W.ToggleAt(hpTab, "Reverse order", leftX, -274, colW - 60)
+    local hpReverse = W.ToggleAt(hpTab, "Reverse order", leftX, -328, colW - 60)
     M.BindToggle(ctx, hpReverse,
         function() return ReadText(unit, "hpTextReverse", false) == true end,
         function(v) SetText(unit, "hpTextReverse", v and true or false, "MSUF2_HP_REVERSE") end)
@@ -914,9 +1203,55 @@ local function BuildText(ctx, builder, unit)
         function() return ReadNumber(unit, "hpOffsetY", -4) end,
         function(v) SetNumber(unit, "hpOffsetY", v, "MSUF2_HP_Y", { text = true, preview = true }) end)
 
-    SectionLabel(hpTab, "Appearance", rightX, -252)
+    SectionLabel(hpTab, "Selected Slot", rightX, -232)
+    local hpMoveTogether = W.ToggleAt(hpTab, "Move text as one group", rightX, -262, rightSliderW)
+    M.BindToggle(ctx, hpMoveTogether,
+        function() return MoveTogether("hp") end,
+        function(v)
+            SetMoveTogether("hp", v)
+            Call("MSUF_UFPreview_RequestRefresh", "MSUF2_HP_TEXT_MOVE_MODE")
+            M.Refresh(ctx)
+        end)
+    local hpSlot = W.Segment(hpTab, "Slot", {
+        { value = "left", text = "Left" },
+        { value = "center", text = "Center" },
+        { value = "right", text = "Right" },
+    }, rightSliderW)
+    W.MoveWidget(hpSlot, hpTab, rightX, -304, rightSliderW, "LEFT")
+    M.BindSegment(ctx, hpSlot,
+        function() return CurrentSlot("hp") end,
+        function(v)
+            SetCurrentSlot("hp", v)
+            M.Refresh(ctx)
+        end)
+
+    local hpSlotX = W.Slider(hpTab, "Slot X", -300, 300, 1, 260)
+    PlaceSlider(hpTab, hpSlotX, rightX, -366, rightSliderW)
+    M.BindSlider(ctx, hpSlotX,
+        function()
+            local xKey = SlotOffsetKeys("hp")
+            return ReadNumber(unit, xKey, 0)
+        end,
+        function(v)
+            local xKey = SlotOffsetKeys("hp")
+            SetNumber(unit, xKey, v, "MSUF2_HP_SLOT_X", { text = true, preview = true })
+        end)
+
+    local hpSlotY = W.Slider(hpTab, "Slot Y", -300, 300, 1, 260)
+    PlaceSlider(hpTab, hpSlotY, rightX, -424, rightSliderW)
+    M.BindSlider(ctx, hpSlotY,
+        function()
+            local _, yKey = SlotOffsetKeys("hp")
+            return ReadNumber(unit, yKey, 0)
+        end,
+        function(v)
+            local _, yKey = SlotOffsetKeys("hp")
+            SetNumber(unit, yKey, v, "MSUF2_HP_SLOT_Y", { text = true, preview = true })
+        end)
+
+    SectionLabel(hpTab, "Appearance", rightX, -506)
     local hpSize = W.Slider(hpTab, "Size", 6, 48, 1, 260)
-    PlaceSlider(hpTab, hpSize, rightX, -282, rightSliderW)
+    PlaceSlider(hpTab, hpSize, rightX, -536, rightSliderW)
     M.BindSlider(ctx, hpSize,
         function() return EffectiveTextSize("hpFontSize", "hpFontSize") end,
         function(v) SetNumber(unit, "hpFontSize", v, "MSUF2_HP_SIZE", { text = true, preview = true }); Call("MSUF_UpdateAllFonts_Immediate") end)
@@ -933,20 +1268,26 @@ local function BuildText(ctx, builder, unit)
         end)
 
     SectionLabel(powerTab, "Content", leftX, -82)
-    local pMode = W.Dropdown(powerTab, "Pattern", POWER_MODES, 260)
-    PlaceDropdown(powerTab, pMode, leftX, -112, dropdownW)
-    M.BindDropdown(ctx, pMode,
-        function() return ReadText(unit, "powerTextMode", "CURPERCENT") end,
-        function(v) SetText(unit, "powerTextMode", v or "CURPERCENT", "MSUF2_POWER_TEXT_MODE") end)
+    local pLeft = W.Dropdown(powerTab, "Left", POWER_MODES, 260)
+    PlaceDropdown(powerTab, pLeft, leftX, -112, dropdownW)
+    M.BindDropdown(ctx, pLeft,
+        function() return ReadSlot(unit, "powerTextLeft", "powerTextMode", "NONE") end,
+        function(v) SetText(unit, "powerTextLeft", v or "NONE", "MSUF2_POWER_TEXT_LEFT") end)
 
-    local pAnchor = W.Dropdown(powerTab, "Anchor", TEXT_ANCHORS, 210)
-    PlaceDropdown(powerTab, pAnchor, leftX, -166, smallDropdownW)
-    M.BindDropdown(ctx, pAnchor,
-        function() return ReadText(unit, "powerTextAnchor", "RIGHT") end,
-        function(v) SetText(unit, "powerTextAnchor", v or "RIGHT", "MSUF2_POWER_TEXT_ANCHOR") end)
+    local pCenter = W.Dropdown(powerTab, "Center", POWER_MODES, 260)
+    PlaceDropdown(powerTab, pCenter, leftX, -166, dropdownW)
+    M.BindDropdown(ctx, pCenter,
+        function() return ReadSlot(unit, "powerTextCenter", "powerTextMode", "NONE") end,
+        function(v) SetText(unit, "powerTextCenter", v or "NONE", "MSUF2_POWER_TEXT_CENTER") end)
+
+    local pRight = W.Dropdown(powerTab, "Right", POWER_MODES, 260)
+    PlaceDropdown(powerTab, pRight, leftX, -220, dropdownW)
+    M.BindDropdown(ctx, pRight,
+        function() return ReadSlot(unit, "powerTextRight", "powerTextMode", "CURPERCENT") end,
+        function(v) SetText(unit, "powerTextRight", v or "NONE", "MSUF2_POWER_TEXT_RIGHT") end)
 
     local pSep = W.Dropdown(powerTab, "Delimiter", SEPARATORS, 160)
-    PlaceDropdown(powerTab, pSep, leftX, -220, smallDropdownW)
+    PlaceDropdown(powerTab, pSep, leftX, -274, smallDropdownW)
     M.BindDropdown(ctx, pSep,
         function() return ReadText(unit, "powerTextSeparator", ReadText(unit, "hpTextSeparator", "")) end,
         function(v) SetText(unit, "powerTextSeparator", v or "", "MSUF2_POWER_TEXT_SEPARATOR") end)
@@ -964,9 +1305,55 @@ local function BuildText(ctx, builder, unit)
         function() return ReadNumber(unit, "powerOffsetY", 4) end,
         function(v) SetNumber(unit, "powerOffsetY", v, "MSUF2_POWER_Y", { text = true, preview = true }) end)
 
-    SectionLabel(powerTab, "Appearance", rightX, -252)
+    SectionLabel(powerTab, "Selected Slot", rightX, -232)
+    local pMoveTogether = W.ToggleAt(powerTab, "Move text as one group", rightX, -262, rightSliderW)
+    M.BindToggle(ctx, pMoveTogether,
+        function() return MoveTogether("power") end,
+        function(v)
+            SetMoveTogether("power", v)
+            Call("MSUF_UFPreview_RequestRefresh", "MSUF2_POWER_TEXT_MOVE_MODE")
+            M.Refresh(ctx)
+        end)
+    local pSlot = W.Segment(powerTab, "Slot", {
+        { value = "left", text = "Left" },
+        { value = "center", text = "Center" },
+        { value = "right", text = "Right" },
+    }, rightSliderW)
+    W.MoveWidget(pSlot, powerTab, rightX, -304, rightSliderW, "LEFT")
+    M.BindSegment(ctx, pSlot,
+        function() return CurrentSlot("power") end,
+        function(v)
+            SetCurrentSlot("power", v)
+            M.Refresh(ctx)
+        end)
+
+    local pSlotX = W.Slider(powerTab, "Slot X", -300, 300, 1, 260)
+    PlaceSlider(powerTab, pSlotX, rightX, -366, rightSliderW)
+    M.BindSlider(ctx, pSlotX,
+        function()
+            local xKey = SlotOffsetKeys("power")
+            return ReadNumber(unit, xKey, 0)
+        end,
+        function(v)
+            local xKey = SlotOffsetKeys("power")
+            SetNumber(unit, xKey, v, "MSUF2_POWER_SLOT_X", { text = true, preview = true })
+        end)
+
+    local pSlotY = W.Slider(powerTab, "Slot Y", -300, 300, 1, 260)
+    PlaceSlider(powerTab, pSlotY, rightX, -424, rightSliderW)
+    M.BindSlider(ctx, pSlotY,
+        function()
+            local _, yKey = SlotOffsetKeys("power")
+            return ReadNumber(unit, yKey, 0)
+        end,
+        function(v)
+            local _, yKey = SlotOffsetKeys("power")
+            SetNumber(unit, yKey, v, "MSUF2_POWER_SLOT_Y", { text = true, preview = true })
+        end)
+
+    SectionLabel(powerTab, "Appearance", rightX, -506)
     local pSize = W.Slider(powerTab, "Size", 6, 48, 1, 260)
-    PlaceSlider(powerTab, pSize, rightX, -282, rightSliderW)
+    PlaceSlider(powerTab, pSize, rightX, -536, rightSliderW)
     M.BindSlider(ctx, pSize,
         function() return EffectiveTextSize("powerFontSize", "powerFontSize") end,
         function(v) SetNumber(unit, "powerFontSize", v, "MSUF2_POWER_TEXT_SIZE", { text = true, preview = true }); Call("MSUF_UpdateAllFonts_Immediate") end)
@@ -993,38 +1380,6 @@ local function BuildText(ctx, builder, unit)
         function() return ReadNumber(unit, "powerTextLayer", 2) end,
         function(v) SetNumber(unit, "powerTextLayer", v, "MSUF2_POWER_TEXT_LAYER_ADV", { text = true, preview = true }); Call("MSUF_UpdateAllFonts_Immediate") end)
 
-    SectionLabel(advancedTab, "Text Spacing", rightX, -4)
-    local spacingHint = W.Text(advancedTab, "Optional split spacing for two-part HP or Power patterns.", rightX, -28, rightW, T.colors.dim)
-    if spacingHint and spacingHint.SetWordWrap then spacingHint:SetWordWrap(true) end
-
-    local hpSpacer = W.ToggleAt(advancedTab, "HP spacer", rightX, -82, rightW)
-    M.BindToggle(ctx, hpSpacer,
-        function() return ReadText(unit, "hpTextSpacerEnabled", false) == true end,
-        function(v)
-            SetText(unit, "hpTextSpacerEnabled", v and true or false, "MSUF2_HP_TEXT_SPACER")
-            if RefreshTextControlState then RefreshTextControlState() end
-        end)
-
-    local hpSpacerX = W.Slider(advancedTab, "HP spacer X", 0, 1000, 1, 260)
-    PlaceSlider(advancedTab, hpSpacerX, rightX, -124, rightSliderW)
-    M.BindSlider(ctx, hpSpacerX,
-        function() return tonumber(ReadText(unit, "hpTextSpacerX", 140)) or 140 end,
-        function(v) SetText(unit, "hpTextSpacerX", floor((tonumber(v) or 140) + 0.5), "MSUF2_HP_TEXT_SPACER_X") end)
-
-    local powerSpacer = W.ToggleAt(advancedTab, "Power spacer", rightX, -198, rightW)
-    M.BindToggle(ctx, powerSpacer,
-        function() return ReadText(unit, "powerTextSpacerEnabled", false) == true end,
-        function(v)
-            SetText(unit, "powerTextSpacerEnabled", v and true or false, "MSUF2_POWER_TEXT_SPACER")
-            if RefreshTextControlState then RefreshTextControlState() end
-        end)
-
-    local powerSpacerX = W.Slider(advancedTab, "Power spacer X", 0, 1000, 1, 260)
-    PlaceSlider(advancedTab, powerSpacerX, rightX, -240, rightSliderW)
-    M.BindSlider(ctx, powerSpacerX,
-        function() return tonumber(ReadText(unit, "powerTextSpacerX", 140)) or 140 end,
-        function(v) SetText(unit, "powerTextSpacerX", floor((tonumber(v) or 140) + 0.5), "MSUF2_POWER_TEXT_SPACER_X") end)
-
     RefreshTextControlState = function()
         local tab = CurrentTextTab()
         for key, frame in pairs(tabFrames) do
@@ -1042,26 +1397,32 @@ local function BuildText(ctx, builder, unit)
         SetControlEnabled(nameY, nameOn)
         SetControlEnabled(advNameLayer, nameOn)
         SetControlEnabled(showHPText, true)
-        SetControlEnabled(hpMode, hpOn)
-        SetControlEnabled(hpAnchor, hpOn)
+        SetControlEnabled(hpLeft, hpOn)
+        SetControlEnabled(hpCenter, hpOn)
+        SetControlEnabled(hpRight, hpOn)
         SetControlEnabled(hpSep, hpOn)
         SetControlEnabled(hpReverse, hpOn)
         SetControlEnabled(hpSize, hpOn)
         SetControlEnabled(hpX, hpOn)
         SetControlEnabled(hpY, hpOn)
+        SetControlEnabled(hpMoveTogether, hpOn)
+        SetControlEnabled(hpSlot, hpOn and not MoveTogether("hp"))
+        SetControlEnabled(hpSlotX, hpOn and not MoveTogether("hp"))
+        SetControlEnabled(hpSlotY, hpOn and not MoveTogether("hp"))
         SetControlEnabled(advHpLayer, hpOn)
-        SetControlEnabled(hpSpacer, hpOn)
-        SetControlEnabled(hpSpacerX, hpOn and ReadText(unit, "hpTextSpacerEnabled", false) == true)
         SetControlEnabled(showPowerText, true)
-        SetControlEnabled(pMode, powerOn)
-        SetControlEnabled(pAnchor, powerOn)
+        SetControlEnabled(pLeft, powerOn)
+        SetControlEnabled(pCenter, powerOn)
+        SetControlEnabled(pRight, powerOn)
         SetControlEnabled(pSep, powerOn)
         SetControlEnabled(pSize, powerOn)
         SetControlEnabled(pX, powerOn)
         SetControlEnabled(pY, powerOn)
+        SetControlEnabled(pMoveTogether, powerOn)
+        SetControlEnabled(pSlot, powerOn and not MoveTogether("power"))
+        SetControlEnabled(pSlotX, powerOn and not MoveTogether("power"))
+        SetControlEnabled(pSlotY, powerOn and not MoveTogether("power"))
         SetControlEnabled(advPowerLayer, powerOn)
-        SetControlEnabled(powerSpacer, powerOn)
-        SetControlEnabled(powerSpacerX, powerOn and ReadText(unit, "powerTextSpacerEnabled", false) == true)
     end
     M.AddRefresher(ctx, RefreshTextControlState)
     RefreshTextControlState()
@@ -1149,7 +1510,7 @@ local function BuildInlineText(ctx, builder, unit)
 end
 
 local function BuildAlpha(ctx, builder, unit)
-    local sec = builder:CollapsibleSection("transparency", "Transparency", 326, false)
+    local sec = builder:CollapsibleSection("transparency", "Transparency", 346, false)
     local sectionW = (sec and sec._msuf2Width) or (ctx and ctx.width) or 720
     local leftX = 32
     local rightX = min(max(430, floor(sectionW * 0.52)), max(360, sectionW - 360))
@@ -1184,7 +1545,7 @@ local function BuildAlpha(ctx, builder, unit)
     end
 
     local inCombat = W.Slider(sec, "Alpha in combat", 0, 1, 0.05, 300)
-    PlaceSlider(inCombat, leftX, -258, sliderW)
+    PlaceSlider(inCombat, leftX, -276, sliderW)
     M.BindSlider(ctx, inCombat,
         function() return ReadAlphaValue(true) end,
         function(v)
@@ -1197,7 +1558,7 @@ local function BuildAlpha(ctx, builder, unit)
         end)
 
     local outCombat = W.Slider(sec, "Alpha out of combat", 0, 1, 0.05, 300)
-    PlaceSlider(outCombat, rightX, -258, sliderW)
+    PlaceSlider(outCombat, rightX, -276, sliderW)
     M.BindSlider(ctx, outCombat,
         function() return ReadAlphaValue(false) end,
         function(v)
@@ -1233,13 +1594,17 @@ local function BuildAlpha(ctx, builder, unit)
     W.MoveWidget(preserve, sec, rightX, -94)
     M.BindToggle(ctx, preserve,
         function() return ReadBool(unit, "alphaPreserveHPColor", false) end,
-        function(v) SetBool(unit, "alphaPreserveHPColor", v, "MSUF2_ALPHA_HP_COLOR", { alpha = true, preview = true }) end)
+        function(v)
+            v = v and true or false
+            SetBool(unit, "alphaPreserveHPColor", v, "MSUF2_ALPHA_HP_COLOR", { alpha = true, preview = true })
+            if M.WarnPreserveHPColorIfNeeded then M.WarnPreserveHPColorIfNeeded(v) end
+        end)
 
     W.DividerAt(sec, -126, leftX, 32)
     local mode = W.Segment(sec, "Sliders affect", {
-        { value = "foreground", text = "Foreground" },
-        { value = "health", text = "Health" },
-        { value = "background", text = "Background" },
+        { value = "foreground", text = "Frame" },
+        { value = "health", text = "HP Bar" },
+        { value = "background", text = "Backdrop" },
     }, 420)
     if mode._msuf2Title then
         mode._msuf2Title:ClearAllPoints()
@@ -1261,8 +1626,10 @@ local function BuildAlpha(ctx, builder, unit)
             btn:SetSize(bw, 22)
         end
     end
-    W.DividerAt(sec, -210, leftX, 32)
-    W.LabelAt(sec, "Alpha Values", leftX, -232, leftW, "GameFontNormalSmall", T.colors.accent)
+    local alphaLayerHint = W.Text(sec, "Frame: all bars & text  ·  HP Bar: health bar only  ·  Backdrop: frame background", leftX, -196, math.min(620, sectionW - leftX - 32), T.colors.dim)
+    if alphaLayerHint and alphaLayerHint.SetWordWrap then alphaLayerHint:SetWordWrap(false) end
+    W.DividerAt(sec, -228, leftX, 32)
+    W.LabelAt(sec, "Alpha Values", leftX, -250, leftW, "GameFontNormalSmall", T.colors.accent)
     M.BindSegment(ctx, mode,
         function() return NormalizeAlphaMode(GetConf(unit).alphaLayerMode) end,
         function(v)
@@ -1380,7 +1747,11 @@ local function BuildPortrait(ctx, builder, unit)
         SetControlEnabled(fillBorder, hasBorder)
         SetControlEnabled(classStyle, classRender)
         SetControlEnabled(portraitBg, active)
+
+        SetSectionHeaderStatus(sec, nil)
     end
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if entry then entry._msuf2RefreshState = RefreshPortraitControls end
     M.AddRefresher(ctx, RefreshPortraitControls)
     RefreshPortraitControls()
 end
@@ -1407,6 +1778,14 @@ local function BuildPower(ctx, builder, unit)
     local function AddDetachedControl(control)
         detachedControls[#detachedControls + 1] = control
         return AddPowerControl(control)
+    end
+
+    local powerNotice, _, powerNoticeButton = CreateSectionNotice(sec, -118, "Show Power", 104)
+    if powerNoticeButton then
+        powerNoticeButton:SetScript("OnClick", function()
+            SetBool(unit, "showPowerBar", true, "MSUF2_POWER_SHOW", { power = true, preview = true })
+            if RefreshPowerEnabled then RefreshPowerEnabled() end
+        end)
     end
 
     local show = W.ToggleAt(sec, "Show power bar", leftX, -42, leftW)
@@ -1535,7 +1914,17 @@ local function BuildPower(ctx, builder, unit)
         for i = 1, #detachedControls do SetControlEnabled(detachedControls[i], detachedOn) end
         SetControlEnabled(borderSize, powerOn and ReadBool(unit, "powerBarBorderEnabled", GetBars().powerBarBorderEnabled == true))
         SetControlEnabled(show, true)
+
+        if not powerOn then
+            powerNotice:SetMessage(UnitTopLabel(unit) .. " power bar is hidden. Turn it on to configure size, embed, or detached settings.", "warning")
+            powerNotice:Show()
+        else
+            powerNotice:Hide()
+        end
+        SetSectionHeaderStatus(sec, nil)
     end
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if entry then entry._msuf2RefreshState = RefreshPowerEnabled end
     M.AddRefresher(ctx, RefreshPowerEnabled)
     RefreshPowerEnabled()
 end
@@ -1543,7 +1932,7 @@ end
 local function BuildCastbar(ctx, builder, unit)
     local fields = CASTBAR_FIELDS[unit]
     if not fields then return end
-    local sec = builder:CollapsibleSection("castbar", "Castbar", 136, false)
+    local sec = builder:CollapsibleSection("castbar", "Castbar", 164, false)
     local sectionW = (sec and sec._msuf2Width) or (ctx and ctx.width) or 720
     local leftX = 14
     local rightX = math.max(340, sectionW - 236)
@@ -1552,6 +1941,13 @@ local function BuildCastbar(ctx, builder, unit)
 
     local enabledLabel = (unit == "boss") and "Enable boss castbars" or ("Enable " .. UnitTopLabel(unit):lower() .. " castbar")
     local timeLabel = (unit == "boss") and "Show boss cast time" or ("Show " .. UnitTopLabel(unit):lower() .. " cast time")
+    local castbarNotice, _, castbarNoticeButton = CreateSectionNotice(sec, -130, "Enable", 88)
+    if castbarNoticeButton then
+        castbarNoticeButton:SetScript("OnClick", function()
+            SetGeneralBool(fields.enable, true, "MSUF2_CASTBAR_ENABLE", { castbar = true, preview = true })
+            if RefreshCastbarEnabled then RefreshCastbarEnabled() end
+        end)
+    end
 
     local enabled = W.ToggleAt(sec, enabledLabel, leftX, -42, 240)
     M.BindToggle(ctx, enabled,
@@ -1588,7 +1984,17 @@ local function BuildCastbar(ctx, builder, unit)
         SetControlEnabled(icon, on)
         SetControlEnabled(text, on)
         SetControlEnabled(enabled, true)
+
+        if not on then
+            castbarNotice:SetMessage(UnitTopLabel(unit) .. " castbar is disabled. Turn it on to adjust time, interrupt, icon, and text behavior.", "warning")
+            castbarNotice:Show()
+        else
+            castbarNotice:Hide()
+        end
+        SetSectionHeaderStatus(sec, nil)
     end
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if entry then entry._msuf2RefreshState = RefreshCastbarEnabled end
     M.AddRefresher(ctx, RefreshCastbarEnabled)
     RefreshCastbarEnabled()
 end
@@ -1796,7 +2202,7 @@ local function BuildStatus(ctx, builder, unit)
         Call("MSUF_UFPreview_SetStatusPreviewMode", "all")
     end)
 
-    M.AddRefresher(ctx, function()
+    local function RefreshStatusSectionState()
         local spec = CurrentStatusSpec(unit)
         local hasSymbol = spec and spec.symbol
         local showStateStyle = hasSymbol and true or false
@@ -1818,7 +2224,13 @@ local function BuildStatus(ctx, builder, unit)
         SetControlEnabled(y, isEnabled)
         SetControlEnabled(layer, isEnabled)
         SetControlEnabled(reset, spec ~= nil)
-    end)
+
+        SetSectionHeaderStatus(sec, nil)
+    end
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if entry then entry._msuf2RefreshState = RefreshStatusSectionState end
+    M.AddRefresher(ctx, RefreshStatusSectionState)
+    RefreshStatusSectionState()
 end
 
 local function BuildLoadConditions(ctx, builder, unit)
@@ -1843,6 +2255,18 @@ local function BuildLoadConditions(ctx, builder, unit)
                 M.RequestUnitApply(unit, "MSUF2_LOAD_CONDITION", { preview = true })
             end)
     end
+
+    local function RefreshLoadConditionState()
+        local activeCount = 0
+        for i = 1, #LOAD_CONDITIONS do
+            if ReadBool(unit, LOAD_CONDITIONS[i].key, false) then activeCount = activeCount + 1 end
+        end
+        SetSectionHeaderStatus(sec, nil)
+    end
+    local entry = sec and sec._msuf2CollapsibleEntry
+    if entry then entry._msuf2RefreshState = RefreshLoadConditionState end
+    M.AddRefresher(ctx, RefreshLoadConditionState)
+    RefreshLoadConditionState()
 end
 
 local function BuildBossLayout(ctx, builder, unit)
@@ -1893,9 +2317,15 @@ end
 local function BuildUnitPage(info)
     return function(ctx)
         if info.unit == "boss" and ctx and ctx.wrapper then
+            local function BossPagePreviewShouldBeActive()
+                return M.frame and M.frame.IsShown and M.frame:IsShown()
+                    and M.activeKey == "uf_boss"
+                    and ctx.wrapper and ctx.wrapper.IsShown and ctx.wrapper:IsShown()
+            end
+
             ctx.wrapper:HookScript("OnShow", function()
                 if M.UnitPage and M.UnitPage.SetBossPagePreviewActive then
-                    M.UnitPage.SetBossPagePreviewActive(true)
+                    M.UnitPage.SetBossPagePreviewActive(BossPagePreviewShouldBeActive())
                 end
             end)
             ctx.wrapper:HookScript("OnHide", function()
@@ -1905,11 +2335,11 @@ local function BuildUnitPage(info)
             end)
             M.AddRefresher(ctx, function()
                 if M.UnitPage and M.UnitPage.SetBossPagePreviewActive then
-                    M.UnitPage.SetBossPagePreviewActive(ctx.wrapper:IsShown())
+                    M.UnitPage.SetBossPagePreviewActive(BossPagePreviewShouldBeActive())
                 end
             end)
             if M.UnitPage and M.UnitPage.SetBossPagePreviewActive then
-                M.UnitPage.SetBossPagePreviewActive(true)
+                M.UnitPage.SetBossPagePreviewActive(BossPagePreviewShouldBeActive())
             end
         end
 
