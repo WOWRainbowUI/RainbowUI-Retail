@@ -426,6 +426,9 @@ end
 
 local function IsThresholdColorAllowedForSource(sourceKey, config)
     if not config then return false end
+    if sourceKey == CATEGORY.HealerCC then
+        return false
+    end
     if config.allowThresholdColors ~= nil then
         return config.allowThresholdColors == true
     end

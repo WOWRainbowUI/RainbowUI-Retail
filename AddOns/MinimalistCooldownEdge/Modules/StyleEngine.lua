@@ -699,22 +699,42 @@ local function EnsureFontStringSetFontHook(region)
         if issecretvalue(self) or issecretvalue(fontPath) then return end
         local s = fontState[self]
         if not s or s.suppressSetFont or not s.enforceFont then return end
+
+        local desiredFontSize = s.fontSize
+        if s.preserveFontSize and type(fontSize) == "number" then
+            desiredFontSize = fontSize
+            s.fontSize = fontSize
+        end
+
         if (not issecretvalue(fontPath) and fontPath == s.fontPath)
-           and IsNearlyEqual(fontSize, s.fontSize)
+           and IsNearlyEqual(fontSize, desiredFontSize)
            and (not issecretvalue(fontStyle) and fontStyle == s.fontStyle) then
             return
         end
         s.suppressSetFont = true
-        pcall(self.SetFont, self, s.fontPath, s.fontSize, s.fontStyle)
+        pcall(self.SetFont, self, s.fontPath, desiredFontSize, s.fontStyle)
         s.suppressSetFont = nil
     end)
 
     hookedFontStrings[region] = true
 end
 
+local function GetCurrentFontSize(region, fallback)
+    if not region or MCE:IsForbiddenCached(region) or type(region.GetFont) ~= "function" then
+        return fallback
+    end
+
+    local ok, _, fontSize = pcall(region.GetFont, region)
+    if ok and type(fontSize) == "number" then
+        return fontSize
+    end
+
+    return fallback
+end
+
 function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontSize, fontStyle,
                                           color, point, relativePoint, offsetX, offsetY,
-                                          drawLayer, drawLayerSubLevel, enforceFont)
+                                      drawLayer, drawLayerSubLevel, enforceFont, preserveFontSize)
     if not region or MCE:IsForbiddenCached(region) then return end
 
     relativePoint = relativePoint or point
@@ -722,13 +742,14 @@ function StyleEngine:ApplyFontStringStyle(region, relativeFrame, fontPath, fontS
 
     local state = self:GetFontState(region)
     state.enforceFont = enforceFont or false
+    state.preserveFontSize = preserveFontSize or false
+    if state.enforceFont then
+        EnsureFontStringSetFontHook(region)
+    end
 
     if state.fontPath ~= fontPath
        or state.fontSize ~= fontSize
        or state.fontStyle ~= fontStyle then
-        if state.enforceFont then
-            EnsureFontStringSetFontHook(region)
-        end
         state.suppressSetFont = true
         region:SetFont(fontPath, fontSize, fontStyle)
         state.suppressSetFont = nil
@@ -1229,20 +1250,23 @@ function StyleEngine:ApplyStyle(cdFrame, forcedCategory)
         local fontStyle = MCE.NormalizeFontStyle(config.fontStyle)
         local resolvedFont = MCE.ResolveFontPath(config.font)
         local fontSize = self:GetCooldownFontSize(cdFrame, category, config, subtype)
+        local preserveFontSize = (category == CATEGORY.HealerCC)
 
         -- Some third-party addons recalculate cooldown font size after MiniCE
         -- applies styling. Enforce our chosen font for those integrations so
         -- the configured text size remains stable.
-        local enforceFont = (category == CATEGORY.SArena or category == CATEGORY.MiniCC)
+        local enforceFont = (category == CATEGORY.SArena or category == CATEGORY.MiniCC or category == CATEGORY.HealerCC)
 
         for i = 1, textRegionCount do
+            local region = textRegions[i]
+            local regionFontSize = preserveFontSize and GetCurrentFontSize(region, fontSize) or fontSize
             self:ApplyFontStringStyle(
-                textRegions[i], cdFrame,
-                resolvedFont, fontSize, fontStyle,
+                region, cdFrame,
+                resolvedFont, regionFontSize, fontStyle,
                 config.textColor,
                 config.textAnchor, config.textAnchor,
                 config.textOffsetX, config.textOffsetY,
-                nil, nil, enforceFont)
+                nil, nil, enforceFont, preserveFontSize)
         end
     end
 

@@ -307,6 +307,15 @@ function MCE:IsMiniCCAvailable()
     return self:IsAddonLoadedCached(C.Addon.MiniCCName)
 end
 
+function MCE:IsHealerCCAvailable()
+    if _G.HealerCCAnchor or _G.HealerCCEnemyAnchor then
+        self:SetAddonLoadState(C.Addon.HealerCCName, true)
+        return true
+    end
+
+    return self:IsAddonLoadedCached(C.Addon.HealerCCName)
+end
+
 function MCE:IsDominosAvailable()
     if _G.DominosFrame1 or _G.DominosActionButton1 then
         self:SetAddonLoadState(C.Addon.DominosName, true)
@@ -833,6 +842,9 @@ cooldownManagerDefaults.buffIconFontSize = C.Defaults.CooldownManager.BuffIconFo
 cooldownManagerDefaults.auraColorEnabled = C.Defaults.CooldownManager.AuraColorEnabled
 cooldownManagerDefaults.auraColor = CopyTable(C.Defaults.CooldownManager.AuraColor)
 
+local healerCCDefaults = CategoryDefaults(C.Categories.HealerCC, false, 18)
+healerCCDefaults.allowThresholdColors = nil
+
 local function EnsureCooldownManagerConfig(config)
     if type(config) ~= "table" then
         return CopyTable(cooldownManagerDefaults)
@@ -933,6 +945,7 @@ MCE.defaults = {
             [C.Categories.Unitframe] = unitframeDefaults,
             [C.Categories.PlayerAura] = playerAuraDefaults,
             [C.Categories.CooldownManager] = cooldownManagerDefaults,
+            [C.Categories.HealerCC] = healerCCDefaults,
             [C.Categories.MiniCC] = miniCCDefaults,
             [C.Categories.SArena] = sArenaDefaults,
             [C.Categories.TellMeWhen] = tellMeWhenDefaults,
@@ -972,6 +985,16 @@ function MCE:UpgradeProfile()
 
     if type(profile.categories) ~= "table" then
         profile.categories = CopyTable(self.defaults.profile.categories)
+    end
+
+    if type(profile.categories[C.Categories.HealerCC]) ~= "table" then
+        profile.categories[C.Categories.HealerCC] = CopyTable(healerCCDefaults)
+    end
+
+    profile.categories[C.Categories.HealerCC].allowThresholdColors = nil
+
+    if profile.categories[C.Categories.HealerCC].healerCCThresholdColorsInitialized == true then
+        profile.categories[C.Categories.HealerCC].healerCCThresholdColorsInitialized = nil
     end
 
     profile.categories[C.Categories.CooldownManager] =
@@ -1037,6 +1060,7 @@ function MCE:OnInitialize()
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Player Auras"], C.Addon.ShortName, C.Categories.PlayerAura))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["Party / Raid Frames"], C.Addon.ShortName, C.Categories.PartyRaidRetired))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["CooldownManager"], C.Addon.ShortName, C.Categories.CooldownManager))
+    self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["HealerCC"], C.Addon.ShortName, C.Categories.HealerCC))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["MiniCC"], C.Addon.ShortName, C.Categories.MiniCC))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["sArena"], C.Addon.ShortName, C.Categories.SArena))
     self:RegisterBlizzardOptionsPanel(AceConfigDialog:AddToBlizOptions(addonName, L["TellMeWhen"], C.Addon.ShortName, C.Categories.TellMeWhen))

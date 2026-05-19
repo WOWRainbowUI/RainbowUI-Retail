@@ -86,7 +86,8 @@ local function CatGet(key, field, fallback)
 end
 
 local function CategoryNeedsFullScan(key)
-    return key == C.Categories.MiniCC
+    return key == C.Categories.HealerCC
+        or key == C.Categories.MiniCC
         or key == C.Categories.SArena
         or key == C.Categories.TellMeWhen
 end
@@ -839,6 +840,7 @@ local function CreateCategoryOptions(order, name, key, desc)
     local disabledFn    = function() return IsCatDisabled(key) end
     local stackHiddenFn = function() return IsStackHidden(key) end
     local isCooldownManager = (key == C.Categories.CooldownManager)
+    local isHealerCC = (key == C.Categories.HealerCC)
     local isMiniCC = (key == C.Categories.MiniCC)
     local isSArena = (key == C.Categories.SArena)
     local isTellMeWhen = (key == C.Categories.TellMeWhen)
@@ -851,7 +853,8 @@ local function CreateCategoryOptions(order, name, key, desc)
     return {
         type = "group",
         hidden = function()
-            return (isMiniCC and not MCE:IsMiniCCAvailable())
+            return (isHealerCC and not MCE:IsHealerCCAvailable())
+                or (isMiniCC and not MCE:IsMiniCCAvailable())
                 or (isSArena and not MCE:IsSArenaAvailable())
                 or (isTellMeWhen and not MCE:IsTellMeWhenAvailable())
         end,
@@ -1010,7 +1013,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         type = "range", order = 2, width = 0.7,
                         name = L["Size"], min = 6, max = 36, step = 1,
                         get = CatGet(key, "fontSize"), set = CatRangeSet(key, "fontSize"),
-                        hidden = function() return isCooldownManager or isMiniCC or isSArena end,
+                        hidden = function() return isCooldownManager or isHealerCC or isMiniCC or isSArena end,
                     },
                     fontStyle = {
                         type = "select", order = 3, width = 0.8,
@@ -1029,7 +1032,7 @@ local function CreateCategoryOptions(order, name, key, desc)
                         desc = L["Allows the global \"Color by Remaining Time\" thresholds to override this category's static text color."],
                         get = allowThresholdColorsGet,
                         set = allowThresholdColorsSet,
-                        hidden = function() return isSArena or isPlayerAura end,
+                        hidden = function() return isHealerCC or isSArena or isPlayerAura end,
                     },
                     hideCountdownNumbers = {
                         type = "toggle", order = 5, width = "1",
@@ -1579,33 +1582,40 @@ function MCE:GetOptions()
                                 get = function() return MCE.db.profile.categories[C.Categories.CooldownManager].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.CooldownManager),
                             },
-                            toggleMiniCC = {
+                            toggleHealerCC = {
                                 type = "toggle", order = 6, width = 0.6,
+                                name = "|cffffd100" .. L["HealerCC"] .. "|r",
+                                hidden = function() return not MCE:IsHealerCCAvailable() end,
+                                get = function() return MCE.db.profile.categories[C.Categories.HealerCC].enabled end,
+                                set = SetDashboardCategoryEnabled(C.Categories.HealerCC),
+                            },
+                            toggleMiniCC = {
+                                type = "toggle", order = 7, width = 0.6,
                                 name = "|cffffd100" .. L["MiniCC"] .. "|r",
                                 hidden = function() return not MCE:IsMiniCCAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.MiniCC].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.MiniCC),
                             },
                             toggleSArena = {
-                                type = "toggle", order = 7, width = 0.6,
+                                type = "toggle", order = 8, width = 0.6,
                                 name = "|cffffd100" .. L["sArena"] .. "|r",
                                 hidden = function() return not MCE:IsSArenaAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.SArena].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.SArena),
                             },
                             toggleTellMeWhen = {
-                                type = "toggle", order = 8, width = 0.9,
+                                type = "toggle", order = 9, width = 0.9,
                                 name = "|cffffd100" .. L["TellMeWhen"] .. "|r",
                                 hidden = function() return not MCE:IsTellMeWhenAvailable() end,
                                 get = function() return MCE.db.profile.categories[C.Categories.TellMeWhen].enabled end,
                                 set = SetDashboardCategoryEnabled(C.Categories.TellMeWhen),
                             },
                             partyRaidFramesRetired = {
-                                type = "description", order = 8.5, width = "full", fontSize = "small",
+                                type = "description", order = 9.5, width = "full", fontSize = "small",
                                 name = "|cff777777" .. L["Party / Raid Frames"] .. " - " .. L["Retired"] .. "|r",
                             },
                             quickFooter = {
-                                type = "description", order = 9, fontSize = "small", width = "full",
+                                type = "description", order = 10, fontSize = "small", width = "full",
                                 name = "\n|cff999999" .. L["LIVE_CONTROLS_DESC"] .. "|r",
                             },
                         },
@@ -1840,15 +1850,17 @@ function MCE:GetOptions()
             [C.Categories.PartyRaidRetired] = CreatePartyRaidRetiredOptions(6, L["Party / Raid Frames"]),
             [C.Categories.CooldownManager] = CreateCategoryOptions(7, L["CooldownManager"], C.Categories.CooldownManager,
                 L["COOLDOWNMANAGER_DESC"]),
-            [C.Categories.MiniCC] = CreateCategoryOptions(8, L["MiniCC"], C.Categories.MiniCC,
+            [C.Categories.HealerCC] = CreateCategoryOptions(8, L["HealerCC"], C.Categories.HealerCC,
+                L["HEALERCC_DESC"]),
+            [C.Categories.MiniCC] = CreateCategoryOptions(9, L["MiniCC"], C.Categories.MiniCC,
                 L["MINICC_DESC"]),
-            [C.Categories.SArena] = CreateCategoryOptions(9, L["sArena"], C.Categories.SArena,
+            [C.Categories.SArena] = CreateCategoryOptions(10, L["sArena"], C.Categories.SArena,
                 L["SARENA_DESC"]),
-            [C.Categories.TellMeWhen] = CreateCategoryOptions(10, L["TellMeWhen"], C.Categories.TellMeWhen,
+            [C.Categories.TellMeWhen] = CreateCategoryOptions(11, L["TellMeWhen"], C.Categories.TellMeWhen,
                 L["TELLMEWHEN_DESC"]),
 
             help = {
-                type = "group", name = L["Help & Support"], order = 11,
+                type = "group", name = L["Help & Support"], order = 12,
                 args = {
                     aboutHeader = {
                         type = "description", order = 0.1, fontSize = "large",
