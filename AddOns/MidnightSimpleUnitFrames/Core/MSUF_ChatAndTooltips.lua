@@ -33,6 +33,22 @@ Debug.PrintGFHover = Debug.PrintGFHover or function(message, ...)
     end
     print(prefix .. tostring(message))
 end
+local function MSUF_Chat_RunEnsureDB()
+    local ensureDB = _G.MSUF_EnsureDB
+    if type(ensureDB) == "function" then
+        ensureDB()
+        return true
+    end
+    return false
+end
+local function MSUF_Chat_RunApplyAllSettings()
+    local applyAll = _G.MSUF_ApplyAllSettings
+    if type(applyAll) == "function" then
+        applyAll()
+        return true
+    end
+    return false
+end
 
 local MSUF_RESET_DEFAULTS = {
     player = { width=275, height=40, offsetX=-260, offsetY=80, showName=true, showHP=true, showPower=true },
@@ -40,9 +56,10 @@ local MSUF_RESET_DEFAULTS = {
     focus  = { width=220, height=30, offsetX= 260, offsetY=135, showName=true, showHP=false, showPower=false },
     pet    = { width=220, height=30, offsetX=-260, offsetY=135, showName=true, showHP=false, showPower=false },
     targettarget = { width=220, height=30, offsetX=260, offsetY=225, showName=true, showHP=true, showPower=false },
+    focustarget = { width=180, height=30, offsetX=260, offsetY=180, showName=true, showHP=true, showPower=false },
     boss   = { width=180, height=30, offsetX=360, offsetY=230, spacing=-96, bossLayoutMode="VERTICAL_DOWN", showName=true, showHP=true, showPower=false },
 }
-local MSUF_RESET_ANCHOR_UNITS = { "player", "target", "focus", "pet", "targettarget", "boss" }
+local MSUF_RESET_ANCHOR_UNITS = { "player", "target", "focus", "focustarget", "pet", "targettarget", "boss" }
 local MSUF_FullResetPending = false
 local function MSUF_ResetPositionAnchorsToScreen()
     if type(MSUF_DB) ~= "table" then return end
@@ -211,9 +228,7 @@ SlashCmdList["MIDNIGHTSUF"] = function(msg)
             print(Tr("|cffff0000MSUF:|r Cannot reset while in combat."))
              return
         end
-        if type(EnsureDB) == "function" then
-            EnsureDB()
-        end
+        MSUF_Chat_RunEnsureDB()
         if MSUF_DB then
             for unit, defaults in pairs(MSUF_RESET_DEFAULTS) do
                 MSUF_DB[unit] = MSUF_DB[unit] or {}
@@ -229,31 +244,28 @@ SlashCmdList["MIDNIGHTSUF"] = function(msg)
         end
         if type(_G.MSUF_ApplyAllSettings_Immediate) == "function" then
             _G.MSUF_ApplyAllSettings_Immediate()
-        elseif type(ApplyAllSettings) == "function" then
-            ApplyAllSettings()
+        else
+            MSUF_Chat_RunApplyAllSettings()
         end
         if type(_G.MSUF_ForceReanchorAllUnitFrames_Once) == "function" then
             _G.MSUF_ForceReanchorAllUnitFrames_Once()
         end
-        if type(UpdateAllFonts) == "function" then
-            UpdateAllFonts()
+        local updateFonts = _G.MSUF_UpdateAllFonts
+        if type(updateFonts) == "function" then
+            updateFonts()
         end
         print(Tr("|cff00ff00MSUF:|r Positions and visibility reset to defaults."))
          return
     end
     if cmd == "absorb" then
-        if type(EnsureDB) == "function" then
-            EnsureDB()
-        end
+        MSUF_Chat_RunEnsureDB()
         local g = (type(MSUF_DB) == "table" and type(MSUF_DB.general) == "table") and MSUF_DB.general or nil
         if not g then
             print(Tr("|cffff0000MSUF:|r DB not initialized."))
              return
         end
         g.showTotalAbsorbAmount = not g.showTotalAbsorbAmount
-        if type(ApplyAllSettings) == "function" then
-            ApplyAllSettings()
-        end
+        MSUF_Chat_RunApplyAllSettings()
         if g.showTotalAbsorbAmount then
             print(Tr("|cff00ff00MSUF:|r Total absorb amount in HP text ENABLED."))
         else
@@ -353,7 +365,7 @@ local TOOLTIP_ANCHOR_FIXED = "FIXED"
 local TOOLTIP_ANCHOR_CURSOR = "CURSOR"
 
 local function MSUF_GetTooltipGeneral()
-    EnsureDB()
+    MSUF_Chat_RunEnsureDB()
     local db = (type(MSUF_DB) == "table") and MSUF_DB or nil
     db = db or {}
     db.general = db.general or {}
@@ -381,7 +393,7 @@ local function MSUF_NormalizeTooltipSettings(g)
         elseif g.unitInfoTooltipStyle == "modern" then
             anchor = TOOLTIP_ANCHOR_CURSOR
         elseif g.disableUnitInfoTooltips == true then
-            anchor = TOOLTIP_ANCHOR_FIXED
+            anchor = TOOLTIP_ANCHOR_EXTERNAL
         else
             anchor = TOOLTIP_ANCHOR_EXTERNAL
         end
@@ -631,6 +643,9 @@ function MSUF_ShowFocusInfoTooltip()
 function MSUF_ShowTargetTargetInfoTooltip()
     MSUF_ShowUnitInfoTooltip("targettarget", "Target of Target")
  end
+function MSUF_ShowFocusTargetInfoTooltip()
+    MSUF_ShowUnitInfoTooltip("focustarget", "Focus Target")
+ end
 function MSUF_ShowPetInfoTooltip()
     MSUF_ShowUnitInfoTooltip("pet", "Pet")
  end
@@ -691,7 +706,7 @@ if not _G.MSUF_SetBlizzardEditModeFromMSUF then
         if InCombatLockdown and InCombatLockdown() then
              return
         end
-        if type(EnsureDB) == "function" then EnsureDB() end
+        MSUF_Chat_RunEnsureDB()
         if MSUF_DB and MSUF_DB.general and MSUF_DB.general.linkEditModes == false then
              return
         end
@@ -732,7 +747,7 @@ if not _G.MSUF_SetBlizzardEditModeFromMSUF then
      end
 end
 -- [8c6] Removed PLAYER_LOGIN Options relayout hook (Bars).
-ns.MSUF_UpdateAllFonts = ns.MSUF_UpdateAllFonts or UpdateAllFonts
+ns.MSUF_UpdateAllFonts = ns.MSUF_UpdateAllFonts or _G.MSUF_UpdateAllFonts
 
 -- ==========================================================================
 -- Edit Mode: Tooltip Position Drag Handle
@@ -742,12 +757,50 @@ ns.MSUF_UpdateAllFonts = ns.MSUF_UpdateAllFonts or UpdateAllFonts
 -- ==========================================================================
 do
     local tooltipDragHandle          -- overlay frame (lazy-created)
+    local tooltipSettingsHandle      -- click-through-to-settings frame for non-draggable states
     local tooltipEditPreviewActive = false
+
+    local function MSUF_Tooltip_IsSettingsOnlyPreview()
+        local g = MSUF_GetTooltipGeneral()
+        local provider, anchor = MSUF_NormalizeTooltipSettings(g)
+        return provider == TOOLTIP_PROVIDER_GAME and anchor == TOOLTIP_ANCHOR_EXTERNAL
+    end
+
+    local function MSUF_Tooltip_OpenTooltipSettings()
+        if not MSUF_Tooltip_IsSettingsOnlyPreview() then return end
+
+        local menu = _G.MSUF2
+        if menu and type(menu.Open) == "function" then
+            menu.Open("opt_misc")
+        elseif type(_G.MSUF2_Open) == "function" then
+            _G.MSUF2_Open("opt_misc")
+        elseif type(_G.MSUF_OpenStandaloneOptionsWindow) == "function" then
+            _G.MSUF_OpenStandaloneOptionsWindow("opt_misc")
+        elseif type(_G.MSUF_OpenPage) == "function" then
+            _G.MSUF_OpenPage("opt_misc")
+        end
+
+        local function OpenSection()
+            menu = _G.MSUF2
+            local search = menu and menu.Search
+            if search and type(search.OpenTarget) == "function" then
+                search.OpenTarget("opt_misc", "Unitframe tooltips", "Unitframe tooltips", "Unitframe tooltips")
+            elseif type(_G.MSUF_OpenPage) == "function" then
+                _G.MSUF_OpenPage("opt_misc")
+            end
+        end
+
+        if C_Timer and C_Timer.After then
+            C_Timer.After(0, OpenSection)
+        else
+            OpenSection()
+        end
+    end
 
     -- ---- persistence -------------------------------------------------------
     local function MSUF_Tooltip_SavePosition(frame)
         if not frame then return end
-        if type(EnsureDB) == "function" then EnsureDB() end
+        MSUF_Chat_RunEnsureDB()
         local g = MSUF_DB and MSUF_DB.general
         if not g then return end
         local left   = frame.GetLeft   and frame:GetLeft()
@@ -769,7 +822,7 @@ do
             Nudge = function(_, dx, dy)
                 local p = handle:GetParent()
                 if not p then return end
-                if type(EnsureDB) == "function" then EnsureDB() end
+                MSUF_Chat_RunEnsureDB()
                 local g = MSUF_DB and MSUF_DB.general
                 if not g then return end
                 local left = tonumber(g.tooltipPosX)
@@ -786,7 +839,7 @@ do
 
     -- ---- reset helper (called from Options / slash) ------------------------
     local function MSUF_Tooltip_ResetPosition()
-        if type(EnsureDB) == "function" then EnsureDB() end
+        MSUF_Chat_RunEnsureDB()
         local g = MSUF_DB and MSUF_DB.general
         if not g then return end
         g.tooltipPosX = nil
@@ -853,10 +906,64 @@ do
         return dh
     end
 
+    local function MSUF_Tooltip_EnsureSettingsHandle(parent)
+        if tooltipSettingsHandle then
+            if tooltipSettingsHandle:GetParent() ~= parent then
+                tooltipSettingsHandle:SetParent(parent)
+            end
+            tooltipSettingsHandle:SetAllPoints(parent)
+            return tooltipSettingsHandle
+        end
+
+        local h = CreateFrame("Button", "MSUF_TooltipSettingsHandle", parent)
+        h:SetAllPoints(parent)
+        h:EnableMouse(true)
+        h:RegisterForClicks("LeftButtonUp")
+        h:SetFrameLevel((parent.GetFrameLevel and parent:GetFrameLevel() or 0) + 10)
+
+        local hover = h:CreateTexture(nil, "HIGHLIGHT")
+        hover:SetAllPoints()
+        hover:SetColorTexture(0.2, 0.6, 1.0, 0.08)
+        h._hover = hover
+
+        h:SetScript("OnClick", MSUF_Tooltip_OpenTooltipSettings)
+        tooltipSettingsHandle = h
+        return h
+    end
+
     -- ---- Edit Mode enter/exit ----------------------------------------------
     local function MSUF_Tooltip_ShowEditPreview()
         local f = MSUF_GetPlayerInfoFrame()
         if not f then return end
+
+        local g = MSUF_GetTooltipGeneral()
+        local provider, anchor = MSUF_NormalizeTooltipSettings(g)
+        local blizzardControlled = (provider == TOOLTIP_PROVIDER_GAME and anchor == TOOLTIP_ANCHOR_EXTERNAL)
+
+        if blizzardControlled then
+            if tooltipDragHandle then
+                tooltipDragHandle:Hide()
+            end
+            tooltipEditPreviewActive = false
+            f:SetMovable(false)
+
+            if f.name  then f.name:SetText(Tr("GameTooltip (addon-compatible)")) end
+            if f.line2 then f.line2:SetText(Tr("Addon / Blizzard controlled")) end
+            if f.line3 then f.line3:SetText(Tr("Player Name")) end
+            if f.line4 then f.line4:SetText(Tr("Level 80 Human Paladin")) end
+            if f.line5 then f.line5:SetText("") end
+
+            f:ClearAllPoints()
+            f:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -16, 16)
+            f:Show()
+            f._msufEditPreviewActive = true
+            MSUF_Tooltip_EnsureSettingsHandle(f):Show()
+            return
+        end
+
+        if tooltipSettingsHandle then
+            tooltipSettingsHandle:Hide()
+        end
 
         -- Fill with placeholder content so the user sees size/layout
         if f.name  then f.name:SetText(Tr("Player Name")) end
@@ -882,6 +989,9 @@ do
     local function MSUF_Tooltip_HideEditPreview()
         if tooltipDragHandle then
             tooltipDragHandle:Hide()
+        end
+        if tooltipSettingsHandle then
+            tooltipSettingsHandle:Hide()
         end
         tooltipEditPreviewActive = false
         -- Hide the tooltip preview (but not if a real tooltip is being shown outside edit mode).

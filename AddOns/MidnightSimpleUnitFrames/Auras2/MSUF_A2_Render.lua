@@ -1,4 +1,4 @@
-﻿-- MSUF_A2_Render.lua â€” Render + Masque + CooldownText (consolidated)
+-- MSUF_A2_Render.lua â€” Render + Masque + CooldownText (consolidated)
 
 -- MSUF_A2_Render.lua
 
@@ -168,7 +168,8 @@ API._Render.Clamp = function(v, def, lo, hi) v = tonumber(v); if not v then v = 
 local function EnsureDB()
     local gdb = _G.MSUF_DB
     if type(gdb) ~= "table" then _G.MSUF_DB = {}; gdb = _G.MSUF_DB end
-    if _G.EnsureDB then _G.EnsureDB() end
+    local ensureDB = _G.MSUF_EnsureDB
+    if ensureDB then ensureDB() end
     MSUF_DB = _G.MSUF_DB
     if not MSUF_DB then return nil end
 
@@ -1288,6 +1289,8 @@ local function RenderUnit(entry)
             cfg.buffsOnlyMine, cfg.debuffsOnlyMine,
             cfg.buffsIncludeBoss, cfg.debuffsIncludeBoss,
             cfg.hidePermanentBuffs,
+            cfg.debuffsIncludeDispellable,
+            cfg.debuffDispelMagic, cfg.debuffDispelCurse, cfg.debuffDispelPoison, cfg.debuffDispelDisease,
             cfg.sortOrder =
                 Filters.ResolveRuntimeFlags(a2, shared, unit)
         else
@@ -1301,6 +1304,11 @@ local function RenderUnit(entry)
             cfg.buffsIncludeBoss = false
             cfg.debuffsIncludeBoss = false
             cfg.hidePermanentBuffs = false
+            cfg.debuffsIncludeDispellable = false
+            cfg.debuffDispelMagic = false
+            cfg.debuffDispelCurse = false
+            cfg.debuffDispelPoison = false
+            cfg.debuffDispelDisease = false
             cfg.sortOrder = 0
         end
         -- Sated/Exhaustion filter (reads from shared, independent of master filter toggle)
@@ -2059,6 +2067,62 @@ local _G = _G
 local LibStub = _G.LibStub
 local C_AddOns = _G.C_AddOns
 
+MasqueMod._buttons = MasqueMod._buttons or setmetatable({}, { __mode = "k" })
+
+function MasqueMod.SuppressButtonState(btn)
+    if not btn then return end
+    local function HideRegion(region)
+        if not region then return end
+        if region.SetAlpha then region:SetAlpha(0) end
+        if region.Hide then region:Hide() end
+    end
+
+    if btn.SetButtonState then pcall(btn.SetButtonState, btn, "NORMAL", false) end
+    if btn.UnlockHighlight then pcall(btn.UnlockHighlight, btn) end
+
+    local tex
+    if btn.GetHighlightTexture then
+        tex = btn:GetHighlightTexture()
+        HideRegion(tex)
+    end
+    if btn.SetHighlightTexture then pcall(btn.SetHighlightTexture, btn, nil) end
+
+    if btn.GetPushedTexture then
+        tex = btn:GetPushedTexture()
+        HideRegion(tex)
+    end
+    if btn.SetPushedTexture then pcall(btn.SetPushedTexture, btn, nil) end
+
+    if btn.GetCheckedTexture then
+        tex = btn:GetCheckedTexture()
+        HideRegion(tex)
+    end
+    if btn.SetCheckedTexture then pcall(btn.SetCheckedTexture, btn, nil) end
+
+    HideRegion(btn.Highlight)
+    HideRegion(btn.Pushed)
+    HideRegion(btn.Checked)
+    HideRegion(btn.Flash)
+    HideRegion(btn.__MSQ_Highlight)
+    HideRegion(btn.__MSQ_Pushed)
+    HideRegion(btn.__MSQ_Checked)
+    HideRegion(btn.__MSQ_Flash)
+
+    local regions = btn._msufMasqueRegions
+    if regions then
+        HideRegion(regions.Highlight)
+        HideRegion(regions.Pushed)
+        HideRegion(regions.Checked)
+        HideRegion(regions.Flash)
+    end
+end
+
+function MasqueMod.SuppressRegisteredButtonStates()
+    for btn in pairs(MasqueMod._buttons or {}) do
+        MasqueMod.SuppressButtonState(btn)
+    end
+end
+
 local MSQ_LIB = nil
 local MSQ_GROUP = nil
 local RESKIN_QUEUED = false
@@ -2197,6 +2261,10 @@ local function EnsureMasqueRegions(btn)
     r.Icon     = btn.tex
     r.Cooldown = btn.cooldown
     r.Count    = nil   -- explicit nil: clear stale ref from recycled buttons
+    r.Highlight = nil
+    r.Pushed    = nil
+    r.Checked   = nil
+    r.Flash     = nil
     -- No Count/Normal/Border: Masque only skins icon appearance + cooldown.
  end
 
@@ -2220,6 +2288,7 @@ local function ReskinNow()
     elseif g.ReSkinAllButtons then
         MSUF_A2_FastCall(g.ReSkinAllButtons, g)
     end
+    MasqueMod.SuppressRegisteredButtonStates()
  end
 
 local function RequestReskin()
@@ -2245,15 +2314,18 @@ local function AddButton(btn, shared)
     EnsureMasqueRegions(btn)
 
     if btn.MSUF_MasqueAdded == true then
+        MasqueMod.SuppressButtonState(btn)
          return true
     end
 
     local ok = MSUF_A2_FastCall(g.AddButton, g, btn, btn._msufMasqueRegions)
     if ok then
         btn.MSUF_MasqueAdded = true
+        MasqueMod._buttons[btn] = true
         _masqueButtonCount = _masqueButtonCount + 1
         -- One-time overlay sync: keep countFrame above Masque layers
         SyncIconOverlayLevels(btn)
+        MasqueMod.SuppressButtonState(btn)
         RequestReskin()
          return true
     end
@@ -2267,11 +2339,13 @@ local function RemoveButton(btn)
     local g = MSQ_GROUP or _G.MSUF_MasqueAuras2
     if not g then
         btn.MSUF_MasqueAdded = false
+        MasqueMod._buttons[btn] = nil
          return
     end
     if btn.MSUF_MasqueAdded == true then
         MSUF_A2_FastCall(g.RemoveButton, g, btn)
         btn.MSUF_MasqueAdded = false
+        MasqueMod._buttons[btn] = nil
         _masqueButtonCount = _masqueButtonCount > 0 and (_masqueButtonCount - 1) or 0
         RequestReskin()
     end

@@ -17,6 +17,8 @@ T.media = T.media or {
     dropdownChevron = ADDON_PATH .. "Media\\msuf_dropdown_chevron_down.tga",
     collapseArrow = "Interface\\ChatFrame\\ChatFrameExpandArrow",
     sliderThumb = ADDON_PATH .. "Media\\msuf_slider_thumb.tga",
+    switchTrack = ADDON_PATH .. "Media\\msuf_switch_track.tga",
+    switchKnob = ADDON_PATH .. "Media\\msuf_switch_knob.tga",
     bgSmooth = ADDON_PATH .. "Media\\Bars\\Smoothv2.tga",
     bgCharcoal = ADDON_PATH .. "Media\\Bars\\Charcoal.tga",
     logo = ADDON_PATH .. "Media\\MSUF_MinimapIcon.tga",
@@ -24,6 +26,10 @@ T.media = T.media or {
     historyUndo = ADDON_PATH .. "Media\\msuf_history_undo_red.png",
     historyRedo = ADDON_PATH .. "Media\\msuf_history_redo_green.png",
 }
+T.media.gradH = T.media.gradH or ADDON_PATH .. "Media\\MSUF_Grad_H.tga"
+T.media.gradHRev = T.media.gradHRev or ADDON_PATH .. "Media\\MSUF_Grad_H_Rev.tga"
+T.media.gradV = T.media.gradV or ADDON_PATH .. "Media\\MSUF_Grad_V.tga"
+T.media.gradVRev = T.media.gradVRev or ADDON_PATH .. "Media\\MSUF_Grad_V_Rev.tga"
 
 T.colors = {
     bg = { 0.080, 0.090, 0.160, 0.980 },
@@ -52,24 +58,37 @@ T.colors = {
     pillEdgeActive = { 0.200, 0.340, 0.800, 0.85 },
     pillText = { 0.800, 0.880, 1.000, 0.94 },
     pillTextActive = { 0.920, 0.960, 1.000, 1.00 },
+    navPillBase = { 0.085, 0.115, 0.220, 0.92 },
+    navPillBaseSolid = { 0.095, 0.125, 0.240, 0.94 },
+    navPillHover = { 0.115, 0.155, 0.310, 0.96 },
+    navPillActive = { 0.255, 0.395, 0.960, 0.99 },
+    navPillEdge = { 0.160, 0.210, 0.410, 0.48 },
+    navPillEdgeHover = { 0.270, 0.420, 0.880, 0.72 },
+    navPillEdgeActive = { 0.430, 0.600, 1.000, 0.88 },
+    navText = { 0.840, 0.900, 1.000, 0.96 },
+    navTextActive = { 0.970, 0.990, 1.000, 1.00 },
+    navHeaderText = { 0.680, 0.780, 1.000, 0.96 },
+    navHeaderHover = { 0.780, 0.860, 1.000, 1.00 },
+    navArrowOpen = { 1.000, 0.760, 0.250, 1.00 },
+    navArrowClosed = { 1.000, 0.560, 0.060, 1.00 },
 }
 
 T.fontBump = T.fontBump or 1
 
 T.navIconGrid = {
     home = { 0, 0 },
-    uf_player = { 1, 0 }, uf_target = { 2, 0 }, uf_targettarget = { 3, 0 },
-    uf_focus = { 4, 0 }, uf_boss = { 5, 0 }, uf_pet = { 6, 0 },
-    opt_bars = { 7, 0 }, opt_fonts = { 0, 1 }, auras2 = { 1, 1 },
-    opt_castbar = { 2, 1 }, opt_misc = { 3, 1 }, opt_colors = { 4, 1 },
-    classpower = { 6, 1 }, gameplay = { 7, 1 },
-    groupframes = { 0, 2 }, gf_layout = { 0, 2 }, gf_bars = { 0, 2 }, gf_auras = { 0, 2 }, gf_indicators = { 0, 2 },
-    modules = { 1, 2 }, profiles = { 2, 2 },
+    uf_player = { 1, 0 }, uf_target = { 3, 0 }, uf_targettarget = { 2, 0 }, uf_focustarget = { 2, 0 },
+    uf_focus = { 2, 0 }, uf_boss = { 6, 2 }, uf_pet = { 6, 0 },
+    opt_bars = { 7, 0 }, opt_fonts = { 0, 1 }, auras2 = { 3, 1 },
+    opt_castbar = { 2, 1 }, opt_misc = { 4, 2 }, opt_colors = { 4, 1 },
+    classpower = { 0, 2 }, gameplay = { 7, 1 },
+    groupframes = { 1, 2 }, gf_layout = { 2, 2 }, gf_bars = { 3, 2 }, gf_auras = { 3, 1 }, gf_indicators = { 6, 1 },
+    modules = { 4, 2 }, profiles = { 5, 2 },
 }
 
 T.navIconColors = {
     home = { 0.30, 0.60, 1.00 },
-    uf_player = { 0.40, 0.78, 0.98 }, uf_target = { 0.40, 0.78, 0.98 }, uf_targettarget = { 0.40, 0.78, 0.98 },
+    uf_player = { 0.40, 0.78, 0.98 }, uf_target = { 0.40, 0.78, 0.98 }, uf_targettarget = { 0.40, 0.78, 0.98 }, uf_focustarget = { 0.40, 0.78, 0.98 },
     uf_focus = { 0.40, 0.78, 0.98 }, uf_boss = { 0.40, 0.78, 0.98 }, uf_pet = { 0.40, 0.78, 0.98 },
     opt_bars = { 0.88, 0.74, 0.36 }, opt_fonts = { 0.88, 0.74, 0.36 }, auras2 = { 0.88, 0.74, 0.36 },
     opt_castbar = { 0.88, 0.74, 0.36 }, opt_misc = { 0.88, 0.74, 0.36 }, opt_colors = { 0.88, 0.74, 0.36 },
@@ -675,19 +694,77 @@ function T.SkinEditBox(editBox)
             if tex and tex.SetAlpha then tex:SetAlpha(0) end
         end
     end
+    local fontString = editBox.GetFontString and editBox:GetFontString() or nil
+    if editBox.GetRegions then
+        local regions = { editBox:GetRegions() }
+        for i = 1, #regions do
+            local region = regions[i]
+            local isTexture = false
+            if region and region.IsObjectType then isTexture = region:IsObjectType("Texture") and true or false end
+            if (not isTexture) and region and region.GetObjectType then isTexture = region:GetObjectType() == "Texture" end
+            if isTexture and region ~= fontString then
+                if region.SetAlpha then region:SetAlpha(0) end
+                if region.Hide then region:Hide() end
+            end
+        end
+    end
     T.ApplyBackdrop(editBox, { 0.020, 0.024, 0.046, 0.96 }, T.colors.borderSoft)
-    local fs = editBox.GetFontString and editBox:GetFontString() or nil
+    if editBox.CreateTexture then
+        local bg = editBox:CreateTexture(nil, "BACKGROUND", nil, -6)
+        bg:SetPoint("TOPLEFT", editBox, "TOPLEFT", 0, 0)
+        bg:SetPoint("BOTTOMRIGHT", editBox, "BOTTOMRIGHT", 0, 0)
+        editBox._msuf2EditBg = bg
+
+        local top = editBox:CreateTexture(nil, "OVERLAY", nil, 1)
+        top:SetPoint("TOPLEFT", editBox, "TOPLEFT", 0, 0)
+        top:SetPoint("TOPRIGHT", editBox, "TOPRIGHT", 0, 0)
+        top:SetHeight(1)
+        local bottom = editBox:CreateTexture(nil, "OVERLAY", nil, 1)
+        bottom:SetPoint("BOTTOMLEFT", editBox, "BOTTOMLEFT", 0, 0)
+        bottom:SetPoint("BOTTOMRIGHT", editBox, "BOTTOMRIGHT", 0, 0)
+        bottom:SetHeight(1)
+        local left = editBox:CreateTexture(nil, "OVERLAY", nil, 1)
+        left:SetPoint("TOPLEFT", editBox, "TOPLEFT", 0, 0)
+        left:SetPoint("BOTTOMLEFT", editBox, "BOTTOMLEFT", 0, 0)
+        left:SetWidth(1)
+        local right = editBox:CreateTexture(nil, "OVERLAY", nil, 1)
+        right:SetPoint("TOPRIGHT", editBox, "TOPRIGHT", 0, 0)
+        right:SetPoint("BOTTOMRIGHT", editBox, "BOTTOMRIGHT", 0, 0)
+        right:SetWidth(1)
+        editBox._msuf2EditEdges = { top, bottom, left, right }
+    end
+    local function PaintEditBox(self, focused)
+        local enabled = not (self.IsEnabled and not self:IsEnabled())
+        local alpha = enabled and 1 or 0.45
+        if self._msuf2EditBg then self._msuf2EditBg:SetColorTexture(0.018, 0.024, 0.050, 0.98 * alpha) end
+        local c = focused and T.colors.accent or T.colors.borderSoft
+        local a = focused and 0.95 or 0.78
+        local edges = self._msuf2EditEdges
+        if edges then
+            for i = 1, #edges do
+                edges[i]:SetColorTexture(c[1], c[2], c[3], a * alpha)
+            end
+        end
+    end
+    editBox._msuf2PaintEditBox = PaintEditBox
+    local fs = fontString
     T.StyleFontString(fs, T.colors.text, 1)
     editBox:HookScript("OnEditFocusGained", function(self)
+        PaintEditBox(self, true)
         if self.SetBackdropBorderColor then
             self:SetBackdropBorderColor(T.colors.accent[1], T.colors.accent[2], T.colors.accent[3], 0.95)
         end
     end)
     editBox:HookScript("OnEditFocusLost", function(self)
+        PaintEditBox(self, false)
         if self.SetBackdropBorderColor then
             self:SetBackdropBorderColor(T.colors.borderSoft[1], T.colors.borderSoft[2], T.colors.borderSoft[3], T.colors.borderSoft[4] or 1)
         end
     end)
+    pcall(editBox.HookScript, editBox, "OnEnable", function(self) PaintEditBox(self, self.HasFocus and self:HasFocus()) end)
+    pcall(editBox.HookScript, editBox, "OnDisable", function(self) PaintEditBox(self, false) end)
+    editBox:HookScript("OnShow", function(self) PaintEditBox(self, self.HasFocus and self:HasFocus()) end)
+    PaintEditBox(editBox, false)
     return editBox
 end
 
@@ -739,6 +816,13 @@ local function ButtonVisual(btn, active, hover)
         btn._msuf2Label:SetTextColor(0.50, 0.52, 0.58, 0.95)
         return
     end
+    if btn._msuf2NavHeader then
+        fill:SetVertexColor(0, 0, 0, 0)
+        edge:SetVertexColor(0, 0, 0, 0)
+        local tx = hover and (c.navHeaderHover or c.navHeaderText) or c.navHeaderText
+        btn._msuf2Label:SetTextColor(tx[1], tx[2], tx[3], tx[4] or 1)
+        return
+    end
     if btn._msuf2Danger then
         if active or hover then
             fill:SetVertexColor(0.180, 0.040, 0.065, 0.97)
@@ -770,6 +854,37 @@ local function ButtonVisual(btn, active, hover)
             edge:SetVertexColor(0.140, 0.660, 0.310, 0.82)
         end
         btn._msuf2Label:SetTextColor(0.92, 1.00, 0.94, 1)
+        return
+    end
+    if btn._msuf2NavItem then
+        if active then
+            if btn._msuf2NavStripe then btn._msuf2NavStripe:Hide() end
+            local bg, br, tx = c.navPillActive, c.navPillEdgeActive, c.navTextActive
+            fill:SetVertexColor(bg[1], bg[2], bg[3], bg[4] or 1)
+            edge:SetVertexColor(br[1], br[2], br[3], br[4] or 1)
+            btn._msuf2Label:SetTextColor(tx[1], tx[2], tx[3], tx[4] or 1)
+            if btn._msuf2NavIcon then btn._msuf2NavIcon:SetVertexColor(0.96, 0.99, 1.00, 1.00) end
+        elseif hover then
+            if btn._msuf2NavStripe then btn._msuf2NavStripe:Hide() end
+            local bg, br, tx = c.navPillHover, c.navPillEdgeHover, c.navText
+            fill:SetVertexColor(bg[1], bg[2], bg[3], bg[4] or 1)
+            edge:SetVertexColor(br[1], br[2], br[3], br[4] or 1)
+            btn._msuf2Label:SetTextColor(tx[1], tx[2], tx[3], 1)
+            if btn._msuf2NavIcon and btn._msuf2NavIconColor then
+                local ic = btn._msuf2NavIconColor
+                btn._msuf2NavIcon:SetVertexColor(ic[1], ic[2], ic[3], 0.88)
+            end
+        else
+            if btn._msuf2NavStripe then btn._msuf2NavStripe:Hide() end
+            local bg, br, tx = btn._msuf2SolidPill and c.navPillBaseSolid or c.navPillBase, c.navPillEdge, c.navText
+            fill:SetVertexColor(bg[1], bg[2], bg[3], bg[4] or 1)
+            edge:SetVertexColor(br[1], br[2], br[3], br[4] or 1)
+            btn._msuf2Label:SetTextColor(tx[1], tx[2], tx[3], tx[4] or 1)
+            if btn._msuf2NavIcon and btn._msuf2NavIconColor then
+                local ic = btn._msuf2NavIconColor
+                btn._msuf2NavIcon:SetVertexColor(ic[1], ic[2], ic[3], 0.64)
+            end
+        end
         return
     end
     if active then

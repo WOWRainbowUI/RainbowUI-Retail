@@ -13,6 +13,11 @@ local floor = math.floor
 local max = math.max
 local min = math.min
 
+local ROUNDED_PREVIEW_WHITE8 = "Interface\\Buttons\\WHITE8X8"
+local ROUNDED_PREVIEW_MASK_ROOT = "Interface\\AddOns\\" .. tostring(addonName or "MidnightSimpleUnitFrames") .. "\\Media\\Masks\\"
+local ROUNDED_PREVIEW_MASK = ROUNDED_PREVIEW_MASK_ROOT .. "rounded_bar_4x.tga"
+local ROUNDED_PREVIEW_EDGE = ROUNDED_PREVIEW_MASK_ROOT .. "rounded_bar_edge_4x.tga"
+
 local UNIT_SCOPE_KEYS = GP.UNIT_SCOPE_KEYS or {}
 local TEXT_SCOPE_KEYS = GP.TEXT_SCOPE_KEYS or {}
 local POWER_BAR_SCOPE_UNITS = GP.POWER_BAR_SCOPE_UNITS or {}
@@ -98,6 +103,10 @@ local function BuildBars(ctx)
         return scope == "shared" or ScopeHasOverride(scope, "hlOverride")
     end
 
+    local function HighlightControlsActive()
+        return CurrentBarsScope() ~= nil
+    end
+
     local function BorderTestScope()
         local scope = CurrentBarsScope()
         if scope == "gf_party" then return "party" end
@@ -149,6 +158,8 @@ local function BuildBars(ctx)
             Call("MSUF_GF_RefreshOutlineGeometry")
             RefreshGroupFrameVisuals()
         end
+        Call("MSUF_ApplyRoundedUnitframes")
+        Call("MSUF_UFPreview_RequestRefresh", "MSUF2_BAR_OUTLINE")
     end
 
     local function ApplyAggroBorderRuntime()
@@ -163,7 +174,7 @@ local function BuildBars(ctx)
         Call("MSUF_DispelOutline_ApplyEventRegistration")
         Call("MSUF_RefreshDispelOutlineStates", true)
         RefreshUnitBorders({ "player", "target", "focus", "targettarget" })
-        RefreshGroupFrameBorders()
+        RefreshGroupFrameVisuals()
         if _G.MSUF_DispelBorderTestMode and type(_G.MSUF_SetDispelBorderTestMode) == "function" then
             _G.MSUF_SetDispelBorderTestMode(true, BorderTestScope())
         end
@@ -181,6 +192,194 @@ local function BuildBars(ctx)
         ApplyAggroBorderRuntime()
         ApplyDispelPurgeBorderRuntime()
         ApplyBossTargetBorderRuntime()
+    end
+
+    local function ApplyRoundedRuntime()
+        Call("MSUF_ApplyRoundedUnitframes")
+        Call("MSUF_RefreshAllFrames")
+        RefreshGroupFrameVisuals()
+        Call("MSUF_UFPreview_RequestRefresh", "MSUF2_ROUNDED")
+        Call("MSUF_GF_RefreshPreviewLayout", "party")
+        Call("MSUF_GF_RefreshPreviewLayout", "raid")
+        Call("MSUF_GF_RefreshPreviewLayout", "mythicraid")
+        Call("MSUF_GF_RefreshPreviewBox")
+    end
+
+    local function ShowRoundedReloadRequiredPopup()
+        if not (_G.StaticPopupDialogs and _G.StaticPopup_Show) then
+            if _G.print then
+                _G.print(M.Tr("|cffffd700MSUF:|r Rounded frame texture changed. Reload the UI with /reload."))
+            end
+            return
+        end
+        if not _G.StaticPopupDialogs.MSUF2_ROUNDED_RELOAD_REQUIRED then
+            _G.StaticPopupDialogs.MSUF2_ROUNDED_RELOAD_REQUIRED = {
+                text = M.Tr("Rounded frame texture was changed.\n\nA UI reload is required because this style rebuilds frame masks and protected frame visuals.\n\nReload now?"),
+                button1 = _G.RELOAD or M.Tr("Reload"),
+                timeout = 0,
+                whileDead = true,
+                hideOnEscape = false,
+                preferredIndex = 3,
+                OnAccept = function()
+                    if _G.InCombatLockdown and _G.InCombatLockdown() then
+                        if _G.print then
+                            _G.print(M.Tr("|cffff5555MSUF|r: Can't reload UI in combat. Leave combat, then type /reload."))
+                        end
+                        return
+                    end
+                    if type(_G.ReloadUI) == "function" then _G.ReloadUI() end
+                end,
+            }
+        end
+        _G.StaticPopup_Show("MSUF2_ROUNDED_RELOAD_REQUIRED")
+    end
+
+    local function SetRoundedBool(key, value, requireReload)
+        SetB(key, value and true or false, "MSUF2_ROUNDED", { preview = true })
+        ApplyRoundedRuntime()
+        if requireReload then ShowRoundedReloadRequiredPopup() end
+    end
+
+    local function RegisterRoundedSearch(control, label, extraKeywords, help, kind)
+        if not (control and type(M.RegisterSearchWidget) == "function") then return end
+        local keywords = {
+            "rounded texture", "rounded frame texture", "rounded frames", "round corners", "rounded corners",
+            "bars rounded", "global style bars rounded", "enable rounded frames", "disable rounded frames",
+            "turn on rounded frames", "turn off rounded frames", "abgerundete frames", "runde kanten",
+            "runde ecken", "abrundung", "abrunden", "einschalten", "ausschalten",
+        }
+        if type(extraKeywords) == "table" then
+            for i = 1, #extraKeywords do keywords[#keywords + 1] = extraKeywords[i] end
+        elseif extraKeywords then
+            keywords[#keywords + 1] = extraKeywords
+        end
+        M.RegisterSearchWidget(control, {
+            label = label,
+            kind = kind or control._msuf2ControlKind or "toggle",
+            anchor = control._msuf2Title or control._msuf2Label or control,
+            values = { "On", "Off", "Enable", "Disable", "Einschalten", "Ausschalten" },
+            keywords = keywords,
+            help = help or "Controls the rounded frame texture style for unit frames, group frames, power bars, and mouseover highlights.",
+        })
+    end
+
+    local function SnapPreviewRegion(region)
+        if not region then return end
+        if region.SetSnapToPixelGrid then region:SetSnapToPixelGrid(false) end
+        if region.SetTexelSnappingBias then region:SetTexelSnappingBias(0) end
+    end
+
+    local function MaskRoundedPreviewTexture(sample, key, tex)
+        if not (sample and tex and tex.AddMaskTexture and sample.CreateMaskTexture) then return end
+        sample._msuf2RoundedPreviewMasks = sample._msuf2RoundedPreviewMasks or {}
+        local mask = sample._msuf2RoundedPreviewMasks[key]
+        if not mask then
+            mask = sample:CreateMaskTexture(nil, "ARTWORK")
+            SnapPreviewRegion(mask)
+            sample._msuf2RoundedPreviewMasks[key] = mask
+        end
+        mask:ClearAllPoints()
+        mask:SetTexture(ROUNDED_PREVIEW_MASK, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+        mask:SetAllPoints(sample)
+        if sample._msuf2RoundedPreviewMasked and sample._msuf2RoundedPreviewMasked[tex] == mask then return end
+        sample._msuf2RoundedPreviewMasked = sample._msuf2RoundedPreviewMasked or {}
+        local old = sample._msuf2RoundedPreviewMasked[tex]
+        if old and tex.RemoveMaskTexture then pcall(tex.RemoveMaskTexture, tex, old) end
+        if pcall(tex.AddMaskTexture, tex, mask) then
+            sample._msuf2RoundedPreviewMasked[tex] = mask
+        end
+    end
+
+    local function CreateRoundedTexturePreview(parent, x, y, width)
+        width = max(320, floor((tonumber(width) or 560) + 0.5))
+        local card = W.ControlCard(parent, "Preview", nil, x, y, width, 88)
+        if not card then return nil end
+
+        local sampleW = min(440, max(280, width - 44))
+        local sampleH = 46
+        local powerH = 8
+        local sample = CreateFrame("Frame", nil, card)
+        sample:SetPoint("TOPLEFT", card, "TOPLEFT", 18, -38)
+        sample:SetSize(sampleW, sampleH)
+        card._msuf2RoundedPreviewSample = sample
+
+        local bg = sample:CreateTexture(nil, "BACKGROUND", nil, -7)
+        bg:SetTexture(ROUNDED_PREVIEW_WHITE8)
+        bg:SetAllPoints(sample)
+        bg:SetColorTexture(0.015, 0.020, 0.032, 0.96)
+        SnapPreviewRegion(bg)
+        sample._previewBg = bg
+
+        local healthBg = sample:CreateTexture(nil, "BORDER", nil, -1)
+        healthBg:SetPoint("TOPLEFT", sample, "TOPLEFT", 0, 0)
+        healthBg:SetPoint("BOTTOMRIGHT", sample, "BOTTOMRIGHT", 0, powerH)
+        healthBg:SetColorTexture(0.060, 0.070, 0.075, 1)
+        sample._previewHealthBg = healthBg
+
+        local health = sample:CreateTexture(nil, "ARTWORK", nil, 1)
+        health:SetPoint("TOPLEFT", sample, "TOPLEFT", 0, 0)
+        health:SetSize(floor(sampleW * 0.78 + 0.5), sampleH - powerH)
+        health:SetColorTexture(0.70, 0.69, 0.30, 0.94)
+        sample._previewHealth = health
+
+        local powerBg = sample:CreateTexture(nil, "ARTWORK", nil, 2)
+        powerBg:SetPoint("BOTTOMLEFT", sample, "BOTTOMLEFT", 0, 0)
+        powerBg:SetPoint("BOTTOMRIGHT", sample, "BOTTOMRIGHT", 0, 0)
+        powerBg:SetHeight(powerH)
+        powerBg:SetColorTexture(0.090, 0.055, 0.115, 1)
+        sample._previewPowerBg = powerBg
+
+        local power = sample:CreateTexture(nil, "ARTWORK", nil, 3)
+        power:SetPoint("BOTTOMLEFT", sample, "BOTTOMLEFT", 0, 0)
+        power:SetSize(floor(sampleW * 0.66 + 0.5), powerH)
+        power:SetColorTexture(0.62, 0.12, 0.78, 1)
+        sample._previewPower = power
+
+        local gloss = sample:CreateTexture(nil, "ARTWORK", nil, 4)
+        gloss:SetPoint("TOPLEFT", sample, "TOPLEFT", 0, 0)
+        gloss:SetPoint("BOTTOMRIGHT", sample, "RIGHT", 0, -1)
+        gloss:SetColorTexture(1, 1, 1, 0.045)
+        sample._previewGloss = gloss
+
+        local name = T.Font(sample, "GameFontHighlightSmall", "Mapkotwo", T.colors.text)
+        name:SetPoint("LEFT", sample, "LEFT", 10, 4)
+        name:SetWidth(floor(sampleW * 0.42))
+        name:SetJustifyH("LEFT")
+        if name.SetShadowOffset then name:SetShadowOffset(1, -1) end
+
+        local value = T.Font(sample, "GameFontHighlightSmall", "404K - 100.0%", T.colors.text)
+        value:SetPoint("RIGHT", sample, "RIGHT", -10, 4)
+        value:SetWidth(floor(sampleW * 0.50))
+        value:SetJustifyH("RIGHT")
+        if value.SetShadowOffset then value:SetShadowOffset(1, -1) end
+
+        for key, tex in pairs({
+            bg = bg,
+            healthBg = healthBg,
+            health = health,
+            powerBg = powerBg,
+            power = power,
+            gloss = gloss,
+        }) do
+            MaskRoundedPreviewTexture(sample, key, tex)
+        end
+
+        sample._msuf2RoundedPreviewEdges = {}
+        for i = 1, 2 do
+            local edge = sample:CreateTexture(nil, "OVERLAY", nil, 6)
+            edge:SetTexture(ROUNDED_PREVIEW_EDGE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+            edge:SetPoint("TOPLEFT", sample, "TOPLEFT", -i, i)
+            edge:SetPoint("BOTTOMRIGHT", sample, "BOTTOMRIGHT", i, -i)
+            edge:SetVertexColor(0, 0, 0, 1)
+            SnapPreviewRegion(edge)
+            sample._msuf2RoundedPreviewEdges[i] = edge
+        end
+
+        function card:RefreshRoundedPreview()
+            sample:SetAlpha((ReadB("roundedFramesEnabled", false) == true) and 1 or 0.62)
+        end
+        card:RefreshRoundedPreview()
+        return card
     end
 
     local function CurrentGroupGlowBlocked()
@@ -202,6 +401,19 @@ local function BuildBars(ctx)
         if type(StopGroupDispelGlowForBlizzardConflict) == "function" then
             StopGroupDispelGlowForBlizzardConflict(CurrentBarsScope())
         end
+    end
+
+    local dispelTriggers = {
+        { value = "BY_ME", text = "Dispellable by me" },
+        { value = "DISPEL_TYPE", text = "Any dispel-type debuff" },
+        { value = "ANY_DEBUFF", text = "Any debuff" },
+    }
+    local function NormalizeDispelTrigger(v)
+        local fn = _G.MSUF_NormalizeDispelBorderTrigger
+        if type(fn) == "function" then return fn(v) end
+        if v == "DISPEL_TYPE" or v == "TYPE" or v == "ANY_DISPEL_TYPE" then return "DISPEL_TYPE" end
+        if v == "ANY_DEBUFF" or v == "ANY" or v == "ALL_DEBUFFS" then return "ANY_DEBUFF" end
+        return "BY_ME"
     end
 
     local function GradientKeyActive(entry, key)
@@ -315,7 +527,8 @@ local function BuildBars(ctx)
             for _, frame in pairs(frames) do
                 if frame and frame.unit and frame.hpBar then
                     frame._msufHeavyVisualNextAt = 0
-                    if _G.UpdateSimpleUnitFrame then _G.UpdateSimpleUnitFrame(frame) end
+                    local update = _G.MSUF_UpdateSimpleUnitFrame
+                    if update then update(frame) end
                     if _G.MSUF_UFCore_UpdatePowerBarFast then _G.MSUF_UFCore_UpdatePowerBarFast(frame) end
                     if ns.Bars and ns.Bars._ApplyHPGradient then
                         if frame.hpGradients then
@@ -345,6 +558,7 @@ local function BuildBars(ctx)
         { value = "player", text = "Player" },
         { value = "target", text = "Target" },
         { value = "targettarget", text = "ToT" },
+        { value = "focustarget", text = "Focus Target" },
         { value = "focus", text = "Focus" },
         { value = "pet", text = "Pet" },
         { value = "boss", text = "Boss" },
@@ -410,16 +624,18 @@ local function BuildBars(ctx)
         local active = {}
         for i = 1, #scopeValues do
             local item = scopeValues[i]
-            if item.value ~= "shared" and ScopeHasOverride(item.value, "hlOverride") then active[#active + 1] = item.text end
+            if item.value ~= "shared" and ScopeHasOverride(item.value, "hlOverride") then
+                active[#active + 1] = M.Tr(item.text or "")
+            end
         end
         local shared = current == "shared"
         W.SetControlShown(override, not shared)
         overrideInfo:SetShown(shared)
         reset:SetShown(shared and #active > 0)
         if #active > 0 then
-            overrideInfo:SetText("|cffffffffOverrides:|r " .. table.concat(active, ", "))
+            overrideInfo:SetText("|cffffffff" .. M.Tr("Overrides:") .. "|r " .. table.concat(active, ", "))
         else
-            overrideInfo:SetText("|cffffffffOverrides:|r None")
+            overrideInfo:SetText("|cffffffff" .. M.Tr("Overrides:") .. "|r " .. M.Tr("None"))
         end
         if shared then
             hint:SetText("Group Frames inherit Shared textures and gradients by default. Raid also applies to Mythic Raid.")
@@ -470,7 +686,7 @@ local function BuildBars(ctx)
             RefreshGroupFrameVisuals()
         end)
 
-    local gradLabel = T.Font(textures, "GameFontHighlightSmall", "Gradient", T.colors.muted)
+    local gradLabel = T.Font(textures, "GameFontHighlightSmall", M.Tr("Gradient"), T.colors.muted)
     gradLabel:SetPoint("TOPLEFT", textures, "TOPLEFT", rightX, gradientY)
     local RefreshGradientControls
     local function SyncGradientControls()
@@ -558,7 +774,7 @@ local function BuildBars(ctx)
     end
     M.AddRefresher(ctx, RefreshGradientControls)
 
-    local absorb = b:CollapsibleSection("bars_absorb", "Absorb Display", 336, true)
+    local absorb = b:CollapsibleSection("bars_absorb", "Absorb Display", 390, true)
     local absorbW = absorb._msuf2Width or ctx.width or 720
     local absorbLeftX = 30
     local absorbRightX = max(430, min(560, floor(absorbW * 0.52)))
@@ -616,6 +832,23 @@ local function BuildBars(ctx)
     local selfHealGroupHint = W.Text(absorb, "Group Frame heal prediction is controlled in Group Frames > Health & Bars.", absorbLeftX + 30, -212, absorbLeftW + 80, T.colors.muted)
     selfHealGroupHint:Hide()
 
+    local healPredAnchor = W.Dropdown(absorb, "Heal prediction anchoring", {
+        { value = 1, text = "Anchor to left side" },
+        { value = 2, text = "Anchor to right side" },
+        { value = 3, text = "Follow HP bar" },
+        { value = 4, text = "Follow HP bar (overflow)" },
+        { value = 5, text = "Reverse from max" },
+    }, absorbLeftW)
+    M.BindDropdown(ctx, healPredAnchor,
+        function() return tonumber(BarScopeGet("healPredAnchorMode", 3)) or 3 end,
+        function(v)
+            BarScopeSet("healPredAnchorMode", tonumber(v) or 3, "MSUF2_HEALPRED_ANCHOR")
+            Call("MSUF_InvalidateAbsorbCache")
+            ApplyBars("MSUF2_HEALPRED_ANCHOR")
+            RefreshGroupFrameVisuals()
+        end)
+    W.MoveWidget(healPredAnchor, absorb, absorbLeftX, -240, absorbLeftW, "LEFT")
+
     local absorbOpacity = W.Slider(absorb, "Absorb bar opacity", 0, 1, 0.05, absorbLeftW)
     M.BindSlider(ctx, absorbOpacity,
         function() return tonumber(BarScopeGet("absorbBarOpacity", 0.75)) or 0.75 end,
@@ -625,7 +858,7 @@ local function BuildBars(ctx)
             ApplyBars("MSUF2_ABSORB_OPACITY")
             RefreshGroupFrameVisuals()
         end)
-    W.MoveWidget(absorbOpacity, absorb, absorbLeftX, -240, absorbLeftW, "LEFT")
+    W.MoveWidget(absorbOpacity, absorb, absorbLeftX, -294, absorbLeftW, "LEFT")
 
     W.LabelAt(absorb, "Textures", absorbRightX, -42, absorbRightW, "GameFontNormalSmall", T.colors.accent)
     local absorbTex = W.Dropdown(absorb, "Absorb bar texture (SharedMedia)", function() return TextureValues("Use foreground texture") end, absorbRightW)
@@ -665,7 +898,7 @@ local function BuildBars(ctx)
             ApplyBars("MSUF2_HEAL_ABSORB_OPACITY")
             RefreshGroupFrameVisuals()
         end)
-    W.MoveWidget(healAbsorbOpacity, absorb, absorbRightX, -240, absorbRightW, "LEFT")
+    W.MoveWidget(healAbsorbOpacity, absorb, absorbRightX, -294, absorbRightW, "LEFT")
 
     M.AddRefresher(ctx, function()
         local mode = tonumber(BarScopeGet("absorbTextMode", 2)) or 2
@@ -681,6 +914,7 @@ local function BuildBars(ctx)
         SetControlEnabled(absorbOpacity, scopedActive and showBar)
         SetControlEnabled(healAbsorbOpacity, scopedActive and showBar)
         SetControlEnabled(selfHeal, (not groupScope) and sharedActive and mode ~= 1)
+        SetControlEnabled(healPredAnchor, (not groupScope) and scopedActive and mode ~= 1 and ReadGBool("showSelfHealPrediction", true))
         if groupScope then selfHealGroupHint:Show() else selfHealGroupHint:Hide() end
     end)
 
@@ -697,14 +931,77 @@ local function BuildBars(ctx)
         SetControlEnabled(outlineSlider, ScopedBarsControlsActive())
     end)
 
-    local highlights = b:CollapsibleSection("bars_highlight", "Highlight Borders", 626, true)
-    local hlW = highlights._msuf2Width or ctx.width or 720
-    local hlLeftX = 30
-    local hlRightX = max(430, min(560, floor(hlW * 0.52)))
-    local hlLeftW = max(300, min(380, hlRightX - hlLeftX - 58))
-    local hlRightW = max(300, min(420, hlW - hlRightX - 42))
+    local rounded = b:CollapsibleSection("bars_rounded", "Rounded Texture", 246, true)
+    local roundLeftX = 30
+    local roundRightX = 330
+    local roundW = 250
+    RegisterRoundedSearch(rounded, "Rounded Texture", {
+        "rounded section", "rounded menu", "rounded options", "where rounded frames", "wo rounded frames",
+    }, "Open this section to enable or disable rounded frame textures and its per-surface toggles.", "section")
+    local roundMaster = W.SwitchAt(rounded, "Rounded frame texture", roundLeftX, -52, roundW)
+    M.BindToggle(ctx, roundMaster,
+        function() return ReadB("roundedFramesEnabled", false) == true end,
+        function(v) SetRoundedBool("roundedFramesEnabled", v, true) end)
+    RegisterRoundedSearch(roundMaster, "Rounded frame texture", {
+        "master toggle", "all rounded frames", "rounded frames master", "rounded frames on", "rounded frames off",
+        "rounded frames einschalten", "rounded frames ausschalten", "alle abgerundeten frames",
+    }, "Master switch for the rounded frame texture style.")
+    local roundUnits = W.ToggleAt(rounded, "Unit frames", roundLeftX, -90, roundW)
+    M.BindToggle(ctx, roundUnits,
+        function() return ReadB("roundedUnitFrames", true) ~= false end,
+        function(v) SetRoundedBool("roundedUnitFrames", v) end)
+    RegisterRoundedSearch(roundUnits, "Unit frames", {
+        "rounded unit frames", "rounded unitframes", "unit frame corners", "unitframe corners",
+        "abgerundete unitframes", "unitframes abgerundet", "player target focus boss rounded",
+    }, "Enable or disable rounded textures on unit frames.")
+    local roundGroups = W.ToggleAt(rounded, "Group frames", roundLeftX, -128, roundW)
+    M.BindToggle(ctx, roundGroups,
+        function() return ReadB("roundedGroupFrames", true) ~= false end,
+        function(v) SetRoundedBool("roundedGroupFrames", v) end)
+    RegisterRoundedSearch(roundGroups, "Group frames", {
+        "rounded group frames", "rounded party frames", "rounded raid frames", "group frame corners",
+        "abgerundete gruppenframes", "party raid abgerundet",
+    }, "Enable or disable rounded textures on group frames.")
+    local roundPower = W.ToggleAt(rounded, "Power bars", roundRightX, -52, roundW)
+    M.BindToggle(ctx, roundPower,
+        function() return ReadB("roundedPowerBars", true) ~= false end,
+        function(v) SetRoundedBool("roundedPowerBars", v) end)
+    RegisterRoundedSearch(roundPower, "Power bars", {
+        "rounded power bars", "rounded powerbar", "power bar corners", "powerbar corners",
+        "powerbars abgerundet", "powerbar abrunden",
+    }, "Enable or disable rounded textures on power bars.")
+    local roundMouseover = W.ToggleAt(rounded, "Mouseover highlights", roundRightX, -90, roundW)
+    M.BindToggle(ctx, roundMouseover,
+        function() return ReadB("roundedMouseover", true) ~= false end,
+        function(v) SetRoundedBool("roundedMouseover", v) end)
+    RegisterRoundedSearch(roundMouseover, "Mouseover highlights", {
+        "rounded mouseover", "rounded hover", "rounded hover border", "mouseover rounded",
+        "mouseover highlight rounded", "mouseover abgerundet", "hover abgerundet",
+    }, "Enable or disable rounded mouseover highlight edges.")
+    local roundedPreview = CreateRoundedTexturePreview(rounded, roundLeftX, -154, max(320, (rounded._msuf2Width or ctx.width or 720) - 60))
+    RegisterRoundedSearch(roundedPreview, "Rounded Texture Preview", {
+        "rounded preview", "rounded example", "rounded image", "rounded frame preview",
+        "preview rounded frames", "rounded frames aussehen", "vorschau abgerundete frames",
+    }, "Shows a small preview of the rounded frame texture style.", "preview")
+    M.AddRefresher(ctx, function()
+        local active = ReadB("roundedFramesEnabled", false) == true
+        SetControlsEnabled({ roundUnits, roundGroups, roundPower, roundMouseover }, active)
+        if roundedPreview and roundedPreview.RefreshRoundedPreview then roundedPreview:RefreshRoundedPreview() end
+    end)
 
-    W.LabelAt(highlights, "Border Modes", hlLeftX, -42, hlLeftW, "GameFontNormalSmall", T.colors.accent)
+    local highlights = b:CollapsibleSection("bars_highlight", "Highlight Borders", 672, true)
+    local hlW = highlights._msuf2Width or ctx.width or 720
+    local hlGap = 28
+    local hlLeftX = 30
+    local hlInnerW = max(320, hlW - 60)
+    local hlLeftW = max(220, min(380, floor((hlInnerW - hlGap) * 0.46)))
+    local hlRightX = hlLeftX + hlLeftW + hlGap
+    local hlRightW = max(220, min(420, hlInnerW - hlLeftW - hlGap))
+
+    W.ControlCard(highlights, "Border Modes", nil, hlLeftX - 14, -38, hlLeftW + 28, 438)
+    W.ControlCard(highlights, "Preview", nil, hlRightX - 14, -38, hlRightW + 28, 248)
+    W.ControlCard(highlights, "Dispel Glow", nil, hlRightX - 14, -308, hlRightW + 28, 352)
+
     local highlight = W.Slider(highlights, "Highlight border thickness", 1, 30, 1, hlLeftW)
     M.BindSlider(ctx, highlight,
         function() return tonumber(BarScopeGet("highlightBorderThickness", BarScopeGet("hlAggroSize", 2))) or 2 end,
@@ -748,6 +1045,15 @@ local function BuildBars(ctx)
         end)
     W.MoveWidget(dispelBorder, highlights, hlLeftX, -190, hlLeftW, "LEFT")
 
+    local dispelTrigger = W.Dropdown(highlights, "Dispel border detects", dispelTriggers, hlLeftW)
+    M.BindDropdown(ctx, dispelTrigger,
+        function() return NormalizeDispelTrigger(BarScopeGet("dispelBorderTrigger", "BY_ME")) end,
+        function(v)
+            BarScopeSet("dispelBorderTrigger", NormalizeDispelTrigger(v), "MSUF2_DISPEL_TRIGGER")
+            ApplyDispelPurgeBorderRuntime()
+        end)
+    W.MoveWidget(dispelTrigger, highlights, hlLeftX, -244, hlLeftW, "LEFT")
+
     local purge = W.Dropdown(highlights, "Purge border", borderModes, hlLeftW)
     M.BindDropdown(ctx, purge,
         function() return tonumber(BarScopeGet("purgeOutlineMode", 0)) or 0 end,
@@ -760,7 +1066,7 @@ local function BuildBars(ctx)
             ApplyBars("MSUF2_PURGE_BORDER")
             ApplyDispelPurgeBorderRuntime()
         end)
-    W.MoveWidget(purge, highlights, hlLeftX, -244, hlLeftW, "LEFT")
+    W.MoveWidget(purge, highlights, hlLeftX, -298, hlLeftW, "LEFT")
 
     local bossTarget = W.Dropdown(highlights, "Boss target border", borderModes, hlLeftW)
     M.BindDropdown(ctx, bossTarget,
@@ -778,9 +1084,9 @@ local function BuildBars(ctx)
             ApplyBars("MSUF2_BOSS_TARGET_BORDER")
             ApplyBossTargetBorderRuntime()
         end)
-    W.MoveWidget(bossTarget, highlights, hlLeftX, -298, hlLeftW, "LEFT")
+    W.MoveWidget(bossTarget, highlights, hlLeftX, -352, hlLeftW, "LEFT")
 
-    local bossSharedHint = W.Text(highlights, "Boss target border is a shared boss-frame setting.", hlLeftX, -360, hlLeftW, T.colors.dim)
+    local bossSharedHint = W.Text(highlights, "Boss target border is a shared boss-frame setting.", hlLeftX, -414, hlLeftW, T.colors.dim)
     if bossSharedHint.SetWordWrap then bossSharedHint:SetWordWrap(true) end
 
     local function AggroBorderOn()
@@ -800,7 +1106,6 @@ local function BuildBars(ctx)
         return (tonumber(ReadG("bossTargetOutlineMode", fallback)) or fallback) == 1
     end
 
-    W.LabelAt(highlights, "Preview", hlRightX, -42, hlRightW, "GameFontNormalSmall", T.colors.accent)
     local aggroTest = W.ToggleAt(highlights, "Test aggro border", hlRightX, -72, hlRightW)
     M.BindToggle(ctx, aggroTest,
         function() return _G.MSUF_AggroBorderTestMode and true or false end,
@@ -872,8 +1177,6 @@ local function BuildBars(ctx)
         end
     end)
 
-    W.DividerAt(highlights, -288, hlRightX, 42)
-    W.LabelAt(highlights, "Dispel Glow", hlRightX, -314, hlRightW, "GameFontNormalSmall", T.colors.accent)
     local glowConflictHint = W.Text(highlights, "", hlRightX, -336, hlRightW, { 1.00, 0.72, 0.25, 1 })
     if glowConflictHint.SetWordWrap then glowConflictHint:SetWordWrap(true) end
     local enabled = W.ToggleAt(highlights, "Dispel glow effect", hlRightX, -382, hlRightW)
@@ -938,7 +1241,7 @@ local function BuildBars(ctx)
     W.MoveWidget(thickness, highlights, hlRightX, -592, hlRightW, "LEFT")
 
     M.AddRefresher(ctx, function()
-        local scopedActive = ScopedBarsControlsActive()
+        local scopedActive = HighlightControlsActive()
         local sharedActive = SharedBarsControlsActive()
         local aggroOn = AggroBorderOn()
         local dispelOn = DispelBorderOn()
@@ -973,6 +1276,7 @@ local function BuildBars(ctx)
         SetControlEnabled(highlight, scopedActive)
         SetControlEnabled(aggro, scopedActive)
         SetControlEnabled(dispelBorder, scopedActive)
+        SetControlEnabled(dispelTrigger, scopedActive and dispelOn)
         SetControlEnabled(purge, scopedActive)
         SetControlEnabled(bossTarget, sharedActive)
         SetControlEnabled(aggroTest, scopedActive and aggroOn)
@@ -989,8 +1293,10 @@ local function BuildBars(ctx)
         bossSharedHint:SetTextColor(hintColor[1], hintColor[2], hintColor[3], sharedActive and 0.75 or 1)
     end)
 
-    local priority = b:CollapsibleSection("bars_priority", "Highlight Priority", 280, false)
-    local prio = W.ToggleAt(priority, "Custom highlight priority", 14, -8, 240)
+    local priority = b:CollapsibleSection("bars_priority", "Highlight Priority", 350, false)
+    local priorityCardW = min(360, max(260, (priority._msuf2Width or ctx.width or 720) - 40))
+    local priorityCard = W.ControlCard(priority, "Priority Order", nil, 20, -38, priorityCardW, 296)
+    local prio = W.SwitchAt(priorityCard, "Custom highlight priority", 16, -54, priorityCardW - 32)
     M.BindToggle(ctx, prio,
         function() return BarScopeGet("hlPrioEnabled", false) == true end,
         function(v)
@@ -1002,7 +1308,7 @@ local function BuildBars(ctx)
         end)
 
     local rowH, rowGap, rowMax = 22, 4, 8
-    local prioContainer = CreateFrame("Frame", nil, priority)
+    local prioContainer = CreateFrame("Frame", nil, priorityCard)
     prioContainer:SetPoint("TOPLEFT", prio, "BOTTOMLEFT", -2, -4)
     prioContainer:SetSize(200, rowMax * (rowH + rowGap))
 
@@ -1070,7 +1376,7 @@ local function BuildBars(ctx)
         num:SetPoint("RIGHT", rowFrame, "RIGHT", -8, 0)
         rowFrame._numText = num
         rowFrame:SetScript("OnDragStart", function(self)
-            if not (ScopedBarsControlsActive() and BarScopeGet("hlPrioEnabled", false) == true) then return end
+            if not (HighlightControlsActive() and BarScopeGet("hlPrioEnabled", false) == true) then return end
             if GameTooltip then GameTooltip:Hide() end
             self._msuf2OldStrata = self:GetFrameStrata()
             self:StartMoving()
@@ -1130,15 +1436,15 @@ local function BuildBars(ctx)
             row.key = key
             row.slotIndex = i
             row.frame._stripe:SetColorTexture(r, g, bcol, 1)
-            row.frame._label:SetText(PRIORITY_LABELS[key] or key)
+            row.frame._label:SetText(M.Tr(PRIORITY_LABELS[key] or key))
             row.frame._numText:SetText(tostring(i))
         end
         SnapPriorityRows()
-        SetPriorityRowsEnabled(ScopedBarsControlsActive() and BarScopeGet("hlPrioEnabled", false) == true)
+        SetPriorityRowsEnabled(HighlightControlsActive() and BarScopeGet("hlPrioEnabled", false) == true)
     end
     RefreshPriorityRows()
     M.AddRefresher(ctx, function()
-        SetControlEnabled(prio, ScopedBarsControlsActive())
+        SetControlEnabled(prio, HighlightControlsActive())
         RefreshPriorityRows()
     end)
 
@@ -1159,4 +1465,4 @@ local function BuildBars(ctx)
     ctx:SetContentHeight(math.abs(b.y) + 42)
 end
 
-M.RegisterPage("opt_bars", { title = "MSUF Bars", build = BuildBars, version = 8 })
+M.RegisterPage("opt_bars", { title = "MSUF Bars", build = BuildBars, version = 9 })

@@ -498,7 +498,7 @@ builders.PRESENTATION = function(E)
         if type(_G.MSUF_GetGlobalFontSettings) == "function" then
             path, flags, fr, fg, fb, baseSize, useShadow = _G.MSUF_GetGlobalFontSettings()
         end
-        path     = path or "Fonts\\FRIZQT__.TTF"
+        path     = path or STANDARD_TEXT_FONT or "Fonts/FRIZQT__.TTF"
         flags    = flags or "OUTLINE"
         fr       = fr or 1
         fg       = fg or 1

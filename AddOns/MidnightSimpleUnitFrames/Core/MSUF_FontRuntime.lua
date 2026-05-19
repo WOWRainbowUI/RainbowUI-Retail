@@ -23,8 +23,8 @@ local function Export(key, fn, aliasKey, forceAlias)
 end
 
 local function EnsureDBSafe()
-    if not _G.MSUF_DB and type(_G.EnsureDB) == "function" then
-        _G.EnsureDB()
+    if not _G.MSUF_DB and type(_G.MSUF_EnsureDB) == "function" then
+        (_G.MSUF_EnsureDB)()
     end
 end
 
@@ -109,7 +109,7 @@ local function _MSUF_ApplyFontCached(fs, size, setColor, cr, cg, cb)
     if fs._msufFontRev ~= rev then
         local ok = _MSUF_SetFontChecked(fs, S.path, size, S.flags, S.fontKey)
         if not ok then
-            local fallback = _G.MSUF_ResolveFontPath and _G.MSUF_ResolveFontPath("Fonts\\FRIZQT__.TTF", size, S.flags) or "Fonts\\FRIZQT__.TTF"
+            local fallback = _G.MSUF_ResolveFontPath and _G.MSUF_ResolveFontPath(STANDARD_TEXT_FONT or "Fonts/FRIZQT__.TTF", size, S.flags) or STANDARD_TEXT_FONT
             ok = _MSUF_SetFontChecked(fs, fallback, size, S.flags, "FRIZQT")
         end
         if ok then
@@ -177,6 +177,7 @@ local function _MSUF_ApplyFontsToFrame(f)
     end
 
     if f.nameText then _MSUF_ApplyFontCached(f.nameText, nameSize, false, 0, 0, 0) end
+    if f.raidGroupNameText then _MSUF_ApplyFontCached(f.raidGroupNameText, nameSize, false, 0, 0, 0) end
     if f._msufToTInlineSep then _MSUF_ApplyFontCached(f._msufToTInlineSep, nameSize, false, 0, 0, 0) end
     if f._msufToTInlineText then _MSUF_ApplyFontCached(f._msufToTInlineText, nameSize, false, 0, 0, 0) end
     if f.levelText then _MSUF_ApplyFontCached(f.levelText, (conf and conf.levelIndicatorSize) or nameSize, false, 0, 0, 0) end
@@ -208,7 +209,7 @@ local function UpdateAllFonts(onlyKey)
     local castbars = ns and ns.Castbars
     local getFontPath = castbars and castbars._GetFontPath or _G.MSUF_GetFontPath
     local getFontFlags = castbars and castbars._GetFontFlags or _G.MSUF_GetFontFlags
-    local path = type(getFontPath) == "function" and getFontPath() or "Fonts\\FRIZQT__.TTF"
+    local path = type(getFontPath) == "function" and getFontPath() or STANDARD_TEXT_FONT
     local flags = type(getFontFlags) == "function" and getFontFlags() or ""
 
     EnsureDBSafe()
@@ -229,6 +230,7 @@ local function UpdateAllFonts(onlyKey)
     local colorPowerByType = (g.colorPowerTextByType == true)
 
     if onlyKey == "tot" or onlyKey == "targetoftarget" then onlyKey = "targettarget" end
+    if onlyKey == "focus_target" or onlyKey == "focustargettarget" then onlyKey = "focustarget" end
     if _G.MSUF_GetBossIndexFromToken and _G.MSUF_GetBossIndexFromToken(onlyKey) then onlyKey = "boss" end
 
     local pathKey = tostring(path) .. "|" .. tostring(flags) .. "|" .. tostring(fr) .. "|" .. tostring(fg) .. "|" .. tostring(fb)
@@ -317,7 +319,7 @@ if not _G.MSUF_UpdateAllFonts_Immediate then
         end
         ScheduleApplyCommit()
     end
-    _G.UpdateAllFonts = _G.MSUF_UpdateAllFonts
+    _G.UpdateAllFonts = _G.UpdateAllFonts or _G.MSUF_UpdateAllFonts
 end
 
 ns.Fonts.UpdateAllFonts = UpdateAllFonts

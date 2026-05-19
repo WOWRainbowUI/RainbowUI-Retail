@@ -12,8 +12,8 @@ local type, tonumber = type, tonumber
 local math_floor = math.floor
 
 local function EnsureDBSafe()
-    if not _G.MSUF_DB and type(_G.EnsureDB) == "function" then
-        _G.EnsureDB()
+    if not _G.MSUF_DB and type(_G.MSUF_EnsureDB) == "function" then
+        (_G.MSUF_EnsureDB)()
     end
 end
 
@@ -22,7 +22,7 @@ local function GetConfigKeyForUnitSafe(unit)
     if type(fn) == "function" then
         return fn(unit)
     end
-    if unit == "player" or unit == "target" or unit == "focus" or unit == "targettarget" or unit == "pet" then
+    if unit == "player" or unit == "target" or unit == "focus" or unit == "focustarget" or unit == "targettarget" or unit == "pet" then
         return unit
     end
     local bossIndex = _G.MSUF_GetBossIndexFromToken
@@ -42,7 +42,11 @@ function ns.Icons._layout.GetConf(f)
 end
 
 function ns.Icons._layout.Resolve(anchor, allowCenter)
-    if allowCenter and anchor == "CENTER" then return "CENTER", "CENTER"
+    if anchor == "CENTER" then return "CENTER", "CENTER"
+    elseif anchor == "TOP" then return "TOP", "TOP"
+    elseif anchor == "BOTTOM" then return "BOTTOM", "BOTTOM"
+    elseif anchor == "LEFT" then return "LEFT", "LEFT"
+    elseif anchor == "RIGHT" then return "RIGHT", "RIGHT"
     elseif anchor == "TOPRIGHT" then return "RIGHT", "TOPRIGHT"
     elseif anchor == "BOTTOMLEFT" then return "LEFT", "BOTTOMLEFT"
     elseif anchor == "BOTTOMRIGHT" then return "RIGHT", "BOTTOMRIGHT" end

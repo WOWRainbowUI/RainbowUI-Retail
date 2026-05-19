@@ -7,11 +7,13 @@ performance changes.
 
 ## Rules
 
-- Build Perfy packages as zips in `C:\Users\Marco\Downloads`.
+- Build Perfy packages as zips outside the repository, for example in
+  `%USERPROFILE%\Downloads`.
 - Do not add permanent Perfy packaging scripts to the repo.
 - Do not use repo `.ps1` files for Perfy packaging.
-- Use the last known broad Perfy zip as the instrumentation reference:
-  `C:\Users\Marco\Downloads\MSUF_Perfy_Instrumented_5.1_zero_menu_overhead.zip`
+- Use the current repo checkout as the source and instrumentation reference.
+- Use the last known broad Perfy zip only as the hook-file reference:
+  `%USERPROFILE%\Downloads\MSUF_Perfy_Instrumented_5.1_zero_menu_overhead.zip`
 - Keep the addon shape identical to a real install: include
   `MidnightSimpleUnitFrames` and `MidnightSimpleUnitFrames_Castbars`.
 - Overlay direction is always one-way: repo/source files go into the extracted
@@ -21,35 +23,36 @@ performance changes.
   or direct Perfy dependencies. Only the generated Downloads zip may contain
   those trace hooks.
 - Validate every generated Perfy zip by extracting it and running `luac -p`
-  over all Lua files before giving it to Marco.
+  over all Lua files before sharing it.
 - Never ship a zip with unbalanced Perfy enter/leave instrumentation.
 
 ## Current Known Good Broad Workflow
 
-The current broad reference zip is:
+The current broad source reference is the checked-out repo. The old broad zip is
+used only to copy the Perfy hook:
 
 ```text
-C:\Users\Marco\Downloads\MSUF_Perfy_Instrumented_5.1_zero_menu_overhead.zip
+%USERPROFILE%\Downloads\MSUF_Perfy_Instrumented_5.1_zero_menu_overhead.zip
 ```
 
-Use it as a reference for the Perfy hook and for the list of Lua files that are
-safe to instrument broadly. Do not copy its addon source files back into the
-repo or into the final build after repo files have been overlaid.
+Use it as a reference for `MSUF_PerfyHook.lua` only. Do not copy its addon
+source files back into the repo or into the final build after repo files have
+been overlaid.
 
 The expected broad shape is:
 
 - `MidnightSimpleUnitFrames\MSUF_PerfyHook.lua`
-- 142 Lua files in the generated package
-- 112 Lua files containing `Perfy_Trace`: 111 directly instrumented addon files
-  plus `MSUF_PerfyHook.lua`
+- 146 Lua files in the generated package after the current 5.2 repo state
+- 125 Lua files containing `Perfy_Trace`: current first-party addon files
+  excluding vendor `Libs`, plus `MSUF_PerfyHook.lua`
 - both top-level addon folders:
   `MidnightSimpleUnitFrames` and `MidnightSimpleUnitFrames_Castbars`
 
 Current output names:
 
 ```text
-C:\Users\Marco\Downloads\MSUF_Perfy_Instrumented_5.2_broad_current.zip
-C:\Users\Marco\Downloads\MSUF_Perfy_Instrumented_latest.zip
+%USERPROFILE%\Downloads\MSUF_Perfy_Instrumented_5.2_broad_current.zip
+%USERPROFILE%\Downloads\MSUF_Perfy_Instrumented_latest.zip
 ```
 
 Known important instrumentation exclusions:
@@ -249,7 +252,7 @@ error.
 Copy the repo's current addon folders to a temporary Downloads build folder:
 
 ```text
-C:\Users\Marco\Downloads\MSUF_PerfyBuild_YYYYMMDD_HHMMSS
+%USERPROFILE%\Downloads\MSUF_PerfyBuild_YYYYMMDD_HHMMSS
 ```
 
 The repo is always the source:
@@ -259,13 +262,13 @@ repo\MidnightSimpleUnitFrames              -> build\MidnightSimpleUnitFrames
 repo\MidnightSimpleUnitFrames_Castbars     -> build\MidnightSimpleUnitFrames_Castbars
 ```
 
-2. Read the broad reference zip only for:
+2. Read the old broad zip only for:
 
 - `MidnightSimpleUnitFrames\MSUF_PerfyHook.lua`
-- the list of Lua files that already contain `Perfy_Trace`
 
-The reference currently marks 112 files with `Perfy_Trace`; exclude the hook
-itself and instrument the remaining 111 repo-derived build files.
+Do not use the old zip as the source-file reference. Instrument current
+repo-derived first-party Lua files from both addon folders. Exclude vendor
+`Libs` and `MSUF_PerfyHook.lua` itself.
 
 3. Patch the generated build TOC, not the repo TOC.
 
@@ -284,6 +287,13 @@ script into the repo. The broad instrumenter must:
 - track anonymous callback functions as stack blocks, even when they do not get
   labels, so `return` inside `table.sort(... function(...) ... end)` is not
   assigned to the outer named function
+- treat `elseif ... then` as a continuation of the existing `if` block. Do not
+  push a second block for the `then` token on `elseif`, or the function `end`
+  can be misread as an inner block end and the final `Leave` will be missing.
+- treat top-level `return function() ... end` and
+  `return { key = function() ... end }` as terminal returns for the current
+  instrumented function, while still tracking the anonymous returned function as
+  an unlabelled stack block.
 - insert `Enter` only after complete multi-line function signatures
 - insert `Leave` before standalone, semicolon, and one-line branch returns
 - skip `_msuf_probeNum`
@@ -302,7 +312,7 @@ foreach ($file in $luaFiles) {
 Expected result after the current base:
 
 ```text
-luac ok: 142 files
+luac ok: 146 files
 ```
 
 6. Compress both top-level addon folders from inside the temporary build root:
@@ -315,8 +325,8 @@ MidnightSimpleUnitFrames_Castbars
 Current output names:
 
 ```text
-C:\Users\Marco\Downloads\MSUF_Perfy_Instrumented_5.2_broad_current.zip
-C:\Users\Marco\Downloads\MSUF_Perfy_Instrumented_latest.zip
+%USERPROFILE%\Downloads\MSUF_Perfy_Instrumented_5.2_broad_current.zip
+%USERPROFILE%\Downloads\MSUF_Perfy_Instrumented_latest.zip
 ```
 
 7. Verify the finished zip contains these entries:
@@ -330,8 +340,8 @@ MidnightSimpleUnitFrames_Castbars\MidnightSimpleUnitFrames_Castbars.toc
 And verify:
 
 ```text
-luaFiles=142
-perfyTraceFiles=112
+luaFiles=146
+perfyTraceFiles=125
 tocHasPerfyOptionalDep=True
 tocLoadsHook=True
 hasHook=True
@@ -371,6 +381,11 @@ Use these rules:
   with a terminal standalone `return`.
 - Do not treat single-line anonymous callback functions as normal multi-line
   functions unless the instrumenter can parse them safely.
+- Do not assign returns inside anonymous returned/callback functions to the
+  outer named function. If the nearest enclosing function is unlabelled, that
+  return must not emit the outer label's `Leave`.
+- `elseif ... then` must not add a new block depth. It shares the same `end` as
+  the original `if`.
 - After instrumentation, always run `luac -p` over all Lua files.
 
 Good pattern:
@@ -399,11 +414,11 @@ end
 
 ## Capture A Trace
 
-Marco installs the generated zip in WoW and captures the trace with Perfy.
+Install the generated zip in WoW and capture the trace with Perfy.
 The SavedVariables file is usually here:
 
 ```text
-e:\World of Warcraft\_retail_\WTF\Account\1108323981#1\SavedVariables\!!!Perfy.lua
+<WoW install>\_retail_\WTF\Account\<account-id>\SavedVariables\!!!Perfy.lua
 ```
 
 For performance comparisons, use a similar scenario and duration when possible.
@@ -484,7 +499,7 @@ Castbars/MSUF_Castbars.lua ManagerOnUpdate
 The first zip after the Dispel/GroupFrames cache fixes was:
 
 ```text
-C:\Users\Marco\Downloads\MSUF_Perfy_Instrumented_perf_fix1.zip
+%USERPROFILE%\Downloads\MSUF_Perfy_Instrumented_perf_fix1.zip
 ```
 
 It was validated with:

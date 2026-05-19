@@ -21,6 +21,11 @@ local function Print(msg)
     end
 end
 
+local function Tr(text)
+    if type(ns.Translate) == "function" then return ns.Translate(text) end
+    return text
+end
+
 local function IsConfigCombatLocked()
     if type(_G.MSUF_IsConfigCombatLocked) == "function" then
         return _G.MSUF_IsConfigCombatLocked() and true or false
@@ -44,7 +49,8 @@ local function BlockConfigCombatLocked(silent)
 end
 
 local function EnsureGeneral()
-    if type(_G.EnsureDB) == "function" then pcall(_G.EnsureDB) end
+    local ensureDB = _G.MSUF_EnsureDB
+    if type(ensureDB) == "function" then pcall(ensureDB) end
     _G.MSUF_DB = type(_G.MSUF_DB) == "table" and _G.MSUF_DB or {}
     _G.MSUF_DB.general = type(_G.MSUF_DB.general) == "table" and _G.MSUF_DB.general or {}
     return _G.MSUF_DB.general
@@ -55,8 +61,8 @@ local function AddTooltip(widget, title, body)
     widget:SetScript("OnEnter", function(self)
         if not _G.GameTooltip then return end
         _G.GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        if title and title ~= "" then _G.GameTooltip:SetText(title, 1, 1, 1) end
-        if body and body ~= "" then _G.GameTooltip:AddLine(body, 0.80, 0.86, 1.00, true) end
+        if title and title ~= "" then _G.GameTooltip:SetText(Tr(title), 1, 1, 1) end
+        if body and body ~= "" then _G.GameTooltip:AddLine(Tr(body), 0.80, 0.86, 1.00, true) end
         _G.GameTooltip:Show()
     end)
     widget:SetScript("OnLeave", function()
@@ -80,7 +86,6 @@ local function LeftJustifyButtonText(btn, leftPad)
 end
 
 _G.MSUF_LeftJustifyButtonText = _G.MSUF_LeftJustifyButtonText or LeftJustifyButtonText
-_G.LeftJustify = _G.LeftJustify or LeftJustifyButtonText
 
 local tips = {
     "Bigger steps: Hold SHIFT while adjusting sliders to change values faster.",
@@ -124,12 +129,13 @@ function _G.MSUF_ShowReloadRecommendedPopup(label)
 
     pendingReloadRecommendedLabel = tostring(label or "")
     if pendingReloadRecommendedLabel == "" then pendingReloadRecommendedLabel = "these changes" end
+    pendingReloadRecommendedLabel = Tr(pendingReloadRecommendedLabel)
 
     if not _G.StaticPopupDialogs.MSUF_RELOAD_RECOMMENDED then
         _G.StaticPopupDialogs.MSUF_RELOAD_RECOMMENDED = {
-            text = "MSUF recommends reloading the UI to ensure all changes apply correctly.\n\nApply: %s\n\nReload now?",
-            button1 = _G.RELOAD or "Reload",
-            button2 = _G.CANCEL or "Not now",
+            text = Tr("MSUF recommends reloading the UI to ensure all changes apply correctly.\n\nApply: %s\n\nReload now?"),
+            button1 = _G.RELOAD or Tr("Reload"),
+            button2 = _G.CANCEL or Tr("Not now"),
             timeout = 0,
             whileDead = true,
             hideOnEscape = true,
@@ -183,12 +189,12 @@ local function EnsureCopyLinkPopup()
 
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", frame, "TOP", 0, -14)
-    title:SetText("Link")
+    title:SetText(Tr("Link"))
     frame._msufTitleFS = title
 
     local hint = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     hint:SetPoint("TOP", title, "BOTTOM", 0, -6)
-    hint:SetText("Press Ctrl+C to copy:")
+    hint:SetText(Tr("Press Ctrl+C to copy:"))
     hint:SetTextColor(0.90, 0.90, 0.90, 1)
 
     local editBox = _G.CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
@@ -206,14 +212,14 @@ local function EnsureCopyLinkPopup()
     ok:Enable()
     ok:SetSize(120, 24)
     ok:SetPoint("BOTTOM", frame, "BOTTOM", 0, 12)
-    ok:SetText(_G.OKAY or "Okay")
+    ok:SetText(_G.OKAY or Tr("Okay"))
     ok:RegisterForClicks("LeftButtonUp")
     ok:SetScript("OnClick", function() frame:Hide() end)
     frame._msufOkButton = ok
     if type(_G.MSUF_SkinButton) == "function" then pcall(_G.MSUF_SkinButton, ok) end
 
     frame:SetScript("OnShow", function(self)
-        if self._msufTitleFS then self._msufTitleFS:SetText(self._msufTitle or "Link") end
+        if self._msufTitleFS then self._msufTitleFS:SetText(Tr(self._msufTitle or "Link")) end
         if self._msufEditBox then
             self._msufEditBox:SetText(self._msufUrl or "")
             self._msufEditBox:HighlightText()
@@ -260,9 +266,9 @@ do
     local isAlpha = type(version) == "string" and version:lower():find("alpha", 1, true) ~= nil
     if isAlpha and _G.StaticPopupDialogs and not _G.StaticPopupDialogs.MSUF_ALPHA_DISCORD then
         _G.StaticPopupDialogs.MSUF_ALPHA_DISCORD = {
-            text = "|cffb088f0MSUF Alpha Build|r\n\nThis is an early Alpha version.\nPlease report bugs and share feedback on our Discord!\n\n|cff7289dahttps://discord.gg/JQnhZXnTAK|r",
-            button1 = "Copy Discord Link",
-            button2 = _G.CLOSE or "Close",
+            text = Tr("|cffb088f0MSUF Alpha Build|r\n\nThis is an early Alpha version.\nPlease report bugs and share feedback on our Discord!\n\n|cff7289dahttps://discord.gg/JQnhZXnTAK|r"),
+            button1 = Tr("Copy Discord Link"),
+            button2 = _G.CLOSE or Tr("Close"),
             timeout = 0,
             whileDead = true,
             hideOnEscape = true,

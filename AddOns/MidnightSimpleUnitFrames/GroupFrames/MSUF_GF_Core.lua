@@ -154,6 +154,12 @@ if type(_G.MSUF_UnitFrames) ~= "table" then _G.MSUF_UnitFrames = {} end
 GF._eventFrame = GF._eventFrame or nil
 GF._previewActive = GF._previewActive or {}
 
+local _headerScanInputSerial = 0
+local _rebuildAllActive = false
+local function MarkHeaderScanInputsChanged()
+    _headerScanInputSerial = _headerScanInputSerial + 1
+end
+
 local function MarkPostCombatHeaderRecovery()
     GF._pendingRebuild = true
     GF._pendingVisibilityUpdate = true
@@ -1119,6 +1125,9 @@ local function LayoutText(f, kind)
     local tl = hpTextOn and (conf.textLeft  or "NONE") or "NONE"
     local tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
     local tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
+    if conf.hpTextReverse == true then
+        tl, tr = tr, tl
+    end
     if f.textLeftFS then
         f.textLeftFS:ClearAllPoints()
         f.textLeftFS:SetPoint("LEFT", f.health, "LEFT", 3, 0)
@@ -1461,23 +1470,25 @@ function GF.UpdateButton(f, unit)
         local hp    = UnitHealth(unit)
         local hpMax = UnitHealthMax(unit)
         local delim = conf.textDelimiter or " / "
-        local rev = conf.hpTextReverse
         local hpTextOn = conf.showHPText ~= false
         local tl = hpTextOn and (conf.textLeft  or "NONE") or "NONE"
         local tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
         local tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
+        if conf.hpTextReverse == true then
+            tl, tr = tr, tl
+        end
         if f.textLeftFS then
-            local txt = GF.FormatHealthText(tl, hp, hpMax, delim, rev, unit)
+            local txt = GF.FormatHealthText(tl, hp, hpMax, delim, false, unit)
             f.textLeftFS:SetText(txt)
             if tl ~= "NONE" then f.textLeftFS:Show() else f.textLeftFS:Hide() end
         end
         if f.textCenterFS then
-            local txt = GF.FormatHealthText(tc, hp, hpMax, delim, rev, unit)
+            local txt = GF.FormatHealthText(tc, hp, hpMax, delim, false, unit)
             f.textCenterFS:SetText(txt)
             if tc ~= "NONE" then f.textCenterFS:Show() else f.textCenterFS:Hide() end
         end
         if f.textRightFS then
-            local txt = GF.FormatHealthText(tr, hp, hpMax, delim, rev, unit)
+            local txt = GF.FormatHealthText(tr, hp, hpMax, delim, false, unit)
             f.textRightFS:SetText(txt)
             if tr ~= "NONE" then f.textRightFS:Show() else f.textRightFS:Hide() end
         end
@@ -1668,12 +1679,24 @@ local function _ScanHeaderChildrenVarargs(header, kind, force, ...)
         if GF.DeactivateKindRuntime then GF.DeactivateKindRuntime(kind, false) end
         return
     end
-    -- Throttle normal GROUP_ROSTER_UPDATE bursts, but never throttle the
-    -- explicit post-layout repair scans. The repair scans are what normalize
-    -- the first/player child after SecureGroupHeader finishes its own pass.
-    local now = GetTime()
-    if not force and header._msufGFLastScan and (now - header._msufGFLastScan) < 0.05 then return end
-    header._msufGFLastScan = now
+    -- Throttle normal GROUP_ROSTER_UPDATE bursts. Forced scans are still
+    -- allowed for the post-layout repair pass, but identical forced scans
+    -- inside the same short burst are skipped.
+    local now = (GetTime and GetTime()) or 0
+    if force then
+        local scanKey = tostring(kind) .. ":" .. tostring(_headerScanInputSerial)
+        if header._msufGFLastForceScanKey == scanKey
+            and header._msufGFLastForceScanAt
+            and (now - header._msufGFLastForceScanAt) < 0.04
+        then
+            return
+        end
+        header._msufGFLastForceScanKey = scanKey
+        header._msufGFLastForceScanAt = now
+    else
+        if header._msufGFLastScan and (now - header._msufGFLastScan) < 0.05 then return end
+        header._msufGFLastScan = now
+    end
 
     -- Protected frames: cannot call SetSize/SetPoint in combat
     local inCombat = InCombatLockdown()
@@ -2349,6 +2372,7 @@ local function SetupPartyHeader()
         GF._pendingPartyRefresh = true
         return
     end
+    if not _rebuildAllActive then MarkHeaderScanInputsChanged() end
 
     local conf = GF.GetConf("party")
     if not conf.enabled then return end
@@ -2669,6 +2693,7 @@ local function SetupRaidHeader()
         GF._pendingRaidRefresh = true
         return
     end
+    if not _rebuildAllActive then MarkHeaderScanInputsChanged() end
 
     local kind = GetLiveRaidKind()
     local conf = GF.GetConf(kind)
@@ -3003,21 +3028,23 @@ function GF.ApplyPreviewData(f, index, kind)
         local fakeHP = math_floor(hpPct * 100)
         local fakeMax = 100
         local delim = conf.textDelimiter or " / "
-        local rev = conf.hpTextReverse
         local hpTextOn = conf.showHPText ~= false
         local tl = hpTextOn and (conf.textLeft  or "NONE") or "NONE"
         local tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
         local tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
+        if conf.hpTextReverse == true then
+            tl, tr = tr, tl
+        end
         if f.textLeftFS then
-            f.textLeftFS:SetText(GF.FormatHealthText(tl, fakeHP, fakeMax, delim, rev))
+            f.textLeftFS:SetText(GF.FormatHealthText(tl, fakeHP, fakeMax, delim, false))
             if tl ~= "NONE" then f.textLeftFS:Show() else f.textLeftFS:Hide() end
         end
         if f.textCenterFS then
-            f.textCenterFS:SetText(GF.FormatHealthText(tc, fakeHP, fakeMax, delim, rev))
+            f.textCenterFS:SetText(GF.FormatHealthText(tc, fakeHP, fakeMax, delim, false))
             if tc ~= "NONE" then f.textCenterFS:Show() else f.textCenterFS:Hide() end
         end
         if f.textRightFS then
-            f.textRightFS:SetText(GF.FormatHealthText(tr, fakeHP, fakeMax, delim, rev))
+            f.textRightFS:SetText(GF.FormatHealthText(tr, fakeHP, fakeMax, delim, false))
             if tr ~= "NONE" then f.textRightFS:Show() else f.textRightFS:Hide() end
         end
     end
@@ -3041,10 +3068,11 @@ function GF.ApplyPreviewData(f, index, kind)
         if tex and tex.SetAlpha then tex:SetAlpha(alpha) end
     end
     if f.incomingHealBar then
+        if GF._ApplyHealPredAnchor then GF._ApplyHealPredAnchor(f) end
         local hpEnabled = (GF.IsHealPredictionEnabled and GF.IsHealPredictionEnabled(f._msufGFKind or "party", conf)) or false
         if hpEnabled ~= false then
             f.incomingHealBar:SetMinMaxValues(0, 100)
-            f.incomingHealBar:SetValue(math_min(hpVal + 20, 100))
+            f.incomingHealBar:SetValue(math_min(20, math_max(0, 100 - hpVal)))
             local r, g, b = 0.0, 1.0, 0.4
             if gen then
                 if type(gen.healPredColorR) == "number" then r = gen.healPredColorR end
@@ -3069,7 +3097,9 @@ function GF.ApplyPreviewData(f, index, kind)
         end
     end
     -- Absorb anchoring: SetReverseFill from absorbAnchorMode (per-GF → general)
-    if absorbBarVisible or (f.healAbsorbBar and conf.healAbsorbEnabled ~= false) then
+    if GF._ApplyAbsorbAnchor then
+        GF._ApplyAbsorbAnchor(f)
+    elseif absorbBarVisible or (f.healAbsorbBar and conf.healAbsorbEnabled ~= false) then
         local anchorMode = tonumber(_pResolve("absorbAnchorMode")) or 2
         local absorbReverse, healReverse
         if anchorMode == 1 then
@@ -3082,7 +3112,6 @@ function GF.ApplyPreviewData(f, index, kind)
         end
         if f.absorbBar and f.absorbBar.SetReverseFill then f.absorbBar:SetReverseFill(absorbReverse and true or false) end
         if f.healAbsorbBar and f.healAbsorbBar.SetReverseFill then f.healAbsorbBar:SetReverseFill(healReverse and true or false) end
-        if f.incomingHealBar and f.incomingHealBar.SetReverseFill then f.incomingHealBar:SetReverseFill(false) end
     end
     if f.absorbBar and absorbBarVisible then
         f.absorbBar:SetMinMaxValues(0, 100)
@@ -3621,6 +3650,7 @@ function GF.RebuildAll()
         MarkPostCombatHeaderRecovery()
         return
     end
+    MarkHeaderScanInputsChanged()
     GF.HideOrphanedPreviews()
     local partyConf = GF.GetConf("party")
     local raidKind = GetLiveRaidKind()
@@ -3630,6 +3660,7 @@ function GF.RebuildAll()
 
     local inRaid = IsInRaid and IsInRaid() or false
 
+    _rebuildAllActive = true
     -- Party: build once, show only outside raid
     if partyConf.enabled == true then
         SetupPartyHeader()
@@ -3649,6 +3680,7 @@ function GF.RebuildAll()
     else
         HideRaidHeaders()
     end
+    _rebuildAllActive = false
 
     GF.DisableBlizzardFrames()
     GF.RefreshPreviewLayout("party")
@@ -3668,6 +3700,7 @@ function GF.RebuildAll()
             MarkPostCombatHeaderRecovery()
             return
         end
+        MarkHeaderScanInputsChanged()
         -- Force event re-registration (picks up aura/dispel toggle changes)
         for _, kind in pairs({"party"}) do
             local hdr = GF.headers[kind]
@@ -3696,6 +3729,7 @@ function GF.RefreshOutlineGeometry()
         return
     end
     if GF.InvalidateConfCache then GF.InvalidateConfCache() end
+    MarkHeaderScanInputsChanged()
 
     local partyHeader = GF.headers and GF.headers.party
     if partyHeader and GF.IsKindEnabled("party") then
@@ -3740,6 +3774,7 @@ function GF.UpdateGroupVisibility()
         if GF.DeactivateDisabledKinds then GF.DeactivateDisabledKinds(false) end
         return
     end
+    MarkHeaderScanInputsChanged()
     local inRaid = IsInRaid and IsInRaid() or false
     local partyConf = GF.GetConf("party")
     local raidKind = GetLiveRaidKind()
@@ -3816,6 +3851,7 @@ local function OnEvent(self, event, ...)
         GF_UpdateDifficultyCache()
 
     elseif event == "GROUP_ROSTER_UPDATE" then
+        MarkHeaderScanInputsChanged()
         GF.UpdateAnyEnabledFlag()
         if not GF._anyEnabled then
             if GF.DeactivateDisabledKinds then GF.DeactivateDisabledKinds(not (InCombatLockdown and InCombatLockdown())) end

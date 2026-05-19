@@ -81,6 +81,14 @@ local function BindTableToggle(ctx, section, label, getTable, key, default, appl
     return toggle
 end
 
+local function BindTableSwitchAt(ctx, section, label, x, y, labelWidth, getTable, key, default, apply)
+    local toggle = W.SwitchAt(section, label, x, y, labelWidth)
+    M.BindToggle(ctx, toggle,
+        function() return BoolValue(getTable(), key, default) end,
+        function(v) SetValue(getTable(), key, v and true or false, apply) end)
+    return toggle
+end
+
 local function BindTableSlider(ctx, section, label, minVal, maxVal, step, width, getTable, key, default, apply)
     local slider = W.Slider(section, label, minVal, maxVal, step, width or 300)
     M.BindSlider(ctx, slider,
@@ -428,6 +436,14 @@ local function BindValueToggle(ctx, section, label, getValue, setValue)
     return toggle
 end
 
+local function BindValueSwitchAt(ctx, section, label, x, y, labelWidth, getValue, setValue)
+    local toggle = W.SwitchAt(section, label, x, y, labelWidth)
+    M.BindToggle(ctx, toggle,
+        function() return getValue() and true or false end,
+        function(v) setValue(v and true or false) end)
+    return toggle
+end
+
 local function BindValueSlider(ctx, section, label, minVal, maxVal, step, width, getValue, setValue)
     local slider = W.Slider(section, label, minVal, maxVal, step, width or 160)
     M.BindSlider(ctx, slider,
@@ -444,8 +460,16 @@ local function ToggleAt(ctx, section, label, x, y, getTable, key, default, apply
     return MoveWidget(BindTableToggle(ctx, section, label, getTable, key, default, apply), section, x, y)
 end
 
+local function SwitchAt(ctx, section, label, x, y, labelWidth, getTable, key, default, apply)
+    return BindTableSwitchAt(ctx, section, label, x, y, labelWidth, getTable, key, default, apply)
+end
+
 local function ValueToggleAt(ctx, section, label, x, y, getValue, setValue)
     return MoveWidget(BindValueToggle(ctx, section, label, getValue, setValue), section, x, y)
+end
+
+local function ValueSwitchAt(ctx, section, label, x, y, labelWidth, getValue, setValue)
+    return BindValueSwitchAt(ctx, section, label, x, y, labelWidth, getValue, setValue)
 end
 
 local function SliderAt(ctx, section, label, x, y, minVal, maxVal, step, width, getTable, key, default, apply)
@@ -493,6 +517,15 @@ end
 
 local function ScopedToggleAt(ctx, section, label, x, y, getTable, key, default, beforeSet, afterSet)
     return ValueToggleAt(ctx, section, label, x, y,
+        function() return BoolValue(getTable(), key, default) end,
+        function(v)
+            if type(beforeSet) == "function" then beforeSet() end
+            SetValue(getTable(), key, v and true or false, afterSet)
+        end)
+end
+
+local function ScopedSwitchAt(ctx, section, label, x, y, labelWidth, getTable, key, default, beforeSet, afterSet)
+    return ValueSwitchAt(ctx, section, label, x, y, labelWidth,
         function() return BoolValue(getTable(), key, default) end,
         function(v)
             if type(beforeSet) == "function" then beforeSet() end
@@ -611,7 +644,46 @@ local function RefreshAurasPage(ctx)
     end
 end
 
+local AURAS_BUILD_DEPS = {
+    M = M, W = W, T = T, ns = ns,
+    floor = floor, abs = abs, max = max, min = min,
+    BoolValue = BoolValue, SetValue = SetValue, G = G,
+    ApplyAuras = ApplyAuras, AurasDB = AurasDB, AurasUnit = AurasUnit,
+    AuraScope = AuraScope, AuraShared = AuraShared, AuraLayout = AuraLayout,
+    AuraCaps = AuraCaps, AuraFilters = AuraFilters, AuraBuffFilters = AuraBuffFilters,
+    AuraDebuffFilters = AuraDebuffFilters, BossHealAuras = BossHealAuras,
+    AuraIgnoreCats = AuraIgnoreCats, AuraReminders = AuraReminders,
+    ForceAuraLayoutOverride = ForceAuraLayoutOverride, ForceAuraCapsOverride = ForceAuraCapsOverride,
+    ForceAuraFilterOverride = ForceAuraFilterOverride, ForceAuraIgnoreOverride = ForceAuraIgnoreOverride,
+    MarkReminderDirty = MarkReminderDirty, SetControlEnabled = SetControlEnabled,
+    FlowTopLeft = FlowTopLeft, FitInlineToggle = FitInlineToggle,
+    GetPandemicMode = GetPandemicMode, SetPandemicMode = SetPandemicMode,
+    AuraHasOverride = AuraHasOverride, RefreshAurasPage = RefreshAurasPage,
+    AURA_SCOPES = AURA_SCOPES, AURA_GROWTH = AURA_GROWTH, AURA_ROW_WRAP = AURA_ROW_WRAP,
+    AURA_STACK_ANCHORS = AURA_STACK_ANCHORS, AURA_IGNORE_CATEGORIES = AURA_IGNORE_CATEGORIES,
+    AURA_REMINDERS = AURA_REMINDERS, AURA_SORT_ORDER = AURA_SORT_ORDER,
+    PANDEMIC_MODES = PANDEMIC_MODES,
+}
+
 local function BuildAuras(ctx)
+    local deps = AURAS_BUILD_DEPS
+    local M, W, T, ns = deps.M, deps.W, deps.T, deps.ns
+    local floor, abs, max, min = deps.floor, deps.abs, deps.max, deps.min
+    local BoolValue, SetValue, G = deps.BoolValue, deps.SetValue, deps.G
+    local ApplyAuras, AurasDB, AurasUnit = deps.ApplyAuras, deps.AurasDB, deps.AurasUnit
+    local AuraScope, AuraShared, AuraLayout, AuraCaps = deps.AuraScope, deps.AuraShared, deps.AuraLayout, deps.AuraCaps
+    local AuraFilters, AuraBuffFilters, AuraDebuffFilters = deps.AuraFilters, deps.AuraBuffFilters, deps.AuraDebuffFilters
+    local BossHealAuras, AuraIgnoreCats, AuraReminders = deps.BossHealAuras, deps.AuraIgnoreCats, deps.AuraReminders
+    local ForceAuraLayoutOverride, ForceAuraCapsOverride = deps.ForceAuraLayoutOverride, deps.ForceAuraCapsOverride
+    local ForceAuraFilterOverride, ForceAuraIgnoreOverride = deps.ForceAuraFilterOverride, deps.ForceAuraIgnoreOverride
+    local MarkReminderDirty, SetControlEnabled = deps.MarkReminderDirty, deps.SetControlEnabled
+    local FlowTopLeft, FitInlineToggle = deps.FlowTopLeft, deps.FitInlineToggle
+    local GetPandemicMode, SetPandemicMode = deps.GetPandemicMode, deps.SetPandemicMode
+    local AuraHasOverride, RefreshAurasPage = deps.AuraHasOverride, deps.RefreshAurasPage
+    local AURA_SCOPES, AURA_GROWTH, AURA_ROW_WRAP = deps.AURA_SCOPES, deps.AURA_GROWTH, deps.AURA_ROW_WRAP
+    local AURA_STACK_ANCHORS, AURA_IGNORE_CATEGORIES = deps.AURA_STACK_ANCHORS, deps.AURA_IGNORE_CATEGORIES
+    local AURA_REMINDERS, AURA_SORT_ORDER, PANDEMIC_MODES = deps.AURA_REMINDERS, deps.AURA_SORT_ORDER, deps.PANDEMIC_MODES
+
     local b = W.PageBuilder(ctx)
     b:GlobalStyleHeader("Unit Auras", "Auras 2.0 display, filters, layout, timer text and reminders.", 72)
     local contentW = max(320, tonumber(ctx and ctx.width) or 720)
@@ -637,16 +709,35 @@ local function BuildAuras(ctx)
         return u and u[flag] == true
     end
 
+    local function AuraScopeLabel()
+        local scopeKey = AuraScope()
+        for i = 1, #AURA_SCOPES do
+            local spec = AURA_SCOPES[i]
+            if spec.value == scopeKey then
+                local text = spec.text or scopeKey
+                return (M.Tr and M.Tr(text)) or text
+            end
+        end
+        return tostring(scopeKey or "")
+    end
+
     local unitPillPos, unitPillBottomY = FlowTopLeft({ 90, 90, 90, 96 }, 12, -120, contentW - 14, 6, 28, 22)
     local top = b:Section("Unit Auras", max(148, abs(unitPillBottomY) + 14))
-    Track(sharedOnlyControls, ToggleAt(ctx, top, "Enable Unit Auras", 12, -34, function() return AurasDB() end, "enabled", true, function()
+    local function ApplyUnitAuraEnabled()
         local a2 = AurasDB()
         if a2.enabled == false and type(_G.MSUF_A2_HardDisableAll) == "function" then pcall(_G.MSUF_A2_HardDisableAll) end
         ApplyAuras()
-    end))
-    Track(filterOverrideControls, ScopedToggleAt(ctx, top, "Enable filters", 200, -34, AuraFilters, "enabled", true, ForceAuraFilterOverride, ApplyAuras))
+    end
+    local enableUnitAuras = W.SwitchAt(top, "Enable Unit Auras", 12, -34, 160)
+    M.BindToggle(ctx, enableUnitAuras,
+        function() return BoolValue(AurasDB(), "enabled", true) end,
+        function(v)
+            SetValue(AurasDB(), "enabled", v and true or false, ApplyUnitAuraEnabled)
+        end)
+    Track(sharedOnlyControls, enableUnitAuras)
+    Track(filterOverrideControls, ScopedSwitchAt(ctx, top, "Enable filters", 230, -34, 160, AuraFilters, "enabled", true, ForceAuraFilterOverride, ApplyAuras))
     Track(sharedOnlyControls, ToggleAt(ctx, top, "Preview in Edit Mode", 12, -58, AuraShared, "showInEditMode", true, ApplyAuras))
-    Track(sharedOnlyControls, ToggleAt(ctx, top, "Enable Masque skinning", 200, -58, AuraShared, "masqueEnabled", false, ApplyAuras))
+    Track(sharedOnlyControls, SwitchAt(ctx, top, "Enable Masque skinning", 230, -58, 220, AuraShared, "masqueEnabled", false, ApplyAuras))
     Track(sharedOnlyControls, ToggleAt(ctx, top, "Hide Masque borders", 200, -82, AuraShared, "masqueHideBorder", false, ApplyAuras))
     LabelAt(top, "Units", 12, -94, 180, "GameFontNormalSmall", T.colors.muted)
     Track(sharedOnlyControls, TogglePillAt(ctx, top, "Player", unitPillPos[1].x, unitPillPos[1].y, unitPillPos[1].width, function() return AurasDB() end, "showPlayer", false, ApplyAuras))
@@ -759,19 +850,19 @@ local function BuildAuras(ctx)
         local active = {}
         for i = 2, #AURA_SCOPES do
             local spec = AURA_SCOPES[i]
-            if AuraHasOverride(spec.value) then active[#active + 1] = spec.text end
+            if AuraHasOverride(spec.value) then active[#active + 1] = M.Tr(spec.text or "") end
         end
         local isShared = AuraScope() == "shared"
         if isShared and #active == 0 then
-            summary:SetText("|cff9aa0a6No unit overrides active.|r")
+            summary:SetText("|cff9aa0a6" .. M.Tr("No unit overrides active.") .. "|r")
         elseif isShared then
-            summary:SetText("|cffffffffOverrides active:|r " .. table.concat(active, ", "))
+            summary:SetText("|cffffffff" .. M.Tr("Overrides active:") .. "|r " .. table.concat(active, ", "))
         else
             local selected = AuraScope()
             if AuraHasOverride(selected) then
-                summary:SetText("|cffffffffThis unit uses custom aura settings.|r Shared changes will not affect overridden parts until Reset Overrides is used.")
+                summary:SetText("|cffffffff" .. M.Tr("This unit uses custom aura settings.") .. "|r " .. M.Tr("Shared changes will not affect overridden parts until Reset Overrides is used."))
             else
-                summary:SetText("|cff9aa0a6This unit follows Shared aura settings. Enable custom filters, caps, or layout only when this unit needs different auras.|r")
+                summary:SetText("|cff9aa0a6" .. M.Tr("This unit follows Shared aura settings. Enable custom filters, caps, or layout only when this unit needs different auras.") .. "|r")
             end
         end
         SetControlEnabled(overrideFilters, not isShared)
@@ -794,7 +885,9 @@ local function BuildAuras(ctx)
     local lowerToggleY = lowerLabelY - 16
     local borderLabelY = compactDisplay and (lowerLabelY - 88) or lowerLabelY
     local borderToggleY = borderLabelY - 16
-    local masterH = compactDisplay and max(244, abs(borderToggleY - 24) + 18) or 244
+    local displayHintY = borderToggleY - 70
+    local displayBaseH = compactDisplay and max(244, abs(borderToggleY - 24) + 18) or 244
+    local masterH = max(displayBaseH, abs(displayHintY) + 58)
 
     local master = b:CollapsibleSection("a2_display", "Display", masterH, true)
     LabelAt(master, "|cff6EB5FFBuffs|r", displayCol1, -12, displayCol1W)
@@ -821,6 +914,20 @@ local function BuildAuras(ctx)
     Track(sharedOnlyControls, FitInlineToggle(ToggleAt(ctx, master, "Swipe darkens on loss", displayCol2 - 2, lowerToggleY - 22, AuraShared, "cooldownSwipeDarkenOnLoss", false, ApplyAuras), displayCol2W))
     Track(sharedOnlyControls, FitInlineToggle(ToggleAt(ctx, master, "Show cooldown text", displayCol2 - 2, lowerToggleY - 44, AuraShared, "showCooldownText", true, ApplyAuras), displayCol2W))
     Track(sharedOnlyControls, FitInlineToggle(ToggleAt(ctx, master, "Dispel-type borders", displayCol3 - 2, borderToggleY, AuraShared, "useDebuffTypeBorders", false, ApplyAuras), displayCol3W))
+    local displayScopeHint = W.Text(master, "Player-only buff hiding uses Custom caps and Max Buffs 0 because Show Buffs is shared.", 14, displayHintY, contentW - 28, T.colors.muted)
+    if displayScopeHint.SetWordWrap then displayScopeHint:SetWordWrap(true) end
+    if displayScopeHint.SetHeight then displayScopeHint:SetHeight(52) end
+    M.AddRefresher(ctx, function()
+        local scopeKey = AuraScope()
+        local scopeName = AuraScopeLabel()
+        if scopeKey == "shared" then
+            displayScopeHint:SetText(M.Tr("Need to hide buffs only for one unit? Select that unit above, enable Custom caps, then set Caps & Icons > Max Buffs to 0."))
+        elseif UnitOverrideEnabled("overrideSharedLayout") then
+            displayScopeHint:SetText(M.Format("Editing %s caps. Use Caps & Icons > Max Buffs = 0 to hide buffs only for this unit; Max Debuffs = 0 hides debuffs.", scopeName))
+        else
+            displayScopeHint:SetText(M.Format("Show Buffs is shared and stays locked while editing %s. Enable Custom caps, then set Caps & Icons > Max Buffs to 0 to hide buffs only for this unit.", scopeName))
+        end
+    end)
 
     local layout = b:CollapsibleSection("a2_layout", "Caps & Icons", 466, true)
     local layoutW = layout._msuf2Width or ctx.width or 900
@@ -932,7 +1039,7 @@ local function BuildAuras(ctx)
     Track(layoutOverrideControls, ScopedSliderAt(ctx, visual, "Stack text size", 272, -330, 6, 32, 1, 190, function() return AuraLayout() end, "stackTextSize", 14, ForceAuraLayoutOverride, ApplyAuras))
     DividerAt(visual, -392)
     LabelAt(visual, "Pandemic Window", 16, -408, 240, "GameFontNormal", T.colors.text)
-    Track(sharedOnlyControls, ValueToggleAt(ctx, visual, "Enable Pandemic Window", 12, -436,
+    Track(sharedOnlyControls, ValueSwitchAt(ctx, visual, "Enable Pandemic Window", 12, -436, 240,
         function() return GetPandemicMode() ~= "OFF" end,
         function(v)
             if v then
@@ -952,7 +1059,7 @@ local function BuildAuras(ctx)
     W.Text(visual, "Best-effort: fixed 30% remaining-duration threshold for all auras. Color is configured in Global Style > Colors.", 12, -468, 650, T.colors.muted)
 
     local private = b:CollapsibleSection("a2_private", "Private Auras", 168, false)
-    Track(sharedOnlyControls, TogglePillAt(ctx, private, "Enabled", 12, -10, 90, AuraShared, "privateAurasEnabled", true, ApplyAuras))
+    Track(sharedOnlyControls, SwitchAt(ctx, private, "Enable Private Auras", 12, -10, 220, AuraShared, "privateAurasEnabled", true, ApplyAuras))
     local privateShow = ToggleAt(ctx, private, "Show (Player)", 12, -40, AuraShared, "showPrivateAurasPlayer", true, ApplyAuras)
     local privateMax = SliderAt(ctx, private, "Max", 340, -34, 0, 12, 1, 150, AuraShared, "privateAuraMaxPlayer", 4, ApplyAuras)
     local privateBorder = SliderAt(ctx, private, "Border thickness", 520, -34, 0, 10, 0.5, 150, AuraShared, "privateAuraBorderScale", 3, ApplyAuras)
@@ -1024,11 +1131,11 @@ local function BuildAuras(ctx)
         local isShared = key == "shared"
         local isBoss = key == "boss1" or key == "boss2" or key == "boss3" or key == "boss4" or key == "boss5"
         if isBoss then
-            ignoreLabel:SetText("Editing: |cff38c7f0Shared (boss frames)|r")
+            ignoreLabel:SetText(M.Tr("Editing:") .. " |cff38c7f0" .. M.Tr("Shared (boss frames)") .. "|r")
         elseif isShared then
-            ignoreLabel:SetText("Editing: |cff38c7f0Shared (all units)|r")
+            ignoreLabel:SetText(M.Tr("Editing:") .. " |cff38c7f0" .. M.Tr("Shared (all units)") .. "|r")
         else
-            ignoreLabel:SetText("Editing: |cff38c7f0" .. tostring(key:gsub("^%l", string.upper)) .. "|r")
+            ignoreLabel:SetText(M.Tr("Editing:") .. " |cff38c7f0" .. M.Tr(tostring(key:gsub("^%l", string.upper))) .. "|r")
         end
         SetControlEnabled(ignoreOverride, not isShared and not isBoss)
         local canEdit = isShared or isBoss or AurasUnit(key).overrideIgnore == true
@@ -1037,7 +1144,7 @@ local function BuildAuras(ctx)
 
     local reminders = b:CollapsibleSection("a2_reminders", "Buff Reminders", 310, false)
     W.Text(reminders, "Ghost icons appear at the player frame when a buff is missing or about to expire. Position via Edit Mode mover.", 12, -6, 620, T.colors.muted)
-    local remMaster = ToggleAt(ctx, reminders, "Enable Buff Reminders", 12, -28, AuraShared, "showReminders", true, function() MarkReminderDirty(); ApplyAuras() end)
+    local remMaster = SwitchAt(ctx, reminders, "Enable Buff Reminders", 12, -28, 220, AuraShared, "showReminders", true, function() MarkReminderDirty(); ApplyAuras() end)
     local reminderControls = {}
     for i = 1, #AURA_REMINDERS do
         local spec = AURA_REMINDERS[i]
@@ -1087,6 +1194,7 @@ AdvancedPage.NumValue = NumValue
 AdvancedPage.SetValue = SetValue
 AdvancedPage.DeepCopyTable = DeepCopyTable
 AdvancedPage.BindTableToggle = BindTableToggle
+AdvancedPage.BindTableSwitchAt = BindTableSwitchAt
 AdvancedPage.BindTableSlider = BindTableSlider
 AdvancedPage.BindTableDropdown = BindTableDropdown
 AdvancedPage.BindValueDropdown = BindValueDropdown
@@ -1099,15 +1207,19 @@ AdvancedPage.MoveWidget = MoveWidget
 AdvancedPage.LabelAt = LabelAt
 AdvancedPage.DividerAt = DividerAt
 AdvancedPage.BindValueToggle = BindValueToggle
+AdvancedPage.BindValueSwitchAt = BindValueSwitchAt
 AdvancedPage.BindValueSlider = BindValueSlider
 AdvancedPage.ToggleAt = ToggleAt
+AdvancedPage.SwitchAt = SwitchAt
 AdvancedPage.ValueToggleAt = ValueToggleAt
+AdvancedPage.ValueSwitchAt = ValueSwitchAt
 AdvancedPage.SliderAt = SliderAt
 AdvancedPage.ValueSliderAt = ValueSliderAt
 AdvancedPage.DropdownAt = DropdownAt
 AdvancedPage.ValueDropdownAt = ValueDropdownAt
 AdvancedPage.ColorAt = ColorAt
 AdvancedPage.ScopedToggleAt = ScopedToggleAt
+AdvancedPage.ScopedSwitchAt = ScopedSwitchAt
 AdvancedPage.ScopedSliderAt = ScopedSliderAt
 AdvancedPage.ScopedDropdownAt = ScopedDropdownAt
 AdvancedPage.TogglePillAt = TogglePillAt

@@ -18,6 +18,11 @@ local max, min = math.max, math.min
 local W8 = "Interface/Buttons/WHITE8X8"
 local FONT = STANDARD_TEXT_FONT or "Fonts/FRIZQT__.TTF"
 local CHEVRON = "Interface\\ChatFrame\\ChatFrameExpandArrow"
+local function ApplyAllSettingsSafe()
+    local fn = _G.MSUF_ApplyAllSettings
+    if type(fn) == "function" then fn(); return true end
+    return false
+end
 
 local C = {
     -- Match MSUF_THEME: bg=0.03/0.05/0.12, edge=0.10/0.20/0.45
@@ -801,7 +806,7 @@ function Popups.Open(key, anchorFrame)
     local pType = cfg and cfg.popupType
 
     if not pType then
-        if key == "player" or key == "target" or key == "focus" or key == "targettarget" or key == "pet" or key:match("^boss%d") then
+        if key == "player" or key == "target" or key == "focus" or key == "focustarget" or key == "targettarget" or key == "pet" or key:match("^boss%d") then
             pType = "unit"
         end
     end
@@ -861,8 +866,9 @@ local max, min = math.max, math.min
 local function DB() return _G.MSUF_DB end
 local function Conf(k) local db=DB(); return db and db[k] end
 local function CK(u) if not u then return nil end; if u=="targettarget" or u=="tot" then return "targettarget" end
+    if u=="focustarget" or u=="focus_target" or u=="focustargettarget" then return "focustarget" end
     if _G.MSUF_GetBossIndexFromToken and _G.MSUF_GetBossIndexFromToken(u) then return "boss" end; return u end
-local LABELS = { player="Player", target="Target", focus="Focus", targettarget="ToT", pet="Pet", boss="Boss" }
+local LABELS = { player="Player", target="Target", focus="Focus", focustarget="Focus Target", targettarget="ToT", pet="Pet", boss="Boss" }
 local function San(v,d) v=tonumber(v) or d or 0; if v~=v or v>2000 or v<-2000 then v=d or 0 end; return floor(v+0.5) end
 local pf
 
@@ -904,7 +910,7 @@ local function Apply()
         pf.parent:SetSize(conf.width, conf.height)
     end
     local md=_G.MSUF_UFCore_MarkDirty; if type(md)=="function" and pf.parent then md(pf.parent, nil, true, "EM2:UnitPopup")
-    elseif type(_G.UpdateSimpleUnitFrame)=="function" and pf.parent then _G.UpdateSimpleUnitFrame(pf.parent) end
+    elseif type(_G.MSUF_UpdateSimpleUnitFrame)=="function" and pf.parent then (_G.MSUF_UpdateSimpleUnitFrame)(pf.parent) end
     -- Full layout re-apply (power bar embed, text anchors, borders, etc.)
     if type(_G.MSUF_ApplyUnitFrameKey_Immediate)=="function" then _G.MSUF_ApplyUnitFrameKey_Immediate(key) end
     if type(_G.MSUF_ForceTextLayoutForUnitKey)=="function" then _G.MSUF_ForceTextLayoutForUnitKey(key) end
@@ -936,7 +942,7 @@ local function Sync()
     SC(pf.hpShowCB, conf.showHP~=false)
     S(pf.hpXBox,conf.hpOffsetX or 0); S(pf.hpYBox,conf.hpOffsetY or 0)
     S(pf.hpSizeBox,conf.hpFontSize or g.hpFontSize or g.fontSize or 14)
-    SC(pf.powerShowCB, conf.showPower~=false)
+    SC(pf.powerShowCB, (key ~= "focustarget" and conf.showPower ~= false) or conf.showPower == true)
     S(pf.powerXBox,conf.powerOffsetX or 0); S(pf.powerYBox,conf.powerOffsetY or 0)
     S(pf.powerSizeBox,conf.powerFontSize or g.powerFontSize or g.fontSize or 14)
     SC(pf.detachCB,conf.powerBarDetached); SC(pf.syncCPCB,conf.detachedPowerBarSyncClassPower)
@@ -1007,6 +1013,7 @@ local function Build()
         { key = "player", label = "Player" },
         { key = "target", label = "Target" },
         { key = "focus",  label = "Focus"  },
+        { key = "focustarget", label = "Focus Target" },
         { key = "targettarget", label = "ToT" },
         { key = "pet",    label = "Pet"    },
         { key = "boss",   label = "Boss"   },
@@ -1032,7 +1039,7 @@ local function Build()
                 end
             end
             -- Apply + resync
-            if type(ApplyAllSettings) == "function" then ApplyAllSettings() end
+            ApplyAllSettingsSafe()
             if _G.MSUF_UpdateAllFonts then _G.MSUF_UpdateAllFonts() end
             RefreshUFPreview("EM2_UNIT_POPUP_COPY", CK(pf.unit))
             C_Timer.After(0.1, function() Sync() end)
@@ -1065,7 +1072,7 @@ local function Build()
         if pf.MSUF_prev and pf.MSUF_prev.key then
             local conf=Conf(pf.MSUF_prev.key)
             if conf then for k,v in pairs(pf.MSUF_prev) do if k~="key" then conf[k]=v end end
-                if type(ApplyAllSettings)=="function" then ApplyAllSettings() end
+                ApplyAllSettingsSafe()
                 if type(_G.MSUF_UpdateAllFonts)=="function" then _G.MSUF_UpdateAllFonts() end
                 RefreshUFPreview("EM2_UNIT_POPUP_CANCEL", pf.MSUF_prev.key)
             end
@@ -1490,7 +1497,7 @@ local function Build()
             if _G.MSUF_EM_UndoBeforeChange then _G.MSUF_EM_UndoBeforeChange("castbar", targetKey) end
             WriteCastbarSettings(targetKey, r)
             if _G.MSUF_UpdateCastbarVisuals then _G.MSUF_UpdateCastbarVisuals() end
-            if type(ApplyAllSettings) == "function" then ApplyAllSettings() end
+            ApplyAllSettingsSafe()
             RefreshUFPreview("EM2_CASTBAR_POPUP_COPY", targetKey)
             C_Timer.After(0.1, function() Sync() end)
         end,
@@ -1502,7 +1509,7 @@ local function Build()
     cancel:SetScript("OnClick", function()
         RestoreCast(pf._castSnap)
         if type(_G.MSUF_UpdateCastbarVisuals)=="function" then _G.MSUF_UpdateCastbarVisuals() end
-        if type(ApplyAllSettings)=="function" then ApplyAllSettings() end
+        ApplyAllSettingsSafe()
         if EM2.Movers and EM2.Movers.SyncAll then EM2.Movers.SyncAll() end
         RefreshUFPreview("EM2_CASTBAR_POPUP_CANCEL", pf and pf.unit)
         pf:Hide()

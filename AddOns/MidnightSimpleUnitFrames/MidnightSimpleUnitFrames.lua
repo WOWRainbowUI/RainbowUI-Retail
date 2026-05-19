@@ -1,4 +1,4 @@
-﻿local addonName, ns = ...
+local addonName, ns = ...
 ns = ns or {}
 _G.MSUF_NS = ns
 ns.Core   = ns.Core   or {}
@@ -230,6 +230,7 @@ if _G and type(_G.MSUF_NormalizeTextLayoutUnitKey) ~= "function" then
         if unitKey == nil then return defaultKey or "player" end
         if unitKey == "shared" then return defaultKey or "player" end
         if unitKey == "tot" or unitKey == "targetoftarget" then return "targettarget" end
+        if unitKey == "focus_target" or unitKey == "focustargettarget" then return "focustarget" end
         if unitKey == "boss1" or unitKey == "boss2" or unitKey == "boss3" or unitKey == "boss4" or unitKey == "boss5" then return "boss" end
         return unitKey
     end
@@ -350,6 +351,21 @@ end
 function ns.UF.IsDisabled(conf)
     return (conf and conf.enabled == false) and true or false
 end
+
+local function MSUF_IsBossUnitframePreviewActive()
+    if _msuf_inCombat then return false end
+    if not MSUF_BossTestMode then return false end
+    if _G.MSUF2_BossUnitframePreviewActive == true then return true end
+
+    local editState = _G.MSUF_EditState
+    local editActive = (_G.MSUF_UnitEditModeActive == true)
+        or (type(editState) == "table" and editState.active == true)
+    if not editActive then return false end
+
+    return (_G.MSUF_UnitPreviewActive == true or _G.MSUF_PreviewTestMode == true)
+end
+_G.MSUF_IsBossUnitframePreviewActive = MSUF_IsBossUnitframePreviewActive
+
 function ns.UF.ResolveKeyAndConf(self, unit, db)
     local key = self and self.msufConfigKey
     if not key then
@@ -365,7 +381,7 @@ function ns.UF.ResolveKeyAndConf(self, unit, db)
 end
 function ns.UF.EnsureStatusIndicatorOverlays(f, unit, fontPath, flags, fr, fg, fb)
     if not f then return end
-    local isStatusUnit = (unit == "player" or unit == "target" or unit == "focus" or unit == "pet" or unit == "targettarget" or unit == "tot")
+    local isStatusUnit = (unit == "player" or unit == "target" or unit == "focus" or unit == "focustarget" or unit == "pet" or unit == "targettarget" or unit == "tot")
         or (type(unit) == "string" and unit:match("^boss"))
     if not isStatusUnit then return end
     local g = (MSUF_DB and MSUF_DB.general) or nil
@@ -379,7 +395,11 @@ function ns.UF.EnsureStatusIndicatorOverlays(f, unit, fontPath, flags, fr, fg, f
         if fs then
             fs:SetFont(fontPath, size, flags); fs:SetJustifyH("CENTER"); if fs.SetJustifyV then fs:SetJustifyV("MIDDLE") end
             fs:SetTextColor(fr, fg, fb, a); fs:ClearAllPoints(); fs:SetPoint("CENTER", f, "CENTER", 0, 0); fs:SetText(""); fs:Hide()
-    end
+            if ns.Icons and ns.Icons._layout and ns.Icons._layout.EnsureLayerFrame then
+                local layerParent = (key == "statusIndicatorOverlayText") and ov or (f.textFrame or f)
+                ns.Icons._layout.EnsureLayerFrame(f, fs, key, layerParent)
+            end
+        end
     end
     if _G.MSUF_ApplyStatusTextLayout then
         _G.MSUF_ApplyStatusTextLayout(f)
@@ -389,6 +409,7 @@ function ns.UF.EnsureStatusIndicatorOverlays(f, unit, fontPath, flags, fr, fg, f
 -- Keep behavior identical: same templates, justify, alpha, and hidden defaults.
 local MSUF_UF_TEXT_CREATE_DEFS = {
     { key = "nameText",      template = "GameFontHighlight",      justify = "LEFT",  a = 1 },
+    { key = "raidGroupNameText", template = "GameFontHighlightSmall", justify = "LEFT",  a = 1, hide = true },
     { key = "levelText",     template = "GameFontHighlightSmall", justify = "LEFT",  a = 1,   hide = true },
     { key = "hpTextLeft",    template = "GameFontHighlightSmall", justify = "LEFT",  a = 0.9, hide = true },
     { key = "hpTextCenter",  template = "GameFontHighlightSmall", justify = "CENTER", a = 0.9, hide = true },
@@ -418,7 +439,7 @@ function ns.UF.EnsureTextObjects(f, fontPath, flags, fr, fg, fb)
  end
 ns.UF.UpdateHighlightColor = ns.UF.UpdateHighlightColor or function(self)
     if not self then  return end
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     local g = (MSUF_DB and MSUF_DB.general) or {}; local hr, hg, hb = 1, 1, 1; local hc = g.highlightColor
     if type(hc) == "table" then hr, hg, hb = hc[1] or 1, hc[2] or 1, hc[3] or 1
     else
@@ -431,7 +452,7 @@ ns.UF.UpdateHighlightColor = ns.UF.UpdateHighlightColor or function(self)
  end
 ns.UF.Unitframe_OnEnter = ns.UF.Unitframe_OnEnter or function(self)
     if not self then  return end
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     local g = (MSUF_DB and MSUF_DB.general) or {}
     local hb = self.highlightBorder
     if hb then
@@ -441,9 +462,20 @@ ns.UF.Unitframe_OnEnter = ns.UF.Unitframe_OnEnter or function(self)
             enabled = (g.enableHighlightOnHover == true)
         end
         if enabled then
-            if self.UpdateHighlightColor then self:UpdateHighlightColor() end
-            if _G.MSUF_FixHighlightForFrame then _G.MSUF_FixHighlightForFrame(self) end
-            hb:Show()
+            local roundedHandled = false
+            if _G.MSUF_RoundedUF_Active == true and self._msufRUF_SuppressMouseover == true then
+                local roundedHover = _G.MSUF_RoundedUF_OnUnitMouseover
+                if type(roundedHover) == "function" then
+                    roundedHandled = roundedHover(self, true) and true or false
+                end
+            end
+            if roundedHandled then
+                hb:Hide()
+            else
+                if self.UpdateHighlightColor then self:UpdateHighlightColor() end
+                if _G.MSUF_FixHighlightForFrame then _G.MSUF_FixHighlightForFrame(self) end
+                hb:Show()
+            end
         else
             hb:Hide()
         end
@@ -462,6 +494,10 @@ ns.UF.Unitframe_OnEnter = ns.UF.Unitframe_OnEnter or function(self)
     end
 end
 ns.UF.Unitframe_OnLeave = ns.UF.Unitframe_OnLeave or function(self)
+    if _G.MSUF_RoundedUF_Active == true and self and self._msufRUF_SuppressMouseover == true then
+        local roundedHover = _G.MSUF_RoundedUF_OnUnitMouseover
+        if type(roundedHover) == "function" then roundedHover(self, false) end
+    end
     if self and self.highlightBorder then self.highlightBorder:Hide() end
     local tips = ns.Tooltips
     if tips and type(tips.HideUnit) == "function" then
@@ -475,16 +511,17 @@ function ns.UF.HideLeaderAndRaidMarker(self)
     ns.Util.SetShown(self.leaderIcon, false)
     ns.Util.SetShown(self.raidMarkerIcon, false)
  end
+local MSUF_QueueVisibilityDriverRefresh
 function ns.UF.HandleDisabledFrame(self, conf)
     if not ns.UF.IsDisabled(conf) then return false end
 
-    if self and self.isBoss and _G.MSUF2_BossUnitframePreviewActive == true
-        and MSUF_BossTestMode and not _msuf_inCombat then
+    if self and self.isBoss and MSUF_IsBossUnitframePreviewActive() then
         return false
     end
 
     -- In MSUF Edit Mode, keep a persistent preview for frames that are disabled,
-    -- so they can still be positioned/edited. Boss frames remain hard-hidden when disabled.
+    -- so they can still be positioned/edited. Boss frames use the shared boss
+    -- preview gate above and remain hard-hidden outside preview/test mode.
     if MSUF_UnitEditModeActive and (not _msuf_inCombat) and self and not self.isBoss then
         local fn = _G.MSUF_ApplyUnitframeEditPreview
         if type(fn) == "function" then
@@ -511,6 +548,10 @@ function ns.UF.HandleDisabledFrame(self, conf)
 end
 function ns.UF.ForceVisibilityHidden(frame)
     if not frame then return end
+    if _msuf_inCombat or (InCombatLockdown and InCombatLockdown()) then
+        MSUF_QueueVisibilityDriverRefresh(false)
+        return
+    end
     local rsd = _G.RegisterStateDriver
     local usd = _G.UnregisterStateDriver
     if type(rsd) == "function" and type(usd) == "function" then
@@ -624,12 +665,37 @@ local function MSUF_Export2(key, fn, aliasKey, forceAlias)
     end
      return fn
 end
+local _msufVisibilityDriverRefreshPending = false
+local _msufVisibilityDriverRefreshForceShow = false
+local _msufVisibilityDriverRegenFrame = (_G.CreateFrame and _G.CreateFrame("Frame")) or nil
+function MSUF_QueueVisibilityDriverRefresh(forceShow)
+    _msufVisibilityDriverRefreshPending = true
+    _msufVisibilityDriverRefreshForceShow = forceShow and true or false
+    if _msufVisibilityDriverRegenFrame then
+        _msufVisibilityDriverRegenFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    end
+end
+if _msufVisibilityDriverRegenFrame then
+    _msufVisibilityDriverRegenFrame:SetScript("OnEvent", function(self)
+        if InCombatLockdown and InCombatLockdown() then return end
+        self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+        if not _msufVisibilityDriverRefreshPending then return end
+        local forceShow = _msufVisibilityDriverRefreshForceShow
+        _msufVisibilityDriverRefreshPending = false
+        _msufVisibilityDriverRefreshForceShow = false
+        _msuf_inCombat = false
+        _G.MSUF_InCombat = false
+        local fn = _G.MSUF_RefreshAllUnitVisibilityDrivers
+        if type(fn) == "function" then fn(forceShow) end
+    end)
+end
 local function MSUF_EnsureUnitFlags(f)
     if not f or f._msufUnitFlagsInited then return end
     local u = f.unit
     f._msufIsPlayer = (u == "player")
     f._msufIsTarget = (u == "target")
     f._msufIsFocus  = (u == "focus")
+    f._msufIsFocusTarget = (u == "focustarget")
     f._msufIsPet    = (u == "pet")
     f._msufIsToT    = (u == "targettarget")
     -- Perf: avoid pattern matching.
@@ -639,7 +705,7 @@ local function MSUF_EnsureUnitFlags(f)
  end
 _G.MSUF_EnsureUnitFlags = MSUF_EnsureUnitFlags
 local function MSUF_IsTargetLikeFrame(f)
-    return (f and (f.isBoss or f._msufIsPlayer or f._msufIsTarget or f._msufIsFocus)) and true or false
+    return (f and (f.isBoss or f._msufIsPlayer or f._msufIsTarget or f._msufIsFocus or f._msufIsFocusTarget)) and true or false
 end
 local function MSUF_ResetBarZero(bar, hide)
     if not bar then return end
@@ -776,7 +842,7 @@ ns.Bars.Spec.health = ns.Bars.Spec.health or function(frame, unit)
         ns.Bars.ResetHealthAndOverlays(frame, true)
          return 0, 1, false
     end
-    -- 12.0: Unified calculator update â€” one C-side call for health + absorbs + prediction.
+    -- 12.0: Unified calculator update — one C-side call for health + absorbs + prediction.
     -- Test mode path still uses legacy ApplyHealthBars for faked values.
     local absorbTestActive = (_G.MSUF_AbsorbTextureTestMode == true)
         and not (_G.MSUF_InCombat or (InCombatLockdown and InCombatLockdown()))
@@ -803,9 +869,7 @@ local function _MSUF_Bars_HidePower(bar, hardReset)
     if not bar then return true end
     bar:SetScript("OnUpdate", nil)
     bar:Hide()
-    if _G.MSUF_ApplyPowerBarBorder then
-        _G.MSUF_ApplyPowerBarBorder(bar)
-    elseif bar._msufPowerBorder and bar._msufPowerBorder.Hide then
+    if bar._msufPowerBorder and bar._msufPowerBorder.Hide then
         bar._msufPowerBorder:Hide()
     end
     if hardReset then MSUF_ResetBarZero(bar, true) end
@@ -827,7 +891,7 @@ local function _MSUF_Bars_SyncPower(frame, bar, unit, barsConf, isBoss, isPlayer
     if pType == nil then return _MSUF_Bars_HidePower(bar, false) end
 
     -- Ele Shaman: when Maelstrom is shown as class power, main bar shows Mana.
-    -- Flag set by MSUF_ClassPower FullRefresh â€” zero-cost boolean check.
+    -- Flag set by MSUF_ClassPower FullRefresh — zero-cost boolean check.
     if isPlayer and _G.MSUF_EleMaelstromActive then
         pType = 0   -- Enum.PowerType.Mana
         pTok  = "MANA"
@@ -838,7 +902,7 @@ local function _MSUF_Bars_SyncPower(frame, bar, unit, barsConf, isBoss, isPlayer
         pType = 19  -- Enum.PowerType.Essence
         pTok  = "ESSENCE"
     end
-    -- Shadow Priest: class power shows Insanity â†’ main bar shows Mana.
+    -- Shadow Priest: class power shows Insanity → main bar shows Mana.
     if isPlayer and _G.MSUF_ShadowManaActive then
         pType = 0   -- Enum.PowerType.Mana
         pTok  = "MANA"
@@ -847,9 +911,9 @@ local function _MSUF_Bars_SyncPower(frame, bar, unit, barsConf, isBoss, isPlayer
     ns.Bars.ApplyPowerBarVisual(frame, bar, pType, pTok)
     bar:SetScript("OnUpdate", nil)
 
-    -- Smooth interpolation ONLY for player frame â€” target/focus/boss always snap.
+    -- Smooth interpolation ONLY for player frame — target/focus/boss always snap.
     -- SECRET-SAFE: UnitPower/UnitPowerMax may return secret values in 12.0.
-    -- Never call type()/tonumber()/comparisons on these â€” pass directly to C-side
+    -- Never call type()/tonumber()/comparisons on these — pass directly to C-side
     -- SetMinMaxValues/SetValue which handle secrets natively.
     local cur = UnitPower(unit, pType)
     local mx  = UnitPowerMax(unit, pType)
@@ -872,9 +936,6 @@ local function _MSUF_Bars_SyncPower(frame, bar, unit, barsConf, isBoss, isPlayer
     end
 
     bar:Show()
-    if _G.MSUF_ApplyPowerBarBorder then
-        _G.MSUF_ApplyPowerBarBorder(bar)
-    end
      return true
 end
 ns.Bars.Spec.power_pct = ns.Bars.Spec.power_pct or function(frame, unit, barsConf, isBoss, isPlayer, isTarget, isFocus)
@@ -941,6 +1002,21 @@ function ns.Bars.ApplyHealthBars(frame, unit, maxHP, hp)
         frame.hpBar:SetMinMaxValues(0, 100)
         frame.hpBar:SetValue(60)
     end
+    local wasHealPredTestMode = frame._msufHealPredTestActive
+    local healPredTestEnabled = false
+    if absorbTestMode and ns.Bars._IsHealPredictionEnabled and ns.Bars._IsHealPredictionEnabled() then
+        local setHealPredTest = ns.Bars._SetSelfHealPredictionTestValue
+        if type(setHealPredTest) == "function" then
+            frame._msufHealPredTestActive = true
+            healPredTestEnabled = true
+            setHealPredTest(frame, 100, 18)
+        end
+    end
+    if wasHealPredTestMode and not healPredTestEnabled then
+        frame._msufHealPredTestActive = nil
+        local hideHealPred = ns.Bars._HideSelfHealPrediction
+        if type(hideHealPred) == "function" then hideHealPred(frame) end
+    end
     if frame.absorbBar and (absorbTestMode or wasTestMode) then
         ns.Bars._UpdateAbsorbBar(frame, unit, absorbTestMode and 100 or maxHP)
     end
@@ -956,7 +1032,7 @@ end
 local MSUF_BarBorderCache = { stamp = nil, thickness = 0, byScope = {} }
 local MSUF_BarBorderScopeIds = {
     shared = 0, player = 1, target = 2, focus = 3,
-    targettarget = 4, pet = 5, boss = 6, party = 7, raid = 8,
+    targettarget = 4, focustarget = 5, pet = 6, boss = 7, party = 8, raid = 9,
 }
 local function MSUF_GetBarBorderStyleId(style)
     if style == "THICK" then return 2 end
@@ -1137,9 +1213,71 @@ local function MSUF_NormalizeUnitKeyForDB(key)
     end
      return key
 end
+local function MSUF_RaidGroupNameAllowedForKey(key)
+    key = MSUF_NormalizeUnitKeyForDB(key)
+    return key == "player" or key == "target" or key == "targettarget" or key == "focustarget" or key == "focus"
+end
+local function MSUF_NormalizeRaidGroupNameAnchor(anchor)
+    if anchor == "NAMELEFT" or anchor == "NAMERIGHT"
+        or anchor == "TOPLEFT" or anchor == "TOPRIGHT"
+        or anchor == "BOTTOMLEFT" or anchor == "BOTTOMRIGHT"
+        or anchor == "CENTER" or anchor == "TOP" or anchor == "BOTTOM"
+        or anchor == "LEFT" or anchor == "RIGHT" then
+        return anchor
+    end
+    return "NAMERIGHT"
+end
+local function MSUF_RaidGroupNamePreviewText(conf)
+    local style = conf and conf.raidGroupNameStyle
+    if style == "BRACKET" then return "[2]" end
+    if style == "NONE" then return "2" end
+    return "(2)"
+end
 local function MSUF_ResolveFrameDBKey(f)
     local key = f and (f.unitKey or f.unit or f.msufConfigKey)
     return MSUF_NormalizeUnitKeyForDB(key or "player") or "player"
+end
+local function MSUF_ApplyRaidGroupNameLayout_Internal(f, conf)
+    if not f or not f.raidGroupNameText or not f.nameText then return end
+    conf = conf or {}
+    local g = (MSUF_DB and MSUF_DB.general) or {}
+    local layer = tonumber(conf.nameTextLayer)
+    if layer == nil then layer = tonumber(g.nameTextLayer) end
+    layer = math_floor((layer or 5) + 0.5)
+    if layer < 0 then layer = 0 elseif layer > 30 then layer = 30 end
+    local anchor = MSUF_NormalizeRaidGroupNameAnchor(conf.raidGroupNameAnchor or g.raidGroupNameAnchor)
+    if conf.showName == false and (anchor == "NAMERIGHT" or anchor == "NAMELEFT") then
+        anchor = "CENTER"
+    end
+    local x = (type(conf.raidGroupNameOffsetX) == "number") and conf.raidGroupNameOffsetX
+        or ((type(g.raidGroupNameOffsetX) == "number") and g.raidGroupNameOffsetX or 3)
+    local y = (type(conf.raidGroupNameOffsetY) == "number") and conf.raidGroupNameOffsetY
+        or ((type(g.raidGroupNameOffsetY) == "number") and g.raidGroupNameOffsetY or 0)
+    local anchorTo = f.nameText
+    if f._msufNameClipFrame and f._msufNameClipFrame.IsShown and f._msufNameClipFrame:IsShown() then
+        anchorTo = f._msufNameClipFrame
+    end
+    f._msufRaidGroupNameAnchor = anchor
+    if not ns.Cache.StampChanged(f, "RaidGroupNameLayout", anchorTo, layer, anchor, x, y) then return end
+    f.raidGroupNameText:ClearAllPoints()
+    if anchor == "NAMERIGHT" then
+        f.raidGroupNameText:SetPoint("LEFT", anchorTo, "RIGHT", x, y)
+    elseif anchor == "NAMELEFT" then
+        f.raidGroupNameText:SetPoint("RIGHT", anchorTo, "LEFT", x, y)
+    else
+        local af = f.textFrame or f
+        f.raidGroupNameText:SetPoint(anchor, af, anchor, x, y)
+    end
+    if f.raidGroupNameText.SetJustifyH then f.raidGroupNameText:SetJustifyH("LEFT") end
+    if f.raidGroupNameText.SetJustifyV then f.raidGroupNameText:SetJustifyV("MIDDLE") end
+end
+if not _G.MSUF_ApplyRaidGroupNameLayout then
+    function _G.MSUF_ApplyRaidGroupNameLayout(f)
+        if not f or not f.raidGroupNameText or not f.nameText then return end
+        local key = MSUF_ResolveFrameDBKey(f)
+        local conf = (MSUF_DB and MSUF_DB[key]) or {}
+        MSUF_ApplyRaidGroupNameLayout_Internal(f, conf)
+    end
 end
 local function MSUF_ApplyLevelIndicatorLayout_Internal(f, conf)
     if not f or not f.levelText or not f.nameText then return end
@@ -1151,9 +1289,14 @@ local function MSUF_ApplyLevelIndicatorLayout_Internal(f, conf)
         or ((type(g.levelIndicatorOffsetY) == "number") and g.levelIndicatorOffsetY or 0)
     local anchor = (type(conf.levelIndicatorAnchor) == "string") and conf.levelIndicatorAnchor
         or ((type(g.levelIndicatorAnchor) == "string") and g.levelIndicatorAnchor or "NAMERIGHT")
+    if conf.showName == false and (anchor == "NAMERIGHT" or anchor == "NAMELEFT") then
+        anchor = "CENTER"
+    end
     local layer = (ns.Icons and ns.Icons._layout and ns.Icons._layout.Layer and ns.Icons._layout.Layer(conf, g, "levelIndicatorLayer", 7)) or 7
+    local raidGroupShown = f.raidGroupNameText and f.raidGroupNameText.IsShown and f.raidGroupNameText:IsShown()
+        and f._msufRaidGroupNameAnchor == "NAMERIGHT"
     f._msufLevelAnchor = anchor
-    if not ns.Cache.StampChanged(f, "LevelLayout", anchor, lx, ly, layer) then return end
+    if not ns.Cache.StampChanged(f, "LevelLayout", anchor, lx, ly, layer, raidGroupShown and 1 or 0) then return end
     if ns.Icons and ns.Icons._layout then
         if ns.Icons._layout.EnsureLayerFrame then ns.Icons._layout.EnsureLayerFrame(f, f.levelText, "levelText", f.textFrame or f) end
         if ns.Icons._layout.ApplyLayer then ns.Icons._layout.ApplyLayer(f.levelText, layer, f) end
@@ -1162,7 +1305,9 @@ local function MSUF_ApplyLevelIndicatorLayout_Internal(f, conf)
     if anchor == "NAMELEFT" then
         f.levelText:SetPoint("RIGHT", f.nameText, "LEFT", -6 + lx, ly)
     elseif anchor == "NAMERIGHT" then
-        f.levelText:SetPoint("LEFT", f.nameText, "RIGHT", 6 + lx, ly)
+        local rel = raidGroupShown and f.raidGroupNameText or f.nameText
+        local gap = raidGroupShown and 4 or 6
+        f.levelText:SetPoint("LEFT", rel, "RIGHT", gap + lx, ly)
     else
         local af = f.textFrame or f
         f.levelText:SetPoint(anchor, af, anchor, lx, ly)
@@ -1236,450 +1381,18 @@ MSUF_EditModeSizing = false
 if type(MSUF_SyncBossUnitframePreviewWithUnitEdit) == "function" then
     MSUF_SyncBossUnitframePreviewWithUnitEdit()
 end
-local LSM = (ns and ns.LSM) or _G.MSUF_LSM or (LibStub and LibStub("LibSharedMedia-3.0", true))
-_G.MSUF_OnLSMReady = function(lsm)
-    LSM = lsm
- end
--- P1: pending guard â€” prevents double-schedule from rapid LSM callbacks
-local _MSUF_DeferredFontsPending = false
-local function _MSUF_DeferredUpdateAllFonts()
-    _MSUF_DeferredFontsPending = false
-    if UpdateAllFonts then UpdateAllFonts() end
-end
-if LSM and not _G.MSUF_LSM_CallbacksRegistered and not MSUF_LSM_FontCallbackRegistered then
-    MSUF_LSM_FontCallbackRegistered = true
-    LSM:RegisterCallback("LibSharedMedia_Registered", function(_, mediatype, key)
-        if mediatype ~= "font" then  return end
-        if type(_G.MSUF_ClearResolvedFontPathCache) == "function" then
-            _G.MSUF_ClearResolvedFontPathCache()
-        end
-        if MSUF_RebuildFontChoices then
-            MSUF_RebuildFontChoices()
-        end
-        local _g = MSUF_DB and MSUF_DB.general
-        local normalizeFontKey = _G.MSUF_NormalizeFontKey or function(k) return k end
-        local registeredKey = normalizeFontKey(key)
-        local needsFontRefresh = _g and normalizeFontKey(_g.fontKey) == registeredKey
-        if needsFontRefresh then
-            if not _MSUF_DeferredFontsPending then
-                _MSUF_DeferredFontsPending = true
-                if _G.MSUF_ScheduleOnce then _G.MSUF_ScheduleOnce("UF_FONTS_DEFERRED_UPDATE", _MSUF_DeferredUpdateAllFonts) else C_Timer.After(0, _MSUF_DeferredUpdateAllFonts) end
-            end
-    end
-     end)
-end
-local FONT_LIST = {
-    {
-        key  = "FRIZQT",
-        name = "Friz Quadrata (default)",
-        path = _G.STANDARD_TEXT_FONT,
-    },
-{
-        key  = "ARIALN",
-        name = "Arial (default)",
-        path = "Fonts\\ARHei.TTF",
-    },
-    {
-        key  = "MORPHEUS",
-        name = "Morpheus (default)",
-        path = "Fonts\\MORPHEUS_CYR.TTF",
-    },
-    {
-        key  = "SKURRI",
-        name = "Skurri (default)",
-        path = "Fonts\\SKURRI_CYR.TTF",
-    },
-}
-do
-    local base = "Interface\\AddOns\\" .. tostring(addonName) .. "\\Media\\Fonts\\"
-    local bundled = {
-        { key = "EXPRESSWAY",                 name = "Expressway Regular (MSUF)",          file = "Expressway Regular.ttf" },
-        { key = "EXPRESSWAY_BOLD",            name = "Expressway Bold (MSUF)",             file = "Expressway Bold.ttf" },
-        { key = "EXPRESSWAY_SEMIBOLD",        name = "Expressway SemiBold (MSUF)",         file = "Expressway SemiBold.ttf" },
-        { key = "EXPRESSWAY_EXTRABOLD",       name = "Expressway ExtraBold (MSUF)",        file = "Expressway ExtraBold.ttf" },
-        { key = "EXPRESSWAY_CONDENSED_LIGHT", name = "Expressway Condensed Light (MSUF)",  file = "Expressway Condensed Light.otf" },
-    }
-    local function HasFontKey(list, key)
-        if type(key) ~= "string" or key == "" then return false end
-        if not list then return false end
-        for i = 1, #list do
-            local t = list[i]
-            if t and t.key == key then
-                 return true
-            end
-    end
-         return false
-    end
-    for _, info in ipairs(bundled) do
-        if not HasFontKey(FONT_LIST, info.key) then
-            table.insert(FONT_LIST, {
-                key  = info.key,
-                name = info.name,
-                path = base .. info.file,
-            })
-    end
-    end
-end
-_G.MSUF_FONT_LIST = _G.MSUF_FONT_LIST or FONT_LIST
-local MSUF_INTERNAL_LSM_FONT_KEYS = {
-    ["Friz Quadrata TT"]        = "FRIZQT",
-    ["Arial Narrow"]            = "ARIALN",
-    ["Morpheus"]                = "MORPHEUS",
-    ["Skurri"]                  = "SKURRI",
-    ["Friz Quadrata (default)"] = "FRIZQT",
-    ["Arial (default)"]         = "ARIALN",
-    ["Morpheus (default)"]      = "MORPHEUS",
-    ["Skurri (default)"]        = "SKURRI",
-    ["Expressway Regular (MSUF)"] = "EXPRESSWAY",
-    ["Expressway (MSUF)"]         = "EXPRESSWAY",
-    ["Expressway Bold (MSUF)"]    = "EXPRESSWAY_BOLD",
-    ["Expressway SemiBold (MSUF)"] = "EXPRESSWAY_SEMIBOLD",
-    ["Expressway ExtraBold (MSUF)"] = "EXPRESSWAY_EXTRABOLD",
-    ["Expressway Condensed Light (MSUF)"] = "EXPRESSWAY_CONDENSED_LIGHT",
-}
-
-local function MSUF_NormalizeFontKey(key)
-    if type(key) ~= "string" or key == "" then return key end
-    return MSUF_INTERNAL_LSM_FONT_KEYS[key] or key
-end
-_G.MSUF_NormalizeFontKey = MSUF_NormalizeFontKey
-ns.MSUF_NormalizeFontKey = MSUF_NormalizeFontKey
-local function MSUF_NormalizeFontKeyField(tbl)
-    if type(tbl) ~= "table" then return end
-    local normalized = MSUF_NormalizeFontKey(tbl.fontKey)
-    local resolveKeyPath = _G.MSUF_ResolveFontKeyPath
-    if type(resolveKeyPath) == "function" then
-        local resolved = resolveKeyPath(normalized)
-        if type(resolved) == "string" and resolved ~= "" then
-            normalized = resolved
-        end
-    end
-    if normalized ~= tbl.fontKey then
-        tbl.fontKey = normalized
-    end
-end
-
-local function MSUF_NormalizeStoredFontKeys()
-    local db = _G.MSUF_DB
-    if type(db) ~= "table" then return end
-    MSUF_NormalizeFontKeyField(db.general)
-    for _, key in ipairs({
-        "player", "target", "targettarget", "focus", "pet", "boss",
-        "gf_party", "gf_raid", "gf_mythicraid",
-    }) do
-        if type(db[key]) == "table" then
-            db[key].fontKey = nil
-        end
-    end
-end
-_G.MSUF_NormalizeStoredFontKeys = MSUF_NormalizeStoredFontKeys
-ns.MSUF_NormalizeStoredFontKeys = MSUF_NormalizeStoredFontKeys
-MSUF_NormalizeStoredFontKeys()
-
-local MSUF_FONT_COLORS = {
-    white     = {1.0, 1.0, 1.0},
-    black     = {0.0, 0.0, 0.0},
-    red       = {1.0, 0.0, 0.0},
-    green     = {0.0, 1.0, 0.0},
-    blue      = {0.0, 0.0, 1.0},
-    yellow    = {1.0, 1.0, 0.0},
-    cyan      = {0.0, 1.0, 1.0},
-    magenta   = {1.0, 0.0, 1.0},
-    orange    = {1.0, 0.5, 0.0},
-    purple    = {0.6, 0.0, 0.8},
-    pink      = {1.0, 0.6, 0.8},
-    turquoise = {0.0, 0.9, 0.8},
-    grey      = {0.5, 0.5, 0.5},
-    brown     = {0.6, 0.3, 0.1},
-    gold      = {1.0, 0.85, 0.1},
-}
-ns.MSUF_FONT_COLORS = MSUF_FONT_COLORS
-_G.MSUF_FONT_COLORS = _G.MSUF_FONT_COLORS or MSUF_FONT_COLORS
-MSUF_GetNPCReactionColor = function(kind)
-    local defaultR, defaultG, defaultB
-    if kind == "friendly" then
-        defaultR, defaultG, defaultB = 0, 1, 0           --
-    elseif kind == "neutral" then
-        defaultR, defaultG, defaultB = 1, 1, 0           -- gelb
-    elseif kind == "enemy" then
-        defaultR, defaultG, defaultB = 0.85, 0.10, 0.10  -- rot
-    elseif kind == "dead" then
-        defaultR, defaultG, defaultB = 0.4, 0.4, 0.4     -- grau (tote NPCs)
-    else
-        defaultR, defaultG, defaultB = 1, 1, 1
-    end
-    if not EnsureDB then
-         return defaultR, defaultG, defaultB
-    end
-    if not MSUF_DB then EnsureDB() end
-    MSUF_DB.npcColors = MSUF_DB.npcColors or {}
-    local t = MSUF_DB.npcColors[kind]
-    if t and t.r and t.g and t.b then
-        return t.r, t.g, t.b
-    end
-     return defaultR, defaultG, defaultB
-end
-MSUF_GetClassBarColor = function(classToken)
-    local defaultR, defaultG, defaultB = 0, 1, 0
-    if not classToken then
-         return defaultR, defaultG, defaultB
-    end
-    if not MSUF_DB then EnsureDB() end
-    MSUF_DB.classColors = MSUF_DB.classColors or {}
-    local override = MSUF_DB.classColors[classToken]
-    if override and override.r and override.g and override.b then
-        return override.r, override.g, override.b
-    end
-    if type(override) == "string" and MSUF_FONT_COLORS and MSUF_FONT_COLORS[override] then
-        local c = MSUF_FONT_COLORS[override]
-        return c[1], c[2], c[3]
-    end
-    local color = RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken]
-    if color then
-        return color.r, color.g, color.b
-    end
-     return defaultR, defaultG, defaultB
-end
-local function MSUF_GetPowerBarColor(powerType, powerToken)
-    if not powerToken or powerToken == "" then
-         return nil
-    end
-    if not EnsureDB then
-         return nil
-    end
-    if not MSUF_DB then EnsureDB() end
-    local g = MSUF_DB.general
-    local ov = g and g.powerColorOverrides
-    local c = (ov) and ov[powerToken] or nil
-    -- Aug Evoker: Essence is in power bar but user may set color via Class Power colors
-    if type(c) ~= "table" and _G.MSUF_AugEvokerActive and powerToken == "ESSENCE" then
-        local cpOv = g and g.classPowerColorOverrides
-        c = (cpOv) and cpOv[powerToken] or nil
-    end
-    if type(c) ~= "table" then
-         return nil
-    end
-    local r, gg, b
-    if type(c.r) == "number" and type(c.g) == "number" and type(c.b) == "number" then
-        r, gg, b = c.r, c.g, c.b
-    else
-        r, gg, b = c[1], c[2], c[3]
-    end
-    if type(r) == "number" and type(gg) == "number" and type(b) == "number" then
-         return r, gg, b
-    end
-     return nil
-end
-_G.MSUF_GetPowerBarColor = MSUF_GetPowerBarColor
-local function MSUF_GetResolvedPowerColor(powerType, powerToken)
-    if type(MSUF_GetPowerBarColor) == "function" then
-        local r, g, b = MSUF_GetPowerBarColor(powerType, powerToken)
-        if type(r) == "number" and type(g) == "number" and type(b) == "number" then
-             return r, g, b
-    end
-    end
-    local snap = ns._PBCSnap
-    if type(powerToken) == "string" and snap[powerToken] then
-        local c = snap[powerToken]
-        return c.r, c.g, c.b
-    end
-    if type(powerType) == "number" and snap[powerType] then
-        local c = snap[powerType]
-        return c.r, c.g, c.b
-    end
-    local pbc = _G.PowerBarColor
-    if type(powerToken) == "string" and pbc and pbc[powerToken] then
-        local c = pbc[powerToken]
-        local r = c.r or c[1]
-        local g = c.g or c[2]
-        local b = c.b or c[3]
-        if type(r) == "number" and type(g) == "number" and type(b) == "number" then
-             return r, g, b
-    end
-    end
-    if type(powerType) == "number" and pbc and pbc[powerType] then
-        local c = pbc[powerType]
-        local r = c.r or c[1]
-        local g = c.g or c[2]
-        local b = c.b or c[3]
-        if type(r) == "number" and type(g) == "number" and type(b) == "number" then
-             return r, g, b
-    end
-    end
-     return nil
-end
-_G.MSUF_GetResolvedPowerColor = MSUF_GetResolvedPowerColor
-ns.MSUF_GetResolvedPowerColor = MSUF_GetResolvedPowerColor
-local function MSUF_GetConfiguredFontColor()
-    if not MSUF_DB then EnsureDB() end
-    local g = MSUF_DB.general or {}
-    if g.useCustomFontColor and g.fontColorCustomR and g.fontColorCustomG and g.fontColorCustomB then
-        return g.fontColorCustomR, g.fontColorCustomG, g.fontColorCustomB
-    end
-    local key   = (g.fontColor or "white"):lower()
-    local color = MSUF_FONT_COLORS[key] or MSUF_FONT_COLORS.white
-    return color[1], color[2], color[3]
-end
-ns.MSUF_GetConfiguredFontColor = MSUF_GetConfiguredFontColor
-local MSUF_FontPreviewObjects = {}
-local MSUF_FontPreviewObjectCount = 0
-local function MSUF_GetRawLSMFontPath(lsm, key)
-    if type(key) ~= "string" or key == "" then return nil end
-    if lsm and type(lsm.HashTable) == "function" then
-        local fonts = lsm:HashTable("font")
-        local p = fonts and fonts[key]
-        if type(p) == "string" and p ~= "" then return p end
-    end
-    return nil
-end
-
-local function MSUF_FontKeyIsInternal(key)
-    if type(key) ~= "string" or key == "" then return false end
-    local normalized = MSUF_NormalizeFontKey(key)
-    for _, info in ipairs(FONT_LIST) do
-        if info.key == key or info.key == normalized or info.name == key then
-            return true
-        end
-    end
-    return false
-end
-
-local function MSUF_FetchFontPathFromLSM(key)
-    if type(key) ~= "string" or key == "" then return nil end
-    if MSUF_FontKeyIsInternal(key) then return nil end
-    local lsm = LSM or (ns and ns.LSM) or _G.MSUF_LSM
-    if not lsm then return nil end
-
-    local lsmKey = MSUF_NormalizeFontKey(key)
-    local p = MSUF_GetRawLSMFontPath(lsm, lsmKey)
-    if type(p) == "string" and p ~= "" then return p end
-    if lsmKey ~= key then
-        p = MSUF_GetRawLSMFontPath(lsm, key)
-        if type(p) == "string" and p ~= "" then return p end
-    end
-
-    if type(lsm.Fetch) == "function" then
-        p = lsm:Fetch("font", lsmKey, true)
-        if type(p) == "string" and p ~= "" then return p end
-        if lsmKey ~= key then
-            p = lsm:Fetch("font", key, true)
-            if type(p) == "string" and p ~= "" then return p end
-        end
-    end
-
-    return nil
-end
-
-local function MSUF_GetFontPreviewObject(key)
-    if not key or key == "" then
-        return GameFontHighlightSmall
-    end
-    local obj = MSUF_FontPreviewObjects[key]
-    if not obj then
-        MSUF_FontPreviewObjectCount = MSUF_FontPreviewObjectCount + 1
-        obj = CreateFont("MSUF_FontPreview_" .. tostring(MSUF_FontPreviewObjectCount))
-        MSUF_FontPreviewObjects[key] = obj
-    end
-    local resolveKeyPath = _G.MSUF_ResolveFontKeyPath
-    local path = type(resolveKeyPath) == "function" and resolveKeyPath(key, 14, "") or nil
-    path = path or GetInternalFontPathByKey(key) or MSUF_FetchFontPathFromLSM(key) or FONT_LIST[1].path
-    path = (_G.MSUF_ResolveFontPath or function(p) return p end)(path, 14, "", key)
-    if path then
-        local safeSet = _G.MSUF_SetFontSafe
-        local ok
-        if type(safeSet) == "function" then
-            ok = safeSet(obj, path, 14, "", key)
-        else
-            local applied
-            ok, applied = pcall(obj.SetFont, obj, path, 14, "")
-            ok = ok and applied ~= false
-        end
-        if (not ok) and FONT_LIST[1] and FONT_LIST[1].path then
-            local fallback = (_G.MSUF_ResolveFontPath or function(p) return p end)(FONT_LIST[1].path, 14, "")
-            if type(safeSet) == "function" then
-                safeSet(obj, fallback, 14, "", "FRIZQT")
-            else
-                pcall(obj.SetFont, obj, fallback, 14, "")
-            end
-        end
-    end
-     return obj
-end
-ns.MSUF_GetFontPreviewObject = MSUF_GetFontPreviewObject
-_G.MSUF_GetFontPreviewObject = MSUF_GetFontPreviewObject
-local function MSUF_GetColorFromKey(key, fallbackColor)
-    if type(key) ~= "string" then
-        if fallbackColor then
-             return fallbackColor
-    end
-        return CreateColor(1, 1, 1, 1)
-    end
-    local normalized = string.lower(key)
-    local rgb = MSUF_FONT_COLORS[normalized]
-    if rgb then
-        local r, g, b = rgb[1], rgb[2], rgb[3]
-        return CreateColor(r or 1, g or 1, b or 1, 1)
-    end
-    if fallbackColor then
-         return fallbackColor
-    end
-    return CreateColor(1, 1, 1, 1)
-end
-ns.MSUF_GetColorFromKey = MSUF_GetColorFromKey
-_G.MSUF_GetColorFromKey = MSUF_GetColorFromKey
-MSUF_DARK_TONES = {
-    black    = {0.0, 0.0, 0.0},
-    darkgray = {0.08, 0.08, 0.08},
-    softgray = {0.16, 0.16, 0.16},
-}
-function GetInternalFontPathByKey(key)
-    if not key then return nil end
-    local registryPath = _G.MSUF_GetInternalFontPrimaryPath
-    if type(registryPath) == "function" then
-        local p = registryPath(key)
-        if p then return p end
-    end
-    local normalized = MSUF_NormalizeFontKey(key)
-    for _, info in ipairs(FONT_LIST) do
-        if info.key == key or info.key == normalized or info.name == key then
-            return info.path
-    end
-    end
-     return nil
-end
-local function MSUF_IsInternalFontKey(key)
-    return MSUF_FontKeyIsInternal(key)
-end
-local function MSUF_GetFontPathForKey(key)
-    local resolveKeyPath = _G.MSUF_ResolveFontKeyPath
-    if type(resolveKeyPath) == "function" then
-        local p = resolveKeyPath(key, 14, "")
-        if p then return p end
-    end
-    local resolve = _G.MSUF_ResolveFontPath or function(path) return path end
-    local internalPath = GetInternalFontPathByKey(key)
-    if internalPath then return resolve(internalPath, 14, "", key) end
-    local lsmPath = MSUF_FetchFontPathFromLSM(key)
-    if lsmPath then return resolve(lsmPath, 14, "", key) end
-    return resolve(FONT_LIST[1].path, 14, "", "FRIZQT")
-end
-_G.MSUF_GetFontPathForKey = MSUF_GetFontPathForKey
-ns.MSUF_GetFontPathForKey = MSUF_GetFontPathForKey
-_G.MSUF_IsInternalFontKey = MSUF_IsInternalFontKey
-ns.MSUF_IsInternalFontKey = MSUF_IsInternalFontKey
-_G.MSUF_FetchFontPathFromLSM = MSUF_FetchFontPathFromLSM
-ns.MSUF_FetchFontPathFromLSM = MSUF_FetchFontPathFromLSM
-_G.MSUF_GetRawLSMFontPath = MSUF_GetRawLSMFontPath
-ns.MSUF_GetRawLSMFontPath = MSUF_GetRawLSMFontPath
-
+-- Font registry moved to Core\MSUF_FontRegistry.lua
 -- Castbar utilities moved to MSUF_Castbars.lua
 
 -- Bar background runtime moved to Core/MSUF_BarBackgroundRuntime.lua.
 local function GetConfigKeyForUnit(unit)
+    if unit == "tot" then unit = "targettarget" end
+    if unit == "focus_target" or unit == "focustargettarget" then unit = "focustarget" end
     if unit == "player"
         or unit == "target"
         or unit == "focus"
         or unit == "targettarget"
+        or unit == "focustarget"
         or unit == "pet"
     then
          return unit
@@ -1705,6 +1418,8 @@ local function MSUF_GetVisibilityDriverForUnit(unit)
          return "[@target,exists] show; hide"
     elseif unit == "focus" then
          return "[@focus,exists] show; hide"
+    elseif unit == "focustarget" then
+         return "[@focustarget,exists] show; hide"
     elseif unit == "pet" then
          return "[@pet,exists] show; hide"
     elseif unit == "targettarget" then
@@ -1717,7 +1432,7 @@ end
 local function MSUF_ApplyUnitVisibilityDriver(frame, forceShow)
     if not frame or not frame.unit then return end
     if frame.unit == "player" then return end
-if not MSUF_DB then EnsureDB() end
+if not MSUF_DB then MSUF_EnsureDB() end
 local confKey
 if frame.isBoss or (_G.MSUF_GetBossIndexFromToken and _G.MSUF_GetBossIndexFromToken(frame.unit)) then
     confKey = "boss"
@@ -1725,15 +1440,16 @@ else
     confKey = frame.unit
 end
 local conf = (type(MSUF_DB) == "table" and confKey and MSUF_DB[confKey]) or nil
-if ns.UF.IsDisabled(conf) then
+local focusTargetDisabled = frame.unit == "focustarget"
+    and type(_G.MSUF_IsFocusTargetEffectiveEnabled) == "function"
+    and not _G.MSUF_IsFocusTargetEffectiveEnabled()
+if ns.UF.IsDisabled(conf) or focusTargetDisabled then
     -- In MSUF Edit Mode, keep disabled frames editable by allowing forceShow previews.
-    -- Boss frames remain hard-hidden when disabled (see Boss preview invariants).
-    local allowBossPagePreview = frame and frame.isBoss
-        and _G.MSUF2_BossUnitframePreviewActive == true
-        and MSUF_BossTestMode
-        and not _msuf_inCombat
+    -- Boss frames use their dedicated preview gate, shared by Edit Mode and the
+    -- Boss menu on-screen preview.
+    local allowBossPreview = frame and frame.isBoss and MSUF_IsBossUnitframePreviewActive()
     if not ((forceShow and MSUF_UnitEditModeActive and (not _msuf_inCombat) and frame and not frame.isBoss)
-        or allowBossPagePreview) then
+        or allowBossPreview) then
         ns.UF.ForceVisibilityHidden(frame)
         return
     end
@@ -1760,6 +1476,10 @@ end
     end
     if frame._msufVisibilityForced == forced and frame._msufVisibilityAppliedDriver == driverToApply then
           return
+    end
+    if _msuf_inCombat or (InCombatLockdown and InCombatLockdown()) then
+        MSUF_QueueVisibilityDriverRefresh(forced)
+        return
     end
     frame._msufVisibilityForced = forced
     frame._msufVisibilityAppliedDriver = driverToApply
@@ -1883,6 +1603,8 @@ local function MSUF_GetUnitLabelForKey(key)
          return "Target"
     elseif key == "targettarget" then
          return "Target of Target"
+    elseif key == "focustarget" then
+         return "Focus Target"
     elseif key == "focus" then
          return "Focus"
     elseif key == "pet" then
@@ -1906,7 +1628,7 @@ local function MSUF_UpdateNameColor(frame)
 
     local g = (cache and cache.generalRef) or ((MSUF_DB and MSUF_DB.general) or nil)
     if not g then
-        if not MSUF_DB then EnsureDB() end
+        if not MSUF_DB then MSUF_EnsureDB() end
         g = (MSUF_DB and MSUF_DB.general) or nil
     end
 
@@ -1963,6 +1685,9 @@ local function MSUF_UpdateNameColor(frame)
     if frame._msufNameColorR == r and frame._msufNameColorG == gCol and frame._msufNameColorB == b then return end
     frame._msufNameColorR, frame._msufNameColorG, frame._msufNameColorB = r, gCol, b
     frame.nameText:SetTextColor(r, gCol, b, 1)
+    if frame.raidGroupNameText then
+        frame.raidGroupNameText:SetTextColor(r, gCol, b, 1)
+    end
     if frame.levelText then
         frame.levelText:SetTextColor(r, gCol, b, 1)
     end
@@ -2757,7 +2482,7 @@ local function PositionUnitFrame(f, unit, refreshConfig)
     if inLockdown and initialized then return end
     local conf = refreshConfig and nil or f.cachedConfig
     if not conf then
-        if not MSUF_DB then EnsureDB() end
+        if not MSUF_DB then MSUF_EnsureDB() end
         conf = MSUF_DB and MSUF_DB[key]
         f.cachedConfig = conf
     end
@@ -2862,7 +2587,7 @@ local function PositionUnitFrame(f, unit, refreshConfig)
         local baseY = conf.offsetY or 0
         local x, y = baseX, baseY
         if mode == "HORIZONTAL_RIGHT" then
-            -- boss1 at anchor, subsequent to the right. spacing is negative by default â†’ invert for rightward travel.
+            -- boss1 at anchor, subsequent to the right. spacing is negative by default → invert for rightward travel.
             x = baseX + step * -spacing
         elseif mode == "HORIZONTAL_LEFT" then
             x = baseX + step * spacing
@@ -2951,6 +2676,7 @@ MSUF_ForceReanchorAllUnitFrames_Once = function(refreshConfig)
         "target",
         "targettarget",
         "focus",
+        "focustarget",
         "pet",
         "boss1", "boss2", "boss3", "boss4", "boss5", "boss6", "boss7", "boss8",
     }
@@ -3204,6 +2930,7 @@ local function MSUF_EnsureUnitTextLayers(f, tf, nameLayer, hpLayer, powerLayer)
     if f.nameText and nl and (not f._msufNameClipFrame or f.nameText:GetParent() ~= f._msufNameClipFrame) then
         MSUF_SetTextParentIfNeeded(f.nameText, nl)
     end
+    MSUF_SetTextParentIfNeeded(f.raidGroupNameText, nl)
     MSUF_SetTextParentIfNeeded(f.hpTextLeft, hl)
     MSUF_SetTextParentIfNeeded(f.hpTextCenter, hl)
     MSUF_SetTextParentIfNeeded(f.hpText, hl)
@@ -3390,6 +3117,10 @@ local function ApplyTextLayout(f, conf)
         f._msufNameAnchorMode, f._msufNameJustifyH = nameAnchor, nameJustify
         f._msufNameClipSideApplied, f._msufNameClipReservedRight, f._msufNameClipTextStamp, f._msufNameClipAnchorStamp, f._msufClampStamp = nil, nil, nil, nil, nil
     end
+    if f.raidGroupNameText and f.nameText then MSUF_ApplyRaidGroupNameLayout_Internal(f, conf) end
+    if f._msufIsTarget and _G.MSUF_UFCore_ReanchorTargetToTInline then
+        _G.MSUF_UFCore_ReanchorTargetToTInline(f)
+    end
     if f.levelText and f.nameText then MSUF_ApplyLevelIndicatorLayout_Internal(f, conf) end
     MSUF_TextLayout_Place(f.hpTextLeft, tf, "TOPLEFT", "TOPLEFT", 4 + hX + hLeftX, hY + hLeftY, "LEFT")
     MSUF_TextLayout_Place(f.hpTextCenter, tf, "TOP", "TOP", hX + hCenterX, hY + hCenterY, "CENTER")
@@ -3430,7 +3161,7 @@ local function ApplyTextLayout(f, conf)
     end
  end
 function _G.MSUF_ForceTextLayoutForUnitKey(unitKey)
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     local k = _G.MSUF_NormalizeTextLayoutUnitKey(unitKey)
     local function ApplyForFrame(f)
         if not f then return end
@@ -3616,6 +3347,12 @@ function MSUF_ClampNameWidth(f, conf)
     if baseWidth < 80 then baseWidth = 80 end
     -- Fixed reservations (secret-safe; never derived from unit names)
     local reservedRight = 0
+    local raidGroupShown = false
+    if f.raidGroupNameText and f.raidGroupNameText.IsShown and f.raidGroupNameText:IsShown()
+        and f._msufRaidGroupNameAnchor == "NAMERIGHT" then
+        reservedRight = reservedRight + 24
+        raidGroupShown = true
+    end
     local lvlShown = false
     local lvlAnchor = f._msufLevelAnchor or "NAMERIGHT"
     if lvlAnchor == "NAMERIGHT" and f.levelText and f.levelText.IsShown and f.levelText:IsShown() then
@@ -3694,6 +3431,7 @@ function MSUF_ClampNameWidth(f, conf)
               + (_AP_HASH[arp] or 0) * 700003
               + math_floor((ax + 200) * 100) * 71
               + math_floor((ay + 200) * 100) * 7
+              + (raidGroupShown and 50021 or 0)
               + (mode == "LEFT" and 3 or 0)
               + maskPx * 17
               + (showDots and 1 or 0)
@@ -3894,6 +3632,68 @@ local function MSUF_NumberToTextFast(v)
     if abbr then return abbr(v) end
     return tostring(v)
 end
+local function MSUF_ClearHpTextFastSignature(self)
+    self._msufHpTextFastReady = nil
+    self._msufHpTextFastSpec = nil
+    self._msufHpTextFastH = nil
+    self._msufHpTextFastMax = nil
+    self._msufHpTextFastPctKey = nil
+    self._msufHpTextFastHasPct = nil
+    self._msufHpTextFastAbsorb = nil
+    self._msufHpTextFastAbsorbStyle = nil
+    self._msufHpTextFastShowAbsorb = nil
+end
+local function MSUF_HpPctFastKey(pct)
+    local isv = _MSUF_issecretvalue
+    if pct == nil or (isv and isv(pct)) or type(pct) ~= "number" then return nil end
+    return math_floor(pct * 10 + 0.5)
+end
+local function MSUF_HpTextFastComparable(v)
+    local isv = _MSUF_issecretvalue
+    return not (v ~= nil and isv and isv(v))
+end
+local function MSUF_ShouldSkipHpTextFastRender(self, spec, hpStr, hpPct, hasPct, hpMaxStr, absorbText, absorbStyle, showAbsorb)
+    if not self or not spec then return false end
+    if spec.hpNeedsDeficit == true then return false end
+    if not MSUF_HpTextFastComparable(hpStr)
+        or not MSUF_HpTextFastComparable(hpMaxStr)
+        or not MSUF_HpTextFastComparable(absorbText)
+    then
+        return false
+    end
+
+    local pctKey
+    if hasPct then
+        pctKey = MSUF_HpPctFastKey(hpPct)
+        if pctKey == nil and spec.hpNeedsPct == true then return false end
+    elseif spec.hpNeedsPct == true then
+        return false
+    end
+
+    if self._msufHpTextFastReady
+        and self._msufHpTextFastSpec == spec
+        and self._msufHpTextFastH == hpStr
+        and self._msufHpTextFastMax == hpMaxStr
+        and self._msufHpTextFastPctKey == pctKey
+        and self._msufHpTextFastHasPct == hasPct
+        and self._msufHpTextFastAbsorb == absorbText
+        and self._msufHpTextFastAbsorbStyle == absorbStyle
+        and self._msufHpTextFastShowAbsorb == showAbsorb
+    then
+        return true
+    end
+
+    self._msufHpTextFastReady = true
+    self._msufHpTextFastSpec = spec
+    self._msufHpTextFastH = hpStr
+    self._msufHpTextFastMax = hpMaxStr
+    self._msufHpTextFastPctKey = pctKey
+    self._msufHpTextFastHasPct = hasPct
+    self._msufHpTextFastAbsorb = absorbText
+    self._msufHpTextFastAbsorbStyle = absorbStyle
+    self._msufHpTextFastShowAbsorb = showAbsorb
+    return false
+end
 -- Icon layout runtime moved to Core/MSUF_IconLayoutRuntime.lua.
 -- 12.0: UFCore now resolves directly to ns.Bars.HealthCalcUpdate. Thin compat wrapper.
 local _cachedSpecHealth = nil
@@ -3909,6 +3709,7 @@ function _G.MSUF_UFCore_UpdateHpTextFast(self, hp)
     local unit = self.unit
     local conf = self.cachedConfig
     if self.showHPText == false or hp == nil then
+        MSUF_ClearHpTextFastSignature(self)
         ns.Text.RenderHpMode(self, false)
          return
     end
@@ -3920,8 +3721,8 @@ function _G.MSUF_UFCore_UpdateHpTextFast(self, hp)
     local hpNeedsMax = not spec or spec.hpNeedsMax == true
     local hpNeedsPct = not spec or spec.hpNeedsPct == true
     local hpStr = hpNeedsCurrent and MSUF_NumberToTextFast(hp) or nil
-    -- PERF: Cache hpMax + hpMaxStr â€” hpMax only changes on UNIT_MAXHEALTH (~0.5/s)
-    -- but UNIT_HEALTH fires 10-50Ã—/s. Saves UnitHealthMax + NumberToTextFast per tick.
+    -- PERF: Cache hpMax + hpMaxStr — hpMax only changes on UNIT_MAXHEALTH (~0.5/s)
+    -- but UNIT_HEALTH fires 10-50×/s. Saves UnitHealthMax + NumberToTextFast per tick.
     -- _msufAbsorbTextDirty is already set on UNIT_MAXHEALTH by FrameOnEvent.
     local absorbTextDirty = self._msufAbsorbTextDirty == true
     local hpMaxValue
@@ -3959,7 +3760,7 @@ function _G.MSUF_UFCore_UpdateHpTextFast(self, hp)
     local hasPct = hpNeedsPct and (type(hpPct) == "number") or false
     local absorbText, absorbStyle = nil, nil
     -- PERF: Cache absorb text display flag per-frame. Invalidated when cachedConfig is cleared
-    -- (config change). Most users have absorb text disabled â†’ skip all absorb work entirely.
+    -- (config change). Most users have absorb text disabled → skip all absorb work entirely.
     local showAbsorbCached = self._msufCachedShowAbsorbText
     if showAbsorbCached == nil then
         local g = MSUF_DB and MSUF_DB.general or {}
@@ -4008,6 +3809,11 @@ function _G.MSUF_UFCore_UpdateHpTextFast(self, hp)
     elseif absorbTextDirty then
         self._msufAbsorbTextDirty = false
     end
+    if MSUF_ShouldSkipHpTextFastRender(self, spec, hpStr, hpPct, hasPct, hpMaxStr, absorbText,
+        absorbStyle, showAbsorbCached)
+    then
+        return
+    end
     ns.Text.RenderHpMode(self, true, hpStr, hpPct, hasPct, conf, nil, absorbText, absorbStyle,
         hpMaxStr)
  end
@@ -4036,6 +3842,7 @@ function _G.MSUF_UFCore_UpdatePowerBarFast(self)
 local function MSUF_ClearUnitFrameState(self, clearAbsorbs)
     ns.Bars.ResetHealthAndOverlays(self, clearAbsorbs)
     if self.nameText then self.nameText:SetText("") end
+    MSUF_ClearText(self.raidGroupNameText, true)
     MSUF_ClearText(self.levelText, true)
     MSUF_ClearText(self.hpTextLeft, true)
     MSUF_ClearText(self.hpTextCenter, true)
@@ -4051,10 +3858,45 @@ local function MSUF_ClearUnitFrameState(self, clearAbsorbs)
 -- When a unitframe has no unit (or is disabled) we still want a persistent, simple preview
 -- so it can be positioned/edited. This is intentionally a "dark bar" placeholder and
 -- must never run in combat.
+local function MSUF_ApplyUnitframePreviewOverlays(self, unit, maxHP)
+    if not (self and self.hpBar) then return end
+    maxHP = tonumber(maxHP) or 100
+    if maxHP <= 0 then maxHP = 100 end
+
+    local healPredEnabled = ns.Bars._IsHealPredictionEnabled and ns.Bars._IsHealPredictionEnabled()
+    if healPredEnabled and type(ns.Bars._SetSelfHealPredictionTestValue) == "function" then
+        ns.Bars._SetSelfHealPredictionTestValue(self, maxHP, maxHP * 0.18)
+    elseif type(ns.Bars._HideSelfHealPrediction) == "function" then
+        ns.Bars._HideSelfHealPrediction(self)
+    end
+
+    local absorbEnabled = true
+    if type(ns.Bars._ResolveAbsorbDisplay) == "function" then
+        absorbEnabled = ns.Bars._ResolveAbsorbDisplay(unit or self.unit)
+    end
+    if self.absorbBar then
+        if absorbEnabled then
+            local applyAnchor = _G.MSUF_ApplyAbsorbAnchorMode
+            if type(applyAnchor) == "function" then applyAnchor(self) end
+            if type(ns.Bars._ApplyAbsorbOverlayColor) == "function" then
+                ns.Bars._ApplyAbsorbOverlayColor(self.absorbBar, unit or self.unit)
+            end
+            self.absorbBar:SetMinMaxValues(0, maxHP)
+            self.absorbBar:SetValue(maxHP * 0.25)
+            if self.absorbBar.Show then self.absorbBar:Show() end
+        else
+            MSUF_ResetBarZero(self.absorbBar, true)
+        end
+    end
+    if self.healAbsorbBar then
+        MSUF_ResetBarZero(self.healAbsorbBar, true)
+    end
+end
+
 local function MSUF_ApplyUnitframeEditPreview(self, key, conf, g)
     if not self or self.isBoss then return end
     if _msuf_inCombat then return end
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     g = g or ((MSUF_DB and MSUF_DB.general) or {})
 
     if self.Show then self:Show() end
@@ -4100,6 +3942,7 @@ local function MSUF_ApplyUnitframeEditPreview(self, key, conf, g)
             ns.Bars._ApplyHPGradient(self.hpGradient)
         end
     end
+    MSUF_ApplyUnitframePreviewOverlays(self, key or self.unit, 1)
 
     -- Show a fake power bar + fake power text so offsets can be edited.
     local pb = self.targetPowerBar or self.powerBar
@@ -4139,6 +3982,25 @@ local function MSUF_ApplyUnitframeEditPreview(self, key, conf, g)
             self.nameText:SetText(upper)
         end
         if SetShown then SetShown(self.nameText, true) end
+    end
+    if self.raidGroupNameText and self.raidGroupNameText.SetText then
+        local showRG = (conf and conf.showRaidGroupInName == true) and MSUF_RaidGroupNameAllowedForKey(key or self.msufConfigKey or self.unit)
+        if showRG then
+            local rgText = MSUF_RaidGroupNamePreviewText(conf)
+            if type(MSUF_SetTextIfChanged) == "function" then
+                MSUF_SetTextIfChanged(self.raidGroupNameText, rgText)
+            else
+                self.raidGroupNameText:SetText(rgText)
+            end
+        else
+            if type(MSUF_SetTextIfChanged) == "function" then
+                MSUF_SetTextIfChanged(self.raidGroupNameText, "")
+            else
+                self.raidGroupNameText:SetText("")
+            end
+        end
+        if SetShown then SetShown(self.raidGroupNameText, showRG) end
+        if _G.MSUF_ApplyRaidGroupNameLayout then _G.MSUF_ApplyRaidGroupNameLayout(self) end
     end
 
     if self.hpText and self.hpText.SetText then
@@ -4294,31 +4156,25 @@ local function MSUF_UFStep_SyncTargetPower(self, unit, barsConf, isPlayer, isTar
   if MSUF_SyncTargetPowerBar(self, unit, barsConf, isPlayer, isTarget, isFocus) then  return true end
    return false
 end
-local function MSUF_UFStep_Border(self)
-        do
-            if self.border then
-                self.border:Hide()
-            end
-            local thickness, stamp = MSUF_GetDesiredBarBorderThicknessAndStamp(self)
-            local pb = self.targetPowerBar
-            local pbDetached = self._msufPowerBarDetached
-            local bottomIsPower = (pb and not pbDetached and pb.IsShown and pb:IsShown()) and true or false
-            local need = false
-            if self._msufBarBorderStamp ~= stamp then
-                self._msufBarBorderStamp = stamp
-                need = true
-            end
-            if self._msufBarOutlineThickness ~= thickness then
-                need = true
-            end
-            if self._msufBarOutlineBottomIsPower ~= bottomIsPower then
-                need = true
-            end
-            if need and _UF.QueueVis then
-                _UF.QueueVis(self)
-            end
+local function MSUF_FrameHasRuntimeBorderState(self)
+    if not self then return false end
+    if self._msufAggroOutlineOn or self._msufDispelOutlineOn or self._msufPurgeOutlineOn or self._msufBossTargetHLOn then
+        return true
     end
- end
+    if _G.MSUF_BorderTestModesActive == true then
+        return true
+    end
+    local hl = self._msufHighlightOutline
+    return (hl and hl.IsShown and hl:IsShown()) and true or false
+end
+
+local function MSUF_UFStep_Border(self)
+    if not MSUF_FrameHasRuntimeBorderState(self) then return end
+    local fn = _G.MSUF_RefreshRareBarVisuals
+    if type(fn) == "function" then
+        fn(self)
+    end
+end
 local function MSUF_UFStep_NameLevelLeaderRaid(self, unit, conf, g)
     ns.Text.ApplyName(self, unit)
     ns.Text.ApplyLevel(self, unit, conf)
@@ -4355,7 +4211,7 @@ local function MSUF_UFStep_Finalize(self, hp, didPowerBarSync)
     -- Coalesce within the same millisecond-bucket (approx "per-flush" when multiple updates burst)
     local now = GetTime()
     local nowMs = math_floor(now * 1000)
-    -- Text state sub-table: reduces hash lookups on the frame object (10 long-key writes ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ short keys on small table)
+    -- Text state sub-table: reduces hash lookups on the frame object (10 long-key writes ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ short keys on small table)
     local ts = self._msufTS
     if not ts then ts = {}; self._msufTS = ts end
     -- HP text: force when layout/toggle changed, otherwise rate-limit
@@ -4425,7 +4281,7 @@ local function _MSUF_ShouldRunStaticVisualPass(self, key, exists)
     return _MSUF_IsVisualLiveApplyContext() and (not _msuf_inCombat)
 end
 
-function UpdateSimpleUnitFrame(self)
+function MSUF_UpdateSimpleUnitFrame(self)
         -- P0: _UF.Alpha / Portrait / EditPrev pre-resolved at PLAYER_LOGIN.
         -- Zero per-call overhead (was: 3 branches + 3 _G hash lookups per frame update).
         local _flushSerial = _G.MSUF_UFCORE_FLUSH_SERIAL  -- cache once per call
@@ -4445,7 +4301,7 @@ function UpdateSimpleUnitFrame(self)
         end
 
         if not db then
-            if not MSUF_DB then EnsureDB() end
+            if not MSUF_DB then MSUF_EnsureDB() end
             db = MSUF_DB
         end
 
@@ -4482,6 +4338,7 @@ local key, conf = ns.UF.ResolveKeyAndConf(self, unit, db)
 if ns.UF.HandleDisabledFrame(self, conf) then
      return
 end
+_G.UpdateSimpleUnitFrame = _G.UpdateSimpleUnitFrame or MSUF_UpdateSimpleUnitFrame
 if conf then
     local sn = (conf.showName  ~= false)
     local sh = (conf.showHP    ~= false)
@@ -4606,7 +4463,7 @@ if self.powerText then
     end
          return
     end
--- â”€â”€ Preview Test Mode (non-boss, non-player, no unit) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+-- ── Preview Test Mode (non-boss, non-player, no unit) ──────────────────
 -- Mirrors BossTestMode block above. Full control over bars/text/visibility.
 if not self.isBoss and not self._msufIsPlayer and _G.MSUF_PreviewTestMode and not _msuf_inCombat and not exists then
     self:Show()
@@ -4623,6 +4480,7 @@ if not self.isBoss and not self._msufIsPlayer and _G.MSUF_PreviewTestMode and no
         if self.hpGradients then ns.Bars._ApplyHPGradient(self)
         elseif self.hpGradient then ns.Bars._ApplyHPGradient(self.hpGradient) end
     end
+    MSUF_ApplyUnitframePreviewOverlays(self, key or self.msufConfigKey or self.unit, 1)
     -- Power bar
     local pb = self.targetPowerBar or self.powerBar
     if pb then
@@ -4667,6 +4525,17 @@ if not self.isBoss and not self._msufIsPlayer and _G.MSUF_PreviewTestMode and no
             MSUF_SetTextIfChanged(self.nameText, "")
         end
         ns.Util.SetShown(self.nameText, showN)
+    end
+    if self.raidGroupNameText then
+        local showRG = (conf and conf.showRaidGroupInName == true)
+            and MSUF_RaidGroupNameAllowedForKey(self.msufConfigKey or unit or self.unit)
+        if showRG then
+            MSUF_SetTextIfChanged(self.raidGroupNameText, MSUF_RaidGroupNamePreviewText(conf))
+        else
+            MSUF_SetTextIfChanged(self.raidGroupNameText, "")
+        end
+        ns.Util.SetShown(self.raidGroupNameText, showRG)
+        if _G.MSUF_ApplyRaidGroupNameLayout then _G.MSUF_ApplyRaidGroupNameLayout(self) end
     end
     MSUF_UpdateNameColor(self)
     -- Level text (showLevelIndicator is the actual config key)
@@ -4735,7 +4604,7 @@ if not self.isBoss and not self._msufIsPlayer and _G.MSUF_PreviewTestMode and no
             self.raidMarkerIcon:Hide()
         end
     end
-    -- Status indicators (combat, rest, rez icons â€” live-apply config changes)
+    -- Status indicators (combat, rest, rez icons — live-apply config changes)
     if type(MSUF_UpdateStatusIndicatorForFrame) == "function" then
         MSUF_UpdateStatusIndicatorForFrame(self)
     end
@@ -4801,7 +4670,7 @@ end
         local pbDetached = self._msufPowerBarDetached
         local pbWanted = (pb ~= nil) and not pbDetached and (self._msufPowerBarReserved or (pb.IsShown and pb:IsShown()))
         local bottomIsPower = pbWanted and true or false
-        if self._msufBarOutlineBottomIsPower ~= (bottomIsPower and true or false) then
+        if MSUF_FrameHasRuntimeBorderState(self) and self._msufHighlightBottomIsPower ~= (bottomIsPower and true or false) then
             self._msufNeedsBorderVisual = true
     end
     end
@@ -4977,12 +4846,25 @@ local function _MSUF_ApplyToUnitFrame(unit, conf)
         end
         MSUF_ApplyUnitVisibilityDriver(f, (MSUF_UnitEditModeActive and true or false))
     end
+    local focusTargetInactive = unit == "focustarget"
+        and type(_G.MSUF_IsFocusTargetEffectiveEnabled) == "function"
+        and not _G.MSUF_IsFocusTargetEffectiveEnabled()
+    if focusTargetInactive and not (MSUF_UnitEditModeActive and not _msuf_inCombat) then
+        if f.Hide then f:Hide() end
+        return
+    end
     local w = tonumber(conf.width)  or (f.GetWidth and f:GetWidth())  or 275
     local h = tonumber(conf.height) or (f.GetHeight and f:GetHeight()) or 40
     conf.width, conf.height = w, h
     f:SetSize(w, h)
     if f.targetPowerBar then
         MSUF_ApplyPowerBarEmbedLayout(f)
+    end
+    do
+        local fnStaticOutlines = _G.MSUF_RefreshStaticUnitFrameOutlines
+        if type(fnStaticOutlines) == "function" then
+            fnStaticOutlines(f)
+        end
     end
     ns.Bars._ApplyReverseFillBars(f, conf)
     local showName  = (conf.showName  ~= false)
@@ -5005,9 +4887,9 @@ local function _MSUF_ApplyToUnitFrame(unit, conf)
     PositionUnitFrame(f, unit)
     if f.portrait then
         MSUF_UpdateBossPortraitLayout(f, conf)
-        -- Force full portrait render â€” layout alone only positions the widget
-        -- but doesn't set the texture. MaybeUpdatePortrait â†’ global UpdatePortraitIfNeeded
-        -- â†’ hooksecurefunc fires PortraitDecoration (offsets, borders, size override).
+        -- Force full portrait render — layout alone only positions the widget
+        -- but doesn't set the texture. MaybeUpdatePortrait → global UpdatePortraitIfNeeded
+        -- → hooksecurefunc fires PortraitDecoration (offsets, borders, size override).
         f._msufPortraitDirty = true
         f._msufPortraitNextAt = 0
         local fnP = _G.MSUF_MaybeUpdatePortrait
@@ -5030,13 +4912,23 @@ local function _MSUF_ApplyToUnitFrame(unit, conf)
 end
 
 function _G.MSUF_ApplyBossUnitframePreviewState(active, reason)
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     if _msuf_inCombat then
         MSUF_BossTestMode = false
         _G.MSUF_BossTestMode = false
         return
     end
     active = active and true or false
+    if not active then
+        local editState = _G.MSUF_EditState
+        local editActive = (_G.MSUF_UnitEditModeActive == true)
+            or (type(editState) == "table" and editState.active == true)
+        local editPreviewActive = editActive
+            and (_G.MSUF_UnitPreviewActive == true or _G.MSUF_PreviewTestMode == true)
+        if editPreviewActive or _G.MSUF2_BossUnitframePreviewActive == true then
+            active = true
+        end
+    end
     MSUF_BossTestMode = active
     _G.MSUF_BossTestMode = active
 
@@ -5057,8 +4949,8 @@ function _G.MSUF_ApplyBossUnitframePreviewState(active, reason)
                     MSUF_ApplyUnitVisibilityDriver(f, true)
                 end
                 _MSUF_ApplyToUnitFrame(unit, conf)
-                if type(UpdateSimpleUnitFrame) == "function" then
-                    UpdateSimpleUnitFrame(f)
+                if type(MSUF_UpdateSimpleUnitFrame) == "function" then
+                    MSUF_UpdateSimpleUnitFrame(f)
                 end
                 if f.Show then f:Show() end
                 if f.SetAlpha then f:SetAlpha(1) end
@@ -5070,8 +4962,8 @@ function _G.MSUF_ApplyBossUnitframePreviewState(active, reason)
                 if type(MSUF_ApplyUnitVisibilityDriver) == "function" then
                     MSUF_ApplyUnitVisibilityDriver(f, false)
                 end
-                if type(UpdateSimpleUnitFrame) == "function" and F.UnitExists and F.UnitExists(unit) then
-                    UpdateSimpleUnitFrame(f)
+                if type(MSUF_UpdateSimpleUnitFrame) == "function" and F.UnitExists and F.UnitExists(unit) then
+                    MSUF_UpdateSimpleUnitFrame(f)
                 elseif f.Hide then
                     f:Hide()
                 end
@@ -5131,7 +5023,7 @@ local function MSUF_ApplyUnitFrameKey_Immediate(key)
         end
         return
     end
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     local conf = MSUF_DB[key]
     if not conf then return end
     if _G.MSUF_IsUnitFramePositionLocked and _G.MSUF_IsUnitFramePositionLocked() then
@@ -5154,21 +5046,24 @@ local function MSUF_ApplyUnitFrameKey_Immediate(key)
 	    end
     if ns.UF.IsDisabled(conf) then
         if MSUF_UnitEditModeActive and (not _msuf_inCombat) and key ~= "boss" then
-            if key == "player" or key == "target" or key == "focus" or key == "targettarget" or key == "pet" then
+            if key == "player" or key == "target" or key == "focus" or key == "targettarget" or key == "focustarget" or key == "pet" then
                 _MSUF_PreviewUnitFrame(key, conf)
             end
             return
         end
-        if key == "player" or key == "target" or key == "focus" or key == "targettarget" or key == "pet" then
+        if key == "player" or key == "target" or key == "focus" or key == "targettarget" or key == "focustarget" or key == "pet" then
             _MSUF_HideUnitFrame(key)
         elseif key == "boss" then
             for i = 1, MSUF_MAX_BOSS_FRAMES do
                 _MSUF_HideUnitFrame("boss" .. i)
             end
         end
+        if (key == "focus" or key == "focustarget") and type(_G.MSUF_RefreshFocusTargetLifecycle) == "function" then
+            _G.MSUF_RefreshFocusTargetLifecycle("ApplyUnitFrameKeyDisabled")
+        end
         return
     end
-    if key == "player" or key == "target" or key == "focus" or key == "targettarget" or key == "pet" then
+    if key == "player" or key == "target" or key == "focus" or key == "targettarget" or key == "focustarget" or key == "pet" then
         _MSUF_ApplyToUnitFrame(key, conf)
     elseif key == "boss" then
         for i = 1, MSUF_MAX_BOSS_FRAMES do
@@ -5181,6 +5076,9 @@ local function MSUF_ApplyUnitFrameKey_Immediate(key)
         MSUF_ReanchorTargetCastBar()
     elseif key == "focus" and MSUF_ReanchorFocusCastBar then
         MSUF_ReanchorFocusCastBar()
+    end
+    if (key == "focus" or key == "focustarget") and type(_G.MSUF_RefreshFocusTargetLifecycle) == "function" then
+        _G.MSUF_RefreshFocusTargetLifecycle("ApplyUnitFrameKey")
     end
  end
 _G.MSUF_ApplyUnitFrameKey_Immediate = MSUF_ApplyUnitFrameKey_Immediate
@@ -5228,7 +5126,7 @@ _G.MSUF_ApplyCommitState = _G.MSUF_ApplyCommitState or {
     tickers = false,
     bossPreview = false,
 }
-local MSUF_APPLY_ALL_KEYS = { "player", "target", "focus", "targettarget", "pet", "boss" }
+local MSUF_APPLY_ALL_KEYS = { "player", "target", "focus", "targettarget", "focustarget", "pet", "boss" }
 local function MSUF_RegisterApplyDirtyAfterCombat()
     if type(MSUF_EventBus_Register) == "function" then
         MSUF_EventBus_Register("PLAYER_REGEN_ENABLED", "MSUF_APPLY_DIRTY", MSUF_OnRegenEnabled_ApplyDirty)
@@ -5298,7 +5196,7 @@ function MSUF_OnRegenEnabled_ApplyCommit(event)
     end
     MSUF_EventBus_Unregister("PLAYER_REGEN_ENABLED", "MSUF_APPLY_COMMIT")
  end
-function ApplySettingsForKey(key)
+function MSUF_ApplySettingsForKey(key)
     if not key then return end
     MSUF_MarkUnitFrameDirty(key)
     local st = _G.MSUF_ApplyCommitState
@@ -5307,13 +5205,16 @@ function ApplySettingsForKey(key)
     end
     MSUF_ScheduleApplyCommit()
  end
-function ApplyAllSettings()
+_G.ApplySettingsForKey = _G.ApplySettingsForKey or MSUF_ApplySettingsForKey
+
+function MSUF_ApplyAllSettings()
     local st = _G.MSUF_ApplyCommitState
     if not st then return end
     MSUF_MarkUnitFrameDirty("player")
     MSUF_MarkUnitFrameDirty("target")
     MSUF_MarkUnitFrameDirty("focus")
     MSUF_MarkUnitFrameDirty("targettarget")
+    MSUF_MarkUnitFrameDirty("focustarget")
     MSUF_MarkUnitFrameDirty("pet")
     MSUF_MarkUnitFrameDirty("boss")
     st.fonts = true
@@ -5321,8 +5222,9 @@ function ApplyAllSettings()
     st.castbars = true
     st.tickers = true
     st.bossPreview = true
-    MSUF_ScheduleApplyCommit()
+     MSUF_ScheduleApplyCommit()
  end
+_G.ApplyAllSettings = _G.ApplyAllSettings or MSUF_ApplyAllSettings
 _G.MSUF_ApplySettingsForKey_Immediate = _G.MSUF_ApplySettingsForKey_Immediate or function(key)
     if not key then  return end
     MSUF_MarkUnitFrameDirty(key)
@@ -5343,7 +5245,7 @@ _G.MSUF_ApplySettingsForKey_Immediate = _G.MSUF_ApplySettingsForKey_Immediate or
     end
  end
 _G.MSUF_ApplyAllSettings_Immediate = _G.MSUF_ApplyAllSettings_Immediate or function()
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     if MSUF_OptionsApplyCombatLocked() or (_G.MSUF_IsUnitFramePositionLocked and _G.MSUF_IsUnitFramePositionLocked()) then
         MSUF_QueueApplyAllAfterCombat()
         return
@@ -5357,6 +5259,7 @@ _G.MSUF_ApplyAllSettings_Immediate = _G.MSUF_ApplyAllSettings_Immediate or funct
     MSUF_ApplyUnitFrameKey_Immediate("target")
     MSUF_ApplyUnitFrameKey_Immediate("focus")
     MSUF_ApplyUnitFrameKey_Immediate("targettarget")
+    MSUF_ApplyUnitFrameKey_Immediate("focustarget")
     MSUF_ApplyUnitFrameKey_Immediate("pet")
     MSUF_ApplyUnitFrameKey_Immediate("boss")
     local fnFonts = _G.MSUF_UpdateAllFonts_Immediate or _G.MSUF_UpdateAllFonts
@@ -5486,7 +5389,7 @@ local function MSUF_EnableUnitFrameDrag(f, unit)
         self._msufSavedClickAttrs = nil
      end
     local function _GetConfAndKey()
-        if not MSUF_DB then EnsureDB() end
+        if not MSUF_DB then MSUF_EnsureDB() end
         local key = GetConfigKeyForUnit(unit)
         local conf = key and MSUF_DB and MSUF_DB[key]
          return key, conf
@@ -5679,6 +5582,7 @@ local MSUF_UNIT_CREATE_DEFS = {
     target =      { w = 275, h = 40, showName = true,  showHP = true,  showPower = true,  isBoss = false, startHidden = false },
     focus =       { w = 220, h = 30, showName = true,  showHP = false, showPower = false, isBoss = false, startHidden = false },
     targettarget ={ w = 220, h = 30, showName = true,  showHP = true,  showPower = false, isBoss = false, startHidden = false },
+    focustarget = { w = 180, h = 30, showName = true,  showHP = true,  showPower = false, isBoss = false, startHidden = false },
     pet =         { w = 220, h = 30, showName = true,  showHP = true,  showPower = true,  isBoss = false, startHidden = false },
 }
 local MSUF_UNIT_CREATE_DEF_BOSS = { w = 220, h = 30, showName = true, showHP = true, showPower = true, isBoss = true, startHidden = true }
@@ -5687,6 +5591,7 @@ local MSUF_UNIT_TIP_FUNCS = {
     target = "MSUF_ShowTargetInfoTooltip",
     focus = "MSUF_ShowFocusInfoTooltip",
     targettarget = "MSUF_ShowTargetTargetInfoTooltip",
+    focustarget = "MSUF_ShowFocusTargetInfoTooltip",
     pet = "MSUF_ShowPetInfoTooltip",
 }
 local function MSUF_IsClassPowerAnchorUsable(cpContainer)
@@ -5707,7 +5612,7 @@ local function MSUF_ApplyPowerBarEmbedLayout(f)
         ns.Cache.ClearStamp(f, "PBEmbedLayout")
          return
     end
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     local b = (MSUF_DB and MSUF_DB.bars) or {}
     local unit = f.unit
     local key = f.msufConfigKey
@@ -5758,7 +5663,7 @@ local function MSUF_ApplyPowerBarEmbedLayout(f)
         local conf = (key and MSUF_DB and MSUF_DB[key]) or nil
         if conf and conf.powerBarDetached == true then
             detached = true
-            -- Manual width: DB â†’ actual unit frame width â†’ 250
+            -- Manual width: DB → actual unit frame width → 250
             local fW = (f and f.GetWidth and math_floor(f:GetWidth() + 0.5)) or 0
             if fW < 30 then fW = math_floor((conf.width or 250) + 0.5) end
             dW = tonumber(conf.detachedPowerBarWidth) or fW
@@ -5784,7 +5689,7 @@ local function MSUF_ApplyPowerBarEmbedLayout(f)
                         dW = cachedW
                     else
                         local cdm = (type(_G.MSUF_GetEffectiveCooldownFrame) == "function" and _G.MSUF_GetEffectiveCooldownFrame(cdmName)) or _G[cdmName]
-                    -- Scale-compensated width (Sensei pattern): convert CDM coords â†’ our bar coords
+                    -- Scale-compensated width (Sensei pattern): convert CDM coords → our bar coords
                         if cdm and cdm.IsShown and cdm:IsShown() then
                             local scaledW = _G.MSUF_CDM_GetScaledWidth and _G.MSUF_CDM_GetScaledWidth(cdm, pb)
                             if scaledW and scaledW >= 30 then dW = scaledW end
@@ -5848,7 +5753,7 @@ local function MSUF_ApplyPowerBarEmbedLayout(f)
         if pb.SetFrameLevel and f.GetFrameLevel then
             pb:SetFrameLevel((f:GetFrameLevel() or 0) + dLevel)
         end
-        -- Anchor to class power container (MRB energyâ†’combo pattern) or to unit frame
+        -- Anchor to class power container (MRB energy→combo pattern) or to unit frame
         if anchorToCP then
             local cpContainer = _G["MSUF_ClassPowerContainer"]
             if MSUF_IsClassPowerAnchorUsable(cpContainer) then
@@ -5890,13 +5795,15 @@ local function MSUF_ApplyPowerBarEmbedLayout(f)
         _G.MSUF_FixHighlightForFrame(f)
     end
 
-    -- FIX: Force border system refresh after layout completes.
-    -- Border stamps were invalidated above (thickness/bottomIsPower = -1/nil) but no
-    -- visual refresh was triggered â€” the outline stayed stale until a manual menu touch.
-    -- Direct call (cold path: EditMode / config apply, never combat hot path).
-    local fnVis = _G.MSUF_RefreshRareBarVisuals
-    if type(fnVis) == "function" then
-        fnVis(f)
+    -- Cold styling refresh after layout changes. Static outlines/borders are
+    -- intentionally kept out of the power/health update path.
+    local fnStaticOutlines = _G.MSUF_RefreshStaticUnitFrameOutlines
+    if type(fnStaticOutlines) == "function" then
+        fnStaticOutlines(f)
+    end
+    local fnRare = _G.MSUF_RefreshRareBarVisuals
+    if type(fnRare) == "function" then
+        fnRare(f)
     end
     f._msufPowerBarLayoutInitialized = true
     f._msufPowerBarLayoutDirty = nil
@@ -5919,8 +5826,9 @@ _G.MSUF_ApplyPowerBarEmbedLayout_ForUnitKey = function(unitKey, refreshPower)
         if refreshPower and _G.MSUF_UFCore_UpdatePowerBarFast then
             _G.MSUF_UFCore_UpdatePowerBarFast(fr)
         end
-        if _G.MSUF_ApplyPowerBarBorder then
-            _G.MSUF_ApplyPowerBarBorder(fr.targetPowerBar)
+        local fnStaticOutlines = _G.MSUF_RefreshStaticUnitFrameOutlines
+        if type(fnStaticOutlines) == "function" then
+            fnStaticOutlines(fr)
         end
     end
     if unitKey == "boss" then
@@ -5996,7 +5904,7 @@ local function _CreateClassificationText(f, textFrame, conf, fontPath, flags, fr
 end
 
 local function CreateSimpleUnitFrame(unit)
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     local key  = GetConfigKeyForUnit(unit)
     local conf = key and MSUF_DB[key] or {}
     local f = F.CreateFrame("Button", "MSUF_" .. unit, UIParent, "BackdropTemplate,SecureUnitButtonTemplate,PingableUnitFrameTemplate")
@@ -6190,7 +6098,7 @@ do
         _msufHadTarget = F.UnitExists and F.UnitExists("target") or false
      end
     local function MSUF_TargetSoundDriver_OnTargetChanged()
-        if not MSUF_DB then EnsureDB() end
+        if not MSUF_DB then MSUF_EnsureDB() end
         local g = (MSUF_DB and MSUF_DB.general) or {}
         local hasTarget = (F.UnitExists and F.UnitExists("target")) or false
         local hadTarget = _msufHadTarget
@@ -6246,7 +6154,7 @@ do
 end
 MSUF_EventBus_Register("PLAYER_LOGIN", "MSUF_STARTUP", function(event)
     MSUF_InitProfiles()
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     do
         local g = (MSUF_DB and MSUF_DB.general) or {}
         if g.playTargetSelectLostSounds == true and _G.MSUF_TargetSoundDriver_Ensure then
@@ -6268,9 +6176,13 @@ if ns and ns.MSUF_CreateSecureTargetAuraHeaders then
     end
 
 end
-    CreateSimpleUnitFrame("targettarget")
     CreateSimpleUnitFrame("focus")
+    CreateSimpleUnitFrame("targettarget")
+    CreateSimpleUnitFrame("focustarget")
     CreateSimpleUnitFrame("pet")
+    if type(_G.MSUF_RefreshFocusTargetLifecycle) == "function" then
+        _G.MSUF_RefreshFocusTargetLifecycle("PLAYER_LOGIN")
+    end
     for i = 1, MSUF_MAX_BOSS_FRAMES do
         CreateSimpleUnitFrame("boss" .. i)
     end
@@ -6350,6 +6262,17 @@ if type(_G.MSUF_RefreshSelfHealPredUnitEvent) ~= "function" then
             if fr._msufReg then
                 fr:UnregisterEvent("UNIT_HEAL_PREDICTION")
                 fr._msufReg = false
+            end
+        end
+        if UnitFrames then
+            local hideHealPred = ns and ns.Bars and ns.Bars._HideSelfHealPrediction
+            for _, uf in pairs(UnitFrames) do
+                if uf and (uf.incomingHealBar or uf.selfHealPredBar) then
+                    uf._msufHealPredEnCached = want and true or false
+                    if not want and type(hideHealPred) == "function" then
+                        hideHealPred(uf)
+                    end
+                end
             end
         end
         local refreshEvents = _G.MSUF_UFCore_RefreshAllUnitEvents
@@ -6495,7 +6418,7 @@ local function MSUF_SanitizeToTInlineConf(conf)
 end
 function MSUF_RuntimeUpdateTargetToTInline(targetFrame)
     if not targetFrame or not targetFrame.nameText then return end
-    if not MSUF_DB then EnsureDB() end
+    if not MSUF_DB then MSUF_EnsureDB() end
     if not MSUF_DB then return end
     if type(MSUF_DB.targettarget) ~= "table" then
         MSUF_DB.targettarget = {}
@@ -6617,7 +6540,7 @@ end
 if _G.MSUF_ApplyAllSettings_Immediate then
     _G.MSUF_ApplyAllSettings_Immediate()
 else
-    ApplyAllSettings()
+    MSUF_ApplyAllSettings()
 end
 -- P0: Pre-resolve split-module function refs for UpdateSimpleUnitFrame.
 -- After PLAYER_LOGIN all Core/ files have loaded. Eliminates branches
@@ -6754,112 +6677,19 @@ do
     ns.Text.ClearText        = ns.Text.ClearText        or MSUF_ClearText
 end
 
--- Swap Recolor Driver (event-only, ultra cheap)
--- Fixes: HP bar color/gradient/background sticking after target/focus/ToT swap.
--- This bypasses rare/heavy-visual gating by forcing the HeavyVisual step once
--- per swap event (coalesced next frame). No layout, no full refresh.
-do
-    -- Force a one-shot HeavyVisual pass for the given frame/unit.
-    -- Exposed globally so other files/modules may reuse it if needed.
-    _G.MSUF_ForceReapplyHPBarColor = _G.MSUF_ForceReapplyHPBarColor or function(frame, unit)
-        if not (frame and unit and frame.hpBar) then return end
-        local key = frame.msufConfigKey
-        local flags = _G.MSUF_UnitTokenChanged
-        if not flags then
-            flags = {}
-            _G.MSUF_UnitTokenChanged = flags
-        end
-        if key then
-            flags[key] = true -- consumed inside MSUF_UFStep_HeavyVisual
-        end
-        frame._msufHeavyVisualNextAt = 0 -- allow immediate run
-        -- Call the local HeavyVisual step directly (no layout / no other steps)
-        MSUF_UFStep_HeavyVisual(frame, unit, key)
+-- Swap Recolor hook. The event driver lives in Core/MSUF_SwapRecolor.lua; this
+-- tiny bridge stays here because it needs the local MSUF_UFStep_HeavyVisual.
+_G.MSUF_ForceReapplyHPBarColor = _G.MSUF_ForceReapplyHPBarColor or function(frame, unit)
+    if not (frame and unit and frame.hpBar) then return end
+    local key = frame.msufConfigKey
+    local flags = _G.MSUF_UnitTokenChanged
+    if not flags then
+        flags = {}
+        _G.MSUF_UnitTokenChanged = flags
     end
-
-    -- PERF: Track which units actually need recolor (avoid recoloring all 3 on every change)
-    local _swapDirtyTarget, _swapDirtyToT, _swapDirtyFocus = false, false, false
-
-    local function _MSUF_SwapRecolor_Do()
-        local dt, dtt, df = _swapDirtyTarget, _swapDirtyToT, _swapDirtyFocus
-        _swapDirtyTarget, _swapDirtyToT, _swapDirtyFocus = false, false, false
-        if dt then
-            local f = _G.MSUF_target
-            if f and f.unit == "target" then
-                _G.MSUF_ForceReapplyHPBarColor(f, "target")
-            end
-        end
-        if dtt then
-            local tot = _G.MSUF_targettarget
-            if tot and tot.unit == "targettarget" then
-                _G.MSUF_ForceReapplyHPBarColor(tot, "targettarget")
-            end
-        end
-        if df then
-            local fo = _G.MSUF_focus
-            if fo and fo.unit == "focus" then
-                _G.MSUF_ForceReapplyHPBarColor(fo, "focus")
-            end
-        end
+    if key then
+        flags[key] = true -- consumed inside MSUF_UFStep_HeavyVisual
     end
-
-    local _msufSwapRecolorPendingDriver = nil
-    local function _MSUF_SwapRecolor_Flush()
-        local driver = _msufSwapRecolorPendingDriver
-        _msufSwapRecolorPendingDriver = nil
-        if driver then
-            driver._msufSwapRecolorQueued = false
-        end
-        _MSUF_SwapRecolor_Do()
-    end
-
-    local function _MSUF_SwapRecolor_Schedule(driver)
-        if driver._msufSwapRecolorQueued then return end
-        driver._msufSwapRecolorQueued = true
-        if C_Timer and C_Timer.After then
-            _msufSwapRecolorPendingDriver = driver
-            C_Timer.After(0, _MSUF_SwapRecolor_Flush)
-        else
-            driver._msufSwapRecolorQueued = false
-            _MSUF_SwapRecolor_Do()
-        end
-    end
-
-    local function _MSUF_SwapRecolor_OnTargetChanged()
-        _swapDirtyTarget = true
-        _swapDirtyToT = true
-        local d = _G.MSUF_SwapRecolorDriver
-        if d then _MSUF_SwapRecolor_Schedule(d) end
-    end
-    local function _MSUF_SwapRecolor_OnFocusChanged()
-        _swapDirtyFocus = true
-        local d = _G.MSUF_SwapRecolorDriver
-        if d then _MSUF_SwapRecolor_Schedule(d) end
-    end
-
-    _G.MSUF_SwapRecolor_OnUnitTargetChanged = _G.MSUF_SwapRecolor_OnUnitTargetChanged or function()
-        _swapDirtyToT = true
-        local d = _G.MSUF_SwapRecolorDriver
-        if d then _MSUF_SwapRecolor_Schedule(d) end
-    end
-
-    _G.MSUF_EnsureSwapRecolorDriver = _G.MSUF_EnsureSwapRecolorDriver or function()
-        if _G.MSUF_SwapRecolorDriver then return _G.MSUF_SwapRecolorDriver end
-        local d = CreateFrame("Frame", "MSUF_SwapRecolorDriver", UIParent)
-        d._msufSwapRecolorQueued = false
-        -- PLAYER_TARGET_CHANGED/PLAYER_FOCUS_CHANGED come through EventBus.
-        -- UNIT_TARGET is already owned by UFCore; it calls
-        -- MSUF_SwapRecolor_OnUnitTargetChanged only when ToT work is active.
-        _G.MSUF_SwapRecolorDriver = d
-
-        MSUF_EventBus_Register("PLAYER_TARGET_CHANGED", "MSUF_SWAP_RECOLOR", _MSUF_SwapRecolor_OnTargetChanged)
-        MSUF_EventBus_Register("PLAYER_FOCUS_CHANGED", "MSUF_SWAP_RECOLOR_FOCUS", _MSUF_SwapRecolor_OnFocusChanged)
-
-        return d
-    end
-end
-
--- Start the driver immediately (safe: does nothing until frames exist).
-if _G.MSUF_EnsureSwapRecolorDriver then
-    _G.MSUF_EnsureSwapRecolorDriver()
+    frame._msufHeavyVisualNextAt = 0 -- allow immediate run
+    MSUF_UFStep_HeavyVisual(frame, unit, key)
 end

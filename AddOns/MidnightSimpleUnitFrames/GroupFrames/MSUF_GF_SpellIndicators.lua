@@ -68,6 +68,8 @@ local _siConfigRev = 1
 local _specConfigListCache = setmetatable({}, { __mode = "k" })
 local _multiSpecListCache = setmetatable({}, { __mode = "k" })
 local _siCachedKind, _siCachedRev, _siCachedConf, _siCachedCfg
+local _scanResults = {}
+local _scanOnlyOwnByAura = {}
 
 local function InvalidateRuntimeCaches()
     _siConfigRev = _siConfigRev + 1
@@ -788,9 +790,6 @@ local function MatchSelfOnlyAura(unit, aura, specKey, siCfg)
     end
     return matched and UnitIsPlayerUnit(unit) and matched or nil
 end
-
-local _scanResults = {}
-local _scanOnlyOwnByAura = {}
 
 local function MarkScanAuraConfig(auraName, auraCfg)
     if not auraCfg or auraCfg.enabled == false then return false end
@@ -2261,6 +2260,7 @@ local function EnsureBlizzardAuraDefaults(auras)
     if auras.blizzardShowCooldownText == nil then auras.blizzardShowCooldownText = true end
     if auras.blizzardOrganizationType == nil then auras.blizzardOrganizationType = "default" end
     if auras.blizzardDispelMode == nil then auras.blizzardDispelMode = "allDispellable" end
+    if auras.blizzardDispelBorder == nil then auras.blizzardDispelBorder = false end
     if auras.blizzardContainerStrata == nil then auras.blizzardContainerStrata = "AUTO" end
     if auras.blizzardContainerFrameLevel == nil then auras.blizzardContainerFrameLevel = 1 end
     if auras.blizzardPrivateLayerFix == nil then auras.blizzardPrivateLayerFix = true end

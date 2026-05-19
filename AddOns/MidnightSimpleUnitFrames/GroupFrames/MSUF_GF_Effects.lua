@@ -254,15 +254,6 @@ local function _BuildTextFn(mode, abbrFn, delim, pctFmt)
     return nil
 end
 
--- Reverse map (applied when hpTextReverse is true)
-local _FT_REVERSE = {
-    CURPERCENT="PERCENTCUR", PERCENTCUR="CURPERCENT",
-    CURMAX="MAXCUR", MAXCUR="CURMAX",
-    CURMAXPERCENT="PERCENTMAXCUR", PERCENTMAXCUR="CURMAXPERCENT",
-    MAXPERCENT="PERCENTMAX", PERCENTMAX="MAXPERCENT",
-    PERCENTCURMAX="CURMAXPERCENT",
-}
-
 -- Resolve abbreviator function (once per BuildFrameCache, not per text call)
 local function _ResolveAbbrFn()
     local gen = _G.MSUF_DB and _G.MSUF_DB.general
@@ -287,16 +278,10 @@ local function _BuildSlotFns(c)
     local abbrFn = _ResolveAbbrFn()
     local pctFmt = _ResolvePctFmt()
     local delim  = c.delim or " / "
-    local rev    = c.rev
 
     local tl = c.tl or "NONE"
     local tc = c.tc or "NONE"
     local tr = c.tr or "NONE"
-    if rev then
-        tl = _FT_REVERSE[tl] or tl
-        tc = _FT_REVERSE[tc] or tc
-        tr = _FT_REVERSE[tr] or tr
-    end
 
     c.tlFn = c.tlOn and _BuildTextFn(tl, abbrFn, delim, pctFmt) or nil
     c.tcFn = c.tcOn and _BuildTextFn(tc, abbrFn, delim, pctFmt) or nil
@@ -338,7 +323,7 @@ local function ResolvePowerBarColor(powerToken)
 end
 
 -- Forward declarations (defined later in file)
-local _GF_IsAbsorbEnabled
+local _GF_IsAbsorbEnabled, _GF_ResolveHealPredAnchorMode, _GF_ApplyHealPredAnchor, _GF_ApplyAbsorbAnchor
 
 ------------------------------------------------------------------------
 -- HealPredictionCalculator: 1 API call replaces separate
@@ -553,6 +538,53 @@ local function HLValCached(conf, gen, key)
     return nil
 end
 
+local function HLPrioEnabledCached(conf, gen)
+    local value
+    if conf and conf.hlOverride then
+        value = conf.hlPrioEnabled
+        if value == nil then value = conf.highlightPrioEnabled end
+    end
+    if value == nil and gen then
+        value = gen.hlPrioEnabled
+        if value == nil then value = gen.highlightPrioEnabled end
+    end
+    return value == true or value == 1
+end
+
+local function HLPrioOrderCached(conf, gen)
+    if conf and conf.hlOverride then
+        if type(conf.hlPrioOrder) == "table" then return conf.hlPrioOrder end
+        if type(conf.highlightPrioOrder) == "table" then return conf.highlightPrioOrder end
+    end
+    if gen then
+        if type(gen.hlPrioOrder) == "table" then return gen.hlPrioOrder end
+        if type(gen.highlightPrioOrder) == "table" then return gen.highlightPrioOrder end
+    end
+    return nil
+end
+
+GF.NormalizeDispelBorderTrigger = GF.NormalizeDispelBorderTrigger or function(value)
+    local fn = _G.MSUF_NormalizeDispelBorderTrigger
+    if type(fn) == "function" then return fn(value) end
+    if value == "DISPEL_TYPE" or value == "TYPE" or value == "TYPED" or value == "ANY_DISPEL_TYPE" then
+        return "DISPEL_TYPE"
+    end
+    if value == "ANY_DEBUFF" or value == "ANY" or value == "ALL" or value == "ALL_DEBUFFS" then
+        return "ANY_DEBUFF"
+    end
+    return "BY_ME"
+end
+
+GF.DispelBorderTriggerNeedsPlayerDispel = GF.DispelBorderTriggerNeedsPlayerDispel or function(value)
+    local fn = _G.MSUF_DispelBorderTriggerNeedsPlayerDispel
+    if type(fn) == "function" then return fn(value) end
+    return GF.NormalizeDispelBorderTrigger(value) == "BY_ME"
+end
+
+GF.DispelScanActive = GF.DispelScanActive or function(c)
+    return c and c.dispelScanActive == true
+end
+
 ------------------------------------------------------------------------
 -- Range fade uses the same UnitInRange-only path as EQoL group frames.
 ------------------------------------------------------------------------
@@ -629,6 +661,20 @@ local function ExtractColorRGBA(colorObj)
     return nil
 end
 
+local function GFDispelColorScopeValue(kind, key, legacyKey, fallback)
+    local conf = kind and GF.GetConf and GF.GetConf(kind)
+    if conf and conf.hlOverride then
+        if conf[key] ~= nil then return conf[key] end
+        if legacyKey and conf[legacyKey] ~= nil then return conf[legacyKey] end
+    end
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    if gen then
+        if gen[key] ~= nil then return gen[key] end
+        if legacyKey and gen[legacyKey] ~= nil then return gen[legacyKey] end
+    end
+    return fallback
+end
+
 ------------------------------------------------------------------------
 -- Secret-safe dispel color resolution.
 --
@@ -647,18 +693,15 @@ end
 --   colorObj == nil  â†’ SINGLE/fallback. Use (r, g, b) directly.
 ------------------------------------------------------------------------
 local function ResolveDispelColorObj(f, dispelName)
-    local gen = _G.MSUF_DB and _G.MSUF_DB.general
-    local mode = gen and gen.hlDispelColorMode or "SINGLE"
+    local kind = (f and f._msufGFKind) or "party"
+    local mode = GFDispelColorScopeValue(kind, "hlDispelColorMode", nil, "SINGLE")
     local fallbackType = GetReadableDispelTypeName(dispelName)
 
     if mode ~= "TYPE" then
-        local r, g, b
-        if gen then
-            r = gen.hlDispelColorR or gen.dispelBorderColorR
-            g = gen.hlDispelColorG or gen.dispelBorderColorG
-            b = gen.hlDispelColorB or gen.dispelBorderColorB
-        end
-        return nil, r or 0.25, g or 0.75, b or 1.00
+        return nil,
+            GFDispelColorScopeValue(kind, "hlDispelColorR", "dispelBorderColorR", 0.25),
+            GFDispelColorScopeValue(kind, "hlDispelColorG", "dispelBorderColorG", 0.75),
+            GFDispelColorScopeValue(kind, "hlDispelColorB", "dispelBorderColorB", 1.00)
     end
 
     -- TYPE mode: resolve Color object via shared dispel color curve.
@@ -756,12 +799,17 @@ local _gfGlowColor = { 0, 0, 0, 1 }
 
 local function _GF_StartDispelGlow(f, r, g, b)
     local kind = f._msufGFKind or "party"
-    local blizzardOwnsThisScope = false
-    local blocksGlow = _G.MSUF_GroupBlizzardAuraRenderingBlocksDispelGlow
-    if type(blocksGlow) == "function" then
-        blizzardOwnsThisScope = blocksGlow(kind) == true
+    local blizzardBlocksGlow = false
+    local c = f and f._c
+    if c and c.nativeBlizzardDispelsSuppressCustom ~= nil then
+        blizzardBlocksGlow = c.nativeBlizzardDispelsSuppressCustom == true
+    else
+        local blocksGlow = _G.MSUF_GroupBlizzardAuraRenderingBlocksDispelGlow
+        if type(blocksGlow) == "function" then
+            blizzardBlocksGlow = blocksGlow(kind) == true
+        end
     end
-    if not LCG or blizzardOwnsThisScope or not HLVal(kind, "hlDispelGlowEnabled") then
+    if not LCG or blizzardBlocksGlow or not HLVal(kind, "hlDispelGlowEnabled") then
         f._msufGFDispelGlowActive = nil
         local offAnchor = f._msufGFDispelGlowAnchor
         f._msufGFDispelGlowAnchor = nil
@@ -786,7 +834,7 @@ local function _GF_StartDispelGlow(f, r, g, b)
         end
         return
     end
-    local anchor = f._msufGFHighlightBorder or f
+    local anchor = f._msufRGF_GlowAnchor or f._msufGFHighlightBorder or f
     local style = HLVal(kind, "hlDispelGlowStyle") or "PIXEL"
     local oldAnchor = f._msufGFDispelGlowAnchor
     if oldAnchor and (oldAnchor ~= anchor or f._msufGFDispelGlowStyle ~= style) then
@@ -962,9 +1010,11 @@ end
 
 function GF.FinishAuraVisuals(f, unit, c, updateInfo)
     if not (f and c) then return end
-    if c.nativeBlizzardDispels then
+    if c.nativeBlizzardDispelsSuppressCustom then
         if _GF_ClearNativeSuppressedDispel then _GF_ClearNativeSuppressedDispel(f, unit) end
-    else
+    elseif GF.DispelScanActive(c) or f._msufGFDispelType or f._msufGFMergedDispel
+        or f._msufGFDispelAuraID or f._msufGFPrevDispelAuraID
+    then
         local mergedDispel = f._msufGFMergedDispel
         local prevDispel = f._msufGFDispelType
         local dispelAid = f._msufGFDispelAuraID
@@ -1022,7 +1072,7 @@ local function dispatchAura(f, unit, updateInfo)
 
     if not aurasOn then
         local dispelChanged, dispelRelevant
-        if c.dispelScan and GF._playerCanDispel then
+        if GF.DispelScanActive(c) then
             -- EQoL dirty-flag: only rescan when dispel state may have changed
             local needDispelScan = false
             if not updateInfo or updateInfo.isFullUpdate then
@@ -1061,7 +1111,7 @@ local function dispatchAura(f, unit, updateInfo)
             GF.UpdateSpellIndicators(f, unit)
         end
         if GF.UpdateCornerIndicators and ((c.ciCustom and ciRelevant)
-            or (c.ciDispel and ((not c.dispelScan and ciRelevant) or dispelChanged or dispelRelevant)))
+            or (c.ciDispel and ((not GF.DispelScanActive(c) and ciRelevant) or dispelChanged or dispelRelevant)))
         then
             GF.UpdateCornerIndicators(f, unit)
         end
@@ -1488,7 +1538,9 @@ local function _applyHighlightBorderStyle(border, conf, edgeSz, ofs, texKey, lay
         border:SetBackdrop({ edgeFile = edgeFile, edgeSize = edgeSz, insets = _hlBdInsets })
         border:SetBackdropColor(0, 0, 0, 0)
     end
-    border:SetBackdropBorderColor(r or 1, g or 1, b or 1, a or 1)
+    r, g, b, a = r or 1, g or 1, b or 1, a or 1
+    border._msufHLR, border._msufHLG, border._msufHLB, border._msufHLA = r, g, b, a
+    border:SetBackdropBorderColor(r, g, b, a)
 
     -- Diff-gate anchor offset
     if border._msufHLOfs ~= ofs then
@@ -1508,6 +1560,12 @@ local function _applyHighlightBorderStyle(border, conf, edgeSz, ofs, texKey, lay
             border:SetFrameLevel(wantLvl)
         end
     end
+end
+
+local function _NotifyRoundedGFHighlight(border)
+    if _G.MSUF_RoundedUF_Active ~= true then return end
+    local fn = _G.MSUF_RoundedUF_OnGroupHighlightChanged
+    if type(fn) == "function" then fn(border) end
 end
 
 ------------------------------------------------------------------------
@@ -1549,16 +1607,23 @@ function GF.BuildFrameCache(f)
     -- Health text slots. showHPText gates the whole HP text pipeline so
     -- disabled text builds no closures and does no event-time formatting.
     c.hpTextEnabled = conf.showHPText ~= false
-    c.tl    = c.hpTextEnabled and (conf.textLeft    or "NONE") or "NONE"
-    c.tc    = c.hpTextEnabled and (conf.textCenter  or "NONE") or "NONE"
-    c.tr    = c.hpTextEnabled and (conf.textRight   or "NONE") or "NONE"
+    local tl = c.hpTextEnabled and (conf.textLeft    or "NONE") or "NONE"
+    local tc = c.hpTextEnabled and (conf.textCenter  or "NONE") or "NONE"
+    local tr = c.hpTextEnabled and (conf.textRight   or "NONE") or "NONE"
+    if conf.hpTextReverse == true then
+        tl, tr = tr, tl
+    end
+    c.tl    = tl
+    c.tc    = tc
+    c.tr    = tr
     c.tlOn  = c.tl ~= "NONE"
     c.tcOn  = c.tc ~= "NONE"
     c.trOn  = c.tr ~= "NONE"
     -- PERF: Aggregate flag â€” skip all 3 text blocks when no text enabled
     c.anyText = c.tlOn or c.tcOn or c.trOn
     c.delim = conf.textDelimiter or " / "
-    c.rev   = conf.hpTextReverse
+    -- Reverse order is visual slot order. The mode text itself stays unchanged.
+    c.rev   = false
     -- Compile fast text functions (oUF-style: mode â†’ C-side closure)
     _BuildSlotFns(c)
 
@@ -1676,6 +1741,8 @@ function GF.BuildFrameCache(f)
             and GF.IsBlizzardAuraTypeEnabled(conf, "privateAuras") == true
             and pa and pa.enabled ~= false
     end
+    c.blizzardDispelBorder = c.nativeBlizzardDispels and auras and auras.blizzardDispelBorder == true
+    c.nativeBlizzardDispelsSuppressCustom = c.nativeBlizzardDispels and not c.blizzardDispelBorder
 
     -- Dispel overlay (color wash on health bar)
     c.doEn    = auraMasterOn and conf.dispelOverlayEnabled == true and not c.nativeBlizzardDispels
@@ -1698,7 +1765,10 @@ function GF.BuildFrameCache(f)
     -- Highlight border (pre-resolve HLVal)
     c.aggroEn   = HLValCached(conf, gen, "hlAggroEnabled") ~= false
     c.aggroMode = HLValCached(conf, gen, "hlAggroMode") or "ALL"
-    c.dispelEn  = auraMasterOn and HLValCached(conf, gen, "hlDispelEnabled") ~= false and not c.nativeBlizzardDispels
+    c.dispelEn  = auraMasterOn and HLValCached(conf, gen, "hlDispelEnabled") ~= false and not c.nativeBlizzardDispelsSuppressCustom
+    c.dispelBorderTrigger = GF.NormalizeDispelBorderTrigger(HLValCached(conf, gen, "dispelBorderTrigger"))
+    c.hlPrioEnabled = HLPrioEnabledCached(conf, gen)
+    c.hlPrioOrder = c.hlPrioEnabled and HLPrioOrderCached(conf, gen) or nil
     c.targetEn  = HLValCached(conf, gen, "hlTargetEnabled") ~= false
     c.focusEn   = conf.hlFocusEnabled ~= false
     c.aggroSize = HLValCached(conf, gen, "hlAggroSize") or 2
@@ -1728,7 +1798,7 @@ function GF.BuildFrameCache(f)
     c.focB = conf.hlFocusColorB or 1.0
 
     -- Aura dispatch
-    c.dispelScan = auraMasterOn and conf.dispelEnabled ~= false and not c.nativeBlizzardDispels
+    c.dispelScan = auraMasterOn and conf.dispelEnabled ~= false and not c.nativeBlizzardDispelsSuppressCustom
     local siRuntimeActive = false
     if auraMasterOn and conf.spellIndicators and conf.spellIndicators.enabled == true then
         local siActiveFn = GF.SpellIndicatorsRuntimeActive
@@ -1740,15 +1810,6 @@ function GF.BuildFrameCache(f)
     local customBuffs = auraMasterOn and auras.buff and auras.buff.enabled ~= false and not c.nativeBlizzardBuffs
     local customDebuffs = auraMasterOn and auras.debuff and auras.debuff.enabled ~= false and not c.nativeBlizzardDebuffs
     local customExt = auraMasterOn and auras.externals and auras.externals.enabled ~= false and not c.nativeBlizzardExt
-    local customDispels = auraMasterOn and c.dispelScan and GF._playerCanDispel
-
-    c.nativeBlizzardAuras = c.aurasOn and (
-                   c.nativeBlizzardBuffs or c.nativeBlizzardDebuffs
-                   or c.nativeBlizzardExt or c.nativeBlizzardDispels
-                   or c.nativeBlizzardPrivate)
-    c.customAuraGrp = customBuffs or customDebuffs or customExt or customDispels
-    c.anyAuraGrp = c.nativeBlizzardAuras or c.customAuraGrp
-    c.nativeBlizzardAuraOnly = c.nativeBlizzardAuras and not c.customAuraGrp
     c.auraCacheSig = nil
     -- PERF (4.22 Beta hotfix): clear cached resolved filter/max so next
     -- UpdateFrameAuras call re-reads from auras.X (settings may have changed).
@@ -1775,10 +1836,24 @@ function GF.BuildFrameCache(f)
     c.ciCustom = c.ciEn and auraMasterOn and (
         c.ciSlotTL == "custom" or c.ciSlotTR == "custom" or c.ciSlotBL == "custom"
         or c.ciSlotBR == "custom" or c.ciSlotC == "custom")
-    c.ciAura = c.ciCustom or (c.ciDispel and not c.nativeBlizzardDispels)
+    local ciDispelActive = c.ciDispel and not c.nativeBlizzardDispels
+    c.ciAura = c.ciCustom or ciDispelActive
     c.ciThreat = c.ciEn and (
         c.ciSlotTL == "aggro" or c.ciSlotTR == "aggro" or c.ciSlotBL == "aggro"
         or c.ciSlotBR == "aggro" or c.ciSlotC == "aggro")
+
+    c.dispelScanActive = c.dispelScan
+        and (c.dispelEn or c.doEn or ciDispelActive)
+        and (not GF.DispelBorderTriggerNeedsPlayerDispel(c.dispelBorderTrigger) or GF._playerCanDispel)
+    local customDispels = auraMasterOn and c.dispelScanActive
+
+    c.nativeBlizzardAuras = c.aurasOn and (
+                   c.nativeBlizzardBuffs or c.nativeBlizzardDebuffs
+                   or c.nativeBlizzardExt or c.nativeBlizzardDispels
+                   or c.nativeBlizzardPrivate)
+    c.customAuraGrp = customBuffs or customDebuffs or customExt or customDispels
+    c.anyAuraGrp = c.nativeBlizzardAuras or c.customAuraGrp
+    c.nativeBlizzardAuraOnly = c.nativeBlizzardAuras and not c.customAuraGrp
 
     -- Private auras
     c.paEn = auraMasterOn and pa and pa.enabled ~= false and not c.nativeBlizzardPrivate
@@ -1787,6 +1862,16 @@ function GF.BuildFrameCache(f)
 
     -- Heal prediction (Group Frame menu -> default off)
     c.healPredEn = (GF.IsHealPredictionEnabled and GF.IsHealPredictionEnabled(kind, conf)) or false
+    c.healPredAnchorMode = c.healPredEn and _GF_ResolveHealPredAnchorMode(kind, conf) or nil
+    if not c.healPredEn then
+        local ihBar = f.incomingHealBar
+        if ihBar and ihBar.IsShown and ihBar:IsShown() then
+            ihBar:SetMinMaxValues(0, 1)
+            ihBar:SetValue(0)
+            ihBar:Hide()
+            if _GF_ApplyAbsorbAnchor then _GF_ApplyAbsorbAnchor(f) end
+        end
+    end
 
     -- Absorb: independently gated from heal prediction
     c.absorbEn = _GF_IsAbsorbEnabled(kind)
@@ -1850,7 +1935,7 @@ function GF.BuildFrameCache(f)
 
     -- Composite: does anything need UNIT_AURA?
     c.needAura = c.customAuraGrp or c.ciAura
-                 or (c.dispelScan and GF._playerCanDispel)
+                 or c.dispelScanActive
                  or c.dsEn
                  or c.siEn
 
@@ -1918,9 +2003,11 @@ local function _GF_QuickBorderUpdate(f)
                 c.tgtLayer or "DEFAULT",
                 c.tgtR, c.tgtG, c.tgtB, 1)
         else
+            border._msufHLR, border._msufHLG, border._msufHLB, border._msufHLA = c.tgtR, c.tgtG, c.tgtB, 1
             border:SetBackdropBorderColor(c.tgtR, c.tgtG, c.tgtB, 1)
         end
         if not border:IsShown() then border:Show() end
+        _NotifyRoundedGFHighlight(border)
         return
     end
 
@@ -1935,14 +2022,17 @@ local function _GF_QuickBorderUpdate(f)
                 c.focLayer or "DEFAULT",
                 c.focR, c.focG, c.focB, 1)
         else
+            border._msufHLR, border._msufHLG, border._msufHLB, border._msufHLA = c.focR, c.focG, c.focB, 1
             border:SetBackdropBorderColor(c.focR, c.focG, c.focB, 1)
         end
         if not border:IsShown() then border:Show() end
+        _NotifyRoundedGFHighlight(border)
         return
     end
 
     -- Nothing active
     border._msufHLActivePrio = nil
+    _NotifyRoundedGFHighlight(border)
     if border:IsShown() then border:Hide() end
 end
 
@@ -2119,12 +2209,10 @@ _GF_RefreshBorder = function(f, unit)
         ofs = GF.ScaleValue(ofs, fScale)
     end
 
-    -- Configurable priority: read hlPrioOrder from Bars menu (general DB).
+    -- Configurable priority: read the resolved Bars scope for this GF kind.
     -- Maps "dispel"/"magic"/"curse"/etc â†’ dispel, "aggro" â†’ aggro.
     -- Purge/bossTarget are UF-only, skip for GF.
-    local gen = _G.MSUF_DB and _G.MSUF_DB.general
-    local prioEnabled = gen and gen.highlightPrioEnabled
-    local prioOrder   = prioEnabled and gen.highlightPrioOrder
+    local prioOrder = c.hlPrioEnabled and c.hlPrioOrder
 
     if type(prioOrder) == "table" then
         for _, pk in ipairs(prioOrder) do
@@ -2135,6 +2223,7 @@ _GF_RefreshBorder = function(f, unit)
                     if r then
                         _applyHighlightBorderStyle(border, nil, sz, ofs, tex, lay, r, g, b, 1)
                         border._msufHLActivePrio = 1; border:Show()
+                        _NotifyRoundedGFHighlight(border)
                         _GF_StartDispelGlow(f, r, g, b)
                         return
                     end
@@ -2144,6 +2233,7 @@ _GF_RefreshBorder = function(f, unit)
                     _applyHighlightBorderStyle(border, nil, sz, ofs, tex, lay,
                         c.aggroR or 1, c.aggroG or 0.55, c.aggroB or 0, 1)
                     border._msufHLActivePrio = 2; border:Show()
+                    _NotifyRoundedGFHighlight(border)
                     _GF_StopDispelGlow(f)
                     return
                 end
@@ -2156,6 +2246,7 @@ _GF_RefreshBorder = function(f, unit)
             if r then
                 _applyHighlightBorderStyle(border, nil, sz, ofs, tex, lay, r, g, b, 1)
                 border._msufHLActivePrio = 1; border:Show()
+                _NotifyRoundedGFHighlight(border)
                 _GF_StartDispelGlow(f, r, g, b)
                 return
             end
@@ -2164,6 +2255,7 @@ _GF_RefreshBorder = function(f, unit)
             _applyHighlightBorderStyle(border, nil, sz, ofs, tex, lay,
                 c.aggroR or 1, c.aggroG or 0.55, c.aggroB or 0, 1)
             border._msufHLActivePrio = 2; border:Show()
+            _NotifyRoundedGFHighlight(border)
             _GF_StopDispelGlow(f)
             return
         end
@@ -2180,6 +2272,7 @@ _GF_RefreshBorder = function(f, unit)
             c.tgtG or 1,
             c.tgtB or 1, 1)
         border._msufHLActivePrio = 3; border:Show()
+        _NotifyRoundedGFHighlight(border)
         _GF_StopDispelGlow(f)
         return
     end
@@ -2195,11 +2288,13 @@ _GF_RefreshBorder = function(f, unit)
             c.focG or 0.5,
             c.focB or 1.0, 1)
         border._msufHLActivePrio = 4; border:Show()
+        _NotifyRoundedGFHighlight(border)
         _GF_StopDispelGlow(f)
         return
     end
 
     border._msufHLActivePrio = nil
+    _NotifyRoundedGFHighlight(border)
     if border:IsShown() then border:Hide() end
     _GF_StopDispelGlow(f)
 end
@@ -2383,22 +2478,84 @@ local function _DispelScanSlots(cont, ...)
     return nil, nil
 end
 
--- Legacy fallback (pre-C_UnitAuras clients)
-local _scanTopDispel
-local function _DispelScanCallback(auraData)
-    if not auraData then return true end
-    local dispelName = auraData.dispelName
-    if issecretvalue and issecretvalue(dispelName) then return false end
-    if dispelName and dispelName ~= "" then
-        _scanTopDispel = dispelName
-        return true
+GF.ReadDispelBorderAura = GF.ReadDispelBorderAura or function(aura, triggerMode)
+    if not (aura and aura.auraInstanceID) then return nil, nil end
+    triggerMode = GF.NormalizeDispelBorderTrigger(triggerMode)
+    if triggerMode ~= "BY_ME" then
+        local harmful = aura.isHarmful
+        if issecretvalue and issecretvalue(harmful) then
+            -- Continue through the dispelName path for secret-tagged aura data.
+        elseif harmful == false then
+            return nil, nil
+        end
     end
-    return false
+
+    local dn = aura.dispelName
+    local secret = issecretvalue and issecretvalue(dn)
+    if secret then
+        if triggerMode == "DISPEL_TYPE" then
+            return "DISPELLABLE", aura.auraInstanceID
+        end
+    elseif type(dn) == "string" and dn ~= "" and dn ~= "None" then
+        if dn == "DISPELLABLE" then
+            return "DISPELLABLE", aura.auraInstanceID
+        end
+        return dn, aura.auraInstanceID
+    elseif triggerMode == "DISPEL_TYPE" then
+        return nil, nil
+    end
+
+    if triggerMode == "ANY_DEBUFF" then
+        return "DISPELLABLE", aura.auraInstanceID
+    end
+    return nil, nil
+end
+
+GF.FindDispelBorderAura = GF.FindDispelBorderAura or function(unit, triggerMode)
+    triggerMode = GF.NormalizeDispelBorderTrigger(triggerMode)
+    local filter = (triggerMode == "BY_ME") and _DISPEL_SCAN_FILTER or "HARMFUL"
+
+    if C_UnitAuras_GetAuraDataByIndex then
+        local index = 1
+        while true do
+            local aura = C_UnitAuras_GetAuraDataByIndex(unit, index, filter)
+            if not aura then break end
+            local dispel, aid = GF.ReadDispelBorderAura(aura, triggerMode)
+            if triggerMode == "BY_ME" and aura.auraInstanceID then
+                return dispel or "DISPELLABLE", aura.auraInstanceID
+            end
+            if dispel then return dispel, aid end
+            if triggerMode == "BY_ME" then break end
+            index = index + 1
+        end
+        return nil, nil
+    end
+
+    if triggerMode == "BY_ME" and C_UnitAuras_GetAuraSlots and C_UnitAuras_GetAuraDataBySlot then
+        _dispelScanUnit = unit
+        local dispel, aid = _DispelScanSlots(C_UnitAuras_GetAuraSlots(unit, _DISPEL_SCAN_FILTER))
+        _dispelScanUnit = nil
+        return dispel, aid
+    end
+
+    if AuraUtil and AuraUtil.ForEachAura then
+        local foundDispel, foundAid
+        AuraUtil.ForEachAura(unit, filter == "HARMFUL" and "HARMFUL" or "HARMFUL|RAID", nil, function(auraData)
+            foundDispel, foundAid = GF.ReadDispelBorderAura(auraData, triggerMode)
+            return foundDispel ~= nil
+        end, true)
+        return foundDispel, foundAid
+    end
+
+    return nil, nil
 end
 
 function GF._UpdateDispel(f, unit)
     local kind = f._msufGFKind or "party"
     local conf = GF.GetConf and GF.GetConf(kind)
+    local c = f._c
+    if not c and GF.BuildFrameCache then GF.BuildFrameCache(f); c = f._c end
+    local triggerMode = GF.NormalizeDispelBorderTrigger(c and c.dispelBorderTrigger or HLVal(kind, "dispelBorderTrigger"))
 
     local testMode = (_G.MSUF_BorderTestModesActive == true) and _G.MSUF_DispelBorderTestMode
     -- Scope filtering: if test scope doesn't match this frame's kind, ignore test mode
@@ -2429,13 +2586,16 @@ function GF._UpdateDispel(f, unit)
         return
     end
 
-    if not testMode and _GF_IsBlizzardDispelRendererActive(conf) then
+    if not testMode and ((c and c.nativeBlizzardDispelsSuppressCustom) or (not c and _GF_IsBlizzardDispelRendererActive(conf))) then
         if _GF_ClearNativeSuppressedDispel then _GF_ClearNativeSuppressedDispel(f, unit) end
         f._msufGFDispelKnown = true
         return
     end
 
-    if (HLVal(kind, "hlDispelEnabled") == false or not unit) and not testMode then
+    if ((not GF.DispelScanActive(c)) or not unit
+        or (GF.DispelBorderTriggerNeedsPlayerDispel(triggerMode) and not GF._playerCanDispel))
+        and not testMode
+    then
         f._msufGFDispelKnown = true
         if f._msufGFDispelType then
             f._msufGFDispelType = nil
@@ -2465,35 +2625,11 @@ function GF._UpdateDispel(f, unit)
             end
             return
         end
-        -- C-side: query dispellable debuffs directly (secret-safe)
-        if C_UnitAuras_GetAuraDataByIndex then
-            local aura = C_UnitAuras_GetAuraDataByIndex(unit, 1, _DISPEL_SCAN_FILTER)
-            if aura and aura.auraInstanceID then
-                local dn = aura.dispelName
-                if not (issecretvalue and issecretvalue(dn)) and type(dn) == "string" and dn ~= "" and dn ~= "None" then
-                    topDispel = dn
-                else
-                    topDispel = "DISPELLABLE"
-                end
-                topAid = aura.auraInstanceID
-                if C_UnitAuras and C_UnitAuras.GetAuraDispelTypeColor and GF and GF._sharedDispelColorCurve then
-                    f._msufGFDispelColorObj = C_UnitAuras.GetAuraDispelTypeColor(unit, topAid, GF._sharedDispelColorCurve)
-                    f._msufGFDispelColorRev = _G.MSUF_ColorStyleRevision or 0
-                else
-                    f._msufGFDispelColorObj = nil
-                    f._msufGFDispelColorRev = nil
-                end
-            end
-        elseif C_UnitAuras_GetAuraSlots and C_UnitAuras_GetAuraDataBySlot then
-            _dispelScanUnit = unit
-            topDispel, topAid = _DispelScanSlots(C_UnitAuras_GetAuraSlots(unit, _DISPEL_SCAN_FILTER))
-            _dispelScanUnit = nil
-            f._msufGFDispelColorObj = nil
-            f._msufGFDispelColorRev = nil
-        elseif AuraUtil and AuraUtil.ForEachAura then
-            _scanTopDispel = nil
-            AuraUtil.ForEachAura(unit, "HARMFUL|RAID", nil, _DispelScanCallback, true)
-            topDispel = _scanTopDispel
+        topDispel, topAid = GF.FindDispelBorderAura(unit, triggerMode)
+        if topAid and C_UnitAuras and C_UnitAuras.GetAuraDispelTypeColor and GF and GF._sharedDispelColorCurve then
+            f._msufGFDispelColorObj = C_UnitAuras.GetAuraDispelTypeColor(unit, topAid, GF._sharedDispelColorCurve)
+            f._msufGFDispelColorRev = _G.MSUF_ColorStyleRevision or 0
+        else
             f._msufGFDispelColorObj = nil
             f._msufGFDispelColorRev = nil
         end
@@ -2540,6 +2676,9 @@ function GF._UpdateDispelFromAuraDelta(f, unit, updateInfo)
         return finishFull()
     end
 
+    local c = f._c
+    local triggerMode = GF.NormalizeDispelBorderTrigger(c and c.dispelBorderTrigger or HLVal(f._msufGFKind or "party", "dispelBorderTrigger"))
+
     local trackedAid = f._msufGFDispelAuraID
     local removed = updateInfo.removedAuraInstanceIDs
     if removed and trackedAid then
@@ -2551,10 +2690,12 @@ function GF._UpdateDispelFromAuraDelta(f, unit, updateInfo)
     end
 
     local updated = updateInfo.updatedAuraInstanceIDs
-    if updated and trackedAid and C_UnitAuras_IsAuraFilteredOut then
+    if updated and trackedAid then
         for i = 1, #updated do
             if updated[i] == trackedAid then
-                if C_UnitAuras_IsAuraFilteredOut(unit, trackedAid, _DISPEL_SCAN_FILTER) ~= false then
+                if triggerMode ~= "BY_ME" or not C_UnitAuras_IsAuraFilteredOut
+                    or C_UnitAuras_IsAuraFilteredOut(unit, trackedAid, _DISPEL_SCAN_FILTER) ~= false
+                then
                     return finishFull()
                 end
                 return false, true
@@ -2575,17 +2716,18 @@ function GF._UpdateDispelFromAuraDelta(f, unit, updateInfo)
         local aura = added[i]
         local aid = aura and aura.auraInstanceID
         if aid then
-            local dispellable
-            if C_UnitAuras_IsAuraFilteredOut then
+            local dispellable, triggerDispel
+            if triggerMode == "BY_ME" and C_UnitAuras_IsAuraFilteredOut then
                 dispellable = C_UnitAuras_IsAuraFilteredOut(unit, aid, _DISPEL_SCAN_FILTER) == false
             else
-                local dn = aura.dispelName
-                dispellable = not (issecretvalue and issecretvalue(dn))
-                    and type(dn) == "string" and dn ~= "" and dn ~= "None"
+                triggerDispel = GF.ReadDispelBorderAura(aura, triggerMode)
+                dispellable = triggerDispel ~= nil
             end
             if dispellable then
                 local dn = aura.dispelName
-                if not (issecretvalue and issecretvalue(dn)) and type(dn) == "string" and dn ~= "" and dn ~= "None" then
+                if triggerDispel then
+                    f._msufGFDispelType = triggerDispel
+                elseif not (issecretvalue and issecretvalue(dn)) and type(dn) == "string" and dn ~= "" and dn ~= "None" then
                     f._msufGFDispelType = dn
                 else
                     f._msufGFDispelType = "DISPELLABLE"
@@ -2992,11 +3134,11 @@ end
 -- duplicate UnitHealth/UnitHealthMax C-calls. nil/omitted â†’ fetch as before.
 ------------------------------------------------------------------------
 local function ApplyHealthColor(f, kind, unit, hp, hpMax)
-    if not f.health then return end
+    if not f.health then return false end
     if f._msufSIHealthColorR then
         f.health:SetStatusBarColor(f._msufSIHealthColorR, f._msufSIHealthColorG, f._msufSIHealthColorB, 1)
         f._msufGFHCStamp = nil
-        return
+        return true
     end
     local c = f._c
     if not c then GF.BuildFrameCache(f); c = f._c end
@@ -3006,29 +3148,31 @@ local function ApplyHealthColor(f, kind, unit, hp, hpMax)
         if f._msufGFHCStamp ~= "dark" then
             f._msufGFHCStamp = "dark"
             f.health:SetStatusBarColor(c.darkR, c.darkG, c.darkB, 1)
+            return true
         end
-        return
+        return false
     end
     if mode == "unified" then
         if f._msufGFHCStamp ~= "unified" then
             f._msufGFHCStamp = "unified"
             f.health:SetStatusBarColor(c.unifiedR, c.unifiedG, c.unifiedB, 1)
+            return true
         end
-        return
+        return false
     end
     if mode == "CLASS" and unit then
         local cls = f._msufGFClass
         if not cls then local _; _, cls = UnitClass(unit); f._msufGFClass = cls end
         if cls then
-            if f._msufGFHCStamp == cls then return end
+            if f._msufGFHCStamp == cls then return false end
             f._msufGFHCStamp = cls
             local fn = c.classFn
             if type(fn) == "function" then
                 local r, g, b = fn(cls)
-                if r then f.health:SetStatusBarColor(r, g, b, 1); return end
+                if r then f.health:SetStatusBarColor(r, g, b, 1); return true end
             end
             local cc = RAID_CLASS_COLORS and RAID_CLASS_COLORS[cls]
-            if cc then f.health:SetStatusBarColor(cc.r, cc.g, cc.b, 1); return end
+            if cc then f.health:SetStatusBarColor(cc.r, cc.g, cc.b, 1); return true end
         end
     end
     if mode == "GRADIENT" and unit then
@@ -3045,7 +3189,7 @@ local function ApplyHealthColor(f, kind, unit, hp, hpMax)
                 f._msufGFGradGQ = nil
                 f.health:SetStatusBarColor(r, g, b, 1)
                 f._msufGFHCStamp = "gradient"
-                return
+                return true
             end
         end
         -- Fallback: Lua-side (non-secret values only). Reuse caller-provided
@@ -3057,8 +3201,9 @@ local function ApplyHealthColor(f, kind, unit, hp, hpMax)
             if f._msufGFHCStamp ~= "grad_secret" then
                 f._msufGFHCStamp = "grad_secret"
                 f.health:SetStatusBarColor(0.2, 0.8, 0.2, 1)
+                return true
             end
-            return
+            return false
         end
         local hpN, hpMaxN = tonumber(hp), tonumber(hpMax)
         if hpN and hpMaxN and hpMaxN > 0 then
@@ -3071,26 +3216,32 @@ local function ApplyHealthColor(f, kind, unit, hp, hpMax)
                 f._msufGFGradRQ = rQ
                 f._msufGFGradGQ = gQ
                 f.health:SetStatusBarColor(r, g, 0, 1)
+                return true
             end
         else
             if f._msufGFHCStamp ~= "grad_default" then
                 f._msufGFHCStamp = "grad_default"
                 f.health:SetStatusBarColor(0.2, 0.8, 0.2, 1)
+                return true
             end
         end
-        return
+        return false
     end
     if f._msufGFHCStamp ~= "custom" then
         f._msufGFHCStamp = "custom"
         f.health:SetStatusBarColor(c.customR, c.customG, c.customB, 1)
+        return true
     end
+    return false
 end
 
-local function ApplyHealthAlphaAfterColor(f, kind)
+local function ApplyHealthAlphaAfterColor(f, kind, colorChanged)
     if not f or not f.health or not GF.ApplyHealthBarAlpha then return end
     kind = kind or f._msufGFKind or "party"
     if f._msufGFHealthAlphaDynamic == true then
         GF.ApplyHealthBarAlpha(f, kind)
+        f._msufGFHealthAlphaLast = nil
+        f._msufGFHealthAlphaPreserveLast = nil
         return
     end
     local c = f._c
@@ -3107,13 +3258,21 @@ local function ApplyHealthAlphaAfterColor(f, kind)
         preserve = conf and conf.alphaPreserveHPColor == true
     end
     if alpha < 0.999 or preserve then
+        if not colorChanged and f._msufGFHealthAlphaLast == alpha and f._msufGFHealthAlphaPreserveLast == preserve then
+            return
+        end
         GF.ApplyHealthBarAlpha(f, kind)
+        f._msufGFHealthAlphaLast = alpha
+        f._msufGFHealthAlphaPreserveLast = preserve
+    else
+        f._msufGFHealthAlphaLast = nil
+        f._msufGFHealthAlphaPreserveLast = nil
     end
 end
 
 local function ApplyHealthColorWithAlpha(f, kind, unit, hp, hpMax)
-    ApplyHealthColor(f, kind, unit, hp, hpMax)
-    ApplyHealthAlphaAfterColor(f, kind)
+    local colorChanged = ApplyHealthColor(f, kind, unit, hp, hpMax)
+    ApplyHealthAlphaAfterColor(f, kind, colorChanged)
 end
 
 ------------------------------------------------------------------------
@@ -3431,9 +3590,11 @@ local function UpdateAll(f, unit)
 
     if c.anyAuraGrp and GF.UpdateFrameAuras then
         GF.UpdateFrameAuras(f, unit)
-        if c.nativeBlizzardDispels then
+        if c.nativeBlizzardDispelsSuppressCustom then
             if _GF_ClearNativeSuppressedDispel then _GF_ClearNativeSuppressedDispel(f, unit) end
-        else
+        elseif GF.DispelScanActive(c) or f._msufGFDispelType or f._msufGFMergedDispel
+            or f._msufGFDispelAuraID or f._msufGFPrevDispelAuraID
+        then
             local mergedDispel = f._msufGFMergedDispel
             local prevDispel = f._msufGFDispelType
             local dispelAid = f._msufGFDispelAuraID
@@ -3457,9 +3618,9 @@ local function UpdateAll(f, unit)
             ) then
                 _GF_ClearNativeSuppressedDispel(f, unit)
             end
-        elseif c.nativeBlizzardDispels then
+        elseif c.nativeBlizzardDispelsSuppressCustom then
             if _GF_ClearNativeSuppressedDispel then _GF_ClearNativeSuppressedDispel(f, unit) end
-        elseif c.dispelScan and GF._playerCanDispel then GF._UpdateDispel(f, unit) end
+        elseif GF.DispelScanActive(c) then GF._UpdateDispel(f, unit) end
     end
     -- Debuff stripe (UpdateAll always does full refresh)
     if c.dsEn then
@@ -3919,12 +4080,7 @@ local function dispatchHealthFull(f, unit)
     UpdateStatusText(f, unit)
 
     -- Overlays from calculator
-    local ihBar = f.incomingHealBar
-    if ihBar and c and c.healPredEn == false then
-        ihBar:SetMinMaxValues(0, 1)
-        ihBar:SetValue(0)
-        if ihBar:IsShown() then ihBar:Hide() end
-    end
+    local ihBar = (c and c.healPredEn == true) and f.incomingHealBar or nil
     local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
         and _G.MSUF_InCombat ~= true
         and not (_G.InCombatLockdown and _G.InCombatLockdown())
@@ -3935,11 +4091,14 @@ local function dispatchHealthFull(f, unit)
         if wasAbsorbTestMode and not absorbTestMode then f._msufGFAbsorbTestActive = nil end
     elseif calc then
         if ihBar then
-            if c.healPredEn ~= false then
-                local v = calc:GetIncomingHeals()
-                if v ~= nil then ihBar:SetMinMaxValues(0, hpMax); ihBar:SetValue(v); if not ihBar:IsShown() then ihBar:Show() end
-                else if ihBar:IsShown() then ihBar:Hide() end end
-            else ihBar:SetMinMaxValues(0, 1); ihBar:SetValue(0); if ihBar:IsShown() then ihBar:Hide() end end
+            if _GF_ApplyHealPredAnchor then _GF_ApplyHealPredAnchor(f) end
+            local wasShown = ihBar.IsShown and ihBar:IsShown()
+            local v = calc:GetIncomingHeals()
+            if v ~= nil then ihBar:SetMinMaxValues(0, hpMax); ihBar:SetValue(v); if not ihBar:IsShown() then ihBar:Show() end
+            else if ihBar:IsShown() then ihBar:Hide() end end
+            if (wasShown and not ihBar:IsShown()) or ((not wasShown) and ihBar:IsShown()) then
+                _GF_ApplyAbsorbAnchor(f)
+            end
         end
         local abBar = f.absorbBar
         if abBar then
@@ -4024,14 +4183,12 @@ local function dispatchOverlaysOnly(f, unit)
     local c = f._c
     if not c then return end
 
-    local ihBar = f.incomingHealBar
+    local ihBar = (c.healPredEn == true) and f.incomingHealBar or nil
     local abBar = f.absorbBar
     local haBar = f.healAbsorbBar
-    local ihEnabled = ihBar and c.healPredEn ~= false
+    local ihEnabled = ihBar ~= nil
     local abEnabled = abBar and c.absorbEn
     local haEnabled = haBar and c.healAbsorbEn ~= false
-    if ihBar and not ihEnabled then GF._ClearOverlayBar(ihBar) end
-
     local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
         and _G.MSUF_InCombat ~= true
         and not (_G.InCombatLockdown and _G.InCombatLockdown())
@@ -4064,7 +4221,12 @@ local function dispatchOverlaysOnly(f, unit)
     if absorbTestMode then return end
 
     if ihEnabled then
+        if _GF_ApplyHealPredAnchor then _GF_ApplyHealPredAnchor(f) end
+        local wasShown = ihBar.IsShown and ihBar:IsShown()
         GF._SetOverlayBarValue(ihBar, hpMax, calc:GetIncomingHeals())
+        if (wasShown and not ihBar:IsShown()) or ((not wasShown) and ihBar:IsShown()) then
+            _GF_ApplyAbsorbAnchor(f)
+        end
     end
     if abEnabled then
         GF._SetOverlayBarValue(abBar, hpMax, calc:GetTotalDamageAbsorbs())
@@ -4109,6 +4271,122 @@ _GF_IsAbsorbEnabled = function(kind)
     return true
 end
 
+local function _GF_NormalizeAnchorMode(value, fallback)
+    local mode = tonumber(value) or fallback
+    if mode < 1 or mode > 5 then mode = fallback end
+    return mode
+end
+
+_GF_ResolveHealPredAnchorMode = function(kind, conf)
+    if conf and conf.healPredAnchorMode ~= nil then
+        return _GF_NormalizeAnchorMode(conf.healPredAnchorMode, 3)
+    end
+    return _GF_NormalizeAnchorMode(_GF_GetAbsorbSetting(kind, "healPredAnchorMode"), 3)
+end
+
+local function _GF_AnchorModeFollowsHP(mode)
+    return mode == 3 or mode == 4
+end
+
+local function _GF_GetOrCreateHealPredClip(f, hpBar)
+    local clip = f and f._msufGFHealPredFollowClip
+    if not clip then
+        clip = CreateFrame("Frame", nil, hpBar)
+        clip:SetAllPoints(hpBar)
+        if clip.SetClipsChildren then clip:SetClipsChildren(true) end
+        f._msufGFHealPredFollowClip = clip
+    else
+        if clip.GetParent and clip:GetParent() ~= hpBar then clip:SetParent(hpBar) end
+        clip:ClearAllPoints()
+        clip:SetAllPoints(hpBar)
+    end
+    if clip.SetFrameLevel and hpBar.GetFrameLevel then
+        clip:SetFrameLevel(hpBar:GetFrameLevel() + 1)
+    end
+    return clip
+end
+
+_GF_ApplyHealPredAnchor = function(f)
+    local bar = f and f.incomingHealBar
+    local hpBar = f and f.health
+    if not (bar and hpBar) then return end
+    local c = f._c
+    local kind = f._msufGFKind or "party"
+    local mode = (c and c.healPredAnchorMode) or _GF_ResolveHealPredAnchorMode(kind, GF.GetConf and GF.GetConf(kind))
+    local hpReverse = hpBar.GetReverseFill and hpBar:GetReverseFill() and true or false
+
+    if not _GF_AnchorModeFollowsHP(mode) then
+        local reverse
+        if mode == 1 then
+            reverse = false
+        elseif mode == 5 then
+            reverse = not hpReverse
+        else
+            reverse = true
+        end
+
+        if bar._msufGFHealPredAnchorStamp == mode
+            and bar._msufGFHealPredFollowActive ~= true
+            and (mode ~= 5 or bar._msufGFHealPredRF == hpReverse)
+        then
+            return
+        end
+
+        bar._msufGFHealPredAnchorStamp = mode
+        bar._msufGFHealPredFollowActive = nil
+        bar._msufGFHealPredRF = (mode == 5) and hpReverse or nil
+        bar._msufGFHealPredTex = nil
+        bar._msufGFHealPredW = nil
+
+        if f._msufGFHealPredFollowClip then f._msufGFHealPredFollowClip:Hide() end
+        if bar.GetParent and bar:GetParent() ~= hpBar then bar:SetParent(hpBar) end
+        bar:ClearAllPoints()
+        bar:SetAllPoints(hpBar)
+        if bar.SetReverseFill then bar:SetReverseFill(reverse and true or false) end
+        if bar.SetFrameLevel and hpBar.GetFrameLevel then bar:SetFrameLevel(hpBar:GetFrameLevel() + 1) end
+        return
+    end
+
+    if not hpBar.GetStatusBarTexture then return end
+    local hpTex = hpBar:GetStatusBarTexture()
+    if not hpTex then return end
+    local w = hpBar.GetWidth and hpBar:GetWidth() or nil
+    local isOverflow = (mode == 4)
+    local clip = _GF_GetOrCreateHealPredClip(f, hpBar)
+    local parent = isOverflow and (f.barGroup or f) or clip
+    if isOverflow then clip:Hide() else clip:Show() end
+
+    if bar._msufGFHealPredAnchorStamp == mode
+        and bar._msufGFHealPredFollowActive == true
+        and bar._msufGFHealPredRF == hpReverse
+        and bar._msufGFHealPredTex == hpTex
+        and bar._msufGFHealPredW == w
+        and (not bar.GetParent or bar:GetParent() == parent)
+    then
+        return
+    end
+
+    bar._msufGFHealPredAnchorStamp = mode
+    bar._msufGFHealPredFollowActive = true
+    bar._msufGFHealPredRF = hpReverse
+    bar._msufGFHealPredTex = hpTex
+    bar._msufGFHealPredW = w
+
+    if parent and bar.GetParent and bar:GetParent() ~= parent then bar:SetParent(parent) end
+    bar:ClearAllPoints()
+    if hpReverse then
+        bar:SetPoint("TOPRIGHT", hpTex, "TOPLEFT", 0, 0)
+        bar:SetPoint("BOTTOMRIGHT", hpTex, "BOTTOMLEFT", 0, 0)
+        if bar.SetReverseFill then bar:SetReverseFill(true) end
+    else
+        bar:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
+        bar:SetPoint("BOTTOMLEFT", hpTex, "BOTTOMRIGHT", 0, 0)
+        if bar.SetReverseFill then bar:SetReverseFill(false) end
+    end
+    if w and w > 0 then bar:SetWidth(w) end
+    if bar.SetFrameLevel and hpBar.GetFrameLevel then bar:SetFrameLevel(hpBar:GetFrameLevel() + 1) end
+end
+
 ------------------------------------------------------------------------
 -- Absorb anchoring: apply SetReverseFill based on general.absorbAnchorMode
 -- Mode 1: left anchor (fill Lâ†’R)   absorbReverse=false
@@ -4117,7 +4395,7 @@ end
 -- Mode 4: follow HP edge + overflow (extends beyond bar)
 -- Mode 5: reverse from max         absorbReverse=true (normal HP bar)
 ------------------------------------------------------------------------
-local function _GF_ApplyAbsorbAnchor(f)
+_GF_ApplyAbsorbAnchor = function(f)
     if not f or not f.health then return end
     local kind = f._msufGFKind or "party"
     local mode = tonumber(_GF_GetAbsorbSetting(kind, "absorbAnchorMode")) or 2
@@ -4131,14 +4409,33 @@ local function _GF_ApplyAbsorbAnchor(f)
         if not hpTex then mode = 2 -- fallback
         else
             local w = hpBar:GetWidth()
+            local absorbAnchorTex = hpTex
+            local absorbChained = nil
+            local ihBar = f.incomingHealBar
+            if ihBar and ihBar.IsShown and ihBar:IsShown() and f._c and f._c.healPredEn == true then
+                local healMode = (f._c and f._c.healPredAnchorMode)
+                    or _GF_ResolveHealPredAnchorMode(kind, GF.GetConf and GF.GetConf(kind))
+                if _GF_AnchorModeFollowsHP(healMode) then
+                    local ihTex = ihBar.GetStatusBarTexture and ihBar:GetStatusBarTexture()
+                    if ihTex then
+                        absorbAnchorTex = ihTex
+                        absorbChained = true
+                    end
+                end
+            end
             if f._msufGFAbsorbAnchorStamp == mode and f._msufGFAbsorbFollowActive
-               and f._msufGFAbsorbFollowRF == hpReverse and f._msufGFAbsorbFollowW == w then
+               and f._msufGFAbsorbFollowRF == hpReverse
+               and f._msufGFAbsorbFollowW == w
+               and f._msufGFAbsorbFollowAnchorTex == absorbAnchorTex
+               and f._msufGFAbsorbFollowChained == absorbChained then
                 return
             end
             f._msufGFAbsorbAnchorStamp = mode
             f._msufGFAbsorbFollowActive = true
             f._msufGFAbsorbFollowRF = hpReverse
             f._msufGFAbsorbFollowW = w
+            f._msufGFAbsorbFollowAnchorTex = absorbAnchorTex
+            f._msufGFAbsorbFollowChained = absorbChained
 
             local isOverflow = (mode == 4)
 
@@ -4164,12 +4461,12 @@ local function _GF_ApplyAbsorbAnchor(f)
                 end
                 f.absorbBar:ClearAllPoints()
                 if hpReverse then
-                    f.absorbBar:SetPoint("TOPRIGHT", hpTex, "TOPLEFT", 0, 0)
-                    f.absorbBar:SetPoint("BOTTOMRIGHT", hpTex, "BOTTOMLEFT", 0, 0)
+                    f.absorbBar:SetPoint("TOPRIGHT", absorbAnchorTex, "TOPLEFT", 0, 0)
+                    f.absorbBar:SetPoint("BOTTOMRIGHT", absorbAnchorTex, "BOTTOMLEFT", 0, 0)
                     f.absorbBar:SetReverseFill(true)
                 else
-                    f.absorbBar:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
-                    f.absorbBar:SetPoint("BOTTOMLEFT", hpTex, "BOTTOMRIGHT", 0, 0)
+                    f.absorbBar:SetPoint("TOPLEFT", absorbAnchorTex, "TOPRIGHT", 0, 0)
+                    f.absorbBar:SetPoint("BOTTOMLEFT", absorbAnchorTex, "BOTTOMRIGHT", 0, 0)
                     f.absorbBar:SetReverseFill(false)
                 end
                 if w and w > 0 then f.absorbBar:SetWidth(w) end
@@ -4247,12 +4544,11 @@ local function _GF_ApplyAbsorbAnchor(f)
     if f.healAbsorbBar and f.healAbsorbBar.SetReverseFill then
         f.healAbsorbBar:SetReverseFill(healReverse and true or false)
     end
-    if f.incomingHealBar and f.incomingHealBar.SetReverseFill then
-        f.incomingHealBar:SetReverseFill(false)
-    end
     f._msufGFAbsorbAnchorStamp = mode
     f._msufGFAbsorbFollowRF    = (mode == 5) and hpReverse or nil
     f._msufGFAbsorbFollowW     = nil
+    f._msufGFAbsorbFollowAnchorTex = nil
+    f._msufGFAbsorbFollowChained = nil
 end
 ------------------------------------------------------------------------
 local function _GF_ReadOverlayColor(keyR, keyG, keyB, defR, defG, defB, defA)
@@ -4266,17 +4562,34 @@ local function _GF_ReadOverlayColor(keyR, keyG, keyB, defR, defG, defB, defA)
     return defR, defG, defB, defA
 end
 
+local function _GF_HideIncomingHealBar(f, bar)
+    if not bar then return end
+    local wasShown = bar:IsShown()
+    bar:Hide()
+    if wasShown then _GF_ApplyAbsorbAnchor(f) end
+end
+
+local function _GF_ShowIncomingHealBar(f, bar)
+    if not bar then return end
+    if not bar:IsShown() then
+        bar:Show()
+        _GF_ApplyAbsorbAnchor(f)
+    end
+end
+
 dispatchIncomingHeal = function(f, unit, calc, hp, hpMax)
     local bar = f.incomingHealBar
     if not bar then return end
     -- PERF: use pre-cached healPredEn from BuildFrameCache (was GF.GetConf + DB read per call)
     local c = f._c
-    if c and c.healPredEn == false then
-        bar:SetMinMaxValues(0, 1)
-        bar:SetValue(0)
-        if bar:IsShown() then bar:Hide() end
+    if not (c and c.healPredEn == true) then
+        if bar:IsShown() then
+            GF._ClearOverlayBar(bar)
+            _GF_ApplyAbsorbAnchor(f)
+        end
         return
     end
+    if _GF_ApplyHealPredAnchor then _GF_ApplyHealPredAnchor(f) end
     -- Test mode: fixed values (same as main UF preview)
     local absorbTestMode = (_G.MSUF_AbsorbTextureTestMode == true)
         and _G.MSUF_InCombat ~= true
@@ -4286,10 +4599,10 @@ dispatchIncomingHeal = function(f, unit, calc, hp, hpMax)
         f._msufGFAbsorbTestActive = true
         bar:SetMinMaxValues(0, 100)
         bar:SetValue(20)
-        if not bar:IsShown() then bar:Show() end
+        _GF_ShowIncomingHealBar(f, bar)
         return
     end
-    if not unit or not UnitExists(unit) then if bar:IsShown() then bar:Hide() end; return end
+    if not unit or not UnitExists(unit) then _GF_HideIncomingHealBar(f, bar); return end
     if not hpMax then
         hpMax = (calc and calc.GetMaximumHealth) and calc:GetMaximumHealth() or UnitHealthMax(unit)
     end
@@ -4299,11 +4612,11 @@ dispatchIncomingHeal = function(f, unit, calc, hp, hpMax)
     elseif UnitGetIncomingHeals then
         val = UnitGetIncomingHeals(unit)
     end
-    if val == nil then if bar:IsShown() then bar:Hide() end; return end
+    if val == nil then _GF_HideIncomingHealBar(f, bar); return end
     local valSecret = issecretvalue and issecretvalue(val)
     if not valSecret then
         local n = tonumber(val) or 0
-        if n <= 0 then if bar:IsShown() then bar:Hide() end; return end
+        if n <= 0 then _GF_HideIncomingHealBar(f, bar); return end
         local hpMaxSecret = issecretvalue and issecretvalue(hpMax)
         if not hpMaxSecret then
             if not hp then
@@ -4319,7 +4632,7 @@ dispatchIncomingHeal = function(f, unit, calc, hp, hpMax)
     end
     bar:SetMinMaxValues(0, hpMax)
     bar:SetValue(val)
-    if not bar:IsShown() then bar:Show() end
+    _GF_ShowIncomingHealBar(f, bar)
 end
 
 dispatchAbsorb = function(f, unit, calc, hpMax)
@@ -4408,7 +4721,11 @@ dispatchHealAbsorb = function(f, unit, calc, hpMax)
 end
 
 _GF_DispatchOverlaysFromCalc = function(f, unit, calc, hp, hpMax)
-    dispatchIncomingHeal(f, unit, calc, hp, hpMax)
+    local c = f and f._c
+    local ihBar = f and f.incomingHealBar
+    if ihBar and ((c and c.healPredEn == true) or (ihBar.IsShown and ihBar:IsShown())) then
+        dispatchIncomingHeal(f, unit, calc, hp, hpMax)
+    end
     dispatchAbsorb(f, unit, calc, hpMax)
     dispatchHealAbsorb(f, unit, calc, hpMax)
 end
@@ -5456,8 +5773,15 @@ end
 local function OnEnter(f)
     DebugHover("GF OnEnter frame=%s unit=%s kind=%s", tostring(f and f:GetName() or "<anon>"), tostring(f and f.unit or "nil"), tostring(f and f._msufGFKind or "party"))
     -- Mouseover highlight
-    local hb = EnsureMouseoverHighlight(f)
-    if hb then hb:Show() end
+    local roundedHandled = false
+    if _G.MSUF_RoundedUF_Active == true and f and f._msufRUF_SuppressGFHover == true then
+        local roundedHover = _G.MSUF_RoundedUF_OnGroupMouseover
+        if type(roundedHover) == "function" then roundedHandled = roundedHover(f, true) == true end
+    end
+    if not roundedHandled then
+        local hb = EnsureMouseoverHighlight(f)
+        if hb then hb:Show() end
+    end
     -- Cancel any pending tooltip for a different frame
     _tooltipPendingToken = _tooltipPendingToken + 1
     _tooltipTarget = f
@@ -5522,6 +5846,10 @@ local function OnLeave(f)
     _tooltipTarget = nil
     -- Hide highlight
     if f._msufGFHoverBorder then f._msufGFHoverBorder:Hide() end
+    if _G.MSUF_RoundedUF_Active == true and f and f._msufRUF_SuppressGFHover == true then
+        local roundedHover = _G.MSUF_RoundedUF_OnGroupMouseover
+        if type(roundedHover) == "function" then roundedHover(f, false) end
+    end
     -- Hide tooltip
     local tips = ns and ns.Tooltips
     if tips and type(tips.HideUnit) == "function" then
@@ -5559,9 +5887,9 @@ local function UpdateHighlight(f, unit)
     local c = f._c
     if not c and GF.BuildFrameCache then GF.BuildFrameCache(f); c = f._c end
     local dispelTest = _G.MSUF_BorderTestModesActive == true and _G.MSUF_DispelBorderTestMode == true
-    if c and c.nativeBlizzardDispels and not dispelTest then
+    if c and c.nativeBlizzardDispelsSuppressCustom and not dispelTest then
         if _GF_ClearNativeSuppressedDispel then _GF_ClearNativeSuppressedDispel(f, unit) end
-    elseif dispelTest or (c and c.dispelScan and GF._playerCanDispel) then
+    elseif dispelTest or GF.DispelScanActive(c) then
         GF._UpdateDispel(f, unit)
     elseif _GF_ClearNativeSuppressedDispel then
         _GF_ClearNativeSuppressedDispel(f, unit)
@@ -5613,9 +5941,9 @@ _G.MSUF_GF_UpdateVisualDirty = function(f, unit, bits)
             ) then
                 _GF_ClearNativeSuppressedDispel(f, unit)
             end
-        elseif c and c.nativeBlizzardDispels then
+        elseif c and c.nativeBlizzardDispelsSuppressCustom then
             if _GF_ClearNativeSuppressedDispel then _GF_ClearNativeSuppressedDispel(f, unit) end
-        elseif c and c.dispelScan and GF._playerCanDispel then GF._UpdateDispel(f, unit) end
+        elseif GF.DispelScanActive(c) then GF._UpdateDispel(f, unit) end
         UpdateTargetIndicator(f, unit)
     end
 
@@ -5771,6 +6099,8 @@ _G.MSUF_GF_RefreshOverlays = function()
         and _G.MSUF_InCombat ~= true
         and not (_G.InCombatLockdown and _G.InCombatLockdown())
     _GF_ForEachLiveGroupFrame(function(f)
+        local c = f and f._c
+        if c and c.healPredEn == true and _GF_ApplyHealPredAnchor then _GF_ApplyHealPredAnchor(f) end
         _GF_ApplyAbsorbAnchor(f)
         local u = f.unit
         if u then
@@ -5789,6 +6119,8 @@ _G.MSUF_GF_RefreshOverlays = function()
             for i = 1, #list do
                 local pf = list[i]
                 if pf then
+                    local c = pf._c
+                    if c and c.healPredEn == true and _GF_ApplyHealPredAnchor then _GF_ApplyHealPredAnchor(pf) end
                     _GF_ApplyAbsorbAnchor(pf)
                     local u = pf.unit or pf._msufGFPreviewUnit
                     if u then
@@ -5807,6 +6139,7 @@ _G.MSUF_GF_RefreshOverlays = function()
     end
 end
 GF._ApplyHealthColor      = ApplyHealthColorWithAlpha
+GF._ApplyHealPredAnchor   = _GF_ApplyHealPredAnchor
 GF._ApplyAbsorbAnchor     = _GF_ApplyAbsorbAnchor
 GF._ReadOverlayColor      = _GF_ReadOverlayColor
 

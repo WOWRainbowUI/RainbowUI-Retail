@@ -58,8 +58,9 @@ if type(_G.MSUF_GetStatusIndicatorDB) ~= "function" then
         return _MSUF_DEFAULT_STATUS_INDICATORS
     end
     function _G.MSUF_GetStatusIndicatorDB()
-        if _G.EnsureDB then
-            _G.EnsureDB()
+        local ensureDB = _G.MSUF_EnsureDB
+        if ensureDB then
+            ensureDB()
         end
         local db = _G.MSUF_DB
         local g = (db) and db.general or nil
@@ -374,7 +375,7 @@ local function _MSUF_GetStatusTextConfig(frame, db)
             key = "target"
         elseif type(unit) == "string" and unit:match("^boss") then
             key = "boss"
-        elseif unit == "focus" or unit == "pet" or unit == "targettarget" or unit == "tot" then
+        elseif unit == "focus" or unit == "focustarget" or unit == "pet" or unit == "targettarget" or unit == "tot" then
             key = (unit == "tot") and "targettarget" or unit
         end
     end
@@ -413,8 +414,12 @@ function _G.MSUF_ApplyStatusTextLayout(frame)
     local owner = frame.hpBar or frame.health or frame
     local justify = _MSUF_JustifyForAnchor(anchor)
 
-    local function apply(fs)
+    local function apply(fs, layerKey, layerParent)
         if not fs then return end
+        local layout = ns.Icons and ns.Icons._layout
+        if layout and layout.EnsureLayerFrame and (not fs._msufLayerFrame) and not (InCombatLockdown and InCombatLockdown()) then
+            layout.EnsureLayerFrame(frame, fs, layerKey, layerParent or frame.textFrame or frame)
+        end
         if fs.GetFont and fs.SetFont then
             local fontPath, _, flags = fs:GetFont()
             if fontPath then
@@ -433,8 +438,8 @@ function _G.MSUF_ApplyStatusTextLayout(frame)
         _MSUF_ApplyIconLayer(fs, layer, frame)
     end
 
-    apply(frame.statusIndicatorText)
-    apply(frame.statusIndicatorOverlayText)
+    apply(frame.statusIndicatorText, "statusIndicatorText", frame.textFrame or frame)
+    apply(frame.statusIndicatorOverlayText, "statusIndicatorOverlayText", frame.statusIndicatorOverlayFrame or frame.textFrame or frame)
 end
 
 -- Status Icon Symbol Textures (Classic vs Midnight)
@@ -576,6 +581,18 @@ local function _MSUF_AnchorCorner(tex, frame, corner, xOff, yOff)
     tex:ClearAllPoints()
     if corner == "CENTER" then
         tex:SetPoint("CENTER", frame, "CENTER", 0 + xOff, 0 + yOff)
+         return
+    elseif corner == "TOP" then
+        tex:SetPoint("TOP", frame, "TOP", xOff, -2 + yOff)
+         return
+    elseif corner == "BOTTOM" then
+        tex:SetPoint("BOTTOM", frame, "BOTTOM", xOff, 2 + yOff)
+         return
+    elseif corner == "LEFT" then
+        tex:SetPoint("LEFT", frame, "LEFT", 2 + xOff, yOff)
+         return
+    elseif corner == "RIGHT" then
+        tex:SetPoint("RIGHT", frame, "RIGHT", -2 + xOff, yOff)
          return
     end
     if corner == "TOPRIGHT" then
@@ -782,19 +799,12 @@ local function _MSUF_UpdateStatusIcons(frame)
                     _G.MSUF_UpdateAllFonts_Immediate()
                 elseif _G.MSUF_UpdateAllFonts then
                     _G.MSUF_UpdateAllFonts()
-                elseif _G.UpdateAllFonts then
-                    _G.UpdateAllFonts()
                 end
             end
             _MSUF_AnchorCorner(classText, frame, sic.classCorner, sic.classX, sic.classY)
             classText:SetAlpha(iconAlpha)
             if classText.SetJustifyH then
-                local j = "LEFT"
-                if sic.classCorner == "CENTER" then
-                    j = "CENTER"
-                elseif sic.classCorner == "TOPRIGHT" or sic.classCorner == "BOTTOMRIGHT" then
-                    j = "RIGHT"
-                end
+                local j = _MSUF_JustifyForAnchor(sic.classCorner)
                 if classText._msufJustifyStamp ~= j then
                     classText:SetJustifyH(j)
                     classText._msufJustifyStamp = j
@@ -1018,13 +1028,14 @@ do
         if fr then
             if _G.MSUF_RequestUnitframeUpdate then
                 _G.MSUF_RequestUnitframeUpdate(fr, true, true, reason or "StatusIconsTestMode")
-            elseif _G.UpdateSimpleUnitFrame then
-                _G.UpdateSimpleUnitFrame(fr)
+            elseif _G.MSUF_UpdateSimpleUnitFrame then
+                (_G.MSUF_UpdateSimpleUnitFrame)(fr)
             end
         end
-     end
+    end
     function _G.MSUF_GetStatusIconsTestMode()
-        if _G.EnsureDB then _G.EnsureDB() end
+        local ensureDB = _G.MSUF_EnsureDB
+        if ensureDB then ensureDB() end
         local db = _G.MSUF_DB
         local g = (db) and db.general or nil
         return (g and g.stateIconsTestMode == true) or false
@@ -1033,7 +1044,8 @@ do
         if enabled and (_G.MSUF_InCombat == true or ((InCombatLockdown and InCombatLockdown()) and true or false)) then
             enabled = false
         end
-        if _G.EnsureDB then _G.EnsureDB() end
+        local ensureDB = _G.MSUF_EnsureDB
+        if ensureDB then ensureDB() end
         local db = _G.MSUF_DB
         if not db then  return end
         db.general = (type(db.general) == "table") and db.general or {}

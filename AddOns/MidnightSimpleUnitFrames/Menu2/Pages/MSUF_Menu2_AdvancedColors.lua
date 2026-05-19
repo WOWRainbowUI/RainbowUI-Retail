@@ -37,7 +37,9 @@ local DividerAt = AP.DividerAt
 local BindValueToggle = AP.BindValueToggle
 local BindValueSlider = AP.BindValueSlider
 local ToggleAt = AP.ToggleAt
+local SwitchAt = AP.SwitchAt
 local ValueToggleAt = AP.ValueToggleAt
+local ValueSwitchAt = AP.ValueSwitchAt
 local SliderAt = AP.SliderAt
 local ValueSliderAt = AP.ValueSliderAt
 local DropdownAt = AP.DropdownAt
@@ -48,6 +50,29 @@ local ScopedSliderAt = AP.ScopedSliderAt
 local ScopedDropdownAt = AP.ScopedDropdownAt
 local TogglePillAt = AP.TogglePillAt
 local SetControlEnabled = AP.SetControlEnabled
+
+local PRESERVE_HP_UNIT_KEYS = { "player", "target", "targettarget", "focustarget", "focus", "pet", "boss" }
+
+local function AllUnitframesPreserveHPColor()
+    local db = DB()
+    for i = 1, #PRESERVE_HP_UNIT_KEYS do
+        local key = PRESERVE_HP_UNIT_KEYS[i]
+        local conf = db[key]
+        if not (conf and conf.alphaPreserveHPColor == true) then
+            return false
+        end
+    end
+    return true
+end
+
+local function SetAllUnitframesPreserveHPColor(enabled)
+    enabled = enabled and true or false
+    for i = 1, #PRESERVE_HP_UNIT_KEYS do
+        M.SetUnitValue(PRESERVE_HP_UNIT_KEYS[i], "alphaPreserveHPColor", enabled, "MSUF2_PRESERVE_HP_COLOR_ALL", { alpha = true, preview = true })
+    end
+    if M.WarnPreserveHPColorIfNeeded then M.WarnPreserveHPColorIfNeeded(enabled) end
+end
+
 local function ApplyColors()
     local api = ns and ns._colorsAPI
     if api and type(api.PushVisualUpdates) == "function" then
@@ -459,7 +484,7 @@ local function SetAllPortraitRGB(prefix, r, g, b)
     local db = DB()
     db.general = db.general or {}
     db.general[prefix .. "R"], db.general[prefix .. "G"], db.general[prefix .. "B"] = r, g, b
-    for _, key in ipairs({ "player", "target", "focus", "targettarget", "pet", "boss" }) do
+    for _, key in ipairs({ "player", "target", "focus", "targettarget", "focustarget", "pet", "boss" }) do
         db[key] = db[key] or {}
         db[key][prefix .. "R"], db[key][prefix .. "G"], db[key][prefix .. "B"] = r, g, b
     end
@@ -515,7 +540,7 @@ local function BuildColors(ctx)
         ApplyColors()
     end)
 
-    local background = b:CollapsibleSection("colors_background", "Bar Background Tint", 224, false)
+    local background = b:CollapsibleSection("colors_background", "Bar Background Tint", 292, false)
     LabelAt(background, "Tint applied to the bar background in *all* bar modes. Dark Mode uses this tint too.", 12, -8, 660, "GameFontHighlightSmall", T.colors.muted)
     ColorValueAt(ctx, background, "Bar background tint", 12, -46,
         function() return ApiRGB("GetClassBarBgColor", 0, 0, 0) end,
@@ -558,7 +583,12 @@ local function BuildColors(ctx)
     ValueToggleAt(ctx, background, "Custom color in Dark Mode", 12, -142,
         function() return G().darkBgCustomColor == true end,
         function(v) G().darkBgCustomColor = v and true or false; ApplyColors() end)
-    ButtonAt(background, "Reset to black", 12, -182, 140, function()
+    ValueToggleAt(ctx, background, "Preserve HP color on all unit frames", 12, -170,
+        AllUnitframesPreserveHPColor,
+        SetAllUnitframesPreserveHPColor)
+    local preserveAllHint = LabelAt(background, "Same setting as each unit page > Transparency. It uses this same HP track color; off here means at least one unit frame is off.", 40, -196, 650, "GameFontHighlightSmall", T.colors.dim)
+    if preserveAllHint and preserveAllHint.SetWordWrap then preserveAllHint:SetWordWrap(true) end
+    ButtonAt(background, "Reset to black", 12, -250, 140, function()
         local fn = ColorAPI().ResetClassBarBgColor
         if type(fn) == "function" then pcall(fn) else G().classBarBgR, G().classBarBgG, G().classBarBgB = nil, nil, nil end
         ApplyColors()
@@ -602,8 +632,7 @@ local function BuildColors(ctx)
             ApplyColors()
         end)
     SliderAt(ctx, appearance, "Gradient strength", 360, -70, 0, 1, 0.05, 250, G, "gradientStrength", 0.45, ApplyColors)
-    local gradientToggle = BindTableToggle(ctx, appearance, "Enable health gradient", G, "enableHealthGradient", true, ApplyColors)
-    MoveWidget(gradientToggle, appearance, 360, -158)
+    SwitchAt(ctx, appearance, "Health Gradient", 360, -158, 230, G, "enableHealthGradient", true, ApplyColors)
 
     local unit = b:CollapsibleSection("colors_unit", "Unitframe Colors", 230, false)
     for i = 1, #COLOR_DATA.NPC_ROWS do
@@ -655,7 +684,7 @@ local function BuildColors(ctx)
             if type(fn) == "function" then pcall(fn, v) else G().npcTypeColorText = v and true or false end
             ApplyColors()
         end)
-    local npcMaster = ValueToggleAt(ctx, npcType, "Enable NPC Type Colors (Boss / Caster / Melee ...)", 12, -10,
+    local npcMaster = ValueSwitchAt(ctx, npcType, "NPC Type Colors", 12, -10, 260,
         function()
             local fn = ColorAPI().GetNPCColorMode
             if type(fn) == "function" then local ok, v = pcall(fn); if ok then return v == "type" end end
@@ -797,7 +826,8 @@ local function BuildColors(ctx)
         for i = 1, #typeControls do SetControlEnabled(typeControls[i], not single) end
     end)
 
-    local castbar = b:CollapsibleSection("colors_castbar", "Castbar Colors", 520, false)
+    local castbar = b:CollapsibleSection("colors_castbar", "Castbar Colors", 544, false)
+    local castW = castbar._msuf2Width or ctx.width or 720
     ColorValueAt(ctx, castbar, "Interruptible cast color", 12, -10,
         function() return ApiRGB("GetInterruptibleCastColor", 0, 0.9, 0.8) end,
         function(r, g, c) ApiSetRGB("SetInterruptibleCastColor", r, g, c); ApplyCastbarColors() end)
@@ -825,13 +855,23 @@ local function BuildColors(ctx)
             ApplyCastbarColors()
         end)
     LabelAt(castbar, "Player castbar override", 12, -134, 260, "GameFontNormal", T.colors.text)
-    local overrideColor = ColorValueAt(ctx, castbar, "Custom color", 360, -190,
+    local overrideModeX, overrideModeW = 300, 190
+    local overrideColorX = min(max(overrideModeX + overrideModeW + 36, floor(castW * 0.56)), castW - 236)
+    local overrideColorLabelW = max(120, min(168, castW - overrideColorX - 76))
+    local overrideColorY = -154
+    if overrideColorX < overrideModeX + overrideModeW + 24 then
+        overrideColorX = overrideModeX
+        overrideColorY = -210
+        overrideColorLabelW = max(120, min(230, castW - overrideColorX - 76))
+    end
+    local overrideColor = ColorValueAt(ctx, castbar, "Custom color", overrideColorX, overrideColorY,
         function() return ApiRGB("GetPlayerCastbarOverrideColor", 0, 0.6, 1) end,
-        function(r, g, c) ApiSetRGB("SetPlayerCastbarOverrideColor", r, g, c); ApplyCastbarColors() end)
-    local overrideMode = ValueDropdownAt(ctx, castbar, "Mode", 190, -154, {
+        function(r, g, c) ApiSetRGB("SetPlayerCastbarOverrideColor", r, g, c); ApplyCastbarColors() end,
+        overrideColorLabelW)
+    local overrideMode = ValueDropdownAt(ctx, castbar, "Mode", overrideModeX, -154, {
         { value = "CLASS", text = "Class color" },
         { value = "CUSTOM", text = "Custom color" },
-    }, 160,
+    }, overrideModeW,
         function()
             local fn = ColorAPI().GetPlayerCastbarOverrideMode
             if type(fn) == "function" then local ok, v = pcall(fn); if ok then return v end end
@@ -842,7 +882,7 @@ local function BuildColors(ctx)
             if type(fn) == "function" then pcall(fn, v) else G().playerCastbarOverrideMode = v end
             ApplyCastbarColors()
         end)
-    local overrideEnable = ValueToggleAt(ctx, castbar, "Enable Player override", 12, -154,
+    local overrideEnable = ValueSwitchAt(ctx, castbar, "Player override", 12, -154, 260,
         function()
             local fn = ColorAPI().GetPlayerCastbarOverrideEnabled
             if type(fn) == "function" then local ok, v = pcall(fn); if ok then return v end end
@@ -883,10 +923,9 @@ local function BuildColors(ctx)
 
     local highlight = b:CollapsibleSection("colors_highlight", "Mouseover Highlight", 210, false)
     local highlightColor = ColorValueAt(ctx, highlight, "Mouseover highlight color", 12, -48, HighlightRGB, SetHighlightRGB)
-    local highlightEnabled = BindTableToggle(ctx, highlight, "Enable mouseover highlight", G, "highlightEnabled", true, function()
+    local highlightEnabled = SwitchAt(ctx, highlight, "Mouseover Highlight", 12, -10, 260, G, "highlightEnabled", true, function()
         SetHighlightRGB(HighlightRGB())
     end)
-    MoveWidget(highlightEnabled, highlight, 12, -10)
     ColorValueAt(ctx, highlight, "Boss target highlight color", 12, -104,
         function() return TableRGB(G(), "bossTargetHighlightColor", 1, 0.82, 0) end,
         function(r, g, c)

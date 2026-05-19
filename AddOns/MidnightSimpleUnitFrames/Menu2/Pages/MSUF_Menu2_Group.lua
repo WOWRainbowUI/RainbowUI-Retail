@@ -128,6 +128,7 @@ local GF_ANCHOR_TO = {
     { value = "player", text = "Player Frame" },
     { value = "target", text = "Target Frame" },
     { value = "targettarget", text = "Target of Target" },
+    { value = "focustarget", text = "Focus Target" },
     { value = "focus", text = "Focus Frame" },
 }
 
@@ -353,13 +354,13 @@ local function CurrentScope()
 end
 
 local function ScopeLabel(kind)
-    if kind == "mythicraid" then return "Mythic Raid" end
-    if kind == "raid" then return "Raid" end
-    return "Party"
+    if kind == "mythicraid" then return M.Tr("Mythic Raid") end
+    if kind == "raid" then return M.Tr("Raid") end
+    return M.Tr("Party")
 end
 
 local function ScopeShortLabel(kind)
-    if kind == "mythicraid" then return "Mythic" end
+    if kind == "mythicraid" then return M.Tr("Mythic") end
     return ScopeLabel(kind)
 end
 
@@ -373,7 +374,7 @@ local GF_COPY_EXCLUDE = {
 
 local GF_COPY_CATEGORIES = {
     { key = "general", label = "General", keys = { "enabled", "showPlayer", "showSolo", "width", "height", "spacing", "growth", "groupFilter", "sortMode", "sortByRole", "roleOrder", "playerFirstInRole", "unitsPerColumn", "maxColumns", "preserveRaidGroups", "reverseFill", "smoothFill", "hideInClientScene", "hideOfflineEnabled", "hideOfflineInCombat", "hideOfflineDelay", "tooltipMode", "tooltipModifier", "frameScaleMode", "frameScaleManual", "scaleAt10", "scaleAt20", "scaleAt25", "scaleOver25" } },
-    { key = "health", label = "Health & Bars", keys = { "gfBarMode", "healthColorMode", "healthCustomR", "healthCustomG", "healthCustomB", "gfDarkR", "gfDarkG", "gfDarkB", "gfUnifiedR", "gfUnifiedG", "gfUnifiedB", "barTexture", "barBgTexture", "powerHeight", "showPower", "showPowerText", "powerTextLeft", "powerTextCenter", "powerTextRight", "powerTextDelimiter", "powerFontSize", "powerOffsetX", "powerOffsetY", "powerTextLayer", "powerSmoothFill", "powerShowTank", "powerShowHealer", "powerShowDamager", "healPredEnabled", "dispelOverlayEnabled", "dispelOverlayStyle", "dispelOverlayOnHealth", "dispelOverlayAlpha" } },
+    { key = "health", label = "Health & Bars", keys = { "gfBarMode", "healthColorMode", "healthCustomR", "healthCustomG", "healthCustomB", "gfDarkR", "gfDarkG", "gfDarkB", "gfUnifiedR", "gfUnifiedG", "gfUnifiedB", "barTexture", "barBgTexture", "powerBarEnabled", "powerHeight", "showPower", "showPowerText", "powerTextLeft", "powerTextCenter", "powerTextRight", "powerTextDelimiter", "powerFontSize", "powerOffsetX", "powerOffsetY", "powerTextLayer", "powerSmoothFill", "powerShowTank", "powerShowHealer", "powerShowDamager", "healPredEnabled", "healPredAnchorMode", "dispelOverlayEnabled", "dispelOverlayStyle", "dispelOverlayOnHealth", "dispelOverlayAlpha" } },
     { key = "text", label = "Text & Name", keys = { "showName", "nameFontSize", "nameAnchor", "nameOffsetX", "nameOffsetY", "nameTextLayer", "nameColorMode", "nameColorR", "nameColorG", "nameColorB", "nameShortenEnabled", "nameClipSide", "nameMaxChars", "nameNoEllipsis", "showHPText", "hpFontSize", "textLeft", "textCenter", "textRight", "textDelimiter", "hpTextReverse", "hpOffsetX", "hpOffsetY", "textLayer" } },
     { key = "font", label = "Font Override", keys = { "fontOverride", "fontOutline", "useGlobalFontColor", "fontR", "fontG", "fontB" } },
     { key = "border", label = "Background & Opacity", keys = { "bgR", "bgG", "bgB", "bgA", "hpBarAlpha", "hpBgAlpha", "hpTextIgnoreAlpha", "alphaPreserveHPColor" } },
@@ -653,7 +654,7 @@ local function ScopeSection(ctx, builder)
         RefreshContext(ctx)
     end
 
-    local editing = T.Font(sec, "GameFontNormalSmall", "Editing:", { 0.72, 0.82, 1.00, 1 })
+    local editing = T.Font(sec, "GameFontNormalSmall", M.Tr("Editing:"), { 0.72, 0.82, 1.00, 1 })
     editing:SetPoint("TOPLEFT", sec, "TOPLEFT", 8, -15)
 
     local scopeBtns = {}
@@ -679,11 +680,11 @@ local function ScopeSection(ctx, builder)
     end
 
     local actionY = compactTop and -42 or -10
-    local copy = MakeTopButton(sec, "Copy To", compactTop and 82 or 86)
+    local copy = MakeTopButton(sec, M.Tr("Copy To"), compactTop and 82 or 86)
     copy:SetPoint("TOPRIGHT", sec, "TOPRIGHT", -8, actionY)
-    local edit = MakeTopButton(sec, "MSUF Edit Mode", compactTop and 118 or 128)
+    local edit = MakeTopButton(sec, M.Tr("MSUF Edit Mode"), compactTop and 118 or 128)
     edit:SetPoint("RIGHT", copy, "LEFT", -8, 0)
-    local reset = MakeTopButton(sec, "Reset Scopes", compactTop and 94 or 104, {
+    local reset = MakeTopButton(sec, M.Tr("Reset Scopes"), compactTop and 94 or 104, {
         bg = { 0.070, 0.026, 0.034, 0.94 },
         border = { 0.340, 0.090, 0.110, 0.82 },
         textColor = { 1.00, 0.82, 0.82, 1 },
@@ -708,9 +709,9 @@ local function ScopeSection(ctx, builder)
 
     if not StaticPopupDialogs["MSUF2_GF_RESET_ALL_CONFIRM"] then
         StaticPopupDialogs["MSUF2_GF_RESET_ALL_CONFIRM"] = {
-            text = "Reset all Group Frame settings to defaults?\n\nThis resets Party, Raid, and Mythic Raid Group Frames for the active profile. Defaults are read from the current MSUF factory profile, so future default changes are used automatically.",
-            button1 = YES or "Yes",
-            button2 = NO or "No",
+            text = M.Tr("Reset all Group Frame settings to defaults?\n\nThis resets Party, Raid, and Mythic Raid Group Frames for the active profile. Defaults are read from the current MSUF factory profile, so future default changes are used automatically."),
+            button1 = YES or M.Tr("Yes"),
+            button2 = NO or M.Tr("No"),
             timeout = 0,
             whileDead = true,
             hideOnEscape = true,
@@ -723,7 +724,7 @@ local function ScopeSection(ctx, builder)
             if gf and type(gf.ResetAllToDefaults) == "function" and gf.ResetAllToDefaults() then
                 RefreshGFPreview()
                 RefreshContext(ctx)
-                print("|cffffd700MSUF:|r Group Frames reset to defaults.")
+                print(M.Tr("|cffffd700MSUF:|r Group Frames reset to defaults."))
             end
         end
         if M.CaptureHistory and not (M.IsHistoryCapturing and M.IsHistoryCapturing()) then
@@ -767,8 +768,14 @@ local function ScopeSection(ctx, builder)
         if not copyPopup then
             copyPopup = CreateFrame("Frame", nil, UIParent, T.Template and T.Template() or nil)
             copyPopup:SetSize(430, 334)
-            copyPopup:SetFrameStrata("DIALOG")
-            copyPopup:SetFrameLevel(120)
+            if M.ApplyMenuPopupFramePriority then
+                M.ApplyMenuPopupFramePriority(copyPopup)
+            elseif M.ApplyMenuFramePriority then
+                M.ApplyMenuFramePriority(copyPopup, M.MENU_POPUP_FRAME_LEVEL or 120)
+            else
+                copyPopup:SetFrameStrata("FULLSCREEN_DIALOG")
+                copyPopup:SetFrameLevel(120)
+            end
             copyPopup:EnableMouse(true)
             if copyPopup.SetBackdrop then
                 copyPopup:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = { left = 1, right = 1, top = 1, bottom = 1 } })
@@ -780,7 +787,7 @@ local function ScopeSection(ctx, builder)
             title:SetPoint("TOPLEFT", copyPopup, "TOPLEFT", 16, -12)
             copyPopup._title = title
 
-            local destLabel = T.Font(copyPopup, "GameFontDisableSmall", "Destination", T.colors.dim)
+            local destLabel = T.Font(copyPopup, "GameFontDisableSmall", M.Tr("Destination"), T.colors.dim)
             destLabel:SetPoint("TOPLEFT", copyPopup, "TOPLEFT", 16, -40)
 
             local close = MakeTopButton(copyPopup, "x", 20, {
@@ -823,28 +830,20 @@ local function ScopeSection(ctx, builder)
                 tx = tx + width + 6
             end
 
-            local catLabel = T.Font(copyPopup, "GameFontDisableSmall", "Copy categories", T.colors.dim)
+            local catLabel = T.Font(copyPopup, "GameFontDisableSmall", M.Tr("Copy categories"), T.colors.dim)
             catLabel:SetPoint("TOPLEFT", copyPopup, "TOPLEFT", 16, -90)
             copyPopup._checks = {}
             for i = 1, #GF_COPY_CATEGORIES do
                 local cat = GF_COPY_CATEGORIES[i]
                 local col = (i > 6) and 1 or 0
                 local row = (i - 1) % 6
-                local cb = CreateFrame("CheckButton", nil, copyPopup, "UICheckButtonTemplate")
-                cb:SetSize(20, 20)
-                cb:SetPoint("TOPLEFT", copyPopup, "TOPLEFT", 16 + col * 205, -110 - row * 23)
+                local cb = W.SwitchAt(copyPopup, cat.label, 16 + col * 205, -110 - row * 28, 150)
                 cb:SetChecked(M.gfCopyScopes[cat.key] == true)
                 cb:SetScript("OnClick", function(self) M.gfCopyScopes[cat.key] = self:GetChecked() and true or false end)
-                if T.StyleCheckmark then T.StyleCheckmark(cb) end
-                local fs = cb.Text or cb.text
-                if fs then
-                    fs:SetText(cat.label)
-                    if T.StyleFontString then T.StyleFontString(fs, T.colors.text, 0) end
-                end
                 copyPopup._checks[i] = cb
             end
 
-            local allBtn = MakeTopButton(copyPopup, "All", 48)
+            local allBtn = MakeTopButton(copyPopup, M.Tr("All"), 48)
             allBtn:SetPoint("BOTTOMLEFT", copyPopup, "BOTTOMLEFT", 16, 12)
             allBtn:SetScript("OnClick", function()
                 for i = 1, #GF_COPY_CATEGORIES do
@@ -853,7 +852,7 @@ local function ScopeSection(ctx, builder)
                     if copyPopup._checks[i] then copyPopup._checks[i]:SetChecked(true) end
                 end
             end)
-            local noneBtn = MakeTopButton(copyPopup, "None", 58)
+            local noneBtn = MakeTopButton(copyPopup, M.Tr("None"), 58)
             noneBtn:SetPoint("LEFT", allBtn, "RIGHT", 6, 0)
             noneBtn:SetScript("OnClick", function()
                 for i = 1, #GF_COPY_CATEGORIES do
@@ -865,7 +864,9 @@ local function ScopeSection(ctx, builder)
         end
 
         local src = CurrentScope()
-        if copyPopup._title then copyPopup._title:SetText("Copy from " .. ScopeLabel(src)) end
+        if copyPopup._title then
+            copyPopup._title:SetText(M.Format(M.Tr("Copy from %s"), ScopeLabel(src)))
+        end
         for i = 1, #GF_COPY_CATEGORIES do
             if copyPopup._checks[i] then copyPopup._checks[i]:SetChecked(M.gfCopyScopes[GF_COPY_CATEGORIES[i].key] == true) end
         end
@@ -882,6 +883,11 @@ local function ScopeSection(ctx, builder)
                     nextX = nextX + btn:GetWidth() + 6
                 end
             end
+        end
+        if M.ApplyMenuPopupFramePriority then
+            M.ApplyMenuPopupFramePriority(copyPopup)
+        elseif M.ApplyMenuFramePriority then
+            M.ApplyMenuFramePriority(copyPopup, M.MENU_POPUP_FRAME_LEVEL or 120)
         end
         copyPopup:ClearAllPoints()
         copyPopup:SetPoint("TOPRIGHT", anchor or copy, "BOTTOMRIGHT", 0, -6)
@@ -949,7 +955,7 @@ local function BuildGrowthDirectionTiles(ctx, section, opts)
         section._msuf2CursorY = y - tileH - 40
     end
 
-    local label = T.Font(section, "GameFontNormalSmall", "Growth Direction", T.colors.accent)
+    local label = T.Font(section, "GameFontNormalSmall", M.Tr("Growth Direction"), T.colors.accent)
     label:SetPoint("TOPLEFT", section, "TOPLEFT", x, y)
 
     local holder = CreateFrame("Frame", nil, section)
@@ -1122,8 +1128,8 @@ local function BuildGrowthDirectionTiles(ctx, section, opts)
             SetTileVisual(self, Val(CurrentScope(), "growth", "DOWN") == info.value, true)
             if GameTooltip then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:AddLine("Growth: " .. info.text, 1, 1, 1)
-                GameTooltip:AddLine("Click to set group frame growth direction.", 0.72, 0.76, 0.86)
+                GameTooltip:AddLine(M.Format(M.Tr("Growth: %s"), M.Tr(info.text or "")), 1, 1, 1)
+                GameTooltip:AddLine(M.Tr("Click to set group frame growth direction."), 0.72, 0.76, 0.86)
                 GameTooltip:Show()
             end
         end)
@@ -1300,8 +1306,8 @@ local function BuildRoleOrderRows(ctx, section, opts)
             if self.SetBackdropBorderColor then self:SetBackdropBorderColor(0.380, 0.550, 0.900, 0.95) end
             if GameTooltip then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:AddLine(def.label, 1, 1, 1)
-                GameTooltip:AddLine("Drag to change role priority.", 0.72, 0.76, 0.86)
+                GameTooltip:AddLine(M.Tr(def.label or ""), 1, 1, 1)
+                GameTooltip:AddLine(M.Tr("Drag to change role priority."), 0.72, 0.76, 0.86)
                 GameTooltip:Show()
             end
         end)
