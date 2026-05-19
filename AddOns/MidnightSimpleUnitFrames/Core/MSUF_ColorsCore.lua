@@ -11,7 +11,7 @@ ns = ns or {}
 ------------------------------------------------------
 -- Local shortcuts (core only — no UI-framework refs)
 ------------------------------------------------------
-local EnsureDB              = _G.EnsureDB
+local EnsureDB              = _G.MSUF_EnsureDB
 local RAID_CLASS_COLORS     = RAID_CLASS_COLORS
 local C_Timer               = C_Timer
 local hooksecurefunc        = hooksecurefunc
@@ -65,6 +65,7 @@ local function _RefreshAllBarBackgroundVisuals()
     local forEach = _G.MSUF_ForEachUnitFrame
     local applyBg = _G.MSUF_ApplyBarBackgroundVisual
     local refreshHP = _G.MSUF_UFCore_RefreshHealthBarColor
+    local syncMissing = _G.MSUF_Alpha_UpdatePreserveMissingHP
     if type(forEach) ~= "function" or type(applyBg) ~= "function" then return end
 
     forEach(function(frame)
@@ -73,6 +74,9 @@ local function _RefreshAllBarBackgroundVisuals()
                 refreshHP(frame)
             end
             applyBg(frame)
+            if type(syncMissing) == "function" then
+                syncMissing(frame)
+            end
         end
     end)
 end
@@ -101,7 +105,7 @@ local function _PushVisualUpdates_Flush()
         ns.GF.RebuildDispelColorCurve()
     end
 
-    local fnFonts = _G.MSUF_UpdateAllFonts_Immediate or ns.MSUF_UpdateAllFonts or _G.MSUF_UpdateAllFonts or _G.UpdateAllFonts
+    local fnFonts = _G.MSUF_UpdateAllFonts_Immediate or ns.MSUF_UpdateAllFonts or _G.MSUF_UpdateAllFonts
     if type(fnFonts) == "function" then
         fnFonts()
     end

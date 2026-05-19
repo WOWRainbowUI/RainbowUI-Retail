@@ -9,10 +9,11 @@ ns.Bars = ns.Bars or {}
 
 local type, tonumber = type, tonumber
 local UnitClass, UnitExists, UnitIsPlayer = _G.UnitClass, _G.UnitExists, _G.UnitIsPlayer
+local issecretvalue = _G.issecretvalue
 
 local function EnsureDBSafe()
-    if not _G.MSUF_DB and type(_G.EnsureDB) == "function" then
-        _G.EnsureDB()
+    if not _G.MSUF_DB and type(_G.MSUF_EnsureDB) == "function" then
+        (_G.MSUF_EnsureDB)()
     end
 end
 
@@ -22,6 +23,15 @@ local function MSUF_Clamp01(v)
     if v < 0 then return 0 end
     if v > 1 then return 1 end
     return v
+end
+
+local function MSUF_IsSecretValue(value)
+    local fn = issecretvalue
+    if type(fn) ~= "function" then
+        fn = _G.issecretvalue
+        if type(fn) == "function" then issecretvalue = fn end
+    end
+    return type(fn) == "function" and fn(value) == true
 end
 
 ns.Bars._DarkTint = function(g, r, gg, b)
@@ -62,21 +72,7 @@ _DPB.CDM = _DPB.CDM or {
     tracked_buffs = "BuffIconCooldownViewer",
 }
 
-function _DPB.UseMSAEssentialBridge()
-    local g = _G.MSUF_DB and _G.MSUF_DB.general or nil
-    return not (g and g.disableMSAEssentialBridge == true)
-end
-
 function _G.MSUF_GetEffectiveCooldownFrame(frameName)
-    if frameName == "EssentialCooldownViewer" and _DPB.UseMSAEssentialBridge() then
-        local getter = _G.MSWA_GetEssentialBridgeFrame
-        if type(getter) == "function" then
-            local bridge = getter()
-            if bridge and bridge ~= _G.UIParent and bridge ~= _G.WorldFrame and (not bridge.IsForbidden or not bridge:IsForbidden()) then
-                return bridge
-            end
-        end
-    end
     return frameName and _G[frameName] or nil
 end
 
@@ -155,11 +151,32 @@ end
 ns.Bars._ClassBackgroundColor = function(frame, defR, defG, defB)
     if not frame then return defR, defG, defB end
     local unit = frame.unit
-    if not unit or (UnitExists and not UnitExists(unit)) then return defR, defG, defB end
-    if UnitIsPlayer and not UnitIsPlayer(unit) then return defR, defG, defB end
+    if not unit or (UnitExists and not UnitExists(unit)) then
+        frame._msufBarBgClassGuid = nil
+        frame._msufBarBgClassToken = nil
+        return defR, defG, defB
+    end
 
-    local _, classToken
-    if UnitClass then _, classToken = UnitClass(unit) end
+    local classToken
+
+    -- Midnight/Beta: UnitGUID can be a secret string. Do not cache or compare it
+    -- in Lua; resolve the class directly instead.
+    frame._msufBarBgClassGuid = nil
+    if UnitIsPlayer then
+        local isPlayer = UnitIsPlayer(unit)
+        if MSUF_IsSecretValue(isPlayer) or not isPlayer then
+            frame._msufBarBgClassToken = nil
+            return defR, defG, defB
+        end
+    end
+    if UnitClass then
+        local _
+        _, classToken = UnitClass(unit)
+    end
+    if MSUF_IsSecretValue(classToken) then
+        classToken = nil
+    end
+    frame._msufBarBgClassToken = classToken
     if not classToken then return defR, defG, defB end
 
     local fastClass = _G.MSUF_UFCore_GetClassBarColorFast
@@ -188,6 +205,49 @@ local function _MSUF_ResolveGetCache()
     return nil
 end
 
+local function _MSUF_BarBackgroundAlphaMul(cache, bars)
+    local alphaMul = cache and cache.barBackgroundAlpha
+    if type(alphaMul) ~= "number" then
+        local alphaPct = 90
+        if bars and type(bars.barBackgroundAlpha) == "number" then
+            alphaPct = bars.barBackgroundAlpha
+        end
+        if alphaPct < 0 then alphaPct = 0 elseif alphaPct > 100 then alphaPct = 100 end
+        alphaMul = alphaPct / 100
+    end
+    return alphaMul
+end
+
+local function _MSUF_ResolveHealthBackgroundRGBA(frame, cache, gen, bars)
+    local r, gg, b, a
+    if cache then
+        r, gg, b, a = cache.barBgTintR, cache.barBgTintG, cache.barBgTintB, cache.barBgTintA
+    else
+        r, gg, b, a = MSUF_GetBarBackgroundTintRGBA()
+    end
+
+    if (cache and cache.barBgClassColor) or (gen and gen.barBgClassColor) then
+        r, gg, b = ns.Bars._ClassBackgroundColor(frame, r, gg, b)
+    elseif frame and (cache and cache.barBgMatchHPColor or (gen and gen.barBgMatchHPColor)) and frame.hpBar and frame.hpBar.GetStatusBarColor then
+        r, gg, b = ns.Bars._MatchHPColor(frame, gen, cache, r, gg, b)
+    end
+
+    if type(a) == "number" then
+        a = a * _MSUF_BarBackgroundAlphaMul(cache, bars)
+    end
+    return r, gg, b, a
+end
+
+local function MSUF_GetEffectiveHealthBarBackgroundTintRGBA(frame)
+    EnsureDBSafe()
+    local getCache = _MSUF_ResolveGetCache()
+    local cache = getCache and getCache() or nil
+    local gen = (cache and cache.generalRef) or (_G.MSUF_DB and _G.MSUF_DB.general)
+    local bars = (cache and cache.barsRef) or (_G.MSUF_DB and _G.MSUF_DB.bars)
+    return _MSUF_ResolveHealthBackgroundRGBA(frame, cache, gen, bars)
+end
+_G.MSUF_GetEffectiveHealthBarBackgroundTintRGBA = MSUF_GetEffectiveHealthBarBackgroundTintRGBA
+
 local function MSUF_ApplyBarBackgroundVisual(frame)
     if not frame then return end
     local getBgTexture = _G.MSUF_GetBarBackgroundTexture
@@ -200,29 +260,8 @@ local function MSUF_ApplyBarBackgroundVisual(frame)
     local gen = (cache and cache.generalRef) or (_G.MSUF_DB and _G.MSUF_DB.general)
     local bars = (cache and cache.barsRef) or (_G.MSUF_DB and _G.MSUF_DB.bars)
 
-    local r, gg, b, a
-    if cache then
-        r, gg, b, a = cache.barBgTintR, cache.barBgTintG, cache.barBgTintB, cache.barBgTintA
-    else
-        r, gg, b, a = MSUF_GetBarBackgroundTintRGBA()
-    end
-
-    if (cache and cache.barBgClassColor) or (gen and gen.barBgClassColor) then
-        r, gg, b = ns.Bars._ClassBackgroundColor(frame, r, gg, b)
-    elseif (cache and cache.barBgMatchHPColor or (gen and gen.barBgMatchHPColor)) and frame.hpBar and frame.hpBar.GetStatusBarColor then
-        r, gg, b = ns.Bars._MatchHPColor(frame, gen, cache, r, gg, b)
-    end
-
-    local alphaMul = (cache and cache.barBackgroundAlpha)
-    if type(alphaMul) ~= "number" then
-        local alphaPct = 90
-        if bars and type(bars.barBackgroundAlpha) == "number" then
-            alphaPct = bars.barBackgroundAlpha
-        end
-        if alphaPct < 0 then alphaPct = 0 elseif alphaPct > 100 then alphaPct = 100 end
-        alphaMul = alphaPct / 100
-    end
-    if type(a) == "number" then a = a * alphaMul end
+    local r, gg, b, a = _MSUF_ResolveHealthBackgroundRGBA(frame, cache, gen, bars)
+    local alphaMul = _MSUF_BarBackgroundAlphaMul(cache, bars)
 
     _MSUF_ApplyBgToTexture(frame, tex, frame.hpBarBG, "HP", r, gg, b, a)
 

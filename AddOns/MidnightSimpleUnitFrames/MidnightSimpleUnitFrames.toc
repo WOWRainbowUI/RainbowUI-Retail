@@ -3,7 +3,7 @@
 ## Notes: Lightweight unitframes with MSUF Edit Mode.
 ## Author: Mapko
 ## Category: Combat
-## Version: 5.2
+## Version: 5.32
 ## SavedVariables: MSUF_DB, MSUF_GlobalDB
 ## IconTexture: Interface\AddOns\MidnightSimpleUnitFrames\Media\MSUF_MinimapIcon.tga
 ## OptionalDeps: Masque, LibSharedMedia-3.0, Clique, WagoAnalytics
@@ -77,6 +77,7 @@ Media\MSUF_Media.lua
 Core\MSUF_ProfileIO.lua
 Core\MSUF_ChatAndTooltips.lua
 Core\MSUF_StatusIndicators.lua
+Core\MSUF_FocusTargetRuntime.lua
 Core\MSUF_UnitframeCore.lua
 Core\MSUF_RangeFade.lua
 Core\MSUF_ColorsCore.lua
@@ -104,7 +105,9 @@ Features\MSUF_VersionCheck.lua
 # ═══════════════════════════════════════════════════════════════
 Core\MSUF_BarBackgroundRuntime.lua
 Core\MSUF_IconLayoutRuntime.lua
+Core\MSUF_FontRegistry.lua
 MidnightSimpleUnitFrames.lua
+Core\MSUF_SwapRecolor.lua
 Core\MSUF_FontRuntime.lua
 Core\MSUF_TextureRuntime.lua
 Features\MidnightSimpleUnitFrames_DebugPos.lua
@@ -158,6 +161,7 @@ Menu2\MSUF_Menu2_Theme.lua
 Menu2\MSUF_Menu2_Widgets.lua
 Menu2\MSUF_Menu2_Bindings.lua
 Menu2\MSUF_Menu2_Core.lua
+Menu2\MSUF_Menu2_Search.lua
 Menu2\Pages\MSUF_Menu2_Unit.lua
 Menu2\Pages\MSUF_Menu2_UnitPreview.lua
 Menu2\Pages\MSUF_Menu2_UnitSections.lua

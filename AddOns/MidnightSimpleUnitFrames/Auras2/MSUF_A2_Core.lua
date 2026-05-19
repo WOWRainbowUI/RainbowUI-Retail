@@ -72,6 +72,7 @@ local function _AuraCopyFields(dst, src)
     dst.expirationTime         = src.expirationTime
     dst.applications           = src.applications
     dst.dispelName             = src.dispelName
+    dst.isHelpful              = src.isHelpful
     dst.isHarmful              = src.isHarmful
     dst.isRaid                 = src.isRaid
     dst.isBossAura             = src.isBossAura
@@ -121,6 +122,7 @@ local HELPFUL_PLAYER  = "HELPFUL|PLAYER"
 local HARMFUL_PLAYER  = "HARMFUL|PLAYER"
 local HELPFUL_IMPORTANT = "HELPFUL|IMPORTANT"
 local HARMFUL_IMPORTANT = "HARMFUL|IMPORTANT"
+local HARMFUL_DISPELLABLE = "HARMFUL|RAID_PLAYER_DISPELLABLE"
 
 -- Sated/Exhaustion spellID hashtable (O(1) lookup, built once at load)
 -- Zero steady-state cost: spellId check happens only on ADD.
@@ -363,13 +365,77 @@ local function ClassifyPlayer(unit, aid, isHelpful)
     return (r == false)
 end
 
--- Helpful/harmful classification (secret-safe)
--- data.isHarmful is SECRET in 12.0 — use filter membership
-local function ClassifyHelpful(unit, aid)
-    if not _isFiltered then return true end
-    local r = _isFiltered(unit, aid, HELPFUL)
-    if issecretvalue and issecretvalue(r) then return true end
-    return (r == false)
+local function ReadAccessibleBool(v)
+    if v == nil then return nil end
+    if _hasCanaccessvalue then
+        if canaccessvalue(v) ~= true then return nil end
+    elseif issecretvalue and issecretvalue(v) == true then
+        return nil
+    end
+    if v == true then return true end
+    if v == false then return false end
+    return nil
+end
+
+local function ReadAccessibleDispelName(aura)
+    local v = aura and aura.dispelName
+    if v == nil then return nil end
+    if _hasCanaccessvalue then
+        if canaccessvalue(v) ~= true then return nil end
+    elseif issecretvalue and issecretvalue(v) == true then
+        return nil
+    end
+    if type(v) ~= "string" or v == "" or v == "None" then return nil end
+    return v
+end
+
+local function DebuffMatchesSelectedDispelType(aura, cfg)
+    local dispelName = ReadAccessibleDispelName(aura)
+    if dispelName == "Magic" then return cfg._debuffDispelMagic == true end
+    if dispelName == "Curse" then return cfg._debuffDispelCurse == true end
+    if dispelName == "Poison" then return cfg._debuffDispelPoison == true end
+    if dispelName == "Disease" then return cfg._debuffDispelDisease == true end
+    return false
+end
+
+local function DebuffIsDispellable(unit, aid, aura, lIsFiltered)
+    if ReadAccessibleDispelName(aura) then return true end
+    if lIsFiltered then
+        return ReadAccessibleBool(lIsFiltered(unit, aid, HARMFUL_DISPELLABLE)) == false
+    end
+    return false
+end
+
+-- Helpful/harmful classification (secret-safe).
+-- Prefer explicit AuraData polarity when the client exposes it. Some player
+-- auras can give ambiguous filter answers during UNIT_AURA deltas, which made
+-- harmless self auras land in the debuff lane.
+local function ClassifyHelpful(unit, aid, data, fallbackHelpful)
+    local v = ReadAccessibleBool(data and data.isHelpful)
+    if v ~= nil then return v, "data" end
+
+    v = ReadAccessibleBool(data and data.isHarmful)
+    if v ~= nil then return not v, "data" end
+
+    if _isFiltered then
+        local helpfulFiltered = ReadAccessibleBool(_isFiltered(unit, aid, HELPFUL))
+        local harmfulFiltered = ReadAccessibleBool(_isFiltered(unit, aid, HARMFUL))
+        local helpfulVisible
+        local harmfulVisible
+        if helpfulFiltered ~= nil then helpfulVisible = (helpfulFiltered == false) end
+        if harmfulFiltered ~= nil then harmfulVisible = (harmfulFiltered == false) end
+
+        if helpfulVisible ~= nil and harmfulVisible ~= nil then
+            if helpfulVisible ~= harmfulVisible then return helpfulVisible, "filter" end
+        elseif helpfulVisible ~= nil then
+            return helpfulVisible, "filter"
+        elseif harmfulVisible ~= nil then
+            return not harmfulVisible, "filter"
+        end
+    end
+
+    if fallbackHelpful ~= nil then return fallbackHelpful == true, "fallback" end
+    return true, "fallback"
 end
 
 -- Boss flag (secret-safe, cached on data table)
@@ -450,7 +516,7 @@ function Cache.FullScan(unit)
     for i = 2, slotsN do
         local data = _getBySlot(unit, _slotBuf[i])
         if data and data.auraInstanceID then
-            EnrichAura(unit, data, true)
+            EnrichAura(unit, data, ClassifyHelpful(unit, data.auraInstanceID, data, true))
             s.all[data.auraInstanceID] = data
         end
     end
@@ -459,8 +525,13 @@ function Cache.FullScan(unit)
     for i = 2, slotsN do
         local data = _getBySlot(unit, _slotBuf[i])
         if data and data.auraInstanceID then
-            EnrichAura(unit, data, false)
-            s.all[data.auraInstanceID] = data
+            local aid = data.auraInstanceID
+            local isHelpful, source = ClassifyHelpful(unit, aid, data, false)
+            local existing = s.all[aid]
+            if not (existing and existing._msufIsHelpful == true and isHelpful == false and source == "fallback") then
+                EnrichAura(unit, data, isHelpful)
+                s.all[aid] = data
+            end
         end
     end
 end
@@ -504,7 +575,7 @@ function Cache.OnUnitAura(unit, updateInfo)
                 -- Enables release-on-remove instead of abandoning to GC.
                 local entry = _AuraAcquire()
                 _AuraCopyFields(entry, data)
-                local isHelpful = ClassifyHelpful(unit, aid)
+                local isHelpful = ClassifyHelpful(unit, aid, entry, nil)
                 EnrichAura(unit, entry, isHelpful)
                 s.all[aid] = entry
                 any = true
@@ -534,7 +605,7 @@ function Cache.OnUnitAura(unit, updateInfo)
                     -- the saving (~0.1µs/call) is far less than the risk of
                     -- onlyBoss/merge filter failure from stale cache.
                     entry._msufA2_bossFlag = nil
-                    local newHelpful = ClassifyHelpful(unit, aid)
+                    local newHelpful = ClassifyHelpful(unit, aid, fresh, entry._msufIsHelpful)
                     local newOwn = ClassifyPlayer(unit, aid, newHelpful)
                     entry._msufIsHelpful = newHelpful
                     entry._msufIsPlayerAura = newOwn
@@ -730,14 +801,23 @@ local function FilterAura(data, aid, unit, isHelpful, isOwn, cfg, secretsNow, no
         if cfg._onlyBoss and ReadBossFlag(data) == 0 then return false end
 
         if cfg._onlyImpBuffs and lIsFiltered then
-            if lIsFiltered(unit, aid, HELPFUL_IMPORTANT) then return false end
+            if ReadAccessibleBool(lIsFiltered(unit, aid, HELPFUL_IMPORTANT)) == true then return false end
         end
     else
-        if cfg._debuffsOnlyMine and not cfg._useMergeDebuffs and not isOwn then return false end
+        if cfg._debuffTypeFilter and not DebuffMatchesSelectedDispelType(data, cfg) then return false end
+        if cfg._debuffsOnlyMine and not cfg._useMergeDebuffs and not isOwn then
+            if not (cfg._includeDispellableDebuffs and DebuffIsDispellable(unit, aid, data, lIsFiltered)) then
+                return false
+            end
+        end
         if cfg._onlyBoss and ReadBossFlag(data) == 0 then return false end
 
         if cfg._onlyImpDebuffs and lIsFiltered then
-            if lIsFiltered(unit, aid, HARMFUL_IMPORTANT) then return false end
+            if ReadAccessibleBool(lIsFiltered(unit, aid, HARMFUL_IMPORTANT)) == true then
+                if not (cfg._includeDispellableDebuffs and DebuffIsDispellable(unit, aid, data, lIsFiltered)) then
+                    return false
+                end
+            end
         end
     end
 
@@ -794,6 +874,14 @@ local function PrepareFilterConfig(cfg, cfgGen)
     cfg._onlyImpDebuffs   = cfg.onlyImportantDebuffs
     cfg._useMergeBuffs    = cfg.buffsOnlyMine and cfg.buffsIncludeBoss
     cfg._useMergeDebuffs  = cfg.debuffsOnlyMine and cfg.debuffsIncludeBoss
+    cfg._includeDispellableDebuffs = (cfg.debuffsIncludeDispellable == true)
+        and (cfg._debuffsOnlyMine or cfg._onlyImpDebuffs)
+    cfg._debuffDispelMagic = (cfg.debuffDispelMagic == true)
+    cfg._debuffDispelCurse = (cfg.debuffDispelCurse == true)
+    cfg._debuffDispelPoison = (cfg.debuffDispelPoison == true)
+    cfg._debuffDispelDisease = (cfg.debuffDispelDisease == true)
+    cfg._debuffTypeFilter = cfg._debuffDispelMagic or cfg._debuffDispelCurse
+        or cfg._debuffDispelPoison or cfg._debuffDispelDisease
     cfg._hideOtherBossHealAuras = (cfg.bossHealHideOthers == true)
     cfg._showSated = (cfg.showSated ~= false)
     local satedThr = cfg.satedShowAtSeconds
@@ -806,6 +894,7 @@ local function PrepareFilterConfig(cfg, cfgGen)
         and not cfg._buffsOnlyMine and not cfg._debuffsOnlyMine
         and not cfg._hidePermanent and not cfg._onlyImpBuffs and not cfg._onlyImpDebuffs
         and not cfg._useMergeBuffs and not cfg._useMergeDebuffs
+        and not cfg._includeDispellableDebuffs and not cfg._debuffTypeFilter
         and not cfg._hideOtherBossHealAuras
     cfg._sortOrder = cfg.sortOrder or cfg.capsSortOrder or 0
 end
@@ -931,21 +1020,24 @@ function Cache.FilterAndSort(unit, cfg, buffOut, debuffOut)
                     if aid then
                         -- Reuse cache enrichment if available
                         local cached = allCache[aid]
+                        local actualHelpful = ClassifyHelpful(unit, aid, data, true)
                         if cached then
-                            data._msufIsHelpful    = true
-                            data._msufIsPlayerAura = cached._msufIsPlayerAura
+                            data._msufIsHelpful    = actualHelpful
+                            data._msufIsPlayerAura = (cached._msufIsHelpful == actualHelpful) and cached._msufIsPlayerAura or ClassifyPlayer(unit, aid, actualHelpful)
+                            cached._msufIsHelpful = actualHelpful
+                            cached._msufIsPlayerAura = data._msufIsPlayerAura
                             data._msufA2_bossFlag  = cached._msufA2_bossFlag
                             data._msufA2_sid       = cached._msufA2_sid
                             data._msufA2_isSated   = cached._msufA2_isSated
                             data._msufA2_isHealerHot = cached._msufA2_isHealerHot
                         else
-                            EnrichAura(unit, data, true)
+                            EnrichAura(unit, data, actualHelpful)
                             allCache[aid] = data
                         end
 
                         local isOwn = data._msufIsPlayerAura
-                        if noFilters or FilterAura(data, aid, unit, true, isOwn, cfg, secretsNow, now,
-                                      lIsFiltered, lDoesExpire, lIssecretvalue, lCanaccessvalue, lHasCanaccessvalue) then
+                        if actualHelpful and (noFilters or FilterAura(data, aid, unit, true, isOwn, cfg, secretsNow, now,
+                                      lIsFiltered, lDoesExpire, lIssecretvalue, lCanaccessvalue, lHasCanaccessvalue)) then
                             if useMergeBuffs then
                                 nB, nD, nBossB, nBossD = EmitAura(data, true, isOwn, cfg,
                                     buffOut, debuffOut, bossBufScratch, bossDebScratch,
@@ -971,21 +1063,24 @@ function Cache.FilterAndSort(unit, cfg, buffOut, debuffOut)
                     local aid = data.auraInstanceID
                     if aid then
                         local cached = allCache[aid]
+                        local actualHelpful = ClassifyHelpful(unit, aid, data, false)
                         if cached then
-                            data._msufIsHelpful    = false
-                            data._msufIsPlayerAura = cached._msufIsPlayerAura
+                            data._msufIsHelpful    = actualHelpful
+                            data._msufIsPlayerAura = (cached._msufIsHelpful == actualHelpful) and cached._msufIsPlayerAura or ClassifyPlayer(unit, aid, actualHelpful)
+                            cached._msufIsHelpful = actualHelpful
+                            cached._msufIsPlayerAura = data._msufIsPlayerAura
                             data._msufA2_bossFlag  = cached._msufA2_bossFlag
                             data._msufA2_sid       = cached._msufA2_sid
                             data._msufA2_isSated   = cached._msufA2_isSated
                             data._msufA2_isHealerHot = cached._msufA2_isHealerHot
                         else
-                            EnrichAura(unit, data, false)
+                            EnrichAura(unit, data, actualHelpful)
                             allCache[aid] = data
                         end
 
                         local isOwn = data._msufIsPlayerAura
-                        if noFilters or FilterAura(data, aid, unit, false, isOwn, cfg, secretsNow, now,
-                                      lIsFiltered, lDoesExpire, lIssecretvalue, lCanaccessvalue, lHasCanaccessvalue) then
+                        if (not actualHelpful) and (noFilters or FilterAura(data, aid, unit, false, isOwn, cfg, secretsNow, now,
+                                      lIsFiltered, lDoesExpire, lIssecretvalue, lCanaccessvalue, lHasCanaccessvalue)) then
                             if useMergeDebuffs then
                                 nB, nD, nBossB, nBossD = EmitAura(data, false, isOwn, cfg,
                                     buffOut, debuffOut, bossBufScratch, bossDebScratch,
@@ -1256,6 +1351,7 @@ local Apply = API.Apply
 local GameTooltip = GameTooltip
 local floor = math.floor
 local max = math_max
+local C_Timer = C_Timer
 
 -- Secret value detector (Midnight/Beta)
 local issecretvalue = _G.issecretvalue
@@ -1476,8 +1572,8 @@ local function RefreshSharedFlags(shared, gen)
     _useDispelBorders = (shared and shared.useDebuffTypeBorders == true) or false
     _clickThrough     = (shared and shared.clickThroughAuras == true) or false
     _showTooltip      = (shared and shared.showTooltip == true) or false
-    _G._msufA2_clickThrough = _clickThrough
-    _G._msufA2_showTooltip  = _showTooltip
+    _G.MSUF_A2_ClickThrough = _clickThrough
+    _G.MSUF_A2_ShowTooltip  = _showTooltip
     _masqueEnabled    = (shared and shared.masqueEnabled == true) or false
     -- Pandemic mode: "OFF"/"BORDER"/"PULSE"/"GLOW" → numeric (0/1/2/3)
     -- Migration: old boolean showPandemic=true → PULSE
@@ -1592,7 +1688,10 @@ end
 local function GetAuras2DB()
     local api = ns and ns.MSUF_Auras2
     if api and api.GetDB then return api.GetDB() end
-    if not _G.MSUF_DB then if type(EnsureDB) == "function" then EnsureDB() end end
+    if not _G.MSUF_DB then
+        local ensureDB = _G.MSUF_EnsureDB
+        if type(ensureDB) == "function" then ensureDB() end
+    end
     local a2 = _G.MSUF_DB and _G.MSUF_DB.auras2
     return a2, a2 and a2.shared
 end
@@ -1621,6 +1720,57 @@ end
 
 -- Icons are stored on container._msufIcons[index]
 -- Each icon is a Button with: .tex, .cooldown, .count, .border, .overlay
+
+local function HideButtonStateTexture(texture)
+    if not texture then return end
+    if texture.SetAlpha then texture:SetAlpha(0) end
+    if texture.Hide then texture:Hide() end
+end
+
+local function SuppressAuraButtonState(icon)
+    if not icon then return end
+    if icon.SetButtonState then icon:SetButtonState("NORMAL", false) end
+    if icon.UnlockHighlight then icon:UnlockHighlight() end
+    HideButtonStateTexture(icon.GetHighlightTexture and icon:GetHighlightTexture())
+    HideButtonStateTexture(icon.GetPushedTexture and icon:GetPushedTexture())
+    HideButtonStateTexture(icon.GetCheckedTexture and icon:GetCheckedTexture())
+end
+
+local function RestoreAuraButtonGeometry(icon, expectedSize, expectedScale)
+    if not icon then return end
+
+    expectedSize = tonumber(expectedSize) or tonumber(icon._msufA2_lastSize)
+    if expectedSize and expectedSize > 0 and icon.SetSize then
+        local w = icon.GetWidth and icon:GetWidth()
+        local h = icon.GetHeight and icon:GetHeight()
+        if w ~= expectedSize or h ~= expectedSize then
+            icon._msufA2_restoringGeometry = true
+            icon:SetSize(expectedSize, expectedSize)
+            icon._msufA2_restoringGeometry = nil
+        end
+    end
+
+    expectedScale = tonumber(expectedScale) or tonumber(icon._msufA2_baseScale)
+    if expectedScale and expectedScale > 0 and icon.SetScale and icon.GetScale then
+        local scale = icon:GetScale()
+        if scale ~= expectedScale then
+            icon:SetScale(expectedScale)
+        end
+    end
+
+    SuppressAuraButtonState(icon)
+end
+
+local function RestoreAuraButtonGeometrySoon(icon, expectedSize, expectedScale)
+    RestoreAuraButtonGeometry(icon, expectedSize, expectedScale)
+    if C_Timer and C_Timer.After then
+        C_Timer.After(0, function()
+            if icon and icon._msufA2_hovering then
+                RestoreAuraButtonGeometry(icon, expectedSize, expectedScale)
+            end
+        end)
+    end
+end
 
 -- Mouse interaction state helper (safe on 12.0+)
 -- 0 = normal (hover + clicks)
@@ -1661,13 +1811,16 @@ _G.MSUF_A2_ResolveTextConfig = ResolveTextConfig
 local function CreateIcon(container, index)
     local icon = CreateFrame("Button", nil, container)
     icon:SetSize(26, 26)
--- Stack count overlay frame (keeps stacks above Masque/borders)
-local countFrame = CreateFrame("Frame", nil, icon)
-countFrame:SetAllPoints(icon)
-countFrame:SetFrameLevel(icon:GetFrameLevel() + 10)
-icon.countFrame = countFrame
+    icon._msufA2_baseScale = (icon.GetScale and icon:GetScale()) or 1
+
+    -- Stack count overlay frame (keeps stacks above Masque/borders)
+    local countFrame = CreateFrame("Frame", nil, icon)
+    countFrame:SetAllPoints(icon)
+    countFrame:SetFrameLevel(icon:GetFrameLevel() + 10)
+    icon.countFrame = countFrame
 
     ApplyMouseState(icon, 0)
+    SuppressAuraButtonState(icon)
     icon._msufA2_container = container
 
     -- Texture
@@ -1775,11 +1928,20 @@ icon.countFrame = countFrame
 
     -- Tooltip support
     icon:SetScript("OnEnter", function(self)
+        self._msufA2_hovering = true
+        local expectedSize = self._msufA2_lastSize or (self.GetWidth and self:GetWidth()) or 26
+        local expectedScale = (self.GetScale and self:GetScale()) or self._msufA2_baseScale or 1
         local _, shared = GetAuras2DB()
-        if shared and shared.showTooltip ~= true then return end
+        if shared and shared.showTooltip ~= true then
+            RestoreAuraButtonGeometrySoon(self, expectedSize, expectedScale)
+            return
+        end
         local unit = self._msufUnit
         local aid = self._msufAuraInstanceID
-        if not unit or not aid then return end
+        if not unit or not aid then
+            RestoreAuraButtonGeometrySoon(self, expectedSize, expectedScale)
+            return
+        end
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
         -- Secret-safe: SetUnitAuraByAuraInstanceID handles secrets internally
         if self._msufFilter == "HARMFUL" and GameTooltip.SetUnitDebuffByAuraInstanceID then
@@ -1790,11 +1952,21 @@ icon.countFrame = countFrame
             GameTooltip:SetUnitAuraByAuraInstanceID(unit, aid, self._msufFilter or "HELPFUL")
         end
         GameTooltip:Show()
+        RestoreAuraButtonGeometrySoon(self, expectedSize, expectedScale)
     end)
 
-    icon:SetScript("OnLeave", function()
-        if GameTooltip:IsOwned(icon) then
+    icon:SetScript("OnLeave", function(self)
+        self._msufA2_hovering = nil
+        if GameTooltip:IsOwned(self) then
             GameTooltip:Hide()
+        end
+        RestoreAuraButtonGeometry(self)
+    end)
+    icon:HookScript("OnSizeChanged", function(self, width, height)
+        if self._msufA2_restoringGeometry or self._msufA2_hovering ~= true then return end
+        local expectedSize = tonumber(self._msufA2_lastSize)
+        if expectedSize and expectedSize > 0 and (width ~= expectedSize or height ~= expectedSize) then
+            RestoreAuraButtonGeometrySoon(self, expectedSize, self._msufA2_baseScale)
         end
     end)
 
@@ -1806,6 +1978,7 @@ icon.countFrame = countFrame
             icon.MSUF_MasqueAdded = true
         end
     end
+    RestoreAuraButtonGeometry(icon, icon._msufA2_lastSize or icon:GetWidth(), icon._msufA2_baseScale)
 
     return icon
 end
@@ -1907,12 +2080,12 @@ end
 -- Config generation counter: MUST be declared before LayoutIcons and BumpConfigGen
 -- so Lua 5.1 captures it as a proper upvalue (not a global nil reference).
 local _configGen = 0
-_G._msufA2_configGen = _configGen
+_G.MSUF_A2_ConfigGen = _configGen
 local _bindingsDone = false
 
 function Icons.BumpConfigGen()
     _configGen = _configGen + 1
-    _G._msufA2_configGen = _configGen
+    _G.MSUF_A2_ConfigGen = _configGen
     _bindingsDone = false  -- re-bind on next commit (picks up late-loaded modules)
     _fastPathBound = false -- re-bind fast paths
     _sharedFlagsGen = -1   -- force shared flags refresh
@@ -3012,16 +3185,16 @@ local _PREVIEW_DEBUFF_TEXTURES = {
 local _PREVIEW_BUFF_TEX_N = #_PREVIEW_BUFF_TEXTURES
 local _PREVIEW_DEBUFF_TEX_N = #_PREVIEW_DEBUFF_TEXTURES
 -- Export for MSUF_A2_EditMode.lua (file-scope locals are invisible across files)
-_G._PREVIEW_BUFF_TEXTURES  = _PREVIEW_BUFF_TEXTURES
-_G._PREVIEW_DEBUFF_TEXTURES = _PREVIEW_DEBUFF_TEXTURES
-_G._PREVIEW_BUFF_TEX_N     = _PREVIEW_BUFF_TEX_N
-_G._PREVIEW_DEBUFF_TEX_N   = _PREVIEW_DEBUFF_TEX_N
+_G.MSUF_A2_PREVIEW_BUFF_TEXTURES  = _PREVIEW_BUFF_TEXTURES
+_G.MSUF_A2_PREVIEW_DEBUFF_TEXTURES = _PREVIEW_DEBUFF_TEXTURES
+_G.MSUF_A2_PREVIEW_BUFF_TEX_N     = _PREVIEW_BUFF_TEX_N
+_G.MSUF_A2_PREVIEW_DEBUFF_TEX_N   = _PREVIEW_DEBUFF_TEX_N
 
 -- Cooldown durations per preview slot (varying so they don't all tick together)
 local _PREVIEW_CD_DURATIONS = { 12, 18, 8, 25, 15, 10, 20, 30, 6, 22, 14, 9 }
 local _PREVIEW_CD_DUR_N = #_PREVIEW_CD_DURATIONS
-_G._PREVIEW_CD_DURATIONS = _PREVIEW_CD_DURATIONS
-_G._PREVIEW_CD_DUR_N     = _PREVIEW_CD_DUR_N
+_G.MSUF_A2_PREVIEW_CD_DURATIONS = _PREVIEW_CD_DURATIONS
+_G.MSUF_A2_PREVIEW_CD_DUR_N     = _PREVIEW_CD_DUR_N
 
 -- Pandemic window ticker (100ms)
 -- Re-evaluates pandemic pulsing border for all visible icons so the glow
@@ -3146,7 +3319,7 @@ function Apply.ApplyFontsFromGlobal()
     -- Bump configGen so ResolveTextConfig cache is invalidated and new
     -- font values from shared.stackTextSize / cooldownTextSize take effect.
     _configGen = _configGen + 1
-    _G._msufA2_configGen = _configGen
+    _G.MSUF_A2_ConfigGen = _configGen
     _sharedFlagsGen = -1
 
     -- Resolve global MSUF font family (path + flags) and flush the file-scope cache

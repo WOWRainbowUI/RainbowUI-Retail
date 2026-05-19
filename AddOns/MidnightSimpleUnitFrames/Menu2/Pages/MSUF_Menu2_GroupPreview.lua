@@ -233,6 +233,9 @@ local function PreviewHealthColor(conf, pct, classToken)
 end
 
 local WHITE8X8 = "Interface\\Buttons\\WHITE8X8"
+local GF_PREVIEW_MASK_ROOT = "Interface\\AddOns\\" .. tostring(addonName or "MidnightSimpleUnitFrames") .. "\\Media\\Masks\\"
+local GF_PREVIEW_ROUNDED_MASK = GF_PREVIEW_MASK_ROOT .. "rounded_bar_4x.tga"
+local GF_PREVIEW_ROUNDED_EDGE = GF_PREVIEW_MASK_ROOT .. "rounded_bar_edge_4x.tga"
 local GF_PREVIEW_MIN_W = 380
 local GF_PREVIEW_MIN_H = 130
 local GF_PREVIEW_ROLE = "HEALER"
@@ -373,6 +376,212 @@ local function GFPreviewScaleValue(value, scale, minValue)
     return v
 end
 
+local function GFPreviewReadBarsBool(key, default)
+    local bars = _G.MSUF_DB and _G.MSUF_DB.bars
+    local value = bars and bars[key]
+    if value == nil then return default and true or false end
+    return value and true or false
+end
+
+local function GFPreviewRoundedEnabled()
+    return GFPreviewReadBarsBool("roundedFramesEnabled", false)
+        and GFPreviewReadBarsBool("roundedGroupFrames", true)
+end
+
+local function GFPreviewRoundedPowerEnabled()
+    return GFPreviewReadBarsBool("roundedFramesEnabled", false)
+        and GFPreviewReadBarsBool("roundedPowerBars", true)
+end
+
+local function GFPreviewSnapOff(region)
+    if region and region.SetSnapToPixelGrid then
+        region:SetSnapToPixelGrid(false)
+        if region.SetTexelSnappingBias then region:SetTexelSnappingBias(0) end
+    end
+end
+
+local function GFPreviewMaskOwner(mock, tex, anchor)
+    local owner = tex and tex.GetParent and tex:GetParent() or nil
+    if owner and owner.CreateMaskTexture then return owner end
+    if anchor and anchor.CreateMaskTexture then return anchor end
+    return mock
+end
+
+local function GFPreviewEnsureRoundedMask(mock, key, anchor, tex)
+    if not (mock and anchor) then return nil end
+    local owner = GFPreviewMaskOwner(mock, tex, anchor)
+    if not (owner and owner.CreateMaskTexture) then return nil end
+    mock._msufGFRoundedPreviewMasks = mock._msufGFRoundedPreviewMasks or {}
+    local bucket = mock._msufGFRoundedPreviewMasks[key]
+    if type(bucket) ~= "table" or bucket.SetTexture then
+        bucket = {}
+        mock._msufGFRoundedPreviewMasks[key] = bucket
+    end
+    local ownerKey = tex or owner
+    local mask = bucket[ownerKey]
+    if not mask then
+        mask = owner:CreateMaskTexture(nil, "ARTWORK")
+        GFPreviewSnapOff(mask)
+        bucket[ownerKey] = mask
+    end
+    mask:ClearAllPoints()
+    mask:SetTexture(GF_PREVIEW_ROUNDED_MASK, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    mask:SetAllPoints(anchor)
+    return mask
+end
+
+local function GFPreviewSetMask(mock, tex, mask)
+    if not (mock and tex and tex.AddMaskTexture) then return end
+    mock._msufGFRoundedPreviewMasked = mock._msufGFRoundedPreviewMasked or {}
+    local old = mock._msufGFRoundedPreviewMasked[tex]
+    if old == mask then return end
+    if old and tex.RemoveMaskTexture then pcall(tex.RemoveMaskTexture, tex, old) end
+    mock._msufGFRoundedPreviewMasked[tex] = nil
+    if mask then
+        local ok = pcall(tex.AddMaskTexture, tex, mask)
+        if ok then mock._msufGFRoundedPreviewMasked[tex] = mask end
+    end
+end
+
+local function GFPreviewClearRoundedMasks(mock)
+    local masked = mock and mock._msufGFRoundedPreviewMasked
+    if masked then
+        for tex, mask in pairs(masked) do
+            if tex and tex.RemoveMaskTexture and mask then pcall(tex.RemoveMaskTexture, tex, mask) end
+        end
+    end
+    if mock then mock._msufGFRoundedPreviewMasked = nil end
+end
+
+local function GFPreviewStatusBarTexture(bar)
+    return bar and bar.GetStatusBarTexture and bar:GetStatusBarTexture() or nil
+end
+
+local function GFPreviewBaseEdgeColor()
+    return 0, 0, 0, 1
+end
+
+local function GFPreviewEnsureRoundedVisuals(mock)
+    if not (mock and mock.CreateTexture) then return false end
+    if not mock._roundedBg then
+        mock._roundedBg = mock:CreateTexture(nil, "BACKGROUND", nil, -7)
+        mock._roundedBg:SetTexture(WHITE8X8)
+        GFPreviewSnapOff(mock._roundedBg)
+    end
+    if not mock._roundedEdge then
+        mock._roundedEdge = mock:CreateTexture(nil, "OVERLAY", nil, 6)
+        GFPreviewSnapOff(mock._roundedEdge)
+    end
+    mock._roundedEdge:SetTexture(GF_PREVIEW_ROUNDED_EDGE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    return true
+end
+
+local function GFPreviewSetRoundedEdgeStackShown(mock, shown)
+    local count = shown and GFPreviewRound(mock and mock._msufGFRoundedPreviewEdgeCount or 1) or 0
+    if count < 0 then count = 0 elseif count > 8 then count = 8 end
+    if mock and mock._roundedEdge then
+        if count >= 1 then mock._roundedEdge:Show() else mock._roundedEdge:Hide() end
+    end
+    local stack = mock and mock._msufGFRoundedPreviewEdgeStack
+    if type(stack) ~= "table" then return end
+    for i = 2, #stack do
+        local edge = stack[i]
+        if edge then
+            if i <= count then edge:Show() else edge:Hide() end
+        end
+    end
+end
+
+local function GFPreviewApplyRoundedEdgeStack(mock, edgeSize)
+    local count = GFPreviewRound(edgeSize)
+    if count < 0 then count = 0 elseif count > 8 then count = 8 end
+    mock._msufGFRoundedPreviewEdgeCount = count
+    if count <= 0 then
+        GFPreviewSetRoundedEdgeStackShown(mock, false)
+        return false
+    end
+
+    mock._msufGFRoundedPreviewEdgeStack = mock._msufGFRoundedPreviewEdgeStack or {}
+    mock._msufGFRoundedPreviewEdgeStack[1] = mock._roundedEdge
+    local r, g, b, a = GFPreviewBaseEdgeColor()
+    for i = 1, count do
+        local edge = (i == 1) and mock._roundedEdge or mock._msufGFRoundedPreviewEdgeStack[i]
+        if not edge then
+            edge = mock:CreateTexture(nil, "OVERLAY", nil, 6)
+            GFPreviewSnapOff(edge)
+            mock._msufGFRoundedPreviewEdgeStack[i] = edge
+        end
+        edge:SetTexture(GF_PREVIEW_ROUNDED_EDGE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+        edge:ClearAllPoints()
+        edge:SetPoint("TOPLEFT", mock, "TOPLEFT", -i, i)
+        edge:SetPoint("BOTTOMRIGHT", mock, "BOTTOMRIGHT", i, -i)
+        edge:SetVertexColor(r, g, b, a)
+        edge:Show()
+    end
+    GFPreviewSetRoundedEdgeStackShown(mock, true)
+    return true
+end
+
+local function GFPreviewApplyRounded(mock, conf, powerOn, edgeSize)
+    if not mock then return false end
+    if not GFPreviewRoundedEnabled() or not GFPreviewEnsureRoundedVisuals(mock) then
+        mock._msufGFRoundedPreviewActive = nil
+        GFPreviewClearRoundedMasks(mock)
+        if mock._roundedBg then mock._roundedBg:Hide() end
+        GFPreviewSetRoundedEdgeStackShown(mock, false)
+        return false
+    end
+
+    mock._msufGFRoundedPreviewActive = true
+    local healthTex = GFPreviewStatusBarTexture(mock._health)
+    local healPredTex = GFPreviewStatusBarTexture(mock._healPred)
+    local absorbTex = GFPreviewStatusBarTexture(mock._absorb)
+    local powerTex = GFPreviewStatusBarTexture(mock._power)
+    local bodyMask = GFPreviewEnsureRoundedMask(mock, "body", mock, mock._roundedBg)
+    local healthBgMask = GFPreviewEnsureRoundedMask(mock, "health", mock._health, mock._healthBg)
+    local healthTexMask = GFPreviewEnsureRoundedMask(mock, "health", mock._health, healthTex)
+    local healPredMask = GFPreviewEnsureRoundedMask(mock, "healPred", mock._healPred, healPredTex)
+    local absorbMask = GFPreviewEnsureRoundedMask(mock, "absorb", mock._absorb, absorbTex)
+    local healPredMode = tonumber(conf and conf.healPredAnchorMode) or 3
+    if healPredMode < 1 or healPredMode > 5 then healPredMode = 3 end
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    local absorbMode = tonumber((conf and conf.hlOverride and conf.absorbAnchorMode ~= nil and conf.absorbAnchorMode) or (gen and gen.absorbAnchorMode)) or 2
+    if absorbMode < 1 or absorbMode > 5 then absorbMode = 2 end
+    local powerBgMask = (powerOn and GFPreviewRoundedPowerEnabled()) and GFPreviewEnsureRoundedMask(mock, "power", mock._power, mock._powerBg) or nil
+    local powerTexMask = (powerOn and GFPreviewRoundedPowerEnabled()) and GFPreviewEnsureRoundedMask(mock, "power", mock._power, powerTex) or nil
+    if not (bodyMask and healthBgMask and healthTexMask) then
+        mock._msufGFRoundedPreviewActive = nil
+        GFPreviewClearRoundedMasks(mock)
+        if mock._roundedBg then mock._roundedBg:Hide() end
+        GFPreviewSetRoundedEdgeStackShown(mock, false)
+        return false
+    end
+
+    GFPreviewSetMask(mock, mock._roundedBg, bodyMask)
+    GFPreviewSetMask(mock, mock._healthBg, healthBgMask)
+    GFPreviewSetMask(mock, healthTex, healthTexMask)
+    GFPreviewSetMask(mock, healPredTex, healPredMode == 4 and nil or healPredMask)
+    GFPreviewSetMask(mock, absorbTex, absorbMode == 4 and nil or absorbMask)
+    GFPreviewSetMask(mock, mock._powerBg, powerBgMask)
+    GFPreviewSetMask(mock, powerTex, powerTexMask)
+
+    mock._roundedBg:ClearAllPoints()
+    mock._roundedBg:SetAllPoints(mock)
+    mock._roundedBg:SetColorTexture(conf.bgR or 0.08, conf.bgG or 0.08, conf.bgB or 0.09, conf.bgA or 0.88)
+    mock._roundedBg:Show()
+
+    edgeSize = GFPreviewRound(edgeSize)
+    if edgeSize > 0 then
+        GFPreviewApplyRoundedEdgeStack(mock, edgeSize)
+    else
+        GFPreviewSetRoundedEdgeStackShown(mock, false)
+    end
+
+    if mock.SetBackdropColor then mock:SetBackdropColor(0, 0, 0, 0) end
+    if mock.SetBackdropBorderColor then mock:SetBackdropBorderColor(0, 0, 0, 0) end
+    return true
+end
+
 local function GFPreviewConfigToOffset(value, scale)
     return GFPreviewRound((tonumber(value) or 0) * (tonumber(scale) or 1))
 end
@@ -444,6 +653,13 @@ local function GFPreviewHandleText(handle)
     local previewText = handle._previewText
     if previewText and previewText ~= "" then return previewText end
     return handle._key or "Group preview"
+end
+
+local function GFPreviewClampLayer(value, fallback)
+    local v = floor((tonumber(value) or fallback or 0) + 0.5)
+    if v < 0 then return 0 end
+    if v > 30 then return 30 end
+    return v
 end
 
 local GF_STATUS_PREVIEW_FALLBACK_SPECS = {
@@ -667,11 +883,12 @@ local function GFPreviewUpdateHint(box, handle)
         return
     end
     local anchor, x, y = GFPreviewHandleOffsets(handle)
+    local nudgeHint = (M.Tr and M.Tr("arrows nudge, Shift=5, Ctrl=10")) or "arrows nudge, Shift=5, Ctrl=10"
     if anchor then
-        box._hint:SetText(string.format("%s   %s   x: %d   y: %d   arrows nudge, Shift=5, Ctrl=10",
-            GFPreviewHandleText(handle), tostring(anchor or "CENTER"), GFPreviewRound(x or 0), GFPreviewRound(y or 0)))
+        box._hint:SetText(string.format("%s   %s   x: %d   y: %d   %s",
+            GFPreviewHandleText(handle), tostring(anchor or "CENTER"), GFPreviewRound(x or 0), GFPreviewRound(y or 0), nudgeHint))
     else
-        box._hint:SetText(string.format("%s   arrows nudge, Shift=5, Ctrl=10", GFPreviewHandleText(handle)))
+        box._hint:SetText(string.format("%s   %s", GFPreviewHandleText(handle), nudgeHint))
     end
 end
 
@@ -726,9 +943,9 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
 
     local title = T.Font(box, "GameFontNormal", "", T.colors.accent)
     title:SetPoint("TOPLEFT", box, "TOPLEFT", 12, -10)
-    title:SetText("Group Frame Preview - " .. PreviewScopeLabel(CurrentScope()))
+    title:SetText(string.format((M.Tr and M.Tr("%s - %s")) or "%s - %s", (M.Tr and M.Tr("Group Frame Preview")) or "Group Frame Preview", PreviewScopeLabel(CurrentScope())))
     box._title = title
-    local hint = T.Font(box, "GameFontDisableSmall", "click layers to hide - drag custom handles - arrows nudge selected", T.colors.muted)
+    local hint = T.Font(box, "GameFontDisableSmall", M.Tr("click layers to hide - drag custom handles - arrows nudge selected"), T.colors.muted)
     hint:SetPoint("LEFT", title, "RIGHT", 12, 0)
     box._hint = hint
 
@@ -780,12 +997,12 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
         btn:SetPoint("TOPLEFT", layers, "TOPLEFT", 8, -28 - ((i - 1) * 18))
         btn:SetScript("OnEnter", function(self)
             if self._layerAvailable == false and box._hint then
-                box._hint:SetText((self._label and self._label:GetText() or "Layer") .. " is off in settings and cannot be shown in preview.")
+                box._hint:SetText(string.format((M.Tr and M.Tr("%s is off in settings and cannot be shown in preview.")) or "%s is off in settings and cannot be shown in preview.", self._label and self._label:GetText() or ((M.Tr and M.Tr("Layer")) or "Layer")))
             end
             if GameTooltip and self._layerAvailable == false then
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:SetText("Layer disabled", 1, 1, 1)
-                GameTooltip:AddLine("Turn this feature on in settings to make the preview layer available.", 0.82, 0.82, 0.82, true)
+                GameTooltip:SetText((M.Tr and M.Tr("Layer disabled")) or "Layer disabled", 1, 1, 1)
+                GameTooltip:AddLine((M.Tr and M.Tr("Turn this feature on in settings to make the preview layer available.")) or "Turn this feature on in settings to make the preview layer available.", 0.82, 0.82, 0.82, true)
                 GameTooltip:Show()
             end
         end)
@@ -1137,10 +1354,10 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(GFPreviewHandleText(self), 1, 1, 1)
                 if self._locked then
-                    GameTooltip:AddLine("This preview layer follows Blizzard/native placement and is locked.", 0.82, 0.82, 0.82, true)
+                    GameTooltip:AddLine((M.Tr and M.Tr("This preview layer follows Blizzard/native placement and is locked.")) or "This preview layer follows Blizzard/native placement and is locked.", 0.82, 0.82, 0.82, true)
                 else
-                    GameTooltip:AddLine("Drag this preview element to adjust the same placement offsets used by Group Frames.", 0.82, 0.82, 0.82, true)
-                    GameTooltip:AddLine("Arrow keys nudge the selected element. Shift = 5, Ctrl = 10.", 0.55, 0.62, 0.72, true)
+                    GameTooltip:AddLine((M.Tr and M.Tr("Drag this preview element to adjust the same placement offsets used by Group Frames.")) or "Drag this preview element to adjust the same placement offsets used by Group Frames.", 0.82, 0.82, 0.82, true)
+                    GameTooltip:AddLine((M.Tr and M.Tr("Arrow keys nudge the selected element. Shift = 5, Ctrl = 10.")) or "Arrow keys nudge the selected element. Shift = 5, Ctrl = 10.", 0.55, 0.62, 0.72, true)
                 end
                 GameTooltip:Show()
             end
@@ -1256,7 +1473,7 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
         powerRight = powerRightTextHandle,
     }
 
-    local footer = T.Font(box, "GameFontDisableSmall", "Click a handle to select - drag custom layers - arrow keys nudge selected; Blizzard is locked", T.colors.muted)
+    local footer = T.Font(box, "GameFontDisableSmall", M.Tr("Click a handle to select - drag custom layers - arrow keys nudge selected; Blizzard is locked"), T.colors.muted)
     footer:SetPoint("TOPLEFT", stage, "BOTTOMLEFT", 0, -8)
 
     function box:Refresh()
@@ -1315,7 +1532,7 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
             if layerAvailable[key] == false then return 0 end
             return (soloLayer and soloLayer ~= key) and 0.15 or 1
         end
-        self._title:SetText("Group Frame Preview - " .. label)
+        self._title:SetText(string.format((M.Tr and M.Tr("%s - %s")) or "%s - %s", (M.Tr and M.Tr("Group Frame Preview")) or "Group Frame Preview", label))
 
         local stageW = self._stage:GetWidth() or (width - 98)
         local stageH = self._stage:GetHeight() or 218
@@ -1358,6 +1575,8 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
         local cls = GF_PREVIEW_CLASSES[((kind == "party" and 5 or 2) % #GF_PREVIEW_CLASSES) + 1]
         local hr, hg, hb = PreviewHealthColor(conf, 0.72, cls)
         mock._health:SetStatusBarColor(hr, hg, hb, tonumber(conf.hpBarAlpha) or 1)
+        local hpReverse = conf.reverseFill == true
+        if mock._health.SetReverseFill then mock._health:SetReverseFill(hpReverse) end
         mock._healthBg:SetTexture(bgTex)
         local hbr, hbg, hbb = conf.bgR or 0.06, conf.bgG or 0.06, conf.bgB or 0.07
         local gen = _G.MSUF_DB and _G.MSUF_DB.general
@@ -1366,16 +1585,68 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
         end
         mock._healthBg:SetVertexColor(hbr, hbg, hbb, conf.hpBgAlpha or conf.bgA or 0.85)
 
+        local hpTex = mock._health.GetStatusBarTexture and mock._health:GetStatusBarTexture()
+        local healPredMode = tonumber(conf.healPredAnchorMode) or 3
+        if healPredMode < 1 or healPredMode > 5 then healPredMode = 3 end
+        local healPredShown = (conf.healPredEnabled == true) or (conf.healPrediction == true)
         mock._healPred:ClearAllPoints()
-        mock._healPred:SetPoint("TOPLEFT", mock._health, "TOPRIGHT", -1, 0)
-        mock._healPred:SetPoint("BOTTOM", mock._health, "BOTTOM", 0, 0)
-        mock._healPred:SetWidth(max(1, mockW * 0.12))
-        mock._healPred:SetShown(conf.healPrediction ~= false)
+        if (healPredMode == 3 or healPredMode == 4) and hpTex then
+            if hpReverse then
+                mock._healPred:SetPoint("TOPRIGHT", hpTex, "TOPLEFT", 0, 0)
+                mock._healPred:SetPoint("BOTTOMRIGHT", hpTex, "BOTTOMLEFT", 0, 0)
+                if mock._healPred.SetReverseFill then mock._healPred:SetReverseFill(true) end
+            else
+                mock._healPred:SetPoint("TOPLEFT", hpTex, "TOPRIGHT", 0, 0)
+                mock._healPred:SetPoint("BOTTOMLEFT", hpTex, "BOTTOMRIGHT", 0, 0)
+                if mock._healPred.SetReverseFill then mock._healPred:SetReverseFill(false) end
+            end
+            mock._healPred:SetWidth(max(1, mockW * 0.12))
+            mock._healPred:SetValue(1)
+        else
+            mock._healPred:SetAllPoints(mock._health)
+            if mock._healPred.SetReverseFill then
+                mock._healPred:SetReverseFill((healPredMode == 1) and false or ((healPredMode == 5) and not hpReverse or true))
+            end
+            mock._healPred:SetValue(0.12)
+        end
+        mock._healPred:SetShown(healPredShown)
 
         mock._absorb:ClearAllPoints()
-        mock._absorb:SetPoint("TOPRIGHT", mock._health, "TOPRIGHT", 0, 0)
-        mock._absorb:SetPoint("BOTTOM", mock._health, "BOTTOM", 0, 0)
-        mock._absorb:SetWidth(max(1, mockW * 0.08))
+        local absorbMode = tonumber((conf.hlOverride and conf.absorbAnchorMode ~= nil and conf.absorbAnchorMode) or (gen and gen.absorbAnchorMode)) or 2
+        if absorbMode < 1 or absorbMode > 5 then absorbMode = 2 end
+        local absorbTextMode = (conf.hlOverride and conf.absorbTextMode ~= nil) and conf.absorbTextMode or (gen and gen.absorbTextMode)
+        absorbTextMode = tonumber(absorbTextMode)
+        local absorbShown
+        if absorbTextMode then
+            absorbShown = (absorbTextMode == 2 or absorbTextMode == 3)
+        else
+            local enableAbsorbBar = (conf.hlOverride and conf.enableAbsorbBar ~= nil) and conf.enableAbsorbBar or (gen and gen.enableAbsorbBar)
+            absorbShown = enableAbsorbBar ~= false
+        end
+        local absorbAnchorTex = hpTex or mock._health
+        if healPredShown and (healPredMode == 3 or healPredMode == 4) and mock._healPred.GetStatusBarTexture then
+            absorbAnchorTex = mock._healPred:GetStatusBarTexture() or absorbAnchorTex
+        end
+        local absorbFollows = (absorbMode == 3 or absorbMode == 4) and absorbAnchorTex
+        if absorbFollows then
+            if hpReverse then
+                mock._absorb:SetPoint("TOPRIGHT", absorbAnchorTex, "TOPLEFT", 0, 0)
+                mock._absorb:SetPoint("BOTTOMRIGHT", absorbAnchorTex, "BOTTOMLEFT", 0, 0)
+                if mock._absorb.SetReverseFill then mock._absorb:SetReverseFill(true) end
+            else
+                mock._absorb:SetPoint("TOPLEFT", absorbAnchorTex, "TOPRIGHT", 0, 0)
+                mock._absorb:SetPoint("BOTTOMLEFT", absorbAnchorTex, "BOTTOMRIGHT", 0, 0)
+                if mock._absorb.SetReverseFill then mock._absorb:SetReverseFill(false) end
+            end
+        else
+            mock._absorb:SetAllPoints(mock._health)
+            if mock._absorb.SetReverseFill then
+                mock._absorb:SetReverseFill((absorbMode == 1) and false or ((absorbMode == 5) and not hpReverse or true))
+            end
+        end
+        if absorbFollows then mock._absorb:SetWidth(max(1, mockW * 0.08)) end
+        mock._absorb:SetValue(absorbFollows and 1 or 0.08)
+        mock._absorb:SetShown(absorbShown)
 
         if powerH > 0 then
             mock._power:SetStatusBarTexture(barTex)
@@ -1389,6 +1660,8 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
         else
             mock._power:Hide()
         end
+
+        GFPreviewApplyRounded(mock, conf, powerH > 0, inset)
 
         local textBaseLevel = (mock.GetFrameLevel and mock:GetFrameLevel()) or 1
         if mock._nameTextLayer then
@@ -1871,19 +2144,19 @@ local function CreateNativeGFPreview(parent, ctx, onOpen)
         end
 
         local baseLevel = mock.GetFrameLevel and mock:GetFrameLevel() or 1
-        buffHandle:SetFrameLevel(baseLevel + (tonumber(buffCfg.layer) or 5))
-        debuffHandle:SetFrameLevel(baseLevel + (tonumber(debuffCfg.layer) or 6))
-        externHandle:SetFrameLevel(baseLevel + (tonumber(extCfg.layer) or 7))
-        blizzHandle:SetFrameLevel(baseLevel + 4)
+        buffHandle:SetFrameLevel(baseLevel + GFPreviewClampLayer(buffCfg.layer, 5))
+        debuffHandle:SetFrameLevel(baseLevel + GFPreviewClampLayer(debuffCfg.layer, 6))
+        externHandle:SetFrameLevel(baseLevel + GFPreviewClampLayer(extCfg.layer, 7))
+        blizzHandle:SetFrameLevel(baseLevel + GFPreviewClampLayer(auras.blizzardContainerFrameLevel, 1))
         for i = 1, #statusHandles do
             local handle = statusHandles[i]
             local spec = handle and handle._statusSpec
             if handle then
-                handle:SetFrameLevel(baseLevel + (tonumber(spec and conf[spec.layer]) or tonumber(spec and spec.defaultLayer) or 7))
+                handle:SetFrameLevel(baseLevel + GFPreviewClampLayer(spec and conf[spec.layer], spec and spec.defaultLayer or 7))
             end
         end
-        spellHandle:SetFrameLevel(baseLevel + 6)
-        privateHandle:SetFrameLevel(baseLevel + 6)
+        spellHandle:SetFrameLevel(baseLevel + GFPreviewClampLayer(conf.spellIndicators and conf.spellIndicators.layer, 9))
+        privateHandle:SetFrameLevel(baseLevel + GFPreviewClampLayer(pa.layer, 8))
         textHandles.name:SetFrameLevel(baseLevel + (tonumber(conf.nameTextLayer) or 6))
         textHandles.hpGroup:SetFrameLevel(baseLevel + (tonumber(conf.textLayer) or 6))
         textHandles.hpLeft:SetFrameLevel(baseLevel + (tonumber(conf.textLayer) or 6))

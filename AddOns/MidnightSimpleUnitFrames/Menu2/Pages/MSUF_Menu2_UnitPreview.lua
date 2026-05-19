@@ -20,6 +20,9 @@ local TEX_W8 = "Interface\\Buttons\\WHITE8X8"
 local FONT = STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
 local MEDIA = "Interface\\AddOns\\MidnightSimpleUnitFrames\\Media\\"
 local SYMBOL_MEDIA = MEDIA .. "Symbols\\"
+local MASK_MEDIA = MEDIA .. "Masks\\"
+local PREVIEW_ROUNDED_MASK = MASK_MEDIA .. "rounded_bar_4x.tga"
+local PREVIEW_ROUNDED_EDGE = MASK_MEDIA .. "rounded_bar_edge_4x.tga"
 
 local Preview = ns.UFPreview or {}
 ns.UFPreview = Preview
@@ -50,12 +53,13 @@ local function ApplyPreviewBackdrop(frame, bg, border, fallback)
     frame:SetBackdropBorderColor(e[1], e[2], e[3], e[4] or 1)
 end
 
-local UNIT_KEYS = { "player", "target", "targettarget", "focus", "boss", "pet" }
-local UNIT_SET = { player = true, target = true, targettarget = true, focus = true, boss = true, pet = true }
+local UNIT_KEYS = { "player", "target", "targettarget", "focustarget", "focus", "boss", "pet" }
+local UNIT_SET = { player = true, target = true, targettarget = true, focustarget = true, focus = true, boss = true, pet = true }
 local UNIT_LABELS = {
     player = "Player",
     target = "Target",
     targettarget = "Target of Target",
+    focustarget = "Focus Target",
     focus = "Focus",
     boss = "Boss Frames",
     pet = "Pet",
@@ -64,10 +68,33 @@ local UNIT_DATA = {
     player = { name = "MIDNIGHT", class = "ROGUE", hp = 0.72, power = 0.52, powerToken = "ENERGY", level = "80", elite = false, isPlayer = true, portraitTexture = "Interface\\ICONS\\Ability_Stealth" },
     target = { name = "Astral Warden", class = "MAGE", hp = 0.41, power = 0.68, powerToken = "MANA", level = "82", elite = true, reactionKind = "neutral", npcKind = "npcRegular", portraitTexture = "Interface\\ICONS\\Spell_Frost_FrostBolt02" },
     targettarget = { name = "Moonlit Tank", class = "WARRIOR", hp = 0.88, power = 0.36, powerToken = "RAGE", level = "80", elite = false, isPlayer = true, portraitTexture = "Interface\\ICONS\\Ability_Warrior_DefensiveStance" },
+    focustarget = { name = "Marked Add", class = "WARRIOR", hp = 0.57, power = 0.24, powerToken = "RAGE", level = "81", elite = false, reactionKind = "enemy", npcKind = "npcMelee", portraitTexture = "Interface\\ICONS\\Ability_Warrior_Charge" },
     focus = { name = "Voidcaller", class = "WARLOCK", hp = 0.63, power = 0.81, powerToken = "MANA", level = "81", elite = true, reactionKind = "enemy", npcKind = "npcCaster", portraitTexture = "Interface\\ICONS\\Spell_Shadow_Metamorphosis" },
     boss = { name = "Boss Preview", class = "DEATHKNIGHT", hp = 0.55, power = 0.35, powerToken = "MANA", level = "??", elite = true, reactionKind = "enemy", npcKind = "npcBoss", portraitTexture = "Interface\\ICONS\\Achievement_Boss_LichKing" },
     pet = { name = "Companion", class = "HUNTER", hp = 0.79, power = 0.44, powerToken = "FOCUS", level = "80", elite = false, isPet = true, reactionKind = "friendly", portraitTexture = "Interface\\ICONS\\Ability_Hunter_BeastCall" },
 }
+
+local function PreviewRaidGroupNameAllowed(key)
+    return key == "player" or key == "target" or key == "targettarget" or key == "focustarget" or key == "focus"
+end
+
+local function PreviewRaidGroupNameText(conf)
+    local style = conf and conf.raidGroupNameStyle
+    if style == "BRACKET" then return "[2]" end
+    if style == "NONE" then return "2" end
+    return "(2)"
+end
+
+local function NormalizePreviewRaidGroupNameAnchor(anchor)
+    if anchor == "NAMELEFT" or anchor == "NAMERIGHT"
+        or anchor == "TOPLEFT" or anchor == "TOPRIGHT"
+        or anchor == "BOTTOMLEFT" or anchor == "BOTTOMRIGHT"
+        or anchor == "CENTER" or anchor == "TOP" or anchor == "BOTTOM"
+        or anchor == "LEFT" or anchor == "RIGHT" then
+        return anchor
+    end
+    return "NAMERIGHT"
+end
 
 local TEXT_ANCHORS = {
     { key = "LEFT", label = "Left" },
@@ -166,16 +193,18 @@ local PORTRAIT_STYLE_DEFAULTS = {
 
 local function CanonKey(key)
     if key == "tot" then return "targettarget" end
+    if key == "focus_target" or key == "focustargettarget" then return "focustarget" end
     if type(key) == "string" and key:match("^boss%d+$") then return "boss" end
     if UNIT_SET[key] then return key end
     return "player"
 end
 
 local function EnsureDB()
-    if type(_G.EnsureDB) == "function" then
-        _G.EnsureDB()
-    elseif ns and type(ns.EnsureDB) == "function" then
-        ns.EnsureDB()
+    local ensureDB = _G.MSUF_EnsureDB
+    if type(ensureDB) == "function" then
+        ensureDB()
+    elseif ns and type(ns.MSUF_EnsureDB or ns.EnsureDB) == "function" then
+        (ns.MSUF_EnsureDB or ns.EnsureDB)()
     end
     _G.MSUF_DB = _G.MSUF_DB or {}
     _G.MSUF_DB.general = _G.MSUF_DB.general or {}
@@ -222,6 +251,11 @@ local function SeedTextFromGeneral(db)
     if db.nameTextLayer == nil then db.nameTextLayer = 5 end
     if db.hpTextLayer == nil then db.hpTextLayer = 5 end
     if db.powerTextLayer == nil then db.powerTextLayer = 2 end
+    if db.showRaidGroupInName == nil then db.showRaidGroupInName = false end
+    if db.raidGroupNameAnchor == nil then db.raidGroupNameAnchor = "NAMERIGHT" end
+    if db.raidGroupNameOffsetX == nil then db.raidGroupNameOffsetX = 3 end
+    if db.raidGroupNameOffsetY == nil then db.raidGroupNameOffsetY = 0 end
+    if db.raidGroupNameStyle == nil then db.raidGroupNameStyle = "PAREN" end
     db.hpPowerTextOverride = nil
 end
 
@@ -372,7 +406,7 @@ end
 local function ForceTextUnit(key, reason)
     key = CanonKey(key)
     if type(_G.MSUF_UFCore_RequestLayoutForUnit) == "function" then
-        _G.MSUF_UFCore_RequestLayoutForUnit(key, reason or "UNIT_TEXT_OPTIONS", key == "target" or key == "targettarget" or key == "focus")
+        _G.MSUF_UFCore_RequestLayoutForUnit(key, reason or "UNIT_TEXT_OPTIONS", key == "target" or key == "targettarget" or key == "focustarget" or key == "focus")
     end
     if type(_G.MSUF_ForceTextLayoutForUnitKey) == "function" then
         _G.MSUF_ForceTextLayoutForUnitKey(key)
@@ -606,6 +640,7 @@ local function PreviewNPCKind(key, data, cache)
         elseif key == "focus" then allowed = cache.npcTypeFocus ~= false
         elseif key == "boss" then allowed = cache.npcTypeBoss ~= false
         elseif key == "targettarget" then allowed = cache.npcTypeToT ~= false
+        elseif key == "focustarget" then allowed = cache.npcTypeToT ~= false
         end
         if allowed and data.npcKind then return data.npcKind end
     end
@@ -763,6 +798,76 @@ local function SetTex(region, tex)
     if region and region.SetTexture then region:SetTexture(tex or TEX_W8) end
 end
 
+local function NormalizePreviewAnchorMode(value, fallback)
+    local mode = tonumber(value) or fallback or 3
+    if mode < 1 or mode > 5 then mode = fallback or 3 end
+    return mode
+end
+
+local function UnitPreviewBarOverrideEnabled(conf)
+    return conf and (conf.hlOverride == true or conf.hpPowerTextOverride == true)
+end
+
+local function PreviewHealPredictionEnabled(g)
+    if g then
+        if g.showSelfHealPrediction ~= nil then return g.showSelfHealPrediction == true end
+        if g.enableHealPrediction ~= nil then return g.enableHealPrediction ~= false end
+    end
+    return false
+end
+
+local function PreviewResolveHealPredAnchorMode(conf, g)
+    if UnitPreviewBarOverrideEnabled(conf) and conf.healPredAnchorMode ~= nil then
+        return NormalizePreviewAnchorMode(conf.healPredAnchorMode, 3)
+    end
+    return NormalizePreviewAnchorMode(g and g.healPredAnchorMode, 3)
+end
+
+local function PreviewResolveAbsorbAnchorMode(conf, g)
+    if UnitPreviewBarOverrideEnabled(conf) and conf.absorbAnchorMode ~= nil then
+        return NormalizePreviewAnchorMode(conf.absorbAnchorMode, 2)
+    end
+    return NormalizePreviewAnchorMode(g and g.absorbAnchorMode, 2)
+end
+
+local function PreviewAbsorbBarEnabled(conf, g)
+    local mode
+    if UnitPreviewBarOverrideEnabled(conf) and conf.absorbTextMode ~= nil then
+        mode = tonumber(conf.absorbTextMode)
+    end
+    if mode == nil and g then mode = tonumber(g.absorbTextMode) end
+    if mode then return mode == 2 or mode == 3 end
+    return not (g and g.enableAbsorbBar == false)
+end
+
+local function PreviewOverlayWidth(areaW, frac)
+    return max(1, floor((tonumber(areaW) or 1) * (tonumber(frac) or 0.1) + 0.5))
+end
+
+local function LayoutUnitPreviewOverlay(tex, hpBG, hpFill, mode, frac, hpReverse, followAnchor, areaW)
+    if not (tex and hpBG and hpFill) then return end
+    mode = NormalizePreviewAnchorMode(mode, 3)
+    tex:ClearAllPoints()
+    tex:SetWidth(PreviewOverlayWidth(areaW, frac))
+    if mode == 3 or mode == 4 then
+        local anchor = followAnchor or hpFill
+        if hpReverse then
+            tex:SetPoint("TOPRIGHT", anchor, "TOPLEFT", 0, 0)
+            tex:SetPoint("BOTTOMRIGHT", anchor, "BOTTOMLEFT", 0, 0)
+        else
+            tex:SetPoint("TOPLEFT", anchor, "TOPRIGHT", 0, 0)
+            tex:SetPoint("BOTTOMLEFT", anchor, "BOTTOMRIGHT", 0, 0)
+        end
+    elseif mode == 1 or (mode == 5 and hpReverse) then
+        tex:SetPoint("TOPLEFT", hpBG, "TOPLEFT", 0, 0)
+        tex:SetPoint("BOTTOMLEFT", hpBG, "BOTTOMLEFT", 0, 0)
+    else
+        tex:SetPoint("TOPRIGHT", hpBG, "TOPRIGHT", 0, 0)
+        tex:SetPoint("BOTTOMRIGHT", hpBG, "BOTTOMRIGHT", 0, 0)
+    end
+    tex:Show()
+end
+
 local function MakeFS(parent, layer, size)
     local fs = parent:CreateFontString(nil, layer or "OVERLAY")
     fs:SetFont(FONT, size or 12, "OUTLINE")
@@ -771,7 +876,7 @@ local function MakeFS(parent, layer, size)
 end
 
 local function ReadPowerBarEnabled(conf, key)
-    if key == "pet" or key == "targettarget" then return false end
+    if key == "pet" or key == "targettarget" or key == "focustarget" then return false end
     if conf.showPowerBar ~= nil then return conf.showPowerBar ~= false end
     if key == "boss" then return true end
     return true
@@ -925,10 +1030,13 @@ local function PositionLevelPreview(frame, anchor, x, y, mock, gap)
     x = tonumber(x) or 0
     y = tonumber(y) or 0
     gap = tonumber(gap) or 6
-    if anchor == "NAMELEFT" and mock.nameText then
+    local nameVisible = mock.nameText and (not mock.nameText.IsShown or mock.nameText:IsShown())
+    if anchor == "NAMELEFT" and nameVisible then
         frame:SetPoint("RIGHT", mock.nameText, "LEFT", -gap + x, y)
-    elseif anchor == "NAMERIGHT" and mock.nameText then
+    elseif anchor == "NAMERIGHT" and nameVisible then
         frame:SetPoint("LEFT", mock.nameText, "RIGHT", gap + x, y)
+    elseif anchor == "NAMELEFT" or anchor == "NAMERIGHT" then
+        PositionSameAnchorPreview(frame, "CENTER", x, y, mock.textFrame or mock)
     else
         PositionSameAnchorPreview(frame, anchor, x, y, mock.textFrame or mock)
     end
@@ -1544,14 +1652,14 @@ local function ResolveStatusPreviewAnchor(spec, conf, g)
 end
 
 local STATUS_PREVIEW = {
-    { id = "raidmarker", show = "showRaidMarker", size = "raidMarkerSize", anchor = "raidMarkerAnchor", x = "raidMarkerOffsetX", y = "raidMarkerOffsetY", defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 16, defaultY = 3, text = "8", color = { 1, 0.82, 0.05 }, label = "Raid marker", refresh = "MSUF_RefreshRaidMarkerFrames" },
-    { id = "leader", show = "showLeaderIcon", size = "leaderIconSize", anchor = "leaderIconAnchor", x = "leaderIconOffsetX", y = "leaderIconOffsetY", defaultSize = 14, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 3, text = "L", color = { 0.95, 0.82, 0.20 }, label = "Leader icon", refresh = "MSUF_RefreshLeaderIconFrames", allowed = function(k) return k == "player" or k == "target" end },
-    { id = "level", show = "showLevelIndicator", size = "levelIndicatorSize", anchor = "levelIndicatorAnchor", x = "levelIndicatorOffsetX", y = "levelIndicatorOffsetY", defaultSize = 14, defaultAnchor = "NAMERIGHT", defaultX = 0, defaultY = 0, text = "80", color = { 0.45, 0.70, 1.0 }, label = "Level indicator", refresh = "MSUF_RefreshLevelIndicatorFrames" },
-    { id = "elite", show = "showEliteIcon", size = "eliteIconSize", anchor = "eliteIconAnchor", x = "eliteIconOffsetX", y = "eliteIconOffsetY", defaultSize = 20, defaultAnchor = "TOPRIGHT", defaultX = 2, defaultY = 2, text = "*", color = { 1.0, 0.58, 0.16 }, label = "Elite icon", refresh = "MSUF_RefreshEliteIconFrames", allowed = function(k) return k == "target" or k == "focus" or k == "targettarget" or k == "boss" end },
-    { id = "statusText", show = "statusTextEnabled", size = "statusTextSize", anchor = "statusTextAnchor", x = "statusTextOffsetX", y = "statusTextOffsetY", defaultSize = 16, defaultAnchor = "CENTER", defaultX = 0, defaultY = 0, text = "DEAD", color = { 0.68, 0.70, 0.74 }, label = "Dead text", refresh = "MSUF_RequestStatusTextRefresh" },
-    { id = "statusCombat", show = "showCombatStateIndicator", size = "combatStateIndicatorSize", anchor = "combatStateIndicatorAnchor", x = "combatStateIndicatorOffsetX", y = "combatStateIndicatorOffsetY", defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 0, text = "C", color = { 1.0, 0.22, 0.16 }, label = "Combat icon", refresh = "MSUF_RequestStatusCombatIndicatorRefresh", allowed = function(k) return k == "player" or k == "target" end },
-    { id = "statusResting", show = "showRestingIndicator", size = "restedStateIndicatorSize", anchor = "restedStateIndicatorAnchor", x = "restedStateIndicatorOffsetX", y = "restedStateIndicatorOffsetY", defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 0, text = "Z", color = { 0.34, 0.62, 1.0 }, label = "Rested icon", refresh = "MSUF_RequestStatusRestingIndicatorRefresh", defaultShow = false, allowed = function(k) return k == "player" end },
-    { id = "statusIncomingRes", show = "showIncomingResIndicator", size = "incomingResIndicatorSize", anchor = "incomingResIndicatorAnchor", x = "incomingResIndicatorOffsetX", y = "incomingResIndicatorOffsetY", defaultSize = 18, defaultAnchor = "TOPRIGHT", defaultX = 0, defaultY = 0, text = "+", color = { 0.22, 1.0, 0.56 }, label = "Incoming Rez icon", refresh = "MSUF_RequestStatusIncomingResIndicatorRefresh", allowed = function(k) return k == "player" or k == "target" end },
+    { id = "raidmarker", show = "showRaidMarker", size = "raidMarkerSize", anchor = "raidMarkerAnchor", x = "raidMarkerOffsetX", y = "raidMarkerOffsetY", layer = "raidMarkerLayer", defaultLayer = 7, defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 16, defaultY = 3, text = "8", color = { 1, 0.82, 0.05 }, label = "Raid marker", refresh = "MSUF_RefreshRaidMarkerFrames" },
+    { id = "leader", show = "showLeaderIcon", size = "leaderIconSize", anchor = "leaderIconAnchor", x = "leaderIconOffsetX", y = "leaderIconOffsetY", layer = "leaderIconLayer", defaultLayer = 7, defaultSize = 14, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 3, text = "L", color = { 0.95, 0.82, 0.20 }, label = "Leader icon", refresh = "MSUF_RefreshLeaderIconFrames", allowed = function(k) return k == "player" or k == "target" end },
+    { id = "level", show = "showLevelIndicator", size = "levelIndicatorSize", anchor = "levelIndicatorAnchor", x = "levelIndicatorOffsetX", y = "levelIndicatorOffsetY", layer = "levelIndicatorLayer", defaultLayer = 7, defaultSize = 14, defaultAnchor = "NAMERIGHT", defaultX = 0, defaultY = 0, text = "80", color = { 0.45, 0.70, 1.0 }, label = "Level indicator", refresh = "MSUF_RefreshLevelIndicatorFrames" },
+    { id = "elite", show = "showEliteIcon", size = "eliteIconSize", anchor = "eliteIconAnchor", x = "eliteIconOffsetX", y = "eliteIconOffsetY", layer = "eliteIconLayer", defaultLayer = 7, defaultSize = 20, defaultAnchor = "TOPRIGHT", defaultX = 2, defaultY = 2, text = "*", color = { 1.0, 0.58, 0.16 }, label = "Elite icon", refresh = "MSUF_RefreshEliteIconFrames", allowed = function(k) return k == "target" or k == "focus" or k == "targettarget" or k == "focustarget" or k == "boss" end },
+    { id = "statusText", show = "statusTextEnabled", size = "statusTextSize", anchor = "statusTextAnchor", x = "statusTextOffsetX", y = "statusTextOffsetY", layer = "statusTextLayer", defaultLayer = 7, defaultSize = 16, defaultAnchor = "CENTER", defaultX = 0, defaultY = 0, text = "DEAD", color = { 0.68, 0.70, 0.74 }, label = "Dead text", refresh = "MSUF_RequestStatusTextRefresh" },
+    { id = "statusCombat", show = "showCombatStateIndicator", size = "combatStateIndicatorSize", anchor = "combatStateIndicatorAnchor", x = "combatStateIndicatorOffsetX", y = "combatStateIndicatorOffsetY", layer = "combatStateIndicatorLayer", defaultLayer = 7, defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 0, text = "C", color = { 1.0, 0.22, 0.16 }, label = "Combat icon", refresh = "MSUF_RequestStatusCombatIndicatorRefresh", allowed = function(k) return k == "player" or k == "target" end },
+    { id = "statusResting", show = "showRestingIndicator", size = "restedStateIndicatorSize", anchor = "restedStateIndicatorAnchor", x = "restedStateIndicatorOffsetX", y = "restedStateIndicatorOffsetY", layer = "restedStateIndicatorLayer", defaultLayer = 7, defaultSize = 18, defaultAnchor = "TOPLEFT", defaultX = 0, defaultY = 0, text = "Z", color = { 0.34, 0.62, 1.0 }, label = "Rested icon", refresh = "MSUF_RequestStatusRestingIndicatorRefresh", defaultShow = false, allowed = function(k) return k == "player" end },
+    { id = "statusIncomingRes", show = "showIncomingResIndicator", size = "incomingResIndicatorSize", anchor = "incomingResIndicatorAnchor", x = "incomingResIndicatorOffsetX", y = "incomingResIndicatorOffsetY", layer = "incomingResIndicatorLayer", defaultLayer = 7, defaultSize = 18, defaultAnchor = "TOPRIGHT", defaultX = 0, defaultY = 0, text = "+", color = { 0.22, 1.0, 0.56 }, label = "Incoming Rez icon", refresh = "MSUF_RequestStatusIncomingResIndicatorRefresh", allowed = function(k) return k == "player" or k == "target" end },
 }
 
 local PREVIEW_LAYERS = {
@@ -1732,6 +1840,12 @@ local function BuildPreview(parent, panel, width, height)
     mock.hpBG:SetColorTexture(0, 0, 0, 0.82)
     mock.hp = mock:CreateTexture(nil, "ARTWORK")
     SetTex(mock.hp, type(_G.MSUF_GetBarTexture) == "function" and _G.MSUF_GetBarTexture() or TEX_W8)
+    mock.healPred = mock:CreateTexture(nil, "ARTWORK")
+    mock.healPred:SetTexture(TEX_W8)
+    mock.healPred:SetVertexColor(0, 1, 0.4, 0.55)
+    mock.absorb = mock:CreateTexture(nil, "ARTWORK")
+    mock.absorb:SetTexture(TEX_W8)
+    mock.absorb:SetVertexColor(0.55, 0.70, 1, 0.58)
     mock.powerBG = mock:CreateTexture(nil, "BACKGROUND")
     mock.powerBG:SetTexture(TEX_W8)
     mock.powerBG:SetColorTexture(0, 0, 0, 0.9)
@@ -1777,6 +1891,7 @@ local function BuildPreview(parent, panel, width, height)
     mock.powerLayer = CreateFrame("Frame", nil, mock.textFrame)
     mock.powerLayer:SetAllPoints(mock.textFrame)
     mock.nameText = MakeFS(mock.nameLayer, "OVERLAY", 12)
+    mock.raidGroupNameText = MakeFS(mock.nameLayer, "OVERLAY", 12)
     mock.totInlineSep = MakeFS(mock.nameLayer, "OVERLAY", 12)
     mock.totInlineText = MakeFS(mock.nameLayer, "OVERLAY", 12)
     mock.hpTextLeft = MakeFS(mock.hpLayer, "OVERLAY", 12)
@@ -1846,6 +1961,7 @@ local function BuildPreview(parent, panel, width, height)
     end
 
     box.handleName = MakeHandle(box, "name", { x = "nameOffsetX", y = "nameOffsetY", defaultX = 4, defaultY = -4, text = true, section = "text" }, "Name text", { 0.30, 0.66, 1.0 })
+    box.handleRaidGroupName = MakeHandle(box, "raidgroupname", { x = "raidGroupNameOffsetX", y = "raidGroupNameOffsetY", defaultX = 3, defaultY = 0, statusRefresh = "MSUF_RefreshRaidGroupNameFrames", section = "status" }, "Raid group", { 0.45, 0.70, 1.0 })
     box.handleHP = MakeHandle(box, "hp", { x = "hpOffsetX", y = "hpOffsetY", defaultX = -4, defaultY = -4, text = true, section = "text" }, "HP text", { 0.25, 0.90, 0.42 })
     box.handleHPLeft = MakeHandle(box, "hpLeft", { x = "hpTextLeftOffsetX", y = "hpTextLeftOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "HP left text", { 0.25, 0.90, 0.42 })
     box.handleHPCenter = MakeHandle(box, "hpCenter", { x = "hpTextCenterOffsetX", y = "hpTextCenterOffsetY", defaultX = 0, defaultY = 0, text = true, section = "text" }, "HP center text", { 0.25, 0.90, 0.42 })
@@ -1857,7 +1973,7 @@ local function BuildPreview(parent, panel, width, height)
     box.handlePortrait = MakeHandle(box, "portrait", { x = "portraitOffsetX", y = "portraitOffsetY", defaultX = 0, defaultY = 0, portrait = true, section = "portrait" }, "Portrait", { 0.90, 0.42, 1.0 })
     box.handleDetachedPower = MakeHandle(box, "detachedPower", { x = "detachedPowerBarOffsetX", y = "detachedPowerBarOffsetY", defaultX = 0, defaultY = -4, detachedPower = true, section = "power" }, "Detached power bar", { 0.95, 0.72, 0.18 })
     box.handleCastbar = MakeHandle(box, "castbar", { castbar = true, global = true, section = "castbar" }, "Castbar", { 0.20, 0.90, 0.85 })
-    box.statusHandles = {}
+    box.statusHandles = { raidgroupname = box.handleRaidGroupName }
     for i = 1, #STATUS_PREVIEW do
         local spec = STATUS_PREVIEW[i]
         box.statusHandles[spec.id] = MakeHandle(box, spec.id, { x = spec.x, y = spec.y, defaultX = spec.defaultX or 0, defaultY = spec.defaultY or 0, statusRefresh = spec.refresh, section = "status" }, spec.label, spec.color)
@@ -1934,6 +2050,231 @@ local function SetShownSafe(region, shown)
     if region and region.SetShown then region:SetShown(shown and true or false) end
 end
 
+local function ReadPreviewBarsBool(key, default)
+    local bars = _G.MSUF_DB and _G.MSUF_DB.bars
+    local value = bars and bars[key]
+    if value == nil then return default and true or false end
+    return value and true or false
+end
+
+local function ClampPreviewEdgeSize(value, fallback, maxValue)
+    local n = tonumber(value)
+    if n == nil then n = tonumber(fallback) or 0 end
+    n = floor(n + 0.5)
+    if n < 0 then n = 0 end
+    maxValue = tonumber(maxValue) or 8
+    if n > maxValue then n = maxValue end
+    return n
+end
+
+local function PreviewRoundedOutlineThickness(key, conf, scale)
+    local bars = _G.MSUF_DB and _G.MSUF_DB.bars
+    local raw
+    if conf and conf.hlOverride and conf.barOutlineThickness ~= nil then
+        raw = conf.barOutlineThickness
+    else
+        raw = bars and bars.barOutlineThickness
+    end
+    local t = ClampPreviewEdgeSize(raw, 1, 8)
+    if t > 0 and scale then
+        t = floor(t * scale + 0.5)
+        if t < 1 then t = 1 end
+    end
+    return t
+end
+
+local function PreviewRoundedUnitFramesEnabled()
+    return ReadPreviewBarsBool("roundedFramesEnabled", false)
+        and ReadPreviewBarsBool("roundedUnitFrames", true)
+end
+
+local function PreviewRoundedPowerBarsEnabled()
+    return ReadPreviewBarsBool("roundedFramesEnabled", false)
+        and ReadPreviewBarsBool("roundedPowerBars", true)
+end
+
+local function PreviewSnapOff(region)
+    if region and region.SetSnapToPixelGrid then
+        region:SetSnapToPixelGrid(false)
+        if region.SetTexelSnappingBias then region:SetTexelSnappingBias(0) end
+    end
+end
+
+local function PreviewMaskOwner(mock, tex, anchor)
+    local owner = tex and tex.GetParent and tex:GetParent() or nil
+    if owner and owner.CreateMaskTexture then return owner end
+    if anchor and anchor.CreateMaskTexture then return anchor end
+    return mock
+end
+
+local function EnsurePreviewRoundedMask(mock, key, anchor, tex)
+    if not (mock and anchor) then return nil end
+    local owner = PreviewMaskOwner(mock, tex, anchor)
+    if not (owner and owner.CreateMaskTexture) then return nil end
+    mock._msufPreviewRoundedMasks = mock._msufPreviewRoundedMasks or {}
+    local bucket = mock._msufPreviewRoundedMasks[key]
+    if type(bucket) ~= "table" or bucket.SetTexture then
+        bucket = {}
+        mock._msufPreviewRoundedMasks[key] = bucket
+    end
+    local ownerKey = tex or owner
+    local mask = bucket[ownerKey]
+    if not mask then
+        mask = owner:CreateMaskTexture(nil, "ARTWORK")
+        PreviewSnapOff(mask)
+        bucket[ownerKey] = mask
+    end
+    mask:ClearAllPoints()
+    mask:SetTexture(PREVIEW_ROUNDED_MASK, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    mask:SetAllPoints(anchor)
+    return mask
+end
+
+local function PreviewSetMask(mock, tex, mask)
+    if not (mock and tex and tex.AddMaskTexture) then return end
+    mock._msufPreviewRoundedMasked = mock._msufPreviewRoundedMasked or {}
+    local old = mock._msufPreviewRoundedMasked[tex]
+    if old == mask then return end
+    if old and tex.RemoveMaskTexture then pcall(tex.RemoveMaskTexture, tex, old) end
+    mock._msufPreviewRoundedMasked[tex] = nil
+    if mask then
+        local ok = pcall(tex.AddMaskTexture, tex, mask)
+        if ok then mock._msufPreviewRoundedMasked[tex] = mask end
+    end
+end
+
+local function ClearPreviewRoundedMasks(mock)
+    local masked = mock and mock._msufPreviewRoundedMasked
+    if masked then
+        for tex, mask in pairs(masked) do
+            if tex and tex.RemoveMaskTexture and mask then pcall(tex.RemoveMaskTexture, tex, mask) end
+        end
+    end
+    if mock then mock._msufPreviewRoundedMasked = nil end
+end
+
+local function PreviewBaseEdgeColor()
+    return 0, 0, 0, 1
+end
+
+local function EnsurePreviewRoundedVisuals(mock)
+    if not (mock and mock.CreateTexture) then return false end
+    if not mock.roundedBg then
+        mock.roundedBg = mock:CreateTexture(nil, "BACKGROUND")
+        mock.roundedBg:SetTexture(TEX_W8)
+        PreviewSnapOff(mock.roundedBg)
+    end
+    if not mock.roundedEdge then
+        mock.roundedEdge = mock:CreateTexture(nil, "OVERLAY")
+        PreviewSnapOff(mock.roundedEdge)
+    end
+    mock.roundedEdge:SetTexture(PREVIEW_ROUNDED_EDGE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+    return true
+end
+
+local function PreviewForEachRoundedEdge(mock, fn)
+    if not (mock and type(fn) == "function") then return end
+    if mock.roundedEdge then fn(mock.roundedEdge, 1) end
+    local stack = mock._msufPreviewRoundedEdgeStack
+    if type(stack) ~= "table" then return end
+    for i = 2, #stack do
+        if stack[i] then fn(stack[i], i) end
+    end
+end
+
+local function PreviewSetRoundedEdgeStackShown(mock, shown)
+    local count = shown and ClampPreviewEdgeSize(mock and mock._msufPreviewRoundedEdgeCount, 1, 8) or 0
+    PreviewForEachRoundedEdge(mock, function(edge, i)
+        SetShownSafe(edge, i <= count)
+    end)
+end
+
+local function PreviewSetRoundedEdgeStackAlpha(mock, alpha)
+    alpha = Clamp01(alpha, 1)
+    PreviewForEachRoundedEdge(mock, function(edge)
+        if edge and edge.SetAlpha then edge:SetAlpha(alpha) end
+    end)
+end
+
+local function PreviewApplyRoundedEdgeStack(mock, edgeSize)
+    local count = ClampPreviewEdgeSize(edgeSize, 0, 8)
+    mock._msufPreviewRoundedEdgeCount = count
+    if count <= 0 then
+        PreviewSetRoundedEdgeStackShown(mock, false)
+        return false
+    end
+
+    mock._msufPreviewRoundedEdgeStack = mock._msufPreviewRoundedEdgeStack or {}
+    mock._msufPreviewRoundedEdgeStack[1] = mock.roundedEdge
+    local r, g, b, a = PreviewBaseEdgeColor()
+    for i = 1, count do
+        local edge = (i == 1) and mock.roundedEdge or mock._msufPreviewRoundedEdgeStack[i]
+        if not edge then
+            edge = mock:CreateTexture(nil, "OVERLAY")
+            PreviewSnapOff(edge)
+            mock._msufPreviewRoundedEdgeStack[i] = edge
+        end
+        edge:SetTexture(PREVIEW_ROUNDED_EDGE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+        edge:ClearAllPoints()
+        edge:SetPoint("TOPLEFT", mock, "TOPLEFT", -i, i)
+        edge:SetPoint("BOTTOMRIGHT", mock, "BOTTOMRIGHT", i, -i)
+        edge:SetVertexColor(r, g, b, a)
+        edge:Show()
+    end
+    PreviewSetRoundedEdgeStackShown(mock, true)
+    return true
+end
+
+local function ApplyPreviewRounded(box, key, powerOn, outlineThickness)
+    if not (box and box.mock) then return end
+    local mock = box.mock
+    local rounded = PreviewRoundedUnitFramesEnabled()
+    if not rounded or not EnsurePreviewRoundedVisuals(mock) then
+        mock._msufPreviewRoundedActive = nil
+        mock._msufPreviewRoundedEdgeEnabled = nil
+        ClearPreviewRoundedMasks(mock)
+        SetShownSafe(mock.roundedBg, false)
+        PreviewSetRoundedEdgeStackShown(mock, false)
+        return
+    end
+    mock._msufPreviewRoundedActive = true
+
+    local bodyMask = EnsurePreviewRoundedMask(mock, "body", mock, mock.roundedBg)
+    local hpBgMask = EnsurePreviewRoundedMask(mock, "health", mock.hpBG, mock.hpBG)
+    local hpMask = EnsurePreviewRoundedMask(mock, "health", mock.hpBG, mock.hp)
+    local healPredMask = EnsurePreviewRoundedMask(mock, "healPred", mock.hpBG, mock.healPred)
+    local absorbMask = EnsurePreviewRoundedMask(mock, "absorb", mock.hpBG, mock.absorb)
+    local conf, g = UnitDB(key)
+    local healPredMode = PreviewResolveHealPredAnchorMode(conf, g)
+    local absorbMode = PreviewResolveAbsorbAnchorMode(conf, g)
+    PreviewSetMask(mock, mock.roundedBg, bodyMask)
+    PreviewSetMask(mock, mock.hpBG, hpBgMask)
+    PreviewSetMask(mock, mock.hp, hpMask)
+    PreviewSetMask(mock, mock.healPred, healPredMode == 4 and nil or healPredMask)
+    PreviewSetMask(mock, mock.absorb, absorbMode == 4 and nil or absorbMask)
+
+    local powerBgMask = (powerOn and PreviewRoundedPowerBarsEnabled()) and EnsurePreviewRoundedMask(mock, "power", mock.powerBG, mock.powerBG) or nil
+    local powerMask = (powerOn and PreviewRoundedPowerBarsEnabled()) and EnsurePreviewRoundedMask(mock, "power", mock.powerBG, mock.power) or nil
+    PreviewSetMask(mock, mock.powerBG, powerBgMask)
+    PreviewSetMask(mock, mock.power, powerMask)
+
+    mock.roundedBg:ClearAllPoints()
+    mock.roundedBg:SetAllPoints(mock)
+    mock.roundedBg:SetColorTexture(0, 0, 0, 0.92)
+    mock.roundedBg:Show()
+
+    local edgeSize = ClampPreviewEdgeSize(outlineThickness, 1, 30)
+    mock._msufPreviewRoundedEdgeEnabled = edgeSize > 0
+    if edgeSize > 0 then
+        PreviewApplyRoundedEdgeStack(mock, edgeSize)
+    else
+        PreviewSetRoundedEdgeStackShown(mock, false)
+    end
+
+    if mock.SetBackdropColor then mock:SetBackdropColor(0, 0, 0, 0) end
+    if mock.SetBackdropBorderColor then mock:SetBackdropBorderColor(0, 0, 0, 0) end
+end
+
 local function ApplyPreviewLayerVisibility(box)
     if not box or not box.mock then return end
     local v = box.layerVisibility or {}
@@ -1953,15 +2294,31 @@ local function ApplyPreviewLayerVisibility(box)
     local statusOn = LayerOn("status")
     local boundsOn = LayerOn("bounds")
 
+    local roundedActive = mock._msufPreviewRoundedActive == true
     if bodyOn then
-        mock:SetBackdropColor(0, 0, 0, 0.92)
-        mock:SetBackdropBorderColor(0, 0, 0, 1)
+        if roundedActive then
+            mock:SetBackdropColor(0, 0, 0, 0)
+            mock:SetBackdropBorderColor(0, 0, 0, 0)
+            SetShownSafe(mock.roundedBg, true)
+            PreviewSetRoundedEdgeStackShown(mock, mock._msufPreviewRoundedEdgeEnabled ~= false)
+        else
+            mock:SetBackdropColor(0, 0, 0, 0.92)
+            mock:SetBackdropBorderColor(0, 0, 0, 1)
+            SetShownSafe(mock.roundedBg, false)
+            PreviewSetRoundedEdgeStackShown(mock, false)
+        end
     else
         mock:SetBackdropColor(0, 0, 0, 0)
         mock:SetBackdropBorderColor(0, 0, 0, 0)
+        SetShownSafe(mock.roundedBg, false)
+        PreviewSetRoundedEdgeStackShown(mock, false)
     end
     SetShownSafe(mock.hpBG, bodyOn)
     SetShownSafe(mock.hp, bodyOn)
+    if not bodyOn then
+        SetShownSafe(mock.healPred, false)
+        SetShownSafe(mock.absorb, false)
+    end
 
     if not powerOn then
         SetShownSafe(mock.powerBG, false)
@@ -2009,6 +2366,7 @@ local function ApplyPreviewLayerVisibility(box)
     end
     if not statusOn then
         for _, icon in pairs(mock.icons or {}) do SetShownSafe(icon, false) end
+        SetShownSafe(mock.raidGroupNameText, false)
         for _, handle in pairs(box.statusHandles or {}) do SetShownSafe(handle, false) end
     end
     SetShownSafe(mock.bounds, boundsOn)
@@ -2106,18 +2464,27 @@ local function ApplyPreviewTransparency(box, conf)
 
     if mock.SetAlpha then mock:SetAlpha(1) end
     if bodyOn then
-        SetFrameBackdropAlpha(mock, 0.92 * (alpha.flat and alpha.frame or alpha.bg), alpha.flat and alpha.frame or alpha.fg)
+        if mock._msufPreviewRoundedActive == true then
+            SetFrameBackdropAlpha(mock, 0, 0)
+            SetRegionAlpha(mock.roundedBg, 0.92 * (alpha.flat and alpha.frame or alpha.bg))
+            PreviewSetRoundedEdgeStackAlpha(mock, (mock._msufPreviewRoundedEdgeEnabled ~= false) and (alpha.flat and alpha.frame or alpha.fg) or 0)
+        else
+            SetFrameBackdropAlpha(mock, 0.92 * (alpha.flat and alpha.frame or alpha.bg), alpha.flat and alpha.frame or alpha.fg)
+        end
     else
         SetFrameBackdropAlpha(mock, 0, 0)
+        SetRegionAlpha(mock.roundedBg, 0)
+        PreviewSetRoundedEdgeStackAlpha(mock, 0)
     end
 
     if alpha.preserveHPColor then
-        mock.hpBG:SetVertexColor(34 / 255, 34 / 255, 34 / 255, 1)
         SetRegionAlpha(mock.hpBG, alpha.hp)
     else
         SetRegionAlpha(mock.hpBG, alpha.flat and alpha.frame or alpha.bg)
     end
     SetRegionAlpha(mock.hp, alpha.flat and alpha.frame or alpha.hp)
+    SetRegionAlpha(mock.healPred, alpha.flat and alpha.frame or alpha.hp)
+    SetRegionAlpha(mock.absorb, alpha.flat and alpha.frame or alpha.hp)
     SetRegionAlpha(mock.powerBG, alpha.flat and alpha.frame or alpha.bg)
     SetRegionAlpha(mock.power, alpha.flat and alpha.frame or alpha.power)
     SetRegionAlpha(mock.classPower, alpha.flat and alpha.frame or alpha.power)
@@ -2131,14 +2498,74 @@ local function ApplyPreviewTransparency(box, conf)
     end
 end
 
+do
+    local deps = Preview.RefreshDeps or {}
+    Preview.RefreshDeps = deps
+    deps.PreviewInCombat = PreviewInCombat
+    deps.TR = TR
+    deps.PortraitStyleGet = PortraitStyleGet
+    deps.max = max
+    deps.min = min
+    deps.abs = abs
+    deps.floor = floor
+    deps.format = format
+    deps.TEX_W8 = TEX_W8
+    deps.FONT = FONT
+    deps.CurrentPanelKey = CurrentPanelKey
+    deps.UnitDB = UnitDB
+    deps.UNIT_DATA = UNIT_DATA
+    deps.UNIT_LABELS = UNIT_LABELS
+    deps.ReadPowerBarEnabled = ReadPowerBarEnabled
+    deps.PreviewRaidGroupNameAllowed = PreviewRaidGroupNameAllowed
+    deps.PreviewRaidGroupNameText = PreviewRaidGroupNameText
+    deps.NormalizeRaidGroupNameAnchor = NormalizePreviewRaidGroupNameAnchor
+    deps.STATUS_PREVIEW = STATUS_PREVIEW
+    deps.CastbarEnabled = CastbarEnabled
+    deps.ReadCastbarSize = ReadCastbarSize
+    deps.CastbarOffsetFields = CastbarOffsetFields
+    deps.CastbarDetached = CastbarDetached
+    deps.CanDetachPowerBarKey = CanDetachPowerBarKey
+    deps.ClampPreviewLayer = ClampPreviewLayer
+    deps.SetTex = SetTex
+    deps.ReadPowerBarHeight = ReadPowerBarHeight
+    deps.PlaceHandle = PlaceHandle
+    deps.UnitPreviewText = UnitPreviewText
+    deps.UnitPreviewTextMovesTogether = UnitPreviewTextMovesTogether
+    deps.SetShownSafe = SetShownSafe
+    deps.ApplyPreviewLayerVisibility = ApplyPreviewLayerVisibility
+    deps.ApplyPreviewTransparency = ApplyPreviewTransparency
+    deps.RefreshHandleSelectionVisuals = RefreshHandleSelectionVisuals
+end
+
 function Preview.Refresh(box, reason)
     box = box or Preview.active
     if not box or not box:IsShown() then return end
+    local D = Preview.RefreshDeps
+    local PreviewInCombat = D.PreviewInCombat
     if PreviewInCombat() then return end
+    local TR = D.TR
+    local PortraitStyleGet = D.PortraitStyleGet
+    local max, min, abs, floor = D.max, D.min, D.abs, D.floor
+    local format, TEX_W8, FONT = D.format, D.TEX_W8, D.FONT
+    local CastbarEnabled = D.CastbarEnabled
+    local ReadCastbarSize = D.ReadCastbarSize
+    local CastbarOffsetFields = D.CastbarOffsetFields
+    local CastbarDetached = D.CastbarDetached
+    local CanDetachPowerBarKey = D.CanDetachPowerBarKey
+    local ClampPreviewLayer = D.ClampPreviewLayer
+    local SetTex = D.SetTex
+    local ReadPowerBarHeight = D.ReadPowerBarHeight
+    local PlaceHandle = D.PlaceHandle
+    local UnitPreviewText = D.UnitPreviewText
+    local UnitPreviewTextMovesTogether = D.UnitPreviewTextMovesTogether
+    local SetShownSafe = D.SetShownSafe
+    local ApplyPreviewLayerVisibility = D.ApplyPreviewLayerVisibility
+    local ApplyPreviewTransparency = D.ApplyPreviewTransparency
+    local RefreshHandleSelectionVisuals = D.RefreshHandleSelectionVisuals
     local panel = box._msufPanel
-    local key = CurrentPanelKey(panel)
-    local conf, g = UnitDB(key)
-    local data = UNIT_DATA[key] or UNIT_DATA.player
+    local key = D.CurrentPanelKey(panel)
+    local conf, g = D.UnitDB(key)
+    local data = D.UNIT_DATA[key] or D.UNIT_DATA.player
     box.key = key
     local skipControlRefresh = (reason == "OPTIONS_APPLY_DB" or reason == "UNIT_MENU_ENTER" or reason == "UNIT_MENU_REENTER")
     if panel and panel._msufRefreshUnitTextControls and not skipControlRefresh and not box._refreshingControls then
@@ -2148,7 +2575,7 @@ function Preview.Refresh(box, reason)
         if panel._msufRefreshUnitPowerControls then panel._msufRefreshUnitPowerControls() end
         box._refreshingControls = nil
     end
-    if box.title then box.title:SetText(TR("Unit Frame Preview") .. " - " .. TR(UNIT_LABELS[key] or key)) end
+    if box.title then box.title:SetText(TR("Unit Frame Preview") .. " - " .. TR(D.UNIT_LABELS[key] or key)) end
 
     local canvas = box.canvas
     local cw = canvas:GetWidth() or 600
@@ -2175,7 +2602,7 @@ function Preview.Refresh(box, reason)
     local castDetached = castEnabled and CastbarDetached(key, g)
     local castPreviewVisible = castEnabled
     local bars = _G.MSUF_DB and _G.MSUF_DB.bars or {}
-    local detachedPower = CanDetachPowerBarKey(key) and conf.powerBarDetached == true and ReadPowerBarEnabled(conf, key)
+    local detachedPower = CanDetachPowerBarKey(key) and conf.powerBarDetached == true and D.ReadPowerBarEnabled(conf, key)
     local classPowerOn = key == "player" and (bars.showClassPower == true or detachedPower)
     local powerFrac = tonumber(data.power) or 1
     if not detachedPower and key ~= "player" then powerFrac = 1 end
@@ -2265,8 +2692,12 @@ function Preview.Refresh(box, reason)
     local mock = box.mock
     local baseLevel = (canvas.GetFrameLevel and canvas:GetFrameLevel() or 0) + 2
     if mock.SetFrameLevel then mock:SetFrameLevel(baseLevel + 4) end
-    if mock.classPower and mock.classPower.SetFrameLevel then mock.classPower:SetFrameLevel(baseLevel + 3) end
-    if mock.detachedPower and mock.detachedPower.SetFrameLevel then mock.detachedPower:SetFrameLevel(baseLevel + 5) end
+    if mock.classPower and mock.classPower.SetFrameLevel then
+        mock.classPower:SetFrameLevel(baseLevel + 4 + ClampPreviewLayer(bars.classPowerFrameLevelOffset, 5))
+    end
+    if mock.detachedPower and mock.detachedPower.SetFrameLevel then
+        mock.detachedPower:SetFrameLevel(baseLevel + 4 + ClampPreviewLayer(conf.detachedPowerBarFrameLevelOffset, 6))
+    end
     if mock.portrait and mock.portrait.SetFrameLevel then mock.portrait:SetFrameLevel(baseLevel + 7) end
     if mock.cast and mock.cast.SetFrameLevel then mock.cast:SetFrameLevel(baseLevel + 6) end
     if mock.textFrame and mock.textFrame.SetFrameLevel then mock.textFrame:SetFrameLevel(baseLevel + 10) end
@@ -2286,16 +2717,47 @@ function Preview.Refresh(box, reason)
     mock:ClearAllPoints()
     mock:SetPoint("CENTER", canvas, "CENTER", mockOffsetX, mockOffsetY)
 
-    local powerOn = ReadPowerBarEnabled(conf, key) and not detachedPower
+    local powerOn = D.ReadPowerBarEnabled(conf, key) and not detachedPower
     local powerH = powerOn and S(ReadPowerBarHeight(conf)) or 0
     if powerOn and powerH < 2 then powerH = 2 end
     mock.hpBG:ClearAllPoints()
     mock.hpBG:SetPoint("TOPLEFT", mock, "TOPLEFT", S(2), -S(2))
     mock.hpBG:SetPoint("BOTTOMRIGHT", mock, "BOTTOMRIGHT", -S(2), powerOn and (S(3) + powerH) or S(2))
     mock.hp:ClearAllPoints()
-    mock.hp:SetPoint("TOPLEFT", mock.hpBG, "TOPLEFT", 0, 0)
-    mock.hp:SetPoint("BOTTOMLEFT", mock.hpBG, "BOTTOMLEFT", 0, 0)
-    mock.hp:SetWidth(max(1, (sw - S(4)) * data.hp))
+    local hpReverse = conf.reverseFillBars == true
+    if hpReverse then
+        mock.hp:SetPoint("TOPRIGHT", mock.hpBG, "TOPRIGHT", 0, 0)
+        mock.hp:SetPoint("BOTTOMRIGHT", mock.hpBG, "BOTTOMRIGHT", 0, 0)
+    else
+        mock.hp:SetPoint("TOPLEFT", mock.hpBG, "TOPLEFT", 0, 0)
+        mock.hp:SetPoint("BOTTOMLEFT", mock.hpBG, "BOTTOMLEFT", 0, 0)
+    end
+    local hpAreaW = max(1, sw - S(4))
+    local hpFrac = max(0, min(1, tonumber(data.hp) or 0.6))
+    mock.hp:SetWidth(max(1, hpAreaW * hpFrac))
+    local healPredMode = PreviewResolveHealPredAnchorMode(conf, g)
+    local absorbMode = PreviewResolveAbsorbAnchorMode(conf, g)
+    local healPredShown = PreviewHealPredictionEnabled(g)
+    local absorbShown = PreviewAbsorbBarEnabled(conf, g)
+    local healPredFrac = ((healPredMode == 3) and min(0.14, max(0.02, 1 - hpFrac))) or 0.14
+    if healPredShown then
+        local r = tonumber(g and g.healPredColorR) or 0
+        local gg = tonumber(g and g.healPredColorG) or 1
+        local b = tonumber(g and g.healPredColorB) or 0.4
+        mock.healPred:SetVertexColor(r, gg, b, 0.55)
+        LayoutUnitPreviewOverlay(mock.healPred, mock.hpBG, mock.hp, healPredMode, healPredFrac, hpReverse, nil, hpAreaW)
+    else
+        mock.healPred:Hide()
+    end
+    if absorbShown then
+        local absorbAnchor = nil
+        if healPredShown and (healPredMode == 3 or healPredMode == 4) and (absorbMode == 3 or absorbMode == 4) then
+            absorbAnchor = mock.healPred
+        end
+        LayoutUnitPreviewOverlay(mock.absorb, mock.hpBG, mock.hp, absorbMode, 0.10, hpReverse, absorbAnchor, hpAreaW)
+    else
+        mock.absorb:Hide()
+    end
     local hr, hg, hb = HealthColor(key, data)
     local hbr, hbg, hbb, hba = HealthBackgroundColor(hr, hg, hb, data)
     mock.hpBG:SetVertexColor(hbr, hbg, hbb, hba)
@@ -2374,12 +2836,15 @@ function Preview.Refresh(box, reason)
         box.handleDetachedPower:Hide()
     end
 
+    ApplyPreviewRounded(box, key, powerOn, PreviewRoundedOutlineThickness(key, conf, scale))
+
     local fr, fg, fb = FontColor()
     local baseTextSize = tonumber(g.fontSize) or 14
     local nameSize = S(tonumber(conf.nameFontSize) or tonumber(g.nameFontSize) or baseTextSize); if nameSize < 7 then nameSize = 7 end
     local hpSize = S(tonumber(conf.hpFontSize) or tonumber(g.hpFontSize) or baseTextSize); if hpSize < 7 then hpSize = 7 end
     local pwrSize = S(tonumber(conf.powerFontSize) or tonumber(g.powerFontSize) or baseTextSize); if pwrSize < 7 then pwrSize = 7 end
     mock.nameText:SetFont(FONT, nameSize, "OUTLINE")
+    mock.raidGroupNameText:SetFont(FONT, nameSize, "OUTLINE")
     mock.totInlineSep:SetFont(FONT, nameSize, "OUTLINE")
     mock.totInlineText:SetFont(FONT, nameSize, "OUTLINE")
     mock.hpTextLeft:SetFont(FONT, hpSize, "OUTLINE")
@@ -2391,6 +2856,7 @@ function Preview.Refresh(box, reason)
     mock.powerText:SetFont(FONT, pwrSize, "OUTLINE")
     mock.powerTextPct:SetFont(FONT, pwrSize, "OUTLINE")
     mock.nameText:SetTextColor(fr, fg, fb, 1)
+    mock.raidGroupNameText:SetTextColor(fr, fg, fb, 1)
     mock.totInlineSep:SetTextColor(0.72, 0.76, 0.84, 1)
     mock.totInlineText:SetTextColor(fr, fg, fb, 1)
     mock.hpTextLeft:SetTextColor(fr, fg, fb, 1)
@@ -2410,6 +2876,7 @@ function Preview.Refresh(box, reason)
         mock.powerTextPct:SetTextColor(fr, fg, fb, 1)
     end
     mock.nameText:SetText(ShortenPreviewName(data.name, key, conf))
+    mock.raidGroupNameText:SetText(D.PreviewRaidGroupNameText(conf))
     local hpMax, pMax = 1000000, 240000
     local hpCur, pCur = floor(hpMax * data.hp + 0.5), floor(pMax * powerFrac + 0.5)
     local hpSlots = TextScopeHasSlots(key, "textLeft", "textCenter", "textRight")
@@ -2450,10 +2917,16 @@ function Preview.Refresh(box, reason)
     mock.powerText:SetText(FormatMode(powerRightMode, pCur, pMax, powerPctValue, powerSepRaw, true))
     mock.powerTextPct:SetText("")
     mock.nameText:SetShown(conf.showName ~= false)
+    local raidGroupAnchor = D.NormalizeRaidGroupNameAnchor(conf.raidGroupNameAnchor)
+    if conf.showName == false and (raidGroupAnchor == "NAMERIGHT" or raidGroupAnchor == "NAMELEFT") then
+        raidGroupAnchor = "CENTER"
+    end
+    local showRaidGroupName = conf.showRaidGroupInName == true and D.PreviewRaidGroupNameAllowed(key)
+    mock.raidGroupNameText:SetShown(showRaidGroupName)
     mock.totInlineSep:Hide()
     mock.totInlineText:Hide()
     local hpTextOn = conf.showHP ~= false
-    local powerTextOn = conf.showPower ~= false
+    local powerTextOn = (key ~= "focustarget" and conf.showPower ~= false) or conf.showPower == true
     mock.hpTextLeft:SetShown(hpTextOn and hpLeftMode ~= "NONE")
     mock.hpTextCenter:SetShown(hpTextOn and hpCenterMode ~= "NONE")
     mock.hpText:SetShown(hpTextOn and hpRightMode ~= "NONE")
@@ -2467,6 +2940,17 @@ function Preview.Refresh(box, reason)
     local npt, nrel, nx, njust = ResolveNameAnchor(conf.nameTextAnchor or "LEFT", S(tonumber(conf.nameOffsetX) or 4))
     mock.nameText:SetPoint(npt, mock.textFrame, nrel, nx, S(tonumber(conf.nameOffsetY) or -4))
     mock.nameText:SetJustifyH(njust)
+    mock.raidGroupNameText:ClearAllPoints()
+    local raidGroupX = S(tonumber(conf.raidGroupNameOffsetX) or 3)
+    local raidGroupY = S(tonumber(conf.raidGroupNameOffsetY) or 0)
+    if raidGroupAnchor == "NAMERIGHT" then
+        mock.raidGroupNameText:SetPoint("LEFT", mock.nameText, "RIGHT", raidGroupX, raidGroupY)
+    elseif raidGroupAnchor == "NAMELEFT" then
+        mock.raidGroupNameText:SetPoint("RIGHT", mock.nameText, "LEFT", raidGroupX, raidGroupY)
+    else
+        mock.raidGroupNameText:SetPoint(raidGroupAnchor, mock.textFrame, raidGroupAnchor, raidGroupX, raidGroupY)
+    end
+    mock.raidGroupNameText:SetJustifyH("LEFT")
     do
         local totConf = (_G.MSUF_DB and _G.MSUF_DB.targettarget) or {}
         local showInline = key == "target" and conf.showName ~= false and totConf.showToTInTargetName == true
@@ -2475,8 +2959,9 @@ function Preview.Refresh(box, reason)
             local totData = UNIT_DATA.targettarget or { name = "Target" }
             mock.totInlineSep:SetText(sep ~= "" and sep or " ")
             mock.totInlineText:SetText(ShortenPreviewName(totData.name, "targettarget", conf))
+            local inlineAnchor = (showRaidGroupName and raidGroupAnchor == "NAMERIGHT") and mock.raidGroupNameText or mock.nameText
             mock.totInlineSep:ClearAllPoints()
-            mock.totInlineSep:SetPoint("LEFT", mock.nameText, "RIGHT", S(4), 0)
+            mock.totInlineSep:SetPoint("LEFT", inlineAnchor, "RIGHT", S(4), 0)
             mock.totInlineText:ClearAllPoints()
             mock.totInlineText:SetPoint("LEFT", mock.totInlineSep, "RIGHT", S(4), 0)
             mock.totInlineSep:Show()
@@ -2577,7 +3062,7 @@ function Preview.Refresh(box, reason)
         elseif bStyle == "CLASS_COLOR" then
             mock.portrait:SetBackdropBorderColor(cr, cg, cb, 1)
         elseif bStyle == "REACTION" then
-            local hostile = (key == "target" or key == "boss" or key == "focus")
+            local hostile = (key == "target" or key == "boss" or key == "focus" or key == "focustarget")
             mock.portrait:SetBackdropBorderColor(hostile and 1 or 0.1, hostile and 0.2 or 0.85, 0.1, 1)
         else
             mock.portrait:SetBackdropBorderColor(1, 1, 1, 1)
@@ -2672,8 +3157,8 @@ function Preview.Refresh(box, reason)
     end
 
     local statusLayerAvailable = false
-    for i = 1, #STATUS_PREVIEW do
-        local spec = STATUS_PREVIEW[i]
+    for i = 1, #D.STATUS_PREVIEW do
+        local spec = D.STATUS_PREVIEW[i]
         local icon = mock.icons[spec.id]
         local handle = box.statusHandles[spec.id]
         local showVal = conf[spec.show]
@@ -2696,7 +3181,10 @@ function Preview.Refresh(box, reason)
             elseif sz < 10 then
                 sz = 10
             end
-            if icon.SetFrameLevel then icon:SetFrameLevel(baseLevel + 20) end
+            if icon.SetFrameLevel then
+                local rawLayer = spec.layer and (tonumber(conf[spec.layer]) or tonumber(g[spec.layer])) or spec.defaultLayer
+                icon:SetFrameLevel(textBase + ClampPreviewLayer(rawLayer, spec.defaultLayer or 7))
+            end
             SetPreviewIconTexture(icon, spec, conf, g, key, data)
             if spec.id == "level" then
                 local anchor = ResolveStatusPreviewAnchor(spec, conf, g)
@@ -2753,14 +3241,17 @@ function Preview.Refresh(box, reason)
             handle:Hide()
         end
     end
+    if showRaidGroupName then
+        statusLayerAvailable = true
+    end
 
     box.layerAvailable = {
         body = true,
         nameText = conf.showName ~= false,
         hpText = conf.showHP ~= false,
-        powerText = conf.showPower ~= false,
+        powerText = (key ~= "focustarget" and conf.showPower ~= false) or conf.showPower == true,
         portrait = hasPortrait,
-        power = ReadPowerBarEnabled(conf, key),
+        power = D.ReadPowerBarEnabled(conf, key),
         classPower = classPowerOn,
         castbar = castEnabled,
         status = statusLayerAvailable,
@@ -2791,6 +3282,7 @@ function Preview.Refresh(box, reason)
             PlaceHandle(handle, region)
         end
     end
+    PlaceTextSlotHandle(box.handleRaidGroupName, mock.raidGroupNameText)
     if UnitPreviewTextMovesTogether(key, "hp") then
         SetShownSafe(box.handleHPLeft, false)
         SetShownSafe(box.handleHPCenter, false)

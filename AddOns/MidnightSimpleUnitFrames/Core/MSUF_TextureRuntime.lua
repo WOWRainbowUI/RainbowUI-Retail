@@ -24,8 +24,8 @@ local function Export(key, fn, aliasKey, forceAlias)
 end
 
 local function EnsureDBSafe()
-    if not _G.MSUF_DB and type(_G.EnsureDB) == "function" then
-        _G.EnsureDB()
+    if not _G.MSUF_DB and type(_G.MSUF_EnsureDB) == "function" then
+        (_G.MSUF_EnsureDB)()
     end
 end
 
@@ -112,6 +112,12 @@ local function UpdateAllBarTextures()
     _iterState.applyBg = _G.MSUF_ApplyBarBackgroundVisual
 
     ForEachUnitFrame(_Iter_ApplyAllBarTex)
+    if _G.MSUF_RoundedUF_Active == true then
+        local applyRounded = _G.MSUF_RoundedUF_OnApplyAll
+        if type(applyRounded) == "function" then
+            applyRounded()
+        end
+    end
 
     if _G.MSUF_UpdateCastbarTextures_Immediate then
         _G.MSUF_UpdateCastbarTextures_Immediate()
@@ -137,6 +143,12 @@ local function UpdateAbsorbBarTextures()
     _iterState.texAbs = texAbs
     _iterState.texHeal = texHeal
     ForEachUnitFrame(_Iter_ApplyAbsorbTex)
+    if _G.MSUF_RoundedUF_Active == true then
+        local applyRounded = _G.MSUF_RoundedUF_OnApplyAll
+        if type(applyRounded) == "function" then
+            applyRounded()
+        end
+    end
 end
 
 Export("MSUF_UpdateAbsorbBarTextures", UpdateAbsorbBarTextures)
@@ -160,7 +172,7 @@ if not _G.MSUF_UpdateAllBarTextures_Immediate then
         if st then st.bars = true end
         ScheduleApplyCommit()
     end
-    _G.UpdateAllBarTextures = _G.MSUF_UpdateAllBarTextures
+    _G.UpdateAllBarTextures = _G.UpdateAllBarTextures or _G.MSUF_UpdateAllBarTextures
 end
 
 if ns then

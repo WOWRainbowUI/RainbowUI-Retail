@@ -22,7 +22,6 @@ local BoolValue = AP.BoolValue
 local NumValue = AP.NumValue
 local SetValue = AP.SetValue
 local DeepCopyTable = AP.DeepCopyTable
-local BindTableToggle = AP.BindTableToggle
 local BindTableSlider = AP.BindTableSlider
 local BindTableDropdown = AP.BindTableDropdown
 local BindValueDropdown = AP.BindValueDropdown
@@ -33,6 +32,10 @@ local BindSeparateRGB = AP.BindSeparateRGB
 local ApplyAuras = AP.ApplyAuras
 local MoveWidget = W.MoveWidget or AP.MoveWidget
 local LabelAt = AP.LabelAt
+
+local function Tr(text)
+    return (M.Tr and M.Tr(text)) or text
+end
 local DividerAt = AP.DividerAt
 local BindValueToggle = AP.BindValueToggle
 local BindValueSlider = AP.BindValueSlider
@@ -106,14 +109,36 @@ local function BlockCombatAction()
     return false
 end
 
+local function StyleProfileInput(editBox, width, height, multiline)
+    if not editBox then return editBox end
+    local w = tonumber(width) or (editBox.GetWidth and editBox:GetWidth()) or 260
+    local h = tonumber(height) or (editBox.GetHeight and editBox:GetHeight()) or 22
+    editBox:SetSize(w, h)
+    if editBox.SetMultiLine then editBox:SetMultiLine(multiline and true or false) end
+    if editBox.SetJustifyV then editBox:SetJustifyV(multiline and "TOP" or "MIDDLE") end
+    if editBox.SetTextInsets then
+        if multiline then
+            editBox:SetTextInsets(8, 8, 8, 8)
+        else
+            editBox:SetTextInsets(8, 8, 1, 1)
+        end
+    end
+    if editBox._msuf2Title then
+        editBox._msuf2Title:SetWidth(w)
+        editBox._msuf2Title:SetTextColor(T.colors.text[1], T.colors.text[2], T.colors.text[3], 1)
+    end
+    if editBox._msuf2PaintEditBox then editBox:_msuf2PaintEditBox(false) end
+    return editBox
+end
+
 local function EnsureProfilePopups()
     if not _G.StaticPopupDialogs then return end
 
     if not _G.StaticPopupDialogs.MSUF2_IMPORT_RELOAD_PROMPT then
         _G.StaticPopupDialogs.MSUF2_IMPORT_RELOAD_PROMPT = {
-            text = "Profile imported into the current profile.\n\nReload the UI now so every imported setting is applied?",
-            button1 = _G.RELOAD or "Reload",
-            button2 = _G.CANCEL or "Not now",
+            text = M.Tr("Profile imported into the current profile.\n\nReload the UI now so every imported setting is applied?"),
+            button1 = _G.RELOAD or M.Tr("Reload"),
+            button2 = _G.CANCEL or M.Tr("Not now"),
             timeout = 0,
             whileDead = true,
             hideOnEscape = true,
@@ -126,9 +151,9 @@ local function EnsureProfilePopups()
 
     if not _G.StaticPopupDialogs.MSUF2_CONFIRM_RESET_PROFILE then
         _G.StaticPopupDialogs.MSUF2_CONFIRM_RESET_PROFILE = {
-            text = "Reset profile '%s' to defaults?\n\nThis resets the entire selected profile to the current MSUF factory defaults. Every menu in that profile will be affected.",
-            button1 = YES or "Yes",
-            button2 = NO or "No",
+            text = M.Tr("Reset profile '%s' to defaults?\n\nThis resets the entire selected profile to the current MSUF factory defaults. Every menu in that profile will be affected."),
+            button1 = YES or M.Tr("Yes"),
+            button2 = NO or M.Tr("No"),
             timeout = 0,
             whileDead = true,
             hideOnEscape = true,
@@ -149,9 +174,9 @@ local function EnsureProfilePopups()
 
     if not _G.StaticPopupDialogs.MSUF2_CONFIRM_DELETE_PROFILE then
         _G.StaticPopupDialogs.MSUF2_CONFIRM_DELETE_PROFILE = {
-            text = "Delete profile '%s'?\n\nThis removes the selected profile from MSUF. Other profiles are not affected, but this profile cannot be restored unless you exported or copied it first.",
-            button1 = DELETE or "Delete",
-            button2 = CANCEL or "Cancel",
+            text = M.Tr("Delete profile '%s'?\n\nThis removes the selected profile from MSUF. Other profiles are not affected, but this profile cannot be restored unless you exported or copied it first."),
+            button1 = DELETE or M.Tr("Delete"),
+            button2 = CANCEL or M.Tr("Cancel"),
             timeout = 0,
             whileDead = true,
             hideOnEscape = true,
@@ -212,21 +237,20 @@ end
 local function BuildProfiles(ctx)
     local b = W.PageBuilder(ctx)
     local head = b:Header("Profiles", "Create, switch, copy, delete, export and import profiles.", 64)
-    if W.CreatePageResetButton then
-        W.CreatePageResetButton(ctx, head, nil, { width = 164, text = "Reset Current Profile", y = -20 })
-    end
     EnsureProfilePopups()
 
     local contentW = ctx.width or 920
-    local rightX = min(max(420, floor(contentW * 0.52)), max(360, contentW - 390))
+    local buttonW, buttonH, buttonGap = 190, 24, 14
+    local buttonGridW = (buttonW * 2) + buttonGap
+    local rightX = min(max(420, floor(contentW * 0.52)), max(360, contentW - buttonGridW - 28))
 
     local function AddProfileTooltip(frame, title, text)
         if not (frame and frame.HookScript) then return end
         frame:HookScript("OnEnter", function(self)
             if not _G.GameTooltip then return end
             _G.GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            _G.GameTooltip:AddLine(tostring(title or ""), 1, 1, 1)
-            if text and text ~= "" then _G.GameTooltip:AddLine(tostring(text), 0.85, 0.85, 0.85, true) end
+            _G.GameTooltip:AddLine(Tr(tostring(title or "")), 1, 1, 1)
+            if text and text ~= "" then _G.GameTooltip:AddLine(Tr(tostring(text)), 0.85, 0.85, 0.85, true) end
             _G.GameTooltip:Show()
         end)
         frame:HookScript("OnLeave", function()
@@ -234,8 +258,9 @@ local function BuildProfiles(ctx)
         end)
     end
 
-    local current = b:CollapsibleSection("profiles_management", "Profile Management", 208, true)
-    local profileDrop = W.Dropdown(current, "Active profile", {}, 260)
+    local current = b:CollapsibleSection("profiles_management", "Profile Management", 238, true)
+    local fieldW = min(360, max(300, rightX - 42))
+    local profileDrop = W.Dropdown(current, "Active profile", {}, fieldW)
     local function RefreshProfileValues()
         profileDrop:SetValues(ProfileValues(false))
     end
@@ -255,8 +280,10 @@ local function BuildProfiles(ctx)
         RefreshProfileValues()
         profileDrop:SetValue(_G.MSUF_ActiveProfile or "Default")
     end)
-    local nameInput = W.TextInput(current, "New / target profile name", 260)
-    local create = T.Button(current, "Create profile", 150, 24)
+    local nameInput = W.TextInput(current, "Profile name for create/copy", fieldW)
+    local nameHelp = W.Text(current, "Type a name here before creating or copying a profile.", 14, -158, fieldW, T.colors.muted)
+    if nameHelp and nameHelp.SetWordWrap then nameHelp:SetWordWrap(true) end
+    local create = T.Button(current, "Create profile", buttonW, buttonH)
     create:SetScript("OnClick", function()
         if BlockCombatAction() then return end
         local name = Trim(nameInput:GetText())
@@ -268,7 +295,7 @@ local function BuildProfiles(ctx)
         nameInput:SetText("")
         RefreshAfterProfileChange(ctx)
     end)
-    local copy = T.Button(current, "Copy current to name", 170, 24)
+    local copy = T.Button(current, "Copy current to name", buttonW, buttonH)
     copy:SetScript("OnClick", function()
         if BlockCombatAction() then return end
         local name = Trim(nameInput:GetText())
@@ -280,7 +307,7 @@ local function BuildProfiles(ctx)
             RefreshAfterProfileChange(ctx)
         end
     end)
-    local reset = T.Button(current, "Reset current profile", 170, 24)
+    local reset = T.Button(current, "Reset current profile", buttonW, buttonH)
     reset:SetScript("OnClick", function()
         if BlockCombatAction() then return end
         if M.ShowPageResetConfirm then
@@ -296,7 +323,7 @@ local function BuildProfiles(ctx)
             RefreshAfterProfileChange(ctx)
         end
     end)
-    local delete = T.Button(current, "Delete current profile", 170, 24)
+    local delete = T.Button(current, "Delete current profile", buttonW, buttonH)
     T.SkinDangerButton(delete)
     delete:SetScript("OnClick", function()
         if BlockCombatAction() then return end
@@ -310,12 +337,14 @@ local function BuildProfiles(ctx)
             RefreshAfterProfileChange(ctx)
         end
     end)
-    MoveWidget(profileDrop, current, 14, -42, 300)
-    MoveWidget(nameInput, current, 14, -104, 300)
-    create:SetPoint("TOPLEFT", current, "TOPLEFT", rightX, -58)
-    copy:SetPoint("LEFT", create, "RIGHT", 10, 0)
-    reset:SetPoint("TOPLEFT", current, "TOPLEFT", rightX, -98)
-    delete:SetPoint("LEFT", reset, "RIGHT", 10, 0)
+    MoveWidget(profileDrop, current, 14, -42, fieldW)
+    MoveWidget(nameInput, current, 14, -104, fieldW)
+    StyleProfileInput(nameInput, fieldW, 24, false)
+    W.LabelAt(current, "Profile actions", rightX, -42, buttonGridW, "GameFontNormalSmall", T.colors.text)
+    create:SetPoint("TOPLEFT", current, "TOPLEFT", rightX, -70)
+    copy:SetPoint("LEFT", create, "RIGHT", buttonGap, 0)
+    reset:SetPoint("TOPLEFT", current, "TOPLEFT", rightX, -110)
+    delete:SetPoint("LEFT", reset, "RIGHT", buttonGap, 0)
     M.AddRefresher(ctx, function()
         local active = _G.MSUF_ActiveProfile or "Default"
         if delete.SetEnabled then delete:SetEnabled(active ~= "Default") end
@@ -324,7 +353,7 @@ local function BuildProfiles(ctx)
     local specs = GetSpecMeta()
     local specRows = max(1, math.ceil((#specs > 0 and #specs or 1) / 2))
     local spec = b:CollapsibleSection("profiles_specs", "Spec Profiles", 120 + (specRows * 58), true)
-    local auto = W.Toggle(spec, "Auto-switch profile by specialization")
+    local auto = W.SwitchAt(spec, "Auto-switch profile by specialization", 14, -38, 360)
     M.BindToggle(ctx, auto,
         function()
             return type(_G.MSUF_IsSpecAutoSwitchEnabled) == "function" and _G.MSUF_IsSpecAutoSwitchEnabled() or false
@@ -333,7 +362,6 @@ local function BuildProfiles(ctx)
             if type(_G.MSUF_SetSpecAutoSwitchEnabled) == "function" then pcall(_G.MSUF_SetSpecAutoSwitchEnabled, v and true or false) end
             RefreshAfterProfileChange(ctx)
         end)
-    MoveWidget(auto, spec, 14, -38)
     W.Text(spec, "Assign profiles per specialization. If you change spec in combat, MSUF switches after combat.", 14, -70, contentW - 28, T.colors.muted)
     if #specs == 0 then
         W.Text(spec, "No specialization data is available for this character yet.", 14, -106, contentW - 28, T.colors.dim)
@@ -362,7 +390,9 @@ local function BuildProfiles(ctx)
         end
     end
 
-    local io = b:CollapsibleSection("profiles_io", "Export / Import", 356, false)
+    local io = b:CollapsibleSection("profiles_io", "Export / Import", 424, false)
+    local ioActionX = min(max(380, floor(contentW * 0.46)), max(340, contentW - 460))
+    local ioLeftW = max(320, min(620, ioActionX - 28))
     local exportKind = W.Dropdown(io, "Export kind", {
         { value = "all", text = "Full profile" },
         { value = "unitframe", text = "Unitframes" },
@@ -376,7 +406,7 @@ local function BuildProfiles(ctx)
         function(v) M.profileExportKind = v or "all" end)
     local blob = W.TextInput(io, "Profile string", 640)
     blob._msuf2CommitOnBlur = false
-    local export = T.Button(io, "Export", 120, 24)
+    local export = T.Button(io, "Export", buttonW, buttonH)
     export:SetScript("OnClick", function()
         local fn = _G.MSUF_ExportSelectionToString
         if type(fn) == "function" then
@@ -384,9 +414,9 @@ local function BuildProfiles(ctx)
             if ok and type(value) == "string" then blob:SetText(value); blob:HighlightText() end
         end
     end)
-    local import = T.Button(io, "Import to current profile", 180, 24)
+    local import = T.Button(io, "Import to current profile", buttonW, buttonH)
     AddProfileTooltip(import, "Import to current profile", "Applies the import string to the active profile. Export or copy your profile first if you want an easy backup.")
-    local importCreateNew = W.Toggle(io, "Import and create new profile")
+    local importCreateNew = W.SwitchAt(io, "Import and create new profile", ioActionX, -154, 300)
     AddProfileTooltip(importCreateNew, "Import and create new profile", "Creates a separate profile before importing so you can test the import without changing your current profile.")
     local importProfileName = W.TextInput(io, "New profile name", 260)
     importProfileName._msuf2CommitOnBlur = false
@@ -495,7 +525,7 @@ local function BuildProfiles(ctx)
         self:SetChecked(M.profileImportCreateNew == true)
         if M.Refresh then M.Refresh(ctx) end
     end)
-    local legacy = T.Button(io, "Import Legacy", 132, 24)
+    local legacy = T.Button(io, "Import Legacy", buttonW, buttonH)
     legacy:SetScript("OnClick", function()
         if BlockCombatAction() then return end
         local text = blob:GetText()
@@ -506,7 +536,7 @@ local function BuildProfiles(ctx)
             RefreshAfterProfileChange(ctx)
         end
     end)
-    local wago = T.Button(io, "Browse Wago Profiles", 220, 28)
+    local wago = T.Button(io, "Browse Wago Profiles", buttonW, buttonH)
     wago:SetScript("OnClick", function()
         if type(_G.MSUF_ShowCopyLink) == "function" then
             _G.MSUF_ShowCopyLink("Wago MSUF Profiles", WAGO_PROFILES_URL)
@@ -515,16 +545,17 @@ local function BuildProfiles(ctx)
             blob:HighlightText()
         end
     end)
-    local ioActionX = min(max(380, floor(contentW * 0.46)), max(340, contentW - 460))
     MoveWidget(exportKind, io, 14, -42, 260)
-    MoveWidget(blob, io, 14, -104, max(320, min(620, ioActionX - 28)))
-    export:SetPoint("TOPLEFT", io, "TOPLEFT", ioActionX, -64)
-    import:SetPoint("LEFT", export, "RIGHT", 10, 0)
-    legacy:SetPoint("LEFT", import, "RIGHT", 10, 0)
-    wago:SetPoint("TOPLEFT", io, "TOPLEFT", ioActionX, -104)
-    MoveWidget(importCreateNew, io, ioActionX, -144)
-    MoveWidget(importProfileName, io, ioActionX, -178, 260)
-    W.Text(io, "Importing to the current profile changes the active profile. To test safely, enable new-profile import or copy/export your profile first.", ioActionX, -218, max(260, contentW - ioActionX - 28), T.colors.muted)
+    MoveWidget(blob, io, 14, -104, ioLeftW)
+    StyleProfileInput(blob, ioLeftW, 168, true)
+    W.LabelAt(io, "Actions", ioActionX, -42, buttonGridW, "GameFontNormalSmall", T.colors.text)
+    export:SetPoint("TOPLEFT", io, "TOPLEFT", ioActionX, -70)
+    import:SetPoint("LEFT", export, "RIGHT", buttonGap, 0)
+    legacy:SetPoint("TOPLEFT", io, "TOPLEFT", ioActionX, -110)
+    wago:SetPoint("LEFT", legacy, "RIGHT", buttonGap, 0)
+    MoveWidget(importProfileName, io, ioActionX, -202, 300)
+    StyleProfileInput(importProfileName, 300, 24, false)
+    W.Text(io, "Importing to the current profile changes the active profile. To test safely, enable new-profile import or copy/export your profile first.", ioActionX, -250, max(260, contentW - ioActionX - 28), T.colors.muted)
     M.AddRefresher(ctx, function()
         local createNew = M.profileImportCreateNew == true
         importCreateNew:SetChecked(createNew)
@@ -546,8 +577,8 @@ local function BuildModules(ctx)
     if W.CreatePageResetButton then
         W.CreatePageResetButton(ctx, head, nil, { width = 88, y = -20 })
     end
-    local style = b:CollapsibleSection("modules_style", "Style", 230, true)
-    local enable = W.Toggle(style, "Enable MSUF Style")
+    local style = b:CollapsibleSection("modules_style", "Style", 176, true)
+    local enable = W.SwitchAt(style, "MSUF Style", 14, -38, 220)
     M.BindToggle(ctx, enable,
         function()
             if type(_G.MSUF_StyleIsEnabled) == "function" then
@@ -561,6 +592,7 @@ local function BuildModules(ctx)
             G().styleEnabled = v and true or false
             CallGlobal("MSUF_ApplyModules")
         end)
+    style._msuf2CursorY = -82
     local dropdownMode = W.Dropdown(style, "Dropdown style", {
         { text = "MSUF superellipse", value = "msuf" },
         { text = "Blizzard legacy", value = "old" },
@@ -585,7 +617,6 @@ local function BuildModules(ctx)
                 G().dropdownStyleMode = v
             end
         end)
-    BindTableToggle(ctx, style, "Rounded unitframes", G, "roundedUnitframes", false, function() CallGlobal("MSUF_ApplyModules") end)
     ctx:SetContentHeight(math.abs(b.y) + 42)
 end
 

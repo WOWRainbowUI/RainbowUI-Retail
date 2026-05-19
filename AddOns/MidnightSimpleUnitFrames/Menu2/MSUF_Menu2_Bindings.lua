@@ -27,6 +27,7 @@ local UNIT_KEYS = {
     player = true,
     target = true,
     targettarget = true,
+    focustarget = true,
     focus = true,
     pet = true,
     boss = true,
@@ -37,8 +38,9 @@ local function WipeTable(t)
 end
 
 function M.EnsureDB()
-    if type(_G.EnsureDB) == "function" then
-        pcall(_G.EnsureDB)
+    local ensure = _G.MSUF_EnsureDB
+    if type(ensure) == "function" then
+        pcall(ensure)
     end
     _G.MSUF_DB = _G.MSUF_DB or {}
     _G.MSUF_DB.general = _G.MSUF_DB.general or {}
@@ -48,6 +50,7 @@ end
 function M.GetUnitDB(unit)
     local db = M.EnsureDB()
     unit = (unit == "tot") and "targettarget" or unit
+    unit = (unit == "focus_target" or unit == "focustargettarget") and "focustarget" or unit
     if not UNIT_KEYS[unit] then unit = "player" end
     db[unit] = db[unit] or {}
     return db[unit], db
@@ -63,10 +66,10 @@ function M.ShowPreserveHPColorWarning()
     local g = M.GetGeneralDB()
     if g.hidePreserveHPColorWarning == true then return false end
 
-    local message = "Preserve HP color can replace the selected health bar texture with an internal preserve texture.\n\nSome colored or pre-gradient bar textures may look flat, dark, or different while this option is enabled."
+    local message = M.Tr("Preserve HP color keeps the HP fill color while layer fade is active and draws missing health separately with the same HP track color from Colors.\n\nThis can help when HP Bar fade makes the empty HP area disappear or look black. Some custom textures may still look flat, dark, or different while this option is enabled.")
     if not (_G.StaticPopupDialogs and _G.StaticPopup_Show) then
         if print then
-            print("|cffffd700MSUF:|r Preserve HP color may not work correctly with some bar textures.")
+            print(M.Tr("|cffffd700MSUF:|r Preserve HP color uses the same HP track color from Colors, but some bar textures may look different."))
         end
         return false
     end
@@ -75,7 +78,7 @@ function M.ShowPreserveHPColorWarning()
         _G.StaticPopupDialogs.MSUF2_PRESERVE_HP_COLOR_WARNING = {
             text = "%s",
             button1 = _G.OKAY or "OK",
-            button2 = "Don't show again",
+            button2 = M.Tr("Don't show again"),
             timeout = 0,
             whileDead = true,
             hideOnEscape = false,
@@ -166,7 +169,7 @@ local function FlushApply()
                 CallGlobal("MSUF_ClassPower_Refresh")
             end
         end
-        if not CallGlobal("ApplySettingsForKey", unit) then
+        if not CallGlobal("MSUF_ApplySettingsForKey", unit) and not CallGlobal("ApplySettingsForKey", unit) then
             CallGlobal("MSUF_ApplySettingsForKey_Immediate", unit)
         end
     end
@@ -181,7 +184,7 @@ local function FlushApply()
             CallGlobal("MSUF_UFCore_NotifyConfigChanged", nil, true, true, opt.reason or "MSUF2_GENERAL")
         end
         if opt.applyAll ~= false then
-            if not CallGlobal("ApplyAllSettings") then
+            if not CallGlobal("MSUF_ApplyAllSettings") and not CallGlobal("ApplyAllSettings") then
                 CallGlobal("MSUF_ApplyAllSettings_Immediate")
             end
         end
@@ -552,6 +555,7 @@ end
 function M.RequestUnitApply(unit, reason, opts)
     if M.BlockCombatAction() then return false end
     unit = (unit == "tot") and "targettarget" or unit
+    unit = (unit == "focus_target" or unit == "focustargettarget") and "focustarget" or unit
     if not UNIT_KEYS[unit] then return end
     M.CheckpointHistory(reason or ("MSUF2_" .. tostring(unit)), "apply:unit:" .. tostring(unit) .. ":" .. tostring(reason or "change"))
     pendingUnits[unit] = true
@@ -628,6 +632,7 @@ local UNIT_PAGE_RESETS = {
     uf_player = { unit = "player", label = "Player" },
     uf_target = { unit = "target", label = "Target" },
     uf_targettarget = { unit = "targettarget", label = "Target of Target" },
+    uf_focustarget = { unit = "focustarget", label = "Focus Target" },
     uf_focus = { unit = "focus", label = "Focus" },
     uf_boss = { unit = "boss", label = "Boss Frames" },
     uf_pet = { unit = "pet", label = "Pet" },
@@ -663,7 +668,7 @@ local PAGE_RESET_INFO = {
     opt_bars = {
         label = "Bars",
         kind = "bars",
-        summary = "shared bar textures, gradients, absorb display, outlines, highlight borders, power smoothing and all per-unit/group bar overrides",
+        summary = "shared bar textures, gradients, rounded frame corners, absorb display, outlines, highlight borders, power smoothing and all per-unit/group bar overrides",
     },
     opt_fonts = {
         label = "Fonts",
@@ -703,7 +708,7 @@ local PAGE_RESET_INFO = {
     modules = {
         label = "Modules",
         kind = "modules",
-        summary = "optional style/module settings such as MSUF Style, dropdown style and rounded unitframes",
+        summary = "optional style/module settings such as MSUF Style and dropdown style",
     },
     profiles = {
         label = "Profiles",
@@ -733,12 +738,19 @@ local BARS_GENERAL_KEYS = {
     gradientDirUp = true,
     gradientDirDown = true,
     showSelfHealPrediction = true,
+    healPredAnchorMode = true,
     absorbBarTexture = true,
     healAbsorbBarTexture = true,
+    dispelBorderTrigger = true,
     bossTargetOutlineMode = true,
     bossTargetHighlightEnabled = true,
     highlightPrioEnabled = true,
     highlightPrioOrder = true,
+    roundedFramesEnabled = true,
+    roundedUnitFrames = true,
+    roundedGroupFrames = true,
+    roundedPowerBars = true,
+    roundedMouseover = true,
 }
 
 local BARS_SCOPE_KEYS = {
@@ -746,6 +758,7 @@ local BARS_SCOPE_KEYS = {
     hpPowerTextOverride = true,
     absorbTextMode = true,
     absorbAnchorMode = true,
+    healPredAnchorMode = true,
     absorbBarOpacity = true,
     healAbsorbBarOpacity = true,
     barOutlineThickness = true,
@@ -753,6 +766,14 @@ local BARS_SCOPE_KEYS = {
     hlAggroSize = true,
     aggroOutlineMode = true,
     dispelOutlineMode = true,
+    dispelBorderTrigger = true,
+    hlDispelColorMode = true,
+    hlDispelColorR = true,
+    hlDispelColorG = true,
+    hlDispelColorB = true,
+    dispelBorderColorR = true,
+    dispelBorderColorG = true,
+    dispelBorderColorB = true,
     purgeOutlineMode = true,
     hlDispelGlowEnabled = true,
     hlDispelGlowStyle = true,
@@ -776,6 +797,11 @@ local BARS_TABLE_KEYS = {
     barOutlineThickness = true,
     smoothPowerBar = true,
     realtimePowerText = true,
+    roundedFramesEnabled = true,
+    roundedUnitFrames = true,
+    roundedGroupFrames = true,
+    roundedPowerBars = true,
+    roundedMouseover = true,
 }
 
 local FONT_GENERAL_KEYS = {
@@ -839,6 +865,7 @@ local MISC_GENERAL_KEYS = {
     hardKillBlizzardPlayerFrame = true,
     showMinimapIcon = true,
     playTargetSelectLostSounds = true,
+    rangeFadeEnabled = true,
     rangeFadePortrait = true,
 }
 
@@ -879,7 +906,6 @@ local CASTBAR_EXCLUDED_KEYS = {
 local MODULES_GENERAL_KEYS = {
     styleEnabled = true,
     dropdownStyleMode = true,
-    roundedUnitframes = true,
 }
 
 local COLOR_GENERAL_KEYS = {
@@ -1098,7 +1124,7 @@ end
 local function ResetBarsPage(db, defaults)
     ResetRootFiltered(db, defaults, "general", IsBarsGeneralKey)
     ResetRootFiltered(db, defaults, "bars", function(key) return BARS_TABLE_KEYS[key] == true end)
-    for _, key in ipairs({ "player", "target", "targettarget", "focus", "pet", "boss", "gf_party", "gf_raid", "gf_mythicraid" }) do
+    for _, key in ipairs({ "player", "target", "targettarget", "focustarget", "focus", "pet", "boss", "gf_party", "gf_raid", "gf_mythicraid" }) do
         ResetUnitFiltered(db, defaults, key, IsBarsScopeKey)
     end
     EnsureTargetTargetAlias(db)
@@ -1107,7 +1133,7 @@ end
 local function ResetFontsPage(db, defaults)
     ResetRootFiltered(db, defaults, "general", function(key) return FONT_GENERAL_KEYS[key] == true end)
     ResetKeySet(db, defaults, FONT_ROOT_KEYS)
-    for _, key in ipairs({ "player", "target", "targettarget", "focus", "pet", "boss", "gf_party", "gf_raid", "gf_mythicraid" }) do
+    for _, key in ipairs({ "player", "target", "targettarget", "focustarget", "focus", "pet", "boss", "gf_party", "gf_raid", "gf_mythicraid" }) do
         ResetUnitFiltered(db, defaults, key, IsFontScopeKey)
     end
     EnsureTargetTargetAlias(db)
@@ -1297,15 +1323,15 @@ function M.BuildPageResetWarning(pageKey)
     if info.kind == "profile" then
         local profileName = _G.MSUF_ActiveProfile or "Default"
         return string.format(
-            "Reset %s to defaults?\n\nThis resets the entire active profile '%s' to the current MSUF factory defaults. Every menu in that profile will be affected.",
+            M.Tr("Reset %s to defaults?\n\nThis resets the entire active profile '%s' to the current MSUF factory defaults. Every menu in that profile will be affected."),
             tostring(title),
             tostring(profileName)
         )
     end
     return string.format(
-        "Reset %s to defaults?\n\nThis resets %s for the active profile. Defaults are read from the current MSUF factory profile, so future default changes are used automatically.",
+        M.Tr("Reset %s to defaults?\n\nThis resets %s for the active profile. Defaults are read from the current MSUF factory profile, so future default changes are used automatically."),
         tostring(title),
-        tostring(info.summary or title)
+        tostring((M.Tr and M.Tr(info.summary or title)) or info.summary or title)
     )
 end
 

@@ -9,7 +9,10 @@ _G.MSUF_NS = ns
 local GF = ns.GF
 if not GF then return end
 
+local C_Secrets = _G.C_Secrets
 local issecretvalue = _G.issecretvalue
+    or (C_Secrets and type(C_Secrets.IsSecret) == "function" and C_Secrets.IsSecret)
+    or nil
 local C_Timer = _G.C_Timer
 local CreateFrame = _G.CreateFrame
 local InCombatLockdown = _G.InCombatLockdown
@@ -42,6 +45,32 @@ local MSUF_BETTER_BLIZZARD_TEXTURE = "Interface\\AddOns\\MidnightSimpleUnitFrame
 local UNHALTED_BG_R, UNHALTED_BG_G, UNHALTED_BG_B = 34/255, 34/255, 34/255
 local _unhaltedTextureChecked, _unhaltedTexture
 local GRAD_KEYS = { "left", "right", "up", "down" }
+
+local function GetSecretValueDetector()
+    local isv = issecretvalue
+    if not isv then
+        local secrets = C_Secrets or _G.C_Secrets
+        C_Secrets = secrets
+        isv = _G.issecretvalue
+            or (secrets and type(secrets.IsSecret) == "function" and secrets.IsSecret)
+            or nil
+        if isv then issecretvalue = isv end
+    end
+    return isv
+end
+
+local function SecretModeActiveWithoutDetector()
+    local secrets = C_Secrets or _G.C_Secrets
+    C_Secrets = secrets
+    local fn = secrets and secrets.ShouldAurasBeSecret
+    return type(fn) == "function" and fn() == true
+end
+
+local function IsSecretRuntimeValue(v)
+    local isv = GetSecretValueDetector()
+    if isv then return isv(v) == true end
+    return type(v) ~= "nil" and SecretModeActiveWithoutDetector()
+end
 
 local function ResolveUnhaltedTexture()
     if _unhaltedTextureChecked then return _unhaltedTexture end
@@ -889,7 +918,10 @@ local function ApplyHealthColor(f, kind, unit)
     if mode == "GRADIENT" and unit and UnitExists(unit) then
         local hp    = UnitHealth(unit)
         local hpMax = UnitHealthMax(unit)
-        if issecretvalue and (issecretvalue(hp) or issecretvalue(hpMax)) then
+        local iss = GetSecretValueDetector()
+        local secretHealth = (iss and (iss(hp) or iss(hpMax)))
+            or (not iss and SecretModeActiveWithoutDetector())
+        if secretHealth then
             f.health:SetStatusBarColor(0.2, 0.8, 0.2, 1)
             return
         end
@@ -929,6 +961,42 @@ local function HidePreserveMissingHP(f)
     if f and f._msufGFMissingHPBg then f._msufGFMissingHPBg:Hide() end
 end
 
+local function ResolvePreserveMissingHPColor(f, kind)
+    local source = f and (f._msufBehindBarBg or f.healthBg)
+    if source and source.GetVertexColor then
+        local r, g, b = source:GetVertexColor()
+        if type(r) == "number" and type(g) == "number" and type(b) == "number" then
+            -- Frame API colors can be secret-tagged in Midnight. They are safe
+            -- to pass to C-side color setters, but not to compare/cache in Lua.
+            return r, g, b, 1, true
+        end
+    end
+
+    local conf = GF.GetConf(kind)
+    if conf then
+        return conf.bgR or 0.1,
+            conf.bgG or 0.1,
+            conf.bgB or 0.1,
+            1
+    end
+    return UNHALTED_BG_R, UNHALTED_BG_G, UNHALTED_BG_B, 1
+end
+
+local function ApplyPreserveMissingHPColor(f, bg, kind)
+    if not bg or not bg.SetStatusBarColor then return end
+    local r, g, b, a, secretColor = ResolvePreserveMissingHPColor(f, kind)
+    if a < 0 then a = 0 elseif a > 1 then a = 1 end
+    if secretColor then
+        bg:SetStatusBarColor(r, g, b, a)
+        bg._msufGFMissingR, bg._msufGFMissingG, bg._msufGFMissingB, bg._msufGFMissingA = nil, nil, nil, nil
+        return
+    end
+    if bg._msufGFMissingR ~= r or bg._msufGFMissingG ~= g or bg._msufGFMissingB ~= b or bg._msufGFMissingA ~= a then
+        bg:SetStatusBarColor(r, g, b, a)
+        bg._msufGFMissingR, bg._msufGFMissingG, bg._msufGFMissingB, bg._msufGFMissingA = r, g, b, a
+    end
+end
+
 local function EnsurePreserveMissingHP(f, kind)
     local h = f and f.health
     if not h then return nil end
@@ -940,7 +1008,6 @@ local function EnsurePreserveMissingHP(f, kind)
         bg = CreateFrame("StatusBar", nil, f.barGroup or f)
         bg:SetMinMaxValues(0, 1)
         bg:SetValue(0)
-        bg:SetStatusBarColor(UNHALTED_BG_R, UNHALTED_BG_G, UNHALTED_BG_B, 1)
         bg:Hide()
         f._msufGFMissingHPBg = bg
     end
@@ -963,10 +1030,7 @@ local function EnsurePreserveMissingHP(f, kind)
         bg:SetStatusBarTexture(tex)
         bg._msufGFMissingBgTex = tex
     end
-    if bg._msufGFMissingColorSet ~= true then
-        bg:SetStatusBarColor(UNHALTED_BG_R, UNHALTED_BG_G, UNHALTED_BG_B, 1)
-        bg._msufGFMissingColorSet = true
-    end
+    ApplyPreserveMissingHPColor(f, bg, kind)
     if bg.SetReverseFill and h.GetReverseFill then
         local rev = not h:GetReverseFill()
         if bg._msufGFMissingReverse ~= rev then
@@ -1007,45 +1071,50 @@ local function SyncPreserveMissingHP(f, kind, hp, hpMax)
 
     local bg = EnsurePreserveMissingHP(f, kind)
     if not bg then return end
+    ApplyPreserveMissingHPColor(f, bg, kind)
     local unit = f.unit
-    if hpMax == nil and unit and UnitHealthMax then hpMax = UnitHealthMax(unit) end
-    if hpMax == nil and f.health.GetMinMaxValues then
+    if type(hpMax) == "nil" and unit and UnitHealthMax then hpMax = UnitHealthMax(unit) end
+    if type(hpMax) == "nil" and f.health.GetMinMaxValues then
         local _, mx = f.health:GetMinMaxValues()
         hpMax = mx
     end
 
     local missing
-    local iss = issecretvalue
+    local iss = GetSecretValueDetector()
+    local secretNoDetector = not iss and SecretModeActiveWithoutDetector()
     local comparable = type(hpMax) == "number" and type(hp) == "number"
+        and not secretNoDetector
         and not (iss and (iss(hpMax) or iss(hp)))
     if comparable then
         missing = hpMax - hp
         if missing < 0 then missing = 0 end
     elseif unit and _G.UnitHealthMissing then
         missing = _G.UnitHealthMissing(unit, true)
-    else
-        if hp == nil and unit and UnitHealth then hp = UnitHealth(unit) end
+    elseif not secretNoDetector then
+        if type(hp) == "nil" and unit and UnitHealth then hp = UnitHealth(unit) end
         if type(hpMax) == "number" and type(hp) == "number" then
             missing = hpMax - hp
             if missing < 0 then missing = 0 end
         end
     end
 
-    local maxValue = hpMax or 1
-    if not (iss and iss(maxValue)) and bg._msufGFMissingMax ~= maxValue then
-        bg:SetMinMaxValues(0, maxValue)
-        bg._msufGFMissingMax = maxValue
-    elseif iss and iss(maxValue) then
+    local maxValue = (type(hpMax) == "nil") and 1 or hpMax
+    local maxSecret = secretNoDetector or (iss and iss(maxValue))
+    if maxSecret then
         bg:SetMinMaxValues(0, maxValue)
         bg._msufGFMissingMax = nil
+    elseif bg._msufGFMissingMax ~= maxValue then
+        bg:SetMinMaxValues(0, maxValue)
+        bg._msufGFMissingMax = maxValue
     end
-    local value = missing or 0
-    if not (iss and iss(value)) and bg._msufGFMissingValue ~= value then
-        bg:SetValue(value)
-        bg._msufGFMissingValue = value
-    elseif iss and iss(value) then
+    local value = (type(missing) == "nil") and 0 or missing
+    local valueSecret = secretNoDetector or (iss and iss(value))
+    if valueSecret then
         bg:SetValue(value)
         bg._msufGFMissingValue = nil
+    elseif bg._msufGFMissingValue ~= value then
+        bg:SetValue(value)
+        bg._msufGFMissingValue = value
     end
     if not bg:IsShown() then bg:Show() end
 end
@@ -1126,6 +1195,7 @@ local function ApplyHealthBarAlpha(f, kind)
         fgA = 1
     end
     local boolValue = f._msufGFHealthAlphaBool
+    local boolSecret = type(boolValue) ~= "nil" and IsSecretRuntimeValue(boolValue)
     local falseMul = tonumber(f._msufGFHealthAlphaFalseMul) or 1
     if falseMul < 0 then falseMul = 0 elseif falseMul > 1 then falseMul = 1 end
     local falseA = fgA * falseMul
@@ -1143,7 +1213,7 @@ local function ApplyHealthBarAlpha(f, kind)
         SetStatusBarTextureAlphaFromBoolean(f.absorbBar, boolValue, activeA, inactiveA)
         SetStatusBarTextureAlphaFromBoolean(f.healAbsorbBar, boolValue, activeA, inactiveA)
         SetStatusBarTextureAlphaFromBoolean(f.incomingHealBar, boolValue, activeA, inactiveA)
-    elseif dynamic and type(boolValue) ~= "nil" and (issecretvalue and issecretvalue(boolValue)) and f.health.SetAlphaFromBoolean then
+    elseif dynamic and type(boolValue) ~= "nil" and boolSecret and f.health.SetAlphaFromBoolean then
         -- Fallback for clients where statusbar textures cannot consume secret
         -- booleans directly.
         f._msufCachedHpBarAlpha = nil
@@ -1157,7 +1227,7 @@ local function ApplyHealthBarAlpha(f, kind)
     else
         local mul
         if dynamic then
-            if type(boolValue) ~= "nil" and not (issecretvalue and issecretvalue(boolValue)) then
+            if type(boolValue) ~= "nil" and not boolSecret then
                 mul = (boolValue == false) and falseMul or 1
             else
                 mul = tonumber(f._msufGFHealthAlphaMul) or falseMul
@@ -1464,7 +1534,7 @@ local function ApplyOverlayColors(f)
     local gen = _G.MSUF_DB and _G.MSUF_DB.general
     local kind = f._msufGFKind or "party"
     -- Incoming heal (heal prediction) — colors from general (shared)
-    if f.incomingHealBar then
+    if f.incomingHealBar and f._c and f._c.healPredEn == true then
         local r, g, b = 0.0, 1.0, 0.4
         if gen then
             if type(gen.healPredColorR) == "number" then r = gen.healPredColorR end
@@ -1515,6 +1585,9 @@ local function ApplyOverlayColors(f)
     -- change, power-row toggle). ApplyOverlayColors fires on DIRTY_COLOR; width
     -- updates from DIRTY_GEOMETRY/DIRTY_LAYOUT are caught by the unconditional
     -- call added in ApplyVisuals below.
+    if f._c and f._c.healPredEn == true and GF._ApplyHealPredAnchor then
+        GF._ApplyHealPredAnchor(f)
+    end
     if GF._ApplyAbsorbAnchor then
         GF._ApplyAbsorbAnchor(f)
     end
@@ -1559,11 +1632,20 @@ local function ApplyVisuals(f, bits)
     -- Absorb anchor: ensure mode 4 overflow and mode 3 clipping track hpBar
     -- width changes from DIRTY_GEOMETRY / DIRTY_LAYOUT (not just DIRTY_COLOR
     -- via ApplyOverlayColors). Internal diff-gate short-circuits no-ops at ~2μs.
+    if f._c and f._c.healPredEn == true and GF._ApplyHealPredAnchor then
+        GF._ApplyHealPredAnchor(f)
+    end
     if GF._ApplyAbsorbAnchor then
         GF._ApplyAbsorbAnchor(f)
     end
     -- Rebuild hot-path settings cache (eliminates GF.GetConf from combat events)
     if GF.BuildFrameCache then GF.BuildFrameCache(f) end
+    if _G.MSUF_RoundedUF_Active == true then
+        local applyRounded = _G.MSUF_RoundedUF_OnGroupFrameApplied
+        if type(applyRounded) == "function" then
+            applyRounded(f, kind)
+        end
+    end
 end
 
 ------------------------------------------------------------------------
