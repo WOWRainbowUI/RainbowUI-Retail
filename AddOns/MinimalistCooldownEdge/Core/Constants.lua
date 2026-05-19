@@ -10,6 +10,7 @@ C.Addon = {
     ShortName = "MiniCE",
     SavedVariables = "MinimalistCooldownEdgeDB_v2",
     CooldownManagerCenteredName = "CooldownManagerCentered",
+    HealerCCName = "HealerCC",
     MiniCCName = "MiniCC",
     DominosName = "Dominos",
     DominosCastName = "Dominos_Cast",
@@ -35,6 +36,7 @@ C.Categories = {
     Unitframe = "unitframe",
     PlayerAura = "playeraura",
     CooldownManager = "cooldownmanager",
+    HealerCC = "healercc",
     MiniCC = "minicc",
     SArena = "sarena",
     TellMeWhen = "tellmewhen",
@@ -138,6 +140,7 @@ C.Defaults = {
         [C.Categories.Unitframe] = true,
         [C.Categories.PlayerAura] = false,
         [C.Categories.CooldownManager] = false,
+        [C.Categories.HealerCC] = false,
         [C.Categories.MiniCC] = false,
         [C.Categories.SArena] = false,
         [C.Categories.TellMeWhen] = false,
@@ -494,6 +497,15 @@ C.Adapter = {
     },
     CooldownManager = {
         MaxAncestorDepth = 6,
+    },
+    HealerCC = {
+        ContainerDepth = 3,
+        FriendlyAnchorName = "HealerCCAnchor",
+        EnemyAnchorName = "HealerCCEnemyAnchor",
+        FriendlyContainerPattern = "^HealerCCIcon%d+Container$",
+        EnemyContainerPattern = "^HealerCCEnemyIcon%d+Container$",
+        FriendlyCooldownPattern = "^HealerCCIcon%d+Cooldown$",
+        EnemyCooldownPattern = "^HealerCCEnemyIcon%d+Cooldown$",
     },
     MiniCC = {
         -- Hierarchy depth is fixed at 3 hops (Cooldown→Layer→Slot→Container)
