@@ -79,16 +79,16 @@ local function showRealDate(curseDate)
 	end
 end
 
-DBM.Revision = parseCurseDate("20260516050055")
+DBM.Revision = parseCurseDate("20260517223329")
 DBM.TaintedByTests = false -- Tests may mess with some internal state, you probably don't want to rely on DBM for an important boss fight after running it in test mode
 
 private.fakeBWVersion, private.fakeBWHash = 415, "414c990"--415.0
 
 -- The string that is shown as version
-DBM.DisplayVersion = "12.0.49"--Core version
+DBM.DisplayVersion = "12.0.50"--Core version
 DBM.classicSubVersion = 0
 DBM.dungeonSubVersion = 0
-DBM.ReleaseRevision = releaseDate(2026, 5, 15) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
+DBM.ReleaseRevision = releaseDate(2026, 5, 17) -- the date of the latest stable version that is available, optionally pass hours, minutes, and seconds for multiple releases in one day
 DBM.HighestRelease = DBM.ReleaseRevision --Updated if newer version is detected, used by update nags to reflect critical fixes user is missing on boss pulls
 
 -- support for github downloads, which doesn't support curse keyword expansion
@@ -979,12 +979,8 @@ function DBM:ParseSpellIcon(spellId, objectType, fallbackIcon)
 	local icon
 	if objectType and objectType == "achievement" then
 		icon = select(10, GetAchievementInfo(spellId))
-	elseif type(spellId) == "string" then--Journal ID in old format
-		if spellId:match("ej%d+") then
-			icon = select(4, DBM:EJ_GetSectionInfo(string.sub(spellId, 3)))
-		else--Icon texture ID (passed as string by module so core knows it's a FDID and not spellID
-			icon = spellId
-		end
+	elseif type(spellId) == "string" then--Icon texture ID (passed as string by module so core knows it's a FDID and not spellID)
+		icon = spellId
 	elseif type(spellId) == "number" then--SpellId or journal Id
 		if spellId < 0 then--Journal ID in new format
 			icon = select(4, DBM:EJ_GetSectionInfo(-spellId))
@@ -1003,8 +999,6 @@ function DBM:ParseSpellName(spellId, objectType)
 	local spellName
 	if objectType and objectType == "achievement" then
 		spellName = select(2, GetAchievementInfo(spellId))
-	elseif type(spellId) == "string" and spellId:match("ej%d+") then--Old Journal Format
-		spellName = self:EJ_GetSectionInfo(string.sub(spellId, 3))
 	elseif type(spellId) == "number" then
 		if spellId < 0 then--New Journal Format
 			spellName = self:EJ_GetSectionInfo(-spellId)
@@ -1053,14 +1047,7 @@ do
 			return nil
 		end
 		local numericKey = tonumber(spellId)
-		if numericKey then
-			return numericKey
-		end
-		local ejId = tonumber(spellId:match("^[Ee][Jj](%d+)$"))
-		if ejId then
-			return -ejId
-		end
-		return nil
+		return numericKey
 	end
 
 	---@param spellId number?
@@ -1165,6 +1152,29 @@ do
 		refreshSpellRenameCache(true)
 	end
 	bossModPrototype.SetRename = DBM.SetRename
+
+	---@param spellRenames table<number|string, string>?
+	function DBM:ReplaceSpellRenames(spellRenames)
+		local overrides = getSpellRenameOverrides()
+		if not overrides then
+			return false
+		end
+		table.wipe(overrides)
+		if type(spellRenames) == "table" then
+			for spellId, renameString in pairs(spellRenames) do
+				local normalizedSpellId = normalizeSpellRenameKey(spellId)
+				local sanitizedRename = sanitizeSpellRenameText(renameString)
+				if type(normalizedSpellId) == "number" and isValidSpellRenameKey(normalizedSpellId) and sanitizedRename then
+					---@cast normalizedSpellId number
+					---@cast sanitizedRename string
+					overrides[normalizedSpellId] = sanitizedRename
+				end
+			end
+		end
+		refreshSpellRenameCache(true)
+		return true
+	end
+	bossModPrototype.ReplaceSpellRenames = DBM.ReplaceSpellRenames
 
 	---@param spellId number|string
 	---@param fallbackName string?
@@ -2451,10 +2461,8 @@ do
 			if self.Options.ShowReminders then
 				C_TimerAfter(25, function() if self.Options.SilentMode then self:AddMsg(L.SILENT_REMINDER) end end)
 				C_TimerAfter(30, function() if not self.Options.SettingsMessageShown then self.Options.SettingsMessageShown = true self:AddMsg(L.HOW_TO_USE_MOD) end end)
-				if not private.isRetail then
-					--Shown only once per character on login. Repeat showings now handled by the raid module check on raid zone in, and boss pull and wipes within vanilla and wrath raids
-					C_TimerAfter(60, function() if self.Options.NewsMessageShown2 < 3 then self.Options.NewsMessageShown2 = 3 self:AddMsg(L.NEWS_UPDATE) end end)
-				end
+				--Shown only once per character on login. Repeat showings now handled by the raid module check on raid zone in, and boss pull and wipes within vanilla and wrath raids
+				C_TimerAfter(60, function() if self.Options.NewsMessageShown2 < 4 then self.Options.NewsMessageShown2 = 4 self:AddMsg(L.NEWS_UPDATE, nil, true) end end)
 			end
 			if not C_ChatInfo.IsAddonMessagePrefixRegistered(DBMPrefix) then
 				C_ChatInfo.RegisterAddonMessagePrefix(DBMPrefix) -- main prefix for DBM4
@@ -8508,7 +8516,7 @@ function bossModPrototype:ReceiveSync(event, sender, revision, ...)
 	end
 end
 
----@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260516050055" to be auto set by packager
+---@param revision number|string Either a number in the format "202101010000" (year, month, day, hour, minute) or string "20260517223329" to be auto set by packager
 function bossModPrototype:SetRevision(revision)
 	revision = parseCurseDate(revision or "")
 	if not revision or type(revision) == "string" then
