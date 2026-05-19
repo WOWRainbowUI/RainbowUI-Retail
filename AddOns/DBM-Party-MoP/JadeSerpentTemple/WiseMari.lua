@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260517213622")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(56448)
 mod:SetEncounterID(1418)
@@ -44,7 +44,7 @@ local timerCorruptedVortexCD		= mod:NewCDTimer(13, 397797, nil, nil, nil, 3, nil
 local timerCorruptedGeyserCD		= mod:NewCDCountTimer("d5", 397793, nil, nil, nil, 3)
 local timerLivingWater				= mod:NewCastTimer(5.5, 106526, nil, nil, nil, 1)
 
---mod:AddSetIconOption("SetIconOnAdds", "ej5616", false, true, {8})--FIXME, where the fuck did scanner go?
+--mod:AddSetIconOption("SetIconOnAdds", -5616, false, true, {8})--FIXME, where the fuck did scanner go?
 
 mod.vb.addsRemaining = 4--Also 4 on heroic?
 mod.vb.firstAdd = false
