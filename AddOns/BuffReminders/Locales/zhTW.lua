@@ -434,7 +434,7 @@ L["Options.ChatRequest.FixAttempt.Desc"] =
 L["Options.ChatRequest.ResetAll"] = "全部重置"
 L["ChatRequests.PerBuffMessages"] = "每個增益的訊息"
 -- Chat request messages (keyed by buff.key, sent as-is via SendChatMessage)
--- EU/US translators: leave untranslated so chat messages stay in English.
+-- EU/US translators: leave untranslated so chat messages stay in L.
 -- Asian translators: translate these so chat messages match your locale.
 L["ChatRequest.intellect"] = "請補上祕法智力的增益"
 L["ChatRequest.attackPower"] = "請補上戰鬥怒吼的增益"
