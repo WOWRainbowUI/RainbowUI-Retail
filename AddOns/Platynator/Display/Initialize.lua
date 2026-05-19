@@ -204,9 +204,9 @@ function addonTable.Display.ManagerMixin:OnLoad()
       self.styleIndex = self.styleIndex + 1
       local defaultEnemyDesign = addonTable.Core.GetDesignByName(addonTable.Display.Context:GetDefaultEnemyNPCDesign())
       addonTable.CurrentFont, addonTable.CurrentFontUsesSmoothing = addonTable.Core.GetFontByDesign(defaultEnemyDesign)
+      self:UpdateFriendlyFont()
       self:UpdateNamePlateSize()
       self:UpdateAllClickRegions()
-      self:UpdateFriendlyFont()
       self:RepositionDisplays()
     end
   end)
@@ -410,13 +410,16 @@ function addonTable.Display.ManagerMixin:UpdateStackingRegion(unit)
   if not stackRegion then
     return
   end
-  local globalScale = addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
-  local newWidth = stackRegion.rect.width * addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_X) * globalScale
-  local newHeight = stackRegion.rect.height * addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_Y) * globalScale
+  local newWidth = stackRegion.rect.width * addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_X)
+  local newHeight = stackRegion.rect.height * addonTable.Config.Get(addonTable.Config.Options.STACK_REGION_SCALE_Y)
+  --stackRegion.visual:SetSize(newWidth, newHeight)
+  local uiParentScale = UIParent:GetScale()
+  -- Avoid UIScale affecting stack regions
+  newHeight = newHeight / uiParentScale - 1 / uiParentScale^2
 	stackRegion:SetPoint(
 		"BOTTOMLEFT",
 		stackRegion:GetParent(),
-		"BOTTOM",
+		"CENTER",
 		stackRegion.rect.left - (newWidth - stackRegion.rect.width) / 2,
 		stackRegion.rect.bottom - (newHeight - stackRegion.rect.height) / 2 + self.baseOffset
 	)
@@ -490,7 +493,6 @@ function addonTable.Display.ManagerMixin:Install(unit)
       C_NamePlateManager.SetNamePlateSimplified(unit, shouldSimplify)
     end
     self.nameplateDisplays[unit] = newDisplay
-    local UF = self.ModifiedUFs[unit]
     if nameplate.SetStackingBoundsFrame then
       newDisplay:SetParent(nameplate)
       if not newDisplay.stackRegion then
@@ -498,6 +500,9 @@ function addonTable.Display.ManagerMixin:Install(unit)
         local tex = newDisplay.stackRegion:CreateTexture()
         tex:SetColorTexture(1, 0, 0, 0)
         tex:SetAllPoints(newDisplay.stackRegion)
+        --[[newDisplay.stackRegion.visual = nameplate:CreateTexture()
+        newDisplay.stackRegion.visual:SetColorTexture(1, 1, 0, 0.5)
+        newDisplay.stackRegion.visual:SetPoint("CENTER", newDisplay.stackRegion)]]
       end
       newDisplay.stackRegion:SetParent(nameplate)
       newDisplay.stackRegion.rect = addonTable.Utilities.GetRectFromRegion(design.regions.stack, scale * globalScale, design.regions.stack.anchor, true)
@@ -754,7 +759,7 @@ local function ChangeFont(base, new, overrideHeight)
   for _, a in ipairs(addonTable.Constants.FontFamilies) do
     local baseObj = base:GetFontObjectForAlphabet(a)
     local newObj = new:GetFontObjectForAlphabet(a)
-    local font, height, flags = newObj:GetFont()
+    local font, _, flags = newObj:GetFont()
     baseObj:SetFont(font, 9, flags)
   end
   base:SetShadowColor(new:GetShadowColor())
@@ -814,7 +819,11 @@ function addonTable.Display.ManagerMixin:UpdateFriendlyFont()
           if systemFontSizes[index - 1] and math.abs(systemFontSizes[index - 1] - friendlyFontSize) < math.abs(size - friendlyFontSize) then
             index = index - 1
           end
+          local oldSize = C_CVar.GetCVar("nameplateSize")
           C_CVar.SetCVar("nameplateSize", tostring(index))
+          if oldSize ~= tostring(index) then
+            self:UpdateBaseNamePlateInfo()
+          end
           break
         end
       end
@@ -822,6 +831,19 @@ function addonTable.Display.ManagerMixin:UpdateFriendlyFont()
   else
     ChangeFont(SystemFont_NamePlate_Outlined, PlatynatorOriginalSystemFontOutlined)
     ChangeFont(SystemFont_NamePlate, PlatynatorOriginalSystemFont)
+  end
+end
+
+function addonTable.Display.ManagerMixin:UpdateBaseNamePlateInfo()
+  if addonTable.Constants.IsRetail then
+    local namePlateSize = GetCVarNumberOrDefault(NamePlateConstants.SIZE_CVAR);
+    -- Remove aura height
+    local namePlateScale = NamePlateConstants.NAME_PLATE_SCALES[namePlateSize] or NamePlateConstants.NAME_PLATE_SCALES[Enum.NamePlateSize.Medium];
+    local _
+    _, self.baseBlizzHeight = C_NamePlate.GetNamePlateSize()
+    local auraScale = GetCVarNumberOrDefault(NamePlateConstants.AURA_SCALE_CVAR)
+
+    self.baseBlizzHeight = self.baseBlizzHeight - NamePlateConstants.AURA_ITEM_HEIGHT * auraScale * namePlateScale.aura - GetCVarNumberOrDefault(NamePlateConstants.DEBUFF_PADDING_CVAR)
   end
 end
 
@@ -914,10 +936,7 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
     self:UpdateStacking()
     self:UpdateShowState()
     self:UpdateTargetScale()
-    if addonTable.Constants.IsRetail then
-      local _
-      _, self.baseBlizzHeight = C_NamePlate.GetNamePlateSize()
-    end
+    self:UpdateBaseNamePlateInfo()
     self:UpdateNamePlateSize()
     self:UpdateSimplifiedScale()
     self:UpdateObscuredAlpha()
