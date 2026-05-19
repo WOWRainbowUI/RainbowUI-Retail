@@ -501,7 +501,16 @@ local function GetAurasTextPositioning(rootParent, iconID)
       local text = preview.widgets[key].text
       text:ClearAllPoints()
       text:SetFontObject(addonTable.CurrentFont)
-      text:SetTextScale(textDetails.scale)
+      if text.SetSmoothScaling then
+        text:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+      end
+      if addonTable.CurrentFontUsesSmoothing then
+        text:SetTextScale(1)
+        text:SetScale(textDetails.scale)
+      else
+        text:SetTextScale(textDetails.scale)
+        text:SetScale(1)
+      end
       text:SetPoint(textDetails.anchor[1] or "CENTER")
       text:SetTextColor(textDetails.color.r, textDetails.color.g, textDetails.color.b)
       if textDetails.visible then
@@ -509,7 +518,8 @@ local function GetAurasTextPositioning(rootParent, iconID)
       else
         preview.widgets[key]:SetAlpha(0.5)
       end
-      preview.widgets[key]:SetSize(text:GetSize())
+      local w, h = text:GetSize()
+      preview.widgets[key]:SetSize(w * text:GetScale(), h * text:GetScale())
       preview.widgets[key].details = textDetails
 
       addonTable.Display.ApplyAnchor(preview.widgets[key], textDetails.anchor)
@@ -861,6 +871,7 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
   local function DeleteCurrentWidget()
     table.sort(selectionIndexes, function(a, b) return a > b end)
     for _, index in ipairs(selectionIndexes) do
+      local w = widgets[index]
       local kind = widgets[index].kind
       local details = widgets[index].details
       local design = addonTable.CustomiseDialog.GetCurrentDesign()
@@ -1293,19 +1304,37 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
       end
       local cdText = container.auras[1].Cooldown:GetRegions()
       cdText:SetFontObject(addonTable.CurrentFont)
-      cdText:SetTextScale(details.texts.countdown.scale)
+      if addonTable.CurrentFontUsesSmoothing then
+        cdText:SetTextScale(1)
+        cdText:SetScale(details.texts.countdown.scale)
+      else
+        cdText:SetTextScale(details.texts.countdown.scale)
+        cdText:SetScale(1)
+      end
       cdText:SetTextColor(details.texts.countdown.color.r, details.texts.countdown.color.g, details.texts.countdown.color.b)
+      if cdText.SetSmoothScaling then
+        cdText:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+      end
       container.auras[1].Cooldown:SetCooldown(GetTime() - 2, 5)
       container.auras[1].Cooldown:Pause()
       container.auras[1].Cooldown:SetHideCountdownNumbers(not details.texts.countdown.visible)
       container.auras[1].Cooldown:SetDrawSwipe(details.showSwipe)
       container.auras[1].Cooldown:SetDrawEdge(details.showSwipe)
-      addonTable.Display.ApplyAnchor(cdText, details.texts.countdown.anchor)
+      addonTable.Display.ApplyAnchor(cdText, details.texts.countdown.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.countdown.scale or 1)
       container.auras[1].CountFrame.Count:SetText(2)
       container.auras[1].CountFrame.Count:SetFontObject(addonTable.CurrentFont)
-      container.auras[1].CountFrame.Count:SetTextScale(details.texts.stacks.scale)
       container.auras[1].CountFrame.Count:SetShown(details.texts.stacks.visible)
-      addonTable.Display.ApplyAnchor(container.auras[1].CountFrame.Count, details.texts.stacks.anchor)
+      if container.auras[1].CountFrame.Count.SetSmoothScaling then
+        container.auras[1].CountFrame.Count:SetSmoothScaling(addonTable.CurrentFontUsesSmoothing)
+      end
+      if addonTable.CurrentFontUsesSmoothing then
+        container.auras[1].CountFrame.Count:SetTextScale(1)
+        container.auras[1].CountFrame.Count:SetScale(details.texts.stacks.scale)
+      else
+        container.auras[1].CountFrame.Count:SetTextScale(details.texts.stacks.scale)
+        container.auras[1].CountFrame.Count:SetScale(1)
+      end
+      addonTable.Display.ApplyAnchor(container.auras[1].CountFrame.Count, details.texts.stacks.anchor, addonTable.CurrentFontUsesSmoothing and 1/details.texts.stacks.scale or 1)
       container.auras[1].CountFrame.Count:SetTextColor(details.texts.stacks.color.r, details.texts.stacks.color.g, details.texts.stacks.color.b)
       container.auras[1].DispelBorder:SetShown(details.showType)
       container:SetSize(22 * container.count * details.scale, 20 * details.height * details.scale)
