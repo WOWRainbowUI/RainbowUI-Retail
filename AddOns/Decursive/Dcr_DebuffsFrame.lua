@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.0-RC5) add-on for World of Warcraft UI
+    Decursive (v 2.8.0-RC6) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
     but WITHOUT ANY WARRANTY.
 
 
-    This file was last updated on 2026-03-22T20:57:14Z
+    This file was last updated on 2026-05-16T17:30:08Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -745,6 +745,7 @@ do
     local ttHelpLines = {}; -- help tooltip text
     local TooltipUpdate = 0; -- help tooltip change update check
     local ttNumLine = 2
+    D.temp_tt_taint_debug = 0
 
     local tip = CreateFrame("GameTooltip", "DcrSecretTooltip", UIParent, "SharedTooltipTemplate")
     tip:SetClampedToScreen(true)
@@ -788,6 +789,7 @@ do
         tip:ClearAllPoints()
         tip:SetPoint(MicroUnitF:GetHelperAnchor(false, true))
         tip:Show()
+        D.temp_tt_taint_debug = D.temp_tt_taint_debug + 1
 
         -- if the tooltip is at the top of the screen it means it's overlaping the MUF, let's move the tooltip beneath the first MUF.
         if tip:GetTop() and floor(tip:GetTop() + 40) >= floor(UIParent:GetTop()) then -- if at top (the default game tooltip has a kind of padding...)
@@ -908,6 +910,8 @@ do
         end
 
         tip:Hide()
+        D.temp_tt_taint_debug = D.temp_tt_taint_debug - 1
+        D:Debug("tt: ", D.temp_tt_taint_debug)
     end
 
     function MicroUnitF:OnLeave(frame) -- {{{
@@ -924,7 +928,9 @@ do
     end
 
     function D.MicroUnitF:OnCornerEnter(frame)
-        cleanAndHideToolTip();
+        if tip:IsShown() then
+            cleanAndHideToolTip();
+        end
 
         if not keyHelp then
             keyHelp = {
@@ -1915,6 +1921,6 @@ local MF_Textures = { -- unused
 
 -- }}}
 
-T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.0-RC5";
+T._LoadedFiles["Dcr_DebuffsFrame.lua"] = "2.8.0-RC6";
 
 -- Heresy

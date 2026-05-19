@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.0-RC5) add-on for World of Warcraft UI
+    Decursive (v 2.8.0-RC6) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-04-06T21:41:33Z
+    This file was last updated on 2026-04-25T21:26:14Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -223,7 +223,7 @@ function D:UpdatePlayerPet () -- {{{
     end
 
     -- if we've changed of pet
-    if (last_petType ~= curr_petType) then
+    if (not last_petType or canaccessvalue(curr_petType) and last_petType ~= curr_petType) then
         if (curr_petType) then D:Debug ("|cFF0066FFPet name changed:",curr_petType,"|r"); else D:Debug ("|cFF0066FFNo more pet!|r"); end; -- debug info only
 
         last_petType = curr_petType;
@@ -1279,6 +1279,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.8.0-RC5";
+T._LoadedFiles["Dcr_Events.lua"] = "2.8.0-RC6";
 
 -- The Great Below
