@@ -9,7 +9,7 @@ MDT.mapInfo[dungeonIndex] = {
   englishName = "Magisters Terrace",
   mapID = 558
 };
-local zones = { 2511, 2515, 2516, 2517, 2518, 2519, 2520 }
+local zones = { 2424, 2511, 2515, 2516, 2517, 2518, 2519, 2520 }
 for _, zone in ipairs(zones) do
   MDT.zoneIdToDungeonIdx[zone] = dungeonIndex
 end
