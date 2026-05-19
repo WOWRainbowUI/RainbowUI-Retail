@@ -541,6 +541,8 @@ L["Champion Druna"] = "Campeã Druna"
 L["Champion of Hodir"] = "Campeão de Hodir"
 --[[Translation missing --]]
 L["Change Language"] = "Change Language"
+--[[Translation missing --]]
+L["Change Log"] = "Change Log"
 L["Channeler Varisz"] = "Canalizadora Varisz"
 L["Chaotic Rift"] = "Fenda Caótica"
 L["Chargath, Bane of Scales"] = "Chargath, Ruína das Escamas"
@@ -2505,6 +2507,8 @@ L["Pack Mole"] = "Pack Mole"
 L["Paladin of the Silver Hand"] = "Paladino do Punho de Prata"
 L["Pallid Gorger"] = "Devorador Pálido"
 L["Parts Recovery Technician"] = "Técnico de Recuperação de Peças"
+--[[Translation missing --]]
+L["Party Versions"] = "Party Versions"
 L["Patchwerk"] = "Retalhoso"
 L["Patchwerk Soldier"] = "Soldado Retalhoso"
 L["Patchwork Construct"] = "Construto de Retalhos"

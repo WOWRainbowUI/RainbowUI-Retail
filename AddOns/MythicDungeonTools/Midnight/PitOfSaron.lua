@@ -9,7 +9,7 @@ MDT.mapInfo[dungeonIndex] = {
   englishName = "Pit of Saron",
   mapID = 556
 };
-local zones = { 184 }
+local zones = { 118, 184 }
 for _, zone in ipairs(zones) do
   MDT.zoneIdToDungeonIdx[zone] = dungeonIndex
 end
