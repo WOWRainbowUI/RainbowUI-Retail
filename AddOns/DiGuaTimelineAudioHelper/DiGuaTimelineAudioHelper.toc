@@ -2,7 +2,7 @@
 ## Title: [神秘地瓜] 副本语音助手
 ## Notes: 根据战斗时间轴播放自定义音频
 ## Author: 神秘地瓜
-## Version: 1.4.1
+## Version: 1.4.4
 ## SavedVariables: DiGuaTimelineAudioHelper
 
 ## Title-zhTW: |cffFF7F00[副本]|r 神秘地瓜副本語音助手
@@ -14,3 +14,4 @@
 Core.lua
 Countdown.lua
 SimpleCCAlert.lua
+TTSduration.lua
