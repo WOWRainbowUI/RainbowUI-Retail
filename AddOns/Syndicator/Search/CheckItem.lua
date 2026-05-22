@@ -678,6 +678,26 @@ local function UsableCheck(details)
 end
 
 local UPGRADE_PATH_PATTERN = ITEM_UPGRADE_TOOLTIP_FORMAT_STRING and "^" .. ITEM_UPGRADE_TOOLTIP_FORMAT_STRING:gsub("%%s", ".*"):gsub("%%d", ".*")
+local currentSeasonBonusIDs = {
+  [13653] = true, -- Voidforged
+  [13654] = true, -- Voidforged
+  [13655] = true, -- Voidforged
+  [12066] = true, -- Radiance Crafted
+}
+
+local function CheckBonusIDs(itemLink)
+  local _, main = LinkUtil.ExtractLink(itemLink)
+  local entries = {strsplit(":", main)}
+  local bonusIDCount = tonumber(entries[14])
+  if bonusIDCount and bonusIDCount > 0 then
+    for i = 15, 14 + bonusIDCount do
+      if currentSeasonBonusIDs[tonumber(entries[i])] then
+        return true
+      end
+    end
+  end
+  return false
+end
 
 local function ActiveSeasonCheck(details)
   if not C_Item.IsItemDataCachedByID(details.itemID) then
@@ -686,6 +706,9 @@ local function ActiveSeasonCheck(details)
   end
   if not addonTable.Utilities.IsEquipment(details.itemLink) then
     return false
+  end
+  if CheckBonusIDs(details.itemLink) then
+    return true
   end
   local upgradeInfo = C_Item.GetItemUpgradeInfo(details.itemLink)
   if not upgradeInfo or not upgradeInfo.trackString then
