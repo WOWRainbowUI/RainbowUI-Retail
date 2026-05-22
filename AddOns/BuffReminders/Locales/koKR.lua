@@ -415,8 +415,6 @@ L["Options.ShowMissingCountOnly"] = "누락 수량만 표시"
 L["Options.ShowMissingCountOnly.Desc"] =
     '전체 숫자(예: "19/20") 대신 누락된 버프 수(예: "1")만 표시합니다.'
 L["Options.ShowBuffReminderText"] = '"버프!" 알림 텍스트 표시'
-L["Options.BuffTextOffsetX"] = '"버프!" X'
-L["Options.BuffTextOffsetY"] = '"버프!" Y'
 L["Options.Size"] = "크기"
 
 -- ============================================================================
@@ -862,8 +860,6 @@ L["Appearance.Border"] = "테두리"
 L["Appearance.Spacing"] = "간격"
 L["Appearance.Alpha"] = "불투명도"
 L["Appearance.Text"] = "텍스트"
-L["Appearance.TextX"] = "텍스트 X"
-L["Appearance.TextY"] = "텍스트 Y"
 
 -- Slider tooltip
 L["Component.AdjustValue"] = "값 조정"
