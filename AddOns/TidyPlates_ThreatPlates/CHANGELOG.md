@@ -1,7 +1,4 @@
-# 13.0.12 (2026-05-15)
+# 13.0.13 (2026-05-21)
 
-* Re-enabled separate healthbar and clickable-area sizes for friendly nameplates on WoW Midnight.
-* Fixed nameplate clickable areas being too small or misaligned on WoW Midnight [Comment #8307].
-* Fixed castbar color, shield, and overlay not updating correctly when a cast changes to interruptible or non-interruptible.
-* Fixed a Lua error that occurred during a UI reload or logout when a nameplate was still shown under the mouse cursor.
-* Fixed a Lua error in the Arena widget that occurred when initializing in an instanced environment on WoW Midnight.
+* Fixed healthbar color not updating correctly in TBC Classic when the player loses threat gradually [Comment #8288, #8296].
+* Fixed nameplates scaling in a non-stop loop when hovering the mouse cursor over a non-targeted unit on WoW Midnight (only when mouseover scaling is enabled) [Comment #8321].

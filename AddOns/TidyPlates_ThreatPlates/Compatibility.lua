@@ -94,6 +94,7 @@ local WOW_EVENTS = {
   UNIT_SPELLCAST_SENT = Addon.ExpansionIsAtLeastMidnight,
   UNIT_TARGET = true,
   UNIT_THREAT_LIST_UPDATE = true,
+  UNIT_THREAT_SITUATION_UPDATE = true,
   UPDATE_BATTLEFIELD_SCORE = Addon.ExpansionIsAtLeastCata,
   UPDATE_MOUSEOVER_UNIT = true,
   UPDATE_SHAPESHIFT_FORM = true,  
@@ -202,8 +203,8 @@ else
   end
 end
 
--- Quest widget is not available in Classic
-if not Addon.ExpansionIsAtLeastMists or Addon.ExpansionIsAtLeastMidnight then
+-- Quest widget is not available in Classic (Vanilla, TBC, Wrath)
+if not Addon.ExpansionIsAtLeastMists then
   Addon.ShowQuestUnit = function(...) return false end
 end
 
