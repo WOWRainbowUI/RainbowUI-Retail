@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.0-RC6) add-on for World of Warcraft UI
+    Decursive (v 2.8.0-RC7) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY.
 
-    This file was last updated on 2026-02-27T17:29:23Z
+    This file was last updated on 2026-05-21T14:30:43Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -158,6 +158,7 @@ L["FAILEDCAST"] = [=[|cFF22FFFF%s %s|r |cFFAA0000failed on|r %s
 L["FOCUSUNIT"] = "Focus Unit"
 L["FUBARMENU"] = "FuBar Menu"
 L["FUBARMENU_DESC"] = "Set options relative to FuBar icon"
+L["GetDebugName"] = "AceLocale table"
 L["GLOR1"] = "In memory of Glorfindal"
 L["GLOR2"] = [=[Decursive is dedicated to the memory of Bertrand who left way too soon.
 He will always be remembered.]=]
@@ -546,6 +547,7 @@ You need to update Decursive to fix potential incompatibilities and runtime erro
 Go to curse.com and search for 'Decursive' or use Curse's client to update all your add-ons at once.
 
 This notice will be displayed again in 2 days.]=]
+L["ToDebugString"] = "AceLocale table"
 L["TOO_MANY_ERRORS_ALERT"] = [=[There are too many Lua errors in your User Interface (%d errors). Your game experience may be degraded. Disable or update the failing add-ons to turn off this message.
 You may want to turn on Lua error reporting (/console scriptErrors 1).]=]
 L["TOOFAR"] = "Too far"
@@ -555,4 +557,4 @@ L["UNSTABLERELEASE"] = "Unstable release"
 
 
 
-T._LoadedFiles["enUS.lua"] = "2.8.0-RC6";
+T._LoadedFiles["enUS.lua"] = "2.8.0-RC7";
