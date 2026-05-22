@@ -17,6 +17,7 @@ local tonumber = tonumber
 local tostring = tostring
 local type = type
 local pairs = pairs
+local ipairs = ipairs
 local ResolveFontPathSafe = _G.MSUF_ResolveFontPath or function(path) return path end
 
 ------------------------------------------------------------------------
@@ -68,6 +69,7 @@ GF.DELIMITER_OPTIONS = {
 ------------------------------------------------------------------------
 local PARTY_DEFAULTS = {
     enabled           = false,
+    blizzardFallbackMode = "AUTO", -- AUTO / SHOW / NONE when this MSUF scope is disabled
     width             = 120,
     height            = 40,
     spacing           = 1,
@@ -141,6 +143,7 @@ local PARTY_DEFAULTS = {
     -- Name truncation
     nameMaxChars      = 0,     -- 0 = unlimited
     nameNoEllipsis    = false,
+    hideNameOnDeadOffline = false,
     -- Font style/color (font family is global)
     fontOutline       = nil,
     useGlobalFontColor = true,
@@ -172,6 +175,7 @@ local PARTY_DEFAULTS = {
     iconStyle         = "BLIZZARD",  -- BLIZZARD / GLOSSY_ORBS / DARK_EMBOSS / etc.
     useMidnightIcons  = false,
     roleIcon          = true,
+    roleIconStyle     = "DEFAULT",
     roleIconShowTank   = true,
     roleIconShowHealer = true,
     roleIconShowDPS    = true,
@@ -185,11 +189,13 @@ local PARTY_DEFAULTS = {
     raidMarkerX       = 0,
     raidMarkerY       = 0,
     leaderIcon        = true,
+    leaderIconStyle   = "DEFAULT",
     leaderIconSize    = 12,
     leaderIconAnchor  = "TOPRIGHT",
     leaderIconX       = 0,
     leaderIconY       = 0,
     assistIcon        = true,
+    assistIconStyle   = "DEFAULT",
     assistIconSize    = 12,
     assistIconAnchor  = "TOPRIGHT",
     assistIconX       = 14,
@@ -277,9 +283,9 @@ local PARTY_DEFAULTS = {
     alphaHPInCombat      = 1,
     alphaHPOutOfCombat   = 1,
     alphaPreserveHPColor = false,
-    -- Group Frame heal prediction is owned by Group Frames > Health & Bars.
-    -- Older profiles with no GF-specific value are seeded from the legacy
-    -- global UnitFrame heal prediction toggle in GF.EnsureDB().
+    -- Group Frame heal prediction is edited in Global Style > Bars using the
+    -- Party/Raid bar scopes. hlOverride gates local values; otherwise the
+    -- shared UnitFrame heal-prediction toggle is the fallback.
     healPredEnabled      = false,
     healPredAnchorMode   = 3,
     -- (absorbEnabled, healAbsorbEnabled are resolved at runtime)
@@ -301,6 +307,7 @@ local PARTY_DEFAULTS = {
     dispelOverlayStyle    = "FULL",   -- FULL / BOTTOM / TOP / LEFT / RIGHT
     dispelOverlayOnHealth = true,     -- true = clip to current health fill
     dispelOverlayAlpha    = 0.35,
+    dispelOverlayTrigger  = "BORDER", -- BORDER / BY_ME / DISPEL_TYPE / ANY_DEBUFF
 
     -- Debuff stripe (thin edge indicator for any debuff)
     debuffStripeEnabled   = false,
@@ -421,6 +428,10 @@ end
 GF.PARTY_DEFAULTS = PARTY_DEFAULTS
 GF.RAID_DEFAULTS  = RAID_DEFAULTS
 GF.MYTHIC_RAID_DEFAULTS = MYTHIC_RAID_DEFAULTS
+
+function GF.ShouldShowNameText(frame, conf)
+    return conf and conf.showName ~= false and not (frame and frame._msufGFNameHiddenForStatus == true)
+end
 
 ------------------------------------------------------------------------
 -- Grid metrics (stored position = GRID CENTER)
@@ -820,11 +831,37 @@ local function ResolveLegacyHealPredictionEnabled()
     return false
 end
 
+local function NormalizeHealPredictionAnchorMode(value, fallback)
+    local mode = tonumber(value) or fallback or 3
+    if mode < 1 or mode > 5 then mode = fallback or 3 end
+    return mode
+end
+
+local function ResolveSharedHealPredictionAnchorMode()
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    return NormalizeHealPredictionAnchorMode(gen and gen.healPredAnchorMode, 3)
+end
+
 local function MigrateHealPredictionOwnership(conf)
     if type(conf) ~= "table" then return end
+    if conf.healPredEnabled == nil and conf.healPrediction ~= nil then
+        conf.healPredEnabled = conf.healPrediction == true
+    end
     if conf.healPredEnabled == nil then
         conf.healPredEnabled = ResolveLegacyHealPredictionEnabled()
     end
+    conf.healPredAnchorMode = NormalizeHealPredictionAnchorMode(conf.healPredAnchorMode, 3)
+    if conf._healPredBarsScopeMigrated ~= true then
+        local sharedEnabled = ResolveLegacyHealPredictionEnabled()
+        local localEnabled = conf.healPredEnabled == true
+        local sharedAnchor = ResolveSharedHealPredictionAnchorMode()
+        local localAnchor = NormalizeHealPredictionAnchorMode(conf.healPredAnchorMode, 3)
+        if localEnabled ~= sharedEnabled or (localEnabled and localAnchor ~= sharedAnchor) then
+            conf.hlOverride = true
+        end
+        conf._healPredBarsScopeMigrated = true
+    end
+    conf.healPrediction = nil
 end
 
 ------------------------------------------------------------------------
@@ -1202,7 +1239,7 @@ end
 
 function GF.IsHealPredictionEnabled(kind, conf)
     conf = conf or GF.GetConf(kind)
-    if conf and conf.healPredEnabled ~= nil then
+    if conf and conf.hlOverride == true and conf.healPredEnabled ~= nil then
         return conf.healPredEnabled == true
     end
     return ResolveLegacyHealPredictionEnabled()
@@ -1602,6 +1639,24 @@ local REVERSE_HP_MAP = {
     PERCENTCURMAX  = "CURMAXPERCENT",
 }
 
+function GF.ReverseHealthTextMode(mode)
+    return REVERSE_HP_MAP[mode] or mode
+end
+
+function GF.ResolveHealthTextSlots(conf)
+    local hpTextOn = not conf or conf.showHPText ~= false
+    local tl = hpTextOn and (conf and conf.textLeft or "NONE") or "NONE"
+    local tc = hpTextOn and (conf and conf.textCenter or "NONE") or "NONE"
+    local tr = hpTextOn and (conf and conf.textRight or "NONE") or "NONE"
+    if conf and conf.hpTextReverse == true then
+        tl, tr = tr, tl
+        tl = GF.ReverseHealthTextMode(tl)
+        tc = GF.ReverseHealthTextMode(tc)
+        tr = GF.ReverseHealthTextMode(tr)
+    end
+    return tl, tc, tr
+end
+
 ------------------------------------------------------------------------
 -- Global text-formatting inheritance
 ------------------------------------------------------------------------
@@ -1800,6 +1855,7 @@ end
 function GF.TruncateName(name, maxChars, noEllipsis, clipSide)
     maxChars = math_floor((tonumber(maxChars) or 0) + 0.5)
     if not name or maxChars <= 0 then return name end
+    if _GF_issecretvalue and _GF_issecretvalue(name) then return name end
     clipSide = (clipSide == "LEFT") and "LEFT" or "RIGHT"
 
     local function NextByte(pos)
@@ -1913,6 +1969,8 @@ local BLIZZARD_LEADER_TEX = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
 local BLIZZARD_ASSIST_TEX = "Interface\\GroupFrame\\UI-Group-AssistantIcon"
 
 local CUSTOM_STYLES = {
+    CLASSIC       = "Classic",
+    MIDNIGHT      = "Midnight",
     GLOSSY_ORBS   = "GlossyOrbs",
     NEON_OUTLINE  = "NeonOutline",
     RING_SYMBOLS  = "RingSymbols",
@@ -1924,47 +1982,286 @@ local CUSTOM_STYLES = {
     SQUARES       = "Squares",
 }
 
-local ROLE_MAP = { TANK = "tank", HEALER = "healer", DAMAGER = "dps" }
+local CUSTOM_STYLES_NO_MIDNIGHT_SUFFIX = {
+    CLASSIC  = true,
+    MIDNIGHT = true,
+}
 
-function GF.GetRoleTexture(kind, role)
-    local conf = GF.GetConf(kind)
-    local style = conf.iconStyle or "BLIZZARD"
+local ROLE_MAP = { TANK = "tank", HEALER = "healer", DAMAGER = "dps" }
+local ADDON_ICON_STYLE_PREFIX = "ADDON:"
+local REGISTERED_ICON_STYLE_PREFIX = "REGISTERED:"
+local STATUS_ICON_FILES = { "tank", "healer", "dps", "leader", "assist" }
+local _externalIconPacks
+local _externalIconPackOrder
+local _registeredIconPacks = {}
+local _textureProbeHost
+local _textureProbe
+local _textureProbeReliable
+local _texturePathExistsCache = {}
+
+local function NormalizeIconFolderPath(path)
+    if type(path) ~= "string" or path == "" then return nil end
+    path = path:gsub("/", "\\"):gsub("\\+$", "")
+    return path ~= "" and path or nil
+end
+
+local function TextureProbeRaw(path)
+    if type(path) ~= "string" or path == "" or type(CreateFrame) ~= "function" then return false end
+    if not _textureProbe then
+        _textureProbeHost = CreateFrame("Frame")
+        if _textureProbeHost.Hide then _textureProbeHost:Hide() end
+        _textureProbe = _textureProbeHost:CreateTexture(nil, "ARTWORK")
+    end
+    if not (_textureProbe and _textureProbe.SetTexture) then return false end
+    _textureProbe:SetTexture(nil)
+    local ok, applied = pcall(_textureProbe.SetTexture, _textureProbe, path)
+    if not ok or applied == false then
+        _textureProbe:SetTexture(nil)
+        return false
+    end
+    if _textureProbe.GetTexture then
+        local tex = _textureProbe:GetTexture()
+        _textureProbe:SetTexture(nil)
+        return tex ~= nil and tex ~= ""
+    end
+    _textureProbe:SetTexture(nil)
+    return applied == true
+end
+
+local function TextureProbeReliable()
+    if _textureProbeReliable ~= nil then return _textureProbeReliable end
+    _textureProbeReliable = TextureProbeRaw("Interface\\AddOns\\MidnightSimpleUnitFrames\\__msuf_missing_texture_probe__") == false
+    return _textureProbeReliable
+end
+
+local function TexturePathExists(path)
+    path = NormalizeIconFolderPath(path)
+    if not path then return false end
+    if _texturePathExistsCache[path] ~= nil then return _texturePathExistsCache[path] end
+    local exists = TextureProbeReliable() and (TextureProbeRaw(path) or TextureProbeRaw(path .. ".tga") or TextureProbeRaw(path .. ".blp"))
+    _texturePathExistsCache[path] = exists and true or false
+    return _texturePathExistsCache[path]
+end
+
+local function IconFolderLooksComplete(folder)
+    folder = NormalizeIconFolderPath(folder)
+    if not folder then return false end
+    for _, file in ipairs(STATUS_ICON_FILES) do
+        if not TexturePathExists(folder .. "\\" .. file) then return false end
+    end
+    return true
+end
+
+local function AddExternalIconPack(key, label, folder, noMidnightSuffix, hasMidnightSuffix)
+    folder = NormalizeIconFolderPath(folder)
+    if type(key) ~= "string" or key == "" or not folder then return end
+    if _externalIconPacks[key] then return end
+    local pack = {
+        key = key,
+        label = (type(label) == "string" and label ~= "" and label) or key,
+        folder = folder,
+        noMidnightSuffix = noMidnightSuffix == true,
+        hasMidnightSuffix = hasMidnightSuffix == true,
+    }
+    _externalIconPacks[key] = pack
+    _externalIconPackOrder[#_externalIconPackOrder + 1] = pack
+end
+
+local function GetAddonInfoName(index)
+    local c = _G.C_AddOns
+    if c and type(c.GetAddOnInfo) == "function" then
+        local name, title = c.GetAddOnInfo(index)
+        return name, title
+    end
+    if type(_G.GetAddOnInfo) == "function" then
+        local name, title = _G.GetAddOnInfo(index)
+        return name, title
+    end
+end
+
+local function GetAddonCount()
+    local c = _G.C_AddOns
+    if c and type(c.GetNumAddOns) == "function" then return tonumber(c.GetNumAddOns()) or 0 end
+    if type(_G.GetNumAddOns) == "function" then return tonumber(_G.GetNumAddOns()) or 0 end
+    return 0
+end
+
+local function GetAddonMetadata(addonName, field)
+    local c = _G.C_AddOns
+    if c and type(c.GetAddOnMetadata) == "function" then
+        return c.GetAddOnMetadata(addonName, field)
+    end
+    if type(_G.GetAddOnMetadata) == "function" then return _G.GetAddOnMetadata(addonName, field) end
+end
+
+local function IsTruthyMetadata(value)
+    if value == true then return true end
+    if type(value) ~= "string" then return false end
+    value = value:lower()
+    return value == "1" or value == "true" or value == "yes" or value == "y"
+end
+
+local function ExternalIconPackByKey(style)
+    if type(style) ~= "string" or style == "" then return nil end
+    GF.RefreshExternalStatusIconPacks()
+    return _externalIconPacks and _externalIconPacks[style]
+end
+
+function GF.RefreshExternalStatusIconPacks(force)
+    if _externalIconPacks and not force then return _externalIconPacks end
+    _externalIconPacks = {}
+    _externalIconPackOrder = {}
+
+    for key, pack in pairs(_registeredIconPacks) do
+        AddExternalIconPack(key, pack.label, pack.folder, pack.noMidnightSuffix, pack.hasMidnightSuffix)
+    end
+
+    local count = GetAddonCount()
+    for i = 1, count do
+        local addonName, title = GetAddonInfoName(i)
+        if type(addonName) == "string" and addonName ~= "" then
+            local marked = IsTruthyMetadata(GetAddonMetadata(addonName, "X-MSUF-StatusIconPack"))
+                or IsTruthyMetadata(GetAddonMetadata(addonName, "X-MSUF-IconPack"))
+            local iconFolder = NormalizeIconFolderPath(GetAddonMetadata(addonName, "X-MSUF-IconFolder") or "Icons") or "Icons"
+            local label = GetAddonMetadata(addonName, "X-MSUF-IconPack-Name") or title or addonName
+            local noMidnight = IsTruthyMetadata(GetAddonMetadata(addonName, "X-MSUF-NoMidnightSuffix"))
+            local hasMidnight = IsTruthyMetadata(GetAddonMetadata(addonName, "X-MSUF-HasMidnightSuffix"))
+            local folder = "Interface\\AddOns\\" .. addonName .. "\\" .. iconFolder
+            if marked or IconFolderLooksComplete(folder) then
+                AddExternalIconPack(ADDON_ICON_STYLE_PREFIX .. addonName, label, folder, noMidnight, hasMidnight)
+            end
+        end
+    end
+
+    return _externalIconPacks
+end
+
+function GF.RegisterStatusIconPack(key, label, folder, opts)
+    key = (type(key) == "string" and key ~= "" and key) or nil
+    folder = NormalizeIconFolderPath(folder)
+    if not (key and folder) then return nil end
+    if key:sub(1, #ADDON_ICON_STYLE_PREFIX) ~= ADDON_ICON_STYLE_PREFIX
+        and key:sub(1, #REGISTERED_ICON_STYLE_PREFIX) ~= REGISTERED_ICON_STYLE_PREFIX
+    then
+        key = REGISTERED_ICON_STYLE_PREFIX .. key
+    end
+    _registeredIconPacks[key] = {
+        label = label,
+        folder = folder,
+        noMidnightSuffix = type(opts) == "table" and opts.noMidnightSuffix == true,
+        hasMidnightSuffix = type(opts) == "table" and opts.hasMidnightSuffix == true,
+    }
+    _externalIconPacks = nil
+    _externalIconPackOrder = nil
+    return key
+end
+
+_G.MSUF_RegisterStatusIconPack = function(key, label, folder, opts)
+    return GF.RegisterStatusIconPack(key, label, folder, opts)
+end
+_G.MSUF_RefreshStatusIconPacks = function()
+    _texturePathExistsCache = {}
+    return GF.RefreshExternalStatusIconPacks(true)
+end
+
+local INDICATOR_STYLE_KEYS = {
+    roleIcon   = "roleIconStyle",
+    leaderIcon = "leaderIconStyle",
+    assistIcon = "assistIconStyle",
+}
+
+local function NormalizeIconStyle(style, fallback)
+    if type(style) ~= "string" or style == "" or style == "DEFAULT" then
+        style = fallback or "BLIZZARD"
+    end
+    if style == "BLIZZARD" or CUSTOM_STYLES[style] then return style end
+    if ExternalIconPackByKey(style) then return style end
+    return "BLIZZARD"
+end
+
+local function IndicatorIconStyle(conf, indicatorKey)
+    conf = (type(conf) == "table") and conf or {}
+    local styleKey = INDICATOR_STYLE_KEYS[indicatorKey]
+    local style = styleKey and conf[styleKey] or nil
+    if type(style) ~= "string" or style == "" or style == "DEFAULT" then
+        style = conf.iconStyle or "BLIZZARD"
+    end
+    return NormalizeIconStyle(style, "BLIZZARD")
+end
+
+local function CustomIconPath(style, file, useMidnight)
+    local folder = CUSTOM_STYLES[style]
+    if not folder then return nil end
+    if useMidnight and not CUSTOM_STYLES_NO_MIDNIGHT_SUFFIX[style] then
+        file = file .. "_midnight"
+    end
+    return MEDIA_PREFIX .. folder .. "\\" .. file
+end
+
+function GF.GetStatusIconTexture(style, iconType, role, useMidnight)
+    style = NormalizeIconStyle(style, "BLIZZARD")
     local folder = CUSTOM_STYLES[style]
     if folder then
-        local file = ROLE_MAP[role] or "dps"
-        if conf.useMidnightIcons then file = file .. "_midnight" end
-        return MEDIA_PREFIX .. folder .. "\\" .. file, 0, 1, 0, 1
+        local file
+        if iconType == "role" then
+            file = ROLE_MAP[role] or "dps"
+        elseif iconType == "assist" then
+            file = "assist"
+        else
+            file = "leader"
+        end
+        return CustomIconPath(style, file, useMidnight == true), 0, 1, 0, 1
     end
+    local external = ExternalIconPackByKey(style)
+    if external then
+        local file
+        if iconType == "role" then
+            file = ROLE_MAP[role] or "dps"
+        elseif iconType == "assist" then
+            file = "assist"
+        else
+            file = "leader"
+        end
+        local path = external.folder .. "\\" .. file
+        if useMidnight == true and not external.noMidnightSuffix then
+            local midnightPath = external.folder .. "\\" .. file .. "_midnight"
+            if external.hasMidnightSuffix or TexturePathExists(midnightPath) then path = midnightPath end
+        end
+        return path, 0, 1, 0, 1
+    end
+    if iconType == "leader" then return BLIZZARD_LEADER_TEX, 0, 1, 0, 1 end
+    if iconType == "assist" then return BLIZZARD_ASSIST_TEX, 0, 1, 0, 1 end
     local c = BLIZZARD_ROLE_COORDS[role] or BLIZZARD_ROLE_COORDS.DAMAGER
     return BLIZZARD_ROLE_TEX, c[1], c[2], c[3], c[4]
 end
 
-function GF.GetLeaderTexture(kind)
+function GF.GetIndicatorIconStyle(kind, indicatorKey)
     local conf = GF.GetConf(kind)
-    local style = conf.iconStyle or "BLIZZARD"
-    local folder = CUSTOM_STYLES[style]
-    if folder then
-        local file = "leader"
-        if conf.useMidnightIcons then file = file .. "_midnight" end
-        return MEDIA_PREFIX .. folder .. "\\" .. file, 0, 1, 0, 1
-    end
-    return BLIZZARD_LEADER_TEX, 0, 1, 0, 1
+    return IndicatorIconStyle(conf, indicatorKey)
 end
 
-function GF.GetAssistTexture(kind)
+function GF.GetRoleTexture(kind, role, styleOverride)
     local conf = GF.GetConf(kind)
-    local style = conf.iconStyle or "BLIZZARD"
-    local folder = CUSTOM_STYLES[style]
-    if folder then
-        local file = "assist"
-        if conf.useMidnightIcons then file = file .. "_midnight" end
-        return MEDIA_PREFIX .. folder .. "\\" .. file, 0, 1, 0, 1
-    end
-    return BLIZZARD_ASSIST_TEX, 0, 1, 0, 1
+    local style = NormalizeIconStyle(styleOverride, IndicatorIconStyle(conf, "roleIcon"))
+    return GF.GetStatusIconTexture(style, "role", role, conf and conf.useMidnightIcons == true)
+end
+
+function GF.GetLeaderTexture(kind, styleOverride)
+    local conf = GF.GetConf(kind)
+    local style = NormalizeIconStyle(styleOverride, IndicatorIconStyle(conf, "leaderIcon"))
+    return GF.GetStatusIconTexture(style, "leader", nil, conf and conf.useMidnightIcons == true)
+end
+
+function GF.GetAssistTexture(kind, styleOverride)
+    local conf = GF.GetConf(kind)
+    local style = NormalizeIconStyle(styleOverride, IndicatorIconStyle(conf, "assistIcon"))
+    return GF.GetStatusIconTexture(style, "assist", nil, conf and conf.useMidnightIcons == true)
 end
 
 GF.ICON_STYLE_ITEMS = {
     { key = "BLIZZARD",      label = "Blizzard (Default)" },
+    { key = "CLASSIC",       label = "Classic"            },
+    { key = "MIDNIGHT",      label = "Midnight"           },
     { key = "GLOSSY_ORBS",   label = "Glossy Orbs"        },
     { key = "DARK_EMBOSS",   label = "Dark Emboss"        },
     { key = "GLASS_PANELS",  label = "Glass Panels"       },
@@ -1975,6 +2272,42 @@ GF.ICON_STYLE_ITEMS = {
     { key = "DIAMONDS",      label = "Diamonds"           },
     { key = "SQUARES",       label = "Squares"            },
 }
+
+function GF.GetIconStyleItems(includeDefault)
+    local out = {}
+    if includeDefault then
+        out[#out + 1] = { value = "DEFAULT", text = "Follow global style" }
+    end
+    for i = 1, #GF.ICON_STYLE_ITEMS do
+        local item = GF.ICON_STYLE_ITEMS[i]
+        out[#out + 1] = {
+            value = item.value or item.key,
+            text = item.text or item.label or item.value or item.key,
+        }
+    end
+    GF.RefreshExternalStatusIconPacks()
+    for i = 1, #(_externalIconPackOrder or {}) do
+        local pack = _externalIconPackOrder[i]
+        out[#out + 1] = { value = pack.key, text = pack.label }
+    end
+    return out
+end
+
+_G.MSUF_GetStatusIconPackValues = function(includeDefault)
+    return GF.GetIconStyleItems(includeDefault == true)
+end
+
+_G.MSUF_GetRoleStatusIconTexture = function(style, role, useMidnight)
+    return GF.GetStatusIconTexture(style, "role", role, useMidnight == true)
+end
+
+_G.MSUF_GetLeaderStatusIconTexture = function(style, useMidnight)
+    return GF.GetStatusIconTexture(style, "leader", nil, useMidnight == true)
+end
+
+_G.MSUF_GetAssistStatusIconTexture = function(style, useMidnight)
+    return GF.GetStatusIconTexture(style, "assist", nil, useMidnight == true)
+end
 
 ------------------------------------------------------------------------
 -- Expose for other modules

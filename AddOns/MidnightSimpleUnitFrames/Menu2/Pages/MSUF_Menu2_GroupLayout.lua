@@ -16,6 +16,7 @@ local min = math.min
 
 local SCOPE_VALUES = GP.SCOPE_VALUES or {}
 local GROWTH_VALUES = GP.GROWTH_VALUES or {}
+local BLIZZARD_FALLBACK_VALUES = GP.BLIZZARD_FALLBACK_VALUES or {}
 local HEALTH_MODES = GP.HEALTH_MODES or {}
 local TEXT_MODES = GP.TEXT_MODES or {}
 local ANCHORS = GP.ANCHORS or {}
@@ -105,39 +106,42 @@ local function BuildGFLayout(ctx)
     ScopeSection(ctx, b)
     M.GroupPreview.Add(ctx, b)
 
-    local general = b:CollapsibleSection("general", "General", 350, false)
+    local general = b:CollapsibleSection("general", "General", 400, false)
     local generalW = general._msuf2Width or b.width or 720
     local generalLeftX = 32
     local generalRightX = min(max(430, floor(generalW * 0.52)), max(360, generalW - 360))
     local generalLeftW = max(250, generalRightX - generalLeftX - 42)
     local generalRightW = max(250, generalW - generalRightX - 32)
+    local generalLeftToggleW = max(80, generalLeftW - 34)
+    local generalRightToggleW = max(80, generalRightW - 34)
     local offlineSliderW = max(320, min(520, generalW - generalLeftX - 170))
 
     W.LabelAt(general, "Frame", generalLeftX, -38, generalLeftW, "GameFontNormalSmall", T.colors.accent)
     W.LabelAt(general, "Behavior", generalRightX, -38, generalRightW, "GameFontNormalSmall", T.colors.accent)
     local enableGroup = BindScopeToggle(ctx, W.SwitchAt(general, "MSUF group frames", generalLeftX, -64, generalLeftW), "enabled", false, "rebuild")
     enableGroup._msuf2GroupFrameGateAlwaysEnabled = true
-    local showPlayer = BindScopeToggle(ctx, W.Toggle(general, "Show player"), "showPlayer", true, "rebuild")
-    local showSolo = BindScopeToggle(ctx, W.Toggle(general, "Show while solo"), "showSolo", false, "rebuild")
-    local reverseFill = BindScopeToggle(ctx, W.Toggle(general, "Reverse fill direction"), "reverseFill", false, "visual")
-    local smoothFill = BindScopeToggle(ctx, W.Toggle(general, "Smooth health fill"), "smoothFill", true, "visual")
-    local hideClient = BindScopeToggle(ctx, W.Toggle(general, "Hide during client scene"), "hideInClientScene", true, "visual")
-    W.MoveWidget(showPlayer, general, generalLeftX, -94)
-    W.MoveWidget(showSolo, general, generalLeftX, -124)
-    W.MoveWidget(smoothFill, general, generalRightX, -64)
-    W.MoveWidget(reverseFill, general, generalRightX, -94)
-    W.MoveWidget(hideClient, general, generalRightX, -124)
+    BindScopeToggle(ctx, W.ToggleAt(general, "Show player", generalLeftX, -94, generalLeftToggleW), "showPlayer", true, "rebuild")
+    BindScopeToggle(ctx, W.ToggleAt(general, "Show while solo", generalLeftX, -124, generalLeftToggleW), "showSolo", false, "rebuild")
+    BindScopeToggle(ctx, W.ToggleAt(general, "Smooth health fill", generalRightX, -64, generalRightToggleW), "smoothFill", true, "visual")
+    BindScopeToggle(ctx, W.ToggleAt(general, "Reverse fill direction", generalRightX, -94, generalRightToggleW), "reverseFill", false, "visual")
+    BindScopeToggle(ctx, W.ToggleAt(general, "Hide during client scene", generalRightX, -124, generalRightToggleW), "hideInClientScene", true, "visual")
 
-    W.Text(general, "When this scope is disabled, Blizzard party/raid frames stay in control. Party is for 5-player groups; Raid and Mythic Raid use their own layouts.", generalLeftX, -154, generalW - (generalLeftX * 2), T.colors.muted)
+    local fallbackModeW = min(260, generalLeftW)
+    local fallbackMode = W.Dropdown(general, "When MSUF is disabled", BLIZZARD_FALLBACK_VALUES, fallbackModeW)
+    fallbackMode._msuf2GroupFrameGateAlwaysEnabled = true
+    W.MoveWidget(fallbackMode, general, generalLeftX, -166, fallbackModeW, "LEFT")
+    BindScopeDropdown(ctx, fallbackMode, "blizzardFallbackMode", "AUTO", "rebuild")
 
-    W.DividerAt(general, -196, generalLeftX, 32)
-    W.LabelAt(general, "Offline Members", generalLeftX, -214, generalLeftW, "GameFontNormalSmall", T.colors.accent)
-    local hideOfflineEnabled = BindScopeToggle(ctx, W.SwitchAt(general, "Offline Members", generalLeftX, -240, generalLeftW), "hideOfflineEnabled", false, "visual")
-    local hideOfflineCombat = BindScopeToggle(ctx, W.Toggle(general, "Hide offline in combat"), "hideOfflineInCombat", false, "visual")
+    local fallbackHelp = W.Text(general, "Auto follows Blizzard's own visibility where available. Show none keeps both MSUF and Blizzard group frames hidden for this scope.", generalRightX, -154, generalRightW, T.colors.muted)
+    if fallbackHelp and fallbackHelp.SetWordWrap then fallbackHelp:SetWordWrap(true) end
+
+    W.DividerAt(general, -226, generalLeftX, 32)
+    W.LabelAt(general, "Offline Members", generalLeftX, -244, generalLeftW, "GameFontNormalSmall", T.colors.accent)
+    local hideOfflineEnabled = BindScopeToggle(ctx, W.SwitchAt(general, "Offline Members", generalLeftX, -270, generalLeftW), "hideOfflineEnabled", false, "visual")
+    local hideOfflineCombat = BindScopeToggle(ctx, W.ToggleAt(general, "Hide offline in combat", generalRightX, -270, generalRightToggleW), "hideOfflineInCombat", false, "visual")
     local hideOffline = BindScopeSlider(ctx, W.Slider(general, "Hide offline after", 0, 120, 1, offlineSliderW), "hideOfflineDelay", 0, "visual")
-    W.MoveWidget(hideOfflineCombat, general, generalRightX, -240)
-    W.MoveWidget(hideOffline, general, generalLeftX, -274, offlineSliderW, "LEFT")
-    local generalNotice, _, generalNoticeButton = CreateSectionNotice and CreateSectionNotice(general, -304, "Enable Scope", 104)
+    W.MoveWidget(hideOffline, general, generalLeftX, -304, offlineSliderW, "LEFT")
+    local generalNotice, _, generalNoticeButton = CreateSectionNotice and CreateSectionNotice(general, -344, "Enable Scope", 104)
     if generalNoticeButton then
         generalNoticeButton:SetScript("OnClick", function()
             Set(CurrentScope(), "enabled", true, "rebuild")
@@ -165,7 +169,14 @@ local function BuildGFLayout(ctx)
             local scopeEnabled = Bool(CurrentScope(), "enabled", false)
             generalNotice:SetShown(not scopeEnabled)
             if not scopeEnabled then
-                generalNotice:SetMessage(ScopeLabel() .. " group frames are disabled. Blizzard frames stay in control.", "warning")
+                local mode = Val(CurrentScope(), "blizzardFallbackMode", "AUTO")
+                local behavior = "Blizzard visibility decides."
+                if mode == "SHOW" then
+                    behavior = "Blizzard frames will be shown."
+                elseif mode == "NONE" then
+                    behavior = "Blizzard frames will stay hidden."
+                end
+                generalNotice:SetMessage(ScopeLabel() .. " group frames are disabled. " .. behavior, "warning")
             end
         end
     end
@@ -689,4 +700,4 @@ local function BuildGFLayout(ctx)
     ctx:SetContentHeight(math.abs(b.y) + 42)
 end
 
-M.RegisterPage("gf_layout", { title = "MSUF Group Layout", build = BuildGFLayout, version = 13 })
+M.RegisterPage("gf_layout", { title = "MSUF Group Layout", build = BuildGFLayout, version = 14 })

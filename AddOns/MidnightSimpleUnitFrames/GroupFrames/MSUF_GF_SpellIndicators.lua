@@ -37,6 +37,7 @@ local math_max      = math.max
 local table_sort    = table.sort
 local table_concat  = table.concat
 local setmetatable  = setmetatable
+local MSUF_ResolveIconTexturePath = _G.MSUF_ResolveIconTexturePath
 
 local function _UnsecretBool(value)
     if issecretvalue and issecretvalue(value) then return nil end
@@ -1099,7 +1100,7 @@ local function ResolveCooldownBaseColor()
     return 1, 1, 1, 1
 end
 
-local function ApplyPlacedCooldownStyle(cd, ownerFrame, numberOnly)
+local function ApplyPlacedCooldownStyle(cd, ownerFrame, numberOnly, cfg)
     if not cd then return end
     local kind = (ownerFrame and ownerFrame._msufGFKind) or "party"
     local conf = GF.GetConf and GF.GetConf(kind)
@@ -1113,7 +1114,7 @@ local function ApplyPlacedCooldownStyle(cd, ownerFrame, numberOnly)
         cd._msufGFSIDrawBling = false
         cd:SetDrawBling(false)
     end
-    local wantSwipe = not numberOnly
+    local wantSwipe = (not numberOnly) and (not cfg or cfg.showCooldownSwipe ~= false)
     if cd._msufGFSIDrawSwipe ~= wantSwipe then
         cd._msufGFSIDrawSwipe = wantSwipe
         cd:SetDrawSwipe(wantSwipe)
@@ -1242,6 +1243,9 @@ end
 
 local function SetTextureIfChanged(texRegion, texture)
     if not texRegion then return end
+    if type(MSUF_ResolveIconTexturePath) == "function" then
+        texture = MSUF_ResolveIconTexturePath(texture)
+    end
     if texRegion._msufSITexture == texture then return end
     texRegion._msufSITexture = texture
     texRegion:SetTexture(texture)
@@ -1518,7 +1522,7 @@ local function ApplyPlaced(f, unit, auraName, cfg, auraData, parent, specKey, is
             if ind.cooldown then
                 local aid = auraData.auraInstanceID
                 local showCdText = isNumber or cfg.showCooldown ~= false
-                ApplyPlacedCooldownStyle(ind.cooldown, f, isNumber)
+                ApplyPlacedCooldownStyle(ind.cooldown, f, isNumber, cfg)
                 SetCooldownNumbersHidden(ind.cooldown, not showCdText)
                 if aid and unit and C_UnitAuras and C_UnitAuras.GetAuraDuration then
                     local obj = C_UnitAuras.GetAuraDuration(unit, aid)
@@ -1578,7 +1582,7 @@ local function ApplyPlaced(f, unit, auraName, cfg, auraData, parent, specKey, is
             ClearPlacedText(ind.previewText)
         elseif itype == "number" then
             if ind.cooldown then
-                ApplyPlacedCooldownStyle(ind.cooldown, f, true)
+                ApplyPlacedCooldownStyle(ind.cooldown, f, true, cfg)
                 ClearPlacedCooldown(ind)
                 SetCooldownNumbersHidden(ind.cooldown, false)
             end

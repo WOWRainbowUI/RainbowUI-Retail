@@ -195,16 +195,10 @@ function DB.AnyUnitEnabledCached()
     if c.enabled ~= true then return false end
     local ue = c.unitEnabled
     if not ue then return false end
-    return (ue.player == true)
-        or (ue.target == true)
-        or (ue.focus == true)
-        or (ue.boss1 == true)
-        or (ue.boss2 == true)
-        or (ue.boss3 == true)
-        or (ue.boss4 == true)
-        or (ue.boss5 == true)
-        or (ue.party1 == true)
-        or (ue.raid1 == true)
+    for _, enabled in pairs(ue) do
+        if enabled == true then return true end
+    end
+    return false
 end
 
 -- MSUF_A2_Colors.lua
@@ -345,6 +339,7 @@ function Filters.NormalizeFilters(f, sharedSettings, migrateFlagKey)
     Default(f, "hidePermanent", false)
     Default(b, "onlyMine", false)
     Default(b, "includeBoss", false)
+    Default(b, "includeStealable", false)
     Default(b, "onlyImportant", false)
     Default(d, "onlyMine", false)
     Default(d, "includeBoss", false)
@@ -436,7 +431,8 @@ end
 --   hidePermanentBuffs,
 --   debuffsIncludeDispellable,
 --   debuffDispelMagic, debuffDispelCurse, debuffDispelPoison, debuffDispelDisease,
---   sortOrder
+--   sortOrder,
+--   buffsIncludeStealable
 function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
     local tf = Filters.GetEffectiveFilterTable(a2, shared, unitKey)
 
@@ -449,7 +445,7 @@ function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
     local onlyImportantBuffs, onlyImportantDebuffs = false, false
 
     local buffsOnlyMine, debuffsOnlyMine = false, false
-    local buffsIncludeBoss, debuffsIncludeBoss = false, false
+    local buffsIncludeBoss, buffsIncludeStealable, debuffsIncludeBoss = false, false, false
     local hidePermanentBuffs = false
     local debuffsIncludeDispellable = false
     local debuffDispelMagic, debuffDispelCurse, debuffDispelPoison, debuffDispelDisease = false, false, false, false
@@ -484,6 +480,7 @@ function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
         end
 
         buffsIncludeBoss = (b and b.includeBoss == true) or false
+        buffsIncludeStealable = (b and b.includeStealable == true) or false
         debuffsIncludeBoss = (d and d.includeBoss == true) or false
         debuffsIncludeDispellable = (d and d.includeDispellable == true) or false
         debuffDispelMagic = (d and d.dispelMagic == true) or false
@@ -513,7 +510,8 @@ function Filters.ResolveRuntimeFlags(a2, shared, unitKey)
         hidePermanentBuffs,
         debuffsIncludeDispellable,
         debuffDispelMagic, debuffDispelCurse, debuffDispelPoison, debuffDispelDisease,
-        sortOrder
+        sortOrder,
+        buffsIncludeStealable
 end
 
 -- MSUF_A2_Public.lua

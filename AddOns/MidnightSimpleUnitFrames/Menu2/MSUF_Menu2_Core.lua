@@ -165,7 +165,7 @@ M.navHelp = M.navHelp or {
     uf_targettarget = "Configure target-of-target behavior and inline target text.",
     uf_focustarget = "Configure the focus target frame, which follows the Focus frame and updates from focus target changes.",
     gf_layout = "Choose party, raid, and mythic raid layout behavior before tuning details.",
-    gf_bars = "Configure group frame health, power, and text behavior.",
+    gf_bars = "Configure group frame health colors, bars, power bar, text, Dispel Overlay, Debuff Stripe, and Range Fade.",
     gf_indicators = "Set status icons, class resources, and group indicators.",
     gf_auras = "Configure group buffs, debuffs, and aura display behavior.",
     auras2 = "Configure unit-frame auras with display, filtering, and per-unit controls.",
@@ -217,6 +217,131 @@ local ALIASES = {
     modules = "modules",
     search = "search",
 }
+
+local MENU_STATE_VERSION = 1
+local MENU_STATE_TABLE_FIELDS = {
+    "accordionState",
+    "previewPinState",
+    "navHeaderState",
+    "unitTextTabSelection",
+    "unitTextSlotSelection",
+    "unitStatusSelection",
+    "unitStatusTabSelection",
+    "gfTextTabSelection",
+    "gfTextSlotSelection",
+    "gfStatusIconTabSelection",
+    "gfSpellMultiSpecSelection",
+    "gfSpellIndicatorSelection",
+}
+local MENU_STATE_SCALAR_DEFAULTS = {
+    lastPage = "home",
+    gfScope = "party",
+    auraScope = "shared",
+    gfStatusIconSelection = "roleIcon",
+    gfCornerSlotSelection = "TL",
+    gfStatusPreviewMode = "current",
+    colorsPowerToken = "MANA",
+    colorsCPToken = "COMBO_POINTS",
+    profileExportKind = "all",
+    profileImportCreateNew = false,
+    searchIntroSeen = false,
+    dashboardChangelogOpen = false,
+    dashboardRecoveryOpen = false,
+    dashboardScalingOpen = false,
+    lastPandemicMode = "PULSE",
+}
+
+local function MenuCharKey()
+    local fn = rawget(_G, "MSUF_GetCharKey")
+    if type(fn) == "function" then
+        local ok, key = pcall(fn)
+        if ok and type(key) == "string" and key ~= "" then return key end
+    end
+
+    local name = (_G.UnitName and _G.UnitName("player")) or "Unknown"
+    local realm = (_G.GetRealmName and _G.GetRealmName()) or "Realm"
+    return tostring(name) .. "-" .. tostring(realm)
+end
+
+local function CopyMissingStateValues(dst, src)
+    if type(dst) ~= "table" or type(src) ~= "table" then return end
+    for k, v in pairs(src) do
+        if dst[k] == nil then dst[k] = v end
+    end
+end
+
+local function EnsurePersistentMenuState()
+    _G.MSUF_GlobalDB = type(_G.MSUF_GlobalDB) == "table" and _G.MSUF_GlobalDB or {}
+    local gdb = _G.MSUF_GlobalDB
+    gdb.char = type(gdb.char) == "table" and gdb.char or {}
+
+    local charKey = MenuCharKey()
+    local charDB = type(gdb.char[charKey]) == "table" and gdb.char[charKey] or {}
+    gdb.char[charKey] = charDB
+
+    local state = type(charDB.menu2State) == "table" and charDB.menu2State or {}
+    charDB.menu2State = state
+    state.version = MENU_STATE_VERSION
+    local firstLoad = M._persistentMenuState ~= state or M._persistentMenuStateLoaded ~= true
+
+    for i = 1, #MENU_STATE_TABLE_FIELDS do
+        local field = MENU_STATE_TABLE_FIELDS[i]
+        local saved = state[field]
+        if type(saved) ~= "table" then
+            saved = {}
+            state[field] = saved
+        end
+        if type(M[field]) == "table" and M[field] ~= saved then
+            CopyMissingStateValues(saved, M[field])
+        end
+        M[field] = saved
+    end
+
+    for field, defaultValue in pairs(MENU_STATE_SCALAR_DEFAULTS) do
+        if firstLoad and state[field] ~= nil then
+            M[field] = state[field]
+        elseif M[field] ~= nil then
+            state[field] = M[field]
+        else
+            M[field] = defaultValue
+            state[field] = defaultValue
+        end
+    end
+
+    M._persistentMenuState = state
+    M._persistentMenuStateLoaded = true
+    return state
+end
+
+local function SavePersistentMenuState()
+    local state = EnsurePersistentMenuState()
+    for field in pairs(MENU_STATE_SCALAR_DEFAULTS) do
+        state[field] = M[field]
+    end
+    return state
+end
+
+function M.EnsurePersistentMenuState()
+    return EnsurePersistentMenuState()
+end
+
+function M.GetPersistentMenuStateTable(field)
+    local state = EnsurePersistentMenuState()
+    if type(state[field]) ~= "table" then state[field] = {} end
+    M[field] = state[field]
+    return state[field]
+end
+
+function M.PersistMenuStateValue(field, value)
+    local state = EnsurePersistentMenuState()
+    M[field] = value
+    state[field] = value
+    return value
+end
+
+function M.SavePersistentMenuState()
+    return SavePersistentMenuState()
+end
 
 local function ClampNumber(value, minValue, maxValue, fallback)
     value = tonumber(value) or fallback or minValue
@@ -567,8 +692,14 @@ local function SetTitle(key)
     if not frame then return end
     local spec = M.pages[key]
     local title = (spec and spec.title) or "MSUF"
-    frame.title:SetText(M.Tr(title))
-    if frame.subtitle then frame.subtitle:SetText("") end
+    if frame._msuf2TitleKey ~= title then
+        frame._msuf2TitleKey = title
+        frame.title:SetText(M.Tr(title))
+    end
+    if frame.subtitle and frame._msuf2SubtitleText ~= "" then
+        frame._msuf2SubtitleText = ""
+        frame.subtitle:SetText("")
+    end
     if frame.RefreshStatus then frame:RefreshStatus() end
 end
 
@@ -643,12 +774,21 @@ local function UpdateNav(key)
     local localeKey = CurrentMenuLocaleKey()
     local labelsDirty = M._msuf2NavLocaleKey ~= localeKey
     M._msuf2NavLocaleKey = localeKey
-    for pageKey, btn in pairs(M.navButtons) do
-        if labelsDirty and btn._msuf2RawLabel and btn.SetText then
-            btn:SetText(M.Tr(btn._msuf2RawLabel))
+    local previousKey = M._msuf2NavActiveKey
+    if labelsDirty then
+        for pageKey, btn in pairs(M.navButtons) do
+            if btn._msuf2RawLabel and btn.SetText then
+                btn:SetText(M.Tr(btn._msuf2RawLabel))
+            end
+            if btn.SetActive then btn:SetActive(pageKey == key) end
         end
-        if btn.SetActive then btn:SetActive(pageKey == key) end
+    elseif previousKey ~= key then
+        local previous = previousKey and M.navButtons[previousKey]
+        if previous and previous.SetActive then previous:SetActive(false) end
+        local current = key and M.navButtons[key]
+        if current and current.SetActive then current:SetActive(true) end
     end
+    M._msuf2NavActiveKey = key
     if labelsDirty and M.navHeaders then
         for _, btn in pairs(M.navHeaders) do
             if btn._msuf2RawLabel and btn.SetText then
@@ -727,8 +867,16 @@ local GF_PAGE_KEYS = {
     gf_indicators = true,
 }
 
+local GF_BAR_MENU_PREVIEW_KEYS = {
+    opt_bars = true,
+}
+
 local function IsGroupPageKey(key)
     return GF_PAGE_KEYS[key or ""] == true
+end
+
+local function IsGFBarMenuPreviewKey(key)
+    return GF_BAR_MENU_PREVIEW_KEYS[key or ""] == true
 end
 
 local function ResetStatusIndicatorTestModeOnMenuExit()
@@ -792,6 +940,17 @@ local function GFPreviewCount(kind)
     return 5
 end
 
+local function ShowGFBarMenuPreviews(gf)
+    if not gf then return end
+    gf.ShowPreview("party", GFPreviewCount("party"))
+    gf.ShowPreview("raid", GFPreviewCount("raid"))
+    gf.HidePreview("mythicraid")
+    if type(gf.RefreshPreviewLayout) == "function" then
+        gf.RefreshPreviewLayout("party")
+        gf.RefreshPreviewLayout("raid")
+    end
+end
+
 local function SetGFPagePreviewFlag(active, kind)
     _G.MSUF2_GFPagePreviewActive = active and true or nil
     _G.MSUF2_GFPagePreviewKind = active and kind or nil
@@ -825,9 +984,10 @@ local function SyncGroupPagePreviewForKey(key, force)
     end
 
     local frameVisible = M.frame and M.frame.IsShown and M.frame:IsShown()
-    local active = frameVisible and IsGroupPageKey(key)
+    local barMenuPreviews = IsGFBarMenuPreviewKey(key)
+    local active = frameVisible and (IsGroupPageKey(key) or barMenuPreviews)
     local gf = ns and ns.GF
-    local kind = CurrentGFMenuScope()
+    local kind = barMenuPreviews and "bars" or CurrentGFMenuScope()
     local editMode = IsEditModeActive() and true or false
     local hasRuntime = gf and type(gf.ShowPreview) == "function" and type(gf.HidePreview) == "function"
     if not force
@@ -844,7 +1004,7 @@ local function SyncGroupPagePreviewForKey(key, force)
     lastGFPreviewRuntime = hasRuntime
 
     if type(_G.MSUF_GF_EM2_SetActivePreviewKind) == "function" then
-        _G.MSUF_GF_EM2_SetActivePreviewKind(active and kind or nil)
+        _G.MSUF_GF_EM2_SetActivePreviewKind((active and not barMenuPreviews) and kind or nil)
     end
 
     if editMode then
@@ -879,6 +1039,10 @@ local function SyncGroupPagePreviewForKey(key, force)
         gf.SetPreviewAnchor("party", nil)
         gf.SetPreviewAnchor("raid", nil)
         gf.SetPreviewAnchor("mythicraid", nil)
+    end
+    if barMenuPreviews then
+        ShowGFBarMenuPreviews(gf)
+        return
     end
     if kind ~= "party" then gf.HidePreview("party") end
     if kind ~= "raid" then gf.HidePreview("raid") end
@@ -1062,7 +1226,13 @@ end
 
 function M.SelectPage(key)
     if M.BlockCombatAction and M.BlockCombatAction() then return false end
+    EnsurePersistentMenuState()
     key = ALIASES[key or ""] or key or "home"
+    if key ~= "search" and M.activeKey == "search" then
+        BumpSearchInputSerial()
+        CancelSearchBackgroundIndex()
+        M.searchResultsPending = nil
+    end
     local spec = M.pages[key]
     local cached = M.cache[key]
     local specVersion = spec and spec.version
@@ -1091,15 +1261,17 @@ function M.SelectPage(key)
     entry.hiddenBuild = false
 
     M.activeKey = key
+    if key ~= "search" then M.PersistMenuStateValue("lastPage", key) end
     if M.frame then M.frame._msufCurrentKey = key end
-    if M.scrollFrame and M.scrollFrame.SetVerticalScroll then
-        M.scrollFrame:SetVerticalScroll(0)
-    end
     if M.scrollChild then
         M.scrollChild:SetHeight(entry.height or CONTENT_H)
     end
-    if M.scrollFrame and M.scrollFrame._msuf2RefreshScrollBar then
-        M.scrollFrame:_msuf2RefreshScrollBar()
+    if M.scrollFrame then
+        if M.scrollFrame.SetVerticalScroll then
+            M.scrollFrame:SetVerticalScroll(0)
+        elseif M.scrollFrame._msuf2RefreshScrollBar then
+            M.scrollFrame:_msuf2RefreshScrollBar()
+        end
     end
     entry.wrapper:Show()
     RunRefreshers(entry)
@@ -1362,20 +1534,28 @@ local function CreateHistoryControls(parent)
 end
 
 local function BuildNav(parent)
+    EnsurePersistentMenuState()
     M.navButtons = {}
     M.navHeaders = {}
     M.navGroupForKey = {}
     M.navHeaderState = M.navHeaderState or {}
     local search = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
-    search:SetPoint("TOPLEFT", parent, "TOPLEFT", 8, -8)
-    search:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -8, -8)
-    search:SetHeight(20)
+    search:SetPoint("TOPLEFT", parent, "TOPLEFT", 10, -8)
+    search:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -10, -8)
+    search:SetHeight(18)
     search:SetFrameLevel((parent.GetFrameLevel and parent:GetFrameLevel() or 1) + 20)
     search:EnableMouse(true)
     search:SetAutoFocus(false)
     search:SetMaxLetters(60)
     search:SetTextInsets(6, 22, 0, 0)
     T.SkinEditBox(search)
+    if T.CreateSuperellipseLayers then
+        local fill, edge = T.CreateSuperellipseLayers(search, "_msuf2SearchEdit", 2, "BACKGROUND", "BORDER")
+        search._msuf2RoundedEditFill = fill
+        search._msuf2RoundedEditEdge = edge
+        search._msuf2RoundedEditColor = { 0.020, 0.024, 0.046, 0.96 }
+        if search._msuf2PaintEditBox then search:_msuf2PaintEditBox(false) end
+    end
     local placeholder = search.Instructions
     if not (placeholder and placeholder.SetText and placeholder.SetPoint) then
         placeholder = search:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
@@ -1393,12 +1573,80 @@ local function BuildNav(parent)
     search._msuf2SearchPlaceholder = placeholder
     UpdateSearchPlaceholder(search)
     parent.searchBox = search
+
+    local function HideSearchIntro()
+        local intro = parent._msuf2SearchIntro
+        if intro and intro.Hide then intro:Hide() end
+    end
+
+    local function MarkSearchIntroSeen()
+        if type(M.PersistMenuStateValue) == "function" then
+            M.PersistMenuStateValue("searchIntroSeen", true)
+        else
+            M.searchIntroSeen = true
+        end
+    end
+
+    local function EnsureSearchIntro()
+        local intro = parent._msuf2SearchIntro
+        if intro then return intro end
+
+        intro = T.Panel(parent, nil, { 0.030, 0.042, 0.085, 0.980 }, T.colors.accent)
+        intro:SetPoint("TOPLEFT", search, "BOTTOMLEFT", -2, -6)
+        intro:SetPoint("TOPRIGHT", search, "BOTTOMRIGHT", 2, -6)
+        intro:SetHeight(96)
+        intro:SetFrameLevel(search:GetFrameLevel() + 6)
+        intro:EnableMouse(true)
+        intro:Hide()
+
+        local title = T.Font(intro, "GameFontNormalSmall", "Ask questions here too", T.colors.text)
+        title:SetPoint("TOPLEFT", intro, "TOPLEFT", 10, -10)
+        title:SetPoint("TOPRIGHT", intro, "TOPRIGHT", -26, -10)
+        title:SetJustifyH("LEFT")
+
+        local body = T.Font(intro, "GameFontDisableSmall", "Try: \"where do I move raid frames\" or \"make text bigger\".", T.colors.muted)
+        body:SetPoint("TOPLEFT", intro, "TOPLEFT", 10, -32)
+        body:SetWidth(NAV_W - 36)
+        body:SetWordWrap(true)
+        body:SetJustifyH("LEFT")
+
+        local foot = T.Font(intro, "GameFontDisableSmall", "Press Enter to open the best match.", T.colors.dim)
+        foot:SetPoint("BOTTOMLEFT", intro, "BOTTOMLEFT", 10, 10)
+        foot:SetPoint("BOTTOMRIGHT", intro, "BOTTOMRIGHT", -10, 10)
+        foot:SetJustifyH("LEFT")
+
+        local close = CreateFrame("Button", nil, intro)
+        close:SetSize(18, 18)
+        close:SetPoint("TOPRIGHT", intro, "TOPRIGHT", -4, -4)
+        local closeText = T.Font(close, "GameFontDisableSmall", "x", T.colors.dim)
+        closeText:SetPoint("CENTER", close, "CENTER", 0, 0)
+        close:SetScript("OnEnter", function() closeText:SetTextColor(1, 1, 1, 0.95) end)
+        close:SetScript("OnLeave", function() T.StyleFontString(closeText, T.colors.dim, 0) end)
+        close:SetScript("OnClick", HideSearchIntro)
+
+        parent._msuf2SearchIntro = intro
+        return intro
+    end
+
+    local function ShowSearchIntro()
+        if M.searchIntroSeen == true then return end
+        local intro = EnsureSearchIntro()
+        intro:Show()
+        MarkSearchIntroSeen()
+        if _G.C_Timer and _G.C_Timer.After then
+            _G.C_Timer.After(10, function()
+                if intro and intro.Hide then intro:Hide() end
+            end)
+        end
+    end
+
     search:SetScript("OnMouseDown", function(self, button)
         if button == "LeftButton" then self:SetFocus() end
     end)
     search:HookScript("OnEditFocusGained", function(self)
         if self.HighlightText then self:HighlightText() end
         UpdateSearchPlaceholder(self)
+        if TrimText(self:GetText() or "") == "" then ShowSearchIntro() end
     end)
     search:HookScript("OnEditFocusLost", function(self)
         if self.HighlightText then self:HighlightText(0, 0) end
@@ -1408,9 +1656,11 @@ local function BuildNav(parent)
         UpdateSearchPlaceholder(self)
         if self._msuf2SearchInternal then return end
         local query = TrimText(self:GetText() or "")
+        if query ~= "" then HideSearchIntro() end
         ScheduleSearchInputQuery(self, query)
     end)
     search:SetScript("OnEnterPressed", function(self)
+        HideSearchIntro()
         local query = TrimText(self:GetText() or "")
         if query == "" then
             self:ClearFocus()
@@ -1430,6 +1680,7 @@ local function BuildNav(parent)
         end
     end)
     search:SetScript("OnEscapePressed", function(self)
+        HideSearchIntro()
         self._msuf2SearchInternal = true
         self:SetText("")
         self._msuf2SearchInternal = nil
@@ -1446,6 +1697,7 @@ local function BuildNav(parent)
     clearText:SetPoint("CENTER", clear, "CENTER", 0, 0)
     clear:Hide()
     clear:SetScript("OnClick", function()
+        HideSearchIntro()
         search._msuf2SearchInternal = true
         search:SetText("")
         search._msuf2SearchInternal = nil
@@ -1738,6 +1990,7 @@ end
 local function BuildWindow()
     if M.frame then return M.frame end
 
+    EnsurePersistentMenuState()
     SetWindowMetrics(ReadSavedWindowSize())
     local f = T.Panel(UIParent, "MSUF2_Window", T.colors.bg, T.colors.border)
     _G.MSUF_StandaloneOptionsWindow = f
@@ -2060,22 +2313,41 @@ local function BuildWindow()
     function f:RefreshStatus()
         local profile = tostring(_G.MSUF_ActiveProfile or "Default")
         local edit = IsEditModeActive() and "On" or "Off"
-        sbProfile:SetText("|cff4a90d9" .. L_PROFILE .. "|r |cffccd8e8" .. profile .. "|r  |cff3a4a66\194\183|r")
-        if edit == "On" then
-            sbEdit:SetText("|cff4ade80" .. L_EDIT_ON .. "|r  |cff3a4a66\194\183|r")
-        else
-            sbEdit:SetText("|cff5a6a88" .. L_EDIT_OFF .. "|r  |cff3a4a66\194\183|r")
+        local profileText = "|cff4a90d9" .. L_PROFILE .. "|r |cffccd8e8" .. profile .. "|r  |cff3a4a66\194\183|r"
+        if status._msuf2ProfileText ~= profileText then
+            status._msuf2ProfileText = profileText
+            sbProfile:SetText(profileText)
         end
-        if _G.InCombatLockdown and _G.InCombatLockdown() then
-            sbCombat:SetText("|cffef4444" .. L_IN_COMBAT .. "|r")
+        local editText
+        if edit == "On" then
+            editText = "|cff4ade80" .. L_EDIT_ON .. "|r  |cff3a4a66\194\183|r"
         else
-            sbCombat:SetText("|cff22c55e" .. L_OUT_OF_COMBAT .. "|r")
+            editText = "|cff5a6a88" .. L_EDIT_OFF .. "|r  |cff3a4a66\194\183|r"
+        end
+        if status._msuf2EditText ~= editText then
+            status._msuf2EditText = editText
+            sbEdit:SetText(editText)
+        end
+        local combatText
+        if _G.InCombatLockdown and _G.InCombatLockdown() then
+            combatText = "|cffef4444" .. L_IN_COMBAT .. "|r"
+        else
+            combatText = "|cff22c55e" .. L_OUT_OF_COMBAT .. "|r"
+        end
+        if status._msuf2CombatText ~= combatText then
+            status._msuf2CombatText = combatText
+            sbCombat:SetText(combatText)
         end
         local ver = _G.C_AddOns and _G.C_AddOns.GetAddOnMetadata and _G.C_AddOns.GetAddOnMetadata("MidnightSimpleUnitFrames", "Version")
+        local versionText
         if type(ver) == "string" and ver ~= "" then
-            sbVersion:SetText(ver:match("^%d") and ("v" .. ver) or ver)
+            versionText = ver:match("^%d") and ("v" .. ver) or ver
         else
-            sbVersion:SetText("v5.0 Beta 1")
+            versionText = "v5.0 Beta 1"
+        end
+        if status._msuf2VersionText ~= versionText then
+            status._msuf2VersionText = versionText
+            sbVersion:SetText(versionText)
         end
         RefreshDashboardEditModeButton()
     end
@@ -2138,7 +2410,7 @@ local function BuildWindow()
         if W and type(W.CloseDropdown) == "function" then W.CloseDropdown() end
         if M.EndHistorySession then M.EndHistorySession() end
         ResetStatusIndicatorTestModeOnMenuExit()
-        M.dashboardChangelogOpen = false
+        SavePersistentMenuState()
         lastBossPreviewActive = nil
         SyncBossPagePreviewForKey(nil)
         SyncGroupPagePreviewForKey(nil)
@@ -2368,6 +2640,7 @@ local function BuildDashboardChangelog(parent, cardWidth, opts)
     end
     local function RefreshOpenState()
         M.dashboardChangelogOpen = open
+        M.PersistMenuStateValue("dashboardChangelogOpen", open)
         scroll:SetShown(open)
         summary:SetShown((not open) and not opts.hideSummaryWhenClosed)
         PaintHeader(open)
@@ -2973,7 +3246,7 @@ local function BuildDashboardUX(ctx)
         Pill(head, "Factory reset hidden", recoveryW - 124, -11, 110, T.colors.accent2)
     end
     head:SetScript("OnClick", function()
-        M.dashboardRecoveryOpen = not recoveryOpen
+        M.PersistMenuStateValue("dashboardRecoveryOpen", not recoveryOpen)
         M.InvalidatePage("home")
         M.SelectPage("home")
     end)
@@ -3029,7 +3302,7 @@ local function BuildDashboardUX(ctx)
         Pill(scaleHead, M.Format("Frames %d%%", Percent(g.msufUiScale, 1)), recoveryW - 98, -11, 84)
     end
     scaleHead:SetScript("OnClick", function()
-        M.dashboardScalingOpen = not scalingOpen
+        M.PersistMenuStateValue("dashboardScalingOpen", not scalingOpen)
         M.InvalidatePage("home")
         M.SelectPage("home")
     end)
@@ -3342,6 +3615,15 @@ local function BuildDashboardUX(ctx)
             end
         end)
         AddTooltip(btn, data.title, data.tooltip)
+        if type(M.RegisterSearchWidget) == "function" then
+            M.RegisterSearchWidget(btn, {
+                label = data.title,
+                kind = "button",
+                anchor = supportTitle,
+                keywords = { data.tooltip, "Support MSUF Development", "support links", data.url },
+                help = data.tooltip,
+            })
+        end
         if previous then
             btn:SetPoint("LEFT", previous, "RIGHT", 10, 0)
         else
@@ -3370,6 +3652,7 @@ M.ApplyMenuFrameScale = ApplyMenuFrameScale
 
 function M.Open(pageKey)
     if M.BlockCombatAction and M.BlockCombatAction() then return false end
+    EnsurePersistentMenuState()
     if M.ApplyLocaleSelection then M.ApplyLocaleSelection() end
     local f = BuildWindow()
     if M.minimizedBar and M.minimizedBar.Hide then M.minimizedBar:Hide() end
@@ -3377,7 +3660,7 @@ function M.Open(pageKey)
     ApplyMenuFrameScale(f)
     ApplyMenuFramePriority(f)
     f:Show()
-    M.SelectPage(pageKey or M.activeKey or "home")
+    M.SelectPage(pageKey or "home")
     return true
 end
 

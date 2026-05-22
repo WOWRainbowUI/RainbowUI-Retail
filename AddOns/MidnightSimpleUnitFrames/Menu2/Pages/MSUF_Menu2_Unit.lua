@@ -28,10 +28,10 @@ local POWER_UNITS = {
 }
 
 local CASTBAR_FIELDS = {
-    player = { enable = "enablePlayerCastbar", time = "showPlayerCastTime", icon = "castbarPlayerShowIcon", text = "castbarPlayerShowSpellName" },
-    target = { enable = "enableTargetCastbar", time = "showTargetCastTime", icon = "castbarTargetShowIcon", text = "castbarTargetShowSpellName" },
-    focus = { enable = "enableFocusCastbar", time = "showFocusCastTime", icon = "castbarFocusShowIcon", text = "castbarFocusShowSpellName" },
-    boss = { enable = "enableBossCastbar", time = "showBossCastTime", icon = "showBossCastIcon", text = "showBossCastName" },
+    player = { enable = "enablePlayerCastbar", time = "showPlayerCastTime", icon = "castbarPlayerShowIcon", text = "castbarPlayerShowSpellName", timeFormat = "castbarPlayerTimeFormat" },
+    target = { enable = "enableTargetCastbar", time = "showTargetCastTime", icon = "castbarTargetShowIcon", text = "castbarTargetShowSpellName", timeFormat = "castbarTargetTimeFormat" },
+    focus = { enable = "enableFocusCastbar", time = "showFocusCastTime", icon = "castbarFocusShowIcon", text = "castbarFocusShowSpellName", timeFormat = "castbarFocusTimeFormat" },
+    boss = { enable = "enableBossCastbar", time = "showBossCastTime", icon = "showBossCastIcon", text = "showBossCastName", timeFormat = "bossCastTimeFormat" },
 }
 
 local LOAD_CONDITIONS = {
@@ -139,11 +139,31 @@ local DEFAULT_SYMBOLS = {
     { value = "DEFAULT", text = "Default" },
 }
 
+local function StatusIconPackValues()
+    local fn = _G.MSUF_GetStatusIconPackValues
+    if type(fn) == "function" then return fn(false) end
+    return {
+        { value = "BLIZZARD", text = "Blizzard (Default)" },
+        { value = "CLASSIC", text = "Classic" },
+        { value = "MIDNIGHT", text = "Midnight" },
+        { value = "GLOSSY_ORBS", text = "Glossy Orbs" },
+        { value = "DARK_EMBOSS", text = "Dark Emboss" },
+        { value = "GLASS_PANELS", text = "Glass Panels" },
+        { value = "NEON_OUTLINE", text = "Neon Outline" },
+        { value = "RING_SYMBOLS", text = "Ring Symbols" },
+        { value = "DOTS", text = "Dots" },
+        { value = "SHAPES", text = "Shapes" },
+        { value = "DIAMONDS", text = "Diamonds" },
+        { value = "SQUARES", text = "Squares" },
+    }
+end
+
 local STATUS_CONTROLS = {
     {
         value = "leader", text = "Leader / Assist",
         allowed = function(unit) return unit == "player" or unit == "target" end,
         show = "showLeaderIcon", defaultShow = true,
+        iconStyle = "leaderIconStyle", defaultIconStyle = "BLIZZARD",
         size = "leaderIconSize", defaultSize = 14,
         anchor = "leaderIconAnchor", defaultAnchor = "TOPLEFT", anchors = STATUS_CORNER_ANCHORS,
         x = "leaderIconOffsetX", defaultX = 0,
@@ -376,7 +396,7 @@ local COPY_TEXT_FIELDS = {
 }
 
 local COPY_INDICATOR_FIELDS = {
-    "showLeaderIcon", "leaderIconOffsetX", "leaderIconOffsetY", "leaderIconAnchor", "leaderIconSize", "leaderIconLayer",
+    "showLeaderIcon", "leaderIconStyle", "leaderIconOffsetX", "leaderIconOffsetY", "leaderIconAnchor", "leaderIconSize", "leaderIconLayer",
     "showRaidMarker", "raidMarkerOffsetX", "raidMarkerOffsetY", "raidMarkerAnchor", "raidMarkerSize", "raidMarkerLayer",
     "showRaidGroupInName", "raidGroupNameAnchor", "raidGroupNameOffsetX", "raidGroupNameOffsetY", "raidGroupNameStyle",
     "showLevelIndicator", "levelIndicatorOffsetX", "levelIndicatorOffsetY", "levelIndicatorAnchor", "levelIndicatorSize", "levelIndicatorLayer",
@@ -584,10 +604,10 @@ local function CopyPowerBarFields(dst, src, srcKey)
 end
 
 local CASTBAR_KEY_MAP = {
-    player = { enable = "enablePlayerCastbar", time = "showPlayerCastTime", icon = "castbarPlayerShowIcon", name = "castbarPlayerShowSpellName" },
-    target = { enable = "enableTargetCastbar", time = "showTargetCastTime", icon = "castbarTargetShowIcon", name = "castbarTargetShowSpellName" },
-    focus  = { enable = "enableFocusCastbar",  time = "showFocusCastTime",  icon = "castbarFocusShowIcon",  name = "castbarFocusShowSpellName" },
-    boss   = { enable = "enableBossCastbar",   time = "showBossCastTime",   icon = "showBossCastIcon",      name = "showBossCastName" },
+    player = { enable = "enablePlayerCastbar", time = "showPlayerCastTime", icon = "castbarPlayerShowIcon", name = "castbarPlayerShowSpellName", timeFormat = "castbarPlayerTimeFormat" },
+    target = { enable = "enableTargetCastbar", time = "showTargetCastTime", icon = "castbarTargetShowIcon", name = "castbarTargetShowSpellName", timeFormat = "castbarTargetTimeFormat" },
+    focus  = { enable = "enableFocusCastbar",  time = "showFocusCastTime",  icon = "castbarFocusShowIcon",  name = "castbarFocusShowSpellName",  timeFormat = "castbarFocusTimeFormat" },
+    boss   = { enable = "enableBossCastbar",   time = "showBossCastTime",   icon = "showBossCastIcon",      name = "showBossCastName",          timeFormat = "bossCastTimeFormat" },
 }
 
 local function CopyCastbar(g, src, dst)
@@ -598,6 +618,7 @@ local function CopyCastbar(g, src, dst)
     g[d.time] = g[s.time]
     g[d.icon] = g[s.icon]
     g[d.name] = g[s.name]
+    g[d.timeFormat] = g[s.timeFormat]
 end
 
 local function EnsureCopyDialog()
@@ -1026,6 +1047,7 @@ UnitPage.COMBAT_SYMBOLS = COMBAT_SYMBOLS
 UnitPage.RESTED_SYMBOLS = RESTED_SYMBOLS
 UnitPage.RESS_SYMBOLS = RESS_SYMBOLS
 UnitPage.DEFAULT_SYMBOLS = DEFAULT_SYMBOLS
+UnitPage.StatusIconPackValues = StatusIconPackValues
 UnitPage.STATUS_CONTROLS = STATUS_CONTROLS
 UnitPage.TEXT_ANCHORS = TEXT_ANCHORS
 UnitPage.HP_MODES = HP_MODES

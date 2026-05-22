@@ -24,6 +24,7 @@ local COMBAT_SYMBOLS = UP.COMBAT_SYMBOLS or {}
 local RESTED_SYMBOLS = UP.RESTED_SYMBOLS or {}
 local RESS_SYMBOLS = UP.RESS_SYMBOLS or {}
 local DEFAULT_SYMBOLS = UP.DEFAULT_SYMBOLS or {}
+local StatusIconPackValues = UP.StatusIconPackValues or function() return {} end
 local STATUS_CONTROLS = UP.STATUS_CONTROLS or {}
 local TEXT_ANCHORS = UP.TEXT_ANCHORS or {}
 local HP_MODES = UP.HP_MODES or {}
@@ -38,6 +39,18 @@ local UF_COPY_CATEGORIES = UP.UF_COPY_CATEGORIES or {}
 
 local TOT_INLINE_CUSTOM_SEPARATOR = "__CUSTOM__"
 local TOT_INLINE_CUSTOM_SEPARATOR_MAX = 5
+local TOT_INLINE_COLOR_AUTO = "AUTO"
+local TOT_INLINE_COLOR_TOT_NAME = "TOT_NAME"
+local TOT_INLINE_COLOR_TARGET_NAME = "TARGET_NAME"
+local TOT_INLINE_COLOR_NPC = "NPC"
+local TOT_INLINE_COLOR_DEFAULT = "DEFAULT"
+local TOT_INLINE_COLOR_VALUES = {
+    [TOT_INLINE_COLOR_AUTO] = true,
+    [TOT_INLINE_COLOR_TOT_NAME] = true,
+    [TOT_INLINE_COLOR_TARGET_NAME] = true,
+    [TOT_INLINE_COLOR_NPC] = true,
+    [TOT_INLINE_COLOR_DEFAULT] = true,
+}
 local WARNING_HINT = { 0.90, 0.84, 0.76, 1 }
 local WARNING_BG = { 0.105, 0.082, 0.052, 0.44 }
 local WARNING_ARROW = { 0.88, 0.62, 0.22, 1 }
@@ -53,6 +66,10 @@ local RAID_GROUP_NAME_STYLES = {
     { value = "PAREN", text = "(2)" },
     { value = "BRACKET", text = "[2]" },
     { value = "NONE", text = "2" },
+}
+local STATUS_ICON_TAB_VALUES = {
+    { value = "basic", text = "Basic" },
+    { value = "advanced", text = "Advanced" },
 }
 
 local function IsNameRelativeAnchor(value)
@@ -132,6 +149,16 @@ local function ToTInlineSeparatorDropdownValue(conf)
     return "|"
 end
 
+local function NormalizeToTInlineColorMode(value)
+    value = tostring(value or "")
+    if TOT_INLINE_COLOR_VALUES[value] then return value end
+    return TOT_INLINE_COLOR_AUTO
+end
+
+local function ToTInlineColorDropdownValue(conf)
+    return NormalizeToTInlineColorMode(conf and conf.totInlineColorMode)
+end
+
 local function PortraitClassStyleValues()
     local PM = ns and ns.PortraitMedia
     local opts = (PM and PM.GetPackOptions and PM.GetPackOptions()) or {
@@ -195,6 +222,36 @@ local NormalizeAlphaMode = UP.NormalizeAlphaMode
 local AlphaModeValue = UP.AlphaModeValue
 local NormalizeBossLayoutMode = UP.NormalizeBossLayoutMode
 local UpdateLoadActive = UP.UpdateLoadActive
+
+local function ToTInlineNPCColorAvailable()
+    local fn = _G.MSUF_UFCore_IsToTInlineNPCColorModeAvailable
+    if type(fn) == "function" then return fn() == true end
+
+    local db = _G.MSUF_DB
+    local gen = db and db.general
+    local wantNpc = gen and gen.npcNameRed
+    local conf = GetConf("targettarget")
+    if conf and conf.fontOverride and conf.npcNameRed ~= nil then
+        wantNpc = conf.npcNameRed
+    end
+    if wantNpc ~= true then return false end
+    if not gen then return false end
+    if gen.npcColorMode ~= "type" then return false end
+    if gen.npcTypeColorText == false then return false end
+    if gen.npcTypeToT == false then return false end
+    return true
+end
+
+local function ToTInlineColorOptions()
+    local npcAvailable = ToTInlineNPCColorAvailable()
+    return {
+        { value = TOT_INLINE_COLOR_AUTO, text = "Auto" },
+        { value = TOT_INLINE_COLOR_TOT_NAME, text = "ToT Name Color" },
+        { value = TOT_INLINE_COLOR_TARGET_NAME, text = "Target Name Color" },
+        { value = TOT_INLINE_COLOR_NPC, text = "NPC / Type Color", disabled = not npcAvailable },
+        { value = TOT_INLINE_COLOR_DEFAULT, text = "Default (Font Color)" },
+    }
+end
 
 local function ForEachPageControl(parent, callback)
     if not (parent and parent.GetChildren and type(callback) == "function") then return end
@@ -1650,7 +1707,7 @@ end
 local function BuildInlineText(ctx, builder, unit)
     if unit ~= "target" then return end
 
-    local sec = builder:CollapsibleSection("inline_text", "Inline Text", 164, false)
+    local sec = builder:CollapsibleSection("inline_text", "Inline Text", 214, false)
     local sectionW = (sec and sec._msuf2Width) or (ctx and ctx.width) or 720
     local rightX = math.max(260, floor(sectionW * 0.52))
     local rightW = math.min(220, math.max(140, sectionW - rightX - 28))
@@ -1672,7 +1729,23 @@ local function BuildInlineText(ctx, builder, unit)
             if RefreshInlineControlState then RefreshInlineControlState() end
         end)
 
+    local color = W.Dropdown(sec, "Inline color", ToTInlineColorOptions, rightW)
+    W.MoveWidget(color, sec, rightX, -72, rightW)
+    M.BindDropdown(ctx, color,
+        function() return ToTInlineColorDropdownValue(GetConf("targettarget")) end,
+        function(v)
+            local conf = GetConf("targettarget")
+            conf.totInlineColorMode = NormalizeToTInlineColorMode(v)
+            M.RequestUnitApply("target", "MSUF2_TOT_INLINE_COLOR", { text = true, preview = true })
+            M.RequestUnitApply("targettarget", "MSUF2_TOT_INLINE_COLOR", { text = true, preview = true })
+            Call("MSUF_ToTInline_RequestRefresh", "MSUF2_TOT_INLINE_COLOR")
+            Call("MSUF_UpdateTargetToTInlineNow")
+            Call("MSUF_UFPreview_RequestRefresh", "MSUF2_TOT_INLINE_COLOR")
+            if RefreshInlineControlState then RefreshInlineControlState() end
+        end)
+
     local sep = W.Dropdown(sec, "Inline separator", TOT_INLINE_SEPARATOR_OPTIONS, 170)
+    W.MoveWidget(sep, sec, 14, -124, 170)
     M.BindDropdown(ctx, sep,
         function() return ToTInlineSeparatorDropdownValue(GetConf("targettarget")) end,
         function(v)
@@ -1692,7 +1765,7 @@ local function BuildInlineText(ctx, builder, unit)
         end)
 
     local customSep = W.TextInput(sec, "Custom separator", rightW)
-    W.MoveWidget(customSep, sec, rightX, -102, rightW)
+    W.MoveWidget(customSep, sec, rightX, -124, rightW)
     if customSep.SetMaxLetters then customSep:SetMaxLetters(TOT_INLINE_CUSTOM_SEPARATOR_MAX) end
     M.BindTextInput(ctx, customSep,
         function()
@@ -1721,8 +1794,23 @@ local function BuildInlineText(ctx, builder, unit)
         true)
 
     RefreshInlineControlState = function()
-        local isCustom = ToTInlineSeparatorDropdownValue(GetConf("targettarget")) == TOT_INLINE_CUSTOM_SEPARATOR
-        SetControlEnabled(customSep, isCustom)
+        local conf = GetConf("targettarget")
+        local enabled = GetConf("targettarget").showToTInTargetName == true
+        local npcAvailable = ToTInlineNPCColorAvailable()
+        if conf.totInlineColorMode == TOT_INLINE_COLOR_NPC and not npcAvailable then
+            conf.totInlineColorMode = TOT_INLINE_COLOR_AUTO
+            M.RequestUnitApply("target", "MSUF2_TOT_INLINE_COLOR_AUTO", { text = true, preview = true })
+            M.RequestUnitApply("targettarget", "MSUF2_TOT_INLINE_COLOR_AUTO", { text = true, preview = true })
+            Call("MSUF_ToTInline_RequestRefresh", "MSUF2_TOT_INLINE_COLOR_AUTO")
+            Call("MSUF_UpdateTargetToTInlineNow")
+            Call("MSUF_UFPreview_RequestRefresh", "MSUF2_TOT_INLINE_COLOR_AUTO")
+        end
+        local isCustom = ToTInlineSeparatorDropdownValue(conf) == TOT_INLINE_CUSTOM_SEPARATOR
+        SetControlEnabled(color, enabled)
+        SetControlEnabled(sep, enabled)
+        SetControlEnabled(customSep, enabled and isCustom)
+        if color.SetValues then color:SetValues(ToTInlineColorOptions()) end
+        if color.SetValue then color:SetValue(ToTInlineColorDropdownValue(conf)) end
     end
     M.AddRefresher(ctx, RefreshInlineControlState)
     RefreshInlineControlState()
@@ -2290,7 +2378,7 @@ local function BuildCastbar(ctx, builder, unit)
 end
 
 local function BuildStatus(ctx, builder, unit)
-    local sec = builder:CollapsibleSection("status_icons", "Status icons", 552, false)
+    local sec = builder:CollapsibleSection("status_icons", "Status icons", 646, false)
     local sectionW = (sec and sec._msuf2Width) or (ctx and ctx.width) or 720
     local leftX = 14
     local topGap = 28
@@ -2298,11 +2386,39 @@ local function BuildStatus(ctx, builder, unit)
     local leftW = max(220, min(300, floor((topInnerW - topGap) * 0.46)))
     local rightX = leftX + leftW + topGap
     local rightW = max(220, min(320, topInnerW - leftW - topGap))
-    local selectedCard = W.ControlCard(sec, "Selected Indicator", nil, leftX - 2, -38, leftW + 28, 142)
-    local previewCard = W.ControlCard(sec, "Status Preview", nil, rightX - 14, -38, rightW + 28, 142)
+    local statusTabW = min(380, sectionW - 40)
+    local statusTabs = W.Segment(sec, "Status icon controls", STATUS_ICON_TAB_VALUES, statusTabW)
+    W.MoveWidget(statusTabs, sec, 20, -50, statusTabW, "LEFT")
+
+    M.unitStatusTabSelection = M.unitStatusTabSelection or {}
+    local function CurrentStatusTab()
+        local key = M.unitStatusTabSelection[unit] or "basic"
+        if key ~= "basic" and key ~= "advanced" then key = "basic" end
+        return key
+    end
+    local RefreshStatusTabs
+    M.BindSegment(ctx, statusTabs,
+        CurrentStatusTab,
+        function(value)
+            M.unitStatusTabSelection[unit] = value or "basic"
+            if RefreshStatusTabs then RefreshStatusTabs() end
+        end)
+
+    local basicTab = CreateFrame("Frame", nil, sec)
+    basicTab:SetPoint("TOPLEFT", sec, "TOPLEFT", 0, -104)
+    basicTab:SetPoint("BOTTOMRIGHT", sec, "BOTTOMRIGHT", 0, 12)
+    basicTab._msuf2Width = sectionW
+
+    local advancedTab = CreateFrame("Frame", nil, sec)
+    advancedTab:SetPoint("TOPLEFT", sec, "TOPLEFT", 0, -104)
+    advancedTab:SetPoint("BOTTOMRIGHT", sec, "BOTTOMRIGHT", 0, 12)
+    advancedTab._msuf2Width = sectionW
+
+    local selectedCard = W.ControlCard(basicTab, "Selected Indicator", nil, leftX - 2, -38, leftW + 28, 142)
+    local previewCard = W.ControlCard(basicTab, "Status Preview", nil, rightX - 14, -38, rightW + 28, 142)
     local placementCardX = leftX - 2
     local placementCardW = max(320, sectionW - placementCardX - 28)
-    local placementCard = W.ControlCard(sec, "Placement", nil, placementCardX, -198, placementCardW, 312)
+    local placementCard = W.ControlCard(basicTab, "Placement", nil, placementCardX, -198, placementCardW, 312)
     local placeLeftX = 16
     local placeGap = 24
     local placeAvailableW = max(280, placementCardW - 32)
@@ -2441,6 +2557,23 @@ local function BuildStatus(ctx, builder, unit)
         return (spec and spec.symbols) or DEFAULT_SYMBOLS
     end)
 
+    local iconPack = W.Dropdown(placementCard, "Icon pack", StatusIconPackValues, 260)
+    PlaceDropdown(iconPack, placementCard, placeRightX, -54, placeRightW)
+    M.BindDropdown(ctx, iconPack,
+        function()
+            local spec = CurrentStatusSpec(unit)
+            return spec and spec.iconStyle and ReadStatusString(unit, spec.iconStyle, spec.defaultIconStyle or "BLIZZARD") or "BLIZZARD"
+        end,
+        function(value)
+            local spec = CurrentStatusSpec(unit)
+            if not (spec and spec.iconStyle) then return end
+            SetString(unit, spec.iconStyle, value or spec.defaultIconStyle or "BLIZZARD", "MSUF2_STATUS_ICON_PACK", { preview = true })
+            RefreshStatusRuntime(unit, spec)
+        end)
+    RegisterStatusSearch(iconPack, "Status indicator icon pack", {
+        "icon pack", "leader icon pack", "assist icon pack", "role icon pack", "status icon pack",
+    }, StatusIconPackValues)
+
     local raidGroupStyle = W.Dropdown(placementCard, "Style", RAID_GROUP_NAME_STYLES, 180)
     PlaceDropdown(raidGroupStyle, placementCard, placeRightX, -54, min(180, placeRightW))
     M.BindDropdown(ctx, raidGroupStyle,
@@ -2570,6 +2703,7 @@ local function BuildStatus(ctx, builder, unit)
             else
                 conf[spec.x], conf[spec.y], conf[spec.anchor], conf[spec.size], conf[spec.layer] = nil, nil, nil, nil, nil
                 if spec.symbol then conf[spec.symbol] = nil end
+                if spec.iconStyle then conf[spec.iconStyle] = nil end
             end
             RefreshStatusRuntime(unit, spec)
             if M.SelectPage then M.SelectPage(ctx.key) end
@@ -2614,6 +2748,107 @@ local function BuildStatus(ctx, builder, unit)
         "show all", "all indicators", "preview all", "all status icons",
     })
 
+    local advanced = {}
+    advanced.card = W.ControlCard(advancedTab, "Advanced Placement", nil, placementCardX, -38, placementCardW, 316)
+    advanced.x = W.Slider(advanced.card, "X Offset (extended)", -1000, 1000, 1, 300)
+    PlaceSlider(advanced.x, advanced.card, placeLeftX, -58, placeLeftW)
+    M.BindSlider(ctx, advanced.x,
+        function()
+            local spec = CurrentStatusSpec(unit)
+            return spec and ReadStatusNumber(unit, spec.x, spec.defaultX) or 0
+        end,
+        function(value)
+            local spec = CurrentStatusSpec(unit)
+            if not spec then return end
+            SetNumber(unit, spec.x, value, "MSUF2_STATUS_ADV_X", { preview = true })
+            RefreshStatusRuntime(unit, spec)
+        end)
+    RegisterStatusSearch(advanced.x, "Advanced status indicator X offset", {
+        "advanced x", "extended x offset", "wide x offset", "status icon advanced",
+    })
+
+    advanced.y = W.Slider(advanced.card, "Y Offset (extended)", -1000, 1000, 1, 300)
+    PlaceSlider(advanced.y, advanced.card, placeRightX, -58, placeRightW)
+    M.BindSlider(ctx, advanced.y,
+        function()
+            local spec = CurrentStatusSpec(unit)
+            return spec and ReadStatusNumber(unit, spec.y, spec.defaultY) or 0
+        end,
+        function(value)
+            local spec = CurrentStatusSpec(unit)
+            if not spec then return end
+            SetNumber(unit, spec.y, value, "MSUF2_STATUS_ADV_Y", { preview = true })
+            RefreshStatusRuntime(unit, spec)
+        end)
+    RegisterStatusSearch(advanced.y, "Advanced status indicator Y offset", {
+        "advanced y", "extended y offset", "wide y offset", "status icon advanced",
+    })
+
+    advanced.layer = W.Slider(advanced.card, "Layer", 1, 10, 1, 300)
+    PlaceSlider(advanced.layer, advanced.card, placeLeftX, -128, placeLeftW)
+    M.BindSlider(ctx, advanced.layer,
+        function()
+            local spec = CurrentStatusSpec(unit)
+            return spec and ClampStatusLayer(ReadStatusNumber(unit, spec.layer, spec.defaultLayer), spec.defaultLayer) or 7
+        end,
+        function(value)
+            local spec = CurrentStatusSpec(unit)
+            if not spec then return end
+            SetNumber(unit, spec.layer, ClampStatusLayer(value, spec.defaultLayer), "MSUF2_STATUS_ADV_LAYER", { preview = true })
+            RefreshStatusRuntime(unit, spec)
+        end)
+    RegisterStatusSearch(advanced.layer, "Advanced status indicator layer", {
+        "advanced layer", "draw order", "status icon advanced",
+    })
+
+    advanced.reset = W.Button(advanced.card, "Reset selected", 150)
+    PlaceButton(advanced.reset, advanced.card, placeRightX, -128, 150)
+    advanced.reset._msuf2SkipHistoryCheckpoint = true
+    advanced.reset:SetScript("OnClick", function()
+        if reset and reset.Click then reset:Click() end
+    end)
+    RegisterStatusSearch(advanced.reset, "Advanced reset selected status indicator", {
+        "advanced reset", "reset status icon advanced",
+    })
+
+    advanced.test = W.ToggleAt(advanced.card, "Test mode", placeLeftX, -202, placeLeftW)
+    M.BindToggle(ctx, advanced.test,
+        function() return ReadBool(unit, "stateIconsTestMode", ReadGeneralBool("stateIconsTestMode", false)) end,
+        function(value)
+            SetBool(unit, "stateIconsTestMode", value, "MSUF2_STATUS_ADV_TEST", { preview = true })
+            Call("MSUF_RequestStatusIconsRefreshForCurrent")
+        end)
+    RegisterStatusSearch(advanced.test, "Advanced status indicator test mode", {
+        "advanced test mode", "status icon advanced preview",
+    })
+
+    advanced.current = W.Button(advanced.card, "Preview current", 142)
+    PlaceButton(advanced.current, advanced.card, placeLeftX, -252, min(142, placeLeftW))
+    advanced.current:SetScript("OnClick", function()
+        Call("MSUF_UFPreview_SetStatusPreviewMode", "current")
+        local spec = CurrentStatusSpec(unit)
+        if spec then Call("MSUF_UFPreview_SelectStatusIcon", spec.value) end
+    end)
+    RegisterStatusSearch(advanced.current, "Advanced preview current status indicator", {
+        "advanced preview current", "status icon advanced preview",
+    })
+
+    advanced.all = W.Button(advanced.card, "Show all", 112)
+    PlaceButton(advanced.all, advanced.card, placeRightX, -252, min(112, placeRightW))
+    advanced.all:SetScript("OnClick", function()
+        Call("MSUF_UFPreview_SetStatusPreviewMode", "all")
+    end)
+    RegisterStatusSearch(advanced.all, "Advanced show all status indicators", {
+        "advanced show all", "status icon advanced preview all",
+    })
+
+    RefreshStatusTabs = function()
+        local tab = CurrentStatusTab()
+        basicTab:SetShown(tab ~= "advanced")
+        advancedTab:SetShown(tab == "advanced")
+    end
+    M.AddRefresher(ctx, RefreshStatusTabs)
+
     local function LayoutStatusControls(inlineName)
         if inlineName then
             PlaceDropdown(raidGroupStyle, placementCard, placeRightX, -54, min(180, placeRightW))
@@ -2624,6 +2859,7 @@ local function BuildStatus(ctx, builder, unit)
             return
         end
         PlaceDropdown(symbol, placementCard, placeRightX, -54, placeRightW)
+        PlaceDropdown(iconPack, placementCard, placeRightX, -54, placeRightW)
         PlaceDropdown(raidGroupStyle, placementCard, placeRightX, -54, min(180, placeRightW))
         PlaceSlider(size, placementCard, placeLeftX, -54, placeLeftW)
         PlaceDropdown(anchor, placementCard, placeLeftX, -116, placeLeftW)
@@ -2637,12 +2873,14 @@ local function BuildStatus(ctx, builder, unit)
         local spec = CurrentStatusSpec(unit)
         local inlineName = spec and spec.inlineName == true
         local hasSymbol = spec and spec.symbol
+        local hasIconPack = spec and spec.iconStyle
         local showStateStyle = hasSymbol and true or false
         local showTestMode = spec and spec.statusRuntime and true or false
         LayoutStatusControls(inlineName)
         if W.SetControlShown then
             W.SetControlShown(midnight, showStateStyle)
             W.SetControlShown(symbol, hasSymbol)
+            W.SetControlShown(iconPack, hasIconPack)
             W.SetControlShown(raidGroupStyle, inlineName)
             W.SetControlShown(test, showTestMode)
             W.SetControlShown(size, not inlineName)
@@ -2655,9 +2893,18 @@ local function BuildStatus(ctx, builder, unit)
             W.SetControlShown(current, not inlineName)
             W.SetControlShown(all, not inlineName)
             W.SetControlShown(previewCard, not inlineName)
+            W.SetControlShown(advanced.x, true)
+            W.SetControlShown(advanced.y, true)
+            W.SetControlShown(advanced.layer, not inlineName)
+            W.SetControlShown(advanced.reset, spec ~= nil)
+            W.SetControlShown(advanced.test, showTestMode and not inlineName)
+            W.SetControlShown(advanced.current, not inlineName)
+            W.SetControlShown(advanced.all, not inlineName)
         else
             if midnight then midnight:SetShown(showStateStyle) end
             if symbol then symbol:SetShown(hasSymbol and true or false) end
+            if iconPack then iconPack:SetShown(hasIconPack and true or false) end
+            if iconPack and iconPack._msuf2Title then iconPack._msuf2Title:SetShown(hasIconPack and true or false) end
             if raidGroupStyle then raidGroupStyle:SetShown(inlineName) end
             if test then test:SetShown(showTestMode) end
             if size then size:SetShown(not inlineName) end
@@ -2670,9 +2917,17 @@ local function BuildStatus(ctx, builder, unit)
             if current then current:SetShown(not inlineName) end
             if all then all:SetShown(not inlineName) end
             if previewCard then previewCard:SetShown(not inlineName) end
+            if advanced.x then advanced.x:SetShown(true) end
+            if advanced.y then advanced.y:SetShown(true) end
+            if advanced.layer then advanced.layer:SetShown(not inlineName) end
+            if advanced.reset then advanced.reset:SetShown(spec ~= nil) end
+            if advanced.test then advanced.test:SetShown(showTestMode and not inlineName) end
+            if advanced.current then advanced.current:SetShown(not inlineName) end
+            if advanced.all then advanced.all:SetShown(not inlineName) end
         end
         local isEnabled = spec and ReadStatusBool(unit, spec.show, spec.defaultShow)
         SetControlEnabled(symbol, hasSymbol and isEnabled)
+        SetControlEnabled(iconPack, hasIconPack and isEnabled)
         SetControlEnabled(raidGroupStyle, inlineName and isEnabled)
         SetControlEnabled(size, (not inlineName) and isEnabled)
         SetControlEnabled(anchor, isEnabled)
@@ -2680,6 +2935,13 @@ local function BuildStatus(ctx, builder, unit)
         SetControlEnabled(y, isEnabled)
         SetControlEnabled(layer, (not inlineName) and isEnabled)
         SetControlEnabled(reset, spec ~= nil)
+        SetControlEnabled(advanced.x, isEnabled)
+        SetControlEnabled(advanced.y, isEnabled)
+        SetControlEnabled(advanced.layer, (not inlineName) and isEnabled)
+        SetControlEnabled(advanced.reset, spec ~= nil)
+        SetControlEnabled(advanced.test, showTestMode and isEnabled)
+        SetControlEnabled(advanced.current, (not inlineName) and spec ~= nil)
+        SetControlEnabled(advanced.all, not inlineName)
 
         SetSectionHeaderStatus(sec, nil)
     end
@@ -2687,6 +2949,7 @@ local function BuildStatus(ctx, builder, unit)
     if entry then entry._msuf2RefreshState = RefreshStatusSectionState end
     M.AddRefresher(ctx, RefreshStatusSectionState)
     RefreshStatusSectionState()
+    RefreshStatusTabs()
 end
 
 local function BuildLoadConditions(ctx, builder, unit)
@@ -2825,6 +3088,6 @@ for key, info in pairs(UNIT_PAGES) do
     M.RegisterPage(key, {
         title = info.title,
         build = BuildUnitPage(info),
-        version = 18,
+        version = 19,
     })
 end

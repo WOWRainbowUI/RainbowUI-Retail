@@ -41,14 +41,6 @@ local CI_SLOT_VALUES = GP.CI_SLOT_VALUES or {}
 local CI_SLOT_DEFAULTS = GP.CI_SLOT_DEFAULTS or {}
 local DISPEL_OVERLAY_STYLES = GP.DISPEL_OVERLAY_STYLES or {}
 local DEBUFF_STRIPE_EDGES = GP.DEBUFF_STRIPE_EDGES or {}
-local HEAL_PRED_ANCHOR_VALUES = {
-    { value = 1, text = "Anchor to left side" },
-    { value = 2, text = "Anchor to right side" },
-    { value = 3, text = "Follow HP bar" },
-    { value = 4, text = "Follow HP bar (overflow)" },
-    { value = 5, text = "Reverse from max" },
-}
-
 local GF = GP.GF
 local RefreshGFPreview = GP.RefreshGFPreview
 local Conf = GP.Conf
@@ -95,6 +87,72 @@ local SetSectionHeaderStatus = GP.SetSectionHeaderStatus
 
 local function HeaderHintColor()
     return { 0.45, 0.52, 0.65, 1 }
+end
+
+local GF_DISPEL_OVERLAY_TRIGGERS = {
+    { value = "BORDER", text = "Use Dispel border detects" },
+    { value = "BY_ME", text = "Dispellable by me" },
+    { value = "DISPEL_TYPE", text = "Any dispel-type debuff" },
+    { value = "ANY_DEBUFF", text = "Any debuff" },
+}
+
+local function NormalizeGFDispelOverlayTrigger(value)
+    local gf = GF and GF()
+    if gf and type(gf.NormalizeDispelOverlayTrigger) == "function" then
+        return gf.NormalizeDispelOverlayTrigger(value)
+    end
+    local fn = _G.MSUF_NormalizeUnitDispelOverlayTrigger
+    if type(fn) == "function" then return fn(value) end
+    if value == "BORDER" or value == "INHERIT" or value == "SAME" then return "BORDER" end
+    if value == "DISPEL_TYPE" or value == "TYPE" or value == "ANY_DISPEL_TYPE" then return "DISPEL_TYPE" end
+    if value == "ANY_DEBUFF" or value == "ANY" or value == "ALL_DEBUFFS" then return "ANY_DEBUFF" end
+    return "BY_ME"
+end
+
+local function BuildDispelOverlaySection(ctx, b)
+    local sectionW = ctx.width or b.width or 720
+    local probeW = min(900, max(320, sectionW - 40))
+    local wide = probeW >= 760
+    local dispel = b:CollapsibleSection("dispel", "Dispel Overlay", wide and 360 or 470, false)
+    local dispelW = dispel._msuf2Width or b.width or 720
+    local dispelCardW = min(900, max(320, dispelW - 40))
+    wide = dispelCardW >= 760
+    local dispelCardH = wide and 296 or 406
+    local dispelCard = W.ControlCard(dispel, "Dispel Overlay", "Tints the health bar when a configured debuff condition is active.", 20, -38, dispelCardW, dispelCardH)
+
+    local dispelToggle = BindScopeToggle(ctx, W.SwitchAt(dispelCard, "Dispel Overlay", dispelCardW - 62, -24, 0, "HIDDEN"), "dispelOverlayEnabled", false, "visual")
+    local dispelTrigger = W.Dropdown(dispelCard, "Overlay detects", GF_DISPEL_OVERLAY_TRIGGERS, 300)
+    M.BindDropdown(ctx, dispelTrigger,
+        function() return NormalizeGFDispelOverlayTrigger(Val(CurrentScope(), "dispelOverlayTrigger", "BORDER")) end,
+        function(value)
+            Set(CurrentScope(), "dispelOverlayTrigger", NormalizeGFDispelOverlayTrigger(value), "visual")
+            if M.Refresh then M.Refresh(ctx) end
+        end)
+    W.MoveWidget(dispelTrigger, dispelCard, 16, -74, min(300, dispelCardW - 32), "LEFT")
+
+    local dispelStyle = BindScopeDropdown(ctx, W.Dropdown(dispelCard, "Overlay style", DISPEL_OVERLAY_STYLES, 300), "dispelOverlayStyle", "FULL", "visual")
+    W.MoveWidget(dispelStyle, dispelCard, 16, -126, min(300, dispelCardW - 32), "LEFT")
+
+    local dispelCurrent = BindScopeToggle(ctx, W.ToggleAt(dispelCard, "Show on current health only", 16, -174, dispelCardW - 32), "dispelOverlayOnHealth", true, "visual")
+
+    local dispelAlpha = W.Slider(dispelCard, "Overlay opacity", 0.05, 1, 0.05, 340)
+    M.BindSlider(ctx, dispelAlpha,
+        function() return Num(CurrentScope(), "dispelOverlayAlpha", 0.35) end,
+        function(value) Set(CurrentScope(), "dispelOverlayAlpha", tonumber(value) or 0.35, "visual") end)
+    W.MoveWidget(dispelAlpha, dispelCard, 16, -218, min(360, dispelCardW - 72), "CENTER")
+
+    local function RefreshDispelState()
+        local overlayOn = Bool(CurrentScope(), "dispelOverlayEnabled", false)
+        SetOptionsEnabled({ dispelTrigger, dispelStyle, dispelCurrent, dispelAlpha }, overlayOn)
+        SetOptionEnabled(dispelToggle, true)
+        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(dispel, nil) end
+    end
+    M.AddRefresher(ctx, RefreshDispelState)
+    RefreshDispelState()
+    do
+        local entry = dispel and dispel._msuf2CollapsibleEntry
+        if entry then entry._msuf2RefreshState = RefreshDispelState end
+    end
 end
 
 local function HealthModeHint(mode)
@@ -290,18 +348,36 @@ local function BuildGFBars(ctx)
         elseif mode == "MAX"        then return max_
         elseif mode == "DEFICIT"    then return deficit
         elseif mode == "CURMAX"     then return cur  .. delim .. max_
+        elseif mode == "MAXCUR"     then return max_ .. delim .. cur
         elseif mode == "CURPERCENT" then return cur  .. delim .. pct
         elseif mode == "CURMAXPERCENT"  then return cur  .. delim .. max_ .. delim .. pct
         elseif mode == "MAXPERCENT"     then return max_ .. delim .. pct
         elseif mode == "PERCENTCUR"     then return pct  .. delim .. cur
         elseif mode == "PERCENTMAX"     then return pct  .. delim .. max_
         elseif mode == "PERCENTCURMAX"  then return pct  .. delim .. cur  .. delim .. max_
+        elseif mode == "PERCENTMAXCUR"  then return pct  .. delim .. max_ .. delim .. cur
         end
         return nil
     end
 
+    local function ReverseHpPreviewMode(mode)
+        local gf = ns and ns.GF
+        if gf and gf.ReverseHealthTextMode then return gf.ReverseHealthTextMode(mode) end
+        local rev = {
+            CURPERCENT = "PERCENTCUR", PERCENTCUR = "CURPERCENT",
+            CURMAX = "MAXCUR", MAXCUR = "CURMAX",
+            CURMAXPERCENT = "PERCENTMAXCUR", PERCENTMAXCUR = "CURMAXPERCENT",
+            MAXPERCENT = "PERCENTMAX", PERCENTMAX = "MAXPERCENT",
+            PERCENTCURMAX = "CURMAXPERCENT",
+        }
+        return rev[mode] or mode
+    end
+
     local function BuildTextPreviewStr(leftMode, centerMode, rightMode, delim, reverse, isPower)
-        local slots = reverse and { rightMode, centerMode, leftMode } or { leftMode, centerMode, rightMode }
+        if reverse and not isPower then
+            leftMode, centerMode, rightMode = ReverseHpPreviewMode(rightMode), ReverseHpPreviewMode(centerMode), ReverseHpPreviewMode(leftMode)
+        end
+        local slots = { leftMode, centerMode, rightMode }
         local parts = {}
         for _, mode in ipairs(slots) do
             local ex = TextModeExampleStr(mode, delim, isPower)
@@ -530,12 +606,13 @@ local function BuildGFBars(ctx)
     local powerTab = MakeTabFrame("power")
     local advancedTab = MakeTabFrame("advanced")
 
-    local nameContent = TextCard(nameTab, "Name text", "Controls whether names are shown on group frames.", textLeftX, -4, textCardW, 116)
+    local nameContent = TextCard(nameTab, "Name text", "Controls whether names are shown on group frames.", textLeftX, -4, textCardW, 158)
     PreviewText(nameContent, "Mapko", 16, -54, textCardW - 32)
 
     local showName = BindScopeToggle(ctx, W.SwitchAt(nameContent, "Show Name", textCardW - 62, -24, 0, "HIDDEN"), "showName", true, "font")
+    local hideNameOnStatus = BindScopeToggle(ctx, W.ToggleAt(nameContent, "Hide name on dead/offline", 16, -104, textCardW - 32), "hideNameOnDeadOffline", false, "visual")
 
-    local namePosition = TextCard(nameTab, "Position", nil, textLeftX, -136, textCardW, 260)
+    local namePosition = TextCard(nameTab, "Position", nil, textLeftX, -178, textCardW, 260)
     local nameAnchor = BindScopeDropdown(ctx, W.Dropdown(namePosition, "Anchor", ANCHORS, textDropW), "nameAnchor", "LEFT", "geometry")
     local nameX = BindScopeSlider(ctx, W.Slider(namePosition, "X Offset", -100, 100, 1, textSliderW), "nameOffsetX", 0, "geometry")
     local nameY = BindScopeSlider(ctx, W.Slider(namePosition, "Y Offset", -100, 100, 1, textSliderW), "nameOffsetY", 0, "geometry")
@@ -706,7 +783,7 @@ local function BuildGFBars(ctx)
         end
         if tabs and tabs.SetValue then tabs:SetValue(tab) end
         scopeLabel:SetText(M.Format(M.Tr("Editing %s"), ScopeDisplayName()))
-        SetOptionsEnabled({ nameSize, nameAnchor, nameX, nameY, nameLayer }, nameOn)
+        SetOptionsEnabled({ hideNameOnStatus, nameSize, nameAnchor, nameX, nameY, nameLayer }, nameOn)
         SetOptionsEnabled({ healthLeft, healthCenter, healthRight, healthDelimiter, reverseHP, healthSize, healthX, healthY, hpMoveTogether, hpLayer }, hpOn)
         SetOptionsEnabled({ hpSlot, hpSlotX, hpSlotY }, hpOn and not MoveTogether("hp"))
         SetOptionsEnabled({ powerLeft, powerCenter, powerRight, powerDelimiter, powerSize, powerX, powerY, powerMoveTogether, powerLayer }, powerOn)
@@ -737,45 +814,7 @@ local function BuildGFBars(ctx)
         if entry then entry._msuf2RefreshState = refreshTextControls end
     end
 
-    local healpred = b:CollapsibleSection("healpred", "Heal Prediction", 174, false)
-    local healPredToggle = BindScopeToggle(ctx, W.SwitchAt(healpred, "Heal Prediction Overlay", 14, -38, 220), "healPredEnabled", false, "visual")
-    local healPredAnchor = BindScopeDropdown(ctx, W.Dropdown(healpred, "Heal prediction anchoring", HEAL_PRED_ANCHOR_VALUES, 280), "healPredAnchorMode", 3, "visual")
-    W.MoveWidget(healPredAnchor, healpred, 14, -86, 280, "LEFT")
-    W.Text(healpred, "Shows incoming heals as a lighter overlay on the health bar.", 14, -138, ctx.width - 28, T.colors.muted)
-    local function RefreshHealPredHeader()
-        local enabled = Bool(CurrentScope(), "healPredEnabled", false)
-        SetOptionsEnabled({ healPredAnchor }, enabled)
-        SetOptionEnabled(healPredToggle, true)
-        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(healpred, nil) end
-    end
-    M.AddRefresher(ctx, RefreshHealPredHeader)
-    RefreshHealPredHeader()
-    do
-        local entry = healpred and healpred._msuf2CollapsibleEntry
-        if entry then entry._msuf2RefreshState = RefreshHealPredHeader end
-    end
-
-    local dispel = b:CollapsibleSection("dispel", "Dispel Overlay", 260, false)
-    local dispelW = dispel._msuf2Width or b.width or 720
-    local dispelCardW = min(560, dispelW - 40)
-    local dispelCard = W.ControlCard(dispel, "Dispel Overlay", "Tints the health bar when a dispellable debuff is active.", 20, -38, dispelCardW, 204)
-    local dispelToggle = BindScopeToggle(ctx, W.SwitchAt(dispelCard, "Dispel Overlay", dispelCardW - 62, -24, 0, "HIDDEN"), "dispelOverlayEnabled", true, "visual")
-    local dispelStyle = BindScopeDropdown(ctx, W.Dropdown(dispelCard, "Overlay style", DISPEL_OVERLAY_STYLES, 260), "dispelOverlayStyle", "FULL", "visual")
-    local dispelCurrent = BindScopeToggle(ctx, W.ToggleAt(dispelCard, "Show on current health only", 16, -122, dispelCardW - 32), "dispelOverlayOnHealth", true, "visual")
-    local dispelAlpha = BindScopeSlider(ctx, W.Slider(dispelCard, "Overlay opacity", 0.05, 1, 0.05, 300), "dispelOverlayAlpha", 0.35, "visual")
-    W.MoveWidget(dispelStyle, dispelCard, 16, -74, min(260, dispelCardW - 32), "LEFT")
-    W.MoveWidget(dispelAlpha, dispelCard, 16, -166, min(360, dispelCardW - 72), "CENTER")
-    local function RefreshDispelState()
-        SetOptionsEnabled({ dispelStyle, dispelCurrent, dispelAlpha }, Bool(CurrentScope(), "dispelOverlayEnabled", true))
-        SetOptionEnabled(dispelToggle, true)
-        if type(SetSectionHeaderStatus) == "function" then SetSectionHeaderStatus(dispel, nil) end
-    end
-    M.AddRefresher(ctx, RefreshDispelState)
-    RefreshDispelState()
-    do
-        local entry = dispel and dispel._msuf2CollapsibleEntry
-        if entry then entry._msuf2RefreshState = RefreshDispelState end
-    end
+    BuildDispelOverlaySection(ctx, b)
 
     local stripe = b:CollapsibleSection("dstripe", "Debuff Stripe", 312, false)
     local stripeW = stripe._msuf2Width or b.width or 720
@@ -875,4 +914,4 @@ local function BuildGFBars(ctx)
     ctx:SetContentHeight(math.abs(b.y) + 42)
 end
 
-M.RegisterPage("gf_bars", { title = "MSUF Group Health & Text", build = BuildGFBars, version = 11 })
+M.RegisterPage("gf_bars", { title = "MSUF Group Health & Text", build = BuildGFBars, version = 12 })

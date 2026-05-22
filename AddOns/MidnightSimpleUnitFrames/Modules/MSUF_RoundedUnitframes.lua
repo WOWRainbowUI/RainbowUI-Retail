@@ -43,6 +43,20 @@ local function IsCombatLocked()
 end
 
 local function ResolveBaseEdgeColor()
+    local fn = _G.MSUF_GetBarOutlineColor
+    if type(fn) == "function" then
+        local ok, r, g, b = pcall(fn)
+        if ok and type(r) == "number" and type(g) == "number" and type(b) == "number" then
+            return r, g, b, BASE_BORDER_A
+        end
+    end
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    if gen then
+        return tonumber(gen.barOutlineColorR) or BASE_BORDER_R,
+               tonumber(gen.barOutlineColorG) or BASE_BORDER_G,
+               tonumber(gen.barOutlineColorB) or BASE_BORDER_B,
+               BASE_BORDER_A
+    end
     return BASE_BORDER_R, BASE_BORDER_G, BASE_BORDER_B, BASE_BORDER_A
 end
 
@@ -341,7 +355,7 @@ local function SE_ApplyGroupFrameShellVisuals(f, enabled)
         borderHost._msufGFBorderSize = nil
     end
 
-    local br, bgc, bb, ba = BASE_BORDER_R, BASE_BORDER_G, BASE_BORDER_B, BASE_BORDER_A
+    local br, bgc, bb, ba = ResolveBaseEdgeColor()
     local active = f._msufGFHighlightBorder
     if active and active._msufHLActivePrio then
         br = active._msufHLR or br
@@ -957,6 +971,12 @@ local function SuppressGroupSquareBorders(f)
         borderHost:SetBackdrop(nil)
         borderHost._msufGFBorderSize = nil
     end
+    local lines = borderHost and borderHost._msufGFOutlineLines
+    if type(lines) == "table" then
+        for _, line in pairs(lines) do
+            if line and line.Hide then line:Hide() end
+        end
+    end
 
     local border = f and f._msufGFHighlightBorder
     if border then
@@ -1094,6 +1114,13 @@ local function ApplyToUnitFrame(f)
         local t = f.healAbsorbBar:GetStatusBarTexture()
         if t then MaskTexture(f, t, f.healAbsorbBar or f.hpBar) end
     end
+    if type(f._msufUFDispelOverlays) == "table" then
+        for _, overlay in pairs(f._msufUFDispelOverlays) do
+            MaskStatusBarFill(f, overlay)
+        end
+    else
+        MaskStatusBarFill(f, f._msufUFDispelOverlay)
+    end
     MaskStatusBarFill(f, f.incomingHealBar or f.selfHealPredBar)
     if f.selfHealPredBar ~= f.incomingHealBar then
         MaskStatusBarFill(f, f.selfHealPredBar)
@@ -1183,7 +1210,13 @@ ApplyToGroupFrame = function(f, kind)
     MaskStatusBarFill(f, f.incomingHealBar, true)
     MaskStatusBarFill(f, f.absorbBar, true)
     MaskStatusBarFill(f, f.healAbsorbBar, true)
-    MaskStatusBarFill(f, f._msufGFDispelOverlay, true)
+    if type(f._msufGFDispelOverlays) == "table" then
+        for _, overlay in pairs(f._msufGFDispelOverlays) do
+            MaskStatusBarFill(f, overlay, true)
+        end
+    else
+        MaskStatusBarFill(f, f._msufGFDispelOverlay, true)
+    end
     MaskStatusBarFill(f, f._msufGFDebuffStripe, true)
 
     MaskGFGradientTable(f, f.health)
@@ -1273,6 +1306,13 @@ local function HookOnce()
     end
     _G.MSUF_RoundedUF_OnUnitHighlightChanged = function(frame, hlKey, r, g, b, cfg)
         return HandleUnitHighlightChanged(frame, hlKey, r, g, b, cfg)
+    end
+    _G.MSUF_RoundedUF_OnUnitDispelOverlayChanged = function(frame)
+        if not frame then return end
+        if IsCombatLocked() then DeferApply(); return end
+        if RoundedUnitFramesEnabled() then
+            ApplyToUnitFrame(frame)
+        end
     end
     _G.MSUF_RoundedUF_OnGroupFrameApplied = function(frame, kind)
         if IsCombatLocked() then DeferApply(); return end

@@ -639,9 +639,10 @@ local UNIT_PAGE_RESETS = {
 }
 
 local UNIT_CASTBAR_GENERAL_KEYS = {
-    player = { "enablePlayerCastbar", "showPlayerCastTime", "castbarPlayerShowIcon", "castbarPlayerShowSpellName" },
-    target = { "enableTargetCastbar", "showTargetCastTime", "castbarTargetShowIcon", "castbarTargetShowSpellName" },
-    focus = { "enableFocusCastbar", "showFocusCastTime", "castbarFocusShowIcon", "castbarFocusShowSpellName" },
+    player = { "enablePlayerCastbar", "showPlayerCastTime", "castbarPlayerShowIcon", "castbarPlayerShowSpellName", "castbarPlayerTimeFormat" },
+    target = { "enableTargetCastbar", "showTargetCastTime", "castbarTargetShowIcon", "castbarTargetShowSpellName", "castbarTargetTimeFormat" },
+    focus = { "enableFocusCastbar", "showFocusCastTime", "castbarFocusShowIcon", "castbarFocusShowSpellName", "castbarFocusTimeFormat" },
+    boss = { "enableBossCastbar", "showBossCastTime", "showBossCastIcon", "showBossCastName", "bossCastTimeFormat" },
 }
 
 local PAGE_RESET_INFO = {
@@ -742,6 +743,11 @@ local BARS_GENERAL_KEYS = {
     absorbBarTexture = true,
     healAbsorbBarTexture = true,
     dispelBorderTrigger = true,
+    unitDispelOverlayEnabled = true,
+    unitDispelOverlayStyle = true,
+    unitDispelOverlayOnHealth = true,
+    unitDispelOverlayAlpha = true,
+    unitDispelOverlayTrigger = true,
     bossTargetOutlineMode = true,
     bossTargetHighlightEnabled = true,
     highlightPrioEnabled = true,
@@ -758,6 +764,7 @@ local BARS_SCOPE_KEYS = {
     hpPowerTextOverride = true,
     absorbTextMode = true,
     absorbAnchorMode = true,
+    healPredEnabled = true,
     healPredAnchorMode = true,
     absorbBarOpacity = true,
     healAbsorbBarOpacity = true,
@@ -767,6 +774,11 @@ local BARS_SCOPE_KEYS = {
     aggroOutlineMode = true,
     dispelOutlineMode = true,
     dispelBorderTrigger = true,
+    unitDispelOverlayEnabled = true,
+    unitDispelOverlayStyle = true,
+    unitDispelOverlayOnHealth = true,
+    unitDispelOverlayAlpha = true,
+    unitDispelOverlayTrigger = true,
     hlDispelColorMode = true,
     hlDispelColorR = true,
     hlDispelColorG = true,
