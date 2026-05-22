@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.0-RC6) add-on for World of Warcraft UI
+    Decursive (v 2.8.0-RC7) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-03-21T23:26:01Z
+    This file was last updated on 2026-05-22T10:17:24Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -95,6 +95,7 @@ local GetItemInfo       = _G.C_Item and _G.C_Item.GetItemInfo or _G.GetItemInfo;
 local pcall             = _G.pcall;
 local canaccessvalue    = _G.canaccessvalue or function(_) return true; end
 local CreateColor       = _G.CreateColor
+local C_SpellBook       = _G.C_SpellBook
 
 -- replacement for the default function as it is bugged in WoW5 (it returns nil for some spells such as resto shamans' 'Purify Spirit')
 D.IsSpellInRange = function (spellName, unit)
@@ -695,7 +696,24 @@ function D:GetSpellUsefulInfoIfKnown(spellIdentifier) -- returns spellId, isPet
     end
 end
 
+local function hasPet()
+    return UnitExists("pet") and not UnitIsDead("pet")
+end
+
+local function IsSpellKnownOrOverridesKnown(spellID, isPet) -- copy of the to be deprecated function
+    local spellBank = isPet and Enum.SpellBookSpellBank.Pet or Enum.SpellBookSpellBank.Player;
+    local includeOverrides = true;
+    return C_SpellBook.IsSpellInSpellBook(spellID, spellBank, includeOverrides);
+end
+
 function D:isSpellReady(spellID, isPetAbility)
+
+    -- necessary to work around IsSpellInSpellBook cache invalidation
+    -- issue that happens with pets when the user switches from a character with a
+    -- pet to a character without a pet...
+    if isPetAbility and not hasPet() then
+        return false
+    end
 
     -- in wow classic flavors, the 'display all ranks' option in the spell book UI changes the output of the IsSpellKnown() function...
     if DC.WOWC and not DC.CATACLYSM and (isPetAbility or not IsSpellKnownOrOverridesKnown(spellID, isPetAbility)) then
@@ -1112,4 +1130,4 @@ do
         return nocase:trim();
     end
 end
-T._LoadedFiles["Dcr_utils.lua"] = "2.8.0-RC6";
+T._LoadedFiles["Dcr_utils.lua"] = "2.8.0-RC7";
