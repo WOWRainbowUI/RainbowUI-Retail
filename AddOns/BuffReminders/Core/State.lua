@@ -590,8 +590,11 @@ local function BuildValidUnitCache()
             local name = GetUnitName(unit, true)
             local isPhased = IsUnitPhased(unit)
             currentValidUnits[#currentValidUnits + 1] = AcquireUnitEntry(unit, class, isPlayer, name, isPhased)
-            -- Track max level per class (players only, for buff caster checks)
-            if isPlayer and class then
+            -- Track max level per class (players only, for buff caster checks).
+            -- Skip phased / out-of-broadcast-range allies: they can't reliably
+            -- cast on the group right now, so they shouldn't make us track buffs
+            -- no one reachable can provide (e.g. priest outside the dungeon).
+            if isPlayer and class and not isPhased then
                 local level = UnitLevel(unit)
                 if not classMaxLevels[class] or level > classMaxLevels[class] then
                     classMaxLevels[class] = level
