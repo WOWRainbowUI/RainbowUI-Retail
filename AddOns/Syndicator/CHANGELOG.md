@@ -1,6 +1,6 @@
 # Syndicator
 
-## [267](https://github.com/TheMouseNest/Syndicator/tree/267) (2026-04-21)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/266...267) 
+## [268](https://github.com/TheMouseNest/Syndicator/tree/268) (2026-05-20)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/267...268) 
 
-- Update toc and freeze CheckItem to prevent overrides  
+- Retail: Tag Voidforged and Radiance Crafted items as part of the current season  
