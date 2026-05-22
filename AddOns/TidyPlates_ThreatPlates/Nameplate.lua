@@ -20,7 +20,10 @@ local UnitSpellTargetName, UnitSpellTargetClass = UnitSpellTargetName, UnitSpell
 local UnitIsUnit, UnitIsPlayer = UnitIsUnit, UnitIsPlayer
 local GetCreatureDifficultyColor, GetRaidTargetIndex = GetCreatureDifficultyColor, GetRaidTargetIndex
 local GetTime, CombatLogGetCurrentEventInfo = GetTime, CombatLogGetCurrentEventInfo
-local GetNamePlateForUnit = C_NamePlate.GetNamePlateForUnit
+local SetNamePlateSimplified = C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified
+local GetNamePlateForUnit = C_NamePlate and C_NamePlate.GetNamePlateForUnit
+local SetNamePlateFriendlyClickThrough, SetNamePlateEnemyClickThrough = C_NamePlate and C_NamePlate.SetNamePlateFriendlyClickThrough, C_NamePlate and C_NamePlate.SetNamePlateEnemyClickThrough
+local GetNamePlateFriendlySize, GetNamePlateEnemySize = C_NamePlate and C_NamePlate.GetNamePlateFriendlySize, C_NamePlate and C_NamePlate.GetNamePlateEnemySize
 local GetPlayerInfoByGUID, UnitNameFromGUID = GetPlayerInfoByGUID, UnitNameFromGUID
 local IsInInstance, InCombatLockdown = IsInInstance, InCombatLockdown
 local NamePlateDriverFrame, UnitNameplateShowsWidgetsOnly = NamePlateDriverFrame, UnitNameplateShowsWidgetsOnly
@@ -928,12 +931,14 @@ local	function HandlePlateCreated(plate)
   tp_frame.Parent = plate
   plate.TPFrame = tp_frame
   
+  -- # Nameplate Hierarchy, Anchoring, and Scaling
   if ExpansionIsAtLeastMidnight then
-    tp_frame.HitTestFrame = _G.CreateFrame("Frame", nil, tp_frame)
+    -- Parent must be plate (not tp_frame) so that HitTestFrame does not inherit tp_frame's scale.
+    -- Anchor must also target plate.UnitFrame (not tp_frame) to avoid cross-hierarchy layout
+    -- recalculations when tp_frame:SetScale() is called (e.g. during mouseover scale animation).
+    tp_frame.HitTestFrame = _G.CreateFrame("Frame", nil, plate)
     tp_frame.HitTestFrame:Hide()
   end
-
-  -- # Nameplate Hierarchy, Anchoring, and Scaling
   SetNameplateFrameProperties(tp_frame)
   -- Size is set in Styles.lua
 
@@ -986,7 +991,11 @@ local function  ApplyPlateHitTest(tp_frame)
     local height = (is_friendly and db_frame.heightFriend) or db_frame.height
     tp_frame.HitTestFrame:ClearAllPoints()
     tp_frame.HitTestFrame:SetSize(width, height)
-    tp_frame.HitTestFrame:SetPoint("CENTER", tp_frame, "CENTER")
+    -- Anchor to plate.UnitFrame (same hierarchy as HitTestFrame's parent) rather than tp_frame.
+    -- tp_frame may have a different scale (mouseover scaling), and a cross-hierarchy anchor to a
+    -- scaled frame causes WoW to re-evaluate HitTestFrame's layout bounds during each SetScale
+    -- call, which makes SetAllHitTestPoints briefly read incorrect bounds and fire UPDATE_MOUSEOVER_UNIT.
+    tp_frame.HitTestFrame:SetPoint("CENTER", plate.UnitFrame, "CENTER")
     plate:SetAllHitTestPoints(tp_frame.HitTestFrame)
   end
 end
@@ -1004,8 +1013,8 @@ else
   Addon.SetNamePlateClickThrough = function()
     Addon:CallbackWhenOoC(function()
       local db = Addon.db.profile
-      C_NamePlate.SetNamePlateFriendlyClickThrough(db.NamePlateFriendlyClickThrough)
-      C_NamePlate.SetNamePlateEnemyClickThrough(db.NamePlateEnemyClickThrough)
+      SetNamePlateFriendlyClickThrough(db.NamePlateFriendlyClickThrough)
+      SetNamePlateEnemyClickThrough(db.NamePlateEnemyClickThrough)
     end, L["Nameplate clickthrough cannot be changed while in combat."])
   end
 end
@@ -1028,7 +1037,7 @@ local function HandlePlateUnitAdded(plate, unitid)
   SetNameplateVisibility(plate, unitid)
 
   if ExpansionIsAtLeastMidnight then
-    C_NamePlateManager.SetNamePlateSimplified(unitid, false)
+    SetNamePlateSimplified(unitid, false)
     ApplyPlateHitTest(tp_frame)
   end
 
@@ -1108,9 +1117,9 @@ function Addon:ConfigClickableArea(toggle_show)
         else
           local width, height
           if tp_frame.unit.reaction == "FRIENDLY" then          
-            width, height = C_NamePlate.GetNamePlateFriendlySize()
+            width, height = GetNamePlateFriendlySize()
           else
-            width, height = C_NamePlate.GetNamePlateEnemySize()
+            width, height = GetNamePlateEnemySize()
           end
           tp_frame.Background:SetSize(width, height)
 
@@ -1684,6 +1693,11 @@ function Addon:UNIT_THREAT_LIST_UPDATE(unitid)
   end
 end
 
+-- UNIT_THREAT_SITUATION_UPDATE fires when the player's threat situation (0-3) changes for a unit,
+-- which is distinct from UNIT_THREAT_LIST_UPDATE (membership changes). Both are needed to keep
+-- threat bar colors current when threat shifts gradually without units entering/leaving the table.
+Addon.UNIT_THREAT_SITUATION_UPDATE = Addon.UNIT_THREAT_LIST_UPDATE
+
 -- Update all elements that depend on the unit's reaction towards the player
 function Addon:UNIT_FACTION(unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
@@ -1969,6 +1983,7 @@ local ENABLED_EVENTS = {
   "UNIT_HEALTH",
   "UNIT_HEALTH_FREQUENT",
   "UNIT_THREAT_LIST_UPDATE",
+  "UNIT_THREAT_SITUATION_UPDATE",
   "UNIT_FACTION",
   "UNIT_LEVEL",
   
