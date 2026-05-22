@@ -137,10 +137,16 @@ local function _PushVisualUpdates_Flush()
     local reinit = _G.MSUF_PrioRows_Reinit
     if type(reinit) == "function" then reinit() end
 
-    -- Live-update highlight border colors during test mode (zero cost when no test active).
-    if _G.MSUF_BorderTestModesActive == true then
+    -- Live-update static bar outlines and highlight test border colors.
+    do
         local applyAll = _G.MSUF_ApplyBarOutlineThickness_All
         if type(applyAll) == "function" then applyAll() end
+    end
+    if type(_G.MSUF_ApplyRoundedUnitframes) == "function" then
+        _G.MSUF_ApplyRoundedUnitframes()
+    end
+    if type(_G.MSUF_UFPreview_RequestRefresh) == "function" then
+        _G.MSUF_UFPreview_RequestRefresh("MSUF_COLOR_CHANGE")
     end
 
     -- Safety: keep mouseover highlight bound to the correct unitframe.
@@ -631,8 +637,27 @@ local function GetPowerBarBackgroundMatchHP() return (_general() or {}).powerBar
 local function SetPowerBarBackgroundMatchHP(v) local g = _general(); if g then g.powerBarBgMatchBarColor = v and true or false; PushVisualUpdates() end end
 
 -- ── Aggro Border ──
-local function GetAggroBorderColor() return _getRGB("aggroBorderR", "aggroBorderG", "aggroBorderB", 1.0, 0.5, 0.0) end
-local function SetAggroBorderColor(r, g, b) _setRGB("aggroBorderR", "aggroBorderG", "aggroBorderB", r, g, b, 1.0, 0.5, 0.0) end
+local function GetAggroBorderColor()
+    local g = _general()
+    if not g then return 1.0, 0.5, 0.0 end
+    return tonumber(g.hlAggroColorR) or tonumber(g.aggroBorderColorR) or tonumber(g.aggroBorderR) or 1.0,
+           tonumber(g.hlAggroColorG) or tonumber(g.aggroBorderColorG) or tonumber(g.aggroBorderG) or 0.5,
+           tonumber(g.hlAggroColorB) or tonumber(g.aggroBorderColorB) or tonumber(g.aggroBorderB) or 0.0
+end
+local function SetAggroBorderColor(r, g, b)
+    local gen = _general()
+    if not gen then return end
+    gen.hlAggroColorR = r or 1.0
+    gen.hlAggroColorG = g or 0.5
+    gen.hlAggroColorB = b or 0.0
+    gen.aggroBorderColorR, gen.aggroBorderColorG, gen.aggroBorderColorB = gen.hlAggroColorR, gen.hlAggroColorG, gen.hlAggroColorB
+    gen.aggroBorderR, gen.aggroBorderG, gen.aggroBorderB = gen.hlAggroColorR, gen.hlAggroColorG, gen.hlAggroColorB
+    PushVisualUpdates()
+end
+
+local function GetBarOutlineColor() return _getRGB("barOutlineColorR", "barOutlineColorG", "barOutlineColorB", 0, 0, 0) end
+local function SetBarOutlineColor(r, g, b) _setRGB("barOutlineColorR", "barOutlineColorG", "barOutlineColorB", r, g, b, 0, 0, 0) end
+_G.MSUF_GetBarOutlineColor = GetBarOutlineColor
 
 -- ═══════════════════════════════════════════════════════════════
 -- Export table
@@ -698,6 +723,8 @@ ns._colorsAPI = {
     SetPowerBarBackgroundColor      = SetPowerBarBackgroundColor,
     GetAggroBorderColor             = GetAggroBorderColor,
     SetAggroBorderColor             = SetAggroBorderColor,
+    GetBarOutlineColor              = GetBarOutlineColor,
+    SetBarOutlineColor              = SetBarOutlineColor,
     GetPowerBarBackgroundMatchHP    = GetPowerBarBackgroundMatchHP,
     SetPowerBarBackgroundMatchHP    = SetPowerBarBackgroundMatchHP,
 }

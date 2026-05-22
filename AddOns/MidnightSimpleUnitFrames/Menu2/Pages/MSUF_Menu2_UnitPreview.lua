@@ -27,6 +27,7 @@ local PREVIEW_ROUNDED_EDGE = MASK_MEDIA .. "rounded_bar_edge_4x.tga"
 local Preview = ns.UFPreview or {}
 ns.UFPreview = Preview
 _G.MSUF_UFPreview = Preview
+local PreviewBaseEdgeColor
 
 local function MenuTheme()
     local m = ns and ns.MSUF2
@@ -632,9 +633,17 @@ local function SettingsCache()
     return type(_G.MSUF_UFCore_GetSettingsCache) == "function" and _G.MSUF_UFCore_GetSettingsCache() or nil
 end
 
-local function PreviewNPCKind(key, data, cache)
+local function PreviewNPCKind(key, data, cache, forText)
     data = data or {}
-    if cache and cache.npcColorMode == "type" and cache.npcTypeColorBar then
+    local typeColorEnabled
+    if cache then
+        if forText then
+            typeColorEnabled = cache.npcTypeColorText
+        else
+            typeColorEnabled = cache.npcTypeColorBar
+        end
+    end
+    if cache and cache.npcColorMode == "type" and typeColorEnabled then
         local allowed = true
         if key == "target" then allowed = cache.npcTypeTarget ~= false
         elseif key == "focus" then allowed = cache.npcTypeFocus ~= false
@@ -792,6 +801,61 @@ local function FontColor()
     end
     local g = _G.MSUF_DB and _G.MSUF_DB.general or {}
     return g.fontColorR or 1, g.fontColorG or 1, g.fontColorB or 1
+end
+
+local function NormalizeToTInlineColorMode(value)
+    if value == "TOT_NAME" or value == "TARGET_NAME" or value == "NPC" or value == "DEFAULT" then
+        return value
+    end
+    return "AUTO"
+end
+
+local function PreviewNameColorFlags(key)
+    local db = _G.MSUF_DB or {}
+    local gen = db.general or {}
+    local wantClass = gen.nameClassColor
+    local wantNpc = gen.npcNameRed
+    local conf = db[key]
+    if conf and conf.fontOverride then
+        if conf.nameClassColor ~= nil then wantClass = conf.nameClassColor end
+        if conf.npcNameRed ~= nil then wantNpc = conf.npcNameRed end
+    end
+    return wantClass == true, wantNpc == true
+end
+
+local function PreviewNameColor(key, data, fallbackR, fallbackG, fallbackB)
+    data = data or UNIT_DATA[CanonKey(key)] or UNIT_DATA.player
+    local wantClass, wantNpc = PreviewNameColorFlags(key)
+    if data.isPlayer then
+        if wantClass then return ClassColor(data.class) end
+    elseif wantNpc then
+        return NPCColor(PreviewNPCKind(key, data, SettingsCache(), true))
+    end
+    return fallbackR or 1, fallbackG or 1, fallbackB or 1
+end
+
+local function PreviewToTInlineColor(mode, totData, targetR, targetG, targetB, fallbackR, fallbackG, fallbackB)
+    mode = NormalizeToTInlineColorMode(mode)
+    if mode == "DEFAULT" then
+        return fallbackR, fallbackG, fallbackB
+    elseif mode == "TARGET_NAME" then
+        return targetR, targetG, targetB
+    elseif mode == "TOT_NAME" then
+        return PreviewNameColor("targettarget", totData, fallbackR, fallbackG, fallbackB)
+    elseif mode == "NPC" then
+        local _, wantNpc = PreviewNameColorFlags("targettarget")
+        if wantNpc and totData and not totData.isPlayer then
+            return NPCColor(PreviewNPCKind("targettarget", totData, SettingsCache(), true))
+        end
+        return fallbackR, fallbackG, fallbackB
+    end
+
+    if totData and totData.isPlayer then
+        local wantClass = PreviewNameColorFlags("target")
+        if wantClass then return ClassColor(totData.class) end
+        return 1, 1, 1
+    end
+    return NPCColor(totData and totData.reactionKind or "enemy")
 end
 
 local function SetTex(region, tex)
@@ -1201,6 +1265,17 @@ local function ReadCastbarNum(g, key, suffix, bossKey, fallback)
     return (v ~= nil) and v or fallback
 end
 
+local function FormatCastbarPreviewTime(g, key, current, total)
+    local mode = "CURRENT"
+    if type(_G.MSUF_GetCastbarTimeFormat) == "function" then
+        mode = _G.MSUF_GetCastbarTimeFormat(key, g)
+    end
+    if type(_G.MSUF_FormatCastbarTimeText) == "function" then
+        return _G.MSUF_FormatCastbarTimeText(mode, current, total) or ""
+    end
+    return format("%.1f", tonumber(current) or 0)
+end
+
 local function ClampPreviewLayer(v, fallback)
     v = floor((tonumber(v) or fallback or 0) + 0.5)
     if v < 0 then return 0 end
@@ -1591,7 +1666,22 @@ local function SetPreviewIconTexture(icon, spec, conf, g, key, data)
             if SetRaidTargetIconTexture then SetRaidTargetIconTexture(tex, 8) end
         end
     elseif spec.id == "leader" then
-        if tex then tex:SetTexture(key == "target" and "Interface\\GroupFrame\\UI-Group-AssistantIcon" or "Interface\\GroupFrame\\UI-Group-LeaderIcon") end
+        if tex then
+            local isAssist = key == "target"
+            local path = isAssist and "Interface\\GroupFrame\\UI-Group-AssistantIcon" or "Interface\\GroupFrame\\UI-Group-LeaderIcon"
+            local style = (conf and conf.leaderIconStyle) or (g and g.leaderIconStyle) or "BLIZZARD"
+            if type(style) == "string" and style ~= "" and style ~= "DEFAULT" and style ~= "BLIZZARD" then
+                local resolver = isAssist and _G.MSUF_GetAssistStatusIconTexture or _G.MSUF_GetLeaderStatusIconTexture
+                if type(resolver) == "function" then
+                    local customPath, l, r, t, b = resolver(style, false)
+                    if type(customPath) == "string" and customPath ~= "" then
+                        path = customPath
+                        if tex.SetTexCoord then tex:SetTexCoord(l or 0, r or 1, t or 0, b or 1) end
+                    end
+                end
+            end
+            tex:SetTexture(path)
+        end
     elseif spec.id == "elite" then
         if tex and tex.SetAtlas then
             tex:SetAtlas((key == "boss") and "nameplates-icon-elite-gold" or "nameplates-icon-elite-silver")
@@ -1821,7 +1911,10 @@ local function BuildPreview(parent, panel, width, height)
     local mock = CreateFrame("Frame", nil, canvas, "BackdropTemplate")
     mock:SetBackdrop({ bgFile = TEX_W8, edgeFile = TEX_W8, edgeSize = 1 })
     mock:SetBackdropColor(0, 0, 0, 0.92)
-    mock:SetBackdropBorderColor(0, 0, 0, 1)
+    do
+        local r, g, b = PreviewBaseEdgeColor()
+        mock:SetBackdropBorderColor(r, g, b, 1)
+    end
     box.mock = mock
 
     mock.bounds = CreateFrame("Frame", nil, mock, "BackdropTemplate")
@@ -2153,7 +2246,21 @@ local function ClearPreviewRoundedMasks(mock)
     if mock then mock._msufPreviewRoundedMasked = nil end
 end
 
-local function PreviewBaseEdgeColor()
+function PreviewBaseEdgeColor()
+    local fn = _G.MSUF_GetBarOutlineColor
+    if type(fn) == "function" then
+        local ok, r, g, b = pcall(fn)
+        if ok and type(r) == "number" and type(g) == "number" and type(b) == "number" then
+            return r, g, b, 1
+        end
+    end
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    if gen then
+        return tonumber(gen.barOutlineColorR) or 0,
+               tonumber(gen.barOutlineColorG) or 0,
+               tonumber(gen.barOutlineColorB) or 0,
+               1
+    end
     return 0, 0, 0, 1
 end
 
@@ -2302,8 +2409,9 @@ local function ApplyPreviewLayerVisibility(box)
             SetShownSafe(mock.roundedBg, true)
             PreviewSetRoundedEdgeStackShown(mock, mock._msufPreviewRoundedEdgeEnabled ~= false)
         else
+            local r, g, b = PreviewBaseEdgeColor()
             mock:SetBackdropColor(0, 0, 0, 0.92)
-            mock:SetBackdropBorderColor(0, 0, 0, 1)
+            mock:SetBackdropBorderColor(r, g, b, 1)
             SetShownSafe(mock.roundedBg, false)
             PreviewSetRoundedEdgeStackShown(mock, false)
         end
@@ -2957,8 +3065,11 @@ function Preview.Refresh(box, reason)
         if showInline then
             local sep = ToTInlineSeparator(totConf.totInlineSeparator, totConf.totInlineCustomSeparator)
             local totData = UNIT_DATA.targettarget or { name = "Target" }
+            local tr, tg, tb = PreviewNameColor("target", data, fr, fg, fb)
+            local ir, ig, ib = PreviewToTInlineColor(totConf.totInlineColorMode, totData, tr, tg, tb, fr, fg, fb)
             mock.totInlineSep:SetText(sep ~= "" and sep or " ")
             mock.totInlineText:SetText(ShortenPreviewName(totData.name, "targettarget", conf))
+            mock.totInlineText:SetTextColor(ir, ig, ib, 1)
             local inlineAnchor = (showRaidGroupName and raidGroupAnchor == "NAMERIGHT") and mock.raidGroupNameText or mock.nameText
             mock.totInlineSep:ClearAllPoints()
             mock.totInlineSep:SetPoint("LEFT", inlineAnchor, "RIGHT", S(4), 0)
@@ -3139,7 +3250,7 @@ function Preview.Refresh(box, reason)
             or (key == "focus" and g.showFocusCastTime ~= false)
             or (key == "player" and g.showPlayerCastTime ~= false)
         mock.cast.time:SetShown(showTime)
-        mock.cast.time:SetText("1.4")
+        mock.cast.time:SetText(FormatCastbarPreviewTime(g, key, 1.4, 2.0))
         if showTime then
             local timeX = ReadCastbarNum(g, key, "TimeOffsetX", "bossCastTimeOffsetX", g.castbarPlayerTimeOffsetX or -2)
             local timeY = ReadCastbarNum(g, key, "TimeOffsetY", "bossCastTimeOffsetY", g.castbarPlayerTimeOffsetY or 0)

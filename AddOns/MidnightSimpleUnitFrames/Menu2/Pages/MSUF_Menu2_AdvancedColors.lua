@@ -283,6 +283,20 @@ local function SetGeneralRGB(prefix, r, gCol, b)
     ApplyColors()
 end
 
+local function GeneralRGBAlias(primaryPrefix, legacyPrefix, dr, dg, db)
+    local g = G()
+    return tonumber(g[primaryPrefix .. "R"]) or tonumber(g[legacyPrefix .. "R"]) or dr,
+           tonumber(g[primaryPrefix .. "G"]) or tonumber(g[legacyPrefix .. "G"]) or dg,
+           tonumber(g[primaryPrefix .. "B"]) or tonumber(g[legacyPrefix .. "B"]) or db
+end
+
+local function SetGeneralRGBAlias(primaryPrefix, legacyPrefix, r, gCol, b)
+    local g = G()
+    g[primaryPrefix .. "R"], g[primaryPrefix .. "G"], g[primaryPrefix .. "B"] = r, gCol, b
+    g[legacyPrefix .. "R"], g[legacyPrefix .. "G"], g[legacyPrefix .. "B"] = r, gCol, b
+    ApplyColors()
+end
+
 local function TableRGB(tbl, key, dr, dg, db)
     local t = tbl and tbl[key]
     if type(t) == "table" then
@@ -742,7 +756,7 @@ local function BuildColors(ctx)
         for i = 1, #npcControls do SetControlEnabled(npcControls[i], enabled) end
     end)
 
-    local barColors = b:CollapsibleSection("colors_bar_colors", "Bar Colors", 204, false)
+    local barColors = b:CollapsibleSection("colors_bar_colors", "Bar Colors", 240, false)
     local barLeftX = 30
     local barRightX = max(430, floor((barColors._msuf2Width or ctx.width or 720) * 0.50))
     LabelAt(barColors, "Bar overlays", barLeftX, -8, 180, "GameFontNormalSmall", T.colors.text)
@@ -760,9 +774,12 @@ local function BuildColors(ctx)
         function() return ApiRGB("GetAggroBorderColor", 1, 0.5, 0) end,
         function(r, g, c) ApiSetRGB("SetAggroBorderColor", r, g, c) end)
     ColorValueAt(ctx, barColors, "Purge Border Color", barRightX, -74,
-        function() return GeneralRGB("purgeBorderColor", 1.00, 0.85, 0.00) end,
-        function(r, g, c) SetGeneralRGB("purgeBorderColor", r, g, c) end)
-    local powerBgMatch = ValueToggleAt(ctx, barColors, "Power background matches HP", barRightX, -112,
+        function() return GeneralRGBAlias("hlPurgeColor", "purgeBorderColor", 1.00, 0.85, 0.00) end,
+        function(r, g, c) SetGeneralRGBAlias("hlPurgeColor", "purgeBorderColor", r, g, c) end)
+    ColorValueAt(ctx, barColors, "Bar Outline Color", barRightX, -110,
+        function() return ApiRGB("GetBarOutlineColor", 0, 0, 0) end,
+        function(r, g, c) ApiSetRGB("SetBarOutlineColor", r, g, c) end)
+    local powerBgMatch = ValueToggleAt(ctx, barColors, "Power background matches HP", barRightX, -148,
         function()
             local fn = ColorAPI().GetPowerBarBackgroundMatchHP
             if type(fn) == "function" then local ok, v = pcall(fn); if ok then return v end end
@@ -773,11 +790,14 @@ local function BuildColors(ctx)
             if type(fn) == "function" then pcall(fn, v) else G().powerBarBgMatchBarColor = v and true or false end
             ApplyColors()
         end)
-    ButtonAt(barColors, "Reset Bar Colors", barLeftX, -158, 160, function()
+    ButtonAt(barColors, "Reset Bar Colors", barLeftX, -194, 160, function()
         local g = G()
-        for _, prefix in ipairs({ "absorbBarColor", "healAbsorbBarColor", "powerBarBgColor", "aggroBorder", "purgeBorderColor" }) do
+        for _, prefix in ipairs({ "absorbBarColor", "healAbsorbBarColor", "powerBarBgColor", "aggroBorder", "purgeBorderColor", "barOutlineColor" }) do
             g[prefix .. "R"], g[prefix .. "G"], g[prefix .. "B"], g[prefix .. "A"] = nil, nil, nil, nil
         end
+        g.hlAggroColorR, g.hlAggroColorG, g.hlAggroColorB = nil, nil, nil
+        g.hlPurgeColorR, g.hlPurgeColorG, g.hlPurgeColorB = nil, nil, nil
+        g.aggroBorderColorR, g.aggroBorderColorG, g.aggroBorderColorB = nil, nil, nil
         g.powerBarBgMatchBarColor = nil
         ApplyColors()
     end)
@@ -786,7 +806,7 @@ local function BuildColors(ctx)
     end)
 
     local dispel = b:CollapsibleSection("colors_dispel", "Dispel", 310, false)
-    LabelAt(dispel, "Dispel color shared by Highlight Border and Group Frame Dispel Overlay.", 12, -8, 620, "GameFontHighlightSmall", T.colors.muted)
+    LabelAt(dispel, "Dispel color shared by Highlight Border and Unit/Group Frame Dispel Overlay.", 12, -8, 620, "GameFontHighlightSmall", T.colors.muted)
     ValueDropdownAt(ctx, dispel, "Color mode", 12, -42, {
         { value = "SINGLE", text = "Single color" },
         { value = "TYPE", text = "Per debuff type" },
@@ -798,8 +818,8 @@ local function BuildColors(ctx)
             CallGlobal("MSUF_PrioRows_Reinit")
         end)
     local singleDispel = ColorValueAt(ctx, dispel, "Dispel Color (all types)", 12, -102,
-        function() return GeneralRGB("dispelBorderColor", 0.25, 0.75, 1.00) end,
-        function(r, g, c) SetGeneralRGB("dispelBorderColor", r, g, c) end)
+        function() return GeneralRGBAlias("hlDispelColor", "dispelBorderColor", 0.25, 0.75, 1.00) end,
+        function(r, g, c) SetGeneralRGBAlias("hlDispelColor", "dispelBorderColor", r, g, c) end)
     local typeControls = {}
     for i = 1, #COLOR_DATA.DISPEL_TYPES do
         local def = COLOR_DATA.DISPEL_TYPES[i]
@@ -812,6 +832,7 @@ local function BuildColors(ctx)
     ButtonAt(dispel, "Reset Dispel Colors", 12, -274, 180, function()
         local g = G()
         g.dispelBorderColorR, g.dispelBorderColorG, g.dispelBorderColorB = nil, nil, nil
+        g.hlDispelColorR, g.hlDispelColorG, g.hlDispelColorB = nil, nil, nil
         g.hlDispelColorMode = nil
         for i = 1, #COLOR_DATA.DISPEL_TYPES do
             local prefix = "dispelType" .. COLOR_DATA.DISPEL_TYPES[i].key
@@ -986,7 +1007,11 @@ local function BuildColors(ctx)
     ValueDropdownAt(ctx, power, "Power type", 12, -10, COLOR_DATA.POWER_TOKENS, 260,
         function() return M.colorsPowerToken or "MANA" end,
         function(v)
-            M.colorsPowerToken = v or "MANA"
+            if type(M.PersistMenuStateValue) == "function" then
+                M.PersistMenuStateValue("colorsPowerToken", v or "MANA")
+            else
+                M.colorsPowerToken = v or "MANA"
+            end
             if powerColor then powerColor:SetRGB(GetPowerOverrideRGB(M.colorsPowerToken)) end
         end)
     powerColor = ColorValueAt(ctx, power, "Color", 360, -10,
@@ -1003,7 +1028,11 @@ local function BuildColors(ctx)
     ValueDropdownAt(ctx, classPower, "Resource type", 12, -10, COLOR_DATA.CP_TOKENS, 310,
         function() return M.colorsCPToken or "COMBO_POINTS" end,
         function(v)
-            M.colorsCPToken = v or "COMBO_POINTS"
+            if type(M.PersistMenuStateValue) == "function" then
+                M.PersistMenuStateValue("colorsCPToken", v or "COMBO_POINTS")
+            else
+                M.colorsCPToken = v or "COMBO_POINTS"
+            end
             if cpColor then cpColor:SetRGB(GetClassPowerRGB(M.colorsCPToken)) end
             if cpBg then cpBg:SetRGB(GetClassPowerBgRGB(M.colorsCPToken)) end
         end)

@@ -120,7 +120,11 @@ local function RetireHeader(header)
             if ch.health then ch.health:Hide() end
             if ch.power then ch.power:Hide() end
             if ch._msufGFBorderFrame then ch._msufGFBorderFrame:Hide() end
-            if ch._msufGFHighlightBorder then ch._msufGFHighlightBorder:Hide() end
+            if ch._msufGFHighlightBorders then
+                for _, border in pairs(ch._msufGFHighlightBorders) do
+                    if border then border:Hide() end
+                end
+            elseif ch._msufGFHighlightBorder then ch._msufGFHighlightBorder:Hide() end
             if ch._msufGFNameText then ch._msufGFNameText:Hide() end
             if ch._msufGFStatusText then ch._msufGFStatusText:Hide() end
             -- Minimize + hide + reparent to hidden frame
@@ -151,6 +155,7 @@ GF.frameList   = GF.frameList or {}   -- compact live-frame iteration order
 
 -- Cross-system frame registry (A2, EM2, etc. resolve unit→frame via this table)
 if type(_G.MSUF_UnitFrames) ~= "table" then _G.MSUF_UnitFrames = {} end
+local GFUnitFrames = _G.MSUF_UnitFrames
 GF._eventFrame = GF._eventFrame or nil
 GF._previewActive = GF._previewActive or {}
 
@@ -228,120 +233,130 @@ GF.RegisterClickCastFrame = _GF_RegisterClickCastFrame
 --   "raid7" → "raid3" : clear raid7 entry, register raid3
 --   "raid7" → nil  : clear raid7 entry (member left group)
 ------------------------------------------------------------------------
+local function _GFResetUnitSlotState(self)
+    self._msufGFHasAnyDebuff       = false
+    self._msufGFDispelType         = nil
+    self._msufGFDispelAuraID       = nil
+    self._msufGFPrevDispelAuraID   = nil
+    self._msufGFMergedDispel       = nil
+    self._msufGFDispelColorObj     = nil
+    self._msufGFDispelColorRev     = nil
+    self._msufGFColorStyleRevision = nil
+
+    local stopGlow = _G.MSUF_GF_StopDispelGlow
+    if type(stopGlow) == "function" then
+        stopGlow(self)
+    else
+        self._msufGFDispelGlowActive = nil
+        self._msufGFDispelGlowAnchor = nil
+        self._msufGFDispelGlowStyle = nil
+    end
+
+    local hlBorder = self._msufGFHighlightBorder
+    if hlBorder then
+        hlBorder._msufHLActivePrio = nil
+    end
+    local hlBorders = self._msufGFHighlightBorders
+    if hlBorders then
+        for _, border in pairs(hlBorders) do
+            if border then
+                border._msufHLActivePrio = nil
+                if border:IsShown() then border:Hide() end
+            end
+        end
+    elseif hlBorder and hlBorder:IsShown() then
+        hlBorder:Hide()
+    end
+
+    self._msufGFLastFullAura       = nil
+    self._msufGFAggroLevel         = nil
+    self._msufGFLastName           = nil
+    self._msufGFNameCacheKey       = nil
+    self._msufGFNameStyleKey       = nil
+    self._msufGFNameText           = nil
+    self._msufGFNameClass          = nil
+    self._msufGFNameColorKey       = nil
+    self._msufGFNameHiddenForStatus = nil
+    self._msufGFStatusState        = nil
+    self._msufGFStatusDirty        = nil
+
+    if GF.ResetStatusIconCaches then GF.ResetStatusIconCaches(self) end
+    if GF.ResetOfflineHiddenFrame then GF.ResetOfflineHiddenFrame(self) end
+
+    local stripe = self._msufGFDebuffStripe
+    if stripe and stripe:IsShown() then stripe:Hide() end
+
+    local statusText = self._msufGFStatusText or self.statusIndicatorText
+    if statusText then
+        statusText:SetText("")
+        statusText:Hide()
+    end
+
+    local disp = self._msufDisplayedAuraIDs
+    if disp then
+        for k in pairs(disp) do disp[k] = nil end
+    end
+end
+
+local function _GFOnUnitAttributeChanged(self, name, value)
+    if name ~= "unit" then return end
+
+    local prev = self._msufGFRegisteredUnit
+    if prev == value and self.unit == value then
+        if value == nil or value == "" then return end
+        local uf = GFUnitFrames
+        if uf and uf[value] == self then return end
+    end
+
+    local uf = GFUnitFrames or _G.MSUF_UnitFrames
+    if not uf then return end
+    GFUnitFrames = uf
+
+    local unitChanged = (prev and prev ~= value)
+    if unitChanged then
+        if uf[prev] == self then uf[prev] = nil end
+        self._msufGFRegisteredUnit = nil
+    end
+
+    if unitChanged or (prev and not value) then
+        _GFResetUnitSlotState(self)
+    end
+
+    if type(value) == "string" and value ~= "" then
+        self.unit = value
+        local p5 = value:sub(1, 5)
+        if p5 == "party" or value:sub(1, 4) == "raid" then
+            uf[value] = self
+        end
+
+        if not self._msufGFBuilt then
+            if InCombatLockdown and InCombatLockdown() then
+                MarkPostCombatHeaderRecovery()
+            end
+            return
+        end
+
+        if self._msufGFRegisteredUnit ~= value then
+            if GF.IsFrameRuntimeEnabled and not GF.IsFrameRuntimeEnabled(self, self._msufGFKind) then
+                if GF.UnregisterUnitEvents then GF.UnregisterUnitEvents(self) end
+                self._msufGFRegisteredUnit = nil
+                return
+            end
+            self._msufGFRegisteredUnit = value
+            if not (InCombatLockdown and InCombatLockdown()) and GF.ApplyVisuals then
+                GF.ApplyVisuals(self, GF.DIRTY_ALL or 0x3F)
+            end
+            if GF.UpdateButton then GF.UpdateButton(self, value) end
+            if GF.RegisterUnitEvents then GF.RegisterUnitEvents(self, value) end
+        end
+    end
+end
+
 local function _GFInstallAttrHook(child)
     if not child or child._msufGFAttrHooked then return end
     if not child.HookScript then return end
     child._msufGFAttrHooked = true
-    child:HookScript("OnAttributeChanged", function(self, name, value)
-        if name ~= "unit" then return end
-        local uf = _G.MSUF_UnitFrames
-        if not uf then return end
-
-        -- Clear stale entry if unit changed or was cleared
-        local prev = self._msufGFRegisteredUnit
-        if prev == value and self.unit == value and type(value) == "string" and uf[value] == self then
-            return
-        end
-        local unitChanged = (prev and prev ~= value)
-        if unitChanged then
-            if uf[prev] == self then uf[prev] = nil end
-            self._msufGFRegisteredUnit = nil
-        end
-
-        -- Reset volatile per-frame state when the unit token changes or
-        -- is being cleared. Without this, raid roster reshuffles (player
-        -- leaves group, replacement takes the same SecureGroupHeader slot,
-        -- or phasing-driven re-anchoring) inherit stale visuals from the
-        -- previous occupant — most visibly the debuff stripe and dispel
-        -- border, which are diff-gated on cached presence flags.
-        if unitChanged or (prev and not value) then
-            self._msufGFHasAnyDebuff       = false
-            self._msufGFDispelType         = nil
-            self._msufGFDispelAuraID       = nil
-            self._msufGFPrevDispelAuraID   = nil
-            self._msufGFMergedDispel       = nil
-            self._msufGFDispelColorObj     = nil
-            self._msufGFDispelColorRev     = nil
-            self._msufGFColorStyleRevision = nil
-            local stopGlow = _G.MSUF_GF_StopDispelGlow
-            if type(stopGlow) == "function" then
-                stopGlow(self)
-            else
-                self._msufGFDispelGlowActive = nil
-                self._msufGFDispelGlowAnchor = nil
-                self._msufGFDispelGlowStyle = nil
-            end
-            local hlBorder = self._msufGFHighlightBorder
-            if hlBorder then
-                hlBorder._msufHLActivePrio = nil
-                if hlBorder:IsShown() then hlBorder:Hide() end
-            end
-            self._msufGFLastFullAura       = nil
-            self._msufGFAggroLevel         = nil
-            self._msufGFLastName           = nil
-            self._msufGFNameCacheKey       = nil
-            self._msufGFNameStyleKey       = nil
-            self._msufGFNameText           = nil
-            self._msufGFNameClass          = nil
-            self._msufGFNameColorKey       = nil
-            self._msufGFStatusState        = nil
-            self._msufGFStatusDirty        = nil
-            if GF.ResetStatusIconCaches then GF.ResetStatusIconCaches(self) end
-            if GF.ResetOfflineHiddenFrame then GF.ResetOfflineHiddenFrame(self) end
-            -- Hide any visible stripe immediately so it doesn't bleed
-            -- into the new occupant's frame for one render cycle.
-            local stripe = self._msufGFDebuffStripe
-            if stripe and stripe:IsShown() then stripe:Hide() end
-            local statusText = self._msufGFStatusText or self.statusIndicatorText
-            if statusText then
-                statusText:SetText("")
-                statusText:Hide()
-            end
-            -- Wipe displayed-aura hash; UpdateFrameAuras will repopulate.
-            local disp = self._msufDisplayedAuraIDs
-            if disp then for k in pairs(disp) do disp[k] = nil end end
-        end
-
-        -- Register new unit. Only party*/raid* belong in this registry —
-        -- "player" and other base unit tokens live in the standalone UF
-        -- system (MidnightSimpleUnitFrames.lua's CreateSimpleUnitFrame).
-        if type(value) == "string" and value ~= "" then
-            self.unit = value
-            local p5 = value:sub(1, 5)
-            if p5 == "party" or value:sub(1, 4) == "raid" then
-                uf[value] = self
-            end
-            -- Trigger MSUF visual + event registration when the slot
-            -- transitions from inactive → active. Only valid once the
-            -- frame has been built by GF_InitButton (otherwise the
-            -- visual subsystems are nil-bound).
-            if not self._msufGFBuilt then
-                if InCombatLockdown and InCombatLockdown() then
-                    MarkPostCombatHeaderRecovery()
-                end
-                return
-            end
-            if self._msufGFRegisteredUnit ~= value then
-                if GF.IsFrameRuntimeEnabled and not GF.IsFrameRuntimeEnabled(self, self._msufGFKind) then
-                    if GF.UnregisterUnitEvents then GF.UnregisterUnitEvents(self) end
-                    self._msufGFRegisteredUnit = nil
-                    return
-                end
-                self._msufGFRegisteredUnit = value
-                -- Fresh SecureGroupHeader children can receive their unit token
-                -- after the initial button build pass. Re-apply layout/font here
-                -- so name anchors and offsets are correct immediately when a
-                -- party member joins, instead of only after /reload or a full
-                -- options refresh. Guarded for lockdown: no protected layout
-                -- mutations in combat, normal unit events still update values.
-                if not (InCombatLockdown and InCombatLockdown()) and GF.ApplyVisuals then
-                    GF.ApplyVisuals(self, GF.DIRTY_ALL or 0x3F)
-                end
-                if GF.UpdateButton then GF.UpdateButton(self, value) end
-                if GF.RegisterUnitEvents then GF.RegisterUnitEvents(self, value) end
-            end
-        end
-    end)
+    child:HookScript("OnAttributeChanged", _GFOnUnitAttributeChanged)
 end
 GF._InstallAttrHook = _GFInstallAttrHook
 
@@ -686,23 +701,29 @@ function GF.GetFrameLayerLevel(f, layer, fallback)
     return baseLvl + lvl, lvl
 end
 
+GF.STRATA_EFFECT = GF.STRATA_EFFECT or _G.MSUF_EFFECT_FRAME_STRATA or "HIGH"
+GF.STRATA_RANK = GF.STRATA_RANK or _G.MSUF_FRAME_STRATA_RANK
+GF.ClampFrameLevel = _G.MSUF_ClampFrameLevel
+GF.MaxFrameStrata = _G.MSUF_MaxFrameStrata
+
+function GF.SyncFrameLayerAbove(child, parent, offset, strata)
+    return _G.MSUF_SyncFrameLayerAbove(child, parent, offset, strata or GF.STRATA_EFFECT)
+end
+
 function GF.SetFrameLayerLevel(frame, owner, layer, fallback)
     if not (frame and frame.SetFrameLevel) then return end
     frame:SetFrameLevel(GF.GetFrameLayerLevel(owner, layer, fallback))
 end
 
+GF.LAYER_DISPEL_OVERLAY = GF.LAYER_DISPEL_OVERLAY or 6
+GF.LAYER_DEBUFF_STRIPE = GF.LAYER_DEBUFF_STRIPE or 7
+GF.LAYER_HIGHLIGHT_BORDER = GF.LAYER_HIGHLIGHT_BORDER or 10
+local GF_DISPEL_TYPE_LAYER_KEYS = { "magic", "curse", "disease", "poison", "bleed" }
+
 local function GetFrameOutlineInset(kind, conf)
-    local raw
-    if GF.GetBarOutlineThickness then
-        raw = GF.GetBarOutlineThickness(kind)
-    elseif conf and conf.borderEnabled == true then
-        raw = conf.borderSize or 1
-    else
-        raw = 0
-    end
-    local inset = math_max(0, tonumber(raw) or 0)
-    if GF.ScaleFrameValue then inset = GF.ScaleFrameValue(kind, inset, 0) end
-    return inset
+    -- Unit frames draw the bar outline outside the bars. Keep group-frame
+    -- health/power geometry unshrunk so the same thickness behaves identically.
+    return 0
 end
 
 ------------------------------------------------------------------------
@@ -744,15 +765,8 @@ local function BuildFrameHierarchy(f, kind)
     borderFrame:SetFrameLevel(barGroup:GetFrameLevel() + 1)
     borderFrame:EnableMouse(false)
     f._msufGFBorderFrame = borderFrame
-    if inset > 0 then
-        local edgeSz = inset
-        borderFrame:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = edgeSz })
-        borderFrame:SetBackdropColor(0, 0, 0, 0)
-        borderFrame:SetBackdropBorderColor(0, 0, 0, 1)
-    else
-        borderFrame:SetBackdrop(nil)
-        borderFrame:Hide()
-    end
+    if borderFrame.SetBackdrop then borderFrame:SetBackdrop(nil) end
+    borderFrame:Hide()
 
     -- Health StatusBar
     local health = CreateFrame("StatusBar", nil, barGroup)
@@ -806,10 +820,29 @@ local function BuildFrameHierarchy(f, kind)
     dispelOv:SetMinMaxValues(0, 1)
     dispelOv:SetValue(1)
     dispelOv:SetAllPoints(health)
-    dispelOv:SetFrameLevel(hLvl + 4)
+    GF.SyncFrameLayerAbove(dispelOv, health, GF.LAYER_DISPEL_OVERLAY)
     dispelOv:SetStatusBarColor(0, 0, 0, 0)
     dispelOv:Hide()
     f._msufGFDispelOverlay = dispelOv
+    f._msufGFDispelOverlays = { default = dispelOv }
+    dispelOv._msufGFDOKey = "default"
+
+    local function CreateDispelOverlayLayer(key)
+        local overlay = CreateFrame("StatusBar", nil, barGroup)
+        overlay:SetStatusBarTexture("Interface\\Buttons\\WHITE8x8")
+        overlay:SetMinMaxValues(0, 1)
+        overlay:SetValue(1)
+        overlay:SetAllPoints(health)
+        GF.SyncFrameLayerAbove(overlay, health, GF.LAYER_DISPEL_OVERLAY)
+        overlay:SetStatusBarColor(0, 0, 0, 0)
+        overlay._msufGFDOKey = key
+        overlay:Hide()
+        f._msufGFDispelOverlays[key] = overlay
+        return overlay
+    end
+    for i = 1, #GF_DISPEL_TYPE_LAYER_KEYS do
+        CreateDispelOverlayLayer("dispel:" .. GF_DISPEL_TYPE_LAYER_KEYS[i])
+    end
 
     -- Debuff stripe (thin edge indicator for any debuff — above dispel overlay, below text)
     local debuffStripe = CreateFrame("StatusBar", nil, barGroup)
@@ -819,7 +852,7 @@ local function BuildFrameHierarchy(f, kind)
     debuffStripe:SetPoint("BOTTOMLEFT", health, "BOTTOMLEFT", 0, 0)
     debuffStripe:SetPoint("BOTTOMRIGHT", health, "BOTTOMRIGHT", 0, 0)
     debuffStripe:SetHeight(3)
-    debuffStripe:SetFrameLevel(hLvl + 5)
+    GF.SyncFrameLayerAbove(debuffStripe, health, GF.LAYER_DEBUFF_STRIPE)
     debuffStripe:SetStatusBarColor(0.8, 0.2, 0.2, 0.6)
     debuffStripe:Hide()
     f._msufGFDebuffStripe = debuffStripe
@@ -993,10 +1026,31 @@ local function BuildFrameHierarchy(f, kind)
     local hlBorder = CreateFrame("Frame", nil, barGroup, "BackdropTemplate")
     hlBorder:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, 0)
     hlBorder:SetPoint("BOTTOMRIGHT", barGroup, "BOTTOMRIGHT", 0, 0)
-    hlBorder:SetFrameLevel(barGroup:GetFrameLevel() + 3)
+    GF.SyncFrameLayerAbove(hlBorder, health, GF.LAYER_HIGHLIGHT_BORDER)
     hlBorder:EnableMouse(false)
     hlBorder:Hide()
     f._msufGFHighlightBorder = hlBorder
+    f._msufGFHighlightBorders = { dispel = hlBorder }
+    hlBorder._msufGFHLKey = "dispel"
+
+    local function CreateHighlightBorderLayer(key)
+        local border = CreateFrame("Frame", nil, barGroup, "BackdropTemplate")
+        border:SetPoint("TOPLEFT", barGroup, "TOPLEFT", 0, 0)
+        border:SetPoint("BOTTOMRIGHT", barGroup, "BOTTOMRIGHT", 0, 0)
+        GF.SyncFrameLayerAbove(border, health, GF.LAYER_HIGHLIGHT_BORDER)
+        border:EnableMouse(false)
+        border._msufGFHLKey = key
+        border:Hide()
+        f._msufGFHighlightBorders[key] = border
+        return border
+    end
+    f._msufGFDispelHighlightBorder = hlBorder
+    for i = 1, #GF_DISPEL_TYPE_LAYER_KEYS do
+        CreateHighlightBorderLayer("dispel:" .. GF_DISPEL_TYPE_LAYER_KEYS[i])
+    end
+    CreateHighlightBorderLayer("aggro")
+    CreateHighlightBorderLayer("target")
+    CreateHighlightBorderLayer("focus")
 
     -- ClickCast integration; effects refresh this after OnEnter/OnLeave are set.
     if not f._msufGFIsPreviewFrame then GF.RegisterClickCastFrame(f, false) end
@@ -1118,15 +1172,17 @@ local function LayoutText(f, kind)
             f.nameText:SetJustifyH("LEFT")
         end
         f.nameText:SetWordWrap(false)
-        if conf.showName ~= false then f.nameText:Show() else f.nameText:Hide() end
+        if GF.ShouldShowNameText and GF.ShouldShowNameText(f, conf) then f.nameText:Show() else f.nameText:Hide() end
     end
     -- 3-slot health text
     local hpTextOn = conf.showHPText ~= false
-    local tl = hpTextOn and (conf.textLeft  or "NONE") or "NONE"
-    local tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
-    local tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
-    if conf.hpTextReverse == true then
-        tl, tr = tr, tl
+    local tl, tc, tr
+    if GF.ResolveHealthTextSlots then
+        tl, tc, tr = GF.ResolveHealthTextSlots(conf)
+    else
+        tl = hpTextOn and (conf.textLeft or "NONE") or "NONE"
+        tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
+        tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
     end
     if f.textLeftFS then
         f.textLeftFS:ClearAllPoints()
@@ -1135,7 +1191,9 @@ local function LayoutText(f, kind)
     end
     if f.textCenterFS then
         f.textCenterFS:ClearAllPoints()
-        f.textCenterFS:SetPoint("CENTER", f.health, "CENTER", 0, 0)
+        f.textCenterFS:SetPoint("LEFT", f.health, "LEFT", 3, 0)
+        f.textCenterFS:SetPoint("RIGHT", f.health, "RIGHT", -3, 0)
+        f.textCenterFS:SetJustifyH("CENTER")
         if tc ~= "NONE" then f.textCenterFS:Show() else f.textCenterFS:SetText(""); f.textCenterFS:Hide() end
     end
     if f.textRightFS then
@@ -1437,7 +1495,7 @@ function GF.UpdateButton(f, unit)
     end
 
     -- Name (with color mode + truncation)
-    if f.nameText and conf.showName ~= false then
+    if f.nameText and GF.ShouldShowNameText and GF.ShouldShowNameText(f, conf) then
         local name = UnitName(unit) or ""
         local maxC, noEllipsis, clipSide = GF.ResolveNameTruncation(kind)
         if maxC > 0 then
@@ -1471,11 +1529,13 @@ function GF.UpdateButton(f, unit)
         local hpMax = UnitHealthMax(unit)
         local delim = conf.textDelimiter or " / "
         local hpTextOn = conf.showHPText ~= false
-        local tl = hpTextOn and (conf.textLeft  or "NONE") or "NONE"
-        local tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
-        local tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
-        if conf.hpTextReverse == true then
-            tl, tr = tr, tl
+        local tl, tc, tr
+        if GF.ResolveHealthTextSlots then
+            tl, tc, tr = GF.ResolveHealthTextSlots(conf)
+        else
+            tl = hpTextOn and (conf.textLeft or "NONE") or "NONE"
+            tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
+            tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
         end
         if f.textLeftFS then
             local txt = GF.FormatHealthText(tl, hp, hpMax, delim, false, unit)
@@ -1752,9 +1812,30 @@ local function _ScanHeaderChildrenVarargs(header, kind, force, ...)
                 end
 
                 -- highlightBorder
-                if child._msufGFHighlightBorder then
+                if child._msufGFHighlightBorders then
+                    for _, border in pairs(child._msufGFHighlightBorders) do
+                        if border then
+                            local hofs = border._msufHLOfs or 0
+                            _AnchorTwoPointIfChanged(border, child.barGroup or child, "highlight", -hofs, hofs, hofs, -hofs, force)
+                            GF.SyncFrameLayerAbove(border, child.health or child.barGroup or child, border._msufHLLayerOffset or GF.LAYER_HIGHLIGHT_BORDER)
+                        end
+                    end
+                elseif child._msufGFHighlightBorder then
                     local hofs = child._msufGFHighlightBorder._msufHLOfs or 0
                     _AnchorTwoPointIfChanged(child._msufGFHighlightBorder, child.barGroup or child, "highlight", -hofs, hofs, hofs, -hofs, force)
+                    GF.SyncFrameLayerAbove(child._msufGFHighlightBorder, child.health or child.barGroup or child, child._msufGFHighlightBorder._msufHLLayerOffset or GF.LAYER_HIGHLIGHT_BORDER)
+                end
+                if child._msufGFDispelOverlays then
+                    for _, overlay in pairs(child._msufGFDispelOverlays) do
+                        if overlay then
+                            GF.SyncFrameLayerAbove(overlay, child.health or child.barGroup or child, overlay._msufDOLayerOffset or GF.LAYER_DISPEL_OVERLAY)
+                        end
+                    end
+                elseif child._msufGFDispelOverlay then
+                    GF.SyncFrameLayerAbove(child._msufGFDispelOverlay, child.health or child.barGroup or child, child._msufGFDispelOverlay._msufDOLayerOffset or GF.LAYER_DISPEL_OVERLAY)
+                end
+                if child._msufGFDebuffStripe then
+                    GF.SyncFrameLayerAbove(child._msufGFDebuffStripe, child.health or child.barGroup or child, GF.LAYER_DEBUFF_STRIPE)
                 end
 
                 -- health bar
@@ -2153,7 +2234,11 @@ local function ClearKindFrameRuntime(f, visual)
         if f.summonIcon then f.summonIcon:Hide() end
         if f.resurrectIcon then f.resurrectIcon:Hide() end
         if f.phaseIcon then f.phaseIcon:Hide() end
-        if f._msufGFHighlightBorder then f._msufGFHighlightBorder:Hide() end
+        if f._msufGFHighlightBorders then
+            for _, border in pairs(f._msufGFHighlightBorders) do
+                if border then border:Hide() end
+            end
+        elseif f._msufGFHighlightBorder then f._msufGFHighlightBorder:Hide() end
         if f._msufGFTargetBorder then f._msufGFTargetBorder:Hide() end
         if f._msufGFDebuffStripe then f._msufGFDebuffStripe:Hide() end
         if f.barGroup then f.barGroup:Hide() end
@@ -2892,13 +2977,67 @@ local function HideFrameLocked(frame)
     end
 end
 
-local function RestoreFrameLocked(frame)
-    if not frame or not frame._msufGFHidden then return end
+local function RestoreFrameLocked(frame, showAfter)
+    if not frame then return end
+    local wasHidden = frame._msufGFHidden == true
+    if not wasHidden and not showAfter then return end
     frame._msufGFHidden = nil
     local parent = frame._msufGFOriginalParent or UIParent
     if not InCombatLockdown() then
-        if frame.SetParent then frame:SetParent(parent) end
-        if frame.Show then frame:Show() end
+        if wasHidden and frame.SetParent then frame:SetParent(parent) end
+        if showAfter and frame.Show then frame:Show() end
+    end
+end
+
+local function NormalizeBlizzardFallbackMode(mode)
+    if type(mode) == "string" then mode = mode:upper() end
+    if mode == "SHOW" or mode == "BLIZZARD" or mode == true then return "SHOW" end
+    if mode == "NONE" or mode == "HIDE" or mode == false then return "NONE" end
+    return "AUTO"
+end
+
+local function BlizzardRaidManagerWantsShown()
+    local getSetting = _G.CompactRaidFrameManager_GetSetting
+    if type(getSetting) ~= "function" then return nil end
+    local value = getSetting("IsShown")
+    if value == nil then return nil end
+    if value == "0" or value == 0 or value == false then return false end
+    return value == "1" or value == 1 or value == true
+end
+
+local function ApplyDisabledPartyFallback(mode)
+    mode = NormalizeBlizzardFallbackMode(mode)
+    if mode == "NONE" then
+        HideFrameLocked(_G.PartyFrame)
+        HideFrameLocked(_G.CompactPartyFrame)
+        HideFrameLocked(_G.CompactPartyFrameTitle)
+        return
+    end
+    RestoreFrameLocked(_G.PartyFrame, true)
+    RestoreFrameLocked(_G.CompactPartyFrame, true)
+    RestoreFrameLocked(_G.CompactPartyFrameTitle, true)
+end
+
+local function ApplyDisabledRaidFallback(mode)
+    mode = NormalizeBlizzardFallbackMode(mode)
+    if mode == "NONE" then
+        HideFrameLocked(_G.CompactRaidFrameContainer)
+        if _G.CompactRaidFrameManager_SetSetting then
+            _G.CompactRaidFrameManager_SetSetting("IsShown", "0")
+        end
+        return
+    end
+    if mode == "SHOW" then
+        if _G.CompactRaidFrameManager_SetSetting then
+            _G.CompactRaidFrameManager_SetSetting("IsShown", "1")
+        end
+        RestoreFrameLocked(_G.CompactRaidFrameContainer, true)
+        return
+    end
+    local wantsShown = BlizzardRaidManagerWantsShown()
+    RestoreFrameLocked(_G.CompactRaidFrameContainer, wantsShown == true)
+    if wantsShown == false and _G.CompactRaidFrameContainer and _G.CompactRaidFrameContainer.Hide then
+        _G.CompactRaidFrameContainer:Hide()
     end
 end
 
@@ -2914,24 +3053,12 @@ function GF.DisableBlizzardFrames()
         HideFrameLocked(_G.CompactPartyFrame)
         HideFrameLocked(_G.CompactPartyFrameTitle)
     else
-        RestoreFrameLocked(_G.PartyFrame)
-        RestoreFrameLocked(_G.CompactPartyFrame)
-        RestoreFrameLocked(_G.CompactPartyFrameTitle)
+        ApplyDisabledPartyFallback(partyConf.blizzardFallbackMode)
     end
     if raidConf.enabled == true then
         HideFrameLocked(_G.CompactRaidFrameContainer)
-        if _G.CompactRaidFrameManager_SetSetting then
-            -- Keep Blizzard's saved raid visibility enabled. MSUF hides the
-            -- container at runtime, but an in-combat reload needs Blizzard
-            -- frames as the only legal fallback until custom secure headers
-            -- can be rebuilt.
-            _G.CompactRaidFrameManager_SetSetting("IsShown", "1")
-        end
     else
-        RestoreFrameLocked(_G.CompactRaidFrameContainer)
-        if _G.CompactRaidFrameManager_SetSetting then
-            _G.CompactRaidFrameManager_SetSetting("IsShown", "1")
-        end
+        ApplyDisabledRaidFallback(raidConf.blizzardFallbackMode)
     end
 end
 
@@ -2961,10 +3088,11 @@ function GF.ApplyPreviewData(f, index, kind)
     local name = PREVIEW_NAMES[((index - 1) % #PREVIEW_NAMES) + 1]
     local role = PREVIEW_ROLES[((index - 1) % #PREVIEW_ROLES) + 1]
     f._msufGFPreviewRole = role
+    f._msufGFNameHiddenForStatus = nil
     local hpPct = 0.3 + (index * 0.15) % 0.7
 
     -- Name (with color + truncation)
-    if f.nameText and conf.showName ~= false then
+    if f.nameText and GF.ShouldShowNameText and GF.ShouldShowNameText(f, conf) then
         local displayName = name
         local maxC, noEllipsis, clipSide = GF.ResolveNameTruncation(kind or "party")
         if maxC > 0 then
@@ -3029,11 +3157,13 @@ function GF.ApplyPreviewData(f, index, kind)
         local fakeMax = 100
         local delim = conf.textDelimiter or " / "
         local hpTextOn = conf.showHPText ~= false
-        local tl = hpTextOn and (conf.textLeft  or "NONE") or "NONE"
-        local tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
-        local tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
-        if conf.hpTextReverse == true then
-            tl, tr = tr, tl
+        local tl, tc, tr
+        if GF.ResolveHealthTextSlots then
+            tl, tc, tr = GF.ResolveHealthTextSlots(conf)
+        else
+            tl = hpTextOn and (conf.textLeft or "NONE") or "NONE"
+            tc = hpTextOn and (conf.textCenter or "NONE") or "NONE"
+            tr = hpTextOn and (conf.textRight or "NONE") or "NONE"
         end
         if f.textLeftFS then
             f.textLeftFS:SetText(GF.FormatHealthText(tl, fakeHP, fakeMax, delim, false))

@@ -32,6 +32,12 @@ local GROWTH_VALUES = {
     { value = "LEFT", text = "Left" },
 }
 
+local BLIZZARD_FALLBACK_VALUES = {
+    { value = "AUTO", text = "Blizzard setting" },
+    { value = "SHOW", text = "Show Blizzard" },
+    { value = "NONE", text = "Show none" },
+}
+
 local HEALTH_MODES = {
     { value = "CLASS", text = "Class" },
     { value = "GRADIENT", text = "Gradient" },
@@ -170,9 +176,9 @@ local STATUS_ICON_ANCHORS = {
 }
 
 local GF_STATUS_ICON_SPECS = {
-    { value = "roleIcon", text = "Role Icon", enabled = "roleIcon", size = "roleIconSize", anchor = "roleIconAnchor", x = "roleIconX", y = "roleIconY", layer = "roleIconLayer", defaultSize = 12, defaultAnchor = "TOPLEFT", defaultLayer = 1 },
-    { value = "leaderIcon", text = "Leader", enabled = "leaderIcon", size = "leaderIconSize", anchor = "leaderIconAnchor", x = "leaderIconX", y = "leaderIconY", layer = "leaderIconLayer", defaultSize = 12, defaultAnchor = "TOPRIGHT", defaultLayer = 2 },
-    { value = "assistIcon", text = "Assist", enabled = "assistIcon", size = "assistIconSize", anchor = "assistIconAnchor", x = "assistIconX", y = "assistIconY", layer = "assistIconLayer", defaultSize = 12, defaultAnchor = "TOPRIGHT", defaultLayer = 2 },
+    { value = "roleIcon", text = "Role Icon", enabled = "roleIcon", iconStyle = "roleIconStyle", size = "roleIconSize", anchor = "roleIconAnchor", x = "roleIconX", y = "roleIconY", layer = "roleIconLayer", defaultSize = 12, defaultAnchor = "TOPLEFT", defaultLayer = 1 },
+    { value = "leaderIcon", text = "Leader", enabled = "leaderIcon", iconStyle = "leaderIconStyle", size = "leaderIconSize", anchor = "leaderIconAnchor", x = "leaderIconX", y = "leaderIconY", layer = "leaderIconLayer", defaultSize = 12, defaultAnchor = "TOPRIGHT", defaultLayer = 2 },
+    { value = "assistIcon", text = "Assist", enabled = "assistIcon", iconStyle = "assistIconStyle", size = "assistIconSize", anchor = "assistIconAnchor", x = "assistIconX", y = "assistIconY", layer = "assistIconLayer", defaultSize = 12, defaultAnchor = "TOPRIGHT", defaultLayer = 2 },
     { value = "raidMarker", text = "Raid Marker", enabled = "raidMarker", size = "raidMarkerSize", anchor = "raidMarkerAnchor", x = "raidMarkerX", y = "raidMarkerY", layer = "raidMarkerLayer", defaultSize = 14, defaultAnchor = "CENTER", defaultLayer = 3 },
     { value = "readyCheckIcon", text = "Ready Check", enabled = "readyCheckIcon", size = "readyCheckSize", anchor = "readyCheckAnchor", x = "readyCheckX", y = "readyCheckY", layer = "readyCheckLayer", defaultSize = 16, defaultAnchor = "CENTER", defaultLayer = 4 },
     { value = "summonIcon", text = "Summon", enabled = "summonIcon", size = "summonIconSize", anchor = "summonAnchor", x = "summonX", y = "summonY", layer = "summonLayer", defaultSize = 16, defaultAnchor = "CENTER", defaultLayer = 4 },
@@ -373,13 +379,13 @@ local GF_COPY_EXCLUDE = {
 }
 
 local GF_COPY_CATEGORIES = {
-    { key = "general", label = "General", keys = { "enabled", "showPlayer", "showSolo", "width", "height", "spacing", "growth", "groupFilter", "sortMode", "sortByRole", "roleOrder", "playerFirstInRole", "unitsPerColumn", "maxColumns", "preserveRaidGroups", "reverseFill", "smoothFill", "hideInClientScene", "hideOfflineEnabled", "hideOfflineInCombat", "hideOfflineDelay", "tooltipMode", "tooltipModifier", "frameScaleMode", "frameScaleManual", "scaleAt10", "scaleAt20", "scaleAt25", "scaleOver25" } },
-    { key = "health", label = "Health & Bars", keys = { "gfBarMode", "healthColorMode", "healthCustomR", "healthCustomG", "healthCustomB", "gfDarkR", "gfDarkG", "gfDarkB", "gfUnifiedR", "gfUnifiedG", "gfUnifiedB", "barTexture", "barBgTexture", "powerBarEnabled", "powerHeight", "showPower", "showPowerText", "powerTextLeft", "powerTextCenter", "powerTextRight", "powerTextDelimiter", "powerFontSize", "powerOffsetX", "powerOffsetY", "powerTextLayer", "powerSmoothFill", "powerShowTank", "powerShowHealer", "powerShowDamager", "healPredEnabled", "healPredAnchorMode", "dispelOverlayEnabled", "dispelOverlayStyle", "dispelOverlayOnHealth", "dispelOverlayAlpha" } },
-    { key = "text", label = "Text & Name", keys = { "showName", "nameFontSize", "nameAnchor", "nameOffsetX", "nameOffsetY", "nameTextLayer", "nameColorMode", "nameColorR", "nameColorG", "nameColorB", "nameShortenEnabled", "nameClipSide", "nameMaxChars", "nameNoEllipsis", "showHPText", "hpFontSize", "textLeft", "textCenter", "textRight", "textDelimiter", "hpTextReverse", "hpOffsetX", "hpOffsetY", "textLayer" } },
+    { key = "general", label = "General", keys = { "enabled", "blizzardFallbackMode", "showPlayer", "showSolo", "width", "height", "spacing", "growth", "groupFilter", "sortMode", "sortByRole", "roleOrder", "playerFirstInRole", "unitsPerColumn", "maxColumns", "preserveRaidGroups", "reverseFill", "smoothFill", "hideInClientScene", "hideOfflineEnabled", "hideOfflineInCombat", "hideOfflineDelay", "tooltipMode", "tooltipModifier", "frameScaleMode", "frameScaleManual", "scaleAt10", "scaleAt20", "scaleAt25", "scaleOver25" } },
+    { key = "health", label = "Health & Bars", keys = { "gfBarMode", "healthColorMode", "healthCustomR", "healthCustomG", "healthCustomB", "gfDarkR", "gfDarkG", "gfDarkB", "gfUnifiedR", "gfUnifiedG", "gfUnifiedB", "barTexture", "barBgTexture", "powerBarEnabled", "powerHeight", "showPower", "showPowerText", "powerTextLeft", "powerTextCenter", "powerTextRight", "powerTextDelimiter", "powerFontSize", "powerOffsetX", "powerOffsetY", "powerTextLayer", "powerSmoothFill", "powerShowTank", "powerShowHealer", "powerShowDamager", "dispelOverlayEnabled", "dispelOverlayStyle", "dispelOverlayOnHealth", "dispelOverlayAlpha", "dispelOverlayTrigger" } },
+    { key = "text", label = "Text & Name", keys = { "showName", "hideNameOnDeadOffline", "nameFontSize", "nameAnchor", "nameOffsetX", "nameOffsetY", "nameTextLayer", "nameColorMode", "nameColorR", "nameColorG", "nameColorB", "nameShortenEnabled", "nameClipSide", "nameMaxChars", "nameNoEllipsis", "showHPText", "hpFontSize", "textLeft", "textCenter", "textRight", "textDelimiter", "hpTextReverse", "hpOffsetX", "hpOffsetY", "textLayer" } },
     { key = "font", label = "Font Override", keys = { "fontOverride", "fontOutline", "useGlobalFontColor", "fontR", "fontG", "fontB" } },
     { key = "border", label = "Background & Opacity", keys = { "bgR", "bgG", "bgB", "bgA", "hpBarAlpha", "hpBgAlpha", "hpTextIgnoreAlpha", "alphaPreserveHPColor" } },
     { key = "range", label = "Range Fade", keys = { "rangeFadeEnabled", "rangeFadeAlpha", "rangeFadeLayerMode", "offlineAlpha", "alphaPreserveHPColor" } },
-    { key = "indicators", label = "Indicators & Status Icons", keys = { "showGroupNumber", "groupNumberSize", "groupNumberAnchor", "groupNumberX", "groupNumberY", "groupBorderEnabled", "groupBorderSize", "groupBorderPadding", "groupBorderR", "groupBorderG", "groupBorderB", "groupBorderA", "iconStyle", "useMidnightIcons", "statusText", "statusTextSize", "statusTextAnchor", "statusOffsetX", "statusOffsetY", "statusTextLayer", "statusGhostText", "statusGhostTextSize", "statusGhostTextAnchor", "statusGhostOffsetX", "statusGhostOffsetY", "statusGhostTextLayer", "statusAFKText", "statusAFKTextSize", "statusAFKTextAnchor", "statusAFKOffsetX", "statusAFKOffsetY", "statusAFKTextLayer" }, prefix = { "si_", "statusIcon", "indicator" } },
+    { key = "indicators", label = "Indicators & Status Icons", keys = { "showGroupNumber", "groupNumberSize", "groupNumberAnchor", "groupNumberX", "groupNumberY", "groupBorderEnabled", "groupBorderSize", "groupBorderPadding", "groupBorderR", "groupBorderG", "groupBorderB", "groupBorderA", "iconStyle", "useMidnightIcons", "roleIconStyle", "leaderIconStyle", "assistIconStyle", "statusText", "statusTextSize", "statusTextAnchor", "statusOffsetX", "statusOffsetY", "statusTextLayer", "statusGhostText", "statusGhostTextSize", "statusGhostTextAnchor", "statusGhostOffsetX", "statusGhostOffsetY", "statusGhostTextLayer", "statusAFKText", "statusAFKTextSize", "statusAFKTextAnchor", "statusAFKOffsetX", "statusAFKOffsetY", "statusAFKTextLayer" }, prefix = { "si_", "statusIcon", "indicator" } },
     { key = "auras", label = "Auras", tables = { "auras" } },
     { key = "highlight", label = "Highlight & Aggro", prefix = { "hl", "dispel" } },
     { key = "dstripe", label = "Debuff Stripe", prefix = { "debuffStripe" } },
@@ -642,7 +648,11 @@ local function ScopeSection(ctx, builder)
     end
 
     local function SelectScope(kind)
-        M.gfScope = kind or "party"
+        if type(M.PersistMenuStateValue) == "function" then
+            M.PersistMenuStateValue("gfScope", kind or "party")
+        else
+            M.gfScope = kind or "party"
+        end
         local gf = GF()
         if type(_G.MSUF_GF_EM2_SetActivePreviewKind) == "function" then _G.MSUF_GF_EM2_SetActivePreviewKind(M.gfScope) end
         if type(M.SyncGFPagePreviewForKey) == "function" then M.SyncGFPagePreviewForKey(M.activeKey) end
@@ -1407,6 +1417,8 @@ local function IconStyleValues()
     if gf and type(gf.ICON_STYLE_ITEMS) == "table" then return gf.ICON_STYLE_ITEMS end
     return {
         { value = "BLIZZARD", text = "Blizzard (Default)" },
+        { value = "CLASSIC", text = "Classic" },
+        { value = "MIDNIGHT", text = "Midnight" },
         { value = "GLOSSY_ORBS", text = "Glossy Orbs" },
         { value = "DARK_EMBOSS", text = "Dark Emboss" },
         { value = "GLASS_PANELS", text = "Glass Panels" },
@@ -1420,12 +1432,22 @@ local function IconStyleValues()
 end
 
 local function CurrentGFStatusSpec()
-    M.gfStatusIconSelection = M.gfStatusIconSelection or "roleIcon"
+    if not M.gfStatusIconSelection then
+        if type(M.PersistMenuStateValue) == "function" then
+            M.PersistMenuStateValue("gfStatusIconSelection", "roleIcon")
+        else
+            M.gfStatusIconSelection = "roleIcon"
+        end
+    end
     for i = 1, #GF_STATUS_ICON_SPECS do
         local spec = GF_STATUS_ICON_SPECS[i]
         if spec.value == M.gfStatusIconSelection then return spec end
     end
-    M.gfStatusIconSelection = GF_STATUS_ICON_SPECS[1].value
+    if type(M.PersistMenuStateValue) == "function" then
+        M.PersistMenuStateValue("gfStatusIconSelection", GF_STATUS_ICON_SPECS[1].value)
+    else
+        M.gfStatusIconSelection = GF_STATUS_ICON_SPECS[1].value
+    end
     return GF_STATUS_ICON_SPECS[1]
 end
 
@@ -1548,7 +1570,9 @@ end
 local function PlacedConfig(kind, create)
     local cfg = CurrentSpellConfig(kind, create)
     if not cfg then return nil end
-    if create and type(cfg.placed) ~= "table" then cfg.placed = { type = "icon", anchor = "TOPLEFT", x = 0, y = 0, size = 18 } end
+    if create and type(cfg.placed) ~= "table" then
+        cfg.placed = { type = "icon", anchor = "TOPLEFT", x = 0, y = 0, size = 18, showCooldownSwipe = true }
+    end
     return cfg.placed
 end
 
@@ -1591,11 +1615,21 @@ local function CIModeValues()
 end
 
 local function CurrentCISlot()
-    M.gfCornerSlotSelection = M.gfCornerSlotSelection or "TL"
+    if not M.gfCornerSlotSelection then
+        if type(M.PersistMenuStateValue) == "function" then
+            M.PersistMenuStateValue("gfCornerSlotSelection", "TL")
+        else
+            M.gfCornerSlotSelection = "TL"
+        end
+    end
     for i = 1, #CI_SLOT_VALUES do
         if CI_SLOT_VALUES[i].value == M.gfCornerSlotSelection then return M.gfCornerSlotSelection end
     end
-    M.gfCornerSlotSelection = "TL"
+    if type(M.PersistMenuStateValue) == "function" then
+        M.PersistMenuStateValue("gfCornerSlotSelection", "TL")
+    else
+        M.gfCornerSlotSelection = "TL"
+    end
     return "TL"
 end
 
@@ -1702,6 +1736,7 @@ end
 
 GroupPage.SCOPE_VALUES = SCOPE_VALUES
 GroupPage.GROWTH_VALUES = GROWTH_VALUES
+GroupPage.BLIZZARD_FALLBACK_VALUES = BLIZZARD_FALLBACK_VALUES
 GroupPage.HEALTH_MODES = HEALTH_MODES
 GroupPage.TEXT_MODES = TEXT_MODES
 GroupPage.DELIMITER_VALUES = DELIMITER_VALUES

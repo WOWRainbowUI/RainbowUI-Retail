@@ -747,6 +747,102 @@ local function RefreshMockGroupBorder(f, conf, previewScale)
     border:Show()
 end
 
+local function ReadMockBarOutlineColor()
+    local fn = _G.MSUF_GetBarOutlineColor
+    if type(fn) == "function" then
+        local ok, r, g, b = pcall(fn)
+        if ok and type(r) == "number" and type(g) == "number" and type(b) == "number" then
+            return r, g, b
+        end
+    end
+    local gen = _G.MSUF_DB and _G.MSUF_DB.general
+    if gen then
+        return tonumber(gen.barOutlineColorR) or 0,
+               tonumber(gen.barOutlineColorG) or 0,
+               tonumber(gen.barOutlineColorB) or 0
+    end
+    return 0, 0, 0
+end
+
+local function SetMockBarOutlineShown(f, shown)
+    local outline = f and f._barOutlinePreview
+    if outline then
+        if shown then outline:Show() else outline:Hide() end
+    end
+    local lines = outline and outline._lines
+    if type(lines) ~= "table" then return end
+    for _, line in pairs(lines) do
+        if line then
+            if shown then line:Show() else line:Hide() end
+        end
+    end
+end
+
+local function EnsureMockBarOutlineLine(outline, key)
+    outline._lines = outline._lines or {}
+    local line = outline._lines[key]
+    if not line then
+        line = outline:CreateTexture(nil, "OVERLAY")
+        line:SetTexture(W8)
+        line:SetVertexColor(0, 0, 0, 1)
+        if line.SetSnapToPixelGrid then line:SetSnapToPixelGrid(false) end
+        if line.SetTexelSnappingBias then line:SetTexelSnappingBias(0) end
+        outline._lines[key] = line
+    end
+    return line
+end
+
+local function RefreshMockBarOutline(f, edge)
+    edge = floor((tonumber(edge) or 0) + 0.5)
+    if not f or edge <= 0 then
+        SetMockBarOutlineShown(f, false)
+        return
+    end
+
+    local outline = f._barOutlinePreview
+    if not outline then
+        outline = CreateFrame("Frame", nil, f)
+        outline:EnableMouse(false)
+        f._barOutlinePreview = outline
+    end
+    outline:SetFrameLevel((f.GetFrameLevel and f:GetFrameLevel() or 0) + 4)
+    outline:ClearAllPoints()
+    outline:SetPoint("TOPLEFT", f, "TOPLEFT", -edge, edge)
+    outline:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", edge, -edge)
+
+    local top = EnsureMockBarOutlineLine(outline, "top")
+    local bottom = EnsureMockBarOutlineLine(outline, "bottom")
+    local left = EnsureMockBarOutlineLine(outline, "left")
+    local right = EnsureMockBarOutlineLine(outline, "right")
+    local r, g, b = ReadMockBarOutlineColor()
+
+    top:SetVertexColor(r, g, b, 1)
+    top:ClearAllPoints()
+    top:SetPoint("TOPLEFT", outline, "TOPLEFT", 0, 0)
+    top:SetPoint("TOPRIGHT", outline, "TOPRIGHT", 0, 0)
+    top:SetHeight(edge)
+
+    bottom:SetVertexColor(r, g, b, 1)
+    bottom:ClearAllPoints()
+    bottom:SetPoint("BOTTOMLEFT", outline, "BOTTOMLEFT", 0, 0)
+    bottom:SetPoint("BOTTOMRIGHT", outline, "BOTTOMRIGHT", 0, 0)
+    bottom:SetHeight(edge)
+
+    left:SetVertexColor(r, g, b, 1)
+    left:ClearAllPoints()
+    left:SetPoint("TOPLEFT", outline, "TOPLEFT", 0, 0)
+    left:SetPoint("BOTTOMLEFT", outline, "BOTTOMLEFT", 0, 0)
+    left:SetWidth(edge)
+
+    right:SetVertexColor(r, g, b, 1)
+    right:ClearAllPoints()
+    right:SetPoint("TOPRIGHT", outline, "TOPRIGHT", 0, 0)
+    right:SetPoint("BOTTOMRIGHT", outline, "BOTTOMRIGHT", 0, 0)
+    right:SetWidth(edge)
+
+    SetMockBarOutlineShown(f, true)
+end
+
 local function BuildMockFrame(parent)
     local kind = _getKind and _getKind() or "party"
     local conf = GF.GetConf(kind)
@@ -772,16 +868,18 @@ local function BuildMockFrame(parent)
     local w = floor(liveW * scale + 0.5)
     local h = floor(liveH * scale + 0.5)
     local powerH = GetMockPowerHeight(kind, conf, scale, frameScale)
-    local insetBase = (GF.GetBarOutlineThickness and GF.GetBarOutlineThickness(kind)) or 1
-    local inset = max(0, floor(insetBase * rawToMock + 0.5))
+    local outlineBase = (GF.GetBarOutlineThickness and GF.GetBarOutlineThickness(kind)) or 1
+    local outlineEdge = max(0, floor(outlineBase * rawToMock + 0.5))
+    local inset = 0
 
     local f = CreateFrame("Frame", "MSUF_GFPreviewMock", parent, "BackdropTemplate")
     f:SetSize(w, h)
     f:SetPoint("CENTER", parent, "CENTER", 0, 0)
-    f:SetBackdrop({ bgFile = W8, edgeFile = W8, edgeSize = inset,
-        insets = { left = inset, right = inset, top = inset, bottom = inset } })
+    f:SetBackdrop({ bgFile = W8 })
+    f._msufPreviewBackdropKind = "bg"
     f:SetBackdropColor(conf.bgR or 0.1, conf.bgG or 0.1, conf.bgB or 0.1, conf.bgA or 0.85)
-    f:SetBackdropBorderColor(conf.borderR or 0, conf.borderG or 0, conf.borderB or 0, conf.borderA or 1)
+    f:SetBackdropBorderColor(0, 0, 0, 0)
+    RefreshMockBarOutline(f, outlineEdge)
     RefreshMockGroupBorder(f, conf, rawToMock)
 
     local health = CreateFrame("StatusBar", nil, f)
@@ -1006,8 +1104,12 @@ function GF.RefreshPreviewBox()
     m._previewFrameScale = frameScale
 
     -- Background
+    if m.SetBackdrop and m._msufPreviewBackdropKind ~= "bg" then
+        m:SetBackdrop({ bgFile = W8 })
+        m._msufPreviewBackdropKind = "bg"
+    end
     m:SetBackdropColor(conf.bgR or 0.1, conf.bgG or 0.1, conf.bgB or 0.1, conf.bgA or 0.85)
-    m:SetBackdropBorderColor(conf.borderR or 0, conf.borderG or 0, conf.borderB or 0, conf.borderA or 1)
+    m:SetBackdropBorderColor(0, 0, 0, 0)
     RefreshMockGroupBorder(m, conf, rawToMock)
     if m._healthBg then
         m._healthBg:SetVertexColor(conf.bgR or 0.1, conf.bgG or 0.1, conf.bgB or 0.1, conf.bgA or 0.85)
@@ -1030,8 +1132,10 @@ function GF.RefreshPreviewBox()
 
     -- Power bar geometry
     local powerH = GetMockPowerHeight(kind, conf, scale, frameScale)
-    local insetBase = (GF.GetBarOutlineThickness and GF.GetBarOutlineThickness(kind)) or 1
-    local inset = max(0, floor(insetBase * rawToMock + 0.5))
+    local outlineBase = (GF.GetBarOutlineThickness and GF.GetBarOutlineThickness(kind)) or 1
+    local outlineEdge = max(0, floor(outlineBase * rawToMock + 0.5))
+    local inset = 0
+    RefreshMockBarOutline(m, outlineEdge)
     if m._health then
         m._health:ClearAllPoints()
         m._health:SetPoint("TOPLEFT", m, "TOPLEFT", inset, -inset)
@@ -1252,11 +1356,13 @@ function GF.RefreshPreviewBox()
                 m._hpRightFS:SetParent(hpParent)
             end
             m._hpFS = m._hpCenterFS
-            local tl = conf.textLeft or "NONE"
-            local tc = conf.textCenter or "NONE"
-            local tr = conf.textRight or "NONE"
+            local tl, tc, tr
+            if GF.ResolveHealthTextSlots then
+                tl, tc, tr = GF.ResolveHealthTextSlots(conf)
+            else
+                tl, tc, tr = conf.textLeft or "NONE", conf.textCenter or "NONE", conf.textRight or "NONE"
+            end
             local hDelim = conf.textDelimiter or " / "
-            local hRev = conf.hpTextReverse
             local hSize = PreviewTextFontSize(conf.hpFontSize or 10)
             local hox = PreviewTextValue(conf.hpOffsetX or 0)
             local hoy = PreviewTextValue(conf.hpOffsetY or 0)
@@ -1267,7 +1373,7 @@ function GF.RefreshPreviewBox()
                 fs:SetFont(fp, hSize, ff)
                 fs:SetTextColor(fr, fg, fb, 0.9)
                 fs:SetShadowColor(0, 0, 0, 1); fs:SetShadowOffset(1, -1)
-                fs:SetText((GF.FormatHealthText and GF.FormatHealthText(mode, 70, 100, hDelim, hRev)) or (HP_SAMPLES[mode] or ""))
+                fs:SetText((GF.FormatHealthText and GF.FormatHealthText(mode, 70, 100, hDelim, false)) or (HP_SAMPLES[mode] or ""))
                 fs:ClearAllPoints()
                 fs:SetPoint(point, m._health, relPoint, x, hoy)
                 fs:SetJustifyH(justify)
@@ -1530,16 +1636,26 @@ local AURA_GRP_ICON_IDS = {
 
 -- Shared spell-texture cache. One lookup per unique spell ID per session.
 local _mockSpellTexCache = {}
+local _MSUF_ResolveIconTexturePath = _G.MSUF_ResolveIconTexturePath
+local _MSUF_SetIconTexture = _G.MSUF_SetIconTexture
 local function GetMockSpellTexture(spellId)
     local cached = _mockSpellTexCache[spellId]
     if cached then return cached end
     if C_Spell and C_Spell.GetSpellTexture then
         local tex = C_Spell.GetSpellTexture(spellId)
-        if tex then _mockSpellTexCache[spellId] = tex; return tex end
+        if tex then
+            tex = (type(_MSUF_ResolveIconTexturePath) == "function" and _MSUF_ResolveIconTexturePath(tex)) or tex
+            _mockSpellTexCache[spellId] = tex
+            return tex
+        end
     end
     if GetSpellInfo then
         local _, _, icon = GetSpellInfo(spellId)
-        if icon then _mockSpellTexCache[spellId] = icon; return icon end
+        if icon then
+            icon = (type(_MSUF_ResolveIconTexturePath) == "function" and _MSUF_ResolveIconTexturePath(icon)) or icon
+            _mockSpellTexCache[spellId] = icon
+            return icon
+        end
     end
     -- Fallback: generic question-mark icon so "never black" is guaranteed
     return "Interface\\Icons\\INV_Misc_QuestionMark"
@@ -1857,7 +1973,11 @@ function GF.RebuildSIHandles()
                 if h._siValue then h._siValue:Hide() end
                 h._siTex:SetSize(sz, sz)
                 if itype == "icon" and SI.GetAuraIcon then
-                    h._siTex:SetTexture(SI.GetAuraIcon(specKey, spellName))
+                    if type(_MSUF_SetIconTexture) == "function" then
+                        _MSUF_SetIconTexture(h._siTex, SI.GetAuraIcon(specKey, spellName), "")
+                    else
+                        h._siTex:SetTexture(SI.GetAuraIcon(specKey, spellName))
+                    end
                     h._siTex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
                 elseif itype == "square" or itype == "bar" then
                     local clr = (defCfg.placed and defCfg.placed.color)

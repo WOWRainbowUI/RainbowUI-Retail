@@ -485,7 +485,8 @@ local function ToggleGradientDirection(direction)
 end
 
 local PRIORITY_SINGLE = { "dispel", "aggro", "purge", "bossTarget" }
-local PRIORITY_TYPE = { "magic", "curse", "disease", "poison", "bleed", "aggro", "purge", "bossTarget" }
+local PRIORITY_TYPE = { "dispel", "aggro", "purge", "bossTarget" }
+local DISPEL_TYPE_PRIORITY_ALLOWED = { magic = true, curse = true, disease = true, poison = true, bleed = true }
 local PRIORITY_LABELS = {
     dispel = "Dispel",
     aggro = "Aggro",
@@ -508,9 +509,39 @@ local PRIORITY_COLORS = {
     poison = { 0.00, 0.60, 0.00 },
     bleed = { 0.80, 0.10, 0.10 },
 }
+local PRIORITY_KEY_ALIAS = {
+    Dispel = "dispel",
+    DISPEL = "dispel",
+    Magic = "magic",
+    MAGIC = "magic",
+    Curse = "curse",
+    CURSE = "curse",
+    Disease = "disease",
+    DISEASE = "disease",
+    Poison = "poison",
+    POISON = "poison",
+    Bleed = "bleed",
+    BLEED = "bleed",
+    Aggro = "aggro",
+    AGGRO = "aggro",
+    Purge = "purge",
+    PURGE = "purge",
+    BossTarget = "bossTarget",
+    Boss_Target = "bossTarget",
+    ["Boss Target"] = "bossTarget",
+    ["boss target"] = "bossTarget",
+    boss_target = "bossTarget",
+    bosstarget = "bossTarget",
+    BOSS_TARGET = "bossTarget",
+}
+
+local function NormalizePriorityKey(key)
+    if type(key) ~= "string" then return nil end
+    return PRIORITY_KEY_ALIAS[key] or key
+end
 
 local function PriorityDefaults()
-    return tostring(BarScopeGet("hlDispelColorMode", "SINGLE")) == "TYPE" and PRIORITY_TYPE or PRIORITY_SINGLE
+    return PRIORITY_SINGLE
 end
 
 local function PriorityAllowed(defaults)
@@ -528,10 +559,13 @@ local function PriorityOrder()
     end
     local order = {}
     if type(raw) == "table" then
+        local rawUsed = {}
         for i = 1, #raw do
-            local value = raw[i]
-            if allowed[value] then
+            local value = NormalizePriorityKey(raw[i])
+            if DISPEL_TYPE_PRIORITY_ALLOWED[value] then value = "dispel" end
+            if allowed[value] and not rawUsed[value] then
                 order[#order + 1] = value
+                rawUsed[value] = true
             end
         end
     end
@@ -549,9 +583,9 @@ local function PriorityColor(key)
     local fallback = PRIORITY_COLORS[key] or { 1, 1, 1 }
     local r, g, b = fallback[1], fallback[2], fallback[3]
     if key == "aggro" then
-        r = BarScopeGet("hlAggroColorR", ReadG("aggroBorderColorR", r))
-        g = BarScopeGet("hlAggroColorG", ReadG("aggroBorderColorG", g))
-        b = BarScopeGet("hlAggroColorB", ReadG("aggroBorderColorB", b))
+        r = BarScopeGet("hlAggroColorR", ReadG("aggroBorderColorR", ReadG("aggroBorderR", r)))
+        g = BarScopeGet("hlAggroColorG", ReadG("aggroBorderColorG", ReadG("aggroBorderG", g)))
+        b = BarScopeGet("hlAggroColorB", ReadG("aggroBorderColorB", ReadG("aggroBorderB", b)))
     elseif key == "purge" then
         r = BarScopeGet("hlPurgeColorR", ReadG("purgeBorderColorR", r))
         g = BarScopeGet("hlPurgeColorG", ReadG("purgeBorderColorG", g))
@@ -671,9 +705,9 @@ local function GroupBlizzardRendererConflictText(scope)
     local labels = GroupBlizzardRendererConflictLabels(scope)
     if #labels == 0 then return nil end
     if scope == "gf_party" or scope == "gf_raid" then
-        return "Dispel Glow is unavailable for this Group Frame scope while Blizzard owns dispel icons (" .. table.concat(labels, ", ") .. "). Enable Group Frames > Auras > MSUF Dispel Border / Glow or switch the renderer to Custom."
+        return "Dispel Glow is unavailable for this Group Frame scope while Blizzard owns dispel icons (" .. table.concat(labels, ", ") .. "). Enable Group Frames > Auras > MSUF Dispel Highlights or switch the renderer to Custom."
     end
-    return "Unit Frames and Custom Group Frames can still use Dispel Glow. Group Frames where Blizzard owns dispel icons (" .. table.concat(labels, ", ") .. ") need Group Frames > Auras > MSUF Dispel Border / Glow enabled, or a Custom renderer."
+    return "Unit Frames and Custom Group Frames can still use Dispel Glow. Group Frames where Blizzard owns dispel icons (" .. table.concat(labels, ", ") .. ") need Group Frames > Auras > MSUF Dispel Highlights enabled, or a Custom renderer."
 end
 
 local function NotifyDispelGlowBlizzardConflict(scope)
@@ -810,6 +844,7 @@ GlobalPage.PRIORITY_SINGLE = PRIORITY_SINGLE
 GlobalPage.PRIORITY_TYPE = PRIORITY_TYPE
 GlobalPage.PRIORITY_LABELS = PRIORITY_LABELS
 GlobalPage.PRIORITY_COLORS = PRIORITY_COLORS
+GlobalPage.NormalizePriorityKey = NormalizePriorityKey
 GlobalPage.Call = Call
 GlobalPage.DB = DB
 GlobalPage.G = G

@@ -71,6 +71,7 @@ local PriorityAllowed = GP.PriorityAllowed
 local PriorityOrder = GP.PriorityOrder
 local PriorityColor = GP.PriorityColor
 local SetPriorityOrder = GP.SetPriorityOrder
+local NormalizePriorityKey = GP.NormalizePriorityKey or function(key) return key end
 local HasGroupBlizzardRendererConflict = GP.HasGroupBlizzardRendererConflict
 local GroupBlizzardRendererConflictText = GP.GroupBlizzardRendererConflictText
 local NotifyDispelGlowBlizzardConflict = GP.NotifyDispelGlowBlizzardConflict
@@ -133,7 +134,12 @@ local function BuildBars(ctx)
         if refreshBorder and GF.frames then
             for frame in pairs(GF.frames) do
                 if GF.BuildFrameCache then GF.BuildFrameCache(frame) end
-                refreshBorder(frame, frame.unit)
+                local c = frame and frame._c
+                if frame and frame.unit and c and GF.DispelScanActive and GF.DispelScanActive(c) and GF._UpdateDispel then
+                    GF._UpdateDispel(frame, frame.unit)
+                else
+                    refreshBorder(frame, frame and frame.unit)
+                end
             end
         elseif GF.RefreshVisuals then
             GF.RefreshVisuals()
@@ -142,9 +148,10 @@ local function BuildBars(ctx)
 
     local function RefreshUnitBorders(units)
         local fn, frames = _G.MSUF_RefreshRareBarVisuals, _G.MSUF_UnitFrames
-        if type(fn) ~= "function" or not frames then return end
+        if type(fn) ~= "function" then return end
         for i = 1, #units do
-            local frame = frames[units[i]]
+            local unit = units[i]
+            local frame = (frames and frames[unit]) or _G["MSUF_" .. tostring(unit)]
             if frame then fn(frame) end
         end
     end
@@ -163,17 +170,20 @@ local function BuildBars(ctx)
     end
 
     local function ApplyAggroBorderRuntime()
+        Call("MSUF_UFCore_RefreshSettingsCache", "MSUF2_AGGRO_BORDER_RUNTIME")
         Call("MSUF_ApplyBarOutlineThickness_All")
         Call("MSUF_AggroOutline_ApplyEventRegistration")
-        RefreshUnitBorders({ "target", "focus", "boss1", "boss2", "boss3", "boss4", "boss5" })
+        RefreshUnitBorders({ "player", "target", "focus", "boss1", "boss2", "boss3", "boss4", "boss5" })
         RefreshGroupFrameBorders()
     end
 
     local function ApplyDispelPurgeBorderRuntime()
+        Call("MSUF_UFCore_RefreshSettingsCache", "MSUF2_DISPEL_BORDER_RUNTIME")
         Call("MSUF_ApplyBarOutlineThickness_All")
         Call("MSUF_DispelOutline_ApplyEventRegistration")
         Call("MSUF_RefreshDispelOutlineStates", true)
         RefreshUnitBorders({ "player", "target", "focus", "targettarget" })
+        Call("MSUF_RefreshUnitDispelOverlays")
         RefreshGroupFrameVisuals()
         if _G.MSUF_DispelBorderTestMode and type(_G.MSUF_SetDispelBorderTestMode) == "function" then
             _G.MSUF_SetDispelBorderTestMode(true, BorderTestScope())
@@ -184,6 +194,7 @@ local function BuildBars(ctx)
     end
 
     local function ApplyBossTargetBorderRuntime()
+        Call("MSUF_UFCore_RefreshSettingsCache", "MSUF2_BOSS_TARGET_BORDER_RUNTIME")
         Call("MSUF_UpdateBossTargetHighlight", true)
         RefreshUnitBorders({ "boss1", "boss2", "boss3", "boss4", "boss5" })
     end
@@ -408,6 +419,19 @@ local function BuildBars(ctx)
         { value = "DISPEL_TYPE", text = "Any dispel-type debuff" },
         { value = "ANY_DEBUFF", text = "Any debuff" },
     }
+    local unitDispelOverlayTriggers = {
+        { value = "BORDER", text = "Use Dispel border detects" },
+        { value = "BY_ME", text = "Dispellable by me" },
+        { value = "DISPEL_TYPE", text = "Any dispel-type debuff" },
+        { value = "ANY_DEBUFF", text = "Any debuff" },
+    }
+    local unitDispelOverlayStyles = {
+        { value = "FULL", text = "Full Frame" },
+        { value = "TOP", text = "Top Fade" },
+        { value = "BOTTOM", text = "Bottom Fade" },
+        { value = "LEFT", text = "Left Fade" },
+        { value = "RIGHT", text = "Right Fade" },
+    }
     local function NormalizeDispelTrigger(v)
         local fn = _G.MSUF_NormalizeDispelBorderTrigger
         if type(fn) == "function" then return fn(v) end
@@ -415,7 +439,12 @@ local function BuildBars(ctx)
         if v == "ANY_DEBUFF" or v == "ANY" or v == "ALL_DEBUFFS" then return "ANY_DEBUFF" end
         return "BY_ME"
     end
-
+    local function NormalizeUnitDispelOverlayTrigger(v)
+        local fn = _G.MSUF_NormalizeUnitDispelOverlayTrigger
+        if type(fn) == "function" then return fn(v) end
+        if v == "BORDER" or v == "INHERIT" or v == "SAME" then return "BORDER" end
+        return NormalizeDispelTrigger(v)
+    end
     local function GradientKeyActive(entry, key)
         return entry and entry.hlOverride == true
             and entry.gradientOverride == true
@@ -817,20 +846,26 @@ local function BuildBars(ctx)
         end)
     W.MoveWidget(absorbAnchor, absorb, absorbLeftX, -124, absorbLeftW, "LEFT")
 
-    local selfHeal = W.ToggleAt(absorb, "UnitFrame heal prediction", absorbLeftX, -186, absorbLeftW)
-    M.BindToggle(ctx, selfHeal,
+    local healPredToggle = W.ToggleAt(absorb, "Heal Prediction Overlay", absorbLeftX, -186, absorbLeftW)
+    M.BindToggle(ctx, healPredToggle,
         function()
-            if CurrentBarsScopeIsGroupFrame() then return false end
-            return ReadGBool("showSelfHealPrediction", true)
+            if CurrentBarsScopeIsGroupFrame() then
+                return BarScopeGet("healPredEnabled", ReadGBool("showSelfHealPrediction", false)) == true
+            end
+            return ReadGBool("showSelfHealPrediction", false)
         end,
         function(v)
-            if CurrentBarsScopeIsGroupFrame() then return end
+            if CurrentBarsScopeIsGroupFrame() then
+                BarScopeSet("healPredEnabled", v and true or false, "MSUF2_GF_HEALPRED")
+                Call("MSUF_InvalidateAbsorbCache")
+                ApplyBars("MSUF2_GF_HEALPRED")
+                RefreshGroupFrameVisuals()
+                return
+            end
             SetGBool("showSelfHealPrediction", v, "MSUF2_SELF_HEAL", { preview = true })
             Call("MSUF_RefreshSelfHealPredUnitEvent")
             ApplyBars("MSUF2_SELF_HEAL")
         end)
-    local selfHealGroupHint = W.Text(absorb, "Group Frame heal prediction is controlled in Group Frames > Health & Bars.", absorbLeftX + 30, -212, absorbLeftW + 80, T.colors.muted)
-    selfHealGroupHint:Hide()
 
     local healPredAnchor = W.Dropdown(absorb, "Heal prediction anchoring", {
         { value = 1, text = "Anchor to left side" },
@@ -913,9 +948,14 @@ local function BuildBars(ctx)
         SetControlEnabled(absorbTest, showBar)
         SetControlEnabled(absorbOpacity, scopedActive and showBar)
         SetControlEnabled(healAbsorbOpacity, scopedActive and showBar)
-        SetControlEnabled(selfHeal, (not groupScope) and sharedActive and mode ~= 1)
-        SetControlEnabled(healPredAnchor, (not groupScope) and scopedActive and mode ~= 1 and ReadGBool("showSelfHealPrediction", true))
-        if groupScope then selfHealGroupHint:Show() else selfHealGroupHint:Hide() end
+        local healPredOn
+        if groupScope then
+            healPredOn = BarScopeGet("healPredEnabled", ReadGBool("showSelfHealPrediction", false)) == true
+        else
+            healPredOn = ReadGBool("showSelfHealPrediction", false)
+        end
+        SetControlEnabled(healPredToggle, groupScope and scopedActive or (sharedActive and mode ~= 1))
+        SetControlEnabled(healPredAnchor, groupScope and scopedActive and healPredOn or ((not groupScope) and scopedActive and mode ~= 1 and healPredOn))
     end)
 
     local outline = b:CollapsibleSection("bars_outline", "Frame Outline", 126, false)
@@ -989,7 +1029,7 @@ local function BuildBars(ctx)
         if roundedPreview and roundedPreview.RefreshRoundedPreview then roundedPreview:RefreshRoundedPreview() end
     end)
 
-    local highlights = b:CollapsibleSection("bars_highlight", "Highlight Borders", 672, true)
+    local highlights = b:CollapsibleSection("bars_highlight", "Highlight Borders", 820, true)
     local hlW = highlights._msuf2Width or ctx.width or 720
     local hlGap = 28
     local hlLeftX = 30
@@ -999,6 +1039,8 @@ local function BuildBars(ctx)
     local hlRightW = max(220, min(420, hlInnerW - hlLeftW - hlGap))
 
     W.ControlCard(highlights, "Border Modes", nil, hlLeftX - 14, -38, hlLeftW + 28, 438)
+    local priorityCardW = min(360, max(260, hlLeftW + 28))
+    local priorityCard = W.ControlCard(highlights, "Priority Order", nil, hlLeftX - 14, -492, priorityCardW, 296)
     W.ControlCard(highlights, "Preview", nil, hlRightX - 14, -38, hlRightW + 28, 248)
     W.ControlCard(highlights, "Dispel Glow", nil, hlRightX - 14, -308, hlRightW + 28, 352)
 
@@ -1293,12 +1335,82 @@ local function BuildBars(ctx)
         bossSharedHint:SetTextColor(hintColor[1], hintColor[2], hintColor[3], sharedActive and 0.75 or 1)
     end)
 
-    local priority = b:CollapsibleSection("bars_priority", "Highlight Priority", 350, false)
-    local priorityCardW = min(360, max(260, (priority._msuf2Width or ctx.width or 720) - 40))
-    local priorityCard = W.ControlCard(priority, "Priority Order", nil, 20, -38, priorityCardW, 296)
+    local overlaySectionW = ctx.width or 720
+    local overlayCardWProbe = min(900, max(320, overlaySectionW - 40))
+    local overlayWide = overlayCardWProbe >= 760
+    local overlaySectionH = overlayWide and 360 or 470
+    local overlayCardH = overlayWide and 296 or 406
+    local ufOverlay = b:CollapsibleSection("bars_unit_dispel_overlay", "UnitFrame Dispel Overlay", overlaySectionH, false)
+    local ufOverlayW = ufOverlay._msuf2Width or ctx.width or 720
+    local ufOverlayCardW = min(900, max(320, ufOverlayW - 40))
+    overlayWide = ufOverlayCardW >= 760
+    overlayCardH = overlayWide and 296 or 406
+    local ufOverlayCard = W.ControlCard(ufOverlay, "UnitFrame Dispel Overlay", "Tints unit-frame health bars when a configured debuff condition is active.", 20, -38, ufOverlayCardW, overlayCardH)
+    local ufOverlayToggle = W.SwitchAt(ufOverlayCard, "UnitFrame Dispel Overlay", ufOverlayCardW - 62, -24, 0, "HIDDEN")
+    M.BindToggle(ctx, ufOverlayToggle,
+        function() return BarScopeGet("unitDispelOverlayEnabled", false) == true end,
+        function(v)
+            BarScopeSet("unitDispelOverlayEnabled", v and true or false, "MSUF2_UF_DISPEL_OVERLAY")
+            ApplyBars("MSUF2_UF_DISPEL_OVERLAY")
+            ApplyDispelPurgeBorderRuntime()
+        end)
+    local ufOverlayTrigger = W.Dropdown(ufOverlayCard, "Overlay detects", unitDispelOverlayTriggers, 280)
+    M.BindDropdown(ctx, ufOverlayTrigger,
+        function() return NormalizeUnitDispelOverlayTrigger(BarScopeGet("unitDispelOverlayTrigger", "BORDER")) end,
+        function(v)
+            BarScopeSet("unitDispelOverlayTrigger", NormalizeUnitDispelOverlayTrigger(v), "MSUF2_UF_DISPEL_OVERLAY_TRIGGER")
+            ApplyDispelPurgeBorderRuntime()
+        end)
+    W.MoveWidget(ufOverlayTrigger, ufOverlayCard, 16, -74, min(280, ufOverlayCardW - 32), "LEFT")
+
+    local ufOverlayStyle = W.Dropdown(ufOverlayCard, "Overlay style", unitDispelOverlayStyles, 280)
+    M.BindDropdown(ctx, ufOverlayStyle,
+        function() return BarScopeGet("unitDispelOverlayStyle", "FULL") end,
+        function(v)
+            BarScopeSet("unitDispelOverlayStyle", v or "FULL", "MSUF2_UF_DISPEL_OVERLAY_STYLE")
+            ApplyDispelPurgeBorderRuntime()
+        end)
+    W.MoveWidget(ufOverlayStyle, ufOverlayCard, 16, -126, min(280, ufOverlayCardW - 32), "LEFT")
+
+    local ufOverlayCurrent = W.ToggleAt(ufOverlayCard, "Show on current health only", 16, -174, ufOverlayCardW - 32)
+    M.BindToggle(ctx, ufOverlayCurrent,
+        function() return BarScopeGet("unitDispelOverlayOnHealth", true) ~= false end,
+        function(v)
+            BarScopeSet("unitDispelOverlayOnHealth", v and true or false, "MSUF2_UF_DISPEL_OVERLAY_HEALTH")
+            ApplyDispelPurgeBorderRuntime()
+        end)
+
+    local ufOverlayAlpha = W.Slider(ufOverlayCard, "Overlay opacity", 0.05, 1, 0.05, 340)
+    M.BindSlider(ctx, ufOverlayAlpha,
+        function() return tonumber(BarScopeGet("unitDispelOverlayAlpha", 0.35)) or 0.35 end,
+        function(v)
+            BarScopeSet("unitDispelOverlayAlpha", tonumber(v) or 0.35, "MSUF2_UF_DISPEL_OVERLAY_ALPHA")
+            ApplyDispelPurgeBorderRuntime()
+        end)
+    W.MoveWidget(ufOverlayAlpha, ufOverlayCard, 16, -218, min(360, ufOverlayCardW - 72), "CENTER")
+
+    local ufOverlayGroupHintY = overlayWide and -286 or -386
+    local ufOverlayGroupHint = W.Text(ufOverlayCard, "Group frame scopes use Group Frames > Health & Bars > Dispel Overlay.", 16, ufOverlayGroupHintY, ufOverlayCardW - 32, T.colors.muted)
+    if ufOverlayGroupHint.SetWordWrap then ufOverlayGroupHint:SetWordWrap(true) end
+
+    M.AddRefresher(ctx, function()
+        local groupScope = CurrentBarsScopeIsGroupFrame()
+        local activeScope = (not groupScope) and ScopedBarsControlsActive()
+        local overlayOn = activeScope and BarScopeGet("unitDispelOverlayEnabled", false) == true
+        SetControlEnabled(ufOverlayToggle, activeScope)
+        SetControlEnabled(ufOverlayTrigger, overlayOn)
+        SetControlEnabled(ufOverlayStyle, overlayOn)
+        SetControlEnabled(ufOverlayCurrent, overlayOn)
+        SetControlEnabled(ufOverlayAlpha, overlayOn)
+        ufOverlayGroupHint:SetShown(groupScope)
+    end)
+
     local prio = W.SwitchAt(priorityCard, "Custom highlight priority", 16, -54, priorityCardW - 32)
     M.BindToggle(ctx, prio,
-        function() return BarScopeGet("hlPrioEnabled", false) == true end,
+        function()
+            local value = BarScopeGet("hlPrioEnabled", false)
+            return value == true or value == 1
+        end,
         function(v)
             local on = v and true or false
             BarScopeSet("hlPrioEnabled", on, "MSUF2_HIGHLIGHT_PRIORITY")
@@ -1307,7 +1419,7 @@ local function BuildBars(ctx)
             ApplyAllHighlightBorderRuntime()
         end)
 
-    local rowH, rowGap, rowMax = 22, 4, 8
+    local rowH, rowGap, rowMax = 22, 4, 4
     local prioContainer = CreateFrame("Frame", nil, priorityCard)
     prioContainer:SetPoint("TOPLEFT", prio, "BOTTOMLEFT", -2, -4)
     prioContainer:SetSize(200, rowMax * (rowH + rowGap))
@@ -1376,7 +1488,9 @@ local function BuildBars(ctx)
         num:SetPoint("RIGHT", rowFrame, "RIGHT", -8, 0)
         rowFrame._numText = num
         rowFrame:SetScript("OnDragStart", function(self)
-            if not (HighlightControlsActive() and BarScopeGet("hlPrioEnabled", false) == true) then return end
+            local prioEnabled = BarScopeGet("hlPrioEnabled", false)
+            prioEnabled = prioEnabled == true or prioEnabled == 1
+            if not (HighlightControlsActive() and prioEnabled) then return end
             if GameTooltip then GameTooltip:Hide() end
             self._msuf2OldStrata = self:GetFrameStrata()
             self:StartMoving()
@@ -1440,7 +1554,9 @@ local function BuildBars(ctx)
             row.frame._numText:SetText(tostring(i))
         end
         SnapPriorityRows()
-        SetPriorityRowsEnabled(HighlightControlsActive() and BarScopeGet("hlPrioEnabled", false) == true)
+        local prioEnabled = BarScopeGet("hlPrioEnabled", false)
+        prioEnabled = prioEnabled == true or prioEnabled == 1
+        SetPriorityRowsEnabled(HighlightControlsActive() and prioEnabled)
     end
     RefreshPriorityRows()
     M.AddRefresher(ctx, function()
@@ -1465,4 +1581,4 @@ local function BuildBars(ctx)
     ctx:SetContentHeight(math.abs(b.y) + 42)
 end
 
-M.RegisterPage("opt_bars", { title = "MSUF Bars", build = BuildBars, version = 9 })
+M.RegisterPage("opt_bars", { title = "MSUF Bars", build = BuildBars, version = 13 })

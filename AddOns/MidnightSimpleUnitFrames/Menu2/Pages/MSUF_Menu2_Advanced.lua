@@ -73,6 +73,22 @@ local function DeepCopyTable(src)
     return dst
 end
 
+local function IsEmptyAuraFilterTable(filters)
+    if type(filters) ~= "table" then return true end
+    for key, value in pairs(filters) do
+        if key == "buffs" or key == "debuffs" then
+            if type(value) == "table" then
+                for _ in pairs(value) do return false end
+            elseif value ~= nil then
+                return false
+            end
+        elseif value ~= nil then
+            return false
+        end
+    end
+    return true
+end
+
 local function BindTableToggle(ctx, section, label, getTable, key, default, apply)
     local toggle = W.Toggle(section, label)
     M.BindToggle(ctx, toggle,
@@ -329,8 +345,9 @@ local function ForceAuraFilterOverride()
     if scope == "shared" then return end
     local shared = AuraShared()
     local u = AurasUnit(scope)
+    local hadOverride = (u.overrideFilters == true)
     u.overrideFilters = true
-    if type(u.filters) ~= "table" or u.filters == shared.filters then
+    if type(u.filters) ~= "table" or u.filters == shared.filters or (not hadOverride and IsEmptyAuraFilterTable(u.filters)) then
         u.filters = DeepCopyTable(shared.filters or {})
     end
     u.filters.buffs = u.filters.buffs or {}
@@ -619,7 +636,13 @@ end
 local function SetPandemicMode(value)
     local shared = AuraShared()
     value = NormalizePandemicMode(value)
-    if value ~= "OFF" then M.lastPandemicMode = value end
+    if value ~= "OFF" then
+        if type(M.PersistMenuStateValue) == "function" then
+            M.PersistMenuStateValue("lastPandemicMode", value)
+        else
+            M.lastPandemicMode = value
+        end
+    end
     shared.pandemicMode = value
     shared.showPandemic = nil
     ApplyAuras()
@@ -754,7 +777,11 @@ local function BuildAuras(ctx)
         width = contentW,
         getValue = AuraScope,
         setValue = function(value)
-            M.auraScope = value or "shared"
+            if type(M.PersistMenuStateValue) == "function" then
+                M.PersistMenuStateValue("auraScope", value or "shared")
+            else
+                M.auraScope = value or "shared"
+            end
             RefreshAurasPage(ctx)
         end,
         hasOverride = AuraHasOverride,
@@ -1046,7 +1073,13 @@ local function BuildAuras(ctx)
                 SetPandemicMode(M.lastPandemicMode or "PULSE")
             else
                 local mode = GetPandemicMode()
-                if mode ~= "OFF" then M.lastPandemicMode = mode end
+                if mode ~= "OFF" then
+                    if type(M.PersistMenuStateValue) == "function" then
+                        M.PersistMenuStateValue("lastPandemicMode", mode)
+                    else
+                        M.lastPandemicMode = mode
+                    end
+                end
                 SetPandemicMode("OFF")
             end
         end))
