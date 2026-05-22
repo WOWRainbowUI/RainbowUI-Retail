@@ -282,6 +282,7 @@ L["GROUPING_ERA_7_8"] = "Meat"
 L["GROUPING_ERA_7_9"] = "Herb"
 L["GROUPING_ERA_7_10"] = "Elemental"
 L["GROUPING_ERA_7_12"] = "Enchanting"
+L["CRAFTED"] = "Crafted"
 
 L["CATEGORY_SPACING"] = "Category spacing"
 L["EDIT"] = "Edit"
