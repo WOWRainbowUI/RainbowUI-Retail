@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.17 (13th May 2026)
+-- 	Leatrix Plus 12.0.19 (21st May 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.17"
+	LeaPlusLC["AddonVer"] = "12.0.19"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -619,7 +619,6 @@
 		or	(LeaPlusLC["UseArrowKeysInChat"]	~= LeaPlusDB["UseArrowKeysInChat"])		-- Use arrow keys in chat
 		or	(LeaPlusLC["NoChatFade"]			~= LeaPlusDB["NoChatFade"])				-- Disable chat fade
 		or	(LeaPlusLC["RecentChatWindow"]		~= LeaPlusDB["RecentChatWindow"])		-- Recent chat window
-		or	(LeaPlusLC["MaxChatHstory"]			~= LeaPlusDB["MaxChatHstory"])			-- Increase chat history
 		or	(LeaPlusLC["FilterChatMessages"]	~= LeaPlusDB["FilterChatMessages"])		-- Filter chat messages
 		or	(LeaPlusLC["RestoreChatMessages"]	~= LeaPlusDB["RestoreChatMessages"])	-- Restore chat messages
 
@@ -4409,7 +4408,7 @@
 								valcol = (durapercent >= 80 and "|cff00FF00") or (durapercent >= 60 and "|cff99FF00") or (durapercent >= 40 and "|cffFFFF00") or (durapercent >= 20 and "|cffFF9900") or (durapercent >= 0 and "|cffFF2000") or ("|cffFFFFFF")
 								_G["GameTooltipTextLeft1"]:SetText(L["Durability"])
 								_G["GameTooltipTextLeft2"]:SetText(_G["GameTooltipTextLeft2"]:GetText() .. SlotsFriendly[k] .. "|n")
-								_G["GameTooltipTextRight2"]:SetText(_G["GameTooltipTextRight2"]:GetText() ..  valcol .. durapercent .. "%" .. "|n")
+								_G["GameTooltipTextRight2"]:SetText(_G["GameTooltipTextRight2"]:GetText() ..  valcol .. durapercent .. "%" .. "|r|n")
 							end
 
 							duravaltotal = duravaltotal + duraval
@@ -4550,28 +4549,6 @@
 				if arg1 == "LeftButton" then
 					ChatFrame1:StopMovingOrSizing()
 					FCF_SavePositionAndDimensions(ChatFrame1)
-				end
-			end)
-		end
-
-		----------------------------------------------------------------------
-		--	Increase chat history
-		----------------------------------------------------------------------
-
-		if LeaPlusLC["MaxChatHstory"] == "On" and not LeaLockList["MaxChatHstory"] then
-			-- Process normal and existing chat frames
-			for i = 1, 50 do
-				if _G["ChatFrame" .. i] and _G["ChatFrame" .. i]:GetMaxLines() ~= 4096 then
-					_G["ChatFrame" .. i]:SetMaxLines(4096);
-				end
-			end
-			-- Process temporary chat frames
-			hooksecurefunc("FCF_OpenTemporaryWindow", function()
-				local cf = FCF_GetCurrentChatFrame():GetName() or nil
-				if cf then
-					if (_G[cf]:GetMaxLines() ~= 4096) then
-						_G[cf]:SetMaxLines(4096);
-					end
 				end
 			end)
 		end
@@ -9747,32 +9724,22 @@
 			for i = 1, 50 do
 				if _G["ChatFrame" .. i] then
 					-- Position the editbox
-					_G["ChatFrame" .. i .. "EditBox"]:ClearAllPoints();
-					_G["ChatFrame" .. i .. "EditBox"]:SetPoint("TOPLEFT", _G["ChatFrame" .. i], 0, 0);
-					_G["ChatFrame" .. i .. "EditBox"]:SetWidth(_G["ChatFrame" .. i]:GetWidth());
-					-- Ensure editbox width matches chatframe width
-					_G["ChatFrame" .. i]:HookScript("OnSizeChanged", function()
-						_G["ChatFrame" .. i .. "EditBox"]:SetWidth(_G["ChatFrame" .. i]:GetWidth())
-					end)
+					_G["ChatFrame" .. i .. "EditBox"]:ClearAllPoints()
+					_G["ChatFrame" .. i .. "EditBox"]:SetPoint("TOP", _G["ChatFrame" .. i], "TOP", 0, 0)
+					_G["ChatFrame" .. i .. "EditBox"]:SetPoint("LEFT", _G["ChatFrame" .. i], "LEFT", 0, 0)
+					_G["ChatFrame" .. i .. "EditBox"]:SetPoint("RIGHT", _G["ChatFrame" .. i], "RIGHT", 0, 0)
 				end
 			end
 
 			-- Do the functions above for other chat frames (pet battles, whispers, etc)
 			hooksecurefunc("FCF_OpenTemporaryWindow", function()
-
 				local cf = FCF_GetCurrentChatFrame():GetName() or nil
 				if cf then
-
 					-- Position the editbox
-					_G[cf .. "EditBox"]:ClearAllPoints();
-					_G[cf .. "EditBox"]:SetPoint("TOPLEFT", cf, "TOPLEFT", 0, 0);
-					_G[cf .. "EditBox"]:SetWidth(_G[cf]:GetWidth());
-
-					-- Ensure editbox width matches chatframe width
-					_G[cf]:HookScript("OnSizeChanged", function()
-						_G[cf .. "EditBox"]:SetWidth(_G[cf]:GetWidth())
-					end)
-
+					_G[cf .. "EditBox"]:ClearAllPoints()
+					_G[cf .. "EditBox"]:SetPoint("TOP", cf, "TOP", 0, 0)
+					_G[cf .. "EditBox"]:SetPoint("LEFT", cf, "LEFT", 0, 0)
+					_G[cf .. "EditBox"]:SetPoint("RIGHT", cf, "RIGHT", 0, 0)
 				end
 			end)
 
@@ -10931,7 +10898,6 @@
 				LeaPlusLC:LoadVarChk("UnivGroupColor", "Off")				-- Universal group color
 				LeaPlusLC:LoadVarChk("RecentChatWindow", "Off")				-- Recent chat window
 				LeaPlusLC:LoadVarNum("RecentChatSize", 170, 170, 600)		-- Recent chat size
-				LeaPlusLC:LoadVarChk("MaxChatHstory", "Off")				-- Increase chat history
 				LeaPlusLC:LoadVarChk("FilterChatMessages", "Off")			-- Filter chat messages
 				LeaPlusLC:LoadVarChk("BlockSpellLinks", "Off")				-- Block spell links
 				LeaPlusLC:LoadVarChk("BlockDrunkenSpam", "Off")				-- Block drunken spam
@@ -11139,7 +11105,6 @@
 								Lock("NoStickyChat", reason, "Chat") -- Disable sticky chat
 								Lock("UseArrowKeysInChat", reason, "Chat") -- Use arrow keys in chat
 								Lock("NoChatFade", reason, "Chat") -- Disable chat fade
-								Lock("MaxChatHstory", reason, "Chat") -- Increase chat history
 								Lock("RestoreChatMessages", reason, "Chat") -- Restore chat messages (E.db.chat.chatHistory)
 							end
 
@@ -11294,7 +11259,6 @@
 			LeaPlusDB["UnivGroupColor"]			= LeaPlusLC["UnivGroupColor"]
 			LeaPlusDB["RecentChatWindow"]		= LeaPlusLC["RecentChatWindow"]
 			LeaPlusDB["RecentChatSize"]			= LeaPlusLC["RecentChatSize"]
-			LeaPlusDB["MaxChatHstory"]			= LeaPlusLC["MaxChatHstory"]
 			LeaPlusDB["FilterChatMessages"]		= LeaPlusLC["FilterChatMessages"]
 			LeaPlusDB["BlockSpellLinks"]		= LeaPlusLC["BlockSpellLinks"]
 			LeaPlusDB["BlockDrunkenSpam"]		= LeaPlusLC["BlockDrunkenSpam"]
@@ -13924,6 +13888,27 @@
 				end)
 				LeaPlusLC:Print("TaintMap started.")
 				return
+			elseif str == "forced" then
+				-- Enable all addon restrictions
+				-- Example: /run ChatFrame1:SetMaxLines(4096) and whipser yourself
+				SetCVar("addonMapRestrictionsForced", "1")
+				SetCVar("addonChatRestrictionsForced", "1")
+				SetCVar("addonCombatRestrictionsForced", "1")
+				SetCVar("addonPvPMatchRestrictionsForced", "1")
+				SetCVar("addonEncounterRestrictionsForced", "1")
+				SetCVar("addonChallengeModeRestrictionsForced", "1")
+				LeaPlusLC:Print("Addon restrictions are now enforced.")
+				return
+			elseif str == "unforced" then
+				-- Remove all addon restrictions
+				SetCVar("addonMapRestrictionsForced", "0")
+				SetCVar("addonChatRestrictionsForced", "0")
+				SetCVar("addonCombatRestrictionsForced", "0")
+				SetCVar("addonPvPMatchRestrictionsForced", "0")
+				SetCVar("addonEncounterRestrictionsForced", "0")
+				SetCVar("addonChallengeModeRestrictionsForced", "0")
+				LeaPlusLC:Print("Addon restrictions are no longer enforced.")
+				return
 			elseif str == "admin" then
 				-- Preset profile (used for testing)
 				LpEvt:UnregisterAllEvents()						-- Prevent changes
@@ -13979,7 +13964,6 @@
 				LeaPlusDB["UnivGroupColor"] = "On"				-- Universal group color
 				LeaPlusDB["RecentChatWindow"] = "On"			-- Recent chat window
 				LeaPlusDB["RecentChatSize"] = 170				-- Recent chat size
-				LeaPlusDB["MaxChatHstory"] = "Off"				-- Increase chat history
 				LeaPlusDB["FilterChatMessages"] = "On"			-- Filter chat messages
 				LeaPlusDB["BlockSpellLinks"] = "On"				-- Block spell links
 				LeaPlusDB["BlockDrunkenSpam"] = "On"			-- Block drunken spam
@@ -14408,9 +14392,8 @@
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "NoChatFade"				, 	"Disable chat fade"				, 	340, -132, 	true,	"If checked, chat text will not fade out after a time period.")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "UnivGroupColor"			,	"Universal group color"			,	340, -152,	false,	"If checked, raid chat and instance chat will both be colored blue (to match the default party chat color).")
 	LeaPlusLC:MakeCB(LeaPlusLC[pg], "RecentChatWindow"			,	"Recent chat window"			, 	340, -172, 	true,	"If checked, you can hold down the control key and click a chat tab to view recent chat in a copy-friendly window.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "MaxChatHstory"				,	"Increase chat history"			, 	340, -192, 	true,	"If checked, your chat history will increase to 4096 lines.  If unchecked, the default will be used (128 lines).|n|nEnabling this option may prevent some chat text from showing during login.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "FilterChatMessages"		, 	"Filter chat messages"			,	340, -212, 	true,	"If checked, you can block spell links, drunken spam and duel spam.")
-	LeaPlusLC:MakeCB(LeaPlusLC[pg], "RestoreChatMessages"		, 	"Restore chat messages"			,	340, -232, 	true,	"If checked, recent chat will be restored when you reload your interface.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "FilterChatMessages"		, 	"Filter chat messages"			,	340, -192, 	true,	"If checked, you can block spell links, drunken spam and duel spam.")
+	LeaPlusLC:MakeCB(LeaPlusLC[pg], "RestoreChatMessages"		, 	"Restore chat messages"			,	340, -212, 	true,	"If checked, recent chat will be restored when you reload your interface.")
 
 	LeaPlusLC:CfgBtn("NoChatButtonsBtn", LeaPlusCB["NoChatButtons"])
 	LeaPlusLC:CfgBtn("SetChatFontSizeBtn", LeaPlusCB["SetChatFontSize"])
