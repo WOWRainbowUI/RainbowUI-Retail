@@ -114,6 +114,8 @@ L.AutoExpandSpellGroups2			= "주문 단위로 그룹이 형성된 설정들을 
 L.ShowWAKeys						= "보스 모드 활성 조건을 이용한 WeakAuras 제작을 지원하기 위해 주문 이름 옆에 WeakAuras 키를 표시합니다."
 L.RenameSpellButton					= "이름 변경"
 L.RenameSpellHeader					= "%s 주문 이름 직접 설정"
+L.GTFOAbilityTitle					= "바닥 스킬"
+L.GTFOAbilityDescription				= "서 있으면 피해를 입히기 때문에 움직여야 하는 스킬입니다"
 L.NoDescription						= "이 능력에 대한 설명이 없습니다"
 L.CustomOptions						= "이 카테고리엔 주문이나 도감(journal) ID가 없는 능력이나 이벤트에 대한 사용자 정의 설정이 모여있습니다. 이 설정들은 WeakAuras 제작에 사용자 정의 ID를 사용하기 좋도록 모아놓은 것입니다."
 
@@ -586,19 +588,6 @@ L.FilterInterruptHealer				= "힐러일때 표시 안함"
 L.FilterInterruptNoteName			= "시전 횟수가 포함되어 있는 차단 알림에서 사용자 정의 메모에 내 이름이 없으면 표시 안함"--Only used on bosses, trash mods don't assign counts
 L.Area_BInterruptFilterFooter		= "필터를 선택하지 않으면 모든 차단 알림이 표시됩니다 (스팸이 될 수 있음)\n일부 모드에선 매우 중요한 주문일 경우 필터 설정이 완전히 무시될 수 있습니다"
 L.Area_TInterruptFilter				= "일반몹 차단 알림 필터 설정"--Reuses above 3 strings
-
--- Panel: DBM Handholding
-L.Panel_HandFilter					= "DBM 관할 알림 줄이기"
-L.Area_SpamFilter_SpecRoleFilters	= "특수 알림 유형 필터 (DBM이 관할하는 알림의 정보량 조정)"
-L.SpamSpecInformationalOnly			= "특수 알림에서 행동 지시 텍스트/음성 알림을 전부 삭제합니다. (UI 재시작 필요) 알림은 여전히 표시되며 음성도 출력되지만 일반적인 사항만 보여주며 직접적인 지시 사항은 줄어듭니다"
-L.SpamSpecRoleDispel				= "'해제' 경고 완전히 빼기 (텍스트와 효과음 전부)"
-L.SpamSpecRoleInterrupt				= "'차단' 경고 빼기 (텍스트와 효과음 전부)"
-L.SpamSpecRoleDefensive				= "'생존기' 경고 빼기 (텍스트와 효과음 전부)"
-L.SpamSpecRoleTaunt					= "'도발' 경고 빼기 (텍스트와 효과음 전부)"
-L.SpamSpecRoleSoak					= "'바닥 밟기' 경고 빼기 (텍스트와 효과음 전부)"
-L.SpamSpecRoleStack					= "'중첩 높음' 경고 빼기 (텍스트와 효과음 전부)"
-L.SpamSpecRoleSwitch				= "'대상 변경' &amp; '쫄 등장' 경고 빼기 (텍스트와 효과음 전부)"
-L.SpamSpecRoleGTFO					= "'바닥 피하기' 경고 빼기 (텍스트와 효과음 전부)"
 
 -- Panel: Blizzard Features
 L.Panel_HideBlizzard				= "블리자드 기본 기능 차단"

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("BrawlRank5", "DBM-Brawlers")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20201102223314")
+mod:SetRevision("20260523021809")
 --mod:SetModelID(6923)
 
 mod:RegisterEvents(
@@ -10,7 +10,7 @@ mod:RegisterEvents(
 
 local warnPolymorph			= mod:NewSpellAnnounce(133362, 4)--Millie Watt
 
-local specWarnPolymorph		= mod:NewSpecialWarningSpell(133362, nil, nil, nil, 1, 2)--Millie Watt
+local specWarnPolymorph		= mod:NewSpecialWarningSpell(133362, nil, nil, nil, 1, 2, nil, nil, "targetyou")--Millie Watt
 
 local timerPolymorphCD		= mod:NewCDTimer(35, 133362, nil, nil, nil, 3)--Millie Watt
 
