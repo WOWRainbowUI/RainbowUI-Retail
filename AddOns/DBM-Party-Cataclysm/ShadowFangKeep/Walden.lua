@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,duos"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(46963)
 mod:SetEncounterID(1073)
@@ -23,8 +23,8 @@ local warnFrostMix		= mod:NewSpellAnnounce(93505, 3)
 local warnIceShards		= mod:NewSpellAnnounce(93527, 3)
 local warnPoisonMix		= mod:NewSpellAnnounce(93697, 3)
 
-local specWarnGreenMix	= mod:NewSpecialWarning("specWarnCoagulant", nil, false, nil, 1, 2)
-local specWarnRedMix	= mod:NewSpecialWarning("specWarnRedMix", nil, false, nil, 1, 2)
+local specWarnGreenMix	= mod:NewSpecialWarning("specWarnCoagulant", nil, false, nil, 1, 2, nil, nil, nil, nil, "keepmove")
+local specWarnRedMix	= mod:NewSpecialWarning("specWarnRedMix", nil, false, nil, 1, 2, nil, nil, nil, nil, "stopmove")
 mod:AddBoolOption("RedLightGreenLight", true, "announce")
 
 local timerIceShards	= mod:NewBuffActiveTimer(5, 93527)

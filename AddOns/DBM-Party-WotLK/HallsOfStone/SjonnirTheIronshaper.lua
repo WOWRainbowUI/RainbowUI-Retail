@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(607, "DBM-Party-WotLK", 7, 277)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(27978)
 mod:SetEncounterID(1998)
@@ -15,7 +15,7 @@ mod:RegisterEventsInCombat(
 local warningCharge		= mod:NewTargetAnnounce(50834, 2)
 local warningRing		= mod:NewSpellAnnounce(50840, 3)
 
-local specWarnCharge	= mod:NewSpecialWarningMoveAway(50834, nil, nil, nil, 1, 2)
+local specWarnCharge	= mod:NewSpecialWarningMoveAway(50834, nil, nil, nil, 1, 2, nil, nil, "runout")
 local yellCharge		= mod:NewYell(50834)
 
 local timerChargeCD		= mod:NewCDTimer(25, 50834, nil, nil, nil, 3)

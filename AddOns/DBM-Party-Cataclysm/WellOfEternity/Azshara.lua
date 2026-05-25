@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(54853)
 mod:SetEncounterID(1273)
@@ -19,8 +19,8 @@ mod:RegisterEventsInCombat(
 
 local warnAdds			= mod:NewAnnounce("WarnAdds", 3)
 
-local specWarnServant	= mod:NewSpecialWarningSpell(102334, nil, nil, nil, 2, 2)
-local specWarnObedience	= mod:NewSpecialWarningInterrupt(103241, nil, nil, nil, 1, 2)
+local specWarnServant	= mod:NewSpecialWarningSpell(102334, nil, nil, nil, 2, 2, nil, nil, "findmc")
+local specWarnObedience	= mod:NewSpecialWarningInterrupt(103241, nil, nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerServantCD	= mod:NewCDTimer(26, 102334, nil, nil, nil, 3)--Still don't have good logs, and encounter bugs a lot so i can't get any reliable timers except for first casts on engage.
 local timerObedienceCD	= mod:NewCDTimer(37, 103241, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)

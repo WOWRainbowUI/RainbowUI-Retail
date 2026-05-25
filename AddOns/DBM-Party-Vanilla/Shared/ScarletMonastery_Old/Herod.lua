@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Herod", "DBM-Party-Vanilla", DBM:IsPostCata() and 17 or 12)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(3975)
 mod:SetEncounterID(448)
@@ -16,7 +16,7 @@ mod:RegisterEventsInCombat(
 local warningEnrage					= mod:NewTargetNoFilterAnnounce(8269, 2)
 local warningWhirlwind				= mod:NewSpellAnnounce(8989, 2)
 
-local specWarnWhirlwind				= mod:NewSpecialWarningRun(8989, false, nil, 2, 4, 2)
+local specWarnWhirlwind				= mod:NewSpecialWarningRun(8989, false, nil, 2, 4, 2, nil, nil, "justrun")
 
 local timerWhirlwindCD				= mod:NewCDTimer(18, 8989, nil, nil, nil, 4, nil, DBM_COMMON_L.DEADLY_ICON)
 

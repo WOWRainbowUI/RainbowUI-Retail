@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2360, "DBM-Party-BfA", 11, 1178)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(153755, 150712)
 mod:SetEncounterID(2312)
@@ -25,8 +25,8 @@ mod:AddTimerLine(DBM:EJ_GetSectionInfo(20200))
 local warnMegaTaze					= mod:NewTargetNoFilterAnnounce(302682, 3)
 local warnJumpStart					= mod:NewSpellAnnounce(298897, 3)
 
-local specWarnTaze					= mod:NewSpecialWarningInterrupt(298669, false, nil, 2, 1, 2)
-local specWarnMegaTaze				= mod:NewSpecialWarningMoveTo(302682, nil, nil, nil, 3, 2)
+local specWarnTaze					= mod:NewSpecialWarningInterrupt(298669, false, nil, 2, 1, 2, nil, nil, "kickcast")
+local specWarnMegaTaze				= mod:NewSpecialWarningMoveTo(302682, nil, nil, nil, 3, 2, nil, nil, "findshelter")
 local yellMegaTaze					= mod:NewYell(302682)
 
 local timerMegaTazeCD				= mod:NewCDCountTimer(40.1, 302682, nil, nil, nil, 3, nil, DBM_COMMON_L.DEADLY_ICON)
@@ -35,8 +35,8 @@ mod:AddTimerLine(DBM:EJ_GetSectionInfo(20203))
 local warnRoadkill					= mod:NewCountAnnounce(298946, 3)
 local warnBurnout					= mod:NewSpellAnnounce(298571, 3)
 
-local specWarnBoltBuster			= mod:NewSpecialWarningDodgeCount(298940, "Tank", nil, nil, 1, 2)
-local specWarnPedaltotheMetal		= mod:NewSpecialWarningDodgeCount(298651, nil, nil, nil, 2, 2)
+local specWarnBoltBuster			= mod:NewSpecialWarningDodgeCount(298940, "Tank", nil, nil, 1, 2, nil, nil, "shockwave")
+local specWarnPedaltotheMetal		= mod:NewSpecialWarningDodgeCount(298651, nil, nil, nil, 2, 2, nil, nil, "chargemove")
 
 local timerRoadKillCD				= mod:NewCDCountTimer(27, 298946, nil, nil, nil, 3)
 local timerBoltBusterCD				= mod:NewCDCountTimer(18.2, 298940, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)

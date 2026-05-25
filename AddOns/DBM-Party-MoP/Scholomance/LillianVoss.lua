@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(58722)--58722 is Body, 58791 is soul. Body is engaged first
 mod:SetEncounterID(1429)
@@ -29,9 +29,9 @@ local warnUnleashedAnguish	= mod:NewSpellAnnounce(111649, 2)
 local warnFixateAnger		= mod:NewTargetAnnounce(115350, 4)
 local warnReanimateCorpse	= mod:NewSpellAnnounce(114262, 3)
 
-local specWarnDeathsGrasp	= mod:NewSpecialWarningSpell(111570, nil, nil, nil, 2, 2)
-local specWarnDarkBlaze		= mod:NewSpecialWarningGTFO(111585, nil, nil, nil, 1, 8)
-local specWarnFixateAnger	= mod:NewSpecialWarningRun(115350, nil, nil, 2, 4, 2)
+local specWarnDeathsGrasp	= mod:NewSpecialWarningSpell(111570, nil, nil, nil, 2, 2, nil, nil, "specialsoon")
+local specWarnDarkBlaze		= mod:NewSpecialWarningGTFO(111585, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
+local specWarnFixateAnger	= mod:NewSpecialWarningRun(115350, nil, nil, 2, 4, 2, nil, nil, "justrun")
 
 local timerShadowShivCD		= mod:NewCDTimer(12.5, 111775, nil, nil, nil, 3)--every 12.5-15.5 sec
 local timerDeathsGraspCD	= mod:NewCDTimer(34, 111570, nil, nil, nil, 2)

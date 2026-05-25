@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1485, "DBM-Party-Legion", 4, 721)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(94960)
 mod:SetEncounterID(1805)
@@ -25,8 +25,8 @@ local warnBreath					= mod:NewCountAnnounce(188404, 4)
 local warnDancingBlade				= mod:NewCountAnnounce(193235, 3)
 local warnSweep						= mod:NewSpellAnnounce(193092, 2, nil, "Tank")
 
-local specWarnHornOfValor			= mod:NewSpecialWarningSpell(191284, nil, nil, nil, 2, 2)
-local specWarnDancingBlade			= mod:NewSpecialWarningGTFO(193235, nil, nil, nil, 1, 8)
+local specWarnHornOfValor			= mod:NewSpecialWarningSpell(191284, nil, nil, nil, 2, 2, nil, nil, "breathsoon")
+local specWarnDancingBlade			= mod:NewSpecialWarningGTFO(193235, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 --local yellDancingBlade				= mod:NewYell(193235)
 
 local timerSweepCD					= mod:NewCDTimer(16.9, 193092, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)

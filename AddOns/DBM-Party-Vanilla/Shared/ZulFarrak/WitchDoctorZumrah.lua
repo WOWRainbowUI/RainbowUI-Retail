@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(486, "DBM-Party-Vanilla", DBM:IsPostCata() and 15 or 20, 241)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(7271)
 mod:SetEncounterID(597)
@@ -16,8 +16,8 @@ mod:RegisterEventsInCombat(
 
 local warningWardZumrah				= mod:NewSpellAnnounce(11086, 2)
 
-local specWarnHealingWave			= mod:NewSpecialWarningInterrupt(12491, "HasInterrupt", nil, nil, 1, 2)
-local specWarnShadowBoltVolley		= mod:NewSpecialWarningInterrupt(15245, "HasInterrupt", nil, nil, 1, 2)
+local specWarnHealingWave			= mod:NewSpecialWarningInterrupt(12491, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnShadowBoltVolley		= mod:NewSpecialWarningInterrupt(15245, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerWardZumrahCD				= mod:NewAITimer(180, 11086, nil, nil, nil, 1, nil, DBM_COMMON_L.DAMAGE_ICON)
 local timerHealingWaveCD			= mod:NewAITimer(180, 12491, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)

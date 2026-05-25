@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("Zilbagob", "DBM-Party-Vanilla", 21)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetEncounterID(3029)
 mod:SetCreatureID(226922)
@@ -14,7 +14,7 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED 462272"
 )
 
-local specWarnGTFO = mod:NewSpecialWarningGTFO(462272, nil, nil, nil, 1, 8)
+local specWarnGTFO = mod:NewSpecialWarningGTFO(462272, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 function mod:SPELL_AURA_APPLIED(args)
 	if args:IsSpell(462272) and args:IsPlayer() and self:AntiSpam(2.5, 1) then

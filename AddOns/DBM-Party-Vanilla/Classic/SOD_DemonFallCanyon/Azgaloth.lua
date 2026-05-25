@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("Azgaloth", "DBM-Party-Vanilla", 21)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetEncounterID(3080)
 mod:SetCreatureID(232632)
@@ -27,7 +27,7 @@ mod:RegisterEventsInCombat(
 
 
 local warnShadow    = mod:NewCastAnnounce(470457, 3)
-local specWarnSlash = mod:NewSpecialWarningSoak(470280, nil, nil, nil, 2, 2)
+local specWarnSlash = mod:NewSpecialWarningSoak(470280, nil, nil, nil, 2, 2, nil, nil, "frontal")
 local timerSlash    = mod:NewCastTimer(470280)
 
 

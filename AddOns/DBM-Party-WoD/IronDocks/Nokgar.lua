@@ -4,7 +4,7 @@ local L		= mod:GetLocalizedStrings()
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 mod.upgradedMPlus = true
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(81297, 81305)
 mod:SetEncounterID(1749)
@@ -29,10 +29,10 @@ mod:RegisterEventsInCombat(
 local warnBloodLettingHowl				= mod:NewSpellAnnounce(164835, 3)
 local warnNokgar						= mod:NewSpellAnnounce(-10433, 3, "134170")
 
-local specWarnBurningArrows				= mod:NewSpecialWarningSpell(164635, nil, nil, nil, 2, 2)
-local specWarnBurningArrowsMove			= mod:NewSpecialWarningMove(164635, nil, nil, nil, 1, 8)
-local specWarnRecklessProvocation		= mod:NewSpecialWarningReflect(164426, nil, nil, nil, 1, 2)
-local specWarnRecklessProvocationEnd	= mod:NewSpecialWarningEnd(164426, nil, nil, nil, 1, 2)
+local specWarnBurningArrows				= mod:NewSpecialWarningSpell(164635, nil, nil, nil, 2, 2, nil, nil, "watchfeet")
+local specWarnBurningArrowsMove			= mod:NewSpecialWarningMove(164635, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
+local specWarnRecklessProvocation		= mod:NewSpecialWarningReflect(164426, nil, nil, nil, 1, 2, nil, nil, "stopattack")
+local specWarnRecklessProvocationEnd	= mod:NewSpecialWarningEnd(164426, nil, nil, nil, 1, 2, nil, nil, "safenow")
 
 local timerRecklessProvocationCD		= mod:NewCDTimer(42.5, 164426, nil, nil, nil, 5, nil, DBM_COMMON_L.DAMAGE_ICON)
 local timerRecklessProvocation			= mod:NewBuffActiveTimer(5, 164426, nil, nil, nil, 5, nil, DBM_COMMON_L.DAMAGE_ICON)

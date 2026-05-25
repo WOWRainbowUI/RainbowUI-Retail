@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(91004)
 mod:SetEncounterID(1791)
@@ -30,8 +30,8 @@ local warnStrikeofMountain			= mod:NewTargetAnnounce(216290, 2)
 local warnBellowofDeeps				= mod:NewSpellAnnounce(193375, 2)--Change to special warning if they become important enough to switch to
 local warnStanceofMountain			= mod:NewCountAnnounce(216249, 2)
 
-local specWarnSunder				= mod:NewSpecialWarningDefensive(198496, nil, nil, 2, 1, 2)
-local specWarnStrikeofMountain		= mod:NewSpecialWarningDodge(216290, nil, nil, nil, 1, 2)
+local specWarnSunder				= mod:NewSpecialWarningDefensive(198496, nil, nil, 2, 1, 2, nil, nil, "defensive")
+local specWarnStrikeofMountain		= mod:NewSpecialWarningDodge(216290, nil, nil, nil, 1, 2, nil, nil, "targetyou")
 --local yellStrikeofMountain			= mod:NewYell(216290)
 
 local timerSunderCD					= mod:NewCDTimer(7.5, 198496, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)

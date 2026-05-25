@@ -5,7 +5,7 @@ if not mod:IsClassic() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(28923)
 mod:SetEncounterID(1986)
@@ -18,7 +18,7 @@ mod:RegisterEventsInCombat(
 
 local warningNova	= mod:NewSpellAnnounce(52960, 3)
 
-local specWarnNova	= mod:NewSpecialWarningRun(52960, false, nil, nil, 4, 2)
+local specWarnNova	= mod:NewSpecialWarningRun(52960, false, nil, nil, 4, 2, nil, nil, "justrun")
 
 --local timerNovaCD	= mod:NewCDTimer(30, 52960, nil, nil, nil, 2)
 local timerAchieve	= mod:NewAchievementTimer(120, 1867)

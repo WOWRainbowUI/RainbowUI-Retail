@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(695, "DBM-Party-Vanilla", 7, 226)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(61412)
 mod:SetEncounterID(1444)
@@ -13,7 +13,7 @@ mod:RegisterEventsInCombat(
 	"SPELL_CAST_START 119300"
 )
 
-local specWarnTwistedElements			= mod:NewSpecialWarningInterrupt(119300, "HasInterrupt", nil, nil, 1, 2)
+local specWarnTwistedElements			= mod:NewSpecialWarningInterrupt(119300, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 function mod:SPELL_CAST_START(args)
 	if args.spellId == 119300 and self:CheckInterruptFilter(args.sourceGUID, false, true) then

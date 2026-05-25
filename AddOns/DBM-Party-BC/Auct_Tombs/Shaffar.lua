@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(18344)
 mod:SetEncounterID(1899)
@@ -21,7 +21,7 @@ mod:RegisterEventsInCombat(
 	"UNIT_SPELLCAST_SUCCEEDED"
 )
 
-local specWarnAdds	= mod:NewSpecialWarningAdds(32371, "-Healer", nil, nil, 1, 2)
+local specWarnAdds	= mod:NewSpecialWarningAdds(32371, "-Healer", nil, nil, 1, 2, nil, nil, "killmob")
 
 function mod:UNIT_SPELLCAST_SUCCEEDED(_, _, spellId)
 	if spellId == 32371 then

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2348, "DBM-Party-BfA", 11, 1178)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(144248)--Head Mechinist Sparkflux
 mod:SetEncounterID(2259)
@@ -27,8 +27,8 @@ local warnDiscomBomb				= mod:NewCountAnnounce(285454, 2)
 local warnSelfTrimmingHedge			= mod:NewCountAnnounce(294954, 2)
 local warnPlant						= mod:NewCountAnnounce(294853, 2)
 
-local specWarnFlameCannon			= mod:NewSpecialWarningCount(285440, nil, nil, nil, 2, 2)
-local specWarnDiscomBomb			= mod:NewSpecialWarningDispel(285454, "RemoveMagic", nil, nil, 2, 2)
+local specWarnFlameCannon			= mod:NewSpecialWarningCount(285440, nil, nil, nil, 2, 2, nil, nil, "aesoon")
+local specWarnDiscomBomb			= mod:NewSpecialWarningDispel(285454, "RemoveMagic", nil, nil, 2, 2, nil, nil, "helpdispel")
 --local specWarnGTFO				= mod:NewSpecialWarningGTFO(238028, nil, nil, nil, 1, 8)
 
 local timerDiscomBombCD				= mod:NewNextCountTimer(20.6, 285454, nil, nil, nil, 3)

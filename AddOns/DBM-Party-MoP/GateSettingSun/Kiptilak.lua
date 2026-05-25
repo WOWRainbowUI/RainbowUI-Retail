@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(56906)
 mod:SetEncounterID(1397)
@@ -23,7 +23,7 @@ local warnSabotage				= mod:NewTargetAnnounce(107268, 4)
 --local warnThrowExplosive		= mod:NewSpellAnnounce(102569, 3)--Doesn't show in chat/combat log, need transcriptor log
 --local warnWorldinFlame		= mod:NewSpellAnnounce(101591, 4)--^, triggered at 66% and 33% boss health.
 
-local specWarnSabotage			= mod:NewSpecialWarningYou(107268, nil, nil, nil, 1, 2)
+local specWarnSabotage			= mod:NewSpecialWarningYou(107268, nil, nil, nil, 1, 2, nil, nil, "targetyou")
 
 local timerSabotage				= mod:NewTargetTimer(5, 107268, nil, nil, nil, 5)
 local timerSabotageCD			= mod:NewNextTimer(12, 107268, nil, nil, nil, 3)

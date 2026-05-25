@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(44577)
 mod:SetEncounterID(1052)
@@ -19,7 +19,7 @@ mod:RegisterEventsInCombat(
 local warnShockwave 	= mod:NewCastAnnounce(83445, 3)
 local warnIntentions	= mod:NewTargetAnnounce(83113, 3)
 
-local specWarnDetonate	= mod:NewSpecialWarningDodge(91263, nil, nil, nil, 2, 2)
+local specWarnDetonate	= mod:NewSpecialWarningDodge(91263, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 
 local timerShockwaveCD	= mod:NewCDTimer(36, 83445, nil, nil, nil, 2)
 local timerShockwave	= mod:NewCastTimer(5, 83445)

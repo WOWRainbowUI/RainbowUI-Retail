@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1502, "DBM-Party-Legion", 8, 727)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(96756)
 mod:SetEncounterID(1822)
@@ -14,10 +14,10 @@ mod:RegisterEventsInCombat(
 
 local warnBane						= mod:NewSpellAnnounce(193460, 3)
 
-local specWarnDarkSlash				= mod:NewSpecialWarningDefensive(193211, nil, nil, nil, 3, 2)
-local specWarnScreams				= mod:NewSpecialWarningRun(193364, "Melee", nil, nil, 4, 2)
-local specWarnWinds					= mod:NewSpecialWarningSpell(193977, nil, nil, nil, 2, 2)
-local specAriseFallen				= mod:NewSpecialWarningSwitch(193566, "-Healer", nil, nil, 1, 2)
+local specWarnDarkSlash				= mod:NewSpecialWarningDefensive(193211, nil, nil, nil, 3, 2, nil, nil, "defensive")
+local specWarnScreams				= mod:NewSpecialWarningRun(193364, "Melee", nil, nil, 4, 2, nil, nil, "runout")
+local specWarnWinds					= mod:NewSpecialWarningSpell(193977, nil, nil, nil, 2, 2, nil, nil, "carefly")
+local specAriseFallen				= mod:NewSpecialWarningSwitch(193566, "-Healer", nil, nil, 1, 2, nil, nil, "mobkill")
 
 local timerDarkSlashCD				= mod:NewCDTimer(14.6, 193211, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 local timerScreamsCD				= mod:NewCDTimer(23, 193364, nil, "Melee", nil, 2)

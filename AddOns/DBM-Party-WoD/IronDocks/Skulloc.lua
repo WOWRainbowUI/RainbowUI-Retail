@@ -4,7 +4,7 @@ local L		= mod:GetLocalizedStrings()
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 mod.upgradedMPlus = true
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(83612)
 mod:SetEncounterID(1754)
@@ -27,10 +27,10 @@ local warnRapidFire			= mod:NewTargetNoFilterAnnounce(168398, 3)
 local warnBackdraft			= mod:NewCastAnnounce(169129, 4)
 local warnCannonBarrageEnd	= mod:NewEndAnnounce(168929, 1)
 
-local specWarnRapidFire		= mod:NewSpecialWarningMoveAway(168398, nil, nil, nil, 1, 2)
+local specWarnRapidFire		= mod:NewSpecialWarningMoveAway(168398, nil, nil, nil, 1, 2, nil, nil, "runout")
 local yellRapidFire			= mod:NewYell(168398)
-local specWarnGronSmash		= mod:NewSpecialWarningSpell(168227, nil, nil, nil, 2, 2)
-local specWarnCannonBarrage	= mod:NewSpecialWarningSpell(168929, nil, nil, nil, 3, 2)--Use the one time cast trigger instead of drycode when relogging
+local specWarnGronSmash		= mod:NewSpecialWarningSpell(168227, nil, nil, nil, 2, 2, nil, nil, "carefly")
+local specWarnCannonBarrage	= mod:NewSpecialWarningSpell(168929, nil, nil, nil, 3, 2, nil, nil, "findshelter")--Use the one time cast trigger instead of drycode when relogging
 
 local timerRapidFireCD		= mod:NewCDTimer(11.5, 168398, nil, nil, nil, 3)
 local timerRapidFire		= mod:NewTargetTimer(5, 168398, nil, "-Tank", nil, 5)

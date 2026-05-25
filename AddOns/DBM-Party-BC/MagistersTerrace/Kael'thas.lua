@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(24664)
 mod:SetEncounterID(1894)
@@ -29,8 +29,8 @@ mod:RegisterEventsInCombat(
 local WarnShockBarrior		= mod:NewTargetNoFilterAnnounce(46165, 3)
 local WarnGravityLapse		= mod:NewSpellAnnounce(44224, 2)
 
-local specwarnPyroblast		= mod:NewSpecialWarningInterrupt(36819, "HasInterrupt", nil, 2, 1, 2)
-local specwarnPhoenix		= mod:NewSpecialWarningSwitch(44194, "-Healer", nil, nil, 1, 2)
+local specwarnPyroblast		= mod:NewSpecialWarningInterrupt(36819, "HasInterrupt", nil, 2, 1, 2, nil, nil, "kickcast")
+local specwarnPhoenix		= mod:NewSpecialWarningSwitch(44194, "-Healer", nil, nil, 1, 2, nil, nil, "killmob")
 
 local timerPyroblast		= mod:NewCastTimer(4, 36819, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
 local timerShockBarrior		= mod:NewNextTimer(60, 46165, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)

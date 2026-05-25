@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(52258)
 mod:SetZone(859)
@@ -18,9 +18,9 @@ mod:RegisterEventsInCombat(
 local warnPursuit				= mod:NewTargetNoFilterAnnounce(96306, 4)
 local warnRupture				= mod:NewTargetNoFilterAnnounce(96619, 3)
 
-local specWarnPursuit			= mod:NewSpecialWarningRun(96306, nil, nil, 2, 4, 2)
-local specWarnRupture			= mod:NewSpecialWarningYou(96619, nil, nil, nil, 1, 2)
-local specWarnRuptureNear		= mod:NewSpecialWarningClose(96619, nil, nil, nil, 1, 2)
+local specWarnPursuit			= mod:NewSpecialWarningRun(96306, nil, nil, 2, 4, 2, nil, nil, "justrun")
+local specWarnRupture			= mod:NewSpecialWarningYou(96619, nil, nil, nil, 1, 2, nil, nil, "targetyou")
+local specWarnRuptureNear		= mod:NewSpecialWarningClose(96619, nil, nil, nil, 1, 2, nil, nil, "runaway")
 
 local timerPursuit				= mod:NewBuffActiveTimer(15, 96306, nil, nil, nil, 5)
 local timerPursuitCD			= mod:NewCDTimer(45, 96306, nil, nil, nil, 3)--Assumed, it's a very short fight.

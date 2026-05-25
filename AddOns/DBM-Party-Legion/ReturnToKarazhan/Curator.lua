@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(114462)
 mod:SetEncounterID(1964)
@@ -30,7 +30,7 @@ local warnAdds						= mod:NewSpellAnnounce(227267, 2)--if not cast too often mak
 local warnEvo						= mod:NewSpellAnnounce(227254, 1)
 local warnEvoOver					= mod:NewEndAnnounce(227254, 2)
 
-local specWarnPowerDischarge		= mod:NewSpecialWarningGTFO(227465, nil, nil, nil, 1, 8)
+local specWarnPowerDischarge		= mod:NewSpecialWarningGTFO(227465, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 local timerSummonAddCD				= mod:NewNextTimer(9.7, 227267, nil, nil, nil, 1)
 local timerPowerDischargeCD			= mod:NewCDTimer(12.2, 227465, nil, nil, nil, 3)

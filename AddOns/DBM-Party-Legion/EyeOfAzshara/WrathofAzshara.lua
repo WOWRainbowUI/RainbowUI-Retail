@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(96028)
 mod:SetEncounterID(1814)
@@ -21,8 +21,8 @@ mod:RegisterEventsInCombat(
 local warnMythicTornado				= mod:NewSpellAnnounce(192680, 3)--target scanning not available
 local warnArcaneBomb				= mod:NewTargetAnnounce(192706, 4)
 
-local specWarnMassiveDeluge			= mod:NewSpecialWarningDodge(192617, "Tank", nil, nil, 3, 2)
-local specWarnArcaneBomb			= mod:NewSpecialWarningMoveAway(192706, nil, nil, nil, 3, 2)
+local specWarnMassiveDeluge			= mod:NewSpecialWarningDodge(192617, "Tank", nil, nil, 3, 2, nil, nil, "shockwave")
+local specWarnArcaneBomb			= mod:NewSpecialWarningMoveAway(192706, nil, nil, nil, 3, 2, nil, nil, "runout")
 local yellArcaneBomb				= mod:NewYell(192706)
 
 local timerMythicTornadoCD			= mod:NewCDTimer(25, 192680, nil, nil, nil, 3)

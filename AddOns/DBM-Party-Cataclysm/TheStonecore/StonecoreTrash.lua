@@ -2,7 +2,7 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("StonecoreTrash", "DBM-Party-Cataclysm", 7)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 mod:SetZone(725)
@@ -30,7 +30,7 @@ mod:RegisterEvents(
 --local warnCyclone								= mod:NewTargetNoFilterAnnounce(88010, 4)
 local warnForceofEarth							= mod:NewCastAnnounce(81459, 4)
 
-local specWarnForceofEarth						= mod:NewSpecialWarningInterrupt(81459, "HasInterrupt", nil, nil, 1, 2)
+local specWarnForceofEarth						= mod:NewSpecialWarningInterrupt(81459, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 --local timerForceofEarthCD						= mod:NewCDNPTimer(14.1, 81459, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
 

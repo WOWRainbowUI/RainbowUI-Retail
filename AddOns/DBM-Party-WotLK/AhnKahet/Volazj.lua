@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(584, "DBM-Party-WotLK", 1, 271)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(29311)
 mod:SetEncounterID(1968)
@@ -26,7 +26,7 @@ end
 local warnShadowCrash			= mod:NewTargetAnnounce(62660, 4)
 local warningInsanity			= mod:NewCastAnnounce(57496, 3)--Not currently working, no CLEU for it
 
-local specWarnShadowCrash		= mod:NewSpecialWarningDodge(62660, nil, nil, nil, 1, 2)
+local specWarnShadowCrash		= mod:NewSpecialWarningDodge(62660, nil, nil, nil, 1, 2, nil, nil, "watchstep")
 local yellShadowCrash			= mod:NewYell(62660)
 
 local timerInsanity				= mod:NewCastTimer(5, 57496, nil, nil, nil, 6)

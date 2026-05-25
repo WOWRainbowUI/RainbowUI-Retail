@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(17941)
 mod:SetEncounterID(1939)
@@ -26,7 +26,7 @@ mod:RegisterEventsInCombat(
 local WarnStoneskinTotem		= mod:NewSpellAnnounce(31985, 2)
 local WarnHealingWard			= mod:NewSpellAnnounce(34980, 3)
 
-local specWarnCorruptedNova		= mod:NewSpecialWarningMove(31991, false, nil, nil, 1, 2)
+local specWarnCorruptedNova		= mod:NewSpecialWarningMove(31991, false, nil, nil, 1, 2, nil, nil, "runaway")
 
 function mod:SPELL_SUMMON(args)
 	if args.spellId == 31991 then

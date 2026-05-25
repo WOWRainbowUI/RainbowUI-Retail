@@ -2,7 +2,7 @@ local mod	= DBM:NewMod(104, "DBM-Party-Cataclysm", 9, 65)
 local L		= mod:GetLocalizedStrings()
 local wowToc = DBM:GetTOC()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 if (wowToc >= 100200) then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
@@ -45,10 +45,10 @@ if (wowToc >= 100200) then
 	local warnFoulBolt									= mod:NewSpellAnnounce(428889, 3, nil, "Tank")
 
 
-	local specWarnBlottingBarrage						= mod:NewSpecialWarningYou(428407, nil, nil, nil, 1, 2)
+	local specWarnBlottingBarrage						= mod:NewSpecialWarningYou(428407, nil, nil, nil, 1, 2, nil, nil, "targetyou")
 	local yellBlottingBarrage							= mod:NewShortYell(428407)
-	local specWarnPutridRoar							= mod:NewSpecialWarningCount(428868, nil, nil, nil, 2, 2)
-	local specWarnMurkSpew								= mod:NewSpecialWarningDefensive(428530, nil, nil, nil, 1, 2)
+	local specWarnPutridRoar							= mod:NewSpecialWarningCount(428868, nil, nil, nil, 2, 2, nil, nil, "aesoon")
+	local specWarnMurkSpew								= mod:NewSpecialWarningDefensive(428530, nil, nil, nil, 1, 2, nil, nil, "defensive")
 	--local specWarnGTFO								= mod:NewSpecialWarningGTFO(409058, nil, nil, nil, 1, 8)
 
 	local timerRP										= mod:NewRPTimer(68)
@@ -59,7 +59,7 @@ if (wowToc >= 100200) then
 	mod:AddTimerLine(DBM:EJ_GetSectionInfo(28246))
 	local warnCleansingFlux								= mod:NewTargetNoFilterAnnounce(428668, 1)
 
-	local specWarnCleansingFlux							= mod:NewSpecialWarningMoveTo(428668, nil, nil, nil, 1, 15)
+	local specWarnCleansingFlux							= mod:NewSpecialWarningMoveTo(428668, nil, nil, nil, 1, 15, nil, nil, "movetopool")
 	local yellCleansingFlux								= mod:NewShortYell(428668)
 
 	local timerCleansingFluxCD							= mod:NewNextTimer(30.3, 428668, nil, nil, nil, 5)
@@ -67,7 +67,7 @@ if (wowToc >= 100200) then
 	mod:AddTimerLine(DBM:EJ_GetSectionInfo(28238))
 	local warnDelugeofFilth								= mod:NewCountAnnounce(428594, 3)
 
-	local specWarnInkBlast								= mod:NewSpecialWarningInterrupt(428526, "HasInterrupt", nil, nil, 1, 2)
+	local specWarnInkBlast								= mod:NewSpecialWarningInterrupt(428526, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 	local timerDelugeofFilthCD							= mod:NewCDCountTimer(30.3, 428594, nil, nil, nil, 1)--30-31.5
 	local timerInkBlastCD								= mod:NewCDNPTimer(4.2, 428526, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--4.2-4.9 CD, nameplate only bar

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(487, "DBM-Party-Vanilla", DBM:IsPostCata() and 15 or 20, 241)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(7796, 7275)--nekrum-gutchewer, shadowpriest-sezzziz
 mod:SetEncounterID(598, 599)--Each boss has it's own encounter ID?
@@ -20,8 +20,8 @@ mod:RegisterEventsInCombat(
 
 local warningFeveredPlague			= mod:NewTargetNoFilterAnnounce(8600, 2, nil, "RemoveDisease")
 
-local specWarnRenew					= mod:NewSpecialWarningInterrupt(8362, "HasInterrupt", nil, nil, 1, 2)
-local specWarnHeal					= mod:NewSpecialWarningInterrupt(12039, "HasInterrupt", nil, nil, 1, 2)
+local specWarnRenew					= mod:NewSpecialWarningInterrupt(8362, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnHeal					= mod:NewSpecialWarningInterrupt(12039, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerRenewCD					= mod:NewAITimer(180, 8362, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON..DBM_COMMON_L.MAGIC_ICON)
 local timerHealCD					= mod:NewAITimer(180, 12039, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)

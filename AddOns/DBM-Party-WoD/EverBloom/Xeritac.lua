@@ -9,7 +9,7 @@ if (wowToc >= 100200) then
 	mod.sendMainBossGUID = true
 end
 
-mod:SetRevision("20260517213622")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(84550)
 mod:SetEncounterID(1752)
@@ -39,9 +39,9 @@ local warnToxicSpiderling			= mod:NewAddsLeftAnnounce(-10492, 2, "136113")
 local warnInhale					= mod:NewSpellAnnounce(169233, 3)
 local warnPhase2					= mod:NewPhaseAnnounce(2, 2, nil, nil, nil, nil, nil, 2)
 
-local specWarnVenomCrazedPaleOne	= mod:NewSpecialWarningSwitch(-10502, "-Healer", nil, nil, 1, 2)
-local specWarnGaseousVolley			= mod:NewSpecialWarningSpell(169382, nil, nil, nil, 2, 2)
-local specWarnToxicGas				= mod:NewSpecialWarningMove(169223, nil, nil, nil, 1, 8)
+local specWarnVenomCrazedPaleOne	= mod:NewSpecialWarningSwitch(-10502, "-Healer", nil, nil, 1, 2, nil, nil, "killmob")
+local specWarnGaseousVolley			= mod:NewSpecialWarningSpell(169382, nil, nil, nil, 2, 2, nil, nil, "watchstep")
+local specWarnToxicGas				= mod:NewSpecialWarningMove(169223, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 --local timerConsume					= mod:NewCastTimer(10, 169248, nil, nil, nil, 5, nil, DBM_COMMON_L.DAMAGE_ICON)--Maye add if easy to cancel
 

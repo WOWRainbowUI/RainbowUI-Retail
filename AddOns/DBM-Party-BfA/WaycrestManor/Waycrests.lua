@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(131527, 131545)
 mod:SetMainBossID(131545)
@@ -34,8 +34,8 @@ mod:RegisterEventsInCombat(
 local warnVirulentPathogen			= mod:NewTargetAnnounce(261440, 2)
 local warnVitalityTransfer			= mod:NewCountAnnounce(261446, 2)
 
-local specWarnDiscordantCadenza		= mod:NewSpecialWarningDodgeCount(268306, nil, nil, nil, 2, 2)
-local specWarnVirulentPathogen		= mod:NewSpecialWarningMoveAway(261440, nil, nil, nil, 1, 2)
+local specWarnDiscordantCadenza		= mod:NewSpecialWarningDodgeCount(268306, nil, nil, nil, 2, 2, nil, nil, "watchstep")
+local specWarnVirulentPathogen		= mod:NewSpecialWarningMoveAway(261440, nil, nil, nil, 1, 2, nil, nil, "scatter")
 local yellVirulentPathogen			= mod:NewShortYell(261440)
 local yellVirulentPathogenFades		= mod:NewShortFadesYell(261440)
 --local specWarnGTFO				= mod:NewSpecialWarningGTFO(238028, nil, nil, nil, 1, 8)

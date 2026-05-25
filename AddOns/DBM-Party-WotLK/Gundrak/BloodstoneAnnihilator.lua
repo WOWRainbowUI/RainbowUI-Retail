@@ -5,7 +5,7 @@ if not mod:IsClassic() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(29307)
 mod:SetEncounterID(1983)
@@ -20,7 +20,7 @@ mod:RegisterEventsInCombat(
 local warningStone			= mod:NewSpellAnnounce(54878, 3)
 local warningElemental		= mod:NewSpellAnnounce(54850, 3)
 
-local specWarnPurpleShit	= mod:NewSpecialWarningGTFO(59451, nil, nil, nil, 1, 8)
+local specWarnPurpleShit	= mod:NewSpecialWarningGTFO(59451, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 function mod:SPELL_CAST_START(args)
 	if args.spellId == 54850 then

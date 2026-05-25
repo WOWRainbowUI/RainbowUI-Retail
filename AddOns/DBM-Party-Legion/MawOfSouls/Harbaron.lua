@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1512, "DBM-Party-Legion", 8, 727)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(96754)
 mod:SetEncounterID(1823)
@@ -17,10 +17,10 @@ mod:RegisterEventsInCombat(
 
 local warnFragment				= mod:NewTargetAnnounce(194327, 3)
 
-local specWarnFragment			= mod:NewSpecialWarningSwitch(194327, "Dps", nil, nil, 1, 2)
-local specWarnServitor			= mod:NewSpecialWarningSwitch(194231, "-Healer", nil, nil, 1, 2)
-local specWarnVoidSnap			= mod:NewSpecialWarningInterrupt(194266, "HasInterrupt", nil, nil, 1, 2)
-local specWarnScythe			= mod:NewSpecialWarningDodge(194216, nil, nil, nil, 2, 2)
+local specWarnFragment			= mod:NewSpecialWarningSwitch(194327, "Dps", nil, nil, 1, 2, nil, nil, "mobkill")
+local specWarnServitor			= mod:NewSpecialWarningSwitch(194231, "-Healer", nil, nil, 1, 2, nil, nil, "bigmob")
+local specWarnVoidSnap			= mod:NewSpecialWarningInterrupt(194266, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnScythe			= mod:NewSpecialWarningDodge(194216, nil, nil, nil, 2, 2, nil, nil, "shockwave")
 
 local timerFragmentCD			= mod:NewCDTimer(30, 194327, nil, nil, nil, 3)
 local timerServitorCD			= mod:NewCDTimer(23, 194231, nil, nil, nil, 1)--23-30

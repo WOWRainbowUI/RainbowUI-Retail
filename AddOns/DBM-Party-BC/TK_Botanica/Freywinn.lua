@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 
 mod:SetCreatureID(17975)
@@ -23,8 +23,8 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED 34752"
 )
 
-local specWarnFreezingTouch	= mod:NewSpecialWarningDispel(34752, "MagicDispeller", nil, nil, 1, 2)
-local specWarnAdds			= mod:NewSpecialWarningAdds(34557, "-Healer", nil, nil, 1, 2)
+local specWarnFreezingTouch	= mod:NewSpecialWarningDispel(34752, "MagicDispeller", nil, nil, 1, 2, nil, nil, "dispelboss")
+local specWarnAdds			= mod:NewSpecialWarningAdds(34557, "-Healer", nil, nil, 1, 2, nil, nil, "killmob")
 
 function mod:SPELL_CAST_SUCCESS(args)
 	if args.spellId == 34557 then --Summon Frayer Protector

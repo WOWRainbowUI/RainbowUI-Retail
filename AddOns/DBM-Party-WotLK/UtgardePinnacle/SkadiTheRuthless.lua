@@ -5,7 +5,7 @@ if not mod:IsClassic() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(26693)
 mod:SetEncounterID(2029)
@@ -24,7 +24,7 @@ mod:RegisterEventsInCombat(
 local warnPhase2		= mod:NewPhaseAnnounce(2)
 local warningPoison		= mod:NewTargetNoFilterAnnounce(59331, 2, nil, "Healer")
 
-local specWarnWhirlwind	= mod:NewSpecialWarningRun(59322, nil, nil, 2, 4, 2)
+local specWarnWhirlwind	= mod:NewSpecialWarningRun(59322, nil, nil, 2, 4, 2, nil, nil, "runout")
 
 local timerPoison		= mod:NewTargetTimer(12, 59331, nil, "Healer", 2, 5, nil, DBM_COMMON_L.HEALER_ICON)
 local timerWhirlwindCD	= mod:NewCDTimer(23, 59322, nil, nil, nil, 2)

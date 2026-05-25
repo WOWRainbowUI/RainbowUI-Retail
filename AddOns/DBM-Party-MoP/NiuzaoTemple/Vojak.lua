@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(61634)
 mod:SetEncounterID(1502)
@@ -33,7 +33,7 @@ local warnBombard				= mod:NewSpellAnnounce(120200, 3)
 local warnDashingStrike			= mod:NewSpellAnnounce(120789, 3)
 local warnThousandBlades		= mod:NewSpellAnnounce(120759, 4)
 
-local specWarnThousandBlades	= mod:NewSpecialWarningRun(120759, "Melee", nil, 2, 4, 2)
+local specWarnThousandBlades	= mod:NewSpecialWarningRun(120759, "Melee", nil, 2, 4, 2, nil, nil, "justrun")
 
 --local timerWaveCD				= mod:NewTimer(12, "TimerWave", 69076)--Not wave timers in traditional sense. They are non stop, this is for when he activates certain mob types.
 local timerBombard				= mod:NewBuffActiveTimer(15, 120200, nil, nil, 6)

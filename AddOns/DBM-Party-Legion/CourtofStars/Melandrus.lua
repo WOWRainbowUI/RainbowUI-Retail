@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(104218)
 mod:SetEncounterID(1870)
@@ -25,10 +25,10 @@ mod:RegisterEvents(
 --]]
 local warnSurge						= mod:NewTargetAnnounce(209602, 4)
 
-local specWarnSurge					= mod:NewSpecialWarningYou(209602, nil, nil, nil, 1, 2)
+local specWarnSurge					= mod:NewSpecialWarningYou(209602, nil, nil, nil, 1, 2, nil, nil, "targetyou")
 local yellSurge						= mod:NewYell(209602)
-local specWarnSlicingMaelstrom		= mod:NewSpecialWarningSpell(209676, nil, nil, nil, 2, 2)
-local specWarnGale					= mod:NewSpecialWarningDodge(209628, nil, nil, nil, 2, 2)
+local specWarnSlicingMaelstrom		= mod:NewSpecialWarningSpell(209676, nil, nil, nil, 2, 2, nil, nil, "aesoon")
+local specWarnGale					= mod:NewSpecialWarningDodge(209628, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 
 local timerRP						= mod:NewRPTimer(32.9)
 local timerSurgeCD					= mod:NewCDTimer(12.1, 209602, nil, nil, nil, 3)

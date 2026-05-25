@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(126, "DBM-Party-Cataclysm", 4, 70)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(39788)
 mod:SetEncounterID(1075)
@@ -26,7 +26,7 @@ local warnBubble			= mod:NewTargetNoFilterAnnounce(77336, 3)
 local warnImpale			= mod:NewTargetNoFilterAnnounce(77235, 3)
 local warnInferno			= mod:NewSpellAnnounce(77241, 3)
 
-local specWarnAlphaBeams	= mod:NewSpecialWarningMove(76956, nil, nil, nil, 1, 8)
+local specWarnAlphaBeams	= mod:NewSpecialWarningMove(76956, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 local timerAlphaBeams		= mod:NewBuffActiveTimer(16, 76184, nil, nil, nil, 6)
 local timerAlphaBeamsCD		= mod:NewCDTimer(47, 76184, nil, nil, nil, 3)

@@ -1,6 +1,9 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r251](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r251) (2026-05-17)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r250...r251) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r252](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r252) (2026-05-23)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r251...r252) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- migrate remaining journal IDs to integer format  
+- Fix niche cases using "mm"  
+- Add voiceFile path to all specialwaring constructors  
+- Disable LuaLS warning  
+- Blizzard Bar Enhancement Update (#602)  

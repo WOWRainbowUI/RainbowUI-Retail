@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(528, "DBM-Party-BC", 1, 248)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(17308)
 mod:SetEncounterID(1891)
@@ -22,7 +22,7 @@ mod:RegisterEventsInCombat(
 
 local warnBane      = mod:NewTargetAnnounce(37566)
 
-local specwarnBane  = mod:NewSpecialWarningMoveAway(37566, nil, nil, nil, 1, 2)
+local specwarnBane  = mod:NewSpecialWarningMoveAway(37566, nil, nil, nil, 1, 2, nil, nil, "runout")
 local yellBane		= mod:NewYell(37566)
 
 local timerBane     = mod:NewTargetTimer(15, 37566, nil, nil, nil, 3)

@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("CreepingMalison", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetEncounterID(3146)
 --mod:SetCreatureID()
@@ -21,7 +21,7 @@ mod:RegisterEventsInCombat(
 -- This fight was completely free, just tank and spank.
 -- Without a Shaman tank you should probably burn the eggs to avoid adds, that creates some fire on the floor to watch out for.
 
-local specWarnGTFO	= mod:NewSpecialWarningGTFO(1222097, nil, nil, nil, 1, 8)
+local specWarnGTFO	= mod:NewSpecialWarningGTFO(1222097, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 function mod:SPELL_PERIODIC_DAMAGE(_, _, _, _, destGUID, _, _, _, spellId, spellName)
 	if spellId == 1222097 and destGUID == UnitGUID("player") and self:AntiSpam(3.5, "gtfo") then

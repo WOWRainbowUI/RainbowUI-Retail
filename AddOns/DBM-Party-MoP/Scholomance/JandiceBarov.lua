@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(59184)--59220 seem to be her mirror images
 mod:SetEncounterID(1427)
@@ -23,7 +23,7 @@ local warnWondrousRapidity		= mod:NewSpellAnnounce(114062, 3)
 local warnGravityFlux			= mod:NewTargetAnnounce(114059, 2)
 local warnWhirlofIllusion		= mod:NewSpellAnnounce(113808, 4)
 
-local specWarnWondrousRapdity	= mod:NewSpecialWarningDodge(114062, "Tank", nil, nil, 1, 2)--Frontal cone fixate attack, easily dodged (in fact if you don't, i imagine it'll wreck you on heroic)
+local specWarnWondrousRapdity	= mod:NewSpecialWarningDodge(114062, "Tank", nil, nil, 1, 2, nil, nil, "shockwave")--Frontal cone fixate attack, easily dodged (in fact if you don't, i imagine it'll wreck you on heroic, "shockwave")
 
 local timerWondrousRapidity		= mod:NewBuffFadesTimer(7.5, 114062)
 local timerWondrousRapidityCD	= mod:NewCDTimer(14, 114062, nil, "Tank", 2, 5)

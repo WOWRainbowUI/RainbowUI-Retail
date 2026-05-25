@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(421, "DBM-Party-Vanilla", DBM:IsPostCata() and 4 or 7, 231)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(6235)
 mod:SetEncounterID(mod:IsClassic() and 2770 or 380)
@@ -16,8 +16,8 @@ mod:RegisterEventsInCombat(
 
 local warningShock				= mod:NewSpellAnnounce(11084, 2, nil, "Tank|Healer")
 
-local specWarnMegavolt			= mod:NewSpecialWarningInterrupt(11082, "HasInterrupt", nil, nil, 1, 2)
-local specWarnChainBolt			= mod:NewSpecialWarningInterrupt(11085, "HasInterrupt", nil, nil, 1, 2)
+local specWarnMegavolt			= mod:NewSpecialWarningInterrupt(11082, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnChainBolt			= mod:NewSpecialWarningInterrupt(11085, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerMegavoltCD			= mod:NewAITimer(180, 11082, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
 local timerChainBoltCD			= mod:NewAITimer(180, 11085, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)

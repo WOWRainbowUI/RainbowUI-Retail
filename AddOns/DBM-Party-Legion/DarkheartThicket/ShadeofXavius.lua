@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(99192)
 mod:SetEncounterID(1839)
@@ -36,10 +36,10 @@ local warnParanoia					= mod:NewTargetAnnounce(200289, 3)
 local warnApocNightmare				= mod:NewSpellAnnounce(200050, 4)
 local warnFeedOnTheWeak				= mod:NewTargetNoFilterAnnounce(200238, 2)
 
-local specWarnFesteringRip			= mod:NewSpecialWarningDispel(200182, "RemoveMagic", nil, 2, 1, 2)
-local specWarnWakingNightmare		= mod:NewSpecialWarningMoveTo(200243, nil, nil, nil, 1, 2)
+local specWarnFesteringRip			= mod:NewSpecialWarningDispel(200182, "RemoveMagic", nil, 2, 1, 2, nil, nil, "helpdispel")
+local specWarnWakingNightmare		= mod:NewSpecialWarningMoveTo(200243, nil, nil, nil, 1, 2, nil, nil, "gathershare")
 local yellWakingNightmare			= mod:NewYell(200243, nil, nil, nil, "YELL")--Yell is standard for grou up
-local specWarnParanoia				= mod:NewSpecialWarningMoveAway(200289, nil, nil, nil, 1, 2)
+local specWarnParanoia				= mod:NewSpecialWarningMoveAway(200289, nil, nil, nil, 1, 2, nil, nil, "scatter")
 local yellParanoia					= mod:NewYell(200289)--Say is standard for avoid
 
 local timerFesteringRipCD			= mod:NewCDCountTimer(17, 200182, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.MAGIC_ICON)--17-21

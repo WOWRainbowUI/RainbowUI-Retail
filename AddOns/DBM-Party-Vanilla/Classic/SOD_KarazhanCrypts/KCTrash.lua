@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("KCTrash", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetZone(2875)
 
@@ -35,7 +35,7 @@ mod:RegisterEvents(
 
 
 -- Can't use the "block" here because it's not yet in Core. Maybe time to merge.
-local specWarnGTFO	= mod:NewSpecialWarningGTFO(1222939, nil, nil, nil, 1, 8)
+local specWarnGTFO	= mod:NewSpecialWarningGTFO(1222939, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 function mod:IsEasyDungeon()
 	return false -- Only loaded on SoD where this Dungeon is certainly not easy

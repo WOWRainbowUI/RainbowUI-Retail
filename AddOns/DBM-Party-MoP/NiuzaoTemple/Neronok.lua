@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(62205)
 mod:SetEncounterID(1464)
@@ -19,9 +19,9 @@ mod:RegisterEventsInCombat(
 
 local warnResin				= mod:NewTargetNoFilterAnnounce(121447, 4)
 
-local specWarnGustingWinds	= mod:NewSpecialWarningSpell(121282, nil, nil, nil, 2, 2)
-local specWarnResin			= mod:NewSpecialWarningYou(121447, nil, nil, nil, 1, 2)
-local specWarnCausticPitch	= mod:NewSpecialWarningMove(121443, nil, nil, nil, 1, 8)
+local specWarnGustingWinds	= mod:NewSpecialWarningSpell(121282, nil, nil, nil, 2, 2, nil, nil, "phasechange")
+local specWarnResin			= mod:NewSpecialWarningYou(121447, nil, nil, nil, 1, 2, nil, nil, "targetyou")
+local specWarnCausticPitch	= mod:NewSpecialWarningMove(121443, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 local timerResinCD			= mod:NewCDTimer(20, 121447, nil, nil, nil, 3)--20-25 sec variation
 

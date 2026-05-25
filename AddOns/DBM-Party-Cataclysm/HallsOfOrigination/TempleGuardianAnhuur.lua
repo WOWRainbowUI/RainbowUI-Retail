@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(124, "DBM-Party-Cataclysm", 4, 70)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(39425)
 mod:SetEncounterID(1080)
@@ -20,8 +20,8 @@ local warnShield				= mod:NewSpellAnnounce(74938, 3)
 local warnShieldSoon			= mod:NewSoonAnnounce(74938, 2)
 local warnReckoning				= mod:NewTargetNoFilterAnnounce(75592, 4)
 
-local specWarnLight				= mod:NewSpecialWarningMove(75117, nil, nil, nil, 1, 2)
-local specWarnDivineReckoning	= mod:NewSpecialWarningDispel(75592, "RemoveMagic", nil, 2, 1, 2)
+local specWarnLight				= mod:NewSpecialWarningMove(75117, nil, nil, nil, 1, 2, nil, nil, "watchfeet")
+local specWarnDivineReckoning	= mod:NewSpecialWarningDispel(75592, "RemoveMagic", nil, 2, 1, 2, nil, nil, "helpdispel")
 
 local timerReckoning			= mod:NewTargetTimer(8, 75592, nil, nil, nil, 5, nil, DBM_COMMON_L.MAGIC_ICON)
 

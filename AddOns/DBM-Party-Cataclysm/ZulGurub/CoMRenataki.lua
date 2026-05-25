@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(52269)
 mod:SetZone(859)
@@ -17,7 +17,7 @@ mod:RegisterEventsInCombat(
 
 local warnVanish			= mod:NewSpellAnnounce(96639, 3)
 
-local specWarnBlades		= mod:NewSpecialWarningRun(96646, nil, nil, 2, 4, 2)
+local specWarnBlades		= mod:NewSpecialWarningRun(96646, nil, nil, 2, 4, 2, nil, nil, "justrun")
 
 local timerBlades			= mod:NewBuffActiveTimer(11, 96646, nil, nil, nil, 2)--3sec cast + 8 sec duration
 local timerBladesCD			= mod:NewCDTimer(45, 96646, nil, nil, nil, 2)--Speculated, since log only cast it twice.

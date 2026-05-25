@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(24560)--24560 is main boss.
 mod:SetEncounterID(1895)
@@ -31,9 +31,9 @@ local warnRenew         = mod:NewTargetAnnounce(46192, 3, nil, false, 2)
 local warnSoC           = mod:NewTargetAnnounce(44141, 2, nil, false, 2)
 local warnPolymorph     = mod:NewTargetAnnounce(13323, 4)
 
-local specWarnFlashHeal	= mod:NewSpecialWarningInterrupt(17843, "HasInterrupt", nil, 3, 1, 2)
-local specWarnLHW		= mod:NewSpecialWarningInterrupt(46181, "HasInterrupt", nil, 3, 1, 2)
-local specWarnPWS		= mod:NewSpecialWarningDispel(44175, "MagicDispeller", nil, 2, 1, 2)
+local specWarnFlashHeal	= mod:NewSpecialWarningInterrupt(17843, "HasInterrupt", nil, 3, 1, 2, nil, nil, "kickcast")
+local specWarnLHW		= mod:NewSpecialWarningInterrupt(46181, "HasInterrupt", nil, 3, 1, 2, nil, nil, "kickcast")
+local specWarnPWS		= mod:NewSpecialWarningDispel(44175, "MagicDispeller", nil, 2, 1, 2, nil, nil, "dispelboss")
 
 function mod:SPELL_CAST_START(args)
 	local spellId = args.spellId

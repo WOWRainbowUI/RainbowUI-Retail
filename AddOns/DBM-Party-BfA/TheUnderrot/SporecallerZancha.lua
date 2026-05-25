@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2130, "DBM-Party-BfA", 8, 1022)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(131383)
 mod:SetEncounterID(2112)
@@ -29,9 +29,9 @@ mod:RegisterEventsInCombat(
 local warnUpheaval					= mod:NewTargetAnnounce(259718, 3)
 local warnVolatilePods				= mod:NewSpellAnnounce(273271, 3)
 
-local specWarnFesteringHarvest		= mod:NewSpecialWarningDodgeCount(259732, nil, nil, nil, 2, 2)
-local specWarnShockwave				= mod:NewSpecialWarningSpell(272457, "Tank", nil, nil, 1, 2)
-local specWarnUpheaval				= mod:NewSpecialWarningMoveAway(259718, nil, nil, nil, 1, 2)
+local specWarnFesteringHarvest		= mod:NewSpecialWarningDodgeCount(259732, nil, nil, nil, 2, 2, nil, nil, "watchorb")
+local specWarnShockwave				= mod:NewSpecialWarningSpell(272457, "Tank", nil, nil, 1, 2, nil, nil, "shockwave")
+local specWarnUpheaval				= mod:NewSpecialWarningMoveAway(259718, nil, nil, nil, 1, 2, nil, nil, "runout")
 local yellUpheaval					= mod:NewYell(259718)
 local yellUpheavalFades				= mod:NewShortFadesYell(259718)
 

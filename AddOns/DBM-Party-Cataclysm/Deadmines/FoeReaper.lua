@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,duos"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(43778)
 mod:SetEncounterID(1063, 2975, 2980)
@@ -25,8 +25,8 @@ local warnHarvest			= mod:NewTargetAnnounce(88495, 4)
 local warnEnrage			= mod:NewSpellAnnounce(88522, 4)
 local warnSpiritStrike		= mod:NewSpellAnnounce(59304, 3)
 
-local specWarnHarvest		= mod:NewSpecialWarningRun(88495, nil, nil, 2, 4, 2)
-local specWarnHarvestNear	= mod:NewSpecialWarningClose(88495, nil, nil, nil, 1, 2)
+local specWarnHarvest		= mod:NewSpecialWarningRun(88495, nil, nil, 2, 4, 2, nil, nil, "justrun")
+local specWarnHarvestNear	= mod:NewSpecialWarningClose(88495, nil, nil, nil, 1, 2, nil, nil, "runaway")
 
 local timerHarvest			= mod:NewCastTimer(5, 88495, nil, nil, nil, 3)
 local timerOverdrive		= mod:NewBuffActiveTimer(10, 88481, nil, nil, nil, 2)

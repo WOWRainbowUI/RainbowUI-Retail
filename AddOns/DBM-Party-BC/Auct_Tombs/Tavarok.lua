@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(18343)
 mod:SetEncounterID(1901)
@@ -29,7 +29,7 @@ mod:RegisterEventsInCombat(
 --TODO: Timers
 local WarnPrison		= mod:NewTargetAnnounce(32361, 3)
 
-local specWarnQuake		= mod:NewSpecialWarningSpell(33919, nil, nil, nil, 2, 2)
+local specWarnQuake		= mod:NewSpecialWarningSpell(33919, nil, nil, nil, 2, 2, nil, nil, "stunsoon")
 
 local timerPrisonCD		= mod:NewCDTimer(17.8, 32361, nil, nil, nil, 3)
 local timerPrison		= mod:NewTargetTimer(5, 32361, nil, nil, nil, 5)

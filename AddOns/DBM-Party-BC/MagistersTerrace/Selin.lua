@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(24723)
 mod:SetEncounterID(1897)
@@ -21,7 +21,7 @@ mod:RegisterEventsInCombat(
 	"SPELL_AURA_APPLIED 44320"
 )
 
-local specWarnChannel		= mod:NewSpecialWarning("warningFelCrystal", "-Healer", nil, nil, 1, 2)--(-5081)
+local specWarnChannel		= mod:NewSpecialWarning("warningFelCrystal", "-Healer", nil, nil, 1, 2, nil, nil, nil, nil, "targetchange")--(-5081, "targetchange")
 
 local timerChannelCD		= mod:NewTimer(47, "timerFelCrystal", 44320, nil, nil, 1)--(-5081)
 

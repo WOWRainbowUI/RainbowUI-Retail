@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(624, "DBM-Party-WotLK", 9, 282)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(27655)
 mod:SetEncounterID(2014)
@@ -15,7 +15,7 @@ mod:RegisterEventsInCombat(
 
 local warningTimeBomb		= mod:NewTargetNoFilterAnnounce(51121, 4)
 
-local specWarnExplosion		= mod:NewSpecialWarningMoveTo(51110, nil, nil, nil, 3, 2)
+local specWarnExplosion		= mod:NewSpecialWarningMoveTo(51110, nil, nil, nil, 3, 2, nil, nil, "findshelter")
 
 local timerTimeBomb			= mod:NewTargetTimer(6, 51121, nil, nil, nil, 5, nil, DBM_COMMON_L.HEALER_ICON)
 local timerExplosion		= mod:NewCastTimer(8, 51110, nil, nil, nil, 2, nil, DBM_COMMON_L.DEADLY_ICON)

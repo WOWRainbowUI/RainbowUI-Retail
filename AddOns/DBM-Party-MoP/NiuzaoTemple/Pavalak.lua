@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(61485)
 mod:SetEncounterID(1447)
@@ -20,8 +20,8 @@ mod:RegisterEventsInCombat(
 
 local warnBladeRush			= mod:NewSpellAnnounce(124283, 3)
 
-local specWarnTempest		= mod:NewSpecialWarningSpell(119875, "Healer", nil, nil, 2, 2)
-local specWarnBulwark		= mod:NewSpecialWarningSpell(119476, nil, nil, nil, 2, 2)
+local specWarnTempest		= mod:NewSpecialWarningSpell(119875, "Healer", nil, nil, 2, 2, nil, nil, "specialsoon")
+local specWarnBulwark		= mod:NewSpecialWarningSpell(119476, nil, nil, nil, 2, 2, nil, nil, "attackshield")
 
 local timerBladeRushCD		= mod:NewCDTimer(12, 124283, nil, nil, nil, 3)--12-20sec variation
 local timerTempestCD		= mod:NewCDTimer(43, 119875, nil, nil, nil, 2)--Tempest has a higher cast priority than blade rush, if it's do, it'll delay blade rush.

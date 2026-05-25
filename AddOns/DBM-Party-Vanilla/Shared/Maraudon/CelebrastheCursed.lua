@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(428, "DBM-Party-Vanilla", DBM:IsPostCata() and 6 or 8, 232)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(12225)
 mod:SetEncounterID(425)
@@ -19,7 +19,7 @@ mod:RegisterEventsInCombat(
 local warningEntanglingRoots		= mod:NewTargetNoFilterAnnounce(12747, 2)
 local warningCorruptForces			= mod:NewSpellAnnounce(21968, 2, nil, false)
 
-local specWarnWrath					= mod:NewSpecialWarningInterrupt(21807, "HasInterrupt", nil, nil, 1, 2)
+local specWarnWrath					= mod:NewSpecialWarningInterrupt(21807, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 function mod:SPELL_CAST_START(args)
 	if args:IsSpell(21807) then

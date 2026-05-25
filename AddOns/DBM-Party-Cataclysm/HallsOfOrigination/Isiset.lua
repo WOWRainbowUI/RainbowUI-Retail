@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(127, "DBM-Party-Cataclysm", 4, 70)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(39587)
 mod:SetEncounterID(1077)
@@ -19,7 +19,7 @@ local warnAstralRain	= mod:NewSpellAnnounce(74134, 3)
 local warnVeilSky		= mod:NewSpellAnnounce(74133, 3)
 local warnSplitSoon		= mod:NewAnnounce("WarnSplitSoon", 3)
 
-local specWarnSupernova	= mod:NewSpecialWarningLookAway(74136, nil, nil, nil, 1, 2)
+local specWarnSupernova	= mod:NewSpecialWarningLookAway(74136, nil, nil, nil, 1, 2, nil, nil, "turnaway")
 
 local timerAstralRain	= mod:NewBuffActiveTimer(8, 74134, nil, nil, nil, 2)
 local timerSupernova	= mod:NewCastTimer(3, 74136, nil, nil, nil, 2)

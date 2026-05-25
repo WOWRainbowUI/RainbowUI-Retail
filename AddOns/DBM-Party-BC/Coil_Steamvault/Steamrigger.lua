@@ -5,7 +5,7 @@ if mod:IsRetail() then
 	mod.statTypes = "normal,heroic,duos"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(17796)
 mod:SetEncounterID(1943)
@@ -26,7 +26,7 @@ mod:RegisterEventsInCombat(
 
 local WarnNet			= mod:NewTargetAnnounce(35107, 2)
 
-local specWarnSummon	= mod:NewSpecialWarning("warnSummon", "-Healer", nil, nil, 1, 2)--(-5999)
+local specWarnSummon	= mod:NewSpecialWarning("warnSummon", "-Healer", nil, nil, 1, 2, nil, nil, nil, nil, "killmob")--(-5999, "killmob")
 
 local timerNet			= mod:NewTargetTimer(6, 35107, nil, nil, nil, 3)
 

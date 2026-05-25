@@ -4,7 +4,7 @@ local Ohgan	= DBM:EJ_GetSectionInfo(2615)
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(52151)
 mod:SetEncounterID(1179)
@@ -27,8 +27,8 @@ local warnOhgan				= mod:NewSpellAnnounce(96724, 4)
 local warnFrenzy			= mod:NewSpellAnnounce(96800, 3)
 local warnRevive 			= mod:NewAnnounce("WarnRevive", 2, 96484, false)
 
-local specWarnSlam			= mod:NewSpecialWarningDodge(96740, nil, nil, nil, 1, 2)
-local specWarnOhgan			= mod:NewSpecialWarning("SpecWarnOhgan", nil, nil, nil, 1, 2)
+local specWarnSlam			= mod:NewSpecialWarningDodge(96740, nil, nil, nil, 1, 2, nil, nil, "shockwave")
+local specWarnOhgan			= mod:NewSpecialWarning("SpecWarnOhgan", nil, nil, nil, 1, 2, nil, nil, nil, nil, "bigmob")
 
 local timerSummonOhgan		= mod:NewNextTimer(20, 96717, nil, nil, nil, 1, nil, DBM_COMMON_L.DAMAGE_ICON)--Engage only
 local timerResOhgan			= mod:NewCDTimer(40, 96724, nil, nil, nil, 1, nil, DBM_COMMON_L.DAMAGE_ICON)--rez cd

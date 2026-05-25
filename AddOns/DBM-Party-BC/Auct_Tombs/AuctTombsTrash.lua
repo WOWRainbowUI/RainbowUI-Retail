@@ -1,7 +1,7 @@
 if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("AuctTombsTrash", "DBM-Party-BC", 8, 250)
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetZone(557)
 
@@ -15,8 +15,8 @@ mod:RegisterEvents(
 
 local warningCurseOfImpotence	= mod:NewTargetNoFilterAnnounce(34925, 2)
 
-local specWarnHeal				= mod:NewSpecialWarningInterrupt(34945, "HasInterrupt", nil, nil, 1, 2)
-local specWarnManaBurn			= mod:NewSpecialWarningInterrupt(15785, "HasInterrupt", nil, nil, 1, 2)
+local specWarnHeal				= mod:NewSpecialWarningInterrupt(34945, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnManaBurn			= mod:NewSpecialWarningInterrupt(15785, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 function mod:SPELL_AURA_APPLIED(args)
 	if args.spellId == 34925 then

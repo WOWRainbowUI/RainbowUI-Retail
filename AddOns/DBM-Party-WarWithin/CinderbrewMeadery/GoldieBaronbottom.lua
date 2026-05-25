@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2589, "DBM-Party-WarWithin", 7, 1272)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(218523)
 mod:SetEncounterID(2930)
@@ -41,11 +41,11 @@ local warnSpreadtheLove						= mod:NewCountAnnounce(435560, 3)
 local warnBurningRicochet					= mod:NewTargetNoFilterAnnounce(436644, 4)
 local cinderboom							= mod:NewSpellAnnounce(435797, 4)
 
-local specWarnLetItHail						= mod:NewSpecialWarningCount(435622, nil, nil, nil, 2, 2)
-local specWarnBurningRicochet				= mod:NewSpecialWarningYouPos(436644, nil, nil, nil, 1, 2)
+local specWarnLetItHail						= mod:NewSpecialWarningCount(435622, nil, nil, nil, 2, 2, nil, nil, "specialsoon")
+local specWarnBurningRicochet				= mod:NewSpecialWarningYouPos(436644, nil, nil, nil, 1, 2, nil, nil, "targetyou")
 local yellBurningRicochet					= mod:NewShortPosYell(436644)
 local yellBurningRicochetFades				= mod:NewIconFadesYell(436644)
-local specWarnCashCannon					= mod:NewSpecialWarningCount(436592, nil, nil, nil, 2, 2)
+local specWarnCashCannon					= mod:NewSpecialWarningCount(436592, nil, nil, nil, 2, 2, nil, nil, "carefly")
 --local specWarnGTFO						= mod:NewSpecialWarningGTFO(372820, nil, nil, nil, 1, 8)
 
 local timerLetItHailCD						= mod:NewNextCountTimer(55.5, 435622, nil, nil, nil, 2)

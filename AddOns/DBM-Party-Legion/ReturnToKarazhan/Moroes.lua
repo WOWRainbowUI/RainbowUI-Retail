@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(114312)
 mod:SetEncounterID(1961)
@@ -34,10 +34,10 @@ local warnHealingStream				= mod:NewCastAnnounce(227578, 4)
 local warnEmpoweredArms				= mod:NewTargetAnnounce(227616, 3)
 
 --Moroes
-local specWarnCoatCheck				= mod:NewSpecialWarningDefensive(227832, nil, nil, nil, 1, 2)
-local specWarnCoatCheckHealer		= mod:NewSpecialWarningDispel(227832, "RemoveMagic", nil, 2, 1, 2)
+local specWarnCoatCheck				= mod:NewSpecialWarningDefensive(227832, nil, nil, nil, 1, 2, nil, nil, "defensive")
+local specWarnCoatCheckHealer		= mod:NewSpecialWarningDispel(227832, "RemoveMagic", nil, 2, 1, 2, nil, nil, "dispelnow")
 --Lord Crispin Ference
-local specWarnWillBreaker			= mod:NewSpecialWarningSpell(227672, "Tank", nil, nil, 1, 2)
+local specWarnWillBreaker			= mod:NewSpecialWarningSpell(227672, "Tank", nil, nil, 1, 2, nil, nil, "shockwave")
 
 --Moroes
 local timerCoatCheckCD				= mod:NewNextTimer(32.7, 227832, nil, "Tank|Healer", nil, 5)

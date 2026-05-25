@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(631, "DBM-Party-WotLK", 12, 283)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(29314)
 mod:SetEncounterID(2663)
@@ -15,8 +15,8 @@ mod:RegisterEventsInCombat(
 local warningVoidShift			= mod:NewTargetNoFilterAnnounce(59743, 2)
 local warningShroudofDarkness	= mod:NewTargetNoFilterAnnounce(59745, 3)
 
-local specWarnVoidShifted		= mod:NewSpecialWarningYou(54343, nil, nil, nil, 1, 2)
-local specWarnShroud			= mod:NewSpecialWarningDispel(59745, "MagicDispeller", nil, nil, 1, 2)
+local specWarnVoidShifted		= mod:NewSpecialWarningYou(54343, nil, nil, nil, 1, 2, nil, nil, "targetyou")
+local specWarnShroud			= mod:NewSpecialWarningDispel(59745, "MagicDispeller", nil, nil, 1, 2, nil, nil, "dispelboss")
 
 local timerVoidShifted			= mod:NewTargetTimer(15, 54343, nil, nil, nil, 5)
 

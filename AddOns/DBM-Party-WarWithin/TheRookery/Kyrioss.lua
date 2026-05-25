@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2566, "DBM-Party-WarWithin", 3, 1268)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(209230)
 mod:SetEncounterID(2816)
@@ -31,10 +31,10 @@ mod:RegisterEventsInCombat(
 --local warnLightningDash					= mod:NewTargetNoFilterAnnounce(419870, 3)
 --local warnStormheart						= mod:NewCountAnnounce(444324, 3)
 
-local specWarnLightningTorrent				= mod:NewSpecialWarningDodgeCount(444123, nil, nil, nil, 1, 2)
-local specWarnLightningDash					= mod:NewSpecialWarningDodgeCount(419870, nil, nil, nil, 1, 2)
-local specWarnCrashingThunder				= mod:NewSpecialWarningDodgeCount(1214325, nil, nil, nil, 2, 2)
-local specWarnWildLightning					= mod:NewSpecialWarningDodgeCount(474018, nil, nil, nil, 2, 2)
+local specWarnLightningTorrent				= mod:NewSpecialWarningDodgeCount(444123, nil, nil, nil, 1, 2, nil, nil, "watchstep")
+local specWarnLightningDash					= mod:NewSpecialWarningDodgeCount(419870, nil, nil, nil, 1, 2, nil, nil, "watchstep")
+local specWarnCrashingThunder				= mod:NewSpecialWarningDodgeCount(1214325, nil, nil, nil, 2, 2, nil, nil, "watchstep")
+local specWarnWildLightning					= mod:NewSpecialWarningDodgeCount(474018, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 --local yellSLightningDash					= mod:NewYell(419870)
 --local specWarnGTFO						= mod:NewSpecialWarningGTFO(372820, nil, nil, nil, 1, 8)
 

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(1905, "DBM-Party-Legion", 12, 900)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(117193)
 mod:SetEncounterID(2055)
@@ -21,12 +21,12 @@ mod:RegisterEventsInCombat(
 --TODO, Fulminating and succulant lashers after first. Mythic pull logs I have too short
 local warnSpores					= mod:NewSpellAnnounce(236524, 2)
 
-local specWarnTimberSmash			= mod:NewSpecialWarningDefensive(235751, nil, nil, nil, 1, 2)
-local specWarnChokingVine			= mod:NewSpecialWarningRun(238598, nil, nil, nil, 4, 2)
-local specWarnSucculentSecretion	= mod:NewSpecialWarningMove(240065, nil, nil, nil, 1, 2)
-local specWarnFulminatingLashers	= mod:NewSpecialWarningSwitch(236527, "-Healer", nil, nil, 1, 2)
-local specWarnSucculentLashers		= mod:NewSpecialWarningSwitch(236639, "-Healer", nil, nil, 1, 2)
-local specWarnFixate				= mod:NewSpecialWarningRun(238674, nil, nil, nil, 4, 2)
+local specWarnTimberSmash			= mod:NewSpecialWarningDefensive(235751, nil, nil, nil, 1, 2, nil, nil, "carefly")
+local specWarnChokingVine			= mod:NewSpecialWarningRun(238598, nil, nil, nil, 4, 2, nil, nil, "runaway")
+local specWarnSucculentSecretion	= mod:NewSpecialWarningMove(240065, nil, nil, nil, 1, 2, nil, nil, "runaway")
+local specWarnFulminatingLashers	= mod:NewSpecialWarningSwitch(236527, "-Healer", nil, nil, 1, 2, nil, nil, "killmob")
+local specWarnSucculentLashers		= mod:NewSpecialWarningSwitch(236639, "-Healer", nil, nil, 1, 2, nil, nil, "killmob")
+local specWarnFixate				= mod:NewSpecialWarningRun(238674, nil, nil, nil, 4, 2, nil, nil, "justrun")
 local yellFixate					= mod:NewYell(238674)
 
 local timerTimberSmashCD			= mod:NewCDTimer(21.7, 235751, nil, "Tank", nil, 5, nil, DBM_COMMON_L.TANK_ICON, nil, 2, 4)

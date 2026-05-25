@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(523, "DBM-Party-BC", 7, 247)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(18371)
 mod:SetEncounterID(1890)
@@ -19,7 +19,7 @@ mod:RegisterEventsInCombat(
 
 local warnFocusFire		= mod:NewTargetAnnounce(32300, 3)
 
-local specWarnFocusFire	= mod:NewSpecialWarningDodge(32300, nil, nil, nil, 1, 2)
+local specWarnFocusFire	= mod:NewSpecialWarningDodge(32300, nil, nil, nil, 1, 2, nil, nil, "watchstep")
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(_, _, _, _, target)
 	local targetname = DBM:GetUnitFullName(target) or target

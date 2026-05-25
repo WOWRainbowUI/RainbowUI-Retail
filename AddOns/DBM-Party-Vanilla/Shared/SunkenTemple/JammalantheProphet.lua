@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(458, "DBM-Party-Vanilla", DBM:IsPostCata() and 12 or 17, 237)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(5710)--5711 Ogom the Wretched
 mod:SetEncounterID(488)
@@ -25,11 +25,11 @@ local warningHexofJammalan				= mod:NewTargetNoFilterAnnounce(12479, 2)
 local warningCurseofWeakness			= mod:NewTargetNoFilterAnnounce(12493, 2, nil, "RemoveCurse")
 local warningShadowWordPain				= mod:NewTargetNoFilterAnnounce(11639, 2, nil, "RemoveMagic")
 
-local specWarnHexofJammalan				= mod:NewSpecialWarningYou(12479, nil, nil, nil, 1, 2)
+local specWarnHexofJammalan				= mod:NewSpecialWarningYou(12479, nil, nil, nil, 1, 2, nil, nil, "targetyou")
 local yellHexofJammalan					= mod:NewYell(12479)
 local yellHexofJammalanFades			= mod:NewShortFadesYell(12479)--Requires BC and later, to distinquish 12479 vs 12480
 --Ogom
-local specWarnShadowBolt				= mod:NewSpecialWarningInterrupt(12471, "HasInterrupt", nil, nil, 1, 2)
+local specWarnShadowBolt				= mod:NewSpecialWarningInterrupt(12471, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 --local timerHealingWaveCD				= mod:NewAITimer(180, 12492, nil, nil, nil, 3)
 local timerEarthgrabTotemCD				= mod:NewAITimer(180, 8376, nil, nil, nil, 1)

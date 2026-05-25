@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2572, "DBM-Party-WarWithin", 4, 1269)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(210108)
 mod:SetEncounterID(2854)
@@ -33,11 +33,11 @@ local warnRefractingBeam					= mod:NewTargetNoFilterAnnounce(424795, 3)
 local warnSeismicReverberation				= mod:NewTargetNoFilterAnnounce(424889, 3, nil, "RemoveMagic|Tank")
 local warnEarthShield						= mod:NewTargetNoFilterAnnounce(424893, 3, nil, false)
 
-local specWarnRefractingBeam				= mod:NewSpecialWarningYou(424795, nil, nil, nil, 1, 2)
+local specWarnRefractingBeam				= mod:NewSpecialWarningYou(424795, nil, nil, nil, 1, 2, nil, nil, "laserrun")
 local yellRefractingBeam					= mod:NewYell(424795)
-local specWarnEarthShatterer				= mod:NewSpecialWarningCount(424879, nil, nil, nil, 2, 2)
-local specWarnSeismicSmash					= mod:NewSpecialWarningDefensive(424888, nil, nil, nil, 1, 2)
-local specWarnVolatileSpike					= mod:NewSpecialWarningCount(424903, nil, nil, nil, 2, 2)
+local specWarnEarthShatterer				= mod:NewSpecialWarningCount(424879, nil, nil, nil, 2, 2, nil, nil, "aesoon")
+local specWarnSeismicSmash					= mod:NewSpecialWarningDefensive(424888, nil, nil, nil, 1, 2, nil, nil, "defensive")
+local specWarnVolatileSpike					= mod:NewSpecialWarningCount(424903, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 --local specWarnGTFO						= mod:NewSpecialWarningGTFO(372820, nil, nil, nil, 1, 8)
 
 local timerRefractingBeamCD					= mod:NewCDCountTimer(10.9, 424795, nil, nil, nil, 3)--20 28 alternating

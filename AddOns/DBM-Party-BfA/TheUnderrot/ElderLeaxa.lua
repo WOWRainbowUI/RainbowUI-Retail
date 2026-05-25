@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2157, "DBM-Party-BfA", 8, 1022)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(131318)
 mod:SetEncounterID(2111)
@@ -15,9 +15,9 @@ mod:RegisterEventsInCombat(
 )
 
 --TODO, Blood mirror timer
-local specWarnBloodBolt				= mod:NewSpecialWarningInterrupt(260879, "HasInterrupt", nil, nil, 1, 2)
-local specWarnCreepingRot			= mod:NewSpecialWarningDodge(260894, nil, nil, nil, 2, 2)
-local specWarnSanguineFeast			= mod:NewSpecialWarningDodge(264757, nil, nil, nil, 2, 2)
+local specWarnBloodBolt				= mod:NewSpecialWarningInterrupt(260879, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnCreepingRot			= mod:NewSpecialWarningDodge(260894, nil, nil, nil, 2, 2, nil, nil, "watchwave")
+local specWarnSanguineFeast			= mod:NewSpecialWarningDodge(264757, nil, nil, nil, 2, 2, nil, nil, "watchstep")
 --local specWarnGTFO				= mod:NewSpecialWarningGTFO(238028, nil, nil, nil, 1, 8)
 
 --TODO: Use NewNextSourceTimer to split adds from boss

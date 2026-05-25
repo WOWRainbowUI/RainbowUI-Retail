@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2115, "DBM-Party-BfA", 7, 1012)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(129231)
 mod:SetEncounterID(2107)
@@ -22,7 +22,7 @@ local warnAxeriteCatalyst			= mod:NewCountAnnounce(259022, 2)--Cast often, so ge
 local warnPoropellantBlast			= mod:NewTargetNoFilterAnnounce(259940, 2)
 
 local specWarnChemBurn				= mod:NewSpecialWarningDispel(259853, "RemoveMagic", nil, 2, 1, 2)
-local specWarnPoropellantBlast		= mod:NewSpecialWarningYou(259940, nil, nil, nil, 1, 2)
+local specWarnPoropellantBlast		= mod:NewSpecialWarningYou(259940, nil, nil, nil, 1, 2, nil, nil, "targetyou")
 local yellPoropellantBlast			= mod:NewYell(259940)
 
 local timerAxeriteCatalystCD		= mod:NewCDCountTimer(53, 259022, nil, nil, nil, 3)

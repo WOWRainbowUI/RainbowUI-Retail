@@ -5,7 +5,7 @@ if not mod:IsClassic() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(36502)
 mod:SetEncounterID(2007)
@@ -22,9 +22,9 @@ local warnUnleashedSouls		= mod:NewSpellAnnounce(68939, 3)
 local warnWellofSouls			= mod:NewSpellAnnounce(68820, 3)
 local warnMirroredSoul			= mod:NewTargetAnnounce(69051, 4)
 
-local specwarnMirroredSoul		= mod:NewSpecialWarningReflect(69051, nil, nil, nil, 1, 2)
-local specwarnWailingSouls		= mod:NewSpecialWarningSpell(68899, nil, nil, nil, 2, 2)
-local specwarnPhantomBlast		= mod:NewSpecialWarningInterrupt(68982, "HasInterrupt", nil, nil, 1, 2)
+local specwarnMirroredSoul		= mod:NewSpecialWarningReflect(69051, nil, nil, nil, 1, 2, nil, nil, "stopattack")
+local specwarnWailingSouls		= mod:NewSpecialWarningSpell(68899, nil, nil, nil, 2, 2, nil, nil, "aesoon")
+local specwarnPhantomBlast		= mod:NewSpecialWarningInterrupt(68982, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerMirroredSoul			= mod:NewTargetTimer(8, 69051, nil, nil, nil, 3)
 local timerUnleashedSouls		= mod:NewBuffActiveTimer(5, 68939, nil, nil, nil, 2)

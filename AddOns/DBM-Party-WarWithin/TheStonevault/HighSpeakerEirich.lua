@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(2582, "DBM-Party-WarWithin", 4, 1269)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(213119)
 mod:SetEncounterID(2883)
@@ -32,9 +32,9 @@ mod:RegisterEventsInCombat(
 --]]
 local warnVoidCorruption					= mod:NewFadesAnnounce(427329, 1, nil, nil, nil, nil, nil, 2)
 
-local specWarnVoidCorruption				= mod:NewSpecialWarning("specWarnVoidCorruption", nil, nil, nil, 1, 15, nil, nil, 427329)
-local specWarnEntropicReckoning				= mod:NewSpecialWarningMoveAwayCount(427852, nil, nil, nil, 1, 15)
-local specWarnUnbridledVoid					= mod:NewSpecialWarningDodgeCount(427869, nil, nil, nil, 1, 15)
+local specWarnVoidCorruption				= mod:NewSpecialWarning("specWarnVoidCorruption", nil, nil, nil, 1, 15, nil, nil, 427329, nil, "riftdispel")
+local specWarnEntropicReckoning				= mod:NewSpecialWarningMoveAwayCount(427852, nil, nil, nil, 1, 15, nil, nil, "scatter")
+local specWarnUnbridledVoid					= mod:NewSpecialWarningDodgeCount(427869, nil, nil, nil, 1, 15, nil, nil, "frontal")
 --local yellSomeAbility						= mod:NewYell(372107)
 --local specWarnGTFO						= mod:NewSpecialWarningGTFO(372820, nil, nil, nil, 1, 8)
 

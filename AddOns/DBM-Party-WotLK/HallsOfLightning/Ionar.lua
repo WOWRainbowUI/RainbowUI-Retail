@@ -5,7 +5,7 @@ if not mod:IsClassic() then
 	mod.statTypes = "normal,heroic,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(28546)
 mod:SetEncounterID(1984)
@@ -23,7 +23,7 @@ local warningDisperseSoon	= mod:NewSoonAnnounce(52770, 2)
 local warningDisperse		= mod:NewSpellAnnounce(52770, 3)
 local warningOverload		= mod:NewTargetAnnounce(52658, 2)
 
-local specWarnOverload		= mod:NewSpecialWarningMoveAway(52658, nil, nil, nil, 1, 2)
+local specWarnOverload		= mod:NewSpecialWarningMoveAway(52658, nil, nil, nil, 1, 2, nil, nil, "runout")
 
 local timerOverload			= mod:NewTargetTimer(10, 52658, nil, nil, nil, 3)
 

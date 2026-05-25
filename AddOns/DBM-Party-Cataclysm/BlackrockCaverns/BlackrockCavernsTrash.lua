@@ -2,7 +2,7 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("BlackrockCavernsTrash", "DBM-Party-Cataclysm", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 mod:SetZone(645)
@@ -25,7 +25,7 @@ mod:RegisterEvents(
 
 local warnShadowPrison							= mod:NewTargetNoFilterAnnounce(76686, 3, nil, "Healer")
 
-local specWarnShadowPrison						= mod:NewSpecialWarningStopMove(76686, nil, nil, nil, 1, 2)--You warning not move away, because some strategies involve actually baiting charge into melee instead of out
+local specWarnShadowPrison						= mod:NewSpecialWarningStopMove(76686, nil, nil, nil, 1, 2, nil, nil, "stopmove")--You warning not move away, because some strategies involve actually baiting charge into melee instead of out
 --local yellnViciousAmbush						= mod:NewYell(388984)
 --local specWarnMonotonousLecture					= mod:NewSpecialWarningInterrupt(388392, "HasInterrupt", nil, nil, 1, 2)
 

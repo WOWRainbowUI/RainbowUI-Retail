@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(130, "DBM-Party-Cataclysm", 4, 70)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(39378)
 mod:SetEncounterID(1078)
@@ -19,7 +19,7 @@ local warnBlessing		= mod:NewSpellAnnounce(76355, 3)
 local warnLeap			= mod:NewSpellAnnounce(87653, 2)
 local warnSunStrike		= mod:NewSpellAnnounce(73872, 3)
 
-local specWarnSunOrb	= mod:NewSpecialWarningInterrupt(80352, "HasInterrupt", nil, nil, 1, 2)
+local specWarnSunOrb	= mod:NewSpecialWarningInterrupt(80352, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerBlessing		= mod:NewBuffActiveTimer(23, 76355, nil, nil, nil, 5)
 local timerSunStrike	= mod:NewCDTimer(27, 73872, nil, nil, nil, 3)

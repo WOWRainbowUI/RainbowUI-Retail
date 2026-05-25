@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(479, "DBM-Party-Vanilla", DBM:IsPostCata() and 14 or 19, 240)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(3673)
 mod:SetEncounterID(590)
@@ -17,7 +17,7 @@ mod:RegisterEventsInCombat(
 local warningDruidSlumber			= mod:NewTargetNoFilterAnnounce(8040, 2)
 local warningHealingTouch			= mod:NewCastAnnounce(23381, 2)
 
-local specWarnDruidsSlumber			= mod:NewSpecialWarningInterrupt(8040, "HasInterrupt", nil, nil, 1, 2)
+local specWarnDruidsSlumber			= mod:NewSpecialWarningInterrupt(8040, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerDruidsSlumberCD			= mod:NewAITimer(180, 8040, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON..DBM_COMMON_L.MAGIC_ICON)
 local timerHealingTouchCD			= mod:NewAITimer(180, 23381, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)

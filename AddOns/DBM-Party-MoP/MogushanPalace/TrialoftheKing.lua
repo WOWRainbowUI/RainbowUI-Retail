@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(61442, 61444, 61445)--61442 (Kuai the Brute), 61444 (Ming the Cunning), 61445 (Haiyan the Unstoppable)
 mod:SetEncounterID(1442)
@@ -30,8 +30,8 @@ local warnWhirlingDervish	= mod:NewSpellAnnounce(119981, 3)--Ming's Attack
 local warnTraumaticBlow		= mod:NewTargetNoFilterAnnounce(123655, 3, nil, "Healer")--Haiyan's Attack
 local warnConflag			= mod:NewTargetNoFilterAnnounce(120201, 3, nil, "Healer")--Haiyan's Attack
 
-local specWarnShockwave		= mod:NewSpecialWarningDodge(119922, nil, nil, nil, 1, 2)--Not sure if he always faced it toward tank, or did it blackhorn style, if it's blackhorn style this needs to be changed to a targetscan if possible
-local specWarnLightningBolt	= mod:NewSpecialWarningInterrupt(123654, false, nil, nil, 1, 2)
+local specWarnShockwave		= mod:NewSpecialWarningDodge(119922, nil, nil, nil, 1, 2, nil, nil, "shockwave")--Not sure if he always faced it toward tank, or did it blackhorn style, if it's blackhorn style this needs to be changed to a targetscan if possible
+local specWarnLightningBolt	= mod:NewSpecialWarningInterrupt(123654, false, nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerRP				= mod:NewCombatTimer(60)
 local timerRavageCD			= mod:NewCDTimer(20, 119946, nil, nil, nil, 3)

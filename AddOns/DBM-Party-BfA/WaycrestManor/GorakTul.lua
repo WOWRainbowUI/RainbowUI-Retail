@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(131864)
 mod:SetEncounterID(2117)
@@ -32,9 +32,9 @@ local warnDeathlens					= mod:NewCastAnnounce(268202, 2)
 local warnDeathlensTarget			= mod:NewTargetNoFilterAnnounce(268202, 4)
 local warnFire						= mod:NewSpellAnnounce(266198, 1)
 
-local specWarnSummonSlaver			= mod:NewSpecialWarningSwitchCount(266266, "-Healer", nil, nil, 1, 2)
-local specWarnDreadEssence			= mod:NewSpecialWarningCount(266181, nil, nil, nil, 2, 2)
-local specWarnDarkenedLightning		= mod:NewSpecialWarningInterruptCount(266225, "HasInterrupt", nil, nil, 1, 2)
+local specWarnSummonSlaver			= mod:NewSpecialWarningSwitchCount(266266, "-Healer", nil, nil, 1, 2, nil, nil, "killmob")
+local specWarnDreadEssence			= mod:NewSpecialWarningCount(266181, nil, nil, nil, 2, 2, nil, nil, "aesoon")
+local specWarnDarkenedLightning		= mod:NewSpecialWarningInterruptCount(266225, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerDarkenedLightningCD		= mod:NewCDCountTimer(14.1, 266225, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)--14-20
 local timerSummonSlaverCD			= mod:NewCDCountTimer(16, 266266, nil, nil, nil, 1)--16-22

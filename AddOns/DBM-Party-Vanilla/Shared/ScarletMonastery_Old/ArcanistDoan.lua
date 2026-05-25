@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("ArcanistDoan", "DBM-Party-Vanilla", DBM:IsPostCata() and 17 or 12)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(6487)
 mod:SetEncounterID(447)
@@ -19,7 +19,7 @@ local warningPolymorph				= mod:NewTargetNoFilterAnnounce(13323, 2)
 local warningSilence				= mod:NewCastAnnounce(8988, 2)
 local warningArcaneExplosion		= mod:NewSpellAnnounce(9433, 2, nil, false, 2)--Can be spammy if cast multiple times in succession
 
-local specWarnDetonation			= mod:NewSpecialWarningRun(9435, nil, nil, nil, 4, 2)
+local specWarnDetonation			= mod:NewSpecialWarningRun(9435, nil, nil, nil, 4, 2, nil, nil, "justrun")
 
 --local timerDetonationCD			= mod:NewCDTimer(180, 9435, nil, nil, nil, 2)
 local timerSilenceCD				= mod:NewVarTimer("v15.5-19", 8988, nil, nil, nil, 3, nil, DBM_COMMON_L.MAGIC_ICON)--15-19

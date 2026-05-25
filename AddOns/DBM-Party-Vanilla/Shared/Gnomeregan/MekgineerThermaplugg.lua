@@ -7,7 +7,7 @@ local isCata = (tempTOC >= 40400) and (tempTOC < 50000)
 local mod	= DBM:NewMod(422, "DBM-Party-Vanilla", (isCata or isRetail) and 4 or 7, 231)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(7800)
 mod:SetEncounterID(mod:IsClassic() and 2772 or 382)
@@ -37,7 +37,7 @@ local warningKnockAway, timerKnockAwayCD
 if isRetail or isCata then
 	warningPound				= mod:NewTargetNoFilterAnnounce(32346, 2)
 
-	specWarnSteamBlast			= mod:NewSpecialWarningInterrupt(93655, "HasInterrupt", nil, nil, 1, 2)
+	specWarnSteamBlast			= mod:NewSpecialWarningInterrupt(93655, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 	timerSteamBlastCD			= mod:NewAITimer(180, 93655, nil, nil, nil, 4, nil, DBM_COMMON_L.INTERRUPT_ICON)
 	timerPoundCD				= mod:NewAITimer(180, 74720, nil, "Tank|Healer", nil, 5, nil, DBM_COMMON_L.TANK_ICON)

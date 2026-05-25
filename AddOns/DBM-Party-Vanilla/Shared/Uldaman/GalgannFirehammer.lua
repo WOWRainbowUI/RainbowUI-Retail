@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(471, "DBM-Party-Vanilla", DBM:IsPostCata() and 13 or 18, 239)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(7291)
 mod:SetEncounterID(552)
@@ -15,8 +15,8 @@ mod:RegisterEventsInCombat(
 
 local warningFireNova				= mod:NewSpellAnnounce(11969, 2)
 
-local specWarnFlameSpike			= mod:NewSpecialWarningInterrupt(6725, "HasInterrupt", nil, nil, 1, 2)
-local specWarnFlameLash				= mod:NewSpecialWarningInterrupt(3356, "HasInterrupt", nil, nil, 1, 2)
+local specWarnFlameSpike			= mod:NewSpecialWarningInterrupt(6725, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnFlameLash				= mod:NewSpecialWarningInterrupt(3356, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerFireNovaCD				= mod:NewAITimer(180, 11969, nil, nil, nil, 2)
 

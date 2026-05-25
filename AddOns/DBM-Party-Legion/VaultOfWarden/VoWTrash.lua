@@ -2,7 +2,7 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("VoWTrash", "DBM-Party-Legion", 10)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 
@@ -17,11 +17,11 @@ mod:RegisterEvents(
 local warnTorment				= mod:NewTargetAnnounce(202615, 3)
 local warnNightmares			= mod:NewTargetAnnounce(193069, 4)
 
-local specWarnUnleashedFury		= mod:NewSpecialWarningSpell(196799, nil, nil, nil, 2, 2)
-local specWarnNightmares		= mod:NewSpecialWarningInterrupt(193069, "HasInterrupt", nil, nil, 1, 2)
+local specWarnUnleashedFury		= mod:NewSpecialWarningSpell(196799, nil, nil, nil, 2, 2, nil, nil, "aesoon")
+local specWarnNightmares		= mod:NewSpecialWarningInterrupt(193069, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 local yellNightmares			= mod:NewYell(193069)
 local yellTorment				= mod:NewYell(202615)
-local specWarnMeteor			= mod:NewSpecialWarningSpell(196249, nil, nil, nil, 1, 2)
+local specWarnMeteor			= mod:NewSpecialWarningSpell(196249, nil, nil, nil, 1, 2, nil, nil, "gathershare")
 
 function mod:SPELL_CAST_START(args)
 	if not self.Options.Enabled then return end

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(674, "DBM-Party-MoP", 9, 316)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(60040, 99999)--3977 is High Inquisitor Whitemane and 60040 is Commander Durand, we don't really need to add her ID, because we don't ever engage her, and he true death is at same time as her.
 mod:SetEncounterID(1425)
@@ -20,9 +20,9 @@ local warnFlashofSteel			= mod:NewSpellAnnounce(115627, 3)
 local warnDashingStrike			= mod:NewSpellAnnounce(115676, 3)
 local warnDeepSleep				= mod:NewSpellAnnounce(9256, 2)
 
-local specWarnMassRes			= mod:NewSpecialWarningInterrupt(113134, "HasInterrupt", nil, nil, 1, 2)
-local specWarnHeal				= mod:NewSpecialWarningInterrupt(12039, "HasInterrupt", nil, nil, 1, 2)
-local specWarnMC				= mod:NewSpecialWarningInterrupt(130857, "HasInterrupt", nil, nil, 1, 2)
+local specWarnMassRes			= mod:NewSpecialWarningInterrupt(113134, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnHeal				= mod:NewSpecialWarningInterrupt(12039, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
+local specWarnMC				= mod:NewSpecialWarningInterrupt(130857, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerFlashofSteel			= mod:NewCDTimer(26, 115627, nil, nil, nil, 3)--not confirmed.
 local timerDashingStrike		= mod:NewCDTimer(26, 115676, nil, nil, nil, 3)--not confirmed.

@@ -2,7 +2,7 @@ if not DBM:IsSeasonal("SeasonOfDiscovery") then return end
 local mod	= DBM:NewMod("Unkomon", "DBM-Party-Vanilla", 22)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetEncounterID(3152)
 --mod:SetCreatureID()
@@ -33,7 +33,7 @@ mod:RegisterEventsInCombat(
 local warnFrenzy	= mod:NewStackAnnounce(1221576, 2, nil, "Tank|Healer|RemoveEnrage")
 local warnDoom		= mod:NewAnnounce("WarnDoom", 1, 1221577, "RemoveCurse|Healer")
 
-local specWarnInterrupt = mod:NewSpecialWarningInterrupt(1220515, "HasInterrupt", nil, nil, 1, 2)
+local specWarnInterrupt = mod:NewSpecialWarningInterrupt(1220515, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 function mod:SPELL_AURA_APPLIED(args)
 	if args:IsSpell(1221576) then

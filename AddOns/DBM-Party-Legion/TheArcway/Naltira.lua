@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,mythic,challenge"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(98207)
 mod:SetEncounterID(1826)
@@ -27,9 +27,9 @@ mod:RegisterEventsInCombat(
 local warnBlink					= mod:NewTargetAnnounce(199811, 4)
 local warnWeb					= mod:NewTargetAnnounce(200284, 3)
 
-local specWarnBlink				= mod:NewSpecialWarningRun(199811, nil, nil, nil, 4, 2)
+local specWarnBlink				= mod:NewSpecialWarningRun(199811, nil, nil, nil, 4, 2, nil, nil, "runaway")
 local yellBlink					= mod:NewYell(199811, nil, false)
-local specWarnVenomGTFO			= mod:NewSpecialWarningMove(200040, nil, nil, nil, 1, 2)
+local specWarnVenomGTFO			= mod:NewSpecialWarningMove(200040, nil, nil, nil, 1, 2, nil, nil, "runaway")
 
 local timerBlinkCD				= mod:NewNextTimer(30, 199811, nil, nil, nil, 3)
 local timerWebCD				= mod:NewCDTimer(21.8, 200284, nil, nil, nil, 3)--21-26

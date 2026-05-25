@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "normal,heroic,mythic,challenge,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(75839)--Soul Construct
 mod:SetEncounterID(1686)
@@ -16,11 +16,11 @@ mod:RegisterEventsInCombat(
 	"SPELL_MISSED 161457"
 )
 
-local specWarnHolyShield		= mod:NewSpecialWarningTarget(153002, nil, nil, nil, 1, 2)
+local specWarnHolyShield		= mod:NewSpecialWarningTarget(153002, nil, nil, nil, 1, 2, nil, nil, "findshield")
 local yellHolyShield			= mod:NewYell(153002)
-local specWarnConsecreatedLight	= mod:NewSpecialWarningSpell(153006, nil, nil, nil, 3, 2)
-local specWarnFate				= mod:NewSpecialWarningSpell(157465, nil, nil, nil, 2, 2)
-local specWarnSanctifiedGround	= mod:NewSpecialWarningMove(161457, nil, nil, nil, 1, 8)
+local specWarnConsecreatedLight	= mod:NewSpecialWarningSpell(153006, nil, nil, nil, 3, 2, nil, nil, "findshelter")
+local specWarnFate				= mod:NewSpecialWarningSpell(157465, nil, nil, nil, 2, 2, nil, nil, "watchstep")
+local specWarnSanctifiedGround	= mod:NewSpecialWarningMove(161457, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 local timerHolyShieldCD			= mod:NewNextTimer(47, 153002, nil, nil, nil, 3, nil, nil, nil, 1, 4)
 local timerConsecratedLightCD	= mod:NewNextTimer(7, 153006, nil, nil, nil, 2, nil, DBM_COMMON_L.DEADLY_ICON, nil, 2, 4)

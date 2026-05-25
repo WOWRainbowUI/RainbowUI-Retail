@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(52053)
 mod:SetEncounterID(1181)
@@ -22,9 +22,9 @@ local warnZanzilFire		= mod:NewSpellAnnounce(96914, 3)
 local warnZanzilGas			= mod:NewSpellAnnounce(96338, 3)
 local warnGaze				= mod:NewTargetNoFilterAnnounce(96342, 3)
 
-local specWarnGaze			= mod:NewSpecialWarningRun(96342, nil, nil, nil, 4, 2)
-local specWarnToxic			= mod:NewSpecialWarning("SpecWarnToxic", nil, nil, nil, 8, 2)
-local specWarnFire			= mod:NewSpecialWarningMove(96916, nil, nil, nil, 1, 8)
+local specWarnGaze			= mod:NewSpecialWarningRun(96342, nil, nil, nil, 4, 2, nil, nil, "justrun")
+local specWarnToxic			= mod:NewSpecialWarning("SpecWarnToxic", nil, nil, nil, 8, 2, nil, nil, nil, nil, "useitem")
+local specWarnFire			= mod:NewSpecialWarningMove(96916, nil, nil, nil, 1, 8, nil, nil, "watchfeet")
 
 local timerZanzilGas		= mod:NewBuffActiveTimer(7, 96338, nil, nil, nil, 2)
 local timerGaze				= mod:NewTargetTimer(17, 96342, nil, nil, nil, 3)

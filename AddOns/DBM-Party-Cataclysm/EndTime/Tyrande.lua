@@ -3,7 +3,7 @@ local L		= mod:GetLocalizedStrings()
 
 mod.statTypes = "heroic,timewalker"
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(54544)
 mod:SetEncounterID(1884)
@@ -20,7 +20,7 @@ mod:RegisterEventsInCombat(
 local warnGuidance		= mod:NewSpellAnnounce(102472, 3)
 local warnGuidanceStack	= mod:NewCountAnnounce(102472, 2, nil, false)
 
-local specwarnStardust	= mod:NewSpecialWarningInterrupt(102173, "HasInterrupt", nil, nil, 1, 2)
+local specwarnStardust	= mod:NewSpecialWarningInterrupt(102173, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")
 
 local timerGuidance		= mod:NewCDTimer(8.4, 102472)--Iffy, and might be worth removing
 

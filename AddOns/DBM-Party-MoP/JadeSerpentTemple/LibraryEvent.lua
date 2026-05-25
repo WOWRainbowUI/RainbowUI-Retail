@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(59051, 59726, 58826)--59051 (Strife), 59726 (Anger), 58826 (Zao Sunseeker). This event has a random chance to be Zao (solo) or Anger and Strife (together)
 mod:SetEncounterID(1417)
@@ -29,8 +29,8 @@ mod:RegisterEvents(
 -------------------------------------------
 local warnIntensity			= mod:NewStackAnnounce(113315, 3)
 
-local specWarnIntensity		= mod:NewSpecialWarning("SpecWarnIntensity", "-Healer", nil, 2, 1, 2)
-local specWarnUltimatePower	= mod:NewSpecialWarningTarget(113309, nil, nil, nil, 2, 2)
+local specWarnIntensity		= mod:NewSpecialWarning("SpecWarnIntensity", "-Healer", nil, 2, 1, 2, nil, nil, nil, nil, "targetchange")
+local specWarnUltimatePower	= mod:NewSpecialWarningTarget(113309, nil, nil, nil, 2, 2, nil, nil, "aesoon")
 
 local timerRP				= mod:NewCombatTimer(17.4)
 local timerUltimatePower	= mod:NewTargetTimer(15, 113309, nil, nil, nil, 5)

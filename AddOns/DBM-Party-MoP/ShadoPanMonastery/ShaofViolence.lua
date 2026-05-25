@@ -5,7 +5,7 @@ if DBM:IsRetail() then
 	mod.statTypes = "normal,heroic,challenge,timewalker"
 end
 
-mod:SetRevision("20260315034941")
+mod:SetRevision("20260523021914")
 mod:DisableHardcodedOptions()
 mod:SetCreatureID(56719)
 mod:SetEncounterID(1305)
@@ -23,7 +23,7 @@ local warnDisorientingSmash		= mod:NewTargetAnnounce(106872, 2)
 local warnShaSpike				= mod:NewTargetAnnounce(106877, 3)
 local warnEnrage				= mod:NewSpellAnnounce(38166, 4)
 
-local specWarnShaSpike			= mod:NewSpecialWarningMoveAway(106877, nil, nil, nil, 1, 2)
+local specWarnShaSpike			= mod:NewSpecialWarningMoveAway(106877, nil, nil, nil, 1, 2, nil, nil, "runout")
 
 local timerDisorientingSmashCD	= mod:NewCDTimer(13, 106872, nil, nil, nil, 5, nil, DBM_COMMON_L.MAGIC_ICON..DBM_COMMON_L.HEALER_ICON)
 local timerShaSpikeCD			= mod:NewNextTimer(8.5, 106877, nil, nil, nil, 3)
