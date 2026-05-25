@@ -5,7 +5,7 @@ end
 
 local L = BR.L -- luacheck: ignore 211
 
--- Credit by Elnarfim
+-- Credit by neolhfs
 
 -- ============================================================================
 -- CATEGORY LABELS

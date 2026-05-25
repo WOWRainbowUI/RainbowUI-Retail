@@ -1055,24 +1055,38 @@ local function ResolveFrameTexture(frame)
     return GetBuffIcons(def)[1]
 end
 
----Re-fetch the Burning Rush icon after spell data settles.
----The warlock green-fire cosmetic override isn't applied yet at login, so
----C_Spell.GetSpellTexture returns the orange icon initially and the green
----variant only after data loads (see commit bdeaadb). Other buffs either have
----stable textures from frame creation or resolve their icon dynamically per
----render (consumables, dynamicIcon), so a broad cache wipe would briefly flash
----the wrong icon for them.
-local function RefreshBurningRushIcon()
-    local frame = buffFrames.burningRush
-    if not (frame and frame.icon and frame.buffDef) then
-        return
-    end
-    local def = frame.buffDef
-    spellTextureCache[def.spellID] = nil
-    def._iconsCache = nil
-    local texture = ResolveFrameTexture(frame)
-    if texture then
-        frame.icon:SetTexture(texture)
+---Invalidate the cached texture for a spell ID and re-resolve every buff
+---frame whose def uses it. Used after spell data settles to pick up cosmetic
+---overrides (e.g. warlock green fire on Burning Rush) that
+---C_Spell.GetSpellTexture doesn't return at login time. Consumable frames
+---paint bag-item icons per-render and don't reference these spell IDs, so
+---they're left alone - no flash.
+---@param spellID number
+local function InvalidateBuffIconBySpellID(spellID)
+    spellTextureCache[spellID] = nil
+    for _, frame in pairs(buffFrames) do
+        local def = frame.buffDef
+        if def and frame.icon then
+            -- def.spellID is SpellID (number|number[]); match either form so
+            -- a future multi-spell buff sharing this ID is also covered.
+            local sid = def.spellID
+            local matches = sid == spellID
+            if not matches and type(sid) == "table" then
+                for _, id in ipairs(sid) do
+                    if id == spellID then
+                        matches = true
+                        break
+                    end
+                end
+            end
+            if matches then
+                def._iconsCache = nil
+                local texture = ResolveFrameTexture(frame)
+                if texture then
+                    frame.icon:SetTexture(texture)
+                end
+            end
+        end
     end
 end
 
@@ -5005,9 +5019,17 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                     BR.SecureButtons.UpdateActionButtons(cat)
                 end
             end
-            -- Refresh Burning Rush icon after spell data settles (green-fire
-            -- cosmetic override isn't applied yet at login).
-            C_Timer.After(2, RefreshBurningRushIcon)
+            -- Re-resolve icons for spells with cosmetic overrides that aren't
+            -- applied yet at login (e.g. warlock green fire on Burning Rush).
+            -- Covers built-in self buff and custom buffs at the same spellID.
+            C_Timer.After(2, function()
+                for _, def in ipairs(SelfBuffs) do
+                    if def.key == "burningRush" then
+                        InvalidateBuffIconBySpellID(def.spellID)
+                        return
+                    end
+                end
+            end)
         end
         BR.SecureButtons.InvalidateConsumableCache()
         -- Instance entry can flip IsInGroup(2) without firing GROUP_ROSTER_UPDATE
