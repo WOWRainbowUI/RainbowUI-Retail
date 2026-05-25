@@ -351,6 +351,7 @@ local rules = {
 		[72] = { -- Fury Warrior
 			{
 				BuffDuration = 8,
+				AlternativeDurations = { 11 }, -- Invigorating Fury (+3s)
 				Cooldown = 108,
 				BigDefensive = true,
 				ExternalDefensive = false,
@@ -358,15 +359,6 @@ local rules = {
 				SpellId = 184364,
 				RequiresTalent = 184364,
 			}, -- Enraged Regeneration
-			{
-				BuffDuration = 11,
-				Cooldown = 108,
-				BigDefensive = true,
-				ExternalDefensive = false,
-				Important = true,
-				SpellId = 184364,
-				RequiresTalent = 184364,
-			}, -- Enraged Regeneration + duration talent
 			{
 				BuffDuration = 20,
 				Cooldown = 90,
@@ -433,28 +425,13 @@ local rules = {
 		[250] = { -- Blood Death Knight
 			{
 				BuffDuration = 10,
+				AlternativeDurations = { 12, 14 }, -- Goreringers Anguish rank 1 (+2s) / rank 2 (+4s)
 				Cooldown = 90,
 				BigDefensive = true,
 				ExternalDefensive = false,
 				Important = true,
 				SpellId = 55233,
 			}, -- Vampiric Blood
-			{
-				BuffDuration = 12,
-				Cooldown = 90,
-				BigDefensive = true,
-				ExternalDefensive = false,
-				Important = true,
-				SpellId = 55233,
-			}, -- Vampiric Blood + Goreringers Anguish rank 1 (+2s)
-			{
-				BuffDuration = 14,
-				Cooldown = 90,
-				BigDefensive = true,
-				ExternalDefensive = false,
-				Important = true,
-				SpellId = 55233,
-			}, -- Vampiric Blood + Goreringers Anguish rank 2 (+4s)
 		},
 		[256] = {
 			{
@@ -610,8 +587,17 @@ local rules = {
 				BigDefensive = false,
 				ExternalDefensive = false,
 				SpellId = 102558,
-			},
-		}, -- Guardian Druid: Incarnation: Guardian of Ursoc
+			}, -- Guardian Druid: Incarnation: Guardian of Ursoc
+			{
+				BuffDuration = 8,
+				AlternativeDurations = { 12 }, -- Improved Barkskin (+4s)
+				Cooldown = 34,
+				BigDefensive = true,
+				ExternalDefensive = false,
+				Important = true,
+				SpellId = 22812,
+			}, -- Guardian Druid: Barkskin (34s cooldown vs the 60s class-wide rule for other specs)
+		},
 		[105] = {
 			{
 				BuffDuration = 12,
@@ -730,60 +716,40 @@ local rules = {
 			}, -- Fiery Brand
 			{
 				BuffDuration = 15,
+				AlternativeDurations = { 20 }, -- Vengeful Beast (+5s)
 				Cooldown = 120,
 				Important = true,
 				BigDefensive = false,
 				ExternalDefensive = false,
 				SpellId = 187827,
 			}, -- Metamorphosis
-			{
-				BuffDuration = 20,
-				Cooldown = 120,
-				Important = true,
-				BigDefensive = false,
-				ExternalDefensive = false,
-				SpellId = 187827,
-			}, -- Metamorphosis +5s (Vengeful Beast)
 		},
 		[254] = {
 			{
 				BuffDuration = 15,
+				AlternativeDurations = { 17 }, -- +2s talent
 				Cooldown = 120,
 				Important = true,
 				BigDefensive = false,
 				ExternalDefensive = false,
 				SpellId = 288613,
 			}, -- Marksmanship Hunter: Trueshot
-			{
-				BuffDuration = 17,
-				Cooldown = 120,
-				Important = true,
-				BigDefensive = false,
-				ExternalDefensive = false,
-				SpellId = 288613,
-			}, -- Marksmanship Hunter: Trueshot +2s
 		},
 		[255] = { -- Survival Hunter
 			{
 				BuffDuration = 8,
+				AlternativeDurations = { 10 }, -- +2s talent
 				Cooldown = 90,
 				Important = true,
 				BigDefensive = false,
 				ExternalDefensive = false,
 				SpellId = 1250646,
 			}, -- Takedown
-			{
-				BuffDuration = 10,
-				Cooldown = 90,
-				Important = true,
-				BigDefensive = false,
-				ExternalDefensive = false,
-				SpellId = 1250646,
-			}, -- Takedown +2s
 		},
 		[261] = {
 			{
 				BuffDuration = 16,
+				AlternativeDurations = { 18, 20 }, -- set bonus +2s / +4s
 				Cooldown = 90,
 				Important = true,
 				BigDefensive = false,
@@ -793,28 +759,6 @@ local rules = {
 				CanCancelEarly = true,
 				MinCancelDuration = 11,
 			}, -- Subtlety Rogue: Shadow Blades
-			{
-				BuffDuration = 18,
-				Cooldown = 90,
-				Important = true,
-				BigDefensive = false,
-				ExternalDefensive = false,
-				SpellId = 121471,
-				ExcludeFromPrediction = true, -- Shadow Dance (also IMPORTANT) cannot be distinguished without duration
-				CanCancelEarly = true,
-				MinCancelDuration = 11,
-			}, -- Shadow Blades +2s (set bonus)
-			{
-				BuffDuration = 20,
-				Cooldown = 90,
-				Important = true,
-				BigDefensive = false,
-				ExternalDefensive = false,
-				SpellId = 121471,
-				ExcludeFromPrediction = true, -- Shadow Dance (also IMPORTANT) cannot be distinguished without duration
-				CanCancelEarly = true,
-				MinCancelDuration = 11,
-			}, -- Shadow Blades +4s (set bonus)
 		},
 		[1467] = {
 			{
@@ -880,11 +824,13 @@ local rules = {
 				RequiresTalent = 5576,
 				PvPOnly = true,
 				NoAura  = true,
+				ExcludeFromEnemyTracking = true,
 			}, -- Burrow
 		},
 		[262] = { -- Elemental Shaman
 			{
 				BuffDuration = 15,
+				AlternativeDurations = { 18 }, -- Preeminence (+3s)
 				Cooldown = 180,
 				Important = true,
 				BigDefensive = false,
@@ -893,25 +839,18 @@ local rules = {
 				RequiresTalent = 114050,
 			}, -- Ascendance
 			{
-				BuffDuration = 18,
-				Cooldown = 180,
-				Important = true,
-				BigDefensive = false,
-				ExternalDefensive = false,
-				SpellId = 114050,
-				RequiresTalent = 114050,
-			}, -- Ascendance +3s (Preeminence)
-			{
 				Cooldown = 120,
 				SpellId  = 409293,
 				RequiresTalent = 5574,
 				PvPOnly = true,
 				NoAura  = true,
+				ExcludeFromEnemyTracking = true,
 			}, -- Burrow
 		},
 		[263] = { -- Enhancement Shaman
 			{
 				BuffDuration = 8,
+				AlternativeDurations = { 10 }, -- Thorim's Invocation (+2s)
 				Cooldown = 60,
 				Important = true,
 				BigDefensive = false,
@@ -920,16 +859,6 @@ local rules = {
 				RequiresTalent = 384352,
 				ExcludeIfTalent = { 114051, 378270 },
 			}, -- Doomwinds (hidden if Ascendance or Deeply Rooted Elements talented)
-			{
-				BuffDuration = 10,
-				Cooldown = 60,
-				Important = true,
-				BigDefensive = false,
-				ExternalDefensive = false,
-				SpellId = 384352,
-				RequiresTalent = 384352,
-				ExcludeIfTalent = { 114051, 378270 },
-			}, -- Doomwinds +2s (Thorim's Invocation)
 			{
 				BuffDuration = 15,
 				Cooldown = 180,
@@ -945,6 +874,7 @@ local rules = {
 				RequiresTalent = 5575,
 				PvPOnly = true,
 				NoAura  = true,
+				ExcludeFromEnemyTracking = true,
 			}, -- Burrow
 		},
 	},
@@ -1065,20 +995,13 @@ local rules = {
 		DRUID = {
 			{
 				BuffDuration = 8,
+				AlternativeDurations = { 12 }, -- Improved Barkskin (+4s)
 				Cooldown = 60,
 				BigDefensive = true,
 				ExternalDefensive = false,
 				Important = true,
 				SpellId = 22812,
 			}, -- Barkskin
-			{
-				BuffDuration = 12,
-				Cooldown = 60,
-				BigDefensive = true,
-				ExternalDefensive = false,
-				Important = true,
-				SpellId = 22812,
-			}, -- Barkskin + Improved Barkskin (+4s)
 		},
 		ROGUE = {
 			{
@@ -1328,6 +1251,125 @@ function rules.GetSpellType(spellId)
 		return "Defensive"
 	end
 	return "Important"
+end
+
+-- Static spec ID -> class token mapping for every spec declared above.  A hardcoded table is used
+-- (rather than GetSpecializationInfoByID) because that API can return nil for newer or
+-- environment-dependent specs.  Lets callers recover an enemy's class from their spec when
+-- UnitClass is unavailable - notably during arena prep, before the unit tokens exist.
+local specToClass = {
+	[250]  = "DEATHKNIGHT", [251]  = "DEATHKNIGHT", [252]  = "DEATHKNIGHT",
+	[577]  = "DEMONHUNTER", [581]  = "DEMONHUNTER", [1480] = "DEMONHUNTER",
+	[102]  = "DRUID",       [103]  = "DRUID",        [104]  = "DRUID",       [105] = "DRUID",
+	[1467] = "EVOKER",      [1468] = "EVOKER",       [1473] = "EVOKER",
+	[253]  = "HUNTER",      [254]  = "HUNTER",       [255]  = "HUNTER",
+	[62]   = "MAGE",        [63]   = "MAGE",         [64]   = "MAGE",
+	[268]  = "MONK",        [269]  = "MONK",         [270]  = "MONK",
+	[65]   = "PALADIN",     [66]   = "PALADIN",      [70]   = "PALADIN",
+	[256]  = "PRIEST",      [257]  = "PRIEST",       [258]  = "PRIEST",
+	[259]  = "ROGUE",       [260]  = "ROGUE",        [261]  = "ROGUE",
+	[262]  = "SHAMAN",      [263]  = "SHAMAN",       [264]  = "SHAMAN",
+	[265]  = "WARLOCK",     [266]  = "WARLOCK",      [267]  = "WARLOCK",
+	[71]   = "WARRIOR",     [72]   = "WARRIOR",      [73]   = "WARRIOR",
+}
+
+---Returns the class token for a spec ID, or nil if the spec is unknown.
+---@param specId number?
+---@return string? classToken
+function rules.GetClassForSpec(specId)
+	return specId and specToClass[specId] or nil
+end
+
+-- Lazily built specId/classToken -> ordered, deduplicated spell ID list for GetTrackableSpellIds.
+local trackableSpellIdCache = {}
+
+---Returns true when a rule's ability is removed/replaced by a near-universal default talent, so it
+---should not appear in the enemy always-show list (e.g. Avenging Wrath when Radiant Glory - a spec
+---default - is assumed).  Enemy talents are unknowable, so the assumed-default build is the best
+---guess; the ability still tracks live (via the active-cooldown path) if the enemy actually casts it.
+local function ExcludedByDefaultTalent(rule, specId, classToken)
+	local excl = rule.ExcludeIfTalent
+	if not excl then return false end
+	local talents = addon.Modules.Cooldowns.Talents
+	if not (talents and talents.IsDefaultTalent) then return false end
+	if type(excl) == "table" then
+		for _, id in ipairs(excl) do
+			if talents:IsDefaultTalent(classToken, specId, id) then return true end
+		end
+		return false
+	end
+	return talents:IsDefaultTalent(classToken, specId, excl)
+end
+
+---Returns a deduplicated, ordered list of trackable spell IDs for the given spec and class.
+---Used by the EnemyCooldowns "always show" display to render every cooldown an enemy of that
+---spec might use.  Spec rules come first (more specific), class rules are appended; duplicate
+---SpellIds (talent/duration variants of the same ability) collapse to one entry.  Rules flagged
+---ExcludeFromEnemyTracking, or whose ExcludeIfTalent is a near-universal default (so the ability is
+---almost certainly replaced - e.g. Avenging Wrath under Radiant Glory), are skipped.  The returned
+---table is cached and must not be mutated.
+---@param specId number?
+---@param classToken string?
+---@return number[]
+function rules.GetTrackableSpellIds(specId, classToken)
+	local cacheKey = (specId or "?") .. ":" .. (classToken or "?")
+	local cached = trackableSpellIdCache[cacheKey]
+	if cached then
+		return cached
+	end
+
+	local result = {}
+	local seen = {}
+	local function addList(ruleList)
+		if not ruleList then return end
+		for _, rule in ipairs(ruleList) do
+			local id = rule.SpellId
+			if id and not seen[id] and not rule.ExcludeFromEnemyTracking
+			   and not ExcludedByDefaultTalent(rule, specId, classToken) then
+				seen[id] = true
+				result[#result + 1] = id
+			end
+		end
+	end
+	addList(specId and rules.BySpec[specId])
+	addList(classToken and rules.ByClass[classToken])
+
+	trackableSpellIdCache[cacheKey] = result
+	return result
+end
+
+---Test helper: clears the trackable-spell cache so it rebuilds against current (mock) talent
+---data.  Production code never needs this - default talents are static at runtime.
+function rules._TestResetTrackableCache()
+	for k in pairs(trackableSpellIdCache) do trackableSpellIdCache[k] = nil end
+end
+
+-- Lazily built set of spell IDs whose rule(s) carry ExcludeFromEnemyTracking.
+local enemyExcludedSpellIds = nil
+
+local function BuildEnemyExcludedSet()
+	enemyExcludedSpellIds = {}
+	local function scan(ruleList)
+		for _, rule in ipairs(ruleList) do
+			if rule.SpellId and rule.ExcludeFromEnemyTracking then
+				enemyExcludedSpellIds[rule.SpellId] = true
+			end
+		end
+	end
+	for _, ruleList in pairs(rules.BySpec) do scan(ruleList) end
+	for _, ruleList in pairs(rules.ByClass) do scan(ruleList) end
+end
+
+---Returns true if the given spell ID is flagged ExcludeFromEnemyTracking on any of its rules.
+---The aura-match path already drops these via RulePassesTalentGates, and the always-show list
+---skips them in GetTrackableSpellIds; this lets the signature-detection commit path (which builds
+---synthetic rules, e.g. Burrow) honour the same flag.
+---@param spellId number?
+---@return boolean
+function rules.IsExcludedFromEnemyTracking(spellId)
+	if not spellId then return false end
+	if not enemyExcludedSpellIds then BuildEnemyExcludedSet() end
+	return enemyExcludedSpellIds[spellId] == true
 end
 
 addon.Modules.Cooldowns.Rules = rules

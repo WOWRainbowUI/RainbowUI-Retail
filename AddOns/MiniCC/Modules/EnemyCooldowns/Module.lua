@@ -6,6 +6,7 @@ local moduleUtil = addon.Utils.ModuleUtil
 local moduleName = addon.Utils.ModuleName
 
 -- Loaded before this file in TOC order.
+local rules      = addon.Modules.Cooldowns.Rules
 local fcdTalents = addon.Modules.Cooldowns.Talents
 local fcdBrain   = addon.Modules.Cooldowns.Brain
 local SignatureDetector = addon.Modules.Cooldowns.SignatureDetector
@@ -19,6 +20,9 @@ addon.Modules.EnemyCooldownTrackerModule = M
 
 local arenaUnits = { "arena1", "arena2", "arena3" }
 local watchEntries = {}  ---@type table<string, EcdWatchEntry>  keyed by unit string
+-- Standalone container used only in Split mode for the offensive-cooldowns linear bar.
+-- Created lazily by EnsureSplitLinearEntry; not registered with the Observer (no aura tracking).
+local splitLinearEntry = nil  ---@type {Container: IconSlotContainer}?
 local testModeActive = false
 local editModeActive = false
 local observersEnabled = false  -- true once EnableAll() has been called; prevents redundant ForceFullUpdate on every Refresh
@@ -150,13 +154,25 @@ end
 -- Display dispatch
 
 ---Routes display updates based on the current display mode.
----In Linear mode, arena1's container shows combined cooldowns from all entries.
----In ArenaFrames mode, each entry's container is updated independently.
+---  Linear:      arena1's container shows combined cooldowns from all entries.
+---  ArenaFrames: each entry's container is updated independently.
+---  Split:       per-entry containers show non-offensive cooldowns; the standalone splitLinearEntry
+---               container shows offensive cooldowns aggregated across all entries.
 ---@param entry EcdWatchEntry
 local function TriggerDisplayUpdate(entry)
 	local options = GetOptions()
-	if options and options.DisplayMode == "Linear" then
+	if not options then
+		display:UpdateDisplay(entry)
+		return
+	end
+	local mode = options.DisplayMode
+	if mode == "Linear" then
 		display:UpdateLinearDisplay(watchEntries)
+	elseif mode == "Split" then
+		display:UpdateSplitArenaDisplay(entry)
+		if splitLinearEntry then
+			display:UpdateSplitLinearDisplay(splitLinearEntry, watchEntries)
+		end
 	else
 		display:UpdateDisplay(entry)
 	end
@@ -166,6 +182,11 @@ end
 
 ---Stores a committed cooldown entry on the watch entry and schedules its cleanup.
 local function CommitCooldown(entry, tracked, rule, measuredDuration)
+	-- Rules flagged ExcludeFromEnemyTracking are never tracked for enemies (e.g. Burrow, whose
+	-- talent we can't confirm on opponents).  The aura-match path already drops these, so this
+	-- guard exists for the signature-detection path, which commits synthetic rules directly.
+	if rules.IsExcludedFromEnemyTracking(rule.SpellId) then return end
+
 	-- Apply talent-based cooldown reduction and look up max charges.
 	local cooldown = rule.Cooldown
 	local maxCharges = nil
@@ -275,6 +296,8 @@ end
 
 -- Event-signature detection (Burrow + Emerald Communion).
 -- No talent checks on the enemy path: talent data is unavailable for arena opponents.
+-- Burrow never commits here because its rule is flagged ExcludeFromEnemyTracking (see
+-- CommitCooldown's guard); it remains here only so the detector's shared state stays consistent.
 local sd = SignatureDetector:New({
 	checkTalent  = false,
 	burrowCommit = function(unit, now, castTime)
@@ -561,31 +584,88 @@ local function EnsureAllEntries()
 	end
 end
 
+---Lazily creates the standalone Split-mode linear container.  Drag handling mirrors arena1's
+---Linear-mode setup and writes to the shared options.Linear position so dragging either surface
+---updates both.  The frame starts hidden; ShowHideAllEntries decides when to show it.
+local function EnsureSplitLinearEntry()
+	if splitLinearEntry then return splitLinearEntry end
+	local options = GetOptions()
+	if not options then return nil end
+	local size = tonumber(options.Icons.Size) or 24
+	local container = iconSlotContainer:New(
+		UIParent, 20, size, (options.IconSpacing or 2),
+		"Enemy CDs Split Linear", true, "Enemy CDs"
+	)
+	container.Frame:Hide()
+	splitLinearEntry = { Container = container }
+
+	-- Drag handling matches arena1's Linear-mode setup; SetMovable is toggled on/off in Refresh
+	-- based on test-mode + Split, identical to the existing Linear drag enable rule.
+	local frame = container.Frame
+	frame:EnableMouse(false)
+	frame:RegisterForDrag("LeftButton")
+	frame:SetScript("OnDragStart", function(f) f:StartMoving() end)
+	frame:SetScript("OnDragStop", function(f)
+		f:StopMovingOrSizing()
+		local opts = GetOptions()
+		if opts then
+			local point, relativeTo, relativePoint, x, y = f:GetPoint()
+			opts.Linear.Point         = point
+			opts.Linear.RelativeTo    = (relativeTo and relativeTo:GetName()) or "UIParent"
+			opts.Linear.RelativePoint = relativePoint
+			opts.Linear.X             = x
+			opts.Linear.Y             = y
+		end
+	end)
+	return splitLinearEntry
+end
+
+---Returns true when any arena opponent slot exists (or test mode is active).
+---Used to decide whether the combined linear bar should be visible.
+---During arena prep the unit tokens (arena1-3) don't exist yet, but opponent specs are already
+---known via GetNumArenaOpponentSpecs - treat that as "present" so the always-show icons can be
+---displayed in the prep room rather than only once the gates open.
+local function AnyArenaUnitExists()
+	return testModeActive
+		or UnitExists("arena1") or UnitExists("arena2") or UnitExists("arena3")
+		or (GetNumArenaOpponentSpecs and GetNumArenaOpponentSpecs() > 0)
+end
+
+---Returns true when a specific arena opponent slot is present: either its unit token exists (once
+---the gates open) or its spec is already known during the prep room (before the tokens exist).
+---@param unit string
+---@param index number  1=arena1, 2=arena2, 3=arena3
+local function ArenaUnitPresent(unit, index)
+	if UnitExists(unit) then
+		return true
+	end
+	local spec = GetArenaOpponentSpec and GetArenaOpponentSpec(index)
+	return spec ~= nil and spec > 0
+end
+
 ---Shows or hides each entry's container frame based on display mode and unit visibility.
+---  Linear:      only arena1 visible (acts as the combined bar); arena2/3 hidden; splitLinear hidden.
+---  ArenaFrames: per-unit containers visible (when arena frame addons supply the anchor); splitLinear hidden.
+---  Split:       per-unit containers visible (defensives); splitLinear visible (offensives).
 local function ShowHideAllEntries()
 	local options = GetOptions()
-	if not options then
-		return
-	end
+	if not options then return end
 
-	local isLinear = options.DisplayMode == "Linear"
+	local mode = options.DisplayMode
 
 	for i, unit in ipairs(arenaUnits) do
 		local entry = watchEntries[unit]
 		if entry then
 			local shouldShow
-			if isLinear then
+			if mode == "Linear" then
 				-- Only arena1's container is visible in Linear mode; it shows all enemies combined.
-				if i == 1 then
-					shouldShow = not editModeActive and (
-						testModeActive
-						or UnitExists("arena1") or UnitExists("arena2") or UnitExists("arena3")
-					)
-				else
-					shouldShow = false
-				end
+				shouldShow = i == 1 and not editModeActive and AnyArenaUnitExists()
 			else
-				shouldShow = not editModeActive and (testModeActive or UnitExists(unit))
+				-- ArenaFrames and Split share per-unit visibility based on the opponent slot being
+				-- present (existing unit token, or known spec during prep) plus an arena frame to
+				-- anchor to.  Using ArenaUnitPresent lets the per-unit containers show in the prep
+				-- room, before the unit tokens exist, the same way the linear bar already does.
+				shouldShow = not editModeActive and (testModeActive or ArenaUnitPresent(unit, i))
 				if shouldShow and not testModeActive then
 					shouldShow = display:GetArenaEnemyFrame(i) ~= nil
 				end
@@ -604,6 +684,21 @@ local function ShowHideAllEntries()
 			end
 		end
 	end
+
+	-- Standalone Split linear container: visible only in Split mode, when at least one arena
+	-- unit exists (or test mode is on) and we're not in Edit mode.
+	if splitLinearEntry then
+		local showSplitLinear = mode == "Split" and not editModeActive and AnyArenaUnitExists()
+		if showSplitLinear then
+			local wasHidden = not splitLinearEntry.Container.Frame:IsShown()
+			splitLinearEntry.Container.Frame:Show()
+			if wasHidden then
+				display:UpdateSplitLinearDisplay(splitLinearEntry, watchEntries)
+			end
+		else
+			splitLinearEntry.Container.Frame:Hide()
+		end
+	end
 end
 
 local function DisableAll()
@@ -615,6 +710,10 @@ local function DisableAll()
 		observer:Disable(entry)
 		entry.Container:ResetAllSlots()
 		entry.Container.Frame:Hide()
+	end
+	if splitLinearEntry then
+		splitLinearEntry.Container:ResetAllSlots()
+		splitLinearEntry.Container.Frame:Hide()
 	end
 end
 
@@ -651,6 +750,10 @@ local function ClearAllCooldownState()
 		entry.TrackedAuras    = {}
 		display:UpdateDisplay(entry)
 	end
+	-- Split linear container aggregates from watchEntries; redraw so it reflects the cleared state.
+	if splitLinearEntry then
+		display:UpdateSplitLinearDisplay(splitLinearEntry, watchEntries)
+	end
 end
 
 -- Module interface
@@ -672,9 +775,13 @@ function M:Refresh()
 	end
 
 	EnsureAllEntries()
+	if options.DisplayMode == "Split" then
+		EnsureSplitLinearEntry()
+	end
 	EnableAll()
 
 	local size = tonumber(options.Icons.Size) or 24
+	local spacing = options.IconSpacing or 2
 
 	local prevEntry
 	for i, unit in ipairs(arenaUnits) do
@@ -682,23 +789,38 @@ function M:Refresh()
 		if entry then
 			entry.Container:SetIconSize(size)
 			entry.Container:SetCount(20)
-			entry.Container:SetSpacing(options.IconSpacing or 2)
+			entry.Container:SetSpacing(spacing)
 			display:AnchorContainer(entry, i, prevEntry)
 			prevEntry = entry
 		end
 	end
 
+	if splitLinearEntry then
+		splitLinearEntry.Container:SetIconSize(size)
+		splitLinearEntry.Container:SetCount(20)
+		splitLinearEntry.Container:SetSpacing(spacing)
+		display:AnchorSplitLinearContainer(splitLinearEntry)
+	end
+
 	ShowHideAllEntries()
 
-	-- Keep arena1's drag state in sync with the current mode.
-	-- Dragging is only valid in test mode with Linear display.
-	-- Guard with IsMovable() to avoid calling EnableMouse on every Refresh - it is
-	-- expensive in WoW because it rebuilds the mouse-hit hierarchy each call.
+	-- Drag state: arena1 is the drag handle in Linear mode; splitLinearEntry is the drag handle
+	-- in Split mode.  Both write to options.Linear so the saved position is shared between modes.
+	-- Guarded with IsMovable() to avoid the expensive EnableMouse rebuild on every Refresh.
 	local entry1 = watchEntries["arena1"]
 	if entry1 then
 		local canDrag = testModeActive and options.DisplayMode == "Linear"
 		if entry1.Container.Frame:IsMovable() ~= canDrag then
 			local frame = entry1.Container.Frame
+			frame:SetMovable(canDrag)
+			frame:SetClampedToScreen(canDrag)
+			frame:EnableMouse(canDrag)
+		end
+	end
+	if splitLinearEntry then
+		local canDrag = testModeActive and options.DisplayMode == "Split"
+		if splitLinearEntry.Container.Frame:IsMovable() ~= canDrag then
+			local frame = splitLinearEntry.Container.Frame
 			frame:SetMovable(canDrag)
 			frame:SetClampedToScreen(canDrag)
 			frame:EnableMouse(canDrag)
@@ -726,6 +848,9 @@ function M:StopTesting()
 	display:SetTestMode(false)
 	for _, entry in pairs(watchEntries) do
 		entry.Container:ResetAllSlots()
+	end
+	if splitLinearEntry then
+		splitLinearEntry.Container:ResetAllSlots()
 	end
 	M:Refresh()
 end
@@ -797,6 +922,9 @@ function M:Init()
 				-- Arena match is starting: clear all tracked state so the previous match's
 				-- cooldowns don't bleed into the new one.
 				ClearAllCooldownState()
+				-- Then refresh so the prep-room icons are shown using the now-available opponent
+				-- spec data, rather than only once the gates open.
+				C_Timer.After(0, function() M:Refresh() end)
 			end
 		elseif event == "PLAYER_ENTERING_WORLD" then
 			-- Fired after every loading screen, including when leaving an arena.
@@ -818,6 +946,7 @@ function M:Init()
 		for _, entry in pairs(watchEntries) do
 			entry.Container.Frame:Hide()
 		end
+		if splitLinearEntry then splitLinearEntry.Container.Frame:Hide() end
 	end)
 	EventRegistry:RegisterCallback("EditMode.Exit", function()
 		editModeActive = false
