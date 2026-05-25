@@ -1,6 +1,6 @@
 ## Interface: 120005, 120001, 50503, 38000, 20505, 11508
 ## Title: Baganator
-## Version: 804
+## Version: 805
 ## Author: plusmouse
 ## OptionalDeps: Syndicator, Masque
 ## SavedVariables: BAGANATOR_CONFIG, BAGANATOR_DATA
@@ -38,6 +38,7 @@ Core\Initialize.lua
 Skins\Utilities.lua
 Skins\Initialize.lua
 Skins\Blizzard.lua
+Skins\BlizzardBlack.lua
 Skins\Dark.lua
 Skins\ElvUI.lua
 Skins\GW2.lua

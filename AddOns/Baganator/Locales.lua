@@ -389,6 +389,7 @@ L["DISABLED"] = "disabled"
 L["REMOVED_UNUSED_CATEGORIES"] = "All unused custom categories removed"
 
 L["BLIZZARD"] = "Blizzard"
+L["BLIZZARD_BLACK"] = "Blizzard Black"
 L["DARK"] = "Dark"
 L["GW2_UI"] = "GW2 UI"
 L["ELVUI"] = "ElvUI"

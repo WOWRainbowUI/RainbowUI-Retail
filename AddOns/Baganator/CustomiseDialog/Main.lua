@@ -407,7 +407,7 @@ local function GetTab(parent, text)
   if #parent.Tabs > 1 then
     tab:SetPoint("TOPLEFT", parent.Tabs[#parent.Tabs - 1], "TOPRIGHT", 5, 0)
   else
-    tab:SetPoint("TOPLEFT", 10, -20)
+    tab:SetPoint("TOPLEFT", 4 + addonTable.Constants.ButtonFrameOffset, -20)
   end
 
   local tabIndex = #parent.Tabs
