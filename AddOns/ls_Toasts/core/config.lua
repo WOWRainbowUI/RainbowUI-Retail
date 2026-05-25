@@ -493,7 +493,7 @@ function addon:CreateAceConfig()
 		},
 	}
 
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, C.options.args.profiles.name, addon:GetBlizzCategory():GetID(), "profiles")
+	-- LibStub("AceConfigDialog-3.0"):AddToBlizOptions(addonName, C.options.args.profiles.name, addon:GetBlizzCategory():GetID(), "profiles")
 
 	function addon:OpenAceConfig()
 		if not InCombatLockdown() then
