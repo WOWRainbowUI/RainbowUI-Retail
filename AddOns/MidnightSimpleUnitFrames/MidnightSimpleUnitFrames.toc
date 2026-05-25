@@ -3,7 +3,7 @@
 ## Notes: Lightweight unitframes with MSUF Edit Mode.
 ## Author: Mapko
 ## Category: Combat
-## Version: 5.41
+## Version: 5.52
 ## SavedVariables: MSUF_DB, MSUF_GlobalDB
 ## IconTexture: Interface\AddOns\MidnightSimpleUnitFrames\Media\MSUF_MinimapIcon.tga
 ## OptionalDeps: Masque, LibSharedMedia-3.0, Clique, WagoAnalytics
@@ -183,8 +183,12 @@ GroupFrames\MSUF_GF_Masque.lua
 Menu2\MSUF_Menu2_Support.lua
 Menu2\MSUF_Menu2_Theme.lua
 Menu2\MSUF_Menu2_Widgets.lua
+Menu2\MSUF_Menu2_PreviewHelpers.lua
+Menu2\MSUF_Menu2_Dropdowns.lua
 Menu2\MSUF_Menu2_Bindings.lua
 Menu2\MSUF_Menu2_Core.lua
+Menu2\MSUF_Menu2_Dashboard.lua
+Menu2\MSUF_Menu2_SearchData.lua
 Menu2\MSUF_Menu2_Search.lua
 Menu2\Pages\MSUF_Menu2_Unit.lua
 Menu2\Pages\MSUF_Menu2_UnitPreview.lua
