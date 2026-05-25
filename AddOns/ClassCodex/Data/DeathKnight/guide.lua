@@ -2,14 +2,14 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["DEATHKNIGHT"] = {
   ["blood"] = {
     label = "Blood Death Knight",
-    sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/blood/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/blood/midnight-season-1",
     priorities = {
       {
         heroTalent = "San'layn",
         context = "通用",
         stats = {
           { "加速" },
-          { "Mastery", "致命一擊", "臨機應變" },
+          { "精通", "致命一擊", "臨機應變" },
         },
       },
       {
@@ -17,29 +17,22 @@ ClassCodexData["DEATHKNIGHT"] = {
         context = "通用",
         stats = {
           { "致命一擊" },
-          { "Mastery", "臨機應變" },
+          { "精通", "臨機應變" },
           { "加速" },
         },
       },
     },
     talents = {
       {
-        heroTalent = "San'layn",
+        heroTalent = "Deathbringer",
         context = "團隊單目標",
-        recommended = true,
-        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYMmxAAAAAzMzMzMzMDzYMAgZmZGAAADMwMW0YZDklBsBYGmBAAmZghB",
+        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZZmZmmZxYmxMmBAAAAzMzMzMzMDzYMAgZmZGAAgxsNwAWCWGmADLAmhZAAMzAYYA",
       },
       {
         heroTalent = "Deathbringer",
         context = "傳奇+",
         recommended = true,
-        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMz0MLGjxMGAAAAwMmZmZmZYGjBAjZmZGAAgxsNwAWCWGmADLAmhZAAMzAYYA",
-      },
-      {
-        heroTalent = "San'layn",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMz0MLGjxMGAAAAwMmZmZmZYGjBAjZmZGAAADMwMW0YZBklBsBYGmBAAmZghB",
+        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMz0MLGjxMGAAAAwMmZmZmZYGjBAjZmZGAAgxsNwAWC2GmADLAmhZAAMzAYYA",
       },
       {
         heroTalent = "Deathbringer",
@@ -48,9 +41,16 @@ ClassCodexData["DEATHKNIGHT"] = {
         exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYmxMGAAAAwMzMzMzMDzYMAYMzMzAAAMmtBGwSwywEYYBghZAAMzAMYA",
       },
       {
-        heroTalent = "Deathbringer",
+        heroTalent = "San'layn",
         context = "團隊單目標",
-        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZZmZmmZxYmxMmBAAAAzMzMzMzMDzYMAgZmZGAAgxsNwAWCWGmADLAmhZAAMzAYYA",
+        recommended = true,
+        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYMmxAAAAAzMzMzMzMDzYMAgZmZGAAADMwMW0YZDklBsBYGmBAAmZghB",
+      },
+      {
+        heroTalent = "San'layn",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYMmxAAAAAmxMzMzMDzYMAYMzMzAAAYgBmxiGLLgsMgNAzYmBAAmZghB",
       },
       {
         heroTalent = "San'layn",
@@ -125,7 +125,7 @@ ClassCodexData["DEATHKNIGHT"] = {
       },
       {
         heroTalent = "Deathbringer",
-        context = "開場",
+        context = "起手",
         steps = {
           "{195292}",
           "While {195292} is in flight, pre-place {43265}",
@@ -138,7 +138,7 @@ ClassCodexData["DEATHKNIGHT"] = {
       },
       {
         heroTalent = "San'layn",
-        context = "開場",
+        context = "起手",
         steps = {
           "{195292}",
           "While {195292} is in flight, pre-place {43265}",
@@ -152,7 +152,7 @@ ClassCodexData["DEATHKNIGHT"] = {
   },
   ["frost"] = {
     label = "Frost Death Knight",
-    sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/frost/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/frost/midnight-season-1",
     priorities = {
       {
         heroTalent = "Deathbringer",
@@ -222,6 +222,7 @@ ClassCodexData["DEATHKNIGHT"] = {
           "{279302}",
           "{49020} if you have 2 {51128} stacks, or {441378}",
           "{49184} with {59057}",
+          "{1228433} when it procs",
           "{49143} to avoid Runic Power waste",
           "{49020} with {51128}",
           "{47568} to generate {51128}",
@@ -240,6 +241,7 @@ ClassCodexData["DEATHKNIGHT"] = {
           "{279302}",
           "{49020} if you have 2 {51128} stacks",
           "{49184} with {59057}",
+          "{1228433} when it procs",
           "{49143} to avoid Runic Power waste",
           "{49020} with {51128}",
           "{47568} to generate {51128}",
@@ -259,6 +261,7 @@ ClassCodexData["DEATHKNIGHT"] = {
           "{279302}",
           "{207230} if you have 2 {51128} stacks, or {441378}",
           "{49184} with {59057}",
+          "{1228433} when it procs",
           "{194913} to avoid Runic Power waste",
           "{207230} with {51128}",
           "{47568} to generate {51128}",
@@ -277,6 +280,7 @@ ClassCodexData["DEATHKNIGHT"] = {
           "{279302}",
           "{207230} if you have 2 {51128} stacks",
           "{49184} with {59057}",
+          "{1228433} when it procs",
           "{194913} to avoid Runic Power waste",
           "{207230} with {51128}",
           "{47568} to generate {51128}",
@@ -287,7 +291,7 @@ ClassCodexData["DEATHKNIGHT"] = {
       },
       {
         heroTalent = "Deathbringer",
-        context = "開場",
+        context = "起手",
         steps = {
           "{47568}",
           "{439843}",
@@ -300,7 +304,7 @@ ClassCodexData["DEATHKNIGHT"] = {
       },
       {
         heroTalent = "Rider of the Apocalypse",
-        context = "開場",
+        context = "起手",
         steps = {
           "{47568}",
           "{49020}",
@@ -315,7 +319,7 @@ ClassCodexData["DEATHKNIGHT"] = {
   },
   ["unholy"] = {
     label = "Unholy Death Knight",
-    sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/unholy/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/death-knight/unholy/midnight-season-1",
     priorities = {
       {
         heroTalent = "San'layn",
@@ -341,13 +345,9 @@ ClassCodexData["DEATHKNIGHT"] = {
     talents = {
       {
         heroTalent = "Rider of the Apocalypse",
-        context = "團隊單目標",
+        context = "通用",
+        recommended = true,
         exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDZgZjhGLAYGAGzMjZAmZmxYA",
-      },
-      {
-        heroTalent = "San'layn",
-        context = "團隊單目標",
-        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZMwAzYRjlFAbTsBgZAYMzMmBzMYGjB",
       },
       {
         heroTalent = "Rider of the Apocalypse",
@@ -356,35 +356,14 @@ ClassCodexData["DEATHKNIGHT"] = {
         exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMDDz2MzMTzmxMzMjBAAAAAAAgZGzYAwyMmZ2MzYMDYzsZYIDMbM0YBDYGAGzMjZAmZmxYA",
       },
       {
-        heroTalent = "San'layn",
-        context = "傳奇+",
-        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAwyMmZ2MzYMjBGYGbassAYZiNMgZAYMzMmBzMYGjB",
-      },
-      {
         heroTalent = "Rider of the Apocalypse",
         context = "探究",
         recommended = true,
-        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMDDz2MzMTzmxMzMjBAAAAAAAgZGzYAwyMmZ2MzYMDYzsZYIDMbM0YBDYGAGzMjZAmZmxYA",
-      },
-      {
-        heroTalent = "San'layn",
-        context = "探究",
-        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAwyMmZ2MzYMjBGYGbassAYZiNMgZAYMzMmBzMYGjB",
-      },
-      {
-        heroTalent = "Rider of the Apocalypse",
-        context = "通用",
-        recommended = true,
-        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDZgZjhGLAYGAGzMjZAmZmxYA",
+        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAw2MmZ2mZGjZAbmNDDZgZhhGLYAzAAzMjZAmZmxYA",
       },
       {
         heroTalent = "San'layn",
         context = "通用",
-        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZMwAzYRjlFAbTsBgZAYMzMmBzMYGjB",
-      },
-      {
-        heroTalent = "San'layn",
-        context = "團隊 MT",
         exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAwyMmZ2MzYMjBGYGbassAYZiNMgZAYMzMmBzMYGjB",
       },
     },
@@ -393,8 +372,16 @@ ClassCodexData["DEATHKNIGHT"] = {
         heroTalent = "All",
         context = "單目標",
         steps = {
+          "?(!1254552&!1271974): {77575} if {191587} is not active.",
+          "?(H\"San'layn\"): {85948} before {1233448} if you have 3 or fewer {1254252} stacks.",
+          "?(343294&H\"San'layn\"): {343294} if your target has less than 35% health.",
+          "?{1271974}: {1271974} just after {1233448} ends.",
+          "?{42650}: {42650} on cooldown.",
           "{1233448} on cooldown.",
+          "?(343294&1271974): {343294} when {1233448} has 5 seconds or less left.",
+          "?(343294&!1271974): {343294} on cooldown.",
           "{1247378} if {1233448} is active.",
+          "?{455397}: {455397} if its buff is about to expire.",
           "{47541} if you have a {49530} proc.",
           "{85948} if you have no {1254252} stacks.",
           "{55090} if you have {1254252} stacks.",
@@ -405,20 +392,38 @@ ClassCodexData["DEATHKNIGHT"] = {
         heroTalent = "All",
         context = "多目標",
         steps = {
+          "?(!1254552&!1271974): {77575} if {191587} is not active.",
+          "?(H\"San'layn\"): {85948} before {1233448} if you have 5 or fewer {1254252} stacks.",
+          "?{1271974}: {1271974} just after {1233448} ends.",
+          "?{42650}: {42650} on cooldown.",
           "{1233448} on cooldown.",
+          "?{455397}: {455397} if its buff is about to expire.",
+          "?{343294}: {343294} on cooldown.",
           "{1247378} if {1233448} is active.",
           "{43265} if you expect your targets to stay inside of it.",
           "{207317}.",
           "{85948} if you have no {1254252} stacks.",
           "{55090} if you have {1254252} stacks.",
+          "?(H\"San'layn\"): {207317}.",
         },
       },
       {
         heroTalent = "All",
-        context = "開場",
+        context = "起手",
         steps = {
+          "?(!1254552&!1271974): {77575}.",
+          "?{455397}: {85948}.",
+          "?{455397}: {455397}.",
+          "?{42650}: {42650}.",
           "{1233448}",
+          "?(1271974&H\"San'layn\"|!343294): {1247378}.",
+          "?(H\"San'layn\"&!377514): {433895}.",
+          "?(H\"San'layn\"): {433901}.",
+          "?(!1271974&377514): {343294}.",
           "{1242174}.",
+          "?(H\"San'layn\"&!377514): {433895}.",
+          "?(H\"San'layn\"): {433901}.",
+          "{1242174} 3 times.",
           "{1247378}.",
         },
       },

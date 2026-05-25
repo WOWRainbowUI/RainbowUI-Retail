@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["HUNTER"] = {
   ["beast-mastery"] = {
     label = "Beast Mastery Hunter",
-    sourceUrl = "https://www.wowhead.com/guide/classes/hunter/beast-mastery/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/hunter/beast-mastery/midnight-season-1",
     priorities = {
       {
         heroTalent = "Pack Leader",
@@ -27,23 +27,6 @@ ClassCodexData["HUNTER"] = {
     },
     talents = {
       {
-        heroTalent = "All",
-        context = "團隊單目標",
-        buildLabel = "Single-Target",
-        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGCDzCYbAA",
-      },
-      {
-        heroTalent = "Dark Ranger",
-        context = "傳奇+",
-        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBZsAAgZGLzMDzwMzMYGzMzwMmZGzMzYbmZYMDLDNDAAAAgZAAAYegxMDzMABMLgtBA",
-      },
-      {
-        heroTalent = "Pack Leader",
-        context = "探究",
-        buildLabel = "Delve Build",
-        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwGsAzwQDbAAYGzyMzsYGmZmZGzMMmxMMzMzYGmZGGzMMmmBAAAAAAAAMGzAMzCCWmZBsNA",
-      },
-      {
         heroTalent = "Pack Leader",
         context = "團隊單目標",
         recommended = true,
@@ -55,9 +38,21 @@ ClassCodexData["HUNTER"] = {
         exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsBzwQDbAAYGzyMzsYGmZmZGzMMmxMMzYmZGbzMDjZYZoZAAAAAAAAAzDMmZAzshAmFw2AA",
       },
       {
+        heroTalent = "Pack Leader",
+        context = "探究",
+        recommended = true,
+        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwGsAzwQDbAAYGzyMzsYGmZmZGzMMmxMMzMzYGmZGGzMMmmBAAAAAAAAMGzAMzCCWmZBsNA",
+      },
+      {
         heroTalent = "Dark Ranger",
         context = "團隊單目標",
         exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBZsAAgZYZmZMzwMmBzYmZGmxMzMzYGmZGGzMMmmBAAAAwMAAAMGzgZGgglZWAbDA",
+      },
+      {
+        heroTalent = "Dark Ranger",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBZsAAgZGLzMDzwMzMYGzMzwMmZGzMzYbmZYMDLDNDAAAAgZAAAYegxMDzMABMLgtBA",
       },
       {
         heroTalent = "Dark Ranger",
@@ -118,7 +113,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Pack Leader",
-        context = "單目標開場",
+        context = "Single-target 起手",
         steps = {
           "Before pull, apply {259558} on your priority target.",
           "As pull starts, cast {217200}.",
@@ -129,7 +124,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Dark Ranger",
-        context = "單目標開場",
+        context = "Single-target 起手",
         steps = {
           "Before pull, apply {259558} on your priority target.",
           "As pull starts, cast {466930}.",
@@ -146,7 +141,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Pack Leader",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "Before pull, apply {259558} on your priority target.",
           "As pull starts, cast {217200}.",
@@ -158,7 +153,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Dark Ranger",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "Before pull, apply {259558} on your priority target.",
           "As pull starts, cast {466930}.",
@@ -178,7 +173,7 @@ ClassCodexData["HUNTER"] = {
   },
   ["marksmanship"] = {
     label = "Marksmanship Hunter",
-    sourceUrl = "https://www.wowhead.com/guide/classes/hunter/marksmanship/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/hunter/marksmanship/midnight-season-1",
     priorities = {
       {
         heroTalent = "Sentinel",
@@ -203,22 +198,16 @@ ClassCodexData["HUNTER"] = {
     },
     talents = {
       {
-        heroTalent = "Dark Ranger",
+        heroTalent = "Sentinel",
         context = "團隊單目標",
-        buildLabel = "Single-Target",
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYLwsAAAAAAAAAMjZMDzYmZMDGTzYmZstxYmlZmZmZmlhZZwAAAMmZmZmZGgwsYA2YGA",
+        recommended = true,
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDzstxMzsMzMmZmFMLDmBAAMmZmZAMz0GziBYjZGD",
       },
       {
         heroTalent = "Sentinel",
-        context = "團隊單目標",
-        buildLabel = "Heavy Cleave/AoE",
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmtttZmhZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
-      },
-      {
-        heroTalent = "Dark Ranger",
         context = "傳奇+",
         recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYJwsAAAAAAAAAMjZmZsZMzMmhlx0MGMLbmZGmZGzMzCzsMMzAAAMjxMzMDYCYA2YmxA",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjtZMzMmhlx0MGMLbbzMDzMzMzMLMzywMDAAgZGDAzMtBGgNmZM",
       },
       {
         heroTalent = "Sentinel",
@@ -227,21 +216,14 @@ ClassCodexData["HUNTER"] = {
         exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjNjHYmxMsMmmxgZbbbmZYmZmZmZjZ2GmZAAAmxYAYmpNYGgNmZM",
       },
       {
-        heroTalent = "Sentinel",
-        context = "團隊 MT",
-        recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmtttZmhZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
-      },
-      {
-        heroTalent = "Sentinel",
-        context = "傳奇+",
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjtZMzMmhlx0MGMLbbzMDzMzMzMLMzywMDAAgZGDAzMtBGgNmZM",
+        heroTalent = "Dark Ranger",
+        context = "團隊單目標",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYLwsAAAAAAAAAMjZMDzYmZMDGTzYmZstxYmlZmZmZmlhZZwAAAMmZmZmZGgwsYA2YGA",
       },
       {
         heroTalent = "Dark Ranger",
-        context = "團隊 MT",
-        recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYLwsAAAAAAAAAMjZMDzYmZMDGTzYwstxMzsMzMzMzsgZZYmBAAMmZmZmZGwEmFDwGzA",
+        context = "傳奇+",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYJwsAAAAAAAAAMjZmZsZMzMmhlx0MGMLbmZGmZGzMzCzsMMzAAAMjxMzMDYCYA2YmxA",
       },
       {
         heroTalent = "Dark Ranger",
@@ -323,7 +305,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Dark Ranger",
-        context = "開場",
+        context = "起手",
         steps = {
           "Ensure {257284} is active on the highest-health target from you or another Hunter in the group!",
           "Pre-cast {19434} around 2.5 seconds before combat begins.",
@@ -341,7 +323,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Sentinel",
-        context = "開場",
+        context = "起手",
         steps = {
           "Ensure {257284} is active on the highest-health target from you or another Hunter in the group!",
           "Pre-cast {19434} around 2.5 seconds before combat begins.",
@@ -359,7 +341,7 @@ ClassCodexData["HUNTER"] = {
   },
   ["survival"] = {
     label = "Survival Hunter",
-    sourceUrl = "https://www.wowhead.com/guide/classes/hunter/survival/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/hunter/survival/midnight-season-1",
     priorities = {
       {
         heroTalent = "Pack Leader",
@@ -385,7 +367,6 @@ ClassCodexData["HUNTER"] = {
       {
         heroTalent = "Pack Leader",
         context = "團隊單目標",
-        recommended = true,
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWIbwMM0gFjZmZmxyAAAAAAgZMzMDz4BMjZwYaGAAAAAAjllZmZxMzMzYmxAmZDwsMjxM2MA",
       },
       {
@@ -395,25 +376,20 @@ ClassCodexData["HUNTER"] = {
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2ILwMM0gFzMzMzwyAAAAAAgZMzMjlZMmxMYMNDAAAADAMWWmZmFzMzYMmZAzsBAjxMzmBA",
       },
       {
-        heroTalent = "Sentinel",
-        context = "傳奇+",
-        exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNzMzMm5BWGAAAAAAMjZmZsMjxMmBjpZAAAAYAgxy2MzDsYmZGjxMDAzwGYMmZ2MA",
-      },
-      {
         heroTalent = "Pack Leader",
         context = "探究",
-        recommended = true,
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2ILwMM0gFzMzMzwyAAAAAAgZmZmZYGDjZGGTzAAAAwAAjllZmZxMzM8AjxAmZDAzYMzsZA",
       },
       {
         heroTalent = "Sentinel",
         context = "團隊單目標",
+        recommended = true,
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNjZmxMPwyAAAAAAgZMzMDz4BMjZwYaGAAAAAAjltZmZxMzMzYmxAwMsxsMjxM2MA",
       },
       {
         heroTalent = "Sentinel",
-        context = "探究",
-        exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNzMzMzwyAAAAAAgZmZmZYGDjZGGTzAAAAwAAjllZmZxMzM8AjxAwMsBzYMzsZA",
+        context = "傳奇+",
+        exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNzMzMm5BWGAAAAAAMjZmZsMjxMmBjpZAAAAYAgxy2MzDsYmZGjxMDAzwGYMmZ2MA",
       },
     },
     rotation = {
@@ -423,10 +399,10 @@ ClassCodexData["HUNTER"] = {
         steps = {
           "{257284} if it is not yet active.",
           "{259489} whenever any of the {471878} beasts are available to summon, without wasting any {260285} stacks. .",
-          "{259489} once before entering {1250646} to maximise {260285} stacks.",
-          "Prepare to cast {1250646}: Continue using {260285} spenders (not generators) following the priority below until either of the following occurs: - You run out of {260285} stacks. - You run out of focus. Then, cast {1250646}.",
-          "{1250646}.",
-          "{1251592}.",
+          "?(!H\"Twin Fangs\"): {259489} once before entering {1250646} to maximise {260285} stacks.",
+          "?(H\"Twin Fangs\"): Prepare to cast {1250646}: Continue using {260285} spenders (not generators) following the priority below until either of the following occurs: - You run out of {260285} stacks. - You run out of focus. Then, cast {1250646}.",
+          "?(!H\"Twin Fangs\"): {1250646}.",
+          "?(H\"Flamefang Pitch\"): {1251592}.",
           "{259495} if you have a {260285} stack to spend.",
           "{1261193} if you have a {260285} stack to spend.",
           "{1259003} if you have a {260285} stack to spend.",
@@ -439,15 +415,15 @@ ClassCodexData["HUNTER"] = {
         context = "單目標",
         steps = {
           "{257284} if it is not yet active.",
-          "{259489} whenever you run out of {260285} stacks, stop generating extra {260285} stacks if you are about to use {1250646}.",
-          "{259489} whenever you run out of {260285} stacks.",
+          "?(H\"Twin Fangs\"): {259489} whenever you run out of {260285} stacks, stop generating extra {260285} stacks if you are about to use {1250646}.",
+          "?(!H\"Twin Fangs\"): {259489} whenever you run out of {260285} stacks.",
           "{1261193} if you have a {260285} stack to spend and your target is not affected by {1253601}.",
           "{259495} if you have a {260285} stack to spend under the following circumstances: - If your target is affected by {1253601}. - If there is less than four seconds remaining until {259495} is fully recharged.",
-          "{259489} once before entering {1250646} to maximise {260285} stacks.",
-          "{1250646} if you have a {260285} stack to spend.",
-          "{1250646} at 0 {260285} stacks to maximise {1272139}.",
+          "?(!H\"Twin Fangs\"): {259489} once before entering {1250646} to maximise {260285} stacks.",
+          "?(!H\"Twin Fangs\"): {1250646} if you have a {260285} stack to spend.",
+          "?(H\"Twin Fangs\"): {1250646} at 0 {260285} stacks to maximise {1272139}.",
           "{1264949}.",
-          "{1251592}.",
+          "?(H\"Flamefang Pitch\"): {1251592}.",
           "{1262293}. if you have a {260285} stack to spend.",
           "{186270}. with or without a {260285} stack to spend.",
         },
@@ -458,16 +434,16 @@ ClassCodexData["HUNTER"] = {
         steps = {
           "{257284} if it is not yet active.",
           "{259489} whenever any of the {471878} beasts are available to summon, without wasting any {260285} stacks. .",
-          "{259489} once before entering {1250646} to maximise {260285} stacks.",
-          "{1250646} at 0 {260285} stacks to maximise {1272139}.",
-          "{1250646}.",
-          "{1251592}.",
+          "?(!H\"Twin Fangs\"): {259489} once before entering {1250646} to maximise {260285} stacks.",
+          "?(H\"Twin Fangs\"): {1250646} at 0 {260285} stacks to maximise {1272139}.",
+          "?(!H\"Twin Fangs\"): {1250646}.",
+          "?(H\"Flamefang Pitch\"): {1251592}.",
           "{1261193} if you have a {260285} stack to spend",
           "{259495} if you have a {260285} stack to spend.",
           "{1259003} if you have a {260285} stack to spend.",
           "{186270} with or without a {260285} to spend",
           "{259489}.",
-          "{1250646} as a fallback if you ran out of buttons or focus, and cannot manage to cast it at 0 {260285} stacks.",
+          "?(H\"Twin Fangs\"): {1250646} as a fallback if you ran out of buttons or focus, and cannot manage to cast it at 0 {260285} stacks.",
         },
       },
       {
@@ -478,43 +454,43 @@ ClassCodexData["HUNTER"] = {
           "{259489} whenever you run out of {260285} stacks.",
           "{1261193}",
           "{259495} with {260285} in the following circumstances: - Whenever your target is affected by {1253601} - Whenever {259495} is less than 6 seconds away from fully recharging its second charge.",
-          "{259489} once before entering {1250646} to maximise {260285} stacks.",
+          "?(!H\"Twin Fangs\"): {259489} once before entering {1250646} to maximise {260285} stacks.",
           "{1250646} if you have a {260285} stack to spend.",
           "{1264949} if you have a {260285} stack to spend.",
-          "{1251592} if you have room for a full charge worth of {259495} Cooldown Reduction.",
+          "?(H\"Flamefang Pitch\"): {1251592} if you have room for a full charge worth of {259495} Cooldown Reduction.",
           "{1262343}. if you have a {260285} stack to spend.",
           "{186270} with or without a {260285} stack to spend.",
         },
       },
       {
         heroTalent = "Pack Leader",
-        context = "單目標開場",
+        context = "單目標 起手",
         steps = {
-          "Pre-Cast {257284} on the boss.",
-          "Pre-cast {259495} ~1 GCD (~1sec) before the pull timer ends, making sure to stand far away from the boss.",
-          "{190925} (or {781}) and {34477}, and together.",
-          "{1250646}.",
-          "{186270}.",
-          "{259489}.",
-          "{1261193}.",
-          "{259495}.",
-          "{259489}.",
-          "{1259003}.",
-          "Pre-Cast {257284} on the boss.",
-          "Pre-cast {259495} ~1 GCD (~1sec) before the pull timer ends, making sure to stand far away from the boss.",
-          "{190925} (or {781}) and {34477}, and together.",
-          "{186270}.",
-          "{259489}.",
-          "{1250646}.",
-          "{259489}.",
-          "{259495}.",
-          "{1261193}.",
-          "{1259003}.",
+          "?(H\"Twin Fangs\"): Pre-Cast {257284} on the boss.",
+          "?(H\"Twin Fangs\"): Pre-cast {259495} ~1 GCD (~1sec) before the pull timer ends, making sure to stand far away from the boss.",
+          "?(H\"Twin Fangs\"): {190925} (or {781}) and {34477}, and together.",
+          "?(H\"Twin Fangs\"): {1250646}.",
+          "?(H\"Twin Fangs\"): {186270}.",
+          "?(H\"Twin Fangs\"): {259489}.",
+          "?(H\"Twin Fangs\"): {1261193}.",
+          "?(H\"Twin Fangs\"): {259495}.",
+          "?(H\"Twin Fangs\"): {259489}.",
+          "?(H\"Twin Fangs\"): {1259003}.",
+          "?(!H\"Twin Fangs\"): Pre-Cast {257284} on the boss.",
+          "?(!H\"Twin Fangs\"): Pre-cast {259495} ~1 GCD (~1sec) before the pull timer ends, making sure to stand far away from the boss.",
+          "?(!H\"Twin Fangs\"): {190925} (or {781}) and {34477}, and together.",
+          "?(!H\"Twin Fangs\"): {186270}.",
+          "?(!H\"Twin Fangs\"): {259489}.",
+          "?(!H\"Twin Fangs\"): {1250646}.",
+          "?(!H\"Twin Fangs\"): {259489}.",
+          "?(!H\"Twin Fangs\"): {259495}.",
+          "?(!H\"Twin Fangs\"): {1261193}.",
+          "?(!H\"Twin Fangs\"): {1259003}.",
         },
       },
       {
         heroTalent = "Pack Leader",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "Pre-Cast {257284} on the chonkiest target in the pack.",
           "{34477} on the tank or your pet.",
@@ -528,7 +504,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Sentinel",
-        context = "單目標開場",
+        context = "單目標 起手",
         steps = {
           "Pre-Cast {257284} on the boss.",
           "Pre-cast {259495} ~1 GCD (~1.25sec) before the pull timer ends, making sure to stand far away from the boss.",
@@ -542,7 +518,7 @@ ClassCodexData["HUNTER"] = {
       },
       {
         heroTalent = "Sentinel",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "Pre-Cast {257284} on the chonkiest target in the pack.",
           "{34477} on the tank or your pet.",

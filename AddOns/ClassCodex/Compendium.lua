@@ -111,6 +111,7 @@ local selectedSpec = nil
 local selectedHero = nil
 local activeTab = "guide"
 local currentStatContext = nil
+local currentRotContext = nil
 local currentEnhancementsSource = "Wowhead" -- "Wowhead" | "PvP"
 local lastEnhancementsSpecKey = nil
 local lastTalentSpecKey = nil
@@ -296,7 +297,9 @@ local function FormatRotationStep(stepText)
 end
 
 local function StripConditionPrefix(stepText)
-    return stepText:gsub("^%?!?{%d+}:%s*", "")
+    stepText = stepText:gsub("^%?!?{%d+}:%s*", "")
+    stepText = stepText:gsub("^%?%b():%s*", "")
+    return stepText
 end
 
 local function GetStepSpellIcon(stepText)
@@ -798,6 +801,14 @@ local function InitFrame()
     UI.rotationContent = CreateFrame("Frame", nil, UI.rotationSection)
     UI.rotationContent:SetPoint("TOPLEFT", UI.rotationHeader, "BOTTOMLEFT", 0, -2)
     UI.rotationContent:SetPoint("RIGHT", 0, 0)
+    -- Context switcher for Wowhead's per-mode rotations (Single Target,
+    -- Multitarget, Opener, …). Hidden when the spec exposes only one
+    -- context. Mirrors statCtxDropdown / trinketCtxDropdown.
+    UI.rotationCtxDropdown = CreateFrame("DropdownButton", "ClassCodexCompRotCtxDD", UI.rotationContent, "WowStyle1DropdownTemplate")
+    UI.rotationCtxDropdown:SetPoint("TOPLEFT", 0, 0)
+    UI.rotationCtxDropdown:SetPoint("TOPRIGHT", 0, 0)
+    UI.rotationCtxDropdown:SetHeight(24)
+    UI.rotationCtxDropdown:Hide()
     UI.rotationFrames = {}
     UI.rotationCollapsed = false
     for i = 1, MAX_ROTATION_STEPS do
@@ -835,10 +846,11 @@ local function InitFrame()
     UI.enchantContent:SetPoint("TOPLEFT", UI.enchantHeader, "BOTTOMLEFT", 0, -2); UI.enchantContent:SetPoint("RIGHT", 0, 0)
     -- Enhancements source dropdown — Wowhead vs Murlok (PvP) toggle for
     -- the Enchants + Gems sections. Hidden by default; shown when PvP
-    -- data exists for the spec. Sits above the enchant content rows.
-    UI.enhancementsSourceDropdown = CreateFrame("DropdownButton", "ClassCodexCompEnhancementsSourceDD", UI.enchantContent, "WowStyle1DropdownTemplate")
-    UI.enhancementsSourceDropdown:SetPoint("TOPLEFT", 0, 0)
-    UI.enhancementsSourceDropdown:SetPoint("TOPRIGHT", 0, 0)
+    -- data exists for the spec. Parented to scrollChild and positioned
+    -- ABOVE the Enchants section (not inside it) so the section can
+    -- collapse / hide cleanly without taking the dropdown with it, and
+    -- the layout reads "source picker → Enchants → Gems".
+    UI.enhancementsSourceDropdown = CreateFrame("DropdownButton", "ClassCodexCompEnhancementsSourceDD", UI.scrollChild, "WowStyle1DropdownTemplate")
     UI.enhancementsSourceDropdown:SetHeight(24)
     UI.enhancementsSourceDropdown:Hide()
     -- Enchant rows: outer frame holds icon + slot label, then a stack
@@ -1164,6 +1176,11 @@ function ns:UpdateCompendium()
     UI.enchantSection:Hide(); UI.gemSection:Hide(); UI.consumSection:Hide()
     UI.trinketSection:Hide(); UI.craftSection:Hide(); UI.bisSection:Hide()
     UI.emptyText:Hide(); UI.talentFallback:Hide(); UI.rotationFallback:Hide()
+    -- Enhancements source dropdown lives outside enchantSection now,
+    -- so hiding the section doesn't take it down. Hide it explicitly
+    -- on every tab switch — the Enhancements tab's update path will
+    -- re-show it when it's actually needed.
+    if UI.enhancementsSourceDropdown then UI.enhancementsSourceDropdown:Hide() end
 
     if not selectedClass or not selectedSpec then
         UI.emptyText:Show()
@@ -1265,10 +1282,11 @@ local function RenderStatPrioritySection(specData, heroTalent)
                 -- attribution pattern the Talents/Gear source dropdowns
                 -- use for Wowhead/Archon. Other contexts ("General",
                 -- "Mythic+", "Raid") come from Wowhead's guide so they
-                -- inherit the tab's existing Wowhead context.
-                local label = ctx
+                -- inherit the tab's existing Wowhead context, and route
+                -- through L[ctx] for locale-specific labels.
+                local label = L[ctx]
                 if ctx == "PvP" then
-                    label = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  PvP"
+                    label = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  " .. L["PvP"]
                 end
                 rootDescription:CreateRadio(label,
                     function() return currentStatContext == ctx end,
@@ -1368,12 +1386,54 @@ function ns:UpdateCompendiumGuide(specData, heroTalent)
     for i = 1, MAX_ROTATION_STEPS do UI.rotationFrames[i]:Hide() end
     UI.rotationFallback:Hide()
     local rotCtxOptions = GetRotationContextOptions(specData, heroTalent)
+    -- Resolve the context to render: persist the user's pick across
+    -- spec/hero re-renders when the new spec exposes it, otherwise fall
+    -- back to the spec's first option (or the literal "General" when
+    -- nothing matched at all — same fallback FindRotationByContext used
+    -- before the dropdown existed).
     local rotContext = rotCtxOptions[1] or "General"
+    if currentRotContext then
+        for _, c in ipairs(rotCtxOptions) do
+            if c == currentRotContext then rotContext = currentRotContext; break end
+        end
+    end
+    -- Sync the persisted pick only when rendering a multi-context spec.
+    -- Single-context specs are usually temporary transits (e.g. visiting
+    -- a healer while still mostly in M+ on a DPS) and shouldn't clobber
+    -- the user's last meaningful pick. Multi-context specs that lack the
+    -- previous pick fall back to their own first option, and that IS a
+    -- meaningful re-set worth persisting.
+    local showRotCtx = #rotCtxOptions > 1
+    if showRotCtx then currentRotContext = rotContext end
+    if showRotCtx then
+        UI.rotationCtxDropdown:SetupMenu(function(_, rootDescription)
+            for _, ctx in ipairs(rotCtxOptions) do
+                -- L[ctx] falls through to the raw ctx string when no
+                -- translation exists (Locales.lua metatable __index).
+                -- Common Wowhead contexts ("Single Target", "Multitarget",
+                -- "Opener", …) have entries in each locale block; rare
+                -- spec-specific ones ("Firestarter Examples") display
+                -- as-is until someone adds them.
+                rootDescription:CreateRadio(L[ctx],
+                    function() return currentRotContext == ctx end,
+                    function()
+                        currentRotContext = ctx
+                        ns:UpdateCompendium()
+                    end,
+                    ctx)
+            end
+        end)
+        UI.rotationCtxDropdown:Show()
+    else
+        UI.rotationCtxDropdown:Hide()
+    end
+
     local rotation = FindRotationByContext(specData.rotation, heroTalent, rotContext)
     if rotation then
         local textAreaWidth = (FRAME_WIDTH - 80) - 42
         local visibleStep = 0
-        local currentY = 0
+        local yOffset = showRotCtx and -30 or 0
+        local currentY = yOffset
         for _, step in ipairs(rotation.steps) do
             local stripped = StripConditionPrefix(step)
             visibleStep = visibleStep + 1
@@ -1396,9 +1456,12 @@ function ns:UpdateCompendiumGuide(specData, heroTalent)
         UI.rotationContent:SetHeight(math.abs(currentY))
         UI.rotationSection:Show()
     elseif specData.rotation and #specData.rotation > 0 then
+        local yOffset = showRotCtx and -30 or 0
+        UI.rotationFallback:ClearAllPoints()
+        UI.rotationFallback:SetPoint("TOPLEFT", UI.rotationContent, "TOPLEFT", 4, yOffset - 4)
         UI.rotationFallback:SetText(L["No rotation for %s — check Wowhead."]:format(heroTalent))
         UI.rotationFallback:Show()
-        UI.rotationContent:SetHeight(20)
+        UI.rotationContent:SetHeight(math.abs(yOffset) + 20)
         UI.rotationSection:Show()
     end
 end
@@ -1583,32 +1646,59 @@ local function RenderPvPTalentList(class, spec, yPos)
     for _, bracketKey in ipairs(brackets) do
         local data = ns.GetPvPBuilds(class, spec, bracketKey)
         if data and data.builds and data.builds[1] then
-            local build = data.builds[1]
-            rowIdx = rowIdx + 1
-            local btn = UI._ensureTalentButton(rowIdx)
-            if btn.heroIcon then btn.heroIcon:Hide() end
-            btn.label:ClearAllPoints()
-            btn.label:SetPoint("LEFT", 8, 0)
-            btn.label:SetPoint("RIGHT", -8, 0)
-            local label = (ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey
-            if data.lowConfidence then
-                label = label .. " |cff999999(low confidence)|r"
+            local bracketName = (ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey
+            local variants = ns.GetPvPBuildVariants and ns.GetPvPBuildVariants(data)
+                or { { hero = data.builds[1].heroTalent, build = data.builds[1] } }
+            local multiVariant = #variants > 1
+
+            for _, v in ipairs(variants) do
+                local build = v.build
+                rowIdx = rowIdx + 1
+                local btn = UI._ensureTalentButton(rowIdx)
+                -- Hero atlas icon only when surfacing multiple variants
+                -- so single-bracket rows keep their existing chrome.
+                local heroAtlas = multiVariant and v.hero and ns.HERO_TALENT_ATLAS
+                    and ns.HERO_TALENT_ATLAS[v.hero]
+                if btn.heroIcon then
+                    if heroAtlas then
+                        btn.heroIcon:SetAtlas(heroAtlas)
+                        btn.heroIcon:Show()
+                    else
+                        btn.heroIcon:Hide()
+                    end
+                end
+                btn.label:ClearAllPoints()
+                local labelLeftOffset = heroAtlas and 24 or 8
+                btn.label:SetPoint("LEFT", labelLeftOffset, 0)
+                btn.label:SetPoint("RIGHT", -8, 0)
+                local label
+                if multiVariant then
+                    label = bracketName .. " — " .. (v.hero or "—")
+                    if v.altIndex then
+                        local suffix = v.altIndex == 2
+                            and (L["alt"] or "alt")
+                            or string.format(L["alt %d"] or "alt %d", v.altIndex - 1)
+                        label = label .. " |cff9a9a9a(" .. suffix .. ")|r"
+                    end
+                else
+                    label = bracketName
+                end
+                btn.label:SetText(label)
+                local isActive = ns.BuildMatchesActive and ns.BuildMatchesActive({ exportString = build.exportString })
+                if isActive then
+                    btn:SetBackdropBorderColor(0.2, 0.8, 0.2, 1)
+                    btn.label:SetTextColor(0.3, 1, 0.3)
+                else
+                    btn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+                    btn.label:SetTextColor(0.8, 0.8, 0.8)
+                end
+                btn:ClearAllPoints()
+                btn:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 8, -yPos)
+                btn:SetPoint("RIGHT", UI.talentContent, "RIGHT", 0, 0)
+                BindCopyClick(btn, build.exportString)
+                btn:Show()
+                yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
             end
-            btn.label:SetText(label)
-            local isActive = ns.BuildMatchesActive and ns.BuildMatchesActive({ exportString = build.exportString })
-            if isActive then
-                btn:SetBackdropBorderColor(0.2, 0.8, 0.2, 1)
-                btn.label:SetTextColor(0.3, 1, 0.3)
-            else
-                btn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-                btn.label:SetTextColor(0.8, 0.8, 0.8)
-            end
-            btn:ClearAllPoints()
-            btn:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 8, -yPos)
-            btn:SetPoint("RIGHT", UI.talentContent, "RIGHT", 0, 0)
-            BindCopyClick(btn, build.exportString)
-            btn:Show()
-            yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
         end
     end
     yPos = yPos + 4
@@ -1724,7 +1814,6 @@ function ns:UpdateCompendiumEnchants()
     end
 
     -- Resolve which enchants/gems to render based on the active source.
-    local pvpNoData = currentEnhancementsSource == "PvP" and not hasPvP
     local activeEnchants, activeGems
     if currentEnhancementsSource == "PvP" then
         activeEnchants = pvpEnchants
@@ -1734,24 +1823,27 @@ function ns:UpdateCompendiumEnchants()
         activeGems = gearData and gearData.gems
     end
 
-    if pvpNoData then
-        for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
-        for i = 1, MAX_GEM_ROWS do UI.gemRows[i]:Hide() end
-        local yOff = showSourceDropdown and -30 or 0
-        UI.enchantPvpFallback:SetText(L["No PvP enchant/gem data for this spec yet."]
-            or "No PvP enchant/gem data for this spec yet.")
-        UI.enchantPvpFallback:ClearAllPoints()
-        UI.enchantPvpFallback:SetPoint("TOPLEFT", UI.enchantContent, "TOPLEFT", 4, yOff - 4)
-        UI.enchantPvpFallback:Show()
-        UI.enchantContent:SetHeight(math.abs(yOff) + 20)
-        UI.enchantSection:Show()
-        UI.gemSection:Hide()
-        return
-    end
+    -- Source dropdown now lives ABOVE the Enchants section (positioned
+    -- in LayoutCompendium), so enchant rows start at the top of the
+    -- content area regardless of dropdown visibility.
+    local enchantBaseY = 0
 
-    -- Y-offset for first enchant row; bumped down when the source
-    -- dropdown is showing.
-    local enchantBaseY = showSourceDropdown and -30 or 0
+    -- PvP-with-no-enchants fallback (e.g. Aug Evoker has gems but no
+    -- PvP enchants). Render a placeholder line in the enchant section
+    -- so the user sees their source choice acknowledged.
+    local pvpEnchantsMissing = currentEnhancementsSource == "PvP" and not activeEnchants
+    if pvpEnchantsMissing and showSourceDropdown then
+        for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
+        local msg = activeGems
+            and (L["No PvP enchants for this spec yet."] or "No PvP enchants for this spec yet.")
+            or  (L["No PvP enchant/gem data for this spec yet."] or "No PvP enchant/gem data for this spec yet.")
+        UI.enchantPvpFallback:SetText(msg)
+        UI.enchantPvpFallback:ClearAllPoints()
+        UI.enchantPvpFallback:SetPoint("TOPLEFT", UI.enchantContent, "TOPLEFT", 4, -4)
+        UI.enchantPvpFallback:Show()
+        UI.enchantContent:SetHeight(20)
+        UI.enchantSection:Show()
+    end
 
     if activeEnchants then
         for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
@@ -2208,8 +2300,9 @@ function ns:LayoutCompendium()
         if UI.talentFallback:IsShown() then talentH = 20 end
         LayoutSection(UI.talentSection, UI.talentCollapsed, UI.talentContent, talentH)
         local rotH = 0
+        if UI.rotationCtxDropdown:IsShown() then rotH = rotH + 30 end
         for i = 1, MAX_ROTATION_STEPS do if UI.rotationFrames[i]:IsShown() then rotH = rotH + UI.rotationFrames[i]:GetHeight() end end
-        if UI.rotationFallback:IsShown() then rotH = 20 end
+        if UI.rotationFallback:IsShown() then rotH = rotH + 20 end
         LayoutSection(UI.rotationSection, UI.rotationCollapsed, UI.rotationContent, rotH)
     elseif activeTab == "talents" then
         local talentH = 0
@@ -2236,8 +2329,16 @@ function ns:LayoutCompendium()
         for i = 1, MAX_TRINKET_ROWS do if UI.trinketRows[i]:IsShown() then trinketH = trinketH + ROW_HEIGHT end end
         LayoutSection(UI.trinketSection, UI.trinketCollapsed, UI.trinketContent, trinketH)
     elseif activeTab == "enhancements" then
+        -- Source dropdown sits ABOVE the enchants section (parented to
+        -- scrollChild) so it stays visible even when the section is
+        -- hidden or collapsed.
+        if UI.enhancementsSourceDropdown and UI.enhancementsSourceDropdown:IsShown() then
+            UI.enhancementsSourceDropdown:ClearAllPoints()
+            UI.enhancementsSourceDropdown:SetPoint("TOPLEFT", UI.scrollChild, "TOPLEFT", INSET_PAD, y)
+            UI.enhancementsSourceDropdown:SetPoint("RIGHT", UI.scrollChild, "RIGHT", -INSET_PAD, 0)
+            y = y - 30
+        end
         local enchH = 0
-        if UI.enhancementsSourceDropdown and UI.enhancementsSourceDropdown:IsShown() then enchH = enchH + 30 end
         -- Each enchant row is 1× or 2× ROW_HEIGHT depending on whether
         -- it has an alternate sub-row, so read each row's actual height
         -- instead of multiplying by a constant.

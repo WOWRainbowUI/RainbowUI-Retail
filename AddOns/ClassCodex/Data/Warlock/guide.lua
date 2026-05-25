@@ -2,13 +2,13 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["WARLOCK"] = {
   ["affliction"] = {
     label = "Affliction Warlock",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/affliction/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/affliction/midnight-season-1",
     priorities = {
       {
         heroTalent = "Hellcaller",
         context = "通用",
         stats = {
-          { "Mastery", "致命一擊" },
+          { "精通", "致命一擊" },
           { "加速" },
           { "臨機應變" },
         },
@@ -17,7 +17,7 @@ ClassCodexData["WARLOCK"] = {
         heroTalent = "Soul Harvester",
         context = "通用",
         stats = {
-          { "Mastery", "致命一擊" },
+          { "精通", "致命一擊" },
           { "加速" },
           { "臨機應變" },
         },
@@ -27,12 +27,19 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Soul Harvester",
         context = "團隊單目標",
+        recommended = true,
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZxyMzsMzAAjllBGwEMDbBG2GAAAmBAAwMDzMjBGmZmZGzgZmZGAwMwA",
       },
       {
         heroTalent = "Soul Harvester",
         context = "傳奇+",
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM22GYATwMsFYYbAAAYGAAAzMjZMzsNGzYMzMzYYmZGAgBMA",
+      },
+      {
+        heroTalent = "Soul Harvester",
+        context = "團隊 MT",
+        recommended = true,
+        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZxyMzsMzAAjllBGwEMDbBG2GAAAmBAAwMDzMjBGmZmZGzgZmZGAwMwA",
       },
       {
         heroTalent = "Soul Harvester",
@@ -46,24 +53,20 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Hellcaller",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbzMzyYAALwAziRjZAZ2ALDAAAGAAYmBjZMzsNzYGMzMzYYmZGAgBMA",
+      },
+      {
+        heroTalent = "Hellcaller",
         context = "團隊 MT",
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZWMzsMGAwCMwsY0YGQmFwyAAAwMAAwMDYmZMmZGmxMzMGMzMzAAmBG",
       },
       {
         heroTalent = "Hellcaller",
-        context = "傳奇+",
-        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbzMzyYAALwAziRjZAZ2ALDAAAGAAYmBjZMzsNzYGMzMzYYmZGAgBMA",
-      },
-      {
-        heroTalent = "Hellcaller",
         context = "探究",
-        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbzMzyYAALwAziRjZAZ2ALDAAAGAAYmBjZMzsNzYGMzMzYYmZGAgBMA",
-      },
-      {
-        heroTalent = "Soul Harvester",
-        context = "團隊 MT",
         recommended = true,
-        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZxyMzsMzAAjllBGwEMDbBG2GAAAmBAAwMDzMjBGmZmZGzgZmZGAwMwA",
+        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbzMzyYAALwAziRjZAZ2ALDAAAGAAYmBjZMzsNzYGMzMzYYmZGAgBMA",
       },
     },
     rotation = {
@@ -124,7 +127,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Hellcaller",
-        context = "開場",
+        context = "起手",
         steps = {
           "Precast {48181}.",
           "{980} on pull.",
@@ -138,7 +141,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Soul Harvester",
-        context = "開場",
+        context = "起手",
         steps = {
           "Precast {48181}.",
           "{980} on pull.",
@@ -154,7 +157,7 @@ ClassCodexData["WARLOCK"] = {
   },
   ["demonology"] = {
     label = "Demonology Warlock",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/demonology/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/demonology/midnight-season-1",
     priorities = {
       {
         heroTalent = "Diabolist",
@@ -177,24 +180,6 @@ ClassCodexData["WARLOCK"] = {
     },
     talents = {
       {
-        heroTalent = "Soul Harvester",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzoZjhZmxsMAAAAAAAjllBGwAmhlQGbGjZ2mlZmZYAgZYmZGgZmZmxMDAAwYmZmZYGLzYAD",
-      },
-      {
-        heroTalent = "All",
-        context = "傳奇+",
-        buildLabel = "Doomguard",
-        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLjZmZmZAgZMzYmZGgxMMzGAAYmZmZmZGsNzAMA",
-      },
-      {
-        heroTalent = "Diabolist",
-        context = "探究",
-        recommended = true,
-        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLjZmZmZAgZMzYmZGgxMMzGAAYmZmZmZGsNzAMA",
-      },
-      {
         heroTalent = "Diabolist",
         context = "團隊單目標",
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzoZjhZmxsMAAAAAAAgxMGWgB2GtRDLGjZ2mlZmZYAgZYmZmZGgZmxMDAAwYmZmZYGLzYAD",
@@ -207,8 +192,18 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Diabolist",
         context = "傳奇+",
-        recommended = true,
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLjZmZmZAgZMzYmZGgxMMzGAAYmZmZmZGsNzAMA",
+      },
+      {
+        heroTalent = "Diabolist",
+        context = "探究",
+        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLz2MzMmBAmxMzMzMDwMzwMbAAgZmZmxMD2mBwA",
+      },
+      {
+        heroTalent = "Soul Harvester",
+        context = "團隊單目標",
+        recommended = true,
+        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzoZjhZmxsMAAAAAAAjllBGwAmhlQGbGjZ2mlZmZYAgZYmZGgZmZmxMDAAwYmZmZYGLzYAD",
       },
       {
         heroTalent = "Soul Harvester",
@@ -219,11 +214,13 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Soul Harvester",
         context = "傳奇+",
+        recommended = true,
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAgxyyADYAzwSIjNDGLjZmZmZAgZMzYGgZmZmhZ2AAAzMzMjZGsNzAMA",
       },
       {
         heroTalent = "Soul Harvester",
         context = "探究",
+        recommended = true,
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAgxyyADYAzwSIjNDGLz2MzMmBAmxMzMDwMzMzwMbAAgZmZmxMD2mBwA",
       },
     },
@@ -286,7 +283,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Diabolist",
-        context = "開場",
+        context = "起手",
         steps = {
           "Pre-cast {264130} at least 5s before pull timer ends.",
           "Pre-cast {686}.",
@@ -305,7 +302,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Soul Harvester",
-        context = "開場",
+        context = "起手",
         steps = {
           "Pre-cast {264130} at least 5s before pull timer ends.",
           "Pre-cast {686}.",
@@ -321,14 +318,14 @@ ClassCodexData["WARLOCK"] = {
   },
   ["destruction"] = {
     label = "Destruction Warlock",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/destruction/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/destruction/midnight-season-1",
     priorities = {
       {
         heroTalent = "Diabolist",
         context = "通用",
         stats = {
           { "加速" },
-          { "Mastery", "致命一擊" },
+          { "精通", "致命一擊" },
           { "臨機應變" },
         },
       },
@@ -337,7 +334,7 @@ ClassCodexData["WARLOCK"] = {
         context = "通用",
         stats = {
           { "加速" },
-          { "Mastery", "致命一擊" },
+          { "精通", "致命一擊" },
           { "臨機應變" },
         },
       },
@@ -346,41 +343,40 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Diabolist",
         context = "團隊單目標",
-        buildLabel = "Single-Target",
+        recommended = true,
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZjZmZxgFzAAgZmxMzsAGzYYhMw2wGNWYAAgxAjNAMzAYmxYAAAYmZmBAwMDD",
+      },
+      {
+        heroTalent = "Diabolist",
+        context = "傳奇+",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzDMzoZzM2MzYWmtZmZmFzYZhBAAzMjZmZBMmxwCZgthFaswAAAjBDLAYmBYMjZmNAAAzMzAAwYYA",
+      },
+      {
+        heroTalent = "Diabolist",
+        context = "團隊 MT",
+        recommended = true,
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
+      },
+      {
+        heroTalent = "Diabolist",
+        context = "通用",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzDMzoZzM2MzYWmtZmZmFzYZhBAAzMjZmZBMmxwCZgthFaswAAAjBDLAYmBYMjZmNAAAzMzAAwYYA",
+      },
+      {
+        heroTalent = "Diabolist",
+        context = "探究",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
       },
       {
         heroTalent = "Hellcaller",
         context = "團隊單目標",
-        buildLabel = "Cleave",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMziNYgZzoxMAmtYjBAAGDwCAwMDmZGjZDAAwMzMAAMzwA",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZjZmZxgFzAAgZmxMzsYBGYWMaMDgZL2YAAgxAjNAgZGYmxYAAAYmZmBAwMDD",
       },
       {
         heroTalent = "Hellcaller",
         context = "傳奇+",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGNLmxiZGzysNzMjFzYZZmBAAzgZmZxCMwsY0YGAzWsxAAAjZYAAwMDGzMmZDAAwMzMDAAzwA",
-      },
-      {
-        heroTalent = "Diabolist",
-        context = "傳奇+",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzDMzoZzM2MzYWmtZmZmFzYZhBAAzMjZmZBMmxwCZgthFaswAAAjBDLAYmBYMjZmNAAAzMzAAwYYA",
-      },
-      {
-        heroTalent = "Diabolist",
-        context = "探究",
-        buildLabel = "傳奇+",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
-      },
-      {
-        heroTalent = "Diabolist",
-        context = "團隊 MT",
         recommended = true,
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
-      },
-      {
-        heroTalent = "Diabolist",
-        context = "通用",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzDMzoZzM2MzYWmtZmZmFzYZhBAAzMjZmZBMmxwCZgthFaswAAAjBDLAYmBYMjZmNAAAzMzAAwYYA",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGNLmxiZGzysNzMjFzYZZmBAAzgZmZxCMwsY0YGAzWsxAAAjZYAAwMDGzMmZDAAwMzMDAAzwA",
       },
       {
         heroTalent = "Hellcaller",
@@ -396,6 +392,7 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Hellcaller",
         context = "探究",
+        recommended = true,
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGNLmxiZGzysNzMjFzYZZmBAAzgZmZxCMwsY0YGAzWsxAAAjZYAAwMDGzMmZDAAwMzMDAAzwA",
       },
     },
@@ -449,7 +446,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Hellcaller",
-        context = "開場",
+        context = "起手",
         steps = {
           "Precast {6353}",
           "Pop {1122} as well as any potions, trinkets and racials",
@@ -460,7 +457,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Diabolist",
-        context = "開場",
+        context = "起手",
         steps = {
           "Precast {6353}",
           "Pop {1122} as well as any potions, trinkets and racials",

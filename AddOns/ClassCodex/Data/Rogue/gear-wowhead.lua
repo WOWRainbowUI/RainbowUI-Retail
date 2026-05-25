@@ -2,13 +2,13 @@ ClassCodexGearData = ClassCodexGearData or {}
 ClassCodexGearData["ROGUE"] = {
   ["assassination"] = {
     enchants = {
-      { slot = "Both Weapons", best = { itemId = 243973, name = "Enchant Weapon - Berserker's Rage" } },
+      { slot = "武器", best = { itemId = 243973, name = "Enchant Weapon - Berserker's Rage" } },
       { slot = "頭", best = { itemId = 243951, name = "Enchant Helm - Empowered Hex of Leeching" } },
       { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
       { slot = "肩", best = { itemId = 244021, name = "Enchant Shoulders - Silvermoon's Mending" } },
       { slot = "腿", best = { itemId = 244641, name = "Forest Hunter's Armor Kit" } },
       { slot = "腳", best = { itemId = 243983, name = "Enchant Boots - Shaladrassil's Roots" } },
-      { slot = "戒指", best = { itemId = 243957, name = "Enchant Ring - Eyes of the Eagle" } },
+      { slot = "戒指", best = { itemId = 244015, name = "Enchant Ring - Silvermoon's Alacrity" } },
     },
     gems = {
       primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },
@@ -88,18 +88,17 @@ ClassCodexGearData["ROGUE"] = {
   },
   ["outlaw"] = {
     enchants = {
-      { slot = "武器", best = { itemId = 243971, name = "Enchant Weapon - Jan'alai's Precision" }, alternate = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
-      { slot = "頭", best = { itemId = 243951, name = "Enchant Helm - Empowered Hex of Leeching" } },
+      { slot = "武器", best = { itemId = 243971, name = "Enchant Weapon - Jan'alai's Precision" }, alternate = { itemId = 243973, name = "Enchant Weapon - Berserker's Rage" } },
+      { slot = "頭et", best = { itemId = 243951, name = "Enchant Helm - Empowered Hex of Leeching" } },
       { slot = "肩", best = { itemId = 244021, name = "Enchant Shoulders - Silvermoon's Mending" } },
       { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
       { slot = "腿", best = { itemId = 244641, name = "Forest Hunter's Armor Kit" } },
       { slot = "腳", best = { itemId = 243983, name = "Enchant Boots - Shaladrassil's Roots" } },
-      { slot = "戒指", best = { itemId = 243957, name = "Enchant Ring - Eyes of the Eagle" }, alternate = { itemId = 244015, name = "Enchant Ring - Silvermoon's Alacrity" } },
+      { slot = "戒指", best = { itemId = 243987, name = "Enchant Ring - Nature's Fury" }, alternate = { itemId = 244015, name = "Enchant Ring - Silvermoon's Alacrity" } },
     },
     gems = {
-      primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },
+      primary = { itemId = 240967, name = "Powerful Eversong Diamond" },
       secondary = {
-        { itemId = 240967, name = "Powerful Eversong Diamond" },
         { itemId = 240890, name = "Flawless Deadly Peridot" },
       },
     },
@@ -169,8 +168,8 @@ ClassCodexGearData["ROGUE"] = {
   },
   ["subtlety"] = {
     enchants = {
-      { slot = "武器-主手", best = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
-      { slot = "Weapon - Off Hand", best = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
+      { slot = "武器 - 主手", best = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
+      { slot = "武器 - 副手", best = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
       { slot = "頭", best = { itemId = 244007, name = "Enchant Helm - Empowered Rune of Avoidance" } },
       { slot = "肩", best = { itemId = 243991, name = "Enchant Shoulders - Amirdrassil's Grace" } },
       { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
@@ -246,7 +245,7 @@ ClassCodexGearData["ROGUE"] = {
         { slot = "戒指", item = { itemId = 249919, name = "Sin'dorei Band of Hope", bonusIDs = { 12806, 13335 } }, source = "貝羅倫" },
         { slot = "飾品", item = { itemId = 249344, name = "Light Company Guidon", bonusIDs = { 12806, 13335 } }, source = "統治者阿瓦齊恩" },
         { slot = "飾品", item = { itemId = 249343, name = "Gaze of the Alnseer", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯" },
-        { slot = "武器", item = { itemId = 249284, name = "Belo'ren's Swift Talon", bonusIDs = { 12806, 13335 } }, source = "貝羅倫" },
+        { slot = "武器", item = { itemId = 249284, name = "貝羅倫's Swift Talon", bonusIDs = { 12806, 13335 } }, source = "貝羅倫" },
         { slot = "副手", item = { itemId = 237837, name = "Farstrider's Mercy", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "製作" },
       } },
     },

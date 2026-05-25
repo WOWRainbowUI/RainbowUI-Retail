@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["SHAMAN"] = {
   ["elemental"] = {
     label = "Elemental Shaman",
-    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/elemental/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/elemental/midnight-season-1",
     priorities = {
       {
         heroTalent = "Farseer",
@@ -25,22 +25,14 @@ ClassCodexData["SHAMAN"] = {
     },
     talents = {
       {
-        heroTalent = "Stormbringer",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMmZmZZbbgxMDAAAAAsYGDbwCMjGasBAzyMzMGbLmwMzyYZmZmxwysMjFzMjZWAAGAzMwwwA",
-      },
-      {
         heroTalent = "Farseer",
         context = "團隊單目標",
-        buildLabel = "High Mobility And Cleave",
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAmZZZmxMzMbbbjxMmZAAAAAbmZDGwAmNmQmFAYWmZmxYbxEmZWGLzMzMGWsMjFMzMzCAwMAYmxwwA",
       },
       {
-        heroTalent = "Stormbringer",
+        heroTalent = "Farseer",
         context = "傳奇+",
-        recommended = true,
-        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAALmxwGsAzohGbAwsMzMjx2ipNmZMWmZmZMsMLGLmZGzsAAMDwMDMMMA",
+        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZZbbMmxMAAAAALGbAAwsxEysAAzyMzMGbLmwMjxyMzMzMsMLGLYmZmFAgBAmZMMMA",
       },
       {
         heroTalent = "Farseer",
@@ -49,14 +41,21 @@ ClassCodexData["SHAMAN"] = {
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZbZZMmxMDAAAAYzMbwAGwsxEysAAzyMzMGbLmwMjxyMzMzMjFLGLYMzsAAMAwMjhhB",
       },
       {
-        heroTalent = "Farseer",
+        heroTalent = "Stormbringer",
+        context = "團隊單目標",
+        recommended = true,
+        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMmZmZZbbgxMDAAAAAsYGDbwCMjGasBAzyMzMGbLmwMzyYZmZmxwysMjFzMjZWAAGAzMwwwA",
+      },
+      {
+        heroTalent = "Stormbringer",
         context = "傳奇+",
-        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZZbbMmxMAAAAALmZDGwAmNmQmFAYWmZmxYbxEmZMWmZmZmhlZxYBzMzsAAMAwMjhhB",
+        recommended = true,
+        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAALmxwGsAzohGbAwsMzMjx2ipNmZMWmZmZMsMLGLmZGzsAAMDwMDMMMA",
       },
       {
         heroTalent = "Stormbringer",
         context = "探究",
-        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAmZZZmxMzMbLLjxMmZAAAAAgFzYYDWgZ0QjNAYWmZmxMbLmwMjxyMzMjhlZxYBzMzsAAMDwMDMMMA",
+        exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAmZZZmxMzMbLLjxMmZAAAAAAmxwGAmRoxGAMLzMzYmtFTYmxYZmZmxwysYsgZmZWAAmBYmBGGG",
       },
     },
     rotation = {
@@ -68,12 +67,12 @@ ClassCodexData["SHAMAN"] = {
           "{191634} on cooldown.",
           "{443454} on cooldown.",
           "{114050} roughly on cooldown, but always after {191634}",
-          "{117014} if you are less than 15 from capping.",
-          "{117014} if you have {16166} active.",
-          "{117014} if possible.",
-          "{8042} if you are less than 15 from capping.",
-          "{8042} if you have {16166} active.",
-          "{8042} if possible.",
+          "?(16166&117014): {117014} if you are less than 15 from capping.",
+          "?(16166&117014): {117014} if you have {16166} active.",
+          "?(!16166&117014): {117014} if possible.",
+          "?(16166&!117014): {8042} if you are less than 15 from capping.",
+          "?(16166&!117014): {8042} if you have {16166} active.",
+          "?(!16166&!117014): {8042} if possible.",
           "?{16166}: {51505} if you do not have {16166} active.",
           "?!{16166}: {51505}.",
           "?{16166}: {188196} to consume {16166}.",
@@ -89,13 +88,13 @@ ClassCodexData["SHAMAN"] = {
           "Remember to use {79206} and {378081} for movement events.",
           "{191634} on cooldown.",
           "{114050} roughly on cooldown, but always after {191634}",
-          "Refresh {470411} within the pandemic window (30% of it's current maximum duration) if you do not have {16166} active.",
-          "Refresh {470411} within the pandemic window (30% of it's current maximum duration).",
-          "Refresh {470411} with {470057} within the pandemic window (30% of it's current maximum duration) if you do not have {16166} active.",
-          "Refresh {470411} with {470057} within the pandemic window (30% of it's current maximum duration).",
+          "?(!470057&16166): Refresh {470411} within the pandemic window (30% of it's current maximum duration) if you do not have {16166} active.",
+          "?(!470057&!16166): Refresh {470411} within the pandemic window (30% of it's current maximum duration).",
+          "?(470057&16166): Refresh {470411} with {470057} within the pandemic window (30% of it's current maximum duration) if you do not have {16166} active.",
+          "?(470057&!16166): Refresh {470411} with {470057} within the pandemic window (30% of it's current maximum duration).",
           "?{16166}: {51505} if you do not have {16166} active and will not overcap",
-          "{51505} if you will not overcap and {77756} is active.",
-          "{51505}.",
+          "?(!16166&!462840): {51505} if you will not overcap and {77756} is active.",
+          "?(!16166&462840): {51505}.",
           "?{16166}: {454009} to consume {16166}.",
           "?{16166}: {188196} buffed by {191634} with to consume {16166}.",
           "?{117014}: {117014}.",
@@ -135,7 +134,7 @@ ClassCodexData["SHAMAN"] = {
       },
       {
         heroTalent = "Farseer",
-        context = "開場",
+        context = "起手",
         steps = {
           "{191634}",
           "{51505}",
@@ -147,7 +146,7 @@ ClassCodexData["SHAMAN"] = {
       },
       {
         heroTalent = "Stormbringer",
-        context = "開場",
+        context = "起手",
         steps = {
           "{191634}",
           "{51505}",
@@ -161,14 +160,14 @@ ClassCodexData["SHAMAN"] = {
   },
   ["enhancement"] = {
     label = "Enhancement Shaman",
-    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/enhancement/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/enhancement/midnight-season-1",
     priorities = {
       {
         heroTalent = "Stormbringer",
         context = "AoE",
         stats = {
           { "加速" },
-          { "Mastery", "致命一擊" },
+          { "精通", "致命一擊" },
           { "臨機應變" },
         },
       },
@@ -187,28 +186,14 @@ ClassCodexData["SHAMAN"] = {
       {
         heroTalent = "Totemic",
         context = "團隊單目標",
+        recommended = true,
         exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYmgNAmlZMzMWWmBmZ2YZmZmhhxMAAGgxMTMzAAjB",
-      },
-      {
-        heroTalent = "Stormbringer",
-        context = "團隊單目標",
-        exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzYmZmZmZmZmZmZGAAAAAAAAgNAbmxwGZBmhhGsAwsMjZmxyyMwMzGLzMzMMMmBAYGGGmZCMzAYcBA",
       },
       {
         heroTalent = "Totemic",
         context = "傳奇+",
+        recommended = true,
         exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFN2GAzEsBwsMjZMWWMwMz2YZmZmZwyYGAAgxYGxMDwgxA",
-      },
-      {
-        heroTalent = "Stormbringer",
-        context = "傳奇+",
-        exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzYMzMzMzMzMzMzAAAAAAAAAsBYzMG2ILwMM0gFAmlZMjxyiBmZ2GLzMzMDWGzAAYYMDmJwMDGMuAA",
-      },
-      {
-        heroTalent = "Stormbringer",
-        context = "探究",
-        buildLabel = "傳奇+",
-        exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYmgNAmlZMjxyyMwMjxiZmZGjFmBAAYMmZiZGAYMA",
       },
       {
         heroTalent = "Totemic",
@@ -269,7 +254,7 @@ ClassCodexData["SHAMAN"] = {
           "?{1260666}: {470057}",
           "{17364}",
           "{60103}",
-          "{470057}",
+          "?(!(1260666)): {470057}",
           "{188443} with 5+ {187880} stacks.",
         },
       },
@@ -287,7 +272,7 @@ ClassCodexData["SHAMAN"] = {
           "{17364} during {384352}",
           "{188443} with 10 {187880} stacks",
           "?{1260666}: {470057}",
-          "{470057}",
+          "?(!(1260666)): {470057}",
           "{60103}",
           "{17364}",
           "{188443} with 5+ {187880} stacks",
@@ -295,7 +280,7 @@ ClassCodexData["SHAMAN"] = {
       },
       {
         heroTalent = "Stormbringer",
-        context = "單目標開場",
+        context = "單目標 起手",
         steps = {
           "{470057} on the way into melee",
           "?{382042}: {197214}",
@@ -308,7 +293,7 @@ ClassCodexData["SHAMAN"] = {
       },
       {
         heroTalent = "Stormbringer",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "{470057} on the way into melee",
           "?{197214}: {197214}",
@@ -320,7 +305,7 @@ ClassCodexData["SHAMAN"] = {
       },
       {
         heroTalent = "Totemic",
-        context = "單目標開場",
+        context = "單目標 起手",
         steps = {
           "{470057} on the way into melee",
           "{444995}",
@@ -333,7 +318,7 @@ ClassCodexData["SHAMAN"] = {
       },
       {
         heroTalent = "Totemic",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "{470057} on the way into melee",
           "{444995}",
@@ -341,7 +326,7 @@ ClassCodexData["SHAMAN"] = {
           "{384352} and immediately {187874}",
           "{60103} to trigger {201900}",
           "?{1218047}: {1218047} with 10 {187880}",
-          "{17364}",
+          "?(!(1218047)): {17364}",
           "{60103}",
         },
       },
@@ -349,14 +334,14 @@ ClassCodexData["SHAMAN"] = {
   },
   ["restoration"] = {
     label = "Restoration Shaman",
-    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/restoration/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/restoration/midnight-season-1",
     priorities = {
       {
         heroTalent = "Farseer",
         context = "通用",
         stats = {
           { "致命一擊" },
-          { "Mastery", "臨機應變" },
+          { "精通", "臨機應變" },
           { "加速" },
         },
       },
@@ -365,35 +350,12 @@ ClassCodexData["SHAMAN"] = {
         context = "通用",
         stats = {
           { "致命一擊" },
-          { "Mastery", "臨機應變" },
+          { "精通", "臨機應變" },
           { "加速" },
         },
       },
     },
     talents = {
-      {
-        heroTalent = "All",
-        context = "團隊單目標",
-        buildLabel = "Build",
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzwYmZmZGzYB2gZsox2AyMwGjhZsNGz0stMzwMmFWMzMjZYWGAAYAzMDmZAgBD",
-      },
-      {
-        heroTalent = "All",
-        context = "傳奇+",
-        buildLabel = "Build",
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AyMwGzMDmtZGjmtlZGmxswixMjZsMLDAAGAzMYmBAGM",
-      },
-      {
-        heroTalent = "Totemic",
-        context = "探究",
-        recommended = true,
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZMW2GzMzMzMzMmxMWgNYGLasNgMDsZGzgZbmZGNbLzMYmBLzMzMmhZBAAAMzMYmBAgB",
-      },
-      {
-        heroTalent = "Farseer",
-        context = "探究",
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmxy2MMzMzMzMmxYxMLwAmgZhJwYBzMY2mZmRz2yMDmZwyMmZMjlZBAAGgZmBAzMMGM",
-      },
       {
         heroTalent = "Farseer",
         context = "團隊單目標",
@@ -405,6 +367,11 @@ ClassCodexData["SHAMAN"] = {
         exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZbZbYmZGzMGzYmFzsADYCmFmAjFmZGMbzMGNbLzMMjZhFjZGzYZWGAAMAzMDAmZgBD",
       },
       {
+        heroTalent = "Farseer",
+        context = "探究",
+        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmxy2MMzMzMzMmxYxMLwAmgZhJwYBzMY2mZmRz2yMDmZwyMmZMjlZBAAGgZmBAzMMGM",
+      },
+      {
         heroTalent = "Totemic",
         context = "團隊單目標",
         recommended = true,
@@ -415,6 +382,12 @@ ClassCodexData["SHAMAN"] = {
         context = "傳奇+",
         recommended = true,
         exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AyMwGzMDmtZGjmtlZGmxswixMjZsMLDAAGAzMYmBAGM",
+      },
+      {
+        heroTalent = "Totemic",
+        context = "探究",
+        recommended = true,
+        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZMW2GzMzMzMzMmxMWgNYGLasNgMDsZGzgZbmZGNbLzMYmBLzMzMmhZBAAAMzMYmBAgB",
       },
     },
     rotation = {

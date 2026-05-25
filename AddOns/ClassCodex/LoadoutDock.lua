@@ -478,22 +478,11 @@ local function BuildLoadoutMenu(_, root)
 
             -- `parent` is whichever menu node we're attaching to (root
             -- for fallback flat rendering, an Arena/BG submenu otherwise).
-            local function emitBracket(parent, bracketKey)
-                local bracketData = ns.GetPvPBuilds(classToken, specSlug, bracketKey)
-                if not bracketData or not bracketData.builds or not bracketData.builds[1] then return end
-                local topBuild = bracketData.builds[1]
-                local label = (ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey
-                -- Hero icon prefix mirrors the Archon submenu pattern above so
-                -- the user can tell which hero tree the PvP build runs at a
-                -- glance. Skipped silently when the build predates the hero
-                -- talent attribution (pre-scrape Lua files, or null tree).
-                if topBuild.heroTalent and ns.HERO_TALENT_ATLAS then
-                    local atlas = ns.HERO_TALENT_ATLAS[topBuild.heroTalent]
-                    if atlas then
-                        label = "|A:" .. atlas .. ":12:12|a " .. label
-                    end
-                end
-                local capturedBuild = topBuild
+            -- Emits one apply-able entry for a specific (bracket, hero,
+            -- build) triple. Used both for the canonical single-build
+            -- flow and per-hero in a multi-hero bracket submenu.
+            local function emitBuildButton(parent, bracketData, build, bracketKey, label)
+                local capturedBuild = build
                 local capturedKey = bracketKey
                 local capturedHonor = (bracketData.pvpTalentSets
                     and bracketData.pvpTalentSets[1]
@@ -509,15 +498,10 @@ local function BuildLoadoutMenu(_, root)
                     end
                     if icons ~= "" then label = label .. "  " .. icons end
                 end
-                if bracketData.lowConfidence then
-                    label = label .. " |cff999999(low confidence)|r"
-                end
-                if activeMatches(topBuild.exportString) then
+                if activeMatches(build.exportString) then
                     label = "|cff00cc00" .. label .. "|r"
                 end
-                local capturedHero = topBuild.heroTalent
-                local capturedLowConf = bracketData.lowConfidence
-                local capturedSample = bracketData.sampleSize
+                local capturedHero = build.heroTalent
                 local entry = parent:CreateButton(label, function()
                     if InCombatLockdown() then
                         UIErrorsFrame:AddMessage(L["Cannot switch loadouts in combat."], 1, 0.3, 0.3)
@@ -561,14 +545,54 @@ local function BuildLoadoutMenu(_, root)
                                     or "Honor talents apply in War Mode or PvP instances.",
                                 0.7, 0.7, 0.7)
                         end
-                        if capturedLowConf then
-                            tooltip:AddLine(" ")
-                            tooltip:AddLine(
-                                string.format(L["Low confidence — only %d samples."]
-                                    or "Low confidence — only %d samples.", capturedSample or 0),
-                                0.7, 0.7, 0.7)
-                        end
                     end)
+                end
+            end
+
+            -- Render one bracket entry. Single button when the meta has
+            -- a clear winner; collapsing submenu listing top-N variants
+            -- when multiple builds clear the share floor (Solo Shuffle
+            -- and similar — may be different heroes OR same hero with
+            -- different choice-node picks). Honor talents stay at the
+            -- bracket level — same set applies regardless of variant.
+            local function emitBracket(parent, bracketKey)
+                local bracketData = ns.GetPvPBuilds(classToken, specSlug, bracketKey)
+                if not bracketData or not bracketData.builds or not bracketData.builds[1] then return end
+                local bracketName = (ns.GetPvPBracketName and ns.GetPvPBracketName(bracketKey)) or bracketKey
+                local variants = ns.GetPvPBuildVariants and ns.GetPvPBuildVariants(bracketData)
+                    or { { hero = bracketData.builds[1].heroTalent, build = bracketData.builds[1] } }
+
+                if #variants <= 1 then
+                    -- Stable single-build flow. Hero atlas prefix mirrors
+                    -- the Archon submenu pattern.
+                    local label = bracketName
+                    local top = variants[1].build
+                    if top.heroTalent and ns.HERO_TALENT_ATLAS then
+                        local atlas = ns.HERO_TALENT_ATLAS[top.heroTalent]
+                        if atlas then label = "|A:" .. atlas .. ":12:12|a " .. label end
+                    end
+                    emitBuildButton(parent, bracketData, top, bracketKey, label)
+                    return
+                end
+
+                -- Multi-variant: bracket becomes a submenu, one entry
+                -- per qualifying build. Labels are hero icon + hero name;
+                -- same-hero duplicates get "(alt)" / "(alt 2)" suffixes
+                -- so two visually-identical rows are distinguishable.
+                local bracketNode = parent:CreateButton(bracketName)
+                for _, v in ipairs(variants) do
+                    local label = v.hero or "—"
+                    if v.hero and ns.HERO_TALENT_ATLAS then
+                        local atlas = ns.HERO_TALENT_ATLAS[v.hero]
+                        if atlas then label = "|A:" .. atlas .. ":12:12|a " .. label end
+                    end
+                    if v.altIndex then
+                        local suffix = v.altIndex == 2
+                            and (L["alt"] or "alt")
+                            or string.format(L["alt %d"] or "alt %d", v.altIndex - 1)
+                        label = label .. " |cff9a9a9a(" .. suffix .. ")|r"
+                    end
+                    emitBuildButton(bracketNode, bracketData, v.build, bracketKey, label)
                 end
             end
 

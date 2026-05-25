@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["PRIEST"] = {
   ["discipline"] = {
     label = "Discipline Priest",
-    sourceUrl = "https://www.wowhead.com/guide/classes/priest/discipline/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/priest/discipline/midnight-season-1",
     priorities = {
       {
         heroTalent = "Oracle",
@@ -60,11 +60,6 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "Voidweaver",
-        context = "探究",
-        exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYMzGjxYmZMbsNzMzMzAAAAAAAAAAgxYZGMzMjNjZGsZamGwMDACgZZWWAjNDAAjZmZMYGMzAaGG",
-      },
-      {
-        heroTalent = "Voidweaver",
         context = "團隊單目標",
         exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsgZ2YMPAzMjZbsNzMzMzAAAAAAAAAAgZYZGMzMDzwMwMNTzAzMAIAmtZZBM2MAAMGzMGMDmZwoZYA",
       },
@@ -72,6 +67,11 @@ ClassCodexData["PRIEST"] = {
         heroTalent = "Voidweaver",
         context = "傳奇+",
         exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYMzGjxYmZMbsNzMzMzAAAAAAAAAAgxYZGMzMjNjZGsZamAmZAQAMbzyCYsZAAYMzMjBzgZGMaGG",
+      },
+      {
+        heroTalent = "Voidweaver",
+        context = "探究",
+        exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYMzGjxYmZMbsNzMzMzAAAAAAAAAAgxYZGMzMjNjZGsZamGwMDACgZZWWAjNDAAjZmZMYGMzAaGG",
       },
     },
     rotation = {
@@ -93,7 +93,7 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "All",
-        context = "Voidweaver優先",
+        context = "Voidweaver Priority",
         steps = {
           "Maintain/refresh {589}. It is much stronger in Midnight so you will want to make sure you are applying at least one and then letting {47540} spread the DoT.",
           "{1253593} any time it is available.",
@@ -110,7 +110,7 @@ ClassCodexData["PRIEST"] = {
   },
   ["holy"] = {
     label = "Holy Priest",
-    sourceUrl = "https://www.wowhead.com/guide/classes/priest/holy/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/priest/holy/midnight-season-1",
     priorities = {
       {
         heroTalent = "Archon",
@@ -182,7 +182,7 @@ ClassCodexData["PRIEST"] = {
     rotation = {
       {
         heroTalent = "All",
-        context = "團隊優先",
+        context = "團隊 Priority",
         steps = {
           "{120517} as raid damage begins, the goal is to have it expanding and contracting continuously as damage is hitting the raid.",
           "{200183} to reset the cooldown of your Holy Words.",
@@ -198,8 +198,8 @@ ClassCodexData["PRIEST"] = {
         heroTalent = "All",
         context = "傳奇+",
         steps = {
-          "{33076} on cooldown, preferring allies that need direct healing or allies without stacks of {33076}.",
-          "{120517} frequently for healing and damage, look to utilize before incoming damage so you can start generating {114255} procs to help with healing (these heal for more than regular casts!).",
+          "?(H\"Oracle\"): {33076} on cooldown, preferring allies that need direct healing or allies without stacks of {33076}.",
+          "?(H\"Archon\"): {120517} frequently for healing and damage, look to utilize before incoming damage so you can start generating {114255} procs to help with healing (these heal for more than regular casts!).",
           "{2050} on cooldown for single target.",
           "Keep {33076} on cooldown. (Focus on refreshing/maintaining stacks on players).",
           "Use {200183} frequently to save mana, reset the cooldowns of your Holy Words to prepare for additional burst damage or simply as a damage cooldown during downtime.",
@@ -210,7 +210,7 @@ ClassCodexData["PRIEST"] = {
   },
   ["shadow"] = {
     label = "Shadow Priest",
-    sourceUrl = "https://www.wowhead.com/guide/classes/priest/shadow/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/priest/shadow/midnight-season-1",
     priorities = {
       {
         heroTalent = "Archon",
@@ -241,6 +241,11 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "Archon",
+        context = "團隊 MT",
+        exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGyMWMTDwMAzsZGmNDAZMWAwMQGzMzY2GzstMAzED",
+      },
+      {
+        heroTalent = "Archon",
         context = "傳奇+",
         exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzYDZGLmpBYGgZ2MDzmBgMGLAYGIjZmZMbjZ2WGgZiB",
       },
@@ -248,11 +253,6 @@ ClassCodexData["PRIEST"] = {
         heroTalent = "Archon",
         context = "探究",
         exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzYDZGLmpBYGgZ2MDzmBgMGLAYGIjZmZMbjZ2WGgZiB",
-      },
-      {
-        heroTalent = "Archon",
-        context = "團隊 MT",
-        exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGyMWMTDwMAzsZGmNDAZMWAwMQGzMzY2GzstMAzED",
       },
       {
         heroTalent = "Voidweaver",
@@ -360,7 +360,7 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "Archon",
-        context = "開場",
+        context = "起手",
         steps = {
           "{1227280}.",
           "?{1279350}: {589}",
@@ -372,7 +372,7 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "Voidweaver",
-        context = "開場",
+        context = "起手",
         steps = {
           "{1227280}.",
           "?{1279350}: {589}.",

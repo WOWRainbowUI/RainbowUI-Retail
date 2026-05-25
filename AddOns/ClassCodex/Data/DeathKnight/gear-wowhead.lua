@@ -2,13 +2,12 @@ ClassCodexGearData = ClassCodexGearData or {}
 ClassCodexGearData["DEATHKNIGHT"] = {
   ["blood"] = {
     enchants = {
-      { slot = "武器", best = { itemId = 0, name = "", spellId = 326805 }, alternate = { itemId = 0, name = "", spellId = 53344 } },
-      { slot = "頭", best = { itemId = 243981, name = "Enchant Helm - Empowered Blessing of Speed" } },
-      { slot = "肩", best = { itemId = 243963, name = "Enchant Shoulders - Akil'zon's Swiftness" } },
-      { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
-      { slot = "腿", best = { itemId = 244641, name = "Forest Hunter's Armor Kit" } },
-      { slot = "腳", best = { itemId = 244009, name = "Enchant Boots - Farstrider's Hunt" } },
-      { slot = "戒指", best = { itemId = 243987, name = "Enchant Ring - Nature's Fury" } },
+      { slot = "Flask", best = { itemId = 241324, name = "Flask of the Blood Knights" }, alternate = { itemId = 241326, name = "Flask of the Shattered Sun" } },
+      { slot = "Combat Potion", best = { itemId = 241288, name = "Potion of Recklessness" }, alternate = { itemId = 241308, name = "Light's Potential" } },
+      { slot = "Health Potion", best = { itemId = 241304, name = "Silvermoon Health Potion" } },
+      { slot = "Weapon Buff", best = { itemId = 243734, name = "Thalassian Phoenix Oil" } },
+      { slot = "Augment Rune", best = { itemId = 259085, name = "Void-Touched Augment Rune" } },
+      { slot = "Food", best = { itemId = 242273, name = "Blooming Feast" } },
     },
     gems = {
       primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },
@@ -128,14 +127,14 @@ ClassCodexGearData["DEATHKNIGHT"] = {
     },
     bisGear = {
       { label = "整體", slots = {
-        { slot = "武器(雙手)", item = { itemId = 249277, name = "Bellamy's Final Judgement", bonusIDs = { 12806, 13335 } }, source = "光盲先鋒" },
-        { slot = "武器(單手)", item = { itemId = 249281, name = "Blade of the Final Twilight", bonusIDs = { 12806, 13335 } }, source = "墮落之王薩哈達爾" },
+        { slot = "武器 (2H)", item = { itemId = 249277, name = "Bellamy's Final Judgement", bonusIDs = { 12806, 13335 } }, source = "光盲先鋒" },
+        { slot = "武器 (1H)", item = { itemId = 249281, name = "Blade of the Final Twilight", bonusIDs = { 12806, 13335 } }, source = "墮落之王薩哈達爾" },
         { slot = "頭", item = { itemId = 249970, name = "Relentless Rider's Crown", bonusIDs = { 12806, 13335 } }, source = "套裝" },
         { slot = "項鍊", item = { itemId = 250247, name = "Amulet of the Abyssal Hymn", bonusIDs = { 12806 } }, source = "午夜之落" },
-        { slot = "肩", item = { itemId = 50234, name = "Shoulderplates of Frozen Blood", bonusIDs = { 12806 } }, source = "薩倫之淵" },
-        { slot = "披風", item = { itemId = 239656, name = "Adherent's Silken Shroud", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "Crafting/Misc" },
+        { slot = "肩", item = { itemId = 50234, name = "肩plates of Frozen Blood", bonusIDs = { 12806 } }, source = "薩倫之淵" },
+        { slot = "披風", item = { itemId = 239656, name = "Adherent's Silken Shroud", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "製作/Misc" },
         { slot = "胸", item = { itemId = 249973, name = "Relentless Rider's Cuirass", bonusIDs = { 12806, 13335 } }, source = "套裝" },
-        { slot = "手腕", item = { itemId = 237834, name = "Spellbreaker's Bracers", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "Crafting/Misc" },
+        { slot = "手腕", item = { itemId = 237834, name = "Spellbreaker's Bracers", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "製作/Misc" },
         { slot = "手", item = { itemId = 249971, name = "Relentless Rider's Bonegrasps", bonusIDs = { 12806, 13335 } }, source = "套裝" },
         { slot = "腰", item = { itemId = 249380, name = "Hate-Tied Waistchain", bonusIDs = { 12806, 13335 } }, source = "宇宙之冠" },
         { slot = "腿", item = { itemId = 249969, name = "Relentless Rider's Legguards", bonusIDs = { 12806, 13335 } }, source = "套裝" },
@@ -149,17 +148,17 @@ ClassCodexGearData["DEATHKNIGHT"] = {
   },
   ["unholy"] = {
     enchants = {
-      { slot = "武器", best = { itemId = 0, name = "", spellId = 327082 } },
-      { slot = "頭", best = { itemId = 243981, name = "Enchant Helm - Empowered Blessing of Speed" } },
-      { slot = "肩", best = { itemId = 243963, name = "Enchant Shoulders - Akil'zon's Swiftness" } },
-      { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
-      { slot = "腿", best = { itemId = 244641, name = "Forest Hunter's Armor Kit" } },
-      { slot = "腳", best = { itemId = 244009, name = "Enchant Boots - Farstrider's Hunt" } },
-      { slot = "戒指", best = { itemId = 243957, name = "Enchant Ring - Eyes of the Eagle" } },
+      { slot = "Flask", best = { itemId = 241326, name = "Flask of the Shattered Sun" }, alternate = { itemId = 241322, name = "Flask of the Magisters" } },
+      { slot = "Combat Potion", best = { itemId = 241288, name = "Potion of Recklessness" }, alternate = { itemId = 241292, name = "Draught of Rampant Abandon" } },
+      { slot = "Health Potion", best = { itemId = 241304, name = "Silvermoon Health Potion" } },
+      { slot = "Weapon Buff", best = { itemId = 243734, name = "Thalassian Phoenix Oil" }, alternate = { itemId = 237371, name = "Refulgent Whetstone" } },
+      { slot = "Augment Rune", best = { itemId = 259085, name = "Void-Touched Augment Rune" } },
+      { slot = "Food", best = { itemId = 255845, name = "Silvermoon Parade" }, alternate = { itemId = 242275, name = "Royal Roast" } },
     },
     gems = {
       primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },
       secondary = {
+        { itemId = 240966, name = "Powerful Eversong Diamond" },
         { itemId = 240908, name = "Flawless Masterful Garnet" },
         { itemId = 240898, name = "Flawless Deadly Amethyst" },
       },
@@ -209,7 +208,7 @@ ClassCodexGearData["DEATHKNIGHT"] = {
         { slot = "武器", item = { itemId = 249277, name = "Bellamy's Final Judgement", bonusIDs = { 13355, 13469, 13468 } }, source = "光盲先鋒" },
         { slot = "頭", item = { itemId = 249970, name = "Relentless Rider's Crown", bonusIDs = { 13355, 13469, 13468 } }, source = "套裝" },
         { slot = "項鍊", item = { itemId = 250247, name = "Amulet of the Abyssal Hymn", bonusIDs = { 13355, 13469, 13468 } }, source = "午夜之落" },
-        { slot = "肩", item = { itemId = 50234, name = "Shoulderplates of Frozen Blood", bonusIDs = { 13355, 13469, 13468 } }, source = "薩倫之淵" },
+        { slot = "肩", item = { itemId = 50234, name = "肩plates of Frozen Blood", bonusIDs = { 13355, 13469, 13468 } }, source = "薩倫之淵" },
         { slot = "披風", item = { itemId = 239656, name = "Adherent's Silken Shroud", bonusIDs = { 13622, 12497, 12066, 8960, 8791, 12384 } }, source = "製作" },
         { slot = "胸", item = { itemId = 249973, name = "Relentless Rider's Cuirass", bonusIDs = { 13355, 13469, 13468 } }, source = "套裝" },
         { slot = "手腕", item = { itemId = 237834, name = "Spellbreaker's Bracers", bonusIDs = { 13622, 12497, 12066, 8960, 8791, 12384 } }, source = "製作" },

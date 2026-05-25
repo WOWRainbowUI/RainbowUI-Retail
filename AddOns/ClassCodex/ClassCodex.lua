@@ -380,16 +380,97 @@ local function FormatRotationStep(stepText)
     end)
 end
 
-local function ShouldShowStep(stepText)
+-- Evaluate a compound boolean expression over spell IDs and hero-tree labels:
+--   number       → IsPlayerSpell(n)
+--   H"label"     → currentHeroTalent == label
+--   !x           → not x
+--   x & y        → both
+--   x | y        → either
+--   ( ... )      → grouping
+-- `&` binds tighter than `|`. Whitespace tolerated. Returns false on any
+-- parse failure (safer than throwing — the step just hides).
+local function EvalConditionExpr(expr, currentHeroTalent)
+    local pos, len = 1, #expr
+    local function peek()
+        if pos > len then return nil end
+        return expr:sub(pos, pos)
+    end
+    local function eatWs()
+        while pos <= len and expr:sub(pos, pos) == " " do pos = pos + 1 end
+    end
+    local parseOr
+    local function parseUnary()
+        eatWs()
+        local c = peek()
+        if c == "!" then
+            pos = pos + 1
+            return not parseUnary()
+        elseif c == "(" then
+            pos = pos + 1
+            local v = parseOr()
+            eatWs()
+            if peek() == ")" then pos = pos + 1 end
+            return v
+        elseif c == "H" and expr:sub(pos + 1, pos + 1) == '"' then
+            -- Hero-tree literal: H"<label>". Both sides are normalized to
+            -- English (currentHeroTalent via ATLAS_TO_HERO reverse-lookup
+            -- in GetActiveHeroTalentName; the label here from Wowhead's
+            -- English BBCode), but the addon already case-insensitive-
+            -- matches hero options elsewhere (see line ~2714) so we mirror
+            -- that here to absorb Wowhead casing drift like Shado-Pan vs
+            -- Shado-pan.
+            local closing = expr:find('"', pos + 2, true)
+            if not closing then return false end
+            local label = expr:sub(pos + 2, closing - 1)
+            pos = closing + 1
+            if not currentHeroTalent then return false end
+            return currentHeroTalent:lower() == label:lower()
+        else
+            local s, e = expr:find("^(%d+)", pos)
+            if not s then return false end
+            pos = e + 1
+            return IsPlayerSpell(tonumber(expr:sub(s, e))) and true or false
+        end
+    end
+    local function parseAnd()
+        local v = parseUnary()
+        eatWs()
+        while peek() == "&" do
+            pos = pos + 1
+            v = parseUnary() and v
+            eatWs()
+        end
+        return v
+    end
+    parseOr = function()
+        local v = parseAnd()
+        eatWs()
+        while peek() == "|" do
+            pos = pos + 1
+            v = parseAnd() or v
+            eatWs()
+        end
+        return v
+    end
+    return parseOr() and true or false
+end
+
+local function ShouldShowStep(stepText, currentHeroTalent)
     local reqId = stepText:match("^%?{(%d+)}:")
     if reqId then return IsPlayerSpell(tonumber(reqId)) end
     local negId = stepText:match("^%?!{(%d+)}:")
     if negId then return not IsPlayerSpell(tonumber(negId)) end
+    -- %b() balances nested parens correctly; lazy `.-` would stop at the
+    -- first ')' inside an expression like ?((1&2)|3):.
+    local exprParen = stepText:match("^%?(%b()):")
+    if exprParen then return EvalConditionExpr(exprParen:sub(2, -2), currentHeroTalent) end
     return true
 end
 
 local function StripConditionPrefix(stepText)
-    return stepText:gsub("^%?!?{%d+}:%s*", "")
+    stepText = stepText:gsub("^%?!?{%d+}:%s*", "")
+    stepText = stepText:gsub("^%?%b():%s*", "")
+    return stepText
 end
 
 local function GetStepSpellIcon(stepText)
@@ -992,14 +1073,6 @@ statTargetsInfoBtn:SetScript("OnEnter", function(self)
     GameTooltip:SetText("From Archon", 1, 0.82, 0)
     GameTooltip:AddLine(" ")
     GameTooltip:AddLine("Empirical secondary-stat rating targets harvested from the top players for your spec on Archon.gg.", 1, 1, 1, true)
-    if self.sampleSize and self.sampleSize > 0 then
-        local n = (BreakUpLargeNumbers and BreakUpLargeNumbers(self.sampleSize)) or tostring(self.sampleSize)
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddDoubleLine("Sample", string.format("%s logs", n), 0.7, 0.7, 0.7, 0.85, 0.85, 0.85)
-    end
-    if self.capturedAt and self.capturedAt ~= "" then
-        GameTooltip:AddDoubleLine("Captured", self.capturedAt, 0.7, 0.7, 0.7, 0.85, 0.85, 0.85)
-    end
     if self.url then
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine("Click to copy URL", 0.55, 0.55, 0.55)
@@ -2365,12 +2438,10 @@ end)
 local STAT_TARGETS_DISPLAY_ORDER = { "mastery", "haste", "crit", "versatility" }
 
 -- Update the Stats-tab title-row info icon with the active snapshot's
--- Archon source URL + sample size + capture date. Hides the icon when
--- there's no snapshot (no data → no source to show).
+-- Archon source URL. Hides the icon when there's no snapshot (no data →
+-- no source to show).
 local function UpdateStatTargetsInfoIcon(snapshot)
     statTargetsInfoBtn.url = snapshot and snapshot.sourceUrl or nil
-    statTargetsInfoBtn.sampleSize = snapshot and snapshot.sampleSize or nil
-    statTargetsInfoBtn.capturedAt = snapshot and snapshot.capturedAt or nil
 end
 
 local function RenderStatTargets(classToken, specKey)
@@ -2865,7 +2936,7 @@ function ns:UpdatePanel()
         local visibleStep = 0
         local currentY = yOffset
         for _, step in ipairs(rotation.steps) do
-            if ShouldShowStep(step) then
+            if ShouldShowStep(step, currentHeroTalent) then
                 visibleStep = visibleStep + 1
                 if visibleStep > MAX_ROTATION_STEPS then break end
                 local row = rotationFrames[visibleStep]
@@ -4212,6 +4283,9 @@ local function RegisterSettings()
                 end
             end)
 
+        AddCheckbox("showLoginMessage", L["Login Message"],
+            L["Print the 'Class Codex loaded — type /cc to open' message to chat when you log in or reload."], false, nil)
+
         -- 2. Character Pane Button. Reset is available in-game via Shift+Right-click
         -- on the gear icon, so we don't add a Settings reset button (the
         -- CreateSettingsButtonInitializer signature varies across client
@@ -4375,7 +4449,13 @@ local function RegisterSettings()
                 if ns.SetTalentPaneEnabled then ns.SetTalentPaneEnabled(val) end
             end)
 
-        -- 5. Docked Panel
+        -- 5. Panel (settings shared between docked and floating modes)
+        AddHeader(L["Panel"])
+        AddCheckbox("highlightOwnedGear", L["Highlight Owned Gear"],
+            L["Tint BiS and Trinket rows with a subtle green background when you already own the item (bags, bank, reagent bank, warbank, or equipped). Applies to both the docked and floating panels."], true,
+            function() if panel:IsShown() then ns:UpdatePanel() end end)
+
+        -- 6. Docked Panel
         AddHeader(L["Docked Panel"])
         AddCheckbox("dockShowStats", L["Show Stat Priority"],
             L["Show the Stat Priority section when the panel is docked."], true,
@@ -4490,6 +4570,9 @@ eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 eventFrame:RegisterEvent("COMBAT_RATING_UPDATE")
 eventFrame:RegisterEvent("UNIT_STATS")
 eventFrame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+-- Drives the "owned" overlay on BiS rows. Blizzard debounces this
+-- event already, so loot/bank/mail churn collapses to one refresh.
+eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 -- Re-render Stat Targets on combat transitions so the in-combat
 -- placeholder swaps in/out predictably (GetCombatRating only returns
 -- real values to tainted code outside combat).
@@ -4499,12 +4582,14 @@ eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 eventFrame:SetScript("OnEvent", function(_, event, arg1)
     if event == "ADDON_LOADED" and arg1 == addonName then
         local dbDefaults = {
+            showLoginMessage = false,
             showTooltipBadges = true,
             tooltipFooterMode = 0, -- 0 off, 1 always, 2 only when different
             showWowheadBisTooltip = true,
             showIcyVeinsBisTooltip = true,
             showTrinketTooltip = true,
             bisCurrentClassOnly = false,
+            highlightOwnedGear = true,
             tooltipSourceStyle = 1,
             minimap = { hide = false },
             showMinimapButton = true,
@@ -4686,8 +4771,10 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         if _G.GwCharacterWindow then
             ns.RegisterDockHost(_G.GwCharacterWindow, { priority = 50 })
         end
-        local ver = C_AddOns.GetAddOnMetadata(addonName, "Version") or ""
-        print("|cff00ccffClass Codex|r v" .. ver .. " " .. L["loaded — type |cff00ccff/cc|r to open"])
+        if ClassCodexDB and ClassCodexDB.showLoginMessage then
+            local ver = C_AddOns.GetAddOnMetadata(addonName, "Version") or ""
+            print("|cff00ccffClass Codex|r v" .. ver .. " " .. L["loaded — type |cff00ccff/cc|r to open"])
+        end
         -- Restore floating panel if it was open before logout
         if isFloating and ClassCodexCharDB and ClassCodexCharDB.panelOpen then
             ns:UpdatePanel()
@@ -4729,10 +4816,18 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         cachedRanks = nil
         if panel:IsShown() then ns:UpdatePanel() end
 
-    elseif event == "COMBAT_RATING_UPDATE" or event == "UNIT_STATS" or event == "PLAYER_EQUIPMENT_CHANGED" then
+    elseif event == "COMBAT_RATING_UPDATE" or event == "UNIT_STATS" then
         -- Cheap path: only re-render when the Stats tab is visible. Other
         -- tabs don't display live ratings so they don't need to repaint.
         if panel:IsShown() and activeTab == "stats" then
+            ns:UpdatePanel()
+        end
+
+    elseif event == "PLAYER_EQUIPMENT_CHANGED" or event == "BAG_UPDATE_DELAYED" then
+        -- Stats tab needs equipment-driven rating updates; BiS and
+        -- Trinkets tabs need their "owned" row tint refreshed when
+        -- bags/equipped slots change. Other tabs don't reflect either.
+        if panel:IsShown() and (activeTab == "stats" or activeTab == "bis" or activeTab == "trinkets") then
             ns:UpdatePanel()
         end
 

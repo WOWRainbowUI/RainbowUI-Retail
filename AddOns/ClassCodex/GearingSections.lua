@@ -459,6 +459,16 @@ local function SetRowIcon(row, itemId, spellId)
     end
 end
 
+-- GetItemCount's 2nd arg includes bank, 4th arg includes reagent +
+-- warbank. Bank flag also covers currently-equipped items, so we
+-- don't need a separate IsEquippedItem branch. Returns false when
+-- the user has opted out via the "Highlight Owned Gear" setting.
+local function IsItemOwned(itemId)
+    if not itemId then return false end
+    if ClassCodexDB and ClassCodexDB.highlightOwnedGear == false then return false end
+    return (GetItemCount(itemId, true, false, true) or 0) > 0
+end
+
 -------------------------------------------------------------------------------
 -- Item Tooltip Helper
 -------------------------------------------------------------------------------
@@ -540,13 +550,16 @@ ns.SetCollapsed(enchantContent, enchantHeader, enchantCollapsed)
 --   bisFallback    — same idea for the BiS section
 --   currentSource  — "Wowhead" or "PvP", session state
 --   lastSpecKey    — guard for "reset on spec switch"
+-- Dropdown is parented to ns.contentFrame (not enchantContent) so it
+-- can sit ABOVE the Enchants section header on the Enhancements tab.
+-- LayoutGearingSections positions it on each refresh; UpdateGearingSections
+-- gates `Show()` on the active tab so it doesn't bleed onto BiS / Trinkets
+-- / About / Crafts (all of which still call UpdateGearingSections).
 local pvpDock = {
-    sourceDropdown = ns.CreateOptionDropdown("ClassCodexDockEnhancementsSourceDropdown", enchantContent),
+    sourceDropdown = ns.CreateOptionDropdown("ClassCodexDockEnhancementsSourceDropdown", ns.contentFrame),
     currentSource  = "Wowhead",
     lastSpecKey    = nil,
 }
-pvpDock.sourceDropdown:SetPoint("TOPLEFT", 0, 0)
-pvpDock.sourceDropdown:SetPoint("TOPRIGHT", 0, 0)
 pvpDock.sourceDropdown:Hide()
 
 pvpDock.fallback = enchantContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -753,6 +766,13 @@ local trinketRows = {}
 for i = 1, MAX_TRINKET_ROWS do
     local row = CreateFrame("Frame", nil, trinketContent)
     row:SetHeight(ROW_HEIGHT)
+    -- Subtle green row tint when the player owns this trinket
+    -- (bags/bank/reagent bank/warbank/equipped). Matches by itemId.
+    local ownedBg = row:CreateTexture(nil, "BACKGROUND")
+    ownedBg:SetAllPoints(row)
+    ownedBg:SetColorTexture(0.2, 0.9, 0.2, 0.10)
+    ownedBg:Hide()
+    row.ownedBg = ownedBg
     local tier = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     tier:SetPoint("LEFT", 2, 0)
     tier:SetWidth(16)
@@ -890,6 +910,16 @@ for i = 1, MAX_BIS_ROWS do
     source:SetWordWrap(false)
     source:SetTextColor(0.5, 0.5, 0.5)
     row.sourceLabel = source
+    -- Subtle green row tint flagged when the player owns this item in
+    -- bags/bank/reagent bank/warbank. Matches by itemId only (no
+    -- bonusID precision), so an LFR drop counts as "owned" against a
+    -- Mythic BiS entry — fine as a hint, not a checklist. BACKGROUND
+    -- layer keeps it behind icon/text without muddying either.
+    local ownedBg = row:CreateTexture(nil, "BACKGROUND")
+    ownedBg:SetAllPoints(row)
+    ownedBg:SetColorTexture(0.2, 0.9, 0.2, 0.10)
+    ownedBg:Hide()
+    row.ownedBg = ownedBg
     local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     name:SetPoint("LEFT", row.icon, "RIGHT", 4, 0)
     name:SetPoint("RIGHT", source, "LEFT", -4, 0)
@@ -956,6 +986,12 @@ local lastCraftCount = 0
 local lastBisCount = 0
 
 function ns:UpdateGearingSections()
+    -- Hide the source dropdown by default — only the Enhancements tab
+    -- with Wowhead enchant/gem data re-shows it below. Reparenting it
+    -- to ns.contentFrame meant section.Hide() no longer propagates, so
+    -- every call needs to explicitly reset.
+    pvpDock.sourceDropdown:Hide()
+
     -- Restore persisted collapse state for enchants/gems
     local saved = ClassCodexCharDB and ClassCodexCharDB.collapsed
     if saved then
@@ -999,12 +1035,13 @@ function ns:UpdateGearingSections()
         pvpDock.currentSource = "PvP"
     end
 
-    -- Source dropdown — only show if Wowhead has data; otherwise the
-    -- PvP option is the only sensible state and a 1-option dropdown is
-    -- noise. Falls back to plain "Wowhead"/"PvP" labels if the brand-icon
-    -- table from PvPData.lua isn't available yet (defensive — ns is
-    -- shared but order-of-init issues have surprised us before).
-    local showEnhDropdown = hasWowheadEnh
+    -- Source dropdown — only show on the Enhancements tab (the
+    -- dropdown controls Enchants + Gems, not BiS / Trinkets / Crafts /
+    -- About) AND when Wowhead has data (otherwise the PvP option is
+    -- the only sensible state and a 1-option dropdown is noise). Falls
+    -- back to plain "Wowhead"/"PvP" labels if the brand-icon table from
+    -- PvPData.lua isn't available yet.
+    local showEnhDropdown = hasWowheadEnh and ns.getActiveTab and ns.getActiveTab() == "enhancements"
     if showEnhDropdown then
         local labels = ns.ENH_SOURCE_LABELS or {}
         pvpDock.sourceDropdown:Show()
@@ -1024,7 +1061,6 @@ function ns:UpdateGearingSections()
         pvpDock.sourceDropdown:Hide()
     end
 
-    local enhPvpNoData = pvpDock.currentSource == "PvP" and not hasPvPEnh
     local activeEnchants, activeGems
     if pvpDock.currentSource == "PvP" then
         activeEnchants = pvpEnchants
@@ -1033,22 +1069,21 @@ function ns:UpdateGearingSections()
         activeEnchants = gearData and gearData.enchants
         activeGems = gearData and gearData.gems
     end
+    -- Aug Evoker case: PvP has gems but no enchants. The source dropdown
+    -- is parented to enchantContent, so hiding enchantSection traps the
+    -- user on PvP with no way back to Wowhead short of /reload.
+    local pvpEnchantsMissing = pvpDock.currentSource == "PvP"
+        and not (activeEnchants and #activeEnchants > 0)
 
-    -- Enchants
+    -- Enchants. The source dropdown lives ABOVE the section now
+    -- (positioned in LayoutGearingSections), so rows always start at
+    -- y=0 inside the section's content area.
     for i = 1, MAX_ENCHANT_ROWS do enchantRows[i]:Hide() end
     pvpDock.fallback:Hide()
     lastEnchantCount = 0
     lastEnchantHeight = 0
-    local enchBaseY = showEnhDropdown and -30 or 0
-    if enhPvpNoData then
-        pvpDock.fallback:SetText(L["No PvP enchant/gem data for this spec yet."]
-            or "No PvP enchant/gem data for this spec yet.")
-        pvpDock.fallback:ClearAllPoints()
-        pvpDock.fallback:SetPoint("TOPLEFT", 4, enchBaseY - 4)
-        pvpDock.fallback:Show()
-        lastEnchantHeight = math.abs(enchBaseY) + 20
-        enchantSection:Show()
-    elseif activeEnchants and #activeEnchants > 0 then
+    local enchBaseY = 0
+    if activeEnchants and #activeEnchants > 0 then
         local count = math.min(#activeEnchants, MAX_ENCHANT_ROWS)
         local yOff = enchBaseY
         for i = 1, count do
@@ -1086,6 +1121,16 @@ function ns:UpdateGearingSections()
         lastEnchantCount = count
         lastEnchantHeight = math.abs(yOff)
         enchantSection:Show()
+    elseif pvpEnchantsMissing and showEnhDropdown then
+        local msg = activeGems
+            and (L["No PvP enchants for this spec yet."] or "No PvP enchants for this spec yet.")
+            or  (L["No PvP enchant/gem data for this spec yet."] or "No PvP enchant/gem data for this spec yet.")
+        pvpDock.fallback:SetText(msg)
+        pvpDock.fallback:ClearAllPoints()
+        pvpDock.fallback:SetPoint("TOPLEFT", 4, enchBaseY - 4)
+        pvpDock.fallback:Show()
+        lastEnchantHeight = math.abs(enchBaseY) + 20
+        enchantSection:Show()
     else
         enchantSection:Hide()
     end
@@ -1093,7 +1138,7 @@ function ns:UpdateGearingSections()
     -- Gems
     for i = 1, MAX_GEM_ROWS do gemRows[i]:Hide() end
     lastGemCount = 0
-    if not enhPvpNoData and activeGems then
+    if activeGems then
         local idx = 0
         if activeGems.primary then
             idx = idx + 1
@@ -1241,6 +1286,13 @@ function ns:UpdateGearingSections()
             row.sourceText = t.source or nil
             row.sourceLabel:SetText(t.source or "")
             SetRowIcon(row, t.itemId)
+            if row.ownedBg then
+                if IsItemOwned(t.itemId) then
+                    row.ownedBg:Show()
+                else
+                    row.ownedBg:Hide()
+                end
+            end
             row:ClearAllPoints()
             row:SetPoint("TOPLEFT", 0, yOffset - (i - 1) * ROW_HEIGHT)
             row:SetPoint("RIGHT", 0, 0)
@@ -1479,6 +1531,13 @@ function ns:UpdateGearingSections()
                     row.embItemId = nil
                     row.sourceText = entry.source or nil
                     SetRowIcon(row, entry.item.itemId)
+                    if row.ownedBg then
+                        if IsItemOwned(entry.item.itemId) then
+                            row.ownedBg:Show()
+                        else
+                            row.ownedBg:Hide()
+                        end
+                    end
                     row:ClearAllPoints()
                     row:SetPoint("TOPLEFT", 0, yOffset - (i - 1) * ROW_HEIGHT)
                     row:SetPoint("RIGHT", 0, 0)
@@ -1544,12 +1603,18 @@ function ns:LayoutGearingSections(y)
         return y
     end
 
+    -- Source dropdown sits ABOVE the Enchants section header. Only
+    -- visible on the Enhancements tab — gated in UpdateGearingSections
+    -- — so on BiS / Trinkets / About / Crafts this branch is a no-op.
+    if pvpDock.sourceDropdown:IsShown() then
+        pvpDock.sourceDropdown:ClearAllPoints()
+        pvpDock.sourceDropdown:SetPoint("TOPLEFT", ns.contentFrame, "TOPLEFT", ns.CONTENT_INSET, y)
+        pvpDock.sourceDropdown:SetPoint("RIGHT", ns.contentFrame, "RIGHT", -ns.CONTENT_INSET, 0)
+        y = y - 30
+    end
     y = LayoutSection(enchantSection, enchantCollapsed, lastEnchantHeight)
     y = LayoutSection(gemSection, gemCollapsed, lastGemCount * ROW_HEIGHT)
     y = LayoutSection(consumSection, consumCollapsed, lastConsumCount * ROW_HEIGHT)
-
-    -- (lastEnchantHeight already includes the source-dropdown offset and
-    -- the fallback line when shown — see UpdateGearingSections.)
 
     local trinketContentHeight = lastTrinketCount * ROW_HEIGHT
     if trinketCtxDropdown:IsShown() then
