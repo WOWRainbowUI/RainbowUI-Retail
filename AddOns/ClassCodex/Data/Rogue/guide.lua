@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["ROGUE"] = {
   ["assassination"] = {
     label = "Assassination Rogue",
-    sourceUrl = "https://www.wowhead.com/guide/classes/rogue/assassination/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/rogue/assassination/midnight-season-1",
     priorities = {
       {
         heroTalent = "Fatebound",
@@ -27,23 +27,6 @@ ClassCodexData["ROGUE"] = {
     },
     talents = {
       {
-        heroTalent = "Fatebound",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAy2A2MAYmBGA",
-      },
-      {
-        heroTalent = "All",
-        context = "傳奇+",
-        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAottZmZmZmxYmZmZbmlZG8AzMzMjhZGjBwALwMGNmNQ2GwmxGgZGGD",
-      },
-      {
-        heroTalent = "Deathstalker",
-        context = "探究",
-        recommended = true,
-        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmZmZzgBAAAAAmlBbzAAAAAAabbmZmZmZMmZmZ2mZZmBPwMzMzYYmxYA2MLDMglglhJwwixmZGAGD",
-      },
-      {
         heroTalent = "Deathstalker",
         context = "團隊單目標",
         exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmZMbzgBAAAAAmlBLzAAAAAAabbmZmZmZMmZmZ2mZZmZGMmZmZMzYYA2MLDMglglhJwwiBzMADG",
@@ -52,6 +35,18 @@ ClassCodexData["ROGUE"] = {
         heroTalent = "Deathstalker",
         context = "傳奇+",
         exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmZmZzgBAAAAAmlBbzAAAAAAabbmZmZmZMmZmZ2mZZmBPwMzMzYYmxYA2MLDMglglhJwwixmZGAGD",
+      },
+      {
+        heroTalent = "Deathstalker",
+        context = "探究",
+        recommended = true,
+        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmZmZzgBAAAAAmlBbzAAAAAAabbmZmZmZMmZmZ2mZZmBPwMzMzYYmxYA2MLDMglglhJwwixmZGAGD",
+      },
+      {
+        heroTalent = "Fatebound",
+        context = "團隊單目標",
+        recommended = true,
+        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAottZmZmZmxYmZmZbmlZmZwYmZmxMjhBwALwMGNmFQ2GwmBAzMDGA",
       },
       {
         heroTalent = "Fatebound",
@@ -123,7 +118,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Fatebound",
-        context = "單目標開場",
+        context = "單目標 起手",
         steps = {
           "{703}",
           "{1329} until 5 or more combo points",
@@ -138,7 +133,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Fatebound",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "{1856} if you did not get to stealth",
           "{703}",
@@ -155,7 +150,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Deathstalker",
-        context = "單目標開場",
+        context = "單目標 起手",
         steps = {
           "{703}",
           "{1329} until 5 or more combo points",
@@ -170,7 +165,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Deathstalker",
-        context = "AoE 開場",
+        context = "AoE 起手",
         steps = {
           "{1856} if you did not get to stealth",
           "{703}",
@@ -197,7 +192,7 @@ ClassCodexData["ROGUE"] = {
   },
   ["outlaw"] = {
     label = "Outlaw Rogue",
-    sourceUrl = "https://www.wowhead.com/guide/classes/rogue/outlaw/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/rogue/outlaw/midnight-season-1",
     priorities = {
       {
         heroTalent = "Trickster",
@@ -224,34 +219,34 @@ ClassCodexData["ROGUE"] = {
       {
         heroTalent = "Trickster",
         context = "團隊單目標",
-        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMkBmFWoF2YAmZwAD",
       },
       {
         heroTalent = "Trickster",
         context = "傳奇+",
-        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMkBmFWoF2YAmZwAD",
-      },
-      {
-        heroTalent = "Fatebound",
-        context = "探究",
-        exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZMzsNzMzMzMzsBmZbaZw2MAAAAAA2mZmhZmZmxMzsMAAAAMGAMmFDDZgZhFahNGgZGMDmB",
       },
       {
         heroTalent = "Trickster",
         context = "探究",
-        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMkBmFWoF2YAmZwAD",
       },
       {
         heroTalent = "Fatebound",
         context = "團隊單目標",
+        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGjZMzsNzMzMjHwswDMzMLTLD2mBAAAAAMbbzMzwMzMzYmZ2GAAAAGADsBzY0Y2AsNhFGAMzMwA",
       },
       {
         heroTalent = "Fatebound",
         context = "傳奇+",
+        recommended = true,
+        exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzYmHYmFGmx0ygtZAAAAAAz22MzMMzMzMmZmtBAAAgBwAbwMGNmNAbTYhBAzMDMA",
+      },
+      {
+        heroTalent = "Fatebound",
+        context = "探究",
+        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzYmHYmFGmx0ygtZAAAAAAz22MzMMzMzMmZmtBAAAgBwAbwMGNmNAbTYhBAzMDMA",
       },
     },
@@ -325,7 +320,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Trickster",
-        context = "開場",
+        context = "起手",
         steps = {
           "{13750}.",
           "{315508}.",
@@ -338,7 +333,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Fatebound",
-        context = "開場",
+        context = "起手",
         steps = {
           "{13750}.",
           "{315508}.",
@@ -354,7 +349,7 @@ ClassCodexData["ROGUE"] = {
   },
   ["subtlety"] = {
     label = "Subtlety Rogue",
-    sourceUrl = "https://www.wowhead.com/guide/classes/rogue/subtlety/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/rogue/subtlety/midnight-season-1",
     priorities = {
       {
         heroTalent = "Deathstalker",
@@ -399,15 +394,26 @@ ClassCodexData["ROGUE"] = {
     },
     talents = {
       {
+        heroTalent = "Deathstalker",
+        context = "團隊單目標",
+        recommended = true,
+        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxsYWGYALglhJkZBzwMDwMGA",
+      },
+      {
+        heroTalent = "Deathstalker",
+        context = "傳奇+",
+        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMjxDMzMzYMbzYGbbzMzMzMjBjZ2GAAAAGMmNzyADYBsMMhMLYGmZAmxA",
+      },
+      {
+        heroTalent = "Deathstalker",
+        context = "探究",
+        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMDegZmZGjZbmZGbbzMzMzMjBjZ2GAAAAGMmNzyADYDsMMhMLYGmZAmxA",
+      },
+      {
         heroTalent = "Trickster",
         context = "團隊單目標",
         recommended = true,
         exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYW0CtYDzAmZwMGA",
-      },
-      {
-        heroTalent = "Deathstalker",
-        context = "團隊單目標",
-        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxsYWGYALglhJkZBzwMDwMGA",
       },
       {
         heroTalent = "Trickster",
@@ -420,16 +426,6 @@ ClassCodexData["ROGUE"] = {
         context = "探究",
         recommended = true,
         exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZMMzMzYMbzYGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAziWoFbYGwMDmxA",
-      },
-      {
-        heroTalent = "Deathstalker",
-        context = "傳奇+",
-        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMjxDMzMzYMbzYGbbzMzMzMjBjZ2GAAAAGMmNzyADYBsMMhMLYGmZAmxA",
-      },
-      {
-        heroTalent = "Deathstalker",
-        context = "探究",
-        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMDegZmZGjZbmZGbbzMzMzMjBjZ2GAAAAGMmNzyADYDsMMhMLYGmZAmxA",
       },
     },
     rotation = {
@@ -475,7 +471,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Deathstalker",
-        context = "開場",
+        context = "起手",
         steps = {
           "Make sure to be in {1784} before pull.",
           "Start the fight with {185438}.",
@@ -500,7 +496,7 @@ ClassCodexData["ROGUE"] = {
       },
       {
         heroTalent = "Trickster",
-        context = "開場",
+        context = "起手",
         steps = {
           "Make sure to be in {1784} before pull.",
           "Start the fight with {185438}.",

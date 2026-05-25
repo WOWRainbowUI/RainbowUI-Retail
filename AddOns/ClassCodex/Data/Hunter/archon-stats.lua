@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["HUNTER"] = {
   ["beast-mastery"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/beast-mastery/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", sampleSize = 11421, capturedAt = "2026-04-16", targets = { crit = 985, haste = 416, mastery = 795, versatility = 100 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/beast-mastery/hunter/raid/overview/mythic/all-bosses", sampleSize = 11038, capturedAt = "2026-04-16", targets = { crit = 876, haste = 503, mastery = 877, versatility = 93 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/beast-mastery/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1050, haste = 410, mastery = 977, versatility = 87 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/beast-mastery/hunter/raid/overview/mythic/all-bosses", targets = { crit = 991, haste = 493, mastery = 953, versatility = 84 } },
   },
   ["marksmanship"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/marksmanship/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", sampleSize = 4007, capturedAt = "2026-04-16", targets = { crit = 1158, haste = 403, mastery = 540, versatility = 130 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/marksmanship/hunter/raid/overview/mythic/all-bosses", sampleSize = 18776, capturedAt = "2026-04-16", targets = { crit = 1226, haste = 392, mastery = 622, versatility = 120 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/marksmanship/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1310, haste = 408, mastery = 665, versatility = 129 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/marksmanship/hunter/raid/overview/mythic/all-bosses", targets = { crit = 1301, haste = 412, mastery = 727, versatility = 105 } },
   },
   ["survival"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/survival/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", sampleSize = 2364, capturedAt = "2026-04-16", targets = { crit = 718, haste = 567, mastery = 987, versatility = 105 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/survival/hunter/raid/overview/mythic/all-bosses", sampleSize = 3548, capturedAt = "2026-04-16", targets = { crit = 680, haste = 586, mastery = 1129, versatility = 84 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/survival/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 788, haste = 556, mastery = 1143, versatility = 87 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/survival/hunter/raid/overview/mythic/all-bosses", targets = { crit = 789, haste = 565, mastery = 1156, versatility = 87 } },
   },
 }

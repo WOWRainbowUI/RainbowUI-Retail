@@ -1,19 +1,19 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["DRUID"] = {
   ["balance"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/balance/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", sampleSize = 3877, capturedAt = "2026-04-16", targets = { crit = 462, haste = 730, mastery = 963, versatility = 136 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/balance/druid/raid/overview/mythic/all-bosses", sampleSize = 12348, capturedAt = "2026-04-16", targets = { crit = 574, haste = 670, mastery = 1027, versatility = 115 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/balance/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 727, haste = 773, mastery = 911, versatility = 102 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/balance/druid/raid/overview/mythic/all-bosses", targets = { crit = 697, haste = 736, mastery = 980, versatility = 119 } },
   },
   ["feral"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/feral/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", sampleSize = 2537, capturedAt = "2026-04-16", targets = { crit = 533, haste = 629, mastery = 942, versatility = 127 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/feral/druid/raid/overview/mythic/all-bosses", sampleSize = 3693, capturedAt = "2026-04-16", targets = { crit = 533, haste = 691, mastery = 1018, versatility = 118 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/feral/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 514, haste = 747, mastery = 1083, versatility = 118 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/feral/druid/raid/overview/mythic/all-bosses", targets = { crit = 558, haste = 780, mastery = 1053, versatility = 140 } },
   },
   ["guardian"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/guardian/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", sampleSize = 4923, capturedAt = "2026-04-16", targets = { crit = 352, haste = 925, mastery = 428, versatility = 487 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/guardian/druid/raid/overview/mythic/all-bosses", sampleSize = 4144, capturedAt = "2026-04-16", targets = { crit = 409, haste = 989, mastery = 425, versatility = 430 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/guardian/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 367, haste = 1115, mastery = 447, versatility = 521 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/guardian/druid/raid/overview/mythic/all-bosses", targets = { crit = 408, haste = 1083, mastery = 463, versatility = 451 } },
   },
   ["restoration"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/restoration/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", sampleSize = 16944, capturedAt = "2026-04-16", targets = { crit = 156, haste = 1052, mastery = 783, versatility = 269 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/restoration/druid/raid/overview/mythic/all-bosses", sampleSize = 15591, capturedAt = "2026-04-16", targets = { crit = 160, haste = 1123, mastery = 868, versatility = 194 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/restoration/druid/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 95, haste = 1137, mastery = 1058, versatility = 219 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/restoration/druid/raid/overview/mythic/all-bosses", targets = { crit = 151, haste = 1178, mastery = 1018, versatility = 180 } },
   },
 }

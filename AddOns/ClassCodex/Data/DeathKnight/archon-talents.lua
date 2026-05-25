@@ -19,7 +19,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -44,14 +44,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZbmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZbmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
           },
         },
       },
@@ -116,14 +116,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZbmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -253,7 +253,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -272,7 +272,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "San'layn",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMz0MLGzMmxAAAAAmZmZmZmZYGjBAzMzMzAAAYgBmxiGLbA2GwGgZYAAAzMwwA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzwMmZMMbzMz0MbmZMmxMAAAAwMzMzMzMDzYMAYmZmZGAAADMwMW0YZDw2A2AMDDAAYmBzwA",
           },
         },
       },
@@ -363,7 +363,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "San'layn",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMz0MLmZMmxAAAAAzMzMzMzMDzYMAYMzMzAAAYgBmxmGLbA2GwGgZYAAAzMwwA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMz0MLmZMmxAAAAAzMzMzMzMDzYMAYMzMzAAAYgBmxmGLbA2GwGgZYAAAzMYwA",
           },
         },
       },
@@ -425,20 +425,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZxMjmZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZzMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjZGDz2MzMzMbmZkZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZzMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
@@ -451,20 +451,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjZGDz2MzMzMbmZkZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZzMjmZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
           },
         },
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZzMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZzMjmZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
           },
         },
       },
@@ -477,7 +477,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZxMjmZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZxMjmZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAAM",
           },
         },
       },
@@ -490,7 +490,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZxMjmZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZmZAz2MzMzMLmZkZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAMDM",
           },
         },
       },
@@ -503,7 +503,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZzMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZmZAz2MzMzMLmZkZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAMDM",
           },
         },
       },
@@ -516,7 +516,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjZGDz2MzMzMbmZkZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZmZAz2MzMzMLmZkZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAMDM",
           },
         },
       },
@@ -529,14 +529,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZmZAz2MzMzMLmZkZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAMDM",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZzMjmZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAMgB",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -555,7 +555,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
@@ -568,7 +568,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
@@ -607,7 +607,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjZAz2MzMzMLmZkZMzMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
           },
         },
       },
@@ -633,7 +633,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
@@ -666,13 +666,13 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMzYY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
@@ -685,7 +685,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMLzY0MjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgxgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAMzgB",
           },
         },
       },
@@ -698,7 +698,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMzYY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
@@ -711,7 +711,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMLzMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGAzgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZzMjmZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMgB",
           },
         },
       },
@@ -737,7 +737,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMLzMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGAzgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZmZGDz2MzMzMLmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMgB",
           },
         },
       },
@@ -750,7 +750,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMMzMGDz2MzMzMbmZ0MzMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAYgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMzYY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
@@ -763,7 +763,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAMzgB",
           },
         },
       },
@@ -789,7 +789,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjZAz2MzMzMLmZkZMzMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMLzMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGAzgB",
           },
         },
       },
@@ -838,14 +838,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZa2MzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZALmFDDMwsxQjFMgZAYMzMmBYmZYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMLGGYgZjhGLYAzAwYmZMDwMzMGD",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -864,20 +864,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjxYY2mZmZa2MzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZALmFDDMwsxQjFMgZAYMzMmBYmZYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZa2MzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZALmFDDMwsxQjFMgZAYMzMmBYmZYMA",
           },
         },
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMGDz2MzMTzmZGzMjBAAAAAAAgZGDDAWmxMzmZGzMDYxsYYgBmNGasgBMDAjZmxMAzMzYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMLGGYgZjhGLYAzAwYmZMDwMzMGD",
           },
         },
       },
@@ -890,7 +890,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZa2MzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZALmFDDMwsxQjFMgZAYMzMmBYmZYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMLGGYgZjhGLYAzAwYmZMDwMzMGD",
           },
         },
       },
@@ -949,7 +949,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1059,7 +1059,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDMwsxQjFAMDAjZmxMAzMzYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZa2MzYMjBAAAAAAAgZGGDAWmxMz2MzYMDYzsYYgBmNGasgBMDAjZmxMAzMzYMA",
           },
         },
       },
@@ -1079,7 +1079,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1150,7 +1150,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMTjZmxYGDAAAAAAAAzMMzAgtZMzsNzMGzA2MLGGYgZjhGLAYGAGzMjZAmZmZGD",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMTzmZGzMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDMwsxQjFAMDAjZmxMAzMzYMA",
           },
         },
       },
@@ -1176,7 +1176,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "San'layn",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMMjZGDz2MzMTzmZGzMjBAAAAAAAgZGzYAwywMzmZmZmZMwAzYTjlFAbD2wAmBgxMzwgZGMjxA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMMjxYY2GzMTz2MzYmZMDAAAAAAAgZGzYAwywMzmZmZmZMwAzYTjlFAbD2wAmBgxMzwgZGMmxA",
           },
         },
       },
@@ -1189,7 +1189,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZa2MzYMjBAAAAAAAgZGGDAWmxMz2MzYMDYzsYYgBmNGasgBMDAjZmxMAzMzYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMTzmZGzMjBAAAAAAAgZGGDAWmxMzmZGzMDYxsYYgBmNGasgBMDAjZmxMAzMzYMA",
           },
         },
       },

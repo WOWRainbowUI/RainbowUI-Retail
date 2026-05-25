@@ -70,7 +70,7 @@ ClassCodexGearData["HUNTER"] = {
         { slot = "肩", item = { itemId = 151323, name = "Pauldrons of the Void Hunter", bonusIDs = { 12806 } }, source = "三傑議會之座" },
         { slot = "披風", item = { itemId = 258575, name = "Rigid Scale Greatcloak", bonusIDs = { 12806 } }, source = "擎天峰" },
         { slot = "胸", item = { itemId = 249991, name = "Primal Sentry's Scaleplate", bonusIDs = { 12806, 13335 } }, source = "套裝" },
-        { slot = "手腕", item = { itemId = 251209, name = "Corewarden Cuffs", bonusIDs = { 12806 } }, source = "Nexus Point Xenas" },
+        { slot = "手腕", item = { itemId = 251209, name = "Corewarden Cuffs", bonusIDs = { 12806 } }, source = "奧核點瑟納斯" },
         { slot = "手", item = { itemId = 249989, name = "Primal Sentry's Talonguards", bonusIDs = { 12806, 13335 } }, source = "套裝" },
         { slot = "腰", item = { itemId = 244611, name = "World Tender's Barkclasp", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "" },
         { slot = "腿", item = { itemId = 249987, name = "Primal Sentry's Legguards", bonusIDs = { 12806, 13335 } }, source = "套裝" },
@@ -93,9 +93,9 @@ ClassCodexGearData["HUNTER"] = {
       { slot = "戒指", best = { itemId = 243957, name = "Enchant Ring - Eyes of the Eagle" } },
     },
     gems = {
-      primary = { itemId = 240967, name = "Powerful Eversong Diamond" },
+      primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },
       secondary = {
-        { itemId = 240983, name = "Indecipherable Eversong Diamond" },
+        { itemId = 240967, name = "Powerful Eversong Diamond" },
         { itemId = 240890, name = "Flawless Deadly Peridot" },
         { itemId = 240898, name = "Flawless Deadly Amethyst" },
         { itemId = 240914, name = "Flawless Deadly Lapis" },
@@ -164,19 +164,16 @@ ClassCodexGearData["HUNTER"] = {
       { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
       { slot = "腿", best = { itemId = 244641, name = "Forest Hunter's Armor Kit" } },
       { slot = "腳", best = { itemId = 243953, name = "Enchant Boots - Lynx's Dexterity" } },
-      { slot = "戒指", best = { itemId = 243957, name = "Enchant Ring - Eyes of the Eagle" } },
+      { slot = "戒指", best = { itemId = 243959, name = "Enchant Ring - Zul'jin's Mastery" } },
     },
     gems = {
-      primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },
-      secondary = {
-        { itemId = 240898, name = "Flawless Deadly Amethyst" },
-      },
+      primary = { itemId = 240898, name = "Flawless Deadly Amethyst" },
     },
     consumables = {
       flask = { itemId = 245933, name = "Fleeting Flask of the Magisters" },
       combatPotion = { itemId = 241308, name = "Light's Potential" },
       food = { itemId = 255845, name = "Silvermoon Parade" },
-      weaponBuff = { itemId = 23529, name = "Adamantite Sharpening Stone" },
+      weaponBuff = { itemId = 243734, name = "Thalassian Phoenix Oil" },
       augmentRune = { itemId = 259085, name = "Void-Touched Augment Rune" },
     },
     trinkets = {
@@ -218,7 +215,7 @@ ClassCodexGearData["HUNTER"] = {
     bisGear = {
       { label = "整體", slots = {
         { slot = "雙手武器", item = { itemId = 251077, name = "Roostwarden's Bough", bonusIDs = { 12806 } }, source = "風行者塔" },
-        { slot = "主手", item = { itemId = 249284, name = "Belo'ren's Swift Talon", bonusIDs = { 12806 } }, source = "貝羅倫" },
+        { slot = "主手", item = { itemId = 249284, name = "貝羅倫's Swift Talon", bonusIDs = { 12806 } }, source = "貝羅倫" },
         { slot = "副手", item = { itemId = 237837, name = "Farstrider's Mercy", bonusIDs = { 12214, 12066, 13621, 13667, 13622, 8791, 8960, 12693 } }, source = "製作" },
         { slot = "頭", item = { itemId = 249988, name = "Primal Sentry's Maw", bonusIDs = { 12806, 13335 } }, source = "套裝" },
         { slot = "項鍊", item = { itemId = 250247, name = "Amulet of the Abyssal Hymn", bonusIDs = { 12806 } }, source = "(March on Quel'Danas)" },
@@ -230,7 +227,7 @@ ClassCodexGearData["HUNTER"] = {
         { slot = "腰", item = { itemId = 249371, name = "Scornbane Waistguard", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯" },
         { slot = "腿", item = { itemId = 249987, name = "Primal Sentry's Legguards", bonusIDs = { 12806, 13335 } }, source = "套裝" },
         { slot = "腳", item = { itemId = 251084, name = "Whipcoil Sabatons", bonusIDs = { 12806 } }, source = "風行者塔" },
-        { slot = "戒指", item = { itemId = 251093, name = "Omission of Light", bonusIDs = { 12806 } }, source = "Nexus Point Xenas" },
+        { slot = "戒指", item = { itemId = 251093, name = "Omission of Light", bonusIDs = { 12806 } }, source = "奧核點瑟納斯" },
         { slot = "戒指", item = { itemId = 249920, name = "Eye of Midnight", bonusIDs = { 12806, 13335 } }, source = "(March on Quel'Danas)" },
         { slot = "飾品", item = { itemId = 193701, name = "Algeth'ar Puzzle Box", bonusIDs = { 12806 } }, source = "" },
         { slot = "飾品", item = { itemId = 249343, name = "Gaze of the Alnseer", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯" },

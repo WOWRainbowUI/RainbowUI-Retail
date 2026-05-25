@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["DRUID"] = {
   ["balance"] = {
     label = "Balance Druid",
-    sourceUrl = "https://www.wowhead.com/guide/classes/druid/balance/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/druid/balance/midnight-season-1",
     priorities = {
       {
         heroTalent = "Keeper of the Grove",
@@ -26,16 +26,10 @@ ClassCodexData["DRUID"] = {
     },
     talents = {
       {
-        heroTalent = "All",
+        heroTalent = "Keeper of the Grove",
         context = "團隊單目標",
-        buildLabel = "Convoke The Spirits",
-        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmlZmZmBYYWmZbYGzYjlZMzMjZ2wAgBYZbshpZmlRAAAA2MzMzMYzYYMDgZGAYA",
-      },
-      {
-        heroTalent = "Elune's Chosen",
-        context = "傳奇+",
         recommended = true,
-        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlZWMzMWYZmlxMjxGGAMW2mZwY2GBmAAAAswMzMD2MmxYAAYmBGA",
+        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmlZmZmBYwyMbzYGzYjlZMzMjZ2wAgBYZbshpZmlRAAAA2MzMzMYzYYMDgZGAYA",
       },
       {
         heroTalent = "Keeper of the Grove",
@@ -48,15 +42,15 @@ ClassCodexData["DRUID"] = {
         exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlx2MmxGLzYmZGmFMAYAW2GbYamZbEAAAgNmZmZwmxMGzAYmBAGA",
       },
       {
-        heroTalent = "Keeper of the Grove",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmlZmZmBYYWmZZsNjZsxyMGzMzYBDAGgltxGmmZWGBAAAYzMzMzgNjhxMAmZAgB",
-      },
-      {
         heroTalent = "Elune's Chosen",
         context = "團隊單目標",
         exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDwsMzMzMYYGzyMbzwMzYhlZWmZMmZDDAGLbzMYMbjATAAAAWMzMzMYzwYMAAMzADA",
+      },
+      {
+        heroTalent = "Elune's Chosen",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlZWMzMWYZmlxMjxGGAMW2mZwY2GBmAAAAswMzMD2MmxYAAYmBGA",
       },
       {
         heroTalent = "Elune's Chosen",
@@ -72,15 +66,15 @@ ClassCodexData["DRUID"] = {
           "Apply {8921} and refresh within pandemic",
           "Apply {93402} and refresh within pandemic or if your next cast is {205636}",
           "Press {202770} during an {1239669} or right before pressing {205636}",
-          "Enter {1233346} if you are sitting on 2 charges of the cooldown",
-          "Press {205636} if you are not currently in an {1239669} and your next cast is either {1233346} or {102560}",
-          "Press {102560} if you just used {205636}",
+          "?(H\"Incarnation\"): Enter {1233346} if you are sitting on 2 charges of the cooldown",
+          "?(H\"Incarnation\"): Press {205636} if you are not currently in an {1239669} and your next cast is either {1233346} or {102560}",
+          "?(H\"Incarnation\"): Press {102560} if you just used {205636}",
           "?{391528}: Press {205636} if you are not currently in an {1239669} and your next cast is either {1233346} or {194223}",
           "?{391528}: Press {194223} if you just used {205636} and you will have another charge available when {391528} is off cooldown",
           "?{391528}: Press {391528} if you are below 40 and {205636} is active",
           "Enter {1233346} with enough resources to spend all {1261564} stacks in your next 3 GCD's, can hold this to line up with {205636} casts that won't be used with {194223}/{102560}",
           "{194153} during {102560} to consume {1263363}",
-          "Pool before pressing {1233346} to spend at the start of the cooldown",
+          "?(!(H\"Incarnation\")&!(391528)): Pool before pressing {1233346} to spend at the start of the cooldown",
           "{191034} to consume {393942} and {450356}",
           "{78674} as your main spender if you need to move, if you are about to cap on or to spend your {393944} procs.",
           "{5176} to generate",
@@ -96,7 +90,7 @@ ClassCodexData["DRUID"] = {
           "Press {202770} off cooldown",
           "?{393940}: Enter {1233272} whenever {202345} expires and you have any procs of {393940} or {450356}",
           "?{393954}: Enter {1233272} if you're above 90% and you're either about to overcap on charges or {202770} is also available",
-          "Pool before pressing {1233272} to spend at the start of the cooldown",
+          "?(!(393940)&!(393954)): Pool before pressing {1233272} to spend at the start of the cooldown",
           "?{393940}: {191034} to consume {393942} or {450356}",
           "?{393954}: {78674} to consume {450356}",
           "{78674} to prevent capping on or to consume {1261564} at the start of {1233272}",
@@ -148,7 +142,7 @@ ClassCodexData["DRUID"] = {
   },
   ["feral"] = {
     label = "Feral Druid",
-    sourceUrl = "https://www.wowhead.com/guide/classes/druid/feral/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/druid/feral/midnight-season-1",
     priorities = {
       {
         heroTalent = "Druid of the Claw",
@@ -173,10 +167,9 @@ ClassCodexData["DRUID"] = {
     },
     talents = {
       {
-        heroTalent = "Wildstalker",
+        heroTalent = "Druid of the Claw",
         context = "團隊單目標",
-        recommended = true,
-        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtlxyMbzYGzMDAAAALBzihxMjaGziZmZGjZYAAAAAAMwAAAAIAY2mZpZbmlNwMDwiZwAAYmBAD",
+        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAghZ2YmZmZGzmx2MbzMzMmZAAAAYJYWMGmZUzYWMzMzsMmZAAAAAAwADAAAgmZZ2mZmBEYBMzAswgBAAwMbYA",
       },
       {
         heroTalent = "Druid of the Claw",
@@ -191,9 +184,10 @@ ClassCodexData["DRUID"] = {
         exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmZYmZmZMzsZsNz2MzMzDMzAAAAwSwsYMMzomxsYmZmZZMzAAAAAAgBAAAAoZWmtZmZABWAzMALMYAAAMzGG",
       },
       {
-        heroTalent = "Druid of the Claw",
+        heroTalent = "Wildstalker",
         context = "團隊單目標",
-        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAghZ2YmZmZGzmx2MbzMzMmZAAAAYJYWMGmZUzYWMzMzsMmZAAAAAAwADAAAgmZZ2mZmBEYBMzAswgBAAwMbYA",
+        recommended = true,
+        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtlxyMbzYGzMDAAAALBzihxMjaGziZmZGjZYAAAAAAMwAAAAIAY2mZpZbmlNwMDwiZwAAYmBAD",
       },
       {
         heroTalent = "Wildstalker",
@@ -211,21 +205,21 @@ ClassCodexData["DRUID"] = {
         heroTalent = "Druid of the Claw",
         context = "單目標",
         steps = {
-          "{22568} with {391881} procs.",
+          "?(H\"Apex Predator's Craving\"): {22568} with {391881} procs.",
           "{1079}: If you have 5 Combo Points, {1079} is missing or in Pandemic, and you have {5217} active.",
           "If you have 5 Combo Points, {1079} is missing or in Pandemic, and {5217} will not be active before the dot expires.",
           "{22568} if: you have 5 Combo Points and 50 energy, {1079} is active, and {106951} is active.",
           "you have 5 Combo Points and 50 energy, {1079} is active, and {106951} is not active.",
           "{106951} and {391528} with {5217}, these should be synced",
-          "{274837} with {5217} active.",
-          "When {1244258} is coming off CD with 3 seconds left, dump energy so you have as little as possible.",
+          "?(H\"Focussed Frenzy\"): {274837} with {5217} active.",
+          "?(H\"Chomp\"): When {1244258} is coming off CD with 3 seconds left, dump energy so you have as little as possible.",
           "If {5217} is coming off CD within 3 seconds, and you're above 80% energy dump your energy.",
-          "{274837} on cooldown",
-          "{1244258} on cooldown",
+          "?(H\"Focussed Frenzy\"): {274837} on cooldown",
+          "?(H\"Chomp\"): {1244258} on cooldown",
           "{5217} on cooldown",
           "{1822} if: It is missing on the target or in pandemic",
           "{1822} has 2 seconds or less of duration and {5217} is not ready.",
-          "{155625} if: It is missing on the target or in pandemic",
+          "?(H\"Lunar Inspiration\"): {155625} if: It is missing on the target or in pandemic",
           "{155625} has 2 seconds or less of duration and {5217} is not ready.",
           "{5221} to Generate Combo Points",
         },
@@ -234,21 +228,21 @@ ClassCodexData["DRUID"] = {
         heroTalent = "Wildstalker",
         context = "單目標",
         steps = {
-          "{22568} with {391881} procs.",
+          "?(H\"Apex Predator's Craving\"): {22568} with {391881} procs.",
           "{1079}: If you have 5 combo points, {1079} is missing or in Pandemic, and you have {5217} active.",
           "If you have 5 combo points, {1079} is missing or in Pandemic, and {5217} will not be active before the dot expires.",
           "{22568} if: you have 5 Combo Points and 50 energy, {1079} is active, and {106951} is active.",
           "you have 5 Combo Points and 50 energy, {1079} is active, and {106951} is not active.",
           "{106951} and {391528} with {5217}, these should be synced",
-          "{274837} with {5217} active.",
-          "When {1244258} is coming off CD with 3 seconds left, dump energy so you have as little as possible.",
+          "?(H\"Focussed Frenzy\"): {274837} with {5217} active.",
+          "?(H\"Chomp\"): When {1244258} is coming off CD with 3 seconds left, dump energy so you have as little as possible.",
           "If {5217} is coming off CD within 3 seconds, and you're above 80% energy dump your energy.",
-          "{274837} on cooldown",
-          "{1244258} on cooldown",
+          "?(H\"Focussed Frenzy\"): {274837} on cooldown",
+          "?(H\"Chomp\"): {1244258} on cooldown",
           "{5217} on cooldown",
           "{1822} if: It is missing on the target or in pandemic",
           "{1822} has 2 seconds or less of duration and {5217} is not ready.",
-          "{155625} if: It is missing on the target or in pandemic",
+          "?(H\"Lunar Inspiration\"): {155625} if: It is missing on the target or in pandemic",
           "{155625} has 2 seconds or less of duration and {5217} is not ready.",
           "{5221} to Generate Combo Points",
         },
@@ -257,12 +251,12 @@ ClassCodexData["DRUID"] = {
         heroTalent = "Druid of the Claw",
         context = "多目標",
         steps = {
-          "{22568} with {391881} procs.",
+          "?(H\"Apex Predator's Craving\"): {22568} with {391881} procs.",
           "{285381} if {1079} is missing or in pandemic.",
           "{106951} with {5217}, these should be synced.",
           "{22568} if you have 5 Combo Points, 50 energy and {1079} is active",
           "{106951} and {391528} with {5217}, these should be synced.",
-          "{5217} on cooldown, if {1243807} would come off CD just after {5217} ends you can delay it up to 2 seconds.",
+          "?(!(H\"Focussed Frenzy\")): {5217} on cooldown, if {1243807} would come off CD just after {5217} ends you can delay it up to 2 seconds.",
           "{274837} on cooldown.",
           "{213764} during {106951} for {441835} procs.",
           "{213764} with {135700} procs",
@@ -274,12 +268,12 @@ ClassCodexData["DRUID"] = {
         heroTalent = "Wildstalker",
         context = "多目標",
         steps = {
-          "{22568} with {391881} procs.",
+          "?(H\"Apex Predator's Craving\"): {22568} with {391881} procs.",
           "{285381} if {1079} is missing or in pandemic.",
           "{106951} with {5217}, these should be synced.",
           "{22568} if you have 5 Combo Points and {1079} is active",
           "{106951} and {391528} with {5217}, these should be synced.",
-          "{5217} on cooldown, if {1243807} would come off CD just after {5217} ends you can delay it up to 2 seconds.",
+          "?(!(H\"Focussed Frenzy\")): {5217} on cooldown, if {1243807} would come off CD just after {5217} ends you can delay it up to 2 seconds.",
           "{274837} on cooldown.",
           "{213764} with {135700} procs up to 7 targets.",
           "{1822} if it is missing or in pandemic.",
@@ -288,14 +282,14 @@ ClassCodexData["DRUID"] = {
       },
       {
         heroTalent = "Druid of the Claw",
-        context = "開場",
+        context = "起手",
         steps = {
-          "Before combat, {213764} twice to ensure you're low energy.",
+          "?(H\"Chomp\"): Before combat, {213764} twice to ensure you're low energy.",
           "{1822} from stealth.",
-          "{155625}.",
+          "?(H\"Lunar Inspiration\"): {155625}.",
           "{5221} to 5 Combo Points.",
           "{106951} and {5217}.",
-          "{1244258}.",
+          "?(H\"Chomp\"): {1244258}.",
           "{1079}.",
           "{391528}",
           "{22568} after {391528}",
@@ -305,14 +299,14 @@ ClassCodexData["DRUID"] = {
       },
       {
         heroTalent = "Wildstalker",
-        context = "開場",
+        context = "起手",
         steps = {
-          "Before combat, {213764} twice to ensure you're low energy.",
+          "?(H\"Chomp\"): Before combat, {213764} twice to ensure you're low energy.",
           "{1822} from stealth.",
-          "{155625}.",
+          "?(H\"Lunar Inspiration\"): {155625}.",
           "{5221} to 5 Combo Points.",
           "{106951} and {5217}.",
-          "{1244258}.",
+          "?(H\"Chomp\"): {1244258}.",
           "{1079}.",
           "{391528}",
           "{22568} after {391528}",
@@ -324,7 +318,7 @@ ClassCodexData["DRUID"] = {
   },
   ["guardian"] = {
     label = "Guardian Druid",
-    sourceUrl = "https://www.wowhead.com/guide/classes/druid/guardian/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/druid/guardian/midnight-season-1",
     priorities = {
       {
         heroTalent = "Druid of the Claw",
@@ -375,19 +369,9 @@ ClassCodexData["DRUID"] = {
         exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMzmZZm5BMWGY2gRT0MzsMzMzMGzYGAAAAAwMWmBAAAgamlZZmZGAALYmBYxMYALYAwMbwA",
       },
       {
-        heroTalent = "Elune's Chosen",
-        context = "傳奇+",
-        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWMLm5BmZZZgZzMGNRmZWmZmZmlxMAAAAAAYsYGYbbmBjZZAMFAAAYDz8ADYxMYgZxyGgZGAA",
-      },
-      {
         heroTalent = "Druid of the Claw",
         context = "傳奇+",
         exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMWMLzDMPwMLLDMbGGNRzMzyMzMzsMmhBAAAAAMsMDAAAA1MLzyMzMAAWwMPAwiZwgBLbDAmZDG",
-      },
-      {
-        heroTalent = "Elune's Chosen",
-        context = "探究",
-        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMWMLzMPgZZZgZzMGNRzMziZmZmlxMAAAAAAMsMDYZbmBjZZAMFAAAYDz8ADYxMYwgltBYmBwA",
       },
       {
         heroTalent = "Druid of the Claw",
@@ -398,6 +382,18 @@ ClassCodexData["DRUID"] = {
         heroTalent = "Elune's Chosen",
         context = "團隊單目標",
         exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxs4BGjZ2MLzMMLLDMbwoJamZWmZmZGjZMDAAAAAYGLzA22mZwY2GATBAAA2wMDwiZwAWsYAmZAM",
+      },
+      {
+        heroTalent = "Elune's Chosen",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWMLm5BmZZZgZzMGNRmZWmZmZmlxMAAAAAAYsYGYbbmBjZZAMFAAAYDz8ADYxMYgZxyGgZGAA",
+      },
+      {
+        heroTalent = "Elune's Chosen",
+        context = "探究",
+        recommended = true,
+        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMWMLzMPgZZZgZzMGNRzMziZmZmlxMAAAAAAMsMDYZbmBjZZAMFAAAYDz8ADYxMYwgltBYmBwA",
       },
     },
     rotation = {
@@ -465,7 +461,7 @@ ClassCodexData["DRUID"] = {
       },
       {
         heroTalent = "Druid of the Claw",
-        context = "開場",
+        context = "起手",
         steps = {
           "{1252871} on cooldown.",
           "{33917} on cooldown.",
@@ -479,7 +475,7 @@ ClassCodexData["DRUID"] = {
       },
       {
         heroTalent = "Elune's Chosen",
-        context = "開場",
+        context = "起手",
         steps = {
           "Maintain {8921} on your primary target.",
           "Maintain 3-5 stacks of {77758}.",
@@ -497,7 +493,7 @@ ClassCodexData["DRUID"] = {
   },
   ["restoration"] = {
     label = "Restoration Druid",
-    sourceUrl = "https://www.wowhead.com/guide/classes/druid/restoration/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/druid/restoration/midnight-season-1",
     priorities = {
       {
         heroTalent = "Keeper of the Grove",
@@ -522,19 +518,10 @@ ClassCodexData["DRUID"] = {
     },
     talents = {
       {
-        heroTalent = "Wildstalker",
-        context = "團隊單目標",
-        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbz2MmZGz2wDwMzmxCzAAAAAAAAAAgtBNbMmmZM8AmlZmZmhhZAAAAAAAAAAEAAwsNzSz2Mb2YMzMMzAjmBAYmBgB",
-      },
-      {
         heroTalent = "Keeper of the Grove",
         context = "團隊單目標",
+        recommended = true,
         exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbz2MmZGzywDYmZYswMAAAAAAAAAAYbQzGjpZYMjZZmZmZYYmBAAAAAAAAbbjFMNzsMAAABswYmBzMANDAmZAAD",
-      },
-      {
-        heroTalent = "Wildstalker",
-        context = "傳奇+",
-        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDNbzw0MAmFzMzMLGGAAAAAMAAzAAQAAAz2MbNbzsYjZmZGMzGoZAAmZAYA",
       },
       {
         heroTalent = "Keeper of the Grove",
@@ -542,10 +529,9 @@ ClassCodexData["DRUID"] = {
         exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDNbzw0MAmFzMzMLGGAAAAAMAAzA22GLYamZZAAACYhZmZGMzGoZAwMDAYA",
       },
       {
-        heroTalent = "Wildstalker",
+        heroTalent = "Keeper of the Grove",
         context = "探究",
-        recommended = true,
-        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxYGzMjZbmZYYhZx2MAAAAAAAAAAYbQzmhpZMzYMLmZmZWmhxAAAAAAAYMAAEAAwsMzWzyML2gZeAMjFQzAAMzAwA",
+        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxYGzMjZbmZYYhZx2MAAAAAAAAAAYbQzmhpZYmZMLmZmZWmhxAAAAAAAYMgFjFMNsNAAABsAz8AYGLgmBAzMAgB",
       },
     },
     rotation = {

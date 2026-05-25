@@ -19,13 +19,13 @@ ClassCodexArchonData["MAGE"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamZGAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGamxAAAwAAAAzMzssMzELAAsNjZmxsZWmZmxMjxwMzMWYmZGzAAMAAAmZBAMDAGG",
           },
         },
       },
@@ -38,20 +38,20 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamZGAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzQzMzMAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
           },
         },
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamZGAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzQzMzAAAwAAAAzMzssMzELAAsNjZmxsZWmZmxMjxwMzMWYmZmHYGAgBAAwMLAgZAwwA",
           },
         },
       },
@@ -64,7 +64,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGamxAAAwAAAAzMzssMzELAAsNjZmxsZWmZmxMjxwMzMWYmZGzAAMAAAmZBAMDAGG",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamZGAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
           },
         },
       },
@@ -77,7 +77,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamZGAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGamxAAAwAAAAzMzssMzELAAsNjZmxsZWmZmxMjxwMzMWYmZGzAAMAAAmZBAMDAGG",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamZGAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzQzMzAAAwAAAAzMzssMzELAAsNjZmxsZWmZmxMjxwMzM2YmZGzAAMAAAmZBAmZAwwA",
           },
         },
       },
@@ -103,7 +103,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzQzMzMAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamxAAAwAAAAzMzssMzELAAsNjZmxsZWmZmxMjxwMzMWYmZmHYGAgBAAwMLAgZAwwA",
           },
         },
       },
@@ -116,14 +116,14 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamZGAAAGAAAYmZmllZmYBAgtZMzMmNzyMzMmZMGmZmxCzMzYGAgBAAwMLAgZAwwA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGamxAAAwAAAAzMzssMzELAAsNjZmxsZWmZmxMjxwMzMWYmZmHYGAgBAAwMLAgZAwwA",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -253,7 +253,7 @@ ClassCodexArchonData["MAGE"] = {
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -298,7 +298,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzQzMzAAAwAAAAzMzssMzELAAsNMzMmtFLzMzYmxYMzMzYhZmZMDAwAAAYmFAwMAYYA",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzQzMzAAAwAAAAzMzssMzELAAsNMzMmtFLzMzYmxYMzMzYjZmZMDAwAAAYmFAwMAYYA",
           },
         },
       },
@@ -312,6 +312,19 @@ ClassCodexArchonData["MAGE"] = {
           {
             heroTalent = "Spellslinger",
             exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzQzMzAAAwAAAAzMzssMzELAAsNMzMmtFLzMzYmxYMzMzYhZmZMDAwAAAYmFAwMAYYA",
+          },
+        },
+      },
+      ["raid:mythic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Spellslinger",
+            exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzQzMzAAAwAAAAzMzssMzELAAsNmZmxstYZmZGzMGjZmxYhZmZMDAwAAAYmFAwMAYYA",
           },
         },
       },
@@ -397,6 +410,7 @@ ClassCodexArchonData["MAGE"] = {
       "raid:heroic:beloren",
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
+      "raid:mythic:midnight-falls",
     },
   },
   ["fire"] = {
@@ -411,20 +425,20 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlllZAA2MzM2GzMzYBAAAAAWMzMzMAAYMDjZmZmZbAYmBYMGMDD",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmZGAAAGAwMz0sssMDAwmZmx2YmZGbAAAAAwiZmZGAAYMDjZmZmZZAYmBGjxgZYA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGZmxMAAAGAwMz0sssMDAwmZmx2YmZGLAAAAAwiZmZGAAYMDjZmZmZZAYmBYMGMDD",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmZGAAAGAwMz0sssMDAwmZmx2YmZGbAAAAAwiZmZGAAYMDjZmZmZZAYmBGjxgZYA",
           },
         },
       },
@@ -443,7 +457,7 @@ ClassCodexArchonData["MAGE"] = {
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
@@ -463,7 +477,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlllZAA2MzM2GzMzYBAAAAAWMzMz8AAAYMDjZmZmZZAYmBGjxgZYA",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzIzMGAAAGAwMz0sssMDAwmZmx2YmZGbAAAAAwiZmZmBAAjZYMzMzMLDAzMwYMGMDD",
           },
         },
       },
@@ -476,7 +490,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlllZAA2MzM2GzMzYBAAAAAWMzMzMAAYMDjZmZmZbAYmBYMGMDD",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzIzMGAAAGAwMz0sssMDAwmZmx2YmZGbAAAAAwiZmZmBAAjZYMzMzMLDAzMwYMGMDD",
           },
         },
       },
@@ -489,7 +503,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzYZsMzMzCmZkZGzAAAYAAzMTzyyyMAAbmZGbjZmZsBAAAAALmZmZAAgxMMmZmZmlBgZGYMGDmhB",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYBAAAAA2MzMzMAAYMDjZmZmZbAYmBYMGMDD",
           },
         },
       },
@@ -502,7 +516,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGZmxMAAAGAwMz0sssMDAwmZmx2YmZGLAAAAAwiZmZGAAYMDjZmZmZZAYmBYMGMDD",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzIzMzAAAwAAmZmmlllZAA2MzM2GzMzYBAAAAA2MzMzMAAYMDjZmZmZZAYmBYMGMDD",
           },
         },
       },
@@ -515,14 +529,14 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxMAAAGAwMz0sssMDAwmZmx2YmZGbAAAAAwiZmZGAAYMDjZmZmZZAYmBGjxgZYA",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmZGAAAGAwMz0sssMDAwmZmx2YmZGbAAAAAwiZmZGAAYMDjZmZmZZAYmBGjxgZYA",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -652,13 +666,26 @@ ClassCodexArchonData["MAGE"] = {
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgFzMzMDAAGzwYmZmZWGAmZgxYMYGG",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgNzMzMDAAGzYGzMzMzyAwMDMGjBGG",
+          },
+        },
+      },
+      ["raid:mythic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Sunfury",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgFzMzMDAAGzwYmZmZWGAmZAzYMYGG",
           },
         },
       },
@@ -684,7 +711,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGbAAAAAwiZmZmBAAjZYMzMzMLDAzMAjxgZYA",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgNzMzMDAAGzYGzMzMzyAwMDMGjBGG",
           },
         },
       },
@@ -697,7 +724,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Sunfury",
-            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgFzMzMDAAGzwYmZmZ2GAmZgxYMYGG",
+            exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgNzMzMDAAGzYGzMzMzyAwMDMGjBGG",
           },
         },
       },
@@ -794,6 +821,7 @@ ClassCodexArchonData["MAGE"] = {
       "raid:heroic:chimaerus",
       "raid:mythic:chimaerus",
       "raid:heroic:beloren",
+      "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
     },
@@ -817,7 +845,7 @@ ClassCodexArchonData["MAGE"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -842,14 +870,14 @@ ClassCodexArchonData["MAGE"] = {
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzEzMzYmZmZWMzMMjZAAAgZmZWWmZaDAA2AAAAWAYbZMzMDmthxMjFAAAmZDYGYAzgB",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzEzMzYmZmZWMzMMjZAAAgZmZWWmZaDAA2AAAAWAYbZMzMzDwsNMmZsAAAwMbAzwYAzgB",
           },
         },
       },
@@ -862,7 +890,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZmYmZmZmZmZWMzMMjZAAAgZmZWWmZaDAA2AAAAWAYbZMzMDmthxMjFAAAmZDYGYAzgB",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzEzMzYmZmZWMzMMjZAAAgZmZWWmZaDAA2AAAAWAYbZMzMzDwsNMmZsAAAwMbAzwYAzgB",
           },
         },
       },
@@ -888,7 +916,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzEzMzYmZmZWMzMMjZAAAgZmZWWmZaDAA2AAAAWAYbZMzMDmthxMjFAAAmZDYGYAzgB",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzEzMzYmZmZWMzMMjZAAAgZmZWWmZaDAA2AAAAWAYbZMzMzDwsNMmZsAAAwMbAzwYAzgB",
           },
         },
       },
@@ -901,7 +929,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzEzMGzMzMziZmhZMDAAAMzMzyyMTbAAwGAAAwCAbLjZmZwsNMmZsAAAwMbAzwYAzgB",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmlhZmYmZGzMzMziZmhZMDAAAMzMzyyMTbAAwGAAAwCAbLjZmZwsNMmZsAAAwMbAzwYAzgB",
           },
         },
       },
@@ -914,20 +942,20 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsMMzEzMGzMzMziZmhZMDAAAMzMzyyMTbAAwGAAAwCAbLjZmZwsNMmZsAAAwMbAzwYAzgB",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFMzEzMzYmZmZWMzMMjZAAAgZmZWWmZaDAA2AAAAWAYbZMzMzDwsNMmZsAAAwMbAzwYAzgB",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
@@ -940,7 +968,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
@@ -966,7 +994,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
@@ -979,7 +1007,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
@@ -1005,7 +1033,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
@@ -1018,7 +1046,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
@@ -1044,14 +1072,14 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZmZmZmZWMzMjZMDAAAMzMzyyMTbAAAAAAgNA2WGzMzgZbYMDLAAAMzGwMwAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1070,7 +1098,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAwwYZmZmlxMzEzMzYmZmZWMzMjZMDAAAMzMzyyMTbAAwGAAAwGAbLjZmZwsNMmhFAAAmZDYGGDYGMA",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },
@@ -1122,7 +1150,7 @@ ClassCodexArchonData["MAGE"] = {
         builds = {
           {
             heroTalent = "Spellslinger",
-            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAAAAAAsBw2yYmZGMbDjZYBAAgZ2AmhxAmBD",
+            exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmZGzMzMziZmZMjZAAAgZmZWWmZaDAA2AAAA2AYbZMzMDmthxMsAAAwMbAzADYGMA",
           },
         },
       },

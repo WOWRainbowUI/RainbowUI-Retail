@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["MAGE"] = {
   ["arcane"] = {
     label = "Arcane Mage",
-    sourceUrl = "https://www.wowhead.com/guide/classes/mage/arcane/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/mage/arcane/midnight-season-1",
     priorities = {
       {
         heroTalent = "Spellslinger",
@@ -29,19 +29,19 @@ ClassCodexData["MAGE"] = {
       {
         heroTalent = "Spellslinger",
         context = "團隊單目標",
-        buildLabel = "Orb Master",
+        recommended = true,
         exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzQzMzAAAwAAgAmZmZZZmZYBAgtxMzMmtFLzMzYmxYMzMGLMzMjZAAGAAAzsAAmBADD",
       },
       {
         heroTalent = "Spellslinger",
         context = "傳奇+",
-        buildLabel = "Orb Master",
+        recommended = true,
         exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGamxAAAwAAgAmZmZZZmJWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMM",
       },
       {
         heroTalent = "Spellslinger",
         context = "探究",
-        buildLabel = "Orb Master",
+        recommended = true,
         exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGamxAAAwAAgAmZmZZZmJWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMM",
       },
       {
@@ -63,10 +63,16 @@ ClassCodexData["MAGE"] = {
     rotation = {
       {
         heroTalent = "All",
-        context = "簡易模式",
+        context = "Easy Mode",
         steps = {
           "{365350}",
           "{321507}",
+          "?(H\"Spellslinger Missile Build\"|H\"Spellslinger Orb Build\"): {44425} when you have max {384452} stacks; 20 for Spellslinger",
+          "?(H\"Sunfury\"): {44425} when you have max {384452} stacks; 25 for Sunfury",
+          "?(H\"Sunfury\"): {44425} if you have {263725} or {153626} in AOE",
+          "?(H\"Sunfury\"|H\"Spellslinger Missile Build\"): {5143} if you have {263725}",
+          "?(H\"Sunfury\"|H\"Spellslinger Missile Build\"): {153626} if you have less than 2 {36032}s",
+          "?(H\"Spellslinger Orb Build\"): {153626} if you just cast {44425}",
           "{1243460} when you have 3 or more targets.",
           "{30451}",
           "{44425} if you run out of mana",
@@ -74,33 +80,35 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Spellslinger Orb Build",
-        context = "技能迴圈",
+        context = "Rotation",
         steps = {
           "{153626} whenever you have just cast {44425} and have {263725}.",
           "{44425} with 4x {36032}s if you have 20 stacks of {384452}.",
-          "Use {205025} to cast {30451} quicker when you have no {36032}s or better generators.",
-          "{1243460} if you have 3 or more targets or if you have 2 or fewer {36032}s.",
+          "?(H\"Presence of Mind\"): Use {205025} to cast {30451} quicker when you have no {36032}s or better generators.",
+          "?(H\"Arcane Pulse (M+)\"): {1243460} if you have 3 or more targets or if you have 2 or fewer {36032}s.",
           "{30451}.",
+          "?(H\"Evocation\"): {12051} if you do not have enough mana for {30451}.",
           "{44425} if you don't have enough mana for {30451}.",
         },
       },
       {
         heroTalent = "Spellslinger Missile Build",
-        context = "技能迴圈",
+        context = "Rotation",
         steps = {
           "{44425} with 4x {36032}s if you have 20 stacks of {384452}.",
           "{44425} with 4x {36032}s if you have 5 or more {384452}, {263725}, and {1277009}.",
           "{5143} whenever less than 10 stacks of {384452} or less than 3x {36032}s.",
           "{153626} whenever you have less than 4x {36032}s.",
-          "Use {205025} to cast {30451} quicker when you have no {36032}s.",
-          "{1243460} if you have 2 or more targets.",
+          "?(H\"Presence of Mind\"): Use {205025} to cast {30451} quicker when you have no {36032}s.",
+          "?(H\"Arcane Pulse\"): {1243460} if you have 2 or more targets.",
           "{30451}.",
+          "?(H\"Evocation\"): {12051} if you do not have enough mana for {30451}.",
           "{44425} if you don't have enough mana for {30451}.",
         },
       },
       {
         heroTalent = "Sunfury",
-        context = "技能迴圈",
+        context = "Rotation",
         steps = {
           "{44425} if {451038} is active.",
           "{5143} if you have {263725} and {365350} is about to end.",
@@ -109,33 +117,46 @@ ClassCodexData["MAGE"] = {
           "{44425} with 4x {36032}s, less than 19 stacks of {384452}, and a {263725} proc or, if you have also have 3 or more enemies, you can do this with an available {153626} charge.",
           "{5143} whenever you have {263725}.",
           "{153626} whenever you have less than 2x {36032}s.",
-          "Use {205025} to cast {30451} quicker when you have no {36032}s.",
-          "{1243460} if you have 2 or more targets.",
+          "?(H\"Presence of Mind\"): Use {205025} to cast {30451} quicker when you have no {36032}s.",
+          "?(H\"Arcane Pulse 2+ Targets\"): {1243460} if you have 2 or more targets.",
           "{30451}.",
+          "?(H\"Evocation\"): {12051} if you do not have enough mana for {30451}.",
           "{44425} if you don't have enough mana for {30451}.",
         },
       },
       {
         heroTalent = "Spellslinger Missile Build",
-        context = "開場/冷卻",
+        context = "起手 / Cooldowns",
         steps = {
+          "?(H\"Resource Pooling\"&H\"Arcane Pulse (3+ targets)\"): {1243460} 2 seconds before pulling.",
+          "?(H\"Resource Pooling\"&!H\"Arcane Pulse (3+ targets)\"): {30451} 2 seconds before pulling.",
+          "?(H\"Resource Pooling\"): {153626} and {80353}.",
+          "?(H\"Resource Pooling\"&H\"Arcane Pulse (3+ targets)\"): {1243460} until you have 20 stacks of {384452}.",
+          "?(H\"Resource Pooling\"&!H\"Arcane Pulse (3+ targets)\"): {30451} until you have 20 stacks of {384452}.",
           "{365350}.",
+          "?(!H\"Resource Pooling\"): {80353}.",
           "{44425} and then {321507} while it is mid-air.",
           "45-seconds later, when {321507}s cooldown finishes, repeat the last step.",
         },
       },
       {
         heroTalent = "Spellslinger Orb Build",
-        context = "開場/冷卻",
+        context = "起手 / Cooldowns",
         steps = {
+          "?(H\"Resource Pooling\"&H\"Arcane Pulse (3+ targets)\"): {1243460} 2 seconds before pulling.",
+          "?(H\"Resource Pooling\"&!H\"Arcane Pulse (3+ targets)\"): {30451} 2 seconds before pulling.",
+          "?(H\"Resource Pooling\"): {153626} and {80353}.",
+          "?(H\"Resource Pooling\"&H\"Arcane Pulse (3+ targets)\"): {1243460} until you have 20 stacks of {384452}.",
+          "?(H\"Resource Pooling\"&!H\"Arcane Pulse (3+ targets)\"): {30451} until you have 20 stacks of {384452}.",
           "{365350}.",
+          "?(!H\"Resource Pooling\"): {80353}.",
           "{44425} and then {321507} while it is mid-air.",
           "45-seconds later, when {321507}s cooldown finishes, repeat the last step.",
         },
       },
       {
         heroTalent = "Sunfury",
-        context = "開場/冷卻",
+        context = "起手 / Cooldowns",
         steps = {
           "Use any potions, racials, items, or trinkets that buff your stats so that they will last through {321507}. As examples; if its a 30-second effect, you can use it before {365350}; if its an 8-second effect you should use it when {321507} has around 8 seconds remaining; and a 15-second effect would be best used 3 seconds before using {321507}.",
           "{365350}, this can be your prepull cast.",
@@ -148,7 +169,7 @@ ClassCodexData["MAGE"] = {
   },
   ["fire"] = {
     label = "Fire Mage",
-    sourceUrl = "https://www.wowhead.com/guide/classes/mage/fire/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/mage/fire/midnight-season-1",
     priorities = {
       {
         heroTalent = "Sunfury",
@@ -173,20 +194,26 @@ ClassCodexData["MAGE"] = {
     },
     talents = {
       {
-        heroTalent = "Frostfire",
-        context = "團隊單目標",
-        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAmZZGzMLzCEAAwiZmx2YmZGAAAAAgFzMzMDAAGzYmZmZmZ2AmZADzYMYwA",
-      },
-      {
         heroTalent = "Sunfury",
         context = "團隊單目標",
+        recommended = true,
         exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgFzMzMDAAGzwYmZmZ2GAmZIjxYwMMA",
       },
       {
-        heroTalent = "All",
+        heroTalent = "Sunfury",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYDAAAAAWMzMzMAAYMDjZmZmZbAYmhwYMYGG",
+      },
+      {
+        heroTalent = "Sunfury",
+        context = "探究",
+        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYBAAAAA2MzMzMAAYMDjZmZmZbAYmhwYMYGG",
+      },
+      {
+        heroTalent = "Frostfire",
         context = "團隊單目標",
-        buildLabel = "Cinderstorm Single Target",
-        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmZ2GGzMAAAAAgFzMzMDAAGmZGzMMz2AwMDZMGGmhB",
+        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAmZZGzMLzCEAAwiZmx2YmZGAAAAAgFzMzMDAAGzYmZmZmZ2AmZADzYMYwA",
       },
       {
         heroTalent = "Frostfire",
@@ -194,20 +221,10 @@ ClassCodexData["MAGE"] = {
         exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwMLzYmZZWgAAAWMzM2GzMzYBAAAAAWMzMzMAAYMjZmZmZmZDYmBMYMGMYA",
       },
       {
-        heroTalent = "Sunfury",
-        context = "傳奇+",
-        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYDAAAAAWMzMzMAAYMDjZmZmZbAYmhwYMYGG",
-      },
-      {
         heroTalent = "Frostfire",
         context = "探究",
         recommended = true,
         exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwMLzYmZZWgAAAWMzM2GzMzYBAAAAA2MzMzMAAYMjZmZmZmZDYmBMYMGMYA",
-      },
-      {
-        heroTalent = "Sunfury",
-        context = "探究",
-        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYBAAAAA2MzMzMAAYMDjZmZmZbAYmhwYMYGG",
       },
     },
     rotation = {
@@ -217,24 +234,24 @@ ClassCodexData["MAGE"] = {
         steps = {
           "{153561} (if it will land during {190319}) if <2 {269650} stacks.",
           "{153561} (if it will land during {190319})",
-          "{153561} in the last 8 seconds of {190319}.",
+          "?((H\"Meteor\")&(H\"Burnout\")): {153561} in the last 8 seconds of {190319}.",
           "{11366} with {48108}",
-          "{11366} again if you just spent {48108} at the end of a {2948} cast.",
-          "{11366} again if you just spent {48108} at the end of a {133} cast.",
+          "?((H\"Scorch\")): {11366} again if you just spent {48108} at the end of a {2948} cast.",
+          "?(!(H\"Scorch\")): {11366} again if you just spent {48108} at the end of a {133} cast.",
           "Hard-cast {11366} with {269650}.",
           "The below casts are used to generate {48108}:",
           "{108853}.",
           "{2948} with {457735} and {48107}.",
           "{2948} as filler.",
-          "{133} as filler.",
+          "?(!(H\"Scorch\")): {133} as filler.",
         },
       },
       {
         heroTalent = "Frostfire",
         context = "單目標",
         steps = {
-          "{153561} in the last 8 seconds of {190319}.",
-          "{153561} if it will hit during {190319}.",
+          "?((H\"Burnout\")): {153561} in the last 8 seconds of {190319}.",
+          "?(!(H\"Burnout\")): {153561} if it will hit during {190319}.",
           "{11366} with {48108}",
           "{11366} again if you just spent {48108} at the end of a {2948} cast.",
           "{11366} again if you just spent {48108} at the end of a {431044} cast.",
@@ -254,14 +271,14 @@ ClassCodexData["MAGE"] = {
           "{153561} (if it will land during {190319})",
           "{153561} in the last 8 seconds of {190319}.",
           "{2120} with {48108}",
-          "{2120} again if you just spent {48108} at the end of a {2948} cast.",
-          "{2120} again if you just spent {48108} at the end of a {133} cast.",
+          "?((H\"Scorch\")): {2120} again if you just spent {48108} at the end of a {2948} cast.",
+          "?(!(H\"Scorch\")): {2120} again if you just spent {48108} at the end of a {133} cast.",
           "Hard-cast {2120} with {269650}.",
           "The below casts are used to generate {48108}:",
           "{108853}.",
           "{2948} with {457735} and {48107}.",
           "{2948} as filler.",
-          "{133} as filler.",
+          "?(!(H\"Scorch\")): {133} as filler.",
         },
       },
       {
@@ -282,7 +299,7 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Sunfury",
-        context = "開場",
+        context = "起手",
         steps = {
           "Pre-cast {11366} before the pull (hard-cast).",
           "{133}.",
@@ -297,7 +314,7 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Frostfire",
-        context = "開場",
+        context = "起手",
         steps = {
           "Pre-cast {11366} before the pull (hard-cast).",
           "{431044}.",
@@ -323,7 +340,7 @@ ClassCodexData["MAGE"] = {
   },
   ["frost"] = {
     label = "Frost Mage",
-    sourceUrl = "https://www.wowhead.com/guide/classes/mage/frost/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/mage/frost/midnight-season-1",
     priorities = {
       {
         heroTalent = "Frostfire",
@@ -351,7 +368,7 @@ ClassCodexData["MAGE"] = {
         heroTalent = "Spellslinger",
         context = "團隊單目標",
         recommended = true,
-        exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzEzMzMzMzMziZmZMjZAAAgZmZWWmZaDAAAAAAsBw22YmZGMbDjZYDAAgZ2AmJjBMDGA",
+        exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmxMjZMziZmZmZMDAAAMzMzyyMTbAAAAAAgNA22GzMzgZZeAjZYBAAgZWAmJjBMDGA",
       },
       {
         heroTalent = "Spellslinger",
@@ -447,7 +464,7 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Spellslinger",
-        context = "開場",
+        context = "起手",
         steps = {
           "{190356} (for AoE)",
           "{116} (for ST)",
@@ -456,7 +473,7 @@ ClassCodexData["MAGE"] = {
       },
       {
         heroTalent = "Frostfire",
-        context = "開場",
+        context = "起手",
         steps = {
           "{190356} (for AoE)",
           "{431044} (for ST)",

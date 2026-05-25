@@ -81,7 +81,7 @@ local function NormalizeContext(ctx)
 end
 
 -- Returns the stat-target snapshot for the given (class, spec, context), or nil.
--- Snapshot shape: { sourceUrl, sampleSize?, capturedAt, targets = { crit, haste, mastery, versatility } }
+-- Snapshot shape: { sourceUrl, targets = { crit, haste, mastery, versatility } }
 function ns.GetStatTargets(classToken, specKey, context)
     if not classToken or not specKey then return nil end
     local normalized = NormalizeContext(context)

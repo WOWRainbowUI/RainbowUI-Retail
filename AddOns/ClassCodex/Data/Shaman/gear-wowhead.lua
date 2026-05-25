@@ -18,7 +18,7 @@ ClassCodexGearData["SHAMAN"] = {
     },
     consumables = {
       flask = { itemId = 241322, name = "Flask of the Magisters" },
-      combatPotion = { itemId = 241308, name = "Light's Potential" },
+      combatPotion = { itemId = 241288, name = "Potion of Recklessness" },
       food = { itemId = 255846, name = "Harandar Celebration" },
       weaponBuff = { itemId = 0, name = "" },
       augmentRune = { itemId = 259085, name = "Void-Touched Augment Rune" },
@@ -63,7 +63,7 @@ ClassCodexGearData["SHAMAN"] = {
         { slot = "手腕", item = { itemId = 249304, name = "Fallen King's Cuffs", bonusIDs = { 12806, 13335 } }, source = "墮落之王薩哈達爾" },
         { slot = "手", item = { itemId = 249980, name = "Earthgrips of the Primal Core", bonusIDs = { 12806, 13335 } }, source = "套裝" },
         { slot = "腰", item = { itemId = 244611, name = "World Tender's Barkclasp", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "製作" },
-        { slot = "腿", item = { itemId = 251215, name = "Greaves of the Divine Guile", bonusIDs = { 12806 } }, source = "Nexus Point Xenas" },
+        { slot = "腿", item = { itemId = 251215, name = "Greaves of the Divine Guile", bonusIDs = { 12806 } }, source = "奧核點瑟納斯" },
         { slot = "腳", item = { itemId = 244610, name = "World Tender's Rootslippers", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667 } }, source = "製作" },
         { slot = "戒指", item = { itemId = 193708, name = "Platinum Star Band", bonusIDs = { 12806 } }, source = "阿爾蓋薩學院" },
         { slot = "戒指", item = { itemId = 249919, name = "Sin'dorei Band of Hope", bonusIDs = { 12806, 13335 } }, source = "貝羅倫" },
@@ -89,7 +89,6 @@ ClassCodexGearData["SHAMAN"] = {
       primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },
       secondary = {
         { itemId = 240900, name = "Flawless Quick Amethyst" },
-        { itemId = 240892, name = "Flawless Masterful Peridot" },
       },
     },
     consumables = {
@@ -136,7 +135,7 @@ ClassCodexGearData["SHAMAN"] = {
       },
     },
     bisGear = {
-      { label = "第一賽季最佳裝備", slots = {
+      { label = "第1賽季最佳裝備", slots = {
         { slot = "主手", item = { itemId = 249287, name = "Clutchmates' Caress", bonusIDs = { 12806, 13335 } }, source = "維爾葛與艾札瑞克" },
         { slot = "副手", item = { itemId = 237850, name = "Farstrider's Chopper", bonusIDs = { 12214, 8960, 12497, 12066, 13622, 13667, 12693, 8793 } }, source = "" },
         { slot = "頭", item = { itemId = 249979, name = "Locus of the Primal Core", bonusIDs = { 12806, 13335 } }, source = "Catalyst |  Raid |  Vault" },
@@ -224,15 +223,15 @@ ClassCodexGearData["SHAMAN"] = {
         { slot = "胸", item = { itemId = 249982, name = "Embrace of the Primal Core", bonusIDs = { 12806, 13335 } }, source = "團隊 | Catalyst | Vault" },
         { slot = "手腕", item = { itemId = 249975, name = "Cuffs of the Primal Core", bonusIDs = { 12806, 13335 } }, source = "Catalyst" },
         { slot = "手", item = { itemId = 249980, name = "Earthgrips of the Primal Core", bonusIDs = { 12806, 13335 } }, source = "團隊 | Catalyst | Vault" },
-        { slot = "腰", item = { itemId = 249303, name = "Waistcord of the Judged", bonusIDs = { 12806, 13335 } }, source = "光盲先鋒 (Raid)" },
+        { slot = "腰", item = { itemId = 249303, name = "腰cord of the Judged", bonusIDs = { 12806, 13335 } }, source = "光盲先鋒 (Raid)" },
         { slot = "腿", item = { itemId = 249978, name = "Leggings of the Primal Core", bonusIDs = { 12806, 13335 } }, source = "團隊 | Catalyst | Vault" },
         { slot = "腳", item = { itemId = 249320, name = "Sabatons of Obscurement", bonusIDs = { 12806, 13335 } }, source = "統治者阿瓦齊恩 (Raid)" },
-        { slot = "戒指", item = { itemId = 249919, name = "Sin'dorei Band of Hope", bonusIDs = { 12806, 13335 } }, source = "Belo'ren (Raid)" },
+        { slot = "戒指", item = { itemId = 249919, name = "Sin'dorei Band of Hope", bonusIDs = { 12806, 13335 } }, source = "貝羅倫 (Raid)" },
         { slot = "戒指", item = { itemId = 193708, name = "Platinum Star Band", bonusIDs = { 12806 } }, source = "阿爾蓋薩學院" },
-        { slot = "飾品", item = { itemId = 249343, name = "Gaze of the Alnseer", bonusIDs = { 12806, 13335 } }, source = "Chimaerus (Raid)" },
+        { slot = "飾品", item = { itemId = 249343, name = "Gaze of the Alnseer", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯 (Raid)" },
         { slot = "飾品", item = { itemId = 249809, name = "Locus-Walker's Ribbon", bonusIDs = { 12806, 13335 } }, source = "宇宙之冠 (Raid)" },
         { slot = "單手武器", item = { itemId = 249293, name = "Weight of Command", bonusIDs = { 12806, 13335 } }, source = "統治者阿瓦齊恩 (Raid)" },
-        { slot = "盾牌", item = { itemId = 251202, name = "Reflux Reflector", bonusIDs = { 12806 } }, source = "Nexus Point Xenas" },
+        { slot = "盾牌", item = { itemId = 251202, name = "Reflux Reflector", bonusIDs = { 12806 } }, source = "奧核點瑟納斯" },
       } },
     },
   },

@@ -2,7 +2,7 @@ ClassCodexGearData = ClassCodexGearData or {}
 ClassCodexGearData["MONK"] = {
   ["brewmaster"] = {
     enchants = {
-      { slot = "Weapons (2h & Dual-Wield)", best = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
+      { slot = "武器s (2h & Dual-Wield)", best = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
       { slot = "頭", best = { itemId = 243951, name = "Enchant Helm - Empowered Hex of Leeching" }, alternate = { itemId = 243981, name = "Enchant Helm - Empowered Blessing of Speed" } },
       { slot = "肩", best = { itemId = 244021, name = "Enchant Shoulders - Silvermoon's Mending" }, alternate = { itemId = 243963, name = "Enchant Shoulders - Akil'zon's Swiftness" } },
       { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
@@ -80,8 +80,8 @@ ClassCodexGearData["MONK"] = {
     },
     bisGear = {
       { label = "整體", slots = {
-        { slot = "武器(雙手)", item = { itemId = 249302, name = "Inescapable Reach", bonusIDs = { 12806, 13335 } }, source = "瓦拉西斯" },
-        { slot = "Weapons (1h)", item = { itemId = 251207, name = "Dreadflail Bludgeon", bonusIDs = { 12806 } }, source = "Nexus Point Xenas\n    梅薩拉洞穴" },
+        { slot = "武器 (2h)", item = { itemId = 249302, name = "Inescapable Reach", bonusIDs = { 12806, 13335 } }, source = "瓦拉西斯" },
+        { slot = "武器s (1h)", item = { itemId = 251207, name = "Dreadflail Bludgeon", bonusIDs = { 12806 } }, source = "奧核點瑟納斯\n    梅薩拉洞穴" },
         { slot = "頭", item = { itemId = 250015, name = "Fearsome Visage of Ra-den's Chosen", bonusIDs = { 12806, 13335 } }, source = "Catalyst|Raid|Vault" },
         { slot = "項鍊", item = { itemId = 240950, name = "Masterwork Sin'dorei Amulet", bonusIDs = { 12214, 12497, 12066, 13454, 8960, 8795, 13622 } }, source = "製作" },
         { slot = "肩", item = { itemId = 250013, name = "Aurastones of Ra-den's Chosen", bonusIDs = { 12806, 13335 } }, source = "Catalyst|Raid|Vault" },
@@ -104,7 +104,7 @@ ClassCodexGearData["MONK"] = {
   ["mistweaver"] = {
     enchants = {
       { slot = "武器", best = { itemId = 244029, name = "Enchant Weapon - Acuity of the Ren'dorei" } },
-      { slot = "頭", best = { itemId = 243951, name = "Enchant Helm - Empowered Hex of Leeching" } },
+      { slot = "頭et", best = { itemId = 243951, name = "Enchant Helm - Empowered Hex of Leeching" } },
       { slot = "肩", best = { itemId = 244021, name = "Enchant Shoulders - Silvermoon's Mending" } },
       { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
       { slot = "腿", best = { itemId = 240133, name = "Sunfire Silk Spellthread" } },
@@ -167,17 +167,17 @@ ClassCodexGearData["MONK"] = {
         { slot = "頭", item = { itemId = 250015, name = "Fearsome Visage of Ra-den's Chosen", bonusIDs = { 12806, 13335, 41 } }, source = "Catalyst via" },
         { slot = "項鍊", item = { itemId = 50228, name = "Barbed Ymirheim Choker", bonusIDs = { 12806 } }, source = "薩倫之淵" },
         { slot = "肩", item = { itemId = 249333, name = "Blooming Barklight Spaulders", bonusIDs = { 12806, 13335 } }, source = "光盲先鋒 (Raid)" },
-        { slot = "披風", item = { itemId = 260312, name = "Defiant Defender's Drape", bonusIDs = { 12806 } }, source = "博學者殿堂" },
+        { slot = "Cape", item = { itemId = 260312, name = "Defiant Defender's Drape", bonusIDs = { 12806 } }, source = "博學者殿堂" },
         { slot = "胸", item = { itemId = 250018, name = "Battle Garb of Ra-den's Chosen", bonusIDs = { 12806, 13335 } }, source = "團隊 | Catalyst | Vault" },
         { slot = "手腕", item = { itemId = 249327, name = "Void-Skinned Bracers", bonusIDs = { 12806, 13335 } }, source = "瓦拉西斯 (Raid)" },
         { slot = "手", item = { itemId = 250016, name = "Thunderfists of Ra-den's Chosen", bonusIDs = { 12806, 13335 } }, source = "團隊 | Catalyst | Vault" },
-        { slot = "腰", item = { itemId = 249374, name = "Scorn-Scarred Shul'ka's Belt", bonusIDs = { 12806, 13335 } }, source = "Chimaerus (Raid)" },
+        { slot = "腰", item = { itemId = 249374, name = "Scorn-Scarred Shul'ka's Belt", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯 (Raid)" },
         { slot = "腿", item = { itemId = 250014, name = "Swiftsweepers of Ra-den's Chosen", bonusIDs = { 12806, 13335 } }, source = "團隊 | Catalyst | Vault" },
         { slot = "腳", item = { itemId = 250017, name = "Storm Crashers of Ra-den's Chosen", bonusIDs = { 12806, 13335 } }, source = "Catalyst" },
         { slot = "戒指", item = { itemId = 249920, name = "Eye of Midnight", bonusIDs = { 12806, 13335 } }, source = "午夜之落 (Raid)" },
         { slot = "戒指", item = { itemId = 49812, name = "Purloined Wedding Ring", bonusIDs = { 12806 } }, source = "薩倫之淵" },
         { slot = "飾品", item = { itemId = 249808, name = "Litany of Lightblind Wrath", bonusIDs = { 12806, 13335 } }, source = "光盲先鋒 (Raid)" },
-        { slot = "飾品", item = { itemId = 249343, name = "Gaze of the Alnseer", bonusIDs = { 12806, 13335 } }, source = "Chimaerus (Raid)" },
+        { slot = "飾品", item = { itemId = 249343, name = "Gaze of the Alnseer", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯 (Raid)" },
       } },
     },
   },
@@ -189,7 +189,7 @@ ClassCodexGearData["MONK"] = {
       { slot = "胸", best = { itemId = 243977, name = "Enchant Chest - Mark of the Worldsoul" } },
       { slot = "腿", best = { itemId = 244641, name = "Forest Hunter's Armor Kit" } },
       { slot = "腳", best = { itemId = 243953, name = "Enchant Boots - Lynx's Dexterity" } },
-      { slot = "戒指", best = { itemId = 243957, name = "Enchant Ring - Eyes of the Eagle" } },
+      { slot = "戒指", best = { itemId = 244015, name = "Enchant Ring - Silvermoon's Alacrity" } },
     },
     gems = {
       primary = { itemId = 240983, name = "Indecipherable Eversong Diamond" },

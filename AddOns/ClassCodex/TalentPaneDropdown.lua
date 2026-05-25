@@ -109,34 +109,57 @@ local inspectOverride = nil
 local function ResolveInspectOverride()
     -- Canonical inspect signal: PlayerSpellsFrame:IsInspecting() returns
     -- true when either an inspect unit or an inspect string is set.
-    -- :GetInspectUnit() is the token we need for class/spec resolution.
     if not PlayerSpellsFrame or not PlayerSpellsFrame.IsInspecting then return nil end
     local ok, isInspecting = pcall(PlayerSpellsFrame.IsInspecting, PlayerSpellsFrame)
     if not ok or not isInspecting then return nil end
-    local unit = PlayerSpellsFrame.GetInspectUnit and PlayerSpellsFrame:GetInspectUnit() or nil
-    if not unit or not UnitExists or not UnitExists(unit) then
-        -- inspect-string mode (no unit, e.g. a pasted import string).
-        -- We can't resolve class/spec from the unit, so skip — the
-        -- panel keeps showing the user's own data in this case.
-        return nil
-    end
-    local _, classFile = UnitClass(unit)
-    if not classFile then return nil end
-    local specID = GetInspectSpecialization and GetInspectSpecialization(unit) or 0
-    if not specID or specID == 0 then return nil end
+
     local infoFn = (C_SpecializationInfo and C_SpecializationInfo.GetSpecializationInfoByID)
         or _G.GetSpecializationInfoByID
     if not infoFn then return nil end
-    local _, specDisplayName = infoFn(specID)
-    if not specDisplayName or specDisplayName == "" then return nil end
-    -- Match the data-file key format ("beast-mastery", "devourer", ...).
-    local specSlug = specDisplayName:lower():gsub("%s+", "-")
-    return {
-        classFile = classFile,
-        specName = specSlug,
-        specID = specID,
-        level = (UnitLevel and UnitLevel(unit)) or 80,
-    }
+
+    -- Path A: unit-based inspect (Blizzard's own InspectFrame → View Talents).
+    -- Resolve class/spec live from the inspected unit.
+    local unit = PlayerSpellsFrame.GetInspectUnit and PlayerSpellsFrame:GetInspectUnit() or nil
+    if unit and UnitExists and UnitExists(unit) then
+        local _, classFile = UnitClass(unit)
+        local specID = GetInspectSpecialization and GetInspectSpecialization(unit) or 0
+        if classFile and specID and specID ~= 0 then
+            local _, specDisplayName = infoFn(specID)
+            if specDisplayName and specDisplayName ~= "" then
+                return {
+                    classFile = classFile,
+                    specName = specDisplayName:lower():gsub("%s+", "-"),
+                    specID = specID,
+                    level = (UnitLevel and UnitLevel(unit)) or 80,
+                }
+            end
+        end
+    end
+
+    -- Path B: inspect-string mode (our menu entry's GenerateInspectImportString
+    -- flow, or a pasted talent-build link). PlayerSpellsFrame:GetInspectString
+    -- returns (string, classID, specID) — enough to resolve class/spec for
+    -- CC's build list. Level isn't carried by the string here so default to 80.
+    if PlayerSpellsFrame.GetInspectString then
+        local _, classID, specID = PlayerSpellsFrame:GetInspectString()
+        if classID and specID then
+            local classInfo = C_CreatureInfo and C_CreatureInfo.GetClassInfo(classID)
+            local classFile = classInfo and classInfo.classFile
+            if classFile then
+                local _, specDisplayName = infoFn(specID)
+                if specDisplayName and specDisplayName ~= "" then
+                    return {
+                        classFile = classFile,
+                        specName = specDisplayName:lower():gsub("%s+", "-"),
+                        specID = specID,
+                        level = 80,
+                    }
+                end
+            end
+        end
+    end
+
+    return nil
 end
 
 local function RefreshInspectOverride()
@@ -821,9 +844,6 @@ local function PopulatePvpMenu(rootDescription)
             local capturedKey = bracketKey
             local capturedRecord = PvpBuildRecord(bracketKey, bracketData, topBuild)
             local isActive = BuildMatchesActive({ exportString = topBuild.exportString })
-            if bracketData.lowConfidence then
-                label = label .. " |cff999999(low confidence)|r"
-            end
             if isActive then
                 label = label .. " |cff66ff66(active)|r"
             end

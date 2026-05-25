@@ -12,20 +12,20 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM2WGYADYG2CMsNAAAMDAAgZmxMmZMGzgZmZGDzMzMAgZgB",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM2WGYADYG2CMsNAAAMDAAgZmxMmZ2GjZwMzMjhZmZAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
@@ -38,20 +38,20 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM2WGYADYG2CMsNAAAMDAAgZmxMmZ2GjZwMzMjhZmZAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmxmZGzyAAAmZmlZzMzyYAgx22ADYAzwWghtBAAADAAgZmxMmZ2mZMDmZmZMMzMzAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
@@ -64,7 +64,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmxmZGzyAAAmZmlZzMzyYAgx22ADYAzwWghtBAAADAAgZmxMmZ2mZMDmZmZMMzMzAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
@@ -77,7 +77,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM2WGYADYG2CMsNAAAMDAAgZmxMmZ2GjZwMzMjhZmZAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM2WGYADYG2CMsNAAAMDAAgZmxMmZ2GjZwMzMjhZmZAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
@@ -103,7 +103,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmxmZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxMz2YMDmZmZMMzMzAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
@@ -116,14 +116,14 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM2WGYADYG2CMsNAAAMDAAgZmxMmZ2GjZwMzMjhZmZAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAmZmlZzMzyYAgx2yADYAzwWghtBAAgZAAAMzMmxM2GjZwMzMjhZmZAAmBG",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -220,7 +220,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzM2mZGzyAAAmZmlZZmZWGDAM2WGYADYG2CMsNAAAYAAAMzMzMmZ2GjZwMzMjhZmZAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAYmxMzoZjhZmZmlBAAMzMLziZmlxAAjtlBGwAmhtADbDAAAzAAAYmZmZMGzMmBzMzMGmZmBAYAD",
           },
         },
       },
@@ -246,20 +246,20 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZhhZmZmlBAAYmZxyMzsMzAAjllBGwAmhtADbDAAAzAAAYmhZmxADzMzMjZwMzMDAYGYA",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMAAAzMLWmZmlZGAYssMwAGwMsFYYbAAAYGAAAzMMjZmNMMzMzMmBzMzMAgZgB",
           },
         },
       },
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbMMzMzsMAAgZmZZ2MzsMGAYstMwAGwMsFYYbAAAYGAAAzMzMjZGjxMYmZmxwMzMAAzAD",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAgZmZGNbMMzMmlBAAYmZxyMzsMzAAjllBGwAmhtADbDAAAzAAAYmhZmZmNMMzMzMmBzMzMAgZgB",
           },
         },
       },
@@ -272,7 +272,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZmpZjhZmZmlBAAYmZZ2mZmlZGAYstMwAGwMsFYYbAAAYGAAAzMmZMmNMMjZmZMYmZGAgZgB",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMAAAzML2mZmlZGAYstMwAGwMsFYYbAAAYGAAAzMMjZmNMMzMzMmBzMzMAgZgB",
           },
         },
       },
@@ -285,7 +285,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbMMzMzsMAAgZmZZ2MzsMGAYstMwAGwMsFYYbAAAYGAAAzMzMjZGjxMYmZmxwMzMAAzAD",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbmZWGDAM2WGYADYG2CMsNAAAMDAAgZmZmxMjxYGjZmZGDzMzAAMgB",
           },
         },
       },
@@ -298,7 +298,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzMNbMMzMmlBAAYmZZWmZmlZGAYstMwAGwMsFYYbAAAYGAAAzMmZMGYYGzMzYwMzMDAYGYA",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZmpZxMz2MPwY2GAAgZmFbzMzyMDAM2WGYADYGWCMsNAAAMDAAgZmZmZMghZmZmZMYmZMAgZgB",
           },
         },
       },
@@ -311,7 +311,20 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmxmZGzyAAAmZmlZbmZWGDAM22GYADYG2CMsNAAAMDAAgZmxMmZ2YMjxMzYMMzMzAAmBG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMAAAzML2mZmlZGAYstMwAGwMsFYYbAAAYGAAAzMmZMzADzMzMjZwMzMDAYGYA",
+          },
+        },
+      },
+      ["raid:mythic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Soul Harvester",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAYmZmZGNbMMzMmlBAAYmZZWmZmlZGAYssNwAGwMsFYYbAAAYGAAAzMmZMGYYGzMzYwMzMDAYGYA",
           },
         },
       },
@@ -324,7 +337,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbMMzMmlBAAYmZZ2mZmFzAAjttBGwAmhtADbDAAAzAAAYmZmZMzsNMMjZmZMYmZGAgZgB",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMAAAzMLziZmlZGAYstMwAGwMsFYYbAAAYGAAAzMzMjZGDDzYmZGDmZmBAYGYA",
           },
         },
       },
@@ -337,7 +350,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMzyAAAmZmlZxMzyYAgx2yADYAzwWghtBAAgZAAAMzMzMGjZGzgZmZGDzMzAAMgB",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMzyAAAmZmlZxMz2YAgx2yADYAzwWghtBAAgZAAAMzMzMGjZGzgZmZGDzMzAAMgB",
           },
         },
       },
@@ -350,7 +363,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzM2mZGzyAAAmZmlZxMzyYAgx2yADYAzwWghtBAAgZAAAMzMzMmZ2mZMDmZmZMMzMDAwAG",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAYmxMzoZbMMzMmlBAAMzMLziZmlxAAjtlBGwAmhtADbDAAAzAAAYmZmZMGzMmBzMzMGmZmBAYAD",
           },
         },
       },
@@ -363,7 +376,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Soul Harvester",
-            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZWmZmFzAAjttBGwAmhlADbDAAAzAAAYmZMjZGMDzYmZGDmZmBAYGYA",
+            exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAgZmZGNbMMzMmlBAAYmZxyMzsMzAAjllBGwAmhtADbDAAAzAAAYmhZmZmNMMzMzMmBzMzMAgZgB",
           },
         },
       },
@@ -397,6 +410,7 @@ ClassCodexArchonData["WARLOCK"] = {
       "raid:heroic:beloren",
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
+      "raid:mythic:midnight-falls",
     },
   },
   ["demonology"] = {
@@ -418,7 +432,7 @@ ClassCodexArchonData["WARLOCK"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -443,7 +457,7 @@ ClassCodexArchonData["WARLOCK"] = {
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
@@ -522,13 +536,13 @@ ClassCodexArchonData["WARLOCK"] = {
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAgZmZGNbmx2MzY2GAAAAAAAwYGDLwAbDL0wiBzsMbzMzYGAYGmZmZmBYMzYGAAgZmZGzwYWmxAGA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -541,7 +555,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjx2MzYWGAAAAAAAwYGDLwAbDL0wiBzsMLzMzYGAYGmZmZmBYMDzsBAAmZmZGDjZZGDYA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -554,7 +568,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAghZmpZzMz2MzYWGAAAAAAAwYGDLwAbDL0wiBzsMbzMzYGAYGmZmZmBYmZMjNAAwMzMzYYMLzYAD",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -567,7 +581,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMAAAAAAAgxMGWgB2GWohFDmZZ2mZmxMAwMMzMzMDgZGzMAAAzMzMzMMmlZMgB",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -580,7 +594,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAgZmZGNbmx2MzY2GAAAAAAAwYGDLwAbDL0wiBzsMbzMzYGAYGmZmZmBYMzYGAAgZmZGzwYWmxAGA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -593,7 +607,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjx2MzYWGAAAAAAAwYGDLwAbDL0wiBzsMLzMzYGAYGmZmZmBYMDzsBAAmZmZGDjZZGDYA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmxMzoZjZ2mZGzyAAAAAAAAGzYYBGYbYhGWMGjlZZmZGzAAzMmZmZmBwMjZAAAMmZmxwwyMGwA",
           },
         },
       },
@@ -619,7 +633,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjx2MzYWGAAAAAAAwYGDLwAbDL0wiBzsMbzMzYGAYGmZmZmBYMDzsBAAmZmZGDjZZGDYA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -645,14 +659,14 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAgZmZGNbmx2MzY2GAAAAAAAwYGDLwAbDL0wiBzsMbzMzYGAYGmZmZmBYMzYGAAgZmZGzwYWmxAGA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -671,7 +685,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMzMzMNbMMzMmlBAAAAAAAMmxwCMw2wCNsYwMLzyMzMmBAmhZmZmZAMzYmBAAYmZmZMMmlZMgB",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmxMzoZjhZmxsMAAAAAAAgxMGWgB2GWohFDmZZ2mZmxMAwMMzMzMDwYGzMbAAgZmZmxwYWmxAGA",
           },
         },
       },
@@ -684,7 +698,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAghZmpZzMz2MzYWGAAAAAAAwYGDLwAbDL0wiBzsMbzMzYGAYGmZmZmBYmZMjNAAwMzMzYYMLzYAD",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -697,7 +711,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGz2AAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAzMjZGAAgZmZmxwYWmxAGA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbjhZmZmlBAAAAAAAMmxwCMw2wCNsYMGLz2MzMmBAmZMzMzMDgZGzMAAAjZmZMMsMjBMA",
           },
         },
       },
@@ -710,7 +724,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmZ2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMjNAAwMzMzYYMLzYAD",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZGzyAAAAAAAAGzYYBGYbYhGWMYmlZbmZGzAAzwMzMzMAjZMzsBAAmZmZGDjZZGDYA",
           },
         },
       },
@@ -749,7 +763,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbMMzMmtBAAAAAAAMmxwCMw2wCNsYwMLz2MzMmBAmhZmZmZAmZGzMbAAgZmZmxwYWmxAGA",
+            exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbjhZmZmlBAAAAAAAMmxwCMw2wCNsYwMLz2MzMmBAmhZmZmZAmZGjBAAYmZmZMMmlZMgB",
           },
         },
       },
@@ -824,20 +838,20 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMzysxMzsYmZZZMAAYmZMzMLgxMGWgB2G2oxCDAAMGMAAzMAjZMmFAAAzMzAAgZYA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbmx2MzY2mNzMzsYmZZZMAAYGjZmZBMmxwCMw2wGNWYAAgxgBAYmBYMjZGAAAmZmBAAzwA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMz2sxMzsYmZZZMAAYmZMzMLgxMGWgB2G2oxCDAAMGMAAzMAjZMmFAAAzMzAAgZYA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbmx2MzY2mNzMzsYmZZZMAAYGjZmZBMmxwCMw2wGNWYAAgxgBAYmBYMjZGAAAmZmBAAzwA",
           },
         },
       },
@@ -850,20 +864,20 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMzysxMzsYmZZZMAAYmZMzMLgxMGWgB2G2oxCDAAMGMAAzMAjZMmFAAAzMzAAgZYA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbmx2MzMz2sZmZmFzMLLjBAAzYMzMLgxMGWgB2G2oxCDAAMGMAAzMAjZMGAAAmZmBAAzwA",
           },
         },
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmxmZGzysZmZmFzMLLjBAAzYMzMLgxMGWgB2GWoxCDAAMGMAAzMAjZmZmNAAAzMzAAgZYA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNLjx2MzYWmNzMzsYmZZZMAAYGjZmZBMmxwCMw2wGNWYAAgxgBAYmBYMjZGAAAmZmBAAzwA",
           },
         },
       },
@@ -876,7 +890,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMzysxMzsYmZZZMAAYmZMzMLgxMGWgB2G2oxCDAAMGMAAzMAjZMmFAAAzMzAAgZYA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbMz2MzY2mNzMzsYmZZZMAAYGjZmZBMmxwCMw2wCNWYAAgxgBAYmBYMjZsBAAYmZGAAMDD",
           },
         },
       },
@@ -889,7 +903,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNLmx2MzMzysZmZmFzMLLjBAAzYMzMLgxMGWgB2GWoxCDAAMGMAAzMAzMDzAAAwMzMAAYGG",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbmx2MzY2mNzMzsYmZZZMAAYGjZmZBMmxwCMw2wGNWYAAgxgBAYmBYMjZGAAAmZmBAAzwA",
           },
         },
       },
@@ -902,7 +916,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjxmZmZWmNzMzsYmZZZMAAYGjZmZBMmxwCMw2wCNWYAAgxgBAYmBYMDmNAAAzMzMAAMDD",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmxmZGzysZmZmFzMLLjBAAzYMzMLgxMGWgB2GWoxCDAAMGMAAzMAjZGzsBAAYmZmBAgZYA",
           },
         },
       },
@@ -915,7 +929,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMz2sxMzsYmZZZMAAYmZMzMLgxMGWgB2G2oxCDAAMGMAAzMAjZMmFAAAzMzAAgZYA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmZ2mZGzysZmZmFzMLLjBAAzYMzMLgxMGWgB2GWoxCDAAMGMAAzMAjZMjNAAAzMzAAgZYA",
           },
         },
       },
@@ -928,14 +942,14 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmx2MzMzysxMzsYmZZZMAAYmZMzMLgxMGWgB2G2oxCDAAMGMAAzMAjZMmNAAAzMzAAgZYA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMegZGNbmZ2mZGzysZmZmFzMLLjBAAzYMzMLgxMGWgB2GWoxCDAAMGMAAzMAjZMjNAAAzMzAAgZYA",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -980,7 +994,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Hellcaller",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzMNbMMzMmlZZMzMLG2W8ADAAmZGzMziFYgZxoxMAmNsxAAAjBYDAYmBmZMGAAAmZmZAAMzwA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjZMzMmlZZmZmZxY2WMDAAmxYmZWsADMLGNmBwshNGAAYMAbAAzMYmZMDAAAmZmBAgxwA",
           },
         },
       },
@@ -1065,13 +1079,26 @@ ClassCodexArchonData["WARLOCK"] = {
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Hellcaller",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZZMzMLGz2iZAAwMGzMziFYgZxoxMAmNsxAAAjBYDAYmBmZMGAAAmZmZAAYGG",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZZmZmZxY2WMDAAmxYmZWsADMLGNmBwshNGAAYMAbAAzMwMjxAAAwMzMDAgxwA",
+          },
+        },
+      },
+      ["raid:mythic:beloren"] = {
+        zoneType = "raid",
+        encounter = "beloren",
+        encounterLabel = "貝羅倫",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Diabolist",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLzMzMLGzyiHYAAwMzYmZWAjZMsADsNsRjFGAAYMAbAYmBYmZMGAAAmZmZAAMGG",
           },
         },
       },
@@ -1097,7 +1124,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Hellcaller",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbM2mZmZWmlZmZmFjZbxMAAYGjZmZxCMwsY0YGAzG2YAAgxAsBAMzAzMmZAAAYmZGAAGDD",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZZmZmZxY2W8ADAAmZGzMziFYgZxoxMAmNsxAAAjBYDAYmBmZMGAAAmZmZAAMGG",
           },
         },
       },
@@ -1114,6 +1141,19 @@ ClassCodexArchonData["WARLOCK"] = {
           },
         },
       },
+      ["raid:mythic:midnight-falls"] = {
+        zoneType = "raid",
+        encounter = "midnight-falls",
+        encounterLabel = "午夜之落",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Diabolist",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZxMzMLmZs4BGAAMjxMzsAGzYYBGYbYjGLMAAwYwM2AwMDgZGjBAAgZmZGAAjhB",
+          },
+        },
+      },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
@@ -1123,7 +1163,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Hellcaller",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNLMWmZmZWmlxMzsYmZbxDMAAYGjZmZxCMwsY0YGAzG2YAAgxAsBAMzgZmxYAAAYmZGAAMDD",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMmZGNbMMzMzsMLzMzMLmZ2W8ADAAmxYmZWsADMLGNmBwshNGAAYMAbAAzMYmZMmNAAAzMzAAwYYA",
           },
         },
       },
@@ -1136,7 +1176,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Diabolist",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxMzyCDAAmxYmZWAjZMsADsNsQjFGAAYMYYDAzMAzMjZGAAAmZmBAAzwA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAgZmZGNbM2mZGzysMmZmFzMLLMAAYGjZmZBMmxwCMw2wCNWYAAgxghNAMzAMzMmZAAAYmZGAAMDD",
           },
         },
       },
@@ -1149,7 +1189,7 @@ ClassCodexArchonData["WARLOCK"] = {
         builds = {
           {
             heroTalent = "Hellcaller",
-            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAYmZmZGNbMMzMmlZZMzMLGzyiZAAwMGzMziFYgZxoxMAmNsxAAAjBYDAYmBjHYmxAAAwMzMDAAzwA",
+            exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxYWWMDAAmxYmZWsADMLGNmBwshNGAAYMAbAAzMYmZMGAAAmZmZAAYGG",
           },
         },
       },
@@ -1194,7 +1234,9 @@ ClassCodexArchonData["WARLOCK"] = {
       "raid:heroic:chimaerus",
       "raid:mythic:chimaerus",
       "raid:heroic:beloren",
+      "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
+      "raid:mythic:midnight-falls",
     },
   },
 }

@@ -6,19 +6,19 @@ local _, ns = ...
 -- Bnet (per spec, per bracket — talent loadouts + honor talents):
 --   Data/{Class}/bnet-pvp-talents.lua
 --     -> ClassCodexBnetPvpTalents[CLASS][spec].brackets[bracketKey] = {
---          sampleSize,
---          lowConfidence?,                                 -- emitted only when set
---          builds = { { exportString }, ... },             -- pre-sorted; first = canonical
+--          builds = { { exportString, heroTalent? }, ... }, -- already share-floor-filtered upstream
 --          pvpTalentSets = { { talents = {id1,id2,id3} } } -- pre-sorted; first = canonical
 --        }
---   Bracket display name lives in PVP_BRACKET_NAMES below; the JSON's
---   internal sort decision (count vs topRating) is opaque to the addon.
+--   Bracket display name lives in PVP_BRACKET_NAMES below. sampleSize,
+--   share, and the lowConfidence convergence flag live in the scraper
+--   JSON only; the share floor (≥15%) is applied at scrape time and the
+--   addon just renders the surviving builds in order.
 --
 -- Murlok (per spec — stat priorities + BiS gear + enchants + gems + embellishments):
 --   Data/{Class}/murlok-pvp.lua
 --     -> ClassCodexMurlokPvp[CLASS][spec] = {
---          statPriority = { { key }, ... },                            -- order is the signal
---          bisGear = { [slot] = { { itemId, pickrate? } } },           -- pickrate shown in Compendium "source" column
+--          statPriority = { { key, rating }, ... },        -- order is the signal; rating stabilized ±1%
+--          bisGear = { [slot] = { { itemId } } },          -- pickrate dropped (daily noise)
 --          embellishments? = { { itemId, name } },
 --          enchants? = { [slot] = { { itemId, name } } },              -- itemId = 0 for enchants (no item-side ID)
 --          gems? = { [socket] = { { itemId, name } } },
@@ -64,6 +64,45 @@ function ns.GetPvPBuilds(classToken, specKey, bracketKey)
     local spec = GetBnetSpec(classToken, specKey)
     if not spec or not spec.brackets then return nil end
     return spec.brackets[bracketKey]
+end
+
+-- Inclusion rule for surfacing multiple build variants in the UI.
+-- The scraper filters the `builds` array to those clearing the 15%
+-- share floor before emitting Lua, so this layer just walks the list in
+-- order and caps it at PVP_MAX_VARIANTS. The cap exists for screen real
+-- estate, not statistical meaningfulness — that gate already fired upstream.
+local PVP_MAX_VARIANTS = 3
+
+-- Returns the ordered list of build variants to surface for a bracket.
+-- Each entry: { hero = heroName, build = buildTable, altIndex = number? }
+--
+-- altIndex is set when a hero appears more than once in the list (e.g.
+-- two Aldrachi Reaver variants with different choice nodes) so the UI
+-- can disambiguate them — value is 2 for the second occurrence, 3 for
+-- the third, etc. Single-hero appearances leave altIndex nil.
+function ns.GetPvPBuildVariants(bracketData)
+    if not bracketData or not bracketData.builds or not bracketData.builds[1] then
+        return {}
+    end
+
+    local count = math.min(PVP_MAX_VARIANTS, #bracketData.builds)
+    if count == 1 then
+        local top = bracketData.builds[1]
+        return { { hero = top.heroTalent, build = top } }
+    end
+
+    -- Tag same-hero duplicates so the UI can label "(alt)" / "(alt 2)"
+    -- and the user can tell two Aldrachi rows apart at a glance.
+    local heroCounts, out = {}, {}
+    for i = 1, count do
+        local b = bracketData.builds[i]
+        local heroKey = b.heroTalent or "_nohero"
+        heroCounts[heroKey] = (heroCounts[heroKey] or 0) + 1
+        local altIndex = nil
+        if heroCounts[heroKey] > 1 then altIndex = heroCounts[heroKey] end
+        out[#out + 1] = { hero = b.heroTalent, build = b, altIndex = altIndex }
+    end
+    return out
 end
 
 -- Returns a sorted array of bracketKey strings that have data for this spec,
@@ -187,7 +226,9 @@ local PVP_ENCHANT_SLOT_ORDER = {
 }
 
 -- Returns a single-tab BiS structure: `{ { label = "PvP", slots = {...} } }`,
--- where each slot is `{ slot, item = { itemId }, source = "35%" or "" }`.
+-- where each slot is `{ slot, item = { itemId }, source = "" }`.
+-- pickrate is no longer emitted to Lua (daily drift was the dominant
+-- noise in PvP data PRs); the "source" column stays empty for PvP rows.
 -- Returns nil when no Murlok BiS data exists for the spec.
 function ns.BuildPvPBisTabs(classToken, specKey)
     local gear = ns.GetPvPGear(classToken, specKey)
@@ -200,7 +241,7 @@ function ns.BuildPvPBisTabs(classToken, specKey)
             slots[#slots + 1] = {
                 slot = slotName,
                 item = { itemId = top.itemId },
-                source = top.pickrate and (top.pickrate .. "%") or "",
+                source = "",
             }
         end
     end

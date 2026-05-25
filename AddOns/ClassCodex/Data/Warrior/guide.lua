@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["WARRIOR"] = {
   ["arms"] = {
     label = "Arms Warrior",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warrior/arms/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/warrior/arms/midnight-season-1",
     priorities = {
       {
         heroTalent = "Colossus",
@@ -33,6 +33,16 @@ ClassCodexData["WARRIOR"] = {
         exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghphxYGWmZmZGMmZAAAAAMzyMDIjxyyALgBMDTIzgNwMjNz2YwMGgZGAmxwA",
       },
       {
+        heroTalent = "Slayer",
+        context = "傳奇+",
+        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "通用",
+        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
+      },
+      {
         heroTalent = "Colossus",
         context = "團隊單目標",
         exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghphZYmxyMzMzgxMDAAAAgZMzAyMgNzYYDGYGtRjBLAzYzsNGMjBzMAgZMMA",
@@ -42,26 +52,6 @@ ClassCodexData["WARRIOR"] = {
         context = "傳奇+",
         recommended = true,
         exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghphxwMbLzMzMjZGzMAAAAAGbmB2iBsZGDLwAzoNaMYBYGMGMbmtBzMAgZmhB",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "傳奇+",
-        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
-      },
-      {
-        heroTalent = "Colossus",
-        context = "探究",
-        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghphxwMbLzMzMjZGzMAAAAAGbmB2iBsZGDLwAzoNaMYBYGMGMbmtBzMAgZmhB",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "探究",
-        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "通用",
-        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
       },
       {
         heroTalent = "Colossus",
@@ -141,7 +131,7 @@ ClassCodexData["WARRIOR"] = {
   },
   ["fury"] = {
     label = "Fury Warrior",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warrior/fury/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/warrior/fury/midnight-season-1",
     priorities = {
       {
         heroTalent = "Mountain Thane",
@@ -168,8 +158,17 @@ ClassCodexData["WARRIOR"] = {
       {
         heroTalent = "Slayer",
         context = "團隊單目標",
-        recommended = true,
         exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjxMsMzMzMDjZmZGzMzsMzMGzMbDzMAAQMWWGYBMBzwEYG2AmZ2Y2GAAMzYYMzMMYA",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "傳奇+",
+        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "通用",
+        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
       },
       {
         heroTalent = "Mountain Thane",
@@ -179,33 +178,11 @@ ClassCodexData["WARRIOR"] = {
       {
         heroTalent = "Mountain Thane",
         context = "傳奇+",
-        recommended = true,
         exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjZMz2yMzMjZmxMjZMjZWmZGjZmlxMzAAAhB2glFjGzAysgZsAYGMGAMzAYYmZGMYA",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "傳奇+",
-        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
-      },
-      {
-        heroTalent = "Mountain Thane",
-        context = "探究",
-        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjZMz2yMzMjZmxMjZMjZWmZGjZmlxMzAAAhB2glFjGzAysgZsAYGMGAMzAYYmZGMYA",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "探究",
-        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "通用",
-        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
       },
       {
         heroTalent = "Mountain Thane",
         context = "通用",
-        recommended = true,
         exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjZMz2yMzMjZmxMjZMjZWmZGjZmlxMzAAAhB2glFjGzAysgZsAYGMGAMzAYYmZGMYA",
       },
     },
@@ -271,10 +248,10 @@ ClassCodexData["WARRIOR"] = {
   },
   ["protection"] = {
     label = "Protection Warrior",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warrior/protection/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/warrior/protection/midnight-season-1",
     priorities = {
       {
-        heroTalent = "Mountain Thane",
+        heroTalent = "Colossus",
         context = "生存向",
         stats = {
           { "加速" },
@@ -284,7 +261,7 @@ ClassCodexData["WARRIOR"] = {
         },
       },
       {
-        heroTalent = "Mountain Thane",
+        heroTalent = "Colossus",
         context = "DPS",
         stats = {
           { "加速" },
@@ -294,7 +271,7 @@ ClassCodexData["WARRIOR"] = {
         },
       },
       {
-        heroTalent = "Colossus",
+        heroTalent = "Mountain Thane",
         context = "生存向",
         stats = {
           { "加速" },
@@ -304,7 +281,7 @@ ClassCodexData["WARRIOR"] = {
         },
       },
       {
-        heroTalent = "Colossus",
+        heroTalent = "Mountain Thane",
         context = "DPS",
         stats = {
           { "加速" },
@@ -316,6 +293,22 @@ ClassCodexData["WARRIOR"] = {
     },
     talents = {
       {
+        heroTalent = "Colossus",
+        context = "團隊單目標",
+        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAA0yAAAzMzYmZGzY2MzsMjxYmGmZYZMzMDzYmBAAAALDAzYAGYDWWMaMDgZLmZDmxMDmtBAzMAAMAD",
+      },
+      {
+        heroTalent = "Colossus",
+        context = "傳奇+",
+        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
+      },
+      {
+        heroTalent = "Colossus",
+        context = "探究",
+        recommended = true,
+        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
+      },
+      {
         heroTalent = "Mountain Thane",
         context = "團隊單目標",
         recommended = true,
@@ -326,22 +319,6 @@ ClassCodexData["WARRIOR"] = {
         context = "傳奇+",
         recommended = true,
         exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzMzMzMmxsZmZZGjxMNmxwyYmZYmxMDAAAAWGAmxAMwGssY0YGAzWMzGMzMzgZZAwMDAADwA",
-      },
-      {
-        heroTalent = "Colossus",
-        context = "探究",
-        recommended = true,
-        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
-      },
-      {
-        heroTalent = "Colossus",
-        context = "團隊單目標",
-        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAA0yAAAzMDzMzMzMzmxsMjxYmGmZYZMzMDzYmBAAAALDAzYAgNzYYjMwMsQjZWgZMzgZbAAmZAADwA",
-      },
-      {
-        heroTalent = "Colossus",
-        context = "傳奇+",
-        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
       },
       {
         heroTalent = "Mountain Thane",
@@ -406,7 +383,7 @@ ClassCodexData["WARRIOR"] = {
       },
       {
         heroTalent = "Colossus",
-        context = "開場",
+        context = "起手",
         steps = {
           "Always {100} into combat.",
           "{436358} on cooldown.",
@@ -420,7 +397,7 @@ ClassCodexData["WARRIOR"] = {
       },
       {
         heroTalent = "Mountain Thane",
-        context = "開場",
+        context = "起手",
         steps = {
           "Always {100} into combat.",
           "{23922} on cooldown.",

@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["PALADIN"] = {
   ["holy"] = {
     label = "Holy Paladin",
-    sourceUrl = "https://www.wowhead.com/guide/classes/paladin/holy/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/paladin/holy/midnight-season-1",
     priorities = {
       {
         heroTalent = "Herald of the Sun",
@@ -25,25 +25,14 @@ ClassCodexData["PALADIN"] = {
     },
     talents = {
       {
-        heroTalent = "All",
+        heroTalent = "Herald of the Sun",
         context = "團隊單目標",
-        buildLabel = "Default - Raid",
         exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YwYWGbzMLzoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
       },
       {
         heroTalent = "Herald of the Sun",
         context = "傳奇+",
         exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxMNxwYmZYY2yAwAwGYjlZmZWmtZmZrBAAAYhNMDbGYGzAAAmZYGjRD",
-      },
-      {
-        heroTalent = "Lightsmith",
-        context = "探究",
-        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxoJGGmZYY2yAwAwGYjlZmBABAMzsttYbmhN2YgNDMjZYAYmBgZMGNA",
-      },
-      {
-        heroTalent = "Herald of the Sun",
-        context = "團隊單目標",
-        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YwYWGbzMLzoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
       },
       {
         heroTalent = "Herald of the Sun",
@@ -60,20 +49,25 @@ ClassCodexData["PALADIN"] = {
         context = "傳奇+",
         exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWGMGWGbzMLGNxwYmZYY2yAwAwGYjlZmBABAMzstsYbmhN2wMsZgZMDAYmBgZMGNA",
       },
+      {
+        heroTalent = "Lightsmith",
+        context = "探究",
+        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxoJGGmZYY2yAwAwGYjlZmBABAMzsttYbmhN2YgNDMjZYAYmBgZMGNA",
+      },
     },
     rotation = {
       {
         heroTalent = "All",
         context = "治療優先",
         steps = {
-          "{375576}",
-          "{432459} or {432472}",
+          "?(!H\"Lightsmith\"): {375576}",
+          "?(H\"Lightsmith\"): {432459} or {432472}",
           "{82326} as needed and as mana allows",
           "?!{1241358}: Spend {53576} procs",
           "?{1241358}: Spend {53576} procs on {20271} and {19750}",
           "{20473}",
           "?{216331}: During {216331} cast {1241288}",
-          "With an {414193} proc, cast {20271}",
+          "?(H\"Lightsmith\"): With an {414193} proc, cast {20271}",
           "?{216331}: During {216331} cast {35395}",
           "?!{1241358}: {19750}. Only cast {20271} if you need to move.",
           "?{1241358}: {20271}.",
@@ -98,7 +92,7 @@ ClassCodexData["PALADIN"] = {
   },
   ["protection"] = {
     label = "Protection Paladin",
-    sourceUrl = "https://www.wowhead.com/guide/classes/paladin/protection/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/paladin/protection/midnight-season-1",
     priorities = {
       {
         heroTalent = "Templar",
@@ -149,12 +143,6 @@ ClassCodexData["PALADIN"] = {
         exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAkmZWMjZmxYmt2AwAGwgNAAwMTbzMLzAAsBmxAYMDjBAYZGgZGkB",
       },
       {
-        heroTalent = "Lightsmith",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYZMjZmZZbMzwsMLzYAAGAAAAAA00MDzYmhhZrNAMwAmBbAAAEgZmltlWmZsYGMAYMDjBAzMAMzMID",
-      },
-      {
         heroTalent = "Templar",
         context = "傳奇+",
         recommended = true,
@@ -170,6 +158,12 @@ ClassCodexData["PALADIN"] = {
         heroTalent = "Lightsmith",
         context = "團隊單目標",
         exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNzMYWGLjZMzMLLjZGmFbzYAAGAAAAAAkmZWMjZGmZmt2AwAzAgNAAACwMz22SbzMWMYGDgxMMGAMzAgZGkB",
+      },
+      {
+        heroTalent = "Lightsmith",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYZMjZmZZbMzwsMLzYAAGAAAAAA00MDzYmhhZrNAMwAmBbAAAEgZmltlWmZsYGMAYMDjBAzMAMzMID",
       },
       {
         heroTalent = "Lightsmith",
@@ -240,7 +234,7 @@ ClassCodexData["PALADIN"] = {
       },
       {
         heroTalent = "Templar",
-        context = "開場",
+        context = "起手",
         steps = {
           "{26573} pre-pull as close to the boss as you can safely get without pulling.",
           "{204019} can be used pre-pull to get a few holy power",
@@ -253,7 +247,7 @@ ClassCodexData["PALADIN"] = {
       },
       {
         heroTalent = "Lightsmith",
-        context = "開場",
+        context = "起手",
         steps = {
           "{26573} pre-pull as close to the boss as you can safely get without pulling.",
           "{204019} can be used pre-pull to get a few holy power",
@@ -268,7 +262,7 @@ ClassCodexData["PALADIN"] = {
   },
   ["retribution"] = {
     label = "Retribution Paladin",
-    sourceUrl = "https://www.wowhead.com/guide/classes/paladin/retribution/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/paladin/retribution/midnight-season-1",
     priorities = {
       {
         heroTalent = "Templar",
@@ -295,13 +289,8 @@ ClassCodexData["PALADIN"] = {
       {
         heroTalent = "Templar",
         context = "團隊單目標",
-        buildLabel = "Execution Sentence",
+        recommended = true,
         exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMMzAAAAAAwoMmhZGbDz2wMbzYMmZYGbsNMAAkZm2mZ2mBAsBYAwYGmBzYMbYZGMMmxgB",
-      },
-      {
-        heroTalent = "Herald of the Sun",
-        context = "團隊單目標",
-        exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQzy2MzsMMzAAAAAAwoMmhZGbDz2wMbzYMmZYGLsNMgZZ2mZmtGEAAwCgBAjZYGMjxsAMzMMmxgB",
       },
       {
         heroTalent = "Templar",
@@ -314,6 +303,11 @@ ClassCodexData["PALADIN"] = {
         context = "探究",
         recommended = true,
         exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQzyyMzsMzMzMDAAAAAwMlxMYGbzY2GmZbGMegZwYjtBAAkZm2mZ2mBAsBYAAzwMYYmZBLzgxMmxgB",
+      },
+      {
+        heroTalent = "Herald of the Sun",
+        context = "團隊單目標",
+        exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQzy2MzsMMzAAAAAAwoMmhZGbDz2wMbzYMmZYGLsNMgZZ2mZmtGEAAwCgBAjZYGMjxsAMzMMmxgB",
       },
       {
         heroTalent = "Herald of the Sun",
@@ -437,7 +431,7 @@ ClassCodexData["PALADIN"] = {
       },
       {
         heroTalent = "Templar ES",
-        context = "開場",
+        context = "起手",
         steps = {
           "{184575}",
           "{31884}",
@@ -449,7 +443,7 @@ ClassCodexData["PALADIN"] = {
       },
       {
         heroTalent = "Templar RG",
-        context = "開場",
+        context = "起手",
         steps = {
           "{184575}",
           "{255937}",
@@ -459,7 +453,7 @@ ClassCodexData["PALADIN"] = {
       },
       {
         heroTalent = "Herald of the Sun TS",
-        context = "開場",
+        context = "起手",
         steps = {
           "{184575}",
           "{31884}",

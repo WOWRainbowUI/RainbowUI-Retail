@@ -2,7 +2,7 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["EVOKER"] = {
   ["augmentation"] = {
     label = "Augmentation Evoker",
-    sourceUrl = "https://www.wowhead.com/guide/classes/evoker/augmentation/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/evoker/augmentation/midnight-season-1",
     priorities = {
       {
         heroTalent = "Chronowarden",
@@ -27,6 +27,21 @@ ClassCodexData["EVOKER"] = {
     },
     talents = {
       {
+        heroTalent = "Chronowarden",
+        context = "團隊單目標",
+        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzAjZswCMwMM0IWwMjZGAYA",
+      },
+      {
+        heroTalent = "Chronowarden",
+        context = "傳奇+",
+        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
+      },
+      {
+        heroTalent = "Chronowarden",
+        context = "探究",
+        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
+      },
+      {
         heroTalent = "Scalecommander",
         context = "團隊單目標",
         recommended = true,
@@ -43,21 +58,6 @@ ClassCodexData["EVOKER"] = {
         context = "探究",
         recommended = true,
         exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMzyYmBmZzYwCsMGGbDgZiYDzMDmZAM",
-      },
-      {
-        heroTalent = "Chronowarden",
-        context = "團隊單目標",
-        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzAjZswCMwMM0IWwMjZGAYA",
-      },
-      {
-        heroTalent = "Chronowarden",
-        context = "傳奇+",
-        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
-      },
-      {
-        heroTalent = "Chronowarden",
-        context = "探究",
-        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
       },
     },
     rotation = {
@@ -129,7 +129,7 @@ ClassCodexData["EVOKER"] = {
       },
       {
         heroTalent = "Chronowarden",
-        context = "開場",
+        context = "起手",
         steps = {
           "Pre-cast {360827} on a Tank.",
           "Pre-cast {361469}.",
@@ -146,7 +146,7 @@ ClassCodexData["EVOKER"] = {
       },
       {
         heroTalent = "Scalecommander",
-        context = "開場",
+        context = "起手",
         steps = {
           "Pre-cast {360827} on a Tank.",
           "Pre-cast {361469}.",
@@ -164,7 +164,7 @@ ClassCodexData["EVOKER"] = {
   },
   ["devastation"] = {
     label = "Devastation Evoker",
-    sourceUrl = "https://www.wowhead.com/guide/classes/evoker/devastation/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/evoker/devastation/midnight-season-1",
     priorities = {
       {
         heroTalent = "Flameshaper",
@@ -286,9 +286,9 @@ ClassCodexData["EVOKER"] = {
           "{370553} on {359073}. - .",
           "{357208} Rank 1 to maintain the DoT debuff",
           "{359073} Rank 1.",
-          "{357211}.",
-          "{357211} at 4+ targets.",
-          "Otherwise, channel {356995}.",
+          "?(H\"Feed the Flame Build\"): {357211}.",
+          "?(!H\"Feed the Flame Build\"): {357211} at 4+ targets.",
+          "?(!H\"Feed the Flame Build\"): Otherwise, channel {356995}.",
           "{1265867}.",
           "{361469} with {369939} or {375801}.",
           "{362969} as filler.",
@@ -296,7 +296,7 @@ ClassCodexData["EVOKER"] = {
       },
       {
         heroTalent = "Scalecommander",
-        context = "開場",
+        context = "起手",
         steps = {
           "{358267} twice before combat. - .",
           "Pre-cast {361469}.",
@@ -313,7 +313,7 @@ ClassCodexData["EVOKER"] = {
       },
       {
         heroTalent = "Flameshaper",
-        context = "開場",
+        context = "起手",
         steps = {
           "Pre-cast {361469}.",
           "AoE Only: {357208} Rank 1.",
@@ -329,7 +329,7 @@ ClassCodexData["EVOKER"] = {
   },
   ["preservation"] = {
     label = "Preservation Evoker",
-    sourceUrl = "https://www.wowhead.com/guide/classes/evoker/preservation/cheat-sheet",
+    sourceUrl = "https://www.wowhead.com/guide/classes/evoker/preservation/midnight-season-1",
     priorities = {
       {
         heroTalent = "Flameshaper",
@@ -354,24 +354,26 @@ ClassCodexData["EVOKER"] = {
     },
     talents = {
       {
-        heroTalent = "Chronowarden",
-        context = "團隊單目標",
-        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMyMzAAAAMzMTmxMjZbmZAwAjZsxCMwMaoBsAjZGgxA",
-      },
-      {
         heroTalent = "Flameshaper",
         context = "團隊單目標",
         exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MDGmZMbGzMzsMDAAwMmxgZMjMzMAAAAzMzkZmZGz2MzAgZMDsAWAzwEyGsZYAMzMGA",
       },
       {
-        heroTalent = "Chronowarden",
-        context = "傳奇+",
-        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYmxsZGjx2wAAAzYmZmZMMTMmBAAA2mZmJjZmZGjZAAYMjNWgBmRDNMsAzMzAwA",
-      },
-      {
         heroTalent = "Flameshaper",
         context = "傳奇+",
         exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmxsZGjx2wAAAzYmZmZMMTMmBAAA2mZmJjZmZGjZAgxMwCYDMDTIbwmhZAmZYA",
+      },
+      {
+        heroTalent = "Chronowarden",
+        context = "團隊單目標",
+        recommended = true,
+        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMyMzAAAAMzMTmxMjZbmZAwAjZsxCMwMaoBsAjZGgxA",
+      },
+      {
+        heroTalent = "Chronowarden",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYmxsZGjx2wAAAzYmZmZMMTMmBAAA2mZmJjZmZGjZAAYMjNWgBmRDNMsAzMzAwA",
       },
       {
         heroTalent = "Chronowarden",

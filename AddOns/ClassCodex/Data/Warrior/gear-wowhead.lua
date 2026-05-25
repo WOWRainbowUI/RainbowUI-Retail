@@ -20,7 +20,7 @@ ClassCodexGearData["WARRIOR"] = {
     },
     consumables = {
       flask = { itemId = 241326, name = "Flask of the Shattered Sun" },
-      combatPotion = { itemId = 241308, name = "Light's Potential" },
+      combatPotion = { itemId = 241288, name = "Potion of Recklessness" },
       food = { itemId = 242273, name = "Blooming Feast" },
       weaponBuff = { itemId = 243734, name = "Thalassian Phoenix Oil" },
       augmentRune = { itemId = 259085, name = "Void-Touched Augment Rune" },
@@ -60,7 +60,7 @@ ClassCodexGearData["WARRIOR"] = {
         { slot = "腿", item = { itemId = 249951, name = "Night Ender's Chausses", bonusIDs = { 12806, 13335 } }, source = "套裝" },
         { slot = "腳", item = { itemId = 249381, name = "Greaves of the Unformed", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯" },
         { slot = "戒指", item = { itemId = 249920, name = "Eye of Midnight", bonusIDs = { 12806, 13335 } }, source = "午夜之落" },
-        { slot = "戒指", item = { itemId = 251217, name = "Occlusion of Void", bonusIDs = { 12806, 13335 } }, source = "Nexus Point Xenas" },
+        { slot = "戒指", item = { itemId = 251217, name = "Occlusion of Void", bonusIDs = { 12806, 13335 } }, source = "奧核點瑟納斯" },
         { slot = "飾品", item = { itemId = 249343, name = "Gaze of the Alnseer", bonusIDs = { 12806, 13335 } }, source = "奇美魯斯" },
         { slot = "飾品", item = { itemId = 249342, name = "Heart of Ancient Hunger", bonusIDs = { 12806, 13335 } }, source = "瓦拉西斯" },
         { slot = "主手", item = { itemId = 249296, name = "Alah'endal, the Dawnsong", bonusIDs = { 12806 } }, source = "午夜之落" },
@@ -87,7 +87,7 @@ ClassCodexGearData["WARRIOR"] = {
     },
     consumables = {
       flask = { itemId = 241322, name = "Flask of the Magisters" },
-      combatPotion = { itemId = 241308, name = "Light's Potential" },
+      combatPotion = { itemId = 241288, name = "Potion of Recklessness" },
       food = { itemId = 242273, name = "Blooming Feast" },
       weaponBuff = { itemId = 243734, name = "Thalassian Phoenix Oil" },
       augmentRune = { itemId = 259085, name = "Void-Touched Augment Rune" },

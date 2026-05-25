@@ -11,21 +11,21 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjxAmZDgFzCYbAA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjxAmZDgFzCYbAA",
           },
         },
       },
@@ -37,21 +37,21 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjxAmZDgFzCYbAA",
           },
         },
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjxAmZDgFzCYbAA",
           },
         },
       },
@@ -63,8 +63,8 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjxAmZDgFzCYbAA",
           },
         },
       },
@@ -76,8 +76,8 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDLjpZAAAAAAAAAmxYAzsBAzCYbAA",
           },
         },
       },
@@ -89,8 +89,8 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjxAmZDgFzCYbAA",
           },
         },
       },
@@ -102,8 +102,8 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjZGwMbAwsA2GA",
           },
         },
       },
@@ -115,15 +115,15 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBMWAAwMjlZmhZYmZGMjZmZYGzMjZmZsNzMmxMsMmmBAAAAwMAAAwYMMzAEGmFw2AA",
+            heroTalent = "Pack Leader",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYzMjZMDGaGAAAAAAAAwMjxAmZDgFzCYbAA",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -253,7 +253,7 @@ ClassCodexArchonData["HUNTER"] = {
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -298,7 +298,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzgx0MAAAAAmBAAg5BmZAMzGgZxsA2GA",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGghZBsNA",
           },
         },
       },
@@ -363,7 +363,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzYbmZYMDGTzAAAAAAAAAmZMAmZDAzsA2GA",
+            exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYGPwyMzsYGmZmZGzMMzMmhZGzMzgZeAzYGMmmBAAAAAAAAMzYMgZ2AYZmFw2AA",
           },
         },
       },
@@ -432,13 +432,13 @@ ClassCodexArchonData["HUNTER"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
@@ -451,20 +451,20 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
@@ -477,7 +477,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
@@ -490,7 +490,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
@@ -503,7 +503,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
@@ -516,7 +516,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
@@ -529,20 +529,20 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNmZmlZmZmZmFmZZYmBAAYGjZmZGwAYA2YGA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsEYWAAAAAAAAAmxMzM2MmZGzwyYaGDmlNzMDzMjZmZhZWGmZAAAmxYmZmBMAGgNmZM",
           },
         },
       },
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWwsMMzAAAGzMzMzMDYgZxAsxMA",
           },
         },
       },
@@ -568,7 +568,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWwsMMzAAAGzMzMzMDYgZxAsxMA",
           },
         },
       },
@@ -594,7 +594,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWwsMMzAAAGzMzMzMDYgZxAsxMA",
           },
         },
       },
@@ -607,7 +607,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzywsMYAAAGzMzMzMDAMLGgNmB",
           },
         },
       },
@@ -659,20 +659,20 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzyYmlBDAAwYmZmZmZAYDGgNmB",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMzM22YMzyMzMzMzywsMYAAAGzMzMzMDAMLGgNmB",
           },
         },
       },
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Sentinel",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZMzMmZmFMLDzMAAgZmZGAMzYbzwAsxMzM",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMDzYmZMDGTzYwsttZmZMzMzMzswMLDzMAAgxMjBgZGbYxAsxMjB",
           },
         },
       },
@@ -698,7 +698,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYxsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWYmlhZGAAwYmZmZmZADbwAsxMA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWwsMMzAAAGzMzMzMDYgZxAsxMA",
           },
         },
       },
@@ -711,7 +711,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Sentinel",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZwYmZMDGTzYwsttZmZWmZmZmZWwsMMzAAAmZmZMAmZstxiBYjZA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmttNzMzyMzMzMzCmlhZGAAw8AzMjBwMjtNWMAbMDA",
           },
         },
       },
@@ -723,8 +723,8 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYxsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWYmlhZGAAwYmZmZmZADbwAsxMA",
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZsNjZmxMsMmmxgZbbzMzYmZmZmZhZWGmZAAAjxYAYmxGWMAbMzYA",
           },
         },
       },
@@ -737,7 +737,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Sentinel",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDzsttZmZMzMzMzswMLDzMAAgxMzMDgZGbbwAsxMA",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDzsttZmZMzMzMzswMLDzMAAg5BmZGDgZGbbwAsxMA",
           },
         },
       },
@@ -749,8 +749,8 @@ ClassCodexArchonData["HUNTER"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Dark Ranger",
-            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYxsMwAGwMsFYWAAAAAAAAAmxMmhZMzMmBjpZMY22YmZWmZmZmZWYmlhZGAAwYmZmZmZADbwAsxMA",
+            heroTalent = "Sentinel",
+            exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMDzYmZMDGTzYwsttZmZMzMzMzswMLDzMAAgxMjBgZGbYxAsxMjB",
           },
         },
       },
@@ -845,7 +845,7 @@ ClassCodexArchonData["HUNTER"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地下城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -870,7 +870,7 @@ ClassCodexArchonData["HUNTER"] = {
       },
       ["mythic-plus:high-keys:maisara-caverns"] = {
         zoneType = "mythic-plus",
-        encounter = "maisara-caverns",
+        encounter = "梅薩拉洞穴",
         encounterLabel = "梅薩拉洞穴",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
@@ -929,7 +929,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZYGjBMzGAMGzMbGA",
           },
         },
       },
@@ -949,13 +949,13 @@ ClassCodexArchonData["HUNTER"] = {
       ["raid:heroic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmxyMGzYGMmmBAAAgBAGLLzMziZmZMGzMgZ2AgxYmZzAA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
           },
         },
       },
@@ -968,7 +968,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawixMzMzYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzMzDMzAYmNADjxM2MA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
           },
         },
       },
@@ -994,7 +994,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGaGAAAAGAYssMzMLmZmxYMzAmZDAGjZmNDA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmxyMGzYGMmmBAAAgBAGLLzMziZmZMGzMgZ2AgxYmZzAA",
           },
         },
       },
@@ -1020,7 +1020,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGaGAAAAGAYssMzMLmZmxYMzAmZDAGjZmNDA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmxyMGzYGMmmBAAAgBAGLLzMziZmZMGzMgZ2AgxYmZzAA",
           },
         },
       },
@@ -1033,7 +1033,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgNYGGawixMzMzYZAAAAAAwMmZmhZ8AmxMYMNDAAAAAgxyyMzsYmZmZMzYAzsBYWmxYGbGA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
           },
         },
       },
@@ -1072,20 +1072,20 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgNYGGawixMzMzYZAAAAAAwMmZmhZ8AmxMYMNDAAAAAgxyyMzsYmZmZMzYAzsBYWmxYGbGA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
           },
         },
       },
       ["raid:mythic:all-bosses"] = {
         zoneType = "raid",
         encounter = "all-bosses",
-        encounterLabel = "全部首領",
+        encounterLabel = "所有首領",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
           },
         },
       },
@@ -1098,7 +1098,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawiZmZmZYZAAAAAAwMmxMMjxMmhlx0MAAAAAAGLLzMziZmZMmZMgZ2AMLGjZmFDA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawiZmZmZYZAAAAAAwMmxMYMmxMYMNDAAAADAMWWmZmFzMzYmZGAzsBYWMGzMbGA",
           },
         },
       },
@@ -1150,7 +1150,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawixMzMzYZAAAAAAwMmxMMjxMmhlx0MAAAAAAGLLzMziZmZYmZMgZ2AMMGzMbGA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWgFYGGawixMzMzYZAAAAAAwMmxM2mxYGzghmBAAAgBAGLLzMziZmZMzMDgZ2AMMGzMbGA",
           },
         },
       },
@@ -1163,7 +1163,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmhZMmxMYMNDAAAADAMWWmZmFzMzYMzYAzsBwixYmZzAA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzMYMGwMbAGGjZmNDA",
           },
         },
       },
@@ -1176,7 +1176,7 @@ ClassCodexArchonData["HUNTER"] = {
         builds = {
           {
             heroTalent = "Pack Leader",
-            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGWGTzAAAAwAAjllZmZxMzM8AjxAmZDAGjZmNDA",
+            exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2gFYGGawiZmZmZYZAAAAAAwMmZmx2MGzYGMmmBAAAgBAGLLzMziZmZMmZMgZ2AgxYmZzAA",
           },
         },
       },

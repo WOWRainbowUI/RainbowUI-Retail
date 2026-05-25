@@ -27,6 +27,7 @@ L["BiS Gear"] = "最佳装备"
 L["Best in Slot"] = "最佳装备"
 L["About"] = "关于"
 L["Enhancements"] = "强化"
+L["View Talents"] = "查看天赋"
 
 -- Section headers
 L["Stat Priority"] = "属性优先级"
@@ -38,6 +39,19 @@ L["Raid"] = "团本"
 L["Dungeon"] = "地下城"
 L["Delves"] = "地渊"
 L["Crafting"] = "制造"
+
+-- Rotation / stat contexts (Wowhead headings)
+L["Single Target"] = "单体目标"
+L["Multitarget"] = "多目标"
+L["Opener"] = "起手"
+L["AoE Opener"] = "AOE起手"
+L["Single Target Opener"] = "单体目标起手"
+L["Easy Mode"] = "简单模式"
+L["Opener / Cooldowns"] = "起手 / 爆发"
+L["Mythic+"] = "史诗钥石"
+L["DPS Priority"] = "输出优先级"
+L["Healing Priority"] = "治疗优先级"
+-- L["General"] handled by the Settings section below ("常规").
 
 -- Consumable labels
 L["Flask"] = "药剂"
@@ -85,6 +99,7 @@ L["Tooltips"] = "鼠标提示"
 L["General"] = "常规"
 L["Floating Panel"] = "浮动面板"
 L["Docked Panel"] = "停靠面板"
+L["Panel"] = "面板"
 
 -- Settings: checkbox labels
 L["Stat Priority Ranks"] = "属性优先级排名"
@@ -93,7 +108,9 @@ L["Icy Veins BiS on Tooltips"] = "鼠标提示Icy Veins最佳装备信息"
 L["BiS Source"] = "最佳装备来源"
 L["Trinket Tier on Tooltips"] = "鼠标提示饰品等级"
 L["Current Class Only"] = "仅当前职业"
+L["Highlight Owned Gear"] = "高亮已拥有装备"
 L["Minimap Button"] = "小地图按钮"
+L["Login Message"] = "登录消息"
 L["Show Stat Priority"] = "显示属性优先级"
 L["Show Talents"] = "显示天赋"
 L["Show Rotation"] = "显示输出循环"
@@ -110,7 +127,9 @@ L["Show which specs an item is Best in Slot for (Wowhead) on item tooltips."] = 
 L["Show which specs an item is Best in Slot for (Icy Veins) on item tooltips."] = "在物品鼠标提示中显示该物品是哪些专精的最佳装备 (Icy Veins)。"
 L["Show trinket tier rankings and the tier badge on item tooltips."] = "在物品鼠标提示中显示饰品等级排名和等级标识。"
 L["Only show BiS and trinket tier info for your current class on tooltips."] = "鼠标提示中仅显示当前职业的最佳装备和饰品等级信息。"
+L["Tint BiS and Trinket rows with a subtle green background when you already own the item (bags, bank, reagent bank, warbank, or equipped). Applies to both the docked and floating panels."] = "当你已拥有物品（背包、银行、材料银行、战团银行或已装备）时，用淡绿色背景标记最佳装备和饰品行。同时适用于停靠面板和浮动面板。"
 L["Show a minimap button for quick access. Left-click opens the Compendium, right-click opens Settings."] = "显示小地图按钮以快速访问。左键点击打开图鉴，右键点击打开设置。"
+L["Print the 'Class Codex loaded — type /cc to open' message to chat when you log in or reload."] = "登录或重载界面时，在聊天框中显示 'Class Codex 已加载 — 输入 /cc 打开' 消息。"
 L["Show the Stat Priority section when the panel is floating."] = "浮动面板中显示属性优先级部分。"
 L["Show the Talents section when the panel is floating."] = "浮动面板中显示天赋部分。"
 L["Show the Rotation section when the panel is floating."] = "浮动面板中显示输出循环部分。"
@@ -152,6 +171,8 @@ L["Stat priority"] = "属性优先级"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is docked."] = "面板停靠时,在属性标签上显示属性目标部分(实时条形图与 Archon 实测目标对比)。"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is floating."] = "面板浮动时,在属性标签上显示属性目标部分(实时条形图与 Archon 实测目标对比)。"
 L["Stat targets can't be computed in combat — values update after combat ends."] = "战斗中无法计算属性目标 — 战斗结束后数值会更新。"
+L["alt"] = "变体"
+L["alt %d"] = "变体 %d"
 
 -- Tooltip / data source labels
 L["Source Display"] = "来源显示"
@@ -217,6 +238,19 @@ L["Lock position"] = "锁定位置"
 L["Unlock position"] = "解锁位置"
 L["Position locked - unlock in Settings"] = "位置已锁定 - 在设置中解锁"
 
+-- PvP
+L["PvP"] = "PvP"
+L["Arena"] = "竞技场"
+L["Battleground"] = "战场"
+L["Honor Talents"] = "荣誉天赋"
+L["Honor talents apply in War Mode or PvP instances."] = "荣誉天赋在战争模式或 PvP 副本中生效。"
+L["No PvP builds available."] = "暂无 PvP 构筑。"
+L["No PvP gear data for this spec yet."] = "暂无该专精的 PvP 装备数据。"
+L["No PvP enchants for this spec yet."] = "暂无该专精的 PvP 附魔数据。"
+L["No PvP enchant/gem data for this spec yet."] = "暂无该专精的 PvP 附魔/宝石数据。"
+L["No PvP stat priority for this spec yet."] = "暂无该专精的 PvP 属性优先级。"
+L["No PvP stat targets for this spec yet."] = "暂无该专精的 PvP 属性目标。"
+
 -- Talent Pane / Character Pane Button
 L["Talent Pane"] = "天赋面板"
 L["Show Class Codex on talent frame"] = "在天赋窗口显示 Class Codex"
@@ -230,6 +264,14 @@ L["Horizontal Offset"] = "水平偏移"
 L["Horizontal offset (pixels) from the character pane top-right corner."] = "相对于角色面板右上角的水平偏移(像素)。"
 L["Vertical Offset"] = "垂直偏移"
 L["Vertical offset (pixels) from the character pane top-right corner."] = "相对于角色面板右上角的垂直偏移(像素)。"
+
+-- Footer
+L["Today"] = "今天"
+L["Yesterday"] = "昨天"
+L["%d days ago"] = "%d 天前"
+L["Last refreshed: %s"] = "上次更新：%s"
+L["Data refreshes daily. Update Class Codex to get the latest."] = "数据每日更新。请更新 Class Codex 以获取最新内容。"
+
 
 -------------------------------------------------------------------------------
 -- Traditional Chinese (zhTW)
@@ -248,6 +290,7 @@ L["BiS Gear"] = "最佳裝備"
 L["Best in Slot"] = "最佳裝備"
 L["About"] = "關於"
 L["Enhancements"] = "強化"
+L["View Talents"] = "查看天賦"
 
 -- Section headers
 L["Stat Priority"] = "屬性優先順序"
@@ -259,6 +302,19 @@ L["Raid"] = "團隊副本"
 L["Dungeon"] = "地城"
 L["Delves"] = "探究"
 L["Crafting"] = "製造"
+
+-- Rotation / stat contexts (Wowhead headings)
+L["Single Target"] = "單目標"
+L["Multitarget"] = "多目標"
+L["Opener"] = "起手"
+L["AoE Opener"] = "AoE起手"
+L["Single Target Opener"] = "單目標起手"
+L["Easy Mode"] = "簡易模式"
+L["Opener / Cooldowns"] = "起手 / 冷卻"
+L["Mythic+"] = "傳奇+"
+L["DPS Priority"] = "輸出優先順序"
+L["Healing Priority"] = "治療優先順序"
+-- L["General"] handled by the Settings section below ("一般").
 
 -- Consumable labels
 L["Flask"] = "藥劑"
@@ -306,6 +362,7 @@ L["Tooltips"] = "浮動提示"
 L["General"] = "通用"
 L["Floating Panel"] = "浮動面板"
 L["Docked Panel"] = "停靠面板"
+L["Panel"] = "面板"
 
 -- Settings: checkbox labels
 L["Stat Priority Ranks"] = "屬性優先排名"
@@ -314,7 +371,9 @@ L["Icy Veins BiS on Tooltips"] = "Icy Veins 最佳裝備資訊"
 L["BiS Source"] = "最佳裝備來源"
 L["Trinket Tier on Tooltips"] = "浮動提示飾品等級"
 L["Current Class Only"] = "僅目前職業"
+L["Highlight Owned Gear"] = "標記已擁有裝備"
 L["Minimap Button"] = "小地圖按鈕"
+L["Login Message"] = "登入訊息"
 L["Show Stat Priority"] = "顯示屬性優先順序"
 L["Show Talents"] = "顯示天賦"
 L["Show Rotation"] = "顯示輸出循環"
@@ -322,7 +381,7 @@ L["Show Enchants"] = "顯示附魔"
 L["Show Gems"] = "顯示寶石"
 L["Show Consumables"] = "顯示消耗品"
 L["Show Trinkets"] = "顯示飾品"
-L["Show Crafts"] = "顯示製作"
+L["Show Crafts"] = "顯示製造"
 L["Show BiS Gear"] = "顯示最佳裝備"
 
 -- Settings: tooltip descriptions
@@ -331,7 +390,9 @@ L["Show which specs an item is Best in Slot for (Wowhead) on item tooltips."] = 
 L["Show which specs an item is Best in Slot for (Icy Veins) on item tooltips."] = "在物品浮動提示中顯示該物品是哪些專精的最佳裝備 (Icy Veins)。"
 L["Show trinket tier rankings and the tier badge on item tooltips."] = "在物品浮動提示中顯示飾品等級排名與等級標誌。"
 L["Only show BiS and trinket tier info for your current class on tooltips."] = "浮動提示中僅顯示目前職業的最佳裝備與飾品等級資訊。"
+L["Tint BiS and Trinket rows with a subtle green background when you already own the item (bags, bank, reagent bank, warbank, or equipped). Applies to both the docked and floating panels."] = "當你已擁有物品（背包、銀行、材料銀行、戰隊銀行或已裝備）時，以淡綠色背景標記最佳裝備與飾品列。同時適用於停靠和浮動面板。"
 L["Show a minimap button for quick access. Left-click opens the Compendium, right-click opens Settings."] = "顯示小地圖按鈕以快速存取。左鍵開啟綱要，右鍵開啟設定。"
+L["Print the 'Class Codex loaded — type /cc to open' message to chat when you log in or reload."] = "登入或重新載入介面時，在聊天視窗顯示 'Class Codex 已載入 — 輸入 /cc 開啟' 訊息。"
 L["Show the Stat Priority section when the panel is floating."] = "浮動面板中顯示屬性優先順序區段。"
 L["Show the Talents section when the panel is floating."] = "浮動面板中顯示天賦區段。"
 L["Show the Rotation section when the panel is floating."] = "浮動面板中顯示輸出循環區段。"
@@ -373,6 +434,8 @@ L["Stat priority"] = "屬性優先順序"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is docked."] = "面板停靠時,在屬性分頁顯示屬性目標區段(即時條形圖對比 Archon 實測目標)。"
 L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is floating."] = "面板浮動時,在屬性分頁顯示屬性目標區段(即時條形圖對比 Archon 實測目標)。"
 L["Stat targets can't be computed in combat — values update after combat ends."] = "戰鬥中無法計算屬性目標 — 戰鬥結束後數值會更新。"
+L["alt"] = "替代"
+L["alt %d"] = "替代 %d"
 
 -- Tooltip / data source labels
 L["Source Display"] = "來源顯示"
@@ -437,6 +500,19 @@ L["Prevent the loadout dock from being dragged. Toggle off to reposition, then r
 L["Lock position"] = "鎖定位置"
 L["Unlock position"] = "解除鎖定位置"
 L["Position locked - unlock in Settings"] = "位置已鎖定 - 在設定中解除鎖定"
+
+-- PvP
+L["PvP"] = "PvP"
+L["Arena"] = "競技場"
+L["Battleground"] = "戰場"
+L["Honor Talents"] = "榮譽天賦"
+L["Honor talents apply in War Mode or PvP instances."] = "榮譽天賦於戰爭模式或 PvP 副本中生效。"
+L["No PvP builds available."] = "目前沒有 PvP 配置。"
+L["No PvP gear data for this spec yet."] = "目前沒有此專精的 PvP 裝備資料。"
+L["No PvP enchants for this spec yet."] = "目前沒有此專精的 PvP 附魔資料。"
+L["No PvP enchant/gem data for this spec yet."] = "目前沒有此專精的 PvP 附魔/寶石資料。"
+L["No PvP stat priority for this spec yet."] = "目前沒有此專精的 PvP 屬性優先順序。"
+L["No PvP stat targets for this spec yet."] = "目前沒有此專精的 PvP 屬性目標。"
 
 -- Talent Pane / Character Pane Button
 L["Talent Pane"] = "天賦面板"
