@@ -128,5 +128,21 @@ L["GROUP_OFFLINE_2"]     = "[Offline 2 Months]"
 L["GROUP_OFFLINE_3"]     = "[Offline 3+ Months]"
 L["TEXT_CONTACTS"]       = "%d/600"
 
+-- ============================================================================
+-- 12.1.0
+-- ============================================================================
+
+L["SET_GUILDMATES"]      = "Enable Auto Guild Groups"
+L["GROUP_GUILDMATES"]    = "[Guild]"
+L["FORMAT_GUILD_TAG"]    = "%s <%s>"
+L["TEXT_BNET_CONTACTS"]       = "%d/%d"
+L["TOOLTIP_CONTACT_TITLE"]    = "Contact Limits"
+L["TOOLTIP_CONTACT_DESC"]     = "Battle.net limits are shared across all games.\nWoW friends are unique to this character."
+L["TOOLTIP_CONTACT_BNET"]     = "Battle.net Friends:"
+L["TOOLTIP_CONTACT_INVITES"]  = "Pending Invites:"
+L["TOOLTIP_CONTACT_INV_DESC"] = "(These consume BNet slots!)"
+L["TOOLTIP_CONTACT_WOW"]      = "WoW Character Friends:"
+L["TOOLTIP_CONTACT_TOTAL"]    = "Total unique contacts tracked: %d"
+
 -- 自行加入
 L["FriendGroups Settings"] = "FriendGroups Settings"

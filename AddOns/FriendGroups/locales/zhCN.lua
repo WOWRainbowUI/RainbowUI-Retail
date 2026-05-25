@@ -127,3 +127,19 @@ L["GROUP_OFFLINE_1"]     = "[离线 1 个月]"
 L["GROUP_OFFLINE_2"]     = "[离线 2 个月]"
 L["GROUP_OFFLINE_3"]     = "[离线 3 个月以上]"
 L["TEXT_CONTACTS"]       = "%d/600"
+
+-- ============================================================================
+-- 12.1.0
+-- ============================================================================
+
+L["SET_GUILDMATES"]      = "启用自动公会队伍"
+L["GROUP_GUILDMATES"]    = "[公会]"
+L["FORMAT_GUILD_TAG"]    = "%s <%s>"
+L["TEXT_BNET_CONTACTS"]       = "%d/%d"
+L["TOOLTIP_CONTACT_TITLE"]    = "联系人上限"
+L["TOOLTIP_CONTACT_DESC"]     = "Battle.net 上限为所有游戏共享。\nWoW 好友为此角色独有。"
+L["TOOLTIP_CONTACT_BNET"]     = "Battle.net 好友："
+L["TOOLTIP_CONTACT_INVITES"]  = "待处理的邀请："
+L["TOOLTIP_CONTACT_INV_DESC"] = "（这会消耗 BNet 栏位！）"
+L["TOOLTIP_CONTACT_WOW"]      = "WoW 角色好友："
+L["TOOLTIP_CONTACT_TOTAL"]    = "追踪的独立联系人总数：%d"
