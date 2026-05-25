@@ -127,3 +127,19 @@ L["GROUP_OFFLINE_1"]     = "[오프라인 1개월]"
 L["GROUP_OFFLINE_2"]     = "[오프라인 2개월]"
 L["GROUP_OFFLINE_3"]     = "[오프라인 3개월 이상]"
 L["TEXT_CONTACTS"]       = "%d/600"
+
+-- ============================================================================
+-- 12.1.0
+-- ============================================================================
+
+L["SET_GUILDMATES"]      = "자동 길드 파티 활성화"
+L["GROUP_GUILDMATES"]    = "[길드]"
+L["FORMAT_GUILD_TAG"]    = "%s <%s>"
+L["TEXT_BNET_CONTACTS"]       = "%d/%d"
+L["TOOLTIP_CONTACT_TITLE"]    = "연락처 제한"
+L["TOOLTIP_CONTACT_DESC"]     = "Battle.net 제한은 모든 게임에서 공유됩니다.\nWoW 친구는 이 캐릭터에게만 고유합니다."
+L["TOOLTIP_CONTACT_BNET"]     = "Battle.net 친구:"
+L["TOOLTIP_CONTACT_INVITES"]  = "대기 중인 초대:"
+L["TOOLTIP_CONTACT_INV_DESC"] = "(BNet 슬롯을 소모합니다!)"
+L["TOOLTIP_CONTACT_WOW"]      = "WoW 캐릭터 친구:"
+L["TOOLTIP_CONTACT_TOTAL"]    = "추적된 총 고유 연락처: %d"

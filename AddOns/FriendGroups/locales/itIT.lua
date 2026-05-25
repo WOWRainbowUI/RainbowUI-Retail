@@ -127,3 +127,19 @@ L["GROUP_OFFLINE_1"]     = "[Offline 1 mese]"
 L["GROUP_OFFLINE_2"]     = "[Offline 2 mesi]"
 L["GROUP_OFFLINE_3"]     = "[Offline 3+ mesi]"
 L["TEXT_CONTACTS"]       = "%d/600"
+
+-- ============================================================================
+-- 12.1.0
+-- ============================================================================
+
+L["SET_GUILDMATES"]      = "Abilita Gruppi di Gilda Automatici"
+L["GROUP_GUILDMATES"]    = "[Gilda]"
+L["FORMAT_GUILD_TAG"]    = "%s <%s>"
+L["TEXT_BNET_CONTACTS"]       = "%d/%d"
+L["TOOLTIP_CONTACT_TITLE"]    = "Limiti Contatti"
+L["TOOLTIP_CONTACT_DESC"]     = "I limiti di Battle.net sono condivisi tra tutti i giochi.\nGli amici di WoW sono unici per questo personaggio."
+L["TOOLTIP_CONTACT_BNET"]     = "Amici Battle.net:"
+L["TOOLTIP_CONTACT_INVITES"]  = "Inviti in Sospeso:"
+L["TOOLTIP_CONTACT_INV_DESC"] = "(Questi consumano slot BNet!)"
+L["TOOLTIP_CONTACT_WOW"]      = "Amici Personaggi WoW:"
+L["TOOLTIP_CONTACT_TOTAL"]    = "Totale contatti unici tracciati: %d"

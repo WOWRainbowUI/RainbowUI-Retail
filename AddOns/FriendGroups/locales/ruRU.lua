@@ -127,3 +127,19 @@ L["GROUP_OFFLINE_1"]     = "[Не в сети 1 мес.]"
 L["GROUP_OFFLINE_2"]     = "[Не в сети 2 мес.]"
 L["GROUP_OFFLINE_3"]     = "[Не в сети 3+ мес.]"
 L["TEXT_CONTACTS"]       = "%d/600"
+
+-- ============================================================================
+-- 12.1.0
+-- ============================================================================
+
+L["SET_GUILDMATES"]      = "Включить авто-группы гильдии"
+L["GROUP_GUILDMATES"]    = "[Гильдия]"
+L["FORMAT_GUILD_TAG"]    = "%s <%s>"
+L["TEXT_BNET_CONTACTS"]       = "%d/%d"
+L["TOOLTIP_CONTACT_TITLE"]    = "Лимиты контактов"
+L["TOOLTIP_CONTACT_DESC"]     = "Лимиты Battle.net являются общими для всех игр.\nДрузья в WoW уникальны для этого персонажа."
+L["TOOLTIP_CONTACT_BNET"]     = "Друзья Battle.net:"
+L["TOOLTIP_CONTACT_INVITES"]  = "Ожидающие приглашения:"
+L["TOOLTIP_CONTACT_INV_DESC"] = "(Они занимают места BNet!)"
+L["TOOLTIP_CONTACT_WOW"]      = "Друзья персонажа WoW:"
+L["TOOLTIP_CONTACT_TOTAL"]    = "Всего отслеживаемых уникальных контактов: %d"
