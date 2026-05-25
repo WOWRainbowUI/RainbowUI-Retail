@@ -16,6 +16,7 @@ local growOptions = {
 	"RIGHT",
 	"CENTER",
 	"DOWN",
+	"UP",
 }
 
 local columns = 4
@@ -236,11 +237,12 @@ local function BuildInstance(parent, anchorOptions)
 	columnsPerRowSlider.Slider:SetPoint("TOPLEFT", iconSizeSlider.Slider, "BOTTOMLEFT", 0, -verticalSpacing * 2)
 
 	local function refreshRowControls()
-		local isDown = anchorOptions.Grow == "DOWN"
-		rowsSlider.Slider:SetShown(not isDown)
-		rowsSlider.Label:SetShown(not isDown)
-		columnsPerRowSlider.Slider:SetShown(isDown)
-		columnsPerRowSlider.Label:SetShown(isDown)
+		-- DOWN and UP are vertical layouts that use "columns per row"; horizontal layouts use "rows".
+		local isVertical = anchorOptions.Grow == "DOWN" or anchorOptions.Grow == "UP"
+		rowsSlider.Slider:SetShown(not isVertical)
+		rowsSlider.Label:SetShown(not isVertical)
+		columnsPerRowSlider.Slider:SetShown(isVertical)
+		columnsPerRowSlider.Label:SetShown(isVertical)
 	end
 
 	local growLbl = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -324,25 +326,6 @@ local classOrder = {
 	"SHAMAN", "WARLOCK", "WARRIOR",
 }
 
--- Static spec ID -> class token mapping, matching the IDs declared in Rules.lua.
--- Using a hardcoded map avoids relying on GetSpecializationInfoByID at UI-build time,
--- which can return nil for newer or environment-dependent specs.
-local specClass = {
-	[250]  = "DEATHKNIGHT", [251]  = "DEATHKNIGHT", [252]  = "DEATHKNIGHT",
-	[577]  = "DEMONHUNTER", [581]  = "DEMONHUNTER", [1480] = "DEMONHUNTER",
-	[102]  = "DRUID",       [103]  = "DRUID",        [104]  = "DRUID",       [105] = "DRUID",
-	[1467] = "EVOKER",      [1468] = "EVOKER",       [1473] = "EVOKER",
-	[253]  = "HUNTER",      [254]  = "HUNTER",       [255]  = "HUNTER",
-	[62]   = "MAGE",        [63]   = "MAGE",         [64]   = "MAGE",
-	[268]  = "MONK",        [269]  = "MONK",         [270]  = "MONK",
-	[65]   = "PALADIN",     [66]   = "PALADIN",      [70]   = "PALADIN",
-	[256]  = "PRIEST",      [257]  = "PRIEST",       [258]  = "PRIEST",
-	[259]  = "ROGUE",       [260]  = "ROGUE",        [261]  = "ROGUE",
-	[262]  = "SHAMAN",      [263]  = "SHAMAN",       [264]  = "SHAMAN",
-	[265]  = "WARLOCK",     [266]  = "WARLOCK",      [267]  = "WARLOCK",
-	[71]   = "WARRIOR",     [72]   = "WARRIOR",      [73]   = "WARRIOR",
-}
-
 ---Collects all unique spell IDs from rules, grouped by class token.
 ---@return table<string, number[]>  classToken -> ordered list of spell IDs
 local function CollectSpellsByClass()
@@ -357,7 +340,7 @@ local function CollectSpellsByClass()
 	end
 
 	for specId, ruleList in pairs(rules.BySpec) do
-		local classToken = specClass[specId]
+		local classToken = rules.GetClassForSpec(specId)
 		if classToken then
 			for _, rule in ipairs(ruleList) do
 				addSpell(classToken, rule.SpellId)

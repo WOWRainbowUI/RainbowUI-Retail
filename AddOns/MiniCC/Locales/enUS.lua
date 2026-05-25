@@ -258,7 +258,7 @@ L:SetDefaultStrings({
 	["Reverse the cooldown swipe animation direction on icons."] = "Reverse the cooldown swipe animation direction on icons.",
 	["The display size of each cooldown icon in pixels."] = "The display size of each cooldown icon in pixels.",
 	["The spacing in pixels between each cooldown icon."] = "The spacing in pixels between each cooldown icon.",
-	["Arena Frames: anchors icons next to each enemy's arena frame. Linear Bar: displays all cooldowns in a single combined bar."] = "Arena Frames: anchors icons next to each enemy's arena frame. Linear Bar: displays all cooldowns in a single combined bar.",
+	["Arena Frames: anchors icons next to each enemy's arena frame. Linear Bar: displays all cooldowns in a single combined bar. Split: shows offensive cooldowns on the linear bar and defensive cooldowns on the arena frames."] = "Arena Frames: anchors icons next to each enemy's arena frame. Linear Bar: displays all cooldowns in a single combined bar. Split: shows offensive cooldowns on the linear bar and defensive cooldowns on the arena frames.",
 	["The direction cooldown icons grow from the arena frame anchor point."] = "The direction cooldown icons grow from the arena frame anchor point.",
 	["Horizontal pixel offset from the arena frame anchor point."] = "Horizontal pixel offset from the arena frame anchor point.",
 	["Vertical pixel offset from the arena frame anchor point."] = "Vertical pixel offset from the arena frame anchor point.",
@@ -270,6 +270,9 @@ L:SetDefaultStrings({
 	["Linear Bar Position"] = "Linear Bar Position",
 	["Entry Spacing"] = "Entry Spacing",
 	["Vertical spacing between each enemy's icon row in Linear mode."] = "Vertical spacing between each enemy's icon row in Linear mode.",
+	["Always show cooldowns"] = "Always show cooldowns",
+	["Always display every cooldown for the enemy's specialization, faded when not on cooldown and fully opaque while active."] = "Always display every cooldown for the enemy's specialization, faded when not on cooldown and fully opaque while active.",
+	[" - Enemy cooldowns can now always be shown (faded when off cooldown) via the 'Always show cooldowns' option, plus a new Split layout mode (offensive cooldowns on the linear bar, defensive cooldowns on the arena frames)."] = " - Enemy cooldowns can now always be shown (faded when off cooldown) via the 'Always show cooldowns' option, plus a new Split layout mode (offensive cooldowns on the linear bar, defensive cooldowns on the arena frames).",
 
 	-- Precognition tab
 	["It works by taking any 4 second 'important' self buff and showing that icon."] = "It works by taking any 4 second 'important' self buff and showing that icon.",

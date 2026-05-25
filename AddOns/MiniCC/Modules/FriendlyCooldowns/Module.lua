@@ -248,9 +248,10 @@ function M:Refresh()
 			entry.Container:SetIconSize(size)
 			entry.Container:SetCount(maxIcons)
 			entry.Container:SetSpacing(anchorOptions.IconSpacing or db.IconSpacing or 2)
-			local isDown = anchorOptions.Grow == "DOWN"
-			entry.Container:SetRows(isDown and nil or rows, isDown and "CENTER" or anchorOptions.Grow, not isDown and anchorOptions.Grow ~= "RIGHT")
-			entry.Container:SetColumns(isDown and (tonumber(anchorOptions.Icons.Columns) or 1) or nil)
+			-- DOWN and UP are both vertical layouts (single/multi column); LEFT/RIGHT/CENTER are horizontal rows.
+			local isVertical = anchorOptions.Grow == "DOWN" or anchorOptions.Grow == "UP"
+			entry.Container:SetRows(isVertical and nil or rows, isVertical and "CENTER" or anchorOptions.Grow, not isVertical and anchorOptions.Grow ~= "RIGHT")
+			entry.Container:SetColumns(isVertical and (tonumber(anchorOptions.Icons.Columns) or 1) or nil)
 			display:AnchorContainer(entry)
 			ShowHideEntryContainer(entry.Container.Frame, anchor)
 			if entry.Container.Frame:IsShown() then
@@ -702,6 +703,9 @@ function M:Init()
 				-- Arena match is starting: clear all tracked state so the previous match's
 				-- cooldowns don't bleed into the new one.
 				ClearAllCooldownState()
+				-- Then refresh so the prep-room icons are shown using the now-available
+				-- group/spec data, rather than only once the gates open.
+				C_Timer.After(0, function() M:Refresh() end)
 			end
 		elseif event == "PLAYER_ENTERING_WORLD" then
 			-- Fired after every loading screen, including when leaving an arena.
