@@ -227,6 +227,7 @@ L["Valuable Reward Popup Desc"] = "当你获得一件有价值的物品时（例
 L["Auto Complete Quest"] = "自动完成任务";
 L["Auto Complete Quest Desc"] = "自动完成以下任务，然后将任务文本和奖励显示在一个独立的窗口中。如果任务奖励中有宝箱，你可以鼠标点击来打开它。\n\n- 糖罐 (万圣节)\n- 地心之战周常任务";
 L["Press Key To Use Item"] = "按键使用物品";
+L["Press Key To Use Item Desc Generic"] = "非战斗时按确认键（当前为：%s）使用物品。";
 L["Press Key To Use Item Desc PC"] = "非战斗时按 [KEY:PC:SPACE] 使用物品。";
 L["Press Key To Use Item Desc Xbox"] = "非战斗时按 [KEY:XBOX:PAD3] 使用物品。";
 L["Press Key To Use Item Desc PlayStation"] = "非战斗时按 [KEY:PS:PAD3] 使用物品。";
@@ -334,8 +335,10 @@ L["Open Settings"] = "打开设置界面";
 L["Translator"] = "翻译器";
 L["Translator Source"] = "来源：";
 L["Translator No Quest Data Format"] = "未找到条目 [Quest: %s]";
-L["Translator Click To Hide Translation"] = "点击以隐藏翻译";
-L["Translator Click To Show Translation"] = "点击以显示翻译";
+L["Translator Click To Hide Translation"] = "左键点击以隐藏翻译。";
+L["Translator Click To Show Translation"] = "左键点击以显示翻译。";
+L["Translator Click To Hide Original"] = "右键点击以隐藏原文。";
+L["Translator Click To Show Original"] = "右键点击以显示原文。";
 
 --AddOn Compatibility for Voiceover AddOns
 L["VO Provider Format"] = "|cffffffff%s|r 正在管理语音。";
