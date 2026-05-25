@@ -109,7 +109,7 @@ local function _MSUF_ApplyFontCached(fs, size, setColor, cr, cg, cb)
     if fs._msufFontRev ~= rev then
         local ok = _MSUF_SetFontChecked(fs, S.path, size, S.flags, S.fontKey)
         if not ok then
-            local fallback = _G.MSUF_ResolveFontPath and _G.MSUF_ResolveFontPath(STANDARD_TEXT_FONT or "Fonts/FRIZQT__.TTF", size, S.flags) or STANDARD_TEXT_FONT
+            local fallback = _G.MSUF_ResolveFontPath and _G.MSUF_ResolveFontPath("Fonts\\FRIZQT__.TTF", size, S.flags) or "Fonts\\FRIZQT__.TTF"
             ok = _MSUF_SetFontChecked(fs, fallback, size, S.flags, "FRIZQT")
         end
         if ok then
@@ -209,7 +209,7 @@ local function UpdateAllFonts(onlyKey)
     local castbars = ns and ns.Castbars
     local getFontPath = castbars and castbars._GetFontPath or _G.MSUF_GetFontPath
     local getFontFlags = castbars and castbars._GetFontFlags or _G.MSUF_GetFontFlags
-    local path = type(getFontPath) == "function" and getFontPath() or STANDARD_TEXT_FONT
+    local path = type(getFontPath) == "function" and getFontPath() or "Fonts\\FRIZQT__.TTF"
     local flags = type(getFontFlags) == "function" and getFontFlags() or ""
 
     EnsureDBSafe()

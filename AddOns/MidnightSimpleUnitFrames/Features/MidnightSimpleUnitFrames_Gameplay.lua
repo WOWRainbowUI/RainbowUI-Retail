@@ -587,7 +587,7 @@ local function GetGameplayFontSettings(kind)
     end
 
     if not fontPath or fontPath == "" then
-        fontPath = ResolveFontPath(STANDARD_TEXT_FONT, general.fontSize or 14, "")
+        fontPath = ResolveFontPath("Fonts/FRIZQT__.TTF", general.fontSize or 14, "")
     end
 
     -- FONT FLAGS (outline)

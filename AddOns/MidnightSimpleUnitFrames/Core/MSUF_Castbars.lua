@@ -218,7 +218,7 @@ local function MSUF_GetFontPath()
         if p then return ResolveFontPath(p, g.fontSize or 14, MSUF_GetFontFlags()) end
     end
 
-    local fallback = (FONT_LIST and FONT_LIST[1] and FONT_LIST[1].path) or STANDARD_TEXT_FONT or "Fonts/FRIZQT__.TTF"
+    local fallback = (FONT_LIST and FONT_LIST[1] and FONT_LIST[1].path) or "Fonts\\FRIZQT__.TTF"
     return ResolveFontPath(fallback, g.fontSize or 14, MSUF_GetFontFlags())
 end
 MSUF_GetFontFlags = function()
@@ -248,7 +248,7 @@ function MSUF_GetGlobalFontSettings()
     if ns and ns.MSUF_GetGlobalFontSettings then
         return ns.MSUF_GetGlobalFontSettings()
     end
-     return _G.STANDARD_TEXT_FONT, "OUTLINE", 1, 1, 1, 14, false
+     return "Fonts\\FRIZQT__.TTF", "OUTLINE", 1, 1, 1, 14, false
 end
 function MSUF_GetCastbarTexture()
     if not MSUF_DB then

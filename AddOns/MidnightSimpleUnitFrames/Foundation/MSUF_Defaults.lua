@@ -249,6 +249,8 @@ local function MSUF_Defaults_ApplyFreshInstallOverrides(db)
         g.UIScale = { Enabled = false, Scale = 1.0 }
         g.msufUiScale = 1.0
         g.fontKey = "FRIZQT"
+		g._resolvedFontPath = nil    -- 清除任何快取的路徑
+		g.fontPath = nil             -- 以防壓縮字串帶了這個欄位
         g.unitTooltipProvider = "GAME"
         g.unitTooltipAnchor = "EXTERNAL"
         g.disableUnitInfoTooltips = true
@@ -309,14 +311,19 @@ local function MSUF_Defaults_NormalizeFontKey(key)
     return MSUF_DEFAULTS_FONT_KEY_ALIASES[key] or key
 end
 
+local FRIZQT_LEGACY_PATHS = {
+    ["fonts\\frizqt__.ttf"]     = true,
+    ["fonts\\frizqt___cyr.ttf"] = true,
+}
+
 local function MSUF_Defaults_NormalizeFontField(tbl)
     if type(tbl) ~= "table" then return end
     local normalized = MSUF_Defaults_NormalizeFontKey(tbl.fontKey)
-    local resolveKeyPath = _G.MSUF_ResolveFontKeyPath
-    if type(resolveKeyPath) == "function" then
-        local resolved = resolveKeyPath(normalized)
-        if type(resolved) == "string" and resolved ~= "" then
-            normalized = resolved
+    -- 如果 DB 裡存的是舊的 FRIZQT 路徑，自動換成 STANDARD_TEXT_FONT
+    if type(normalized) == "string" then
+        local lower = normalized:lower():gsub("/", "\\")
+        if FRIZQT_LEGACY_PATHS[lower] then
+            normalized = STANDARD_TEXT_FONT or "Fonts\\FRIZQT__.TTF"
         end
     end
     if normalized ~= tbl.fontKey then
@@ -836,7 +843,7 @@ end
         g.fontColor = "white"
     end
     if g.shortenNameMaxChars == nil then
-        g.shortenNameMaxChars = 6
+        g.shortenNameMaxChars = 30 -- 更改預設值
     end
     if g.shortenNameClipSide == nil then
         g.shortenNameClipSide = "LEFT" -- default: clip LEFT, keep name end (R41z0r-style)
@@ -2311,8 +2318,14 @@ local function fill(key, defaults)
     if g._msufSharedGlobalFontFamilyMigration_v501 ~= true then
         g._msufSharedGlobalFontFamilyMigration_v501 = true
     end
+    -- 強制關閉名字截斷
+    if g._msufDisableShortenNamesMigration ~= true then
+        g._msufDisableShortenNamesMigration = true
+        MSUF_DB.shortenNames = false
+        g.shortenNameMaxChars = 30
+    end
     MSUF_DB_LastHeavyRun = MSUF_DB
- end
+end
 function _G.MSUF_EnsureDB()
     if MSUF_DB and MSUF_DB_LastHeavyRun == MSUF_DB then
          return

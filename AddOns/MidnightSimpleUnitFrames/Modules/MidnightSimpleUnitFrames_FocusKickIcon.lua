@@ -114,7 +114,7 @@ local function FocusKick_ApplyTimeTextFontNow()
     if not MSUF_DB or not MSUF_DB.general then return end
     local g = MSUF_DB.general
 
-    local fontPath = (type(MSUF_GetFontPath) == "function") and (MSUF_GetFontPath() or _G.STANDARD_TEXT_FONT) or _G.STANDARD_TEXT_FONT
+    local fontPath = (type(MSUF_GetFontPath) == "function") and (MSUF_GetFontPath() or "Fonts\\FRIZQT__.TTF") or "Fonts\\FRIZQT__.TTF"
     local flags    = (type(MSUF_GetFontFlags) == "function") and (MSUF_GetFontFlags() or "OUTLINE") or "OUTLINE"
     local size     = FocusKick_GetDesiredTextSize(g)
 

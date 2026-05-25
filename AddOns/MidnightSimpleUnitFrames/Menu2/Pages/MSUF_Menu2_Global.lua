@@ -311,7 +311,7 @@ local function FontValues(includeGlobalDefault)
         end
     end
     if #out == 0 then
-        local value = FontSelectionValue("FRIZQT", "Fonts\\FRIZQT___CYR.TTF")
+        local value = FontSelectionValue("FRIZQT", STANDARD_TEXT_FONT)
         out[1] = { value = value or "FRIZQT", text = "Friz Quadrata", fontKey = "FRIZQT", fontPath = value }
     end
     return out
@@ -333,7 +333,7 @@ end
 
 local function FontKeySet(value)
     value = FontSelectionValue(value)
-    G().fontKey = value or FontSelectionValue("FRIZQT", "Fonts\\FRIZQT___CYR.TTF")
+    G().fontKey = value or FontSelectionValue("FRIZQT", STANDARD_TEXT_FONT)
     ClearUFFontKeyOverrides()
 end
 
