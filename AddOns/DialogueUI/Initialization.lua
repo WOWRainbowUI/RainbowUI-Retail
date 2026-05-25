@@ -1,5 +1,5 @@
-local VERSION_TEXT = "v1.0.4 b";
-local VERSION_DATE = 1778700000;
+local VERSION_TEXT = "v1.0.4 c";
+local VERSION_DATE = 1779600000;
 
 
 local addonName, addon = ...
@@ -99,6 +99,7 @@ local DefaultValues = {
     --Not shown in the Settings. Accessible by other means
     TooltipShowItemComparison = false,          --Tooltip
     TTSReadTranslation = false,                 --Read original text or translation. Controlled by TTSButton modifier key
+    TranslatorShowOriginalText = true,          --If true, display both original text and the translation
     MuteTargetLostSound = true,                 --Mute target lost sound caused by hiding UI. Accessed through command only: /run DialogueUI_DB.MuteTargetLostSound = false
 
     --WidgetManagerPosition = {x, y};
