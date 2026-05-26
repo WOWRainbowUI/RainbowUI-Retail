@@ -1675,6 +1675,71 @@ addonTable.CustomiseDialog.WidgetsConfig = {
         },
       },
     },
+  },
+  ["regions"] = {
+    ["*"] = {
+      {
+        label = addonTable.Locales.GENERAL,
+        entries = {
+          {
+            label = addonTable.Locales.AUTOMATICALLY_SIZED,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.autoSized = value
+            end,
+            getter = function(details)
+              return details.autoSized
+            end
+          },
+          {
+            label = addonTable.Locales.HEIGHT,
+            kind = "slider",
+            min = 10, max = 1500,
+            formatter = function(value) return value .. "%" end,
+            setter = function(details, value)
+              local currentHeight = details.height * addonTable.Assets.BarBordersSize.height
+              local newHeight = value / 100 * addonTable.Assets.BarBordersSize.height
+              local rect = addonTable.Utilities.GetRectFromRegion(details, 1, details.anchor)
+              local newRect = {left = rect.left, bottom = rect.bottom - (newHeight - currentHeight) / 2, width = rect.width, height = newHeight}
+              local newDetails = addonTable.Utilities.ConvertRectToWidget(newRect)
+              details.anchor = newDetails.anchor
+
+              local old = details.height
+              details.height = value / 100
+              if details.height ~= old then
+                details.autoSized = false
+              end
+            end,
+            getter = function(details)
+              return details.height * 100
+            end,
+          },
+          {
+            label = addonTable.Locales.WIDTH,
+            kind = "slider",
+            min = 10, max = 500,
+            formatter = function(value) return value .. "%" end,
+            setter = function(details, value)
+              local currentWidth = details.width * addonTable.Assets.BarBordersSize.width
+              local newWidth = value / 100 * addonTable.Assets.BarBordersSize.width
+              local rect = addonTable.Utilities.GetRectFromRegion(details, 1, details.anchor)
+              local newRect = {left = rect.left - (newWidth - currentWidth) / 2, bottom = rect.bottom, width = newWidth, height = rect.height}
+              local newDetails = addonTable.Utilities.ConvertRectToWidget(newRect)
+              details.anchor = newDetails.anchor
+
+              local old = details.width
+              details.width = value / 100
+              if details.width ~= old then
+                details.autoSized = false
+              end
+            end,
+            getter = function(details)
+              return details.width * 100
+            end,
+          },
+        },
+      },
+    }
   }
 }
 

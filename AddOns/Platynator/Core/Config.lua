@@ -3,7 +3,7 @@ local addonTable = select(2, ...)
 addonTable.Config = {}
 
 local settings = {
-  MIGRATION = {key = "migration", default = 1, new = 3},
+  MIGRATION = {key = "migration", default = 1, new = 4},
 
   STYLE = {key = "style", default = "_deer"},
   CURRENT_SKIN = {key = "current_skin", default = "blizzard", refresh = {addonTable.Constants.RefreshReason.Skin}},
@@ -187,7 +187,7 @@ function addonTable.Config.Install(name, defaultValue)
   end
 end
 
-function addonTable.Config.ResetOne(name)
+function addonTable.Config.ResetOne(name, announce)
   local newValue = addonTable.Config.NewDefaults[name]
   if newValue == nil then
     error("Can't reset that", name)
@@ -195,7 +195,11 @@ function addonTable.Config.ResetOne(name)
     if type(newValue) == "table" then
       newValue = CopyTable(newValue)
     end
-    addonTable.Config.Set(name, newValue)
+    if announce ~= false then
+      addonTable.Config.Set(name, newValue)
+    else
+      RawSet(name, newValue)
+    end
   end
 end
 
