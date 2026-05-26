@@ -496,6 +496,8 @@ L["Coldmist Stalker"] = "얼음안개 땅거미"
 L["Coldmist Widow"] = "얼음안개 과부거미"
 L["Color Blind Friendly"] = "색맹 모드"
 L["Colorpicker"] = "색 지정"
+--[[Translation missing --]]
+L["Colors"] = "Colors"
 L["Colossal Tentacle"] = "거대한 촉수"
 L["Combat Transparency"] = "전투 중 투명도"
 --[[Translation missing --]]
@@ -784,6 +786,8 @@ L["Does not delete your drawings"] = "그림들을 삭제하지 않습니다"
 L["Dokigg the Brutalizer"] = "야만전사 도키그"
 L["Domatrax"] = "도마트락스"
 L["Domina Venomblade"] = "도미나 베놈블레이드"
+--[[Translation missing --]]
+L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 --[[Translation missing --]]
 L["Don't show again"] = "Don't show again"
 --[[Translation missing --]]
@@ -1123,7 +1127,7 @@ L["Focused Ritualist"] = "몰두하는 의식술사"
 --[[Translation missing --]]
 L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after combat from %s."
 --[[Translation missing --]]
-L["focusMarkerAssignmentsTooltip"] = "Assign focus markers to group members and sync them to MDT users."
+L["focusMarkerAssignmentsTooltip"] = "MDT provides a keybind or macro to set your focus target and mark it with a target marker. You can coordinate marks with your group and make sure everyone has their own personal target marker that they use."
 --[[Translation missing --]]
 L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
 --[[Translation missing --]]
@@ -1236,6 +1240,8 @@ L["Geezle Gigazap"] = "기즐 기가잽"
 --[[Translation missing --]]
 L["Gekkan"] = "Gekkan"
 L["Gemellus"] = "제멜루스"
+--[[Translation missing --]]
+L["General"] = "General"
 L["General Bjarngrim"] = "장군 비야른그림"
 L["General Kaal"] = "장군 카알"
 --[[Translation missing --]]
@@ -1844,6 +1850,10 @@ L["Ludwig Von Tortollan"] = "루드비히 폰 토르톨란"
 L["Lumbering Plaguehorror"] = "Lumbering Plaguehorror"
 L["L'ura"] = "르우라"
 L["Lurking Tempest"] = "숨어있는 폭풍우"
+--[[Translation missing --]]
+L["Macro Preview:"] = "Macro Preview:"
+--[[Translation missing --]]
+L["Macros"] = "Macros"
 L["Mad Scientist"] = "미치광이 과학자"
 L["Maddened Survivalist"] = "광기의 생존주의자"
 L["Maexxna"] = "맥스나"
@@ -1889,6 +1899,8 @@ L["Maniacal Soulbinder"] = "광기 어린 영혼결속사"
 L["Manifestation of Envy"] = "시기의 현신"
 L["Manifested Shadow"] = "실체화된 어둠"
 L["Manifested Timeways"] = "시간의 길 현신"
+--[[Translation missing --]]
+L["Maps"] = "Maps"
 L["Marauding Geist"] = "강탈자 외눈깨비"
 L["Margrave Stradama"] = "후작 스트라다마"
 --[[Translation missing --]]
@@ -2656,6 +2668,8 @@ L["seatItemA"] = "Most enemies gain this buff when stepping into the Void area"
 L["seatOfTheTriumvirateShortName"] = "삼두정"
 L["Select all"] = "전부 선택"
 L["Select the dungeon level"] = "던전 레벨을 고르기"
+--[[Translation missing --]]
+L["Send versions to party chat"] = "Send versions to party chat"
 L["Sending: %.1f"] = "보내는중: %.1f"
 L["Seneschal M'bara"] = "사무장 음바라"
 L["Sentient Oil"] = "지각력 있는 석유"

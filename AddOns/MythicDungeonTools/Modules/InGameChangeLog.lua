@@ -2,31 +2,27 @@ local _, MDT = ...
 
 MDT.changeLog = {
   {
-    tag = "6.1.5",
-    date = "2026-05-23",
+    tag = "6.1.9",
+    date = "2026-05-26",
     notes = {
-      "Added a missing Rotting Ghoul to the first pull area in Pit of Saron.",
-      "Added a missing Champion to the first boss area in Seat of the Triumvirate.",
-      "Removed two non-existing Radiant Swarms from Nexus Point Xenas.",
-      "Starting point route names now show the same class-colored route author names as the route dropdown.",
+      "Renamed Void Infuser to Void Terror.",
     },
   },
   {
-    tag = "6.1.4",
-    date = "2026-05-19",
+    tag = "6.1.8",
+    date = "2026-05-25",
     notes = {
-      "Added missing dormant Dreadflails to Nexus Point Xenas.",
+      "Fixed the Settings section so General and Colors display side by side",
     },
   },
   {
-    tag = "6.1.3",
-    date = "2026-05-17",
+    tag = "6.1.7",
+    date = "2026-05-25",
     notes = {
-      "Split the version check window into Change Log and Party Versions tabs.",
-      "Added party member MDT versions to the Party Versions tab.",
-      "Fixed Magisters Terrace and Pit of Saron detection for additional zone IDs.",
-      "Added a missing Scrounger in Nexus Point Xenas.",
-      "Unlinked two Maisara Caverns enemies from group 91 so they can be assigned separately.",
+      "Added a navigation sidebar for switching between Maps, Focus Marker Assignments, and Settings.",
+      "Moved Focus Marker Assignments into its own sidebar view with clearer guidance and reordered controls.",
+      "Added a Focus Marker macro preview and an option to avoid setting target markers while in a raid group.",
+      "Moved Settings into its own sidebar view with separate General and Colors sections.",
     },
   },
 }

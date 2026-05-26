@@ -603,6 +603,8 @@ L["Coldmist Stalker"] = "Espreitador Frianebula"
 L["Coldmist Widow"] = "Aranhuço Frianebula"
 L["Color Blind Friendly"] = "Amigável à Daltonismo"
 L["Colorpicker"] = "Escolhedor de cores"
+--[[Translation missing --]]
+L["Colors"] = "Colors"
 L["Colossal Tentacle"] = "Tentáculo Colossal"
 --[[Translation missing --]]
 L["Combat Transparency"] = "Combat Transparency"
@@ -948,6 +950,8 @@ L["Does not delete your drawings"] = "Não irá excluir seus desenhos"
 L["Dokigg the Brutalizer"] = "Dokigg, o Brutalizador"
 L["Domatrax"] = "Domatrax"
 L["Domina Venomblade"] = "Dômina Lâmina Venenosa"
+--[[Translation missing --]]
+L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 --[[Translation missing --]]
 L["Don't show again"] = "Don't show again"
 --[[Translation missing --]]
@@ -1305,7 +1309,7 @@ L["Focused Ritualist"] = "Ritualista Concentrado"
 --[[Translation missing --]]
 L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after combat from %s."
 --[[Translation missing --]]
-L["focusMarkerAssignmentsTooltip"] = "Assign focus markers to group members and sync them to MDT users."
+L["focusMarkerAssignmentsTooltip"] = "MDT provides a keybind or macro to set your focus target and mark it with a target marker. You can coordinate marks with your group and make sure everyone has their own personal target marker that they use."
 --[[Translation missing --]]
 L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
 --[[Translation missing --]]
@@ -1422,6 +1426,8 @@ L["Geezle Gigazap"] = "Geezle Gigazap"
 L["Gekkan"] = "Gekkan"
 --[[Translation missing --]]
 L["Gemellus"] = "Gemellus"
+--[[Translation missing --]]
+L["General"] = "General"
 L["General Bjarngrim"] = "General Bjarngrim"
 L["General Kaal"] = "General Kaal"
 --[[Translation missing --]]
@@ -2082,6 +2088,10 @@ L["Ludwig Von Tortollan"] = "Ludovico Von Tortollano"
 L["Lumbering Plaguehorror"] = "Lumbering Plaguehorror"
 L["L'ura"] = "L'ura"
 L["Lurking Tempest"] = "Tempesto Entocaiado"
+--[[Translation missing --]]
+L["Macro Preview:"] = "Macro Preview:"
+--[[Translation missing --]]
+L["Macros"] = "Macros"
 L["Mad Scientist"] = "Cientista Louco"
 L["Maddened Survivalist"] = "Sobrevivencialista Louco"
 L["Maexxna"] = "Maexxna"
@@ -2135,6 +2145,8 @@ L["Manifestation of Envy"] = "Manifestação de Inveja"
 --[[Translation missing --]]
 L["Manifested Shadow"] = "Manifested Shadow"
 L["Manifested Timeways"] = "Percursos Temporais Manifestos"
+--[[Translation missing --]]
+L["Maps"] = "Maps"
 L["Marauding Geist"] = "Geist Saqueador"
 L["Margrave Stradama"] = "Margrave Stradama"
 --[[Translation missing --]]
@@ -3081,6 +3093,8 @@ L["seatOfTheTriumvirateShortName"] = "SEAT"
 L["Select all"] = "Select all"
 --[[Translation missing --]]
 L["Select the dungeon level"] = "Select the dungeon level"
+--[[Translation missing --]]
+L["Send versions to party chat"] = "Send versions to party chat"
 --[[Translation missing --]]
 L["Sending: %.1f"] = "Sending: %.1f"
 L["Seneschal M'bara"] = "Senescal M'bara"
@@ -4185,7 +4199,7 @@ L["Void Flayer"] = "Rancapele do Caos"
 --[[Translation missing --]]
 L["Void Fragment"] = "Void Fragment"
 --[[Translation missing --]]
-L["Void Infuser"] = "Void Infuser"
+L["Void Infuser"] = "Void Terror"
 L["Void Spawn"] = "Rebento do Caos"
 --[[Translation missing --]]
 L["Void Speaker Eirich"] = "Void Speaker Eirich"

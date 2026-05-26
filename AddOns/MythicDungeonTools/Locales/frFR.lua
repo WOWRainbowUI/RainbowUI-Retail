@@ -479,6 +479,8 @@ L["Coldmist Stalker"] = "Traqueuse de Froidebrume"
 L["Coldmist Widow"] = "Veuve de Froidebrume"
 L["Color Blind Friendly"] = "Mode daltonien"
 L["Colorpicker"] = "Palette de couleurs"
+--[[Translation missing --]]
+L["Colors"] = "Colors"
 L["Colossal Tentacle"] = "Tentacule colossal"
 --[[Translation missing --]]
 L["Combat Transparency"] = "Combat Transparency"
@@ -759,6 +761,8 @@ L["Does not delete your drawings"] = "Ne supprime pas vos dessins"
 L["Dokigg the Brutalizer"] = "Dokigg le Brutalisateur"
 L["Domatrax"] = "Domatrax"
 L["Domina Venomblade"] = "Domina Lamevenin"
+--[[Translation missing --]]
+L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 L["Don't show again"] = "Ne plus afficher"
 --[[Translation missing --]]
 L["dotiLowerSublevel1"] = "Sublevel 1"
@@ -1169,6 +1173,8 @@ L["Geezle Gigazap"] = "Geezle Gigazap"
 --[[Translation missing --]]
 L["Gekkan"] = "Gekkan"
 L["Gemellus"] = "Gémellus"
+--[[Translation missing --]]
+L["General"] = "General"
 L["General Bjarngrim"] = "Général Bjarngrim"
 L["General Kaal"] = "Général Kaal"
 --[[Translation missing --]]
@@ -1726,6 +1732,10 @@ L["Ludwig Von Tortollan"] = "Ludwig Von Tortollan"
 L["Lumbering Plaguehorror"] = "Pestehorreur chancelant"
 L["L'ura"] = "L'ura"
 L["Lurking Tempest"] = "Tempête en maraude"
+--[[Translation missing --]]
+L["Macro Preview:"] = "Macro Preview:"
+--[[Translation missing --]]
+L["Macros"] = "Macros"
 L["Mad Scientist"] = "Savant fou"
 L["Maddened Survivalist"] = "Survivaliste affolé"
 L["Maexxna"] = "Maexxna"
@@ -1771,6 +1781,8 @@ L["Maniacal Soulbinder"] = "Lieur d'âme dément"
 L["Manifestation of Envy"] = "Manifestation de l'envie"
 L["Manifested Shadow"] = "Ombre manifestée"
 L["Manifested Timeways"] = "Voies temporelles matérialisées"
+--[[Translation missing --]]
+L["Maps"] = "Maps"
 L["Marauding Geist"] = "Geist maraudeur"
 L["Margrave Stradama"] = "Margrave Stradama"
 --[[Translation missing --]]
@@ -2515,6 +2527,8 @@ L["seatItemA"] = "Most enemies gain this buff when stepping into the Void area"
 L["seatOfTheTriumvirateShortName"] = "SEAT"
 L["Select all"] = "Tout sélectionner"
 L["Select the dungeon level"] = "Sélectionnez le niveau du donjon "
+--[[Translation missing --]]
+L["Send versions to party chat"] = "Send versions to party chat"
 L["Sending: %.1f"] = "Envoi : %.1f "
 L["Seneschal M'bara"] = "Sénéchal M'bara"
 L["Sentient Oil"] = "Huile intelligente"
