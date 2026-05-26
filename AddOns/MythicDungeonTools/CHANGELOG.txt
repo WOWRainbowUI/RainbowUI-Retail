@@ -1,6 +1,3 @@
-## 6.1.5 (2026-05-23)
+## 6.1.9 (2026-05-26)
 
-- Added a missing Rotting Ghoul to the first pull area in Pit of Saron.
-- Added a missing Champion to the first boss area in Seat of the Triumvirate.
-- Removed two non-existing Radiant Swarms from Nexus Point Xenas.
-- Starting point route names now show the same class-colored route author names as the route dropdown.
+- Renamed Void Infuser to Void Terror.

@@ -499,6 +499,8 @@ L["Coldmist Stalker"] = "冷霧巡者"
 L["Coldmist Widow"] = "冷霧寡婦"
 L["Color Blind Friendly"] = "色盲友善"
 L["Colorpicker"] = "選擇顏色"
+--[[Translation missing --]]
+L["Colors"] = "Colors"
 L["Colossal Tentacle"] = "巨大觸手"
 --[[Translation missing --]]
 L["Combat Transparency"] = "Combat Transparency"
@@ -774,6 +776,8 @@ L["Does not delete your drawings"] = "不會刪除你的繪圖"
 L["Dokigg the Brutalizer"] = "『殘暴者』多奇格"
 L["Domatrax"] = "多瑪崔斯"
 L["Domina Venomblade"] = "多米娜‧毒刃"
+--[[Translation missing --]]
+L["Don't set target marker while in a raid group"] = "Don't set target marker while in a raid group"
 --[[Translation missing --]]
 L["Don't show again"] = "Don't show again"
 L["dotiLowerSublevel1"] = "Sublevel 1"
@@ -1076,7 +1080,7 @@ L["Focused Ritualist"] = "專注的祭儀師"
 --[[Translation missing --]]
 L["focusMarkerAssignmentQueuedToast"] = "Focus marker will update to %s after combat from %s."
 --[[Translation missing --]]
-L["focusMarkerAssignmentsTooltip"] = "Assign focus markers to group members and sync them to MDT users."
+L["focusMarkerAssignmentsTooltip"] = "MDT provides a keybind or macro to set your focus target and mark it with a target marker. You can coordinate marks with your group and make sure everyone has their own personal target marker that they use."
 --[[Translation missing --]]
 L["focusMarkerAssignmentToast"] = "Focus marker set to %s. (Sent by %s)"
 --[[Translation missing --]]
@@ -1183,6 +1187,8 @@ L["Geezle Gigazap"] = "基澤‧巨電"
 L["Gekkan"] = "Gekkan"
 --[[Translation missing --]]
 L["Gemellus"] = "Gemellus"
+--[[Translation missing --]]
+L["General"] = "General"
 L["General Bjarngrim"] = "General Bjarngrim"
 L["General Kaal"] = "凱厄將軍"
 --[[Translation missing --]]
@@ -1743,6 +1749,10 @@ L["Ludwig Von Tortollan"] = "路德威‧馮‧托爾托"
 L["Lumbering Plaguehorror"] = "Lumbering Plaguehorror"
 L["L'ura"] = "路拉"
 L["Lurking Tempest"] = "潛伏的暴風元素"
+--[[Translation missing --]]
+L["Macro Preview:"] = "Macro Preview:"
+--[[Translation missing --]]
+L["Macros"] = "Macros"
 L["Mad Scientist"] = "Mad Scientist"
 L["Maddened Survivalist"] = "發狂的倖存者"
 L["Maexxna"] = "Maexxna"
@@ -1791,6 +1801,8 @@ L["Maniacal Soulbinder"] = "癲狂縛魂者"
 L["Manifestation of Envy"] = "嫉妒化身"
 L["Manifested Shadow"] = "現形暗影"
 L["Manifested Timeways"] = "時間之道化身"
+--[[Translation missing --]]
+L["Maps"] = "Maps"
 L["Marauding Geist"] = "Marauding Geist"
 L["Margrave Stradama"] = "藩侯史特拉達瑪"
 --[[Translation missing --]]
@@ -2557,6 +2569,8 @@ L["seatItemA"] = "Most enemies gain this buff when stepping into the Void area"
 L["seatOfTheTriumvirateShortName"] = "三傑"
 L["Select all"] = "全選"
 L["Select the dungeon level"] = "選擇地城層數"
+--[[Translation missing --]]
+L["Send versions to party chat"] = "Send versions to party chat"
 L["Sending: %.1f"] = "正在傳送: %.1f"
 L["Seneschal M'bara"] = "瑪巴拉總管"
 L["Sentient Oil"] = "知覺油滴"
@@ -3369,7 +3383,7 @@ L["Void Discharge"] = "虛無黏液"
 L["Void Flayer"] = "虛無撕掠者"
 L["Void Fragment"] = "Void Fragment"
 --[[Translation missing --]]
-L["Void Infuser"] = "Void Infuser"
+L["Void Infuser"] = "Void Terror"
 L["Void Spawn"] = "虛無生靈"
 L["Void Speaker Eirich"] = "虛無代言者埃里奇"
 --[[Translation missing --]]
