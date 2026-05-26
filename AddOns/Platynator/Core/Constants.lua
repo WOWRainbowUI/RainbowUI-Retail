@@ -11,6 +11,8 @@ addonTable.Constants = {
   IsClassic = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE,
 
   IsMidnightNext = select(4, GetBuildInfo()) >= 120007,
+  IsHitTestPointsAvailable = C_NamePlate.SetNamePlateSize ~= nil,
+  IsSimplifiedAvailable = C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified ~= nil,
 
   DeathKnightMaxRunes = 6,
 
@@ -24,6 +26,11 @@ addonTable.Constants = {
   LayerFrameLevelStep = 500,
 
   CastInterruptedDelay = 0.3,
+
+  ClickRegionColor = CreateColor(5/255, 38/255, 223/255, 0.3),
+  ClickRegionBorderColor = CreateColor(3/255, 21/255, 124/255),
+  StackRegionColor = CreateColor(198/255, 0/255, 0/255, 0.3),
+  StackRegionBorderColor = CreateColor(104/255, 0/255, 0/255),
 }
 addonTable.Constants.Events = {
   "SettingChanged",
@@ -43,6 +50,7 @@ addonTable.Constants.Events = {
 
   "CustomiseDesignsAssigned",
   "UnitDesignChange",
+  "ShowRegion",
 }
 
 addonTable.Constants.RefreshReason = {
@@ -154,4 +162,12 @@ addonTable.Constants.DefaultRange = {
   [72] = 30, -- Fury
   [73] = 30, -- Protection
   [1446] = 30,
+}
+addonTable.Constants.RangeModifier = {
+  [276079] = 40, -- Death Knight, Death's Reach
+  [429211] = 40, -- Demon Hunter, Champion of the Glaive
+  [197524] = 45, -- Druid, Astral Influence
+  [459559] = 46, -- Priest, Phantom Reach
+  [428377] = 46, -- Rogue - Outlaw, Precision Shot
+  [1271948] = 35, -- Warrior, Javelineer
 }

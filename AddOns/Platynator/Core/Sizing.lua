@@ -5,42 +5,42 @@ function addonTable.Utilities.GetRectFromRegion(region, scale, anchor, shouldSca
   local width = region.width * scale * addonTable.Assets.BarBordersSize.width
   local height = region.height * scale * addonTable.Assets.BarBordersSize.height
   local left, bottom
+  if not shouldScaleAnchor then
+    scale = 1
+  end
   if anchor[1] == "BOTTOMLEFT" then
-    left = anchor[2] or 0
-    bottom = anchor[3] or 0
+    left = anchor[2] and anchor[2] * scale or 0
+    bottom = anchor[3] and anchor[3] * scale or 0
   elseif anchor[1] == "BOTTOM" then
-    left = anchor[2] and anchor[2] - width/2 or -width/2
-    bottom = anchor[3] or 0
+    left = anchor[2] and anchor[2] * scale - width/2 or -width/2
+    bottom = anchor[3] and anchor[3] * scale or 0
   elseif anchor[1] == "BOTTOMRIGHT" then
-    left = anchor[2] and anchor[2] - width or -width
-    bottom = anchor[3] or 0
+    left = anchor[2] and anchor[2] * scale - width or -width
+    bottom = anchor[3] and anchor[3] * scale or 0
   elseif anchor[1] == "TOPLEFT" then
-    left = anchor[2] or 0
-    bottom = anchor[3] and anchor[3] - height or -height
+    left = anchor[2] and anchor[2] * scale or 0
+    bottom = anchor[3] and anchor[3] * scale - height or -height
   elseif anchor[1] == "TOP" then
-    left = anchor[2] and anchor[2] - width/2 or -width/2
-    bottom = anchor[3] and anchor[3] - height or -height
+    left = anchor[2] and anchor[2] * scale - width/2 or -width/2
+    bottom = anchor[3] and anchor[3] * scale - height or -height
   elseif anchor[1] == "TOPRIGHT" then
-    left = anchor[2] and anchor[2] - width or -width
-    bottom = anchor[3] and anchor[3] - height or -height
+    left = anchor[2] and anchor[2] * scale - width or -width
+    bottom = anchor[3] and anchor[3] * scale - height or -height
   elseif anchor[1] == "LEFT" then
-    left = anchor[2] or 0
-    bottom = anchor[3] and anchor[3] - height/2 or -height/2
+    left = anchor[2] and anchor[2] * scale or 0
+    bottom = anchor[3] and anchor[3] * scale - height/2 or -height/2
   elseif anchor[1] == "RIGHT" then
-    left = anchor[2] and anchor[2] - width or -width
-    bottom = anchor[3] and anchor[3] - height/2 or -height/2
+    left = anchor[2] and anchor[2] * scale - width or -width
+    bottom = anchor[3] and anchor[3] * scale - height/2 or -height/2
   else
     left = -width / 2
     bottom = -height / 2
   end
-  if shouldScaleAnchor then
-    return {left = left * scale, bottom = bottom * scale, width = width, height = height}
-  else
-    return {left = left, bottom = bottom, width = width, height = height}
-  end
+  return {left = left, bottom = bottom, width = width, height = height}
 end
 
 function addonTable.Utilities.GenerateRects(design)
+  local hit, stack
   local left, right, top, bottom
 
   local function CacheSize(rect)
@@ -57,7 +57,7 @@ function addonTable.Utilities.GenerateRects(design)
   end
 
   for _, barDetails in ipairs(design.bars) do
-    if barDetails.kind == "health" then
+    if barDetails.kind == "health" or barDetails.kind == "cast" then
       local rect = addonTable.Utilities.GetRectFromRegion({width = barDetails.border.width, height = barDetails.border.height}, barDetails.scale, barDetails.anchor)
       CacheSize(rect)
     end
@@ -70,19 +70,13 @@ function addonTable.Utilities.GenerateRects(design)
     end
   end
 
-  local hit
-  if left ~= nil then
-    hit = {left = left * design.scale, bottom = bottom * design.scale, width = (right - left) * design.scale, height = (top - bottom) * design.scale}
-  end
-
   for _, textDetails in ipairs(design.texts) do
     if textDetails.kind == "creatureName" then
-      local rect = addonTable.Utilities.GetRectFromRegion({width = textDetails.maxWidth, height = 10/addonTable.Assets.BarBordersSize.height * textDetails.scale}, 1, textDetails.anchor)
+      local rect = addonTable.Utilities.GetRectFromRegion({width = textDetails.maxWidth, height = 11/addonTable.Assets.BarBordersSize.height * textDetails.scale}, 1, textDetails.anchor)
       CacheSize(rect)
     end
   end
 
-  local stack
   if left ~= nil then
     if left == right then
       right = addonTable.Assets.BarBordersSize.width / 2
@@ -92,13 +86,17 @@ function addonTable.Utilities.GenerateRects(design)
       top = addonTable.Assets.BarBordersSize.height / 2
       bottom = -top
     end
-    stack = {left = left * design.scale, bottom = bottom * design.scale, width = (right - left) * design.scale, height = (top - bottom) * design.scale}
+    stack = {left = left, bottom = bottom, width = (right - left), height = (top - bottom)}
   else
     stack = {left = 0, bottom = 0, width = 0, height = 0}
   end
-  if hit == nil then
-    hit = stack
-  end
+  hit = CopyTable(stack)
+
+  local stackWidth, stackHeight = stack.width * 1.1, stack.height * 1.2
+  stack.left = stack.left - (stackWidth - stack.width) / 2
+  stack.bottom = stack.bottom - (stackHeight - stack.height) / 2
+  stack.width = stackWidth
+  stack.height = stackHeight
 
   return hit, stack
 end
@@ -108,20 +106,43 @@ local function Round100(value)
 end
 
 function addonTable.Utilities.ConvertRectToWidget(rect)
-  local width = Round100(rect.width / addonTable.Assets.BarBordersSize.width)
-  local height = Round100(rect.height / addonTable.Assets.BarBordersSize.height)
-  if Round100(-rect.left / addonTable.Assets.BarBordersSize.width * 2) == width and
-    Round100(-rect.bottom / addonTable.Assets.BarBordersSize.height * 2) == height then
-    return {
-      width = width, height = height,
-      anchor = {"CENTER"},
-      autoSized = true
-    }
+  local center = {x = rect.left + rect.width / 2, y = rect.bottom + rect.height / 2}
+  local snapping = 0.25
+  local point, x, y = "", 0, 0
+
+  if math.abs(center.y) < snapping then
+    point = point
+  elseif center.y < 0 then
+    point = "TOP" .. point
+    y = rect.bottom + rect.height
   else
-    return {
-      width = width, height = height,
-      anchor = {"BOTTOMLEFT", rect.left, rect.bottom},
-      autoSized = true
-    }
+    point = "BOTTOM" .. point
+    y = rect.bottom
   end
+
+  if math.abs(center.x) < snapping then
+    point = point
+  elseif center.x < 0 then
+    point = point .. "LEFT"
+    x = rect.left
+  else
+    point = point .. "RIGHT"
+    x = rect.left + rect.width
+  end
+
+  local anchor
+  if point == "" then
+    anchor = {}
+  elseif x == 0 and y == 0 then
+    anchor = {point}
+  else
+    anchor = {point, Round100(x), Round100(y)}
+  end
+
+  return {
+    anchor = anchor,
+    width = Round100(rect.width / addonTable.Assets.BarBordersSize.width),
+    height = Round100(rect.height / addonTable.Assets.BarBordersSize.height),
+    autoSized = true,
+  }
 end
