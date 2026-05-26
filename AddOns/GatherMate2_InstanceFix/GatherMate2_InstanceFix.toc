@@ -1,0 +1,14 @@
+## Interface: 120001, 120005
+## Title: GatherMate2_InstanceFix
+## Notes: Resolves a Lua error in Delves, Instances by intercepting secret values before GatherMate2 processes them.
+## Dependencies: GatherMate2
+## Author: zwinout
+## Version: 1.0
+## IconTexture: Interface\AddOns\CharExporter\logo.tga
+
+## Title-zhTW: |cffFFFF99[專業]|r 採集助手-副本修正
+## Notes-zhTW: GatherMate2_InstanceFix |n|n修正在探究、副本內採集時發生的錯誤。
+## X-Category-zhTW: 交易
+## DefaultState: disabled
+
+core.lua
