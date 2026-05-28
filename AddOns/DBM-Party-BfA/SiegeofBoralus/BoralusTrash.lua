@@ -2,7 +2,7 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("BoralusTrash", "DBM-Party-BfA", 5)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260525233013")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 
@@ -57,7 +57,7 @@ local specWarnWatertightShell		= mod:NewSpecialWarningInterrupt(256957, "HasInte
 local specWarnRevitalizingMist		= mod:NewSpecialWarningInterrupt(274569, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")--Same mob as choking waters, but also important
 local specWarnChokingWaters			= mod:NewSpecialWarningInterrupt(272571, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")--High Prio
 local specWarnStinkyVomit			= mod:NewSpecialWarningInterrupt(454440, "HasInterrupt", nil, nil, 1, 2, nil, nil, "kickcast")--High Prio
-local specWarnWatertightShellDispel	= mod:NewSpecialWarningDispel(256957, "MagicDispeller", nil, nil, 1, 2)
+local specWarnWatertightShellDispel	= mod:NewSpecialWarningDispel(256957, "MagicDispeller", nil, nil, 1, 2, nil, nil, "helpdispel")
 local specWarnCursedSlash			= mod:NewSpecialWarningDispel(257168, "RemoveCurse", nil, nil, 1, 2, nil, nil, "helpdispel")
 local specWarnFerocity				= mod:NewSpecialWarningDispel(272888, "RemoveEnrage", nil, 2, 1, 2, nil, nil, "helpdispel")
 local specWarnChokingWatersDispel	= mod:NewSpecialWarningDispel(272571, "RemoveMagic", nil, 2, 1, 2, nil, nil, "helpdispel")

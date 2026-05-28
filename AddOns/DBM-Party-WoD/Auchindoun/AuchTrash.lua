@@ -2,7 +2,7 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("AuchTrash", "DBM-Party-WoD", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260525233013")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
 
@@ -16,7 +16,7 @@ mod:RegisterEvents(
 local warnVoidShell					= mod:NewSpellAnnounce(160312, 3)
 
 local specWarnBendWill				= mod:NewSpecialWarningInterrupt(154527, "HasInterrupt", nil, 2, 1, 2, nil, nil, "kickcast")
-local specWarnVoidShell				= mod:NewSpecialWarningDispel(160312, "MagicDispeller", nil, nil, 1, 2)
+local specWarnVoidShell				= mod:NewSpecialWarningDispel(160312, "MagicDispeller", nil, nil, 1, 2, nil, nil, "helpdispel")
 local specWarnVoidMending			= mod:NewSpecialWarningInterrupt(154623, "HasInterrupt", nil, 2, 1, 2, nil, nil, "kickcast")
 local specWarnFelStomp				= mod:NewSpecialWarningDodge(157173, "Tank", nil, nil, 1, 2, nil, nil, "shockwave")
 local specWarnArbitersHammer		= mod:NewSpecialWarningInterrupt(157797, "HasInterrupt", nil, 2, 1, 2, nil, nil, "kickcast")

@@ -2,7 +2,7 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("MechagonTrash", "DBM-Party-BfA", 11)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260525233013")
 mod:DisableHardcodedOptions()
 mod:SetZone(2097)
 mod:RegisterZoneCombat(2097)
@@ -91,7 +91,7 @@ local specWarnEnlargeDispel			= mod:NewSpecialWarningDispel(301629, "MagicDispel
 local specWarnDefensiveCounter		= mod:NewSpecialWarningDispel(297133, "MagicDispeller", nil, nil, 1, 2, nil, nil, "helpdispel")--Anodized Coilbearer/Defense Bot Mk III
 --local specWarnShrinkDispel		= mod:NewSpecialWarningDispel(284219, "RemoveMagic", nil, nil, 1, 2)--Mechagon Renormalizer
 --local specWarnFlamingRefuseDispel	= mod:NewSpecialWarningDispel(294180, "RemoveMagic", nil, nil, 1, 2)--Junkyard D.0.G. (Likely Deprecated)
-local specWarnArcingZap				= mod:NewSpecialWarningDispel(294195, "RemoveMagic", nil, nil, 1, 2)--Defense Bot Mk I/Defense Bot Mk III (S2 confirmed)
+local specWarnArcingZap				= mod:NewSpecialWarningDispel(294195, "RemoveMagic", nil, nil, 1, 2, nil, nil, "helpdispel")--Defense Bot Mk I/Defense Bot Mk III (S2 confirmed)
 local specWarnEnrageDispel			= mod:NewSpecialWarningDispel(300414, "RemoveEnrage", nil, nil, 1, 2, nil, nil, "enrage")--Scrapbone Grinder/Scrapbone Bully
 --local specWarnRiotShield			= mod:NewSpecialWarningReflect(258317, "CasterDps", nil, nil, 1, 2)
 
