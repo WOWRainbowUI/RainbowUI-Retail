@@ -483,7 +483,39 @@ L["Colorpicker"] = "Palette de couleurs"
 L["Colors"] = "Colors"
 L["Colossal Tentacle"] = "Tentacule colossal"
 --[[Translation missing --]]
+L["Combat Logging"] = "Combat Logging"
+--[[Translation missing --]]
 L["Combat Transparency"] = "Combat Transparency"
+--[[Translation missing --]]
+L["combatLoggingAdvancedNote"] = "Advanced combat logging is enabled automatically while combat logging is enabled."
+--[[Translation missing --]]
+L["combatLoggingDungeons"] = "Dungeons"
+--[[Translation missing --]]
+L["combatLoggingEnable"] = "Enable combat logging"
+--[[Translation missing --]]
+L["combatLoggingHeroic"] = "Heroic"
+--[[Translation missing --]]
+L["combatLoggingLFR"] = "LFR"
+--[[Translation missing --]]
+L["combatLoggingMythic"] = "Mythic"
+--[[Translation missing --]]
+L["combatLoggingMythicDungeon"] = "Mythic Dungeon"
+--[[Translation missing --]]
+L["combatLoggingMythicPlus"] = "Mythic+"
+--[[Translation missing --]]
+L["combatLoggingNormal"] = "Normal"
+--[[Translation missing --]]
+L["combatLoggingOverview"] = "Automatically toggles combat logging in raids and dungeons based on selected difficulties."
+--[[Translation missing --]]
+L["combatLoggingRaid"] = "Raid"
+--[[Translation missing --]]
+L["combatLoggingStarted"] = "Started combat logging."
+--[[Translation missing --]]
+L["combatLoggingStatusActive"] = "Current status: logging."
+--[[Translation missing --]]
+L["combatLoggingStatusInactive"] = "Current status: not logging."
+--[[Translation missing --]]
+L["combatLoggingStopped"] = "Ended combat logging."
 L["Commander Durand"] = "Commandant Durand"
 L["Commander Kolurg"] = "Commandant Kolurg"
 L["Commander Kroluk"] = "Commandant Kroluk"
@@ -930,6 +962,8 @@ L["encounteredErrors"] = [=[MDT has encountered errors.
 Click to view them.]=]
 L["Encrypted"] = "Codé"
 L["Enemies related to seasonal affixes are currently hidden"] = "Les ennemis liés aux affixes saisonniers sont actuellement masqués"
+--[[Translation missing --]]
+L["Enemy forces in tooltips"] = "Enemy forces in tooltips"
 L["Enemy Info"] = "Informations sur l'ennemi "
 L["Enemy Info NPC Creature Type"] = "Type de créature "
 L["Enemy Info NPC Enemy Forces"] = "Forces ennemies "

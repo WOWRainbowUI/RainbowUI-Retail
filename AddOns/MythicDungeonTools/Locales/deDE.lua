@@ -458,7 +458,39 @@ L["Color Blind Friendly"] = "Farbenblind freundlich"
 L["Colorpicker"] = "Farbauswahl"
 L["Colors"] = "Farben"
 L["Colossal Tentacle"] = "Kolossales Tentakel"
+--[[Translation missing --]]
+L["Combat Logging"] = "Combat Logging"
 L["Combat Transparency"] = "Transparenz im Kampf"
+--[[Translation missing --]]
+L["combatLoggingAdvancedNote"] = "Advanced combat logging is enabled automatically while combat logging is enabled."
+--[[Translation missing --]]
+L["combatLoggingDungeons"] = "Dungeons"
+--[[Translation missing --]]
+L["combatLoggingEnable"] = "Enable combat logging"
+--[[Translation missing --]]
+L["combatLoggingHeroic"] = "Heroic"
+--[[Translation missing --]]
+L["combatLoggingLFR"] = "LFR"
+--[[Translation missing --]]
+L["combatLoggingMythic"] = "Mythic"
+--[[Translation missing --]]
+L["combatLoggingMythicDungeon"] = "Mythic Dungeon"
+--[[Translation missing --]]
+L["combatLoggingMythicPlus"] = "Mythic+"
+--[[Translation missing --]]
+L["combatLoggingNormal"] = "Normal"
+--[[Translation missing --]]
+L["combatLoggingOverview"] = "Automatically toggles combat logging in raids and dungeons based on selected difficulties."
+--[[Translation missing --]]
+L["combatLoggingRaid"] = "Raid"
+--[[Translation missing --]]
+L["combatLoggingStarted"] = "Started combat logging."
+--[[Translation missing --]]
+L["combatLoggingStatusActive"] = "Current status: logging."
+--[[Translation missing --]]
+L["combatLoggingStatusInactive"] = "Current status: not logging."
+--[[Translation missing --]]
+L["combatLoggingStopped"] = "Ended combat logging."
 L["Commander Durand"] = "Kommandant Durand"
 L["Commander Kolurg"] = "Kommandant Kolurg"
 L["Commander Kroluk"] = "Kommandant Kroluk"
@@ -849,6 +881,8 @@ L["Enchanted Emissary"] = "Verwunschene Abgesandte"
 L["encounteredErrors"] = "MDT ist auf Fehler gestoßen. Klicken Sie, um sie anzuzeigen."
 L["Encrypted"] = "Verschlüsselt"
 L["Enemies related to seasonal affixes are currently hidden"] = "Gegner die zum saisonalen Affix gehören sind aktuell versteckt"
+--[[Translation missing --]]
+L["Enemy forces in tooltips"] = "Enemy forces in tooltips"
 L["Enemy Info"] = "Gegnerinformation"
 L["Enemy Info NPC Creature Type"] = "Kreaturentyp"
 L["Enemy Info NPC Enemy Forces"] = "Streitkräfte"

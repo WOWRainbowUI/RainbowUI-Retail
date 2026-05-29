@@ -161,6 +161,7 @@ local defaultSavedVars = {
     nonFullscreenScale = defaultNonFullscreenScale,
     enemyForcesFormat = 2,
     useForcesCount = false, -- replaces percent in pull buttons with count
+    enemyForcesTooltip = 1,
     enemyStyle = 1,
     currentDifficulty = 10,
     xoffset = -80,
@@ -187,6 +188,17 @@ local defaultSavedVars = {
       useMacro = false,
       suppressNotifications = false,
       assignments = {},
+    },
+    combatLogging = {
+      enabled = false,
+      content = {
+        lfr = false,
+        normal = false,
+        heroic = false,
+        mythic = false,
+        mythic_dungeon = false,
+        mythic_plus = false,
+      },
     },
     colorPaletteInfo = {
       autoColoring = true,
