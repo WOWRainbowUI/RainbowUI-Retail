@@ -31,6 +31,9 @@ L:RegisterLocale("koKR", {
 	["Grow"] = "성장",
 	["Icon Padding"] = "아이콘 여백",
 	["Icon Size"] = "아이콘 크기",
+	["Icon Size (%)"] = "아이콘 크기 (%)",
+	["Relative size"] = "상대 크기",
+	["Sizes the icon as a percentage of the unit frame's height instead of in pixels."] = "아이콘 크기를 픽셀이 아닌 유닛 프레임 높이의 백분율로 설정합니다.",
 	["Important"] = "중요",
 	["Max Icons"] = "최대 아이콘",
 	["Notification"] = "알림",
@@ -118,8 +121,10 @@ L:RegisterLocale("koKR", {
 	["Play a sound when an important spell is pressed."] = "중요한 주문이 사용될 때 소리 재생.",
 	["Show alert icons in the alerts region."] = "알림 영역에 경고 아이콘을 표시합니다.",
 	["Show CC icons when healer is CC'd."] = "치유사가 군중 제어당할 때 CC 아이콘을 표시합니다.",
+	["Show defensive alerts on a separate, movable bar."] = "방어 알림을 별도의 이동 가능한 막대에 표시합니다.",
 	["Show icons"] = "아이콘 표시",
 	["Shows CC and other important spell alerts."] = "군중 제어 및 기타 중요한 주문 알림을 표시합니다.",
+	["Split bars"] = "막대 분리",
 	["Sound"] = "소리",
 	["Plays a sound when an enemy presses an important or defensive spell."] = "적이 중요하거나 방어적인 주문을 사용할 때 소리를 재생합니다.",
 	["Sound Alerts"] = "소리 알림",
@@ -276,6 +281,7 @@ L:RegisterLocale("koKR", {
 	["Precognition"] = "예지력",
 	["So if by chance you happen to have some other 4 second important self buff then it would also show that icon sorry."] = "혹시 다른 4초짜리 중요한 자신 버프가 있다면 그 아이콘도 표시될 수 있으니 양해 부탁드립니다.",
 	["This isn't precision perfect but it should be close enough."] = "완벽하게 정확하지는 않지만 충분히 근접합니다.",
+	["Also tracks Preservation Evoker's Nullifying Shroud (3 second important self buff)."] = "보존 기원사의 무효화의 장막도 함께 추적합니다 (3초짜리 중요한 자신 버프).",
 
 	-- Other Addons tab
 	["Other Mini Addons"] = "기타 Mini 애드온",

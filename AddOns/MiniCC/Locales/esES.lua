@@ -31,6 +31,9 @@ L:RegisterLocale("esES", {
 	["Grow"] = "Crecer",
 	["Icon Padding"] = "Relleno de icono",
 	["Icon Size"] = "Tamaño de icono",
+	["Icon Size (%)"] = "Tamaño de icono (%)",
+	["Relative size"] = "Tamaño relativo",
+	["Sizes the icon as a percentage of the unit frame's height instead of in pixels."] = "Ajusta el tamaño del icono como un porcentaje de la altura del marco de unidad en lugar de en píxeles.",
 	["Important"] = "Importante",
 	["Max Icons"] = "Máx. iconos",
 	["Notification"] = "Notificación",
@@ -118,8 +121,10 @@ L:RegisterLocale("esES", {
 	["Play a sound when an important spell is pressed."] = "Reproducir un sonido cuando se lance un hechizo importante.",
 	["Show alert icons in the alerts region."] = "Mostrar iconos de alerta en la región de alertas.",
 	["Show CC icons when healer is CC'd."] = "Mostrar iconos de CC cuando el sanador esté bajo control.",
+	["Show defensive alerts on a separate, movable bar."] = "Mostrar las alertas defensivas en una barra separada y movible.",
 	["Show icons"] = "Mostrar iconos",
 	["Shows CC and other important spell alerts."] = "Muestra alertas de control y otros hechizos importantes.",
+	["Split bars"] = "Dividir barras",
 	["Sound"] = "Sonido",
 	["Plays a sound when an enemy presses an important or defensive spell."] = "Reproduce un sonido cuando un enemigo lanza un hechizo importante o defensivo.",
 	["Sound Alerts"] = "Alertas de sonido",
@@ -276,6 +281,7 @@ L:RegisterLocale("esES", {
 	["Precognition"] = "Precognición",
 	["So if by chance you happen to have some other 4 second important self buff then it would also show that icon sorry."] = "Si por casualidad tienes otro buff propio importante de 4 segundos, también mostraría ese icono, lo sentimos.",
 	["This isn't precision perfect but it should be close enough."] = "No es perfectamente preciso, pero debería ser suficientemente cercano.",
+	["Also tracks Preservation Evoker's Nullifying Shroud (3 second important self buff)."] = "También detecta el Sudario anulador del Evocador de Preservación (buff propio importante de 3 segundos).",
 
 	-- Other Addons tab
 	["Other Mini Addons"] = "Otros Mini Addons",

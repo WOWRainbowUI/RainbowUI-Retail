@@ -31,6 +31,9 @@ L:RegisterLocale("deDE", {
 	["Grow"] = "Wachsen",
 	["Icon Padding"] = "Symbol-Abstand",
 	["Icon Size"] = "Symbolgröße",
+	["Icon Size (%)"] = "Symbolgröße (%)",
+	["Relative size"] = "Relative Größe",
+	["Sizes the icon as a percentage of the unit frame's height instead of in pixels."] = "Skaliert das Symbol als Prozentsatz der Höhe des Einheitenrahmens anstatt in Pixeln.",
 	["Important"] = "Wichtig",
 	["Max Icons"] = "Max. Symbole",
 	["Notification"] = "Benachrichtigung",
@@ -118,8 +121,10 @@ L:RegisterLocale("deDE", {
 	["Play a sound when an important spell is pressed."] = "Spiele einen Sound ab, wenn ein wichtiger Zauber gewirkt wird.",
 	["Show alert icons in the alerts region."] = "Warnsymbole im Warnbereich anzeigen.",
 	["Show CC icons when healer is CC'd."] = "CC-Symbole anzeigen, wenn der Heiler unter Kontrolle ist.",
+	["Show defensive alerts on a separate, movable bar."] = "Defensive Warnungen auf einer separaten, beweglichen Leiste anzeigen.",
 	["Show icons"] = "Symbole anzeigen",
 	["Shows CC and other important spell alerts."] = "Zeigt Massenkontrolle und andere wichtige Zauberalarme an.",
+	["Split bars"] = "Leisten aufteilen",
 	["Sound"] = "Sound",
 	["Plays a sound when an enemy presses an important or defensive spell."] = "Spielt einen Sound ab, wenn ein Gegner einen wichtigen oder defensiven Zauber wirkt.",
 	["Sound Alerts"] = "Sound-Warnungen",
@@ -276,6 +281,7 @@ L:RegisterLocale("deDE", {
 	["Precognition"] = "Präkognition",
 	["So if by chance you happen to have some other 4 second important self buff then it would also show that icon sorry."] = "Falls du zufällig einen anderen 4-sekündigen wichtigen Selbst-Buff hast, würde dieses Symbol ebenfalls angezeigt, tut uns leid.",
 	["This isn't precision perfect but it should be close enough."] = "Das ist nicht präzise perfekt, aber es sollte nah genug sein.",
+	["Also tracks Preservation Evoker's Nullifying Shroud (3 second important self buff)."] = "Verfolgt auch die Aufhebende Hülle des Bewahrungs-Rufers (3-sekündiger wichtiger Selbst-Buff).",
 
 	-- Other Addons tab
 	["Other Mini Addons"] = "Andere Mini-Addons",

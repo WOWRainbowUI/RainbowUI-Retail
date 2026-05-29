@@ -31,6 +31,9 @@ L:RegisterLocale("ruRU", {
 	["Grow"] = "Рост",
 	["Icon Padding"] = "Отступ иконки",
 	["Icon Size"] = "Размер иконки",
+	["Icon Size (%)"] = "Размер иконки (%)",
+	["Relative size"] = "Относительный размер",
+	["Sizes the icon as a percentage of the unit frame's height instead of in pixels."] = "Задаёт размер иконки в процентах от высоты рамки персонажа вместо пикселей.",
 	["Important"] = "Важное",
 	["Max Icons"] = "Макс. иконок",
 	["Notification"] = "Уведомление",
@@ -118,8 +121,10 @@ L:RegisterLocale("ruRU", {
 	["Play a sound when an important spell is pressed."] = "Воспроизводить звук при использовании важного заклинания.",
 	["Show alert icons in the alerts region."] = "Показывать значки оповещений в области оповещений.",
 	["Show CC icons when healer is CC'd."] = "Показывать иконки контроля, когда целитель под контролем.",
+	["Show defensive alerts on a separate, movable bar."] = "Показывать защитные оповещения на отдельной перемещаемой панели.",
 	["Show icons"] = "Показывать значки",
 	["Shows CC and other important spell alerts."] = "Показывает оповещения о контроле и других важных заклинаниях.",
+	["Split bars"] = "Разделить панели",
 	["Sound"] = "Звук",
 	["Plays a sound when an enemy presses an important or defensive spell."] = "Воспроизводит звук, когда враг использует важное или защитное заклинание.",
 	["Sound Alerts"] = "Звуковые оповещения",
@@ -277,6 +282,7 @@ L:RegisterLocale("ruRU", {
 	["Precognition"] = "Предвидение",
 	["So if by chance you happen to have some other 4 second important self buff then it would also show that icon sorry."] = "Если у вас есть другой 4-секундный важный бафф на себя, то его иконка также будет отображаться, приносим извинения.",
 	["This isn't precision perfect but it should be close enough."] = "Это не идеально точно, но должно быть достаточно близко.",
+	["Also tracks Preservation Evoker's Nullifying Shroud (3 second important self buff)."] = "Также отслеживает «Нейтрализующее покрывало» Призывателя Сохранения (3-секундный важный бафф на себя).",
 
 	-- Other Addons tab
 	["Other Mini Addons"] = "Другие Mini аддоны",

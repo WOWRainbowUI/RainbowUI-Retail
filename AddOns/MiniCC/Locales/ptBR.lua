@@ -31,6 +31,9 @@ L:RegisterLocale("ptBR", {
 	["Grow"] = "Crescer",
 	["Icon Padding"] = "Espaçamento de ícone",
 	["Icon Size"] = "Tamanho do ícone",
+	["Icon Size (%)"] = "Tamanho do ícone (%)",
+	["Relative size"] = "Tamanho relativo",
+	["Sizes the icon as a percentage of the unit frame's height instead of in pixels."] = "Dimensiona o ícone como uma porcentagem da altura do quadro da unidade em vez de em pixels.",
 	["Important"] = "Importante",
 	["Max Icons"] = "Ícones máx",
 	["Notification"] = "Notificação",
@@ -118,8 +121,10 @@ L:RegisterLocale("ptBR", {
 	["Play a sound when an important spell is pressed."] = "Reproduzir um som quando um feitiço importante for lançado.",
 	["Show alert icons in the alerts region."] = "Mostrar ícones de alerta na região de alertas.",
 	["Show CC icons when healer is CC'd."] = "Mostrar ícones de controle quando o curandeiro estiver sob controle.",
+	["Show defensive alerts on a separate, movable bar."] = "Mostrar os alertas defensivos em uma barra separada e móvel.",
 	["Show icons"] = "Mostrar ícones",
 	["Shows CC and other important spell alerts."] = "Mostra alertas de controle e outros feitiços importantes.",
+	["Split bars"] = "Dividir barras",
 	["Sound"] = "Som",
 	["Plays a sound when an enemy presses an important or defensive spell."] = "Reproduz um som quando um inimigo usa um feitiço importante ou defensivo.",
 	["Sound Alerts"] = "Alertas sonoros",
@@ -277,6 +282,7 @@ L:RegisterLocale("ptBR", {
 	["Precognition"] = "Precognição",
 	["So if by chance you happen to have some other 4 second important self buff then it would also show that icon sorry."] = "Se por acaso você tiver outro buff pessoal importante de 4 segundos, ele também exibiria esse ícone, desculpe.",
 	["This isn't precision perfect but it should be close enough."] = "Não é perfeitamente preciso, mas deve ser suficientemente próximo.",
+	["Also tracks Preservation Evoker's Nullifying Shroud (3 second important self buff)."] = "Também detecta o Manto Anulador do Evocador de Preservação (buff pessoal importante de 3 segundos).",
 
 	-- Other Addons tab
 	["Other Mini Addons"] = "Outros Mini Addons",

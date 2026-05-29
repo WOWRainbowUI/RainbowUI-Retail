@@ -31,6 +31,9 @@ L:RegisterLocale("frFR", {
 	["Grow"] = "Direction",
 	["Icon Padding"] = "Espacement des icônes",
 	["Icon Size"] = "Taille des icônes",
+	["Icon Size (%)"] = "Taille des icônes (%)",
+	["Relative size"] = "Taille relative",
+	["Sizes the icon as a percentage of the unit frame's height instead of in pixels."] = "Définit la taille de l'icône en pourcentage de la hauteur du cadre d'unité plutôt qu'en pixels.",
 	["Important"] = "Important",
 	["Max Icons"] = "Icônes max",
 	["Notification"] = "Notification",
@@ -118,8 +121,10 @@ L:RegisterLocale("frFR", {
 	["Play a sound when an important spell is pressed."] = "Joue un son quand un sort important est utilisé.",
 	["Show alert icons in the alerts region."] = "Affiche les icônes d'alerte dans la zone d'alertes.",
 	["Show CC icons when healer is CC'd."] = "Affiche les icônes de CC quand le heal est sous CC.",
+	["Show defensive alerts on a separate, movable bar."] = "Afficher les alertes défensives sur une barre séparée et déplaçable.",
 	["Show icons"] = "Afficher les icônes",
 	["Shows CC and other important spell alerts."] = "Affiche les alertes de CC et autres sorts importants.",
+	["Split bars"] = "Barres séparées",
 	["Sound"] = "Son",
 	["Plays a sound when an enemy presses an important or defensive spell."] = "Joue un son quand un ennemi utilise un sort important ou défensif.",
 	["Sound Alerts"] = "Alertes sonores",
@@ -277,6 +282,7 @@ L:RegisterLocale("frFR", {
 	["Precognition"] = "Précognition",
 	["So if by chance you happen to have some other 4 second important self buff then it would also show that icon sorry."] = "Si par hasard vous avez un autre buff important de 4 secondes, son icône s'affichera aussi.",
 	["This isn't precision perfect but it should be close enough."] = "Ce n'est pas parfait mais ça devrait suffire.",
+	["Also tracks Preservation Evoker's Nullifying Shroud (3 second important self buff)."] = "Détecte aussi le Voile annihilant de l'Évocateur Préservation (buff personnel important de 3 secondes).",
 
 	-- Other Addons tab
 	["Other Mini Addons"] = "Autres Mini Addons",
