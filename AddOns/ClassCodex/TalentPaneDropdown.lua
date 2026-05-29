@@ -827,12 +827,12 @@ end
 local function PopulatePvpMenu(rootDescription)
     local classFile, specName = CurrentClassSpec()
     if not classFile or not specName or not ns.GetPvPBracketsWithData then
-        rootDescription:CreateTitle((ns.L and ns.L["No PvP builds available."]) or "No PvP builds available.")
+        rootDescription:CreateTitle((ns.L and ns.L["pvp.no_builds"]) or "No PvP builds available.")
         return
     end
     local brackets = ns.GetPvPBracketsWithData(classFile, specName)
     if not brackets or #brackets == 0 then
-        rootDescription:CreateTitle((ns.L and ns.L["No PvP builds available."]) or "No PvP builds available.")
+        rootDescription:CreateTitle((ns.L and ns.L["pvp.no_builds"]) or "No PvP builds available.")
         return
     end
 
@@ -871,7 +871,7 @@ end
 local function PopulateWowheadMenu(rootDescription)
     local specData = GetEffectiveSpecData()
     if not specData or not specData.talents or #specData.talents == 0 then
-        rootDescription:CreateTitle((ns.L and ns.L["No talent builds available."]) or "No talent builds available.")
+        rootDescription:CreateTitle((ns.L and ns.L["loadout_dock.no_talent_builds"]) or "No talent builds available.")
         return
     end
 
@@ -993,7 +993,7 @@ local function PopulateArchonMenu(rootDescription)
     local specData = classFile and specName and ns.GetArchonSpecData
         and ns.GetArchonSpecData(classFile, specName) or nil
     if not specData or not specData.contexts or not next(specData.contexts) then
-        rootDescription:CreateTitle((ns.L and ns.L["No Archon builds available."]) or "No Archon builds available.")
+        rootDescription:CreateTitle((ns.L and ns.L["loadout_dock.no_archon_builds"]) or "No Archon builds available.")
         return
     end
 
@@ -1293,7 +1293,7 @@ local function EnsureContainer()
     iconBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:AddLine(L["Class Codex"], 1, 1, 1)
-        GameTooltip:AddLine((ns.L and ns.L["Pick a build"]) or "Pick a build", 0.7, 0.7, 0.7)
+        GameTooltip:AddLine((ns.L and ns.L["loadout_dock.pick_a_build"]) or "Pick a build", 0.7, 0.7, 0.7)
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine("|cffffd100Beta Feature|r", 1, 0.82, 0)
         GameTooltip:AddLine("If any issues please report on the Class Codex Discord.", 0.85, 0.85, 0.85, true)

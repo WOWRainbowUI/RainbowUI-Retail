@@ -17,6 +17,13 @@ local TAGS = {
     "MENU_UNIT_ENEMY_PLAYER",
 }
 
+-- Default-on. nil means default.
+local function IsEnabled()
+    if ClassCodexDB == nil then return true end
+    if ClassCodexDB.unitMenuEnabled == nil then return true end
+    return ClassCodexDB.unitMenuEnabled and true or false
+end
+
 local function CanShow(unit)
     if not unit or not UnitExists(unit) then return false end
     if not UnitIsPlayer(unit) then return false end
@@ -89,11 +96,15 @@ listener:SetScript("OnEvent", function(_, _, guid)
 end)
 
 local function Callback(_, rootDescription, contextData)
+    -- Early-return before any rootDescription:Create* call when disabled.
+    -- Per Stanzilla/WoWUIBugs#826, the menu's secure context is tainted by
+    -- the Create calls themselves — skipping them keeps the menu clean.
+    if not IsEnabled() then return end
     if not contextData or not CanShow(contextData.unit) then return end
     local unit = contextData.unit
     rootDescription:CreateDivider()
     rootDescription:CreateTitle("Class Codex")
-    rootDescription:CreateButton(L["View Talents"], function()
+    rootDescription:CreateButton(L["talent_pane.view_talents"], function()
         StartInspect(unit)
     end)
 end
@@ -103,3 +114,16 @@ if Menu and Menu.ModifyMenu then
         Menu.ModifyMenu(tag, Callback)
     end
 end
+
+-- Forbidden-action notice. Post-12.0, modifying a MENU_UNIT_* menu via
+-- Menu.ModifyMenu can taint protected functions Blizzard itself calls from
+-- the same menu (SetRaidTarget, FollowUnit, etc.). Blizzard-side bug; no
+-- addon can fix it. We point the user at the toggle so they don't blame us.
+local notified = false
+local notice = CreateFrame("Frame")
+notice:RegisterEvent("ADDON_ACTION_FORBIDDEN")
+notice:SetScript("OnEvent", function(_, _, addonName, funcName)
+    if notified or addonName ~= "ClassCodex" then return end
+    notified = true
+    print(string.format(L["chat.blizzard_bug_notice"], funcName or "?"))
+end)

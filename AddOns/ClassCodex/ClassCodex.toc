@@ -2,7 +2,7 @@
 ## Title: Class Codex
 ## Notes: Stat priorities, talent builds, rotation guides, and gearing recommendations for your current spec.
 ## Author: jfstn
-## Version: 0.28.2
+## Version: 0.28.6
 ## SavedVariables: ClassCodexDB
 ## SavedVariablesPerCharacter: ClassCodexCharDB
 ## X-Curse-Project-ID: 1480030
@@ -113,6 +113,9 @@ Data\Warrior\archon-stats.lua
 Data\Warrior\bnet-pvp-talents.lua
 Data\Warrior\murlok-pvp.lua
 Locales.lua
+Locales\enUS.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
 ItemLabel.lua
 ImportExport.lua
 ReduceTaint.lua
@@ -126,3 +129,4 @@ Compendium.lua
 TalentPaneDropdown.lua
 LoadoutDock.lua
 UnitMenuIntegration.lua
+Settings.lua

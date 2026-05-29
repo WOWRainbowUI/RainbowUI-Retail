@@ -8,18 +8,18 @@ ClassCodexData["WARLOCK"] = {
         heroTalent = "Hellcaller",
         context = "通用",
         stats = {
-          { "精通", "致命一擊" },
-          { "加速" },
-          { "臨機應變" },
+          { "Mastery", "Critical Strike" },
+          { "Haste" },
+          { "Versatility" },
         },
       },
       {
         heroTalent = "Soul Harvester",
         context = "通用",
         stats = {
-          { "精通", "致命一擊" },
-          { "加速" },
-          { "臨機應變" },
+          { "Mastery", "Critical Strike" },
+          { "Haste" },
+          { "Versatility" },
         },
       },
     },
@@ -37,7 +37,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Soul Harvester",
-        context = "團隊 MT",
+        context = "團隊多目標",
         recommended = true,
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZxyMzsMzAAjllBGwEMDbBG2GAAAmBAAwMDzMjBGmZmZGzgZmZGAwMwA",
       },
@@ -59,7 +59,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Hellcaller",
-        context = "團隊 MT",
+        context = "團隊多目標",
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZWMzsMGAwCMwsY0YGQmFwyAAAwMAAwMDYmZMmZGmxMzMGMzMzAAmBG",
       },
       {
@@ -163,18 +163,18 @@ ClassCodexData["WARLOCK"] = {
         heroTalent = "Diabolist",
         context = "通用",
         stats = {
-          { "加速", "致命一擊" },
-          { "精通" },
-          { "臨機應變" },
+          { "Haste", "Critical Strike" },
+          { "Mastery" },
+          { "Versatility" },
         },
       },
       {
         heroTalent = "Soul Harvester",
         context = "通用",
         stats = {
-          { "加速", "致命一擊" },
-          { "精通" },
-          { "臨機應變" },
+          { "Haste", "Critical Strike" },
+          { "Mastery" },
+          { "Versatility" },
         },
       },
     },
@@ -186,7 +186,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Diabolist",
-        context = "團隊 MT",
+        context = "團隊多目標",
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLz2MzMmBAmxMzMzMDwMzwMbAAgZmZmxMD2mBwA",
       },
       {
@@ -207,7 +207,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Soul Harvester",
-        context = "團隊 MT",
+        context = "團隊多目標",
         recommended = true,
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAgxyyADYAzwSIjNDGLz2MzMmBAmxMzMDwMzMzwMbAAgZmZmxMD2mBwA",
       },
@@ -324,18 +324,18 @@ ClassCodexData["WARLOCK"] = {
         heroTalent = "Diabolist",
         context = "通用",
         stats = {
-          { "加速" },
-          { "精通", "致命一擊" },
-          { "臨機應變" },
+          { "Haste" },
+          { "Mastery", "Critical Strike" },
+          { "Versatility" },
         },
       },
       {
         heroTalent = "Hellcaller",
         context = "通用",
         stats = {
-          { "加速" },
-          { "精通", "致命一擊" },
-          { "臨機應變" },
+          { "Haste" },
+          { "Mastery", "Critical Strike" },
+          { "Versatility" },
         },
       },
     },
@@ -353,7 +353,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Diabolist",
-        context = "團隊 MT",
+        context = "團隊多目標",
         recommended = true,
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
       },
@@ -380,7 +380,7 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Hellcaller",
-        context = "團隊 MT",
+        context = "團隊多目標",
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMziNYgZzoxMAmtYjBAAGDwCAwMDmZGjZDAAwMzMAAMzwA",
       },
       {
