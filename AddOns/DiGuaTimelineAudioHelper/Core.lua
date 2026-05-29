@@ -46,9 +46,10 @@ local CastMonitor = {
 local castStarted = false
 local buffJustTriggered = false
 local AudioTriggered = false
--- local UNIT_TARGET_Triggered = false 
+local UNIT_TARGET_Triggered = {}
 local isTrackingStopped = {}
 local falizhadanTriggered = false
+local ENCOUNTER_WARNING_Triggered = false
 local AudioTimeline = {
     [1698] = {
         interval = 40, 
@@ -232,14 +233,6 @@ local AudioTimeline = {
             [51] = "Er.ogg",
             [52] = "Yi.ogg",
             [53] = "AnQuanAnQuan.ogg",
-            -- [55] = "ZhunBeiDianMing.ogg",
-            -- [66] = "ZhunBeiYiShang.ogg",
-            -- [75] = "YiShangJieDuan.ogg",
-            -- [91] = "ZhunBeiJiTui.ogg",
-            -- [93] = "San.ogg",
-            -- [94] = "Er.ogg",
-            -- [95] = "Yi.ogg",
-            -- [96] = "YiShangJieShu.ogg",
         }        
     },
     [2562] = {
@@ -258,7 +251,7 @@ local AudioTimeline = {
         }
     },
     [2563] = { -- 茂林古树
-        interval = 57, 
+        interval = 58, 
         startOffset = 9, 
         alerts = {
             -- [0]  = { file = "TanKeJianShang.ogg", role = {"TANK", "HEALER"} },
@@ -316,7 +309,7 @@ local AudioTimeline = {
             -- [12] = { file = "ZhuYiShuaTan.ogg", role = "HEALER" },
             -- [16] = "ZhunBeiChuiFeng.ogg",
             -- [19] = "NiShiZhenTouQian.ogg",
-            [22] = { file = "KuaiKaiJianShang.ogg", role = "DAMAGER" }, 
+            [24] = { file = "KuaiKaiJianShang.ogg", role = "DAMAGER" }, 
             -- [34] = "San.ogg",
             -- [35] = "Er.ogg",
             -- [36] = "Yi.ogg",
@@ -345,37 +338,12 @@ local AudioTimeline = {
         interval = 9999, 
         startOffset = 0, 
         alerts = {
-            -- [9]  = "ZhuYiDuoQuan.ogg",
-            -- [15] = { file = "CaiQuanXiaoCeng.ogg", role = {"HEALER", "DAMAGER"} },
-            -- [21] = "ZhunBeiAOE.ogg",
             [25] = "ZhunBeiCaiQuan.ogg",
             [29] = "SanErYiCaiQuanShangTian.ogg",
-            -- [30] = "Er.ogg",
-            -- [31] = "Yi.ogg",
-            -- [32] = "CaiQuanShangTian.ogg",
-            -- [47] = "ZhuYiDuoQuan.ogg",
-            -- [53] = { file = "CaiQuanXiaoCeng.ogg", role = {"HEALER", "DAMAGER"} },
-            -- [57] = { file = "XiaoXinJiTui.ogg", role = "TANK" },
-            -- [73] = "ZhunBeiJianYu.ogg",
-            -- [87] = "ZhunBeiAOE.ogg",
             [91] = "ZhunBeiCaiQuan.ogg",
             [95] = "SanErYiCaiQuanShangTian.ogg",
-            -- [96] = "Er.ogg",
-            -- [97] = "Yi.ogg",
-            -- [98] = "CaiQuanShangTian.ogg",
-            -- [112]= "ZhuYiDuoQuan.ogg",
-            -- [118]= { file = "CaiQuanXiaoCeng.ogg", role = {"HEALER", "DAMAGER"} },
-            -- [122]= { file = "XiaoXinJiTui.ogg", role = "TANK" },
-            -- [138]= "ZhunBeiJianYu.ogg",
-            -- [151]= "ZhunBeiAOE.ogg",
             [155]= "ZhunBeiCaiQuan.ogg",
             [159]= "SanErYiCaiQuanShangTian.ogg",
-            -- [160]= "Er.ogg",
-            -- [161]= "Yi.ogg",
-            -- [162]= "CaiQuanShangTian.ogg",
-            -- [177]= "ZhuYiDuoQuan.ogg",
-            -- [183]= { file = "CaiQuanXiaoCeng.ogg", role = {"HEALER", "DAMAGER"} },
-            -- [187]= { file = "XiaoXinJiTui.ogg", role = "TANK" },
         }
     },
     [3071] = {
@@ -592,7 +560,7 @@ local AudioTimeline = {
         }
     },
     [3328] = {
-        interval = 50, 
+        interval = 52, 
         startOffset = 0, 
         alerts = {
             [38] = "JiHeYinQiu.ogg",
@@ -609,10 +577,10 @@ local AudioTimeline = {
             -- [32] = "ZhunBeiYiShang.ogg",
             -- [37] = "KuaiJinShengGuang.ogg",
             -- [39] = { file = "KuaiKaiJianShang.ogg", role = {"HEALER", "DAMAGER"} },
-            -- [52] = "San.ogg",
-            -- [53] = "Er.ogg",
-            -- [54] = "Yi.ogg",
-            -- [55] = "YiShangJieShu.ogg",
+            -- [55] = "San.ogg",
+            -- [56] = "Er.ogg",
+            -- [57] = "Yi.ogg",
+            -- [58] = "YiShangJieShu.ogg",
         }
     },
 }
@@ -672,7 +640,7 @@ local PrivateAuraList = {
     [1283247] = "PaoKaiRenQunKuaiKaiJianShang", -- 跃草跳花情灯无碗
     [470966]  = "BossZhuiNiLiuMiaoSanErYiAnQuan", -- 暴桌风椅刃笔剑墨
     [468924]  = "KuaiDuoKai", -- 暴伞风雨刃云剑电
-    [1253054] = "AnQuanAnQuan", -- 吼狱怒渊胆冥破幽
+    [1253054] = "AnQuanAnQuan", -- 破胆怒吼
     [1253030] = "MeiYouChongHe", -- 吼狱怒渊胆冥破幽
     [472662]  = "NiBeiYiShang", -- 斩疾风掠暴破瞬影
     [1253979] = "ZhuYiXiaoShuiSanMiaoKuaiKaiJianShang", -- 击穿射裂风瞬劲影
@@ -850,13 +818,6 @@ local LocationCastData = {
             mapID = 2098
         },
     },
-    -- ["奥术图书馆"] = {
-    --     { 
-    --         file = { "ZhunBeiAOE.ogg", "JinZhanDaQuan.ogg", "DaDuanDaGuai.ogg" }, 
-    --         unitLevel = NEXT_PLAYER_LEVEL, 
-    --         mapID = 2515 
-    --     },
-    -- },
     ["回响大桥"] = {
         { 
             file = "JinZhanXuanFeng.ogg", 
@@ -1073,7 +1034,7 @@ local EventSoundData = {
     -- [535] = {".ogg", 1}, -- 盲目之光 (428169)
     -- [83] = {".ogg", 1}, -- 神圣风暴 (1246765)
     -- [374] = {".ogg", 1}, -- 神圣风暴 (1272310)
-    [84]  = {"ZhunBeiAOE.ogg", 1, {HEALER = true}}, -- 神圣鸣罪 (1246749)
+    [84]  = {"AOE.ogg", 1, {HEALER = true}}, -- 神圣鸣罪 (1246749)
     -- [76]  = {"DuoKaiDaQuan.ogg", 1}, -- 虔诚光环 (1246162)    
     -- [71]  = {"DuoKaiDaQuan.ogg", 1}, -- 平心光环 (1248451)
     -- [81]  = {"DuoKaiDaQuan.ogg", 1}, -- 愤怒光环 (1248449)
@@ -1175,7 +1136,7 @@ local EventSoundData2 = {
     -- 光盲先锋军
     [78]  = {"ZhunBeiShenPanSanErYi.ogg", 2, {TANK = true}}, -- 审判 (1251857)
     [82]  = {"ZhunBeiShenPanSanErYi.ogg", 2, {TANK = true}}, -- 审判 (1246736)
-    [84]  = {"ZhiLiaoYuPu.ogg", 2, {HEALER = true}}, -- 神圣鸣罪 (1246749)     
+    [84]  = {"ZhunBeiAOELiangMiaoSanErYi", 2, {HEALER = true}}, -- 神圣鸣罪 (1246749)     
     [76]  = {"TanKeDaiWei.ogg", 2, {TANK = true}}, -- 虔诚光环 (1246162)
     [71]  = {"TanKeDaiWei.ogg", 2, {TANK = true}}, -- 平心光环 (1248451)
     [81]  = {"TanKeDaiWei.ogg", 2, {TANK = true}}, -- 愤怒光环 (1248449)
@@ -1409,21 +1370,19 @@ local function GetWidgetLabelText()
     return nil
 end
 
--- local function FindBestVoice()
---     local ttsVoices = C_VoiceChat.GetTtsVoices()
+local function FindBestVoice()
+    local ttsVoices = C_VoiceChat.GetTtsVoices()
     
---     for _, v in ipairs(ttsVoices) do
---         -- 示例：寻找中文（Huihui）或者特定风格的声音
---         if v.name:find("Huihui") then
---             return v.voiceID
---         end
---     end
+    for _, v in ipairs(ttsVoices) do
+        -- 示例：寻找中文（Huihui）或者特定风格的声音
+        if v.name:find("Huihui") then
+            return v.voiceID
+        end
+    end
     
---     -- 如果没找到，返回默认的第一个
---     return ttsVoices[1] and ttsVoices[1].voiceID
--- end
-
-
+    -- 如果没找到，返回默认的第一个
+    return ttsVoices[1] and ttsVoices[1].voiceID
+end
 
 -- 核心比对逻辑函数
 local function ExecuteClosestLogic(measuredTime, sound1, sound2)
@@ -1588,14 +1547,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
             local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID = GetInstanceInfo()
             local subZone = GetSubZoneText()
             local currentMapID = C_Map.GetBestMapForUnit("player") or 0
-            -- if instanceID == 658 and not C_CombatAudioAlert.IsEnabled() then 
-            --     ExecuteClosestLogic(ttsDuration, "ZhuYiDuoQuan.ogg", "TanKeJianCi.ogg")
-            -- end
             if instanceID == 2805 and currentMapID == 2498 and (subZone == "幽灵悲歌" or subZone == "亡靈悲悼") then 
                 ExecuteClosestLogic(ttsDuration, "DuoKaiChongFeng.ogg", "ZhunBeiChenMo.ogg")
-            end
-            if instanceID == 2526 and currentMapID == 2098 and (subZone == "体育场" or subZone == "運動場") then 
-                ExecuteClosestLogic(ttsDuration, "DuoKaiTouQian.ogg", "ZhunBeiAOE.ogg")
             end
         end
         return
@@ -1644,7 +1597,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     if auraData.isHarmful and falizhadanTriggered == true then
                         -- print("成功")                
                         StartCircleTimerBySeconds(4)
-                        PlayAudioSequence(0, "TieBianFangShui.ogg")
+                        PlayAudioSequence(0, "TieBianFangShui.ogg", 1,"DaoShu3.ogg", 1,"DaoShu2.ogg", 1,"DaoShu1.ogg")
                         break 
                     end
                 end
@@ -1701,29 +1654,46 @@ frame:SetScript("OnEvent", function(self, event, ...)
             end                
         end
         return
-    -- elseif event == "UNIT_TARGET" then
-    --     local unitTarget = ...
-    --     if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) and UnitAffectingCombat(unitTarget) then
-    --         local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID = GetInstanceInfo()
-    --         if instanceID == 2915 then -- 节点希纳斯
-    --             local actualLevel = UnitLevel(unitTarget)
-    --             local unitPowerType = UnitPowerType(unitTarget)    
-    --             local sex = UnitSex(unitTarget)
-    --             local currentMapID = C_Map.GetBestMapForUnit("player") or 0 
-    --             if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 2 and currentEncounterID == 0 then
-    --                 local targetName = UnitSpellTargetName(unitTarget)
-    --                 local PlayerRole = GetPlayerRole()
-    --                 if targetName then
-    --                     local UNIT_TARGET_Triggered = true
-    --                     print(UNIT_TARGET_Triggered)
-    --                     C_Timer.After(1, function()
-    --                         UNIT_TARGET_Triggered = false
-    --                         print(UNIT_TARGET_Triggered)      
-    --                     end)
-    --                 end               
-    --             end
-    --         end                
-    --     end
+    elseif event == "UNIT_TARGET" then
+        local unitTarget = ...
+        local subZone = GetSubZoneText()
+        -- print(unitTarget)
+        -- print(UnitCanAttack("player", unitTarget))
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
+            if subZone == "下层平台" or subZone == "主峰" or subZone == "山崁" or subZone == "巍峨峰" then 
+                local actualLevel = UnitLevel(unitTarget)
+                local unitPowerType = UnitPowerType(unitTarget)    
+                local sex = UnitSex(unitTarget) 
+                local creatureFamily, familyID = UnitCreatureFamily(unitTarget)
+                -- print("UNIT_TARGET")
+                -- print(UnitAffectingCombat(unitTarget))
+                if creatureFamily and actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 1 and sex == 1 and UnitAffectingCombat(unitTarget) == true then
+                    if UNIT_TARGET_Triggered[unitTarget] == nil then
+                        UNIT_TARGET_Triggered[unitTarget] = true
+                        CustomEncounterBar(132372, 13, "准备AOE")
+                    end
+                end            
+            end
+        end
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
+            local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID = GetInstanceInfo()
+            if instanceID == 2811 then -- 魔导师平台
+                local actualLevel = UnitLevel(unitTarget)
+                local unitPowerType = UnitPowerType(unitTarget)    
+                local sex = UnitSex(unitTarget)
+                if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 3 and BossKills[3071] == true then -- 奥能金刚库斯托斯
+                    if UNIT_TARGET_Triggered[unitTarget] == nil then
+                        UNIT_TARGET_Triggered[unitTarget] = true
+                        -- print(UNIT_TARGET_Triggered[unitTarget])
+                    end
+                    C_Timer.After(3.5, function()
+                        UNIT_TARGET_Triggered[unitTarget] = nil
+                        -- print(UNIT_TARGET_Triggered[unitTarget])
+                    end)
+                    return
+                end
+            end                
+        end
     elseif event == "ZONE_CHANGED" or event == "ZONE_CHANGED_INDOORS" or event == "ZONE_CHANGED_NEW_AREA" then
         local subZone = GetSubZoneText()
         if (subZone == "四角庭院" or subZone == "學院中庭") and not hasPlayedSiJiaoTingYuan then
@@ -1773,6 +1743,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
         local subZone = GetSubZoneText()   
         local alerts = LocationCastData[subZone]
         local name, text, texture, startTimeMS, endTimeMS, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unitTarget)       
+        -- BossKills[3071] = true
+        -- print(BossKills[3071])
         -- local targetToken = unitTarget .. "target"
         -- if UnitIsUnit(targetToken, "player") then
         --     print("目标是玩家")
@@ -1915,6 +1887,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                         -- print("")
                     else
                         PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                        CustomEncounterBar(132372, 28, "准备AOE")
                     end
                     return
                 end            
@@ -1944,11 +1917,13 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local isInside = IsIndoors()
                 if actualLevel == NEXT_PLAYER_LEVEL and currentMapID == 601 and unitPowerType == 0 and sex == 1 and isInside == true then
                     local targetName = UnitSpellTargetName(unitTarget)
-                    local PlayerRole = GetPlayerRole()
+                    local PlayerRole = GetPlayerRole()                    
                     if targetName then
                         if PlayerRole == "HEALER" then
                             PlaySoundFile(MEDIA_PATH .. "ZhuYiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)
                         end
+                        local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")                     
+                        StartCircleTimerBySeconds(2, false, targetsPlayer)
                     else
                         PlaySoundFile(MEDIA_PATH .. "JinZhanDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
                     end                    
@@ -2026,11 +2001,13 @@ frame:SetScript("OnEvent", function(self, event, ...)
                             end)
                         elseif remainder == 2 and AudioTriggered == false then
                             PlaySoundFile(MEDIA_PATH .. "ErDaDuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                            AudioTriggered = true
                             C_Timer.After(6, function()
                                 AudioTriggered = false
                             end)
                         elseif remainder == 0 and AudioTriggered == false then
                             PlaySoundFile(MEDIA_PATH .. "SanDaDuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                            AudioTriggered = true
                             C_Timer.After(6, function()
                                 AudioTriggered = false
                             end)
@@ -2070,7 +2047,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 end
             end         
         end
-
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
             if subZone == "" or subZone == "艾杰斯亚学院" or subZone == "阿爾蓋薩學院" then
                 local currentMapID = C_Map.GetBestMapForUnit("player") or 0        
@@ -2079,13 +2055,17 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local sex = UnitSex(unitTarget)
                 local isInside = IsIndoors()
                 if actualLevel == NEXT_PLAYER_LEVEL and (currentMapID == 2097 or currentMapID == 2098) and unitPowerType == 1 and sex == 1 and isInside == false and BossKills[2564] == true then -- 克罗兹
-                    UNIT_CAST_TRACKER[unitTarget] = (UNIT_CAST_TRACKER[unitTarget] or 0) + 1        
-                    if UNIT_CAST_TRACKER[unitTarget] % 2 == 1 then
-                        PlaySoundFile(MEDIA_PATH .. "ZhunBeiTiaoRen.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                        CustomEncounterBar(132089, 18, "准备跳人")
-                    else
-                        PlaySoundFile(MEDIA_PATH .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                    end
+                    C_Timer.After(0.4, function()
+                        local hasTarget = UnitExists(unitTarget .. "target")
+                        local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")
+                        if hasTarget then
+                            PlaySoundFile(MEDIA_PATH .. "ZhunBeiTiaoRen.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                            CustomEncounterBar(132089, 18, "准备跳人")
+                            StartCircleTimerBySeconds(3.1, false, targetsPlayer)
+                        else
+                            PlaySoundFile(MEDIA_PATH .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                        end
+                    end)
                     return
                 end
             end                
@@ -2108,7 +2088,19 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local currentMapID = C_Map.GetBestMapForUnit("player") or 0        
                 local actualLevel = UnitLevel(unitTarget)
                 if actualLevel == NEXT_PLAYER_LEVEL and currentMapID == 2098 then
-                    C_VoiceChat.SpeakText(C_TTSSettings.GetVoiceOptionID(0), name, 10, 0, true)
+                    C_Timer.After(0.3, function()
+                        local hasTarget = UnitExists(unitTarget .. "target")
+                        if hasTarget == false and UNIT_TARGET_Triggered[unitTarget] == nil then
+                            PlaySoundFile(MEDIA_PATH .. "DuoKaiTouQian.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                            UNIT_TARGET_Triggered[unitTarget] = true
+                            C_Timer.After(5, function()
+                                UNIT_TARGET_Triggered[unitTarget] = nil
+                            end)
+                        else
+                            PlayAudioSequence(0, "ZhunBeiAOE.ogg", 2.7, "JiNu.ogg")
+                            CustomEncounterBar(537444, 26, "准备AOE")
+                        end
+                    end)
                     return
                 end
             end                
@@ -2198,11 +2190,29 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local unitPowerType = UnitPowerType(unitTarget)    
                 local sex = UnitSex(unitTarget)
                 local isInside = IsIndoors()
+                if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 1 and classification == "elite" and sex == 1 and isInside == true then
+                    C_Timer.After(0.3, function()
+                        if ENCOUNTER_WARNING_Triggered == false then
+                            PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                            return
+                        end
+                    end)  
+                end
+            end
+        end
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
+            local currentMapID = C_Map.GetBestMapForUnit("player") or 0     
+            if currentMapID == 184 then                   
+                local actualLevel = UnitLevel(unitTarget)
+                local classification = UnitClassification(unitTarget)
+                local unitPowerType = UnitPowerType(unitTarget)    
+                local sex = UnitSex(unitTarget)
+                local isInside = IsIndoors()
                 if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 1 and classification == "elite" and sex == 1 and isInside == false then
                     PlayAudioSequence(0.5, "DuoKaiTouQian.ogg")
                     return
                 end
-            end                
+            end
         end
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
             if subZone == "影卫入侵营地" or subZone == "影衛哨站" then    
@@ -2287,12 +2297,15 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local actualLevel = UnitLevel(unitTarget)
                 local unitPowerType = UnitPowerType(unitTarget)    
                 local sex = UnitSex(unitTarget)
+                local targetName = UnitSpellTargetName(unitTarget)
                 if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 3 then
-                    UNIT_CAST_TRACKER[unitTarget] = (UNIT_CAST_TRACKER[unitTarget] or 0) + 1        
-                    if UNIT_CAST_TRACKER[unitTarget] % 2 == 1 then
-                        PlaySoundFile(MEDIA_PATH .. "ZhunBeiYouBuYouBu.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                    if targetName then
+                        if GetPlayerRole() == "HEALER" then
+                            PlayAudioSequence(1.5, "ShuaXiNaiDun.ogg")
+                        end
                     else
-                        PlaySoundFile(MEDIA_PATH .. "MeiYouYinPin.ogg", DiGuaTimelineAudioHelper.audioChannel)                     
+                        PlaySoundFile(MEDIA_PATH .. "ZhunBeiYouBuYouBu.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                        CustomEncounterBar(135834, 23, "准备诱捕")
                     end
                     return
                 end
@@ -2313,6 +2326,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                         end
                     else
                         PlaySoundFile(MEDIA_PATH .. "WuMaFenSan.ogg", DiGuaTimelineAudioHelper.audioChannel)  
+                        CustomEncounterBar(132142, 23, "五码分散")
                     end
                     return
                 end
@@ -2379,7 +2393,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     -- local castInfo = { UnitCastingInfo(unitTarget) }
                     -- local spellName = castInfo[1]
                     -- print(texture)
-                    C_VoiceChat.SpeakText(C_TTSSettings.GetVoiceOptionID(0), texture, 10, 0, true)
+                    C_VoiceChat.SpeakText(FindBestVoice(), texture, 10, 0, true)
                     return
                 end
             end                
@@ -2438,21 +2452,23 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local unitPowerType = UnitPowerType(unitTarget)    
                 local sex = UnitSex(unitTarget)
                 if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 3 and BossKills[3071] == nil then
-                    local targetName = UnitSpellTargetName(unitTarget)
+                    local targetName = UnitSpellTargetName(unitTarget)                    
                     local PlayerRole = GetPlayerRole()
                     if targetName then
                         if PlayerRole == "TANK" or PlayerRole == "DAMAGER" then
                             PlaySoundFile(MEDIA_PATH .. "DaDuanDaGuai.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                            -- CustomEncounterBar(1387354, 17, "打断大怪")
+                            CustomEncounterBar(1387354, 17.5, "打断大怪")
                         end
-                    else
-                        UNIT_CAST_TRACKER[unitTarget] = (UNIT_CAST_TRACKER[unitTarget] or 0) + 1   
-                        if UNIT_CAST_TRACKER[unitTarget] % 2 == 1 then
-                            PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                            CustomEncounterBar(135824, 22.1, "准备AOE")
-                        else
-                            PlaySoundFile(MEDIA_PATH .. "JinZhanDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                        end
+                    else                                              
+                        C_Timer.After(0.2, function()
+                            local hasTarget = UnitExists(unitTarget .. "target")
+                            if hasTarget then
+                                PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                                CustomEncounterBar(135824, 22.1, "准备AOE")
+                            else
+                                PlaySoundFile(MEDIA_PATH .. "JinZhanDaQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                            end
+                        end)   
                     end   
                     return
                 end
@@ -2481,15 +2497,38 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local unitPowerType = UnitPowerType(unitTarget)    
                 local sex = UnitSex(unitTarget)
                 if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 3 and BossKills[3071] == true then -- 奥能金刚库斯托斯
-                    UNIT_CAST_TRACKER[unitTarget] = (UNIT_CAST_TRACKER[unitTarget] or 0) + 1   
-                    if UNIT_CAST_TRACKER[unitTarget] % 2 == 1 then
-                        PlaySoundFile(MEDIA_PATH .. "ZhunBeiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                        CustomEncounterBar(5927616, 19, "准备点名")
-                    else
-                        PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                    end                    
+                    local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")
+                    local PlayerRole = GetPlayerRole()
+                    local targetName = UnitSpellTargetName(unitTarget)
+                    print(targetName)
+                    C_Timer.After(0.9, function()
+                        if UNIT_TARGET_Triggered[unitTarget] == true then
+                            if PlayerRole ~= "TANK" then
+                                PlaySoundFile(MEDIA_PATH .. "ZhunBeiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                                -- CustomEncounterBar(5927616, 18.5, "准备点名")
+                                StartCircleTimerBySeconds(2, false, targetsPlayer)
+                            end
+                        else
+                            PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                        end  
+                    end)                  
                     return
                 end
+                -- if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 3 and BossKills[3071] == true then -- 奥能金刚库斯托斯
+                --     UNIT_CAST_TRACKER[unitTarget] = (UNIT_CAST_TRACKER[unitTarget] or 0) + 1
+                --     local targetsPlayer = PlayerIsSpellTarget(unitTarget, "player")
+                --     local PlayerRole = GetPlayerRole()
+                --     if UNIT_CAST_TRACKER[unitTarget] % 2 == 1 then
+                --         PlaySoundFile(MEDIA_PATH .. "ZhunBeiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                --         CustomEncounterBar(5927616, 19, "准备点名")
+                --         if PlayerRole ~= "TANK" then
+                --             StartCircleTimerBySeconds(3, false, targetsPlayer)
+                --         end                      
+                --     else
+                --         PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                --     end                    
+                --     return
+                -- end
             end                
         end
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) and UnitAffectingCombat(unitTarget) then
@@ -2505,11 +2544,15 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     if targetName then
                         if isTrackingStopped[unitTarget] == false then
                             C_Timer.After(2.9, function()
-                                PlaySoundFile(MEDIA_PATH .. "DanShuaDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                                if PlayerRole == "HEALER" then
+                                    PlaySoundFile(MEDIA_PATH .. "DanShuaDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                                end                                
                             end)  
                         else
-                            PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                            isTrackingStopped[unitTarget] = false
+                            if PlayerRole == "TANK" or PlayerRole == "HEALER" then
+                                PlaySoundFile(MEDIA_PATH .. "TanKeJianCi.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                                isTrackingStopped[unitTarget] = false
+                            end
                         end
                     else
                         isTrackingStopped[unitTarget] = true
@@ -2526,19 +2569,40 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 local sex = UnitSex(unitTarget)   
                 if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 1 and sex == 1 then
                     local targetName = UnitSpellTargetName(unitTarget)
-                    if not targetName then
-                        castStarted = true
-                        C_Timer.After(2.6, function()
-                            -- print("超过2.6") 
-                            if castStarted == true then
-                                -- print("播报") 
+                    local PlayerRole = GetPlayerRole()
+                    if targetName then
+                        -- PlayAudioSequence(0, "TanKeChengShang.ogg")  
+                    else
+                        C_Timer.After(0.5, function()
+                            local hasTarget = UnitExists(unitTarget .. "target")
+                            if hasTarget then
+                                if PlayerRole == "DAMAGER" or PlayerRole == "HEALER" then
+                                    PlayAudioSequence(3, "DuoKaiTouQian.ogg")
+                                end                                                       
+                            else
                                 PlayAudioSequence(0, "ZhunBeiAOE.ogg")
                                 CustomEncounterBar(136185, 33, "准备AOE")
+                                StartCircleTimerBySeconds(4, true)
                             end
-                        end)  
-                        C_Timer.After(5, function()
-                            castStarted = false
-                        end)  
+                        end)                        
+                    end
+                    return
+                end
+            end
+        end
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
+            if subZone == "护核虚无结界" or subZone == "核心防禦空無結界" then      
+                local actualLevel = UnitLevel(unitTarget)
+                local unitPowerType = UnitPowerType(unitTarget) 
+                local sex = UnitSex(unitTarget)   
+                if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 1 and UnitAffectingCombat(unitTarget) then
+                    local targetName = UnitSpellTargetName(unitTarget)
+                    local PlayerRole = GetPlayerRole()
+                    if targetName then
+                        -- PlayAudioSequence(0, "ZhuYiShuaXue.ogg")  
+                    else
+                        PlayAudioSequence(2, "ZhunBeiDuoQiu.ogg", 2.1, "DuoQiu.ogg")  
+                        CustomEncounterBar(136194, 29, "准备躲球")                     
                     end
                     return
                 end
@@ -2621,25 +2685,16 @@ frame:SetScript("OnEvent", function(self, event, ...)
         local alerts = LocationChannelData[subZone]
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
             if subZone == "主峰" or subZone == "巍峨峰" then
-                local currentMapID = C_Map.GetBestMapForUnit("player") or 0        
+                local currentMapID = C_Map.GetBestMapForUnit("player") or 0
                 local actualLevel = UnitLevel(unitTarget)
-                local isInside = IsIndoors() and true or false
-                if isInside == false and actualLevel == NEXT_PLAYER_LEVEL and currentMapID == 601 then
-                    PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                    return
+                local isInside = IsIndoors()
+                if actualLevel == NEXT_PLAYER_LEVEL then
+                    if (not isInside and currentMapID == 601) or (isInside and currentMapID == 602) then
+                        PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                        return
+                    end
                 end
-            end               
-        end
-        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
-            if subZone == "主峰" or subZone == "巍峨峰" then
-                local currentMapID = C_Map.GetBestMapForUnit("player") or 0        
-                local actualLevel = UnitLevel(unitTarget)
-                local isInside = IsIndoors() and true or false          
-                if isInside == true and actualLevel == NEXT_PLAYER_LEVEL and currentMapID == 602 then
-                    PlaySoundFile(MEDIA_PATH .. "ZhuYiDuoQuan.ogg", DiGuaTimelineAudioHelper.audioChannel)
-                    return
-                end
-            end               
+            end
         end
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
             if subZone == "幽灵悲歌" or subZone == "亡靈悲悼" then    
@@ -2708,6 +2763,23 @@ frame:SetScript("OnEvent", function(self, event, ...)
             end                
         end
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
+            local currentMapID = C_Map.GetBestMapForUnit("player") or 0     
+            if currentMapID == 184 then                   
+                local actualLevel = UnitLevel(unitTarget)
+                local classification = UnitClassification(unitTarget)
+                local unitPowerType = UnitPowerType(unitTarget)    
+                local sex = UnitSex(unitTarget)
+                local isInside = IsIndoors()
+                if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 1 and classification == "elite" and sex == 1 and isInside == true then
+                    local PlayerRole = GetPlayerRole()
+                    if PlayerRole == "TANK" or PlayerRole == "DAMAGER" then
+                        PlaySoundFile(MEDIA_PATH .. "BeiMianKuaiDa.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                    end                    
+                    return
+                end
+            end
+        end
+        if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
             local currentMapID = C_Map.GetBestMapForUnit("player") or 0
             if currentMapID == 184 then                   
                 local actualLevel = UnitLevel(unitTarget)
@@ -2752,7 +2824,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     PlaySoundFile(MEDIA_PATH .. "ZhuYiDianMing.ogg", DiGuaTimelineAudioHelper.audioChannel)       
                     return
                 end
-            end                
+            end
         end
         if unitTarget and unitTarget:find("nameplate") and UnitCanAttack("player", unitTarget) then
             if subZone == "护核虚无结界" or subZone == "核心防禦空無結界" then      
@@ -2784,6 +2856,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 if actualLevel == NEXT_PLAYER_LEVEL and unitPowerType == 0 and sex == 1 and unitAffectingCombat == true then
                     if castStarted == false then
                         PlaySoundFile(MEDIA_PATH .. "ZhunBeiAOE.ogg", DiGuaTimelineAudioHelper.audioChannel)
+                        CustomEncounterBar(3528282, 25.5, "准备AOE")
                     else
                         PlayAudioSequence(2.5, "ZhuYiDuoQuan.ogg")
                     end
@@ -2903,7 +2976,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
         --         print("颜色: nil")
         --     end
             
-        --     -- 这里可以直接接你的圆环启动逻辑
+            -- 这里可以直接接你的圆环启动逻辑
         --     if encounterWarningInfo.duration and encounterWarningInfo.duration > 0 then
         --         -- 假设只有 severity 大于某个值才需要检查读条，或者全部检查
         --         StartCircleTimerBySeconds(encounterWarningInfo.duration, true)
@@ -2966,12 +3039,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     if preciseTime >= 47 and preciseTime <= 49 then -- 干扰震荡
                         StartCircleTimerBySeconds(5, true)
                     end
-                    -- if preciseTime >= 427 and preciseTime <= 429 then
-                    --     StartCircleTimerBySeconds(5, true)
-                    -- end
-                    -- if preciseTime >= 444 and preciseTime <= 446 then
-                    --     StartCircleTimerBySeconds(5, true)
-                    -- end
                 end
                 if preciseTime >= 12 and preciseTime <= 14 then -- 虚空斥力
                     StartCircleTimerBySeconds(6)
@@ -3052,6 +3119,16 @@ frame:SetScript("OnEvent", function(self, event, ...)
             StartCircleTimerBySeconds(timerDuration)
             return 
         end
+        if currentEncounterID == 3332 and not encounterWarningInfo.targetName and encounterWarningInfo.severity == 2 then
+            -- print("成功：检测到光痕")
+            C_Timer.After(21, function()
+                if currentEncounterID ~= 0 then
+                    PlayAudioSequence(0, "DaoShu5.ogg", 1, "DaoShu4.ogg", 1, "DaoShu3.ogg", 1, "DaoShu2.ogg", 1, "DaoShu1.ogg", 1, "YiShangJieShu.ogg")
+                -- print("易伤结束")
+                end
+            end)
+            return
+        end
         if startTime ~= 0 or currentEncounterID ~= 0 then 
             return 
         end
@@ -3067,6 +3144,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
             if isInside == true then
                 PlaySoundFile(MEDIA_PATH .. "WuMaFenSanSanErYiZhuYiJiaoXia.ogg", DiGuaTimelineAudioHelper.audioChannel)
                 StartCircleTimerBySeconds(5.1)
+                ENCOUNTER_WARNING_Triggered = true
+                C_Timer.After(1, function()
+                    ENCOUNTER_WARNING_Triggered = false
+                end)  
             end
             return
         end
@@ -3166,9 +3247,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
                 RegisterPrivateAuras()
             end
         end)
-        -- C_Timer.After(2, function()
-        --    print("感谢使用|cFF00FF00[神秘地瓜副本语音插件]|r如果觉得好用，请在|cFFFFA6D5“爱发电”|r平台搜索|cFFFFFF00“神秘地瓜”|r支持我的插件，您的支持就是我最大的动力。")
-        -- end)        
+        C_Timer.After(2, function()
+            print("感谢使用|cFF00FF00[神秘地瓜副本语音插件]|r如果觉得好用，请在|cFFFFA6D5“爱发电”|r平台搜索|cFFFFFF00“神秘地瓜”|r支持我的插件，您的支持就是我最大的动力。")
+        end)        
         -- ApplyTimelineSounds()       
         return
     elseif event == "PLAYER_ENTERING_WORLD" then
@@ -3191,17 +3272,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
                     C_VoiceChat.SpeakText(C_TTSSettings.GetVoiceOptionID(0), "852826", 10, 0, true)
                 end)
             end
-            if instanceID == 2526 then -- 艾杰斯亚学院
-                C_Timer.After(2, function()
-                    MyTTSDict.sampleIndex = 1        
-                    C_VoiceChat.SpeakText(C_TTSSettings.GetVoiceOptionID(0), "阵风", 10, 0, true)
-                end)
-                -- 2秒后读第二个
-                C_Timer.After(4, function()
-                    MyTTSDict.sampleIndex = 2
-                    C_VoiceChat.SpeakText(C_TTSSettings.GetVoiceOptionID(0), "狂怒尖啸", 10, 0, true)
-                end)
-            end  
         end)
         return
     -- elseif event == "LOADING_SCREEN_DISABLED" then
@@ -3242,6 +3312,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
         end
         if unit then
             isTrackingStopped[unit] = nil
+        end
+        if unit then
+            UNIT_TARGET_Triggered[unit] = nil
         end
     end
 
@@ -3416,9 +3489,6 @@ initLoader:SetScript("OnEvent", function(self, event, addonName)
         self:UnregisterEvent("ADDON_LOADED")
     end
 end)
-
--- 定义全局变量 MEDIA_PATH
--- MEDIA_PATH = ""
 
 -- 核心：路径更新逻辑（根据“启用状态”和“联动状态”双重判定）
 local function RefreshMediaPath()
