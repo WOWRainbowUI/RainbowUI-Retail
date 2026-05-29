@@ -846,7 +846,7 @@ local function editBoxUpdateHeader(self, internalCall)
 	prevChatType, prevTellTarget = chatType, tellTarget;
 
 	if (chatType == "WHISPER" or chatType == "BN_WHISPER") then
-		local target = tellTarget;
+		local target = _G.Ambiguate(tellTarget, "none");
 
 		-- handle the whisper interception
 		if (not InChatMessagingLockdown() and target and db and db.enabled) then
@@ -864,10 +864,6 @@ local function editBoxUpdateHeader(self, internalCall)
 					win.widgets.msg_box.setText = 1;
 					win:Pop(true); -- force popup
 					win.widgets.msg_box:SetFocus();
-
-					if (_G.ChatTypeInfo[chatType] and _G.ChatTypeInfo[chatType].sticky) then
-						table.insert(stickyTypes, chatType);
-					end
 
 					if self:GetAttribute("chatType"):find("WHISPER") then
 						self:SetAttribute("chatType", "SAY");
