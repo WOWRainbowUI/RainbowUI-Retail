@@ -88,6 +88,14 @@ local function EnsureEntry(anchor, unit)
 		return nil
 	end
 
+	-- Mind control flips allied unit tokens to the enemy team (UnitIsFriend returns false).
+	-- Don't create or rebuild an entry onto an enemy unit: return the existing entry untouched
+	-- so its icons stay frozen as the ally's, rather than morphing into the enemy's cooldowns.
+	-- Test mode uses fake frames that may not be friends, so skip the guard there.
+	if not testModeActive and not units:IsFriend(unit) then
+		return watchEntries[anchor]
+	end
+
 	-- Skip NPC units (friendly mobs, scenario NPCs, etc.).
 	-- In test mode, party slots may be unoccupied by a real player; skip the check so
 	-- fake test frames are processed normally.
@@ -135,7 +143,7 @@ local function EnsureEntry(anchor, unit)
 		and entry.UnitGuid ~= currentGuid
 
 	if not entry then
-		local size = tonumber(anchorOptions.Icons.Size) or 32
+		local size = moduleUtil:GetIconSize(anchorOptions.Icons, anchor, 32, 100)
 		local maxIcons = tonumber(anchorOptions.Icons.MaxIcons) or 3
 		-- noBorder = true: cooldown icons don't need debuff-style borders
 		local container = iconSlotContainer:New(UIParent, maxIcons, size, (anchorOptions.IconSpacing or db.IconSpacing or 2), "Friendly CDs", true, "Friendly CDs")
@@ -242,7 +250,7 @@ function M:Refresh()
 			entry.Container.Frame:Hide()
 		else
 			entry.IsExcludedSelf = false
-			local size = tonumber(anchorOptions.Icons.Size) or 32
+			local size = moduleUtil:GetIconSize(anchorOptions.Icons, anchor, 32, 100)
 			local maxIcons = tonumber(anchorOptions.Icons.MaxIcons) or 3
 			local rows = math.max(1, tonumber(anchorOptions.Icons.Rows) or 1)
 			entry.Container:SetIconSize(size)

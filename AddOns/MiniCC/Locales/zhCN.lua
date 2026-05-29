@@ -31,6 +31,9 @@ L:RegisterLocale("zhCN", {
 	["Grow"] = "增长",
 	["Icon Padding"] = "图标间距",
 	["Icon Size"] = "图标大小",
+	["Icon Size (%)"] = "图标大小 (%)",
+	["Relative size"] = "相对大小",
+	["Sizes the icon as a percentage of the unit frame's height instead of in pixels."] = "按单位框架高度的百分比调整图标大小，而非使用像素。",
 	["Important"] = "重要",
 	["Max Icons"] = "最大图标",
 	["Notification"] = "通知",
@@ -118,8 +121,10 @@ L:RegisterLocale("zhCN", {
 	["Play a sound when an important spell is pressed."] = "使用重要法术时播放声音。",
 	["Show alert icons in the alerts region."] = "在警报区域显示警报图标。",
 	["Show CC icons when healer is CC'd."] = "治疗者被控制时显示CC图标。",
+	["Show defensive alerts on a separate, movable bar."] = "在单独的可移动条上显示防御警报。",
 	["Show icons"] = "显示图标",
 	["Shows CC and other important spell alerts."] = "显示控制和其他重要法术警报。",
+	["Split bars"] = "拆分条",
 	["Sound"] = "声音",
 	["Plays a sound when an enemy presses an important or defensive spell."] = "当敌人使用重要或防御法术时播放声音。",
 	["Sound Alerts"] = "声音提醒",
@@ -277,6 +282,7 @@ L:RegisterLocale("zhCN", {
 	["Precognition"] = "预知",
 	["So if by chance you happen to have some other 4 second important self buff then it would also show that icon sorry."] = "如果你恰好有其他4秒的重要自身增益效果，该图标也会显示，敬请谅解。",
 	["This isn't precision perfect but it should be close enough."] = "这并非完全精确，但应该足够接近。",
+	["Also tracks Preservation Evoker's Nullifying Shroud (3 second important self buff)."] = "同时追踪保护系唤魔师的「废除之幕」（3秒重要自身增益效果）。",
 
 	-- Other Addons tab
 	["Other Mini Addons"] = "其他Mini插件",
