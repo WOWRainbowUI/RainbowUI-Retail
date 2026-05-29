@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["PRIEST"] = {
   ["discipline"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/discipline/priest/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 908, haste = 914, mastery = 560, versatility = 123 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/discipline/priest/raid/overview/mythic/all-bosses", targets = { crit = 844, haste = 1027, mastery = 503, versatility = 108 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/discipline/priest/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 933, haste = 875, mastery = 587, versatility = 116 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/discipline/priest/raid/overview/mythic/all-bosses", targets = { crit = 870, haste = 1026, mastery = 508, versatility = 106 } },
   },
   ["holy"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/holy/priest/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 929, haste = 746, mastery = 330, versatility = 314 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/holy/priest/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 925, haste = 768, mastery = 328, versatility = 361 } },
     ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/holy/priest/raid/overview/mythic/all-bosses", targets = { crit = 1075, haste = 550, mastery = 626, versatility = 204 } },
   },
   ["shadow"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/shadow/priest/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 535, haste = 1005, mastery = 902, versatility = 85 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/shadow/priest/raid/overview/mythic/all-bosses", targets = { crit = 497, haste = 975, mastery = 973, versatility = 82 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/shadow/priest/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 553, haste = 1022, mastery = 893, versatility = 82 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/shadow/priest/raid/overview/mythic/all-bosses", targets = { crit = 520, haste = 983, mastery = 971, versatility = 80 } },
   },
 }

@@ -751,41 +751,41 @@ end
 local sideTabs = {}
 local bottomTabs = {}
 
-local guideTab = CreateSideTab(panel, "Interface\\Icons\\INV_Misc_Book_11", L["Guide"], "guide")
+local guideTab = CreateSideTab(panel, "Interface\\Icons\\INV_Misc_Book_11", L["tab.guide"], "guide")
 guideTab:SetPoint("TOPLEFT", panel, "TOPRIGHT", -1, -40)
 sideTabs[#sideTabs + 1] = guideTab
 
-local statsTab = CreateSideTab(panel, "Interface\\Icons\\INV_Misc_Note_01", L["Stat Targets"], "stats")
+local statsTab = CreateSideTab(panel, "Interface\\Icons\\INV_Misc_Note_01", L["section.stat_targets"], "stats")
 statsTab:SetPoint("TOPLEFT", guideTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = statsTab
 
-local talentsTab = CreateSideTab(panel, "Interface\\Icons\\INV_Inscription_TalentTome01", L["Talents"], "talents")
+local talentsTab = CreateSideTab(panel, "Interface\\Icons\\INV_Inscription_TalentTome01", L["section.talents"], "talents")
 talentsTab:SetPoint("TOPLEFT", statsTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = talentsTab
 
-local bisTab = CreateSideTab(panel, 132349, L["BiS Gear"], "bis") -- INV_Chest_Chain_15 (armor)
+local bisTab = CreateSideTab(panel, 132349, L["tab.bis_gear"], "bis") -- INV_Chest_Chain_15 (armor)
 bisTab:SetPoint("TOPLEFT", talentsTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = bisTab
 
-local trinketsTab = CreateSideTab(panel, 135934, L["Trinkets"], "trinkets") -- INV_Jewelry_Talisman_07
+local trinketsTab = CreateSideTab(panel, 135934, L["tab.trinkets"], "trinkets") -- INV_Jewelry_Talisman_07
 trinketsTab:SetPoint("TOPLEFT", bisTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = trinketsTab
 
-local enhancementsTab = CreateSideTab(panel, 136244, L["Enhancements"], "enhancements") -- Trade_Engraving
+local enhancementsTab = CreateSideTab(panel, 136244, L["tab.enhancements"], "enhancements") -- Trade_Engraving
 enhancementsTab:SetPoint("TOPLEFT", trinketsTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = enhancementsTab
 
-local craftsTab = CreateSideTab(panel, 136241, L["Crafts"], "crafts") -- Trade_BlackSmithing
+local craftsTab = CreateSideTab(panel, 136241, L["tab.crafts"], "crafts") -- Trade_BlackSmithing
 craftsTab:SetPoint("TOPLEFT", enhancementsTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = craftsTab
 
 local supporters = {}
-supporters.tab = CreateSideTab(panel, "Interface\\Icons\\Spell_Holy_PrayerOfHealing", L["Supporters"], "supporters") -- exact same texture path as the Patreon button
+supporters.tab = CreateSideTab(panel, "Interface\\Icons\\Spell_Holy_PrayerOfHealing", L["about.supporters"], "supporters") -- exact same texture path as the Patreon button
 supporters.tab.noDesaturate = true -- keep this one in color so it visually matches the Patreon button
 supporters.tab.icon:SetDesaturated(false)
 bottomTabs[#bottomTabs + 1] = supporters.tab
 
-local aboutTab = CreateSideTab(panel, "Interface\\Icons\\Achievement_Faction_Lorewalkers", L["About"], "about")
+local aboutTab = CreateSideTab(panel, "Interface\\Icons\\Achievement_Faction_Lorewalkers", L["tab.about"], "about")
 bottomTabs[#bottomTabs + 1] = aboutTab
 
 local allTabs = {}
@@ -1028,10 +1028,10 @@ tabTitleText:SetTextColor(1, 0.82, 0)
 tabTitle:Hide()
 
 local TAB_TITLE_LABELS = {
-    guide        = L["Guide"],
-    stats        = L["Stat Targets"],
-    talents      = L["Talents"],
-    enhancements = L["Enhancements"],
+    guide        = L["tab.guide"],
+    stats        = L["section.stat_targets"],
+    talents      = L["section.talents"],
+    enhancements = L["tab.enhancements"],
 }
 
 -- Stat priority info icon on Guide title row (right-aligned)
@@ -1044,7 +1044,7 @@ statInfoIcon:SetAtlas("QuestTurnin")
 statInfoIcon:SetVertexColor(0.5, 0.5, 0.5)
 statInfoBtn:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText(L["Stat Priority on Tooltips"], 1, 0.82, 0)
+    GameTooltip:SetText(L["settings.label.stat_priority_on_tooltips"], 1, 0.82, 0)
     GameTooltip:AddLine(" ")
     GameTooltip:AddLine("Item tooltips show the stat priority rank (e.g. #1, #2, #3) next to each stat name based on the currently selected hero talent and context.", 1, 1, 1, true)
     GameTooltip:Show()
@@ -1089,7 +1089,7 @@ statTargetsInfoBtn:SetScript("OnClick", function(self)
 end)
 
 local statSection = CreateFrame("Frame", nil, contentFrame)
-local statHeader = CreateSectionHeader(statSection, L["Stat Priority"])
+local statHeader = CreateSectionHeader(statSection, L["section.stat_priority"])
 
 local statContent = CreateFrame("Frame", nil, statSection)
 statContent:SetPoint("TOPLEFT", statHeader, "BOTTOMLEFT", 0, 0)
@@ -1313,7 +1313,7 @@ statTargets.combatFallback:Hide()
 -------------------------------------------------------------------------------
 
 local talentSection = CreateFrame("Frame", nil, contentFrame)
-local talentHeader = CreateSectionHeader(talentSection, L["Talents"])
+local talentHeader = CreateSectionHeader(talentSection, L["section.talents"])
 
 local talentContent = CreateFrame("Frame", nil, talentSection)
 talentContent:SetPoint("TOPLEFT", talentHeader, "BOTTOMLEFT", 0, 0)
@@ -1566,7 +1566,7 @@ end
 
 local allTalentFallback = allTalentContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 allTalentFallback:SetTextColor(0.5, 0.5, 0.5)
-allTalentFallback:SetText(L["No talent builds available."])
+allTalentFallback:SetText(L["loadout_dock.no_talent_builds"])
 allTalentFallback:Hide()
 
 -- Source dropdown (Wowhead | Archon). Persisted via the same per-spec
@@ -1609,7 +1609,7 @@ end
 local function RenderAllTalentsWowhead(specData, yPos)
     local talents = specData.talents
     if not talents or #talents == 0 then
-        allTalentFallback:SetText(L["No talent builds available."])
+        allTalentFallback:SetText(L["loadout_dock.no_talent_builds"])
         allTalentFallback:ClearAllPoints()
         allTalentFallback:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
         allTalentFallback:Show()
@@ -1686,7 +1686,7 @@ end
 local function RenderAllTalentsArchon(class, spec, yPos)
     local archon = ns.GetArchonSpecData and ns.GetArchonSpecData(class, spec) or nil
     if not archon or not archon.contexts or not next(archon.contexts) then
-        allTalentFallback:SetText(L["No Archon builds available."] or "No Archon builds available.")
+        allTalentFallback:SetText(L["loadout_dock.no_archon_builds"] or "No Archon builds available.")
         allTalentFallback:ClearAllPoints()
         allTalentFallback:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
         allTalentFallback:Show()
@@ -1816,7 +1816,7 @@ local function RenderAllTalentsPvP(class, spec, yPos)
         and ns.GetPvPBracketsWithData(class, spec)
         or {}
     if not brackets or #brackets == 0 then
-        allTalentFallback:SetText(L["No PvP builds available."] or "No PvP builds available.")
+        allTalentFallback:SetText(L["pvp.no_builds"] or "No PvP builds available.")
         allTalentFallback:ClearAllPoints()
         allTalentFallback:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
         allTalentFallback:Show()
@@ -1888,8 +1888,8 @@ local function RenderAllTalentsPvP(class, spec, yPos)
         yPos = yPos + 4
     end
 
-    emitSection(L["Arena"] or "Arena", ARENA_GROUP)
-    emitSection(L["Battleground"] or "Battleground", BG_GROUP)
+    emitSection(L["pvp.arena"] or "Arena", ARENA_GROUP)
+    emitSection(L["pvp.battleground"] or "Battleground", BG_GROUP)
     return yPos
 end
 
@@ -1941,7 +1941,7 @@ end -- talents tab construction block
 -------------------------------------------------------------------------------
 
 local rotationSection = CreateFrame("Frame", nil, contentFrame)
-local rotationHeader = CreateSectionHeader(rotationSection, L["Rotation"])
+local rotationHeader = CreateSectionHeader(rotationSection, L["section.rotation"])
 
 local rotationContent = CreateFrame("Frame", nil, rotationSection)
 rotationContent:SetPoint("TOPLEFT", rotationHeader, "BOTTOMLEFT", 0, 0)
@@ -2060,9 +2060,9 @@ do
     local function FormatRelativeDate(iso)
         local days = DaysSinceISO(iso)
         if not days then return iso or "" end
-        if days == 0 then return L["Today"] end
-        if days == 1 then return L["Yesterday"] end
-        if days <= 6 then return L["%d days ago"]:format(days) end
+        if days == 0 then return L["footer.today"] end
+        if days == 1 then return L["footer.yesterday"] end
+        if days <= 6 then return L["footer.days_ago"]:format(days) end
         return FormatAbsoluteDate(iso)
     end
 
@@ -2093,8 +2093,8 @@ do
         local iso = ClassCodex_LastScrape
         if type(iso) ~= "string" or iso == "" then return end
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:SetText(L["Last refreshed: %s"]:format(FormatAbsoluteDate(iso)), 1, 0.82, 0)
-        GameTooltip:AddLine(L["Data refreshes daily. Update Class Codex to get the latest."], 1, 1, 1, true)
+        GameTooltip:SetText(L["footer.last_refreshed"]:format(FormatAbsoluteDate(iso)), 1, 0.82, 0)
+        GameTooltip:AddLine(L["footer.data_refresh_hint"], 1, 1, 1, true)
         GameTooltip:Show()
     end)
     footerDateButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -2112,7 +2112,7 @@ supporters.title:SetHeight(SECTION_HEADER_HEIGHT)
 do
     local title = supporters.title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("LEFT", 2, 0)
-    title:SetText(L["Supporters"])
+    title:SetText(L["about.supporters"])
     title:SetTextColor(1, 0.82, 0)
 end
 supporters.title:Hide()
@@ -2142,7 +2142,7 @@ do
     desc:SetJustifyH("LEFT")
     desc:SetWordWrap(true)
     desc:SetTextColor(0.7, 0.7, 0.7)
-    desc:SetText(L["Class Codex is free and open to everyone. Supporters on Patreon help keep the data fresh and the project moving forward."])
+    desc:SetText(L["about.free_message"])
 
     -- supporters.lastChild is the bottom-most rendered element, so the
     -- layout in the supporters tab can size the content frame correctly.
@@ -2150,7 +2150,7 @@ do
         supporters.empty = supporters.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
         supporters.empty:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -16)
         supporters.empty:SetTextColor(0.5, 0.5, 0.5)
-        supporters.empty:SetText(L["Be the first to support Class Codex!"])
+        supporters.empty:SetText(L["about.be_first_supporter"])
         supporters.lastChild = supporters.empty
     else
         local heart = "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:14:14:0:0|t"
@@ -2194,7 +2194,7 @@ local aboutTabTitle = CreateFrame("Frame", nil, contentFrame)
 aboutTabTitle:SetHeight(SECTION_HEADER_HEIGHT)
 local aboutTabTitleText = aboutTabTitle:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 aboutTabTitleText:SetPoint("LEFT", 2, 0)
-aboutTabTitleText:SetText(L["About Class Codex v%s"]:format(addonVersion))
+aboutTabTitleText:SetText(L["about.title"]:format(addonVersion))
 aboutTabTitleText:SetTextColor(1, 0.82, 0)
 aboutTabTitle:Hide()
 
@@ -2210,7 +2210,7 @@ aboutDesc:SetWidth(ABOUT_TEXT_WIDTH)
 aboutDesc:SetJustifyH("LEFT")
 aboutDesc:SetWordWrap(true)
 aboutDesc:SetNonSpaceWrap(true)
-aboutDesc:SetText(L["Stat priorities, talent builds, rotation guides, and gearing recommendations for your current spec.\n\nRecommendations are general guidelines. For precise results, sim your character with Raidbots."])
+aboutDesc:SetText(L["about.description"])
 
 -- Shared copy box for URLs (used by author + data links)
 -- About-tab links share the same copyPopup as the talent rows; no
@@ -2251,7 +2251,7 @@ aboutSlash:SetPoint("TOP", aboutDesc, "BOTTOM", 0, -10)
 aboutSlash:SetWidth(ABOUT_TEXT_WIDTH)
 aboutSlash:SetJustifyH("LEFT")
 aboutSlash:SetTextColor(0.5, 0.5, 0.5)
-aboutSlash:SetText(L["Type /cc help for a list of commands."])
+aboutSlash:SetText(L["about.help_hint"])
 
 
 -- Settings button — dropdown style, full width, anchored to bottom of panel area
@@ -2268,7 +2268,7 @@ aboutSettingsBtn:SetBackdropColor(0.15, 0.15, 0.15, 0.9)
 aboutSettingsBtn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
 local aboutSettingsText = aboutSettingsBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 aboutSettingsText:SetPoint("CENTER", 0, 0)
-aboutSettingsText:SetText("|TInterface\\Buttons\\UI-OptionsButton:12:12:0:0|t  " .. L["Open Settings"])
+aboutSettingsText:SetText("|TInterface\\Buttons\\UI-OptionsButton:12:12:0:0|t  " .. L["compendium.open_settings"])
 aboutSettingsText:SetTextColor(0.8, 0.8, 0.8)
 aboutSettingsBtn:SetScript("OnEnter", function(self)
     self:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
@@ -2298,7 +2298,7 @@ aboutCompendiumBtn:SetBackdropColor(0.15, 0.15, 0.15, 0.9)
 aboutCompendiumBtn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
 local aboutCompendiumText = aboutCompendiumBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 aboutCompendiumText:SetPoint("CENTER", 0, 0)
-aboutCompendiumText:SetText("|TInterface\\Icons\\INV_Misc_Book_09:12:12:0:0|t  " .. L["Open Compendium"])
+aboutCompendiumText:SetText("|TInterface\\Icons\\INV_Misc_Book_09:12:12:0:0|t  " .. L["compendium.open_compendium"])
 aboutCompendiumText:SetTextColor(0.8, 0.8, 0.8)
 aboutCompendiumBtn:SetScript("OnEnter", function(self)
     self:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
@@ -2352,7 +2352,7 @@ local aboutDiscordBtn = CreateAboutButton("|TInterface\\ChatFrame\\UI-ChatIcon-C
 SetCopyOnClick(aboutDiscordBtn, "https://discord.gg/WY7HQaVkRw")
 
 -- Patreon button (coral tint) — shared style, used on both About and Supporters tabs
-local patreonLabel = "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:12:12:0:0|t  " .. L["Support on Patreon"]
+local patreonLabel = "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:12:12:0:0|t  " .. L["about.support_patreon"]
 local aboutPatreonBtn = CreateAboutButton(patreonLabel, 0.6, 0.25, 0.20, 0.98, 0.41, 0.33)
 SetCopyOnClick(aboutPatreonBtn, "https://www.patreon.com/classcodex")
 
@@ -2514,7 +2514,7 @@ local function RenderStatTargets(classToken, specKey)
         for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
         UpdateStatTargetsInfoIcon(nil)
         local yOffset = (#availableContexts > 1) and -28 or -4
-        statTargets.pvpFallback:SetText(L["No PvP stat targets for this spec yet."]
+        statTargets.pvpFallback:SetText(L["pvp.no_stat_targets"]
             or "No PvP stat targets for this spec yet.")
         statTargets.pvpFallback:ClearAllPoints()
         statTargets.pvpFallback:SetPoint("TOPLEFT", statTargets.content, "TOPLEFT", 4, yOffset)
@@ -2540,7 +2540,7 @@ local function RenderStatTargets(classToken, specKey)
         UpdateStatTargetsInfoIcon(snapshot)
         local yOffset = (#availableContexts > 1) and -28 or -4
         statTargets.combatFallback:SetText(
-            L["Stat targets can't be computed in combat — values update after combat ends."]
+            L["stat_targets.combat_warning"]
             or "Stat targets can't be computed in combat — values update after combat ends.")
         statTargets.combatFallback:ClearAllPoints()
         statTargets.combatFallback:SetPoint("TOPLEFT", statTargets.content, "TOPLEFT", 4, yOffset)
@@ -2813,7 +2813,7 @@ function ns:UpdatePanel()
     talentFallback:Hide()
 
     if not specData.talents or #specData.talents == 0 then
-        talentFallbackText:SetText(L["No builds available — check Wowhead for details."])
+        talentFallbackText:SetText(L["empty.no_builds_details"])
         talentFallback:ClearAllPoints()
         talentFallback:SetPoint("TOPLEFT", talentContent, "TOPLEFT", 0, 0)
         talentFallback:SetPoint("RIGHT", talentContent, "RIGHT", 0, 0)
@@ -2884,7 +2884,7 @@ function ns:UpdatePanel()
             end
             talentSection:Show()
         else
-            talentFallbackText:SetText(L["No builds for %s — check Wowhead."]:format(currentHeroTalent))
+            talentFallbackText:SetText(L["empty.no_builds_for"]:format(currentHeroTalent))
             talentFallback:ClearAllPoints()
             talentFallback:SetPoint("TOPLEFT", talentContent, "TOPLEFT", 0, 0)
             talentFallback:SetPoint("RIGHT", talentContent, "RIGHT", 0, 0)
@@ -2960,7 +2960,7 @@ function ns:UpdatePanel()
         rotationSection:Show()
     elseif specData.rotation and #specData.rotation > 0 then
         local yOffset = showRotCtx and -30 or 0
-        rotationFallbackText:SetText(L["No rotation for %s — check Wowhead for details."]:format(currentHeroTalent))
+        rotationFallbackText:SetText(L["empty.no_rotation_for_details"]:format(currentHeroTalent))
         rotationFallback:ClearAllPoints()
         rotationFallback:SetPoint("TOPLEFT", rotationContent, "TOPLEFT", 0, yOffset)
         rotationFallback:SetPoint("RIGHT", rotationContent, "RIGHT", 0, 0)
@@ -3536,9 +3536,9 @@ pinBtn:SetScript("OnClick", function(_, button)
         -- baked into each checkbox's get/set closures.
         local prefix = isFloating and "float" or "dock"
         local options = {
-            { key = prefix .. "ShowStats",    label = L["Stat Priority"] },
-            { key = prefix .. "ShowTalents",  label = L["Talents"] },
-            { key = prefix .. "ShowRotation", label = L["Rotation"] },
+            { key = prefix .. "ShowStats",    label = L["section.stat_priority"] },
+            { key = prefix .. "ShowTalents",  label = L["section.talents"] },
+            { key = prefix .. "ShowRotation", label = L["section.rotation"] },
         }
         local gearingOpts = isFloating and ns.gearingFloatOptions or ns.gearingDockOptions
         if gearingOpts then
@@ -3654,11 +3654,11 @@ local function SetupWidgetButton()
         widgetIcon:SetVertexColor(1, 1, 1)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:AddLine("Class Codex", 1, 1, 1)
-        GameTooltip:AddLine(L["Click to toggle panel"], 0.7, 0.7, 0.7)
+        GameTooltip:AddLine(L["character_pane.click_to_toggle"], 0.7, 0.7, 0.7)
         if IsLocked() then
-            GameTooltip:AddLine(L["Position locked - unlock in Settings"], 0.55, 0.55, 0.55)
+            GameTooltip:AddLine(L["character_pane.position_locked"], 0.55, 0.55, 0.55)
         else
-            GameTooltip:AddLine(L["Shift-drag to move - Shift+Right-click to reset"], 0.45, 0.75, 0.45)
+            GameTooltip:AddLine(L["character_pane.shift_drag_hint"], 0.45, 0.75, 0.45)
         end
         GameTooltip:Show()
     end)
@@ -4213,7 +4213,7 @@ local function OnTooltipItem(tooltip, tooltipData)
             local suppress = (mode == 2) and not heroDiffers
             if not suppress then
                 tooltip:AddLine(string.format("|cff808080%s: %s · %s|r",
-                    L["Stat priority"], cachedRanksHero or "All", cachedRanksCtx or "General"))
+                    L["tooltip.stat_priority_footer"], cachedRanksHero or "All", cachedRanksCtx or "General"))
             end
         end
     end
@@ -4229,331 +4229,25 @@ end
 
 
 -------------------------------------------------------------------------------
--- Settings Panel (WoW Settings API)
+-- Settings panel helpers
+--
+-- ns.RegisterSettings (defined in Settings.lua) calls these to refresh the
+-- panel after a setting changes, instead of capturing panel/isFloating
+-- directly from this file's scope.
 -------------------------------------------------------------------------------
 
-local settingsCategory
-local function RegisterSettings()
-    local ok, err = pcall(function()
-        local category, layout = Settings.RegisterVerticalLayoutCategory("Class Codex")
-
-        local function AddHeader(label)
-            local init = CreateSettingsListSectionHeaderInitializer(label)
-            layout:AddInitializer(init)
-        end
-
-        local function AddCheckbox(variable, name, tooltip, defaultValue, onChange)
-            local setting = Settings.RegisterAddOnSetting(category, variable, variable, ClassCodexDB, type(defaultValue), name, defaultValue)
-            if onChange then
-                Settings.SetOnValueChangedCallback(variable, function()
-                    onChange(ClassCodexDB[variable])
-                end)
-            end
-            Settings.CreateCheckbox(category, setting, tooltip)
-        end
-
-        local function AddDropdown(variable, name, tooltip, defaultValue, options, onChange)
-            local setting = Settings.RegisterAddOnSetting(category, variable, variable, ClassCodexDB, "number", name, defaultValue)
-            if onChange then
-                Settings.SetOnValueChangedCallback(variable, function()
-                    onChange(ClassCodexDB[variable])
-                end)
-            end
-            Settings.CreateDropdown(category, setting, function()
-                local container = Settings.CreateControlTextContainer()
-                for _, opt in ipairs(options) do container:Add(opt.value, opt.label) end
-                return container:GetData()
-            end, tooltip)
-        end
-
-        local function InvalidateTooltipCache() wipe(tooltipCache); tooltipCacheClassOnly = nil end
-
-        -- 1. General
-        AddHeader(L["General"])
-        AddCheckbox("showMinimapButton", L["Minimap Button"],
-            L["Show a minimap button for quick access. Left-click opens the Compendium, right-click opens Settings."], true,
-            function(val)
-                if ns.LDBIcon then
-                    ClassCodexDB.minimap.hide = not val
-                    if val then
-                        ns.LDBIcon:Show("ClassCodex")
-                    else
-                        ns.LDBIcon:Hide("ClassCodex")
-                    end
-                end
-            end)
-
-        AddCheckbox("showLoginMessage", L["Login Message"],
-            L["Print the 'Class Codex loaded — type /cc to open' message to chat when you log in or reload."], false, nil)
-
-        -- 2. Character Pane Button. Reset is available in-game via Shift+Right-click
-        -- on the gear icon, so we don't add a Settings reset button (the
-        -- CreateSettingsButtonInitializer signature varies across client
-        -- versions and was tripping a Blizzard assertion).
-        local sectionOk, sectionErr = pcall(function()
-            AddHeader(L["Character Pane Button"])
-            AddCheckbox("widgetLocked", L["Lock Button Position"],
-                L["Prevent the gear button from being moved by Shift-drag on the character pane."], false,
-                function() if ns.RefreshWidgetTooltip then ns.RefreshWidgetTooltip() end end)
-
-            local function AddOffsetSlider(variable, label, tooltip, defaultValue)
-                local setting = Settings.RegisterAddOnSetting(category, variable, variable, ClassCodexDB,
-                    Settings.VarType.Number, label, defaultValue)
-                Settings.SetOnValueChangedCallback(variable, function()
-                    if ns.ApplyWidgetPosition then ns.ApplyWidgetPosition() end
-                end)
-                local sliderOptions = Settings.CreateSliderOptions(WIDGET_OFFSET_MIN, WIDGET_OFFSET_MAX, 1)
-                sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(value)
-                    return tostring(value)
-                end)
-                Settings.CreateSlider(category, setting, sliderOptions, tooltip)
-            end
-
-            AddOffsetSlider("widgetOffsetX", L["Horizontal Offset"],
-                L["Horizontal offset (pixels) from the character pane top-right corner."], WIDGET_DEFAULT_OFFSET_X)
-            AddOffsetSlider("widgetOffsetY", L["Vertical Offset"],
-                L["Vertical offset (pixels) from the character pane top-right corner."], WIDGET_DEFAULT_OFFSET_Y)
-        end)
-        if not sectionOk then
-            print("|cffff0000Class Codex:|r Character Pane Button section failed: " .. tostring(sectionErr))
-        end
-
-        -- 3. Tooltips
-        AddHeader(L["Tooltips"])
-        AddCheckbox("showTooltipBadges", L["Stat Priority Ranks"],
-            L["Show stat priority rank (#1, #2, #3) next to stat names on item tooltips."], true, nil)
-
-        AddDropdown("tooltipFooterMode", L["Stat Priority Source Line"],
-            L["When to show a footer line on item tooltips noting which hero / context the displayed ranks come from. 'Only when different' surfaces the line only when the resolved hero diverges from the one you're currently playing — useful as a quiet reminder that a pin or panel selection has drifted from in-game state."],
-            0,
-            {
-                { value = 0, label = L["Off"] },
-                { value = 1, label = L["Always"] },
-                { value = 2, label = L["Only when different"] },
-            }, nil)
-
-        AddCheckbox("showWowheadBisTooltip", L["Wowhead BiS on Tooltips"],
-            L["Show which specs an item is Best in Slot for (Wowhead) on item tooltips."], true, InvalidateTooltipCache)
-
-        AddCheckbox("showIcyVeinsBisTooltip", L["Icy Veins BiS on Tooltips"],
-            L["Show which specs an item is Best in Slot for (Icy Veins) on item tooltips."], true, InvalidateTooltipCache)
-
-        AddCheckbox("showTrinketTooltip", L["Trinket Tier on Tooltips"],
-            L["Show trinket tier rankings and the tier badge on item tooltips."], true, InvalidateTooltipCache)
-
-        AddCheckbox("bisCurrentClassOnly", L["Current Class Only"],
-            L["Only show BiS and trinket tier info for your current class on tooltips."], false, InvalidateTooltipCache)
-
-        do
-            local variable = "tooltipSourceStyle"
-            local defaultValue = 1
-            local function GetOptions()
-                local container = Settings.CreateControlTextContainer()
-                container:Add(1, L["Icons"])
-                container:Add(2, L["Labels"])
-                container:Add(3, L["Both"])
-                return container:GetData()
-            end
-            local setting = Settings.RegisterAddOnSetting(category, variable, variable, ClassCodexDB, type(defaultValue), L["Source Display"], defaultValue)
-            Settings.SetOnValueChangedCallback(variable, function() InvalidateTooltipCache() end)
-            Settings.CreateDropdown(category, setting, GetOptions, L["How to display data sources (Wowhead, Icy Veins) on item tooltips."])
-        end
-
-        -- 4. Loadout Dock
-        AddHeader(L["Loadout Dock"])
-        AddCheckbox("dockLoadoutEnabled", L["Show Loadout Dock"],
-            L["Floating widget that shows the active talent loadout name. Click to switch to any saved Blizzard loadout or Class Codex recommendation."], false,
-            function() if ns.UpdateLoadoutDockVisibility then ns.UpdateLoadoutDockVisibility() end end)
-        AddCheckbox("dockLoadoutHideInCombat", L["Hide in combat"],
-            L["Hide the loadout dock entirely during combat. Talent swaps fail in combat anyway, so this just removes the visual noise."], true,
-            function() if ns.UpdateLoadoutDockVisibility then ns.UpdateLoadoutDockVisibility() end end)
-        AddCheckbox("dockLoadoutLocked", L["Lock dock position"],
-            L["Prevent the loadout dock from being dragged. Toggle off to reposition, then re-enable to keep it from moving accidentally."], false, nil)
-        AddCheckbox("dockLoadoutShowSpecIcon", L["Show spec icon"],
-            L["Show your active specialization's icon next to the loadout name."], true,
-            function() if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end end)
-        AddCheckbox("dockLoadoutShowHeroIcon", L["Show hero talent icon"],
-            L["Show your active hero talent's icon next to the loadout name."], true,
-            function() if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end end)
-        AddCheckbox("dockLoadoutShowSaved", L["Show Saved Loadouts in menu"],
-            L["Include your Blizzard saved talent loadouts in the dock's click menu."], true, nil)
-        AddCheckbox("dockLoadoutShowWowhead", L["Show Wowhead recommendations in menu"],
-            L["Include the Wowhead-sourced recommended builds in the dock's click menu."], true, nil)
-        AddCheckbox("dockLoadoutShowArchon", L["Show Archon recommendations in menu"],
-            L["Include the Archon per-encounter recommended builds in the dock's click menu."], true, nil)
-
-        do
-            local setting = Settings.RegisterAddOnSetting(category, "dockLoadoutOpacity", "dockLoadoutOpacity", ClassCodexDB,
-                Settings.VarType.Number, L["Background opacity"], 95)
-            Settings.SetOnValueChangedCallback("dockLoadoutOpacity", function()
-                if ns.ApplyLoadoutDockOpacity then ns.ApplyLoadoutDockOpacity() end
-            end)
-            local sliderOptions = Settings.CreateSliderOptions(0, 100, 5)
-            sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(v) return v .. "%" end)
-            Settings.CreateSlider(category, setting, sliderOptions,
-                L["Translucency of the loadout dock's background plate. 0 = invisible, 100 = solid."])
-        end
-
-        AddCheckbox("dockLoadoutAutoWidth", L["Auto-fit width"],
-            L["Resize the dock automatically to fit the active loadout name. Overrides the Width slider when enabled."], false,
-            function() if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end end)
-
-        do
-            local setting = Settings.RegisterAddOnSetting(category, "dockLoadoutWidth", "dockLoadoutWidth", ClassCodexDB,
-                Settings.VarType.Number, L["Width"], 200)
-            Settings.SetOnValueChangedCallback("dockLoadoutWidth", function()
-                if ns.ApplyLoadoutDockWidth then ns.ApplyLoadoutDockWidth() end
-            end)
-            local sliderOptions = Settings.CreateSliderOptions(120, 400, 10)
-            sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(v) return v .. "px" end)
-            Settings.CreateSlider(category, setting, sliderOptions,
-                L["Width of the loadout dock in pixels. Ignored when Auto-fit width is on."])
-        end
-
-        do
-            local setting = Settings.RegisterAddOnSetting(category, "dockLoadoutScale", "dockLoadoutScale", ClassCodexDB,
-                Settings.VarType.Number, L["Scale"], 100)
-            Settings.SetOnValueChangedCallback("dockLoadoutScale", function()
-                if ns.ApplyLoadoutDockScale then ns.ApplyLoadoutDockScale() end
-            end)
-            local sliderOptions = Settings.CreateSliderOptions(50, 200, 5)
-            sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(v) return v .. "%" end)
-            Settings.CreateSlider(category, setting, sliderOptions,
-                L["Scale of the loadout dock. Grows the font, icons, and height proportionally."])
-        end
-
-        do
-            local setting = Settings.RegisterAddOnSetting(category, "dockLoadoutAlignment", "dockLoadoutAlignment", ClassCodexDB,
-                Settings.VarType.String, L["Content alignment"], "LEFT")
-            Settings.SetOnValueChangedCallback("dockLoadoutAlignment", function()
-                if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end
-            end)
-            Settings.CreateDropdown(category, setting, function()
-                local container = Settings.CreateControlTextContainer()
-                container:Add("LEFT", L["Left"])
-                container:Add("CENTER", L["Center"])
-                container:Add("RIGHT", L["Right"])
-                return container:GetData()
-            end, L["Where the dock's icons + label sit when the dock is wider than the content."])
-        end
-
-        AddCheckbox("dockLoadoutShowBorder", L["Show border"],
-            L["Draw a thin border around the loadout dock. Off for a borderless minimal look."], true,
-            function() if ns.ApplyLoadoutDockBorder then ns.ApplyLoadoutDockBorder() end end)
-
-        -- 5. Talent Pane integration
-        AddHeader(L["Talent Pane"])
-        AddCheckbox("talentPaneEnabled", L["Show Class Codex on talent frame"],
-            L["Show the Class Codex build picker on the Blizzard talent frame. Disable to hide it entirely."], true,
-            function(val)
-                if ns.SetTalentPaneEnabled then ns.SetTalentPaneEnabled(val) end
-            end)
-
-        -- 5. Panel (settings shared between docked and floating modes)
-        AddHeader(L["Panel"])
-        AddCheckbox("highlightOwnedGear", L["Highlight Owned Gear"],
-            L["Tint BiS and Trinket rows with a subtle green background when you already own the item (bags, bank, reagent bank, warbank, or equipped). Applies to both the docked and floating panels."], true,
-            function() if panel:IsShown() then ns:UpdatePanel() end end)
-
-        -- 6. Docked Panel
-        AddHeader(L["Docked Panel"])
-        AddCheckbox("dockShowStats", L["Show Stat Priority"],
-            L["Show the Stat Priority section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowStatTargets", L["Show Stat Targets"],
-            L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowTalents", L["Show Talents"],
-            L["Show the Talents section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowRotation", L["Show Rotation"],
-            L["Show the Rotation section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowEnchants", L["Show Enchants"],
-            L["Show the Enchants section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowGems", L["Show Gems"],
-            L["Show the Gems section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowConsumables", L["Show Consumables"],
-            L["Show the Consumables section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowTrinkets", L["Show Trinkets"],
-            L["Show the Trinkets section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowCrafts", L["Show Crafts"],
-            L["Show the Crafts section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("dockShowBisGear", L["Show BiS Gear"],
-            L["Show the BiS Gear section when the panel is docked."], true,
-            function() if panel:IsShown() and not isFloating then ns:UpdatePanel() end end)
-
-        -- 6. Floating Panel
-        AddHeader(L["Floating Panel"])
-        AddCheckbox("floatShowStats", L["Show Stat Priority"],
-            L["Show the Stat Priority section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowStatTargets", L["Show Stat Targets"],
-            L["Show the Stat Targets section (live bars vs Archon empirical targets) on the Stats tab when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowTalents", L["Show Talents"],
-            L["Show the Talents section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowRotation", L["Show Rotation"],
-            L["Show the Rotation section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowEnchants", L["Show Enchants"],
-            L["Show the Enchants section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowGems", L["Show Gems"],
-            L["Show the Gems section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowConsumables", L["Show Consumables"],
-            L["Show the Consumables section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowTrinkets", L["Show Trinkets"],
-            L["Show the Trinkets section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowCrafts", L["Show Crafts"],
-            L["Show the Crafts section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        AddCheckbox("floatShowBisGear", L["Show BiS Gear"],
-            L["Show the BiS Gear section when the panel is floating."], true,
-            function() if panel:IsShown() and isFloating then ns:UpdatePanel() end end)
-
-        Settings.RegisterAddOnCategory(category)
-        settingsCategory = category
-        ns.settingsCategory = category
-    end)
-    -- Public helper used by the dock right-click menu and slash commands
-    -- so callers don't need to know about the category internals.
-    function ns.OpenSettings()
-        if Settings and Settings.OpenToCategory and ns.settingsCategory then
-            Settings.OpenToCategory(ns.settingsCategory:GetID())
-        end
-    end
-    if not ok then
-        print("|cffff0000Class Codex:|r " .. L["Settings registration failed: %s"]:format(tostring(err)))
-    end
+function ns.UpdatePanelIfVisible(mode)
+    if not panel:IsShown() then return end
+    if mode == "docked" and isFloating then return end
+    if mode == "floating" and not isFloating then return end
+    ns:UpdatePanel()
 end
+
+function ns.InvalidateTooltipCache()
+    wipe(tooltipCache)
+    tooltipCacheClassOnly = nil
+end
+
 
 -------------------------------------------------------------------------------
 -- Events
@@ -4711,7 +4405,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         end
 
         playerClassToken = select(2, UnitClass("player"))
-        RegisterSettings()
+        ns.RegisterSettings()
 
         -- Minimap button (LibDBIcon)
         local LDB = LibStub("LibDataBroker-1.1", true)
@@ -4726,8 +4420,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
                             ns:OpenCompendium()
                         end
                     elseif button == "RightButton" then
-                        if settingsCategory then
-                            Settings.OpenToCategory(settingsCategory:GetID())
+                        if ns.settingsCategory then
+                            Settings.OpenToCategory(ns.settingsCategory:GetID())
                         end
                     end
                 end,
@@ -4773,7 +4467,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         end
         if ClassCodexDB and ClassCodexDB.showLoginMessage then
             local ver = C_AddOns.GetAddOnMetadata(addonName, "Version") or ""
-            print("|cff00ccffClass Codex|r v" .. ver .. " " .. L["loaded — type |cff00ccff/cc|r to open"])
+            print("|cff00ccffClass Codex|r v" .. ver .. " " .. L["chat.loaded"])
         end
         -- Restore floating panel if it was open before logout
         if isFloating and ClassCodexCharDB and ClassCodexCharDB.panelOpen then
@@ -4802,7 +4496,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             perSpec.heroTalent = nil
             local newHero = GetActiveHeroTalentName()
             if oldHero and oldHero ~= newHero then
-                print("|cff00ccffClass Codex:|r " .. L["Switched to %s (detected)"]:format(newHero or "auto-detect"))
+                print("|cff00ccffClass Codex:|r " .. L["chat.switched_to"]:format(newHero or "auto-detect"))
             end
         end
         currentHeroTalent = nil
@@ -4863,11 +4557,11 @@ SlashCmdList["CLASSCODEX"] = function(msg)
             ToggleCharacter("PaperDollFrame"); ClassCodexCharDB.panelOpen = true
         end
     elseif msg == "float" then
-        if isFloating then DockPanel(); print("|cff00ccffClass Codex:|r " .. L["Docked"])
-        else FloatPanel(); print("|cff00ccffClass Codex:|r " .. L["Floating"]) end
+        if isFloating then DockPanel(); print("|cff00ccffClass Codex:|r " .. L["chat.mode_docked"])
+        else FloatPanel(); print("|cff00ccffClass Codex:|r " .. L["chat.mode_floating"]) end
         if panel:IsShown() then ns:UpdatePanel() end
     elseif msg == "settings" then
-        if settingsCategory then Settings.OpenToCategory(settingsCategory:GetID()) end
+        if ns.settingsCategory then Settings.OpenToCategory(ns.settingsCategory:GetID()) end
     elseif msg == "reset" then
         ClassCodexCharDB.floating = false
         ClassCodexCharDB.floatX = nil
@@ -4876,11 +4570,11 @@ SlashCmdList["CLASSCODEX"] = function(msg)
         isFloating = false; isMinimized = false
         DockPanel()
         minimizeBtn:SetNormalTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Up")
-        print("|cff00ccffClass Codex:|r " .. L["Reset"])
+        print("|cff00ccffClass Codex:|r " .. L["chat.mode_reset"])
         if panel:IsShown() then ns:UpdatePanel() end
     elseif msg == "compendium" then
         if ns.OpenCompendium then ns:OpenCompendium()
-        else print("|cff00ccffClass Codex:|r " .. L["Compendium not available."]) end
+        else print("|cff00ccffClass Codex:|r " .. L["chat.compendium_not_available"]) end
     elseif msg == "dock" then
         if ClassCodexDB then
             ClassCodexDB.dockLoadoutEnabled = not ClassCodexDB.dockLoadoutEnabled
@@ -4893,15 +4587,15 @@ SlashCmdList["CLASSCODEX"] = function(msg)
                 db.hide = false
                 ClassCodexDB.showMinimapButton = true
                 ns.LDBIcon:Show("ClassCodex")
-                print("|cff00ccffClass Codex:|r " .. L["Minimap button shown"])
+                print("|cff00ccffClass Codex:|r " .. L["chat.minimap_shown"])
             else
                 db.hide = true
                 ClassCodexDB.showMinimapButton = false
                 ns.LDBIcon:Hide("ClassCodex")
-                print("|cff00ccffClass Codex:|r " .. L["Minimap button hidden"])
+                print("|cff00ccffClass Codex:|r " .. L["chat.minimap_hidden"])
             end
         else
-            print("|cff00ccffClass Codex:|r " .. L["Minimap button not available"])
+            print("|cff00ccffClass Codex:|r " .. L["chat.minimap_not_available"])
         end
     elseif msg == "inspectdump" then
         if ns.DumpInspectState then
@@ -4919,6 +4613,6 @@ SlashCmdList["CLASSCODEX"] = function(msg)
         print("  /cc reset - Reset position")
         print("  /cc inspectdump - Print inspect-mode diagnostics")
     else
-        print("|cff00ccffClass Codex:|r " .. L["Unknown command. Type /cc help"])
+        print("|cff00ccffClass Codex:|r " .. L["chat.unknown_command"])
     end
 end

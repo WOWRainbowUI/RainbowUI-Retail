@@ -23,22 +23,25 @@ local TIER_COLORS = {
 local TIER_ORDER = { S = 1, A = 2, B = 3, C = 4, D = 5 }
 
 local CONTEXT_LABELS = {
-    raid = L["Raid"],
-    dungeon = L["Dungeon"],
-    delves = L["Delves"],
-    crafting = L["Crafting"],
+    raid = L["context.raid"],
+    dungeon = L["context.dungeon"],
+    delves = L["context.delves"],
+    crafting = L["context.crafting"],
 }
 
 local CONSUMABLE_ORDER = { "flask", "combatPotion", "food", "weaponBuff", "augmentRune" }
 local CONSUMABLE_LABELS = {
-    flask = L["Flask"],
-    combatPotion = L["Combat Potion"],
-    food = L["Food"],
-    weaponBuff = L["Weapon Buff"],
-    augmentRune = L["Augment Rune"],
+    flask = L["consumable.flask"],
+    combatPotion = L["consumable.combat_potion"],
+    food = L["consumable.food"],
+    weaponBuff = L["consumable.weapon_buff"],
+    augmentRune = L["consumable.augment_rune"],
 }
 
-local MAX_ENCHANT_ROWS = 8
+-- Enhance Shaman has 10 enchant slots (MH + OH weapon enchants, Helm,
+-- Shoulders, Bracers, Chest, Belt, Legs, Boots, Ring). Cap at 12 to
+-- match Compendium.lua's MAX_ENCHANT_ROWS so neither surface drops rows.
+local MAX_ENCHANT_ROWS = 12
 local MAX_GEM_ROWS = 4
 local MAX_CONSUMABLE_ROWS = 6
 local MAX_TRINKET_ROWS = 15
@@ -535,7 +538,7 @@ end
 
 local enchantSection = CreateFrame("Frame", nil, ns.contentFrame)
 enchantSection:SetHeight(SECTION_HEADER_HEIGHT)
-local enchantHeader = ns.CreateSectionHeader(enchantSection, L["Enchants"])
+local enchantHeader = ns.CreateSectionHeader(enchantSection, L["tab.enchants"])
 local enchantContent = CreateFrame("Frame", nil, enchantSection)
 enchantContent:SetPoint("TOPLEFT", enchantHeader, "BOTTOMLEFT", 0, 0)
 enchantContent:SetPoint("RIGHT", 0, 0)
@@ -661,7 +664,7 @@ end
 
 local gemSection = CreateFrame("Frame", nil, ns.contentFrame)
 gemSection:SetHeight(SECTION_HEADER_HEIGHT)
-local gemHeader = ns.CreateSectionHeader(gemSection, L["Gems"])
+local gemHeader = ns.CreateSectionHeader(gemSection, L["tab.gems"])
 local gemContent = CreateFrame("Frame", nil, gemSection)
 gemContent:SetPoint("TOPLEFT", gemHeader, "BOTTOMLEFT", 0, 0)
 gemContent:SetPoint("RIGHT", 0, 0)
@@ -704,7 +707,7 @@ end
 
 local consumSection = CreateFrame("Frame", nil, ns.contentFrame)
 consumSection:SetHeight(SECTION_HEADER_HEIGHT)
-local consumHeader = ns.CreateSectionHeader(consumSection, L["Consumables"])
+local consumHeader = ns.CreateSectionHeader(consumSection, L["tab.consumables"])
 local consumContent = CreateFrame("Frame", nil, consumSection)
 consumContent:SetPoint("TOPLEFT", consumHeader, "BOTTOMLEFT", 0, 0)
 consumContent:SetPoint("RIGHT", 0, 0)
@@ -748,7 +751,7 @@ end
 
 local trinketSection = CreateFrame("Frame", nil, ns.contentFrame)
 trinketSection:SetHeight(SECTION_HEADER_HEIGHT)
-local trinketTitle = CreateSectionTitle(trinketSection, L["Trinkets"])
+local trinketTitle = CreateSectionTitle(trinketSection, L["tab.trinkets"])
 local trinketContent = CreateFrame("Frame", nil, trinketSection)
 trinketContent:SetPoint("TOPLEFT", trinketTitle, "BOTTOMLEFT", 0, 0)
 trinketContent:SetPoint("RIGHT", 0, 0)
@@ -824,7 +827,7 @@ end
 
 local craftSection = CreateFrame("Frame", nil, ns.contentFrame)
 craftSection:SetHeight(SECTION_HEADER_HEIGHT)
-local craftTitle = CreateSectionTitle(craftSection, L["Crafts"])
+local craftTitle = CreateSectionTitle(craftSection, L["tab.crafts"])
 local craftContent = CreateFrame("Frame", nil, craftSection)
 craftContent:SetPoint("TOPLEFT", craftTitle, "BOTTOMLEFT", 0, 0)
 craftContent:SetPoint("RIGHT", 0, 0)
@@ -865,7 +868,7 @@ end
 
 local bisSection = CreateFrame("Frame", nil, ns.contentFrame)
 bisSection:SetHeight(SECTION_HEADER_HEIGHT)
-local bisTitle = CreateSectionTitle(bisSection, L["BiS Gear"])
+local bisTitle = CreateSectionTitle(bisSection, L["tab.bis_gear"])
 local bisContent = CreateFrame("Frame", nil, bisSection)
 bisContent:SetPoint("TOPLEFT", bisTitle, "BOTTOMLEFT", 0, 0)
 bisContent:SetPoint("RIGHT", 0, 0)
@@ -1123,8 +1126,8 @@ function ns:UpdateGearingSections()
         enchantSection:Show()
     elseif pvpEnchantsMissing and showEnhDropdown then
         local msg = activeGems
-            and (L["No PvP enchants for this spec yet."] or "No PvP enchants for this spec yet.")
-            or  (L["No PvP enchant/gem data for this spec yet."] or "No PvP enchant/gem data for this spec yet.")
+            and (L["pvp.no_enchants"] or "No PvP enchants for this spec yet.")
+            or  (L["pvp.no_enchant_gem_data"] or "No PvP enchant/gem data for this spec yet.")
         pvpDock.fallback:SetText(msg)
         pvpDock.fallback:ClearAllPoints()
         pvpDock.fallback:SetPoint("TOPLEFT", 4, enchBaseY - 4)
@@ -1143,7 +1146,7 @@ function ns:UpdateGearingSections()
         if activeGems.primary then
             idx = idx + 1
             local row = gemRows[idx]
-            row.labelText:SetText(L["Primary"])
+            row.labelText:SetText(L["gem.primary"])
             row.itemText:SetText(FormatItem(activeGems.primary))
             row.itemId = activeGems.primary.itemId
             row.altItemId = nil
@@ -1159,7 +1162,7 @@ function ns:UpdateGearingSections()
                 idx = idx + 1
                 if idx > MAX_GEM_ROWS then break end
                 local row = gemRows[idx]
-                row.labelText:SetText(L["Secondary"])
+                row.labelText:SetText(L["gem.secondary"])
                 row.itemText:SetText(FormatItem(gem))
                 row.itemId = gem.itemId
                 row.altItemId = nil
@@ -1319,7 +1322,7 @@ function ns:UpdateGearingSections()
             row.rank:Hide()
             row.itemText:Hide()
             row.icon:Hide()
-            row.headerLabel:SetText(L["Early Crafts"])
+            row.headerLabel:SetText(L["craft.early"])
             row.headerLabel:Show()
             row.itemId = nil
             row:ClearAllPoints()
@@ -1357,7 +1360,7 @@ function ns:UpdateGearingSections()
             row.rank:Hide()
             row.itemText:Hide()
             row.icon:Hide()
-            row.headerLabel:SetText(L["BiS Crafts"])
+            row.headerLabel:SetText(L["craft.bis"])
             row.headerLabel:Show()
             row.itemId = nil
             row:ClearAllPoints()
@@ -1450,7 +1453,7 @@ function ns:UpdateGearingSections()
         if currentBisSource == "PvP" and not hasPvP then
             bisTabDropdown:Hide()
             local yOffset = bisSourceDropdown:IsShown() and -30 or 0
-            pvpDock.bisFallback:SetText(L["No PvP gear data for this spec yet."]
+            pvpDock.bisFallback:SetText(L["pvp.no_gear_data"]
                 or "No PvP gear data for this spec yet.")
             pvpDock.bisFallback:ClearAllPoints()
             pvpDock.bisFallback:SetPoint("TOPLEFT", 4, yOffset - 4)
@@ -1644,19 +1647,19 @@ end
 -------------------------------------------------------------------------------
 
 ns.gearingFloatOptions = {
-    { key = "floatShowEnchants", label = L["Enchants"] },
-    { key = "floatShowGems", label = L["Gems"] },
-    { key = "floatShowConsumables", label = L["Consumables"] },
-    { key = "floatShowTrinkets", label = L["Trinkets"] },
-    { key = "floatShowCrafts", label = L["Crafts"] },
-    { key = "floatShowBisGear", label = L["BiS Gear"] },
+    { key = "floatShowEnchants", label = L["tab.enchants"] },
+    { key = "floatShowGems", label = L["tab.gems"] },
+    { key = "floatShowConsumables", label = L["tab.consumables"] },
+    { key = "floatShowTrinkets", label = L["tab.trinkets"] },
+    { key = "floatShowCrafts", label = L["tab.crafts"] },
+    { key = "floatShowBisGear", label = L["tab.bis_gear"] },
 }
 
 ns.gearingDockOptions = {
-    { key = "dockShowEnchants", label = L["Enchants"] },
-    { key = "dockShowGems", label = L["Gems"] },
-    { key = "dockShowConsumables", label = L["Consumables"] },
-    { key = "dockShowTrinkets", label = L["Trinkets"] },
-    { key = "dockShowCrafts", label = L["Crafts"] },
-    { key = "dockShowBisGear", label = L["BiS Gear"] },
+    { key = "dockShowEnchants", label = L["tab.enchants"] },
+    { key = "dockShowGems", label = L["tab.gems"] },
+    { key = "dockShowConsumables", label = L["tab.consumables"] },
+    { key = "dockShowTrinkets", label = L["tab.trinkets"] },
+    { key = "dockShowCrafts", label = L["tab.crafts"] },
+    { key = "dockShowBisGear", label = L["tab.bis_gear"] },
 }

@@ -5,7 +5,7 @@ local GEAR_DATA = ClassCodexGearData
 if not DATA then
     -- Ensure OpenCompendium exists even if data failed to load
     function ns:OpenCompendium()
-        print("|cff00ccffClass Codex:|r " .. ns.L["Compendium data not loaded."])
+        print("|cff00ccffClass Codex:|r " .. ns.L["chat.compendium_data_not_loaded"])
     end
     return
 end
@@ -60,19 +60,19 @@ local TIER_COLORS = {
 local TIER_ORDER = { S = 1, A = 2, B = 3, C = 4, D = 5 }
 
 local CONTEXT_LABELS = {
-    raid = L["Raid"],
-    dungeon = L["Dungeon"],
-    delves = L["Delves"],
-    crafting = L["Crafting"],
+    raid = L["context.raid"],
+    dungeon = L["context.dungeon"],
+    delves = L["context.delves"],
+    crafting = L["context.crafting"],
 }
 
 local CONSUMABLE_ORDER = { "flask", "combatPotion", "food", "weaponBuff", "augmentRune" }
 local CONSUMABLE_LABELS = {
-    flask = L["Flask"],
-    combatPotion = L["Combat Potion"],
-    food = L["Food"],
-    weaponBuff = L["Weapon Buff"],
-    augmentRune = L["Augment Rune"],
+    flask = L["consumable.flask"],
+    combatPotion = L["consumable.combat_potion"],
+    food = L["consumable.food"],
+    weaponBuff = L["consumable.weapon_buff"],
+    augmentRune = L["consumable.augment_rune"],
 }
 
 local SPEC_KEYS = {
@@ -498,6 +498,12 @@ local function InitFrame()
     -- Main frame
     UI.frame = CreateFrame("Frame", "ClassCodexCompendium", UIParent, "ButtonFrameTemplate")
     UI.frame:SetSize(FRAME_WIDTH, FRAME_HEIGHT)
+    -- HIGH strata matches the small codex panel (ClassCodex.lua) and stops
+    -- other addons' HIGH-strata frames (cooldown managers like Ayije CDM,
+    -- action bars, buff icons) from rendering through the Compendium
+    -- background and over the scrolling rotation list. Tooltips stay on
+    -- top because TOOLTIP strata is above HIGH.
+    UI.frame:SetFrameStrata("HIGH")
     -- Restore saved position or center
     if ClassCodexDB and ClassCodexDB.compendiumX and ClassCodexDB.compendiumY then
         UI.frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", ClassCodexDB.compendiumX, ClassCodexDB.compendiumY)
@@ -507,6 +513,26 @@ local function InitFrame()
     UI.frame:SetTitle("Class Codex Compendium")
     UI.frame:SetPortraitToAsset("Interface\\Icons\\INV_Misc_Book_09")
     ButtonFrameTemplate_HideButtonBar(UI.frame)
+    -- Blizzard's ButtonFrameTemplate anchors the NineSlice bottom corners
+    -- with a -3px Y offset so they hang slightly below the frame edge,
+    -- meant to overlap a tab strip flush against the frame. Our tabs sit
+    -- 30px below, so the default anchors leave the corners floating as
+    -- "ears" under the frame. Preserve Blizzard's X offset (which positions
+    -- the corner art correctly) and pin Y at -4 so the corner art hugs
+    -- the BottomEdge slice cleanly without leaving a sliver gap above it.
+    -- The BottomEdge anchors between the two corners and re-appears once
+    -- they're positioned.
+    local function pinCornerToBottomEdge(corner)
+        if not corner then return end
+        local point, relTo, relPoint, x = corner:GetPoint(1)
+        if not point then return end
+        corner:ClearAllPoints()
+        corner:SetPoint(point, relTo, relPoint, x, -4)
+    end
+    if UI.frame.NineSlice then
+        pinCornerToBottomEdge(UI.frame.NineSlice.BottomLeftCorner)
+        pinCornerToBottomEdge(UI.frame.NineSlice.BottomRightCorner)
+    end
     UI.frame:EnableMouse(true)
     UI.frame:SetMovable(true)
     UI.frame:SetClampedToScreen(true)
@@ -530,12 +556,12 @@ local function InitFrame()
 
     -- Tabs
     local TAB_DATA = {
-        { key = "guide",        label = L["Guide"] },
-        { key = "talents",      label = L["Talents"] },
-        { key = "bis",          label = L["BiS Gear"] },
-        { key = "trinkets",     label = L["Trinkets"] },
-        { key = "enhancements", label = L["Enhancements"] },
-        { key = "crafts",       label = L["Crafts"] },
+        { key = "guide",        label = L["tab.guide"] },
+        { key = "talents",      label = L["section.talents"] },
+        { key = "bis",          label = L["tab.bis_gear"] },
+        { key = "trinkets",     label = L["tab.trinkets"] },
+        { key = "enhancements", label = L["tab.enhancements"] },
+        { key = "crafts",       label = L["tab.crafts"] },
     }
     local tabs = {}
     for i, data in ipairs(TAB_DATA) do
@@ -649,7 +675,7 @@ local function InitFrame()
 
     -- Guide: Stats
     UI.statSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.statHeader = CreateSectionHeader(UI.statSection, L["Stat Priority"], true)
+    UI.statHeader = CreateSectionHeader(UI.statSection, L["section.stat_priority"], true)
     UI.statContent = CreateFrame("Frame", nil, UI.statSection)
     UI.statContent:SetPoint("TOPLEFT", UI.statHeader, "BOTTOMLEFT", 0, -2)
     UI.statContent:SetPoint("RIGHT", 0, 0)
@@ -685,7 +711,7 @@ local function InitFrame()
 
     -- Guide: Talents
     UI.talentSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.talentHeader = CreateSectionHeader(UI.talentSection, L["Talents"], true)
+    UI.talentHeader = CreateSectionHeader(UI.talentSection, L["section.talents"], true)
     UI.talentContent = CreateFrame("Frame", nil, UI.talentSection)
     UI.talentContent:SetPoint("TOPLEFT", UI.talentHeader, "BOTTOMLEFT", 0, -2)
     UI.talentContent:SetPoint("RIGHT", 0, 0)
@@ -797,7 +823,7 @@ local function InitFrame()
 
     -- Guide: Rotation
     UI.rotationSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.rotationHeader = CreateSectionHeader(UI.rotationSection, L["Rotation"], true)
+    UI.rotationHeader = CreateSectionHeader(UI.rotationSection, L["section.rotation"], true)
     UI.rotationContent = CreateFrame("Frame", nil, UI.rotationSection)
     UI.rotationContent:SetPoint("TOPLEFT", UI.rotationHeader, "BOTTOMLEFT", 0, -2)
     UI.rotationContent:SetPoint("RIGHT", 0, 0)
@@ -841,7 +867,7 @@ local function InitFrame()
 
     -- Gearing: Enchants
     UI.enchantSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.enchantHeader = CreateSectionHeader(UI.enchantSection, L["Enchants"], true)
+    UI.enchantHeader = CreateSectionHeader(UI.enchantSection, L["tab.enchants"], true)
     UI.enchantContent = CreateFrame("Frame", nil, UI.enchantSection)
     UI.enchantContent:SetPoint("TOPLEFT", UI.enchantHeader, "BOTTOMLEFT", 0, -2); UI.enchantContent:SetPoint("RIGHT", 0, 0)
     -- Enhancements source dropdown — Wowhead vs Murlok (PvP) toggle for
@@ -931,7 +957,7 @@ local function InitFrame()
 
     -- Gearing: Gems
     UI.gemSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.gemHeader = CreateSectionHeader(UI.gemSection, L["Gems"], true)
+    UI.gemHeader = CreateSectionHeader(UI.gemSection, L["tab.gems"], true)
     UI.gemContent = CreateFrame("Frame", nil, UI.gemSection)
     UI.gemContent:SetPoint("TOPLEFT", UI.gemHeader, "BOTTOMLEFT", 0, -2); UI.gemContent:SetPoint("RIGHT", 0, 0)
     UI.gemRows = {}; UI.gemCollapsed = false
@@ -952,7 +978,7 @@ local function InitFrame()
 
     -- Gearing: Consumables
     UI.consumSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.consumHeader = CreateSectionHeader(UI.consumSection, L["Consumables"], false)
+    UI.consumHeader = CreateSectionHeader(UI.consumSection, L["tab.consumables"], false)
     UI.consumContent = CreateFrame("Frame", nil, UI.consumSection)
     UI.consumContent:SetPoint("TOPLEFT", UI.consumHeader, "BOTTOMLEFT", 0, -2); UI.consumContent:SetPoint("RIGHT", 0, 0)
     UI.consumRows = {}; UI.consumCollapsed = false
@@ -971,7 +997,7 @@ local function InitFrame()
 
     -- Gearing: Trinkets
     UI.trinketSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.trinketHeader = CreateSectionHeader(UI.trinketSection, L["Trinkets"], false)
+    UI.trinketHeader = CreateSectionHeader(UI.trinketSection, L["tab.trinkets"], false)
     UI.trinketContent = CreateFrame("Frame", nil, UI.trinketSection)
     UI.trinketContent:SetPoint("TOPLEFT", UI.trinketHeader, "BOTTOMLEFT", 0, -2); UI.trinketContent:SetPoint("RIGHT", 0, 0)
     UI.trinketRows = {}; UI.trinketCollapsed = false
@@ -1001,7 +1027,7 @@ local function InitFrame()
 
     -- Gearing: Crafts
     UI.craftSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.craftHeader = CreateSectionHeader(UI.craftSection, L["Crafts"], false)
+    UI.craftHeader = CreateSectionHeader(UI.craftSection, L["tab.crafts"], false)
     UI.craftContent = CreateFrame("Frame", nil, UI.craftSection)
     UI.craftContent:SetPoint("TOPLEFT", UI.craftHeader, "BOTTOMLEFT", 0, -2); UI.craftContent:SetPoint("RIGHT", 0, 0)
     UI.craftRows = {}; UI.craftCollapsed = false
@@ -1021,7 +1047,7 @@ local function InitFrame()
 
     -- Gearing: BiS Gear
     UI.bisSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.bisHeader = CreateSectionHeader(UI.bisSection, L["Best in Slot"], false)
+    UI.bisHeader = CreateSectionHeader(UI.bisSection, L["tab.best_in_slot"], false)
     UI.bisContent = CreateFrame("Frame", nil, UI.bisSection)
     UI.bisContent:SetPoint("TOPLEFT", UI.bisHeader, "BOTTOMLEFT", 0, -2); UI.bisContent:SetPoint("RIGHT", 0, 0)
     UI.bisSourceDropdown = CreateFrame("DropdownButton", "ClassCodexCompBisSourceDD", UI.bisContent, "WowStyle1DropdownTemplate")
@@ -1062,7 +1088,7 @@ local function InitFrame()
     -- Empty state
     UI.emptyText = UI.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     UI.emptyText:SetPoint("CENTER", UI.scrollChild, "TOP", 0, -60)
-    UI.emptyText:SetText(L["Select a class and specialization above."])
+    UI.emptyText:SetText(L["empty.select_class_spec"])
     UI.emptyText:SetTextColor(0.5, 0.5, 0.5)
 end
 
@@ -1190,7 +1216,7 @@ function ns:UpdateCompendium()
 
     local specData = DATA[selectedClass] and DATA[selectedClass][selectedSpec]
     if not specData then
-        UI.emptyText:SetText(L["No data available for this spec."])
+        UI.emptyText:SetText(L["empty.no_data"])
         UI.emptyText:Show()
         ns:LayoutCompendium()
         return
@@ -1286,7 +1312,7 @@ local function RenderStatPrioritySection(specData, heroTalent)
                 -- through L[ctx] for locale-specific labels.
                 local label = L[ctx]
                 if ctx == "PvP" then
-                    label = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  " .. L["PvP"]
+                    label = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  " .. L["pvp.label"]
                 end
                 rootDescription:CreateRadio(label,
                     function() return currentStatContext == ctx end,
@@ -1333,7 +1359,7 @@ local function RenderStatPrioritySection(specData, heroTalent)
         UI.statSection:Show()
     elseif currentStatContext == "PvP" then
         local yOffset = showStatCtx and -30 or 0
-        UI.statPvpFallback:SetText(L["No PvP stat priority for this spec yet."]
+        UI.statPvpFallback:SetText(L["pvp.no_stat_priority"]
             or "No PvP stat priority for this spec yet.")
         UI.statPvpFallback:ClearAllPoints()
         UI.statPvpFallback:SetPoint("TOPLEFT", UI.statContent, "TOPLEFT", 4, yOffset - 4)
@@ -1360,7 +1386,7 @@ function ns:UpdateCompendiumGuide(specData, heroTalent)
             local t = talentBuilds[i]
             local btn = UI._ensureTalentButton(i)
             if btn.heroIcon then btn.heroIcon:Hide() end
-            local label = t.context or L["Build"]
+            local label = t.context or L["talent.build"]
             if t.buildLabel and t.buildLabel ~= "" then label = label .. " — " .. t.buildLabel end
             btn.label:SetText(label)
             btn.label:ClearAllPoints()
@@ -1376,7 +1402,7 @@ function ns:UpdateCompendiumGuide(specData, heroTalent)
         UI.talentContent:SetHeight(count * (TALENT_BTN_HEIGHT + TALENT_BTN_GAP))
         UI.talentSection:Show()
     elseif specData.talents and #specData.talents > 0 then
-        UI.talentFallback:SetText(L["No builds for %s — check Wowhead."]:format(heroTalent))
+        UI.talentFallback:SetText(L["empty.no_builds_for"]:format(heroTalent))
         UI.talentFallback:Show()
         UI.talentContent:SetHeight(20)
         UI.talentSection:Show()
@@ -1459,7 +1485,7 @@ function ns:UpdateCompendiumGuide(specData, heroTalent)
         local yOffset = showRotCtx and -30 or 0
         UI.rotationFallback:ClearAllPoints()
         UI.rotationFallback:SetPoint("TOPLEFT", UI.rotationContent, "TOPLEFT", 4, yOffset - 4)
-        UI.rotationFallback:SetText(L["No rotation for %s — check Wowhead."]:format(heroTalent))
+        UI.rotationFallback:SetText(L["empty.no_rotation_for"]:format(heroTalent))
         UI.rotationFallback:Show()
         UI.rotationContent:SetHeight(math.abs(yOffset) + 20)
         UI.rotationSection:Show()
@@ -1480,7 +1506,7 @@ end
 local function RenderWowheadTalentList(specData, yPos)
     local talents = specData.talents
     if not talents or #talents == 0 then
-        UI.talentFallback:SetText(L["No talent builds available."])
+        UI.talentFallback:SetText(L["loadout_dock.no_talent_builds"])
         UI.talentFallback:ClearAllPoints()
         UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
         UI.talentFallback:Show()
@@ -1526,7 +1552,7 @@ end
 local function RenderArchonTalentList(class, spec, yPos)
     local archon = ns.GetArchonSpecData and ns.GetArchonSpecData(class, spec) or nil
     if not archon or not archon.contexts or not next(archon.contexts) then
-        UI.talentFallback:SetText(L["No Archon builds available."] or "No Archon builds available.")
+        UI.talentFallback:SetText(L["loadout_dock.no_archon_builds"] or "No Archon builds available.")
         UI.talentFallback:ClearAllPoints()
         UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
         UI.talentFallback:Show()
@@ -1617,7 +1643,7 @@ end
 -- here — Apply takes care of them via ns.ApplyPvpHonorTalents.
 local function RenderPvPTalentList(class, spec, yPos)
     if not ns.GetPvPBracketsWithData then
-        UI.talentFallback:SetText(L["No PvP builds available."] or "No PvP builds available.")
+        UI.talentFallback:SetText(L["pvp.no_builds"] or "No PvP builds available.")
         UI.talentFallback:ClearAllPoints()
         UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
         UI.talentFallback:Show()
@@ -1625,7 +1651,7 @@ local function RenderPvPTalentList(class, spec, yPos)
     end
     local brackets = ns.GetPvPBracketsWithData(class, spec)
     if not brackets or #brackets == 0 then
-        UI.talentFallback:SetText(L["No PvP builds available."] or "No PvP builds available.")
+        UI.talentFallback:SetText(L["pvp.no_builds"] or "No PvP builds available.")
         UI.talentFallback:ClearAllPoints()
         UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
         UI.talentFallback:Show()
@@ -1676,8 +1702,8 @@ local function RenderPvPTalentList(class, spec, yPos)
                     label = bracketName .. " — " .. (v.hero or "—")
                     if v.altIndex then
                         local suffix = v.altIndex == 2
-                            and (L["alt"] or "alt")
-                            or string.format(L["alt %d"] or "alt %d", v.altIndex - 1)
+                            and (L["loadout.alt"] or "alt")
+                            or string.format(L["loadout.alt_n"] or "alt %d", v.altIndex - 1)
                         label = label .. " |cff9a9a9a(" .. suffix .. ")|r"
                     end
                 else
@@ -1835,8 +1861,8 @@ function ns:UpdateCompendiumEnchants()
     if pvpEnchantsMissing and showSourceDropdown then
         for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
         local msg = activeGems
-            and (L["No PvP enchants for this spec yet."] or "No PvP enchants for this spec yet.")
-            or  (L["No PvP enchant/gem data for this spec yet."] or "No PvP enchant/gem data for this spec yet.")
+            and (L["pvp.no_enchants"] or "No PvP enchants for this spec yet.")
+            or  (L["pvp.no_enchant_gem_data"] or "No PvP enchant/gem data for this spec yet.")
         UI.enchantPvpFallback:SetText(msg)
         UI.enchantPvpFallback:ClearAllPoints()
         UI.enchantPvpFallback:SetPoint("TOPLEFT", UI.enchantContent, "TOPLEFT", 4, -4)
@@ -1894,7 +1920,7 @@ function ns:UpdateCompendiumEnchants()
         if activeGems.primary then
             gIdx = gIdx + 1
             local row = UI.gemRows[gIdx]
-            row.label:SetText(L["Primary"])
+            row.label:SetText(L["gem.primary"])
             row.name:SetText(FormatItem(activeGems.primary))
             row.itemId = activeGems.primary.itemId
             SetRowIcon(row, activeGems.primary.itemId)
@@ -1908,7 +1934,7 @@ function ns:UpdateCompendiumEnchants()
                 gIdx = gIdx + 1
                 if gIdx > MAX_GEM_ROWS then break end
                 local row = UI.gemRows[gIdx]
-                row.label:SetText(L["Secondary"])
+                row.label:SetText(L["gem.secondary"])
                 row.name:SetText(FormatItem(gem))
                 row.itemId = gem.itemId
                 SetRowIcon(row, gem.itemId)
@@ -2095,8 +2121,8 @@ function ns:UpdateCompendiumCrafts()
         end
     end
 
-    AddCrafts(gearData.crafts.earlyCrafts, L["Early Crafts"])
-    AddCrafts(gearData.crafts.bisCrafts, L["BiS Crafts"])
+    AddCrafts(gearData.crafts.earlyCrafts, L["craft.early"])
+    AddCrafts(gearData.crafts.bisCrafts, L["craft.bis"])
     UI.craftContent:SetHeight(idx * ROW_HEIGHT)
     UI.craftSection:Show()
 end
@@ -2182,7 +2208,7 @@ function ns:UpdateCompendiumBis()
 
     if pvpNoData then
         local yOffset = showSourceDropdown and -30 or 0
-        UI.bisPvpFallback:SetText(L["No PvP gear data for this spec yet."]
+        UI.bisPvpFallback:SetText(L["pvp.no_gear_data"]
             or "No PvP gear data for this spec yet.")
         UI.bisPvpFallback:ClearAllPoints()
         UI.bisPvpFallback:SetPoint("TOPLEFT", UI.bisContent, "TOPLEFT", 4, yOffset - 4)

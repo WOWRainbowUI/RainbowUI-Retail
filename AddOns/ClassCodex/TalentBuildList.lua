@@ -34,7 +34,7 @@ end
 -- hero's atlas icon if available, and localizes "All" -> "General".
 function ns.FormatHeroHeaderText(hero)
     local L = ns.L
-    local displayHero = (hero == "All" and L and L["General"]) or (hero == "All" and "General") or hero
+    local displayHero = (hero == "All" and L and L["settings.header.general"]) or (hero == "All" and "General") or hero
     local atlas = ns.HERO_TALENT_ATLAS and ns.HERO_TALENT_ATLAS[hero]
     if atlas then
         return "|A:" .. atlas .. ":14:14|a " .. displayHero

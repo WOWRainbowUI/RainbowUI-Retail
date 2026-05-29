@@ -200,7 +200,7 @@ local function RefreshLabel()
             end
         end
     end
-    if not labelText then labelText = "|cff808080" .. L["Custom build"] .. "|r" end
+    if not labelText then labelText = "|cff808080" .. L["loadout_dock.custom_build"] .. "|r" end
     dock.label:SetText(labelText)
 
     -- Auto-width before layout so the dock is the right size when we
@@ -279,7 +279,7 @@ local function BuildLoadoutMenu(_, root)
     if db.dockLoadoutShowSaved ~= false and specID and C_ClassTalents and C_ClassTalents.GetConfigIDsBySpecID then
         local configs = C_ClassTalents.GetConfigIDsBySpecID(specID)
         if configs and #configs > 0 then
-            root:CreateTitle(L["Saved Loadouts"])
+            root:CreateTitle(L["loadout_dock.saved_loadouts"])
             for _, configID in ipairs(configs) do
                 local info = C_Traits and C_Traits.GetConfigInfo and C_Traits.GetConfigInfo(configID)
                 local name = info and info.name or ("Loadout " .. configID)
@@ -288,7 +288,7 @@ local function BuildLoadoutMenu(_, root)
                 end
                 root:CreateButton(name, function()
                     if InCombatLockdown() then
-                        UIErrorsFrame:AddMessage(L["Cannot switch loadouts in combat."], 1, 0.3, 0.3)
+                        UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
                         return
                     end
                     C_ClassTalents.LoadConfig(configID, true)
@@ -304,7 +304,7 @@ local function BuildLoadoutMenu(_, root)
     local hasWowhead = false
     if db.dockLoadoutShowWowhead ~= false and specData and specData.talents and #specData.talents > 0 and ns.GroupBuildsByHero then
         if hasBlizzard then root:CreateDivider() end
-        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:14:14:0:0|t  " .. L["Wowhead"])
+        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:14:14:0:0|t  " .. L["settings.value.wowhead"])
         local heroOrder, heroBuilds = ns.GroupBuildsByHero(specData.talents)
         for _, hero in ipairs(heroOrder) do
             local heroLabel = (ns.FormatHeroHeaderText and ns.FormatHeroHeaderText(hero)) or hero
@@ -339,7 +339,7 @@ local function BuildLoadoutMenu(_, root)
                 end
                 heroSubmenu:CreateButton(label, function()
                     if InCombatLockdown() then
-                        UIErrorsFrame:AddMessage(L["Cannot switch loadouts in combat."], 1, 0.3, 0.3)
+                        UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
                         return
                     end
                     local rawLabel = build.context or "Build"
@@ -391,7 +391,7 @@ local function BuildLoadoutMenu(_, root)
         if hasBlizzard or (specData and specData.talents and #specData.talents > 0) then
             root:CreateDivider()
         end
-        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t  " .. L["Archon"])
+        root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t  " .. L["settings.value.archon"])
         root:CreateButton("|cff999999" .. archonReason .. "|r", function() end)
     end
     if archonSpecData and archonSpecData.contexts and ns.GroupArchonContexts then
@@ -418,7 +418,7 @@ local function BuildLoadoutMenu(_, root)
             if not build then return end
             parent:CreateButton(label, function()
                 if InCombatLockdown() then
-                    UIErrorsFrame:AddMessage(L["Cannot switch loadouts in combat."], 1, 0.3, 0.3)
+                    UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
                     return
                 end
                 local clean = label:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("|A:[^|]+|a", ""):gsub("^%s+", "")
@@ -433,13 +433,13 @@ local function BuildLoadoutMenu(_, root)
             or #groups.mplusDungeons > 0 or #groups.raidMythicBosses > 0 or #groups.raidHeroicBosses > 0
         if hasAny then
             if hasBlizzard or hasWowhead then root:CreateDivider() end
-            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t  " .. L["Archon"])
+            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t  " .. L["settings.value.archon"])
 
             -- M+ Dungeons submenu — overview ("All Dungeons") sits as the
             -- first entry inside the submenu rather than as a separate
             -- top-level item, so the menu surface stays compact.
             if groups.mplusOverview or #groups.mplusDungeons > 0 then
-                local sub = root:CreateButton(L["M+ Dungeons"])
+                local sub = root:CreateButton(L["context.mplus_dungeons"])
                 if groups.mplusOverview then archonApply(sub, groups.mplusOverview) end
                 for _, e in ipairs(groups.mplusDungeons) do archonApply(sub, e) end
             end
@@ -447,12 +447,12 @@ local function BuildLoadoutMenu(_, root)
             -- first, so the more-likely-to-be-clicked submenu sits closer
             -- to the M+ Dungeons entry above.
             if groups.raidOverviewHeroic or #groups.raidHeroicBosses > 0 then
-                local sub = root:CreateButton(L["Raid Bosses (Heroic)"])
+                local sub = root:CreateButton(L["context.raid_heroic"])
                 if groups.raidOverviewHeroic then archonApply(sub, groups.raidOverviewHeroic) end
                 for _, e in ipairs(groups.raidHeroicBosses) do archonApply(sub, e) end
             end
             if groups.raidOverviewMythic or #groups.raidMythicBosses > 0 then
-                local sub = root:CreateButton(L["Raid Bosses (Mythic)"])
+                local sub = root:CreateButton(L["context.raid_mythic"])
                 if groups.raidOverviewMythic then archonApply(sub, groups.raidOverviewMythic) end
                 for _, e in ipairs(groups.raidMythicBosses) do archonApply(sub, e) end
             end
@@ -504,7 +504,7 @@ local function BuildLoadoutMenu(_, root)
                 local capturedHero = build.heroTalent
                 local entry = parent:CreateButton(label, function()
                     if InCombatLockdown() then
-                        UIErrorsFrame:AddMessage(L["Cannot switch loadouts in combat."], 1, 0.3, 0.3)
+                        UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
                         return
                     end
                     local loadoutLabel = "PvP — " ..
@@ -532,7 +532,7 @@ local function BuildLoadoutMenu(_, root)
                         end
                         if capturedHonor and #capturedHonor > 0 then
                             tooltip:AddLine(" ")
-                            tooltip:AddLine(L["Honor Talents"] or "Honor Talents", 1, 0.82, 0)
+                            tooltip:AddLine(L["pvp.honor_talents"] or "Honor Talents", 1, 0.82, 0)
                             for _, talentId in ipairs(capturedHonor) do
                                 local info = ns.GetHonorTalentInfo and ns.GetHonorTalentInfo(talentId)
                                 local name = (info and info.name) or ("#" .. tostring(talentId))
@@ -541,7 +541,7 @@ local function BuildLoadoutMenu(_, root)
                             end
                             tooltip:AddLine(" ")
                             tooltip:AddLine(
-                                L["Honor talents apply in War Mode or PvP instances."]
+                                L["pvp.honor_talents_apply"]
                                     or "Honor talents apply in War Mode or PvP instances.",
                                 0.7, 0.7, 0.7)
                         end
@@ -588,8 +588,8 @@ local function BuildLoadoutMenu(_, root)
                     end
                     if v.altIndex then
                         local suffix = v.altIndex == 2
-                            and (L["alt"] or "alt")
-                            or string.format(L["alt %d"] or "alt %d", v.altIndex - 1)
+                            and (L["loadout.alt"] or "alt")
+                            or string.format(L["loadout.alt_n"] or "alt %d", v.altIndex - 1)
                         label = label .. " |cff9a9a9a(" .. suffix .. ")|r"
                     end
                     emitBuildButton(bracketNode, bracketData, v.build, bracketKey, label)
@@ -604,7 +604,7 @@ local function BuildLoadoutMenu(_, root)
             local bgHas = groupHasAny(BG_GROUP)
 
             if hasBlizzard or hasWowhead or hasArchon then root:CreateDivider() end
-            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:14:14:0:0|t  " .. (L["PvP"] or "PvP"))
+            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:14:14:0:0|t  " .. (L["pvp.label"] or "PvP"))
 
             if not arenaHas and not bgHas then
                 -- Defensive fallback: all brackets fall outside the
@@ -614,13 +614,13 @@ local function BuildLoadoutMenu(_, root)
                 for _, bracketKey in ipairs(pvpBrackets) do emitBracket(root, bracketKey) end
             else
                 if arenaHas then
-                    local arenaSub = root:CreateButton(L["Arena"] or "Arena")
+                    local arenaSub = root:CreateButton(L["pvp.arena"] or "Arena")
                     for _, k in ipairs(ARENA_GROUP) do
                         if available[k] then emitBracket(arenaSub, k) end
                     end
                 end
                 if bgHas then
-                    local bgSub = root:CreateButton(L["Battleground"] or "Battleground")
+                    local bgSub = root:CreateButton(L["pvp.battleground"] or "Battleground")
                     for _, k in ipairs(BG_GROUP) do
                         if available[k] then emitBracket(bgSub, k) end
                     end
@@ -631,7 +631,7 @@ local function BuildLoadoutMenu(_, root)
     end
 
     if not hasBlizzard and not hasArchon and not hasPvp and (not specData or not specData.talents or #specData.talents == 0) then
-        root:CreateTitle(L["No loadouts available"])
+        root:CreateTitle(L["loadout_dock.no_loadouts"])
     end
 end
 
@@ -641,13 +641,13 @@ end
 local function BuildOptionsMenu(_, root)
     local L = ns.L or setmetatable({}, { __index = function(_, k) return k end })
     local locked = ClassCodexDB and ClassCodexDB.dockLoadoutLocked
-    root:CreateTitle(L["Loadout Dock"])
-    local lockLabel = locked and L["Unlock position"] or L["Lock position"]
+    root:CreateTitle(L["settings.header.loadout_dock"])
+    local lockLabel = locked and L["loadout_dock.unlock_position"] or L["loadout_dock.lock_position"]
     root:CreateButton(lockLabel, function()
         if not ClassCodexDB then return end
         ClassCodexDB.dockLoadoutLocked = not ClassCodexDB.dockLoadoutLocked
     end)
-    root:CreateButton(L["Open Settings"], function()
+    root:CreateButton(L["compendium.open_settings"], function()
         if ns.OpenSettings then ns.OpenSettings() end
     end)
 end
@@ -749,8 +749,8 @@ local function CreateDock()
         end
 
         GameTooltip:AddLine(" ")
-        GameTooltip:AddLine(L["Click to switch loadouts."], 1, 1, 1)
-        GameTooltip:AddLine(L["Right-click for options."], 0.7, 0.7, 0.7)
+        GameTooltip:AddLine(L["loadout_dock.click_to_switch"], 1, 1, 1)
+        GameTooltip:AddLine(L["loadout_dock.right_click_options"], 0.7, 0.7, 0.7)
         GameTooltip:Show()
     end)
     f:SetScript("OnLeave", function() GameTooltip:Hide() end)
