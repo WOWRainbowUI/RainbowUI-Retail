@@ -1,7 +1,7 @@
 ﻿<Bindings>
 
 	<!-- Toggle panel -->
-	<Binding name="LEATRIX_PLUS_GLOBAL_TOGGLE" header = "Leatrix Plus" category = "ADDONS">
+	<Binding name="LEATRIX_PLUS_GLOBAL_TOGGLE" header = "功能百寶箱" category = "ADDONS">
 		SlashCmdList["Leatrix_Plus"]()
 	</Binding>
 
@@ -17,7 +17,9 @@
 
 	<!-- Mount special -->
 	<Binding name="LEATRIX_PLUS_GLOBAL_MOUNTSPECIAL" category = "ADDONS">
-		DoEmote('mountspecial')
+		if not C_RestrictedActions.IsAddOnRestrictionActive(Enum.AddOnRestrictionType.Chat) then
+			DoEmote('mountspecial')
+		end
 	</Binding>
 
 	<!-- Flares -->
