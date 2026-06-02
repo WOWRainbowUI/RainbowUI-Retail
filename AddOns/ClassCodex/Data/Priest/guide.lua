@@ -60,6 +60,11 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "Voidweaver",
+        context = "探究",
+        exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYMzGjxYmZMbsNzMzMzAAAAAAAAAAgxYZGMzMjNjZGsZamGwMDACgZZWWAjNDAAjZmZMYGMzAaGG",
+      },
+      {
+        heroTalent = "Voidweaver",
         context = "團隊單目標",
         exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsgZ2YMPAzMjZbsNzMzMzAAAAAAAAAAgZYZGMzMDzwMwMNTzAzMAIAmtZZBM2MAAMGzMGMDmZwoZYA",
       },
@@ -67,11 +72,6 @@ ClassCodexData["PRIEST"] = {
         heroTalent = "Voidweaver",
         context = "傳奇+",
         exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYMzGjxYmZMbsNzMzMzAAAAAAAAAAgxYZGMzMjNjZGsZamAmZAQAMbzyCYsZAAYMzMjBzgZGMaGG",
-      },
-      {
-        heroTalent = "Voidweaver",
-        context = "探究",
-        exportString = "CAQAAAAAAAAAAAAAAAAAAAAAAADsYMzGjxYmZMbsNzMzMzAAAAAAAAAAgxYZGMzMjNjZGsZamGwMDACgZZWWAjNDAAjZmZMYGMzAaGG",
       },
     },
     rotation = {
@@ -93,7 +93,7 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "All",
-        context = "Voidweaver優先",
+        context = "Voidweaver Priority",
         steps = {
           "Maintain/refresh {589}. It is much stronger in Midnight so you will want to make sure you are applying at least one and then letting {47540} spread the DoT.",
           "{1253593} any time it is available.",
@@ -182,7 +182,7 @@ ClassCodexData["PRIEST"] = {
     rotation = {
       {
         heroTalent = "All",
-        context = "團隊優先",
+        context = "團隊 Priority",
         steps = {
           "{120517} as raid damage begins, the goal is to have it expanding and contracting continuously as damage is hitting the raid.",
           "{200183} to reset the cooldown of your Holy Words.",
@@ -241,11 +241,6 @@ ClassCodexData["PRIEST"] = {
       },
       {
         heroTalent = "Archon",
-        context = "團隊多目標",
-        exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGyMWMTDwMAzsZGmNDAZMWAwMQGzMzY2GzstMAzED",
-      },
-      {
-        heroTalent = "Archon",
         context = "傳奇+",
         exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzYDZGLmpBYGgZ2MDzmBgMGLAYGIjZmZMbjZ2WGgZiB",
       },
@@ -253,6 +248,11 @@ ClassCodexData["PRIEST"] = {
         heroTalent = "Archon",
         context = "探究",
         exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAghZxMGLzMmZWmZYmx2MGzMzYDZGLmpBYGgZ2MDzmBgMGLAYGIjZmZMbjZ2WGgZiB",
+      },
+      {
+        heroTalent = "Archon",
+        context = "團隊多目標",
+        exportString = "CIQAAAAAAAAAAAAAAAAAAAAAAMMjZGAAAAAAAAAAAgxMMjxyMDzsNzwMsNzMmZmxGyMWMTDwMAzsZGmNDAZMWAwMQGzMzY2GzstMAzED",
       },
       {
         heroTalent = "Voidweaver",

@@ -19,17 +19,23 @@ ClassCodexData["DRUID"] = {
         stats = {
           { "Mastery" },
           { "Haste" },
-          { "Critical Strike" },
           { "Versatility" },
+          { "Critical Strike" },
         },
       },
     },
     talents = {
       {
-        heroTalent = "Keeper of the Grove",
+        heroTalent = "All",
         context = "團隊單目標",
-        recommended = true,
+        buildLabel = "Convoke The Spirits",
         exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmlZmZmBYwyMbzYGzYjlZMzMjZ2wAgBYZbshpZmlRAAAA2MzMzMYzYYMDgZGAYA",
+      },
+      {
+        heroTalent = "Elune's Chosen",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlZWMzMWYZmlxMjxGGAMW2mZwY2GBmAAAAswMzMD2MmxYAAYmBGA",
       },
       {
         heroTalent = "Keeper of the Grove",
@@ -42,15 +48,15 @@ ClassCodexData["DRUID"] = {
         exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlx2MmxGLzYmZGmFMAYAW2GbYamZbEAAAgNmZmZwmxMGzAYmBAGA",
       },
       {
-        heroTalent = "Elune's Chosen",
+        heroTalent = "Keeper of the Grove",
         context = "團隊單目標",
-        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDwsMzMzMYYGjZ2mhxMWYZmlZGjZ2wAgx22MDGz2IwEAAAgFzMzMD2MMGzAAYmBLDA",
+        recommended = true,
+        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDMmlZmZmBYYWmZZsNjZsxyMGzMzYBDAGgltxGmmZWGBAAAYzMzMzgNjhxMAmZAgB",
       },
       {
         heroTalent = "Elune's Chosen",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNMmZgxsMzMzMLMgZZmlZWMzMWYZmlxMjxGGAMW2mZwY2GBmAAAAswMzMD2MmxYAAYmBGA",
+        context = "團隊單目標",
+        exportString = "CYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWoMbNjxMDwsMzMzMYYGjZ2mhxMWYZmlZGjZ2wAgx22MDGz2IwEAAAgFzMzMD2MMGzAAYmBLDA",
       },
       {
         heroTalent = "Elune's Chosen",
@@ -133,7 +139,7 @@ ClassCodexData["DRUID"] = {
         heroTalent = "All",
         context = "Starweaver",
         steps = {
-          "On low target count fights like Vaelgor & Ezzorak, Lightblinded Vanguard or various two-target fights from the M+ dungeon pool, it is now worth keeping track of {450212} on your targets when playing {393940}. Stellar Amplification is a debuff that gets applied from {78674} and increases the damage the target takes from a lot of your damage sources. Playing around this effect can be annoying since it requires you to constantly swap your target between spending free Starsurge procs to keep this up on both targets.",
+          "On low target count fights like 維爾葛與艾札瑞克, 光盲先鋒 or various two-target fights from the M+ dungeon pool, it is now worth keeping track of {450212} on your targets when playing {393940}. Stellar Amplification is a debuff that gets applied from {78674} and increases the damage the target takes from a lot of your damage sources. Playing around this effect can be annoying since it requires you to constantly swap your target between spending free Starsurge procs to keep this up on both targets.",
           "Whenever playing Starweaver you also want to bank up procs before entering your {1239669} in order to spend {1261564} as soon as possible inside your {394048} window.",
           "Maximize uptime on {343647}: Shooting Stars is now a considerable amount of your damage, so maintaining uptime on Solstice through the {469004} interactions with Starweaver and {450356} is important.",
         },
@@ -167,9 +173,10 @@ ClassCodexData["DRUID"] = {
     },
     talents = {
       {
-        heroTalent = "Druid of the Claw",
+        heroTalent = "Wildstalker",
         context = "團隊單目標",
-        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAghZ2YmZmZGzmx2MbzMzMmZAAAAYJYWMGmZUzYWMzMzsMmZAAAAAAwADAAAgmZZ2mZmBEYBMzAswgBAAwMbYA",
+        recommended = true,
+        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtlxyMbzYGzMDAAAALBzihxMjaGziZmZGjZYAAAAAAMwAAAAIAY2mZpZbmlNwMDwiZwAAYmBAD",
       },
       {
         heroTalent = "Druid of the Claw",
@@ -184,10 +191,9 @@ ClassCodexData["DRUID"] = {
         exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmZYmZmZMzsZsNz2MzMzDMzAAAAwSwsYMMzomxsYmZmZZMzAAAAAAgBAAAAoZWmtZmZABWAzMALMYAAAMzGG",
       },
       {
-        heroTalent = "Wildstalker",
+        heroTalent = "Druid of the Claw",
         context = "團隊單目標",
-        recommended = true,
-        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjZwMzMzMmtlxyMbzYGzMDAAAALBzihxMjaGziZmZGjZYAAAAAAMwAAAAIAY2mZpZbmlNwMDwiZwAAYmBAD",
+        exportString = "CcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAghZ2YmZmZGzmx2MbzMzMmZAAAAYJYWMGmZUzYWMzMzsMmZAAAAAAwADAAAgmZZ2mZmBEYBMzAswgBAAwMbYA",
       },
       {
         heroTalent = "Wildstalker",
@@ -326,8 +332,8 @@ ClassCodexData["DRUID"] = {
         stats = {
           { "Haste" },
           { "Versatility" },
-          { "Critical Strike" },
           { "Mastery" },
+          { "Critical Strike" },
         },
       },
       {
@@ -346,8 +352,8 @@ ClassCodexData["DRUID"] = {
         stats = {
           { "Haste" },
           { "Versatility" },
-          { "Critical Strike" },
           { "Mastery" },
+          { "Critical Strike" },
         },
       },
       {
@@ -369,9 +375,19 @@ ClassCodexData["DRUID"] = {
         exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMzmZZm5BMWGY2gRT0MzsMzMzMGzYGAAAAAwMWmBAAAgamlZZmZGAALYmBYxMYALYAwMbwA",
       },
       {
+        heroTalent = "Elune's Chosen",
+        context = "傳奇+",
+        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWMLm5BmZZZgZzMGNRmZWmZmZmlxMAAAAAAYsYGYbbmBjZZAMFAAAYDz8ADYxMYgZxyGgZGAA",
+      },
+      {
         heroTalent = "Druid of the Claw",
         context = "傳奇+",
         exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMWMLzDMPwMLLDMbGGNRzMzyMzMzsMmhBAAAAAMsMDAAAA1MLzyMzMAAWwMPAwiZwgBLbDAmZDG",
+      },
+      {
+        heroTalent = "Elune's Chosen",
+        context = "探究",
+        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMWMLzMPgZZZgZzMGNRzMziZmZmlxMAAAAAAMsMDYZbmBjZZAMFAAAYDz8ADYxMYwgltBYmBwA",
       },
       {
         heroTalent = "Druid of the Claw",
@@ -382,18 +398,6 @@ ClassCodexData["DRUID"] = {
         heroTalent = "Elune's Chosen",
         context = "團隊單目標",
         exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxs4BGjZ2MLzMMLLDMbwoJamZWmZmZGjZMDAAAAAYGLzA22mZwY2GATBAAA2wMDwiZwAWsYAmZAM",
-      },
-      {
-        heroTalent = "Elune's Chosen",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZmFzMjZWMLm5BmZZZgZzMGNRmZWmZmZmlxMAAAAAAYsYGYbbmBjZZAMFAAAYDz8ADYxMYgZxyGgZGAA",
-      },
-      {
-        heroTalent = "Elune's Chosen",
-        context = "探究",
-        recommended = true,
-        exportString = "CgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmxsMmZMWMLzMPgZZZgZzMGNRzMziZmZmlxMAAAAAAMsMDYZbmBjZZAMFAAAYDz8ADYxMYwgltBYmBwA",
       },
     },
     rotation = {
@@ -518,10 +522,19 @@ ClassCodexData["DRUID"] = {
     },
     talents = {
       {
+        heroTalent = "Wildstalker",
+        context = "團隊單目標",
+        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbz2MmZGz2wDwMzmxCzAAAAAAAAAAgtBNbMmmZM8AmlZmZmhhZAAAAAAAAAAEAAwsNzSz2Mb2YMzMMzAjmBAYmBgB",
+      },
+      {
         heroTalent = "Keeper of the Grove",
         context = "團隊單目標",
-        recommended = true,
         exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbz2MmZGzywDYmZYswMAAAAAAAAAAYbQzGjpZYMjZZmZmZYYmBAAAAAAAAbbjFMNzsMAAABswYmBzMANDAmZAAD",
+      },
+      {
+        heroTalent = "Wildstalker",
+        context = "傳奇+",
+        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDNbzw0MAmFzMzMLGGAAAAAMAAzAAQAAAz2MbNbzsYjZmZGMzGoZAAmZAYA",
       },
       {
         heroTalent = "Keeper of the Grove",
@@ -529,34 +542,22 @@ ClassCodexData["DRUID"] = {
         exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDNbzw0MAmFzMzMLGGAAAAAMAAzA22GLYamZZAAACYhZmZGMzGoZAwMDAYA",
       },
       {
-        heroTalent = "Keeper of the Grove",
-        context = "探究",
-        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxYGzMjZbmZYYhZx2MAAAAAAAAAAYbQzmhpZYmZMLmZmZWmhxAAAAAAAYMgFjFMNsNAAABsAz8AYGLgmBAzMAgB",
-      },
-      {
-        heroTalent = "Wildstalker",
-        context = "團隊單目標",
-        legacy = true,
-        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMjxMbz2MmZGz2wDwMzmxCzAAAAAAAAAAgtBNbMmmZM8AmlZmZmhhZAAAAAAAAAAEAAwsNzSz2Mb2YMzMMzAjmBAYmBgB",
-      },
-      {
-        heroTalent = "Wildstalker",
-        context = "傳奇+",
-        legacy = true,
-        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmZZMjZmxsN8AMzsNjFbzAAAAAAAAAAgFDNbzw0MAmFzMzMLGGAAAAAMAAzAAQAAAz2MbNbzsYjZmZGMzGoZAAmZAYA",
-      },
-      {
         heroTalent = "Wildstalker",
         context = "探究",
         recommended = true,
-        legacy = true,
         exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxYGzMjZbmZYYhZx2MAAAAAAAAAAYbQzmhpZMzYMLmZmZWmhxAAAAAAAYMAAEAAwsMzWzyML2gZeAMjFQzAAMzAwA",
+      },
+      {
+        heroTalent = "Keeper of the Grove",
+        context = "探究",
+        legacy = true,
+        exportString = "CkGAAAAAAAAAAAAAAAAAAAAAAMMmxYGzMjZbmZYYhZx2MAAAAAAAAAAYbQzmhpZYmZMLmZmZWmhxAAAAAAAYMgFjFMNsNAAABsAz8AYGLgmBAzMAgB",
       },
     },
     rotation = {
       {
         heroTalent = "All",
-        context = "團隊 治療",
+        context = "團隊治療",
         steps = {
           "Keep {81262} active as frequently as possible. Our default build will take {1217941} which means you will automatically keep {81262} active by keeping {33763} up.",
           "{33763} is a crucial spell to keep up at all times due to our Apex talent, Everbloom. If you {18562} your {33763} target then you won't need to refresh it manually very often (due to {392410}). If your healing is struggling then it is worth checking your Lifebloom uptime.",

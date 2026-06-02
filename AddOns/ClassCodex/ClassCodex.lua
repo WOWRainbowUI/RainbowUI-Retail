@@ -696,7 +696,7 @@ end)
 local SIDE_TAB_W = 26
 local SIDE_TAB_H = 28
 local SIDE_TAB_GAP = 2
-local activeTab = "guide" -- "guide", "stats", "talents", "bis", "trinkets", "enhancements", "crafts", "about", "supporters"
+local activeTab = "guide" -- "guide", "stats", "talents", "bis", "trinkets", "enhancements", "crafting", "about", "supporters"
 
 -- Side tabs use the same BackdropTemplate idiom as section headers and
 -- the rest of the addon, plus a HIGHLIGHT layer for native mouse hover
@@ -775,7 +775,7 @@ local enhancementsTab = CreateSideTab(panel, 136244, L["tab.enhancements"], "enh
 enhancementsTab:SetPoint("TOPLEFT", trinketsTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = enhancementsTab
 
-local craftsTab = CreateSideTab(panel, 136241, L["tab.crafts"], "crafts") -- Trade_BlackSmithing
+local craftsTab = CreateSideTab(panel, 136241, L["tab.crafting"], "crafting") -- Trade_BlackSmithing
 craftsTab:SetPoint("TOPLEFT", enhancementsTab, "BOTTOMLEFT", 0, -SIDE_TAB_GAP)
 sideTabs[#sideTabs + 1] = craftsTab
 
@@ -826,7 +826,7 @@ local TAB_VISIBILITY_RULES = {
     { tab = bisTab,           tabKey = "bis",           keys = { "BisGear" } },
     { tab = trinketsTab,      tabKey = "trinkets",      keys = { "Trinkets" } },
     { tab = enhancementsTab,  tabKey = "enhancements",  keys = { "Enchants", "Gems", "Consumables" } },
-    { tab = craftsTab,        tabKey = "crafts",        keys = { "Crafts" } },
+    { tab = craftsTab,        tabKey = "crafting",      keys = { "Crafts", "Crafting" } },
 }
 
 function ns:UpdateSideTabVisibility(prefix, currentActiveTab)
@@ -955,69 +955,11 @@ end
 -- Section: Stat Priority
 -------------------------------------------------------------------------------
 
--- Section header used across the docked panel, GearingSections, and
--- Compendium. BackdropTemplate background + hover highlight + right-side
--- arrow so all three surfaces share the same Blizzard-modern visual
--- language. Pass collapsible=false (or omit, defaults to true) to drop
--- the arrow + hover affordance for single-section tabs.
-local function CreateSectionHeader(parent, labelText, collapsible)
-    if collapsible == nil then collapsible = true end
-
-    local header = CreateFrame("Button", nil, parent)
-    header:SetHeight(SECTION_HEADER_HEIGHT)
-    header:SetPoint("TOPLEFT", 0, 0)
-    header:SetPoint("TOPRIGHT", 0, 0)
-    header:RegisterForClicks("LeftButtonUp")
-    header:EnableMouse(true)
-
-    local bg = CreateFrame("Frame", nil, header, "BackdropTemplate")
-    bg:SetAllPoints()
-    bg:SetBackdrop({
-        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        tile = true, tileSize = 16, edgeSize = 12,
-        insets = { left = 2, right = 2, top = 2, bottom = 2 },
-    })
-    bg:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
-    bg:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.6)
-    header.bg = bg
-
-    local text = bg:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    text:SetPoint("LEFT", 8, 0)
-    text:SetText(labelText)
-    text:SetTextColor(1, 0.82, 0)
-    header.label = text
-    header.text = text -- back-compat alias for any old callers
-
-    if collapsible then
-        local arrow = bg:CreateTexture(nil, "OVERLAY")
-        arrow:SetSize(12, 12)
-        arrow:SetPoint("RIGHT", -6, 0)
-        arrow:SetTexture("Interface\\Buttons\\UI-MinusButton-Up")
-        header.arrow = arrow
-
-        header:SetScript("OnEnter", function(self)
-            self.bg:SetBackdropColor(0.15, 0.15, 0.15, 0.9)
-            self.bg:SetBackdropBorderColor(0.5, 0.5, 0.5, 0.8)
-        end)
-        header:SetScript("OnLeave", function(self)
-            self.bg:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
-            self.bg:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.6)
-        end)
-    end
-
-    return header
-end
-
-local function SetCollapsed(content, header, collapsed)
-    if collapsed then
-        content:Hide()
-        if header.arrow then header.arrow:SetTexture("Interface\\Buttons\\UI-PlusButton-Up") end
-    else
-        content:Show()
-        if header.arrow then header.arrow:SetTexture("Interface\\Buttons\\UI-MinusButton-Up") end
-    end
-end
+-- CreateSectionHeader + SetCollapsed live in UI/CollapsibleSection.lua
+-- as ns.CreateSectionHeader / ns.SetCollapsed. Local aliases below so
+-- the existing call sites in this file keep working without prefix.
+local CreateSectionHeader = ns.CreateSectionHeader
+local SetCollapsed = ns.SetCollapsed
 
 -- Tab title (non-collapsible, text set dynamically per active tab)
 local tabTitle = CreateFrame("Frame", nil, contentFrame)
@@ -1032,6 +974,7 @@ local TAB_TITLE_LABELS = {
     stats        = L["section.stat_targets"],
     talents      = L["section.talents"],
     enhancements = L["tab.enhancements"],
+    crafting     = L["tab.crafting"],
 }
 
 -- Stat priority info icon on Guide title row (right-aligned)
@@ -1088,43 +1031,49 @@ statTargetsInfoBtn:SetScript("OnClick", function(self)
     if self.url and ns.ShowCopyPopup then ns.ShowCopyPopup(self.url, self) end
 end)
 
-local statSection = CreateFrame("Frame", nil, contentFrame)
-local statHeader = CreateSectionHeader(statSection, L["section.stat_priority"])
+-- Crafting tab info icon. Created lazily after the Crafting section
+-- module loads (see Sections/Crafting.lua: Crafting.AttachInfoButton).
+-- Shown only on the crafting tab via UpdatePanel below.
+local craftingInfoBtn = ns.Sections.Crafting.AttachInfoButton(tabTitle)
+craftingInfoBtn:Hide()
 
-local statContent = CreateFrame("Frame", nil, statSection)
-statContent:SetPoint("TOPLEFT", statHeader, "BOTTOMLEFT", 0, 0)
-statContent:SetPoint("RIGHT", 0, 0)
-statContent:SetHeight(200) -- updated dynamically
+-- Crafting tab options gear. Sits left of the help icon; opens a
+-- context menu with the "Show top picks only" toggle (mirrored in
+-- the main settings panel).
+local craftingOptionsBtn = ns.Sections.Crafting.AttachOptionsButton(tabTitle)
+craftingOptionsBtn:Hide()
 
--- Stat context dropdown (only shown when stats differ across contexts)
-local statCtxDropdown = CreateOptionDropdown("ClassCodexStatCtxDropdown", statContent)
-statCtxDropdown:SetPoint("TOPLEFT", 0, 0)
-statCtxDropdown:SetPoint("TOPRIGHT", 0, 0)
-statCtxDropdown:Hide()
-local currentStatContext = nil
+-------------------------------------------------------------------------------
+-- Early ns exports for Section modules
+--
+-- Section/* InitPanel calls happen at file-scope below this point. They
+-- reference ns.SECTION_HEADER_HEIGHT / ns.ROW_HEIGHT / ns.CreateOptionDropdown
+-- etc. at runtime, so those must already be on `ns` by the time Init runs.
+-- The full export table further down (with GetSpecData, isFloating, etc.) is
+-- still authoritative — these are just the subset needed before the Init
+-- calls execute.
+-------------------------------------------------------------------------------
+ns.SECTION_HEADER_HEIGHT = SECTION_HEADER_HEIGHT
+ns.ROW_HEIGHT = ROW_HEIGHT
+ns.CONTENT_INSET = CONTENT_INSET
+ns.PANEL_PADDING = PANEL_PADDING
+ns.contentFrame = contentFrame
+ns.CreateSectionHeader = CreateSectionHeader
+ns.SetCollapsed = SetCollapsed
+ns.CreateOptionDropdown = CreateOptionDropdown
+ns.GetPanelWidth = GetPanelWidth
 
-local statFrames = {}
+-- Stat Priority section — extracted to Sections/Stats.lua. The module owns
+-- the section frame, row pool, and context dropdown. We keep the header
+-- handle so this file can hook its collapse-on-click and persistence.
+local statSection, statHeader, statContent = ns.Sections.Stats.InitPanel({
+    parent = contentFrame,
+    header = CreateSectionHeader,
+})
 local MAX_STATS = 10
-
-for i = 1, MAX_STATS do
-    local row = CreateFrame("Frame", nil, statContent)
-    row:SetHeight(20)
-    row:SetPoint("TOPLEFT", 0, -(i - 1) * ROW_HEIGHT)
-    row:SetPoint("RIGHT", 0, 0)
-    local rank = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    rank:SetPoint("LEFT", 0, 0)
-    rank:SetWidth(20)
-    rank:SetJustifyH("CENTER")
-    row.rank = rank
-    local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    name:SetPoint("LEFT", rank, "RIGHT", 6, 0)
-    name:SetPoint("RIGHT", 0, 0)
-    name:SetJustifyH("LEFT")
-    row.statName = name
-    statFrames[i] = row
-end
-
+local currentStatContext = nil
 local statSectionCollapsed = false
+local lastStatRowCount = 0
 
 -------------------------------------------------------------------------------
 -- Section: Stat Targets (only shown on the Stats tab)
@@ -1136,283 +1085,39 @@ local statSectionCollapsed = false
 -- visual language matches the rest of WoW (cast bars, talent points, etc).
 -------------------------------------------------------------------------------
 
--- Two-line row: stat name + rating readout + status icon on the top line,
--- full-width bar across the bottom. The status icon is a coloured arrow
--- (or check) showing how the player's rating compares to the Archon
--- target — green up = ahead, gold check = on target, red down = behind.
--- Stats tab carries no inner section header: the tab title is the only
--- header, and the visibility of the entire tab is gated by the "Show
--- Stat Targets" setting.
-local STAT_TARGET_ROW_HEIGHT = 40
-local STAT_TARGET_ROW_GAP = 5
-local STAT_TARGET_BAR_HEIGHT = 16
-local STAT_TARGETS_MAX_ROWS = 4
--- The bar visualises 0 → 1.3× target so "above" can overshoot the tick
--- mark, "at" sits right on it, and "below" stops short. Without the
--- overshoot range the bar would clamp at 100 % and you couldn't tell
--- "exactly at target" from "way past".
-local STAT_TARGET_BAR_MAX_RATIO = 1.3
--- "below" reuses the up-arrow texture vertically flipped (via texCoord) so
--- both arrows share the exact same pixel grid — Blizzard's stock
--- Arrow-Down-Up texture has asymmetric whitespace and renders offset.
--- Status colour semantics: blue = above target (overcapped, can shift
--- stat), green = at target (right where you want to be), red = below
--- target (need more of this stat).
-local STAT_STATUS_ICONS = {
-    above = { texture = "Interface\\BUTTONS\\Arrow-Up-Up",       r = 0.40, g = 0.70, b = 1.00, texCoord = { 0, 1, 0, 1 } },
-    at    = { texture = "Interface\\BUTTONS\\UI-CheckBox-Check", r = 0.40, g = 1.00, b = 0.45, texCoord = { 0, 1, 0, 1 } },
-    below = { texture = "Interface\\BUTTONS\\Arrow-Up-Up",       r = 1.00, g = 0.40, b = 0.40, texCoord = { 0, 1, 1, 0 } },
-}
--- Bar fill colours (top of the gradient — bottom darkens via the texture).
--- Brighter than the icon set since the gradient washes the bottom out.
-local STAT_BAR_COLORS = {
-    above = { 0.35, 0.65, 1.00 },
-    at    = { 0.40, 1.00, 0.45 },
-    below = { 0.95, 0.40, 0.40 },
-}
+-- Stat-targets live bars — extracted to Sections/StatTargets.lua. The
+-- module owns the section frame, row pool, custom StatusBar textures,
+-- context dropdown, and PvP / in-combat fallback lines.
+ns.statTargetsInfoBtn = statTargetsInfoBtn
+local _statTargetsSection = ns.Sections.StatTargets.InitPanel({ parent = contentFrame })
+-- Mirror the previous {section, content, ctxDropdown} surface so the
+-- LayoutPanel code below (which still references statTargets.section)
+-- doesn't need rewiring; the table is now a thin facade.
 local statTargets = {
-    section = CreateFrame("Frame", nil, contentFrame),
-    rows = {},
-    currentCtx = nil,
+    section = _statTargetsSection,
+    content = ns.Sections.StatTargets.GetPanelContent(),
 }
-statTargets.content = CreateFrame("Frame", nil, statTargets.section)
-statTargets.content:SetPoint("TOPLEFT", 0, 0)
-statTargets.content:SetPoint("RIGHT", 0, 0)
-statTargets.content:SetHeight(140)
-statTargets.ctxDropdown = CreateOptionDropdown("ClassCodexStatTargetCtxDropdown", statTargets.content)
-statTargets.ctxDropdown:SetPoint("TOPLEFT", 0, 0)
-statTargets.ctxDropdown:SetPoint("TOPRIGHT", 0, 0)
-for i = 1, STAT_TARGETS_MAX_ROWS do
-    local row = CreateFrame("Frame", nil, statTargets.content)
-    row:SetHeight(STAT_TARGET_ROW_HEIGHT)
-    row:SetPoint("LEFT", 0, 0); row:SetPoint("RIGHT", 0, 0)
-
-    local statusIcon = row:CreateTexture(nil, "ARTWORK")
-    statusIcon:SetSize(14, 14)
-    statusIcon:SetPoint("TOPRIGHT", -2, -2)
-    row.statusIcon = statusIcon
-
-    local rating = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    rating:SetPoint("RIGHT", statusIcon, "LEFT", -4, 0)
-    rating:SetJustifyH("RIGHT")
-    row.rating = rating
-
-    local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    name:SetPoint("TOPLEFT", 4, -2)
-    name:SetPoint("RIGHT", rating, "LEFT", -4, 0)
-    name:SetJustifyH("LEFT")
-    row.statName = name
-
-    -- WoW-pattern status bar, modeled on the cast / XP bar:
-    --   1px outer black ring   (frame the bar against any backdrop)
-    --   1px inner tan bevel    (the WoW gold edge)
-    --   dark recessed plate    (the empty/track portion)
-    --   1px inner top shadow   (pushes the plate "into" the frame)
-    --   gradient fill          (Interface\TargetingFrame\UI-StatusBar)
-    --   upper gloss band       (the glassy shine running across the top)
-    -- Built from explicit textures rather than BackdropTemplate because
-    -- backdrops rendered unreliably as a "red square" at small sizes.
-    local barFrame = CreateFrame("Frame", nil, row)
-    barFrame:SetPoint("BOTTOMLEFT", 4, 3)
-    barFrame:SetPoint("BOTTOMRIGHT", -2, 3)
-    barFrame:SetHeight(STAT_TARGET_BAR_HEIGHT)
-
-    local function colorEdge(layer, r, g, b, a)
-        local t = barFrame:CreateTexture(nil, layer)
-        t:SetColorTexture(r, g, b, a or 1)
-        return t
-    end
-    -- Outer 1px black ring.
-    local oTop    = colorEdge("BORDER", 0, 0, 0); oTop:SetPoint("TOPLEFT");        oTop:SetPoint("TOPRIGHT");        oTop:SetHeight(1)
-    local oBot    = colorEdge("BORDER", 0, 0, 0); oBot:SetPoint("BOTTOMLEFT");     oBot:SetPoint("BOTTOMRIGHT");     oBot:SetHeight(1)
-    local oLeft   = colorEdge("BORDER", 0, 0, 0); oLeft:SetPoint("TOPLEFT");       oLeft:SetPoint("BOTTOMLEFT");     oLeft:SetWidth(1)
-    local oRight  = colorEdge("BORDER", 0, 0, 0); oRight:SetPoint("TOPRIGHT");     oRight:SetPoint("BOTTOMRIGHT");   oRight:SetWidth(1)
-    -- Inner 1px WoW-tan bevel.
-    local iTop    = colorEdge("BORDER", 0.62, 0.51, 0.27); iTop:SetPoint("TOPLEFT", 1, -1);     iTop:SetPoint("TOPRIGHT", -1, -1);    iTop:SetHeight(1)
-    local iBot    = colorEdge("BORDER", 0.62, 0.51, 0.27); iBot:SetPoint("BOTTOMLEFT", 1, 1);   iBot:SetPoint("BOTTOMRIGHT", -1, 1);  iBot:SetHeight(1)
-    local iLeft   = colorEdge("BORDER", 0.62, 0.51, 0.27); iLeft:SetPoint("TOPLEFT", 1, -1);    iLeft:SetPoint("BOTTOMLEFT", 1, 1);   iLeft:SetWidth(1)
-    local iRight  = colorEdge("BORDER", 0.62, 0.51, 0.27); iRight:SetPoint("TOPRIGHT", -1, -1); iRight:SetPoint("BOTTOMRIGHT", -1, 1); iRight:SetWidth(1)
-
-    -- Dark recessed plate (empty portion of the bar).
-    local barBg = barFrame:CreateTexture(nil, "BACKGROUND")
-    barBg:SetPoint("TOPLEFT", 2, -2)
-    barBg:SetPoint("BOTTOMRIGHT", -2, 2)
-    barBg:SetColorTexture(0.05, 0.05, 0.05, 1)
-
-    -- 1px inner top shadow: the plate looks pressed into the frame.
-    local innerShadow = barFrame:CreateTexture(nil, "BACKGROUND", nil, 1)
-    innerShadow:SetColorTexture(0, 0, 0, 0.55)
-    innerShadow:SetPoint("TOPLEFT", 2, -2)
-    innerShadow:SetPoint("TOPRIGHT", -2, -2)
-    innerShadow:SetHeight(1)
-
-    -- Fill: classic UI-StatusBar gradient texture, recoloured per row.
-    local fill = barFrame:CreateTexture(nil, "ARTWORK")
-    fill:SetPoint("TOPLEFT", 2, -2)
-    fill:SetPoint("BOTTOMLEFT", 2, 2)
-    fill:SetTexture("Interface\\TargetingFrame\\UI-StatusBar")
-    fill:SetVertexColor(0.85, 0.45, 0.45, 1)
-    fill:SetWidth(0)
-
-    -- Upper gloss band — gives the fill the glassy WoW shine. Anchored
-    -- to the fill so it tracks the leading edge as progress changes.
-    local glossHeight = math.max(2, math.floor((STAT_TARGET_BAR_HEIGHT - 4) * 0.4))
-    local gloss = barFrame:CreateTexture(nil, "OVERLAY")
-    gloss:SetTexture("Interface\\TargetingFrame\\UI-StatusBar")
-    gloss:SetVertexColor(1, 1, 1, 0.16)
-    gloss:SetBlendMode("ADD")
-    gloss:SetPoint("TOPLEFT", fill, "TOPLEFT", 0, 0)
-    gloss:SetPoint("TOPRIGHT", fill, "TOPRIGHT", 0, 0)
-    gloss:SetHeight(glossHeight)
-
-    -- Target tick: a 2px tan line at the 100 %-of-target position. Lets
-    -- the eye read distance-to-target without doing math — fill short of
-    -- the tick = behind, on the tick = at, past the tick = above.
-    local tick = barFrame:CreateTexture(nil, "OVERLAY")
-    tick:SetColorTexture(0.95, 0.86, 0.55, 0.95)
-    tick:SetWidth(2)
-    barFrame.tick = tick
-
-    barFrame:SetScript("OnSizeChanged", function(self, w)
-        local p = self.progress or 0
-        local inner = math.max(0, w - 4)
-        self.fill:SetWidth(math.max(p > 0 and 2 or 0, math.min(p * inner, inner)))
-        if self.tick then
-            local tickX = 2 + math.floor((1 / STAT_TARGET_BAR_MAX_RATIO) * inner + 0.5)
-            self.tick:ClearAllPoints()
-            self.tick:SetPoint("TOP", self, "TOPLEFT", tickX, -2)
-            self.tick:SetPoint("BOTTOM", self, "BOTTOMLEFT", tickX, 2)
-        end
-    end)
-    barFrame.fill = fill
-    row.bar = barFrame
-
-    statTargets.rows[i] = row
-end
-
--- Shown in place of the rating rows when the PvP context is selected
--- for a spec without Murlok data. Keeps PvP discoverable in the
--- dropdown while making it explicit that nothing is being suppressed.
-statTargets.pvpFallback = statTargets.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-statTargets.pvpFallback:SetTextColor(0.5, 0.5, 0.5)
-statTargets.pvpFallback:SetJustifyH("LEFT")
-statTargets.pvpFallback:SetWordWrap(true)
-statTargets.pvpFallback:Hide()
-
--- Shown in place of the rating rows while the player is in combat —
--- Blizzard's taint protection returns "secret" values from
--- GetCombatRating in combat, so we can't compute the bars reliably.
-statTargets.combatFallback = statTargets.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-statTargets.combatFallback:SetTextColor(0.5, 0.5, 0.5)
-statTargets.combatFallback:SetJustifyH("LEFT")
-statTargets.combatFallback:SetWordWrap(true)
-statTargets.combatFallback:Hide()
 
 -------------------------------------------------------------------------------
 -- Section: Talents
 -------------------------------------------------------------------------------
 
-local talentSection = CreateFrame("Frame", nil, contentFrame)
-local talentHeader = CreateSectionHeader(talentSection, L["section.talents"])
-
-local talentContent = CreateFrame("Frame", nil, talentSection)
-talentContent:SetPoint("TOPLEFT", talentHeader, "BOTTOMLEFT", 0, 0)
-talentContent:SetPoint("RIGHT", 0, 0)
-talentContent:SetHeight(100) -- updated dynamically
-
-local MAX_TALENT_BUTTONS = 10
-local talentButtons = {}
-local TALENT_BTN_HEIGHT = 22
-local TALENT_BTN_GAP = 4
-
-local TALENT_ACTION_SIZE = 18
-local TALENT_ACTION_GAP = 2
-
-local function CreateTalentActionButton(parent, icon, tooltip)
-    local b = CreateFrame("Button", nil, parent)
-    b:SetSize(TALENT_ACTION_SIZE, TALENT_ACTION_SIZE)
-    b:RegisterForClicks("LeftButtonUp")
-    local tex = b:CreateTexture(nil, "ARTWORK")
-    tex:SetAllPoints()
-    tex:SetTexture(icon)
-    tex:SetDesaturated(true)
-    tex:SetVertexColor(0.7, 0.7, 0.7)
-    b.icon = tex
-    local hl = b:CreateTexture(nil, "HIGHLIGHT")
-    hl:SetAllPoints()
-    hl:SetTexture(icon)
-    hl:SetAlpha(0.3)
-    b:SetScript("OnEnter", function(self)
-        self.icon:SetDesaturated(false)
-        self.icon:SetVertexColor(1, 1, 1)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine(tooltip, 1, 1, 1)
-        GameTooltip:Show()
-    end)
-    b:SetScript("OnLeave", function(self)
-        self.icon:SetDesaturated(true)
-        self.icon:SetVertexColor(0.7, 0.7, 0.7)
-        GameTooltip:Hide()
-    end)
-    return b
-end
-
-for i = 1, MAX_TALENT_BUTTONS do
-    local row = CreateFrame("Frame", nil, talentContent, "BackdropTemplate")
-    row:SetHeight(TALENT_BTN_HEIGHT)
-    row:SetBackdrop({
-        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        tile = true, tileSize = 16, edgeSize = 10,
-        insets = { left = 2, right = 2, top = 2, bottom = 2 },
-    })
-    row:SetBackdropColor(0.2, 0.2, 0.2, 0.9)
-    row:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-
-    -- Apply button (rightmost)
-    local applyBtn = CreateTalentActionButton(row,
-        "Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up", "Apply talents")
-    applyBtn:SetPoint("RIGHT", row, "RIGHT", -4, 0)
-    row.applyBtn = applyBtn
-
-    -- Copy button (left of apply)
-    local copyBtn = CreateTalentActionButton(row,
-        "Interface\\Buttons\\UI-GuildButton-PublicNote-Up", "Copy talent string")
-    copyBtn:SetPoint("RIGHT", applyBtn, "LEFT", -TALENT_ACTION_GAP, 0)
-    row.copyBtn = copyBtn
-
-    -- Label
-    local text = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    text:SetPoint("LEFT", 8, 0)
-    text:SetPoint("RIGHT", copyBtn, "LEFT", -4, 0)
-    text:SetJustifyH("LEFT")
-    text:SetTextColor(0.8, 0.8, 0.8)
-    row.label = text
-
-    row:SetScript("OnEnter", function(self)
-        if not self.isActive then
-            self:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
-        end
-        self.label:SetTextColor(1, 1, 1)
-    end)
-    row:SetScript("OnLeave", function(self)
-        if not self.isActive then
-            self:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-        end
-        self.label:SetTextColor(self.isActive and 0.3 or 0.8, self.isActive and 1 or 0.8, self.isActive and 0.3 or 0.8)
-    end)
-    row:Hide()
-    talentButtons[i] = row
-end
-
-local talentFallback = CreateFrame("Frame", nil, talentContent)
-talentFallback:SetHeight(20)
-local talentFallbackText = talentFallback:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-talentFallbackText:SetPoint("LEFT", 0, 0)
-talentFallbackText:SetPoint("RIGHT", 0, 0)
-talentFallbackText:SetJustifyH("LEFT")
-talentFallbackText:SetTextColor(0.5, 0.5, 0.5)
-talentFallback:Hide()
+-- Talents Guide-tab preview — extracted to Sections/Talents.lua. The
+-- module owns the section frame, button pool, action button factory, and
+-- preview render. The standalone Talents-tab full-builds renderer
+-- (UpdateAllTalents below) still lives here because of its on-demand
+-- pools + Archon-section collapse state.
+local talentSection, talentHeader, talentContent = ns.Sections.Talents.InitPanel({
+    parent = contentFrame,
+    header = CreateSectionHeader,
+})
+local MAX_TALENT_BUTTONS = ns.Sections.Talents.GetPanelMax()
+local TALENT_BTN_HEIGHT = ns.TALENT_BTN_HEIGHT
+local TALENT_BTN_GAP = ns.TALENT_BTN_GAP
+local TALENT_ACTION_GAP = ns.TALENT_ACTION_GAP
+local CreateTalentActionButton = ns.CreateTalentActionButton
+local talentButtons = ns.Sections.Talents.GetPanelButtons()
+local lastTalentContentHeight = 0
 
 -- Copy popup — one shared instance for talent strings, source URLs,
 -- and anything else the addon wants the user to paste elsewhere.
@@ -1940,66 +1645,16 @@ end -- talents tab construction block
 -- Section: Rotation
 -------------------------------------------------------------------------------
 
-local rotationSection = CreateFrame("Frame", nil, contentFrame)
-local rotationHeader = CreateSectionHeader(rotationSection, L["section.rotation"])
-
-local rotationContent = CreateFrame("Frame", nil, rotationSection)
-rotationContent:SetPoint("TOPLEFT", rotationHeader, "BOTTOMLEFT", 0, 0)
-rotationContent:SetPoint("RIGHT", 0, 0)
-rotationContent:SetHeight(400) -- updated dynamically
-
--- Rotation context dropdown
-local rotCtxDropdown = CreateOptionDropdown("ClassCodexRotCtxDropdown", rotationContent)
-rotCtxDropdown:SetPoint("TOPLEFT", 0, 0)
-rotCtxDropdown:SetPoint("TOPRIGHT", 0, 0)
-local currentRotationContext = nil
-
-local rotationFrames = {}
+-- Rotation section — extracted to Sections/Rotation.lua. Module owns the
+-- step pool, context dropdown, and fallback line. Header collapse hooks
+-- below.
+local rotationSection, rotationHeader, rotationContent = ns.Sections.Rotation.InitPanel({
+    parent = contentFrame,
+    header = CreateSectionHeader,
+})
 local MAX_ROTATION_STEPS = 20
-local lastRotationContentHeight = 0 -- track actual height for layout
-
-for i = 1, MAX_ROTATION_STEPS do
-    local row = CreateFrame("Frame", nil, rotationContent)
-    row:SetHeight(ROW_HEIGHT)
-    local rank = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    rank:SetPoint("TOPLEFT", 0, 0)
-    rank:SetWidth(18)
-    rank:SetJustifyH("RIGHT")
-    rank:SetTextColor(0.5, 0.5, 0.5)
-    row.rank = rank
-    local icon = row:CreateTexture(nil, "ARTWORK")
-    icon:SetSize(16, 16)
-    icon:SetPoint("TOPLEFT", rank, "TOPRIGHT", 4, 0)
-    row.icon = icon
-    local stepText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    stepText:SetPoint("TOPLEFT", icon, "TOPRIGHT", 4, 0)
-    stepText:SetPoint("RIGHT", row, "RIGHT", 0, 0)
-    stepText:SetJustifyH("LEFT")
-    stepText:SetJustifyV("TOP")
-    stepText:SetWordWrap(true)
-    stepText:SetNonSpaceWrap(true)
-    row.stepText = stepText
-    row:EnableMouse(true)
-    row:SetScript("OnEnter", function(self)
-        if self.spellId then
-            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-            GameTooltip:SetSpellByID(self.spellId)
-            GameTooltip:Show()
-        end
-    end)
-    row:SetScript("OnLeave", function() GameTooltip:Hide() end)
-    rotationFrames[i] = row
-end
-
-local rotationFallback = CreateFrame("Frame", nil, rotationContent)
-rotationFallback:SetHeight(20)
-local rotationFallbackText = rotationFallback:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-rotationFallbackText:SetPoint("LEFT", 0, 0)
-rotationFallbackText:SetPoint("RIGHT", 0, 0)
-rotationFallbackText:SetJustifyH("LEFT")
-rotationFallbackText:SetTextColor(0.5, 0.5, 0.5)
-rotationFallback:Hide()
-
+local currentRotationContext = nil
+local lastRotationContentHeight = 0
 local rotationSectionCollapsed = false
 
 -------------------------------------------------------------------------------
@@ -2103,298 +1758,29 @@ do
 end
 
 
--------------------------------------------------------------------------------
--- Supporters Tab Content
--------------------------------------------------------------------------------
-
-supporters.title = CreateFrame("Frame", nil, contentFrame)
-supporters.title:SetHeight(SECTION_HEADER_HEIGHT)
-do
-    local title = supporters.title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    title:SetPoint("LEFT", 2, 0)
-    title:SetText(L["about.supporters"])
-    title:SetTextColor(1, 0.82, 0)
-end
-supporters.title:Hide()
-
-supporters.content = CreateFrame("Frame", nil, contentFrame)
-supporters.content:SetHeight(1)
-supporters.content:Hide()
-
--- Hand-curated for now. Tomorrow this becomes an auto-fetched list
--- pulled from the Patreon API; until then, names land here in the
--- order they pledged. Tier order matches display order — Champions
--- render above Supporters.
-local CHAMPIONS = {
-    "Tantify",
-}
-local SUPPORTERS = {
-    "Bxnane",
-    "Rod",
-    "Alida Bell",
-    "Furkan Yünkül",
-}
-
-do
-    local desc = supporters.content:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    desc:SetPoint("TOPLEFT", 2, 0)
-    desc:SetWidth(PANEL_WIDTH - SIDE_TAB_W - CONTENT_INSET * 2 - 10)
-    desc:SetJustifyH("LEFT")
-    desc:SetWordWrap(true)
-    desc:SetTextColor(0.7, 0.7, 0.7)
-    desc:SetText(L["about.free_message"])
-
-    -- supporters.lastChild is the bottom-most rendered element, so the
-    -- layout in the supporters tab can size the content frame correctly.
-    if #CHAMPIONS == 0 and #SUPPORTERS == 0 then
-        supporters.empty = supporters.content:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        supporters.empty:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -16)
-        supporters.empty:SetTextColor(0.5, 0.5, 0.5)
-        supporters.empty:SetText(L["about.be_first_supporter"])
-        supporters.lastChild = supporters.empty
-    else
-        local heart = "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:14:14:0:0|t"
-        local prev = desc
-        local firstName = true
-
-        -- Renders each name in `names` with `color`. Tier is conveyed by
-        -- colour alone — Champions (gold) above Supporters (coral) —
-        -- with no header rows separating the groups so a short list
-        -- doesn't feel padded. `firstName` toggles the larger top gap
-        -- on the very first row, regardless of which tier it belongs to.
-        local function renderTier(names, color)
-            for _, name in ipairs(names) do
-                local row = supporters.content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-                row:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, firstName and -14 or -2)
-                row:SetText(heart .. "  " .. name)
-                row:SetTextColor(color[1], color[2], color[3])
-                prev = row
-                firstName = false
-            end
-        end
-
-        -- Champions: gold to signal the higher tier. Supporters keep
-        -- the coral tint that matches the Patreon button so the colour
-        -- language already familiar to users carries over.
-        renderTier(CHAMPIONS, { 0.98, 0.78, 0.18 })
-        renderTier(SUPPORTERS, { 0.98, 0.65, 0.50 })
-        supporters.lastChild = prev
-    end
-end
-
--- supporters.patreonBtn created after CreateAboutButton is defined (see below)
-
--------------------------------------------------------------------------------
--- About Tab Content
--------------------------------------------------------------------------------
-
--- About tab title (non-collapsible, matches style of other tab titles)
-local addonVersion = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version") or GetAddOnMetadata(addonName, "Version") or "?"
-local aboutTabTitle = CreateFrame("Frame", nil, contentFrame)
-aboutTabTitle:SetHeight(SECTION_HEADER_HEIGHT)
-local aboutTabTitleText = aboutTabTitle:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-aboutTabTitleText:SetPoint("LEFT", 2, 0)
-aboutTabTitleText:SetText(L["about.title"]:format(addonVersion))
-aboutTabTitleText:SetTextColor(1, 0.82, 0)
-aboutTabTitle:Hide()
-
-local aboutContent = CreateFrame("Frame", nil, contentFrame)
-aboutContent:SetHeight(1) -- dynamically sized in layout
-aboutContent:Hide()
-
-local ABOUT_TEXT_WIDTH = PANEL_WIDTH - SIDE_TAB_W - CONTENT_INSET * 2 - 10
-
-local aboutDesc = aboutContent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-aboutDesc:SetPoint("TOPLEFT", 2, 0)
-aboutDesc:SetWidth(ABOUT_TEXT_WIDTH)
-aboutDesc:SetJustifyH("LEFT")
-aboutDesc:SetWordWrap(true)
-aboutDesc:SetNonSpaceWrap(true)
-aboutDesc:SetText(L["about.description"])
-
--- Shared copy box for URLs (used by author + data links)
--- About-tab links share the same copyPopup as the talent rows; no
--- separate widget is needed.
-
--- Links section
-local LINK_INDENT = 10
-
-local function CreateAboutLink(parent, anchor, label, url, yOffset)
-    local btn = CreateFrame("Button", nil, parent)
-    btn:SetHeight(16)
-    btn:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, yOffset or -6)
-    local text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    text:SetPoint("LEFT", LINK_INDENT, 0)
-    text:SetTextColor(0.27, 0.6, 1)
-    text:SetText(label)
-    btn:SetSize(text:GetStringWidth() + LINK_INDENT + 4, 16)
-    btn:SetScript("OnEnter", function()
-        text:SetTextColor(0.4, 0.7, 1)
-        GameTooltip:SetOwner(btn, "ANCHOR_TOPLEFT")
-        GameTooltip:AddLine("Click to copy URL", 1, 1, 1)
-        GameTooltip:Show()
-    end)
-    btn:SetScript("OnLeave", function()
-        text:SetTextColor(0.27, 0.6, 1)
-        GameTooltip:Hide()
-    end)
-    btn:SetScript("OnClick", function()
-        ShowCopyPopup(type(url) == "function" and url() or url, btn)
-    end)
-    return btn
-end
-
--- Commands hint
-local aboutSlash = aboutContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-aboutSlash:SetPoint("LEFT", aboutDesc, "LEFT", 0, 0)
-aboutSlash:SetPoint("TOP", aboutDesc, "BOTTOM", 0, -10)
-aboutSlash:SetWidth(ABOUT_TEXT_WIDTH)
-aboutSlash:SetJustifyH("LEFT")
-aboutSlash:SetTextColor(0.5, 0.5, 0.5)
-aboutSlash:SetText(L["about.help_hint"])
-
-
--- Settings button — dropdown style, full width, anchored to bottom of panel area
-local aboutSettingsBtn = CreateFrame("Button", nil, contentFrame, "BackdropTemplate")
-aboutSettingsBtn:SetHeight(24)
-aboutSettingsBtn:Hide()
-aboutSettingsBtn:SetBackdrop({
-    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    tile = true, tileSize = 16, edgeSize = 10,
-    insets = { left = 2, right = 2, top = 2, bottom = 2 },
+-- Supporters tab content — extracted to Sections/Supporters.lua. The Patreon
+-- button is created later (it shares the About-tab button factory) and
+-- handed back to the module via SetPatreonButton.
+ns.Sections.Supporters.InitPanel({
+    parent = contentFrame,
+    contentWidth = PANEL_WIDTH - SIDE_TAB_W - CONTENT_INSET * 2 - 10,
 })
-aboutSettingsBtn:SetBackdropColor(0.15, 0.15, 0.15, 0.9)
-aboutSettingsBtn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-local aboutSettingsText = aboutSettingsBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-aboutSettingsText:SetPoint("CENTER", 0, 0)
-aboutSettingsText:SetText("|TInterface\\Buttons\\UI-OptionsButton:12:12:0:0|t  " .. L["compendium.open_settings"])
-aboutSettingsText:SetTextColor(0.8, 0.8, 0.8)
-aboutSettingsBtn:SetScript("OnEnter", function(self)
-    self:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
-    aboutSettingsText:SetTextColor(1, 1, 1)
-end)
-aboutSettingsBtn:SetScript("OnLeave", function(self)
-    self:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-    aboutSettingsText:SetTextColor(0.8, 0.8, 0.8)
-end)
-aboutSettingsBtn:SetScript("OnClick", function()
-    if Settings and Settings.OpenToCategory and ns.settingsCategory then
-        Settings.OpenToCategory(ns.settingsCategory:GetID())
-    end
-end)
 
--- Compendium button (above settings button)
-local aboutCompendiumBtn = CreateFrame("Button", nil, contentFrame, "BackdropTemplate")
-aboutCompendiumBtn:SetHeight(24)
-aboutCompendiumBtn:Hide()
-aboutCompendiumBtn:SetBackdrop({
-    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    tile = true, tileSize = 16, edgeSize = 10,
-    insets = { left = 2, right = 2, top = 2, bottom = 2 },
-})
-aboutCompendiumBtn:SetBackdropColor(0.15, 0.15, 0.15, 0.9)
-aboutCompendiumBtn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-local aboutCompendiumText = aboutCompendiumBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-aboutCompendiumText:SetPoint("CENTER", 0, 0)
-aboutCompendiumText:SetText("|TInterface\\Icons\\INV_Misc_Book_09:12:12:0:0|t  " .. L["compendium.open_compendium"])
-aboutCompendiumText:SetTextColor(0.8, 0.8, 0.8)
-aboutCompendiumBtn:SetScript("OnEnter", function(self)
-    self:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
-    aboutCompendiumText:SetTextColor(1, 1, 1)
-end)
-aboutCompendiumBtn:SetScript("OnLeave", function(self)
-    self:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-    aboutCompendiumText:SetTextColor(0.8, 0.8, 0.8)
-end)
-aboutCompendiumBtn:SetScript("OnClick", function()
-    if ns.OpenCompendium then ns:OpenCompendium() end
-end)
-ns.aboutCompendiumBtn = aboutCompendiumBtn
-
--- About tab action buttons (Discord, Data, Compendium, Settings)
-local function CreateAboutButton(label, bgR, bgG, bgB, borderR, borderG, borderB)
-    local btn = CreateFrame("Button", nil, contentFrame, "BackdropTemplate")
-    btn:SetHeight(24)
-    btn:Hide()
-    btn:SetBackdrop({
-        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        tile = true, tileSize = 16, edgeSize = 10,
-        insets = { left = 2, right = 2, top = 2, bottom = 2 },
+-- About tab content — extracted to Sections/About.lua. The module owns the
+-- title, description, slash hint, all action buttons, the button factory,
+-- and the lazy separators. It also creates and hands the shared Patreon
+-- button to the Supporters tab.
+do
+    local addonVersion = C_AddOns and C_AddOns.GetAddOnMetadata
+        and C_AddOns.GetAddOnMetadata(addonName, "Version")
+        or GetAddOnMetadata(addonName, "Version")
+        or "?"
+    ns.Sections.About.InitPanel({
+        parent = contentFrame,
+        contentWidth = PANEL_WIDTH - SIDE_TAB_W - CONTENT_INSET * 2 - 10,
+        version = addonVersion,
     })
-    btn:SetBackdropColor(bgR or 0.15, bgG or 0.15, bgB or 0.15, 0.9)
-    btn:SetBackdropBorderColor(borderR or 0.4, borderG or 0.4, borderB or 0.4, 0.8)
-    local text = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    text:SetPoint("CENTER", 0, 0)
-    text:SetText(label)
-    text:SetTextColor(0.8, 0.8, 0.8)
-    btn:SetScript("OnEnter", function(self)
-        self:SetBackdropBorderColor((borderR or 0.4) + 0.2, (borderG or 0.4) + 0.2, (borderB or 0.4) + 0.2, 1)
-        text:SetTextColor(1, 1, 1)
-    end)
-    btn:SetScript("OnLeave", function(self)
-        self:SetBackdropBorderColor(borderR or 0.4, borderG or 0.4, borderB or 0.4, 0.8)
-        text:SetTextColor(0.8, 0.8, 0.8)
-    end)
-    return btn
 end
-
-local function SetCopyOnClick(btn, url)
-    btn:SetScript("OnClick", function()
-        ShowCopyPopup(type(url) == "function" and url() or url, btn)
-    end)
-end
-
--- Discord button (blurple tint)
-local aboutDiscordBtn = CreateAboutButton("|TInterface\\ChatFrame\\UI-ChatIcon-Chat-Up:12:12:0:0|t  Join Discord — Bugs, Feedback & Help", 0.34, 0.40, 0.95, 0.34, 0.40, 0.95)
-SetCopyOnClick(aboutDiscordBtn, "https://discord.gg/WY7HQaVkRw")
-
--- Patreon button (coral tint) — shared style, used on both About and Supporters tabs
-local patreonLabel = "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:12:12:0:0|t  " .. L["about.support_patreon"]
-local aboutPatreonBtn = CreateAboutButton(patreonLabel, 0.6, 0.25, 0.20, 0.98, 0.41, 0.33)
-SetCopyOnClick(aboutPatreonBtn, "https://www.patreon.com/classcodex")
-
-supporters.patreonBtn = CreateAboutButton(patreonLabel, 0.6, 0.25, 0.20, 0.98, 0.41, 0.33)
-SetCopyOnClick(supporters.patreonBtn, "https://www.patreon.com/classcodex")
-
--- Data source buttons — neutral chrome, bundled site logos
-local aboutDataBtn = CreateAboutButton("|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead Data")
-SetCopyOnClick(aboutDataBtn, function()
-    local specData = GetSpecData()
-    return specData and specData.sourceUrl or "https://www.wowhead.com"
-end)
-
-local aboutIcyVeinsBtn = CreateAboutButton("|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t  Icy Veins (BiS Gear) Data")
-SetCopyOnClick(aboutIcyVeinsBtn, function()
-    local classToken = select(2, UnitClass("player"))
-    local specKey = ns.GetSpecKey and ns.GetSpecKey() or nil
-    local spec = specKey and (specKey:match("-(.+)") or specKey)
-    if classToken and spec and ns.GetIcyVeinsSpecData then
-        local ivData = ns:GetIcyVeinsSpecData(classToken, spec)
-        if ivData then return ivData.sourceUrl end
-    end
-    return "https://www.icy-veins.com"
-end)
-
-local aboutArchonBtn = CreateAboutButton("|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon (Per-Encounter Builds) Data")
-SetCopyOnClick(aboutArchonBtn, function()
-    -- Prefer the player's current spec's M+ overview page; fall back
-    -- to the site root when we can't resolve a spec.
-    local classToken = select(2, UnitClass("player"))
-    local specKey = ns.GetSpecKey and ns.GetSpecKey() or nil
-    local spec = specKey and (specKey:match("-(.+)") or specKey)
-    if classToken and spec and ns.GetArchonSpecData then
-        local archon = ns.GetArchonSpecData(classToken, spec)
-        if archon and archon.contexts then
-            local overview = archon.contexts["mythic-plus:high-keys:all-dungeons"]
-                or archon.contexts["raid:heroic:all-bosses"]
-            if overview and overview.sourceUrl then return overview.sourceUrl end
-        end
-    end
-    return "https://www.archon.gg/wow"
-end)
 
 -------------------------------------------------------------------------------
 -- Section Collapse
@@ -2424,226 +1810,6 @@ rotationHeader:SetScript("OnClick", function()
     end
     ns:LayoutPanel()
 end)
--------------------------------------------------------------------------------
--- Stat Targets renderer
---
--- Pulls the empirical targets from ClassCodexArchonStats (loaded from
--- per-class archon-stats.lua) for the (class, spec, context) tuple, then
--- compares them against the live player ratings. Returns the count of
--- visible rows so LayoutPanel can size the section correctly.
--------------------------------------------------------------------------------
-
--- Stable rendering order: highest target first, but anchored by the canonical
--- secondary stats so the layout doesn't reorder while gear is being swapped.
-local STAT_TARGETS_DISPLAY_ORDER = { "mastery", "haste", "crit", "versatility" }
-
--- Update the Stats-tab title-row info icon with the active snapshot's
--- Archon source URL. Hides the icon when there's no snapshot (no data →
--- no source to show).
-local function UpdateStatTargetsInfoIcon(snapshot)
-    statTargetsInfoBtn.url = snapshot and snapshot.sourceUrl or nil
-end
-
-local function RenderStatTargets(classToken, specKey)
-    statTargets.combatFallback:Hide()
-    if not classToken or not specKey then
-        for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
-        UpdateStatTargetsInfoIcon(nil)
-        return 0
-    end
-
-    -- Build the list of contexts. Mythic+ / Raid only show when Archon
-    -- has data; PvP is ALWAYS surfaced so users can discover the feature
-    -- — when Murlok has no priority for this spec the dropdown still
-    -- offers PvP and we render a "no data" line inside instead of bars.
-    local availableContexts = {}
-    for _, ctx in ipairs({ "Mythic+", "Raid" }) do
-        if ns.GetStatTargets(classToken, specKey, ctx) then
-            availableContexts[#availableContexts + 1] = ctx
-        end
-    end
-    local pvpTargets = ns.GetPvPStatTargets and ns.GetPvPStatTargets(classToken, specKey) or nil
-    availableContexts[#availableContexts + 1] = "PvP"
-
-    -- If Mythic+ / Raid ALSO have no data and Murlok has none, the
-    -- whole side tab is empty — hide it instead of showing a lone
-    -- PvP-no-data line for a spec we know nothing about.
-    if #availableContexts == 1 and not pvpTargets then
-        statTargets.ctxDropdown:Hide()
-        statTargets.pvpFallback:Hide()
-        for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
-        UpdateStatTargetsInfoIcon(nil)
-        return 0
-    end
-
-    -- Resolve "still has data?" for the persisted context. Mythic+ /
-    -- Raid bail upstream if missing; PvP-with-no-data routes to the
-    -- fallback branch below.
-    local function resolveCtx(ctx)
-        if ctx == "PvP" then return pvpTargets end
-        return ns.GetStatTargets(classToken, specKey, ctx)
-    end
-
-    -- Mythic+ / Raid coverage check excludes PvP — the fallback branch
-    -- below handles that case explicitly. Without this, PvP-only specs
-    -- (where Mythic+/Raid both miss) would skip the persisted-context
-    -- correction and possibly land on a stale Mythic+ value.
-    local hasNonPvpCtx = false
-    for _, ctx in ipairs(availableContexts) do
-        if ctx ~= "PvP" then hasNonPvpCtx = true; break end
-    end
-    if not statTargets.currentCtx or
-        (statTargets.currentCtx ~= "PvP" and not resolveCtx(statTargets.currentCtx)) then
-        statTargets.currentCtx = hasNonPvpCtx and availableContexts[1] or "PvP"
-    end
-
-    if #availableContexts > 1 then
-        statTargets.ctxDropdown:Show()
-        statTargets.ctxDropdown:SetOptions(availableContexts, statTargets.currentCtx, function(selected)
-            statTargets.currentCtx = selected
-            ns:UpdatePanel()
-        end)
-    else
-        statTargets.ctxDropdown:Hide()
-    end
-
-    -- PvP-no-data branch: dropdown stays visible, bars hide, fallback
-    -- line shows. Returns a row count of 1 so LayoutPanel reserves
-    -- vertical space for the fallback line.
-    if statTargets.currentCtx == "PvP" and not pvpTargets then
-        for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
-        UpdateStatTargetsInfoIcon(nil)
-        local yOffset = (#availableContexts > 1) and -28 or -4
-        statTargets.pvpFallback:SetText(L["pvp.no_stat_targets"]
-            or "No PvP stat targets for this spec yet.")
-        statTargets.pvpFallback:ClearAllPoints()
-        statTargets.pvpFallback:SetPoint("TOPLEFT", statTargets.content, "TOPLEFT", 4, yOffset)
-        statTargets.pvpFallback:SetPoint("RIGHT", statTargets.content, "RIGHT", -4, 0)
-        statTargets.pvpFallback:Show()
-        return 1
-    end
-    statTargets.pvpFallback:Hide()
-
-    local snapshot = resolveCtx(statTargets.currentCtx)
-    if not snapshot or not snapshot.targets then
-        for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
-        UpdateStatTargetsInfoIcon(nil)
-        return 0
-    end
-
-    -- In combat, GetCombatRating / GetCombatRatingBonus return Blizzard
-    -- "secret" values to tainted code — they pass type() but error on
-    -- arithmetic. Skip rendering the bars and surface a placeholder;
-    -- PLAYER_REGEN_ENABLED triggers a full re-render once combat ends.
-    if InCombatLockdown() then
-        for i = 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
-        UpdateStatTargetsInfoIcon(snapshot)
-        local yOffset = (#availableContexts > 1) and -28 or -4
-        statTargets.combatFallback:SetText(
-            L["stat_targets.combat_warning"]
-            or "Stat targets can't be computed in combat — values update after combat ends.")
-        statTargets.combatFallback:ClearAllPoints()
-        statTargets.combatFallback:SetPoint("TOPLEFT", statTargets.content, "TOPLEFT", 4, yOffset)
-        statTargets.combatFallback:SetPoint("RIGHT", statTargets.content, "RIGHT", -4, 0)
-        statTargets.combatFallback:Show()
-        return 1
-    end
-
-    UpdateStatTargetsInfoIcon(snapshot)
-
-    local yOffset = (#availableContexts > 1) and -28 or -4
-    local visibleCount = 0
-
-    for _, statKey in ipairs(STAT_TARGETS_DISPLAY_ORDER) do
-        local target = snapshot.targets[statKey]
-        if target and target > 0 then
-            visibleCount = visibleCount + 1
-            local row = statTargets.rows[visibleCount]
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", statTargets.content, "TOPLEFT", 0, yOffset)
-            row:SetPoint("TOPRIGHT", statTargets.content, "TOPRIGHT", 0, yOffset)
-            row:Show()
-            yOffset = yOffset - STAT_TARGET_ROW_HEIGHT - STAT_TARGET_ROW_GAP
-
-            local current = ns.GetPlayerStatRating(statKey)
-            local livePct = ns.GetPlayerStatPercent(statKey)
-            row.statName:SetText(ns.STAT_LABELS[statKey] or statKey)
-
-            -- Status: position vs. Archon target (above / at / below).
-            local kind = ns.ClassifyStatDelta(current, target) or "below"
-            local status = STAT_STATUS_ICONS[kind]
-            row.statusIcon:SetTexture(status.texture)
-            row.statusIcon:SetTexCoord(status.texCoord[1], status.texCoord[2], status.texCoord[3], status.texCoord[4])
-            row.statusIcon:SetVertexColor(status.r, status.g, status.b)
-
-            -- Readout: live percent + current/target rating, so the gap
-            -- to target is readable as raw numbers in addition to the
-            -- bar's visual position vs the tick mark.
-            row.rating:SetText(string.format("%.1f%%  |cff9a9a9a%d / %d|r", livePct, current, target))
-
-            -- Diminishing returns: True Stat Value style. The DR formula
-            -- buckets stats by post-DR percentage — once you cross a
-            -- bracket the next rating point gives less than its linear
-            -- value. Tint the readout by remaining effectiveness so users
-            -- can spot at a glance whether stacking more is still worth it.
-            local marginal = ns.GetMarginalDR and ns.GetMarginalDR(livePct) or 1
-            if marginal >= 1 then
-                row.rating:SetTextColor(0.85, 0.85, 0.85)              -- white-ish (no DR yet)
-            elseif marginal >= 0.8 then
-                row.rating:SetTextColor(1, 0.85, 0.4)                  -- yellow (light DR)
-            elseif marginal >= 0.6 then
-                row.rating:SetTextColor(1, 0.65, 0.1)                  -- amber (moderate)
-            else
-                row.rating:SetTextColor(1, 0.4, 0.2)                   -- deep orange (heavy)
-            end
-
-            -- Hover tooltip: full TSV-style breakdown via the shared
-            -- builder. Stash statKey + snapshot so the OnEnter handler
-            -- (set once at row creation) can rebuild on demand.
-            row:EnableMouse(true)
-            row.statKey = statKey
-            row.snapshot = snapshot
-            if not row._statTooltipBound then
-                row:SetScript("OnEnter", function(self)
-                    if not self.statKey then return end
-                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                    if ns.AppendStatExtrasToTooltip then
-                        ns.AppendStatExtrasToTooltip(GameTooltip, self.statKey, self.snapshot, { includeTitle = true })
-                    end
-                    GameTooltip:Show()
-                end)
-                row:SetScript("OnLeave", function() GameTooltip:Hide() end)
-                row._statTooltipBound = true
-            end
-
-            -- Map current/target to the 0..MAX_RATIO bar scale so above-
-            -- target overshoot is visible past the tick.
-            local rawRatio = current / target
-            local progress = math.min(rawRatio, STAT_TARGET_BAR_MAX_RATIO) / STAT_TARGET_BAR_MAX_RATIO
-            row.bar.progress = progress
-            local barW = row.bar:GetWidth()
-            local inner = math.max(0, barW - 4)
-            row.bar.fill:SetWidth(math.max(progress > 0 and 2 or 0, math.min(progress * inner, inner)))
-
-            -- Reposition the target tick for the current width — the
-            -- OnSizeChanged handler covers resizes but the first draw can
-            -- happen before the layout pass fires that event.
-            if row.bar.tick then
-                local tickX = 2 + math.floor((1 / STAT_TARGET_BAR_MAX_RATIO) * inner + 0.5)
-                row.bar.tick:ClearAllPoints()
-                row.bar.tick:SetPoint("TOP", row.bar, "TOPLEFT", tickX, -2)
-                row.bar.tick:SetPoint("BOTTOM", row.bar, "BOTTOMLEFT", tickX, 2)
-            end
-
-            local barColor = STAT_BAR_COLORS[kind]
-            row.bar.fill:SetVertexColor(barColor[1], barColor[2], barColor[3], 1)
-        end
-    end
-
-    for i = visibleCount + 1, STAT_TARGETS_MAX_ROWS do statTargets.rows[i]:Hide() end
-
-    return visibleCount
-end
 
 -------------------------------------------------------------------------------
 -- Collapse state restore (extracted to avoid upvalue pressure on UpdatePanel)
@@ -2662,24 +1828,18 @@ local function RestoreCollapseState()
 end
 
 -------------------------------------------------------------------------------
--- Expose shared utilities for GearingSections.lua
+-- Late ns exports — the scaffold/constant exports landed earlier so the
+-- Section InitPanel calls could see them; here we add the things that
+-- depend on locals defined later in this file (GetSpecData,
+-- GetActiveHeroTalentName, isFloating, activeTab, etc.).
 -------------------------------------------------------------------------------
 
-ns.CreateSectionHeader = CreateSectionHeader
-ns.SetCollapsed = SetCollapsed
-ns.contentFrame = contentFrame
 ns.panel = panel
-ns.CreateOptionDropdown = CreateOptionDropdown
-ns.GetPanelWidth = GetPanelWidth
 ns.GetClassAndSpec = GetClassAndSpec
 ns.GetSpecKey = GetSpecKey
 ns.GetSpecData = GetSpecData
 ns.GetPerSpecState = GetPerSpecState
 ns.GetActiveHeroTalentName = GetActiveHeroTalentName
-ns.CONTENT_INSET = CONTENT_INSET
-ns.ROW_HEIGHT = ROW_HEIGHT
-ns.SECTION_HEADER_HEIGHT = SECTION_HEADER_HEIGHT
-ns.PANEL_PADDING = PANEL_PADDING
 ns.isFloating = function() return isFloating end
 ns.getActiveTab = function() return activeTab end
 ns.setActiveTab = function(tab) activeTab = tab; UpdateTabAppearance() end
@@ -2755,12 +1915,10 @@ function ns:UpdatePanel()
         end)
     end
 
-    -- Stats (with optional inline context dropdown)
+    -- Stats — context resolution stays here (uses panel-internal helpers),
+    -- delegated to Sections/Stats.lua for the actual render.
     local statCtxOptions = GetStatContextOptions(specData, currentHeroTalent)
-    local showStatCtx = #statCtxOptions > 0
-
-    if showStatCtx then
-        -- Restore saved stat context or default to first
+    if #statCtxOptions > 0 then
         if perSpec and perSpec.statContext then
             local found = false
             for _, c in ipairs(statCtxOptions) do
@@ -2770,134 +1928,69 @@ function ns:UpdatePanel()
         else
             currentStatContext = statCtxOptions[1]
         end
-        statCtxDropdown:Show()
-        statCtxDropdown:SetOptions(statCtxOptions, currentStatContext, function(selected)
-            local perSpec = GetPerSpecState()
-            if not perSpec then return end
-            perSpec.statContext = selected
-            ns:UpdatePanel()
-        end)
     else
-        statCtxDropdown:Hide()
         currentStatContext = nil
     end
-
     local statLookupCtx = currentStatContext or "General"
     local priority = FindMatch(specData.priorities, currentHeroTalent, statLookupCtx)
-    if priority then
-        local yOffset = showStatCtx and -30 or 0
-        for i = 1, MAX_STATS do statFrames[i]:Hide() end
-        for i = 1, math.min(#priority.stats, MAX_STATS) do
-            local row = statFrames[i]
-            local color = RANK_COLORS[i]
-            row.rank:SetTextColor(color and color.r or 0.6, color and color.g or 0.6, color and color.b or 0.6)
-            row.rank:SetText(i .. ".")
-            local names = {}
-            for _, stat in ipairs(priority.stats[i]) do
-                names[#names + 1] = stat
-            end
-            row.statName:SetTextColor(#priority.stats[i] > 1 and 0.8 or 1, #priority.stats[i] > 1 and 0.8 or 1, #priority.stats[i] > 1 and 0.6 or 1)
-            row.statName:SetText(table.concat(names, " / "))
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", 0, yOffset - (i - 1) * ROW_HEIGHT)
-            row:SetPoint("RIGHT", 0, 0)
-            row:Show()
-        end
-        statSection:Show()
-    else
-        statSection:Hide()
-    end
+    lastStatRowCount = ns.Sections.Stats.RenderPanel({
+        contextOptions = statCtxOptions,
+        currentContext = currentStatContext,
+        priorityStats  = priority and priority.stats or nil,
+        rankColors     = RANK_COLORS,
+        onCtxChange    = function(picked)
+            local ps = GetPerSpecState()
+            if not ps then return end
+            ps.statContext = picked
+            ns:UpdatePanel()
+        end,
+    })
 
-    -- Talents (show all builds for selected hero as rows)
-    for i = 1, MAX_TALENT_BUTTONS do talentButtons[i]:Hide() end
-    talentFallback:Hide()
-
+    -- Talents Guide-tab preview — Section module owns the render. We resolve
+    -- the build list + active-talent signature here (panel-internal helpers)
+    -- and pass them in.
+    local emptyText, noneText, builds
     if not specData.talents or #specData.talents == 0 then
-        talentFallbackText:SetText(L["empty.no_builds_details"])
-        talentFallback:ClearAllPoints()
-        talentFallback:SetPoint("TOPLEFT", talentContent, "TOPLEFT", 0, 0)
-        talentFallback:SetPoint("RIGHT", talentContent, "RIGHT", 0, 0)
-        talentFallback:Show()
-        talentSection:Show()
+        emptyText = L["empty.no_builds_details"]
     else
-        local talentBuilds = GetAllTalentBuildsForHero(specData, currentHeroTalent)
-
-        if #talentBuilds > 0 then
-            local activeTalentData = ns.GetActiveTalentSignature()
-
-            local count = math.min(#talentBuilds, MAX_TALENT_BUTTONS)
-            for i = 1, count do
-                local t = talentBuilds[i]
-                local btn = talentButtons[i]
-
-                local label = ns.FormatBuildLabel(t)
-
-                -- Highlight active build (compare talent data, skip tree hash)
-                local isActive = activeTalentData and ns.ExtractTalentBits(t.exportString) == activeTalentData
-                btn.isActive = isActive
-                if isActive then
-                    btn:SetBackdropBorderColor(0.2, 0.8, 0.2, 1)
-                    btn.label:SetTextColor(0.3, 1, 0.3)
-                else
-                    btn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-                    btn.label:SetTextColor(0.8, 0.8, 0.8)
-                end
-                btn.label:SetText(label)
-
-                btn:ClearAllPoints()
-                btn:SetPoint("TOPLEFT", talentContent, "TOPLEFT", 0, -((i - 1) * (TALENT_BTN_HEIGHT + TALENT_BTN_GAP)))
-                btn:SetPoint("RIGHT", talentContent, "RIGHT", 0, 0)
-                btn.copyBtn:SetScript("OnClick", function()
-                    ShowCopyPopup(t.exportString, btn)
-                end)
-                btn.applyBtn:SetScript("OnClick", function(self)
-                    -- Build loadout name from raw fields (no color codes)
-                    local rawLabel = t.context or "Build"
-                    if t.buildLabel and t.buildLabel ~= "" then
-                        rawLabel = rawLabel .. " — " .. t.buildLabel
-                    end
-                    local loadoutLabel = currentHeroTalent and currentHeroTalent ~= "All"
-                        and (currentHeroTalent .. " " .. rawLabel) or rawLabel
-                    local ok, err = ns.ApplyTalentExportString(t.exportString, loadoutLabel)
-                    if not ok then
-                        -- Pre-flight error (wrong spec, in combat, etc.)
-                        self.icon:SetVertexColor(1, 0.2, 0.2)
-                        print("|cff00ccffClass Codex:|r " .. (err or "Failed to apply talents"))
-                        C_Timer.After(1.5, function()
-                            if self.icon then
-                                self.icon:SetDesaturated(true)
-                                self.icon:SetVertexColor(0.7, 0.7, 0.7)
-                            end
-                        end)
-                    else
-                        -- Staging succeeded, commit runs on next frame
-                        self.icon:SetVertexColor(1, 0.8, 0)
-                        C_Timer.After(1.5, function()
-                            if self.icon then
-                                self.icon:SetDesaturated(true)
-                                self.icon:SetVertexColor(0.7, 0.7, 0.7)
-                            end
-                        end)
-                    end
-                end)
-                btn:Show()
-            end
-            talentSection:Show()
-        else
-            talentFallbackText:SetText(L["empty.no_builds_for"]:format(currentHeroTalent))
-            talentFallback:ClearAllPoints()
-            talentFallback:SetPoint("TOPLEFT", talentContent, "TOPLEFT", 0, 0)
-            talentFallback:SetPoint("RIGHT", talentContent, "RIGHT", 0, 0)
-            talentFallback:Show()
-            talentSection:Show()
+        builds = GetAllTalentBuildsForHero(specData, currentHeroTalent)
+        if #builds == 0 then
+            noneText = L["empty.no_builds_for"]:format(currentHeroTalent)
         end
     end
+    lastTalentContentHeight = ns.Sections.Talents.RenderPanel({
+        builds            = builds,
+        activeTalentBits  = ns.GetActiveTalentSignature(),
+        fallbackEmptyText = emptyText,
+        fallbackNoneText  = noneText,
+        onCopy = function(t)
+            ShowCopyPopup(t.exportString, talentSection)
+        end,
+        onApply = function(self, t)
+            local rawLabel = t.context or "Build"
+            if t.buildLabel and t.buildLabel ~= "" then
+                rawLabel = rawLabel .. " — " .. t.buildLabel
+            end
+            local loadoutLabel = currentHeroTalent and currentHeroTalent ~= "All"
+                and (currentHeroTalent .. " " .. rawLabel) or rawLabel
+            local ok, err = ns.ApplyTalentExportString(t.exportString, loadoutLabel)
+            if not ok then
+                self.icon:SetVertexColor(1, 0.2, 0.2)
+                print("|cff00ccffClass Codex:|r " .. (err or "Failed to apply talents"))
+            else
+                self.icon:SetVertexColor(1, 0.8, 0)
+            end
+            C_Timer.After(1.5, function()
+                if self.icon then
+                    self.icon:SetDesaturated(true)
+                    self.icon:SetVertexColor(0.7, 0.7, 0.7)
+                end
+            end)
+        end,
+    })
 
-    -- Rotation
+    -- Rotation — context resolution stays here, render delegated to module.
     local rotCtxOptions = GetRotationContextOptions(specData, currentHeroTalent)
-    local showRotCtx = #rotCtxOptions > 1
-
-    -- Restore saved rotation context or default to first option
     local perSpecRot = GetPerSpecState()
     if perSpecRot and perSpecRot.rotationContext then
         local found = false
@@ -2909,67 +2002,27 @@ function ns:UpdatePanel()
         currentRotationContext = rotCtxOptions[1] or "General"
     end
 
-    if showRotCtx then
-        rotCtxDropdown:Show()
-        rotCtxDropdown:SetOptions(rotCtxOptions, currentRotationContext, function(selected)
-            local perSpec = GetPerSpecState()
-            if not perSpec then return end
-            perSpec.rotationContext = selected
-            ns:UpdatePanel()
-        end)
-    elseif #rotCtxOptions == 1 then
-        rotCtxDropdown:Hide()
-        currentRotationContext = rotCtxOptions[1]
-    else
-        rotCtxDropdown:Hide()
-    end
-
     local rotation = FindRotationByContext(specData.rotation, currentHeroTalent, currentRotationContext)
-
-    for i = 1, MAX_ROTATION_STEPS do rotationFrames[i]:Hide() end
-    rotationFallback:Hide()
-    lastRotationContentHeight = 0
-
-    if rotation then
-        local yOffset = showRotCtx and -30 or 0
-        local textAreaWidth = GetPanelWidth() - CONTENT_INSET * 2 - 42 -- 42 = rank(18) + gaps(8) + icon(16)
-        local visibleStep = 0
-        local currentY = yOffset
-        for _, step in ipairs(rotation.steps) do
-            if ShouldShowStep(step, currentHeroTalent) then
-                visibleStep = visibleStep + 1
-                if visibleStep > MAX_ROTATION_STEPS then break end
-                local row = rotationFrames[visibleStep]
-                row:ClearAllPoints()
-                row:SetPoint("TOPLEFT", rotationContent, "TOPLEFT", 0, currentY)
-                row:SetPoint("RIGHT", rotationContent, "RIGHT", 0, 0)
-                row.rank:SetText(visibleStep .. ".")
-                row.icon:SetTexture(GetStepSpellIcon(step))
-                local cleanStep = StripConditionPrefix(step)
-                row.stepText:SetText(FormatRotationStep(cleanStep))
-                row.spellId = tonumber(cleanStep:match("{(%d+)}"))
-                row.stepText:SetWidth(textAreaWidth)
-                local textHeight = row.stepText:GetStringHeight() or 12
-                local rowHeight = math.max(ROW_HEIGHT, textHeight + 6)
-                row:SetHeight(rowHeight)
-                row:Show()
-                currentY = currentY - rowHeight
-            end
-        end
-        lastRotationContentHeight = math.abs(currentY - yOffset)
-        rotationSection:Show()
-    elseif specData.rotation and #specData.rotation > 0 then
-        local yOffset = showRotCtx and -30 or 0
-        rotationFallbackText:SetText(L["empty.no_rotation_for_details"]:format(currentHeroTalent))
-        rotationFallback:ClearAllPoints()
-        rotationFallback:SetPoint("TOPLEFT", rotationContent, "TOPLEFT", 0, yOffset)
-        rotationFallback:SetPoint("RIGHT", rotationContent, "RIGHT", 0, 0)
-        rotationFallback:Show()
-        lastRotationContentHeight = ROW_HEIGHT
-        rotationSection:Show()
-    else
-        rotationSection:Hide()
-    end
+    lastRotationContentHeight = ns.Sections.Rotation.RenderPanel({
+        contextOptions = rotCtxOptions,
+        currentContext = currentRotationContext,
+        rotation       = rotation,
+        heroTalent     = currentHeroTalent,
+        hasAnyRotation = specData.rotation and #specData.rotation > 0,
+        textAreaWidth  = GetPanelWidth() - CONTENT_INSET * 2 - 42,
+        helpers = {
+            shouldShow = ShouldShowStep,
+            strip      = StripConditionPrefix,
+            getIcon    = GetStepSpellIcon,
+            format     = FormatRotationStep,
+        },
+        onCtxChange    = function(picked)
+            local ps = GetPerSpecState()
+            if not ps then return end
+            ps.rotationContext = picked
+            ns:UpdatePanel()
+        end,
+    })
 
     -- Talents tab: grouped-by-context layout showing all builds
     if activeTab == "talents" then
@@ -2994,7 +2047,11 @@ function ns:UpdatePanel()
         rotationSection:Hide()
         subheaderFrame:SetHeight(1)
         subheaderFrame:Hide()
-        local statRowCount = RenderStatTargets(classToken, specKey)
+        local statRowCount = ns.Sections.StatTargets.RenderPanel({
+            classToken = classToken,
+            specKey    = specKey,
+            refresh    = function() ns:UpdatePanel() end,
+        })
         if statRowCount > 0 then
             statTargets.section:Show()
         else
@@ -3045,6 +2102,8 @@ function ns:LayoutPanel()
         tabTitle:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
         statInfoBtn:SetShown(activeTab == "guide")
         statTargetsInfoBtn:SetShown(activeTab == "stats" and statTargetsInfoBtn.url ~= nil)
+        craftingInfoBtn:SetShown(activeTab == "crafting")
+        craftingOptionsBtn:SetShown(activeTab == "crafting")
         y = y - SECTION_HEADER_HEIGHT
     else
         tabTitle:Hide()
@@ -3074,37 +2133,17 @@ function ns:LayoutPanel()
         y = y - sectionHeight - 3
     end
 
-    -- Stat section: count visible rows + optional dropdown
+    -- Stat section: height comes from the Section module (rows + optional
+    -- context dropdown). Section module handles its own row counting.
     local statContentHeight = 0
     if statSection:IsShown() and not statSectionCollapsed then
-        if statCtxDropdown:IsShown() then
-            statContentHeight = statContentHeight + 30
-        end
-        local n = 0
-        for i = 1, MAX_STATS do if statFrames[i]:IsShown() then n = n + 1 end end
-        statContentHeight = statContentHeight + n * ROW_HEIGHT
+        statContentHeight = ns.Sections.Stats.GetPanelContentHeight(lastStatRowCount)
     end
     LayoutSection(statSection, statSectionCollapsed, statContentHeight)
 
-    -- Stat targets section: no inner header, anchored directly under the
-    -- tab title. Height is exactly the visible rows + optional context
-    -- dropdown.
+    -- Stat targets section — height computed by Sections/StatTargets.lua.
     if statTargets.section:IsShown() then
-        local h = 0
-        if statTargets.ctxDropdown:IsShown() then
-            h = h + 28
-        end
-        local n = 0
-        for i = 1, STAT_TARGETS_MAX_ROWS do
-            if statTargets.rows[i]:IsShown() then n = n + 1 end
-        end
-        if n > 0 then
-            h = h + n * STAT_TARGET_ROW_HEIGHT + (n - 1) * STAT_TARGET_ROW_GAP + 4
-        elseif statTargets.pvpFallback:IsShown() then
-            -- "No PvP stat targets..." line replaces the row stack; one
-            -- text line + a small bottom margin.
-            h = h + 24
-        end
+        local h = ns.Sections.StatTargets.GetPanelHeight()
         statTargets.section:ClearAllPoints()
         statTargets.section:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
         statTargets.section:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
@@ -3112,27 +2151,19 @@ function ns:LayoutPanel()
         y = y - h - 3
     end
 
-    -- Talent section
+    -- Talent section — height computed by Sections/Talents.lua during
+    -- RenderPanel and stored in lastTalentContentHeight.
     local talentContentHeight = 0
     if talentSection:IsShown() and not talentSectionCollapsed then
-        if talentFallback:IsShown() then
-            talentContentHeight = 20
-        else
-            local count = 0
-            for i = 1, MAX_TALENT_BUTTONS do
-                if talentButtons[i]:IsShown() then count = count + 1 end
-            end
-            if count > 0 then
-                talentContentHeight = count * TALENT_BTN_HEIGHT + (count - 1) * TALENT_BTN_GAP
-            end
-        end
+        talentContentHeight = lastTalentContentHeight
+        if talentContentHeight == 0 then talentContentHeight = 20 end
     end
     LayoutSection(talentSection, talentSectionCollapsed, talentContentHeight)
 
     -- Rotation section
     local rotationContentHeight = 0
     if rotationSection:IsShown() and not rotationSectionCollapsed then
-        if rotCtxDropdown:IsShown() then
+        if ns.Sections.Rotation.IsPanelCtxDropdownShown() then
             rotationContentHeight = rotationContentHeight + 30
         end
         rotationContentHeight = rotationContentHeight + lastRotationContentHeight
@@ -3152,138 +2183,18 @@ function ns:LayoutPanel()
         y = ns:LayoutGearingSections(y)
     end
 
-    -- Supporters tab
+    -- Supporters tab — Sections/Supporters.lua owns layout when active.
     if activeTab == "supporters" then
-        supporters.title:Show()
-        supporters.title:ClearAllPoints()
-        supporters.title:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        supporters.title:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        y = y - SECTION_HEADER_HEIGHT
-
-        supporters.content:Show()
-        supporters.content:ClearAllPoints()
-        supporters.content:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        supporters.content:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        local lastBottom = supporters.lastChild and supporters.lastChild:GetBottom()
-        local contentTop = supporters.content:GetTop()
-        local contentH = (lastBottom and lastBottom > 0 and contentTop and contentTop > 0)
-            and (contentTop - lastBottom)
-            or 80
-        supporters.content:SetHeight(contentH)
-        y = y - contentH - 16
-
-        supporters.patreonBtn:ClearAllPoints()
-        supporters.patreonBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        supporters.patreonBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        supporters.patreonBtn:Show()
-        y = y - 28
+        y = ns.Sections.Supporters.LayoutPanel(y, { parent = contentFrame, inset = CONTENT_INSET })
     else
-        supporters.title:Hide()
-        supporters.content:Hide()
-        supporters.patreonBtn:Hide()
+        ns.Sections.Supporters.HidePanel()
     end
 
-    -- About tab title + content + buttons
+    -- About tab — Sections/About.lua owns layout when active.
     if activeTab == "about" then
-        aboutTabTitle:Show()
-        aboutTabTitle:ClearAllPoints()
-        aboutTabTitle:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutTabTitle:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        y = y - SECTION_HEADER_HEIGHT
-
-        aboutContent:Show()
-        aboutContent:ClearAllPoints()
-        aboutContent:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutContent:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        -- Dynamically size aboutContent based on last child
-        local contentH = aboutSlash:GetBottom() and (aboutContent:GetTop() - aboutSlash:GetBottom()) or 200
-        aboutContent:SetHeight(contentH)
-        y = y - contentH - 34
-
-        local function LayoutSeparator(sep)
-            y = y - 4
-            sep:ClearAllPoints()
-            sep:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-            sep:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-            sep:Show()
-            y = y - 7
-        end
-
-        if not aboutSepTop then
-            aboutSepTop = contentFrame:CreateTexture(nil, "ARTWORK")
-            aboutSepTop:SetHeight(1)
-            aboutSepTop:SetColorTexture(0.3, 0.3, 0.3, 0.6)
-        end
-        LayoutSeparator(aboutSepTop)
-
-        aboutCompendiumBtn:ClearAllPoints()
-        aboutCompendiumBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutCompendiumBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        aboutCompendiumBtn:Show()
-        y = y - 28
-
-        aboutSettingsBtn:ClearAllPoints()
-        aboutSettingsBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutSettingsBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        aboutSettingsBtn:Show()
-        y = y - 28
-
-        if not aboutSepBottom then
-            aboutSepBottom = contentFrame:CreateTexture(nil, "ARTWORK")
-            aboutSepBottom:SetHeight(1)
-            aboutSepBottom:SetColorTexture(0.3, 0.3, 0.3, 0.6)
-        end
-        LayoutSeparator(aboutSepBottom)
-
-        aboutDataBtn:ClearAllPoints()
-        aboutDataBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutDataBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        aboutDataBtn:Show()
-        y = y - 28
-
-        aboutIcyVeinsBtn:ClearAllPoints()
-        aboutIcyVeinsBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutIcyVeinsBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        aboutIcyVeinsBtn:Show()
-        y = y - 28
-
-        aboutArchonBtn:ClearAllPoints()
-        aboutArchonBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutArchonBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        aboutArchonBtn:Show()
-        y = y - 28
-
-        if not aboutSepSocial then
-            aboutSepSocial = contentFrame:CreateTexture(nil, "ARTWORK")
-            aboutSepSocial:SetHeight(1)
-            aboutSepSocial:SetColorTexture(0.3, 0.3, 0.3, 0.6)
-        end
-        LayoutSeparator(aboutSepSocial)
-
-        aboutPatreonBtn:ClearAllPoints()
-        aboutPatreonBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutPatreonBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        aboutPatreonBtn:Show()
-        y = y - 28
-
-        aboutDiscordBtn:ClearAllPoints()
-        aboutDiscordBtn:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
-        aboutDiscordBtn:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
-        aboutDiscordBtn:Show()
-        y = y - 28
+        y = ns.Sections.About.LayoutPanel(y, { parent = contentFrame, inset = CONTENT_INSET })
     else
-        aboutTabTitle:Hide()
-        aboutContent:Hide()
-        aboutDiscordBtn:Hide()
-        aboutPatreonBtn:Hide()
-        aboutDataBtn:Hide()
-        aboutIcyVeinsBtn:Hide()
-        aboutArchonBtn:Hide()
-        if aboutSepTop then aboutSepTop:Hide() end
-        if aboutSepBottom then aboutSepBottom:Hide() end
-        if aboutSepSocial then aboutSepSocial:Hide() end
-        aboutCompendiumBtn:Hide()
-        aboutSettingsBtn:Hide()
+        ns.Sections.About.HidePanel()
     end
 
     -- Calculate minimum panel height
@@ -3572,12 +2483,12 @@ minimizeBtn:SetScript("OnClick", function()
     ns:LayoutPanel()
 end)
 
--- rotCtxDropdown wiring lives in UpdatePanel via :SetOptions.
+-- Rotation dropdown wiring lives in Sections/Rotation.lua's RenderPanel.
 
 -- heroDropdown wiring lives in UpdatePanel via :SetOptions; the
 -- WowStyle1Dropdown template owns the click + popup itself.
 
--- statCtxDropdown wiring lives in UpdatePanel via :SetOptions.
+-- Stat-priority dropdown wiring lives in Sections/Stats.lua's RenderPanel.
 
 
 -------------------------------------------------------------------------------
@@ -4279,6 +3190,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             showLoginMessage = false,
             showTooltipBadges = true,
             tooltipFooterMode = 0, -- 0 off, 1 always, 2 only when different
+            craftingTopPicksOnly = true,
             showWowheadBisTooltip = true,
             showIcyVeinsBisTooltip = true,
             showTrinketTooltip = true,
@@ -4344,7 +3256,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             ClassCodexDB.showBisTooltip = nil
         end
         -- Migrate old tab keys to new merged tabs
-        local TAB_MIGRATION = { enchants = "enhancements", consumables = "enhancements", gear = "bis" }
+        local TAB_MIGRATION = { enchants = "enhancements", consumables = "enhancements", gear = "bis", crafts = "crafting" }
         if ClassCodexDB.compendiumTab then
             ClassCodexDB.compendiumTab = TAB_MIGRATION[ClassCodexDB.compendiumTab] or ClassCodexDB.compendiumTab
         end
@@ -4521,7 +3433,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         -- Stats tab needs equipment-driven rating updates; BiS and
         -- Trinkets tabs need their "owned" row tint refreshed when
         -- bags/equipped slots change. Other tabs don't reflect either.
-        if panel:IsShown() and (activeTab == "stats" or activeTab == "bis" or activeTab == "trinkets") then
+        if panel:IsShown() and (activeTab == "stats" or activeTab == "bis" or activeTab == "trinkets" or activeTab == "crafting") then
             ns:UpdatePanel()
         end
 

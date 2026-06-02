@@ -24,9 +24,10 @@ ClassCodexData["DEATHKNIGHT"] = {
     },
     talents = {
       {
-        heroTalent = "Deathbringer",
+        heroTalent = "San'layn",
         context = "團隊單目標",
-        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZZmZmmZxYmxMmBAAAAzMzMzMzMDzYMAgZmZGAAgxsNwAWCWGmADLAmhZAAMzAYYA",
+        recommended = true,
+        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYMmxAAAAAzMzMzMzMDzYMAgZmZGAAADMwMW0YZDklBsBYGmBAAmZghB",
       },
       {
         heroTalent = "Deathbringer",
@@ -35,22 +36,21 @@ ClassCodexData["DEATHKNIGHT"] = {
         exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMz0MLGjxMGAAAAwMmZmZmZYGjBAjZmZGAAgxsNwAWC2GmADLAmhZAAMzAYYA",
       },
       {
+        heroTalent = "San'layn",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMzMMLzMz0MLGjxMGAAAAwMmZmZmZYGjBAjZmZGAAADMwMW0YZBklBsBYGmBAAmZghB",
+      },
+      {
         heroTalent = "Deathbringer",
         context = "探究",
         recommended = true,
         exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYmxMGAAAAwMzMzMzMDzYMAYMzMzAAAMmtBGwSwywEYYBghZAAMzAMYA",
       },
       {
-        heroTalent = "San'layn",
+        heroTalent = "Deathbringer",
         context = "團隊單目標",
-        recommended = true,
-        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYMmxAAAAAzMzMzMzMDzYMAgZmZGAAADMwMW0YZDklBsBYGmBAAmZghB",
-      },
-      {
-        heroTalent = "San'layn",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWmZmxMmZmhZZmZmmZxYMmxAAAAAmxMzMzMDzYMAYMzMzAAAYgBmxiGLLgsMgNAzYmBAAmZghB",
+        exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZZmZmmZxYmxMmBAAAAzMzMzMzMDzYMAgZmZGAAgxsNwAWCWGmADLAmhZAAMzAYYA",
       },
       {
         heroTalent = "San'layn",
@@ -345,9 +345,13 @@ ClassCodexData["DEATHKNIGHT"] = {
     talents = {
       {
         heroTalent = "Rider of the Apocalypse",
-        context = "通用",
-        recommended = true,
+        context = "團隊單目標",
         exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDZgZjhGLAYGAGzMjZAmZmxYA",
+      },
+      {
+        heroTalent = "San'layn",
+        context = "團隊單目標",
+        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZMwAzYRjlFAbTsBgZAYMzMmBzMYGjB",
       },
       {
         heroTalent = "Rider of the Apocalypse",
@@ -356,14 +360,35 @@ ClassCodexData["DEATHKNIGHT"] = {
         exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMDDz2MzMTzmxMzMjBAAAAAAAgZGzYAwyMmZ2MzYMDYzsZYIDMbM0YBDYGAGzMjZAmZmxYA",
       },
       {
+        heroTalent = "San'layn",
+        context = "傳奇+",
+        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAwyMmZ2MzYMjBGYGbassAYZiNMgZAYMzMmBzMYGjB",
+      },
+      {
         heroTalent = "Rider of the Apocalypse",
         context = "探究",
         recommended = true,
-        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAw2MmZ2mZGjZAbmNDDZgZhhGLYAzAAzMjZAmZmxYA",
+        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMDDz2MzMTzmxMzMjBAAAAAAAgZGzYAwyMmZ2MzYMDYzsZYIDMbM0YBDYGAGzMjZAmZmxYA",
+      },
+      {
+        heroTalent = "San'layn",
+        context = "探究",
+        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAwyMmZ2MzYMjBGYGbassAYZiNMgZAYMzMmBzMYGjB",
+      },
+      {
+        heroTalent = "Rider of the Apocalypse",
+        context = "通用",
+        recommended = true,
+        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDZgZjhGLAYGAGzMjZAmZmxYA",
       },
       {
         heroTalent = "San'layn",
         context = "通用",
+        exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZMwAzYRjlFAbTsBgZAYMzMmBzMYGjB",
+      },
+      {
+        heroTalent = "San'layn",
+        context = "團隊多目標",
         exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGzYAwyMmZ2MzYMjBGYGbassAYZiNMgZAYMzMmBzMYGjB",
       },
     },

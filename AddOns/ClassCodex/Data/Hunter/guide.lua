@@ -27,6 +27,23 @@ ClassCodexData["HUNTER"] = {
     },
     talents = {
       {
+        heroTalent = "All",
+        context = "團隊單目標",
+        buildLabel = "Single-Target",
+        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsAzwQDbAAYG2GzsNzwMmZYYmxYmxMzYGzwMzYGzghmBAAAAwMAAAMzMzAMzGCDzCYbAA",
+      },
+      {
+        heroTalent = "Dark Ranger",
+        context = "傳奇+",
+        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBZsAAgZGLzMDzwMzMYGzMzwMmZGzMzYbmZYMDLDNDAAAAgZAAAYegxMDzMABMLgtBA",
+      },
+      {
+        heroTalent = "Pack Leader",
+        context = "探究",
+        buildLabel = "Delve Build",
+        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwGsAzwQDbAAYGzyMzsYGmZmZGzMMmxMMzMzYGmZGGzMMmmBAAAAAAAAMGzAMzCCWmZBsNA",
+      },
+      {
         heroTalent = "Pack Leader",
         context = "團隊單目標",
         recommended = true,
@@ -38,21 +55,9 @@ ClassCodexData["HUNTER"] = {
         exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwCsBzwQDbAAYGzyMzsYGmZmZGzMMmxMMzYmZGbzMDjZYZoZAAAAAAAAAzDMmZAzshAmFw2AA",
       },
       {
-        heroTalent = "Pack Leader",
-        context = "探究",
-        recommended = true,
-        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAAMmxwGsAzwQDbAAYGzyMzsYGmZmZGzMMmxMMzMzYGmZGGzMMmmBAAAAAAAAMGzAMzCCWmZBsNA",
-      },
-      {
         heroTalent = "Dark Ranger",
         context = "團隊單目標",
         exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBZsAAgZYZmZMzwMmBzYmZGmxMzMzYGmZGGzMMmmBAAAAwMAAAMGzgZGgglZWAbDA",
-      },
-      {
-        heroTalent = "Dark Ranger",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "C0PAAAAAAAAAAAAAAAAAAAAAAYzsNwAGwMsBZsAAgZGLzMDzwMzMYGzMzwMmZGzMzYbmZYMDLDNDAAAAgZAAAYegxMDzMABMLgtBA",
       },
       {
         heroTalent = "Dark Ranger",
@@ -198,16 +203,22 @@ ClassCodexData["HUNTER"] = {
     },
     talents = {
       {
-        heroTalent = "Sentinel",
+        heroTalent = "Dark Ranger",
         context = "團隊單目標",
-        recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDzstxMzsMzMmZmFMLDmBAAMmZmZAMz0GziBYjZGD",
+        buildLabel = "Single-Target",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYLwsAAAAAAAAAMjZMDzYmZMDGTzYmZstxYmlZmZmZmlhZZwAAAMmZmZmZGgwsYA2YGA",
       },
       {
         heroTalent = "Sentinel",
+        context = "團隊單目標",
+        buildLabel = "Heavy Cleave/AoE",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmtttZmhZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
+      },
+      {
+        heroTalent = "Dark Ranger",
         context = "傳奇+",
         recommended = true,
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjtZMzMmhlx0MGMLbbzMDzMzMzMLMzywMDAAgZGDAzMtBGgNmZM",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYJwsAAAAAAAAAMjZmZsZMzMmhlx0MGMLbmZGmZGzMzCzsMMzAAAMjxMzMDYCYA2YmxA",
       },
       {
         heroTalent = "Sentinel",
@@ -216,14 +227,21 @@ ClassCodexData["HUNTER"] = {
         exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjNjHYmxMsMmmxgZbbbmZYmZmZmZjZ2GmZAAAmxYAYmpNYGgNmZM",
       },
       {
-        heroTalent = "Dark Ranger",
-        context = "團隊單目標",
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYLwsAAAAAAAAAMjZMDzYmZMDGTzYmZstxYmlZmZmZmlhZZwAAAMmZmZmZGgwsYA2YGA",
+        heroTalent = "Sentinel",
+        context = "團隊多目標",
+        recommended = true,
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMjZYGzMjZwYaGDmtttZmhZmZmZmFMLDzMAAgxMzMAMz0GziBYjZGD",
+      },
+      {
+        heroTalent = "Sentinel",
+        context = "傳奇+",
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAwCMwMGNWGAzgNAAAAAAAAgZMzMjtZMzMmhlx0MGMLbbzMDzMzMzMLMzywMDAAgZGDAzMtBGgNmZM",
       },
       {
         heroTalent = "Dark Ranger",
-        context = "傳奇+",
-        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYJwsAAAAAAAAAMjZmZsZMzMmhlx0MGMLbmZGmZGzMzCzsMMzAAAMjxMzMDYCYA2YmxA",
+        context = "團隊多目標",
+        recommended = true,
+        exportString = "C4PAAAAAAAAAAAAAAAAAAAAAAYzsMwAmgZYLwsAAAAAAAAAMjZMDzYmZMDGTzYwstxMzsMzMzMzsgZZYmBAAMmZmZmZGwEmFDwGzA",
       },
       {
         heroTalent = "Dark Ranger",
@@ -367,6 +385,7 @@ ClassCodexData["HUNTER"] = {
       {
         heroTalent = "Pack Leader",
         context = "團隊單目標",
+        recommended = true,
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMGWIbwMM0gFjZmZmxyAAAAAAgZMzMDz4BMjZwYaGAAAAAAjllZmZxMzMzYmxAmZDwsMjxM2MA",
       },
       {
@@ -376,20 +395,25 @@ ClassCodexData["HUNTER"] = {
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2ILwMM0gFzMzMzwyAAAAAAgZMzMjlZMmxMYMNDAAAADAMWWmZmFzMzYMmZAzsBAjxMzmBA",
       },
       {
+        heroTalent = "Sentinel",
+        context = "傳奇+",
+        exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNzMzMm5BWGAAAAAAMjZmZsMjxMmBjpZAAAAYAgxy2MzDsYmZGjxMDAzwGYMmZ2MA",
+      },
+      {
         heroTalent = "Pack Leader",
         context = "探究",
+        recommended = true,
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMgxMG2ILwMM0gFzMzMzwyAAAAAAgZmZmZYGDjZGGTzAAAAwAAjllZmZxMzM8AjxAmZDAzYMzsZA",
       },
       {
         heroTalent = "Sentinel",
         context = "團隊單目標",
-        recommended = true,
         exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNjZmxMPwyAAAAAAgZMzMDz4BMjZwYaGAAAAAAjltZmZxMzMzYmxAwMsxsMjxM2MA",
       },
       {
         heroTalent = "Sentinel",
-        context = "傳奇+",
-        exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNzMzMm5BWGAAAAAAMjZmZsMjxMmBjpZAAAAYAgxy2MzDsYmZGjxMDAzwGYMmZ2MA",
+        context = "探究",
+        exportString = "C8PAAAAAAAAAAAAAAAAAAAAAAMWgBmxoxyAYmgNzMzMzwyAAAAAAgZmZmZYGDjZGGTzAAAAwAAjllZmZxMzM8AjxAwMsBzYMzsZA",
       },
     },
     rotation = {

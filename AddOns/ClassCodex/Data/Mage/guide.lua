@@ -29,19 +29,19 @@ ClassCodexData["MAGE"] = {
       {
         heroTalent = "Spellslinger",
         context = "團隊單目標",
-        recommended = true,
+        buildLabel = "Orb Master",
         exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzQzMzAAAwAAgAmZmZZZmZYBAgtxMzMmtFLzMzYmxYMzMGLMzMjZAAGAAAzsAAmBADD",
       },
       {
         heroTalent = "Spellslinger",
         context = "傳奇+",
-        recommended = true,
+        buildLabel = "Orb Master",
         exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGamxAAAwAAgAmZmZZZmJWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMM",
       },
       {
         heroTalent = "Spellslinger",
         context = "探究",
-        recommended = true,
+        buildLabel = "Orb Master",
         exportString = "C4DAAAAAAAAAAAAAAAAAAAAAAMzwYZmZmFmZGamxAAAwAAgAmZmZZZmJWAAYbGzMjZzsMzMjZGjhZmZswMzMmBAYAAAMzCAYGAMM",
       },
       {
@@ -194,26 +194,20 @@ ClassCodexData["MAGE"] = {
     },
     talents = {
       {
-        heroTalent = "Sunfury",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgFzMzMDAAGzwYmZmZ2GAmZIjxYwMMA",
-      },
-      {
-        heroTalent = "Sunfury",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYDAAAAAWMzMzMAAYMDjZmZmZbAYmhwYMYGG",
-      },
-      {
-        heroTalent = "Sunfury",
-        context = "探究",
-        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYBAAAAA2MzMzMAAYMDjZmZmZbAYmhwYMYGG",
-      },
-      {
         heroTalent = "Frostfire",
         context = "團隊單目標",
         exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAmZZGzMLzCEAAwiZmx2YmZGAAAAAgFzMzMDAAGzYmZmZmZ2AmZADzYMYwA",
+      },
+      {
+        heroTalent = "Sunfury",
+        context = "團隊單目標",
+        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmx2YmZGAAAAAgFzMzMDAAGzwYmZmZ2GAmZIjxYwMMA",
+      },
+      {
+        heroTalent = "All",
+        context = "團隊單目標",
+        buildLabel = "Cinderstorm 單目標",
+        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMDZmZGAAAGAwMz0sssMDAwmZmZ2GGzMAAAAAgFzMzMDAAGmZGzMMz2AwMDZMGGmhB",
       },
       {
         heroTalent = "Frostfire",
@@ -221,10 +215,20 @@ ClassCodexData["MAGE"] = {
         exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwMLzYmZZWgAAAWMzM2GzMzYBAAAAAWMzMzMAAYMjZmZmZmZDYmBMYMGMYA",
       },
       {
+        heroTalent = "Sunfury",
+        context = "傳奇+",
+        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYDAAAAAWMzMzMAAYMDjZmZmZbAYmhwYMYGG",
+      },
+      {
         heroTalent = "Frostfire",
         context = "探究",
         recommended = true,
         exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwMLzYmZZWgAAAWMzM2GzMzYBAAAAA2MzMzMAAYMjZmZmZmZDYmBMYMGMYA",
+      },
+      {
+        heroTalent = "Sunfury",
+        context = "探究",
+        exportString = "C8DAAAAAAAAAAAAAAAAAAAAAAMzwMLzMzsgZGZmxAAAwAAmZmmlltZAA2MzM2GzMzYBAAAAA2MzMzMAAYMDjZmZmZbAYmhwYMYGG",
       },
     },
     rotation = {
@@ -368,7 +372,7 @@ ClassCodexData["MAGE"] = {
         heroTalent = "Spellslinger",
         context = "團隊單目標",
         recommended = true,
-        exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzsMmZmYmxMjZMziZmZmZMDAAAMzMzyyMTbAAAAAAgNA22GzMzgZZeAjZYBAAgZWAmJjBMDGA",
+        exportString = "CAEAAAAAAAAAAAAAAAAAAAAAAYGGLzMzswMzEzMzMzMzMziZmZMjZAAAgZmZWWmZaDAAAAAAsBw22YmZGMbDjZYDAAgZ2AmJjBMDGA",
       },
       {
         heroTalent = "Spellslinger",

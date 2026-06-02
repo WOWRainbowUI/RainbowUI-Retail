@@ -144,7 +144,16 @@ function ns.RegisterSettings()
             Settings.CreateDropdown(category, setting, GetOptions, L["settings.tooltip.source_display"])
         end
 
-        -- 4. Loadout Dock
+        -- 4. Crafting
+        AddHeader(L["settings.header.crafting"])
+        AddCheckbox("craftingTopPicksOnly", L["settings.label.crafting_top_picks_only"],
+            L["settings.tooltip.crafting_top_picks_only"], true,
+            function()
+                if ns.UpdatePanel then ns:UpdatePanel() end
+                if ns.UpdateCompendium then ns:UpdateCompendium() end
+            end)
+
+        -- 5. Loadout Dock
         AddHeader(L["settings.header.loadout_dock"])
         AddCheckbox("dockLoadoutEnabled", L["settings.label.show_loadout_dock"],
             L["settings.tooltip.show_loadout_dock"], false,
