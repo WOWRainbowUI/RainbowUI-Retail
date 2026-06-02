@@ -22,7 +22,7 @@ local WIDGET_OFFSET_MAX = 500
 
 function ns.RegisterSettings()
     local ok, err = pcall(function()
-        local category, layout = Settings.RegisterVerticalLayoutCategory("Class Codex")
+        local category, layout = Settings.RegisterVerticalLayoutCategory(L["Class Codex"])
 
         local function AddHeader(label)
             local init = CreateSettingsListSectionHeaderInitializer(label)

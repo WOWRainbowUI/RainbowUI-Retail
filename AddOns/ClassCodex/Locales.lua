@@ -545,6 +545,7 @@ L["Data refreshes daily. Update Class Codex to get the latest."] = "資料每日
 
 -- 自行加入
 L["Class Codex"] = "職業寶典"
+L["Class Codex Compendium"] = "職業寶典大全"
 L["Left-click to open Compendium"] = "左鍵：開啟寶典"
 L["Right-click to open Settings"] = "右鍵：設定選項"
 L["Dock to Character Frame"] = "固定至角色框架"

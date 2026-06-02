@@ -487,7 +487,7 @@ local function InitFrame()
     else
         UI.frame:SetPoint("CENTER")
     end
-    UI.frame:SetTitle("Class Codex Compendium")
+    UI.frame:SetTitle(L["Class Codex Compendium"])
     UI.frame:SetPortraitToAsset("Interface\\Icons\\INV_Misc_Book_09")
     ButtonFrameTemplate_HideButtonBar(UI.frame)
     -- Blizzard's ButtonFrameTemplate anchors the NineSlice bottom corners
@@ -985,7 +985,7 @@ function ns:UpdateCompendium()
     else UI.frame:SetPortraitToAsset("Interface\\Icons\\INV_Misc_Book_09") end
 
     -- Update title
-    UI.frame:SetTitle("Class Codex Compendium · " .. GetSpecDisplayName(selectedClass, selectedSpec) .. " " .. GetClassDisplayName(selectedClass))
+    UI.frame:SetTitle(L["Class Codex Compendium"] ..  " · " .. GetSpecDisplayName(selectedClass, selectedSpec) .. " " .. GetClassDisplayName(selectedClass))
 
     -- Request item data for gearing tabs
     if activeTab ~= "guide" and activeTab ~= "talents" and GEAR_DATA then
