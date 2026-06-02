@@ -2141,7 +2141,7 @@ L["Magic"] = "Magic"
 --[[Translation missing --]]
 L["MagistersTerrace"] = "Magister's Terrace"
 --[[Translation missing --]]
-L["MagistersTerraceShortName"] = "MAGI"
+L["MagistersTerraceShortName"] = "MT"
 L["Magma Rager"] = "Furiante de Magma"
 L["Magmatusk"] = "Magmatusco"
 L["Maiden of Grief"] = "Donzela da Mágoa"
@@ -2344,6 +2344,8 @@ L["Muro'jin"] = "Muro'jin"
 L["Mu'Shiba"] = "Mu'Shiba"
 --[[Translation missing --]]
 L["Mutated Hatchling"] = "Mutated Hatchling"
+--[[Translation missing --]]
+L["Mute Xal'atath Voice Lines"] = "Mute Xal'atath Voice Lines"
 L["Mystic Ssa'veh"] = "Místico Ssa'veh"
 L["Mythresh, Sky's Talons"] = "Mythresh, as Garras do Céu"
 L["Naeno Megacrash"] = "Neno Pechadas"
@@ -2407,7 +2409,7 @@ L["Nexus Adept"] = "Nexus Adept"
 --[[Translation missing --]]
 L["NexusPointXenas"] = "Nexus Point Xenas"
 --[[Translation missing --]]
-L["NexusPointXenasShortName"] = "XENAS"
+L["NexusPointXenasShortName"] = "NEXUS"
 L["Nhallish"] = "Nhallish"
 L["Night Watch Mariner"] = "Fuzileiro da Vigília Noturna"
 L["Nightborne Reclaimer"] = "Recuperador Filho da Noite"
@@ -4348,7 +4350,7 @@ L["Windrunner Soldier"] = "Windrunner Soldier"
 --[[Translation missing --]]
 L["WindrunnerSpire"] = "Windrunner Spire"
 --[[Translation missing --]]
-L["WindrunnerSpireShortName"] = "WIND"
+L["WindrunnerSpireShortName"] = "SPIRE"
 L["Windspeaker Heldis"] = "Voz dos Ventos Heldis"
 --[[Translation missing --]]
 L["Wing Leader Ner'onok"] = "Wing Leader Ner'onok"

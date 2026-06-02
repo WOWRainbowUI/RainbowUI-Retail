@@ -457,39 +457,23 @@ L["Color Blind Friendly"] = "Режим для людей с дальтониз�
 L["Colorpicker"] = "Палитра цветов"
 L["Colors"] = "Цвета"
 L["Colossal Tentacle"] = "Огромное щупальце"
---[[Translation missing --]]
-L["Combat Logging"] = "Combat Logging"
+L["Combat Logging"] = "Запись боя"
 L["Combat Transparency"] = "Прозрачность во время боя"
---[[Translation missing --]]
-L["combatLoggingAdvancedNote"] = "Advanced combat logging is enabled automatically while combat logging is enabled."
---[[Translation missing --]]
-L["combatLoggingDungeons"] = "Dungeons"
---[[Translation missing --]]
-L["combatLoggingEnable"] = "Enable combat logging"
---[[Translation missing --]]
-L["combatLoggingHeroic"] = "Heroic"
---[[Translation missing --]]
-L["combatLoggingLFR"] = "LFR"
---[[Translation missing --]]
-L["combatLoggingMythic"] = "Mythic"
---[[Translation missing --]]
-L["combatLoggingMythicDungeon"] = "Mythic Dungeon"
---[[Translation missing --]]
-L["combatLoggingMythicPlus"] = "Mythic+"
---[[Translation missing --]]
-L["combatLoggingNormal"] = "Normal"
---[[Translation missing --]]
-L["combatLoggingOverview"] = "Automatically toggles combat logging in raids and dungeons based on selected difficulties."
---[[Translation missing --]]
-L["combatLoggingRaid"] = "Raid"
---[[Translation missing --]]
-L["combatLoggingStarted"] = "Started combat logging."
---[[Translation missing --]]
-L["combatLoggingStatusActive"] = "Current status: logging."
---[[Translation missing --]]
-L["combatLoggingStatusInactive"] = "Current status: not logging."
---[[Translation missing --]]
-L["combatLoggingStopped"] = "Ended combat logging."
+L["combatLoggingAdvancedNote"] = "Расширенный боевой лог включается автоматически, когда включена запись боевого лога."
+L["combatLoggingDungeons"] = "Подземелья"
+L["combatLoggingEnable"] = "Включить запись боя"
+L["combatLoggingHeroic"] = "Героический"
+L["combatLoggingLFR"] = "ЛФР"
+L["combatLoggingMythic"] = "Эпохальный"
+L["combatLoggingMythicDungeon"] = "Эпохальное подземелье"
+L["combatLoggingMythicPlus"] = "М+"
+L["combatLoggingNormal"] = "Обычный"
+L["combatLoggingOverview"] = "Автоматически включает и отключает запись боевого лога в рейдах и подземельях в зависимости от выбранных сложностей."
+L["combatLoggingRaid"] = "Рейд"
+L["combatLoggingStarted"] = "Запись боя начата."
+L["combatLoggingStatusActive"] = "Текущий статус: ведётся запись."
+L["combatLoggingStatusInactive"] = "Текущий статус: запись не ведётся."
+L["combatLoggingStopped"] = "Запись боя прекращена."
 L["Commander Durand"] = "Командир Дюранд"
 L["Commander Kolurg"] = "Командир Колург"
 L["Commander Kroluk"] = "Командир Кролук"
@@ -880,8 +864,7 @@ L["Enchanted Emissary"] = "Зачарованная посланница"
 L["encounteredErrors"] = "MDT обнаружил ошибки. Нажмите, чтобы просмотреть их."
 L["Encrypted"] = "Зашифрованный"
 L["Enemies related to seasonal affixes are currently hidden"] = "Враги, связанные с сезонными аффиксами, в настоящее время скрыты"
---[[Translation missing --]]
-L["Enemy forces in tooltips"] = "Enemy forces in tooltips"
+L["Enemy forces in tooltips"] = "Показывать количество вражеских сил во всплывающих подсказках"
 L["Enemy Info"] = "Информация о противнике"
 L["Enemy Info NPC Creature Type"] = "Тип существа"
 L["Enemy Info NPC Enemy Forces"] = "Силы врага"
@@ -1761,6 +1744,8 @@ L["Murkbrine Wavejumper"] = "Волнопляс из племени Солено
 L["Muro'jin"] = "Муро'джин"
 L["Mu'Shiba"] = "Му'Шиба"
 L["Mutated Hatchling"] = "Сумеречный детеныш"
+--[[Translation missing --]]
+L["Mute Xal'atath Voice Lines"] = "Mute Xal'atath Voice Lines"
 L["Mystic Ssa'veh"] = "Мистик Сса'ве"
 L["Mythresh, Sky's Talons"] = "Мифреш Небесный Коготь"
 L["Naeno Megacrash"] = "Нано Мегабум"

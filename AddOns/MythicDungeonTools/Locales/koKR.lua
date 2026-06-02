@@ -2078,6 +2078,8 @@ L["Muro'jin"] = "무로진"
 --[[Translation missing --]]
 L["Mu'Shiba"] = "Mu'Shiba"
 L["Mutated Hatchling"] = "새끼 돌연변이"
+--[[Translation missing --]]
+L["Mute Xal'atath Voice Lines"] = "Mute Xal'atath Voice Lines"
 L["Mystic Ssa'veh"] = "비술사 샤브"
 L["Mythresh, Sky's Talons"] = "하늘의 발톱 미스레쉬"
 L["Naeno Megacrash"] = "네노 메가크래쉬"

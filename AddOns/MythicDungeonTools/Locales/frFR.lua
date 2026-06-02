@@ -1782,7 +1782,7 @@ L["MaggotNote"] = "Note sur les asticots dévorants:%s%sLes asticots dévorants 
 L["Magic"] = "Magic"
 L["MagistersTerrace"] = "Terrasse des Magistères"
 --[[Translation missing --]]
-L["MagistersTerraceShortName"] = "MAGI"
+L["MagistersTerraceShortName"] = "MT"
 L["Magma Rager"] = "Enragé du magma"
 L["Magmatusk"] = "Magmodonte"
 L["Maiden of Grief"] = "Damoiselle de peine"
@@ -1956,6 +1956,8 @@ L["Muro'jin"] = "Muro'jin"
 --[[Translation missing --]]
 L["Mu'Shiba"] = "Mu'Shiba"
 L["Mutated Hatchling"] = "Juvénile muté"
+--[[Translation missing --]]
+L["Mute Xal'atath Voice Lines"] = "Mute Xal'atath Voice Lines"
 L["Mystic Ssa'veh"] = "Mystique Ssa’veh"
 L["Mythresh, Sky's Talons"] = "Mythresh, Serres des Cieux"
 L["Naeno Megacrash"] = "Naeno Mégavroum"
@@ -2011,7 +2013,7 @@ L["Next to the NPC"] = "A coté du PNJ "
 L["Nexus Adept"] = "Adepte du nexus"
 L["NexusPointXenas"] = "Point-nexus Xenas"
 --[[Translation missing --]]
-L["NexusPointXenasShortName"] = "XENAS"
+L["NexusPointXenasShortName"] = "NEXUS"
 L["Nhallish"] = "Nhallish"
 L["Night Watch Mariner"] = "Marin de la garde de nuit"
 L["Nightborne Reclaimer"] = "Récupérateur sacrenuit"
@@ -3478,7 +3480,7 @@ L["Wilted Oak"] = "Chêne flétri"
 L["Windrunner Soldier"] = "Soldat coursevent"
 L["WindrunnerSpire"] = "Flèche de Coursevent"
 --[[Translation missing --]]
-L["WindrunnerSpireShortName"] = "WIND"
+L["WindrunnerSpireShortName"] = "SPIRE"
 L["Windspeaker Heldis"] = "Parlevent Heldis"
 --[[Translation missing --]]
 L["Wing Leader Ner'onok"] = "Wing Leader Ner'onok"
