@@ -46,6 +46,7 @@ if Auctionator.Groups.Constants.IsRetail then
     Enum.ItemClass.Questitem,
     Enum.ItemClass.Housing,
     Enum.ItemClass.Miscellaneous,
+    Enum.ItemClass.Key,
   }
 elseif Auctionator.Groups.Constants.IsMists then
   Auctionator.Groups.Constants.ValidItemClassIDs = {

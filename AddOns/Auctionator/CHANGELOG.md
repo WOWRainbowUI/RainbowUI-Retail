@@ -1,7 +1,8 @@
 # Auctionator
 
-## [322](https://github.com/TheMouseNest/Auctionator/tree/322) (2026-04-23)
-[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/321...322) 
+## [323](https://github.com/TheMouseNest/Auctionator/tree/323) (2026-05-23)
+[Full Changelog](https://github.com/TheMouseNest/Auctionator/compare/322...323) 
 
-- [Fixes #1811] Prioritise vendor price warning over low-price warning  
-- [Fixes #1805] Fix tier 3 not applying to a search term  
+- Fix objective tracker search when recipes does not have an output itemlink (#1817)  
+    Resolves issue with quantities being assigned to the wrong search  
+- [Fixes #1816] Show keys in Selling tab (specifically Ethereum Prison Key)  
