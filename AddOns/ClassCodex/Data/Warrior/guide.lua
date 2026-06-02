@@ -33,16 +33,6 @@ ClassCodexData["WARRIOR"] = {
         exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghphxYGWmZmZGMmZAAAAAMzyMDIjxyyALgBMDTIzgNwMjNz2YwMGgZGAmxwA",
       },
       {
-        heroTalent = "Slayer",
-        context = "傳奇+",
-        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "通用",
-        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
-      },
-      {
         heroTalent = "Colossus",
         context = "團隊單目標",
         exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAAzMzsMzMzMDAAAghphZYmxyMzMzgxMDAAAAgZMzAyMgNzYYDGYGtRjBLAzYzsNGMjBzMAgZMMA",
@@ -52,6 +42,26 @@ ClassCodexData["WARRIOR"] = {
         context = "傳奇+",
         recommended = true,
         exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghphxwMbLzMzMjZGzMAAAAAGbmB2iBsZGDLwAzoNaMYBYGMGMbmtBzMAgZmhB",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "傳奇+",
+        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
+      },
+      {
+        heroTalent = "Colossus",
+        context = "探究",
+        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmxsMzMzYGAAAghphxwMbLzMzMjZGzMAAAAAGbmB2iBsZGDLwAzoNaMYBYGMGMbmtBzMAgZmhB",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "探究",
+        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "通用",
+        exportString = "CcEAAAAAAAAAAAAAAAAAAAAAAgZmZmFzYmZGAAAghphxYmZzMzMzYmxMDAAAAgxyMDsFGLbDsAGwMMhMD2AzMMMY2mZbAmZAwYYA",
       },
       {
         heroTalent = "Colossus",
@@ -158,17 +168,8 @@ ClassCodexData["WARRIOR"] = {
       {
         heroTalent = "Slayer",
         context = "團隊單目標",
+        recommended = true,
         exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjxMsMzMzMDjZmZGzMzsMzMGzMbDzMAAQMWWGYBMBzwEYG2AmZ2Y2GAAMzYYMzMMYA",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "傳奇+",
-        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
-      },
-      {
-        heroTalent = "Slayer",
-        context = "通用",
-        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
       },
       {
         heroTalent = "Mountain Thane",
@@ -178,11 +179,33 @@ ClassCodexData["WARRIOR"] = {
       {
         heroTalent = "Mountain Thane",
         context = "傳奇+",
+        recommended = true,
         exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjZMz2yMzMjZmxMjZMjZWmZGjZmlxMzAAAhB2glFjGzAysgZsAYGMGAMzAYYmZGMYA",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "傳奇+",
+        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
+      },
+      {
+        heroTalent = "Mountain Thane",
+        context = "探究",
+        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjZMz2yMzMjZmxMjZMjZWmZGjZmlxMzAAAhB2glFjGzAysgZsAYGMGAMzAYYmZGMYA",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "探究",
+        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
+      },
+      {
+        heroTalent = "Slayer",
+        context = "通用",
+        exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjhZ2WmZmZmZmxMjZMjZWmZGjZmtxMzAAAxYZZgFwEMDTgZYDwMYMAAYmxwMzMDDG",
       },
       {
         heroTalent = "Mountain Thane",
         context = "通用",
+        recommended = true,
         exportString = "CgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgGDjZMz2yMzMjZmxMjZMjZWmZGjZmlxMzAAAhB2glFjGzAysgZsAYGMGAMzAYYmZGMYA",
       },
     },
@@ -251,17 +274,17 @@ ClassCodexData["WARRIOR"] = {
     sourceUrl = "https://www.wowhead.com/guide/classes/warrior/protection/midnight-season-1",
     priorities = {
       {
-        heroTalent = "Colossus",
+        heroTalent = "Mountain Thane",
         context = "生存向",
         stats = {
           { "Haste" },
-          { "Critical Strike" },
           { "Versatility" },
+          { "Critical Strike" },
           { "Mastery" },
         },
       },
       {
-        heroTalent = "Colossus",
+        heroTalent = "Mountain Thane",
         context = "DPS",
         stats = {
           { "Haste" },
@@ -271,17 +294,17 @@ ClassCodexData["WARRIOR"] = {
         },
       },
       {
-        heroTalent = "Mountain Thane",
+        heroTalent = "Colossus",
         context = "生存向",
         stats = {
           { "Haste" },
-          { "Critical Strike" },
           { "Versatility" },
+          { "Critical Strike" },
           { "Mastery" },
         },
       },
       {
-        heroTalent = "Mountain Thane",
+        heroTalent = "Colossus",
         context = "DPS",
         stats = {
           { "Haste" },
@@ -293,22 +316,6 @@ ClassCodexData["WARRIOR"] = {
     },
     talents = {
       {
-        heroTalent = "Colossus",
-        context = "團隊單目標",
-        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAA0yAAAzMzYmZGzY2MzsMjxYmGmZYZMzMDzYmBAAAALDAzYAGYDWWMaMDgZLmZDmxMDmtBAzMAAMAD",
-      },
-      {
-        heroTalent = "Colossus",
-        context = "傳奇+",
-        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
-      },
-      {
-        heroTalent = "Colossus",
-        context = "探究",
-        recommended = true,
-        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
-      },
-      {
         heroTalent = "Mountain Thane",
         context = "團隊單目標",
         recommended = true,
@@ -319,6 +326,22 @@ ClassCodexData["WARRIOR"] = {
         context = "傳奇+",
         recommended = true,
         exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzMzMzMmxsZmZZGjxMNmxwyYmZYmxMDAAAAWGAmxAMwGssY0YGAzWMzGMzMzgZZAwMDAADwA",
+      },
+      {
+        heroTalent = "Colossus",
+        context = "探究",
+        recommended = true,
+        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
+      },
+      {
+        heroTalent = "Colossus",
+        context = "團隊單目標",
+        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAA0yAAAzMDzMzMzMzmxsMjxYmGmZYZMzMDzYmBAAAALDAzYAgNzYYjMwMsQjZWgZMzgZbAAmZAADwA",
+      },
+      {
+        heroTalent = "Colossus",
+        context = "傳奇+",
+        exportString = "CkEAAAAAAAAAAAAAAAAAAAAAAkBAAGzYmZmZmxsZmZZGjxMNmxwyYmZGmxMDAAAAWGAmxAAbmxwGZgZYhGzsAzMzMY2GAgZGAwAMA",
       },
       {
         heroTalent = "Mountain Thane",

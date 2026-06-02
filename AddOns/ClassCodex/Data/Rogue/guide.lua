@@ -27,6 +27,23 @@ ClassCodexData["ROGUE"] = {
     },
     talents = {
       {
+        heroTalent = "Fatebound",
+        context = "團隊單目標",
+        recommended = true,
+        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAy2A2MAYmBGA",
+      },
+      {
+        heroTalent = "All",
+        context = "傳奇+",
+        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAottZmZmZmxYmZmZbmlZG8AzMzMjhZGjBwALwMGNmNQ2GwmxGgZGGD",
+      },
+      {
+        heroTalent = "Deathstalker",
+        context = "探究",
+        recommended = true,
+        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAottZmZmZmxYmZmZbmlZG8AzMzMjhZGjBYzsMwAWCWGmADLGLmZAYMA",
+      },
+      {
         heroTalent = "Deathstalker",
         context = "團隊單目標",
         exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmZMbzgBAAAAAmlBLzAAAAAAabbmZmZmZMmZmZ2mZZmZGMmZmZMzYYA2MLDMglglhJwwiBzMADG",
@@ -34,19 +51,7 @@ ClassCodexData["ROGUE"] = {
       {
         heroTalent = "Deathstalker",
         context = "傳奇+",
-        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmZmZzgBAAAAAmlBbzAAAAAAabbmZmZmZMmZmZ2mZZmBPwMzMzYYmxYA2MLDMglglhJwwixmZGAGD",
-      },
-      {
-        heroTalent = "Deathstalker",
-        context = "探究",
-        recommended = true,
-        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmZmZzgBAAAAAmlBbzAAAAAAabbmZmZmZMmZmZ2mZZmBPwMzMzYYmxYA2MLDMglglhJwwixmZGAGD",
-      },
-      {
-        heroTalent = "Fatebound",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAottZmZmZmxYmZmZbmlZmZwYmZmxMjhBwALwMGNmFQ2GwmBAzMDGA",
+        exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAottZmZmZmxYmZmZbmlZG8AzMzMjhZGjBYzsMwAWCWGmADLGLmZAYMA",
       },
       {
         heroTalent = "Fatebound",
@@ -219,34 +224,34 @@ ClassCodexData["ROGUE"] = {
       {
         heroTalent = "Trickster",
         context = "團隊單目標",
+        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMkBmFWoF2YAmZwAD",
       },
       {
         heroTalent = "Trickster",
         context = "傳奇+",
+        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMkBmFWoF2YAmZwAD",
+      },
+      {
+        heroTalent = "Fatebound",
+        context = "探究",
+        exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZMzsNzMzMzMzsBmZbaZw2MAAAAAA2mZmhZmZmxMzsMAAAAMGAMmFDDZgZhFahNGgZGMDmB",
       },
       {
         heroTalent = "Trickster",
         context = "探究",
+        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMkBmFWoF2YAmZwAD",
       },
       {
         heroTalent = "Fatebound",
         context = "團隊單目標",
-        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGjZMzsNzMzMjHwswDMzMLTLD2mBAAAAAMbbzMzwMzMzYmZ2GAAAAGADsBzY0Y2AsNhFGAMzMwA",
       },
       {
         heroTalent = "Fatebound",
         context = "傳奇+",
-        recommended = true,
-        exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzYmHYmFGmx0ygtZAAAAAAz22MzMMzMzMmZmtBAAAgBwAbwMGNmNAbTYhBAzMDMA",
-      },
-      {
-        heroTalent = "Fatebound",
-        context = "探究",
-        recommended = true,
         exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzYmHYmFGmx0ygtZAAAAAAz22MzMMzMzMmZmtBAAAgBwAbwMGNmNAbTYhBAzMDMA",
       },
     },
@@ -396,18 +401,7 @@ ClassCodexData["ROGUE"] = {
       {
         heroTalent = "Deathstalker",
         context = "團隊單目標",
-        recommended = true,
         exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxsYWGYALglhJkZBzwMDwMGA",
-      },
-      {
-        heroTalent = "Deathstalker",
-        context = "傳奇+",
-        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMjxDMzMzYMbzYGbbzMzMzMjBjZ2GAAAAGMmNzyADYBsMMhMLYGmZAmxA",
-      },
-      {
-        heroTalent = "Deathstalker",
-        context = "探究",
-        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMDegZmZGjZbmZGbbzMzMzMjBjZ2GAAAAGMmNzyADYDsMMhMLYGmZAmxA",
       },
       {
         heroTalent = "Trickster",
@@ -426,6 +420,16 @@ ClassCodexData["ROGUE"] = {
         context = "探究",
         recommended = true,
         exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZMMzMzYMbzYGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAziWoFbYGwMDmxA",
+      },
+      {
+        heroTalent = "Deathstalker",
+        context = "傳奇+",
+        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMjxDMzMzYMbzYGbbzMzMzMjBjZ2GAAAAGMmNzyADYBsMMhMLYGmZAmxA",
+      },
+      {
+        heroTalent = "Deathstalker",
+        context = "探究",
+        exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMMDegZmZGjZbmZGbbzMzMzMjBjZ2GAAAAGMmNzyADYDsMMhMLYGmZAmxA",
       },
     },
     rotation = {

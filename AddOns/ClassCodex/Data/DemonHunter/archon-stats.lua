@@ -1,11 +1,11 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["DEMONHUNTER"] = {
   ["devourer"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/devourer/demon-hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 268, haste = 1089, mastery = 1192, versatility = 55 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/devourer/demon-hunter/raid/overview/mythic/all-bosses", targets = { crit = 283, haste = 1008, mastery = 1194, versatility = 67 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/devourer/demon-hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 269, haste = 1098, mastery = 1193, versatility = 53 } },
+    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/devourer/demon-hunter/raid/overview/mythic/all-bosses", targets = { crit = 283, haste = 1028, mastery = 1201, versatility = 65 } },
   },
   ["havoc"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/havoc/demon-hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1205, haste = 275, mastery = 954, versatility = 68 } },
+    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/havoc/demon-hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1208, haste = 268, mastery = 974, versatility = 68 } },
     ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/havoc/demon-hunter/raid/overview/mythic/all-bosses", targets = { crit = 1164, haste = 334, mastery = 925, versatility = 81 } },
   },
   ["vengeance"] = {

@@ -27,19 +27,12 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Soul Harvester",
         context = "團隊單目標",
-        recommended = true,
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZxyMzsMzAAjllBGwEMDbBG2GAAAmBAAwMDzMjBGmZmZGzgZmZGAwMwA",
       },
       {
         heroTalent = "Soul Harvester",
         context = "傳奇+",
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAwMzsMbmZWGDAM22GYATwMsFYYbAAAYGAAAzMjZMzsNGzYMzMzYYmZGAgBMA",
-      },
-      {
-        heroTalent = "Soul Harvester",
-        context = "團隊多目標",
-        recommended = true,
-        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZxyMzsMzAAjllBGwEMDbBG2GAAAmBAAwMDzMjBGmZmZGzgZmZGAwMwA",
       },
       {
         heroTalent = "Soul Harvester",
@@ -53,20 +46,24 @@ ClassCodexData["WARLOCK"] = {
       },
       {
         heroTalent = "Hellcaller",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbzMzyYAALwAziRjZAZ2ALDAAAGAAYmBjZMzsNzYGMzMzYYmZGAgBMA",
-      },
-      {
-        heroTalent = "Hellcaller",
         context = "團隊多目標",
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZWMzsMGAwCMwsY0YGQmFwyAAAwMAAwMDYmZMmZGmxMzMGMzMzAAmBG",
       },
       {
         heroTalent = "Hellcaller",
-        context = "探究",
-        recommended = true,
+        context = "傳奇+",
         exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbzMzyYAALwAziRjZAZ2ALDAAAGAAYmBjZMzsNzYGMzMzYYmZGAgBMA",
+      },
+      {
+        heroTalent = "Hellcaller",
+        context = "探究",
+        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMMzoZzMz2MzYWGAAwMzsMbzMzyYAALwAziRjZAZ2ALDAAAGAAYmBjZMzsNzYGMzMzYYmZGAgBMA",
+      },
+      {
+        heroTalent = "Soul Harvester",
+        context = "團隊多目標",
+        recommended = true,
+        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZxyMzsMzAAjllBGwEMDbBG2GAAAmBAAwMDzMjBGmZmZGzgZmZGAwMwA",
       },
     },
     rotation = {
@@ -180,6 +177,24 @@ ClassCodexData["WARLOCK"] = {
     },
     talents = {
       {
+        heroTalent = "Soul Harvester",
+        context = "團隊單目標",
+        recommended = true,
+        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzoZjhZmxsMAAAAAAAjllBGwAmhlQGbGjZ2mlZmZYAgZYmZGgZmZmxMDAAwYmZmZYGLzYAD",
+      },
+      {
+        heroTalent = "All",
+        context = "傳奇+",
+        buildLabel = "Doomguard",
+        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLjZmZmZAgZMzYmZGgxMMzGAAYmZmZmZGsNzAMA",
+      },
+      {
+        heroTalent = "Diabolist",
+        context = "探究",
+        recommended = true,
+        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLjZmZmZAgZMzYmZGgxMMzGAAYmZmZmZGsNzAMA",
+      },
+      {
         heroTalent = "Diabolist",
         context = "團隊單目標",
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzoZjhZmxsMAAAAAAAgxMGWgB2GtRDLGjZ2mlZmZYAgZYmZmZGgZmxMDAAwYmZmZYGLzYAD",
@@ -192,18 +207,8 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Diabolist",
         context = "傳奇+",
-        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLjZmZmZAgZMzYmZGgxMMzGAAYmZmZmZGsNzAMA",
-      },
-      {
-        heroTalent = "Diabolist",
-        context = "探究",
-        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLz2MzMmBAmxMzMzMDwMzwMbAAgZmZmxMD2mBwA",
-      },
-      {
-        heroTalent = "Soul Harvester",
-        context = "團隊單目標",
         recommended = true,
-        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmZMzoZjhZmxsMAAAAAAAjllBGwAmhlQGbGjZ2mlZmZYAgZYmZGgZmZmxMDAAwYmZmZYGLzYAD",
+        exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAwMjZGNbmx2MzYWGAAAAAAAwYGDLwAbj2ohFDGLjZmZmZAgZMzYmZGgxMMzGAAYmZmZmZGsNzAMA",
       },
       {
         heroTalent = "Soul Harvester",
@@ -214,13 +219,11 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Soul Harvester",
         context = "傳奇+",
-        recommended = true,
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAgxyyADYAzwSIjNDGLjZmZmZAgZMzYGgZmZmhZ2AAAzMzMjZGsNzAMA",
       },
       {
         heroTalent = "Soul Harvester",
         context = "探究",
-        recommended = true,
         exportString = "CoQAAAAAAAAAAAAAAAAAAAAAAYmhZGNbmx2MzYWGAAAAAAgxyyADYAzwSIjNDGLz2MzMmBAmxMzMDwMzMzwMbAAgZmZmxMD2mBwA",
       },
     },
@@ -343,13 +346,30 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Diabolist",
         context = "團隊單目標",
-        recommended = true,
+        buildLabel = "Single-Target",
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZjZmZxgFzAAgZmxMzsAGzYYhMw2wGNWYAAgxAjNAMzAYmxYAAAYmZmBAwMDD",
+      },
+      {
+        heroTalent = "Hellcaller",
+        context = "團隊單目標",
+        buildLabel = "Cleave",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMziNYgZzoxMAmtYjBAAGDwCAwMDmZGjZDAAwMzMAAMzwA",
+      },
+      {
+        heroTalent = "Hellcaller",
+        context = "傳奇+",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGNLmxiZGzysNzMjFzYZZmBAAzgZmZxCMwsY0YGAzWsxAAAjZYAAwMDGzMmZDAAwMzMDAAzwA",
       },
       {
         heroTalent = "Diabolist",
         context = "傳奇+",
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzDMzoZzM2MzYWmtZmZmFzYZhBAAzMjZmZBMmxwCZgthFaswAAAjBDLAYmBYMjZmNAAAzMzAAwYYA",
+      },
+      {
+        heroTalent = "Diabolist",
+        context = "探究",
+        buildLabel = "傳奇+",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
       },
       {
         heroTalent = "Diabolist",
@@ -361,22 +381,6 @@ ClassCodexData["WARLOCK"] = {
         heroTalent = "Diabolist",
         context = "通用",
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzDMzoZzM2MzYWmtZmZmFzYZhBAAzMjZmZBMmxwCZgthFaswAAAjBDLAYmBYMjZmNAAAzMzAAwYYA",
-      },
-      {
-        heroTalent = "Diabolist",
-        context = "探究",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
-      },
-      {
-        heroTalent = "Hellcaller",
-        context = "團隊單目標",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZjZmZxgFzAAgZmxMzsYBGYWMaMDgZL2YAAgxAjNAgZGYmxYAAAYmZmBAwMDD",
-      },
-      {
-        heroTalent = "Hellcaller",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGNLmxiZGzysNzMjFzYZZmBAAzgZmZxCMwsY0YGAzWsxAAAjZYAAwMDGzMmZDAAwMzMDAAzwA",
       },
       {
         heroTalent = "Hellcaller",
@@ -392,7 +396,6 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Hellcaller",
         context = "探究",
-        recommended = true,
         exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMjZGNLmxiZGzysNzMjFzYZZmBAAzgZmZxCMwsY0YGAzWsxAAAjZYAAwMDGzMmZDAAwMzMDAAzwA",
       },
     },

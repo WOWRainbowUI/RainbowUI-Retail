@@ -6,7 +6,7 @@ ClassCodexData["MONK"] = {
     priorities = {
       {
         heroTalent = "Shado-Pan",
-        context = "防禦向",
+        context = "防禦",
         stats = {
           { "Versatility", "Critical Strike", "Mastery" },
           { "Haste" },
@@ -14,7 +14,7 @@ ClassCodexData["MONK"] = {
       },
       {
         heroTalent = "Master of Harmony",
-        context = "防禦向",
+        context = "防禦",
         stats = {
           { "Versatility", "Critical Strike", "Mastery" },
           { "Haste" },
@@ -22,7 +22,7 @@ ClassCodexData["MONK"] = {
       },
       {
         heroTalent = "Shado-Pan",
-        context = "攻擊向",
+        context = "進攻",
         stats = {
           { "Critical Strike" },
           { "Mastery" },
@@ -32,7 +32,7 @@ ClassCodexData["MONK"] = {
       },
       {
         heroTalent = "Master of Harmony",
-        context = "攻擊向",
+        context = "進攻",
         stats = {
           { "Critical Strike" },
           { "Mastery" },
@@ -43,37 +43,39 @@ ClassCodexData["MONK"] = {
     },
     talents = {
       {
-        heroTalent = "Shado-Pan",
-        context = "團隊單目標",
-        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYEmBmhxmZMmZmZMzywMmZZYZzy2sMMLAAwGCAAwsNLNzMziZYDgZGmGDAAYA",
-      },
-      {
-        heroTalent = "Shado-Pan",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMLbGDzwyM2MmZAAAAAAAYZBmYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAgNEAAgZbWamZmNG2AYmhpxAGAwA",
-      },
-      {
-        heroTalent = "Shado-Pan",
-        context = "探究",
-        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZZzYGzwyM2MmZMAAAAAAALLgYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAgNEAAgZbWamZmFG2AYmhpxAGAwA",
-      },
-      {
         heroTalent = "Master of Harmony",
         context = "團隊單目標",
-        recommended = true,
+        buildLabel = "standard",
         exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZbzYGPwYWM2mxMDAAAAAAALLYEmBmhxmZMmZmZMzywMmZZYZzy2sMMLAAwysMtMbzsMAAQAmhNwMDYaMAAgB",
       },
       {
+        heroTalent = "Shado-Pan",
+        context = "團隊單目標",
+        buildLabel = "advanced",
+        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDzYWmxGmZAAAAAAAYZBjYmBmhBzYMzMzYmlhZMWGW2stNmxsAAAbIAAAz2s0MzMLmhNAmZYaMgBAMA",
+      },
+      {
+        heroTalent = "Shado-Pan",
+        context = "傳奇+",
+        buildLabel = "standard",
+        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMLbGDzwyM2MmZAAAAAAAYZBmYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAgNEAAgZbWamZmNG2AYmhpxAGAwA",
+      },
+      {
         heroTalent = "Master of Harmony",
         context = "傳奇+",
-        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZZzYGzwyM2MmZAAAAAAAYZBmYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAglZZaZ2mZZAAgAYYDMzAmGDYAAD",
+        buildLabel = "high Key",
+        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMbbGDGzyMPw2wMDAAAAAAALLwEzMwMM2MDmZmZY2GzMmZZYZ7B22mthZBAA2QAAAmtZpZmZ2YYDgZGmGDAAYA",
       },
       {
         heroTalent = "Master of Harmony",
         context = "探究",
-        recommended = true,
         exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAgZZzYGzwyM2MmZMAAAAAAALLgYmBmhBzgZmZGzsNMjZWGW2ssNbzYWAAglZZaZ2mZZAAgAYYDMzAmGDYAAD",
+      },
+      {
+        heroTalent = "Shado-Pan",
+        context = "探究",
+        buildLabel = "legacy/speed",
+        exportString = "CwQAAAAAAAAAAAAAAAAAAAAAAAAAAwMLbGzYGWmxGmZMAAAAAAAWgJmZgZMjFzgZmZGzYYmZmFssZbbMjZDAA2QAAAmtZpZmZ2MDbAMzw0YADAYA",
       },
     },
     rotation = {
@@ -243,8 +245,8 @@ ClassCodexData["MONK"] = {
         context = "傳奇+",
         stats = {
           { "Haste" },
-          { "Critical Strike" },
           { "Versatility" },
+          { "Critical Strike" },
           { "Mastery" },
         },
       },
@@ -263,8 +265,8 @@ ClassCodexData["MONK"] = {
         context = "傳奇+",
         stats = {
           { "Haste" },
-          { "Critical Strike" },
           { "Versatility" },
+          { "Critical Strike" },
           { "Mastery" },
         },
       },
@@ -273,16 +275,14 @@ ClassCodexData["MONK"] = {
       {
         heroTalent = "All",
         context = "團隊單目標",
-        buildLabel = "Conduit Of The Celestials",
-        recommended = true,
+        buildLabel = "Vivify",
         exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAghx2MwmFzYmZZGbYmZYmlttZGLMjmxMgBDGzyMzMDz2gBLmAAAAAIALWmZZ2mZAAgBMAzAGDjFZMDA",
       },
       {
         heroTalent = "All",
         context = "傳奇+",
-        buildLabel = "Conduit Of The Celestials",
-        recommended = true,
-        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZYxmxMjNstsMjZYmtllZGLM0MmBMYwYWmZmZY2wMMLzEAAAAABYx2MLzyMDAAMgBYGwYgFZMDA",
+        buildLabel = "No Spiritfont",
+        exportString = "C4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMWmZZML2mxMjNjtllZMzmZ2WWmZswQzYGwgBjZZmZmhZDzwsMTAAAAAEgFbzsMbzMAAwAAMDYMwiMmBA",
       },
       {
         heroTalent = "All",
@@ -322,7 +322,7 @@ ClassCodexData["MONK"] = {
           "{116680} (empowering {107428})",
           "{115151} if someone is missing it or one is about to fall off",
           "{124682} with a {443110} proc",
-          "{101546} at 4+ targets",
+          "{101546} at 2+ targets",
           "{100780} at least once before a {100784}",
           "{115869} as mana is needed",
         },
@@ -374,12 +374,6 @@ ClassCodexData["MONK"] = {
       },
       {
         heroTalent = "Shado-Pan",
-        context = "團隊多目標",
-        recommended = true,
-        exportString = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDjwMMMgZMMzMzwsMMDzyMBAsYmtxwYmZAAsBAzys0MzMLADDMzAwYZMEDYA",
-      },
-      {
-        heroTalent = "Shado-Pan",
         context = "傳奇+",
         recommended = true,
         exportString = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzEmhhBMjhZmZGmthZYWmJAgFzsNGGzMDAgNAYWmlmZmZBYYgZGAYZMEDYA",
@@ -389,6 +383,12 @@ ClassCodexData["MONK"] = {
         context = "探究",
         recommended = true,
         exportString = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDzEmhhBMjhZmZGmthZYWmJAgFzsNGGzMDAgNAYWmlmZmZBYYgZGAYZMEDYA",
+      },
+      {
+        heroTalent = "Shado-Pan",
+        context = "團隊多目標",
+        recommended = true,
+        exportString = "C0QAAAAAAAAAAAAAAAAAAAAAAMzYMYMYbmZ2mxAAAAAAAAAAAALDjwMMMgZMMzMzwsMMDzyMBAsYmtxwYmZAAsBAzys0MzMLADDMzAwYZMEDYA",
       },
       {
         heroTalent = "Conduit of the Celestials",

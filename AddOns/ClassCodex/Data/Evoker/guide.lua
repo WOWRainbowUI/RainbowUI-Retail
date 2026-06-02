@@ -27,21 +27,6 @@ ClassCodexData["EVOKER"] = {
     },
     talents = {
       {
-        heroTalent = "Chronowarden",
-        context = "團隊單目標",
-        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzAjZswCMwMM0IWwMjZGAYA",
-      },
-      {
-        heroTalent = "Chronowarden",
-        context = "傳奇+",
-        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
-      },
-      {
-        heroTalent = "Chronowarden",
-        context = "探究",
-        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
-      },
-      {
         heroTalent = "Scalecommander",
         context = "團隊單目標",
         recommended = true,
@@ -58,6 +43,21 @@ ClassCodexData["EVOKER"] = {
         context = "探究",
         recommended = true,
         exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMzyYmBmZzYwCsMGGbDgZiYDzMDmZAM",
+      },
+      {
+        heroTalent = "Chronowarden",
+        context = "團隊單目標",
+        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzAjZswCMwMM0IWwMjZGAYA",
+      },
+      {
+        heroTalent = "Chronowarden",
+        context = "傳奇+",
+        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
+      },
+      {
+        heroTalent = "Chronowarden",
+        context = "探究",
+        exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAAAAYmBmBjHoGzMzAAAAgZmZmxMz2YmBmZzAjZswCMwMM0IWwMzMzAAD",
       },
     },
     rotation = {
@@ -336,8 +336,8 @@ ClassCodexData["EVOKER"] = {
         context = "通用",
         stats = {
           { "Mastery" },
-          { "Critical Strike" },
           { "Haste" },
+          { "Critical Strike" },
           { "Versatility" },
         },
       },
@@ -346,34 +346,32 @@ ClassCodexData["EVOKER"] = {
         context = "通用",
         stats = {
           { "Mastery" },
-          { "Critical Strike" },
           { "Haste" },
+          { "Critical Strike" },
           { "Versatility" },
         },
       },
     },
     talents = {
       {
+        heroTalent = "Chronowarden",
+        context = "團隊單目標",
+        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMyMzAAAAMzMTmxMjZbmZAwAjZsxCMwMaoBsAjZGgxA",
+      },
+      {
         heroTalent = "Flameshaper",
         context = "團隊單目標",
         exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MDGmZMbGzMzsMDAAwMmxgZMjMzMAAAAzMzkZmZGz2MzAgZMDsAWAzwEyGsZYAMzMGA",
       },
       {
+        heroTalent = "Chronowarden",
+        context = "傳奇+",
+        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYmxsZGjx2wAAAzYmZmZMMTMmBAAA2mZmJjZmZGjZAAYMjNWgBmRDNMsAzMzAwA",
+      },
+      {
         heroTalent = "Flameshaper",
         context = "傳奇+",
         exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmxsZGjx2wAAAzYmZmZMMTMmBAAA2mZmJjZmZGjZAgxMwCYDMDTIbwmhZAmZYA",
-      },
-      {
-        heroTalent = "Chronowarden",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMyMzAAAAMzMTmxMjZbmZAwAjZsxCMwMaoBsAjZGgxA",
-      },
-      {
-        heroTalent = "Chronowarden",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAegZmZ2WGYYmxsZGjx2wAAAzYmZmZMMTMmBAAA2mZmJjZmZGjZAAYMjNWgBmRDNMsAzMzAwA",
       },
       {
         heroTalent = "Chronowarden",
@@ -385,7 +383,7 @@ ClassCodexData["EVOKER"] = {
     rotation = {
       {
         heroTalent = "Chronowarden",
-        context = "團隊 治療",
+        context = "團隊治療",
         steps = {
           "{373861} on cooldown.",
           "{355936} often. Cast it after you have consumed {364343} buffs to avoid consuming them with {355936}.",
@@ -398,7 +396,7 @@ ClassCodexData["EVOKER"] = {
       },
       {
         heroTalent = "Flameshaper",
-        context = "團隊 治療",
+        context = "團隊治療",
         steps = {
           "{373861} on cooldown.",
           "Keep one {355936} charge on cooldown. Cast the second when there is dangerous boss damage.",

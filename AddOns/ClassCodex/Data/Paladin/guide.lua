@@ -25,14 +25,25 @@ ClassCodexData["PALADIN"] = {
     },
     talents = {
       {
-        heroTalent = "Herald of the Sun",
+        heroTalent = "All",
         context = "團隊單目標",
+        buildLabel = "Default - Raid",
         exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YwYWGbzMLzoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
       },
       {
         heroTalent = "Herald of the Sun",
         context = "傳奇+",
         exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxMNxwYmZYY2yAwAwGYjlZmZWmtZmZrBAAAYhNMDbGYGzAAAmZYGjRD",
+      },
+      {
+        heroTalent = "Lightsmith",
+        context = "探究",
+        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxoJGGmZYY2yAwAwGYjlZmBABAMzsttYbmhN2YgNDMjZYAYmBgZMGNA",
+      },
+      {
+        heroTalent = "Herald of the Sun",
+        context = "團隊單目標",
+        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglZmZGzYmZ2YwYWGbzMLzoJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxY0A",
       },
       {
         heroTalent = "Herald of the Sun",
@@ -49,23 +60,18 @@ ClassCodexData["PALADIN"] = {
         context = "傳奇+",
         exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWGMGWGbzMLGNxwYmZYY2yAwAwGYjlZmBABAMzstsYbmhN2wMsZgZMDAYmBgZMGNA",
       },
-      {
-        heroTalent = "Lightsmith",
-        context = "探究",
-        exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMzMzYmZWgxwyYbmZxoJGGmZYY2yAwAwGYjlZmBABAMzsttYbmhN2YgNDMjZYAYmBgZMGNA",
-      },
     },
     rotation = {
       {
         heroTalent = "All",
         context = "治療優先",
         steps = {
-          "?(!H\"Lightsmith\"): {375576}",
+          "?(!H\"Lightsmith\"): {375576} on an Ally",
           "?(H\"Lightsmith\"): {432459} or {432472}",
           "{82326} as needed and as mana allows",
           "?!{1241358}: Spend {53576} procs",
           "?{1241358}: Spend {53576} procs on {20271} and {19750}",
-          "{20473}",
+          "{20473} on an Ally",
           "?{216331}: During {216331} cast {1241288}",
           "?(H\"Lightsmith\"): With an {414193} proc, cast {20271}",
           "?{216331}: During {216331} cast {35395}",
@@ -143,6 +149,12 @@ ClassCodexData["PALADIN"] = {
         exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAkmZWMjZmxYmt2AwAGwgNAAwMTbzMLzAAsBmxAYMDjBAYZGgZGkB",
       },
       {
+        heroTalent = "Lightsmith",
+        context = "傳奇+",
+        recommended = true,
+        exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYZMjZmZZbMzwsMLzYAAGAAAAAA00MDzYmhhZrNAMwAmBbAAAEgZmltlWmZsYGMAYMDjBAzMAMzMID",
+      },
+      {
         heroTalent = "Templar",
         context = "傳奇+",
         recommended = true,
@@ -158,12 +170,6 @@ ClassCodexData["PALADIN"] = {
         heroTalent = "Lightsmith",
         context = "團隊單目標",
         exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNzMYWGLjZMzMLLjZGmFbzYAAGAAAAAAkmZWMjZGmZmt2AwAzAgNAAACwMz22SbzMWMYGDgxMMGAMzAgZGkB",
-      },
-      {
-        heroTalent = "Lightsmith",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYZMjZmZZbMzwsMLzYAAGAAAAAA00MDzYmhhZrNAMwAmBbAAAEgZmltlWmZsYGMAYMDjBAzMAMzMID",
       },
       {
         heroTalent = "Lightsmith",
@@ -289,8 +295,13 @@ ClassCodexData["PALADIN"] = {
       {
         heroTalent = "Templar",
         context = "團隊單目標",
-        recommended = true,
+        buildLabel = "Execution Sentence",
         exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMMzAAAAAAwoMmhZGbDz2wMbzYMmZYGbsNMAAkZm2mZ2mBAsBYAwYGmBzYMbYZGMMmxgB",
+      },
+      {
+        heroTalent = "Herald of the Sun",
+        context = "團隊單目標",
+        exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQzy2MzsMMzAAAAAAwoMmhZGbDz2wMbzYMmZYGLsNMgZZ2mZmtGEAAwCgBAjZYGMjxsAMzMMmxgB",
       },
       {
         heroTalent = "Templar",
@@ -303,11 +314,6 @@ ClassCodexData["PALADIN"] = {
         context = "探究",
         recommended = true,
         exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQzyyMzsMzMzMDAAAAAwMlxMYGbzY2GmZbGMegZwYjtBAAkZm2mZ2mBAsBYAAzwMYYmZBLzgxMmxgB",
-      },
-      {
-        heroTalent = "Herald of the Sun",
-        context = "團隊單目標",
-        exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQzy2MzsMMzAAAAAAwoMmhZGbDz2wMbzYMmZYGLsNMgZZ2mZmtGEAAwCgBAjZYGMjxsAMzMMmxgB",
       },
       {
         heroTalent = "Herald of the Sun",

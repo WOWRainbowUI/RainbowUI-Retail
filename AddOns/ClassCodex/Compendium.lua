@@ -21,7 +21,6 @@ local FRAME_HEIGHT = 480
 local INSET_PAD = 8
 local ROW_HEIGHT = 22
 local SECTION_HEADER_HEIGHT = 24
-local MAX_STATS = 10
 -- Initial pool sizes for the Talents section. Pools grow on demand
 -- (EnsureTalentButton / EnsureTalentHeroHeader); these are just the
 -- pre-allocations so the common Wowhead-only render hits no cold path.
@@ -31,13 +30,6 @@ local MAX_STATS = 10
 local MAX_TALENT_BUTTONS = 16
 local MAX_TALENT_HERO_HEADERS = 6
 local TALENT_HERO_HEADER_HEIGHT = 22
-local MAX_ROTATION_STEPS = 20
-local MAX_ENCHANT_ROWS = 12 -- one row per entry, but row grows to 2x height when an alternate exists
-local MAX_GEM_ROWS = 10
-local MAX_CONSUM_ROWS = 10
-local MAX_TRINKET_ROWS = 20
-local MAX_CRAFT_ROWS = 15 -- combined "item + embellishment" row; embellishment surfaced via tooltip line
-local MAX_BIS_ROWS = 20
 local TALENT_BTN_HEIGHT = 22
 local TALENT_BTN_GAP = 4
 
@@ -112,13 +104,7 @@ local selectedHero = nil
 local activeTab = "guide"
 local currentStatContext = nil
 local currentRotContext = nil
-local currentEnhancementsSource = "Wowhead" -- "Wowhead" | "PvP"
-local lastEnhancementsSpecKey = nil
 local lastTalentSpecKey = nil
-local currentTrinketContext = "All"
-local currentBisTab = nil
-local currentBisSource = "Wowhead"
-local lastBisSpecKey = nil
 local initialized = false
 local SaveCompendiumState -- forward declaration
 
@@ -354,16 +340,7 @@ local function RequestAllGearItems(gearData)
     if gearData.trinkets then
         for _, t in ipairs(gearData.trinkets) do RequestItemData(t.itemId) end
     end
-    if gearData.crafts then
-        for _, list in ipairs({ gearData.crafts.earlyCrafts, gearData.crafts.bisCrafts }) do
-            if list then
-                for _, s in ipairs(list) do
-                    RequestItemData(s.item.itemId)
-                    if s.embellishment then RequestItemData(s.embellishment.itemId) end
-                end
-            end
-        end
-    end
+    ns.Sections.Crafting.RequestItems(selectedClass, selectedSpec, RequestItemData)
     if gearData.bisGear then
         for _, tab in ipairs(gearData.bisGear) do
             for _, g in ipairs(tab.slots) do RequestItemData(g.item.itemId) end
@@ -561,7 +538,7 @@ local function InitFrame()
         { key = "bis",          label = L["tab.bis_gear"] },
         { key = "trinkets",     label = L["tab.trinkets"] },
         { key = "enhancements", label = L["tab.enhancements"] },
-        { key = "crafts",       label = L["tab.crafts"] },
+        { key = "crafting",     label = L["tab.crafting"] },
     }
     local tabs = {}
     for i, data in ipairs(TAB_DATA) do
@@ -673,36 +650,13 @@ local function InitFrame()
         return row
     end
 
-    -- Guide: Stats
-    UI.statSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.statHeader = CreateSectionHeader(UI.statSection, L["section.stat_priority"], true)
-    UI.statContent = CreateFrame("Frame", nil, UI.statSection)
-    UI.statContent:SetPoint("TOPLEFT", UI.statHeader, "BOTTOMLEFT", 0, -2)
-    UI.statContent:SetPoint("RIGHT", 0, 0)
-    UI.statCtxDropdown = CreateFrame("DropdownButton", "ClassCodexCompStatCtxDD", UI.statContent, "WowStyle1DropdownTemplate")
-    UI.statCtxDropdown:SetPoint("TOPLEFT", 0, 0)
-    UI.statCtxDropdown:SetPoint("TOPRIGHT", 0, 0)
-    UI.statCtxDropdown:SetHeight(24)
-    UI.statCtxDropdown:Hide()
-    UI.statFrames = {}
+    -- Guide: Stat Priority — extracted to Sections/Stats.lua.
+    UI.statSection, UI.statHeader, UI.statContent =
+        ns.Sections.Stats.InitCompendium({
+            parent = UI.scrollChild,
+            headerFactory = CreateSectionHeader,
+        })
     UI.statCollapsed = false
-    for i = 1, MAX_STATS do
-        local row = CreateFrame("Frame", nil, UI.statContent)
-        row:SetHeight(20)
-        local rank = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        rank:SetPoint("LEFT", 0, 0); rank:SetWidth(20); rank:SetJustifyH("CENTER")
-        row.rank = rank
-        local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        name:SetPoint("LEFT", rank, "RIGHT", 6, 0); name:SetPoint("RIGHT", 0, 0); name:SetJustifyH("LEFT")
-        row.statName = name
-        UI.statFrames[i] = row
-    end
-    -- Shown when the PvP stat-priority context is selected for a spec
-    -- with no Murlok data — keeps the dropdown discoverable instead of
-    -- silently swallowing the user's selection.
-    UI.statPvpFallback = UI.statContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    UI.statPvpFallback:SetTextColor(0.5, 0.5, 0.5)
-    UI.statPvpFallback:Hide()
     UI.statHeader:SetScript("OnClick", function()
         UI.statCollapsed = not UI.statCollapsed
         SetCollapsed(UI.statContent, UI.statHeader, UI.statCollapsed)
@@ -821,269 +775,64 @@ local function InitFrame()
         end)
     end
 
-    -- Guide: Rotation
-    UI.rotationSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.rotationHeader = CreateSectionHeader(UI.rotationSection, L["section.rotation"], true)
-    UI.rotationContent = CreateFrame("Frame", nil, UI.rotationSection)
-    UI.rotationContent:SetPoint("TOPLEFT", UI.rotationHeader, "BOTTOMLEFT", 0, -2)
-    UI.rotationContent:SetPoint("RIGHT", 0, 0)
-    -- Context switcher for Wowhead's per-mode rotations (Single Target,
-    -- Multitarget, Opener, …). Hidden when the spec exposes only one
-    -- context. Mirrors statCtxDropdown / trinketCtxDropdown.
-    UI.rotationCtxDropdown = CreateFrame("DropdownButton", "ClassCodexCompRotCtxDD", UI.rotationContent, "WowStyle1DropdownTemplate")
-    UI.rotationCtxDropdown:SetPoint("TOPLEFT", 0, 0)
-    UI.rotationCtxDropdown:SetPoint("TOPRIGHT", 0, 0)
-    UI.rotationCtxDropdown:SetHeight(24)
-    UI.rotationCtxDropdown:Hide()
-    UI.rotationFrames = {}
+    -- Guide: Rotation — extracted to Sections/Rotation.lua.
+    UI.rotationSection, UI.rotationHeader, UI.rotationContent =
+        ns.Sections.Rotation.InitCompendium({
+            parent = UI.scrollChild,
+            headerFactory = CreateSectionHeader,
+            refresh = function() ns:LayoutCompendium() end,
+        })
     UI.rotationCollapsed = false
-    for i = 1, MAX_ROTATION_STEPS do
-        local row = CreateFrame("Frame", nil, UI.rotationContent)
-        row:SetHeight(ROW_HEIGHT)
-        local rank = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        rank:SetPoint("TOPLEFT", 0, 0); rank:SetWidth(18); rank:SetJustifyH("RIGHT"); rank:SetTextColor(0.5, 0.5, 0.5)
-        row.rank = rank
-        local icon = row:CreateTexture(nil, "ARTWORK")
-        icon:SetSize(16, 16); icon:SetPoint("TOPLEFT", rank, "TOPRIGHT", 4, 0)
-        row.icon = icon
-        local st = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        st:SetPoint("TOPLEFT", icon, "TOPRIGHT", 4, 0); st:SetPoint("RIGHT", row, "RIGHT", 0, 0)
-        st:SetJustifyH("LEFT"); st:SetJustifyV("TOP"); st:SetWordWrap(true); st:SetNonSpaceWrap(true)
-        row.stepText = st
-        row:EnableMouse(true)
-        row:SetScript("OnEnter", function(self)
-            if self.spellId then GameTooltip:SetOwner(self, "ANCHOR_RIGHT"); GameTooltip:SetSpellByID(self.spellId); GameTooltip:Show() end
-        end)
-        row:SetScript("OnLeave", function() GameTooltip:Hide() end)
-        UI.rotationFrames[i] = row
-    end
-    UI.rotationFallback = UI.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    UI.rotationFallback:SetTextColor(0.5, 0.5, 0.5); UI.rotationFallback:Hide()
-    UI.rotationHeader:SetScript("OnClick", function()
-        UI.rotationCollapsed = not UI.rotationCollapsed
-        SetCollapsed(UI.rotationContent, UI.rotationHeader, UI.rotationCollapsed)
-        ns:LayoutCompendium()
-    end)
 
-    -- Gearing: Enchants
-    UI.enchantSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.enchantHeader = CreateSectionHeader(UI.enchantSection, L["tab.enchants"], true)
-    UI.enchantContent = CreateFrame("Frame", nil, UI.enchantSection)
-    UI.enchantContent:SetPoint("TOPLEFT", UI.enchantHeader, "BOTTOMLEFT", 0, -2); UI.enchantContent:SetPoint("RIGHT", 0, 0)
-    -- Enhancements source dropdown — Wowhead vs Murlok (PvP) toggle for
-    -- the Enchants + Gems sections. Hidden by default; shown when PvP
-    -- data exists for the spec. Parented to scrollChild and positioned
-    -- ABOVE the Enchants section (not inside it) so the section can
-    -- collapse / hide cleanly without taking the dropdown with it, and
-    -- the layout reads "source picker → Enchants → Gems".
-    UI.enhancementsSourceDropdown = CreateFrame("DropdownButton", "ClassCodexCompEnhancementsSourceDD", UI.scrollChild, "WowStyle1DropdownTemplate")
-    UI.enhancementsSourceDropdown:SetHeight(24)
-    UI.enhancementsSourceDropdown:Hide()
-    -- Enchant rows: outer frame holds icon + slot label, then a stack
-    -- of two sub-rows (bestSub / altSub) — each sub is its own Button
-    -- with its own tooltip + click target. Mirrors the docked panel.
-    local function MakeEnchantSubRow(parent)
-        local sub = CreateFrame("Button", nil, parent)
-        sub:SetHeight(ROW_HEIGHT)
-        sub:RegisterForClicks("LeftButtonUp")
-        local text = sub:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        text:SetPoint("LEFT", 0, 0); text:SetPoint("RIGHT", 0, 0)
-        text:SetJustifyH("LEFT")
-        text:SetWordWrap(false)
-        sub.text = text
-        sub:SetScript("OnEnter", function(self)
-            if self.itemId then
-                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:SetItemByID(self.itemId)
-                GameTooltip:Show()
-            elseif self.spellId then
-                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                GameTooltip:SetSpellByID(self.spellId)
-                GameTooltip:Show()
-            end
-        end)
-        sub:SetScript("OnLeave", function() GameTooltip:Hide() end)
-        sub:SetScript("OnClick", function(self)
-            if not self.itemId then return end
-            local _, link = C_Item.GetItemInfo(self.itemId)
-            if not link then return end
-            if IsModifiedClick("CHATLINK") then
-                ChatEdit_InsertLink(link)
-            elseif IsModifiedClick("DRESSUP") then
-                DressUpItemLink(link)
-            end
-        end)
-        sub:Hide()
-        return sub
-    end
+    -- Enhancements (Enchants + Gems + Consumables) extracted to
+    -- Sections/Enhancements.lua. Module owns row pools, sub-rows, source
+    -- dropdown, PvP fallback, and collapse hooks.
+    local _enhFrames = ns.Sections.Enhancements.InitCompendium({
+        parent = UI.scrollChild,
+        headerFactory = CreateSectionHeader,
+        rowFactory = MakeItemRow,
+        refresh = function() ns:LayoutCompendium() end,
+        iconSize = ICON_SIZE,
+    })
+    UI.enchantSection, UI.enchantHeader, UI.enchantContent =
+        _enhFrames.enchSection, _enhFrames.enchHeader, _enhFrames.enchContent
+    UI.gemSection, UI.gemHeader, UI.gemContent =
+        _enhFrames.gemSection, _enhFrames.gemHeader, _enhFrames.gemContent
+    UI.consumSection, UI.consumHeader, UI.consumContent =
+        _enhFrames.consumSection, _enhFrames.consumHeader, _enhFrames.consumContent
+    UI.enhancementsSourceDropdown = _enhFrames.sourceDropdown
 
-    UI.enchantRows = {}; UI.enchantCollapsed = false
-    for i = 1, MAX_ENCHANT_ROWS do
-        local row = CreateFrame("Frame", nil, UI.enchantContent)
-        row:SetHeight(ROW_HEIGHT)
+    -- Trinkets section — extracted to Sections/Trinkets.lua. The module owns
+    -- the row pool, context dropdown, persisted-context state, and render
+    -- code; we just keep handles to the returned frames for the layout pass.
+    UI.trinketSection, UI.trinketHeader, UI.trinketContent =
+        ns.Sections.Trinkets.InitCompendium({
+            parent = UI.scrollChild,
+            headerFactory = CreateSectionHeader,
+            rowFactory = MakeItemRow,
+        })
+    UI.trinketCollapsed = false
 
-        CreateRowIcon(row)
-        row.icon:ClearAllPoints()
-        row.icon:SetPoint("LEFT", row, "LEFT", 2, 0)
+    -- Crafting section — extracted to Sections/Crafting.lua. Frame pool,
+    -- card factory, dropdown, fallback, and render code all live there;
+    -- we keep handles to the returned frames so the Compendium layout pass
+    -- can position the section relative to its siblings.
+    UI.craftSection, UI.craftHeader, UI.craftContent =
+        ns.Sections.Crafting.InitCompendium({
+            parent = UI.scrollChild,
+            headerFactory = CreateSectionHeader,
+        })
+    UI.craftCollapsed = false
 
-        local slot = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        slot:SetPoint("LEFT", row.icon, "RIGHT", 4, 0)
-        slot:SetWidth(55)
-        slot:SetJustifyH("LEFT")
-        slot:SetTextColor(0.6, 0.6, 0.6)
-        row.slot = slot
-
-        local bestSub = MakeEnchantSubRow(row)
-        bestSub:SetPoint("TOPLEFT", row, "TOPLEFT", 2 + ICON_SIZE + 4 + 55 + 2, 0)
-        bestSub:SetPoint("RIGHT", row, "RIGHT", 0, 0)
-        row.bestSub = bestSub
-
-        local altSub = MakeEnchantSubRow(row)
-        altSub:SetPoint("TOPLEFT", bestSub, "BOTTOMLEFT", 0, 0)
-        altSub:SetPoint("RIGHT", row, "RIGHT", 0, 0)
-        row.altSub = altSub
-
-        UI.enchantRows[i] = row
-    end
-    -- Shown when the PvP enhancements source is selected for a spec with
-    -- no Murlok enchant/gem data — keeps the dropdown choice honoured
-    -- instead of rendering an empty section.
-    UI.enchantPvpFallback = UI.enchantContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    UI.enchantPvpFallback:SetTextColor(0.5, 0.5, 0.5)
-    UI.enchantPvpFallback:Hide()
-    UI.enchantHeader:SetScript("OnClick", function()
-        UI.enchantCollapsed = not UI.enchantCollapsed; SetCollapsed(UI.enchantContent, UI.enchantHeader, UI.enchantCollapsed); ns:LayoutCompendium()
-    end)
-
-    -- Gearing: Gems
-    UI.gemSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.gemHeader = CreateSectionHeader(UI.gemSection, L["tab.gems"], true)
-    UI.gemContent = CreateFrame("Frame", nil, UI.gemSection)
-    UI.gemContent:SetPoint("TOPLEFT", UI.gemHeader, "BOTTOMLEFT", 0, -2); UI.gemContent:SetPoint("RIGHT", 0, 0)
-    UI.gemRows = {}; UI.gemCollapsed = false
-    for i = 1, MAX_GEM_ROWS do
-        local row = MakeItemRow(UI.gemContent)
-        CreateRowIcon(row)
-        local label = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        label:SetPoint("LEFT", row.icon, "RIGHT", 4, 0); label:SetWidth(65); label:SetJustifyH("LEFT"); label:SetTextColor(0.6, 0.6, 0.6)
-        row.label = label
-        local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        name:SetPoint("LEFT", label, "RIGHT", 4, 0); name:SetPoint("RIGHT", 0, 0); name:SetJustifyH("LEFT")
-        row.name = name
-        UI.gemRows[i] = row
-    end
-    UI.gemHeader:SetScript("OnClick", function()
-        UI.gemCollapsed = not UI.gemCollapsed; SetCollapsed(UI.gemContent, UI.gemHeader, UI.gemCollapsed); ns:LayoutCompendium()
-    end)
-
-    -- Gearing: Consumables
-    UI.consumSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.consumHeader = CreateSectionHeader(UI.consumSection, L["tab.consumables"], false)
-    UI.consumContent = CreateFrame("Frame", nil, UI.consumSection)
-    UI.consumContent:SetPoint("TOPLEFT", UI.consumHeader, "BOTTOMLEFT", 0, -2); UI.consumContent:SetPoint("RIGHT", 0, 0)
-    UI.consumRows = {}; UI.consumCollapsed = false
-    for i = 1, MAX_CONSUM_ROWS do
-        local row = MakeItemRow(UI.consumContent)
-        CreateRowIcon(row)
-        local label = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        label:SetPoint("LEFT", row.icon, "RIGHT", 4, 0); label:SetWidth(90); label:SetJustifyH("LEFT"); label:SetTextColor(0.6, 0.6, 0.6)
-        row.label = label
-        local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        name:SetPoint("LEFT", label, "RIGHT", 4, 0); name:SetPoint("RIGHT", 0, 0); name:SetJustifyH("LEFT")
-        row.name = name
-        UI.consumRows[i] = row
-    end
-    -- Single-section tab — not collapsible
-
-    -- Gearing: Trinkets
-    UI.trinketSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.trinketHeader = CreateSectionHeader(UI.trinketSection, L["tab.trinkets"], false)
-    UI.trinketContent = CreateFrame("Frame", nil, UI.trinketSection)
-    UI.trinketContent:SetPoint("TOPLEFT", UI.trinketHeader, "BOTTOMLEFT", 0, -2); UI.trinketContent:SetPoint("RIGHT", 0, 0)
-    UI.trinketRows = {}; UI.trinketCollapsed = false
-    for i = 1, MAX_TRINKET_ROWS do
-        local row = MakeItemRow(UI.trinketContent)
-        local tier = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        tier:SetPoint("LEFT", 2, 0); tier:SetWidth(16); tier:SetJustifyH("CENTER")
-        row.tier = tier
-        CreateRowIcon(row)
-        row.icon:ClearAllPoints(); row.icon:SetPoint("LEFT", tier, "RIGHT", 4, 0)
-        local src = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        src:SetPoint("RIGHT", -2, 0); src:SetWidth(120); src:SetJustifyH("RIGHT")
-        src:SetWordWrap(false); src:SetTextColor(0.5, 0.5, 0.5)
-        row.source = src
-        local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        name:SetPoint("LEFT", row.icon, "RIGHT", 4, 0); name:SetPoint("RIGHT", src, "LEFT", -4, 0)
-        name:SetJustifyH("LEFT"); name:SetWordWrap(false)
-        row.name = name
-        UI.trinketRows[i] = row
-    end
-    UI.trinketCtxDropdown = CreateFrame("DropdownButton", "ClassCodexCompTrinketCtxDD", UI.trinketContent, "WowStyle1DropdownTemplate")
-    UI.trinketCtxDropdown:SetPoint("TOPLEFT", 0, 0)
-    UI.trinketCtxDropdown:SetPoint("TOPRIGHT", 0, 0)
-    UI.trinketCtxDropdown:SetHeight(24)
-    UI.trinketCtxDropdown:Hide()
-    -- Single-section tab — not collapsible
-
-    -- Gearing: Crafts
-    UI.craftSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.craftHeader = CreateSectionHeader(UI.craftSection, L["tab.crafts"], false)
-    UI.craftContent = CreateFrame("Frame", nil, UI.craftSection)
-    UI.craftContent:SetPoint("TOPLEFT", UI.craftHeader, "BOTTOMLEFT", 0, -2); UI.craftContent:SetPoint("RIGHT", 0, 0)
-    UI.craftRows = {}; UI.craftCollapsed = false
-    for i = 1, MAX_CRAFT_ROWS do
-        local row = MakeItemRow(UI.craftContent)
-        local order = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        order:SetPoint("LEFT", 0, 0); order:SetWidth(20); order:SetJustifyH("CENTER"); order:SetTextColor(0.5, 0.5, 0.5)
-        row.order = order
-        CreateRowIcon(row)
-        row.icon:ClearAllPoints(); row.icon:SetPoint("LEFT", order, "RIGHT", 2, 0)
-        local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        name:SetPoint("LEFT", row.icon, "RIGHT", 4, 0); name:SetPoint("RIGHT", 0, 0); name:SetJustifyH("LEFT")
-        row.name = name
-        UI.craftRows[i] = row
-    end
-    -- Single-section tab — not collapsible
-
-    -- Gearing: BiS Gear
-    UI.bisSection = CreateFrame("Frame", nil, UI.scrollChild)
-    UI.bisHeader = CreateSectionHeader(UI.bisSection, L["tab.best_in_slot"], false)
-    UI.bisContent = CreateFrame("Frame", nil, UI.bisSection)
-    UI.bisContent:SetPoint("TOPLEFT", UI.bisHeader, "BOTTOMLEFT", 0, -2); UI.bisContent:SetPoint("RIGHT", 0, 0)
-    UI.bisSourceDropdown = CreateFrame("DropdownButton", "ClassCodexCompBisSourceDD", UI.bisContent, "WowStyle1DropdownTemplate")
-    UI.bisSourceDropdown:SetPoint("TOPLEFT", 0, 0)
-    UI.bisSourceDropdown:SetPoint("TOPRIGHT", 0, 0)
-    UI.bisSourceDropdown:SetHeight(24)
-    UI.bisSourceDropdown:Hide()
-    UI.bisTabDropdown = CreateFrame("DropdownButton", "ClassCodexCompBisTabDD", UI.bisContent, "WowStyle1DropdownTemplate")
-    UI.bisTabDropdown:SetPoint("TOPLEFT", 0, 0)
-    UI.bisTabDropdown:SetPoint("TOPRIGHT", 0, 0)
-    UI.bisTabDropdown:SetHeight(24)
-    UI.bisTabDropdown:Hide()
-    UI.bisRows = {}; UI.bisCollapsed = false
-    for i = 1, MAX_BIS_ROWS do
-        local row = MakeItemRow(UI.bisContent)
-        CreateRowIcon(row)
-        local slot = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        slot:SetPoint("LEFT", row.icon, "RIGHT", 4, 0); slot:SetWidth(70); slot:SetJustifyH("LEFT"); slot:SetTextColor(0.6, 0.6, 0.6)
-        row.slot = slot
-        local name = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-        local source = row:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-        source:SetPoint("RIGHT", -2, 0); source:SetWidth(110); source:SetJustifyH("RIGHT")
-        source:SetWordWrap(false); source:SetTextColor(0.5, 0.5, 0.5)
-        name:SetPoint("LEFT", slot, "RIGHT", 4, 0); name:SetPoint("RIGHT", source, "LEFT", -4, 0); name:SetJustifyH("LEFT")
-        name:SetWordWrap(false)
-        row.name = name
-        row.source = source
-        UI.bisRows[i] = row
-    end
-    -- Shown when the PvP source is selected for a spec without Murlok
-    -- gear data — keeps the dropdown discoverable instead of falling
-    -- back to a different source silently.
-    UI.bisPvpFallback = UI.bisContent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    UI.bisPvpFallback:SetTextColor(0.5, 0.5, 0.5)
-    UI.bisPvpFallback:Hide()
-    -- Single-section tab — not collapsible
+    -- BiS Gear — extracted to Sections/Gear.lua. The module owns the row
+    -- pool, source/tab dropdowns, PvP fallback, and render code.
+    UI.bisSection, UI.bisHeader, UI.bisContent =
+        ns.Sections.Gear.InitCompendium({
+            parent = UI.scrollChild,
+            headerFactory = CreateSectionHeader,
+            rowFactory = MakeItemRow,
+        })
+    UI.bisCollapsed = false
 
     -- Empty state
     UI.emptyText = UI.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -1201,7 +950,9 @@ function ns:UpdateCompendium()
     UI.statSection:Hide(); UI.talentSection:Hide(); UI.rotationSection:Hide()
     UI.enchantSection:Hide(); UI.gemSection:Hide(); UI.consumSection:Hide()
     UI.trinketSection:Hide(); UI.craftSection:Hide(); UI.bisSection:Hide()
-    UI.emptyText:Hide(); UI.talentFallback:Hide(); UI.rotationFallback:Hide()
+    UI.emptyText:Hide(); UI.talentFallback:Hide()
+    -- Rotation fallback now lives inside Sections/Rotation.lua and is reset
+    -- at the start of each RenderCompendium call.
     -- Enhancements source dropdown lives outside enchantSection now,
     -- so hiding the section doesn't take it down. Hide it explicitly
     -- on every tab switch — the Enhancements tab's update path will
@@ -1255,7 +1006,7 @@ function ns:UpdateCompendium()
     elseif activeTab == "enhancements" then
         self:UpdateCompendiumEnchants()
         self:UpdateCompendiumConsumables()
-    elseif activeTab == "crafts" then
+    elseif activeTab == "crafting" then
         self:UpdateCompendiumCrafts()
     end
 
@@ -1278,95 +1029,47 @@ local function BuildPvPPrioritySynthetic()
     return { stats = tiers }
 end
 
--- Render the Stat Priority section (shared between Guide and Stats tabs).
--- Pure layout — caller decides which other sections to show alongside it.
+-- Stat-priority resolution stays here (uses Compendium-internal helpers);
+-- Sections/Stats.lua renders the result on both surfaces.
 local function RenderStatPrioritySection(specData, heroTalent)
     local statCtxOptions = GetStatContextOptions(specData, heroTalent)
-    -- PvP always appears as a sibling context so users discover the
-    -- feature; when Murlok has no priority for this spec the section
-    -- shows a small "no data" line instead of stat rows. The dropdown
-    -- only renders if there's more than one option to pick.
     local pvpPriority = BuildPvPPrioritySynthetic()
     if #statCtxOptions == 0 then
         statCtxOptions = { "General", "PvP" }
     else
         statCtxOptions[#statCtxOptions + 1] = "PvP"
     end
-    local showStatCtx = #statCtxOptions > 0
 
-    if showStatCtx then
-        if not currentStatContext then currentStatContext = statCtxOptions[1] end
-        local found = false
-        for _, c in ipairs(statCtxOptions) do
-            if c == currentStatContext then found = true; break end
-        end
-        if not found then currentStatContext = statCtxOptions[1] end
-
-        UI.statCtxDropdown:SetupMenu(function(_, rootDescription)
-            for _, ctx in ipairs(statCtxOptions) do
-                -- PvP context carries the Murlok brand icon — same
-                -- attribution pattern the Talents/Gear source dropdowns
-                -- use for Wowhead/Archon. Other contexts ("General",
-                -- "Mythic+", "Raid") come from Wowhead's guide so they
-                -- inherit the tab's existing Wowhead context, and route
-                -- through L[ctx] for locale-specific labels.
-                local label = L[ctx]
-                if ctx == "PvP" then
-                    label = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  " .. L["pvp.label"]
-                end
-                rootDescription:CreateRadio(label,
-                    function() return currentStatContext == ctx end,
-                    function()
-                        currentStatContext = ctx
-                        ns:UpdateCompendium()
-                    end,
-                    ctx)
-            end
-        end)
-        UI.statCtxDropdown:Show()
-    else
-        UI.statCtxDropdown:Hide()
-        currentStatContext = nil
+    if not currentStatContext then currentStatContext = statCtxOptions[1] end
+    local found = false
+    for _, c in ipairs(statCtxOptions) do
+        if c == currentStatContext then found = true; break end
     end
+    if not found then currentStatContext = statCtxOptions[1] end
 
-    local statLookupCtx = currentStatContext or "General"
     local priority
     if currentStatContext == "PvP" then
-        priority = pvpPriority -- may be nil; handled below
+        priority = pvpPriority
     else
-        priority = FindMatch(specData.priorities, heroTalent, statLookupCtx)
+        priority = FindMatch(specData.priorities, heroTalent, currentStatContext or "General")
     end
-    UI.statPvpFallback:Hide()
-    for i = 1, MAX_STATS do UI.statFrames[i]:Hide() end
-    if priority then
-        local yOffset = showStatCtx and -30 or 0
-        for i = 1, math.min(#priority.stats, MAX_STATS) do
-            local row = UI.statFrames[i]
-            local color = RANK_COLORS[i]
-            row.rank:SetTextColor(color and color.r or 0.6, color and color.g or 0.6, color and color.b or 0.6)
-            row.rank:SetText(i .. ".")
-            local names = {}
-            for _, stat in ipairs(priority.stats[i]) do names[#names + 1] = stat end
-            row.statName:SetTextColor(1, 1, 1)
-            row.statName:SetText(table.concat(names, " / "))
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", UI.statContent, "TOPLEFT", 0, yOffset - (i - 1) * ROW_HEIGHT)
-            row:SetPoint("RIGHT", UI.statContent, "RIGHT", 0, 0)
-            row:Show()
-        end
-        local statCount = math.min(#priority.stats, MAX_STATS)
-        UI.statContent:SetHeight(math.abs(yOffset) + statCount * ROW_HEIGHT)
-        UI.statSection:Show()
-    elseif currentStatContext == "PvP" then
-        local yOffset = showStatCtx and -30 or 0
-        UI.statPvpFallback:SetText(L["pvp.no_stat_priority"]
-            or "No PvP stat priority for this spec yet.")
-        UI.statPvpFallback:ClearAllPoints()
-        UI.statPvpFallback:SetPoint("TOPLEFT", UI.statContent, "TOPLEFT", 4, yOffset - 4)
-        UI.statPvpFallback:Show()
-        UI.statContent:SetHeight(math.abs(yOffset) + 20)
-        UI.statSection:Show()
-    end
+
+    ns.Sections.Stats.RenderCompendium({
+        contextOptions   = statCtxOptions,
+        currentContext   = currentStatContext,
+        priorityStats    = priority and priority.stats or nil,
+        showPvpFallback  = currentStatContext == "PvP" and not priority,
+        labelForContext  = function(ctx)
+            if ctx == "PvP" then
+                return "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t  " .. L["pvp.label"]
+            end
+            return L[ctx]
+        end,
+        onCtxChange      = function(picked)
+            currentStatContext = picked
+            ns:UpdateCompendium()
+        end,
+    })
 end
 
 function ns:UpdateCompendiumGuide(specData, heroTalent)
@@ -1408,88 +1111,36 @@ function ns:UpdateCompendiumGuide(specData, heroTalent)
         UI.talentSection:Show()
     end
 
-    -- Rotation
-    for i = 1, MAX_ROTATION_STEPS do UI.rotationFrames[i]:Hide() end
-    UI.rotationFallback:Hide()
+    -- Rotation — Sections/Rotation.lua owns rendering. Context resolution
+    -- stays here (uses Compendium-internal helpers + persisted state).
     local rotCtxOptions = GetRotationContextOptions(specData, heroTalent)
-    -- Resolve the context to render: persist the user's pick across
-    -- spec/hero re-renders when the new spec exposes it, otherwise fall
-    -- back to the spec's first option (or the literal "General" when
-    -- nothing matched at all — same fallback FindRotationByContext used
-    -- before the dropdown existed).
     local rotContext = rotCtxOptions[1] or "General"
     if currentRotContext then
         for _, c in ipairs(rotCtxOptions) do
             if c == currentRotContext then rotContext = currentRotContext; break end
         end
     end
-    -- Sync the persisted pick only when rendering a multi-context spec.
-    -- Single-context specs are usually temporary transits (e.g. visiting
-    -- a healer while still mostly in M+ on a DPS) and shouldn't clobber
-    -- the user's last meaningful pick. Multi-context specs that lack the
-    -- previous pick fall back to their own first option, and that IS a
-    -- meaningful re-set worth persisting.
-    local showRotCtx = #rotCtxOptions > 1
-    if showRotCtx then currentRotContext = rotContext end
-    if showRotCtx then
-        UI.rotationCtxDropdown:SetupMenu(function(_, rootDescription)
-            for _, ctx in ipairs(rotCtxOptions) do
-                -- L[ctx] falls through to the raw ctx string when no
-                -- translation exists (Locales.lua metatable __index).
-                -- Common Wowhead contexts ("Single Target", "Multitarget",
-                -- "Opener", …) have entries in each locale block; rare
-                -- spec-specific ones ("Firestarter Examples") display
-                -- as-is until someone adds them.
-                rootDescription:CreateRadio(L[ctx],
-                    function() return currentRotContext == ctx end,
-                    function()
-                        currentRotContext = ctx
-                        ns:UpdateCompendium()
-                    end,
-                    ctx)
-            end
-        end)
-        UI.rotationCtxDropdown:Show()
-    else
-        UI.rotationCtxDropdown:Hide()
-    end
-
+    if #rotCtxOptions > 1 then currentRotContext = rotContext end
     local rotation = FindRotationByContext(specData.rotation, heroTalent, rotContext)
-    if rotation then
-        local textAreaWidth = (FRAME_WIDTH - 80) - 42
-        local visibleStep = 0
-        local yOffset = showRotCtx and -30 or 0
-        local currentY = yOffset
-        for _, step in ipairs(rotation.steps) do
-            local stripped = StripConditionPrefix(step)
-            visibleStep = visibleStep + 1
-            if visibleStep > MAX_ROTATION_STEPS then break end
-            local row = UI.rotationFrames[visibleStep]
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", UI.rotationContent, "TOPLEFT", 0, currentY)
-            row:SetPoint("RIGHT", UI.rotationContent, "RIGHT", 0, 0)
-            row.rank:SetText(visibleStep .. ".")
-            row.icon:SetTexture(GetStepSpellIcon(step))
-            row.stepText:SetText(FormatRotationStep(stripped))
-            row.spellId = tonumber(stripped:match("{(%d+)}"))
-            row.stepText:SetWidth(textAreaWidth)
-            local textHeight = row.stepText:GetStringHeight() or 12
-            local rowHeight = math.max(ROW_HEIGHT, textHeight + 6)
-            row:SetHeight(rowHeight)
-            row:Show()
-            currentY = currentY - rowHeight
-        end
-        UI.rotationContent:SetHeight(math.abs(currentY))
-        UI.rotationSection:Show()
-    elseif specData.rotation and #specData.rotation > 0 then
-        local yOffset = showRotCtx and -30 or 0
-        UI.rotationFallback:ClearAllPoints()
-        UI.rotationFallback:SetPoint("TOPLEFT", UI.rotationContent, "TOPLEFT", 4, yOffset - 4)
-        UI.rotationFallback:SetText(L["empty.no_rotation_for"]:format(heroTalent))
-        UI.rotationFallback:Show()
-        UI.rotationContent:SetHeight(math.abs(yOffset) + 20)
-        UI.rotationSection:Show()
-    end
+    ns.Sections.Rotation.RenderCompendium({
+        contextOptions  = rotCtxOptions,
+        currentContext  = currentRotContext or rotContext,
+        rotation        = rotation,
+        heroTalent      = heroTalent,
+        hasAnyRotation  = specData.rotation and #specData.rotation > 0,
+        textAreaWidth   = (FRAME_WIDTH - 80) - 42,
+        labelForContext = function(ctx) return L[ctx] end,
+        helpers = {
+            shouldShow = function() return true end,
+            strip      = StripConditionPrefix,
+            getIcon    = GetStepSpellIcon,
+            format     = FormatRotationStep,
+        },
+        onCtxChange     = function(picked)
+            currentRotContext = picked
+            ns:UpdateCompendium()
+        end,
+    })
 end
 
 -- Helper: bind a talent button to copy a given exportString on click.
@@ -1796,335 +1447,46 @@ end
 function ns:UpdateCompendiumEnchants()
     if not GEAR_DATA then return end
     local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
-
-    UI.enchantPvpFallback:Hide()
-
-    -- Reset source on spec change to match the BiS / Talents tabs —
-    -- Wowhead is the default landing source when browsing a new spec.
-    local enhancementsSpecKey = (selectedClass or "") .. "-" .. (selectedSpec or "")
-    if enhancementsSpecKey ~= lastEnhancementsSpecKey then
-        currentEnhancementsSource = "Wowhead"
-        lastEnhancementsSpecKey = enhancementsSpecKey
-    end
-
-    local pvpEnchants = BuildPvPEnchantsSynthetic()
-    local pvpGems = BuildPvPGemsSynthetic()
-    local hasPvP = pvpEnchants ~= nil or pvpGems ~= nil
-    local hasWowhead = gearData and (gearData.enchants or gearData.gems)
-    if not hasWowhead and not hasPvP then return end
-
-    -- Wowhead falls back to PvP when missing, but PvP stays sticky —
-    -- selecting it on a spec with no Murlok data shows a "no data" line
-    -- below so users see the dropdown choice was honoured.
-    if currentEnhancementsSource == "Wowhead" and not hasWowhead then currentEnhancementsSource = "PvP" end
-
-    -- PvP always appears as a dropdown option for discoverability, so the
-    -- dropdown shows whenever Wowhead exists (the second slot is PvP).
-    local showSourceDropdown = hasWowhead and UI.enhancementsSourceDropdown
-    if showSourceDropdown then
-        UI.enhancementsSourceDropdown:SetupMenu(function(_, rootDescription)
-            for _, src in ipairs({ "Wowhead", "PvP" }) do
-                rootDescription:CreateRadio(ns.ENH_SOURCE_LABELS[src] or src,
-                    function() return currentEnhancementsSource == src end,
-                    function()
-                        currentEnhancementsSource = src
-                        ns:UpdateCompendiumEnchants()
-                        ns:LayoutCompendium()
-                    end,
-                    src)
-            end
-        end)
-        UI.enhancementsSourceDropdown:Show()
-    elseif UI.enhancementsSourceDropdown then
-        UI.enhancementsSourceDropdown:Hide()
-    end
-
-    -- Resolve which enchants/gems to render based on the active source.
-    local activeEnchants, activeGems
-    if currentEnhancementsSource == "PvP" then
-        activeEnchants = pvpEnchants
-        activeGems = pvpGems
-    else
-        activeEnchants = gearData and gearData.enchants
-        activeGems = gearData and gearData.gems
-    end
-
-    -- Source dropdown now lives ABOVE the Enchants section (positioned
-    -- in LayoutCompendium), so enchant rows start at the top of the
-    -- content area regardless of dropdown visibility.
-    local enchantBaseY = 0
-
-    -- PvP-with-no-enchants fallback (e.g. Aug Evoker has gems but no
-    -- PvP enchants). Render a placeholder line in the enchant section
-    -- so the user sees their source choice acknowledged.
-    local pvpEnchantsMissing = currentEnhancementsSource == "PvP" and not activeEnchants
-    if pvpEnchantsMissing and showSourceDropdown then
-        for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
-        local msg = activeGems
-            and (L["pvp.no_enchants"] or "No PvP enchants for this spec yet.")
-            or  (L["pvp.no_enchant_gem_data"] or "No PvP enchant/gem data for this spec yet.")
-        UI.enchantPvpFallback:SetText(msg)
-        UI.enchantPvpFallback:ClearAllPoints()
-        UI.enchantPvpFallback:SetPoint("TOPLEFT", UI.enchantContent, "TOPLEFT", 4, -4)
-        UI.enchantPvpFallback:Show()
-        UI.enchantContent:SetHeight(20)
-        UI.enchantSection:Show()
-    end
-
-    if activeEnchants then
-        for i = 1, MAX_ENCHANT_ROWS do UI.enchantRows[i]:Hide() end
-        -- Each entry renders as one row with stacked best / alt
-        -- sub-rows; row height grows to 2x when an alternate exists.
-        -- Each sub-row carries its own itemId so hovers and clicks
-        -- target the right item.
-        local count = math.min(#activeEnchants, MAX_ENCHANT_ROWS)
-        local yOff = enchantBaseY
-        for i = 1, count do
-            local e = activeEnchants[i]
-            local row = UI.enchantRows[i]
-            row.slot:SetText(e.slot or "")
-            SetRowIcon(row, e.best and e.best.itemId, e.best and e.best.spellId)
-
-            local bestName = StripEnchantPrefix(GetItemDisplayName(e.best))
-            row.bestSub.text:SetText(FormatItem(e.best, bestName))
-            row.bestSub.itemId = e.best and e.best.itemId
-            row.bestSub.spellId = e.best and e.best.spellId
-            row.bestSub:Show()
-
-            local rowH = ROW_HEIGHT
-            if e.alternate then
-                local altName = StripEnchantPrefix(GetItemDisplayName(e.alternate))
-                row.altSub.text:SetText(FormatItem(e.alternate, altName))
-                row.altSub.itemId = e.alternate.itemId
-                row.altSub.spellId = e.alternate.spellId
-                row.altSub:Show()
-                rowH = ROW_HEIGHT * 2
-            else
-                row.altSub:Hide()
-            end
-
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", UI.enchantContent, "TOPLEFT", 0, yOff)
-            row:SetPoint("RIGHT", UI.enchantContent, "RIGHT", 0, 0)
-            row:SetHeight(rowH)
-            yOff = yOff - rowH
-            row:Show()
-        end
-        UI.enchantContent:SetHeight(math.abs(yOff))
-        UI.enchantSection:Show()
-    end
-
-    if activeGems then
-        for i = 1, MAX_GEM_ROWS do UI.gemRows[i]:Hide() end
-        local gIdx = 0
-        if activeGems.primary then
-            gIdx = gIdx + 1
-            local row = UI.gemRows[gIdx]
-            row.label:SetText(L["gem.primary"])
-            row.name:SetText(FormatItem(activeGems.primary))
-            row.itemId = activeGems.primary.itemId
-            SetRowIcon(row, activeGems.primary.itemId)
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", UI.gemContent, "TOPLEFT", 0, 0)
-            row:SetPoint("RIGHT", UI.gemContent, "RIGHT", 0, 0)
-            row:Show()
-        end
-        if activeGems.secondary then
-            for _, gem in ipairs(activeGems.secondary) do
-                gIdx = gIdx + 1
-                if gIdx > MAX_GEM_ROWS then break end
-                local row = UI.gemRows[gIdx]
-                row.label:SetText(L["gem.secondary"])
-                row.name:SetText(FormatItem(gem))
-                row.itemId = gem.itemId
-                SetRowIcon(row, gem.itemId)
-                row:ClearAllPoints()
-                row:SetPoint("TOPLEFT", UI.gemContent, "TOPLEFT", 0, -(gIdx - 1) * ROW_HEIGHT)
-                row:SetPoint("RIGHT", UI.gemContent, "RIGHT", 0, 0)
-                row:Show()
-            end
-        end
-        UI.gemContent:SetHeight(gIdx * ROW_HEIGHT)
-        UI.gemSection:Show()
-    end
+    ns.Sections.Enhancements.RenderCompendiumEnchantsGems({
+        wowheadEnchants = gearData and gearData.enchants,
+        wowheadGems     = gearData and gearData.gems,
+        pvpEnchants     = BuildPvPEnchantsSynthetic(),
+        pvpGems         = BuildPvPGemsSynthetic(),
+        specKey         = (selectedClass or "") .. "-" .. (selectedSpec or ""),
+        sourceLabels    = ns.ENH_SOURCE_LABELS,
+        getDisplayName  = GetItemDisplayName,
+        refresh         = function()
+            ns:UpdateCompendiumEnchants()
+            ns:LayoutCompendium()
+        end,
+    })
 end
 
 function ns:UpdateCompendiumConsumables()
     if not GEAR_DATA then return end
     local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
-    if not gearData or not gearData.consumables then return end
-    for i = 1, MAX_CONSUM_ROWS do UI.consumRows[i]:Hide() end
-    local idx = 0
-    for _, key in ipairs(CONSUMABLE_ORDER) do
-        local c = gearData.consumables[key]
-        if c then
-            idx = idx + 1
-            if idx > MAX_CONSUM_ROWS then break end
-            local row = UI.consumRows[idx]
-            row.label:SetText(CONSUMABLE_LABELS[key] or key)
-            row.name:SetText(FormatItem(c))
-            row.itemId = c.itemId
-            SetRowIcon(row, c.itemId)
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", UI.consumContent, "TOPLEFT", 0, -(idx - 1) * ROW_HEIGHT)
-            row:SetPoint("RIGHT", UI.consumContent, "RIGHT", 0, 0)
-            row:Show()
-        end
-    end
-    UI.consumContent:SetHeight(idx * ROW_HEIGHT)
-    UI.consumSection:Show()
+    ns.Sections.Enhancements.RenderCompendiumConsumables({
+        consumables = gearData and gearData.consumables,
+    })
 end
 
 function ns:UpdateCompendiumTrinkets()
     if not GEAR_DATA then return end
     local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
-    if not gearData or not gearData.trinkets then return end
-    for i = 1, MAX_TRINKET_ROWS do UI.trinketRows[i]:Hide() end
-
-    -- Collect available contexts
-    local contexts = {}
-    local seen = {}
-    for _, t in ipairs(gearData.trinkets) do
-        if t.contexts then
-            for _, ctx in ipairs(t.contexts) do
-                if not seen[ctx] then
-                    seen[ctx] = true
-                    contexts[#contexts + 1] = ctx
-                end
-            end
-        end
-    end
-
-    local showCtxDropdown = #contexts > 1
-    if showCtxDropdown then
-        -- Validate current selection still exists
-        local found = currentTrinketContext == "All"
-        if not found then
-            for _, c in ipairs(contexts) do
-                if c == currentTrinketContext then found = true; break end
-            end
-        end
-        if not found then currentTrinketContext = "All" end
-
-        local allOptions = { "All" }
-        for _, c in ipairs(contexts) do allOptions[#allOptions + 1] = c end
-
-        UI.trinketCtxDropdown:SetupMenu(function(_, rootDescription)
-            for _, ctx in ipairs(allOptions) do
-                local label = ctx == "All" and "All" or (CONTEXT_LABELS[ctx] or ctx)
-                rootDescription:CreateRadio(label,
-                    function() return currentTrinketContext == ctx end,
-                    function()
-                        currentTrinketContext = ctx
-                        ns:UpdateCompendium()
-                    end,
-                    ctx)
-            end
-        end)
-        UI.trinketCtxDropdown:Show()
-    else
-        UI.trinketCtxDropdown:Hide()
-        currentTrinketContext = "All"
-    end
-
-    -- Filter by context
-    local filtered = {}
-    local contextKey = currentTrinketContext ~= "All" and currentTrinketContext or nil
-    for _, t in ipairs(gearData.trinkets) do
-        if not contextKey then
-            filtered[#filtered + 1] = t
-        elseif t.contexts then
-            for _, ctx in ipairs(t.contexts) do
-                if ctx == contextKey then
-                    filtered[#filtered + 1] = t
-                    break
-                end
-            end
-        end
-    end
-
-    -- Sort by tier
-    table.sort(filtered, function(a, b)
-        return (TIER_ORDER[a.tier] or 99) < (TIER_ORDER[b.tier] or 99)
-    end)
-
-    local yOffset = showCtxDropdown and -30 or 0
-    local idx = 0
-    for _, t in ipairs(filtered) do
-        idx = idx + 1
-        if idx > MAX_TRINKET_ROWS then break end
-        local row = UI.trinketRows[idx]
-        local tierColor = TIER_COLORS[t.tier]
-        row.tier:SetText(t.tier or "?")
-        row.tier:SetTextColor(tierColor and tierColor.r or 1, tierColor and tierColor.g or 1, tierColor and tierColor.b or 1)
-        row.name:SetText(FormatItem({ itemId = t.itemId, name = t.name }))
-        row.itemId = t.itemId
-        row.bonusIDs = t.bonusIDs
-        row.source:SetText(t.source or "")
-        SetRowIcon(row, t.itemId)
-        row:ClearAllPoints()
-        row:SetPoint("TOPLEFT", UI.trinketContent, "TOPLEFT", 0, yOffset - (idx - 1) * ROW_HEIGHT)
-        row:SetPoint("RIGHT", UI.trinketContent, "RIGHT", 0, 0)
-        row:Show()
-    end
-    UI.trinketContent:SetHeight((showCtxDropdown and 30 or 0) + idx * ROW_HEIGHT)
-    UI.trinketSection:Show()
+    ns.Sections.Trinkets.RenderCompendium({
+        trinkets = gearData and gearData.trinkets,
+        refresh  = function() ns:UpdateCompendium() end,
+    })
 end
 
+-- Crafting tab — delegated entirely to Sections/Crafting.lua. The Section
+-- module owns the frame pool, context dropdown, and render code.
 function ns:UpdateCompendiumCrafts()
-    if not GEAR_DATA then return end
-    local gearData = GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
-    if not gearData or not gearData.crafts then return end
-    for i = 1, MAX_CRAFT_ROWS do UI.craftRows[i]:Hide() end
-    local idx = 0
-
-    local function AddCraftHeader(label)
-        idx = idx + 1
-        if idx > MAX_CRAFT_ROWS then return end
-        local row = UI.craftRows[idx]
-        row.order:SetText("")
-        row.name:SetText("|cffffd100" .. label .. "|r")
-        row.itemId = nil
-        if row.icon then row.icon:Hide() end
-        row:ClearAllPoints()
-        row:SetPoint("TOPLEFT", UI.craftContent, "TOPLEFT", 0, -(idx - 1) * ROW_HEIGHT)
-        row:SetPoint("RIGHT", UI.craftContent, "RIGHT", 0, 0)
-        row:Show()
-    end
-
-    -- Each craft renders as ONE row with "item + embellishment"
-    -- combined in the label and the embellishment surfaced via the
-    -- tooltip's "Embellishment:" line (handled by MakeItemRow's
-    -- OnEnter when row.embItemId is set). Mirrors the docked panel.
-    local function AddCrafts(list, header)
-        if not list or #list == 0 then return end
-        AddCraftHeader(header)
-        for _, c in ipairs(list) do
-            idx = idx + 1
-            if idx > MAX_CRAFT_ROWS then return end
-            local row = UI.craftRows[idx]
-            row.order:SetText("")
-            local text = FormatItem(c.item)
-            if c.embellishment then
-                text = text .. " + " .. FormatItem(c.embellishment)
-            end
-            row.name:SetText(text)
-            row.itemId = c.item and c.item.itemId
-            row.bonusIDs = c.item and c.item.bonusIDs
-            row.embItemId = c.embellishment and c.embellishment.itemId or nil
-            row.embName = c.embellishment and c.embellishment.name or nil
-            SetRowIcon(row, c.item and c.item.itemId)
-            row:ClearAllPoints()
-            row:SetPoint("TOPLEFT", UI.craftContent, "TOPLEFT", 0, -(idx - 1) * ROW_HEIGHT)
-            row:SetPoint("RIGHT", UI.craftContent, "RIGHT", 0, 0)
-            row:Show()
-        end
-    end
-
-    AddCrafts(gearData.crafts.earlyCrafts, L["craft.early"])
-    AddCrafts(gearData.crafts.bisCrafts, L["craft.bis"])
-    UI.craftContent:SetHeight(idx * ROW_HEIGHT)
-    UI.craftSection:Show()
+    ns.Sections.Crafting.RenderCompendium({
+        class   = selectedClass,
+        spec    = selectedSpec,
+        refresh = function() ns:UpdateCompendium() end,
+    })
 end
 
 local function BuildPvPBisSyntheticTabs()
@@ -2133,158 +1495,16 @@ local function BuildPvPBisSyntheticTabs()
 end
 
 function ns:UpdateCompendiumBis()
-    for i = 1, MAX_BIS_ROWS do UI.bisRows[i]:Hide() end
-
-    -- Reset source/tab when browsing a different spec
-    local bisSpecKey = (selectedClass or "") .. "-" .. (selectedSpec or "")
-    if bisSpecKey ~= lastBisSpecKey then
-        currentBisSource = "Wowhead"
-        currentBisTab = nil -- will be set to first available tab below
-        lastBisSpecKey = bisSpecKey
-    end
-
     local wowheadBis = GEAR_DATA and GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
         and GEAR_DATA[selectedClass][selectedSpec].bisGear
     local ivSpecData = ns.GetIcyVeinsSpecData and ns:GetIcyVeinsSpecData(selectedClass, selectedSpec)
-    local ivBis = ivSpecData and ivSpecData.bisGear
-    local pvpBis = BuildPvPBisSyntheticTabs()
-    local hasWH = wowheadBis and #wowheadBis > 0
-    local hasIV = ivBis and #ivBis > 0
-    local hasPvP = pvpBis ~= nil
-
-    UI.bisPvpFallback:Hide()
-    if not hasWH and not hasIV and not hasPvP then return end
-
-    -- Auto-correct source if saved one has no data. Wowhead/Icy Veins
-    -- still fall back to a sibling, but PvP stays sticky — selecting it
-    -- on a spec without Murlok data shows a "no data" line so users see
-    -- the dropdown choice was honoured.
-    if currentBisSource == "Icy Veins" and not hasIV then currentBisSource = "Wowhead" end
-    if currentBisSource == "Wowhead" and not hasWH then currentBisSource = hasIV and "Icy Veins" or "PvP" end
-
-    -- Source dropdown — PvP always appears as a third option for
-    -- discoverability, even when Murlok hasn't sampled this spec. Each
-    -- entry carries the brand icon (ns.BIS_SOURCE_LABELS) as visible
-    -- source attribution.
-    local availableSources = {}
-    if hasWH then availableSources[#availableSources + 1] = "Wowhead" end
-    if hasIV then availableSources[#availableSources + 1] = "Icy Veins" end
-    availableSources[#availableSources + 1] = "PvP"
-    local showSourceDropdown = #availableSources > 1
-    if showSourceDropdown then
-        UI.bisSourceDropdown:SetupMenu(function(_, rootDescription)
-            for _, src in ipairs(availableSources) do
-                rootDescription:CreateRadio(ns.BIS_SOURCE_LABELS[src] or src,
-                    function() return currentBisSource == src end,
-                    function()
-                        currentBisSource = src
-                        currentBisTab = nil -- reset to first available tab
-                        ns:UpdateCompendiumBis()
-                        ns:LayoutCompendium()
-                    end,
-                    src)
-            end
-        end)
-        UI.bisSourceDropdown:Show()
-    else
-        UI.bisSourceDropdown:Hide()
-    end
-
-    -- Determine active bis gear from selected source. When PvP is
-    -- selected with no Murlok data, route to the PvP-no-data fallback
-    -- path below — DO NOT silently fall back to Wowhead/Icy Veins.
-    local pvpNoData = currentBisSource == "PvP" and not hasPvP
-    local activeBis
-    if currentBisSource == "PvP" then
-        activeBis = pvpBis
-    elseif currentBisSource == "Icy Veins" then
-        activeBis = ivBis
-    else
-        activeBis = wowheadBis
-    end
-    if not pvpNoData and (not activeBis or #activeBis == 0) then
-        activeBis = wowheadBis or ivBis or pvpBis
-    end
-
-    if pvpNoData then
-        local yOffset = showSourceDropdown and -30 or 0
-        UI.bisPvpFallback:SetText(L["pvp.no_gear_data"]
-            or "No PvP gear data for this spec yet.")
-        UI.bisPvpFallback:ClearAllPoints()
-        UI.bisPvpFallback:SetPoint("TOPLEFT", UI.bisContent, "TOPLEFT", 4, yOffset - 4)
-        UI.bisPvpFallback:Show()
-        UI.bisTabDropdown:Hide()
-        UI.bisContent:SetHeight(math.abs(yOffset) + 20)
-        UI.bisSection:Show()
-        return
-    end
-
-    -- Resolve current tab — default to first available
-    local validTab = false
-    if currentBisTab then
-        for _, tab in ipairs(activeBis) do
-            if tab.label == currentBisTab then validTab = true; break end
-        end
-    end
-    if not validTab then currentBisTab = activeBis[1].label end
-
-    -- Tab dropdown when multiple tabs exist
-    local showTabDropdown = #activeBis > 1
-    if showTabDropdown then
-        UI.bisTabDropdown:SetupMenu(function(_, rootDescription)
-            for _, tab in ipairs(activeBis) do
-                rootDescription:CreateRadio(tab.label,
-                    function() return currentBisTab == tab.label end,
-                    function()
-                        currentBisTab = tab.label
-                        ns:UpdateCompendiumBis()
-                        ns:LayoutCompendium()
-                    end,
-                    tab.label)
-            end
-        end)
-        UI.bisTabDropdown:Show()
-    else
-        UI.bisTabDropdown:Hide()
-    end
-
-    -- Find the selected tab's slots
-    local selectedSlots = nil
-    for _, tab in ipairs(activeBis) do
-        if tab.label == currentBisTab then
-            selectedSlots = tab.slots
-            break
-        end
-    end
-
-    local yOffset = 0
-    if showSourceDropdown then yOffset = yOffset - 30 end
-    if showTabDropdown then
-        UI.bisTabDropdown:ClearAllPoints()
-        UI.bisTabDropdown:SetPoint("TOPLEFT", 0, yOffset)
-        UI.bisTabDropdown:SetPoint("TOPRIGHT", 0, yOffset)
-        yOffset = yOffset - 30
-    end
-
-    local idx = 0
-    for _, g in ipairs(selectedSlots) do
-        idx = idx + 1
-        if idx > MAX_BIS_ROWS then break end
-        local row = UI.bisRows[idx]
-        row.slot:SetText(g.slot or "")
-        row.name:SetText(FormatItem(g.item))
-        row.source:SetText(g.source or "")
-        row.sourceText = g.source or nil -- exposed via tooltip for full string
-        row.itemId = g.item and g.item.itemId
-        row.bonusIDs = g.item and g.item.bonusIDs
-        SetRowIcon(row, g.item and g.item.itemId)
-        row:ClearAllPoints()
-        row:SetPoint("TOPLEFT", UI.bisContent, "TOPLEFT", 0, yOffset - (idx - 1) * ROW_HEIGHT)
-        row:SetPoint("RIGHT", UI.bisContent, "RIGHT", 0, 0)
-        row:Show()
-    end
-    UI.bisContent:SetHeight(math.abs(yOffset) + idx * ROW_HEIGHT)
-    UI.bisSection:Show()
+    ns.Sections.Gear.RenderCompendium({
+        wowheadBis = wowheadBis,
+        ivBis      = ivSpecData and ivSpecData.bisGear,
+        pvpBis     = BuildPvPBisSyntheticTabs(),
+        specKey    = (selectedClass or "") .. "-" .. (selectedSpec or ""),
+        refresh    = function() ns:UpdateCompendium(); ns:LayoutCompendium() end,
+    })
 end
 
 -------------------------------------------------------------------------------
@@ -2312,11 +1532,10 @@ function ns:LayoutCompendium()
     end
 
     if activeTab == "guide" then
-        local statH = 0
-        if UI.statCtxDropdown:IsShown() then statH = statH + 30 end
-        for i = 1, MAX_STATS do if UI.statFrames[i]:IsShown() then statH = statH + ROW_HEIGHT end end
-        if UI.statPvpFallback and UI.statPvpFallback:IsShown() then statH = statH + 20 end
-        LayoutSection(UI.statSection, UI.statCollapsed, UI.statContent, statH)
+        LayoutSection(
+            UI.statSection, UI.statCollapsed, UI.statContent,
+            ns.Sections.Stats.GetCompendiumContentHeight()
+        )
         local talentH = 0
         -- Iterate the actual pool (which can grow past MAX_TALENT_BUTTONS
         -- via _ensureTalentButton). The Wowhead-only Guide path doesn't
@@ -2325,11 +1544,10 @@ function ns:LayoutCompendium()
         for i = 1, #UI.talentButtons do if UI.talentButtons[i]:IsShown() then talentH = talentH + TALENT_BTN_HEIGHT + TALENT_BTN_GAP end end
         if UI.talentFallback:IsShown() then talentH = 20 end
         LayoutSection(UI.talentSection, UI.talentCollapsed, UI.talentContent, talentH)
-        local rotH = 0
-        if UI.rotationCtxDropdown:IsShown() then rotH = rotH + 30 end
-        for i = 1, MAX_ROTATION_STEPS do if UI.rotationFrames[i]:IsShown() then rotH = rotH + UI.rotationFrames[i]:GetHeight() end end
-        if UI.rotationFallback:IsShown() then rotH = rotH + 20 end
-        LayoutSection(UI.rotationSection, UI.rotationCollapsed, UI.rotationContent, rotH)
+        LayoutSection(
+            UI.rotationSection, UI.rotationCollapsed, UI.rotationContent,
+            ns.Sections.Rotation.GetCompendiumContentHeight()
+        )
     elseif activeTab == "talents" then
         local talentH = 0
         if UI.talentSourceDropdown and UI.talentSourceDropdown:IsShown() then talentH = talentH + 32 end
@@ -2340,51 +1558,37 @@ function ns:LayoutCompendium()
         if UI.talentFallback:IsShown() then talentH = 20 end
         LayoutSection(UI.talentSection, UI.talentCollapsed, UI.talentContent, talentH)
     elseif activeTab == "bis" then
-        local bisH = 0
-        for i = 1, MAX_BIS_ROWS do if UI.bisRows[i]:IsShown() then bisH = bisH + ROW_HEIGHT end end
-        if UI.bisPvpFallback and UI.bisPvpFallback:IsShown() then
-            -- Source dropdown is 30px and the fallback line replaces the row stack —
-            -- include both so the section's bottom edge isn't above the fallback text.
-            if UI.bisSourceDropdown and UI.bisSourceDropdown:IsShown() then bisH = bisH + 30 end
-            bisH = bisH + 20
-        end
-        LayoutSection(UI.bisSection, UI.bisCollapsed, UI.bisContent, bisH)
+        LayoutSection(
+            UI.bisSection, UI.bisCollapsed, UI.bisContent,
+            ns.Sections.Gear.GetCompendiumContentHeight()
+        )
     elseif activeTab == "trinkets" then
-        local trinketH = 0
-        if UI.trinketCtxDropdown:IsShown() then trinketH = trinketH + 30 end
-        for i = 1, MAX_TRINKET_ROWS do if UI.trinketRows[i]:IsShown() then trinketH = trinketH + ROW_HEIGHT end end
-        LayoutSection(UI.trinketSection, UI.trinketCollapsed, UI.trinketContent, trinketH)
+        LayoutSection(
+            UI.trinketSection, UI.trinketCollapsed, UI.trinketContent,
+            ns.Sections.Trinkets.GetCompendiumContentHeight()
+        )
     elseif activeTab == "enhancements" then
-        -- Source dropdown sits ABOVE the enchants section (parented to
-        -- scrollChild) so it stays visible even when the section is
-        -- hidden or collapsed.
-        if UI.enhancementsSourceDropdown and UI.enhancementsSourceDropdown:IsShown() then
-            UI.enhancementsSourceDropdown:ClearAllPoints()
-            UI.enhancementsSourceDropdown:SetPoint("TOPLEFT", UI.scrollChild, "TOPLEFT", INSET_PAD, y)
-            UI.enhancementsSourceDropdown:SetPoint("RIGHT", UI.scrollChild, "RIGHT", -INSET_PAD, 0)
+        local enhFrames = ns.Sections.Enhancements.GetCompendiumFrames()
+        -- Source dropdown sits ABOVE the enchants section.
+        if enhFrames.sourceDropdown and enhFrames.sourceDropdown:IsShown() then
+            enhFrames.sourceDropdown:ClearAllPoints()
+            enhFrames.sourceDropdown:SetPoint("TOPLEFT", UI.scrollChild, "TOPLEFT", INSET_PAD, y)
+            enhFrames.sourceDropdown:SetPoint("RIGHT", UI.scrollChild, "RIGHT", -INSET_PAD, 0)
             y = y - 30
         end
-        local enchH = 0
-        -- Each enchant row is 1× or 2× ROW_HEIGHT depending on whether
-        -- it has an alternate sub-row, so read each row's actual height
-        -- instead of multiplying by a constant.
-        for i = 1, MAX_ENCHANT_ROWS do
-            if UI.enchantRows[i]:IsShown() then
-                enchH = enchH + UI.enchantRows[i]:GetHeight()
-            end
-        end
-        if UI.enchantPvpFallback and UI.enchantPvpFallback:IsShown() then enchH = enchH + 20 end
-        LayoutSection(UI.enchantSection, UI.enchantCollapsed, UI.enchantContent, enchH)
-        local gemH = 0
-        for i = 1, MAX_GEM_ROWS do if UI.gemRows[i]:IsShown() then gemH = gemH + ROW_HEIGHT end end
-        LayoutSection(UI.gemSection, UI.gemCollapsed, UI.gemContent, gemH)
-        local consumH = 0
-        for i = 1, MAX_CONSUM_ROWS do if UI.consumRows[i]:IsShown() then consumH = consumH + ROW_HEIGHT end end
-        LayoutSection(UI.consumSection, UI.consumCollapsed, UI.consumContent, consumH)
-    elseif activeTab == "crafts" then
-        local craftH = 0
-        for i = 1, MAX_CRAFT_ROWS do if UI.craftRows[i]:IsShown() then craftH = craftH + ROW_HEIGHT end end
-        LayoutSection(UI.craftSection, UI.craftCollapsed, UI.craftContent, craftH)
+        LayoutSection(enhFrames.enchSection, enhFrames.enchCollapsed, enhFrames.enchContent,
+            ns.Sections.Enhancements.GetCompendiumEnchantHeight())
+        LayoutSection(enhFrames.gemSection, enhFrames.gemCollapsed, enhFrames.gemContent,
+            ns.Sections.Enhancements.GetCompendiumGemHeight())
+        LayoutSection(enhFrames.consumSection, enhFrames.consumCollapsed, enhFrames.consumContent,
+            ns.Sections.Enhancements.GetCompendiumConsumHeight())
+    elseif activeTab == "crafting" then
+        -- Crafting content height comes from the Section module — frame
+        -- pool sizes + dropdown offset live there.
+        LayoutSection(
+            UI.craftSection, UI.craftCollapsed, UI.craftContent,
+            ns.Sections.Crafting.GetCompendiumContentHeight()
+        )
     end
 
     UI.scrollChild:SetHeight(math.abs(y) + 20)

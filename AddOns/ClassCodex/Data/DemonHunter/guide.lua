@@ -27,9 +27,21 @@ ClassCodexData["DEMONHUNTER"] = {
     },
     talents = {
       {
+        heroTalent = "Annihilator",
+        context = "團隊單目標",
+        buildLabel = "團隊 Cleave",
+        exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2MmZmZmZmxwMAAAAAAAegxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAQgZMYMD",
+      },
+      {
         heroTalent = "Void-Scarred",
         context = "團隊單目標",
-        exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2MmZmZmZmxwMAAAAAAAegxsNYGAAAAAAAAmxMMzMzMjZmZMzsNzYsJLAIgBYGzMzyMz0sNz2MzYYA",
+        buildLabel = "Cleave",
+        exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAAWmxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsNzYsJLAIgBYYmZWmZmmlZ2mZGjZA",
+      },
+      {
+        heroTalent = "Annihilator",
+        context = "傳奇+",
+        exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAQgZMYMD",
       },
       {
         heroTalent = "Void-Scarred",
@@ -39,19 +51,7 @@ ClassCodexData["DEMONHUNTER"] = {
       {
         heroTalent = "Void-Scarred",
         context = "探究",
-        recommended = true,
         exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2MmZmZmZmxwMAAAAAAAmxAmBAAAAAAAgZMDzMzMzMzMzwMbzMGbyGACYAGzMzsMzMNbzsNzMGzA",
-      },
-      {
-        heroTalent = "Annihilator",
-        context = "團隊單目標",
-        exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2MmZmZmZmxwMAAAAAAAegxsNYGAAAAAAAAmxMMzMzMjZmZYmFzYsILMzMzs12MzMAGGACMzMYMD",
-      },
-      {
-        heroTalent = "Annihilator",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAQgZMYMD",
       },
       {
         heroTalent = "Annihilator",
@@ -255,30 +255,32 @@ ClassCodexData["DEMONHUNTER"] = {
       {
         heroTalent = "Fel-Scarred",
         context = "團隊單目標",
-        recommended = true,
+        buildLabel = "Inertia",
         exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzmmGzMjhNAAAAAAAAmZwAAAAwA",
+      },
+      {
+        heroTalent = "Aldrachi Reaver",
+        context = "團隊單目標",
+        buildLabel = "No Mover",
+        exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMz2MmZmxMzkxMDAAAAAAYWMmlZYmZ2mZGsNjZWmZYsMz2MYYssxkMmZMsAAAAAAAAmZAGAAAAG",
       },
       {
         heroTalent = "Fel-Scarred",
         context = "傳奇+",
-        recommended = true,
+        buildLabel = "Inertia",
         exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsopxMzYGbAAAADAAAgZGMAAAAM",
+      },
+      {
+        heroTalent = "Aldrachi Reaver",
+        context = "傳奇+",
+        buildLabel = "Low Mover",
+        exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmZ2GzgtZmhxwYZmtZwwYbjJZmZGzYBAAAAAAAMzAMAAAAM",
       },
       {
         heroTalent = "Fel-Scarred",
         context = "探究",
         recommended = true,
         exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmh5BmBbzMzYMwyAbzmZMMLaaMzMmxGAAAwAAAAYmBDAAAAD",
-      },
-      {
-        heroTalent = "Aldrachi Reaver",
-        context = "團隊單目標",
-        exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGLz2YGLjZMWmZbGMMW2YSGzMGWAAAAAAAAzMADAAAAD",
-      },
-      {
-        heroTalent = "Aldrachi Reaver",
-        context = "傳奇+",
-        exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmZ2GzgtZmhxwYZmtZwwYbjJZmZGzYBAAAAAAAMzAMAAAAM",
       },
       {
         heroTalent = "Aldrachi Reaver",
@@ -498,14 +500,30 @@ ClassCodexData["DEMONHUNTER"] = {
     },
     talents = {
       {
+        heroTalent = "Annihilator",
+        context = "團隊單目標",
+        exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmZYWMzMjhZMzYGzYmZYGmx2MzYMAAAAAAAQAzMjNAAAAMYMzMzs02MzMAwAAAAYA",
+      },
+      {
         heroTalent = "Aldrachi Reaver",
         context = "團隊單目標",
         exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmZYYmZGDzYmxMmxMzwMmZsNzMGDAAAAY2mBDjlNmwwMzYBAAAADGACwMDwAAAAYA",
       },
       {
+        heroTalent = "Annihilator",
+        context = "傳奇+",
+        exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZkZmBWMjZwMjZGz8AzMzYYmtZGbjZMGzAAAAAAAIgZmxGAAAAGYmZmZWabmZGAMDAAAgB",
+      },
+      {
         heroTalent = "Aldrachi Reaver",
         context = "傳奇+",
         exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZkZmBWMjZwMjZGz8AzMzYYmtZGbjZMGzAAAAwsNDGGLbMhhZmxCAAAAGYAEgZGwMAAAAG",
+      },
+      {
+        heroTalent = "Aldrachi Reaver",
+        context = "探究",
+        buildLabel = "傳奇+",
+        exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjMzMwiZMDmZMzYmHYGzYMzsNzYbMDGzAAAAAAAIgZmxGAAAAGMzMzMzSbzMzAADAAAgB",
       },
       {
         heroTalent = "Aldrachi Reaver",
@@ -516,23 +534,6 @@ ClassCodexData["DEMONHUNTER"] = {
         heroTalent = "Aldrachi Reaver",
         context = "通用",
         exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmZYYmZGDzYmxMmxMmxMmZsZmxYAAAAAz2MYYssxEGmZGLAAAAYwAQAmZAGAAAAD",
-      },
-      {
-        heroTalent = "Aldrachi Reaver",
-        context = "探究",
-        exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjxMjMzMwiZMDmZMzYmHYGzYMzsNzYbMDGzAAAAwsNDGGLbMhhZmxCAAAAGMDgAMzAMAAAAG",
-      },
-      {
-        heroTalent = "Annihilator",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmZYWMzMjhZMzYGzYmZYGmx2MzYMAAAAAAAQAzMjNAAAAMYMzMzs02MzMAwAAAAYA",
-      },
-      {
-        heroTalent = "Annihilator",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZkZmBWMjZwMjZGz8AzMzYYmtZGbjZMGzAAAAAAAIgZmxGAAAAGYmZmZWabmZGAMDAAAgB",
       },
       {
         heroTalent = "Annihilator",
