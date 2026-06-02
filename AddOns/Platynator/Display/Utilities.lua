@@ -130,7 +130,7 @@ if addonTable.Constants.IsClassic then
     ["DEATHKNIGHT"] = {47528},
     ["WARRIOR"] = {6552},
     ["WARLOCK"] = {19647, 89766},
-    ["SHAMAN"] = {57994},
+    ["SHAMAN"] = {57994, --[[Earth Shock, ranks 10-1:]] 49231, 49230, 25454, 10414, 10413, 10412, 8046, 8045, 8044, 8042},
     ["ROGUE"] = {1766},
     ["PRIEST"] = {15487},
     ["PALADIN"] = {31935, 96231},
@@ -705,5 +705,38 @@ do
 
   function addonTable.Display.Utilities.ShouldShowEnergy()
     return showEnergy
+  end
+end
+
+do
+  local auraFormatter
+  if C_StringUtil and C_StringUtil.CreateNumericRuleFormatter then
+    auraFormatter = C_StringUtil.CreateNumericRuleFormatter()
+    auraFormatter:SetBreakpoints({
+      {
+        threshold = 0,
+        step = 0.1,
+        format = "%.1f",
+      },
+      {
+        threshold = 3,
+        step = 1,
+        format = "%d",
+      },
+      {
+        threshold = 60,
+        format = COOLDOWN_DURATION_MIN,
+        components = {
+          {
+            div = 60,
+            step = 1,
+          }
+        }
+      }
+    })
+  end
+
+  function addonTable.Display.Utilities.GetAuraNumericFormatter()
+    return auraFormatter
   end
 end
