@@ -1,7 +1,7 @@
 # Platynator
 
-## [401](https://github.com/TheMouseNest/Platynator/tree/401) (2026-05-28)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/400...401) 
+## [404](https://github.com/TheMouseNest/Platynator/tree/404) (2026-05-30)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/403...404) 
 
-- Fix wrong aura position when centered with a low aura limit  
-- Classic: Fix "Cast Interrupter" display  
+- Fading: Fix cast alpha setting  
+- Classic: Include Earth Shock as an interrupt  
