@@ -32,6 +32,7 @@ local defaults = {
 
 -- SavedVariables
 -- DEBUG: log what was loaded from SavedVariables BEFORE CopyDefaults touches it
+--[[
 do
     local existing = rawget(_G, "PlayerPowerTextDB")
     if type(existing) == "table" then
@@ -40,7 +41,7 @@ do
         print(string.format("|cffff8800[PPT DEBUG]|r SV NOT LOADED (PlayerPowerTextDB is %s) — TOC SavedVariables may be broken", type(existing)))
     end
 end
-
+--]]
 PlayerPowerTextDB = PlayerPowerTextDB or {}
 
 local function CopyDefaults(dest, src)
@@ -54,7 +55,7 @@ local function CopyDefaults(dest, src)
     end
 end
 CopyDefaults(PlayerPowerTextDB, defaults)
-print(string.format("|cffff8800[PPT DEBUG]|r After CopyDefaults: fontSize=%s", tostring(PlayerPowerTextDB.fontSize)))
+-- print(string.format("|cffff8800[PPT DEBUG]|r After CopyDefaults: fontSize=%s", tostring(PlayerPowerTextDB.fontSize)))
 
 -- Trap any subsequent overwrite of PlayerPowerTextDB.fontSize
 do
