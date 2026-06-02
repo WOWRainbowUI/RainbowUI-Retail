@@ -726,6 +726,7 @@ L["Tooltip_Classic_Frames_Desc"] = "啟用巨龍崛起之前的舊式風格單�
 L["Tooltip_Classic_Frames_Healthbar_Desc"] = "由於原始血條僅顯示其材質的 50%，啟用經典框架後並非所有材質都適用。\n\n我為「Blizzard CF」和「Blizzard DF」做了例外處理，但在切換這些材質之間需要重載才能完全生效。\n\n如果你尋求經典材質，請優先使用「Blizzard CF」或「Blizzard DF」而非「Blizzard」。\n\n如果你在 Interface 資料夾中有自訂材質，請按照下方提到的方法新增，並在需要時於此處選擇。"
 L["Tooltip_Clickthrough"] = "讓玩家框架可點擊穿透。\n在非戰鬥狀態下，你仍然可以按住 Shift 進行左鍵/右鍵點擊以進行交易/觀察等操作。\n\n注意：開啟此設定後，戰鬥中你將「無法」點擊該框架。"
 L["Tooltip_Color_Level_Font_Desc"] = "同時為等級字型著色"
+L["Tooltip_Hide_Player_Frame"] = "完全隱藏玩家框架。隱藏後將無法再與其互動。"
 L["Tooltip_Ctrl_C_Copy"] = "Ctrl+C 複製並分享"
 L["Tooltip_Delete"] = "從列表中移除自訂法術"
 L["Tooltip_Delete_Data_Desc"] = "按 Shift+Alt+右鍵點擊以刪除所有資料於"
