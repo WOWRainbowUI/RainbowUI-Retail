@@ -5,7 +5,7 @@ function addonTable.Display.Initialize()
   local cache = CreateFrame("Frame")
   Mixin(cache, addonTable.Display.CacheMixin)
   cache:OnLoad()
-  addonTable.Display.Cache = cache
+  addonTable.Cache = cache
 
   local context = CreateFrame("Frame")
   Mixin(context, addonTable.Display.DesignForContextMixin)
@@ -27,18 +27,10 @@ function addonTable.Display.ManagerMixin:OnLoad()
   self.nameplateDisplays = {}
   self.nameplateClickRegions = {}
 
-  self.MouseoverMonitor = nil
-
   self:SetScript("OnEvent", self.OnEvent)
 
   self:RegisterEvent("NAME_PLATE_UNIT_ADDED")
   self:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
-  self:RegisterEvent("PLAYER_TARGET_CHANGED")
-  self:RegisterEvent("PLAYER_SOFT_ENEMY_CHANGED")
-  self:RegisterEvent("PLAYER_SOFT_FRIEND_CHANGED")
-  self:RegisterEvent("PLAYER_SOFT_INTERACT_CHANGED")
-  self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-  self:RegisterEvent("PLAYER_FOCUS_CHANGED")
   self:RegisterEvent("PLAYER_LOGIN")
   self:RegisterEvent("PLAYER_ENTERING_WORLD")
   if C_EventUtils.IsEventValid("GARRISON_UPDATE") then
@@ -253,7 +245,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
   end)
 end
 
-function addonTable.Display.ManagerMixin:GetPool(index)
+function addonTable.Display.ManagerMixin:GetPool(index, design, scale, shouldSimplify)
   if self.pools[index] then
     return self.pools[index]
   end
@@ -262,7 +254,10 @@ function addonTable.Display.ManagerMixin:GetPool(index)
     Mixin(frame, addonTable.Display.NameplateMixin)
     frame.kind = index
     frame:OnLoad()
-  end)
+    local scaleOffset, scaleMod = addonTable.Core.GetDesignScale(shouldSimplify), scale
+    frame:InitializeWidgets(design, scaleOffset, scaleMod)
+    frame.styleIndex = self.styleIndex
+  end, 40)
 
   return self.pools[index]
 end
@@ -510,10 +505,11 @@ function addonTable.Display.ManagerMixin:Install(unit)
   local nameplate = C_NamePlate.GetNamePlateForUnit(unit, issecure())
   -- NOTE: the nameplate _name_ does not correspond to the unit
   if nameplate and unit and (addonTable.Constants.IsRetail or not UnitIsUnit("player", unit)) then
+    addonTable.Cache:AddUnit(unit)
     local globalScale = addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
     local designName, scale, shouldSimplify, index = addonTable.Display.Context:GetAssignedDesign(unit)
     local design = addonTable.Core.GetDesignByName(designName)
-    local newDisplay = self:GetPool(index):Acquire()
+    local newDisplay = self:GetPool(index, design, scale, shouldSimplify):Acquire()
     if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
       C_NamePlateManager.SetNamePlateSimplified(unit, shouldSimplify)
     end
@@ -556,48 +552,14 @@ end
 function addonTable.Display.ManagerMixin:Uninstall(unit)
   local display = self.nameplateDisplays[unit]
   if display then
+    addonTable.Cache:RemoveUnit(unit)
+    addonTable.Display.Context:RevokedUnitListeners(unit)
     display:SetUnit(nil)
     if display.stackRegion then
       display.stackRegion:SetParent(display)
     end
     self.pools[display.kind]:Release(display)
     self.nameplateDisplays[unit] = nil
-  end
-end
-
-function addonTable.Display.ManagerMixin:UpdateForMouseover()
-  for _, display in pairs(self.nameplateDisplays) do
-    display:UpdateForMouseover()
-  end
-  addonTable.CallbackRegistry:TriggerEvent("MouseoverUpdate")
-
-  if UnitExists("mouseover") and not self.MouseoverMonitor then
-    self.MouseoverMonitor = C_Timer.NewTicker(0.1, function()
-      self:UpdateForMouseoverFrequent()
-    end)
-  end
-end
-
-function addonTable.Display.ManagerMixin:UpdateForMouseoverFrequent()
-  if not UnitExists("mouseover") then
-    self.MouseoverMonitor:Cancel()
-    self.MouseoverMonitor = nil
-    self:UpdateForMouseover()
-    if IsMouseButtonDown() then -- Holding down the mouse button will remove the mouseover unit temporarily
-      self:RegisterEvent("GLOBAL_MOUSE_UP")
-    end
-  end
-end
-
-function addonTable.Display.ManagerMixin:UpdateForTarget()
-  for _, display in pairs(self.nameplateDisplays) do
-    display:UpdateForTarget()
-  end
-end
-
-function addonTable.Display.ManagerMixin:UpdateForFocus()
-  for _, display in pairs(self.nameplateDisplays) do
-    display:UpdateForFocus()
   end
 end
 
@@ -903,12 +865,6 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
   elseif  eventName == "NAME_PLATE_UNIT_REMOVED" then
     local unit = ...
     self:Uninstall(unit)
-  elseif eventName == "PLAYER_TARGET_CHANGED" or eventName == "PLAYER_SOFT_ENEMY_CHANGED" or eventName == "PLAYER_SOFT_FRIEND_CHANGED" then
-    self:UpdateForTarget()
-  elseif eventName == "PLAYER_FOCUS_CHANGED" then
-    self:UpdateForFocus()
-  elseif eventName == "UPDATE_MOUSEOVER_UNIT" then
-    self:UpdateForMouseover()
   elseif eventName == "PLAYER_SOFT_INTERACT_CHANGED" then
     if self.lastInteract and self.lastInteract.interactUnit then
       self.lastInteract:UpdateSoftInteract()
@@ -929,12 +885,12 @@ function addonTable.Display.ManagerMixin:OnEvent(eventName, ...)
       self.lastInteract = nil
     end
   elseif eventName == "UNIT_POWER_UPDATE" or eventName == "RUNE_POWER_UPDATE" or eventName == "UNIT_POWER_POINT_CHARGE" then
-    for _, display in pairs(self.nameplateDisplays) do
-      display:UpdateForTarget()
+    for unit, display in pairs(self.nameplateDisplays) do
+      if addonTable.Cache:Get(unit, "target") then
+        display:UpdateForTarget()
+        break
+      end
     end
-  elseif eventName == "GLOBAL_MOUSE_UP" then
-    self:UpdateForMouseover()
-    self:UnregisterEvent("GLOBAL_MOUSE_UP")
   elseif eventName == "PLAYER_REGEN_DISABLED" then
     self:UpdateObscuredAlpha()
   elseif eventName == "PLAYER_REGEN_ENABLED" then
