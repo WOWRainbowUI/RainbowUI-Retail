@@ -530,6 +530,7 @@ local sClusterRefreshSecs = 1.2;
 local sAoeRefreshSecs = 1.3;
 local sBuffsRefreshSecs;
 local sLastShapeshiftTime = 0;
+local sIsKeyboardMacroRebuildPending = false;
 
 local VuhDoGcdStatusBar;
 local VuhDoDirectionFrame;
@@ -627,6 +628,21 @@ end
 function VUHDO_getIsDirectionArrow()
 
 	return sIsDirectionArrow;
+
+end
+
+
+
+--
+function VUHDO_rebuildKeyboardMacros()
+
+	if not InCombatLockdown() then
+		VUHDO_initKeyboardMacros();
+	else
+		sIsKeyboardMacroRebuildPending = true;
+	end
+
+	return;
 
 end
 
@@ -1046,6 +1062,12 @@ do
 				VUHDO_OPTIONS_SHOW_AFTER_BATTLE = false;
 			end
 
+			if sIsKeyboardMacroRebuildPending then
+				VUHDO_initKeyboardMacros();
+
+				sIsKeyboardMacroRebuildPending = false;
+			end
+
 			VUHDO_setIsOutOfCombat(true);
 
 		elseif "PLAYER_REGEN_DISABLED" == anEvent then
@@ -1166,10 +1188,9 @@ do
 				VUHDO_initBuffs();
 				VUHDO_initDebuffs();
 
-				if not InCombatLockdown() then
-					VUHDO_initKeyboardMacros();
-					VUHDO_timeReloadUI(1);
-				end
+				VUHDO_timeReloadUI(1);
+
+				VUHDO_rebuildKeyboardMacros();
 
 				if "SPELLS_CHANGED" == anEvent then
 					-- workaround slow clients where partial spellbook is available on SPELLS_CHANGED

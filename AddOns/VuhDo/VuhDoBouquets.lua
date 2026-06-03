@@ -1362,6 +1362,14 @@ do
 			tItem = tBouquet[tCnt];
 			tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]];
 
+			if tSpecial and tSpecial["isGlobal"] and tItem["color"] and tItem["color"]["useOpacity"] and not tItem["color"]["useBackground"] then
+				if not tTemplate["globalOpacityNames"] then
+					tTemplate["globalOpacityNames"] = { };
+				end
+
+				tTemplate["globalOpacityNames"][tItem["name"]] = true;
+			end
+
 			if not tSpecial then
 				tAuraIdx = tAuraIdx + 1;
 
@@ -1799,6 +1807,19 @@ do
 	function VUHDO_getBouquetLayerTemplate(aBouquetName)
 
 		return sBouquetLayerTemplates[aBouquetName];
+
+	end
+
+
+
+	--
+	function VUHDO_getBouquetGlobalOpacityNames(aBouquetName)
+
+		if not sBouquetLayerTemplates[aBouquetName] then
+			return nil;
+		end
+
+		return sBouquetLayerTemplates[aBouquetName]["globalOpacityNames"];
 
 	end
 end
@@ -3868,7 +3889,7 @@ end
 
 --
 local tName;
-local function VUHDO_isBouquetInterestedInEvent(aBouquetName, anEventType)
+function VUHDO_isBouquetInterestedInEvent(aBouquetName, anEventType)
 
 	if not VUHDO_EVENT_BOUQUETS[aBouquetName][anEventType] then
 		VUHDO_EVENT_BOUQUETS[aBouquetName][anEventType] = 0;

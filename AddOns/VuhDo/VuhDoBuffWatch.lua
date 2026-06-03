@@ -757,6 +757,7 @@ local tDuration;
 local tRest;
 local tName;
 local tTexture;
+local tHadSecretSlot;
 function VUHDO_getMissingBuffsForCode(aTargetMode, aTarget, aBuffInfo, aCategSpec, anSuppressMissBuff)
 
 	if VUHDO_BUFF_TARGET_MODE_NAME == aTargetMode then
@@ -815,17 +816,35 @@ function VUHDO_getMissingBuffsForCode(aTargetMode, aTarget, aBuffInfo, aCategSpe
 			return VUHDO_PLAYER_GROUP, sEmpty, "player", 0, "player", sEmpty, sEmpty, 0;
 
 		elseif VUHDO_BUFF_TARGET_TOTEM == tTargetType then
+			tHadSecretSlot = false;
+
 			for tTotemNum = 1, 4 do
 				_, tName, tStart, tDuration, tTexture = GetTotemInfo(tTotemNum);
-				if tTexture == VUHDO_BUFFS[aBuffInfo[1]]["icon"] then
-					if tName ~= aBuffInfo[1] then
+
+				if sSecretsEnabled and issecretvalue(tTexture) then
+					tHadSecretSlot = true;
+				elseif tTexture == VUHDO_BUFFS[aBuffInfo[1]]["icon"] then
+					if tName ~= aBuffInfo[1]
+						and not (sSecretsEnabled and issecretvalue(tName)) then
 						sCooldownAliases[aBuffInfo[1]] = tName;
 					end
-					tRest = tDuration - (GetTime() - tStart);
-					if tRest < 0 then tRest = 0; end
+
+					if not (sSecretsEnabled and (issecretvalue(tStart) or issecretvalue(tDuration))) then
+						tRest = tDuration - (GetTime() - tStart);
+
+						if tRest < 0 then
+							tRest = 0;
+						end
+					else
+						tRest = 0;
+					end
 
 					return sEmpty, sEmpty, "player", tRest, "player", VUHDO_PLAYER_GROUP, sEmpty, 0;
 				end
+			end
+
+			if tHadSecretSlot then
+				return sEmpty, sEmpty, "player", 0, "player", VUHDO_PLAYER_GROUP, sEmpty, 0;
 			end
 
 			VUHDO_setUnitMissBuff("player", aCategSpec, aBuffInfo, aCategSpec);
@@ -1074,19 +1093,25 @@ end
 local tCountStr;
 local tRemainingSeconds;
 local tDurationText;
+local tTimerLabel;
 local function VUHDO_setBuffSwatchTimer(aSwatchName, aSecsNum, aCount, aDuration)
+
+	tTimerLabel = _G[aSwatchName .. "TimerLabelLabel"];
 
 	if aDuration then
 		tRemainingSeconds = aDuration:GetRemainingDuration();
 		tDurationText = AbbreviateNumbers(tRemainingSeconds, sTimeAbbrevData);
 
-		_G[aSwatchName .. "TimerLabelLabel"]:SetText(tDurationText or "");
+		tTimerLabel:SetText(tDurationText or "");
+		tTimerLabel:SetAlpha(tRemainingSeconds or 0);
 	elseif (aSecsNum or -1) >= 0 then
 		tCountStr = ((issecretvalue(aCount) and sSecretsEnabled) or (not issecretvalue(aCount) and (aCount or 0) > 0 and not VUHDO_BUFF_SETTINGS["CONFIG"]["HIDE_CHARGES"]))
 			and format("|cffffffff%dx |r", aCount) or "";
-		_G[aSwatchName .. "TimerLabelLabel"]:SetText(format("%s%d:%02d", tCountStr, aSecsNum / 60, aSecsNum % 60));
+		tTimerLabel:SetText(format("%s%d:%02d", tCountStr, aSecsNum / 60, aSecsNum % 60));
+		tTimerLabel:SetAlpha(1);
 	else
-		_G[aSwatchName .. "TimerLabelLabel"]:SetText("");
+		tTimerLabel:SetText("");
+		tTimerLabel:SetAlpha(1);
 	end
 
 	return;

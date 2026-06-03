@@ -47,6 +47,7 @@ local VUHDO_getPanelButtons;
 local VUHDO_getHealthBarText;
 local VUHDO_getUnitButtonsSafe;
 local VUHDO_isModelInPanel;
+local VUHDO_getResolvedTextProvider;
 
 -----------------------------------------------------------------------
 --local VUHDO_getNumbersFromString;
@@ -67,6 +68,7 @@ function VUHDO_guiToolboxInitLocalOverrides()
 	VUHDO_getHealthBarText = _G["VUHDO_getHealthBarText"];
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
 	VUHDO_isModelInPanel = _G["VUHDO_isModelInPanel"];
+	VUHDO_getResolvedTextProvider = _G["VUHDO_getResolvedTextProvider"];
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		sIsManaBar[tPanelNum] = VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"]["MANA_BAR"] ~= "";
@@ -1551,15 +1553,23 @@ end
 
 --
 local tPanelNum;
+local tIndicatorConfig;
+local tFontString;
 function VUHDO_indicatorTextCallback(aBarNum, aUnit, aProviderName, aValue, anIndicatorName, ...)
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
+		tIndicatorConfig = VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"][anIndicatorName];
 
-		if VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"][anIndicatorName]["TEXT_PROVIDER"] == aProviderName then
-			VUHDO_getHealthBarText(tButton, aBarNum):SetText(format(...));
+		if VUHDO_getResolvedTextProvider(tIndicatorConfig["TEXT_PROVIDER_SOURCE"], tIndicatorConfig["TEXT_PROVIDER_FORMAT"]) == aProviderName then
+			tFontString = VUHDO_getHealthBarText(tButton, aBarNum);
+
+			tFontString:SetText(format(...));
+			tFontString:SetAlpha(type(aValue) == "string" and 0 or aValue);
 		end
 	end
+
+	return;
 
 end
 

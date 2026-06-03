@@ -5,6 +5,7 @@ local InCombatLockdown = InCombatLockdown;
 local pairs = pairs;
 local debugprofilestop = debugprofilestop;
 local format = string.format;
+local UnitIsUnit = UnitIsUnit;
 
 local VUHDO_isBossUnit;
 local VUHDO_isAltPowerActive;
@@ -55,6 +56,7 @@ local sAllUnitEventNames = {
 	"UNIT_DISPLAYPOWER",
 	"UNIT_MAXPOWER",
 	"UNIT_POWER_UPDATE",
+	"UNIT_POWER_FREQUENT",
 	"UNIT_TARGET",
 	"UNIT_POWER_BAR_SHOW",
 	"UNIT_POWER_BAR_HIDE",
@@ -163,7 +165,7 @@ function VUHDO_dispatchUnitEvent(anEvent, anArg1, anArg2, anArg3, anArg4, anArg5
 			VUHDO_updateBouquetsForEvent(anArg1, 9);
 		end
 
-	elseif "UNIT_POWER_UPDATE" == anEvent then
+	elseif "UNIT_POWER_UPDATE" == anEvent or "UNIT_POWER_FREQUENT" == anEvent then
 		if not VUHDO_RAID then
 			return;
 		end
@@ -496,7 +498,12 @@ local function VUHDO_applyCoreUnitRegistrations(aFrame, aUnit)
 	if VUHDO_getPowerEventsInterest() then
 		aFrame:RegisterUnitEvent("UNIT_DISPLAYPOWER", aUnit);
 		aFrame:RegisterUnitEvent("UNIT_MAXPOWER", aUnit);
-		aFrame:RegisterUnitEvent("UNIT_POWER_UPDATE", aUnit);
+
+		if aUnit == "player" or UnitIsUnit(aUnit, "player") then
+			aFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", aUnit);
+		else
+			aFrame:RegisterUnitEvent("UNIT_POWER_UPDATE", aUnit);
+		end
 	end
 
 	if VUHDO_isAnyoneInterestedIn(VUHDO_UPDATE_UNIT_TARGET) then

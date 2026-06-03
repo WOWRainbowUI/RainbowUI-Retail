@@ -39,6 +39,7 @@ local VUHDO_getOverhealPanel;
 local VUHDO_getOverhealText;
 local VUHDO_getUnitButtons;
 local VUHDO_getUnitButtonsSafe;
+local VUHDO_getResolvedTextProvider;
 local VUHDO_getBarRoleIcon;
 local VUHDO_updateClusterHighlights;
 local VUHDO_customizeTargetBar;
@@ -128,6 +129,7 @@ function VUHDO_customHealthInitLocalOverrides()
 	VUHDO_customizeTargetBar = _G["VUHDO_customizeTargetBar"];
 	VUHDO_getColoredString = _G["VUHDO_getColoredString"];
 	VUHDO_getUnitButtonsSafe = _G["VUHDO_getUnitButtonsSafe"];
+	VUHDO_getResolvedTextProvider = _G["VUHDO_getResolvedTextProvider"];
 	VUHDO_getUnitOverallShieldRemain = _G["VUHDO_getUnitOverallShieldRemain"];
 	VUHDO_getHealAbsorbBar = _G["VUHDO_getHealAbsorbBar"];
 	VUHDO_setStatusBarVuhDoColor = _G["VUHDO_setStatusBarVuhDoColor"];
@@ -1060,20 +1062,27 @@ end
 --
 local tRatio, tBar, tScale;
 local tPanelNum;
+local tIndicatorConfig;
+local tFontString;
 function VUHDO_overhealTextCallback(aUnit, aProviderName, aValue, anIndicatorName, ...)
 
 	for _, tButton in pairs(VUHDO_getUnitButtonsSafe(aUnit)) do
 		tPanelNum = VUHDO_BUTTON_CACHE[tButton];
+		tIndicatorConfig = VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"][anIndicatorName];
 
-		if VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"][anIndicatorName]["TEXT_PROVIDER"] == aProviderName then
+		if VUHDO_getResolvedTextProvider(tIndicatorConfig["TEXT_PROVIDER_SOURCE"], tIndicatorConfig["TEXT_PROVIDER_FORMAT"]) == aProviderName then
 			tBar = VUHDO_getHealthBar(tButton, 1);
-			VUHDO_getOverhealText(tBar):SetText(format(...));
+			tFontString = VUHDO_getOverhealText(tBar);
 
-			if strfind(aProviderName, "OVERHEAL", 1, true) then
+			tFontString:SetText(format(...));
+			tFontString:SetAlpha(type(aValue) == "string" and 0 or aValue);
+
+			if aProviderName["sourceKey"] == "OVERHEAL" then
 				tInfo = VUHDO_RAID[aUnit];
 
 				if tInfo then
 					if sSecretsEnabled and (issecretvalue(aValue) or tInfo["hasSecretHealthMax"]) then
+						-- FIXME
 					elseif aValue > 0 and tInfo["healthmax"] > 0 then
 						tRatio = aValue / tInfo["healthmax"];
 						tScale = VUHDO_PANEL_SETUP[tPanelNum]["OVERHEAL_TEXT"]["scale"];
@@ -1084,6 +1093,8 @@ function VUHDO_overhealTextCallback(aUnit, aProviderName, aValue, anIndicatorNam
 			end
 		end
 	end
+
+	return;
 
 end
 

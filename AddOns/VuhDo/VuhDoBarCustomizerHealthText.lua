@@ -9,6 +9,7 @@ local UnitHealthPercent = UnitHealthPercent;
 local AbbreviateNumbers = AbbreviateNumbers;
 local CurveConstants = CurveConstants;
 local CreateColorCurve =C_CurveUtil and C_CurveUtil.CreateColorCurve;
+local CreateCurve = C_CurveUtil and C_CurveUtil.CreateCurve;
 local CreateColor = CreateColor;
 local TruncateWhenZero = C_StringUtil and C_StringUtil.TruncateWhenZero;
 local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction;
@@ -50,6 +51,7 @@ local sHideIrrelevantCurve;
 local sHideMissingZeroCurve;
 local sShowWhenFullCurve;
 local sShowWhenIrrelevantCurve;
+local sScaleTo100CeilCurve;
 
 
 
@@ -198,6 +200,15 @@ function VUHDO_customHealthTextInitLocalOverrides()
 			sHealthTextEffectiveCalculator:SetIncomingHealOverflowPercent(1.0);
 			sHealthTextEffectiveCalculator:SetMaximumHealthMode(Enum.UnitMaximumHealthMode.WithAbsorbs);
 		end
+
+		sScaleTo100CeilCurve = CreateCurve and CreateCurve();
+
+		if sScaleTo100CeilCurve then
+			sScaleTo100CeilCurve:SetType(Enum.LuaCurveType.Linear);
+
+			sScaleTo100CeilCurve:AddPoint(0.0, 0.99999);
+			sScaleTo100CeilCurve:AddPoint(1.0, 100.99999);
+		end
 	end
 
 	sHideIrrelevantCurve = VUHDO_buildHideIrrelevantCurve();
@@ -317,7 +328,7 @@ local function VUHDO_buildLifeTextSecret(aUnit, aLifeConfig, anIsTarget)
 
 	if not sHealthTextCalculator or not sHealthTextEffectiveCalculator then
 		if 1 == aLifeConfig["mode"] or anIsTarget then
-			return format("%.0f%%", UnitHealthPercent(aUnit, true, CurveConstants.ScaleTo100)), true;
+			return format("%d%%", UnitHealthPercent(aUnit, true, sScaleTo100CeilCurve)), true;
 		elseif 3 == aLifeConfig["mode"] then
 			tLifeStr = TruncateWhenZero(UnitHealthMissing(aUnit));
 
@@ -347,7 +358,7 @@ local function VUHDO_buildLifeTextSecret(aUnit, aLifeConfig, anIsTarget)
 	tMissingHealth = tCalculator:GetMissingHealth();
 
 	if 1 == aLifeConfig["mode"] or anIsTarget then
-		return format("%.0f%%", UnitHealthPercent(aUnit, true, CurveConstants.ScaleTo100)), true;
+		return format("%d%%", UnitHealthPercent(aUnit, true, sScaleTo100CeilCurve)), true;
 	elseif 3 == aLifeConfig["mode"] then
 		tLifeStr = AbbreviateNumbers(tMissingHealth, VUHDO_KILO_OPTIONS);
 

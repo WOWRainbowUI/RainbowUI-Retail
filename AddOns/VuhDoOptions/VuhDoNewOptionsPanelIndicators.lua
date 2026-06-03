@@ -185,10 +185,19 @@ local sIndicatorMetaModel = {
 				["tooltip"] = nil,
 			},
 			{
-				["name"] = "文字內容",
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
-				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.THREAT_BAR.TEXT_PROVIDER",
+				["enumerator"] = VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.THREAT_BAR.TEXT_PROVIDER_SOURCE",
+				["pairedFormatModel"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.THREAT_BAR.TEXT_PROVIDER_FORMAT",
+				["tooltip"] = nil,
+			},
+			{
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL,
+				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
+				["enumerator"] = nil,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.THREAT_BAR.TEXT_PROVIDER_FORMAT",
+				["isFormatCombo"] = true,
 				["tooltip"] = nil,
 			},
 			{
@@ -232,10 +241,19 @@ local sIndicatorMetaModel = {
 				["tooltip"] = nil,
 			},
 			{
-				["name"] = "文字內容",
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
-				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.MANA_BAR.TEXT_PROVIDER",
+				["enumerator"] = VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.MANA_BAR.TEXT_PROVIDER_SOURCE",
+				["pairedFormatModel"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.MANA_BAR.TEXT_PROVIDER_FORMAT",
+				["tooltip"] = nil,
+			},
+			{
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL,
+				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
+				["enumerator"] = nil,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.MANA_BAR.TEXT_PROVIDER_FORMAT",
+				["isFormatCombo"] = true,
 				["tooltip"] = nil,
 			},
 			{
@@ -331,10 +349,19 @@ local sIndicatorMetaModel = {
 				["tooltip"] = nil,
 			},
 			{
-				["name"] = "文字內容",
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
-				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_LEFT.TEXT_PROVIDER",
+				["enumerator"] = VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_LEFT.TEXT_PROVIDER_SOURCE",
+				["pairedFormatModel"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_LEFT.TEXT_PROVIDER_FORMAT",
+				["tooltip"] = nil,
+			},
+			{
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL,
+				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
+				["enumerator"] = nil,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_LEFT.TEXT_PROVIDER_FORMAT",
+				["isFormatCombo"] = true,
 				["tooltip"] = nil,
 			},
 			{
@@ -383,10 +410,19 @@ local sIndicatorMetaModel = {
 				["tooltip"] = nil,
 			},
 			{
-				["name"] = "文字內容",
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL,
 				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
-				["enumerator"] = VUHDO_TEXT_PROVIDER_COMBO_MODEL,
-				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_RIGHT.TEXT_PROVIDER",
+				["enumerator"] = VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_RIGHT.TEXT_PROVIDER_SOURCE",
+				["pairedFormatModel"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_RIGHT.TEXT_PROVIDER_FORMAT",
+				["tooltip"] = nil,
+			},
+			{
+				["name"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL,
+				["type"] = VUHDO_ENUMERATOR_CONSTRAINTS,
+				["enumerator"] = nil,
+				["model"] = "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.SIDE_RIGHT.TEXT_PROVIDER_FORMAT",
+				["isFormatCombo"] = true,
 				["tooltip"] = nil,
 			},
 			{
@@ -503,8 +539,88 @@ end
 
 
 --
+local sPendingSourceCombo;
+
+
+
+--
+local tFormatCombo;
+local tSourceEntry;
+local tFormatCnt;
+local tCurrentFormat;
+local tIsFormatSupported;
+function VUHDO_textProviderSourceChanged(aSourceCombo, aNewSourceValue)
+
+	tFormatCombo = aSourceCombo:GetAttribute("pairedFormatCombo");
+
+	if not tFormatCombo then
+		return;
+	end
+
+	tFormatCombo:SetAttribute("combo_table", VUHDO_getFormatComboModelForSource(aNewSourceValue));
+
+	tCurrentFormat = VUHDO_lnfGetValueFromModel(tFormatCombo);
+	tSourceEntry = VUHDO_TEXT_PROVIDER_SOURCES[aNewSourceValue];
+
+	if tSourceEntry and tCurrentFormat then
+		tIsFormatSupported = false;
+
+		for tFormatCnt = 1, #tSourceEntry["supportedFormats"] do
+			if tSourceEntry["supportedFormats"][tFormatCnt] == tCurrentFormat then
+				tIsFormatSupported = true;
+
+				break;
+			end
+		end
+
+		if not tIsFormatSupported then
+			VUHDO_lnfUpdateVar(tFormatCombo:GetAttribute("model"), tSourceEntry["defaultFormat"]);
+		end
+	end
+
+	VUHDO_lnfComboBoxInitFromModel(tFormatCombo);
+
+	VUHDO_initAllEventBouquets();
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_textProviderFormatChanged(aFormatCombo, aNewFormatValue)
+
+	VUHDO_initAllEventBouquets();
+
+	return;
+
+end
+
+
+
+--
+local tSourceModel;
+local tSourceKey;
+function VUHDO_initTextProviderFormatCombo(aFormatCombo, aFormatModel)
+
+	tSourceModel = (aFormatModel):gsub("TEXT_PROVIDER_FORMAT", "TEXT_PROVIDER_SOURCE", 1);
+	tSourceKey = VUHDO_lnfGetValueFrom(tSourceModel) or "";
+
+	aFormatCombo:SetAttribute("combo_table", VUHDO_getFormatComboModelForSource(tSourceKey));
+	VUHDO_lnfComboBoxInitFromModel(aFormatCombo);
+
+	return;
+
+end
+
+
+
+--
 local tName;
-local tPanel, tCombo, tTexture;
+local tPanel;
+local tCombo;
+local tTexture;
 local function VUHDO_createComboBoxForComponent(anIndex, anElement, aParent)
 	tName = "VuhDoIndicatorOptionsComboPanel" .. aParent:GetName() .. anIndex;
 	tPanel = _G[tName];
@@ -515,8 +631,31 @@ local function VUHDO_createComboBoxForComponent(anIndex, anElement, aParent)
 	VUHDO_PixelUtil.SetWidth(tPanel, 150);
 
 	tCombo = _G[tName .. "Combo"];
-	VUHDO_setComboModel(tCombo, anElement["model"], anElement["enumerator"]);
-	VUHDO_lnfComboBoxInitFromModel(tCombo);
+
+	if anElement["isFormatCombo"] then
+		VUHDO_setComboModel(tCombo, anElement["model"], nil);
+		VUHDO_initTextProviderFormatCombo(tCombo, anElement["model"]);
+
+		tCombo:SetAttribute("custom_function", VUHDO_textProviderFormatChanged);
+
+		if sPendingSourceCombo then
+			sPendingSourceCombo:SetAttribute("pairedFormatCombo", tCombo);
+			sPendingSourceCombo = nil;
+		end
+	elseif anElement["pairedFormatModel"] then
+		VUHDO_setComboModel(tCombo, anElement["model"], anElement["enumerator"]);
+
+		tCombo:SetAttribute("pairedFormatModel", anElement["pairedFormatModel"]);
+		tCombo:SetAttribute("custom_function", VUHDO_textProviderSourceChanged);
+
+		sPendingSourceCombo = tCombo;
+
+		VUHDO_lnfComboBoxInitFromModel(tCombo);
+	else
+		VUHDO_setComboModel(tCombo, anElement["model"], anElement["enumerator"]);
+		VUHDO_lnfComboBoxInitFromModel(tCombo);
+	end
+
 	VUHDO_lnfSetTooltip(tCombo, anElement["tooltip"]);
 
 	tTexture = _G[tName .. "Texture"];

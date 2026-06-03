@@ -435,7 +435,7 @@ VUHDO_I18N_TT.K356 = "調整自訂減益圖示水平方向的位置。";
 VUHDO_I18N_TT.K357 = "在名稱文字中顯示寵物/載具擁有者的名字。";
 VUHDO_I18N_TT.K358 = "設定戰鬥結束後的智慧型施法功能。";
 VUHDO_I18N_TT.K359 = "選擇智慧型施法使用的組合按鍵。";
-VUHDO_I18N_TT.K360 = "戰鬥中自動戰復死亡的玩家 (德魯伊限定)";
+VUHDO_I18N_TT.K360 = "選取此項目，可在戰鬥中自動對陣亡的玩家觸發戰鬥復活，使用你職業的相關法術以及你所攜帶的任何戰鬥復活道具。";
 VUHDO_I18N_TT.K361 = "目標條顯示在血量條的左側。"
 VUHDO_I18N_TT.K362 = "目標條顯示在血量條的右側。"
 VUHDO_I18N_TT.K363 = "選擇受到傷害時閃爍的敏感度，較大的數值表示較常閃爍 (受到較少的傷害)。";
@@ -881,6 +881,7 @@ VUHDO_I18N_TT.K823 = "選擇何時顯示驅散異常邊框或覆蓋層（例如�
 VUHDO_I18N_TT.K824 = "針對標準可驅散異常（魔法、詛咒等），顯示暴雪私有光環的驅散異常覆蓋層。";
 VUHDO_I18N_TT.K825 = "選擇何時顯示驅散異常覆蓋層（例如：僅限您可驅散的異常）。";
 VUHDO_I18N_TT.K826 = "顯示所有可驅散的有害光環（魔法、詛咒等），無論您目前的職業／專精是否具備驅散能力。";
+VUHDO_I18N_TT.K827 = "私有光環圖示上疊加層數與冷卻計時文字的縮放比例。";
 
 -- TBCC game version specific strings (tooltip IDs begin at K900)
 
@@ -1311,7 +1312,7 @@ VUHDO_I18N_LKA_NEW_BIND = "<新增綁定>";
 VUHDO_I18N_LKA_EDITED_MACRO = "已編輯巨集: ";
 VUHDO_I18N_FLASH = "閃爍";
 VUHDO_I18N_SHOW_TOTAL = "顯示總量";
-VUHDO_I18N_ALIVE_TIME = "存在時間";
+VUHDO_I18N_ALIVE_TIME_INLINE = "存在時間";
 VUHDO_I18N_PARSE = "分析";
 VUHDO_I18N_TEXT_SHADOW = "文字/陰影";
 VUHDO_I18N_COMBAT_LOG = "戰鬥記錄";
@@ -1594,3 +1595,4 @@ VUHDO_I18N_PRIVATE_AURA_DISPEL_ALL = "所有可驅散的減益效果";
 VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE = "所有可驅散";
 
 VUHDO_I18N_AURA_COLOR_ALL_DISPEL = "所有驅散";
+VUHDO_I18N_PRIVATE_AURA_TEXT_SCALE = "文字縮放大小";

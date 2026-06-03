@@ -1144,7 +1144,7 @@
 								</Scripts>
 							</CheckButton>
 
-							<CheckButton name="$parentAliveTimeCheckButton" text="VUHDO_I18N_ALIVE_TIME" inherits="VuhDoCheckButtonTemplate">
+							<CheckButton name="$parentAliveTimeCheckButton" text="VUHDO_I18N_ALIVE_TIME_INLINE" inherits="VuhDoCheckButtonTemplate">
 								<Size>
 									<AbsDimension x="108" y="32" />
 								</Size>

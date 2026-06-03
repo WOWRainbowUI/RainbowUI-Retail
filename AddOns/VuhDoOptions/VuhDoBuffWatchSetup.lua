@@ -1,15 +1,32 @@
 local _;
 local pairs = pairs;
 local tinsert = table.insert;
+local twipe = table.wipe;
+local ceil = math.ceil;
+local min = math.min;
 
-local VUHDO_BUFF_PANEL_X, VUHDO_BUFF_PANEL_Y;
+local VUHDO_BUFF_PANEL_X;
+local VUHDO_BUFF_PANEL_Y;
 local VUHDO_BUFF_PANEL_WIDTH;
 local VUHDO_BUFF_PANEL_HEIGHT;
 local VUHDO_PANEL_INSET_X = 10;
 local VUHDO_PANEL_INSET_Y = 10;
-local VUHDO_PANEL_MAX_HEIGHT = 435;
 
-local BUFF_PANEL_BASE_HEIGHT = nil;
+local VUHDO_BUFF_PANEL_BASE_HEIGHT = nil;
+
+local sBuffPanelBaseHeight = 46;
+local sBuffPanelWidth = 229;
+local sBuffAreaWidth = 528;
+local sBuffAreaHeight = 435;
+local sPanelMaxHeight;
+local sPanelHeights = { };
+
+-- must match VuhDoBuffWatchSetup.xml template heights
+local sSubPanelTemplateHeights = {
+	["VuhDoBuffSetupDedicatedPanelTemplate"] = 33,
+	["VuhDoBuffSetupFilterTemplate"] = 33,
+	["VuhDoBuffSetupUniqueSingleTargetPanelTemplate"] = 92,
+};
 
 
 
@@ -164,7 +181,7 @@ local function VUHDO_buffSetupNewRowCheck(aWidth, anAddHeight)
 		VUHDO_BUFF_PANEL_HEIGHT = VUHDO_BUFF_PANEL_Y;
 	end
 
-	if (VUHDO_BUFF_PANEL_Y + anAddHeight > VUHDO_PANEL_MAX_HEIGHT) then
+	if (VUHDO_BUFF_PANEL_Y + anAddHeight > sPanelMaxHeight) then
 		VUHDO_BUFF_PANEL_X = VUHDO_BUFF_PANEL_X + aWidth;
 		VUHDO_BUFF_PANEL_Y = VUHDO_PANEL_INSET_Y;
 	end
@@ -186,14 +203,17 @@ end
 
 --
 local function VUHDO_addGenericBuffFrame(aBuffVariant, aFrameTemplateName, aCategoryName, anIsPresent)
+
 	local tBuffPanel, tGenericFrame;
 
 	-- main panel
 	local tFrameName = "VuhDoBuffSetupPanel" .. aCategoryName;
 	tBuffPanel = _G[tFrameName];
+
 	if (tBuffPanel == nil) then
 		tBuffPanel = CreateFrame("Frame", tFrameName, VuhDoNewOptionsBuffsGeneric, "VuhDoBuffSetupPanelTemplate");
-		BUFF_PANEL_BASE_HEIGHT = tBuffPanel:GetHeight();
+
+		VUHDO_BUFF_PANEL_BASE_HEIGHT = tBuffPanel:GetHeight();
 	end
 
 	_G[tBuffPanel:GetName() .. "BuffNameLabelLabel"]:SetText(aCategoryName);
@@ -203,13 +223,16 @@ local function VUHDO_addGenericBuffFrame(aBuffVariant, aFrameTemplateName, aCate
 	else
 		_G[tBuffPanel:GetName() .. "BuffTextureTexture"]:SetTexture("interface\\icons\\spell_chargenegative");
 	end
-	local tInFrameY = BUFF_PANEL_BASE_HEIGHT;
+
+	local tInFrameY = VUHDO_BUFF_PANEL_BASE_HEIGHT;
 
 	if (aFrameTemplateName ~= nil) then
 		tGenericFrame = _G[tFrameName .. "GenericPanel"];
+
 		if (tGenericFrame == nil) then
 			tGenericFrame = CreateFrame("Frame", "$parentGenericPanel", tBuffPanel, aFrameTemplateName);
 		end
+
 		VUHDO_PixelUtil.SetPoint(tGenericFrame, "TOPLEFT", tBuffPanel:GetName(), "TOPLEFT", 0, -tInFrameY);
 		tInFrameY = tInFrameY + tGenericFrame:GetHeight() + 5;
 	end
@@ -222,6 +245,7 @@ local function VUHDO_addGenericBuffFrame(aBuffVariant, aFrameTemplateName, aCate
 	VUHDO_BUFF_PANEL_Y = VUHDO_BUFF_PANEL_Y + tInFrameY;
 
 	return tBuffPanel, tGenericFrame;
+
 end
 
 
@@ -291,6 +315,133 @@ local function VUHDO_getAllBuffNamesAvail(someCategoryBuffs)
 	end
 
 	return tBuffNames;
+end
+
+
+
+--
+local tVariant;
+local tTargetType;
+local tKnownVariants;
+local tPanelTemplate;
+local function VUHDO_buffSetupResolvePanelTemplate(aCategoryName, someCategoryBuffs)
+
+	tKnownVariants = VUHDO_getAllBuffNamesAvail(someCategoryBuffs);
+
+	tVariant = nil;
+
+	if (#tKnownVariants > 0) then
+		tVariant = VUHDO_getBuffInfoForName(tKnownVariants[1], aCategoryName);
+	end
+
+	if (tVariant == nil) then
+		tVariant = someCategoryBuffs[1];
+	end
+
+	tTargetType = tVariant[2];
+
+	if (VUHDO_BUFF_TARGET_UNIQUE == tTargetType) then
+		tPanelTemplate = "VuhDoBuffSetupUniqueSingleTargetPanelTemplate";
+	elseif (VUHDO_BUFF_TARGET_RAID == tTargetType or VUHDO_BUFF_TARGET_SINGLE == tTargetType) then
+		if (#someCategoryBuffs > 1) then
+			tPanelTemplate = "VuhDoBuffSetupDedicatedPanelTemplate";
+		else
+			tPanelTemplate = "VuhDoBuffSetupFilterTemplate";
+		end
+	else
+		if (#someCategoryBuffs > 1) then
+			tPanelTemplate = "VuhDoBuffSetupDedicatedPanelTemplate";
+		else
+			tPanelTemplate = nil;
+		end
+	end
+
+	return tPanelTemplate;
+
+end
+
+
+
+--
+local tTemplateHeight;
+local tHeight;
+local function VUHDO_buffSetupMeasurePanelHeight(aCategoryName, someCategoryBuffs)
+
+	tPanelTemplate = VUHDO_buffSetupResolvePanelTemplate(aCategoryName, someCategoryBuffs);
+
+	tHeight = sBuffPanelBaseHeight;
+
+	if (tPanelTemplate ~= nil) then
+		tTemplateHeight = sSubPanelTemplateHeights[tPanelTemplate];
+
+		if (tTemplateHeight ~= nil) then
+			tHeight = tHeight + tTemplateHeight + 5;
+		end
+	end
+
+	return tHeight;
+
+end
+
+
+
+--
+local tCols;
+local tY;
+local function VUHDO_buffSetupCountColumns(aThreshold)
+
+	tCols = 1;
+	tY = VUHDO_PANEL_INSET_Y;
+
+	for tIdx = 1, #sPanelHeights do
+		tHeight = sPanelHeights[tIdx];
+
+		if (tY + tHeight > aThreshold) then
+			tCols = tCols + 1;
+
+			tY = VUHDO_PANEL_INSET_Y;
+		end
+
+		tY = tY + tHeight;
+	end
+
+	return tCols;
+
+end
+
+
+
+--
+local tMaxPanel;
+local tLow;
+local tHigh;
+local tMid;
+local function VUHDO_buffSetupFindMinThreshold(aTargetCols, aTotalHeight)
+
+	tMaxPanel = 0;
+
+	for tIdx = 1, #sPanelHeights do
+		if (sPanelHeights[tIdx] > tMaxPanel) then
+			tMaxPanel = sPanelHeights[tIdx];
+		end
+	end
+
+	tLow = tMaxPanel;
+	tHigh = aTotalHeight;
+
+	while (tLow < tHigh) do
+		tMid = (tLow + tHigh);
+		tMid = (tMid - tMid % 2) / 2;
+
+		if (VUHDO_buffSetupCountColumns(tMid) <= aTargetCols) then
+			tHigh = tMid;
+		else
+			tLow = tMid + 1;
+		end
+	end
+
+	return tLow;
+
 end
 
 
@@ -372,14 +523,11 @@ end
 
 --
 local function VUHDO_buildBuffSetupGenericPanel(aCategoryName, someCategoryBuffs)
-	local tTargetType;
-	local tVariant;
 	local tBuffPanel;
 	local tGenericPanel;
-	local tPanelTemplate;
 	local tIsPresent;
 
-	local tKnownVariants = VUHDO_getAllBuffNamesAvail(someCategoryBuffs);
+	tKnownVariants = VUHDO_getAllBuffNamesAvail(someCategoryBuffs);
 
 	tVariant = nil;
 	if (#tKnownVariants > 0) then
@@ -393,28 +541,7 @@ local function VUHDO_buildBuffSetupGenericPanel(aCategoryName, someCategoryBuffs
 		tVariant = someCategoryBuffs[1];
 	end
 
-	tTargetType = tVariant[2];
-
-	if (VUHDO_BUFF_TARGET_UNIQUE == tTargetType) then
-		-- add player name panel
-		tPanelTemplate = "VuhDoBuffSetupUniqueSingleTargetPanelTemplate";
-	elseif (VUHDO_BUFF_TARGET_RAID == tTargetType or VUHDO_BUFF_TARGET_SINGLE == tTargetType) then
-		if (#someCategoryBuffs > 1) then
-			-- add Combo-Box having all spells
-			tPanelTemplate = "VuhDoBuffSetupDedicatedPanelTemplate";
-		else
-			tPanelTemplate = "VuhDoBuffSetupFilterTemplate";
-		end
-	else -- Totem, own group, self
-		-- If more than one mutual exclusive
-		if (#someCategoryBuffs > 1) then
-			-- add Combo-Box having all spells
-			tPanelTemplate = "VuhDoBuffSetupDedicatedPanelTemplate";
-		else
-			-- add basic panel only (only en-/disable)
-			tPanelTemplate = nil;
-		end
-	end
+	tPanelTemplate = VUHDO_buffSetupResolvePanelTemplate(aCategoryName, someCategoryBuffs);
 
 	tBuffPanel, tGenericPanel = VUHDO_addGenericBuffFrame(tVariant, tPanelTemplate, aCategoryName, tIsPresent);
 	VUHDO_setupStaticBuffPanel(aCategoryName, tBuffPanel, tIsPresent);
@@ -426,23 +553,84 @@ end
 
 
 --
+local tBuffPanel;
+local tCurPanel;
+local tIndex;
+local tTotalHeight;
+local tNumPanels;
+local tAreaWidth;
+local tAreaHeight;
+local tBestScale;
+local tBestThreshold;
+local tColHeight;
+local tScale;
+local tNumber;
 function VUHDO_buildAllBuffSetupGenerericPanel()
-	local tBuffPanel = nil;
-	local tCurPanel;
-	local tIndex;
+
+	twipe(sPanelHeights);
+
+	tTotalHeight = 0;
+	tNumPanels = 0;
+	tIndex = 0;
+
+	for _, _ in pairs(VUHDO_getPlayerClassBuffs()) do
+		for tCategoryName, tAllCategoryBuffs in pairs(VUHDO_getPlayerClassBuffs()) do
+			tNumber = VUHDO_BUFF_ORDER[tCategoryName];
+
+			if (tNumber == tIndex + 1) then
+				tIndex = tIndex + 1;
+
+				tHeight = VUHDO_buffSetupMeasurePanelHeight(tCategoryName, tAllCategoryBuffs);
+
+				tinsert(sPanelHeights, tHeight);
+
+				tTotalHeight = tTotalHeight + tHeight;
+
+				tNumPanels = tNumPanels + 1;
+			end
+		end
+	end
+
+	if (tNumPanels == 0) then
+		return;
+	end
+
+	tAreaWidth = sBuffAreaWidth - 2 * VUHDO_PANEL_INSET_X;
+	tAreaHeight = sBuffAreaHeight - 2 * VUHDO_PANEL_INSET_Y;
+
+	tBestScale = 0;
+	tBestThreshold = tTotalHeight;
+
+	for tTargetCols = 1, tNumPanels do
+		tColHeight = VUHDO_buffSetupFindMinThreshold(tTargetCols, tTotalHeight);
+		tScale = min(tAreaWidth / (tTargetCols * sBuffPanelWidth), tAreaHeight / tColHeight, 1);
+
+		if (tScale > tBestScale) then
+			tBestScale = tScale;
+
+			tBestThreshold = tColHeight;
+		end
+	end
+
+	sPanelMaxHeight = tBestThreshold;
 
 	VUHDO_BUFF_PANEL_X = VUHDO_PANEL_INSET_X;
 	VUHDO_BUFF_PANEL_Y = VUHDO_PANEL_INSET_Y;
 	VUHDO_BUFF_PANEL_WIDTH = 0;
 	VUHDO_BUFF_PANEL_HEIGHT = 0;
 
+	tBuffPanel = nil;
 	tIndex = 0;
+
 	for _, _ in pairs(VUHDO_getPlayerClassBuffs()) do
 		for tCategoryName, tAllCategoryBuffs in pairs(VUHDO_getPlayerClassBuffs()) do
-			local tNumber = VUHDO_BUFF_ORDER[tCategoryName];
+			tNumber = VUHDO_BUFF_ORDER[tCategoryName];
+
 			if (tNumber == tIndex + 1) then
 				tIndex = tIndex + 1;
+
 				tCurPanel, _ = VUHDO_buildBuffSetupGenericPanel(tCategoryName, tAllCategoryBuffs);
+
 				if (tBuffPanel == nil) then
 					tBuffPanel = tCurPanel;
 				end
@@ -454,12 +642,10 @@ function VUHDO_buildAllBuffSetupGenerericPanel()
 		return;
 	end
 
-	local tWidth = VUHDO_BUFF_PANEL_WIDTH + tBuffPanel:GetWidth();
-	local tScale = 528 / tWidth;
+	VuhDoNewOptionsBuffsGeneric:SetScale(tBestScale);
 
-	if (tScale < 1) then
-		VuhDoNewOptionsBuffsGeneric:SetScale(tScale);
-	end
+	return;
+
 end
 
 
