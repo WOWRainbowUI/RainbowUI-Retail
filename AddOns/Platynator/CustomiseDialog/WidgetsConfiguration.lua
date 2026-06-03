@@ -462,7 +462,7 @@ addonTable.CustomiseDialog.WidgetsConfig = {
         label = addonTable.Locales.GENERAL,
         entries = {
           {
-            label = addonTable.Locales.ANIMATE,
+            label = addonTable.Locales.ANIMATE_X,
             kind = "checkbox",
             setter = function(details, value)
               details.animate = value
@@ -518,7 +518,7 @@ addonTable.CustomiseDialog.WidgetsConfig = {
     },
     ["cast"] = {
       {
-        label = addonTable.Locales.TEXTURES,
+        label = addonTable.Locales.GENERAL,
         entries = {
           {
             label = addonTable.Locales.MARK_INTERRUPT_READY_POINT,
@@ -1649,7 +1649,7 @@ addonTable.CustomiseDialog.WidgetsConfig = {
           },
           { kind = "spacer" },
           {
-            label = addonTable.Locales.ANIMATE,
+            label = addonTable.Locales.ANIMATE_X,
             kind = "checkbox",
             setter = function(details, value)
               details.animate = value
