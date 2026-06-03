@@ -532,6 +532,7 @@ local tBarHeight;
 local tVisualSize;
 local tDurationFrame;
 local tToggleLevel;
+local tTextScale;
 function VUHDO_refreshPrivateAuraDispelOverlay(aUnit)
 
 	if not aUnit then
@@ -739,6 +740,8 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 		tDurationAnchor = nil;
 	end
 
+	tTextScale = (tPrivateAuraSetup["textScale"] or 100) * 0.01;
+
 	for tAuraIndex = 1, tNumAuras do
 		tPrivateAura = VUHDO_getPrivateAuraIcon(aButton, tAuraIndex);
 
@@ -762,8 +765,8 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 			showCountdownNumbers = tPrivateAuraSetup["showCooldownNumbers"] ~= false,
 			isContainer = false,
 			iconInfo = {
-				iconWidth = tIconSize,
-				iconHeight = tIconSize,
+				iconWidth = tIconSize / tTextScale,
+				iconHeight = tIconSize / tTextScale,
 				iconAnchor = {
 					point = "CENTER",
 					relativeTo = tPrivateAura,
@@ -785,7 +788,7 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 				tVisualSize = tBarHeight * (tIconSizePercent == 0 and 100 or tIconSizePercent) * 0.01;
 			end
 
-			tPrivateAuraAnchor["iconInfo"]["borderScale"] = tVisualSize / 32;
+			tPrivateAuraAnchor["iconInfo"]["borderScale"] = (tVisualSize / 32) / tTextScale;
 		else
 			tPrivateAuraAnchor["iconInfo"]["borderScale"] = -10000;
 		end

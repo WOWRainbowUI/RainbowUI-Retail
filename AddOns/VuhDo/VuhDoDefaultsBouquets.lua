@@ -1012,7 +1012,7 @@ VUHDO_DEFAULT_CHI_HARMONY_ICON_BOTH_BOUQUET = {
 
 --
 VUHDO_DEFAULT_INDICATOR_CONFIG = {
-	["VERSION"] = 2,
+	["VERSION"] = 3,
 };
 
 
@@ -1109,7 +1109,8 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 
 	["TEXT_INDICATORS"] = {
 		["OVERHEAL_TEXT"] = {
-			["TEXT_PROVIDER"] = "OVERHEAL_KILO_PLUS_N_K",
+			["TEXT_PROVIDER_SOURCE"] = "OVERHEAL",
+			["TEXT_PROVIDER_FORMAT"] = "NK_PLUS",
 		},
 		["MANA_BAR"] = {
 			["TEXT"] = {
@@ -1123,7 +1124,8 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 				["USE_OUTLINE"] = false,
 				["USE_MONO"] = false,
 			},
-			["TEXT_PROVIDER"] = "",
+			["TEXT_PROVIDER_SOURCE"] = "",
+			["TEXT_PROVIDER_FORMAT"] = "",
 		},
 		["SIDE_LEFT"] = {
 			["TEXT"] = {
@@ -1137,7 +1139,8 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 				["USE_OUTLINE"] = true,
 				["USE_MONO"] = false,
 			},
-			["TEXT_PROVIDER"] = "",
+			["TEXT_PROVIDER_SOURCE"] = "",
+			["TEXT_PROVIDER_FORMAT"] = "",
 		},
 		["SIDE_RIGHT"] = {
 			["TEXT"] = {
@@ -1151,7 +1154,8 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 				["USE_OUTLINE"] = true,
 				["USE_MONO"] = false,
 			},
-			["TEXT_PROVIDER"] = "",
+			["TEXT_PROVIDER_SOURCE"] = "",
+			["TEXT_PROVIDER_FORMAT"] = "",
 		},
 		["THREAT_BAR"] = {
 			["TEXT"] = {
@@ -1165,7 +1169,8 @@ VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL = {
 				["USE_OUTLINE"] = false,
 				["USE_MONO"] = false,
 			},
-			["TEXT_PROVIDER"] = "",
+			["TEXT_PROVIDER_SOURCE"] = "",
+			["TEXT_PROVIDER_FORMAT"] = "",
 		},
 	}
 };
@@ -1774,6 +1779,7 @@ local tEvokerDreamBreathEchoSpellIds = {
 
 
 --
+local tOriginalVersion;
 function VUHDO_loadDefaultBouquets()
 
 	if not VUHDO_BOUQUETS then
@@ -2030,6 +2036,8 @@ function VUHDO_loadDefaultBouquets()
 		VUHDO_INDICATOR_CONFIG = VUHDO_decompressOrCopy(VUHDO_DEFAULT_INDICATOR_CONFIG);
 	end
 
+	tOriginalVersion = VUHDO_INDICATOR_CONFIG["VERSION"] or 0;
+
 	local tPanelIndicatorConfig;
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
@@ -2081,6 +2089,12 @@ function VUHDO_loadDefaultBouquets()
 			tPanelIndicatorConfig["CUSTOM"] = VUHDO_decompressOrCopy(VUHDO_INDICATOR_CONFIG["CUSTOM"]);
 		end
 
+		if tOriginalVersion < 3 and tPanelIndicatorConfig["TEXT_INDICATORS"] then
+			for _, tTextIndicatorConfig in pairs(tPanelIndicatorConfig["TEXT_INDICATORS"]) do
+				VUHDO_migrateLegacyTextProvider(tTextIndicatorConfig);
+			end
+		end
+
 		VUHDO_INDICATOR_CONFIG[tPanelNum] = VUHDO_ensureSanity("VUHDO_INDICATOR_CONFIG[" .. tPanelNum .. "]", VUHDO_INDICATOR_CONFIG[tPanelNum], VUHDO_DEFAULT_INDICATOR_CONFIG_PER_PANEL);
 	end
 
@@ -2088,6 +2102,10 @@ function VUHDO_loadDefaultBouquets()
 		VUHDO_INDICATOR_CONFIG["BOUQUETS"] = nil;
 		VUHDO_INDICATOR_CONFIG["CUSTOM"] = nil;
 		VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"] = nil;
+	end
+
+	if tOriginalVersion < 3 then
+		VUHDO_INDICATOR_CONFIG["VERSION"] = 3;
 	end
 
 	VUHDO_INDICATOR_CONFIG = VUHDO_ensureSanity("VUHDO_INDICATOR_CONFIG", VUHDO_INDICATOR_CONFIG, VUHDO_DEFAULT_INDICATOR_CONFIG);

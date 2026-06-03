@@ -1,32 +1,79 @@
+local _;
+
+local ipairs = ipairs;
+local twipe = table.wipe;
+local format = format;
+local gsub = gsub;
+local strfind = strfind;
+
+local GetMacroIndexByName = GetMacroIndexByName;
+local GetMacroInfo = GetMacroInfo;
+local GetItemInfo = C_Item.GetItemInfo;
+local GetSpellName = C_Spell.GetSpellName;
+
 VUHDO_IS_SFX_ENABLED = true;
 VUHDO_IS_SOUND_ERRORSPEECH_ENABLED = true;
 
 local VUHDO_RAID;
 local VUHDO_SPELL_CONFIG;
 local VUHDO_SPELLS;
+local VUHDO_RAID_MACRO_CACHE = { };
+local VUHDO_TARGET_MACRO_CACHE = { };
 
-local GetMacroIndexByName = GetMacroIndexByName;
-local GetMacroInfo = GetMacroInfo;
-local GetSpellName = C_Spell.GetSpellName;
 local VUHDO_replaceMacroTemplates;
-local twipe = table.wipe;
-local format = format;
-local gsub = gsub;
-local strfind = strfind;
+
 local sEmpty = { };
 local sIsAnyAutoFireConfigured;
-local _;
+local sFireText = nil;
 
 CreateFrame("Button", "VDSTB", nil, "SecureActionButtonTemplate"):SetAttribute("type", "stop"); -- Calls SpellStopTargeting
 local sStopTargetText = "/click VDSTB LeftButton\n";
 
+local sBattleRezListenerFrame = CreateFrame("Frame", "VuhDoBattleRezListener");
+local sBattleRezItemsPending = 0;
 
+
+
+--
+function VUHDO_battleRezListenerOnEvent(aFrame, anEvent, anItemID, anIsSuccess)
+
+	if "GET_ITEM_INFO_RECEIVED" ~= anEvent then
+		return;
+	end
+
+	if VUHDO_BATTLE_REZ_ITEM_LOOKUP[anItemID] then
+		VUHDO_resetMacroCaches();
+
+		VUHDO_timeReloadUI(1);
+
+		VUHDO_rebuildKeyboardMacros();
+
+		sBattleRezItemsPending = sBattleRezItemsPending - 1;
+
+		if sBattleRezItemsPending <= 0 then
+			aFrame:UnregisterEvent("GET_ITEM_INFO_RECEIVED");
+		end
+	end
+
+	return;
+
+end
+
+sBattleRezListenerFrame:SetScript("OnEvent", VUHDO_battleRezListenerOnEvent);
+
+
+
+--
+local tNumPending;
+local tName;
 function VUHDO_macroFactoryInitLocalOverrides()
+
 	VUHDO_RAID = _G["VUHDO_RAID"];
 	VUHDO_SPELL_CONFIG = _G["VUHDO_SPELL_CONFIG"];
 	VUHDO_SPELLS = _G["VUHDO_SPELLS"];
 
 	VUHDO_replaceMacroTemplates = _G["VUHDO_replaceMacroTemplates"];
+
 	sIsAnyAutoFireConfigured = VUHDO_SPELL_CONFIG["IS_AUTO_FIRE"]	and (
 		VUHDO_SPELL_CONFIG["IS_FIRE_TRINKET_1"]
 		or VUHDO_SPELL_CONFIG["IS_FIRE_TRINKET_2"]
@@ -34,28 +81,48 @@ function VUHDO_macroFactoryInitLocalOverrides()
 		or (VUHDO_SPELL_CONFIG["IS_FIRE_CUSTOM_1"] and not VUHDO_strempty(VUHDO_SPELL_CONFIG["FIRE_CUSTOM_1_SPELL"]))
 		or (VUHDO_SPELL_CONFIG["IS_FIRE_CUSTOM_2"] and not VUHDO_strempty(VUHDO_SPELL_CONFIG["FIRE_CUSTOM_2_SPELL"]))
 	);
+
+	tNumPending = 0;
+
+	for _, tItemID in ipairs(VUHDO_BATTLE_REZ_ITEM_IDS) do
+		tName = GetItemInfo(tItemID);
+
+		if tName == nil then
+			tNumPending = tNumPending + 1;
+		end
+	end
+
+	sBattleRezItemsPending = tNumPending;
+
+	if sBattleRezItemsPending > 0 then
+		sBattleRezListenerFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED");
+	end
+
+	return;
+
 end
-
-
-
-local VUHDO_RAID_MACRO_CACHE = { };
-local VUHDO_TARGET_MACRO_CACHE = { };
-local sFireText = nil;
 
 
 
 --
 function VUHDO_resetMacroCaches()
+
 	twipe(VUHDO_RAID_MACRO_CACHE);
 	twipe(VUHDO_TARGET_MACRO_CACHE);
+
 	sFireText = nil;
+
+	return;
+
 end
 
 
 
 --
 local function VUHDO_isFireSomething(anAction)
+
 	return sIsAnyAutoFireConfigured and (VUHDO_SPELL_CONFIG["IS_FIRE_HOT"] or not (VUHDO_SPELLS[anAction] or sEmpty)["isHot"]);
+
 end
 
 
@@ -63,7 +130,9 @@ end
 --
 local tInstant, tModi2, tCustomUnit;
 local function VUHDO_getInstantFireText(aSlotNum)
+
 	tInstant = VUHDO_SPELL_CONFIG["FIRE_CUSTOM_" .. aSlotNum .. "_SPELL"];
+
 	if VUHDO_SPELL_CONFIG["IS_FIRE_CUSTOM_" .. aSlotNum] and not VUHDO_strempty(tInstant) then
 
 		tCustomUnit = VUHDO_SPELL_CONFIG["custom" .. aSlotNum .. "Unit"] or ""
@@ -86,6 +155,7 @@ local function VUHDO_getInstantFireText(aSlotNum)
 	else
 		return "";
 	end
+
 end
 
 
@@ -346,29 +416,39 @@ local VUHDO_PROHIBIT_HELP = {
 
 --
 local tRezText;
+local tRezPrefix;
+local tItemName;
 local function VUHDO_getAutoBattleRezText(anIsKeyboard)
 
-	if VUHDO_SPELL_CONFIG["autoBattleRez"] and
-		("DRUID" == VUHDO_PLAYER_CLASS or "PALADIN" == VUHDO_PLAYER_CLASS or "DEATHKNIGHT" == VUHDO_PLAYER_CLASS or "WARLOCK" == VUHDO_PLAYER_CLASS) then
-		tRezText = "/use [dead,combat,@" .. (anIsKeyboard and "mouseover" or "vuhdo");
+	if not VUHDO_SPELL_CONFIG["autoBattleRez"] then
+		return "";
+	end
 
-		if VUHDO_SPELL_CONFIG["smartCastModi"] ~= "all" then
-			tRezText = tRezText .. ",mod:" .. VUHDO_SPELL_CONFIG["smartCastModi"];
+	tRezPrefix = "/use [dead,combat,@" .. (anIsKeyboard and "mouseover" or "vuhdo");
+
+	if VUHDO_SPELL_CONFIG["smartCastModi"] ~= "all" then
+		tRezPrefix = tRezPrefix .. ",mod:" .. VUHDO_SPELL_CONFIG["smartCastModi"];
+	end
+
+	tRezPrefix = tRezPrefix .. "] ";
+	tRezText = "";
+
+	if "DRUID" == VUHDO_PLAYER_CLASS then
+		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.REBIRTH .. "\n";
+	elseif "PALADIN" == VUHDO_PLAYER_CLASS then
+		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.INTERCESSION .. "\n";
+	elseif "DEATHKNIGHT" == VUHDO_PLAYER_CLASS then
+		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.RAISE_ALLY .. "\n";
+	elseif "WARLOCK" == VUHDO_PLAYER_CLASS then
+		tRezText = tRezText .. tRezPrefix .. VUHDO_SPELL_ID.SOULSTONE .. "\n";
+	end
+
+	for _, tItemID in ipairs(VUHDO_BATTLE_REZ_ITEM_IDS) do
+		tItemName = VUHDO_getItemNameSafe(tItemID);
+
+		if tItemName then
+			tRezText = tRezText .. tRezPrefix .. tItemName .. "\n";
 		end
-
-		tRezText = tRezText .. "] ";
-
-		if "DRUID" == VUHDO_PLAYER_CLASS then
-			tRezText = tRezText .. VUHDO_SPELL_ID.REBIRTH .. "\n";
-		elseif "PALADIN" == VUHDO_PLAYER_CLASS then
-			tRezText = tRezText .. VUHDO_SPELL_ID.INTERCESSION .. "\n";
-		elseif "DEATHKNIGHT" == VUHDO_PLAYER_CLASS then
-			tRezText = tRezText .. VUHDO_SPELL_ID.RAISE_ALLY .. "\n";
-		elseif "WARLOCK" == VUHDO_PLAYER_CLASS then
-			tRezText = tRezText .. VUHDO_SPELL_ID.SOULSTONE .. "\n";
-		end
-	else
-		tRezText = "";
 	end
 
 	return tRezText;

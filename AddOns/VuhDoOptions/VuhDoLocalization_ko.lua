@@ -436,7 +436,7 @@ VUHDO_I18N_TT.K356 = "수평 방향으로 사용자 정의 디버프 아이콘 �
 VUHDO_I18N_TT.K357 = "소환수/차량 탈것 소유자의 이름을 텍스트로 표시하려면 선택하십시오.";
 VUHDO_I18N_TT.K358 = "비 전투 중 스마트 시전 기능을 설정하려면 선택";
 VUHDO_I18N_TT.K359 = "스마트 시전과 함께 작동 할 수정 키를 선택하십시오.";
-VUHDO_I18N_TT.K360 = "전투 중 죽은 플레이어에게 전투 부활을 자동으로 작동하게 하려면 이 옵션을 선택하십시오(전투 부활 가능 직업 만 해당).";
+VUHDO_I18N_TT.K360 = "Select this to automatically trigger battle rez on dead players mid-fight, using your class spell and any battle rez items you carry.";
 VUHDO_I18N_TT.K361 = "체력바 왼쪽에 대상바를 표시하려면 선택하십시오.";
 VUHDO_I18N_TT.K362 = "체력바 오른쪽에 대상바를 표시하려면 선택하십시오.";
 VUHDO_I18N_TT.K363 = "데미지 플래시 감도를 선택하십시오. 값이 클수록 깜박임이 증가합니다(데미지가 적을 때).";
@@ -882,6 +882,7 @@ VUHDO_I18N_TT.K823 = "Select when to show a dispel border or overlay (e.g. only 
 VUHDO_I18N_TT.K824 = "Show the Blizzard private aura dispel overlay for standard dispellable auras (Magic, Curse, etc.).";
 VUHDO_I18N_TT.K825 = "Select when to show a dispel overlay (e.g. only dispellable by you).";
 VUHDO_I18N_TT.K826 = "Shows every dispellable harmful aura (Magic, Curse, etc.) regardless of whether your current class/spec can dispel it.";
+VUHDO_I18N_TT.K827 = "Scale of stack and clock text on private aura icons.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "기본 프로필";
 VUHDO_I18N_DEFAULT_LAYOUT = "기본 배치";
@@ -1574,7 +1575,7 @@ VUHDO_I18N_SORT_NAME_ONLY = "Name Only";
 
 VUHDO_I18N_SPELL_SOURCE = "Spell Source";
 VUHDO_I18N_FULL_DURATION = "Full Duration";
-VUHDO_I18N_ALIVE_TIME = "Alive Time";
+VUHDO_I18N_ALIVE_TIME_INLINE = "생존 시간";
 VUHDO_I18N_TIMER_THRESHOLD = "Show Timer";
 VUHDO_I18N_GLOW_ICON = "Glow Icon";
 VUHDO_I18N_COLOR_ICON = "Color Icon";
@@ -1597,3 +1598,5 @@ VUHDO_I18N_PRIVATE_AURA_DISPEL_ALL = "All Dispellable Debuffs";
 VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE = "All Dispellable";
 
 VUHDO_I18N_AURA_COLOR_ALL_DISPEL = "All Dispels";
+
+VUHDO_I18N_PRIVATE_AURA_TEXT_SCALE = "Text Scale";

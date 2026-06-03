@@ -433,7 +433,7 @@ VUHDO_I18N_TT.K356 = "Verschieben Sie die (De)Buffs in horizontaler Richtung.";
 VUHDO_I18N_TT.K357 = "Wählen Sie diese Option, um ggf. den Namen des Tierbesitzers/Vehikel-Fahrers im Lebenstext anzuzeigen.";
 VUHDO_I18N_TT.K358 = "Hier können Sie Einstellungen bezüglich automatischer Spruchwahl außerhalb des Kampfes treffen.";
 VUHDO_I18N_TT.K359 = "Wählen Sie eine Modifikationstaste, unter der die automatische Spruchwahl ausgelöst werden soll.";
-VUHDO_I18N_TT.K360 = "Anwählen, um während des Kampfes tote Spieler auf Mausklick automatisch wiederzubeleben (nur für Druiden).";
+VUHDO_I18N_TT.K360 = "Select this to automatically trigger battle rez on dead players mid-fight, using your class spell and any battle rez items you carry.";
 VUHDO_I18N_TT.K361 = "Diese Option zeigt die Zielbalken links vom Gesundheitsbalken."
 VUHDO_I18N_TT.K362 = "Diese Option zeigt die Zielbalken rechts vom Gesundheitsbalken."
 VUHDO_I18N_TT.K363 = "Wählen Sie die Empfindlichkeit des Schadensblitzens. Je größer der Wert desto geringer der Schaden, der nötig ist, um das Blitzen auszulösen.";
@@ -879,6 +879,7 @@ VUHDO_I18N_TT.K823 = "Select when to show a dispel border or overlay (e.g. only 
 VUHDO_I18N_TT.K824 = "Show the Blizzard private aura dispel overlay for standard dispellable auras (Magic, Curse, etc.).";
 VUHDO_I18N_TT.K825 = "Select when to show a dispel overlay (e.g. only dispellable by you).";
 VUHDO_I18N_TT.K826 = "Shows every dispellable harmful aura (Magic, Curse, etc.) regardless of whether your current class/spec can dispel it.";
+VUHDO_I18N_TT.K827 = "Scale of stack and clock text on private aura icons.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";
@@ -1568,7 +1569,7 @@ VUHDO_I18N_SORT_NAME_ONLY = "Nur Name";
 
 VUHDO_I18N_SPELL_SOURCE = "Zauberquelle";
 VUHDO_I18N_FULL_DURATION = "Gesamte Dauer";
-VUHDO_I18N_ALIVE_TIME = "Lebenszeit";
+VUHDO_I18N_ALIVE_TIME_INLINE = "Lebenszeit";
 VUHDO_I18N_TIMER_THRESHOLD = "Timer anzeigen";
 VUHDO_I18N_GLOW_ICON = "Symbol-Aufleuchten";
 VUHDO_I18N_COLOR_ICON = "Symbol färben";
@@ -1591,3 +1592,5 @@ VUHDO_I18N_PRIVATE_AURA_DISPEL_ALL = "All Dispellable Debuffs";
 VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE = "All Dispellable";
 
 VUHDO_I18N_AURA_COLOR_ALL_DISPEL = "All Dispels";
+
+VUHDO_I18N_PRIVATE_AURA_TEXT_SCALE = "Text Scale";

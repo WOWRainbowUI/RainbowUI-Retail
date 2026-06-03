@@ -1,4 +1,6 @@
+local GetItemInfo = C_Item.GetItemInfo;
 local GetSpellName = C_Spell.GetSpellName;
+local ipairs = ipairs;
 
 --
 local tSpellName;
@@ -447,3 +449,30 @@ VUHDO_NATIVE_ASSIGN_SPELLS = {
 --	[VUHDO_SPELL_ID.SURGING_MIST] = true, -- wird instant bei soothing mist
 --	[VUHDO_SPELL_ID.ENVELOPING_MIST] = true,
 };
+
+
+
+-- priority order: most preferred item first
+VUHDO_BATTLE_REZ_ITEM_IDS = {
+	248486,
+};
+
+
+
+VUHDO_BATTLE_REZ_ITEM_LOOKUP = { };
+
+for _, tItemID in ipairs(VUHDO_BATTLE_REZ_ITEM_IDS) do
+	VUHDO_BATTLE_REZ_ITEM_LOOKUP[tItemID] = true;
+end
+
+
+
+--
+local tName;
+function VUHDO_getItemNameSafe(anItemID)
+
+	tName = GetItemInfo(anItemID);
+
+	return tName;
+
+end

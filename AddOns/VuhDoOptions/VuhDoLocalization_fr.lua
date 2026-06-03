@@ -442,7 +442,7 @@ VUHDO_I18N_TT.K356 = "Ajustez la position des ic\195\180nes personnalis\195\169e
 VUHDO_I18N_TT.K357 = "S\195\169lectionnez cette option pour afficher le nom du familier/v\195\169hicule dans le nom du texte.";
 VUHDO_I18N_TT.K358 = "S\195\169lectionnez cette option en hors de combat fonctionnalit\195\169 de ciblage intelligent";
 VUHDO_I18N_TT.K359 = "S\195\169lectionnez une touche de modification pour l'associer avec un cast vif et avec.";
-VUHDO_I18N_TT.K360 = "S\195\169lectionnez cette option pour d\195\169clencher automatiquement le rez combat sur les joueurs morts (druides seulement)";
+VUHDO_I18N_TT.K360 = "Select this to automatically trigger battle rez on dead players mid-fight, using your class spell and any battle rez items you carry.";
 VUHDO_I18N_TT.K361 = "S\195\169lectionnez pour afficher les barres cible \195\160 gauche des barres de sant\195\169."
 VUHDO_I18N_TT.K362 = "S\195\169lectionnez pour afficher les barres cible \195\160 droite des barres de sant\195\169."
 VUHDO_I18N_TT.K363 = "S\195\169lectionnez la sensibilit\195\169 du flash dommages. Une valeur plus grande signifie plus de clignotement (en bas/dommages).";
@@ -888,6 +888,7 @@ VUHDO_I18N_TT.K823 = "Select when to show a dispel border or overlay (e.g. only 
 VUHDO_I18N_TT.K824 = "Show the Blizzard private aura dispel overlay for standard dispellable auras (Magic, Curse, etc.).";
 VUHDO_I18N_TT.K825 = "Select when to show a dispel overlay (e.g. only dispellable by you).";
 VUHDO_I18N_TT.K826 = "Shows every dispellable harmful aura (Magic, Curse, etc.) regardless of whether your current class/spec can dispel it.";
+VUHDO_I18N_TT.K827 = "Scale of stack and clock text on private aura icons.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Profil par d\195\169faut";
 VUHDO_I18N_DEFAULT_LAYOUT = "Disposition \npar d\195\169faut";
@@ -1585,7 +1586,7 @@ VUHDO_I18N_SORT_NAME_ONLY = "Nom uniquement";
 
 VUHDO_I18N_SPELL_SOURCE = "Source du sort";
 VUHDO_I18N_FULL_DURATION = "Dur\195\169e totale";
-VUHDO_I18N_ALIVE_TIME = "Temps actif";
+VUHDO_I18N_ALIVE_TIME_INLINE = "Temps actif";
 VUHDO_I18N_TIMER_THRESHOLD = "Afficher chrono";
 VUHDO_I18N_GLOW_ICON = "Brillance ic\195\180ne";
 VUHDO_I18N_COLOR_ICON = "Couleur ic\195\180ne";
@@ -1608,3 +1609,5 @@ VUHDO_I18N_PRIVATE_AURA_DISPEL_ALL = "All Dispellable Debuffs";
 VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE = "All Dispellable";
 
 VUHDO_I18N_AURA_COLOR_ALL_DISPEL = "All Dispels";
+
+VUHDO_I18N_PRIVATE_AURA_TEXT_SCALE = "Text Scale";

@@ -2819,6 +2819,16 @@ function VUHDO_loadProfileNoInit(aName)
 		VUHDO_INDICATOR_CONFIG["VERSION"] = nil;
 	end
 
+	if tProfile["INDICATOR_CONFIG"] and tProfile["INDICATOR_CONFIG"]["VERSION"] == 2 then
+		for tPanelNum = 1, VUHDO_MAX_PANELS do
+			if tProfile["INDICATOR_CONFIG"][tPanelNum] and tProfile["INDICATOR_CONFIG"][tPanelNum]["TEXT_INDICATORS"]
+				and VUHDO_INDICATOR_CONFIG[tPanelNum] then
+				VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"] =
+					VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"][tPanelNum]["TEXT_INDICATORS"]);
+			end
+		end
+	end
+
 	-- if old profile hasn't been migrated then force migration
 	if tProfile["PANEL_SETUP"] and tProfile["PANEL_SETUP"]["HOTS"] and not tProfile["PANEL_SETUP"]["HOTS"]["VERSION"] then
 		-- migrated destination config model won't contain the keys needed from old profile

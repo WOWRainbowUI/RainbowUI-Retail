@@ -43,6 +43,7 @@ local VUHDO_getBarText;
 local VUHDO_getBarTextSolo;
 local VUHDO_getLifeText;
 local VUHDO_decompressIfCompressed;
+local VUHDO_getBouquetGlobalOpacityNames;
 
 local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 
@@ -132,6 +133,7 @@ function VUHDO_bouquetLayersInitLocalOverrides()
 	VUHDO_getBarTextSolo = _G["VUHDO_getBarTextSolo"];
 	VUHDO_getLifeText = _G["VUHDO_getLifeText"];
 	VUHDO_decompressIfCompressed = _G["VUHDO_decompressIfCompressed"];
+	VUHDO_getBouquetGlobalOpacityNames = _G["VUHDO_getBouquetGlobalOpacityNames"];
 
 	sAlphaChainStepEntryPool = VUHDO_createTablePool("AlphaChainStepEntry", 100);
 	sAlphaChainPool = VUHDO_createTablePool("AlphaChain", 50, VUHDO_createAlphaChainDelegate, VUHDO_cleanupAlphaChainDelegate);
@@ -240,6 +242,8 @@ local tBarIndex;
 local tFrameGetter;
 local tIndicatorAddLevel;
 local tEntry;
+local tHealthBouquetName;
+local tHealthGlobalOpacityNames;
 function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBouquet, aPanelNum)
 
 	if not aBouquet or not sSecretsEnabled then
@@ -300,45 +304,57 @@ function VUHDO_buildGlobalAlphaChainsForIndicator(aButton, anIndicatorName, aBou
 
 	sGlobalAlphaChains[aButton][anIndicatorName] = tChain;
 
+	tHealthGlobalOpacityNames = nil;
+
+	if "MANA_BAR" == anIndicatorName and aPanelNum and VUHDO_INDICATOR_CONFIG[aPanelNum] then
+		tHealthBouquetName = VUHDO_INDICATOR_CONFIG[aPanelNum]["BOUQUETS"]["HEALTH_BAR"];
+
+		if tHealthBouquetName and tHealthBouquetName ~= "" then
+			tHealthGlobalOpacityNames = VUHDO_getBouquetGlobalOpacityNames(tHealthBouquetName);
+		end
+	end
+
 	for tCnt = 1, #aBouquet do
 		tItem = aBouquet[tCnt];
 		tSpecial = VUHDO_BOUQUET_BUFFS_SPECIAL[tItem["name"]];
 
 		if tSpecial and tSpecial["isGlobal"] and tItem["color"] and tItem["color"]["useOpacity"] and not tItem["color"]["useBackground"] then
-			tSecretType = tSpecial["secretType"] or VUHDO_SECRET_TYPE_NONE;
+			if not tHealthGlobalOpacityNames or not tHealthGlobalOpacityNames[tItem["name"]] then
+				tSecretType = tSpecial["secretType"] or VUHDO_SECRET_TYPE_NONE;
 
-			if tSecretType == VUHDO_SECRET_TYPE_BOOLEAN then
-				sWrapperNameCounter = sWrapperNameCounter + 1;
+				if tSecretType == VUHDO_SECRET_TYPE_BOOLEAN then
+					sWrapperNameCounter = sWrapperNameCounter + 1;
 
-				tWrapper = CreateFrame("Frame", tOriginalParent:GetName() .. "AlpWr" .. sWrapperNameCounter, tOriginalParent);
+					tWrapper = CreateFrame("Frame", tOriginalParent:GetName() .. "AlpWr" .. sWrapperNameCounter, tOriginalParent);
 
-				tWrapper:SetAllPoints(tOriginalParent);
+					tWrapper:SetAllPoints(tOriginalParent);
 
-				tWrapper["addLevel"] = tIndicatorAddLevel;
-				tWrapper:SetFrameLevel(tOriginalParent:GetFrameLevel());
+					tWrapper["addLevel"] = tIndicatorAddLevel;
+					tWrapper:SetFrameLevel(tOriginalParent:GetFrameLevel());
 
-				tWrapper:SetAlpha(1);
-				tWrapper:Show();
+					tWrapper:SetAlpha(1);
+					tWrapper:Show();
 
-				tEntry = sAlphaChainStepEntryPool:get();
+					tEntry = sAlphaChainStepEntryPool:get();
 
-				tEntry["frame"] = tWrapper;
-				tEntry["item"] = tItem;
-				tEntry["special"] = tSpecial;
-				tEntry["index"] = tCnt;
-				tEntry["trueAlpha"] = tSpecial["isInverted"] and 1 or (tItem["color"]["O"] or 1);
-				tEntry["falseAlpha"] = tSpecial["isInverted"] and (tItem["color"]["O"] or 1) or 1;
+					tEntry["frame"] = tWrapper;
+					tEntry["item"] = tItem;
+					tEntry["special"] = tSpecial;
+					tEntry["index"] = tCnt;
+					tEntry["trueAlpha"] = tSpecial["isInverted"] and 1 or (tItem["color"]["O"] or 1);
+					tEntry["falseAlpha"] = tSpecial["isInverted"] and (tItem["color"]["O"] or 1) or 1;
 
-				tinsert(tChain["steps"], tEntry);
-			else
-				tEntry = sAlphaChainStepEntryPool:get();
+					tinsert(tChain["steps"], tEntry);
+				else
+					tEntry = sAlphaChainStepEntryPool:get();
 
-				tEntry["item"] = tItem;
-				tEntry["special"] = tSpecial;
-				tEntry["index"] = tCnt;
-				tEntry["alpha"] = tItem["color"]["O"] or 1;
+					tEntry["item"] = tItem;
+					tEntry["special"] = tSpecial;
+					tEntry["index"] = tCnt;
+					tEntry["alpha"] = tItem["color"]["O"] or 1;
 
-				tinsert(tChain["nonSecretSteps"], tEntry);
+					tinsert(tChain["nonSecretSteps"], tEntry);
+				end
 			end
 		end
 	end

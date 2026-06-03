@@ -307,12 +307,12 @@
 
 			<Frame name="$parentOverhealTextPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="240" y="280" />
+					<AbsDimension x="240" y="328" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="280" y="-115" />
+							<AbsDimension x="280" y="-110" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -566,18 +566,76 @@
 						</Scripts>
 					</Frame>
 
-					<Button name="$parentTextIndicatorCombo" inherits="VuhDoComboBoxTemplate">
+					<Frame name="$parentTextIndicatorSourceLabel" inherits="VuhDoLabelFrameTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="18" y="-233" />
+									<AbsDimension x="22" y="-225" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Frame name="$parentTextIndicatorFormatLabel" inherits="VuhDoLabelFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="22" y="-270" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentTextIndicatorSourceCombo" inherits="VuhDoComboBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="18" y="-245" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								VUHDO_setComboModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.OVERHEAL_TEXT.TEXT_PROVIDER", VUHDO_TEXT_PROVIDER_COMBO_MODEL);
-								VUHDO_lnfSetTooltip(self, "Select a text provider for overheal text indicator");
+								VUHDO_setComboModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.OVERHEAL_TEXT.TEXT_PROVIDER_SOURCE", VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL);
+
+								self:SetAttribute("pairedFormatModel", "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.OVERHEAL_TEXT.TEXT_PROVIDER_FORMAT");
+								self:SetAttribute("custom_function", VUHDO_textProviderSourceChanged);
+
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL);
+							</OnLoad>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentTextIndicatorFormatCombo" inherits="VuhDoComboBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="18" y="-290" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.OVERHEAL_TEXT.TEXT_PROVIDER_FORMAT", nil);
+								VUHDO_initTextProviderFormatCombo(self, "VUHDO_INDICATOR_CONFIG.#PNUM#.TEXT_INDICATORS.OVERHEAL_TEXT.TEXT_PROVIDER_FORMAT");
+
+								self:SetAttribute("custom_function", VUHDO_textProviderFormatChanged);
+
+								_G[self:GetParent():GetName() .. "TextIndicatorSourceCombo"]:SetAttribute("pairedFormatCombo", self);
+
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL);
 							</OnLoad>
 						</Scripts>
 					</Button>

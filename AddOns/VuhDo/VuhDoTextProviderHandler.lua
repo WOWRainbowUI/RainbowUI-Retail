@@ -1,19 +1,30 @@
---local _ = _;
+local _;
+
 local pairs = pairs;
-
-
-
+local tinsert = table.insert;
+local twipe = table.wipe;
+local sort = table.sort;
 
 local VUHDO_RAID;
+local VUHDO_TEXT_PROVIDER_SOURCES;
+local VUHDO_TEXT_PROVIDER_FORMATS;
+local VUHDO_INDICATOR_CONFIG;
+local VUHDO_PANEL_MODELS;
 
-function VUHDO_textProviderHandlersInitLocalOverrides()
-	VUHDO_RAID = _G["VUHDO_RAID"];
-end
+local VUHDO_tableGetKeyFromValue;
+local VUHDO_getRegisteredBouquets;
+local VUHDO_getRegisteredBouquetIndicators;
+local VUHDO_updateBouquetsForEvent;
+local VUHDO_isBouquetInterestedInEvent;
+local VUHDO_strempty;
+local VUHDO_getActiveBouquets;
 
+VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL = { };
+local VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL = VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL;
 
+VUHDO_TEXT_PROVIDER_FORMAT_COMBO_MODEL = { };
+local VUHDO_TEXT_PROVIDER_FORMAT_COMBO_MODEL = VUHDO_TEXT_PROVIDER_FORMAT_COMBO_MODEL;
 
---
-VUHDO_TEXT_PROVIDER_COMBO_MODEL = { };
 local VUHDO_REGISTERED_PROVIDERS = { };
 setmetatable(VUHDO_REGISTERED_PROVIDERS, VUHDO_META_NEW_ARRAY);
 local VUHDO_INTERESTED_PROVIDERS = { };
@@ -21,18 +32,113 @@ setmetatable(VUHDO_INTERESTED_PROVIDERS, VUHDO_META_NEW_ARRAY);
 
 local VUHDO_INDICATOR_TEXT_PROVIDERS = { };
 
+local sFormatModelCache = { };
+local sResolvedProviders = { };
+setmetatable(sResolvedProviders, VUHDO_META_NEW_ARRAY);
+local sEmpty = { };
+
 
 
 --
-local function VUHDO_isTextProviderInterestedInEvent(aProviderName, anEventType)
+function VUHDO_textProviderHandlersInitLocalOverrides()
 
-	if not VUHDO_INTERESTED_PROVIDERS[aProviderName][anEventType] then
-		VUHDO_INTERESTED_PROVIDERS[aProviderName][anEventType] =
-			VUHDO_tableGetKeyFromValue(VUHDO_TEXT_PROVIDERS[aProviderName]["interests"], anEventType) ~= nil
+	VUHDO_RAID = _G["VUHDO_RAID"];
+	VUHDO_TEXT_PROVIDER_SOURCES = _G["VUHDO_TEXT_PROVIDER_SOURCES"];
+	VUHDO_TEXT_PROVIDER_FORMATS = _G["VUHDO_TEXT_PROVIDER_FORMATS"];
+	VUHDO_INDICATOR_CONFIG = _G["VUHDO_INDICATOR_CONFIG"];
+	VUHDO_PANEL_MODELS = _G["VUHDO_PANEL_MODELS"];
+
+	VUHDO_tableGetKeyFromValue = _G["VUHDO_tableGetKeyFromValue"];
+	VUHDO_getRegisteredBouquets = _G["VUHDO_getRegisteredBouquets"];
+	VUHDO_getRegisteredBouquetIndicators = _G["VUHDO_getRegisteredBouquetIndicators"];
+	VUHDO_updateBouquetsForEvent = _G["VUHDO_updateBouquetsForEvent"];
+	VUHDO_isBouquetInterestedInEvent = _G["VUHDO_isBouquetInterestedInEvent"];
+	VUHDO_strempty = _G["VUHDO_strempty"];
+	VUHDO_getActiveBouquets = _G["VUHDO_getActiveBouquets"];
+
+	return;
+
+end
+
+
+
+--
+local tSourceKey;
+local function VUHDO_isTextProviderInterestedInEvent(aResolved, anEventType)
+
+	if 1 == anEventType then -- VUHDO_UPDATE_ALL
+		return true;
+	end
+
+	if not aResolved then
+		return false;
+	end
+
+	tSourceKey = aResolved["sourceKey"];
+
+	if not VUHDO_INTERESTED_PROVIDERS[tSourceKey][anEventType] then
+		VUHDO_INTERESTED_PROVIDERS[tSourceKey][anEventType] =
+			VUHDO_tableGetKeyFromValue(aResolved["source"]["interests"], anEventType) ~= nil
 			and 1 or 0;
 	end
 
-	return 1 == VUHDO_INTERESTED_PROVIDERS[aProviderName][anEventType] or 1 == anEventType ; -- VUHDO_UPDATE_ALL
+	return 1 == VUHDO_INTERESTED_PROVIDERS[tSourceKey][anEventType];
+
+end
+
+
+
+--
+local tBouquets;
+local function VUHDO_isAnyIndicatorBouquetInterestedIn(anIndicatorName, anEventType)
+
+	tBouquets = VUHDO_getRegisteredBouquetIndicators(anIndicatorName);
+
+	if not tBouquets then
+		return false;
+	end
+
+	for tBouquetName, _ in pairs(tBouquets) do
+		if VUHDO_isBouquetInterestedInEvent(tBouquetName, anEventType) then
+			return true;
+		end
+	end
+
+	return false;
+
+end
+
+
+
+--
+local tBouquets;
+local tActiveBouquets;
+local tIsInactive;
+local function VUHDO_isIndicatorBouquetInactive(aUnit, anIndicatorName)
+
+	if not aUnit then
+		return false;
+	end
+
+	tBouquets = VUHDO_getRegisteredBouquetIndicators(anIndicatorName);
+
+	if not tBouquets then
+		return false;
+	end
+
+	tActiveBouquets = ((VUHDO_getActiveBouquets() or sEmpty)[aUnit] or sEmpty);
+	tIsInactive = false;
+
+	for tBouquetName, _ in pairs(tBouquets) do
+		if tActiveBouquets[tBouquetName] then
+			return false;
+		end
+
+		tIsInactive = true;
+	end
+
+	return tIsInactive;
+
 end
 
 
@@ -40,7 +146,8 @@ end
 --
 local tInfo;
 local tIndicators;
-local tValue, tMaxValue;
+local tValue;
+local tMaxValue;
 local tEmpty = { };
 function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName, anIsActive)
 
@@ -53,16 +160,15 @@ function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName,
 			if tIndicators then
 				for tIndicatorName, _ in pairs(tIndicators) do
 					if VUHDO_INDICATOR_TEXT_PROVIDERS[tIndicatorName] then
-						for tProviderName, tFunction in pairs(VUHDO_INDICATOR_TEXT_PROVIDERS[tIndicatorName]) do
-							if VUHDO_isTextProviderInterestedInEvent(tProviderName, anEventType) then
-								-- FIXME: hardcoded bouquet name check is fragile
-								if not anIsActive or
-									(aBouquetName == VUHDO_I18N_DEF_BOUQUET_BAR_MANA_HEALER_ONLY and tInfo["role"] ~= VUHDO_ID_RANGED_HEAL) then
-									tFunction(aUnit, tProviderName, "", tIndicatorName, "%s", "");
+						for tResolved, tFunction in pairs(VUHDO_INDICATOR_TEXT_PROVIDERS[tIndicatorName]) do
+							if VUHDO_isTextProviderInterestedInEvent(tResolved, anEventType) then
+								if not anIsActive then
+									tFunction(aUnit, tResolved, "", tIndicatorName, "%s", "");
 								else
-									tValue, tMaxValue = VUHDO_TEXT_PROVIDERS[tProviderName]["calculator"](tInfo);
+									tValue, tMaxValue = tResolved["source"]["calculator"](tInfo);
 
-									tFunction(aUnit, tProviderName, tValue, tIndicatorName, VUHDO_TEXT_PROVIDERS[tProviderName]["validator"](tInfo, tValue, tMaxValue));
+									tFunction(aUnit, tResolved, tValue, tIndicatorName,
+										tResolved["format"]["validator"](tInfo, tValue, tMaxValue));
 								end
 							end
 						end
@@ -70,23 +176,28 @@ function VUHDO_updateAllTextIndicatorsForEvent(aUnit, anEventType, aBouquetName,
 				end
 			end
 		else
-			for tProviderName, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
-				if VUHDO_isTextProviderInterestedInEvent(tProviderName, anEventType) then
+			for tResolved, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
+				if VUHDO_isTextProviderInterestedInEvent(tResolved, anEventType) then
 					for tIndicatorName, tFunction in pairs(tAllIndicators) do
-						if not VUHDO_getRegisteredBouquetIndicators(tIndicatorName) then
-							tValue, tMaxValue = VUHDO_TEXT_PROVIDERS[tProviderName]["calculator"](tInfo);
+						if not VUHDO_isAnyIndicatorBouquetInterestedIn(tIndicatorName, anEventType) then
+							if VUHDO_isIndicatorBouquetInactive(aUnit, tIndicatorName) then
+								tFunction(aUnit, tResolved, "", tIndicatorName, "%s", "");
+							else
+								tValue, tMaxValue = tResolved["source"]["calculator"](tInfo);
 
-							tFunction(aUnit, tProviderName, tValue, tIndicatorName, VUHDO_TEXT_PROVIDERS[tProviderName]["validator"](tInfo, tValue, tMaxValue));
+								tFunction(aUnit, tResolved, tValue, tIndicatorName,
+									tResolved["format"]["validator"](tInfo, tValue, tMaxValue));
+							end
 						end
 					end
 				end
 			end
 		end
 	elseif aUnit then
-		for tProviderName, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
-			if VUHDO_isTextProviderInterestedInEvent(tProviderName, anEventType) then
+		for tResolved, tAllIndicators in pairs(VUHDO_REGISTERED_PROVIDERS) do
+			if VUHDO_isTextProviderInterestedInEvent(tResolved, anEventType) then
 				for tIndicatorName, tFunction in pairs(tAllIndicators) do
-					tFunction(aUnit, tProviderName, "", tIndicatorName, "%s", "");
+					tFunction(aUnit, tResolved, "", tIndicatorName, "%s", "");
 				end
 			end
 		end
@@ -101,27 +212,29 @@ local VUHDO_updateAllTextIndicatorsForEvent = VUHDO_updateAllTextIndicatorsForEv
 
 --
 function VUHDO_isAnyTextIndicatorInterestedIn(anEventType)
-	for tProviderNameName, _ in pairs(VUHDO_REGISTERED_PROVIDERS) do
-		if VUHDO_isTextProviderInterestedInEvent(tProviderNameName, anEventType) then
+
+	for tResolved, _ in pairs(VUHDO_REGISTERED_PROVIDERS) do
+		if VUHDO_isTextProviderInterestedInEvent(tResolved, anEventType) then
 			return true;
 		end
 	end
 
 	return false;
+
 end
 
 
 
 --
-local function VUHDO_registerIndicatorForProvider(aProviderName, anIndicatorName, aFunction)
+local function VUHDO_registerIndicatorForProvider(aResolved, anIndicatorName, aFunction)
 
-	VUHDO_REGISTERED_PROVIDERS[aProviderName][anIndicatorName] = aFunction;
+	VUHDO_REGISTERED_PROVIDERS[aResolved][anIndicatorName] = aFunction;
 
 	if not VUHDO_INDICATOR_TEXT_PROVIDERS[anIndicatorName] then
 		VUHDO_INDICATOR_TEXT_PROVIDERS[anIndicatorName] = { };
 	end
 
-	VUHDO_INDICATOR_TEXT_PROVIDERS[anIndicatorName][aProviderName] = aFunction;
+	VUHDO_INDICATOR_TEXT_PROVIDERS[anIndicatorName][aResolved] = aFunction;
 
 	return;
 
@@ -130,37 +243,101 @@ end
 
 
 --
-local function VUHDO_registerIndicatorForProviderUnique(aProviderName, anIndicatorName, aFunction, anAlreadyRegistered)
+local tResolved;
+local function VUHDO_getOrCreateResolvedTextProvider(aSourceKey, aFormatKey)
 
-	if not anAlreadyRegistered then
-		return;
+	if VUHDO_strempty(aSourceKey) or VUHDO_strempty(aFormatKey) then
+		return nil;
 	end
 
-	if not VUHDO_strempty(aProviderName) and not VUHDO_strempty(anIndicatorName) and not anAlreadyRegistered[aProviderName .. anIndicatorName] then
-		VUHDO_registerIndicatorForProvider(aProviderName, anIndicatorName, aFunction);
-
-		anAlreadyRegistered[aProviderName .. anIndicatorName] = true;
+	if not sResolvedProviders[aSourceKey][aFormatKey] then
+		sResolvedProviders[aSourceKey][aFormatKey] = {
+			["source"] = VUHDO_TEXT_PROVIDER_SOURCES[aSourceKey],
+			["format"] = VUHDO_TEXT_PROVIDER_FORMATS[aFormatKey],
+			["sourceKey"] = aSourceKey,
+			["formatKey"] = aFormatKey,
+		};
 	end
+
+	return sResolvedProviders[aSourceKey][aFormatKey];
 
 end
 
 
 
 --
-local function VUHDO_initTextProviderComboModel()
-	table.wipe(VUHDO_TEXT_PROVIDER_COMBO_MODEL);
+local function VUHDO_registerIndicatorForProviderUnique(aSourceKey, aFormatKey, anIndicatorName, aFunction, anAlreadyRegistered)
 
-	for tName, tInfo in pairs(VUHDO_TEXT_PROVIDERS) do
-		tinsert(VUHDO_TEXT_PROVIDER_COMBO_MODEL, { tName, tInfo["displayName"] });
+	if not anAlreadyRegistered then
+		return;
 	end
 
-	table.sort(VUHDO_TEXT_PROVIDER_COMBO_MODEL,
+	tResolved = VUHDO_getOrCreateResolvedTextProvider(aSourceKey, aFormatKey);
+
+	if tResolved and not VUHDO_strempty(anIndicatorName)
+		and not (anAlreadyRegistered[tResolved] and anAlreadyRegistered[tResolved][anIndicatorName]) then
+
+		if not anAlreadyRegistered[tResolved] then
+			anAlreadyRegistered[tResolved] = { };
+		end
+
+		VUHDO_registerIndicatorForProvider(tResolved, anIndicatorName, aFunction);
+
+		anAlreadyRegistered[tResolved][anIndicatorName] = true;
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_initTextProviderSourceComboModel()
+
+	twipe(VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL);
+
+	for tName, tInfo in pairs(VUHDO_TEXT_PROVIDER_SOURCES) do
+		tinsert(VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL, { tName, tInfo["displayName"] });
+	end
+
+	sort(VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL,
 		function(anEntry, anotherEntry)
 			return anEntry[2] < anotherEntry[2];
 		end
 	);
 
-	tinsert(VUHDO_TEXT_PROVIDER_COMBO_MODEL, 1, { "", "- empty / nothing -" });
+	tinsert(VUHDO_TEXT_PROVIDER_SOURCE_COMBO_MODEL, 1, { "", "- empty / nothing -" });
+
+	return;
+
+end
+
+
+
+--
+local tFormatCnt;
+local tFormatKey;
+local tFormatInfo;
+function VUHDO_getFormatComboModelForSource(aSourceKey)
+
+	if not sFormatModelCache[aSourceKey] then
+		sFormatModelCache[aSourceKey] = { };
+
+		tinsert(sFormatModelCache[aSourceKey], { "", "- empty / nothing -" });
+
+		if aSourceKey ~= "" and VUHDO_TEXT_PROVIDER_SOURCES[aSourceKey] then
+			for tFormatCnt = 1, #VUHDO_TEXT_PROVIDER_SOURCES[aSourceKey]["supportedFormats"] do
+				tFormatKey = VUHDO_TEXT_PROVIDER_SOURCES[aSourceKey]["supportedFormats"][tFormatCnt];
+				tFormatInfo = VUHDO_TEXT_PROVIDER_FORMATS[tFormatKey];
+
+				tinsert(sFormatModelCache[aSourceKey], { tFormatKey, tFormatInfo["displayName"] });
+			end
+		end
+	end
+
+	return sFormatModelCache[aSourceKey];
+
 end
 
 
@@ -172,24 +349,31 @@ local VUHDO_TEXT_INDICATOR_CALLBACKS = {
 	["SIDE_LEFT"] = "VUHDO_sideLeftTextCallback",
 	["SIDE_RIGHT"] = "VUHDO_sideRightTextCallback",
 	["THREAT_BAR"] = "VUHDO_threatBarTextCallback",
-}
+};
 
 
 
 --
 local tAlreadyRegistered = { };
+local tSourceKey;
+local tFormatKey;
 function VUHDO_registerAllTextIndicators()
 
-	table.wipe(VUHDO_REGISTERED_PROVIDERS);
-	table.wipe(VUHDO_INTERESTED_PROVIDERS);
-	table.wipe(VUHDO_INDICATOR_TEXT_PROVIDERS);
+	twipe(VUHDO_REGISTERED_PROVIDERS);
+	twipe(VUHDO_INTERESTED_PROVIDERS);
+	twipe(VUHDO_INDICATOR_TEXT_PROVIDERS);
+	twipe(sFormatModelCache);
+	twipe(sResolvedProviders);
 
-	table.wipe(tAlreadyRegistered);
+	twipe(tAlreadyRegistered);
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		if VUHDO_PANEL_MODELS[tPanelNum] then
 			for tIndicatorName, tIndicatorConfig in pairs(VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"]) do
-				VUHDO_registerIndicatorForProviderUnique(tIndicatorConfig["TEXT_PROVIDER"], tIndicatorName, 
+				tSourceKey = tIndicatorConfig["TEXT_PROVIDER_SOURCE"] or "";
+				tFormatKey = tIndicatorConfig["TEXT_PROVIDER_FORMAT"] or "";
+
+				VUHDO_registerIndicatorForProviderUnique(tSourceKey, tFormatKey, tIndicatorName,
 					_G[VUHDO_TEXT_INDICATOR_CALLBACKS[tIndicatorName]], tAlreadyRegistered);
 			end
 		end
@@ -199,9 +383,22 @@ function VUHDO_registerAllTextIndicators()
 		VUHDO_updateBouquetsForEvent(tUnit, 1); -- VUHDO_UPDATE_ALL
 	end
 
-	VUHDO_initTextProviderComboModel();
+	VUHDO_initTextProviderSourceComboModel();
 
 	return;
+
+end
+
+
+
+--
+function VUHDO_getResolvedTextProvider(aSourceKey, aFormatKey)
+
+	if VUHDO_strempty(aSourceKey) or VUHDO_strempty(aFormatKey) then
+		return nil;
+	end
+
+	return (sResolvedProviders[aSourceKey] or sEmpty)[aFormatKey];
 
 end
 

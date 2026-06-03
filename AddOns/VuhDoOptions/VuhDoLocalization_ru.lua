@@ -521,7 +521,7 @@ VUHDO_I18N_TT.K356 = "Настройка позиции пользователь
 VUHDO_I18N_TT.K357 = "Выберите для отображения имени владельца питомца или машины в тексте имени";
 VUHDO_I18N_TT.K358 = "Выберите для настройки \"умного\" наложения заклинаний вне боя.";
 VUHDO_I18N_TT.K359 = "Выберите кнопку, активирующую режим \"умного\" наложения заклинаний.";
-VUHDO_I18N_TT.K360 = "Выберите это для автоматического срабатывания \"Возрождение\" на мертвом игроке в бою (только для друидов).";
+VUHDO_I18N_TT.K360 = "Select this to automatically trigger battle rez on dead players mid-fight, using your class spell and any battle rez items you carry.";
 VUHDO_I18N_TT.K361 = "Выберите для отображения панелей цели слева от полос здоровья."
 VUHDO_I18N_TT.K362 = "Выберите для отображения панелей цели справа от полос здоровья."
 VUHDO_I18N_TT.K363 = "Выберите чувствительность вспышки при уроне. Большее значение означает более частые вспышки (при меньшем уроне).";
@@ -983,6 +983,7 @@ VUHDO_I18N_TT.K823 = "Select when to show a dispel border or overlay (e.g. only 
 VUHDO_I18N_TT.K824 = "Show the Blizzard private aura dispel overlay for standard dispellable auras (Magic, Curse, etc.).";
 VUHDO_I18N_TT.K825 = "Select when to show a dispel overlay (e.g. only dispellable by you).";
 VUHDO_I18N_TT.K826 = "Shows every dispellable harmful aura (Magic, Curse, etc.) regardless of whether your current class/spec can dispel it.";
+VUHDO_I18N_TT.K827 = "Scale of stack and clock text on private aura icons.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Стандартный\nпрофиль";
 VUHDO_I18N_DEFAULT_LAYOUT = "Стандартная раскладка клавиш ";
@@ -1746,7 +1747,7 @@ VUHDO_I18N_SORT_NAME_ONLY = "Name Only";
 
 VUHDO_I18N_SPELL_SOURCE = "Spell Source";
 VUHDO_I18N_FULL_DURATION = "Full Duration";
-VUHDO_I18N_ALIVE_TIME = "Alive Time";
+VUHDO_I18N_ALIVE_TIME_INLINE = "Время Действия";
 VUHDO_I18N_TIMER_THRESHOLD = "Show Timer";
 VUHDO_I18N_GLOW_ICON = "Glow Icon";
 VUHDO_I18N_COLOR_ICON = "Color Icon";
@@ -1769,3 +1770,5 @@ VUHDO_I18N_PRIVATE_AURA_DISPEL_ALL = "All Dispellable Debuffs";
 VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE = "All Dispellable";
 
 VUHDO_I18N_AURA_COLOR_ALL_DISPEL = "All Dispels";
+
+VUHDO_I18N_PRIVATE_AURA_TEXT_SCALE = "Text Scale";

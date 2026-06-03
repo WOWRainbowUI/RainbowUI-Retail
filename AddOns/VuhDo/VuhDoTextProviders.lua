@@ -1,26 +1,30 @@
+local _;
+
 local floor = floor;
+local format = string.format;
+
 local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs;
 local UnitPower = UnitPower;
 local UnitPowerMax = UnitPowerMax;
-local _;
-
-local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
-
 local AbbreviateNumbers = AbbreviateNumbers;
 local UnitHealthPercent = UnitHealthPercent;
 local UnitPowerPercent = UnitPowerPercent;
 local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction;
 local CreateUnitHealPredictionCalculator = CreateUnitHealPredictionCalculator;
-
 local CurveConstants = CurveConstants;
+local CreateCurve = C_CurveUtil and C_CurveUtil.CreateCurve;
 local TruncateWhenZero = C_StringUtil and C_StringUtil.TruncateWhenZero;
+local FloorToNearestString = C_StringUtil and C_StringUtil.FloorToNearestString;
 local WrapString = C_StringUtil and C_StringUtil.WrapString;
+local issecretvalue = issecretvalue;
 
 local VUHDO_getIncHealOnUnit;
 local VUHDO_getUnitOverallShieldRemain;
-local issecretvalue;
 
+local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local sHealPredictionCalculator;
+local sScaleTo10Curve;
+local sScaleTo100CeilCurve;
 
 
 
@@ -29,8 +33,6 @@ function VUHDO_textProvidersInitLocalOverrides()
 
 	VUHDO_getIncHealOnUnit = _G["VUHDO_getIncHealOnUnit"];
 	VUHDO_getUnitOverallShieldRemain = _G["VUHDO_getUnitOverallShieldRemain"];
-
-	issecretvalue = _G["issecretvalue"];
 
 	sHealPredictionCalculator = nil;
 
@@ -43,6 +45,24 @@ function VUHDO_textProvidersInitLocalOverrides()
 			sHealPredictionCalculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MaximumHealth);
 			sHealPredictionCalculator:SetHealAbsorbMode(Enum.UnitHealAbsorbMode.Total);
 			sHealPredictionCalculator:SetIncomingHealOverflowPercent(1.0);
+		end
+
+		sScaleTo10Curve = CreateCurve and CreateCurve();
+
+		if sScaleTo10Curve then
+			sScaleTo10Curve:SetType(Enum.LuaCurveType.Linear);
+
+			sScaleTo10Curve:AddPoint(0.0, 0);
+			sScaleTo10Curve:AddPoint(1.0, 10);
+		end
+
+		sScaleTo100CeilCurve = CreateCurve and CreateCurve();
+
+		if sScaleTo100CeilCurve then
+			sScaleTo100CeilCurve:SetType(Enum.LuaCurveType.Linear);
+
+			sScaleTo100CeilCurve:AddPoint(0.0, 0.99999);
+			sScaleTo100CeilCurve:AddPoint(1.0, 100.99999);
 		end
 	end
 
@@ -99,104 +119,62 @@ local VUHDO_KILO_OPTIONS = VUHDO_KILO_OPTIONS;
 
 
 --
-local tChiCount;
-local tChiMax;
+local tCount;
+local tMax;
+local function VUHDO_secondaryPowerCalculator(anInfo, aTargetPowerType)
+
+	if not anInfo["unit"] or not anInfo["connected"] or anInfo["dead"] then
+		return 0, 0;
+	end
+
+	tCount = UnitPower(anInfo["unit"], aTargetPowerType);
+	tMax = UnitPowerMax(anInfo["unit"], aTargetPowerType);
+
+	if sSecretsEnabled and (issecretvalue(tCount) or issecretvalue(tMax)) then
+		return tCount, tMax;
+	end
+
+	if not tMax or tMax <= 0 then
+		return 0, 0;
+	end
+
+	return tCount, tMax;
+
+end
+
+
+
+--
 local function VUHDO_chiCalculator(anInfo)
 
-	if not anInfo["unit"] then
-		return "", nil;
-	end
-
-	if anInfo["connected"] and not anInfo["dead"] then
-		tChiCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_CHI);
-		tChiMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_CHI);
-
-		if sSecretsEnabled and (issecretvalue(tChiCount) or issecretvalue(tChiMax)) then
-			return tChiCount, tChiMax;
-		end
-
-		return (tChiCount > 0) and tChiCount or "", (tChiMax > 0) and tChiMax or "";
-	else
-		return "", nil;
-	end
+	return VUHDO_secondaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_CHI);
 
 end
 
 
 
 --
-local tHolyPowerCount;
-local tHolyPowerMax;
 local function VUHDO_holyPowerCalculator(anInfo)
 
-	if not anInfo["unit"] then
-		return "", nil;
-	end
-
-	if anInfo["connected"] and not anInfo["dead"] then
-		tHolyPowerCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_HOLY_POWER);
-		tHolyPowerMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_HOLY_POWER);
-
-		if sSecretsEnabled and (issecretvalue(tHolyPowerCount) or issecretvalue(tHolyPowerMax)) then
-			return tHolyPowerCount, tHolyPowerMax;
-		end
-
-		return (tHolyPowerCount > 0) and tHolyPowerCount or "", (tHolyPowerMax > 0) and tHolyPowerMax or "";
-	else
-		return "", nil;
-	end
+	return VUHDO_secondaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_HOLY_POWER);
 
 end
 
 
 
 --
-local tComboPointsCount;
-local tComboPointsMax;
 local function VUHDO_comboPointsCalculator(anInfo)
 
-	if not anInfo["unit"] then
-		return "", nil;
-	end
-
-	if anInfo["connected"] and not anInfo["dead"] then
-		tComboPointsCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_COMBO_POINTS);
-		tComboPointsMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_COMBO_POINTS);
-
-		if sSecretsEnabled and (issecretvalue(tComboPointsCount) or issecretvalue(tComboPointsMax)) then
-			return tComboPointsCount, tComboPointsMax;
-		end
-
-		return (tComboPointsCount > 0) and tComboPointsCount or "", (tComboPointsMax > 0) and tComboPointsMax or "";
-	else
-		return "", nil;
-	end
+	return VUHDO_secondaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_COMBO_POINTS);
 
 end
 
 
 
 --
-local tSoulShardsCount;
-local tSoulShardsMax;
 local function VUHDO_soulShardsCalculator(anInfo)
 
-	if not anInfo["unit"] then
-		return "", nil;
-	end
-
-	if anInfo["connected"] and not anInfo["dead"] then
-		tSoulShardsCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_SOUL_SHARDS);
-		tSoulShardsMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_SOUL_SHARDS);
-
-		if sSecretsEnabled and (issecretvalue(tSoulShardsCount) or issecretvalue(tSoulShardsMax)) then
-			return tSoulShardsCount, tSoulShardsMax;
-		end
-
-		return (tSoulShardsCount > 0) and tSoulShardsCount or "", (tSoulShardsMax > 0) and tSoulShardsMax or "";
-	else
-		return "", nil;
-	end
+	return VUHDO_secondaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_SOUL_SHARDS);
 
 end
 
@@ -211,17 +189,21 @@ local function VUHDO_runesCalculator(anInfo)
 	if anInfo["connected"] and not anInfo["dead"] and anInfo["unit"] == "player" then
 		tReadyRuneCount = 0;
 
-		for i = 1, 6 do
-			_, _, tIsRuneReady = GetRuneCooldown(i);
+		for tRuneIndex = 1, 6 do
+			_, _, tIsRuneReady = GetRuneCooldown(tRuneIndex);
 
 			tReadyRuneCount = tReadyRuneCount + (tIsRuneReady and 1 or 0);
 		end
 
 		tReadyRuneMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_RUNES);
 
-		return (tReadyRuneCount > 0) and tReadyRuneCount or "", (tReadyRuneMax > 0) and tReadyRuneMax or "";
+		if not tReadyRuneMax or tReadyRuneMax <= 0 then
+			return 0, 0;
+		end
+
+		return tReadyRuneCount, tReadyRuneMax;
 	else
-		return "", nil;
+		return 0, 0;
 	end
 
 end
@@ -229,26 +211,9 @@ end
 
 
 --
-local tArcaneChargesCount;
-local tArcaneChargesMax;
 local function VUHDO_arcaneChargesCalculator(anInfo)
 
-	if not anInfo["unit"] then
-		return "", nil;
-	end
-
-	if anInfo["connected"] and not anInfo["dead"] then
-		tArcaneChargesCount = UnitPower(anInfo["unit"], VUHDO_UNIT_POWER_ARCANE_CHARGES);
-		tArcaneChargesMax = UnitPowerMax(anInfo["unit"], VUHDO_UNIT_POWER_ARCANE_CHARGES);
-
-		if sSecretsEnabled and (issecretvalue(tArcaneChargesCount) or issecretvalue(tArcaneChargesMax)) then
-			return tArcaneChargesCount, tArcaneChargesMax;
-		end
-
-		return (tArcaneChargesCount > 0) and tArcaneChargesCount or "", (tArcaneChargesMax > 0) and tArcaneChargesMax or "";
-	else
-		return "", nil;
-	end
+	return VUHDO_secondaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_ARCANE_CHARGES);
 
 end
 
@@ -313,6 +278,7 @@ end
 
 
 --
+local tShieldValue;
 local function VUHDO_shieldAbsorbCalculator(anInfo)
 
 	if not anInfo["unit"] then
@@ -327,10 +293,14 @@ local function VUHDO_shieldAbsorbCalculator(anInfo)
 		sHealPredictionCalculator:ResetPredictedValues();
 		UnitGetDetailedHealPrediction(anInfo["unit"], "player", sHealPredictionCalculator);
 
-		return sHealPredictionCalculator:GetTotalDamageAbsorbs(), nil;
+		tShieldValue = sHealPredictionCalculator:GetTotalDamageAbsorbs();
+
+		return tShieldValue, nil;
 	end
 
-	return VUHDO_getUnitOverallShieldRemain(anInfo["unit"]), nil;
+	tShieldValue = VUHDO_getUnitOverallShieldRemain(anInfo["unit"]);
+
+	return tShieldValue, nil;
 
 end
 
@@ -384,6 +354,143 @@ local function VUHDO_manaCalculator(anInfo)
 end
 
 
+
+--
+local function VUHDO_primaryPowerCalculator(anInfo, aTargetPowerType)
+
+	if anInfo["powertype"] ~= aTargetPowerType then
+		return 0, 0;
+	end
+
+	if anInfo["power"] == nil or anInfo["powermax"] == nil then
+		return 0, 0;
+	end
+
+	if sSecretsEnabled and anInfo["hasSecretPower"] then
+		return anInfo["power"], anInfo["powermax"];
+	end
+
+	if anInfo["powermax"] <= 0 then
+		return 0, 0;
+	end
+
+	return anInfo["power"], anInfo["powermax"];
+
+end
+
+
+
+--
+local function VUHDO_rageCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_RAGE);
+
+end
+
+
+
+--
+local function VUHDO_focusCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_FOCUS);
+
+end
+
+
+
+--
+local function VUHDO_energyCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_ENERGY);
+
+end
+
+
+
+--
+local function VUHDO_runicPowerCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_RUNIC_POWER);
+
+end
+
+
+
+--
+local function VUHDO_lunarPowerCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_LUNAR_POWER);
+
+end
+
+
+
+--
+local function VUHDO_maelstromCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_MAELSTROM);
+
+end
+
+
+
+--
+local function VUHDO_insanityCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_INSANITY);
+
+end
+
+
+
+--
+local function VUHDO_furyCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_FURY);
+
+end
+
+
+
+--
+local function VUHDO_painCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_PAIN);
+
+end
+
+
+
+--
+local function VUHDO_essenceCalculator(anInfo)
+
+	return VUHDO_primaryPowerCalculator(anInfo, VUHDO_UNIT_POWER_ESSENCE);
+
+end
+
+
+
+--
+local function VUHDO_allPowersCalculator(anInfo)
+
+	if anInfo["power"] == nil or anInfo["powermax"] == nil then
+		return 0, 0;
+	end
+
+	if sSecretsEnabled and anInfo["hasSecretPower"] then
+		return anInfo["power"], anInfo["powermax"];
+	end
+
+	if anInfo["powermax"] <= 0 then
+		return 0, 0;
+	end
+
+	return anInfo["power"], anInfo["powermax"];
+
+end
+
+
+
 --
 local function VUHDO_threatCalculator(anInfo)
 
@@ -400,7 +507,7 @@ end
 local function VUHDO_kiloValidator(anInfo, aValue)
 
 	if sSecretsEnabled and issecretvalue(aValue) then
-		return "%s", TruncateWhenZero(aValue);
+		return "%s", AbbreviateNumbers(aValue, VUHDO_KILO_OPTIONS);
 	end
 
 	if aValue >= 500 then
@@ -415,7 +522,7 @@ end
 local function VUHDO_plusKiloValidator(anInfo, aValue)
 
 	if sSecretsEnabled and issecretvalue(aValue) then
-		return "%s", WrapString(TruncateWhenZero(aValue), "+");
+		return "%s", WrapString(AbbreviateNumbers(aValue, VUHDO_KILO_OPTIONS), "+");
 	end
 
 	if aValue >= 1000000 then
@@ -435,23 +542,29 @@ local function VUHDO_percentValidator(anInfo, aValue, aMaxValue)
 
 	tIsHealth = (not anInfo["powertype"] or anInfo["powertype"] == -1);
 
+	if not tIsHealth and not issecretvalue(aMaxValue) and aMaxValue == 0 then
+		return "%s", "";
+	end
+
 	if sSecretsEnabled then
 		if not anInfo["unit"] then
 			return "%s", "";
 		end
 
 		if tIsHealth and anInfo["hasSecretHealth"] then
-			tPercent = UnitHealthPercent(anInfo["unit"], true, CurveConstants.ScaleTo100);
+			tPercent = UnitHealthPercent(anInfo["unit"], true, sScaleTo100CeilCurve);
 
-			return "%.0f%%", tPercent;
+			return "%d%%", tPercent;
 		elseif not tIsHealth and anInfo["hasSecretPower"] then
 			tPercent = UnitPowerPercent(anInfo["unit"], anInfo["powertype"] or 0, false, CurveConstants.ScaleTo100);
 
-			return "%.0f%%", tPercent;
+			return "%d%%", tPercent;
+		elseif issecretvalue(aValue) or issecretvalue(aMaxValue) then
+			return "%s", "";
 		end
 	end
 
-	if anInfo["powertype"] == 0 and anInfo["powermax"] > 0 then
+	if aMaxValue and aMaxValue > 0 then
 		return "%d%%", 100 * aValue / aMaxValue;
 	end
 
@@ -467,12 +580,12 @@ local function VUHDO_tenthPercentValidator(anInfo, aValue, aMaxValue)
 			return "%s", "";
 		end
 
-		tPercent = UnitPowerPercent(anInfo["unit"], anInfo["powertype"] or 0, false, CurveConstants.ScaleTo100);
+		tPercent = UnitPowerPercent(anInfo["unit"], anInfo["powertype"] or 0, false, sScaleTo10Curve);
 
-		return "%.0f", tPercent;
+		return "%d", tPercent;
 	end
 
-	if anInfo["powertype"] == 0 and anInfo["powermax"] > 0 then
+	if aMaxValue and aMaxValue > 0 then
 		return "%d", 10 * aValue / aMaxValue;
 	end
 
@@ -481,24 +594,28 @@ local function VUHDO_tenthPercentValidator(anInfo, aValue, aMaxValue)
 end
 
 
+
+--
 local tValueStr;
 local tMaxStr;
 local function VUHDO_unitOfUnitValidator(anInfo, aValue, aMaxValue)
 
 	if sSecretsEnabled and (issecretvalue(aValue) or issecretvalue(aMaxValue)) then
-		tValueStr = AbbreviateNumbers(aValue);
-		tMaxStr = AbbreviateNumbers(aMaxValue);
+		tValueStr = FloorToNearestString(aValue);
+		tMaxStr = FloorToNearestString(aMaxValue);
 
 		return "%s/%s", tValueStr, tMaxStr;
 	end
 
-	if anInfo["powertype"] == 0 then
+	if aMaxValue and aMaxValue > 0 then
 		return "%d/%d", aValue, aMaxValue;
 	end
 
 	return "%s", "";
 
 end
+
+
 
 --
 local function VUHDO_kiloOfKiloValidator(anInfo, aValue, aMaxValue)
@@ -510,13 +627,15 @@ local function VUHDO_kiloOfKiloValidator(anInfo, aValue, aMaxValue)
 		return "%s/%s", tValueStr, tMaxStr;
 	end
 
-	if anInfo["powertype"] == 0 then
+	if aMaxValue and aMaxValue > 0 then
 		return "%d/%d", floor(aValue * 0.001), floor(aMaxValue * 0.001);
 	end
 
 	return "%s", "";
 
 end
+
+
 
 --
 local function VUHDO_absoluteValidator(anInfo, aValue)
@@ -535,133 +654,401 @@ end
 
 
 
----------------------------------------------------------------------------------
+--
+local tKiloStr;
+local tPercentStr;
+local function VUHDO_kiloPercentValidator(anInfo, aValue, aMaxValue)
 
+	tKiloStr = format(VUHDO_kiloValidator(anInfo, aValue));
+	tPercentStr = format(VUHDO_percentValidator(anInfo, aValue, aMaxValue));
+
+	return "%s (%s)", tKiloStr, tPercentStr;
+
+end
+
+
+
+--
+local function VUHDO_kiloOfKiloPercentValidator(anInfo, aValue, aMaxValue)
+
+	tKiloStr = format(VUHDO_kiloOfKiloValidator(anInfo, aValue, aMaxValue));
+	tPercentStr = format(VUHDO_percentValidator(anInfo, aValue, aMaxValue));
+
+	return "%s (%s)", tKiloStr, tPercentStr;
+
+end
+
+
+
+local VUHDO_LEGACY_TEXT_PROVIDER_MIGRATION = {
+	[""] = {
+		["source"] = "",
+		["format"] = "",
+	},
+	["OVERHEAL_KILO_N_K"] = {
+		["source"] = "OVERHEAL",
+		["format"] = "NK",
+	},
+	["OVERHEAL_KILO_PLUS_N_K"] = {
+		["source"] = "OVERHEAL",
+		["format"] = "NK_PLUS",
+	},
+	["INCOMING_HEAL_NK"] = {
+		["source"] = "INCOMING_HEAL",
+		["format"] = "NK",
+	},
+	["SHIELD_ABSORB_OVERALL_N_K"] = {
+		["source"] = "SHIELD_ABSORB",
+		["format"] = "NK",
+	},
+	["HEAL_ABSORB_TOTAL_N_K"] = {
+		["source"] = "HEAL_ABSORB",
+		["format"] = "NK",
+	},
+	["THREAT_PERCENT"] = {
+		["source"] = "THREAT",
+		["format"] = "PERCENT",
+	},
+	["MANA_PERCENT"] = {
+		["source"] = "MANA",
+		["format"] = "PERCENT",
+	},
+	["MANA_PERCENT_TENTH"] = {
+		["source"] = "MANA",
+		["format"] = "PERCENT_TENTH",
+	},
+	["MANA_UNIT_OF_UNIT"] = {
+		["source"] = "MANA",
+		["format"] = "UNIT_OF_UNIT",
+	},
+	["MANA_KILO_OF_KILO"] = {
+		["source"] = "MANA",
+		["format"] = "KILO_OF_KILO",
+	},
+	["MANA_N"] = {
+		["source"] = "MANA",
+		["format"] = "N",
+	},
+	["MANA_NK"] = {
+		["source"] = "MANA",
+		["format"] = "NK",
+	},
+	["CHI_N"] = {
+		["source"] = "CHI",
+		["format"] = "N",
+	},
+	["HOLY_POWER_N"] = {
+		["source"] = "HOLY_POWER",
+		["format"] = "N",
+	},
+	["COMBO_POINTS_N"] = {
+		["source"] = "COMBO_POINTS",
+		["format"] = "N",
+	},
+	["SOUL_SHARDS_N"] = {
+		["source"] = "SOUL_SHARDS",
+		["format"] = "N",
+	},
+	["RUNES_N"] = {
+		["source"] = "RUNES",
+		["format"] = "N",
+	},
+	["ARCANE_CHARGES_N"] = {
+		["source"] = "ARCANE_CHARGES",
+		["format"] = "N",
+	},
+};
+
+
+
+--
+local tLegacy;
+local tMapped;
+function VUHDO_migrateLegacyTextProvider(aTextIndicatorConfig)
+
+	if aTextIndicatorConfig["TEXT_PROVIDER"] == nil then
+		return;
+	end
+
+	tLegacy = aTextIndicatorConfig["TEXT_PROVIDER"] or "";
+	tMapped = VUHDO_LEGACY_TEXT_PROVIDER_MIGRATION[tLegacy];
+
+	if tMapped then
+		aTextIndicatorConfig["TEXT_PROVIDER_SOURCE"] = tMapped["source"];
+		aTextIndicatorConfig["TEXT_PROVIDER_FORMAT"] = tMapped["format"];
+	else
+		aTextIndicatorConfig["TEXT_PROVIDER_SOURCE"] = "";
+		aTextIndicatorConfig["TEXT_PROVIDER_FORMAT"] = "";
+	end
+
+	aTextIndicatorConfig["TEXT_PROVIDER"] = nil;
+
+	return;
+
+end
+
+
+
+--
+local tSourceKey;
+local tFormatKey;
+local tSourceEntry;
+local tIsFormatSupported;
+local function VUHDO_validateTextIndicatorProvider(aTextIndicatorConfig)
+
+	tSourceKey = aTextIndicatorConfig["TEXT_PROVIDER_SOURCE"] or "";
+	tFormatKey = aTextIndicatorConfig["TEXT_PROVIDER_FORMAT"] or "";
+
+	if tSourceKey == "" then
+		aTextIndicatorConfig["TEXT_PROVIDER_FORMAT"] = "";
+
+		return;
+	end
+
+	tSourceEntry = VUHDO_TEXT_PROVIDER_SOURCES[tSourceKey];
+
+	if not tSourceEntry then
+		aTextIndicatorConfig["TEXT_PROVIDER_SOURCE"] = "";
+		aTextIndicatorConfig["TEXT_PROVIDER_FORMAT"] = "";
+
+		return;
+	end
+
+	tIsFormatSupported = false;
+
+	for tFormatCnt = 1, #tSourceEntry["supportedFormats"] do
+		if tSourceEntry["supportedFormats"][tFormatCnt] == tFormatKey then
+			tIsFormatSupported = true;
+
+			break;
+		end
+	end
+
+	if not tIsFormatSupported then
+		aTextIndicatorConfig["TEXT_PROVIDER_FORMAT"] = tSourceEntry["defaultFormat"];
+	end
+
+	return;
+
+end
+
+
+
+--
 function VUHDO_initTextProviderConfig()
 
 	for tPanelNum = 1, 10 do -- VUHDO_MAX_PANELS
 		for _, tIndicatorConfig in pairs(VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"]) do
-			local tProviderName = tIndicatorConfig["TEXT_PROVIDER"];
-
-			if not VUHDO_TEXT_PROVIDERS[tProviderName] then
-				tIndicatorConfig["TEXT_PROVIDER"] = "";
-			end
+			VUHDO_validateTextIndicatorProvider(tIndicatorConfig);
 		end
 	end
 
+	return;
+
 end
 
-------------------------------------------------------------------------------------
 
 
-
-VUHDO_TEXT_PROVIDERS = {
-	["OVERHEAL_KILO_N_K"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_OVERHEAL,
-		["calculator"] = VUHDO_overhealCalculator,
-		["validator"] = VUHDO_kiloValidator,
-		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_ALIVE },
+--
+VUHDO_TEXT_PROVIDER_SOURCES = {
+	["MANA"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_MANA,
+		["calculator"] = VUHDO_manaCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
 	},
-	["OVERHEAL_KILO_PLUS_N_K"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_OVERHEAL_PLUS,
-		["calculator"] = VUHDO_overhealCalculator,
-		["validator"] = VUHDO_plusKiloValidator,
-		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_ALIVE },
+	["RAGE"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_RAGE,
+		["calculator"] = VUHDO_rageCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
 	},
-	["INCOMING_HEAL_NK"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_INCOMING_HEAL,
-		["calculator"] = VUHDO_incomingHealCalculator,
-		["validator"] = VUHDO_kiloValidator,
-		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_ALIVE },
+	["FOCUS"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_FOCUS,
+		["calculator"] = VUHDO_focusCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
 	},
-	["SHIELD_ABSORB_OVERALL_N_K"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SHIELD_ABSORB,
-		["calculator"] = VUHDO_shieldAbsorbCalculator,
-		["validator"] = VUHDO_kiloValidator,
-		["interests"] = { VUHDO_UPDATE_SHIELD },
+	["ENERGY"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_ENERGY,
+		["calculator"] = VUHDO_energyCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
 	},
-	["HEAL_ABSORB_TOTAL_N_K"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_HEAL_ABSORB,
-		["calculator"] = VUHDO_healAbsorbCalculator,
-		["validator"] = VUHDO_kiloValidator,
-		["interests"] = { VUHDO_UPDATE_SHIELD },
+	["RUNIC_POWER"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_RUNIC_POWER,
+		["calculator"] = VUHDO_runicPowerCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
 	},
-	["THREAT_PERCENT"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_THREAT,
-		["calculator"] = VUHDO_threatCalculator,
-		["validator"] = VUHDO_percentValidator,
-		["interests"] = { VUHDO_UPDATE_THREAT_PERC },
+	["LUNAR_POWER"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_LUNAR_POWER,
+		["calculator"] = VUHDO_lunarPowerCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
 	},
-	["CHI_N"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_CHI,
+	["MAELSTROM"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_MAELSTROM,
+		["calculator"] = VUHDO_maelstromCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
+	},
+	["INSANITY"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_INSANITY,
+		["calculator"] = VUHDO_insanityCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
+	},
+	["FURY"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_FURY,
+		["calculator"] = VUHDO_furyCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
+	},
+	["PAIN"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_PAIN,
+		["calculator"] = VUHDO_painCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
+	},
+	["ESSENCE"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_ESSENCE,
+		["calculator"] = VUHDO_essenceCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
+	},
+	["ALL_POWERS"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_ALL_POWERS,
+		["calculator"] = VUHDO_allPowersCalculator,
+		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_OTHER_POWERS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "PERCENT_TENTH", "UNIT_OF_UNIT", "KILO_OF_KILO", "N", "NK", "NK_PERCENT", "KILO_OF_KILO_PERCENT" },
+		["defaultFormat"] = "PERCENT",
+	},
+	["CHI"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_CHI,
 		["calculator"] = VUHDO_chiCalculator,
-		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_CHI, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "UNIT_OF_UNIT", "N" },
+		["defaultFormat"] = "N",
 	},
-	["HOLY_POWER_N"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_HOLY_POWER,
+	["HOLY_POWER"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_HOLY_POWER,
 		["calculator"] = VUHDO_holyPowerCalculator,
-		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_OWN_HOLY_POWER, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "UNIT_OF_UNIT", "N" },
+		["defaultFormat"] = "N",
 	},
-	["COMBO_POINTS_N"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_COMBO_POINTS,
+	["COMBO_POINTS"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_COMBO_POINTS,
 		["calculator"] = VUHDO_comboPointsCalculator,
-		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_COMBO_POINTS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "UNIT_OF_UNIT", "N" },
+		["defaultFormat"] = "N",
 	},
-	["SOUL_SHARDS_N"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOUL_SHARDS,
+	["SOUL_SHARDS"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_SOUL_SHARDS,
 		["calculator"] = VUHDO_soulShardsCalculator,
-		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_SOUL_SHARDS, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "UNIT_OF_UNIT", "N" },
+		["defaultFormat"] = "N",
 	},
-	["RUNES_N"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_RUNES,
+	["RUNES"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_RUNES,
 		["calculator"] = VUHDO_runesCalculator,
-		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_RUNES, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "UNIT_OF_UNIT", "N" },
+		["defaultFormat"] = "N",
 	},
-	["ARCANE_CHARGES_N"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_ARCANE_CHARGES,
+	["ARCANE_CHARGES"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_ARCANE_CHARGES,
 		["calculator"] = VUHDO_arcaneChargesCalculator,
-		["validator"] = VUHDO_absoluteValidator,
 		["interests"] = { VUHDO_UPDATE_ARCANE_CHARGES, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT", "UNIT_OF_UNIT", "N" },
+		["defaultFormat"] = "N",
 	},
-	["MANA_PERCENT"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT,
-		["calculator"] = VUHDO_manaCalculator,
+	["THREAT"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_THREAT,
+		["calculator"] = VUHDO_threatCalculator,
+		["interests"] = { VUHDO_UPDATE_THREAT_PERC, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "PERCENT" },
+		["defaultFormat"] = "PERCENT",
+	},
+	["OVERHEAL"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_OVERHEAL,
+		["calculator"] = VUHDO_overhealCalculator,
+		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "NK", "NK_PLUS" },
+		["defaultFormat"] = "NK_PLUS",
+	},
+	["INCOMING_HEAL"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_INCOMING_HEAL,
+		["calculator"] = VUHDO_incomingHealCalculator,
+		["interests"] = { VUHDO_UPDATE_INC, VUHDO_UPDATE_HEALTH, VUHDO_UPDATE_RANGE, VUHDO_UPDATE_HEALTH_MAX, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "N", "NK" },
+		["defaultFormat"] = "NK",
+	},
+	["SHIELD_ABSORB"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_SHIELD_ABSORB,
+		["calculator"] = VUHDO_shieldAbsorbCalculator,
+		["interests"] = { VUHDO_UPDATE_SHIELD, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "N", "NK" },
+		["defaultFormat"] = "NK",
+	},
+	["HEAL_ABSORB"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_SOURCE_HEAL_ABSORB,
+		["calculator"] = VUHDO_healAbsorbCalculator,
+		["interests"] = { VUHDO_UPDATE_SHIELD, VUHDO_UPDATE_DC, VUHDO_UPDATE_ALIVE },
+		["supportedFormats"] = { "N", "NK" },
+		["defaultFormat"] = "NK",
+	},
+};
+
+VUHDO_TEXT_PROVIDER_FORMATS = {
+	["PERCENT"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_PERCENT,
 		["validator"] = VUHDO_percentValidator,
-		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
-	["MANA_PERCENT_TENTH"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_PERCENT_TENTH,
-		["calculator"] = VUHDO_manaCalculator,
+	["PERCENT_TENTH"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_PERCENT_TENTH,
 		["validator"] = VUHDO_tenthPercentValidator,
-		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
-	["MANA_UNIT_OF_UNIT"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_UNIT_OF,
-		["calculator"] = VUHDO_manaCalculator,
+	["UNIT_OF_UNIT"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_UNIT_OF_UNIT,
 		["validator"] = VUHDO_unitOfUnitValidator,
-		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
-	["MANA_KILO_OF_KILO"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_KILO_OF,
-		["calculator"] = VUHDO_manaCalculator,
+	["KILO_OF_KILO"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_KILO_OF_KILO,
 		["validator"] = VUHDO_kiloOfKiloValidator,
-		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
-	["MANA_N"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA,
-		["calculator"] = VUHDO_manaCalculator,
+	["N"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_N,
 		["validator"] = VUHDO_absoluteValidator,
-		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
 	},
-	["MANA_NK"] = {
-		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_MANA_KILO,
-		["calculator"] = VUHDO_manaCalculator,
+	["NK"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_NK,
 		["validator"] = VUHDO_kiloValidator,
-		["interests"] = { VUHDO_UPDATE_MANA, VUHDO_UPDATE_DC },
+	},
+	["NK_PLUS"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_NK_PLUS,
+		["validator"] = VUHDO_plusKiloValidator,
+	},
+	["NK_PERCENT"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_NK_PERCENT,
+		["validator"] = VUHDO_kiloPercentValidator,
+	},
+	["KILO_OF_KILO_PERCENT"] = {
+		["displayName"] = VUHDO_I18N_TEXT_PROVIDER_FORMAT_KILO_OF_KILO_PERCENT,
+		["validator"] = VUHDO_kiloOfKiloPercentValidator,
 	},
 };

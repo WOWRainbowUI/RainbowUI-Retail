@@ -434,7 +434,7 @@ VUHDO_I18N_TT.K356 = "橫向調節自定義減益圖標位置.";
 VUHDO_I18N_TT.K357 = "用名字文本顯示寵物/載具主人";
 VUHDO_I18N_TT.K358 = "設置非戰斗狀態下的智能施法功能";
 VUHDO_I18N_TT.K359 = "為智能施法指定一個組合按鍵.";
-VUHDO_I18N_TT.K360 = "戰鬥中自動觸發戰復(限德魯伊)";
+VUHDO_I18N_TT.K360 = "Select this to automatically trigger battle rez on dead players mid-fight, using your class spell and any battle rez items you carry.";
 VUHDO_I18N_TT.K361 = "在血條左邊顯示目標條."
 VUHDO_I18N_TT.K362 = "在血條右邊顯示目標條."
 VUHDO_I18N_TT.K363 = "傷害閃爍靈敏度. 較大的數值意味著(對更低的傷害)更強的閃爍 .";
@@ -880,6 +880,7 @@ VUHDO_I18N_TT.K823 = "Select when to show a dispel border or overlay (e.g. only 
 VUHDO_I18N_TT.K824 = "Show the Blizzard private aura dispel overlay for standard dispellable auras (Magic, Curse, etc.).";
 VUHDO_I18N_TT.K825 = "Select when to show a dispel overlay (e.g. only dispellable by you).";
 VUHDO_I18N_TT.K826 = "Shows every dispellable harmful aura (Magic, Curse, etc.) regardless of whether your current class/spec can dispel it.";
+VUHDO_I18N_TT.K827 = "Scale of stack and clock text on private aura icons.";
 
 VUHDO_I18N_DEFAULT_PROFILE = "Default Profile";
 VUHDO_I18N_DEFAULT_LAYOUT = "Default Layout";
@@ -1572,7 +1573,7 @@ VUHDO_I18N_SORT_NAME_ONLY = "Name Only";
 
 VUHDO_I18N_SPELL_SOURCE = "Spell Source";
 VUHDO_I18N_FULL_DURATION = "Full Duration";
-VUHDO_I18N_ALIVE_TIME = "Alive Time";
+VUHDO_I18N_ALIVE_TIME_INLINE = "Alive Time";
 VUHDO_I18N_TIMER_THRESHOLD = "Show Timer";
 VUHDO_I18N_GLOW_ICON = "Glow Icon";
 VUHDO_I18N_COLOR_ICON = "Color Icon";
@@ -1595,3 +1596,5 @@ VUHDO_I18N_PRIVATE_AURA_DISPEL_ALL = "All Dispellable Debuffs";
 VUHDO_I18N_AURA_FILTER_HARMFUL_ALL_DISPELLABLE = "All Dispellable";
 
 VUHDO_I18N_AURA_COLOR_ALL_DISPEL = "All Dispels";
+
+VUHDO_I18N_PRIVATE_AURA_TEXT_SCALE = "Text Scale";
