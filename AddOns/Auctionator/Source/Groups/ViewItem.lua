@@ -95,7 +95,7 @@ end
 
 -- Adds Dragonflight (10.0) crafting quality icon for reagents on retail only
 function AuctionatorGroupsViewItemMixin:ApplyQualityIcon(itemLink)
-  if C_TradeSkillUI and C_TradeSkillUI.GetItemReagentQualityInfo then
+  if Auctionator.Constants.IsRetail then
     local info = C_TradeSkillUI.GetItemReagentQualityInfo(itemLink)
     if info ~= nil then
       if not self.ProfessionQualityOverlay then
