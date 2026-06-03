@@ -19,7 +19,7 @@ function AuctionatorItemKeyLoadingMixin:ProcessItemKey(rowEntry, itemKeyInfo)
     itemKeyInfo,
     false
   )
-  if C_TradeSkillUI and C_TradeSkillUI.GetItemReagentQualityByItemInfo then
+  if Auctionator.Constants.IsRetail then
     local info = C_TradeSkillUI.GetItemReagentQualityInfo(rowEntry.itemKey.itemID)
     if info then
       text = text .. " " .. CreateAtlasMarkup(info.iconChat, 17, 17)
