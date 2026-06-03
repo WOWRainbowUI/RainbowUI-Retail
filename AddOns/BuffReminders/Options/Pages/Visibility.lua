@@ -17,6 +17,7 @@ local Helpers = BR.Options.Helpers
 local UpdateDisplay = BR.Display.Update
 
 local LayoutSectionHeader = Helpers.LayoutSectionHeader
+local LayoutSectionNote = Helpers.LayoutSectionNote
 local MakeProfileGetter = Helpers.MakeProfileGetter
 local MakeProfileSetter = Helpers.MakeProfileSetter
 
@@ -166,6 +167,11 @@ local function BuildTrackingSection(content, layout)
         end,
     })
     layout:Add(trackingModeHolder, nil, COMPONENT_GAP)
+end
+
+local function BuildTrackingOverridesSection(content, layout)
+    LayoutSectionHeader(layout, content, L["Section.TrackingOverrides"])
+    LayoutSectionNote(layout, content, L["Section.TrackingOverrides.Desc"])
 
     local selfOnlyOutsideHolder = Components.Checkbox(content, {
         label = L["Options.BuffTracking.SelfOnlyOutsideInstances"],
@@ -184,6 +190,28 @@ local function BuildTrackingSection(content, layout)
         end,
     })
     layout:Add(selfOnlyOutsideHolder, nil, COMPONENT_GAP)
+
+    local hideOthersInCombatHolder = Components.Checkbox(content, {
+        label = L["Options.BuffTracking.HideOthersInCombat"],
+        tooltip = {
+            title = L["Options.BuffTracking.HideOthersInCombat"],
+            desc = L["Options.BuffTracking.HideOthersInCombat.Desc"],
+        },
+        get = function()
+            return BR.Config.Get("hideOthersInCombat", false)
+        end,
+        enabled = function()
+            if BR.profile.hideInCombat == true then
+                return false
+            end
+            local mode = BR.Config.Get("buffTrackingMode", "all")
+            return mode == "all" or mode == "smart"
+        end,
+        onChange = function(checked)
+            BR.Config.Set("hideOthersInCombat", checked)
+        end,
+    })
+    layout:Add(hideOthersInCombatHolder, nil, COMPONENT_GAP)
 end
 
 local function Build(content)
@@ -191,6 +219,7 @@ local function Build(content)
 
     BuildHideWhenSection(content, layout)
     BuildTrackingSection(content, layout)
+    BuildTrackingOverridesSection(content, layout)
 
     content:SetHeight(abs(layout:GetY()) + 20)
 end

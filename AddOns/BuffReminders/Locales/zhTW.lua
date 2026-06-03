@@ -284,6 +284,9 @@ L["Page.Sounds.Desc"] =
 
 -- Per-category page section headers
 L["Section.Tracking"] = "追蹤"
+L["Section.TrackingOverrides"] = "追蹤覆寫"
+L["Section.TrackingOverrides.Desc"] =
+    "在特定條件下自動縮小追蹤模式的範圍，無論上方的選擇為何。"
 
 -- ============================================================================
 -- OPTIONS: SOUND ALERTS
@@ -394,8 +397,7 @@ L["Options.Soulstone.ReadyCheckDesc"] = "在準備確認後15秒內顯示"
 L["Options.Soulstone.WarlockAlwaysDesc"] = "術士始終顯示提示，其他職業僅在準備確認時顯示"
 L["Options.Soulstone.AlwaysDesc"] = "只要職業增益類別可見就顯示"
 L["Options.Soulstone.HideCooldown"] = "冷卻時隱藏（術士）"
-L["Options.Soulstone.HideCooldown.Desc"] =
-    "啟用後，當靈魂石法術處於冷卻中時，不會向術士顯示提示。僅適用於術士。"
+L["Options.Soulstone.HideCooldown.Desc"] = "啟用後，當靈魂石法術處於冷卻中時，不會向術士顯示提示。僅適用於術士。"
 
 -- ============================================================================
 -- OPTIONS: FREE CONSUMABLES
@@ -411,7 +413,7 @@ L["Options.FreeConsumables.Override.Desc"] =
 -- ============================================================================
 L["Options.Icons"] = "圖示"
 L["Options.ShowText"] = "在圖示上顯示文字"
-L["Options.ShowText.Desc"] = "在此類別的增益圖示上顯示層數或缺失文字覆蓋。"
+L["Options.ShowText.Desc"] = "在此分類的增益圖示上顯示數量與缺少增益的文字覆蓋層。到期倒數計時器將始終保持顯示。"
 L["Options.ShowMissingCountOnly"] = "僅顯示缺失數量"
 L["Options.ShowMissingCountOnly.Desc"] =
     "僅顯示缺失增益的數量（例如：”1“），而不是完整的分數形式（例如：”19/20“）。"
@@ -680,9 +682,12 @@ L["Options.BuffTracking.Smart.Desc"] =
 L["Options.BuffTracking.Mode"] = "增益追蹤模式"
 L["Options.BuffTracking.Mode.Desc"] =
     "設置要顯示的團隊和職業增益，以及是追蹤整個隊伍還是僅追蹤自身。"
-L["Options.BuffTracking.SelfOnlyOutsideInstances"] = "強制在地下城與團隊副本之外只有自己"
+L["Options.BuffTracking.SelfOnlyOutsideInstances"] = '在副本與團隊副本外使用「僅追蹤我自己的增益，且只套用於我」'
 L["Options.BuffTracking.SelfOnlyOutsideInstances.Desc"] =
-    "當啟用以後，在開放世界中，只會追蹤您自己的職業增益。選定的追蹤模式仍然在地下城、團隊副本、場景和 PvP中使用。"
+    "在開放世界中使用「僅追蹤我自己的增益，且只套用於我」。在副本、團隊副本、事件及 PvP 中仍會使用所選的追蹤模式。"
+L["Options.BuffTracking.HideOthersInCombat"] = '在戰鬥中使用「僅追蹤我自己的增益，所有玩家」'
+L["Options.BuffTracking.HideOthersInCombat.Desc"] =
+    "在戰鬥中使用「僅追蹤我自己的增益，所有玩家」。其他職業的增益提醒（例如：非德魯伊身上的荒野印記）在戰鬥外仍會顯示，方便你提醒隊友補上，但一旦戰鬥開始即會隱藏。需要將追蹤模式設為「所有增益，所有玩家」或「智慧型」。"
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB

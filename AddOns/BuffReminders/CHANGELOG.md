@@ -1,8 +1,6 @@
 # BuffReminders
 
-## [v6.0.5](https://github.com/zerbiniandrea/BuffReminders/tree/v6.0.5) (2026-05-22)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.0.4...v6.0.5) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v6.0.7](https://github.com/zerbiniandrea/BuffReminders/tree/v6.0.7) (2026-06-02)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.0.6...v6.0.7) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
-- i18n(koKR): 🌐 update localization  
-- i18n(zhCN): 🌐 credit neolhfs as translator  
-- fix(icons): 🐛 refresh Burning Rush icon for custom buffs too  
+- fix(display): 🐛 keep expiring countdown visible when icon text is hidden  

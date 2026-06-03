@@ -294,6 +294,9 @@ english["Page.Sounds.Desc"] =
 
 -- Per-category page section headers
 english["Section.Tracking"] = "Tracking"
+english["Section.TrackingOverrides"] = "Tracking overrides"
+english["Section.TrackingOverrides.Desc"] =
+    "Automatically narrow the tracking mode under specific conditions, regardless of the selection above."
 
 -- ============================================================================
 -- OPTIONS: SOUND ALERTS
@@ -421,7 +424,8 @@ english["Options.FreeConsumables.Override.Desc"] =
 -- ============================================================================
 english["Options.Icons"] = "Icons"
 english["Options.ShowText"] = "Show text on icons"
-english["Options.ShowText.Desc"] = "Display count or missing text overlays on buff icons for this category"
+english["Options.ShowText.Desc"] =
+    "Display count and missing-buff text overlays on buff icons for this category. The expiring countdown timer always stays visible"
 english["Options.ShowMissingCountOnly"] = "Show missing count only"
 english["Options.ShowMissingCountOnly.Desc"] =
     'Show only the number of missing buffs (e.g., "1") instead of the full count (e.g., "19/20")'
@@ -693,9 +697,12 @@ english["Options.BuffTracking.Smart.Desc"] =
 english["Options.BuffTracking.Mode"] = "Buff tracking mode"
 english["Options.BuffTracking.Mode.Desc"] =
     "Controls which raid and presence buffs are shown, and whether they track the full group or only you."
-english["Options.BuffTracking.SelfOnlyOutsideInstances"] = "Force self-only outside dungeons and raids"
+english["Options.BuffTracking.SelfOnlyOutsideInstances"] = 'Use "Only my buffs, just on me" outside dungeons and raids'
 english["Options.BuffTracking.SelfOnlyOutsideInstances.Desc"] =
-    "When enabled, only your own class buffs on yourself are tracked while in the open world. The selected tracking mode is still used inside dungeons, raids, scenarios, and PvP."
+    "Use 'Only my buffs, just on me' while in the open world. The selected tracking mode is still used inside dungeons, raids, scenarios, and PvP."
+english["Options.BuffTracking.HideOthersInCombat"] = 'Use "Only my buffs, all players" in combat'
+english["Options.BuffTracking.HideOthersInCombat.Desc"] =
+    "Use 'Only my buffs, all players' while in combat. Reminders for buffs from other classes (e.g. Mark of the Wild on a non-druid) stay visible out of combat so you can call them out, but disappear once the fight starts. Requires tracking mode 'All buffs, all players' or 'Smart'."
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB

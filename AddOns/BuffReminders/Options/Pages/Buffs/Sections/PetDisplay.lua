@@ -234,6 +234,62 @@ local function Build(ctx, layout)
         end
     end
     tinsert(BR.RefreshableComponents, petClassBarRefreshHolder)
+
+    -- Position row for pet labels: zone picker + X/Y nudge sliders. Anchors
+    -- the pet *name* text; family/spirit-beast lines continue to stack below
+    -- the name (existing relative anchoring).
+    local petLabelPosRow = CreateFrame("Frame", nil, parent)
+    petLabelPosRow:SetSize(parent:GetWidth(), 26)
+
+    local petLabelZone = Components.ZonePicker(petLabelPosRow, {
+        label = L["Options.TextPositions.Zone"],
+        labelWidth = 70,
+        get = function()
+            return select(1, BR.TextPositions.Get("petLabel"))
+        end,
+        enabled = isPetLabelsEnabled,
+        onChange = function(zone)
+            BR.Config.Set("defaults.textPositions.petLabel.zone", zone)
+        end,
+    })
+    petLabelZone:SetPoint("TOPLEFT", petLabelPosRow, "TOPLEFT", 0, 0)
+
+    local petLabelOffsetX = Components.Slider(petLabelPosRow, {
+        label = L["Options.TextPositions.OffsetX.Short"],
+        labelWidth = 12,
+        sliderWidth = 60,
+        min = -40,
+        max = 40,
+        get = function()
+            local _, x = BR.TextPositions.Get("petLabel")
+            return x
+        end,
+        enabled = isPetLabelsEnabled,
+        onChange = function(val)
+            BR.Config.Set("defaults.textPositions.petLabel.offsetX", val)
+        end,
+    })
+    petLabelOffsetX:SetPoint("LEFT", petLabelZone, "RIGHT", 12, 0)
+
+    local petLabelOffsetY = Components.Slider(petLabelPosRow, {
+        label = L["Options.TextPositions.OffsetY.Short"],
+        labelWidth = 12,
+        sliderWidth = 60,
+        min = -40,
+        max = 40,
+        get = function()
+            local _, _, y = BR.TextPositions.Get("petLabel")
+            return y
+        end,
+        enabled = isPetLabelsEnabled,
+        onChange = function(val)
+            BR.Config.Set("defaults.textPositions.petLabel.offsetY", val)
+        end,
+    })
+    petLabelOffsetY:SetPoint("LEFT", petLabelOffsetX, "RIGHT", 8, 0)
+
+    layout:Add(petLabelPosRow, 26, COMPONENT_GAP)
+
     layout:Space(SECTION_GAP)
 end
 

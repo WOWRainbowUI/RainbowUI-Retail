@@ -932,9 +932,12 @@ local function ModeHidesOtherClasses(trackingMode)
     return trackingMode == "my_buffs" or trackingMode == "self_only"
 end
 
----Resolve the active tracking mode, applying the "self-only outside instances"
----override that forces self_only in open world. Instanced content (raid,
----dungeon, scenario, PvP) keeps the user-selected mode.
+---Resolve the active tracking mode, applying overrides:
+---- "self-only outside instances" forces self_only in open world.
+---- "hide others in combat" narrows "all"/"smart" to "my_buffs" while in combat,
+---  so reminders for buffs the player can't cast disappear during a fight.
+---Instanced content (raid, dungeon, scenario, PvP) keeps the user-selected mode
+---for the outside-instances override; the in-combat override applies everywhere.
 ---@param db table
 ---@return string
 local function GetEffectiveTrackingMode(db)
@@ -944,6 +947,9 @@ local function GetEffectiveTrackingMode(db)
         if ct ~= "raid" and ct ~= "dungeon" and ct ~= "pvp" and ct ~= "scenario" then
             return "self_only"
         end
+    end
+    if inCombat and db.hideOthersInCombat and (mode == "all" or mode == "smart") then
+        return "my_buffs"
     end
     return mode
 end

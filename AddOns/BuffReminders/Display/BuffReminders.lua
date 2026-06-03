@@ -364,6 +364,7 @@ local defaults = {
     showOnlyInGroup = false,
     hideWhileResting = false,
     hideInCombat = false,
+    hideOthersInCombat = false,
     hideExpiringInCombat = true,
     buffTrackingMode = "all",
     selfOnlyOutsideInstances = true,
@@ -463,6 +464,10 @@ local defaults = {
             statLabel = { zone = "INSIDE_TL", offsetX = 0, offsetY = 0 },
             badge = { zone = "INSIDE_L", offsetX = 0, offsetY = 0 },
             buffReminder = { zone = "BELOW_C", offsetX = 0, offsetY = 0 },
+            -- petLabel: BELOW_C baseline is dy=-4; prior hard-coded anchor was
+            -- dy=-2, so a +2 offsetY keeps the visual identical for users who
+            -- never touch this setting.
+            petLabel = { zone = "BELOW_C", offsetX = 0, offsetY = 2 },
         },
     },
 
@@ -861,6 +866,15 @@ local function ShouldShowText(category)
     end
     local cs = BR.profile.categorySettings and BR.profile.categorySettings[category]
     return not cs or cs.showText ~= false
+end
+
+---The count fontstring multiplexes three kinds of text: missing-buff labels ("NO X"),
+---group counts ("17/20"), and live countdowns. Countdowns are duration context that
+---always render; only labels and counts are governed by the per-category showText toggle.
+---@param entry BuffStateEntry
+---@return boolean
+local function IsCountdownText(entry)
+    return entry.isEating or entry.displayType == "expiring"
 end
 
 ---Calculate font size from explicit textSize
@@ -2534,8 +2548,9 @@ local function RenderVisibleEntry(frame, entry)
         end
     end
 
-    -- Per-category text visibility (uses buff's actual category, not effective/main)
-    if not ShouldShowText(frame.buffCategory) then
+    -- Per-category text visibility (uses buff's actual category, not effective/main).
+    -- Countdowns always stay (see IsCountdownText); labels and counts respect the toggle.
+    if not ShouldShowText(frame.buffCategory) and not IsCountdownText(entry) then
         frame.count:Hide()
         frame.stackCount:Hide()
         ClearConsumableOverlays(frame)
@@ -2699,9 +2714,20 @@ local function UpdatePetLabels(frame, petAction)
         return
     end
 
-    -- Early out if nothing changed since last call
+    -- Early out if nothing changed since last call. Zone + offsets are part
+    -- of the key so live position edits re-anchor on the next display update.
     local scale = defs.petLabelScale or 100
-    local cacheKey = format("%s:%s:%s:%d", petAction.key, petAction.label or "", petAction.petFamily or "", scale)
+    local zone, offX, offY = BR.TextPositions.Get("petLabel")
+    local cacheKey = format(
+        "%s:%s:%s:%d:%s:%s:%s",
+        petAction.key,
+        petAction.label or "",
+        petAction.petFamily or "",
+        scale,
+        zone,
+        tostring(offX),
+        tostring(offY)
+    )
     if frame._br_pet_label_key == cacheKey then
         return
     end
@@ -2717,8 +2743,7 @@ local function UpdatePetLabels(frame, petAction)
     local nameSize = max(7, floor(frame:GetWidth() * 0.18 * ratio))
     local familySize = max(7, floor(nameSize * 0.85))
     frame._br_pet_name_text:SetFont(fontPath, nameSize, outlineFlag)
-    frame._br_pet_name_text:ClearAllPoints()
-    frame._br_pet_name_text:SetPoint("TOP", frame, "BOTTOM", 0, -2)
+    BR.TextPositions.Apply(frame._br_pet_name_text, frame, zone, offX, offY)
     frame._br_pet_name_text:SetText(petAction.label or "")
     frame._br_pet_name_text:SetTextColor(1, 1, 1)
     frame._br_pet_name_text:Show()
@@ -3996,7 +4021,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations - each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 42
+        local DB_VERSION = 43
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 -> v3.x)
@@ -4854,6 +4879,20 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
             [42] = function()
                 if db.categorySettings and db.categorySettings.targeted then
                     db.categorySettings.targeted.clickable = true
+                end
+            end,
+
+            -- [43] Materialize defaults.textPositions.petLabel for users who
+            -- already have a saved textPositions table. The new BELOW_C zone
+            -- baseline is dy=-4, but the prior hard-coded anchor was dy=-2, so
+            -- we bake +2 into offsetY to preserve the exact visual. Skip if
+            -- the user has no saved textPositions yet - AceDB will serve the
+            -- code-default directly on first access.
+            [43] = function()
+                if db.defaults and type(db.defaults.textPositions) == "table" then
+                    if db.defaults.textPositions.petLabel == nil then
+                        db.defaults.textPositions.petLabel = { zone = "BELOW_C", offsetX = 0, offsetY = 2 }
+                    end
                 end
             end,
         }
