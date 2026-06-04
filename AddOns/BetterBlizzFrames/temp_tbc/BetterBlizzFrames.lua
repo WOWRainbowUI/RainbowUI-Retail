@@ -685,10 +685,10 @@ end
 
 
 function BBF.ScaleUnitFrames()
-    local db = BetterBlizzFramesDB
-    PlayerFrame:SetScale(db.playerFrameScale)
-    TargetFrame:SetScale(db.targetFrameScale)
-    FocusFrame:SetScale(db.focusFrameScale)
+    -- local db = BetterBlizzFramesDB
+    -- PlayerFrame:SetScale(db.playerFrameScale)
+    -- TargetFrame:SetScale(db.targetFrameScale)
+    -- FocusFrame:SetScale(db.focusFrameScale)
 end
 
 -- Function to toggle test mode on and off
@@ -2370,6 +2370,9 @@ function BBF.FixStupidBlizzPTRShit()
         if not BBF.tfbFix then
             hooksecurefunc(TargetFrameBackground, "SetSize", function()
                 TargetFrameBackground:SetHeight(40)
+            end)
+            hooksecurefunc(FocusFrameBackground, "SetSize", function()
+                FocusFrameBackground:SetHeight(40)
             end)
             BBF.tfbFix = true
         end
