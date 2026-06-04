@@ -156,8 +156,6 @@ function BaganatorSingleViewGuildViewMixin:OnShow()
   -- Parent change to avoid ugly overlapping elements with main frame
   self.LogsFrame:SetParent(UIParent)
   self.TabTextFrame:SetParent(UIParent)
-
-  self:UpdateForGuild(self.lastGuild, self.isLive)
 end
 
 function BaganatorSingleViewGuildViewMixin:OnHide()
