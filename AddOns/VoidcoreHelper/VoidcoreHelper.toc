@@ -1,4 +1,4 @@
-## Interface: 120001, 120005
+## Interface: 120005, 120007
 ## Title: VoidcoreHelper
 ## Author: York
 ## Notes: 晦暗虚空核心助手

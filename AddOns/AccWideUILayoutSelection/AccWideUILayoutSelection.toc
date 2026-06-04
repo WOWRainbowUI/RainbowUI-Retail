@@ -1,4 +1,4 @@
-## Interface: 120001, 120005, 50504, 38001, 30405, 20505, 11508
+## Interface: 120005, 120007, 50504, 38001, 30405, 20505, 11508
 ## Title: Account Wide Interface Settings
 ## Version: v2.4.0
 ## Notes: Synchronises various Character-Specific Interface Settings Account Wide. /awi

@@ -1,4 +1,4 @@
-## Interface: 11508, 20205, 50504, 120001, 120005
+## Interface: 11508, 20205, 50504, 120005, 120007
 ## Title: Dominos Config
 ## Title-zhCN: Dominos 设置
 ## Title-zhTW: Dominos 設置

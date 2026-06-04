@@ -1,4 +1,4 @@
-## Interface: 120001, 120005
+## Interface: 120005, 120007
 ## Title: LSGlassRevive
 ## Notes: Configurable addon to setup chat windows
 ## Version: 1.0.1
