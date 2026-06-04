@@ -225,8 +225,9 @@ function addonTable.Display.NameplateMixin:OnLoad()
         auraFrame.auraInstanceID = auraInstanceID
         auraFrame.auraIndex = nil
         auraFrame.auraFilter = auraFilter
-        auraFrame.durationSecret = aura.durationSecret
-        if not C_Secrets then
+        if addonTable.Constants.IsSecretsActive then
+          auraFrame.durationSecret = aura.durationSecret
+        else
           auraFrame.duration = aura.duration
           auraFrame.expirationTime = aura.expirationTime
         end
@@ -269,7 +270,7 @@ function addonTable.Display.NameplateMixin:OnLoad()
             end
             local c2 = details.texts.countdown.color
             auraFrame.Cooldown.Text:SetTextColor(c2.r, c2.g, c2.b)
-            if auraFrame.Cooldown.SetCountdownFormatter then
+            if addonTable.Constants.IsCooldownFormattingAvailable then
               if details.texts.countdown.showFractions then
                 auraFrame.Cooldown:SetCountdownFormatter(auraFormatter)
               else
@@ -309,13 +310,13 @@ function addonTable.Display.NameplateMixin:OnLoad()
           end
         end
 
-        if aura.durationSecret then
-          auraFrame.Cooldown:SetCooldownFromDurationObject(aura.durationSecret)
+        if auraFrame.durationSecret then
+          auraFrame.Cooldown:SetCooldownFromDurationObject(auraFrame.durationSecret)
           if details.showPandemic then
             auraFrame.Pandemic:SetAlpha(C_CurveUtil.EvaluateColorValueFromBoolean(auraFrame.durationSecret:IsZero(), 0, auraFrame.durationSecret:EvaluateRemainingPercent(pandemicCurve)))
           end
           if details.showType then
-            local color = C_UnitAuras.GetAuraDispelTypeColor(self.unit, aura.auraInstanceID, dispelCurve)
+            local color = C_UnitAuras.GetAuraDispelTypeColor(self.unit, auraFrame.auraInstanceID, dispelCurve)
             auraFrame.Dispel.Border:SetVertexColor(color:GetRGBA())
           end
           if details.showStealable then
