@@ -195,6 +195,18 @@ L["ACCWUI_IE_IMPORT_DESC"] = "將匯入字串貼到下方的框中並點擊「�
 L["ACCWUI_IE_IMPORT_SUCCESS"] = "匯入完成！"
 L["ACCWUI_IE_IMPORT_FAIL"] = "匯入失敗。你輸入的字串無效。"
 
+L["ACCWUI_GS_IMPORT"] = "匯入圖形/音效設定"
+L["ACCWUI_GS_EXPORT"] = "匯出圖形/音效設定"
+L["ACCWUI_GS_IMPORTEXPORT"] = "匯入/匯出圖形與音效設定"
+L["ACCWUI_GS_IMPORTSTRING"] = "匯入圖形/音效字串"
+L["ACCWUI_GS_IMPORTSTRING_DESC"] = "允許您使用來自其他魔獸世界客戶端（如正式版、經典版、懷舊版等）的文字字串，匯入圖形與音效設定。"
+L["ACCWUI_GS_EXPORTSTRING"] = "匯出圖形/音效字串"
+L["ACCWUI_GS_EXPORTSTRING_DESC"] = "允許您將目前的圖形與音效設定匯出為文字字串，可匯入至其他魔獸世界客戶端，如正式版、經典版、懷舊版等。"
+L["ACCWUI_GS_EXPORT_DESC"] = "您可以複製下方的字串，並匯入至您使用的其他魔獸世界客戶端。"
+L["ACCWUI_GS_IMPORT_DESC"] = "將匯入字串貼入下方欄位，並點擊「匯入設定」。這將會把設定匯入至此魔獸世界客戶端，並覆蓋現有設定。"
+L["ACCWUI_GS_IMPORT_SUCCESS"] = "匯入完成！"
+L["ACCWUI_GS_IMPORT_FAIL"] = "匯入失敗，您輸入的字串無效。"
+
 L["ACCWUI_TAINTABLES_TITLE"] = "至暗之夜專屬"
 L["ACCWUI_TAINTABLES_DESC"] = "此分頁包含至暗之夜專屬的各種可同步設定，只能手動儲存或載入。因為在戰鬥中載入會不可逆地污染介面，直到你 /reload 介面為止。\n你需要為每個角色手動載入這些設定，才能使用它們。"
 L["ACCWUI_TAINTABLES_DESC_SHORT"] = "包含至暗之夜專屬的各種可同步設定，只能手動儲存或載入"

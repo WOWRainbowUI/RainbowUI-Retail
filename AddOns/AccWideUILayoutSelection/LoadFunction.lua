@@ -26,7 +26,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 			end
 			
 			
-			if self:IsMainline() or self:IsClassicTBC() then
+			if self:SupportsEditMode() then
 				
 				self:LoadEditModeSettings()
 
@@ -53,7 +53,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 				
 					self:ScheduleTimer(function() 
 				
-						if self:IsMainline() or self:IsClassicTBC() then
+						if self:SupportsEditMode() then
 							
 							SetActionBarToggles(self.db.profile.syncData.actionBars.visible.Bar2, self.db.profile.syncData.actionBars.visible.Bar3, self.db.profile.syncData.actionBars.visible.Bar4, self.db.profile.syncData.actionBars.visible.Bar5, self.db.profile.syncData.actionBars.visible.Bar6, self.db.profile.syncData.actionBars.visible.Bar7, self.db.profile.syncData.actionBars.visible.Bar8)
 						
@@ -91,7 +91,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 					end
 				end
 			
-				if (self:IsClassicEra() == true or self:IsClassicProgression() == true) then
+				if (not self:SupportsEditMode()) then
 				
 					--How many Raid Profiles?
 					
@@ -547,7 +547,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 					end
 				end
 				
-				if (self:IsMainline() == true) then
+				if (self:IsMainline() == true or self:IsClassicProgression()) then
 					if (self.db.profile.syncData.nameplates.special.NamePlateSize) then
 						C_NamePlate.SetNamePlateSize(self.db.profile.syncData.nameplates.special.NamePlateSize[1], self.db.profile.syncData.nameplates.special.NamePlateSize[2])
 					end
@@ -626,6 +626,115 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 			end 
 			
 			
+			-- Loss of Control Variables
+			if (self.db.profile.syncToggles.lossOfControl == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Loss of Control] Loading Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.LossOfControl) do
+					if (self.db.profile.syncData.lossOfControl.cvars[v] ~= nil) then
+						SetCVar(v, self.db.profile.syncData.lossOfControl.cvars[v])
+					end
+				end
+			
+			end
+			
+			-- External Defensives Variables
+			if (self.db.profile.syncToggles.externalDefensives == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[External Defensives] Loading Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.ExternalDefensives) do
+					if (self.db.profile.syncData.externalDefensives.cvars[v] ~= nil) then
+						SetCVar(v, self.db.profile.syncData.externalDefensives.cvars[v])
+					end
+				end
+			
+			end 
+		
+			-- Mouseover Cast Variables
+			if (self.db.profile.syncToggles.mouseoverCast == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Mouseover Cast] Loading Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.MouseoverCast) do
+					if (self.db.profile.syncData.mouseoverCast.cvars[v] ~= nil) then
+						SetCVar(v, self.db.profile.syncData.mouseoverCast.cvars[v])
+					end
+				end
+			
+			end 
+	
+			-- Empowered Tap/Hold Variables
+			if (self.db.profile.syncToggles.empowerTap == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Empowered Tap/Hold] Loading Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.EmpowerTap) do
+					if (self.db.profile.syncData.empowerTap.cvars[v] ~= nil) then
+						SetCVar(v, self.db.profile.syncData.empowerTap.cvars[v])
+					end
+				end
+			
+			end 
+			
+			-- Assisted Highlight Variables
+			if (self.db.profile.syncToggles.assistedCombat == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Assisted Highlight] Loading Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.AssistedCombat) do
+					if (self.db.profile.syncData.assistedCombat.cvars[v] ~= nil) then
+						SetCVar(v, self.db.profile.syncData.assistedCombat.cvars[v])
+					end
+				end
+			
+			end 
+			
+
+			-- Cooldown Manager Variables
+			if (self.db.profile.syncToggles.cooldownViewer == true) then
+			
+				if (self.db.global.printDebugTextToChat == true) then
+					self:Print("[Cooldown Manager] Loading Settings.")
+				end
+			
+				for k, v in pairs(self.CVars.CooldownViewer) do
+					if (self.db.profile.syncData.cooldownViewer.cvars[v] ~= nil) then
+						SetCVar(v, self.db.profile.syncData.cooldownViewer.cvars[v])
+					end
+				end
+				
+				--[[if (self:IsMainline() == true) then
+					local thisClass = UnitClassBase("player")
+					if (C_CooldownViewer.IsCooldownViewerAvailable() and self.db.profile.syncData.cooldownViewer.classes[thisClass]) then
+						if (self.db.global.printDebugTextToChat == true) then
+							self:Print("[Cooldown Manager] Loading CD Viewer String.")
+						end
+						C_CooldownViewer.SetLayoutData(self.db.profile.syncData.cooldownViewer.classes[thisClass])
+						--CooldownViewerSettings:GetSerializer():SetSerializedData(self.db.profile.syncData.cooldownViewer.classes[thisClass])
+						--CooldownViewerSettings:GetSerializer():SetSerializedData:WriteData()
+						CooldownViewerSettings:CheckSaveCurrentLayout()
+						EssentialCooldownViewer:RefreshData()
+						EssentialCooldownViewer:RefreshLayout()
+						UtilityCooldownViewer:RefreshData()
+						UtilityCooldownViewer:RefreshLayout()
+					end
+				end]]
+			
+			end
+			
+			
 			
 			-- Custom CVars
 			if (self.db.global.allowCustomCVars == true) then
@@ -644,26 +753,6 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 			end 
 			
 			
-			-- RETAIL and TBC Only Settings
-			if (self:IsMainline() == true or self:IsClassicTBC() == true) then
-			
-				-- Loss of Control Variables
-				if (self.db.profile.syncToggles.lossOfControl == true) then
-				
-					if (self.db.global.printDebugTextToChat == true) then
-						self:Print("[Loss of Control] Loading Settings.")
-					end
-				
-					for k, v in pairs(self.CVars.LossOfControl) do
-						if (self.db.profile.syncData.lossOfControl.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.lossOfControl.cvars[v])
-						end
-					end
-				
-				end
-
-			
-			end
 			
 			
 			-- RETAIL Only settings
@@ -683,100 +772,7 @@ function AccWideUIAceAddon:LoadUISettings(doNotLoadChatOrBagSettings)
 				
 				end 
 				
-				-- External Defensives Variables
-				if (self.db.profile.syncToggles.externalDefensives == true) then
-				
-					if (self.db.global.printDebugTextToChat == true) then
-						self:Print("[External Defensives] Loading Settings.")
-					end
-				
-					for k, v in pairs(self.CVars.ExternalDefensives) do
-						if (self.db.profile.syncData.externalDefensives.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.externalDefensives.cvars[v])
-						end
-					end
-				
-				end 
-			
-				-- Mouseover Cast Variables
-				if (self.db.profile.syncToggles.mouseoverCast == true) then
-				
-					if (self.db.global.printDebugTextToChat == true) then
-						self:Print("[Mouseover Cast] Loading Settings.")
-					end
-				
-					for k, v in pairs(self.CVars.MouseoverCast) do
-						if (self.db.profile.syncData.mouseoverCast.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.mouseoverCast.cvars[v])
-						end
-					end
-				
-				end 
-		
-				-- Empowered Tap/Hold Variables
-				if (self.db.profile.syncToggles.empowerTap == true) then
-				
-					if (self.db.global.printDebugTextToChat == true) then
-						self:Print("[Empowered Tap/Hold] Loading Settings.")
-					end
-				
-					for k, v in pairs(self.CVars.EmpowerTap) do
-						if (self.db.profile.syncData.empowerTap.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.empowerTap.cvars[v])
-						end
-					end
-				
-				end 
-				
-				-- Assisted Highlight Variables
-				if (self.db.profile.syncToggles.assistedCombat == true) then
-				
-					if (self.db.global.printDebugTextToChat == true) then
-						self:Print("[Assisted Highlight] Loading Settings.")
-					end
-				
-					for k, v in pairs(self.CVars.AssistedCombat) do
-						if (self.db.profile.syncData.assistedCombat.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.assistedCombat.cvars[v])
-						end
-					end
-				
-				end 
-				
 
-				-- Cooldown Manager Variables
-				if (self.db.profile.syncToggles.cooldownViewer == true) then
-				
-					if (self.db.global.printDebugTextToChat == true) then
-						self:Print("[Cooldown Manager] Loading Settings.")
-					end
-				
-					for k, v in pairs(self.CVars.CooldownViewer) do
-						if (self.db.profile.syncData.cooldownViewer.cvars[v] ~= nil) then
-							SetCVar(v, self.db.profile.syncData.cooldownViewer.cvars[v])
-						end
-					end
-					
-					--[[if (self:IsMainline() == true) then
-						local thisClass = UnitClassBase("player")
-						if (C_CooldownViewer.IsCooldownViewerAvailable() and self.db.profile.syncData.cooldownViewer.classes[thisClass]) then
-							if (self.db.global.printDebugTextToChat == true) then
-								self:Print("[Cooldown Manager] Loading CD Viewer String.")
-							end
-							C_CooldownViewer.SetLayoutData(self.db.profile.syncData.cooldownViewer.classes[thisClass])
-							--CooldownViewerSettings:GetSerializer():SetSerializedData(self.db.profile.syncData.cooldownViewer.classes[thisClass])
-							--CooldownViewerSettings:GetSerializer():SetSerializedData:WriteData()
-							CooldownViewerSettings:CheckSaveCurrentLayout()
-							EssentialCooldownViewer:RefreshData()
-							EssentialCooldownViewer:RefreshLayout()
-							UtilityCooldownViewer:RefreshData()
-							UtilityCooldownViewer:RefreshLayout()
-						end
-					end]]
-				
-				end
-				
-				
 				
 				-- Location Visibility Variables
 				if (self.db.profile.syncToggles.locationVisibility == true) then
@@ -1418,7 +1414,7 @@ end
 
 function AccWideUIAceAddon:LoadEditModeSettings()
 	
-	if ((self:IsMainline() or self:IsClassicTBC()) and not InCombatLockdown() and self.db.global.hasDoneFirstTimeSetup == true and type(self.db.profile.syncData.editModeLayoutID) == "number") then
+	if (self:SupportsEditMode() and not InCombatLockdown() and self.db.global.hasDoneFirstTimeSetup == true and type(self.db.profile.syncData.editModeLayoutID) == "number") then
 				
 		-- Use Edit Mode Layout
 		local currentSpec = tostring(C_SpecializationInfo.GetSpecialization())
