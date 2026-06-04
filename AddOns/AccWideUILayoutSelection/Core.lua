@@ -99,7 +99,7 @@ function AccWideUIAceAddon:OnEnable()
 	end)
 
 
-	if (self:IsMainline() or self:IsClassicTBC()) then
+	if (self:SupportsEditMode()) then
 		self:SecureHook(C_EditMode, "OnEditModeExit", function()
 			if (C_AddOns.IsAddOnLoaded("EditModeExpanded") == true and not self.TempData.EditModeExpandedTriggered) then
 				if (self.db.global.printDebugTextToChat == true) then
@@ -410,7 +410,7 @@ function AccWideUIAceAddon:BlizzChannelManager()
 				end
 			end
 
-			if (self:IsMainline() or self:IsClassicTBC() or self:IsClassicEra()) then
+			if (self:IsMainline() or self:IsClassicProgression() or self:IsClassicTBC() or self:IsClassicEra()) then
 				if (self.db.profile.blizzChannels.services == "join" and IsResting()) then
 					if (((GetChannelName(self.chatChannelNames.services))) == 0) then
 						JoinChannelByName(self.chatChannelNames.services)
@@ -522,7 +522,7 @@ function AccWideUIAceAddon:BlizzChannelManager()
 				end
 			end
 
-			if (self:IsMainline() or self:IsClassicTBC() or self:IsClassicEra()) then
+			if (self:IsMainline() or self:IsClassicProgression() or self:IsClassicTBC() or self:IsClassicEra()) then
 				if (self.db.profile.blizzChannels.services == "block") then
 					if (GetChannelName((GetChannelName(self.chatChannelNames.services))) > 0) then
 						LeaveChannelByName(self.chatChannelNames.services)

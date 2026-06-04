@@ -1050,6 +1050,34 @@ function AccWideUIAceAddon:GenerateOptions()
 							},
 						}
 					},
+					graphicsSoundImportExport = {
+						type = "group",
+						name = L["ACCWUI_GS_IMPORTEXPORT"],
+						inline = true,
+						order = 4,
+						args = {
+							btnImportProfile = {
+								type = "execute",
+								name = L["ACCWUI_GS_IMPORTSTRING"],
+								desc = L["ACCWUI_GS_IMPORTSTRING_DESC"],
+								width = thisCheckboxWidth2,
+								order = 1,
+								func = function()
+									self:ImportGraphicsSoundSettings()
+								end,
+							},
+							btnExportProfile = {
+								type = "execute",
+								name = L["ACCWUI_GS_EXPORTSTRING"],
+								desc = L["ACCWUI_GS_EXPORTSTRING_DESC"],
+								width = thisCheckboxWidth2,
+								order = 2,
+								func = function()
+									self:ExportGraphicsSoundSettings()
+								end,
+							},
+						}
+					},
 					debug = {
 						type = "group",
 						name = L["ACCWUI_DEBUG_TITLE"],
@@ -1180,30 +1208,33 @@ function AccWideUIAceAddon:GenerateOptions()
 
 
 	-- Remove Sync options that are not applicable to various versions	
-	if (AccWideUIAceAddon:IsMainline() == false) then
-		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.damageMeter = nil
-		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.externalDefensives = nil
+	if (not AccWideUIAceAddon:IsMainline()) then
 		self.optionsData.args.settings.args.editModeSettings = nil
 		self.optionsData.args.settings.args.headerDiv2 = nil
-		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.cooldownViewer = nil
-		self.optionsData.args.settings.args.syncToggles.args.groupCombat.args.mouseoverCast = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupCombat.args.empowerTap = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupCombat.args.assistedCombat = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupSocial.args.locationVisibility = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupSocial.args.blockNeighborhoodInvites = nil
-		self.optionsData.args.advanced.args.utility.args.btnResetDamageMeter = nil
-
 		self.optionsData.args.settings.args.syncToggles.args.experimentalSyncToggles.args.bagOrganisation = nil
 		self.optionsData.args.advanced.args.advanced.args.allowExperimentalSyncs = nil
 		self.optionsData.args.retailTaintables = nil
 	end
+	
+	if (not AccWideUIAceAddon:IsMainline()) then
+		-- CVars exist in MoP Classic and TBC Classic Anniversary, keep seperate just in case.
+		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.damageMeter = nil
+		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.externalDefensives = nil
+		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.cooldownViewer = nil
+		self.optionsData.args.advanced.args.utility.args.btnResetDamageMeter = nil
+	end
 
-	if (AccWideUIAceAddon:IsMainline() == false and AccWideUIAceAddon:IsClassicTBC() == false) then
+	if (not AccWideUIAceAddon:SupportsEditMode()) then
 		self.optionsData.args.settings.args.syncToggles.args.groupCombat.args.lossOfControl = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.editModeLayout = nil
+		self.optionsData.args.settings.args.syncToggles.args.groupCombat.args.mouseoverCast = nil
 	end
 	
-	if (AccWideUIAceAddon:IsClassicEra() == true) then
+	if (AccWideUIAceAddon:IsClassicEra()) then
 		self.optionsData.args.settings.args.syncToggles.args.groupUnits.args.arenaFrames = nil
 		self.optionsData.args.settings.args.syncToggles.args.groupInterface.args.spellOverlay = nil
 	end
@@ -1215,7 +1246,7 @@ function AccWideUIAceAddon:GenerateOptions()
 		self.optionsData.args.channels.args.HardcoreDeaths = nil
 	end
 
-	if (AccWideUIAceAddon:IsClassicWrath() == false and AccWideUIAceAddon:IsClassicTBC() == false and AccWideUIAceAddon:IsClassicEra() == false) then
+	if (not AccWideUIAceAddon:IsClassicWrath() and not AccWideUIAceAddon:IsClassicTBC() and not AccWideUIAceAddon:IsClassicEra()) then
 		self.optionsData.args.channels.args.guildRecruitment = nil
 	end
 
@@ -1223,7 +1254,7 @@ function AccWideUIAceAddon:GenerateOptions()
 		self.optionsData.args.channels.args.hardcoreDeaths = nil
 	end
 
-	if (AccWideUIAceAddon:IsMainline() == false and AccWideUIAceAddon:IsClassicTBC() == false and AccWideUIAceAddon:IsClassicEra() == false) then
+	if (not AccWideUIAceAddon:IsMainline() and not AccWideUIAceAddon:IsClassicProgression() and not AccWideUIAceAddon:IsClassicTBC() and not AccWideUIAceAddon:IsClassicEra()) then
 		self.optionsData.args.channels.args.services = nil
 	end
 
