@@ -1,6 +1,6 @@
 # Syndicator
 
-## [268](https://github.com/TheMouseNest/Syndicator/tree/268) (2026-05-20)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/267...268) 
+## [269](https://github.com/TheMouseNest/Syndicator/tree/269) (2026-06-03)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/268...269) 
 
-- Retail: Tag Voidforged and Radiance Crafted items as part of the current season  
+- Update toc for MoP 5.5.4  
