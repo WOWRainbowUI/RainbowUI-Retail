@@ -4,6 +4,9 @@ if not L then return end
 --------------------------------------------------------------------------------------------------------------------------------------------
 L = L or {}
 
+L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Auto Start Combatlog"
+L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Automatically start and stop logging combat to the combatlog.txt file when you enter a raid or dungeon."
+
 L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT"] = "Auto Alignment"
 L["STRING_OPTIONS_PLAYERNAME_AUTO_ALIGNMENT_DESC"] = "Disable this only if you experience player name alignment issues."
 
@@ -1287,6 +1290,8 @@ L["STRING_OPTIONS_TOOLBARSIDE_DESC"] = [=[Places the title bar on the top of the
 
 |cFFFFFF00Important|r: when alternating the position, title text won't change, check out |cFFFFFF00Title Bar: Text|r section for more options.]=]
 L["STRING_OPTIONS_TOOLS_ANCHOR"] = "Tools:"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Disable Tooltips"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Disable tooltips for the selected window."
 L["STRING_OPTIONS_TOOLTIP_ANCHOR"] = "Settings:"
 L["STRING_OPTIONS_TOOLTIP_ANCHORTEXTS"] = "Texts:"
 L["STRING_OPTIONS_TOOLTIPS_ABBREVIATION"] = "Abbreviation Type"
@@ -2227,6 +2232,8 @@ L["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "When enabled, scrollbar uses a animati
 L["STRING_OPTIONS_APPEARANCE"] = "Appearance"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT"] = "Title Text Settings"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"] = "These options control the title text of window."
+L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Auto Start Combatlog"
+L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Automatically start and stop logging combat to the combatlog.txt file when you enter or leave a raid or dungeon."
 L["STRING_OPTIONS_AUTO_SWITCH"] = "All Roles |cFFFFAA00(in combat)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(in combat)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "When in damager specialization, this window show the selected attribute or plugin."
@@ -3063,6 +3070,8 @@ L["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR_DESC"] = "Choose the color used on th
 L["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR_DESC"] = "Change the border color."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"] = "Change the border size."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"] = "Modify the border texture file."
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Disable Tooltips"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Disable tooltips for the selected window."
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"] = "Text Color"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"] = "Change the color used on tooltip texts."
 --[[Translation missing --]]
