@@ -1,14 +1,14 @@
-## Interface: 120001, 50503, 20505, 11508
+## Interface: 120007, 120005, 50504, 20505, 11508
 ## Title: tullaRange
 ## Author: Tuller
 ## Category: Action Bars
 ## Notes: Out of range coloring based on RedRange
 ## Notes-ruRU: Аддон, который позволяет полностью менять цвет кнопок действий
-## Version: 12.0.0
+## Version: 12.1.0
 ## SavedVariables: TULLARANGE_COLORS
 ## IconTexture: Interface/Icons/Inv_misc_punchcards_red
 attackFlash.lua
 actionState.lua
-updater.modern.lua [AllowLoadGameType mainline, tbc]
-updater.classic.lua [AllowLoadGameType mists, cata, wrath, vanilla]
+updater.modern.lua [AllowLoadGameType mainline, tbc, mists]
+updater.classic.lua [AllowLoadGameType cata, wrath, vanilla]
 tullaRange.lua
