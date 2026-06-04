@@ -1,7 +1,7 @@
 # Platynator
 
-## [410](https://github.com/TheMouseNest/Platynator/tree/410) (2026-06-03)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/409...410) 
+## [414](https://github.com/TheMouseNest/Platynator/tree/414) (2026-06-03)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/413...414) 
 
-- Fix double entries for units in OnUpdate cache update list  
-- Fix power bar appearing on non-targeted units  
+- Fix focus automatic colour not working  
+- Remove attempted fix that didn't work  
