@@ -409,6 +409,10 @@ L["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "Cuando está habilitada, la barra de d
 L["STRING_OPTIONS_APPEARANCE"] = "Apariencia"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT"] = "Configuración del texto del título"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"] = "Estas opciones configurar el texto del título de la ventana."
+--[[Translation missing --]]
+L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Auto Start Combatlog"
+--[[Translation missing --]]
+L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Automatically start and stop logging combat to the combatlog.txt file when you enter or leave a raid or dungeon."
 L["STRING_OPTIONS_AUTO_SWITCH"] = "Todos roles |cFFFFAA00(en combate)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(en combate)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "Cuando está en la especialización de daños, esta ventana muestra el atributo o plugin seleccionado."
@@ -1054,6 +1058,10 @@ L["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR_DESC"] = "Cambiar el color del fondo 
 L["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR_DESC"] = "Cambia el color del borde."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"] = "Cambiar el tamaño del borde."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"] = "Modifica el archivo de textura de borde."
+--[[Translation missing --]]
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Disable Tooltips"
+--[[Translation missing --]]
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Disable tooltips for the selected window."
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"] = "Color del texto"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"] = "Cambiar el color del texto en la descripción."
 L["STRING_OPTIONS_TOOLTIPS_FONTFACE"] = "Fuente del texto"

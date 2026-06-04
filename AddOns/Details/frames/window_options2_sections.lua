@@ -5139,6 +5139,20 @@ do
                 disableif = function() return Details.tooltip.apocalypse_width_useline and true end,
             },
 
+            {type = "breakline"},
+            {type = "label", get = function() return Loc ["STRING_OPTIONS_ADVANCED"] end, text_template = subSectionTitleTextTemplate},
+
+            --toogle to not show tooltips at all (line_no_tooltip)
+            {--disable tooltips
+                type = "toggle",
+                get = function() return currentInstance.line_no_tooltip end,
+                set = function(self, fixedparam, value)
+                    currentInstance.line_no_tooltip = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_TOOLTIPS_DISABLE"],
+                desc = Loc ["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"],
+            },
         }
 
         sectionFrame.sectionOptions = sectionOptions
@@ -7651,6 +7665,19 @@ do
         end
 
         local sectionOptions = {
+            {type = "label", get = function() return "Combatlog.txt:" end, text_template = subSectionTitleTextTemplate},
+            {
+                type = "toggle",
+                get = function() return Details.auto_combatlog end,
+                set = function(self, fixedparam, value)
+                    Details.auto_combatlog = value
+                    afterUpdate()
+                end,
+                name = Loc ["STRING_OPTIONS_AUTO_COMBATLOG"],
+                desc = Loc ["STRING_OPTIONS_AUTO_COMBATLOG_DESC"],
+            },
+            {type = "blank"},
+
             {type = "label", get = function() return "Death Log Options:" end, text_template = subSectionTitleTextTemplate},
             {--reverse death logs
                 type = "toggle",
