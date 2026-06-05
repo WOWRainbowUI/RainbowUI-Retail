@@ -245,7 +245,7 @@ function addonTable.Display.ManagerMixin:OnLoad()
   end)
 end
 
-function addonTable.Display.ManagerMixin:GetPool(index, design, scale, shouldSimplify)
+function addonTable.Display.ManagerMixin:GetPool(index)
   if self.pools[index] then
     return self.pools[index]
   end
@@ -254,9 +254,6 @@ function addonTable.Display.ManagerMixin:GetPool(index, design, scale, shouldSim
     Mixin(frame, addonTable.Display.NameplateMixin)
     frame.kind = index
     frame:OnLoad()
-    local scaleOffset, scaleMod = addonTable.Core.GetDesignScale(shouldSimplify), scale
-    frame:InitializeWidgets(design, scaleOffset, scaleMod)
-    frame.styleIndex = self.styleIndex
   end)
 
   return self.pools[index]
@@ -313,6 +310,14 @@ local function GetCVarsForNameplates()
       enemy = "nameplateShowEnemies",
       enemyMinion = "nameplateShowEnemyMinions",
       enemyMinor = "nameplateShowEnemyMinus",
+    }, {
+      friendlyMinionPet = "nameplateShowFriendlyPlayerPets",
+      friendlyMinionTotem = "nameplateShowFriendlyPlayerTotems",
+      friendlyMinionGuardian = "nameplateShowFriendlyPlayerGuardians",
+    }, {
+      enemyMinionPet = "nameplateShowEnemyPets",
+      enemyMinionTotem = "nameplateShowEnemyTotems",
+      enemyMinionGuardian = "nameplateShowEnemyGuardians",
     }
   else
     return {
@@ -322,6 +327,14 @@ local function GetCVarsForNameplates()
       enemy = "nameplateShowEnemies",
       enemyMinion = "nameplateShowEnemyMinions",
       enemyMinor = "nameplateShowEnemyMinus",
+    }, {
+      friendlyMinionPet = "nameplateShowFriendlyPets",
+      friendlyMinionTotem = "nameplateShowFriendlyTotems",
+      friendlyMinionGuardian = "nameplateShowFriendlyGuardians",
+    }, {
+      enemyMinionPet = "nameplateShowEnemyPets",
+      enemyMinionTotem = "nameplateShowEnemyTotems",
+      enemyMinionGuardian = "nameplateShowEnemyGuardians",
     }
   end
 end
@@ -335,7 +348,7 @@ function addonTable.Display.ManagerMixin:UpdateShowState()
 
   local currentShow = addonTable.Config.Get(addonTable.Config.Options.SHOW_NAMEPLATES)
 
-  local values = GetCVarsForNameplates()
+  local baseValues, friendlyMinions, enemyMinions = GetCVarsForNameplates()
   if C_CVar.GetCVarInfo("nameplateShowOnlyNameForFriendlyPlayerUnits") then
     C_CVar.SetCVar("nameplateShowOnlyNameForFriendlyPlayerUnits", "0")
   end
@@ -343,10 +356,24 @@ function addonTable.Display.ManagerMixin:UpdateShowState()
     C_CVar.SetCVar("nameplateUseClassColorForFriendlyPlayerUnitNames", "0")
   end
 
-  for key, state in pairs(currentShow) do
-    local newValue = state and "1" or "0"
-    C_CVar.SetCVar(values[key], newValue)
+  for key, cvar in pairs(baseValues) do
+    local newValue = currentShow[key] and "1" or "0"
+    C_CVar.SetCVar(cvar, newValue)
   end
+
+  if currentShow.friendlyMinion then
+    for key, cvar in pairs(friendlyMinions) do
+      local newValue = currentShow[key] and "1" or "0"
+      C_CVar.SetCVar(cvar, newValue)
+    end
+  end
+  if currentShow.enemyMinion then
+    for key, cvar in pairs(enemyMinions) do
+      local newValue = currentShow[key] and "1" or "0"
+      C_CVar.SetCVar(cvar, newValue)
+    end
+  end
+
   self.toggledFriendly = false
 
   self:UpdateInstanceShowState()
@@ -509,7 +536,7 @@ function addonTable.Display.ManagerMixin:Install(unit)
     local globalScale = addonTable.Config.Get(addonTable.Config.Options.GLOBAL_SCALE)
     local designName, scale, shouldSimplify, index = addonTable.Display.Context:GetAssignedDesign(unit)
     local design = addonTable.Core.GetDesignByName(designName)
-    local newDisplay = self:GetPool(index, design, scale, shouldSimplify):Acquire()
+    local newDisplay = self:GetPool(index):Acquire()
     if C_NamePlateManager and C_NamePlateManager.SetNamePlateSimplified then
       C_NamePlateManager.SetNamePlateSimplified(unit, shouldSimplify)
     end

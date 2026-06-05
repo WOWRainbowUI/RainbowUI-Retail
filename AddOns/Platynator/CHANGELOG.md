@@ -1,7 +1,6 @@
 # Platynator
 
-## [414](https://github.com/TheMouseNest/Platynator/tree/414) (2026-06-03)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/413...414) 
+## [416](https://github.com/TheMouseNest/Platynator/tree/416) (2026-06-04)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/415...416) 
 
-- Fix focus automatic colour not working  
-- Remove attempted fix that didn't work  
+- Fix "Can Attack" state not updating after being mind controlled  
