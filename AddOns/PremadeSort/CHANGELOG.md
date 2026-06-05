@@ -1,5 +1,8 @@
 # Changelog
 
+### 37
+- Version update
+
 ### 36
 - Midnight support
 
