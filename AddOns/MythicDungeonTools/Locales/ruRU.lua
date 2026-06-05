@@ -1744,8 +1744,7 @@ L["Murkbrine Wavejumper"] = "Волнопляс из племени Солено
 L["Muro'jin"] = "Муро'джин"
 L["Mu'Shiba"] = "Му'Шиба"
 L["Mutated Hatchling"] = "Сумеречный детеныш"
---[[Translation missing --]]
-L["Mute Xal'atath Voice Lines"] = "Mute Xal'atath Voice Lines"
+L["Mute Xal'atath Voice Lines"] = "Отключить голосовые реплики Ксал'атат"
 L["Mystic Ssa'veh"] = "Мистик Сса'ве"
 L["Mythresh, Sky's Talons"] = "Мифреш Небесный Коготь"
 L["Naeno Megacrash"] = "Нано Мегабум"

@@ -1,6 +1,3 @@
-## 6.1.12 (2026-05-31)
+## 6.1.14 (2026-06-05)
 
-- Added a General setting to mute Xal'atath voice lines
-- Updated short names for Windrunner Spire, Magister's Terrace, and Nexus Point Xenas.
-- Adjusted Magister's Terrace G25 positions and unlinked Spellwoven Familiars
-- Fixed enemy count labels hiding when mouseovering enemies
+- MoP Patch 5.0.4 update
