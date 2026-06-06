@@ -1,5 +1,5 @@
 ﻿----------------------------------------------------------------------
--- 	Leatrix Plus 12.0.20 (27th May 2026)
+-- 	Leatrix Plus 12.0.21 (5th June 2026)
 ----------------------------------------------------------------------
 
 --	01:Functions 02:Locks,  03:Restart 40:Player
@@ -18,7 +18,7 @@
 	local void
 
 	-- Version
-	LeaPlusLC["AddonVer"] = "12.0.20"
+	LeaPlusLC["AddonVer"] = "12.0.21"
 
 	-- Get locale table
 	local void, Leatrix_Plus = ...
@@ -1484,10 +1484,11 @@
 			LeaPlusLC:MakeCB(SoundPanel, "MuteBalls", "Balls", 284, -112, false, "If checked, the Foot Ball sounds will be muted.")
 			LeaPlusLC:MakeCB(SoundPanel, "MuteHarp", "Harp", 284, -132, false, "If checked, the Fae Harp toy will be muted.")
 			LeaPlusLC:MakeCB(SoundPanel, "MuteMeerah", "Meerah", 284, -152, false, "If checked, Meerah's Jukebox wil be muted.")
+			LeaPlusLC:MakeCB(SoundPanel, "MutePiccolo", "Piccolo", 284, -172, false, "If checked, Piccolo of the Flaming Fire wil be muted.|n|nNote that enabling this will also mute the harp sound of the warlock seduction spell.")
 
-			LeaPlusLC:MakeTx(SoundPanel, "Combat", 284, -192)
-			LeaPlusLC:MakeCB(SoundPanel, "MuteArena", "Arena", 284, -212, false, "If checked, arena announcers will be muted.")
-			LeaPlusLC:MakeCB(SoundPanel, "MuteBattleShouts", "Shouts", 284, -232, false, "If checked, your character will not shout and wail during combat.")
+			LeaPlusLC:MakeTx(SoundPanel, "Combat", 284, -212)
+			LeaPlusLC:MakeCB(SoundPanel, "MuteArena", "Arena", 284, -232, false, "If checked, arena announcers will be muted.")
+			LeaPlusLC:MakeCB(SoundPanel, "MuteBattleShouts", "Shouts", 284, -252, false, "If checked, your character will not shout and wail during combat.")
 
 			LeaPlusLC:MakeTx(SoundPanel, "Misc", 418, -72)
 			LeaPlusLC:MakeCB(SoundPanel, "MuteDucks", "Ducks", 418, -92, false, "If checked, duck greetings will be muted.|n|nUse this if you like to do your Valdrakken banking in peace.")

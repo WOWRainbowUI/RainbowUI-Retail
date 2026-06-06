@@ -1,4 +1,7 @@
-﻿12.0.20 - 27th May 2026
+﻿12.0.21 - 5th June 2026
+- For 'Mute game sounds' ('System'), you can now mute the Piccolo of the Flaming Fire toy.
+
+12.0.20 - 27th May 2026
 - For 'Enhance dressup' ('Interface'), fixed a secrets issue with the link outfit button.
 - Fixed a secrets issue with the mount special keybinding.
 
