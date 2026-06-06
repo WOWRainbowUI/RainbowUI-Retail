@@ -1,6 +1,6 @@
 ## Interface: 100000
 ## Author: p3lim
-## Version: v4.9.7-release
+## Version: v4.9.8-release
 ## Title: Lib: DropDown
 ## Notes: Library that allows easy creation of DropDown menus
 ## OptionalDeps: LibStub
