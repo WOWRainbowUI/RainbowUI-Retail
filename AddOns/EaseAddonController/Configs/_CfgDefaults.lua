@@ -1212,6 +1212,18 @@ D["MikScrollingBattleText"] = {
         callback = function() SlashCmdList["MSBT"]("") end,
     },
 };
+D["MiliUI_AuraEnhance"] = {
+    defaultEnable = 1,
+	tags = { "ENHANCEMENT" },
+	title = "光環時間美化",
+	desc = "調整增益 / 減益圖示下方時間文字與堆疊層數的位置、大小與邊框。`",
+    {
+        text = "設定選項",
+        callback = function() 
+			Settings.OpenToCategory(MiliUI_AuraEnhanceDB.categoryID)
+		end,
+    },
+};
 D["MiliUI_BloodlustMusic"] = {
     defaultEnable = 1,
 	tags = { "COMBAT" },

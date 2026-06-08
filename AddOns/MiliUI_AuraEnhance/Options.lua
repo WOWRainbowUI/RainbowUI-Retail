@@ -15,7 +15,7 @@ local function BuildOptions()
 
     local auraTitle = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     auraTitle:SetPoint("TOPLEFT", 16, -16)
-    auraTitle:SetText("|cffffe00a光環強化|r")
+    auraTitle:SetText("|cffffe00a光環時間美化|r")
 
     local auraDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     auraDesc:SetPoint("TOPLEFT", auraTitle, "BOTTOMLEFT", 0, -8)
@@ -31,7 +31,7 @@ local function BuildOptions()
     -- 啟用 checkbox
     local auraCB = CreateFrame("CheckButton", "AuraEnhance_BuffDurEnabledCB", auraFrame, "UICheckButtonTemplate")
     auraCB:SetPoint("TOPLEFT", durLabel, "BOTTOMLEFT", 0, -8)
-    auraCB.text:SetText("啟用時間文字強化")
+    auraCB.text:SetText("啟用時間文字美化")
     auraCB.text:SetFontObject("GameFontHighlight")
 
     local auraCBDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -44,7 +44,7 @@ local function BuildOptions()
     -- 描邊 checkbox
     local outlineCB = CreateFrame("CheckButton", "AuraEnhance_BuffDurOutlineCB", auraFrame, "UICheckButtonTemplate")
     outlineCB:SetPoint("TOPLEFT", auraCBDesc, "BOTTOMLEFT", -26, -12)
-    outlineCB.text:SetText("文字描邊")
+    outlineCB.text:SetText("文字邊框")
     outlineCB.text:SetFontObject("GameFontHighlight")
 
     local outlineDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -114,7 +114,7 @@ local function BuildOptions()
 
     local anchorLabel = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     anchorLabel:SetPoint("TOPLEFT", countCBDesc, "BOTTOMLEFT", -26, -14)
-    anchorLabel:SetText("錨點位置：")
+    anchorLabel:SetText("位置：")
 
     local anchorDropdown = CreateFrame("Frame", "AuraEnhance_CountAnchorDropdown", auraFrame, "UIDropDownMenuTemplate")
     anchorDropdown:SetPoint("LEFT", anchorLabel, "RIGHT", -8, -2)
@@ -237,14 +237,14 @@ local function BuildOptions()
         if enabled then
             UpdateCountSubControls(countCB:GetChecked())
         end
-        print("|cff00ff00[光環強化]|r 時間文字強化:", enabled and "開" or "關")
+        print("|cff00ff00[光環時間美化]|r 時間文字美化:", enabled and "開" or "關")
     end)
 
     outlineCB:HookScript("OnClick", function(self)
         if not Style then return end
         local enabled = self:GetChecked() and true or false
         Style.SetOutline(enabled)
-        print("|cff00ff00[光環強化]|r 文字描邊:", enabled and "開" or "關")
+        print("|cff00ff00[光環時間美化]|r 文字邊框:", enabled and "開" or "關")
     end)
 
     fontSizeSlider:SetScript("OnValueChanged", function(self, value)
@@ -268,7 +268,7 @@ local function BuildOptions()
         local enabled = self:GetChecked() and true or false
         Style.SetCountEnabled(enabled)
         UpdateCountSubControls(enabled)
-        print("|cff00ff00[光環強化]|r 層數位置調整:", enabled and "開" or "關")
+        print("|cff00ff00[光環時間美化]|r 層數位置調整:", enabled and "開" or "關")
     end)
 
     countXSlider:SetScript("OnValueChanged", function(self, value)
@@ -288,9 +288,9 @@ local function BuildOptions()
     end)
 
     -- 註冊為獨立的頂層設定分類
-    local category = Settings.RegisterCanvasLayoutCategory(auraFrame, "光環強化")
-    category.ID = "AuraEnhance"
+    local category = Settings.RegisterCanvasLayoutCategory(auraFrame, "光環時間")
     Settings.RegisterAddOnCategory(category)
+	MiliUI_AuraEnhanceDB.categoryID = category:GetID()
 end
 
 -- 等 SavedVariables 載入後再建立面板（確保同步顯示正確的值）
