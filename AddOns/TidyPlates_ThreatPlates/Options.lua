@@ -5914,6 +5914,9 @@ local function CreateVisibilityTab()
         order = 70,
         inline = true,
         width = "full",
+        -- Mists Classic does not have C_NamePlate.GetNamePlateFriendlyClickThrough/GetNamePlateEnemyClickThrough
+        -- and neither the Midnight HitTestFrame
+        hidden = Addon.IS_MISTS_CLASSIC,
         args = {
           ClickthroughFriendly = {
             name = L["Friendly Units"],
@@ -6408,11 +6411,11 @@ local function CreateBlizzardSettings()
             },
           },
           Insets = {
-            name = L["Insets"],
+            name = L["Insets2"],
             order = 40,
             type = "group",
             inline = true,
-            hidden = Addon.ExpansionIsAtLeastMidnight,
+            hidden = Addon.ExpansionIsAtLeastMidnight or Addon.IS_MISTS_CLASSIC,
             args = {
               OtherTopInset = {
                 name = L["Top Inset"],
@@ -6814,7 +6817,7 @@ local function CreateAppearanceTab()
         inline = true,
         args = {
           ParentFrame = {
-            name = L["Anchor"],
+            name = L["Parent Frame"],
             type = "select",
             order = 10,
             set = function(info, val)

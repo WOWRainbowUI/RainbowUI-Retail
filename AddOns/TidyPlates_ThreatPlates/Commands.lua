@@ -6,7 +6,7 @@
 local L = Addon.L
 local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or _G.GetSpecialization
 
-Addon.DEBUG = Addon.Meta("version") == "13.0.13"
+Addon.DEBUG = Addon.Meta("version") == "13.0.15"
 
 local function toggleDPS()
   if Addon.db.profile.optionRoleDetectionAutomatic then
@@ -330,7 +330,7 @@ local function ChatCommandDebug(cmd_list)
     local plate = C_NamePlate.GetNamePlateForUnit("target", true)
     if not plate then return end
 
-		print("Player Role:", Addon.GetPlayerRole() == "tank" and "Tank" or "DPS/Healer")
+		print(plate.TPFrame.visual.Healthbar:GetSize())
 	else
 		Addon.Logging.Error(L["Unknown option: "] .. command)
 		PrintHelp()

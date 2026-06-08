@@ -21,7 +21,14 @@ local tonumber = tonumber
 -- WoW APIs
 local BUFF_MAX_DISPLAY = BUFF_MAX_DISPLAY
 local GetFramerate = GetFramerate
-local DebuffTypeColor = DebuffTypeColor
+-- DebuffTypeColor may be nil on some WoW versions (e.g. MoP Classic PTR) at addon load time; use
+-- the standard Blizzard dispel-type colors as fallback so GetColorForAura never crashes on index.
+local DebuffTypeColor = DebuffTypeColor or {
+  Magic   = { r = 0.20, g = 0.60, b = 1.00 },
+  Disease = { r = 0.60, g = 0.40, b = 0.00 },
+  Poison  = { r = 0.00, g = 0.60, b = 0.00 },
+  Curse   = { r = 0.60, g = 0.00, b = 1.00 },
+}
 local UnitIsUnit = UnitIsUnit
 local UnitAura = UnitAura
 local GetAuraSlots = C_UnitAuras and C_UnitAuras.GetAuraSlots
@@ -1619,13 +1626,24 @@ end
 
 local AuraTooltip = CreateFrame("GameTooltip", "ThreatPlatesAuraTooltip", UIParent, "GameTooltipTemplate")
 local AuraFrameOnEnter
+local TooltipUsesAuraInstanceID = false
 
 local function AuraFrameOnLeave(self)
   AuraTooltip:Hide()
 end
 
+-- SetUnitAuraByAuraInstanceID: WoW Midnight
 -- SetUnitBuffByAuraInstanceID, SetUnitDebuffByAuraInstanceID: Dragonflight - Patch 10.0.0
-if Addon.IS_MAINLINE then
+-- Would show more information, but mainly about the spell, not the aura
+-- AuraTooltip:SetSpellByID(self.AuraData.spellId)
+if AuraTooltip.SetUnitAuraByAuraInstanceID then
+  TooltipUsesAuraInstanceID = true
+  AuraFrameOnEnter = function(self)
+    AuraTooltip:SetOwner(self, "ANCHOR_LEFT")
+    AuraTooltip:SetUnitAuraByAuraInstanceID(self:GetParent():GetParent().unit.unitid, self.AuraData.auraInstanceID)
+  end
+elseif AuraTooltip.SetUnitBuffByAuraInstanceID and AuraTooltip.SetUnitDebuffByAuraInstanceID then
+  TooltipUsesAuraInstanceID = true
   AuraFrameOnEnter = function(self)
     AuraTooltip:SetOwner(self, "ANCHOR_LEFT")
 
@@ -1635,11 +1653,8 @@ if Addon.IS_MAINLINE then
     else
       AuraTooltip:SetUnitDebuffByAuraInstanceID(self:GetParent():GetParent().unit.unitid, self.AuraData.auraInstanceID, self.AuraData.effect)
     end
-
-    -- Would show more information, but mainly about the spell, not the aura
-    --AuraTooltip:SetSpellByID(self.AuraData.spellId)
   end
-else  
+else
   AuraFrameOnEnter = function(self)
     AuraTooltip:SetOwner(self, "ANCHOR_LEFT")
     AuraTooltip:SetUnitAura(self:GetParent():GetParent().unit.unitid, self.AuraData.auraInstanceID, self.AuraData.effect)
@@ -1654,7 +1669,7 @@ function Widget:GetColorForAura(aura)
 	local db = self.db
 
   if aura.dispelName and db.ShowAuraType then
-    return DebuffTypeColor[aura.dispelName]
+    return DebuffTypeColor[aura.dispelName] or db.DefaultDebuffColor
   elseif aura.effect == "HARMFUL" then
     return db.DefaultDebuffColor
   else
@@ -1945,6 +1960,11 @@ local function ProcessAllUnitAuras(unitid, effect)
         -- Without this check, there will be a Lua error when a priest mindcontrolls another player as 
         -- unit_aura_info is nil here in this case
         if unit_aura_info then
+          -- For clients without ByAuraInstanceID tooltip APIs, SetUnitAura expects a slot index.
+          if not TooltipUsesAuraInstanceID then
+            unit_aura_info.auraInstanceID = slots[i]
+          end
+
           unit_aura_info.duration = unit_aura_info.duration or 0
           unit_auras[#unit_auras + 1] = unit_aura_info
           -- if unit_aura_info.sourcseeUnit == "player" then
