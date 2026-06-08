@@ -107,9 +107,15 @@ local frameElementsConfig = {
     ["PetFrame"] = {},
 
    -- Focus Frame
-    ["FocusFrame"] = {
+    ["FocusFrame-Retail"] = {
         {configType = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "HealthBarsContainer", "HealthBar"},
         {configType = "parentkey", "TargetFrameContent", "TargetFrameContentMain", "ManaBar"},
+    },
+
+    -- Focus Frame variants
+    ["FocusFrame-Classic"] = {
+        {configType = "global", name = "FocusFrameHealthBar"},
+        {configType = "global", name = "FocusFrameManaBar"},
     },
 
     -- Target of Target
@@ -146,7 +152,11 @@ function addon:GetFrameConfig(name)
     elseif name == "TargetFrame" and isRetail then
         return frameElementsConfig["TargetFrame-Retail"]
     elseif name == "TargetFrame" then
-       return frameElementsConfig["TargetFrame-Classic"]
+        return frameElementsConfig["TargetFrame-Classic"]
+    elseif name == "FocusFrame" and isRetail then
+        return frameElementsConfig["FocusFrame-Retail"]
+    elseif name == "FocusFrame" then
+        return frameElementsConfig["FocusFrame-Classic"]
     elseif name == "TargetFrameToT" and isRetail then
         return frameElementsConfig["TargetFrameToT-Retail"]
     elseif name == "TargetFrameToT" then
