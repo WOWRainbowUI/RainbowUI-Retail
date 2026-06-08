@@ -1,4 +1,5 @@
-# 13.0.13 (2026-05-21)
 
-* Fixed healthbar color not updating correctly in TBC Classic when the player loses threat gradually [Comment #8288, #8296].
-* Fixed nameplates scaling in a non-stop loop when hovering the mouse cursor over a non-targeted unit on WoW Midnight (only when mouseover scaling is enabled) [Comment #8321].
+# 13.0.15 (2026-06-07)
+
+* Fixed a Lua error that occurred when Flash when Expiring was enabled in the Auras Widget [GH-696].
+* Fixed a Lua error that occurred when Threat Plates options were opened during combat.

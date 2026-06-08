@@ -95,13 +95,16 @@ local IGNORED_UNITS = {
 -- Local variables
 ---------------------------------------------------------------------------------------------------
 --local PlateOnUpdateQueue = {}
-local LastTargetPlate = {
+
+-- Consolidated array for meta-unit nameplates (target, focus, mouseover, softenemy, softfriend, softinteract)
+local PlatesByMetaUnit = {
   target = nil,
+  focus = nil,
+  mouseover = nil,
+  softenemy = nil,
   softfriend = nil,
   softinteract = nil,
-  softenemy = nil
 }
-local LastFocusPlate
 
 -- External references to internal data
 local PlatesCreated = Addon.PlatesCreated
@@ -975,10 +978,14 @@ end
 --   • Active: skips when Blizzard plates are shown for this unit.
 --   • CanChangeHitTestPoints: skips in restricted C++ contexts.
 local function  ApplyPlateHitTest(tp_frame)
-  if not tp_frame.Active then return end
-
   local plate = tp_frame.Parent
+
   if not plate:CanChangeHitTestPoints() then return end
+  
+  if not tp_frame.Active then 
+    plate:SetAllHitTestPoints(plate.UnitFrame)  
+    return 
+  end
 
   local db = Addon.db.profile
   local is_friendly = (tp_frame.unit.reaction == "FRIENDLY")
@@ -989,6 +996,7 @@ local function  ApplyPlateHitTest(tp_frame)
     local db_frame = db.settings.frame
     local width  = (is_friendly and db_frame.widthFriend)  or db_frame.width
     local height = (is_friendly and db_frame.heightFriend) or db_frame.height
+
     tp_frame.HitTestFrame:ClearAllPoints()
     tp_frame.HitTestFrame:SetSize(width, height)
     -- Anchor to plate.UnitFrame (same hierarchy as HitTestFrame's parent) rather than tp_frame.
@@ -1009,6 +1017,9 @@ if ExpansionIsAtLeastMidnight then
       ApplyPlateHitTest(tp_frame)
     end
   end
+elseif Addon.IS_MISTS_CLASSIC then
+  -- MoP Classic (5.5.x): C_NamePlate.SetNamePlateFriendlyClickThrough / SetNamePlateEnemyClickThrough do not exist.
+  Addon.SetNamePlateClickThrough = function() end
 else
   Addon.SetNamePlateClickThrough = function()
     Addon:CallbackWhenOoC(function()
@@ -1111,18 +1122,13 @@ function Addon:ConfigClickableArea(toggle_show)
         tp_frame.Background:SetBackdropBorderColor(0, 0, 0, 0.8)
         tp_frame.Background:SetPoint("CENTER", ConfigModePlate.UnitFrame, "CENTER")
 
+        -- Addon.WOW_USES_CLASSIC_NAMEPLATES would work as well, but maybe not in the future
         if ExpansionIsAtLeastMidnight then
           tp_frame.Background:ClearAllPoints()
           tp_frame.Background:SetAllPoints(ConfigModePlate.TPFrame.HitTestFrame)
         else
-          local width, height
-          if tp_frame.unit.reaction == "FRIENDLY" then          
-            width, height = GetNamePlateFriendlySize()
-          else
-            width, height = GetNamePlateEnemySize()
-          end
-          tp_frame.Background:SetSize(width, height)
-
+          local db = Addon.db.profile.settings.frame
+          tp_frame.Background:SetSize(db.width, db.height)
         end
 
         tp_frame.Background:Show()
@@ -1142,7 +1148,14 @@ function Addon:ConfigClickableArea(toggle_show)
   elseif ConfigModePlate then
     local background = ConfigModePlate.TPFrame.Background
     background:SetPoint("CENTER", ConfigModePlate.UnitFrame, "CENTER")
-    background:SetSize(ConfigModePlate.TPFrame:GetWidth(), ConfigModePlate.TPFrame:GetHeight())
+
+    if ExpansionIsAtLeastMidnight then
+      background:ClearAllPoints()
+      background:SetAllPoints(ConfigModePlate.TPFrame.HitTestFrame)
+    else
+      local db = Addon.db.profile.settings.frame
+      ConfigModePlate.TPFrame.Background:SetSize(db.width, db.height)
+    end
   end
 end
 
@@ -1163,13 +1176,16 @@ function Addon:UpdateNameplateFrameProperties()
   end
 
   Addon.NameplateFrameStrata = db.FrameStrata
+
+  -- Also update the nameplate size (incl. frame width/height) as the clickable area must be adjusted
+  Addon:SetBaseNamePlateSize()
 end
 
 function Addon:UpdateSettings()
   --wipe(PlateOnUpdateQueue)
 
   Addon.Localization.UpdateSettings()
-  --Font:UpdateSettings()
+  Addon.Font.UpdateSettings()
   Addon.Icon.UpdateSettings()
   Addon.Threat.UpdateSettings()
   Addon.Transparency.UpdateSettings()
@@ -1497,7 +1513,7 @@ function Addon:NAME_PLATE_UNIT_ADDED(unitid)
 end
 
 local function RemoveMouseoverFromNameplate()
-  local tp_frame = PlatesByUnit["mouseover"]
+  local tp_frame = PlatesByMetaUnit.mouseover
   if not tp_frame then return end
 
   -- Do this even if nameplate is not active as otherwise, mouseover is not shown correctly
@@ -1507,7 +1523,7 @@ local function RemoveMouseoverFromNameplate()
     PublishEvent("MouseoverOnLeave", tp_frame)
   end
 
-  PlatesByUnit["mouseover"] = nil
+  PlatesByMetaUnit.mouseover = nil
 end
 
 function Addon:NAME_PLATE_UNIT_REMOVED(unitid)
@@ -1519,7 +1535,7 @@ function Addon:NAME_PLATE_UNIT_REMOVED(unitid)
   -- Without this, UPDATE_MOUSEOVER_UNIT (which can fire synchronously when a plate becomes
   -- visible again after recycling) would call RemoveMouseoverFromNameplate on a wiped unit
   -- table, causing a nil-style crash in Transparency.lua:GetTransparency.
-  if PlatesByUnit["mouseover"] == tp_frame then
+  if PlatesByMetaUnit.mouseover == tp_frame then
     RemoveMouseoverFromNameplate()
   end
 
@@ -1543,16 +1559,12 @@ function Addon:NAME_PLATE_UNIT_REMOVED(unitid)
   -- If both are unique, the nameplate is not updated to the correct custom style, but uses the
   -- previous one, I think
   tp_frame.stylename = nil
-
-  -- plate.TPAnchorFrame:ClearAllPoints()
-  -- plate.TPAnchorFrame:SetParent(plate)
-  -- plate.TPAnchorFrame:SetSize(110, 45)
 end
 
 function Addon:UNIT_NAME_UPDATE(unitid)
-  -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
+  -- Skip special unitids (they are updated via their nameplate unitid) and the personal nameplate
   if IGNORED_UNITS[unitid] then return end
-  
+
   local tp_frame = self:GetThreatPlateForUnit(unitid)
   if tp_frame then
     SetUnitAttributeName(tp_frame.unit, unitid)
@@ -1560,25 +1572,34 @@ function Addon:UNIT_NAME_UPDATE(unitid)
   end
 end
 
-
 local function PlayerTargetChanged(target_unitid)
-  -- If the previous target unit's nameplate is still shown, update it:
-  local plate = LastTargetPlate[target_unitid]
-  local tp_frame = plate and plate.TPFrame
-  if tp_frame and tp_frame.Active then
-    SetUnitAttributeTarget(tp_frame.unit)
-    PublishEvent("TargetLost", tp_frame)
+  -- Remove old reference and fire TargetLost if needed
+  local tp_frame = PlatesByMetaUnit[target_unitid]
+  if tp_frame then
+    PlatesByMetaUnit[target_unitid] = nil
 
-    LastTargetPlate[target_unitid] = nil
+    -- At this point, the previous target's nameplate might no longer exist. In this case, unitid is nil
+    if tp_frame.unit.unitid then
+      SetUnitAttributeTarget(tp_frame.unit)
+
+      if tp_frame.Active then
+        StyleModule.Update(tp_frame)
+        PublishEvent("TargetLost", tp_frame)
+      end
+    end
   end
 
-  plate = GetNamePlateForUnit(target_unitid)
-  tp_frame = plate and plate.TPFrame
-  if tp_frame and tp_frame.Active then
-    LastTargetPlate[target_unitid] = plate
-
+  -- Set new reference and fire TargetGained if needed
+  local plate = GetNamePlateForUnit(target_unitid)
+  local tp_frame = plate and plate.TPFrame
+  if tp_frame then
+    PlatesByMetaUnit[target_unitid] = tp_frame
     SetUnitAttributeTarget(tp_frame.unit)
-    PublishEvent("TargetGained", tp_frame)
+
+    if tp_frame.Active then
+      StyleModule.Update(tp_frame)
+      PublishEvent("TargetGained", tp_frame)
+    end
   end
 end
 
@@ -1602,22 +1623,27 @@ function Addon:PLAYER_SOFT_INTERACT_CHANGED()
 end
 
 function Addon:PLAYER_FOCUS_CHANGED()
-  -- Don't check for Active here as we have to unset IsFocus 
-  if LastFocusPlate then
-    LastFocusPlate.unit.IsFocus = false
-    if LastFocusPlate.Active then
-      PublishEvent("FocusLost", LastFocusPlate)
+  -- Don't check for Active here, because we always need to reset IsFocus
+  local tp_frame = PlatesByMetaUnit.focus
+  if tp_frame then
+    PlatesByMetaUnit.focus = nil
+    tp_frame.unit.IsFocus = false
+
+    if tp_frame.Active then
+      --StyleModule.Update(tp_frame)
+      PublishEvent("FocusLost", tp_frame)
     end
-    LastFocusPlate = nil
-    -- Update mouseover, if the mouse was hovering over the targeted unit
-    Addon:UPDATE_MOUSEOVER_UNIT()
   end
 
   local tp_frame = Addon:GetThreatPlateForFocus()
   if tp_frame then
+    PlatesByMetaUnit.focus = tp_frame
     tp_frame.unit.IsFocus = true
-    PublishEvent("FocusGained", tp_frame)
-    LastFocusPlate = tp_frame
+
+    if tp_frame.Active then
+      --StyleModule.Update(tp_frame)
+      PublishEvent("FocusGained", tp_frame)
+    end
   end
 end
 
@@ -1629,7 +1655,7 @@ function Addon:UPDATE_MOUSEOVER_UNIT()
   -- Check for TPFrame.Active to prevent accessing the personal resource bar
   local tp_frame = self:GetThreatPlateForUnit("mouseover")
   if tp_frame then
-    PlatesByUnit["mouseover"] = tp_frame
+    PlatesByMetaUnit.mouseover = tp_frame
     tp_frame.unit.isMouseover = true
 
     PublishEvent("MouseoverOnEnter", tp_frame)
@@ -1642,7 +1668,7 @@ function Addon:UPDATE_MOUSEOVER_UNIT()
           RemoveMouseoverFromNameplate()
         end
       end)
-    end 
+    end
   end
 end
 
@@ -1719,7 +1745,7 @@ function Addon:UNIT_FACTION(unitid)
     end
   else
     -- It seems that (at least) in solo shuffles, the UNIT_FACTION event is fired in between the events
-    -- NAME_PLATE_UNIT_REMOVE and NAME_PLATE_UNIT_ADDED. As SetNameplateVisibility sets the TPFrame Active, this results 
+    -- NAME_PLATE_UNIT_REMOVED and NAME_PLATE_UNIT_ADDED. As SetNameplateVisibility sets the TPFrame Active, this results 
     -- in Lua errors, so basically we cannot use it here to check if the plate is active.    
     -- local plate = self:GetThreatPlateForUnit(unitid)
     local tp_frame = PlatesByUnit[unitid]
@@ -1878,7 +1904,7 @@ function Addon:UNIT_SPELLCAST_INTERRUPTED(unitid, cast_guid, spell_id, interrupt
     name = class_color:WrapTextInColorCode(name)
   end
   
-  tp_frame.visual.SpellText:SetText(INTERRUPTED .. " [" ..TransliterateCyrillicLetters(name) .. "]")
+  tp_frame.visual.SpellText:SetText(INTERRUPTED .. " [" .. TransliterateCyrillicLetters(name) .. "]")
 
   castbar:SetMinMaxValues(0, 1)
   castbar:SetValue(1)
