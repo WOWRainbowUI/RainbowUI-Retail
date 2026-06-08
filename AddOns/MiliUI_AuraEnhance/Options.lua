@@ -19,7 +19,7 @@ local function BuildOptions()
 
     local auraDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     auraDesc:SetPoint("TOPLEFT", auraTitle, "BOTTOMLEFT", 0, -8)
-    auraDesc:SetText("調整增益 / 減益圖示下方時間文字的位置、大小與描邊。")
+    auraDesc:SetText("調整增益 / 減益圖示下方時間文字的位置、大小與邊框。")
     auraDesc:SetTextColor(0.7, 0.7, 0.7)
 
 
@@ -41,7 +41,7 @@ local function BuildOptions()
     auraCBDesc:SetText("自訂增益 / 減益圖示下方的時間文字樣式與位置。\n不修改文字內容，純粹調整外觀。")
     auraCBDesc:SetTextColor(0.5, 0.5, 0.5)
 
-    -- 描邊 checkbox
+    -- 邊框 checkbox
     local outlineCB = CreateFrame("CheckButton", "AuraEnhance_BuffDurOutlineCB", auraFrame, "UICheckButtonTemplate")
     outlineCB:SetPoint("TOPLEFT", auraCBDesc, "BOTTOMLEFT", -26, -12)
     outlineCB.text:SetText("文字邊框")
@@ -49,7 +49,7 @@ local function BuildOptions()
 
     local outlineDesc = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     outlineDesc:SetPoint("TOPLEFT", outlineCB, "BOTTOMLEFT", 26, -2)
-    outlineDesc:SetText("為時間文字加上 1px 黑色描邊以提升可讀性")
+    outlineDesc:SetText("為時間文字加上 1px 黑色邊框以提升可讀性")
     outlineDesc:SetTextColor(0.5, 0.5, 0.5)
 
     -- 文字大小 slider
@@ -75,7 +75,7 @@ local function BuildOptions()
     yOffsetSlider:SetObeyStepOnDrag(true)
     yOffsetSlider.Low:SetText("-10")
     yOffsetSlider.High:SetText("20")
-    yOffsetSlider.Text:SetText("Y 軸偏移")
+    yOffsetSlider.Text:SetText("垂直位移")
 
     local yOffsetValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     yOffsetValue:SetPoint("LEFT", yOffsetSlider, "RIGHT", 12, 0)
@@ -97,7 +97,7 @@ local function BuildOptions()
     countCBDesc:SetPoint("TOPLEFT", countCB, "BOTTOMLEFT", 26, -2)
     countCBDesc:SetWidth(520)
     countCBDesc:SetJustifyH("LEFT")
-    countCBDesc:SetText("自訂堆疊層數文字的錨點與位置。")
+    countCBDesc:SetText("自訂堆疊層數文字的位置。")
     countCBDesc:SetTextColor(0.5, 0.5, 0.5)
 
     -- 錨點下拉選單
@@ -147,7 +147,7 @@ local function BuildOptions()
     countXSlider:SetObeyStepOnDrag(true)
     countXSlider.Low:SetText("-20")
     countXSlider.High:SetText("20")
-    countXSlider.Text:SetText("X 軸偏移")
+    countXSlider.Text:SetText("水平位移")
 
     local countXValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     countXValue:SetPoint("LEFT", countXSlider, "RIGHT", 12, 0)
@@ -161,7 +161,7 @@ local function BuildOptions()
     countYSlider:SetObeyStepOnDrag(true)
     countYSlider.Low:SetText("-20")
     countYSlider.High:SetText("20")
-    countYSlider.Text:SetText("Y 軸偏移")
+    countYSlider.Text:SetText("垂直位移")
 
     local countYValue = auraFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     countYValue:SetPoint("LEFT", countYSlider, "RIGHT", 12, 0)
