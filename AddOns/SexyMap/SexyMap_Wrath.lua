@@ -434,13 +434,6 @@ hooksecurefunc(Minimap, "SetParent", function()
 	mod.frame.SetParent(Minimap, UIParent)
 end)
 
--- Make sure the various minimap buttons follow the minimap
--- We do this before login to prevent button placement issues
-if not sm.API or not sm.API.isWrath then -- Only on MoP, Wrath places the MinimapBackdrop differently
-	MinimapBackdrop:ClearAllPoints()
-	MinimapBackdrop:SetPoint("CENTER", Minimap, "CENTER", -8, -23)
-end
-
 function mod:SetupMap()
 	local Minimap = Minimap
 
@@ -515,6 +508,15 @@ function mod:SetupMap()
 		MinimapCompassTexture.Show = MinimapCompassTexture.Hide
 	end
 
+	-- Minimap "X" to close button
+	local MinimapToggleButton = MinimapToggleButton
+	if MinimapToggleButton then
+		sm.core.button.SetParent(MinimapToggleButton, sm.core.button)
+		hooksecurefunc(MinimapToggleButton, "SetParent", function()
+			sm.core.button.SetParent(MinimapToggleButton, sm.core.button)
+		end)
+	end
+
 	-- Border texture around the zone text
 	local MinimapBorderTop = MinimapCluster and MinimapCluster.BorderTop or MinimapBorderTop
 	if MinimapBorderTop then
@@ -538,9 +540,9 @@ function mod:SetupMap()
 	--	end
 	--end)
 
-	Minimap:SetScript("OnDragStart", function(self) if self:IsMovable() then self:StartMoving() end end)
-	Minimap:SetScript("OnDragStop", function(self)
-		self:StopMovingOrSizing()
+	Minimap:SetScript("OnDragStart", function(f) if f:IsMovable() then f:StartMoving() end end)
+	Minimap:SetScript("OnDragStop", function(f)
+		f:StopMovingOrSizing()
 		local p, _, rp, x, y = Minimap:GetPoint()
 		mod.db.point, mod.db.relpoint, mod.db.x, mod.db.y = p, rp, x, y
 	end)

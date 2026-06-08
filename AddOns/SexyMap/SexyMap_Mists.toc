@@ -1,5 +1,5 @@
-## Interface: 50502, 50503
-## Version: v12.0.4
+## Interface: 50504, 50503
+## Version: v12.0.6
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.

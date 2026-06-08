@@ -274,8 +274,8 @@ end
 --
 
 local OnFinished, KillAnimation
+local fadeStop = false -- Use a variable to prevent fadeout/in when moving the mouse around minimap/icons
 do
-	local fadeStop = false -- Use a variable to prevent fadeout/in when moving the mouse around minimap/icons
 	local restoreGarrisonButtonAnimation = false
 	local restoreLFGButtonAnimation = false
 
@@ -372,6 +372,16 @@ do
 			--	f:SetParent(Minimap)
 			--	f:SetPoint("CENTER", Minimap, "CENTER", -60, 55)
 			--end
+			-- Need to move the classic LFG minimap button
+			if n == "LFGMinimapFrame" then
+				f:ClearAllPoints()
+				f:SetParent(Minimap)
+				f:SetPoint("CENTER", Minimap, "CENTER", -60, -55)
+				f:SetFrameStrata("MEDIUM")
+				f:SetFixedFrameStrata(true)
+				f:SetFrameLevel(8)
+				f:SetFixedFrameLevel(true)
+			end
 
 			animFrames[#animFrames+1] = f
 
@@ -580,7 +590,7 @@ do
 	--end
 
 	function mod:StartFrameGrab()
-		if LFGMinimapFrame then -- Classic era only, loads after PLAYER_ENTERING_WORLD
+		if LFGMinimapFrame then -- Loads after PLAYER_ENTERING_WORLD
 			tbl[#tbl+1] = LFGMinimapFrame
 		end
 
