@@ -271,7 +271,7 @@ function mod:OnEnable()
 	zoneTextButton:SetClampRectInsets(4,-4,-4,4) -- Allow kissing the edge of the screen when hiding the backdrop border (size 4)
 	zoneTextButton:SetFrameStrata("LOW")
 	zoneTextButton:SetFixedFrameStrata(true)
-	zoneTextButton:SetFrameLevel(20) -- Above Questie minimap blips
+	zoneTextButton:SetFrameLevel(4000) -- Above Questie minimap blips
 	zoneTextButton:SetFixedFrameLevel(true)
 	zoneTextButton.oshow = function() end -- Silly workaround to prevent the MBB addon grabing this frame
 
@@ -300,8 +300,8 @@ function mod:OnEnable()
 	do
 		local tt = CreateFrame("GameTooltip", "SexyMapZoneTextTooltip", zoneTextButton, "GameTooltipTemplate")
 		local GetZonePVPInfo, GetZoneText, GetSubZoneText = C_PvP and C_PvP.GetZonePVPInfo or GetZonePVPInfo, GetZoneText, GetSubZoneText
-		zoneTextButton:SetScript("OnEnter", function(self) -- Minimap.lua line 68 function "Minimap_SetTooltip" as of wow 9.0.1
-			tt:SetOwner(self, "ANCHOR_LEFT")
+		zoneTextButton:SetScript("OnEnter", function(f) -- Minimap.lua line 68 function "Minimap_SetTooltip" as of wow 9.0.1
+			tt:SetOwner(f, "ANCHOR_LEFT")
 			local pvpType, _, factionName = GetZonePVPInfo()
 			local zoneName = GetZoneText()
 			local subzoneName = GetSubZoneText()
