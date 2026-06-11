@@ -4,10 +4,22 @@ local _, ns = ...
 ns = ns or {}
 
 local data = {
-    currentVersion = "5.57",
-    previousVersion = "5.51",
-    rangeLabel = "5.51 -> 5.57",
+    currentVersion = "5.58",
+    previousVersion = "5.52",
+    rangeLabel = "5.52 -> 5.58",
     entries = {
+        {
+            version = "5.58",
+            date = "2026-06-08",
+            sections = {
+                {
+                    title = "Fixes",
+                    bullets = {
+                        "Fixed missing-health text formatting for imported profiles with secret health values.",
+                    },
+                },
+            },
+        },
         {
             version = "5.57",
             date = "2026-06-04",
@@ -98,19 +110,6 @@ local data = {
                     bullets = {
                         "Fixed the Dashboard Edit frames button so it no longer calls private Menu2 core helpers that are not visible from the dashboard module.",
                         "Restored the dashboard Edit Mode toggle path while keeping the existing combat-lock handling and menu frame priority refresh.",
-                    },
-                },
-            },
-        },
-        {
-            version = "5.51",
-            date = "2026-05-22",
-            sections = {
-                {
-                    title = "Critical Fixes",
-                    bullets = {
-                        "Fixed a critical edge case where selected debuff dispel-type filters could hide unrelated debuffs globally instead of only narrowing the dispellable-debuff exception.",
-                        "Fixed Aura Filters menu checkbox hitboxes and labels so the dispel and include toggles are easier to click and only active when they affect the current filter setup.",
                     },
                 },
             },
