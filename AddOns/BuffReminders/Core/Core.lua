@@ -118,8 +118,9 @@ local RootSettings = {
     frameLocked = false, -- No refresh needed
     position = false, -- Table with x, y
     buffTrackingMode = false, -- No auto-refresh, manually calls UpdateDisplay
-    selfOnlyOutsideInstances = "DisplayRefresh",
-    hideOthersInCombat = "DisplayRefresh",
+    outsideInstancesMode = "DisplayRefresh",
+    combatMode = "DisplayRefresh",
+    levelingMode = "DisplayRefresh",
     showMissingCountOnly = "DisplayRefresh",
     -- Visibility toggles (routed through Config.Set -> VisibilityRefresh)
     hideInCombat = "VisibilityRefresh",

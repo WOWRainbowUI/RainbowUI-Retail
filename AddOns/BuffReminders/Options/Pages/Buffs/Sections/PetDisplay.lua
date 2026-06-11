@@ -33,7 +33,7 @@ local function Build(ctx, layout)
         label = L["Options.PetDisplay"],
         width = 120,
         get = function()
-            return BR.Config.Get("defaults.petDisplayMode", "generic")
+            return BR.Config.Get("defaults.petDisplayMode")
         end,
         options = {
             {
@@ -128,17 +128,17 @@ local function Build(ctx, layout)
         petPreviewHolder:SetWidth((PET_MODE_ICON_COUNT[mode] or 1) * PP_STEP)
     end
 
-    updatePetDisplayModePreview(BR.Config.Get("defaults.petDisplayMode", "generic"))
+    updatePetDisplayModePreview(BR.Config.Get("defaults.petDisplayMode"))
 
     function petPreviewHolder:Refresh()
-        updatePetDisplayModePreview(BR.Config.Get("defaults.petDisplayMode", "generic"))
+        updatePetDisplayModePreview(BR.Config.Get("defaults.petDisplayMode"))
     end
     tinsert(BR.RefreshableComponents, petPreviewHolder)
 
     local petLabelsHolder = Components.Checkbox(parent, {
         label = L["Options.PetLabels"],
         get = function()
-            return BR.Config.Get("defaults.petLabels", true)
+            return BR.Config.Get("defaults.petLabels")
         end,
         tooltip = {
             title = L["Options.PetLabels"],
@@ -158,10 +158,10 @@ local function Build(ctx, layout)
         max = 200,
         step = 10,
         get = function()
-            return BR.Config.Get("defaults.petLabelScale", 100)
+            return BR.Config.Get("defaults.petLabelScale")
         end,
         enabled = function()
-            return BR.Config.Get("defaults.petLabels", true)
+            return BR.Config.Get("defaults.petLabels")
         end,
         onChange = function(val)
             BR.Config.Set("defaults.petLabelScale", val)
@@ -221,7 +221,7 @@ local function Build(ctx, layout)
     petClassBar:SetPoint("LEFT", petLabelScaleHolder, "RIGHT", 8, 0)
 
     local function isPetLabelsEnabled()
-        return BR.Config.Get("defaults.petLabels", true)
+        return BR.Config.Get("defaults.petLabels")
     end
     petClassBar:SetBarDisabled(not isPetLabelsEnabled())
 

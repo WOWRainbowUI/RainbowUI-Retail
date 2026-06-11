@@ -286,7 +286,7 @@ L["Page.Sounds.Desc"] =
 L["Section.Tracking"] = "追蹤"
 L["Section.TrackingOverrides"] = "追蹤覆寫"
 L["Section.TrackingOverrides.Desc"] =
-    "在特定條件下自動縮小追蹤模式的範圍，無論上方的選擇為何。"
+    "縮小特定情況下的追蹤模式。將情況保留為預設可始終使用上方的模式。當多個情況同時成立時 (例如升級時戰鬥)，最嚴格的那個優先。"
 
 -- ============================================================================
 -- OPTIONS: SOUND ALERTS
@@ -467,6 +467,7 @@ L["ChatRequest.skyfury"] = "請補上天怒增益"
 L["ChatRequest.atrophicNumbingPoison"] = "請補上萎縮/麻痺毒藥"
 L["ChatRequest.devotionAura"] = "請補上虔誠光環"
 L["ChatRequest.soulstone"] = "請補上靈魂石"
+L["ChatRequest.healthstone"] = "請給我治療石"
 
 -- ============================================================================
 -- OPTIONS: PET
@@ -682,12 +683,16 @@ L["Options.BuffTracking.Smart.Desc"] =
 L["Options.BuffTracking.Mode"] = "增益追蹤模式"
 L["Options.BuffTracking.Mode.Desc"] =
     "設置要顯示的團隊和職業增益，以及是追蹤整個隊伍還是僅追蹤自身。"
-L["Options.BuffTracking.SelfOnlyOutsideInstances"] = '在副本與團隊副本外使用「僅追蹤我自己的增益，且只套用於我」'
-L["Options.BuffTracking.SelfOnlyOutsideInstances.Desc"] =
-    "在開放世界中使用「僅追蹤我自己的增益，且只套用於我」。在副本、團隊副本、事件及 PvP 中仍會使用所選的追蹤模式。"
-L["Options.BuffTracking.HideOthersInCombat"] = '在戰鬥中使用「僅追蹤我自己的增益，所有玩家」'
-L["Options.BuffTracking.HideOthersInCombat.Desc"] =
-    "在戰鬥中使用「僅追蹤我自己的增益，所有玩家」。其他職業的增益提醒（例如：非德魯伊身上的荒野印記）在戰鬥外仍會顯示，方便你提醒隊友補上，但一旦戰鬥開始即會隱藏。需要將追蹤模式設為「所有增益，所有玩家」或「智慧型」。"
+L["Options.BuffTracking.Override.Default"] = "預設 (使用上方模式)"
+L["Options.BuffTracking.Override.OutsideInstances"] = "地城與團隊副本外"
+L["Options.BuffTracking.Override.OutsideInstances.Desc"] =
+    "在開放世界中使用的追蹤模式。在地城、團隊副本、事件與 PvP 中仍會使用上方所選的模式。"
+L["Options.BuffTracking.Override.Combat"] = "戰鬥中"
+L["Options.BuffTracking.Override.Combat.Desc"] =
+    "戰鬥時使用的追蹤模式。例如，縮小為「僅我的增益」可在戰鬥外保留其他職業增益的提醒以便喊話，進入戰鬥後則隱藏。"
+L["Options.BuffTracking.Override.Leveling"] = "升級過程中"
+L["Options.BuffTracking.Override.Leveling.Desc"] =
+    "未達等級上限時使用的追蹤模式。達到等級上限後，將改用上方所選的模式。"
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB
