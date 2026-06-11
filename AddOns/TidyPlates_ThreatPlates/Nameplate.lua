@@ -935,7 +935,7 @@ local	function HandlePlateCreated(plate)
   plate.TPFrame = tp_frame
   
   -- # Nameplate Hierarchy, Anchoring, and Scaling
-  if ExpansionIsAtLeastMidnight then
+  if not Addon.WOW_USES_CLASSIC_NAMEPLATES then
     -- Parent must be plate (not tp_frame) so that HitTestFrame does not inherit tp_frame's scale.
     -- Anchor must also target plate.UnitFrame (not tp_frame) to avoid cross-hierarchy layout
     -- recalculations when tp_frame:SetScale() is called (e.g. during mouseover scale animation).
@@ -977,7 +977,7 @@ end
 -- Guards:
 --   • Active: skips when Blizzard plates are shown for this unit.
 --   • CanChangeHitTestPoints: skips in restricted C++ contexts.
-local function  ApplyPlateHitTest(tp_frame)
+local function ApplyPlateHitTest(tp_frame)
   local plate = tp_frame.Parent
 
   if not plate:CanChangeHitTestPoints() then return end
@@ -1011,18 +1011,15 @@ end
 -- Updates the click-through state for all active TP plates.
 -- Midnight: per-plate C++ hit-test API, unrestricted — works in combat.
 -- Pre-Midnight: global CVars, must be deferred out of combat.
-if ExpansionIsAtLeastMidnight then
+if not Addon.WOW_USES_CLASSIC_NAMEPLATES then
   Addon.SetNamePlateClickThrough = function()
     for unitid, tp_frame in Addon:GetActiveThreatPlates() do
       ApplyPlateHitTest(tp_frame)
     end
   end
-elseif Addon.IS_MISTS_CLASSIC then
-  -- MoP Classic (5.5.x): C_NamePlate.SetNamePlateFriendlyClickThrough / SetNamePlateEnemyClickThrough do not exist.
-  Addon.SetNamePlateClickThrough = function() end
 else
   Addon.SetNamePlateClickThrough = function()
-    Addon:CallbackWhenOoC(function()
+    Addon.ExecuteAfterCombatEnds(function()
       local db = Addon.db.profile
       SetNamePlateFriendlyClickThrough(db.NamePlateFriendlyClickThrough)
       SetNamePlateEnemyClickThrough(db.NamePlateEnemyClickThrough)
@@ -1047,7 +1044,7 @@ local function HandlePlateUnitAdded(plate, unitid)
   ThreatModule.SetUnitAttribute(tp_frame)
   SetNameplateVisibility(plate, unitid)
 
-  if ExpansionIsAtLeastMidnight then
+  if not Addon.WOW_USES_CLASSIC_NAMEPLATES then
     SetNamePlateSimplified(unitid, false)
     ApplyPlateHitTest(tp_frame)
   end
@@ -1123,7 +1120,7 @@ function Addon:ConfigClickableArea(toggle_show)
         tp_frame.Background:SetPoint("CENTER", ConfigModePlate.UnitFrame, "CENTER")
 
         -- Addon.WOW_USES_CLASSIC_NAMEPLATES would work as well, but maybe not in the future
-        if ExpansionIsAtLeastMidnight then
+        if not Addon.WOW_USES_CLASSIC_NAMEPLATES then
           tp_frame.Background:ClearAllPoints()
           tp_frame.Background:SetAllPoints(ConfigModePlate.TPFrame.HitTestFrame)
         else
@@ -1149,7 +1146,7 @@ function Addon:ConfigClickableArea(toggle_show)
     local background = ConfigModePlate.TPFrame.Background
     background:SetPoint("CENTER", ConfigModePlate.UnitFrame, "CENTER")
 
-    if ExpansionIsAtLeastMidnight then
+    if not Addon.WOW_USES_CLASSIC_NAMEPLATES then
       background:ClearAllPoints()
       background:SetAllPoints(ConfigModePlate.TPFrame.HitTestFrame)
     else
@@ -1178,7 +1175,7 @@ function Addon:UpdateNameplateFrameProperties()
   Addon.NameplateFrameStrata = db.FrameStrata
 
   -- Also update the nameplate size (incl. frame width/height) as the clickable area must be adjusted
-  Addon:SetBaseNamePlateSize()
+  Addon.ExecuteAfterCombatEnds(function() Addon:SetBaseNamePlateSize() end, L["Unable to change a setting while in combat."])
 end
 
 function Addon:UpdateSettings()
@@ -1207,6 +1204,8 @@ function Addon:UpdateSettings()
   TargetStyleForFriend = db.targetWidget.SoftTarget.TargetStyleForFriend
   TargetStyleForInteract = db.targetWidget.SoftTarget.TargetStyleForInteract
   
+  -- ! Addon.UnitIsTarget must be used as Addon.UnitIsTarget, storing it in a file-local variable does not work
+  -- ! as the value/reference might be change here after making it file-local!
   if TargetStyleForEnemy or TargetStyleForFriend or TargetStyleForInteract then
     Addon.TargetUnitExists = SoftTargetExists
     Addon.UnitIsTarget = UnitIsSoftTarget
@@ -1220,7 +1219,7 @@ function Addon:UpdateSettings()
   else
     UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
   end
-  
+
   ShowCastBars = db.settings.castbar.show or db.settings.castbar.ShowInHeadlineView
   
   -- ? Not sure if this is still necessary after moving registering events to Addon.lua - OnInitialize
@@ -1272,12 +1271,20 @@ end
 
 local TaskQueueOoC = {}
 
-function Addon:CallbackWhenOoC(func, msg)
+function Addon.ExecuteAfterCombatEnds(func, msg)
   if InCombatLockdown() then
     if msg then
       Addon.Logging.Warning(msg .. L[" The change will be applied after you leave combat."])
     end
     TaskQueueOoC[#TaskQueueOoC + 1] = func
+  else
+    func()
+  end
+end
+
+function Addon.ExecuteOnlyOoC(func)
+  if InCombatLockdown() then
+    Addon.Logging.Error(L["Unable to change this setting while in combat"])
   else
     func()
   end
@@ -1594,9 +1601,9 @@ local function PlayerTargetChanged(target_unitid)
   local tp_frame = plate and plate.TPFrame
   if tp_frame then
     PlatesByMetaUnit[target_unitid] = tp_frame
-    SetUnitAttributeTarget(tp_frame.unit)
-
+    
     if tp_frame.Active then
+      SetUnitAttributeTarget(tp_frame.unit)
       StyleModule.Update(tp_frame)
       PublishEvent("TargetGained", tp_frame)
     end
@@ -1736,7 +1743,7 @@ function Addon:UNIT_FACTION(unitid)
       SetNameplateVisibility(tp_frame.Parent, plate_unitid)
       if tp_frame.Active then
         SetUnitAttributeReaction(tp_frame.unit, plate_unitid)
-        if ExpansionIsAtLeastMidnight then
+        if not Addon.WOW_USES_CLASSIC_NAMEPLATES then
           ApplyPlateHitTest(tp_frame)
         end
         StyleModule.Update(tp_frame)
@@ -1756,7 +1763,7 @@ function Addon:UNIT_FACTION(unitid)
       SetNameplateVisibility(tp_frame.Parent, unitid)
       if tp_frame.Active then
         SetUnitAttributeReaction(tp_frame.unit, unitid)
-        if ExpansionIsAtLeastMidnight then
+        if not Addon.WOW_USES_CLASSIC_NAMEPLATES then
           ApplyPlateHitTest(tp_frame)
         end
         StyleModule.Update(tp_frame)
