@@ -1,8 +1,7 @@
 # Platynator
 
-## [417](https://github.com/TheMouseNest/Platynator/tree/417) (2026-06-07)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/416...417) 
+## [421](https://github.com/TheMouseNest/Platynator/tree/421) (2026-06-09)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/420...421) 
 
-- Fix unexpected nil from API causing castbar to break  
-- Fix interrupt tick on scaled up/down cast bars  
-- Remove duplicate initialisation  
+- Fix combat switching error properly this time  
+- Mists: Add "nameplateNotSelectedAlpha" cvar to hard-set defaults  

@@ -50,7 +50,7 @@ local kindToCallback = {
   threat = {"RoleChange"},
 }
 local kindToCache = {
-  threat = {"combat"},
+  threat = {"combat", "threat"},
   inCombat = {"combat"},
   interruptReady = {"cast"},
   interruptNotReady = {"cast"},
@@ -60,13 +60,13 @@ local kindToCache = {
   cast = {"cast"},
   notCast = {"cast"},
   isCast = {"cast"},
-  threat = {"threat"},
   inRange = {"range"},
   outOfRange = {"range"},
   target = {"target"},
   notTarget = {"target"},
   softTarget = {"softTarget"},
   mouseover = {"target", "mouseover"},
+  notMouseover = {"target", "mouseover"},
   focus = {"focus"},
 }
 
@@ -123,7 +123,9 @@ function addonTable.Display.RegisterForColorEvents(frame, settings, defaultColor
         if not frame.colorState.caches[c] then
           frame.colorState.caches[c] = true
           addonTable.Cache:RegisterCallback(frame.unit, c, function()
-            frame:ColorEventHandler("FORCED")
+            if frame.unit then -- Shield against deactivation of the widget
+              frame:ColorEventHandler("FORCED")
+            end
           end)
         end
       end
@@ -188,6 +190,11 @@ function addonTable.Display.GetColor(settings, state, unit)
     elseif s.kind == "mouseover" then
       if addonTable.Cache:Get(unit, "mouseover") and (s.includeTarget or not addonTable.Cache:Get(unit, "target")) then
         table.insert(colorQueue, {color = s.colors.mouseover})
+        break
+      end
+    elseif s.kind == "notMouseover" then
+      if not (addonTable.Cache:Get(unit, "mouseover") and (s.includeTarget or not addonTable.Cache:Get(unit, "target"))) then
+        table.insert(colorQueue, {color = s.colors.notMouseover})
         break
       end
     elseif s.kind == "threat" then
