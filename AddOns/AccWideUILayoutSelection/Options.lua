@@ -58,7 +58,9 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 				uiMisc = true,
 				chatWindow = true,
 				chatWindowPosition = true,
-				chatChannels = true
+				chatChannels = true,
+				systemGraphics = false,
+				systemAudio = false
 			},
 			syncData = {
 				editModeLayoutID = "unset",
@@ -163,6 +165,12 @@ function AccWideUIAceAddon:GenerateDefaultDB()
 					cvars = {}
 				},
 				uiMisc = {
+					cvars = {}
+				},
+				systemGraphics = {
+					cvars = {}
+				},
+				systemAudio = {
 					cvars = {}
 				},
 				chat = {
@@ -430,6 +438,7 @@ function AccWideUIAceAddon:GenerateOptions()
 										name = L["ACCWUI_OPT_MODULES_CHK_CHATWINDOW"],
 										order = 70,
 										width = thisCheckboxWidth,
+										disabled = function() return C_AddOns.IsAddOnLoaded("Chattynator") end,
 										desc = L["ACCWUI_OPT_MODULES_CHK_CHATWINDOW_DESC"],
 									},
 									chatWindowPosition = {
@@ -445,7 +454,7 @@ function AccWideUIAceAddon:GenerateOptions()
 										name = L["ACCWUI_OPT_MODULES_CHK_CHATCHANNELS"],
 										order = 90,
 										width = thisCheckboxWidth,
-										disabled = "ShouldChatOptsDisable",
+										--disabled = "ShouldChatOptsDisable",
 										desc = L["ACCWUI_OPT_MODULES_CHK_CHATCHANNELS_DESC"],
 									},
 									locationVisibility = {
@@ -556,6 +565,31 @@ function AccWideUIAceAddon:GenerateOptions()
 										order = 1100,
 										width = thisCheckboxWidth,
 										desc = L["ACCWUI_OPT_MODULES_CHK_UIMISC_DESC"],
+									},
+								}
+							},
+							groupSystem = {
+								type = "group",
+								name = L["ACCWUI_OPT_GROUP_SYSTEM"],
+								order = 20,
+								inline = true,
+								get = "GetSyncToggle",
+								set = "SetSyncToggle",
+								width = "full",
+								args = {
+									systemGraphics = {
+										type = "toggle",
+										name = L["ACCWUI_OPT_MODULES_CHK_SYSGRAPHICS"],
+										order = 10,
+										width = thisCheckboxWidth,
+										desc = L["ACCWUI_OPT_MODULES_CHK_SYSGRAPHICS_DESC"],
+									},
+									systemAudio = {
+										type = "toggle",
+										name = L["ACCWUI_OPT_MODULES_CHK_SYSAUDIO"],
+										order = 11,
+										width = thisCheckboxWidth,
+										desc = L["ACCWUI_OPT_MODULES_CHK_SYSAUDIO_DESC"],
 									},
 								}
 							},
@@ -1321,7 +1355,9 @@ function AccWideUIAceAddon:SetCustomCVarList(info, value)
 end
 
 function AccWideUIAceAddon:ShouldChatOptsDisable()
-	if (self.db.profile.syncToggles.chatWindow == true) then
+	if (C_AddOns.IsAddOnLoaded("Chattynator") == true) then
+		return true
+	elseif (self.db.profile.syncToggles.chatWindow == true) then
 		return false
 	else
 		return true
