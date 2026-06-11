@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.8.0-RC7) add-on for World of Warcraft UI
+    Decursive (v 2.8.0-RC8) add-on for World of Warcraft UI
     Copyright (C) 2006-2025 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2026-04-25T21:26:14Z
+    This file was last updated on 2026-06-05T09:33:33Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -492,7 +492,12 @@ function D:PLAYER_ALIVE()
 end
 
 function D:LEARNED_SPELL_IN_TAB()
-    D:Debug("|cFFFF0000A new spell was learned, scheduling a reconfiguration|r");
+    D:Debug("|cFFFF0000A new spell was learned, scheduling a reconfiguration (LEARNED_SPELL_IN_TAB)|r");
+    self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self);
+end
+
+function D:LEARNED_SPELL_IN_SKILL_LINE()
+    D:Debug("|cFFFF0000A new spell was learned, scheduling a reconfiguration (LEARNED_SPELL_IN_SKILL_LINE)|r");
     self:ScheduleDelayedCall("Dcr_ReConfigure", self.ReConfigure, 4, self);
 end
 
@@ -1279,6 +1284,6 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_Events.lua"] = "2.8.0-RC7";
+T._LoadedFiles["Dcr_Events.lua"] = "2.8.0-RC8";
 
 -- The Great Below
