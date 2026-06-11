@@ -60,7 +60,7 @@ L:RegisterLocale("ruRU", {
 	["Can't apply settings during combat."] = "Невозможно применить настройки во время боя.",
 	["Can't do that during combat."] = "Невозможно сделать это во время боя.",
 	["Failed to decode profile string."] = "Не удалось декодировать строку профиля.",
-	["Healer in CC!"] = "Целитель под контролем!",
+	["Healer in CC!"] = "Целитель в СС",
 	["Invalid profile string."] = "Неверная строка профиля.",
 	["Please paste a profile string to import."] = "Пожалуйста, вставьте строку профиля для импорта.",
 	["Profile imported successfully."] = "Профиль успешно импортирован.",
@@ -151,6 +151,8 @@ L:RegisterLocale("ruRU", {
 	["Enable pet frame CC in battlegrounds."] = "Включить КО рамки питомца на полях боя.",
 	["Enable pet frame CC in dungeons."] = "Включить КО рамки питомца в PvE.",
 	["Enable pet frame CC in raids."] = "Включить КО рамки питомца в PvE.",
+	["Show on pet unit frame"] = "Показывать на рамке питомца",
+	["Also show a CC icon container next to your own pet's unit frame (Blizzard or supported unit-frame addons), in addition to the party/raid pet frames."] = "Также показывать иконки контроля рядом с рамкой вашего собственного питомца (Blizzard или поддерживаемые аддоны рамок), в дополнение к рамкам питомцев группы/рейда.",
 	["Exclude yourself from showing CC icons."] = "Исключить себя из отображения иконок контроля.",
 	["Greater than 5 members (raids/bgs)"] = "Более 5 членов (рейды/ПВП)",
 	["Less than 5 members (arena/dungeons)"] = "Менее 5 членов (арена/подземелья)",
@@ -181,7 +183,7 @@ L:RegisterLocale("ruRU", {
 	-- Healer tab
 	["A separate region for when your healer is CC'd."] = "Отдельная область для когда ваш целитель под контролем.",
 	["Play a sound when the healer is CC'd."] = "Воспроизводить звук, когда целитель под контролем.",
-	["Show the 'Healer in CC!' text above the icons."] = "Показать 'Целитель под контролем!' над иконками.",
+	["Show the 'Healer in CC!' text above the icons."] = "Показать 'Целитель в СС' над иконками.",
 	["Show warning text"] = "Текст предупреждения",
 	["Text Size"] = "Размер текста",
 

@@ -95,9 +95,6 @@ local function CreateContainer(unitFrame, portrait)
 	-- inherit scale from portrait so icons scale with it
 	container.Frame:SetIgnoreParentScale(false)
 
-	-- in case something hides the portrait by setting alpha to 0
-	container.Frame:SetIgnoreParentAlpha(false)
-
 	-- Skip attachment if the portrait dimensions are secret (tainted frame)
 	-- seems to happen with ElvUI when their portraits are disabled
 	local w = portrait:GetWidth()
@@ -293,6 +290,33 @@ local function GetEllesmereUIFrame(unit)
 	-- and frame.Portrait.backdrop is the parent Frame that owns the slot. Anchor to the
 	-- backdrop since it's always a Frame with stable dimensions across portrait modes.
 	local portrait = frame.Portrait and frame.Portrait.backdrop
+	if not portrait then
+		return nil, nil
+	end
+
+	return frame, portrait
+end
+
+---@param unit string
+---@return table? unitFrame
+---@return table? portrait
+local function GetEQolFrame(unit)
+	local frame
+	if unit == "player" then
+		frame = _G.EQOLUFPlayerFrame
+	elseif unit == "target" then
+		frame = _G.EQOLUFTargetFrame
+	elseif unit == "focus" then
+		frame = _G.EQOLUFFocusFrame
+	elseif unit == "pet" then
+		frame = _G.EQOLUFPetFrame
+	end
+
+	if not frame or (frame.IsForbidden and frame:IsForbidden()) then
+		return nil, nil
+	end
+
+	local portrait = frame.portraitHolder or frame.portrait
 	if not portrait then
 		return nil, nil
 	end
@@ -598,6 +622,52 @@ local function AttachEllesmereUIFrame(unit)
 	containers[#containers + 1] = container
 end
 
+---@param unit string
+local function AttachEQolFrame(unit)
+	local eqolFrame, eqolPortrait = GetEQolFrame(unit)
+
+	if not eqolFrame or not eqolPortrait then
+		return
+	end
+
+	local watcher = watchers[unit]
+
+	if not watcher then
+		return
+	end
+
+	local container = CreateContainer(eqolFrame, eqolPortrait)
+	if not container then return end
+	local portraitLevel = eqolPortrait.GetFrameLevel and eqolPortrait:GetFrameLevel()
+		or eqolFrame:GetFrameLevel()
+		or 0
+	container.Frame:SetFrameLevel(portraitLevel + 10)
+
+	local originalSetSlot = container.SetSlot
+	container.SetSlot = function(self, slotIndex, options)
+		originalSetSlot(self, slotIndex, options)
+		local slot = self.Slots[slotIndex]
+		if slot and slot.Container and slot.Container.Icon and slot.Container.Cooldown then
+			slot.Frame:SetAllPoints(eqolPortrait)
+			slot.Container.Frame:SetAllPoints(eqolPortrait)
+			slot.Container.Icon:SetAllPoints(eqolPortrait)
+			slot.Container.Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+			slot.Container.Cooldown:SetAllPoints(eqolPortrait)
+		end
+	end
+
+	watcher:RegisterCallback(function()
+		OnAuraInfo(unit, watcher, container)
+	end)
+	if unit == "target" or unit == "focus" then
+		unitUpdateFns[unit] = unitUpdateFns[unit] or {}
+		unitUpdateFns[unit][#unitUpdateFns[unit] + 1] = function()
+			OnAuraInfo(unit, watcher, container)
+		end
+	end
+	containers[#containers + 1] = container
+end
+
 local function RefreshTestIcons()
 	local spellId = testSpells[1].SpellId
 	local tex = C_Spell.GetSpellTexture(spellId)
@@ -721,6 +791,10 @@ function M:Init()
 		AttachEllesmereUIFrame("target")
 		AttachEllesmereUIFrame("focus")
 		AttachEllesmereUIFrame("pet")
+		AttachEQolFrame("player")
+		AttachEQolFrame("target")
+		AttachEQolFrame("focus")
+		AttachEQolFrame("pet")
 	end)
 
 	kickTracker:Watch("target", { "PLAYER_TARGET_CHANGED" })
