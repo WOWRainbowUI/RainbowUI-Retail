@@ -36,9 +36,11 @@ L["Export favorites of %s"] = "%s의 즐겨찾기 내보내기";
 L["Import favorites for %s\nPaste import string here:"] = "%s의 즐겨찾기 가져오기\n가져오기 문자열을 여기에 붙여넣으세요:";
 L["Merge"] = "합치기";
 L["Overwrite"] = "덮어쓰기";
+L["Merge keeps your existing favorites and only adds new items. Overwrite replaces all of them."] = "합치기는 기존 즐겨찾기를 유지하고 새 아이템만 추가합니다. 덮어쓰기는 전부 교체합니다.";
 L["%d |4favorite:favorites; imported%s."] = "즐겨찾기 %d개 가져옴%s.";
 L[" (overwritten)"] = " (덮어씀)";
 L["Import failed - %s"] = "가져오기 실패 - %s";
+L["All items are already in your favorites."] = "모든 아이템이 이미 즐겨찾기에 있습니다.";
 L["Some specs were skipped - import string belongs to a different class."] = "일부 전문화를 건너뜀 - 가져오기 문자열이 다른 직업에 속함.";
 L["Manage characters"] = "캐릭터 관리";
 L["Hidden"] = "숨김";
@@ -63,6 +65,7 @@ L["No favorites found"] = "즐겨찾기 없음";
 L["Invalid import string."] = "유효하지 않은 가져오기 문자열.";
 L["No character selected."] = "캐릭터가 선택되지 않았습니다.";
 L["No valid items found."] = "유효한 아이템을 찾을 수 없습니다.";
+L["This import string requires a newer version of KeystoneLoot."] = "이 가져오기 문자열에는 더 최신 버전의 KeystoneLoot이(가) 필요합니다.";
 
 -- icon_button.lua / favorites.lua
 L["Set Favorite"] = "즐겨찾기 설정";
@@ -84,3 +87,10 @@ L["Favorite dropped!"] = "즐겨찾기 아이템 드롭!";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "텍스트는 설정에서 수정할 수 있습니다.";
+
+-- voidcore.lua
+L["Rescanning for bonus rolls..."] = "보너스 주사위를 다시 검사하는 중...";
+L["Rescan bonus rolls"] = "보너스 주사위 다시 검사";
+L["Checking for past bonus rolls (one time)..."] = "지난 보너스 주사위 확인 중 (최초 1회)...";
+L["%d past |4bonus roll:bonus rolls; detected."] = "지난 보너스 주사위 %d개를 감지했습니다.";
+L["No untracked bonus rolls found."] = "추적되지 않은 보너스 주사위가 없습니다.";

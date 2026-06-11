@@ -36,9 +36,11 @@ L["Export favorites of %s"] = "Exporter les favoris de %s";
 L["Import favorites for %s\nPaste import string here:"] = "Importer les favoris de %s\nCollez la chaîne d'importation ici :";
 L["Merge"] = "Fusionner";
 L["Overwrite"] = "Écraser";
+L["Merge keeps your existing favorites and only adds new items. Overwrite replaces all of them."] = "Fusionner conserve vos favoris existants et n'ajoute que les nouveaux objets. Écraser les remplace tous.";
 L["%d |4favorite:favorites; imported%s."] = "%d |4favori:favoris; importé%s.";
 L[" (overwritten)"] = " (écrasé)";
 L["Import failed - %s"] = "Échec de l'importation - %s";
+L["All items are already in your favorites."] = "Tous les objets sont déjà dans vos favoris.";
 L["Some specs were skipped - import string belongs to a different class."] = "Certaines spécialisations ont été ignorées - la chaîne d'importation appartient à une autre classe.";
 L["Manage characters"] = "Gérer les personnages";
 L["Hidden"] = "Masqué";
@@ -63,6 +65,7 @@ L["No favorites found"] = "Aucun favori trouvé";
 L["Invalid import string."] = "Chaîne d'importation non valide.";
 L["No character selected."] = "Aucun personnage sélectionné.";
 L["No valid items found."] = "Aucun objet valide trouvé.";
+L["This import string requires a newer version of KeystoneLoot."] = "Cette chaîne d'importation nécessite une version plus récente de KeystoneLoot.";
 
 -- icon_button.lua / favorites.lua
 L["Set Favorite"] = "Définir le favori";
@@ -83,3 +86,10 @@ L["Favorite dropped!"] = "Favori obtenu !";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "Le texte peut être modifié dans les paramètres.";
+
+-- voidcore.lua
+L["Rescanning for bonus rolls..."] = "Nouvelle analyse des jets bonus...";
+L["Rescan bonus rolls"] = "Rescanner les jets bonus";
+L["Checking for past bonus rolls (one time)..."] = "Recherche d'anciens jets bonus (unique)...";
+L["%d past |4bonus roll:bonus rolls; detected."] = "%d |4ancien jet bonus détecté:anciens jets bonus détectés;.";
+L["No untracked bonus rolls found."] = "Aucun jet bonus non suivi trouvé.";

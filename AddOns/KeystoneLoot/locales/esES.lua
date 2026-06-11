@@ -36,9 +36,11 @@ L["Export favorites of %s"] = "Exportar favoritos de %s";
 L["Import favorites for %s\nPaste import string here:"] = "Importar favoritos de %s\nPega la cadena de importación aquí:";
 L["Merge"] = "Combinar";
 L["Overwrite"] = "Sobrescribir";
+L["Merge keeps your existing favorites and only adds new items. Overwrite replaces all of them."] = "Combinar mantiene tus favoritos actuales y solo añade objetos nuevos. Sobrescribir los reemplaza todos.";
 L["%d |4favorite:favorites; imported%s."] = "%d |4favorito:favoritos; importado%s.";
 L[" (overwritten)"] = " (sobrescrito)";
 L["Import failed - %s"] = "Importación fallida - %s";
+L["All items are already in your favorites."] = "Todos los objetos ya están en tus favoritos.";
 L["Some specs were skipped - import string belongs to a different class."] = "Algunas especializaciones fueron omitidas - la cadena de importación pertenece a una clase diferente.";
 L["Manage characters"] = "Gestionar personajes";
 L["Hidden"] = "Oculto";
@@ -63,6 +65,7 @@ L["No favorites found"] = "No se encontraron favoritos";
 L["Invalid import string."] = "Cadena de importación no válida.";
 L["No character selected."] = "Ningún personaje seleccionado.";
 L["No valid items found."] = "No se encontraron objetos válidos.";
+L["This import string requires a newer version of KeystoneLoot."] = "Esta cadena de importación requiere una versión más reciente de KeystoneLoot.";
 
 -- icon_button.lua / favorites.lua
 L["Set Favorite"] = "Establecer favorito";
@@ -83,3 +86,10 @@ L["Favorite dropped!"] = "¡Favorito obtenido!";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "El texto se puede modificar en los ajustes.";
+
+-- voidcore.lua
+L["Rescanning for bonus rolls..."] = "Volviendo a escanear tiradas bonificadas...";
+L["Rescan bonus rolls"] = "Volver a escanear tiradas bonificadas";
+L["Checking for past bonus rolls (one time)..."] = "Buscando tiradas bonificadas anteriores (una vez)...";
+L["%d past |4bonus roll:bonus rolls; detected."] = "%d |4tirada bonificada anterior detectada:tiradas bonificadas anteriores detectadas;.";
+L["No untracked bonus rolls found."] = "No se encontraron tiradas bonificadas sin registrar.";

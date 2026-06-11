@@ -1,11 +1,13 @@
-## New Features
-- Import from external sources like www.keystoneloot.io
-
 ## Bugfixes
-- If specId == 0 use current spec in BuildItemLink function
+- Observer for Custom Items
 
 ## Improvements
-- Highlight logic for combo mode
+- Detect previously used Void Core bonus rolls
+- Add an option to rescan for past bonus rolls
 
 ## Other Changes
-- Update data
+- Update export format to v3 and enhance item handling with optional gems and enchantments
+- Enhance favorites handling: add support for spec-specific bonus IDs, gems, and enchantments; update import feedback for existing favorites
+- Update RU locale
+- Merge pull request [#57](https://github.com/Wolkenschutz/KeystoneLoot/pull/57) by [Hollicsh](https://github.com/Hollicsh) from Hollicsh/main
+- Simplify mirror item filtering

@@ -39,9 +39,11 @@ L["Export favorites of %s"] = "Favoriten von %s exportieren";
 L["Import favorites for %s\nPaste import string here:"] = "Favoriten für %s importiert\nImport-String hier einfügen:";
 L["Merge"] = "Zusammenführen";
 L["Overwrite"] = "Überschreiben";
+L["Merge keeps your existing favorites and only adds new items. Overwrite replaces all of them."] = "Zusammenführen behält deine vorhandenen Favoriten und fügt nur neue Gegenstände hinzu. Überschreiben ersetzt alle.";
 L["%d |4favorite:favorites; imported%s."] = "%d |4Favorit:Favoriten; importiert%s.";
 L[" (overwritten)"] = " (überschrieben)";
 L["Import failed - %s"] = "Import fehlgeschlagen - %s";
+L["All items are already in your favorites."] = "Alle Gegenstände sind bereits in deinen Favoriten.";
 L["Some specs were skipped - import string belongs to a different class."] = "Einige Spezialisierungen wurden übersprungen - der Import-String gehört zu einer anderen Klasse.";
 L["Manage characters"] = "Charaktere verwalten";
 L["Hidden"] = "Ausgeblendet";
@@ -66,6 +68,7 @@ L["No favorites found"] = "Keine Favoriten gefunden";
 L["Invalid import string."] = "Ungültiger Import-String.";
 L["No character selected."] = "Kein Charakter ausgewählt.";
 L["No valid items found."] = "Keine gültigen Gegenstände gefunden.";
+L["This import string requires a newer version of KeystoneLoot."] = "Dieser Import-String benötigt eine neuere Version von KeystoneLoot.";
 
 -- icon_button.lua / favorites.lua
 L["Set Favorite"] = "Favorit festlegen";
@@ -87,3 +90,10 @@ L["Favorite dropped!"] = "Favorit gedroppt!";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "Der Text kann in den Einstellungen geändert werden.";
+
+-- voidcore.lua
+L["Rescanning for bonus rolls..."] = "Bonuswürfe werden erneut gescannt...";
+L["Rescan bonus rolls"] = "Bonuswürfe scannen";
+L["Checking for past bonus rolls (one time)..."] = "Suche nach vergangenen Bonuswürfen (einmalig)...";
+L["%d past |4bonus roll:bonus rolls; detected."] = "%d |4Bonuswurf:Bonuswürfe; erkannt.";
+L["No untracked bonus rolls found."] = "Alle Bonuswürfe sind bereits erfasst.";

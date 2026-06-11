@@ -36,9 +36,11 @@ L["Export favorites of %s"] = "Esporta preferiti di %s";
 L["Import favorites for %s\nPaste import string here:"] = "Importa preferiti di %s\nIncolla qui la stringa di importazione:";
 L["Merge"] = "Unisci";
 L["Overwrite"] = "Sovrascrivi";
+L["Merge keeps your existing favorites and only adds new items. Overwrite replaces all of them."] = "Unisci mantiene i tuoi preferiti esistenti e aggiunge solo nuovi oggetti. Sovrascrivi li sostituisce tutti.";
 L["%d |4favorite:favorites; imported%s."] = "%d |4preferito:preferiti; importato%s.";
 L[" (overwritten)"] = " (sovrascritto)";
 L["Import failed - %s"] = "Importazione fallita - %s";
+L["All items are already in your favorites."] = "Tutti gli oggetti sono già nei tuoi preferiti.";
 L["Some specs were skipped - import string belongs to a different class."] = "Alcune specializzazioni sono state saltate - la stringa di importazione appartiene a una classe diversa.";
 L["Manage characters"] = "Gestisci personaggi";
 L["Hidden"] = "Nascosto";
@@ -63,6 +65,7 @@ L["No favorites found"] = "Nessun preferito trovato";
 L["Invalid import string."] = "Stringa di importazione non valida.";
 L["No character selected."] = "Nessun personaggio selezionato.";
 L["No valid items found."] = "Nessun oggetto valido trovato.";
+L["This import string requires a newer version of KeystoneLoot."] = "Questa stringa di importazione richiede una versione più recente di KeystoneLoot.";
 
 -- icon_button.lua / favorites.lua
 L["Set Favorite"] = "Imposta preferito";
@@ -83,3 +86,10 @@ L["Favorite dropped!"] = "Preferito droppato!";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "Il testo può essere modificato nelle impostazioni.";
+
+-- voidcore.lua
+L["Rescanning for bonus rolls..."] = "Nuova scansione dei tiri bonus...";
+L["Rescan bonus rolls"] = "Riscansiona i tiri bonus";
+L["Checking for past bonus rolls (one time)..."] = "Ricerca di tiri bonus passati (una volta)...";
+L["%d past |4bonus roll:bonus rolls; detected."] = "%d |4tiro bonus passato rilevato:tiri bonus passati rilevati;.";
+L["No untracked bonus rolls found."] = "Nessun tiro bonus non tracciato trovato.";

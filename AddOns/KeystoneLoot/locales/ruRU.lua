@@ -36,9 +36,11 @@ L["Export favorites of %s"] = "Экспортировать избранное %
 L["Import favorites for %s\nPaste import string here:"] = "Импортировать избранное для %s\nВставьте строку импорта сюда:";
 L["Merge"] = "Объединить";
 L["Overwrite"] = "Перезаписать";
+L["Merge keeps your existing favorites and only adds new items. Overwrite replaces all of them."] = "При объединении сохраняются Ваши текущие избранные предметы, а добавляются только новые. При замене все они будут перезаписаны.";
 L["%d |4favorite:favorites; imported%s."] = "Успешно импортировано %d |4предмет:предмета:предметов;%s.";
 L[" (overwritten)"] = " (перезаписано)";
 L["Import failed - %s"] = "Ошибка импорта - %s";
+L["All items are already in your favorites."] = "Все предметы уже находятся в Вашем избранном.";
 L["Some specs were skipped - import string belongs to a different class."] = "Некоторые специализации пропущены - строка импорта принадлежит другому классу.";
 L["Manage characters"] = "Управление персонажами";
 L["Hidden"] = "Скрытый";
@@ -63,6 +65,7 @@ L["No favorites found"] = "Избранное не найдено";
 L["Invalid import string."] = "Неверная строка импорта.";
 L["No character selected."] = "Персонаж не выбран.";
 L["No valid items found."] = "Допустимые предметы не найдены.";
+L["This import string requires a newer version of KeystoneLoot."] = "Эта строка импорта требует более новой версии KeystoneLoot.";
 
 -- icon_button.lua / favorites.lua
 L["Set Favorite"] = "Добавить в избранное";
@@ -85,3 +88,10 @@ L["Favorite dropped!"] = "Избранный предмет выпал!";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "Текст можно изменить в настройках.";
+
+-- voidcore.lua
+L["Rescanning for bonus rolls..."] = "Повторное сканирование бонусных бросков...";
+L["Rescan bonus rolls"] = "Сканировать бонусные броски заново";
+L["Checking for past bonus rolls (one time)..."] = "Поиск прошлых бонусных бросков (однократно)...";
+L["%d past |4bonus roll:bonus rolls; detected."] = "Обнаружено прошлых бонусных бросков: %d.";
+L["No untracked bonus rolls found."] = "Неотслеженных бонусных бросков не найдено.";
