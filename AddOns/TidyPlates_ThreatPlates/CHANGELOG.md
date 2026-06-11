@@ -1,5 +1,5 @@
 
-# 13.0.15 (2026-06-07)
+# 13.0.18 (2026-06-10)
 
-* Fixed a Lua error that occurred when Flash when Expiring was enabled in the Auras Widget [GH-696].
-* Fixed a Lua error that occurred when Threat Plates options were opened during combat.
+* Fixed a Lua error that occurred in when switching targets and the new target's nameplate was not yet fully initialized [GH-701].
+* Fixed Lua errors in Arena widget that occurred because of wrong handling of secret values and a type  [GH-700].
