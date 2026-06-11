@@ -36,9 +36,11 @@ L["Export favorites of %s"] = "匯出 %s 的最愛";
 L["Import favorites for %s\nPaste import string here:"] = "匯入 %s 的最愛\n在此貼上匯入字串：";
 L["Merge"] = "合併";
 L["Overwrite"] = "覆蓋";
+L["Merge keeps your existing favorites and only adds new items. Overwrite replaces all of them."] = "合併會保留你現有的最愛，只新增物品。覆蓋則會取代全部。";
 L["%d |4favorite:favorites; imported%s."] = "成功匯入 %d 件物品%s。";
 L[" (overwritten)"] = "（已覆蓋）";
 L["Import failed - %s"] = "匯入失敗 - %s";
+L["All items are already in your favorites."] = "所有物品已在你的最愛中。";
 L["Some specs were skipped - import string belongs to a different class."] = "部分專精已略過 - 匯入字串屬於其他職業。";
 L["Manage characters"] = "管理角色";
 L["Hidden"] = "已隱藏";
@@ -63,6 +65,7 @@ L["No favorites found"] = "未找到最愛";
 L["Invalid import string."] = "無效的匯入字串。";
 L["No character selected."] = "未選擇角色。";
 L["No valid items found."] = "未找到有效物品。";
+L["This import string requires a newer version of KeystoneLoot."] = "此匯入字串需要更新版本的 KeystoneLoot。";
 
 -- icon_button.lua / favorites.lua
 L["Set Favorite"] = "設定最愛";
@@ -84,3 +87,10 @@ L["Favorite dropped!"] = "最愛物品已掉落！";
 
 -- whisper_button.lua
 L["Text can be modified in the settings."] = "可在設定中修改文字。";
+
+-- voidcore.lua
+L["Rescanning for bonus rolls..."] = "正在重新掃描額外擲骰...";
+L["Rescan bonus rolls"] = "重新掃描額外擲骰";
+L["Checking for past bonus rolls (one time)..."] = "正在檢查過去的額外擲骰（單次）...";
+L["%d past |4bonus roll:bonus rolls; detected."] = "偵測到 %d 次過去的額外擲骰。";
+L["No untracked bonus rolls found."] = "未發現未記錄的額外擲骰。";

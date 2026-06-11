@@ -77,6 +77,14 @@ function KeystoneLootFrameMixin:OnEvent(event, ...)
     self.CatalystFrame:Init();
     self.CustomItemFrame:Init();
     KeystoneLootMinimapButton:Init();
+
+    if (DB:Get("voidcoreChecked") or UnitLevel("player") < 90) then
+        return;
+    end
+
+    C_Timer.After(3, function()
+        Voidcore:CheckAll();
+    end);
 end
 
 function KeystoneLootFrameMixin:SyncSpecFilter()
