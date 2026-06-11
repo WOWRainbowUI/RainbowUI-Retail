@@ -680,9 +680,6 @@ L["Options.BuffTracking.Smart.Desc"] =
 L["Options.BuffTracking.Mode"] = "增益追蹤模式"
 L["Options.BuffTracking.Mode.Desc"] =
     "設置要顯示的團隊和職業增益，以及是追蹤整個隊伍還是僅追蹤自身。"
-L["Options.BuffTracking.SelfOnlyOutsideInstances"] = "強制在地下城與團隊副本之外只有自己"
-L["Options.BuffTracking.SelfOnlyOutsideInstances.Desc"] =
-    "當啟用以後，在開放世界中，只會追蹤您自己的職業增益。選定的追蹤模式仍然在地下城、團隊副本、場景和 PvP中使用。"
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB

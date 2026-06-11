@@ -296,7 +296,7 @@ english["Page.Sounds.Desc"] =
 english["Section.Tracking"] = "Tracking"
 english["Section.TrackingOverrides"] = "Tracking overrides"
 english["Section.TrackingOverrides.Desc"] =
-    "Automatically narrow the tracking mode under specific conditions, regardless of the selection above."
+    "Narrow the tracking mode in specific situations. Leave a situation on Default to always use the mode above. When several apply at once (e.g. fighting while leveling), the most restrictive one wins."
 
 -- ============================================================================
 -- OPTIONS: SOUND ALERTS
@@ -479,6 +479,7 @@ english["ChatRequest.skyfury"] = "Skyfury buff pls"
 english["ChatRequest.atrophicNumbingPoison"] = "Atrophic/Numbing Poison pls"
 english["ChatRequest.devotionAura"] = "Devotion Aura pls"
 english["ChatRequest.soulstone"] = "Soulstone pls"
+english["ChatRequest.healthstone"] = "Healthstones pls"
 
 -- ============================================================================
 -- OPTIONS: PET
@@ -697,12 +698,16 @@ english["Options.BuffTracking.Smart.Desc"] =
 english["Options.BuffTracking.Mode"] = "Buff tracking mode"
 english["Options.BuffTracking.Mode.Desc"] =
     "Controls which raid and presence buffs are shown, and whether they track the full group or only you."
-english["Options.BuffTracking.SelfOnlyOutsideInstances"] = 'Use "Only my buffs, just on me" outside dungeons and raids'
-english["Options.BuffTracking.SelfOnlyOutsideInstances.Desc"] =
-    "Use 'Only my buffs, just on me' while in the open world. The selected tracking mode is still used inside dungeons, raids, scenarios, and PvP."
-english["Options.BuffTracking.HideOthersInCombat"] = 'Use "Only my buffs, all players" in combat'
-english["Options.BuffTracking.HideOthersInCombat.Desc"] =
-    "Use 'Only my buffs, all players' while in combat. Reminders for buffs from other classes (e.g. Mark of the Wild on a non-druid) stay visible out of combat so you can call them out, but disappear once the fight starts. Requires tracking mode 'All buffs, all players' or 'Smart'."
+english["Options.BuffTracking.Override.Default"] = "Default (use mode above)"
+english["Options.BuffTracking.Override.OutsideInstances"] = "Outside dungeons & raids"
+english["Options.BuffTracking.Override.OutsideInstances.Desc"] =
+    "Tracking mode to use in the open world. The mode selected above is still used inside dungeons, raids, scenarios, and PvP."
+english["Options.BuffTracking.Override.Combat"] = "In combat"
+english["Options.BuffTracking.Override.Combat.Desc"] =
+    "Tracking mode to use while in combat. For example, narrowing to 'Only my buffs' keeps reminders for buffs from other classes visible out of combat so you can call them out, but hides them once the fight starts."
+english["Options.BuffTracking.Override.Leveling"] = "While leveling"
+english["Options.BuffTracking.Override.Leveling.Desc"] =
+    "Tracking mode to use below max level. Once you reach max level, the mode selected above is used."
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB

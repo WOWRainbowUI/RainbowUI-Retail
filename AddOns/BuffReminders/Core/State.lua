@@ -932,25 +932,58 @@ local function ModeHidesOtherClasses(trackingMode)
     return trackingMode == "my_buffs" or trackingMode == "self_only"
 end
 
----Resolve the active tracking mode, applying overrides:
----- "self-only outside instances" forces self_only in open world.
----- "hide others in combat" narrows "all"/"smart" to "my_buffs" while in combat,
----  so reminders for buffs the player can't cast disappear during a fight.
----Instanced content (raid, dungeon, scenario, PvP) keeps the user-selected mode
----for the outside-instances override; the in-combat override applies everywhere.
+-- Restrictiveness ranking for tracking modes (higher = narrower scope). Drives
+-- override resolution: among the base mode and every active context override,
+-- the most restrictive (highest rank) wins.
+local MODE_RANK = {
+    all = 1,
+    smart = 2,
+    my_buffs = 3,
+    personal = 4,
+    self_only = 5,
+}
+
+---Apply a single context override, keeping whichever mode is more restrictive.
+---A nil or "default" override leaves the current mode untouched.
+---@param mode string
+---@param rank number
+---@param override string?
+---@return string mode
+---@return number rank
+local function ApplyOverride(mode, rank, override)
+    if override and override ~= "default" then
+        local r = MODE_RANK[override]
+        if r and r > rank then
+            return override, r
+        end
+    end
+    return mode, rank
+end
+
+---Resolve the active tracking mode, applying per-context overrides. Each context
+---(outside instances, combat, leveling) can narrow the base mode; when several
+---apply at once, the most restrictive wins. Overrides only ever narrow - one that
+---is wider than the current mode is inert.
 ---@param db table
 ---@return string
 local function GetEffectiveTrackingMode(db)
-    local mode = db.buffTrackingMode
-    if mode ~= "self_only" and db.selfOnlyOutsideInstances then
+    local mode = db.buffTrackingMode or "all"
+    local rank = MODE_RANK[mode] or 1
+
+    local outside = db.outsideInstancesMode
+    if outside and outside ~= "default" then
         local ct = GetCurrentContentType()
         if ct ~= "raid" and ct ~= "dungeon" and ct ~= "pvp" and ct ~= "scenario" then
-            return "self_only"
+            mode, rank = ApplyOverride(mode, rank, outside)
         end
     end
-    if inCombat and db.hideOthersInCombat and (mode == "all" or mode == "smart") then
-        return "my_buffs"
+    if inCombat then
+        mode, rank = ApplyOverride(mode, rank, db.combatMode)
     end
+    if playerLevel < maxExpansionLevel then
+        mode = ApplyOverride(mode, rank, db.levelingMode)
+    end
+
     return mode
 end
 

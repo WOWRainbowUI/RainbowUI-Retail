@@ -364,10 +364,13 @@ local defaults = {
     showOnlyInGroup = false,
     hideWhileResting = false,
     hideInCombat = false,
-    hideOthersInCombat = false,
     hideExpiringInCombat = true,
     buffTrackingMode = "all",
-    selfOnlyOutsideInstances = true,
+    -- Per-context tracking overrides: each is a tracking mode, or "default" for
+    -- no override. When several apply at once, the most restrictive mode wins.
+    outsideInstancesMode = "self_only",
+    combatMode = "default",
+    levelingMode = "my_buffs",
     hideAllInVehicle = false,
     hideWhileMounted = false,
     hideInLegacyInstances = true,
@@ -438,7 +441,9 @@ local defaults = {
         },
         healthstoneVisibility = "readyCheck",
         healthstoneThreshold = 1,
+        healthstoneLowStock = false,
         soulstoneVisibility = "readyCheck",
+        soulstoneHideCooldown = false,
         consumableDisplayMode = "sub_icons",
         consumableTextScale = 25,
         hideConsumableLabels = false,
@@ -447,6 +452,7 @@ local defaults = {
         hideLegacyConsumables = true,
         petDisplayMode = "generic", -- "generic" or "expanded"
         petLabels = true,
+        petLabelScale = 100,
         petSpecIconOnHover = true,
         petLabelClasses = {
             HUNTER = true,
@@ -4021,7 +4027,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
         -- ====================================================================
         -- Versioned migrations - each runs exactly once, tracked by dbVersion
         -- ====================================================================
-        local DB_VERSION = 43
+        local DB_VERSION = 44
 
         local migrations = {
             -- [1] Consolidate all pre-versioning migrations (v2.8 -> v3.x)
@@ -4894,6 +4900,31 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1, arg2, arg3)
                         db.defaults.textPositions.petLabel = { zone = "BELOW_C", offsetX = 0, offsetY = 2 }
                     end
                 end
+            end,
+
+            -- [44] Tracking overrides: convert the three boolean overrides into
+            -- per-context mode enums (value = a tracking mode, or "default" for no
+            -- override). Map each old boolean to the mode it used to force so every
+            -- user keeps their current effective behavior, then clear the old keys.
+            -- Guard on the OLD key's presence, not the new one: the new root keys
+            -- live in the AceDB profile defaults, so copyDefaults has already
+            -- rawset them before migrations run (`db.outsideInstancesMode == nil`
+            -- is never true here). A missing old key means the user kept its
+            -- historical default (which AceDB stripped on logout), so we leave the
+            -- eagerly-copied new default in place - it matches the old behavior.
+            [44] = function()
+                if db.selfOnlyOutsideInstances ~= nil then
+                    db.outsideInstancesMode = db.selfOnlyOutsideInstances and "self_only" or "default"
+                end
+                if db.hideOthersInCombat ~= nil then
+                    db.combatMode = db.hideOthersInCombat and "my_buffs" or "default"
+                end
+                if db.myBuffsOnlyWhileLeveling ~= nil then
+                    db.levelingMode = db.myBuffsOnlyWhileLeveling and "my_buffs" or "default"
+                end
+                db.selfOnlyOutsideInstances = nil
+                db.hideOthersInCombat = nil
+                db.myBuffsOnlyWhileLeveling = nil
             end,
         }
 
