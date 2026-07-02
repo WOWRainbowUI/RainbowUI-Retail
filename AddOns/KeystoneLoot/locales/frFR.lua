@@ -55,6 +55,10 @@ L["Shows a notification when another player loots an item you have marked as a f
 L["Whisper message..."] = "Message chuchoté...";
 L["Whisper message\n{item} will be replaced with the item link."] = "Message chuchoté\n{item} sera remplacé par le lien de l'objet.";
 L["Multiple slot filtering"] = "Filtrage de plusieurs emplacements";
+L["Auto Keystone response"] = "Réponse automatique de clé";
+L["Enable party chat"] = "Activer le canal de groupe";
+L["Enable guild chat"] = "Activer le canal de guilde";
+L["Automatically responds with your current Mythic+ keystone when someone types \"!keys\" in the selected chat channels. Only works if other group members also have this addon."] = "Répond automatiquement avec votre clé Mythique+ actuelle lorsqu'un joueur tape « !keys » dans les canaux de discussion sélectionnés. Fonctionne uniquement si les autres membres du groupe ont aussi cet addon.";
 
 -- custom_item_icon.lua
 L["Custom Items"] = "Objets personnalisés";

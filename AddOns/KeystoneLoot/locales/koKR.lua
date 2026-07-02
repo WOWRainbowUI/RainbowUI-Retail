@@ -55,6 +55,10 @@ L["Shows a notification when another player loots an item you have marked as a f
 L["Whisper message..."] = "귓속말 메시지...";
 L["Whisper message\n{item} will be replaced with the item link."] = "귓속말 메시지\n{item}은(는) 아이템 링크로 대체됩니다.";
 --L["Multiple slot filtering"] = "";
+L["Auto Keystone response"] = "쐐기돌 자동 응답";
+L["Enable party chat"] = "파티 채팅에서 활성화";
+L["Enable guild chat"] = "길드 채팅에서 활성화";
+L["Automatically responds with your current Mythic+ keystone when someone types \"!keys\" in the selected chat channels. Only works if other group members also have this addon."] = "누군가 선택한 채팅 채널에서 \"!keys\"를 입력하면 현재 신화+ 쐐기돌로 자동 응답합니다. 다른 그룹원도 이 애드온을 설치한 경우에만 작동합니다.";
 
 -- custom_item_icon.lua
 L["Custom Items"] = "커스텀 아이템";
