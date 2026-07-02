@@ -683,6 +683,7 @@ local currentSeasonBonusIDs = {
   [13654] = true, -- Voidforged
   [13655] = true, -- Voidforged
   [12066] = true, -- Radiance Crafted
+  [13786] = true, -- Sporefused: Myth
 }
 
 local function CheckBonusIDs(itemLink)

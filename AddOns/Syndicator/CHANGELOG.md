@@ -1,6 +1,6 @@
 # Syndicator
 
-## [270](https://github.com/TheMouseNest/Syndicator/tree/270) (2026-06-04)
-[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/269...270) 
+## [272](https://github.com/TheMouseNest/Syndicator/tree/272) (2026-06-18)
+[Full Changelog](https://github.com/TheMouseNest/Syndicator/compare/271...272) 
 
-- Mists: Fix for function existing, but no keyring  
+- Add "Sporefused: Myth" to bonus IDs for current season  
