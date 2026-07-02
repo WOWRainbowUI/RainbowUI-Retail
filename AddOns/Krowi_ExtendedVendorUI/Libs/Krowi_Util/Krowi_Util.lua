@@ -5,7 +5,7 @@
 
 ---@diagnostic disable: undefined-global
 
-local lib = KROWI_LIBMAN:NewLibrary('Krowi_Util_2', 2, {
+local lib = KROWI_LIBMAN:NewLibrary('Krowi_Util_2', 3, {
     SetCurrent = true,
     -- InitLocalization = true, -- Handled in LocalizationHelper sub module
 })
@@ -15,6 +15,8 @@ KROWI_LIBMAN:SetUtil(lib)
 
 local version = (GetBuildInfo())
 local majorVersion = string.match(version, '(%d+)%.(%d+)%.(%d+)(%w?)')
+lib.IsClassicEra = majorVersion == '1'
+lib.IsBCCClassic = majorVersion == '2'
 lib.IsMistsClassic = majorVersion == '5'
 lib.IsClassicWithAchievements = lib.IsMistsClassic
 lib.IsTheWarWithin = majorVersion == '11'

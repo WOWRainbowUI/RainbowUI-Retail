@@ -4,11 +4,14 @@
  -->
 
 <Ui>
+	<GameTooltip name="Krowi_Tooltip" inherits="GameTooltipTemplate" parent="UIParent" frameStrata="TOOLTIP" hidden="true"/>
+	
 	<Include file='Libs\Files.xml'/>
 	<Script file='LibMan.lua'/>
 
 	<Script file='Krowi_Util.lua'/>
 	<Script file='Constants.lua'/>
+
 	<Script file='Colors.lua'/>
 	<Script file='Strings.lua'/>
 	<Script file='Metadata.lua'/>

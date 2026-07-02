@@ -18,7 +18,9 @@ merchantItemsContainer.ItemWidth, merchantItemsContainer.ItemHeight = MerchantIt
 local function ItemSlotOnEnter(button)
 	GameTooltip:SetOwner(button, 'ANCHOR_RIGHT')
 	if MerchantFrame.selectedTab == 1 then
-		GameTooltip:SetMerchantItem(addon.CachedItemIndices[button:GetID()])
+		local index = addon.CachedItemIndices[button:GetID()]
+		if not index then return end
+		GameTooltip:SetMerchantItem(index)
 		GameTooltip_ShowCompareItem(GameTooltip)
 		MerchantFrame.itemHover = button:GetID()
 	else
@@ -34,6 +36,23 @@ end
 local function SetOnEnter(frame)
     frame:SetScript('OnEnter', ItemSlotOnEnter)
     frame.UpdateTooltip = ItemSlotOnEnter
+    local function handleModifiedClick(btn, button)
+        if addon.Options.db and addon.Options.db.profile.BulkPurchase.Enabled then
+            KrowiEVU_BulkPurchaseMixin:OnModifiedClick(btn, button)
+        else
+            MerchantItemButton_OnModifiedClick(btn, button)
+        end
+    end
+    frame:HookScript('OnClick', function(btn, button)
+        if addon.Options.db and addon.Options.db.profile.BulkPurchase.Enabled and IsModifiedClick() then
+            handleModifiedClick(btn, button)
+            if MerchantFrame_CloseStackSplitFrame then
+                MerchantFrame_CloseStackSplitFrame()
+            elseif StackSplitFrame then
+                StackSplitFrame:Hide()
+            end
+        end
+    end)
 end
 
 local infoNumRows, infoNumColumns = 0, 0
