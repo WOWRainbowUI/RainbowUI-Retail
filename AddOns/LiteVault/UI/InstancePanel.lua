@@ -85,7 +85,8 @@ local function T(key, fallback)
     if not L then return fallback end
     local v = L[key]
     if not v or v == key then
-        return fallback
+        local enUS = lv.LocaleData and lv.LocaleData["enUS"]
+        return fallback or (enUS and enUS[key]) or key
     end
     return v
 end
@@ -179,7 +180,7 @@ local function BuildRunCrestGainText(run)
         return nil
     end
 
-    return "|cffd4af37" .. T("Crests:", "Crests:") .. " " .. table.concat(parts, " ") .. "|r"
+    return "|cffd4af37" .. T("LABEL_CRESTS") .. " " .. table.concat(parts, " ") .. "|r"
 end
 
 local function BuildRunTitleText(run)
@@ -250,7 +251,7 @@ local function EnsurePanel()
     })
     mplusBtn.Text = mplusBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     mplusBtn.Text:SetPoint("CENTER")
-    mplusBtn.Text:SetText(T("LABEL_MYTHIC_PLUS", "M+"))
+    mplusBtn.Text:SetText(T("LABEL_MYTHIC_PLUS"))
     lv.ApplyLocaleFont(mplusBtn.Text, 11)
     mplusBtn:SetScript("OnClick", function()
         if currentTab == "instances" then
@@ -310,12 +311,12 @@ local function EnsurePanel()
     widgets.currentMountsBtn:SetScript("OnEnter", function(self)
         if not self.mountEntries or #self.mountEntries == 0 then return end
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(T("Mount Drops", "Mount Drops"), 1, 0.82, 0)
+        GameTooltip:SetText(T("TITLE_MOUNT_DROPS"), 1, 0.82, 0)
         for _, m in ipairs(self.mountEntries) do
             if m.collected then
-                GameTooltip:AddLine("|cff00ff00" .. m.name .. " " .. T("(Collected)", "(Collected)") .. "|r")
+                GameTooltip:AddLine("|cff00ff00" .. m.name .. " " .. T("STATUS_COLLECTED_PARENS") .. "|r")
             else
-                GameTooltip:AddLine("|cffff4040" .. m.name .. " " .. T("(Uncollected)", "(Uncollected)") .. "|r")
+                GameTooltip:AddLine("|cffff4040" .. m.name .. " " .. T("STATUS_UNCOLLECTED_PARENS") .. "|r")
             end
         end
         GameTooltip:Show()
@@ -452,27 +453,27 @@ function lv.UpdateInstancePanel()
     if not panel then return end
     LayoutPanel()
 
-    widgets.title:SetText(T("TITLE_INSTANCE_TRACKER", "Instance Tracker"))
+    widgets.title:SetText(T("TITLE_INSTANCE_TRACKER"))
     local t = lv.GetTheme()
     if currentTab == "instances" then
         widgets.mplusBtn:SetBackdropBorderColor(unpack(t.borderPrimary))
         widgets.mplusBtn:SetBackdropColor(unpack(t.buttonBg))
         widgets.mplusBtn.Text:SetTextColor(unpack(t.textSecondary))
-        widgets.mplusBtn.Text:SetText(T("LABEL_MYTHIC_PLUS", "M+"))
+        widgets.mplusBtn.Text:SetText(T("LABEL_MYTHIC_PLUS"))
     else
         widgets.mplusBtn:SetBackdropBorderColor(unpack(t.borderHover))
         widgets.mplusBtn:SetBackdropColor(unpack(t.buttonBgHover))
         widgets.mplusBtn.Text:SetTextColor(unpack(t.textPrimary))
-        widgets.mplusBtn.Text:SetText(T("BUTTON_BACK", "Back"))
+        widgets.mplusBtn.Text:SetText(T("BUTTON_BACK"))
     end
 
-    widgets.capTitle:SetText(T("SECTION_INSTANCE_CAP", "Instance Cap (10/hour)"))
+    widgets.capTitle:SetText(T("SECTION_INSTANCE_CAP"))
     local capCount = (lv.InstanceCap and lv.InstanceCap.GetCurrentCount and lv.InstanceCap.GetCurrentCount()) or 0
     local capStatus = (lv.InstanceCap and lv.InstanceCap.GetStatus and lv.InstanceCap.GetStatus()) or "SAFE"
     local slotIn = (lv.InstanceCap and lv.InstanceCap.GetTimeUntilSlot and lv.InstanceCap.GetTimeUntilSlot()) or 0
-    widgets.capCurrent:SetText(string.format(T("LABEL_CAP_CURRENT", "Current: %d/10"), capCount))
-    widgets.capStatus:SetText(string.format(T("LABEL_CAP_STATUS", "Status: %s"), T("STATUS_" .. capStatus, capStatus)))
-    widgets.capNext:SetText(string.format(T("LABEL_NEXT_SLOT", "Next slot in: %s"), FormatSlotTimer(slotIn)))
+    widgets.capCurrent:SetText(string.format(T("LABEL_CAP_CURRENT"), capCount))
+    widgets.capStatus:SetText(string.format(T("LABEL_CAP_STATUS"), T("STATUS_" .. capStatus, capStatus)))
+    widgets.capNext:SetText(string.format(T("LABEL_NEXT_SLOT"), FormatSlotTimer(slotIn)))
 
     if capStatus == "LOCKED" then
         widgets.capStatus:SetTextColor(1.0, 0.2, 0.2)
@@ -482,12 +483,12 @@ function lv.UpdateInstancePanel()
         widgets.capStatus:SetTextColor(0.35, 0.9, 0.35)
     end
 
-    widgets.currentTitle:SetText(T("SECTION_CURRENT_RUN", "Current Run"))
+    widgets.currentTitle:SetText(T("SECTION_CURRENT_RUN"))
     local current = lv.InstanceTracker and lv.InstanceTracker.GetCurrentRun and lv.InstanceTracker.GetCurrentRun() or nil
     if current then
         widgets.currentName:SetText(string.format("%s (%s)", current.name or UNKNOWN, current.difficultyName or ""))
         local seconds = time() - (current.startTime or time())
-        widgets.currentDuration:SetText(string.format(T("LABEL_DURATION", "Duration: %s"), lv.Stats.FormatDuration(seconds)))
+        widgets.currentDuration:SetText(string.format(T("LABEL_DURATION"), lv.Stats.FormatDuration(seconds)))
         if lv.MountDrops and lv.MountDrops.GetInstanceMountStatus then
             local mountStatus = lv.MountDrops.GetInstanceMountStatus(current.instanceID)
             if mountStatus then
@@ -515,7 +516,7 @@ function lv.UpdateInstancePanel()
                         widgets.currentMountIcon:Hide()
                     end
                 else
-                    widgets.currentMounts:SetText(string.format("%s" .. T("LABEL_MOUNTS_FMT", "Mounts: %d/%d") .. "|r", color, mountStatus.owned, mountStatus.total))
+                    widgets.currentMounts:SetText(string.format("%s" .. T("LABEL_MOUNTS_FMT") .. "|r", color, mountStatus.owned, mountStatus.total))
                     widgets.currentMountIcon:Hide()
                 end
             else
@@ -529,24 +530,24 @@ function lv.UpdateInstancePanel()
             widgets.currentMountIcon:Hide()
         end
     else
-        widgets.currentName:SetText(T("LABEL_NOT_IN_INSTANCE", "Not in an instance"))
-        widgets.currentDuration:SetText(string.format(T("LABEL_DURATION", "Duration: %s"), lv.Stats.FormatDuration(0)))
+        widgets.currentName:SetText(T("LABEL_NOT_IN_INSTANCE"))
+        widgets.currentDuration:SetText(string.format(T("LABEL_DURATION"), lv.Stats.FormatDuration(0)))
         widgets.currentMountsBtn.mountEntries = nil
         widgets.currentMounts:SetText("")
         widgets.currentMountIcon:Hide()
     end
 
-    widgets.perfTitle:SetText(T("SECTION_PERFORMANCE", "Performance Today"))
+    widgets.perfTitle:SetText(T("SECTION_PERFORMANCE"))
     local dCount = lv.Stats.GetTodayRuns("dungeon")
     local rCount = lv.Stats.GetTodayRuns("raid")
     local dAvg = lv.Stats.GetAverageTime("dungeon")
     local rAvg = lv.Stats.GetAverageTime("raid")
-    widgets.dungeonsToday:SetText(string.format(T("LABEL_DUNGEONS_TODAY", "Dungeons: %d"), dCount))
-    widgets.raidsToday:SetText(string.format(T("LABEL_RAIDS_TODAY", "Raids: %d"), rCount))
-    widgets.avgDungeon:SetText(string.format(T("LABEL_AVG_TIME", "Avg: %s"), lv.Stats.FormatDuration(dAvg)))
-    widgets.avgRaid:SetText(string.format(T("LABEL_AVG_TIME", "Avg: %s"), lv.Stats.FormatDuration(rAvg)))
+    widgets.dungeonsToday:SetText(string.format(T("LABEL_DUNGEONS_TODAY"), dCount))
+    widgets.raidsToday:SetText(string.format(T("LABEL_RAIDS_TODAY"), rCount))
+    widgets.avgDungeon:SetText(string.format(T("LABEL_AVG_TIME"), lv.Stats.FormatDuration(dAvg)))
+    widgets.avgRaid:SetText(string.format(T("LABEL_AVG_TIME"), lv.Stats.FormatDuration(rAvg)))
 
-    widgets.legacyTitle:SetText(T("SECTION_LEGACY_RAIDS", "Legacy Raids This Week"))
+    widgets.legacyTitle:SetText(T("SECTION_LEGACY_RAIDS"))
     local legacyRuns = 0
     local legacyDur = 0
     local legacyGold = 0
@@ -564,11 +565,11 @@ function lv.UpdateInstancePanel()
         end
     end
     local legacyAvg = legacyRuns > 0 and math.floor(legacyDur / legacyRuns) or 0
-    widgets.legacyRuns:SetText(string.format(T("LABEL_LEGACY_RUNS", "Runs: %d"), legacyRuns))
-    widgets.legacyGold:SetText(string.format(T("LABEL_GOLD_EARNED", "Gold: %s"), GetCoinTextureString(legacyGold)))
-    widgets.legacyAvg:SetText(string.format(T("LABEL_AVG_TIME", "Avg: %s"), lv.Stats.FormatDuration(legacyAvg)))
+    widgets.legacyRuns:SetText(string.format(T("LABEL_LEGACY_RUNS"), legacyRuns))
+    widgets.legacyGold:SetText(string.format(T("LABEL_GOLD_EARNED"), GetCoinTextureString(legacyGold)))
+    widgets.legacyAvg:SetText(string.format(T("LABEL_AVG_TIME"), lv.Stats.FormatDuration(legacyAvg)))
 
-    widgets.recentTitle:SetText(T("SECTION_RECENT_RUNS", "Recent Runs"))
+    widgets.recentTitle:SetText(T("SECTION_RECENT_RUNS"))
     local recentRuns = lv.Stats.GetRecentRuns(20)
     local shown = 0
     for i = 1, 20 do
@@ -593,7 +594,7 @@ function lv.UpdateInstancePanel()
             shown = shown + 1
         else
             if i == 1 then
-                row.text:SetText(T("LABEL_NO_RECENT_RUNS", "No recent runs"))
+                row.text:SetText(T("LABEL_NO_RECENT_RUNS"))
                 row:Show()
                 shown = shown + 1
             else
@@ -609,24 +610,24 @@ function lv.UpdateInstancePanel()
     end
 
     -- M+ tab content
-    widgets.mplusTitle:SetText(T("SECTION_MPLUS", "Mythic+"))
+    widgets.mplusTitle:SetText(T("SECTION_MPLUS"))
     local playerData = LiteVaultDB and LiteVaultDB[lv.PLAYER_KEY]
     local key = playerData and playerData.currentKey
     if key and key.name and key.level then
-        widgets.mplusCurrentKey:SetText(string.format("|TInterface\\Icons\\inv_relics_hourglass:16:16|t " .. T("LABEL_MPLUS_CURRENT_KEY", "Current Key:") .. " |cff00ccff%s +%d|r", key.name, key.level))
+        widgets.mplusCurrentKey:SetText(string.format("|TInterface\\Icons\\inv_relics_hourglass:16:16|t " .. T("LABEL_MPLUS_CURRENT_KEY") .. " |cff00ccff%s +%d|r", key.name, key.level))
     else
-        widgets.mplusCurrentKey:SetText("|TInterface\\Icons\\inv_relics_hourglass:16:16|t " .. T("LABEL_MPLUS_CURRENT_KEY", "Current Key:") .. " |cffff4040" .. T("LABEL_NO_KEY", "No M+ Key") .. "|r")
+        widgets.mplusCurrentKey:SetText("|TInterface\\Icons\\inv_relics_hourglass:16:16|t " .. T("LABEL_MPLUS_CURRENT_KEY") .. " |cffff4040" .. T("LABEL_NO_KEY") .. "|r")
     end
-    widgets.mplusScore:SetText(string.format(T("LABEL_MPLUS_SCORE", "M+ Score: %d"), playerData and (playerData.mplus or 0) or 0))
+    widgets.mplusScore:SetText(string.format(T("LABEL_MPLUS_SCORE"), playerData and (playerData.mplus or 0) or 0))
 
     local todayStart = StartOfCurrentResetDay()
     local weekStart = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or 0
     local todayRuns = GetMPlusRuns(todayStart)
     local weekRuns = GetMPlusRuns(weekStart)
-    widgets.mplusToday:SetText(string.format(T("LABEL_RUNS_TODAY", "Runs Today: %d"), #todayRuns))
-    widgets.mplusWeek:SetText(string.format(T("LABEL_RUNS_THIS_WEEK", "Runs This Week: %d"), #weekRuns))
+    widgets.mplusToday:SetText(string.format(T("LABEL_RUNS_TODAY"), #todayRuns))
+    widgets.mplusWeek:SetText(string.format(T("LABEL_RUNS_THIS_WEEK"), #weekRuns))
 
-    widgets.mplusRecentTitle:SetText(T("SECTION_RECENT_MPLUS_RUNS", "Recent M+ Runs"))
+    widgets.mplusRecentTitle:SetText(T("SECTION_RECENT_MPLUS_RUNS"))
     local recentMPlus = GetMPlusRuns(0, 20)
     local shownM = 0
     for i = 1, 20 do
@@ -651,7 +652,7 @@ function lv.UpdateInstancePanel()
             shownM = shownM + 1
         else
             if i == 1 then
-                row:SetText(T("LABEL_NO_RECENT_MPLUS_RUNS", "No recent M+ runs"))
+                row:SetText(T("LABEL_NO_RECENT_MPLUS_RUNS"))
                 row:Show()
                 shownM = shownM + 1
             else
@@ -730,9 +731,9 @@ tooltipHook:SetScript("OnEvent", function(self)
             local count = lv.InstanceCap.GetCurrentCount()
             local status = lv.InstanceCap.GetStatus()
             tooltip:AddLine(" ")
-            tooltip:AddLine(T("SECTION_INSTANCE_CAP", "Instance Cap (10/hour)"))
-            tooltip:AddLine(string.format(T("LABEL_CAP_CURRENT", "Current: %d/10"), count))
-            tooltip:AddLine(string.format(T("LABEL_CAP_STATUS", "Status: %s"), T("STATUS_" .. status, status)))
+            tooltip:AddLine(T("SECTION_INSTANCE_CAP"))
+            tooltip:AddLine(string.format(T("LABEL_CAP_CURRENT"), count))
+            tooltip:AddLine(string.format(T("LABEL_CAP_STATUS"), T("STATUS_" .. status, status)))
         end
         tooltip:Show()
     end

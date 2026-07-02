@@ -1,0 +1,282 @@
+
+LiteVaultDB = {
+["childSkillLines"] = {
+[197] = 2918,
+},
+["professionExpansionMode"] = "midnight",
+["lastRaidReset"] = 1771340400,
+["weeklyProfitFixV2"] = true,
+["theme"] = "dark",
+["Lugoar-Xal'atath's Endgame"] = {
+["weeklyDelta"] = -1000010,
+["class"] = "WARRIOR",
+["weeklyLedger"] = {
+["repair"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["cache"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["other"] = {
+["income"] = 0,
+["expense"] = 1000010,
+},
+["transactions"] = {
+{
+["timestamp"] = 1771934097,
+["source"] = "other",
+["amount"] = -1000000,
+},
+{
+["timestamp"] = 1771934095,
+["source"] = "other",
+["amount"] = -10,
+},
+},
+["vendor"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["warbandBank"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["trade"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["auction"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["loot"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["crafting"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["flightpath"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["mail"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["quest"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+["transmog"] = {
+["income"] = 0,
+["expense"] = 0,
+},
+},
+["vR"] = 0,
+["fracturedSparks"] = 0,
+["raidKills"] = {
+["The Voidspire"] = {
+["normal"] = {
+},
+["bossNames"] = {
+},
+["heroic"] = {
+},
+["lfr"] = {
+},
+["updatedAt"] = 1771934211,
+["mythic"] = {
+},
+},
+["March of Quel'Danas"] = {
+["normal"] = {
+},
+["bossNames"] = {
+},
+["heroic"] = {
+},
+["lfr"] = {
+},
+["updatedAt"] = 1771934211,
+["mythic"] = {
+},
+},
+},
+["sparks"] = 0,
+["gender"] = 2,
+["lastMoney"] = 1087999890,
+["lastActive"] = "2026-2-24",
+["delveProgress"] = 0,
+["played"] = 3483.959999999963,
+["ilvl"] = 197,
+["weeklyQuests"] = {
+[95413] = "|cffff0000[Not Started]|r",
+[93910] = "|cffff0000[Not Started]|r",
+},
+["fullSparks"] = 0,
+["race"] = "Orc",
+["catalyst"] = 8,
+["gold"] = 1086999880,
+["raid"] = "",
+["vW"] = 0,
+["raidKillsBackfilled"] = true,
+["raidLockouts"] = {
+[14] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["scannedAt"] = 1771934211,
+},
+[16] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["scannedAt"] = 1771934211,
+},
+[17] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["scannedAt"] = 1771934211,
+},
+[15] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["scannedAt"] = 1771934211,
+},
+},
+["currencies"] = {
+["Voidlight Marl"] = {
+["icon"] = 7137586,
+["amount"] = 30,
+},
+["Champion Dawncrest"] = {
+["icon"] = 7639519,
+["amount"] = 0,
+},
+["Restored Coffer Key"] = {
+["icon"] = 4622270,
+["amount"] = 0,
+},
+["Veteran Dawncrest"] = {
+["icon"] = 7639525,
+["amount"] = 0,
+},
+["Coffer Key Shards"] = {
+["icon"] = 133016,
+["amount"] = 50,
+},
+["Undercoin"] = {
+["icon"] = 133858,
+["amount"] = 0,
+},
+["Myth Dawncrest"] = {
+["icon"] = 7639523,
+["amount"] = 0,
+},
+["Adventurer Dawncrest"] = {
+["icon"] = 7639517,
+["amount"] = 5,
+},
+["Hero Dawncrest"] = {
+["icon"] = 7639521,
+["amount"] = 0,
+},
+},
+["vM"] = 0,
+["lastLockoutReset"] = 1771935357,
+["professions"] = {
+{
+["maxSkillLevel"] = 100,
+["skillLevel"] = 1,
+["name"] = "Tailoring",
+["icon"] = 4620681,
+},
+{
+["maxSkillLevel"] = 100,
+["skillLevel"] = 1,
+["name"] = "Enchanting",
+["icon"] = 4620672,
+},
+},
+["lastActiveTimestamp"] = 1771935377,
+["lastWeeklyReset"] = 1771340400,
+["mplus"] = 0,
+["raidProgression"] = {
+[14] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["killCount"] = 0,
+},
+[16] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["killCount"] = 0,
+},
+[17] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["killCount"] = 0,
+},
+[15] = {
+["bosses"] = {
+},
+["bossNames"] = {
+},
+["killCount"] = 0,
+},
+},
+["professionDetails"] = {
+{
+["skillLevel"] = 1,
+["skillLineID"] = 197,
+["maxConcentration"] = 1000,
+["name"] = "Tailoring",
+["concentration"] = 1000,
+["maxKnowledgePoints"] = 0,
+["knowledgePoints"] = 0,
+["icon"] = 4620681,
+["maxSkillLevel"] = 100,
+},
+{
+["skillLevel"] = 1,
+["skillLineID"] = 333,
+["maxConcentration"] = 1000,
+["name"] = "Enchanting",
+["concentration"] = 1000,
+["maxKnowledgePoints"] = 0,
+["knowledgePoints"] = 0,
+["icon"] = 4620672,
+["maxSkillLevel"] = 100,
+},
+},
+["weeklyStartGold"] = 1087999890,
+},
+["filters"] = {
+["dungeon"] = true,
+["darkmoon"] = true,
+["pvp"] = true,
+["timewalking"] = true,
+["bonus"] = true,
+},
+}
+LiteVaultOrder = {
+"Lugoar-Xal'atath's Endgame",
+}
+LiteVaultMinimapDB = {
+}

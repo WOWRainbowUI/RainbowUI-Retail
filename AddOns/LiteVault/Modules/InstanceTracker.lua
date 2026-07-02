@@ -98,12 +98,27 @@ end
 local CURRENT_RAID_NAMES = {
     ["The Voidspire"] = true,
     ["The Dreamrift"] = true,
+    ["Sporefall"] = true,
     ["March of Quel'Danas"] = true,
 }
 
+local function IsCurrentTierRaidName(instanceName)
+    if not instanceName then
+        return false
+    end
+
+    for raidName in pairs(CURRENT_RAID_NAMES) do
+        if instanceName == raidName or instanceName:find(raidName, 1, true) or raidName:find(instanceName, 1, true) then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function IsLegacyRaid(playerLevel, difficultyID, mapID, instanceName)
     -- Never treat known current-tier raids as legacy.
-    if instanceName and CURRENT_RAID_NAMES[instanceName] then
+    if IsCurrentTierRaidName(instanceName) then
         return false
     end
     if mapID and lv.CURRENT_TIER_MAPS and lv.CURRENT_TIER_MAPS[mapID] then

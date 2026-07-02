@@ -145,20 +145,21 @@ function lv.CreateCircularBadge(parent, point, relativeTo, relativePoint, xOffse
     return badge
 end
 
--- 1. ITEM LEVEL COLORING (Midnight S1 dynamic brackets)
+-- 1. ITEM LEVEL COLORING
+-- Midnight achievement thresholds:
+-- 61678 = Midnight Superior (220, Rare)
+-- 61679 = Midnight Epic (233, Epic)
 function lv.GetiLvLColor(level)
     level = tonumber(level) or 0
-    -- Midnight S1 cap.
-    local maxIlvl = 289
-    local epic = math.floor(maxIlvl * 0.92)       -- near BiS
-    local rare = math.floor(maxIlvl * 0.82)       -- geared
-    local uncommon = math.floor(maxIlvl * 0.70)   -- entry
+    local epicHex = select(4, GetItemQualityColor(Enum and Enum.ItemQuality and Enum.ItemQuality.Epic or 4)) or "ffa335ee"
+    local rareHex = select(4, GetItemQualityColor(Enum and Enum.ItemQuality and Enum.ItemQuality.Rare or 3)) or "ff0070dd"
 
-    if level >= maxIlvl then return "ffff8000" -- Legendary (Orange)
-    elseif level >= epic then return "ff954ae0" -- Epic (Purple)
-    elseif level >= rare then return "ff447ce3" -- Rare (Blue)
-    elseif level >= uncommon then return "ff1eff00" -- Uncommon (Green)
-    else return "ffffffff" -- Common (White)
+    if level >= 233 then
+        return epicHex
+    elseif level >= 220 then
+        return rareHex
+    else
+        return "ffffffff"
     end
 end
 
@@ -259,10 +260,35 @@ function lv.GetFreshnessInfo(lastActiveTimestamp)
 end
 
 -- 6. SORTING FUNCTIONS (NEW)
-lv.currentSortMode = "gold" -- default sort
+local VALID_CHARACTER_SORT_MODES = {
+    gold = true,
+    ilvl = true,
+    mplus = true,
+    lastActive = true,
+}
+
+local function NormalizeCharacterSortMode(mode)
+    if type(mode) == "string" and VALID_CHARACTER_SORT_MODES[mode] then
+        return mode
+    end
+    return "gold"
+end
+
+lv.NormalizeCharacterSortMode = NormalizeCharacterSortMode
+lv.currentSortMode = "gold"
+
+function lv.RestoreCharacterSortMode()
+    lv.currentSortMode = NormalizeCharacterSortMode(LiteVaultDB and LiteVaultDB.characterSortMode)
+    return lv.currentSortMode
+end
 
 function lv.SortCharacterList(mode)
+    mode = NormalizeCharacterSortMode(mode)
     lv.currentSortMode = mode
+
+    if LiteVaultDB then
+        LiteVaultDB.characterSortMode = mode
+    end
 
     if not LiteVaultOrder or not LiteVaultDB then return end
 

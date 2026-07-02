@@ -1,8 +1,8 @@
-﻿## Interface: 120001
+## Interface: 120001, 120005, 120007
 ## Title: LiteVault
 ## Notes: Lightweight Warband Tracker
 ## Author: Dragon
-## Version: 12.0.1
+## Version: 12.0.7.3
 ## SavedVariables: LiteVaultDB, LiteVaultOrder, LiteVaultMinimapDB
 ## IconTexture: Interface\AddOns\LiteVault\button.png
 
@@ -28,21 +28,28 @@ Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 Theme.lua
 Core.lua
 Utils.lua
+GoldTracker.lua
 Currency.lua
 Vault.lua
 Professions.lua
+Modules\WowToken.lua
 Modules\KnowledgeSources.lua
-Ledger.lua
 Calendar.lua
 RaidLockouts.lua
 Bags.lua
+Gear.lua
+Folio.lua
 Modules\Stats.lua
 Modules\MountDrops.lua
 Modules\InstanceTracker.lua
 Modules\InstanceCap.lua
 Teleports.lua
 Achievements.lua
+Modules\RunestoneMapPins.lua
+Modules\RunestoneMapPins.xml
 UI\CharacterOverlay.lua
 UI\InstancePanel.lua
+UI\Builders.lua
 List.lua
 UI.lua
+UI\Profit.lua

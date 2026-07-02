@@ -6,7 +6,7 @@ local function LT(text)
     return (L and L[text] and L[text] ~= text) and L[text] or text
 end
 
-local raidTabs = {"The Voidspire", "The Dreamrift", "March of Quel'Danas"}
+local raidTabs = {"The Voidspire", "The Dreamrift", "Sporefall", "March of Quel'Danas"}
 local raidTabButtons = {}
 local selectedRaidTab = raidTabs[1]
 local currentRaidCharKey = nil
@@ -40,7 +40,7 @@ local function CreateRaidTabs(parent)
     local title = parent.title or parent:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     if not parent.title then
         title:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, -18)
-        title:SetText(L["TITLE_RAID_LOCKOUTS_WINDOW"] or "Raid Lockouts")
+        title:SetText(L["TITLE_RAID_LOCKOUTS_WINDOW"])
         if lv.ApplyLocaleFont then
             lv.ApplyLocaleFont(title, 15)
         end
@@ -143,6 +143,12 @@ local MIDNIGHT_RAIDS = {
             "Chimarus"
         }
     },
+    ["Sporefall"] = {
+        bossCount = 1,
+        bosses = {
+            "Rotmire"
+        }
+    },
     ["March of Quel'Danas"] = {
         bossCount = 2,
         bosses = {
@@ -151,6 +157,40 @@ local MIDNIGHT_RAIDS = {
         }
     }
 }
+
+local function NormalizeEncounterName(name)
+    if type(name) ~= "string" then
+        return ""
+    end
+
+    -- Strip punctuation and spaces so boss names still match if Blizzard
+    -- changes commas, apostrophes, or parenthetical suffixes.
+    return (name:lower():gsub("[%c%p%s]+", ""))
+end
+
+local function EncounterNamesMatch(encounterName, bossName)
+    if type(encounterName) ~= "string" or type(bossName) ~= "string" then
+        return false
+    end
+
+    if encounterName == bossName then
+        return true
+    end
+
+    if encounterName:find(bossName, 1, true) or bossName:find(encounterName, 1, true) then
+        return true
+    end
+
+    local normalizedEncounter = NormalizeEncounterName(encounterName)
+    local normalizedBoss = NormalizeEncounterName(bossName)
+    if normalizedEncounter == "" or normalizedBoss == "" then
+        return false
+    end
+
+    return normalizedEncounter == normalizedBoss
+        or normalizedEncounter:find(normalizedBoss, 1, true)
+        or normalizedBoss:find(normalizedEncounter, 1, true)
+end
 
 -- Expose current selected raid boss count for other UI surfaces (e.g. roster badge).
 function lv.GetCurrentRaidBossCount()
@@ -167,6 +207,10 @@ if not lv.CURRENT_TIER_MAPS then
     -- Learned dynamically when entering/saving tracked raids.
     lv.CURRENT_TIER_MAPS = {}
 end
+lv.CURRENT_TIER_MAPS[16279] = true
+
+lv.CURRENT_TIER_MAP_KEYS = lv.CURRENT_TIER_MAP_KEYS or {}
+lv.CURRENT_TIER_MAP_KEYS[16279] = "Sporefall"
 
 -- Difficulty data (names are set dynamically from locale)
 lv.RAID_DIFFICULTIES = {
@@ -309,11 +353,15 @@ local function GetBossStateForDifficulty(playerData, raidName, bosses, bossIndex
     local isViewingCurrentPlayer = (targetKey == lv.PLAYER_KEY)
 
     -- Current lockout display is API-truth for the active player.
-    if viewMode == "lockouts" and isViewingCurrentPlayer and liveRaidState then
+    if viewMode == "lockouts" and isViewingCurrentPlayer and liveRaidState and not lv._raidScanInProgress then
         local raidState = liveRaidState[raidName]
         local diffState = raidState and raidState[difficultyID]
         if diffState and diffState.bosses then
             return true, diffState.bosses[bossIndex] == true
+        end
+        local lockout = playerData and playerData.raidLockouts and playerData.raidLockouts[raidName] and playerData.raidLockouts[raidName][difficultyID]
+        if lockout and lockout.bosses then
+            return true, lockout.bosses[bossIndex] == true
         end
         return true, false
     end
@@ -483,6 +531,48 @@ local function LearnTrackedRaidMapID(raidName, mapID)
     lv.CURRENT_TIER_MAP_KEYS[mapID] = raidName
 end
 
+local RAID_INSTANCE_ALIASES = {
+    ["The Voidspire"] = {
+        "The Voidspire",
+    },
+    ["The Dreamrift"] = {
+        "The Dreamrift",
+    },
+    ["Sporefall"] = {
+        "Sporefall",
+    },
+    ["March of Quel'Danas"] = {
+        "March of Quel'Danas",
+        "Dragon's March on Quel'Danas",
+        "The Dragon's March on Quel'Danas",
+    },
+}
+
+local function InstanceNameMatchesRaid(instanceName, raidName)
+    if type(instanceName) ~= "string" or type(raidName) ~= "string" then
+        return false
+    end
+
+    local aliases = RAID_INSTANCE_ALIASES[raidName] or { raidName }
+    for _, alias in ipairs(aliases) do
+        if instanceName == alias or instanceName:find(alias, 1, true) or alias:find(instanceName, 1, true) then
+            return true
+        end
+    end
+
+    local normalizedInstance = NormalizeEncounterName(instanceName)
+    for _, alias in ipairs(aliases) do
+        local normalizedAlias = NormalizeEncounterName(alias)
+        if normalizedInstance == normalizedAlias
+            or normalizedInstance:find(normalizedAlias, 1, true)
+            or normalizedAlias:find(normalizedInstance, 1, true) then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function DetectTrackedRaid(instanceName, mapID)
     if mapID and lv.CURRENT_TIER_MAPS and lv.CURRENT_TIER_MAPS[mapID] then
         local byMap = lv.CURRENT_TIER_MAP_KEYS and lv.CURRENT_TIER_MAP_KEYS[mapID]
@@ -492,7 +582,7 @@ local function DetectTrackedRaid(instanceName, mapID)
     end
     if not instanceName then return false, nil end
     for raidName, _ in pairs(MIDNIGHT_RAIDS) do
-        if instanceName == raidName or instanceName:find(raidName, 1, true) then
+        if InstanceNameMatchesRaid(instanceName, raidName) then
             LearnTrackedRaidMapID(raidName, mapID)
             return true, raidName
         end
@@ -505,20 +595,25 @@ function lv.ScanRaidInfoPanel()
     if not LiteVaultDB or not LiteVaultDB[lv.PLAYER_KEY] then return end
 
     local playerData = LiteVaultDB[lv.PLAYER_KEY]
+    lv._raidScanInProgress = true
+    local previousLiveRaidState = lv._liveRaidState or {}
     lv._liveRaidState = {}
-
-    -- Rebuild current-week lockout table from API snapshot each scan.
+    -- Keep the existing current-week lockout table and merge fresh API data into it.
     EnsureRaidLockoutsSchema(playerData)
     for raidName in pairs(MIDNIGHT_RAIDS) do
+        playerData.raidLockouts[raidName] = playerData.raidLockouts[raidName] or {}
         for _, diff in ipairs(lv.RAID_DIFFICULTIES or {}) do
-            playerData.raidLockouts[raidName][diff.id] = {bosses = {}, bossNames = {}, scannedAt = GetServerTime()}
+            playerData.raidLockouts[raidName][diff.id] = playerData.raidLockouts[raidName][diff.id] or {
+                bosses = {},
+                bossNames = {},
+                scannedAt = 0
+            }
         end
     end
 
     -- Use the built-in API but with better validation
     for i = 1, GetNumSavedInstances() do
         local name, _, reset, difficulty, locked, extended, _, isRaid, _, _, numBosses, _, _, _, mapID = GetSavedInstanceInfo(i)
-
         -- Detect current tracked raid by mapID or Midnight raid name.
         local isCurrentRaid, trackedRaidName = DetectTrackedRaid(name, mapID)
 
@@ -547,12 +642,23 @@ function lv.ScanRaidInfoPanel()
             local canStoreLiveState = resolvedRaidName and MIDNIGHT_RAIDS[resolvedRaidName]
             if canStoreLiveState then
                 -- Live, API-authoritative state for current lockout rendering.
+                local priorState = previousLiveRaidState[resolvedRaidName] and previousLiveRaidState[resolvedRaidName][difficulty] or nil
                 lv._liveRaidState[resolvedRaidName] = lv._liveRaidState[resolvedRaidName] or {}
                 lv._liveRaidState[resolvedRaidName][difficulty] = lv._liveRaidState[resolvedRaidName][difficulty] or {
                     bosses = {},
                     bossNames = {},
                     scannedAt = GetServerTime()
                 }
+                if priorState and priorState.bosses then
+                    for bossIndex, isKilled in pairs(priorState.bosses) do
+                        if isKilled then
+                            lv._liveRaidState[resolvedRaidName][difficulty].bosses[bossIndex] = true
+                        end
+                    end
+                end
+                if priorState and priorState.bossNames then
+                    lv._liveRaidState[resolvedRaidName][difficulty].bossNames = priorState.bossNames
+                end
             end
 
             -- Scan the lockout data
@@ -612,10 +718,13 @@ function lv.ScanRaidInfoPanel()
         end
     end
 
+    lv._raidScanInProgress = false
+
     -- Update the UI if it's showing
     if RaidLockoutWindow and RaidLockoutWindow:IsShown() then
         lv.UpdateRaidLockoutGrid()
     end
+
 end
 
 -- Helper function to count progression kills for a character
@@ -662,8 +771,11 @@ C_Timer.After(0, function()
 end)
 
 -- FIXED: Register with escape handler so it closes when user hits Escape
+local UpdateRaidViewToggleText
 RaidLockoutWindow:SetScript("OnShow", function(self)
     table.insert(UISpecialFrames, "LiteVaultRaidFrame")
+    currentViewMode = "lockouts"
+    UpdateRaidViewToggleText()
     -- Ensure saved theme is applied before first paint of this window.
     if LiteVaultDB and LiteVaultDB.theme and lv.Themes and lv.Themes[LiteVaultDB.theme] then
         lv.currentTheme = LiteVaultDB.theme
@@ -675,13 +787,8 @@ RaidLockoutWindow:SetScript("OnShow", function(self)
     if lv.ScanRaidLockouts then
         lv.ScanRaidLockouts()
     end
-    C_Timer.After(0, function()
-        if self and self:IsShown() and lv.UpdateRaidLockoutGrid then
-            lv.UpdateRaidLockoutGrid()
-        end
-    end)
-    -- Some theme state initializes slightly later on login/reload; refresh again.
-    C_Timer.After(0.2, function()
+    -- Give the async raid info scan time to complete, then repaint once more.
+    C_Timer.After(0.75, function()
         if self and self:IsShown() and lv.UpdateRaidLockoutGrid then
             lv.UpdateRaidLockoutGrid()
         end
@@ -701,7 +808,7 @@ end)
 -- Title (will be updated with character name) - Left aligned to avoid buttons
 local title = RaidLockoutWindow:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 title:SetPoint("TOPLEFT", 15, -15)
-title:SetText("|cffa335ee" .. L["TITLE_RAID_LOCKOUTS_WINDOW"] .. "|r - " .. ((L["LABEL_MIDNIGHT_SEASON_1"] ~= "LABEL_MIDNIGHT_SEASON_1") and L["LABEL_MIDNIGHT_SEASON_1"] or "Season 1 of Midnight"))
+title:SetText("|cffa335ee" .. L["TITLE_RAID_LOCKOUTS_WINDOW"] .. "|r - " .. L["LABEL_MIDNIGHT_SEASON_1"])
 if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(title, 15)
 end
@@ -717,13 +824,13 @@ RaidLockoutWindow.liveTagText = liveTagText
 local function RefreshRaidWindowTitle()
     if not RaidLockoutWindow or not RaidLockoutWindow.title then return end
     local playerKey = currentRaidCharKey or lv.PLAYER_KEY
-    local charName = (playerKey and playerKey:match("^([^-]+)")) or UnitName("player") or "Character"
+    local charName = (playerKey and playerKey:match("^([^-]+)")) or UnitName("player") or L["LABEL_CHARACTER"]
     local classTag = (LiteVaultDB and playerKey and LiteVaultDB[playerKey] and LiteVaultDB[playerKey].class) or select(2, UnitClass("player")) or "WARRIOR"
     local cc = C_ClassColor.GetClassColor(classTag or "WARRIOR")
     local nameHex = (cc and cc.GenerateHexColor and cc:GenerateHexColor()) or "ffffffff"
-    local modeTitle = (currentViewMode == "progression") and LT("Raid Progression") or (L["TITLE_RAID_LOCKOUTS_WINDOW"] or "Raid Lockouts")
+    local modeTitle = (currentViewMode == "progression") and L["TITLE_RAID_PROGRESSION"] or L["TITLE_RAID_LOCKOUTS_WINDOW"]
     local isCurrentPlayerView = (playerKey == lv.PLAYER_KEY)
-    local seasonText = ((L["LABEL_MIDNIGHT_SEASON_1"] ~= "LABEL_MIDNIGHT_SEASON_1") and L["LABEL_MIDNIGHT_SEASON_1"] or "Season 1 of Midnight")
+    local seasonText = L["LABEL_MIDNIGHT_SEASON_1"]
     RaidLockoutWindow.title:SetText(string.format("|c%s%s|r|cffa335ee's %s|r - %s", nameHex, charName, modeTitle, seasonText))
 
     if RaidLockoutWindow.liveTagText then
@@ -801,6 +908,11 @@ if lv.ApplyLocaleFont then
 end
 viewToggleBtn.text = viewToggleTxt
 
+UpdateRaidViewToggleText = function()
+    if not viewToggleBtn or not viewToggleBtn.text then return end
+    viewToggleBtn.text:SetText(currentViewMode == "lockouts" and L["BUTTON_PROGRESSION"] or L["BUTTON_LOCKOUTS"])
+end
+
 -- Register for theming
 C_Timer.After(0, function()
     if lv.RegisterThemedElement then
@@ -817,11 +929,10 @@ end)
 viewToggleBtn:SetScript("OnClick", function(self)
     if currentViewMode == "lockouts" then
         currentViewMode = "progression"
-        self.text:SetText(L["BUTTON_PROGRESSION"])
     else
         currentViewMode = "lockouts"
-        self.text:SetText(L["BUTTON_LOCKOUTS"])
     end
+    UpdateRaidViewToggleText()
     RefreshRaidWindowTitle()
     lv.UpdateRaidLockoutGrid()
 end)
@@ -1200,6 +1311,8 @@ function lv.ShowRaidLockoutWindow(charKey)
         RaidLockoutWindow:Hide()
     else
         currentRaidCharKey = targetKey
+        currentViewMode = "lockouts"
+        UpdateRaidViewToggleText()
         -- Force theme refresh for raid tab buttons
         for _, btn in pairs(raidTabButtons) do
             if lv.GetTheme and btn and btn.SetBackdropColor then
@@ -1242,6 +1355,9 @@ function lv.ShowRaidLockoutWindow(charKey)
             end
         end
         RefreshRaidWindowTitle()
+        if lv.UpdateRaidLockoutGrid then
+            lv.UpdateRaidLockoutGrid()
+        end
         -- Show immediately; OnShow performs a single scan/update pass.
         RaidLockoutWindow:Show()
     end
@@ -1298,7 +1414,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
                 local matchedIndex = nil
                 for raidName, raidInfo in pairs(MIDNIGHT_RAIDS) do
                     for i, bossName in ipairs(raidInfo.bosses or {}) do
-                        if encounterName and bossName and (encounterName:find(bossName, 1, true) or bossName:find(encounterName, 1, true)) then
+                        if EncounterNamesMatch(encounterName, bossName) then
                             matchedRaidName = raidName
                             matchedIndex = i
                             break
@@ -1311,11 +1427,23 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
                         local canonicalName = (MIDNIGHT_RAIDS[matchedRaidName] and MIDNIGHT_RAIDS[matchedRaidName].bosses and MIDNIGHT_RAIDS[matchedRaidName].bosses[matchedIndex]) or encounterName
                         local raidKills = (matchedRaidName and diffKey) and EnsureRaidKills(playerData, matchedRaidName) or nil
                         local lockout = EnsureRaidLockoutBucket(playerData, matchedRaidName, difficultyID)
+                        lv._liveRaidState = lv._liveRaidState or {}
+                        lv._liveRaidState[matchedRaidName] = lv._liveRaidState[matchedRaidName] or {}
+                        lv._liveRaidState[matchedRaidName][difficultyID] = lv._liveRaidState[matchedRaidName][difficultyID] or {
+                            bosses = {},
+                            bossNames = {},
+                            scannedAt = GetServerTime()
+                        }
                         -- Update lockout (current week)
                         if lockout then
                             lockout.bosses[matchedIndex] = true
                             lockout.bossNames[matchedIndex] = canonicalName
                             lockout.scannedAt = GetServerTime()
+                        end
+                        if lv._liveRaidState[matchedRaidName] and lv._liveRaidState[matchedRaidName][difficultyID] then
+                            lv._liveRaidState[matchedRaidName][difficultyID].bosses[matchedIndex] = true
+                            lv._liveRaidState[matchedRaidName][difficultyID].bossNames[matchedIndex] = canonicalName
+                            lv._liveRaidState[matchedRaidName][difficultyID].scannedAt = GetServerTime()
                         end
 
                         -- Update progression (persistent)
@@ -1335,7 +1463,6 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4, arg5)
                             raidKills.bossNames[matchedIndex] = canonicalName
                             raidKills.updatedAt = GetServerTime()
                         end
-
                 end
 
                 -- Update UI if showing
