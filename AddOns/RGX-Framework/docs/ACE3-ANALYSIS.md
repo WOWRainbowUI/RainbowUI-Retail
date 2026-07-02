@@ -314,7 +314,7 @@ RGX should keep more of the complexity internal so authors do not have to reinve
 RGX should only grow when real addons need the feature:
 
 - SQP
-- PB2
+- BPU
 - BLU
 - future RGX-Mod
 
@@ -338,7 +338,7 @@ The strongest position is:
 When deciding whether a new RGX subsystem belongs in the framework, ask:
 
 1. What real addon problem is this solving?
-2. Is that problem already showing up in SQP, PB2, BLU, or planned RGX-Mod work?
+2. Is that problem already showing up in SQP, BPU, BLU, or planned RGX-Mod work?
 3. Can RGX solve it with one clean native system instead of another external-style compatibility layer?
 4. Will this make addon authors faster, or just make RGX look more like Ace3?
 

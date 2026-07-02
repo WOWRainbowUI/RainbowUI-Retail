@@ -2,43 +2,58 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/">
 
 <!-- Core -->
-<Script file="core/core.lua"/>
-<Script file="core/systems/config.lua"/>
-<Script file="core/systems/database.lua"/>
-<Script file="core/systems/events.lua"/>
-<Script file="core/systems/runtime.lua"/>
-<Script file="core/systems/utils.lua"/>
+<Script file="core/core.lua" />
+<Script file="core/systems/config.lua" />
+<Script file="core/systems/database.lua" />
+<Script file="core/systems/database_test.lua" />
+<Script file="core/systems/events.lua" />
+<Script file="core/systems/runtime.lua" />
+<Script file="core/systems/utils.lua" />
 
 <!-- Modules -->
-<Script file="modules/dropdowns/dropdowns.lua"/>
- <Script file="modules/fonts/definitions.lua"/>
-	<Script file="modules/fonts/init.lua"/>
-	<Script file="modules/fonts/registry.lua"/>
-	<Script file="modules/fonts/query.lua"/>
-	<Script file="modules/fonts/defaults.lua"/>
-	<Script file="modules/fonts/apply.lua"/>
-	<Script file="modules/fonts/normalize.lua"/>
-	<Script file="modules/fonts/styles.lua"/>
-	<Script file="modules/fonts/grouping.lua"/>
-	<Script file="modules/fonts/dropdowns.lua"/>
-	<Script file="modules/fonts/controls.lua"/>
-	<Script file="modules/fonts/menuitems.lua"/>
-	<Script file="modules/fonts/selectors.lua"/>
-	<Script file="modules/fonts/preview.lua"/>
-<Script file="modules/colors/colors.lua"/>
-<Script file="modules/colors/colorpicker.lua"/>
-<Script file="modules/textures/textures.lua"/>
-<Script file="modules/design/design.lua"/>
-<Script file="modules/ui/controls.lua"/>
-<Script file="modules/ui/options.lua"/>
-<Script file="modules/minimap/minimap.lua"/>
-  <Script file="modules/databroker/databroker.lua"/>
-  <Script file="modules/sound/sound.lua"/>
+<Script file="modules/dropdowns/dropdowns.lua" />
+ <Script file="modules/fonts/definitions.lua" />
+	<Script file="modules/fonts/init.lua" />
+	<Script file="modules/fonts/registry.lua" />
+	<Script file="modules/fonts/query.lua" />
+	<Script file="modules/fonts/defaults.lua" />
+	<Script file="modules/fonts/apply.lua" />
+	<Script file="modules/fonts/normalize.lua" />
+	<Script file="modules/fonts/styles.lua" />
+	<Script file="modules/fonts/grouping.lua" />
+	<Script file="modules/fonts/dropdowns.lua" />
+	<Script file="modules/fonts/controls.lua" />
+	<Script file="modules/fonts/menuitems.lua" />
+	<Script file="modules/fonts/selectors.lua" />
+	<Script file="modules/fonts/preview.lua" />
+<Script file="modules/colors/colors.lua" />
+<Script file="modules/colors/colorpicker.lua" />
+<Script file="modules/textures/textures.lua" />
+<Script file="modules/design/design.lua" />
+<Script file="modules/ui/controls.lua" />
+<Script file="modules/ui/options.lua" />
+<Script file="modules/minimap/minimap.lua" />
+  <Script file="modules/sharedmedia/sharedmedia.lua" />
+  <Script file="modules/combat/combat.lua" />
+  <Script file="modules/petbattles/petbattles.lua" />
+  <Script file="modules/reputation/reputation.lua" />
+  <Script file="modules/databroker/databroker.lua" />
+  <Script file="modules/sound/sound.lua" />
+  <Script file="modules/achievement/achievement.lua" />
+  <Script file="modules/levelup/levelup.lua" />
+  <Script file="modules/quest/quest.lua" />
+  <Script file="modules/honor/honor.lua" />
+  <Script file="modules/delves/delves.lua" />
+  <Script file="modules/housing/housing.lua" />
+  <Script file="modules/tradingpost/tradingpost.lua" />
+  <Script file="modules/prey/prey.lua" />
+  <Script file="modules/collectibles/collectibles.lua" />
+  <Script file="modules/loot/loot.lua" />
 
   <!-- Commands -->
-<Script file="core/commands.lua"/>
+<Script file="core/commands.lua" />
 
 <!-- Init -->
-<Script file="core/initialization.lua"/>
+<Script file="core/initialization.lua" />
 
 </Ui>

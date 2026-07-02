@@ -20,7 +20,7 @@ Common issues and their fixes.
 
 **Cause:** The font file on disk is corrupted or is an HTML placeholder (the same issue as the unavailableFonts blocklist fonts). Font files in this state should be added to the `unavailableFonts` list if not already there. `SetFont` in WoW silently fails with invalid font files.
 
-**Fix:** Same as above — replace the file with a valid font asset.
+**Fix:** Same as above â€” replace the file with a valid font asset.
 
 ### `Fonts:GetPath()` returns nil
 
@@ -74,7 +74,7 @@ Common issues and their fixes.
 
 **Symptom:** `RGX:GetPetBattles()` returns nil.
 
-**Cause:** PetBattles, SharedMedia, Combat, and Reputation are dormant modules — they are in-tree but not loaded by `RGX-Framework.xml` (removed from the XML loader at v1.5.18 to reduce runtime surface).
+**Cause:** PetBattles, SharedMedia, Combat, and Reputation are dormant modules â€” they are in-tree but not loaded by `RGX-Framework.xml` (removed from the XML loader at v1.5.18 to reduce runtime surface).
 
 **Fix:** Add the module's `<Script>` tag to `RGX-Framework.xml` to re-enable it. The `TryInit` calls in `initialization.lua` already handle these modules gracefully (no-op if nil).
 
@@ -82,9 +82,9 @@ Common issues and their fixes.
 
 **Symptom:** Two module files define the same method (e.g. `Init`) and the second overwrites the first.
 
-**Cause:** WoW passes the same addon table to every file via `...`. `local _, MyModule = ...` does **not** create a new table — `MyModule` is the same reference as `_G.RGXFramework`.
+**Cause:** WoW passes the same addon table to every file via `...`. `local _, MyModule = ...` does **not** create a new table â€” `MyModule` is the same reference as `_G.RGXFramework`.
 
-**Fix:** Use unique method names across split-module files. The fonts sub-modules avoid this by using specific names (`Init`, `Register`, `GetPath`, etc.) — only `init.lua` defines `Fonts:Init()`.
+**Fix:** Use unique method names across split-module files. The fonts sub-modules avoid this by using specific names (`Init`, `Register`, `GetPath`, etc.) â€” only `init.lua` defines `Fonts:Init()`.
 
 ---
 
@@ -116,7 +116,7 @@ Common issues and their fixes.
 
 **Cause:** WoW rejected the event name (unknown event), or the handler ID collided with an existing registration.
 
-**Fix:** Check the return value of `RegisterEvent` — it returns `false` on failure. Enable `RGX.debugMode = true` to see "RegisterEvent unknown event" messages for invalid event names.
+**Fix:** Check the return value of `RegisterEvent` â€” it returns `false` on failure. Enable `RGX.debugMode = true` to see "RegisterEvent unknown event" messages for invalid event names.
 
 ### Handler fires multiple times
 
@@ -136,7 +136,7 @@ Common issues and their fixes.
 
 **Cause:** The SavedVariable name in the TOC doesn't match the global table the code is reading/writing. WoW only persists globals that match TOC `## SavedVariables:` entries.
 
-**Fix:** Ensure the TOC `## SavedVariables:` declaration matches the table your code uses. For framework consumers, this means your own addon's TOC must declare its own SavedVariables — RGX's `RGXFrameworkDB` is for the framework itself.
+**Fix:** Ensure the TOC `## SavedVariables:` declaration matches the table your code uses. For framework consumers, this means your own addon's TOC must declare its own SavedVariables â€” RGX's `RGXFrameworkDB` is for the framework itself.
 
 ---
 

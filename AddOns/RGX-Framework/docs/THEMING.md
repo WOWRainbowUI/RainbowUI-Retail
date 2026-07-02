@@ -87,7 +87,7 @@ local Colors = RGX:GetColors()
 local dimmed = Colors:Darken("primary", 0.3)      -- 30% darker
 local bright = Colors:Lighten("accent", 0.2)      -- 20% lighter
 local mid    = Colors:Lerp(Colors:Get("primary"), Colors:Get("accent"), 0.5)
-local health = Colors:Health(0.75)                  -- green → yellow → red gradient
+local health = Colors:Health(0.75)                  -- green â†’ yellow â†’ red gradient
 ```
 
 ---
@@ -112,10 +112,10 @@ local health = Colors:Health(0.75)                  -- green → yellow → red 
 
 | Template | Font | Size | Flags | Use |
 |---|---|---|---|---|
-| `header` | Inter-Bold | 18 | — | Section headers |
-| `title` | Inter-Bold | 14 | — | Panel titles |
-| `small` | Inter-Regular | 10 | — | Captions, dimmed text |
-| `default` | Inter-Regular | 12 | — | Body text |
+| `header` | Inter-Bold | 18 | â€” | Section headers |
+| `title` | Inter-Bold | 14 | â€” | Panel titles |
+| `small` | Inter-Regular | 10 | â€” | Captions, dimmed text |
+| `default` | Inter-Regular | 12 | â€” | Body text |
 
 ```lua
 local fs = Fonts:FromTemplate(parent, "title", "My Panel Title")
@@ -207,9 +207,9 @@ Framework media layout:
 
 ```
 media/
-├── fonts/          — bundled font files (.ttf, .otf)
-├── logo.tga        — framework icon (used in TOC IconTexture)
-└── textures/       — statusbar textures
+â”œâ”€â”€ fonts/          â€” bundled font files (.ttf, .otf)
+â”œâ”€â”€ logo.tga        â€” framework icon (used in TOC IconTexture)
+â””â”€â”€ textures/       â€” statusbar textures
 ```
 
 Consumer addons should use their own `media/` directories and reference icons via full `Interface\\AddOns\\AddonName\\media\\...` paths.

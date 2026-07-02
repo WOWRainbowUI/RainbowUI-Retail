@@ -15,49 +15,49 @@ The practical replacement is:
 ## Current Bundled Families
 
 ### Sans / UI
-- Inter — https://rsms.me/inter/
-- Ubuntu — https://design.ubuntu.com/font
-- Liberation Sans — https://github.com/liberationfonts/liberation-fonts
-- DejaVu Sans — https://dejavu-fonts.github.io/
-- Lato — https://fonts.google.com/specimen/Lato
-- Poppins — https://fonts.google.com/specimen/Poppins
-- Rajdhani — https://fonts.google.com/specimen/Rajdhani
+- Inter â€” https://rsms.me/inter/
+- Ubuntu â€” https://design.ubuntu.com/font
+- Liberation Sans â€” https://github.com/liberationfonts/liberation-fonts
+- DejaVu Sans â€” https://dejavu-fonts.github.io/
+- Lato â€” https://fonts.google.com/specimen/Lato
+- Poppins â€” https://fonts.google.com/specimen/Poppins
+- Rajdhani â€” https://fonts.google.com/specimen/Rajdhani
 
-### Sans / UI — Temporarily Unavailable (corrupted assets)
-- ~~Montserrat~~ — blocked in `unavailableFonts` pending asset replacement
+### Sans / UI â€” Temporarily Unavailable (corrupted assets)
+- ~~Montserrat~~ â€” blocked in `unavailableFonts` pending asset replacement
 
 ### Serif
-- Crimson Text — https://fonts.google.com/specimen/Crimson+Text
+- Crimson Text â€” https://fonts.google.com/specimen/Crimson+Text
 
-### Serif — Temporarily Unavailable (corrupted assets)
-- ~~Merriweather~~ — blocked in `unavailableFonts` pending asset replacement
-- ~~Playfair Display~~ — blocked in `unavailableFonts` pending asset replacement
+### Serif â€” Temporarily Unavailable (corrupted assets)
+- ~~Merriweather~~ â€” blocked in `unavailableFonts` pending asset replacement
+- ~~Playfair Display~~ â€” blocked in `unavailableFonts` pending asset replacement
 
 ### Monospace
-- IBM Plex Mono — https://fonts.google.com/specimen/IBM+Plex+Mono
-- JetBrains Mono — https://www.jetbrains.com/lp/mono/
+- IBM Plex Mono â€” https://fonts.google.com/specimen/IBM+Plex+Mono
+- JetBrains Mono â€” https://www.jetbrains.com/lp/mono/
 
 ### Display
-- Bebas Neue — https://fonts.google.com/specimen/Bebas+Neue
-- Bangers — https://fonts.google.com/specimen/Bangers
-- Creepster — https://fonts.google.com/specimen/Creepster
-- Anton — https://fonts.google.com/specimen/Anton
+- Bebas Neue â€” https://fonts.google.com/specimen/Bebas+Neue
+- Bangers â€” https://fonts.google.com/specimen/Bangers
+- Creepster â€” https://fonts.google.com/specimen/Creepster
+- Anton â€” https://fonts.google.com/specimen/Anton
 
-### Display — Temporarily Unavailable (corrupted assets)
-- ~~Oswald~~ — blocked in `unavailableFonts` pending asset replacement
-- ~~Orbitron~~ — blocked in `unavailableFonts` pending asset replacement
-- ~~Audiowide~~ — blocked in `unavailableFonts` pending asset replacement
+### Display â€” Temporarily Unavailable (corrupted assets)
+- ~~Oswald~~ â€” blocked in `unavailableFonts` pending asset replacement
+- ~~Orbitron~~ â€” blocked in `unavailableFonts` pending asset replacement
+- ~~Audiowide~~ â€” blocked in `unavailableFonts` pending asset replacement
 
 ### Pixel
-- Press Start 2P — https://fonts.google.com/specimen/Press+Start+2P
-- Silkscreen — https://fonts.google.com/specimen/Silkscreen
-- VT323 — https://fonts.google.com/specimen/VT323
+- Press Start 2P â€” https://fonts.google.com/specimen/Press+Start+2P
+- Silkscreen â€” https://fonts.google.com/specimen/Silkscreen
+- VT323 â€” https://fonts.google.com/specimen/VT323
 
 ### Fantasy / Themed
-- Uncial Antiqua — https://fonts.google.com/specimen/Uncial+Antiqua
+- Uncial Antiqua â€” https://fonts.google.com/specimen/Uncial+Antiqua
 
-### Fantasy / Themed — Temporarily Unavailable (corrupted assets)
-- ~~Cinzel~~ — blocked in `unavailableFonts` pending asset replacement
+### Fantasy / Themed â€” Temporarily Unavailable (corrupted assets)
+- ~~Cinzel~~ â€” blocked in `unavailableFonts` pending asset replacement
 
 ## Packaging Notes
 

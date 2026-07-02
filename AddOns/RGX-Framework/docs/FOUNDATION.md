@@ -16,6 +16,31 @@ RGX should be elite-simple for addon authors:
 
 That means we only keep a foundation piece if it is required by real addon behavior, not because Ace3 happened to package it.
 
+## North Star
+
+RGX-Framework is an addon-author toolkit.
+
+The goal is to let someone build a polished WoW addon quickly without first rebuilding the same low-level systems:
+
+- lifecycle and load-order safety
+- Blizzard event registration and cleanup
+- timers, hooks, slash commands, and safe UI operations
+- minimap buttons
+- options panels and reusable controls
+- shared fonts, textures, sounds, dropdowns, and theme colors
+- callback modules for common WoW gameplay signals
+
+Existing addons are the design references:
+
+| Addon | Framework Lesson |
+|---|---|
+| ETL | Traveler's Log events, lifecycle, minimap, and slash command ergonomics |
+| SQP | large options panels, fonts, nameplate events, and reusable controls |
+| RND | small utility addon pattern with direct events, timers, minimap, and settings |
+| BLU v7 | large sound/progression suite migration and shared media needs |
+
+When one of these addons repeats a pattern that another addon could reuse, that pattern belongs in RGX. When the behavior is product-specific, it stays in the addon.
+
 ## What Is Actually Required
 
 These are real framework requirements for the RGX direction.

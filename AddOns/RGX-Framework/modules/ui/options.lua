@@ -78,6 +78,8 @@ end
 -- ── Create a single tab button ────────────────────────────────────────────────
 
 local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon, addonKey)
+    local D = GetDesign()
+    local sr, sg, sb = D:Unpack("surface")
     local frameName = "RGXTab_" .. addonKey .. "_" .. tabIndex
     local btn = CreateFrame("Button", frameName, parent)
     btn:SetSize(TAB_W, TAB_H)
@@ -88,13 +90,13 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
 
     local bg = btn:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
-    bg:SetColorTexture(0.08, 0.11, 0.15, 0.90)
+    bg:SetColorTexture(sr, sg, sb, 0.90)
     btn.bg = bg
 
     local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
     border:SetAllPoints()
     border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    border:SetBackdropBorderColor(D:Unpack("border"))
     btn.border = border
 
     local btnText = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -111,7 +113,7 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
         btnText:SetPoint("CENTER", 0, 0)
     end
     btnText:SetText(text)
-    btnText:SetTextColor(0.75, 0.75, 0.75, 1)
+    btnText:SetTextColor(D:Unpack("subtext"))
     btn.text = btnText
 
     btn:SetScript("OnClick", function()
@@ -121,15 +123,15 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
     btn:SetScript("OnEnter", function(self)
         if not self.isActive then
             local D = GetDesign()
-            local pr, pg, pb = D and D:Unpack("primary") or 0.345, 0.745, 0.506
-            self.border:SetBackdropBorderColor(pr, pg, pb, 1)
-            self.text:SetTextColor(pr, pg, pb, 1)
+            self.border:SetBackdropBorderColor(D:Unpack("primary"))
+            self.text:SetTextColor(D:Unpack("primary"))
         end
     end)
     btn:SetScript("OnLeave", function(self)
         if not self.isActive then
-            self.border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-            self.text:SetTextColor(0.75, 0.75, 0.75, 1)
+            local D = GetDesign()
+            self.border:SetBackdropBorderColor(D:Unpack("border"))
+            self.text:SetTextColor(D:Unpack("subtext"))
         end
     end)
 
@@ -137,15 +139,16 @@ local function CreateTabButton(parent, text, tabIndex, row, col, panelRef, icon,
         self.isActive = active
         if active then
             local D = GetDesign()
-            local pr, pg, pb = D and D:Unpack("primary") or 0.345, 0.745, 0.506
-            self.bg:SetColorTexture(0.11, 0.18, 0.24, 1)
-            self.border:SetBackdropBorderColor(pr, pg, pb, 1)
-            self.text:SetTextColor(pr, pg, pb, 1)
+            self.bg:SetColorTexture(D:Unpack("hover"))
+            self.border:SetBackdropBorderColor(D:Unpack("primary"))
+            self.text:SetTextColor(D:Unpack("primary"))
             if self.iconTex then self.iconTex:SetDesaturated(false); self.iconTex:SetAlpha(1) end
         else
-            self.bg:SetColorTexture(0.08, 0.11, 0.15, 0.90)
-            self.border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-            self.text:SetTextColor(0.75, 0.75, 0.75, 1)
+            local D = GetDesign()
+            local sr, sg, sb = D:Unpack("surface")
+            self.bg:SetColorTexture(sr, sg, sb, 0.90)
+            self.border:SetBackdropBorderColor(D:Unpack("border"))
+            self.text:SetTextColor(D:Unpack("subtext"))
             if self.iconTex then self.iconTex:SetDesaturated(false); self.iconTex:SetAlpha(0.90) end
         end
     end
@@ -261,6 +264,12 @@ local _panelCounter = 0
 
 local function CreateOptionsPanel(UI, opts)
     opts = opts or {}
+    local D = GetDesign()
+    if D and type(D.SetTheme) == "function" then
+        D:SetTheme(opts.theme or opts.colors or opts)
+    end
+    local sr, sg, sb = D:Unpack("surface")
+    local br, bg, bb = D:Unpack("background")
 
     local tAddonName = opts.addonName or addonName
     local tabs       = opts.tabs or {}
@@ -294,8 +303,8 @@ local function CreateOptionsPanel(UI, opts)
         tile = true, tileSize = 16, edgeSize = 1,
         insets = {left=1, right=1, top=1, bottom=1},
     })
-    container:SetBackdropColor(0.05, 0.07, 0.10, 0.95)
-    container:SetBackdropBorderColor(0.10, 0.18, 0.24, 1)
+    container:SetBackdropColor(sr, sg, sb, 0.95)
+    container:SetBackdropBorderColor(D:Unpack("border"))
 
     -- ── Header ────────────────────────────────────────────────────────────────
     local header = CreateFrame("Frame", nil, container, "BackdropTemplate")
@@ -308,22 +317,15 @@ local function CreateOptionsPanel(UI, opts)
         tile = true, tileSize = 16, edgeSize = 1,
         insets = {left=1, right=1, top=1, bottom=1},
     })
-    header:SetBackdropColor(0.07, 0.10, 0.14, 0.95)
-    header:SetBackdropBorderColor(0.12, 0.22, 0.30, 1)
+    header:SetBackdropColor(sr, sg, sb, 0.95)
+    header:SetBackdropBorderColor(D:Unpack("border"))
 
     -- Accent line along header bottom
     local accent = header:CreateTexture(nil, "ARTWORK")
     accent:SetHeight(2)
     accent:SetPoint("BOTTOMLEFT",  8, 0)
     accent:SetPoint("BOTTOMRIGHT", -8, 0)
-    do
-        local D = GetDesign()
-        if D then
-            accent:SetColorTexture(D:Unpack("primary"))
-        else
-            accent:SetColorTexture(0.345, 0.745, 0.506)
-        end
-    end
+    accent:SetColorTexture(D:Unpack("primary"))
 
     -- Icon
     if opts.icon then
@@ -346,7 +348,7 @@ local function CreateOptionsPanel(UI, opts)
         sub:SetPoint("LEFT", header, "TOPLEFT", leftX, -26)
         sub:SetJustifyV("MIDDLE")
         sub:SetText(opts.subtitle)
-        sub:SetTextColor(0.70, 0.70, 0.70)
+        sub:SetTextColor(D:Unpack("subtext"))
     end
 
     if opts.website then
@@ -354,7 +356,7 @@ local function CreateOptionsPanel(UI, opts)
         site:SetPoint("LEFT", header, "TOPLEFT", leftX, -38)
         site:SetJustifyV("MIDDLE")
         site:SetText(opts.website)
-        site:SetTextColor(0.85, 0.85, 0.85)
+        site:SetTextColor(D:Unpack("text"))
     end
 
     local verText = opts.version or GetMeta(tAddonName, "Version") or ""
@@ -365,10 +367,7 @@ local function CreateOptionsPanel(UI, opts)
         ver:SetJustifyV("MIDDLE")
         ver:SetText(verText)
         ver:SetJustifyH("RIGHT")
-        do
-            local D = GetDesign()
-            if D then ver:SetTextColor(D:Unpack("primary")) else ver:SetTextColor(0.345, 0.745, 0.506) end
-        end
+        ver:SetTextColor(D:Unpack("primary"))
     end
 
     if opts.author then
@@ -376,7 +375,7 @@ local function CreateOptionsPanel(UI, opts)
         auth:SetPoint("RIGHT", header, "TOPRIGHT", rightX, -26)
         auth:SetJustifyV("MIDDLE")
         auth:SetText("by " .. opts.author)
-        auth:SetTextColor(0.70, 0.70, 0.70)
+        auth:SetTextColor(D:Unpack("subtext"))
         auth:SetJustifyH("RIGHT")
     end
 
@@ -402,8 +401,8 @@ local function CreateOptionsPanel(UI, opts)
             tile = true, tileSize = 16, edgeSize = 1,
             insets = {left=1, right=1, top=1, bottom=1},
         })
-        bannerFrame:SetBackdropColor(0.05, 0.07, 0.10, 0.95)
-        bannerFrame:SetBackdropBorderColor(0.12, 0.22, 0.30, 1)
+        bannerFrame:SetBackdropColor(sr, sg, sb, 0.95)
+        bannerFrame:SetBackdropBorderColor(D:Unpack("border"))
         panel.bannerFrame = bannerFrame
         tabAnchor = bannerFrame
     end
@@ -419,7 +418,7 @@ local function CreateOptionsPanel(UI, opts)
 
     local tabBg = tabArea:CreateTexture(nil, "BACKGROUND")
     tabBg:SetAllPoints()
-    tabBg:SetColorTexture(0.03, 0.03, 0.03, 0.60)
+    tabBg:SetColorTexture(br, bg, bb, 0.60)
 
     -- ── Build tabs and content frames ─────────────────────────────────────────
     for i, tabInfo in ipairs(tabs) do
@@ -441,8 +440,8 @@ local function CreateOptionsPanel(UI, opts)
             tile = true, tileSize = 16, edgeSize = 1,
             insets = {left=1, right=1, top=1, bottom=1},
         })
-        content:SetBackdropColor(0.06, 0.06, 0.06, 0.95)
-        content:SetBackdropBorderColor(0.20, 0.20, 0.20, 1)
+        content:SetBackdropColor(br, bg, bb, 0.95)
+        content:SetBackdropBorderColor(D:Unpack("border"))
         content:Hide()
 
         panel.contents[i] = content

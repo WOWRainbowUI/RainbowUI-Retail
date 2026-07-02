@@ -301,6 +301,20 @@ function Sound:GetAll()
     return self._registry
 end
 
+function Sound:MuteList(ids)
+    if type(ids) ~= "table" then return end
+    for _, id in ipairs(ids) do
+        MuteSoundFile(id)
+    end
+end
+
+function Sound:UnmuteList(ids)
+    if type(ids) ~= "table" then return end
+    for _, id in ipairs(ids) do
+        UnmuteSoundFile(id)
+    end
+end
+
 --[[============================================================================
 INITIALIZATION
 ============================================================================]]

@@ -2,9 +2,9 @@
 
 Complete public API by module. See individual module docs for deeper detail:
 
-- [docs/FONTS.md](FONTS.md) — font system
-- [docs/DROPDOWNS.md](DROPDOWNS.md) — dropdown system
-- [docs/ARCHITECTURE.md](ARCHITECTURE.md) — load order, module system, lifecycle
+- [docs/FONTS.md](FONTS.md) â€” font system
+- [docs/DROPDOWNS.md](DROPDOWNS.md) â€” dropdown system
+- [docs/ARCHITECTURE.md](ARCHITECTURE.md) â€” load order, module system, lifecycle
 
 ---
 
@@ -43,10 +43,10 @@ Complete public API by module. See individual module docs for deeper detail:
 | `RGX:GetDesign()` | RGXDesign |
 | `RGX:GetDataBroker()` | RGXDataBroker |
 | `RGX:GetSound()` | RGXSound |
-| `RGX:GetPetBattles()` | RGXPetBattles (dormant — returns nil) |
-| `RGX:GetSharedMedia()` | RGXSharedMedia (dormant — returns nil) |
-| `RGX:GetCombat()` | RGXCombat (dormant — returns nil) |
-| `RGX:GetReputation()` | RGXReputation (dormant — returns nil) |
+| `RGX:GetPetBattles()` | RGXPetBattles (dormant â€” returns nil) |
+| `RGX:GetSharedMedia()` | RGXSharedMedia (dormant â€” returns nil) |
+| `RGX:GetCombat()` | RGXCombat (dormant â€” returns nil) |
+| `RGX:GetReputation()` | RGXReputation (dormant â€” returns nil) |
 
 ### Output
 
@@ -150,7 +150,7 @@ emitter:Fire(signal, ...)
 | `RGX:CancelAllTimers()` | Cancel all active timers |
 | `RGX:CreateTimer(duration, callback, repeating, label)` | Low-level; returns timer table |
 
-`Every` callback signature: `function(timer)` — repeating timers can cancel themselves.
+`Every` callback signature: `function(timer)` â€” repeating timers can cancel themselves.
 
 ---
 
@@ -232,7 +232,7 @@ Callback signature: `function(original, self, ...) return original(self, ...) en
 |---|---|
 | `RGX:Round(num, decimals)` | Round to N decimal places |
 | `RGX:Clamp(val, min, max)` | Number clamp |
-| `RGX:Lerp(a, b, t)` | Linear interpolation, t ∈ [0,1] |
+| `RGX:Lerp(a, b, t)` | Linear interpolation, t âˆˆ [0,1] |
 
 ### WoW Version
 
@@ -267,7 +267,7 @@ See [docs/FONTS.md](FONTS.md) for complete documentation.
 | `Fonts:GetCategories()` | Distinct categories |
 | `Fonts:GetFamilies()` | Distinct families |
 | `Fonts:GetGroupedFonts()` | Nested { [cat] = { [fam] = { name, ... } } } |
-| `Fonts:FindByPath(path)` | Path → name reverse lookup |
+| `Fonts:FindByPath(path)` | Path â†’ name reverse lookup |
 | `Fonts:ResolveName(value, fallback)` | Accept name or path, return name |
 | `Fonts:ResolvePath(value, fallback)` | Return safe path and name |
 
@@ -306,8 +306,8 @@ See [docs/FONTS.md](FONTS.md) for complete documentation.
 
 | Method | Description |
 |---|---|
-| `Fonts:SplitFlags(flags)` | String → array |
-| `Fonts:NormalizeFlags(flags)` | String or table → canonical string |
+| `Fonts:SplitFlags(flags)` | String â†’ array |
+| `Fonts:NormalizeFlags(flags)` | String or table â†’ canonical string |
 | `Fonts:DescribeFlags(flags)` | Human-readable description |
 | `Fonts:GetFlagPresets()` | Preset flag combinations |
 
@@ -351,7 +351,7 @@ See [docs/FONTS.md](FONTS.md) for complete documentation.
 | `Colors:GetRGB(name)` | Returns r, g, b (multi-return) |
 | `Colors:GetHex(name)` | Returns `"#RRGGBB"` |
 | `Colors:GetClass(className)` | Class color table |
-| `Colors:GetQuality(quality)` | Quality color table (0–5) |
+| `Colors:GetQuality(quality)` | Quality color table (0â€“5) |
 | `Colors:GetPower(powerType)` | Power type color table |
 
 ### Text Wrapping
@@ -373,7 +373,7 @@ See [docs/FONTS.md](FONTS.md) for complete documentation.
 | `Colors:SetAlpha(colorName, alpha)` | New color with alpha set |
 | `Colors:Lerp(c1, c2, t)` | Interpolate between two colors |
 | `Colors:Gradient(pct, low, mid, high)` | 3-stop gradient; mid optional |
-| `Colors:Health(percent)` | Health gradient (green → yellow → red) |
+| `Colors:Health(percent)` | Health gradient (green â†’ yellow â†’ red) |
 | `Colors:RGBToHex(r, g, b)` | Returns `"RRGGBB"` |
 | `Colors:HexToRGB(hex)` | Returns r, g, b |
 
@@ -481,16 +481,16 @@ See [docs/DROPDOWNS.md](DROPDOWNS.md) for complete documentation.
 |---|---|---|
 | `primary` | `#58be81` | Brand green |
 | `accent` | `#bc6fa8` | Brand purple |
-| `surface` | — | Panel backgrounds |
-| `background` | — | Main backgrounds |
-| `text` | — | Primary text |
-| `subtext` | — | Secondary text |
-| `success` | — | Positive indicators |
-| `warning` | — | Caution indicators |
-| `error` | — | Error/negative indicators |
-| `border` | — | Default borders |
-| `borderActive` | — | Focused borders |
-| `hover` | — | Hover highlights |
+| `surface` | â€” | Panel backgrounds |
+| `background` | â€” | Main backgrounds |
+| `text` | â€” | Primary text |
+| `subtext` | â€” | Secondary text |
+| `success` | â€” | Positive indicators |
+| `warning` | â€” | Caution indicators |
+| `error` | â€” | Error/negative indicators |
+| `border` | â€” | Default borders |
+| `borderActive` | â€” | Focused borders |
+| `hover` | â€” | Hover highlights |
 
 Access via `Design.Colors.primary`, `Design.Colors.accent`, etc.
 
@@ -585,7 +585,7 @@ Sound:Register(name, opts)
 -- opts: { path, channel, variants, defaultSound, muteable }
 ```
 
-Level-up sound system with variant playback, default-sound muting, and SavedVar integration. Currently loaded by XML but primarily used by PetBuddy2.
+Level-up sound system with variant playback, default-sound muting, and SavedVar integration. Currently loaded by XML but primarily used by BattlePetUtility.
 
 ---
 

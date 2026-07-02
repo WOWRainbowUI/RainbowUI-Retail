@@ -36,8 +36,10 @@ SM._seenPaths = {}
 
 -- Scanner state
 SM._pendingScan  = false
+SM._pendingFullScan = false
 SM._kittyHooked  = false
 SM._invokedDBM   = {}
+SM._didGenericScan = false
 
 -- ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -554,8 +556,9 @@ function SM:_ScanAddonGlobals()
     return count
 end
 
--- Wipe all bridge-discovered sounds and re-run all scanners
-function SM:Scan()
+-- Wipe all bridge-discovered sounds and re-run scanners.
+-- includeGeneric=true enables the expensive fallback scan over addon globals.
+function SM:Scan(includeGeneric)
     -- Remove existing bridge entries for sounds
     local soundReg = self.registry["sound"]
     if soundReg then
@@ -582,7 +585,12 @@ function SM:Scan()
     local n1 = self:_ScanKitty()
     local n2 = self:_InvokeDBMRegistrars()
     local n3 = self:_ScanKnownAddons()
-    local n4 = self:_ScanAddonGlobals()
+    local n4 = 0
+
+    if includeGeneric then
+        n4 = self:_ScanAddonGlobals()
+        self._didGenericScan = true
+    end
 
     RGX:Debug(string.format(
         "[RGXSharedMedia] Scan complete — Kitty:%d DBM:%d Compat:%d Generic:%d",
@@ -590,13 +598,22 @@ function SM:Scan()
     ))
 end
 
-function SM:QueueScan(delay)
+function SM:QueueScan(delay, includeGeneric)
+  if includeGeneric then
+    self._pendingFullScan = true
+  end
+
   if self._pendingScan then return end
   self._pendingScan = true
 
   local function run()
     self._pendingScan = false
-    local ok, err = pcall(function() self:Scan() end)
+    local runFullScan = self._pendingFullScan == true
+    self._pendingFullScan = false
+
+    local ok, err = pcall(function()
+      self:Scan(runFullScan)
+    end)
     if not ok then
       RGX:Debug("[RGXSharedMedia] Scan error: " .. tostring(err))
     end
@@ -617,12 +634,14 @@ end
 function SM:OnAddonLoaded(name)
     if IsLikelyMediaProvider(name) then
         self:_HookKitty()
-        self:QueueScan(0.25)
+        self:QueueScan(0.25, false)
     end
 end
 
 function SM:OnPlayerLogin()
-    self:QueueScan(1.0)
+    if not self._didGenericScan then
+        self:QueueScan(2.0, true)
+    end
 end
 
 -- ── Init ──────────────────────────────────────────────────────────────────────
@@ -638,7 +657,9 @@ function SM:Init()
         SM:OnPlayerLogin()
     end)
 
-    self:Scan()
+    -- Run a cheap early scan first. The slow generic global scan can wait
+    -- until PLAYER_LOGIN, after the UI has settled.
+    self:QueueScan(0.10, false)
 end
 
 -- ── Wire into framework ───────────────────────────────────────────────────────

@@ -1,18 +1,18 @@
-# Using RGX-Framework in PetBuddy2
+# Using RGX-Framework in BattlePetUtility
 
 ## Step 1: Add Dependency
 
-In `PetBuddy2.toc`:
+In `BattlePetUtility.toc`:
 ```
 ## RequiredDeps: RGX-Framework
 ```
 
 ## Step 2: Replace Font Code
 
-**OLD PB2 code (in options.lua):**
+**OLD BPU code (in options.lua):**
 ```lua
 -- Register fonts manually
-addon:RegisterMedia("font", "Roboto", "Interface/AddOns/PetBuddy2/media/fonts/Roboto.ttf")
+addon:RegisterMedia("font", "Roboto", "Interface/AddOns/BattlePetUtility/media/fonts/Roboto.ttf")
 -- ... etc for each font
 
 -- Later: get font path
@@ -53,17 +53,17 @@ local styleSelector = Fonts:AttachStyleSelector(parent, db, "titleText", {
 -- Get RGX fonts module
 local Fonts = RGX:GetModule("fonts")
 
--- Apply to PetBuddy2's font objects
+-- Apply to BattlePetUtility's font objects
 function addon:RefreshFonts()
-    Fonts:ApplyTextStyle(PetBuddyFontTitle, self.db.global.titleText)
-    Fonts:ApplyTextStyle(PetBuddyFontNormal, self.db.global.normalText)
-    Fonts:ApplyTextStyle(PetBuddyFontSmall, self.db.global.smallText)
+    Fonts:ApplyTextStyle(BattlePetUtilityFontTitle, self.db.global.titleText)
+    Fonts:ApplyTextStyle(BattlePetUtilityFontNormal, self.db.global.normalText)
+    Fonts:ApplyTextStyle(BattlePetUtilityFontSmall, self.db.global.smallText)
 end
 ```
 
 ## Benefits
 
-1. **No font files in PB2** - All fonts live in RGX-Framework
+1. **No font files in BPU** - All fonts live in RGX-Framework
 2. **Shared fonts** - Other addons using RGX-Framework get the same fonts
 3. **Automatic fallbacks** - If a font isn't available, automatically uses defaults
 4. **Easy updates** - Update fonts in one place (RGX-Framework)

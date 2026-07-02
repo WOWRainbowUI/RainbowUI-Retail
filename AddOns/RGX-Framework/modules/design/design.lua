@@ -1,9 +1,21 @@
 --=====================================================================================
 -- RGX-Framework | RGXDesign
 -- Visual building blocks for any RGX-Framework addon UI.
--- Uses the static RGX color palette (#58be81 green / #bc6fa8 purple).
+--
+-- Theme tokens (addon-overridable via Design:SetTheme):
+--   primary - highlight color used on labels, borders, fills, slider fills
+--   accent  - secondary highlight color
+--
+-- Usage:
+--   local Design = RGX:GetDesign()
+--   Design:SetTheme({
+--       primary = {0.02, 0.87, 0.98}, -- BLU cyan, for example
+--       accent  = {1.00, 0.84, 0.00},
+--   })
 --
 -- Public API:
+--   Design:SetTheme(config)                       -- override theme tokens
+--   Design:SetHighlightColor(color, accent)       -- shorthand for primary/accent
 --   Design:GetColor(key)                          -- {r,g,b}
 --   Design:Unpack(key)                            -- r, g, b for direct use
 --   Design:CreateFrame(parent, opts)              -- styled backdrop frame
@@ -19,24 +31,25 @@ local addonName, RGX = ...
 
 local Design = {}
 
--- ── RGX static palette ────────────────────────────────────────────────────────
-
-Design.Colors = {
-    primary      = {0.345, 0.745, 0.506},   -- #58be81
-    accent       = {0.737, 0.435, 0.659},   -- #bc6fa8
-    surface      = {0.050, 0.070, 0.100},
-    background   = {0.030, 0.040, 0.060},
-    text         = {1.000, 1.000, 1.000},
-    subtext      = {0.700, 0.700, 0.700},
-    success      = {0.200, 0.800, 0.400},
-    warning      = {1.000, 0.650, 0.000},
-    error        = {1.000, 0.200, 0.200},
-    border       = {0.140, 0.200, 0.280},
-    borderActive = {0.345, 0.745, 0.506},
-    hover        = {0.110, 0.180, 0.240},
+-- Theme tokens. Addons should override these before building UI.
+Design.Theme = {
+    primary = {0.345, 0.745, 0.506}, -- #58be81 RGX default green
+    accent  = {0.737, 0.435, 0.659}, -- #bc6fa8 RGX default purple
 }
 
--- ── Backdrop templates ────────────────────────────────────────────────────────
+-- Structural palette. These are the BLU/RGX dark UI foundation colors.
+Design.Colors = {
+    surface    = {0.050, 0.070, 0.100},
+    background = {0.030, 0.040, 0.060},
+    text       = {1.000, 1.000, 1.000},
+    subtext    = {0.700, 0.700, 0.700},
+    success    = {0.200, 0.800, 0.400},
+    warning    = {1.000, 0.650, 0.000},
+    error      = {1.000, 0.200, 0.200},
+    border     = {0.140, 0.200, 0.280},
+    hover      = {0.110, 0.180, 0.240},
+    track      = {0.140, 0.200, 0.280},
+}
 
 local BACKDROPS = {
     dark = {
@@ -64,37 +77,69 @@ local BACKDROPS = {
     },
 }
 
--- ── Color helpers ─────────────────────────────────────────────────────────────
+local THEME_KEYS = {
+    primary      = "primary",
+    highlight    = "primary",
+    accent       = "accent",
+    borderActive = "primary",
+}
+
+local function IsColor(value)
+    return type(value) == "table"
+        and type(value[1]) == "number"
+        and type(value[2]) == "number"
+        and type(value[3]) == "number"
+end
+
+function Design:SetTheme(config)
+    if type(config) ~= "table" then return end
+
+    local primary = config.primary
+        or config.highlight
+        or config.highlightColor
+        or config.themeColor
+
+    local accent = config.accent
+        or config.secondary
+        or config.secondaryHighlight
+
+    if IsColor(primary) then self.Theme.primary = primary end
+    if IsColor(accent) then self.Theme.accent = accent end
+end
+
+function Design:SetHighlightColor(color, accent)
+    self:SetTheme({ primary = color, accent = accent })
+end
+
+Design.SetColors = Design.SetTheme
+Design.UseTheme = Design.SetTheme
 
 function Design:GetColor(key)
+    local themeKey = THEME_KEYS[key]
+    if themeKey then return self.Theme[themeKey] or {1, 1, 1} end
     return self.Colors[key] or {1, 1, 1}
 end
 
 function Design:Unpack(key)
-    local c = self.Colors[key] or {1, 1, 1}
+    local c = self:GetColor(key)
     return c[1] or 1, c[2] or 1, c[3] or 1
 end
 
 function Design:RGBToHex(r, g, b)
     return string.format("%02x%02x%02x",
-        math.floor(r * 255 + 0.5),
-        math.floor(g * 255 + 0.5),
-        math.floor(b * 255 + 0.5)
+        math.floor((r or 1) * 255 + 0.5),
+        math.floor((g or 1) * 255 + 0.5),
+        math.floor((b or 1) * 255 + 0.5)
     )
 end
-
--- ── ApplyBackdrop ─────────────────────────────────────────────────────────────
 
 function Design:ApplyBackdrop(frame, variant, bgAlpha)
     local bd = BACKDROPS[variant] or BACKDROPS.dark
     frame:SetBackdrop(bd)
     local r, g, b = self:Unpack("surface")
     frame:SetBackdropColor(r, g, b, bgAlpha or 0.95)
-    local br, bg2, bb = self:Unpack("border")
-    frame:SetBackdropBorderColor(br, bg2, bb, 1)
+    frame:SetBackdropBorderColor(self:Unpack("border"))
 end
-
--- ── CreateFrame ───────────────────────────────────────────────────────────────
 
 function Design:CreateFrame(parent, opts)
     opts = opts or {}
@@ -104,8 +149,6 @@ function Design:CreateFrame(parent, opts)
     self:ApplyBackdrop(frame, opts.variant or "dark", opts.bgAlpha)
     return frame
 end
-
--- ── CreateButton ─────────────────────────────────────────────────────────────
 
 function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipBody)
     local btn = CreateFrame("Button", nil, parent)
@@ -129,19 +172,20 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
     btn.label = label
 
     btn:SetScript("OnEnter", function(self)
-        local pr, pg, pb = Design:Unpack("primary")
         self.bg:SetColorTexture(Design:Unpack("hover"))
-        self.border:SetBackdropBorderColor(pr, pg, pb, 1)
-        self.label:SetTextColor(pr, pg, pb, 1)
+        self.border:SetBackdropBorderColor(Design:Unpack("primary"))
+        self.label:SetTextColor(Design:Unpack("primary"))
         if self._ttTitle then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetText(self._ttTitle, 1, 1, 1)
             if self._ttBody then
-                GameTooltip:AddLine(self._ttBody, 0.82, 0.82, 0.82, true)
+                local sr, sg, sb = Design:Unpack("subtext")
+                GameTooltip:AddLine(self._ttBody, sr, sg, sb, true)
             end
             GameTooltip:Show()
         end
     end)
+
     btn:SetScript("OnLeave", function(self)
         self.bg:SetColorTexture(Design:Unpack("surface"))
         self.border:SetBackdropBorderColor(Design:Unpack("border"))
@@ -160,8 +204,6 @@ function Design:CreateButton(parent, text, width, height, tooltipTitle, tooltipB
 end
 
 Design.CreateActionButton = Design.CreateButton
-
--- ── CreateSectionHeader ───────────────────────────────────────────────────────
 
 function Design:CreateSectionHeader(parent, text, icon)
     local header = CreateFrame("Frame", nil, parent, "BackdropTemplate")
@@ -189,16 +231,12 @@ end
 
 Design.CreateHeader = Design.CreateSectionHeader
 
--- ── CreateDivider ─────────────────────────────────────────────────────────────
-
 function Design:CreateDivider(parent)
     local d = parent:CreateTexture(nil, "ARTWORK")
     d:SetHeight(1)
     d:SetColorTexture(self:Unpack("border"))
     return d
 end
-
--- ── CreateSection ─────────────────────────────────────────────────────────────
 
 function Design:CreateSection(parent, title, icon)
     local section = CreateFrame("Frame", nil, parent, "BackdropTemplate")
@@ -220,8 +258,6 @@ function Design:CreateSection(parent, title, icon)
 
     return section
 end
-
--- ── Wire into framework ───────────────────────────────────────────────────────
 
 _G.RGXDesign = Design
 RGX:RegisterModule("design", Design)

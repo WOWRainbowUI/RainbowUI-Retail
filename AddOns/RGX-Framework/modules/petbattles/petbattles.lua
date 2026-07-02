@@ -25,16 +25,17 @@
         end)
 --]]
 
-local _, PetBattles = ...
-local RGX = _G.RGXFramework
+local addonName, RGX = ...
 
 if not RGX then
     error("RGX PetBattles: RGX-Framework not loaded")
     return
 end
 
+local PetBattles = {}
 PetBattles.name    = "petbattles"
 PetBattles.version = "1.0.0"
+PetBattles._eventsInit = false
 
 -- Internal state
 PetBattles._lastLevel       = {}  -- [petID] = level
@@ -56,8 +57,15 @@ local LEVEL_COOLDOWN = 1.0  -- seconds between level-up fires for the same slot
 ============================================================================]]
 
 local function addCallback(list, fn)
-    if type(fn) == "function" then
-        list[#list + 1] = fn
+    if type(fn) ~= "function" then return nil end
+    list[#list + 1] = fn
+    return function()
+        for i = #list, 1, -1 do
+            if list[i] == fn then
+                table.remove(list, i)
+                return
+            end
+        end
     end
 end
 
@@ -71,23 +79,23 @@ local function fireCallbacks(list, ...)
 end
 
 function PetBattles:OnLevelUp(fn)
-    addCallback(self._callbacks.levelup, fn)
+    return addCallback(self._callbacks.levelup, fn)
 end
 
 function PetBattles:OnCapture(fn)
-    addCallback(self._callbacks.capture, fn)
+    return addCallback(self._callbacks.capture, fn)
 end
 
 function PetBattles:OnBattleStart(fn)
-    addCallback(self._callbacks.battlestart, fn)
+    return addCallback(self._callbacks.battlestart, fn)
 end
 
 function PetBattles:OnBattleEnd(fn)
-    addCallback(self._callbacks.battleend, fn)
+    return addCallback(self._callbacks.battleend, fn)
 end
 
 function PetBattles:OnPetChanged(fn)
-    addCallback(self._callbacks.petchanged, fn)
+    return addCallback(self._callbacks.petchanged, fn)
 end
 
 --[[============================================================================
@@ -224,6 +232,9 @@ end
 ============================================================================]]
 
 function PetBattles:Init()
+    if self._eventsInit then return end
+    self._eventsInit = true
+
     RGX:RegisterEvent("PET_BATTLE_LEVEL_CHANGED", function(...) self:_OnLevelChanged(...) end)
     RGX:RegisterEvent("PET_BATTLE_PET_CHANGED",   function(...) self:_OnPetChanged(...)   end)
     RGX:RegisterEvent("PET_BATTLE_CAPTURED",       function(...) self:_OnPetCaptured(...)  end)
@@ -234,10 +245,10 @@ function PetBattles:Init()
         self:ScanPetLevels()
     end)
 
-    RGX:RegisterModule("petbattles", self)
-    _G.RGXPetBattles = self
-
     RGX:Debug("PetBattles: module initialized")
 end
+
+RGX:RegisterModule("petbattles", PetBattles)
+_G.RGXPetBattles = PetBattles
 
 PetBattles:Init()

@@ -60,13 +60,16 @@ function RGX:TableFind(tbl, fn)
 end
 
 function RGX:MergeTable(dst, src)
-    if type(src) ~= "table" then return dst end
-    for k, v in pairs(src) do
-        if dst[k] == nil then
-            dst[k] = v
-        end
+  if type(src) ~= "table" then return dst end
+  for k, v in pairs(src) do
+    if type(v) == "table" then
+      if type(dst[k]) ~= "table" then dst[k] = {} end
+      self:MergeTable(dst[k], v)
+    elseif dst[k] == nil then
+      dst[k] = v
     end
-    return dst
+  end
+  return dst
 end
 
 -- Math
@@ -128,6 +131,43 @@ function RGX:CreateChatPrefix(opts)
         tagColor,
         tag
     )
+end
+
+-- Deep copy with circular-reference and metatable support
+function RGX:DeepCopy(value, seen)
+    if type(value) ~= "table" then return value end
+    seen = seen or {}
+    if seen[value] then return seen[value] end
+    local copy = {}
+    seen[value] = copy
+    for k, v in pairs(value) do
+        copy[self:DeepCopy(k, seen)] = self:DeepCopy(v, seen)
+    end
+    return setmetatable(copy, getmetatable(value))
+end
+
+-- Throttle: execute func at most once per `seconds` interval for a given key.
+RGX._throttleTimers = RGX._throttleTimers or {}
+function RGX:Throttle(key, seconds, func)
+    local now = GetTime and GetTime() or 0
+    local last = self._throttleTimers[key]
+    if not last or (now - last) >= seconds then
+        self._throttleTimers[key] = now
+        return func()
+    end
+end
+
+-- Debounce: delay func by `seconds`, cancelling any pending call for the same key.
+RGX._debounceTimers = RGX._debounceTimers or {}
+function RGX:Debounce(key, seconds, func)
+    local pending = self._debounceTimers[key]
+    if pending and pending.active then
+        pending.active = false
+    end
+    self._debounceTimers[key] = self:After(seconds, function()
+        self._debounceTimers[key] = nil
+        func()
+    end)
 end
 
 -- WoW

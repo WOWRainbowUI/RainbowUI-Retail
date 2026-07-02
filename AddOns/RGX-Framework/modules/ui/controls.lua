@@ -228,7 +228,7 @@ function UI:CreateSlider(parent, options)
 	track:SetPoint("LEFT", button, "LEFT", 0, 0)
 	track:SetPoint("RIGHT", button, "RIGHT", 0, 0)
 	track:SetPoint("CENTER", button, "CENTER", 0, 0)
-	track:SetColorTexture(D:Unpack("border"))
+	track:SetColorTexture(D:Unpack("track"))
 
 	local fill = trackFrame:CreateTexture(nil, "ARTWORK")
 	fill:SetHeight(4)
@@ -385,7 +385,7 @@ function UI:CreateVolumeSlider(parent, options)
 	track:SetPoint("LEFT", button, "LEFT", 0, 0)
 	track:SetPoint("RIGHT", button, "RIGHT", 0, 0)
 	track:SetPoint("CENTER", button, "CENTER", 0, 0)
-	track:SetColorTexture(D:Unpack("border"))
+	track:SetColorTexture(D:Unpack("track"))
 
 	local fill = frame:CreateTexture(nil, "ARTWORK")
 	fill:SetHeight(4)
@@ -529,6 +529,7 @@ function UI:CreateLabel(parent, options)
     local text = options.text or ""
     local size = options.size or "normal"  -- small, normal, large
     local color = options.color or "normal"  -- normal, muted, accent, red, green
+    local D = RGX:GetDesign()
     
     local label = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     
@@ -541,17 +542,20 @@ function UI:CreateLabel(parent, options)
         label:SetFontObject("GameFontNormal")
     end
     
-    -- Set color
-    local colors = {
-        muted = {0.7, 0.7, 0.7},
-        accent = {0, 0.64, 1},
-        red = {1, 0.2, 0.2},
-        green = {0.2, 1, 0.2},
-        yellow = {1, 1, 0.2}
+    local colorKeys = {
+        normal = "text",
+        muted  = "subtext",
+        accent = "primary",
+        red    = "error",
+        green  = "success",
+        yellow = "warning",
     }
-    
-    local c = colors[color] or {1, 1, 1}
-    label:SetTextColor(c[1], c[2], c[3])
+
+    if D then
+        label:SetTextColor(D:Unpack(colorKeys[color] or "text"))
+    else
+        label:SetTextColor(1, 1, 1)
+    end
     
     label:SetText(text)
     return label
@@ -563,20 +567,21 @@ end
 
 function UI:CreateResetButton(parent, onClick)
     local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    local D = RGX:GetDesign()
     -- 24px wide: 2px transparent margin each side keeps the visual clear of adjacent controls
     btn:SetSize(24, 16)
 
     local bg = btn:CreateTexture(nil, "BACKGROUND")
     bg:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
     bg:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
-    bg:SetColorTexture(0.05, 0.07, 0.10, 1)
+    bg:SetColorTexture(D:Unpack("surface"))
     btn.bg = bg
 
     local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
     border:SetPoint("TOPLEFT",     btn, "TOPLEFT",     2,  0)
     border:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 0)
     border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    border:SetBackdropBorderColor(D:Unpack("border"))
     btn.border = border
 
     local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
@@ -584,24 +589,24 @@ function UI:CreateResetButton(parent, onClick)
     lbl:SetJustifyH("CENTER")
     lbl:SetJustifyV("MIDDLE")
     lbl:SetText("R")
-    lbl:SetTextColor(0.70, 0.70, 0.70, 1)
+    lbl:SetTextColor(D:Unpack("subtext"))
     btn.lbl = lbl
 
     btn:SetScript("OnClick", onClick)
     btn:SetScript("OnEnter", function(self)
         local D = RGX:GetDesign()
-        local pr, pg, pb = D and D:Unpack("primary") or 0.345, 0.745, 0.506
-        self.border:SetBackdropBorderColor(pr, pg, pb, 1)
-        self.bg:SetColorTexture(0.11, 0.18, 0.24, 1)
-        self.lbl:SetTextColor(pr, pg, pb, 1)
+        self.border:SetBackdropBorderColor(D:Unpack("primary"))
+        self.bg:SetColorTexture(D:Unpack("hover"))
+        self.lbl:SetTextColor(D:Unpack("primary"))
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         GameTooltip:SetText("Reset to default")
         GameTooltip:Show()
     end)
     btn:SetScript("OnLeave", function(self)
-        self.border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-        self.bg:SetColorTexture(0.05, 0.07, 0.10, 1)
-        self.lbl:SetTextColor(0.70, 0.70, 0.70, 1)
+        local D = RGX:GetDesign()
+        self.border:SetBackdropBorderColor(D:Unpack("border"))
+        self.bg:SetColorTexture(D:Unpack("surface"))
+        self.lbl:SetTextColor(D:Unpack("subtext"))
         GameTooltip:Hide()
     end)
     return btn
@@ -617,28 +622,27 @@ function UI:CreateButton(parent, text, w, h)
     btn:SetSize(w or 120, h or 22)
     local bg = btn:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
-    bg:SetColorTexture(0.05, 0.07, 0.10, 1)
+    bg:SetColorTexture(D:Unpack("surface"))
     local border = CreateFrame("Frame", nil, btn, "BackdropTemplate")
     border:SetAllPoints()
     border:SetBackdrop({ edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1 })
-    border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
+    border:SetBackdropBorderColor(D:Unpack("border"))
     local lbl = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     lbl:SetAllPoints()
     lbl:SetJustifyH("CENTER")
     lbl:SetJustifyV("MIDDLE")
     lbl:SetText(text or "")
-    lbl:SetTextColor(0.80, 0.80, 0.80, 1)
+    lbl:SetTextColor(D:Unpack("subtext"))
     btn:SetScript("OnEnter", function()
         local D2 = RGX:GetDesign()
-        local pr, pg, pb = D2 and D2:Unpack("primary") or 0.345, 0.745, 0.506
-        border:SetBackdropBorderColor(pr, pg, pb, 1)
-        bg:SetColorTexture(0.11, 0.18, 0.24, 1)
-        lbl:SetTextColor(pr, pg, pb, 1)
+        border:SetBackdropBorderColor(D2:Unpack("primary"))
+        bg:SetColorTexture(D2:Unpack("hover"))
+        lbl:SetTextColor(D2:Unpack("primary"))
     end)
     btn:SetScript("OnLeave", function()
-        border:SetBackdropBorderColor(0.14, 0.20, 0.28, 1)
-        bg:SetColorTexture(0.05, 0.07, 0.10, 1)
-        lbl:SetTextColor(0.80, 0.80, 0.80, 1)
+        border:SetBackdropBorderColor(D:Unpack("border"))
+        bg:SetColorTexture(D:Unpack("surface"))
+        lbl:SetTextColor(D:Unpack("subtext"))
     end)
     return btn
 end
@@ -656,8 +660,10 @@ function UI:CreateSection(parent, options)
     local section = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     section:SetSize(width, height)
     section:SetBackdrop(self.backdrop)
-    section:SetBackdropColor(0.08, 0.08, 0.08, 0.85)
-    section:SetBackdropBorderColor(0.188, 0.212, 0.231, 1)
+    local D = RGX:GetDesign()
+    local sr, sg, sb = D:Unpack("surface")
+    section:SetBackdropColor(sr, sg, sb, 0.85)
+    section:SetBackdropBorderColor(D:Unpack("border"))
     
     -- Header
     section.header = self:CreateLabel(section, {
@@ -683,12 +689,14 @@ function UI:CreatePreviewFrame(parent, options)
     options = options or {}
     local width = options.width or 250
     local height = options.height or 150
+    local D = RGX:GetDesign()
     
     local frame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     frame:SetSize(width, height)
     frame:SetBackdrop(self.backdrop)
-    frame:SetBackdropColor(0.1, 0.1, 0.1, 0.9)
-    frame:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+    local sr, sg, sb = D:Unpack("surface")
+    frame:SetBackdropColor(sr, sg, sb, 0.9)
+    frame:SetBackdropBorderColor(D:Unpack("border"))
     
     -- Label
     frame.label = self:CreateLabel(frame, {
@@ -706,7 +714,7 @@ function UI:CreatePreviewFrame(parent, options)
     -- Background for preview
     frame.preview.bg = frame.preview:CreateTexture(nil, "BACKGROUND")
     frame.preview.bg:SetAllPoints()
-    frame.preview.bg:SetColorTexture(0.15, 0.15, 0.15, 1)
+    frame.preview.bg:SetColorTexture(D:Unpack("background"))
     
     return frame
 end

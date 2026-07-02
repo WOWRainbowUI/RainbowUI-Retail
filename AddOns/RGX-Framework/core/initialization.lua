@@ -85,12 +85,8 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         RGX.db = _G.RGXFrameworkDB
 
         -- Initialize modules that need post-load startup.
-        -- TryInit is a no-op when a module's global is nil (i.e. its file was
-        -- not loaded). The three calls below are retained so that re-adding a
-        -- module to RGX-Framework.xml automatically hooks its Init() without
-        -- requiring a matching change here.
-        -- SharedMedia, Combat, and Reputation are currently not loaded by the
-        -- XML (removed at v1.5.18). PetBattles self-inits and does not use TryInit.
+        -- TryInit is a no-op when a module's global is nil, so optional modules
+        -- can be removed from the XML without requiring a matching change here.
         local function TryInit(global)
             local mod = _G[global]
             if mod and type(mod.Init) == "function" then
@@ -104,7 +100,18 @@ RGX:RegisterEvent("ADDON_LOADED", function(_, addon)
         TryInit("RGXFonts")
         TryInit("RGXSharedMedia")
         TryInit("RGXCombat")
+        TryInit("RGXPetBattles")
         TryInit("RGXReputation")
+        TryInit("RGXAchievement")
+        TryInit("RGXLevelUp")
+        TryInit("RGXQuest")
+        TryInit("RGXHonor")
+        TryInit("RGXDelves")
+        TryInit("RGXHousing")
+        TryInit("RGXTradingPost")
+        TryInit("RGXPrey")
+        TryInit("RGXCollectibles")
+        TryInit("RGXLoot")
 
         -- Mark ready and fire queued callbacks
         RGX._ready = true

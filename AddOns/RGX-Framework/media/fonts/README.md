@@ -47,9 +47,9 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 - **License:** Open Font License 1.1
 - **Type:** Sans-serif
 
-### Montserrat (OFL 1.1) — Currently Unavailable
+### Montserrat (OFL 1.1) â€” Currently Unavailable
 - **Files:** Montserrat-Regular.ttf, Montserrat-Bold.ttf
-- **Status:** Corrupted asset files (HTML placeholders) — blocked in `unavailableFonts`
+- **Status:** Corrupted asset files (HTML placeholders) â€” blocked in `unavailableFonts`
 - **Source:** https://fonts.google.com/specimen/Montserrat
 - **License:** Open Font License 1.1
 - **Type:** Sans-serif
@@ -66,16 +66,16 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 - **License:** Open Font License 1.1
 - **Type:** Sans-serif
 
-### Merriweather (OFL 1.1) — Currently Unavailable
+### Merriweather (OFL 1.1) â€” Currently Unavailable
 - **Files:** Merriweather-Regular.ttf, Merriweather-Bold.ttf
-- **Status:** Corrupted asset files (HTML placeholders) — blocked in `unavailableFonts`
+- **Status:** Corrupted asset files (HTML placeholders) â€” blocked in `unavailableFonts`
 - **Source:** https://fonts.google.com/specimen/Merriweather
 - **License:** Open Font License 1.1
 - **Type:** Serif
 
-### Playfair Display (OFL 1.1) — Currently Unavailable
+### Playfair Display (OFL 1.1) â€” Currently Unavailable
 - **Files:** PlayfairDisplay-Regular.ttf, PlayfairDisplay-Bold.ttf
-- **Status:** Corrupted asset files (HTML placeholders) — blocked in `unavailableFonts`
+- **Status:** Corrupted asset files (HTML placeholders) â€” blocked in `unavailableFonts`
 - **Source:** https://fonts.google.com/specimen/Playfair+Display
 - **License:** Open Font License 1.1
 - **Type:** Serif
@@ -98,23 +98,23 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 - **License:** Open Font License 1.1
 - **Type:** Display
 
-### Oswald (OFL 1.1) — Currently Unavailable
+### Oswald (OFL 1.1) â€” Currently Unavailable
 - **Files:** Oswald-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) — blocked in `unavailableFonts`
+- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
 - **Source:** https://fonts.google.com/specimen/Oswald
 - **License:** Open Font License 1.1
 - **Type:** Display
 
-### Orbitron (OFL 1.1) — Currently Unavailable
+### Orbitron (OFL 1.1) â€” Currently Unavailable
 - **Files:** Orbitron-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) — blocked in `unavailableFonts`
+- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
 - **Source:** https://fonts.google.com/specimen/Orbitron
 - **License:** Open Font License 1.1
 - **Type:** Display
 
-### Audiowide (OFL 1.1) — Currently Unavailable
+### Audiowide (OFL 1.1) â€” Currently Unavailable
 - **Files:** Audiowide-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) — blocked in `unavailableFonts`
+- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
 - **Source:** https://fonts.google.com/specimen/Audiowide
 - **License:** Open Font License 1.1
 - **Type:** Display
@@ -137,9 +137,9 @@ The goal is to ship a curated, popular font pack for addon authors instead of re
 - **License:** Open Font License 1.1
 - **Type:** Fantasy
 
-### Cinzel (OFL 1.1) — Currently Unavailable
+### Cinzel (OFL 1.1) â€” Currently Unavailable
 - **Files:** Cinzel-Regular.ttf
-- **Status:** Corrupted asset file (HTML placeholder) — blocked in `unavailableFonts`
+- **Status:** Corrupted asset file (HTML placeholder) â€” blocked in `unavailableFonts`
 - **Source:** https://fonts.google.com/specimen/Cinzel
 - **License:** Open Font License 1.1
 - **Type:** Fantasy

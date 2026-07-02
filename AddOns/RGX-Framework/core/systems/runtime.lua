@@ -19,9 +19,12 @@ RGX._slashCommandCounter = RGX._slashCommandCounter or 0
 RGX.combatQueue = RGX.combatQueue or {}
 RGX._timerCounter = RGX._timerCounter or 0
 RGX.timerBudget = RGX.timerBudget or {
-    maxPerFrame = 120,
-    maxSeconds = 0.016,
-    slowSeconds = 0.050,
+    maxPerFrame = 256,
+    maxSeconds = 0.033,
+    slowSeconds = 0.250,
+    slowByLabel = {
+        ["SharedMedia:QueueScan"] = 0.500,
+    },
 }
 
 local unpackFunc = unpack or table.unpack
@@ -309,11 +312,37 @@ function RGX:SafeCloseDropDownMenus(...)
     return queueSecureCall(self, "CloseDropDownMenus", CloseDropDownMenus, ...)
 end
 
+function RGX:SafeEnable(button)
+    if not button or type(button.Enable) ~= "function" then return false end
+    return queueSecureCall(self, "Enable", button.Enable, button)
+end
+
+function RGX:SafeDisable(button)
+    if not button or type(button.Disable) ~= "function" then return false end
+    return queueSecureCall(self, "Disable", button.Disable, button)
+end
+
+function RGX:SafeSetChecked(checkbox, checked)
+    if not checkbox or type(checkbox.SetChecked) ~= "function" then return false end
+    return queueSecureCall(self, "SetChecked", checkbox.SetChecked, checkbox, checked)
+end
+
+function RGX:SafeSetValue(slider, value)
+    if not slider or type(slider.SetValue) ~= "function" then return false end
+    return queueSecureCall(self, "SetValue", slider.SetValue, slider, value)
+end
+
+function RGX:SafeSetMinMaxValues(slider, min, max)
+    if not slider or type(slider.SetMinMaxValues) ~= "function" then return false end
+    return queueSecureCall(self, "SetMinMaxValues", slider.SetMinMaxValues, slider, min, max)
+end
+
 function RGX:UpdateTimers(elapsed)
     local budget = self.timerBudget or {}
     local maxPerFrame = tonumber(budget.maxPerFrame) or 120
     local maxSeconds = tonumber(budget.maxSeconds) or 0.008
-    local slowSeconds = tonumber(budget.slowSeconds) or 0.050
+    local slowSeconds = tonumber(budget.slowSeconds) or 0.250
+    local slowByLabel = type(budget.slowByLabel) == "table" and budget.slowByLabel or nil
     local started = nowSeconds()
     local processed = 0
     local index = #self.timers
@@ -341,12 +370,23 @@ function RGX:UpdateTimers(elapsed)
             if timer.elapsed >= timer.duration then
                 processed = processed + 1
                 local callbackStarted = nowSeconds()
+                self._timerDispatchDepth = (self._timerDispatchDepth or 0) + 1
                 local ok, err = pcall(timer.callback, timer)
+                self._timerDispatchDepth = math.max(0, (self._timerDispatchDepth or 1) - 1)
                 local callbackElapsed = nowSeconds() - callbackStarted
+                local timerSlowSeconds = slowSeconds
+                local timerLabel = tostring(timer.label or "")
+
+                if slowByLabel and timerLabel ~= "" then
+                    local override = tonumber(slowByLabel[timerLabel])
+                    if override and override > 0 then
+                        timerSlowSeconds = override
+                    end
+                end
 
                 if not ok then
                     reportRuntimeError("timer", err)
-                elseif callbackElapsed >= slowSeconds then
+                elseif callbackElapsed >= timerSlowSeconds then
                     reportRuntimeError("timer-slow", string.format(
                         "%s took %.1fms",
                         tostring(timer.label or timer.id or timer.callback),

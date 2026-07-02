@@ -1,6 +1,6 @@
 # RGX Dropdowns System
 
-Complete documentation for `RGXDropdowns` — nested UIDropDownMenu wrappers, auto-width, inline buttons, and dual-schema item normalization.
+Complete documentation for `RGXDropdowns` â€” nested UIDropDownMenu wrappers, auto-width, inline buttons, and dual-schema item normalization.
 
 ---
 
@@ -8,13 +8,13 @@ Complete documentation for `RGXDropdowns` — nested UIDropDownMenu wrappers, au
 
 RGXDropdowns wraps WoW's native `UIDropDownMenu` system with:
 
-- **Nested submenus** — arbitrary depth via `children` arrays
-- **Auto-width** — measures rendered button labels and sizes the list frame to fit
-- **Inline buttons** — per-item action widgets (e.g. preview buttons) pinned to dropdown buttons
-- **Item normalization** — `CopyItem` / `NormalizeItems` transforms various item schemas into the canonical UIDropDownMenu format
-- **MenuUtil compatibility** — dual `func`/`onClick` fields for both legacy and modern WoW dropdown paths
+- **Nested submenus** â€” arbitrary depth via `children` arrays
+- **Auto-width** â€” measures rendered button labels and sizes the list frame to fit
+- **Inline buttons** â€” per-item action widgets (e.g. preview buttons) pinned to dropdown buttons
+- **Item normalization** â€” `CopyItem` / `NormalizeItems` transforms various item schemas into the canonical UIDropDownMenu format
+- **MenuUtil compatibility** â€” dual `func`/`onClick` fields for both legacy and modern WoW dropdown paths
 
-No custom scroll frames, no custom menu rendering — all built on WoW's native `UIDropDownMenu_*` API.
+No custom scroll frames, no custom menu rendering â€” all built on WoW's native `UIDropDownMenu_*` API.
 
 ---
 
@@ -55,13 +55,13 @@ local dd = Drops:CreateNestedDropdown(parent, {
 | `text` | string | Display label |
 | `value` | any | Selection value (passed to `onChange`) |
 | `children` | array | Submenu items (creates `hasArrow = true`) |
-| `menuList` | array | Alias for `children` (PB2 compat) |
+| `menuList` | array | Alias for `children` (BPU compat) |
 | `isHeader` | boolean | Non-selectable section header |
 | `isSeparator` | boolean | Horizontal divider |
 | `icon` | string | Texture path, shown left of label |
 | `colorCode` | string | `|cff` color code for label |
 | `keepOpen` | boolean | Don't close menu on select |
-| `func` | function | Legacy callback (PB2 / UIDropDownMenu path) |
+| `func` | function | Legacy callback (BPU / UIDropDownMenu path) |
 | `onClick` | function | RGX MenuUtil callback |
 | `checked` | boolean | Radio/checkbox check state |
 | `isNotRadio` | boolean | Checkbox style (not radio dot) |
@@ -83,13 +83,13 @@ Transforms various input schemas into canonical UIDropDownMenu format:
 
 | Input field | Output field | Rule |
 |---|---|---|
-| `menuList` | `children` | `menuList → children` (PB2 compat) |
-| `arg1` | `value` | `arg1 → value` |
-| `font` | `value` | `font → value` |
-| `name` | `value` | `name → value` if `path` is also present |
-| `func` | `onClick` | `func → onClick` if `onClick` is absent |
+| `menuList` | `children` | `menuList â†’ children` (BPU compat) |
+| `arg1` | `value` | `arg1 â†’ value` |
+| `font` | `value` | `font â†’ value` |
+| `name` | `value` | `name â†’ value` if `path` is also present |
+| `func` | `onClick` | `func â†’ onClick` if `onClick` is absent |
 
-Both `children` and `menuList` reference the **same table** after normalization — consumers using either field get the same data.
+Both `children` and `menuList` reference the **same table** after normalization â€” consumers using either field get the same data.
 
 ### NormalizeItems
 
@@ -109,12 +109,12 @@ Dropdown list frames in WoW are sized before their button content is rendered. R
 Drops:ForceWidth(level, minWidth, leftInset, opts)
 ```
 
-- `level` — 1 = root menu, 2 = first submenu, etc.
-- `minWidth` — minimum list frame width
-- `leftInset` — left padding offset
-- `opts.inlineKeys` — inline button keys to account for
-- `opts.compactRight` — reduce right margin
-- `opts.countKey` — item count key for sizing
+- `level` â€” 1 = root menu, 2 = first submenu, etc.
+- `minWidth` â€” minimum list frame width
+- `leftInset` â€” left padding offset
+- `opts.inlineKeys` â€” inline button keys to account for
+- `opts.compactRight` â€” reduce right margin
+- `opts.countKey` â€” item count key for sizing
 
 **Implementation:** `ForceWidth` is deferred via `RGX:After(0)`. On the first pass, it measures all button `FontString:GetWidth()` values. On the second pass, it applies the resolved width to the list frame and all buttons.
 
@@ -129,7 +129,7 @@ Inline buttons are small action widgets attached to individual dropdown button f
 ```lua
 Drops:AddInlineButton(buttonFrame, {
     key     = "preview",     -- reuse key (default "inline")
-    text    = "▶",           -- button label
+    text    = "â–¶",           -- button label
     width   = 20,            -- button width
     height  = 16,            -- button height
     tooltip = "Preview",     -- tooltip text on hover
@@ -182,7 +182,7 @@ function Fonts:CreateFontDropdown(parent, opts)
 end
 ```
 
-Selection is handled by the `onChange` callback on the `CreateNestedDropdown` holder — not by passing `onSelect` through `buildItems`. This keeps the font dropdown's callback path consistent with all other RGX dropdowns.
+Selection is handled by the `onChange` callback on the `CreateNestedDropdown` holder â€” not by passing `onSelect` through `buildItems`. This keeps the font dropdown's callback path consistent with all other RGX dropdowns.
 
 ---
 
@@ -190,15 +190,15 @@ Selection is handled by the `onChange` callback on the `CreateNestedDropdown` ho
 
 RGX dropdown items carry both legacy and modern callback fields:
 
-- **`func`** — called by WoW's `UIDropDownMenu` dispatch when a button is clicked (legacy path, used by PB2)
-- **`onClick`** — called by WoW's `MenuUtil` modular system (modern path, used by RGX)
+- **`func`** â€” called by WoW's `UIDropDownMenu` dispatch when a button is clicked (legacy path, used by BPU)
+- **`onClick`** â€” called by WoW's `MenuUtil` modular system (modern path, used by RGX)
 
 Both are set to the same closure so either dispatch path produces the same behavior.
 
 Similarly, submenu data is carried in both:
 
-- **`children`** — read by RGX's `NormalizeItems` and `CreateNestedDropdown`
-- **`menuList`** — read by PB2's `CreateMenuInfo` system
+- **`children`** â€” read by RGX's `NormalizeItems` and `CreateNestedDropdown`
+- **`menuList`** â€” read by BPU's `CreateMenuInfo` system
 
 After `CopyItem` / `NormalizeItems`, both fields reference the same table.
 
@@ -208,5 +208,5 @@ After `CopyItem` / `NormalizeItems`, both fields reference the same table.
 
 ```
 modules/dropdowns/
-└── dropdowns.lua   — CreateNestedDropdown, CopyItem, NormalizeItems, ForceWidth, AddInlineButton, HideInlineButtons, GetListFrame, ShortenLabel
+â””â”€â”€ dropdowns.lua   â€” CreateNestedDropdown, CopyItem, NormalizeItems, ForceWidth, AddInlineButton, HideInlineButtons, GetListFrame, ShortenLabel
 ```

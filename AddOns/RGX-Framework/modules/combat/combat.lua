@@ -6,6 +6,7 @@
 -- Usage (zero boilerplate):
 --   local Combat = RGX:GetCombat()
 --
+--   -- Core combat state
 --   Combat:OnEnter(function() print("entered combat") end)
 --   Combat:OnLeave(function() print("left combat") end)
 --   Combat:OnKill(function(victimName, victimGUID) ... end)
@@ -13,8 +14,23 @@
 --   Combat:OnPlayerDamaged(function(amount, spellName) ... end)
 --   Combat:OnPlayerHealed(function(amount, spellName) ... end)
 --   Combat:OnCrit(function(amount, spellName) ... end)
+--   Combat:OnCritHeal(function(amount, spellName) ... end)
 --   Combat:OnKillingBlow(function(victimName) ... end)   -- alias: OnKill
---   Combat:OnComboPoints(function(current, max) ... end)
+--
+--   -- Health / resource thresholds (fires on first crossing only)
+--   Combat:OnLowHealth(function(pct) ... end)         -- player < 35%
+--   Combat:OnExecuteWindow(function(pct) ... end)     -- target < 20%
+--   Combat:OnResourceCapped(function() ... end)       -- player power at 100%
+--   Combat:OnResourceLow(function(pct) ... end)       -- player power < 20%
+--
+--   -- Target / proc events
+--   Combat:OnTargetLost(function() ... end)           -- PLAYER_TARGET_CHANGED, no target
+--   Combat:OnProc(function() ... end)                 -- UNIT_AURA gained on player
+--
+--   -- Encounter / PvP
+--   Combat:OnEncounterEnd(function(encounterID, name, diffID, groupSize, success) ... end)
+--   Combat:OnEncounterVictory(function(encounterID, name, diffID, groupSize) ... end)
+--   Combat:OnPvPVictory(function() ... end)
 --
 --   Combat:IsInCombat()    -- bool
 --   Combat:GetDuration()   -- seconds in current combat (0 if not in combat)
@@ -33,18 +49,42 @@ Combat._inCombat        = false
 Combat._combatStartTime = 0
 Combat._eventsInit      = false
 
-Combat._onEnter         = {}
-Combat._onLeave         = {}
-Combat._onKill          = {}
-Combat._onPlayerDied    = {}
-Combat._onPlayerDamaged = {}
-Combat._onPlayerHealed  = {}
-Combat._onCrit          = {}
+Combat._onEnter            = {}
+Combat._onLeave            = {}
+Combat._onKill             = {}
+Combat._onPlayerDied       = {}
+Combat._onPlayerDamaged    = {}
+Combat._onPlayerHealed     = {}
+Combat._onCrit             = {}
+Combat._onCritHeal         = {}
+Combat._onLowHealth        = {}
+Combat._onExecuteWindow    = {}
+Combat._onResourceCapped   = {}
+Combat._onResourceLow      = {}
+Combat._onTargetLost       = {}
+Combat._onProc             = {}
+Combat._onEncounterEnd     = {}
+Combat._onEncounterVictory = {}
+Combat._onPvPVictory       = {}
+
+Combat._prevHealthPct   = {}  -- ["player"|"target"] pct at last fire
+local LOW_HEALTH_PCT    = 0.35
+local EXECUTE_PCT       = 0.20
+local RESOURCE_LOW_PCT  = 0.20
 
 -- ── Callback helpers ──────────────────────────────────────────────────────────
 
 local function AddCb(list, fn)
-    if type(fn) == "function" then table.insert(list, fn) end
+    if type(fn) ~= "function" then return nil end
+    table.insert(list, fn)
+    return function()
+        for i = #list, 1, -1 do
+            if list[i] == fn then
+                table.remove(list, i)
+                return
+            end
+        end
+    end
 end
 
 local function Fire(list, ...)
@@ -54,33 +94,100 @@ local function Fire(list, ...)
     end
 end
 
+local function IsUnitBelowThreshold(unit, valueFunc, maxFunc, threshold)
+    local ok, isBelow = pcall(function()
+        if type(valueFunc) ~= "function" or type(maxFunc) ~= "function" then return nil end
+        local max = maxFunc(unit)
+        if not max or max <= 0 then return nil end
+        return ((valueFunc(unit) or 0) / max) < threshold
+    end)
+    if ok and type(isBelow) == "boolean" then
+        return isBelow
+    end
+    return nil
+end
+
+local function GetUnitPowerState(unit)
+    local ok, capped, low = pcall(function()
+        if type(UnitPower) ~= "function" or type(UnitPowerMax) ~= "function" then return nil, nil end
+        local max = UnitPowerMax(unit)
+        if not max or max <= 0 then return nil, nil end
+        local pct = (UnitPower(unit) or 0) / max
+        return pct >= 1.0, pct < RESOURCE_LOW_PCT
+    end)
+    if ok then
+        return capped, low
+    end
+    return nil, nil
+end
+
 -- ── Public callback registration ─────────────────────────────────────────────
 
 -- Fired when the player enters combat (PLAYER_REGEN_DISABLED)
-function Combat:OnEnter(fn)   AddCb(self._onEnter, fn)         end
+function Combat:OnEnter(fn)   return AddCb(self._onEnter, fn)         end
 
 -- Fired when the player leaves combat (PLAYER_REGEN_ENABLED)
-function Combat:OnLeave(fn)   AddCb(self._onLeave, fn)         end
+function Combat:OnLeave(fn)   return AddCb(self._onLeave, fn)         end
 
 -- Fired when the player delivers a killing blow.
 -- fn(victimName, victimGUID, victimIsPlayer)
-function Combat:OnKill(fn)    AddCb(self._onKill, fn)          end
+function Combat:OnKill(fn)    return AddCb(self._onKill, fn)          end
 Combat.OnKillingBlow = Combat.OnKill
 
 -- Fired when the player dies.
-function Combat:OnPlayerDied(fn) AddCb(self._onPlayerDied, fn) end
+function Combat:OnPlayerDied(fn) return AddCb(self._onPlayerDied, fn) end
 
 -- Fired when the player takes damage.
 -- fn(amount, spellName, school)
-function Combat:OnPlayerDamaged(fn) AddCb(self._onPlayerDamaged, fn) end
+function Combat:OnPlayerDamaged(fn) return AddCb(self._onPlayerDamaged, fn) end
 
 -- Fired when the player receives a heal.
 -- fn(amount, spellName, overheal)
-function Combat:OnPlayerHealed(fn) AddCb(self._onPlayerHealed, fn) end
+function Combat:OnPlayerHealed(fn) return AddCb(self._onPlayerHealed, fn) end
 
 -- Fired when the player scores a critical hit.
 -- fn(amount, spellName, isMelee)
-function Combat:OnCrit(fn)    AddCb(self._onCrit, fn)          end
+function Combat:OnCrit(fn)    return AddCb(self._onCrit, fn)          end
+
+-- Fired when the player scores a critical heal.
+-- fn(amount, spellName)
+function Combat:OnCritHeal(fn) return AddCb(self._onCritHeal, fn)     end
+
+-- Fired when the player's health drops below 35% (threshold crossing only).
+-- fn(pct)  where pct is 0..1
+function Combat:OnLowHealth(fn)       return AddCb(self._onLowHealth,      fn) end
+
+-- Fired when the target's health drops below 20% (threshold crossing only).
+-- fn(pct)
+function Combat:OnExecuteWindow(fn)   return AddCb(self._onExecuteWindow,  fn) end
+
+-- Fired when the player's primary resource reaches 100%.
+-- fn()
+function Combat:OnResourceCapped(fn)  return AddCb(self._onResourceCapped, fn) end
+
+-- Fired when the player's primary resource drops below 20% (threshold crossing only).
+-- fn(pct)
+function Combat:OnResourceLow(fn)     return AddCb(self._onResourceLow,    fn) end
+
+-- Fired when the player's target is cleared (PLAYER_TARGET_CHANGED, no unit).
+-- fn()
+function Combat:OnTargetLost(fn)      return AddCb(self._onTargetLost,     fn) end
+
+-- Fired when a buff/proc aura is gained on the player (UNIT_AURA).
+-- fn()
+function Combat:OnProc(fn)            return AddCb(self._onProc,           fn) end
+
+-- Fired at the end of a raid/dungeon encounter (any outcome).
+-- fn(encounterID, encounterName, difficultyID, groupSize, success)
+function Combat:OnEncounterEnd(fn)    return AddCb(self._onEncounterEnd,     fn) end
+
+-- Fired at the end of a raid/dungeon encounter when the group wins.
+-- fn(encounterID, encounterName, difficultyID, groupSize)
+function Combat:OnEncounterVictory(fn) return AddCb(self._onEncounterVictory, fn) end
+
+-- Fired when a PvP match completes and the player is on the winning side.
+-- fn()
+function Combat:OnPvPVictory(fn)      return AddCb(self._onPvPVictory,      fn) end
 
 -- ── State queries ─────────────────────────────────────────────────────────────
 
@@ -153,6 +260,20 @@ end
 handlers["SPELL_PERIODIC_DAMAGE"] = handlers["SPELL_DAMAGE"]
 handlers["RANGE_DAMAGE"]          = handlers["SPELL_DAMAGE"]
 
+-- Critical heals
+handlers["SPELL_HEAL"] = function(...)
+    local timestamp, subEvent, hideCaster,
+          sourceGUID, sourceName, sourceFlags, sourceRaidFlags,
+          destGUID, destName, destFlags, destRaidFlags,
+          spellId, spellName, spellSchool,
+          amount, overheal, absorbed, critical = ...
+
+    if sourceGUID == GetPlayerGUID() and critical then
+        Fire(Combat._onCritHeal, amount, spellName)
+    end
+end
+handlers["SPELL_PERIODIC_HEAL"] = handlers["SPELL_HEAL"]
+
 -- Player takes damage
 handlers["SWING_DAMAGE_LANDED_PLAYER"] = function() end  -- placeholder
 
@@ -221,6 +342,15 @@ function Combat:Init()
     if self._eventsInit then return end
     self._eventsInit = true
 
+    -- If we're in combat, defer to PLAYER_REGEN_ENABLED.
+    if InCombatLockdown and InCombatLockdown() then
+        self._eventsInit = false
+        RGX:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+            self:Init()
+        end, "RGXCombat_Retry")
+        return
+    end
+
     PLAYER_GUID = nil  -- reset so it's fetched after login
 
     RGX:RegisterEvent("PLAYER_REGEN_DISABLED", function()
@@ -245,6 +375,84 @@ function Combat:Init()
 
     RGX:RegisterEvent("PLAYER_LOGIN", function()
         PLAYER_GUID = UnitGUID and UnitGUID("player") or ""
+    end)
+
+    -- Health threshold crossings
+    RGX:RegisterEvent("UNIT_HEALTH", function(_, unit)
+        if unit ~= "player" and unit ~= "target" then return end
+
+        if unit == "player" then
+            local isBelow = IsUnitBelowThreshold("player", UnitHealth, UnitHealthMax, LOW_HEALTH_PCT)
+            if isBelow == nil then return end
+            local prev = Combat._prevHealthPct["player"]
+            if isBelow and prev ~= true then
+                Fire(Combat._onLowHealth)
+            end
+            Combat._prevHealthPct["player"] = isBelow
+        elseif unit == "target" then
+            local isBelow = IsUnitBelowThreshold("target", UnitHealth, UnitHealthMax, EXECUTE_PCT)
+            if isBelow == nil then return end
+            local prev = Combat._prevHealthPct["target"]
+            if isBelow and prev ~= true then
+                Fire(Combat._onExecuteWindow)
+            end
+            Combat._prevHealthPct["target"] = isBelow
+        end
+    end)
+
+    -- Target lost
+    RGX:RegisterEvent("PLAYER_TARGET_CHANGED", function()
+        if not UnitExists("target") then
+            Combat._prevHealthPct["target"] = nil
+            Fire(Combat._onTargetLost)
+        else
+            Combat._prevHealthPct["target"] = nil
+        end
+    end)
+
+    -- Resource capped / low
+    RGX:RegisterEvent("UNIT_POWER_UPDATE", function(_, unit)
+        if unit ~= "player" then return end
+        local capped, low = GetUnitPowerState("player")
+        if capped then
+            Fire(Combat._onResourceCapped)
+        elseif low then
+            Fire(Combat._onResourceLow)
+        end
+    end)
+
+    -- Procs / auras
+    RGX:RegisterEvent("UNIT_AURA", function(_, unit)
+        if unit ~= "player" then return end
+        Fire(Combat._onProc)
+    end)
+
+    -- Encounter end
+    RGX:RegisterEvent("ENCOUNTER_END", function(_, encounterID, encounterName, difficultyID, groupSize, success)
+        Fire(Combat._onEncounterEnd, encounterID, encounterName, difficultyID, groupSize, success)
+        if success == 1 then
+            Fire(Combat._onEncounterVictory, encounterID, encounterName, difficultyID, groupSize)
+        end
+    end)
+
+    -- PvP victory
+    RGX:RegisterEvent("PVP_MATCH_COMPLETE", function()
+        local isWinner = false
+        if C_PvP and C_PvP.GetActiveMatchResults then
+            local results = C_PvP.GetActiveMatchResults()
+            isWinner = results and results.isWinner or false
+        end
+        if isWinner then
+            Fire(Combat._onPvPVictory)
+        end
+    end)
+
+    -- Reset health tracking on combat transitions
+    RGX:RegisterEvent("PLAYER_REGEN_DISABLED", function()
+        Combat._prevHealthPct = {}
+    end)
+    RGX:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+        Combat._prevHealthPct = {}
     end)
 end
 

@@ -93,10 +93,10 @@ text:SetPoint("CENTER")
 text:SetText("Hello with Inter font!")
 ```
 
-## PB2 Example
+## BPU Example
 
 ```lua
--- Add RGX fonts to PB2's list
+-- Add RGX fonts to BPU's list
 for _, info in ipairs(_G.RGXFonts:ListAvailable()) do
     addon:RegisterMedia("font", info.name, info.path)
 end

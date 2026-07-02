@@ -10,11 +10,11 @@ The Fonts module (`RGXFonts`) provides:
 
 - A **font registry** with named entries, metadata, and availability checks
 - A **blocklist** of 10 in-tree fonts with corrupted assets (not selectable; 36 bundled + 8 WoW defaults = ~44 total, 10 blocked, ~34 available)
-- **Style objects** — normalized tables describing a complete text appearance
-- **Apply helpers** — one-call font application to FontStrings and frame trees
-- **Dropdown schemas** — dual-schema menu items for both RGX and legacy PB2 consumers
-- **UI controls** — font dropdown, font setting control, style selector, preview panel
-- **Default management** — framework-wide default font, size, and flags
+- **Style objects** â€” normalized tables describing a complete text appearance
+- **Apply helpers** â€” one-call font application to FontStrings and frame trees
+- **Dropdown schemas** â€” dual-schema menu items for both RGX and legacy BPU consumers
+- **UI controls** â€” font dropdown, font setting control, style selector, preview panel
+- **Default management** â€” framework-wide default font, size, and flags
 
 ---
 
@@ -26,9 +26,9 @@ The Fonts module (`RGXFonts`) provides:
 Fonts:Register(name, path, info)
 ```
 
-- `name` — unique registry key (e.g. `"Inter-Regular"`)
-- `path` — absolute font path (e.g. `"Interface\\AddOns\\RGX-Framework\\media\\fonts\\Inter-Regular.otf"`)
-- `info` — optional metadata table: `{ family, category, displayName, license, available }`
+- `name` â€” unique registry key (e.g. `"Inter-Regular"`)
+- `path` â€” absolute font path (e.g. `"Interface\\AddOns\\RGX-Framework\\media\\fonts\\Inter-Regular.otf"`)
+- `info` â€” optional metadata table: `{ family, category, displayName, license, available }`
 
 Registering a font that already exists overwrites the entry and invalidates the `_groupedFontsCache`.
 
@@ -76,7 +76,7 @@ Fonts:ListByCategory(cat)   -- names in a category
 Fonts:GetCategories()       -- distinct category strings
 Fonts:GetFamilies()         -- distinct family strings
 Fonts:GetGroupedFonts()     -- nested { [cat] = { [family] = { name, ... } } }
-Fonts:FindByPath(path)      -- reverse lookup: path → name
+Fonts:FindByPath(path)      -- reverse lookup: path â†’ name
 Fonts:ResolveName(value, fallback) -- accepts name or saved path, returns canonical name
 Fonts:ResolvePath(value, fallback) -- returns safe path, name
 ```
@@ -102,10 +102,10 @@ Fonts:ResolvePath(value, fallback) -- returns safe path, name
 
 **Behavior:**
 
-- `Fonts:Exists("Montserrat-Regular")` → `true` (it is registered)
-- `Fonts:IsAvailable("Montserrat-Regular")` → `false` (it is blocked)
-- `Fonts:ListAvailable()` → excludes all 10
-- `Fonts:List()` → includes all 10
+- `Fonts:Exists("Montserrat-Regular")` â†’ `true` (it is registered)
+- `Fonts:IsAvailable("Montserrat-Regular")` â†’ `false` (it is blocked)
+- `Fonts:ListAvailable()` â†’ excludes all 10
+- `Fonts:List()` â†’ includes all 10
 - Font dropdowns and selectors only show available fonts
 - `BuildGroupedFontItems` only includes available fonts in menu items
 
@@ -135,7 +135,7 @@ Fonts:CreateString(parent, name, size, flags, layer) -- create FontString + appl
 Fonts:FromTemplate(parent, template, text, layer)
 ```
 
-Templates: `"header"`, `"title"`, `"small"`, `"default"` — each pre-defines font, size, and flags.
+Templates: `"header"`, `"title"`, `"small"`, `"default"` â€” each pre-defines font, size, and flags.
 
 ---
 
@@ -158,7 +158,7 @@ A style is a plain table describing a complete text appearance:
 ```lua
 local style = {
     font = "Inter-Regular",     -- registered font name
-    size = 14,                  -- point size (6–72, clamped by NormalizeStyle)
+    size = 14,                  -- point size (6â€“72, clamped by NormalizeStyle)
     flags = "OUTLINE",          -- font flags string
     color = "highlight",        -- named color, hex string, or {r,g,b,a}
     shadowColor = {0,0,0,0.5},  -- shadow color table
@@ -201,7 +201,7 @@ These handle the common case where a SavedVar stores either a font name or a pat
 ## Flag Helpers
 
 ```lua
-Fonts:SplitFlags(flags)      -- "OUTLINE MONOCHROME" → { "OUTLINE", "MONOCHROME" }
+Fonts:SplitFlags(flags)      -- "OUTLINE MONOCHROME" â†’ { "OUTLINE", "MONOCHROME" }
 Fonts:NormalizeFlags(flags)  -- normalizes string or table to canonical string
 Fonts:DescribeFlags(flags)   -- human-readable description string
 Fonts:GetFlagPresets()       -- table of preset flag combinations
@@ -237,22 +237,22 @@ Used by `CreateNestedDropdown`, `CreateFontDropdown`, and all RGX-native selecto
           onClick = function() end -- RGX MenuUtil path
         },
     },
-    menuList = <same table as children>,  -- dual reference for PB2 compat
+    menuList = <same table as children>,  -- dual reference for BPU compat
     hasArrow = true,
     notCheckable = true,
 }
 ```
 
-### Legacy UIDropDownMenu Schema (PB2 compat)
+### Legacy UIDropDownMenu Schema (BPU compat)
 
 Used by `CreateFontMenuItems` for consumers that build their own `UIDropDownMenu`:
 
 ```lua
 {
     text = "Inter",
-    menuList = {          -- PB2 reads menuList
+    menuList = {          -- BPU reads menuList
         { text = "Regular", value = "Inter-Regular",
-          func = function() end,  -- PB2 reads func
+          func = function() end,  -- BPU reads func
           onClick = function() end, -- also present for RGX consumers
         },
     },
@@ -265,10 +265,10 @@ Used by `CreateFontMenuItems` for consumers that build their own `UIDropDownMenu
 
 Every leaf item produced by `BuildGroupedFontItems` carries **both**:
 
-- `children` AND `menuList` — same table reference; RGX reads `children`, PB2 reads `menuList`
-- `func` AND `onClick` — `func` for legacy PB2 path, `onClick` for RGX MenuUtil path
+- `children` AND `menuList` â€” same table reference; RGX reads `children`, BPU reads `menuList`
+- `func` AND `onClick` â€” `func` for legacy BPU path, `onClick` for RGX MenuUtil path
 
-This ensures a single `CreateFontMenuItems` call works for both RGX-native and PB2-legacy context menus.
+This ensures a single `CreateFontMenuItems` call works for both RGX-native and BPU-legacy context menus.
 
 ### BuildGroupedFontItems
 
@@ -276,7 +276,7 @@ This ensures a single `CreateFontMenuItems` call works for both RGX-native and P
 local items = Fonts:BuildGroupedFontItems(opts)
 ```
 
-- `opts.keepShownOnClick` — if true, leaf items get `keepShownOnClick = true`
+- `opts.keepShownOnClick` â€” if true, leaf items get `keepShownOnClick = true`
 - Returns a flat array of category group headers and family submenus with leaf font items
 - Only includes available fonts (blocklist excluded)
 - Results are cached in `_groupedFontsCache` and invalidated on `Register()` calls
@@ -355,7 +355,7 @@ Fonts:CreateSizeMenuItems({ current = db.size, onSelect = function(size) end })
 Fonts:CreateStyleMenuItems({ db = db, key = "titleText", onChange = function(style) end })
 ```
 
-`CreateFontMenuItems` delegates to `BuildGroupedFontItems` — single source of truth for grouped font menu data.
+`CreateFontMenuItems` delegates to `BuildGroupedFontItems` â€” single source of truth for grouped font menu data.
 
 ---
 
@@ -398,18 +398,18 @@ Montserrat-Regular, Montserrat-Bold, Merriweather-Regular, Merriweather-Bold, Pl
 
 ```
 modules/fonts/
-├── definitions.lua   — 36 font definitions + unavailableFonts blocklist
-├── init.lua          — Fonts:Init() + RegisterModule("fonts")
-├── registry.lua      — Register, RegisterAddonFont, RegisterFontPack
-├── query.lua         — GetPath, Get, Exists, IsAvailable, List, ListAvailable, etc.
-├── defaults.lua      — SetDefault, GetDefault, SetDefaultSize, etc.
-├── apply.lua         — Apply, Quick, ApplyChildren, CreateString, FromTemplate
-├── normalize.lua     — SplitFlags, NormalizeFlags, DescribeFlags, GetFlagPresets
-├── styles.lua        — NormalizeStyle, NormalizeColorValue, CreateStyle, ApplyStyle
-├── grouping.lua      — BuildGroupedFontItems, _groupedFontsCache
-├── dropdowns.lua     — CreateFontDropdown, buildItems
-├── controls.lua      — CreateFontSettingControl
-├── menuitems.lua     — CreateFontMenuItems, CreateFlagMenuItems, etc.
-├── selectors.lua     — CreateStyleSelector, AttachStyleSelector, etc.
-└── preview.lua       — FontPreview:Create, _ApplyPreviewSelection
+â”œâ”€â”€ definitions.lua   â€” 36 font definitions + unavailableFonts blocklist
+â”œâ”€â”€ init.lua          â€” Fonts:Init() + RegisterModule("fonts")
+â”œâ”€â”€ registry.lua      â€” Register, RegisterAddonFont, RegisterFontPack
+â”œâ”€â”€ query.lua         â€” GetPath, Get, Exists, IsAvailable, List, ListAvailable, etc.
+â”œâ”€â”€ defaults.lua      â€” SetDefault, GetDefault, SetDefaultSize, etc.
+â”œâ”€â”€ apply.lua         â€” Apply, Quick, ApplyChildren, CreateString, FromTemplate
+â”œâ”€â”€ normalize.lua     â€” SplitFlags, NormalizeFlags, DescribeFlags, GetFlagPresets
+â”œâ”€â”€ styles.lua        â€” NormalizeStyle, NormalizeColorValue, CreateStyle, ApplyStyle
+â”œâ”€â”€ grouping.lua      â€” BuildGroupedFontItems, _groupedFontsCache
+â”œâ”€â”€ dropdowns.lua     â€” CreateFontDropdown, buildItems
+â”œâ”€â”€ controls.lua      â€” CreateFontSettingControl
+â”œâ”€â”€ menuitems.lua     â€” CreateFontMenuItems, CreateFlagMenuItems, etc.
+â”œâ”€â”€ selectors.lua     â€” CreateStyleSelector, AttachStyleSelector, etc.
+â””â”€â”€ preview.lua       â€” FontPreview:Create, _ApplyPreviewSelection
 ```

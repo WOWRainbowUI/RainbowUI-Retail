@@ -55,6 +55,7 @@ local SCAN_DELAY = 0.10
 Rep._factions     = {}   -- [name]       = { id, standing, value }
 Rep._factionsById = {}   -- [id]         = { name, standing, value, max }
 Rep._renown       = {}   -- [factionID]  = { level }
+Rep._covenantRenown = {} -- ["covenant_<id>"] = { level, name }
 Rep._pendingScan  = false
 Rep._eventsInit   = false
 
@@ -65,7 +66,16 @@ Rep._onRenownUp  = {}
 -- ── Callback helpers ──────────────────────────────────────────────────────────
 
 local function AddCb(list, fn)
-    if type(fn) == "function" then table.insert(list, fn) end
+    if type(fn) ~= "function" then return nil end
+    table.insert(list, fn)
+    return function()
+        for i = #list, 1, -1 do
+            if list[i] == fn then
+                table.remove(list, i)
+                return
+            end
+        end
+    end
 end
 
 local function Fire(list, ...)
@@ -78,13 +88,13 @@ end
 -- ── Public callback registration ─────────────────────────────────────────────
 
 -- fn(factionName, factionID, oldRankIndex, newRankIndex)
-function Rep:OnRankUp(fn)   AddCb(self._onRankUp, fn)   end
+function Rep:OnRankUp(fn)   return AddCb(self._onRankUp, fn)   end
 
 -- fn(factionName, factionID, amount, newTotal)
-function Rep:OnGain(fn)     AddCb(self._onGain, fn)     end
+function Rep:OnGain(fn)     return AddCb(self._onGain, fn)     end
 
 -- fn(factionName, factionID, oldLevel, newLevel)  — retail only
-function Rep:OnRenownUp(fn) AddCb(self._onRenownUp, fn) end
+function Rep:OnRenownUp(fn) return AddCb(self._onRenownUp, fn) end
 
 -- ── Scan helpers ──────────────────────────────────────────────────────────────
 
@@ -294,6 +304,16 @@ function Rep:Init()
 
     RGX:RegisterEvent("MAJOR_FACTION_RENOWN_LEVEL_CHANGED", function()
         Rep:_QueueCheck()
+    end)
+
+    RGX:RegisterEvent("COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED", function(_, newLevel, oldLevel)
+        local covenantID = C_Covenants and C_Covenants.GetActiveCovenantID and C_Covenants.GetActiveCovenantID() or 0
+        local key = "covenant_" .. tostring(covenantID or 0)
+        local name = "Covenant"
+        if type(newLevel) == "number" and type(oldLevel) == "number" and newLevel > oldLevel then
+            Rep._covenantRenown[key] = { level = newLevel, name = name }
+            Fire(Rep._onRenownUp, name, key, oldLevel, newLevel)
+        end
     end)
 end
 
