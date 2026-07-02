@@ -442,10 +442,8 @@ L["STRING_OPTIONS_ANIMATESCROLL_DESC"] = "При включении полосы
 L["STRING_OPTIONS_APPEARANCE"] = "Внешний вид"
 L["STRING_OPTIONS_ATTRIBUTE_TEXT"] = "Настройки текста заголовка "
 L["STRING_OPTIONS_ATTRIBUTE_TEXT_DESC"] = "Эти параметры управляют заголовочным текстом окна."
---[[Translation missing --]]
-L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Auto Start Combatlog"
---[[Translation missing --]]
-L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Automatically start and stop logging combat to the combatlog.txt file when you enter or leave a raid or dungeon."
+L["STRING_OPTIONS_AUTO_COMBATLOG"] = "Автоматический запуск журнала боя"
+L["STRING_OPTIONS_AUTO_COMBATLOG_DESC"] = "Автоматически запускать и останавливать запись данных о боевых действиях в файл combatlog.txt при входе в рейд или подземелье и выходе из них."
 L["STRING_OPTIONS_AUTO_SWITCH"] = "Все роли |cFFFFAA00(в бою)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_COMBAT"] = "|cFFFFAA00(в бою)|r"
 L["STRING_OPTIONS_AUTO_SWITCH_DAMAGER_DESC"] = "Когда в специализации боец, это окно показывает выбранный атрибут или плагин."
@@ -1273,10 +1271,8 @@ L["STRING_OPTIONS_TOOLTIPS_BACKGROUNDCOLOR_DESC"] = "Выберите цвет, 
 L["STRING_OPTIONS_TOOLTIPS_BORDER_COLOR_DESC"] = "Изменить цвет границы."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_SIZE_DESC"] = "Изменить размер границы."
 L["STRING_OPTIONS_TOOLTIPS_BORDER_TEXTURE_DESC"] = "Изменить файл текстуры границы."
---[[Translation missing --]]
-L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Disable Tooltips"
---[[Translation missing --]]
-L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Disable tooltips for the selected window."
+L["STRING_OPTIONS_TOOLTIPS_DISABLE"] = "Отключить всплывающие подсказки"
+L["STRING_OPTIONS_TOOLTIPS_DISABLE_DESC"] = "Отключить всплывающие подсказки для выбранного окна."
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR"] = "Цвет текста"
 L["STRING_OPTIONS_TOOLTIPS_FONTCOLOR_DESC"] = "Изменение цвета, используемого в текстах подсказки."
 L["STRING_OPTIONS_TOOLTIPS_FONTFACE"] = "Шрифт текста"
