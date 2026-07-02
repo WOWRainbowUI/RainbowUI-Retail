@@ -2,9 +2,10 @@ if DBM:IsPostMidnight() then return end
 local mod	= DBM:NewMod("SkyreachTrash", "DBM-Party-WoD", 7)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260523021914")
+mod:SetRevision("20260619044643")
 mod:DisableHardcodedOptions()
 --mod:SetModelID(47785)
+mod:SetZone(1209)
 
 mod.isTrashMod = true
 mod.isTrashModBossFightAllowed = true

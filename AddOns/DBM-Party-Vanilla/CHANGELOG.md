@@ -1,9 +1,9 @@
 # DBM - Dungeons, Delves, & Events
 
-## [r253](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r253) (2026-05-26)
-[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r252...r253) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
+## [r254](https://github.com/DeadlyBossMods/DBM-Dungeons/tree/r254) (2026-06-21)
+[Full Changelog](https://github.com/DeadlyBossMods/DBM-Dungeons/compare/r253...r254) [Previous Releases](https://github.com/DeadlyBossMods/DBM-Dungeons/releases)
 
-- Fix lingering migration issues  
-- Add missing voiceFile paths for test object  
-- Make compatible with stage 3 rename rollout  
-- forgot to bump these before tag, oops  
+- restore ahune functionality on retail  
+- Fix error caused by incorrect arg count on vojak  
+- toc bumps  
+- cleanup obsolete mop game version  
