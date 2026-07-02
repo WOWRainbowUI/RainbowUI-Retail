@@ -49,7 +49,7 @@ closeBtn:SetBackdrop({
 })
 closeBtn.Text = closeBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 closeBtn.Text:SetPoint("CENTER")
-closeBtn.Text:SetText((L["BUTTON_CLOSE"] ~= "BUTTON_CLOSE") and L["BUTTON_CLOSE"] or "Close")
+closeBtn.Text:SetText(L["BUTTON_CLOSE"])
 
 C_Timer.After(0, function()
     if lv.RegisterThemedElement then
@@ -96,7 +96,7 @@ summaryBox:SetBackdrop({
 summaryBox.label = summaryBox:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
 summaryBox.label:SetPoint("LEFT", 14, 0)
 summaryBox.label:SetTextColor(1, 0.82, 0)
-summaryBox.label:SetText((L["TITLE_GREAT_VAULT"] ~= "TITLE_GREAT_VAULT") and L["TITLE_GREAT_VAULT"] or "The Great Vault")
+summaryBox.label:SetText(L["TITLE_GREAT_VAULT"])
 
 summaryBox.value = summaryBox:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 summaryBox.value:SetPoint("RIGHT", -14, 0)
@@ -115,9 +115,9 @@ C_Timer.After(0, function()
 end)
 
 local rowDefs = {
-    { key = "raid", label = (L["LABEL_VAULT_ROW_RAID"] ~= "LABEL_VAULT_ROW_RAID") and L["LABEL_VAULT_ROW_RAID"] or "Raid", iconAtlas = "Raid" },
-    { key = "mythic", label = (L["LABEL_VAULT_ROW_DUNGEONS"] ~= "LABEL_VAULT_ROW_DUNGEONS") and L["LABEL_VAULT_ROW_DUNGEONS"] or "Dungeons", iconAtlas = "Dungeon" },
-    { key = "delve", label = (L["LABEL_VAULT_ROW_WORLD"] ~= "LABEL_VAULT_ROW_WORLD") and L["LABEL_VAULT_ROW_WORLD"] or "World", iconAtlas = "delves-regular" },
+    { key = "raid", label = L["LABEL_VAULT_ROW_RAID"], iconAtlas = "Raid" },
+    { key = "mythic", label = L["LABEL_VAULT_ROW_DUNGEONS"], iconAtlas = "Dungeon" },
+    { key = "delve", label = L["LABEL_VAULT_ROW_WORLD"], iconAtlas = "delves-regular" },
 }
 
 local function BuildEmptySlotEntry()
@@ -259,13 +259,13 @@ local function BuildRewardText(categoryKey, info)
             return "-"
         end
         if highest == 17 then
-            return "LFR"
+            return L["DIFFICULTY_LFR"]
         elseif highest == 14 then
-            return (L["DIFFICULTY_NORMAL"] ~= "DIFFICULTY_NORMAL") and L["DIFFICULTY_NORMAL"] or "Normal"
+            return L["DIFFICULTY_NORMAL"]
         elseif highest == 15 then
-            return (L["DIFFICULTY_HEROIC"] ~= "DIFFICULTY_HEROIC") and L["DIFFICULTY_HEROIC"] or "Heroic"
+            return L["DIFFICULTY_HEROIC"]
         elseif highest == 16 then
-            return (L["DIFFICULTY_MYTHIC"] ~= "DIFFICULTY_MYTHIC") and L["DIFFICULTY_MYTHIC"] or "Mythic"
+            return L["DIFFICULTY_MYTHIC"]
         end
         return tostring(highest)
     end
@@ -284,7 +284,7 @@ local function BuildRewardText(categoryKey, info)
         return "-"
     end
 
-    return string.format("Tier %d", highest)
+    return string.format(L["LABEL_VAULT_TIER_FMT"], highest)
 end
 
 local function BuildFallbackSnapshotFromSlots(data)
@@ -317,20 +317,20 @@ end
 
 function lv.UpdateVaultWindow()
     local data = LiteVaultDB and LiteVaultDB[currentVaultChar or lv.PLAYER_KEY]
-    local nameOnly = (currentVaultChar or lv.PLAYER_KEY or ""):match("^([^-]+)") or UnitName("player") or "Unknown"
+    local nameOnly = (currentVaultChar or lv.PLAYER_KEY or ""):match("^([^-]+)") or UnitName("player") or L["LABEL_UNKNOWN"]
     local cc = C_ClassColor.GetClassColor((data and data.class) or select(2, UnitClass("player")) or "WARRIOR")
     local coloredName = cc and cc:WrapTextInColorCode(nameOnly) or nameOnly
-    LVVaultWindow.title:SetText(string.format((((L["TITLE_CHARACTER_GREAT_VAULT_FMT"] ~= "TITLE_CHARACTER_GREAT_VAULT_FMT") and L["TITLE_CHARACTER_GREAT_VAULT_FMT"]) or "%s's %s"), coloredName, ((L["TITLE_GREAT_VAULT"] ~= "TITLE_GREAT_VAULT") and L["TITLE_GREAT_VAULT"] or "The Great Vault")))
+    LVVaultWindow.title:SetText(string.format(L["TITLE_CHARACTER_GREAT_VAULT_FMT"], coloredName, L["TITLE_GREAT_VAULT"]))
     local snapshot, isLive = GetVaultSnapshotForCharacter(currentVaultChar or lv.PLAYER_KEY)
     if currentVaultChar == lv.PLAYER_KEY then
-        subtitle:SetText("|cff999999" .. (((L["MSG_VAULT_LIVE_ACTIVE"] ~= "MSG_VAULT_LIVE_ACTIVE") and L["MSG_VAULT_LIVE_ACTIVE"]) or "Live Great Vault progress for the active character.") .. "|r")
+        subtitle:SetText("|cff999999" .. L["MSG_VAULT_LIVE_ACTIVE"] .. "|r")
     elseif isLive then
-        subtitle:SetText("|cff999999" .. (((L["MSG_VAULT_LIVE"] ~= "MSG_VAULT_LIVE") and L["MSG_VAULT_LIVE"]) or "Live Great Vault progress.") .. "|r")
+        subtitle:SetText("|cff999999" .. L["MSG_VAULT_LIVE"] .. "|r")
     else
-        subtitle:SetText("|cff999999" .. (((L["MSG_VAULT_SAVED"] ~= "MSG_VAULT_SAVED") and L["MSG_VAULT_SAVED"]) or "Saved Great Vault snapshot from this character's last login.") .. "|r")
+        subtitle:SetText("|cff999999" .. L["MSG_VAULT_SAVED"] .. "|r")
     end
     local totalSlots = ((snapshot.raid and snapshot.raid.slots) or 0) + ((snapshot.mythic and snapshot.mythic.slots) or 0) + ((snapshot.delve and snapshot.delve.slots) or 0)
-    summaryBox.value:SetText(string.format("|cffffd100" .. ((((L["LABEL_VAULT_SLOTS_UNLOCKED"] ~= "LABEL_VAULT_SLOTS_UNLOCKED") and L["LABEL_VAULT_SLOTS_UNLOCKED"]) or "%d/9 slots unlocked")) .. "|r", totalSlots))
+    summaryBox.value:SetText(string.format("|cffffd100" .. L["LABEL_VAULT_SLOTS_UNLOCKED"] .. "|r", totalSlots))
     local ordered = {
         { key = "raid", row = rows.raid },
         { key = "mythic", row = rows.mythic },
@@ -352,9 +352,9 @@ function lv.UpdateVaultWindow()
             local threshold = info.threshold or 0
             local progress = math.min(info.progress or 0, threshold)
             if threshold > 0 then
-                entry.row.meta:SetText(string.format("|cff999999" .. ((((L["LABEL_VAULT_OVERALL_PROGRESS"] ~= "LABEL_VAULT_OVERALL_PROGRESS") and L["LABEL_VAULT_OVERALL_PROGRESS"]) or "Overall progress: %d/%d")) .. "|r", progress, threshold))
+                entry.row.meta:SetText(string.format("|cff999999" .. L["LABEL_VAULT_OVERALL_PROGRESS"] .. "|r", progress, threshold))
             else
-                entry.row.meta:SetText("|cff999999" .. ((((L["MSG_VAULT_NO_THRESHOLD"] ~= "MSG_VAULT_NO_THRESHOLD") and L["MSG_VAULT_NO_THRESHOLD"]) or "No threshold data saved yet.")) .. "|r")
+                entry.row.meta:SetText("|cff999999" .. L["MSG_VAULT_NO_THRESHOLD"] .. "|r")
             end
 
             local slotData = info.slotData or {}

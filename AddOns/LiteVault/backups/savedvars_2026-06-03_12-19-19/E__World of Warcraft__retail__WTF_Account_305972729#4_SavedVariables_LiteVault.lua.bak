@@ -1,0 +1,59 @@
+
+LiteVaultDB = {
+["Targetfour-Stormrage"] = {
+["played"] = 1745.469000000041,
+["ilvl"] = 5,
+["weeklyDelta"] = 300067,
+["weeklyQuests"] = {
+[83240] = "|cffff0000[Not Started]|r",
+[82449] = "|cffff0000[Not Started]|r",
+[82706] = "|cffff0000[Not Started]|r",
+[83333] = "|cffff0000[Not Started]|r",
+[82679] = "|cffff0000[Not Started]|r",
+[76586] = "|cffff0000[Not Started]|r",
+[86775] = "|cffff0000[Not Started]|r",
+},
+["class"] = "MONK",
+["catalyst"] = 0,
+["gold"] = 542081,
+["raid"] = "",
+["mplus"] = 0,
+["currencies"] = {
+["Resonance Crystals"] = {
+["icon"] = 2967113,
+["amount"] = 0,
+},
+["Restored Coffer Key"] = {
+["icon"] = 4622270,
+["amount"] = 0,
+},
+["Undercoin"] = {
+["icon"] = 6012052,
+["amount"] = 0,
+},
+},
+["vM"] = 0,
+["lastActive"] = "2026-2-10",
+["vR"] = 0,
+["lastResetDay"] = 10,
+["isIgnored"] = true,
+["vW"] = 0,
+["weeklyStartGold"] = 242014,
+},
+["Targetfour"] = {
+["currencies"] = {
+},
+},
+["filters"] = {
+["dungeon"] = true,
+["darkmoon"] = true,
+["pvp"] = true,
+["timewalking"] = true,
+["bonus"] = true,
+},
+}
+LiteVaultOrder = {
+"Targetfour-Stormrage",
+}
+LiteVaultMinimapDB = {
+}

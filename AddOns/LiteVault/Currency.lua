@@ -7,6 +7,7 @@ lv.ORDERED_KEYWORDS = {
     "Undercoin",
     "Voidlight Marl",          -- Midnight (replaces Resonance Crystals)
     "Brimming Arcana",         -- Midnight
+    "Unalloyed Abundance",     -- Midnight
     "Remnant of Anguish",      -- Midnight
     "Restored Coffer Key",
     "Coffer Key Shards",
@@ -24,6 +25,7 @@ local CURRENCY_DIVIDER_DELVE = "__DIVIDER_DELVE__"
 local CURRENCY_DISPLAY_ORDER = {
     "Voidlight Marl",
     "Brimming Arcana",
+    "Unalloyed Abundance",
     "Remnant of Anguish",
     "Shard of Dundun",
     CURRENCY_DIVIDER_DELVE,
@@ -55,6 +57,7 @@ local MIDNIGHT_CURRENCIES = {
     ["Voidlight Marl"] = true,
     ["Shard of Dundun"] = true,
     ["Brimming Arcana"] = true,
+    ["Unalloyed Abundance"] = true,
     ["Remnant of Anguish"] = true,
     ["Adventurer Dawncrest"] = true,
 }
@@ -117,6 +120,7 @@ local ALWAYS_SHOW_ZERO = {
     ["Voidlight Marl"] = true,
     ["Shard of Dundun"] = true,
     ["Brimming Arcana"] = true,
+    ["Unalloyed Abundance"] = true,
     ["Remnant of Anguish"] = true,
     ["Adventurer Dawncrest"] = true,
     ["Veteran Dawncrest"] = true,
@@ -147,6 +151,7 @@ local MIDNIGHT_DIRECT_CURRENCY_IDS = {
     ["Voidlight Marl"] = 3316,
     ["Shard of Dundun"] = 3376,
     ["Brimming Arcana"] = 3379,
+    ["Unalloyed Abundance"] = 3377,
     ["Remnant of Anguish"] = 3392,
 }
 
@@ -278,6 +283,18 @@ function lv.ScanCurrencies()
     end
 end
 
+local currencyScanPending = false
+local function QueueCurrencyScan(delay)
+    if currencyScanPending then return end
+    currencyScanPending = true
+    C_Timer.After(delay or 0.1, function()
+        currencyScanPending = false
+        lv.ScanCurrencies()
+    end)
+end
+
+lv.QueueCurrencyScan = QueueCurrencyScan
+
 -- Events
 local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
@@ -293,7 +310,7 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
     elseif event == "PLAYER_ENTERING_WORLD" then
         C_Timer.After(1, lv.ScanCurrencies)
     elseif event == "CURRENCY_DISPLAY_UPDATE" or event == "BAG_UPDATE" or event == "MAIL_CLOSED" or event == "BANKFRAME_CLOSED" then
-        lv.ScanCurrencies()
+        QueueCurrencyScan()
     elseif event == "BANKFRAME_OPENED" then
         C_Timer.After(0.5, lv.ScanCurrencies) -- Small delay for bank to load
     end

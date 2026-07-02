@@ -149,6 +149,10 @@ local function HideTeleportPanel()
     end
 end
 
+function lv.HideTeleportPanel()
+    HideTeleportPanel()
+end
+
 local function ShowTeleportPanel()
     if not panel then return end
     if InCombatLockdown() then

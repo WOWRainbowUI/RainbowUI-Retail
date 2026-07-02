@@ -169,6 +169,8 @@ end
 -- 3269 = Ethereal Voidsplinter (TWW Season 3, until 2/27/2026)
 -- 3378 = Dawnlight Manaflux (Midnight, after 2/27/2026)
 lv.CATALYST_ID = 3378  -- Dawnlight Manaflux (Midnight)
+lv.ASCENDANT_VOIDSHARD_ITEM_ID = 268650
+lv.ASCENDANT_VOIDCORE_ITEM_ID = 268552
 
 -- KNOWN IDs to force-check (Bypasses "Collapsed/Legacy" bugs)
 lv.FORCE_IDS = {
@@ -457,8 +459,8 @@ end
 
 -- Weekly Quests (TWW until 2/27/2026, then Midnight)
 local MIDNIGHT_WEEKLY_QUESTS = {
-    {name="Community Engagement", id=95413, variants={95416, 95438}},
-    {name="Lady Liadrin Weekly", id=93910, variants={93766, 93767, 93769, 93889, 93890, 93892, 93909, 93911, 93912, 94457}},
+    {name="Community Engagement", id=95413, variants={95416, 95438, 95440}, activeOnlyVariants={95440}, currentWeekOnly=true, accountWide=true},
+    {name="Lady Liadrin Weekly", id=93910, variants={93766, 93767, 93769, 93889, 93890, 93892, 93909, 93911, 93912, 93913, 94457, 95842, 95843}},
     {name="A Nightmarish Task", id=94446},
 }
 
@@ -469,16 +471,38 @@ lv.WEEKLY_AMANI_TRIBE_QUESTS = lv.WEEKLY_AMANI_TRIBE_QUESTS or {
     {name="Abundance Event", id=89507},
 }
 lv.WEEKLY_HARATI_QUESTS = lv.WEEKLY_HARATI_QUESTS or {
-    {name="Legends of the Haranir", id=89268},
-    {name="The Cauldron of Echoes", id=88994},
-    {name="The Echoless Flame", id=88996},
-    {name="Russula's Outreach", id=88997},
+    {name="Legends of the Haranir", id=89268, titleAliases={"Lost Legends"}},
+    {name="The Story of Wey'nan's Ward", id=92716},
+    {name="The Cauldron of Echoes", id=88994, variants={92719}, titleAliases={"The Story of the Cauldron of Echoes"}},
+    {name="The Story of Aln'hara's Bloom", id=92720},
+    {name="The Echoless Flame", id=88996, variants={92721}, titleAliases={"The Story of the Echoless Flame"}},
+    {name="Russula's Outreach", id=88997, variants={92722}, titleAliases={"The Story of Russula's Outreach"}},
+    {name="The Story of the Root of the World", id=92724},
+    {name="The Story of Sky's Hope", id=92725},
 }
 lv.WEEKLY_SINGULARITY_QUESTS = lv.WEEKLY_SINGULARITY_QUESTS or {
     {name="Darkness Unmade", id=91700},
     {name="Harvesting the Void", id=86810},
     {name="Stormarion Assault", id=90962},
     {name="Hidey-Hole", id=92407},
+}
+lv.WEEKLY_RITUAL_SITES_QUESTS = lv.WEEKLY_RITUAL_SITES_QUESTS or {
+    -- Temporarily disabled to test next-week alt pickup behavior.
+    -- {name="Void Strike", id=96080, accountWide=true, currentWeekOnly=true},
+    {
+        name="Void Assaults",
+        id=94386,
+        variants={94385},
+        variantNames={
+            [94385]="Void Assaults: Eversong Woods",
+            [94386]="Void Assaults: Zul'Aman",
+        },
+        rotation={
+            referenceReset=1777388400,
+            questIDs={94385, 94386},
+        },
+        currentWeekOnly=true,
+    },
 }
 lv.WEEKLY_SILVERMOON_COURT_QUESTS = lv.WEEKLY_SILVERMOON_COURT_QUESTS or {
     {name="Midnight: Saltheril's Soiree", id=91966},
@@ -501,12 +525,24 @@ lv.WEEKLY_SILVERMOON_COURT_QUESTS = lv.WEEKLY_SILVERMOON_COURT_QUESTS or {
 lv.ACCOUNT_WIDE_FACTION_CHOICES = {
     harati = {
         parentID = 89268,
-        childIDs = { 88994, 88996, 88997 },
-        captureOnAccept = true,
+        childIDs = {
+            88994, -- The Cauldron of Echoes
+            88996, -- The Echoless Flame
+            88997, -- Russula's Outreach
+            92716, -- The Story of Wey'nan's Ward
+            92719, -- The Story of the Cauldron of Echoes
+            92720, -- The Story of Aln'hara's Bloom
+            92721, -- The Story of the Echoless Flame
+            92722, -- The Story of Russula's Outreach
+            92724, -- The Story of the Root of the World
+            92725, -- The Story of Sky's Hope
+        },
+        captureOnAccept = false,
         captureOnTurnIn = true,
-        updateFromLog = true,
-        authoritativeChoice = true,
-        permanent = true,
+        updateFromLog = false,
+        authoritativeChoice = false,
+        trackParentPerChar = true,
+        trackDailiesPerChar = true,
     },
     silvermoon = {
         parentID = 91966,
@@ -526,6 +562,18 @@ for mode, cfg in pairs(lv.ACCOUNT_WIDE_FACTION_CHOICES) do
     for _, questID in ipairs(cfg.childIDs) do
         cfg.childLookup[questID] = true
         ACCOUNT_WIDE_FACTION_MODE_BY_QUEST[questID] = mode
+
+        if mode == "harati" then
+            for _, haratiQuest in ipairs(lv.WEEKLY_HARATI_QUESTS or {}) do
+                if haratiQuest and haratiQuest.id == questID then
+                    for _, variantID in ipairs(haratiQuest.variants or {}) do
+                        cfg.childLookup[variantID] = true
+                        ACCOUNT_WIDE_FACTION_MODE_BY_QUEST[variantID] = mode
+                    end
+                    break
+                end
+            end
+        end
     end
     if cfg.parentID then
         ACCOUNT_WIDE_FACTION_MODE_BY_QUEST[cfg.parentID] = mode
@@ -541,17 +589,30 @@ lv.MIDNIGHT_FACTION_IDS = {
     singularity = 2699,
     harati = 2704,
     silvermoon = 2710,
+    ritualsites = 2792,
 }
 
 local function SaveAccountWideFactionChoice(mode, questID, state)
     if not mode or not questID or not state then return end
+    if mode == "harati" then return end
     local cfg = lv.ACCOUNT_WIDE_FACTION_CHOICES and lv.ACCOUNT_WIDE_FACTION_CHOICES[mode]
     if cfg and cfg.permanent then
         LiteVaultDB.permanentFactionCompletions = LiteVaultDB.permanentFactionCompletions or {}
-        LiteVaultDB.permanentFactionCompletions[mode] = { questID = questID, state = state, sourceKey = lv.PLAYER_KEY, fromEvent = true }
+        LiteVaultDB.permanentFactionCompletions[mode] = {
+            questID = questID,
+            state = state,
+            sourceKey = lv.PLAYER_KEY,
+            fromEvent = true,
+            updatedAt = GetServerTime and GetServerTime() or time(),
+        }
     else
         LiteVaultDB.accountWideFactionChoices = LiteVaultDB.accountWideFactionChoices or {}
-        LiteVaultDB.accountWideFactionChoices[mode] = { questID = questID, state = state, sourceKey = lv.PLAYER_KEY }
+        LiteVaultDB.accountWideFactionChoices[mode] = {
+            questID = questID,
+            state = state,
+            sourceKey = lv.PLAYER_KEY,
+            updatedAt = GetServerTime and GetServerTime() or time(),
+        }
     end
 end
 
@@ -577,21 +638,34 @@ local function BuildTrackedWeeklyQuestTitleSet(quest)
     local titles = {}
     if not quest or not quest.name then return titles end
 
-    local localized = L and L[quest.name]
-    local localizedTitle = NormalizeTrackedWeeklyQuestTitle(localized)
-    local fallbackTitle = NormalizeTrackedWeeklyQuestTitle(quest.name)
-
-    if localizedTitle then
-        titles[localizedTitle] = true
+    local function AddTitle(title)
+        local normalized = NormalizeTrackedWeeklyQuestTitle(title)
+        if normalized then
+            titles[normalized] = true
+        end
     end
-    if fallbackTitle then
-        titles[fallbackTitle] = true
+
+    local localized = L and L[quest.name]
+    AddTitle(localized)
+    AddTitle(quest.name)
+    if quest.titleAliases then
+        for _, alias in ipairs(quest.titleAliases) do
+            AddTitle(alias)
+        end
+    end
+    if C_QuestLog and C_QuestLog.GetTitleForQuestID then
+        AddTitle(C_QuestLog.GetTitleForQuestID(quest.id))
+        if quest.variants then
+            for _, variantID in ipairs(quest.variants) do
+                AddTitle(C_QuestLog.GetTitleForQuestID(variantID))
+            end
+        end
     end
 
     return titles
 end
 
-local function SaveAccountWideWeeklyQuestState(quest, state, questID, title)
+local function SaveAccountWideWeeklyQuestState(quest, state, questID, title, source)
     if not (LiteVaultDB and quest and quest.name and state) then return end
     LiteVaultDB.accountWideWeeklyQuests = LiteVaultDB.accountWideWeeklyQuests or {}
     LiteVaultDB.accountWideWeeklyQuests[quest.name] = {
@@ -599,31 +673,255 @@ local function SaveAccountWideWeeklyQuestState(quest, state, questID, title)
         questID = questID,
         title = title,
         sourceKey = lv.PLAYER_KEY,
+        source = source,
         updatedAt = GetServerTime and GetServerTime() or time(),
     }
 end
 
-local function ResolveTrackedWeeklyQuest(questID)
+local function SaveCharacterWeeklyQuestState(quest, state, questID, title)
+    if not (LiteVaultDB and lv.PLAYER_KEY and quest and quest.name and state) then return end
+    local db = LiteVaultDB[lv.PLAYER_KEY]
+    if type(db) ~= "table" then return end
+
+    db.weeklyQuests = db.weeklyQuests or {}
+    db.weeklyQuests[quest.name] = {
+        state = state,
+        questID = questID,
+        title = title,
+        updatedAt = GetServerTime and GetServerTime() or time(),
+    }
+end
+
+local function ClearCharacterWeeklyQuestState(questName)
+    if not (LiteVaultDB and lv.PLAYER_KEY and questName) then return end
+    local db = LiteVaultDB[lv.PLAYER_KEY]
+    if type(db) ~= "table" or not db.weeklyQuests then return end
+
+    db.weeklyQuests[questName] = nil
+end
+
+local function SaveCharacterFactionParentWeeklyState(mode, questID, state)
+    if not (LiteVaultDB and lv.PLAYER_KEY and mode and questID and state) then return end
+    local db = LiteVaultDB[lv.PLAYER_KEY]
+    if type(db) ~= "table" then return end
+
+    db.factionParentWeeklies = db.factionParentWeeklies or {}
+    db.factionParentWeeklies[mode] = db.factionParentWeeklies[mode] or {}
+    db.factionParentWeeklies[mode][questID] = {
+        state = state,
+        updatedAt = GetServerTime and GetServerTime() or time(),
+    }
+end
+
+local FindHaratiChildQuestByQuestID
+local GetHaratiCompletedQuestID
+local ResolveTrackedWeeklyQuest
+
+local function FinalizeTrackedWeeklyQuestIfCompleted(questID, sourceTag)
+    if not questID then
+        return
+    end
+
+    local trackedWeeklyQuest, trackedWeeklyTitle = ResolveTrackedWeeklyQuest(questID)
+    if not trackedWeeklyQuest then
+        return
+    end
+
+    local completedQuestID = questID
+    local haratiChildQuest = FindHaratiChildQuestByQuestID(questID)
+    if haratiChildQuest then
+        completedQuestID = GetHaratiCompletedQuestID(haratiChildQuest, questID)
+        if not completedQuestID then
+            return
+        end
+        trackedWeeklyTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(completedQuestID) or trackedWeeklyTitle
+    else
+        local isCompleted = C_QuestLog.IsQuestFlaggedCompleted and C_QuestLog.IsQuestFlaggedCompleted(questID)
+        if not isCompleted then
+            return
+        end
+    end
+
+    SaveCharacterWeeklyQuestState(trackedWeeklyQuest, "done", completedQuestID, trackedWeeklyTitle)
+    if trackedWeeklyQuest.accountWide then
+        SaveAccountWideWeeklyQuestState(trackedWeeklyQuest, "done", completedQuestID, trackedWeeklyTitle, sourceTag or "completion_fallback")
+    end
+end
+
+FindHaratiChildQuestByQuestID = function(questID)
+    if not questID then
+        return nil
+    end
+    for i = 2, #(lv.WEEKLY_HARATI_QUESTS or {}) do
+        local quest = lv.WEEKLY_HARATI_QUESTS[i]
+        if quest then
+            if quest.id == questID then
+                return quest
+            end
+            for _, variantID in ipairs(quest.variants or {}) do
+                if variantID == questID then
+                    return quest
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function GetHaratiAuthoritativeCompletionQuestIDs(quest)
+    local questIDs = {}
+    if not quest then
+        return questIDs
+    end
+
+    if quest.variants and #quest.variants > 0 then
+        for _, variantID in ipairs(quest.variants) do
+            if variantID then
+                table.insert(questIDs, variantID)
+            end
+        end
+    elseif quest.id then
+        table.insert(questIDs, quest.id)
+    end
+
+    return questIDs
+end
+
+local function GetHaratiQuestLogMatch(quest)
+    if not (quest and C_QuestLog and C_QuestLog.GetLogIndexForQuestID) then
+        return nil, nil
+    end
+
+    local candidateIDs = {}
+    for _, questID in ipairs(GetHaratiAuthoritativeCompletionQuestIDs(quest)) do
+        table.insert(candidateIDs, questID)
+    end
+    if quest.id then
+        table.insert(candidateIDs, quest.id)
+    end
+
+    local seen = {}
+    for _, questID in ipairs(candidateIDs) do
+        if questID and not seen[questID] then
+            seen[questID] = true
+            if C_QuestLog.GetLogIndexForQuestID(questID) then
+                local title = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or quest.name
+                return questID, title
+            end
+        end
+    end
+
+    if C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo then
+        local titleSet = BuildTrackedWeeklyQuestTitleSet(quest)
+        for i = 1, C_QuestLog.GetNumQuestLogEntries() do
+            local info = C_QuestLog.GetInfo(i)
+            if info and not info.isHeader and titleSet[NormalizeTrackedWeeklyQuestTitle(info.title)] then
+                return info.questID or quest.id, info.title or quest.name
+            end
+        end
+    end
+
+    return nil, nil
+end
+
+GetHaratiCompletedQuestID = function(quest, preferredQuestID)
+    if not (quest and C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted) then
+        return nil
+    end
+
+    local candidateIDs = GetHaratiAuthoritativeCompletionQuestIDs(quest)
+    if preferredQuestID then
+        local preferredIsAuthoritative = false
+        for _, questID in ipairs(candidateIDs) do
+            if questID == preferredQuestID then
+                preferredIsAuthoritative = true
+                break
+            end
+        end
+        if preferredIsAuthoritative then
+            table.insert(candidateIDs, 1, preferredQuestID)
+        end
+    end
+
+    local seen = {}
+    for _, questID in ipairs(candidateIDs) do
+        if questID and not seen[questID] then
+            seen[questID] = true
+            if C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                return questID
+            end
+        end
+    end
+
+    return nil
+end
+
+local function FindSingleCompletedHaratiChildQuest()
+    local matchedQuest, matchedQuestID
+    for i = 2, #(lv.WEEKLY_HARATI_QUESTS or {}) do
+        local quest = lv.WEEKLY_HARATI_QUESTS[i]
+        local completedQuestID = GetHaratiCompletedQuestID(quest)
+        if completedQuestID then
+            if matchedQuest then
+                return nil, nil
+            end
+            matchedQuest = quest
+            matchedQuestID = completedQuestID
+        end
+    end
+    return matchedQuest, matchedQuestID
+end
+
+ResolveTrackedWeeklyQuest = function(questID)
     if not questID then return nil, nil end
 
     local title = C_QuestLog and C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or nil
     local normalizedTitle = NormalizeTrackedWeeklyQuestTitle(title)
 
-    for _, quest in ipairs(lv.WEEKLY_QUESTS or {}) do
-        if quest.id == questID then
-            return quest, title
+    local haratiPool = lv.WEEKLY_HARATI_QUESTS or {}
+    local haratiParent = haratiPool[1]
+    if haratiParent then
+        if haratiParent.id == questID then
+            return haratiParent, title
         end
-        if quest.variants then
-            for _, variantID in ipairs(quest.variants) do
-                if variantID == questID then
+        for i = 2, #haratiPool do
+            local quest = haratiPool[i]
+            if quest and quest.id == questID then
+                return quest, title
+            end
+            if quest and quest.variants then
+                for _, variantID in ipairs(quest.variants) do
+                    if variantID == questID then
+                        return quest, title
+                    end
+                end
+            end
+            if normalizedTitle and quest then
+                local titleSet = BuildTrackedWeeklyQuestTitleSet(quest)
+                if titleSet[normalizedTitle] then
                     return quest, title
                 end
             end
         end
-        if normalizedTitle then
-            local titleSet = BuildTrackedWeeklyQuestTitleSet(quest)
-            if titleSet[normalizedTitle] then
+    end
+
+    for _, questPool in ipairs({ lv.WEEKLY_QUESTS or {}, lv.WEEKLY_RITUAL_SITES_QUESTS or {} }) do
+        for _, quest in ipairs(questPool) do
+            if quest.id == questID then
                 return quest, title
+            end
+            if quest.variants then
+                for _, variantID in ipairs(quest.variants) do
+                    if variantID == questID then
+                        return quest, title
+                    end
+                end
+            end
+            if normalizedTitle then
+                local titleSet = BuildTrackedWeeklyQuestTitleSet(quest)
+                if titleSet[normalizedTitle] then
+                    return quest, title
+                end
             end
         end
     end
@@ -635,53 +933,55 @@ local function SeedAccountWideWeeklyQuestsFromLog()
     if not LiteVaultDB then return end
     LiteVaultDB.accountWideWeeklyQuests = LiteVaultDB.accountWideWeeklyQuests or {}
 
-    for _, quest in ipairs(lv.WEEKLY_QUESTS or {}) do
-        if quest.accountWide then
-            local matchedState, matchedQuestID, matchedTitle
+    for _, questPool in ipairs({ lv.WEEKLY_QUESTS or {}, lv.WEEKLY_RITUAL_SITES_QUESTS or {} }) do
+        for _, quest in ipairs(questPool) do
+            if quest.accountWide then
+                local matchedState, matchedQuestID, matchedTitle
 
-            local function TryQuestID(questID)
-                if not questID or matchedState == "done" then return end
-                if C_QuestLog.IsQuestFlaggedCompleted(questID) then
-                    matchedState = "done"
-                    matchedQuestID = questID
-                    matchedTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or nil
-                    return
-                end
-                if C_QuestLog.IsQuestFlaggedCompletedOnAccount and C_QuestLog.IsQuestFlaggedCompletedOnAccount(questID) then
-                    matchedState = "done"
-                    matchedQuestID = questID
-                    matchedTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or nil
-                    return
-                end
-                if not matchedState and C_QuestLog.GetLogIndexForQuestID(questID) then
-                    matchedState = "in_progress"
-                    matchedQuestID = questID
-                    matchedTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or nil
-                end
-            end
-
-            TryQuestID(quest.id)
-            if quest.variants then
-                for _, variantID in ipairs(quest.variants) do
-                    TryQuestID(variantID)
-                end
-            end
-
-            if not matchedState then
-                local titleSet = BuildTrackedWeeklyQuestTitleSet(quest)
-                for i = 1, C_QuestLog.GetNumQuestLogEntries() do
-                    local info = C_QuestLog.GetInfo(i)
-                    if info and not info.isHeader and titleSet[NormalizeTrackedWeeklyQuestTitle(info.title)] then
+                local function TryQuestID(questID)
+                    if not questID or matchedState == "done" then return end
+                    if not quest.currentWeekOnly and C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                        matchedState = "done"
+                        matchedQuestID = questID
+                        matchedTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or nil
+                        return
+                    end
+                    if not quest.currentWeekOnly and C_QuestLog.IsQuestFlaggedCompletedOnAccount and C_QuestLog.IsQuestFlaggedCompletedOnAccount(questID) then
+                        matchedState = "done"
+                        matchedQuestID = questID
+                        matchedTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or nil
+                        return
+                    end
+                    if not matchedState and C_QuestLog.GetLogIndexForQuestID(questID) then
                         matchedState = "in_progress"
-                        matchedQuestID = info.questID
-                        matchedTitle = info.title
-                        break
+                        matchedQuestID = questID
+                        matchedTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID) or nil
                     end
                 end
-            end
 
-            if matchedState then
-                SaveAccountWideWeeklyQuestState(quest, matchedState, matchedQuestID, matchedTitle)
+                TryQuestID(quest.id)
+                if quest.variants then
+                    for _, variantID in ipairs(quest.variants) do
+                        TryQuestID(variantID)
+                    end
+                end
+
+                if not matchedState then
+                    local titleSet = BuildTrackedWeeklyQuestTitleSet(quest)
+                    for i = 1, C_QuestLog.GetNumQuestLogEntries() do
+                        local info = C_QuestLog.GetInfo(i)
+                        if info and not info.isHeader and titleSet[NormalizeTrackedWeeklyQuestTitle(info.title)] then
+                            matchedState = "in_progress"
+                            matchedQuestID = info.questID
+                            matchedTitle = info.title
+                            break
+                        end
+                    end
+                end
+
+                if matchedState then
+                    SaveAccountWideWeeklyQuestState(quest, matchedState, matchedQuestID, matchedTitle, "log_seed")
+                end
             end
         end
     end
@@ -693,27 +993,115 @@ local function SeedAccountWideFactionChoicesFromLog()
 
     for mode, cfg in pairs(lv.ACCOUNT_WIDE_FACTION_CHOICES or {}) do
         if cfg.updateFromLog then
-            local found = false
             for _, questID in ipairs(cfg.childIDs) do
                 if C_QuestLog.GetLogIndexForQuestID(questID) then
                     SaveAccountWideFactionChoice(mode, questID, "in_progress")
-                    found = true
                     break
                 end
             end
-            if not found and cfg.permanent and cfg.parentID then
-                if C_QuestLog.IsQuestFlaggedCompleted(cfg.parentID) then
-                    LiteVaultDB.permanentFactionCompletions = LiteVaultDB.permanentFactionCompletions or {}
-                    local existing = LiteVaultDB.permanentFactionCompletions[mode]
-                    if not existing or (existing.questID and not existing.fromEvent) then
-                        LiteVaultDB.permanentFactionCompletions[mode] = {
-                            state = "done",
-                            sourceKey = lv.PLAYER_KEY,
-                        }
-                    end
+        end
+    end
+end
+
+local function SyncHaratiCharacterWeeklyState()
+    if not (LiteVaultDB and lv.PLAYER_KEY and C_QuestLog) then return end
+
+    local db = LiteVaultDB[lv.PLAYER_KEY]
+    local cfg = lv.ACCOUNT_WIDE_FACTION_CHOICES and lv.ACCOUNT_WIDE_FACTION_CHOICES.harati
+    local quest = lv.WEEKLY_HARATI_QUESTS and lv.WEEKLY_HARATI_QUESTS[1]
+    if type(db) ~= "table" or not cfg or not quest then return end
+
+    if db.factionDailiesThisWeek then
+        db.factionDailiesThisWeek.harati = nil
+    end
+    if db.factionParentWeeklies then
+        db.factionParentWeeklies.harati = nil
+    end
+
+    local parentTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(cfg.parentID) or quest.name
+    local currentReset = lv.GetLastWeeklyReset and lv.GetLastWeeklyReset() or nil
+    db.weeklyQuests = db.weeklyQuests or {}
+
+    local saved = db.weeklyQuests[quest.name]
+    if saved and saved.questID and saved.questID ~= cfg.parentID then
+        local childQuest = FindHaratiChildQuestByQuestID(saved.questID)
+        if childQuest then
+            local existingChildRecord = db.weeklyQuests[childQuest.name]
+            if not existingChildRecord or ((existingChildRecord.updatedAt or 0) < (saved.updatedAt or 0)) then
+                db.weeklyQuests[childQuest.name] = {
+                    state = saved.state,
+                    questID = saved.questID,
+                    title = saved.title,
+                    updatedAt = saved.updatedAt,
+                }
+            end
+            db.weeklyQuests[quest.name] = nil
+            saved = nil
+        end
+    end
+
+    local childDone = false
+    local childInProgress = false
+    local activeChildQuestID
+    local activeChildTitle
+
+    for i = 2, #(lv.WEEKLY_HARATI_QUESTS or {}) do
+        local childQuest = lv.WEEKLY_HARATI_QUESTS[i]
+        local childRecord = childQuest and db.weeklyQuests[childQuest.name]
+        local childRecordIsCurrent = childRecord and ((not currentReset) or ((childRecord.updatedAt or 0) >= currentReset))
+        if childRecord and not childRecordIsCurrent then
+            ClearCharacterWeeklyQuestState(childQuest.name)
+            childRecord = nil
+        end
+
+        local logQuestID, logTitle = GetHaratiQuestLogMatch(childQuest)
+        if logQuestID then
+            childInProgress = true
+            if not activeChildQuestID then
+                activeChildQuestID = logQuestID
+                activeChildTitle = logTitle
+            end
+            if not childRecord or childRecord.state ~= "done" then
+                SaveCharacterWeeklyQuestState(childQuest, "in_progress", logQuestID, logTitle)
+                childRecord = db.weeklyQuests[childQuest.name]
+            end
+        elseif childRecord then
+            if childRecord.state == "in_progress" then
+                local completedQuestID = GetHaratiCompletedQuestID(childQuest, childRecord.questID)
+                if completedQuestID then
+                    local completedTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(completedQuestID) or childQuest.name
+                    SaveCharacterWeeklyQuestState(childQuest, "done", completedQuestID, completedTitle)
+                    childRecord = db.weeklyQuests[childQuest.name]
+                else
+                    ClearCharacterWeeklyQuestState(childQuest.name)
+                    childRecord = nil
                 end
             end
         end
+
+        if childRecord and childRecord.state == "done" then
+            childDone = true
+        elseif childRecord and childRecord.state == "in_progress" then
+            childInProgress = true
+        end
+    end
+
+    if not childDone and not childInProgress then
+        local completedChildQuest, completedChildQuestID = FindSingleCompletedHaratiChildQuest()
+        if completedChildQuest and completedChildQuestID then
+            local childTitle = C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(completedChildQuestID) or completedChildQuest.name
+            SaveCharacterWeeklyQuestState(completedChildQuest, "done", completedChildQuestID, childTitle)
+            childDone = true
+        end
+    end
+
+    local parentInLog = C_QuestLog.GetLogIndexForQuestID and C_QuestLog.GetLogIndexForQuestID(cfg.parentID)
+    if childDone then
+        SaveCharacterWeeklyQuestState(quest, "done", cfg.parentID, parentTitle)
+    elseif childInProgress or parentInLog then
+        SaveCharacterWeeklyQuestState(quest, "in_progress", activeChildQuestID or cfg.parentID, parentTitle)
+    else
+        ClearCharacterWeeklyQuestState(quest.name)
     end
 end
 
@@ -922,6 +1310,51 @@ function lv.ScanBags()
     db.bagLastScanned = time()
 end
 
+local GEAR_SLOT_IDS = { 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 }
+
+function lv.ScanGear()
+    if not LiteVaultDB or not lv.PLAYER_KEY then return end
+    local db = LiteVaultDB[lv.PLAYER_KEY]
+    if not db then return end
+
+    local scannedGear = {}
+
+    for _, slotID in ipairs(GEAR_SLOT_IDS) do
+        local itemLink = GetInventoryItemLink("player", slotID)
+        local itemID = itemLink and GetItemInfoInstant(itemLink) or nil
+        local itemName, itemQuality, itemIcon
+
+        if itemLink then
+            itemName = GetItemInfo(itemLink)
+            itemQuality = select(3, GetItemInfo(itemLink))
+            itemIcon = GetInventoryItemTexture("player", slotID)
+
+            if not itemName and itemID and C_Item and C_Item.GetItemNameByID then
+                itemName = C_Item.GetItemNameByID(itemID)
+            end
+            if not itemQuality and itemID and C_Item and C_Item.GetItemQualityByID then
+                itemQuality = C_Item.GetItemQualityByID(itemID)
+            end
+            if not itemIcon and itemID and C_Item and C_Item.GetItemIconByID then
+                itemIcon = C_Item.GetItemIconByID(itemID)
+            end
+        end
+
+        scannedGear[#scannedGear + 1] = {
+            slotID = slotID,
+            link = itemLink,
+            itemID = itemID,
+            name = itemName,
+            icon = itemIcon,
+            quality = itemQuality,
+            itemLevel = itemLink and GetItemLevelFromLink(itemLink) or nil,
+        }
+    end
+
+    db.gear = scannedGear
+    db.gearLastScanned = time()
+end
+
 local function BuildContainerItems(containerIDs)
     local scannedItems = {}
     local scannedTotalSlots = 0
@@ -952,6 +1385,118 @@ local function BuildContainerItems(containerIDs)
     end
 
     return scannedItems, scannedTotalSlots, scannedUsedSlots
+end
+
+local function CaptureCurrentPlayerCombatStats()
+    local critRating = (GetCombatRating and _G.CR_CRIT_MELEE) and (GetCombatRating(_G.CR_CRIT_MELEE) or 0) or 0
+    local hasteRating = (GetCombatRating and _G.CR_HASTE_MELEE) and (GetCombatRating(_G.CR_HASTE_MELEE) or 0) or 0
+    local masteryRating = (GetCombatRating and _G.CR_MASTERY) and (GetCombatRating(_G.CR_MASTERY) or 0) or 0
+    local versRating = (GetCombatRating and _G.CR_VERSATILITY_DAMAGE_DONE) and (GetCombatRating(_G.CR_VERSATILITY_DAMAGE_DONE) or 0) or 0
+
+    local critPercent = (GetCritChance and GetCritChance()) or 0
+    local hastePercent = (GetHaste and GetHaste()) or 0
+    local masteryPercent = (GetMasteryEffect and GetMasteryEffect()) or 0
+    local versPercent = (GetCombatRatingBonus and _G.CR_VERSATILITY_DAMAGE_DONE) and (GetCombatRatingBonus(_G.CR_VERSATILITY_DAMAGE_DONE) or 0) or 0
+
+    return {
+        critRating = critRating,
+        critPercent = critPercent,
+        hasteRating = hasteRating,
+        hastePercent = hastePercent,
+        masteryRating = masteryRating,
+        masteryPercent = masteryPercent,
+        versRating = versRating,
+        versPercent = versPercent,
+    }
+end
+
+local function CaptureCurrentOmniumFolioSnapshot()
+    if not (C_Traits and C_Traits.GetConfigIDBySystemID and C_Traits.GetTreeNodes and C_Traits.GetNodeInfo) then
+        return nil
+    end
+
+    local configID = C_Traits.GetConfigIDBySystemID(48)
+    if not configID or configID <= 0 then
+        return nil
+    end
+
+    local treeNodes = C_Traits.GetTreeNodes(1186)
+    if type(treeNodes) ~= "table" or #treeNodes == 0 then
+        return nil
+    end
+
+    local availablePoints = 0
+    if C_Traits.GetTreeCurrencyInfo then
+        local treeCurrencies = C_Traits.GetTreeCurrencyInfo(configID, 1186, false)
+        local info = treeCurrencies and treeCurrencies[1]
+        availablePoints = (info and info.quantity) or 0
+    end
+
+    local selectedNodes = {}
+    local spentPoints = 0
+
+    for _, nodeID in ipairs(treeNodes) do
+        local nodeInfo = C_Traits.GetNodeInfo(configID, nodeID)
+        if nodeInfo then
+            local rank = tonumber(nodeInfo.currentRank or nodeInfo.ranksPurchased or 0) or 0
+            local entryID
+
+            if nodeInfo.activeEntry and nodeInfo.activeEntry.entryID then
+                entryID = nodeInfo.activeEntry.entryID
+            elseif type(nodeInfo.entryIDsWithCommittedRanks) == "table" and nodeInfo.entryIDsWithCommittedRanks[1] then
+                local committedEntry = nodeInfo.entryIDsWithCommittedRanks[1]
+                entryID = type(committedEntry) == "table" and committedEntry.entryID or committedEntry
+            elseif rank > 0 and type(nodeInfo.entryIDs) == "table" then
+                entryID = nodeInfo.entryIDs[1]
+            end
+
+            if entryID and rank > 0 then
+                local entryInfo = C_Traits.GetEntryInfo and C_Traits.GetEntryInfo(configID, entryID)
+                local definitionInfo = entryInfo and entryInfo.definitionID and C_Traits.GetDefinitionInfo and C_Traits.GetDefinitionInfo(entryInfo.definitionID)
+                local spellID = definitionInfo and definitionInfo.spellID or nil
+                local nodeName = definitionInfo and definitionInfo.overrideName or nil
+                local nodeIcon = definitionInfo and (definitionInfo.overrideIcon or definitionInfo.icon) or nil
+
+                if not nodeName and spellID then
+                    if C_Spell and C_Spell.GetSpellName then
+                        nodeName = C_Spell.GetSpellName(spellID)
+                    elseif GetSpellInfo then
+                        nodeName = GetSpellInfo(spellID)
+                    end
+                end
+                if not nodeIcon and spellID then
+                    if C_Spell and C_Spell.GetSpellTexture then
+                        nodeIcon = C_Spell.GetSpellTexture(spellID)
+                    elseif GetSpellTexture then
+                        nodeIcon = GetSpellTexture(spellID)
+                    end
+                end
+
+                selectedNodes[#selectedNodes + 1] = {
+                    nodeID = nodeID,
+                    entryID = entryID,
+                    rank = rank,
+                    name = nodeName or string.format("Node %d", nodeID),
+                    icon = nodeIcon,
+                    posX = nodeInfo.posX,
+                    posY = nodeInfo.posY,
+                    spellID = spellID,
+                }
+                spentPoints = spentPoints + rank
+            end
+        end
+    end
+
+    return {
+        systemID = 48,
+        treeID = 1186,
+        savedAt = time(),
+        availablePoints = availablePoints,
+        spentPoints = spentPoints,
+        selectedNodeCount = #selectedNodes,
+        totalNodeCount = #treeNodes,
+        selectedNodes = selectedNodes,
+    }
 end
 
 function lv.ScanBank()
@@ -1013,6 +1558,8 @@ function lv.UpdateCurrentCharData()
             end
         end
         LiteVaultDB.accountWideFactionChoices = nil
+        LiteVaultDB.accountWideWeeklyQuests = nil
+        LiteVaultDB.permanentFactionCompletions = nil
         LiteVaultDB[regionResetKey] = lastResetTime
         print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. L["MSG_WEEKLY_RESET"])
     end
@@ -1037,6 +1584,11 @@ function lv.UpdateCurrentCharData()
         }
         if lv.ScanTeleports then lv.ScanTeleports() end
         local _, equipped = GetAverageItemLevel(); db.ilvl = math.floor(equipped)
+        db.combatStats = CaptureCurrentPlayerCombatStats()
+        local folioSnapshot = CaptureCurrentOmniumFolioSnapshot()
+        if folioSnapshot then
+            db.omniumFolio = folioSnapshot
+        end
         local currentMPlusSeason = C_MythicPlus and C_MythicPlus.GetCurrentSeason and C_MythicPlus.GetCurrentSeason() or nil
         local liveMPlusScore = C_ChallengeMode.GetOverallDungeonScore() or 0
         if currentMPlusSeason and db.mplusSeason and db.mplusSeason ~= currentMPlusSeason then
@@ -1047,9 +1599,9 @@ function lv.UpdateCurrentCharData()
         db.mplusSeason = currentMPlusSeason or db.mplusSeason
         
         -- NEW: Save portrait info for cross-character viewing
-        local race, raceFile = UnitRace("player")
+        local race = UnitRace("player")
         local gender = UnitSex("player") -- 2=male, 3=female
-        db.race = raceFile
+        db.race = race
         db.gender = gender
         local specIndex = GetSpecialization and GetSpecialization() or nil
         if specIndex and GetSpecializationInfo then
@@ -1075,7 +1627,6 @@ function lv.UpdateCurrentCharData()
                 end
                 local savedChoice = LiteVaultDB.accountWideFactionChoices and LiteVaultDB.accountWideFactionChoices.silvermoon
                 if savedChoice and savedChoice.state == "done" and savedChoice.sourceKey == lv.PLAYER_KEY then
-                    db.factionDailiesThisWeek.silvermoon[cfg.parentID] = true
                     if savedChoice.questID then
                         db.factionDailiesThisWeek.silvermoon[savedChoice.questID] = true
                     end
@@ -1088,13 +1639,21 @@ function lv.UpdateCurrentCharData()
             local savedChoice = LiteVaultDB.accountWideFactionChoices and LiteVaultDB.accountWideFactionChoices.silvermoon
             if cfg and cfg.trackDailiesPerChar and savedChoice and savedChoice.state == "done" and savedChoice.sourceKey == lv.PLAYER_KEY then
                 db.factionDailiesThisWeek.silvermoon = db.factionDailiesThisWeek.silvermoon or {}
-                db.factionDailiesThisWeek.silvermoon[cfg.parentID] = true
                 if savedChoice.questID then
                     db.factionDailiesThisWeek.silvermoon[savedChoice.questID] = true
                 end
             end
         end
-
+        do
+            local cfg = lv.ACCOUNT_WIDE_FACTION_CHOICES and lv.ACCOUNT_WIDE_FACTION_CHOICES.harati
+            if cfg then
+                if LiteVaultDB.accountWideFactionChoices then
+                    LiteVaultDB.accountWideFactionChoices.harati = nil
+                end
+                SyncHaratiCharacterWeeklyState()
+            end
+        end
+        SeedAccountWideWeeklyQuestsFromLog()
         SeedAccountWideFactionChoicesFromLog()
         -- NEW: Track current M+ key in inventory
         db.currentKey = nil
@@ -1138,6 +1697,8 @@ function lv.UpdateCurrentCharData()
         db.sparks = 0
         db.fullSparks = GetItemCount(232875, true) or 0
         db.fracturedSparks = 0
+        db.ascendantVoidshards = GetItemCount(lv.ASCENDANT_VOIDSHARD_ITEM_ID, true) or 0
+        db.ascendantVoidcores = GetItemCount(lv.ASCENDANT_VOIDCORE_ITEM_ID, true) or 0
         
         -- NEW: Update last activity timestamp
         db.lastActiveTimestamp = time()
@@ -1218,17 +1779,18 @@ function lv.UpdateCurrentCharData()
         -- EU (Region 3): Wednesday 04:00 UTC
         -- ==========================================================
 
+        local currentMonthKey = string.format("%04d-%02d", d.year, d.month)
+
         -- Check if reset has occurred since last recorded reset
         local needsGlobalReset = false
         if not db.lastWeeklyReset then
             -- First time setup for NEW character - only initialize THIS character
             db.lastWeeklyReset = lastResetTime
-            db.weeklyStartGold = nil
-            db.weeklyDelta = 0
+            db.lastMonthlyReset = currentMonthKey
             db.weeklyQuests = {}
+            db.factionParentWeeklies = nil
             db.vR, db.vM, db.vW = 0, 0, 0
             db.vaultDetails = nil
-            -- Don't wipe weeklyLedger for new chars - let it initialize fresh
             -- Don't trigger global reset for new characters!
         elseif db.lastWeeklyReset < lastResetTime then
             -- A weekly reset has ACTUALLY occurred since we last logged
@@ -1240,12 +1802,9 @@ function lv.UpdateCurrentCharData()
             for charKey, charData in pairs(LiteVaultDB) do
                 if type(charData) == "table" and charData.class
                     and (not charData.region or charData.region == lv.REGION) then
-                    -- Clear baseline so each char initializes on their first login this week
-                    charData.weeklyStartGold = nil
-                    charData.weeklyDelta = 0
-                    charData.lastMoney = nil
                     charData.lastWeeklyReset = lastResetTime
                     charData.weeklyQuests = {}
+                    charData.factionParentWeeklies = nil
                     charData.vR, charData.vM, charData.vW = 0, 0, 0
                     charData.vaultDetails = nil
                     if charData.weeklyPlanner then
@@ -1255,26 +1814,20 @@ function lv.UpdateCurrentCharData()
                             end
                         end
                     end
-                    charData.weeklyLedger = nil
                 end
             end
+            LiteVaultDB.accountWideWeeklyQuests = nil
+            LiteVaultDB.accountWideFactionChoices = nil
         end
 
-        -- INITIALIZATION GUARD: First update after reset ONLY sets baseline
-        -- This prevents profit spikes from stale/cached gold values
-        -- NOTE: Must check for nil explicitly because 0 is truthy in Lua
-        local currentMoney = GetMoney()
-        if db.weeklyStartGold == nil then
-            -- Only set baseline if we have valid gold data (not 0 during early load)
-            if currentMoney > 0 then
-                db.weeklyStartGold = currentMoney
-                db.lastMoney = currentMoney
+        local needsMonthlyReset = db.lastMonthlyReset ~= currentMonthKey
+        if needsMonthlyReset then
+            for charKey, charData in pairs(LiteVaultDB) do
+                if type(charData) == "table" and charData.class
+                    and (not charData.region or charData.region == lv.REGION) then
+                    charData.lastMonthlyReset = currentMonthKey
+                end
             end
-            db.weeklyDelta = 0
-            -- DO NOT calculate profit on initialization
-        else
-            -- Normal operation: calculate weekly profit
-            db.weeklyDelta = currentMoney - db.weeklyStartGold
         end
 
         -- ==========================================================
@@ -1322,27 +1875,17 @@ SlashCmdList["LITEVAULTADD"] = function()
     end
 end
 
--- Weekly Ledger Command
-SLASH_LITEVAULTLEDGER1 = "/lvledger"
-SlashCmdList["LITEVAULTLEDGER"] = function()
-    if lv.ShowLedgerWindow then
-        lv.ShowLedgerWindow(lv.PLAYER_KEY)
-    else
-        print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. L["MSG_LEDGER_NOT_AVAILABLE"])
-    end
-end
-
 -- Raid Resync Command (launch recovery)
 -- Forces a fresh raid info pull and reconciles lockouts/progression from API data.
 SLASH_LITEVAULTRAIDRESYNC1 = "/lvraidresync"
 SlashCmdList["LITEVAULTRAIDRESYNC"] = function()
     if not lv or not lv.ScanRaidInfoPanel then
-        print("|cff9933ff" .. (L["MSG_PREFIX"] or "LiteVault") .. "|r " .. (((L["Raid resync unavailable."] ~= "Raid resync unavailable.") and L["Raid resync unavailable."]) or "Raid resync unavailable."))
+        print("|cff9933ff" .. (L["MSG_PREFIX"] or "LiteVault") .. "|r " .. (L["MSG_RAID_RESYNC_UNAVAILABLE"] or "Raid resync unavailable."))
         return
     end
 
     local prefix = "|cff9933ff" .. (L["MSG_PREFIX"] or "LiteVault") .. "|r "
-    print(prefix .. "Raid resync started...")
+    print(prefix .. (L["MSG_RAID_RESYNC_STARTED"] or "Raid resync started..."))
 
     if RequestRaidInfo then
         RequestRaidInfo()
@@ -1357,7 +1900,7 @@ SlashCmdList["LITEVAULTRAIDRESYNC"] = function()
         if lv.UpdateUI then
             lv.UpdateUI()
         end
-        print(prefix .. "Raid resync complete.")
+        print(prefix .. (L["MSG_RAID_RESYNC_COMPLETE"] or "Raid resync complete."))
     end)
 end
 
@@ -1368,6 +1911,7 @@ end
 -- The chat filter uses localized global strings to work across all locales
 local playedWindowsRegistered = {}
 local timePlayedFilterActive = false
+local timePlayedTouchedNIT = false
 local initialTimePlayedNoticeShown = false
 -- Set when we silently auto-activate suppression during load so we can
 -- show a single confirmation later when the user-visible flow runs.
@@ -1390,6 +1934,10 @@ local function TimePlayedChatFilter(self, event, msg, ...)
     if not (timePlayedFilterActive or (LiteVaultDB and LiteVaultDB.disableTimePlayed)) then return false end
     if not msg then return false end
 
+    local function StartsWith(text, prefix)
+        return type(text) == "string" and type(prefix) == "string" and prefix ~= "" and text:sub(1, #prefix) == prefix
+    end
+
     -- Normalize punctuation/spacing variants across locales (notably zh clients).
     -- This makes matching resilient to full-width vs ASCII punctuation differences.
     local normMsg = msg
@@ -1405,10 +1953,10 @@ local function TimePlayedChatFilter(self, event, msg, ...)
     local levelPrefix = StripFormatPlaceholder(TIME_PLAYED_LEVEL)
 
     -- Plain (exact) prefix check is more robust than complex patterns across locales
-    if totalPrefix and (msg:find("^" .. totalPrefix, 1, true) or normMsg:find("^" .. totalPrefix, 1, true)) then
+    if totalPrefix and (StartsWith(msg, totalPrefix) or StartsWith(normMsg, totalPrefix)) then
         return true
     end
-    if levelPrefix and (msg:find("^" .. levelPrefix, 1, true) or normMsg:find("^" .. levelPrefix, 1, true)) then
+    if levelPrefix and (StartsWith(msg, levelPrefix) or StartsWith(normMsg, levelPrefix)) then
         return true
     end
 
@@ -1433,8 +1981,8 @@ local function TimePlayedChatFilter(self, event, msg, ...)
         for _, p in ipairs(prefixes) do
             if type(p) == "string" and p ~= "" then
                 -- Check plain prefix and common colon variants (ASCII and fullwidth)
-                if msg:find("^" .. p, 1, true) or normMsg:find("^" .. p, 1, true) then return true end
-                if msg:find("^" .. p .. ":", 1, true) or normMsg:find("^" .. p .. ":", 1, true) then return true end
+                if StartsWith(msg, p) or StartsWith(normMsg, p) then return true end
+                if StartsWith(msg, p .. ":") or StartsWith(normMsg, p .. ":") then return true end
                 if msg:find("^" .. p .. "：", 1, true) or normMsg:find("^" .. p .. ":", 1, true) then return true end
             end
         end
@@ -1461,6 +2009,7 @@ function lv.SuppressTimePlayedChat(silent)
     -- If NovaInstanceTracker is loaded, it handles its own suppression
     if NIT and NIT.unregisterTimePlayedMsg then
         NIT:unregisterTimePlayedMsg()
+        timePlayedTouchedNIT = true
     end
 
     -- Also unregister event from chat frames as backup
@@ -1505,7 +2054,7 @@ function lv.SuppressTimePlayedChat(silent)
     -- Inform the user when not silent and either the state changed OR
     -- we previously auto-activated silently during load (show one message).
     if not silent and (not wasActive or silentAutoActivated) then
-        print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r Time played messages will be suppressed.")
+        print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. (L["MSG_TIMEPLAYED_SUPPRESSED"] or "Time played messages will be suppressed."))
         silentAutoActivated = false
     end
     TimePlayedDebugLog("suppress", { wasActive = wasActive, silent = not not silent })
@@ -1516,9 +2065,10 @@ function lv.RestoreTimePlayedChat(silent)
     -- Disable our chat filter
     timePlayedFilterActive = false
 
-    -- If NovaInstanceTracker is loaded, use its restore function
-    if NIT and NIT.registerTimePlayedMsg then
+    -- Only restore NovaInstanceTracker if LiteVault previously changed it.
+    if timePlayedTouchedNIT and NIT and NIT.registerTimePlayedMsg then
         NIT:registerTimePlayedMsg()
+        timePlayedTouchedNIT = false
     end
 
     -- Restore event registration to chat frames
@@ -1533,7 +2083,7 @@ function lv.RestoreTimePlayedChat(silent)
     -- Inform the user when not silent and either the state changed OR
     -- we previously auto-activated silently during load (show one message).
     if not silent and (wasActive or silentAutoActivated) then
-        print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r Time played messages restored.")
+        print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. (L["MSG_TIMEPLAYED_RESTORED"] or "Time played messages restored."))
         silentAutoActivated = false
     end
     TimePlayedDebugLog("restore", { wasActive = wasActive, silent = not not silent })
@@ -1549,6 +2099,8 @@ f:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("QUEST_LOG_UPDATE")
 f:RegisterEvent("QUEST_ACCEPTED")
+f:RegisterEvent("QUEST_AUTOCOMPLETE")
+f:RegisterEvent("QUEST_REMOVED")
 f:RegisterEvent("QUEST_TURNED_IN")
 f:RegisterEvent("PLAYER_AVG_ITEM_LEVEL_UPDATE")
 f:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
@@ -1566,6 +2118,11 @@ f:RegisterEvent("ACCOUNT_MONEY") -- Warband bank balance changes
 f:RegisterEvent("TRADE_SKILL_CLOSE") -- When crafting window closes (spark usage)
 f:RegisterEvent("CRAFTINGORDERS_CLAIMED_ORDER_UPDATED") -- Work order completion
 f:RegisterEvent("SCENARIO_COMPLETED") -- Delve completion tracking
+f:RegisterEvent("MAJOR_FACTION_RENOWN_LEVEL_CHANGED")
+f:RegisterEvent("MAJOR_FACTION_UNLOCKED")
+f:RegisterEvent("QUEST_DATA_LOAD_RESULT")
+f:RegisterEvent("TRAIT_TREE_CURRENCY_INFO_UPDATED")
+f:RegisterEvent("TRAIT_CONFIG_UPDATED")
 
 local function ApplySavedClockPreference()
     if not LiteVaultDB then return end
@@ -1574,6 +2131,75 @@ local function ApplySavedClockPreference()
 
     local want24 = LiteVaultDB.use24HourClock and true or false
     SetCVar("timeMgrUseMilitaryTime", want24 and "1" or "0")
+end
+
+local queuedRefresh = {
+    currentChar = false,
+    ui = false,
+    bagPanel = false,
+}
+local queuedRefreshPending = false
+
+local function FlushQueuedRefresh()
+    queuedRefreshPending = false
+
+    local refreshCurrentChar = queuedRefresh.currentChar
+    local refreshUI = queuedRefresh.ui
+    local refreshBagPanel = queuedRefresh.bagPanel
+
+    queuedRefresh.currentChar = false
+    queuedRefresh.ui = false
+    queuedRefresh.bagPanel = false
+
+    if refreshCurrentChar and lv.UpdateCurrentCharData then
+        lv.UpdateCurrentCharData()
+    end
+    if refreshCurrentChar and lv.RefreshFolioViewForCurrentChar then
+        lv.RefreshFolioViewForCurrentChar(lv.PLAYER_KEY)
+    end
+    if refreshBagPanel and lv.RefreshBagPanelForCurrentChar then
+        lv.RefreshBagPanelForCurrentChar(lv.PLAYER_KEY)
+    end
+    if refreshUI and lv.UpdateUI then
+        lv.UpdateUI()
+    end
+end
+
+function lv.QueueRefresh(opts)
+    opts = opts or {}
+    queuedRefresh.currentChar = queuedRefresh.currentChar or opts.currentChar
+    queuedRefresh.ui = queuedRefresh.ui or opts.ui
+    queuedRefresh.bagPanel = queuedRefresh.bagPanel or opts.bagPanel
+
+    if queuedRefreshPending then return end
+    queuedRefreshPending = true
+    C_Timer.After(opts.delay or 0.05, FlushQueuedRefresh)
+end
+
+local function QueueCurrentCharRefresh(opts)
+    opts = opts or {}
+    lv.QueueRefresh({
+        currentChar = true,
+        ui = opts.ui ~= false,
+        bagPanel = opts.bagPanel,
+        delay = opts.delay,
+    })
+end
+
+local function RefreshCurrentGearSnapshot(opts)
+    opts = opts or {}
+
+    if lv.ScanGear then
+        lv.ScanGear()
+    end
+    if lv.RefreshGearPanelForCurrentChar then
+        lv.RefreshGearPanelForCurrentChar(lv.PLAYER_KEY)
+    end
+
+    QueueCurrentCharRefresh({
+        ui = opts.ui ~= false,
+        delay = opts.delay,
+    })
 end
 
 f:SetScript("OnEvent", function(self, event, arg1, arg2)
@@ -1590,7 +2216,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
             OnClick = function() if LiteVaultWindow:IsShown() then LiteVaultWindow:Hide() else LiteVaultWindow:Show() end end,
             OnTooltipShow = function(tooltip)
                 tooltip:AddLine(L["TITLE_LITEVAULT"])
-                tooltip:AddLine("|cff9933ff" .. (L and L["ADDON_VERSION"] or "v12.0.1") .. "|r")
+                tooltip:AddLine("|cff9933ff" .. (L and L["ADDON_VERSION"] or "v12.0.7.3") .. "|r")
                 tooltip:Show()
             end,
         })
@@ -1601,7 +2227,6 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         if not LiteVaultDB then LiteVaultDB = {} end
         if not LiteVaultOrder then LiteVaultOrder = {} end
         if not LiteVaultDB.filters then LiteVaultDB.filters = { timewalking=true, darkmoon=true, dungeon=true, pvp=true, bonus=true } end
-
         -- Re-apply saved 24h/12h preference in case Blizzard reset it on login.
         ApplySavedClockPreference()
 
@@ -1638,7 +2263,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         -- Check for NovaInstanceTracker compatibility
         C_Timer.After(2, function()
             if NIT and LiteVaultDB and not LiteVaultDB.disableTimePlayed then
-                print("|cff9933ffLiteVault:|r NovaInstanceTracker detected. The /played message may be suppressed by NIT even when LiteVault's option is disabled.")
+                print("|cff9933ffLiteVault:|r " .. (L["MSG_NIT_TIMEPLAYED_WARNING"] or "NovaInstanceTracker detected. The /played message may be suppressed by NIT even when LiteVault's option is disabled."))
             end
         end)
 
@@ -1672,38 +2297,6 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         end
         -- ============================================================
 
-        -- ============================================================
-        -- ONE-TIME FIX: Weekly profit tracking bug fix (v2)
-        -- Clears stale weeklyStartGold so each character re-initializes
-        -- on their next login with their actual current gold
-        -- V2: Re-run after region-aware reset system was added
-        -- ============================================================
-        if not LiteVaultDB.weeklyProfitFixV2 then
-            local fixedCount = 0
-            for charKey, charData in pairs(LiteVaultDB) do
-                if type(charData) == "table" and charData.class then
-                    charData.weeklyStartGold = nil
-                    charData.weeklyDelta = 0
-                    charData.lastWeeklyReset = nil  -- Clear old reset timestamp
-                    fixedCount = fixedCount + 1
-                end
-            end
-            LiteVaultDB.weeklyProfitFixV2 = true
-            if fixedCount > 0 then
-                print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. string.format(L["MSG_WEEKLY_PROFIT_RESET"], fixedCount))
-            end
-        end
-
-        if not LiteVaultDB.weeklyWarbandLedgerFixV1 then
-            for charKey, charData in pairs(LiteVaultDB) do
-                if type(charData) == "table" and charData.weeklyLedger and charData.weeklyLedger.warbandBank then
-                    charData.weeklyLedger.warbandBank = nil
-                end
-            end
-            LiteVaultDB.weeklyWarbandLedgerFixV1 = true
-        end
-        -- ============================================================
-
         -- Show prompt only if character not tracked AND not declined
         local declined = LiteVaultDB.declinedCharacters and LiteVaultDB.declinedCharacters[lv.PLAYER_KEY]
         if not LiteVaultDB[lv.PLAYER_KEY] and not declined then
@@ -1711,12 +2304,18 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         end
         
         C_Calendar.SetAbsMonth(lv.VIEW_MONTH, lv.VIEW_YEAR)
+        if lv.RestoreCharacterSortMode then
+            lv.RestoreCharacterSortMode()
+        end
+        if lv.SortCharacterList then
+            lv.SortCharacterList(lv.currentSortMode)
+        end
         lv.UpdateCurrentCharData()
         if lv.SyncOrderList then lv.SyncOrderList() end
         if lv.UpdateUI then lv.UpdateUI() end
 
-    elseif event == "CALENDAR_UPDATE_EVENT_LIST" then 
-        if lv.UpdateCalendar then lv.UpdateCalendar() end
+    elseif event == "CALENDAR_UPDATE_EVENT_LIST" then
+        lv.QueueRefresh({ ui = true })
     elseif event == "TIME_PLAYED_MSG" then
         if LiteVaultDB and LiteVaultDB[lv.PLAYER_KEY] then
             LiteVaultDB[lv.PLAYER_KEY].played = arg1
@@ -1738,11 +2337,15 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         -- INITIALIZATION GUARD: If baseline not set, just record current gold and return
         -- This prevents profit spikes before weekly tracking is properly initialized
         -- NOTE: Must check for nil explicitly because 0 is truthy in Lua
-        if db and db.weeklyStartGold == nil then
+        if db and (db.weeklyStartGold == nil or db.monthlyStartGold == nil) then
             db.lastMoney = curM
             lastMoney = curM
             lv.UpdateCurrentCharData() -- This will set the baseline
-            if lv.UpdateUI then lv.UpdateUI() end
+            if lv.QueueRefresh then
+                lv.QueueRefresh({ ui = true })
+            elseif lv.UpdateUI then
+                lv.UpdateUI()
+            end
             return
         end
 
@@ -1751,24 +2354,19 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
         lastMoney = curM
 
         if goldDiff == 0 then
-            lv.UpdateCurrentCharData()
-            if lv.UpdateUI then lv.UpdateUI() end
+            QueueCurrentCharRefresh()
             return
         end
 
         -- GUARD: Don't record transactions if baseline not initialized
         -- NOTE: Must check for nil explicitly because 0 is truthy in Lua
-        if not db or db.weeklyStartGold == nil then
-            lv.UpdateCurrentCharData()
-            if lv.UpdateUI then lv.UpdateUI() end
+        if not db or db.weeklyStartGold == nil or db.monthlyStartGold == nil then
+            QueueCurrentCharRefresh()
             return
         end
 
         -- WARBAND BANK TRACKING
         if lv.atWarbandBank and LiteVaultDB then
-            db.weeklyLedger = db.weeklyLedger or {}
-            db.weeklyLedger.warbandBank = db.weeklyLedger.warbandBank or {income = 0, expense = 0}
-
             -- Initialize warband bank if needed (always include transactions array)
             if not LiteVaultDB["Warband Bank"] then
                 LiteVaultDB["Warband Bank"] = {gold = 0, class = "Bank", lastLogin = time(), transactions = {}, region = lv.REGION}
@@ -1793,14 +2391,6 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
                 charGold = goldDiff -- How much the character's gold changed
             })
 
-            -- Mirror the transfer into the character's weekly warband ledger so
-            -- dashboard profit can neutralize internal transfers.
-            if goldDiff < 0 then
-                db.weeklyLedger.warbandBank.expense = (db.weeklyLedger.warbandBank.expense or 0) + math.abs(goldDiff)
-            else
-                db.weeklyLedger.warbandBank.income = (db.weeklyLedger.warbandBank.income or 0) + goldDiff
-            end
-
             -- Keep only last 100 transactions
             while #LiteVaultDB["Warband Bank"].transactions > 100 do
                 table.remove(LiteVaultDB["Warband Bank"].transactions)
@@ -1809,16 +2399,14 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
             print("|cff9482c9[LiteVault]|r " .. string.format(L["MSG_WARBAND_BALANCE"], GetCoinTextureString(LiteVaultDB["Warband Bank"].gold)))
         end
 
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
+        QueueCurrentCharRefresh()
     elseif event == "PLAYER_ENTERING_WORLD" then
         -- Some clients/reset flows can flip clock format after ADDON_LOADED.
         -- Re-apply saved preference here as well.
         ApplySavedClockPreference()
         C_Timer.After(1, ApplySavedClockPreference)
 
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
+        QueueCurrentCharRefresh()
 
         -- Blizzard sends the first played-time line; addons cannot reliably suppress it.
         if not initialTimePlayedNoticeShown and (arg1 == true) then
@@ -1839,24 +2427,39 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
 
         C_Timer.After(3, function()
             lv.ScanBags()
-            lv.UpdateCurrentCharData()
-            if lv.UpdateUI then lv.UpdateUI() end
+            RefreshCurrentGearSnapshot()
         end)
         
     elseif event == "QUEST_ACCEPTED" then
         local questID = arg2
+        local trackedWeeklyQuest, trackedWeeklyTitle = ResolveTrackedWeeklyQuest(questID)
+        if trackedWeeklyQuest then
+            SaveCharacterWeeklyQuestState(trackedWeeklyQuest, "in_progress", questID, trackedWeeklyTitle)
+        end
         local mode = questID and ACCOUNT_WIDE_FACTION_MODE_BY_QUEST[questID]
         local cfg = mode and lv.ACCOUNT_WIDE_FACTION_CHOICES and lv.ACCOUNT_WIDE_FACTION_CHOICES[mode]
         if cfg and cfg.captureOnAccept then
             SaveAccountWideFactionChoice(mode, questID, "in_progress")
         end
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
+        QueueCurrentCharRefresh()
+    elseif event == "QUEST_AUTOCOMPLETE" then
+        FinalizeTrackedWeeklyQuestIfCompleted(arg1, "autocomplete")
+        QueueCurrentCharRefresh()
+    elseif event == "QUEST_REMOVED" then
+        FinalizeTrackedWeeklyQuestIfCompleted(arg1, "removed")
+        QueueCurrentCharRefresh()
     elseif event == "QUEST_TURNED_IN" then
         local questID = arg1
+        local trackedWeeklyQuest, trackedWeeklyTitle = ResolveTrackedWeeklyQuest(questID)
+        if trackedWeeklyQuest then
+            SaveCharacterWeeklyQuestState(trackedWeeklyQuest, "done", questID, trackedWeeklyTitle)
+            if trackedWeeklyQuest.accountWide then
+                SaveAccountWideWeeklyQuestState(trackedWeeklyQuest, "done", questID, trackedWeeklyTitle, "turn_in")
+            end
+        end
         local mode = questID and ACCOUNT_WIDE_FACTION_MODE_BY_QUEST[questID]
         local cfg = mode and lv.ACCOUNT_WIDE_FACTION_CHOICES and lv.ACCOUNT_WIDE_FACTION_CHOICES[mode]
-        if cfg and cfg.captureOnTurnIn then
+        if cfg and cfg.captureOnTurnIn and mode ~= "harati" then
             local db = LiteVaultDB and lv.PLAYER_KEY and LiteVaultDB[lv.PLAYER_KEY]
             local weeklyDailies
             if db and cfg.trackDailiesPerChar then
@@ -1865,6 +2468,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
                 weeklyDailies = db.factionDailiesThisWeek[mode]
             end
             if cfg.parentID and questID == cfg.parentID then
+                SaveCharacterFactionParentWeeklyState(mode, questID, "done")
                 if weeklyDailies then
                     weeklyDailies[questID] = true
                 end
@@ -1892,30 +2496,34 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
                 SaveAccountWideFactionChoice(mode, questID, "done")
             end
         end
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
-    elseif event == "QUEST_LOG_UPDATE" or event == "PLAYER_AVG_ITEM_LEVEL_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then 
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
+        QueueCurrentCharRefresh()
+    elseif event == "QUEST_LOG_UPDATE" then
+        QueueCurrentCharRefresh()
+    elseif event == "PLAYER_AVG_ITEM_LEVEL_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
+        RefreshCurrentGearSnapshot()
+    elseif event == "TRAIT_TREE_CURRENCY_INFO_UPDATED" then
+        if arg1 == 1186 then
+            QueueCurrentCharRefresh({ delay = 0.1 })
+        end
+    elseif event == "TRAIT_CONFIG_UPDATED" then
+        local configID = C_Traits and C_Traits.GetConfigIDBySystemID and C_Traits.GetConfigIDBySystemID(48)
+        if configID and arg1 == configID then
+            QueueCurrentCharRefresh({ delay = 0.1 })
+        end
+    elseif event == "QUEST_DATA_LOAD_RESULT" or event == "MAJOR_FACTION_RENOWN_LEVEL_CHANGED" or event == "MAJOR_FACTION_UNLOCKED" then
+        lv.QueueRefresh({ ui = true })
     elseif event == "CHALLENGE_MODE_KEYSTONE_RECEPTABLE_OPEN" or event == "BAG_UPDATE" then
         -- Update when you get a new keystone or bags change
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
+        QueueCurrentCharRefresh()
     elseif event == "BAG_UPDATE_DELAYED" then
         lv.ScanBags()
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
-        if lv.RefreshBagPanelForCurrentChar then
-            lv.RefreshBagPanelForCurrentChar(lv.PLAYER_KEY)
-        end
+        QueueCurrentCharRefresh({ bagPanel = true })
     elseif event == "WEEKLY_REWARDS_UPDATE" or event == "WEEKLY_REWARDS_ITEM_CHANGED" then
         -- Update when vault progress changes
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
+        QueueCurrentCharRefresh()
     elseif event == "TRADE_CLOSED" or event == "MAIL_CLOSED" or event == "AUCTION_HOUSE_CLOSED" then
         -- Update profit tracking when trading, mailing, or using AH
-        lv.UpdateCurrentCharData()
-        if lv.UpdateUI then lv.UpdateUI() end
+        QueueCurrentCharRefresh()
         
     elseif event == "BANKFRAME_OPENED" then
         lv.atWarbandBank = true
@@ -1943,7 +2551,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
                 LiteVaultDB["Warband Bank"].lastLogin = time()
 
                 print("|cff9482c9[LiteVault]|r " .. string.format(L["MSG_WARBAND_BANK_BALANCE"], GetCoinTextureString(warbandGold)))
-                if lv.UpdateUI then lv.UpdateUI() end
+                lv.QueueRefresh({ ui = true })
             end
         end
         
@@ -1962,7 +2570,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
                         LiteVaultDB["Warband Bank"].gold = warbandGold
                         LiteVaultDB["Warband Bank"].region = lv.REGION
                         LiteVaultDB["Warband Bank"].lastLogin = time()
-                        if lv.UpdateUI then lv.UpdateUI() end
+                        lv.QueueRefresh({ ui = true })
                     end
                 end
             end
@@ -1978,15 +2586,13 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
     elseif event == "TRADE_SKILL_CLOSE" or event == "CRAFTINGORDERS_CLAIMED_ORDER_UPDATED" then
         -- Update sparks when crafting window closes or work order completes
         C_Timer.After(0.5, function()
-            lv.UpdateCurrentCharData()
-            if lv.UpdateUI then lv.UpdateUI() end
+            QueueCurrentCharRefresh()
         end)
 
     elseif event == "SCENARIO_COMPLETED" then
         -- Delve completed - refresh data (achievements will update the tier)
         C_Timer.After(1, function()
-            lv.UpdateCurrentCharData()
-            if lv.UpdateUI then lv.UpdateUI() end
+            QueueCurrentCharRefresh()
         end)
 
     elseif event == "ACCOUNT_MONEY" then
@@ -2013,46 +2619,11 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2)
                 LiteVaultDB["Warband Bank"].region = lv.REGION
                 LiteVaultDB["Warband Bank"].lastLogin = time()
 
-                if lv.UpdateUI then lv.UpdateUI() end
+                lv.QueueRefresh({ ui = true })
             end
         end
     end
 end)
-
-SLASH_LITEVAULTACHCRITERIA1 = "/lvachcriteria"
-SlashCmdList["LITEVAULTACHCRITERIA"] = function(msg)
-    local prefix = "|cff9933ff" .. (L["MSG_PREFIX"] or "LiteVault") .. "|r "
-    local achievementID = tonumber((msg or ""):match("(%d+)"))
-    if not achievementID then
-        print(prefix .. "Usage: /lvachcriteria <achievementID>")
-        return
-    end
-
-    if not GetAchievementInfo then
-        print(prefix .. "Achievement API is unavailable.")
-        return
-    end
-
-    local achievementName = select(2, GetAchievementInfo(achievementID)) or ("Achievement " .. achievementID)
-    local count = GetAchievementNumCriteria and GetAchievementNumCriteria(achievementID) or 0
-    print(prefix .. string.format("Criteria dump for [%d] %s (%d criteria)", achievementID, achievementName, count))
-
-    if not GetAchievementCriteriaInfo or count == 0 then
-        print(prefix .. "No criteria data returned.")
-        return
-    end
-
-    for index = 1, count do
-        local desc, _, completed, _, _, _, _, _, _, criteriaID = GetAchievementCriteriaInfo(achievementID, index)
-        print(prefix .. string.format(
-            "#%d criteriaID=%s completed=%s text=%s",
-            index,
-            tostring(criteriaID),
-            completed and "true" or "false",
-            desc or "<nil>"
-        ))
-    end
-end
 
 -- ============================================================
 -- SLASH COMMAND: /lvreset - Manage weekly and season resets
@@ -2067,11 +2638,9 @@ SlashCmdList["LVRESET"] = function(msg)
         local charCount = 0
         for charKey, charData in pairs(LiteVaultDB) do
             if type(charData) == "table" and charData.class then
-                charData.weeklyStartGold = nil
-                charData.weeklyDelta = 0
-                charData.lastMoney = nil
                 charData.lastWeeklyReset = resetTime
                 charData.weeklyQuests = {}
+                charData.factionParentWeeklies = nil
                 charData.vR, charData.vM, charData.vW = 0, 0, 0
                 charData.vaultDetails = nil
                 if charData.weeklyPlanner then
@@ -2081,10 +2650,12 @@ SlashCmdList["LVRESET"] = function(msg)
                         end
                     end
                 end
-                charData.weeklyLedger = nil
                 charCount = charCount + 1
             end
         end
+        LiteVaultDB.accountWideFactionChoices = nil
+        LiteVaultDB.accountWideWeeklyQuests = nil
+        LiteVaultDB.permanentFactionCompletions = nil
         if lv.UpdateCurrentCharData then lv.UpdateCurrentCharData() end
         if lv.UpdateUI then lv.UpdateUI() end
         print("|cff9933ff" .. L["MSG_PREFIX"] .. "|r " .. string.format(L["MSG_WEEKLY_DATA_RESET"], charCount))

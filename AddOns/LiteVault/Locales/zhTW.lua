@@ -6,7 +6,7 @@ local L = {
     -- ADDON INFO
     -- ==========================================================================
     ADDON_NAME = "LiteVault",
-    ADDON_VERSION = "2026-03-25 v3",
+    ADDON_VERSION = "v12.0.7.3",
 
     -- ==========================================================================
     -- COMMON UI ELEMENTS
@@ -29,7 +29,7 @@ local L = {
     TITLE_MAP_FILTERS = "地圖篩選",
 
     BUTTON_RAID_LOCKOUTS = "團隊鎖定",
-    BUTTON_WORLD_EVENTS = "世界事件",
+    BUTTON_WORLD_EVENTS = "世界活動",
 
     TOOLTIP_RAID_LOCKOUTS_TITLE = "團隊鎖定",
     TOOLTIP_RAID_LOCKOUTS_DESC = "查看團隊鎖定與進度",
@@ -38,8 +38,8 @@ local L = {
     TOOLTIP_THEME_TITLE = "切換主題",
     TOOLTIP_THEME_DESC = "在暗色與亮色主題間切換",
     TOOLTIP_FILTER_TITLE = "地圖篩選",
-    TOOLTIP_FILTER_DESC = "點擊查看完整清單",
-    TOOLTIP_WORLD_EVENTS_TITLE = "世界事件",
+    TOOLTIP_FILTER_DESC = "點一下查看完整清單",
+    TOOLTIP_WORLD_EVENTS_TITLE = "世界活動",
     TOOLTIP_WORLD_EVENTS_DESC = "檢視世界事件",
 
     BUTTON_INSTANCES = "副本",
@@ -80,8 +80,8 @@ local L = {
     LABEL_RENOWN_UNAVAILABLE = "名望資料不可用",
     WARNING_EVENT_QUESTS = "部分活動目前在遊戲內仍有問題或尚未解鎖。",
 
-    WARNING_WEEKLY_HARATI_CHOICE = "警告！一旦選擇了哈拉尼爾的傳說任務，該選擇將鎖定至整個帳號。",
-    WARNING_WEEKLY_RUNESTONES = "警告！請謹慎選擇符石任務。一旦你本週選定一個，該選擇就會鎖定到整個帳號。",
+    WARNING_WEEKLY_HARATI_CHOICE = "警告！一旦選擇了哈拉尼爾傳說任務，該選擇將鎖定至整個帳號。",
+    WARNING_WEEKLY_RUNESTONES = "警告！請謹慎選擇符文石任務。一旦你本週選定一個，該選擇就會鎖定到整個帳號。",
     MSG_NO_WEEKLY_QUESTS_CONFIGURED = "此陣營尚未設定每週任務。",
     LABEL_WEEKLY_PROFIT = "本週收益：",
     LABEL_WARBAND_PROFIT = "戰隊收益：",
@@ -89,7 +89,7 @@ local L = {
     LABEL_TOP_EARNERS = "本週最高收入：",
     LABEL_TOTAL_GOLD = "總金幣：%s",
     LABEL_TOTAL_TIME = "總時間：%s",
-    LABEL_COMBINED_TIME = "總遊戲時間：%d天 %d小時",
+    LABEL_COMBINED_TIME = "總遊玩時間：%d天 %d小時",
 
     TOOLTIP_TOTAL_TIME_TITLE = "總時間",
     TOOLTIP_TOTAL_TIME_DESC = "所有已追蹤角色的總遊玩時間。",
@@ -108,22 +108,23 @@ local L = {
     TOOLTIP_MANAGE_VIEW = "檢視已忽略角色。",
     TOOLTIP_CATALYST_TITLE = "催化劑充能",
     TOOLTIP_SPARKS_TITLE = "製作火花",
+    TOOLTIP_VOIDSHARDS_TITLE = "Ascendant Voidshards",
+    TOOLTIP_VOIDCORES_TITLE = "Ascendant Voidcores",
 
     TOOLTIP_VAULT_TITLE = "寶庫",
     TOOLTIP_VAULT_DESC = "點擊開啟每週寶庫",
     TOOLTIP_VAULT_ACTIVE_ONLY = "開啟每週寶庫。",
     TOOLTIP_VAULT_ALT_ONLY = "每週寶庫只能為目前啟用的角色開啟。",
     TOOLTIP_CURRENCY_TITLE = "貨幣",
-    TOOLTIP_CURRENCY_DESC = "點擊查看完整清單。",
+    TOOLTIP_CURRENCY_DESC = "點一下查看完整清單。",
 
     TOOLTIP_BAGS_TITLE = "查看背包",
     TOOLTIP_BAGS_DESC = "查看此角色已儲存的背包和材料袋內容。",
 
-    TOOLTIP_LEDGER_TITLE = "每週收益帳本",
     TOOLTIP_LEDGER_DESC = "依來源追蹤金幣收入與支出。",
 
     TOOLTIP_WARBAND_BANK_TITLE = "戰隊銀行帳本",
-    TOOLTIP_WARBAND_BANK_DESC = "點擊查看戰隊銀行交易。",
+    TOOLTIP_WARBAND_BANK_DESC = "點一下查看戰隊銀行交易。",
 
     TOOLTIP_RESTORE_TITLE = "還原",
     TOOLTIP_RESTORE_DESC = "將此角色還原到主頁",
@@ -152,7 +153,6 @@ local L = {
     LABEL_KNOWLEDGE_AVAILABLE = "可用知識點：%d",
     LABEL_NO_KNOWLEDGE = "沒有可用知識點",
     LABEL_VAULT_PROGRESS = "團：%d/3    M+：%d/3    世界：%d/3",
-    BUTTON_LEDGER = "帳本",
     BUTTON_KNOWLEDGE = "知識",
     BUTTON_PROFS = "專業",
 
@@ -165,7 +165,7 @@ local L = {
     LABEL_UNSPENT = "未花費",
     LABEL_MAX = "上限",
     LABEL_EARNED = "已獲得",
-    LABEL_TREATISE = "概論",
+    LABEL_TREATISE = "論文",
     LABEL_ARTISAN_QUEST = "工匠任務",
     LABEL_CATCHUP = "追趕",
     LABEL_WEEKLY = "每週",
@@ -176,11 +176,11 @@ local L = {
     TAB_TREASURES = "寶藏",
     LABEL_UNIQUE_TREASURES = "一次性寶藏",
     LABEL_WEEKLY_TREASURES = "每週寶藏",
-    LABEL_HOVER_TREASURE_CHECKLIST = "滑鼠懸停可查看寶藏清單",
-    LABEL_TREASURE_CLICK_HINT = "點擊一次性寶藏以設置路徑點",
+    LABEL_HOVER_TREASURE_CHECKLIST = "滑鼠指向可查看寶藏清單",
+    LABEL_TREASURE_CLICK_HINT = "點擊一次性寶藏以設置路線點",
     LABEL_ZONE = "區域",
     LABEL_COORDINATES = "座標",
-    TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT = "點擊設置地圖路徑點",
+    TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT = "點一下設定地圖路線點",
     TOOLTIP_TREASURE_NO_FIXED_LOCATION = "此寶藏沒有固定位置",
     MSG_TREASURE_NO_WAYPOINT = "此寶藏沒有固定路線點。",
     MSG_TOMTOM_NOT_DETECTED = "未偵測到 TomTom。",
@@ -277,7 +277,6 @@ local L = {
     -- ==========================================================================
     -- CHARACTER LEDGER
     -- ==========================================================================
-    TITLE_WEEKLY_LEDGER = "%s - 每週帳本",
     LABEL_RESETS_IN = "%d天 %d小時後重置",
 
     TAB_SUMMARY = "總覽",
@@ -330,11 +329,10 @@ local L = {
     -- ==========================================================================
     -- CHAT MESSAGES
     -- ==========================================================================
-    MSG_PREFIX = "戰隊追蹤：",
+    MSG_PREFIX = "戰隊追蹤:",
     MSG_WEEKLY_RESET = "偵測到每週重置！已清除團隊鎖定。",
     MSG_ALREADY_TRACKED = "此角色已在追蹤清單中。",
     MSG_CHAR_ADDED = "%s 已加入追蹤。",
-    MSG_LEDGER_NOT_AVAILABLE = "帳本不可用。",
     MSG_RAID_RESET_SEASON = "至暗之夜第1賽季的團隊進度已重置！",
     MSG_CLEARED_PROGRESSION = "已清除 %d 個角色的進度資料。",
     MSG_WEEKLY_PROFIT_RESET = "已重置 %d 個角色的每週收益追蹤。",
@@ -345,8 +343,8 @@ local L = {
     MSG_CLEARED_DATA = "已清除 %d 個角色的資料。",
 
     -- Prompt to reload when time-played suppression setting changes
-    MSG_RELOAD_TIMEPLAYED = "請重新載入介面以套用遊戲時間訊息抑制。",
-    MSG_TIMEPLAYED_INITIAL_UNSUPPRESSABLE = "暴雪初始的遊戲時間訊息無法被抑制。",
+    MSG_RELOAD_TIMEPLAYED = "請重新載入介面以套用遊玩時間訊息抑制。",
+    MSG_TIMEPLAYED_INITIAL_UNSUPPRESSABLE = "暴雪初始的遊玩時間訊息無法被抑制。",
 
     -- Slash command help
     HELP_RESET_TITLE = "戰隊追蹤重置指令",
@@ -373,7 +371,7 @@ local L = {
     TOOLTIP_OPTIONS_TITLE = "設定",
     TOOLTIP_OPTIONS_DESC = "設定戰隊追蹤選項",
     TITLE_OPTIONS = "戰隊追蹤設定",
-    OPTION_DISABLE_TIMEPLAYED = "停用遊戲時間追蹤",
+    OPTION_DISABLE_TIMEPLAYED = "停用遊玩時間追蹤",
     OPTION_DISABLE_TIMEPLAYED_DESC = "防止 /played 訊息出現在聊天視窗",
     OPTION_ENABLE_24HR_CLOCK = "啟用 24 小時制時鐘",
     OPTION_ENABLE_24HR_CLOCK_DESC = "在 24 小時制與 12 小時制之間切換",
@@ -547,6 +545,13 @@ local L = {
     LOCALE_CMD_RESET = "/lvlocale reset - 重設為自動偵測",
     LABEL_QUEST = "任務",
     BUTTON_DASHBOARD = "概覽",
+    BUTTON_PROFIT = "收益",
+    LABEL_PROFIT_GOALS = "戰隊目標",
+    LABEL_WEEKLY_GOAL = "每週目標",
+    LABEL_MONTHLY_GOAL = "每月目標",
+    BUTTON_EDIT = "編輯",
+    TEXT_TOP_WEEKLY_EARNERS_SUBTITLE = "本次重置期間的最高淨收益。",
+    TEXT_TOP_MONTHLY_EARNERS_SUBTITLE = "本月期間的最佳淨收益。",
     BUTTON_ACHIEVEMENTS = "成就",
     TITLE_ACHIEVEMENTS = "成就",
     DESC_ACHIEVEMENTS = "選擇一個成就追蹤器以查看詳細進度。",
@@ -566,8 +571,8 @@ local L = {
     WARBANK_EMPTY_STATE = "尚無保存的戰隊銀行物品。",
     LABEL_BAG_SLOTS = "格子：%d/%d 已用",
     LABEL_SCANNED = "已掃描",
-    ["Coffer Key Shards"] = "寶庫鑰匙裂片",
-    ["Untainted Mana-Crystals"] = "未受污染的法力水晶",
+    ["寶庫鑰匙裂片"] = "寶庫鑰匙裂片",
+    ["未受污染的法力水晶"] = "未受污染的法力水晶",
     BUTTON_WEEKLY_PLANNER = "計畫表",
     TITLE_WEEKLY_PLANNER = "每週計畫表",
     TITLE_CHARACTER_WEEKLY_PLANNER_FMT = "%s的 %s",

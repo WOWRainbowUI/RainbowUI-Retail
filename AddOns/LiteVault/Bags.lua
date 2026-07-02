@@ -10,10 +10,15 @@ local currentPanelMode = "bags"
 
 local function T(key, fallback)
     local value = lv.L and lv.L[key]
-    if not value or value == key then
-        return fallback
+    if value and value ~= "" and value ~= key then
+        return value
     end
-    return value
+    local enUS = lv.LocaleData and lv.LocaleData["enUS"]
+    local baseValue = enUS and enUS[key]
+    if baseValue and baseValue ~= "" then
+        return baseValue
+    end
+    return fallback or key
 end
 
 function lv.IsBagViewingEnabled()
@@ -21,7 +26,7 @@ function lv.IsBagViewingEnabled()
 end
 
 local function GetWarbandBankName(fallback)
-    local localizedFallback = T("Warband Bank", fallback or T("BUTTON_WARBAND_BANK", "Warband Bank"))
+    local localizedFallback = T("Warband Bank", fallback or T("BUTTON_WARBAND_BANK"))
     local candidates = {
         _G.ACCOUNT_BANK_PANEL_TITLE,
         _G.ACCOUNT_BANK_TITLE,
@@ -39,12 +44,12 @@ end
 
 local function GetBagTabLabel(mode)
     if mode == "bags" then
-        return T("BUTTON_BAGS", "Bags")
+        return T("BUTTON_BAGS")
     end
     if mode == "bank" then
-        return T("BUTTON_BANK", "Bank")
+        return T("BUTTON_BANK")
     end
-    return GetWarbandBankName(T("Warband Bank", T("BUTTON_WARBAND_BANK", "Warband Bank")))
+    return GetWarbandBankName(T("Warband Bank", T("BUTTON_WARBAND_BANK")))
 end
 
 local function GetBagTabWidth(btn)
@@ -69,10 +74,10 @@ local function LayoutBagTabs(panel)
 end
 
 local function BuildStorageSlotInfoParts(timestamp, used, total)
-    local base = string.format(T("LABEL_BAG_SLOTS", "Slots: %d / %d used"), used, total)
+    local base = string.format(T("LABEL_BAG_SLOTS"), used, total)
     if timestamp then
         local age = SecondsToTime(math.max(0, time() - timestamp), false, true, 1)
-        return base, string.format("(%s %s)", T("LABEL_SCANNED", "scanned"), age)
+        return base, string.format("(%s %s)", T("LABEL_SCANNED"), age)
     end
     return base, ""
 end
@@ -121,7 +126,7 @@ local function CreateBagPanel()
     })
     panel.closeBtn.Text = panel.closeBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     panel.closeBtn.Text:SetPoint("CENTER")
-    panel.closeBtn.Text:SetText(T("BUTTON_CLOSE", "Close"))
+    panel.closeBtn.Text:SetText(T("BUTTON_CLOSE"))
     panel.closeBtn:SetScript("OnClick", function() panel:Hide() end)
 
     panel.title = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -167,7 +172,7 @@ local function CreateBagPanel()
     panel.emptyText:SetPoint("TOPLEFT", 12, -120)
     panel.emptyText:SetPoint("RIGHT", -12, 0)
     panel.emptyText:SetJustifyH("CENTER")
-    panel.emptyText:SetText(T("BAGS_EMPTY_STATE", "No saved bag items for this character yet."))
+    panel.emptyText:SetText(T("BAGS_EMPTY_STATE"))
     panel.emptyText:Hide()
 
     panel.scrollFrame = CreateFrame("ScrollFrame", nil, panel)
@@ -243,7 +248,7 @@ local function GetPanelTitle(charKey, db, mode)
 
     local classColor = GetBagClassColor(db and db.class)
     local nameOnly = (charKey and charKey:match("^([^-]+)")) or charKey or "Unknown"
-    local label = mode == "bank" and T("BUTTON_BANK", "Bank") or T("BUTTON_BAGS", "Bags")
+    local label = mode == "bank" and T("BUTTON_BANK") or T("BUTTON_BAGS")
     return string.format("%s %s", classColor:WrapTextInColorCode(nameOnly), label)
 end
 
@@ -286,7 +291,7 @@ end
 function lv.RefreshBagPanelLocale()
     if not bagPanel then return end
 
-    bagPanel.closeBtn.Text:SetText(T("BUTTON_CLOSE", "Close"))
+    bagPanel.closeBtn.Text:SetText(T("BUTTON_CLOSE"))
     for _, btn in ipairs(bagPanel.tabs) do
         btn.Text:SetText(GetBagTabLabel(btn.mode))
     end
@@ -299,9 +304,9 @@ function lv.RefreshBagPanelLocale()
         bagPanel.slotInfo:SetText(slotText)
         bagPanel.slotMeta:SetText(metaText)
         bagPanel.emptyText:SetText(
-            currentPanelMode == "bank" and T("BANK_EMPTY_STATE", "No saved bank items for this character yet.")
-            or currentPanelMode == "warband" and T("WARBANK_EMPTY_STATE", "No saved warband bank items yet.")
-            or T("BAGS_EMPTY_STATE", "No saved bag items for this character yet.")
+            currentPanelMode == "bank" and T("BANK_EMPTY_STATE")
+            or currentPanelMode == "warband" and T("WARBANK_EMPTY_STATE")
+            or T("BAGS_EMPTY_STATE")
         )
     end
 end
@@ -354,9 +359,9 @@ function lv.OpenBagPanel(charKey, skipMenuClose)
     bagPanel.slotMeta:SetText(metaText)
     bagPanel.emptyText:SetShown(#items == 0)
     bagPanel.emptyText:SetText(
-        currentPanelMode == "bank" and T("BANK_EMPTY_STATE", "No saved bank items for this character yet.")
-        or currentPanelMode == "warband" and T("WARBANK_EMPTY_STATE", "No saved warband bank items yet.")
-        or T("BAGS_EMPTY_STATE", "No saved bag items for this character yet.")
+        currentPanelMode == "bank" and T("BANK_EMPTY_STATE")
+        or currentPanelMode == "warband" and T("WARBANK_EMPTY_STATE")
+        or T("BAGS_EMPTY_STATE")
     )
     UpdateTabState(bagPanel)
 

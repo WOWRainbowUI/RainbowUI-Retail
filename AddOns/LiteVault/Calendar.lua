@@ -4,10 +4,15 @@ local L = lv.L
 
 local function UIText(key, fallback)
     local v = L and L[key]
-    if not v or v == key then
-        return fallback
+    if v and v ~= "" and v ~= key then
+        return v
     end
-    return v
+    local enUS = lv.LocaleData and lv.LocaleData["enUS"]
+    local baseValue = enUS and enUS[key]
+    if baseValue and baseValue ~= "" then
+        return baseValue
+    end
+    return fallback or key
 end
 
 -- Day names will be set after L is loaded
@@ -15,6 +20,36 @@ local DAY_NAMES = nil
 local DAYS_IN_MONTH = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
 local dayButtons = {}
 local currentPlannerChar = nil
+
+local function FormatTooltipMoney(copper)
+    if GetCoinTextureString then
+        return GetCoinTextureString(math.abs(copper))
+    end
+
+    local gold = math.floor(math.abs(copper) / 10000)
+    local silver = math.floor((math.abs(copper) % 10000) / 100)
+    local copperAmt = math.abs(copper) % 100
+    return string.format("%dg %ds %dc", gold, silver, copperAmt)
+end
+
+local function GetCalendarMoneyStats(year, month)
+    local dailyStats = lv.GetProfitDailyStats and lv.GetProfitDailyStats(year, month, {
+        includeIgnored = false,
+        region = lv.REGION,
+    }) or nil
+    if not dailyStats then
+        return {}, nil, nil
+    end
+
+    return dailyStats.byDay or {}, dailyStats.bestDay, dailyStats.worstDay
+end
+
+local function CalendarProfitHighlightsEnabled()
+    if LiteVaultDB and LiteVaultDB.disableCalendarProfitHighlights ~= nil then
+        return not LiteVaultDB.disableCalendarProfitHighlights
+    end
+    return true
+end
 
 -- UTILITY: Safely extract a string from potentially tainted WoW calendar data
 -- WoW's Calendar API can return "secret" strings that crash on string operations
@@ -92,7 +127,9 @@ function lv.InitCalendar(parent)
     local PlannerFrame
     local CalFrame = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     CalFrame:SetSize(360, 400)
-    CalFrame:SetPoint("TOPRIGHT", -15, -65)
+    -- The dashboard no longer has the old profit panel on the right,
+    -- so the calendar column sits better a bit lower against the character stack.
+    CalFrame:SetPoint("TOPRIGHT", -28, -100)
     CalFrame:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 14 })
     lv.CalFrame = CalFrame
 
@@ -248,7 +285,7 @@ function lv.InitCalendar(parent)
     plannerBtn:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12, insets = { left = 3, right = 3, top = 3, bottom = 3 } })
     plannerBtn.Text = plannerBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     plannerBtn.Text:SetPoint("CENTER")
-    plannerBtn.Text:SetText(UIText("BUTTON_WEEKLY_PLANNER", "Planner"))
+    plannerBtn.Text:SetText(UIText("BUTTON_WEEKLY_PLANNER"))
     lv.calPlannerBtn = plannerBtn
 
     C_Timer.After(0, function()
@@ -455,7 +492,7 @@ function lv.InitCalendar(parent)
     plannerNote:SetPoint("TOPLEFT", 16, -52)
     plannerNote:SetPoint("TOPRIGHT", -16, -52)
     plannerNote:SetJustifyH("LEFT")
-    plannerNote:SetText("|cff999999" .. UIText("TOOLTIP_WEEKLY_PLANNER_DESC", "Editable per-character weekly checklist. Completed items reset each week.") .. "|r")
+    plannerNote:SetText("|cff999999" .. UIText("TOOLTIP_WEEKLY_PLANNER_DESC") .. "|r")
 
     local plannerCharBtn = CreateFrame("Button", nil, PlannerFrame, "BackdropTemplate")
     plannerCharBtn:SetSize(248, 24)
@@ -576,7 +613,7 @@ function lv.InitCalendar(parent)
 
         local entries = GetPlannerEntries(currentPlannerChar)
         local nameOnly = (currentPlannerChar or lv.PLAYER_KEY or ""):match("^([^-]+)") or (UnitName("player") or "Unknown")
-        plannerTitle:SetText(string.format(UIText("TITLE_CHARACTER_WEEKLY_PLANNER_FMT", "%s's %s"), nameOnly, UIText("TITLE_WEEKLY_PLANNER", "Weekly Planner")))
+        plannerTitle:SetText(string.format(UIText("TITLE_CHARACTER_WEEKLY_PLANNER_FMT"), nameOnly, UIText("TITLE_WEEKLY_PLANNER")))
         plannerCharBtn.Text:SetText(nameOnly)
 
         local visibleCount = 0
@@ -708,8 +745,8 @@ function lv.InitCalendar(parent)
         self:SetBackdropBorderColor(unpack(t.borderHover))
         self:SetBackdropColor(unpack(t.buttonBgHover))
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(UIText("TOOLTIP_WEEKLY_PLANNER_TITLE", "Weekly Planner"), 1, 0.82, 0)
-        GameTooltip:AddLine(UIText("TOOLTIP_WEEKLY_PLANNER_DESC", "Editable per-character weekly checklist. Completed items reset each week."), 1, 1, 1)
+        GameTooltip:SetText(UIText("TOOLTIP_WEEKLY_PLANNER_TITLE"), 1, 0.82, 0)
+        GameTooltip:AddLine(UIText("TOOLTIP_WEEKLY_PLANNER_DESC"), 1, 1, 1)
         GameTooltip:Show()
     end)
     plannerBtn:SetScript("OnLeave", function(self)
@@ -778,6 +815,7 @@ function lv.UpdateCalendar()
     
     if (lv.VIEW_YEAR % 4 == 0 and (lv.VIEW_YEAR % 100 ~= 0 or lv.VIEW_YEAR % 400 == 0)) then DAYS_IN_MONTH[2] = 29 else DAYS_IN_MONTH[2] = 28 end
     local startOffset = firstDay.wday - 1
+    local moneyStatsByDay, bestMoneyDay, worstMoneyDay = GetCalendarMoneyStats(lv.VIEW_YEAR, lv.VIEW_MONTH)
     
     for i=1, 42 do
         if not dayButtons[i] then
@@ -795,7 +833,19 @@ function lv.UpdateCalendar()
             dayButtons[i]:SetScript("OnEnter", function(self)
                 if self.dayNum then
                     GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-                    GameTooltip:AddLine(string.format(L["TOOLTIP_ACTIVITY_FOR"], lv.VIEW_MONTH, self.dayNum, lv.VIEW_YEAR), 1, 1, 1) 
+                    GameTooltip:AddLine(string.format(L["TOOLTIP_ACTIVITY_FOR"], lv.VIEW_MONTH, self.dayNum, lv.VIEW_YEAR), 1, 1, 1)
+                    if self.moneyStats then
+                        GameTooltip:AddLine(" ")
+                        local netColor = self.moneyStats.net >= 0 and "|cff55ff55" or "|cffff6666"
+                        local netSign = self.moneyStats.net >= 0 and "+" or "-"
+                        GameTooltip:AddLine(string.format("%s: %s%s|r", UIText("LABEL_NET"), netColor, netSign .. FormatTooltipMoney(self.moneyStats.net)))
+                        if self.moneyStats.income > 0 then
+                            GameTooltip:AddLine(string.format("%s: |cff55ff55+%s|r", UIText("LABEL_GAINED"), FormatTooltipMoney(self.moneyStats.income)))
+                        end
+                        if self.moneyStats.expense > 0 then
+                            GameTooltip:AddLine(string.format("%s: |cffff6666-%s|r", UIText("LABEL_SPENT"), FormatTooltipMoney(self.moneyStats.expense)))
+                        end
+                    end
                     if self.eventList then
                         GameTooltip:AddLine(" ")
                         for _, evt in ipairs(self.eventList) do GameTooltip:AddLine(evt.title, 0.4, 0.6, 1) end
@@ -813,6 +863,7 @@ function lv.UpdateCalendar()
         btn.text:SetTextColor(unpack(t.textPrimary))
         btn.dayNum = nil
         btn.eventList = nil
+        btn.moneyStats = nil
         for _, bar in ipairs(btn.bars) do bar:Hide() end
 
         if dayNum > 0 and dayNum <= DAYS_IN_MONTH[lv.VIEW_MONTH] then
@@ -822,6 +873,32 @@ function lv.UpdateCalendar()
             if dayNum == today.day and lv.VIEW_MONTH == today.month and lv.VIEW_YEAR == today.year then
                 btn:SetBackdropBorderColor(unpack(t.calendarTodayBorder))
                 btn:SetBackdropColor(unpack(t.calendarTodayBg))
+            end
+
+            local moneyStats = moneyStatsByDay[dayNum]
+            if CalendarProfitHighlightsEnabled() and moneyStats and moneyStats.net ~= 0 then
+                btn.moneyStats = moneyStats
+                if moneyStats.net > 0 then
+                    btn.text:SetTextColor(0.65, 1, 0.65)
+                    if not (dayNum == today.day and lv.VIEW_MONTH == today.month and lv.VIEW_YEAR == today.year) then
+                        btn:SetBackdropBorderColor(0.18, 0.72, 0.28, 1)
+                    end
+                    if dayNum == bestMoneyDay then
+                        btn:SetBackdropColor(0.08, 0.16, 0.08, 0.95)
+                    else
+                        btn:SetBackdropColor(0.05, 0.13, 0.07, 0.95)
+                    end
+                else
+                    btn.text:SetTextColor(1, 0.65, 0.65)
+                    if not (dayNum == today.day and lv.VIEW_MONTH == today.month and lv.VIEW_YEAR == today.year) then
+                        btn:SetBackdropBorderColor(0.78, 0.28, 0.28, 1)
+                    end
+                    if dayNum == worstMoneyDay then
+                        btn:SetBackdropColor(0.16, 0.06, 0.06, 0.95)
+                    else
+                        btn:SetBackdropColor(0.13, 0.05, 0.05, 0.95)
+                    end
+                end
             end
             
             -- CHECK 1: Character Login Activity
@@ -936,56 +1013,56 @@ local WORLD_EVENT_TRANSLATIONS = {
     ["Eastern Kingdoms Cup"] = "WORLD_EVENT_EASTERN",
     ["Winds of Mysterious Fortune"] = "WORLD_EVENT_WINDS",
     -- zhTW reverse mappings
-    ["愛就在身邊"] = "WORLD_EVENT_LOVE",
-    ["新年慶典"] = "WORLD_EVENT_LUNAR",
-    ["貴族花園"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["兒童週"] = "WORLD_EVENT_CHILDREN",
-    ["仲夏火焰節慶"] = "WORLD_EVENT_MIDSUMMER",
-    ["啤酒節"] = "WORLD_EVENT_BREWFEST",
-    ["萬鬼節"] = "WORLD_EVENT_HALLOWS",
-    ["冬幕節"] = "WORLD_EVENT_WINTERVEIL",
-    ["亡者節"] = "WORLD_EVENT_DEAD",
-    ["海盜節"] = "WORLD_EVENT_PIRATES",
-    ["時尚大考驗"] = "WORLD_EVENT_STYLE",
-    ["外域杯"] = "WORLD_EVENT_OUTLAND",
-    ["北裂境杯"] = "WORLD_EVENT_NORTHREND",
-    ["卡林多杯"] = "WORLD_EVENT_KALIMDOR",
-    ["東部王國杯"] = "WORLD_EVENT_EASTERN",
-    ["神秘命運之風"] = "WORLD_EVENT_WINDS",
+    ["æ„›å°±åœ¨èº«é‚Š"] = "WORLD_EVENT_LOVE",
+    ["æ–°å¹´æ…¶å…¸"] = "WORLD_EVENT_LUNAR",
+    ["è²´æ—èŠ±åœ’"] = "WORLD_EVENT_NOBLEGARDEN",
+    ["å…’ç«¥é€±"] = "WORLD_EVENT_CHILDREN",
+    ["ä»²å¤ç«ç„°ç¯€æ…¶"] = "WORLD_EVENT_MIDSUMMER",
+    ["å•¤é…’ç¯€"] = "WORLD_EVENT_BREWFEST",
+    ["è¬é¬¼ç¯€"] = "WORLD_EVENT_HALLOWS",
+    ["å†¬å¹•ç¯€"] = "WORLD_EVENT_WINTERVEIL",
+    ["äº¡è€…ç¯€"] = "WORLD_EVENT_DEAD",
+    ["æµ·ç›œç¯€"] = "WORLD_EVENT_PIRATES",
+    ["æ™‚å°šå¤§è€ƒé©—"] = "WORLD_EVENT_STYLE",
+    ["å¤–åŸŸæ¯"] = "WORLD_EVENT_OUTLAND",
+    ["åŒ—è£‚å¢ƒæ¯"] = "WORLD_EVENT_NORTHREND",
+    ["å¡æž—å¤šæ¯"] = "WORLD_EVENT_KALIMDOR",
+    ["æ±éƒ¨çŽ‹åœ‹æ¯"] = "WORLD_EVENT_EASTERN",
+    ["ç¥žç§˜å‘½é‹ä¹‹é¢¨"] = "WORLD_EVENT_WINDS",
     -- zhCN reverse mappings
-    ["情人节"] = "WORLD_EVENT_LOVE",
-    ["春节"] = "WORLD_EVENT_LUNAR",
-    ["复活节"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["儿童周"] = "WORLD_EVENT_CHILDREN",
-    ["仲夏火焰节"] = "WORLD_EVENT_MIDSUMMER",
-    ["美酒节"] = "WORLD_EVENT_BREWFEST",
-    ["万圣节"] = "WORLD_EVENT_HALLOWS",
-    ["冬幕节"] = "WORLD_EVENT_WINTERVEIL",
-    ["亡灵节"] = "WORLD_EVENT_DEAD",
-    ["海盗日"] = "WORLD_EVENT_PIRATES",
-    ["试衣大会"] = "WORLD_EVENT_STYLE",
-    ["外域杯"] = "WORLD_EVENT_OUTLAND",
-    ["诺森德杯"] = "WORLD_EVENT_NORTHREND",
-    ["卡利姆多杯"] = "WORLD_EVENT_KALIMDOR",
-    ["东部王国杯"] = "WORLD_EVENT_EASTERN",
-    ["神秘命运之风"] = "WORLD_EVENT_WINDS",
+    ["æƒ…äººèŠ‚"] = "WORLD_EVENT_LOVE",
+    ["æ˜¥èŠ‚"] = "WORLD_EVENT_LUNAR",
+    ["å¤æ´»èŠ‚"] = "WORLD_EVENT_NOBLEGARDEN",
+    ["å„¿ç«¥å‘¨"] = "WORLD_EVENT_CHILDREN",
+    ["ä»²å¤ç«ç„°èŠ‚"] = "WORLD_EVENT_MIDSUMMER",
+    ["ç¾Žé…’èŠ‚"] = "WORLD_EVENT_BREWFEST",
+    ["ä¸‡åœ£èŠ‚"] = "WORLD_EVENT_HALLOWS",
+    ["å†¬å¹•èŠ‚"] = "WORLD_EVENT_WINTERVEIL",
+    ["äº¡çµèŠ‚"] = "WORLD_EVENT_DEAD",
+    ["æµ·ç›—æ—¥"] = "WORLD_EVENT_PIRATES",
+    ["è¯•è¡£å¤§ä¼š"] = "WORLD_EVENT_STYLE",
+    ["å¤–åŸŸæ¯"] = "WORLD_EVENT_OUTLAND",
+    ["è¯ºæ£®å¾·æ¯"] = "WORLD_EVENT_NORTHREND",
+    ["å¡åˆ©å§†å¤šæ¯"] = "WORLD_EVENT_KALIMDOR",
+    ["ä¸œéƒ¨çŽ‹å›½æ¯"] = "WORLD_EVENT_EASTERN",
+    ["ç¥žç§˜å‘½è¿ä¹‹é£Ž"] = "WORLD_EVENT_WINDS",
     -- koKR reverse mappings
-    ["온 세상에 사랑을"] = "WORLD_EVENT_LOVE",
-    ["달의 축제"] = "WORLD_EVENT_LUNAR",
-    ["귀족의 정원"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["어린이 주간"] = "WORLD_EVENT_CHILDREN",
-    ["한여름 불꽃축제"] = "WORLD_EVENT_MIDSUMMER",
-    ["가을 축제"] = "WORLD_EVENT_BREWFEST",
-    ["할로윈 축제"] = "WORLD_EVENT_HALLOWS",
-    ["겨울맞이 축제"] = "WORLD_EVENT_WINTERVEIL",
-    ["망자의 날"] = "WORLD_EVENT_DEAD",
-    ["해적의 날"] = "WORLD_EVENT_PIRATES",
-    ["스타일의 시험"] = "WORLD_EVENT_STYLE",
-    ["아웃랜드 컵"] = "WORLD_EVENT_OUTLAND",
-    ["노스렌드 컵"] = "WORLD_EVENT_NORTHREND",
-    ["칼림도어 컵"] = "WORLD_EVENT_KALIMDOR",
-    ["동부 왕국 컵"] = "WORLD_EVENT_EASTERN",
-    ["신비로운 행운의 바람"] = "WORLD_EVENT_WINDS",
+    ["ì˜¨ ì„¸ìƒì— ì‚¬ëž‘ì„"] = "WORLD_EVENT_LOVE",
+    ["ë‹¬ì˜ ì¶•ì œ"] = "WORLD_EVENT_LUNAR",
+    ["ê·€ì¡±ì˜ ì •ì›"] = "WORLD_EVENT_NOBLEGARDEN",
+    ["ì–´ë¦°ì´ ì£¼ê°„"] = "WORLD_EVENT_CHILDREN",
+    ["í•œì—¬ë¦„ ë¶ˆê½ƒì¶•ì œ"] = "WORLD_EVENT_MIDSUMMER",
+    ["ê°€ì„ ì¶•ì œ"] = "WORLD_EVENT_BREWFEST",
+    ["í• ë¡œìœˆ ì¶•ì œ"] = "WORLD_EVENT_HALLOWS",
+    ["ê²¨ìš¸ë§žì´ ì¶•ì œ"] = "WORLD_EVENT_WINTERVEIL",
+    ["ë§ìžì˜ ë‚ "] = "WORLD_EVENT_DEAD",
+    ["í•´ì ì˜ ë‚ "] = "WORLD_EVENT_PIRATES",
+    ["ìŠ¤íƒ€ì¼ì˜ ì‹œí—˜"] = "WORLD_EVENT_STYLE",
+    ["ì•„ì›ƒëžœë“œ ì»µ"] = "WORLD_EVENT_OUTLAND",
+    ["ë…¸ìŠ¤ë Œë“œ ì»µ"] = "WORLD_EVENT_NORTHREND",
+    ["ì¹¼ë¦¼ë„ì–´ ì»µ"] = "WORLD_EVENT_KALIMDOR",
+    ["ë™ë¶€ ì™•êµ­ ì»µ"] = "WORLD_EVENT_EASTERN",
+    ["ì‹ ë¹„ë¡œìš´ í–‰ìš´ì˜ ë°”ëžŒ"] = "WORLD_EVENT_WINDS",
     -- deDE reverse mappings
     ["Liebe liegt in der Luft"] = "WORLD_EVENT_LOVE",
     ["Mondfest"] = "WORLD_EVENT_LUNAR",
@@ -993,7 +1070,7 @@ local WORLD_EVENT_TRANSLATIONS = {
     ["Kinderwoche"] = "WORLD_EVENT_CHILDREN",
     ["Sonnenwendfest"] = "WORLD_EVENT_MIDSUMMER",
     ["Braufest"] = "WORLD_EVENT_BREWFEST",
-    ["Schlotternächte"] = "WORLD_EVENT_HALLOWS",
+    ["SchlotternÃ¤chte"] = "WORLD_EVENT_HALLOWS",
     ["Winterhauch"] = "WORLD_EVENT_WINTERVEIL",
     ["Tag der Toten"] = "WORLD_EVENT_DEAD",
     ["Piratentag"] = "WORLD_EVENT_PIRATES",
@@ -1001,36 +1078,36 @@ local WORLD_EVENT_TRANSLATIONS = {
     ["Scherbenwelt-Cup"] = "WORLD_EVENT_OUTLAND",
     ["Nordend-Cup"] = "WORLD_EVENT_NORTHREND",
     ["Kalimdor-Cup"] = "WORLD_EVENT_KALIMDOR",
-    ["Östliche Königreiche-Cup"] = "WORLD_EVENT_EASTERN",
-    ["Winde des geheimnisvollen Glücks"] = "WORLD_EVENT_WINDS",
+    ["Ã–stliche KÃ¶nigreiche-Cup"] = "WORLD_EVENT_EASTERN",
+    ["Winde des geheimnisvollen GlÃ¼cks"] = "WORLD_EVENT_WINDS",
     -- frFR reverse mappings
     ["De l'amour dans l'air"] = "WORLD_EVENT_LOVE",
-    ["Fête lunaire"] = "WORLD_EVENT_LUNAR",
+    ["FÃªte lunaire"] = "WORLD_EVENT_LUNAR",
     ["Le Jardin des nobles"] = "WORLD_EVENT_NOBLEGARDEN",
     ["Semaine des enfants"] = "WORLD_EVENT_CHILDREN",
-    ["Fête du Feu du solstice d'été"] = "WORLD_EVENT_MIDSUMMER",
-    ["Fête des Brasseurs"] = "WORLD_EVENT_BREWFEST",
+    ["FÃªte du Feu du solstice d'Ã©tÃ©"] = "WORLD_EVENT_MIDSUMMER",
+    ["FÃªte des Brasseurs"] = "WORLD_EVENT_BREWFEST",
     ["Sanssaint"] = "WORLD_EVENT_HALLOWS",
     ["Voile d'hiver"] = "WORLD_EVENT_WINTERVEIL",
     ["Jour des morts"] = "WORLD_EVENT_DEAD",
     ["Jour des pirates"] = "WORLD_EVENT_PIRATES",
-    ["Épreuve de style"] = "WORLD_EVENT_STYLE",
+    ["Ã‰preuve de style"] = "WORLD_EVENT_STYLE",
     ["Coupe de l'Outreterre"] = "WORLD_EVENT_OUTLAND",
     ["Coupe de Norfendre"] = "WORLD_EVENT_NORTHREND",
     ["Coupe de Kalimdor"] = "WORLD_EVENT_KALIMDOR",
     ["Coupe des Royaumes de l'Est"] = "WORLD_EVENT_EASTERN",
-    ["Vents de fortune mystérieuse"] = "WORLD_EVENT_WINDS",
+    ["Vents de fortune mystÃ©rieuse"] = "WORLD_EVENT_WINDS",
     -- esES reverse mappings
-    ["El amor está en el aire"] = "WORLD_EVENT_LOVE",
+    ["El amor estÃ¡ en el aire"] = "WORLD_EVENT_LOVE",
     ["Festival Lunar"] = "WORLD_EVENT_LUNAR",
-    ["Jardín Noble"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Semana de los Niños"] = "WORLD_EVENT_CHILDREN",
+    ["JardÃ­n Noble"] = "WORLD_EVENT_NOBLEGARDEN",
+    ["Semana de los NiÃ±os"] = "WORLD_EVENT_CHILDREN",
     ["Festival de Fuego del Solsticio de Verano"] = "WORLD_EVENT_MIDSUMMER",
     ["Fiesta de la Cerveza"] = "WORLD_EVENT_BREWFEST",
     ["Halloween"] = "WORLD_EVENT_HALLOWS",
     ["Festival de Invierno"] = "WORLD_EVENT_WINTERVEIL",
-    ["Día de los Muertos"] = "WORLD_EVENT_DEAD",
-    ["Día de los Piratas"] = "WORLD_EVENT_PIRATES",
+    ["DÃ­a de los Muertos"] = "WORLD_EVENT_DEAD",
+    ["DÃ­a de los Piratas"] = "WORLD_EVENT_PIRATES",
     ["Prueba de Estilo"] = "WORLD_EVENT_STYLE",
     ["Copa de Terrallende"] = "WORLD_EVENT_OUTLAND",
     ["Copa de Rasganorte"] = "WORLD_EVENT_NORTHREND",
@@ -1038,39 +1115,39 @@ local WORLD_EVENT_TRANSLATIONS = {
     ["Copa de los Reinos del Este"] = "WORLD_EVENT_EASTERN",
     ["Vientos de fortuna misteriosa"] = "WORLD_EVENT_WINDS",
     -- ptBR reverse mappings
-    ["O Amor Está no Ar"] = "WORLD_EVENT_LOVE",
+    ["O Amor EstÃ¡ no Ar"] = "WORLD_EVENT_LOVE",
     ["Festival da Lua"] = "WORLD_EVENT_LUNAR",
     ["Jardinova"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Semana das Crianças"] = "WORLD_EVENT_CHILDREN",
-    ["Festival do Fogo do Solstício"] = "WORLD_EVENT_MIDSUMMER",
+    ["Semana das CrianÃ§as"] = "WORLD_EVENT_CHILDREN",
+    ["Festival do Fogo do SolstÃ­cio"] = "WORLD_EVENT_MIDSUMMER",
     ["CervaFest"] = "WORLD_EVENT_BREWFEST",
-    ["Noturnália"] = "WORLD_EVENT_HALLOWS",
-    ["Festa do Véu de Inverno"] = "WORLD_EVENT_WINTERVEIL",
+    ["NoturnÃ¡lia"] = "WORLD_EVENT_HALLOWS",
+    ["Festa do VÃ©u de Inverno"] = "WORLD_EVENT_WINTERVEIL",
     ["Dia dos Mortos"] = "WORLD_EVENT_DEAD",
     ["Dia dos Piratas"] = "WORLD_EVENT_PIRATES",
     ["Prova de Estilo"] = "WORLD_EVENT_STYLE",
-    ["Copa de Terralém"] = "WORLD_EVENT_OUTLAND",
-    ["Copa de Nortúndria"] = "WORLD_EVENT_NORTHREND",
+    ["Copa de TerralÃ©m"] = "WORLD_EVENT_OUTLAND",
+    ["Copa de NortÃºndria"] = "WORLD_EVENT_NORTHREND",
     ["Copa de Kalimdor"] = "WORLD_EVENT_KALIMDOR",
     ["Copa dos Reinos do Leste"] = "WORLD_EVENT_EASTERN",
     ["Ventos da Fortuna Misteriosa"] = "WORLD_EVENT_WINDS",
     -- ruRU reverse mappings
-    ["Любовь витает в воздухе"] = "WORLD_EVENT_LOVE",
-    ["Лунный фестиваль"] = "WORLD_EVENT_LUNAR",
-    ["Сад чудес"] = "WORLD_EVENT_NOBLEGARDEN",
-    ["Детская неделя"] = "WORLD_EVENT_CHILDREN",
-    ["Огненный солнцеворот"] = "WORLD_EVENT_MIDSUMMER",
-    ["Хмельной фестиваль"] = "WORLD_EVENT_BREWFEST",
-    ["Тыквовин"] = "WORLD_EVENT_HALLOWS",
-    ["Зимний Покров"] = "WORLD_EVENT_WINTERVEIL",
-    ["День мёртвых"] = "WORLD_EVENT_DEAD",
-    ["День пирата"] = "WORLD_EVENT_PIRATES",
-    ["Испытание стилем"] = "WORLD_EVENT_STYLE",
-    ["Кубок Запределья"] = "WORLD_EVENT_OUTLAND",
-    ["Кубок Нордскола"] = "WORLD_EVENT_NORTHREND",
-    ["Кубок Калимдора"] = "WORLD_EVENT_KALIMDOR",
-    ["Кубок Восточных королевств"] = "WORLD_EVENT_EASTERN",
-    ["Ветра таинственной удачи"] = "WORLD_EVENT_WINDS",
+    ["Ð›ÑŽÐ±Ð¾Ð²ÑŒ Ð²Ð¸Ñ‚Ð°ÐµÑ‚ Ð² Ð²Ð¾Ð·Ð´ÑƒÑ…Ðµ"] = "WORLD_EVENT_LOVE",
+    ["Ð›ÑƒÐ½Ð½Ñ‹Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ"] = "WORLD_EVENT_LUNAR",
+    ["Ð¡Ð°Ð´ Ñ‡ÑƒÐ´ÐµÑ"] = "WORLD_EVENT_NOBLEGARDEN",
+    ["Ð”ÐµÑ‚ÑÐºÐ°Ñ Ð½ÐµÐ´ÐµÐ»Ñ"] = "WORLD_EVENT_CHILDREN",
+    ["ÐžÐ³Ð½ÐµÐ½Ð½Ñ‹Ð¹ ÑÐ¾Ð»Ð½Ñ†ÐµÐ²Ð¾Ñ€Ð¾Ñ‚"] = "WORLD_EVENT_MIDSUMMER",
+    ["Ð¥Ð¼ÐµÐ»ÑŒÐ½Ð¾Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ"] = "WORLD_EVENT_BREWFEST",
+    ["Ð¢Ñ‹ÐºÐ²Ð¾Ð²Ð¸Ð½"] = "WORLD_EVENT_HALLOWS",
+    ["Ð—Ð¸Ð¼Ð½Ð¸Ð¹ ÐŸÐ¾ÐºÑ€Ð¾Ð²"] = "WORLD_EVENT_WINTERVEIL",
+    ["Ð”ÐµÐ½ÑŒ Ð¼Ñ‘Ñ€Ñ‚Ð²Ñ‹Ñ…"] = "WORLD_EVENT_DEAD",
+    ["Ð”ÐµÐ½ÑŒ Ð¿Ð¸Ñ€Ð°Ñ‚Ð°"] = "WORLD_EVENT_PIRATES",
+    ["Ð˜ÑÐ¿Ñ‹Ñ‚Ð°Ð½Ð¸Ðµ ÑÑ‚Ð¸Ð»ÐµÐ¼"] = "WORLD_EVENT_STYLE",
+    ["ÐšÑƒÐ±Ð¾Ðº Ð—Ð°Ð¿Ñ€ÐµÐ´ÐµÐ»ÑŒÑ"] = "WORLD_EVENT_OUTLAND",
+    ["ÐšÑƒÐ±Ð¾Ðº ÐÐ¾Ñ€Ð´ÑÐºÐ¾Ð»Ð°"] = "WORLD_EVENT_NORTHREND",
+    ["ÐšÑƒÐ±Ð¾Ðº ÐšÐ°Ð»Ð¸Ð¼Ð´Ð¾Ñ€Ð°"] = "WORLD_EVENT_KALIMDOR",
+    ["ÐšÑƒÐ±Ð¾Ðº Ð’Ð¾ÑÑ‚Ð¾Ñ‡Ð½Ñ‹Ñ… ÐºÐ¾Ñ€Ð¾Ð»ÐµÐ²ÑÑ‚Ð²"] = "WORLD_EVENT_EASTERN",
+    ["Ð’ÐµÑ‚Ñ€Ð° Ñ‚Ð°Ð¸Ð½ÑÑ‚Ð²ÐµÐ½Ð½Ð¾Ð¹ ÑƒÐ´Ð°Ñ‡Ð¸"] = "WORLD_EVENT_WINDS",
 }
 
 -- Helper function to get localized event name
@@ -1102,56 +1179,56 @@ local WORLD_EVENTS = {
     "Eastern Kingdoms Cup",
     "Winds of Mysterious Fortune",
     -- zhTW
-    "愛就在身邊",
-    "新年慶典",
-    "貴族花園",
-    "兒童週",
-    "仲夏火焰節慶",
-    "啤酒節",
-    "萬鬼節",
-    "冬幕節",
-    "亡者節",
-    "海盜節",
-    "時尚大考驗",
-    "外域杯",
-    "北裂境杯",
-    "卡林多杯",
-    "東部王國杯",
-    "神秘命運之風",
+    "æ„›å°±åœ¨èº«é‚Š",
+    "æ–°å¹´æ…¶å…¸",
+    "è²´æ—èŠ±åœ’",
+    "å…’ç«¥é€±",
+    "ä»²å¤ç«ç„°ç¯€æ…¶",
+    "å•¤é…’ç¯€",
+    "è¬é¬¼ç¯€",
+    "å†¬å¹•ç¯€",
+    "äº¡è€…ç¯€",
+    "æµ·ç›œç¯€",
+    "æ™‚å°šå¤§è€ƒé©—",
+    "å¤–åŸŸæ¯",
+    "åŒ—è£‚å¢ƒæ¯",
+    "å¡æž—å¤šæ¯",
+    "æ±éƒ¨çŽ‹åœ‹æ¯",
+    "ç¥žç§˜å‘½é‹ä¹‹é¢¨",
     -- zhCN
-    "情人节",
-    "春节",
-    "复活节",
-    "儿童周",
-    "仲夏火焰节",
-    "美酒节",
-    "万圣节",
-    "冬幕节",
-    "亡灵节",
-    "海盗日",
-    "试衣大会",
-    "外域杯",
-    "诺森德杯",
-    "卡利姆多杯",
-    "东部王国杯",
-    "神秘命运之风",
+    "æƒ…äººèŠ‚",
+    "æ˜¥èŠ‚",
+    "å¤æ´»èŠ‚",
+    "å„¿ç«¥å‘¨",
+    "ä»²å¤ç«ç„°èŠ‚",
+    "ç¾Žé…’èŠ‚",
+    "ä¸‡åœ£èŠ‚",
+    "å†¬å¹•èŠ‚",
+    "äº¡çµèŠ‚",
+    "æµ·ç›—æ—¥",
+    "è¯•è¡£å¤§ä¼š",
+    "å¤–åŸŸæ¯",
+    "è¯ºæ£®å¾·æ¯",
+    "å¡åˆ©å§†å¤šæ¯",
+    "ä¸œéƒ¨çŽ‹å›½æ¯",
+    "ç¥žç§˜å‘½è¿ä¹‹é£Ž",
     -- koKR
-    "온 세상에 사랑을",
-    "달의 축제",
-    "귀족의 정원",
-    "어린이 주간",
-    "한여름 불꽃축제",
-    "가을 축제",
-    "할로윈 축제",
-    "겨울맞이 축제",
-    "망자의 날",
-    "해적의 날",
-    "스타일의 시험",
-    "아웃랜드 컵",
-    "노스렌드 컵",
-    "칼림도어 컵",
-    "동부 왕국 컵",
-    "신비로운 행운의 바람",
+    "ì˜¨ ì„¸ìƒì— ì‚¬ëž‘ì„",
+    "ë‹¬ì˜ ì¶•ì œ",
+    "ê·€ì¡±ì˜ ì •ì›",
+    "ì–´ë¦°ì´ ì£¼ê°„",
+    "í•œì—¬ë¦„ ë¶ˆê½ƒì¶•ì œ",
+    "ê°€ì„ ì¶•ì œ",
+    "í• ë¡œìœˆ ì¶•ì œ",
+    "ê²¨ìš¸ë§žì´ ì¶•ì œ",
+    "ë§ìžì˜ ë‚ ",
+    "í•´ì ì˜ ë‚ ",
+    "ìŠ¤íƒ€ì¼ì˜ ì‹œí—˜",
+    "ì•„ì›ƒëžœë“œ ì»µ",
+    "ë…¸ìŠ¤ë Œë“œ ì»µ",
+    "ì¹¼ë¦¼ë„ì–´ ì»µ",
+    "ë™ë¶€ ì™•êµ­ ì»µ",
+    "ì‹ ë¹„ë¡œìš´ í–‰ìš´ì˜ ë°”ëžŒ",
     -- deDE
     "Liebe liegt in der Luft",
     "Mondfest",
@@ -1159,7 +1236,7 @@ local WORLD_EVENTS = {
     "Kinderwoche",
     "Sonnenwendfest",
     "Braufest",
-    "Schlotternächte",
+    "SchlotternÃ¤chte",
     "Winterhauch",
     "Tag der Toten",
     "Piratentag",
@@ -1167,36 +1244,36 @@ local WORLD_EVENTS = {
     "Scherbenwelt-Cup",
     "Nordend-Cup",
     "Kalimdor-Cup",
-    "Östliche Königreiche-Cup",
-    "Winde des geheimnisvollen Glücks",
+    "Ã–stliche KÃ¶nigreiche-Cup",
+    "Winde des geheimnisvollen GlÃ¼cks",
     -- frFR
     "De l'amour dans l'air",
-    "Fête lunaire",
+    "FÃªte lunaire",
     "Le Jardin des nobles",
     "Semaine des enfants",
-    "Fête du Feu du solstice d'été",
-    "Fête des Brasseurs",
+    "FÃªte du Feu du solstice d'Ã©tÃ©",
+    "FÃªte des Brasseurs",
     "Sanssaint",
     "Voile d'hiver",
     "Jour des morts",
     "Jour des pirates",
-    "Épreuve de style",
+    "Ã‰preuve de style",
     "Coupe de l'Outreterre",
     "Coupe de Norfendre",
     "Coupe de Kalimdor",
     "Coupe des Royaumes de l'Est",
-    "Vents de fortune mystérieuse",
+    "Vents de fortune mystÃ©rieuse",
     -- esES
-    "El amor está en el aire",
+    "El amor estÃ¡ en el aire",
     "Festival Lunar",
-    "Jardín Noble",
-    "Semana de los Niños",
+    "JardÃ­n Noble",
+    "Semana de los NiÃ±os",
     "Festival de Fuego del Solsticio de Verano",
     "Fiesta de la Cerveza",
     "Halloween",
     "Festival de Invierno",
-    "Día de los Muertos",
-    "Día de los Piratas",
+    "DÃ­a de los Muertos",
+    "DÃ­a de los Piratas",
     "Prueba de Estilo",
     "Copa de Terrallende",
     "Copa de Rasganorte",
@@ -1204,39 +1281,39 @@ local WORLD_EVENTS = {
     "Copa de los Reinos del Este",
     "Vientos de fortuna misteriosa",
     -- ptBR
-    "O Amor Está no Ar",
+    "O Amor EstÃ¡ no Ar",
     "Festival da Lua",
     "Jardinova",
-    "Semana das Crianças",
-    "Festival do Fogo do Solstício",
+    "Semana das CrianÃ§as",
+    "Festival do Fogo do SolstÃ­cio",
     "CervaFest",
-    "Noturnália",
-    "Festa do Véu de Inverno",
+    "NoturnÃ¡lia",
+    "Festa do VÃ©u de Inverno",
     "Dia dos Mortos",
     "Dia dos Piratas",
     "Prova de Estilo",
-    "Copa de Terralém",
-    "Copa de Nortúndria",
+    "Copa de TerralÃ©m",
+    "Copa de NortÃºndria",
     "Copa de Kalimdor",
     "Copa dos Reinos do Leste",
     "Ventos da Fortuna Misteriosa",
     -- ruRU
-    "Любовь витает в воздухе",
-    "Лунный фестиваль",
-    "Сад чудес",
-    "Детская неделя",
-    "Огненный солнцеворот",
-    "Хмельной фестиваль",
-    "Тыквовин",
-    "Зимний Покров",
-    "День мёртвых",
-    "День пирата",
-    "Испытание стилем",
-    "Кубок Запределья",
-    "Кубок Нордскола",
-    "Кубок Калимдора",
-    "Кубок Восточных королевств",
-    "Ветра таинственной удачи",
+    "Ð›ÑŽÐ±Ð¾Ð²ÑŒ Ð²Ð¸Ñ‚Ð°ÐµÑ‚ Ð² Ð²Ð¾Ð·Ð´ÑƒÑ…Ðµ",
+    "Ð›ÑƒÐ½Ð½Ñ‹Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ",
+    "Ð¡Ð°Ð´ Ñ‡ÑƒÐ´ÐµÑ",
+    "Ð”ÐµÑ‚ÑÐºÐ°Ñ Ð½ÐµÐ´ÐµÐ»Ñ",
+    "ÐžÐ³Ð½ÐµÐ½Ð½Ñ‹Ð¹ ÑÐ¾Ð»Ð½Ñ†ÐµÐ²Ð¾Ñ€Ð¾Ñ‚",
+    "Ð¥Ð¼ÐµÐ»ÑŒÐ½Ð¾Ð¹ Ñ„ÐµÑÑ‚Ð¸Ð²Ð°Ð»ÑŒ",
+    "Ð¢Ñ‹ÐºÐ²Ð¾Ð²Ð¸Ð½",
+    "Ð—Ð¸Ð¼Ð½Ð¸Ð¹ ÐŸÐ¾ÐºÑ€Ð¾Ð²",
+    "Ð”ÐµÐ½ÑŒ Ð¼Ñ‘Ñ€Ñ‚Ð²Ñ‹Ñ…",
+    "Ð”ÐµÐ½ÑŒ Ð¿Ð¸Ñ€Ð°Ñ‚Ð°",
+    "Ð˜ÑÐ¿Ñ‹Ñ‚Ð°Ð½Ð¸Ðµ ÑÑ‚Ð¸Ð»ÐµÐ¼",
+    "ÐšÑƒÐ±Ð¾Ðº Ð—Ð°Ð¿Ñ€ÐµÐ´ÐµÐ»ÑŒÑ",
+    "ÐšÑƒÐ±Ð¾Ðº ÐÐ¾Ñ€Ð´ÑÐºÐ¾Ð»Ð°",
+    "ÐšÑƒÐ±Ð¾Ðº ÐšÐ°Ð»Ð¸Ð¼Ð´Ð¾Ñ€Ð°",
+    "ÐšÑƒÐ±Ð¾Ðº Ð’Ð¾ÑÑ‚Ð¾Ñ‡Ð½Ñ‹Ñ… ÐºÐ¾Ñ€Ð¾Ð»ÐµÐ²ÑÑ‚Ð²",
+    "Ð’ÐµÑ‚Ñ€Ð° Ñ‚Ð°Ð¸Ð½ÑÑ‚Ð²ÐµÐ½Ð½Ð¾Ð¹ ÑƒÐ´Ð°Ñ‡Ð¸",
 }
 
 function lv.UpdateWorldEventsFrame()

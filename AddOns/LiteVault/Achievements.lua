@@ -1,12 +1,27 @@
 local addonName, lv = ...
 local L = lv.L
 
+local function GetLocaleText(key, fallback)
+    local value = L and L[key]
+    if value and value ~= "" and value ~= key then
+        return value
+    end
+
+    local enUS = lv.LocaleData and lv.LocaleData["enUS"]
+    local baseValue = enUS and enUS[key]
+    if baseValue and baseValue ~= "" then
+        return baseValue
+    end
+
+    return fallback or key
+end
+
 function lv.LocalizeDisplayText(text, fallback)
     if type(text) ~= "string" or text == "" then
         return fallback or text or ""
     end
 
-    local translated = L and L[text]
+    local translated = GetLocaleText(text, nil)
     if translated and translated ~= "" and translated ~= text then
         return translated
     end
@@ -419,6 +434,7 @@ local RUNESTONE_RUSH_ENTRIES = {
     { mapID = 2395, x = 41.13, y = 73.83, name = "Sanctum of the Moon Runestone", boss = "Commander Gravok" },
     { mapID = 2395, x = 40.48, y = 13.61, name = "Sunstrider Isle Runestone", boss = "Claw of the Void" },
 }
+lv.RUNESTONE_RUSH_ENTRIES = RUNESTONE_RUSH_ENTRIES
 local RUNESTONE_RUSH_REWARD = nil
 local THE_PARTY_MUST_GO_ON_ENTRIES = {
     { mapID = 2395, x = 42.40, y = 46.67, name = "Blood Knights" },
@@ -1015,9 +1031,10 @@ local function GetAchievementRewardDisplayInfo(achievementID, rewardText)
     if override then
         if override.type == "mount" and override.name then
             local mountInfo = GetMountRewardInfoByName(override.name)
+            local mountName = (mountInfo and mountInfo.name) or override.name
             return {
                 icon = mountInfo and mountInfo.icon or nil,
-                label = override.label or ("Mount: " .. override.name),
+                label = override.label or string.format(GetLocaleText("TEXT_ACHIEVEMENT_MOUNT_FMT", "Mount: %s"), mountName),
                 tooltipType = "mount",
                 tooltipValue = mountInfo and mountInfo.spellID or nil,
             }
@@ -1181,22 +1198,30 @@ end
 function lv.InitAchievementsUI(env)
 local LVWindow = env.LVWindow
 local dashboardTab = env.dashboardTab
+local profitTab = env.profitTab
 local instancesTab = env.instancesTab
 local achievementsBtn = env.achievementsBtn
 local factionsTab = env.factionsTab
 local optionsTab = env.optionsTab
 local currentMainView = (env.getCurrentMainView and env.getCurrentMainView()) or "dashboard"
 local UIText = env.UIText or lv.UIText or function(key, fallback)
-    local value = L and L[key]
-    if value == nil or value == "" or value == key then
-        return fallback or key
-    end
-    return value
+    return GetLocaleText(key, fallback)
 end
 local RefreshAchievementsView
 local function SetDashboardContentVisible(visible)
     if env.setDashboardContentVisible then
         env.setDashboardContentVisible(visible)
+    end
+end
+
+local function SetProfitContentVisible(visible)
+    if env.setProfitContentVisible then
+        env.setProfitContentVisible(visible)
+    end
+end
+local function SetFolioContentVisible(visible)
+    if env.setFolioContentVisible then
+        env.setFolioContentVisible(visible)
     end
 end
 local function SetFactionCardsVisible(visible)
@@ -1231,12 +1256,12 @@ end
 
 local achievementsTitle = AchievementView:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 achievementsTitle:SetPoint("TOPLEFT", 18, -14)
-achievementsTitle:SetText(UIText("TITLE_ACHIEVEMENTS", "Achievements"))
+achievementsTitle:SetText(UIText("TITLE_ACHIEVEMENTS"))
 
 local achievementsSubtitle = AchievementView:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 achievementsSubtitle:SetPoint("TOPLEFT", 18, -38)
 achievementsSubtitle:SetJustifyH("LEFT")
-achievementsSubtitle:SetText(UIText("DESC_ACHIEVEMENTS", "Choose an achievement tracker to view detailed progress."))
+achievementsSubtitle:SetText(UIText("DESC_ACHIEVEMENTS"))
 
 local achievementSubView = "home"
 
@@ -1256,7 +1281,7 @@ home.treasureLaunchBtn:SetBackdrop({
 })
 home.treasureLaunchBtn.Text = home.treasureLaunchBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 home.treasureLaunchBtn.Text:SetPoint("CENTER")
-home.treasureLaunchBtn.Text:SetText(UIText("Treasures of Midnight", "Treasures of Midnight"))
+home.treasureLaunchBtn.Text:SetText(UIText("Treasures of Midnight"))
 if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(home.treasureLaunchBtn.Text, 11)
 end
@@ -1266,7 +1291,7 @@ home.treasureLaunchNote:SetPoint("TOPLEFT", home.treasureLaunchBtn, "BOTTOMLEFT"
 home.treasureLaunchNote:SetPoint("TOPRIGHT", home.treasureLaunchBtn, "BOTTOMRIGHT", -2, -10)
 home.treasureLaunchNote:SetJustifyH("LEFT")
 home.treasureLaunchNote:SetWordWrap(true)
-home.treasureLaunchNote:SetText("|cffb8b8b8" .. UIText("Track the four Midnight treasure achievements and their rewards.", "Track the four Midnight treasure achievements and their rewards.") .. "|r")
+home.treasureLaunchNote:SetText("|cffb8b8b8" .. UIText("Track the four Midnight treasure achievements and their rewards.") .. "|r")
 
 home.glyphHunterLaunchBtn = CreateFrame("Button", nil, achievementHome, "BackdropTemplate")
 home.glyphHunterLaunchBtn:SetSize(220, 34)
@@ -1279,7 +1304,7 @@ home.glyphHunterLaunchBtn:SetBackdrop({
 })
 home.glyphHunterLaunchBtn.Text = home.glyphHunterLaunchBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 home.glyphHunterLaunchBtn.Text:SetPoint("CENTER")
-home.glyphHunterLaunchBtn.Text:SetText(GetAchievementName(ACH.MIDNIGHT_GLYPH_HUNTER, UIText("BUTTON_MIDNIGHT_GLYPH_HUNTER", "Midnight Glyph Hunter")))
+home.glyphHunterLaunchBtn.Text:SetText(GetAchievementName(ACH.MIDNIGHT_GLYPH_HUNTER, UIText("BUTTON_MIDNIGHT_GLYPH_HUNTER")))
 if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(home.glyphHunterLaunchBtn.Text, 11)
 end
@@ -1294,14 +1319,14 @@ end
 home.glyphRewardText = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.glyphRewardText:SetPoint("LEFT", home.glyphRewardIcon, "RIGHT", 6, 0)
 home.glyphRewardText:SetJustifyH("LEFT")
-home.glyphRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD", "Reward"), UIText("Crimson Dragonhawk", "Crimson Dragonhawk")))
+home.glyphRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD"), lv.GetLocalizedItemNameByID(REWARD_ITEM.CRIMSON_DRAGONHAWK, GetLocaleText("LABEL_UNKNOWN", "Unknown"))))
 
 home.glyphRewardNote = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.glyphRewardNote:SetPoint("TOPLEFT", home.glyphRewardIcon, "BOTTOMLEFT", 0, -4)
 home.glyphRewardNote:SetPoint("RIGHT", home.glyphHunterLaunchBtn, "RIGHT", -2, 0)
 home.glyphRewardNote:SetJustifyH("LEFT")
 home.glyphRewardNote:SetWordWrap(true)
-home.glyphRewardNote:SetText("|cffb8b8b8" .. UIText("DESC_GLYPH_REWARD", "Complete Midnight Glyph Hunter to earn this mount.") .. "|r")
+home.glyphRewardNote:SetText("|cffb8b8b8" .. UIText("DESC_GLYPH_REWARD") .. "|r")
 
 home.delverLaunchBtn = CreateFrame("Button", nil, achievementHome, "BackdropTemplate")
 home.delverLaunchBtn:SetSize(220, 34)
@@ -1314,7 +1339,7 @@ home.delverLaunchBtn:SetBackdrop({
 })
 home.delverLaunchBtn.Text = home.delverLaunchBtn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 home.delverLaunchBtn.Text:SetPoint("CENTER")
-home.delverLaunchBtn.Text:SetText(UIText("Glory of the Midnight Delver", "Glory of the Midnight Delver"))
+home.delverLaunchBtn.Text:SetText(UIText("Glory of the Midnight Delver"))
 if lv.ApplyLocaleFont then
     lv.ApplyLocaleFont(home.delverLaunchBtn.Text, 11)
 end
@@ -1329,14 +1354,14 @@ end
 home.delverRewardText = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.delverRewardText:SetPoint("LEFT", home.delverRewardIcon, "RIGHT", 6, 0)
 home.delverRewardText:SetJustifyH("LEFT")
-home.delverRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD", "Reward"), UIText("Giganto-Manis", "Giganto-Manis")))
+home.delverRewardText:SetText(string.format("%s: |cffff8040%s|r", UIText("LABEL_REWARD"), lv.GetLocalizedItemNameByID(REWARD_ITEM.GIGANTO_MANIS, GetLocaleText("LABEL_UNKNOWN", "Unknown"))))
 
 home.delverRewardNote = achievementHome:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 home.delverRewardNote:SetPoint("TOPLEFT", home.delverRewardIcon, "BOTTOMLEFT", 0, -4)
 home.delverRewardNote:SetPoint("RIGHT", home.delverLaunchBtn, "RIGHT", -2, 0)
 home.delverRewardNote:SetJustifyH("LEFT")
 home.delverRewardNote:SetWordWrap(true)
-home.delverRewardNote:SetText("|cffb8b8b8" .. UIText("Complete Glory of the Midnight Delver to earn this mount.", "Complete Glory of the Midnight Delver to earn this mount.") .. "|r")
+home.delverRewardNote:SetText("|cffb8b8b8" .. UIText("Complete Glory of the Midnight Delver to earn this mount.") .. "|r")
 
 local function CreateAchievementLaunchButton(parent, anchorTarget, offsetY, text)
     local btn = CreateFrame("Button", nil, parent, "BackdropTemplate")
@@ -1422,36 +1447,36 @@ home.peaksLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.delverRewardNote,
     -22,
-    GetAchievementName(ACH.MIDNIGHT_HIGHEST_PEAKS, "Midnight, the Highest Peaks")
+    GetAchievementName(ACH.MIDNIGHT_HIGHEST_PEAKS, UIText("Midnight, the Highest Peaks"))
 )
 home.peaksLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.peaksLaunchBtn,
-    "|cffb8b8b8Track the four zone achievements for Midnight, the Highest Peaks.|r"
+    "|cffb8b8b8" .. UIText("Track the four zone achievements for Midnight, the Highest Peaks.") .. "|r"
 )
 
 home.raresLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.peaksLaunchNote,
     -22,
-    "Rares of Midnight"
+    UIText("Rares of Midnight")
 )
 home.raresLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.raresLaunchBtn,
-    "|cffb8b8b8" .. UIText("Track the four Midnight rare achievements and zone rare rewards.", "Track the four Midnight rare achievements and zone rare rewards.") .. "|r"
+    "|cffb8b8b8" .. UIText("Track the four Midnight rare achievements and zone rare rewards.") .. "|r"
 )
 
 home.everPaintingLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.raresLaunchNote,
     -22,
-    GetAchievementName(ACH.EVER_PAINTING, "Ever-Painting")
+    GetAchievementName(ACH.EVER_PAINTING, UIText("Ever-Painting"))
 )
 home.everPaintingLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.everPaintingLaunchBtn,
-    "|cffb8b8b8Track Ever-Painting progress. Entry details can be filled in later.|r"
+    "|cffb8b8b8" .. UIText("Track Ever-Painting progress. Entry details can be filled in later.") .. "|r"
 )
 home.everPaintingLaunchBtn:Hide()
 home.everPaintingLaunchNote:Hide()
@@ -1460,12 +1485,12 @@ home.runestoneRushLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.everPaintingLaunchNote,
     -22,
-    GetAchievementName(ACH.RUNESTONE_RUSH, "Runestone Rush")
+    GetAchievementName(ACH.RUNESTONE_RUSH, UIText("Runestone Rush"))
 )
 home.runestoneRushLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.runestoneRushLaunchBtn,
-    "|cffb8b8b8Track Runestone Rush progress. Entry details can be filled in later.|r"
+    "|cffb8b8b8" .. UIText("Track Runestone Rush progress. Entry details can be filled in later.") .. "|r"
 )
 home.runestoneRushLaunchBtn:Hide()
 home.runestoneRushLaunchNote:Hide()
@@ -1474,12 +1499,12 @@ home.partyMustGoOnLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.runestoneRushLaunchNote,
     -22,
-    GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, "The Party Must Go On")
+    GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, UIText("The Party Must Go On"))
 )
 home.partyMustGoOnLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.partyMustGoOnLaunchBtn,
-    "|cffb8b8b8Track The Party Must Go On progress. Entry details can be filled in later.|r"
+    "|cffb8b8b8" .. UIText("Track The Party Must Go On progress. Entry details can be filled in later.") .. "|r"
 )
 home.partyMustGoOnLaunchBtn:Hide()
 home.partyMustGoOnLaunchNote:Hide()
@@ -1488,12 +1513,12 @@ home.exploreEversongLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.raresLaunchNote,
     -22,
-    GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, "Explore Eversong Woods")
+    GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, UIText("Explore Eversong Woods"))
 )
 home.exploreEversongLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.exploreEversongLaunchBtn,
-    "|cffb8b8b8Track Explore Eversong Woods progress. Entry details can be filled in later.|r"
+    "|cffb8b8b8" .. UIText("Track Explore Eversong Woods progress. Entry details can be filled in later.") .. "|r"
 )
 home.exploreEversongLaunchBtn:ClearAllPoints()
 home.exploreEversongLaunchBtn:SetPoint("TOPLEFT", home.treasureLaunchBtn, "TOPRIGHT", 40, 56)
@@ -1504,12 +1529,12 @@ home.foreverSongLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.treasureLaunchNote,
     -22,
-    GetAchievementName(ACH.FOREVER_SONG, "Forever Song")
+    GetAchievementName(ACH.FOREVER_SONG, UIText("Forever Song"))
 )
 home.foreverSongLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.foreverSongLaunchBtn,
-    "|cffb8b8b8Track the Eversong Woods meta-achievement and jump into its child trackers.|r"
+    "|cffb8b8b8" .. UIText("Track the Eversong Woods meta-achievement and jump into its child trackers.") .. "|r"
 )
 home.foreverSongLaunchBtn:ClearAllPoints()
 home.foreverSongLaunchBtn:SetPoint("TOPLEFT", home.treasureLaunchBtn, "TOPRIGHT", 78, 0)
@@ -1521,12 +1546,12 @@ home.yellingIntoVoidstormLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.foreverSongLaunchNote,
     -22,
-    GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, "Yelling into the Voidstorm")
+    GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, UIText("Yelling into the Voidstorm"))
 )
 home.yellingIntoVoidstormLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.yellingIntoVoidstormLaunchBtn,
-    "|cffb8b8b8Track the Voidstorm meta-achievement and jump into its child trackers.|r"
+    "|cffb8b8b8" .. UIText("Track the Voidstorm meta-achievement and jump into its child trackers.") .. "|r"
 )
 home.yellingIntoVoidstormLaunchBtn:ClearAllPoints()
 home.yellingIntoVoidstormLaunchBtn:SetPoint("TOPLEFT", home.foreverSongLaunchNote, "BOTTOMLEFT", -2, -22)
@@ -1538,12 +1563,12 @@ home.makingAnAmaniLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.yellingIntoVoidstormLaunchNote,
     -22,
-    GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, "Making an Amani Out of You")
+    GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, UIText("Making an Amani Out of You"))
 )
 home.makingAnAmaniLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.makingAnAmaniLaunchBtn,
-    "|cffb8b8b8Track the Zul'Aman meta-achievement and jump into its child trackers.|r"
+    "|cffb8b8b8" .. UIText("Track the Zul'Aman meta-achievement and jump into its child trackers.") .. "|r"
 )
 home.makingAnAmaniLaunchBtn:ClearAllPoints()
 home.makingAnAmaniLaunchBtn:SetPoint("TOPLEFT", home.yellingIntoVoidstormLaunchNote, "BOTTOMLEFT", -2, -22)
@@ -1551,12 +1576,12 @@ home.thatsAlnFolksLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.makingAnAmaniLaunchNote,
     -22,
-    "That's Aln, Folks!"
+    GetAchievementName(ACH.THATS_ALN_FOLKS, UIText("That's Aln, Folks!"))
 )
 home.thatsAlnFolksLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.thatsAlnFolksLaunchBtn,
-    "|cffb8b8b8Track the Harandar meta-achievement and jump into its child trackers.|r"
+    "|cffb8b8b8" .. UIText("Track the Harandar meta-achievement and jump into its child trackers.") .. "|r"
 )
 home.thatsAlnFolksLaunchBtn:ClearAllPoints()
 home.thatsAlnFolksLaunchBtn:SetPoint("TOPLEFT", home.makingAnAmaniLaunchNote, "BOTTOMLEFT", -2, -22)
@@ -1565,12 +1590,12 @@ home.lightUpTheNightLaunchBtn = CreateAchievementLaunchButton(
     achievementHome,
     home.thatsAlnFolksLaunchNote,
     -22,
-    GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, "Light Up the Night")
+    GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, UIText("Light Up the Night"))
 )
 home.lightUpTheNightLaunchNote = CreateAchievementLaunchNote(
     achievementHome,
     home.lightUpTheNightLaunchBtn,
-    "|cffb8b8b8Complete the four Midnight zone meta-achievements and earn the mount reward.|r"
+    "|cffb8b8b8" .. UIText("Complete the four Midnight zone meta-achievements and earn the mount reward.") .. "|r"
 )
 home.lightUpTheNightLaunchBtn:ClearAllPoints()
 home.lightUpTheNightLaunchBtn:SetPoint("TOPLEFT", home.treasureLaunchBtn, "TOPRIGHT", 78, 0)
@@ -1825,7 +1850,7 @@ glyphHunterBackBtn:SetBackdrop({
 })
 glyphHunterBackBtn.Text = glyphHunterBackBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 glyphHunterBackBtn.Text:SetPoint("CENTER")
-glyphHunterBackBtn.Text:SetText(UIText("Back", "Back"))
+glyphHunterBackBtn.Text:SetText(UIText("BUTTON_BACK"))
 glyphHunterBackBtn:Hide()
 do
     local t = lv.GetTheme and lv.GetTheme()
@@ -2338,7 +2363,7 @@ treasureSummary:SetJustifyH("LEFT")
 
 local treasureAchievementsTitle = treasureView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 treasureAchievementsTitle:SetPoint("TOPLEFT", 0, -28)
-treasureAchievementsTitle:SetText(UIText("Achievements", "Achievements"))
+treasureAchievementsTitle:SetText(UIText("Achievements"))
 
 treasureAchievementButtons = {}
 for i, info in ipairs(TREASURES_OF_MIDNIGHT) do
@@ -2355,7 +2380,7 @@ end
 
 treasureDetailTitle = treasureView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 treasureDetailTitle:SetPoint("TOPLEFT", 0, -170)
-treasureDetailTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+treasureDetailTitle:SetText(UIText("LABEL_REWARD"))
 
 treasureRewardText = treasureView:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 treasureRewardText:SetPoint("TOPLEFT", 0, -196)
@@ -2372,7 +2397,7 @@ end
 
 local treasureCriteriaTitle = treasureView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 treasureCriteriaTitle:SetPoint("TOPLEFT", 0, -244)
-treasureCriteriaTitle:SetText(UIText("Details", "Details"))
+treasureCriteriaTitle:SetText(UIText("LABEL_DETAILS"))
 
 local treasureCriteriaScroll = CreateFrame("ScrollFrame", nil, treasureView)
 treasureCriteriaScroll:SetPoint("TOPLEFT", 0, -268)
@@ -2475,7 +2500,7 @@ delverSummary:SetJustifyH("LEFT")
 
 delverCriteriaTitle = delverView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 delverCriteriaTitle:SetPoint("TOPLEFT", 0, -28)
-delverCriteriaTitle:SetText(UIText("Achievements", "Achievements"))
+delverCriteriaTitle:SetText(UIText("Achievements"))
 
 delverAchievementButtons = {}
 for i, info in ipairs(MIDNIGHT_DELVER_CRITERIA) do
@@ -2498,7 +2523,7 @@ peaksView:Hide()
 peaksSummary = peaksView:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 peaksSummary:SetPoint("TOPLEFT", 0, 0)
 peaksSummary:SetJustifyH("LEFT")
-peaksSummary:SetText(UIText("Complete the five telescopes in this zone.", "Complete the five telescopes in this zone."))
+peaksSummary:SetText(UIText("Complete the five telescopes in this zone."))
 
 do
     local reward = CreateAchievementRewardDisplay(peaksView, -198)
@@ -2509,7 +2534,7 @@ end
 
 peaksCriteriaTitle = peaksView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 peaksCriteriaTitle:SetPoint("TOPLEFT", 0, -170)
-peaksCriteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+peaksCriteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 peaksAchievementButtons = {}
 for i, info in ipairs(MIDNIGHT_HIGHEST_PEAKS_CRITERIA) do
@@ -2526,7 +2551,7 @@ end
 
 peaksDetailTitle = peaksView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 peaksDetailTitle:SetPoint("TOPLEFT", 0, -244)
-peaksDetailTitle:SetText(UIText("Details", "Details"))
+peaksDetailTitle:SetText(UIText("LABEL_DETAILS"))
 
 peaksCriteriaRows = {}
 for i = 1, 12 do
@@ -2563,11 +2588,11 @@ rares.view:Hide()
 rares.summary = rares.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 rares.summary:SetPoint("TOPLEFT", 0, 0)
 rares.summary:SetJustifyH("LEFT")
-rares.summary:SetText(UIText("Track the four Midnight rare achievements.", "Track the four Midnight rare achievements."))
+rares.summary:SetText(UIText("Track the four Midnight rare achievements."))
 
 rares.criteriaTitle = rares.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 rares.criteriaTitle:SetPoint("TOPLEFT", 0, -170)
-rares.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+rares.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 rares.achievementButtons = {}
 for i, info in ipairs(MIDNIGHT_RARES_OF_MIDNIGHT) do
@@ -2591,7 +2616,7 @@ end
 
 rares.sharedLootTitle = rares.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 rares.sharedLootTitle:SetPoint("TOPLEFT", 0, -232)
-rares.sharedLootTitle:SetText("Shared Loot")
+rares.sharedLootTitle:SetText(UIText("Shared Loot"))
 rares.sharedLootTitle:Hide()
 
 rares.sharedLootSlots = {}
@@ -2618,7 +2643,7 @@ end
 
 rares.detailTitle = rares.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 rares.detailTitle:SetPoint("TOPLEFT", 0, -312)
-rares.detailTitle:SetText(UIText("Details", "Details"))
+rares.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 rares.criteriaRows = {}
 for i = 1, 15 do
@@ -2677,7 +2702,7 @@ everPainting.summary:SetJustifyH("LEFT")
 
 everPainting.criteriaTitle = everPainting.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 everPainting.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-everPainting.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+everPainting.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(everPainting.view, -64)
@@ -2688,14 +2713,14 @@ end
 
 everPainting.detailTitle = everPainting.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 everPainting.detailTitle:SetPoint("TOPLEFT", 0, -110)
-everPainting.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+everPainting.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 everPainting.emptyText = everPainting.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 everPainting.emptyText:SetPoint("TOPLEFT", 0, -138)
 everPainting.emptyText:SetPoint("RIGHT", -12, 0)
 everPainting.emptyText:SetJustifyH("LEFT")
 everPainting.emptyText:SetWordWrap(true)
-everPainting.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Ever-Painting have not been added yet.", "Tracked entries for Ever-Painting have not been added yet.") .. "|r")
+everPainting.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Ever-Painting have not been added yet.") .. "|r")
 
 everPainting.rows = {}
 for i = 1, 12 do
@@ -2729,7 +2754,7 @@ runestoneRush.summary:SetJustifyH("LEFT")
 
 runestoneRush.criteriaTitle = runestoneRush.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 runestoneRush.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-runestoneRush.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+runestoneRush.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(runestoneRush.view, -64)
@@ -2740,14 +2765,14 @@ end
 
 runestoneRush.detailTitle = runestoneRush.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 runestoneRush.detailTitle:SetPoint("TOPLEFT", 0, -110)
-runestoneRush.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+runestoneRush.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 runestoneRush.emptyText = runestoneRush.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 runestoneRush.emptyText:SetPoint("TOPLEFT", 0, -138)
 runestoneRush.emptyText:SetPoint("RIGHT", -12, 0)
 runestoneRush.emptyText:SetJustifyH("LEFT")
 runestoneRush.emptyText:SetWordWrap(true)
-runestoneRush.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Runestone Rush have not been added yet.", "Tracked entries for Runestone Rush have not been added yet.") .. "|r")
+runestoneRush.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Runestone Rush have not been added yet.") .. "|r")
 
 runestoneRush.rows = {}
 for i = 1, 12 do
@@ -2781,7 +2806,7 @@ partyMustGoOn.summary:SetJustifyH("LEFT")
 
 partyMustGoOn.criteriaTitle = partyMustGoOn.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 partyMustGoOn.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-partyMustGoOn.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+partyMustGoOn.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(partyMustGoOn.view, -64)
@@ -2792,14 +2817,14 @@ end
 
 partyMustGoOn.detailTitle = partyMustGoOn.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 partyMustGoOn.detailTitle:SetPoint("TOPLEFT", 0, -110)
-partyMustGoOn.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+partyMustGoOn.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 partyMustGoOn.emptyText = partyMustGoOn.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 partyMustGoOn.emptyText:SetPoint("TOPLEFT", 0, -138)
 partyMustGoOn.emptyText:SetPoint("RIGHT", -12, 0)
 partyMustGoOn.emptyText:SetJustifyH("LEFT")
 partyMustGoOn.emptyText:SetWordWrap(true)
-partyMustGoOn.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for The Party Must Go On have not been added yet.", "Tracked entries for The Party Must Go On have not been added yet.") .. "|r")
+partyMustGoOn.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for The Party Must Go On have not been added yet.") .. "|r")
 
 partyMustGoOn.rows = {}
 for i = 1, 12 do
@@ -2833,7 +2858,7 @@ exploreEversong.summary:SetJustifyH("LEFT")
 
 exploreEversong.criteriaTitle = exploreEversong.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreEversong.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-exploreEversong.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+exploreEversong.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(exploreEversong.view, -64)
@@ -2844,14 +2869,14 @@ end
 
 exploreEversong.detailTitle = exploreEversong.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreEversong.detailTitle:SetPoint("TOPLEFT", 0, -110)
-exploreEversong.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+exploreEversong.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 exploreEversong.emptyText = exploreEversong.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 exploreEversong.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreEversong.emptyText:SetPoint("RIGHT", -12, 0)
 exploreEversong.emptyText:SetJustifyH("LEFT")
 exploreEversong.emptyText:SetWordWrap(true)
-exploreEversong.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Eversong Woods have not been added yet.", "Tracked entries for Explore Eversong Woods have not been added yet.") .. "|r")
+exploreEversong.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Eversong Woods have not been added yet.") .. "|r")
 
 exploreEversong.rows = {}
 for i = 1, 12 do
@@ -2885,7 +2910,7 @@ exploreVoidstorm.summary:SetJustifyH("LEFT")
 
 exploreVoidstorm.criteriaTitle = exploreVoidstorm.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreVoidstorm.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-exploreVoidstorm.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+exploreVoidstorm.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(exploreVoidstorm.view, -64)
@@ -2896,14 +2921,14 @@ end
 
 exploreVoidstorm.detailTitle = exploreVoidstorm.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreVoidstorm.detailTitle:SetPoint("TOPLEFT", 0, -110)
-exploreVoidstorm.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+exploreVoidstorm.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 exploreVoidstorm.emptyText = exploreVoidstorm.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 exploreVoidstorm.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreVoidstorm.emptyText:SetPoint("RIGHT", -12, 0)
 exploreVoidstorm.emptyText:SetJustifyH("LEFT")
 exploreVoidstorm.emptyText:SetWordWrap(true)
-exploreVoidstorm.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Voidstorm have not been added yet.", "Tracked entries for Explore Voidstorm have not been added yet.") .. "|r")
+exploreVoidstorm.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Voidstorm have not been added yet.") .. "|r")
 
 exploreVoidstorm.rows = {}
 for i = 1, 12 do
@@ -2937,7 +2962,7 @@ thrillOfTheChase.summary:SetJustifyH("LEFT")
 
 thrillOfTheChase.criteriaTitle = thrillOfTheChase.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 thrillOfTheChase.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-thrillOfTheChase.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+thrillOfTheChase.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(thrillOfTheChase.view, -64)
@@ -2948,14 +2973,14 @@ end
 
 thrillOfTheChase.detailTitle = thrillOfTheChase.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 thrillOfTheChase.detailTitle:SetPoint("TOPLEFT", 0, -110)
-thrillOfTheChase.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+thrillOfTheChase.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 thrillOfTheChase.emptyText = thrillOfTheChase.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 thrillOfTheChase.emptyText:SetPoint("TOPLEFT", 0, -138)
 thrillOfTheChase.emptyText:SetPoint("RIGHT", -12, 0)
 thrillOfTheChase.emptyText:SetJustifyH("LEFT")
 thrillOfTheChase.emptyText:SetWordWrap(true)
-thrillOfTheChase.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Thrill of the Chase have not been added yet.", "Tracked entries for Thrill of the Chase have not been added yet.") .. "|r")
+thrillOfTheChase.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Thrill of the Chase have not been added yet.") .. "|r")
 
 thrillOfTheChase.rows = {}
 for i = 1, 12 do
@@ -2989,7 +3014,7 @@ noTimeToPaws.summary:SetJustifyH("LEFT")
 
 noTimeToPaws.criteriaTitle = noTimeToPaws.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 noTimeToPaws.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-noTimeToPaws.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+noTimeToPaws.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(noTimeToPaws.view, -64)
@@ -3000,14 +3025,14 @@ end
 
 noTimeToPaws.detailTitle = noTimeToPaws.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 noTimeToPaws.detailTitle:SetPoint("TOPLEFT", 0, -110)
-noTimeToPaws.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+noTimeToPaws.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 noTimeToPaws.emptyText = noTimeToPaws.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 noTimeToPaws.emptyText:SetPoint("TOPLEFT", 0, -138)
 noTimeToPaws.emptyText:SetPoint("RIGHT", -12, 0)
 noTimeToPaws.emptyText:SetJustifyH("LEFT")
 noTimeToPaws.emptyText:SetWordWrap(true)
-noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for No Time to Paws have not been added yet.", "Tracked entries for No Time to Paws have not been added yet.") .. "|r")
+noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for No Time to Paws have not been added yet.") .. "|r")
 
 noTimeToPaws.rows = {}
 for i = 1, 12 do
@@ -3041,7 +3066,7 @@ fromTheCradleToTheGrave.summary:SetJustifyH("LEFT")
 
 fromTheCradleToTheGrave.criteriaTitle = fromTheCradleToTheGrave.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 fromTheCradleToTheGrave.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-fromTheCradleToTheGrave.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+fromTheCradleToTheGrave.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(fromTheCradleToTheGrave.view, -64)
@@ -3052,14 +3077,14 @@ end
 
 fromTheCradleToTheGrave.detailTitle = fromTheCradleToTheGrave.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 fromTheCradleToTheGrave.detailTitle:SetPoint("TOPLEFT", 0, -110)
-fromTheCradleToTheGrave.detailTitle:SetText(UIText("Info", "Info"))
+fromTheCradleToTheGrave.detailTitle:SetText(UIText("LABEL_INFO"))
 
 fromTheCradleToTheGrave.emptyText = fromTheCradleToTheGrave.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 fromTheCradleToTheGrave.emptyText:SetPoint("TOPLEFT", 0, -138)
 fromTheCradleToTheGrave.emptyText:SetPoint("RIGHT", -12, 0)
 fromTheCradleToTheGrave.emptyText:SetJustifyH("LEFT")
 fromTheCradleToTheGrave.emptyText:SetWordWrap(true)
-fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("Fly into The Cradle high in the sky above Harandar to complete this achievement.", "Fly into The Cradle high in the sky above Harandar to complete this achievement.") .. "|r")
+fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("Fly into The Cradle high in the sky above Harandar to complete this achievement.") .. "|r")
 
 fromTheCradleToTheGrave.rows = {}
 for i = 1, 4 do
@@ -3094,7 +3119,7 @@ chroniclerOfTheHaranir.summary:SetJustifyH("LEFT")
 
 chroniclerOfTheHaranir.criteriaTitle = chroniclerOfTheHaranir.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 chroniclerOfTheHaranir.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-chroniclerOfTheHaranir.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+chroniclerOfTheHaranir.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(chroniclerOfTheHaranir.view, -64)
@@ -3105,21 +3130,21 @@ end
 
 chroniclerOfTheHaranir.detailTitle = chroniclerOfTheHaranir.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 chroniclerOfTheHaranir.detailTitle:SetPoint("TOPLEFT", 0, -110)
-chroniclerOfTheHaranir.detailTitle:SetText(UIText("Criteria", "Criteria"))
+chroniclerOfTheHaranir.detailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 chroniclerOfTheHaranir.noteText = chroniclerOfTheHaranir.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 chroniclerOfTheHaranir.noteText:SetPoint("TOPLEFT", 0, -138)
 chroniclerOfTheHaranir.noteText:SetPoint("RIGHT", -12, 0)
 chroniclerOfTheHaranir.noteText:SetJustifyH("LEFT")
 chroniclerOfTheHaranir.noteText:SetWordWrap(true)
-chroniclerOfTheHaranir.noteText:SetText("|cffb8b8b8" .. UIText("These journals are only available during the account-bound weekly quest 'Legends of the Haranir'. While in a vision, look for the magnifying glass icon on your minimap.", "These journals are only available during the account-bound weekly quest 'Legends of the Haranir'. While in a vision, look for the magnifying glass icon on your minimap.") .. "|r")
+chroniclerOfTheHaranir.noteText:SetText("|cffb8b8b8" .. UIText("These journals are only available during the account-bound weekly quest 'Legends of the Haranir'. While in a vision, look for the magnifying glass icon on your minimap.") .. "|r")
 
 chroniclerOfTheHaranir.emptyText = chroniclerOfTheHaranir.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 chroniclerOfTheHaranir.emptyText:SetPoint("TOPLEFT", 0, -162)
 chroniclerOfTheHaranir.emptyText:SetPoint("RIGHT", -12, 0)
 chroniclerOfTheHaranir.emptyText:SetJustifyH("LEFT")
 chroniclerOfTheHaranir.emptyText:SetWordWrap(true)
-chroniclerOfTheHaranir.emptyText:SetText("|cffb8b8b8" .. UIText("Recover the Haranir journal entries listed below.", "Recover the Haranir journal entries listed below.") .. "|r")
+chroniclerOfTheHaranir.emptyText:SetText("|cffb8b8b8" .. UIText("Recover the Haranir journal entries listed below.") .. "|r")
 
 chroniclerOfTheHaranir.rows = {}
 for i = 1, 20 do
@@ -3154,7 +3179,7 @@ legendsNeverDie.summary:SetJustifyH("LEFT")
 
 legendsNeverDie.criteriaTitle = legendsNeverDie.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 legendsNeverDie.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-legendsNeverDie.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+legendsNeverDie.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(legendsNeverDie.view, -64)
@@ -3165,21 +3190,21 @@ end
 
 legendsNeverDie.detailTitle = legendsNeverDie.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 legendsNeverDie.detailTitle:SetPoint("TOPLEFT", 0, -110)
-legendsNeverDie.detailTitle:SetText(UIText("Criteria", "Criteria"))
+legendsNeverDie.detailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 legendsNeverDie.noteText = legendsNeverDie.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 legendsNeverDie.noteText:SetPoint("TOPLEFT", 0, -138)
 legendsNeverDie.noteText:SetPoint("RIGHT", -12, 0)
 legendsNeverDie.noteText:SetJustifyH("LEFT")
 legendsNeverDie.noteText:SetWordWrap(true)
-legendsNeverDie.noteText:SetText("|cffb8b8b8" .. UIText("This is tied to the account-bound weekly quest 'Legends of the Haranir'. If you have no progress yet, it is estimated to take about 7 weeks to complete.", "This is tied to the account-bound weekly quest 'Legends of the Haranir'. If you have no progress yet, it is estimated to take about 7 weeks to complete.") .. "|r")
+legendsNeverDie.noteText:SetText("|cffb8b8b8" .. UIText("This is tied to the account-bound weekly quest 'Legends of the Haranir'. If you have no progress yet, it is estimated to take about 7 weeks to complete.") .. "|r")
 
 legendsNeverDie.emptyText = legendsNeverDie.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 legendsNeverDie.emptyText:SetPoint("TOPLEFT", 0, -162)
 legendsNeverDie.emptyText:SetPoint("RIGHT", -12, 0)
 legendsNeverDie.emptyText:SetJustifyH("LEFT")
 legendsNeverDie.emptyText:SetWordWrap(true)
-legendsNeverDie.emptyText:SetText("|cffb8b8b8" .. UIText("Defend each Haranir legend location listed below.", "Defend each Haranir legend location listed below.") .. "|r")
+legendsNeverDie.emptyText:SetText("|cffb8b8b8" .. UIText("Defend each Haranir legend location listed below.") .. "|r")
 
 legendsNeverDie.rows = {}
 for i = 1, 8 do
@@ -3214,7 +3239,7 @@ dustEmOff.summary:SetJustifyH("LEFT")
 
 dustEmOff.criteriaTitle = dustEmOff.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 dustEmOff.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-dustEmOff.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+dustEmOff.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(dustEmOff.view, -64)
@@ -3225,7 +3250,7 @@ end
 
 dustEmOff.detailTitle = dustEmOff.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 dustEmOff.detailTitle:SetPoint("TOPLEFT", 0, -110)
-dustEmOff.detailTitle:SetText(UIText("Groups", "Groups"))
+dustEmOff.detailTitle:SetText(UIText("Groups"))
 
 dustEmOff.groupBackBtn = CreateFrame("Button", nil, dustEmOff.view, "BackdropTemplate")
 dustEmOff.groupBackBtn:SetSize(90, 22)
@@ -3238,7 +3263,7 @@ dustEmOff.groupBackBtn:SetBackdrop({
 })
 dustEmOff.groupBackBtn.Text = dustEmOff.groupBackBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 dustEmOff.groupBackBtn.Text:SetPoint("CENTER")
-dustEmOff.groupBackBtn.Text:SetText(UIText("Back to Groups", "Back to Groups"))
+dustEmOff.groupBackBtn.Text:SetText(UIText("Back to Groups"))
 dustEmOff.groupBackBtn:Hide()
 
 dustEmOff.noteText = dustEmOff.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
@@ -3246,14 +3271,14 @@ dustEmOff.noteText:SetPoint("TOPLEFT", 0, -138)
 dustEmOff.noteText:SetPoint("RIGHT", -12, 0)
 dustEmOff.noteText:SetJustifyH("LEFT")
 dustEmOff.noteText:SetWordWrap(true)
-dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("This tracker is split into 3 groups of 40 coordinates so the moth routes stay manageable.", "This tracker is split into 3 groups of 40 coordinates so the moth routes stay manageable.") .. "|r")
+dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("This tracker is split into 3 groups of 40 coordinates so the moth routes stay manageable.") .. "|r")
 
 dustEmOff.emptyText = dustEmOff.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 dustEmOff.emptyText:SetPoint("TOPLEFT", 0, -170)
 dustEmOff.emptyText:SetPoint("RIGHT", -12, 0)
 dustEmOff.emptyText:SetJustifyH("LEFT")
 dustEmOff.emptyText:SetWordWrap(true)
-dustEmOff.emptyText:SetText("|cffb8b8b8" .. UIText("Coordinate groups have not been added yet.", "Coordinate groups have not been added yet.") .. "|r")
+dustEmOff.emptyText:SetText("|cffb8b8b8" .. UIText("Coordinate groups have not been added yet.") .. "|r")
 
 dustEmOff.groupButtons = {}
 for i = 1, 3 do
@@ -3330,7 +3355,7 @@ aSingularProblem.summary:SetJustifyH("LEFT")
 
 aSingularProblem.criteriaTitle = aSingularProblem.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 aSingularProblem.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-aSingularProblem.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+aSingularProblem.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(aSingularProblem.view, -64)
@@ -3341,7 +3366,7 @@ end
 
 aSingularProblem.detailTitle = aSingularProblem.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 aSingularProblem.detailTitle:SetPoint("TOPLEFT", 0, -110)
-aSingularProblem.detailTitle:SetText(UIText("Criteria", "Criteria"))
+aSingularProblem.detailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 aSingularProblem.eventButton = CreateFrame("Button", nil, aSingularProblem.view, "BackdropTemplate")
 aSingularProblem.eventButton:SetSize(120, 24)
@@ -3354,14 +3379,14 @@ aSingularProblem.eventButton:SetBackdrop({
 })
 aSingularProblem.eventButton.Text = aSingularProblem.eventButton:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 aSingularProblem.eventButton.Text:SetPoint("CENTER")
-aSingularProblem.eventButton.Text:SetText(UIText("Stormarion Assault", "Stormarion Assault"))
+aSingularProblem.eventButton.Text:SetText(UIText("WORLD_EVENT_STORMARION"))
 
 aSingularProblem.emptyText = aSingularProblem.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 aSingularProblem.emptyText:SetPoint("TOPLEFT", 0, -170)
 aSingularProblem.emptyText:SetPoint("RIGHT", -12, 0)
 aSingularProblem.emptyText:SetJustifyH("LEFT")
 aSingularProblem.emptyText:SetWordWrap(true)
-aSingularProblem.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for A Singular Problem have not been added yet.", "Tracked entries for A Singular Problem have not been added yet.") .. "|r")
+aSingularProblem.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for A Singular Problem have not been added yet.") .. "|r")
 
 aSingularProblem.rows = {}
 for i = 1, 3 do
@@ -3396,7 +3421,7 @@ exploreZulaman.summary:SetJustifyH("LEFT")
 
 exploreZulaman.criteriaTitle = exploreZulaman.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreZulaman.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-exploreZulaman.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+exploreZulaman.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(exploreZulaman.view, -64)
@@ -3407,14 +3432,14 @@ end
 
 exploreZulaman.detailTitle = exploreZulaman.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreZulaman.detailTitle:SetPoint("TOPLEFT", 0, -110)
-exploreZulaman.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+exploreZulaman.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 exploreZulaman.emptyText = exploreZulaman.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 exploreZulaman.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreZulaman.emptyText:SetPoint("RIGHT", -12, 0)
 exploreZulaman.emptyText:SetJustifyH("LEFT")
 exploreZulaman.emptyText:SetWordWrap(true)
-exploreZulaman.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Zul'Aman have not been added yet.", "Tracked entries for Explore Zul'Aman have not been added yet.") .. "|r")
+exploreZulaman.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Zul'Aman have not been added yet.") .. "|r")
 
 exploreZulaman.rows = {}
 for i = 1, 12 do
@@ -3448,7 +3473,7 @@ exploreHarandar.summary:SetJustifyH("LEFT")
 
 exploreHarandar.criteriaTitle = exploreHarandar.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreHarandar.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-exploreHarandar.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+exploreHarandar.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(exploreHarandar.view, -64)
@@ -3459,14 +3484,14 @@ end
 
 exploreHarandar.detailTitle = exploreHarandar.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 exploreHarandar.detailTitle:SetPoint("TOPLEFT", 0, -110)
-exploreHarandar.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+exploreHarandar.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 exploreHarandar.emptyText = exploreHarandar.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 exploreHarandar.emptyText:SetPoint("TOPLEFT", 0, -138)
 exploreHarandar.emptyText:SetPoint("RIGHT", -12, 0)
 exploreHarandar.emptyText:SetJustifyH("LEFT")
 exploreHarandar.emptyText:SetWordWrap(true)
-exploreHarandar.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Harandar have not been added yet.", "Tracked entries for Explore Harandar have not been added yet.") .. "|r")
+exploreHarandar.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Explore Harandar have not been added yet.") .. "|r")
 
 exploreHarandar.rows = {}
 for i = 1, 12 do
@@ -3500,7 +3525,7 @@ abundanceProsperous.summary:SetJustifyH("LEFT")
 
 abundanceProsperous.criteriaTitle = abundanceProsperous.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 abundanceProsperous.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-abundanceProsperous.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+abundanceProsperous.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(abundanceProsperous.view, -64)
@@ -3511,14 +3536,14 @@ end
 
 abundanceProsperous.detailTitle = abundanceProsperous.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 abundanceProsperous.detailTitle:SetPoint("TOPLEFT", 0, -110)
-abundanceProsperous.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+abundanceProsperous.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 abundanceProsperous.emptyText = abundanceProsperous.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 abundanceProsperous.emptyText:SetPoint("TOPLEFT", 0, -138)
 abundanceProsperous.emptyText:SetPoint("RIGHT", -12, 0)
 abundanceProsperous.emptyText:SetJustifyH("LEFT")
 abundanceProsperous.emptyText:SetWordWrap(true)
-abundanceProsperous.emptyText:SetText("|cffb8b8b8Tracked entries for Abundance: Prosperous Plentitude! have not been added yet.|r")
+abundanceProsperous.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Abundance: Prosperous Plentitude! have not been added yet.") .. "|r")
 
 abundanceProsperous.rows = {}
 for i = 1, 8 do
@@ -3552,7 +3577,7 @@ altarOfBlessings.summary:SetJustifyH("LEFT")
 
 altarOfBlessings.criteriaTitle = altarOfBlessings.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 altarOfBlessings.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-altarOfBlessings.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+altarOfBlessings.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(altarOfBlessings.view, -64)
@@ -3563,14 +3588,14 @@ end
 
 altarOfBlessings.detailTitle = altarOfBlessings.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 altarOfBlessings.detailTitle:SetPoint("TOPLEFT", 0, -110)
-altarOfBlessings.detailTitle:SetText(UIText("Criteria", "Criteria"))
+altarOfBlessings.detailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 altarOfBlessings.emptyText = altarOfBlessings.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 altarOfBlessings.emptyText:SetPoint("TOPLEFT", 0, -138)
 altarOfBlessings.emptyText:SetPoint("RIGHT", -12, 0)
 altarOfBlessings.emptyText:SetJustifyH("LEFT")
 altarOfBlessings.emptyText:SetWordWrap(true)
-altarOfBlessings.emptyText:SetText("|cffb8b8b8Trigger each listed blessing effect for credit.|r")
+altarOfBlessings.emptyText:SetText("|cffb8b8b8" .. UIText("Trigger each listed blessing effect for credit.") .. "|r")
 
 altarOfBlessings.rows = {}
 for i = 1, 24 do
@@ -3605,7 +3630,7 @@ makingAnAmaniOutOfYou.summary:SetJustifyH("LEFT")
 
 makingAnAmaniOutOfYou.criteriaTitle = makingAnAmaniOutOfYou.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 makingAnAmaniOutOfYou.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-makingAnAmaniOutOfYou.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+makingAnAmaniOutOfYou.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(makingAnAmaniOutOfYou.view, -64)
@@ -3616,14 +3641,14 @@ end
 
 makingAnAmaniOutOfYou.detailTitle = makingAnAmaniOutOfYou.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 makingAnAmaniOutOfYou.detailTitle:SetPoint("TOPLEFT", 0, -110)
-makingAnAmaniOutOfYou.detailTitle:SetText(UIText("Criteria", "Criteria"))
+makingAnAmaniOutOfYou.detailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 makingAnAmaniOutOfYou.emptyText = makingAnAmaniOutOfYou.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 makingAnAmaniOutOfYou.emptyText:SetPoint("TOPLEFT", 0, -138)
 makingAnAmaniOutOfYou.emptyText:SetPoint("RIGHT", -12, 0)
 makingAnAmaniOutOfYou.emptyText:SetJustifyH("LEFT")
 makingAnAmaniOutOfYou.emptyText:SetWordWrap(true)
-makingAnAmaniOutOfYou.emptyText:SetText("|cffb8b8b8Tracked entries for Making an Amani Out of You have not been added yet.|r")
+makingAnAmaniOutOfYou.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Making an Amani Out of You have not been added yet.") .. "|r")
 
 makingAnAmaniOutOfYou.childButtons = {}
 for i = 1, 6 do
@@ -3658,7 +3683,7 @@ thatsAlnFolks.summary:SetJustifyH("LEFT")
 
 thatsAlnFolks.criteriaTitle = thatsAlnFolks.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 thatsAlnFolks.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-thatsAlnFolks.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+thatsAlnFolks.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(thatsAlnFolks.view, -64)
@@ -3669,14 +3694,14 @@ end
 
 thatsAlnFolks.detailTitle = thatsAlnFolks.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 thatsAlnFolks.detailTitle:SetPoint("TOPLEFT", 0, -110)
-thatsAlnFolks.detailTitle:SetText(UIText("Criteria", "Criteria"))
+thatsAlnFolks.detailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 thatsAlnFolks.emptyText = thatsAlnFolks.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 thatsAlnFolks.emptyText:SetPoint("TOPLEFT", 0, -138)
 thatsAlnFolks.emptyText:SetPoint("RIGHT", -12, 0)
 thatsAlnFolks.emptyText:SetJustifyH("LEFT")
 thatsAlnFolks.emptyText:SetWordWrap(true)
-thatsAlnFolks.emptyText:SetText("|cffb8b8b8Tracked entries for That's Aln, Folks! have not been added yet.|r")
+thatsAlnFolks.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for That's Aln, Folks! have not been added yet.") .. "|r")
 
 thatsAlnFolks.childButtons = {}
 for i = 1, 8 do
@@ -3711,7 +3736,7 @@ foreverSong.summary:SetJustifyH("LEFT")
 
 foreverSong.criteriaTitle = foreverSong.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 foreverSong.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-foreverSong.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+foreverSong.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(foreverSong.view, -64)
@@ -3722,14 +3747,14 @@ end
 
 foreverSong.detailTitle = foreverSong.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 foreverSong.detailTitle:SetPoint("TOPLEFT", 0, -110)
-foreverSong.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+foreverSong.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 foreverSong.emptyText = foreverSong.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 foreverSong.emptyText:SetPoint("TOPLEFT", 0, -138)
 foreverSong.emptyText:SetPoint("RIGHT", -12, 0)
 foreverSong.emptyText:SetJustifyH("LEFT")
 foreverSong.emptyText:SetWordWrap(true)
-foreverSong.emptyText:SetText("|cffb8b8b8Tracked entries for Forever Song have not been added yet.|r")
+foreverSong.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Forever Song have not been added yet.") .. "|r")
 
 foreverSong.childButtons = {}
 for i = 1, 6 do
@@ -3764,7 +3789,7 @@ yellingIntoVoidstorm.summary:SetJustifyH("LEFT")
 
 yellingIntoVoidstorm.criteriaTitle = yellingIntoVoidstorm.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 yellingIntoVoidstorm.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-yellingIntoVoidstorm.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+yellingIntoVoidstorm.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(yellingIntoVoidstorm.view, -64)
@@ -3775,14 +3800,14 @@ end
 
 yellingIntoVoidstorm.detailTitle = yellingIntoVoidstorm.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 yellingIntoVoidstorm.detailTitle:SetPoint("TOPLEFT", 0, -110)
-yellingIntoVoidstorm.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+yellingIntoVoidstorm.detailTitle:SetText(UIText("LABEL_DETAILS"))
 
 yellingIntoVoidstorm.emptyText = yellingIntoVoidstorm.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 yellingIntoVoidstorm.emptyText:SetPoint("TOPLEFT", 0, -138)
 yellingIntoVoidstorm.emptyText:SetPoint("RIGHT", -12, 0)
 yellingIntoVoidstorm.emptyText:SetJustifyH("LEFT")
 yellingIntoVoidstorm.emptyText:SetWordWrap(true)
-yellingIntoVoidstorm.emptyText:SetText("|cffb8b8b8Tracked entries for Yelling into the Voidstorm have not been added yet.|r")
+yellingIntoVoidstorm.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Yelling into the Voidstorm have not been added yet.") .. "|r")
 
 yellingIntoVoidstorm.childButtons = {}
 for i = 1, 6 do
@@ -3817,7 +3842,7 @@ lightUpTheNight.summary:SetJustifyH("LEFT")
 
 lightUpTheNight.criteriaTitle = lightUpTheNight.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 lightUpTheNight.criteriaTitle:SetPoint("TOPLEFT", 0, -36)
-lightUpTheNight.criteriaTitle:SetText(UIText("LABEL_REWARD", "Reward"))
+lightUpTheNight.criteriaTitle:SetText(UIText("LABEL_REWARD"))
 
 do
     local reward = CreateAchievementRewardDisplay(lightUpTheNight.view, -64)
@@ -3828,14 +3853,14 @@ end
 
 lightUpTheNight.detailTitle = lightUpTheNight.view:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 lightUpTheNight.detailTitle:SetPoint("TOPLEFT", 0, -110)
-lightUpTheNight.detailTitle:SetText(UIText("Criteria", "Criteria"))
+lightUpTheNight.detailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 lightUpTheNight.emptyText = lightUpTheNight.view:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 lightUpTheNight.emptyText:SetPoint("TOPLEFT", 0, -138)
 lightUpTheNight.emptyText:SetPoint("RIGHT", -12, 0)
 lightUpTheNight.emptyText:SetJustifyH("LEFT")
 lightUpTheNight.emptyText:SetWordWrap(true)
-lightUpTheNight.emptyText:SetText("|cffb8b8b8Tracked entries for Light Up the Night have not been added yet.|r")
+lightUpTheNight.emptyText:SetText("|cffb8b8b8" .. UIText("Tracked entries for Light Up the Night have not been added yet.") .. "|r")
 
 lightUpTheNight.childButtons = {}
 for i = 1, 4 do
@@ -3861,7 +3886,7 @@ end
 
 delverDetailTitle = delverView:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 delverDetailTitle:SetPoint("TOPLEFT", 0, -170)
-delverDetailTitle:SetText(UIText("Criteria", "Criteria"))
+delverDetailTitle:SetText(UIText("LABEL_CRITERIA"))
 
 delverCriteriaRows = {}
 for i = 1, 12 do
@@ -3883,7 +3908,7 @@ end)
 local achievementsEmpty = achievementsContent:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 achievementsEmpty:SetPoint("TOPLEFT", 12, -10)
 achievementsEmpty:SetJustifyH("LEFT")
-achievementsEmpty:SetText("|cff888888" .. UIText("MSG_NO_ACHIEVEMENT_DATA", "No achievement tracking data is available.") .. "|r")
+achievementsEmpty:SetText("|cff888888" .. UIText("MSG_NO_ACHIEVEMENT_DATA") .. "|r")
 achievementsEmpty:Hide()
 
 local achievementPanels = {}
@@ -3949,12 +3974,16 @@ local function RefreshAchievementsButton()
     local achActive = (currentMainView == "achievements")
     local instActive = (currentMainView == "instances")
     local dashActive = (currentMainView == "dashboard")
+    local profitActive = (currentMainView == "profit")
     local optActive = (currentMainView == "options")
     local factionActive = (currentMainView == "factions")
 
     dashboardTab:SetBackdropBorderColor(unpack(dashActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
     dashboardTab:SetBackdropColor(unpack(dashActive and (t.buttonBgHover or t.buttonBgAlt or t.buttonBg) or (t.buttonBgAlt or t.buttonBg)))
     dashboardTab.Text:SetTextColor(unpack(dashActive and t.textPrimary or t.textSecondary))
+    profitTab:SetBackdropBorderColor(unpack(profitActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
+    profitTab:SetBackdropColor(unpack(profitActive and (t.buttonBgHover or t.buttonBgAlt or t.buttonBg) or (t.buttonBgAlt or t.buttonBg)))
+    profitTab.Text:SetTextColor(unpack(profitActive and t.textPrimary or t.textSecondary))
     optionsTab:SetBackdropBorderColor(unpack(optActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
     optionsTab:SetBackdropColor(unpack(optActive and (t.buttonBgHover or t.buttonBgAlt or t.buttonBg) or (t.buttonBgAlt or t.buttonBg)))
     optionsTab.Text:SetTextColor(unpack(optActive and t.textPrimary or t.textSecondary))
@@ -3967,8 +3996,11 @@ local function RefreshAchievementsButton()
     dashboardTab:ClearAllPoints()
     dashboardTab:SetPoint("LEFT", optionsTab, "RIGHT", -4, 0)
 
+    profitTab:ClearAllPoints()
+    profitTab:SetPoint("LEFT", dashboardTab, "RIGHT", -4, 0)
+
     factionsTab:ClearAllPoints()
-    factionsTab:SetPoint("LEFT", dashboardTab, "RIGHT", -4, 0)
+    factionsTab:SetPoint("LEFT", profitTab, "RIGHT", -4, 0)
 
     achievementsBtn:SetBackdropBorderColor(unpack(achActive and (t.borderHover or t.borderPrimary) or t.borderPrimary))
     achievementsBtn:SetBackdropColor(unpack(achActive and (t.buttonBgHover or t.buttonBgAlt or t.buttonBg) or (t.buttonBgAlt or t.buttonBg)))
@@ -3990,6 +4022,9 @@ if lv.RegisterThemedElement then
         ApplyAchievementsTheme(theme)
     end)
     lv.RegisterThemedElement(dashboardTab, function()
+        RefreshAchievementsButton()
+    end)
+    lv.RegisterThemedElement(profitTab, function()
         RefreshAchievementsButton()
     end)
     lv.RegisterThemedElement(achievementsBtn, function()
@@ -4178,17 +4213,17 @@ do
 end
 
 local function RenderAchievementsHome()
-    achievementsTitle:SetText(UIText("TITLE_ACHIEVEMENTS", "Achievements"))
-    achievementsSubtitle:SetText(UIText("DESC_ACHIEVEMENTS", "Choose an achievement tracker to view detailed progress."))
-    glyphHunterBackBtn.Text:SetText(UIText("Back", "Back"))
-    local rewardName = lv.GetLocalizedItemNameByID(REWARD_ITEM.CRIMSON_DRAGONHAWK, UIText("Crimson Dragonhawk", "Crimson Dragonhawk"))
+    achievementsTitle:SetText(UIText("TITLE_ACHIEVEMENTS"))
+    achievementsSubtitle:SetText(UIText("DESC_ACHIEVEMENTS"))
+    glyphHunterBackBtn.Text:SetText(UIText("BUTTON_BACK"))
+    local rewardName = lv.GetLocalizedItemNameByID(REWARD_ITEM.CRIMSON_DRAGONHAWK, UIText("LABEL_UNKNOWN"))
     local hasReward = HasAchievement(ACH.MIDNIGHT_GLYPH_HUNTER) and HasMountRewardFromItem(REWARD_ITEM.CRIMSON_DRAGONHAWK)
     local rewardColor = hasReward and "|cff00ff00" or "|cffff8040"
-    home.glyphRewardText:SetText(string.format("%s: %s%s|r", UIText("LABEL_REWARD", "Reward"), rewardColor, rewardName))
-    local delverRewardName = lv.GetLocalizedItemNameByID(REWARD_ITEM.GIGANTO_MANIS, UIText("Giganto-Manis", "Giganto-Manis"))
+    home.glyphRewardText:SetText(string.format("%s: %s%s|r", UIText("LABEL_REWARD"), rewardColor, rewardName))
+    local delverRewardName = lv.GetLocalizedItemNameByID(REWARD_ITEM.GIGANTO_MANIS, UIText("LABEL_UNKNOWN"))
     local delverHasReward = HasAchievement(ACH.GLORY_OF_THE_MIDNIGHT_DELVER) and HasMountRewardFromItem(REWARD_ITEM.GIGANTO_MANIS)
     local delverRewardColor = delverHasReward and "|cff00ff00" or "|cffff8040"
-    home.delverRewardText:SetText(string.format("%s: %s%s|r", UIText("LABEL_REWARD", "Reward"), delverRewardColor, delverRewardName))
+    home.delverRewardText:SetText(string.format("%s: %s%s|r", UIText("LABEL_REWARD"), delverRewardColor, delverRewardName))
     achievementsEmpty:Hide()
     for _, panel in ipairs(achievementPanels) do
         panel:Hide()
@@ -4411,7 +4446,7 @@ local function SetRareDetailButton(btn, info, isRareDone, fallbackLabel)
             if info.rep and info.rep ~= "" then
                 GameTooltip:AddLine(info.rep, 0.85, 0.85, 0.85)
             end
-            GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+            GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
             GameTooltip:Show()
         end
     end)
@@ -4477,7 +4512,7 @@ local function SetPeaksWaypointRows(rows, waypointRows, renownLabel)
                 if renownLabel then
                     GameTooltip:AddLine(string.format("100 Renown: %s", renownLabel), 1, 0.82, 0)
                 end
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -4508,11 +4543,11 @@ local function RenderRaresAchievementsView()
             end
         end
     end
-    achievementsTitle:SetText("Rares of Midnight")
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_ACHIEVEMENT", "Achievement"), doneCount, #MIDNIGHT_RARES_OF_MIDNIGHT))
-    rares.summary:SetText(UIText("Track the four Midnight rare achievements.", "Track the four Midnight rare achievements."))
-    rares.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), selectedName or UIText("LABEL_UNKNOWN", "Unknown")))
-    SetItemRewardDisplay(rares.rewardIcon, rares.rewardLabel, rares.rewardButton, MIDNIGHT_RARES_REWARDS[rares.selectedAchievementID], "|cff999999Zone reward not added yet.|r")
+    achievementsTitle:SetText(UIText("Rares of Midnight"))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_ACHIEVEMENT"), doneCount, #MIDNIGHT_RARES_OF_MIDNIGHT))
+    rares.summary:SetText(UIText("Track the four Midnight rare achievements."))
+    rares.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), selectedName or UIText("LABEL_UNKNOWN")))
+    SetItemRewardDisplay(rares.rewardIcon, rares.rewardLabel, rares.rewardButton, MIDNIGHT_RARES_REWARDS[rares.selectedAchievementID], "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
     SetSharedLootDisplay(rares.sharedLootTitle, rares.sharedLootSlots, MIDNIGHT_RARES_SHARED_LOOT[rares.selectedAchievementID])
 
     local detailRows = MIDNIGHT_RARES_DETAILS[rares.selectedAchievementID] or {}
@@ -4535,10 +4570,10 @@ local function RenderDelverAchievementsView()
     local doneCount = RenderAchievementSelectionButtons(delverAchievementButtons, MIDNIGHT_DELVER_CRITERIA, delverSelectedAchievementID)
     local selectedName, criteriaRows
     delverSelectedAchievementID, selectedName, criteriaRows = ResolveSelectedAchievementWithDescription(MIDNIGHT_DELVER_CRITERIA, delverSelectedAchievementID)
-    achievementsTitle:SetText(UIText("Glory of the Midnight Delver", "Glory of the Midnight Delver"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA", "Criteria"), doneCount, #MIDNIGHT_DELVER_CRITERIA))
-    delverSummary:SetText(UIText("Complete all four supporting Midnight delver achievements to finish this meta achievement.", "Complete all four supporting Midnight delver achievements to finish this meta achievement."))
-    delverDetailTitle:SetText(string.format("%s: %s", UIText("LABEL_CRITERIA", "Criteria"), selectedName or UIText("LABEL_UNKNOWN", "Unknown")))
+    achievementsTitle:SetText(UIText("Glory of the Midnight Delver"))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA"), doneCount, #MIDNIGHT_DELVER_CRITERIA))
+    delverSummary:SetText(UIText("Complete all four supporting Midnight delver achievements to finish this meta achievement."))
+    delverDetailTitle:SetText(string.format("%s: %s", UIText("LABEL_CRITERIA"), selectedName or UIText("LABEL_UNKNOWN")))
     for i, row in ipairs(delverCriteriaRows) do
         local info = criteriaRows[i]
         if info then
@@ -4559,12 +4594,12 @@ local function RenderPeaksAchievementsView()
     local doneCount = RenderAchievementSelectionButtons(peaksAchievementButtons, MIDNIGHT_HIGHEST_PEAKS_CRITERIA, peaksSelectedAchievementID)
     local selectedName, criteriaRows
     peaksSelectedAchievementID, selectedName, criteriaRows = ResolveSelectedAchievementWithDescription(MIDNIGHT_HIGHEST_PEAKS_CRITERIA, peaksSelectedAchievementID)
-    achievementsTitle:SetText(GetAchievementName(ACH.MIDNIGHT_HIGHEST_PEAKS, "Midnight, the Highest Peaks"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA", "Criteria"), doneCount, #MIDNIGHT_HIGHEST_PEAKS_CRITERIA))
-    peaksSummary:SetText(UIText("Complete the five telescopes in this zone.", "Complete the five telescopes in this zone."))
-    peaksCriteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), selectedName or UIText("LABEL_UNKNOWN", "Unknown")))
+    achievementsTitle:SetText(GetAchievementName(ACH.MIDNIGHT_HIGHEST_PEAKS, UIText("Midnight, the Highest Peaks")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_CRITERIA"), doneCount, #MIDNIGHT_HIGHEST_PEAKS_CRITERIA))
+    peaksSummary:SetText(UIText("Complete the five telescopes in this zone."))
+    peaksCriteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), selectedName or UIText("LABEL_UNKNOWN")))
     SetItemRewardDisplay(peaksRewardIcon, peaksRewardLabel, peaksRewardButton, MIDNIGHT_HIGHEST_PEAKS_REWARDS[peaksSelectedAchievementID], "")
-    peaksDetailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    peaksDetailTitle:SetText(UIText("LABEL_DETAILS"))
     local waypointRows = MIDNIGHT_HIGHEST_PEAKS_WAYPOINTS[peaksSelectedAchievementID]
     if waypointRows and #waypointRows > 0 then
         local renownKey = MIDNIGHT_HIGHEST_PEAKS_RENOWN_KEYS[peaksSelectedAchievementID]
@@ -4601,7 +4636,7 @@ local function RenderGlyphHunterAchievementsView()
     local zones = lv.GetMidnightGlyphZones and lv.GetMidnightGlyphZones() or nil
     if not zones or #zones == 0 then
         achievementsEmpty:Show()
-        achievementsSubtitle:SetText(UIText("MSG_NO_ACHIEVEMENT_DATA", "No achievement tracking data is available."))
+        achievementsSubtitle:SetText(UIText("MSG_NO_ACHIEVEMENT_DATA"))
         for _, panel in ipairs(achievementPanels) do
             panel:Hide()
         end
@@ -4653,8 +4688,8 @@ local function RenderGlyphHunterAchievementsView()
             panel:Show()
         end
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.MIDNIGHT_GLYPH_HUNTER, UIText("TITLE_MIDNIGHT_GLYPH_HUNTER", "Midnight Glyph Hunter")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_GLYPHS_COLLECTED", "Glyphs Collected"), totalDone, totalCount))
+    achievementsTitle:SetText(GetAchievementName(ACH.MIDNIGHT_GLYPH_HUNTER, UIText("TITLE_MIDNIGHT_GLYPH_HUNTER")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_GLYPHS_COLLECTED"), totalDone, totalCount))
     achievementsContent:SetHeight(440)
 end
 
@@ -4709,10 +4744,10 @@ local function RenderTreasureAchievementsView()
             break
         end
     end
-    achievementsTitle:SetText(UIText("Treasures of Midnight", "Treasures of Midnight"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_ACHIEVEMENT", "Achievement"), doneCount, #TREASURES_OF_MIDNIGHT))
-    treasureSummary:SetText(UIText("Track the four Midnight treasure achievements and their rewards.", "Track the four Midnight treasure achievements and their rewards."))
-    treasureDetailTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), selectedName or UIText("LABEL_UNKNOWN", "Unknown")))
+    achievementsTitle:SetText(UIText("Treasures of Midnight"))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%d/%d|r", UIText("LABEL_ACHIEVEMENT"), doneCount, #TREASURES_OF_MIDNIGHT))
+    treasureSummary:SetText(UIText("Track the four Midnight treasure achievements and their rewards."))
+    treasureDetailTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), selectedName or UIText("LABEL_UNKNOWN")))
     local achievementRewardInfo = GetAchievementRewardDisplayInfo(treasureSelectedAchievementID, rewardText)
     if achievementRewardInfo and achievementRewardInfo.icon then
         treasureRewardText:Hide()
@@ -4728,7 +4763,7 @@ local function RenderTreasureAchievementsView()
             elseif achievementRewardInfo.tooltipType == "mount" and achievementRewardInfo.tooltipValue and GameTooltip.SetSpellByID then
                 GameTooltip:SetSpellByID(achievementRewardInfo.tooltipValue)
             else
-                local tooltipText = achievementRewardInfo.label or (selectedName or UIText("LABEL_UNKNOWN", "Unknown"))
+                local tooltipText = achievementRewardInfo.label or (selectedName or UIText("LABEL_UNKNOWN"))
                 GameTooltip:SetText(lv.LocalizeDisplayText(tooltipText, tooltipText), 1, 0.82, 0)
             end
             GameTooltip:Show()
@@ -4751,7 +4786,7 @@ local function RenderTreasureAchievementsView()
         treasureRewardLabel:Hide()
         treasureRewardButton:Hide()
         treasureRewardText:Show()
-        treasureRewardText:SetText("|cff999999" .. UIText("No achievement reward listed.", "No achievement reward listed.") .. "|r")
+        treasureRewardText:SetText("|cff999999" .. UIText("No achievement reward listed.") .. "|r")
     end
     for _, row in ipairs(treasureCriteriaRows) do
         row:SetText("")
@@ -4951,18 +4986,18 @@ local function RenderEverPaintingView()
     end
     local statusText
     if HasAchievement(ACH.EVER_PAINTING) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif seenCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.EVER_PAINTING, "Ever-Painting"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    everPainting.summary:SetText(string.format(UIText("Track the known Ever-Painting canvases. x/y marked.", "Track the known Ever-Painting canvases. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), seenCount, #EVER_PAINTING_ENTRIES))
-    everPainting.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.EVER_PAINTING, "Ever-Painting")))
+    achievementsTitle:SetText(GetAchievementName(ACH.EVER_PAINTING, UIText("Ever-Painting")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    everPainting.summary:SetText(string.format(UIText("Track the known Ever-Painting canvases. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), seenCount, #EVER_PAINTING_ENTRIES))
+    everPainting.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EVER_PAINTING, UIText("Ever-Painting"))))
     SetItemRewardDisplay(everPainting.rewardIcon, everPainting.rewardLabel, everPainting.rewardButton, EVER_PAINTING_REWARD, "")
-    everPainting.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    everPainting.detailTitle:SetText(UIText("LABEL_DETAILS"))
     everPainting.emptyText:SetShown(#EVER_PAINTING_ENTRIES == 0)
     for i, row in ipairs(everPainting.rows or {}) do
         local info = EVER_PAINTING_ENTRIES[i]
@@ -4980,7 +5015,7 @@ local function RenderEverPaintingView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -5022,18 +5057,18 @@ local function RenderRunestoneRushView()
     end
     local statusText
     if HasAchievement(ACH.RUNESTONE_RUSH) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.RUNESTONE_RUSH, UIText("Runestone Rush", "Runestone Rush")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    runestoneRush.summary:SetText(string.format(UIText("Track the known Runestone Rush entries. x/y marked.", "Track the known Runestone Rush entries. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #RUNESTONE_RUSH_ENTRIES))
-    runestoneRush.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.RUNESTONE_RUSH, "Runestone Rush")))
-    SetItemRewardDisplay(runestoneRush.rewardIcon, runestoneRush.rewardLabel, runestoneRush.rewardButton, RUNESTONE_RUSH_REWARD, "|cff999999Zone reward not added yet.|r")
-    runestoneRush.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    achievementsTitle:SetText(GetAchievementName(ACH.RUNESTONE_RUSH, UIText("Runestone Rush")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    runestoneRush.summary:SetText(string.format(UIText("Track the known Runestone Rush entries. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #RUNESTONE_RUSH_ENTRIES))
+    runestoneRush.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.RUNESTONE_RUSH, UIText("Runestone Rush"))))
+    SetItemRewardDisplay(runestoneRush.rewardIcon, runestoneRush.rewardLabel, runestoneRush.rewardButton, RUNESTONE_RUSH_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    runestoneRush.detailTitle:SetText(UIText("LABEL_DETAILS"))
     runestoneRush.emptyText:SetShown(#RUNESTONE_RUSH_ENTRIES == 0)
     for i, row in ipairs(runestoneRush.rows or {}) do
         local info = RUNESTONE_RUSH_ENTRIES[i]
@@ -5051,11 +5086,11 @@ local function RenderRunestoneRushView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Charge the runestone with Latent Arcana to start its defense event.", "Charge the runestone with Latent Arcana to start its defense event."), 0.8, 0.8, 0.8, true)
+                GameTooltip:AddLine(UIText("Charge the runestone with Latent Arcana to start its defense event."), 0.8, 0.8, 0.8, true)
                 if info.boss and info.boss ~= "" then
-                    GameTooltip:AddLine(UIText("Achievement credit from:", "Achievement credit from:") .. " " .. info.boss, 1, 0.82, 0, true)
+                    GameTooltip:AddLine(UIText("Achievement credit from:") .. " " .. info.boss, 1, 0.82, 0, true)
                 end
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -5097,18 +5132,18 @@ local function RenderPartyMustGoOnView()
     end
     local statusText
     if HasAchievement(ACH.THE_PARTY_MUST_GO_ON) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, UIText("The Party Must Go On", "The Party Must Go On")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    partyMustGoOn.summary:SetText(string.format(UIText("Track the four faction invites for The Party Must Go On. x/y marked.", "Track the four faction invites for The Party Must Go On. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THE_PARTY_MUST_GO_ON_ENTRIES))
-    partyMustGoOn.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, "The Party Must Go On")))
-    SetItemRewardDisplay(partyMustGoOn.rewardIcon, partyMustGoOn.rewardLabel, partyMustGoOn.rewardButton, THE_PARTY_MUST_GO_ON_REWARD, "|cff999999Zone reward not added yet.|r")
-    partyMustGoOn.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    achievementsTitle:SetText(GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, UIText("The Party Must Go On")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    partyMustGoOn.summary:SetText(string.format(UIText("Track the four faction invites for The Party Must Go On. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THE_PARTY_MUST_GO_ON_ENTRIES))
+    partyMustGoOn.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.THE_PARTY_MUST_GO_ON, UIText("The Party Must Go On"))))
+    SetItemRewardDisplay(partyMustGoOn.rewardIcon, partyMustGoOn.rewardLabel, partyMustGoOn.rewardButton, THE_PARTY_MUST_GO_ON_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    partyMustGoOn.detailTitle:SetText(UIText("LABEL_DETAILS"))
     partyMustGoOn.emptyText:SetShown(#THE_PARTY_MUST_GO_ON_ENTRIES == 0)
     for i, row in ipairs(partyMustGoOn.rows or {}) do
         local info = THE_PARTY_MUST_GO_ON_ENTRIES[i]
@@ -5135,7 +5170,7 @@ local function RenderPartyMustGoOnView()
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.x and info.y then
                     GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                    GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -5178,18 +5213,18 @@ local function RenderExploreEversongView()
     end
     local statusText
     if HasAchievement(ACH.EXPLORE_EVERSONG_WOODS) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, "Explore Eversong Woods"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    exploreEversong.summary:SetText(string.format(UIText("Track Explore Eversong Woods progress. x/y marked.", "Track Explore Eversong Woods progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_EVERSONG_WOODS_ENTRIES))
-    exploreEversong.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, "Explore Eversong Woods")))
-    SetItemRewardDisplay(exploreEversong.rewardIcon, exploreEversong.rewardLabel, exploreEversong.rewardButton, EXPLORE_EVERSONG_WOODS_REWARD, "|cff999999Zone reward not added yet.|r")
-    exploreEversong.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, UIText("Explore Eversong Woods")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    exploreEversong.summary:SetText(string.format(UIText("Track Explore Eversong Woods progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_EVERSONG_WOODS_ENTRIES))
+    exploreEversong.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_EVERSONG_WOODS, UIText("Explore Eversong Woods"))))
+    SetItemRewardDisplay(exploreEversong.rewardIcon, exploreEversong.rewardLabel, exploreEversong.rewardButton, EXPLORE_EVERSONG_WOODS_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    exploreEversong.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreEversong.emptyText:SetShown(#EXPLORE_EVERSONG_WOODS_ENTRIES == 0)
     for i, row in ipairs(exploreEversong.rows or {}) do
         local info = EXPLORE_EVERSONG_WOODS_ENTRIES[i]
@@ -5207,7 +5242,7 @@ local function RenderExploreEversongView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -5249,18 +5284,18 @@ local function RenderExploreVoidstormView()
     end
     local statusText
     if HasAchievement(ACH.EXPLORE_VOIDSTORM) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_VOIDSTORM, "Explore Voidstorm"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    exploreVoidstorm.summary:SetText(string.format(UIText("Track Explore Voidstorm progress. x/y marked.", "Track Explore Voidstorm progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_VOIDSTORM_ENTRIES))
-    exploreVoidstorm.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.EXPLORE_VOIDSTORM, "Explore Voidstorm")))
-    SetItemRewardDisplay(exploreVoidstorm.rewardIcon, exploreVoidstorm.rewardLabel, exploreVoidstorm.rewardButton, EXPLORE_VOIDSTORM_REWARD, "|cff999999Zone reward not added yet.|r")
-    exploreVoidstorm.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_VOIDSTORM, UIText("Explore Voidstorm")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    exploreVoidstorm.summary:SetText(string.format(UIText("Track Explore Voidstorm progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_VOIDSTORM_ENTRIES))
+    exploreVoidstorm.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_VOIDSTORM, UIText("Explore Voidstorm"))))
+    SetItemRewardDisplay(exploreVoidstorm.rewardIcon, exploreVoidstorm.rewardLabel, exploreVoidstorm.rewardButton, EXPLORE_VOIDSTORM_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    exploreVoidstorm.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreVoidstorm.emptyText:SetShown(#EXPLORE_VOIDSTORM_ENTRIES == 0)
     for i, row in ipairs(exploreVoidstorm.rows or {}) do
         local info = EXPLORE_VOIDSTORM_ENTRIES[i]
@@ -5278,7 +5313,7 @@ local function RenderExploreVoidstormView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -5305,19 +5340,19 @@ end
 local function RenderThrillOfTheChaseView()
     local statusText
     if HasAchievement(ACH.THRILL_OF_THE_CHASE) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif select(4, GetAchievementInfo(ACH.THRILL_OF_THE_CHASE)) then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.THRILL_OF_THE_CHASE, "Thrill of the Chase"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    thrillOfTheChase.summary:SetText("Evade the Hungering Presence's grasp in Voidstorm for at least 60 seconds.")
-    thrillOfTheChase.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.THRILL_OF_THE_CHASE, "Thrill of the Chase")))
-    SetItemRewardDisplay(thrillOfTheChase.rewardIcon, thrillOfTheChase.rewardLabel, thrillOfTheChase.rewardButton, THRILL_OF_THE_CHASE_REWARD, "|cff999999Zone reward not added yet.|r")
-    thrillOfTheChase.detailTitle:SetText(UIText("Info", "Info"))
-    thrillOfTheChase.emptyText:SetText("|cffb8b8b8This achievement does not need coordinate tracking in LiteVault. Survive the Hungering Presence event in Voidstorm for at least 60 seconds.|r")
+    achievementsTitle:SetText(GetAchievementName(ACH.THRILL_OF_THE_CHASE, UIText("Thrill of the Chase")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    thrillOfTheChase.summary:SetText(UIText("Evade the Hungering Presence's grasp in Voidstorm for at least 60 seconds."))
+    thrillOfTheChase.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.THRILL_OF_THE_CHASE, UIText("Thrill of the Chase"))))
+    SetItemRewardDisplay(thrillOfTheChase.rewardIcon, thrillOfTheChase.rewardLabel, thrillOfTheChase.rewardButton, THRILL_OF_THE_CHASE_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    thrillOfTheChase.detailTitle:SetText(UIText("LABEL_INFO"))
+    thrillOfTheChase.emptyText:SetText("|cffb8b8b8" .. UIText("This achievement does not need coordinate tracking in LiteVault. Survive the Hungering Presence event in Voidstorm for at least 60 seconds.") .. "|r")
     thrillOfTheChase.emptyText:SetShown(true)
     for i, row in ipairs(thrillOfTheChase.rows or {}) do
         row:SetScript("OnClick", nil)
@@ -5350,21 +5385,21 @@ local function RenderASingularProblemView()
     end
     local statusText
     if HasAchievement(ACH.A_SINGULAR_PROBLEM) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.A_SINGULAR_PROBLEM, UIText("A Singular Problem", "A Singular Problem")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    aSingularProblem.summary:SetText(string.format(UIText("Complete all three waves of the Stormarion Assault. x/y marked.", "Complete all three waves of the Stormarion Assault. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, 3))
-    aSingularProblem.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.A_SINGULAR_PROBLEM, "A Singular Problem")))
-    SetItemRewardDisplay(aSingularProblem.rewardIcon, aSingularProblem.rewardLabel, aSingularProblem.rewardButton, A_SINGULAR_PROBLEM_REWARD, "|cff999999Zone reward not added yet.|r")
-    aSingularProblem.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    achievementsTitle:SetText(GetAchievementName(ACH.A_SINGULAR_PROBLEM, UIText("A Singular Problem")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    aSingularProblem.summary:SetText(string.format(UIText("Complete all three waves of the Stormarion Assault. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, 3))
+    aSingularProblem.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.A_SINGULAR_PROBLEM, UIText("A Singular Problem"))))
+    SetItemRewardDisplay(aSingularProblem.rewardIcon, aSingularProblem.rewardLabel, aSingularProblem.rewardButton, A_SINGULAR_PROBLEM_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    aSingularProblem.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     aSingularProblem.emptyText:SetShown(false)
     aSingularProblem.eventButton:SetScript("OnClick", function()
-        SetAchievementTreasureWaypoint(2405, 27.40, 68.00, UIText("Stormarion Assault", "Stormarion Assault"))
+        SetAchievementTreasureWaypoint(2405, 27.40, 68.00, UIText("WORLD_EVENT_STORMARION"))
     end)
     aSingularProblem.eventButton:SetScript("OnEnter", function(self)
         local t = lv.GetTheme()
@@ -5372,9 +5407,9 @@ local function RenderASingularProblemView()
         self:SetBackdropColor(unpack(t.buttonBgHover))
         self.Text:SetTextColor(unpack(t.textPrimary))
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(UIText("Stormarion Assault", "Stormarion Assault"), 1, 0.82, 0)
+        GameTooltip:SetText(UIText("WORLD_EVENT_STORMARION"), 1, 0.82, 0)
         GameTooltip:AddLine("27.40, 68.00", 1, 1, 1)
-        GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+        GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
         GameTooltip:Show()
     end)
     aSingularProblem.eventButton:SetScript("OnLeave", function(self)
@@ -5387,9 +5422,9 @@ local function RenderASingularProblemView()
     aSingularProblem.eventButton:Show()
 
     local waveNames = {
-        "Wave 1 Complete",
-        "Wave 2 Complete",
-        "Wave 3 Complete",
+        UIText("Wave 1 Complete"),
+        UIText("Wave 2 Complete"),
+        UIText("Wave 3 Complete"),
     }
     for i, row in ipairs(aSingularProblem.rows or {}) do
         local waveName = waveNames[i]
@@ -5417,19 +5452,19 @@ end
 local function RenderNoTimeToPawsView()
     local statusText
     if HasAchievement(ACH.NO_TIME_TO_PAWS) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif select(4, GetAchievementInfo(ACH.NO_TIME_TO_PAWS)) then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.NO_TIME_TO_PAWS, UIText("No Time to Paws", "No Time to Paws")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    noTimeToPaws.summary:SetText(UIText("Complete the Harandar world quest 'Claw Enforcement' while having 15 or more stacks of Predator's Pursuit.", "Complete the Harandar world quest 'Claw Enforcement' while having 15 or more stacks of Predator's Pursuit."))
-    noTimeToPaws.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.NO_TIME_TO_PAWS, "No Time to Paws")))
-    SetItemRewardDisplay(noTimeToPaws.rewardIcon, noTimeToPaws.rewardLabel, noTimeToPaws.rewardButton, nil, "|cff999999Zone reward not added yet.|r")
-    noTimeToPaws.detailTitle:SetText(UIText("Info", "Info"))
-    noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. UIText("This achievement does not need coordinate tracking in LiteVault. Complete the Harandar world quest 'Claw Enforcement' while holding 15 or more stacks of Predator's Pursuit.", "This achievement does not need coordinate tracking in LiteVault. Complete the Harandar world quest 'Claw Enforcement' while holding 15 or more stacks of Predator's Pursuit.") .. "|r")
+    achievementsTitle:SetText(GetAchievementName(ACH.NO_TIME_TO_PAWS, UIText("No Time to Paws")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    noTimeToPaws.summary:SetText(UIText("Complete the Harandar world quest 'Claw Enforcement' while having 15 or more stacks of Predator's Pursuit."))
+    noTimeToPaws.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.NO_TIME_TO_PAWS, UIText("No Time to Paws"))))
+    SetItemRewardDisplay(noTimeToPaws.rewardIcon, noTimeToPaws.rewardLabel, noTimeToPaws.rewardButton, nil, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    noTimeToPaws.detailTitle:SetText(UIText("LABEL_INFO"))
+    noTimeToPaws.emptyText:SetText("|cffb8b8b8" .. UIText("This achievement does not need coordinate tracking in LiteVault. Complete the Harandar world quest 'Claw Enforcement' while holding 15 or more stacks of Predator's Pursuit.") .. "|r")
     noTimeToPaws.emptyText:SetShown(true)
     for i, row in ipairs(noTimeToPaws.rows or {}) do
         row:SetScript("OnClick", nil)
@@ -5443,19 +5478,19 @@ end
 local function RenderFromTheCradleToTheGraveView()
     local statusText
     if HasAchievement(ACH.FROM_THE_CRADLE_TO_THE_GRAVE) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif select(4, GetAchievementInfo(ACH.FROM_THE_CRADLE_TO_THE_GRAVE)) then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.FROM_THE_CRADLE_TO_THE_GRAVE, UIText("From The Cradle to the Grave", "From The Cradle to the Grave")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    fromTheCradleToTheGrave.summary:SetText(UIText("Attempt to fly to The Cradle high in the sky above Harandar.", "Attempt to fly to The Cradle high in the sky above Harandar."))
-    fromTheCradleToTheGrave.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.FROM_THE_CRADLE_TO_THE_GRAVE, "From The Cradle to the Grave")))
-    SetItemRewardDisplay(fromTheCradleToTheGrave.rewardIcon, fromTheCradleToTheGrave.rewardLabel, fromTheCradleToTheGrave.rewardButton, nil, "|cff999999Zone reward not added yet.|r")
-    fromTheCradleToTheGrave.detailTitle:SetText(UIText("Info", "Info"))
-    fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("Fly into The Cradle high in the sky above Harandar to complete this achievement.", "Fly into The Cradle high in the sky above Harandar to complete this achievement.") .. "|r")
+    achievementsTitle:SetText(GetAchievementName(ACH.FROM_THE_CRADLE_TO_THE_GRAVE, UIText("From The Cradle to the Grave")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    fromTheCradleToTheGrave.summary:SetText(UIText("Attempt to fly to The Cradle high in the sky above Harandar."))
+    fromTheCradleToTheGrave.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.FROM_THE_CRADLE_TO_THE_GRAVE, UIText("From The Cradle to the Grave"))))
+    SetItemRewardDisplay(fromTheCradleToTheGrave.rewardIcon, fromTheCradleToTheGrave.rewardLabel, fromTheCradleToTheGrave.rewardButton, nil, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    fromTheCradleToTheGrave.detailTitle:SetText(UIText("LABEL_INFO"))
+    fromTheCradleToTheGrave.emptyText:SetText("|cffb8b8b8" .. UIText("Fly into The Cradle high in the sky above Harandar to complete this achievement.") .. "|r")
     fromTheCradleToTheGrave.emptyText:SetShown(true)
     for i, row in ipairs(fromTheCradleToTheGrave.rows or {}) do
         row:SetScript("OnEnter", nil)
@@ -5475,18 +5510,18 @@ local function RenderChroniclerOfTheHaranirView()
         end
     end
     if HasAchievement(ACH.CHRONICLER_OF_THE_HARANIR) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.CHRONICLER_OF_THE_HARANIR, UIText("Chronicler of the Haranir", "Chronicler of the Haranir")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    chroniclerOfTheHaranir.summary:SetText(string.format(UIText("Recover the Haranir journal entries listed below. x/y marked.", "Recover the Haranir journal entries listed below. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
-    chroniclerOfTheHaranir.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.CHRONICLER_OF_THE_HARANIR, "Chronicler of the Haranir")))
+    achievementsTitle:SetText(GetAchievementName(ACH.CHRONICLER_OF_THE_HARANIR, UIText("Chronicler of the Haranir")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    chroniclerOfTheHaranir.summary:SetText(string.format(UIText("Recover the Haranir journal entries listed below. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
+    chroniclerOfTheHaranir.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.CHRONICLER_OF_THE_HARANIR, UIText("Chronicler of the Haranir"))))
     SetItemRewardDisplay(chroniclerOfTheHaranir.rewardIcon, chroniclerOfTheHaranir.rewardLabel, chroniclerOfTheHaranir.rewardButton, nil, "|cffb8b8b8" .. UIText("Title: \"Chronicler of the Haranir\"", CHRONICLER_OF_THE_HARANIR_REWARD_TEXT) .. "|r")
-    chroniclerOfTheHaranir.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    chroniclerOfTheHaranir.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     chroniclerOfTheHaranir.emptyText:SetShown(#criteriaRows == 0)
     for i, row in ipairs(chroniclerOfTheHaranir.rows or {}) do
         local info = criteriaRows[i]
@@ -5509,22 +5544,22 @@ local function RenderLegendsNeverDieView()
         end
     end
     if HasAchievement(ACH.LEGENDS_NEVER_DIE) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.LEGENDS_NEVER_DIE, UIText("Legends Never Die", "Legends Never Die")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    legendsNeverDie.summary:SetText(string.format(UIText("Protect each Haranir legend location listed below. x/y marked.", "Protect each Haranir legend location listed below. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
-    legendsNeverDie.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.LEGENDS_NEVER_DIE, "Legends Never Die")))
+    achievementsTitle:SetText(GetAchievementName(ACH.LEGENDS_NEVER_DIE, UIText("Legends Never Die")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    legendsNeverDie.summary:SetText(string.format(UIText("Protect each Haranir legend location listed below. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
+    legendsNeverDie.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.LEGENDS_NEVER_DIE, UIText("Legends Never Die"))))
     SetItemRewardDisplay(legendsNeverDie.rewardIcon, legendsNeverDie.rewardLabel, legendsNeverDie.rewardButton, {
         type = LEGENDS_NEVER_DIE_REWARD.type,
         itemID = LEGENDS_NEVER_DIE_REWARD.itemID,
         label = UIText("Housing Decor: On'ohia's Call", LEGENDS_NEVER_DIE_REWARD.label),
-    }, "|cff999999Zone reward not added yet.|r")
-    legendsNeverDie.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    }, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    legendsNeverDie.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     legendsNeverDie.emptyText:SetShown(#criteriaRows == 0)
     for i, row in ipairs(legendsNeverDie.rows or {}) do
         local info = criteriaRows[i]
@@ -5550,22 +5585,22 @@ local function RenderDustEmOffView()
     end
     local statusText
     if HasAchievement(ACH.DUST_EM_OFF) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif progressCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.DUST_EM_OFF, UIText("Dust 'Em Off", "Dust 'Em Off")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    dustEmOff.summary:SetText(string.format(UIText("Find all of the Glowing Moths hiding in Harandar. x/y found.", "Find all of the Glowing Moths hiding in Harandar. x/y found."):gsub("x/y", "|cffffff00%d/%d|r"), progressCount, progressTotal))
-    dustEmOff.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.DUST_EM_OFF, "Dust 'Em Off")))
+    achievementsTitle:SetText(GetAchievementName(ACH.DUST_EM_OFF, UIText("Dust 'Em Off")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    dustEmOff.summary:SetText(string.format(UIText("Find all of the Glowing Moths hiding in Harandar. x/y found."):gsub("x/y", "|cffffff00%d/%d|r"), progressCount, progressTotal))
+    dustEmOff.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.DUST_EM_OFF, UIText("Dust 'Em Off"))))
     SetItemRewardDisplay(dustEmOff.rewardIcon, dustEmOff.rewardLabel, dustEmOff.rewardButton, nil, "|cffb8b8b8" .. UIText("Title: \"Dustlord\"", DUST_EM_OFF_REWARD_TEXT) .. "|r")
     local selectedGroup = DUST_EM_OFF_GROUPS[dustEmOffSelectedGroup] or DUST_EM_OFF_GROUPS[1]
     if not DUST_EM_OFF_GROUPS[dustEmOffSelectedGroup] then
         dustEmOffSelectedGroup = DUST_EM_OFF_GROUPS[1] and 1 or nil
     end
-    dustEmOff.detailTitle:SetText(isGroupPage and (selectedGroup and selectedGroup.name or UIText("Moths", "Moths")) or UIText("Groups", "Groups"))
+    dustEmOff.detailTitle:SetText(isGroupPage and (selectedGroup and selectedGroup.name or UIText("Moths")) or UIText("Groups"))
     dustEmOff.groupBackBtn:SetShown(isGroupPage)
     dustEmOff.groupBackBtn:SetScript("OnClick", function()
         achievementSubView = "dustemoff"
@@ -5613,7 +5648,7 @@ local function RenderDustEmOffView()
                 self.Text:SetTextColor(unpack(t.textPrimary))
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
-                GameTooltip:AddLine(info.note or UIText("Coordinates pending.", "Coordinates pending."), 0.8, 0.8, 0.8, true)
+                GameTooltip:AddLine(info.note or UIText("Coordinates pending."), 0.8, 0.8, 0.8, true)
                 GameTooltip:Show()
             end)
             btn:SetScript("OnLeave", function(self)
@@ -5632,9 +5667,9 @@ local function RenderDustEmOffView()
         end
     end
     if isGroupPage and selectedGroup then
-        dustEmOff.noteText:SetText(string.format("|cffb8b8b8%s|r", string.format(UIText("%s contains %d moth coordinates. Click a moth to place a waypoint.", "%s contains %d moth coordinates. Click a moth to place a waypoint."), selectedGroup.name, selectedGroup.entries and #selectedGroup.entries or 0)))
+        dustEmOff.noteText:SetText(string.format("|cffb8b8b8%s|r", string.format(UIText("%s contains %d moth coordinates. Click a moth to place a waypoint."), selectedGroup.name, selectedGroup.entries and #selectedGroup.entries or 0)))
     else
-        dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("Moths 1-40 appear at Hara'ti Renown 1, tracking at Renown 2.", "Moths 1-40 appear at Hara'ti Renown 1, tracking at Renown 2.") .. "\n" .. UIText("Moths 41-80 appear at Hara'ti Renown 4, tracking at Renown 6.", "Moths 41-80 appear at Hara'ti Renown 4, tracking at Renown 6.") .. "\n" .. UIText("Moths 81-120 appear at Hara'ti Renown 9, tracking at Renown 11.", "Moths 81-120 appear at Hara'ti Renown 9, tracking at Renown 11.") .. "\n" .. UIText("LiteVault routing assumes you already have Hara'ti Renown 11 unlocked.", "LiteVault routing assumes you already have Hara'ti Renown 11 unlocked.") .. "|r")
+        dustEmOff.noteText:SetText("|cffb8b8b8" .. UIText("Moths 1-40 appear at Hara'ti Renown 1, tracking at Renown 2.") .. "\n" .. UIText("Moths 41-80 appear at Hara'ti Renown 4, tracking at Renown 6.") .. "\n" .. UIText("Moths 81-120 appear at Hara'ti Renown 9, tracking at Renown 11.") .. "\n" .. UIText("LiteVault routing assumes you already have Hara'ti Renown 11 unlocked.") .. "|r")
     end
     for i, btn in ipairs(dustEmOff.entryButtons or {}) do
         local info = isGroupPage and selectedGroup and selectedGroup.entries and selectedGroup.entries[i]
@@ -5656,7 +5691,7 @@ local function RenderDustEmOffView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             btn:SetScript("OnLeave", function(self)
@@ -5704,18 +5739,18 @@ local function RenderExploreZulamanView()
     end
     local statusText
     if HasAchievement(ACH.EXPLORE_ZULAMAN) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_ZULAMAN, "Explore Zul'Aman"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    exploreZulaman.summary:SetText(string.format(UIText("Track Explore Zul'Aman progress. x/y marked.", "Track Explore Zul'Aman progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_ZULAMAN_ENTRIES))
-    exploreZulaman.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.EXPLORE_ZULAMAN, "Explore Zul'Aman")))
-    SetItemRewardDisplay(exploreZulaman.rewardIcon, exploreZulaman.rewardLabel, exploreZulaman.rewardButton, EXPLORE_ZULAMAN_REWARD, "|cff999999Zone reward not added yet.|r")
-    exploreZulaman.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_ZULAMAN, UIText("Explore Zul'Aman")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    exploreZulaman.summary:SetText(string.format(UIText("Track Explore Zul'Aman progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_ZULAMAN_ENTRIES))
+    exploreZulaman.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_ZULAMAN, UIText("Explore Zul'Aman"))))
+    SetItemRewardDisplay(exploreZulaman.rewardIcon, exploreZulaman.rewardLabel, exploreZulaman.rewardButton, EXPLORE_ZULAMAN_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    exploreZulaman.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreZulaman.emptyText:SetShown(#EXPLORE_ZULAMAN_ENTRIES == 0)
     for i, row in ipairs(exploreZulaman.rows or {}) do
         local info = EXPLORE_ZULAMAN_ENTRIES[i]
@@ -5733,7 +5768,7 @@ local function RenderExploreZulamanView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -5779,18 +5814,18 @@ local function RenderExploreHarandarView()
     end
     local statusText
     if HasAchievement(ACH.EXPLORE_HARANDAR) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_HARANDAR, "Explore Harandar"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    exploreHarandar.summary:SetText(string.format(UIText("Track Explore Harandar progress. x/y marked.", "Track Explore Harandar progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_HARANDAR_ENTRIES))
-    exploreHarandar.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.EXPLORE_HARANDAR, "Explore Harandar")))
-    SetItemRewardDisplay(exploreHarandar.rewardIcon, exploreHarandar.rewardLabel, exploreHarandar.rewardButton, EXPLORE_HARANDAR_REWARD, "|cff999999Zone reward not added yet.|r")
-    exploreHarandar.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
+    achievementsTitle:SetText(GetAchievementName(ACH.EXPLORE_HARANDAR, UIText("Explore Harandar")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    exploreHarandar.summary:SetText(string.format(UIText("Track Explore Harandar progress. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #EXPLORE_HARANDAR_ENTRIES))
+    exploreHarandar.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.EXPLORE_HARANDAR, UIText("Explore Harandar"))))
+    SetItemRewardDisplay(exploreHarandar.rewardIcon, exploreHarandar.rewardLabel, exploreHarandar.rewardButton, EXPLORE_HARANDAR_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    exploreHarandar.detailTitle:SetText(UIText("LABEL_DETAILS"))
     exploreHarandar.emptyText:SetShown(#EXPLORE_HARANDAR_ENTRIES == 0)
     for i, row in ipairs(exploreHarandar.rows or {}) do
         local info = EXPLORE_HARANDAR_ENTRIES[i]
@@ -5835,25 +5870,25 @@ local function RenderAbundanceProsperousView()
     end
     local statusText
     if HasAchievement(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE, UIText("Abundance: Prosperous Plentitude!", "Abundance: Prosperous Plentitude!")))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    abundanceProsperous.summary:SetText(string.format(UIText("Complete an Abundant Harvest cave run in each location. x/y marked.", "Complete an Abundant Harvest cave run in each location. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #ABUNDANCE_PROSPEROUS_PLENTITUDE_ENTRIES))
-    abundanceProsperous.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE, "Abundance: Prosperous Plentitude!")))
+    achievementsTitle:SetText(GetAchievementName(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE, UIText("Abundance: Prosperous Plentitude!")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    abundanceProsperous.summary:SetText(string.format(UIText("Complete an Abundant Harvest cave run in each location. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #ABUNDANCE_PROSPEROUS_PLENTITUDE_ENTRIES))
+    abundanceProsperous.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE, UIText("Abundance: Prosperous Plentitude!"))))
     SetItemRewardDisplay(
         abundanceProsperous.rewardIcon,
         abundanceProsperous.rewardLabel,
         abundanceProsperous.rewardButton,
         ABUNDANCE_PROSPEROUS_PLENTITUDE_REWARD or GetAchievementRewardFallback(ACH.ABUNDANCE_PROSPEROUS_PLENTITUDE),
-        "|cff999999Zone reward not added yet.|r"
+        "|cff999999" .. UIText("Zone reward not added yet.") .. "|r"
     )
-    abundanceProsperous.detailTitle:SetText(UIText("LABEL_DETAILS", "Details"))
-    abundanceProsperous.emptyText:SetText("|cffb8b8b8" .. UIText("You need to complete an Abundant Harvest cave run in each location for credit. Just visiting the cave is not enough.", "You need to complete an Abundant Harvest cave run in each location for credit. Just visiting the cave is not enough.") .. "|r")
+    abundanceProsperous.detailTitle:SetText(UIText("LABEL_DETAILS"))
+    abundanceProsperous.emptyText:SetText("|cffb8b8b8" .. UIText("You need to complete an Abundant Harvest cave run in each location for credit. Just visiting the cave is not enough.") .. "|r")
     abundanceProsperous.emptyText:SetShown(true)
     for i, row in ipairs(abundanceProsperous.rows or {}) do
         local info = ABUNDANCE_PROSPEROUS_PLENTITUDE_ENTRIES[i]
@@ -5871,8 +5906,8 @@ local function RenderAbundanceProsperousView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 GameTooltip:AddLine(string.format("%.2f, %.2f", info.x, info.y), 1, 1, 1)
-                GameTooltip:AddLine(UIText("Complete the cave run here for credit.", "Complete the cave run here for credit."), 0.8, 0.8, 0.8)
-                GameTooltip:AddLine(UIText("Click to set waypoint.", "Click to set waypoint."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("Complete the cave run here for credit."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("TOOLTIP_RUNESTONE_SET_WAYPOINT"), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -5906,18 +5941,18 @@ local function RenderAltarOfBlessingsView()
         end
     end
     if HasAchievement(ACH.ALTAR_OF_BLESSINGS) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.ALTAR_OF_BLESSINGS, "Altar of Blessings: Sacred Buffet Devotee"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    altarOfBlessings.summary:SetText(string.format(UIText("Trigger each listed blessing effect. x/y marked.", "Trigger each listed blessing effect. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
-    altarOfBlessings.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.ALTAR_OF_BLESSINGS, "Altar of Blessings: Sacred Buffet Devotee")))
-    SetItemRewardDisplay(altarOfBlessings.rewardIcon, altarOfBlessings.rewardLabel, altarOfBlessings.rewardButton, ALTAR_OF_BLESSINGS_REWARD, "|cff999999Zone reward not added yet.|r")
-    altarOfBlessings.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    achievementsTitle:SetText(GetAchievementName(ACH.ALTAR_OF_BLESSINGS, UIText("Altar of Blessings: Sacred Buffet Devotee")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    altarOfBlessings.summary:SetText(string.format(UIText("Trigger each listed blessing effect. x/y marked."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #criteriaRows))
+    altarOfBlessings.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.ALTAR_OF_BLESSINGS, UIText("Altar of Blessings: Sacred Buffet Devotee"))))
+    SetItemRewardDisplay(altarOfBlessings.rewardIcon, altarOfBlessings.rewardLabel, altarOfBlessings.rewardButton, ALTAR_OF_BLESSINGS_REWARD, "|cff999999" .. UIText("Zone reward not added yet.") .. "|r")
+    altarOfBlessings.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     altarOfBlessings.emptyText:SetShown(#criteriaRows == 0)
     for i, row in ipairs(altarOfBlessings.rows or {}) do
         local info = criteriaRows[i]
@@ -5944,18 +5979,18 @@ local function RenderForeverSongView()
     end
     local statusText
     if HasAchievement(ACH.FOREVER_SONG) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.FOREVER_SONG, "Forever Song"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    foreverSong.summary:SetText(string.format(UIText("Complete the Eversong Woods achievements listed below. x/y done.", "Complete the Eversong Woods achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #FOREVER_SONG_CHILDREN))
-    foreverSong.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.FOREVER_SONG, "Forever Song")))
-    SetItemRewardDisplay(foreverSong.rewardIcon, foreverSong.rewardLabel, foreverSong.rewardButton, FOREVER_SONG_REWARD, "|cff999999Meta reward not added yet.|r")
-    foreverSong.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    achievementsTitle:SetText(GetAchievementName(ACH.FOREVER_SONG, UIText("Forever Song")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    foreverSong.summary:SetText(string.format(UIText("Complete the Eversong Woods achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #FOREVER_SONG_CHILDREN))
+    foreverSong.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.FOREVER_SONG, UIText("Forever Song"))))
+    SetItemRewardDisplay(foreverSong.rewardIcon, foreverSong.rewardLabel, foreverSong.rewardButton, FOREVER_SONG_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    foreverSong.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     foreverSong.emptyText:SetShown(#FOREVER_SONG_CHILDREN == 0)
     for i, btn in ipairs(foreverSong.childButtons or {}) do
         local info = FOREVER_SONG_CHILDREN[i]
@@ -5981,7 +6016,7 @@ local function RenderForeverSongView()
                 self.Text:SetTextColor(unpack(t.textPrimary))
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
-                GameTooltip:AddLine(UIText("Click to open this tracker.", "Click to open this tracker."), 0.8, 0.8, 0.8)
+                GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
                 GameTooltip:Show()
             end)
             btn:SetScript("OnLeave", function(self)
@@ -6023,22 +6058,22 @@ local function RenderLightUpTheNightView()
     end
     local statusText
     if HasAchievement(ACH.LIGHT_UP_THE_NIGHT) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, "Light Up the Night"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    lightUpTheNight.summary:SetText(string.format(UIText("Rally your forces against Xal'atath by completing the achievements below. x/y done.", "Rally your forces against Xal'atath by completing the achievements below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #LIGHT_UP_THE_NIGHT_CHILDREN))
-    lightUpTheNight.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, "Light Up the Night")))
+    achievementsTitle:SetText(GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, UIText("Light Up the Night")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    lightUpTheNight.summary:SetText(string.format(UIText("Rally your forces against Xal'atath by completing the achievements below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #LIGHT_UP_THE_NIGHT_CHILDREN))
+    lightUpTheNight.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.LIGHT_UP_THE_NIGHT, UIText("Light Up the Night"))))
     SetItemRewardDisplay(lightUpTheNight.rewardIcon, lightUpTheNight.rewardLabel, lightUpTheNight.rewardButton, {
         type = LIGHT_UP_THE_NIGHT_REWARD.type,
         itemID = LIGHT_UP_THE_NIGHT_REWARD.itemID,
         label = UIText("Mount: Brilliant Petalwing", LIGHT_UP_THE_NIGHT_REWARD.label),
-    }, "|cff999999Meta reward not added yet.|r")
-    lightUpTheNight.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    }, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    lightUpTheNight.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     lightUpTheNight.emptyText:SetShown(#LIGHT_UP_THE_NIGHT_CHILDREN == 0)
     for i, btn in ipairs(lightUpTheNight.childButtons or {}) do
         local info = LIGHT_UP_THE_NIGHT_CHILDREN[i]
@@ -6065,9 +6100,9 @@ local function RenderLightUpTheNightView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker.", "Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet.", "Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6110,18 +6145,18 @@ local function RenderYellingIntoTheVoidstormView()
     end
     local statusText
     if HasAchievement(ACH.YELLING_INTO_THE_VOIDSTORM) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, "Yelling into the Voidstorm"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    yellingIntoVoidstorm.summary:SetText(string.format(UIText("Complete all of the Voidstorm achievements listed below. x/y done.", "Complete all of the Voidstorm achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #YELLING_INTO_THE_VOIDSTORM_CHILDREN))
-    yellingIntoVoidstorm.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, "Yelling into the Voidstorm")))
-    SetItemRewardDisplay(yellingIntoVoidstorm.rewardIcon, yellingIntoVoidstorm.rewardLabel, yellingIntoVoidstorm.rewardButton, YELLING_INTO_THE_VOIDSTORM_REWARD, "|cff999999Meta reward not added yet.|r")
-    yellingIntoVoidstorm.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    achievementsTitle:SetText(GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, UIText("Yelling into the Voidstorm")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    yellingIntoVoidstorm.summary:SetText(string.format(UIText("Complete all of the Voidstorm achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #YELLING_INTO_THE_VOIDSTORM_CHILDREN))
+    yellingIntoVoidstorm.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.YELLING_INTO_THE_VOIDSTORM, UIText("Yelling into the Voidstorm"))))
+    SetItemRewardDisplay(yellingIntoVoidstorm.rewardIcon, yellingIntoVoidstorm.rewardLabel, yellingIntoVoidstorm.rewardButton, YELLING_INTO_THE_VOIDSTORM_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    yellingIntoVoidstorm.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     yellingIntoVoidstorm.emptyText:SetShown(#YELLING_INTO_THE_VOIDSTORM_CHILDREN == 0)
     for i, btn in ipairs(yellingIntoVoidstorm.childButtons or {}) do
         local info = YELLING_INTO_THE_VOIDSTORM_CHILDREN[i]
@@ -6148,9 +6183,9 @@ local function RenderYellingIntoTheVoidstormView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker.", "Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet.", "Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6193,18 +6228,18 @@ local function RenderMakingAnAmaniOutOfYouView()
     end
     local statusText
     if HasAchievement(ACH.MAKING_AN_AMANI_OUT_OF_YOU) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, "Making an Amani Out of You"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    makingAnAmaniOutOfYou.summary:SetText(string.format(UIText("Complete all of the Zul'Aman achievements listed below. x/y done.", "Complete all of the Zul'Aman achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN))
-    makingAnAmaniOutOfYou.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, "Making an Amani Out of You")))
-    SetItemRewardDisplay(makingAnAmaniOutOfYou.rewardIcon, makingAnAmaniOutOfYou.rewardLabel, makingAnAmaniOutOfYou.rewardButton, MAKING_AN_AMANI_OUT_OF_YOU_REWARD, "|cff999999Meta reward not added yet.|r")
-    makingAnAmaniOutOfYou.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    achievementsTitle:SetText(GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, UIText("Making an Amani Out of You")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    makingAnAmaniOutOfYou.summary:SetText(string.format(UIText("Complete all of the Zul'Aman achievements listed below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN))
+    makingAnAmaniOutOfYou.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.MAKING_AN_AMANI_OUT_OF_YOU, UIText("Making an Amani Out of You"))))
+    SetItemRewardDisplay(makingAnAmaniOutOfYou.rewardIcon, makingAnAmaniOutOfYou.rewardLabel, makingAnAmaniOutOfYou.rewardButton, MAKING_AN_AMANI_OUT_OF_YOU_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    makingAnAmaniOutOfYou.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     makingAnAmaniOutOfYou.emptyText:SetShown(#MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN == 0)
     for i, btn in ipairs(makingAnAmaniOutOfYou.childButtons or {}) do
         local info = MAKING_AN_AMANI_OUT_OF_YOU_CHILDREN[i]
@@ -6231,9 +6266,9 @@ local function RenderMakingAnAmaniOutOfYouView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker.", "Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet.", "Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6276,18 +6311,18 @@ local function RenderThatsAlnFolksView()
     end
     local statusText
     if HasAchievement(ACH.THATS_ALN_FOLKS) then
-        statusText = UIText("STATUS_DONE", "Done")
+        statusText = UIText("STATUS_DONE")
     elseif completedCount > 0 then
-        statusText = UIText("STATUS_IN_PROGRESS", "In Progress")
+        statusText = UIText("STATUS_IN_PROGRESS")
     else
-        statusText = UIText("STATUS_NOT_STARTED", "Not Started")
+        statusText = UIText("STATUS_NOT_STARTED")
     end
-    achievementsTitle:SetText(GetAchievementName(62260, "That's Aln, Folks!"))
-    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS", "Status"), statusText))
-    thatsAlnFolks.summary:SetText(string.format(UIText("Aid the Hara'ti by completing the achievements below. x/y done.", "Aid the Hara'ti by completing the achievements below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THATS_ALN_FOLKS_CHILDREN))
-    thatsAlnFolks.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD", "Reward"), GetAchievementName(ACH.THATS_ALN_FOLKS, "That's Aln, Folks!")))
-    SetItemRewardDisplay(thatsAlnFolks.rewardIcon, thatsAlnFolks.rewardLabel, thatsAlnFolks.rewardButton, THATS_ALN_FOLKS_REWARD, "|cff999999Meta reward not added yet.|r")
-    thatsAlnFolks.detailTitle:SetText(UIText("Criteria", "Criteria"))
+    achievementsTitle:SetText(GetAchievementName(62260, UIText("That's Aln, Folks!")))
+    achievementsSubtitle:SetText(string.format("%s: |cffffff00%s|r", UIText("LABEL_STATUS"), statusText))
+    thatsAlnFolks.summary:SetText(string.format(UIText("Aid the Hara'ti by completing the achievements below. x/y done."):gsub("x/y", "|cffffff00%d/%d|r"), completedCount, #THATS_ALN_FOLKS_CHILDREN))
+    thatsAlnFolks.criteriaTitle:SetText(string.format("%s: %s", UIText("LABEL_REWARD"), GetAchievementName(ACH.THATS_ALN_FOLKS, UIText("That's Aln, Folks!"))))
+    SetItemRewardDisplay(thatsAlnFolks.rewardIcon, thatsAlnFolks.rewardLabel, thatsAlnFolks.rewardButton, THATS_ALN_FOLKS_REWARD, "|cff999999" .. UIText("Meta reward not added yet.") .. "|r")
+    thatsAlnFolks.detailTitle:SetText(UIText("LABEL_CRITERIA"))
     thatsAlnFolks.emptyText:SetShown(#THATS_ALN_FOLKS_CHILDREN == 0)
     for i, btn in ipairs(thatsAlnFolks.childButtons or {}) do
         local info = THATS_ALN_FOLKS_CHILDREN[i]
@@ -6314,9 +6349,9 @@ local function RenderThatsAlnFolksView()
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(info.name, 1, 0.82, 0)
                 if info.subView then
-                    GameTooltip:AddLine(UIText("Click to open this tracker.", "Click to open this tracker."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Click to open this tracker."), 0.8, 0.8, 0.8)
                 else
-                    GameTooltip:AddLine(UIText("Tracker not added yet.", "Tracker not added yet."), 0.8, 0.8, 0.8)
+                    GameTooltip:AddLine(UIText("Tracker not added yet."), 0.8, 0.8, 0.8)
                 end
                 GameTooltip:Show()
             end)
@@ -6373,7 +6408,7 @@ RefreshAchievementsView = function()
     local onYellingIntoVoidstorm = (achievementSubView == "yellingintovoidstorm")
     local onMakingAnAmani = (achievementSubView == "makinganamani")
     local onHome = not (onGlyphs or onDelver or onTreasures or onPeaks or onRares or onEverPainting or onRunestoneRush or onPartyMustGoOn or onExploreEversong or onExploreVoidstorm or onThrillOfTheChase or onNoTimeToPaws or onFromTheCradleToTheGrave or onChroniclerOfTheHaranir or onLegendsNeverDie or onDustEmOff or onDustEmOffGroup or onASingularProblem or onExploreZulaman or onExploreHarandar or onAbundanceProsperous or onAltarOfBlessings or onForeverSong or onLightUpTheNight or onThatsAlnFolks or onYellingIntoVoidstorm or onMakingAnAmani)
-    glyphHunterBackBtn.Text:SetText(UIText("Back", "Back"))
+    glyphHunterBackBtn.Text:SetText(UIText("BUTTON_BACK"))
     achievementHome:SetShown(onHome)
     glyphHunterBackBtn:SetShown(not onHome)
     achievementsScroll:SetShown(onGlyphs)
@@ -6512,17 +6547,22 @@ end
 lv.RefreshAchievementsView = RefreshAchievementsView
 
 function lv.SetMainView(view)
-    currentMainView = ((view == "achievements") or (view == "instances") or (view == "options") or (view == "factions")) and view or "dashboard"
+    currentMainView = ((view == "achievements") or (view == "instances") or (view == "options") or (view == "factions") or (view == "profit")) and view or "dashboard"
     if env.setCurrentMainView then
         env.setCurrentMainView(currentMainView)
     end
     if lv.LVVaultWindow then
         lv.LVVaultWindow:Hide()
     end
+    if lv.ProfitGraphWindow then
+        lv.ProfitGraphWindow:Hide()
+    end
     if currentMainView == "achievements" then
         achievementSubView = "home"
         if lv.CloseAuxPanels then lv.CloseAuxPanels(nil) end
         SetDashboardContentVisible(false)
+        SetProfitContentVisible(false)
+        SetFolioContentVisible(false)
         SetFactionCardsVisible(false)
         AchievementView:Show()
         if lv.OptionsPanel then lv.OptionsPanel:Hide() end
@@ -6536,6 +6576,8 @@ function lv.SetMainView(view)
         if lv.OptionsPanel then lv.OptionsPanel:Hide() end
         if _G["LiteVaultInstancePanel"] then _G["LiteVaultInstancePanel"]:Hide() end
         SetDashboardContentVisible(false)
+        SetProfitContentVisible(false)
+        SetFolioContentVisible(false)
         local factionWeeklyWindow = GetFactionWeeklyWindow()
         if factionWeeklyWindow then
             factionWeeklyWindow:Show()
@@ -6550,6 +6592,8 @@ function lv.SetMainView(view)
         local factionWeeklyWindow = GetFactionWeeklyWindow()
         if factionWeeklyWindow then factionWeeklyWindow:Hide() end
         SetDashboardContentVisible(false)
+        SetProfitContentVisible(false)
+        SetFolioContentVisible(false)
         SetFactionCardsVisible(false)
         if lv.OptionsPanel then
             if LiteVaultDB then
@@ -6583,6 +6627,17 @@ function lv.SetMainView(view)
                 lv.UpdateOptionsPanelLayout()
             end
         end
+    elseif currentMainView == "profit" then
+        AchievementView:Hide()
+        if lv.OptionsPanel then lv.OptionsPanel:Hide() end
+        if _G["LiteVaultInstancePanel"] then _G["LiteVaultInstancePanel"]:Hide() end
+        local factionWeeklyWindow = GetFactionWeeklyWindow()
+        if factionWeeklyWindow then factionWeeklyWindow:Hide() end
+        if lv.CloseAuxPanels then lv.CloseAuxPanels(nil) end
+        SetDashboardContentVisible(false)
+        SetFactionCardsVisible(false)
+        SetFolioContentVisible(false)
+        SetProfitContentVisible(true)
     elseif currentMainView == "instances" then
         AchievementView:Hide()
         if lv.OptionsPanel then lv.OptionsPanel:Hide() end
@@ -6590,6 +6645,8 @@ function lv.SetMainView(view)
         if factionWeeklyWindow then factionWeeklyWindow:Hide() end
         if lv.CloseAuxPanels then lv.CloseAuxPanels("instances") end
         SetDashboardContentVisible(false)
+        SetProfitContentVisible(false)
+        SetFolioContentVisible(false)
         SetFactionCardsVisible(false)
         if lv.ShowInstancePanel then
             lv.ShowInstancePanel()
@@ -6601,6 +6658,8 @@ function lv.SetMainView(view)
         local factionWeeklyWindow = GetFactionWeeklyWindow()
         if factionWeeklyWindow then factionWeeklyWindow:Hide() end
         SetDashboardContentVisible(true)
+        SetProfitContentVisible(false)
+        SetFolioContentVisible(false)
         SetFactionCardsVisible(false)
     end
     RefreshAchievementsButton()
@@ -6696,6 +6755,10 @@ end)
 
 dashboardTab:SetScript("OnClick", function()
     lv.SetMainView("dashboard")
+end)
+
+profitTab:SetScript("OnClick", function()
+    lv.SetMainView("profit")
 end)
 
 achievementsBtn:SetScript("OnClick", function()

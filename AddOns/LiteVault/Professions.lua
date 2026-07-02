@@ -3,7 +3,10 @@ local addonName, lv = ...
 local L = lv.L
 local function LT(key, fallback)
     local v = L and L[key]
-    if not v or v == key then return fallback end
+    if not v or v == key then
+        local enUS = lv.LocaleData and lv.LocaleData["enUS"]
+        return fallback or (enUS and enUS[key]) or key
+    end
     return v
 end
 
@@ -612,7 +615,7 @@ profSourcesTabBtn:SetBackdrop({
 })
 profSourcesTabBtn.Text = profSourcesTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profSourcesTabBtn.Text:SetPoint("CENTER")
-profSourcesTabBtn.Text:SetText((L["TAB_SOURCES"] ~= "TAB_SOURCES") and L["TAB_SOURCES"] or "Sources")
+profSourcesTabBtn.Text:SetText(L["TAB_SOURCES"])
 lv.ApplyLocaleFont(profSourcesTabBtn.Text, 11)
 
 local profTreasuresTabBtn = CreateFrame("Button", nil, LVProfessionWindow, "BackdropTemplate")
@@ -626,7 +629,7 @@ profTreasuresTabBtn:SetBackdrop({
 })
 profTreasuresTabBtn.Text = profTreasuresTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profTreasuresTabBtn.Text:SetPoint("CENTER")
-profTreasuresTabBtn.Text:SetText((L["TAB_TREASURES"] ~= "TAB_TREASURES") and L["TAB_TREASURES"] or "Treasures")
+profTreasuresTabBtn.Text:SetText(L["TAB_TREASURES"])
 lv.ApplyLocaleFont(profTreasuresTabBtn.Text, 11)
 
 local profGlyphsTabBtn = CreateFrame("Button", nil, LVProfessionWindow, "BackdropTemplate")
@@ -640,7 +643,7 @@ profGlyphsTabBtn:SetBackdrop({
 })
 profGlyphsTabBtn.Text = profGlyphsTabBtn:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 profGlyphsTabBtn.Text:SetPoint("CENTER")
-profGlyphsTabBtn.Text:SetText(LT("TAB_GLYPHS", "Glyphs"))
+profGlyphsTabBtn.Text:SetText(LT("TAB_GLYPHS"))
 lv.ApplyLocaleFont(profGlyphsTabBtn.Text, 11)
 
 -- Register close button for theming
@@ -738,10 +741,10 @@ end)
 local function RefreshProfessionTabButtons()
     local t = lv.GetTheme()
     if not t then return end
-    profClose.Text:SetText((L["BUTTON_CLOSE"] ~= "BUTTON_CLOSE") and L["BUTTON_CLOSE"] or "Close")
-    profSourcesTabBtn.Text:SetText((L["TAB_SOURCES"] ~= "TAB_SOURCES") and L["TAB_SOURCES"] or "Sources")
-    profTreasuresTabBtn.Text:SetText((L["TAB_TREASURES"] ~= "TAB_TREASURES") and L["TAB_TREASURES"] or "Treasures")
-    profGlyphsTabBtn.Text:SetText(LT("TAB_GLYPHS", "Glyphs"))
+    profClose.Text:SetText(L["BUTTON_CLOSE"])
+    profSourcesTabBtn.Text:SetText(L["TAB_SOURCES"])
+    profTreasuresTabBtn.Text:SetText(L["TAB_TREASURES"])
+    profGlyphsTabBtn.Text:SetText(LT("TAB_GLYPHS"))
     local srcActive = (currentProfTab == "sources")
     local treActive = (currentProfTab == "treasures")
     local glyphActive = (currentProfTab == "glyphs")
@@ -927,9 +930,9 @@ end
 
 local function BoolStatusText(done)
     if done then
-        return "|cff00ff00" .. (L["STATUS_DONE_WORD"] ~= "STATUS_DONE_WORD" and L["STATUS_DONE_WORD"] or "Done") .. "|r"
+        return "|cff00ff00" .. L["STATUS_DONE_WORD"] .. "|r"
     end
-    return "|cffff5555" .. (L["STATUS_MISSING_WORD"] ~= "STATUS_MISSING_WORD" and L["STATUS_MISSING_WORD"] or "Missing") .. "|r"
+    return "|cffff5555" .. L["STATUS_MISSING_WORD"] .. "|r"
 end
 
 local QueueTreasureRefreshOnItemLoad
@@ -962,7 +965,7 @@ end
 
 local function GetQuestDisplayName(questID)
     if not questID then
-        return L["LABEL_UNKNOWN"] or "Unknown"
+        return L["LABEL_UNKNOWN"]
     end
     local title = C_QuestLog and C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(questID)
     if title and title ~= "" then
@@ -1066,26 +1069,26 @@ local function GetQuestDisplayName(questID)
         if data.unique then
             for idx, qid in ipairs(data.unique) do
                 if qid == questID then
-                    local pName = L[SKILL_NAME_BY_ID[skillLineID] or ""] or SKILL_NAME_BY_ID[skillLineID] or "Profession"
-                    return string.format(LT("LABEL_UNIQUE_TREASURE_FMT", "%s Unique Treasure %d"), pName, idx)
+                    local pName = L[SKILL_NAME_BY_ID[skillLineID] or ""] or SKILL_NAME_BY_ID[skillLineID] or L["LABEL_PROFESSION"]
+                    return string.format(LT("LABEL_UNIQUE_TREASURE_FMT"), pName, idx)
                 end
             end
         end
         if data.weekly then
             for idx, qid in ipairs(data.weekly) do
                 if qid == questID then
-                    local pName = L[SKILL_NAME_BY_ID[skillLineID] or ""] or SKILL_NAME_BY_ID[skillLineID] or "Profession"
-                    return string.format(LT("LABEL_WEEKLY_TREASURE_FMT", "%s Weekly Treasure %d"), pName, idx)
+                    local pName = L[SKILL_NAME_BY_ID[skillLineID] or ""] or SKILL_NAME_BY_ID[skillLineID] or L["LABEL_PROFESSION"]
+                    return string.format(LT("LABEL_WEEKLY_TREASURE_FMT"), pName, idx)
                 end
             end
         end
     end
-    return string.format("%s %d", (L["LABEL_QUEST"] ~= "LABEL_QUEST" and L["LABEL_QUEST"] or "Quest"), questID)
+    return string.format("%s %d", L["LABEL_QUEST"], questID)
 end
 
 local function QuestStatusLine(done, questName)
-    local doneWord = (L["STATUS_DONE_WORD"] ~= "STATUS_DONE_WORD") and L["STATUS_DONE_WORD"] or "Done"
-    local missWord = (L["STATUS_MISSING_WORD"] ~= "STATUS_MISSING_WORD") and L["STATUS_MISSING_WORD"] or "Missing"
+    local doneWord = L["STATUS_DONE_WORD"]
+    local missWord = L["STATUS_MISSING_WORD"]
     local status = done and ("|cff00ff00" .. doneWord .. "|r") or ("|cffff5555" .. missWord .. "|r")
     return string.format("%s: %s", status, questName)
 end
@@ -1120,7 +1123,7 @@ end
 local function SetTreasureWaypoint(questID, title)
     local wp = TREASURE_WAYPOINT_BY_QUEST[questID]
     if not wp then
-        PrintProfessionMessage((L["MSG_TREASURE_NO_WAYPOINT"] ~= "MSG_TREASURE_NO_WAYPOINT") and L["MSG_TREASURE_NO_WAYPOINT"] or "No fixed waypoint for this treasure.")
+        PrintProfessionMessage(L["MSG_TREASURE_NO_WAYPOINT"])
         return
     end
     local displayTitle = title or GetQuestDisplayName(questID)
@@ -1130,35 +1133,35 @@ local function SetTreasureWaypoint(questID, title)
             persistent = false,
             source = addonName,
         })
-        PrintProfessionMessage(string.format((L["MSG_TREASURE_WAYPOINT_SET"] ~= "MSG_TREASURE_WAYPOINT_SET") and L["MSG_TREASURE_WAYPOINT_SET"] or "Waypoint set: %s (%.1f, %.1f)", displayTitle, wp.x * 100, wp.y * 100))
+        PrintProfessionMessage(string.format(L["MSG_TREASURE_WAYPOINT_SET"], displayTitle, wp.x * 100, wp.y * 100))
         return
     end
     if SetBlizzardTreasureWaypoint(wp.map, wp.x, wp.y) then
-        PrintProfessionMessage(string.format((L["MSG_TREASURE_BLIZZ_WAYPOINT_SET"] ~= "MSG_TREASURE_BLIZZ_WAYPOINT_SET") and L["MSG_TREASURE_BLIZZ_WAYPOINT_SET"] or "Map waypoint set: %s (%.1f, %.1f)", displayTitle, wp.x * 100, wp.y * 100))
+        PrintProfessionMessage(string.format(L["MSG_TREASURE_BLIZZ_WAYPOINT_SET"], displayTitle, wp.x * 100, wp.y * 100))
         return
     end
-    PrintProfessionMessage((L["MSG_TOMTOM_NOT_DETECTED"] ~= "MSG_TOMTOM_NOT_DETECTED") and L["MSG_TOMTOM_NOT_DETECTED"] or "TomTom not detected.")
+    PrintProfessionMessage(L["MSG_TOMTOM_NOT_DETECTED"])
 end
 
 local function SetGlyphWaypoint(glyph, zoneData)
     if not glyph or not zoneData then
         return
     end
-    local displayTitle = glyph.label or LT("TAB_GLYPHS", "Glyphs")
+    local displayTitle = glyph.label or LT("TAB_GLYPHS")
     if HasTomTom() then
         _G.TomTom:AddWaypoint(zoneData.map, glyph.x, glyph.y, {
             title = displayTitle,
             persistent = false,
             source = addonName,
         })
-        PrintProfessionMessage(string.format((L["MSG_TREASURE_WAYPOINT_SET"] ~= "MSG_TREASURE_WAYPOINT_SET") and L["MSG_TREASURE_WAYPOINT_SET"] or "Waypoint set: %s (%.1f, %.1f)", displayTitle, glyph.x * 100, glyph.y * 100))
+        PrintProfessionMessage(string.format(L["MSG_TREASURE_WAYPOINT_SET"], displayTitle, glyph.x * 100, glyph.y * 100))
         return
     end
     if SetBlizzardTreasureWaypoint(zoneData.map, glyph.x, glyph.y) then
-        PrintProfessionMessage(string.format((L["MSG_TREASURE_BLIZZ_WAYPOINT_SET"] ~= "MSG_TREASURE_BLIZZ_WAYPOINT_SET") and L["MSG_TREASURE_BLIZZ_WAYPOINT_SET"] or "Map waypoint set: %s (%.1f, %.1f)", displayTitle, glyph.x * 100, glyph.y * 100))
+        PrintProfessionMessage(string.format(L["MSG_TREASURE_BLIZZ_WAYPOINT_SET"], displayTitle, glyph.x * 100, glyph.y * 100))
         return
     end
-    PrintProfessionMessage((L["MSG_TOMTOM_NOT_DETECTED"] ~= "MSG_TOMTOM_NOT_DETECTED") and L["MSG_TOMTOM_NOT_DETECTED"] or "TomTom not detected.")
+    PrintProfessionMessage(L["MSG_TOMTOM_NOT_DETECTED"])
 end
 
 QueueTreasureRefreshOnItemLoad = function(itemID)
@@ -1297,7 +1300,7 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
     local nameOnly = charKey:match("^([^-]+)")
     local cc = C_ClassColor.GetClassColor(data.class or "WARRIOR")
     if currentProfTab == "glyphs" then
-        LVProfessionWindow.title:SetText(LT("TITLE_GLYPH_HUNTER", "Glyph Hunter"))
+        LVProfessionWindow.title:SetText(LT("TITLE_GLYPH_HUNTER"))
     else
         LVProfessionWindow.title:SetText(string.format(L["TITLE_PROFESSIONS"], cc:WrapTextInColorCode(nameOnly)))
     end
@@ -1359,15 +1362,15 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                             GameTooltip:SetOwner(self, "ANCHOR_CURSOR_RIGHT")
                             GameTooltip:ClearLines()
                             GameTooltip:SetText(glyph.label, 0.4, 0.8, 1)
-                            GameTooltip:AddLine(string.format("%s: %s", (L["LABEL_ZONE"] ~= "LABEL_ZONE") and L["LABEL_ZONE"] or "Zone", zoneData.zoneName), 1, 1, 1)
-                            GameTooltip:AddLine(string.format("%s: %.1f / %.1f", (L["LABEL_COORDINATES"] ~= "LABEL_COORDINATES") and L["LABEL_COORDINATES"] or "Coordinates", glyph.x * 100, glyph.y * 100), 1, 1, 1)
-                            GameTooltip:AddLine(string.format("%s: %s", LT("LABEL_ACHIEVEMENT", "Achievement"), BoolStatusText(glyphDone)), 1, 1, 1)
+                            GameTooltip:AddLine(string.format("%s: %s", L["LABEL_ZONE"], zoneData.zoneName), 1, 1, 1)
+                            GameTooltip:AddLine(string.format("%s: %.1f / %.1f", L["LABEL_COORDINATES"], glyph.x * 100, glyph.y * 100), 1, 1, 1)
+                            GameTooltip:AddLine(string.format("%s: %s", LT("LABEL_ACHIEVEMENT"), BoolStatusText(glyphDone)), 1, 1, 1)
                             if HasTomTom() then
-                                GameTooltip:AddLine((L["TOOLTIP_TREASURE_SET_WAYPOINT"] ~= "TOOLTIP_TREASURE_SET_WAYPOINT") and L["TOOLTIP_TREASURE_SET_WAYPOINT"] or "Click to place a TomTom waypoint", 0.2, 1, 0.2)
+                                GameTooltip:AddLine(L["TOOLTIP_TREASURE_SET_WAYPOINT"], 0.2, 1, 0.2)
                             elseif CanUseBlizzardWaypoint() then
-                                GameTooltip:AddLine((L["TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT"] ~= "TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT") and L["TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT"] or "Click to place a map waypoint", 0.2, 1, 0.2)
+                                GameTooltip:AddLine(L["TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT"], 0.2, 1, 0.2)
                             else
-                                GameTooltip:AddLine((L["MSG_TOMTOM_NOT_DETECTED"] ~= "MSG_TOMTOM_NOT_DETECTED") and L["MSG_TOMTOM_NOT_DETECTED"] or "TomTom not detected.", 1, 0.2, 0.2)
+                                GameTooltip:AddLine(L["MSG_TOMTOM_NOT_DETECTED"], 1, 0.2, 0.2)
                             end
                             GameTooltip:Show()
                         end)
@@ -1491,42 +1494,42 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                 end
 
                 row.sourcesTop:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r",
-                    (L["LABEL_WEEKLY"] ~= "LABEL_WEEKLY" and L["LABEL_WEEKLY"] or "Weekly"), weeklyDone, weeklyTotal,
-                    (L["LABEL_CATCHUP"] ~= "LABEL_CATCHUP" and L["LABEL_CATCHUP"] or "Catch-up"), catchCur, catchMax))
+                    L["LABEL_WEEKLY"], weeklyDone, weeklyTotal,
+                    L["LABEL_CATCHUP"], catchCur, catchMax))
                 row.sourcesBottom:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r   |cffffffcc%s: |cffffff00%d/%d|r",
-                    (L["LABEL_TREATISE"] ~= "LABEL_TREATISE" and L["LABEL_TREATISE"] or "Treatise"), treatiseDoneCount, treatiseTotalCount,
-                    (L["LABEL_ARTISAN_QUEST"] ~= "LABEL_ARTISAN_QUEST" and L["LABEL_ARTISAN_QUEST"] or "Artisan"), artisanDoneCount, artisanTotalCount,
-                    (L["LABEL_UNLOCKED"] ~= "LABEL_UNLOCKED" and L["LABEL_UNLOCKED"] or "Unlocked"), unlockDoneCount, unlockTotalCount))
+                    L["LABEL_TREATISE"], treatiseDoneCount, treatiseTotalCount,
+                    L["LABEL_ARTISAN_QUEST"], artisanDoneCount, artisanTotalCount,
+                    L["LABEL_UNLOCKED"], unlockDoneCount, unlockTotalCount))
 
                 row:SetScript("OnEnter", function(self)
                     local entries = self._knowledgeEntries or {}
                     if #entries == 0 then return end
                     GameTooltip:SetOwner(self, "ANCHOR_CURSOR_RIGHT")
                     GameTooltip:ClearLines()
-                local tooltipTitle = self._profDisplayName or LT("TITLE_KNOWLEDGE_SOURCES", "Knowledge Sources")
+                local tooltipTitle = self._profDisplayName or LT("TITLE_KNOWLEDGE_SOURCES")
                     GameTooltip:SetText(tooltipTitle, 0.4, 0.8, 1)
                     GameTooltip:SetClampedToScreen(true)
 
                     for _, e in ipairs(entries) do
                         if e.key == "treatise" then
                             GameTooltip:AddLine(" ")
-                            GameTooltip:AddLine((L["LABEL_TREATISE"] ~= "LABEL_TREATISE") and L["LABEL_TREATISE"] or "Treatise", 1, 0.82, 0)
+                            GameTooltip:AddLine(L["LABEL_TREATISE"], 1, 0.82, 0)
                             if e.questID then
                                 local qName = GetQuestDisplayName(e.questID)
                                 GameTooltip:AddLine(QuestStatusLine(e.done, qName), 1, 1, 1)
                             end
                         elseif e.key == "artisan" then
                             GameTooltip:AddLine(" ")
-                            GameTooltip:AddLine((L["LABEL_ARTISAN_QUEST"] ~= "LABEL_ARTISAN_QUEST") and L["LABEL_ARTISAN_QUEST"] or "Artisan", 1, 0.82, 0)
+                            GameTooltip:AddLine(L["LABEL_ARTISAN_QUEST"], 1, 0.82, 0)
                             if e.currencyInfo then
                                 local cur = tonumber(e.currencyInfo.quantity) or 0
                                 local max = tonumber(e.currencyInfo.maxQuantity) or 0
-                                GameTooltip:AddLine(string.format("%s: %d/%d", CleanTrackerLabel(e.currencyInfo.name) or "Artisan", cur, max), 1, 1, 1)
+                                GameTooltip:AddLine(string.format("%s: %d/%d", CleanTrackerLabel(e.currencyInfo.name) or L["LABEL_ARTISAN_QUEST"], cur, max), 1, 1, 1)
                             end
                             if e.questIDs and #e.questIDs > 0 then
                                 local doneCount = tonumber(e.doneCount) or 0
                                 local totalCount = tonumber(e.totalCount) or #e.questIDs
-                                GameTooltip:AddLine(string.format("%s: %d/%d", (L["LABEL_WEEKLY"] ~= "LABEL_WEEKLY") and L["LABEL_WEEKLY"] or "Weekly", doneCount, totalCount), 0.85, 0.85, 0.85)
+                                GameTooltip:AddLine(string.format("%s: %d/%d", L["LABEL_WEEKLY"], doneCount, totalCount), 0.85, 0.85, 0.85)
                                 for _, qid in ipairs(e.questIDs) do
                                     local done = C_QuestLog.IsQuestFlaggedCompleted(qid) and true or false
                                     local qName = GetQuestDisplayName(qid)
@@ -1536,10 +1539,10 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                         elseif e.key == "catchup" and e.currencyInfo then
                             local ci = e.currencyInfo
                             GameTooltip:AddLine(" ")
-                            GameTooltip:AddLine(CleanTrackerLabel(ci.name) or ((L["LABEL_CATCHUP"] ~= "LABEL_CATCHUP") and L["LABEL_CATCHUP"] or "Catch-up"), 1, 0.82, 0)
-                            GameTooltip:AddLine(string.format("%s: %d/%d", (L["LABEL_CATCHUP"] ~= "LABEL_CATCHUP") and L["LABEL_CATCHUP"] or "Catch-up", tonumber(ci.quantity) or 0, tonumber(ci.maxQuantity) or 0), 1, 1, 1)
+                            GameTooltip:AddLine(CleanTrackerLabel(ci.name) or L["LABEL_CATCHUP"], 1, 0.82, 0)
+                            GameTooltip:AddLine(string.format("%s: %d/%d", L["LABEL_CATCHUP"], tonumber(ci.quantity) or 0, tonumber(ci.maxQuantity) or 0), 1, 1, 1)
                             if e.unlockQuests and #e.unlockQuests > 0 then
-                                GameTooltip:AddLine((L["LABEL_UNLOCK_REQUIREMENTS"] ~= "LABEL_UNLOCK_REQUIREMENTS") and L["LABEL_UNLOCK_REQUIREMENTS"] or "Unlock Requirements", 1, 0.82, 0)
+                                GameTooltip:AddLine(L["LABEL_UNLOCK_REQUIREMENTS"], 1, 0.82, 0)
                                 for _, qid in ipairs(e.unlockQuests) do
                                     local done = C_QuestLog.IsQuestFlaggedCompleted(qid) and true or false
                                     local qName = GetQuestDisplayName(qid)
@@ -1569,8 +1572,8 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                 local uniqueDone, uniqueTotal = CountCompletedQuestsForCharacter(charKey, prof, tData and tData.unique or nil)
                 local weeklyDoneCount, weeklyTotalCount = CountCompletedQuestsForCharacter(charKey, prof, tData and tData.weekly or nil)
                 row.skill:SetText("")
-                row.uniqueHeader:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", LT("LABEL_UNIQUE_TREASURES", "Unique Treasures"), uniqueDone, uniqueTotal))
-                row.weeklyHeader:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", LT("LABEL_WEEKLY_TREASURES", "Weekly Treasures"), weeklyDoneCount, weeklyTotalCount))
+                row.uniqueHeader:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", LT("LABEL_UNIQUE_TREASURES"), uniqueDone, uniqueTotal))
+                row.weeklyHeader:SetText(string.format("|cffffffcc%s: |cffffff00%d/%d|r", LT("LABEL_WEEKLY_TREASURES"), weeklyDoneCount, weeklyTotalCount))
                 row._treasureData = tData
 
                 for _, btn in ipairs(row.treasureButtons) do
@@ -1597,21 +1600,21 @@ function lv.ShowProfessionWindow(charKey, forceRefresh)
                             local wp = TREASURE_WAYPOINT_BY_QUEST[questID]
                             local zoneName = GetTreasureZoneName(questID)
                             if zoneName then
-                                GameTooltip:AddLine(string.format("%s: %s", (L["LABEL_ZONE"] ~= "LABEL_ZONE") and L["LABEL_ZONE"] or "Zone", zoneName), 1, 1, 1)
+                                GameTooltip:AddLine(string.format("%s: %s", L["LABEL_ZONE"], zoneName), 1, 1, 1)
                             end
-                            GameTooltip:AddLine(string.format("%s: %.1f / %.1f", (L["LABEL_COORDINATES"] ~= "LABEL_COORDINATES") and L["LABEL_COORDINATES"] or "Coordinates", wp.x * 100, wp.y * 100), 1, 1, 1)
+                            GameTooltip:AddLine(string.format("%s: %.1f / %.1f", L["LABEL_COORDINATES"], wp.x * 100, wp.y * 100), 1, 1, 1)
                             if wp.note and wp.note ~= "" then
                                 GameTooltip:AddLine(wp.note, 0.85, 0.85, 0.85, true)
                             end
                             if HasTomTom() then
-                                GameTooltip:AddLine((L["TOOLTIP_TREASURE_SET_WAYPOINT"] ~= "TOOLTIP_TREASURE_SET_WAYPOINT") and L["TOOLTIP_TREASURE_SET_WAYPOINT"] or "Click to place a TomTom waypoint", 0.2, 1, 0.2)
+                                GameTooltip:AddLine(L["TOOLTIP_TREASURE_SET_WAYPOINT"], 0.2, 1, 0.2)
                             elseif CanUseBlizzardWaypoint() then
-                                GameTooltip:AddLine((L["TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT"] ~= "TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT") and L["TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT"] or "Click to place a map waypoint", 0.2, 1, 0.2)
+                                GameTooltip:AddLine(L["TOOLTIP_TREASURE_SET_BLIZZ_WAYPOINT"], 0.2, 1, 0.2)
                             else
-                                GameTooltip:AddLine((L["MSG_TOMTOM_NOT_DETECTED"] ~= "MSG_TOMTOM_NOT_DETECTED") and L["MSG_TOMTOM_NOT_DETECTED"] or "TomTom not detected.", 1, 0.2, 0.2)
+                                GameTooltip:AddLine(L["MSG_TOMTOM_NOT_DETECTED"], 1, 0.2, 0.2)
                             end
                         else
-                            GameTooltip:AddLine((L["TOOLTIP_TREASURE_NO_FIXED_LOCATION"] ~= "TOOLTIP_TREASURE_NO_FIXED_LOCATION") and L["TOOLTIP_TREASURE_NO_FIXED_LOCATION"] or "No fixed location for this treasure", 1, 0.82, 0)
+                            GameTooltip:AddLine(L["TOOLTIP_TREASURE_NO_FIXED_LOCATION"], 1, 0.82, 0)
                         end
                         GameTooltip:Show()
                     end)

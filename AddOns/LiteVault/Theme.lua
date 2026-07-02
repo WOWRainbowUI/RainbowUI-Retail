@@ -229,18 +229,18 @@ SlashCmdList["LITEVAULTTHEME"] = function(msg)
 
     if msg == "dark" then
         lv.SetTheme("dark")
-        print("|cff9933ffLiteVault:|r Theme set to Dark (Void Purple)")
+        print("|cff9933ffLiteVault:|r " .. (L["MSG_THEME_SET_DARK"] or "Theme set to Dark (Void Purple)"))
     elseif msg == "light" then
         lv.SetTheme("light")
-        print("|cff9933ffLiteVault:|r Theme set to Light")
+        print("|cff9933ffLiteVault:|r " .. (L["MSG_THEME_SET_LIGHT"] or "Theme set to Light"))
     elseif msg == "" or msg == "toggle" then
         lv.ToggleTheme()
-        print("|cff9933ffLiteVault:|r Theme switched to " .. lv.GetTheme().name)
+        print("|cff9933ffLiteVault:|r " .. string.format((L["MSG_THEME_SWITCHED_FMT"] or "Theme switched to %s"), lv.GetTheme().name))
     else
-        print("|cff9933ffLiteVault Theme Commands:|r")
-        print("  /lvtheme - Toggle between themes")
-        print("  /lvtheme dark - Switch to Dark theme")
-        print("  /lvtheme light - Switch to Light theme")
-        print("  Current: " .. lv.GetTheme().name)
+        print("|cff9933ff" .. (L["HELP_THEME_TITLE"] or "LiteVault Theme Commands:") .. "|r")
+        print("  " .. (L["HELP_THEME_TOGGLE"] or "/lvtheme - Toggle between themes"))
+        print("  " .. (L["HELP_THEME_DARK"] or "/lvtheme dark - Switch to Dark theme"))
+        print("  " .. (L["HELP_THEME_LIGHT"] or "/lvtheme light - Switch to Light theme"))
+        print("  " .. string.format((L["HELP_THEME_CURRENT_FMT"] or "Current: %s"), lv.GetTheme().name))
     end
 end
