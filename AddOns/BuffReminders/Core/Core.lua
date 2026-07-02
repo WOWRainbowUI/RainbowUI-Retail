@@ -10,7 +10,7 @@ local _, BR = ...
 -- TYPE DEFINITIONS
 -- ============================================================================
 
----@alias CategoryName "raid"|"presence"|"targeted"|"self"|"pet"|"consumable"|"custom"
+---@alias CategoryName "raid"|"presence"|"targeted"|"self"|"pet"|"consumable"|"custom"|"loadout"
 
 ---@class CategoryPosition
 ---@field point string
@@ -133,6 +133,7 @@ local RootSettings = {
     hideWhileLeveling = "VisibilityRefresh",
     petPassiveOnlyInCombat = "VisibilityRefresh",
     bronzeHideInCombat = "VisibilityRefresh",
+    druidIgnoreTravelForm = "DisplayRefresh", -- recompute wrong-form state, then render
     requestBuffInChat = false, -- No auto-refresh, handled manually
     chatRequestCooldown = false, -- No auto-refresh, read live in PostClick + SyncSecureButtons
 }
@@ -284,17 +285,25 @@ local DefaultSettingKeys = {
     position = false, -- No auto-refresh, saved directly by movers
 }
 
--- Valid category names
-local ValidCategories = {
-    main = true,
-    raid = true,
-    presence = true,
-    targeted = true,
-    self = true,
-    pet = true,
-    consumable = true,
-    custom = true,
-}
+-- Canonical buff category list (single source of truth).
+--
+-- Order here is the canonical category order used everywhere it matters:
+-- display stacking, the Defaults "Display Order" UI, the movers, and config
+-- validation. Adding a category here automatically wires it into config-path
+-- validation (ValidCategories below), the display loop (BR.CATEGORIES), the
+-- reorder UI (ALL_CATEGORIES), and the sidebar page map (CategoryPages) -- all
+-- of which derive from this list instead of repeating it. Forgetting to extend
+-- one of those parallel lists is what silently breaks live config updates, so
+-- there is exactly one list to maintain.
+BR.CATEGORY_ORDER = { "raid", "presence", "targeted", "self", "pet", "consumable", "custom", "loadout" }
+
+-- Valid category names for config paths (categorySettings.<category>.<key>).
+-- Derived from BR.CATEGORY_ORDER plus "main", the shared/global frame whose
+-- settings live under categorySettings.main but which is not a buff category.
+local ValidCategories = { main = true }
+for _, cat in ipairs(BR.CATEGORY_ORDER) do
+    ValidCategories[cat] = true
+end
 
 -- Dynamic tables (path = {root}.{anyKey})
 -- These allow any second-level key (buff names, visibility contexts, etc.)
@@ -304,6 +313,7 @@ local DynamicRoots = {
     splitCategories = "FramesReparent",
     readyCheckOnlyOverrides = "DisplayRefresh",
     detachedIcons = "FramesReparent",
+    loadoutReminders = "DisplayRefresh",
 }
 
 ---Check if a config path is valid
@@ -676,11 +686,14 @@ end
 function BR.CreatePanel(name, width, height, options)
     options = options or {}
     local isDialog = options.dialog
-    -- Dialogs sit visibly above the main panel: lighter, fully opaque body and
-    -- a thicker gold border so the frame reads as elevated against busy content
-    -- (e.g. the buff list grid) underneath.
-    local bgColor = options.bgColor or (isDialog and { 0.18, 0.18, 0.20, 1 } or { 0.1, 0.1, 0.1, 0.95 })
-    local borderColor = options.borderColor or (isDialog and { 0.85, 0.7, 0.25, 1 } or { 0.3, 0.3, 0.3, 1 })
+    -- Dialogs echo the main options panel's restrained palette - dark body, gray
+    -- hairline border - and rely on the soft drop shadow (below) rather than a
+    -- loud gold frame to read as elevated above the content underneath. Gold is
+    -- reserved for accents (active tabs), mirroring the panel's active-nav cue.
+    -- Cool-biased neutrals: a slight blue tint over flat grey reads as a chosen
+    -- ground against the warm gold accent (a pure mid-grey reads as unconsidered).
+    local bgColor = options.bgColor or (isDialog and { 0.098, 0.098, 0.118, 1 } or { 0.09, 0.09, 0.107, 0.97 })
+    local borderColor = options.borderColor or { 0.27, 0.27, 0.32, 1 }
 
     local panel = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
     panel:SetSize(width, height)
@@ -702,35 +715,41 @@ function BR.CreatePanel(name, width, height, options)
         panel:SetFrameLevel(options.level)
     end
     if isDialog then
-        -- Drop shadow: three stacked BACKGROUND textures at decreasing outset
-        -- and increasing alpha simulate a soft fade. Each ring overlaps the
-        -- next, so the visible alpha grows from ~15% at the outer edge to
-        -- ~60% just outside the border. Sublevels sit below the panel's own
-        -- backdrop so the body color paints over the inner overlap.
-        local shadowAlphas = { 0.15, 0.25, 0.4 }
-        local shadowOffsets = { 6, 4, 2 }
-        for i = 1, #shadowAlphas do
+        -- Soft drop shadow: a fine stack of rings with a smooth alpha falloff so
+        -- the dialog reads as a raised card lifted off the busy content beneath
+        -- it. The outermost ring is barely visible (~4%) and each inner ring
+        -- darkens gradually; sublevels sit below the panel's own backdrop so the
+        -- body color paints over the inner overlap.
+        local SHADOW_STEPS = 6
+        for i = 1, SHADOW_STEPS do
+            local outset = SHADOW_STEPS - i + 1 -- 6,5,4,3,2,1 px out
+            local alpha = 0.04 + (i - 1) * 0.045 -- ~0.04 (outer) -> ~0.26 (inner)
             local layer = panel:CreateTexture(nil, "BACKGROUND", nil, -9 + i)
-            layer:SetPoint("TOPLEFT", -shadowOffsets[i], shadowOffsets[i])
-            layer:SetPoint("BOTTOMRIGHT", shadowOffsets[i], -shadowOffsets[i])
-            layer:SetColorTexture(0, 0, 0, shadowAlphas[i])
+            layer:SetPoint("TOPLEFT", -outset, outset)
+            layer:SetPoint("BOTTOMRIGHT", outset, -outset)
+            layer:SetColorTexture(0, 0, 0, alpha)
         end
 
-        -- Header strip + gold accent line distinguish the dialog window from
-        -- the main options panel sitting beneath it. Title/close anchors at
-        -- y=-10..-12 land on the strip; tabs/content layouts that start at
-        -- y=-32 or lower sit just below the accent.
-        local header = panel:CreateTexture(nil, "BORDER")
-        header:SetPoint("TOPLEFT", 2, -2)
-        header:SetPoint("TOPRIGHT", -2, -2)
-        header:SetHeight(30)
-        header:SetColorTexture(0.05, 0.05, 0.07, 1)
+        -- Body gradient: a faint top->bottom falloff over the flat backdrop color
+        -- gives the card subtle depth instead of a dead-flat fill, while staying
+        -- in the main panel's dark range. Sits above the shadow/backdrop but below
+        -- the title separator (BORDER layer 0+).
+        local body = panel:CreateTexture(nil, "BORDER", nil, -7)
+        body:SetPoint("TOPLEFT", 2, -2)
+        body:SetPoint("BOTTOMRIGHT", -2, 2)
+        body:SetColorTexture(1, 1, 1, 1)
+        body:SetGradient("VERTICAL", CreateColor(0.094, 0.094, 0.112, 1), CreateColor(0.130, 0.130, 0.152, 1))
 
-        local accent = panel:CreateTexture(nil, "BORDER", nil, 1)
-        accent:SetPoint("TOPLEFT", 2, -32)
-        accent:SetPoint("TOPRIGHT", -2, -32)
-        accent:SetHeight(1)
-        accent:SetColorTexture(0.85, 0.7, 0.25, 0.9)
+        -- A thin gray separator under the title mirrors the main panel's header
+        -- divider, so the dialog reads as a titled card in the same family. The
+        -- title (GameFontNormalLarge, gold) sits above it; content layouts start
+        -- just below. The -32 offset is load-bearing - dialogs hardcode content
+        -- positions relative to it, so restyle the line but don't move it.
+        local titleSep = panel:CreateTexture(nil, "BORDER", nil, 1)
+        titleSep:SetPoint("TOPLEFT", 2, -32)
+        titleSep:SetPoint("TOPRIGHT", -2, -32)
+        titleSep:SetHeight(1)
+        titleSep:SetColorTexture(0.27, 0.27, 0.32, 1)
 
         -- Dialogs are modeless: ESC handled via keyboard input so closing this
         -- dialog doesn't also close the parent options panel (unlike

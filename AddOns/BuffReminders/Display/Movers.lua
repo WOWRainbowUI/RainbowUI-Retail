@@ -93,7 +93,7 @@ local function GetSavedPosition(catKey)
         end
         return { x = 0, y = 0 }
     end
-    local defaults = BR.Display.defaults
+    local defaults = BR.defaults
     if catKey == "main" then
         return (db.categorySettings and db.categorySettings.main and db.categorySettings.main.position)
             or db.position
