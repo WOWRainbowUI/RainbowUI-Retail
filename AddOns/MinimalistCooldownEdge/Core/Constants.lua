@@ -104,6 +104,10 @@ C.Style = {
     },
     Anchors = {
         Center = "CENTER",
+        Top = "TOP",
+        Bottom = "BOTTOM",
+        Left = "LEFT",
+        Right = "RIGHT",
         TopLeft = "TOPLEFT",
         TopRight = "TOPRIGHT",
         BottomLeft = "BOTTOMLEFT",
@@ -170,6 +174,7 @@ C.Defaults = {
     },
     Actionbar = {
         HideChargeTimers = true,
+        ReverseSwipe = false,
         SwipeAlpha = 80,
     },
     Nameplate = {
@@ -196,6 +201,9 @@ C.Defaults = {
         EssentialFontSize = 18,
         UtilityFontSize = 18,
         BuffIconFontSize = 18,
+        EssentialStackSize = 16,
+        UtilityStackSize = 16,
+        BuffIconStackSize = 16,
         AuraColorEnabled = true,
         AuraColor = C.Colors.Highlight,
     },
@@ -540,6 +548,9 @@ C.Styler = {
     DurationCacheSweepThreshold = 10,
     DurationColorTickerInterval = 0.5,
     AuraRetryMinInterval = 0.25,
+    CooldownTextLayer = C.Style.Layers.Overlay,
+    CooldownTextSubLevel = 7,
+    ActionbarTextFrameLevelOffset = 1,
     StackTextLayer = C.Style.Layers.Overlay,
     StackTextSubLevel = 7,
 }

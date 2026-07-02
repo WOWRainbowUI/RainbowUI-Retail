@@ -11,6 +11,7 @@ local strfind = string.find
 local hooksecurefunc = hooksecurefunc
 local CreateFrame = CreateFrame
 local C_Timer_After = C_Timer.After
+local _G = _G
 
 local CATEGORY = C.Categories.PlayerAura
 local AURA_TYPE = C.PlayerAuraTypes
@@ -25,9 +26,11 @@ local managedButtons = setmetatable({}, addon.weakMeta)
 local hookedButtons = setmetatable({}, addon.weakMeta)
 local assignedAuraTypes = setmetatable({}, addon.weakMeta)
 local originalFontStrings = setmetatable({}, addon.weakMeta)
+local elvuiManagedButtons = setmetatable({}, addon.weakMeta)
 
 local hooksInstalled = false
 local pendingForceUpdate = false
+local elvuiAurasHooked = false
 
 local function IsTrackedAuraRoot(frame)
     return (BuffFrame and frame == BuffFrame)
@@ -798,6 +801,316 @@ function PlayerAuraStyler:HookKnownButtons()
     ForEachKnownAuraButton(HookButton)
 end
 
+-- =========================================================================
+-- ELVUI PLAYER AURA SUPPORT
+-- =========================================================================
+-- When ElvUI's standalone Auras module is active it replaces the Blizzard
+-- BuffFrame/DebuffFrame with its own ElvUIPlayerBuffs / ElvUIPlayerDebuffs
+-- headers. Those buttons display the timer through the native Blizzard
+-- cooldown countdown numbers on button.cooldown (ElvUI's own cooldown text is
+-- disabled in this configuration), so the Blizzard-button path above never
+-- reaches them. Style only the countdown text here and leave the icon, swipe,
+-- bar and overall look to ElvUI.
+
+local ELVUI_AURA_HEADER_NAMES = { "ElvUIPlayerBuffs", "ElvUIPlayerDebuffs" }
+
+-- ElvUI's CreateIcon replaces the aura cooldown edge with an invisible texture,
+-- so the swipe edge must be restored to the stock Blizzard cooldown edge before
+-- it can be shown again.
+local ELVUI_EDGE_TEXTURE = "Interface\\Cooldown\\edge"
+
+local function IsElvUIPlayerAuraActive()
+    if not (MCE:IsElvUIAvailable() and MCE:IsElvUIAdapterEnabled()) then
+        return false
+    end
+
+    return _G.ElvUIPlayerBuffs ~= nil or _G.ElvUIPlayerDebuffs ~= nil
+end
+
+local function GetElvUIAuraType(button)
+    local auraType = button and button.auraType
+    if auraType == "buffs" then
+        return AURA_TYPE_BUFF
+    end
+    if auraType == "debuffs" then
+        return AURA_TYPE_DEBUFF
+    end
+
+    local filter = button and button.filter
+    if filter == "HELPFUL" then
+        return AURA_TYPE_BUFF
+    end
+    if filter == "HARMFUL" then
+        return AURA_TYPE_DEBUFF
+    end
+
+    return nil
+end
+
+local function GetCooldownCountdownFontString(cooldown)
+    if not cooldown or IsForbidden(cooldown) then
+        return nil
+    end
+
+    if cooldown.GetCountdownFontString then
+        local ok, fontString = pcall(cooldown.GetCountdownFontString, cooldown)
+        if ok and IsFontString(fontString) and not IsForbidden(fontString) then
+            return fontString
+        end
+    end
+
+    if cooldown.GetRegions then
+        local ok, regions = pcall(function()
+            return { cooldown:GetRegions() }
+        end)
+        if ok and type(regions) == "table" then
+            for i = 1, #regions do
+                local region = regions[i]
+                if IsFontString(region) and not IsForbidden(region) then
+                    return region
+                end
+            end
+        end
+    end
+
+    return nil
+end
+
+local function ApplyElvUISwipe(cooldown, config)
+    local drawSwipe = config.drawSwipe ~= false
+    local edgeEnabled = config.edgeEnabled == true
+    local reverseSwipe = config.reverseSwipe ~= false
+    local edgeScale = config.edgeScale
+    local alpha = GetSwipeShadeAlpha(config)
+
+    local signature = tostring(drawSwipe)
+        .. ":" .. tostring(edgeEnabled)
+        .. ":" .. tostring(edgeScale or "")
+        .. ":" .. tostring(reverseSwipe)
+        .. ":" .. tostring(alpha)
+
+    if cooldown.MCEElvUISwipeSignature == signature then
+        return
+    end
+
+    if cooldown.SetDrawSwipe then
+        pcall(cooldown.SetDrawSwipe, cooldown, drawSwipe)
+    end
+    if drawSwipe and cooldown.SetSwipeColor then
+        pcall(cooldown.SetSwipeColor, cooldown, 0, 0, 0, alpha)
+    end
+
+    if cooldown.SetDrawEdge then
+        pcall(cooldown.SetDrawEdge, cooldown, edgeEnabled)
+    end
+    if edgeEnabled then
+        if cooldown.SetEdgeTexture then
+            pcall(cooldown.SetEdgeTexture, cooldown, ELVUI_EDGE_TEXTURE)
+        end
+        if edgeScale and cooldown.SetEdgeScale then
+            pcall(cooldown.SetEdgeScale, cooldown, edgeScale)
+        end
+    end
+
+    if cooldown.SetReverse then
+        pcall(cooldown.SetReverse, cooldown, reverseSwipe)
+    end
+
+    cooldown.MCEElvUISwipeSignature = signature
+end
+
+local function ResetElvUISwipe(cooldown)
+    if not cooldown or not cooldown.MCEElvUISwipeSignature then
+        return
+    end
+
+    -- Restore ElvUI's default aura look: swipe and edge hidden.
+    if cooldown.SetDrawSwipe then
+        pcall(cooldown.SetDrawSwipe, cooldown, false)
+    end
+    if cooldown.SetDrawEdge then
+        pcall(cooldown.SetDrawEdge, cooldown, false)
+    end
+
+    cooldown.MCEElvUISwipeSignature = nil
+end
+
+local function RestoreElvUIButton(button)
+    if not elvuiManagedButtons[button] then
+        return
+    end
+
+    local cooldown = button.cooldown
+    if cooldown then
+        if cooldown.MCEElvUIHidNumbers then
+            if cooldown.SetHideCountdownNumbers then
+                pcall(cooldown.SetHideCountdownNumbers, cooldown, false)
+            end
+            cooldown.MCEElvUIHidNumbers = nil
+        end
+
+        ResetElvUISwipe(cooldown)
+
+        local fontString = GetCooldownCountdownFontString(cooldown)
+        if fontString then
+            RestoreFontStringState(fontString)
+            if fontString.SetAlpha then
+                pcall(fontString.SetAlpha, fontString, 1)
+            end
+        end
+    end
+
+    elvuiManagedButtons[button] = nil
+end
+
+local function StyleElvUIAuraButton(button)
+    if not button or IsForbidden(button) then
+        return true
+    end
+
+    if not IsElvUIPlayerAuraActive() then
+        RestoreElvUIButton(button)
+        return true
+    end
+
+    local cooldown = button.cooldown
+    if not cooldown or IsForbidden(cooldown) then
+        return true
+    end
+
+    local auraType = GetElvUIAuraType(button)
+    if not auraType then
+        RestoreElvUIButton(button)
+        return true
+    end
+
+    local config = GetConfig()
+    if not IsConfigEnabled(config) or not IsAuraTypeEnabled(config, auraType) then
+        RestoreElvUIButton(button)
+        return true
+    end
+
+    local styleConfig = GetAuraStyleConfig(config, auraType)
+    elvuiManagedButtons[button] = true
+
+    -- Swipe / edge are independent of the timer text, so apply them first (this
+    -- also covers the "Hide Numbers" swipe-only case below).
+    ApplyElvUISwipe(cooldown, styleConfig)
+
+    if styleConfig.hideCountdownNumbers then
+        if cooldown.SetHideCountdownNumbers then
+            pcall(cooldown.SetHideCountdownNumbers, cooldown, true)
+        end
+        cooldown.MCEElvUIHidNumbers = true
+        return true
+    end
+
+    if cooldown.MCEElvUIHidNumbers then
+        if cooldown.SetHideCountdownNumbers then
+            pcall(cooldown.SetHideCountdownNumbers, cooldown, false)
+        end
+        cooldown.MCEElvUIHidNumbers = nil
+    end
+
+    local fontString = GetCooldownCountdownFontString(cooldown)
+    if not fontString then
+        -- The native countdown FontString is created lazily once numbers are
+        -- drawn. Report "not ready" so the caller can retry on the next tick.
+        return false
+    end
+
+    fontString:SetAlpha(1)
+
+    -- ElvUI draws the aura timer through the native cooldown countdown text,
+    -- which sits centered over the icon, so anchor to the cooldown frame and
+    -- apply the configured offsets (matches StyleEngine's cooldown text path).
+    ApplyFontStringStyle(
+        fontString,
+        cooldown,
+        MCE.ResolveFontPath(styleConfig.font),
+        styleConfig.fontSize,
+        MCE.NormalizeFontStyle(styleConfig.fontStyle),
+        styleConfig.textColor,
+        "CENTER",
+        "CENTER",
+        styleConfig.textOffsetX or 0,
+        styleConfig.textOffsetY or 0)
+
+    return true
+end
+
+local function StyleElvUIAuraButtonSoon(button)
+    if not StyleElvUIAuraButton(button) then
+        -- ElvUI sets the cooldown a frame before the native countdown
+        -- FontString exists, so retry once on the next tick.
+        C_Timer_After(0.05, function()
+            StyleElvUIAuraButton(button)
+        end)
+    end
+end
+
+local function GetElvUIAurasModule()
+    -- _G.ElvUI is the engine array {E, L, V, P, G}; the Auras module hangs off E.
+    local engine = _G.ElvUI
+    local E = type(engine) == "table" and engine[1] or nil
+    if type(E) ~= "table" then
+        return nil
+    end
+
+    return E.Auras
+end
+
+local function InstallElvUIAurasHooks()
+    if elvuiAurasHooked then
+        return
+    end
+
+    local A = GetElvUIAurasModule()
+    if type(A) ~= "table" or type(A.UpdateButton) ~= "function" then
+        return
+    end
+
+    -- ElvUI calls A:UpdateButton(button, ...) right after it sets the aura
+    -- cooldown, which is the authoritative moment to (re)apply the text style.
+    hooksecurefunc(A, "UpdateButton", function(_, button)
+        if button and button.cooldown then
+            StyleElvUIAuraButtonSoon(button)
+        end
+    end)
+
+    elvuiAurasHooked = true
+end
+
+local function ForEachElvUIAuraButton(callback)
+    for h = 1, #ELVUI_AURA_HEADER_NAMES do
+        local header = _G[ELVUI_AURA_HEADER_NAMES[h]]
+        if header and not IsForbidden(header) and header.GetChildren then
+            local children = { header:GetChildren() }
+            for i = 1, #children do
+                local button = children[i]
+                if button and not IsForbidden(button) and button.cooldown and button.auraType then
+                    callback(button)
+                end
+            end
+        end
+    end
+end
+
+function PlayerAuraStyler:UpdateElvUIPlayerAuras()
+    if not IsElvUIPlayerAuraActive() then
+        for button in pairs(elvuiManagedButtons) do
+            RestoreElvUIButton(button)
+        end
+        return
+    end
+
+    InstallElvUIAurasHooks()
+
+    ForEachElvUIAuraButton(function(button)
+        StyleElvUIAuraButton(button)
+    end)
+end
+
 function PlayerAuraStyler:InstallMixinHooks()
     if hooksInstalled or type(AuraButtonMixin) ~= "table" then
         return hooksInstalled
@@ -854,6 +1167,8 @@ function PlayerAuraStyler:ForceUpdateAll()
             RestoreButton(button)
         end
     end
+
+    self:UpdateElvUIPlayerAuras()
 end
 
 function PlayerAuraStyler:ADDON_LOADED(_, loadedAddonName)
@@ -884,5 +1199,9 @@ end
 function PlayerAuraStyler:OnDisable()
     for button in pairs(managedButtons) do
         RestoreButton(button)
+    end
+
+    for button in pairs(elvuiManagedButtons) do
+        RestoreElvUIButton(button)
     end
 end
