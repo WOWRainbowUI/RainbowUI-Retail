@@ -1,5 +1,8 @@
 # Changelog
 
+### 38
+- Move timestamp to the location of the playstyle string
+
 ### 37
 - Version update
 
