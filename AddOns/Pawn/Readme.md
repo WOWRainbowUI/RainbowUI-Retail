@@ -83,6 +83,16 @@ Pawn plays along with most other addons, but there are a few that break Pawn tha
 
 ## Updates
 
+### Version 2.13.12
+
+* Midnight: Added a workaround for a bug in the game that was causing green arrows to appear next to some items' level even when it wasn't a higher item level than what you've previously equipped in that slot. (The game reports pre-squish item levels 500+ to addons for some items.)
+* 12.1 PTR: Fixed a problem where nearly all items showed up as having special effects on Pawn's Compare tab.
+
+### Version 2.13.11
+
+* Pawn keybindings will now work on the map even when Pawn's quest upgrade advisor feature is turned off.
+* A small change under the hood to make it harder for bag addons to cause problems with Pawn.
+
 ### Version 2.13.10
 
 * Midnight: In an attempt to reduce the number of tooltip "secret taint" errors that many players are seeing thanks to bugs in the garbage fire of Midnight addon restrictions, I've disabled Pawn's interactions with world quests entirely, as that seems to be the biggest remaining source of problems. I'll reenable that feature when Blizzard fixes the tooltip bugs.
