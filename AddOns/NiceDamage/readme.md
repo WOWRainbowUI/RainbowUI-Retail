@@ -44,18 +44,9 @@ Access the settings panel using:
 
 ## Installing Your Own Fonts
 
-### Option 1: The "Custom Font NDR" Toggle (Simple)
-If you want to use a specific `.ttf` file without installing other addons:
-**Note that updating the addon will remove your custom font file, so back it up!**
+For managing custom fonts, use the [SharedMedia](https://www.curseforge.com/wow/addons/sharedmedia) addon. Once you register a font there, NiceDamage will automatically list it in the selection menu.
 
-1. Navigate to `_retail_/Interface/AddOns/NiceDamage/fonts/`.
-2. Place your desired font file in this folder and rename it to `customfontndr.ttf`.
-3. In-game, open the settings and check **"Load Custom Font"**.
-4. **Log out** to the character screen and log back in.
-5. Select **"Custom Font NDR"** from the font dropdown menu.
-
-### Option 2: Using the SharedMedia Addon (Recommended)
-For managing multiple custom fonts, use the [SharedMedia](https://www.curseforge.com/wow/addons/sharedmedia) addon. Once you register a font there, NiceDamage will automatically list it in the selection menu.
+Alternatively, you can add your own font files directly to the `Fonts` folder in the NiceDamage addon directory. Supported formats are `.ttf` and `.otf`. Replace a font file with the same name to override it, but be aware that updates to the addon may overwrite custom files if they share the same name.
 
 ---
 

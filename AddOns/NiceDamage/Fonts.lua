@@ -18,7 +18,6 @@ local myFonts = {
     ["Yikes"]                = { file = "yikes.ttf",             cyrillic = false },
     ["Denmark"]              = { file = "Denmark.ttf",           cyrillic = false },
     ["Zero Cool"]            = { file = "ZeroCool.ttf",          cyrillic = true },
-    ["Custom Font NDR"]      = { file = "customfontndr.ttf",     cyrillic = true },
     ["Alte Haas Grotesk"]    = { file = "AlteHaasGroteskBold.ttf",  cyrillic = false },
 }
 
@@ -33,20 +32,12 @@ function addon:RegisterFonts()
                  (LSM.LOCALE_BIT_western or 128)
 
     for name, data in pairs(myFonts) do
-        -- Check if this is the custom font and if it should be loaded
-        local shouldLoad = true
-        if name == "Custom Font NDR" and not self.db.profile.loadCustomFont then
-            shouldLoad = false
-        end
-
-        if shouldLoad then
-            local displayName = name
+        local displayName = name
             
             if isRussian and not data.cyrillic then
                 displayName = name .. " |cff888888[Latin]|r"
             end
 
             LSM:Register("font", displayName, prefix .. data.file, mask)
-        end
     end
 end

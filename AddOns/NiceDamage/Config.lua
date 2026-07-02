@@ -34,24 +34,6 @@ function addon:GetOptions()
                         end,
                         order = 2,
                     },
-                    loadCustom = {
-                        type = "toggle",
-                        name = "Load Custom Font",
-                        desc = "Load and auto-select 'Custom Font NDR'. |cFFFF0000(Requires you to log out and in to see in list)|r",
-                        get = function() return self.db.profile.loadCustomFont end,
-                        set = function(_, v) 
-                            self.db.profile.loadCustomFont = v
-                            if v then
-                                self.db.profile.fontName = "Custom Font NDR"
-                                self.db.profile.uiFont = "Custom Font NDR"
-                            else
-                                self.db.profile.fontName = "Pepsi Modern"
-                                self.db.profile.uiFont = "Pepsi Modern"
-                            end
-                            self:ApplySystemFonts()
-                        end,
-                        order = 3,
-                    },
                 }
             },
             targets = {
