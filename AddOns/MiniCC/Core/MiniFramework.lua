@@ -1100,9 +1100,6 @@ function M:CreateTabs(options)
 			else
 				btn:SetBackdropColor(0, 0, 0, 0)
 				btn:SetBackdropBorderColor(0.55, 0.55, 0.55, 1)
-				btn.BottomEdge:Hide()
-				btn.BottomLeftCorner:Hide()
-				btn.BottomRightCorner:Hide()
 				if btn.Accent then btn.Accent:Show() end
 				-- Reanchor line segments to leave a gap at this button.
 				-- Anchor only the bottom edge to a single shared baseline (the tabs' bottom,
@@ -1131,9 +1128,6 @@ function M:CreateTabs(options)
 				if btn.Indicator then btn.Indicator:Hide() end
 			else
 				if btn.Accent then btn.Accent:Hide() end
-				btn.BottomEdge:Hide()
-				btn.BottomLeftCorner:Hide()
-				btn.BottomRightCorner:Hide()
 			end
 		end
 	end
@@ -1185,6 +1179,8 @@ function M:CreateTabs(options)
 		assert(not keyToIndex[def.Key], "CreateTabs: duplicate Key: " .. def.Key)
 
 		local btn = CreateFrame("Button", nil, strip, "BackdropTemplate")
+		-- Plain SetHeight/SetPoint (no PixelUtil) for the buttons: pixel-snapping the frame pushed the
+		-- 1px backdrop top edge off the physical-pixel grid on some pages, making it vanish.
 		btn:SetHeight(tabHeight)
 		btn:SetBackdrop({
 			bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -1226,10 +1222,11 @@ function M:CreateTabs(options)
 
 			SizeToText(btn)
 
+			-- Anchor all buttons to a single shared bottom baseline (the tabs' bottom).
 			if not prev then
 				btn:SetPoint("BOTTOMLEFT", strip, "BOTTOMLEFT", 0, 1)
 			else
-				btn:SetPoint("LEFT", prev, "RIGHT", tabSpacing, 0)
+				btn:SetPoint("BOTTOMLEFT", prev, "BOTTOMRIGHT", tabSpacing, 0)
 			end
 		end
 

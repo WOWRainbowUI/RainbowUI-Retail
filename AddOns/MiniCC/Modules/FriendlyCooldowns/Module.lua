@@ -327,7 +327,6 @@ function M:Init()
 			Cooldown    = cooldown,
 			Remaining   = remaining,
 			SpellId     = spellId,
-			IsOffensive = false,
 		}
 		cdData.CleanupTimer = C_Timer.NewTimer(remaining, function()
 			for _, e in ipairs(casterEntries) do
@@ -380,7 +379,6 @@ function M:Init()
 			Cooldown    = cooldown,
 			Remaining   = remaining,
 			SpellId     = spellId,
-			IsOffensive = false,
 		}
 		cdData.CleanupTimer = C_Timer.NewTimer(remaining, function()
 			for _, e in ipairs(casterEntries) do
@@ -707,7 +705,11 @@ function M:Init()
 		elseif event == "UNIT_FACTION" then
 			M:RefreshDisplays()
 		elseif event == "PVP_MATCH_STATE_CHANGED" then
-			if C_PvP.GetActiveMatchState() == Enum.PvPMatchState.StartUp then
+			-- StartUp is the prep room; suppress cooldown prediction while in it (auras are still
+			-- tracked) so pre-existing friendly buffs don't falsely trigger. Cleared once the gates open.
+			local inPrepRoom = C_PvP.GetActiveMatchState() == Enum.PvPMatchState.StartUp
+			brain:SetInPrepRoom(inPrepRoom)
+			if inPrepRoom then
 				-- Arena match is starting: clear all tracked state so the previous match's
 				-- cooldowns don't bleed into the new one.
 				ClearAllCooldownState()
@@ -721,6 +723,7 @@ function M:Init()
 			-- the next arena begins (PVP_MATCH_STATE_CHANGED/StartUp also fires,
 			-- but PLAYER_ENTERING_WORLD covers the case where a match ends without
 			-- a new StartUp following immediately).
+			brain:SetInPrepRoom(C_PvP.GetActiveMatchState() == Enum.PvPMatchState.StartUp)
 			ClearAllCooldownState()
 		end
 	end)
@@ -856,14 +859,14 @@ function M:Init()
 end
 
 ---Registers a callback invoked when a buff is matched to a predicted spell (glow starts).
----Signature: function(unit, spellId, spellType) where spellType is "Offensive", "Defensive", or "Important"
+---Signature: function(unit, spellId, spellType) where spellType is "Defensive"
 ---@param fn function
 function M:RegisterPredictedCallback(fn)
 	predictedCallbacks[#predictedCallbacks + 1] = fn
 end
 
 ---Registers a callback invoked when an aura ends and a cooldown rule is committed.
----Signature: function(unit, spellId, spellType) where spellType is "Offensive", "Defensive", or "Important"
+---Signature: function(unit, spellId, spellType) where spellType is "Defensive"
 ---@param fn function
 function M:RegisterMatchedCallback(fn)
 	matchedCallbacks[#matchedCallbacks + 1] = fn
@@ -880,7 +883,7 @@ end
 
 ---@class FcdTrackedAura
 ---@field StartTime        number                  GetTime() when the aura was first detected
----@field AuraTypes        table<string,boolean>   set of applicable types: "BIG_DEFENSIVE", "IMPORTANT", "EXTERNAL_DEFENSIVE"
+---@field AuraTypes        table<string,boolean>   set of applicable types: "BIG_DEFENSIVE", "EXTERNAL_DEFENSIVE"
 ---@field SpellId          number                  aura.spellId (may be a secret value)
 ---@field Evidence         EvidenceSet?            evidence types collected at detection time; nil if none found
 ---@field CastSnapshot         table<string,number>                     snapshot of lastCastTime at detection; used by OnAuraRemoved to attribute the cooldown to the correct caster
@@ -893,7 +896,6 @@ end
 ---@field Cooldown      number       Total cooldown duration in seconds
 ---@field Remaining     number       Seconds until the cooldown expires (Cooldown - measuredDuration)
 ---@field SpellId       number       aura.spellId used for icon lookup (may be a secret value)
----@field IsOffensive   boolean      Whether the spell is treated as offensive
 ---@field CleanupTimer  table?       C_Timer handle; cancelled and replaced on re-cast
 
 ---@class FcdWatchEntry
