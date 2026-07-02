@@ -121,7 +121,7 @@ bootstrapFrame:SetScript("OnEvent", function(_, event, arg1)
 
     -- Register with WoW's Interface Options
     local settingsPanel = CreateFrame("Frame")
-    settingsPanel.name = "BuffReminders"
+    settingsPanel.name = L["BuffReminders"]
 
     local title = settingsPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     title:SetPoint("TOPLEFT", 16, -16)
