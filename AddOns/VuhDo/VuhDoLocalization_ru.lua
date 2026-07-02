@@ -238,7 +238,7 @@ VUHDO_I18N_OPTIONS_NOT_LOADED = ">>> Модуль настроек VuhDo не з
 VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST_1 = "Ошибка: Раскладка способностей \"";
 VUHDO_I18N_SPELL_LAYOUT_NOT_EXIST_2 = "\" не существует.";
 VUHDO_I18N_AUTO_ARRANG_1 = "Количество участников группы изменено на: ";
-VUHDO_I18N_AUTO_ARRANG_2 = ". Автоприменение расположения: \"";
+VUHDO_I18N_AUTO_ARRANG_2 = ". Автоприменение профиля: \"";
 
 -- #+1.209
 VUHDO_I18N_OWN_GROUP_LONG = "Свою группу";
@@ -529,7 +529,7 @@ VUHDO_I18N_DEFAULT_RES_ANNOUNCE_MASS = "Использую массовое во
 VUHDO_I18N_BOUQUET_OVERFLOW_COUNTER = "Переполняющий М+ аффикс";
 
 -- 3.82
-VUHDO_I18N_SPELL_TRACE = "Иконка: Отслеживание";
+VUHDO_I18N_SPELL_TRACE = "Отслеж.\nзаклин.";
 VUHDO_I18N_DEF_SPELL_TRACE = "Отслеживание";
 VUHDO_I18N_TRAIL_OF_LIGHT = "Иконка: Дорога Света";
 VUHDO_I18N_DEF_TRAIL_OF_LIGHT = "Дорога Света";
@@ -710,3 +710,5 @@ VUHDO_I18N_TEXT_PROVIDER_FORMAT_NK_PERCENT = "<#nk> (<#n>%)";
 VUHDO_I18N_TEXT_PROVIDER_FORMAT_KILO_OF_KILO_PERCENT = "<#nk>/<#nk> (<#n>%)";
 VUHDO_I18N_TEXT_PROVIDER_SOURCE_LABEL = "Text Source";
 VUHDO_I18N_TEXT_PROVIDER_FORMAT_LABEL = "Text Format";
+
+VUHDO_I18N_BLIZZ_RESTORE_RELOAD = "Перезагрузите интерфейс (/reload), чтобы восстановить скрытые Blizzard-фреймы.";

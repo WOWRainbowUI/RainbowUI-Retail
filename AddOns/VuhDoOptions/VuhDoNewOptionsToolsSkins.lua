@@ -445,7 +445,7 @@ function VUHDO_deleteProfileClicked(aButton)
 		return;
 	end
 
-	VuhDoYesNoFrameText:SetText(VUHDO_I18N_REALLY_DELETE_PROFILE .. " \"" .. VUHDO_CURRENT_PROFILE .. "\"?");
+	VuhDoYesNoFrameText:SetText(format(VUHDO_I18N_REALLY_DELETE_PROFILE, VUHDO_CURRENT_PROFILE));
 	VuhDoYesNoFrame:SetAttribute("callback", VUHDO_yesNoDeleteProfileCallback);
 	VuhDoYesNoFrame:SetAttribute("profileName", VUHDO_CURRENT_PROFILE);
 	VuhDoYesNoFrame:Show();
@@ -485,7 +485,7 @@ function VUHDO_loadProfileClicked(aButton)
 		return;
 	end
 
-	VuhDoYesNoFrameText:SetText("Loading a profile will overwrite\nyour current settings. Proceed?");
+	VuhDoYesNoFrameText:SetText(VUHDO_I18N_LOAD_PROFILE_CONFIRM);
 	VuhDoYesNoFrame:SetAttribute("callback",
 		function(aDecision)
 			if (VUHDO_YES == aDecision) then

@@ -27,6 +27,9 @@
 					</Frame>
 
 					<Button name="$parentAddButton" inherits="VuhDoAddButtonTemplate">
+						<KeyValues>
+							<KeyValue key="skinIconKey" value="icon_plus" type="string"/>
+						</KeyValues>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>

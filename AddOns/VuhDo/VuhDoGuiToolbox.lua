@@ -36,6 +36,7 @@ local sPendingReparentFrames = { };
 local sIsUnregistering = false;
 local sCompactUnitFrameHooked = false;
 local sCompactPartyOnShowHooked = false;
+local sBlizzRestoreNeedsReload = false;
 local sFontTestRegion;
 local sFontValidationCache = { };
 
@@ -636,13 +637,10 @@ end
 local function VUHDO_showFrame(aFrame)
 
 	if sFrameOrigParents[aFrame] then
-		aFrame:SetParent(sFrameOrigParents[aFrame]);
-		aFrame:Show();
-
-		sFrameOrigParents[aFrame] = nil;
-	else
-		aFrame:Show();
+		sBlizzRestoreNeedsReload = true;
 	end
+
+	return;
 
 end
 
@@ -1177,6 +1175,14 @@ function VUHDO_initBlizzFrames()
 	elseif VUHDO_CONFIG["BLIZZ_UI_HIDE_ARENA"] == 1 then
 		VUHDO_showBlizzArena();
 	end
+
+	if sBlizzRestoreNeedsReload then
+		sBlizzRestoreNeedsReload = false;
+
+		VUHDO_Msg(VUHDO_I18N_BLIZZ_RESTORE_RELOAD);
+	end
+
+	return;
 
 end
 

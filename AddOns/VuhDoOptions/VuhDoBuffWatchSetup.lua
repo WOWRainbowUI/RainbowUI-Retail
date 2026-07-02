@@ -16,10 +16,12 @@ local VUHDO_BUFF_PANEL_BASE_HEIGHT = nil;
 
 local sBuffPanelBaseHeight = 46;
 local sBuffPanelWidth = 229;
-local sBuffAreaWidth = 528;
+local sBuffAreaWidth = 515;
 local sBuffAreaHeight = 435;
+local sBuffAreaSafetyMargin = 8;
 local sPanelMaxHeight;
 local sPanelHeights = { };
+local sLayoutIndex = 0;
 
 -- must match VuhDoBuffWatchSetup.xml template heights
 local sSubPanelTemplateHeights = {
@@ -202,6 +204,7 @@ end
 
 
 --
+local tLayoutHeight;
 local function VUHDO_addGenericBuffFrame(aBuffVariant, aFrameTemplateName, aCategoryName, anIsPresent)
 
 	local tBuffPanel, tGenericFrame;
@@ -237,12 +240,15 @@ local function VUHDO_addGenericBuffFrame(aBuffVariant, aFrameTemplateName, aCate
 		tInFrameY = tInFrameY + tGenericFrame:GetHeight() + 5;
 	end
 
-	VUHDO_buffSetupNewRowCheck(tBuffPanel:GetWidth(), tInFrameY);
+	sLayoutIndex = sLayoutIndex + 1;
+	tLayoutHeight = sPanelHeights[sLayoutIndex] or tInFrameY;
+
+	VUHDO_buffSetupNewRowCheck(sBuffPanelWidth, tLayoutHeight);
 	VUHDO_PixelUtil.SetPoint(tBuffPanel, "TOPLEFT", "VuhDoNewOptionsBuffsGeneric", "TOPLEFT", VUHDO_BUFF_PANEL_X, -VUHDO_BUFF_PANEL_Y);
-	VUHDO_PixelUtil.SetHeight(tBuffPanel, tInFrameY);
+	VUHDO_PixelUtil.SetHeight(tBuffPanel, tLayoutHeight);
 	tBuffPanel:Show();
 
-	VUHDO_BUFF_PANEL_Y = VUHDO_BUFF_PANEL_Y + tInFrameY;
+	VUHDO_BUFF_PANEL_Y = VUHDO_BUFF_PANEL_Y + tLayoutHeight;
 
 	return tBuffPanel, tGenericFrame;
 
@@ -426,7 +432,7 @@ local function VUHDO_buffSetupFindMinThreshold(aTargetCols, aTotalHeight)
 		end
 	end
 
-	tLow = tMaxPanel;
+	tLow = VUHDO_PANEL_INSET_Y + tMaxPanel;
 	tHigh = aTotalHeight;
 
 	while (tLow < tHigh) do
@@ -565,6 +571,7 @@ local tBestThreshold;
 local tColHeight;
 local tScale;
 local tNumber;
+local tContentPanel;
 function VUHDO_buildAllBuffSetupGenerericPanel()
 
 	twipe(sPanelHeights);
@@ -595,8 +602,26 @@ function VUHDO_buildAllBuffSetupGenerericPanel()
 		return;
 	end
 
-	tAreaWidth = sBuffAreaWidth - 2 * VUHDO_PANEL_INSET_X;
-	tAreaHeight = sBuffAreaHeight - 2 * VUHDO_PANEL_INSET_Y;
+	tAreaWidth = sBuffAreaWidth;
+	tAreaHeight = sBuffAreaHeight;
+
+	tContentPanel = VuhDoNewOptionsBuffsGeneric:GetParent();
+
+	if (tContentPanel ~= nil) then
+		if (tContentPanel:GetWidth() > 0) then
+			tAreaWidth = tContentPanel:GetWidth();
+		end
+
+		if (tContentPanel:GetHeight() > 0) then
+			tAreaHeight = tContentPanel:GetHeight();
+		end
+	end
+
+	tAreaWidth = tAreaWidth - 2 * VUHDO_PANEL_INSET_X;
+	tAreaHeight = tAreaHeight - 2 * VUHDO_PANEL_INSET_Y;
+
+	tAreaWidth = tAreaWidth - sBuffAreaSafetyMargin;
+	tAreaHeight = tAreaHeight - sBuffAreaSafetyMargin;
 
 	tBestScale = 0;
 	tBestThreshold = tTotalHeight;
@@ -614,6 +639,10 @@ function VUHDO_buildAllBuffSetupGenerericPanel()
 
 	sPanelMaxHeight = tBestThreshold;
 
+	if (tBestScale > 0) then
+		sPanelMaxHeight = tAreaHeight / tBestScale;
+	end
+
 	VUHDO_BUFF_PANEL_X = VUHDO_PANEL_INSET_X;
 	VUHDO_BUFF_PANEL_Y = VUHDO_PANEL_INSET_Y;
 	VUHDO_BUFF_PANEL_WIDTH = 0;
@@ -621,6 +650,7 @@ function VUHDO_buildAllBuffSetupGenerericPanel()
 
 	tBuffPanel = nil;
 	tIndex = 0;
+	sLayoutIndex = 0;
 
 	for _, _ in pairs(VUHDO_getPlayerClassBuffs()) do
 		for tCategoryName, tAllCategoryBuffs in pairs(VUHDO_getPlayerClassBuffs()) do

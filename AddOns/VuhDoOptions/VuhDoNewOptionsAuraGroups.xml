@@ -121,6 +121,10 @@
 			</Button>
 
 			<Button name="$parentRemoveButton" inherits="VuhDoRemoveItemButtonTemplateSmall" text="">
+				<KeyValues>
+					<KeyValue key="skinIconKey" value="icon_cancel" type="string"/>
+					<KeyValue key="skinBadgeOnly" value="true" type="boolean"/>
+				</KeyValues>
 				<Size>
 					<AbsDimension x="20" y="20" />
 				</Size>
@@ -139,6 +143,9 @@
 			</Button>
 
 			<Button name="$parentUpButton" enableMouse="true">
+				<KeyValues>
+					<KeyValue key="skinNormalKey" value="icon_arrow_up" type="string"/>
+				</KeyValues>
 				<Size>
 					<AbsDimension x="20" y="20" />
 				</Size>
@@ -165,6 +172,9 @@
 			</Button>
 
 			<Button name="$parentDownButton" enableMouse="true">
+				<KeyValues>
+					<KeyValue key="skinNormalKey" value="icon_arrow_down" type="string"/>
+				</KeyValues>
 				<Size>
 					<AbsDimension x="20" y="20" />
 				</Size>

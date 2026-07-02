@@ -423,15 +423,15 @@ function VUHDO_setHealth(aUnit, aMode)
 			end
 
 			tName, tRealm = UnitName(aUnit);
-			tInfo["healthmax"] = UnitHealthMax(aUnit);
+
+			VUHDO_setUnitInfoHealthMax(tInfo, UnitHealthMax(aUnit));
+
 			tInfo["health"] = UnitHealth(aUnit);
 
 			if sSecretsEnabled then
 				tInfo["hasSecretHealth"] = issecretvalue(tInfo["health"]);
-				tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
 			else
 				tInfo["hasSecretHealth"] = false;
-				tInfo["hasSecretHealthMax"] = false;
 			end
 
 			tInfo["name"] = tName;
@@ -555,13 +555,7 @@ function VUHDO_setHealth(aUnit, aMode)
 
 				if tInfo["dead"] ~= tIsDead then
 					if not tIsDead then
-						tInfo["healthmax"] = UnitHealthMax(aUnit);
-
-						if sSecretsEnabled then
-							tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
-						else
-							tInfo["hasSecretHealthMax"] = false;
-						end
+						VUHDO_setUnitInfoHealthMax(tInfo, UnitHealthMax(aUnit));
 					end
 
 					tInfo["dead"] = tIsDead;
@@ -572,15 +566,11 @@ function VUHDO_setHealth(aUnit, aMode)
 
 			elseif 3 == aMode then -- VUHDO_UPDATE_HEALTH_MAX
 				tInfo["dead"] = tIsDead;
-				tInfo["healthmax"] = UnitHealthMax(aUnit);
+
+				VUHDO_setUnitInfoHealthMax(tInfo, UnitHealthMax(aUnit));
+
 				tInfo["sortMaxHp"] = VUHDO_getUnitSortMaxHp(aUnit);
 				tInfo["healthLossPerc"] = GetUnitTotalModifiedMaxHealthPercent(aUnit);
-
-				if sSecretsEnabled then
-					tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
-				else
-					tInfo["hasSecretHealthMax"] = false;
-				end
 
 			elseif VUHDO_UPDATE_HEALTH_LOSS == aMode then -- VUHDO_UPDATE_HEALTH_LOSS
 				if UnitExists(aUnit) then

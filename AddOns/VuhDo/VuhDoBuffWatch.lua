@@ -544,6 +544,7 @@ local tBuffGroup;
 local tSpellInRange;
 local tIsLowByTime;
 local tIsLow;
+local tIsSecretBuff;
 local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec, anSuppressMissBuff, aTargetMode)
 
 	tCategName = aCategSpec;
@@ -567,6 +568,8 @@ local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec, anSuppres
 	end
 
 	tIsNotInBattleground = not VUHDO_isInBattleground();
+
+	tIsSecretBuff = sSecretsEnabled and aBuffInfo[1] and ShouldSpellAuraBeSecret(aBuffInfo[1]);
 
 	for _, tUnit in pairs(someUnits) do
 		tInfo = VUHDO_RAID[tUnit];
@@ -660,19 +663,23 @@ local function VUHDO_getMissingBuffs(aBuffInfo, someUnits, aCategSpec, anSuppres
 
 			if tIsAvailable then
 				if not tTexture then
-					tMissGroup[#tMissGroup + 1] = tUnit;
+					if tIsSecretBuff then
+						tOkayGroup[#tOkayGroup + 1] = tUnit;
+					else
+						tMissGroup[#tMissGroup + 1] = tUnit;
 
-					if not tInRange and tIsAvailable then
-						tOorGroup[#tOorGroup + 1] = tUnit;
-					end
+						if not tInRange and tIsAvailable then
+							tOorGroup[#tOorGroup + 1] = tUnit;
+						end
 
-					if not anSuppressMissBuff then
-						VUHDO_setUnitMissBuff(tUnit, aCategSpec, aBuffInfo, tCategName);
-					end
+						if not anSuppressMissBuff then
+							VUHDO_setUnitMissBuff(tUnit, aCategSpec, aBuffInfo, tCategName);
+						end
 
-					if tInRange and (tLowestRest == nil or tLowestRest > 0) then
-						tLowestUnit = tUnit;
-						tLowestRest = 0;
+						if tInRange and (tLowestRest == nil or tLowestRest > 0) then
+							tLowestUnit = tUnit;
+							tLowestRest = 0;
+						end
 					end
 				end
 

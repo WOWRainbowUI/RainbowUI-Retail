@@ -930,6 +930,7 @@ local VUHDO_DEFAULT_CONFIG = {
 	["IS_USE_BUTTON_FACADE"] = false,
 	["IS_SHARE"] = true,
 	["IS_READY_CHECK_DISABLED"] = false,
+	["SYNC_SUMMARY_LEVEL"] = 1,
 
 	["SHOW_SPELL_TRACE"] = false,
 
@@ -4279,7 +4280,7 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 	["PRIVATE_AURA"] = {
 		["show"] = true,
 		["point"] = "LEFT",
-		["xAdjust"] = 5,
+		["xAdjust"] = 0,
 		["yAdjust"] = 0,
 		["numAuras"] = 3,
 		["orientation"] = "HORIZONTAL",
@@ -4301,7 +4302,7 @@ local VUHDO_DEFAULT_PER_PANEL_SETUP = {
 		["showDispelOverlay"] = true,
 		["dispelIndicatorType"] = 1,
 		["textScale"] = 100,
-		["VERSION"] = 7,
+		["VERSION"] = 8,
 	},
 
 	["RAID_ICON"] = {
@@ -4332,12 +4333,6 @@ local tAktPanel;
 local tPrivateAura;
 local tBarColors;
 local tHealthLossColor;
-local tMigrateFactors;
-local tMigrateIconPercent;
-local tMigrateMinX;
-local tMigrateMinY;
-local tMigrateMaxX;
-local tMigrateMaxY;
 function VUHDO_loadDefaultPanelSetup()
 
 	if not VUHDO_PANEL_SETUP then
@@ -4481,22 +4476,6 @@ function VUHDO_loadDefaultPanelSetup()
 			end
 
 			if (tPrivateAura["VERSION"] or 0) < 6 then
-				tMigrateFactors = VUHDO_PRIVATE_AURA_ANCHOR_FACTORS[tPrivateAura["point"] or "TOPLEFT"]
-					or VUHDO_PRIVATE_AURA_ANCHOR_FACTORS["TOPLEFT"];
-
-				tMigrateIconPercent = tPrivateAura["iconSize"] or 40;
-
-				if tMigrateIconPercent <= 0 or tMigrateIconPercent > 100 then
-					tMigrateIconPercent = 100;
-				end
-
-				tMigrateMinX, tMigrateMinY, tMigrateMaxX, tMigrateMaxY = VUHDO_getPrivateAuraOffsetBounds(tPrivateAura["growthDir"], tPrivateAura["wrapDir"], tPrivateAura["maxColumns"], tPrivateAura["numAuras"], tPrivateAura["spacing"]);
-
-				if tMigrateMinX then
-					tPrivateAura["xAdjust"] = (tPrivateAura["xAdjust"] or 0) + tMigrateFactors[1] * ((tMigrateMaxX - tMigrateMinX) - 32) * tMigrateIconPercent / 32;
-					tPrivateAura["yAdjust"] = (tPrivateAura["yAdjust"] or 0) - tMigrateFactors[2] * ((tMigrateMaxY - tMigrateMinY) - 32) * tMigrateIconPercent / 32;
-				end
-
 				tPrivateAura["VERSION"] = 6;
 			end
 
@@ -4506,6 +4485,13 @@ function VUHDO_loadDefaultPanelSetup()
 				end
 
 				tPrivateAura["VERSION"] = 7;
+			end
+
+			if (tPrivateAura["VERSION"] or 0) < 8 then
+				tPrivateAura["xAdjust"] = 0;
+				tPrivateAura["yAdjust"] = 0;
+
+				tPrivateAura["VERSION"] = 8;
 			end
 		end
 

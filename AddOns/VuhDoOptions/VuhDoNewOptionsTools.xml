@@ -68,7 +68,7 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parentExportRadioButton" text="VUHDO_I18N_EXPORT" inherits="VuhDoTabRadioButtonTemplate">
+					<CheckButton name="$parentExportRadioButton" text="VUHDO_I18N_SYNC" inherits="VuhDoTabRadioButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -80,7 +80,7 @@
 							<OnLoad>
 								self.tabPanel = "VuhDoNewOptionsToolsExport";
 								VUHDO_lnfCheckButtonOnLoad(self);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K526);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K829);
 							</OnLoad>
 						</Scripts>
 					</CheckButton>

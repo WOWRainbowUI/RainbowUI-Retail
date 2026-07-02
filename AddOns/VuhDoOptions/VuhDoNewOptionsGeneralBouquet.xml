@@ -103,7 +103,7 @@
 
 			<Frame name="$parentMainPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="270" y="115" />
+					<AbsDimension x="270" y="125" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -198,7 +198,7 @@
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="-7" y="-47" />
+									<AbsDimension x="-7" y="-52" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -216,7 +216,7 @@
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="-7" y="-27" />
+									<AbsDimension x="-7" y="-30" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -252,7 +252,7 @@
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="-7" y="-67" />
+									<AbsDimension x="-7" y="-75" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -270,7 +270,7 @@
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
 								<Offset>
-									<AbsDimension x="-7" y="-87" />
+									<AbsDimension x="-7" y="-98" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -324,6 +324,9 @@
 					</Frame>
 
 							<Button name="$parentUpButton" enableMouse="true">
+								<KeyValues>
+									<KeyValue key="skinNormalKey" value="icon_arrow_up" type="string"/>
+								</KeyValues>
 								<Size>
 									<AbsDimension x="32" y="32" />
 								</Size>
@@ -352,6 +355,9 @@
 							</Button>
 
 							<Button name="$parentDownButton" enableMouse="true">
+								<KeyValues>
+									<KeyValue key="skinNormalKey" value="icon_arrow_down" type="string"/>
+								</KeyValues>
 								<Size>
 									<AbsDimension x="32" y="32" />
 								</Size>
@@ -429,6 +435,9 @@
 					</Frame>
 
 					<Button name="$parentAddButton" text="VUHDO_I18N_ADD" inherits="VuhDoAddItemButtonTemplate">
+						<KeyValues>
+							<KeyValue key="skinIconKey" value="icon_plus" type="string"/>
+						</KeyValues>
 						<Size>
 							<AbsDimension x="90" y="32" />
 						</Size>
@@ -447,6 +456,9 @@
 					</Button>
 
 					<Button name="$parentRemoveButton" text="VUHDO_I18N_REMOVE" inherits="VuhDoRemoveItemButtonTemplate">
+						<KeyValues>
+							<KeyValue key="skinIconKey" value="icon_cancel" type="string"/>
+						</KeyValues>
 						<Size>
 							<AbsDimension x="90" y="32" />
 						</Size>
@@ -479,7 +491,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="20" y="-136" />
+							<AbsDimension x="20" y="-160" />
 						</Offset>
 					</Anchor>
 				</Anchors>

@@ -942,12 +942,29 @@ local VUHDO_isInSameZone = VUHDO_isInSameZone;
 
 
 
+--
+function VUHDO_setUnitInfoHealthMax(anInfo, aHealthMax)
+
+	anInfo["healthmax"] = aHealthMax;
+
+	if sSecretsEnabled then
+		anInfo["hasSecretHealthMax"] = issecretvalue(aHealthMax);
+	else
+		anInfo["hasSecretHealthMax"] = false;
+	end
+
+	return;
+
+end
+
+
+
 -- Returns health of unit info in Percent
 local tHealthMax;
 local tPercent;
 function VUHDO_getUnitHealthPercent(anInfo)
 
-	if sSecretsEnabled and anInfo["hasSecretHealth"] then
+	if sSecretsEnabled and (anInfo["hasSecretHealth"] or anInfo["hasSecretHealthMax"]) then
 		tPercent = UnitHealthPercent(anInfo["unit"], true, CurveConstants.ScaleTo100);
 
 		if tPercent then

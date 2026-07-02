@@ -3,7 +3,7 @@
 
 --
 function VUHDO_importBlizzClassColors(aButton)
-	VuhDoYesNoFrameText:SetText("Overwrite class colors with\ndefault Blizz class colors?");
+	VuhDoYesNoFrameText:SetText(VUHDO_I18N_OVERWRITE_CLASS_COLORS_CONFIRM);
 	VuhDoYesNoFrame:SetAttribute("callback",
 		function(aDecision)
 			if (VUHDO_YES == aDecision) then

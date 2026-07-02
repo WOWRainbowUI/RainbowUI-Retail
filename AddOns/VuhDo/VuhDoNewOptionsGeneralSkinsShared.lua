@@ -2759,6 +2759,7 @@ end
 
 
 --
+local tHasPerPanelIndicator;
 function VUHDO_loadProfileNoInit(aName)
 	local tIndex, tProfile = VUHDO_getProfileNamed(aName);
 	local tPanelPositions;
@@ -2826,6 +2827,37 @@ function VUHDO_loadProfileNoInit(aName)
 				VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"] =
 					VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"][tPanelNum]["TEXT_INDICATORS"]);
 			end
+		end
+	end
+
+	if tProfile["INDICATOR_CONFIG"] then
+		for tPanelNum = 1, VUHDO_MAX_PANELS do
+			if tProfile["INDICATOR_CONFIG"][tPanelNum] and VUHDO_INDICATOR_CONFIG[tPanelNum] then
+				if tProfile["INDICATOR_CONFIG"][tPanelNum]["BOUQUETS"] then
+					VUHDO_INDICATOR_CONFIG[tPanelNum]["BOUQUETS"] =
+						VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"][tPanelNum]["BOUQUETS"]);
+				end
+
+				if tProfile["INDICATOR_CONFIG"][tPanelNum]["CUSTOM"] then
+					VUHDO_INDICATOR_CONFIG[tPanelNum]["CUSTOM"] =
+						VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"][tPanelNum]["CUSTOM"]);
+				end
+
+				if tProfile["INDICATOR_CONFIG"][tPanelNum]["TEXT_INDICATORS"] then
+					VUHDO_INDICATOR_CONFIG[tPanelNum]["TEXT_INDICATORS"] =
+						VUHDO_deepCopyTable(tProfile["INDICATOR_CONFIG"][tPanelNum]["TEXT_INDICATORS"]);
+				end
+			end
+		end
+
+		tHasPerPanelIndicator = tProfile["INDICATOR_CONFIG"] and tProfile["INDICATOR_CONFIG"][1]
+			and tProfile["INDICATOR_CONFIG"][1]["BOUQUETS"];
+
+		if tHasPerPanelIndicator then
+			VUHDO_INDICATOR_CONFIG["BOUQUETS"] = nil;
+			VUHDO_INDICATOR_CONFIG["CUSTOM"] = nil;
+			VUHDO_INDICATOR_CONFIG["TEXT_INDICATORS"] = nil;
+			VUHDO_INDICATOR_CONFIG["VERSION"] = tProfile["INDICATOR_CONFIG"]["VERSION"] or 3;
 		end
 	end
 

@@ -295,7 +295,7 @@ end
 
 --
 function VUHDO_newOptionsApplyWizardOnClick()
-	VuhDoYesNoFrameText:SetText("This will overwrite parts of your\ncurrent configuration. Proceed?");
+	VuhDoYesNoFrameText:SetText(VUHDO_I18N_SETUP_WIZARD_CONFIRM);
 	VuhDoYesNoFrame:SetAttribute("callback", VUHDO_panelWizardApplyCallback);
 	VuhDoYesNoFrame:Show();
 end

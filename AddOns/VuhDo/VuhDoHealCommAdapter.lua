@@ -7,7 +7,6 @@ local sSecretsEnabled = VUHDO_SECRETS_ENABLED;
 local VUHDO_CONFIG;
 
 local sHealPredictionCalculator;
-local sOvershieldCalculator;
 local sIsOthers, sIsOwn, sIsNoInc;
 
 function VUHDO_healCommAdapterInitLocalOverrides()
@@ -48,27 +47,6 @@ function VUHDO_ensureHealPredictionCalculator()
 	sHealPredictionCalculator:SetIncomingHealOverflowPercent(1.0);
 
 	return sHealPredictionCalculator;
-
-end
-
-
-
---
-function VUHDO_getOvershieldCalculator()
-
-	if sOvershieldCalculator then
-		return sOvershieldCalculator;
-	end
-
-	sOvershieldCalculator = CreateUnitHealPredictionCalculator();
-
-	if not sOvershieldCalculator then
-		return nil;
-	end
-
-	sOvershieldCalculator:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MissingHealth);
-
-	return sOvershieldCalculator;
 
 end
 

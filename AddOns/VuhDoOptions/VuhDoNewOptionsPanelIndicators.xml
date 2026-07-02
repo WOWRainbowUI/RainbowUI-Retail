@@ -305,13 +305,7 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						local tMorePanel = _G[self:GetParent():GetName() .. "MorePanel"];
-						if (tMorePanel:IsShown()) then
-							tMorePanel:Hide();
-						else
-							VUHDO_hideAllMorePanels();
-							tMorePanel:Show();
-						end
+						VUHDO_newOptionsIndicatorsShowMore(self);
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -351,18 +345,24 @@
 
 			<Frame name="$parentSchema">
 				<Size>
-					<AbsDimension x="128" y="32" />
+					<AbsDimension x="90" y="32" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOPLEFT">
 						<Offset>
-							<AbsDimension x="-25" y="-4" />
+							<AbsDimension x="-5" y="-4" />
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<Layers>
 					<Layer level="BACKGROUND">
-						<Texture name="$parentTexture"></Texture>
+						<Texture name="$parentPlate" setAllPoints="true" file="Interface\AddOns\VuhDo\Images\white_square_16_16">
+							<Color r="1" g="1" b="1" a="0" />
+						</Texture>
+					</Layer>
+					<Layer level="ARTWORK">
+						<Texture name="$parentTexture" setAllPoints="true">
+						</Texture>
 					</Layer>
 				</Layers>
 			</Frame>
@@ -386,7 +386,7 @@
 				</Anchors>
 				<Scripts>
 					<OnShow>
-						VUHDO_newOptionsIndicatorsBuildScrollChild(self);
+						VUHDO_newOptionsIndicatorsOnShow(self);
 					</OnShow>
 				</Scripts>
 			</Frame>

@@ -1,3 +1,78 @@
+Version 3.210  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Swiftmendable bouquet is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+  
+  
+Improvements:  
+-- Added new profile sync to selectively copy settings across profiles  
+  
+  
+--------------------------------------------------------------  
+Version 3.209  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Swiftmendable bouquet is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed binding of Blizzard dropdown menu  
+  
+  
+Improvements:  
+  
+  
+--------------------------------------------------------------  
+Version 3.208  
+  
+  
+Known issues:  
+-- Midnight add-on restrictions mean some features are not yet available:  
+--   Overheal text provider and Life Text highlight are not yet working  
+--   Many Hitpoints option (e.g. Show Effective) are not yet working  
+--   Raid Icon bar and text color filtring are not yet working  
+--   Emergency Mode is not yet working  
+--   Swiftmendable bouquet is not yet working  
+--   Incoming Spell Trace (i.e. targeted spells) is not yet working  
+-- Blizzard continues to have a bug that breaks proper spell targeting.  
+--   Under 'Game Menu > Options > Gameplay > Combat' deselect 'Auto Self Cast'  
+--   and set 'Self Cast Key' to 'None'  
+  
+  
+Bugfixes:  
+-- Fixed private aura icon positioning  
+-- Fixed overshield bar to dislay when units are not at full health  
+-- Fixed incoming heal bar and shield bar when health is inverted  
+  
+  
+Improvements:  
+-- Bump TOC interface for 12.0.7  
+  
+  
+--------------------------------------------------------------  
 Version 3.207  
   
   

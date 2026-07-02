@@ -72,8 +72,18 @@ function VUHDO_lnfStandardFontInitFromModel(aModel, aName, aParent)
 	VUHDO_lnfSetModel(tComponent, aModel .. ".USE_OUTLINE");
 
 	tPanel:ClearAllPoints();
-	VUHDO_PixelUtil.SetPoint(tPanel, "CENTER", "UIParent", "CENTER", 0, 0);
+
+	if VuhDoNewOptionsTabbedFrame and VuhDoNewOptionsTabbedFrame:IsShown() then
+		VUHDO_PixelUtil.SetPoint(tPanel, "CENTER", VuhDoNewOptionsTabbedFrame, "CENTER", 0, 0);
+	else
+		VUHDO_PixelUtil.SetPoint(tPanel, "CENTER", "UIParent", "CENTER", 0, 0);
+	end
+
 	tPanel:Show();
+	VUHDO_lnfSkinApplyToFrameTree(tPanel);
+
+	return;
+
 end
 
 

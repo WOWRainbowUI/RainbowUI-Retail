@@ -12,7 +12,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="20" y="-20" />
+							<AbsDimension x="144" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -92,7 +92,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="166" y="-20" />
+							<AbsDimension x="276" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -154,7 +154,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="312" y="-20" />
+							<AbsDimension x="276" y="-145" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -209,6 +209,56 @@
 				</Frames>
 			</Frame>
 
+			<Frame name="$parentSkinPanel" inherits="VuhDoPanelTemplate">
+				<Size>
+					<AbsDimension x="126" y="89" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="144" y="-183" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+
+					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_SKIN_PANEL" inherits="VuDoDefaultTitleFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentThemeCombo" inherits="VuhDoComboBoxTemplate">
+						<Size>
+							<AbsDimension x="100" y="24" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="13" y="-40" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_OPTIONS_SETTINGS.SKIN", VUHDO_OPTIONS_SKIN_COMBO_TABLE);
+								self:SetAttribute("custom_function", VUHDO_lnfSkinComboValueChanged);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K828);
+							</OnLoad>
+							<OnShow>
+								VUHDO_lnfPatchFont(self, "Text");
+								VUHDO_lnfSkinInitComboTable();
+								VUHDO_lnfComboBoxInitFromModel(self);
+							</OnShow>
+						</Scripts>
+					</Button>
+
+				</Frames>
+			</Frame>
+
 			<Frame name="$parentAllPanel" inherits="VuhDoPanelTemplate">
 				<Size>
 					<AbsDimension x="126" y="89" />
@@ -216,7 +266,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="20" y="-200" />
+							<AbsDimension x="12" y="-221" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -259,7 +309,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="166" y="-162" />
+							<AbsDimension x="12" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>

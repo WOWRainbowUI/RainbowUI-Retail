@@ -17,16 +17,6 @@ VUHDO_OPTIONS_SETTINGS = nil;
 
 VUHDO_IS_CONFIG = false;
 
--- Backdrops
-BACKDROP_VUHDO_H_SLIDER_8_8_1111 = {
-	bgFile = "Interface\\AddOns\\VuhDoOptions\\Images\\blue_lt_square_16_16", 
-	edgeFile = "Interface\\AddOns\\VuhDoOptions\\Images\\panel_edges_3",
-	tile = true,
-	tileSize = 8,
-	edgeSize = 8,
-	insets = { left = 1, right = 1, top = 1, bottom = 1 },
-};
-
 --
 function VUHDO_tabbedFrameOnMouseDown(aPanel)
 	aPanel:StartMoving();
@@ -211,6 +201,7 @@ function VUHDO_yesNoDiscardChangesCallback(aDecision)
 
 		VUHDO_initAllBurstCaches();
 		VUHDO_initBouquetComboModel();
+		VUHDO_newOptionsIndicatorsInvalidate();
 		VUHDO_reloadUI(true);
 		VUHDO_B_CONFIG = nil;
 		VUHDO_B_INDICATOR_CONFIG = nil;
@@ -256,7 +247,19 @@ function VUHDO_initOptionsSettings()
 	if (VUHDO_OPTIONS_SETTINGS == nil) then
 		VUHDO_OPTIONS_SETTINGS = {
 			["scale"] = 1;
+			["SKIN"] = "Classic";
+			["SKIN_TINTS"] = { };
 		};
+	end
+
+	if (VUHDO_OPTIONS_SETTINGS["SKIN"] == nil) then
+		VUHDO_OPTIONS_SETTINGS["SKIN"] = "Classic";
+	elseif (VUHDO_OPTIONS_SETTINGS["SKIN"] == "Default") then
+		VUHDO_OPTIONS_SETTINGS["SKIN"] = "Classic";
+	end
+
+	if (VUHDO_OPTIONS_SETTINGS["SKIN_TINTS"] == nil) then
+		VUHDO_OPTIONS_SETTINGS["SKIN_TINTS"] = { };
 	end
 
 	VUHDO_lnfInitSearchIndex();

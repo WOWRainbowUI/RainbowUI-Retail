@@ -94,69 +94,6 @@ local sGrowthOffsets = {
 
 
 --
-local tBoundsGrowth;
-local tBoundsWrap;
-local tBoundsStep;
-local tBoundsCols;
-local tBoundsNum;
-local tBoundsCol;
-local tBoundsRow;
-local tBoundsMinX;
-local tBoundsMaxX;
-local tBoundsMinY;
-local tBoundsMaxY;
-local tBoundsOffX;
-local tBoundsOffY;
-local tBoundsRightX;
-local tBoundsBottomY;
-function VUHDO_getPrivateAuraOffsetBounds(aGrowthDirName, aWrapDirName, aMaxCols, aNumAuras, aSpacing)
-
-	tBoundsGrowth = sGrowthOffsets[aGrowthDirName] or sGrowthOffsets["RIGHT"];
-	tBoundsWrap = sGrowthOffsets[aWrapDirName] or sGrowthOffsets["DOWN"];
-
-	tBoundsStep = 32 + (aSpacing or 0);
-
-	tBoundsCols = aMaxCols or 3;
-	tBoundsNum = aNumAuras or 3;
-
-	tBoundsMinX = nil;
-	tBoundsMaxX = nil;
-
-	tBoundsMinY = nil;
-	tBoundsMaxY = nil;
-
-	for tIdx = 1, tBoundsNum do
-		tBoundsCol = (tIdx - 1) % tBoundsCols;
-		tBoundsRow = floor((tIdx - 1) / tBoundsCols);
-
-		tBoundsOffX = tBoundsCol * tBoundsStep * tBoundsGrowth[1] + tBoundsRow * tBoundsStep * tBoundsWrap[1];
-		tBoundsOffY = tBoundsCol * tBoundsStep * tBoundsGrowth[2] + tBoundsRow * tBoundsStep * tBoundsWrap[2];
-
-		tBoundsRightX = tBoundsOffX + 32;
-		tBoundsBottomY = tBoundsOffY + 32;
-
-		if not tBoundsMinX then
-			tBoundsMinX = tBoundsOffX;
-			tBoundsMaxX = tBoundsRightX;
-
-			tBoundsMinY = tBoundsOffY;
-			tBoundsMaxY = tBoundsBottomY;
-		else
-			tBoundsMinX = min(tBoundsMinX, tBoundsOffX);
-			tBoundsMaxX = max(tBoundsMaxX, tBoundsRightX);
-
-			tBoundsMinY = min(tBoundsMinY, tBoundsOffY);
-			tBoundsMaxY = max(tBoundsMaxY, tBoundsBottomY);
-		end
-	end
-
-	return tBoundsMinX, tBoundsMinY, tBoundsMaxX, tBoundsMaxY;
-
-end
-
-
-
---
 function VUHDO_panelRedrawInitLocalOverrides()
 
 	VUHDO_CONFIG = _G["VUHDO_CONFIG"];
@@ -458,10 +395,8 @@ function VUHDO_initLocalVars(aPanelNum)
 
 	sPanelConfig[aPanelNum]["privateAuraHeight"] = tIconSize;
 
-	sPanelConfig[aPanelNum]["privateAuraFrameSize"] = 32;
-
 	tSpacing = sPanelConfig[aPanelNum]["privateAura"]["spacing"] or 0;
-	sPanelConfig[aPanelNum]["privateAuraStep"] = sPanelConfig[aPanelNum]["privateAuraFrameSize"] + tSpacing;
+	sPanelConfig[aPanelNum]["privateAuraStep"] = sPanelConfig[aPanelNum]["privateAuraHeight"] + tSpacing;
 
 	sPanelConfig[aPanelNum]["privateAuraXOffset"] = sPanelConfig[aPanelNum]["privateAura"]["xAdjust"] * sPanelConfig[aPanelNum]["barScaling"]["barWidth"] * 0.01;
 	sPanelConfig[aPanelNum]["privateAuraYOffset"] = -sPanelConfig[aPanelNum]["privateAura"]["yAdjust"] * sPanelConfig[aPanelNum]["barScaling"]["barHeight"] * 0.01;
@@ -1101,8 +1036,6 @@ do
 	local tPrivateAura;
 	local tPrivateAuraContainer;
 	local tDurationFrame;
-	local tX;
-	local tY;
 	local tNumAuras;
 	local tFrameLevel;
 	local tGrowthDir;
@@ -1111,23 +1044,15 @@ do
 	local tCol;
 	local tRow;
 	local tStep;
-	local tMinOffsetX;
-	local tMinOffsetY;
-	local tMaxOffsetX;
-	local tMaxOffsetY;
-	local tOffsetX;
-	local tOffsetY;
-	local tRightX;
-	local tBottomY;
-	local tFrameSize;
-	local tAnchorPoint;
-	local tAnchorFactors;
-	local tContainerScale;
-	local tContainerW;
-	local tContainerH;
-	local tAnchorDeltaX;
-	local tAnchorDeltaY;
+	local tGridX;
+	local tGridY;
+	local tVisualSize;
+	local tPoint;
+	local tFactors;
+	local tHalfX;
+	local tHalfY;
 	local tTextScale;
+	local tEffectiveScale;
 	local function VUHDO_initPrivateAura(aHealthBar, aButton, anAuraIndex, aPanelNum)
 
 		tTextScale = (sPanelConfig[aPanelNum]["privateAura"]["textScale"] or 100) * 0.01;
@@ -1156,40 +1081,43 @@ do
 		tMaxCols = sPanelConfig[aPanelNum]["privateAura"]["maxColumns"] or 3;
 
 		tStep = sPanelConfig[aPanelNum]["privateAuraStep"];
-		tFrameSize = sPanelConfig[aPanelNum]["privateAuraFrameSize"];
+		tVisualSize = sPanelConfig[aPanelNum]["privateAuraHeight"];
+		tPoint = sPanelConfig[aPanelNum]["privateAura"]["point"] or "TOPLEFT";
+		tEffectiveScale = (tVisualSize / 32) * tTextScale;
 
 		tCol = (anAuraIndex - 1) % tMaxCols;
 		tRow = floor((anAuraIndex - 1) / tMaxCols);
 
-		tOffsetX = tCol * tStep * tGrowthDir[1] + tRow * tStep * tWrapDir[1];
-		tOffsetY = tCol * tStep * tGrowthDir[2] + tRow * tStep * tWrapDir[2];
-
-		tX = tOffsetX - tMinOffsetX;
-		tY = tOffsetY - tMaxOffsetY + tFrameSize;
-
-		if not InCombatLockdown() then
-			if sPanelConfig[aPanelNum]["privateAura"]["showTooltip"] then
-				VUHDO_PixelUtil.SetPoint(tPrivateAura, "TOPLEFT", tPrivateAuraContainer, "TOPLEFT", tX / tTextScale, tY / tTextScale);
-			else
-				tPrivateAura:SetPoint("TOPLEFT", tPrivateAuraContainer, "TOPLEFT", (tX + tFrameSize * 0.5) / tTextScale, (tY - tFrameSize * 0.5) / tTextScale);
-			end
-		end
+		tGridX = tCol * tStep * tGrowthDir[1] + tRow * tStep * tWrapDir[1];
+		tGridY = tCol * tStep * tGrowthDir[2] + tRow * tStep * tWrapDir[2];
 
 		if sPanelConfig[aPanelNum]["privateAura"]["showTooltip"] then
-			VUHDO_PixelUtil.SetSize(tPrivateAura, tFrameSize / tTextScale, tFrameSize / tTextScale);
-			VUHDO_PixelUtil.SetScale(tPrivateAura, tTextScale);
+			VUHDO_PixelUtil.SetSize(tPrivateAura, 32 / tTextScale, 32 / tTextScale);
+			VUHDO_PixelUtil.SetScale(tPrivateAura, tEffectiveScale);
+
+			if not InCombatLockdown() then
+				VUHDO_PixelUtil.SetPoint(tPrivateAura, tPoint, tPrivateAuraContainer, tPoint, tGridX / tEffectiveScale, tGridY / tEffectiveScale);
+			end
 
 			if tDurationFrame then
 				VUHDO_PixelUtil.Hide(tDurationFrame);
 			end
 		else
 			tPrivateAura:SetSize(0.001, 0.001);
-			VUHDO_PixelUtil.SetScale(tPrivateAura, tTextScale);
+			VUHDO_PixelUtil.SetScale(tPrivateAura, tEffectiveScale);
+
+			tFactors = VUHDO_PRIVATE_AURA_ANCHOR_FACTORS[tPoint] or VUHDO_PRIVATE_AURA_ANCHOR_FACTORS["TOPLEFT"];
+			tHalfX = -(tFactors[1] - 0.5) * tVisualSize;
+			tHalfY = (tFactors[2] - 0.5) * tVisualSize;
+
+			if not InCombatLockdown() then
+				tPrivateAura:SetPoint(tPoint, tPrivateAuraContainer, tPoint, (tGridX + tHalfX) / tEffectiveScale, (tGridY + tHalfY) / tEffectiveScale);
+			end
 
 			if tDurationFrame then
 				tDurationFrame:ClearAllPoints();
-				tDurationFrame:SetPoint("TOPLEFT", tPrivateAuraContainer, "TOPLEFT", tX, tY);
-				VUHDO_PixelUtil.SetSize(tDurationFrame, tFrameSize / tTextScale, tFrameSize / tTextScale);
+				tDurationFrame:SetPoint(tPoint, tPrivateAuraContainer, tPoint, tGridX / tEffectiveScale, tGridY / tEffectiveScale);
+				VUHDO_PixelUtil.SetSize(tDurationFrame, 32 / tTextScale, 32 / tTextScale);
 				VUHDO_PixelUtil.Show(tDurationFrame);
 			end
 		end
@@ -1211,18 +1139,7 @@ do
 			return;
 		end
 
-		tStep = sPanelConfig[aPanelNum]["privateAuraStep"];
-		tFrameSize = sPanelConfig[aPanelNum]["privateAuraFrameSize"];
-
-		tMinOffsetX, tMinOffsetY, tMaxOffsetX, tMaxOffsetY = VUHDO_getPrivateAuraOffsetBounds(
-			sPanelConfig[aPanelNum]["privateAura"]["growthDir"],
-			sPanelConfig[aPanelNum]["privateAura"]["wrapDir"],
-			sPanelConfig[aPanelNum]["privateAura"]["maxColumns"],
-			tNumAuras,
-			sPanelConfig[aPanelNum]["privateAura"]["spacing"] or 0
-		);
-
-		if not tMinOffsetX then
+		if tNumAuras <= 0 then
 			VUHDO_PixelUtil.Hide(tPrivateAuraContainer);
 
 			for tAuraIndex = 1, VUHDO_MAX_PRIVATE_AURAS do
@@ -1248,6 +1165,9 @@ do
 			return;
 		end
 
+		tVisualSize = sPanelConfig[aPanelNum]["privateAuraHeight"];
+		tPoint = sPanelConfig[aPanelNum]["privateAura"]["point"] or "TOPLEFT";
+
 		tFrameLevel = sPanelConfig[aPanelNum]["privateAura"]["frameLevel"] or 13;
 		tPrivateAuraContainer["addLevel"] = tFrameLevel;
 
@@ -1255,22 +1175,10 @@ do
 		VUHDO_PixelUtil.SetFrameStrata(tPrivateAuraContainer, aHealthBar:GetFrameStrata());
 		VUHDO_PixelUtil.SetFrameLevel(tPrivateAuraContainer, aHealthBar:GetFrameLevel() + tFrameLevel);
 
-		VUHDO_PixelUtil.SetSize(tPrivateAuraContainer, tMaxOffsetX - tMinOffsetX, tMaxOffsetY - tMinOffsetY);
-		VUHDO_PixelUtil.SetScale(tPrivateAuraContainer, sPanelConfig[aPanelNum]["privateAuraHeight"] / 32);
+		VUHDO_PixelUtil.SetSize(tPrivateAuraContainer, tVisualSize, tVisualSize);
 
 		if not InCombatLockdown() then
-			tAnchorPoint = sPanelConfig[aPanelNum]["privateAura"]["point"];
-			tAnchorFactors = VUHDO_PRIVATE_AURA_ANCHOR_FACTORS[tAnchorPoint] or VUHDO_PRIVATE_AURA_ANCHOR_FACTORS["TOPLEFT"];
-
-			tContainerScale = sPanelConfig[aPanelNum]["privateAuraHeight"] / 32;
-
-			tContainerW = tMaxOffsetX - tMinOffsetX;
-			tContainerH = tMaxOffsetY - tMinOffsetY;
-
-			tAnchorDeltaX = tAnchorFactors[1] * (tContainerW - 32) * tContainerScale;
-			tAnchorDeltaY = -tAnchorFactors[2] * (tContainerH - 32) * tContainerScale;
-
-			VUHDO_PixelUtil.SetPoint(tPrivateAuraContainer, tAnchorPoint, aHealthBar:GetName(), tAnchorPoint, sPanelConfig[aPanelNum]["privateAuraXOffset"] + tAnchorDeltaX, sPanelConfig[aPanelNum]["privateAuraYOffset"] + tAnchorDeltaY);
+			VUHDO_PixelUtil.SetPoint(tPrivateAuraContainer, tPoint, aHealthBar:GetName(), tPoint, sPanelConfig[aPanelNum]["privateAuraXOffset"], sPanelConfig[aPanelNum]["privateAuraYOffset"]);
 		end
 
 		VUHDO_PixelUtil.Show(tPrivateAuraContainer);
@@ -1521,6 +1429,344 @@ do
 	--
 	local tPredHealthBar;
 	local tPredIncBar;
+	local tPredOvershieldBar;
+	local tPredOffsetBar;
+	local tShouldMirror;
+	local tPredOrientation;
+	local tPredIsInverted;
+	local tPredOvershieldDerivedOrientation;
+	local tPredIsFlipped;
+	local tHealthTexture;
+	local tPredOffsetTexture;
+	local tPredOvershieldClipFrame;
+	local tUseIncExtension;
+	function VUHDO_updateOvershieldMaskAnchors(aButton, aPanelNum)
+
+		if not sSecretsEnabled then
+			return;
+		end
+
+		tPredHealthBar = VUHDO_getHealthBar(aButton, 1);
+		tPredIncBar = VUHDO_getHealthBar(aButton, 6);
+		tPredOvershieldBar = VUHDO_getHealthBar(aButton, 20);
+		tPredOffsetBar = VUHDO_getHealthBar(aButton, 23);
+
+		if not tPredHealthBar or not tPredIncBar or not tPredOvershieldBar or not tPredOffsetBar then
+			return;
+		end
+
+		tPredOvershieldClipFrame = tPredOvershieldBar:GetParent();
+
+		tPredOrientation = VUHDO_getStatusbarOrientationString("HEALTH_BAR", aPanelNum);
+		tPredIsInverted = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["invertGrowth"];
+
+		tHealthTexture = tPredHealthBar:GetStatusBarTexture();
+
+		tPredOvershieldDerivedOrientation = VUHDO_calculateDerivedOrientation(tPredOrientation, VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["turnAxisOvershield"]);
+		tShouldMirror = tPredOvershieldDerivedOrientation ~= tPredOrientation;
+
+		tUseIncExtension = (VUHDO_CONFIG["SHOW_INCOMING"] or VUHDO_CONFIG["SHOW_OWN_INCOMING"]) and tPredIncBar:IsShown();
+
+		tPredOvershieldClipFrame:ClearAllPoints();
+
+		if tShouldMirror then
+			tPredOvershieldClipFrame:SetAllPoints(tPredHealthBar);
+		elseif tPredIsInverted then
+			if tPredOrientation == "HORIZONTAL" then
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPLEFT", tHealthTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMLEFT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPRIGHT", tPredHealthBar, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMRIGHT", tPredHealthBar, "BOTTOMRIGHT", 0, 0);
+			elseif tPredOrientation == "HORIZONTAL_INV" then
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPRIGHT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMRIGHT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPLEFT", tPredHealthBar, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMLEFT", tPredHealthBar, "BOTTOMLEFT", 0, 0);
+			elseif tPredOrientation == "VERTICAL" then
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPLEFT", tPredHealthBar, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPRIGHT", tPredHealthBar, "TOPRIGHT", 0, 0);
+			else
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "TOPRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMLEFT", tPredHealthBar, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldClipFrame, "BOTTOMRIGHT", tPredHealthBar, "BOTTOMRIGHT", 0, 0);
+			end
+		else
+			tPredOvershieldClipFrame:SetAllPoints(tHealthTexture);
+		end
+
+		VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldClipFrame, tPredHealthBar:GetFrameLevel() + 1);
+		VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldBar, tPredHealthBar:GetFrameLevel() + 1);
+
+		if tPredIsInverted then
+			tPredHlLevel = tPredHealthBar:GetFrameLevel();
+
+			VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldClipFrame, tPredHlLevel + 2);
+			VUHDO_PixelUtil.SetFrameLevel(tPredOvershieldBar, tPredHlLevel + 3);
+		end
+
+		if not tShouldMirror then
+			tPredOffsetBar:ClearAllPoints();
+			tPredOffsetBar:SetAllPoints(tPredHealthBar);
+			tPredOffsetBar:SetOrientation(tPredOvershieldBar:GetOrientation());
+			tPredOffsetBar:SetReverseFill(tPredOvershieldBar:GetReverseFill());
+		end
+
+		if tShouldMirror and not tPredIsInverted then
+			tPredOffsetBar:ClearAllPoints();
+			VUHDO_PixelUtil.SetSize(tPredOffsetBar, tPredHealthBar:GetWidth(), tPredHealthBar:GetHeight());
+			tPredOffsetBar:SetOrientation(tPredHealthBar:GetOrientation());
+			tPredOffsetBar:SetReverseFill(tPredHealthBar:GetReverseFill());
+
+			tPredOvershieldBar:ClearAllPoints();
+			VUHDO_PixelUtil.SetSize(tPredOvershieldBar, tPredHealthBar:GetWidth(), tPredHealthBar:GetHeight());
+			tPredOvershieldBar:SetOrientation(tPredHealthBar:GetOrientation());
+			tPredOvershieldBar:SetReverseFill(tPredHealthBar:GetReverseFill());
+
+			if tPredOrientation == "HORIZONTAL" then
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPLEFT", tHealthTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMLEFT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPRIGHT", tPredOffsetTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMRIGHT", tPredOffsetTexture, "BOTTOMRIGHT", 0, 0);
+			elseif tPredOrientation == "HORIZONTAL_INV" then
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPRIGHT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMRIGHT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPLEFT", tPredOffsetTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMLEFT", tPredOffsetTexture, "BOTTOMLEFT", 0, 0);
+			elseif tPredOrientation == "VERTICAL" then
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPLEFT", tPredOffsetTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPRIGHT", tPredOffsetTexture, "TOPRIGHT", 0, 0);
+			else
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMLEFT", tPredOffsetTexture, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMRIGHT", tPredOffsetTexture, "BOTTOMRIGHT", 0, 0);
+			end
+		elseif tShouldMirror then
+			tPredOffsetBar:ClearAllPoints();
+			VUHDO_PixelUtil.SetSize(tPredOffsetBar, tPredHealthBar:GetWidth(), tPredHealthBar:GetHeight());
+			tPredOffsetBar:SetOrientation(tPredHealthBar:GetOrientation());
+
+			tPredOvershieldBar:ClearAllPoints();
+			VUHDO_PixelUtil.SetSize(tPredOvershieldBar, tPredHealthBar:GetWidth(), tPredHealthBar:GetHeight());
+			tPredOvershieldBar:SetOrientation(tPredHealthBar:GetOrientation());
+
+			if tPredOrientation == "HORIZONTAL" then
+				tPredOffsetBar:SetReverseFill(true);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				tPredOvershieldBar:SetReverseFill(true);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPLEFT", tPredOffsetTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMLEFT", tPredOffsetTexture, "BOTTOMLEFT", 0, 0);
+			elseif tPredOrientation == "HORIZONTAL_INV" then
+				tPredOffsetBar:SetReverseFill(false);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				tPredOvershieldBar:SetReverseFill(false);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPRIGHT", tPredOffsetTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMRIGHT", tPredOffsetTexture, "BOTTOMRIGHT", 0, 0);
+			elseif tPredOrientation == "VERTICAL" then
+				tPredOffsetBar:SetReverseFill(true);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "TOPRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				tPredOvershieldBar:SetReverseFill(true);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMLEFT", tPredOffsetTexture, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMRIGHT", tPredOffsetTexture, "BOTTOMRIGHT", 0, 0);
+			else
+				tPredOffsetBar:SetReverseFill(false);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOffsetBar, "BOTTOMRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+
+				tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+				tPredOvershieldBar:SetReverseFill(false);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPLEFT", tPredOffsetTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPRIGHT", tPredOffsetTexture, "TOPRIGHT", 0, 0);
+			end
+		elseif not tUseIncExtension then
+			tPredOvershieldBar:ClearAllPoints();
+			tPredOvershieldBar:SetAllPoints(tPredHealthBar);
+		else
+			tPredOffsetTexture = tPredOffsetBar:GetStatusBarTexture();
+
+			tPredIsFlipped = (tPredOvershieldDerivedOrientation == "HORIZONTAL_INV" or tPredOvershieldDerivedOrientation == "VERTICAL_INV") ~= tPredIsInverted;
+
+			tPredOvershieldBar:ClearAllPoints();
+			VUHDO_PixelUtil.SetSize(tPredOvershieldBar, tPredHealthBar:GetWidth(), tPredHealthBar:GetHeight());
+
+			if tPredOrientation == "HORIZONTAL" or tPredOrientation == "HORIZONTAL_INV" then
+				if tPredIsFlipped then
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPLEFT", tPredOffsetTexture, "TOPRIGHT", 0, 0);
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMLEFT", tPredOffsetTexture, "BOTTOMRIGHT", 0, 0);
+				else
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPRIGHT", tPredOffsetTexture, "TOPLEFT", 0, 0);
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMRIGHT", tPredOffsetTexture, "BOTTOMLEFT", 0, 0);
+				end
+			else
+				if tPredIsFlipped then
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMLEFT", tPredOffsetTexture, "TOPLEFT", 0, 0);
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "BOTTOMRIGHT", tPredOffsetTexture, "TOPRIGHT", 0, 0);
+				else
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPLEFT", tPredOffsetTexture, "BOTTOMLEFT", 0, 0);
+					VUHDO_PixelUtil.SetPoint(tPredOvershieldBar, "TOPRIGHT", tPredOffsetTexture, "BOTTOMRIGHT", 0, 0);
+				end
+			end
+		end
+
+		return;
+
+	end
+
+
+
+	--
+	local tPredHealthBar;
+	local tPredIncBar;
+	local tPredShieldBar;
+	local tPredIncShieldClipFrame;
+	local tHealthTexture;
+	local tPredOrientation;
+	local tPredIsInverted;
+	local tPredIsFlipped;
+	local tPredIncShieldRef;
+	local tPredHealthLevel;
+	function VUHDO_updateIncShieldMaskAnchors(aButton, aPanelNum)
+
+		if not sSecretsEnabled then
+			return;
+		end
+
+		tPredHealthBar = VUHDO_getHealthBar(aButton, 1);
+		tPredIncBar = VUHDO_getHealthBar(aButton, 6);
+		tPredShieldBar = VUHDO_getHealthBar(aButton, 19);
+
+		if not tPredHealthBar or not tPredIncBar or not tPredShieldBar then
+			return;
+		end
+
+		tPredIncShieldClipFrame = tPredIncBar:GetParent();
+		tHealthTexture = tPredHealthBar:GetStatusBarTexture();
+
+		tPredOrientation = VUHDO_getStatusbarOrientationString("HEALTH_BAR", aPanelNum);
+		tPredIsInverted = VUHDO_INDICATOR_CONFIG[aPanelNum]["CUSTOM"]["HEALTH_BAR"]["invertGrowth"];
+
+		if not tPredIsInverted then
+			if tPredIncShieldClipFrame then
+				tPredIncShieldClipFrame:ClearAllPoints();
+				tPredIncShieldClipFrame:SetAllPoints(tPredHealthBar);
+			end
+
+			return;
+		end
+
+		if tPredIncShieldClipFrame then
+			tPredIncShieldClipFrame:ClearAllPoints();
+			tPredIncShieldClipFrame:SetAllPoints(tHealthTexture);
+		end
+
+		tPredIsFlipped = (tPredOrientation == "HORIZONTAL_INV" or tPredOrientation == "VERTICAL_INV") ~= tPredIsInverted;
+
+		tPredIncBar:ClearAllPoints();
+		VUHDO_PixelUtil.SetSize(tPredIncBar, tPredHealthBar:GetWidth(), tPredHealthBar:GetHeight());
+
+		if tPredOrientation == "HORIZONTAL" then
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "TOPRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "BOTTOMRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+		elseif tPredOrientation == "HORIZONTAL_INV" then
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "TOPLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "BOTTOMLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+		elseif tPredOrientation == "VERTICAL" then
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "TOPLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "TOPRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+		else
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "BOTTOMLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, "BOTTOMRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+		end
+
+		VUHDO_setStatusBarOrientation(tPredIncBar, VUHDO_getStatusbarOrientationNumber("HEALTH_BAR", aPanelNum));
+		tPredIncBar:SetReverseFill(tPredIsFlipped);
+
+		tPredShieldBar:ClearAllPoints();
+		VUHDO_PixelUtil.SetSize(tPredShieldBar, tPredHealthBar:GetWidth(), tPredHealthBar:GetHeight());
+
+		if VUHDO_CONFIG["SHOW_INCOMING"] or VUHDO_CONFIG["SHOW_OWN_INCOMING"] then
+			tPredIncShieldRef = tPredIncBar:GetStatusBarTexture();
+
+			if tPredOrientation == "HORIZONTAL" then
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPRIGHT", tPredIncShieldRef, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMRIGHT", tPredIncShieldRef, "BOTTOMLEFT", 0, 0);
+			elseif tPredOrientation == "HORIZONTAL_INV" then
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPLEFT", tPredIncShieldRef, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMLEFT", tPredIncShieldRef, "BOTTOMRIGHT", 0, 0);
+			elseif tPredOrientation == "VERTICAL" then
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPLEFT", tPredIncShieldRef, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPRIGHT", tPredIncShieldRef, "BOTTOMRIGHT", 0, 0);
+			else
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMLEFT", tPredIncShieldRef, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMRIGHT", tPredIncShieldRef, "TOPRIGHT", 0, 0);
+			end
+		else
+			if tPredOrientation == "HORIZONTAL" then
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+			elseif tPredOrientation == "HORIZONTAL_INV" then
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+			elseif tPredOrientation == "VERTICAL" then
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPLEFT", tHealthTexture, "TOPLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "TOPRIGHT", tHealthTexture, "TOPRIGHT", 0, 0);
+			else
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMLEFT", tHealthTexture, "BOTTOMLEFT", 0, 0);
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, "BOTTOMRIGHT", tHealthTexture, "BOTTOMRIGHT", 0, 0);
+			end
+		end
+
+		VUHDO_setStatusBarOrientation(tPredShieldBar, VUHDO_getStatusbarOrientationNumber("HEALTH_BAR", aPanelNum));
+		tPredShieldBar:SetReverseFill(tPredIsFlipped);
+
+		tPredHealthLevel = tPredHealthBar:GetFrameLevel();
+
+		if tPredIncShieldClipFrame then
+			VUHDO_PixelUtil.SetFrameLevel(tPredIncShieldClipFrame, tPredHealthLevel + 2);
+		end
+
+		VUHDO_PixelUtil.SetFrameLevel(tPredIncBar, tPredHealthLevel + 3);
+		VUHDO_PixelUtil.SetFrameLevel(tPredShieldBar, tPredHealthLevel + 3);
+
+		return;
+
+	end
+
+
+
+	--
+	local tPredHealthBar;
+	local tPredIncBar;
 	local tPredShieldBar;
 	local tPredOvershieldBar;
 	local tPredHealAbsorbBar;
@@ -1533,8 +1779,8 @@ do
 	local tPredTurnAxisHealthLoss;
 	local tPredOvershieldDerived;
 	local tPredHealAbsorbDerived;
-	local tPredHealthLossDerived;
 	local tHealthTexture;
+	local tPredHealthLossDerived;
 	local tAnchorFrom;
 	local tAnchorTo;
 	function VUHDO_initPredictionBarAnchors(aButton, aPanelNum)
@@ -1592,13 +1838,19 @@ do
 			tAnchorTo = "BOTTOM";
 		end
 
-		VUHDO_PixelUtil.SetPoint(tPredIncBar, tAnchorFrom, tPredHealthBar:GetStatusBarTexture(), tAnchorTo, 0, 0);
+		tHealthTexture = tPredHealthBar:GetStatusBarTexture();
 
-		if VUHDO_CONFIG["SHOW_INCOMING"] or VUHDO_CONFIG["SHOW_OWN_INCOMING"] then
-			VUHDO_PixelUtil.SetPoint(tPredShieldBar, tAnchorFrom, tPredIncBar:GetStatusBarTexture(), tAnchorTo, 0, 0);
-		else
-			VUHDO_PixelUtil.SetPoint(tPredShieldBar, tAnchorFrom, tPredHealthBar:GetStatusBarTexture(), tAnchorTo, 0, 0);
+		if not tPredIsInverted then
+			VUHDO_PixelUtil.SetPoint(tPredIncBar, tAnchorFrom, tHealthTexture, tAnchorTo, 0, 0);
+
+			if VUHDO_CONFIG["SHOW_INCOMING"] or VUHDO_CONFIG["SHOW_OWN_INCOMING"] then
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, tAnchorFrom, tPredIncBar:GetStatusBarTexture(), tAnchorTo, 0, 0);
+			else
+				VUHDO_PixelUtil.SetPoint(tPredShieldBar, tAnchorFrom, tHealthTexture, tAnchorTo, 0, 0);
+			end
 		end
+
+		VUHDO_updateIncShieldMaskAnchors(aButton, aPanelNum);
 
 		if tPredOvershieldBar then
 			tPredOvershieldDerived = VUHDO_calculateDerivedOrientation(tPredOrientation, tPredTurnAxisOvershield);
@@ -1607,6 +1859,8 @@ do
 			tPredOvershieldBar:SetAllPoints(tPredHealthBar);
 			VUHDO_setStatusBarOrientation(tPredOvershieldBar, VUHDO_getStatusbarOrientationNumber("HEALTH_BAR", aPanelNum));
 			tPredOvershieldBar:SetReverseFill(tPredIsInverted == (tPredOvershieldDerived == "HORIZONTAL_INV" or tPredOvershieldDerived == "VERTICAL_INV"));
+
+			VUHDO_updateOvershieldMaskAnchors(aButton, aPanelNum);
 		end
 
 		if tPredHealAbsorbBar then

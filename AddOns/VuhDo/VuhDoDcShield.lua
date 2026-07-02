@@ -100,7 +100,7 @@ local function VUHDO_buildSnippetArray()
 			if tInfo["isPet"] then tMacroIndex = tMacroIndex + 41; end -- VUHDO_MAX_MACRO_UNITS
 
 			VUHDO_GROUP_SNIPPETS[tMacroIndex] = format("%01d%s%s",
-				tInfo["group"] % 10,
+				(tInfo["group"] or 0) % 10,
 				VUHDO_CLASS_TO_MACRO[tInfo["classId"]] or "_",
 				VUHDO_ROLE_TO_MACRO[tInfo["role"]] or "_");
 

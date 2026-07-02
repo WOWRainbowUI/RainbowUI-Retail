@@ -292,14 +292,14 @@ local tBackdrop;
 local tInsets;
 local tInsetsKey;
 local tCurrentScale;
-function tPixelUtil.ApplyBackdrop(aFrame, aBackdropInfo)
+function tPixelUtil.ApplyBackdrop(aFrame, aBackdropInfo, anUseFrameScale)
 
 	if not aFrame or not aFrame.SetBackdrop then
 		return;
 	end
 
 	if aBackdropInfo then
-		tCurrentScale = VUHDO_getPixelScale();
+		tCurrentScale = anUseFrameScale and aFrame:GetEffectiveScale() or VUHDO_getPixelScale();
 		tCacheKey = "scale:" .. tCurrentScale .. ";";
 
 		for tKey, tValue in pairs(aBackdropInfo) do
@@ -315,17 +315,17 @@ function tPixelUtil.ApplyBackdrop(aFrame, aBackdropInfo)
 
 			for tKey, tValue in pairs(aBackdropInfo) do
 				if tKey == "edgeSize" then
-					tBackdrop["edgeSize"] = VUHDO_roundToPixel(tValue);
+					tBackdrop["edgeSize"] = VUHDO_roundToPixel(tValue, tCurrentScale);
 				elseif tKey == "insets" and type(tValue) == "table" then
 					tInsetsKey = tCurrentScale .. ":" .. (tValue["left"] or 0) .. "," .. (tValue["right"] or 0) .. "," .. (tValue["top"] or 0) .. "," .. (tValue["bottom"] or 0);
 
 					if not sInsetsCache[tInsetsKey] then
 						tInsets = { };
 
-						tInsets["left"] = VUHDO_roundToPixel(tValue["left"] or 0);
-						tInsets["right"] = VUHDO_roundToPixel(tValue["right"] or 0);
-						tInsets["top"] = VUHDO_roundToPixel(tValue["top"] or 0);
-						tInsets["bottom"] = VUHDO_roundToPixel(tValue["bottom"] or 0);
+						tInsets["left"] = VUHDO_roundToPixel(tValue["left"] or 0, tCurrentScale);
+						tInsets["right"] = VUHDO_roundToPixel(tValue["right"] or 0, tCurrentScale);
+						tInsets["top"] = VUHDO_roundToPixel(tValue["top"] or 0, tCurrentScale);
+						tInsets["bottom"] = VUHDO_roundToPixel(tValue["bottom"] or 0, tCurrentScale);
 
 						sInsetsCache[tInsetsKey] = tInsets;
 					end

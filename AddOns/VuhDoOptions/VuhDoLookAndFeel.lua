@@ -1,4 +1,5 @@
 local _;
+
 VUHDO_RESET_SIZES = false;
 
 local _G = _G;
@@ -8,11 +9,16 @@ local type = type;
 local tonumber = tonumber;
 local pairs = pairs;
 local ipairs = ipairs;
+local tinsert = table.insert;
+local twipe = table.wipe;
+local max = math.max;
+local CreateFrame = CreateFrame;
+local hooksecurefunc = hooksecurefunc;
+
 local GetSpellName = C_Spell.GetSpellName;
 local GetMouseFocus = GetMouseFocus or VUHDO_getMouseFocus;
 local GetSpellIDForSpellIdentifier = C_Spell and C_Spell.GetSpellIDForSpellIdentifier;
 local GetSpellAuraSecrecy = C_Secrets and C_Secrets.GetSpellAuraSecrecy;
-
 
 
 local VUHDO_ACTIVE_LABEL_COLOR = {
@@ -77,7 +83,7 @@ BACKDROP_VUHDO_WHITE_SQUARE_16_16_0000 = {
 };
 
 BACKDROP_VUHDO_PANEL_SCROLL_BAR_8_8_1111 = {
-	bgFile = "Interface\\AddOns\\VuhDoOptions\\Images\\blue_dk_square_16_16",
+	bgFile = "Interface\\AddOns\\VuhDoOptions\\Images\\scroll_bar_bg_16_16",
 	edgeFile = "Interface\\AddOns\\VuhDoOptions\\Images\\panel_edges_3",
 	tile = true,
 	tileSize = 8,
@@ -267,33 +273,58 @@ end
 
 
 --
+local tName;
+local tTR;
+local tTG;
+local tTB;
+local tTO;
 function VUHDO_lnfCheckButtonOnEnter(aCheckButton)
-	local tName = aCheckButton:GetName();
+
+	tName = aCheckButton:GetName();
 	_G[tName .. "TextureActiveSwatch"]:Show();
 
+	tTR, tTG, tTB, tTO = VUHDO_lnfSkinGetFontColor("active");
+
+	if not tTR then
+		tTR, tTG, tTB, tTO = VUHDO_textColor(VUHDO_ACTIVE_LABEL_COLOR);
+	end
+
 	if _G[tName .. "Label"] then
-		_G[tName .. "Label"]:SetTextColor(VUHDO_textColor(VUHDO_ACTIVE_LABEL_COLOR));
+		_G[tName .. "Label"]:SetTextColor(tTR, tTG, tTB, tTO);
 	end
 
 	if _G[tName .. "Label2"] then
-		_G[tName .. "Label2"]:SetTextColor(VUHDO_textColor(VUHDO_ACTIVE_LABEL_COLOR));
+		_G[tName .. "Label2"]:SetTextColor(tTR, tTG, tTB, tTO);
 	end
+
+	return;
+
 end
 
 
 
 --
 function VUHDO_lnfCheckButtonOnLeave(aCheckButton)
-	local tName = aCheckButton:GetName();
+
+	tName = aCheckButton:GetName();
 	_G[tName .. "TextureActiveSwatch"]:Hide();
 
+	tTR, tTG, tTB, tTO = VUHDO_lnfSkinGetFontColor("normal");
+
+	if not tTR then
+		tTR, tTG, tTB, tTO = VUHDO_textColor(VUHDO_NORMAL_LABEL_COLOR);
+	end
+
 	if _G[tName .. "Label"] then
-		_G[tName .. "Label"]:SetTextColor(VUHDO_textColor(VUHDO_NORMAL_LABEL_COLOR));
+		_G[tName .. "Label"]:SetTextColor(tTR, tTG, tTB, tTO);
 	end
 
 	if _G[tName .. "Label2"] then
-		_G[tName .. "Label2"]:SetTextColor(VUHDO_textColor(VUHDO_NORMAL_LABEL_COLOR));
+		_G[tName .. "Label2"]:SetTextColor(tTR, tTG, tTB, tTO);
 	end
+
+	return;
+
 end
 
 
@@ -426,6 +457,7 @@ function VUHDO_lnfComboItemOnEnter(aComboItem)
 	tTooltip = aComboItem:GetAttribute("tooltip");
 
 	if tTooltip then
+		VuhDoOptionsTooltip:SetScale(((VUHDO_OPTIONS_SETTINGS and VUHDO_OPTIONS_SETTINGS["scale"]) or 1) * 0.75);
 		VuhDoOptionsTooltipTextText:SetText(tTooltip);
 
 		VUHDO_PixelUtil.SetHeight(VuhDoOptionsTooltip, VuhDoOptionsTooltipTextText:GetHeight() + 10);
@@ -509,6 +541,15 @@ function VUHDO_lnfComboButtonClicked(aButton)
 		if not tComboBox["prohibitCloseExtensions"] then
 			VUHDO_hideAllComponentExtensions(tComboBox);
 		end
+
+		if tComboBox["lazyItems"] and not tComboBox["itemsBuilt"] then
+			VUHDO_lnfComboInitItems(tComboBox);
+
+			tComboBox["itemsBuilt"] = true;
+
+			VUHDO_lnfComboSetSelectedValue(tComboBox, VUHDO_lnfGetValueFromModel(tComboBox));
+		end
+
 		tSelectPanel:Show();
 	end
 end
@@ -1284,6 +1325,30 @@ do
 		tTable = aComboBox:GetAttribute("combo_table");
 		if not tTable then return; end
 
+		if aComboBox["lazyItems"] and not aComboBox["itemsBuilt"] and not aComboBox["isMulti"] then
+			if _G[aComboBox:GetName() .. "EditBox"] then
+				for tIndex, tInfo in ipairs(tTable) do
+					if aValue == tInfo[1] then
+						_G[aComboBox:GetName() .. "EditBox"]:SetText(tInfo[2]);
+
+						return;
+					end
+				end
+			else
+				for tIndex, tInfo in ipairs(tTable) do
+					if aValue == tInfo[1] then
+						_G[aComboBox:GetName() .. "Text"]:SetText(tInfo[2]);
+
+						return;
+					end
+				end
+
+				_G[aComboBox:GetName() .. "Text"]:SetText(VUHDO_I18N_SELECT);
+			end
+
+			return;
+		end
+
 		if aComboBox["isMulti"] then
 			tArrayModel = VUHDO_lnfGetValueFromModel(aComboBox);
 
@@ -1359,6 +1424,23 @@ do
 
 		tValue = VUHDO_lnfGetValueFromModel(aComboBox);
 		aComboBox["isMulti"] = "table" == type(tValue);
+
+		if aComboBox["lazyItems"] and not aComboBox["itemsBuilt"] then
+			tTitle = aComboBox:GetAttribute("title");
+
+			if tTitle then
+				_G[aComboBox:GetName() .. "Text"]:SetText(tTitle);
+			end
+
+			if aComboBox["isMulti"] then
+				VUHDO_lnfComboSetSelectedValue(aComboBox, nil);
+			else
+				VUHDO_lnfComboSetSelectedValue(aComboBox, tValue);
+			end
+
+			return;
+		end
+
 		VUHDO_lnfComboInitItems(aComboBox);
 
 		tTitle = aComboBox:GetAttribute("title");
@@ -1456,6 +1538,15 @@ function VUHDO_lnfColorSwatchShowColorPicker(aColorSwatch, aMouseButton)
 	end
 
 	VuhDoNewColorPicker:SetAttribute("swatch", aColorSwatch);
+
+	VuhDoNewColorPicker:ClearAllPoints();
+
+	if VuhDoNewOptionsTabbedFrame and VuhDoNewOptionsTabbedFrame:IsShown() then
+		VUHDO_PixelUtil.SetPoint(VuhDoNewColorPicker, "CENTER", VuhDoNewOptionsTabbedFrame, "CENTER", 0, 0);
+	else
+		VUHDO_PixelUtil.SetPoint(VuhDoNewColorPicker, "CENTER", "UIParent", "CENTER", 0, 0);
+	end
+
 	VuhDoNewColorPicker:Show();
 
 	return;
@@ -1486,6 +1577,7 @@ do
 		end
 
 		if tTooltip ~= nil then
+			VuhDoOptionsTooltip:SetScale(((VUHDO_OPTIONS_SETTINGS and VUHDO_OPTIONS_SETTINGS["scale"]) or 1) * 0.75);
 			VuhDoOptionsTooltipTextText:SetText(tTooltip);
 
 			VUHDO_PixelUtil.SetHeight(VuhDoOptionsTooltip, VuhDoOptionsTooltipTextText:GetHeight() + 10);
@@ -1995,10 +2087,443 @@ end
 
 --
 function VUHDO_lnfShareButtonClicked(aButton)
+
 	if VuhDoLnfShareDialog:IsShown() then
 		VuhDoLnfShareDialog:Hide();
 	else
 		VUHDO_lnfSetModel(VuhDoLnfShareDialog, aButton:GetAttribute("model"));
+
+		VuhDoLnfShareDialog:ClearAllPoints();
+
+		if VuhDoNewOptionsTabbedFrame and VuhDoNewOptionsTabbedFrame:IsShown() then
+			VUHDO_PixelUtil.SetPoint(VuhDoLnfShareDialog, "CENTER", VuhDoNewOptionsTabbedFrame, "CENTER", 0, 0);
+		else
+			VUHDO_PixelUtil.SetPoint(VuhDoLnfShareDialog, "CENTER", "UIParent", "CENTER", 0, 0);
+		end
+
+		VuhDoLnfShareDialog:SetScale((VUHDO_OPTIONS_SETTINGS and VUHDO_OPTIONS_SETTINGS["scale"]) or 1);
 		VuhDoLnfShareDialog:Show();
+		VUHDO_lnfSkinApplyToFrameTree(VuhDoLnfShareDialog);
 	end
+
+	return;
+
+end
+
+
+
+--
+local VUHDO_CHECK_TREE_ROW_HEIGHT = 18;
+local VUHDO_CHECK_TREE_INDENT = 14;
+local VUHDO_CHECK_TREE_ROT_EXPANDED = -math.pi * 0.5;
+local VUHDO_CHECK_TREE_ROT_COLLAPSED = 0;
+
+local sCheckTrees = { };
+local sCheckTreeSkinHooked = false;
+
+
+
+--
+local tBackdrop;
+function VUHDO_lnfCheckTreeRowOnEnter(aRow)
+
+	tBackdrop = _G[aRow:GetName() .. "Backdrop"];
+
+	if tBackdrop then
+		tBackdrop:SetBackdropColor(0.8, 0.8, 1, 1);
+	end
+
+	VUHDO_lnfShowTooltip(aRow);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_lnfCheckTreeRowOnLeave(aRow)
+
+	tBackdrop = _G[aRow:GetName() .. "Backdrop"];
+
+	if tBackdrop then
+		tBackdrop:SetBackdropColor(0, 0, 0, 0);
+	end
+
+	VUHDO_lnfHideTooltip(aRow);
+
+	return;
+
+end
+
+
+
+--
+local tName;
+local function VUHDO_checkTreeState(aTree)
+
+	tName = aTree:GetName();
+
+	if not sCheckTrees[tName] then
+		sCheckTrees[tName] = {
+			["provider"] = nil,
+			["selection"] = { },
+			["expanded"] = { },
+			["rows"] = { },
+			["flat"] = { },
+			["initExpanded"] = false,
+		};
+	end
+
+	return sCheckTrees[tName];
+
+end
+
+
+
+--
+local tState;
+local tRow;
+local function VUHDO_checkTreeGetRow(aTree, anIndex)
+
+	tState = sCheckTrees[aTree:GetName()];
+	tRow = tState["rows"][anIndex];
+
+	if not tRow then
+		tRow = CreateFrame("Button", aTree:GetName() .. "Row" .. anIndex, _G[aTree:GetName() .. "SelectPanel"], "VuhDoCheckTreeRowTemplate");
+		tRow["tree"] = aTree;
+		tState["rows"][anIndex] = tRow;
+	end
+
+	return tRow;
+
+end
+
+
+
+--
+local function VUHDO_checkTreeFlattenNode(aState, aNode, aDepth, aFlat)
+
+	tinsert(aFlat, { ["node"] = aNode, ["depth"] = aDepth });
+
+	if aNode["children"] and aState["expanded"][aNode["id"]] then
+		for tCnt = 1, #aNode["children"] do
+			VUHDO_checkTreeFlattenNode(aState, aNode["children"][tCnt], aDepth + 1, aFlat);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local tRoots;
+local function VUHDO_checkTreeRebuildFlat(aTree)
+
+	tState = sCheckTrees[aTree:GetName()];
+
+	if not tState then
+		return;
+	end
+
+	twipe(tState["flat"]);
+
+	tRoots = tState["provider"] and tState["provider"]() or nil;
+
+	if tRoots then
+		for tCnt = 1, #tRoots do
+			VUHDO_checkTreeFlattenNode(tState, tRoots[tCnt], 0, tState["flat"]);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+local function VUHDO_checkTreeNodeCheckState(aTree, aNode)
+
+	local tState = sCheckTrees[aTree:GetName()];
+	local tAllChecked = true;
+	local tAnyChecked = false;
+	local tChildState;
+
+	if not aNode["children"] or #aNode["children"] == 0 then
+		return tState["selection"][aNode["id"]] and 1 or 0;
+	end
+
+	for tCnt = 1, #aNode["children"] do
+		tChildState = VUHDO_checkTreeNodeCheckState(aTree, aNode["children"][tCnt]);
+
+		if tChildState ~= 1 then
+			tAllChecked = false;
+		end
+
+		if tChildState ~= 0 then
+			tAnyChecked = true;
+		end
+	end
+
+	if tAllChecked then
+		return 1;
+	elseif tAnyChecked then
+		return 2;
+	else
+		return 0;
+	end
+
+end
+
+
+
+--
+local function VUHDO_checkTreeSetSubtree(aTree, aNode, anIsSelect)
+
+	local tState = sCheckTrees[aTree:GetName()];
+
+	if not aNode["children"] or #aNode["children"] == 0 then
+		tState["selection"][aNode["id"]] = anIsSelect or nil;
+		return;
+	end
+
+	for tCnt = 1, #aNode["children"] do
+		VUHDO_checkTreeSetSubtree(aTree, aNode["children"][tCnt], anIsSelect);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tState;
+local tSelectPanel;
+local tWidth;
+local tRow;
+local tEntry;
+local tNode;
+local tDepth;
+local tCheckState;
+local tExpand;
+local tExpandTex;
+local tExpandTint;
+local tBox;
+local tMark;
+function VUHDO_lnfCheckTreeRefresh(aTree)
+
+	tState = sCheckTrees[aTree:GetName()];
+
+	if not tState then
+		return;
+	end
+
+	tSelectPanel = _G[aTree:GetName() .. "SelectPanel"];
+	tWidth = aTree:GetWidth() - 24;
+
+	if tWidth < 50 then
+		tWidth = 150;
+	end
+
+	for tCnt = 1, #tState["flat"] do
+		tEntry = tState["flat"][tCnt];
+		tNode = tEntry["node"];
+		tDepth = tEntry["depth"];
+		tRow = VUHDO_checkTreeGetRow(aTree, tCnt);
+
+		tRow["node"] = tNode;
+		tRow:SetAttribute("tooltip", tNode["tooltip"]);
+
+		_G[tRow:GetName() .. "Label"]:SetText(tNode["label"] or tNode["id"]);
+
+		tRow:ClearAllPoints();
+		VUHDO_PixelUtil.SetPoint(tRow, "TOPLEFT", tSelectPanel:GetName(), "TOPLEFT", 4 + tDepth * VUHDO_CHECK_TREE_INDENT, -((tCnt - 1) * VUHDO_CHECK_TREE_ROW_HEIGHT));
+		VUHDO_PixelUtil.SetWidth(tRow, max(50, tWidth - tDepth * VUHDO_CHECK_TREE_INDENT));
+
+		tBox = _G[tRow:GetName() .. "CheckBox"];
+		tBox:SetTexture(VUHDO_lnfSkinResolveTexture("icon_blue_square"));
+
+		tExpand = _G[tRow:GetName() .. "Expand"];
+		tExpandTex = tExpand:GetNormalTexture();
+		tExpandTex:SetTexture(VUHDO_lnfSkinResolveTexture("icon_tree_expand"));
+		tExpandTint = VUHDO_lnfSkinResolveTint("icon_tree_expand");
+
+		if tExpandTint then
+			tExpandTex:SetVertexColor(tExpandTint[1], tExpandTint[2], tExpandTint[3], tExpandTint[4] or 1);
+		else
+			tExpandTex:SetVertexColor(1, 1, 1, 1);
+		end
+
+		if tNode["children"] and #tNode["children"] > 0 then
+			if tState["expanded"][tNode["id"]] then
+				tExpandTex:SetRotation(VUHDO_CHECK_TREE_ROT_EXPANDED);
+			else
+				tExpandTex:SetRotation(VUHDO_CHECK_TREE_ROT_COLLAPSED);
+			end
+
+			tExpand:Show();
+		else
+			tExpand:Hide();
+		end
+
+		tMark = _G[tRow:GetName() .. "CheckMark"];
+		tMark:SetTexture(VUHDO_lnfSkinResolveTexture("icon_check_tri"));
+		tCheckState = VUHDO_checkTreeNodeCheckState(aTree, tNode);
+
+		if 1 == tCheckState then
+			tMark:SetVertexColor(0.3, 1, 0.3, 1);
+			tMark:Show();
+		elseif 2 == tCheckState then
+			tMark:SetVertexColor(1, 0.85, 0.3, 1);
+			tMark:Show();
+		else
+			tMark:Hide();
+		end
+
+		VUHDO_lnfSkinApplyToComponent(tRow);
+		VUHDO_lnfSkinApplyCheckTreeRowBackdrop(tRow);
+
+		tRow:Show();
+	end
+
+	for tCnt = #tState["flat"] + 1, #tState["rows"] do
+		tState["rows"][tCnt]:Hide();
+	end
+
+	VUHDO_PixelUtil.SetWidth(tSelectPanel, tWidth);
+	VUHDO_PixelUtil.SetHeight(tSelectPanel, max(1, #tState["flat"] * VUHDO_CHECK_TREE_ROW_HEIGHT));
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_lnfCheckTreeOnSkinChanged()
+
+	for tName, _ in pairs(sCheckTrees) do
+		if _G[tName] and _G[tName]:IsShown() then
+			VUHDO_lnfCheckTreeRefresh(_G[tName]);
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_lnfCheckTreeInitFromModel(aTree)
+
+	if not sCheckTrees[aTree:GetName()] or not sCheckTrees[aTree:GetName()]["provider"] then
+		return;
+	end
+
+	if not sCheckTreeSkinHooked then
+		sCheckTreeSkinHooked = true;
+		hooksecurefunc("VUHDO_lnfSkinApplyAll", VUHDO_lnfCheckTreeOnSkinChanged);
+	end
+
+	VUHDO_checkTreeRebuildFlat(aTree);
+	VUHDO_lnfCheckTreeRefresh(aTree);
+
+	return;
+
+end
+
+
+
+--
+local tTree;
+local tClickedNode;
+local tNewVal;
+function VUHDO_lnfCheckTreeRowClicked(aRow)
+
+	tTree = aRow["tree"];
+	tClickedNode = aRow["node"];
+
+	if not tTree or not tClickedNode then
+		return;
+	end
+
+	tNewVal = VUHDO_checkTreeNodeCheckState(tTree, tClickedNode) ~= 1;
+
+	VUHDO_checkTreeSetSubtree(tTree, tClickedNode, tNewVal);
+	VUHDO_lnfCheckTreeRefresh(tTree);
+
+	return;
+
+end
+
+
+
+--
+local tExpandTree;
+local tExpandNode;
+local tExpandState;
+function VUHDO_lnfCheckTreeExpandClicked(aRow)
+
+	tExpandTree = aRow["tree"];
+	tExpandNode = aRow["node"];
+
+	if not tExpandTree or not tExpandNode then
+		return;
+	end
+
+	tExpandState = sCheckTrees[tExpandTree:GetName()];
+
+	if tExpandState["expanded"][tExpandNode["id"]] then
+		tExpandState["expanded"][tExpandNode["id"]] = nil;
+	else
+		tExpandState["expanded"][tExpandNode["id"]] = true;
+	end
+
+	VUHDO_checkTreeRebuildFlat(tExpandTree);
+	VUHDO_lnfCheckTreeRefresh(tExpandTree);
+
+	return;
+
+end
+
+
+
+--
+local tProvState;
+local tProvRoots;
+function VUHDO_lnfCheckTreeSetProvider(aTree, aProvider, aSelection)
+
+	tProvState = VUHDO_checkTreeState(aTree);
+	tProvState["provider"] = aProvider;
+	tProvState["selection"] = aSelection or { };
+
+	if not tProvState["initExpanded"] then
+		tProvState["initExpanded"] = true;
+		tProvRoots = aProvider and aProvider() or nil;
+
+		if tProvRoots then
+			for tCnt = 1, #tProvRoots do
+				if tProvRoots[tCnt]["children"] then
+					tProvState["expanded"][tProvRoots[tCnt]["id"]] = true;
+				end
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_lnfCheckTreeGetSelection(aTree)
+
+	return VUHDO_checkTreeState(aTree)["selection"];
+
 end
