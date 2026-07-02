@@ -63,15 +63,15 @@ function icon:Hide()
 end
 
 function icon:OnAddonCompartmentEnter(_, menuButtonFrame)
-    GameTooltip:SetOwner(menuButtonFrame, 'ANCHOR_NONE')
-    GameTooltip:SetPoint('TOPRIGHT', menuButtonFrame, 'BOTTOMRIGHT', 0, 0)
-    self:SetTooltipContent(GameTooltip)
-    GameTooltip:Show()
+    Krowi_Tooltip:SetOwner(menuButtonFrame, 'ANCHOR_NONE')
+    Krowi_Tooltip:SetPoint('TOPRIGHT', menuButtonFrame, 'BOTTOMRIGHT', 0, 0)
+    self:SetTooltipContent(Krowi_Tooltip)
+    Krowi_Tooltip:Show()
 end
 _G[addon.Metadata.Prefix .. '_OnAddonCompartmentEnter'] = function(...) icon:OnAddonCompartmentEnter(...) end
 
 function icon:OnAddonCompartmentLeave()
-    GameTooltip:Hide()
+    Krowi_Tooltip:Hide()
 end
 ---@diagnostic disable-next-line: redundant-parameter
 _G[addon.Metadata.Prefix .. '_OnAddonCompartmentLeave'] = function(...) icon:OnAddonCompartmentLeave(...) end
