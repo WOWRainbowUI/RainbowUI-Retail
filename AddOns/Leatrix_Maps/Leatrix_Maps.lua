@@ -1,6 +1,6 @@
 ﻿
 	----------------------------------------------------------------------
-	-- 	Leatrix Maps 12.0.21 (5th June 2026)
+	-- 	Leatrix Maps 12.0.25 (1st July 2026)
 	----------------------------------------------------------------------
 
 	-- 10:Func, 20:Comm, 30:Evnt, 40:Panl
@@ -12,7 +12,7 @@
 	local LeaMapsLC, LeaMapsCB, LeaConfigList = {}, {}, {}
 
 	-- Version
-	LeaMapsLC["AddonVer"] = "12.0.21"
+	LeaMapsLC["AddonVer"] = "12.0.25"
 
 	-- Get locale table
 	local void, Leatrix_Maps = ...
@@ -28,7 +28,7 @@
 			end)
 			return
 		end
-		if gametocversion and gametocversion >= 120007 then -- 12.0.7
+		if gametocversion and gametocversion >= 120100 then -- 12.1.0
 			LeaMapsLC.NewPatch = true
 		end
 	end
@@ -75,8 +75,14 @@
 		-- Enter /ltm map 150 during combat and click a boss button.
 
 		-- Load Battlefield addon
-		if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then
-			UIParentLoadAddOn("Blizzard_BattlefieldMap")
+		if LeaMapsLC.NewPatch then
+			if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then
+				C_AddOns.LoadAddOn("Blizzard_BattlefieldMap")
+			end
+		else
+			if not C_AddOns.IsAddOnLoaded("Blizzard_BattlefieldMap") then
+				UIParentLoadAddOn("Blizzard_BattlefieldMap")
+			end
 		end
 
 		-- Get player faction
@@ -540,11 +546,23 @@
 			cPlayer:SetScript("OnUpdate", function(self, elapsed)
 				if cPlayerTime > 0.1 or cPlayerTime == -1 then
 					-- Cursor coordinates
-					local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
-					if x and y and x > 0 and y > 0 and MouseIsOver(WorldMapFrame.ScrollContainer) then
-						cCursor.x:SetFormattedText("%s: %.1f, %.1f", L["Cursor"], ((floor(x * 1000 + 0.5)) / 10), ((floor(y * 1000 + 0.5)) / 10))
+					if LeaMapsLC.NewPatch then
+						local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
+						if x and y then
+							x, y = floor(x * 1000 + 0.5) / 10, floor(y * 1000 + 0.5) / 10
+							if x > 0 and y > 0 and x < 100 and y < 100 then
+								cCursor.x:SetFormattedText("%s: %.1f, %.1f", L["Cursor"], x, y)
+							else
+								cCursor.x:SetFormattedText("%s:", L["Cursor"])
+							end
+						end
 					else
-						cCursor.x:SetFormattedText("%s:", L["Cursor"])
+						local x, y = WorldMapFrame.ScrollContainer:GetNormalizedCursorPosition()
+						if x and y and x > 0 and y > 0 and MouseIsOver(WorldMapFrame.ScrollContainer) then
+							cCursor.x:SetFormattedText("%s: %.1f, %.1f", L["Cursor"], ((floor(x * 1000 + 0.5)) / 10), ((floor(y * 1000 + 0.5)) / 10))
+						else
+							cCursor.x:SetFormattedText("%s:", L["Cursor"])
+						end
 					end
 				end
 				if cPlayerTime > 0.2 or cPlayerTime == -1 then
@@ -650,11 +668,13 @@
 			----------------------------------------------------------------------
 
 			-- Remove frame management
-			C_Timer.After(0.1, function() -- Needed to apply settings properly (else game menu wont open with escape and opening map alongside character frame resets map position)
-				WorldMapFrame:SetAttribute("UIPanelLayout-area", nil)
-				WorldMapFrame:SetAttribute("UIPanelLayout-enabled", false)
-				WorldMapFrame:SetAttribute("UIPanelLayout-allowOtherPanels", true)
-			end)
+			if not LeaMapsLC.NewPatch then
+				C_Timer.After(0.1, function() -- Needed to apply settings properly (else game menu wont open with escape and opening map alongside character frame resets map position)
+					WorldMapFrame:SetAttribute("UIPanelLayout-area", nil)
+					WorldMapFrame:SetAttribute("UIPanelLayout-enabled", false)
+					WorldMapFrame:SetAttribute("UIPanelLayout-allowOtherPanels", true)
+				end)
+			end
 
 			-- Enable movement
 			WorldMapFrame:SetMovable(true)
