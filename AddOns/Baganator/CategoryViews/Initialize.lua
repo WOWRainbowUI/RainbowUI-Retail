@@ -115,8 +115,7 @@ function addonTable.CategoryViews.FixAnyBrokenSections()
 end
 
 local function CompareCurrent()
-  local current = addonTable.CustomiseDialog.CategoriesExport()
-  local toMod = C_EncodingUtil.DeserializeJSON(current)
+  local toMod = addonTable.CustomiseDialog.CategoriesExportTable()
   local defaultImport = C_EncodingUtil.DeserializeJSON(
   -- math.max(1 in case the user has an old category layout from before the
   -- defaults import was added

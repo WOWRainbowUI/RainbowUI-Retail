@@ -755,7 +755,7 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
         end
         tmp[key] = new
       end
-      addonTable.Dialogs.ShowCopy(C_EncodingUtil.SerializeJSON(tmp):gsub("%|%|", "|"):gsub("%|", "||"))
+      addonTable.Dialogs.ShowCopy("BGR!1!" .. C_EncodingUtil.EncodeBase64(C_EncodingUtil.CompressString(C_EncodingUtil.SerializeCBOR(tmp))))
     end)
     addonTable.Skins.AddFrame("Button", exportButton)
 
@@ -765,10 +765,39 @@ function BaganatorCustomiseDialogMixin:SetupGeneral()
     DynamicResizeButton_Resize(importButton)
     importButton:SetScript("OnClick", function()
       addonTable.CustomiseDialog.ShowImportDialog(function(text)
-        local status, import = pcall(C_EncodingUtil.DeserializeJSON, text)
-        if not status or type(import) ~= "table" or import.addon ~= "Baganator" then
-          addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
-          return
+        local import
+        if text:sub(1, 1) == "{" then
+          local status
+          status, import = pcall(C_EncodingUtil.DeserializeJSON, text)
+          if not status or type(import) ~= "table" or import.addon ~= "Baganator" then
+            addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
+            return
+          end
+        else
+          local prefix = text:match("^BGR!1!")
+          if not prefix then
+            print("2")
+            addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
+            return
+          end
+          local status, decoded = pcall(C_EncodingUtil.DecodeBase64, text:sub(7))
+          if not status then
+            print("3")
+            addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
+            return
+          end
+          local status, decompressed = pcall(C_EncodingUtil.DecompressString, decoded)
+          if not status then
+            print("4")
+            addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
+            return
+          end
+          status, import = pcall(C_EncodingUtil.DeserializeCBOR, decompressed)
+          if not status or type(import) ~= "table" or import.addon ~= "Baganator" then
+            print("5")
+            addonTable.Dialogs.ShowAcknowledge(addonTable.Locales.INVALID_IMPORT)
+            return
+          end
         end
         if import.version <= 2 or import.kind == "categories" then
           addonTable.CustomiseDialog.ImportData(import)

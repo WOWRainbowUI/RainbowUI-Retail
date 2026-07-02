@@ -75,6 +75,7 @@ function addonTable.CustomiseDialog.Initialize()
     end
     local button = CreateFrame("Button", nil, optionsFrame, template)
     button:SetText(addonTable.Locales.OPEN_OPTIONS)
+    button.padding = 60
     DynamicResizeButton_Resize(button)
     button:SetPoint("CENTER", optionsFrame, 0, -30)
     button:SetScale(2)

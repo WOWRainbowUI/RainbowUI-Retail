@@ -123,6 +123,7 @@ function BaganatorSingleViewGuildViewMixin:OnEvent(eventName, ...)
       else
         self.isLive = true
         self:Show()
+        self:UpdateForGuild(self.lastGuild, self.isLive)
       end
     end
   elseif eventName == "PLAYER_INTERACTION_MANAGER_FRAME_HIDE" then
