@@ -5,142 +5,324 @@
 	<Frame name="VuhDoNewOptionsToolsExportTemplate" virtual="true">
 		<Frames>
 
-			<Frame name="$parentExportCuDePanel" inherits="VuhDoPanelTemplate">
+			<Frame name="$parentSyncPanel" inherits="VuhDoPanelTemplate">
 				<Size>
-					<AbsDimension x="285" y="163" />
+					<AbsDimension x="498" y="370" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="30" y="-30" />
+							<AbsDimension x="12" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<Frames>
 
 					<Frame name="$parentTitleLabel" inherits="VuhDoLabelFrameTemplate">
-						<Layers>
-							<Layer>
-								<FontString name="$parentLabel" text="VUHDO_I18N_EXPORT_CUSTOM_DEBUFFS" inherits="VuDoDefaultTitleFontTemplate">
-								</FontString>
-							</Layer>
-						</Layers>
-					</Frame>
-
-					<Frame name="$parentSelectProfileLabel" inherits="VuhDoLabelFrameTemplate">
-						<Size>
-							<AbsDimension x="149" y="18" />
-						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="123" y="-31" />
+									<AbsDimension x="13" y="-10" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Layers>
 							<Layer>
-								<FontString name="$parentLabel" text="VUHDO_I18N_EXPORT_TO_PROFILE" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								<FontString name="$parentLabel" text="VUHDO_I18N_PROFILE_SYNC" inherits="VuDoDefaultTitleFontTemplate">
 								</FontString>
 							</Layer>
 						</Layers>
 					</Frame>
 
-					<Button name="$parentProfileComboBox" inherits="VuhDoComboBoxTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="123" y="-48" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_setComboModel(self, "VUHDO_CUSTOM_DEBUFF_PROFILE", VUHDO_PROFILE_TABLE_MODEL);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K494);
-							</OnLoad>
-						</Scripts>
-					</Button>
-
-					<CheckButton name="$parentSelectedRadioButton" text="VUHDO_I18N_SELECTED" inherits="VuhDoRadioButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="13" y="-45" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetRadioModel(self, "VUHDO_EXPORT_CUDE_TO_RADIO_VALUE", 3);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K496);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentOwnRadioButton" text="VUHDO_I18N_THIS_TOONS" inherits="VuhDoRadioButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="13" y="-83" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetRadioModel(self, "VUHDO_EXPORT_CUDE_TO_RADIO_VALUE", 2);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K495);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<CheckButton name="$parentAllRadioButton" text="VUHDO_I18N_ALL" inherits="VuhDoRadioButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="13" y="-121" />
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnLoad>
-								VUHDO_lnfSetRadioModel(self, "VUHDO_EXPORT_CUDE_TO_RADIO_VALUE", 1);
-								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K497);
-							</OnLoad>
-						</Scripts>
-					</CheckButton>
-
-					<Button name="$parentReplaceButton" text="VUHDO_I18N_REPLACE" inherits="VuhDoButtonTemplate">
+					<Frame name="$parentSourceLabel" inherits="VuhDoLabelFrameTemplate">
 						<Size>
-							<AbsDimension x="100" y="32" />
+							<AbsDimension x="110" y="18" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="175" y="-83" />
+									<AbsDimension x="13" y="-36" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_SYNC_SOURCE" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<Button name="$parentSourceComboBox" inherits="VuhDoComboBoxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="80" y="-32" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnClick>VUHDO_profilesReplaceCudeClicked(self, true)</OnClick>
+							<OnLoad>
+								VUHDO_setComboModel(self, "VUHDO_SYNC_SOURCE_PROFILE", VUHDO_PROFILE_TABLE_MODEL);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K831);
+							</OnLoad>
+							<OnShow inherit="prepend">
+								VUHDO_initProfileTableModels(self);
+							</OnShow>
 						</Scripts>
 					</Button>
 
-					<Button name="$parentAddButton" text="VUHDO_I18N_ADD" inherits="VuhDoButtonTemplate">
+					<Frame name="$parentSettingsLabel" inherits="VuhDoLabelFrameTemplate">
 						<Size>
-							<AbsDimension x="100" y="32" />
+							<AbsDimension x="150" y="18" />
 						</Size>
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="175" y="-121" />
+									<AbsDimension x="13" y="-64" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_SYNC_SETTINGS" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<ScrollFrame name="$parentSettingsTree" inherits="VuhDoCheckTreeTemplate">
+						<Size>
+							<AbsDimension x="150" y="250" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="14" y="-82" />
 								</Offset>
 							</Anchor>
 						</Anchors>
 						<Scripts>
-							<OnClick>VUHDO_profilesReplaceCudeClicked(self, false)</OnClick>
+							<OnLoad inherit="append">
+								VUHDO_syncSetupSettingsTree(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K832);
+							</OnLoad>
+						</Scripts>
+					</ScrollFrame>
+
+					<Button name="$parentSettingsAllButton" text="VUHDO_I18N_ALL" inherits="VuhDoButtonTemplate">
+						<Size>
+							<AbsDimension x="52" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="14" y="-336" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K833);</OnLoad>
+							<OnClick>VUHDO_syncSettingsSelectAll()</OnClick>
 						</Scripts>
 					</Button>
+
+					<Button name="$parentSettingsNoneButton" text="VUHDO_I18N_NONE" inherits="VuhDoButtonTemplate">
+						<Size>
+							<AbsDimension x="52" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="71" y="-336" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K834);</OnLoad>
+							<OnClick>VUHDO_syncSettingsSelectNone()</OnClick>
+						</Scripts>
+					</Button>
+
+					<Frame name="$parentDestLabel" inherits="VuhDoLabelFrameTemplate">
+						<Size>
+							<AbsDimension x="201" y="18" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="278" y="-64" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer>
+								<FontString name="$parentLabel" text="VUHDO_I18N_SYNC_DESTINATION" justifyH="LEFT" inherits="VuDoDefaultFontTemplate">
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+					<ScrollFrame name="$parentDestTree" inherits="VuhDoCheckTreeTemplate">
+						<Size>
+							<AbsDimension x="201" y="250" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="278" y="-82" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad inherit="append">
+								VUHDO_syncSetupDestTree(self);
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K835);
+							</OnLoad>
+						</Scripts>
+					</ScrollFrame>
+
+					<Button name="$parentDestAllButton" text="VUHDO_I18N_ALL" inherits="VuhDoButtonTemplate">
+						<Size>
+							<AbsDimension x="52" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="278" y="-336" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K836);</OnLoad>
+							<OnClick>VUHDO_syncDestSelectAll()</OnClick>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentDestMineButton" text="VUHDO_I18N_MINE" inherits="VuhDoButtonTemplate">
+						<Size>
+							<AbsDimension x="52" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="335" y="-336" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K837);</OnLoad>
+							<OnClick>VUHDO_syncDestSelectMine()</OnClick>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentDestNoneButton" text="VUHDO_I18N_NONE" inherits="VuhDoButtonTemplate">
+						<Size>
+							<AbsDimension x="52" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="392" y="-336" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K838);</OnLoad>
+							<OnClick>VUHDO_syncDestSelectNone()</OnClick>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentAddButton" text="VUHDO_I18N_ADD" inherits="VuhDoIconButtonTemplate">
+						<Size>
+							<AbsDimension x="90" y="32" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="180" y="-150" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="skinIconKey" value="icon_arrow_right" type="string" />
+						</KeyValues>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture name="$parentIcon" inherits="VuhDoButtonIconTemplate" file="Interface\AddOns\VuhDoOptions\Images\icon_arrow_right">
+									<Size>
+										<AbsDimension x="28" y="28" />
+									</Size>
+									<Anchors>
+										<Anchor point="RIGHT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="-6" y="0" />
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K839);</OnLoad>
+							<OnClick>VUHDO_syncApplyClicked(false)</OnClick>
+						</Scripts>
+					</Button>
+
+					<Button name="$parentReplaceButton" text="VUHDO_I18N_REPLACE" inherits="VuhDoIconButtonTemplate">
+						<Size>
+							<AbsDimension x="90" y="32" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="180" y="-188" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="skinIconKey" value="icon_arrow_right" type="string" />
+						</KeyValues>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture name="$parentIcon" inherits="VuhDoButtonIconTemplate" file="Interface\AddOns\VuhDoOptions\Images\icon_arrow_right">
+									<Size>
+										<AbsDimension x="28" y="28" />
+									</Size>
+									<Anchors>
+										<Anchor point="RIGHT" relativePoint="RIGHT">
+											<Offset>
+												<AbsDimension x="-6" y="0" />
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Scripts>
+							<OnLoad>VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K840);</OnLoad>
+							<OnClick>VUHDO_syncApplyClicked(true)</OnClick>
+						</Scripts>
+					</Button>
+
+					<CheckButton name="$parentFanOutCheckButton" text="VUHDO_I18N_SYNC_FANOUT" inherits="VuhDoCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="90" y="32" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="180" y="-232" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								VUHDO_lnfSetModel(self, "VUHDO_SYNC_OPTIONS.FANOUT");
+								VUHDO_lnfSetTooltip(self, VUHDO_I18N_TT.K830);
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
 
 				</Frames>
 			</Frame>

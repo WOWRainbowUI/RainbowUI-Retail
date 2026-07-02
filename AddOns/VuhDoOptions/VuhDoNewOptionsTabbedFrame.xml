@@ -261,7 +261,7 @@
 
 			<Frame name="$parentOkayCancelPanel" inherits="VuhDoPanelAppendBottomTemplate">
 				<Size>
-					<AbsDimension x="245" y="40" />
+					<AbsDimension x="245" y="54" />
 				</Size>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT">
@@ -276,7 +276,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="130" y="5" />
+									<AbsDimension x="130" y="-9" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -292,7 +292,7 @@
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
-									<AbsDimension x="20" y="5" />
+									<AbsDimension x="20" y="-9" />
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -316,6 +316,7 @@
 			<OnShow>
 				self:SetScale(VUHDO_OPTIONS_SETTINGS.scale);
 				VuhDoNewOptionsScaleSlider:Show();
+				VUHDO_lnfSkinInit();
 				VuhDoNewOptionsPanelBarsTexturePanelTextureSliderSlider:SetMinMaxValues(1, math.max(1, #VUHDO_STATUS_BARS));
 				VuhDoNewOptionsPanelHeaderHeaderBgPanelTextureSliderSlider:SetMinMaxValues(1, math.max(1, #VUHDO_STATUS_BARS));
 
@@ -323,6 +324,7 @@
 				if (DESIGN_MISC_PANEL_NUM == nil) then
 					VUHDO_newOptionsPanelFindDefaultPanel();
 				end
+				VUHDO_newOptionsIndicatorsEnsureBuilt();
 				VUHDO_newOptionsBufferVars();
 				if (VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"]) then
 					VuhDoNewOptionsTabbedFrameTabsPanelSpellsRadioButton:Hide();
@@ -416,6 +418,10 @@
 					</OnValueChanged>
 					<OnMouseUp>
 						VuhDoNewOptionsTabbedFrame:SetScale(VUHDO_OPTIONS_SETTINGS.scale);
+
+						if VuhDoLnfShareDialog and VuhDoLnfShareDialog:IsShown() then
+							VuhDoLnfShareDialog:SetScale(VUHDO_OPTIONS_SETTINGS.scale);
+						end
 					</OnMouseUp>
 					<OnShow>VUHDO_lnfPatchFont(self, "Title"); VUHDO_lnfPatchFont(self, "Value"); VUHDO_lnfSliderInitFromModel(self)</OnShow>
 					<OnEnter>VUHDO_lnfShowTooltip(self:GetParent())</OnEnter>

@@ -463,8 +463,8 @@ function VuhDoActionPreClick(aButton, aMouseButton)
 	tKey = VUHDO_SPELL_ASSIGNMENTS[tModi .. SecureButton_GetButtonSuffix(aMouseButton)];
 
 	-- allow VuhDo menu command to be bound even when using Clique compat mode
-	if VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"] and 
-		(strlower(tKey and tKey[3] or "") ~= "menu" or not VUHDO_CONFIG["IS_CLIQUE_PASSTHROUGH"]) then 
+	if VUHDO_CONFIG["IS_CLIQUE_COMPAT_MODE"] and
+		(strlower(tKey and tKey[3] or "") ~= "menu" and strlower(tKey and tKey[3] or "") ~= "dropdown" or not VUHDO_CONFIG["IS_CLIQUE_PASSTHROUGH"]) then
 		return;
 	end
 
@@ -475,6 +475,9 @@ function VuhDoActionPreClick(aButton, aMouseButton)
 		end
 		VUHDO_setMenuUnit(aButton);
 		ToggleDropDownMenu(1, nil, VuhDoPlayerTargetDropDown, aButton:GetName(), 0, -5);
+
+	elseif tKey and strlower(tKey[3]) == "dropdown" then
+		return;
 
 	elseif tKey and strlower(tKey[3]) == "tell" then
 		ChatFrame_SendTell(VUHDO_RAID[aButton:GetAttribute("unit")]["fullName"]);

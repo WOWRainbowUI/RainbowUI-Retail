@@ -1,5 +1,7 @@
 local _;
 
+local C_Timer = C_Timer;
+
 
 local VUHDO_MIN_MAX_CONSTRAINTS = 1;
 local VUHDO_ENUMERATOR_CONSTRAINTS = 2;
@@ -9,6 +11,9 @@ local VUHDO_ANCHOR_CONSTRAINTS = 5;
 
 
 local sAnchorPoints = { "Top", "TopLeft", "TopRight", "Bottom", "BottomLeft", "BottomRight", "Left", "Right" };
+
+local sIndicatorTexLeft = 18 / 128;
+local sIndicatorTexRight = 108 / 128;
 
 --
 local sIndicatorMetaModel = {
@@ -452,18 +457,51 @@ function VUHDO_initBouquetSlotsComboModel()
 	);
 
 	tinsert(VUHDO_BOUQUET_SLOTS_COMBO_MODEL, 1, {"", " -- 關閉 / 空的 --" });
+
+	VUHDO_newOptionsIndicatorsInvalidate();
+
+	return;
+
 end
 
 
 
 --
 local tCombo;
+local tLabelPlate;
+local tSchemaPlate;
+local tSchemaTexture;
+local tPR;
+local tPG;
+local tPB;
+local tPO;
 local function VUHDO_setBouquetSelectorModel(aPanel, aText, aModel, aTexture)
+
 	_G[aPanel:GetName() .. "SelectLabelLabel"]:SetText(aText);
-	_G[aPanel:GetName() .. "SchemaTexture"]:SetTexture("Interface\\AddOns\\VuhDoOptions\\Images\\" .. aTexture);
+
+	tSchemaTexture = _G[aPanel:GetName() .. "SchemaTexture"];
+	tSchemaTexture:SetTexture(VUHDO_lnfSkinResolveOptionsImage(aTexture));
+	tSchemaTexture:SetTexCoord(sIndicatorTexLeft, sIndicatorTexRight, 0, 1);
+
+	tPR, tPG, tPB, tPO = VUHDO_lnfSkinGetIndicatorPlateColor();
+
+	tSchemaPlate = _G[aPanel:GetName() .. "SchemaPlate"];
+	tSchemaPlate:SetVertexColor(tPR or 1, tPG or 1, tPB or 1, tPR and tPO or 0);
+
+	tLabelPlate = _G[aPanel:GetName() .. "SelectLabelTexture"];
+	tLabelPlate:SetAlpha(tPR and 0 or 0.9);
+
 	tCombo = _G[aPanel:GetName() .. "SelectComboBox"];
+
 	VUHDO_setComboModel(tCombo, aModel, VUHDO_BOUQUET_SLOTS_COMBO_MODEL);
+
+	tCombo["lazyItems"] = true;
+	tCombo["itemsBuilt"] = false;
+
 	VUHDO_lnfComboBoxInitFromModel(tCombo);
+
+	return;
+
 end
 
 
@@ -749,41 +787,351 @@ end
 
 
 local sAllMorePanels = { };
+local sCustomBuilt = { };
+local sIndicatorsBuilt = false;
+local sIndicatorsBuilding = false;
+local sIndicatorsDirty = false;
+local sBuildScrollChild = nil;
+local sBuildIndex = 1;
+local sBuildXOfs = 10;
+local sBuildYIndex = 0;
+local sLastPanelNum = nil;
+local sSlotsPerChunk = 1;
+
 
 --
-local tBouqetSlotName, tBouquetSlot, tXOfs, tYIndex, tMorePanel, tHeight;
-function VUHDO_newOptionsIndicatorsBuildScrollChild(aScrollChild)
-	tXOfs = 10;
-	tYIndex = 0;
-	for tIndex, tIndicator in ipairs(sIndicatorMetaModel) do
-		tBouqetSlotName = "VuhDoBouqetSlotItem" .. tIndex;
+function VUHDO_newOptionsIndicatorsInvalidate()
 
-		if (_G[tBouqetSlotName] == nil) then
-			tBouquetSlot = CreateFrame("ScrollFrame", tBouqetSlotName, aScrollChild, "VuhDoBouquetSlotTemplate");
-		else
-			tBouquetSlot = _G[tBouqetSlotName];
+	sIndicatorsDirty = true;
+
+	return;
+
+end
+
+
+
+--
+local tFunc;
+local function VUHDO_lnfComboRefreshFromModelSilent(aComboBox)
+
+	tFunc = aComboBox:GetAttribute("custom_function");
+	aComboBox:SetAttribute("custom_function", nil);
+	VUHDO_lnfComboBoxInitFromModel(aComboBox);
+
+	if tFunc then
+		aComboBox:SetAttribute("custom_function", tFunc);
+	end
+
+	return;
+
+end
+
+
+
+--
+local tMorePanelName;
+local tCombo;
+local tSlider;
+local tCheckButton;
+local tButton;
+local tAnchorPanel;
+local function VUHDO_newOptionsIndicatorsRefreshCustomComponent(anIndex, anElement, aMorePanelName)
+
+	if (VUHDO_MIN_MAX_CONSTRAINTS == anElement["type"]) then
+		tSlider = _G["VuhDoIndicatorOptionsSlider" .. aMorePanelName .. anIndex];
+
+		if tSlider then
+			VUHDO_lnfSliderInitFromModel(tSlider);
 		end
+	elseif (VUHDO_ENUMERATOR_CONSTRAINTS == anElement["type"]) then
+		tCombo = _G["VuhDoIndicatorOptionsComboPanel" .. aMorePanelName .. anIndex .. "Combo"];
 
-		tBouquetSlot:ClearAllPoints();
-		VUHDO_PixelUtil.SetPoint(tBouquetSlot, "TOPLEFT", aScrollChild:GetName(), "TOPLEFT", tXOfs, - tYIndex * tBouquetSlot:GetHeight() - 3);
-		VUHDO_setBouquetSelectorModel(tBouquetSlot, tIndicator["name"], tIndicator["model"], tIndicator["icon"]);
-
-		if (#tIndicator["custom"] > 0) then
-			tMorePanel = _G[tBouqetSlotName .. "MorePanel"];
-			tHeight = VUHDO_buildCustomComponents(tMorePanel, tIndicator["custom"]);
-			VUHDO_PixelUtil.SetHeight(tMorePanel, tHeight + 30);
-			sAllMorePanels[tMorePanel] = true;
-		else
-			_G[tBouqetSlotName .. "MoreButton"]:Hide();
+		if tCombo then
+			if anElement["isFormatCombo"] then
+				VUHDO_initTextProviderFormatCombo(tCombo, anElement["model"]);
+			else
+				VUHDO_lnfComboRefreshFromModelSilent(tCombo);
+			end
 		end
+	elseif (VUHDO_BOOLEAN_CONSTRAINTS == anElement["type"]) then
+		tCheckButton = _G["VuhDoIndicatorOptions" .. aMorePanelName .. anIndex .. "CheckButton"];
 
-		tYIndex = tYIndex + 1;
-		if (tYIndex >= 6) then
-			tXOfs = 10 + 10 + tBouquetSlot:GetWidth() + 100;
-			tYIndex = 0;
+		if tCheckButton then
+			VUHDO_lnfCheckButtonInitFromModel(tCheckButton);
+		end
+	elseif (VUHDO_TEXT_OPTIONS_CONSTRAINTS == anElement["type"]) then
+		tButton = _G["VuhDoIndicatorOptions" .. aMorePanelName .. anIndex .. "TextOptionsButton"];
+
+		if tButton then
+			VUHDO_lnfSetModel(tButton, anElement["model"]);
+		end
+	elseif (VUHDO_ANCHOR_CONSTRAINTS == anElement["type"]) then
+		tAnchorPanel = _G["VuhDoIndicatorOptions" .. aMorePanelName .. anIndex .. "AnchorTexture"];
+
+		if tAnchorPanel then
+			for _, tPoint in pairs(sAnchorPoints) do
+				tCheckButton = _G[tAnchorPanel:GetName() .. tPoint .. "RadioButton"];
+
+				if tCheckButton then
+					VUHDO_lnfRadioButtonInitFromModel(tCheckButton);
+				end
+			end
 		end
 	end
+
+	return;
+
 end
+
+
+
+--
+local tBouqetSlotName;
+function VUHDO_newOptionsIndicatorsRefreshValues(aScrollChild)
+
+	if not sIndicatorsDirty then
+		return;
+	end
+
+	for tIndex, tIndicator in ipairs(sIndicatorMetaModel) do
+		tBouqetSlotName = "VuhDoBouqetSlotItem" .. tIndex;
+		tCombo = _G[tBouqetSlotName .. "SelectComboBox"];
+
+		if tCombo then
+			VUHDO_setComboModel(tCombo, tIndicator["model"], VUHDO_BOUQUET_SLOTS_COMBO_MODEL);
+
+			tCombo["lazyItems"] = true;
+			tCombo["itemsBuilt"] = false;
+
+			VUHDO_lnfComboBoxInitFromModel(tCombo);
+		end
+
+		if (#tIndicator["custom"] > 0) and sCustomBuilt[tBouqetSlotName] then
+			tMorePanelName = tBouqetSlotName .. "MorePanel";
+
+			for tCustomIndex, tElement in ipairs(tIndicator["custom"]) do
+				VUHDO_newOptionsIndicatorsRefreshCustomComponent(tCustomIndex, tElement, tMorePanelName);
+			end
+		end
+	end
+
+	sIndicatorsDirty = false;
+	sLastPanelNum = DESIGN_MISC_PANEL_NUM;
+
+	return;
+
+end
+
+
+
+--
+local tBouquetSlot;
+local tMorePanel;
+local tHeight;
+local tIndicator;
+local function VUHDO_newOptionsIndicatorsBuildOneSlot(aScrollChild, tIndex)
+
+	tIndicator = sIndicatorMetaModel[tIndex];
+	tBouqetSlotName = "VuhDoBouqetSlotItem" .. tIndex;
+
+	if (_G[tBouqetSlotName] == nil) then
+		tBouquetSlot = CreateFrame("ScrollFrame", tBouqetSlotName, aScrollChild, "VuhDoBouquetSlotTemplate");
+	else
+		tBouquetSlot = _G[tBouqetSlotName];
+	end
+
+	tBouquetSlot["indicatorIndex"] = tIndex;
+
+	tBouquetSlot:ClearAllPoints();
+	VUHDO_PixelUtil.SetPoint(tBouquetSlot, "TOPLEFT", aScrollChild:GetName(), "TOPLEFT", sBuildXOfs, - sBuildYIndex * tBouquetSlot:GetHeight() - 3);
+
+	VUHDO_setBouquetSelectorModel(tBouquetSlot, tIndicator["name"], tIndicator["model"], tIndicator["icon"]);
+
+	if (#tIndicator["custom"] == 0) then
+		_G[tBouqetSlotName .. "MoreButton"]:Hide();
+	end
+
+	sBuildYIndex = sBuildYIndex + 1;
+
+	if (sBuildYIndex >= 6) then
+		sBuildXOfs = 10 + 10 + tBouquetSlot:GetWidth() + 100;
+		sBuildYIndex = 0;
+	end
+
+	VUHDO_lnfSkinApplyToFrameTree(tBouquetSlot);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_newOptionsIndicatorsBuildSlotCustom(aSlotName, anIndex)
+
+	if sCustomBuilt[aSlotName] then
+		return;
+	end
+
+	tIndicator = sIndicatorMetaModel[anIndex];
+
+	if not tIndicator or #tIndicator["custom"] == 0 then
+		return;
+	end
+
+	tMorePanel = _G[aSlotName .. "MorePanel"];
+
+	tHeight = VUHDO_buildCustomComponents(tMorePanel, tIndicator["custom"]);
+
+	VUHDO_PixelUtil.SetHeight(tMorePanel, tHeight + 30);
+	sAllMorePanels[tMorePanel] = true;
+	sCustomBuilt[aSlotName] = true;
+
+	VUHDO_lnfSkinApplyToFrameTree(tMorePanel);
+
+	return;
+
+end
+
+
+
+--
+local tSlot;
+function VUHDO_newOptionsIndicatorsShowMore(aMoreButton)
+
+	tSlot = aMoreButton:GetParent();
+	VUHDO_newOptionsIndicatorsBuildSlotCustom(tSlot:GetName(), tSlot["indicatorIndex"]);
+
+	tMorePanel = _G[tSlot:GetName() .. "MorePanel"];
+
+	if tMorePanel:IsShown() then
+		tMorePanel:Hide();
+	else
+		VUHDO_hideAllMorePanels();
+		tMorePanel:Show();
+	end
+
+	return;
+
+end
+
+
+
+--
+local tSlotsBuilt;
+function VUHDO_newOptionsIndicatorsBuildNextChunk()
+
+	if not sBuildScrollChild then
+		sIndicatorsBuilding = false;
+
+		return;
+	end
+
+	tSlotsBuilt = 0;
+
+	while sBuildIndex <= #sIndicatorMetaModel and tSlotsBuilt < sSlotsPerChunk do
+		VUHDO_newOptionsIndicatorsBuildOneSlot(sBuildScrollChild, sBuildIndex);
+		sBuildIndex = sBuildIndex + 1;
+		tSlotsBuilt = tSlotsBuilt + 1;
+	end
+
+	if sBuildIndex > #sIndicatorMetaModel then
+		sIndicatorsBuilt = true;
+		sIndicatorsBuilding = false;
+		sIndicatorsDirty = false;
+		sLastPanelNum = DESIGN_MISC_PANEL_NUM;
+		sBuildScrollChild = nil;
+
+		return;
+	end
+
+	C_Timer.After(0, VUHDO_newOptionsIndicatorsBuildNextChunk);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_newOptionsIndicatorsStartBuild(aScrollChild)
+
+	sBuildScrollChild = aScrollChild;
+	sBuildIndex = 1;
+	sBuildXOfs = 10;
+	sBuildYIndex = 0;
+	sIndicatorsBuilding = true;
+
+	C_Timer.After(0, VUHDO_newOptionsIndicatorsBuildNextChunk);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_newOptionsIndicatorsEnsureBuilt()
+
+	if sIndicatorsBuilt or sIndicatorsBuilding then
+		return;
+	end
+
+	VUHDO_newOptionsIndicatorsStartBuild(_G["VuhDoNewOptionsPanelIndicatorsSlotsPanel"]);
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_newOptionsIndicatorsFinishBuild()
+
+	if not sBuildScrollChild then
+		return;
+	end
+
+	while sBuildIndex <= #sIndicatorMetaModel do
+		VUHDO_newOptionsIndicatorsBuildOneSlot(sBuildScrollChild, sBuildIndex);
+		sBuildIndex = sBuildIndex + 1;
+	end
+
+	sIndicatorsBuilt = true;
+	sIndicatorsBuilding = false;
+	sIndicatorsDirty = false;
+	sLastPanelNum = DESIGN_MISC_PANEL_NUM;
+	sBuildScrollChild = nil;
+
+	return;
+
+end
+
+
+
+--
+function VUHDO_newOptionsIndicatorsOnShow(aScrollChild)
+
+	if not sIndicatorsBuilt then
+		if not sIndicatorsBuilding then
+			VUHDO_newOptionsIndicatorsStartBuild(aScrollChild);
+		end
+
+		VUHDO_newOptionsIndicatorsFinishBuild();
+
+		return;
+	end
+
+	if sLastPanelNum ~= DESIGN_MISC_PANEL_NUM then
+		sIndicatorsDirty = true;
+	end
+
+	VUHDO_newOptionsIndicatorsRefreshValues(aScrollChild);
+
+	return;
+
+end
+
 
 
 function VUHDO_hideAllMorePanels()

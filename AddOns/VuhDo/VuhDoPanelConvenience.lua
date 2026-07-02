@@ -872,7 +872,7 @@ local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 	VUHDO_BARS_PER_BUTTON[tButton][19] = _G[tButtonName .. "BgBarClipBarShBar"];
 	VUHDO_BARS_PER_BUTTON[tTargetButton][19] = VuhDoDummyStatusBar;
 	VUHDO_BARS_PER_BUTTON[tTotButton][19] = VuhDoDummyStatusBar;
-	VUHDO_BARS_PER_BUTTON[tButton][20] = _G[tButtonName .. "BgBarOvsBar"];
+	VUHDO_BARS_PER_BUTTON[tButton][20] = _G[tButtonName .. "BgBarOvsClipBarOvsBar"];
 	VUHDO_BARS_PER_BUTTON[tTargetButton][20] = VuhDoDummyStatusBar;
 	VUHDO_BARS_PER_BUTTON[tTotButton][20] = VuhDoDummyStatusBar;
 	VUHDO_BARS_PER_BUTTON[tButton][21] = _G[tButtonName .. "BgBarHeAbBar"];
@@ -881,6 +881,9 @@ local function VUHDO_fastCacheInitButton(aPanelNum, aButtonNum)
 	VUHDO_BARS_PER_BUTTON[tButton][22] = _G[tButtonName .. "BgBarHlLossBar"];
 	VUHDO_BARS_PER_BUTTON[tTargetButton][22] = VuhDoDummyStatusBar;
 	VUHDO_BARS_PER_BUTTON[tTotButton][22] = VuhDoDummyStatusBar;
+	VUHDO_BARS_PER_BUTTON[tButton][23] = _G[tButtonName .. "BgBarOvsOffsBar"];
+	VUHDO_BARS_PER_BUTTON[tTargetButton][23] = VuhDoDummyStatusBar;
+	VUHDO_BARS_PER_BUTTON[tTotButton][23] = VuhDoDummyStatusBar;
 
 	VUHDO_HEALTH_BAR_TEXT[tButton] = { };
 

@@ -609,22 +609,43 @@
 						</Frames>
 					</Frame>
 
-					<StatusBar name="$parentOvsBar" hidden="true" inherits="VuhDoStatusBar">
+					<StatusBar name="$parentOvsOffsBar" alpha="0" inherits="VuhDoStatusBar">
 						<Scripts>
 							<OnLoad>
 								self.statusTexture = self:GetStatusBarTexture();
-								self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar");
-								self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
-								self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar", "REPEAT", "REPEAT");
-								self:GetStatusBarTexture():SetHorizTile(true);
-								self:GetStatusBarTexture():SetVertTile(true);
-								self:SetReverseFill(true);
 								self:SetMinMaxValues(0, 1);
 								self:SetValue(0);
 								self.addLevel = 1;
 							</OnLoad>
 						</Scripts>
 					</StatusBar>
+
+					<Frame name="$parentOvsClipBar" clipChildren="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentHlBar" relativePoint="TOPLEFT"/>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parentHlBar" relativePoint="BOTTOMRIGHT"/>
+						</Anchors>
+						<Frames>
+
+							<StatusBar name="$parentOvsBar" hidden="true" inherits="VuhDoStatusBar">
+								<Scripts>
+									<OnLoad>
+										self.statusTexture = self:GetStatusBarTexture();
+										self:SetStatusBarTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar");
+										self:GetStatusBarTexture():SetTexCoord(0, 1, 0, 1);
+										self:GetStatusBarTexture():SetTexture("Interface\\AddOns\\VuhDo\\Images\\overshield_bar", "REPEAT", "REPEAT");
+										self:GetStatusBarTexture():SetHorizTile(true);
+										self:GetStatusBarTexture():SetVertTile(true);
+										self:SetReverseFill(true);
+										self:SetMinMaxValues(0, 1);
+										self:SetValue(0);
+										self.addLevel = 1;
+									</OnLoad>
+								</Scripts>
+							</StatusBar>
+
+						</Frames>
+					</Frame>
 
 					<StatusBar name="$parentHeAbBar" hidden="true" inherits="VuhDoStatusBar">
 						<Scripts>

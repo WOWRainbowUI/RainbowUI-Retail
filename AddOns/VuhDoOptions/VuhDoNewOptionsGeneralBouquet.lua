@@ -252,6 +252,10 @@ local tName, tTexture;
 local tSecrecy;
 local tPreviewColorTable;
 local tColor;
+local tTR;
+local tTG;
+local tTB;
+local tTO;
 local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIndex, aBuffInfo)
 	tName = VUHDO_getBouquetItemDisplayText(aBuffInfo["name"]) or aBuffInfo["name"];
 	anItemPanel:ClearAllPoints();
@@ -264,7 +268,13 @@ local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIn
 	if tSecrecy == 1 or tSecrecy == 2 then
 		_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(1, 0.3, 0.3, 1);
 	else
-		_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(0.4, 0.4, 1, 1);
+		tTR, tTG, tTB, tTO = VUHDO_lnfSkinGetFontColor("normal");
+
+		if not tTR then
+			tTR, tTG, tTB, tTO = 0.4, 0.4, 1, 1;
+		end
+
+		_G[anItemPanel:GetName() .. "NameLabelLabel"]:SetTextColor(tTR, tTG, tTB, tTO);
 	end
 
 	if (aBuffInfo["icon"] == 1) then
@@ -310,6 +320,10 @@ local function VUHDO_initBouquetItem(aParent, anItemPanel, aBouquetName, aBuffIn
 	_G[anItemPanel:GetName() .. "DemoTextureLabel"]:SetText("" .. aBuffIndex);
 
 	anItemPanel:Show();
+	VUHDO_lnfSkinStyleListEntry(anItemPanel, aBuffIndex == VUHDO_CURR_SELECTED_ITEM_INDEX);
+
+	return;
+
 end
 
 
@@ -694,13 +708,14 @@ end
 local tCurrentItemPanel = nil;
 local tNewPanel;
 local function VUHDO_setSelectedBouquetItem(anIndex)
+
 	if (tCurrentItemPanel ~= nil) then
-		tCurrentItemPanel:SetBackdropColor(1, 1, 1, 1);
+		VUHDO_lnfSkinStyleListEntry(tCurrentItemPanel, false);
 	end
 
 	if (anIndex > 0) then
 		tNewPanel = VUHDO_getOrCreateBouqetItem(anIndex);
-		tNewPanel:SetBackdropColor(0.8, 0.8, 1, 1);
+		VUHDO_lnfSkinStyleListEntry(tNewPanel, true);
 		tCurrentItemPanel = tNewPanel;
 	else
 		tCurrentItemPanel = nil;
@@ -708,6 +723,9 @@ local function VUHDO_setSelectedBouquetItem(anIndex)
 
 	VUHDO_CURR_SELECTED_ITEM_INDEX = anIndex;
 	VUHDO_rebuildBouquetContextEditors(anIndex);
+
+	return;
+
 end
 
 
@@ -808,6 +826,10 @@ local VUHDO_GENERIC_BOUQUETS = {
 local tBouquet;
 local tSelectLabel;
 local tPanelName;
+local tLabelR;
+local tLabelG;
+local tLabelB;
+local tLabelO;
 function VUHDO_bouquetsComboValueChanged(aParent, aValue)
 	tBouquet = VUHDO_getCurrentBouquet();
 	if (tBouquet ~= nil and #tBouquet > 0) then
@@ -828,7 +850,13 @@ function VUHDO_bouquetsComboValueChanged(aParent, aValue)
 		_G[tPanelName .. "DetailsPanelRemoveButton"]:Hide();
 	else
 		tSelectLabel:SetText(VUHDO_I18N_SELECT_OR_ENTER_BOUQUET);
-		tSelectLabel:SetTextColor(0.4, 0.4, 1, 1);
+		tLabelR, tLabelG, tLabelB, tLabelO = VUHDO_lnfSkinGetFontColor("normal");
+
+		if not tLabelR then
+			tLabelR, tLabelG, tLabelB, tLabelO = 0.4, 0.4, 1, 1;
+		end
+
+		tSelectLabel:SetTextColor(tLabelR, tLabelG, tLabelB, tLabelO);
 		_G[aParent:GetName() .. "DeleteButton"]:Show();
 		_G[tPanelName .. "DetailsPanelUpButton"]:Show();
 		_G[tPanelName .. "DetailsPanelDownButton"]:Show();
@@ -963,7 +991,7 @@ function VUHDO_bouquetDeleteButtonClicked(aPanel)
 	tName = VUHDO_getCurrentBouquetName();
 	if (tName ~= nil) then
 		if (VUHDO_BOUQUETS["STORED"][tName] ~= nil) then
-			VuhDoYesNoFrameText:SetText("Really delete bouquet\n'" .. tName .. "'?");
+			VuhDoYesNoFrameText:SetText(format(VUHDO_I18N_DELETE_BOUQUET_CONFIRM, tName));
 			VuhDoYesNoFrame:SetAttribute("callback",
 				function(aDecision)
 					if (VUHDO_YES == aDecision) then

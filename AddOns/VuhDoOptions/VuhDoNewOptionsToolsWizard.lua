@@ -295,7 +295,7 @@ end
 
 --
 function VUHDO_newOptionsApplyWizardOnClick()
-	VuhDoYesNoFrameText:SetText("將會取代一部分目前的設定。\n是否要繼續?");
+	VuhDoYesNoFrameText:SetText(VUHDO_I18N_SETUP_WIZARD_CONFIRM);
 	VuhDoYesNoFrame:SetAttribute("callback", VUHDO_panelWizardApplyCallback);
 	VuhDoYesNoFrame:Show();
 end

@@ -159,7 +159,8 @@ local function VUHDO_fillCustomInfo(aUnit)
 
 	tInfo = VUHDO_CUSTOM_INFO;
 
-	tInfo["healthmax"] = VUHDO_safeCall(UnitHealthMax, aUnit, 0);
+	VUHDO_setUnitInfoHealthMax(tInfo, VUHDO_safeCall(UnitHealthMax, aUnit, 0));
+
 	tInfo["health"] = VUHDO_safeCall(UnitHealth, aUnit, 0);
 
 	tInfo["name"] = tName;
@@ -180,7 +181,6 @@ local function VUHDO_fillCustomInfo(aUnit)
 	if sSecretsEnabled then
 		tInfo["hasSecretPower"] = issecretvalue(tInfo["power"]) or issecretvalue(tInfo["powermax"]);
 		tInfo["hasSecretHealth"] = issecretvalue(tInfo["health"]);
-		tInfo["hasSecretHealthMax"] = issecretvalue(tInfo["healthmax"]);
 	else
 		tInfo["hasSecretPower"] = false;
 		tInfo["hasSecretHealth"] = false;

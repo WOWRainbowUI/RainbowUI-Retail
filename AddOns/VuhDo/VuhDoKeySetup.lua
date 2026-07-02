@@ -129,6 +129,88 @@ end
 
 
 
+--
+local tClickButton;
+function VUHDO_getDropdownClickButton(aButton)
+
+	tClickButton = aButton["vuhdo_dropdown_click_button"];
+
+	if tClickButton or InCombatLockdown() then
+		return tClickButton;
+	end
+
+	tClickButton = CreateFrame("Button", nil, aButton, "SecureActionButtonTemplate");
+
+	tClickButton:EnableMouse(false);
+	tClickButton:RegisterForClicks("AnyUp");
+
+	VUHDO_PixelUtil.SetSize(tClickButton, 1, 1);
+
+	VUHDO_safeSetAttribute(tClickButton, "useparent-unit", true);
+	VUHDO_safeSetAttribute(tClickButton, "useOnKeyDown", false);
+
+	aButton["vuhdo_dropdown_click_button"] = tClickButton;
+
+	return tClickButton;
+
+end
+
+
+
+--
+local function VUHDO_setupDropdownButtonAttributes(aButton, aModiKey, aButtonId)
+
+	tClickButton = VUHDO_getDropdownClickButton(aButton);
+
+	if not tClickButton then
+		VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "togglemenu");
+
+		return;
+	end
+
+	VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "click");
+	VUHDO_safeSetAttribute(aButton, aModiKey .. "clickbutton" .. aButtonId, tClickButton);
+	VUHDO_safeSetAttribute(tClickButton, aModiKey .. "type" .. aButtonId, "togglemenu");
+
+	return;
+
+end
+
+
+
+--
+local tBinding;
+local function VUHDO_setupDropdownClickButtonAttributes(aButton)
+
+	tClickButton = VUHDO_getDropdownClickButton(aButton);
+
+	if not tClickButton then
+		return;
+	end
+
+	for tNoMinus, tWithMinus in pairs(VUHDO_MODIFIER_KEYS) do
+		for tCnt = 1, VUHDO_NUM_MOUSE_BUTTONS do
+			VUHDO_safeSetAttribute(tClickButton, tWithMinus .. "type" .. tCnt, nil);
+			VUHDO_safeSetAttribute(aButton, tWithMinus .. "clickbutton" .. tCnt, nil);
+		end
+	end
+
+	for tNoMinus, tWithMinus in pairs(VUHDO_MODIFIER_KEYS) do
+		for tCnt = 1, VUHDO_NUM_MOUSE_BUTTONS do
+			tBinding = VUHDO_SPELL_ASSIGNMENTS[tNoMinus .. tCnt];
+
+			if tBinding and tBinding[3] and strlower(tBinding[3]) == "dropdown" then
+				VUHDO_setupDropdownButtonAttributes(aButton, tWithMinus, tCnt);
+			end
+		end
+	end
+
+	return;
+
+end
+
+
+
 local VUHDO_REZ_SPELLS_NAMES = {
 	[VUHDO_SPELL_ID.REDEMPTION] = true,
 	[VUHDO_SPELL_ID.ABSOLUTION] = true,
@@ -185,7 +267,7 @@ local function _VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, a
 		elseif "menu" == tActionLow or "tell" == tActionLow then
 			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, nil);
 		elseif "dropdown" == tActionLow then
-			VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, "togglemenu");
+			VUHDO_setupDropdownButtonAttributes(aButton, aModiKey, aButtonId);
 		else
 			anAction = VUHDO_REPLACE_SPELL_NAME[anAction] or anAction;
 
@@ -402,6 +484,11 @@ local function VUHDO_setupHealButtonAttributes(aModiKey, aButtonId, anAction, aB
 
 	if (tActionLow or "") == "" then
 		VUHDO_safeSetAttribute(aButton, aModiKey .. "type" .. aButtonId, nil);
+		VUHDO_safeSetAttribute(aButton, aModiKey .. "clickbutton" .. aButtonId, nil);
+
+		if aButton["vuhdo_dropdown_click_button"] then
+			VUHDO_safeSetAttribute(aButton["vuhdo_dropdown_click_button"], aModiKey .. "type" .. aButtonId, nil);
+		end
 
 		return;
 	else
@@ -598,6 +685,8 @@ function VUHDO_setupAllHealButtonAttributes(aButton, aUnit, anIsDisable, aForceT
 			tHeaderFrame = _G["VuhDoHealButtonSecureHeaderFrame"];
 
 			if tHeaderFrame then
+				VUHDO_setupDropdownClickButtonAttributes(aButton);
+
 				tHeaderFrame:SetFrameRef("vuhdo_setup_button", aButton);
 
 				tHeaderFrame:Execute([[

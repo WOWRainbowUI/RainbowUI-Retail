@@ -89,6 +89,10 @@ function VUHDO_newColorPickerOnShow(aPanel)
 	end
 
 	VUHDO_setPickerColor(aPanel);
+	VUHDO_lnfSkinApplyToFrameTree(aPanel);
+
+	return;
+
 end
 
 

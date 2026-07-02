@@ -101,7 +101,7 @@
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
-							<AbsDimension x="13" y="-13" />
+							<AbsDimension x="12" y="-12" />
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -190,6 +190,9 @@
 					</ScrollFrame>
 
 					<Button name="$parentAddButton" text="VUHDO_I18N_ADD" inherits="VuhDoAddItemButtonTemplate">
+						<KeyValues>
+							<KeyValue key="skinIconKey" value="icon_plus" type="string"/>
+						</KeyValues>
 						<Size>
 							<AbsDimension x="100" y="32" />
 						</Size>
@@ -208,6 +211,9 @@
 					</Button>
 
 					<Button name="$parentRemoveButton" text="VUHDO_I18N_REMOVE" inherits="VuhDoRemoveItemButtonTemplate">
+						<KeyValues>
+							<KeyValue key="skinIconKey" value="icon_cancel" type="string"/>
+						</KeyValues>
 						<Size>
 							<AbsDimension x="100" y="32" />
 						</Size>

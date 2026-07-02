@@ -3,7 +3,7 @@
 
 --
 function VUHDO_importBlizzClassColors(aButton)
-	VuhDoYesNoFrameText:SetText("是否要用暴雪預設的職業顏色取代?");
+	VuhDoYesNoFrameText:SetText(VUHDO_I18N_OVERWRITE_CLASS_COLORS_CONFIRM);
 	VuhDoYesNoFrame:SetAttribute("callback",
 		function(aDecision)
 			if (VUHDO_YES == aDecision) then

@@ -1589,6 +1589,13 @@ do
 				VUHDO_printDeferredTaskMetrics(false);
 			end
 
+		elseif tCommandWord == "sync" then
+			if VuhDoNewOptionsTabbedFrame then
+				VUHDO_syncAuditCatalogCoverage();
+			else
+				VUHDO_Msg(VUHDO_I18N_OPTIONS_NOT_LOADED, 1, 0.4, 0.4);
+			end
+
 		elseif strfind(tCommandWord, "hand") then
 			tSubCommand = strlower(tParsedTexts[2] or "");
 

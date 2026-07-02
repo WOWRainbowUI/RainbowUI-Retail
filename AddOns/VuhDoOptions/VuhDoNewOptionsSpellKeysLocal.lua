@@ -57,10 +57,10 @@ local function VUHDO_addKeyboardMacroSlot(aScrollPanel, anIndex, someDefs)
 	VUHDO_setAssignButtonText(tButton, tBinding)
 
 	if (anIndex == selectedIdx) then
-	  tFrame:SetBackdropColor(0.8, 0.8, 1, 1);
-	  tEditBox:SetFocus();
+		VUHDO_lnfSkinStyleListEntry(tFrame, true);
+		tEditBox:SetFocus();
 	else
-	  tFrame:SetBackdropColor(1, 1, 1, 1);
+		VUHDO_lnfSkinStyleListEntry(tFrame, false);
 	end
 
 	return tFrame;

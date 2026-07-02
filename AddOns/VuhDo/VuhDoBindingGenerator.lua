@@ -211,11 +211,6 @@ function VUHDO_generateSetupClicksCode()
 						'button:SetAttribute("%sitem%s", "%s")',
 						tAttrPrefix, tAttrSuffix, VUHDO_escapeForLuaString(tTemplate)
 					));
-				elseif tType == "togglemenu" then
-					tinsert(tLines, format(
-						'button:SetAttribute("%stype%s", "togglemenu")',
-						tAttrPrefix, tAttrSuffix
-					));
 				end
 			end
 		end
@@ -256,6 +251,7 @@ function VUHDO_generateRemoveClicksCode()
 				tinsert(tLines, format('button:SetAttribute("%smacrotext%s", nil)', tAttrPrefix, tAttrSuffix));
 				tinsert(tLines, format('button:SetAttribute("%sspell%s", nil)', tAttrPrefix, tAttrSuffix));
 				tinsert(tLines, format('button:SetAttribute("%sitem%s", nil)', tAttrPrefix, tAttrSuffix));
+				tinsert(tLines, format('button:SetAttribute("%sclickbutton%s", nil)', tAttrPrefix, tAttrSuffix));
 			end
 		end
 	end

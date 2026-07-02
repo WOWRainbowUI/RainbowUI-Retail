@@ -3,7 +3,6 @@ local _G = _G;
 local table = table;
 local ipairs = ipairs;
 local twipe = table.wipe;
-local min = math.min;
 local InCombatLockdown = InCombatLockdown;
 
 local RemovePrivateAuraAnchor = C_UnitAuras and C_UnitAuras.RemovePrivateAuraAnchor;
@@ -526,10 +525,6 @@ local tRelativePoint;
 local tDurationAnchor;
 local tPrivateAura;
 local tPrivateAuraAnchor;
-local tIconSize;
-local tIconSizePercent;
-local tBarHeight;
-local tVisualSize;
 local tDurationFrame;
 local tToggleLevel;
 local tTextScale;
@@ -755,8 +750,6 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 			tPrivateAura["anchorId"] = nil;
 		end
 
-		tIconSize = 32;
-
 		tPrivateAuraAnchor = {
 			unitToken = aUnit,
 			auraIndex = tAuraIndex,
@@ -765,8 +758,8 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 			showCountdownNumbers = tPrivateAuraSetup["showCooldownNumbers"] ~= false,
 			isContainer = false,
 			iconInfo = {
-				iconWidth = tIconSize / tTextScale,
-				iconHeight = tIconSize / tTextScale,
+				iconWidth = 32 / tTextScale,
+				iconHeight = 32 / tTextScale,
 				iconAnchor = {
 					point = "CENTER",
 					relativeTo = tPrivateAura,
@@ -778,17 +771,7 @@ function VUHDO_refreshPrivateAuras(aPanelNum, aButton, aUnit)
 		};
 
 		if tPrivateAuraSetup["showBorder"] then
-			tIconSizePercent = tPrivateAuraSetup["iconSize"] or 40;
-
-			tBarHeight = tPanelSetup["SCALING"]["barHeight"];
-
-			if tIconSizePercent > 100 then
-				tVisualSize = min(tBarHeight, tIconSizePercent);
-			else
-				tVisualSize = tBarHeight * (tIconSizePercent == 0 and 100 or tIconSizePercent) * 0.01;
-			end
-
-			tPrivateAuraAnchor["iconInfo"]["borderScale"] = (tVisualSize / 32) / tTextScale;
+			tPrivateAuraAnchor["iconInfo"]["borderScale"] = 1 / tTextScale;
 		else
 			tPrivateAuraAnchor["iconInfo"]["borderScale"] = -10000;
 		end
