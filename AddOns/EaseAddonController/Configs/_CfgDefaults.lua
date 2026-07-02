@@ -414,11 +414,10 @@ D["ButtonForge"] = {
     },
 };
 D["BuyEmAll"] = {
-	defaultEnable = 1,
+	defaultEnable = 0,
 	tags = { "AUCTION" },
-	title = "大量購買",
-	desc = "在商人視窗按 Shift+左鍵 點一下物品可一次購買一組或最大數量。`",
-	img = true,
+	title = "(請刪除) 大量購買",
+	desc = "'商人介面增強' 插件已經有此功能，不再需要這個插件。``請自行刪除 AddOns 裡面的 BuyEmAll 資料夾。`",
 };
 D["CalReminder"] = {
 	defaultEnable = 1,
