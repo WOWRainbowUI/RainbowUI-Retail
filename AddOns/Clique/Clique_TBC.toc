@@ -1,7 +1,8 @@
-## Interface: 20505
+## Interface: 20505 
+
 ## Title: Clique
 ## Author: Cladhaire
-## Version: v4.9.10-release
+## Version: v5.0.9-release
 ## Notes: Simply powerful click-casting interface
 ## Notes-ruRU: Простой и мощный интерфейс для привязки заклинаний к щелчку мыши.
 ## IconTexture: Interface\AddOns\Clique\images\icon_square_64.tga
@@ -29,12 +30,15 @@ libs\LibDropDown\embed.xml
 
 core/core.lua
 core/database.lua
+core/changelog.lua
 core/frame_registry.lua
+core/proxy_frames.lua
 core/bindings.lua
 core/attributes.lua
 core/talents.lua
 core/utils.lua
 core/import_export.lua
+core/dialogs.lua
 
 ClickCastTemplate.xml
 Clique.xml
@@ -43,6 +47,7 @@ catalog/LibCatalog.lua
 catalog/ActionCatalog.lua
 catalog/MacroCatalog.lua
 catalog/SpellbookCatalog.lua
+catalog/PetCatalog.lua
 
 config/BindingConfig.lua
 config/BrowsePage.lua
@@ -50,6 +55,11 @@ config/EditPage.lua
 config/EditMacroPage.lua
 config/ActionCatalogWindow.lua
 config/Utils.lua
+config/BlizzFramesConfigPage.lua
+config/DenylistPage.lua
+config/GeneralOptionsPage.lua
+config/ProfilePage.lua
+config/ChangelogPage.lua
 
 options\OptionsPanel.lua
 options\BlizzardFramesConfig.lua

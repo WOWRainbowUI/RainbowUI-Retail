@@ -4,7 +4,7 @@
 
 local addonName = select(1, ...)
 
---- @class CliqueAddon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
@@ -15,8 +15,9 @@ addon.databaseDefaults = {
         blizzframes = {
             -- Fix the health and mana bars
             statusBarFix = true,
-            -- Remove the menu action from all Blizzard frames
-            wipeMenuAction = false,
+
+            -- Removed in 5.0.0; kept reserved so the key is never reused.
+            -- wipeMenuAction = false,
 
             -- Default frames enabled
             PlayerFrame = true,
@@ -32,15 +33,24 @@ addon.databaseDefaults = {
             boss = true,
         },
         stopcastingfix = false,
-        downClick = true,
-        removeWildcardActions = false,
+        -- Fires bindings on the "down", "up", or "both" edge of a click/keypress.
+        clickDirection = "down",
         enableGamePad = false,
+
+        -- Removed in 5.0.0; kept reserved so the keys are never reused.
+        -- downClick = true,            -- superseded by clickDirection above
+        -- removeWildcardActions = false, -- the wildcard-stripping feature was removed
         showBindingTooltip = false,
         tooltipAnchor = "ANCHOR_BOTTOMRIGHT",
+        dismissTargetMenuWarning = false,
     },
     profile = {
         bindings = {
         },
+    },
+    global = {
+        changelogDoNotShow       = false,
+        lastSeenChangelogVersion = nil,
     },
 }
 
@@ -74,5 +84,14 @@ function addon:ImportBindings(importBindings)
     self.db.profile.bindings = importBindings
     self.bindings = self.db.profile.bindings
     self:Printf(L["Importing new bindings into current profile"])
+    self:FireMessage("BINDINGS_CHANGED")
+end
+
+function addon:MergeBindings(importBindings)
+    for _, binding in ipairs(importBindings) do
+        table.insert(self.db.profile.bindings, binding)
+    end
+    self.bindings = self.db.profile.bindings
+    self:Printf(L["Added %d bindings to current profile"], #importBindings)
     self:FireMessage("BINDINGS_CHANGED")
 end

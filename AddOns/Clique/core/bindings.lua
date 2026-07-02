@@ -2,7 +2,7 @@
 --  Clique - Copyright 2006-2026 - James N. Whitehead II
 -------------------------------------------------------------------]]--
 
---- @class CliqueAddon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 
 local function bindingeq(a, b)
@@ -19,6 +19,8 @@ local function bindingeq(a, b)
         return a.spell == b.spell and a.key == b.key and a.spellSubName == b.spellSubName
     elseif a.type == "macro" then
         return a.macrotext == b.macrotext and a.key == b.key
+    elseif a.type == "item" then
+        return a.item == b.item and a.key == b.key
     end
 
     return false

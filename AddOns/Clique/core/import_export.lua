@@ -2,7 +2,7 @@
 --  Clique - Copyright 2006-2026 - James N. Whitehead II
 -------------------------------------------------------------------]] ---
 
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 
 local LibSerialize = LibStub("LibSerialize")

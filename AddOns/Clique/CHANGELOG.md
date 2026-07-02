@@ -1,6 +1,11 @@
-# Clique
+# Changelog
 
-## [v4.9.10-release](https://github.com/jnwhiteh/Clique/tree/v4.9.10-release) (2026-06-06)
-[Full Changelog](https://github.com/jnwhiteh/Clique/compare/v4.9.9-release...v4.9.10-release) [Previous Releases](https://github.com/jnwhiteh/Clique/releases)
+The authoritative, user-facing changelog now lives **in-game**.
 
-- Make sure to load koKR locale  
+Open the Clique config window, click the **Options** button, and choose
+**What's New**. It is shown automatically the first time you log in after an
+update, and is kept up to date there.
+
+The changelog content is maintained in [`core/changelog.lua`](core/changelog.lua)
+as a structured Lua table (version, date, and Added/Fixed/Changed sections).
+Add new entries to the top of that table when cutting a release.

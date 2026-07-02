@@ -92,6 +92,7 @@ function addon:HookBindingTooltipFrame(frame)
 
     frame:HookScript("OnEnter", function(f)
         if not addon.settings.showBindingTooltip then return end
+        if addon:IsFrameBlacklisted(f) then return end
         activeFrame = f
         lastPrefix = nil
         local tip = module:GetBindingTooltip()

@@ -6,7 +6,7 @@
    but ideally it should be easy to add others.
 -------------------------------------------------------------------]] ---
 
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 
 addon.catalog = {}
@@ -14,6 +14,7 @@ local catalog = addon.catalog
 
 catalog.entryType = {
     Spell = "SPELL",
+    Pet = "PETSPELL",
     Macro = "MACRO",
     Action = "ACTION",
 }
@@ -45,6 +46,7 @@ end
 
 catalog.catalogType = {
     Spell = "SPELL",
+    Pet = "PETSPELL",
     Macro = "MACRO",
     Action = "ACTION",
 }

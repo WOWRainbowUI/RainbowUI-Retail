@@ -4,7 +4,7 @@
 
 local addonName = select(1, ...)
 
---- @class CliqueAddon: AddonCore
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
@@ -18,21 +18,23 @@ function addon:Initialize()
 	-- Get denylist before doing anything else
     self:PopulateDenylistFromSettings()
 
-    local setup, remove = self:GetClickAttributes()
+    local setup, remove, applyCombat, applyOoc = self:GetClickAttributes()
     self.header:SetAttribute("setup_clicks", setup)
     self.header:SetAttribute("remove_clicks", remove)
+    self.header:SetAttribute("apply_combat", applyCombat)
+    self.header:SetAttribute("apply_ooc", applyOoc)
 
     local set, clr = self:GetBindingAttributes()
     self.header:SetAttribute("setup_onenter", set)
     self.header:SetAttribute("setup_onleave", clr)
-    self.header:SetFrameRef("cliqueNamedButton", self.namedbutton)
 
     -- Get the override binding attributes for the global click frame
-    self.globutton.setup, self.globutton.remove = self:GetClickAttributes(true)
+    self.globutton.setup, self.globutton.remove, self.globutton.applyCombat, self.globutton.applyOoc = self:GetClickAttributes(true)
     self.globutton.setbinds, self.globutton.clearbinds = self:GetBindingAttributes(true)
 
     self:RegisterEvent("PLAYER_REGEN_DISABLED", "EnteringCombat")
     self:RegisterEvent("PLAYER_REGEN_ENABLED", "LeavingCombat")
+    self:RegisterEvent("UPDATE_MACROS", "MacrosUpdated")
 
     self:RegisterEvent("PLAYER_ENTERING_WORLD", "PlayerEnteringWorld")
 
@@ -48,14 +50,14 @@ function addon:Initialize()
     -- Support multiple talent specs
     self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", "TalentGroupChanged")
 
+    -- Watch for in-game click-casting changes that conflict with Clique (retail)
+    self:SetupBindConfigWarningWatch()
+
     -- Wait to set up the registry until attributes are in place
     self:SetupUnitFrameRegistry()
     self:CaptureGlobalRegistry()
 
     self:IntegrateBlizzardFrames()
-
-    -- Make sure the namedbutton is registered
-    self:RegisterUnitFrame(self.namedbutton)
 end
 
 function addon:Enable()
@@ -81,6 +83,10 @@ function addon:PlayerEnteringWorld()
     self:FireMessage("BINDINGS_CHANGED")
 end
 
+function addon:MacrosUpdated()
+    self:FireMessage("MACROS_UPDATED")
+end
+
 function addon:SetupDatabase()
     -- Create an AceDB, but it needs to be cleared first
     self.db = LibStub("AceDB-3.0"):New("CliqueDB3", self.databaseDefaults)
@@ -88,6 +94,7 @@ function addon:SetupDatabase()
     self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
 
     self.settings = self.db.char
+    self.globalSettings = self.db.global
     self.bindings = self.db.profile.bindings
 
 end
@@ -98,12 +105,28 @@ function addon:SetupUnitFrameRegistry()
     -- Secure header click-cast frames
     self.hccframes = {}
 
+    -- Active per-frame proxy buttons
+    self.proxies = {}
+    -- Proxy cache so recycled frames reuse their proxy (frames can't be destroyed)
+    self.proxyPool = {}
+    -- Counter for unique CliqueProxyNNN names
+    self.proxyCount = 0
+    -- Original frame attributes, restored on unregister
+    self.proxyBackup = {}
+
+    -- Per-frame SetBindingClick targets for key binds; see docs/attributes.md
+    self.keyProxies = {}
+    self.keyProxyPool = {}
+    self.keyProxyCount = 0
+
     -- Queue for frame registration
     self.regqueue = {}
     -- Queue for frame unregistration
     self.unregqueue = {}
     -- Queue for frame click updates
     self.regclickqueue = {}
+    -- Frames whose routing Blizzard clobbered in combat, pending reassertion
+    self.reassertqueue = {}
 end
 
 function addon:CaptureGlobalRegistry()
@@ -167,6 +190,13 @@ function addon:SetupSecureHeader()
         blacklist = table.new()
     ]])
 
+    -- Create a table within the addon header to store the Clique-owned proxy
+    -- buttons. Bindings are (re)applied to these inside the restricted
+    -- environment so the ooc/combat swap works during combat lockdown.
+    self.header:Execute([[
+        proxies = table.new()
+    ]])
+
     -- This snippet is executed from the SecureHandlerEnterLeaveTemplate
     -- _onenter and _onleave attributes. The 'self' attribute will contain
     -- the unit frame itself.
@@ -195,8 +225,6 @@ function addon:SetupSecureHeader()
         button:SetAttribute("clickcast_onenter", self:GetAttribute("clickcast_onenter"))
         button:SetAttribute("clickcast_onleave", self:GetAttribute("clickcast_onleave"))
         ccframes[button] = true
-
-        self:RunFor(button, self:GetAttribute("setup_clicks"))
     ]===])
 
     -- This snippet is executed from the Clique:UnregisterFrame() function, or
@@ -233,10 +261,23 @@ function addon:SetupSecureHeader()
                 -- TODO: split frame registry so this is decoupled
                 self.hccframes[frameName] = button
                 self:UpdateRegisteredClicks(button)
+                if not InCombatLockdown() and not self:IsFrameBlacklisted(button) then
+                    local proxy = self:GetOrCreateProxy(button)
+                    self:SetupFrameClickRouting(button, proxy)
+                    self:StampProxySetup(button, proxy)
+                end
             end
         elseif name == "export_unregister" and type(value) ~= nil then
             local frameName = value.GetName and value:GetName()
             if frameName then
+                local button = self.hccframes[frameName]
+                if button then
+                    local proxy = self.proxies[button]
+                    if proxy then
+                        self:RemoveProxySetup(button, proxy)
+                        self:TeardownFrameClickRouting(button)
+                    end
+                end
                 self.hccframes[frameName] = nil
             end
         end
@@ -254,8 +295,6 @@ function addon:SetupGlobalButtons()
     self.globutton = CreateFrame("Button", addonName .. "SABButton", UIParent, "SecureActionButtonTemplate, SecureHandlerBaseTemplate")
     self:UpdateGlobalButtonClicks()
 
-    -- Create a named frame that can be used as a side-car for unnamed frames
-    self.namedbutton = CreateFrame("Button", addonName .. "NamedSidecar", UIParent, "SecureUnitButtonTemplate")
 end
 
 function addon:FixMyBindingsV1()
@@ -279,11 +318,11 @@ function addon:EnteringCombat()
 
     -- Check to see if we're already in combat, so we don't re-apply
     if not self.header:GetAttribute("inCombat") then
-        -- Apply attributes, indicating we need the 'combat' set
+        -- inCombat must stay accurate for the registration path; the delta then
+        -- swaps only the ooc/combat keys.
         self.header:SetAttribute("inCombat", true)
         self.globutton:SetAttribute("inCombat", true)
-        self.namedbutton:SetAttribute("inCombat", true)
-        self:ApplyAttributes()
+        self:ApplyCombatTransition(true)
     end
 end
 
@@ -306,28 +345,42 @@ function addon:LeavingCombat()
     end
     if next(self.regclickqueue) then twipe(self.regclickqueue) end
 
+    -- Heal only the frames the SetUnit hook queued during combat. We deliberately
+    -- don't reassert every proxied frame on combat exit: that full sweep is the
+    -- job of the binding-change / PEW path (ApplyAttributes), and paying it on
+    -- every combat transition is wasteful. The queue holds the frames Blizzard
+    -- clobbered while we were locked out and couldn't write to them.
+    for frame in pairs(self.reassertqueue) do
+        self:ReassertFrameClickRouting(frame)
+    end
+    if next(self.reassertqueue) then twipe(self.reassertqueue) end
+
+    -- Wire up hccframes that registered during combat (proxy creation is deferred
+    -- under lockdown). inCombat is still true, so setup_clicks lays down the combat
+    -- set; the has_ooc block below swaps it via the delta.
+    for _, frame in pairs(self.hccframes) do
+        if not self.proxies[frame] and not self:IsFrameBlacklisted(frame) then
+            local proxy = self:GetOrCreateProxy(frame)
+            self:SetupFrameClickRouting(frame, proxy)
+            self:StampProxySetup(frame, proxy)
+        end
+    end
+
     -- Only apply attributes if we have an 'ooc' binding set
     if self.has_ooc then
-        -- Clear previously set attributes
-        self:ClearAttributes()
-
-        -- Apply attributes, indicating we want the 'ooc' set
+        -- inCombat must stay accurate for the registration path; the delta then
+        -- swaps only the combat/ooc keys (apply_ooc clears the masking keys first).
         self.header:SetAttribute("inCombat", false)
         self.globutton:SetAttribute("inCombat", false)
-        self.namedbutton:SetAttribute("inCombat", false)
-        self:ApplyAttributes()
+        self:ApplyCombatTransition(false)
     end
-end
-
-function addon:IsDownClickEnabled()
-    return self.settings.downClick
 end
 
 function addon:IsGamePadEnabled()
     return self.settings.enableGamePad
 end
 
-function addon:HouseEditorModeChanged(event, editMode)
+function addon:HouseEditorModeChanged(_event, _editMode)
     if not C_HouseEditor then
         return
     end
@@ -426,7 +479,15 @@ function addon:ShowSpellBookButton()
 end
 
 function addon:SlashCommand(msg, editbox)
-    local profile = (msg or ""):match("^profile (.+)$")
+    msg = msg or ""
+
+    if msg == "inspect" or msg:match("^inspect%s+") then
+        local pattern = msg:match("^inspect%s+(.+)$")
+        self:InspectRegisteredFrames(pattern)
+        return
+    end
+
+    local profile = msg:match("^profile (.+)$")
     if profile then
         if InCombatLockdown() then
             self:Printf(L["Cannot change profiles while in combat lockdown"])

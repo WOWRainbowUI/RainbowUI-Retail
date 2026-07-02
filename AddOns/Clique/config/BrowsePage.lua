@@ -2,11 +2,10 @@
 --  Clique - Copyright 2006-2024 - James N. Whitehead II
 -------------------------------------------------------------------]] ---
 
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
-local libDropDown = LibStub("LibDropDown")
 local libMacros = addon.macroCatalog
 
 ---@class BindingConfig
@@ -114,7 +113,7 @@ function page:Initialize()
     end)
 
     frame.background = CreateFrame("Frame", "CliqueConfigUIBrowseScrollBackground", frame, "TooltipBackdropTemplate")
-    frame.background:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 4, 535)
+    frame.background:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 4, 520)
     frame.background:SetPoint("BOTTOMRIGHT", -31, 50)
     frame.background:SetFrameLevel(2)
 
@@ -138,6 +137,50 @@ function page:Initialize()
     frame.scrollbar:SetPoint("TOPLEFT", frame.background, "TOPRIGHT", 10, 0)
     frame.scrollbar:SetPoint("BOTTOMLEFT", frame.background, "BOTTOMRIGHT", 10, 0)
 
+    -- Shown when something in the bind config conflicts with Clique (addon:GetActiveBindConfigWarning).
+    frame.bindConfigWarning = CreateFrame("Button", nil, frame, "TooltipBackdropTemplate")
+    local warning = frame.bindConfigWarning
+    warning:SetHeight(28)
+    warning:SetPoint("BOTTOMLEFT", frame.background, "TOPLEFT", 5, 4)
+    warning:SetPoint("BOTTOMRIGHT", frame.background, "TOPRIGHT", -5, 4)
+    warning:SetFrameLevel(frame.background:GetFrameLevel() + 5)
+    warning:Hide()
+
+    warning:SetBackdropColor(0.25, 0.05, 0.05, 0.95)
+    warning:SetBackdropBorderColor(0.9, 0.15, 0.15, 1)
+
+    warning.text = warning:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
+    warning.text:SetPoint("LEFT", warning, "LEFT", 10, 0)
+    warning.text:SetPoint("RIGHT", warning, "RIGHT", -10, 0)
+    warning.text:SetJustifyH("LEFT")
+    page.alertIcon = CreateSimpleTextureMarkup([[Interface\DialogFrame\UI-Dialog-Icon-AlertNew]], 14, 14)
+    warning.text:SetTextColor(1, 0.45, 0.4)
+
+    warning:SetScript("OnEnter", function(btn)
+        local descriptor = btn.descriptor
+        if not descriptor then return end
+
+        local tooltip = config.ui.tooltip
+        tooltip:SetOwner(btn, "ANCHOR_BOTTOM")
+        tooltip:SetText(descriptor.title, 1, 0.82, 0)
+        for _, line in ipairs(descriptor.lines or {}) do
+            tooltip:AddLine(line, 1, 1, 1, true)
+        end
+        if descriptor.actionText then
+            tooltip:AddLine(" ")
+            tooltip:AddLine(descriptor.actionText, 0, 0.7, 0.95, true)
+        end
+        tooltip:Show()
+    end)
+    warning:SetScript("OnLeave", function()
+        config.ui.tooltip:Hide()
+    end)
+    warning:SetScript("OnClick", function(btn)
+        if btn.descriptor and btn.descriptor.onClick then
+            btn.descriptor.onClick()
+        end
+    end)
+
     frame.dataProvider = CreateDataProvider()
 
     local dataProvider = frame.dataProvider
@@ -150,85 +193,51 @@ function page:Initialize()
     scrollView:SetDataProvider(dataProvider)
 
     -- Options button
-    frame.OptionsButton = CreateFrame("DropDownToggleButton", nil, frame, "UIMenuButtonStretchTemplate")
+    frame.OptionsButton = CreateFrame("DropdownButton", nil, frame, "WowStyle1FilterDropdownTemplate")
     local optionsButton = frame.OptionsButton
 
-    optionsButton.Icon = optionsButton:CreateTexture(nil, "ARTWORK")
-    optionsButton.ResetButton = CreateFrame("Button", nil, optionsButton)
-
     optionsButton:ClearAllPoints()
-    optionsButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -30, -40)
+    optionsButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -10, -40)
     optionsButton:SetWidth(93)
     optionsButton:SetHeight(22)
     optionsButton:SetText(L["Options"])
 
-    optionsButton.Icon:SetHeight(12)
-    optionsButton.Icon:SetWidth(10)
-    optionsButton.Icon:ClearAllPoints()
-    optionsButton.Icon:SetPoint("RIGHT", optionsButton, "RIGHT", -10, 0)
-    optionsButton.Icon:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
-
-    optionsButton:SetScript("OnCLick", function()
-        frame.OptionsMenu:Toggle()
-    end)
-
-    frame.OptionsMenu = libDropDown:NewMenu(optionsButton, "CliqueBindOtherDropdown")
-    local optionsMenu = frame.OptionsMenu
-    optionsMenu:SetAnchor("TOPLEFT", optionsButton, "BOTTOMLEFT", 20, -10)
-    optionsMenu:SetStyle("MENU")
-    optionsMenu:SetFrameStrata("DIALOG")
-
-    optionsButton.ResetButton:SetHeight(23)
-    optionsButton.ResetButton:SetWidth(23)
-    optionsButton.ResetButton:ClearAllPoints()
-    optionsButton.ResetButton:SetPoint("CENTER", optionsButton, "TOPRIGHT", -3, 0)
-    optionsButton.ResetButton:SetNormalAtlas("auctionhouse-ui-filter-redx")
-    optionsButton.ResetButton:SetHighlightAtlas("auctionhouse-ui-filter-redx", "ADD")
-    optionsButton.ResetButton:Hide()
-
-    optionsButton.ResetButton:SetScript("OnClick", function(button)
-    end)
-
-    -- Setup Options Menu
-    optionsMenu:AddLine({
-        text = L["Sort by name"],
-        checked = function()
+    optionsButton:SetupMenu(function(_, rootDescription)
+        rootDescription:CreateRadio(L["Sort by name"], function()
             return page:GetSortOrder() == "name"
-        end,
-        func = function()
+        end, function()
             page:ChangeSortOrder("name")
-            optionsMenu:Hide()
-            optionsMenu:Show()
-        end,
-        keepShown = true,
-    })
-    optionsMenu:AddLine({
-        text = L["Sort by binding key"],
-        checked = function()
+        end)
+        rootDescription:CreateRadio(L["Sort by binding key"], function()
             return page:GetSortOrder() == "key"
-        end,
-        func = function()
+        end, function()
             page:ChangeSortOrder("key")
-            optionsMenu:Hide()
-            optionsMenu:Show()
-        end,
-        keepShown = true,
-    })
-    optionsMenu:AddLine({
-        isSpacer = true,
-    })
-    optionsMenu:AddLine({
-        text = L["Open Clique Options"],
-        func = function()
-            -- Open Clique options
+        end)
+        rootDescription:CreateDivider()
+        rootDescription:CreateButton(L["Open Clique Options"], function()
             if Settings then
                 Settings.OpenToCategory(addon.optpanels.ABOUT.category:GetID())
             else
                 InterfaceOptionsFrame_OpenToCategory("Clique")
             end
-        end,
-        keepShown = true,
-    })
+        end)
+        rootDescription:CreateButton(self:LabelWithGearPrefix(L["General Options"]), function()
+            config:SwitchToGeneralOptionsPage()
+        end)
+        rootDescription:CreateButton(self:LabelWithGearPrefix(L["Blizzard Frame Options"]), function()
+            config:SwitchToBlizzFramesPage()
+        end)
+        rootDescription:CreateButton(self:LabelWithGearPrefix(L["Frame Denylist"]), function()
+            config:SwitchToDenylistPage()
+        end)
+        rootDescription:CreateButton(self:LabelWithGearPrefix(L["Profile Management"]), function()
+            config:SwitchToProfilePage()
+        end)
+        rootDescription:CreateDivider()
+        rootDescription:CreateButton(self:ChangelogMenuLabel(L["What's New"]), function()
+            config:SwitchToChangelogPage()
+        end)
+    end)
 
     frame.SearchBox = CreateFrame("EditBox", "CliqueConfigUIBrowseSearch", frame, "SearchBoxTemplate")
     local searchBox = frame.SearchBox
@@ -239,6 +248,44 @@ function page:Initialize()
     page:EnableSearch()
 
     page:UPDATE_BROWSE_PAGE()
+    addon:RegisterMessage("BINDINGS_CHANGED", function()
+        if page:IsShown() then
+            page:UPDATE_BROWSE_PAGE()
+        end
+    end)
+    addon:RegisterMessage("MACROS_UPDATED", function()
+        libMacros:InvalidateNameCache()
+        if page:IsShown() then
+            page:UPDATE_BROWSE_PAGE()
+        end
+    end)
+end
+
+-- Add a gear to clearly identify the options pages
+function page:LabelWithGearPrefix(str)
+    local prefix = page:GetAtlasString("mechagon-projects", 16, 16)
+    if prefix then
+        return prefix .. " " .. str
+    else
+        return str
+    end
+end
+
+-- Differentiate the changelog entry from the gear-prefixed options pages:
+-- a news icon + gold label.
+function page:ChangelogMenuLabel(str)
+    local label = ("|cffffd200%s|r"):format(str)
+    local prefix = page:GetAtlasString("CreditsScreen-Assets-Buttons-Play", 16, 16)
+    if prefix then
+        return prefix .. " " .. label
+    end
+    return label
+end
+
+function page:GetAtlasString(atlas, w, h)
+    if C_Texture and C_Texture.GetAtlasInfo(atlas) then
+        return ("|A:%s:%d:%d|a"):format(atlas, w or 0, h or 0)
+    end
 end
 
 page.bindRows = {}
@@ -255,12 +302,21 @@ end
 
 local BindRowButton_OnEnter = function(button)
     button.DeleteButton:Show()
+    if button.warning then
+        config.ui.tooltip:SetOwner(button, "ANCHOR_TOP")
+        config.ui.tooltip:AddLine(L["|cffFF4800Ambiguous macro name"])
+        config.ui.tooltip:AddLine(button.warning, 1, 1, 1, true)
+        config.ui.tooltip:AddLine(" ")
+        config.ui.tooltip:AddLine(L["This works best with unique macro names, or you can use the Run Custom Macro action."], 1, 1, 1, true)
+        config.ui.tooltip:Show()
+    end
 end
 
 local BindRowButton_OnLeave = function(button)
     if not config:IsInMouseFocus(button.DeleteButton) then
         button.DeleteButton:Hide()
     end
+    config.ui.tooltip:Hide()
 end
 
 local BindRowDeleteButton_OnEnter = function(button)
@@ -286,10 +342,9 @@ local BindRowDeleteButton_OnClick = function(button)
     page:UPDATE_BROWSE_PAGE()
 end
 
----@alias CliqueBindingTemplate Button | {created: boolean, DeleteButton: Button, id: table, Icon: Texture, Name: FontString, Text: FontString, BindingText: FontString}
 ---Initialize a binding row, including behaviour scripts and binding data from the provider
----@param button CliqueBindingTemplate
----@param data {id: table, icon: number|string, name: string, text: string, bindingText: string}
+---@param button table the CliqueBindingTemplate row frame
+---@param data {id: table, icon: number|string, name: string, text: string, bindingText: string, warning: string?}
 function page:InitializeBindingRow(button, data)
     if not button.created then
         table.insert(page.bindRows, button)
@@ -307,6 +362,7 @@ function page:InitializeBindingRow(button, data)
     end
 
     button.id = data.id
+    button.warning = data.warning
     button.Icon:SetTexture(data.icon)
     button.Name:SetText(data.name)
     button.Text:SetText(data.text)
@@ -324,7 +380,7 @@ function page:ClearSelectedBindRow()
 end
 
 ---Select or deselect a row in the binding list
----@param button CliqueBindingTemplate
+---@param button table the CliqueBindingTemplate row frame
 function page:SelectBindRow(button)
 
     -- Toggle the current bind button or set a new one
@@ -394,6 +450,7 @@ function page:FilterEntry(data)
     return false
 end
 
+
 function page:UPDATE_BROWSE_PAGE()
     local dataProvider = page.frame.dataProvider
     dataProvider:Flush()
@@ -425,9 +482,11 @@ function page:UPDATE_BROWSE_PAGE()
 
         -- Good to flag broken bindings here
         if bind.type == "macro" and bind.macro then
-            -- Make sure a macro by the name exists
             if not libMacros:MacroExistsByName(bind.macro) then
                 data.text = L["|cffFF4800No macros with name '%s' exists"]:format(bind.macro)
+            elseif libMacros:MacroNameIsAmbiguous(bind.macro) then
+                data.text = L["|cffFF4800Ambiguous macro name"]
+                data.warning = L["Multiple macros are named '%s'. Which one of them runs is unpredictable."]:format(bind.macro)
             end
         end
 
@@ -441,4 +500,20 @@ function page:UPDATE_BROWSE_PAGE()
     end
 
     dataProvider:InsertTable(bindingData)
+
+    page:UpdateBindConfigWarning()
+end
+
+function page:UpdateBindConfigWarning()
+    local warning = page.frame and page.frame.bindConfigWarning
+    if not warning then
+        return
+    end
+
+    local descriptor = addon:GetActiveBindConfigWarning()
+    warning.descriptor = descriptor
+    if descriptor then
+        warning.text:SetText(page.alertIcon .. " " .. descriptor.title)
+    end
+    warning:SetShown(descriptor ~= nil)
 end

@@ -2,7 +2,7 @@
 --  Clique - Copyright 2006-2026 - James N. Whitehead II
 -------------------------------------------------------------------]]--
 
---- @class CliqueAddon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
