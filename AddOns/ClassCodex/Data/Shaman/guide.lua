@@ -2,66 +2,65 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["SHAMAN"] = {
   ["elemental"] = {
     label = "Elemental Shaman",
-    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/elemental/midnight-season-1",
     priorities = {
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "通用",
         stats = {
-          { "Mastery" },
-          { "Haste", "Critical Strike" },
-          { "Versatility" },
+          { "精通" },
+          { "加速", "致命一擊" },
+          { "臨機應變" },
         },
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "通用",
         stats = {
-          { "Mastery" },
-          { "Haste", "Critical Strike" },
-          { "Versatility" },
+          { "精通" },
+          { "加速", "致命一擊" },
+          { "臨機應變" },
         },
       },
     },
     talents = {
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "團隊單目標",
         recommended = true,
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMmZmZZbbgxMDAAAAAsYGDbwCMjGasBAzyMzMGbLmwMzyYZmZmxwysMjFzMjZWAAGAzMwwwA",
       },
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "團隊單目標",
         buildLabel = "High Mobility And Cleave",
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAmZZZmxMzMbbbjxMmZAAAAAbmZDGwAmNmQmFAYWmZmxYbxEmZWGLzMzMGWsMjFMzMzCAwMAYmxwwA",
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "傳奇+",
         recommended = true,
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAALmxwGsAzohGbAwsMzMjx2ipNmZMWmZmZMsMLGLmZGzsAAMDwMDMMMA",
       },
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "探究",
         recommended = true,
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZbZZMmxMDAAAAYzMbwAGwsxEysAAzyMzMGbLmwMjxyMzMzMjFLGLYMzsAAMAwMjhhB",
       },
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "傳奇+",
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMmZmZZbbMmxMAAAAALmZDGwAmNmQmFAYWmZmxYbxEmZMWmZmZmhlZxYBzMzsAAMAwMjhhB",
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "探究",
         exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAmZZZmxMzMbLLjxMmZAAAAAgFzYYDWgZ0QjNAYWmZmxMbLmwMjxyMzMjhlZxYBzMzsAAMDwMDMMMA",
       },
     },
     rotation = {
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "單目標",
         steps = {
           "Remember to use {79206} and {378081} for movement events.",
@@ -83,7 +82,7 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "單目標",
         steps = {
           "Remember to use {79206} and {378081} for movement events.",
@@ -104,15 +103,15 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "多目標",
         steps = {
           "Remember to use {79206} and {378081} for movement events.",
           "{191634} on cooldown.",
           "{443454} roughly on cooldown.",
           "{114050} roughly on cooldown, but always after {191634}",
-          "?{117014}: {61882} against 4 or more targets if possible.",
-          "?{117014}: {117014} against 3 or less targets if possible.",
+          "?{117014}: {61882} against 4或more targets if possible.",
+          "?{117014}: {117014} against 3或less targets if possible.",
           "?!{117014}: {61882} if possible.",
           "?{470057}: {51505} if you have {1259471} active.",
           "?{470057}: {470057} on cooldown.",
@@ -120,21 +119,21 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "多目標",
         steps = {
           "Remember to use {79206} and {378081} for movement events.",
           "{191634} on cooldown.",
           "{114050} roughly on cooldown, but always after {191634}",
-          "?{117014}: {61882} against 4 or more targets if possible.",
-          "?{117014}: {117014} against 3 or less targets if possible.",
+          "?{117014}: {61882} against 4或more targets if possible.",
+          "?{117014}: {117014} against 3或less targets if possible.",
           "?!{117014}: {61882} if possible.",
           "?{470057}: {470057} to refresh {470411}.",
           "{188443}/{454009} as your filler.",
         },
       },
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "起手",
         steps = {
           "{191634}",
@@ -146,7 +145,7 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "起手",
         steps = {
           "{191634}",
@@ -161,57 +160,56 @@ ClassCodexData["SHAMAN"] = {
   },
   ["enhancement"] = {
     label = "Enhancement Shaman",
-    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/enhancement/midnight-season-1",
     priorities = {
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "AoE",
         stats = {
-          { "Haste" },
-          { "Mastery", "Critical Strike" },
-          { "Versatility" },
+          { "加速" },
+          { "精通", "致命一擊" },
+          { "臨機應變" },
         },
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "通用",
         stats = {
-          { "Mastery" },
-          { "Haste" },
-          { "Critical Strike" },
-          { "Versatility" },
+          { "精通" },
+          { "加速" },
+          { "致命一擊" },
+          { "臨機應變" },
         },
       },
     },
     talents = {
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "團隊單目標",
-        exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYmgNAmlZMzMWWmBmZ2YZmZmhhxMAAGgxMTMzAAjB",
+        exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFN2GAzEsBwsMjZmxyyMwMzGLzMzMMMmBAYGgxMTMzAAjB",
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "團隊單目標",
         exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzYmZmZmZmZmZmZGAAAAAAAAgNAbmxwGZBmhhGsAwsMjZmxyyMwMzGLzMzMMMmBAYGGGmZCMzAYcBA",
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "傳奇+",
         exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFN2GAzEsBwsMjZMWWMwMz2YZmZmZwyYGAAgxYGxMDwgxA",
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "傳奇+",
         exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzYMzMzMzMzMzMzAAAAAAAAAsBYzMG2ILwMM0gFAmlZMjxyiBmZ2GLzMzMDWGzAAYYMDmJwMDGMuAA",
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "探究",
         buildLabel = "傳奇+",
         exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYmgNAmlZMjxyyMwMjxiZmZGjFmBAAYMmZiZGAYMA",
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "探究",
         recommended = true,
         exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYmgNAmlZMjxyyMwMjxiZmZGjFmBAAYMmZiZGAYMA",
@@ -219,7 +217,7 @@ ClassCodexData["SHAMAN"] = {
     },
     rotation = {
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "單目標",
         steps = {
           "?{1218047}: {1218047} with 10 {187880} stacks",
@@ -236,12 +234,12 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "單目標",
         steps = {
           "{470057} if {188389} isn't active",
           "{444995}",
-          "{60103} with {201900} or {453405} active",
+          "{60103} with {201900}或{453405} active",
           "{197214}",
           "{384352}",
           "{187874}",
@@ -255,7 +253,7 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "多目標",
         steps = {
           "?{1218047}: {1218047} with 10 {187880} stacks",
@@ -274,13 +272,13 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "多目標",
         steps = {
           "{470057} if {188389} isn't currently active",
           "{444995}",
           "{197214}",
-          "{60103} with {201900} or {453405} active",
+          "{60103} with {201900}或{453405} active",
           "{384352}",
           "?{1218047}: {1218047} with 10 {187880} stacks",
           "{187874}",
@@ -294,7 +292,7 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "單目標 起手",
         steps = {
           "{470057} on the way into melee",
@@ -307,7 +305,7 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "風暴使者",
+        heroTalent = "Stormbringer",
         context = "AoE 起手",
         steps = {
           "{470057} on the way into melee",
@@ -319,7 +317,7 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "單目標 起手",
         steps = {
           "{470057} on the way into melee",
@@ -332,7 +330,7 @@ ClassCodexData["SHAMAN"] = {
         },
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "AoE 起手",
         steps = {
           "{470057} on the way into melee",
@@ -349,78 +347,63 @@ ClassCodexData["SHAMAN"] = {
   },
   ["restoration"] = {
     label = "Restoration Shaman",
-    sourceUrl = "https://www.wowhead.com/guide/classes/shaman/restoration/midnight-season-1",
     priorities = {
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "通用",
         stats = {
-          { "Critical Strike" },
-          { "Mastery", "Versatility" },
-          { "Haste" },
+          { "致命一擊" },
+          { "臨機應變", "精通", "加速" },
         },
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "通用",
         stats = {
-          { "Critical Strike" },
-          { "Mastery", "Versatility" },
-          { "Haste" },
+          { "致命一擊" },
+          { "臨機應變", "精通", "加速" },
         },
       },
     },
     talents = {
       {
-        heroTalent = "All",
+        heroTalent = "Totemic",
         context = "團隊單目標",
-        buildLabel = "Build",
+        recommended = true,
         exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzwYmZmZGzYB2gZsox2AyMwGjhZsNGz0stMzwMmFWMzMjZYWGAAYAzMDmZAgBD",
       },
       {
-        heroTalent = "All",
+        heroTalent = "Farseer",
+        context = "團隊單目標",
+        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMmZGzsYmNYATwsxEYsYGmBbjxMNbLzMMjZhFzMzYGmlBAAAmZGAMzADG",
+      },
+      {
+        heroTalent = "Totemic",
         context = "傳奇+",
-        buildLabel = "Build",
+        recommended = true,
         exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AyMwGzMDmtZGjmtlZGmxswixMjZsMLDAAGAzMYmBAGM",
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Farseer",
+        context = "傳奇+",
+        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZbZbYmZGzMGzYmFzsADYCmFmAjFmZGMbzMGNbLzMMjZhFjZGzYZWGAAMAzMDAmZgBD",
+      },
+      {
+        heroTalent = "Totemic",
         context = "探究",
         recommended = true,
         exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZMW2GzMzMzMzMmxMWgNYGLasNgMDsZGzgZbmZGNbLzMYmBLzMzMmhZBAAAMzMYmBAgB",
       },
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "探究",
         exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmxy2MMzMzMzMmxYxMLwAmgZhJwYBzMY2mZmRz2yMDmZwyMmZMjlZBAAGgZmBAzMMGM",
-      },
-      {
-        heroTalent = "先知",
-        context = "團隊單目標",
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMmZGzsYmNYATwsxEYsYGmBbjxMNbLzMMjZhFzMzYGmlBAAAmZGAMzADG",
-      },
-      {
-        heroTalent = "先知",
-        context = "傳奇+",
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZbZbYmZGzMGzYmFzsADYCmFmAjFmZGMbzMGNbLzMMjZhFjZGzYZWGAAMAzMDAmZgBD",
-      },
-      {
-        heroTalent = "圖騰師",
-        context = "團隊單目標",
-        recommended = true,
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzwYmZmZGzYB2gZsox2AyMwGjhZsNGz0stMzwMmFWMzMjZYWGAAYAzMDmZAgBD",
-      },
-      {
-        heroTalent = "圖騰師",
-        context = "傳奇+",
-        recommended = true,
-        exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AyMwGzMDmtZGjmtlZGmxswixMjZsMLDAAGAzMYmBAGM",
       },
     },
     rotation = {
       {
-        heroTalent = "先知",
-        context = "團隊治療",
+        heroTalent = "Farseer",
+        context = "團隊 Healing",
         steps = {
           "Use all your {1267068} procs",
           "Keep {61295} on cooldown",
@@ -428,12 +411,12 @@ ClassCodexData["SHAMAN"] = {
           "{73685}",
           "Maintain {73920}",
           "Keep {5394} on cooldown",
-          "{1064} or {77472}",
+          "{1064}或{77472}",
         },
       },
       {
-        heroTalent = "圖騰師",
-        context = "團隊治療",
+        heroTalent = "Totemic",
+        context = "團隊 Healing",
         steps = {
           "Use all your {1267068} procs",
           "Keep {61295} on cooldown",
@@ -442,11 +425,11 @@ ClassCodexData["SHAMAN"] = {
           "Use {462486} as much as possible",
           "Keep {5394} on cooldown",
           "{73685}",
-          "{1064} or {77472}",
+          "{1064}或{77472}",
         },
       },
       {
-        heroTalent = "先知",
+        heroTalent = "Farseer",
         context = "傳奇+",
         steps = {
           "Use all your {1267068} procs",
@@ -455,11 +438,11 @@ ClassCodexData["SHAMAN"] = {
           "{73685}",
           "Maintain {73920}",
           "Keep {5394} on cooldown",
-          "{1064} or {77472}",
+          "{1064}或{77472}",
         },
       },
       {
-        heroTalent = "圖騰師",
+        heroTalent = "Totemic",
         context = "傳奇+",
         steps = {
           "Use all your {1267068} procs",
@@ -468,7 +451,7 @@ ClassCodexData["SHAMAN"] = {
           "Maintain {444995}",
           "Keep {5394} on cooldown",
           "{73685}",
-          "{1064} or {77472}",
+          "{1064}或{77472}",
         },
       },
     },

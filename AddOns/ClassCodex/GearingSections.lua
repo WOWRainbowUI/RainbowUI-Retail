@@ -84,6 +84,14 @@ function ns:UpdateGearingSections()
         end
     end
 
+    -- Same for Archon gear so items are ready when the user switches source.
+    local archonSpecData = playerClass and playerSpec and ns:GetArchonGearSpecData(playerClass, playerSpec)
+    if archonSpecData and archonSpecData.bisGear then
+        for _, tab in ipairs(archonSpecData.bisGear) do
+            for _, g in ipairs(tab.slots) do ns.RequestItemData(g.item.itemId) end
+        end
+    end
+
     local enchHeight, gemCount, consumCount = ns.Sections.Enhancements.RenderPanel({
         wowheadEnchants = gearData and gearData.enchants,
         wowheadGems     = gearData and gearData.gems,
@@ -123,9 +131,11 @@ function ns:UpdateGearingSections()
     local _specKey = ns.GetSpecKey()
     local _spec = _specKey and (_specKey:match("-(.+)") or _specKey)
     local _ivSpec = _classToken and _spec and ns:GetIcyVeinsSpecData(_classToken, _spec)
+    local _archonSpec = _classToken and _spec and ns:GetArchonGearSpecData(_classToken, _spec)
     lastBisCount = ns.Sections.Gear.RenderPanel({
         wowheadBis = gearData and gearData.bisGear,
         ivBis      = _ivSpec and _ivSpec.bisGear,
+        archonBis  = _archonSpec and _archonSpec.bisGear,
         pvpBis     = PvP.bis(),
         onChange   = function()
             ns:UpdateGearingSections()
@@ -157,10 +167,16 @@ function ns:UpdateGearingSections()
         if not ClassCodexDB[prefix .. "Gems"] then gemSection:Hide() end
         if not ClassCodexDB[prefix .. "Consumables"] then consumSection:Hide() end
         if not ClassCodexDB[prefix .. "Trinkets"] then trinketSection:Hide() end
-        if not ClassCodexDB[prefix .. "Crafts"] then
+        -- Crafts and Embellishments toggle independently (issue #618).
+        -- Hide each section per its own toggle, but only hide the context
+        -- dropdown when BOTH are off — a Crafts-only or Embellishments-
+        -- only user still needs the Raid/M+/PvP picker above the cards.
+        local showCrafts = ClassCodexDB[prefix .. "Crafts"] ~= false
+        local showEmbs   = ClassCodexDB[prefix .. "Embellishments"] ~= false
+        if not showCrafts then craftsSection:Hide() end
+        if not showEmbs   then embsSection:Hide() end
+        if not showCrafts and not showEmbs then
             _craftingFrames.ctxDropdown:Hide()
-            craftsSection:Hide()
-            embsSection:Hide()
         end
         if not ClassCodexDB[prefix .. "BisGear"] then bisSection:Hide() end
     end
@@ -232,7 +248,8 @@ ns.gearingFloatOptions = {
     { key = "floatShowGems", label = L["tab.gems"] },
     { key = "floatShowConsumables", label = L["tab.consumables"] },
     { key = "floatShowTrinkets", label = L["tab.trinkets"] },
-    { key = "floatShowCrafts", label = L["tab.crafting"] },
+    { key = "floatShowCrafts", label = L["crafting.section_crafts"] },
+    { key = "floatShowEmbellishments", label = L["crafting.section_embellishments"] },
     { key = "floatShowBisGear", label = L["tab.bis_gear"] },
 }
 
@@ -241,6 +258,7 @@ ns.gearingDockOptions = {
     { key = "dockShowGems", label = L["tab.gems"] },
     { key = "dockShowConsumables", label = L["tab.consumables"] },
     { key = "dockShowTrinkets", label = L["tab.trinkets"] },
-    { key = "dockShowCrafts", label = L["tab.crafting"] },
+    { key = "dockShowCrafts", label = L["crafting.section_crafts"] },
+    { key = "dockShowEmbellishments", label = L["crafting.section_embellishments"] },
     { key = "dockShowBisGear", label = L["tab.bis_gear"] },
 }

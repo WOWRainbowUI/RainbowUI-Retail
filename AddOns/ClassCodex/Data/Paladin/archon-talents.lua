@@ -12,20 +12,20 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMNxwYmZYY2yAwAwGYjtZmZWmtZmZrBAAAYhNmBbAzYGAAwMDzYMMA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMNxwYmZYY2yAwAwGYjtZmZWmtZmZrBAAAYhNmBbAzYGAAwMDzYMMA",
           },
         },
       },
@@ -38,7 +38,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMNxwYmZYY2yAwAwGYjtZmZWmtZmZrBAAAYhNmBbAzYGAAwMDzYMMA",
           },
         },
       },
@@ -51,7 +51,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMNxwYmZYY2yAwAwGYjtZmZWmtZmZrBAAAYhNmBbAzYGAAwMDzYMMA",
           },
         },
       },
@@ -64,7 +64,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGWGbzMLGNxsYMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGgNPwYMjBzAAYmhZMGGA",
           },
         },
       },
@@ -77,7 +77,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMjhZLDADAbgN2mZmZZ2mZmtGAAAgF2YgNgZ2AAAMzwMGDD",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMNxwYmZYY2yAwAwGYjtZmZWmtZmZrBAAAYhNmBbAzYGAAwMDzYMMA",
           },
         },
       },
@@ -103,7 +103,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
-            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAAsMmhZGzMzCjx4BWGbzMLmpJmlZMzMMMbZAYAYDsx2MzMLz2Mzs1AAAAswGzgNgZMAAAzMMjxwA",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMDAwglxMMzYmZWYMGPwyYbmZxMNxwYmZYY2yAwAwGYjtZmZWmtZmZrBAAAYhNmBbAzYGAAwMDzYMMA",
           },
         },
       },
@@ -136,7 +136,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -149,7 +149,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -162,7 +162,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -175,7 +175,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -198,10 +198,23 @@ ClassCodexArchonData["PALADIN"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Herald of the Sun",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmpJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxYYA",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -214,7 +227,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -240,7 +253,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -266,7 +279,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -279,7 +292,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -292,7 +305,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -305,7 +318,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -324,6 +337,19 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Herald of the Sun",
+            exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmpJGzYmZYY2yAwAG2AbsNjZWmtZmZrBAAAYBA2MMmxMAAgZGmxYYA",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Herald of the Sun",
             exportString = "CEEAAAAAAAAAAAAAAAAAAAAAAAAAAYBAMAAglxMzYGzMzGjxYWGbzMLmpJGzYmZYY2yAwAG2AbsMjZWmtZmZrBAAAYBA2MMmxMAAgZGmxYYA",
           },
         },
@@ -331,7 +357,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -344,7 +370,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -370,7 +396,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -411,6 +437,8 @@ ClassCodexArchonData["PALADIN"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["protection"] = {
@@ -432,7 +460,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -477,7 +505,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Lightsmith",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAA00MzyMjZwws1GAGYAzgNAAAAYmZZbplZGLmBDgBzwYAwMDAmZAD",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAgmmZWmZMDGmt2AwADYGsBAAAAzMLbLtMzYxMYAMGzwYAwMDAmZAD",
           },
         },
       },
@@ -490,7 +518,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Lightsmith",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAA00MzyMjZwws1GAGYAzgNAAAAYmZZbplZGLmBDgBzwYAwMDAmZAD",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAgmmZWmZMDGmt2AwADYGsBAAAAzMLbLtMzYxMMDgBzshBAzMAYmBMA",
           },
         },
       },
@@ -503,7 +531,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Lightsmith",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLDDAwAAAAAAgmmZWmZMDGmt2AwADYGsBAAAAzMLbLtMzYxMMDgBzwYAwMDAmZAD",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAA00MzyMjZGGegt2AwADYGsNAAAAYmZZbplZGLmBDAYGGDAmZAwMDYA",
           },
         },
       },
@@ -529,7 +557,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Lightsmith",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAA00MzyMjZwws1GAGYAzgNAAAAYmZZbplZGLmBDgBzwYAwMDAmZAD",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsNjBzyYbMjZmZZZMzwsMLzYAAGAAAAAA00MzyMjZGGmt2AwADYgNAAAAYmZZbplZGLmBDgBzwYAwMDAmZAD",
           },
         },
       },
@@ -549,7 +577,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -562,7 +590,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -575,7 +603,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -588,7 +616,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -611,10 +639,23 @@ ClassCodexArchonData["PALADIN"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Templar",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAkmZWMjZmxYmt2AwAGwgNAAwMTbzMLzAAsBmBAjZYMAALzAMzAG",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -627,7 +668,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -653,7 +694,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -679,7 +720,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -692,7 +733,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -705,20 +746,20 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZMYWGLzMjZmZbZMGzsMLDDAwAAAAAAg0MzyMjZmxws1GAGAYgNAAwMTbzMLzAAsxwMAGjZYMAALzAMzAG",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZmZYWGLzMjZGbLjxYmFLDDAAAAAAAAkmZWMjZmxws1GAGYAzgNAAwMTbzMLzAAsBmBwYMDjBAYZGgZGwA",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -737,14 +778,27 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZmxYWGLzMjZGWGzMjZZMMAAAAAAAAQamZZmxMDjZ2aDADMDMwGAAYmptZmlZAA2AzAYMmhxAAsMDwMDYA",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZmZYWGLzMjZmxyYMmZhhBAYAAAAAAQamZZmxMzYGzWbAYAAD2AAAzMtNzsNDAwGDGAjxMMGAglZAmZAD",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Templar",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAkmZWMjZmxYmt2AwAGwgNAAwMTbzMLzAAsBmBAjZYMAALzAMzAG",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -757,13 +811,13 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZMDzyYZmZMzYbZMGzsYZYAAGAAAAAAkmZWMjZmxws1GAGAYGsBAAmZabmZZGAgNGmBwYMDjBAYZGgZGwA",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZm5BYWGLzMjZGbLjxYmFbzYAAGAAAAAAkmZWMjZmxYmt2AwAGwgNAAwMTbzMLzAAsBmBAjZYMAALzAMzAG",
           },
         },
       },
@@ -776,14 +830,14 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZMYWGLzMjZmZbZMGzsMLDDAwAAAAAAg0YWmZMzMGmt2AwAAzgNAAwMTbzMLzAAsxwMAGjZYMAALzAMzAG",
+            exportString = "CIEAAAAAAAAAAAAAAAAAAAAAAsZmZYWGLzMjZGbLjxYmFLDDAwAAAAAAg0Mz2MjZmxws1GAGAYgNAAwMTbzMLzAAsBmBwYMDjBAYZGgZGwA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -824,6 +878,8 @@ ClassCodexArchonData["PALADIN"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["retribution"] = {
@@ -838,14 +894,14 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMa22mZmlxYmBAAAAAwMlxMMzYbY2GmZbGjxYYGbsBAAwMTbzMbzAA2AMAYMDDMzMzshlZwwYGDG",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMa22mZmlxYmBAAAAAwMlZZGmZsNMbDzsNjxYMMjN2AAAYmptZmtZAAbAGAMmhBmZmZ2wyMYYMMYA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -916,7 +972,7 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMa22mZmlxYmBAAAAAwMlxMMzYbY2GmZbGjxYYGbsBAAwMTbzMbzAA2AMAYMDDMzMzshlZwwYGDG",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMGzMAAAAAAmpMLzwMjthZbYmtZMGjhZsxGAAAzMtNzsNDAYDwAgxMMwMzMzGWmBDjZMYA",
           },
         },
       },
@@ -962,7 +1018,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -975,7 +1031,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -988,7 +1044,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1001,7 +1057,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1024,10 +1080,23 @@ ClassCodexArchonData["PALADIN"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Templar",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMmZmBAAAAAwoMMMzYbY2GmZbGzMGDzYjNAAAmZabmZbGAwGgBWgxMMDmxMzGWmBjZMMYA",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1040,7 +1109,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1059,14 +1128,14 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MjlxYmBAAAAAwoMmhZGbDz2wMbzYmxMDzYjNAAAmZabmZbGAwGgBgZMDzgZmZmNsMDGGDDG",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAMa22mZmlxYmBAAAAAwMlZZGmZsNMbDzsNjxYMMjN2AAAYmptZmtZAAbAGAMmhBmZmZ2wyMYYMMYA",
           },
         },
       },
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1092,7 +1161,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1105,20 +1174,20 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMmZmZAAAAAAmpMmhZGbDz2wMbzYMGDzYjNAAAmZabmZbGAwGgBAjZMzgZmhNsMDGGDDG",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMMzAAAAAAwoMmhZGbDz2wMbzYMmZYGbsNMAAwMTbzMbzAA2AMAYMDzgZMmNsMDGGzYwA",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1131,7 +1200,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1150,14 +1219,27 @@ ClassCodexArchonData["PALADIN"] = {
         builds = {
           {
             heroTalent = "Templar",
-            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMMzAAAAAAwMlZZGmZmthZbYmtZMGzMMjN2GAAAzMtNzsNDAYDwAGwMMwMGzGWmBDjhBD",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMMzAAAAAAwMlxMMzYbY2GmZbGjxMDzYjtBAAwMTbzMbzAA2AMAYMDzgZMmNsMDGGzYwA",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Templar",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MzsMmZmBAAAAAwoMMMzYbY2GmZbGzMGDzYjNAAAmZabmZbGAwGgBWgxMMDmxMzGWmBjZMMYA",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1170,7 +1252,7 @@ ClassCodexArchonData["PALADIN"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1188,15 +1270,15 @@ ClassCodexArchonData["PALADIN"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Templar",
-            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MjlxYmBAAAAAwoMmhZGbDz2wMbzYmxMDzYjNAAAmZabmZbGAwGgBAjZYGMzMzshlZwwYGDG",
+            heroTalent = "Herald of the Sun",
+            exportString = "CYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQz22MjlxYmBAAAAAwoMbzwMjthZbYmtZMGzMMjF2eAAmlZbmZ2aAAAgFADAGzwMYGzMbAzMDjZMYA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1237,6 +1319,8 @@ ClassCodexArchonData["PALADIN"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
 }

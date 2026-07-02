@@ -12,6 +12,8 @@ local GEAR_DATA = ClassCodexGearData
 local L = ns.L
 
 local IV_DATA = ClassCodexIcyVeinsData or {}
+local IVT_DATA = ClassCodexIcyVeinsTalentData or {}
+local ARCHON_GEAR_DATA = ClassCodexArchonGearData or {}
 
 -------------------------------------------------------------------------------
 -- Constants
@@ -214,23 +216,94 @@ function ns:GetTrinketTier(itemId)
     return nil, nil, nil
 end
 
--- Build reverse lookup: itemId → entries with class token for coloring
-local CLASS_DISPLAY = {
-    DEATHKNIGHT = "Death Knight", DEMONHUNTER = "Demon Hunter",
-    DRUID = "Druid", EVOKER = "Evoker", HUNTER = "Hunter",
-    MAGE = "Mage", MONK = "Monk", PALADIN = "Paladin",
-    PRIEST = "Priest", ROGUE = "Rogue", SHAMAN = "Shaman",
-    WARLOCK = "Warlock", WARRIOR = "Warrior",
+-- Locale-aware class/spec name resolution for tooltip BiS labels.
+-- Class names come from Blizzard's LOCALIZED_CLASS_NAMES_MALE. Spec names are
+-- resolved via GetSpecializationInfoForClassID using a local (classToken,
+-- specKey) → (classID, specIndex) mapping that mirrors the data file keys.
+-- Final fallback is a capitalized data key.
+local SPEC_KEYS_BY_CLASS = {
+    DEATHKNIGHT  = { "blood", "frost", "unholy" },
+    DEMONHUNTER  = { "havoc", "vengeance", "devourer" },
+    DRUID        = { "balance", "feral", "guardian", "restoration" },
+    EVOKER       = { "devastation", "preservation", "augmentation" },
+    HUNTER       = { "beast-mastery", "marksmanship", "survival" },
+    MAGE         = { "arcane", "fire", "frost" },
+    MONK         = { "brewmaster", "mistweaver", "windwalker" },
+    PALADIN      = { "holy", "protection", "retribution" },
+    PRIEST       = { "discipline", "holy", "shadow" },
+    ROGUE        = { "assassination", "outlaw", "subtlety" },
+    SHAMAN       = { "elemental", "enhancement", "restoration" },
+    WARLOCK      = { "affliction", "demonology", "destruction" },
+    WARRIOR      = { "arms", "fury", "protection" },
 }
+
+local CLASS_ID_BY_TOKEN = {
+    WARRIOR = 1, PALADIN = 2, HUNTER = 3, ROGUE = 4, PRIEST = 5,
+    DEATHKNIGHT = 6, SHAMAN = 7, MAGE = 8, WARLOCK = 9, MONK = 10,
+    DRUID = 11, DEMONHUNTER = 12, EVOKER = 13,
+}
+
+local localizedClassNameCache = {}
+local localizedSpecNameCache = {}
+
+local function GetLocalizedClassName(classToken)
+    local cached = localizedClassNameCache[classToken]
+    if cached ~= nil then return cached end
+    local name = (LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[classToken]) or classToken
+    localizedClassNameCache[classToken] = name
+    return name
+end
+
+local function GetLocalizedSpecName(classToken, specKey)
+    local cacheKey = classToken .. "|" .. specKey
+    local cached = localizedSpecNameCache[cacheKey]
+    if cached ~= nil then return cached end
+
+    local result
+    local classID = CLASS_ID_BY_TOKEN[classToken]
+    local keys = SPEC_KEYS_BY_CLASS[classToken]
+    local specIndex
+    if keys then
+        for i, k in ipairs(keys) do
+            if k == specKey then specIndex = i; break end
+        end
+    end
+    if classID and specIndex and GetSpecializationInfoForClassID then
+        local _, name = GetSpecializationInfoForClassID(classID, specIndex)
+        if name and name ~= "" then result = name end
+    end
+    if not result then
+        result = specKey:sub(1, 1):upper() .. specKey:sub(2)
+    end
+    localizedSpecNameCache[cacheKey] = result
+    return result
+end
 
 local CLASS_SPEC_COUNT = {}
 local wowheadBisLookup = {}
 local icyVeinsBisLookup = {}
 local trinketLookup = {}
 local trinketSourceLookup = {}
+-- itemId -> bonusIDs, harvested from every source that carries them (Wowhead /
+-- Icy Veins BiS slots + trinkets). Archon's gear pages don't publish bonus IDs,
+-- so the Archon source borrows them here to render the correct item level.
+local bonusIdLookup = {}
+-- context ("raid" / "dungeon") -> the upgrade-track bonusIDs typical of that
+-- content, taken from the first trinket we see in that context. Used as the
+-- fallback for Archon items we can't resolve exactly, so a raid pick still
+-- shows a mythic-raid item level rather than its base.
+local contextBonusDefault = {}
 
 function ns:GetTrinketSource(itemId)
     return trinketSourceLookup[itemId]
+end
+
+function ns:GetItemBonusIDs(itemId)
+    return bonusIdLookup[itemId]
+end
+
+function ns:GetContextBonusDefault(context)
+    return context and contextBonusDefault[context]
 end
 
 local function BuildBisLookup()
@@ -242,10 +315,9 @@ local function BuildBisLookup()
     end
 
     for classToken, specs in pairs(GEAR_DATA) do
-        local className = CLASS_DISPLAY[classToken] or classToken
+        local className = GetLocalizedClassName(classToken)
         for specKey, specData in pairs(specs) do
-            local specDisplay = specKey:sub(1, 1):upper() .. specKey:sub(2)
-            local label = specDisplay .. " " .. className
+            local label = GetLocalizedSpecName(classToken, specKey) .. " " .. className
 
             local trinketIds = {}
             if specData.trinkets then
@@ -256,16 +328,21 @@ local function BuildBisLookup()
 
             if specData.bisGear then
                 for _, tab in ipairs(specData.bisGear) do
+                    for _, entry in ipairs(tab.slots) do
+                        local id = entry.item.itemId
+                        if entry.item.bonusIDs and not bonusIdLookup[id] then
+                            bonusIdLookup[id] = entry.item.bonusIDs
+                        end
+                    end
                     if tab.label == "Overall" then
                         for _, entry in ipairs(tab.slots) do
                             local id = entry.item.itemId
                             local slotLower = entry.slot and entry.slot:lower() or ""
                             if not slotLower:find("trinket") and not trinketIds[id] then
                                 if not wowheadBisLookup[id] then wowheadBisLookup[id] = {} end
-                                wowheadBisLookup[id][#wowheadBisLookup[id] + 1] = { label = label, class = classToken, spec = specDisplay }
+                                wowheadBisLookup[id][#wowheadBisLookup[id] + 1] = { label = label, class = classToken, spec = specKey }
                             end
                         end
-                        break
                     end
                 end
             end
@@ -274,9 +351,15 @@ local function BuildBisLookup()
                 for _, t in ipairs(specData.trinkets) do
                     local id = t.itemId
                     if not trinketLookup[id] then trinketLookup[id] = {} end
-                    trinketLookup[id][#trinketLookup[id] + 1] = { label = label, class = classToken, spec = specDisplay, tier = t.tier }
+                    trinketLookup[id][#trinketLookup[id] + 1] = { label = label, class = classToken, spec = specKey, tier = t.tier }
                     if t.source and not trinketSourceLookup[id] then
                         trinketSourceLookup[id] = t.source
+                    end
+                    if t.bonusIDs then
+                        if not bonusIdLookup[id] then bonusIdLookup[id] = t.bonusIDs end
+                        for _, ctx in ipairs(t.contexts or {}) do
+                            if not contextBonusDefault[ctx] then contextBonusDefault[ctx] = t.bonusIDs end
+                        end
                     end
                 end
             end
@@ -285,19 +368,21 @@ local function BuildBisLookup()
 
     -- Icy Veins BiS lookup (all tabs — items differ between M+ / Raid / Overall).
     for classToken, specs in pairs(IV_DATA) do
-        local className = CLASS_DISPLAY[classToken] or classToken
+        local className = GetLocalizedClassName(classToken)
         if not CLASS_SPEC_COUNT[classToken] then
             local count = 0
             for _ in pairs(specs) do count = count + 1 end
             CLASS_SPEC_COUNT[classToken] = count
         end
         for specKey, specData in pairs(specs) do
-            local specDisplay = specKey:sub(1, 1):upper() .. specKey:sub(2)
-            local label = specDisplay .. " " .. className
+            local label = GetLocalizedSpecName(classToken, specKey) .. " " .. className
             if specData.bisGear then
                 for _, tab in ipairs(specData.bisGear) do
                     for _, entry in ipairs(tab.slots) do
                         local id = entry.item.itemId
+                        if entry.item.bonusIDs and not bonusIdLookup[id] then
+                            bonusIdLookup[id] = entry.item.bonusIDs
+                        end
                         if not icyVeinsBisLookup[id] then icyVeinsBisLookup[id] = {} end
                         local found = false
                         for _, existing in ipairs(icyVeinsBisLookup[id]) do
@@ -309,7 +394,7 @@ local function BuildBisLookup()
                         end
                         if not found then
                             icyVeinsBisLookup[id][#icyVeinsBisLookup[id] + 1] = {
-                                label = label, class = classToken, spec = specDisplay,
+                                label = label, class = classToken, spec = specKey,
                                 tabs = { tab.label },
                             }
                         end
@@ -339,7 +424,7 @@ local function ConsolidateByClass(entries)
     for _, classToken in ipairs(classOrder) do
         local classEntries = byClass[classToken]
         local totalSpecs = CLASS_SPEC_COUNT[classToken] or 0
-        local className = CLASS_DISPLAY[classToken] or classToken
+        local className = GetLocalizedClassName(classToken)
         local sameTier = true
         if #classEntries > 1 then
             for i = 2, #classEntries do
@@ -377,6 +462,54 @@ end
 function ns:GetIcyVeinsSpecData(classToken, specKey)
     if not classToken or not specKey then return nil end
     local classData = IV_DATA[classToken]
+    if not classData then return nil end
+    return classData[specKey]
+end
+
+function ns:GetArchonGearSpecData(classToken, specKey)
+    if not classToken or not specKey then return nil end
+    local classData = ARCHON_GEAR_DATA[classToken]
+    if not classData then return nil end
+    return classData[specKey]
+end
+
+-- Archon's Gear Overview lists items in slot order but never names the slot,
+-- so we recover a display label from each item's equip location. English
+-- labels keep it consistent with the Wowhead / Icy Veins sources, whose slot
+-- strings are also raw English from their guides.
+local EQUIPLOC_SLOT = {
+    INVTYPE_HEAD = "Head",
+    INVTYPE_NECK = "Neck",
+    INVTYPE_SHOULDER = "Shoulders",
+    INVTYPE_CLOAK = "Cloak",
+    INVTYPE_CHEST = "Chest",
+    INVTYPE_ROBE = "Chest",
+    INVTYPE_WRIST = "Wrist",
+    INVTYPE_HAND = "Gloves",
+    INVTYPE_WAIST = "Belt",
+    INVTYPE_LEGS = "Legs",
+    INVTYPE_FEET = "Feet",
+    INVTYPE_FINGER = "Ring",
+    INVTYPE_TRINKET = "Trinket",
+    INVTYPE_WEAPON = "Weapon",
+    INVTYPE_2HWEAPON = "Weapon",
+    INVTYPE_WEAPONMAINHAND = "Main Hand",
+    INVTYPE_WEAPONOFFHAND = "Off Hand",
+    INVTYPE_HOLDABLE = "Off Hand",
+    INVTYPE_SHIELD = "Off Hand",
+    INVTYPE_RANGED = "Weapon",
+    INVTYPE_RANGEDRIGHT = "Weapon",
+}
+
+function ns.GearSlotName(itemId)
+    if not itemId then return "" end
+    local _, _, _, equipLoc = C_Item.GetItemInfoInstant(itemId)
+    return (equipLoc and EQUIPLOC_SLOT[equipLoc]) or ""
+end
+
+function ns:GetIcyVeinsTalentSpecData(classToken, specKey)
+    if not classToken or not specKey then return nil end
+    local classData = IVT_DATA[classToken]
     if not classData then return nil end
     return classData[specKey]
 end
@@ -429,14 +562,15 @@ local function SetRowIcon(row, itemId, spellId)
     end
 end
 
--- GetItemCount's 2nd arg includes bank, 4th arg includes reagent + warbank.
--- Bank flag also covers currently-equipped items, so we don't need a
--- separate IsEquippedItem branch. Returns false when the user has opted
--- out via the "Highlight Owned Gear" setting.
+-- GetItemCount sees bags + bank + reagent bank + warbank (with the 5th
+-- arg) but NOT equipment slots, so we need the IsEquippedItem
+-- short-circuit. Returns false when the user has opted out via the
+-- "Highlight Owned Gear" setting.
 local function IsItemOwned(itemId)
     if not itemId then return false end
     if ClassCodexDB and ClassCodexDB.highlightOwnedGear == false then return false end
-    return (GetItemCount(itemId, true, false, true) or 0) > 0
+    if IsEquippedItem and IsEquippedItem(itemId) then return true end
+    return (GetItemCount(itemId, true, false, true, true) or 0) > 0
 end
 
 -------------------------------------------------------------------------------
@@ -479,19 +613,19 @@ local function SetupItemTooltip(row)
             end
             if self.altItemId then
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("Alternative:", 0.6, 0.6, 0.6)
+                GameTooltip:AddLine((L and L["gear.tooltip.alternative"]) or "Alternative:", 0.6, 0.6, 0.6)
                 local altRef = { itemId = self.altItemId, name = self.altName or "" }
                 GameTooltip:AddLine("  " .. FormatItem(altRef))
             end
             if self.embItemId then
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("Embellishment:", 0.6, 0.6, 0.6)
+                GameTooltip:AddLine((L and L["gear.tooltip.embellishment"]) or "Embellishment:", 0.6, 0.6, 0.6)
                 local embRef = { itemId = self.embItemId, name = self.embName or "" }
                 GameTooltip:AddLine("  " .. FormatItem(embRef))
             end
             if self.sourceText then
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddDoubleLine("Source", self.sourceText, 0.5, 0.5, 0.5, 1, 0.82, 0)
+                GameTooltip:AddDoubleLine(SOURCE or "Source", self.sourceText, 0.5, 0.5, 0.5, 1, 0.82, 0)
             end
             GameTooltip:Show()
         end
@@ -522,6 +656,18 @@ ns.CONTEXT_LABELS = CONTEXT_LABELS
 ns.CONSUMABLE_ORDER = CONSUMABLE_ORDER
 ns.CONSUMABLE_LABELS = CONSUMABLE_LABELS
 ns.ICON_SIZE_GEAR = ICON_SIZE
+
+-- Right-aligned source/drop column: grow to fit its text (up to `cap`) but never
+-- so wide that the name column to its left drops below `nameMin`. On a wide pane
+-- the full source shows; on a narrow one it caps and ellipsizes as before.
+-- `leftCols` = width consumed left of the name (slot/tier + icon + gaps + pad).
+function ns.SizeSourceColumn(fs, rowWidth, leftCols, nameMin, cap)
+    local content = math.ceil(fs:GetStringWidth()) + 2
+    local maxByName = (rowWidth and rowWidth > 0)
+        and math.max(20, rowWidth - leftCols - nameMin)
+        or content
+    fs:SetWidth(math.max(1, math.min(content, maxByName, cap or 300)))
+end
 ns.MAX_ENCHANT_ROWS = MAX_ENCHANT_ROWS
 ns.MAX_GEM_ROWS = MAX_GEM_ROWS
 ns.MAX_CONSUMABLE_ROWS = MAX_CONSUMABLE_ROWS

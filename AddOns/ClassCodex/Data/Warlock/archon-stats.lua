@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["WARLOCK"] = {
   ["affliction"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/affliction/warlock/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 982, haste = 900, mastery = 514, versatility = 120 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/affliction/warlock/raid/overview/mythic/all-bosses", targets = { crit = 1034, haste = 879, mastery = 514, versatility = 108 } },
+    ["傳奇+"] = { targets = { crit = 985, haste = 940, mastery = 580, versatility = 111 } },
+    ["團隊"] = { targets = { crit = 1026, haste = 922, mastery = 570, versatility = 94 } },
   },
   ["demonology"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/demonology/warlock/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1171, haste = 789, mastery = 497, versatility = 91 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/demonology/warlock/raid/overview/mythic/all-bosses", targets = { crit = 1138, haste = 807, mastery = 483, versatility = 95 } },
+    ["傳奇+"] = { targets = { crit = 1137, haste = 803, mastery = 624, versatility = 79 } },
+    ["團隊"] = { targets = { crit = 1132, haste = 826, mastery = 585, versatility = 80 } },
   },
   ["destruction"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/destruction/warlock/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 941, haste = 882, mastery = 563, versatility = 116 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/destruction/warlock/raid/overview/mythic/all-bosses", targets = { crit = 1019, haste = 836, mastery = 562, versatility = 91 } },
+    ["傳奇+"] = { targets = { crit = 969, haste = 869, mastery = 666, versatility = 106 } },
+    ["團隊"] = { targets = { crit = 1026, haste = 867, mastery = 646, versatility = 88 } },
   },
 }

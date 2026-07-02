@@ -100,6 +100,10 @@ local function Callback(_, rootDescription, contextData)
     -- Per Stanzilla/WoWUIBugs#826, the menu's secure context is tainted by
     -- the Create calls themselves — skipping them keeps the menu clean.
     if not IsEnabled() then return end
+    -- Skip entirely in combat: the Create* taint can block protected
+    -- functions Blizzard calls from the same menu (SetRaidTarget, etc.).
+    -- Inspecting talents mid-fight isn't useful anyway.
+    if InCombatLockdown and InCombatLockdown() then return end
     if not contextData or not CanShow(contextData.unit) then return end
     local unit = contextData.unit
     rootDescription:CreateDivider()

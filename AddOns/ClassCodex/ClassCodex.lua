@@ -9,6 +9,16 @@ if not DATA then return end
 
 local L = ns.L
 
+-- When another addon has claimed /cc (detected at PLAYER_ENTERING_WORLD), fall
+-- back to the always-unique /classcodex everywhere we tell the user to type /cc.
+ns.ccContested = false
+function ns.FixSlash(s)
+    if ns.ccContested and type(s) == "string" then
+        return (s:gsub("/cc", "/classcodex"))
+    end
+    return s
+end
+
 -------------------------------------------------------------------------------
 -- Constants
 -------------------------------------------------------------------------------
@@ -206,8 +216,19 @@ local function FadeIn(frame)
     frame.fadeAnim:Play()
 end
 
+-- Panel width is a numeric setting (px), tuned via a slider in the
+-- main Settings panel. The 260..500 bounds match the slider — values
+-- outside that range get clamped back to PANEL_WIDTH so a manually-
+-- edited SavedVar can't ship a layout-breaking width.
+local PANEL_WIDTH_MIN = 260
+local PANEL_WIDTH_MAX = 500
+
 local function GetPanelWidth()
-    return PANEL_WIDTH
+    local w = ClassCodexDB and ClassCodexDB.panelWidth
+    if type(w) ~= "number" or w < PANEL_WIDTH_MIN or w > PANEL_WIDTH_MAX then
+        return PANEL_WIDTH
+    end
+    return w
 end
 
 local function GetHeroTalentOptions(specData)
@@ -642,14 +663,60 @@ closeBtn:SetScript("OnClick", function()
     panel:Hide()
     if ClassCodexCharDB then ClassCodexCharDB.panelOpen = false end
 end)
+closeBtn:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(CLOSE, 1, 0.82, 0) -- Blizzard global, already localized
+    GameTooltip:AddLine(ns.FixSlash(L["title_bar.close_hint"]), 0.45, 0.75, 0.45)
+    GameTooltip:Show()
+end)
+closeBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+-- Title-bar buttons, right to left: close, Compendium (Class Codex logo), gear,
+-- minimize (floating only). So the docked reading order is gear / Compendium /
+-- close, with even 6px gaps between the icons.
+local compendiumBtn = CreateFrame("Button", nil, titleBar)
+compendiumBtn:SetSize(17, 17)
+compendiumBtn:SetPoint("RIGHT", closeBtn, "LEFT", -3, 0)
+compendiumBtn:RegisterForClicks("LeftButtonUp")
+compendiumBtn:SetNormalTexture(ADDON_ICON_PATH)
+compendiumBtn:SetHighlightTexture(ADDON_ICON_PATH)
+compendiumBtn:GetHighlightTexture():SetAlpha(0.3)
+compendiumBtn:SetScript("OnClick", function()
+    if ns.OpenCompendium then ns:OpenCompendium() end
+end)
+compendiumBtn:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText("Compendium", 1, 0.82, 0)
+    GameTooltip:AddLine(L["title_bar.compendium_hint"], 0.45, 0.75, 0.45)
+    GameTooltip:Show()
+end)
+compendiumBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 local pinBtn = CreateFrame("Button", nil, titleBar)
-pinBtn:SetSize(18, 18)
-pinBtn:SetPoint("RIGHT", closeBtn, "LEFT", -1, 0)
+pinBtn:SetSize(14, 14)
+pinBtn:SetPoint("RIGHT", compendiumBtn, "LEFT", -3, 0)
+pinBtn:SetNormalTexture("Interface\\AddOns\\ClassCodex\\Textures\\gear")
+pinBtn:SetHighlightTexture("Interface\\AddOns\\ClassCodex\\Textures\\gear")
+pinBtn:GetHighlightTexture():SetAlpha(0.3)
+local pinBtnTex = pinBtn:GetNormalTexture()
+pinBtnTex:SetVertexColor(0.7, 0.7, 0.7, 0.9) -- idle, matches the Crafting tab cog
+pinBtn:SetScript("OnEnter", function(self)
+    pinBtnTex:SetVertexColor(1, 1, 1, 1)
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    -- Same shape as the Compendium / close tooltips: gold title, green action hint.
+    GameTooltip:SetText(SETTINGS, 1, 0.82, 0) -- Blizzard global, already localized
+    GameTooltip:AddLine(L["title_bar.menu_hint"], 0.45, 0.75, 0.45)
+    GameTooltip:Show()
+end)
+pinBtn:SetScript("OnLeave", function()
+    pinBtnTex:SetVertexColor(0.7, 0.7, 0.7, 0.9)
+    GameTooltip:Hide()
+end)
+pinBtn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
 local minimizeBtn = CreateFrame("Button", nil, titleBar)
 minimizeBtn:SetSize(18, 18)
-minimizeBtn:SetPoint("RIGHT", pinBtn, "LEFT", 3, 0)
+minimizeBtn:SetPoint("RIGHT", pinBtn, "LEFT", -3, 0)
 minimizeBtn:RegisterForClicks("LeftButtonUp")
 minimizeBtn:SetNormalTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Up")
 minimizeBtn:SetHighlightTexture("Interface\\Buttons\\UI-Panel-CollapseButton-Highlight")
@@ -660,19 +727,8 @@ minimizeBtn:SetScript("OnEnter", function(self)
     GameTooltip:Show()
 end)
 minimizeBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-pinBtn:SetNormalTexture("Interface\\Buttons\\UI-RotationRight-Button-Up")
-pinBtn:SetHighlightTexture("Interface\\Buttons\\UI-RotationRight-Button-Up")
-pinBtn:GetHighlightTexture():SetAlpha(0.3)
-pinBtn:SetScript("OnEnter", function(self)
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:AddLine(isFloating and "Dock to Character Frame" or "Float (detach)", 1, 1, 1)
-    GameTooltip:AddLine("Right-click to configure sections", 0.7, 0.7, 0.7)
-    GameTooltip:Show()
-end)
-pinBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-pinBtn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
--- Constrain title text to not overlap buttons
+-- Constrain title text to not overlap buttons (gear is leftmost when docked).
 titleText:SetPoint("RIGHT", pinBtn, "LEFT", -4, 0)
 
 -- Dragging (only when floating)
@@ -998,39 +1054,6 @@ statInfoBtn:SetScript("OnLeave", function()
     statInfoIcon:SetVertexColor(0.5, 0.5, 0.5)
 end)
 
--- Source / attribution info icon on the Stats tab title row. Mirrors the
--- Guide info icon: small grey "?" texture at the right edge, gold-text
--- tooltip on hover with the Archon source URL + sample size + capture
--- date. Click to copy the URL. Updated per-render with the active
--- snapshot via UI.UpdateStatTargetsInfo (defined later).
-local statTargetsInfoBtn = CreateFrame("Button", nil, tabTitle)
-statTargetsInfoBtn:SetSize(12, 12)
-statTargetsInfoBtn:SetPoint("RIGHT", -2, 0)
-statTargetsInfoBtn:RegisterForClicks("LeftButtonUp")
-local statTargetsInfoIcon = statTargetsInfoBtn:CreateTexture(nil, "ARTWORK")
-statTargetsInfoIcon:SetAllPoints()
-statTargetsInfoIcon:SetAtlas("QuestTurnin")
-statTargetsInfoIcon:SetVertexColor(0.5, 0.5, 0.5)
-statTargetsInfoBtn:SetScript("OnEnter", function(self)
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText("From Archon", 1, 0.82, 0)
-    GameTooltip:AddLine(" ")
-    GameTooltip:AddLine("Empirical secondary-stat rating targets harvested from the top players for your spec on Archon.gg.", 1, 1, 1, true)
-    if self.url then
-        GameTooltip:AddLine(" ")
-        GameTooltip:AddLine("Click to copy URL", 0.55, 0.55, 0.55)
-    end
-    GameTooltip:Show()
-    statTargetsInfoIcon:SetVertexColor(1, 1, 1)
-end)
-statTargetsInfoBtn:SetScript("OnLeave", function()
-    GameTooltip:Hide()
-    statTargetsInfoIcon:SetVertexColor(0.5, 0.5, 0.5)
-end)
-statTargetsInfoBtn:SetScript("OnClick", function(self)
-    if self.url and ns.ShowCopyPopup then ns.ShowCopyPopup(self.url, self) end
-end)
-
 -- Crafting tab info icon. Created lazily after the Crafting section
 -- module loads (see Sections/Crafting.lua: Crafting.AttachInfoButton).
 -- Shown only on the crafting tab via UpdatePanel below.
@@ -1088,7 +1111,6 @@ local lastStatRowCount = 0
 -- Stat-targets live bars — extracted to Sections/StatTargets.lua. The
 -- module owns the section frame, row pool, custom StatusBar textures,
 -- context dropdown, and PvP / in-combat fallback lines.
-ns.statTargetsInfoBtn = statTargetsInfoBtn
 local _statTargetsSection = ns.Sections.StatTargets.InitPanel({ parent = contentFrame })
 -- Mirror the previous {section, content, ctxDropdown} surface so the
 -- LayoutPanel code below (which still references statTargets.section)
@@ -1278,9 +1300,10 @@ allTalentFallback:Hide()
 -- key as the talent pane and Compendium, so flipping one updates all.
 -- Each option is prefixed with the source's brand icon via a |T...|t
 -- texture escape — no extra widget plumbing needed.
-local SOURCE_ICON_WOWHEAD = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
-local SOURCE_ICON_ARCHON  = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
-local SOURCE_ICON_PVP     = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
+local SOURCE_ICON_WOWHEAD  = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
+local SOURCE_ICON_ARCHON   = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
+local SOURCE_ICON_ICYVEINS = "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t  Icy Veins"
+local SOURCE_ICON_PVP      = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
 
 local allTalentSourceDropdown = CreateOptionDropdown("ClassCodexAllTalentSourceDropdown", allTalentContent, 140)
 allTalentSourceDropdown:Hide()
@@ -1598,6 +1621,96 @@ local function RenderAllTalentsPvP(class, spec, yPos)
     return yPos
 end
 
+-- Render the Icy Veins talent source. IV builds are context-labeled (not
+-- hero-grouped like Wowhead). Bucket by context in a sensible order and
+-- render in place — a context with several builds gets a section header;
+-- a lone build is shown as a bare row with no header over it. Same row/
+-- header pools and active-build highlight as the Archon/PvP renderers.
+local IV_TALENT_CONTEXT_ORDER = { "Raid", "Mythic+", "Delves", "General", "Leveling" }
+
+local function RenderAllTalentsIcyVeins(class, spec, yPos)
+    local ivt = ns.GetIcyVeinsTalentSpecData and ns:GetIcyVeinsTalentSpecData(class, spec) or nil
+    local builds = ivt and ivt.talents
+    if not builds or #builds == 0 then
+        allTalentFallback:SetText(L["loadout_dock.no_icyveins_builds"] or "No Icy Veins talent builds available.")
+        allTalentFallback:ClearAllPoints()
+        allTalentFallback:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
+        allTalentFallback:Show()
+        return yPos + 20
+    end
+
+    local buckets = {}
+    for _, b in ipairs(builds) do
+        local key = b.leveling and "Leveling" or (b.context or "General")
+        buckets[key] = buckets[key] or {}
+        buckets[key][#buckets[key] + 1] = b
+    end
+
+    local matchActive = ns.BuildMatchesActive
+    local hdrIdx, rowIdx = 0, 0
+
+    local function emitRow(build, indent)
+        rowIdx = rowIdx + 1
+        local row = EnsureTalentRow(rowIdx)
+        if row.heroIcon then row.heroIcon:Hide() end
+
+        local isActive = matchActive and matchActive({ exportString = build.exportString }) or false
+        row.isActive = isActive
+        if isActive then
+            row:SetBackdropBorderColor(0.2, 0.8, 0.2, 1)
+            row.label:SetTextColor(0.3, 1, 0.3)
+        else
+            row:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+            row.label:SetTextColor(0.8, 0.8, 0.8)
+        end
+
+        row.label:ClearAllPoints()
+        row.label:SetPoint("LEFT", row, "LEFT", 8, 0)
+        row.label:SetPoint("RIGHT", row.copyBtn, "LEFT", -4, 0)
+        row.label:SetText(build.buildLabel or build.context or "Build")
+
+        row:ClearAllPoints()
+        row:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", indent, -yPos)
+        row:SetPoint("RIGHT", allTalentContent, "RIGHT", 0, 0)
+        BindAllTalentCopy(row, build.exportString)
+        BindAllTalentApply(row, build.exportString, "Icy Veins " .. (build.buildLabel or build.context or ""))
+        row:Show()
+        yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
+    end
+
+    local seen = {}
+    local function emitBucket(key)
+        local group = buckets[key]
+        if not group or #group == 0 or seen[key] then return end
+        seen[key] = true
+
+        if #group >= 2 then
+            -- Multi-build context: show a header, indent its rows.
+            hdrIdx = hdrIdx + 1
+            local hdr = EnsureTalentHeader(hdrIdx)
+            hdr.label:SetText(key == "Leveling" and (L["talents.leveling"] or "Leveling") or key)
+            hdr.label:SetTextColor(1, 0.82, 0)
+            if hdr.arrow then hdr.arrow:Hide() end
+            hdr:SetScript("OnClick", nil)
+            hdr:ClearAllPoints()
+            hdr:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, -yPos)
+            hdr:SetPoint("RIGHT", allTalentContent, "RIGHT", 0, 0)
+            hdr:Show()
+            yPos = yPos + TALENT_CONTEXT_HEADER_HEIGHT
+            for _, build in ipairs(group) do emitRow(build, ALL_TALENT_INDENT) end
+        else
+            -- Lone build: a bare row, no section header.
+            emitRow(group[1], 0)
+        end
+        yPos = yPos + 4
+    end
+
+    for _, key in ipairs(IV_TALENT_CONTEXT_ORDER) do emitBucket(key) end
+    for key in pairs(buckets) do emitBucket(key) end -- any unforeseen context
+
+    return yPos
+end
+
 function ns:UpdateAllTalents(specData, classToken, specKey)
     for _, h in ipairs(allTalentHeaders) do h:Hide() end
     for _, r in ipairs(allTalentRows) do r:Hide() end
@@ -1606,8 +1719,13 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
     local archonAvailable = classToken and specKey
         and ns.GetArchonSpecData and ns.GetArchonSpecData(classToken, specKey) ~= nil
 
+    local icyVeinsAvailable = classToken and specKey
+        and ns.GetIcyVeinsTalentSpecData
+        and ns:GetIcyVeinsTalentSpecData(classToken, specKey) ~= nil
+
     local source = (ns.GetEffectiveTalentSource and ns.GetEffectiveTalentSource()) or "wowhead"
     if source == "archon" and not archonAvailable then source = "wowhead" end
+    if source == "icyveins" and not icyVeinsAvailable then source = "wowhead" end
 
     allTalentSourceDropdown:ClearAllPoints()
     allTalentSourceDropdown:SetPoint("TOPLEFT", allTalentContent, "TOPLEFT", 0, 0)
@@ -1620,6 +1738,9 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
     if archonAvailable then
         sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_ARCHON, value = "archon" }
     end
+    if icyVeinsAvailable then
+        sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_ICYVEINS, value = "icyveins" }
+    end
     sourceOpts[#sourceOpts + 1] = { label = SOURCE_ICON_PVP, value = "pvp" }
     allTalentSourceDropdown:SetOptions(sourceOpts, source, function(picked)
         if ns.SetPersistedTalentSource then ns.SetPersistedTalentSource(picked) end
@@ -1630,6 +1751,8 @@ function ns:UpdateAllTalents(specData, classToken, specKey)
     local yPos = ALL_TALENT_TOGGLE_HEIGHT
     if source == "archon" then
         yPos = RenderAllTalentsArchon(classToken, specKey, yPos)
+    elseif source == "icyveins" then
+        yPos = RenderAllTalentsIcyVeins(classToken, specKey, yPos)
     elseif source == "pvp" then
         yPos = RenderAllTalentsPvP(classToken, specKey, yPos)
     else
@@ -1677,15 +1800,19 @@ footerVersion:SetText("v" .. (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOn
 -- local count — ClassCodex.lua sits close to Lua's 200-locals-per-function
 -- ceiling and these helpers don't need to leak outward.
 do
+    -- Sits just right of the version string so the footer reads
+    -- "v1.2.3 · <date>" as one left-aligned group.
     local footerDateButton = CreateFrame("Frame", nil, footerFrame)
-    footerDateButton:SetPoint("RIGHT", footerFrame, "RIGHT", 0, 0)
+    -- No x-offset; the separator's leading/trailing spaces (" · ") give an even
+    -- gap on both sides of the dot.
+    footerDateButton:SetPoint("LEFT", footerVersion, "RIGHT", 0, 0)
     footerDateButton:SetHeight(18)
     footerDateButton:EnableMouse(true)
     footerDateButton:Hide()
 
     local footerDate = footerDateButton:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     footerDate:SetAllPoints(footerDateButton)
-    footerDate:SetJustifyH("RIGHT")
+    footerDate:SetJustifyH("LEFT")
     footerDate:SetTextColor(0.4, 0.4, 0.4)
 
     local MONTH_ABBREV = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
@@ -1738,7 +1865,7 @@ do
             footerDateButton:Hide()
             return
         end
-        footerDate:SetText(FormatRelativeDate(iso))
+        footerDate:SetText(" · " .. FormatRelativeDate(iso))
         footerDate:SetTextColor(StaleColor(iso))
         footerDateButton:SetWidth(math.max(footerDate:GetStringWidth() + 4, 1))
         footerDateButton:Show()
@@ -1755,6 +1882,20 @@ do
     footerDateButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     RefreshFooterDate()
+end
+
+-- Source attribution lives at the right of the footer: the source feeding the
+-- tab the player is currently looking at, click to copy its page link.
+local footerSourceTag = ns.CreateSourceTag(footerFrame, { tooltipAbove = true })
+footerSourceTag:SetPoint("RIGHT", footerFrame, "RIGHT", 0, 0)
+
+local function UpdateFooterSource()
+    -- ResolveAttribution reads per-spec saved vars by the compound key
+    -- ("MAGE-frost"), so pass GetSpecKey() — GetSpecData's 3rd return is the
+    -- bare slug ("frost") and would miss the bisSource / craftingContext lookup.
+    local _sd, classToken = GetSpecData()
+    local key, url = ns.ResolveAttribution(activeTab, classToken, GetSpecKey())
+    footerSourceTag:SetSource(key, url)
 end
 
 
@@ -2101,7 +2242,6 @@ function ns:LayoutPanel()
         tabTitle:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", CONTENT_INSET, y)
         tabTitle:SetPoint("RIGHT", contentFrame, "RIGHT", -CONTENT_INSET, 0)
         statInfoBtn:SetShown(activeTab == "guide")
-        statTargetsInfoBtn:SetShown(activeTab == "stats" and statTargetsInfoBtn.url ~= nil)
         craftingInfoBtn:SetShown(activeTab == "crafting")
         craftingOptionsBtn:SetShown(activeTab == "crafting")
         y = y - SECTION_HEADER_HEIGHT
@@ -2191,6 +2331,7 @@ function ns:LayoutPanel()
     end
 
     -- About tab — Sections/About.lua owns layout when active.
+    local yBeforeAbout = y
     if activeTab == "about" then
         y = ns.Sections.About.LayoutPanel(y, { parent = contentFrame, inset = CONTENT_INSET })
     else
@@ -2216,6 +2357,16 @@ function ns:LayoutPanel()
     local naturalHeight = contentBottom + footerHeight + panelOverhead
     local panelHeight = math.max(naturalHeight, minPanelHeight)
     local contentHeight = panelHeight - panelOverhead
+
+    -- About tab: when the panel is taller than its content (docked, matching the
+    -- character frame), bottom-align the section block by re-laying it out with
+    -- the leftover space inserted under the description, so the sections sit
+    -- flush above the footer instead of leaving a gap at the bottom.
+    if activeTab == "about" and panelHeight > naturalHeight then
+        ns.Sections.About.LayoutPanel(yBeforeAbout, {
+            parent = contentFrame, inset = CONTENT_INSET, gap = panelHeight - naturalHeight,
+        })
+    end
 
     if isMinimized then
         contentFrame:Hide()
@@ -2278,6 +2429,8 @@ function ns:LayoutPanel()
         footerFrame:ClearAllPoints()
         footerFrame:SetPoint("BOTTOMLEFT", contentFrame, "BOTTOMLEFT", PANEL_PADDING, 2)
         footerFrame:SetPoint("RIGHT", contentFrame, "RIGHT", -PANEL_PADDING, 0)
+
+        UpdateFooterSource()
     end
 end
 
@@ -2439,39 +2592,85 @@ _G.ClassCodex.RegisterDockHost   = ns.RegisterDockHost
 _G.ClassCodex.UnregisterDockHost = ns.UnregisterDockHost
 _G.ClassCodex.RefreshDock        = ns.RefreshDock
 
-pinBtn:SetScript("OnClick", function(_, button)
-    if button == "RightButton" then
-        -- Section visibility menu — native context menu with proper
-        -- checkboxes and "stays open while you toggle" semantics. The
-        -- mode prefix (float / dock) is captured at open time and
-        -- baked into each checkbox's get/set closures.
-        local prefix = isFloating and "float" or "dock"
-        local options = {
-            { key = prefix .. "ShowStats",    label = L["section.stat_priority"] },
-            { key = prefix .. "ShowTalents",  label = L["section.talents"] },
-            { key = prefix .. "ShowRotation", label = L["section.rotation"] },
-        }
-        local gearingOpts = isFloating and ns.gearingFloatOptions or ns.gearingDockOptions
-        if gearingOpts then
-            for _, opt in ipairs(gearingOpts) do options[#options + 1] = opt end
-        end
-        MenuUtil.CreateContextMenu(pinBtn, function(_, rootDescription)
-            for _, opt in ipairs(options) do
-                rootDescription:CreateCheckbox(
-                    opt.label,
-                    function() return ClassCodexDB[opt.key] ~= false end,
-                    function()
-                        ClassCodexDB[opt.key] = not (ClassCodexDB[opt.key] ~= false)
-                        if panel:IsShown() then ns:UpdatePanel() end
-                        return MenuResponse.Refresh
-                    end
-                )
-            end
-        end)
-        return
+local function SectionVisibilityOptions()
+    -- Built at menu-open time so the dock/float prefix reflects the
+    -- live mode (toggling Float while the menu is open is rare but
+    -- handled cleanly by reopening; the captured prefix is fine for
+    -- one menu session).
+    local prefix = isFloating and "float" or "dock"
+    local options = {
+        { key = prefix .. "ShowStats",    label = L["section.stat_priority"] },
+        { key = prefix .. "ShowTalents",  label = L["section.talents"] },
+        { key = prefix .. "ShowRotation", label = L["section.rotation"] },
+    }
+    local gearingOpts = isFloating and ns.gearingFloatOptions or ns.gearingDockOptions
+    if gearingOpts then
+        for _, opt in ipairs(gearingOpts) do options[#options + 1] = opt end
     end
-    if isFloating then DockPanel() else FloatPanel() end
-    ns:UpdatePanel()
+    return options
+end
+
+-- Width presets used by the cog menu's Width submenu. Selecting a
+-- preset writes the numeric value directly into ClassCodexDB.panelWidth,
+-- which is the same SavedVar the Settings-panel slider mutates — so
+-- the two paths always agree on the current width.
+local WIDTH_PRESETS = {
+    { key = "narrow",     value = 280 },
+    { key = "default",    value = PANEL_WIDTH }, -- 312
+    { key = "wide",       value = 380 },
+    { key = "extra_wide", value = 460 },
+}
+
+pinBtn:SetScript("OnClick", function(_, _)
+    if not (MenuUtil and MenuUtil.CreateContextMenu) then return end
+    MenuUtil.CreateContextMenu(pinBtn, function(_, root)
+        root:CreateTitle("Class Codex")
+
+        root:CreateButton(
+            isFloating and L["title_bar.menu.dock"] or L["title_bar.menu.float"],
+            function()
+                if isFloating then DockPanel() else FloatPanel() end
+                ns:UpdatePanel()
+                return MenuResponse.Close
+            end
+        )
+
+        root:CreateDivider()
+
+        local widthMenu = root:CreateButton(L["title_bar.menu.width"])
+        for _, preset in ipairs(WIDTH_PRESETS) do
+            widthMenu:CreateRadio(
+                L["title_bar.menu.width_" .. preset.key],
+                function() return GetPanelWidth() == preset.value end,
+                function()
+                    if not ClassCodexDB then return end
+                    ClassCodexDB.panelWidth = preset.value
+                    if panel:IsShown() then ns:UpdatePanel() end
+                    return MenuResponse.Refresh
+                end
+            )
+        end
+
+        local sectionsMenu = root:CreateButton(L["title_bar.menu.sections"])
+        for _, opt in ipairs(SectionVisibilityOptions()) do
+            sectionsMenu:CreateCheckbox(
+                opt.label,
+                function() return ClassCodexDB[opt.key] ~= false end,
+                function()
+                    ClassCodexDB[opt.key] = not (ClassCodexDB[opt.key] ~= false)
+                    if panel:IsShown() then ns:UpdatePanel() end
+                    return MenuResponse.Refresh
+                end
+            )
+        end
+
+        root:CreateDivider()
+
+        root:CreateButton(L["title_bar.menu.all_settings"], function()
+            if ns.OpenSettings then ns.OpenSettings() end
+            return MenuResponse.Close
+        end)
+    end)
 end)
 
 minimizeBtn:SetScript("OnClick", function()
@@ -2718,10 +2917,10 @@ end
 local STAT_LOOKUP = {}
 do
     local stats = {
-        { key = "Critical Strike", globals = { "STAT_CRITICAL_STRIKE", "ITEM_MOD_CRIT_RATING_SHORT" } },
-        { key = "Haste",           globals = { "STAT_HASTE", "ITEM_MOD_HASTE_RATING_SHORT" } },
-        { key = "Mastery",         globals = { "STAT_MASTERY", "ITEM_MOD_MASTERY_RATING_SHORT" } },
-        { key = "Versatility",     globals = { "STAT_VERSATILITY", "ITEM_MOD_VERSATILITY" } },
+        { key = "致命一擊", globals = { "STAT_CRITICAL_STRIKE", "ITEM_MOD_CRIT_RATING_SHORT" } },
+        { key = "加速",           globals = { "STAT_HASTE", "ITEM_MOD_HASTE_RATING_SHORT" } },
+        { key = "精通",         globals = { "STAT_MASTERY", "ITEM_MOD_MASTERY_RATING_SHORT" } },
+        { key = "臨機應變",     globals = { "STAT_VERSATILITY", "ITEM_MOD_VERSATILITY" } },
     }
     for _, s in ipairs(stats) do
         for _, g in ipairs(s.globals) do
@@ -2819,16 +3018,56 @@ end
 
 -- Multi-item tooltip cache: handles simultaneous tooltips (bag item + 2 equipped comparisons)
 local tooltipCache = {}       -- cacheKey → { entries, source, hasTrinketEntries }
-local tooltipCacheClassOnly = false  -- tracks the classOnly flag the cache was built with
+local tooltipCacheScopeKey = nil  -- tracks scope+roster fingerprint the cache was built with
 local playerClassToken = nil  -- set once at ADDON_LOADED
 
-local function BuildTooltipEntries(itemId)
-    local classOnly = ClassCodexDB.bisCurrentClassOnly and playerClassToken or false
+-- Returns a class-token set (or nil for "no filter") representing the
+-- subset of class tokens whose BiS entries the user wants to see, plus
+-- a stable fingerprint used to invalidate the tooltip cache when the
+-- scope or group composition changes.
+--
+-- Scope values:
+--   "all"   → nil (no filter)
+--   "group" → player + every party/raid member's class. Falls back to
+--             just the player's class when solo (you're always in your
+--             own group), so the user still sees something useful.
+--   "self"  → just the player's class
+--   "off"   → empty set (no entries pass)
+local function ResolveBisScope()
+    local scope = ClassCodexDB.tooltipBisScope or "all"
+    if scope == "all" then
+        return nil, "all"
+    end
+    if scope == "off" then
+        return {}, "off"
+    end
+    local set = {}
+    if playerClassToken then set[playerClassToken] = true end
+    if scope == "group" then
+        local n = GetNumGroupMembers() or 0
+        if n > 0 then
+            local unitPrefix = IsInRaid() and "raid" or "party"
+            for i = 1, n do
+                local _, class = UnitClass(unitPrefix .. i)
+                if class then set[class] = true end
+            end
+        end
+    end
+    -- Fingerprint: scope + sorted class tokens. Stable across calls
+    -- with the same roster, changes when the group composition does.
+    local tokens = {}
+    for c in pairs(set) do tokens[#tokens + 1] = c end
+    table.sort(tokens)
+    return set, scope .. ":" .. table.concat(tokens, ",")
+end
 
-    -- Invalidate entire cache if classOnly setting changed
-    if tooltipCacheClassOnly ~= classOnly then
+local function BuildTooltipEntries(itemId)
+    local filterSet, scopeKey = ResolveBisScope()
+
+    -- Invalidate entire cache if scope or group composition changed
+    if tooltipCacheScopeKey ~= scopeKey then
         wipe(tooltipCache)
-        tooltipCacheClassOnly = classOnly
+        tooltipCacheScopeKey = scopeKey
     end
 
     local cached = tooltipCache[itemId]
@@ -2847,7 +3086,7 @@ local function BuildTooltipEntries(itemId)
         if trinketSpecs then
             if ns.GetTrinketSource then source = ns:GetTrinketSource(itemId) end
             for _, entry in ipairs(trinketSpecs) do
-                if not classOnly or entry.class == classOnly then
+                if not filterSet or filterSet[entry.class] then
                     local hex = BIS_TIER_HEX[entry.tier] or "|cffffffff"
                     entries[#entries + 1] = {
                         left = GetEntryIcon(entry) .. " " .. GetClassColorHex(entry.class) .. entry.label .. "|r",
@@ -2876,7 +3115,7 @@ local function BuildTooltipEntries(itemId)
         local bisSpecs = ns:GetWowheadBisSpecs(itemId)
         if bisSpecs then
             for _, entry in ipairs(bisSpecs) do
-                if not seen[entry.label] and (not classOnly or entry.class == classOnly) then
+                if not seen[entry.label] and (not filterSet or filterSet[entry.class]) then
                     bisBySpec[entry.label] = { class = entry.class, spec = entry.spec, consolidated = entry.consolidated, hasWH = true, hasIV = false, ivTabs = {} }
                     bisOrder[#bisOrder + 1] = entry.label
                 end
@@ -2890,7 +3129,7 @@ local function BuildTooltipEntries(itemId)
         local ivSpecs = ns:GetIcyVeinsBisSpecs(itemId)
         if ivSpecs then
             for _, entry in ipairs(ivSpecs) do
-                if not classOnly or entry.class == classOnly then
+                if not filterSet or filterSet[entry.class] then
                     local existing = bisBySpec[entry.label]
                     if existing then
                         -- Merge IV tabs into existing entry
@@ -2939,11 +3178,19 @@ local function BuildTooltipEntries(itemId)
                     end
                     local s = ""
                     if showIcon then s = s .. "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t" end
-                    -- Show tab context when not all tabs (shorten Mythic+ → M+)
+                    -- Show tab context when not all tabs. Mythic+ collapses to the
+                    -- universal "M+" abbreviation; Overall/Raid are localized.
+                    -- "Overall (...)" variants (Blood DK San'layn / Deathbringer)
+                    -- collapse to the plain localized "Overall".
                     if #uniqueTabs > 0 and #uniqueTabs < 3 then
                         local shortTabs = {}
                         for _, t in ipairs(uniqueTabs) do
-                            shortTabs[#shortTabs + 1] = t == "Mythic+" and "M+" or t
+                            local short
+                            if t == "Mythic+" then short = "M+"
+                            elseif t == "Raid" then short = L["context.raid"]
+                            elseif t == "Overall" or t:sub(1, 8) == "Overall " then short = L["context.overall"]
+                            else short = t end
+                            shortTabs[#shortTabs + 1] = short
                         end
                         s = s .. " \194\183 " .. "|cff00ccff" .. table.concat(shortTabs, ", ") .. "|r"
                     elseif showLabel then
@@ -3034,7 +3281,8 @@ local function OnTooltipItem(tooltip, tooltipData)
     end
 
     -- Cross-spec BiS + trinket tier info
-    if itemId and (ClassCodexDB.showWowheadBisTooltip or ClassCodexDB.showIcyVeinsBisTooltip or ClassCodexDB.showTrinketTooltip) then
+    local bisScope = ClassCodexDB.tooltipBisScope or "all"
+    if itemId and bisScope ~= "off" and (ClassCodexDB.showWowheadBisTooltip or ClassCodexDB.showIcyVeinsBisTooltip or ClassCodexDB.showTrinketTooltip) then
         local entries, source, hasTrinketEntries = BuildTooltipEntries(itemId)
 
         if #entries > 0 then
@@ -3056,13 +3304,13 @@ local function OnTooltipItem(tooltip, tooltipData)
                 headerSources[#headerSources + 1] = s
             end
             if #headerSources > 0 then
-                tooltip:AddDoubleLine("Best in Slot", table.concat(headerSources, "  "), 0.9, 0.8, 0.5, 0.9, 0.8, 0.5)
+                tooltip:AddDoubleLine(L["tooltip.bis_header"], table.concat(headerSources, "  "), 0.9, 0.8, 0.5, 0.9, 0.8, 0.5)
             else
-                tooltip:AddLine("Best in Slot", 0.9, 0.8, 0.5)
+                tooltip:AddLine(L["tooltip.bis_header"], 0.9, 0.8, 0.5)
             end
 
             if hasTrinketEntries and source then
-                tooltip:AddDoubleLine("Source", source, 0.5, 0.5, 0.5, 1, 0.82, 0)
+                tooltip:AddDoubleLine(L["tooltip.source"], source, 0.5, 0.5, 0.5, 1, 0.82, 0)
             end
 
             for _, e in ipairs(entries) do
@@ -3156,7 +3404,7 @@ end
 
 function ns.InvalidateTooltipCache()
     wipe(tooltipCache)
-    tooltipCacheClassOnly = nil
+    tooltipCacheScopeKey = nil
 end
 
 
@@ -3182,6 +3430,9 @@ eventFrame:RegisterEvent("BAG_UPDATE_DELAYED")
 -- placeholder swaps in/out predictably (GetCombatRating only returns
 -- real values to tainted code outside combat).
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+-- Group composition changes invalidate the tooltip BiS cache when the
+-- scope is set to "group" so the next hover reflects the new roster.
+eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 eventFrame:SetScript("OnEvent", function(_, event, arg1)
@@ -3194,7 +3445,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             showWowheadBisTooltip = true,
             showIcyVeinsBisTooltip = true,
             showTrinketTooltip = true,
-            bisCurrentClassOnly = false,
+            tooltipBisScope = "all", -- "all", "group", "self", "off"
+            panelWidth = PANEL_WIDTH, -- numeric px; slider clamped 260..500
             highlightOwnedGear = true,
             tooltipSourceStyle = 1,
             minimap = { hide = false },
@@ -3208,6 +3460,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             floatShowConsumables = true,
             floatShowTrinkets = true,
             floatShowCrafts = true,
+            floatShowEmbellishments = true,
             floatShowBisGear = true,
             dockShowStats = true,
             dockShowStatTargets = true,
@@ -3218,6 +3471,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             dockShowConsumables = true,
             dockShowTrinkets = true,
             dockShowCrafts = true,
+            dockShowEmbellishments = true,
             dockShowBisGear = true,
             widgetOffsetX = WIDGET_DEFAULT_OFFSET_X,
             widgetOffsetY = WIDGET_DEFAULT_OFFSET_Y,
@@ -3230,6 +3484,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
             dockLoadoutShowSaved = true,
             dockLoadoutShowWowhead = true,
             dockLoadoutShowArchon = true,
+            dockLoadoutShowIcyVeins = true,
             dockLoadoutOpacity = 95,
             dockLoadoutWidth = 200,
             dockLoadoutAutoWidth = false,
@@ -3287,6 +3542,25 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         end
         ClassCodexDB.showTooltipPriorityFooter = nil
         ClassCodexDB.tooltipFooterOnlyWhenDifferent = nil
+        -- #618 migration: a user who had Crafts toggled off explicitly meant
+        -- "hide the whole Crafting tab content". Inherit that intent for the
+        -- new Embellishments toggle on first run so it doesn't appear out of
+        -- nowhere after upgrade. Must run BEFORE the dbDefaults fill-in
+        -- (which would otherwise overwrite the nil with true).
+        if ClassCodexDB.dockShowCrafts == false and ClassCodexDB.dockShowEmbellishments == nil then
+            ClassCodexDB.dockShowEmbellishments = false
+        end
+        if ClassCodexDB.floatShowCrafts == false and ClassCodexDB.floatShowEmbellishments == nil then
+            ClassCodexDB.floatShowEmbellishments = false
+        end
+        -- #644 migration: the bisCurrentClassOnly checkbox is replaced by a
+        -- 4-option scope dropdown. A user who had it ticked wanted only
+        -- their own class — map to "self". Untouched users map to the
+        -- default "all" via the dbDefaults fill-in below.
+        if ClassCodexDB.bisCurrentClassOnly ~= nil and ClassCodexDB.tooltipBisScope == nil then
+            ClassCodexDB.tooltipBisScope = ClassCodexDB.bisCurrentClassOnly and "self" or "all"
+            ClassCodexDB.bisCurrentClassOnly = nil
+        end
         for k, v in pairs(dbDefaults) do if ClassCodexDB[k] == nil then ClassCodexDB[k] = v end end
         -- Guardrail: if a mode has every content toggle disabled, recover to guide defaults.
         local function EnsureAtLeastOneVisibleTab(modePrefix)
@@ -3298,6 +3572,7 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
                 or ClassCodexDB[modePrefix .. "Consumables"] ~= false
                 or ClassCodexDB[modePrefix .. "Trinkets"] ~= false
                 or ClassCodexDB[modePrefix .. "Crafts"] ~= false
+                or ClassCodexDB[modePrefix .. "Embellishments"] ~= false
                 or ClassCodexDB[modePrefix .. "BisGear"] ~= false
             if not hasGuide and not hasGearing then
                 ClassCodexDB[modePrefix .. "Stats"] = true
@@ -3377,9 +3652,28 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         if _G.GwCharacterWindow then
             ns.RegisterDockHost(_G.GwCharacterWindow, { priority = 50 })
         end
+        -- Another addon may also register /cc; whichever is hashed last wins, so
+        -- ours can be shadowed. Detect that first so every message below can fall
+        -- back to /classcodex, then point the user at it explicitly.
+        ns.ccContested = false
+        for name in pairs(SlashCmdList) do
+            if name ~= "CLASSCODEX" then
+                local i = 1
+                local s = _G["SLASH_" .. name .. i]
+                while s do
+                    if type(s) == "string" and s:upper() == "/CC" then ns.ccContested = true; break end
+                    i = i + 1
+                    s = _G["SLASH_" .. name .. i]
+                end
+            end
+            if ns.ccContested then break end
+        end
         if ClassCodexDB and ClassCodexDB.showLoginMessage then
             local ver = C_AddOns.GetAddOnMetadata(addonName, "Version") or ""
-            print("|cff00ccffClass Codex|r v" .. ver .. " " .. L["chat.loaded"])
+            print("|cff00ccffClass Codex|r v" .. ver .. " " .. ns.FixSlash(L["chat.loaded"]))
+        end
+        if ns.ccContested then
+            print("|cff00ccffClass Codex:|r " .. L["chat.slash_conflict"])
         end
         -- Restore floating panel if it was open before logout
         if isFloating and ClassCodexCharDB and ClassCodexCharDB.panelOpen then
@@ -3440,6 +3734,15 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
     elseif event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
         if panel:IsShown() and activeTab == "stats" then
             ns:UpdatePanel()
+        end
+
+    elseif event == "GROUP_ROSTER_UPDATE" then
+        -- Only the "group" scope depends on the live roster; other
+        -- scopes' caches stay valid through group churn. ResolveBisScope
+        -- builds the fingerprint, so this just nudges the next lookup
+        -- to re-derive it.
+        if ClassCodexDB and ClassCodexDB.tooltipBisScope == "group" then
+            ns.InvalidateTooltipCache()
         end
     end
 end)
@@ -3516,15 +3819,16 @@ SlashCmdList["CLASSCODEX"] = function(msg)
             print("|cff00ccffClass Codex:|r inspect dump unavailable.")
         end
     elseif msg == "help" then
+        local sc = ns.FixSlash("/cc")
         print("|cff00ccffClass Codex|r commands:")
-        print("  /cc - Toggle panel")
-        print("  /cc float - Toggle float/dock")
-        print("  /cc compendium - Open compendium")
-        print("  /cc settings - Open settings")
-        print("  /cc minimap - Toggle minimap button")
-        print("  /cc reset - Reset position")
-        print("  /cc inspectdump - Print inspect-mode diagnostics")
+        print("  " .. sc .. " - Toggle panel")
+        print("  " .. sc .. " float - Toggle float/dock")
+        print("  " .. sc .. " compendium - Open compendium")
+        print("  " .. sc .. " settings - Open settings")
+        print("  " .. sc .. " minimap - Toggle minimap button")
+        print("  " .. sc .. " reset - Reset position")
+        print("  " .. sc .. " inspectdump - Print inspect-mode diagnostics")
     else
-        print("|cff00ccffClass Codex:|r " .. L["chat.unknown_command"])
+        print("|cff00ccffClass Codex:|r " .. ns.FixSlash(L["chat.unknown_command"]))
     end
 end

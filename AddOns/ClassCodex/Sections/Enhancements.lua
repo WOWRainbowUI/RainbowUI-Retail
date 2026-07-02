@@ -215,6 +215,13 @@ function Enhancements.HidePanelSourceDropdown()
     panel.sourceDropdown:Hide()
 end
 
+-- Active source on the docked Enhancements tab, as a registry key. Enchants
+-- and gems flip between Wowhead and Murlok (PvP); consumables are always
+-- Wowhead. Used by the tab-title attribution button.
+function Enhancements.GetActiveSourceKey()
+    return panelState.currentSource == "PvP" and "murlok" or "wowhead"
+end
+
 -- args = {
 --   wowheadEnchants, wowheadGems, consumables,  -- Wowhead-sourced records
 --   pvpEnchants, pvpGems,                       -- pre-built records (or nil)
@@ -395,6 +402,11 @@ end
 
 local comp = {}
 local compState = { currentSource = "Wowhead", lastSpecKey = nil }
+
+-- Active source on the Compendium Enhancements section, as a registry key.
+function Enhancements.GetCompendiumSourceKey()
+    return compState.currentSource == "PvP" and "murlok" or "wowhead"
+end
 
 local function MakeCompendiumEnchantSubRow(parent)
     local sub = CreateFrame("Button", nil, parent)

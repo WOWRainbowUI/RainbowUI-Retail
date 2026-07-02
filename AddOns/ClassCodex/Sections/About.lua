@@ -86,81 +86,177 @@ function About.InitPanel(opts)
     slash:SetJustifyH("LEFT")
     slash:SetTextColor(0.5, 0.5, 0.5)
     slash:SetText(L["about.help_hint"])
+    panel.slashHint = slash
     panel.lastChild = slash
 
-    -- Settings button (dropdown style)
-    panel.settingsBtn = CreateAboutButton(opts.parent,
-        "|TInterface\\Buttons\\UI-OptionsButton:12:12:0:0|t  " .. L["compendium.open_settings"])
-    panel.settingsBtn:SetScript("OnClick", function()
-        if Settings and Settings.OpenToCategory and ns.settingsCategory then
-            Settings.OpenToCategory(ns.settingsCategory:GetID())
-        end
-    end)
-
-    -- Compendium button
-    panel.compendiumBtn = CreateAboutButton(opts.parent,
-        "|TInterface\\Icons\\INV_Misc_Book_09:12:12:0:0|t  " .. L["compendium.open_compendium"])
-    panel.compendiumBtn:SetScript("OnClick", function()
-        if ns.OpenCompendium then ns:OpenCompendium() end
-    end)
-    ns.aboutCompendiumBtn = panel.compendiumBtn
-
-    -- Discord button (blurple)
-    panel.discordBtn = CreateAboutButton(opts.parent,
-        "|TInterface\\ChatFrame\\UI-ChatIcon-Chat-Up:12:12:0:0|t  Join Discord — Bugs, Feedback & Help",
-        0.34, 0.40, 0.95, 0.34, 0.40, 0.95)
-    SetCopyOnClick(panel.discordBtn, "https://discord.gg/WY7HQaVkRw")
-
-    -- Patreon button (coral) — also shared with the Supporters tab
-    local patreonLabel = "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:12:12:0:0|t  " .. L["about.support_patreon"]
-    panel.patreonBtn = CreateAboutButton(opts.parent, patreonLabel,
-        0.6, 0.25, 0.20, 0.98, 0.41, 0.33)
-    SetCopyOnClick(panel.patreonBtn, "https://www.patreon.com/classcodex")
-
+    -- Shared Patreon button for the Supporters tab (its own full-width surface,
+    -- separate from the Community card below).
     if ns.Sections.Supporters and ns.Sections.Supporters.SetPatreonButton then
-        local supPatreon = CreateAboutButton(opts.parent, patreonLabel,
+        local supPatreon = CreateAboutButton(opts.parent,
+            "|TInterface\\Icons\\Spell_Holy_PrayerOfHealing:12:12:0:0|t  " .. L["about.support_patreon"],
             0.6, 0.25, 0.20, 0.98, 0.41, 0.33)
         SetCopyOnClick(supPatreon, "https://www.patreon.com/classcodex")
         ns.Sections.Supporters.SetPatreonButton(supPatreon)
     end
 
-    -- Data buttons (Wowhead / Icy Veins / Archon) — neutral chrome
-    panel.dataBtn = CreateAboutButton(opts.parent,
-        "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead Data")
-    SetCopyOnClick(panel.dataBtn, function()
-        local specData = ns.GetSpecData and ns.GetSpecData()
-        return specData and specData.sourceUrl or "https://www.wowhead.com"
-    end)
-
-    panel.icyVeinsBtn = CreateAboutButton(opts.parent,
-        "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t  Icy Veins (BiS Gear) Data")
-    SetCopyOnClick(panel.icyVeinsBtn, function()
+    local function classSpec()
         local classToken = select(2, UnitClass("player"))
         local specKey = ns.GetSpecKey and ns.GetSpecKey() or nil
         local spec = specKey and (specKey:match("-(.+)") or specKey)
-        if classToken and spec and ns.GetIcyVeinsSpecData then
-            local ivData = ns:GetIcyVeinsSpecData(classToken, spec)
-            if ivData then return ivData.sourceUrl end
-        end
-        return "https://www.icy-veins.com"
-    end)
+        return classToken, spec
+    end
 
-    panel.archonBtn = CreateAboutButton(opts.parent,
-        "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon (Per-Encounter Builds) Data")
-    SetCopyOnClick(panel.archonBtn, function()
-        local classToken = select(2, UnitClass("player"))
-        local specKey = ns.GetSpecKey and ns.GetSpecKey() or nil
-        local spec = specKey and (specKey:match("-(.+)") or specKey)
-        if classToken and spec and ns.GetArchonSpecData then
-            local archon = ns.GetArchonSpecData(classToken, spec)
-            if archon and archon.contexts then
-                local overview = archon.contexts["mythic-plus:high-keys:all-dungeons"]
-                    or archon.contexts["raid:heroic:all-bosses"]
-                if overview and overview.sourceUrl then return overview.sourceUrl end
+    -- Generic branded card — shared by the Addon, Data Sources and Community
+    -- grids. o = { texture, color = {r,g,b}, title, role, onClick, emphasize,
+    --   copy + urlFn (link cards) | hint (action cards) }.
+    local function CreateCard(o)
+        local card = CreateFrame("Button", nil, opts.parent, "BackdropTemplate")
+        card:SetHeight(38)
+        card:Hide()
+        card:SetBackdrop({
+            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+            tile = true, tileSize = 16, edgeSize = 10,
+            insets = { left = 2, right = 2, top = 2, bottom = 2 },
+        })
+        card:SetBackdropColor(0.12, 0.12, 0.12, 0.9)
+
+        local c = o.color or { 0.5, 0.5, 0.55 }
+        -- Emphasized cards (Patreon) keep a faint accent-tinted border at rest
+        -- so they stand out a touch; everything else uses neutral grey.
+        local restR, restG, restB, restA = 0.35, 0.35, 0.35, 0.8
+        if o.emphasize then restR, restG, restB, restA = c[1], c[2], c[3], 0.55 end
+        card:SetBackdropBorderColor(restR, restG, restB, restA)
+        local accent = card:CreateTexture(nil, "ARTWORK")
+        accent:SetPoint("TOPLEFT", 3, -3)
+        accent:SetPoint("BOTTOMLEFT", 3, 3)
+        accent:SetWidth(3)
+        accent:SetColorTexture(c[1], c[2], c[3], 0.9)
+
+        local icon = card:CreateTexture(nil, "ARTWORK")
+        icon:SetSize(18, 18)
+        icon:SetPoint("LEFT", 12, 0)
+        icon:SetTexture(o.texture)
+
+        local name = card:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        name:SetPoint("TOPLEFT", icon, "TOPRIGHT", 8, 2)
+        name:SetPoint("RIGHT", card, "RIGHT", -6, 0)
+        name:SetJustifyH("LEFT"); name:SetWordWrap(false)
+        name:SetText(o.title)
+        name:SetTextColor(1, 0.82, 0)
+
+        local roleFs = card:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
+        roleFs:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT", 8, -2)
+        roleFs:SetPoint("RIGHT", card, "RIGHT", -6, 0)
+        roleFs:SetJustifyH("LEFT"); roleFs:SetWordWrap(false)
+        roleFs:SetText(o.role)
+        roleFs:SetTextColor(0.55, 0.55, 0.55)
+
+        card:SetScript("OnEnter", function(self)
+            self:SetBackdropColor(0.17, 0.17, 0.17, 0.95)
+            self:SetBackdropBorderColor(c[1], c[2], c[3], 1)
+            name:SetTextColor(1, 0.9, 0.35)
+            if o.copy then
+                -- Link cards: source cards encourage visiting the source; all
+                -- show the destination and the copy hint.
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                if o.visitName then
+                    GameTooltip:SetText(ns.L["attribution.visit_source"]:format(o.visitName), 1, 0.82, 0)
+                else
+                    GameTooltip:SetText(ns.L["attribution.copy_url"], 1, 0.82, 0)
+                end
+                local url = o.urlFn and o.urlFn()
+                if url then GameTooltip:AddLine(url, 0.6, 0.6, 0.6, true) end
+                if o.visitName then
+                    -- Blank line + green actionable hint (WoW instruction-line idiom).
+                    GameTooltip:AddLine(" ")
+                    GameTooltip:AddLine(ns.L["attribution.copy_url"], 0.45, 0.75, 0.45)
+                end
+                GameTooltip:Show()
+            elseif o.hint then
+                -- Action cards: what the click does, in-game.
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetText(o.hint, 1, 0.82, 0)
+                GameTooltip:Show()
             end
+        end)
+        card:SetScript("OnLeave", function(self)
+            self:SetBackdropColor(0.12, 0.12, 0.12, 0.9)
+            self:SetBackdropBorderColor(restR, restG, restB, restA)
+            name:SetTextColor(1, 0.82, 0)
+            GameTooltip:Hide()
+        end)
+        card:SetScript("OnClick", function(self) if o.onClick then o.onClick(self) end end)
+        return card
+    end
+
+    local function copyCard(o)
+        o.copy = true
+        o.onClick = function(self)
+            local url = o.urlFn()
+            if url and ns.ShowCopyPopup then ns.ShowCopyPopup(url, self) end
         end
-        return "https://www.archon.gg/wow"
-    end)
+        return CreateCard(o)
+    end
+
+    local function sectionLabel(text)
+        local fs = opts.parent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        fs:SetText(text)
+        fs:SetTextColor(0.7, 0.7, 0.7)
+        fs:Hide()
+        return fs
+    end
+
+    -- Class Codex (addon actions + community): Discord + Settings on one row,
+    -- Patreon alone on the next. The Compendium lives on the title bar now.
+    panel.addonLabel = sectionLabel("Class Codex")
+    panel.addonCards = {
+        copyCard({
+            texture = "Interface\\AddOns\\ClassCodex\\Textures\\discord", color = { 0.34, 0.40, 0.95 },
+            title = "Discord", role = L["about.role.discord"],
+            urlFn = function() return "https://discord.gg/WY7HQaVkRw" end,
+        }),
+        CreateCard({
+            texture = "Interface\\AddOns\\ClassCodex\\Textures\\gear", color = { 0.55, 0.55, 0.58 },
+            title = "Settings", role = L["about.role.settings"],
+            hint = L["compendium.open_settings"],
+            onClick = function()
+                if Settings and Settings.OpenToCategory and ns.settingsCategory then
+                    Settings.OpenToCategory(ns.settingsCategory:GetID())
+                end
+            end,
+        }),
+        copyCard({
+            texture = "Interface\\AddOns\\ClassCodex\\Textures\\patreon", color = { 0.98, 0.41, 0.33 },
+            title = "Patreon", role = L["about.role.patreon"], emphasize = true,
+            urlFn = function() return "https://www.patreon.com/classcodex" end,
+        }),
+    }
+
+    -- Data Sources — credited once each, linking the source's page for the
+    -- current spec. The precise per-surface links live on their own tabs.
+    panel.dataLabel = sectionLabel(L["about.data_sources"])
+    local function sourceCard(key, role, urlFn)
+        local src = ns.SOURCES[key]
+        return copyCard({
+            texture = ns.SourceTexturePath(key), color = src.color,
+            title = src.name, role = role, urlFn = urlFn, visitName = src.name,
+        })
+    end
+    panel.sourceCards = {
+        sourceCard("wowhead", L["about.source_role.wowhead"], function()
+            return ns.SourceUrls.wowheadGuide()
+        end),
+        sourceCard("icyveins", L["about.source_role.icyveins"], function()
+            local class, spec = classSpec(); return ns.SourceUrls.icyVeinsGear(class, spec)
+        end),
+        sourceCard("archon", L["about.source_role.archon"], function()
+            local class, spec = classSpec(); return ns.SourceUrls.archonOverview(class, spec) or ns.SOURCES.archon.homepage
+        end),
+        sourceCard("murlok", L["about.source_role.murlok"], function()
+            local class, spec = classSpec(); return ns.SourceUrls.murlok(class, spec)
+        end),
+    }
 
     -- Separators are lazily created in LayoutPanel (matches the original
     -- inline-creation flow so re-renders are cheap).
@@ -185,6 +281,9 @@ end
 function About.LayoutPanel(y, opts)
     local inset = opts.inset
 
+    -- Fall back to /classcodex in the help hint if another addon grabbed /cc.
+    if ns.FixSlash then panel.slashHint:SetText(ns.FixSlash(L["about.help_hint"])) end
+
     panel.title:Show()
     panel.title:ClearAllPoints()
     panel.title:SetPoint("TOPLEFT", opts.parent, "TOPLEFT", inset, y)
@@ -199,7 +298,11 @@ function About.LayoutPanel(y, opts)
     local contentTop = panel.content:GetTop()
     local contentH = (lastBottom and contentTop) and (contentTop - lastBottom) or 200
     panel.content:SetHeight(contentH)
-    y = y - contentH - 34
+    y = y - contentH - 8
+
+    -- Optional leftover space to bottom-align the section block (the caller
+    -- passes it on the second layout pass once panel height is known).
+    y = y - (opts.gap or 0)
 
     local function placeSeparator(key)
         local sep = GetSep(key)
@@ -211,24 +314,41 @@ function About.LayoutPanel(y, opts)
         y = y - 7
     end
 
-    local function placeButton(btn)
-        btn:ClearAllPoints()
-        btn:SetPoint("TOPLEFT", opts.parent, "TOPLEFT", inset, y)
-        btn:SetPoint("RIGHT", opts.parent, "RIGHT", -inset, 0)
-        btn:Show()
-        y = y - 28
+    -- Cards laid out two per row, split at the panel's horizontal midpoint.
+    -- A lone trailing card (odd count) spans the full width.
+    local CARD_GAP = 6
+    local function placeCardGrid(cards)
+        for i = 1, #cards, 2 do
+            local left, right = cards[i], cards[i + 1]
+            left:ClearAllPoints()
+            left:SetPoint("TOPLEFT", opts.parent, "TOPLEFT", inset, y)
+            if right then
+                left:SetPoint("TOPRIGHT", opts.parent, "TOP", -CARD_GAP / 2, y)
+                right:ClearAllPoints()
+                right:SetPoint("TOPLEFT", opts.parent, "TOP", CARD_GAP / 2, y)
+                right:SetPoint("TOPRIGHT", opts.parent, "RIGHT", -inset, y)
+                right:Show()
+            else
+                left:SetPoint("TOPRIGHT", opts.parent, "RIGHT", -inset, y)
+            end
+            left:Show()
+            y = y - 38 - CARD_GAP
+        end
+    end
+
+    local function placeSectionLabel(fs)
+        fs:ClearAllPoints()
+        fs:SetPoint("TOPLEFT", opts.parent, "TOPLEFT", inset, y)
+        fs:Show()
+        y = y - 18
     end
 
     placeSeparator("top")
-    placeButton(panel.compendiumBtn)
-    placeButton(panel.settingsBtn)
-    placeSeparator("bottom")
-    placeButton(panel.dataBtn)
-    placeButton(panel.icyVeinsBtn)
-    placeButton(panel.archonBtn)
-    placeSeparator("social")
-    placeButton(panel.patreonBtn)
-    placeButton(panel.discordBtn)
+    placeSectionLabel(panel.addonLabel)
+    placeCardGrid(panel.addonCards)
+    placeSeparator("data")
+    placeSectionLabel(panel.dataLabel)
+    placeCardGrid(panel.sourceCards)
 
     return y
 end
@@ -237,12 +357,9 @@ function About.HidePanel()
     if not panel.title then return end
     panel.title:Hide()
     panel.content:Hide()
-    panel.discordBtn:Hide()
-    panel.patreonBtn:Hide()
-    panel.dataBtn:Hide()
-    panel.icyVeinsBtn:Hide()
-    panel.archonBtn:Hide()
-    panel.compendiumBtn:Hide()
-    panel.settingsBtn:Hide()
+    panel.addonLabel:Hide()
+    panel.dataLabel:Hide()
+    for _, card in ipairs(panel.addonCards or {}) do card:Hide() end
+    for _, card in ipairs(panel.sourceCards or {}) do card:Hide() end
     for _, sep in pairs(panel.separators or {}) do sep:Hide() end
 end

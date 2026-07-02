@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["EVOKER"] = {
   ["augmentation"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/augmentation/evoker/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1312, haste = 887, mastery = 250, versatility = 73 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/augmentation/evoker/raid/overview/mythic/all-bosses", targets = { crit = 1288, haste = 823, mastery = 287, versatility = 89 } },
+    ["傳奇+"] = { targets = { crit = 1292, haste = 987, mastery = 186, versatility = 65 } },
+    ["團隊"] = { targets = { crit = 1309, haste = 889, mastery = 262, versatility = 84 } },
   },
   ["devastation"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/devastation/evoker/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1185, haste = 764, mastery = 436, versatility = 100 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/devastation/evoker/raid/overview/mythic/all-bosses", targets = { crit = 1245, haste = 746, mastery = 418, versatility = 89 } },
+    ["傳奇+"] = { targets = { crit = 1171, haste = 813, mastery = 485, versatility = 80 } },
+    ["團隊"] = { targets = { crit = 1197, haste = 818, mastery = 432, versatility = 97 } },
   },
   ["preservation"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/preservation/evoker/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 614, haste = 838, mastery = 141, versatility = 173 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/preservation/evoker/raid/overview/mythic/all-bosses", targets = { crit = 819, haste = 514, mastery = 1179, versatility = 113 } },
+    ["傳奇+"] = { targets = { crit = 617, haste = 869, mastery = 825, versatility = 238 } },
+    ["團隊"] = { targets = { crit = 834, haste = 499, mastery = 1285, versatility = 98 } },
   },
 }

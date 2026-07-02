@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["HUNTER"] = {
   ["beast-mastery"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/beast-mastery/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1101, haste = 385, mastery = 985, versatility = 90 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/beast-mastery/hunter/raid/overview/mythic/all-bosses", targets = { crit = 1028, haste = 497, mastery = 958, versatility = 84 } },
+    ["傳奇+"] = { targets = { crit = 1220, haste = 302, mastery = 1061, versatility = 98 } },
+    ["團隊"] = { targets = { crit = 1034, haste = 514, mastery = 1054, versatility = 82 } },
   },
   ["marksmanship"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/marksmanship/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1304, haste = 405, mastery = 703, versatility = 130 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/marksmanship/hunter/raid/overview/mythic/all-bosses", targets = { crit = 1309, haste = 417, mastery = 755, versatility = 105 } },
+    ["傳奇+"] = { targets = { crit = 1298, haste = 406, mastery = 764, versatility = 135 } },
+    ["團隊"] = { targets = { crit = 1359, haste = 420, mastery = 837, versatility = 103 } },
   },
   ["survival"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/survival/hunter/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 812, haste = 559, mastery = 1143, versatility = 87 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/survival/hunter/raid/overview/mythic/all-bosses", targets = { crit = 812, haste = 572, mastery = 1170, versatility = 87 } },
+    ["傳奇+"] = { targets = { crit = 826, haste = 612, mastery = 1268, versatility = 73 } },
+    ["團隊"] = { targets = { crit = 826, haste = 610, mastery = 1244, versatility = 77 } },
   },
 }

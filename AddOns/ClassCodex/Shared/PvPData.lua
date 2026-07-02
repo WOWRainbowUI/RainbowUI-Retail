@@ -286,24 +286,25 @@ function ns.BuildPvPGemsRecord(classToken, specKey)
 end
 
 -------------------------------------------------------------------------------
--- Brand-icon source-dropdown labels — the same texture-escape strings
--- were redefined locally in three places (Compendium BiS + Compendium
--- Enhancements + GearingSections); now centralised so the texture path
--- lives in one place.
+-- Brand-icon source-dropdown labels. Texture-escape strings now come from
+-- the central source registry (Shared/Sources.lua) so the texture path lives
+-- in exactly one place; these aliases stay for existing callers.
 -------------------------------------------------------------------------------
 
-ns.PVP_SOURCE_ICON = "|TInterface\\AddOns\\ClassCodex\\Textures\\murlok:12:12:0:0|t"
-ns.WOWHEAD_SOURCE_ICON = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t"
-ns.ICYVEINS_SOURCE_ICON = "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t"
+ns.PVP_SOURCE_ICON = ns.SourceIcon("murlok")
+ns.WOWHEAD_SOURCE_ICON = ns.SourceIcon("wowhead")
+ns.ICYVEINS_SOURCE_ICON = ns.SourceIcon("icyveins")
+ns.ARCHON_SOURCE_ICON = ns.SourceIcon("archon")
 
 ns.BIS_SOURCE_LABELS = {
-    ["Wowhead"]   = ns.WOWHEAD_SOURCE_ICON .. "  Wowhead",
-    ["Icy Veins"] = ns.ICYVEINS_SOURCE_ICON .. "  Icy Veins",
+    ["Wowhead"]   = ns.SourceLabelText("wowhead"),
+    ["Icy Veins"] = ns.SourceLabelText("icyveins"),
+    ["Archon"]    = ns.SourceLabelText("archon"),
     ["PvP"]       = ns.PVP_SOURCE_ICON .. "  Murlok (PvP)",
 }
 
 ns.ENH_SOURCE_LABELS = {
-    ["Wowhead"] = ns.WOWHEAD_SOURCE_ICON .. "  Wowhead",
+    ["Wowhead"] = ns.SourceLabelText("wowhead"),
     ["PvP"]     = ns.PVP_SOURCE_ICON .. "  Murlok (PvP)",
 }
 

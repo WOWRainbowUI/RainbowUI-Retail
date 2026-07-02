@@ -11,12 +11,22 @@ ns.Sections.Supporters = Supporters
 -- render above Supporters.
 local CHAMPIONS = {
     "Tantify",
+    "Bull Horn",
+    "Insecurity",
+    "Lisa",
+    "HelloImDrew",
 }
 local SUPPORTER_LIST = {
     "Bxnane",
     "Rod",
     "Alida Bell",
     "Furkan Yünkül",
+    "Mudrc",
+    "Fabian Goertz",
+    "Volkan Yamanlar",
+    "Joe Zollo",
+    "Zalyniela",
+    "Kim",
 }
 
 -------------------------------------------------------------------------------

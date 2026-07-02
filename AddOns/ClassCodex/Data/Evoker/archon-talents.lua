@@ -12,20 +12,20 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhZGYM1YmZGAAAAYmZmxMzyYmBmZbGDWglxwYZAMDiNMzMYmBwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMMzMbjZGMDzMLzYmZMzGAAAAAMAAwMMGYM1YmZGAAAAMzMjxMzyYmBmZzYwCsMGGLDgZQshxMYmBwA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhx8AYM1YmZGAAAAYmZmxMzyYmBmZbGDWglxwYZAMDiNMzMYmBwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwM8AzYGjpGzMzAAAAAzMjxMzyYmBmZbGDWglxwYZAMDiNMmBzMAG",
           },
         },
       },
@@ -38,7 +38,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhZGYM1YmZGAAAAYmZmxMzyYmBmZbGDWglxwYZAMDiNMzMYmBwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMzMYM1YmZGAAAAYMzMmZWGzMwMbzYwCsMGGLDgZQshxAzMAG",
           },
         },
       },
@@ -51,7 +51,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhx8AYM1YmZGAAAAYmZmxMzyYmBmZbGDWglxwYZAMDiNMzMYmBwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAYmhZGYM1YmZGAAAAYMzMmZ2GzMwMbzYwCsMGGLDgZQshxMYmBwA",
           },
         },
       },
@@ -64,7 +64,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhx8AYM1YmZGAAAAYmZmxMzyYmBmZbGDWglxwYZAMDiNMzMYmBwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMzAjpGzMzAAAAAzMzMmZWGzMwMbzYwCsMGGLDgZQshxMYmBwA",
           },
         },
       },
@@ -77,7 +77,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhx8AYM1YmZGAAAAYmZmxMzyYmBmZbGDWglxwYZAMDiNMzMYmBwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAgBAAmhxAjpGzMzAAAAgZmZMmZWGzMwMbzYwCsMGGLDgZQshxMYmBwA",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhx8AYM1YmZGAAAAYmZmxMzyYmBmZbGDWglxwYZAMDiNMzMYmBwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwMMmBjpGzMzAAAAAjZmxMzyYmBmZbGDWglxwYZAMDiNMmBzMAG",
           },
         },
       },
@@ -103,7 +103,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhHYGzYM1YmZGAAAAYmZMmZWGzMwMbzYwCsMGGLDgZQshZmBzMAG",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwM8AzYGjpGzMzAAAAAzMjxMzyYmBmZbGDWglxwYZAMDiNMmBzMAG",
           },
         },
       },
@@ -116,7 +116,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAwMzMbzMzgBzMLzYMMzGAAAAAAAAmhHYGzYM1YmZGAAAAYmZMmZWGzMwMbzYwCsMGGLDgZQshZmBzMAG",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAgZmZbMzgZYmZZGzMjZ2AAAAAAAAwM8AzYGjpGzMzAAAAAzMjxMzyYmBmZbGDWglxwYZAMDiNMmBzMAG",
           },
         },
       },
@@ -136,7 +136,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -149,7 +149,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -162,7 +162,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -175,7 +175,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -193,15 +193,28 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAYmZghZM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
+            heroTalent = "Scalecommander",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzYwCsMGGbDgZQshZGYmBwA",
+          },
+        },
+      },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Scalecommander",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzYwCsMGGbDgZQshZGYmBwA",
           },
         },
       },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -214,7 +227,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -240,7 +253,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -258,60 +271,60 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzYwCsMGGbDgZQshZGYmBwA",
+            heroTalent = "Chronowarden",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAgZMmBjpGzMzAAAAgZMzMmZWGzMwMLGYMjFWgBmhhGYBzMmZAgB",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAYmZghZM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzYwCsMGGbDgZQshZGYmBwA",
+            heroTalent = "Chronowarden",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmxMbzMzMWGYmlZMGmZDAAAAAGAAMzMwgxUjZmZAAAAwMmZGzMLjZGYmNjBLwyYYsNAmBxGmZgZGAD",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAYmZ8AmBjpGzMzAAAAgZMjxMzyYmBmZzYwCsMGGbDgZQshZGYmBwA",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
           },
         },
       },
@@ -324,27 +337,40 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAwMjxMYM1YmZGAAAAMjZMmZWGzMwMLGYMjFWgBmhhGYBzMmZAgB",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAYmZghZM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Scalecommander",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzYwCsMGGbDgZQshZGYmBwA",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZmxyAzsMjxwMAAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZxAjZswCMwMM0ALYmxMDAM",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -363,14 +389,14 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAAAAYmZgBjpGzMzAAAAgZMzMmZWGzMwMbGDWglxwYbAMDiNMzAzMYwA",
+            exportString = "CEcBAAAAAAAAAAAAAAAAAAAAAMmZmZbmZGMYmZZGjhZ2AAAAAgBAAzMDMYM1YmZGAAAAMjZmxMzyYmBmZzYwCsMGGbDgZQshZGYmBwA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -411,6 +437,8 @@ ClassCodexArchonData["EVOKER"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["devastation"] = {
@@ -425,20 +453,20 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZaMzMNDz2MmZmZmZmZGwMzMGzMLzMDMwYwCsMGN2GAzAwGmBzMYYA",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBmBjZaMzMNDz2MmZmZmZmZGgZmZGzMLjZgBGDWglxox2AYGA2wMYmBDD",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZaMzMNDz2MmZmZmZmZGwMzMGzMLzMDMwYwCsMGN2GAzAwGmBzMYYA",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmhHwAjZaMzMNDz2MmZmZmZmZGwMmZGzMLzMDMwYwCsMGN2GAzAwGmBzMYYA",
           },
         },
       },
@@ -450,8 +478,8 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZaMzMNDz2MmZmZmZmZGwMzMGzMLzMDMwYwCsMGN2GAzAwGmBzMYYA",
+            heroTalent = "Flameshaper",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwM8AGYMTjZmJDMmZmhZmZmBYmZmxMzyMzgZgZMDsB2AzwEYDsMMDwMzwA",
           },
         },
       },
@@ -464,7 +492,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBmBjZaMzMNDz2MmZmZmZmZGwMzMGzMLzMDMwYwCsMGN2GAzAwGGYmBDD",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgHYGmhHwAjZaMzMNjZ2mxMzMzMzMzAMzMzYmZZmZgBGDWglxox2AYGA2wMYmBDD",
           },
         },
       },
@@ -477,7 +505,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZaMzMNDz2MmZmZmZmZGwMzMGzMLzMDMwYwCsMGN2GAzAwGmBzMYYA",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGzMwwYMTjZmpZY2mxMzMzMzMzAmZGGzMLzMDMADWglxox2AYGA2wMYmBzYA",
           },
         },
       },
@@ -490,7 +518,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGMwMYMTjZmpZY2mxMzMzMzMzAmZmZGzMmZGYgxgFYZMasNAmBgNMDmZwwA",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGMMGYMTjZmpZY2mxMzMzMzMzAmxMzYmZZmZgBGDWglxox2AYGA2wMYmBDD",
           },
         },
       },
@@ -503,7 +531,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmBGGjZaMzMNDz2MmZmZmZmZGwMzMGzMLzMDMwYwCsMGN2GAzAwGmBzMYYA",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGmhHwAjZaMzMNDz2MmZmZmZmZGwMmZGzMLzMDMwYwCsMGN2GAzAwGmBzMYYA",
           },
         },
       },
@@ -515,8 +543,8 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGMwMYMTjZmpZY2mxMzMzMzMzAmZmZGzMmZGYgxgFYZMasNAmBgNMDmZwwA",
+            heroTalent = "Flameshaper",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwMMmBDTzMzMZgxMzMMzMzMAzMjxMjZmBzAzYGYDsBmhJwGYZYGgZmhB",
           },
         },
       },
@@ -528,8 +556,8 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDgZGMwMYMTjZmpZY2mxMzMzMzMzAmZmZGzMmZGYgxgFYZMasNAmBgNMDmZwwA",
+            heroTalent = "Flameshaper",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZMzwM8AGYMTjZmJDMmZmhZmZmBYmZmxMzyMzgZgZMDsB2AzwEYDsMMDwMzwA",
           },
         },
       },
@@ -549,7 +577,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -562,7 +590,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -575,7 +603,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -588,7 +616,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -611,10 +639,23 @@ ClassCodexArchonData["EVOKER"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Scalecommander",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMTzMzMNjx2MmZmZmHYmZGwMmxYmZZmZgBGDWglxox2AYGA2wAzMYYA",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -627,7 +668,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -653,7 +694,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -679,20 +720,20 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Flameshaper",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZwMDGMgBjZamZmJjxyMzMzwMzMzAmxMzYmZZmZwMwMmB2ALgZYCsBWGGAzMDD",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZamZmJjxyMzMzwMzMzAmxMzYmZZmZwMwMmB2ALgZYCsBWGGAzMDD",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -705,20 +746,20 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmZgBjZamZmpZM2mxMzMz8AzMzAmxMzYmZZMDMwYwCsMGN2GAzAwGGYmBYA",
+            heroTalent = "Flameshaper",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMgBjZamZmJjxyMzMzwMzMzAmxMzYmZZmZwMwMmB2ALgZYCsBWGGAzMDD",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -737,14 +778,27 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Flameshaper",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwYmZgBjZaMzMZMWmZmZGmZmZGwMmxYmZZmZwMwMmBWALgZYCsBWGGAzMDD",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDmZwwMDMYMTjZmJjxyMzMzwMzMzAmxMzYmZZmZwMwMmB2ALgZYCsBWGGAzMDD",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Scalecommander",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMTzMzMNjx2MmZmZmHYmZGwMmxYmZZmZgBGDWglxox2AYGA2wAzMYYA",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -757,13 +811,13 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzwMgBjZaMzMNjx2MmZmZmHYmZGwMzMzYmZZmZgBGDWglxox2AYGA2wAzMYYA",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzwMgBjZaMzMNjx2MmZmZmHYmZGwMmZGzMLzMDMwYwCsMGN2GAzAwGGYmBzYA",
           },
         },
       },
@@ -776,20 +830,20 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzwMgBjZamZmpZM2mxMzMz8AzMzAmxMzYmZZmZgBGDWglxox2AYGA2wAzMYYA",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzwMgBjZaMzMNjx2MmZmZmHYmZGwMmZGzMLzMDMwYwCsMGN2GAzAwGGYmBzYA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Scalecommander",
-            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzMDMDzYmBMYMTzMzMNjx2MmZmZmHYmZGwMmxYmZZmZgBGDWglxox2AYGA2wAzMYYA",
+            heroTalent = "Flameshaper",
+            exportString = "CsbBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgZmZwMDGMgBjZamZmJjxyMzMzwMzMzAmxMzYmZbmZwMwMmB2ALgZYCsBWGGAzMDD",
           },
         },
       },
@@ -824,6 +878,8 @@ ClassCodexArchonData["EVOKER"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["preservation"] = {
@@ -837,21 +893,21 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzYGzMjhZyMmBAAA2mZmJjZmZGjZAAYMjNWgBmhhGGWgZmZAYA",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GAAAzYGzghZaMzMAAAgZmZaGmZmZZMDAMmBWAbgZYCsZGbGmBYmhB",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzwYGjhZiZmBAAA2mZmpZMzMzYMDAAjZsxCMwMM0wwCMzMDAD",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAwYGzYmZMMTMmBAAAMzMTzYmZmxYGAAGzYjFYgZYohhFYMzAwA",
           },
         },
       },
@@ -864,7 +920,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzwYGjhZiZmBAAA2mZmpZMzMzYMDAAjZsxCMwMM0wwCMzMDAD",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAwYGzYmZMMTMmBAAAMzMTzYmZmxYGAAGzYjFYgZYohhFYMzAwA",
           },
         },
       },
@@ -876,8 +932,8 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzwYGjhZiZmBAAA2mZmpZMzMzYMDAAjZsxCMwMM0wwCMzMDAD",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GAAAzYGzMjhZiZmBAAAMzMTzwMzMLjZAgxMwCYDMDTgNzYzwAYmhB",
           },
         },
       },
@@ -889,8 +945,8 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzwYGjhZiZmBAAA2mZmpZMzMzYMDAAjZsxCMwMM0wwCMzMDAD",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GAAAzYGzghZaMzMAAAgZmZaGmZmZZMDAMmBWAbgZYCsZGbGmBYmhB",
           },
         },
       },
@@ -902,8 +958,8 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "High Keys",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzYGzMjhZaMmBAAA2mZGNDzMzsMmBAgxM2YBGYGGaYYBmZmBgB",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmZmNzA2GAAAzYGzghZaMzMAAAgZmZaGmZmZZMDAMmBWAbgZYCsZGbGmBYmhB",
           },
         },
       },
@@ -916,7 +972,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzwYGjhZiZmBAAA2mZmpZMzMzYMDAAjZsxCMwMM0wwCMzMDAD",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAAzYGzYMMTMzMAAAgZmZaGzMjZbMDAAjZsxCMwMM0wwCMzMDAD",
           },
         },
       },
@@ -929,7 +985,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAmZmZ2WGYYmxsZGjx2wAAAzYmZmZMMTmxMAAAw2MzMNDzMmlxMAAMmxGLwAzwQDYBmZmBgB",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAwYGzYmZMMTMmBAAAMzMTzYmZmxYGAAGzYjFYgZYohhFYMzAwA",
           },
         },
       },
@@ -942,7 +998,7 @@ ClassCodexArchonData["EVOKER"] = {
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMPwsZGjx2wAAAzYGzMjhZyMmBAAA2mZmJjZmZGjZAAYMjNWgBmhhGGWgZmZAYA",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMz2yADzMzsZGjx2wAAwYGzYmZMMTMmBAAAMzMTzYmZmxYGAAGzYjFYgZYohhFYMzAwA",
           },
         },
       },
@@ -962,7 +1018,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -975,7 +1031,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -988,7 +1044,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1001,7 +1057,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1024,10 +1080,23 @@ ClassCodexArchonData["EVOKER"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Chronowarden",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNjZmZWmxAAAzYGDmxMyMzAAAAMzMTmxMjZbmZAwAjZsxCMwMM0AWgxMDwYA",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1040,7 +1109,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1066,7 +1135,7 @@ ClassCodexArchonData["EVOKER"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1084,60 +1153,60 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMDAAwMmxMGjZEmBAAAYmZkZMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMbYAAgZMj5BMGzIMDAAAwMzIzYmZmlZmBAzYGYDsAmhJwCsZYAMzMGA",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPwMGmZMbGzMzsZAAAmxMmxYMjwMAAAAzMjMjZmZWmZGAMwYGbsADMDDNgFYMzAMGA",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPwMGmZMbGzMzsZMAAwMmx8AGjZEmBAAAYmZkZMzMz2MzAgBGzYjFYgZYoBsAjZGgxA",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMDAAwMmxMGjZEmBAAAYmZkZMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMjBAAmxMGYmZkZmBAAAYmZEjZmZWmZGAMwYGbsADMDDNMsAjZGgxA",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMjBAAmxMGGzMjwMAAAAzMjMzMz8AzyMzAgBGzYjFYgZYohhFYMzAMGA",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMbYAAgZMj5BMGzIMDAAAwMzIzYmZmlZmBAzYGYDsAmhJwCsZYAMzMGA",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMDAAwMmxMGjZEmBAAAYmZkZMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMDAAYmxMmxYMjwMAAAAzMjYMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
           },
         },
       },
@@ -1149,15 +1218,15 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2WmHADzMmNzMjZ2mxAAAzYGDjZmRYGAAAgZmRmZmZegZbmZAwAjZsxCMwMM0AWgxMDwYA",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjxMmxMbYAAgZMj5BMGzIMDAAAwMzIzYmZmlZmBAzYGYDsAmhJwCsZYAMzMGA",
           },
         },
       },
-      ["raid:mythic:salhadaar"] = {
+      ["raid:mythic:rotmire"] = {
         zoneType = "raid",
-        encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1167,16 +1236,29 @@ ClassCodexArchonData["EVOKER"] = {
           },
         },
       },
-      ["raid:mythic:vaelgor-ezzorak"] = {
+      ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
-        encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMjBAAmxMGGzMjwMAAAAzMjMzMz8AzyMzAgBGzYjFYgZYohhFYMzAMGA",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMDAAYmxMmxYMjwMAAAAzMjYMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
+          },
+        },
+      },
+      ["raid:mythic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMbYAAgZMj5BMGzIMDAAAwMzIzYmZmlZmBAzYGYDsAmhJwCsZYAMzMGA",
           },
         },
       },
@@ -1188,21 +1270,21 @@ ClassCodexArchonData["EVOKER"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsNDAAwMmxMGjZEmBAAAYmZkZMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
+            heroTalent = "Flameshaper",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MzMmxMjhxMzMbYAAgZMj5BMGzIMDAAAwMzIzYmZmlZmBAzYGYDsAmhJwCsZYAMzMGA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Chronowarden",
-            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMDAAwMmxMGjZEmBAAAYmZkZMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
+            exportString = "CwbBAAAAAAAAAAAAAAAAAAAAAAAAAAAYmZ2MPAGmZMbGzMzsMDAAYmxMmxYMjwMAAAAzMjYMzMzyMzAgBGzYjFYgZYohhFYMzAMGA",
           },
         },
       },
@@ -1237,6 +1319,8 @@ ClassCodexArchonData["EVOKER"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
 }

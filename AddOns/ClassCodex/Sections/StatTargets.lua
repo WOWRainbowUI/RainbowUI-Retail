@@ -152,6 +152,10 @@ end
 
 function StatTargets.GetPanelContent() return panel.content end
 
+-- Active stat-targets context ("Mythic+" / "Raid" / "PvP"). Used by attribution
+-- to credit Archon (PvE) vs Murlok (PvP).
+function StatTargets.GetActiveContext() return panel.currentCtx end
+
 -- Layout-pass height (rows + optional 28px dropdown + bottom margin).
 function StatTargets.GetPanelHeight()
     local h = 0
@@ -168,12 +172,6 @@ function StatTargets.GetPanelHeight()
     return h
 end
 
-local function updateInfoIcon(snapshot)
-    if ns.statTargetsInfoBtn then
-        ns.statTargetsInfoBtn.url = snapshot and snapshot.sourceUrl or nil
-    end
-end
-
 -- args = { classToken, specKey, refresh }
 -- Returns the rendered row count.
 function StatTargets.RenderPanel(args)
@@ -182,7 +180,6 @@ function StatTargets.RenderPanel(args)
     local specKey = args.specKey
     if not classToken or not specKey then
         for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
-        updateInfoIcon(nil)
         return 0
     end
 
@@ -201,7 +198,6 @@ function StatTargets.RenderPanel(args)
         panel.ctxDropdown:Hide()
         panel.pvpFallback:Hide()
         for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
-        updateInfoIcon(nil)
         return 0
     end
 
@@ -231,7 +227,6 @@ function StatTargets.RenderPanel(args)
 
     if panel.currentCtx == "PvP" and not pvpTargets then
         for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
-        updateInfoIcon(nil)
         local yOffset = (#availableContexts > 1) and -28 or -4
         panel.pvpFallback:SetText(L["pvp.no_stat_targets"]
             or "No PvP stat targets for this spec yet.")
@@ -246,13 +241,11 @@ function StatTargets.RenderPanel(args)
     local snapshot = resolveCtx(panel.currentCtx)
     if not snapshot or not snapshot.targets then
         for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
-        updateInfoIcon(nil)
         return 0
     end
 
     if InCombatLockdown() then
         for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
-        updateInfoIcon(snapshot)
         local yOffset = (#availableContexts > 1) and -28 or -4
         panel.combatFallback:SetText(
             L["stat_targets.combat_warning"]
@@ -264,7 +257,6 @@ function StatTargets.RenderPanel(args)
         return 1
     end
 
-    updateInfoIcon(snapshot)
 
     local yOffset = (#availableContexts > 1) and -28 or -4
     local visibleCount = 0

@@ -175,6 +175,7 @@ function Trinkets.RenderPanel(args)
         row.embItemId = nil
         row.sourceText = t.source or nil
         row.sourceLabel:SetText(t.source or "")
+        ns.SizeSourceColumn(row.sourceLabel, row:GetParent():GetWidth(), 48, 92, 180)
         ns.SetRowIcon(row, t.itemId)
         if row.ownedBg then
             if ns.IsItemOwned(t.itemId) then row.ownedBg:Show() else row.ownedBg:Hide() end
