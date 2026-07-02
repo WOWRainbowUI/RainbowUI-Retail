@@ -88,6 +88,9 @@ L["Buff Icon Viewer"] = true
 L["Essential Viewer Size"] = true
 L["Utility Viewer Size"] = true
 L["Buff Icon Viewer Size"] = true
+L["Essential Viewer Stack Size"] = true
+L["Utility Viewer Stack Size"] = true
+L["Buff Icon Viewer Stack Size"] = true
 L["CC Text Size"] = true
 L["CC Frames Text Size"] = true
 L["CC / Friendly Frames Text Size"] = true
@@ -146,6 +149,10 @@ L["Bottom Left"] = true
 L["Top Right"] = true
 L["Top Left"] = true
 L["Center"] = true
+L["Top"] = true
+L["Bottom"] = true
+L["Left"] = true
+L["Right"] = true
 
 -- General Tab
 L["Factory Reset (All)"] = true

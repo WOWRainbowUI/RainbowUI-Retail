@@ -645,6 +645,21 @@ function HookBridge:SetupHooks()
         end)
     end
 
+    if type(cooldownAPI.SetReverse) == "function" then
+        hooksecurefunc(cooldownAPI, "SetReverse", function(cooldown, reverse)
+            local fs = GetTrackedFrameState(cooldown)
+            if not fs or fs.suppressReverseSwipe then return end
+            -- reverse can be tainted for the same reason as hide above.
+            local ok, shouldRestore = pcall(function()
+                return fs.reverseSwipe ~= nil and fs.reverseSwipe ~= reverse
+            end)
+            if not ok or not shouldRestore then return end
+            fs.suppressReverseSwipe = true
+            pcall(cooldown.SetReverse, cooldown, fs.reverseSwipe)
+            fs.suppressReverseSwipe = nil
+        end)
+    end
+
     hooksInstalled = true
 end
 

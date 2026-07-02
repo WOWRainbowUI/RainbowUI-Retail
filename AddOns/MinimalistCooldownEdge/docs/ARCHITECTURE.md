@@ -136,6 +136,7 @@ The main cooldown path is:
   - `SetSwipeColor`
   - `SetHideCountdownNumbers`
   - `SetDrawSwipe`
+  - `SetReverse`
 - Registers unknown cooldowns lazily, updates duration tracking, queues style work, and re-applies intended state when Blizzard code overwrites it.
 
 ### Adapters

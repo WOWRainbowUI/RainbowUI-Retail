@@ -669,6 +669,7 @@ end
 
 local actionbarDefaults = CategoryDefaults(C.Categories.Actionbar, true, 18)
 actionbarDefaults.hideChargeTimers = C.Defaults.Actionbar.HideChargeTimers
+actionbarDefaults.reverseSwipe = C.Defaults.Actionbar.ReverseSwipe
 actionbarDefaults.swipeAlpha = C.Defaults.Actionbar.SwipeAlpha
 
 local nameplateDefaults = CategoryDefaults(C.Categories.Nameplate, false, C.Defaults.Nameplate.FontSize)
@@ -792,6 +793,24 @@ local function EnsurePlayerAuraConfig(config)
     return config
 end
 
+local function EnsureActionbarConfig(config)
+    if type(config) ~= "table" then
+        return CopyTable(actionbarDefaults)
+    end
+
+    if config.hideChargeTimers == nil then
+        config.hideChargeTimers = C.Defaults.Actionbar.HideChargeTimers
+    end
+    if config.reverseSwipe == nil then
+        config.reverseSwipe = C.Defaults.Actionbar.ReverseSwipe
+    end
+    if type(config.swipeAlpha) ~= "number" then
+        config.swipeAlpha = C.Defaults.Actionbar.SwipeAlpha
+    end
+
+    return config
+end
+
 local function CleanupObsoleteProfileFields(profile)
     profile.cooldownManagerCenteredOverrideEnabled = nil
     profile.compactPartyAuraText = nil
@@ -839,6 +858,9 @@ local cooldownManagerDefaults = CategoryDefaults(C.Categories.CooldownManager, f
 cooldownManagerDefaults.essentialFontSize = C.Defaults.CooldownManager.EssentialFontSize
 cooldownManagerDefaults.utilityFontSize = C.Defaults.CooldownManager.UtilityFontSize
 cooldownManagerDefaults.buffIconFontSize = C.Defaults.CooldownManager.BuffIconFontSize
+cooldownManagerDefaults.essentialStackSize = C.Defaults.CooldownManager.EssentialStackSize
+cooldownManagerDefaults.utilityStackSize = C.Defaults.CooldownManager.UtilityStackSize
+cooldownManagerDefaults.buffIconStackSize = C.Defaults.CooldownManager.BuffIconStackSize
 cooldownManagerDefaults.auraColorEnabled = C.Defaults.CooldownManager.AuraColorEnabled
 cooldownManagerDefaults.auraColor = CopyTable(C.Defaults.CooldownManager.AuraColor)
 
@@ -858,6 +880,16 @@ local function EnsureCooldownManagerConfig(config)
     end
     if type(config.buffIconFontSize) ~= "number" then
         config.buffIconFontSize = C.Defaults.CooldownManager.BuffIconFontSize
+    end
+    local legacyStackSize = type(config.stackSize) == "number" and config.stackSize or nil
+    if type(config.essentialStackSize) ~= "number" then
+        config.essentialStackSize = legacyStackSize or C.Defaults.CooldownManager.EssentialStackSize
+    end
+    if type(config.utilityStackSize) ~= "number" then
+        config.utilityStackSize = legacyStackSize or C.Defaults.CooldownManager.UtilityStackSize
+    end
+    if type(config.buffIconStackSize) ~= "number" then
+        config.buffIconStackSize = legacyStackSize or C.Defaults.CooldownManager.BuffIconStackSize
     end
     if config.auraColorEnabled == nil then
         config.auraColorEnabled = C.Defaults.CooldownManager.AuraColorEnabled
@@ -991,6 +1023,8 @@ function MCE:UpgradeProfile()
         profile.categories[C.Categories.HealerCC] = CopyTable(healerCCDefaults)
     end
 
+    profile.categories[C.Categories.Actionbar] =
+        EnsureActionbarConfig(profile.categories[C.Categories.Actionbar])
     profile.categories[C.Categories.HealerCC].allowThresholdColors = nil
 
     if profile.categories[C.Categories.HealerCC].healerCCThresholdColorsInitialized == true then
