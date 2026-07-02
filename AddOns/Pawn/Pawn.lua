@@ -7,7 +7,7 @@
 -- Main non-UI code
 ------------------------------------------------------------
 
-PawnVersion = 2.1310
+PawnVersion = 2.1312
 
 -- Remove the two hyphens from the next line to re-enable upgrade information and Pawn scores on world quest rewards. (You'll have to /reload after you save the file.)
 -- local ShowWorldQuestUpgrades = true
@@ -323,18 +323,16 @@ function PawnInitialize()
 
 	hooksecurefunc("EmbeddedItemTooltip_SetItemByQuestReward",
 		function(self, QuestLogIndex, QuestID, ...)
-			if PawnCommon.ShowQuestUpgradeAdvisor then
+			if PawnCommon.ShowQuestUpgradeAdvisor and ShowWorldQuestUpgrades then
 				local ItemName, ItemTexture = GetQuestLogRewardInfo(QuestLogIndex, QuestID)
 				if ItemName and ItemTexture then
-					if ShowWorldQuestUpgrades then
-						PawnUpdateTooltip(self.Tooltip:GetName(), "SetQuestLogItem", "reward", QuestLogIndex, QuestID, ...)
-						self.Tooltip:Show() -- resizes the tooltip's boundaries in case our annotation made it wider
-					else
-						-- World quest rewards are disabled due to the tooltip secret taint bugs in 12.0+. Let's try to at least make the Compare tab keybind work.
-						local _, ItemLink = self.Tooltip:GetItem()
-						PawnLastHoveredItem = ItemLink
-					end
+					PawnUpdateTooltip(self.Tooltip:GetName(), "SetQuestLogItem", "reward", QuestLogIndex, QuestID, ...)
+					self.Tooltip:Show() -- resizes the tooltip's boundaries in case our annotation made it wider
 				end
+			else
+				-- If we're not showing Pawn info on world quest reward tooltips, let's at least make the Compare tab keybind work.
+				local _, ItemLink = self.Tooltip:GetItem()
+				PawnLastHoveredItem = ItemLink
 			end
 		end)
 
@@ -1404,6 +1402,15 @@ function PawnGetItemData(ItemLink)
 			end
 		end
 
+		if Item.Stats.ItemLevel then
+			-- Tons of versions of the game 6.x+ have various bugs in the item info APIs relating to item levels, but tooltips are always right. So if we read the item level from the tooltip, always prefer that.
+			if Item.Level ~= Item.Stats.ItemLevel then
+				PawnDebugMessage(format(ITEM_LEVEL, Item.Level) .. " -> " .. Item.Stats.ItemLevel)
+			end
+			Item.Level = Item.Stats.ItemLevel
+			Item.Stats.ItemLevel = nil
+		end
+
 		if (not VgerCore.RangedSlotExists) and (InvType == "INVTYPE_RANGED" or InvType == "INVTYPE_RANGEDRIGHT") then
 			-- We convert ranged weapons into the correct "handedness" of weapons since there's no ranged slot anymore.
 			if Item.Stats and Item.Stats.IsWand then
@@ -1421,8 +1428,6 @@ function PawnGetItemData(ItemLink)
 		-- Then, the unenchanted stats.  But, we only need to do this if the item is enchanted or socketed.  PawnUnenchantItemLink
 		-- will return nil if the item isn't enchanted, so we can skip that process.
 		local UnenchantedItemLink = PawnUnenchantItemLink(ItemLink)
-		-- As of WoW 6.2.3, Item.Level is incorrect for upgraded items because GetItemInfo returns the wrong value.  PawnUnenchantItemLink could
-		-- be enhanced here to get a number to add (+10) for upgradeable items if we decide we need that info.
 		if UnenchantedItemLink then
 			PawnDebugMessage(" ")
 			PawnDebugMessage(PawnLocal.UnenchantedStatsHeader)
@@ -1686,8 +1691,8 @@ function PawnGetSingleValueFromItem(Item, ScaleName)
 	return Value, UnenchantedValue
 end
 
-local ItemLevelSearchPattern1 = gsub(ITEM_LEVEL, "%%d", "(%%d+)")
-local ItemLevelSearchPattern2 = gsub(ITEM_LEVEL_PLUS, "%%d%+", "(%%d+)%%+")
+local ItemLevelSearchPattern1 = "^" .. gsub(ITEM_LEVEL, "%%d", "(%%d+)")
+local ItemLevelSearchPattern2 = "^" .. gsub(ITEM_LEVEL_PLUS, "%%d%+", "(%%d+)%%+")
 
 local TooltipUpdateCounter = 0
 
@@ -5972,8 +5977,10 @@ local function BudgetThrottle(Func, Budget, Period)
 	return Throttled
 end
 
+-- Internal only. Don't use this; use PawnShouldItemLinkHaveUpgradeArrow instead. It has the same preconditions, parameters, and return value.
 function PawnShouldItemLinkHaveUpgradeArrowUnbudgeted(ItemLink, CheckLevel)
 	if not PawnIsInitialized then VgerCore.Fail("Can't check to see if items are upgrades until Pawn is initialized") return end
+	if not ItemLink then return end
 
 	--if PawnOptions.DebugBagArrows then VgerCore.Message("Checking upgrade information for " .. tostring(ItemLink)) end
 
