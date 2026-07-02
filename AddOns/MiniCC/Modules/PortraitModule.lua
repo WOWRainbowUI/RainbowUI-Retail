@@ -7,6 +7,8 @@ local kickTracker = addon.Core.KickTracker
 local iconSlotContainer = addon.Core.IconSlotContainer
 local moduleUtil = addon.Utils.ModuleUtil
 local ModuleName = addon.Utils.ModuleName
+local units = addon.Utils.Units
+local auras = addon.Utils.Auras
 local testModeActive = false
 local paused = false
 local enabled = false
@@ -19,6 +21,12 @@ local unitUpdateFns = {} -- unit → array of update fns; populated per framewor
 local db
 ---@type TestSpell[]
 local testSpells = {}
+
+-- Important buffs are read from Blizzard's nameplate buff lists (like the nameplates/alerts
+-- modules), so a portrait can surface its unit's important spell (e.g. offensive cooldown, precog).
+local hookedAuraFrames = {}
+local pendingImportantUnits = {}
+local importantUpdateScheduled = false
 
 ---@class PortraitModule : IModule
 local M = {}
@@ -95,6 +103,10 @@ local function CreateContainer(unitFrame, portrait)
 	-- inherit scale from portrait so icons scale with it
 	container.Frame:SetIgnoreParentScale(false)
 
+	-- Portrait icons do not fade with the parent unit frame (e.g. out of range);
+	-- ignore the parent's alpha so they stay fully opaque.
+	container.Frame:SetIgnoreParentAlpha(true)
+
 	-- Skip attachment if the portrait dimensions are secret (tainted frame)
 	-- seems to happen with ElvUI when their portraits are disabled
 	local w = portrait:GetWidth()
@@ -107,6 +119,45 @@ local function CreateContainer(unitFrame, portrait)
 	container:SetIconSize(size)
 
 	return container
+end
+
+-- Returns the aura data for the unit's first important nameplate buff, or nil. These come from
+-- Blizzard's own nameplate buff list, so the unit needs a visible nameplate (e.g. an enemy target
+-- in range); the player's own portrait only shows one if self-nameplates are enabled. Friendly
+-- nameplate buff lists aren't pre-curated to the important ones, so for friendly units an extra
+-- nameplate aura filter drops the non-important junk.
+local function GetFirstImportantBuff(unit)
+	local nameplate = C_NamePlate.GetNamePlateForUnit(unit)
+	local uf = nameplate and nameplate.UnitFrame
+	local af = uf and uf.AurasFrame
+	if not (af and af.buffList and af.buffList.Iterate and not (af.IsForbidden and af:IsForbidden())) then
+		return nil
+	end
+
+	local friendlyFilter = units:IsFriend(unit)
+		and "HELPFUL|INCLUDE_NAME_PLATE_ONLY|RAID_IN_COMBAT|PLAYER"
+		or nil
+
+	local firstId
+	af.buffList:Iterate(function(auraInstanceID)
+		if firstId ~= nil then
+			return
+		end
+		if friendlyFilter and C_UnitAuras.IsAuraFilteredOutByInstanceID(unit, auraInstanceID, friendlyFilter) then
+			return
+		end
+		-- Drop purgeable non-defensive buffs (the non-important garbage Blizzard's enemy list bundles
+		-- in); purgeable defensives like magic barriers are kept.
+		if auras:IsPurgeableNonDefensive(unit, auraInstanceID) then
+			return
+		end
+		firstId = auraInstanceID
+	end)
+
+	if not firstId then
+		return nil
+	end
+	return C_UnitAuras.GetAuraDataByAuraInstanceID(unit, firstId)
 end
 
 ---@param unit string
@@ -131,7 +182,6 @@ local function OnAuraInfo(unit, watcher, container)
 	end
 
 	local ccAuras = watcher:GetCcState()
-	local importantAuras = watcher:GetImportantState()
 	local defensiveAuras = watcher:GetDefensiveState()
 	local slotIndex = 1
 
@@ -159,12 +209,16 @@ local function OnAuraInfo(unit, watcher, container)
 		return
 	end
 
-	-- Show the latest important aura
-	if importantAuras[1] then
+	-- Show the latest important buff (read from Blizzard's nameplate buff list; lowest priority)
+	local importantAura = GetFirstImportantBuff(unit)
+	if importantAura then
 		container:SetSlot(slotIndex, {
-			Texture = importantAuras[1].SpellIcon,
-			DurationObject = importantAuras[1].DurationObject,
-			Alpha = importantAuras[1].IsImportant,
+			Texture = importantAura.icon,
+			DurationObject = C_UnitAuras.GetAuraDuration(unit, importantAura.auraInstanceID),
+			-- Hide a non-important buff via alpha: IsSpellImportant is a secret boolean SetAlphaFromBoolean
+			-- accepts directly. Catches the non-important garbage the purgeable filter can't (e.g. for
+			-- non-dispel specs).
+			Alpha = C_Spell.IsSpellImportant(importantAura.spellId),
 			ReverseCooldown = db.Modules.PortraitModule.ReverseCooldown,
 			FontScale = db.FontScale,
 		})
@@ -756,6 +810,60 @@ function M:Refresh()
 	end
 end
 
+local function FlushImportantUpdates()
+	importantUpdateScheduled = false
+	for unit in pairs(pendingImportantUnits) do
+		pendingImportantUnits[unit] = nil
+		local fns = unitUpdateFns[unit]
+		if fns then
+			for _, fn in ipairs(fns) do
+				fn()
+			end
+		end
+	end
+end
+
+-- Debounced: coalesces nameplate RefreshAuras bursts into one portrait update per unit per frame.
+local function ScheduleImportantUpdate(unit)
+	pendingImportantUnits[unit] = true
+	if importantUpdateScheduled then
+		return
+	end
+	importantUpdateScheduled = true
+	C_Timer.After(0, FlushImportantUpdates)
+end
+
+-- Hooks a nameplate's RefreshAuras so the target/focus portrait re-renders when that unit's
+-- important buffs change. Watchers only track CC + defensives, so this is the only buff-change
+-- signal. The hook is a cheap no-op when the module is off or the nameplate isn't target/focus.
+local function HookNameplateAuraFrame(unitToken)
+	local nameplate = C_NamePlate.GetNamePlateForUnit(unitToken)
+	local uf = nameplate and nameplate.UnitFrame
+	local af = uf and uf.AurasFrame
+	if af and af.RefreshAuras and not hookedAuraFrames[af] then
+		hookedAuraFrames[af] = true
+		hooksecurefunc(af, "RefreshAuras", function(self)
+			if not enabled or paused then
+				return
+			end
+			if self.IsForbidden and self:IsForbidden() then
+				return
+			end
+			local parent = self:GetParent()
+			local u = parent and parent.unit
+			if not u then
+				return
+			end
+			if units:SameUnit(u, "target") then
+				ScheduleImportantUpdate("target")
+			end
+			if units:SameUnit(u, "focus") then
+				ScheduleImportantUpdate("focus")
+			end
+		end)
+	end
+end
+
 function M:Init()
 	db = mini:GetSavedVars()
 
@@ -795,6 +903,13 @@ function M:Init()
 		AttachEQolFrame("target")
 		AttachEQolFrame("focus")
 		AttachEQolFrame("pet")
+	end)
+
+	-- Hook each nameplate's aura refresh so important buffs on the target/focus update live.
+	local nameplateEvents = CreateFrame("Frame")
+	nameplateEvents:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+	nameplateEvents:SetScript("OnEvent", function(_, _, unitToken)
+		HookNameplateAuraFrame(unitToken)
 	end)
 
 	kickTracker:Watch("target", { "PLAYER_TARGET_CHANGED" })
