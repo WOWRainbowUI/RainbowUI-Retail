@@ -1,13 +1,12 @@
 # BuffReminders
 
-## [v6.0.8](https://github.com/zerbiniandrea/BuffReminders/tree/v6.0.8) (2026-06-10)
-[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.0.7...v6.0.8) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
+## [v6.1.1](https://github.com/zerbiniandrea/BuffReminders/tree/v6.1.1) (2026-06-28)
+[Full Changelog](https://github.com/zerbiniandrea/BuffReminders/compare/v6.1.0...v6.1.1) [Previous Releases](https://github.com/zerbiniandrea/BuffReminders/releases)
 
-- fix(migration): 🐛 convert legacy tracking overrides via old key presence  
-- fix(visibility): 💄 align tracking override dropdowns in a shared label column  
-- i18n(koKR): 🌐 update localization  
-- refactor(chat-requests): ♻️ derive requestable buffs from single flag  
-- feat(chat-requests): ✨ add healthstones chat requests  
-- feat(visibility): ✨ make tracking overrides per-context mode dropdowns  
-- refactor: ♻️ centralize setting defaults as single source of truth  
-- feat(visibility): ✨ add tracking override for my-buffs while leveling  
+- style: 💄 cooler panel chrome and roomier page spacing  
+- i18n(zhTW): 🌐 update localization  
+- perf: ⚡️ disable buff glow by default  
+    Buff glow now defaults to off. The animated glow runs every frame on  
+    each visible icon and was the main source of extra CPU usage while  
+    reminders are on screen. This affects everyone who never manually  
+    turned glow on. You can re-enable it any time on the Defaults page.  

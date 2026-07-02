@@ -17,6 +17,7 @@ L["Category.Self"] = "自身增益"
 L["Category.Pet"] = "寵物"
 L["Category.Consumable"] = "消耗品"
 L["Category.Custom"] = "自定義"
+L["Category.Loadout"] = "天賦構建"
 
 -- Long form (used in Options section headers)
 L["Category.RaidBuffs"] = "團隊增益"
@@ -26,6 +27,7 @@ L["Category.PresenceBuffs"] = "職業增益"
 L["Category.SelfBuffs"] = "自身增益"
 L["Category.PetReminders"] = "寵物提示"
 L["Category.CustomBuffs"] = "自定義增益"
+L["Category.LoadoutReminders"] = "天賦構建提醒"
 
 -- Category notes
 L["Category.RaidNote"] = "（全小隊或團隊生效）"
@@ -35,6 +37,44 @@ L["Category.PresenceNote"] = "（至少需要一人）"
 L["Category.SelfNote"] = "（僅對自己施放的增益）"
 L["Category.PetNote"] = "（寵物召喚提示）"
 L["Category.CustomNote"] = "（按法術ID追蹤增益或高亮）"
+L["Category.LoadoutNote"] = "(當我的裝備或天賦與內容不符時提醒我)"
+
+-- Loadout reminders
+L["Loadout.Add"] = "新增天賦構建提醒"
+L["Loadout.Edit"] = "編輯天賦構建提醒"
+L["Loadout.AddButton"] = "+ 添加天賦構建提醒"
+L["Loadout.Empty"] = "尚未有天賦構建提醒。下面新增一個。"
+L["Loadout.Name"] = "名稱"
+L["Loadout.Expect"] = "預計"
+L["Loadout.Applies"] = "套用至"
+L["Loadout.Content"] = "內容"
+L["Loadout.Requirement"] = "需求"
+L["Loadout.EquipmentSet"] = "裝備套裝"
+L["Loadout.TalentSpell"] = "天賦法術ID"
+L["Loadout.NoSets"] = "未找到裝備套裝。在此角色視窗先建立一個 (裝備管理)。"
+L["Loadout.NoSetSelected"] = "先選擇一個裝備套裝。"
+L["Loadout.NoLoadouts"] = "此專精沒有儲存的天賦構建。"
+L["Loadout.NoLoadoutSelected"] = "先選擇一個天賦構建。"
+L["Loadout.InvalidSpell"] = "法術ID不存在。請使用天賦的法術ID。"
+L["Loadout.CombatBlocked"] = "無法在戰鬥中更換裝備或天賦。"
+L["Loadout.Instances"] = "%d 副本"
+L["Loadout.LimitRaids"] = "只有指定的團隊副本"
+L["Loadout.LimitDungeons"] = "只有指定的地下城"
+-- Content scope (you can't swap gear/talents once a key or match starts, so the
+-- rule only needs the content you're in - no per-difficulty granularity).
+L["Loadout.Scope.Raid"] = "團隊副本"
+L["Loadout.Scope.Dungeon"] = "地下城"
+L["Loadout.Scope.Arena"] = "競技場"
+L["Loadout.Scope.Battleground"] = "戰場"
+-- Binding label: spec + class, e.g. "Protection Warrior" (reorder for your locale).
+L["Loadout.SpecClass"] = "%s %s"
+L["Loadout.Require.Gear"] = "裝備套裝"
+L["Loadout.Require.Talent"] = "天賦"
+L["Loadout.Require.Loadout"] = "天賦構建"
+-- On-icon "what's wrong" tags (newline wraps them to two lines on the icon)
+L["Loadout.Tag.Gear"] = "錯誤\n裝備"
+L["Loadout.Tag.Talent"] = "缺少\n天賦"
+L["Loadout.Tag.Loadout"] = "錯誤\n構建"
 
 -- ============================================================================
 -- BUFF OVERLAY TEXT
@@ -255,8 +295,10 @@ L["Display.DismissConsumables"] = "在下一次載入畫面前隱藏消耗品提
 L["Display.DismissConsumablesChat"] = "在下一次載入畫面前消耗品提示將隱藏。"
 L["Display.LoginFirstInstall"] =
     "感謝安裝！輸入 |cFFFFD100/br unlock|r 來移動增益顯示，或者使用 |cFFFFD100/br|r 選項面板底部的按鈕。"
-L["Display.LoginSelfOnlyOutside"] =
-    "新的預設：在開放世界中，只會追蹤您自己的職業增益。在「設定」標籤中切換|cFFFFD100強制在地下城與團隊副本之外只有自己|r來變更設定。"
+L["Display.LoginLoadout"] =
+    "新功能w: 天賦構建提醒！在|cFFFFD100/br|r的裝備 & 天賦頁面中設定它們。"
+L["Display.LoginGlowDefaultChanged"] =
+    "增益發光現在預設為關閉，以減少CPU使用率。隨時可在|cFFFFD100/br|r的預設頁面中重新啟用。"
 
 -- ============================================================================
 -- OPTIONS: NAVIGATION LABELS
@@ -267,6 +309,7 @@ L["Tab.DisplayBehavior"] = "顯示/行為"
 L["Sidebar.General"] = "通用"
 L["Sidebar.Buffs"] = "增益"
 L["Sidebar.DisplayBehavior"] = "顯示與行為"
+L["Sidebar.Loadouts"] = "裝備 & 天賦"
 L["Sidebar.Profiles"] = "設定檔"
 
 -- Page titles
@@ -284,6 +327,9 @@ L["Page.Sounds.Desc"] =
 
 -- Per-category page section headers
 L["Section.Tracking"] = "追蹤"
+L["Section.TrackingOverrides"] = "追蹤覆蓋"
+L["Section.TrackingOverrides.Desc"] =
+    "在特定情況下縮小追蹤模式。將情況保留為“預設”以始終使用上述模式。當幾個同時適用時（例如，在練級時戰鬥），限制最嚴格的那個獲勝。"
 
 -- ============================================================================
 -- OPTIONS: SOUND ALERTS
@@ -295,6 +341,7 @@ L["Options.Sound.EditTitle"] = "編輯聲音警報"
 L["Options.Sound.SelectBuff"] = "選擇增益"
 L["Options.Sound.SelectSound"] = "選擇聲音"
 L["Options.Sound.Preview"] = "預覽"
+L["Options.Preview"] = "預覽"
 L["Options.Sound.Save"] = "儲存"
 L["Options.Sound.NoBuffs"] = "所有增益都已有音效。"
 
@@ -320,6 +367,8 @@ L["Options.GlowReminderIcons"] = "提示圖示發光"
 L["Options.GlowReminderIcons.Title"] = "提示圖示發光"
 L["Options.GlowReminderIcons.Desc"] =
     "為所有顯示的提示圖示添加發光效果，包括缺失和即將過期的增益。"
+L["Options.GlowReminderIcons.CpuWarning"] =
+    "為螢幕上每個圖示的每偵發光動畫，所以這會使用較多的CPU。如果圖示長時間保持開啟狀態 (例如一個你在戰鬥中不會重上的增益)，該耗費是連續的。由於這個原因預設情況下會停用。"
 L["Options.GlowKind.Expiring"] = "即將過期"
 L["Options.GlowKind.Missing"] = "缺失"
 L["Options.GlowSettings.Expiring"] = "發光設置 — 即將過期"
@@ -411,7 +460,8 @@ L["Options.FreeConsumables.Override.Desc"] =
 -- ============================================================================
 L["Options.Icons"] = "圖示"
 L["Options.ShowText"] = "在圖示上顯示文字"
-L["Options.ShowText.Desc"] = "在此類別的增益圖示上顯示層數或缺失文字覆蓋。"
+L["Options.ShowText.Desc"] =
+    "在該類別的增益圖示上顯示層數或缺失增益文字覆蓋。即將到期的倒計時器始終保持可見"
 L["Options.ShowMissingCountOnly"] = "僅顯示缺失數量"
 L["Options.ShowMissingCountOnly.Desc"] =
     "僅顯示缺失增益的數量（例如：”1“），而不是完整的分數形式（例如：”19/20“）。"
@@ -465,6 +515,7 @@ L["ChatRequest.skyfury"] = "請補上天怒增益"
 L["ChatRequest.atrophicNumbingPoison"] = "請補上萎縮/麻痺毒藥"
 L["ChatRequest.devotionAura"] = "請補上虔誠光環"
 L["ChatRequest.soulstone"] = "請補上靈魂石"
+L["ChatRequest.healthstone"] = "請補上治療石"
 
 -- ============================================================================
 -- OPTIONS: PET
@@ -575,6 +626,11 @@ L["Options.BronzeSettings.Note"] = "設置青銅龍的祝福的提醒。"
 L["Options.BronzeHideInCombat"] = "戰鬥中隱藏"
 L["Options.BronzeHideInCombat.Desc"] =
     "當戰鬥中隱藏青銅龍的祝福的提醒。這個增益不太重要，你可能不想在戰鬥中補上。"
+L["Options.DruidFormSettings"] = "德魯伊型態設定"
+L["Options.DruidFormSettings.Note"] = "設置錯誤型態的提醒。"
+L["Options.DruidIgnoreTravelForm"] = "當旅行中忽略"
+L["Options.DruidIgnoreTravelForm.Desc"] =
+    "當於旅行型態或上坐騎時時隱藏錯誤型態的提醒 (地面、水中、飛行或坐騎型態)，因此當您有意旅行時，它不會打擾您。"
 L["Options.PetPassiveSettings"] = "被動寵物設置"
 L["Options.PetPassiveSettings.Note"] = "設置被動模式寵物的提示行為。"
 L["Options.PetSummonSettings"] = "寵物召喚設置"
@@ -671,7 +727,7 @@ L["Options.BuffTracking.MyBuffs.Desc"] =
 L["Options.BuffTracking.OnlyMine"] = "所有增益，僅我需要的"
 L["Options.BuffTracking.OnlyMine.Desc"] =
     "顯示所有類型的增益，但僅檢查自身是否擁有。不顯示團體數量統計。"
-L["Options.BuffTracking.SelfOnly"] = "只有我的增益，僅我需要的"
+L["Options.BuffTracking.SelfOnly"] = "只有我的增益，只在我身上"
 L["Options.BuffTracking.SelfOnly.Desc"] =
     "只顯示你的職業可以提供的增益，並且僅檢查自身是否擁有。沒有團體數量統計，也沒有你對其他人施加的增益。"
 L["Options.BuffTracking.Smart"] = "智能"
@@ -680,6 +736,16 @@ L["Options.BuffTracking.Smart.Desc"] =
 L["Options.BuffTracking.Mode"] = "增益追蹤模式"
 L["Options.BuffTracking.Mode.Desc"] =
     "設置要顯示的團隊和職業增益，以及是追蹤整個隊伍還是僅追蹤自身。"
+L["Options.BuffTracking.Override.Default"] = "預設 (使用方式如上)"
+L["Options.BuffTracking.Override.OutsideInstances"] = "地下城與團隊副本之外"
+L["Options.BuffTracking.Override.OutsideInstances.Desc"] =
+    "在開放世界中使用的追蹤模式。上面選擇的模式仍然在地下城、團隊副本、場景和PvP中使用。"
+L["Options.BuffTracking.Override.Combat"] = "戰鬥中"
+L["Options.BuffTracking.Override.Combat.Desc"] =
+    "在戰鬥中使用的追蹤模式。例如，縮小到'僅我的增益'會在戰鬥之外顯示其他類別的增益的提醒，以便您可以叫出它們，但在戰鬥開始後隱藏它們。"
+L["Options.BuffTracking.Override.Leveling"] = "當練級時"
+L["Options.BuffTracking.Override.Leveling.Desc"] =
+    "在低於最大等級時使用的追蹤模式。一旦達到最高級別，就會使用上面選擇的模式。"
 
 -- ============================================================================
 -- OPTIONS: PROFILES TAB
@@ -713,6 +779,7 @@ L["Options.UnknownError"] = "未知錯誤"
 -- ============================================================================
 L["Dialog.Cancel"] = "取消"
 L["Dialog.DeleteCustomBuff"] = '是否刪除自定義增益 "%s"？'
+L["Dialog.DeleteLoadout"] = '是否刪除天賦構建提醒 "%s"？'
 L["Dialog.ResetProfile"] =
     "是否將當前設定檔重置為預設值？\n\n當前設定檔的所有自定義設置將被刪除並重載UI。"
 L["Dialog.Reset"] = "重置"
@@ -721,6 +788,7 @@ L["Dialog.Reload"] = "重載"
 L["Dialog.NewProfilePrompt"] = "請輸入新設定檔的名稱："
 L["Dialog.Create"] = "創建"
 L["Dialog.DiscordPrompt"] = "加入BuffReminders的Discord頻道！\n複製下方網址以加入："
+L["Dialog.KofiPrompt"] = "感謝您對BuffReminders的支持！\n複製下方網址 (Ctrl+C):"
 L["Dialog.Close"] = "關閉"
 
 -- ============================================================================
@@ -737,7 +805,7 @@ L["Options.Lock"] = "鎖定"
 L["Options.Unlock"] = "解鎖"
 
 -- ============================================================================
--- OPTIONS: CUSTOM BUFF MODAL
+-- OPTIONS: CUSTOM BUFF DIALOG
 -- ============================================================================
 L["CustomBuff.Edit"] = "編輯自定義增益"
 L["CustomBuff.EditShort"] = "編輯"
@@ -832,6 +900,13 @@ L["CustomBuff.Error"] = "錯誤:"
 L["Options.JoinDiscord"] = "加入Discord"
 L["Options.JoinDiscord.Title"] = "點擊查看邀請鏈接"
 L["Options.JoinDiscord.Desc"] = "有反饋、功能請求或發現BUG？\n歡迎加入我們的Discord！"
+
+-- ============================================================================
+-- OPTIONS: KO-FI
+-- ============================================================================
+L["Options.SupportKofi"] = "在Ko-fi支持"
+L["Options.SupportKofi.Title"] = "點擊取得連結"
+L["Options.SupportKofi.Desc"] = "喜歡BuffReminders嗎？\n考慮在Ko-fi支持開發！"
 
 -- ============================================================================
 -- OPTIONS: CUSTOM ANCHOR FRAMES
