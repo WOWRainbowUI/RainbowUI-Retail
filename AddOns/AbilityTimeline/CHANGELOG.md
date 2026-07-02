@@ -1,9 +1,9 @@
 # AbilityTimeline
 
-## [v0.30](https://github.com/Jods-GH/AbilityTimeline/tree/v0.30) (2026-05-16)
-[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.29...v0.30) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
+## [v0.32](https://github.com/Jods-GH/AbilityTimeline/tree/v0.32) (2026-06-23)
+[Full Changelog](https://github.com/Jods-GH/AbilityTimeline/compare/v0.31a...v0.32) [Previous Releases](https://github.com/Jods-GH/AbilityTimeline/releases)
 
-- match bossmod coloring for highlight text  
-- make sure we stop glow on releasing frames  
-- make sure reset to defaults doesn't break  
-    fixes #85  
+- add some more logging in debug mode  
+- fix custom dbm icons producing issues  
+- chore: Update toc to newest wow interface version (#91)  
+    Co-authored-by: Jodsderechte <39654549+Jodsderechte@users.noreply.github.com>  

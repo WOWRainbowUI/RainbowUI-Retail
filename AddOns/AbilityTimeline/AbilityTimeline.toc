@@ -1,6 +1,6 @@
-## Interface: 120005, 120007
+## Interface: 120007, 120100
 ## Title: AbilityTimeline
-## Version: v0.30
+## Version: v0.32
 ## Notes: Adds various improvements to blizzards encounter ability timeline.
 ## SavedVariables: AbilityTimeline
 ## Author: Jods
