@@ -52,7 +52,8 @@ local SetNamesFonts = Addon.Font.SetNamesFonts
 local StyleModule, ColorModule, ThreatModule = Addon.Style, Addon.Color, Addon.Threat
 local ScalingModule, TransparencyModule = Addon.Scaling, Addon.Transparency
 
-local ElementsPlateCreated, ElementsPlateUnitAdded, ElementsPlateUnitRemoved = Addon.Elements.PlateCreated, Addon.Elements.PlateUnitAdded, Addon.Elements.PlateUnitRemoved
+local ElementsPlateCreated, ElementsPlateUnitAdded = Addon.Elements.PlateCreated, Addon.Elements.PlateUnitAdded
+-- local ElementsPlateUnitRemoved = Addon.Elements.PlateUnitRemoved
 local ElementsUpdateStyle, ElementsUpdateSettings = Addon.Elements.UpdateStyle, Addon.Elements.UpdateSettings
 local BackdropTemplate = Addon.BackdropTemplate
 
@@ -1053,7 +1054,9 @@ local function HandlePlateUnitAdded(plate, unitid)
   -- Initialized nameplate style based on unit added
   -- ColorModule/TransparencyModule/ScalingModule are called in StyleModule.PlateUnitAdded
   StyleModule.PlateUnitAdded(tp_frame)
-  -- TODO: This is not ideal/correct as Style.Update calls ElementsUpdateStyle
+  -- Note: StyleModule.PlateUnitAdded already triggers ElementsUpdateStyle, which for some elements
+  -- (e.g. ThreatGlow) re-derives the same state that ElementsPlateUnitAdded sets up here, causing a
+  -- harmless double update for those elements on every NAME_PLATE_UNIT_ADDED.
   ElementsPlateUnitAdded(tp_frame)
 
   -- Check to see if there's a spell being cast.
@@ -1067,6 +1070,22 @@ local function HandlePlateUnitAdded(plate, unitid)
       tp_frame.visual.Castbar:Hide()
     end
   end
+end
+
+-- This information was extracted from other nameplate addons:
+-- WoW can signal a nameplate unit change (UNIT_FACTION, UNIT_FLAGS) or even fire
+-- NAME_PLATE_UNIT_ADDED again for the same unit token before the client's unit data (name,
+-- health, GUID) for that token has actually caught up with the server. Re-reading immediately
+-- can still return the previous occupant's stale data, so re-apply once more after a short
+-- delay. Guarded against the plate having legitimately moved on (proper REMOVED/ADDED) in the
+-- meantime.
+local function ScheduleNameplateRevalidation(plate, unitid, delay)
+  C_Timer.After(delay or 0, function()
+    local tp_frame = plate.TPFrame
+    if PlatesByUnit[unitid] == tp_frame and tp_frame.unit.unitid == unitid then
+      HandlePlateUnitAdded(plate, unitid)
+    end
+  end)
 end
 
 --------------------------------------------------------------------------------------------------------------
@@ -1513,9 +1532,17 @@ function Addon:NAME_PLATE_UNIT_ADDED(unitid)
 
   if not IgnoreUnitForThreatPlates(unitid) then
     local plate = GetNamePlateForUnit(unitid)
+    -- If this unit token was never released (no NAME_PLATE_UNIT_REMOVED in between), the unit
+    -- data read by HandlePlateUnitAdded below may briefly still be the previous occupant's data.
+    local was_already_added = PlatesByUnit[unitid] ~= nil
+
     HandlePlateUnitAdded(plate, unitid)
-    
+
     NamePlateDriverFrame_AcquireUnitFrame(nil, plate)
+
+    if was_already_added then
+      ScheduleNameplateRevalidation(plate, unitid, 0.5)
+    end
   end
 end
 
@@ -1555,7 +1582,7 @@ function Addon:NAME_PLATE_UNIT_REMOVED(unitid)
     end
   end
 
-  ElementsPlateUnitRemoved(tp_frame)
+  --ElementsPlateUnitRemoved(tp_frame)
   Widgets:OnUnitRemoved(tp_frame, tp_frame.unit)
   
   WidgetContainerReset(plate)
@@ -1769,7 +1796,20 @@ function Addon:UNIT_FACTION(unitid)
         StyleModule.Update(tp_frame)
         PublishEvent("FactionUpdate", tp_frame)
       end
+
+      -- A faction change can be signaled before the server's updated name/health/GUID for this
+      -- unit token have reached the client - re-read once it has caught up.
+      ScheduleNameplateRevalidation(tp_frame.Parent, unitid)
     end
+  end
+end
+
+-- Fires on reaction/attackable changes (e.g., flag pickups in battlegrounds) that can precede the
+-- client receiving the server's updated unit data for this nameplate token.
+function Addon:UNIT_FLAGS(unitid)
+  local tp_frame = PlatesByUnit[unitid]
+  if tp_frame then
+    ScheduleNameplateRevalidation(tp_frame.Parent, unitid)
   end
 end
 
@@ -2018,6 +2058,7 @@ local ENABLED_EVENTS = {
   "UNIT_THREAT_LIST_UPDATE",
   "UNIT_THREAT_SITUATION_UPDATE",
   "UNIT_FACTION",
+  "UNIT_FLAGS",
   "UNIT_LEVEL",
   
   -- The following events should not have worked before adjusting UnitSpellcastMidway

@@ -22,7 +22,8 @@ local IsInGroup, IsInRaid, GetNumGroupMembers, GetNumSubgroupMembers = IsInGroup
 local UnitDetailedThreatSituationWrapper = Addon.UnitDetailedThreatSituationWrapper
 local FontUpdateText = Addon.Font.UpdateText
 local ThreatShowFeedback = Addon.Threat.ShowFeedback
-local TransliterateCyrillicLetters = Addon.TransliterateCyrillicLetters
+local TransliterateCyrillicLetters = Addon.Localization.TransliterateCyrillicLetters
+local IsSecretValueTP = Addon.IsSecretValue
 
 local _G =_G
 -- Global vars/functions that we don't upvalue since they might get hooked, or upgraded
@@ -195,7 +196,7 @@ local function GetTankThreatPercentage(unitid, db_threat_value)
   local threat_value_text = ""
   local threat_value_delta = 0
 
-  if is_tanking then
+  if not IsSecretValueTP(is_tanking) and is_tanking then
     -- Tanking, so show difference to the 2nd player on the threat table, like: -50%
     local other_unitid, other_threat_value, other_threat_unit_name = GetTopThreatUnitBesidesPlayer(unitid, GetUnitThreatPercentage)
     if other_unitid then
@@ -225,7 +226,7 @@ local function GetTankThreatValue(unitid, db_threat_value)
   local threat_value_delta = 0
 
   -- Tanking: - second
-  if is_tanking then
+  if not IsSecretValueTP(is_tanking) and is_tanking then
     -- Tanking, so show difference to the 2nd player on the threat table, like: -1.5k
     local other_unitid, other_threat_value, other_threat_unit_name = GetTopThreatUnitBesidesPlayer(unitid, GetUnitThreatValue)
     if other_unitid then
@@ -299,7 +300,7 @@ local function GetThreatPercentageDelta(unitid, db_threat_value)
   end
 end
 
-local THREAT_DETAILS_FUNTIONS = {
+local THREAT_DETAILS_FUNCTIONS = {
   SCALED_PERCENTAGE = function(unitid)
     local _, status, scaled_percentage, _, _ =  UnitDetailedThreatSituationWrapper("player", unitid)
     if status then 
@@ -401,7 +402,7 @@ end
 function Widget:UpdateLayout(widget_frame)
   -- widget_frame:ClearAllPoints()
   widget_frame:SetAllPoints(widget_frame:GetParent())
-
+  
   FontUpdateText(widget_frame, widget_frame.Percentage, Settings.ThreatPercentage)
 end
 
@@ -412,5 +413,5 @@ function Widget:UpdateSettings()
 
   ShowSecondPlayersName = Settings.ThreatPercentage.SecondPlayersName
 
-  ThreatDetailsFunction = THREAT_DETAILS_FUNTIONS[Settings.ThreatPercentage.Type]
+  ThreatDetailsFunction = THREAT_DETAILS_FUNCTIONS[Settings.ThreatPercentage.Type]
 end

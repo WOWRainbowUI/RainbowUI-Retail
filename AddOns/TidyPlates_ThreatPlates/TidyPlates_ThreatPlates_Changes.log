@@ -1,8 +1,43 @@
 ﻿------------------------------------------------------
+13.0.24 (2026-06-23)
+------------------------------------------------------
+* Fixed a bug where nameplates could show the wrong name and health (from a previous unit) after faction/reaction changes or nameplate recycling, primarily in battlegrounds, arenas, and raids [Comment #8228, #8363, #8408, #8433].
+
+------------------------------------------------------
+13.0.23 (2026-06-17)
+------------------------------------------------------
+* Updated TOC version for Patch 12.0.7 for WoW Mainline.
+
+------------------------------------------------------
+13.0.22 (2026-06-15)
+------------------------------------------------------
+* Fixed a Lua error in the Auras widget that occurred in Bar Mode with "Show Duration" disabled, or when an aura's flash-when-expiring animation triggered.
+* Fixed the threat glow border being shown on hidden nameplates (like totems without healthbar) in combat.
+* Fixed a Lua error on custom styles using the healthbar style [Comment #8438].
+* Fixed a Lua error that occurred when opening the options while a custom styles with an icon was shown [Comment #8439].
+* Fixed a bug where icons for custom styles and class icons were not displayed due to incorrect internal texture handling.
+* Hopefully fixed a bug preventing arena numbers from working in WoW Midnight [Comment #8310, GH-645].
+
+------------------------------------------------------
+13.0.21 (2026-06-13)
+------------------------------------------------------
+* Fixed a Lua error caused by restrictions on secret values regarding tank information when tank-type threat values were enabled.
+
+------------------------------------------------------
+13.0.20 (2026-06-13)
+------------------------------------------------------
+* Fixed a Lua error in BossMods widget that occurred when the widget was initialized for a new nameplate [Comment #8413].
+
+------------------------------------------------------
+13.0.19 (2026-06-13)
+------------------------------------------------------
+* Fixed a Lua error that occurred when tank-type threat values were enabled [Comment #8410, #8409].
+
+------------------------------------------------------
 13.0.18 (2026-06-10)
 ------------------------------------------------------
 * Fixed a Lua error that occurred in when switching targets and the new target's nameplate was not yet fully initialized [GH-701].
-* Fixed Lua errors in Arena widget that occurred because of wrong handling of secret values and a type  [GH-700].
+* Fixed Lua errors in Arena widget caused by incorrect handling of secret values and a typo [GH-700].
 
 ------------------------------------------------------
 13.0.17 (2026-06-09)

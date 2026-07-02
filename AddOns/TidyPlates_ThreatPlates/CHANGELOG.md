@@ -1,5 +1,4 @@
 
-# 13.0.18 (2026-06-10)
+# 13.0.24 (2026-06-23)
 
-* Fixed a Lua error that occurred in when switching targets and the new target's nameplate was not yet fully initialized [GH-701].
-* Fixed Lua errors in Arena widget that occurred because of wrong handling of secret values and a type  [GH-700].
+* Fixed a bug where nameplates could show the wrong name and health (from a previous unit) after faction/reaction changes or nameplate recycling, primarily in battlegrounds, arenas, and raids [Comment #8228, #8363, #8408, #8433].
