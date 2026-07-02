@@ -1,12 +1,13 @@
 local AddonName, MKPT_env, _ = ...
 
 local Utils = MKPT_env.Utils
+local L = MKPT_env.L
 
 local minimapIcon = LibStub("LibDBIcon-1.0")
 
 local MKPT_LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MyusKnowledgePointsTracker", {
   type = "data source",
-  text = "Myu's Knowledge Points Tracker",
+  text = L["Myu's Knowledge Points Tracker"],
   icon = "Interface\\AddOns\\" .. AddonName .. "\\Textures\\MKPT_Minimap",
   OnClick = function(_, buttonName)
     if buttonName == "LeftButton" then
@@ -29,11 +30,11 @@ local MKPT_LDB = LibStub("LibDataBroker-1.1"):NewDataObject("MyusKnowledgePoints
       UIFrameFadeIn(f, 0.1, f.closeButton:GetAlpha(), 1)
     end
 
-    tooltip:AddLine(Utils.WhiteTextColor("Myu's Knowledge Points Tracker"))
+    tooltip:AddLine(Utils.WhiteTextColor(L["Myu's Knowledge Points Tracker"]))
     tooltip:AddLine("\n")
     tooltip:AddLine(CreateAtlasMarkup("newplayertutorial-icon-mouse-leftbutton") .. " - " .. BINDING_NAME_MOVIE_RECORDING_GUI)
     tooltip:AddLine(CreateAtlasMarkup("newplayertutorial-icon-mouse-rightbutton") .. " - " .. CLICK_BINDING_OPEN_MENU)
-    tooltip:AddLine(Utils.WhiteTextColor("Ctrl+")..CreateAtlasMarkup("newplayertutorial-icon-mouse-leftbutton") .. " - Auto Hide on/off")
+    tooltip:AddLine(Utils.WhiteTextColor("Ctrl+")..CreateAtlasMarkup("newplayertutorial-icon-mouse-leftbutton") .. " - " .. L["Auto Hide on/off"])
   end,
   OnLeave = function(displayFrame)
     MKPT_env.RefreshAutoHide()

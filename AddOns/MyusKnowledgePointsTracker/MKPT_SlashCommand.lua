@@ -1,6 +1,7 @@
 local AddonName, MKPT_env, _ = ...
 
 local Utils = MKPT_env.Utils
+local L = MKPT_env.L
 
 local Commands = {}
 
@@ -53,15 +54,15 @@ function Commands.autohide(_)
 end
 
 function Commands.help(_)
-  print("Available commands:")
-  print(Utils.GoldTextColor("/mkpt"), " - Show/Hide the addon HUD")
-  print(Utils.GoldTextColor("/mkpt minimap"), " - Show/Hide the minimap Icon")
-  print(Utils.GoldTextColor("/mkpt compartment"), " - Show/Hide addon entry inside compartment")
-  print(Utils.GoldTextColor("/mkpt scale 1.0"), " - Scales the Ui size, accepts values from 0.5 to 1.5")
-  print(Utils.GoldTextColor("/mkpt lock"), " - Locks window movement")
-  print(Utils.GoldTextColor("/mkpt unlock"), " - Unlocks window movement")
-  print(Utils.GoldTextColor("/mkpt config"), " - Opens configuration menu")
-  print(Utils.GoldTextColor("/mkpt autohide"), " - Hides the window when the cursor is not over it")
+  print(L["Available commands:"])
+  print(Utils.GoldTextColor("/mkpt"), " - " .. L["Show/Hide the addon HUD"])
+  print(Utils.GoldTextColor("/mkpt minimap"), " - " .. L["Show/Hide the minimap Icon"])
+  print(Utils.GoldTextColor("/mkpt compartment"), " - " .. L["Show/Hide addon entry inside compartment"])
+  print(Utils.GoldTextColor("/mkpt scale 1.0"), " - " .. L["Scales the Ui size, accepts values from 0.5 to 1.5"])
+  print(Utils.GoldTextColor("/mkpt lock"), " - " .. L["Locks window movement"])
+  print(Utils.GoldTextColor("/mkpt unlock"), " - " .. L["Unlocks window movement"])
+  print(Utils.GoldTextColor("/mkpt config"), " - " .. L["Opens configuration menu"])
+  print(Utils.GoldTextColor("/mkpt autohide"), " - " .. L["Hides the window when the cursor is not over it"])
 end
 
 function MKPT_env.InitializeSlashCommand()
@@ -73,7 +74,7 @@ function MKPT_env.InitializeSlashCommand()
 
     local command = Commands[commandName]
     if not command then
-      print(Utils.GoldTextColor("/mkpt ") .. Utils.RequirementsNotMetColor(arg), "command not found.")
+      print(Utils.GoldTextColor("/mkpt ") .. Utils.RequirementsNotMetColor(arg), L["command not found."])
       command = Commands.help
     end
 

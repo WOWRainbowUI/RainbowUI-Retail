@@ -40,7 +40,7 @@ function MKPT_Profession:New(professionId, spellId, catchUpCurrencyId, trainerLo
   profession.expansionTrainerName = LEARN_SKILL_TEMPLATE:format(profession.expansionName)
   profession.skillLine = info.parentProfessionID
   profession.icon = C_TradeSkillUI.GetTradeSkillTexture(profession.id)
-  profession.expanded = false
+  profession.expanded = MKPT_env.db.config.professionsStartExpanded or MKPT_env.charDb.config.professionsStartExpanded
   profession.entries = {}
   return profession
 end
@@ -156,6 +156,11 @@ function MKPT_Profession:CalculateSpendableKps()
   end
   local currencyInfo = C_ProfSpecs.GetCurrencyInfoForSkillLine(self.id) or { numAvailable = 0 }
   return max(totalMissing - currencyInfo.numAvailable, 0)
+end
+
+function MKPT_Profession:GetUnallocatedKps()
+  local currencyInfo = C_ProfSpecs.GetCurrencyInfoForSkillLine(self.id) or { numAvailable = 0 }
+  return currencyInfo.numAvailable
 end
 
 function MKPT_Profession:ToggleTrack()

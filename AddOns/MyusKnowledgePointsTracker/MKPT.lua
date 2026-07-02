@@ -46,6 +46,8 @@ function EventHandler.PLAYER_ENTERING_WORLD(isInitialLogin, isReloadingUi, _)
   events:RegisterEvent("NAVIGATION_DESTINATION_REACHED")
   events:RegisterEvent("PLAYER_REGEN_DISABLED")
   events:RegisterEvent("PLAYER_REGEN_ENABLED")
+  events:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
+  events:RegisterEvent("TRAIT_CONFIG_UPDATED")
 
   events:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end
@@ -66,12 +68,11 @@ function EventHandler.SKILL_LINES_CHANGED()
 end
 
 function EventHandler.CURRENCY_DISPLAY_UPDATE(currencyId, ...)
-  local profession = MKPT_env.MKPT_Profession.FindProfessionByCatchUpCurrencyId(currencyId)
-  if profession then
+  if MKPT_env.IsTrackedCurrency(currencyId) or MKPT_env.MKPT_Profession.FindProfessionByCatchUpCurrencyId(currencyId) then
     local f = MKPT_env.ui
     f:RenderTree()
+    MKPT_env.RefreshTrackedItem()
   end
-  MKPT_env.RefreshTrackedItem()
 end
 
 function EventHandler.BAG_UPDATE_DELAYED()
@@ -146,4 +147,8 @@ function EventHandler.PLAYER_REGEN_ENABLED()
   if isVisibleBeforeCombat then
     MKPT_env.ui:Show()
   end
+end
+
+function EventHandler.TRAIT_CONFIG_UPDATED(_)
+  MKPT_env.ui:RenderTree()
 end
