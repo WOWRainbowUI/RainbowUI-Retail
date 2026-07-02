@@ -6,7 +6,7 @@ Clique has a common interface between different versions of WoW.
 -------------------------------------------------------------------]] ---
 
 
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 
 addon.spellbookCatalog = {}
@@ -78,6 +78,16 @@ function lib:IsFlyout(idx, bookType)
     else
         local spellType, actionId = GetSpellBookItemInfo(idx, bookType)
         return spellType == "FLYOUT"
+    end
+end
+
+function lib:IsPetSpell(idx, bookType)
+    if C_SpellBook and C_SpellBook.GetSpellBookItemType then
+        local spellType = C_SpellBook.GetSpellBookItemType(idx, bookType)
+        return spellType == Enum.SpellBookItemType.PetAction
+    else
+        local spellType = GetSpellBookItemInfo(idx, bookType)
+        return spellType == "PETACTION"
     end
 end
 

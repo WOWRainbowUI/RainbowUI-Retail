@@ -4,7 +4,7 @@
 
 local addonName = select(1, ...)
 
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
@@ -65,7 +65,6 @@ function panel:CreateOptions()
     self.intro:SetHeight(40)
 
     self.statusBarFix = make_checkbox("statusBarFix", L["Fix issue with health and power bars"])
-    self.wipeMenuAction= make_checkbox("wipeMenuAction", L["Completely remove the menu action from Blizzard frames"])
     self.PlayerFrame = make_checkbox("PlayerFrame", L["Player frame"])
     self.PetFrame = make_checkbox("PetFrame", L["Player's pet frame"])
     self.TargetFrame = make_checkbox("TargetFrame", L["Player's target frame"])
@@ -80,7 +79,6 @@ function panel:CreateOptions()
 
     table.insert(bits, self.intro)
     table.insert(bits, self.statusBarFix)
-    table.insert(bits, self.wipeMenuAction)
     table.insert(bits, self.PlayerFrame)
     table.insert(bits, self.PetFrame)
     table.insert(bits, self.TargetFrame)
@@ -123,7 +121,6 @@ function panel.refresh()
     local opt = addon.settings.blizzframes
 
     panel.statusBarFix:SetChecked(opt.statusBarFix)
-    panel.wipeMenuAction:SetChecked(opt.wipeMenuAction)
     panel.PlayerFrame:SetChecked(opt.PlayerFrame)
     panel.PetFrame:SetChecked(opt.PetFrame)
     panel.TargetFrame:SetChecked(opt.TargetFrame)
@@ -151,7 +148,6 @@ function panel.okay()
     local opt = addon.settings.blizzframes
 
     opt.statusBarFix = not not panel.statusBarFix:GetChecked()
-    opt.wipeMenuAction = not not panel.wipeMenuAction:GetChecked()
     opt.PlayerFrame = not not panel.PlayerFrame:GetChecked()
     opt.PetFrame = not not panel.PetFrame:GetChecked()
     opt.TargetFrame = not not panel.TargetFrame:GetChecked()
@@ -172,10 +168,24 @@ function panel.okay()
     end, geterrorhandler())
 end
 
-if Settings and Settings.RegisterCanvasLayoutSubcategory then
-    local category, layout = Settings.RegisterCanvasLayoutSubcategory(addon.optpanels.ABOUT.category, addon.optpanels.BLIZZFRAMES, addon.optpanels.BLIZZFRAMES.name)
-    addon.optpanels.BLIZZFRAMES.category = category
-    addon.optpanels.BLIZZFRAMES.layout = layout
-elseif InterfaceOptions_AddCategory then
-    InterfaceOptions_AddCategory(panel, addon.optpanels.ABOUT)
+if addon.optpanels.useRedirect then
+    if Settings and Settings.RegisterVerticalLayoutSubcategory then
+        local category = Settings.RegisterVerticalLayoutSubcategory(addon.optpanels.ABOUT.category, L["Blizzard Frame Options"])
+        Settings.RegisterInitializer(category, CreateSettingsListSectionHeaderInitializer(
+            L["These options have moved into the main Clique config window."]
+        ))
+        Settings.RegisterInitializer(category, CreateSettingsButtonInitializer(
+            L["Blizzard Frame Options"], L["Open"],
+            function() addon:OpenBlizzFramesPage() end,
+            nil, false
+        ))
+    end
+else
+    if Settings and Settings.RegisterCanvasLayoutSubcategory then
+        local category, layout = Settings.RegisterCanvasLayoutSubcategory(addon.optpanels.ABOUT.category, addon.optpanels.BLIZZFRAMES, addon.optpanels.BLIZZFRAMES.name)
+        addon.optpanels.BLIZZFRAMES.category = category
+        addon.optpanels.BLIZZFRAMES.layout = layout
+    elseif InterfaceOptions_AddCategory then
+        InterfaceOptions_AddCategory(panel, addon.optpanels.ABOUT)
+    end
 end

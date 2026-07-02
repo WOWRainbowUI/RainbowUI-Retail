@@ -316,5 +316,15 @@ function addon:IntegrateBlizzardFrames()
 
             addon:RegisterUnitFrame(frame)
         end)
+
+        -- CompactUnitFrame_SetUnit clobbers our routing on every unit change, so
+        -- reassert it afterwards. See ReassertFrameClickRouting.
+        if CompactUnitFrame_SetUnit then
+            hooksecurefunc("CompactUnitFrame_SetUnit", function(frame)
+                if addon.proxies[frame] then
+                    addon:ReassertFrameClickRouting(frame)
+                end
+            end)
+        end
     end
 end

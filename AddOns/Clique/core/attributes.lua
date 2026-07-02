@@ -2,7 +2,7 @@
 --  Clique - Copyright 2006-2026 - James N. Whitehead II
 -------------------------------------------------------------------]]--
 
---- @class CliqueAddon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 
 function addon:ShouldRemoveSelfCast()
@@ -10,13 +10,11 @@ function addon:ShouldRemoveSelfCast()
 end
 
 local function ATTR(indent, prefix, attr, suffix, value)
-    local fmt = [[%sbutton:SetAttribute("%s%s%s%s%s", %q)]]
-    return fmt:format(indent, prefix, #prefix > 0 and "-" or "", attr, tonumber(suffix) and "" or "-", suffix, value)
+    return ([[%sbutton:SetAttribute("%s", %q)]]):format(indent, addon:AttributeName(prefix, attr, suffix), value)
 end
 
-local function REMATTR(prefix, attr, suffix, value)
-    local fmt = [[button:SetAttribute("%s%s%s%s%s", nil)]]
-    return fmt:format(prefix, #prefix > 0 and "-" or "", attr, tonumber(suffix) and "" or "-", suffix)
+local function REMATTR(prefix, attr, suffix)
+    return ([[button:SetAttribute("%s", nil)]]):format(addon:AttributeName(prefix, attr, suffix))
 end
 
 local B_SET = [[self:SetBindingClick(true, %q, clickableButton, %q);]]
@@ -66,21 +64,43 @@ local function shouldApply(global, entry)
     end
 end
 
+-- The type/clickbutton attribute pairs that route each click combo we bind to the
+-- proxy. A frame's own specific attribute (e.g. shift-type2="togglemenu") outranks
+-- our *type* wildcard, so we stamp the specific attributes too. Keyboard bindings
+-- route via SetBindingClick and are excluded.
+function addon:GetClickRoutingCombos()
+    local combos, seen = {}, {}
+    for _, entry in ipairs(self.bindings) do
+        if entry.key and shouldApply(false, entry) and self:IsBindingCorrectSpec(entry)
+                and self:GetMouseButtonNumber(entry) then
+            local typeName = self:AttributeFromEntry(entry, "type")
+            if not seen[typeName] then
+                seen[typeName] = true
+                combos[#combos + 1] = {
+                    type = typeName,
+                    click = self:AttributeFromEntry(entry, "clickbutton"),
+                }
+            end
+        end
+    end
+    return combos
+end
+
 -- This function takes a single argument indicating if the attributes being
 -- computed are for the special 'global' button used by Clique.  It then
 -- computes the set of attributes necessary for the player's bindings to be
 -- active on all the appropriate frames. The logic here is quite delicate but
 -- also rather well commented.
 function addon:GetClickAttributes(global)
-    -- In these scripts, 'self' should always be the header
-    local bits = {
+    -- In these scripts, 'self' should always be the header.
+    local preamble = {
         "local inCombat = control:GetAttribute('inCombat')",
         "local setupbutton = self:GetFrameRef('cliquesetup_button')",
         "local button = setupbutton or self",
     }
 
-    local rembits = {
-        "local inCombat = control:GetAttribute('inCombat')",
+    -- The delta snippets are unconditional, so they don't read inCombat.
+    local deltaPreamble = {
         "local setupbutton = self:GetFrameRef('cliquesetup_button')",
         "local button = setupbutton or self",
     }
@@ -88,102 +108,60 @@ function addon:GetClickAttributes(global)
     -- Check to see if the frame being setup is blacklisted. Do not perform
     -- this check on the global frame.
     if not global then
-        bits[#bits + 1] = "local name = button:GetName()"
-        bits[#bits + 1] = "if blacklist[name] then return end"
+        local guard = {"local name = button:GetName()", "if blacklist[name] then return end"}
+        for _, line in ipairs(guard) do
+            preamble[#preamble + 1] = line
+            deltaPreamble[#deltaPreamble + 1] = line
+        end
+    end
 
-        rembits[#rembits + 1] = "local name = button:GetName()"
-        rembits[#rembits + 1] = "if blacklist[name] then return end"
+    -- Bindings are bucketed by combat phase so only the keys that change across
+    -- the boundary go in the delta snippets. See docs/architecture.md.
+    local stableSet, stableRem = {}, {}
+    local combatSet, combatRem = {}, {}
+    local oocSet, oocRem = {}, {}
+
+    local phase = "stable"
+    local function emitSet(line)
+        local b = (phase == "combat" and combatSet) or (phase == "ooc" and oocSet) or stableSet
+        b[#b + 1] = line
+    end
+    local function emitRem(line)
+        local b = (phase == "combat" and combatRem) or (phase == "ooc" and oocRem) or stableRem
+        b[#b + 1] = line
     end
 
     if self:ShouldRemoveSelfCast() then
-        table.insert(bits, "button:SetAttribute('checkselfcast', false)")
-        table.insert(bits, "button:SetAttribute('checkfocuscast', false)")
+        stableSet[#stableSet + 1] = "button:SetAttribute('checkselfcast', false)"
+        stableSet[#stableSet + 1] = "button:SetAttribute('checkfocuscast', false)"
     end
 
-    -- When we're in AnyDown mode the 'menu' action won't work, since its
-    -- hard-coded to only operate on the 'up' portion of the click. So we
-    -- need to convert menu into togglemenu if and when we see that.
-    if not global and self:IsDownClickEnabled() then
-        table.insert(bits, [[local curType2 = button:GetAttribute("*type2")]])
-        table.insert(bits, [[if curType2 == "menu" then]])
-        table.insert(bits, [[  button:SetAttribute("*type2", "togglemenu")]])
-        table.insert(bits, [[end]])
-    end
-
-    -- Backup and remove wildcard attributes on frames, as a nuclear option
-    -- but only when enabled. We're not concerned that we'll back up the
-    -- togglemenu option, as that's the one that works most well for addons.
-    if not global and self.settings.removeWildcardActions then
-        table.insert(bits, [[local oldType1 = button:GetAttribute("*type1")]])
-        table.insert(bits, [[if oldType1 then]])
-        table.insert(bits, [[  button:SetAttribute("clique-backup-*type1", oldType1)]])
-        table.insert(bits, [[  button:SetAttribute("*type1", "")]])
-        table.insert(bits, [[end]])
-        table.insert(bits, [[local oldType2 = button:GetAttribute("*type2")]])
-        table.insert(bits, [[if oldType2 then]])
-        table.insert(bits, [[  button:SetAttribute("clique-backup-*type2", oldType2)]])
-        table.insert(bits, [[  button:SetAttribute("*type2", "")]])
-        table.insert(bits, [[end]])
-
-        table.insert(rembits, [[local backup1 = button:GetAttribute("clique-backup-*type1")]])
-        table.insert(rembits, [[if backup1 then]])
-        table.insert(rembits, [[  button:SetAttribute("*type1", backup1)]])
-        table.insert(rembits, [[  button:SetAttribute("clique-backup-*type1", nil)]])
-        table.insert(rembits, [[end]])
-        table.insert(rembits, [[local backup2 = button:GetAttribute("clique-backup-*type2")]])
-        table.insert(rembits, [[if backup2 then]])
-        table.insert(rembits, [[  button:SetAttribute("*type2", backup2)]])
-        table.insert(rembits, [[  button:SetAttribute("clique-backup-*type2", nil)]])
-        table.insert(rembits, [[end]])
-    end
-
-   -- Sort the bindings so they are applied in order. This sort ensures that
+    -- Sort the bindings so they are applied in order. This sort ensures that
     -- any 'ooc' bindings are applied first.
     table.sort(self.bindings, ApplicationOrder)
 
     -- Build a small table of ooc keys that are 'taken' so we can check for
     -- masking conflicts with the friend/enemy sets.
     local oocKeys = {}
-    for idx, entry in ipairs(self.bindings) do
+    for _, entry in ipairs(self.bindings) do
         if shouldApply(global, entry) and entry.sets.ooc and entry.key then
             oocKeys[entry.key] = true
         end
     end
 
-    for idx, entry in ipairs(self.bindings) do
+    for _, entry in ipairs(self.bindings) do
         -- Global (i.e. 'hovercast' and 'global') bindings are only applied
         -- on the global frame, and not on any others. Additionally, any
-        -- non-global bindings are only applied on non-global frames. handle
-        -- this logic here.
-
+        -- non-global bindings are only applied on non-global frames.
         if shouldApply(global, entry) and self:IsBindingCorrectSpec(entry) and entry.key then
-            -- Check to see if this is a 'friend' or an 'enemy' binding, and
-            -- check if it would mask an 'ooc' binding with the same key. If
-            -- so, we need to add code that prevents this from happening, by
-            -- stopping the friend/enemy binding from being applied when the
-            -- player is out of combat.
-
-            local indent = ""
-            local oocmask = oocKeys[entry.key]
-
-            -- This code needs to set/clear a binding depending on combat
-            -- state. We do both in this function to ensure that we don't have
-            -- to run remove_clicks every single time the combat status
-            -- changes.
-
-            local startbits
-            if oocmask and not entry.sets.ooc then
-                -- This means that the binding will mask the 'ooc' binding
-                -- with the same key, so we must ensure this is only set when
-                -- we are in combat.
-                bits[#bits + 1] = "if inCombat then      -- non-ooc that is masking"
-                indent = indent .. "  "
+            -- A non-ooc binding sharing an ooc key masks it: combat-only here,
+            -- ooc-only for the partner. Everything else is stable.
+            if oocKeys[entry.key] and not entry.sets.ooc then
+                phase = "combat"
             elseif entry.sets.ooc then
-                -- This is a standard 'ooc' binding, so we want to ensure its
-                -- only applied when out of combat, and cleared otherwise.
-                bits[#bits + 1] = "if not inCombat then  -- ooc binding"
-                indent = indent .. "  "
-                startbits = #rembits + 1
+                phase = "ooc"
+            else
+                phase = "stable"
             end
 
             local prefix, suffix = self:GetBindingPrefixSuffix(entry, global)
@@ -195,35 +173,22 @@ function addon:GetClickAttributes(global)
             if entry.sets.friend then
                 if global then
                     -- A modified binding that uses friend/enemy must have the unmodified
-                    -- 'unit' attribute set, in order to do the friend/enemy lookup. Add
-                    -- that here.
-                    --
-                    -- NOTE: This will not work with useOwnerUnit and usesuffix frames
-                    -- such as pet frames that use the owner's parent. This is a problem
-                    -- with the way the 'mouseover' unit resolves in these cases.
-                    bits[#bits + 1] = ATTR(indent, prefix, "unit", suffix, "mouseover")
-                    rembits[#rembits + 1] = REMATTR(prefix, "unit", suffix)
+                    -- 'unit' attribute set, in order to do the friend/enemy lookup.
+                    emitSet(ATTR("", prefix, "unit", suffix, "mouseover"))
+                    emitRem(REMATTR(prefix, "unit", suffix))
                 end
                 local newbutton = "friend" .. suffix
-                bits[#bits + 1] = ATTR(indent, prefix, "helpbutton", suffix, newbutton)
-                rembits[#rembits + 1] = REMATTR(prefix, "helpbutton", suffix)
+                emitSet(ATTR("", prefix, "helpbutton", suffix, newbutton))
+                emitRem(REMATTR(prefix, "helpbutton", suffix))
                 suffix = newbutton
             elseif entry.sets.enemy then
                 if global then
-                    -- A modified binding that uses friend/enemy must have the unmodified
-                    -- 'unit' attribute set, in order to do the friend/enemy lookup. Add
-                    -- that here.
-                    --
-                    -- NOTE: This will not work with useOwnerUnit and usesuffix frames
-
-                    -- such as pet frames that use the owner's parent. This is a problem
-                    -- with the way the 'mouseover' unit resolves in these cases.
-                    bits[#bits + 1] = ATTR(indent, prefix, "unit", suffix, "mouseover")
-                    rembits[#rembits + 1] = REMATTR(prefix, "unit", suffix)
+                    emitSet(ATTR("", prefix, "unit", suffix, "mouseover"))
+                    emitRem(REMATTR(prefix, "unit", suffix))
                 end
                 local newbutton = "enemy" .. suffix
-                bits[#bits + 1] = ATTR(indent, prefix, "harmbutton", suffix, newbutton)
-                rembits[#rembits + 1] = REMATTR(prefix, "harmbutton", suffix)
+                emitSet(ATTR("", prefix, "harmbutton", suffix, newbutton))
+                emitRem(REMATTR(prefix, "harmbutton", suffix))
                 suffix = newbutton
             end
 
@@ -231,19 +196,17 @@ function addon:GetClickAttributes(global)
             -- 'hovercast' binding set, we need to specify the unit on which to take
             -- the action. In this case, that's just mouseover.
             if global and entry.sets.hovercast then
-                bits[#bits + 1] = ATTR(indent, prefix, "unit", suffix, "mouseover")
-                rembits[#rembits + 1] = REMATTR(prefix, "unit", suffix)
+                emitSet(ATTR("", prefix, "unit", suffix, "mouseover"))
+                emitRem(REMATTR(prefix, "unit", suffix))
             end
 
             -- Build any needed SetAttribute() calls
             if entry.type == "target" then
-                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, entry.type)
-                rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
+                emitSet(ATTR("", prefix, "type", suffix, "target"))
+                emitRem(REMATTR(prefix, "type", suffix))
             elseif entry.type == "menu" then
-                -- For some reason, the menu only triggers on 'up' clicks so we need to use
-                -- togglemenu always now.
-                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, "togglemenu")
-                rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
+                emitSet(ATTR("", prefix, "type", suffix, "togglemenu"))
+                emitRem(REMATTR(prefix, "type", suffix))
             elseif entry.type == "spell" and self.settings.stopcastingfix then
                 -- Implement the 'stop casting' fix
                 local macrotext
@@ -254,61 +217,87 @@ function addon:GetClickAttributes(global)
                 else
                     macrotext = string.format("/click %s\n/cast [@mouseover] %s", self.stopbutton.name, spellText)
                 end
-                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, "macro")
-                bits[#bits + 1] = ATTR(indent, prefix, "macrotext", suffix, macrotext)
-                rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
-                rembits[#rembits + 1] = REMATTR(prefix, "macrotext", suffix)
+                emitSet(ATTR("", prefix, "type", suffix, "macro"))
+                emitSet(ATTR("", prefix, "macrotext", suffix, macrotext))
+                emitRem(REMATTR(prefix, "type", suffix))
+                emitRem(REMATTR(prefix, "macrotext", suffix))
             elseif entry.type == "spell" then
                 local spellText = self:SpellTextWithSubName(entry)
-                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, entry.type)
-                bits[#bits + 1] = ATTR(indent, prefix, "spell", suffix, spellText)
-                rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
-                rembits[#rembits + 1] = REMATTR(prefix, "spell", suffix)
+                emitSet(ATTR("", prefix, "type", suffix, entry.type))
+                emitSet(ATTR("", prefix, "spell", suffix, spellText))
+                emitRem(REMATTR(prefix, "type", suffix))
+                emitRem(REMATTR(prefix, "spell", suffix))
             -- Macros aren't available on The War Within and above
             elseif entry.type == "macro" and self.settings.stopcastingfix and entry.macrotext then
                 local macrotext = string.format("/click %s\n%s", self.stopbutton.name, entry.macrotext)
-                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, entry.type)
-                bits[#bits + 1] = ATTR(indent, prefix, "macrotext", suffix, macrotext)
-                rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
-                rembits[#rembits + 1] = REMATTR(prefix, "macrotext", suffix)
+                emitSet(ATTR("", prefix, "type", suffix, entry.type))
+                emitSet(ATTR("", prefix, "macrotext", suffix, macrotext))
+                emitRem(REMATTR(prefix, "type", suffix))
+                emitRem(REMATTR(prefix, "macrotext", suffix))
             -- Macros aren't available on The War Within and above
             elseif entry.type == "macro" and entry.macrotext then
-                -- Macros aren't available on 11.x: The War Within
-                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, entry.type)
-                bits[#bits + 1] = ATTR(indent, prefix, "macrotext", suffix, entry.macrotext)
-                rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
-                rembits[#rembits + 1] = REMATTR(prefix, "macrotext", suffix)
+                emitSet(ATTR("", prefix, "type", suffix, entry.type))
+                emitSet(ATTR("", prefix, "macrotext", suffix, entry.macrotext))
+                emitRem(REMATTR(prefix, "type", suffix))
+                emitRem(REMATTR(prefix, "macrotext", suffix))
             elseif entry.type == "macro" and entry.macro then
-                bits[#bits + 1] = ATTR(indent, prefix, "type", suffix, entry.type)
-                bits[#bits + 1] = ATTR(indent, prefix, "macro", suffix, entry.macro)
-                rembits[#rembits + 1] = REMATTR(prefix, "type", suffix)
-                rembits[#rembits + 1] = REMATTR(prefix, "macro", suffix)
+                emitSet(ATTR("", prefix, "type", suffix, entry.type))
+                emitSet(ATTR("", prefix, "macro", suffix, entry.macro))
+                emitRem(REMATTR(prefix, "type", suffix))
+                emitRem(REMATTR(prefix, "macro", suffix))
+            elseif entry.type == "item" then
+                emitSet(ATTR("", prefix, "type", suffix, entry.type))
+                emitSet(ATTR("", prefix, "item", suffix, entry.item))
+                emitRem(REMATTR(prefix, "type", suffix))
+                emitRem(REMATTR(prefix, "item", suffix))
             else
                 error(string.format("Invalid action type: '%s'", tostring(entry.type)))
-            end
-
-            -- Finish the conditional statements started above
-            if oocmask and not entry.sets.ooc then
-                -- This means that the binding will mask the 'ooc' binding
-                -- with the same key, so we must ensure this is only set when
-                -- we are in combat.
-                bits[#bits + 1] = "end"
-                indent = indent:sub(1, -3)
-            elseif entry.sets.ooc then
-                -- This is a standard 'ooc' binding, so we want to ensure its
-                -- only applied when out of combat, and cleared otherwise.
-                local endbits = #rembits
-                bits[#bits + 1] = "else                  -- clear ooc binding"
-                for i = startbits, endbits, 1 do
-                    bits[#bits + 1] = indent .. rembits[i]
-                end
-                bits[#bits + 1] = "end"
-                indent = indent:sub(1, -3)
             end
         end
     end
 
-    return table.concat(bits, "\n"), table.concat(rembits, "\n")
+    local function emitBlock(out, lines, indent)
+        for _, line in ipairs(lines) do
+            out[#out + 1] = indent .. line
+        end
+    end
+
+    local setup = {}
+    emitBlock(setup, preamble, "")
+    emitBlock(setup, stableSet, "")
+    -- ooc before combat: a masking binding and its ooc partner share keys, so the
+    -- ooc clear must run before the masking set or it wipes what we just set.
+    if #oocSet > 0 then
+        setup[#setup + 1] = "if not inCombat then"
+        emitBlock(setup, oocSet, "  ")
+        setup[#setup + 1] = "else"
+        emitBlock(setup, oocRem, "  ")
+        setup[#setup + 1] = "end"
+    end
+    if #combatSet > 0 then
+        setup[#setup + 1] = "if inCombat then"
+        emitBlock(setup, combatSet, "  ")
+        setup[#setup + 1] = "end"
+    end
+
+    local remove = {}
+    emitBlock(remove, preamble, "")
+    emitBlock(remove, stableRem, "")
+    emitBlock(remove, combatRem, "")
+    emitBlock(remove, oocRem, "")
+
+    local applyCombat = {}  -- out-of-combat -> combat: clear ooc keys, then set masking
+    emitBlock(applyCombat, deltaPreamble, "")
+    emitBlock(applyCombat, oocRem, "")
+    emitBlock(applyCombat, combatSet, "")
+
+    local applyOoc = {}     -- combat -> out-of-combat: clear masking keys, then set ooc
+    emitBlock(applyOoc, deltaPreamble, "")
+    emitBlock(applyOoc, combatRem, "")
+    emitBlock(applyOoc, oocSet, "")
+
+    return table.concat(setup, "\n"), table.concat(remove, "\n"),
+           table.concat(applyCombat, "\n"), table.concat(applyOoc, "\n")
 end
 
 -- This function takes a single argument, indicating whether the attributes
@@ -332,24 +321,19 @@ function addon:GetBindingAttributes(global)
         set = {
             "local button = self",
             "local name = button:GetName()",
-            --"print('onenter: ' .. tostring(name and name or button))",
             "if blacklist[name] then return end",
             "if danglingButton then ",
-            --"  local dangleName = danglingButton:GetName()",
-            --"  print('clearing dangles for: ' .. tostring(dangleName and dangleName or danglingButton))",
             "  control:RunFor(danglingButton, control:GetAttribute('setup_onleave'))",
             "end",
-            "local cliqueNamedButton = control:GetFrameRef('cliqueNamedButton')",
-            "if not name then ",
-            "  cliqueNamedButton:SetAttribute('unit', button:GetAttribute('unit'))",
-            "end",
-            "local clickableButton = name and self or cliqueNamedButton:GetName()",
+            -- Keys target the key proxy by name (its useOnKeyDown carries the
+            -- direction); a handle silently no-ops, nil means registered in combat.
+            "local clickableButton = button:GetAttribute('clique_keyproxyname')",
+            "if not clickableButton then return end",
             "danglingButton = button",
         }
         clr = {
             "local button = self",
             "local name = button:GetName()",
-            --"print('onleave: ' .. tostring(name and name or button))",
             "if blacklist[name] then return end",
             "danglingButton = nil",
         }
@@ -380,7 +364,7 @@ function addon:GetBindingAttributes(global)
                         end
                     end
                 else
-                    local buttonNum = entry.key:match("BUTTON(%d+)$")
+                    local buttonNum = self:GetMouseButtonNumber(entry)
                     if not buttonNum then
                         -- Only apply key-based binding clicks, let the raw
                         -- attributes handle the others
@@ -402,18 +386,26 @@ function addon:GetBindingAttributes(global)
     return table.concat(set, "\n"), table.concat(clr, "\n")
 end
 
+-- Teardown counterpart to StampProxySetup: clear the binding set off both proxies
+-- before they're unregistered, so a pooled key proxy retains no stale dispatch.
+function addon:RemoveProxySetup(frame, target)
+    self.header:SetFrameRef("cliquesetup_button", target)
+    self.header:Execute(self.header:GetAttribute("remove_clicks"), target)
+
+    local keyProxy = self.keyProxies[frame]
+    if keyProxy and keyProxy ~= target then
+        self.header:SetFrameRef("cliquesetup_button", keyProxy)
+        self.header:Execute(self.header:GetAttribute("remove_clicks"), keyProxy)
+    end
+end
+
 function addon:ClearAttributes()
+    -- Done inside the restricted environment so it works during combat lockdown.
     self.header:Execute([[
-        for button, enabled in pairs(ccframes) do
-            self:RunFor(button, self:GetAttribute("remove_clicks"))
+        for proxy in pairs(proxies) do
+            self:RunFor(proxy, self:GetAttribute("remove_clicks"))
         end
     ]])
-
-    for button, enabled in pairs(self.ccframes) do
-        -- Perform the setup of click bindings
-        self.header:SetFrameRef("cliquesetup_button", button)
-        self.header:Execute(self.header:GetAttribute("remove_clicks"), button)
-    end
 
     -- Clear global attributes
     local globutton = self.globutton
@@ -423,57 +415,96 @@ end
 
 -- Recompute all attributes, so they can later be applied.
 function addon:UpdateAttributes()
-    local setup, remove = self:GetClickAttributes()
+    local setup, remove, applyCombat, applyOoc = self:GetClickAttributes()
     self.header:SetAttribute("setup_clicks", setup)
     self.header:SetAttribute("remove_clicks", remove)
+    self.header:SetAttribute("apply_combat", applyCombat)
+    self.header:SetAttribute("apply_ooc", applyOoc)
 
     local set, clr = self:GetBindingAttributes()
     self.header:SetAttribute("setup_onenter", set)
     self.header:SetAttribute("setup_onleave", clr)
 
     local globutton = self.globutton
-    globutton.setup, globutton.remove = self:GetClickAttributes(true)
+    globutton.setup, globutton.remove, globutton.applyCombat, globutton.applyOoc = self:GetClickAttributes(true)
     globutton.setbinds, globutton.clearbinds = self:GetBindingAttributes(true)
 end
 
 -- Remove any OnEnter and OnLeave scripts that we're written to frames
 function addon:UnwrapOnEnterOnLeave(button)
+    if not (self.wrapped and self.wrapped[button]) then return end
     self.header:UnwrapScript(button, "OnEnter")
     self.header:UnwrapScript(button, "OnLeave")
+    self.wrapped[button] = nil
 end
 
 -- Wrap the OnEnter and OnLeave scripts to run our secure snippet. This
 -- is needed to activate the keyboard bindings on unit frames.
+--
+-- WrapScript stacks, so unwrap any existing wrap first to keep this idempotent.
 function addon:WrapOnEnterOnLeave(button)
-    self.header:WrapScript(button, "OnEnter", [[control:RunFor(self, control:GetAttribute('setup_onenter'))]])
-    self.header:WrapScript(button, "OnLeave", [[control:RunFor(self, control:GetAttribute('setup_onleave'))]])
+    self.wrapped = self.wrapped or {}
+    if self.wrapped[button] then
+        self:UnwrapOnEnterOnLeave(button)
+    end
+    self.header:WrapScript(button, "OnEnter", [[
+        control:RunFor(self, control:GetAttribute('setup_onenter'))
+    ]])
+    self.header:WrapScript(button, "OnLeave", [[
+        control:RunFor(self, control:GetAttribute('setup_onleave'))
+    ]])
+    self.wrapped[button] = true
+end
+
+-- Stamp setup_clicks on a freshly acquired proxy immediately, before the next
+-- ApplyAttributes. The key proxy needs the same binding set as the click proxy.
+function addon:StampProxySetup(frame, target)
+    self.header:SetFrameRef("cliquesetup_button", target)
+    self.header:Execute(self.header:GetAttribute("setup_clicks"), target)
+
+    local keyProxy = self.keyProxies[frame]
+    if keyProxy and keyProxy ~= target then
+        self.header:SetFrameRef("cliquesetup_button", keyProxy)
+        self.header:Execute(self.header:GetAttribute("setup_clicks"), keyProxy)
+    end
 end
 
 function addon:ApplyAttributes()
-    -- Handle all of the securely registered frames
+    -- setup_clicks reads `inCombat` and swaps the ooc/combat set; this is the path
+    -- that makes ooc bindings work across the combat boundary.
     self.header:Execute([[
-        for button, enabled in pairs(ccframes) do
-            self:RunFor(button, self:GetAttribute("setup_clicks"))
+        for proxy in pairs(proxies) do
+            self:RunFor(proxy, self:GetAttribute("setup_clicks"))
         end
     ]])
 
-    -- Update the clicks on frames registered using ClickCastFrames directly.
-    -- Since unit frames can change their OnEnter/OnLeave scripts, we need to
-    -- unwrap and wrap them to make sure we're still active.
-    for button in pairs(self.ccframes) do
-        self.header:SetFrameRef("cliquesetup_button", button)
-        self.header:Execute(self.header:GetAttribute("setup_clicks"), button)
-
-        -- Unwrap anything we've done before and then wrap again
-        -- otherwise key-based bindings might not work, if someone
-        -- replaced our handler
-        self:UnwrapOnEnterOnLeave(button)
-        self:WrapOnEnterOnLeave(button)
+    -- Re-wrap so key bindings survive a unit frame replacing our handlers.
+    for frame in pairs(self.ccframes) do
+        self:WrapOnEnterOnLeave(frame)
     end
+
+    -- Re-stamp frame routing clobbered by unit frames since registration.
+    self:ReassertAllFrameClickRouting()
 
     -- Update the global button attributes
     self.globutton:Execute(self.globutton.setup)
     self.globutton:Execute(self.globutton.setbinds)
+end
+
+-- Touch only the masking/ooc keys instead of re-applying the full stable set on
+-- every proxy. Safe because all live proxies share one combat state. See
+-- docs/architecture.md.
+function addon:ApplyCombatTransition(entering)
+    local snippet = entering and "apply_combat" or "apply_ooc"
+
+    self.header:Execute(([[
+        for proxy in pairs(proxies) do
+            self:RunFor(proxy, self:GetAttribute("%s"))
+        end
+    ]]):format(snippet))
+
+    local globutton = self.globutton
+    globutton:Execute(entering and globutton.applyCombat or globutton.applyOoc)
 end
 
 

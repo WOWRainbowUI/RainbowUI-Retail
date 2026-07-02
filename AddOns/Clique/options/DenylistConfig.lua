@@ -4,7 +4,7 @@
 
 local addonName = select(1, ...)
 
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
@@ -16,8 +16,9 @@ panel.parent = addonName
 
 addon.optpanels["BLACKLIST"] = panel
 
+-- Denylist edits apply and prompt at row-toggle time, so there's nothing to do
+-- on window close.
 function panel:OnCommit()
-    panel.okay()
 end
 
 function panel:OnDefault()
@@ -44,8 +45,6 @@ local function make_label(name, template)
     return label
 end
 
-local state = {}
-
 function panel:CreateOptions()
     panel.initialized = true
 
@@ -53,7 +52,7 @@ function panel:CreateOptions()
     self.intro:SetPoint("TOPLEFT", panel, 5, -5)
     self.intro:SetPoint("RIGHT", panel, -5, 0)
     self.intro:SetHeight(45)
-    self.intro:SetText(L["This panel allows you to deny certain frames from being included for Clique bindings. Any frames that are selected in this list will not be registered, although you may have to reload your user interface to have them return to their original bindings."])
+    self.intro:SetText(L["This panel allows you to deny certain frames from being included for Clique bindings. Any frames that are selected in this list will not be registered. A UI reload is required for denied frames to return to their original bindings."])
 
     self.background = CreateFrame("Frame", "CliqueDenylistconfigScrollBackground", self, "TooltipBackdropTemplate")
     self.background:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 4, 535)
@@ -144,7 +143,6 @@ end
 function panel:CheckboxRowClicked(checkButton)
     local rowIndex = panel.dataProvider:FindIndex(checkButton.data)
     if rowIndex then
-        -- Found the previous row, let's update the checked state
         local data = checkButton.data
         local newData = {
             text = data.text,
@@ -165,22 +163,7 @@ function panel:ToggleSetting(frame, value)
 end
 
 function panel:FireBlacklistChanged()
-    addon:FireMessage("BLACKLIST_CHANGED")
-end
-
-function panel.okay()
-    xpcall(function()
-    -- Clear the existing blacklist
-    for frame, value in pairs(state) do
-        if not not value then
-            addon.settings.blacklist[frame] = true
-        else
-            addon.settings.blacklist[frame] = nil
-        end
-    end
-
-    addon:FireMessage("BLACKLIST_CHANGED")
-    end, geterrorhandler())
+    addon:ConfirmSettingReload()
 end
 
 function panel.refresh()
@@ -217,10 +200,24 @@ function panel.refresh()
    end, geterrorhandler())
 end
 
-if Settings and Settings.RegisterCanvasLayoutSubcategory then
-    local category, layout = Settings.RegisterCanvasLayoutSubcategory(addon.optpanels.ABOUT.category, addon.optpanels.BLACKLIST, addon.optpanels.BLACKLIST.name)
-    addon.optpanels.BLACKLIST.category = category
-    addon.optpanels.BLACKLIST.layout = layout
-elseif InterfaceOptions_AddCategory then
-    InterfaceOptions_AddCategory(panel, addon.optpanels.ABOUT)
+if addon.optpanels.useRedirect then
+    if Settings and Settings.RegisterVerticalLayoutSubcategory then
+        local category = Settings.RegisterVerticalLayoutSubcategory(addon.optpanels.ABOUT.category, L["Frame Denylist"])
+        Settings.RegisterInitializer(category, CreateSettingsListSectionHeaderInitializer(
+            L["These options have moved into the main Clique config window."]
+        ))
+        Settings.RegisterInitializer(category, CreateSettingsButtonInitializer(
+            L["Frame Denylist"], L["Open"],
+            function() addon:OpenDenylistPage() end,
+            nil, false
+        ))
+    end
+else
+    if Settings and Settings.RegisterCanvasLayoutSubcategory then
+        local category, layout = Settings.RegisterCanvasLayoutSubcategory(addon.optpanels.ABOUT.category, addon.optpanels.BLACKLIST, addon.optpanels.BLACKLIST.name)
+        addon.optpanels.BLACKLIST.category = category
+        addon.optpanels.BLACKLIST.layout = layout
+    elseif InterfaceOptions_AddCategory then
+        InterfaceOptions_AddCategory(panel, addon.optpanels.ABOUT)
+    end
 end

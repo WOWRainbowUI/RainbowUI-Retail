@@ -2,7 +2,7 @@
 --  Clique - Copyright 2006-2024 - James N. Whitehead II
 -------------------------------------------------------------------]] ---
 
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
@@ -425,6 +425,7 @@ function page:SetDraftFromTable(bind)
     draft.spellSubName = bind.spellSubName
     draft.macro = bind.macro
     draft.macrotext = bind.macrotext
+    draft.item  = bind.item
     -- Icon, key, unit
     draft.icon = bind.icon
     draft.key = bind.key
@@ -473,6 +474,8 @@ local function actionChanged(orig, draft, rankRemoved)
         return true
     elseif orig.macrotext ~= draft.macrotext then
         return true
+    elseif orig.item ~= draft.item then
+        return true
     elseif orig.unit ~= draft.unit then
         return true
     elseif rankRemoved and orig.spellSubName ~= nil then
@@ -498,6 +501,7 @@ end
 function page:UpdateEditPage()
     -- Default values for a new or binding with missing values
     local name = L["New Binding"]
+    ---@type string|number
     local icon = "Interface\\Icons\\INV_Misc_QuestionMark"
     local text = L["Not part of any bind-sets"]
     local bindingText = L["No binding set"]

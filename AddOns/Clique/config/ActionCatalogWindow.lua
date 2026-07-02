@@ -5,17 +5,14 @@ This file contains an abstraction of the spellbook APIs, ensuring that
 Clique has a common interface between different versions of WoW.
 -------------------------------------------------------------------]] ---
 
-local addonName = select(1, ...)
-
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
-
-local libDropDown = LibStub("LibDropDown")
 
 local libCatalog = addon.catalog
 local libActions = addon.actionCatalog
 local libSpellbook = addon.spellbookCatalog
+local libPet = addon.petCatalog
 local libMacros = addon.macroCatalog
 
 ---@class BindingConfig
@@ -134,8 +131,7 @@ function window:Initialize()
 
     cf.searchBox = CreateFrame("EditBox", "CliqueConfigUISpellbookSearch", cf, "SearchBoxTemplate")
 
-    cf.filterButton = CreateFrame("DropDownToggleButton", "CliqueConfigUISpellbookFilterButton", cf, "UIMenuButtonStretchTemplate")
-    cf.filterButton.Icon = cf.filterButton:CreateTexture(nil, "ARTWORK")
+    cf.filterButton = CreateFrame("DropdownButton", "CliqueConfigUISpellbookFilterButton", cf, "WowStyle1FilterDropdownTemplate")
     cf.filterButton.ResetButton = CreateFrame("Button", "CliqueConfigUISpellbookFilterButtonReset", cf.filterButton)
 
     cf.searchBox:SetHeight(22)
@@ -144,12 +140,38 @@ function window:Initialize()
     cf.searchBox:ClearAllPoints()
     cf.searchBox:SetPoint("TOPLEFT", cf, "TOPLEFT", 20, -30)
 
+    window.activeCatalogType = nil
+
     window:EnableCatalogTooltipsAndSetupQuickbind()
     window:EnableSearch()
     window:EnablePaging()
+    window:ResetFilter()
+
+    if TabSystemMixin then
+        cf.tabSystem = CreateFrame("Frame", nil, cf, "TabSystemTemplate")
+        cf.tabSystem.minTabWidth = 80
+        cf.tabSystem:SetPoint("BOTTOMLEFT", cf, "BOTTOMLEFT", 15, -30)
+
+        window.tabIDToCatalogType = {}
+        cf.tabSystem:SetTabSelectedCallback(function(tabID)
+            window:SetActiveTab(window.tabIDToCatalogType[tabID])
+        end)
+
+        local function addTab(catalogType, text)
+            local tabID = cf.tabSystem:AddTab(text)
+            window.tabIDToCatalogType[tabID] = catalogType
+            return tabID
+        end
+
+        window.allTabID = addTab(nil, L["All"])
+        addTab(libCatalog.catalogType.Spell, L["Spells"])
+        window.petTabID = addTab(libCatalog.catalogType.Pet, L["Pet"])
+        addTab(libCatalog.catalogType.Macro, L["Macros"])
+        cf.tabSystem:SetTab(window.allTabID)
+    end
+
     window:EnableCatalogFilter()
 
-    window:ResetFilter()
     window:UPDATE_CATALOG_WINDOW()
 
     local function triggerCatalogUpdate(self, elapsed)
@@ -165,10 +187,62 @@ function window:Initialize()
         end
     end
 
+    window.frame:SetScript("OnShow", function(self)
+        local cf = window.frame
+
+        if window.catalogDirty then
+            window.catalogDirty = false
+            window:REFRESH_CATALOG_WINDOW()
+        end
+
+        if not cf.tabSystem then
+            return
+        end
+
+        local hasPet = libPet:GetNumPetSpells() > 0
+        cf.tabSystem:SetTabShown(window.petTabID, hasPet)
+
+        if not hasPet and window.activeCatalogType == libCatalog.catalogType.Pet then
+            cf.tabSystem:SetTab(window.allTabID)
+        end
+    end)
+
     window.frame:RegisterEvent("SPELLS_CHANGED")
+    window.frame:RegisterEvent("UPDATE_MACROS")
+
+    -- Spec swaps and talent edits update the spellbook asynchronously, so a
+    -- short debounce isn't enough; refresh on a longer delayed dirty flag.
+    window.frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+    if addon:ProjectIsRetail() then
+        window.frame:RegisterEvent("TRAIT_CONFIG_UPDATED")
+    end
+
     window.frame:SetScript("OnEvent", function(self, event, ...)
-        if self:IsVisible() then
-           self:SetScript("OnUpdate", triggerCatalogUpdate)
+        if event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "TRAIT_CONFIG_UPDATED" then
+            window.catalogDirty = true
+            if self:IsVisible() then
+                window:ScheduleDelayedRefresh()
+            end
+        elseif self:IsVisible() then
+            self:SetScript("OnUpdate", triggerCatalogUpdate)
+        end
+    end)
+end
+
+-- Coalesce a burst of talent change events into a single refresh, giving the
+-- spellbook API time to settle before we re-read the catalog. If the window is
+-- closed before the timer fires, catalogDirty stays set so OnShow refreshes.
+function window:ScheduleDelayedRefresh()
+    if window.refreshPending then
+        return
+    end
+
+    window.refreshPending = true
+    C_Timer.After(1.0, function()
+        window.refreshPending = false
+        if window.frame:IsVisible() then
+            window.catalogDirty = false
+            window:REFRESH_CATALOG_WINDOW()
         end
     end)
 end
@@ -318,23 +392,16 @@ function window:EnablePaging()
 end
 
 function window:GetDefaultFilterSettings()
-    local filter = {}
-
-    filter.catalogs = {
-        [libCatalog.catalogType.Action] = true,
-        [libCatalog.catalogType.Spell] = true,
-        [libCatalog.catalogType.Macro] = true,
+    return {
+        settings = {
+            includePassives = false,
+            includeOffspec = false,
+            includeGlobalMacros = true,
+            includeCharacterMacros = true,
+            includeGeneralTab = false,
+            name = "",
+        }
     }
-
-    filter.settings = {}
-    filter.settings.includePassives = false
-    filter.settings.includeOffspec = false
-    filter.settings.includeGlobalMacros = true
-    filter.settings.includeCharacterMacros = true
-    filter.settings.includeGeneralTab = false
-
-    filter.settings.name = ""
-    return filter
 end
 
 function window:GetDefaultFilter()
@@ -347,15 +414,21 @@ function window:GetDefaultFilter()
 end
 
 function window:GetFilterFromSettings(filterSettings)
-    local catalogs = filterSettings.catalogs
-    local settings = filterSettings.settings
+    local activeType = window.activeCatalogType
+    local catalogs = {
+        [libCatalog.catalogType.Action] = not activeType,
+        [libCatalog.catalogType.Spell]  = not activeType or activeType == libCatalog.catalogType.Spell,
+        [libCatalog.catalogType.Pet]    = not activeType or activeType == libCatalog.catalogType.Pet,
+        [libCatalog.catalogType.Macro]  = not activeType or activeType == libCatalog.catalogType.Macro,
+    }
+    return libCatalog:CreateFilter(catalogs, filterSettings.settings)
+end
 
-    if settings.includeGlobalMacros or settings.includeCharacterMacros then
-        catalogs[libCatalog.catalogType.Macro] = true
-    end
-
-    local filter = libCatalog:CreateFilter(catalogs, settings)
-    return filter
+function window:SetActiveTab(catalogType)
+    window.activeCatalogType = catalogType
+    window.defaultFilter = nil
+    window.frame.page = 0
+    window:CATALOG_FILTER_CHANGED()
 end
 
 
@@ -366,15 +439,7 @@ function window:ResetFilter()
     local cf = window.frame
     cf.searchBox:SetText("")
 
-    -- Hide the filter menu if it is shown
-    cf.filterMenu:Hide()
-
     window:CATALOG_FILTER_CHANGED()
-end
-
-function window:FilterIncludesCatalog(catalogType)
-    local filter = window.filterSettings
-    return filter.catalogs[catalogType]
 end
 
 function window:FilterIncludesSetting(key)
@@ -396,28 +461,8 @@ function window:SetFilterSearchText(text)
     end
 end
 
-function window:SetFilterCatalog(catalogType, enabled)
-    local filter = window.filterSettings
-    filter.catalogs[catalogType] = not not enabled
-
-    -- If we turn off spells, toggle all spell-related options
-    if catalogType == libCatalog.catalogType.Spell then
-        filter.settings["includePassives"] = false
-        filter.settings["includeOffspec"] = false
-        filter.settings["includeGeneralTab"] = false
-    end
-
-    window:CATALOG_FILTER_CHANGED()
-end
-
 function window:SetFilterSetting(key, enabled)
-    local filter = window.filterSettings
-    filter.settings[key] = not not enabled
-
-    -- If any spell-related setting is selected, turn on the spell category
-    if filter.settings["includePassives"] or filter.settings["includeOffspec"] or filter.settings["includeGeneralTab"] then
-        filter.catalogs[libCatalog.catalogType.Spell] = true
-    end
+    window.filterSettings.settings[key] = not not enabled
     window:CATALOG_FILTER_CHANGED()
 end
 
@@ -430,23 +475,6 @@ function window:EnableCatalogFilter()
     cf.filterButton:SetHeight(22)
     cf.filterButton:SetText(L["Filter"])
 
-    cf.filterButton.Icon:SetHeight(12)
-    cf.filterButton.Icon:SetWidth(10)
-    cf.filterButton.Icon:ClearAllPoints()
-    cf.filterButton.Icon:SetPoint("RIGHT", cf.filterButton, "RIGHT", -10, 0)
-    cf.filterButton.Icon:SetTexture("Interface\\ChatFrame\\ChatFrameExpandArrow")
-
-    cf.filterButton:SetScript("OnCLick", function()
-        cf.filterMenu:Toggle()
-    end)
-
-    cf.filterMenu = libDropDown:NewMenu(cf.filterButton, "CliqueBindOtherDropdown")
-    CFFM = cf.filterMenu
-
-    cf.filterMenu:SetAnchor("TOPLEFT", cf.filterButton, "BOTTOMLEFT", 20, -10)
-    cf.filterMenu:SetStyle("MENU")
-    cf.filterMenu:SetFrameStrata("DIALOG")
-
     cf.filterButton.ResetButton:SetHeight(23)
     cf.filterButton.ResetButton:SetWidth(23)
     cf.filterButton.ResetButton:ClearAllPoints()
@@ -454,92 +482,30 @@ function window:EnableCatalogFilter()
     cf.filterButton.ResetButton:SetNormalAtlas("auctionhouse-ui-filter-redx")
     cf.filterButton.ResetButton:SetHighlightAtlas("auctionhouse-ui-filter-redx", "ADD", 0.4)
 
-    cf.filterButton.ResetButton:SetScript("OnClick", function(button)
+    cf.filterButton.ResetButton:SetScript("OnClick", function()
         window:ResetFilter()
     end)
 
-    local function createCatalogFilterCheck(catalogType)
-        return function()
-            return window:FilterIncludesCatalog(catalogType)
-        end
+    local function filterMenuGenerator(_, rootDescription)
+        rootDescription:CreateCheckbox(L["Include spells from 'General' tab"],
+            function() return window:FilterIncludesSetting("includeGeneralTab") end,
+            function() window:SetFilterSetting("includeGeneralTab", not window:FilterIncludesSetting("includeGeneralTab")) end)
+        rootDescription:CreateCheckbox(L["Include passive spells"],
+            function() return window:FilterIncludesSetting("includePassives") end,
+            function() window:SetFilterSetting("includePassives", not window:FilterIncludesSetting("includePassives")) end)
+        rootDescription:CreateCheckbox(L["Include off-spec spells"],
+            function() return window:FilterIncludesSetting("includeOffspec") end,
+            function() window:SetFilterSetting("includeOffspec", not window:FilterIncludesSetting("includeOffspec")) end)
+        rootDescription:CreateDivider()
+        rootDescription:CreateCheckbox(L["Include global macros"],
+            function() return window:FilterIncludesSetting("includeGlobalMacros") end,
+            function() window:SetFilterSetting("includeGlobalMacros", not window:FilterIncludesSetting("includeGlobalMacros")) end)
+        rootDescription:CreateCheckbox(L["Include character macros"],
+            function() return window:FilterIncludesSetting("includeCharacterMacros") end,
+            function() window:SetFilterSetting("includeCharacterMacros", not window:FilterIncludesSetting("includeCharacterMacros")) end)
     end
 
-    local function createCatalogFilterToggle(catalogType)
-        return function(button)
-            local current = window:FilterIncludesCatalog(catalogType)
-            local newValue = not current
-            window:SetFilterCatalog(catalogType, newValue)
-            button:SetCheckedState(newValue)
-            cf.filterMenu:Hide()
-            cf.filterMenu:Show()
-        end
-    end
-
-    local function createFilterSettingCheck(key)
-        return function()
-            return window:FilterIncludesSetting(key)
-        end
-    end
-
-    local function createFilterSettingToggle(key)
-        return function(button)
-            local current = window:FilterIncludesSetting(key)
-            local newValue = not current
-            window:SetFilterSetting(key, newValue)
-            button:SetCheckedState(newValue)
-            cf.filterMenu:Hide()
-            cf.filterMenu:Show()
-        end
-    end
-
-    cf.filterMenu:AddLine({
-        text = L["Spell and macro catalogue"],
-        isTitle = true,
-    })
-    cf.filterMenu:AddLine({
-        isSpacer = true,
-    })
-    cf.filterMenu:AddLine({
-        text = L["Include spells"],
-        checked = createCatalogFilterCheck(libCatalog.catalogType.Spell),
-        func = createCatalogFilterToggle(libCatalog.catalogType.Spell),
-        keepShown = true,
-    })
-    cf.filterMenu:AddLine({
-        text = L["Include spells from 'General' tab"],
-        checked = createFilterSettingCheck("includeGeneralTab"),
-        func = createFilterSettingToggle("includeGeneralTab"),
-        keepShown = true,
-    })
-    cf.filterMenu:AddLine({
-        text = L["Include passive spells"],
-        checked = createFilterSettingCheck("includePassives"),
-        func = createFilterSettingToggle("includePassives"),
-        keepShown = true,
-    })
-    cf.filterMenu:AddLine({
-        text = L["Include off-spec spells"],
-        checked = createFilterSettingCheck("includeOffspec"),
-        func = createFilterSettingToggle("includeOffspec"),
-        keepShown = true,
-    })
-    cf.filterMenu:AddLine({
-        isSpacer = true,
-    })
-
-    cf.filterMenu:AddLine({
-        text = L["Include global macros"],
-        checked = createFilterSettingCheck("includeGlobalMacros"),
-        func = createFilterSettingToggle("includeGlobalMacros"),
-        keepShown = true,
-    })
-    cf.filterMenu:AddLine({
-        text = L["Include character macros"],
-        checked =  createFilterSettingCheck("includeCharacterMacros"),
-        func = createFilterSettingToggle("includeCharacterMacros"),
-
-        keepShown = true,
-    })
+    cf.filterButton:SetupMenu(filterMenuGenerator)
 end
 
 function window:ClearCatalogResults()
@@ -549,9 +515,11 @@ end
 function window:GetCatalogResults()
     local actionResults = libActions:GetActionCatalogEntries()
     local spellResults = libSpellbook:GetSpellCatalogEntries(#actionResults)
-    local macroResults = libMacros:GetMacroCatalogEntries(#spellResults)
+    local petResults = libPet:GetPetCatalogEntries(#actionResults + #spellResults)
+    local macroResults = libMacros:GetMacroCatalogEntries(#actionResults + #spellResults + #petResults)
 
     local results = libCatalog:MergeCatalogs(actionResults, spellResults)
+    results = libCatalog:MergeCatalogs(results, petResults)
     results = libCatalog:MergeCatalogs(results, macroResults)
     libCatalog:SortCatalog(results)
 
@@ -618,14 +586,15 @@ function window:UPDATE_CATALOG_WINDOW()
         local button = cf.buttons[buttonIndex]
 
         local entry = results[idx]
-        if entry and entry.entryType == libCatalog.entryType.Spell then
+        if entry and (entry.entryType == libCatalog.entryType.Spell or entry.entryType == libCatalog.entryType.Pet) then
+            local isPet = entry.entryType == libCatalog.entryType.Pet
             local spellId = entry.id
             local name = entry.name
             local icon = entry.icon
             local passive = entry.passive
             local offspec = entry.offspec
 
-            button.type = libCatalog.entryType.Spell
+            button.type = entry.entryType
             button.id = spellId
 
             local spellSubName = libSpellbook:GetSpellSubName(spellId)
@@ -635,7 +604,7 @@ function window:UPDATE_CATALOG_WINDOW()
                 spellName = spellName .. " (" .. spellSubName .. ")"
             end
 
-            button.name:SetText(spellName .. (passive and " (Passive)" or "") .. (offspec and " [Offspec]" or ""))
+            button.name:SetText(spellName .. (isPet and (" (" .. L["pet"] .. ")") or "") .. (passive and " (Passive)" or "") .. (offspec and " [Offspec]" or ""))
             button.background:SetTexture(icon)
             if offspec then
                 button.background:SetDesaturated(true)

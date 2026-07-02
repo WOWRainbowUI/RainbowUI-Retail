@@ -2,9 +2,7 @@
 --  Clique - Copyright 2006-2024 - James N. Whitehead II
 -------------------------------------------------------------------]] ---
 
-local addonName = select(1, ...)
-
----@class addon
+---@class CliqueAddon: AddonCore
 local addon = select(2, ...)
 local L = addon.L
 
@@ -16,6 +14,22 @@ local libMacros = addon.macroCatalog
 ---@class BindingConfig
 local config = {}
 
+-- Mutually exclusive content pages — only one visible at a time
+local exclusivePages = {}
+
+function config:HideOtherPages(except)
+    for _, p in ipairs(exclusivePages) do
+        if p ~= except then
+            p:Hide()
+        end
+    end
+end
+
+function config:SwitchToPage(p)
+    config:HideOtherPages(p)
+    p:Show()
+end
+
 function addon:GetBindingConfig()
     return config
 end
@@ -26,11 +40,35 @@ function addon:ShowBindingConfig()
         return
     end
 
+    -- The Settings panel must be closed before ShowUIPanel will display a left-area panel
+    if SettingsPanel and SettingsPanel:IsShown() then
+        HideUIPanel(SettingsPanel)
+    end
+
     config:Initialize()
     config:InitializeLayout()
 
-    config:SwitchToBrowsePage()
+    if addon:ShouldAutoShowChangelog() then
+        config:SwitchToChangelogPage()
+    else
+        config:SwitchToBrowsePage()
+    end
     ShowUIPanel(CliqueUIBindingFrame)
+end
+
+function addon:OpenGeneralOptionsPage()
+    addon:ShowBindingConfig()
+    config:SwitchToGeneralOptionsPage()
+end
+
+function addon:OpenBlizzFramesPage()
+    addon:ShowBindingConfig()
+    config:SwitchToBlizzFramesPage()
+end
+
+function addon:OpenDenylistPage()
+    addon:ShowBindingConfig()
+    config:SwitchToDenylistPage()
 end
 
 function config:Initialize()
@@ -96,28 +134,63 @@ function config:InitializeLayout()
     config.EditPage = config:GetEditPage()
     config.EditMacroPage = config:GetEditMacroPage()
     config.CatalogWindow = config:GetActionCatalogWindow()
+    config.BlizzFramesPage = config:GetBlizzFramesPage()
+    config.DenylistPage = config:GetDenylistPage()
+    config.GeneralOptionsPage = config:GetGeneralOptionsPage()
+    config.ProfilePage = config:GetProfilePage()
+    config.ChangelogPage = config:GetChangelogPage()
 
     -- Initialize their layouts
     config.BrowsePage:Initialize()
     config.EditPage:Initialize()
     config.EditMacroPage:Initialize()
     config.CatalogWindow:Initialize()
+    config.BlizzFramesPage:Initialize()
+    config.DenylistPage:Initialize()
+    config.GeneralOptionsPage:Initialize()
+    config.ProfilePage:Initialize()
+    config.ChangelogPage:Initialize()
+
+    exclusivePages = {
+        config.BrowsePage,
+        config.EditPage,
+        config.EditMacroPage,
+        config.BlizzFramesPage,
+        config.DenylistPage,
+        config.GeneralOptionsPage,
+        config.ProfilePage,
+        config.ChangelogPage,
+    }
 end
 
 function config:SwitchToBrowsePage()
-    -- Hide all other frames, just in case
-    config.EditPage:Hide()
-    config.EditMacroPage:Hide()
-
-    -- Swap to the browse page
-    config.BrowsePage:Show()
+    config:SwitchToPage(config.BrowsePage)
     config.BrowsePage:UPDATE_BROWSE_PAGE()
+end
+
+function config:SwitchToBlizzFramesPage()
+    config:SwitchToPage(config.BlizzFramesPage)
+end
+
+function config:SwitchToDenylistPage()
+    config:SwitchToPage(config.DenylistPage)
+end
+
+function config:SwitchToGeneralOptionsPage()
+    config:SwitchToPage(config.GeneralOptionsPage)
+end
+
+function config:SwitchToProfilePage()
+    config:SwitchToPage(config.ProfilePage)
+end
+
+function config:SwitchToChangelogPage()
+    config:SwitchToPage(config.ChangelogPage)
 end
 
 -- Open the edit page either with a selected binding, or a blank binding
 function config:SwitchToEditPage(selectedBinding, newBinding)
-    config.EditMacroPage:Hide()
-    config.BrowsePage:Hide()
+    config:HideOtherPages(config.EditPage)
 
     if selectedBinding then
         config.EditPage:ShowEditPageSelectedBinding(selectedBinding)
@@ -168,9 +241,7 @@ function config:SendActionToEditPage(entryType, entryId)
 end
 
 function config:SwitchToEditMacroPage(macrotext, icon)
-    config.EditPage:Hide()
-
-    config.EditMacroPage:Show()
+    config:SwitchToPage(config.EditMacroPage)
     config.EditMacroPage:ResetPage()
     config.EditMacroPage:UpdateText(macrotext)
     config.EditMacroPage:UpdateEditBox(macrotext)
@@ -195,7 +266,7 @@ local BLUE_COLOR = {r = 0, g = 0.7490196, b = 0.9529412}
 function config:ShowTooltip(owner, entryType, entryId)
     local tooltip = config.ui.tooltip
 
-    if entryType == libCatalog.entryType.Spell and entryId then
+    if (entryType == libCatalog.entryType.Spell or entryType == libCatalog.entryType.Pet) and entryId then
         tooltip:SetOwner(owner, "ANCHOR_TOPLEFT")
         tooltip:SetSpellByID(entryId)
         tooltip:AddLine("")
@@ -214,12 +285,25 @@ function config:ShowTooltip(owner, entryType, entryId)
         tooltip:AddTexture(icon)
         tooltip:AddLine("\n")
         tooltip:AddLine(body, 1, 1, 1)
+        tooltip:AddLine("")
+        tooltip:AddLine("Macro Index: " .. tostring(entryId), 0.5, 0.5, 0.5)
     elseif entryType == libCatalog.entryType.Action and entryId then
-        local name, icon, type, unit = libActions:GetNameIconTypeUnit(entryId)
+        local name, icon, atype, unit, payload = libActions:GetNameIconTypeUnit(entryId)
 
         tooltip:SetOwner(owner, "ANCHOR_TOPLEFT")
-        tooltip:AddLine(name)
-        tooltip:AddTexture(icon)
+        if atype == "item" and payload then
+            local slot = tonumber(payload)
+            local hasItem = slot and GetInventoryItemID("player", slot)
+            if hasItem then
+                tooltip:SetInventoryItem("player", slot)
+            else
+                tooltip:AddLine(name)
+                tooltip:AddTexture(icon)
+            end
+        else
+            tooltip:AddLine(name)
+            tooltip:AddTexture(icon)
+        end
     else
         tooltip:SetOwner(owner, "ANCHOR_TOPLEFT")
         local unknown = L["Unknown binding type '%s'"]:format(tostring(entryType))
