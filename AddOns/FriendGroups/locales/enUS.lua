@@ -2,147 +2,161 @@ local addonName, addonTable = ...
 
 -- Create the localization table
 local L = {}
-addonTable.L = L 
+addonTable.L = L
 
 -- ============================================================================
--- [[ SETTINGS MENU HEADERS ]]
+-- [[ SETTINGS & OPTIONS MENU ]]
 -- ============================================================================
-L["SETTINGS_SIZE"]       = "Contact List Size"
-L["SETTINGS_FILTER"]     = "Filter"
+L["SETTINGS_ADVANCED"] = "Advanced"
+L["SETTINGS_ALT_CHARS"] = "Alt Characters"
 L["SETTINGS_APPEARANCE"] = "Appearance"
-L["SETTINGS_BEHAVIOR"]   = "Group Behavior"
 L["SETTINGS_AUTOMATION"] = "Automation"
-L["SETTINGS_RESET"]      = "|cffff0000Reset to Default|r"
-
--- ============================================================================
--- [[ SETTINGS: SIZE ]]
--- ============================================================================
-L["SET_SIZE_SMALL"]      = "Small (WoW Default)"
-L["SET_SIZE_MEDIUM"]     = "Medium"
-L["SET_SIZE_LARGE"]      = "Large"
-
--- ============================================================================
--- [[ SETTINGS: FILTERS ]]
--- ============================================================================
-L["SET_HIDE_OFFLINE"]    = "Hide All Offline"
-L["SET_HIDE_AFK"]        = "Hide All AFK"
-L["SET_MOBILE_AFK"]      = "Mark Mobile As AFK"
-L["SET_HIDE_EMPTY"]      = "Hide Empty Groups"
-L["SET_INGAME_ONLY"]     = "Show Only In-Game Friends"
-L["SET_RETAIL_ONLY"]     = "Show Only Retail Friends"
-
--- ============================================================================
--- [[ SETTINGS: APPEARANCE ]]
--- ============================================================================
-L["SET_SHOW_FLAGS"]      = "Show Realm Flags"
-L["SET_SHOW_REALM"]      = "Show Realm Names"
-L["SET_CLASS_COLOR"]     = "Use Class Color Names"
-L["SET_FACTION_ICONS"]   = "Show Faction Icons"
-L["SET_GRAY_FACTION"]    = "Dim Opposing Faction"
-L["SET_SHOW_BTAG"]       = "Show Only BattleTag"
-L["SET_HIDE_MAX_LEVEL"]  = "Hide Max Level"
-
--- ============================================================================
--- [[ SETTINGS: BEHAVIOR ]]
--- ============================================================================
-L["SET_FAV_GROUP"]       = "Enable Favorite Friends Group"
-L["SET_COLLAPSE"]        = "Auto Collapse Groups"
-
--- ============================================================================
--- [[ SETTINGS: AUTOMATION ]]
--- ============================================================================
-L["SET_AUTO_ACCEPT"]     = "Auto Accept Group Invite"
+L["SETTINGS_BEHAVIOR"] = "Group Behavior"
+L["SETTINGS_EXPORT"] = "Export Settings"
+L["SETTINGS_FILTER"] = "Filter"
+L["SETTINGS_IMPORT"] = "Import Settings"
+L["SETTINGS_LAST_BACKUP"] = "Last backup: %s"
+L["SETTINGS_PROFILE"] = "Settings Backup"
+L["SETTINGS_PURGE_CACHE"] = "Purge Alt Cache"
+L["SETTINGS_RESET"] = "|cffff0000Reset to Default|r"
+L["SETTINGS_RESET_ORDER"] = "Reset Group Order"
+L["SETTINGS_SIZE"] = "Contact List Size"
+L["SETTINGS_TITLE"] = "Settings"
+L["SETTINGS_VERSION"] = "FriendGroups v%s"
+L["SET_AUTO_ACCEPT"] = "Auto Accept Group Invite"
 L["SET_AUTO_PARTY_SYNC"] = "Auto Accept Party Sync"
-L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s invites you to a group. Auto Accept |cff00ff00ENABLED|r"
-L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s invites you to Party Sync. Auto Accept |cff00ff00ENABLED|r"
-L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard prevented auto-accept in this zone. Please click the button manually."
-
--- Spirit Behavior Sub-Menu
-L["SET_SPIRIT_HEADER"]   = "Spirit Behavior"
-L["SET_SPIRIT_NONE"]     = "None"
-L["SET_SPIRIT_RES"]      = "Auto Accept Resurrection"
-L["SET_SPIRIT_RELEASE"]  = "Auto Release Spirit"
-
-L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s is resurrecting you. Auto Accept |cff00ff00ENABLED|r"
-L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: You have died. Auto Release |cff00ff00ENABLED|r"
-L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard prevented auto-release in this zone. Please click the release button."
+L["SET_CLASS_COLOR"] = "Use Class Color Names"
+L["SET_COLLAPSE"] = "Auto Collapse Groups"
+L["SET_FACTION_ICONS"] = "Show Faction Icons"
+L["SET_FAV_GROUP"] = "Enable Favorite Friends Group"
+L["SET_GRAY_FACTION"] = "Dim Opposing Faction"
+L["SET_GUILDMATES"] = "Enable Auto Guild Groups"
+L["SET_HIDE_AFK"] = "Hide All AFK"
+L["SET_HIDE_EMPTY"] = "Hide Empty Groups"
+L["SET_HIDE_MAX_LEVEL"] = "Hide Max Level"
+L["SET_HIDE_OFFLINE"] = "Hide All Offline"
+L["SET_INGAME_ONLY"] = "Show Only In-Game Friends"
+L["SET_KNOWN_ALTS"] = "Enable Alt Character Tracking"
+L["SET_MOBILE_AFK"] = "Mark Mobile As AFK"
+L["SET_OFFLINE_TRACKER"] = "Enable Offline Tracker Groups"
+L["SET_RETAIL_ONLY"] = "Show Only Retail Friends"
+L["SET_SHOW_BTAG"] = "Show Only BattleTag"
+L["SET_SHOW_FLAGS"] = "Show Realm Flags"
+L["SET_SHOW_REALM"] = "Show Realm Names"
+L["SET_SIZE_LARGE"] = "Large"
+L["SET_SIZE_MEDIUM"] = "Medium"
+L["SET_SIZE_SMALL"] = "Small (WoW Default)"
+L["SET_SPIRIT_HEADER"] = "Spirit Behavior"
+L["SET_SPIRIT_RELEASE"] = "Auto Release Spirit"
+L["SET_SPIRIT_RES"] = "Auto Accept Resurrection"
+L["SET_WIDTH_NARROW"] = "Narrow (Default)"
+L["SET_WIDTH_WIDE"] = "Wide"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
 -- ============================================================================
--- Group Header Right-Click
-L["MENU_RENAME"]         = "Rename Group"
-L["MENU_REMOVE"]         = "Remove Group"
-L["MENU_INVITE"]         = "Invite Group to Party"
-L["MENU_MAX_40"]         = " (Max 40)"
-
--- Friend Button Right-Click
-L["DROP_TITLE"]          = "FriendGroups"
-L["DROP_COPY_NAME"]      = "Copy Name-Realm"
-L["DROP_COPY_BTAG"]      = "Copy BattleTag"
-L["DROP_CREATE"]         = "Create New Group"
-L["DROP_ADD"]            = "Add to Group"
-L["DROP_REMOVE"]         = "Remove from Group"
-L["DROP_CANCEL"]         = "Cancel"
-
--- ============================================================================
--- [[ POPUPS & SYSTEM ]]
--- ============================================================================
-L["POPUP_ENTER_NAME"]    = "Enter new group name"
-L["POPUP_COPY"]          = "Press Ctrl+C to copy:"
-
-L["SEARCH_PLACEHOLDER"]  = "FriendGroups Search"
-L["SEARCH_TOOLTIP"]      = "FriendGroups: Search for anyone! Name, Realm, Class and even Notes"
-
-L["MSG_WELCOME"]         = ""
-L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r: Settings reset to default."
-L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r: Bnet API Bug detected. Your empty Friends List is caused by a WoW Client Bug. Please try to restart your game. (no guaranteed fix)"
+L["DROP_ADD"] = "Add to Group"
+L["DROP_ADD_GUILD"] = "Add to Guild Group"
+L["DROP_CLEAR_MAIN"] = "Clear Selected Main"
+L["DROP_COPY_BTAG"] = "Copy BattleTag"
+L["DROP_COPY_NAME"] = "Copy Name-Realm"
+L["DROP_CREATE"] = "Create New Group"
+L["DROP_REMOVE"] = "Remove from Group"
+L["DROP_REMOVE_GUILD"] = "Remove from Guild Group"
+L["DROP_SELECT_MAIN"] = "Select Main"
+L["DROP_SET_NICKNAME"] = "Set Nickname"
+L["DROP_TITLE"] = "FriendGroups"
+L["MENU_CLEAR_BANNER_COLOR"] = "Clear Banner Color"
+L["MENU_INVITE"] = "Invite Group to Party"
+L["MENU_MAX_40"] = " (Max 40)"
+L["MENU_MOVE_DOWN"] = "Move Down"
+L["MENU_MOVE_UP"] = "Move Up"
+L["MENU_REMOVE"] = "|cffff0000Remove Group|r"
+L["MENU_RENAME"] = "Rename Group"
+L["MENU_RESET_POSITION"] = "Reset Position"
+L["MENU_SET_BANNER_COLOR"] = "Set Banner Color"
 
 -- ============================================================================
--- [[ SPECIAL GROUP NAMES ]]
+-- [[ TOOLTIPS ]]
 -- ============================================================================
-L["GROUP_FAVORITES"]     = "[Favorites]"
-L["GROUP_NONE"]          = "[No Group]"
-L["GROUP_EMPTY"]         = "Friends List is empty"
-L["STATUS_MOBILE"]       = "Mobile"
-
--- ============================================================================
--- [[ HOUSING / SAFE MODE ]]
--- ============================================================================
-L["RELOAD_BTN_TEXT"]      = "Reload FriendGroups"
-L["RELOAD_TOOLTIP_TITLE"] = "Reload FriendGroups"
-L["RELOAD_TOOLTIP_DESC"]  = "Reloads the UI to restore FriendGroups."
-
-L["SHIELD_MSG"]           = "|cffFF0000FriendGroups is Active|r\n\nDue to Blizzard Secure Frame restrictions,\nyou must reload to View Houses."
-L["SHIELD_BTN_TEXT"]      = "Reload to View Houses"
-L["SAFE_MODE_WARNING"]    = "|cffFF0000VIEW HOUSES:|r FriendGroups disabled to View Houses. Reload to enable."
-
--- ============================================================================
--- 12.0.8
--- ============================================================================
-L["SETTINGS_CONTACTS"]   = "Contact Management"
-L["SET_CONTACT_CAP"]     = "Show Contact Cap Tracker"
-L["SET_OFFLINE_TRACKER"] = "Enable Offline Tracker Groups"
-L["GROUP_OFFLINE_1"]     = "[Offline 1 Month]"
-L["GROUP_OFFLINE_2"]     = "[Offline 2 Months]"
-L["GROUP_OFFLINE_3"]     = "[Offline 3+ Months]"
-L["TEXT_CONTACTS"]       = "%d/600"
-
--- ============================================================================
--- 12.1.0
--- ============================================================================
-
-L["SET_GUILDMATES"]      = "Enable Auto Guild Groups"
-L["GROUP_GUILDMATES"]    = "[Guild]"
-L["FORMAT_GUILD_TAG"]    = "%s <%s>"
-L["TEXT_BNET_CONTACTS"]       = "%d/%d"
-L["TOOLTIP_CONTACT_TITLE"]    = "Contact Limits"
-L["TOOLTIP_CONTACT_DESC"]     = "Battle.net limits are shared across all games.\nWoW friends are unique to this character."
-L["TOOLTIP_CONTACT_BNET"]     = "Battle.net Friends:"
-L["TOOLTIP_CONTACT_INVITES"]  = "Pending Invites:"
+L["TOOLTIP_ALTS_FORMAT"] = "%s %s %s Level %d"
+L["TOOLTIP_ALTS_GUILD_SUFFIX"] = " |cFFFFD100<%s>|r"
+L["TOOLTIP_ALTS_PUBLIC_TITLE_FORMAT"] = "%s's Known Alt Characters"
+L["TOOLTIP_ALTS_SEEN"] = "Last seen in %s - %s"
+L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"] = "%s's Known Alt Characters (Recent 10)"
+L["TOOLTIP_CONTACT_BNET"] = "Battle.net Friends:"
+L["TOOLTIP_CONTACT_DESC"] = "Battle.net limits are shared across all games.\nWoW friends are unique to this character."
+L["TOOLTIP_CONTACT_INVITES"] = "Pending Invites:"
 L["TOOLTIP_CONTACT_INV_DESC"] = "(These consume BNet slots!)"
-L["TOOLTIP_CONTACT_WOW"]      = "WoW Character Friends:"
-L["TOOLTIP_CONTACT_TOTAL"]    = "Total unique contacts tracked: %d"
+L["TOOLTIP_CONTACT_TITLE"] = "Contact Limits"
+L["TOOLTIP_CONTACT_TOTAL"] = "Total unique contacts tracked: %d"
+L["TOOLTIP_CONTACT_WOW"] = "WoW Character Friends:"
+L["TOOLTIP_CUSTOM_GROUP_DESC_1"] = "To manually add a friend to this group, type #%s anywhere in their friend note."
+L["TOOLTIP_CUSTOM_GROUP_TITLE"] = "Custom Group"
+L["TOOLTIP_EXPORT_1"] = "Saves a full backup of your settings and data as a code. Keep it somewhere safe to restore later."
+L["TOOLTIP_EXPORT_2"] = "Includes appearance, behavior, group order, banner colors, nicknames and selected mains."
+L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"] = "Right-click this group header to select a custom background banner color."
+L["TOOLTIP_GUILD_GROUP_DESC_1"] = "This group is automatically populated by your online guildmates."
+L["TOOLTIP_GUILD_GROUP_DESC_2"] = "To manually add a friend to this group, type %s anywhere in their friend note."
+L["TOOLTIP_GUILD_GROUP_TITLE"] = "Auto Guild Group"
+L["TOOLTIP_IMPORT_1"] = "Restores a backup from a code."
+L["TOOLTIP_IMPORT_2"] = "This replaces your current settings with the imported ones."
+L["TOOLTIP_KNOWN_ALTS"] = "Tracks which characters your Battle.net friends play and lists them in a panel on hover. Turning this off disables tracking and clears all stored alt data."
+
+-- ============================================================================
+-- [[ MESSAGES, POPUPS & DEBUG ]]
+-- ============================================================================
+L["DEBUG_DB_SIZE"] = "Database Profiles: %d (Private BNet Cache)"
+L["DEBUG_GUID_INDEX"] = "GUID index entries: %d"
+L["DEBUG_HEADER"] = "|cFF33FF99[FriendGroups Diagnostic Telemetry]|r"
+L["DEBUG_HELP"] = "|cFF33FF99FriendGroups:|r Commands: /fg export, /fg import, /fg debug"
+L["DEBUG_MEM_USAGE"] = "Current Addon Memory: %.2f MB"
+L["DEBUG_SECRET_GUID"] = "GUID also secret/unavailable: %d"
+L["DEBUG_SECRET_HEADER"] = "|cFF33FF99Secret-Value Telemetry|r"
+L["DEBUG_SECRET_HITS"] = "Secret-name encounters: %d"
+L["DEBUG_SECRET_RESOLVED"] = "Resolved via GUID index: %d"
+L["DEBUG_SECRET_UNRESOLVED"] = "Unresolved (no index hit): %d"
+L["MSG_ALT_TRACKING_DISABLED"] = "|cFF33FF99FriendGroups|r: Alt Tracking disabled. Database has been wiped."
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard prevented auto-accept in this zone. Please click the button manually."
+L["MSG_AUTO_INVITE"] = "|cFF33FF99FriendGroups|r: %s invites you to a group. Auto Accept |cff00ff00ENABLED|r"
+L["MSG_AUTO_RELEASE"] = "|cFF33FF99FriendGroups|r: You have died. Auto Release |cff00ff00ENABLED|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard prevented auto-release in this zone. Please click the release button."
+L["MSG_AUTO_RES"] = "|cFF33FF99FriendGroups|r: %s is resurrecting you. Auto Accept |cff00ff00ENABLED|r"
+L["MSG_AUTO_SYNC"] = "|cFF33FF99FriendGroups|r: %s invites you to Party Sync. Auto Accept |cff00ff00ENABLED|r"
+L["MSG_IMPORT_FAIL_CHECKSUM"] = "|cFF33FF99FriendGroups|r: The settings code is corrupted or incomplete."
+L["MSG_IMPORT_FAIL_FORMAT"] = "|cFF33FF99FriendGroups|r: That is not a valid settings code."
+L["MSG_IMPORT_FAIL_PROTOCOL"] = "|cFF33FF99FriendGroups|r: The settings code is from an incompatible version."
+L["MSG_IMPORT_OK"] = "|cFF33FF99FriendGroups|r: Settings imported."
+L["MSG_IMPORT_OK_DATED"] = "|cFF33FF99FriendGroups|r: Backup restored (created %s)."
+L["MSG_PURGE_CACHE"] = "|cFF33FF99FriendGroups|r: Alt and Guild caches have been successfully purged."
+L["MSG_RESET"] = "|cFF33FF99FriendGroups|r: Settings reset to default."
+L["POPUP_COPY"] = "Press Ctrl+C to copy:"
+L["POPUP_ENTER_NAME"] = "Enter new group name"
+L["POPUP_ENTER_NICKNAME"] = "Enter custom nickname for this friend:"
+L["POPUP_IMPORT"] = "Paste a backup code, then click Accept.\nA large backup can freeze the game for up to a minute while it restores - this is normal."
+
+-- ============================================================================
+-- [[ LABELS, GROUPS & FORMATS ]]
+-- ============================================================================
+L["FORMAT_AKA_DISPLAY"] = " |cFF949694aka|r %s"
+L["FORMAT_GUILD_TAG"] = "%s <%s>"
+L["GROUP_EMPTY"] = "Friends List is empty"
+L["GROUP_FAVORITES"] = "[Favorites]"
+L["GROUP_GUILDMATES"] = "[Guild]"
+L["GROUP_NONE"] = "[No Group]"
+L["GROUP_OFFLINE_1"] = "[Offline 1 Month]"
+L["GROUP_OFFLINE_2"] = "[Offline 2 Months]"
+L["GROUP_OFFLINE_3"] = "[Offline 3+ Months]"
+L["SEARCH_PLACEHOLDER"] = "FriendGroups Search"
+L["SEARCH_TOOLTIP"] = "FriendGroups: Search for anyone! Name, Realm, Class and even Notes"
+L["STATUS_MOBILE"] = "Mobile"
+L["TEXT_BNET_CONTACTS"] = "%d/%d"
+L["TIME_DAYS_AGO"] = "%d days ago"
+L["TIME_HOURS_AGO"] = "%d hours ago"
+L["TIME_JUST_NOW"] = "Just now"
+L["TIME_MINUTES_AGO"] = "%d minutes ago"
+L["UNKNOWN"] = "Unknown"
+L["UNKNOWN_ZONE"] = "Unknown Zone"
 
 -- 自行加入
 L["FriendGroups Settings"] = "FriendGroups Settings"
