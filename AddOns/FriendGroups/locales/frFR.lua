@@ -5,141 +5,155 @@ local L = addonTable.L
 if GetLocale() ~= "frFR" then return end
 
 -- ============================================================================
--- [[ SETTINGS MENU HEADERS ]]
+-- [[ SETTINGS & OPTIONS MENU ]]
 -- ============================================================================
-L["SETTINGS_SIZE"]       = "Taille de la liste"
-L["SETTINGS_FILTER"]     = "Filtre"
+L["SETTINGS_ADVANCED"] = "Avancé"
+L["SETTINGS_ALT_CHARS"] = "Rerolls (Alts)"
 L["SETTINGS_APPEARANCE"] = "Apparence"
-L["SETTINGS_BEHAVIOR"]   = "Comportement"
 L["SETTINGS_AUTOMATION"] = "Automatisation"
-L["SETTINGS_RESET"]      = "|cffff0000Réinitialiser|r"
-
--- ============================================================================
--- [[ SETTINGS: SIZE ]]
--- ============================================================================
-L["SET_SIZE_SMALL"]      = "Petit (Défaut)"
-L["SET_SIZE_MEDIUM"]     = "Moyen"
-L["SET_SIZE_LARGE"]      = "Grand"
-
--- ============================================================================
--- [[ SETTINGS: FILTERS ]]
--- ============================================================================
-L["SET_HIDE_OFFLINE"]    = "Cacher les hors ligne"
-L["SET_HIDE_AFK"]        = "Cacher les absents (AFK)"
-L["SET_MOBILE_AFK"]      = "Marquer Mobile comme absent"
-L["SET_HIDE_EMPTY"]      = "Cacher les groupes vides"
-L["SET_INGAME_ONLY"]     = "Seulement amis en jeu"
-L["SET_RETAIL_ONLY"]     = "Seulement amis Retail"
-
--- ============================================================================
--- [[ SETTINGS: APPEARANCE ]]
--- ============================================================================
-L["SET_SHOW_FLAGS"]      = "Afficher drapeaux de royaume"
-L["SET_SHOW_REALM"]      = "Afficher nom du royaume"
-L["SET_CLASS_COLOR"]     = "Couleurs de classe"
-L["SET_FACTION_ICONS"]   = "Icônes de faction"
-L["SET_GRAY_FACTION"]    = "Griser faction opposée"
-L["SET_SHOW_BTAG"]       = "Afficher BattleTag seul"
-L["SET_HIDE_MAX_LEVEL"]  = "Cacher niveau max"
-
--- ============================================================================
--- [[ SETTINGS: BEHAVIOR ]]
--- ============================================================================
-L["SET_FAV_GROUP"]       = "Activer groupe favoris"
-L["SET_COLLAPSE"]        = "Fermer groupes auto"
-
--- ============================================================================
--- [[ SETTINGS: AUTOMATION ]]
--- ============================================================================
-L["SET_AUTO_ACCEPT"]     = "Accepter l'invitation automatiquement"
+L["SETTINGS_BEHAVIOR"] = "Comportement"
+L["SETTINGS_EXPORT"] = "Exporter les réglages"
+L["SETTINGS_FILTER"] = "Filtre"
+L["SETTINGS_IMPORT"] = "Importer les réglages"
+L["SETTINGS_LAST_BACKUP"] = "Dernière sauvegarde : %s"
+L["SETTINGS_PROFILE"] = "Sauvegarde des réglages"
+L["SETTINGS_PURGE_CACHE"] = "Purger le cache des rerolls"
+L["SETTINGS_RESET"] = "|cffff0000Réinitialiser|r"
+L["SETTINGS_RESET_ORDER"] = "Réinitialiser l'ordre des groupes"
+L["SETTINGS_SIZE"] = "Taille de la liste"
+L["SETTINGS_TITLE"] = "Réglages"
+L["SETTINGS_VERSION"] = "FriendGroups v%s"
+L["SET_AUTO_ACCEPT"] = "Accepter l'invitation automatiquement"
 L["SET_AUTO_PARTY_SYNC"] = "Accepter la Synchro de groupe automatiquement"
-L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s vous invite dans un groupe. Auto-acceptation |cff00ff00ACTIVÉE|r"
-L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s vous invite à la Synchro de groupe. Auto-acceptation |cff00ff00ACTIVÉE|r"
-L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard a empêché l'acceptation automatique dans cette zone. Veuillez cliquer sur le bouton manuellement."
-
--- Spirit Behavior Sub-Menu
-L["SET_SPIRIT_HEADER"]   = "Comportement de l'esprit"
-L["SET_SPIRIT_NONE"]     = "Aucun"
-L["SET_SPIRIT_RES"]      = "Accepter la résurrection automatiquement"
-L["SET_SPIRIT_RELEASE"]  = "Libérer l'esprit automatiquement"
-
-L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s vous ressuscite. Auto-acceptation |cff00ff00ACTIVÉE|r"
-L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: Vous êtes mort. Libération auto |cff00ff00ACTIVÉE|r"
-L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard a empêché la libération automatique dans cette zone. Veuillez cliquer sur le bouton de libération."
+L["SET_CLASS_COLOR"] = "Couleurs de classe"
+L["SET_COLLAPSE"] = "Fermer groupes auto"
+L["SET_FACTION_ICONS"] = "Icônes de faction"
+L["SET_FAV_GROUP"] = "Activer groupe favoris"
+L["SET_GRAY_FACTION"] = "Griser faction opposée"
+L["SET_GUILDMATES"] = "Activer les groupes de guilde automatiques"
+L["SET_HIDE_AFK"] = "Cacher les absents (AFK)"
+L["SET_HIDE_EMPTY"] = "Cacher les groupes vides"
+L["SET_HIDE_MAX_LEVEL"] = "Cacher niveau max"
+L["SET_HIDE_OFFLINE"] = "Cacher les hors ligne"
+L["SET_INGAME_ONLY"] = "Seulement amis en jeu"
+L["SET_KNOWN_ALTS"] = "Activer le suivi des rerolls"
+L["SET_MOBILE_AFK"] = "Marquer Mobile comme absent"
+L["SET_OFFLINE_TRACKER"] = "Activer les groupes de suivi hors ligne"
+L["SET_RETAIL_ONLY"] = "Seulement amis Retail"
+L["SET_SHOW_BTAG"] = "Afficher BattleTag seul"
+L["SET_SHOW_FLAGS"] = "Afficher drapeaux de royaume"
+L["SET_SHOW_REALM"] = "Afficher nom du royaume"
+L["SET_SIZE_LARGE"] = "Grand"
+L["SET_SIZE_MEDIUM"] = "Moyen"
+L["SET_SIZE_SMALL"] = "Petit (Défaut)"
+L["SET_SPIRIT_HEADER"] = "Comportement de l'esprit"
+L["SET_SPIRIT_RELEASE"] = "Libérer l'esprit automatiquement"
+L["SET_SPIRIT_RES"] = "Accepter la résurrection automatiquement"
+L["SET_WIDTH_NARROW"] = "Étroit (Défaut)"
+L["SET_WIDTH_WIDE"] = "Large"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
 -- ============================================================================
--- Group Header Right-Click
-L["MENU_RENAME"]         = "Renommer le groupe"
-L["MENU_REMOVE"]         = "Supprimer le groupe"
-L["MENU_INVITE"]         = "Inviter le groupe"
-L["MENU_MAX_40"]         = " (Max 40)"
-
--- Friend Button Right-Click
-L["DROP_TITLE"]          = "FriendGroups"
-L["DROP_COPY_NAME"]      = "Copier Nom-Royaume"
-L["DROP_COPY_BTAG"]      = "Copier BattleTag"
-L["DROP_CREATE"]         = "Créer un nouveau groupe"
-L["DROP_ADD"]            = "Ajouter au groupe"
-L["DROP_REMOVE"]         = "Retirer du groupe"
-L["DROP_CANCEL"]         = "Annuler"
-
--- ============================================================================
--- [[ POPUPS & SYSTEM ]]
--- ============================================================================
-L["POPUP_ENTER_NAME"]    = "Entrez le nom du groupe"
-L["POPUP_COPY"]          = "Ctrl+C pour copier :"
-
-L["SEARCH_PLACEHOLDER"]  = "Recherche FriendGroups"
-L["SEARCH_TOOLTIP"]      = "FriendGroups : Cherchez n'importe qui ! Nom, Royaume, Classe et même Notes"
-
-L["MSG_WELCOME"]         = ""
-L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r : Paramètres réinitialisés."
-L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r : Bug API Bnet détecté. Votre liste d'amis vide est causée par un bug du client WoW. Veuillez redémarrer le jeu. (Pas de solution garantie)"
+L["DROP_ADD"] = "Ajouter au groupe"
+L["DROP_ADD_GUILD"] = "Ajouter au groupe de guilde"
+L["DROP_CLEAR_MAIN"] = "Effacer le main sélectionné"
+L["DROP_COPY_BTAG"] = "Copier BattleTag"
+L["DROP_COPY_NAME"] = "Copier Nom-Royaume"
+L["DROP_CREATE"] = "Créer un nouveau groupe"
+L["DROP_REMOVE"] = "Retirer du groupe"
+L["DROP_REMOVE_GUILD"] = "Retirer du groupe de guilde"
+L["DROP_SELECT_MAIN"] = "Sélectionner le main"
+L["DROP_SET_NICKNAME"] = "Définir un surnom"
+L["DROP_TITLE"] = "FriendGroups"
+L["MENU_CLEAR_BANNER_COLOR"] = "Effacer la couleur de la bannière"
+L["MENU_INVITE"] = "Inviter le groupe"
+L["MENU_MAX_40"] = " (Max 40)"
+L["MENU_MOVE_DOWN"] = "Descendre"
+L["MENU_MOVE_UP"] = "Monter"
+L["MENU_REMOVE"] = "|cffff0000Supprimer le groupe|r"
+L["MENU_RENAME"] = "Renommer le groupe"
+L["MENU_RESET_POSITION"] = "Réinitialiser la position"
+L["MENU_SET_BANNER_COLOR"] = "Définir la couleur de la bannière"
 
 -- ============================================================================
--- [[ SPECIAL GROUP NAMES ]]
+-- [[ TOOLTIPS ]]
 -- ============================================================================
-L["GROUP_FAVORITES"]     = "[Favoris]"
-L["GROUP_NONE"]          = "[Aucun groupe]"
-L["GROUP_EMPTY"]         = "La liste d'amis est vide"
-L["STATUS_MOBILE"]       = "Mobile"
-
--- ============================================================================
--- [[ HOUSING / SAFE MODE ]]
--- ============================================================================
-L["RELOAD_BTN_TEXT"]      = "Recharger FriendGroups"
-L["RELOAD_TOOLTIP_TITLE"] = "Recharger FriendGroups"
-L["RELOAD_TOOLTIP_DESC"]  = "Recharge l'interface pour restaurer FriendGroups."
-
-L["SHIELD_MSG"]           = "|cffFF0000FriendGroups est Actif|r\n\nEn raison des restrictions Blizzard,\nvous devez recharger pour voir les maisons."
-L["SHIELD_BTN_TEXT"]      = "Recharger pour voir les maisons"
-L["SAFE_MODE_WARNING"]    = "|cffFF0000LOGEMENT :|r FriendGroups désactivé pour voir les maisons. Recharger pour activer."
-
--- ============================================================================
--- 12.0.8
--- ============================================================================
-L["SETTINGS_CONTACTS"]   = "Gestion des contacts"
-L["SET_CONTACT_CAP"]     = "Afficher le suivi de la limite de contacts"
-L["SET_OFFLINE_TRACKER"] = "Activer les groupes de suivi hors ligne"
-L["GROUP_OFFLINE_1"]     = "[Hors ligne 1 mois]"
-L["GROUP_OFFLINE_2"]     = "[Hors ligne 2 mois]"
-L["GROUP_OFFLINE_3"]     = "[Hors ligne 3+ mois]"
-L["TEXT_CONTACTS"]       = "%d/600"
-
--- ============================================================================
--- 12.1.0
--- ============================================================================
-
-L["SET_GUILDMATES"]      = "Activer les groupes de guilde automatiques"
-L["GROUP_GUILDMATES"]    = "[Guilde]"
-L["FORMAT_GUILD_TAG"]    = "%s <%s>"
-L["TEXT_BNET_CONTACTS"]       = "%d/%d"
-L["TOOLTIP_CONTACT_TITLE"]    = "Limites de contacts"
-L["TOOLTIP_CONTACT_DESC"]     = "Les limites Battle.net sont partagées entre tous les jeux.\nLes amis WoW sont uniques à ce personnage."
-L["TOOLTIP_CONTACT_BNET"]     = "Amis Battle.net :"
-L["TOOLTIP_CONTACT_INVITES"]  = "Invitations en attente :"
+L["TOOLTIP_ALTS_FORMAT"] = "%s %s %s Niveau %d"
+L["TOOLTIP_ALTS_GUILD_SUFFIX"] = " |cFFFFD100<%s>|r"
+L["TOOLTIP_ALTS_PUBLIC_TITLE_FORMAT"] = "Rerolls connus de %s"
+L["TOOLTIP_ALTS_SEEN"] = "Vu(e) pour la dernière fois à %s - %s"
+L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"] = "Rerolls connus de %s (Les 10 récents)"
+L["TOOLTIP_CONTACT_BNET"] = "Amis Battle.net :"
+L["TOOLTIP_CONTACT_DESC"] = "Les limites Battle.net sont partagées entre tous les jeux.\nLes amis WoW sont uniques à ce personnage."
+L["TOOLTIP_CONTACT_INVITES"] = "Invitations en attente :"
 L["TOOLTIP_CONTACT_INV_DESC"] = "(Celles-ci consomment des emplacements BNet !)"
-L["TOOLTIP_CONTACT_WOW"]      = "Amis de personnages WoW :"
-L["TOOLTIP_CONTACT_TOTAL"]    = "Total des contacts uniques suivis : %d"
+L["TOOLTIP_CONTACT_TITLE"] = "Limites de contacts"
+L["TOOLTIP_CONTACT_TOTAL"] = "Total des contacts uniques suivis : %d"
+L["TOOLTIP_CONTACT_WOW"] = "Amis de personnages WoW :"
+L["TOOLTIP_CUSTOM_GROUP_DESC_1"] = "Pour ajouter manuellement un ami à ce groupe, tapez #%s dans sa note d'ami."
+L["TOOLTIP_CUSTOM_GROUP_TITLE"] = "Groupe personnalisé"
+L["TOOLTIP_EXPORT_1"] = "Enregistre une sauvegarde complète de vos réglages et données sous forme de code. Conservez-le pour le restaurer plus tard."
+L["TOOLTIP_EXPORT_2"] = "Inclut l'apparence, le comportement, l'ordre des groupes, les couleurs de bannière, les surnoms et les mains sélectionnés."
+L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"] = "Clic droit sur cet en-tête pour choisir une couleur de fond de bannière."
+L["TOOLTIP_GUILD_GROUP_DESC_1"] = "Ce groupe est rempli automatiquement par les membres de votre guilde en ligne."
+L["TOOLTIP_GUILD_GROUP_DESC_2"] = "Pour ajouter manuellement un ami à ce groupe, tapez %s n'importe où dans sa note d'ami."
+L["TOOLTIP_GUILD_GROUP_TITLE"] = "Groupe de Guilde Auto"
+L["TOOLTIP_IMPORT_1"] = "Restaure une sauvegarde à partir d'un code."
+L["TOOLTIP_IMPORT_2"] = "Cela remplace vos réglages actuels par ceux importés."
+L["TOOLTIP_KNOWN_ALTS"] = "Suit les personnages que jouent vos amis Battle.net et les liste dans un panneau au survol. Désactiver arrête le suivi et efface toutes les données de rerolls enregistrées."
+
+-- ============================================================================
+-- [[ MESSAGES, POPUPS & DEBUG ]]
+-- ============================================================================
+L["DEBUG_DB_SIZE"] = "Profils de la base de données : %d (Cache BNet privé)"
+L["DEBUG_GUID_INDEX"] = "Entrées d'index GUID: %d"
+L["DEBUG_HEADER"] = "|cFF33FF99[Télémétrie de diagnostic FriendGroups]|r"
+L["DEBUG_HELP"] = "|cFF33FF99FriendGroups :|r Commandes : /fg export, /fg import, /fg debug"
+L["DEBUG_MEM_USAGE"] = "Mémoire actuelle de l'Addon : %.2f Mo"
+L["DEBUG_SECRET_GUID"] = "GUID également secret/indisponible: %d"
+L["DEBUG_SECRET_HEADER"] = "|cFF33FF99Télémétrie des valeurs secrètes|r"
+L["DEBUG_SECRET_HITS"] = "Occurrences de noms secrets: %d"
+L["DEBUG_SECRET_RESOLVED"] = "Résolu via l'index GUID: %d"
+L["DEBUG_SECRET_UNRESOLVED"] = "Non résolu (pas de correspondance d'index): %d"
+L["MSG_ALT_TRACKING_DISABLED"] = "|cFF33FF99FriendGroups|r : Suivi des rerolls désactivé. La base de données a été vidée."
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard a empêché l'acceptation automatique dans cette zone. Veuillez cliquer sur le bouton manuellement."
+L["MSG_AUTO_INVITE"] = "|cFF33FF99FriendGroups|r: %s vous invite dans un groupe. Auto-acceptation |cff00ff00ACTIVÉE|r"
+L["MSG_AUTO_RELEASE"] = "|cFF33FF99FriendGroups|r: Vous êtes mort. Libération auto |cff00ff00ACTIVÉE|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: Blizzard a empêché la libération automatique dans cette zone. Veuillez cliquer sur le bouton de libération."
+L["MSG_AUTO_RES"] = "|cFF33FF99FriendGroups|r: %s vous ressuscite. Auto-acceptation |cff00ff00ACTIVÉE|r"
+L["MSG_AUTO_SYNC"] = "|cFF33FF99FriendGroups|r: %s vous invite à la Synchro de groupe. Auto-acceptation |cff00ff00ACTIVÉE|r"
+L["MSG_IMPORT_FAIL_CHECKSUM"] = "|cFF33FF99FriendGroups|r: Le code de réglages est corrompu ou incomplet."
+L["MSG_IMPORT_FAIL_FORMAT"] = "|cFF33FF99FriendGroups|r: Ce n'est pas un code de réglages valide."
+L["MSG_IMPORT_FAIL_PROTOCOL"] = "|cFF33FF99FriendGroups|r: Le code de réglages provient d'une version incompatible."
+L["MSG_IMPORT_OK"] = "|cFF33FF99FriendGroups|r: Réglages importés."
+L["MSG_IMPORT_OK_DATED"] = "|cFF33FF99FriendGroups|r: Sauvegarde restaurée (créée le %s)."
+L["MSG_PURGE_CACHE"] = "|cFF33FF99FriendGroups :|r Les caches des rerolls et de la guilde ont été purgés avec succès."
+L["MSG_RESET"] = "|cFF33FF99FriendGroups|r : Paramètres réinitialisés."
+L["POPUP_COPY"] = "Ctrl+C pour copier :"
+L["POPUP_ENTER_NAME"] = "Entrez le nom du groupe"
+L["POPUP_ENTER_NICKNAME"] = "Entrez un surnom pour cet ami :"
+L["POPUP_IMPORT"] = "Collez un code de sauvegarde, puis cliquez sur Accepter.\nUne sauvegarde volumineuse peut figer le jeu pendant une minute lors de la restauration - c'est normal."
+
+-- ============================================================================
+-- [[ LABELS, GROUPS & FORMATS ]]
+-- ============================================================================
+L["FORMAT_AKA_DISPLAY"] = " |cFF949694alias|r %s"
+L["FORMAT_GUILD_TAG"] = "%s <%s>"
+L["GROUP_EMPTY"] = "La liste d'amis est vide"
+L["GROUP_FAVORITES"] = "[Favoris]"
+L["GROUP_GUILDMATES"] = "[Guilde]"
+L["GROUP_NONE"] = "[Aucun groupe]"
+L["GROUP_OFFLINE_1"] = "[Hors ligne 1 mois]"
+L["GROUP_OFFLINE_2"] = "[Hors ligne 2 mois]"
+L["GROUP_OFFLINE_3"] = "[Hors ligne 3+ mois]"
+L["SEARCH_PLACEHOLDER"] = "Recherche FriendGroups"
+L["SEARCH_TOOLTIP"] = "FriendGroups : Cherchez n'importe qui ! Nom, Royaume, Classe et même Notes"
+L["STATUS_MOBILE"] = "Mobile"
+L["TEXT_BNET_CONTACTS"] = "%d/%d"
+L["TIME_DAYS_AGO"] = "Il y a %d jours"
+L["TIME_HOURS_AGO"] = "Il y a %d heures"
+L["TIME_JUST_NOW"] = "À l'instant"
+L["TIME_MINUTES_AGO"] = "Il y a %d minutes"
+L["UNKNOWN"] = "Inconnu"
+L["UNKNOWN_ZONE"] = "Zone inconnue"

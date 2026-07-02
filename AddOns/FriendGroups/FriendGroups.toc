@@ -1,9 +1,9 @@
-## Interface: 120005
-## Version: 12.1.01
+## Interface: 120007
+## Version: 12.2.0
 ## Title: FriendGroups
-## Notes:|cfffe7b2cFriendGroups is a powerful contact manager and list enhancer. Organize friends with custom groups, advanced search capabilities, and seamless mass invites.|r
+## Notes:|cfffe7b2cFriendGroups - Custom folders, known alt tracking, auto guild groups, smart search, mass invites, and rich realm/class info|r
 ## Author: Osiris the Kiwi / Discord: osirisnz / Original authors: mkp_tv / Hayato2846 / Thainii
-## IconTexture: 134149
+## IconTexture: Interface\AddOns\FriendGroups\Textures\fg
 ## SavedVariables: FriendGroups_SavedVars
 ## X-License: GPLv3
 
@@ -23,4 +23,5 @@
 locales\localizations.xml
 Realms.lua
 FriendGroups.lua
+Sync.lua
 FriendGroups.xml

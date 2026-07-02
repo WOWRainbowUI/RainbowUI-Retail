@@ -5,141 +5,155 @@ local L = addonTable.L
 if GetLocale() ~= "koKR" then return end
 
 -- ============================================================================
--- [[ SETTINGS MENU HEADERS ]]
+-- [[ SETTINGS & OPTIONS MENU ]]
 -- ============================================================================
-L["SETTINGS_SIZE"]       = "목록 크기"
-L["SETTINGS_FILTER"]     = "필터"
+L["SETTINGS_ADVANCED"] = "고급"
+L["SETTINGS_ALT_CHARS"] = "부캐"
 L["SETTINGS_APPEARANCE"] = "외형"
-L["SETTINGS_BEHAVIOR"]   = "동작 설정"
 L["SETTINGS_AUTOMATION"] = "자동화"
-L["SETTINGS_RESET"]      = "|cffff0000기본값으로 초기화|r"
-
--- ============================================================================
--- [[ SETTINGS: SIZE ]]
--- ============================================================================
-L["SET_SIZE_SMALL"]      = "작게 (기본)"
-L["SET_SIZE_MEDIUM"]     = "중간"
-L["SET_SIZE_LARGE"]      = "크게"
-
--- ============================================================================
--- [[ SETTINGS: FILTERS ]]
--- ============================================================================
-L["SET_HIDE_OFFLINE"]    = "오프라인 숨기기"
-L["SET_HIDE_AFK"]        = "자리 비움 숨기기"
-L["SET_MOBILE_AFK"]      = "모바일을 자리 비움으로 표시"
-L["SET_HIDE_EMPTY"]      = "빈 그룹 숨기기"
-L["SET_INGAME_ONLY"]     = "게임 내 친구만 표시"
-L["SET_RETAIL_ONLY"]     = "리테일 친구만 표시"
-
--- ============================================================================
--- [[ SETTINGS: APPEARANCE ]]
--- ============================================================================
-L["SET_SHOW_FLAGS"]      = "서버 국기 표시"
-L["SET_SHOW_REALM"]      = "서버 이름 표시"
-L["SET_CLASS_COLOR"]     = "직업 색상 사용"
-L["SET_FACTION_ICONS"]   = "진영 아이콘 표시"
-L["SET_GRAY_FACTION"]    = "상대 진영 흐리게 표시"
-L["SET_SHOW_BTAG"]       = "배틀태그만 표시"
-L["SET_HIDE_MAX_LEVEL"]  = "만렙 숨기기"
-
--- ============================================================================
--- [[ SETTINGS: BEHAVIOR ]]
--- ============================================================================
-L["SET_FAV_GROUP"]       = "즐겨찾기 그룹 활성화"
-L["SET_COLLAPSE"]        = "그룹 자동 접기"
-
--- ============================================================================
--- [[ SETTINGS: AUTOMATION ]]
--- ============================================================================
-L["SET_AUTO_ACCEPT"]     = "파티 초대 자동 수락"
+L["SETTINGS_BEHAVIOR"] = "동작 설정"
+L["SETTINGS_EXPORT"] = "설정 내보내기"
+L["SETTINGS_FILTER"] = "필터"
+L["SETTINGS_IMPORT"] = "설정 가져오기"
+L["SETTINGS_LAST_BACKUP"] = "마지막 백업: %s"
+L["SETTINGS_PROFILE"] = "설정 백업"
+L["SETTINGS_PURGE_CACHE"] = "부캐 캐시 삭제"
+L["SETTINGS_RESET"] = "|cffff0000기본값으로 초기화|r"
+L["SETTINGS_RESET_ORDER"] = "그룹 순서 초기화"
+L["SETTINGS_SIZE"] = "목록 크기"
+L["SETTINGS_TITLE"] = "설정"
+L["SETTINGS_VERSION"] = "FriendGroups v%s"
+L["SET_AUTO_ACCEPT"] = "파티 초대 자동 수락"
 L["SET_AUTO_PARTY_SYNC"] = "파티 동기화 자동 수락"
-L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s님이 파티에 초대했습니다. 자동 수락 |cff00ff00활성화됨|r"
-L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s님이 파티 동기화를 요청했습니다. 자동 수락 |cff00ff00활성화됨|r"
-L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: 블리자드가 이 지역에서 자동 수락을 차단했습니다. 버튼을 직접 클릭해주세요."
-
--- Spirit Behavior Sub-Menu
-L["SET_SPIRIT_HEADER"]   = "유령 행동"
-L["SET_SPIRIT_NONE"]     = "없음"
-L["SET_SPIRIT_RES"]      = "부활 자동 수락"
-L["SET_SPIRIT_RELEASE"]  = "자동 영혼 놓아주기"
-
-L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s님이 부활을 시도합니다. 자동 수락 |cff00ff00활성화됨|r"
-L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: 사망했습니다. 자동 영혼 놓아주기 |cff00ff00활성화됨|r"
-L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: 블리자드가 이 지역에서 자동 영혼 방출을 차단했습니다. 방출 버튼을 직접 클릭해주세요."
+L["SET_CLASS_COLOR"] = "직업 색상 사용"
+L["SET_COLLAPSE"] = "그룹 자동 접기"
+L["SET_FACTION_ICONS"] = "진영 아이콘 표시"
+L["SET_FAV_GROUP"] = "즐겨찾기 그룹 활성화"
+L["SET_GRAY_FACTION"] = "상대 진영 흐리게 표시"
+L["SET_GUILDMATES"] = "자동 길드 파티 활성화"
+L["SET_HIDE_AFK"] = "자리 비움 숨기기"
+L["SET_HIDE_EMPTY"] = "빈 그룹 숨기기"
+L["SET_HIDE_MAX_LEVEL"] = "만렙 숨기기"
+L["SET_HIDE_OFFLINE"] = "오프라인 숨기기"
+L["SET_INGAME_ONLY"] = "게임 내 친구만 표시"
+L["SET_KNOWN_ALTS"] = "부캐 추적 활성화"
+L["SET_MOBILE_AFK"] = "모바일을 자리 비움으로 표시"
+L["SET_OFFLINE_TRACKER"] = "오프라인 추적기 그룹 활성화"
+L["SET_RETAIL_ONLY"] = "리테일 친구만 표시"
+L["SET_SHOW_BTAG"] = "배틀태그만 표시"
+L["SET_SHOW_FLAGS"] = "서버 국기 표시"
+L["SET_SHOW_REALM"] = "서버 이름 표시"
+L["SET_SIZE_LARGE"] = "크게"
+L["SET_SIZE_MEDIUM"] = "중간"
+L["SET_SIZE_SMALL"] = "작게 (기본)"
+L["SET_SPIRIT_HEADER"] = "유령 행동"
+L["SET_SPIRIT_RELEASE"] = "자동 영혼 놓아주기"
+L["SET_SPIRIT_RES"] = "부활 자동 수락"
+L["SET_WIDTH_NARROW"] = "좁게 (기본)"
+L["SET_WIDTH_WIDE"] = "넓게"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
 -- ============================================================================
--- Group Header Right-Click
-L["MENU_RENAME"]         = "그룹 이름 변경"
-L["MENU_REMOVE"]         = "그룹 삭제"
-L["MENU_INVITE"]         = "그룹 초대"
-L["MENU_MAX_40"]         = " (최대 40명)"
-
--- Friend Button Right-Click
-L["DROP_TITLE"]          = "FriendGroups"
-L["DROP_COPY_NAME"]      = "이름-서버 복사"
-L["DROP_COPY_BTAG"]      = "배틀태그 복사"
-L["DROP_CREATE"]         = "새 그룹 생성"
-L["DROP_ADD"]            = "그룹에 추가"
-L["DROP_REMOVE"]         = "그룹에서 제거"
-L["DROP_CANCEL"]         = "취소"
-
--- ============================================================================
--- [[ POPUPS & SYSTEM ]]
--- ============================================================================
-L["POPUP_ENTER_NAME"]    = "새 그룹 이름 입력"
-L["POPUP_COPY"]          = "복사하려면 Ctrl+C를 누르세요:"
-
-L["SEARCH_PLACEHOLDER"]  = "FriendGroups 검색"
-L["SEARCH_TOOLTIP"]      = "FriendGroups: 이름, 서버, 직업, 메모 등으로 친구를 검색하세요."
-
-L["MSG_WELCOME"]         = ""
-L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r: 설정이 초기화되었습니다."
-L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r: Bnet API 버그 감지됨. 친구 목록이 비어 보이는 현상은 와우 클라이언트 버그입니다. 게임을 재시작해주세요. (해결 보장 없음)"
+L["DROP_ADD"] = "그룹에 추가"
+L["DROP_ADD_GUILD"] = "길드 그룹에 추가"
+L["DROP_CLEAR_MAIN"] = "선택한 본캐 지우기"
+L["DROP_COPY_BTAG"] = "배틀태그 복사"
+L["DROP_COPY_NAME"] = "이름-서버 복사"
+L["DROP_CREATE"] = "새 그룹 생성"
+L["DROP_REMOVE"] = "그룹에서 제거"
+L["DROP_REMOVE_GUILD"] = "길드 그룹에서 제거"
+L["DROP_SELECT_MAIN"] = "본캐 선택"
+L["DROP_SET_NICKNAME"] = "별명 설정"
+L["DROP_TITLE"] = "FriendGroups"
+L["MENU_CLEAR_BANNER_COLOR"] = "배너 색상 지우기"
+L["MENU_INVITE"] = "그룹 초대"
+L["MENU_MAX_40"] = " (최대 40명)"
+L["MENU_MOVE_DOWN"] = "아래로 이동"
+L["MENU_MOVE_UP"] = "위로 이동"
+L["MENU_REMOVE"] = "|cffff0000그룹 삭제|r"
+L["MENU_RENAME"] = "그룹 이름 변경"
+L["MENU_RESET_POSITION"] = "위치 초기화"
+L["MENU_SET_BANNER_COLOR"] = "배너 색상 설정"
 
 -- ============================================================================
--- [[ SPECIAL GROUP NAMES ]]
+-- [[ TOOLTIPS ]]
 -- ============================================================================
-L["GROUP_FAVORITES"]     = "[즐겨찾기]"
-L["GROUP_NONE"]          = "[그룹 없음]"
-L["GROUP_EMPTY"]         = "친구 목록이 비었습니다"
-L["STATUS_MOBILE"]       = "모바일"
-
--- ============================================================================
--- [[ HOUSING / SAFE MODE ]]
--- ============================================================================
-L["RELOAD_BTN_TEXT"]      = "FriendGroups 재시작"
-L["RELOAD_TOOLTIP_TITLE"] = "FriendGroups 재시작"
-L["RELOAD_TOOLTIP_DESC"]  = "FriendGroups를 복구하기 위해 UI를 재시작합니다."
-
-L["SHIELD_MSG"]           = "|cffFF0000FriendGroups 활성 상태|r\n\n블리자드 보안 제한으로 인해,\n하우징을 보려면 재시작해야 합니다."
-L["SHIELD_BTN_TEXT"]      = "하우징 보기 (재시작)"
-L["SAFE_MODE_WARNING"]    = "|cffFF0000하우징:|r 하우징을 보기 위해 FriendGroups가 비활성화되었습니다. 다시 활성화하려면 재시작하세요."
-
--- ============================================================================
--- 12.0.8
--- ============================================================================
-L["SETTINGS_CONTACTS"]   = "연락처 관리"
-L["SET_CONTACT_CAP"]     = "연락처 한도 추적기 표시"
-L["SET_OFFLINE_TRACKER"] = "오프라인 추적기 그룹 활성화"
-L["GROUP_OFFLINE_1"]     = "[오프라인 1개월]"
-L["GROUP_OFFLINE_2"]     = "[오프라인 2개월]"
-L["GROUP_OFFLINE_3"]     = "[오프라인 3개월 이상]"
-L["TEXT_CONTACTS"]       = "%d/600"
-
--- ============================================================================
--- 12.1.0
--- ============================================================================
-
-L["SET_GUILDMATES"]      = "자동 길드 파티 활성화"
-L["GROUP_GUILDMATES"]    = "[길드]"
-L["FORMAT_GUILD_TAG"]    = "%s <%s>"
-L["TEXT_BNET_CONTACTS"]       = "%d/%d"
-L["TOOLTIP_CONTACT_TITLE"]    = "연락처 제한"
-L["TOOLTIP_CONTACT_DESC"]     = "Battle.net 제한은 모든 게임에서 공유됩니다.\nWoW 친구는 이 캐릭터에게만 고유합니다."
-L["TOOLTIP_CONTACT_BNET"]     = "Battle.net 친구:"
-L["TOOLTIP_CONTACT_INVITES"]  = "대기 중인 초대:"
+L["TOOLTIP_ALTS_FORMAT"] = "%s %s %s 레벨 %d"
+L["TOOLTIP_ALTS_GUILD_SUFFIX"] = " |cFFFFD100<%s>|r"
+L["TOOLTIP_ALTS_PUBLIC_TITLE_FORMAT"] = "%s의 알려진 부캐"
+L["TOOLTIP_ALTS_SEEN"] = "마지막 접속 지역: %s - %s"
+L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"] = "%s의 알려진 부캐 (최근 10개)"
+L["TOOLTIP_CONTACT_BNET"] = "Battle.net 친구:"
+L["TOOLTIP_CONTACT_DESC"] = "Battle.net 제한은 모든 게임에서 공유됩니다.\nWoW 친구는 이 캐릭터에게만 고유합니다."
+L["TOOLTIP_CONTACT_INVITES"] = "대기 중인 초대:"
 L["TOOLTIP_CONTACT_INV_DESC"] = "(BNet 슬롯을 소모합니다!)"
-L["TOOLTIP_CONTACT_WOW"]      = "WoW 캐릭터 친구:"
-L["TOOLTIP_CONTACT_TOTAL"]    = "추적된 총 고유 연락처: %d"
+L["TOOLTIP_CONTACT_TITLE"] = "연락처 제한"
+L["TOOLTIP_CONTACT_TOTAL"] = "추적된 총 고유 연락처: %d"
+L["TOOLTIP_CONTACT_WOW"] = "WoW 캐릭터 친구:"
+L["TOOLTIP_CUSTOM_GROUP_DESC_1"] = "이 그룹에 친구를 수동으로 추가하려면 친구 메모에 #%s 태그를 입력하세요."
+L["TOOLTIP_CUSTOM_GROUP_TITLE"] = "사용자 지정 그룹"
+L["TOOLTIP_EXPORT_1"] = "설정과 데이터의 전체 백업을 코드로 저장합니다. 나중에 복원할 수 있도록 안전하게 보관하세요."
+L["TOOLTIP_EXPORT_2"] = "외형, 동작, 그룹 순서, 배너 색상, 별명 및 선택한 본캐가 포함됩니다."
+L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"] = "그룹 헤더를 우클릭하여 사용자 지정 배경 배너 색상을 선택합니다."
+L["TOOLTIP_GUILD_GROUP_DESC_1"] = "이 그룹은 접속 중인 길드원으로 자동 채워집니다."
+L["TOOLTIP_GUILD_GROUP_DESC_2"] = "이 그룹에 친구를 수동으로 추가하려면 친구 메모에 %s를 입력하세요."
+L["TOOLTIP_GUILD_GROUP_TITLE"] = "자동 길드 그룹"
+L["TOOLTIP_IMPORT_1"] = "코드에서 백업을 복원합니다."
+L["TOOLTIP_IMPORT_2"] = "현재 설정을 가져온 설정으로 덮어씁니다."
+L["TOOLTIP_KNOWN_ALTS"] = "Battle.net 친구들이 플레이하는 캐릭터를 추적하여 마우스를 올리면 패널에 표시합니다. 끄면 추적이 중지되고 저장된 모든 부캐 데이터가 삭제됩니다."
+
+-- ============================================================================
+-- [[ MESSAGES, POPUPS & DEBUG ]]
+-- ============================================================================
+L["DEBUG_DB_SIZE"] = "데이터베이스 프로필: %d (비공개 BNet 캐시)"
+L["DEBUG_GUID_INDEX"] = "GUID 색인 항목: %d"
+L["DEBUG_HEADER"] = "|cFF33FF99[FriendGroups 진단 원격 분석]|r"
+L["DEBUG_HELP"] = "|cFF33FF99FriendGroups:|r 명령어: /fg export, /fg import, /fg debug"
+L["DEBUG_MEM_USAGE"] = "현재 애드온 메모리: %.2f MB"
+L["DEBUG_SECRET_GUID"] = "GUID도 비밀이거나 사용할 수 없음: %d"
+L["DEBUG_SECRET_HEADER"] = "|cFF33FF99비밀 값 원격 측정|r"
+L["DEBUG_SECRET_HITS"] = "비밀 이름 일치: %d"
+L["DEBUG_SECRET_RESOLVED"] = "GUID 색인을 통해 해결됨: %d"
+L["DEBUG_SECRET_UNRESOLVED"] = "해결되지 않음 (색인 일치 없음): %d"
+L["MSG_ALT_TRACKING_DISABLED"] = "|cFF33FF99FriendGroups|r: 부캐 추적이 비활성화되었습니다. 데이터베이스가 초기화되었습니다."
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: 블리자드가 이 지역에서 자동 수락을 차단했습니다. 버튼을 직접 클릭해주세요."
+L["MSG_AUTO_INVITE"] = "|cFF33FF99FriendGroups|r: %s님이 파티에 초대했습니다. 자동 수락 |cff00ff00활성화됨|r"
+L["MSG_AUTO_RELEASE"] = "|cFF33FF99FriendGroups|r: 사망했습니다. 자동 영혼 놓아주기 |cff00ff00활성화됨|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: 블리자드가 이 지역에서 자동 영혼 방출을 차단했습니다. 방출 버튼을 직접 클릭해주세요."
+L["MSG_AUTO_RES"] = "|cFF33FF99FriendGroups|r: %s님이 부활을 시도합니다. 자동 수락 |cff00ff00활성화됨|r"
+L["MSG_AUTO_SYNC"] = "|cFF33FF99FriendGroups|r: %s님이 파티 동기화를 요청했습니다. 자동 수락 |cff00ff00활성화됨|r"
+L["MSG_IMPORT_FAIL_CHECKSUM"] = "|cFF33FF99FriendGroups|r: 설정 코드가 손상되었거나 불완전합니다."
+L["MSG_IMPORT_FAIL_FORMAT"] = "|cFF33FF99FriendGroups|r: 유효한 설정 코드가 아닙니다."
+L["MSG_IMPORT_FAIL_PROTOCOL"] = "|cFF33FF99FriendGroups|r: 설정 코드가 호환되지 않는 버전입니다."
+L["MSG_IMPORT_OK"] = "|cFF33FF99FriendGroups|r: 설정을 가져왔습니다."
+L["MSG_IMPORT_OK_DATED"] = "|cFF33FF99FriendGroups|r: 백업을 복원했습니다 (생성: %s)."
+L["MSG_PURGE_CACHE"] = "|cFF33FF99FriendGroups|r: 부캐 및 길드 캐시가 성공적으로 지워졌습니다."
+L["MSG_RESET"] = "|cFF33FF99FriendGroups|r: 설정이 초기화되었습니다."
+L["POPUP_COPY"] = "복사하려면 Ctrl+C를 누르세요:"
+L["POPUP_ENTER_NAME"] = "새 그룹 이름 입력"
+L["POPUP_ENTER_NICKNAME"] = "이 친구의 사용자 지정 별명 입력:"
+L["POPUP_IMPORT"] = "백업 코드를 붙여넣은 다음 수락을 클릭하세요.\n큰 백업은 복원하는 동안 게임이 최대 1분간 멈출 수 있습니다 - 정상입니다."
+
+-- ============================================================================
+-- [[ LABELS, GROUPS & FORMATS ]]
+-- ============================================================================
+L["FORMAT_AKA_DISPLAY"] = " |cFF949694aka|r %s"
+L["FORMAT_GUILD_TAG"] = "%s <%s>"
+L["GROUP_EMPTY"] = "친구 목록이 비었습니다"
+L["GROUP_FAVORITES"] = "[즐겨찾기]"
+L["GROUP_GUILDMATES"] = "[길드]"
+L["GROUP_NONE"] = "[그룹 없음]"
+L["GROUP_OFFLINE_1"] = "[오프라인 1개월]"
+L["GROUP_OFFLINE_2"] = "[오프라인 2개월]"
+L["GROUP_OFFLINE_3"] = "[오프라인 3개월 이상]"
+L["SEARCH_PLACEHOLDER"] = "FriendGroups 검색"
+L["SEARCH_TOOLTIP"] = "FriendGroups: 이름, 서버, 직업, 메모 등으로 친구를 검색하세요."
+L["STATUS_MOBILE"] = "모바일"
+L["TEXT_BNET_CONTACTS"] = "%d/%d"
+L["TIME_DAYS_AGO"] = "%d일 전"
+L["TIME_HOURS_AGO"] = "%d시간 전"
+L["TIME_JUST_NOW"] = "방금 전"
+L["TIME_MINUTES_AGO"] = "%d분 전"
+L["UNKNOWN"] = "알 수 없음"
+L["UNKNOWN_ZONE"] = "알 수 없는 지역"

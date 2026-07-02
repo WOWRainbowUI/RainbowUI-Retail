@@ -5,141 +5,155 @@ local L = addonTable.L
 if GetLocale() ~= "zhCN" then return end
 
 -- ============================================================================
--- [[ SETTINGS MENU HEADERS ]]
+-- [[ SETTINGS & OPTIONS MENU ]]
 -- ============================================================================
-L["SETTINGS_SIZE"]       = "列表大小"
-L["SETTINGS_FILTER"]     = "过滤器"
+L["SETTINGS_ADVANCED"] = "高级"
+L["SETTINGS_ALT_CHARS"] = "小号角色"
 L["SETTINGS_APPEARANCE"] = "外观"
-L["SETTINGS_BEHAVIOR"]   = "行为"
 L["SETTINGS_AUTOMATION"] = "自动化"
-L["SETTINGS_RESET"]      = "|cffff0000重置为默认|r"
-
--- ============================================================================
--- [[ SETTINGS: SIZE ]]
--- ============================================================================
-L["SET_SIZE_SMALL"]      = "小 (默认)"
-L["SET_SIZE_MEDIUM"]     = "中"
-L["SET_SIZE_LARGE"]      = "大"
-
--- ============================================================================
--- [[ SETTINGS: FILTERS ]]
--- ============================================================================
-L["SET_HIDE_OFFLINE"]    = "隐藏离线"
-L["SET_HIDE_AFK"]        = "隐藏暂离 (AFK)"
-L["SET_MOBILE_AFK"]      = "将移动端标记为暂离"
-L["SET_HIDE_EMPTY"]      = "隐藏空分组"
-L["SET_INGAME_ONLY"]     = "仅显示游戏内好友"
-L["SET_RETAIL_ONLY"]     = "仅显示正式服好友"
-
--- ============================================================================
--- [[ SETTINGS: APPEARANCE ]]
--- ============================================================================
-L["SET_SHOW_FLAGS"]      = "显示服务器旗帜"
-L["SET_SHOW_REALM"]      = "显示服务器名称"
-L["SET_CLASS_COLOR"]     = "使用职业颜色"
-L["SET_FACTION_ICONS"]   = "显示阵营图标"
-L["SET_GRAY_FACTION"]    = "灰显对立阵营"
-L["SET_SHOW_BTAG"]       = "仅显示战网昵称"
-L["SET_HIDE_MAX_LEVEL"]  = "隐藏满级等级"
-
--- ============================================================================
--- [[ SETTINGS: BEHAVIOR ]]
--- ============================================================================
-L["SET_FAV_GROUP"]       = "启用特别关注分组"
-L["SET_COLLAPSE"]        = "自动折叠分组"
-
--- ============================================================================
--- [[ SETTINGS: AUTOMATION ]]
--- ============================================================================
-L["SET_AUTO_ACCEPT"]     = "自动接受组队邀请"
+L["SETTINGS_BEHAVIOR"] = "行为"
+L["SETTINGS_EXPORT"] = "导出设置"
+L["SETTINGS_FILTER"] = "过滤器"
+L["SETTINGS_IMPORT"] = "导入设置"
+L["SETTINGS_LAST_BACKUP"] = "上次备份：%s"
+L["SETTINGS_PROFILE"] = "设置备份"
+L["SETTINGS_PURGE_CACHE"] = "清除小号缓存"
+L["SETTINGS_RESET"] = "|cffff0000重置为默认|r"
+L["SETTINGS_RESET_ORDER"] = "重置分组顺序"
+L["SETTINGS_SIZE"] = "列表大小"
+L["SETTINGS_TITLE"] = "设置"
+L["SETTINGS_VERSION"] = "FriendGroups v%s"
+L["SET_AUTO_ACCEPT"] = "自动接受组队邀请"
 L["SET_AUTO_PARTY_SYNC"] = "自动接受小队同步"
-L["MSG_AUTO_INVITE"]     = "|cFF33FF99FriendGroups|r: %s 邀请你加入队伍。自动接受 |cff00ff00已启用|r"
-L["MSG_AUTO_SYNC"]       = "|cFF33FF99FriendGroups|r: %s 邀请你进行小队同步。自动接受 |cff00ff00已启用|r"
-L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此区域阻止了自动接受。请手动点击按钮。"
-
--- Spirit Behavior Sub-Menu
-L["SET_SPIRIT_HEADER"]   = "灵魂行为"
-L["SET_SPIRIT_NONE"]     = "无"
-L["SET_SPIRIT_RES"]      = "自动接受复活"
-L["SET_SPIRIT_RELEASE"]  = "自动释放灵魂"
-
-L["MSG_AUTO_RES"]        = "|cFF33FF99FriendGroups|r: %s 正在复活你。自动接受 |cff00ff00已启用|r"
-L["MSG_AUTO_RELEASE"]    = "|cFF33FF99FriendGroups|r: 你已经死亡。自动释放灵魂 |cff00ff00已启用|r"
-L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此区域阻止了自动释放灵魂。请点击释放按钮。"
+L["SET_CLASS_COLOR"] = "使用职业颜色"
+L["SET_COLLAPSE"] = "自动折叠分组"
+L["SET_FACTION_ICONS"] = "显示阵营图标"
+L["SET_FAV_GROUP"] = "启用特别关注分组"
+L["SET_GRAY_FACTION"] = "灰显对立阵营"
+L["SET_GUILDMATES"] = "启用自动公会队伍"
+L["SET_HIDE_AFK"] = "隐藏暂离 (AFK)"
+L["SET_HIDE_EMPTY"] = "隐藏空分组"
+L["SET_HIDE_MAX_LEVEL"] = "隐藏满级等级"
+L["SET_HIDE_OFFLINE"] = "隐藏离线"
+L["SET_INGAME_ONLY"] = "仅显示游戏内好友"
+L["SET_KNOWN_ALTS"] = "启用小号追踪"
+L["SET_MOBILE_AFK"] = "将移动端标记为暂离"
+L["SET_OFFLINE_TRACKER"] = "启用离线追踪分组"
+L["SET_RETAIL_ONLY"] = "仅显示正式服好友"
+L["SET_SHOW_BTAG"] = "仅显示战网昵称"
+L["SET_SHOW_FLAGS"] = "显示服务器旗帜"
+L["SET_SHOW_REALM"] = "显示服务器名称"
+L["SET_SIZE_LARGE"] = "大"
+L["SET_SIZE_MEDIUM"] = "中"
+L["SET_SIZE_SMALL"] = "小 (默认)"
+L["SET_SPIRIT_HEADER"] = "灵魂行为"
+L["SET_SPIRIT_RELEASE"] = "自动释放灵魂"
+L["SET_SPIRIT_RES"] = "自动接受复活"
+L["SET_WIDTH_NARROW"] = "窄 (默认)"
+L["SET_WIDTH_WIDE"] = "宽"
 
 -- ============================================================================
 -- [[ CONTEXT MENUS ]]
 -- ============================================================================
--- Group Header Right-Click
-L["MENU_RENAME"]         = "重命名分组"
-L["MENU_REMOVE"]         = "删除分组"
-L["MENU_INVITE"]         = "邀请分组"
-L["MENU_MAX_40"]         = " (最多 40)"
-
--- Friend Button Right-Click
-L["DROP_TITLE"]          = "FriendGroups"
-L["DROP_COPY_NAME"]      = "复制 名字-服务器"
-L["DROP_COPY_BTAG"]      = "复制 战网昵称"
-L["DROP_CREATE"]         = "新建分组"
-L["DROP_ADD"]            = "添加到分组"
-L["DROP_REMOVE"]         = "移出分组"
-L["DROP_CANCEL"]         = "取消"
-
--- ============================================================================
--- [[ POPUPS & SYSTEM ]]
--- ============================================================================
-L["POPUP_ENTER_NAME"]    = "输入新分组名称"
-L["POPUP_COPY"]          = "按 Ctrl+C 复制:"
-
-L["SEARCH_PLACEHOLDER"]  = "FriendGroups 搜索"
-L["SEARCH_TOOLTIP"]      = "FriendGroups: 搜索任何人！名字、服务器、职业甚至备注"
-
-L["MSG_WELCOME"]         = ""
-L["MSG_RESET"]           = "|cFF33FF99FriendGroups|r: 设置已重置为默认。"
-L["MSG_BUG_WARNING"]     = "|cFF33FF99FriendGroups|r: 检测到 Bnet API 错误。好友列表为空是魔兽客户端的 Bug 导致的。请尝试重启游戏。(无法保证修复)"
+L["DROP_ADD"] = "添加到分组"
+L["DROP_ADD_GUILD"] = "添加到公会分组"
+L["DROP_CLEAR_MAIN"] = "清除已选大号"
+L["DROP_COPY_BTAG"] = "复制 战网昵称"
+L["DROP_COPY_NAME"] = "复制 名字-服务器"
+L["DROP_CREATE"] = "新建分组"
+L["DROP_REMOVE"] = "移出分组"
+L["DROP_REMOVE_GUILD"] = "从公会分组移除"
+L["DROP_SELECT_MAIN"] = "选择大号"
+L["DROP_SET_NICKNAME"] = "设置昵称"
+L["DROP_TITLE"] = "FriendGroups"
+L["MENU_CLEAR_BANNER_COLOR"] = "清除横幅颜色"
+L["MENU_INVITE"] = "邀请分组"
+L["MENU_MAX_40"] = " (最多 40)"
+L["MENU_MOVE_DOWN"] = "下移"
+L["MENU_MOVE_UP"] = "上移"
+L["MENU_REMOVE"] = "|cffff0000删除分组|r"
+L["MENU_RENAME"] = "重命名分组"
+L["MENU_RESET_POSITION"] = "重置位置"
+L["MENU_SET_BANNER_COLOR"] = "设置横幅颜色"
 
 -- ============================================================================
--- [[ SPECIAL GROUP NAMES ]]
+-- [[ TOOLTIPS ]]
 -- ============================================================================
-L["GROUP_FAVORITES"]     = "[特别关注]"
-L["GROUP_NONE"]          = "[无分组]"
-L["GROUP_EMPTY"]         = "好友列表为空"
-L["STATUS_MOBILE"]       = "移动端"
-
--- ============================================================================
--- [[ HOUSING / SAFE MODE ]]
--- ============================================================================
-L["RELOAD_BTN_TEXT"]      = "重载 FriendGroups"
-L["RELOAD_TOOLTIP_TITLE"] = "重载 FriendGroups"
-L["RELOAD_TOOLTIP_DESC"]  = "重载界面以恢复 FriendGroups。"
-
-L["SHIELD_MSG"]           = "|cffFF0000FriendGroups 已激活|r\n\n由于暴雪安全框架限制，\n你需要重载界面才能查看房屋。"
-L["SHIELD_BTN_TEXT"]      = "重载以查看房屋"
-L["SAFE_MODE_WARNING"]    = "|cffFF0000房屋:|r FriendGroups 已禁用以查看房屋。重载以启用。"
-
--- ============================================================================
--- 12.0.8
--- ============================================================================
-L["SETTINGS_CONTACTS"]   = "联系人管理"
-L["SET_CONTACT_CAP"]     = "显示联系人上限追踪"
-L["SET_OFFLINE_TRACKER"] = "启用离线追踪分组"
-L["GROUP_OFFLINE_1"]     = "[离线 1 个月]"
-L["GROUP_OFFLINE_2"]     = "[离线 2 个月]"
-L["GROUP_OFFLINE_3"]     = "[离线 3 个月以上]"
-L["TEXT_CONTACTS"]       = "%d/600"
-
--- ============================================================================
--- 12.1.0
--- ============================================================================
-
-L["SET_GUILDMATES"]      = "启用自动公会队伍"
-L["GROUP_GUILDMATES"]    = "[公会]"
-L["FORMAT_GUILD_TAG"]    = "%s <%s>"
-L["TEXT_BNET_CONTACTS"]       = "%d/%d"
-L["TOOLTIP_CONTACT_TITLE"]    = "联系人上限"
-L["TOOLTIP_CONTACT_DESC"]     = "Battle.net 上限为所有游戏共享。\nWoW 好友为此角色独有。"
-L["TOOLTIP_CONTACT_BNET"]     = "Battle.net 好友："
-L["TOOLTIP_CONTACT_INVITES"]  = "待处理的邀请："
+L["TOOLTIP_ALTS_FORMAT"] = "%s %s %s 等级 %d"
+L["TOOLTIP_ALTS_GUILD_SUFFIX"] = " |cFFFFD100<%s>|r"
+L["TOOLTIP_ALTS_PUBLIC_TITLE_FORMAT"] = "%s 的已知小号"
+L["TOOLTIP_ALTS_SEEN"] = "最后出现在 %s - %s"
+L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"] = "%s 的已知小号（最近10个）"
+L["TOOLTIP_CONTACT_BNET"] = "Battle.net 好友："
+L["TOOLTIP_CONTACT_DESC"] = "Battle.net 上限为所有游戏共享。\nWoW 好友为此角色独有。"
+L["TOOLTIP_CONTACT_INVITES"] = "待处理的邀请："
 L["TOOLTIP_CONTACT_INV_DESC"] = "（这会消耗 BNet 栏位！）"
-L["TOOLTIP_CONTACT_WOW"]      = "WoW 角色好友："
-L["TOOLTIP_CONTACT_TOTAL"]    = "追踪的独立联系人总数：%d"
+L["TOOLTIP_CONTACT_TITLE"] = "联系人上限"
+L["TOOLTIP_CONTACT_TOTAL"] = "追踪的独立联系人总数：%d"
+L["TOOLTIP_CONTACT_WOW"] = "WoW 角色好友："
+L["TOOLTIP_CUSTOM_GROUP_DESC_1"] = "要将好友手动添加到此群组，请在好友备注中的任意位置输入 #%s。"
+L["TOOLTIP_CUSTOM_GROUP_TITLE"] = "自定义群组"
+L["TOOLTIP_EXPORT_1"] = "将你的设置和数据保存为完整备份代码。请妥善保存以便日后恢复。"
+L["TOOLTIP_EXPORT_2"] = "包括外观、行为、分组顺序、横幅颜色、昵称和已选主角色。"
+L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"] = "右键单击此群组标题以选择自定义横幅背景颜色。"
+L["TOOLTIP_GUILD_GROUP_DESC_1"] = "此分组将自动由在线的公会成员填充。"
+L["TOOLTIP_GUILD_GROUP_DESC_2"] = "要手动将好友加入此分组，请在其好友备注中输入 %s。"
+L["TOOLTIP_GUILD_GROUP_TITLE"] = "自动公会分组"
+L["TOOLTIP_IMPORT_1"] = "从代码恢复备份。"
+L["TOOLTIP_IMPORT_2"] = "这将用导入的设置覆盖你当前的设置。"
+L["TOOLTIP_KNOWN_ALTS"] = "追踪你的战网好友所玩的角色，并在悬停时显示在面板中。关闭将停止追踪并清除所有已存储的小号数据。"
+
+-- ============================================================================
+-- [[ MESSAGES, POPUPS & DEBUG ]]
+-- ============================================================================
+L["DEBUG_DB_SIZE"] = "数据库配置文件：%d (私人战网缓存)"
+L["DEBUG_GUID_INDEX"] = "GUID 索引条目: %d"
+L["DEBUG_HEADER"] = "|cFF33FF99[FriendGroups 诊断数据]|r"
+L["DEBUG_HELP"] = "|cFF33FF99FriendGroups：|r 命令: /fg export, /fg import, /fg debug"
+L["DEBUG_MEM_USAGE"] = "当前插件内存：%.2f MB"
+L["DEBUG_SECRET_GUID"] = "GUID 亦加密/不可用: %d"
+L["DEBUG_SECRET_HEADER"] = "|cFF33FF99机密值遥测|r"
+L["DEBUG_SECRET_HITS"] = "机密名称匹配: %d"
+L["DEBUG_SECRET_RESOLVED"] = "通过 GUID 索引解析: %d"
+L["DEBUG_SECRET_UNRESOLVED"] = "未解析 (无索引匹配): %d"
+L["MSG_ALT_TRACKING_DISABLED"] = "|cFF33FF99FriendGroups|r：小号追踪已禁用。数据库已清空。"
+L["MSG_AUTO_ACCEPT_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此区域阻止了自动接受。请手动点击按钮。"
+L["MSG_AUTO_INVITE"] = "|cFF33FF99FriendGroups|r: %s 邀请你加入队伍。自动接受 |cff00ff00已启用|r"
+L["MSG_AUTO_RELEASE"] = "|cFF33FF99FriendGroups|r: 你已经死亡。自动释放灵魂 |cff00ff00已启用|r"
+L["MSG_AUTO_RELEASE_FAILED"] = "|cFF33FF99FriendGroups|r: 暴雪在此区域阻止了自动释放灵魂。请点击释放按钮。"
+L["MSG_AUTO_RES"] = "|cFF33FF99FriendGroups|r: %s 正在复活你。自动接受 |cff00ff00已启用|r"
+L["MSG_AUTO_SYNC"] = "|cFF33FF99FriendGroups|r: %s 邀请你进行小队同步。自动接受 |cff00ff00已启用|r"
+L["MSG_IMPORT_FAIL_CHECKSUM"] = "|cFF33FF99FriendGroups|r: 设置代码已损坏或不完整。"
+L["MSG_IMPORT_FAIL_FORMAT"] = "|cFF33FF99FriendGroups|r: 这不是有效的设置代码。"
+L["MSG_IMPORT_FAIL_PROTOCOL"] = "|cFF33FF99FriendGroups|r: 设置代码来自不兼容的版本。"
+L["MSG_IMPORT_OK"] = "|cFF33FF99FriendGroups|r: 设置已导入。"
+L["MSG_IMPORT_OK_DATED"] = "|cFF33FF99FriendGroups|r: 已恢复备份（创建于 %s）。"
+L["MSG_PURGE_CACHE"] = "|cFF33FF99FriendGroups：|r 小号和公会缓存已成功清除。"
+L["MSG_RESET"] = "|cFF33FF99FriendGroups|r: 设置已重置为默认。"
+L["POPUP_COPY"] = "按 Ctrl+C 复制:"
+L["POPUP_ENTER_NAME"] = "输入新分组名称"
+L["POPUP_ENTER_NICKNAME"] = "为此好友输入自定义昵称："
+L["POPUP_IMPORT"] = "粘贴备份代码，然后点击接受。\n较大的备份在恢复时可能会使游戏卡顿最多一分钟 - 这是正常现象。"
+
+-- ============================================================================
+-- [[ LABELS, GROUPS & FORMATS ]]
+-- ============================================================================
+L["FORMAT_AKA_DISPLAY"] = " |cFF949694aka|r %s"
+L["FORMAT_GUILD_TAG"] = "%s <%s>"
+L["GROUP_EMPTY"] = "好友列表为空"
+L["GROUP_FAVORITES"] = "[特别关注]"
+L["GROUP_GUILDMATES"] = "[公会]"
+L["GROUP_NONE"] = "[无分组]"
+L["GROUP_OFFLINE_1"] = "[离线 1 个月]"
+L["GROUP_OFFLINE_2"] = "[离线 2 个月]"
+L["GROUP_OFFLINE_3"] = "[离线 3 个月以上]"
+L["SEARCH_PLACEHOLDER"] = "FriendGroups 搜索"
+L["SEARCH_TOOLTIP"] = "FriendGroups: 搜索任何人！名字、服务器、职业甚至备注"
+L["STATUS_MOBILE"] = "移动端"
+L["TEXT_BNET_CONTACTS"] = "%d/%d"
+L["TIME_DAYS_AGO"] = "%d 天前"
+L["TIME_HOURS_AGO"] = "%d 小时前"
+L["TIME_JUST_NOW"] = "刚刚"
+L["TIME_MINUTES_AGO"] = "%d 分钟前"
+L["UNKNOWN"] = "未知"
+L["UNKNOWN_ZONE"] = "未知区域"

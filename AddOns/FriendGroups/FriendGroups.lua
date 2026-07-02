@@ -10,12 +10,51 @@ local L = addonTable.L or {}
 -- [[ STATE MANAGEMENT ]] --
 local FriendGroups_Loaded = false 
 
+-- ============================================================================
+-- [[ DIRTY ROSTER ENGINE (IDLE GC CHURN PREVENTER) ]]
+-- ============================================================================
+local FriendGroups_RosterDirty = true
+local fgRosterEventFrame = CreateFrame("Frame")
+fgRosterEventFrame:RegisterEvent("BN_FRIEND_INFO_CHANGED")
+fgRosterEventFrame:RegisterEvent("BN_FRIEND_LIST_SIZE_CHANGED")
+fgRosterEventFrame:RegisterEvent("BN_FRIEND_INVITE_ADDED")
+fgRosterEventFrame:RegisterEvent("BN_FRIEND_INVITE_REMOVED")
+fgRosterEventFrame:RegisterEvent("FRIENDLIST_UPDATE")
+fgRosterEventFrame:RegisterEvent("PLAYER_FLAGS_CHANGED")
+fgRosterEventFrame:SetScript("OnEvent", function(self, event, ...)
+    FriendGroups_RosterDirty = true
+end)
+
+-- ============================================================================
+-- [[ MEMORY OPTIMIZATION UTILITIES ]]
+-- ============================================================================
+local FriendGroups_RealmStringCache = {}
+
+function FriendGroups_CleanRealmName(realmName)
+    if type(realmName) ~= "string" or realmName == "" then return "" end
+    if FriendGroups_RealmStringCache[realmName] then
+        return FriendGroups_RealmStringCache[realmName]
+    end
+    local cleanRealm = realmName:gsub("[%s%p]+", "")
+    FriendGroups_RealmStringCache[realmName] = cleanRealm
+    return cleanRealm
+end
+
+local FriendGroups_DPElementPool = {}
+
+local function GetDPElement()
+    local t = table.remove(FriendGroups_DPElementPool) or {}
+    wipe(t)
+    return t
+end
+
 -- [[ FORWARD DECLARATIONS ]] --
 local EnableFriendGroups
 local FriendGroups_FriendsListUpdate
 local FriendGroups_FriendsListUpdateFriendButton
 local FriendGroups_FriendsListButtonTemplateClick
 local SetupGroupedView
+local FriendGroups_SaveToAltCache
 
 local ADDON_CHAT_PREFIX = "|cffFFE400[|r|cff3AFF00" .. "FriendGroups" .. "|r|cffFFE400]|r"
 local function Print(...)
@@ -45,34 +84,9 @@ local FriendGroups_SearchBox
 -- Data for the Custom Menu
 local FriendGroups_ClickedData = {}
 
-local groupMenuItems = {
-    { text = "",         notCheckable = true, isTitle = true },
-    {
-        text = L["MENU_RENAME"],
-        notCheckable = true,
-        func = function(self, groupName)
-            StaticPopup_Show("FRIENDGROUPS_RENAME", nil, nil, groupName)
-        end
-    },
-    {
-        text = L["MENU_REMOVE"],
-        notCheckable = true,
-        func = function(self, groupName)
-            FriendGroups_InviteOrGroup(groupName, false)
-        end
-    },
-    {
-        text = L["MENU_INVITE"],
-        notCheckable = true,
-        func = function(self, groupName)
-            FriendGroups_InviteOrGroup(groupName, true)
-        end
-    },
-}
-
 local settingsMenuItems = {
     -- SECTION 0: SIZE
-    { text = L["SETTINGS_SIZE"], notCheckable = true, isTitle = true },
+    { text = L["SETTINGS_SIZE"], notCheckable = true, isTitle = true, submenu = true },
     {
         text = L["SET_SIZE_SMALL"],
         checked = function() return (FriendGroups_SavedVars.extra_height or 0) == 0 end,
@@ -95,6 +109,26 @@ local settingsMenuItems = {
         func = function()
             FriendGroups_SavedVars.extra_height = 380
             FriendGroups_UpdateSize()
+        end
+    },
+    -- Horizontal divider separating list length (above) from list width (below).
+    { text = "", isTitle = true },
+    {
+        text = L["SET_WIDTH_NARROW"],
+        checked = function() return not FriendGroups_SavedVars.wide_list end,
+        func = function()
+            FriendGroups_SavedVars.wide_list = false
+            FriendGroups_UpdateSize()
+            FriendGroups_FriendsListUpdate(true)
+        end
+    },
+    {
+        text = L["SET_WIDTH_WIDE"],
+        checked = function() return FriendGroups_SavedVars.wide_list end,
+        func = function()
+            FriendGroups_SavedVars.wide_list = true
+            FriendGroups_UpdateSize()
+            FriendGroups_FriendsListUpdate(true)
         end
     },
 
@@ -225,7 +259,7 @@ local settingsMenuItems = {
     },
 
     -- SECTION 3: GROUP SETTINGS
-    { text = L["SETTINGS_BEHAVIOR"], notCheckable = true, isTitle = true },
+    { text = L["SETTINGS_BEHAVIOR"], notCheckable = true, isTitle = true, submenu = true },
     {
         text = L["SET_FAV_GROUP"],
         keepShownOnClick = true,
@@ -271,7 +305,10 @@ local settingsMenuItems = {
         end
     },
 	
-    -- SECTION 4: AUTOMATION
+    -- [[ Everything below moves into the "Advanced" submenu (back-end config). ]]
+    { isAdvancedStart = true },
+
+	-- SECTION 4: AUTOMATION
     { text = L["SETTINGS_AUTOMATION"], notCheckable = true, isTitle = true },
     {
         text = L["SET_AUTO_ACCEPT"],
@@ -291,40 +328,120 @@ local settingsMenuItems = {
             FriendGroups_FriendsListUpdate()
         end
     },
-    { text = "  " .. L["SET_SPIRIT_HEADER"], notCheckable = true, isTitle = true },
-    {
-        text = L["SET_SPIRIT_NONE"],
-        leftPadding = 16,
-        checked = function() return not FriendGroups_SavedVars.auto_accept_res and not FriendGroups_SavedVars.auto_release end,
-        func = function()
-            FriendGroups_SavedVars.auto_accept_res = false
-            FriendGroups_SavedVars.auto_release = false
-            FriendGroups_FriendsListUpdate()
-        end
-    },
+    { text = L["SET_SPIRIT_HEADER"], notCheckable = true, isTitle = true },
     {
         text = L["SET_SPIRIT_RES"],
         leftPadding = 16,
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.auto_accept_res end,
         func = function()
-            FriendGroups_SavedVars.auto_accept_res = true
-            FriendGroups_SavedVars.auto_release = false
+            FriendGroups_SavedVars.auto_accept_res = not FriendGroups_SavedVars.auto_accept_res
+            if FriendGroups_SavedVars.auto_accept_res then
+                FriendGroups_SavedVars.auto_release = false -- Prevent conflicts
+            end
             FriendGroups_FriendsListUpdate()
         end
     },
     {
         text = L["SET_SPIRIT_RELEASE"],
         leftPadding = 16,
+        keepShownOnClick = true,
         checked = function() return FriendGroups_SavedVars.auto_release end,
         func = function()
-            FriendGroups_SavedVars.auto_release = true
-            FriendGroups_SavedVars.auto_accept_res = false
+            FriendGroups_SavedVars.auto_release = not FriendGroups_SavedVars.auto_release
+            if FriendGroups_SavedVars.auto_release then
+                FriendGroups_SavedVars.auto_accept_res = false -- Prevent conflicts
+            end
             FriendGroups_FriendsListUpdate()
         end
     },
     
-    -- SECTION 5: RESET
+    -- SECTION 5: ALT CHARACTERS & CACHE
+    { text = L["SETTINGS_ALT_CHARS"], notCheckable = true, isTitle = true },
+    {
+        text = L["SET_KNOWN_ALTS"],
+        tooltip = { L["TOOLTIP_KNOWN_ALTS"] },
+        keepShownOnClick = true,
+        checked = function() return FriendGroups_SavedVars.show_known_alts ~= false end,
+        func = function()
+            FriendGroups_SavedVars.show_known_alts = not (FriendGroups_SavedVars.show_known_alts ~= false)
+            if not FriendGroups_SavedVars.show_known_alts then
+                if FriendGroupsAltTooltip then 
+                    FriendGroupsAltTooltip:Hide() 
+                end
+                if FriendGroups_SavedVars.alt_cache then 
+                    wipe(FriendGroups_SavedVars.alt_cache) 
+                end
+                if FriendGroups_SavedVars.guid_index then 
+                    wipe(FriendGroups_SavedVars.guid_index) 
+                end
+                if L["MSG_ALT_TRACKING_DISABLED"] then
+                    print(L["MSG_ALT_TRACKING_DISABLED"])
+                end
+            end
+        end
+    },
+	{
+        text = L["SETTINGS_PURGE_CACHE"],
+        notCheckable = true,
+		func = function()
+            -- 1. Purge Known Alts Cache (Private BNet)
+            if FriendGroups_SavedVars.alt_cache then
+                wipe(FriendGroups_SavedVars.alt_cache)
+            end
+            
+            -- 2. Purge Auto-Guild Caches & Known Guilds Memory
+            if FriendGroups_SavedVars.alt_guild_rosters then
+                wipe(FriendGroups_SavedVars.alt_guild_rosters)
+            end
+            if FriendGroups_SavedVars.bnet_guild_map then
+                wipe(FriendGroups_SavedVars.bnet_guild_map)
+            end
+            if FriendGroups_SavedVars.known_player_guilds then
+                wipe(FriendGroups_SavedVars.known_player_guilds)
+            end
+            
+            -- Hide static panel if it is currently open
+            if FriendGroupsAltTooltip then
+                FriendGroupsAltTooltip:Hide()
+            end
+            
+            -- 3. Force the native guild listener to flag the cache as dirty
+            if C_GuildInfo and C_GuildInfo.GuildRoster then
+                C_GuildInfo.GuildRoster()
+            end
+            
+            print(L["MSG_PURGE_CACHE"])
+        end
+    },
+
+    -- SECTION: PROFILE SYNC
+    { text = L["SETTINGS_PROFILE"], notCheckable = true, isTitle = true },
+    {
+        text = L["SETTINGS_EXPORT"],
+        notCheckable = true,
+        tooltip = { L["TOOLTIP_EXPORT_1"], L["TOOLTIP_EXPORT_2"] },
+        func = function() FriendGroups_ShowExport() end
+    },
+    {
+        text = L["SETTINGS_IMPORT"],
+        notCheckable = true,
+        tooltip = { L["TOOLTIP_IMPORT_1"], L["TOOLTIP_IMPORT_2"] },
+        func = function() StaticPopup_Show("FRIENDGROUPS_IMPORT") end
+    },
+
+    -- SECTION 6: SYSTEM & RESET
     { text = "", notCheckable = true, isTitle = true },
+    {
+        text = L["SETTINGS_RESET_ORDER"],
+        notCheckable = true,
+        func = function()
+            if FriendGroups_SavedVars.group_order then
+                wipe(FriendGroups_SavedVars.group_order)
+            end
+            FriendGroups_FriendsListUpdate()
+        end
+    },
 	{
         text = L["SETTINGS_RESET"],
         notCheckable = true,
@@ -353,8 +470,11 @@ local settingsMenuItems = {
             FriendGroups_SavedVars.auto_accept_res = false
             FriendGroups_SavedVars.auto_release = false
             FriendGroups_SavedVars.offline_tracker = true
-            FriendGroups_SavedVars.extra_height = 380 
+            FriendGroups_SavedVars.show_known_alts = true
+            FriendGroups_SavedVars.extra_height = 380
+            FriendGroups_SavedVars.wide_list = false
             FriendGroups_SavedVars.collapsed = {}
+            FriendGroups_SavedVars.group_order = {}
             
             FriendGroups_UpdateSize()
             FriendGroups_UpdateContactCap()
@@ -369,91 +489,101 @@ local settingsMenuItems = {
 	Init Values
 ]] --
 
--- Expansion Max Level
-expansionMaxLevel[LE_EXPANSION_CLASSIC] = 60
-expansionMaxLevel[LE_EXPANSION_BURNING_CRUSADE] = 70
-expansionMaxLevel[LE_EXPANSION_WRATH_OF_THE_LICH_KING] = 80
-expansionMaxLevel[LE_EXPANSION_CATACLYSM] = 85
-expansionMaxLevel[LE_EXPANSION_MISTS_OF_PANDARIA] = 90
-expansionMaxLevel[LE_EXPANSION_WARLORDS_OF_DRAENOR] = 100
-expansionMaxLevel[LE_EXPANSION_LEGION] = 110
-expansionMaxLevel[LE_EXPANSION_BATTLE_FOR_AZEROTH] = 120
-expansionMaxLevel[LE_EXPANSION_SHADOWLANDS] = 60
-expansionMaxLevel[LE_EXPANSION_DRAGONFLIGHT] = 70
-expansionMaxLevel[LE_EXPANSION_WAR_WITHIN] = 80
-expansionMaxLevel[LE_EXPANSION_WAR_WITHIN + 1] = 90 -- Midnight Pre-Patch Support
-
-currentExpansionMaxLevel = expansionMaxLevel[GetExpansionLevel()]
+currentExpansionMaxLevel = GetMaxLevelForPlayerExpansion and GetMaxLevelForPlayerExpansion() or GetMaxLevelForExpansionLevel and GetMaxLevelForExpansionLevel(GetExpansionLevel()) or 80
 
 -- ============================================================================
--- [[ GUILD CACHE ENGINE ]]
+-- [[ GUILD CACHE ENGINE (OPTIMIZED: LAZY HEARTBEAT & FINGERPRINTING) ]]
 -- ============================================================================
 local FriendGroups_GuildCacheDirty = true
 local FriendGroups_PlayerGuildName = ""
+local FriendGroups_LiveGuildSessionDict = {} -- [[ NEW: Fast O(1) Memory-Safe Lookup ]]
 
 local fgGuildEventFrame = CreateFrame("Frame")
 fgGuildEventFrame:RegisterEvent("GUILD_ROSTER_UPDATE")
 fgGuildEventFrame:RegisterEvent("PLAYER_GUILD_UPDATE")
 fgGuildEventFrame:SetScript("OnEvent", function()
+    -- [[ DIRTY FLAG BUCKET: Ignore event spam, just flip the switch ]]
     FriendGroups_GuildCacheDirty = true
 end)
 
-local function FriendGroups_PruneGuildCaches()
-    if not FriendGroups_SavedVars.alt_guild_rosters then FriendGroups_SavedVars.alt_guild_rosters = {} end
-    if not FriendGroups_SavedVars.bnet_guild_map then FriendGroups_SavedVars.bnet_guild_map = {} end
+function FG_IsCharOnline(charKey)
+    if not charKey then return false end
     
-    local currentTime = time()
-    local sixMonths = 15552000 -- 60 seconds * 60 minutes * 24 hours * 180 days
+    local cName = strsplit("-", charKey)
+    local wowFriend = C_FriendList.GetFriendInfo(cName)
+    if wowFriend and wowFriend.connected then return true end
     
-    -- Prune guilds we haven't logged into for 6 months
-    for guildName, guildData in pairs(FriendGroups_SavedVars.alt_guild_rosters) do
-        if guildData.timestamp and (currentTime - guildData.timestamp > sixMonths) then
-            FriendGroups_SavedVars.alt_guild_rosters[guildName] = nil
+    local numBNetTotal = C_BattleNet and C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends and BNGetNumFriends() or 0
+    if numBNetTotal > 0 then
+        for i = 1, numBNetTotal do
+            local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+            if accountInfo and accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.isOnline then
+                if accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
+                    local bName = accountInfo.gameAccountInfo.characterName or ""
+                    local bRealm = FriendGroups_CleanRealmName(accountInfo.gameAccountInfo.realmName or accountInfo.gameAccountInfo.realmDisplayName or "")
+                    if (bName .. "-" .. bRealm) == charKey then return true end
+                end
+            end
         end
     end
-    
-    -- Remove mapped BNet IDs for guilds that were pruned
-    for bnetID, guildName in pairs(FriendGroups_SavedVars.bnet_guild_map) do
-        if not FriendGroups_SavedVars.alt_guild_rosters[guildName] then
-            FriendGroups_SavedVars.bnet_guild_map[bnetID] = nil
-        end
-    end
+    return false
 end
 
-local function FriendGroups_BuildGuildCache()
+function FriendGroups_BuildGuildCache()
     if not FriendGroups_GuildCacheDirty then return end
     
-    FriendGroups_PruneGuildCaches()
+    if not FriendGroups_SavedVars.known_player_guilds then
+        FriendGroups_SavedVars.known_player_guilds = {}
+    end
     
     local guildName = GetGuildInfo("player")
     FriendGroups_PlayerGuildName = (type(guildName) == "string") and guildName or ""
     
     if FriendGroups_PlayerGuildName ~= "" then
-        -- Initialize or reset this guild's roster data
-        if type(FriendGroups_SavedVars.alt_guild_rosters[FriendGroups_PlayerGuildName]) ~= "table" then
-            FriendGroups_SavedVars.alt_guild_rosters[FriendGroups_PlayerGuildName] = { members = {} }
-        else
-            wipe(FriendGroups_SavedVars.alt_guild_rosters[FriendGroups_PlayerGuildName].members)
-        end
+        FriendGroups_SavedVars.known_player_guilds[FriendGroups_PlayerGuildName] = true
+        wipe(FriendGroups_LiveGuildSessionDict)
         
-        FriendGroups_SavedVars.alt_guild_rosters[FriendGroups_PlayerGuildName].timestamp = time()
-        local roster = FriendGroups_SavedVars.alt_guild_rosters[FriendGroups_PlayerGuildName].members
+        -- Fallback chain: Modern C_ API first, legacy global second
+        local numTotal = (C_GuildInfo and C_GuildInfo.GetNumGuildMembers) and C_GuildInfo.GetNumGuildMembers() or GetNumGuildMembers()
+        local myRealm = GetNormalizedRealmName()
         
-        local numTotal = GetNumGuildMembers()
         for i = 1, numTotal do
-            local name = GetGuildRosterInfo(i)
+            -- Safe capture of the first return value, supporting both future tables and legacy multi-var returns
+            local name = (C_GuildInfo and C_GuildInfo.GetGuildRosterInfo) and C_GuildInfo.GetGuildRosterInfo(i) or GetGuildRosterInfo(i)
+            
             if name and type(name) == "string" then
-                roster[name] = true
-                local baseName = strsplit("-", name)
+                local baseName, realmName = strsplit("-", name)
                 if baseName then
-                    roster[baseName] = true
+                    local targetRealm = realmName or myRealm
+                    if targetRealm and type(targetRealm) == "string" then
+                        local cleanRealm = FriendGroups_CleanRealmName(targetRealm)
+                        local uniqueKey = baseName .. "-" .. cleanRealm
+                        
+                        FriendGroups_LiveGuildSessionDict[uniqueKey] = true
+                        FriendGroups_LiveGuildSessionDict[baseName] = true
+                    end
                 end
             end
         end
+    else
+        wipe(FriendGroups_LiveGuildSessionDict)
     end
+    
+    if FriendGroups_SavedVars.alt_guild_rosters then FriendGroups_SavedVars.alt_guild_rosters = nil end
+    if FriendGroups_SavedVars.bnet_guild_map then FriendGroups_SavedVars.bnet_guild_map = nil end
     
     FriendGroups_GuildCacheDirty = false
 end
+
+-- [[ THE LAZY HEARTBEAT ]]
+local function FriendGroups_LazyGuildScanner()
+    if FriendGroups_GuildCacheDirty then
+        FriendGroups_BuildGuildCache()
+    end
+    C_Timer.After(180, FriendGroups_LazyGuildScanner)
+end
+C_Timer.After(5, FriendGroups_LazyGuildScanner)
+
 
 --[[
 	Helper Functions
@@ -470,6 +600,12 @@ end
 
 local FriendGroups_OriginalHeight = nil
 local FriendGroupsList_OriginalHeight = nil
+local FriendGroups_OriginalWidth = nil
+local FriendGroupsList_OriginalWidth = nil
+
+-- Fixed amount (in pixels) the contacts window grows by when "Widen Contact List" is on.
+-- Sized to comfortably fit a full "aka [MainName]" suffix that the standard width clips.
+FriendGroups_WideListExtra = 150
 
 function FriendGroups_UpdateSize()
     -- 1. Store the original Blizzard defaults the very first time we run
@@ -477,13 +613,20 @@ function FriendGroups_UpdateSize()
         FriendGroups_OriginalHeight = FriendsFrame:GetHeight()
         FriendGroupsList_OriginalHeight = FriendsListFrame:GetHeight()
     end
+    if not FriendGroups_OriginalWidth then
+        FriendGroups_OriginalWidth = FriendsFrame:GetWidth()
+        FriendGroupsList_OriginalWidth = FriendsListFrame:GetWidth()
+    end
 
-    -- 2. Determine target height based on saved variable
+    -- 2. Determine target height/width based on saved variables
     local extra = FriendGroups_SavedVars.extra_height or 0
+    local extraWidth = FriendGroups_SavedVars.wide_list and FriendGroups_WideListExtra or 0
 
     -- 3. Apply
     FriendsFrame:SetHeight(FriendGroups_OriginalHeight + extra)
     FriendsListFrame:SetHeight(FriendGroupsList_OriginalHeight + extra)
+    FriendsFrame:SetWidth(FriendGroups_OriginalWidth + extraWidth)
+    FriendsListFrame:SetWidth(FriendGroupsList_OriginalWidth + extraWidth)
 
     -- 4. Re-anchor ScrollBox to fill the new space
     FriendsListFrame.ScrollBox:ClearAllPoints()
@@ -494,15 +637,20 @@ end
 function FriendGroups_Rename(self, oldGroup)
 	local input = self:GetEditBox():GetText()
     
-    -- Safety Check
-	if input == "" or not oldGroup then
-		return
+	if input == "" or not oldGroup then return end
+
+	-- Migrate any manual ordering rank so the renamed group keeps its position.
+	if FriendGroups_SavedVars.group_order and FriendGroups_SavedVars.group_order[oldGroup] ~= nil then
+		FriendGroups_SavedVars.group_order[input] = FriendGroups_SavedVars.group_order[oldGroup]
+		FriendGroups_SavedVars.group_order[oldGroup] = nil
 	end
 
 	local groups = {}
-	for i = 1, BNGetNumFriends() do
+    -- Modern API prioritization for total friends
+    local numBNetTotal = C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
+    
+	for i = 1, numBNetTotal do
         local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
-        -- SAFETY: Ensure the friend data actually loaded before trying to read it
         if accountInfo then
             local presenceID = accountInfo.bnetAccountID
             local noteText = accountInfo.note
@@ -511,21 +659,32 @@ function FriendGroups_Rename(self, oldGroup)
                 groups[oldGroup] = nil
                 groups[input] = true
                 note = FriendGroups_CreateNote(note, groups)
-                BNSetFriendNote(presenceID, note)
+                
+                -- Modern API prioritization for setting notes
+                if C_BattleNet.SetFriendNote then
+                    C_BattleNet.SetFriendNote(presenceID, note)
+                else
+                    BNSetFriendNote(presenceID, note)
+                end
             end
         end
 	end
-	for i = 1, C_FriendList.GetNumFriends() do
-		local note = C_FriendList.GetFriendInfoByIndex(i).notes
-		local name = C_FriendList.GetFriendInfoByIndex(i).name
-		note = FriendGroups_NoteAndGroups(note, groups)
+    
+    local numWoWTotal = C_FriendList.GetNumFriends and C_FriendList.GetNumFriends() or 0
+	for i = 1, numWoWTotal do
+		local friendInfo = C_FriendList.GetFriendInfoByIndex(i)
+        if friendInfo then
+            local note = friendInfo.notes
+            local name = friendInfo.name
+            note = FriendGroups_NoteAndGroups(note, groups)
 
-		if groups[oldGroup] then
-			groups[oldGroup] = nil
-			groups[input] = true
-			note = FriendGroups_CreateNote(note, groups)
-			C_FriendList.SetFriendNotes(name, note)
-		end
+            if groups[oldGroup] then
+                groups[oldGroup] = nil
+                groups[input] = true
+                note = FriendGroups_CreateNote(note, groups)
+                C_FriendList.SetFriendNotes(name, note)
+            end
+        end
 	end
 	FriendGroups_FriendsListUpdate()
 end
@@ -572,7 +731,8 @@ function FriendGroups_InviteOrGroup(groupName, invite)
         -- Removing a group still relies on text parsing to strip the hashtag out of the raw notes
         local groups = {}
 
-        for i = 1, BNGetNumFriends() do
+        local numBNetTotal = C_BattleNet and C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
+        for i = 1, numBNetTotal do
             local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(i)
             if friendAccountInfo then
                 local presenceID = friendAccountInfo.bnetAccountID
@@ -581,20 +741,26 @@ function FriendGroups_InviteOrGroup(groupName, invite)
                 if groups[groupName] then
                     groups[groupName] = nil
                     note = FriendGroups_CreateNote(note, groups)
-                    BNSetFriendNote(presenceID, note)
+                    if C_BattleNet and C_BattleNet.SetFriendNote then
+                        C_BattleNet.SetFriendNote(presenceID, note)
+                    else
+                        BNSetFriendNote(presenceID, note)
+                    end
                 end
             end
         end
         for i = 1, C_FriendList.GetNumFriends() do
             local friend_info = C_FriendList.GetFriendInfoByIndex(i)
-            local name = friend_info.name
-            local noteText = friend_info.notes
-            local note = FriendGroups_NoteAndGroups(noteText, groups)
+            if friend_info then
+                local name = friend_info.name
+                local noteText = friend_info.notes
+                local note = FriendGroups_NoteAndGroups(noteText, groups)
 
-            if groups[groupName] then
-                groups[groupName] = nil
-                note = FriendGroups_CreateNote(note, groups)
-                C_FriendList.SetFriendNotes(name, note)
+                if groups[groupName] then
+                    groups[groupName] = nil
+                    note = FriendGroups_CreateNote(note, groups)
+                    C_FriendList.SetFriendNotes(name, note)
+                end
             end
         end
     end
@@ -606,6 +772,37 @@ function FriendGroups_AddGroup(note, group)
 	groups[""] = nil
 	groups[group] = true
 	return FriendGroups_CreateNote(note, groups)
+end
+
+-- Add a manual <GuildName> tag to a note. Placed in the free-text portion (before the
+-- first # hashtag) so it isn't swallowed into a group name. No-op if already present.
+function FriendGroups_AddGuildTag(note, guildName)
+	note = (type(note) == "string") and note or ""
+	if not guildName or guildName == "" then return note end
+	local tag = "<" .. guildName .. ">"
+	if note:find(tag, 1, true) then return note end
+	if note == "" then return tag end
+	return tag .. " " .. note
+end
+
+-- Strip a manual <GuildName> tag (and one adjacent space) from a note. Plain-text
+-- matching so guild names with magic characters are handled safely.
+function FriendGroups_RemoveGuildTag(note, guildName)
+	note = (type(note) == "string") and note or ""
+	if not guildName or guildName == "" then return note end
+	local tag = "<" .. guildName .. ">"
+	local s, e = note:find(tag, 1, true)
+	while s do
+		-- Consume one adjacent space (prefer trailing, since AddGuildTag puts it there).
+		if note:sub(e + 1, e + 1) == " " then
+			e = e + 1
+		elseif note:sub(s - 1, s - 1) == " " then
+			s = s - 1
+		end
+		note = note:sub(1, s - 1) .. note:sub(e + 1)
+		s, e = note:find(tag, 1, true)
+	end
+	return note
 end
 
 function FriendGroups_Create(self, data)
@@ -726,11 +923,16 @@ function FriendGroups_GetClassColorCode(class, returnTable)
 	end
 end
 
+FriendGroups_ActiveAKA = {}
+
 function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID, realmName)
 	local nameText
 
 	-- set up player name and character name
-	if accountName then
+	local accountIdentifier = battleTag or accountName
+	if FriendGroups_SavedVars and FriendGroups_SavedVars.nicknames and accountIdentifier and FriendGroups_SavedVars.nicknames[accountIdentifier] then
+		nameText = "|cFF00FF00" .. FriendGroups_SavedVars.nicknames[accountIdentifier] .. "|r"
+	elseif accountName then
 		if FriendGroups_SavedVars.show_btag and battleTag then
 			nameText = FriendGroups_SplitBattleTag(battleTag)
 		else
@@ -746,36 +948,62 @@ function FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, charac
 			characterName = TimerunningUtil.AddSmallIcon(characterName)
 		end
 
-		local characterNameSuffix
+		local levelSuffix
 		if (not level) or (FriendGroups_SavedVars.hide_high_level and level == currentExpansionMaxLevel) or level == 0 then
-			characterNameSuffix = ""
+			levelSuffix = ""
 		else
-			characterNameSuffix = " | " .. level
+			levelSuffix = " " .. level
 		end
+
+        -- [[ NEW: Separate AKA string generation (Outside of Suffix Brackets) ]]
+        local akaText = ""
+        local accountIdentifier = battleTag or accountName
+        if accountIdentifier and FriendGroups_ActiveAKA and FriendGroups_ActiveAKA[accountIdentifier] then
+            local akaInfo = FriendGroups_ActiveAKA[accountIdentifier]
+            -- Only render the AKA if they are not actively logged into the main character.
+            -- The match must compare BOTH name and realm: a friend can have a same-named
+            -- character on a different realm (e.g. main Snarge-Area52 vs. current
+            -- Snarge-Proudmoore), and a name-only check would wrongly hide the aka there.
+            local onMainCharacter = (akaInfo.name == characterName)
+            if onMainCharacter and akaInfo.realm and realmName and realmName ~= "" then
+                onMainCharacter = (FriendGroups_CleanRealmName(akaInfo.realm) == FriendGroups_CleanRealmName(realmName))
+            end
+            if akaInfo.name and not onMainCharacter then
+                local akaFormattedName = "[" .. akaInfo.name .. "]"
+                
+                -- Apply class or faction colors strictly to the name inside the AKA brackets
+                if FriendGroups_SavedVars.colour_classes and akaInfo.class then
+                    akaFormattedName = FriendGroups_GetClassColorCode(akaInfo.class) .. akaFormattedName .. FONT_COLOR_CODE_CLOSE
+                elseif not canCoop and FriendGroups_SavedVars.gray_faction then
+                    akaFormattedName = "|cFF949694" .. akaFormattedName .. "|r"
+                end
+                
+                if L["FORMAT_AKA_DISPLAY"] then
+                    akaText = string.format(L["FORMAT_AKA_DISPLAY"], akaFormattedName)
+                end
+            end
+        end
 
 		if client == BNET_CLIENT_WOW then
 			if characterName ~= "" and level ~= 0 then
 				if not canCoop and FriendGroups_SavedVars.gray_faction then
-                    -- 12.0 FIX: Corrected typo '}' to ']' for cross-faction gray names
-					nameText = "|CFF949694" .. nameText .. " " .. "[" .. characterName .. characterNameSuffix ..
-						"]" .. "|r"
+					nameText = "|CFF949694" .. nameText .. " [" .. characterName .. "]" .. levelSuffix .. "|r"
 				elseif FriendGroups_SavedVars.colour_classes then
 					local nameColor = FriendGroups_GetClassColorCode(class)
-					nameText = nameText ..
-						" " .. nameColor .. "[" .. characterName .. characterNameSuffix .. "]" .. FONT_COLOR_CODE_CLOSE
+					nameText = nameText .. " " .. nameColor .. "[" .. characterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
 				else
-					nameText = nameText .. " " .. "[" .. characterName .. characterNameSuffix ..
-						"]" .. FONT_COLOR_CODE_CLOSE
+					nameText = nameText .. " [" .. characterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
 				end
 			end
 		else
 			if ENABLE_COLORBLIND_MODE == "1" then
 				characterName = characterName
 			end
-			local characterNameAndLevel = characterName .. characterNameSuffix
-			nameText = nameText ..
-				" " .. FRIENDS_OTHER_NAME_COLOR_CODE .. "[" .. characterNameAndLevel .. "]" .. FONT_COLOR_CODE_CLOSE
+			nameText = nameText .. " " .. FRIENDS_OTHER_NAME_COLOR_CODE .. "[" .. characterName .. "]" .. FONT_COLOR_CODE_CLOSE .. levelSuffix
 		end
+        
+        -- [[ Append the newly formatted AKA text outside the main brackets ]]
+        nameText = nameText .. akaText
 	end
 
 	return nameText
@@ -801,6 +1029,8 @@ local function FG_ReleaseTable(t)
     end
 end
 
+local FriendGroups_NoteCacheCount = 0
+
 function FriendGroups_GetPlayerGroups(note)
     -- 12.0 FIX: Secure note string check to prevent string.match crash
     if type(note) ~= "string" then note = "" end
@@ -813,6 +1043,13 @@ function FriendGroups_GetPlayerGroups(note)
         return FriendGroups_NoteCache[note]
     end
 
+    -- Safety Flush: Prevent infinite memory bloat from external note-sync addons
+    if FriendGroups_NoteCacheCount > 1500 then
+        wipe(FriendGroups_NoteCache)
+        FriendGroups_NoteCache[""] = {}
+        FriendGroups_NoteCacheCount = 0
+    end
+
     local groups = {}
     local formattedNote = string.match(note, "#.*")
 
@@ -823,6 +1060,8 @@ function FriendGroups_GetPlayerGroups(note)
     end
 
     FriendGroups_NoteCache[note] = groups
+    FriendGroups_NoteCacheCount = FriendGroups_NoteCacheCount + 1
+    
     return groups
 end
 
@@ -838,17 +1077,16 @@ end
 
 function FriendGroups_ShowRichPresenceOnly(client, wowProjectID, faction, realmID, areaName)
 	if (client ~= BNET_CLIENT_WOW) or (wowProjectID ~= WOW_PROJECT_ID) then
-		-- If they are not in wow or in a different version of wow, always show rich presence only
 		return true;
 	elseif (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) and ((faction ~= playerFactionGroup) or (realmID ~= playerRealmID)) then
-		-- If we are both in wow classic and our factions or realms don't match, show rich presence only
 		return true;
 	else
-		-- Otherwise show more detailed info about them
-
-		-- Plunderstorm
-		if (client == BNET_CLIENT_WOW) and (wowProjectID == WOW_PROJECT_ID) and not areaName then
-			return true;
+		-- Display Rich Presence as a safety fallback if the areaName is explicitly blank or nil.
+        -- This accurately catches Plunderstorm, Character Select screens, and transitional loading states.
+		if (client == BNET_CLIENT_WOW) and (wowProjectID == WOW_PROJECT_ID) then
+			if not areaName or areaName == "" then
+				return true;
+			end
 		end
 
 		return false;
@@ -930,7 +1168,7 @@ function FriendGroups_GetFriendInfoById(id)
 end
 
 function FriendGroups_GetFactionIcon(factionGroup)
-	if (factionGroup and factionGroup ~= "Neutral") then
+	if (factionGroup and factionGroup ~= "" and factionGroup ~= "Neutral") then
 		return "Interface\\FriendsFrame\\PlusManz-" .. factionGroup;
 	else
 		return ""
@@ -996,29 +1234,129 @@ function FriendGroups_GetStatusString(playerData)
 end
 
 function FriendGroups_SortTableByStatus(playerA, playerB)
-	local statusSort = {}
-
-	statusSort["OnlineInGame"] = 1
-	statusSort["DNDInGame"] = 2
-	statusSort["AFKInGame"] = 3
-	statusSort["Online"] = 4
-	statusSort["OnlineMobile"] = 5
-	statusSort["DND"] = 6
-	statusSort["AFK"] = 7
-	statusSort["AFKMobile"] = 8
-	statusSort["Offline"] = 9
-
 	if not playerA then
 		playerA = {}
-		playerA.statusText = "Offline"
 	end
 
 	if not playerB then
 		playerB = {}
-		playerB.statusText = "Offline"
 	end
 
-	return statusSort[playerA.statusText] < statusSort[playerB.statusText]
+	-- 1. Presence tier: actively in WoW first, then otherwise-online, then offline.
+	local rankA = playerA.isInGame and 1 or (playerA.isOnline and 2 or 3)
+	local rankB = playerB.isInGame and 1 or (playerB.isOnline and 2 or 3)
+	if rankA ~= rankB then
+		return rankA < rankB
+	end
+
+	-- 2. Battle.net friends before WoW (in-game) friends within the same tier
+	local typeA = (playerA.buttonType == FRIENDS_BUTTON_TYPE_BNET) and 1 or 2
+	local typeB = (playerB.buttonType == FRIENDS_BUTTON_TYPE_BNET) and 1 or 2
+	if typeA ~= typeB then
+		return typeA < typeB
+	end
+
+	-- 3. Alphabetical by display name
+	local nameA = playerA.sortName or ""
+	local nameB = playerB.sortName or ""
+	if nameA ~= nameB then
+		return nameA < nameB
+	end
+
+	-- 4. Deterministic backstop (unique per friend within the same tier/type)
+	return (playerA.id or 0) < (playerB.id or 0)
+end
+
+-- ============================================================================
+-- [[ MANUAL GROUP ORDER ENGINE ]]
+-- Layers a manual ordering on top of the automatic hierarchy. Each movable group
+-- may carry a fractional rank in FriendGroups_SavedVars.group_order (keyed by group
+-- name, matching the existing collapsed[] / banner_colors[] convention). Groups with
+-- no rank fall back to their automatic position, so untouched lists behave exactly as
+-- before. The fixed system anchors below are never movable.
+-- ============================================================================
+local FriendGroups_AutoPos = {}        -- [groupName] = automatic sort index (1..N)
+local FriendGroups_MovableOrder = {}   -- array of movable group names in display order
+local FriendGroups_MovableIndex = {}   -- [groupName] = index within FriendGroups_MovableOrder
+
+local function FriendGroups_IsFixedAnchor(groupName)
+	return groupName == L["GROUP_NONE"]
+		or groupName == L["GROUP_EMPTY"]
+		or groupName == ""
+		or groupName == L["GROUP_OFFLINE_1"]
+		or groupName == L["GROUP_OFFLINE_2"]
+		or groupName == L["GROUP_OFFLINE_3"]
+end
+
+local function FriendGroups_GetEffectiveRank(groupName)
+	local order = FriendGroups_SavedVars and FriendGroups_SavedVars.group_order
+	if order and order[groupName] ~= nil and not FriendGroups_IsFixedAnchor(groupName) then
+		return order[groupName]
+	end
+	return FriendGroups_AutoPos[groupName] or 0
+end
+
+-- Force the friends ScrollBox to repaint a reordered list. The rebuild restores the
+-- scroll to the SAME percentage (a no-op that fires no scroll event), so the box keeps
+-- showing the old rows until you scroll. We reproduce a real scroll: nudge the offset a
+-- hair, then restore it (no interpolation = invisible), which re-acquires the row frames.
+local function FG_ForceScrollRedraw()
+	local sb = FriendsListFrame and FriendsListFrame.ScrollBox
+	if not sb then return end
+	if sb.FullUpdate then sb:FullUpdate(true) end
+	if sb.GetScrollPercentage and sb.SetScrollPercentage then
+		local noInterp = ScrollBoxConstants and ScrollBoxConstants.NoScrollInterpolation
+		local p = sb:GetScrollPercentage() or 0
+		sb:SetScrollPercentage((p >= 1) and (p - 0.01) or (p + 0.01), noInterp)
+		sb:SetScrollPercentage(p, noInterp)
+	elseif sb.Update then
+		sb:Update()
+	end
+end
+
+-- Re-sort, then repaint now AND on the next frame. The context menu is still closing
+-- when the click handler runs, which can swallow the immediate repaint of the new order
+-- (the cause of "had to click move twice"); the deferred pass lands after it closes.
+local function FG_RefreshOrderNow()
+	if FriendGroups_FriendsListUpdate then FriendGroups_FriendsListUpdate(true) end
+	FG_ForceScrollRedraw()
+	if C_Timer and C_Timer.After then
+		C_Timer.After(0, FG_ForceScrollRedraw)
+	end
+end
+
+local function FriendGroups_MoveGroup(groupName, direction)
+	if not groupName or FriendGroups_IsFixedAnchor(groupName) then return end
+	if not FriendGroups_SavedVars.group_order then
+		FriendGroups_SavedVars.group_order = {}
+	end
+
+	-- Copy the current movable order, swap by one, then assign DENSE integer ranks to
+	-- every movable group. Dense ranks make each click move exactly one position (no
+	-- fractional ties with auto-positions that silently leave the order unchanged), and
+	-- keep exports collision-free (no movable group falls back to an auto index).
+	local arr = {}
+	for i = 1, #FriendGroups_MovableOrder do arr[i] = FriendGroups_MovableOrder[i] end
+
+	local idx
+	for i = 1, #arr do if arr[i] == groupName then idx = i break end end
+	if not idx then return end
+
+	local swapWith = idx + (direction < 0 and -1 or 1)
+	if swapWith < 1 or swapWith > #arr then return end
+	arr[idx], arr[swapWith] = arr[swapWith], arr[idx]
+
+	local order = FriendGroups_SavedVars.group_order
+	for i = 1, #arr do order[arr[i]] = i end
+
+	FG_RefreshOrderNow()
+end
+
+local function FriendGroups_ResetGroupPosition(groupName)
+	if groupName and FriendGroups_SavedVars.group_order then
+		FriendGroups_SavedVars.group_order[groupName] = nil
+	end
+	FG_RefreshOrderNow()
 end
 
 function FriendGroups_SortGroupsCustom(groupA, groupB)
@@ -1049,164 +1387,292 @@ function FriendGroups_SortGroupsCustom(groupA, groupB)
 	return groupA < groupB
 end
 
-function FriendGroups_SetGroups(id, buttonType)
-    local noteText = FriendGroups_GetFriendNote(id, buttonType)
+-- Phase-2 comparator: order by effective rank (manual override or automatic position),
+-- breaking ties by the automatic order and then name for determinism.
+function FriendGroups_SortGroupsByRank(groupA, groupB)
+	local ea = FriendGroups_GetEffectiveRank(groupA)
+	local eb = FriendGroups_GetEffectiveRank(groupB)
+	if ea ~= eb then
+		return ea < eb
+	end
+
+	local pa = FriendGroups_AutoPos[groupA] or 0
+	local pb = FriendGroups_AutoPos[groupB] or 0
+	if pa ~= pb then
+		return pa < pb
+	end
+
+	return groupA < groupB
+end
+
+local FriendGroups_AssignmentCache = {}
+local FriendGroups_CacheGeneration = 0
+
+function FriendGroups_SetGroups(id, buttonType, passedAccountInfo)
+    local noteText = ""
+    local statusText = "Offline"
+    local favorite = false
+    local charName, client, isOnline, isRetail, accountIdentifier = "", "", false, false, nil
+    local altCacheCount = 0
+
+    -- Inline state resolution to completely bypass redundant API table allocations
+    if buttonType == FRIENDS_BUTTON_TYPE_BNET then
+        local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+        if friendAccountInfo then
+            noteText = friendAccountInfo.note or ""
+            favorite = friendAccountInfo.isFavorite
+            accountIdentifier = friendAccountInfo.battleTag or friendAccountInfo.accountName
+
+            local gameAccountInfo = friendAccountInfo.gameAccountInfo
+            if gameAccountInfo then
+                isOnline = gameAccountInfo.isOnline
+                client = gameAccountInfo.clientProgram
+                isRetail = (gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
+                charName = (type(gameAccountInfo.characterName) == "string") and gameAccountInfo.characterName or ""
+
+                if friendAccountInfo.isAFK and isOnline then statusText = "AFK"
+                elseif friendAccountInfo.isDND and isOnline then statusText = "DND"
+                elseif isOnline then
+                    statusText = "Online"
+                    if gameAccountInfo.isGameBusy then statusText = "DND"
+                    elseif gameAccountInfo.isGameAFK then statusText = "AFK" end
+                    if client == "BSAp" then statusText = statusText .. "Mobile" end
+                    if client == BNET_CLIENT_WOW then statusText = statusText .. "InGame" end
+                end
+            end
+            
+            if accountIdentifier and FriendGroups_SavedVars and type(FriendGroups_SavedVars.alt_cache) == "table" and FriendGroups_SavedVars.alt_cache[accountIdentifier] then
+                altCacheCount = #FriendGroups_SavedVars.alt_cache[accountIdentifier]
+            end
+        end
+    elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
+        local info = passedAccountInfo or C_FriendList.GetFriendInfoByIndex(id)
+        if info then
+            noteText = info.notes or ""
+            isOnline = info.connected
+            client = BNET_CLIENT_WOW
+            charName = (type(info.name) == "string") and info.name or ""
+
+            if isOnline then
+                statusText = "OnlineInGame"
+                if info.dnd then statusText = "DNDInGame"
+                elseif info.afk then statusText = "AFKInGame" end
+            end
+        end
+    end
+
     if type(noteText) ~= "string" then noteText = "" end
 
-    local parsedGroups = FriendGroups_GetPlayerGroups(noteText)
-    local statusText = FriendGroups_GetStatusString({ id = id, buttonType = buttonType })
-    local favorite = FriendGroups_GetFriendFavorite(id, buttonType)
-
-    wipe(FriendGroups_WorkingGroupTable)
-    for _, g in ipairs(parsedGroups) do
-        table.insert(FriendGroups_WorkingGroupTable, g)
+    -- [[ OPTIMIZATION: Use Unique Identifier for Cache instead of dynamic List Index ]]
+    local uniqueID = id
+    if buttonType == FRIENDS_BUTTON_TYPE_BNET and accountIdentifier then
+        uniqueID = accountIdentifier
+    elseif buttonType == FRIENDS_BUTTON_TYPE_WOW and charName ~= "" then
+        uniqueID = charName
     end
+    
+    local cacheKey = buttonType .. "_" .. tostring(uniqueID)
+    local cache = FriendGroups_AssignmentCache[cacheKey]
+    
+    local manualMain = (FriendGroups_SavedVars.manual_mains and accountIdentifier) and FriendGroups_SavedVars.manual_mains[accountIdentifier] or nil
+    
+    local isCacheValid = cache 
+        and cache.noteText == noteText 
+        and cache.statusText == statusText 
+        and cache.favorite == favorite 
+        and cache.charName == charName 
+        and cache.isOnline == isOnline 
+        and cache.altCacheCount == altCacheCount
+        and cache.guildSetting == FriendGroups_SavedVars.show_guildmates
+        and cache.offlineSetting == FriendGroups_SavedVars.offline_tracker
+        and cache.favSetting == FriendGroups_SavedVars.add_favorite_group
+        and cache.manualMain == manualMain
 
-    if FriendGroups_SavedVars.add_favorite_group and favorite then
-        table.insert(FriendGroups_WorkingGroupTable, L["GROUP_FAVORITES"])
-    end
-
-    if FriendGroups_SavedVars.show_guildmates then
-        FriendGroups_BuildGuildCache()
-        
-        local hasManualGuild = false
-        
-        -- Priority 1: Note Parsing Check (Manual Override Multi-Guild Extractor)
-        if noteText ~= "" then
-            -- Match anything inside < > 
-            for manualGuildName in string.gmatch(noteText, "<([^>]+)>") do
-                -- Trim surrounding whitespace in case they typed < Guild Name >
-                manualGuildName = string.match(manualGuildName, "^%s*(.-)%s*$")
-                
-                -- Minimum 2 characters rule to avoid catching emojis like <3
-                if manualGuildName and #manualGuildName >= 2 then
-                    local formattedGuildGroup = string.format(L["FORMAT_GUILD_TAG"], L["GROUP_GUILDMATES"], manualGuildName)
-                    
-                    local alreadyExists = false
-                    for _, g in ipairs(FriendGroups_WorkingGroupTable) do
-                        if g == formattedGuildGroup then alreadyExists = true break end
-                    end
-                    if not alreadyExists then
-                        table.insert(FriendGroups_WorkingGroupTable, formattedGuildGroup)
-                        hasManualGuild = true
+    if not isCacheValid then
+        if buttonType == FRIENDS_BUTTON_TYPE_BNET and accountIdentifier then
+            local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+            if friendAccountInfo and friendAccountInfo.gameAccountInfo then
+                FriendGroups_SaveToAltCache(accountIdentifier, friendAccountInfo.gameAccountInfo)
+                if C_BattleNet.GetFriendNumGameAccounts then
+                    local numAccounts = C_BattleNet.GetFriendNumGameAccounts(id)
+                    if numAccounts and numAccounts > 1 then
+                        for i = 1, numAccounts do
+                            local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(id, i)
+                            if gameAccountInfo then
+                                FriendGroups_SaveToAltCache(accountIdentifier, gameAccountInfo)
+                            end
+                        end
                     end
                 end
             end
         end
+
+        local resolvedGroups = {}
+        local parsedGroups = FriendGroups_GetPlayerGroups(noteText)
         
-        -- Priority 2: Automatic Cross-Alt Cache Check (If no manual override found)
-        local matchedGuild = nil
-        if not hasManualGuild then
-            if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-                local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
-                if friendAccountInfo then
-                    local bnetID = friendAccountInfo.bnetAccountID
-                    
-                    if friendAccountInfo.gameAccountInfo and friendAccountInfo.gameAccountInfo.isOnline and friendAccountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
-                        local isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
-                        
-                        if isRetail then
-                            local cName = (type(friendAccountInfo.gameAccountInfo.characterName) == "string") and friendAccountInfo.gameAccountInfo.characterName or ""
-                            local rName = (type(friendAccountInfo.gameAccountInfo.realmName) == "string") and friendAccountInfo.gameAccountInfo.realmName or ""
+        for _, g in ipairs(parsedGroups) do table.insert(resolvedGroups, g) end
 
-                            if cName ~= "" then
-                                local fullName = cName
-                                if rName ~= "" then fullName = cName .. "-" .. rName:gsub("[%s%p]+", "") end
-                                
-                                -- Pass 1: Strict Match (Exact Full Name with Realm)
-                                for gName, gData in pairs(FriendGroups_SavedVars.alt_guild_rosters) do
-                                    if gData.members and gData.members[fullName] then
-                                        matchedGuild = gName
-                                        break
-                                    end
-                                end
+        if FriendGroups_SavedVars.add_favorite_group and favorite then
+            table.insert(resolvedGroups, L["GROUP_FAVORITES"])
+        end
 
-                                -- Pass 2: Loose Match (Base Character Name Fallback)
-                                if not matchedGuild then
-                                    for gName, gData in pairs(FriendGroups_SavedVars.alt_guild_rosters) do
-                                        if gData.members and gData.members[cName] then
-                                            matchedGuild = gName
-                                            break
-                                        end
-                                    end
-                                end
-                            end
+        local akaName, akaClass, akaRealm = nil, nil, nil
 
-                            if matchedGuild and bnetID then
-                                FriendGroups_SavedVars.bnet_guild_map[bnetID] = matchedGuild
-                            elseif not matchedGuild and bnetID then
-                                -- Self-cleaning: Playing retail but NOT in any known guild anymore
-                                FriendGroups_SavedVars.bnet_guild_map[bnetID] = nil
-                            end
-                        else
-                            -- Playing Classic/Other. Check memory cache.
-                            if bnetID and FriendGroups_SavedVars.bnet_guild_map[bnetID] then
-                                matchedGuild = FriendGroups_SavedVars.bnet_guild_map[bnetID]
-                            end
+        if FriendGroups_SavedVars.show_guildmates then
+            local hasManualGuild = false
+            if noteText ~= "" then
+                for manualGuildName in string.gmatch(noteText, "<([^>]+)>") do
+                    manualGuildName = string.match(manualGuildName, "^%s*(.-)%s*$")
+                    if manualGuildName and #manualGuildName >= 2 then
+                        local formattedGuildGroup = string.format(L["FORMAT_GUILD_TAG"], L["GROUP_GUILDMATES"], manualGuildName)
+                        local alreadyExists = false
+                        for _, g in ipairs(resolvedGroups) do
+                            if g == formattedGuildGroup then alreadyExists = true break end
                         end
-                    else
-                        -- Offline or playing another BNet game entirely. Check memory cache.
-                        if bnetID and FriendGroups_SavedVars.bnet_guild_map[bnetID] then
-                            matchedGuild = FriendGroups_SavedVars.bnet_guild_map[bnetID]
+                        if not alreadyExists then
+                            table.insert(resolvedGroups, formattedGuildGroup)
+                            hasManualGuild = true
                         end
                     end
                 end
-            elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
-                local info = C_FriendList.GetFriendInfoByIndex(id)
-                if info then
-                    local cName = (type(info.name) == "string") and info.name or ""
-                    if cName ~= "" then
-                        for gName, gData in pairs(FriendGroups_SavedVars.alt_guild_rosters) do
-                            if gData.members and gData.members[cName] then
-                                matchedGuild = gName
+            end
+            
+            local matchedGuild = nil
+            local mainGuild = nil
+            if buttonType == FRIENDS_BUTTON_TYPE_BNET then
+                -- [[ AKA SOURCE: MANUAL MAIN ONLY ]]
+                -- The "aka" label is driven solely by a manually-selected main below.
+                -- The previous auto-detection (newest cached character by timestamp) was
+                -- removed so an "aka" only appears once the user explicitly picks a main.
+                if FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains and accountIdentifier and FriendGroups_SavedVars.manual_mains[accountIdentifier] then
+                    local manualMainKey = FriendGroups_SavedVars.manual_mains[accountIdentifier]
+                    if FriendGroups_SavedVars.alt_cache and FriendGroups_SavedVars.alt_cache[accountIdentifier] then
+                        for _, alt in ipairs(FriendGroups_SavedVars.alt_cache[accountIdentifier]) do
+                            local currentKey = alt.charName .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")
+                            if currentKey == manualMainKey or alt.key == manualMainKey then
+                                akaName = alt.charName
+                                akaClass = alt.class
+                                akaRealm = alt.realm
+                                -- Manual main trumps all: its guild defines the guild group,
+                                -- regardless of which character the friend is logged in on.
+                                if alt.guild and alt.guild ~= "" and alt.guild ~= "NONE" and alt.guild ~= "-" then
+                                    mainGuild = alt.guild
+                                end
+                                break
+                            end
+                        end
+                    end
+
+                    -- Fall back to the synced seed if this box hasn't cached the main yet,
+                    -- and keep the seed fresh from any local observation above.
+                    if not mainGuild and FriendGroups_SavedVars.main_guild then
+                        local seed = FriendGroups_SavedVars.main_guild[accountIdentifier]
+                        if seed and seed ~= "" and seed ~= "NONE" and seed ~= "-" then
+                            mainGuild = seed
+                        end
+                    end
+                    if mainGuild then
+                        if not FriendGroups_SavedVars.main_guild then FriendGroups_SavedVars.main_guild = {} end
+                        FriendGroups_SavedVars.main_guild[accountIdentifier] = mainGuild
+                    end
+                end
+
+                if not mainGuild and not hasManualGuild then
+                    if isOnline and client == BNET_CLIENT_WOW and isRetail and charName ~= "" then
+                        local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+                        if friendAccountInfo and friendAccountInfo.gameAccountInfo then
+                            local rName = (type(friendAccountInfo.gameAccountInfo.realmName) == "string") and friendAccountInfo.gameAccountInfo.realmName or ""
+                            local fullName = charName
+                            if rName ~= "" then fullName = charName .. "-" .. FriendGroups_CleanRealmName(rName) end
+
+                            if FriendGroups_LiveGuildSessionDict[fullName] or FriendGroups_LiveGuildSessionDict[charName] then
+                                matchedGuild = FriendGroups_PlayerGuildName
+                            end
+                        end
+                    end
+                    
+                    if not matchedGuild and accountIdentifier and FriendGroups_SavedVars.alt_cache and FriendGroups_SavedVars.alt_cache[accountIdentifier] then
+                        for _, alt in ipairs(FriendGroups_SavedVars.alt_cache[accountIdentifier]) do
+                            if alt.guild and alt.guild ~= "" and alt.guild ~= "NONE" and alt.guild ~= "-" then
+                                if FriendGroups_SavedVars.known_player_guilds and FriendGroups_SavedVars.known_player_guilds[alt.guild] then
+                                    matchedGuild = alt.guild
+                                    break
+                                end
+                            end
+                            if FriendGroups_LiveGuildSessionDict[alt.key] or FriendGroups_LiveGuildSessionDict[alt.charName] then
+                                matchedGuild = FriendGroups_PlayerGuildName
                                 break
                             end
                         end
                     end
                 end
+            elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
+                if not hasManualGuild and charName ~= "" then
+                    if FriendGroups_LiveGuildSessionDict[charName] then
+                        matchedGuild = FriendGroups_PlayerGuildName
+                    end
+                end
             end
             
-            -- Verify mapped guild still exists
-            if matchedGuild and not FriendGroups_SavedVars.alt_guild_rosters[matchedGuild] then
-                matchedGuild = nil
-            end
-            
-            if matchedGuild then
-                local formattedGuildGroup = string.format(L["FORMAT_GUILD_TAG"], L["GROUP_GUILDMATES"], matchedGuild)
-                
-                -- Check to avoid duplicate folders if added via notes
+            -- A manually-selected main's guild takes precedence over the heuristic match.
+            local effectiveGuild = mainGuild or matchedGuild
+            if effectiveGuild then
+                local formattedGuildGroup = string.format(L["FORMAT_GUILD_TAG"], L["GROUP_GUILDMATES"], effectiveGuild)
                 local alreadyExists = false
-                for _, g in ipairs(FriendGroups_WorkingGroupTable) do
+                for _, g in ipairs(resolvedGroups) do
                     if g == formattedGuildGroup then alreadyExists = true break end
                 end
                 if not alreadyExists then
-                    table.insert(FriendGroups_WorkingGroupTable, formattedGuildGroup)
+                    table.insert(resolvedGroups, formattedGuildGroup)
                 end
             end
         end
+
+        if FriendGroups_SavedVars.offline_tracker and buttonType == FRIENDS_BUTTON_TYPE_BNET and statusText == "Offline" then
+            local friendAccountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(id)
+            if friendAccountInfo and friendAccountInfo.lastOnlineTime and friendAccountInfo.lastOnlineTime > 0 then
+                local daysOffline = (time() - friendAccountInfo.lastOnlineTime) / 86400
+                if daysOffline >= 90 then table.insert(resolvedGroups, L["GROUP_OFFLINE_3"])
+                elseif daysOffline >= 60 then table.insert(resolvedGroups, L["GROUP_OFFLINE_2"])
+                elseif daysOffline >= 30 then table.insert(resolvedGroups, L["GROUP_OFFLINE_1"]) end
+            end
+        end
+
+        if #resolvedGroups == 0 then table.insert(resolvedGroups, L["GROUP_NONE"]) end
+        
+        FriendGroups_AssignmentCache[cacheKey] = {
+            noteText = noteText,
+            statusText = statusText,
+            favorite = favorite,
+            charName = charName,
+            isOnline = isOnline,
+            altCacheCount = altCacheCount,
+            guildSetting = FriendGroups_SavedVars.show_guildmates,
+            offlineSetting = FriendGroups_SavedVars.offline_tracker,
+            favSetting = FriendGroups_SavedVars.add_favorite_group,
+            manualMain = manualMain,
+            groups = resolvedGroups,
+            akaName = akaName,
+            akaClass = akaClass,
+            akaRealm = akaRealm
+        }
+        
+        cache = FriendGroups_AssignmentCache[cacheKey]
     end
 
-    if FriendGroups_SavedVars.offline_tracker and buttonType == FRIENDS_BUTTON_TYPE_BNET and statusText == "Offline" then
-        local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
-        if friendAccountInfo and friendAccountInfo.lastOnlineTime and friendAccountInfo.lastOnlineTime > 0 then
-            local daysOffline = (time() - friendAccountInfo.lastOnlineTime) / 86400
-            
-            if daysOffline >= 90 then
-                table.insert(FriendGroups_WorkingGroupTable, L["GROUP_OFFLINE_3"])
-            elseif daysOffline >= 60 then
-                table.insert(FriendGroups_WorkingGroupTable, L["GROUP_OFFLINE_2"])
-            elseif daysOffline >= 30 then
-                table.insert(FriendGroups_WorkingGroupTable, L["GROUP_OFFLINE_1"])
-            end
+	-- [[ CACHE PRUNE SUPPORT ]]
+    -- Mark this entry as live for the current rebuild generation. Entries for friends who are
+    -- no longer present keep an older generation and are pruned at the end of FriendsListUpdate.
+    cache.generation = FriendGroups_CacheGeneration
+	
+    if accountIdentifier then
+        FriendGroups_ActiveAKA[accountIdentifier] = nil
+        if cache.akaName then
+            FriendGroups_ActiveAKA[accountIdentifier] = { name = cache.akaName, class = cache.akaClass, realm = cache.akaRealm }
         end
     end
 
-    if next(FriendGroups_WorkingGroupTable) == nil then
-        table.insert(FriendGroups_WorkingGroupTable, L["GROUP_NONE"])
-    end
-
-    for _, groupName in ipairs(FriendGroups_WorkingGroupTable) do
-        local isOnline, client, isRetail
+    for _, groupName in ipairs(cache.groups) do
         local addToTable = false
 
         if not groupsTotal[groupName] then
@@ -1217,25 +1683,11 @@ function FriendGroups_SetGroups(id, buttonType)
             table.insert(groupsSorted, groupName)
         end
 
-        if buttonType == FRIENDS_BUTTON_TYPE_BNET then
-            local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
-            if friendAccountInfo and friendAccountInfo.gameAccountInfo then
-                isOnline = friendAccountInfo.gameAccountInfo.isOnline
-                client = friendAccountInfo.gameAccountInfo.clientProgram
-                isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
-            end
-        elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
-            isOnline = C_FriendList.GetFriendInfoByIndex(id).connected
-            client = BNET_CLIENT_WOW
-        end
-
         if isOnline then
             if (FriendGroups_SavedVars.hide_afk and statusText ~= "AFK" and statusText ~= "AFKMobile") or not FriendGroups_SavedVars.hide_afk then
                 if (FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only then
                     if FriendGroups_SavedVars.show_retail and client == BNET_CLIENT_WOW then
-                        if isRetail then
-                            addToTable = true
-                        end
+                        if isRetail then addToTable = true end
                     else
                         addToTable = true
                     end
@@ -1248,7 +1700,7 @@ function FriendGroups_SetGroups(id, buttonType)
         end
 
         if searchValue ~= "" then
-            addToTable = FriendGroups_Search(id, buttonType)
+            addToTable = FriendGroups_Search(id, buttonType, passedAccountInfo)
         end
 
         if addToTable then
@@ -1257,28 +1709,47 @@ function FriendGroups_SetGroups(id, buttonType)
                 groupsCount[groupName].Online = groupsCount[groupName].Online + 1
             end
             
-            local playerData = FG_GetTable()
+			local playerData = FG_GetTable()
             playerData.id = id
             playerData.buttonType = buttonType
             playerData.statusText = statusText
-            
+
+            -- [[ PRESENCE FLAGS (drive the primary sort tier) ]]
+            -- isInGame: online AND active client is WoW (actively playing) -> top tier.
+            -- isOnline: online in any client (WoW, app, mobile, other game) -> middle tier.
+            -- Offline (neither flag) -> bottom tier.
+            playerData.isOnline = isOnline
+            playerData.isInGame = isOnline and (client == BNET_CLIENT_WOW)
+
+            -- [[ ALPHABETICAL SORT KEY ]]
+            -- BNet -> account identifier (BattleTag; its name prefix is the displayed bold name).
+            -- WoW  -> character name. Lowercased for case-insensitive ordering. Consumed by the
+            -- secondary sort in FriendGroups_SortTableByStatus.
+            local sortName = charName
+            if buttonType == FRIENDS_BUTTON_TYPE_BNET and accountIdentifier then
+                sortName = accountIdentifier
+            end
+            playerData.sortName = (sortName or ""):lower()
+
             table.insert(groupsTotal[groupName], playerData)
-        end
+		end
     end
 end
 
-function FriendGroups_Search(playerId, playerButtonType)
+function FriendGroups_Search(playerId, playerButtonType, passedAccountInfo)
     if searchValue == "" then return true end
 
     local characterName, bnetAccountName, battleTag, noteText, realmName, className, richPresence, regionSearchText, factionSearchText = "", "", "", "", "", "", "", "", ""
     local classMatch = false
+    local altMatch = false
     local matchedGuildName = ""
     local hasManualGuild = false
-    local searchLower = searchValue:lower()
+    local searchLower = searchLowerValue
     local searchLen = #searchLower
 
     if playerButtonType == FRIENDS_BUTTON_TYPE_BNET then
-        local accountInfo = C_BattleNet.GetFriendAccountInfo(playerId)
+        -- Fast Path: Use passed memory reference instead of querying the API
+        local accountInfo = passedAccountInfo or C_BattleNet.GetFriendAccountInfo(playerId)
         if accountInfo and accountInfo.gameAccountInfo then
             bnetAccountName = (type(accountInfo.accountName) == "string") and accountInfo.accountName or ""
             battleTag = (type(accountInfo.battleTag) == "string") and accountInfo.battleTag or ""
@@ -1293,17 +1764,35 @@ function FriendGroups_Search(playerId, playerButtonType)
             local database = (rid == 3) and FriendGroups_RealmDataEU or FriendGroups_RealmData
             
             if realmName ~= "" then
-                local cleanRealm = realmName:gsub("[%s%p]+", "")
+                local cleanRealm = FriendGroups_CleanRealmName(realmName)
                 local data = database[cleanRealm]
                 if data and data.region then
                     regionSearchText = data.region
                 end
             end
             
+            local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+            if accountIdentifier and FriendGroups_SavedVars and type(FriendGroups_SavedVars.alt_cache) == "table" then
+                local alts = FriendGroups_SavedVars.alt_cache[accountIdentifier]
+                if alts then
+                    for _, alt in ipairs(alts) do
+                        local aName = (type(alt.searchName) == "string") and alt.searchName or (type(alt.charName) == "string" and alt.charName:lower() or "")
+                        local aRealm = (type(alt.searchRealm) == "string") and alt.searchRealm or (type(alt.realm) == "string" and alt.realm:lower() or "")
+                        local aClass = (type(alt.searchClass) == "string") and alt.searchClass or (type(alt.class) == "string" and alt.class:lower() or "")
+                        local aZone = (type(alt.searchZone) == "string") and alt.searchZone or (type(alt.zone) == "string" and alt.zone:lower() or "")
+                        
+                        if (aName:find(searchLower, 1, true)) or 
+                           (aRealm:find(searchLower, 1, true)) or 
+                           (aZone:find(searchLower, 1, true)) or 
+                           (aClass ~= "" and aClass:sub(1, searchLen) == searchLower) then
+                            altMatch = true
+                            break
+                        end
+                    end
+                end
+            end
+            
             if FriendGroups_SavedVars.show_guildmates then
-                FriendGroups_BuildGuildCache()
-                
-                -- Priority 1: Manual Override
                 if noteText ~= "" then
                     for manualGuildName in string.gmatch(noteText, "<([^>]+)>") do
                         manualGuildName = string.match(manualGuildName, "^%s*(.-)%s*$")
@@ -1316,33 +1805,16 @@ function FriendGroups_Search(playerId, playerButtonType)
                     end
                 end
                 
-                -- Priority 2: Auto-Detection Fallback
                 if not hasManualGuild then
-                    if accountInfo.bnetAccountID and FriendGroups_SavedVars.bnet_guild_map and FriendGroups_SavedVars.bnet_guild_map[accountInfo.bnetAccountID] then
-                        matchedGuildName = FriendGroups_SavedVars.bnet_guild_map[accountInfo.bnetAccountID]
-                    elseif accountInfo.gameAccountInfo.isOnline and accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW and accountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE then
+                    if accountInfo.gameAccountInfo.isOnline and accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW and accountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE then
                         local cName = characterName
                         local rName = realmName
                         if cName ~= "" then
                             local fullName = cName
-                            if rName ~= "" then fullName = cName .. "-" .. rName:gsub("[%s%p]+", "") end
+                            if rName ~= "" then fullName = cName .. "-" .. FriendGroups_CleanRealmName(rName) end
                             
-                            -- Pass 1: Strict Match
-                            for gName, gData in pairs(FriendGroups_SavedVars.alt_guild_rosters) do
-                                if gData.members and gData.members[fullName] then
-                                    matchedGuildName = gName
-                                    break
-                                end
-                            end
-                            
-                            -- Pass 2: Loose Match
-                            if matchedGuildName == "" then
-                                for gName, gData in pairs(FriendGroups_SavedVars.alt_guild_rosters) do
-                                    if gData.members and gData.members[cName] then
-                                        matchedGuildName = gName
-                                        break
-                                    end
-                                end
+                            if FriendGroups_LiveGuildSessionDict[fullName] or FriendGroups_LiveGuildSessionDict[cName] then
+                                matchedGuildName = FriendGroups_PlayerGuildName
                             end
                         end
                     end
@@ -1350,7 +1822,7 @@ function FriendGroups_Search(playerId, playerButtonType)
             end
         end
     elseif playerButtonType == FRIENDS_BUTTON_TYPE_WOW then
-        local info = C_FriendList.GetFriendInfoByIndex(playerId)
+        local info = passedAccountInfo or C_FriendList.GetFriendInfoByIndex(playerId)
         if info then
             characterName = (type(info.name) == "string") and info.name or ""
             noteText = (type(info.notes) == "string") and info.notes or ""
@@ -1359,9 +1831,6 @@ function FriendGroups_Search(playerId, playerButtonType)
             regionSearchText = "Local"
             
             if FriendGroups_SavedVars.show_guildmates then
-                FriendGroups_BuildGuildCache()
-                
-                -- Priority 1: Manual Override
                 if noteText ~= "" then
                     for manualGuildName in string.gmatch(noteText, "<([^>]+)>") do
                         manualGuildName = string.match(manualGuildName, "^%s*(.-)%s*$")
@@ -1374,13 +1843,9 @@ function FriendGroups_Search(playerId, playerButtonType)
                     end
                 end
                 
-                -- Priority 2: Auto Detection Fallback
                 if not hasManualGuild and characterName ~= "" then
-                    for gName, gData in pairs(FriendGroups_SavedVars.alt_guild_rosters) do
-                        if gData.members and gData.members[characterName] then
-                            matchedGuildName = gName
-                            break
-                        end
+                    if FriendGroups_LiveGuildSessionDict[characterName] then
+                        matchedGuildName = FriendGroups_PlayerGuildName
                     end
                 end
             end
@@ -1398,7 +1863,7 @@ function FriendGroups_Search(playerId, playerButtonType)
        (regionSearchText:lower():find(searchLower, 1, true)) or 
        (factionSearchText:lower():find(searchLower, 1, true)) or 
        (matchedGuildName ~= "" and matchedGuildName:lower():find(searchLower, 1, true)) or
-       classMatch then
+       classMatch or altMatch then
         return true
     end
     return false
@@ -1509,11 +1974,65 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
         end, { id = bnetIDAccount })
     end
 
+    local accountIdentifier = accountInfo and (accountInfo.battleTag or accountInfo.accountName)
+
+    if accountIdentifier then
+        rootDescription:CreateButton(L["DROP_SET_NICKNAME"], function(data)
+            StaticPopup_Show("FRIENDGROUPS_SET_NICKNAME", nil, nil, { accountIdentifier = data.accountIdentifier })
+        end, { accountIdentifier = accountIdentifier })
+
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.show_known_alts ~= false then
+            local mainSubMenu = rootDescription:CreateButton(L["DROP_SELECT_MAIN"])
+            mainSubMenu:CreateButton(L["DROP_CLEAR_MAIN"], function(data)
+                if FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains then
+                    FriendGroups_SavedVars.manual_mains[data.accountIdentifier] = nil
+                    if FriendGroups_SavedVars.main_guild then
+                        FriendGroups_SavedVars.main_guild[data.accountIdentifier] = nil
+                    end
+                    FriendGroups_FriendsListUpdate(true)
+                end
+            end, { accountIdentifier = accountIdentifier })
+
+            if FriendGroups_SavedVars.alt_cache and FriendGroups_SavedVars.alt_cache[accountIdentifier] then
+                local menuAlts = {}
+                for _, altData in ipairs(FriendGroups_SavedVars.alt_cache[accountIdentifier]) do
+                    table.insert(menuAlts, altData)
+                end
+                table.sort(menuAlts, function(a, b) return (a.charName or "") < (b.charName or "") end)
+
+                for _, altData in ipairs(menuAlts) do
+                    local engClass = ""
+                    if altData.class and (LOCALIZED_CLASS_NAMES_MALE[altData.class] or RAID_CLASS_COLORS[altData.class]) then
+                        engClass = altData.class
+                    else
+                        for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do if altData.class == v then engClass = k break end end
+                        if engClass == "" then for k, v in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do if altData.class == v then engClass = k break end end end
+                    end
+                    local colorCode = FriendGroups_GetClassColorCode(engClass ~= "" and engClass or altData.class)
+                    local displayLabel = colorCode .. altData.charName .. "-" .. altData.realm .. "|r"
+                    local altUniqueKey = altData.charName .. "-" .. FriendGroups_CleanRealmName(altData.realm or "")
+
+                    mainSubMenu:CreateButton(displayLabel, function(data)
+                        if not FriendGroups_SavedVars.manual_mains then FriendGroups_SavedVars.manual_mains = {} end
+                        FriendGroups_SavedVars.manual_mains[data.accountIdentifier] = data.altKey
+                        FriendGroups_FriendsListUpdate(true)
+                    end, { accountIdentifier = accountIdentifier, altKey = altUniqueKey })
+                end
+            end
+        end
+    end
+
     rootDescription:CreateButton(L["DROP_CREATE"], function(data)
         if data.bnetfriend then
             local info = C_BattleNet.GetAccountInfoByID(data.id)
             if info then
-                StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil, { id = info.bnetAccountID, note = info.note, set = BNSetFriendNote })
+                StaticPopup_Show("FRIENDGROUPS_CREATE", nil, nil, { id = info.bnetAccountID, note = info.note, set = function(id, note)
+                    if C_BattleNet and C_BattleNet.SetFriendNote then
+                        C_BattleNet.SetFriendNote(id, note)
+                    else
+                        BNSetFriendNote(id, note)
+                    end
+                end })
             end
         else
             local info = C_FriendList.GetFriendInfo(data.name)
@@ -1532,7 +2051,11 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
 		   add:CreateButton(group, function(data)
                 local newNote = FriendGroups_AddGroup(data.note, data.group)
                 if data.bnetfriend then
-                    BNSetFriendNote(data.id, newNote)
+                    if C_BattleNet and C_BattleNet.SetFriendNote then
+                        C_BattleNet.SetFriendNote(data.id, newNote)
+                    else
+                        BNSetFriendNote(data.id, newNote)
+                    end
                 else
                     C_FriendList.SetFriendNotes(data.name, newNote)
                 end
@@ -1540,16 +2063,88 @@ function FriendGroups_AddDropDownNew(ownerRegion, rootDescription, contextData)
         end
     end
 
-    local remove = rootDescription:CreateButton(L["DROP_REMOVE"])
+    -- The friend's MANUAL guild tags (<GuildName> in the note) — these can be removed.
+    -- Auto-detected (roster) guild membership has no note tag and is not removable.
+    local manualGuilds = {}
+    if type(note) == "string" then
+        for gname in string.gmatch(note, "<([^>]+)>") do
+            gname = strtrim(gname)
+            if gname ~= "" and not FriendGroups_HasValue(manualGuilds, gname) then
+                manualGuilds[#manualGuilds + 1] = gname
+            end
+        end
+    end
 
-	for _, group in ipairs(groupsSorted) do
+    -- [[ ADD TO GUILD GROUP ]] writes a manual <GuildName> tag (works for auto guild
+    -- groups too). Lists guild groups the friend isn't already manually tagged in.
+    local guildOptions = {}
+    for _, group in ipairs(groupsSorted) do
+        if string.find(group, L["GROUP_GUILDMATES"], 1, true) then
+            local gname = string.match(group, "<(.-)>")
+            if gname and gname ~= "" and not FriendGroups_HasValue(guildOptions, gname)
+               and not FriendGroups_HasValue(manualGuilds, gname) then
+                guildOptions[#guildOptions + 1] = gname
+            end
+        end
+    end
+    if #guildOptions > 0 then
+        local addGuild = rootDescription:CreateButton(L["DROP_ADD_GUILD"])
+        for _, gname in ipairs(guildOptions) do
+            addGuild:CreateButton(gname, function(data)
+                local newNote = FriendGroups_AddGuildTag(data.note, data.guildName)
+                if data.bnetfriend then
+                    if C_BattleNet and C_BattleNet.SetFriendNote then
+                        C_BattleNet.SetFriendNote(data.id, newNote)
+                    else
+                        BNSetFriendNote(data.id, newNote)
+                    end
+                else
+                    C_FriendList.SetFriendNotes(data.name, newNote)
+                end
+            end, { guildName = gname, note = note, id = bnetIDAccount, name = wowName, bnetfriend = bnetfriend })
+        end
+    end
+
+    -- [[ REMOVE FROM GUILD GROUP ]] strips a manual <GuildName> tag from the note.
+    if #manualGuilds > 0 then
+        local removeGuild = rootDescription:CreateButton(L["DROP_REMOVE_GUILD"])
+        for _, gname in ipairs(manualGuilds) do
+            removeGuild:CreateButton(gname, function(data)
+                local newNote = FriendGroups_RemoveGuildTag(data.note, data.guildName)
+                if data.bnetfriend then
+                    if C_BattleNet and C_BattleNet.SetFriendNote then
+                        C_BattleNet.SetFriendNote(data.id, newNote)
+                    else
+                        BNSetFriendNote(data.id, newNote)
+                    end
+                else
+                    C_FriendList.SetFriendNotes(data.name, newNote)
+                end
+            end, { guildName = gname, note = note, id = bnetIDAccount, name = wowName, bnetfriend = bnetfriend })
+        end
+    end
+
+    -- [[ REMOVE FROM GROUP ]] only shown when the friend is in a removable group, so it
+    -- is hidden for ungrouped (No Group) friends rather than wasting a menu row.
+    local removableGroups = {}
+    for _, group in ipairs(groupsSorted) do
         local isGuildGroup = string.find(group, L["GROUP_GUILDMATES"], 1, true)
-        if FriendGroups_HasValue(groups, group) 
+        if FriendGroups_HasValue(groups, group)
            and group ~= L["GROUP_FAVORITES"] and group ~= L["GROUP_OFFLINE_1"] and group ~= L["GROUP_OFFLINE_2"] and group ~= L["GROUP_OFFLINE_3"] and not isGuildGroup then
-		   remove:CreateButton(group, function(data)
+            removableGroups[#removableGroups + 1] = group
+        end
+    end
+    if #removableGroups > 0 then
+        local remove = rootDescription:CreateButton(L["DROP_REMOVE"])
+        for _, group in ipairs(removableGroups) do
+            remove:CreateButton(group, function(data)
                 local newNote = FriendGroups_RemoveGroup(data.note, data.group)
                 if data.bnetfriend then
-                    BNSetFriendNote(data.id, newNote)
+                    if C_BattleNet and C_BattleNet.SetFriendNote then
+                        C_BattleNet.SetFriendNote(data.id, newNote)
+                    else
+                        BNSetFriendNote(data.id, newNote)
+                    end
                 else
                     C_FriendList.SetFriendNotes(data.name, newNote)
                 end
@@ -1578,37 +2173,149 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
                 local displayTitle = frame.name:GetText() or groupName
                 rootDescription:CreateTitle(displayTitle)
                 
-                for i = 2, #groupMenuItems do
-                    local item = groupMenuItems[i]
-                    local disabled = false
-                    local text = item.text
-                    
-                    local isGuildGroup = string.find(groupName, L["GROUP_GUILDMATES"], 1, true)
+                local isGuildGroup = string.find(groupName, L["GROUP_GUILDMATES"], 1, true)
+                local isSystemGroup = (groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" or groupName == L["GROUP_OFFLINE_1"] or groupName == L["GROUP_OFFLINE_2"] or groupName == L["GROUP_OFFLINE_3"])
 
-					if groupName == L["GROUP_NONE"] or groupName == L["GROUP_FAVORITES"] or groupName == L["GROUP_EMPTY"] or groupName == "" 
-					   or groupName == L["GROUP_OFFLINE_1"] or groupName == L["GROUP_OFFLINE_2"] or groupName == L["GROUP_OFFLINE_3"] or isGuildGroup then
-						if text == L["MENU_RENAME"] or text == L["MENU_REMOVE"] then
-							disabled = true
-						end
-						if text == L["MENU_INVITE"] and groupName == L["GROUP_EMPTY"] then
-							disabled = true
-						end
-					end
-	
-                    if text == L["MENU_INVITE"] then
-                        if groupsCount[groupName] and groupsCount[groupName].Total > 40 then
-                            disabled = true
-                            text = text .. L["MENU_MAX_40"]
-                        end
+                -- [[ ORDERING: movable groups can be reordered manually ]]
+                if not FriendGroups_IsFixedAnchor(groupName) then
+                    local moveIdx = FriendGroups_MovableIndex[groupName]
+                    local moveCount = #FriendGroups_MovableOrder
+
+                    local moveUpBtn = rootDescription:CreateButton(L["MENU_MOVE_UP"], function()
+                        FriendGroups_MoveGroup(groupName, -1)
+                    end)
+                    if not moveIdx or moveIdx <= 1 then moveUpBtn:SetEnabled(false) end
+
+                    local moveDownBtn = rootDescription:CreateButton(L["MENU_MOVE_DOWN"], function()
+                        FriendGroups_MoveGroup(groupName, 1)
+                    end)
+                    if not moveIdx or moveIdx >= moveCount then moveDownBtn:SetEnabled(false) end
+
+                    if FriendGroups_SavedVars.group_order and FriendGroups_SavedVars.group_order[groupName] ~= nil then
+                        rootDescription:CreateButton(L["MENU_RESET_POSITION"], function()
+                            FriendGroups_ResetGroupPosition(groupName)
+                        end)
                     end
 
-                    local btn = rootDescription:CreateButton(text, function()
-                        item.func(nil, groupName)
+                    rootDescription:CreateDivider()
+                end
+
+                -- [[ PRIMARY ACTION: invite the group's members to a party ]]
+                -- Hidden for the virtual fixed anchors (No Group, Empty, Offline).
+                if not FriendGroups_IsFixedAnchor(groupName) then
+                    local inviteText = L["MENU_INVITE"]
+                    local inviteDisabled = false
+                    if groupsCount[groupName] and groupsCount[groupName].Total and groupsCount[groupName].Total > 40 then
+                        inviteDisabled = true
+                        inviteText = inviteText .. L["MENU_MAX_40"]
+                    end
+                    local inviteBtn = rootDescription:CreateButton(inviteText, function()
+                        FriendGroups_InviteOrGroup(groupName, true)
+                    end)
+                    if inviteDisabled then inviteBtn:SetEnabled(false) end
+                end
+
+                -- Banner colour for any real group (incl. Favorites & Guild), but not
+                -- the virtual fixed anchors.
+                if not FriendGroups_IsFixedAnchor(groupName) then
+                    rootDescription:CreateDivider()
+                    rootDescription:CreateButton(L["MENU_SET_BANNER_COLOR"], function()
+                        local originalHex = FriendGroups_SavedVars.banner_colors and FriendGroups_SavedVars.banner_colors[groupName] or nil
+                        
+                        local function OnColorColorPicked()
+                            local r, g, b = ColorPickerFrame:GetColorRGB()
+                            if not FriendGroups_SavedVars.banner_colors then
+                                FriendGroups_SavedVars.banner_colors = {}
+                            end
+                            local hexColor = string.format("%02x%02x%02x", r * 255, g * 255, b * 255)
+                            FriendGroups_SavedVars.banner_colors[groupName] = hexColor
+                            
+                            -- Instant live refresh for visible frames while dragging the color picker
+                            if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
+                                FriendsListFrame.ScrollBox:ForEachFrame(function(f)
+                                    if f.rawGroupName == groupName and f.solidBannerTexture then
+                                        f.solidBannerTexture:SetColorTexture(r, g, b, 0.4)
+                                        f.solidBannerTexture:Show()
+                                    end
+                                end)
+                            end
+                        end
+                        
+                        local function OnColorColorPickerCancelled()
+                            if originalHex then
+                                FriendGroups_SavedVars.banner_colors[groupName] = originalHex
+                                local r = tonumber(string.sub(originalHex, 1, 2), 16) / 255
+                                local g = tonumber(string.sub(originalHex, 3, 4), 16) / 255
+                                local b = tonumber(string.sub(originalHex, 5, 6), 16) / 255
+                                if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
+                                    FriendsListFrame.ScrollBox:ForEachFrame(function(f)
+                                        if f.rawGroupName == groupName and f.solidBannerTexture then
+                                            f.solidBannerTexture:SetColorTexture(r, g, b, 0.4)
+                                            f.solidBannerTexture:Show()
+                                        end
+                                    end)
+                                end
+                            else
+                                if FriendGroups_SavedVars.banner_colors then
+                                    FriendGroups_SavedVars.banner_colors[groupName] = nil
+                                end
+                                if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
+                                    FriendsListFrame.ScrollBox:ForEachFrame(function(f)
+                                        if f.rawGroupName == groupName and f.solidBannerTexture then
+                                            f.solidBannerTexture:Hide()
+                                        end
+                                    end)
+                                end
+                            end
+                            FriendGroups_FriendsListUpdate(true)
+                        end
+                        
+                        local initR, initG, initB = 1, 1, 1
+                        if originalHex then
+                            initR = tonumber(string.sub(originalHex, 1, 2), 16) / 255
+                            initG = tonumber(string.sub(originalHex, 3, 4), 16) / 255
+                            initB = tonumber(string.sub(originalHex, 5, 6), 16) / 255
+                        end
+
+                        ColorPickerFrame:SetupColorPickerAndShow({
+                            swatchFunc = OnColorColorPicked,
+                            cancelFunc = OnColorColorPickerCancelled,
+                            opacityFunc = nil,
+                            hasOpacity = false,
+                            r = initR, g = initG, b = initB
+                        })
                     end)
                     
-                    if disabled then
-                        btn:SetEnabled(false)
+                    if FriendGroups_SavedVars.banner_colors and FriendGroups_SavedVars.banner_colors[groupName] then
+                        rootDescription:CreateButton(L["MENU_CLEAR_BANNER_COLOR"], function()
+                            FriendGroups_SavedVars.banner_colors[groupName] = nil
+                            
+                            -- Instant live refresh for visible frames
+                            if FriendsListFrame and FriendsListFrame.ScrollBox and FriendsListFrame.ScrollBox.ForEachFrame then
+                                FriendsListFrame.ScrollBox:ForEachFrame(function(f)
+                                    if f.rawGroupName == groupName and f.solidBannerTexture then
+                                        f.solidBannerTexture:Hide()
+                                    end
+                                end)
+                            end
+                            
+                            FriendGroups_FriendsListUpdate(true)
+                        end)
                     end
+                end
+
+                -- [[ IDENTITY EDIT + DESTRUCTIVE ACTION ]]
+                -- Rename sits with the appearance edits; Remove is isolated below a divider
+                -- and coloured red (via the locale string) to match the settings reset.
+                if not isSystemGroup and not isGuildGroup then
+                    rootDescription:CreateButton(L["MENU_RENAME"], function()
+                        StaticPopup_Show("FRIENDGROUPS_RENAME", nil, nil, groupName)
+                    end)
+
+                    rootDescription:CreateDivider()
+                    rootDescription:CreateButton(L["MENU_REMOVE"], function()
+                        FriendGroups_InviteOrGroup(groupName, false)
+                    end)
                 end
             end)
         end
@@ -1718,6 +2425,43 @@ StaticPopupDialogs["FRIENDGROUPS_RENAME"] = {
 }
 
 -- [[ NEW POPUP: COPY TEXT ]] --
+StaticPopupDialogs["FRIENDGROUPS_SET_NICKNAME"] = {
+	text = L["POPUP_ENTER_NICKNAME"],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	hasEditBox = 1,
+	maxLetters = 20,
+	OnAccept = function(self, data)
+		local input = self:GetEditBox():GetText()
+		if not FriendGroups_SavedVars.nicknames then
+			FriendGroups_SavedVars.nicknames = {}
+		end
+		if input == "" then
+			FriendGroups_SavedVars.nicknames[data.accountIdentifier] = nil
+		else
+			FriendGroups_SavedVars.nicknames[data.accountIdentifier] = input
+		end
+		FriendGroups_FriendsListUpdate(true)
+	end,
+	EditBoxOnEnterPressed = function(self)
+		local parent = self:GetParent()
+		local input = self:GetText()
+		if not FriendGroups_SavedVars.nicknames then
+			FriendGroups_SavedVars.nicknames = {}
+		end
+		if input == "" then
+			FriendGroups_SavedVars.nicknames[parent.data.accountIdentifier] = nil
+		else
+			FriendGroups_SavedVars.nicknames[parent.data.accountIdentifier] = input
+		end
+		FriendGroups_FriendsListUpdate(true)
+		parent:Hide()
+	end,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = 1
+}
+
 StaticPopupDialogs["FRIENDGROUPS_COPY_POPUP"] = {
 	text = L["POPUP_COPY"],
 	button1 = OKAY,
@@ -1741,9 +2485,87 @@ StaticPopupDialogs["FRIENDGROUPS_COPY_POPUP"] = {
 	end,
 }
 
+StaticPopupDialogs["FRIENDGROUPS_IMPORT"] = {
+	text = L["POPUP_IMPORT"],
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	hasEditBox = 1,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = 1,
+	preferredIndex = 3,
+	OnShow = function(self)
+		local eb = self:GetEditBox()
+		if eb then
+			eb:SetMaxLetters(0)   -- accept a large pasted backup
+			eb:SetText("")
+			eb:SetFocus()
+		end
+	end,
+	OnAccept = function(self)
+		FriendGroups_HandleImport(self:GetEditBox():GetText())
+	end,
+	EditBoxOnEnterPressed = function(self)
+		local parent = self:GetParent()
+		local text = self:GetText()
+		parent:Hide()
+		FriendGroups_HandleImport(text)
+	end,
+	EditBoxOnEscapePressed = function(self)
+		self:GetParent():Hide()
+	end,
+}
+
+-- Show the export string in the copy dialog so the user can copy it to other accounts.
+function FriendGroups_ShowExport()
+	if not FriendGroups_Sync then return end
+	local str = FriendGroups_Sync.Export()
+	if not str or str == "" then return end
+	local dialog = StaticPopup_Show("FRIENDGROUPS_COPY_POPUP")
+	if dialog and dialog.EditBox then
+		dialog.EditBox:SetMaxLetters(0)   -- a full backup can be large; no length cap
+		dialog.EditBox:SetText(str)
+		dialog.EditBox:HighlightText()
+		dialog.EditBox:SetFocus()
+	end
+end
+
+-- Apply a pasted export string and report the localized outcome.
+function FriendGroups_HandleImport(text)
+	if not text or text == "" or not FriendGroups_Sync then return end
+	local ok, reason, ts = FriendGroups_Sync.Import(text)
+	if ok then
+		if ts and ts > 0 then
+			print(string.format(L["MSG_IMPORT_OK_DATED"], date("%Y-%m-%d %H:%M", ts)))
+		else
+			print(L["MSG_IMPORT_OK"])
+		end
+	elseif reason == "CHECKSUM" then
+		print(L["MSG_IMPORT_FAIL_CHECKSUM"])
+	elseif reason == "PROTOCOL" then
+		print(L["MSG_IMPORT_FAIL_PROTOCOL"])
+	else
+		print(L["MSG_IMPORT_FAIL_FORMAT"])
+	end
+end
+
 --[[
 	Functions
 ]] --
+
+-- Returns true when the given cached alt is this account's manually-selected main.
+-- Mirrors the dual-key comparison used by the tooltip/menu (raw alt.key OR the
+-- recomputed charName-cleanRealm form) so a pinned main is always protected from the
+-- recent-10 cap trim.
+function FriendGroups_IsManualMain(accountIdentifier, alt)
+    if not accountIdentifier or type(alt) ~= "table" then return false end
+    if not (FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains) then return false end
+    local mainKey = FriendGroups_SavedVars.manual_mains[accountIdentifier]
+    if not mainKey then return false end
+    if alt.key == mainKey then return true end
+    local computedKey = (alt.charName or "") .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")
+    return computedKey == mainKey
+end
 
 -- [[ CORE ACTIVATOR ]] --
 EnableFriendGroups = function()
@@ -1774,7 +2596,8 @@ EnableFriendGroups = function()
             auto_accept_sync = true,
             auto_accept_res = false,
             show_flags = true,
-            offline_tracker = true
+            offline_tracker = true,
+            wide_list = false
         }
     end
 	
@@ -1787,6 +2610,12 @@ EnableFriendGroups = function()
     end
     if FriendGroups_SavedVars.offline_tracker == nil then
         FriendGroups_SavedVars.offline_tracker = true
+    end
+    if FriendGroups_SavedVars.group_order == nil then
+        FriendGroups_SavedVars.group_order = {}
+    end
+    if FriendGroups_SavedVars.main_guild == nil then
+        FriendGroups_SavedVars.main_guild = {}
     end
 
 -- 1. Create Search Box
@@ -1809,20 +2638,22 @@ EnableFriendGroups = function()
     end)
 
     local FriendGroups_SearchDebounceTimer = nil
-    FriendGroups_SearchBox:SetScript("OnTextChanged", function(self)
-        SearchBoxTemplate_OnTextChanged(self)
-        local text = self:GetText()
-        if text ~= searchValue then
-            searchValue = text
-            if FriendGroups_SearchDebounceTimer then
-                FriendGroups_SearchDebounceTimer:Cancel()
-            end
-            FriendGroups_SearchDebounceTimer = C_Timer.NewTimer(0.3, function()
-                FriendGroups_FriendsListUpdate(true)
-                FriendGroups_SearchDebounceTimer = nil
-            end)
+FriendGroups_SearchBox:SetScript("OnTextChanged", function(self)
+    SearchBoxTemplate_OnTextChanged(self)
+    local text = self:GetText()
+    if text ~= searchValue then
+        searchValue = text
+        searchLowerValue = text:lower() -- Cache it here once!
+        
+        if FriendGroups_SearchDebounceTimer then
+            FriendGroups_SearchDebounceTimer:Cancel()
         end
-    end)
+        FriendGroups_SearchDebounceTimer = C_Timer.NewTimer(0.3, function()
+            FriendGroups_FriendsListUpdate(true)
+            FriendGroups_SearchDebounceTimer = nil
+        end)
+    end
+end)
     
     -- 2. Create Contact Text Tracker
     FriendGroups_ContactText = FriendsListFrame:CreateFontString("FriendGroupsContactText", "OVERLAY", "GameFontNormalSmall")
@@ -1837,26 +2668,71 @@ EnableFriendGroups = function()
 	
     FriendGroupsGlobalSettings:SetScript("OnClick", function(self)
         MenuUtil.CreateContextMenu(self, function(ownerRegion, rootDescription)
+            -- Sections flagged submenu=true become flyouts (Size, Group Behaviour);
+            -- Filter/Appearance stay flat in the root for live tweaking; everything
+            -- past the isAdvancedStart marker collects into one "Advanced" flyout.
+            -- Dividers separate root sections and the sub-sections inside Advanced.
+            local target = rootDescription
+            local inAdvanced = false
+            local firstRoot = true
             for _, item in ipairs(settingsMenuItems) do
-                if item.isTitle then
-                    if item.text == "" then
-                        rootDescription:CreateDivider()
-                    else
-                        rootDescription:CreateTitle(item.text)
+                if item.isAdvancedStart then
+                    if not firstRoot then rootDescription:CreateDivider() end
+                    target = rootDescription:CreateButton(L["SETTINGS_ADVANCED"])
+                    local ver = C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(addonName, "Version")
+                    target:CreateTitle(string.format(L["SETTINGS_VERSION"], ver or ""))
+                    local lastTs = FriendGroups_SavedVars and FriendGroups_SavedVars.last_export_time
+                    if lastTs and lastTs > 0 then
+                        target:CreateTitle(string.format(L["SETTINGS_LAST_BACKUP"], date("%Y-%m-%d %H:%M", lastTs)))
                     end
+                    inAdvanced = true
+                    firstRoot = false
+                elseif item.isTitle and item.text ~= "" then
+                    if inAdvanced then
+                        -- sub-section header inside the Advanced flyout
+                        target:CreateDivider()
+                        target:CreateTitle(item.text)
+                    elseif item.submenu then
+                        if not firstRoot then rootDescription:CreateDivider() end
+                        target = rootDescription:CreateButton(item.text)
+                        firstRoot = false
+                    else
+                        if not firstRoot then rootDescription:CreateDivider() end
+                        target = rootDescription
+                        target:CreateTitle(item.text)
+                        firstRoot = false
+                    end
+                elseif item.isTitle then
+                    target:CreateDivider()
                 elseif item.notCheckable then
-                    -- Standard buttons (like Reset or Size)
-                    rootDescription:CreateButton(item.text, function()
+                    -- Standard buttons (like Reset or the backup actions)
+                    local btn = target:CreateButton(item.text, function()
                         -- Run the function. (Modern menus auto-close on button clicks)
                         if item.func then item.func() end
                     end)
+                    if item.tooltip and btn and btn.SetTooltip then
+                        btn:SetTooltip(function(tooltip)
+                            GameTooltip_SetTitle(tooltip, item.tooltipTitle or item.text)
+                            for _, line in ipairs(item.tooltip) do
+                                GameTooltip_AddNormalLine(tooltip, line, true)
+                            end
+                        end)
+                    end
                 else
-                    -- Checkboxes (Filters, Appearance, Group Behavior)
-                    rootDescription:CreateCheckbox(
+                    -- Checkboxes — keep the menu/flyout open for live tweaking
+                    local cb = target:CreateCheckbox(
                         item.text,
                         function() return item.checked() end,
                         function() item.func() end
                     )
+                    if item.tooltip and cb and cb.SetTooltip then
+                        cb:SetTooltip(function(tooltip)
+                            GameTooltip_SetTitle(tooltip, item.tooltipTitle or item.text)
+                            for _, line in ipairs(item.tooltip) do
+                                GameTooltip_AddNormalLine(tooltip, line, true)
+                            end
+                        end)
+                    end
                 end
             end
         end)
@@ -1864,14 +2740,21 @@ EnableFriendGroups = function()
     
     FriendGroupsGlobalSettings:SetScript("OnEnter", function(self) 
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:SetText(L["SETTINGS_TITLE"] or "Settings", 1, 1, 1)
+        GameTooltip:SetText(L["SETTINGS_TITLE"], 1, 1, 1)
         GameTooltip:Show()
     end)
     
     FriendGroupsGlobalSettings:SetScript("OnLeave", function() GameTooltip:Hide() end)
 	
-    -- 3. Apply Hooks
-    hooksecurefunc("FriendsList_Update", FriendGroups_FriendsListUpdate)
+	-- 3. Apply Hooks
+    -- [[ OVERWRITE NATIVE LIST UPDATE TO PREVENT SCROLL JUMPING DESYNC ]]
+    local original_FriendsList_Update = FriendsList_Update
+	FriendsList_Update = function()
+        -- Route through the coalescer so bursts of roster events collapse into one refresh.
+        -- (Still relies on the Dirty Roster Engine; visibility + combat guards apply at fire time.)
+        FriendGroups_RequestListUpdate()
+    end
+    
     hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendGroups_FriendsListUpdateFriendButton)
     Menu.ModifyMenu("MENU_UNIT_GLUE_FRIEND", FriendGroups_AddDropDownNew)
     Menu.ModifyMenu("MENU_UNIT_FRIEND", FriendGroups_AddDropDownNew)
@@ -1892,6 +2775,23 @@ EnableFriendGroups = function()
     FriendGroups_UpdateContactCap()
     FriendGroups_FriendsListUpdate(true)
 end
+
+hooksecurefunc(FriendsTooltip, "Hide", function(self)
+    -- [[ ANTI-FLICKER FIX: Ignore hide command if mouse is still on the Friends List ]]
+    if FriendsFrame and FriendsFrame:IsMouseOver() then return end
+    
+    if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
+    FriendGroups_CurrentHoverAnchor = nil
+end)
+
+hooksecurefunc(GameTooltip, "Hide", function(self)
+    -- [[ ANTI-FLICKER FIX: Protect against GameTooltip native hide collisions ]]
+    if FriendsFrame and FriendsFrame:IsMouseOver() then return end
+    if CommunitiesFrame and CommunitiesFrame:IsMouseOver() then return end
+    
+    if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
+    FriendGroups_CurrentHoverAnchor = nil
+end)
 
 SetupGroupedView = function()
     local view = CreateScrollBoxListLinearView()
@@ -1916,7 +2816,6 @@ end
 FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
     if not FriendGroups_Loaded then return end
 
-    -- Safe Parent Check
     local isFriendFrame = false
     if button and button.GetParent and FriendsListFrame then
         local current = button:GetParent()
@@ -1960,7 +2859,6 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 			nameColor = FRIENDS_GRAY_COLOR;
 			infoText = FRIENDS_LIST_OFFLINE;
 			
-			-- Show faded WoW icon for offline character friends
 			button.gameIcon:Show();
 			C_Texture.SetTitleIconTexture(button.gameIcon, BNET_CLIENT_WOW, Enum.TitleIconVersion.Medium);
 			button.gameIcon:SetAlpha(0.3);
@@ -1972,28 +2870,45 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 	elseif button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(id);
 		if accountInfo then
+            -- [[ MASSIVE OPTIMIZATION: Pull localized API data inline instead of running a redundant global function search ]]
 			nameText, nameColor, statusTexture = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo);
-			local accountName, characterName, class, level, _, _, _, client, canCoop, _, _, _, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName, timerunningSeasonID = FriendGroups_GetFriendInfoById(button.id)
+            
+            local accountName = accountInfo.accountName
+            isFavoriteFriend = accountInfo.isFavorite
+            local battleTag = accountInfo.battleTag
+            local canCoop = CanCooperateWithGameAccount(accountInfo)
+            
+            local client, characterName, class, level, timerunningSeasonID, realmName, factionName
+            if accountInfo.gameAccountInfo then
+                client = accountInfo.gameAccountInfo.clientProgram
+                characterName = accountInfo.gameAccountInfo.characterName
+                class = accountInfo.gameAccountInfo.className
+                level = accountInfo.gameAccountInfo.characterLevel
+                timerunningSeasonID = accountInfo.gameAccountInfo.timerunningSeasonID
+                realmName = accountInfo.gameAccountInfo.realmName
+                factionName = accountInfo.gameAccountInfo.factionName
+            end
 
 			if FriendGroups_SavedVars.show_mobile_afk and client == 'BSAp' then statusTexture = FRIENDS_TEXTURE_AFK end
 
 			nameText = FriendGroups_GetBNetButtonNameText(accountName, client, canCoop, characterName, class, level, battleTag, timerunningSeasonID, realmName)
-			isFavoriteFriend = accountInfo.isFavorite;
 			button.status:SetTexture(statusTexture);
-			isCrossFactionInvite = accountInfo.gameAccountInfo.factionName ~= playerFactionGroup;
-			inviteFaction = accountInfo.gameAccountInfo.factionName;
+            
+            factionName = factionName or ""
+			isCrossFactionInvite = factionName ~= "" and factionName ~= playerFactionGroup;
+			inviteFaction = factionName;
 
-			if accountInfo.gameAccountInfo.isOnline then
+			if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.isOnline then
 				button.background:SetColorTexture(FRIENDS_BNET_BACKGROUND_COLOR.r, FRIENDS_BNET_BACKGROUND_COLOR.g, FRIENDS_BNET_BACKGROUND_COLOR.b, FRIENDS_BNET_BACKGROUND_COLOR.a);
 
-				if FriendGroups_ShowRichPresenceOnly(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.wowProjectID, accountInfo.gameAccountInfo.factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
-					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.richPresence);
+				if FriendGroups_ShowRichPresenceOnly(client, accountInfo.gameAccountInfo.wowProjectID, factionName, accountInfo.gameAccountInfo.realmID, accountInfo.gameAccountInfo.areaName) then
+					infoText = FriendGroups_GetOnlineInfoText(client, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.richPresence);
 				else
-					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName, accountInfo.gameAccountInfo.realmName);
+					infoText = FriendGroups_GetOnlineInfoText(client, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName, realmName);
 				end
 
-				C_Texture.SetTitleIconTexture(button.gameIcon, accountInfo.gameAccountInfo.clientProgram, Enum.TitleIconVersion.Medium);
-				local fadeIcon = (accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW) and (accountInfo.gameAccountInfo.wowProjectID ~= WOW_PROJECT_ID);
+				C_Texture.SetTitleIconTexture(button.gameIcon, client, Enum.TitleIconVersion.Medium);
+				local fadeIcon = (client == BNET_CLIENT_WOW) and (accountInfo.gameAccountInfo.wowProjectID ~= WOW_PROJECT_ID);
 				if fadeIcon then button.gameIcon:SetAlpha(0.6); else button.gameIcon:SetAlpha(1); end
 
 				local shouldShowSummonButton = FriendsFrame_ShouldShowSummonButton(button.summonButton);
@@ -2003,7 +2918,6 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 				local restriction = FriendsFrame_GetInviteRestriction(button.id);
 				if restriction == INVITE_RESTRICTION_NONE then button.travelPassButton:Enable(); else button.travelPassButton:Disable(); end
 
-                -- [[ 1. SWAPPED ICON LOGIC: FACTION THEN FLAG ]] --
                 local factionShown = false
                 if FriendGroups_SavedVars.show_faction_icons then
                     if not button.facIcon then
@@ -2012,23 +2926,20 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
                     end
                     
                     button.facIcon:ClearAllPoints()
-                    -- Anchor Faction Icon to the LEFT of the Game Icon
                     button.facIcon:SetPoint("RIGHT", button.gameIcon, "LEFT", 0, 0)
-                    button.facIcon:SetTexture(FriendGroups_GetFactionIcon(accountInfo.gameAccountInfo.factionName))
+                    button.facIcon:SetTexture(FriendGroups_GetFactionIcon(factionName))
                     button.facIcon:Show()
                     factionShown = true
 
-                    -- Faction background coloring
-                    if accountInfo.gameAccountInfo.factionName == "Horde" then
+                    if factionName == "Horde" then
                         button.background:SetColorTexture(0.7, 0.2, 0.2, 0.2)
-                    elseif accountInfo.gameAccountInfo.factionName == "Alliance" then
+                    elseif factionName == "Alliance" then
                         button.background:SetColorTexture(0.2, 0.2, 0.7, 0.2)
                     end
                 else
                     if button.facIcon then button.facIcon:Hide() end
                 end
 
-                -- [[ 2. FLAG LOGIC: ANCHORED TO FACTION ]] --
                 if FriendGroups_SavedVars.show_flags then
                     if not button.realmFlag then
                         button.realmFlag = button:CreateTexture("realmFlag")
@@ -2042,7 +2953,6 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
                         button.realmFlag:Show()
                         button.realmFlag:ClearAllPoints()
                         
-                        -- Anchor Flag to the LEFT of the Faction Icon (or Game Icon if faction is hidden)
                         if factionShown then
                             button.realmFlag:SetPoint("RIGHT", button.facIcon, "LEFT", -1, 0)
                         else
@@ -2059,7 +2969,6 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 				button.background:SetColorTexture(FRIENDS_OFFLINE_BACKGROUND_COLOR.r, FRIENDS_OFFLINE_BACKGROUND_COLOR.g, FRIENDS_OFFLINE_BACKGROUND_COLOR.b, FRIENDS_OFFLINE_BACKGROUND_COLOR.a);
 				infoText = FriendsFrame_GetLastOnlineText(accountInfo);
 				
-				-- Show faded Battle.net icon for offline BNet friends
 				button.gameIcon:Show();
 				C_Texture.SetTitleIconTexture(button.gameIcon, BNET_CLIENT_APP, Enum.TitleIconVersion.Medium);
 				button.gameIcon:SetAlpha(0.3);
@@ -2081,6 +2990,24 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 	if nameText then
 		button.name:SetText(nameText);
 		button.name:SetTextColor(nameColor.r, nameColor.g, nameColor.b);
+
+		-- [[ WIDE LIST: stretch the name fontstring into the extra horizontal room ]]
+		-- The native name region has a fixed template width (it truncates with "..."), so
+		-- widening the frame alone is not enough; the fontstring needs its own extra width
+		-- to actually reveal long names + full "aka" suffixes. Capture the Blizzard width
+		-- once, then grow or restore it to match the current setting.
+		if not button.fgOrigNameWidth then
+			local nw = button.name:GetWidth()
+			if nw and nw > 0 then button.fgOrigNameWidth = nw end
+		end
+		if button.fgOrigNameWidth then
+			if FriendGroups_SavedVars.wide_list then
+				button.name:SetWidth(button.fgOrigNameWidth + FriendGroups_WideListExtra)
+			else
+				button.name:SetWidth(button.fgOrigNameWidth)
+			end
+		end
+
 		button.info:SetText(infoText);
 		button:Show();
 		if isFavoriteFriend then
@@ -2126,211 +3053,158 @@ FriendGroups_FriendsListUpdateFriendButton = function(button, elementData)
 		end
 	end
 
+    if not button.fgAltTooltipHooked then
+        button:HookScript("OnEnter", function(self)
+            FriendGroups_ShowButtonAltTooltip(self)
+        end)
+        button:HookScript("OnLeave", function(self)
+            if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
+            FriendGroups_CurrentHoverAnchor = nil
+        end)
+        button.fgAltTooltipHooked = true
+    end
+
 	return nil;
 end
 
 local FriendGroups_UpdateQueued = false
+local FriendGroups_UpdateTimer = nil
+local FriendGroups_LastDataProvider = nil
+local FriendGroups_LayoutPool = {}
 
-local function DoFriendsListUpdate(forceUpdate)
-    FriendGroups_UpdateQueued = false
-
-    -- GUARD: Only run if Enabled
-    if not FriendGroups_Loaded then return end
-
-    local numBNetTotal, numBNetOnline, numBNetFavorite, numBNetFavoriteOnline = BNGetNumFriends()
-    local numBNetOffline = numBNetTotal - numBNetOnline
-    -- FIX: Corrected typo from numBNetFavoriteOffline to numBNetFavoriteOnline
-    local numBNetFavoriteOffline = numBNetFavorite - numBNetFavoriteOnline
-    local numWoWTotal = C_FriendList.GetNumFriends()
-    local numWoWOnline = C_FriendList.GetNumOnlineFriends()
-    local numWoWOffline = numWoWTotal - numWoWOnline
-    local retainScrollPosition = not forceUpdate
-    
-    local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (searchValue ~= "")
-
-    -- [[ EFFICIENT TABLE RECYCLING ]] --
-    for _, groupData in pairs(groupsTotal) do
-        for _, playerData in ipairs(groupData) do
-            FG_ReleaseTable(playerData)
-        end
-        FG_ReleaseTable(groupData)
+local function FG_GetLayoutTable()
+    local t = table.remove(FriendGroups_LayoutPool) or {}
+    wipe(t)
+    return t
+end
+local function FG_ReleaseLayoutTable(t)
+    if type(t) == "table" then
+        wipe(t)
+        table.insert(FriendGroups_LayoutPool, t)
     end
-    for _, countData in pairs(groupsCount) do 
-        FG_ReleaseTable(countData) 
-    end
-    
-    wipe(groupsTotal)
-    wipe(groupsCount) 
-    wipe(groupsSorted)
-
-    -- [[ DATAPROVIDER FIX ]] --
-    local dataProvider = CreateDataProvider()
-
-    -- invites
-    local numInvites = BNGetNumFriendInvites()
-    if (numInvites > 0) then
-        if (not GetCVarBool("friendInvitesCollapsed")) then
-            for i = 1, numInvites do
-                dataProvider:Insert({ id = i, buttonType = FRIENDS_BUTTON_TYPE_INVITE })
-            end
-        end
-    end
-
-    local bnetFriendIndex = 0;
-    -- favorite friends, online and offline
-    for i = 1, numBNetFavorite do
-        bnetFriendIndex = bnetFriendIndex + 1;
-        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-    end
-
-    -- online Battlenet friends
-    for i = 1, numBNetOnline - numBNetFavoriteOnline do
-        bnetFriendIndex = bnetFriendIndex + 1
-        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-    end
-    -- online WoW friends
-    for i = 1, numWoWOnline do
-        FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
-    end
-
-    -- offline Battlenet friends
-    for i = 1, numBNetOffline - numBNetFavoriteOffline do
-        bnetFriendIndex = bnetFriendIndex + 1
-        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-    end
-    -- offline WoW friends
-    for i = 1, numWoWOffline do
-        FriendGroups_SetGroups(i + numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
-    end
-
-    table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
-
-    for _, groupName in ipairs(groupsSorted) do
-        if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
-            if FriendGroups_SavedVars.collapsed[groupName] == nil then
-                FriendGroups_SavedVars.collapsed[groupName] = false
-            end
-
-            dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName })
-
-            if not FriendGroups_SavedVars.collapsed[groupName] then
-                for _, playerData in ipairs(groupsTotal[groupName]) do
-                    if playerData.buttonType and playerData.id then
-                        dataProvider:Insert({ id = playerData.id, buttonType = playerData.buttonType })
-                    end
-                end
-            end
-        end
-    end
-
-    -- Empty fallback
-    if dataProvider:GetSize() == 0 or (dataProvider:GetSize() == 1) then
-        dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = L["GROUP_EMPTY"] })
-    end
-
-    -- Prevent the game from auto-selecting the first friend
-    if FriendGroupsFrame.selectionLocked then
-        FriendsFrame.selectedFriend = nil
-        FriendsFrame.selectedFriendType = nil
-    elseif not retainScrollPosition then
-        FriendsFrame.selectedFriend = nil
-        FriendsFrame.selectedFriendType = nil
-    end
-
-    -- Bind DataProvider securely
-    FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
-
-    -- Double ensure after setting provider to catch any auto-select artifacts
-    if FriendGroupsFrame.selectionLocked then
-        FriendsFrame.selectedFriend = nil
-        FriendsFrame.selectedFriendType = nil
-    elseif not retainScrollPosition then
-        FriendsFrame.selectedFriend = nil
-        FriendsFrame.selectedFriendType = nil
-    end
-
-    -- Cleanup
-    for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
-        if not groupsTotal[groupName] then
-            FriendGroups_SavedVars.collapsed[groupName] = nil
-        end
-    end
-    
-    FriendGroups_UpdateContactCap() 
 end
 
-FriendGroups_FriendsListUpdate = function(forceUpdate)
-    -- GUARD: Only run if Enabled
+-- Global entry point so the separate Sync module can trigger a full rebuild
+-- (FriendGroups_FriendsListUpdate itself is a file-local upvalue).
+function FriendGroups_RequestFullUpdate()
+    -- Invalidate cached group assignments so imported mains/guilds/order recompute.
+    if FriendGroups_AssignmentCache then wipe(FriendGroups_AssignmentCache) end
+    if FriendGroups_FriendsListUpdate then
+        FriendGroups_FriendsListUpdate(true)
+    end
+    -- Force the visible list to redraw now, so an import applies without needing a scroll.
+    if FriendsListFrame and FriendsListFrame.ScrollBox then
+        local sb = FriendsListFrame.ScrollBox
+        if sb.FullUpdate then
+            sb:FullUpdate(true)
+        elseif sb.Update then
+            sb:Update()
+        end
+    end
+end
+
+function FriendGroups_FriendsListUpdate(forceUpdate)
+    -- GUARD: Only run if Enabled and Visible
     if not FriendGroups_Loaded then return end
+
+    if InCombatLockdown() then
+        FriendGroups_UpdateQueued = true
+        return
+    end
+
     if (not FriendsListFrame:IsShown() and not forceUpdate) then return end
 
-    local numBNetTotal, numBNetOnline, numBNetFavorite, numBNetFavoriteOnline = BNGetNumFriends()
-    local numBNetOffline = numBNetTotal - numBNetOnline
-    -- FIX: Corrected typo from numBNetFavoriteOffline to numBNetFavoriteOnline
-    local numBNetFavoriteOffline = numBNetFavorite - numBNetFavoriteOnline
-    local numWoWTotal = C_FriendList.GetNumFriends()
-    local numWoWOnline = C_FriendList.GetNumOnlineFriends()
-    local numWoWOffline = numWoWTotal - numWoWOnline
-    local retainScrollPosition = not forceUpdate
-    
+    -- Default to forcing an update if called from internal menus, clicks, or settings
+    if forceUpdate == nil then forceUpdate = true end
+
+    -- [[ MASSIVE OPTIMIZATION: IDLE GC CHURN PREVENTER ]]
+    if not forceUpdate and not FriendGroups_RosterDirty then
+        -- The roster structure hasn't changed. Just refresh the visible buttons (AFK timers, etc.)
+        if FriendsListFrame.ScrollBox.ForEachFrame then
+            FriendsListFrame.ScrollBox:ForEachFrame(function(frame)
+                local elementData = frame:GetElementData()
+                if elementData and (elementData.buttonType == FRIENDS_BUTTON_TYPE_BNET or elementData.buttonType == FRIENDS_BUTTON_TYPE_WOW) then
+                    FriendGroups_FriendsListUpdateFriendButton(frame, elementData)
+                end
+            end)
+        end
+        return
+    end
+
+    -- Clear the flag now that we are running a full validated rebuild
+    FriendGroups_RosterDirty = false
+
+    -- [[ CACHE PRUNE SUPPORT: advance the generation for this full rebuild. ]]
+    -- Every currently-present friend gets re-stamped via FriendGroups_SetGroups below; entries
+    -- left on an older generation belong to removed friends and are pruned at the end.
+    FriendGroups_CacheGeneration = FriendGroups_CacheGeneration + 1
+
     local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (searchValue ~= "")
 
-    -- [[ EFFICIENT TABLE RECYCLING ]] --
+    -- Release memory for previous tables
     for _, groupData in pairs(groupsTotal) do
-        for _, playerData in ipairs(groupData) do
-            FG_ReleaseTable(playerData)
-        end
+        for _, playerData in ipairs(groupData) do FG_ReleaseTable(playerData) end
         FG_ReleaseTable(groupData)
     end
-    for _, countData in pairs(groupsCount) do 
-        FG_ReleaseTable(countData) 
-    end
-    
+    for _, countData in pairs(groupsCount) do FG_ReleaseTable(countData) end
     wipe(groupsTotal)
     wipe(groupsCount) 
     wipe(groupsSorted)
 
-    -- [[ DATAPROVIDER FIX ]] --
-    local dataProvider = CreateDataProvider()
-
-    -- invites
-    local numInvites = BNGetNumFriendInvites()
-    if (numInvites > 0) then
-        if (not GetCVarBool("friendInvitesCollapsed")) then
-            for i = 1, numInvites do
-                dataProvider:Insert({ id = i, buttonType = FRIENDS_BUTTON_TYPE_INVITE })
-            end
+    -- Parse natively in a single linear pass & pass refs down
+    local numBNetTotal = C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
+    for i = 1, numBNetTotal do
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        if accountInfo then
+            FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_BNET, accountInfo)
         end
     end
 
-    local bnetFriendIndex = 0;
-    -- favorite friends, online and offline
-    for i = 1, numBNetFavorite do
-        bnetFriendIndex = bnetFriendIndex + 1;
-        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+    local numWoWTotal = C_FriendList.GetNumFriends()
+    for i = 1, numWoWTotal do
+        local info = C_FriendList.GetFriendInfoByIndex(i)
+        if info then
+            FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW, info)
+        end
     end
 
-    -- online Battlenet friends
-    for i = 1, numBNetOnline - numBNetFavoriteOnline do
-        bnetFriendIndex = bnetFriendIndex + 1
-        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-    end
-    -- online WoW friends
-    for i = 1, numWoWOnline do
-        FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
-    end
-
-    -- offline Battlenet friends
-    for i = 1, numBNetOffline - numBNetFavoriteOffline do
-        bnetFriendIndex = bnetFriendIndex + 1
-        FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-    end
-    -- offline WoW friends
-    for i = 1, numWoWOffline do
-        FriendGroups_SetGroups(i + numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
-    end
-
+    -- Phase 1: establish the automatic hierarchy order, then record each group's auto index.
     table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
+    wipe(FriendGroups_AutoPos)
+    for i = 1, #groupsSorted do
+        FriendGroups_AutoPos[groupsSorted[i]] = i
+    end
+
+    -- Phase 2: apply any manual rank overrides on top of the automatic order.
+    table.sort(groupsSorted, FriendGroups_SortGroupsByRank)
+
+    -- Record the movable-group sequence (everything except the fixed system anchors) so the
+    -- header chevrons and right-click menu can resolve neighbours and boundary state. Only
+    -- groups that are actually SHOWN are included: with "hide empty groups" on, the hidden
+    -- empties are skipped, so a move steps over them instead of silently swapping against a
+    -- group that isn't on screen.
+    wipe(FriendGroups_MovableOrder)
+    wipe(FriendGroups_MovableIndex)
+    for i = 1, #groupsSorted do
+        local gName = groupsSorted[i]
+        local shown = (not hideGroups) or (groupsTotal[gName] and #groupsTotal[gName] > 0)
+        if shown and not FriendGroups_IsFixedAnchor(gName) then
+            FriendGroups_MovableOrder[#FriendGroups_MovableOrder + 1] = gName
+            FriendGroups_MovableIndex[gName] = #FriendGroups_MovableOrder
+        end
+    end
+
+    local targetLayout = FG_GetTable()
+    
+    local numInvites = C_BattleNet.GetFriendNumInvites and C_BattleNet.GetFriendNumInvites() or BNGetNumFriendInvites()
+    if (numInvites > 0) and not GetCVarBool("friendInvitesCollapsed") then
+        for i = 1, numInvites do
+            local inv = FG_GetLayoutTable()
+            inv.id = i
+            inv.buttonType = FRIENDS_BUTTON_TYPE_INVITE
+            table.insert(targetLayout, inv)
+        end
+    end
 
     for _, groupName in ipairs(groupsSorted) do
         if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
@@ -2338,31 +3212,112 @@ FriendGroups_FriendsListUpdate = function(forceUpdate)
                 FriendGroups_SavedVars.collapsed[groupName] = false
             end
 
-            dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName })
+            local div = FG_GetLayoutTable()
+            div.buttonType = FRIENDS_BUTTON_TYPE_DIVIDER
+            div.groupName = groupName
+            table.insert(targetLayout, div)
 
             if not FriendGroups_SavedVars.collapsed[groupName] then
+                table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
                 for _, playerData in ipairs(groupsTotal[groupName]) do
                     if playerData.buttonType and playerData.id then
-                        dataProvider:Insert({ id = playerData.id, buttonType = playerData.buttonType })
+                        local p = FG_GetLayoutTable()
+                        p.id = playerData.id
+                        p.buttonType = playerData.buttonType
+                        table.insert(targetLayout, p)
                     end
                 end
             end
         end
     end
 
-    -- Empty fallback
-    if dataProvider:GetSize() == 0 or (dataProvider:GetSize() == 1) then
-        dataProvider:Insert({ buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = L["GROUP_EMPTY"] })
+    if #targetLayout == 0 then
+        local empty = FG_GetLayoutTable()
+        empty.buttonType = FRIENDS_BUTTON_TYPE_DIVIDER
+        empty.groupName = L["GROUP_EMPTY"]
+        table.insert(targetLayout, empty)
     end
 
-    -- Bind DataProvider securely
-    -- Purged the global overrides (FriendsFrame.selectedFriend = nil) to prevent Secret ID taint
-    FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
+    local dataProvider = FriendsListFrame.ScrollBox:GetDataProvider()
+    if not dataProvider then
+        dataProvider = CreateDataProvider()
+        for _, elem in ipairs(targetLayout) do dataProvider:Insert(elem) end
+        FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, true)
+    else
+        local currentElements = FG_GetTable()
+        for index, element in dataProvider:EnumerateEntireRange() do
+            table.insert(currentElements, element)
+        end
+        
+        local needsRebuild = false
+        if #currentElements ~= #targetLayout then
+            needsRebuild = true
+        else
+            for i = 1, #targetLayout do
+                local cur = currentElements[i]
+                local tar = targetLayout[i]
+                if cur.buttonType ~= tar.buttonType or cur.id ~= tar.id or cur.groupName ~= tar.groupName then
+                    needsRebuild = true
+                    break
+                end
+            end
+        end
 
-    -- Cleanup
+        if needsRebuild then
+            local savedScrollPercentage = FriendsListFrame.ScrollBox:GetScrollPercentage() or 0
+
+            for _, element in ipairs(currentElements) do
+                FG_ReleaseLayoutTable(element)
+            end
+
+            -- [[ O(n) REBUILD: populate a DETACHED provider, then swap it in a single time. ]]
+            -- A provider that is not yet attached to the ScrollBox has no registered listeners,
+            -- so per-element Insert triggers no layout/OnSizeChanged work. SetDataProvider then
+            -- performs exactly one layout pass, instead of one pass per inserted element.
+            local rebuiltProvider = CreateDataProvider()
+            for _, elem in ipairs(targetLayout) do
+                rebuiltProvider:Insert(elem)
+            end
+            FriendsListFrame.ScrollBox:SetDataProvider(rebuiltProvider, true)
+
+            if ScrollBoxConstants and ScrollBoxConstants.NoScrollInterpolation then
+                FriendsListFrame.ScrollBox:SetScrollPercentage(savedScrollPercentage, ScrollBoxConstants.NoScrollInterpolation)
+            else
+                FriendsListFrame.ScrollBox:SetScrollPercentage(savedScrollPercentage)
+            end
+        else
+            for _, element in ipairs(targetLayout) do
+                FG_ReleaseLayoutTable(element)
+            end
+
+            if FriendsListFrame.ScrollBox.ForEachFrame then
+                FriendsListFrame.ScrollBox:ForEachFrame(function(frame)
+                    local elementData = frame:GetElementData()
+                    if elementData and (elementData.buttonType == FRIENDS_BUTTON_TYPE_BNET or elementData.buttonType == FRIENDS_BUTTON_TYPE_WOW) then
+                        FriendGroups_FriendsListUpdateFriendButton(frame, elementData)
+                    end
+                end)
+            end
+        end
+        
+        FG_ReleaseTable(currentElements)
+    end
+    
+    FG_ReleaseTable(targetLayout)
+
     for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
         if not groupsTotal[groupName] then
             FriendGroups_SavedVars.collapsed[groupName] = nil
+        end
+    end
+
+    -- [[ CACHE PRUNE: drop assignment-cache entries for friends no longer present. ]]
+    -- Setting an existing key to nil during pairs() traversal is safe in Lua (only adding new
+    -- keys mid-traversal is not). This runs only on full rebuilds, after every present friend
+    -- has been re-stamped with the current generation above.
+    for cacheKey, entry in pairs(FriendGroups_AssignmentCache) do
+        if entry.generation ~= FriendGroups_CacheGeneration then
+            FriendGroups_AssignmentCache[cacheKey] = nil
         end
     end
     
@@ -2477,6 +3432,56 @@ function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
 
         frame:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
         frame:GetHighlightTexture():SetAlpha(0.2)
+
+        if not frame.solidBannerTexture then
+            frame.solidBannerTexture = frame:CreateTexture(nil, "BACKGROUND")
+            frame.solidBannerTexture:SetAllPoints(frame)
+        end
+
+        if FriendGroups_SavedVars and FriendGroups_SavedVars.banner_colors and FriendGroups_SavedVars.banner_colors[groupName] then
+            local hex = FriendGroups_SavedVars.banner_colors[groupName]
+            local r = tonumber(string.sub(hex, 1, 2), 16) / 255
+            local g = tonumber(string.sub(hex, 3, 4), 16) / 255
+            local b = tonumber(string.sub(hex, 5, 6), 16) / 255
+            frame.solidBannerTexture:SetColorTexture(r, g, b, 0.4)
+            frame.solidBannerTexture:Show()
+        else
+            frame.solidBannerTexture:Hide()
+        end
+
+        if not frame.fgTooltipHooked then
+            frame:HookScript("OnEnter", function(self)
+                local hGroupName = self.rawGroupName or (self.name and self.name:GetText())
+                if not hGroupName then return end
+                
+                local isGuildGroup = string.find(hGroupName, L["GROUP_GUILDMATES"], 1, true)
+                local isSystemGroup = (hGroupName == L["GROUP_NONE"] or hGroupName == L["GROUP_FAVORITES"] or hGroupName == L["GROUP_EMPTY"] or hGroupName == "" or hGroupName == L["GROUP_OFFLINE_1"] or hGroupName == L["GROUP_OFFLINE_2"] or hGroupName == L["GROUP_OFFLINE_3"])
+
+                if isGuildGroup then
+                    local guildNameMatch = string.match(hGroupName, "<(.-)>")
+                    if guildNameMatch then
+                        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                        GameTooltip:SetText(L["TOOLTIP_GUILD_GROUP_TITLE"], 1, 0.82, 0)
+                        GameTooltip:AddLine(L["TOOLTIP_GUILD_GROUP_DESC_1"], 1, 1, 1, true)
+                        GameTooltip:AddLine(string.format(L["TOOLTIP_GUILD_GROUP_DESC_2"], "<" .. guildNameMatch .. ">"), 1, 0.82, 0, true)
+                        GameTooltip:AddLine(" ")
+                        GameTooltip:AddLine(L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"], 0, 1, 0, true)
+                        GameTooltip:Show()
+                    end
+                elseif not isSystemGroup then
+                    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                    GameTooltip:SetText(L["TOOLTIP_CUSTOM_GROUP_TITLE"], 1, 0.82, 0)
+                    GameTooltip:AddLine(string.format(L["TOOLTIP_CUSTOM_GROUP_DESC_1"], hGroupName), 1, 1, 1, true)
+                    GameTooltip:AddLine(" ")
+                    GameTooltip:AddLine(L["TOOLTIP_GROUP_COLOR_PICKER_NOTE"], 0, 1, 0, true)
+                    GameTooltip:Show()
+                end
+            end)
+            frame:HookScript("OnLeave", function(self)
+                GameTooltip:Hide()
+            end)
+            frame.fgTooltipHooked = true
+        end
     end
 end
 
@@ -2487,8 +3492,8 @@ function FriendGroups_UpdateContactCap()
     local BNET_MAX_FRIENDS = 600
     local WOW_MAX_FRIENDS = 100
 
-    local numBNetTotal = BNGetNumFriends() or 0
-    local numBNetInvites = BNGetNumFriendInvites() or 0
+    local numBNetTotal = C_BattleNet and C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends() or 0
+    local numBNetInvites = C_BattleNet and C_BattleNet.GetFriendNumInvites and C_BattleNet.GetFriendNumInvites() or BNGetNumFriendInvites() or 0
     local bnetConsumed = numBNetTotal + numBNetInvites
 
     -- Main text: Strict BNet Tracker
@@ -2516,8 +3521,8 @@ function FriendGroups_UpdateContactCap()
             GameTooltip:AddLine(" ")
             
             -- Dynamic values inside tooltip
-            local bTotal = BNGetNumFriends() or 0
-            local bInvites = BNGetNumFriendInvites() or 0
+            local bTotal = C_BattleNet and C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends() or 0
+            local bInvites = C_BattleNet and C_BattleNet.GetFriendNumInvites and C_BattleNet.GetFriendNumInvites() or BNGetNumFriendInvites() or 0
             local wTotal = C_FriendList.GetNumFriends() or 0
             
             GameTooltip:AddDoubleLine(L["TOOLTIP_CONTACT_BNET"], string.format("%d / %d", bTotal, BNET_MAX_FRIENDS), 1, 1, 1)
@@ -2570,15 +3575,18 @@ function FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down
 end
 
 FriendGroups_FriendsListButtonTemplateClick = function(self, button, down)
-    if not FriendGroups_Loaded then return end -- Let Blizzard handle click if disabled
+    if not FriendGroups_Loaded then return end 
     
-    -- Normal Click Behavior (Standard Selection)
     FriendGroupsFrame.selectionLocked = false
-    FriendGroups_FriendsListUpdate()
+    
+    C_Timer.After(0.05, function()
+        FriendGroups_FriendsListUpdate()
+    end)
 end
 
 function FriendGroups_FriendsFrameUpdateFriendInviteHeaderButton(button, elementData)
-	button:SetFormattedText(FRIEND_REQUESTS, BNGetNumFriendInvites());
+    local numInvites = C_BattleNet.GetFriendNumInvites and C_BattleNet.GetFriendNumInvites() or BNGetNumFriendInvites()
+	button:SetFormattedText(FRIEND_REQUESTS, numInvites);
 	local collapsed = GetCVarBool("friendInvitesCollapsed");
 	if (collapsed) then
 		button.DownArrow:Hide();
@@ -2594,7 +3602,17 @@ function FriendGroups_FriendsFrameUpdateFriendInviteButton(button, elementData)
 	button.buttonType = elementData.buttonType;
 	button.id = id;
 
-	local inviteID, accountName = BNGetFriendInviteInfo(id);
+    local inviteID, accountName
+    if C_BattleNet and C_BattleNet.GetFriendInviteInfo then
+        local inviteInfo = C_BattleNet.GetFriendInviteInfo(id)
+        if inviteInfo then
+            inviteID = inviteInfo.inviteID
+            accountName = inviteInfo.accountName
+        end
+    else
+        inviteID, accountName = BNGetFriendInviteInfo(id)
+    end
+
 	button.Name:SetText(accountName);
 	button.inviteID = inviteID;
 	button.inviteIndex = button.id;
@@ -2701,14 +3719,24 @@ end
 -- ============================================================================
 local frame = CreateFrame("frame", "FriendGroups")
 frame:RegisterEvent("PLAYER_LOGIN")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterEvent("ADDON_LOADED")
--- Removed PLAYER_REGEN_DISABLED: Combat hiding is now securely handled natively.
 
 frame:SetScript("OnEvent", function(self, event, arg1, ...)
     if event == "ADDON_LOADED" and arg1 == addonName then
-        local version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Unknown"
-        Print(string.format(L["MSG_WELCOME"], version))
+        -- Intentionally silent on load (no login chat message)
 
+    elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" then
+        if not FriendGroups_SavedVars then return end
+        
+        local myBattleTag = nil
+        if C_BattleNet and C_BattleNet.GetAccountInfoByGUID then
+            local accInfo = C_BattleNet.GetAccountInfoByGUID(UnitGUID("player"))
+            if accInfo then myBattleTag = accInfo.battleTag end
+        end
+        FriendGroups_SavedVars.MyBattleTag = myBattleTag
+        
     elseif event == "PLAYER_LOGIN" then
         if not FriendGroups_SavedVars then
             FriendGroups_SavedVars = { 
@@ -2725,21 +3753,20 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
                 auto_accept_invite = false, 
                 auto_accept_sync = false,
                 offline_tracker = true,
-                show_guildmates = true,
-                guild_cache_bnet = {}
+                show_guildmates = true
             }
         end
-		
-        -- Provide Default State For Existing Users
-        if FriendGroups_SavedVars.show_guildmates == nil then
-            FriendGroups_SavedVars.show_guildmates = true
-        end
-        if type(FriendGroups_SavedVars.guild_cache_bnet) ~= "table" then
-            FriendGroups_SavedVars.guild_cache_bnet = {}
-        end
-
-        if FriendGroups_SavedVars.housing_mode_active ~= nil then
-            FriendGroups_SavedVars.housing_mode_active = nil
+        
+        if FriendGroups_SavedVars.show_guildmates == nil then FriendGroups_SavedVars.show_guildmates = true end
+        
+        -- [[ MASTER WIPE WHEN TRACKING IS DISABLED ]]
+        -- When alt tracking is enabled we intentionally retain every cached character
+        -- indefinitely (no time-based expiry) so the known-alt history grows as complete
+        -- as possible. Data only leaves the cache via the recent-10 cap, the manual purge
+        -- button, or disabling tracking (the wipe below).
+        if FriendGroups_SavedVars.show_known_alts == false then
+            if FriendGroups_SavedVars.alt_cache then wipe(FriendGroups_SavedVars.alt_cache) end
+            if FriendGroups_SavedVars.guid_index then wipe(FriendGroups_SavedVars.guid_index) end
         end
 
         EnableFriendGroups()
@@ -2749,7 +3776,6 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
             FriendsFrame.selectedFriendType = nil
             FriendGroupsFrame.selectionLocked = true
         end)
-
         FriendsFrame:HookScript("OnShow", function()
             FriendsFrame.selectedFriend = nil
             FriendsFrame.selectedFriendType = nil
@@ -2757,12 +3783,13 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
             FriendGroups_FriendsListUpdate(true)
         end)
         
-        if C_AddOns.IsAddOnLoaded("Blizzard_HouseList") then
-            Osirisnz_InitHousingScrollBox()
-        end
+        if C_AddOns.IsAddOnLoaded("Blizzard_HouseList") then Osirisnz_InitHousingScrollBox() end
+        if C_AddOns.IsAddOnLoaded("Blizzard_Communities") then FriendGroups_InitCommunitiesHook() end
 
     elseif event == "ADDON_LOADED" and arg1 == "Blizzard_HouseList" then
         Osirisnz_InitHousingScrollBox()
+    elseif event == "ADDON_LOADED" and arg1 == "Blizzard_Communities" then
+        FriendGroups_InitCommunitiesHook()
     end
 end)
 
@@ -2879,3 +3906,948 @@ FriendGroups_Automation:SetScript("OnEvent", function(self, event, ...)
         end
     end
 end)
+
+-- ============================================================================
+-- [[ KNOWN ALTS SPYGLASS ENGINE & STATIC PANEL ]]
+-- ============================================================================
+
+FriendGroups_SaveToAltCache = function(accountIdentifier, gameInfo)
+    if FriendGroups_SavedVars and FriendGroups_SavedVars.show_known_alts == false then return end
+    if not accountIdentifier or not gameInfo then return end
+    if not gameInfo.isOnline or gameInfo.clientProgram ~= BNET_CLIENT_WOW then return end
+
+    -- [[ FRESH-INSTALL GUARD ]]
+    -- SetGroups can reach this writer during the very first list build, before the
+    -- background tracker (BN_FRIEND_INFO_CHANGED) has lazily created alt_cache. Mirror
+    -- the tracker's own guard so the table always exists before it is indexed below,
+    -- preventing a nil-index on a fresh install with no saved cache yet.
+    if not FriendGroups_SavedVars then return end
+    if type(FriendGroups_SavedVars.alt_cache) ~= "table" then
+        FriendGroups_SavedVars.alt_cache = {}
+    end
+    
+    local charName = (type(gameInfo.characterName) == "string") and gameInfo.characterName or ""
+    if charName == "" then return end
+    
+    local rawRealm = gameInfo.realmName
+    if not rawRealm or rawRealm == "" then rawRealm = gameInfo.realmDisplayName end
+    if (not rawRealm or rawRealm == "") and type(gameInfo.richPresence) == "string" then
+        local extraction = gameInfo.richPresence:match("%s%-%s(.+)")
+        if extraction then rawRealm = extraction end
+    end
+    if not rawRealm or rawRealm == "" then return end
+
+    local displayRealm = (type(rawRealm) == "string") and rawRealm or ""
+    local normalizedRealm = FriendGroups_CleanRealmName(displayRealm) 
+    local uniqueKey = charName .. "-" .. normalizedRealm
+    
+    local class = (type(gameInfo.className) == "string") and gameInfo.className or ""
+    local faction = (type(gameInfo.factionName) == "string") and gameInfo.factionName or ""
+    local zone = (type(gameInfo.areaName) == "string") and gameInfo.areaName or L["UNKNOWN"]
+    local level = tonumber(gameInfo.characterLevel) or 1
+    local project = gameInfo.wowProjectID or WOW_PROJECT_MAINLINE
+
+    local detectedGuild = nil
+    if FriendGroups_LiveGuildSessionDict[uniqueKey] or FriendGroups_LiveGuildSessionDict[charName] then
+        detectedGuild = FriendGroups_PlayerGuildName
+    end
+    
+    if type(FriendGroups_SavedVars.alt_cache[accountIdentifier]) ~= "table" then
+        FriendGroups_SavedVars.alt_cache[accountIdentifier] = {}
+    end
+    
+    local altList = FriendGroups_SavedVars.alt_cache[accountIdentifier]
+    local existingIndex = nil
+    
+    for i = 1, #altList do
+        local existingRealm = altList[i].realm or ""
+        local existingNorm = FriendGroups_CleanRealmName(existingRealm)
+        local existingMigratedKey = altList[i].charName .. "-" .. existingNorm
+
+        if altList[i].key == uniqueKey or existingMigratedKey == uniqueKey or altList[i].key == (charName .. "-") then
+            existingIndex = i
+            break
+        end
+    end
+    
+    if existingIndex then
+        local existingAlt = altList[existingIndex]
+        local dataChanged = false
+        
+        if existingAlt.level ~= level then existingAlt.level = level; dataChanged = true end
+        if existingAlt.zone ~= zone then existingAlt.zone = zone; dataChanged = true end
+        if existingAlt.class ~= class then existingAlt.class = class; dataChanged = true end
+        if existingAlt.faction ~= faction then existingAlt.faction = faction; dataChanged = true end
+        if existingAlt.realm ~= displayRealm then existingAlt.realm = displayRealm; dataChanged = true end
+        if existingAlt.project ~= project then existingAlt.project = project; dataChanged = true end
+        
+        -- Pre-calculate and store search strings to prevent GC search stutter
+        existingAlt.searchName = charName:lower()
+        existingAlt.searchRealm = displayRealm:lower()
+        existingAlt.searchClass = class:lower()
+        existingAlt.searchZone = zone:lower()
+
+        -- STRICT PRESERVATION: Only update if a valid guild was detected. Never overwrite with nil.
+        if detectedGuild and existingAlt.guild ~= detectedGuild then 
+            existingAlt.guild = detectedGuild; dataChanged = true 
+        end
+        
+        if dataChanged then
+            existingAlt.timestamp = time()
+        end
+    else
+        table.insert(altList, 1, {
+            key = uniqueKey,
+            charName = charName,
+            realm = displayRealm, 
+            level = level,
+            class = class,
+            faction = faction,
+            zone = zone,
+            guild = detectedGuild,
+            project = project,
+            timestamp = time(),
+            -- Pre-calculate and store search strings
+            searchName = charName:lower(),
+            searchRealm = displayRealm:lower(),
+            searchClass = class:lower(),
+            searchZone = zone:lower()
+        })
+        
+        -- [[ RECENT-10 CAP (MAIN-PROTECTED) ]]
+        -- Keep at most 10 cached characters. A manually-selected main counts as one of the
+        -- 10 but must never be evicted, so drop the oldest NON-main entry (the list is
+        -- newest-first) until the cap is met. The 'removed' guard prevents an infinite loop
+        -- in the impossible case that no removable entry remains.
+        while #altList > 10 do
+            local removed = false
+            for i = #altList, 1, -1 do
+                if not FriendGroups_IsManualMain(accountIdentifier, altList[i]) then
+                    table.remove(altList, i)
+                    removed = true
+                    break
+                end
+            end
+            if not removed then break end
+        end
+    end
+end
+
+-- 2. The Silent Tracker (Catches background changes)
+local FriendGroups_BNetIndexMap = {}
+
+local function FriendGroups_UpdateBNetIndexMap()
+    wipe(FriendGroups_BNetIndexMap)
+    local numBNetTotal = C_BattleNet.GetFriendNum and C_BattleNet.GetFriendNum() or BNGetNumFriends()
+    for i = 1, numBNetTotal do
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
+        if accountInfo and accountInfo.bnetAccountID then
+            FriendGroups_BNetIndexMap[accountInfo.bnetAccountID] = i
+        end
+    end
+end
+
+-- ============================================================================
+-- [[ SECURE BACKGROUND TRACKER (STALE-SEAT PROTECTED) ]]
+-- ============================================================================
+local FriendGroups_AltTracker = CreateFrame("Frame")
+FriendGroups_AltTracker:RegisterEvent("BN_FRIEND_INFO_CHANGED")
+FriendGroups_AltTracker:SetScript("OnEvent", function(self, event, ...)
+    -- [[ COMBAT CHURN GUARD ]]
+    -- Skip background alt-caching while in combat. BN_FRIEND_INFO_CHANGED fires continuously in
+    -- populated content; performing API lookups + SavedVars writes per event during combat is
+    -- wasted work. No data is lost: the alt cache is rebuilt for every BNet friend on the next
+    -- full list rebuild (FriendGroups_SetGroups -> FriendGroups_SaveToAltCache).
+    if InCombatLockdown() then return end
+
+    if not FriendGroups_SavedVars then return end
+    if FriendGroups_SavedVars.show_known_alts == false then return end
+    if type(FriendGroups_SavedVars.alt_cache) ~= "table" then FriendGroups_SavedVars.alt_cache = {} end
+
+    local arg1 = ... 
+    if not arg1 then return end
+    
+    -- Secure API Lookup by strict ID guarantees we never pull the wrong person's data
+    local accountInfo = C_BattleNet.GetAccountInfoByID(arg1)
+    if not accountInfo then 
+        accountInfo = C_BattleNet.GetFriendAccountInfo(arg1) -- Legacy fallback just in case
+    end
+    if not accountInfo then return end
+    
+    local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+    if not accountIdentifier then return end
+
+    -- Secure Path: Save only the verified primary game account attached to this strict ID.
+    -- Multibox alts are safely handled synchronously during the UI rebuild, bypassing stale seat errors.
+    if accountInfo.gameAccountInfo then
+        FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
+    end
+end)
+
+-- 3. The Static Side-Panel Injector
+-- FIX: Changed parent to UIParent and forced FrameStrata so it is impossible to hide behind the Guild window
+local FriendGroupsAltTooltip = CreateFrame("GameTooltip", "FriendGroupsAltTooltip", UIParent, "GameTooltipTemplate")
+FriendGroupsAltTooltip:SetFrameStrata("TOOLTIP")
+FriendGroupsAltTooltip:SetFrameLevel(9999)
+
+local FriendGroups_CurrentHoverCharKey = nil
+local FriendGroups_CurrentHoverBNetID = nil
+local FriendGroups_CurrentHoverAnchor = nil
+
+-- Reverse lookup to instantly find your own private BNet friends in the Guild Roster
+local function FriendGroups_FindBNetIDByCharKey(charKey)
+    if not FriendGroups_SavedVars.alt_cache then return nil end
+    for bnetID, alts in pairs(FriendGroups_SavedVars.alt_cache) do
+        for _, alt in ipairs(alts) do
+            if alt.key == charKey then
+                return bnetID
+            end
+        end
+    end
+    return nil
+end
+
+local function FriendGroups_DrawAltTooltip(anchorFrame, accountIdentifier, charKey, baselineData)
+    if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then
+        FriendGroupsAltTooltip:Hide()
+        return
+    end
+
+    -- Contextual UI Title Logic
+    local hoverName = L["UNKNOWN"]
+    if baselineData and baselineData.charName then
+        hoverName = baselineData.charName
+    elseif charKey then
+        hoverName = strsplit("-", charKey)
+    end
+    
+    -- [[ MASTER MERGE DICTIONARY ]]
+    local masterDict = {}
+
+    local function MergeIntoMaster(alt)
+        if not alt or not alt.charName or not alt.realm then return end
+        
+        -- Force a universal, lowercase key to prevent case-sensitive splits
+        local renderKey = string.lower(alt.charName .. "-" .. alt.realm:gsub("[%s%p]+", ""))
+        
+        if not masterDict[renderKey] then
+            masterDict[renderKey] = {
+                key = renderKey, charName = alt.charName, realm = alt.realm,
+                class = alt.class, faction = alt.faction, level = alt.level,
+                zone = alt.zone, guild = alt.guild, timestamp = alt.timestamp
+            }
+        else
+            local existing = masterDict[renderKey]
+            
+            -- ALWAYS preserve a valid guild tag
+            if alt.guild and alt.guild ~= "NONE" and alt.guild ~= "-" and alt.guild ~= "" then
+                if not existing.guild or existing.guild == "NONE" or existing.guild == "-" or existing.guild == "" then
+                    existing.guild = alt.guild
+                end
+            end
+
+            -- Normal Timestamp Election for dynamic stats (Level, Zone)
+            if (alt.timestamp or 0) > (existing.timestamp or 0) then
+                existing.level = alt.level
+                existing.zone = alt.zone
+                existing.faction = alt.faction
+                existing.timestamp = alt.timestamp
+            end
+        end
+    end
+
+    -- 1. PULL FROM LOCAL BNET CACHE
+    if accountIdentifier and FriendGroups_SavedVars.alt_cache and FriendGroups_SavedVars.alt_cache[accountIdentifier] then
+        for _, alt in ipairs(FriendGroups_SavedVars.alt_cache[accountIdentifier]) do 
+            MergeIntoMaster(alt) 
+        end
+    end
+
+    -- 2. PULL FROM LIVE BASELINE DATA
+    if baselineData then
+        MergeIntoMaster(baselineData)
+    end
+
+    -- Flatten the merged dictionary back into a renderable array
+    local alts = {}
+    for _, alt in pairs(masterDict) do
+        table.insert(alts, alt)
+    end
+
+    if #alts > 0 then
+        -- SMART FALLBACK FIX: Heal missing name from cache
+        if hoverName == L["UNKNOWN"] then
+            local renderCharKey = string.lower(charKey or "")
+            local foundHover = masterDict[renderCharKey]
+            if foundHover and foundHover.charName and foundHover.charName ~= "" then
+                hoverName = foundHover.charName
+            elseif alts[1] and alts[1].charName and alts[1].charName ~= "" then
+                hoverName = alts[1].charName
+            end
+        end
+
+        local displayTitle = string.format(L["TOOLTIP_ALTS_PUBLIC_TITLE_FORMAT"], hoverName)
+        if #alts >= 10 and L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"] then
+            displayTitle = string.format(L["TOOLTIP_ALTS_TITLE_FORMAT_MAX"], hoverName)
+        end
+
+        FriendGroupsAltTooltip:SetOwner(anchorFrame, "ANCHOR_NONE")
+
+        if anchorFrame == FriendsFrame then
+            FriendGroupsAltTooltip:SetPoint("TOPLEFT", FriendsFrame, "TOPRIGHT", 2, 0)
+        elseif CommunitiesFrame and CommunitiesFrame:IsShown() then
+            FriendGroupsAltTooltip:SetPoint("TOPLEFT", CommunitiesFrame, "TOPRIGHT", 2, 0)
+        else
+            FriendGroupsAltTooltip:SetPoint("TOPLEFT", anchorFrame, "TOPRIGHT", 2, 0)
+        end
+
+        -- Secure Font Reset: Prevent recycled tooltip lines from staying permanently shrunk
+        for i = 1, 99 do
+            local line = _G["FriendGroupsAltTooltipTextLeft" .. i]
+            if not line then break end
+            
+            local fontObj = (i == 1) and GameTooltipHeaderText or GameTooltipText
+            if fontObj then
+                -- Re-assign the FontObject natively. This clears any manual 6px SetFont overrides
+                -- and fully restores the Blizzard font fallback chain for Cyrillic/Asian characters.
+                line:SetFontObject(fontObj)
+            end
+        end
+
+		FriendGroupsAltTooltip:ClearLines()
+        FriendGroupsAltTooltip:AddLine(displayTitle, 1, 0.82, 0)
+
+        -- [[ BNET SUBTITLE ]] Show the owning Battle.net BattleTag in the familiar BNet blue.
+        -- accountIdentifier is the BattleTag (Name#1234) when one exists; the '#' test keeps
+        -- legacy accountName values from rendering as a junk subtitle.
+        if accountIdentifier
+           and not (issecretvalue and issecretvalue(accountIdentifier))
+           and type(accountIdentifier) == "string"
+           and accountIdentifier:find("#") then
+            local btagColor = FRIENDS_BNET_NAME_COLOR or BATTLENET_FONT_COLOR or CreateColor(0.510, 0.773, 1.0)
+            FriendGroupsAltTooltip:AddLine(accountIdentifier, btagColor.r, btagColor.g, btagColor.b)
+        end
+		
+        local sortedAlts = {}
+        for _, alt in ipairs(alts) do table.insert(sortedAlts, alt) end
+        
+        table.sort(sortedAlts, function(a, b)
+            local aIsMain = false
+            local bIsMain = false
+            if FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains and accountIdentifier then
+                local manualMainKey = FriendGroups_SavedVars.manual_mains[accountIdentifier]
+                local aKey = a.charName .. "-" .. FriendGroups_CleanRealmName(a.realm or "")
+                local bKey = b.charName .. "-" .. FriendGroups_CleanRealmName(b.realm or "")
+                if aKey == manualMainKey or a.key == manualMainKey then aIsMain = true end
+                if bKey == manualMainKey or b.key == manualMainKey then bIsMain = true end
+            end
+            if aIsMain and not bIsMain then return true end
+            if bIsMain and not aIsMain then return false end
+
+            local timeA = a.timestamp or 0
+            local timeB = b.timestamp or 0
+            if timeA == timeB then
+                if a.level == b.level then return a.charName < b.charName end
+                return a.level > b.level
+            end
+            return timeA > timeB
+        end)
+
+        local rowCount = 0
+        for _, alt in ipairs(sortedAlts) do
+            if rowCount >= 10 then break end
+            rowCount = rowCount + 1
+
+            -- Create a custom 50% height gap instead of a full line
+            FriendGroupsAltTooltip:AddLine(" ")
+            local gapLine = _G["FriendGroupsAltTooltipTextLeft" .. FriendGroupsAltTooltip:NumLines()]
+            if gapLine then
+                -- Safely swap to a smaller native FontObject. 
+                -- Avoids explicit SetFont calls that poison global objects.
+                gapLine:SetFontObject("SystemFont_Tiny")
+            end
+
+            local engClass = ""
+            if alt.class and (LOCALIZED_CLASS_NAMES_MALE[alt.class] or RAID_CLASS_COLORS[alt.class]) then
+                engClass = alt.class
+            else
+                for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do if alt.class == v then engClass = k break end end
+                if engClass == "" then for k, v in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do if alt.class == v then engClass = k break end end end
+            end
+
+            local classIconStr = ""
+            if engClass ~= "" then
+                local atlas = GetClassAtlas(engClass)
+                if atlas then classIconStr = "|A:" .. atlas .. ":16:16|a" else classIconStr = "|A:classicon-" .. string.lower(engClass) .. ":16:16|a" end
+            end
+            
+            local nameColor = FriendGroups_GetClassColorCode(engClass ~= "" and engClass or alt.class)
+            local coloredName = nameColor .. alt.charName .. (alt.realm ~= "" and ("-" .. alt.realm) or "") .. "|r"
+
+            local factionPath = FriendGroups_GetFactionIcon(alt.faction)
+            local factionIconStr = factionPath ~= "" and ("|T" .. factionPath .. ":16|t") or ""
+
+            local diff = time() - (alt.timestamp or time())
+            if diff < 0 then diff = 0 end
+
+            local timeStr = ""
+            if diff < 60 then timeStr = L["TIME_JUST_NOW"]
+            elseif diff < 3600 then timeStr = string.format(L["TIME_MINUTES_AGO"], math.floor(diff / 60))
+            elseif diff < 86400 then timeStr = string.format(L["TIME_HOURS_AGO"], math.floor(diff / 3600))
+            else timeStr = string.format(L["TIME_DAYS_AGO"], math.floor(diff / 86400)) end
+
+            local isCurrentMain = false
+            if FriendGroups_SavedVars and FriendGroups_SavedVars.manual_mains and accountIdentifier then
+                local manualMainKey = FriendGroups_SavedVars.manual_mains[accountIdentifier]
+                local currentKey = alt.charName .. "-" .. FriendGroups_CleanRealmName(alt.realm or "")
+                if currentKey == manualMainKey or alt.key == manualMainKey then isCurrentMain = true end
+            end
+
+            local leaderFlagStr = isCurrentMain and "|TInterface\\AddOns\\FriendGroups\\Textures\\check.tga:16|t " or ""
+            local line1 = leaderFlagStr .. string.format(L["TOOLTIP_ALTS_FORMAT"], classIconStr, coloredName, factionIconStr, alt.level)
+            
+            if alt.guild and alt.guild ~= "NONE" and alt.guild ~= "-" and alt.guild ~= "" then
+                if L["TOOLTIP_ALTS_GUILD_SUFFIX"] then
+                    line1 = line1 .. string.format(L["TOOLTIP_ALTS_GUILD_SUFFIX"], alt.guild)
+                end
+            end
+
+            local line2 = string.format(L["TOOLTIP_ALTS_SEEN"], alt.zone, timeStr)
+
+            FriendGroupsAltTooltip:AddLine(line1, 1, 1, 1, false)
+            FriendGroupsAltTooltip:AddLine(line2, 0.6, 0.6, 0.6, false)
+        end
+
+        FriendGroupsAltTooltip:Show()
+
+        -- [[ DOCK FIX ]] Pin the native hover tooltip beneath the alt panel (friends + guild).
+        FriendGroups_DockNativeTooltipBelowPanel(anchorFrame)
+    else
+        FriendGroupsAltTooltip:Hide()
+        -- Panel suppressed (e.g. a guildmate who is not a BNet friend): keep the native
+        -- roster tooltip parked where the panel would be so it does not jump sides as you
+        -- scroll. No-op for the friends list and when no native tooltip is on screen.
+        FriendGroups_DockNativeTooltipBelowPanel(anchorFrame)
+    end
+end
+
+function FriendGroups_RefreshAltTooltip()
+    if FriendGroups_CurrentHoverAnchor then
+        FriendGroups_DrawAltTooltip(FriendGroups_CurrentHoverAnchor, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey)
+    end
+end
+
+-- [[ NATIVE TOOLTIP DOCK / PARK ]]
+-- Keeps the native hover tooltip pinned to the Known Alts panel's slot so it never
+-- overlaps the panel and never jumps sides while scrolling a roster.
+--   * Panel shown  -> dock the native tooltip directly beneath the panel (with a
+--                     bottom-of-screen overflow flip to grow upward instead).
+--   * Panel hidden -> on the guild / communities roster only, park the native tooltip
+--                     where the panel WOULD be (just right of the roster). This covers
+--                     guildmates who are not BNet friends, whose panel is suppressed:
+--                     without this the tooltip snaps back to Blizzard's default anchor
+--                     and flicks between left and right row-to-row as you scroll.
+-- anchorFrame mirrors the value the panel was (or would be) drawn against:
+--   FriendsFrame -> FriendsTooltip (dedicated frame, friends list)
+--   anything else -> GameTooltip   (shared global, guild / communities roster)
+function FriendGroups_DockNativeTooltipBelowPanel(anchorFrame)
+    if not FriendGroups_Loaded then return end
+    if FriendGroups_SavedVars.show_known_alts == false then return end
+
+    local native = (anchorFrame == FriendsFrame) and FriendsTooltip or GameTooltip
+
+    -- Never move a tooltip that is not currently on screen for this hover.
+    if not (native and native:IsShown()) then return end
+
+    -- [[ PANEL HIDDEN: PARK ON THE RIGHT ]]
+    if not (FriendGroupsAltTooltip and FriendGroupsAltTooltip:IsShown()) then
+        -- Only the guild / communities roster suppresses the panel; the friends list
+        -- always renders one, so we never reposition the dedicated FriendsTooltip here.
+        if anchorFrame ~= FriendsFrame then
+            local target = (CommunitiesFrame and CommunitiesFrame:IsShown()) and CommunitiesFrame or anchorFrame
+            if target then
+                native:ClearAllPoints()
+                native:SetPoint("TOPLEFT", target, "TOPRIGHT", 2, 0)
+            end
+        end
+        return
+    end
+
+    -- [[ PANEL SHOWN: DOCK BENEATH IT ]]
+    local GAP = 4
+
+    -- If the panel's rect is not yet resolvable this frame, fall back to a plain
+    -- dock-beneath (the overflow flip simply re-evaluates on the next hover).
+    local panelBottom = FriendGroupsAltTooltip:GetBottom()
+    if not panelBottom then
+        native:ClearAllPoints()
+        native:SetPoint("TOPLEFT", FriendGroupsAltTooltip, "BOTTOMLEFT", 0, -GAP)
+        return
+    end
+
+    -- Convert to absolute screen pixels to test for bottom-of-screen overflow.
+    local panelBottomPx  = panelBottom * FriendGroupsAltTooltip:GetEffectiveScale()
+    local nativeHeightPx = native:GetHeight() * native:GetEffectiveScale()
+    local gapPx          = GAP * native:GetEffectiveScale()
+
+    native:ClearAllPoints()
+    if (panelBottomPx - nativeHeightPx - gapPx) < 0 then
+        -- Not enough room below; grow upward from the panel's top edge instead.
+        native:SetPoint("BOTTOMLEFT", FriendGroupsAltTooltip, "TOPLEFT", 0, GAP)
+    else
+        native:SetPoint("TOPLEFT", FriendGroupsAltTooltip, "BOTTOMLEFT", 0, -GAP)
+    end
+end
+
+-- [[ GUILD / COMMUNITIES DOCK ENFORCER ]]
+-- The guild & communities roster uses the shared global GameTooltip, which Blizzard
+-- (and decorators such as Raider.IO) re-anchor on every Show as their data resolves.
+-- A one-shot reposition at hover time is overwritten by the next Show, so we re-apply
+-- the dock AFTER every GameTooltip Show -- but only while a guild/community roster row
+-- is actively hovered. FriendGroups_CurrentHoverAnchor is the roster row owner during a
+-- guild hover and is never FriendsFrame, so the friends list (dedicated FriendsTooltip)
+-- and all unrelated GameTooltips are excluded. SetPoint/ClearAllPoints do not trigger
+-- Show, so this never recurses.
+hooksecurefunc(GameTooltip, "Show", function(self)
+    if not FriendGroups_Loaded then return end
+    if FriendGroups_SavedVars.show_known_alts == false then return end
+
+    local anchor = FriendGroups_CurrentHoverAnchor
+    if not anchor or anchor == FriendsFrame then return end
+
+    -- Keep the roster's native tooltip anchored to the panel's slot whether the panel is
+    -- shown (BNet friend -> dock beneath) or suppressed (plain guildmate -> park on the
+    -- right). Re-applied after every Show because Blizzard / Raider.IO re-anchor the
+    -- shared GameTooltip as their data resolves.
+    FriendGroups_DockNativeTooltipBelowPanel(anchor)
+end)
+
+-- [[ DIRECT BUTTON HANDLER ]]
+function FriendGroups_ShowButtonAltTooltip(button)
+    if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then FriendGroupsAltTooltip:Hide() return end
+
+    if not button or not button.id then return end
+
+    FriendGroups_CurrentHoverAnchor = FriendsFrame
+    FriendGroups_CurrentHoverBNetID = nil
+    FriendGroups_CurrentHoverCharKey = nil
+
+    local baselineData = nil
+
+    if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(button.id)
+        if not accountInfo then return end
+
+        local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+        if not accountIdentifier then return end
+
+        FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
+        
+        -- [[ MULTIBOX FIX: Automatically harvest all secondary open wow clients natively ]]
+        if C_BattleNet.GetFriendNumGameAccounts then
+            local numAccounts = C_BattleNet.GetFriendNumGameAccounts(button.id)
+            if numAccounts and numAccounts > 1 then
+                for i = 1, numAccounts do
+                    local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(button.id, i)
+                    if gameAccountInfo then
+                        FriendGroups_SaveToAltCache(accountIdentifier, gameAccountInfo)
+                    end
+                end
+            end
+        end
+
+        FriendGroups_CurrentHoverBNetID = accountIdentifier
+
+        if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.characterName then
+            local rawRealm = accountInfo.gameAccountInfo.realmName
+            if not rawRealm or rawRealm == "" then rawRealm = accountInfo.gameAccountInfo.realmDisplayName end
+            if rawRealm and rawRealm ~= "" then
+                local cName = accountInfo.gameAccountInfo.characterName
+                local rName = rawRealm:gsub("[%s%p]+", "")
+                FriendGroups_CurrentHoverCharKey = cName .. "-" .. rName
+                
+                baselineData = {
+                    charName = cName,
+                    realm = rawRealm,
+                    class = accountInfo.gameAccountInfo.className or "",
+                    faction = accountInfo.gameAccountInfo.factionName or "",
+                    level = tonumber(accountInfo.gameAccountInfo.characterLevel) or 1,
+                    zone = accountInfo.gameAccountInfo.areaName or L["UNKNOWN_ZONE"],
+                    timestamp = time()
+                }
+            end
+        end
+
+        FriendGroups_DrawAltTooltip(FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData)
+    end
+end
+
+hooksecurefunc(FriendsTooltip, "Show", function(self)
+    if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then FriendGroupsAltTooltip:Hide() return end
+
+    local button = self.button
+    if not button or not button.id then return end
+
+    FriendGroups_CurrentHoverAnchor = FriendsFrame
+    FriendGroups_CurrentHoverBNetID = nil
+    FriendGroups_CurrentHoverCharKey = nil
+
+    local baselineData = nil
+
+    if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
+        local accountInfo = C_BattleNet.GetFriendAccountInfo(button.id)
+        if not accountInfo then return end
+
+        local accountIdentifier = accountInfo.battleTag or accountInfo.accountName
+        if not accountIdentifier then return end
+
+        FriendGroups_SaveToAltCache(accountIdentifier, accountInfo.gameAccountInfo)
+        
+        -- [[ MULTIBOX FIX: Mirror of above ]]
+        if C_BattleNet.GetFriendNumGameAccounts then
+            local numAccounts = C_BattleNet.GetFriendNumGameAccounts(button.id)
+            if numAccounts and numAccounts > 1 then
+                for i = 1, numAccounts do
+                    local gameAccountInfo = C_BattleNet.GetFriendGameAccountInfo(button.id, i)
+                    if gameAccountInfo then
+                        FriendGroups_SaveToAltCache(accountIdentifier, gameAccountInfo)
+                    end
+                end
+            end
+        end
+
+        FriendGroups_CurrentHoverBNetID = accountIdentifier
+
+        if accountInfo.gameAccountInfo and accountInfo.gameAccountInfo.characterName then
+            local rawRealm = accountInfo.gameAccountInfo.realmName
+            if not rawRealm or rawRealm == "" then rawRealm = accountInfo.gameAccountInfo.realmDisplayName end
+            if rawRealm and rawRealm ~= "" then
+                local cName = accountInfo.gameAccountInfo.characterName
+                local rName = rawRealm:gsub("[%s%p]+", "")
+                FriendGroups_CurrentHoverCharKey = cName .. "-" .. rName
+                
+                baselineData = {
+                    charName = cName,
+                    realm = rawRealm,
+                    class = accountInfo.gameAccountInfo.className or "",
+                    faction = accountInfo.gameAccountInfo.factionName or "",
+                    level = tonumber(accountInfo.gameAccountInfo.characterLevel) or 1,
+                    zone = accountInfo.gameAccountInfo.areaName or L["UNKNOWN_ZONE"],
+                    timestamp = time()
+                }
+            end
+        end
+
+        FriendGroups_DrawAltTooltip(FriendsFrame, FriendGroups_CurrentHoverBNetID, FriendGroups_CurrentHoverCharKey, baselineData)
+    end
+end)
+
+FriendsFrame:HookScript("OnHide", function()
+    if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
+    FriendGroups_CurrentHoverAnchor = nil
+end)
+
+local function FriendGroups_OnGuildRosterEnter(owner, memberInfo)
+    -- [[ SECRET-SAFE HELPER ]]
+    -- Returns the value only when it is present AND is not a 12.0 protected "secret value".
+    -- It never reads the contents of a secret (issecretvalue is the only gate that is allowed).
+    local function FG_PlainOrNil(v)
+        if v == nil then return nil end
+        if issecretvalue and issecretvalue(v) then return nil end
+        return v
+    end
+
+    FriendGroups_CurrentHoverAnchor = owner
+
+    local guid = memberInfo.guid
+    local guidReadable = (guid ~= nil) and not (issecretvalue and issecretvalue(guid))
+    local nameSecret = (issecretvalue and issecretvalue(memberInfo.name)) and true or false
+
+    -- ========================================================================
+    -- [[ SECRET PATH ]]
+    -- The roster name is a protected secret in this context. We must NOT read it
+    -- (no :find, no concat, no strsplit). Resolve identity via the GUID index that
+    -- was harvested during normal (non-secret) hovers, and render purely from cache.
+    -- ========================================================================
+    if nameSecret then
+        if type(FriendGroups_SavedVars.secret_telemetry) ~= "table" then
+            FriendGroups_SavedVars.secret_telemetry = { hits = 0, resolved = 0, unresolved = 0, guid_secret = 0 }
+        end
+        local tel = FriendGroups_SavedVars.secret_telemetry
+        tel.hits = (tel.hits or 0) + 1
+        if not guidReadable then tel.guid_secret = (tel.guid_secret or 0) + 1 end
+
+        local resolved = nil
+        if guidReadable and type(FriendGroups_SavedVars.guid_index) == "table" then
+            resolved = FriendGroups_SavedVars.guid_index[guid]
+        end
+
+        if resolved then
+            tel.resolved = (tel.resolved or 0) + 1
+            FriendGroups_CurrentHoverBNetID = resolved.account
+            FriendGroups_CurrentHoverCharKey = resolved.key
+
+            local baselineData = {
+                charName  = resolved.charName,
+                realm     = resolved.realm,
+                class     = resolved.class or "",
+                faction   = resolved.faction or "",
+                level     = tonumber(FG_PlainOrNil(memberInfo.level)) or resolved.level or 1,
+                zone      = FG_PlainOrNil(memberInfo.zoneName) or FG_PlainOrNil(memberInfo.zone) or resolved.zone or L["UNKNOWN_ZONE"],
+                guild     = FriendGroups_PlayerGuildName,
+                timestamp = time()
+            }
+            FriendGroups_DrawAltTooltip(owner, resolved.account, resolved.key, baselineData)
+        else
+            tel.unresolved = (tel.unresolved or 0) + 1
+            FriendGroups_CurrentHoverBNetID = nil
+            FriendGroups_CurrentHoverCharKey = nil
+            FriendGroups_DrawAltTooltip(owner, nil, nil, nil)
+        end
+        return
+    end
+
+    -- ========================================================================
+    -- [[ NORMAL PATH ]] (original behaviour, unchanged, plus GUID-index harvest)
+    -- ========================================================================
+    local rawName = memberInfo.name
+    if rawName == nil then return end
+
+    local charKey = rawName
+    local cName, rName = rawName, GetNormalizedRealmName()
+    if not rawName:find("-") then 
+        charKey = rawName .. "-" .. rName
+    else 
+        cName, rName = strsplit("-", rawName)
+        rName = rName:gsub("[%s%p]+", "")
+        charKey = cName .. "-" .. rName 
+    end
+
+    FriendGroups_CurrentHoverBNetID = FriendGroups_FindBNetIDByCharKey(charKey)
+    FriendGroups_CurrentHoverCharKey = charKey
+
+    local className, classFilename = "", ""
+    if memberInfo.classID then 
+        className, classFilename = GetClassInfo(memberInfo.classID) 
+    end
+
+    -- [[ FACTION FIX: Hybrid Approach (Communities API -> Native GUID API) ]]
+    local factionFallback = ""
+    if type(memberInfo.faction) == "number" then
+        if memberInfo.faction == 0 then 
+            factionFallback = "Horde"
+        elseif memberInfo.faction == 1 then 
+            factionFallback = "Alliance" 
+        end
+    end
+    
+    -- Fallback to Native GUID check if Communities data is missing
+    if factionFallback == "" and guidReadable then
+        local _, _, _, englishRace = GetPlayerInfoByGUID(guid)
+        if englishRace then
+            if englishRace == "Human" or englishRace == "Dwarf" or englishRace == "NightElf" or englishRace == "Gnome" or englishRace == "Draenei" or englishRace == "Worgen" or englishRace == "LightforgedDraenei" or englishRace == "VoidElf" or englishRace == "DarkIronDwarf" or englishRace == "KulTiran" or englishRace == "Mechagnome" or englishRace == "EarthenAlliance" then
+                factionFallback = "Alliance"
+            elseif englishRace == "Orc" or englishRace == "Scourge" or englishRace == "Tauren" or englishRace == "Troll" or englishRace == "BloodElf" or englishRace == "Goblin" or englishRace == "Nightborne" or englishRace == "HighmountainTauren" or englishRace == "MagharOrc" or englishRace == "ZandalariTroll" or englishRace == "Vulpera" or englishRace == "EarthenHorde" then
+                factionFallback = "Horde"
+            end
+            -- Note: Neutral races (Pandaren/Dracthyr) safely bypass this to avoid assumptions.
+            -- If their faction cannot be derived here, your BNet/Mesh Alt Cache will securely resolve it.
+        end
+    end
+
+    local baselineData = {
+        charName = cName,
+        realm = rName,
+        class = classFilename or className or "",
+        faction = factionFallback, 
+        level = tonumber(memberInfo.level) or 1,
+        zone = memberInfo.zoneName or memberInfo.zone or L["UNKNOWN_ZONE"],
+        guild = FriendGroups_PlayerGuildName, -- [[ FIX: Supply local guild explicitly ]]
+        timestamp = time()
+    }
+
+    -- [[ GUID-INDEX HARVEST ]]
+    -- Store a plain snapshot keyed by the readable GUID so a future hover in a secret
+    -- context can resolve this character without ever reading the protected name.
+    -- Only stored when we resolved a BNet owner, since the alt tooltip is BNet-cache backed.
+    if guidReadable and FriendGroups_CurrentHoverBNetID then
+        if type(FriendGroups_SavedVars.guid_index) ~= "table" then
+            FriendGroups_SavedVars.guid_index = {}
+        end
+        FriendGroups_SavedVars.guid_index[guid] = {
+            account   = FriendGroups_CurrentHoverBNetID,
+            key       = charKey,
+            charName  = cName,
+            realm     = rName,
+            class     = baselineData.class,
+            faction   = factionFallback,
+            level     = baselineData.level,
+            zone      = baselineData.zone,
+            timestamp = time()
+        }
+    end
+
+    -- [[ BNET-ONLY GATE ]]
+    -- The Known Alt panel is meaningful only for guild members who are also one of your
+    -- Battle.net friends, since that is the only identity we track alts for. For a plain
+    -- guildmate (no resolved BNet owner) suppress the panel instead of rendering a lone
+    -- single-character window. Routing through DrawAltTooltip with nils hides it cleanly,
+    -- mirroring the secret-path unresolved branch above.
+    if not FriendGroups_CurrentHoverBNetID then
+        FriendGroups_DrawAltTooltip(owner, nil, nil, nil)
+        return
+    end
+
+    FriendGroups_DrawAltTooltip(owner, FriendGroups_CurrentHoverBNetID, charKey, baselineData)
+end
+
+function FriendGroups_InitCommunitiesHook()
+    -- 1. Hook Standard Communities / Guild Roster Frame (Retail API)
+    if CommunitiesFrame and not CommunitiesFrame.FG_HideHooked then
+        CommunitiesFrame:HookScript("OnHide", function()
+            if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
+            FriendGroups_CurrentHoverAnchor = nil
+        end)
+        
+        -- [[ NEW: Secure localized Tooltip Hook for Communities Roster (Replaces Global GameTooltip Hook) ]]
+        if CommunitiesFrame.MemberList and CommunitiesFrame.MemberList.ScrollBox then
+            CommunitiesFrame.MemberList.ScrollBox:RegisterCallback("OnInitializedFrame", function(_, frame)
+                if not frame.FG_RosterTooltipHooked then
+                    frame:HookScript("OnEnter", function(self)
+                        if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then return end
+                        if type(self.GetMemberInfo) ~= "function" then return end
+                        
+                        local success, memberInfo = pcall(self.GetMemberInfo, self)
+                        if success and memberInfo and memberInfo.name then
+                            FriendGroups_OnGuildRosterEnter(self, memberInfo)
+                        end
+                    end)
+                    
+                    frame:HookScript("OnLeave", function(self)
+                        if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
+                        FriendGroups_CurrentHoverAnchor = nil
+                    end)
+                    
+                    frame.FG_RosterTooltipHooked = true
+                end
+            end)
+        end
+        CommunitiesFrame.FG_HideHooked = true
+    end
+
+    -- 2. Hook Legacy/Standalone Guild UI (Fallback Support)
+    if GuildRosterContainer and GuildRosterContainer.ScrollBox and not GuildRosterContainer.FG_Hooked then
+        GuildRosterContainer.ScrollBox:RegisterCallback("OnInitializedFrame", function(_, frame)
+            if not frame.FG_RosterTooltipHooked then
+                frame:HookScript("OnEnter", function(self)
+                    if not FriendGroups_Loaded or FriendGroups_SavedVars.show_known_alts == false then return end
+                    if type(self.GetMemberInfo) ~= "function" then return end
+                    
+                    local success, memberInfo = pcall(self.GetMemberInfo, self)
+                    if success and memberInfo and memberInfo.name then
+                        FriendGroups_OnGuildRosterEnter(self, memberInfo)
+                    end
+                end)
+                
+                frame:HookScript("OnLeave", function(self)
+                    if FriendGroupsAltTooltip then FriendGroupsAltTooltip:Hide() end
+                    FriendGroups_CurrentHoverAnchor = nil
+                end)
+                
+                frame.FG_RosterTooltipHooked = true
+            end
+        end)
+        GuildRosterContainer.FG_Hooked = true
+    end
+end
+
+-- ============================================================================
+-- [[ DIAGNOSTIC & TELEMETRY ENGINE ]]
+-- ============================================================================
+SLASH_FRIENDGROUPSDEBUG1 = "/fg"
+SlashCmdList["FRIENDGROUPSDEBUG"] = function(msg)
+    local command = msg and msg:lower():match("^%s*(%w+)")
+    
+    if command == "debug" then
+        -- 1. Measure Memory Churn (Strictly restricted to FriendGroups)
+        UpdateAddOnMemoryUsage()
+        local memUsageKB = GetAddOnMemoryUsage(addonName) or GetAddOnMemoryUsage("FriendGroups") or 0
+        local memUsageMB = memUsageKB / 1024
+
+        -- 2. Measure Database Bloat
+        local privateCount = 0
+
+        if FriendGroups_SavedVars then
+            if type(FriendGroups_SavedVars.alt_cache) == "table" then
+                for _, alts in pairs(FriendGroups_SavedVars.alt_cache) do
+                    privateCount = privateCount + #alts
+                end
+            end
+        end
+
+        -- 3. Output Telemetry Safely
+        DEFAULT_CHAT_FRAME:AddMessage(L["DEBUG_HEADER"] or "Debug Header Missing")
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["DEBUG_MEM_USAGE"] or "Mem: %.2f", memUsageMB))
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["DEBUG_DB_SIZE"] or "Database Profiles: %d (Private BNet Cache)", privateCount))
+
+        -- [[ SECRET-VALUE TELEMETRY ]] Reports the secret-name fallback activity recorded at hover time.
+        local guidIndexCount = 0
+        if type(FriendGroups_SavedVars.guid_index) == "table" then
+            for _ in pairs(FriendGroups_SavedVars.guid_index) do
+                guidIndexCount = guidIndexCount + 1
+            end
+        end
+
+        local tel = (type(FriendGroups_SavedVars.secret_telemetry) == "table") and FriendGroups_SavedVars.secret_telemetry or nil
+
+        DEFAULT_CHAT_FRAME:AddMessage(L["DEBUG_SECRET_HEADER"])
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["DEBUG_GUID_INDEX"], guidIndexCount))
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["DEBUG_SECRET_HITS"], (tel and tel.hits) or 0))
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["DEBUG_SECRET_RESOLVED"], (tel and tel.resolved) or 0))
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["DEBUG_SECRET_UNRESOLVED"], (tel and tel.unresolved) or 0))
+        DEFAULT_CHAT_FRAME:AddMessage(string.format(L["DEBUG_SECRET_GUID"], (tel and tel.guid_secret) or 0))
+    elseif command == "export" then
+        FriendGroups_ShowExport()
+    elseif command == "import" then
+        StaticPopup_Show("FRIENDGROUPS_IMPORT")
+    else
+        DEFAULT_CHAT_FRAME:AddMessage(L["DEBUG_HELP"] or "Type /fg debug")
+    end
+end
+
+-- ============================================================================
+-- [[ OPEN-LIST UPDATE COALESCER ]]
+-- ============================================================================
+-- Collapses bursts of roster events (BN_FRIEND_INFO_CHANGED, FRIENDLIST_UPDATE, native idle
+-- ticks) that route through the FriendsList_Update override into a single deferred refresh.
+-- Schedules at most one timer per window, and only while the Friends list is actually visible.
+-- The Dirty Roster Engine still flags changes regardless, so a hidden list rebuilds correctly
+-- via OnShow the next time it is opened. All existing guards (combat, visibility, dirty) still
+-- apply when the timer fires, so behaviour is identical to today aside from a sub-frame delay.
+local FriendGroups_UpdateThrottleTimer = nil
+function FriendGroups_RequestListUpdate()
+    if not (FriendsListFrame and FriendsListFrame:IsShown()) then return end
+    if FriendGroups_UpdateThrottleTimer then return end
+    FriendGroups_UpdateThrottleTimer = C_Timer.NewTimer(0.1, function()
+        FriendGroups_UpdateThrottleTimer = nil
+        FriendGroups_FriendsListUpdate(false)
+    end)
+end
+
+-- ============================================================================
+-- [[ COMBAT LOCKOUT QUEUE HANDLER ]]
+-- ============================================================================
+local FriendGroups_CombatQueueFrame = CreateFrame("Frame")
+FriendGroups_CombatQueueFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+FriendGroups_CombatQueueFrame:SetScript("OnEvent", function(self, event)
+    if event == "PLAYER_REGEN_ENABLED" then
+        if FriendGroups_UpdateQueued then
+            FriendGroups_UpdateQueued = false
+            -- Combat has safely ended. Use the standard (non-forcing) update path so the
+            -- visibility guard applies: if the Friends list is hidden this returns immediately
+            -- (OnShow will rebuild it later); if it is shown it rebuilds once via the O(n) swap.
+            FriendGroups_FriendsListUpdate(false)
+        end
+    end
+end)
+
