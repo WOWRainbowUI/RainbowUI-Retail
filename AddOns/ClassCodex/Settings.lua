@@ -126,8 +126,22 @@ function ns.RegisterSettings()
         AddCheckbox("showTrinketTooltip", L["settings.label.trinket_tier"],
             L["settings.tooltip.trinket_tier"], true, ns.InvalidateTooltipCache)
 
-        AddCheckbox("bisCurrentClassOnly", L["settings.label.current_class_only"],
-            L["settings.tooltip.current_class_only"], false, ns.InvalidateTooltipCache)
+        do
+            local variable = "tooltipBisScope"
+            local defaultValue = "all"
+            local function GetOptions()
+                local container = Settings.CreateControlTextContainer()
+                container:Add("all", L["settings.value.bis_scope_all"])
+                container:Add("group", L["settings.value.bis_scope_group"])
+                container:Add("self", L["settings.value.bis_scope_self"])
+                container:Add("off", L["settings.value.off"])
+                return container:GetData()
+            end
+            local setting = Settings.RegisterAddOnSetting(category, variable, variable, ClassCodexDB,
+                type(defaultValue), L["settings.label.bis_scope"], defaultValue)
+            Settings.SetOnValueChangedCallback(variable, function() ns.InvalidateTooltipCache() end)
+            Settings.CreateDropdown(category, setting, GetOptions, L["settings.tooltip.bis_scope"])
+        end
 
         do
             local variable = "tooltipSourceStyle"
@@ -175,6 +189,9 @@ function ns.RegisterSettings()
             L["settings.tooltip.dock_show_wowhead"], true, nil)
         AddCheckbox("dockLoadoutShowArchon", L["settings.label.dock_show_archon"],
             L["settings.tooltip.dock_show_archon"], true, nil)
+        AddCheckbox("dockLoadoutShowIcyVeins", L["settings.label.dock_show_icyveins"],
+            L["settings.tooltip.dock_show_icyveins"], true,
+            function() if ns.RefreshLoadoutDock then ns.RefreshLoadoutDock() end end)
 
         do
             local setting = Settings.RegisterAddOnSetting(category, "dockLoadoutOpacity", "dockLoadoutOpacity", ClassCodexDB,
@@ -254,6 +271,19 @@ function ns.RegisterSettings()
             L["settings.tooltip.highlight_owned"], true,
             function() ns.UpdatePanelIfVisible() end)
 
+        do
+            local setting = Settings.RegisterAddOnSetting(category, "panelWidth", "panelWidth", ClassCodexDB,
+                Settings.VarType.Number, L["settings.label.panel_width"], 312)
+            Settings.SetOnValueChangedCallback("panelWidth", function()
+                ns.UpdatePanelIfVisible()
+            end)
+            local sliderOptions = Settings.CreateSliderOptions(260, 500, 10)
+            sliderOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, function(v)
+                return v .. "px"
+            end)
+            Settings.CreateSlider(category, setting, sliderOptions, L["settings.tooltip.panel_width"])
+        end
+
         -- 6. Docked Panel
         AddHeader(L["settings.header.docked_panel"])
         AddCheckbox("dockShowStats", L["settings.label.show_stat_priority"],
@@ -290,6 +320,10 @@ function ns.RegisterSettings()
 
         AddCheckbox("dockShowCrafts", L["settings.label.show_crafts"],
             L["settings.tooltip.dock_show_crafts"], true,
+            function() ns.UpdatePanelIfVisible("docked") end)
+
+        AddCheckbox("dockShowEmbellishments", L["settings.label.show_embellishments"],
+            L["settings.tooltip.dock_show_embellishments"], true,
             function() ns.UpdatePanelIfVisible("docked") end)
 
         AddCheckbox("dockShowBisGear", L["settings.label.show_bis_gear"],
@@ -332,6 +366,10 @@ function ns.RegisterSettings()
 
         AddCheckbox("floatShowCrafts", L["settings.label.show_crafts"],
             L["settings.tooltip.float_show_crafts"], true,
+            function() ns.UpdatePanelIfVisible("floating") end)
+
+        AddCheckbox("floatShowEmbellishments", L["settings.label.show_embellishments"],
+            L["settings.tooltip.float_show_embellishments"], true,
             function() ns.UpdatePanelIfVisible("floating") end)
 
         AddCheckbox("floatShowBisGear", L["settings.label.show_bis_gear"],

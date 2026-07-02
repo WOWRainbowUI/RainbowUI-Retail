@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["DEATHKNIGHT"] = {
   ["blood"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/blood/death-knight/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 613, haste = 467, mastery = 760, versatility = 608 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/blood/death-knight/raid/overview/mythic/all-bosses", targets = { crit = 816, haste = 832, mastery = 612, versatility = 234 } },
+    ["傳奇+"] = { targets = { crit = 534, haste = 442, mastery = 834, versatility = 714 } },
+    ["團隊"] = { targets = { crit = 821, haste = 929, mastery = 653, versatility = 206 } },
   },
   ["frost"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/frost/death-knight/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 961, haste = 410, mastery = 1092, versatility = 81 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/frost/death-knight/raid/overview/mythic/all-bosses", targets = { crit = 972, haste = 396, mastery = 1102, versatility = 72 } },
+    ["傳奇+"] = { targets = { crit = 1023, haste = 383, mastery = 1156, versatility = 61 } },
+    ["團隊"] = { targets = { crit = 1015, haste = 358, mastery = 1192, versatility = 68 } },
   },
   ["unholy"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/unholy/death-knight/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1054, haste = 350, mastery = 1118, versatility = 53 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/unholy/death-knight/raid/overview/mythic/all-bosses", targets = { crit = 989, haste = 395, mastery = 1090, versatility = 68 } },
+    ["傳奇+"] = { targets = { crit = 1123, haste = 285, mastery = 1191, versatility = 52 } },
+    ["團隊"] = { targets = { crit = 1043, haste = 350, mastery = 1163, versatility = 63 } },
   },
 }

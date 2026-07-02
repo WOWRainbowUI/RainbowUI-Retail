@@ -285,6 +285,37 @@ end
 
 local CC_NAME = "Class Codex"
 local pendingApply = nil
+local pendingApplySeq = 0
+
+-- pendingApply stays set across the ENTIRE async lifecycle so the spam-
+-- click guard at the top of ApplyTalentExportString blocks any user
+-- re-entry between phases. Intermediate event handlers don't nil it —
+-- only the terminal success/failure points do, via ClearPendingApply.
+--
+-- Legitimate continuations (handlers calling ApplyTalentExportString
+-- via RunNextFrame) bypass the guard with _isContinuation=true.
+--
+-- The watchdog is a defence against Blizzard silently dropping an
+-- expected TRAIT_CONFIG_* event: if the flag stays set past the
+-- window, the watchdog auto-clears it so the player can apply again
+-- without /reload. Sequence counter invalidates stale timers when
+-- pendingApply is replaced or cleared mid-flight.
+local PENDING_APPLY_WATCHDOG_SECS = 10
+local function SetPendingApply(pa)
+    pendingApplySeq = pendingApplySeq + 1
+    local mySeq = pendingApplySeq
+    pendingApply = pa
+    C_Timer.After(PENDING_APPLY_WATCHDOG_SECS, function()
+        if pendingApplySeq == mySeq then
+            pendingApply = nil
+        end
+    end)
+end
+
+local function ClearPendingApply()
+    pendingApplySeq = pendingApplySeq + 1 -- invalidate any in-flight watchdog
+    pendingApply = nil
+end
 
 local function ClearStoredConfigID(specID)
     if not ClassCodexCharDB or not ClassCodexCharDB.ccLoadout then return end
@@ -333,25 +364,30 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
         if arg1.name ~= CC_NAME then return end
         self:UnregisterEvent("TRAIT_CONFIG_CREATED")
         StoreConfigID(arg1.ID)
+        -- pendingApply intentionally kept set — the spam-click guard
+        -- needs it across the brief window between this handler and
+        -- the next-frame re-apply. The re-apply bypasses the guard
+        -- via _isContinuation; its own SetPendingApply at the
+        -- LoadConfig site overwrites this slot's data with phase-2
+        -- data.
         local pa = pendingApply
-        pendingApply = nil
         RunNextFrame(function()
-            ns.ApplyTalentExportString(pa.exportString, pa.buildLabel)
+            ns.ApplyTalentExportString(pa.exportString, pa.buildLabel, true)
         end)
     elseif event == "TRAIT_CONFIG_UPDATED" then
         if arg1 ~= C_ClassTalents.GetActiveConfigID() then return end
         if not pendingApply then return end
         self:UnregisterEvent("TRAIT_CONFIG_UPDATED")
         local pa = pendingApply
-        pendingApply = nil
         if pa.renameOnly then
-            -- Commit cast finished — rename + notify
+            -- Terminal success: commit cast finished, rename + notify.
             local ccConfigID = GetStoredConfigID()
             if ccConfigID then
                 local loadoutName = CC_NAME .. ": " .. (pa.buildLabel or "Build")
                 C_ClassTalents.RenameConfig(ccConfigID, loadoutName)
             end
             Msg("Talents applied: " .. (pa.buildLabel or "build"))
+            ClearPendingApply()
             -- Defer the flag clear by one frame so any TRAIT_*_UPDATED
             -- events still pending in this dispatch cycle remain
             -- suppressed. Then explicitly refresh the talent dropdown
@@ -363,9 +399,12 @@ eventFrame:SetScript("OnEvent", function(self, event, arg1)
                 if ns._refreshTalentDiff then ns._refreshTalentDiff() end
             end)
         else
-            -- LoadConfig cast finished — now stage + commit
+            -- LoadConfig cast finished — continuation to stage + commit.
+            -- Same as the TRAIT_CONFIG_CREATED branch: keep pendingApply
+            -- set across the next-frame window, let the re-apply
+            -- overwrite via its own SetPendingApply.
             RunNextFrame(function()
-                ns.ApplyTalentExportString(pa.exportString, pa.buildLabel)
+                ns.ApplyTalentExportString(pa.exportString, pa.buildLabel, true)
             end)
         end
     end
@@ -375,20 +414,55 @@ end)
 -- ns.ApplyTalentExportString(exportString, buildLabel)
 -------------------------------------------------------------------------------
 
-function ns.ApplyTalentExportString(exportString, buildLabel)
+-- Terminal-failure helper: every bail-out path runs through here so a
+-- continuation that hits a precondition error never leaves
+-- pendingApply set (which would otherwise lock the next user click
+-- behind the spam-click guard until the watchdog expires).
+local function Fail(msg)
+    ClearPendingApply()
+    return nil, msg
+end
+
+-- _isContinuation is true only when the function is re-entered from a
+-- TRAIT_CONFIG_* handler's RunNextFrame to continue an in-flight apply.
+-- User-initiated calls always omit it (or pass nil/false), which makes
+-- the guard fire if a previous apply is still mid-flight.
+function ns.ApplyTalentExportString(exportString, buildLabel, _isContinuation)
     if not exportString or exportString == "" then
-        return nil, "Empty export string"
+        return Fail("Empty export string")
+    end
+
+    -- Spam-click guard: block any new user-initiated apply while a
+    -- previous one is still mid-flight. pendingApply stays set across
+    -- the entire async lifecycle (RequestNewConfig → LoadConfig cast
+    -- → stage/commit cast → rename) so the guard catches clicks at
+    -- every intermediate step, not just within a single phase.
+    if pendingApply and not _isContinuation then
+        return nil, "Apply already in progress — wait for it to finish."
     end
 
     local activeConfigID = C_ClassTalents.GetActiveConfigID()
-    if not activeConfigID then return nil, "No active talent configuration" end
+    if not activeConfigID then return Fail("No active talent configuration") end
 
     -- Combat is the only failure cause we can't recover from — staging
     -- and CommitConfig are both protected from combat lockdown. Check
     -- explicitly so the user gets a clear message instead of a mid-
     -- stage failure that looks like a bug.
     if InCombatLockdown and InCombatLockdown() then
-        return nil, "Cannot change talents in combat."
+        return Fail("Cannot change talents in combat.")
+    end
+
+    -- Unsaved talent changes (player clicked talents in the tree but
+    -- didn't apply) cause LoadConfig to error in the create-fresh-slot
+    -- path, which leaves the user puzzled when their build doesn't
+    -- come through. Surface it before we do anything destructive so
+    -- they know to apply or discard their manual edits first. Skip on
+    -- continuation calls — staging legitimately stages changes on the
+    -- scratch, and re-checking mid-flight would always trip.
+    if not _isContinuation and C_Traits.ConfigHasStagedChanges
+        and C_Traits.ConfigHasStagedChanges(activeConfigID)
+    then
+        return Fail("You have unsaved talent changes. Open the talents pane and click Apply Changes (or right-click the loadout name to discard) before applying a Class Codex build.")
     end
 
     -- We deliberately don't pre-flight C_ClassTalents.CanChangeTalents()
@@ -422,26 +496,27 @@ function ns.ApplyTalentExportString(exportString, buildLabel)
             if activeBits and newBits and activeBits == newBits then
                 C_ClassTalents.RenameConfig(ccConfigID, CC_NAME .. ": " .. (buildLabel or "Build"))
                 Msg("Renamed loadout to " .. (buildLabel or "Build"))
+                ClearPendingApply()
                 return true
             end
         end
     end
 
     local treeID = GetTreeID()
-    if not treeID then return nil, "Cannot determine talent tree" end
+    if not treeID then return Fail("Cannot determine talent tree") end
 
     -- Parse
     local entryInfo, parseErr = ParseExportString(exportString, treeID)
-    if not entryInfo then return nil, parseErr end
+    if not entryInfo then return Fail(parseErr) end
 
     -- Ensure we have a dedicated loadout slot
     local ccConfigID = GetStoredConfigID()
     if not ccConfigID then
         if C_ClassTalents.CanCreateNewConfig and not C_ClassTalents.CanCreateNewConfig() then
-            return nil, "No free loadout slots — delete one to use Class Codex builds"
+            return Fail("No free loadout slots — delete one to use Class Codex builds")
         end
         C_ClassTalents.RequestNewConfig(CC_NAME)
-        pendingApply = { exportString = exportString, buildLabel = buildLabel }
+        SetPendingApply({ exportString = exportString, buildLabel = buildLabel })
         eventFrame:RegisterEvent("TRAIT_CONFIG_CREATED")
         Msg("Creating loadout slot...")
         return true
@@ -453,14 +528,20 @@ function ns.ApplyTalentExportString(exportString, buildLabel)
     if currentLoadoutID ~= ccConfigID then
         local result = C_ClassTalents.LoadConfig(ccConfigID, true)
         if result == Enum.LoadConfigResult.LoadInProgress then
-            pendingApply = { exportString = exportString, buildLabel = buildLabel }
+            SetPendingApply({ exportString = exportString, buildLabel = buildLabel })
             eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
             return true
         elseif result == Enum.LoadConfigResult.Error then
-            -- Stale stored ID (e.g. user deleted the loadout). Clear and retry,
-            -- which will hit the RequestNewConfig branch on the next pass.
+            -- LoadConfig failed even though GetStoredConfigID validated the
+            -- ID against GetConfigIDsBySpecID up the stack. Clear the
+            -- stored ID so a subsequent click runs the fresh path
+            -- (RequestNewConfig branch), then surface the error. Do NOT
+            -- recurse: a persistent LoadConfig failure (talent UI in a
+            -- transient state, pending unstaged changes) would otherwise
+            -- drive an unbounded create-slot / LoadConfig-fail loop and
+            -- exhaust the player's loadout slots.
             ClearStoredConfigID(specID)
-            return ns.ApplyTalentExportString(exportString, buildLabel)
+            return Fail("Could not load Class Codex loadout. Open the talents pane and click Apply Changes, then try again.")
         end
     end
 
@@ -502,6 +583,7 @@ function ns.ApplyTalentExportString(exportString, buildLabel)
             else
                 Msg("Already using this build.")
             end
+            ClearPendingApply()
             return
         end
 
@@ -529,12 +611,13 @@ function ns.ApplyTalentExportString(exportString, buildLabel)
         if not C_ClassTalents.CommitConfig(ccConfigID) then
             ns._talentApplyInProgress = false
             Msg("|cffff0000Commit failed.|r Open talent frame and click Apply Changes.")
+            ClearPendingApply()
             return
         end
 
         -- CommitConfig triggers a cast bar — defer rename to after cast.
         -- The apply-in-progress flag stays true until that fires.
-        pendingApply = { buildLabel = buildLabel, renameOnly = true }
+        SetPendingApply({ buildLabel = buildLabel, renameOnly = true })
         eventFrame:RegisterEvent("TRAIT_CONFIG_UPDATED")
 
         if C_ClassTalents.UpdateLastSelectedSavedConfigID then

@@ -12,20 +12,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMz0MLzMjZmBAAAAwgZmZmZMzMjBAzMzMzAAAMmtBGwCYZYCMsAYGDAAmZAYMA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMz0MLzMjZmBAAAAwgZmZmZMzMjBAzMzMzAAAMmtBGwCYZYCMsAYGDAAmZAYMA",
           },
         },
       },
@@ -64,7 +64,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMz0MLzMjZmBAAAAwgZmZmZMzMjBAzMzMzAAAMmtBGwCYZYCMsAYGDAAmZAYMA",
           },
         },
       },
@@ -77,7 +77,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMz0MLzMjZmBAAAAwgZmZmZMzMjBAzMzMzAAAMmtBGwCYZYCMsAYGDAAmZAYMA",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZbmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMz0MLzMjZmBAAAAwgZmZmZMzMjBAzMzMzAAAMmtBGwCYZYCMsAYGDAAmZAYMA",
           },
         },
       },
@@ -103,7 +103,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzMmxMGMLzMz0MLzMjZmBAAAAwgZmZmZMzMjBAzMzMzAAAMmtBGwCYZYCMsAYGDAAmZAYMA",
           },
         },
       },
@@ -116,7 +116,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmxYMLzMz0MLzMjZmBAAAAwgZmZmZMzMjBAzMzMzAAAMmtBGwCYZYCMsAYGDAAmZAYMA",
           },
         },
       },
@@ -136,7 +136,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -149,20 +149,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "San'layn",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMz0MLmZMmxAAAAAzMzMzMzMDzYMAYMzMzAAAYgBmxmGLbA2GwGgZYAAAzMYwA",
+            heroTalent = "Deathbringer",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
           },
         },
       },
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -175,7 +175,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -198,10 +198,23 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Deathbringer",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyMzwMmZmhZZmZmmZxMjZmxAAAAAGMzMzMjZmZMAYmZmZGAAgxsNwAWALDTghFAzYAAwMDAMA",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -214,7 +227,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -240,7 +253,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -266,33 +279,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "San'layn",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmmZzMjxMGAAAAYmZmZmZmZYGjBAjZmZGAAADMwMW0YZDw2A2AMDDAAYmBzwA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmmZxMjxMGAAAAYmZmZmZmZYGjBAjZmZGAAADMwMW0YZDw2A2AMDDAAYmBzwA",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
-        difficulty = "mythic",
-        difficultyLabel = "Mythic",
-        builds = {
-          {
-            heroTalent = "San'layn",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwY2GzMmxMzMMbzMz0MLmZMmxAAAAAzMzMzMzMDzYMAYMzMzAAAYgBmxmGLbA2GwGgZYAAAzMwwA",
-          },
-        },
-      },
-      ["raid:mythic:crown"] = {
-        zoneType = "raid",
-        encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -302,10 +302,23 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
           },
         },
       },
+      ["raid:mythic:crown"] = {
+        zoneType = "raid",
+        encounter = "crown",
+        encounterLabel = "Crown of the Cosmos",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "San'layn",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMz0MLmZMmxAAAAAzMzMzMzMDzYMAYMzMzAAAYgBmxiGLbA2GwGgZYAAAzMwwA",
+          },
+        },
+      },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -324,14 +337,27 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "San'layn",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwMzyYmxMmZMMbzMz0MLmZMmxAAAAAmhZmZmZMzMDAwMzMzMAAADMwMW0YZDw2A2AMDAAAzMYGGA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmmZxMjxMGAAAAYmZmZmZmZYGjBAjZmZGAAADMwMW0YZDw2A2AMDDAAYmBzwA",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "San'layn",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMjhZbmZmmZxMjxMGAAAAYmZmZmZmZYGjBAjZmZGAAADMwM20YZDw2A2AMDDAAYmBzwA",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -344,7 +370,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -363,14 +389,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "San'layn",
-            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMz0MLmZMmxAAAAAzMzMzMzMDzYMAYMzMzAAAYgBmxmGLbA2GwGgZYAAAzMYwA",
+            exportString = "CoPAAAAAAAAAAAAAAAAAAAAAAwYWGzMmxMzMMbzMz0MbmZMmxAAAAAzMzMzMzMDzYMAYMzMzAAAYgBmxmGLbA2GwGgZYAAAzMwwA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -411,6 +437,8 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["frost"] = {
@@ -425,20 +453,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZ0MjxMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGmAjFMzwMDMDghZGADM",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZxMjmZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAAM",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZxMjmZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAAM",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZ0MjxMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGmAjFMzwMDMDghZGADM",
           },
         },
       },
@@ -477,7 +505,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZxMjmZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAAM",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMMjxYY2mZmZmZbmZ0MjxMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGmAjFMzwMDMDghZGADM",
           },
         },
       },
@@ -490,7 +518,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZ0MjxMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGmAjFMzwMDMDghZGADM",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMYMmZY2mZmZmZbGjmZMzMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGmAjFMzwMDMDghZGAGM",
           },
         },
       },
@@ -503,7 +531,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMzYY2mZmZmZxMjmZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAAM",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZ0MjxMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGmAjFMzwMDMDghZGADM",
           },
         },
       },
@@ -516,7 +544,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZmZAz2MzMzMLmZkZMmZmZGYMzwMzMjZAAAAAAAAAYMbDMgFwywEYsgZGmZgZAMMzAMDM",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMAzMjZMGDz2MzMzMbmZ0MjxMzMzAjZGmZmZMDAAAAAAAAAjZbgBsAWGmAjFMzwMDMDghZGADM",
           },
         },
       },
@@ -549,7 +577,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -562,7 +590,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -575,26 +603,26 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
@@ -607,14 +635,27 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjZAz2MzMzMLmZkZMzMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
+          },
+        },
+      },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Deathbringer",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -627,7 +668,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -646,14 +687,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -672,14 +713,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMzYY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -692,20 +733,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMzYY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -718,13 +759,13 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMzMDY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZ0MjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
@@ -737,33 +778,46 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMLmZ0MjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZ0MjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGgZgB",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Deathbringer",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZ0MjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMzYY2mZmZmZxMjMjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZ0MjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAMzgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZ0MjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
@@ -776,20 +830,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDYmZMjxYY2mZmZmZzMjmZMGDzwgZmZmZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMAMMzAMgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMbmZ0MjxYYGGMzMzMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgBghZGgZgB",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Deathbringer",
-            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMGDz2MzMzMLzMjMjxMDzw4BMzgZmZmZAAAAAAAAAYMbDMgFwywEYsgZGzMDMDghZGAzgB",
+            exportString = "CsPAAAAAAAAAAAAAAAAAAAAAAMDwMjZMDY2mZmZmZZmZkZMmZYGGPgZGMzMzMDAAAAAAAAAjZbgBsAWGmAjFMzYmZgZAMMzAMzgB",
           },
         },
       },
@@ -824,6 +878,8 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["unholy"] = {
@@ -845,13 +901,13 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMbGGYgZjhGLYAzAwYmZMDwMzMGD",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMTjZmxMzYAAAAAAAAYmxwAglZMzsZmxMzA2MbGGYgZjhGLYAzAwYmZMDwMzYGD",
           },
         },
       },
@@ -864,7 +920,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMbGGYgZjhGLYAzAwYmZMDwMzMGD",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMTjZmxMzYAAAAAAAAYmxwAglZMzsZmxMzA2MbGGYgZjhGLYAzAwYmZMDwMzYGD",
           },
         },
       },
@@ -877,7 +933,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzA2MbGGYgZjhGLYAzAwYmZMDwMzMGD",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMTjZmxMzYAAAAAAAAYmxwAglZMzsZmxMzA2MbGGYgZjhGLYAzAwYmZMDwMzYGD",
           },
         },
       },
@@ -890,7 +946,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMbGGYgZjhGLYAzAwYmZMDwMzMGD",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2GzMTjZmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMbGGYgZjhGLYAzAwYmZMDwMzYGD",
           },
         },
       },
@@ -903,7 +959,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZY2mZmZa2MzYmZMAAAAAAAAMzYYAwyMmZ2MzYmZAbmNDDMwsxQjFMgZAYMzMmBYmZYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMTjZmxMzYAAAAAAAAYmxwAglZMzsZmxMzA2MbGGYgZjhGLYAzAwYmZMDwMzYGD",
           },
         },
       },
@@ -929,7 +985,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjxMDz2MzMTDzMmZGDAAAAAAAAzMGGAsMjZmNzMmZGwmZzwADMbM0YBDYGAGzMjZAmZGGD",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmhZMmZYWGzMTjZmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMbGGYgZjhGLYAzAwYmZMDwMzYGD",
           },
         },
       },
@@ -942,7 +998,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjxMDz2MzMTDzMmZGDAAAAAAAAzMGGAsMjZmNzMmZGwmZzwADMbM0YBDYGAGzMjZAmZGGD",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjZMYWGzMTjZmxMzYAAAAAAAAYmxwAglZMzsZmxMzA2MbGGYgZjhGLYAzAwYmZMDwMzYGD",
           },
         },
       },
@@ -962,7 +1018,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -975,7 +1031,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -988,7 +1044,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1001,7 +1057,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1024,10 +1080,23 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Rider of the Apocalypse",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDMwsxQjFAMDAjZmxMAzMzYMA",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1040,7 +1109,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1066,7 +1135,7 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1092,20 +1161,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDMwsxQjFAMDAjZmxMAzMzYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZa2MzYMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDMwsxQjFAMDAjZmxMAzMzYMA",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1118,20 +1187,20 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDY2mZmZa2mZGjZMAAAAAAAAMzwMDA2mxMz2MzYMDYzsYYgBmNGasAgZAYMzMmBYmZmZMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMDDz2MzMTzmZmZMjBAAAAAAAgZGmZAw2MmZ2mZGjZAbmFDDMwsxQjFAMDAjZmxMAzMzYMA",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1154,10 +1223,23 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
           },
         },
       },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Rider of the Apocalypse",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmZMjxYY2mZmZaYmxMzYAAAAAAAAYmxwAglZMzsZmxMzAWMbGGYgZjhGLYAzAwYmZMDwMzMGD",
+          },
+        },
+      },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1170,13 +1252,13 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "San'layn",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMMjxYY2GzMTz2MzYmZMDAAAAAAAgZGzYAwywMzmZmZmZMwAzYTjlFAbD2wAmBgxMzwgZGMmxA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAYmBjZGDz2MzMTzmZGzMjZAAAAAAAAMzYGDAWGmZ2MzMzMjBGYGbassBYbwGGwMAMmZGGMzghxA",
           },
         },
       },
@@ -1189,14 +1271,14 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
         builds = {
           {
             heroTalent = "Rider of the Apocalypse",
-            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMGDz2MzMTzmZGzMjBAAAAAAAgZGGDAWmxMzmZGzMDYxsYYgBmNGasgBMDAjZmxMAzMzYMA",
+            exportString = "CwPAAAAAAAAAAAAAAAAAAAAAAAwMjZMzYY2mZmZaYmxYGzAAAAAAAAYmhxAglZMzsZmxMzAWMLGGYgZjhGLYAzAwYmZMDwMzMGD",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1237,6 +1319,8 @@ ClassCodexArchonData["DEATHKNIGHT"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
 }

@@ -14,6 +14,12 @@ ns.Sections.Gear = Gear
 
 local MAX_ROWS = 20
 
+-- BiS source dropdown string -> registry key. PvP gear comes from Murlok.
+local COMP_SOURCE_KEYS = {
+    ["Wowhead"] = "wowhead", ["Icy Veins"] = "icyveins",
+    ["Archon"] = "archon", ["PvP"] = "murlok",
+}
+
 local function LoadBisPrefs()
     local specKey = ns.GetSpecKey and ns.GetSpecKey()
     local source, tabLabel = "Wowhead", nil
@@ -43,6 +49,62 @@ local function FindTabByLabel(tabs, label)
         if tab.label == label then return tab end
     end
     return nil
+end
+
+-- Archon's rows carry only { item, pop, bis } — no slot label and no drop
+-- source (Archon ranks by popularity, not acquisition). We recover the slot
+-- from the item's equip location and borrow a drop source from the Wowhead
+-- set when it lists the same item, falling back to the popularity percent.
+local function BuildWowheadSourceLookup(wowheadBis)
+    local map = {}
+    if not wowheadBis then return map end
+    for _, tab in ipairs(wowheadBis) do
+        for _, g in ipairs(tab.slots) do
+            local id = g.item and g.item.itemId
+            if id and g.source and g.source ~= "" and not map[id] then
+                map[id] = g.source
+            end
+        end
+    end
+    return map
+end
+
+-- Resolve the slot + source columns for one row. Wowhead / Icy Veins rows
+-- already carry both; Archon rows derive them. `whLookup` is only built for
+-- the Archon source.
+--
+-- We deliberately don't surface Archon's raw popularity percent: the rest of
+-- the addon attributes Archon popularity with a marker rather than a number,
+-- and Archon's raid figures count parses across all bosses so they routinely
+-- exceed 100%. Instead the source column shows the item's drop location
+-- (borrowed from the Wowhead set when it lists the same item) and falls back
+-- to a "BiS" tag on rows whose popular pick also matches Wowhead's BiS.
+local function ResolveRow(entry, whLookup, context)
+    local itemId = entry.item and entry.item.itemId
+    local slot = entry.slot
+    if not slot or slot == "" then slot = ns.GearSlotName(itemId) end
+    local source = entry.source
+    if not source or source == "" then
+        source = (whLookup and whLookup[itemId])
+            or (itemId and ns:GetTrinketSource(itemId))
+        if (not source or source == "") and entry.bis then source = "BiS" end
+    end
+    -- Archon rows carry no bonus IDs (its pages don't publish them), so the
+    -- item would render at base item level. Borrow the real bonus IDs we know
+    -- for this item from the other sources, falling back to the content's
+    -- typical upgrade track so a raid pick still shows a mythic-raid ilvl.
+    local bonusIDs = entry.item and entry.item.bonusIDs
+    if not bonusIDs and itemId then
+        bonusIDs = ns:GetItemBonusIDs(itemId)
+            or (context and ns:GetContextBonusDefault(context))
+    end
+    return slot or "", source or "", bonusIDs
+end
+
+-- Map an Archon tab to the trinket-context key used for bonus-ID defaults.
+local function ArchonTabContext(source, tab)
+    if source ~= "Archon" or not tab then return nil end
+    return tab.label == "Raid" and "raid" or "dungeon"
 end
 
 -------------------------------------------------------------------------------
@@ -102,6 +164,15 @@ function Gear.InitPanel(parent)
     panel.fallback:SetTextColor(0.5, 0.5, 0.5)
     panel.fallback:Hide()
 
+    -- Help "i" on the section title — explains the gear sources, including
+    -- that Archon's data is what top players actually run (popularity-based),
+    -- not a curated Best in Slot list.
+    ns.CreateHelpIcon(panel.title, {
+        title = L["tab.bis_gear"],
+        intro = L["bis.help.intro"],
+        lines = { L["bis.help.archon"], L["bis.help.archon_mplus"] },
+    })
+
     return panel.section
 end
 
@@ -115,12 +186,14 @@ function Gear.RenderPanel(args)
     for i = 1, MAX_ROWS do panel.rows[i]:Hide() end
     panel.fallback:Hide()
 
-    local wowheadBis, ivBis, pvpBis = args.wowheadBis, args.ivBis, args.pvpBis
-    local hasWH  = wowheadBis and #wowheadBis > 0
-    local hasIV  = ivBis and #ivBis > 0
-    local hasPvP = pvpBis ~= nil
+    local wowheadBis, ivBis, archonBis, pvpBis =
+        args.wowheadBis, args.ivBis, args.archonBis, args.pvpBis
+    local hasWH     = wowheadBis and #wowheadBis > 0
+    local hasIV     = ivBis and #ivBis > 0
+    local hasArchon = archonBis and #archonBis > 0
+    local hasPvP    = pvpBis ~= nil
 
-    if not (hasWH or hasIV or hasPvP) then
+    if not (hasWH or hasIV or hasArchon or hasPvP) then
         panel.sourceDropdown:Hide()
         panel.tabDropdown:Hide()
         panel.section:Hide()
@@ -128,9 +201,15 @@ function Gear.RenderPanel(args)
     end
 
     local currentSource, currentTab = LoadBisPrefs()
-    if currentSource == "Icy Veins" and not hasIV then currentSource = "Wowhead" end
-    if currentSource == "Wowhead" and not hasWH then
-        currentSource = hasIV and "Icy Veins" or "PvP"
+    local function sourceAvailable(src)
+        if src == "Wowhead" then return hasWH end
+        if src == "Icy Veins" then return hasIV end
+        if src == "Archon" then return hasArchon end
+        return src == "PvP" -- PvP is always selectable (shows its own fallback)
+    end
+    if not sourceAvailable(currentSource) then
+        currentSource = (hasWH and "Wowhead") or (hasIV and "Icy Veins")
+            or (hasArchon and "Archon") or "PvP"
     end
 
     -- Source dropdown
@@ -138,11 +217,16 @@ function Gear.RenderPanel(args)
     local availableSources = {}
     if hasWH then availableSources[#availableSources + 1] = { label = labels["Wowhead"] or "Wowhead", value = "Wowhead" } end
     if hasIV then availableSources[#availableSources + 1] = { label = labels["Icy Veins"] or "Icy Veins", value = "Icy Veins" } end
+    if hasArchon then availableSources[#availableSources + 1] = { label = labels["Archon"] or "Archon", value = "Archon" } end
     availableSources[#availableSources + 1] = { label = labels["PvP"] or "PvP", value = "PvP" }
     if #availableSources > 1 then
         panel.sourceDropdown:Show()
         panel.sourceDropdown:SetOptions(availableSources, currentSource, function(picked)
-            SaveBisPrefs(picked, "Overall")
+            -- Don't force a tab here — sources have different tab sets
+            -- (Archon has Mythic+/Raid, not "Overall"). Leave the saved tab
+            -- and let the render-time FindTabByLabel guard fall back to the
+            -- new source's first tab when the old label doesn't exist.
+            SaveBisPrefs(picked, nil)
             if args.onChange then args.onChange() end
         end)
     else
@@ -164,10 +248,11 @@ function Gear.RenderPanel(args)
     -- Pick the active source's tab list
     local activeBis
     if currentSource == "PvP" then activeBis = pvpBis
+    elseif currentSource == "Archon" then activeBis = archonBis
     elseif currentSource == "Icy Veins" then activeBis = ivBis
     else activeBis = wowheadBis end
     if not activeBis or #activeBis == 0 then
-        activeBis = wowheadBis or ivBis or pvpBis
+        activeBis = wowheadBis or ivBis or archonBis or pvpBis
     end
     if not activeBis or not activeBis[1] then
         panel.tabDropdown:Hide()
@@ -207,18 +292,22 @@ function Gear.RenderPanel(args)
         yOffset = yOffset - 30
     end
 
+    local whLookup = currentSource == "Archon" and BuildWowheadSourceLookup(wowheadBis) or nil
+    local archonCtx = ArchonTabContext(currentSource, selectedTab)
     local count = selectedSlots and math.min(#selectedSlots, MAX_ROWS) or 0
     for i = 1, count do
         local entry = selectedSlots[i]
         local row = panel.rows[i]
-        row.slotText:SetText(entry.slot)
+        local slot, source, bonusIDs = ResolveRow(entry, whLookup, archonCtx)
+        row.slotText:SetText(slot)
         row.itemText:SetText(ns.FormatItem(entry.item))
-        row.sourceLabel:SetText(entry.source or "")
+        row.sourceLabel:SetText(source)
+        ns.SizeSourceColumn(row.sourceLabel, row:GetParent():GetWidth(), 85, 92, 180)
         row.itemId = entry.item.itemId
-        row.bonusIDs = entry.item.bonusIDs
+        row.bonusIDs = bonusIDs
         row.altItemId = nil
         row.embItemId = nil
-        row.sourceText = entry.source or nil
+        row.sourceText = (source ~= "" and source) or nil
         ns.SetRowIcon(row, entry.item.itemId)
         if row.ownedBg then
             if ns.IsItemOwned(entry.item.itemId) then row.ownedBg:Show() else row.ownedBg:Hide() end
@@ -242,12 +331,23 @@ local comp = {}
 -- the Compendium.
 local compSource = "Wowhead"
 local compTab    = nil
+
+-- Active Compendium BiS source as a registry key.
+function Gear.GetCompendiumSourceKey()
+    return COMP_SOURCE_KEYS[compSource] or "wowhead"
+end
 local compLastSpecKey = nil
 
 -- opts.parent + opts.headerFactory + opts.rowFactory
 function Gear.InitCompendium(opts)
     comp.section = CreateFrame("Frame", nil, opts.parent)
     comp.header = opts.headerFactory(comp.section, L["tab.best_in_slot"], false)
+    ns.CreateHelpIcon(comp.header, {
+        title = L["tab.bis_gear"],
+        intro = L["bis.help.intro"],
+        lines = { L["bis.help.archon"], L["bis.help.archon_mplus"] },
+        inset = 18,
+    })
     comp.content = CreateFrame("Frame", nil, comp.section)
     comp.content:SetPoint("TOPLEFT", comp.header, "BOTTOMLEFT", 0, -2)
     comp.content:SetPoint("RIGHT", 0, 0)
@@ -305,22 +405,31 @@ function Gear.RenderCompendium(args)
         compLastSpecKey = args.specKey
     end
 
-    local wowheadBis, ivBis, pvpBis = args.wowheadBis, args.ivBis, args.pvpBis
+    local wowheadBis, ivBis, archonBis, pvpBis =
+        args.wowheadBis, args.ivBis, args.archonBis, args.pvpBis
     local hasWH = wowheadBis and #wowheadBis > 0
     local hasIV = ivBis and #ivBis > 0
+    local hasArchon = archonBis and #archonBis > 0
     local hasPvP = pvpBis ~= nil
 
     comp.pvpFallback:Hide()
-    if not hasWH and not hasIV and not hasPvP then return end
+    if not hasWH and not hasIV and not hasArchon and not hasPvP then return end
 
-    if compSource == "Icy Veins" and not hasIV then compSource = "Wowhead" end
-    if compSource == "Wowhead" and not hasWH then
-        compSource = hasIV and "Icy Veins" or "PvP"
+    local function sourceAvailable(src)
+        if src == "Wowhead" then return hasWH end
+        if src == "Icy Veins" then return hasIV end
+        if src == "Archon" then return hasArchon end
+        return src == "PvP"
+    end
+    if not sourceAvailable(compSource) then
+        compSource = (hasWH and "Wowhead") or (hasIV and "Icy Veins")
+            or (hasArchon and "Archon") or "PvP"
     end
 
     local availableSources = {}
     if hasWH then availableSources[#availableSources + 1] = "Wowhead" end
     if hasIV then availableSources[#availableSources + 1] = "Icy Veins" end
+    if hasArchon then availableSources[#availableSources + 1] = "Archon" end
     availableSources[#availableSources + 1] = "PvP"
 
     local showSourceDropdown = #availableSources > 1
@@ -346,10 +455,11 @@ function Gear.RenderCompendium(args)
     local pvpNoData = compSource == "PvP" and not hasPvP
     local activeBis
     if compSource == "PvP" then activeBis = pvpBis
+    elseif compSource == "Archon" then activeBis = archonBis
     elseif compSource == "Icy Veins" then activeBis = ivBis
     else activeBis = wowheadBis end
     if not pvpNoData and (not activeBis or #activeBis == 0) then
-        activeBis = wowheadBis or ivBis or pvpBis
+        activeBis = wowheadBis or ivBis or archonBis or pvpBis
     end
 
     if pvpNoData then
@@ -398,18 +508,21 @@ function Gear.RenderCompendium(args)
         yOffset = yOffset - 30
     end
 
+    local whLookup = compSource == "Archon" and BuildWowheadSourceLookup(wowheadBis) or nil
+    local archonCtx = ArchonTabContext(compSource, selectedTab)
     local idx = 0
     if selectedSlots then
         for _, g in ipairs(selectedSlots) do
             idx = idx + 1
             if idx > MAX_ROWS then break end
             local row = comp.rows[idx]
-            row.slot:SetText(g.slot or "")
+            local slot, source, bonusIDs = ResolveRow(g, whLookup, archonCtx)
+            row.slot:SetText(slot)
             row.name:SetText(ns.FormatItem(g.item))
-            row.source:SetText(g.source or "")
-            row.sourceText = g.source or nil
+            row.source:SetText(source)
+            row.sourceText = (source ~= "" and source) or nil
             row.itemId = g.item and g.item.itemId
-            row.bonusIDs = g.item and g.item.bonusIDs
+            row.bonusIDs = bonusIDs
             ns.SetRowIcon(row, g.item and g.item.itemId)
             row:ClearAllPoints()
             row:SetPoint("TOPLEFT", comp.content, "TOPLEFT", 0, yOffset - (idx - 1) * ns.ROW_HEIGHT)

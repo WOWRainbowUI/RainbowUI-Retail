@@ -36,56 +36,103 @@ local function GetArchonGlobal()
 end
 
 -------------------------------------------------------------------------------
--- Slug → in-game ID lookup
+-- Slug → in-game lookups (auto-derived from scraped data)
 --
--- Update once per season transition. Sources:
---   - Dungeon mapID: GetInstanceInfo() returns it as the 8th return.
---     Open the dungeon and run /run print(select(8, GetInstanceInfo()))
---   - Boss encounterID: ENCOUNTER_START fires with encounterID as arg #1.
---     Pull the boss in LFR / open Adventure Guide.
--- Entries with id = 0 fall through to name-matching, which works on
--- enUS clients only. For non-English clients, fill in the IDs.
+-- The dungeon/boss list and their display names are NOT hand-maintained.
+-- They are built at runtime from the scraped contexts in
+-- ClassCodexArchonData — every context carries its encounter slug plus
+-- the full in-game `encounterLabel` (the scraper pulls it from Archon's
+-- seo.description). So when a season rotates dungeons or a new raid tier
+-- ships, the next data refresh updates these lookups with zero code
+-- changes here.
+--
+-- NAME_OVERRIDE is the only hand-edited surface, and only for the rare
+-- case where Archon's spelling differs from Blizzard's in-game name
+-- (which is what the name-match path compares against). ID_OVERRIDE lets
+-- a non-enUS client pin numeric IDs; empty by default since name-match
+-- covers enUS.
 -------------------------------------------------------------------------------
 
--- Manaforge Omega season — TWW Season 3. The `name` field doubles as
--- the display label override: Archon abbreviates names in its encounter
--- dropdown ("Magisters'" instead of "Magisters' Terrace"), so we render
--- the in-game full name from this table instead of the bare metadata.
-local DUNGEON_BY_SLUG = {
-    ["algethar-academy"]    = { id = 0, name = "Algeth'ar Academy" },
-    ["magisters"]           = { id = 0, name = "Magisters' Terrace" },
-    ["maisara-caverns"]     = { id = 0, name = "Mai'sara Caverns" },
-    ["nexus-point-xenas"]   = { id = 0, name = "Nexus-Point Xenas" },
-    ["pit-of-saron"]        = { id = 0, name = "Pit of Saron" },
-    ["seat"]                = { id = 0, name = "Seat of the Triumvirate" },
-    ["skyreach"]            = { id = 0, name = "Skyreach" },
-    ["windrunner-spire"]    = { id = 0, name = "Windrunner Spire" },
+-- Archon label -> in-game name, by encounter slug. Add an entry only when
+-- the two disagree; everything else flows straight from encounterLabel.
+local DUNGEON_NAME_OVERRIDE = {
+    ["maisara-caverns"] = "Mai'sara Caverns", -- Archon renders "Maisara Caverns"
 }
+local BOSS_NAME_OVERRIDE = {}
 
--- Fast lookup for display-label resolution.
-local DUNGEON_DISPLAY = {}
-for slug, info in pairs(DUNGEON_BY_SLUG) do DUNGEON_DISPLAY[slug] = info.name end
-local BOSS_DISPLAY = {}
+-- Optional numeric-ID pins (instanceMapID / encounterID) for localized
+-- clients where name-match can't work. Empty by default.
+local DUNGEON_ID_OVERRIDE = {}
+local BOSS_ID_OVERRIDE = {}
 
--- Manaforge Omega raid bosses.
-local RAID_BOSS_BY_SLUG = {
-    ["imperator"]      = { id = 0, name = "Imperator" },
-    ["vorasius"]       = { id = 0, name = "Vorasius" },
-    ["salhadaar"]      = { id = 0, name = "Salhadaar" },
-    ["vaelgor-ezzorak"]= { id = 0, name = "Vaelgor & Ezzorak" },
-    ["vanguard"]       = { id = 0, name = "Vanguard" },
-    ["crown"]          = { id = 0, name = "Crown" },
-    ["chimaerus"]      = { id = 0, name = "Chimaerus" },
-    ["beloren"]        = { id = 0, name = "Belo'ren" },
-    ["midnight-falls"] = { id = 0, name = "Midnight Falls" },
-}
-for slug, info in pairs(RAID_BOSS_BY_SLUG) do BOSS_DISPLAY[slug] = info.name end
+-- Reverse lookups, (re)built from ClassCodexArchonData.
+local DUNGEON_BY_ID, DUNGEON_BY_NAME
+local BOSS_BY_ID, BOSS_BY_NAME
+-- slug -> in-game display name, for the non-localised label fallback.
+local DUNGEON_DISPLAY, BOSS_DISPLAY
+
+-- The in-game name we match the player's current zone against: the
+-- spelling override when present, else the scraped encounterLabel.
+local function DungeonName(slug, label)
+    return DUNGEON_NAME_OVERRIDE[slug] or label
+end
+local function BossName(slug, label)
+    return BOSS_NAME_OVERRIDE[slug] or label
+end
+
+-- True once we've built against a populated data global. Distinguishes
+-- "built, legitimately empty" from "global wasn't ready yet" so the lazy
+-- rebuild fires exactly once when the data appears — without depending on
+-- both name tables being non-empty (a partial dataset, e.g. M+ contexts
+-- but no raid yet, must still count as built).
+local lookupsBuilt = false
+
+local function BuildLookups()
+    DUNGEON_BY_ID, DUNGEON_BY_NAME = {}, {}
+    BOSS_BY_ID, BOSS_BY_NAME = {}, {}
+    DUNGEON_DISPLAY, BOSS_DISPLAY = {}, {}
+
+    local data = GetArchonGlobal()
+    lookupsBuilt = data ~= nil
+    if data then
+        for _, classData in pairs(data) do
+            for _, specData in pairs(classData) do
+                local contexts = type(specData) == "table" and specData.contexts
+                if contexts then
+                    for _, ctx in pairs(contexts) do
+                        local slug = ctx.encounter
+                        if slug and slug ~= "all-dungeons" and slug ~= "all-bosses" then
+                            local label = ctx.encounterLabel
+                            if ctx.zoneType == "mythic-plus" then
+                                local name = DungeonName(slug, label)
+                                if name and name ~= "" then
+                                    DUNGEON_BY_NAME[name:lower()] = slug
+                                    DUNGEON_DISPLAY[slug] = name
+                                end
+                            elseif ctx.zoneType == "raid" then
+                                local name = BossName(slug, label)
+                                if name and name ~= "" then
+                                    BOSS_BY_NAME[name:lower()] = slug
+                                    BOSS_DISPLAY[slug] = name
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Layer on any hand-pinned numeric IDs.
+    for id, slug in pairs(DUNGEON_ID_OVERRIDE) do DUNGEON_BY_ID[id] = slug end
+    for id, slug in pairs(BOSS_ID_OVERRIDE) do BOSS_BY_ID[id] = slug end
+end
+BuildLookups()
 
 -- Public helper: resolves the display label for a context. The scraper
--- now extracts the full in-game name from the Archon page's
--- seo.description and stamps it onto encounterLabel, so we just trust
--- it. The slug-keyed *_DISPLAY tables still serve the auto-detect
--- name-match path on non-localised clients.
+-- stamps the full in-game name onto encounterLabel, so we trust it; the
+-- slug-keyed *_DISPLAY tables (also derived from the data) serve as the
+-- fallback for the auto-detect name-match path.
 function ns.GetArchonEncounterLabel(ctx)
     if not ctx then return "" end
     if ctx.encounterLabel and ctx.encounterLabel ~= "" then
@@ -96,42 +143,6 @@ function ns.GetArchonEncounterLabel(ctx)
     if slug and BOSS_DISPLAY[slug] then return BOSS_DISPLAY[slug] end
     return ""
 end
-
--- Pull order for the current raid. Archon serves bosses in this order
--- in its encounter dropdown; storing it explicitly here lets us match
--- without depending on JSON key ordering (Lua tables don't preserve
--- string-key insertion order). Update once per raid release.
-local RAID_BOSS_ORDER = {
-    "imperator",
-    "vorasius",
-    "salhadaar",
-    "vaelgor-ezzorak",
-    "vanguard",
-    "crown",
-    "chimaerus",
-    "beloren",
-    "midnight-falls",
-}
-local RAID_BOSS_RANK = {}
-for i, slug in ipairs(RAID_BOSS_ORDER) do RAID_BOSS_RANK[slug] = i end
-
--- Reverse lookups, populated lazily.
-local DUNGEON_BY_ID, DUNGEON_BY_NAME
-local BOSS_BY_ID, BOSS_BY_NAME
-
-local function BuildReverseLookups()
-    DUNGEON_BY_ID, DUNGEON_BY_NAME = {}, {}
-    for slug, info in pairs(DUNGEON_BY_SLUG) do
-        if info.id and info.id ~= 0 then DUNGEON_BY_ID[info.id] = slug end
-        if info.name then DUNGEON_BY_NAME[info.name:lower()] = slug end
-    end
-    BOSS_BY_ID, BOSS_BY_NAME = {}, {}
-    for slug, info in pairs(RAID_BOSS_BY_SLUG) do
-        if info.id and info.id ~= 0 then BOSS_BY_ID[info.id] = slug end
-        if info.name then BOSS_BY_NAME[info.name:lower()] = slug end
-    end
-end
-BuildReverseLookups()
 
 -------------------------------------------------------------------------------
 -- Data accessors
@@ -228,22 +239,17 @@ function ns.GroupArchonContexts(specData)
     -- list from a stale snapshot whose dataset has new entries).
     for ctxKey in pairs(specData.contexts) do process(ctxKey) end
 
-    -- When contextOrder is missing entirely, fall back to the previous
-    -- behaviour: alphabetical M+ dungeons + RAID_BOSS_RANK bosses. With
-    -- a present contextOrder the buckets are already in pull order so
-    -- we leave them alone.
+    -- When contextOrder is missing entirely (legacy snapshots), fall back
+    -- to a deterministic label sort. With a present contextOrder — which
+    -- the scraper always emits now — the buckets are already in Archon's
+    -- pull order, so we leave them alone.
     if type(order) ~= "table" then
-        table.sort(out.mplusDungeons, function(a, b)
+        local function byLabel(a, b)
             return ns.GetArchonEncounterLabel(a.ctx) < ns.GetArchonEncounterLabel(b.ctx)
-        end)
-        local function byRank(a, b)
-            local ra = RAID_BOSS_RANK[a.ctx.encounter] or math.huge
-            local rb = RAID_BOSS_RANK[b.ctx.encounter] or math.huge
-            if ra ~= rb then return ra < rb end
-            return (a.ctx.encounter or "") < (b.ctx.encounter or "")
         end
-        table.sort(out.raidHeroicBosses, byRank)
-        table.sort(out.raidMythicBosses, byRank)
+        table.sort(out.mplusDungeons, byLabel)
+        table.sort(out.raidHeroicBosses, byLabel)
+        table.sort(out.raidMythicBosses, byLabel)
     end
 
     return out
@@ -253,10 +259,20 @@ end
 -- Zone / encounter detection
 -------------------------------------------------------------------------------
 
-local activeContextKey -- cached "where is the player right now" key
-local lastEncounterID  -- remembered between ENCOUNTER_START and ENCOUNTER_END
-local lastDifficulty   -- "heroic" | "mythic" | nil
+local activeContextKey  -- cached "where is the player right now" key
+local lastEncounterID   -- remembered between ENCOUNTER_START and ENCOUNTER_END
+local lastEncounterName -- boss name from ENCOUNTER_START, for name-match
+local lastDifficulty    -- "heroic" | "mythic" | nil
 local callbacks = {}
+
+-- The lookups are built at file load, but toc order means the data
+-- global *might* not be populated yet. Rebuild lazily the first time we
+-- need them after the data global appears.
+local function EnsureLookups()
+    if not lookupsBuilt and GetArchonGlobal() then
+        BuildLookups()
+    end
+end
 
 -- "Heroic Raid" / "Mythic Raid" difficulty IDs.
 -- 14 = Normal, 15 = Heroic, 16 = Mythic, 17 = LFR.
@@ -268,6 +284,7 @@ local DIFFICULTY_TO_ARCHON = {
 }
 
 local function ResolveDungeonSlug(instanceMapID, instanceName)
+    EnsureLookups()
     if instanceMapID and DUNGEON_BY_ID[instanceMapID] then
         return DUNGEON_BY_ID[instanceMapID]
     end
@@ -278,6 +295,7 @@ local function ResolveDungeonSlug(instanceMapID, instanceName)
 end
 
 local function ResolveBossSlug(encounterID, encounterName)
+    EnsureLookups()
     if encounterID and BOSS_BY_ID[encounterID] then
         return BOSS_BY_ID[encounterID]
     end
@@ -302,9 +320,11 @@ local function ComputeActiveContext()
     if instanceType == "raid" then
         local archonDiff = DIFFICULTY_TO_ARCHON[difficultyID] or "heroic"
 
-        -- Mid-pull: prefer the boss the player just engaged.
-        if lastEncounterID then
-            local slug = ResolveBossSlug(lastEncounterID, nil)
+        -- Mid-pull: prefer the boss the player just engaged. Match on the
+        -- encounter name (enUS) since Archon doesn't expose Blizzard
+        -- encounterIDs; a numeric ID is used first when one is pinned.
+        if lastEncounterID or lastEncounterName then
+            local slug = ResolveBossSlug(lastEncounterID, lastEncounterName)
             if slug then
                 return "raid:" .. archonDiff .. ":" .. slug
             end
@@ -352,9 +372,11 @@ f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 f:RegisterEvent("ENCOUNTER_START")
 f:RegisterEvent("ENCOUNTER_END")
-f:SetScript("OnEvent", function(_, event, encounterID, _, difficultyID)
+-- ENCOUNTER_START args: encounterID, encounterName, difficultyID, groupSize.
+f:SetScript("OnEvent", function(_, event, encounterID, encounterName, difficultyID)
     if event == "ENCOUNTER_START" then
         lastEncounterID = encounterID
+        lastEncounterName = encounterName
         lastDifficulty = DIFFICULTY_TO_ARCHON[difficultyID]
     elseif event == "ENCOUNTER_END" then
         -- Keep lastEncounterID so the post-pull state still surfaces the

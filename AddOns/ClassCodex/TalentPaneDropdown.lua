@@ -78,10 +78,12 @@ local selectedPvpBracket       -- "pvp-shuffle" | "pvp-blitz" | "pvp-2v2" | "pvp
 -- mojibake. We now use a yellow color highlight on the label instead
 -- of a glyph, and decimal escapes (\226\128\148 = U+2014 em dash) for
 -- any non-ASCII characters elsewhere.
+-- Raid difficulty labels come from Blizzard's own global strings so they
+-- always match the player's client language. \226\128\148 = U+2014 em dash.
 local SCOPE_LABELS = {
-    mplus      = "Mythic+",
-    raidHeroic = "Raid \226\128\148 Heroic",
-    raidMythic = "Raid \226\128\148 Mythic",
+    mplus      = (ns.L and ns.L["context.mythic_plus"]) or "Mythic+",
+    raidHeroic = ((RAID and PLAYER_DIFFICULTY2) and (RAID .. " \226\128\148 " .. PLAYER_DIFFICULTY2)) or "Raid \226\128\148 Heroic",
+    raidMythic = ((RAID and PLAYER_DIFFICULTY6) and (RAID .. " \226\128\148 " .. PLAYER_DIFFICULTY6)) or "Raid \226\128\148 Mythic",
 }
 
 -------------------------------------------------------------------------------
@@ -1133,9 +1135,68 @@ local function PopulateScopeMenu(_, rootDescription)
     makeRadio(SCOPE_LABELS.raidMythic, "raidMythic")
 end
 
+-- Icy Veins "build" record matching the shape SetPreview /
+-- ApplyTalentExportString expect. IV builds aren't hero-grouped, so
+-- heroTalent is "All"; context/buildLabel come straight from the scrape.
+local function IcyVeinsBuildRecord(build)
+    return {
+        heroTalent = "All",
+        context = build.context or "Build",
+        buildLabel = build.buildLabel,
+        exportString = build.exportString,
+        recommended = false,
+        _ivSource = true,
+    }
+end
+
+local function SeedIcyVeinsDefaultPreview()
+    local classFile, specName = CurrentClassSpec()
+    if not classFile or not specName or not ns.GetIcyVeinsTalentSpecData then return end
+    local ivData = ns:GetIcyVeinsTalentSpecData(classFile, specName)
+    if not ivData or not ivData.talents or not ivData.talents[1] then return end
+    SetPreview(IcyVeinsBuildRecord(ivData.talents[1]))
+end
+
+local function PopulateIcyVeinsMenu(rootDescription)
+    local classFile, specName = CurrentClassSpec()
+    local ivData = (classFile and specName and ns.GetIcyVeinsTalentSpecData)
+        and ns:GetIcyVeinsTalentSpecData(classFile, specName) or nil
+    if not ivData or not ivData.talents or #ivData.talents == 0 then
+        rootDescription:CreateTitle((ns.L and ns.L["loadout_dock.no_icyveins_builds"]) or "No Icy Veins talent builds available.")
+        return
+    end
+
+    for _, build in ipairs(ivData.talents) do
+        local label = build.buildLabel or build.context or "Build"
+        local isActive = BuildMatchesActive({ exportString = build.exportString })
+        if isActive then label = label .. " |cff66ff66(active)|r" end
+        local capturedRecord = IcyVeinsBuildRecord(build)
+        local capturedExport = build.exportString
+        local capturedActive = isActive
+        local item = rootDescription:CreateRadio(
+            label,
+            function()
+                if previewedBuild and previewedBuild.exportString == capturedExport then return true end
+                if previewedBuild == nil and capturedActive then return true end
+                return false
+            end,
+            function()
+                if previewedBuild and previewedBuild.exportString == capturedExport then
+                    SetPreview(nil)
+                else
+                    SetPreview(capturedRecord)
+                end
+            end
+        )
+        HookItemBehavior(item, capturedRecord)
+    end
+end
+
 local function PopulateMenu(_, rootDescription)
     if selectedSource == "archon" then
         PopulateArchonMenu(rootDescription)
+    elseif selectedSource == "icyveins" then
+        PopulateIcyVeinsMenu(rootDescription)
     elseif selectedSource == "pvp" then
         PopulatePvpMenu(rootDescription)
     else
@@ -1151,17 +1212,22 @@ local SOURCE_INFO = {
     wowhead = {
         label = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:14:14:0:0|t Wowhead",
         closed = "Wowhead",
-        placeholder = "Pick a build",
+        placeholder = (ns.L and ns.L["loadout_dock.pick_a_build"]) or "Pick a build",
     },
     archon = {
         label = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:14:14:0:0|t Archon",
         closed = "Archon",
-        placeholder = "Pick an encounter",
+        placeholder = (ns.L and ns.L["talent_pane.placeholder.encounter"]) or "Pick an encounter",
+    },
+    icyveins = {
+        label = "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:14:14:0:0|t Icy Veins",
+        closed = "Icy Veins",
+        placeholder = (ns.L and ns.L["loadout_dock.pick_a_build"]) or "Pick a build",
     },
     pvp = {
         label = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:14:14:0:0|t PvP",
         closed = "PvP",
-        placeholder = "Pick a bracket",
+        placeholder = (ns.L and ns.L["talent_pane.placeholder.bracket"]) or "Pick a bracket",
     },
 }
 
@@ -1195,6 +1261,7 @@ local function PopulateSourceMenu(_, rootDescription)
                 -- BEFORE regenerating the build menu so the closed
                 -- dropdown shows the seeded build, not the placeholder.
                 if value == "archon" then SeedArchonDefaultPreview() end
+                if value == "icyveins" then SeedIcyVeinsDefaultPreview() end
                 if value == "pvp" then SeedPvpDefaultPreview() end
                 if buildDropdown and buildDropdown.GenerateMenu then
                     buildDropdown:GenerateMenu()
@@ -1204,6 +1271,9 @@ local function PopulateSourceMenu(_, rootDescription)
     end
     makeRadio(SOURCE_INFO.wowhead.label, "wowhead")
     makeRadio(SOURCE_INFO.archon.label, "archon")
+    -- Icy Veins always appears too; PopulateIcyVeinsMenu surfaces the
+    -- "No Icy Veins talent builds available." copy on uncovered specs.
+    makeRadio(SOURCE_INFO.icyveins.label, "icyveins")
     -- PvP source always appears so users discover the feature; if a spec
     -- has no Bnet/Murlok data, PopulatePvpMenu surfaces the "No PvP
     -- builds available." copy instead of bracket rows.
@@ -1523,13 +1593,15 @@ local function UpdateVisibility()
             selectedPvpBracket = nil
             if sourceDropdown then
                 if sourceDropdown.SetDefaultText then
-                    sourceDropdown:SetDefaultText(selectedSource == "archon" and "Archon" or "Wowhead")
+                    local _info = SOURCE_INFO[selectedSource]
+                    sourceDropdown:SetDefaultText((_info and _info.closed) or "Wowhead")
                 end
                 if sourceDropdown.GenerateMenu then sourceDropdown:GenerateMenu() end
             end
             if ns._ccRelayoutTalentBuildDropdown then ns._ccRelayoutTalentBuildDropdown() end
             if buildDropdown and buildDropdown.SetDefaultText then
-                buildDropdown:SetDefaultText(selectedSource == "archon" and "Pick an encounter" or "Pick a build")
+                local info = SOURCE_INFO[selectedSource]
+                buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.wowhead.placeholder)
             end
             -- Seed the Archon overview as the default preview when no
             -- explicit pick exists yet, so the closed dropdown shows
@@ -1707,14 +1779,16 @@ local function Setup()
                 if effective ~= selectedSource then
                     selectedSource = effective
                     if sourceDropdown and sourceDropdown.SetDefaultText then
-                        sourceDropdown:SetDefaultText(selectedSource == "archon" and "Archon" or "Wowhead")
+                        local _info = SOURCE_INFO[selectedSource]
+                        sourceDropdown:SetDefaultText((_info and _info.closed) or "Wowhead")
                     end
                     if sourceDropdown and sourceDropdown.GenerateMenu then
                         sourceDropdown:GenerateMenu()
                     end
                     if ns._ccRelayoutTalentBuildDropdown then ns._ccRelayoutTalentBuildDropdown() end
                     if buildDropdown and buildDropdown.SetDefaultText then
-                        buildDropdown:SetDefaultText(selectedSource == "archon" and "Pick an encounter" or "Pick a build")
+                        local info = SOURCE_INFO[selectedSource]
+                        buildDropdown:SetDefaultText((info and info.placeholder) or SOURCE_INFO.wowhead.placeholder)
                     end
                     UpdateScopeDropdownVisibility()
                     if container then container:SetWidth(GetTargetWidth()) end

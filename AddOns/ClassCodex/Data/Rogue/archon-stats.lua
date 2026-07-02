@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["ROGUE"] = {
   ["assassination"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/assassination/rogue/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1221, haste = 650, mastery = 524, versatility = 93 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/assassination/rogue/raid/overview/mythic/all-bosses", targets = { crit = 1174, haste = 652, mastery = 515, versatility = 105 } },
+    ["傳奇+"] = { targets = { crit = 1202, haste = 737, mastery = 541, versatility = 89 } },
+    ["團隊"] = { targets = { crit = 1213, haste = 716, mastery = 516, versatility = 110 } },
   },
   ["outlaw"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/outlaw/rogue/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1237, haste = 902, mastery = 297, versatility = 162 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/outlaw/rogue/raid/overview/mythic/all-bosses", targets = { crit = 1192, haste = 867, mastery = 286, versatility = 173 } },
+    ["傳奇+"] = { targets = { crit = 1355, haste = 923, mastery = 297, versatility = 168 } },
+    ["團隊"] = { targets = { crit = 1252, haste = 881, mastery = 281, versatility = 183 } },
   },
   ["subtlety"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/subtlety/rogue/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 695, haste = 598, mastery = 1134, versatility = 79 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/subtlety/rogue/raid/overview/mythic/all-bosses", targets = { crit = 740, haste = 676, mastery = 975, versatility = 93 } },
+    ["傳奇+"] = { targets = { crit = 639, haste = 642, mastery = 1223, versatility = 67 } },
+    ["團隊"] = { targets = { crit = 722, haste = 698, mastery = 1086, versatility = 84 } },
   },
 }

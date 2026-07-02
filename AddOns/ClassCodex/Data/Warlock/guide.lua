@@ -2,24 +2,23 @@ ClassCodexData = ClassCodexData or {}
 ClassCodexData["WARLOCK"] = {
   ["affliction"] = {
     label = "Affliction Warlock",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/affliction/midnight-season-1",
     priorities = {
       {
         heroTalent = "Hellcaller",
         context = "通用",
         stats = {
-          { "Mastery", "Critical Strike" },
-          { "Haste" },
-          { "Versatility" },
+          { "精通", "致命一擊" },
+          { "加速" },
+          { "臨機應變" },
         },
       },
       {
         heroTalent = "Soul Harvester",
         context = "通用",
         stats = {
-          { "Mastery", "Critical Strike" },
-          { "Haste" },
-          { "Versatility" },
+          { "精通", "致命一擊" },
+          { "加速" },
+          { "臨機應變" },
         },
       },
     },
@@ -42,12 +41,12 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Hellcaller",
         context = "團隊單目標",
-        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZWMzsMGAwCMwsY0YGQmFwyAAAwMAAwMDYmZMmZGmxMzMGMzMzAAmBG",
+        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZ2mZmlxAAWgBmFjGzAysBWGAAAmBAAmZgZGjxwwMjZmZGMzMzAAmBG",
       },
       {
         heroTalent = "Hellcaller",
         context = "團隊多目標",
-        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZWMzsMGAwCMwsY0YGQmFwyAAAwMAAwMDYmZMmZGmxMzMGMzMzAAmBG",
+        exportString = "CkQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlBAAYmZZ2mZmlxAAWgBmFjGzAysBWGAAAmBAAmZgZGjxwwMjZmZGMzMzAAmBG",
       },
       {
         heroTalent = "Hellcaller",
@@ -154,24 +153,23 @@ ClassCodexData["WARLOCK"] = {
   },
   ["demonology"] = {
     label = "Demonology Warlock",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/demonology/midnight-season-1",
     priorities = {
       {
         heroTalent = "Diabolist",
         context = "通用",
         stats = {
-          { "Haste", "Critical Strike" },
-          { "Mastery" },
-          { "Versatility" },
+          { "加速", "致命一擊" },
+          { "精通" },
+          { "臨機應變" },
         },
       },
       {
         heroTalent = "Soul Harvester",
         context = "通用",
         stats = {
-          { "Haste", "Critical Strike" },
-          { "Mastery" },
-          { "Versatility" },
+          { "加速", "致命一擊" },
+          { "精通" },
+          { "臨機應變" },
         },
       },
     },
@@ -321,24 +319,23 @@ ClassCodexData["WARLOCK"] = {
   },
   ["destruction"] = {
     label = "Destruction Warlock",
-    sourceUrl = "https://www.wowhead.com/guide/classes/warlock/destruction/midnight-season-1",
     priorities = {
       {
         heroTalent = "Diabolist",
         context = "通用",
         stats = {
-          { "Haste" },
-          { "Mastery", "Critical Strike" },
-          { "Versatility" },
+          { "加速" },
+          { "精通", "致命一擊" },
+          { "臨機應變" },
         },
       },
       {
         heroTalent = "Hellcaller",
         context = "通用",
         stats = {
-          { "Haste" },
-          { "Mastery", "Critical Strike" },
-          { "Versatility" },
+          { "加速" },
+          { "精通", "致命一擊" },
+          { "臨機應變" },
         },
       },
     },
@@ -346,14 +343,14 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Diabolist",
         context = "團隊單目標",
-        buildLabel = "Single-Target",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZjZmZxgFzAAgZmxMzsAGzYYhMw2wGNWYAAgxAjNAMzAYmxYAAAYmZmBAwMDD",
+        buildLabel = "單目標",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmZmlZzMzMLGjFzAAgZmxMzsAGzYYhMw2wGNWYAAgxAjNAMzAYmxYAAAYmZmBAwYYA",
       },
       {
         heroTalent = "Hellcaller",
         context = "團隊單目標",
         buildLabel = "Cleave",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMziNYgZzoxMAmtYjBAAGDwCAwMDmZGjZDAAwMzMAAMzwA",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLzMzMLGz2iZAAwMGzMziNYgZzoxMAmtYjBAAGDwCAwMDmZGjZDAAwMzMAAMGG",
       },
       {
         heroTalent = "Hellcaller",
@@ -369,13 +366,13 @@ ClassCodexData["WARLOCK"] = {
         heroTalent = "Diabolist",
         context = "探究",
         buildLabel = "傳奇+",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLzMzMLGz2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMGG",
       },
       {
         heroTalent = "Diabolist",
         context = "團隊多目標",
         recommended = true,
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMzwA",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLzMzMLGz2iZAAwMGzMzCYMjhFyAbDb0YhBAAGDwCAmZAmZGjZDAAwMzMAAMGG",
       },
       {
         heroTalent = "Diabolist",
@@ -385,7 +382,7 @@ ClassCodexData["WARLOCK"] = {
       {
         heroTalent = "Hellcaller",
         context = "團隊多目標",
-        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLjZmZxw2iZAAwMGzMziNYgZzoxMAmtYjBAAGDwCAwMDmZGjZDAAwMzMAAMzwA",
+        exportString = "CsQAAAAAAAAAAAAAAAAAAAAAAwMzMzoZjhZmxsMLzMzMLGz2iZAAwMGzMziNYgZzoxMAmtYjBAAGDwCAwMDmZGjZDAAwMzMAAMGG",
       },
       {
         heroTalent = "Hellcaller",
@@ -408,7 +405,7 @@ ClassCodexData["WARLOCK"] = {
           "{17877} when available, and if you are about to cap on soul shards",
           "{116858} to avoid capping soul shards",
           "{6353} when available, and you have less than 4 soul shards",
-          "{17962} to keep this below 2 stacks or when moving",
+          "{17962} to keep this below 2 stacks或when moving",
           "{17962} to generate soul shards and generate {196406} stacks. Try to use these on {116858} as much as possible.",
           "{29722} to generate soul shards",
         },
@@ -422,7 +419,7 @@ ClassCodexData["WARLOCK"] = {
           "{116858} to avoid capping soul shards",
           "{116858} if you have more than 4 soul shards and {433891} ready",
           "{6353} when available, and you have less than 4 soul shards",
-          "{17962} to keep this below 2 stacks or when moving",
+          "{17962} to keep this below 2 stacks或when moving",
           "{17962} to generate soul shards and generate {196406} stacks. Try to use these on {116858} as much as possible.",
           "{29722} to generate soul shards",
         },

@@ -1,15 +1,15 @@
 ClassCodexArchonStats = ClassCodexArchonStats or {}
 ClassCodexArchonStats["MAGE"] = {
   ["arcane"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/arcane/mage/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 785, haste = 584, mastery = 874, versatility = 277 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/arcane/mage/raid/overview/mythic/all-bosses", targets = { crit = 785, haste = 633, mastery = 864, versatility = 253 } },
+    ["傳奇+"] = { targets = { crit = 814, haste = 588, mastery = 957, versatility = 232 } },
+    ["團隊"] = { targets = { crit = 830, haste = 630, mastery = 906, versatility = 221 } },
   },
   ["fire"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/fire/mage/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 111, haste = 1127, mastery = 1029, versatility = 182 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/fire/mage/raid/overview/mythic/all-bosses", targets = { crit = 165, haste = 1175, mastery = 938, versatility = 175 } },
+    ["傳奇+"] = { targets = { crit = 109, haste = 1201, mastery = 1069, versatility = 128 } },
+    ["團隊"] = { targets = { crit = 154, haste = 1268, mastery = 1005, versatility = 140 } },
   },
   ["frost"] = {
-    ["傳奇+"] = { sourceUrl = "https://www.archon.gg/wow/builds/frost/mage/mythic-plus/overview/high-keys/all-dungeons/this-week", targets = { crit = 1048, haste = 560, mastery = 862, versatility = 91 } },
-    ["團隊"] = { sourceUrl = "https://www.archon.gg/wow/builds/frost/mage/raid/overview/mythic/all-bosses", targets = { crit = 1056, haste = 567, mastery = 858, versatility = 87 } },
+    ["傳奇+"] = { targets = { crit = 1067, haste = 571, mastery = 950, versatility = 97 } },
+    ["團隊"] = { targets = { crit = 1059, haste = 590, mastery = 926, versatility = 79 } },
   },
 }

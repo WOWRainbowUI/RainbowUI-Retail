@@ -12,14 +12,14 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbxEmx2YZmZm5BmxilZsYmZMzCAwAYmBGGG",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbx0CzYbsMzMzYYZWmxiZmxMLAADgZGYYYA",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -51,7 +51,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbxEmx2YZmZm5BmxilZsYmZMzCAwAYmBGGG",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYZxEmx2YZmZmxMWsMjFzMjZWAAmBYmBGGG",
           },
         },
       },
@@ -77,7 +77,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYZxEmZ2GLzMzMGWmlZsYmZMzCAwAYmBGGG",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYZxEmZ2GLzMzMPwwilZsYmZMzCAwAYmBGGG",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbxEmx2YZmZm5BmxilZsYmZMzCAwAYmBGGG",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbxEmx2YZmZm5BmxilZsYmZMzCAwAYmBGGG",
           },
         },
       },
@@ -103,7 +103,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbxEmx2YZmZm5BmxilZsYmZMzCAwAYmBGGG",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbxEmx2YZmZmZGWsMjFzMjZWAAGAzMwwwA",
           },
         },
       },
@@ -116,7 +116,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbx0GzYbsMzMz8ADLWmxiZmxMLAADgZGYYYA",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzYML2mhZMzAAAAAAbmxwGsAzwQjNAY2mZmxYbx0GzYbsMzMz8ADLWmxiZmxMLAADgZGYYYA",
           },
         },
       },
@@ -136,7 +136,7 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -149,20 +149,20 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAYbmZmZmtlZCzYhlZmZGzwsMjFzMMzCAwAYmBGGG",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMLzMzYstYahZmlxyMzMjhlZZYxMDzsAAMAmZghhB",
           },
         },
       },
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -175,7 +175,7 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -198,10 +198,23 @@ ClassCodexArchonData["SHAMAN"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Stormbringer",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbLzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMLzMzYstYahZmlxyMzMjhlZZYxMDzsAAMAmZghhB",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -214,7 +227,7 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -232,7 +245,7 @@ ClassCodexArchonData["SHAMAN"] = {
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "先知",
+            heroTalent = "Farseer",
             exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZwMjBAAAAYxMbwAGwsxEYWAgZbmZGjtFTLMzsNWmZmZMsZZY5BmZMzsMAghBwMjhhB",
           },
         },
@@ -240,7 +253,7 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -266,20 +279,20 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMbzMzYstYahZmtxyMzMjhFLDLmZYmFAwMAmZghhB",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAYbmZGzstMTMzYhlZmZGDsMjFzMMzCAYGGYmBGGG",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -292,20 +305,20 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMLzMzYstYahZmtxyMmZMsMLzYxMDzsAAmBwMDMMMA",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMbzMzMjlFTLMjtxyMzMjhlZZYxMDzsAAMAmZghhB",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -324,33 +337,46 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMbzMzYstYahZmtxyMzMjhFLDLmZYmFAwMAmZghhB",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAYbmZGzstMTMzYhlZmZGDsMjFzMMzCAYGGYmBGGG",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Stormbringer",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMbzMzMzstYCzwYZmZmxwysMjFzMMzCAwAYmBGGG",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMLzMzYstYahZmlxyMzMjhlZZYxMDzsAAMAmZghhB",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMbzMzMjlFTLMjtxyMzMjhlZZYxMDzsAAMAmZghhB",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Stormbringer",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMzMzMLbbDMmZAAAAAgNzYYDWgZYoxGAMLzMzYstYahZmlxyMzMjhlZZYxMDzsAAMAmZghhB",
+            heroTalent = "Farseer",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLbzMGjZZZZwMjBAAAAYxMbwAGwsxEYWAgZbmZGjtFTLMzsNWmZmZMsZZY5BmZMzsMAghBwMjhhB",
           },
         },
       },
@@ -362,15 +388,15 @@ ClassCodexArchonData["SHAMAN"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "先知",
-            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMLLzMGjZZZZwMjBAAAAYxMbwAGwsxEYWAgZbmZGzstMTMzMGLzMzMGWsMs8AzMmZWGAwAAzMGGG",
+            heroTalent = "Farseer",
+            exportString = "CYQAAAAAAAAAAAAAAAAAAAAAAAAAAAzMbbzMGjZZZZMmhBAAAAYxMbwAGwsxEYWAgZbmZGzstMTMzALzMzMmBLzMLzYMzsAAMDAmZMMMA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -411,6 +437,8 @@ ClassCodexArchonData["SHAMAN"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["enhancement"] = {
@@ -425,20 +453,20 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGbMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGbMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGYmZbsMzMzwYZMDAwMMmZYmAzMYwYA",
           },
         },
       },
@@ -451,7 +479,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwQDWAY2mxMGbLzYhZmtxyMzMDjlxMAAzwYGMCMzgBjLA",
           },
         },
       },
@@ -477,7 +505,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwQDWAY2mxMGLLzYhZmtxyMzMDjlxMAAzwYGMCMzgBjLA",
           },
         },
       },
@@ -490,7 +518,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MzMGLLzAzMbjlZmZGGsMDAwMMmZYmAzMYwYA",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGYmZbsMzMzwYZMDAwMMmZYmAzMYwYA",
           },
         },
       },
@@ -503,7 +531,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MzMGLLzAzMbjlZmZGGsMDAwMMmZYmAzMYwYA",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGYmZbsMzMzwYZMDAwMMmZYmAzMYwYA",
           },
         },
       },
@@ -516,7 +544,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Stormbringer",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGbMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGYmZbsMzMzwYZMDAwMMmZYmAzMYwYA",
           },
         },
       },
@@ -541,15 +569,15 @@ ClassCodexArchonData["SHAMAN"] = {
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -562,39 +590,39 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
@@ -611,29 +639,42 @@ ClassCodexArchonData["SHAMAN"] = {
           },
         },
       },
-      ["raid:heroic:salhadaar"] = {
+      ["raid:heroic:rotmire"] = {
         zoneType = "raid",
-        encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwQDWAYWmxMmZZZGbMzglZmZmHwwYGAgZYMDmJwMDGMuAA",
+          },
+        },
+      },
+      ["raid:heroic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
@@ -645,21 +686,21 @@ ClassCodexArchonData["SHAMAN"] = {
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
@@ -671,60 +712,60 @@ ClassCodexArchonData["SHAMAN"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmxYZZGLMzsxyMzMDDjZAAMAjZmYmBAGD",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFN2GAzA2AYWmxMzYZZGYmZjlZmZGGGzAAMDwYmJmZAgxA",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFN2GAzA2AYWmxMGLLzYhZmNWmZmZYYMDAwMAjZmYmBAGD",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmxYZZGLMzsxyMzMDDjZAAMAjZmYmBAGD",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmxYbZGLMzsxyMzMDDjZAAMAjZmYmBAGD",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwQDWAYWmxMzYbZGYmZzsMzMzwwYGAgZYMDzIwMDGMuAA",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmxYZZGLMzsxyMzMDDjZAAMAjZmYmBAGD",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
@@ -741,29 +782,42 @@ ClassCodexArchonData["SHAMAN"] = {
           },
         },
       },
-      ["raid:mythic:salhadaar"] = {
+      ["raid:mythic:rotmire"] = {
         zoneType = "raid",
-        encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwQDWAYWmxMmZZZGbMzglZmZmHwwYGAgZYMDmJwMDGMuAA",
+          },
+        },
+      },
+      ["raid:mythic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwQDWAYWmxMGLLGYmZbsMzMzMYZMDAwMMmBzEYmBDGXA",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZGzAAAAAAAAAALwGMjFN2GAzA2AYWmxMGLLzYhZmNWmZmZYYMDAgBGjZmYmBAGD",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
@@ -775,21 +829,21 @@ ClassCodexArchonData["SHAMAN"] = {
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmZmZmZGAAAAAAAAgNAbmxwGsAzwQDWAYWmxMzYZZGLMzsxyMzMDDjZAAmhxMMjAzMYw4CA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
-            heroTalent = "Totemic",
-            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMjZmZmZmZmZmZmZGAAAAAAAAAYB2gZsox2AYGwGAzyMmZGLLzAzMbsMzMzwwYGAADwYmJmZAgxA",
+            heroTalent = "Stormbringer",
+            exportString = "CcQAAAAAAAAAAAAAAAAAAAAAAMzMzgZmZmZmhZmZAAAAAAAAAsBYzMG2gFYGGawCAz2MmxYZZGLMzsNWmZmZYsMmBAYGGzMMCMzgBjB",
           },
         },
       },
@@ -824,6 +878,8 @@ ClassCodexArchonData["SHAMAN"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["restoration"] = {
@@ -838,14 +894,14 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AYGYDzMY2mZMaWWmZYGzGLGzMGWmlZAAYAMzgZGAGDG",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFN2GAzAbYmBz2MzMa2WmZWMjBLzYmxgZZGAAGAzMYmBgxgB",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -864,7 +920,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFN2GAzAbYmBz2MzMa2WmZYGDWmxMjhlZZGAAGAzMYmBgxgB",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFN2GAzAbYmBz2MjRz2yMDzY2YxYmxYWmlZAAYAMzgZGAGDG",
           },
         },
       },
@@ -877,7 +933,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFN2GAzAbYmBz2MzMaWWmZYGDWmxMjhlZZGAAGAzMYmBgxgB",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AYGYDzMY2mZMaWWmZYGzGLGzMGWmlZAAYAMzgZGAGDG",
           },
         },
       },
@@ -890,7 +946,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AYGYDzMY2mZMaWWmZYGzGLGzMGWmlZAAYAMzgZGAGDG",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AYGYDzMY2mZMTzyyMDzY2YxYmxwysMAAYAMzgZGAGDG",
           },
         },
       },
@@ -916,7 +972,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFN2GAzAbYmBz2MzMaWWmZYGzGLzYmxgZZGAAGAzMYmBgxgB",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGDDLwGMjFN2GAzAbYmBz2MzMaWWmZYGzGLzYmxMMLDAAGAzMYmBgxgB",
           },
         },
       },
@@ -942,7 +998,7 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AYGYDzMY2mZMaWWmZ2MjZjFjZGDLzyAAgBwMDmZAYMYA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAjZmZZbZMzMzYmZGzYYB2gZsox2AYGYDzMY2mZmRzyyMzmZMYZGzMGWmFAAYAMzgZGAGDG",
           },
         },
       },
@@ -955,27 +1011,27 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -988,26 +1044,26 @@ ClassCodexArchonData["SHAMAN"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
@@ -1020,27 +1076,40 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
+          },
+        },
+      },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Totemic",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1059,20 +1128,20 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
@@ -1085,59 +1154,59 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMw2YmZa2WmZWMjBLzMzMGMLDAAAMzMYmBAGM",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMw2YmZa2WmZYGzGLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMw2YmZa2WmZYGzGLzMzMGMLDAAAMzMYmBAGM",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
@@ -1150,33 +1219,46 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMw2YmZa2WmZWMjZjlZGzYwsMAAAwMzgZGAYwA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMw2YmZa2WmZWMjBLzMzMGMLDAAAMzMYmBAGM",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Totemic",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMY2GjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
@@ -1189,20 +1271,20 @@ ClassCodexArchonData["SHAMAN"] = {
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMwyYmZa2WmZYGzCLzMzMGMLDAAAMzMYmBAGM",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Totemic",
-            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYBWgZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
+            exportString = "CgQAAAAAAAAAAAAAAAAAAAAAAAAAAgBAAAAzMzMLLbDzMGzMzMDzYB2gZsox2AYGYzMMYWGjZa2WmZWMjZhFzMzYwsMAAAwMzgZGAYwA",
           },
         },
       },
@@ -1237,6 +1319,8 @@ ClassCodexArchonData["SHAMAN"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
 }

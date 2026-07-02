@@ -355,6 +355,15 @@ local function RequestAllGearItems(gearData)
             end
         end
     end
+    -- And Archon gear items for the same class/spec
+    if selectedClass and selectedSpec and ns.GetArchonGearSpecData then
+        local archonData = ns:GetArchonGearSpecData(selectedClass, selectedSpec)
+        if archonData and archonData.bisGear then
+            for _, tab in ipairs(archonData.bisGear) do
+                for _, g in ipairs(tab.slots) do RequestItemData(g.item.itemId) end
+            end
+        end
+    end
 end
 
 local itemEventFrame = CreateFrame("Frame")
@@ -576,18 +585,21 @@ local function InitFrame()
     scrollFrame:SetScrollChild(UI.scrollChild)
     scrollFrame:SetScript("OnSizeChanged", function(_, w) UI.scrollChild:SetWidth(w) end)
 
-    -- Dropdowns (attic area — anchored from the right)
+    -- Dropdowns (attic area) — class / spec / hero left-to-right, anchored from
+    -- the right. The hero dropdown stops SOURCE_SLOT short of the right edge,
+    -- leaving room for the source tag (which is always right-aligned).
+    local SOURCE_SLOT = 96
     UI.heroDropdown = CreateFrame("DropdownButton", "ClassCodexCompHeroDD", UI.frame, "WowStyle1DropdownTemplate")
-    UI.heroDropdown:SetPoint("TOPRIGHT", UI.frame.Inset, "TOPRIGHT", 0, 28)
-    UI.heroDropdown:SetWidth(145)
+    UI.heroDropdown:SetPoint("TOPRIGHT", UI.frame.Inset, "TOPRIGHT", -SOURCE_SLOT, 28)
+    UI.heroDropdown:SetWidth(135)
 
     UI.specDropdown = CreateFrame("DropdownButton", "ClassCodexCompSpecDD", UI.frame, "WowStyle1DropdownTemplate")
     UI.specDropdown:SetPoint("RIGHT", UI.heroDropdown, "LEFT", -3, 0)
-    UI.specDropdown:SetWidth(130)
+    UI.specDropdown:SetWidth(118)
 
     UI.classDropdown = CreateFrame("DropdownButton", "ClassCodexCompClassDD", UI.frame, "WowStyle1DropdownTemplate")
     UI.classDropdown:SetPoint("RIGHT", UI.specDropdown, "LEFT", -3, 0)
-    UI.classDropdown:SetWidth(140)
+    UI.classDropdown:SetWidth(130)
 
     -- Copy popup (shared)
     -- Copy popup is a single shared widget exposed by ClassCodex.lua;
@@ -617,7 +629,7 @@ local function InitFrame()
                 -- visual list.
                 if self.embItemId then
                     GameTooltip:AddLine(" ")
-                    GameTooltip:AddLine("Embellishment:", 0.6, 0.6, 0.6)
+                    GameTooltip:AddLine((L and L["gear.tooltip.embellishment"]) or "Embellishment:", 0.6, 0.6, 0.6)
                     local embName = self.embName
                     if not embName or embName == "" then
                         embName = (C_Item and C_Item.GetItemInfo and C_Item.GetItemInfo(self.embItemId))
@@ -627,7 +639,7 @@ local function InitFrame()
                 end
                 if self.sourceText then
                     GameTooltip:AddLine(" ")
-                    GameTooltip:AddDoubleLine("Source", self.sourceText, 0.5, 0.5, 0.5, 1, 0.82, 0)
+                    GameTooltip:AddDoubleLine(SOURCE or "Source", self.sourceText, 0.5, 0.5, 0.5, 1, 0.82, 0)
                 end
                 GameTooltip:Show()
             elseif self.spellId then
@@ -741,11 +753,13 @@ local function InitFrame()
     -- Source dropdown (Wowhead | Archon | PvP) — only shown by the
     -- Talents tab. Mirrors the docked panel and the addon's other
     -- dropdowns. Each option carries the brand icon via a |T...|t escape.
-    local SOURCE_ICON_WOWHEAD = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
-    local SOURCE_ICON_ARCHON  = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
-    local SOURCE_ICON_PVP     = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
+    local SOURCE_ICON_WOWHEAD  = "|TInterface\\AddOns\\ClassCodex\\Textures\\wowhead:12:12:0:0|t  Wowhead"
+    local SOURCE_ICON_ARCHON   = "|TInterface\\AddOns\\ClassCodex\\Textures\\archon:12:12:0:0|t  Archon"
+    local SOURCE_ICON_ICYVEINS = "|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:12:12:0:0|t  Icy Veins"
+    local SOURCE_ICON_PVP      = "|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:12:12:0:0|t  PvP"
     local function SourceLabel(source)
         if source == "archon" then return SOURCE_ICON_ARCHON end
+        if source == "icyveins" then return SOURCE_ICON_ICYVEINS end
         if source == "pvp" then return SOURCE_ICON_PVP end
         return SOURCE_ICON_WOWHEAD
     end
@@ -754,7 +768,7 @@ local function InitFrame()
     UI.talentSourceDropdown = ns.CreateOptionDropdown("ClassCodexCompendiumTalentSourceDropdown", UI.talentContent, 140)
     UI.talentSourceDropdown:Hide()
 
-    UI._refreshTalentSourceDropdown = function(archonAvailable)
+    UI._refreshTalentSourceDropdown = function(archonAvailable, icyVeinsAvailable)
         -- PvP always appears so users discover the feature even on specs
         -- without scraped data — RenderPvPTalentList surfaces the
         -- "No PvP builds available." fallback when empty.
@@ -762,10 +776,14 @@ local function InitFrame()
         if archonAvailable then
             opts[#opts + 1] = { label = SOURCE_ICON_ARCHON, value = "archon" }
         end
+        if icyVeinsAvailable then
+            opts[#opts + 1] = { label = SOURCE_ICON_ICYVEINS, value = "icyveins" }
+        end
         opts[#opts + 1] = { label = SOURCE_ICON_PVP, value = "pvp" }
-        -- Archon is the only source that can vanish (per-spec coverage gap).
+        -- Archon and Icy Veins can each vanish on a per-spec coverage gap.
         local current = UI.talentSource
         if current == "archon" and not archonAvailable then current = "wowhead" end
+        if current == "icyveins" and not icyVeinsAvailable then current = "wowhead" end
         if current ~= UI.talentSource then UI.talentSource = current end
         UI.talentSourceDropdown:SetOptions(opts, UI.talentSource, function(picked)
             if UI.talentSource ~= picked then
@@ -833,6 +851,14 @@ local function InitFrame()
             rowFactory = MakeItemRow,
         })
     UI.bisCollapsed = false
+
+    -- Source attribution is the last thing on the top row — always right-
+    -- aligned to the inset edge, in the reserved SOURCE_SLOT (vertically lined
+    -- up with the dropdowns). Set per render in UpdateCompendiumAttribution.
+    UI.sourceTag = ns.CreateSourceTag(UI.frame, { noPrefix = true })
+    -- Right edge lands at the inset edge (-4); anchoring to the hero dropdown
+    -- keeps it vertically centered with the dropdown row.
+    UI.sourceTag:SetPoint("RIGHT", UI.heroDropdown, "RIGHT", SOURCE_SLOT - 4, 0)
 
     -- Empty state
     UI.emptyText = UI.scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -945,6 +971,39 @@ end
 -- Update: populate content based on selections
 -------------------------------------------------------------------------------
 
+-- Set the footer source tag for the browsed spec — the source feeding the
+-- active tab, tracking the Compendium's own talent/gear/enhancement selections.
+local function UpdateCompendiumAttribution(class, spec)
+    local tag = UI.sourceTag
+    if not tag then return end
+    if not class or not spec then tag:SetSource(nil); return end
+
+    local U = ns.SourceUrls
+    local key, url
+
+    if activeTab == "guide" or activeTab == "trinkets" then
+        key, url = "wowhead", U.wowheadGuide(class, spec)
+    elseif activeTab == "talents" then
+        local ts = UI.talentSource
+        if ts == "archon" then key, url = "archon", U.archonOverview(class, spec) or ns.SOURCES.archon.homepage
+        elseif ts == "icyveins" then key, url = "icyveins", U.icyVeinsTalents(class, spec)
+        elseif ts == "pvp" then key, url = "bnet", ns.SOURCES.bnet.homepage
+        else key, url = "wowhead", U.wowheadGuide(class, spec) end
+    elseif activeTab == "bis" then
+        key = ns.Sections.Gear.GetCompendiumSourceKey and ns.Sections.Gear.GetCompendiumSourceKey() or "wowhead"
+        url = ns.BisUrlForKey(key, class, spec)
+    elseif activeTab == "enhancements" then
+        key = ns.Sections.Enhancements.GetCompendiumSourceKey and ns.Sections.Enhancements.GetCompendiumSourceKey() or "wowhead"
+        url = (key == "murlok") and U.murlok(class, spec) or U.wowheadGuide(class, spec)
+    elseif activeTab == "crafting" then
+        local ctx = ns.Sections.Crafting.GetContextKey and ns.Sections.Crafting.GetContextKey()
+        if ctx == "pvp" then key, url = "murlok", U.murlok(class, spec)
+        else key, url = "archon", U.archonOverview(class, spec) or ns.SOURCES.archon.homepage end
+    end
+
+    tag:SetSource(key, url)
+end
+
 function ns:UpdateCompendium()
     -- Hide all sections first
     UI.statSection:Hide(); UI.talentSection:Hide(); UI.rotationSection:Hide()
@@ -1010,7 +1069,7 @@ function ns:UpdateCompendium()
         self:UpdateCompendiumCrafts()
     end
 
-    ns:LayoutCompendium()
+    ns:LayoutCompendium()  -- also refreshes the source tag
 end
 
 -- Build a synthetic priority record from Murlok's per-spec PvP stat data
@@ -1383,6 +1442,72 @@ local function RenderPvPTalentList(class, spec, yPos)
     return yPos
 end
 
+-- Icy Veins view: context-labeled builds (not hero-grouped). Buckets by
+-- context; a context with 2+ builds gets a header, a lone build is a bare
+-- row. Leveling builds bucket last under their own header/row.
+local IV_COMPENDIUM_CONTEXT_ORDER = { "Raid", "Mythic+", "Delves", "General", "Leveling" }
+
+local function RenderIcyVeinsTalentList(class, spec, yPos)
+    local ivt = ns.GetIcyVeinsTalentSpecData and ns:GetIcyVeinsTalentSpecData(class, spec) or nil
+    local builds = ivt and ivt.talents
+    if not builds or #builds == 0 then
+        UI.talentFallback:SetText(L["loadout_dock.no_icyveins_builds"] or "No Icy Veins talent builds available.")
+        UI.talentFallback:ClearAllPoints()
+        UI.talentFallback:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 4, -(yPos + 4))
+        UI.talentFallback:Show()
+        return yPos + 20
+    end
+
+    local buckets = {}
+    for _, b in ipairs(builds) do
+        local key = b.leveling and "Leveling" or (b.context or "General")
+        buckets[key] = buckets[key] or {}
+        buckets[key][#buckets[key] + 1] = b
+    end
+
+    local hdrIdx, rowIdx = 0, 0
+    local function emitRow(build)
+        rowIdx = rowIdx + 1
+        local btn = UI._ensureTalentButton(rowIdx)
+        if btn.heroIcon then btn.heroIcon:Hide() end
+        btn.label:ClearAllPoints()
+        btn.label:SetPoint("LEFT", 8, 0); btn.label:SetPoint("RIGHT", -8, 0)
+        btn.label:SetText(build.buildLabel or build.context or "Build")
+        btn:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+        btn.label:SetTextColor(0.8, 0.8, 0.8)
+        btn:ClearAllPoints()
+        btn:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 8, -yPos)
+        btn:SetPoint("RIGHT", UI.talentContent, "RIGHT", 0, 0)
+        BindCopyClick(btn, build.exportString)
+        btn:Show()
+        yPos = yPos + TALENT_BTN_HEIGHT + TALENT_BTN_GAP
+    end
+
+    local seen = {}
+    local function emitBucket(key)
+        local group = buckets[key]
+        if not group or #group == 0 or seen[key] then return end
+        seen[key] = true
+        if #group >= 2 then
+            hdrIdx = hdrIdx + 1
+            local hdr = UI._ensureTalentHeroHeader(hdrIdx)
+            hdr.label:SetText(key == "Leveling" and (L["talents.leveling"] or "Leveling") or key)
+            hdr.label:SetTextColor(1, 0.82, 0)
+            hdr:ClearAllPoints()
+            hdr:SetPoint("TOPLEFT", UI.talentContent, "TOPLEFT", 0, -yPos)
+            hdr:SetPoint("RIGHT", UI.talentContent, "RIGHT", 0, 0)
+            hdr:Show()
+            yPos = yPos + TALENT_HERO_HEADER_HEIGHT
+        end
+        for _, build in ipairs(group) do emitRow(build) end
+        yPos = yPos + 4
+    end
+
+    for _, key in ipairs(IV_COMPENDIUM_CONTEXT_ORDER) do emitBucket(key) end
+    for key in pairs(buckets) do emitBucket(key) end
+    return yPos
+end
+
 function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     for _, b in ipairs(UI.talentButtons) do b:Hide() end
     for _, h in ipairs(UI.talentHeroHeaders) do h:Hide() end
@@ -1402,11 +1527,16 @@ function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     -- handles the "no data" copy inline.
     local archonAvailable = classFile and specKey
         and ns.GetArchonSpecData and ns.GetArchonSpecData(classFile, specKey) ~= nil
+    local icyVeinsAvailable = classFile and specKey
+        and ns.GetIcyVeinsTalentSpecData and ns:GetIcyVeinsTalentSpecData(classFile, specKey) ~= nil
     if not archonAvailable and UI.talentSource == "archon" then
         UI.talentSource = "wowhead"
     end
+    if not icyVeinsAvailable and UI.talentSource == "icyveins" then
+        UI.talentSource = "wowhead"
+    end
     if UI._refreshTalentSourceDropdown then
-        UI._refreshTalentSourceDropdown(archonAvailable)
+        UI._refreshTalentSourceDropdown(archonAvailable, icyVeinsAvailable)
     end
 
     UI.talentSourceDropdown:ClearAllPoints()
@@ -1417,6 +1547,8 @@ function ns:UpdateCompendiumAllTalents(specData, classFile, specKey)
     local yPos = 32 -- leave room for the dropdown row (DROPDOWN_HEIGHT 26 + 6 gap)
     if UI.talentSource == "archon" and archonAvailable then
         yPos = RenderArchonTalentList(classFile, specKey, yPos)
+    elseif UI.talentSource == "icyveins" and icyVeinsAvailable then
+        yPos = RenderIcyVeinsTalentList(classFile, specKey, yPos)
     elseif UI.talentSource == "pvp" then
         -- RenderPvPTalentList itself handles the no-data case and
         -- writes the talentFallback ("No PvP builds available."), so
@@ -1498,9 +1630,11 @@ function ns:UpdateCompendiumBis()
     local wowheadBis = GEAR_DATA and GEAR_DATA[selectedClass] and GEAR_DATA[selectedClass][selectedSpec]
         and GEAR_DATA[selectedClass][selectedSpec].bisGear
     local ivSpecData = ns.GetIcyVeinsSpecData and ns:GetIcyVeinsSpecData(selectedClass, selectedSpec)
+    local archonSpecData = ns.GetArchonGearSpecData and ns:GetArchonGearSpecData(selectedClass, selectedSpec)
     ns.Sections.Gear.RenderCompendium({
         wowheadBis = wowheadBis,
         ivBis      = ivSpecData and ivSpecData.bisGear,
+        archonBis  = archonSpecData and archonSpecData.bisGear,
         pvpBis     = BuildPvPBisSyntheticTabs(),
         specKey    = (selectedClass or "") .. "-" .. (selectedSpec or ""),
         refresh    = function() ns:UpdateCompendium(); ns:LayoutCompendium() end,
@@ -1512,6 +1646,11 @@ end
 -------------------------------------------------------------------------------
 
 function ns:LayoutCompendium()
+    -- Refresh the source tag on every layout pass so it tracks dropdown changes
+    -- whose refresh callback only re-lays-out (e.g. the Enhancements / gear /
+    -- crafting source/context pickers), not just the full UpdateCompendium path.
+    UpdateCompendiumAttribution(selectedClass, selectedSpec)
+
     local y = 0
 
     local function LayoutSection(section, collapsed, content, contentHeight)

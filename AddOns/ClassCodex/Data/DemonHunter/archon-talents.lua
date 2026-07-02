@@ -19,7 +19,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -77,7 +77,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
+            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
           },
         },
       },
@@ -90,7 +90,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
+            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
           },
         },
       },
@@ -103,7 +103,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
+            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
           },
         },
       },
@@ -116,7 +116,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
+            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzYmxwMAAAAAAAMmthZGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
           },
         },
       },
@@ -136,7 +136,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -149,7 +149,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -162,7 +162,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -175,7 +175,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -198,10 +198,23 @@ ClassCodexArchonData["DEMONHUNTER"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Annihilator",
+            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -214,7 +227,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -240,7 +253,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -266,7 +279,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -279,7 +292,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -292,7 +305,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -305,7 +318,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -324,14 +337,27 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsZGjFZhZmZmt2mZmBwwAAwMGMmB",
+            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Annihilator",
+            exportString = "CgcBAAAAAAAAAAAAAAAAAAAAAAA2mxMzMzMzMGmBAAAAAAgxsNYGAAAAAAAAmxMMzMzMzMzMDzsYGjFZhZmZmt2mZmBwwAAwMGMmB",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -344,7 +370,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -370,7 +396,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -411,6 +437,8 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["havoc"] = {
@@ -425,20 +453,20 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
@@ -451,7 +479,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
@@ -464,7 +492,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
@@ -477,7 +505,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
@@ -490,7 +518,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
@@ -503,7 +531,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
@@ -529,7 +557,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsMbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
@@ -542,59 +570,59 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmwMDAAAAAAwyMzYGmZwMjtZbegZGjxwyALziZMMbMNmZmZYDAAAAAAAgZGMAAAAM",
           },
         },
       },
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmwMDAAAAAAwyMzYGmZwMjtZbegZGjxwyALziZMMbMNmZmZYDAAAAAAAgZGMAAAAM",
           },
         },
       },
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmwMDAAAAAAwyMzYGmZwMjtZbegZGjxwyALziZMMbMNmZmZYDAAAAAAAgZGMAAAAM",
           },
         },
       },
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmwMDAAAAAAwyMzYGmZwMjtZbegZGjxwyALziZMMbMNmZmZYDAAAAAAAgZGMAAAAM",
           },
         },
       },
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
@@ -607,33 +635,46 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmwMDAAAAAAwyMzYGmZwMjtZbegZGjxwyALziZMMbMNmZmZYDAAAAAAAgZGMAAAAM",
+          },
+        },
+      },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Fel-Scarred",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZmZmZ2mxMzMGzkxMDAAAAAAYWMmtZYmBmx2sNzMjxALDsNbmxwsw0YmZMjNAAAgBAAAwMDGAAAAG",
           },
         },
       },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
@@ -653,13 +694,13 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
@@ -672,14 +713,27 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Fel-Scarred",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzyMmZmZGzkxMDAAAAAAY2MGzwMDmZsNbzDMzYMGWGYZWMjhZjpxMzYGbAAAAAAAAMzgBAAAgB",
+          },
+        },
+      },
+      ["raid:mythic:chimaerus"] = {
+        zoneType = "raid",
+        encounter = "chimaerus",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -689,23 +743,10 @@ ClassCodexArchonData["DEMONHUNTER"] = {
           },
         },
       },
-      ["raid:mythic:chimaerus"] = {
-        zoneType = "raid",
-        encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
-        difficulty = "mythic",
-        difficultyLabel = "Mythic",
-        builds = {
-          {
-            heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
-          },
-        },
-      },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -718,13 +759,13 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
@@ -737,14 +778,27 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmMmZAAAAAAAz2DMmtZYmBzMWmt5BmZMGDLDsMLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsMLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Fel-Scarred",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -757,13 +811,13 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzEmZAAAAAAAzmZmtZwM4Bmx2sNzMz2YglB2mNzYY2YaMzMzwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmxMzkxMDAAAAAAY2MmtZYmBmx2sNzMz2YglBWmNzYY2YaMzMG2AAAAGAAAAzMYAAAAYA",
           },
         },
       },
@@ -783,13 +837,13 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fel-Scarred",
-            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYGMzMzmxMzMmZmMmZAAAAAAAzyDMmtZYmZ2mZGbz28AzwYYsMw2sYGDzGTjZmxwGAAAAAAAAzMYAAAAYA",
+            exportString = "CEkAAAAAAAAAAAAAAAAAAAAAAYmZGzMz2MmZmZmZmwMDAAAAAAY2MmtZYmBzM2mt5BmZMGDLDsNLmxwsx0YmZMsBAAAAAAAwMDGAAAAG",
           },
         },
       },
@@ -824,6 +878,8 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["vengeance"] = {
@@ -845,7 +901,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -864,7 +920,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBziZMDmZMzYmHYmZGDmtZGbPwMz2YMDAAAAAAAAzMsBAAAgBmZmZmt2mZmBAAAAAYA",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMjMzMYWMjZwMjZGz8AzMzYwsNzYbmZ2GjZAAAAAAAAYmhNAAAAMwMzMzs12MzMAAAAAAD",
           },
         },
       },
@@ -903,7 +959,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBziZMDmZMzYmHYmZGDmtZGbzMz2YYAAAAAAAAYmhNAAAAMwMzMzs12MzMAAAAAAD",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAWmxMzMzwMyMzgZxMmBzMmZMzDMzMjBz2MjtZmZbMAAAAAAAAgZG2AAAAwAzMzMzWbzMzAAAAAAMA",
           },
         },
       },
@@ -929,7 +985,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBWMjZwMjZGzMzMzYwsNzY7BmZ2GDDAAAAAAAAzMjNAAAAMwMzMzs12MzMAAAAAAD",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAA2mxMzMGmRmZGMLmxMYmxMjZegZmZMY2mZs9AzMbjhBAAAAAAAgZmxGAAAAGYmZmZ2abmZGAAAAAgB",
           },
         },
       },
@@ -942,7 +998,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBziZMDmZMzYmHYmZGDmtZGbzMz2YYAAAAAAAAYmhNAAAAMwMzMzs12MzMAAAAAAD",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMjMzMYWMjZwMjZGz8AzMzYwsNzYzMz2YMDAAAAAAAAzMjNAAAAMwMzMzs12MzMAwAAAAYA",
           },
         },
       },
@@ -962,20 +1018,20 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmZYWMzMjhZMzYGzYmZYGmx2MzYMAAAAAAAAgZmxGAAAAGMmZmZWabmZGAYAAAAMA",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZkZmBWMjZwMjZGz8AzMzYYmtZGbjZMGzAAAAAAAAwMzYDAAAADMzMzMLtNzMDAmBAAAwA",
           },
         },
       },
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -988,20 +1044,20 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmZYWMzMjhZMzYGzYmZYGmx2MzYMAAAAAAAAgZmxGAAAAGMmZmZWabmZGAYAAAAMA",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBziZMDmZMzYmHYmZGDmtZGbzMz2YYAAAAAAAAYmhNAAAAMwMzMzs12MzMAAAAAAD",
           },
         },
       },
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1020,14 +1076,27 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmZYWMzMjhZMzYGzYmZYGmx2MzYMAAAAAAAAgZmxGAAAAGMmZmZWabmZGAYAAAAMA",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZkZmBWMjZwMjZGz8AzMzYYmtZGbjZMGzAAAAAAAAwMzYDAAAADMzMzMLtNzMDAmBAAAwA",
+          },
+        },
+      },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Annihilator",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZkZmBWMjZwMjZGz8AzMzYYmtZGbjZMGzAAAAAAAAwMzYDAAAADMzMzMLtNzMDAmBAAAwA",
           },
         },
       },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1040,7 +1109,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1059,14 +1128,14 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjhZkZmBWMjZwMjZGz8AzMzYYmtZGbjZMGzAAAAAAAAwMzYDAAAADMzMzMLtNzMDAmBAAAwA",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBziZMDmZMzYmHYmZGDmtZGbzMz2YYAAAAAAAAYmhNAAAAMwMzMzs12MzMAAAAAAD",
           },
         },
       },
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1085,14 +1154,14 @@ ClassCodexArchonData["DEMONHUNTER"] = {
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBziZMDmZMzYmHYmZGDmtZGbzMz2YYAAAAAAAAYmhNAAAAMwMzMzs12MzMAAAAAAD",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmBziZMDmZMzYGzMzYYmlZGbzMjxAAAAAAAAAmZGbAAAAYwYmZmZrtZmZAgBAAAwA",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1105,7 +1174,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1118,20 +1187,20 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMzMkZmBziZMDmZMzYGzMzYYmlZGbmZ2GDAAAAAAAAYmZsBAAAgBzMzMzs12MzMAwAAAAYA",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmBziZMDmZMzYGzMzYYmlZGbzMjxAAAAAAAAAmZGbAAAAYwYmZmZrtZmZAgBAAAwA",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1154,29 +1223,42 @@ ClassCodexArchonData["DEMONHUNTER"] = {
           },
         },
       },
-      ["raid:mythic:salhadaar"] = {
+      ["raid:mythic:rotmire"] = {
         zoneType = "raid",
-        encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMjZmZkZmBziZMDmZMzYGzMzYYmlZGbzMjxAAAAAAAAAmZGbAAAAYwYmZmZrtZmZAgBAAAwA",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAA2mxMzMGmRmZGMLmxMYmxMjZegZmZMY2mZs9AzMbjhBAAAAAAAgZmxGAAAAGYmZmZ2abmZGAAAAAgB",
+          },
+        },
+      },
+      ["raid:mythic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Annihilator",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZmhZkZmBziZMDmZMzYmHYmZGDmtZGbzMz2YYAAAAAAAAYmhNAAAAMwMzMzs12MzMAAAAAAD",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Annihilator",
-            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAYMzMzMjZkZmhZYGzYMzYmxMmZmxgZbmx2DMzYMAAAAAAAAgZmxGAAAAGMzMzMzSbzMzAADAAAgB",
+            exportString = "CUkAAAAAAAAAAAAAAAAAAAAAAAAMjZmZMMzkZmhZWMjZMMjZGzYmZGDmtZGbmZ2GDDAAAAAAAAzMjNAAAAMYmZmZmt2mZmBAAAAAYA",
           },
         },
       },
@@ -1196,7 +1278,7 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1237,6 +1319,8 @@ ClassCodexArchonData["DEMONHUNTER"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
 }

@@ -19,7 +19,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -129,59 +129,59 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDmZmZmxMDjBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAottZmZmZmxYmZmZbmlZmZwYmZmxMjhBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDmZmZmxMDjBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzygtZAAAAAAZbmZmZmZMmZmZ2mZZmZGMzMzMjZGDDgBWgZMaMbA2GwmBAzMjxA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDmZmZmxMDjBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
@@ -194,33 +194,46 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzygtZAAAAAAZbmZmZmZMmZmZ2mZZmZGMzMzMjZGDDgBWgZMaMbA2GwmBAzMjxA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
+          },
+        },
+      },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Fatebound",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAottZmZmZmxYmZmZbmlZmZwYmZmxMjhBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDmZmZmxMDjBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
@@ -233,20 +246,20 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAILzMzMzMjxMzMz2MLzMeAPwMjZGDzMGDgBWgZMaMbA2GwmxGgZmxYA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsNDGAAAAAYWGsMDAAAAAottZmZmZmxYmZmZbmlZmZwYmZmxMjhBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
@@ -259,59 +272,59 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAIbzMzMzMjxMzMz2MLzMeAPwMjZGDzMGDgBWgZMaMbA2GwmxGgZmxYA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAZbmZmZmZMmZmZ2mZZmZwMzMzMDzMzYAMwCMjRjZDw2A2MAYmZMGA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAWGsMDAAAAAIbzMzMzMjxMzMz2MLzMDmZmZmZYmZmZAMwCMjRjZDw2A2MAYmZMGA",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzygtZAAAAAAttNzMzMzMGzMzMbzsMzMwMzMzMmZmZMAGYBmxoxsBYbAbGAMzMYA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDzMzMzMMDzMAGYBmxoxsAYbAbGAMzAD",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAZbmZmZmZMmZmZ2mZZmZGMzMzMjZGDDgBWgZMaMbA2GwmBAzMjxA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDmZmZmxMjhBwALwMGNmNAbDYzAgZmBD",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMwMzMzMmZmZMAGYBmxoxsAYZAbGAMzMYA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDmZmZmxMDjBwALwMGNmFALDYzAgZmBD",
           },
         },
       },
@@ -328,23 +341,36 @@ ClassCodexArchonData["ROGUE"] = {
           },
         },
       },
-      ["raid:mythic:salhadaar"] = {
+      ["raid:mythic:rotmire"] = {
         zoneType = "raid",
-        encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAzyglZAAAAAAttNzMzMzMGzMzMbzsMzMDmZmZmxMDjBwALwMGNmFALDYzAgZmBD",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAIbzMzMzMjxMzMz2MmZMmxMzMmhZMGADsAzY0Y2AsNgNDAmZmhB",
+          },
+        },
+      },
+      ["raid:mythic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Fatebound",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlxsZwAAAAAAz2gtZAAAAAAttNzMzMzMGzMzMbzsMzMwMzMzMmZmZMAGYBmxoxsBYbAbGAMzMYA",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -363,14 +389,14 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Fatebound",
-            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAIbzMzMzMjxMzMz2MLzMeAPwMjZGDzMGDgBWgZMaMbA2GwmxGgZmxYA",
+            exportString = "CMQAAAAAAAAAAAAAAAAAAAAAAYmlZmNDGAAAAAYWGsNDAAAAAIbzMzMzMjxMzMz2MLzMeAPwMjZGDzMmZAMwCMjRjZDw2A2M2AMzMYA",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -411,6 +437,8 @@ ClassCodexArchonData["ROGUE"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["outlaw"] = {
@@ -432,7 +460,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -451,7 +479,7 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAAbLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsAmZbaZw2MAAAAAALLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
           },
         },
       },
@@ -464,7 +492,7 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAAbLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgZ2mBzMzMzsNzMjZmZmNwMbTLD2mBAAAAAYZZmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
@@ -516,7 +544,7 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAAbLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZZZmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
@@ -529,7 +557,7 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAAbLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAALLzMzwMzMzYmZ2GAAAAmZAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
@@ -549,7 +577,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -562,7 +590,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -575,7 +603,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -588,7 +616,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -611,10 +639,23 @@ ClassCodexArchonData["ROGUE"] = {
           },
         },
       },
+      ["raid:heroic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Trickster",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
+          },
+        },
+      },
       ["raid:heroic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -627,7 +668,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -653,7 +694,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -672,59 +713,59 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAAbbzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmxsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MGzMzMzsNzMzMjxsxDwMmWGsNDAAAAAw22MzMMzMzMmZmtBAAAwMGAMmFDDMwswCtwGDwMDGYA",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAAbLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
           },
         },
       },
@@ -737,27 +778,40 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAAbbzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZMmNeAmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
+          },
+        },
+      },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Trickster",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAAbLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
           },
         },
       },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAAbLzMzwMzMzYmZ2GAAAAGDAGzihBGYWYhWYjBYmBzgB",
           },
         },
       },
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -776,14 +830,14 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZMzMzsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
+            exportString = "CQQAAAAAAAAAAAAAAAAAAAAAAAgx2MYmZmZmtZmZmZmxsBmZbaZw2MAAAAAgZbbmZGmZmZGzMz2AAAAwYAwYWMMwAzCL0CbMAzMYgB",
           },
         },
       },
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -824,6 +878,8 @@ ClassCodexArchonData["ROGUE"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
   ["subtlety"] = {
@@ -845,7 +901,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["mythic-plus:high-keys:all-dungeons"] = {
         zoneType = "mythic-plus",
         encounter = "all-dungeons",
-        encounterLabel = "全部地城",
+        encounterLabel = "所有地下城",
         difficulty = "high-keys",
         difficultyLabel = "High Keys",
         builds = {
@@ -955,40 +1011,40 @@ ClassCodexArchonData["ROGUE"] = {
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwDMzMzYMbjZGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAzCL0iNMDYmBzYA",
+            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYWYhWshZAzMYGDA",
           },
         },
       },
       ["raid:heroic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwDMzMzYMbjZGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAzCL0iNMDYmBzYA",
+            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYWYhWshZAzMYGDA",
           },
         },
       },
       ["raid:heroic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwDMzMzYMbjZGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAzCL0iNMDYmBzYA",
+            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYWYhWshZAzMYGDA",
           },
         },
       },
       ["raid:heroic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1001,13 +1057,13 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Trickster",
-            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwDMzMzYMbjZGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAzCL0iNMDYmBzYA",
+            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYWYhWshZAzMYGDA",
           },
         },
       },
@@ -1024,29 +1080,42 @@ ClassCodexArchonData["ROGUE"] = {
           },
         },
       },
-      ["raid:heroic:salhadaar"] = {
+      ["raid:heroic:rotmire"] = {
         zoneType = "raid",
-        encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
-        difficulty = "heroic",
-        difficultyLabel = "Heroic",
-        builds = {
-          {
-            heroTalent = "Trickster",
-            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwDMzMzYMbjZGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAzCL0iNMDYmBzYA",
-          },
-        },
-      },
-      ["raid:heroic:vaelgor-ezzorak"] = {
-        zoneType = "raid",
-        encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
           {
             heroTalent = "Trickster",
             exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZMegZmZGjZbYGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAzCL0iNMDYmBzYA",
+          },
+        },
+      },
+      ["raid:heroic:salhadaar"] = {
+        zoneType = "raid",
+        encounter = "salhadaar",
+        encounterLabel = "墮落之王",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Trickster",
+            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYWYhWshZAzMYGDA",
+          },
+        },
+      },
+      ["raid:heroic:vaelgor-ezzorak"] = {
+        zoneType = "raid",
+        encounter = "vaelgor-ezzorak",
+        encounterLabel = "Vaelgor & Ezzorak",
+        difficulty = "heroic",
+        difficultyLabel = "Heroic",
+        builds = {
+          {
+            heroTalent = "Trickster",
+            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZwMzMzYMbDzYbbmZmZmZMYMz2AAAAwgxAGzmhBGYWYhWshZAzMYGDA",
           },
         },
       },
@@ -1066,7 +1135,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:heroic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "heroic",
         difficultyLabel = "Heroic",
         builds = {
@@ -1092,7 +1161,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:mythic:beloren"] = {
         zoneType = "raid",
         encounter = "beloren",
-        encounterLabel = "貝羅倫",
+        encounterLabel = "Belo'ren, Child of Al'ar",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1105,7 +1174,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:mythic:chimaerus"] = {
         zoneType = "raid",
         encounter = "chimaerus",
-        encounterLabel = "奇美魯斯",
+        encounterLabel = "奇美魯斯, the Undreamt God",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1118,7 +1187,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:mythic:crown"] = {
         zoneType = "raid",
         encounter = "crown",
-        encounterLabel = "宇宙之冠",
+        encounterLabel = "Crown of the Cosmos",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1131,7 +1200,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:mythic:imperator"] = {
         zoneType = "raid",
         encounter = "imperator",
-        encounterLabel = "統治者阿瓦齊恩",
+        encounterLabel = "Imperator Averzian",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1154,10 +1223,23 @@ ClassCodexArchonData["ROGUE"] = {
           },
         },
       },
+      ["raid:mythic:rotmire"] = {
+        zoneType = "raid",
+        encounter = "rotmire",
+        encounterLabel = "腐沼",
+        difficulty = "mythic",
+        difficultyLabel = "Mythic",
+        builds = {
+          {
+            heroTalent = "Trickster",
+            exportString = "CUQAAAAAAAAAAAAAAAAAAAAAAAgx2MAAAAAwsMGLTMbbjxMjZMegZmZGjZbYGbbzMzMzMjBjZ2GAAAAGMGwY2MMwAzCL0iNMDYmBzYA",
+          },
+        },
+      },
       ["raid:mythic:salhadaar"] = {
         zoneType = "raid",
         encounter = "salhadaar",
-        encounterLabel = "墮落之王薩哈達爾",
+        encounterLabel = "墮落之王",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1170,7 +1252,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:mythic:vaelgor-ezzorak"] = {
         zoneType = "raid",
         encounter = "vaelgor-ezzorak",
-        encounterLabel = "維爾葛與艾札瑞克",
+        encounterLabel = "Vaelgor & Ezzorak",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1196,7 +1278,7 @@ ClassCodexArchonData["ROGUE"] = {
       ["raid:mythic:vorasius"] = {
         zoneType = "raid",
         encounter = "vorasius",
-        encounterLabel = "瓦拉西斯",
+        encounterLabel = "Vorasius",
         difficulty = "mythic",
         difficultyLabel = "Mythic",
         builds = {
@@ -1237,6 +1319,8 @@ ClassCodexArchonData["ROGUE"] = {
       "raid:mythic:beloren",
       "raid:heroic:midnight-falls",
       "raid:mythic:midnight-falls",
+      "raid:heroic:rotmire",
+      "raid:mythic:rotmire",
     },
   },
 }

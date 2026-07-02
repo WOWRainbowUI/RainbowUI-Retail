@@ -70,6 +70,12 @@ local function SetPerSpecCtx(ctx)
     end
 end
 
+-- Active crafting context ("raid" / "mythicPlus" / "pvp"). Used by attribution
+-- to credit Archon (PvE) vs Murlok (PvP) for the crafts/embellishments lists.
+function Crafting.GetContextKey()
+    return GetPerSpecCtx()
+end
+
 -- "Top picks only" filter — when enabled, the Crafting tab drops
 -- trailing non-highlighted entries so only items flagged BiS
 -- (bis = true) or popular (popular = true) show up. Reduces card
@@ -489,7 +495,7 @@ local function MakeCard(parent)
         end
         if self.embItemId then
             GameTooltip:AddLine(" ")
-            GameTooltip:AddLine("Embellishment:", 0.6, 0.6, 0.6)
+            GameTooltip:AddLine((L and L["gear.tooltip.embellishment"]) or "Embellishment:", 0.6, 0.6, 0.6)
             local embName = self.embName or ("Item " .. self.embItemId)
             GameTooltip:AddLine("  " .. embName, 1, 1, 1)
         end

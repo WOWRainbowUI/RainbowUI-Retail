@@ -11,7 +11,7 @@ local _, ns = ...
 -- move it (when unlocked); right-click for lock / hide / settings.
 -------------------------------------------------------------------------------
 
-local DOCK_DEFAULT_WIDTH = 200
+local DOCK_DEFAULT_WIDTH = 240
 local DOCK_MIN_WIDTH = 120
 local DOCK_MAX_WIDTH = 400
 local DOCK_HEIGHT = 22
@@ -460,6 +460,38 @@ local function BuildLoadoutMenu(_, root)
         end
     end
 
+    -- Section 3.5: Class Codex - Icy Veins talent builds. IV builds are
+    -- context-labeled (not hero-grouped), and there are only a handful per
+    -- spec, so they render as a flat list under the source title rather
+    -- than nested submenus. Leveling builds are included inline.
+    local hasIcyVeins = false
+    if db.dockLoadoutShowIcyVeins ~= false and classToken and specSlug and ns.GetIcyVeinsTalentSpecData then
+        local ivSpecData = ns:GetIcyVeinsTalentSpecData(classToken, specSlug)
+        if ivSpecData and ivSpecData.talents and #ivSpecData.talents > 0 then
+            if hasBlizzard or hasWowhead or hasArchon then root:CreateDivider() end
+            root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\icyveins:14:14:0:0|t  " .. (L["settings.value.icyveins"] or "Icy Veins"))
+            for _, build in ipairs(ivSpecData.talents) do
+                local capturedExport = build.exportString
+                local capturedLabel = build.buildLabel or build.context or "Build"
+                local label = capturedLabel
+                if activeMatches(capturedExport) then
+                    label = "|cff00cc00" .. label .. "|r"
+                end
+                root:CreateButton(label, function()
+                    if InCombatLockdown() then
+                        UIErrorsFrame:AddMessage(L["loadout_dock.cannot_switch_combat"], 1, 0.3, 0.3)
+                        return
+                    end
+                    rememberApplied(capturedExport)
+                    if ns.ApplyTalentExportString then
+                        ns.ApplyTalentExportString(capturedExport, "Icy Veins " .. capturedLabel)
+                    end
+                end)
+            end
+            hasIcyVeins = true
+        end
+    end
+
     -- Section 4: Class Codex - PvP (per-bracket recommendations from
     -- Bnet talent_loadout_code + Murlok). Mirrors Archon's submenu
     -- pattern (M+ Dungeons / Raid Heroic / Raid Mythic above): an
@@ -603,7 +635,7 @@ local function BuildLoadoutMenu(_, root)
             local arenaHas = groupHasAny(ARENA_GROUP)
             local bgHas = groupHasAny(BG_GROUP)
 
-            if hasBlizzard or hasWowhead or hasArchon then root:CreateDivider() end
+            if hasBlizzard or hasWowhead or hasArchon or hasIcyVeins then root:CreateDivider() end
             root:CreateTitle("|TInterface\\AddOns\\ClassCodex\\Textures\\bnet:14:14:0:0|t  " .. (L["pvp.label"] or "PvP"))
 
             if not arenaHas and not bgHas then
@@ -630,7 +662,7 @@ local function BuildLoadoutMenu(_, root)
         end
     end
 
-    if not hasBlizzard and not hasArchon and not hasPvp and (not specData or not specData.talents or #specData.talents == 0) then
+    if not hasBlizzard and not hasArchon and not hasIcyVeins and not hasPvp and (not specData or not specData.talents or #specData.talents == 0) then
         root:CreateTitle(L["loadout_dock.no_loadouts"])
     end
 end

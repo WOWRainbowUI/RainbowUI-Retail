@@ -73,15 +73,16 @@ end
 local function NormalizeContext(ctx)
     if not ctx then return nil end
     local lc = ctx:lower()
-    if lc:find("raid") then return "Raid" end
+    if lc:find("raid") then return "團隊" end
     if lc:find("mythic+") or lc:find("m+") or lc:find("dungeon") then
-        return "Mythic+"
+        return "傳奇+"
     end
     return nil
 end
 
 -- Returns the stat-target snapshot for the given (class, spec, context), or nil.
--- Snapshot shape: { sourceUrl, targets = { crit, haste, mastery, versatility } }
+-- Snapshot shape: { targets = { crit, haste, mastery, versatility } }
+-- (the Archon source URL lives in the consolidated ClassCodexSources.)
 function ns.GetStatTargets(classToken, specKey, context)
     if not classToken or not specKey then return nil end
     local normalized = NormalizeContext(context)
