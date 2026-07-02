@@ -1,7 +1,9 @@
 # Platynator
 
-## [421](https://github.com/TheMouseNest/Platynator/tree/421) (2026-06-09)
-[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/420...421) 
+## [431](https://github.com/TheMouseNest/Platynator/tree/431) (2026-06-28)
+[Full Changelog](https://github.com/TheMouseNest/Platynator/compare/430...431) 
 
-- Fix combat switching error properly this time  
-- Mists: Add "nameplateNotSelectedAlpha" cvar to hard-set defaults  
+- Cleanup  
+- Fix stacking region causing errors on 12.1 PTR  
+- Add arrow assets pointing outwards  
+- Fix for Era PTR to use right nameplate stack region scaling  

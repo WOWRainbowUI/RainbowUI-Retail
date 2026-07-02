@@ -1249,8 +1249,13 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
           end
         elseif w.details.kind == "damageAbsorb" then
           w.text:SetText("+" .. AbbreviateNumbers(10290))
-        elseif w.details.kind == "creatureName" or w.details.kind == "target" or w.details.kind == "castTarget" or w.details.kind == "castInterrupter" then
-          display = "Cheesanator" .. (w.details.kind ~= "creatureName" and "2?" or "")
+        elseif w.details.kind == "creatureName" or w.details.kind == "guild" or w.details.kind == "target" or w.details.kind == "castTarget" or w.details.kind == "castInterrupter" then
+          if w.details.kind == "guild" then
+            display = "Surge of Awesome"
+          else
+            display = "Cheesanator" .. (w.details.kind ~= "creatureName" and "2?" or "")
+          end
+
           if w.details.applyClassColors then
             local c = RAID_CLASS_COLORS["MAGE"]
             w.text:SetTextColor(c.r, c.g, c.b)
@@ -1268,13 +1273,15 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
                 local c = s.colors.hostile
                 w.text:SetTextColor(c.r, c.g, c.b)
                 break
+              elseif s.kind == "guild" then
+                local c = s.colors.guild
+                w.text:SetTextColor(c.r, c.g, c.b)
+                break
               end
             end
           end
         elseif w.details.kind == "castTimeLeft" then
           display = "1.2"
-        elseif w.details.kind == "guild" then
-          display = "Surge of Awesome"
         elseif w.details.kind == "castSpellName" then
           display = addonTable.Locales.ARCANE_FLURRY
         elseif w.details.kind == "level" then
@@ -1492,6 +1499,19 @@ function addonTable.CustomiseDialog.GetMainDesigner(parent)
         for index, w in ipairs(widgets) do
           if w.details == autoSelectedDetails then
             selectionIndexes = {index}
+
+            -- Update hidden widget indexes
+            local keys = GetKeysArray(hiddenIndexes)
+            hiddenIndexes = {}
+            for _, k in ipairs(keys) do
+              if k >= index then
+                hiddenIndexes[k + 1] = true
+              elseif k ~= index then
+                hiddenIndexes[k] = true
+              end
+            end
+            UpdateHiding()
+
             break
           end
         end

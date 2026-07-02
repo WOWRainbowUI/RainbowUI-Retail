@@ -796,6 +796,23 @@ addonTable.CustomiseDialog.WidgetsConfig = {
         }
       }
     },
+    ["castSpellName"] = {
+      {
+        label = addonTable.Locales.GENERAL,
+        entries = {
+          {
+            label = addonTable.Locales.SHOW_ON_INTERRUPT,
+            kind = "checkbox",
+            setter = function(details, value)
+              details.showInterrupted = value
+            end,
+            getter = function(details)
+              return details.showInterrupted
+            end,
+          },
+        }
+      }
+    },
     ["castTarget"] = {
       {
         label = addonTable.Locales.COLORS,
@@ -901,6 +918,20 @@ addonTable.CustomiseDialog.WidgetsConfig = {
             end,
           },
         }
+      },
+      {
+        label = addonTable.Locales.COLORS,
+        entries = {
+          {
+            label = "",
+            kind = "autoColors",
+            lockedElements = {},
+            setter = function() end,
+            getter = function(details)
+              return details.autoColors
+            end,
+          },
+        },
       }
     },
     ["mythicPlusForces"] = {
