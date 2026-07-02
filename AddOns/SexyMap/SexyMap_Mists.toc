@@ -1,5 +1,5 @@
 ## Interface: 50504, 50503
-## Version: v12.0.6
+## Version: v12.0.9
 ## Title: SexyMap
 ## Notes: Spice up your minimap with some sexy options.
 ## Notes-deDE: Spice up your minimap with some sexy options.
@@ -21,8 +21,8 @@
 ## X-WoWI-ID: 21538
 ## X-Wago-ID: e56no0K9
 
-## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
-## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
+## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, Blizzard_TimeManager
+## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, CallbackHandler-1.0, LibStub
 
 ## Title-zhTW: |cff4DFF4D[地圖]|r 性感小地圖
 ## Notes-zhTW: SexyMap |n|n讓你的小地圖更具特色和樂趣，並增添一些性感的選項設定。|n|n|cffffd200使用方法：|r從Esc>選項>插件>小地圖，進行設定。
