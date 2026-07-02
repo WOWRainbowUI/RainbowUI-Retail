@@ -560,6 +560,9 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 	cd2 = cd and cd2 or nil
 	qual = qual >= qualModLow and qualMap[qual - qual % qualModLow] or 0
 	self[isAtlasIcon and "SetIconAtlas" or "SetIcon"](self, icon, isAtlasIcon and atlasRatio[icon] or 1)
+	if isAtlasIcon and state % 4194304 >= 2097152 then
+		self:SetIconTexCoord(4/64, 60/64, 4/64, 60/64)
+	end
 	if ext then securecall(applyExtIconCoord, self, ext) end
 	if not (ext and securecall(applyExtIconVertexColor, self, ext)) then
 		self:SetIconVertexColor(1, 1, 1)
@@ -604,7 +607,7 @@ local function updateSlice(self, originAngle, selected, tok, usable, state, icon
 			self:SetCooldown(0, 0, usableCharge)
 		end
 	else
-		
+		self:SetCooldown(0, 0, usableCharge)
 	end
 	self:SetEquipState(isInContainer, isInInventory)
 	self:SetActive(active)
@@ -880,6 +883,9 @@ function api:RegisterIndicatorConstructor(key, info)
 	assert(type(reqAPILevel) == "number" or reqAPILevel == nil, 'RegisterIndicatorConstructor: info.reqAPILevel, if set, must be a number', 2)
 	assert(type(onPAC) == "function" or onPAC == nil, 'RegisterIndicatorConstructor: info.onParentAlphaChanged, if set, must be a function', 2)
 
+	if MODERN and key == "elvui" and apiLevel == 4 then
+		apiLevel = 3 -- Does not implement SetCooldownDuration; can't render cooldowns in combat
+	end
 	local mainPool, err = ValidateIndicator(apiLevel, reqAPILevel, info)
 	local fbKey = key == "elvui" and (MODERN and "fixedFrameBuffering" or COMPAT > 2e4 and "fixedFrameBufferingClassic" or "fixedFrameBufferingEra")
 	if fbKey and not info[fbKey] then

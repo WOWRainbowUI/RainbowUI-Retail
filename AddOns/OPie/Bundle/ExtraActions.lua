@@ -37,7 +37,8 @@ do -- action handler
 		local _,_,_,_, _,_,_,imid = GetInstanceInfo()
 		local wantDrop = imid == 2127 and PlayerHasBuff(458069) and 1 or imid == 2738 and PlayerHasBuff(1214374) and 2
 		local wantGoPack = imid == 2127 and C_Item.GetItemCount(230728) > 0 and not PlayerHasBuff(469809) and 8
-		local newState, ni = (wantDrop or 0) + (wantGoPack or 0), 1
+		local wantHousingReturn = MODERN and C_HousingNeighborhood.CanReturnAfterVisitingHouse() and 16
+		local newState, ni = (wantDrop or 0) + (wantGoPack or 0) + (wantHousingReturn or 0), 1
 		if state == newState then
 			return
 		end
@@ -47,6 +48,10 @@ do -- action handler
 		end
 		if wantGoPack then
 			col[ni], ni = "OPZCAxSIGP", ni + 1
+		end
+		if wantHousingReturn then
+			col[ni], ni = "OPZCAxHNRET", ni + 1
+			col.OPZCAxHNRET = col.OPZCAxHNRET or AB:GetActionSlot("housing", "return")
 		end
 		for i=ni,#col do
 			col[i] = nil

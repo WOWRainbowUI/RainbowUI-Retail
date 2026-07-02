@@ -226,12 +226,11 @@ end
 if MODERN or CF_WRATH then -- Mounts
 	AB:AugmentCategory(L"Mounts", function(_, add)
 		if GetSpellInfo(150544) then add("spell", 150544) end
-		local myFactionId = UnitFactionGroup("player") == "Horde" and 0 or 1
 		local idm, i2, i2n = C_MountJournal.GetMountIDs(), {}, {}
 		for i=1, #idm do
 			local mid = idm[i]
-			local name, sid, _3, _4, _5, _6, _7, factionLocked, factionId, hide, have = C_MountJournal.GetMountInfoByID(mid)
-			if have and not hide and (not factionLocked or factionId == myFactionId) and RW:IsSpellCastable(sid, 2) then
+			local name, _sid, _3, _4, _5, _6, _7, _factionLocked, _factionId, hide, have = C_MountJournal.GetMountInfoByID(mid)
+			if have and not hide then
 				i2[#i2+1], i2n[mid] = mid, name
 			end
 		end
@@ -265,6 +264,15 @@ if MODERN then
 		for _, i in pairs(C_TransmogOutfitInfo.GetOutfitsInfo()) do
 			add("outfit", i.outfitID)
 		end
+	end)
+end
+if MODERN then
+	AB:AugmentCategory(L"Housing", function(_, add)
+		add("housing", "return")
+		add("housing", "match")
+		add("housing", "cross")
+		add("housing", "elwynn")
+		add("housing", "durotar")
 	end)
 end
 AB:AugmentCategory(L"Raid markers", function(_, add)

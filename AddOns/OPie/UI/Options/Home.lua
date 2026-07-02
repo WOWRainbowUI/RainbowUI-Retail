@@ -110,6 +110,19 @@ local logView = CreateFrame("Frame", nil, frame) do
 			TS:ShowCopyOverlay(frame, BROWSER_COPY_LINK, " ", url, L"Copy the URL shown above and visit it using a web browser.", OKAY, 1)
 		end
 	end)
+	local isLinkCursorSet
+	local function clearLinkCursor()
+		if isLinkCursorSet then
+			isLinkCursorSet = nil
+			SetCursor(nil)
+		end
+	end
+	logView:SetScript("OnHyperlinkEnter", function()
+		isLinkCursorSet = 1
+		SetCursor("Interface/Cursor/Interact")
+	end)
+	logView:SetScript("OnHyperlinkLeave", clearLinkCursor)
+	logView:SetScript("OnHide", clearLinkCursor)
 	logView:SetHyperlinksEnabled(true)
 
 	local oy, t = 0, logView:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -126,9 +139,10 @@ local logView = CreateFrame("Frame", nil, frame) do
 	local link = "|cff00a0ff|Hurl|hhttps://townlong-yak.com/addons/opie/release|h|r"
 	local intro = (L"Selected highlights from recent updates to OPie are summarized below. For full release notes, please visit %s"):format(link)
 	local MARK_TEXTURE = "Interface/AddOns/" .. ADDON .. "/gfx/mark.png"
-	local uvMark = "|T" .. MARK_TEXTURE .. ":0:0:0:1:2:1:1:2:0:1:221:102:0|t"
+	local uvMark = "|T" .. MARK_TEXTURE .. ":0:0:0:-4:2:1:1:2:0:1:221:102:0|t"
 	intro = intro .. "\n\n" .. (L"Changes marked with %s were inspired by submitted feedback."):format(uvMark)
 	t:SetFormattedText(intro, link)
+	t:SetSpacing(3)
 
 	local vGradient = {x=0, y=7}
 	local clipHost = CreateFrame("Frame", nil, logView)
@@ -137,7 +151,7 @@ local logView = CreateFrame("Frame", nil, frame) do
 	clipHost:SetAlphaGradient(0, vGradient)
 	clipHost:SetAlphaGradient(1, vGradient)
 	clipHost:SetPoint("TOPLEFT", t, "BOTTOMLEFT", 0, -12)
-	clipHost:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 15)
+	clipHost:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 12)
 	clipHost:SetHyperlinkPropagateToParent(true)
 	local clipAnchor = CreateFrame("Frame", nil, clipHost)
 	clipAnchor:SetHeight(0.125)
@@ -177,6 +191,7 @@ local logView = CreateFrame("Frame", nil, frame) do
 		t:SetPoint("TOPRIGHT", anchorTo, "BOTTOMRIGHT", 0, oy)
 		t:SetJustifyH("LEFT")
 		t:SetText((text:gsub("<tt>(.-)</tt>", "|cffa0ff00%1|r"):gsub("<b>(.-)</b>", NORMAL_FONT_COLOR_CODE .. "%1|r")))
+		t:SetSpacing(3)
 		anchorTo, anchorX, anchorY = t, 0, -8
 	end
 	local function uv(text)

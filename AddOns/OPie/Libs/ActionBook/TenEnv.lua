@@ -62,7 +62,6 @@ env.IsCurrentSpell = C_Spell.IsCurrentSpell
 env.GetSpellTexture = C_Spell.GetSpellTexture
 env.DoesSpellExist = C_Spell.DoesSpellExist
 env.GetSpellLink = C_Spell.GetSpellLink
-env.IsSpellOverlayed = C_SpellActivationOverlay.IsSpellOverlayed
 function env.GetActionCharges(slot)
 	local ci = slot and C_ActionBar.GetActionCharges(slot)
 	if ci then
@@ -75,7 +74,6 @@ function env.GetActionCooldown(slot)
 		return ci.startTime, ci.duration, ci.isEnabled, ci.modRate, ci.isActive
 	end
 end
-
 
 function env.GetStablePetInfo(idx)
 	local si = C_StableInfo.GetStablePetInfo(idx)

@@ -2,7 +2,7 @@ local COMPAT, _, T = select(4, GetBuildInfo()), ...
 local MODERN = COMPAT > 11e4
 
 local L, EV, PC, AB = T.L, T.Evie, T.OPieCore, T.ActionBook:compatible("ActionBook", 2, 48)
-local RW, KR = AB and AB:compatible("Rewire", 1, 47), AB and AB:compatible("Kindred", 1, 32)
+local RW, KR = AB and AB:compatible("Rewire", 1, 47), AB and AB:compatible("Kindred", 1, 35)
 local IM = AB and AB:compatible("Imp", 1, 13)
 local AL = AB and AB.L
 assert(EV and AB and RW and KR and PC and AL and IM and 1, "Incompatible library bundle")
@@ -10,6 +10,17 @@ assert(EV and AB and RW and KR and PC and AL and IM and 1, "Incompatible library
 if not MODERN then
 	IM:SetTokenReplacement('opie:mythport', false)
 	return
+end
+
+local GetHaste do
+	local cachedHaste
+	function GetHaste()
+		local hv = _G.GetHaste()
+		return issecretvalue(hv) and (cachedHaste or 0) or hv
+	end
+	function EV.ADDON_RESTRICTION_STATE_CHANGED()
+		cachedHaste = GetHaste()
+	end
 end
 
 local SPELL_NAME_EN = "Path of the Seasoned Hero"
@@ -38,9 +49,7 @@ local castButton = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
 castButton:Hide()
 castButton:SetAttribute("type", "spell")
 castButton:SetAttribute("useOnKeyDown", false)
-KR:RegisterStateDriver(castButton, "spell", portDriver) -- TODO: Should've exposed an attribute driver
-SecureHandlerWrapScript(castButton, "PreClick", castButton, 'self:SetAttribute("spell", self:GetAttribute("state-spell"))')
-
+KR:RegisterAttributeDriver(castButton, "spell", portDriver)
 
 local function SetFallbackPathTooltip(tip)
 	local nc = NORMAL_FONT_COLOR

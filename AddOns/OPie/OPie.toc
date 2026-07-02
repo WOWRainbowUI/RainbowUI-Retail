@@ -1,6 +1,6 @@
-## Interface: 11508, 20205, 50503, 120005, 120007
+## Interface: 11508, 20205, 50504, 120005, 120007
 ## Title: OPie
-## Version: 8.3.3
+## Version: 8.6.2
 ## License: All rights reserved. Do not redistribute, in whole or in part, without explicit prior permission from the author.
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
@@ -20,6 +20,7 @@
 ## SavedVariables: OPie_SavedData
 ## SavedVariablesPerCharacter: OPie_SavedDataPC
 ## X-M6-AB: OPie.ActionBook
+## Yak-UIKey: u64:h1GsWmev1x4zKAfpTZpyu_B-jHy5o3hEm9fjq2gfpjKBOE9FeeBY5pJU
 
 ## Title-zhTW: |cff00CCFF[快捷列]|r 環形
 ## Notes-zhTW: OPie |n|n按下快速鍵時顯示圓環形的技能群組，可以做為輔助的快捷列使用，十分方便!|n|n|cffffd200使用方法: |r從Esc>選項>插件>快捷列-環形，進行設定。
