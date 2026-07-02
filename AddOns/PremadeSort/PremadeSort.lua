@@ -52,30 +52,23 @@ local function IsDeclined(appStatus)
 end
 
 local function SortRules(searchResultID1, searchResultID2)
-	local searchResultInfo1 = C_LFGList.GetSearchResultInfo(searchResultID1);
-	local searchResultInfo2 = C_LFGList.GetSearchResultInfo(searchResultID2);
-    local activityID = searchResultInfo1.activityIDs[1]
-	-- local hasRemainingRole1 = HasRemainingSlotsForLocalPlayerRole(searchResultID1);
-	-- local hasRemainingRole2 = HasRemainingSlotsForLocalPlayerRole(searchResultID2);
+    local searchResultInfo1 = C_LFGList.GetSearchResultInfo(searchResultID1);
+    local searchResultInfo2 = C_LFGList.GetSearchResultInfo(searchResultID2);
+    local activityID1 = searchResultInfo1.activityIDs[1]
+    local activityID2 = searchResultInfo2.activityIDs[1]
     local _, appStatus1, pendingStatus1, appDuration1 = C_LFGList.GetApplicationInfo(searchResultID1);
     local _, appStatus2, pendingStatus2, appDuration2 = C_LFGList.GetApplicationInfo(searchResultID2);
-	local isDeclined1 = IsDeclined(appStatus1);
-	local isDeclined2 = IsDeclined(appStatus2);
+    local isDeclined1 = IsDeclined(appStatus1);
+    local isDeclined2 = IsDeclined(appStatus2);
 
-	--sort declined to the bottom
-	if LFGListFrame.declines then
-		isDeclined1 = isDeclined1 or not not LFGListFrame.declines[searchResultInfo1.partyGUID];
-		isDeclined2 = isDeclined2 or not not LFGListFrame.declines[searchResultInfo2.partyGUID];
-	end
+    if LFGListFrame.declines then
+        isDeclined1 = isDeclined1 or not not LFGListFrame.declines[searchResultInfo1.partyGUID];
+        isDeclined2 = isDeclined2 or not not LFGListFrame.declines[searchResultInfo2.partyGUID];
+    end
 
-	if isDeclined1 ~= isDeclined2 then
-		return isDeclined2;
-	end
-
-	-- Groups with your current role available are preferred
---[[ 	if (hasRemainingRole1 ~= hasRemainingRole2) then
-		return hasRemainingRole1;
-	end ]]
+    if isDeclined1 ~= isDeclined2 then
+        return isDeclined2;
+    end
 
     if Settings.FriendsEnabled then
         if ( searchResultInfo1.numBNetFriends ~= searchResultInfo2.numBNetFriends ) then
@@ -95,9 +88,15 @@ local function SortRules(searchResultID1, searchResultID2)
         return (appStatus1 ~= "none") and (appStatus2 == "none" or appStatus1 > appStatus2)
     end
 
-    if (activityID == 16 or activityID == 17) and Settings.SortWarMode then
-        if searchResultInfo1.isWarMode ~= searchResultInfo2.isWarMode then
-            return searchResultInfo1.isWarMode == C_PvP.IsWarModeDesired()
+    if Settings.SortWarMode then
+        local isWarModeZone1 = (activityID1 == 16 or activityID1 == 17)
+        local isWarModeZone2 = (activityID2 == 16 or activityID2 == 17)
+        local isWarmodeDesired = C_PvP.IsWarModeDesired()
+        local wmMatch1 = isWarModeZone1 and (searchResultInfo1.isWarMode == isWarmodeDesired)
+        local wmMatch2 = isWarModeZone2 and (searchResultInfo2.isWarMode == isWarmodeDesired)
+
+        if wmMatch1 ~= wmMatch2 then
+            return wmMatch1
         end
     end
 
@@ -105,7 +104,7 @@ local function SortRules(searchResultID1, searchResultID2)
         return searchResultInfo1.age < searchResultInfo2.age
     end
 
-	return searchResultID1 < searchResultID2;
+    return searchResultID1 < searchResultID2;
 end
 
 function SortSearchResults(result)
@@ -125,6 +124,19 @@ timeFormatter:Init(0, SecondsFormatter.Abbreviation.OneLetter, false, false);
 timeFormatter:SetStripIntervalWhitespace(true);
 --timeFormatter:SetDesiredUnitCount(1);
 
+local function GetGeneralPlaystyleString(enumValue)
+	if enumValue == Enum.LFGEntryGeneralPlaystyle.Learning then
+		return GROUP_FINDER_GENERAL_PLAYSTYLE1;
+	elseif enumValue == Enum.LFGEntryGeneralPlaystyle.FunRelaxed then
+		return GROUP_FINDER_GENERAL_PLAYSTYLE2;
+	elseif enumValue == Enum.LFGEntryGeneralPlaystyle.FunSerious then
+		return GROUP_FINDER_GENERAL_PLAYSTYLE3;
+	elseif enumValue == Enum.LFGEntryGeneralPlaystyle.Expert then
+		return GROUP_FINDER_GENERAL_PLAYSTYLE4;
+	end
+	return "";
+end
+
 local function OnLFGListSearchEntryUpdate(self)
     if not self.resultID then return end
 
@@ -132,29 +144,25 @@ local function OnLFGListSearchEntryUpdate(self)
     local activityInfo = C_LFGList.GetActivityInfoTable(searchResultInfo.activityIDs[1], nil, searchResultInfo.isWarMode);
     if not activityInfo then return end
 
---[[
-    if activityInfo.displayType == LFGListDisplayType.PlayerCount or activityInfo.displayType == LFGListDisplayType.HideAll then
-        self.ActivityName:SetWidth(258);
-    elseif activityInfo.displayType == LFGListDisplayType.RoleCount then
-        self.ActivityName:SetWidth(176);
-    else
-        self.ActivityName:SetWidth(200);
-    end
-]]
-    self.ActivityName:SetWidth(258);
     local fullName = activityInfo.fullName
     if (searchResultInfo.isWarMode and (searchResultInfo.activityIDs[1] == 16 or searchResultInfo.activityIDs[1] == 17)) then
-        fullName = activityInfo.fullName:gsub("%((.-)%)", "(|cFFFF282E%1|r)");
+        fullName = activityInfo.fullName:gsub("%((.-)%)", "(|cFFFF282E%1|r)")
     end
 
+    self.ActivityName:SetText(fullName)
+    local playstyleStr = GetGeneralPlaystyleString(searchResultInfo.generalPlaystyle)
+
     if not Settings.HideTimestamp then
-        if searchResultInfo.age < 60 then
-            self.ActivityName:SetText(format("|cff65DC3D%s|r | %s", searchResultInfo.age <= 0 and "Now" or timeFormatter:Format(searchResultInfo.age, false, true), fullName));
+        local color = searchResultInfo.age < 60 and "|cff65DC3D" or "|cffF7783C"
+        local timeStr = searchResultInfo.age <= 0 and "Now" or timeFormatter:Format(searchResultInfo.age, false, true)
+
+        if playstyleStr == "" then
+            self.Playstyle:SetText(format("%s%s|r", color, timeStr))
         else
-            self.ActivityName:SetText(format("|cffF7783C%s|r | %s", searchResultInfo.age <= 0 and "Now" or timeFormatter:Format(searchResultInfo.age, false, true), fullName));
+            self.Playstyle:SetText(format("%s%s|r |cff787878|||r %s", color, timeStr, playstyleStr))
         end
     else
-        self.ActivityName:SetText(fullName)
+        self.Playstyle:SetText(playstyleStr)
     end
 
     if searchResultInfo.isDelisted then
