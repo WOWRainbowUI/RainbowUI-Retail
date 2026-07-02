@@ -12,11 +12,9 @@ do -- /opie
 		end
 	end
 	local function showVersionText()
-		local sx, m, ok, m2 = ""
+		local sx = ""
 		if not PC then
-			m = "Restart World of Warcraft. If this message continues to appear, delete and re-install OPie."
-			ok, m2 = pcall(L, m)
-			sx = "\n  |cffe82020" .. (ok and m2 or m)
+			sx = ": |cfff03030" .. (T.BadCore or "Restart World of Warcraft. If this message continues to appear, delete and re-install OPie.")
 		end
 		print("|cff0080ffOPie|r |cffffffff" .. (C_AddOns.GetAddOnMetadata(ADDON, "Version") or "??") .. "|r" .. sx)
 	end
@@ -52,8 +50,12 @@ end
 do -- config.ui
 	config.ui = {}
 	function config.ui.HideTooltip(self)
+		local GGameTooltip = _G.GameTooltip
 		if GameTooltip:IsOwned(self) then
 			GameTooltip:Hide()
+		end
+		if GGameTooltip ~= GameTooltip and GGameTooltip:IsOwned(self) then
+			GGameTooltip:Hide()
 		end
 	end
 	function config.ui.ShowControlTooltip(self)

@@ -136,6 +136,7 @@ securecall(function() -- instance:arena/bg/ratedbg/lfr/raid/scenario + outland/n
 		[2706]="world/undermine/tww",
 		[2738]="world/karesh/tww",
 		[0]=MODERN and "world/midnight", [2694]="world/midnight", [2771]="world/midnight",
+		[3047]="world/midnight/val", [3075]="world/midnight/naigtal",
 		[2662]="dungeon/dawnbreaker",
 		[2769]="raid/undermine",
 		[2827]="hvision", [2828]="hvision", [2212]="hvision", [2213]="hvision",
@@ -595,7 +596,7 @@ securecall(function() -- pet:stable id; havepet:stable id
 	KR:SetStateConditionalValue("havepet", false)
 	EV.PLAYER_LOGIN, EV.PET_STABLE_UPDATE, EV.PET_INFO_UPDATE, EV.LOCALPLAYER_PET_RENAMED = syncPet, syncPet, syncPet, syncPet
 end)
-securecall(function() -- game:modern/remix/era/sod/cata + era/hc
+securecall(function() -- game:modern/remix/era/sod/classic + era/hc
 	KR:SetStateConditionalValue("game", "daze")
 	function EV.PLAYER_LOGIN()
 		local s
@@ -611,7 +612,7 @@ securecall(function() -- game:modern/remix/era/sod/cata + era/hc
 		elseif MODERN then
 			s = PlayerGetTimerunningSeasonID() and "remix" or "modern"
 		else
-			s = "cata"
+			s = "classic"
 		end
 		KR:SetStateConditionalValue("game", s)
 		return "remove"
@@ -1136,6 +1137,18 @@ securecall(function() -- prey:qid
 	EV.UPDATE_ALL_UI_WIDGETS = checkWidget
 	EV.PLAYER_REGEN_ENABLED = syncPrey
 	EV.PLAYER_LOGIN = checkWidget
+end)
+securecall(function() -- Housing Return
+	KR:SetStateConditionalValue("housereturn", false)
+	if not MODERN then
+		return
+	end
+	local function syncReturn()
+		local v = not not C_HousingNeighborhood.CanReturnAfterVisitingHouse()
+		KR:SetStateConditionalValue("housereturn", v)
+	end
+	EV.PLAYER_ENTERING_WORLD = syncReturn
+	EV.UPDATE_UI_WIDGET = syncReturn
 end)
 
 securecall(function() -- Managed role units

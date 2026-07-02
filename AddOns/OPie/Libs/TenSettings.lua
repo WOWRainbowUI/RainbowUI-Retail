@@ -91,13 +91,12 @@ do -- TenSettingsFrame
 			revert:SetSize(110, 24)
 			revert:SetPoint("LEFT", defaults, "RIGHT", 4, 0)
 			revert:SetText(REVERT)
-			local drop = CreateFrame("Frame", nil, revert, "UIDropDownMenuTemplate")
+			local drop = XU:Create("DropDown", nil, revert)
+			drop:SetAllPoints()
+			drop:Hide()
+			drop.displayMode = "MENU"
 			UIDropDownMenu_SetAnchor(drop, 0, 2, "BOTTOM", revert, "TOP")
-			UIDropDownMenu_SetDisplayMode(drop, "MENU")
-			revert:SetScript("OnClick", function()
-				ToggleDropDownMenu(1, nil, drop)
-				PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
-			end)
+			revert:SetScript("OnClick", function() drop:Click() end)
 			function revert:HandlesGlobalMouseEvent(button, _ev)
 				return button == "LeftButton"
 			end

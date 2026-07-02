@@ -2,8 +2,9 @@ local COMPAT, _, T = select(4,GetBuildInfo()), ...
 if T.SkipLocalActionBook then return end
 if T.TenEnv then T.TenEnv() end
 
-local MODERN, CF_CLASSIC, CI_ERA = COMPAT >= 10e4 or nil, COMPAT < 10e4 or nil, COMPAT < 2e4 or nil
-local CF_WRATH, CF_CATA, CF_MISTS = COMPAT < 10e4 and COMPAT > 3e4 or nil, COMPAT < 10e4 and COMPAT > 4e4 or nil, COMPAT < 10e4 and COMPAT > 5e4 or nil
+local MODERN, CI_ERA = COMPAT >= 10e4 or nil, COMPAT < 2e4 or nil
+local CF_CLASSIC = not MODERN or nil
+local CF_WRATH, CF_CATA, CF_MISTS = CF_CLASSIC and COMPAT > 3e4 or nil, CF_CLASSIC and COMPAT > 4e4 or nil, CF_CLASSIC and COMPAT > 5e4 or nil
 local MODERN_MOUNTS, MODERN_BATTLEPETS = MODERN or CF_WRATH, MODERN or CF_MISTS
 local EV = T.Evie
 local AB = T.ActionBook:compatible(2,43)
@@ -137,7 +138,7 @@ local function actionHint(slot)
 		cdUsable = cdLeft == 0 or cdEnabled == 0
 	end
 	state = state + ((IsCurrentAction(slot) or cdEnabled == 0) and 1 or 0)
-	      + (at == "spell" and IsSpellOverlayed(aid) and 2 or 0)
+	      + (at == "spell" and C_SpellActivationOverlay.IsSpellOverlayed(aid) and 2 or 0)
 	      + (nomana and 8 or 0) + (inRange and 0 or 16) + (hasUsableCharge and 64 or 0) + (hasRange and 512 or 0)
 	      + (usable and 0 or 1024) + (cdEnabled == 0 and 2048 or 0)
 	usable = not not (usable and inRange and cdUsable)
@@ -184,20 +185,21 @@ securecall(function() -- mount: mount ID
 		local _1, sid, _3, _4, _5, _6, _7, factionLocked, factionId, hide, have = C_MountJournal.GetMountInfoByID(mid)
 		return (have and sid ~= 0 and not hide
 		        and (not factionLocked or factionId == (UnitFactionGroup("player") == "Horde" and 0 or 1)) and sid ~= 0
-		        and RW:IsSpellCastable(sid, 2)) and mid or nil, sid
+		        and RW:IsSpellCastable(sid, 2) -- checks some unlock conditions
+		       ) and mid or nil, sid
 	end
 	function mountHint(id)
 		local usable = (not (InCombatLockdown() or IsIndoors())) and HasFullControl() and not UnitIsDeadOrGhost("player")
 		local cname, sid, icon, active, usable2 = C_MountJournal.GetMountInfoByID(id)
 		local state, cdUsable = (active and 1 or 0), nil
-		local cdLeft, cdLength, _cdEnabled, _cdModRate, cdActive = GetSpellCooldown(sid)
+		local cdLeft, cdLength, cdEnabled, _cdModRate, cdActive = GetSpellCooldown(sid)
 		if MODERN and issecretvalue(cdLeft) then
 			if sid then
 				cdUsable, cdLeft = not cdActive
 				state, cdLength = state + 524288, spellPHS + sid
 			end
 		else
-			cdLeft, cdLength = toCooldown(GetTime(), cdLeft, cdLength)
+			cdLeft, cdLength, cdEnabled = toCooldown(GetTime(), cdLeft, cdLength, cdEnabled)
 			cdUsable = cdLeft == 0
 		end
 		return usable and cdUsable and usable2, state, icon, cname, 0, cdLeft, cdLength, callMethod.SetMountBySpellID, sid
@@ -334,9 +336,13 @@ securecall(function() -- spell: spell ID + mount spell ID
 				retChargeCooldown = 1
 			end
 			cdUsable = cdLeft == 0 or cdEnabled == 0
+			if MODERN and issecretvalue(count) then
+				-- 12.0.5: spell:1249752 from the SBA trips on count while lacking a cooldown
+				count, overCount = 1, C_Spell.GetSpellDisplayCount(msid)
+			end
 		end
 		state = state + ((IsSelectedSpellBookItem(n) or IsCurrentSpell(n) or isCurrentForm(n, sid) or cdEnabled == 0) and 1 or 0)
-		      + (MODERN and IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (hasUsableCharge and 64 or 0)
+		      + (MODERN and C_SpellActivationOverlay.IsSpellOverlayed(msid or 0) and 2 or 0) + (nomana and 8 or 0) + (inRange and 0 or 16) + (hasUsableCharge and 64 or 0)
 		      + (hasRange and 512 or 0) + (usable and 0 or 1024) + (cdEnabled == 0 and 2048 or 0)
 		usable = not not (usable and inRange and cdUsable)
 		if retChargeCooldown then
@@ -771,7 +777,7 @@ securecall(function() -- macro: name
 					notify, sm[k] = RW:SetNamedMacroText(k, nil, owner, true) or notify, nil
 				end
 			end
-			local ofs = MAX_ACCOUNT_MACROS - numGlobal
+			local ofs = (MAX_ACCOUNT_MACROS or 120) - numGlobal
 			for i=1,numGlobal + numChar do
 				local k, _, text = GetMacroInfo((i > numGlobal and ofs or 0)+i)
 				if k and text ~= sm[k] then
@@ -1289,7 +1295,7 @@ securecall(function() -- toy: item ID, flags[FORCE_SHOW]
 		[89222]=1, [63141]="[alliance]", [64997]="[horde]", [66888]=1, [89869]=1, [90175]=1,
 		[103685]=1, [115468]="[horde]", [115472]="[alliance]", [119160]="[horde]", [119182]="[alliance]",
 		[122283]=1, [142531]=1, [142532]=1, [163211]=1,
-		[85500]=MODERN and "[fish5]",
+		[85500]=MODERN and "[fish5]" or CF_MISTS and "[fish:525]",
 		[182773]="[coven:necro][acoven80:necro]", [184353]="[coven:kyrian][acoven80:kyrian]", [180290]="[coven:fae][acoven80:fae]", [183716]="[coven:venthyr][acoven80:venthyr]", [190237] = 1,
 	}
 	local function playerHasToy(id)
@@ -1509,6 +1515,15 @@ securecall(function() -- uipanel: token
 	local CLICK, pyCLICK, widgetClickCommand, closeButton = SLASH_CLICK1 .. " " do
 		local pyName = newWidgetName("AB:PY!")
 		local py = CreateFrame("Button", pyName, nil, "SecureActionButtonTemplate")
+		local cInfo = {}
+		local function setPanelParent(self)
+			local p = cInfo[self].gw
+			if p then
+				self:SetParent(p)
+				cInfo[self] = nil
+				self:SetScript("PreClick", nil)
+			end
+		end
 		py:SetAttribute("type", "click")
 		py:SetAttribute("pressAndHoldAction", 1)
 		pyCLICK = CLICK .. pyName .. " "
@@ -1523,9 +1538,13 @@ securecall(function() -- uipanel: token
 			end
 			return CLICK .. tn .. " 1\n"
 		end
-		function closeButton(p, reg)
-			local r = CreateFrame("Button", nil, p, "UIPanelCloseButton")
+		function closeButton(p, reg, panelInfo)
+			local r = CreateFrame("Button", nil, p or py, "UIPanelCloseButton")
 			r:Hide()
+			if not p and panelInfo then
+				cInfo[r] = panelInfo
+				r:SetScript("PreClick", setPanelParent)
+			end
 			return r, reg and widgetClickCommand(reg, r)
 		end
 	end
@@ -1597,7 +1616,7 @@ securecall(function() -- uipanel: token
 			else
 				GameTooltip:AddLine(WEEKLY_REWARDS_ADD_ITEMS, 0.75, 0.75, 0.75, 1)
 			end
-			if InCombatLockdown() and not WeeklyRewardsFrame:IsShown() then
+			if InCombatLockdown() and not (WeeklyRewardsFrame and WeeklyRewardsFrame:IsShown()) then
 				GameTooltip:AddLine("|A:gmchat-icon-blizz:0:0|a " .. ERR_NOT_IN_COMBAT, 1, 0, 0, 1)
 			end
 			GameTooltip:Show()
@@ -1626,7 +1645,7 @@ securecall(function() -- uipanel: token
 		macro={MACROS, icon="Interface/Icons/INV_Misc_Note_06", gn="MacroFrame", tmt=SLASH_MACRO1, cw=closeButton(MacroFrame), postmt=pyCLICK .. "csp 1\n" .. pyCLICK .. "cgm 1"},
 		profs=MODERN and {TRADE_SKILLS, icon="interface/icons/inv_pick_02", tw=ProfessionMicroButton},
 		gamemenu={L"Game Menu", icon=CF_CLASSIC and "Interface/Icons/INV_Misc_PunchCards_Red", atlas="UI-HUD-MicroMenu-GameMenu-Up", gw=GameMenuFrame, noduck=1, pre=function() return not GameMenuFrame:IsShown() or nil end, post=function() RatingMenuFrame:Show() RatingMenuFrame:Hide() PlaySound(SOUNDKIT.IG_MAINMENU_OPEN) end},
-		vault=MODERN and {DELVES_GREAT_VAULT_LABEL, icon="Interface/Icons/INV_Cape_Special_Treasure_C_01", gn="WeeklyRewardsFrame", skipCloseSound=169062, req=function() return UnitLevel("player") == 90 end, tip=ShowVaultTip, open=openPanelFallback},
+		vault=MODERN and {DELVES_GREAT_VAULT_LABEL, icon="Interface/Icons/INV_Cape_Special_Treasure_C_01", gn="WeeklyRewardsFrame", skipCloseSound=169062, req=function() return UnitLevel("player") == 90 end, tip=ShowVaultTip, open=openPanelFallback, preload="Blizzard_WeeklyRewards"},
 		csp={gw=SettingsPanel, cpreamble=true, cw=closeButton(SettingsPanel, "csp")},
 		cgm={gw=GameMenuFrame, cpreamble=true, cw=closeButton(GameMenuFrame, "cgm")},
 		csf={pre=function() return StoreFrame_IsShown and StoreFrame_SetShown and StoreFrame_IsShown() and StoreFrame_SetShown(false) end, cpreamble=true},
@@ -1641,6 +1660,13 @@ securecall(function() -- uipanel: token
 		ex:SetAttribute("pressAndHoldAction", 1)
 		local function prerun(k)
 			local i, r = panels[k], 0
+			local pl = i.preload
+			if pl and not InCombatLockdown() then
+				if not C_AddOns.IsAddOnLoaded(pl) then
+					C_AddOns.LoadAddOn(pl)
+				end
+				i.preload = nil
+			end
 			local tw, gw, cw, cw2, ow, ofun, scs = i.tw, i.gw, i.cw, i.cw2, i.ow, i.open, i.skipCloseSound
 			if tw and not tw:IsEnabled() then
 				r = i.tcr and r + 1 or r; tw:Enable()
@@ -1768,8 +1794,7 @@ securecall(function() -- uipanel: token
 				end
 				return "remove"
 			end
-			pcall(C_AddOns.LoadAddOn, "Blizzard_WeeklyRewards")
-			panels.vault.cw = closeButton(panels.vault.gw)
+			panels.vault.cw = closeButton(nil, nil, panels.vault)
 		elseif CF_WRATH then
 			panels.achievements.icon = "Interface/PvPFrame/Icons/prestige-icon-4"
 			local gfp = panels.groupfinder
@@ -1834,7 +1859,7 @@ securecall(function() -- outfit: id
 		local outfitButton = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
 		outfitButton:SetAttribute("action", CLOBBER_SLOT)
 		outfitButton:SetAttribute("useOnKeyDown", false)
-		SecureHandlerWrapScript(outfitButton, "OnClick", outfitButton, 'return "RightButton"');
+		SecureHandlerWrapScript(outfitButton, "OnClick", outfitButton, 'return self:GetAttribute("click-button")');
 		outfitButton:SetAttribute("RunSlashCmd", [=[--AB:Outfit_RunSlash 
 			local _cmd, v = ...
 			return nil, "notified-click", tonumber(v)
@@ -1881,10 +1906,11 @@ securecall(function() -- outfit: id
 		end
 		local csEmpty
 		outfitButton:SetScript("PreClick", function()
-			local oid = outfitButton:GetAttribute("outfit-id")
+			local oid, oid0 = outfitButton:GetAttribute("outfit-id")
 			if InCombatLockdown() or not oid then
 				return oid and UIErrorsFrame:AddExternalErrorMessage(ERR_NOT_IN_COMBAT) and nil
 			end
+			oid0, oid = oid, oid % 1e5
 			DuckCursorSounds()
 			ClearCursor() -- going to happen anyway
 			C_TransmogOutfitInfo.PickupOutfit(oid)
@@ -1892,7 +1918,9 @@ securecall(function() -- outfit: id
 				csEmpty = nil == GetActionInfo(CLOBBER_SLOT)
 				PlaceAction(CLOBBER_SLOT)
 				if IsActionOutfit(oid, GetActionInfo(CLOBBER_SLOT)) then
+					local b = oid == oid0 or C_TransmogOutfitInfo.GetActiveOutfitID() == oid
 					outfitButton:SetAttribute("type", "action")
+					outfitButton:SetAttribute("click-button", b and "RightButton" or "LeftButton")
 				end
 			else
 				ClearCursor()
@@ -1962,12 +1990,13 @@ securecall(function() -- outfit: id
 		end
 		return usable, state, icon, name, 0, cdLeft, cdLength, setOutfitTooltip, id
 	end
-	local function createOutfit(id)
+	local function createOutfit(id, flags)
 		if not (unlockedOutfits[id] or type(id) == "number" and C_TransmogOutfitInfo.GetOutfitInfo(id)) then
 			return
 		end
-		local aid = outfitAction[id] or AB:CreateActionSlot(hintOutfit, id, "retext",SLASH_USEOUTFIT .. " " .. id)
-		outfitAction[id], unlockedOutfits[id] = aid, true
+		local sid = (flags == 1 and id > 0 and 1e5+id or id)
+		local aid = outfitAction[sid] or AB:CreateActionSlot(hintOutfit, id, "retext",SLASH_USEOUTFIT .. " " .. sid)
+		outfitAction[sid], unlockedOutfits[id] = aid, true
 		return aid
 	end
 	local function describeOutfit(id)
@@ -1976,7 +2005,7 @@ securecall(function() -- outfit: id
 		local icon = outfitIcon[id]
 		return L"Outfit", name ~= "" and name or ("#" .. id), icon
 	end
-	AB:RegisterActionType("outfit", createOutfit, describeOutfit, 1)
+	AB:RegisterActionType("outfit", createOutfit, describeOutfit, 2)
 	function EV:TRANSMOG_OUTFITS_CHANGED(newID)
 		if next(outfitName) then
 			wipe(outfitName)
@@ -1987,4 +2016,133 @@ securecall(function() -- outfit: id
 		end
 		AB:NotifyObservers("outfit")
 	end
+end)
+securecall(function() -- housing: token
+	if not MODERN then
+		return
+	end
+	local porter, housingTokens, needSync = CreateFrame("Button", nil, nil, "SecureActionButtonTemplate")
+	porter:SetAttribute("useOnKeyDown", false)
+	porter:Hide()
+	local function pushPortInfo(info)
+		if InCombatLockdown() then
+			needSync, info.dirty = 1, 1
+			return
+		end
+		local aid = info.aid
+		porter:SetAttribute("*type-" .. aid, "visithouse")
+		porter:SetAttribute("*house-neighborhood-guid-" .. aid, info.nid)
+		porter:SetAttribute("*house-guid-" .. aid, info.hid)
+		porter:SetAttribute("*house-plot-id-" .. aid, info.pid)
+		info.dirty = nil
+	end
+	local function setPortInfo(info, inLockdown, nid, hid, pid, hname)
+		info.hname = hname
+		if info.nid ~= nid or info.hid ~= hid or info.pid ~= pid then
+			info.nid, info.hid, info.pid = nid, hid, pid
+			pushPortInfo(info, inLockdown)
+			return true
+		end
+	end
+	local function setPortTip(tip, tk)
+		local it, nc = housingTokens[tk], NORMAL_FONT_COLOR
+		local suf = it.suf
+		if suf then
+			tip:AddDoubleLine(it[1], suf, 1,1,1, 0.5,0.5,0.5)
+		else
+			tip:AddLine(it[1], 1,1,1)
+		end
+		if tk == "return" then
+			tip:AddLine(SPELL_CAST_TIME_SEC:format(10), 1,1,1)
+		else
+			tip:AddDoubleLine(SPELL_CAST_TIME_SEC:format(10), SPELL_RECAST_TIME_MIN:format(15), 1,1,1, 1,1,1)
+		end
+		local d = C_Spell.GetSpellDescription(it.sid)
+		if d then
+			tip:AddLine(d, nc.r, nc.g, nc.b, 1)
+		end
+		if it.hname then
+			tip:AddLine('"' .. it.hname .. '"', 0.4, 0.73, 1, 1)
+		end
+	end
+	local function housingHint(tk)
+		local info = housingTokens[tk]
+		local state, req, sid = 262144+2097152, info.req, info.sid
+		local usable, cdUsable = HasFullControl() and (req == nil or not not req())
+		local cdLeft, cdLength, cdEnabled, _cdModRate, cdActive
+		if tk == "return" and false then
+			cdLeft, cdLength, cdEnabled, cdActive, cdUsable = 0, 0, 1, false, true
+		else
+			cdLeft, cdLength, cdEnabled, _cdModRate, cdActive = GetSpellCooldown(sid)
+			if issecretvalue(cdLeft) then
+				cdUsable, cdLeft = not cdActive
+				state, cdLength = state + 524288, spellPHS + sid
+			else
+				cdLeft, cdLength = toCooldown(GetTime(), cdLeft, cdLength, cdEnabled)
+				cdUsable = cdLeft == 0
+			end
+		end
+		return usable and cdUsable, state, info[2], info[1], 0, cdLeft, cdLength, setPortTip, tk
+	end
+	housingTokens = {
+		["return"]= {0, "dashboard-panel-homestone-teleport-out-button", sid=1270311,
+		            req=C_HousingNeighborhood.CanReturnAfterVisitingHouse, at="returnhome"},
+		["match"]=  {0, "dashboard-panel-homestone-teleport-button", sid=1233637},
+		["cross"]=  {0, "dashboard-panel-homestone-teleport-button", sid=1233637, suf=L"Cross-Faction"},
+		["elwynn"]= {0, "dashboard-panel-homestone-teleport-button", sid=1233637, suf=L"Founder's Point"},
+		["durotar"]={0, "dashboard-panel-homestone-teleport-button", sid=1233637, suf=L"Razorwind Shores"},
+	}
+	for k, i in pairs(housingTokens) do
+		i[1] = C_Spell.GetSpellName(i.sid)
+		i.aid = AB:CreateActionSlot(housingHint, k, "attribute", "type",i.at or "click", "clickbutton",porter)
+	end
+	
+	local function createHousePort(tk)
+		local info = housingTokens[tk]
+		return info and (tk == "return" or info.nid and info.hid and info.pid) and info.aid or nil
+	end
+	local function describeHousePort(tk)
+		local info = housingTokens[tk]
+		if not info then return end
+		local suf = info.suf
+		suf = suf and " (" .. suf .. ")" or ""
+		return L"Housing", info[1] .. suf, info[2], nil, setPortTip, tk
+	end
+	function EV:PLAYER_HOUSE_LIST_UPDATED(hl)
+		local anyChanged, inLockdown = nil, InCombatLockdown()
+		for i=1, hl and #hl or 0 do
+			local hi = hl[i]
+			local nk = C_Housing.GetNeighborhoodTextureSuffix(hi.neighborhoodGUID)
+			local info = nk ~= "return" and housingTokens[nk]
+			if info then
+				anyChanged = setPortInfo(info, inLockdown, hi.neighborhoodGUID, hi.houseGUID, hi.plotID, hi.houseName) or anyChanged
+			end
+		end
+		local horde = UnitFactionGroup("player") == "Horde"
+		local i1 = housingTokens[horde and "durotar" or "elwynn"]
+		local i2 = housingTokens[horde and "elwynn" or "durotar"]
+		if i2.nid and not i2.nid then
+			i1, i2 = i2, i1
+		end
+		setPortInfo(housingTokens.match, inLockdown, i1.nid, i1.hid, i1.pid, i1.hname)
+		setPortInfo(housingTokens.cross, inLockdown, i2.nid, i2.hid, i2.pid, i2.hname)
+		if anyChanged then
+			AB:NotifyObservers("housing")
+		end
+	end
+	function EV:PLAYER_ENTERING_WORLD()
+		C_Housing.GetPlayerOwnedHouses()
+		return "remove"
+	end
+	function EV:PLAYER_REGEN_ENABLED()
+		if needSync then
+			for _, info in pairs(housingTokens) do
+				if info.aid and info.dirty then
+					pushPortInfo(info)
+				end
+			end
+			needSync = nil
+		end
+	end
+	AB:RegisterActionType("housing", createHousePort, describeHousePort, 1)
 end)

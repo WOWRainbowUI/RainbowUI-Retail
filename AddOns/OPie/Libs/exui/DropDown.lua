@@ -10,6 +10,27 @@ local DropDownProps = {
 }
 AddObjectMethods({"DropDown"}, DropDownProps)
 
+local onBrokenListOpen do
+	local HOOK_LEVEL, OPEN_DROPDOWN_LIST_OWNER = 1
+	local function SubList_OnShow(list)
+		local uipScale = OPEN_DROPDOWN_LIST_OWNER == UIDROPDOWNMENU_OPEN_MENU and UIParent:GetScale()
+		if uipScale and (list:GetScale()-uipScale)^2 > 1e-9 then
+			-- This *should* happen right in the middle of ToggleDropDownMenu, before it tries
+			-- to check whether the menu is off-screen and adjusts anchors.
+			list:SetScale(uipScale)
+		end
+	end
+	function onBrokenListOpen(owner)
+		OPEN_DROPDOWN_LIST_OWNER = owner
+		while HOOK_LEVEL < UIDROPDOWNMENU_MAXLEVELS do
+			local list = _G["DropDownList" .. HOOK_LEVEL + 1]
+			if not list then break end
+			list:HookScript("OnShow", SubList_OnShow)
+			HOOK_LEVEL = HOOK_LEVEL + 1
+		end
+	end
+end
+
 function DropDown:HandlesGlobalMouseEvent(button)
 	return button == "LeftButton" and self:IsEnabled()
 end
@@ -50,8 +71,31 @@ function internal.OnPulseLoop(self, ls)
 	end
 end
 function internal.OnDropArrowClick(self)
-	ToggleDropDownMenu(nil, nil, self, self, 8, 8)
+	local ox, oy = self.xOffset or 8, self.yOffset or 8
+	ToggleDropDownMenu(nil, nil, self, self, ox, oy)
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+	local uipScale, list = DropDownList1:IsShown() and UIParent:GetScale(), DropDownList1
+	if uipScale and (list:GetScale() - uipScale)^2 > 1e-9 then
+		-- BUG: If uiScale < UIParent:GetScale(), UIDD overcompensates while clamping list to screen
+		list:SetScale(uipScale)
+		local point, relativePoint, relativeTo = self.point or "TOPLEFT", self.relativePoint or "BOTTOMLEFT", self.relativeTo or self
+		list:ClearAllPoints()
+		list:SetPoint(point, relativeTo, relativePoint, ox, oy)
+		local l, b, w, h = list:GetScaledRect()
+		local r, t = GetScreenWidth()*uipScale - l - w, GetScreenHeight()*uipScale - b - h
+		if l < 0 then
+			ox = ox - l/uipScale
+		elseif r < 0 then
+			ox = ox + r/uipScale
+		end
+		if b < 0 then
+			oy = oy - b/uipScale
+		elseif t < 0 then
+			oy = oy + t/uipScale
+		end
+		list:SetPoint(point, relativeTo, relativePoint, ox, oy)
+		onBrokenListOpen(self)
+	end
 end
 function internal.OnDropHide(self, ...)
 	local d = getWidgetData(self, DropDownData)

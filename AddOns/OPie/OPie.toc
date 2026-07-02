@@ -1,6 +1,6 @@
-## Interface: 11508, 20505, 50503, 120005
+## Interface: 11508, 20505, 50504, 120007
 ## Title: OPie
-## Version: 8.3.3
+## Version: 8.6.2
 ## License: All rights reserved. Do not redistribute, in whole or in part, without explicit prior permission from the author.
 ## Author: foxlit
 ## Notes: Group abilities into rings that appear when you hold down a binding.
@@ -20,6 +20,7 @@
 ## SavedVariables: OPie_SavedData
 ## SavedVariablesPerCharacter: OPie_SavedDataPC
 ## X-M6-AB: OPie.ActionBook
+## Yak-UIKey: u64:h1GsWmev1x4zKAfpTZpyu_B-jHy5o3hEm9fjq2gfpjKBOE9FeeBY5pJU
 Meta\PackTag-6.lua
 Libs\Evie.lua
 Libs\Niji.lua

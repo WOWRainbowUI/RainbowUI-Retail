@@ -4,7 +4,7 @@ if T.SkipLocalActionBook then return end
 local AB = T.ActionBook:compatible(2, 36)
 assert(AB and 1, "Incompatible library bundle")
 local L = T.ActionBook.L
-local MODERN = select(4,GetBuildInfo()) >= 8e4
+local MODERN = select(4,GetBuildInfo()) >= 12e4
 
 local RegisterSimpleOptionsPanel do
 	local optionsForHandle, curHandle, curHandleID = {}
@@ -59,7 +59,8 @@ local RegisterSimpleOptionsPanel do
 		ofsX = type(ofsX) == "number" and ofsX or 2
 		local getState, fvm = opts.getOptionState, opts.flagValues
 		local f3 = type(actionTable[3]) == "number" and actionTable[3] or 0
-		for i=1,#opts do
+		local nOpts = (opts.skipID ~= nil and actionTable[2] == opts.skipID and 0 or #opts)
+		for i=1,nOpts do
 			local w, oi, isChecked = fButtons[i], opts[i], false
 			w.Text:SetText(opts[oi])
 			w:SetPoint("TOPLEFT", ofsX, 23-21*i)
@@ -74,7 +75,7 @@ local RegisterSimpleOptionsPanel do
 			w:SetChecked(isChecked)
 			w:Show()
 		end
-		for i=#opts+1,#fButtons do
+		for i=nOpts+1,#fButtons do
 			fButtons[i]:Hide()
 		end
 		f:Show()
@@ -82,7 +83,9 @@ local RegisterSimpleOptionsPanel do
 	local function GetAction(self, into)
 		local opts = optionsForHandle[self]
 		into[1], into[2] = opts[0], curHandleID
-		if opts.flagValues then
+		if opts.skipID ~= nil and opts.skipID == curHandleID then
+			into[3] = nil
+		elseif opts.flagValues then
 			local v, fv = 0, opts.flagValues
 			for i=1, #opts do
 				v = v + (fButtons[i]:GetChecked() and fv[opts[i]] or 0)
@@ -104,28 +107,35 @@ local RegisterSimpleOptionsPanel do
 	end
 end
 
+AB.HUM.CreateSimpleEditorPanel = RegisterSimpleOptionsPanel
+
 local forceShowFlag = {forceShow=1}
-RegisterSimpleOptionsPanel("item", {"byName", "forceShow", "onlyEquipped",
+securecall(RegisterSimpleOptionsPanel, "item", {"byName", "forceShow", "onlyEquipped",
 	byName=L"Also use items with the same name",
 	forceShow=L"Show a placeholder when unavailable",
 	onlyEquipped=L"Only show when equipped",
 	flagValues={byName=2, forceShow=1, onlyEquipped=4},
 })
-RegisterSimpleOptionsPanel("macro", {"forceShow",
+securecall(RegisterSimpleOptionsPanel, "macro", {"forceShow",
 	forceShow=L"Show a placeholder when unavailable",
 	flagValues=forceShowFlag,
 })
 if MODERN then
-	RegisterSimpleOptionsPanel("extrabutton", {"forceShow",
+	securecall(RegisterSimpleOptionsPanel, "extrabutton", {"forceShow",
 		forceShow=L"Show a placeholder when unavailable",
 		flagValues=forceShowFlag,
 	})
-	RegisterSimpleOptionsPanel("toy", {"forceShow",
+	securecall(RegisterSimpleOptionsPanel, "toy", {"forceShow",
 		forceShow=L"Show a placeholder when unavailable",
 		flagValues=forceShowFlag,
+	})
+	securecall(RegisterSimpleOptionsPanel, "outfit", {"noInitialLock",
+		noInitialLock=L"Unlock appearance when switching",
+		flagValues={noInitialLock=1},
+		skipID=0,
 	})
 else
-	RegisterSimpleOptionsPanel("spell", {"upRank",
+	securecall(RegisterSimpleOptionsPanel, "spell", {"upRank",
 		upRank=L"Use the highest known rank",
 		getOptionState=function(actionTable, _optKey)
 			return actionTable[3] ~= 16
@@ -135,5 +145,3 @@ else
 		end,
 	})
 end
-
-AB.HUM.CreateSimpleEditorPanel = RegisterSimpleOptionsPanel

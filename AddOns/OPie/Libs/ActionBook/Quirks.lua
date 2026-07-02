@@ -616,9 +616,9 @@ securecall(function() -- Modern: G-99 Breakneck is a fake mount
 	KR:RegisterStateDriver(wf, 'um', '[in:undermine] 1; 0')
 	RW:SetSpellCastableChecker(G99_SPELL_ID, function()
 		if hasUnlockedG99() and inUndermine then
-			return true, "g99-quirk"
+			return true, "q-g99"
 		end
-		return false, "g99-quirk"
+		return false, "q-g99"
 	end)
 	AB:AugmentCategory(AB.L"Mounts", function(_, add)
 		if hasUnlockedG99() then
@@ -655,4 +655,44 @@ securecall(function() -- Classic Mists: [spec:1] is stuck
 		end
 	end
 	EV.PLAYER_LOGIN = syncSpec
+end)
+securecall(function() -- Modern [12.0]: Nether[-Swept] Drake spell is not castable
+	if not MODERN then return end
+	local NETHER_DRAKE_SID = 3363
+	local NETHER_DRAKE_MID = C_MountJournal.GetMountFromSpell(NETHER_DRAKE_SID)
+	if not NETHER_DRAKE_MID then return end
+	local HAVE_NETHER_DRAKE
+	local function addDrakeEscape()
+		local sn = C_Spell.GetSpellName(NETHER_DRAKE_SID)
+		local abSlot = sn and AB:GetActionSlot("mount", NETHER_DRAKE_MID)
+		if abSlot then
+			RW:SetCastEscapeAction(sn, abSlot, false)
+		end
+	end
+	local function checkDrake()
+		local _,_,_,_,_5, _,_,_,_,_0, isCollected = C_MountJournal.GetMountInfoByID(NETHER_DRAKE_MID)
+		HAVE_NETHER_DRAKE = not not isCollected
+		if HAVE_NETHER_DRAKE then
+			addDrakeEscape()
+		end
+		return "remove"
+	end
+	RW:SetSpellCastableChecker(NETHER_DRAKE_SID, function(_sid, context, _lax)
+		if HAVE_NETHER_DRAKE == nil then
+			checkDrake()
+		end
+		if not HAVE_NETHER_DRAKE then
+			return false, "q-nether-drake-uncold"
+		end
+		local isMountSummonAction = context == 2 or (type(context) == "number" and context % 4 > 1)
+		return isMountSummonAction, "q-nether-drake", not isMountSummonAction
+	end)
+	function EV:NEW_MOUNT_ADDED(mid)
+		if mid == NETHER_DRAKE_MID then
+			HAVE_NETHER_DRAKE = true
+			addDrakeEscape()
+		end
+		return HAVE_NETHER_DRAKE and "remove"
+	end
+	EV.PLAYER_ENTERING_WORLD = checkDrake
 end)

@@ -66,7 +66,8 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 	optionsScrollBar:SetScript("OnValueChanged", function(_, nv)
 		controlContainer:SetPoint("TOPLEFT", 0, nv)
 	end)
-	local sharedDrop = CreateFrame("Frame", "OPC_SharedDropDown", nil, "UIDropDownMenuTemplate")
+	local sharedDrop = XU:Create("DropDown")
+	sharedDrop.xOffset, sharedDrop.yOffset = -6, 6
 	sharedDrop:Hide()
 
 	local function onCheckboxClick(self, btn)
@@ -100,8 +101,10 @@ local widgetControl, optionControl = {}, {} do -- Widget construction
 		local menuInit = c.menuInitializer or c.menu and twofMenuInitializer
 		if menuInit then
 			config.ui.HideTooltip(self)
+			sharedDrop:ClearAllPoints()
+			sharedDrop:SetAllPoints(self)
 			sharedDrop.initialize, sharedDrop.owner = menuInit, self
-			ToggleDropDownMenu(1, nil, sharedDrop, self, -6, 6)
+			sharedDrop:Click()
 		end
 	end
 	local function onTwofRefresh(c, v)
