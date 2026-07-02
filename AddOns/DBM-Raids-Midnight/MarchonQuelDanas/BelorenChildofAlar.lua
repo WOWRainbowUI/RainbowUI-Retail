@@ -1,7 +1,7 @@
-local mod	= DBM:NewMod(2739, "DBM-Raids-Midnight", 1, 1308)
+local mod	= DBM:NewMod(2739, "DBM-Raids-Midnight", 2, 1308)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260525115723")
+mod:SetRevision("20260622201513")
 --mod:SetCreatureID()--No Data Yet, has 4 CIDs
 mod:SetEncounterID(3182)
 --mod:SetHotfixNoticeRev(20250823000000)

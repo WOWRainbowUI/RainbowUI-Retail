@@ -1,27 +1,35 @@
 # DBM - Core
 
-## [12.0.52](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.52) (2026-05-27)
-[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.51...12.0.52) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
+## [12.0.54](https://github.com/DeadlyBossMods/DeadlyBossMods/tree/12.0.54) (2026-06-26)
+[Full Changelog](https://github.com/DeadlyBossMods/DeadlyBossMods/compare/12.0.53...12.0.54) [Previous Releases](https://github.com/DeadlyBossMods/DeadlyBossMods/releases)
 
+- Update RU locale (#2122)  
+- Update koKR (#2120)  
+    Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
+    Co-authored-by: anon1231823 <67269448+anon1231823@users.noreply.github.com>  
 - prep new tag  
-- Update translation (#2110)  
-- Improve option version validation  
-- Fix regression causing salad bar timers to all be missing. eventState isn't sent by ADDED payload anymore so a recent filter I added didn't quite work  
-- Update translation (#2107)  
-- Tighten timer variances to eliminate more false collisions on dragons mythic  
-- Fix regressed lua error from no nil check. status == 3 was both a number check AND a nil check, but status >= 2 is only a numeric check that lost the nil check. Lua semantics 🤣  
-- handle light and dark feather custom sounds differently so they always play  
-- Update Translations / Sort CL keys alphabetical order (#2105)  
-- Update koKR (#2103)  
-- Update RU locales (#2104)  
-- make threat check more likley to succeed on retail  
-- modify skipped globals  
-- Improve keystone slash register so it waits for other addons to load after DBM before checking if /key commands have been registered by someone else.  
-    In addition, also added an option that's off by default if user wants to intentionally overrite another addons slash commands (especially ones that do not give user an opt out of overriding)  
-- use more robust caching of boss HP to try and fix https://github.com/DeadlyBossMods/DeadlyBossMods/issues/2102  
-- Some rename tweaks  
-- Switch light/void dive back to private aura. trying to use the blizz warning text isn't clean because they happen at same time (therefor cannot cleanly be disambiguated)  
-- Begin next phase of rename api rollout. (#2100)  
-- Fix checkout misbehaving  
-- Fix extra space in version messages  
-- bump alpha  
+- Push finished The Coiled Altar  
+- Midnight season 2 dungeons support.  
+- Add new mythic ability to twin fangs  
+- Fully upgrade Nekzali to hardcoded module  
+- Fix guild combat messages reporting mythic flex as normal  
+- Add guard against leaving fight mid encounter that would result in blizzard sending empty boss HP data since you aren't present to recieve it (but still getting an ENCOUNTER\_END event)  
+- And add Twin Fangs as well  
+- Add Sszorak as well  
+- Add Vashnik to completed mods  
+- Add Venomous Abyss Raid module  
+     - Thursdays test bosses already completed: Nek'zali the Soulcoiler, Entombed Sentinels, The Lost Explorers  
+     - Fridays bosses still WIP and will be completed by Wed night.  
+- Add preliminary Nymrissa Wavecaller module  
+- also throw some default renames at rotmire while at it  
+- Fix bug  
+- Fix missed stuff  
+- begin work to split out lair bosses to own category since we'll likely get two per tier. one launching as a "world boss" and one in a .7 patch cycle. we'll deprecate out world bosses in name on retail by last titan.  
+- adjust zone order now that sporefall is out.  
+- somehow got left out of commit  
+- Large data update for midnight difficulties and zones  
+    Fix bug causing brez timer not showing in sporefall raid  
+- Add Sporefall to difficulties table.  
+- Fix/autohide infoframe (#2118)  
+    Co-authored-by: Adam <MysticalOS@users.noreply.github.com>  
+- add taunt swap warning to rotmire  

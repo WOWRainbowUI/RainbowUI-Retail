@@ -1,7 +1,7 @@
-local mod	= DBM:NewMod(2733, "DBM-Raids-Midnight", 3, 1307)
+local mod	= DBM:NewMod(2733, "DBM-Raids-Midnight", 4, 1307)
 --local L		= mod:GetLocalizedStrings()--Nothing to localize for blank mods
 
-mod:SetRevision("20260524022057")
+mod:SetRevision("20260622201513")
 mod:SetCreatureID(240435)
 mod:SetEncounterID(3176)
 --mod:SetHotfixNoticeRev(20250823000000)
@@ -119,7 +119,7 @@ do
 			--Blizzard starts two shadows advance on pull, it's only time 84 exists
 			--We need to deal with special count handling to work around this quirk
 			--Timers passed as string with "d" in front of them to flag allowdouble as true
-			if timer == 84 then--First 72 is actually an 84 but has same bug as 72s
+			if timer == 84 then--First 84 is actually an 72 started 12 seconds early (at same time as the 12). Has same bug as normal 72s
 				--Increment count by 1 since it'll start in parallel to the initial 12 second bar
 				timerShadowsAdvanceCD:TLStart(84, eventID, self:TLCountStart(eventID, "shadow", "shadowCount") + 1)
 				if not timerUmbralCollapseCD:IsBuggedEventID(eventID) then

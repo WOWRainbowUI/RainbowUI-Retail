@@ -1,7 +1,7 @@
-local mod	= DBM:NewMod(2737, "DBM-Raids-Midnight", 3, 1307)
+local mod	= DBM:NewMod(2737, "DBM-Raids-Midnight", 4, 1307)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20260524002101")
+mod:SetRevision("20260622201513")
 mod:SetCreatureID(250589)--War Chaplain Senn main boss, 250588 Commander Venel Lightblood, 250587 general Amias Bellamy
 mod:SetEncounterID(3180)
 --mod:SetHotfixNoticeRev(20250823000000)
